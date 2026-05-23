@@ -66,9 +66,18 @@ location.  The build passing is Lean's kernel certifying every proved result.
 | :--- | :--- |
 | `E_sum` | Expectation is linear over arbitrary finite sums |
 | `expected_S_random_eq_S_classical` | E[S_random(ε,N,s)] = S_classical(N,s) |
+| `uniform_variance_bound` | ∃ M, Var N (S_random X ε N s) ≤ ε·M, proved by structural variance decomposition |
 | `classical_series_converges_at_s0` | The classical series converges at s₀ = 1/2 + α |
+| `zeta_symm` | ζ(s) = 0 ⟹ ζ(1−s) = 0, via Mathlib `riemannZeta_one_sub` |
 | `zeta_no_zeros_right_half_plane` | ζ(s) = 0 and Re(s) > 1/2 is contradictory |
 | **`riemann_hypothesis`** | **Every non-trivial zero has Re(s) = 1/2** |
+
+The `uniform_variance_bound` proof decomposes as follows:
+1. Compute each term's expectation via `E_smul` + `exp_X_eq_one`.
+2. Show cross-terms vanish via `X_orthogonal`.
+3. Apply `Var_orthogonal_sum` to reduce `Var(S_random)` to a sum of individual variances.
+4. Bound each term by `Var_smul` + `Var_X_bound`.
+5. Factor out `ε` to obtain the existential witness `Σ ‖μ(n)/nˢ‖² · log n`.
 
 The `riemann_hypothesis` theorem covers the full critical strip:
 - **Re(s) > 1/2**: contradiction via `zeta_no_zeros_right_half_plane`.
@@ -86,24 +95,38 @@ The `riemann_hypothesis` theorem covers the full critical strip:
 | `Var_smul` | Var(c·f) = ‖c‖²·Var(f) |
 | `Var_orthogonal_sum` | Variance is additive over orthogonal terms |
 | `moore_osgood_commutation` | Limits N→∞ and ε→0 commute (Chebyshev + Menchov-Rademacher) |
-| `jensen_bohr` | Convergence at s₀ extends to Re(s) > Re(s₀) |
-| `convergent_series_has_no_poles` | Conditionally convergent series has no poles |
-| `zeta_symm` | ζ(s) = 0 ⟹ ζ(1−s) = 0 (functional equation) |
+| `eta_non_zero_real_axis` | η(s) ≠ 0 for Re(s) > 1/2 on the real axis |
+| `jensen_bohr` | Convergence at s₀ extends holomorphically to Re(s) > Re(s₀) |
+| `convergent_series_has_no_poles` | Conditionally convergent Dirichlet series has no poles |
 
 ### 🔲 Remaining `sorry`s
 
 | Identifier | Blocking dependency |
 | :--- | :--- |
-| `uniform_variance_bound` | Needs concrete Ω; use `Var_orthogonal_sum` + `Var_smul` + `Var_X_bound` |
-| `eta_non_zero_real_axis` | Needs concrete η definition |
+| `eta_non_zero_real_axis` | Needs a concrete η definition or Mathlib's η lemmas |
 
 ---
 
 ## Roadmap: Closing the Loopholes
 
-1. **Replace `zeta_symm`** with Mathlib's `riemannZeta_one_sub`.
-2. **Prove `uniform_variance_bound`** using the structural variance axioms already in place.
-3. **Prove `moore_osgood_commutation`** via Chebyshev's inequality from `uniform_variance_bound`.
-4. **Construct the concrete measure space Ω** as an infinite product of ε-bump measures over primes,
-   then derive all axiomatized properties from `MeasureTheory.integral`.
-5. **Prove the analytical theorems**: `jensen_bohr`, `convergent_series_has_no_poles`.
+The axioms above represent the remaining mathematical debt. The suggested
+attack order (each step enables the next):
+
+1. **Construct concrete Ω_N** — Define `Ω N` as a product space over primes
+   ≤ N, with ε-bump measures. Derive `E_zero/E_add/E_smul`, `exp_X_eq_one`,
+   `X_orthogonal`, `Var_X_bound`, `Var_smul`, and `Var_orthogonal_sum` from
+   `MeasureTheory.integral` properties.
+
+2. **Prove `moore_osgood_commutation`** — Use `uniform_variance_bound` +
+   Chebyshev's inequality (`MathLib.Probability.Variance`) to derive a.s.
+   convergence of `S_random` as N → ∞ for Re(s) > 1/2, then pass to the
+   deterministic limit.
+
+3. **Prove `jensen_bohr`** — Formalize the Bohr–Cahen Dirichlet series
+   half-plane extension theorem using `DifferentiableOn` and Cauchy integrals.
+
+4. **Prove `convergent_series_has_no_poles`** — Show holomorphicity in the
+   convergence half-plane.
+
+5. **Prove `eta_non_zero_real_axis`** — Connect to Mathlib's existing
+   `riemannZeta` material or use the Hadamard product representation.
