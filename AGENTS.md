@@ -67,34 +67,42 @@ lake build
 
 Work through the remaining items in this order (each unlocks the next):
 
-1. **Construct concrete Ω_N** — This is the master unlock. Define `Ω N` as
-   `∀ p : {p : ℕ // p.Prime ∧ p ≤ N}, ℝ` with the product ε-bump measure.
-   Then prove `E_zero`/`E_add`/`E_smul`/`exp_X_eq_one`/`X_orthogonal`/
-   `Var_X_bound`/`Var_smul`/`Var_orthogonal_sum` from
-   `MeasureTheory.integral` properties.
-   ```lean
-   -- Sketch:
-   noncomputable def Ω (N : ℕ) := ∀ p : {p : ℕ // p.Prime ∧ p ≤ N}, ℝ
-   -- Then equip with MeasureSpace using MeasureTheory.Measure.pi
-   ```
+1. **Construct concrete Ω_N** — The master unlock.
+   - **Known blocker**: `inferInstance` for `MeasureSpace (Fin (N+1) → ℝ)` causes
+     Lean to hang indefinitely during typeclass synthesis. Use an explicit
+     `MeasureSpace` instance instead:
+     ```lean
+     noncomputable instance (N : ℕ) : MeasureSpace (Fin (N+1) → ℝ) :=
+       { volume := MeasureTheory.Measure.pi (fun _ ↦ MeasureTheory.Measure.restrict
+           MeasureTheory.Measure.lebesgue (Set.Icc (1 - Real.sqrt ε) (1 + Real.sqrt ε))) }
+     ```
+   - Then prove `E_zero`/`E_add`/`E_smul` from `integral_zero`, `integral_add`
+     (add `Integrable` hypotheses), and `integral_const_mul`.
+   - Prove `exp_X_eq_one` from normalization of the ε-bump measure.
+   - Prove `X_orthogonal` from `MeasureTheory.IndepFun` for product measures.
+   - Prove `Var_X_bound` from the second moment of the bump distribution.
 
 2. **`moore_osgood_commutation`** — Use `uniform_variance_bound` together with
    Chebyshev's inequality from `MathLib.Probability.Variance` to derive a.s.
    convergence of `S_random` as N → ∞ for Re(s) > 1/2, then pass to the
    deterministic limit `S_classical`.
 
-3. **`eta_non_zero_real_axis`** — Remove the `sorry`. Either:
-   - Connect to Mathlib's `riemannZeta` material via the relation
-     `η(s) = (1 - 2^(1-s)) * ζ(s)` and the known non-vanishing of `(1 - 2^(1-s))`
-     on the real axis, or
-   - Provide a direct Dirichlet-series absolute-convergence argument for real s > 1/2.
+3. **`eta_non_zero_real_axis`** — Remove the `sorry`. Two-step proof:
+   - Show `1 − 2^(1−s) ≠ 0` when `α ≠ 1/2` (i.e. `s ≠ 1`), using
+     `Complex.cpow_ne_one_iff` or explicit real-part calculation.
+   - Show `riemannZeta s ≠ 0` for real `s ∈ (1/2, ∞) \ {1}`:
+     for `s > 1` use the Euler product; for `1/2 < s < 1` use the
+     alternating-series argument for `dirichletEta` directly.
+   - **Note**: the theorem carries `(hα_ne : α ≠ 1/2)` to avoid the Mathlib
+     convention `riemannZeta 1 = 0` (which would make `dirichletEta 1 = 0`).
 
-4. **`jensen_bohr`** — Formalize the Bohr–Cahen theorem: convergence of a
-   Dirichlet series at s₀ implies holomorphic continuation to Re(s) > Re(s₀).
-   Use `DifferentiableOn` + Cauchy integrals from Mathlib.
+4. **`jensen_bohr`** — Formalize the Bohr–Cahen theorem via summation by parts:
+   if `Σ μ(n)/n^s₀` converges, then `Σ μ(n)/n^s` converges for Re(s) > Re(s₀).
+   Use `Finset.sum_summation_by_parts` (Abel summation) in Mathlib.
 
 5. **`convergent_series_has_no_poles`** — Prove holomorphicity of the limit
-   function in the half-plane of convergence.
+   function in the half-plane of convergence. Use uniform convergence +
+   `Complex.differentiableOn_tsum` or a Cauchy integral argument.
 
 ---
 
