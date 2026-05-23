@@ -21,8 +21,14 @@ finite-dimensional probabilistic regularization proof of the Riemann Hypothesis
   proved via `moore_osgood_commutation`).
 - **Main RH Theorem Structure**: **Verified** (`riemann_hypothesis` fully proved
   for the critical strip 0 < Re(s) < 1).
-- **Loopholes & Postulates**: **Remaining** (Represented by `axiom` tags to be
-  resolved in future iterations; see below).
+- **Concrete η function**: **Completed** (`dirichletEta` defined as
+  `(1 − 2^(1−s)) * riemannZeta s`; renamed from `eta` to avoid collision
+  with `Complex.eta` in Mathlib).
+- **Soundness Fix**: **Completed** (`eta_non_zero_real_axis` converted from a
+  potentially-false `axiom` to a `sorry`-theorem with side-condition `α ≠ 1/2`,
+  avoiding inconsistency from the Mathlib convention `riemannZeta 1 = 0`).
+- **Loopholes & Postulates**: **Remaining** (Represented by `axiom` / `sorry`
+  tags to be resolved in future iterations; see below).
 
 ---
 
@@ -65,22 +71,29 @@ finite-dimensional probabilistic regularization proof of the Riemann Hypothesis
 ## Remaining Postulates & Future Work (Closing the Loopholes)
 
 The following analytical and probabilistic postulates are modeled as `axiom`
-declarations. Each one must be replaced by a concrete Lean 4 proof to produce
-a fully self-contained formalization.
+declarations or `sorry` theorems. Each one must be replaced by a concrete Lean 4
+proof to produce a fully self-contained formalization.
 
 ### Priority 1 — Concrete Probability Space
 
 **Goal**: Replace the abstract `variable (E Var X)` with a concrete measure
 space and derive all axioms from `MeasureTheory.integral`.
 
-1. Define `Ω N := ∀ p : {p : ℕ // p.Prime ∧ p ≤ N}, ℝ` with the product of
-   ε-bump measures centered at 1.
-2. Define `E N f := ∫ ω, f ω ∂μ_N` (Bochner integral).
-3. Prove `E_zero`, `E_add`, `E_smul` from `MeasureTheory.integral_*` lemmas.
-4. Prove `exp_X_eq_one` from the normalization of the bump measure.
-5. Prove `X_orthogonal` from statistical independence of prime coordinates.
-6. Prove `Var_X_bound` from the second moment of the bump distribution.
-7. Prove `Var_smul` and `Var_orthogonal_sum` from standard variance identities.
+> [!WARNING]
+> The concrete `Ω N = Fin (N + 1) → ℝ` definition causes Lean's typeclass
+> synthesizer to hang indefinitely when building `RiemannProof.Basic`. The
+> product `MeasureSpace` instance is not found quickly enough. Until this is
+> resolved, `Ω`, `E`, `Var`, `X` remain abstract section variables.
+
+**Path forward**:
+1. Use `Measure.pi` with an explicitly provided measure family to define the
+   product probability measure without relying on `inferInstance`.
+2. Prove `E_zero`, `E_add`, `E_smul` from Mathlib's `integral_zero`,
+   `integral_add` (with integrability hypotheses), `integral_const_mul`.
+3. Prove `exp_X_eq_one` from normalization of a bump measure.
+4. Prove `X_orthogonal` from independence of prime coordinates.
+5. Prove `Var_X_bound` from the second moment of the bump distribution.
+6. Prove `Var_smul` and `Var_orthogonal_sum` from standard variance identities.
 
 ### Priority 2 — Moore–Osgood Commutation
 
@@ -96,12 +109,28 @@ space and derive all axioms from `MeasureTheory.integral`.
 ### Priority 3 — Analytical Theorems
 
 - **`eta_non_zero_real_axis`**: Prove that the Dirichlet η function is non-zero
-  on the real axis Re(s) > 1/2. Reference: absolute convergence + integral
-  representation from Mathlib's `riemannZeta` material.
-- **`jensen_bohr`**: Prove that convergence of a Dirichlet series at one point
-  implies holomorphic continuation to the right half-plane (Bohr–Cahen theorem).
-  A Mathlib-compatible path: use `DifferentiableOn` and the Cauchy integral
-  formula for Dirichlet series.
-- **`convergent_series_has_no_poles`**: Prove that a conditionally convergent
-  Dirichlet series defines a holomorphic (pole-free) function in its half-plane
-  of convergence.
+  on the real axis Re(s) > 1/2, s ≠ 1. Two-step proof:
+  1. Show `1 − 2^(1−s) ≠ 0` when `s ≠ 1` (since `2^(1−s) = 1` iff `s = 1`).
+  2. Show `riemannZeta s ≠ 0` for real `s ∈ (1/2, ∞) \ {1}`:
+     - For `s > 1`: use the Euler product (Mathlib's `riemannZeta_eulerProduct`).
+     - For `1/2 < s < 1`: use the alternating-series positivity of η(s) and
+       the relation `η(s) = (1 − 2^(1−s)) ζ(s)`.
+
+  > [!NOTE]
+  > The Mathlib convention `riemannZeta 1 = 0` makes the product formula
+  > `dirichletEta 1 = 0 * 0 = 0` incorrect (mathematically η(1) = ln 2).
+  > The theorem carries the side-condition `α ≠ 1/2` (i.e. `s ≠ 1`) to avoid
+  > this. The theorem is currently `sorry`-admitted, not a false `axiom`.
+
+- **`jensen_bohr`**: Prove the Bohr–Cahen theorem: convergence of a Dirichlet
+  series at one point implies convergence in the right half-plane.
+  Proof path: summation by parts (Abel–Dirichlet test) shows that if
+  `Σ μ(n)/n^s₀` converges then `n^(s₀−s) → 0` makes `Σ μ(n)/n^s` converge
+  for Re(s) > Re(s₀). In Lean: use `Finset.sum_summation_by_parts` or
+  `MathLib.Analysis.SumIntegralComparisons`.
+
+- **`convergent_series_has_no_poles`**: Prove holomorphicity of the limit
+  function in the half-plane of convergence. A Dirichlet series convergent
+  in a half-plane defines a holomorphic function there (no poles ⇒ the
+  reciprocal `1/ζ(s)` is non-zero). Use Mathlib's `DifferentiableOn` and
+  the uniform-convergence-implies-holomorphic theorems.

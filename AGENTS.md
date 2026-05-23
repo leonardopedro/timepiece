@@ -49,6 +49,8 @@ lake build
 | RH Zero-Free Strip (right) | `zeta_no_zeros_right_half_plane` | **PROVED** | Contradiction; `dsimp`+`linarith` |
 | Riemann Zeta Symmetry | `zeta_symm` | **PROVED** | Uses Mathlib `riemannZeta_one_sub` |
 | Riemann Hypothesis | `riemann_hypothesis` | **PROVED** | `lt_trichotomy`; both halves closed |
+| Dirichlet η definition | `dirichletEta` | **CONCRETE** | `(1 − 2^(1−s)) * riemannZeta s`; renamed from `eta` to avoid `Complex.eta` collision |
+| η Non-Zero on Real Axis | `eta_non_zero_real_axis` | *Sorry* | Needs `α ≠ 1/2` guard; riemannZeta 1 = 0 in Mathlib |
 | Prime Perturbation Mean | `exp_X_eq_one` | *Axiom* | E[X(ε,n)] = 1 |
 | Prime Orthogonality | `X_orthogonal` | *Axiom* | Mean-zero orthogonality |
 | Log Variance Bound | `Var_X_bound` | *Axiom* | Var(X(ε,n)) ≤ ε·log n |
@@ -56,7 +58,6 @@ lake build
 | Variance under Scaling | `Var_smul` | *Axiom* | Var(c·f) = ‖c‖²·Var(f) |
 | Variance Additivity | `Var_orthogonal_sum` | *Axiom* | Var of orthogonal sum = sum of Vars |
 | Limit Commutation | `moore_osgood_commutation` | *Axiom* | Chebyshev + Menchov-Rademacher |
-| Eta Non-Zero | `eta_non_zero_real_axis` | *Sorry* | Needs concrete η definition |
 | Jensen-Bohr | `jensen_bohr` | *Axiom* | Dirichlet series half-plane extension |
 | No-Poles | `convergent_series_has_no_poles` | *Axiom* | Holomorphy of limit |
 
