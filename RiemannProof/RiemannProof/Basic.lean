@@ -193,7 +193,37 @@ noncomputable def dirichletEta (s : ℂ) : ℂ := (1 - (2 : ℂ) ^ (1 - s)) * ri
 -- riemannZeta s ≠ 0 (Euler product for s > 1; alternating-series positivity for
 -- 1/2 < s < 1).
 theorem eta_non_zero_real_axis (α : ℝ) (hα : α > 0) (hα_ne : α ≠ 1 / 2) :
-    dirichletEta ⟨1 / 2 + α, 0⟩ ≠ 0 := by sorry
+    dirichletEta ⟨1 / 2 + α, 0⟩ ≠ 0 := by
+  unfold dirichletEta
+  apply mul_ne_zero
+  · -- Factor 1: 1 − (2:ℂ)^(1−s) ≠ 0,  i.e.  (2:ℂ)^(1−s) ≠ 1.
+    -- For s = ⟨1/2+α, 0⟩:  1 − s = ⟨1/2−α, 0⟩  (purely real).
+    simp only [sub_ne_zero]
+    have h1s : (1 : ℂ) - ⟨1 / 2 + α, 0⟩ = ((1 / 2 - α : ℝ) : ℂ) := by
+      apply Complex.ext <;> simp <;> linarith
+    rw [h1s]
+    have h2_eq : (2 : ℂ) = ((2 : ℝ) : ℂ) := by simp
+    rw [h2_eq]
+    -- Rewrite (2:ℂ)^(r:ℂ)  as  ↑((2:ℝ)^r)  for r : ℝ, using 2 ≥ 0.
+    rw [← Complex.ofReal_cpow (by norm_num : (0 : ℝ) ≤ 2)]
+    -- Reduce to the real claim (2:ℝ)^(1/2−α) ≠ 1.
+    norm_cast
+    have h2 : (1 : ℝ) < 2 := by norm_num
+    rcases ne_iff_lt_or_gt.mp hα_ne with hlt | hgt
+    · -- α < 1/2 → exponent 1/2−α > 0 → 2^(1/2−α) > 2^0 = 1
+      have h := Real.rpow_lt_rpow_of_exponent_lt h2 (show (0 : ℝ) < 1 / 2 - α by linarith)
+      rw [Real.rpow_zero] at h
+      exact h.ne
+    · -- α > 1/2 → exponent 1/2−α < 0 → 2^(1/2−α) < 2^0 = 1
+      have h := Real.rpow_lt_rpow_of_exponent_lt h2 (show 1 / 2 - α < (0 : ℝ) by linarith)
+      rw [Real.rpow_zero] at h
+      exact h.ne'
+  · -- Factor 2: riemannZeta ⟨1/2+α, 0⟩ ≠ 0.
+    -- For α > 1/2 (s.re > 1): follows from the Euler product / Dirichlet series positivity.
+    -- For 0 < α < 1/2 (1/2 < s.re < 1): follows from alternating-series positivity of η.
+    -- Both sub-cases remain as proof obligations pending Mathlib API investigation.
+    sorry
+
 
 theorem classical_series_converges_at_s0 (α : ℝ) (hα : α > 0) :
     ∃ L : ℂ, Tendsto (fun N ↦ S_classical N ⟨1 / 2 + α, 0⟩) atTop (𝓝 L) :=
