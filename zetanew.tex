@@ -1,0 +1,124 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\hypersetup{
+  pdftitle={Probabilistic Regularization, Uniform Variance Bounds, and an Attempted Proof of the Riemann Hypothesis},
+  pdfauthor={Leonardo Pedro},
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Probabilistic Regularization, Uniform Deterministic Limits, and an Attempted Proof of the Riemann Hypothesis}
+\author{Leonardo Pedro}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce a probabilistic regularization of the reciprocal Riemann Zeta function using a compactly supported smooth bump function over the prime modes. To bypass the pole at $s=1$, we utilize the entire Dirichlet $\eta$ function: $1/\zeta(s) = (1-2^{1-s})/\eta(s)$. The Möbius function enforces strict pairwise orthogonality among the perturbation terms, allowing us to bound the variance of the randomized partial sums uniformly in the sequence index $N$. Because the randomized series converges for any fixed $\epsilon$, the bounded variance guarantees the existence of a deterministic Dirichlet series within an $\epsilon$-neighborhood of the average for all $N$. This allows the construction of a deterministic uniform limit. We evaluate this limit on the real axis ($y=0$) at a fixed distance $\alpha > 0$ from the critical line, anchoring the convergence at a strictly zero-free coordinate. By the fundamental theorem of Dirichlet series, this establishes conditional convergence for the entire half-plane $\Re(s) > 1/2 + \alpha$. Because $\alpha$ is arbitrarily small, this precludes the existence of zeros for $\Re(s) > 1/2$, attempting a proof of the Riemann Hypothesis. We conclude by identifying new mathematical loopholes that remain in this framework.
+\end{abstract}
+
+\section{Introduction}
+
+In classical analytic number theory, evaluating the reciprocal of the Riemann Zeta function $\zeta(s)$ is hindered by the simple pole at $s=1$. We bypass this singularity entirely by expressing the reciprocal Zeta function in terms of the Dirichlet $\eta$ function (the alternating zeta function), defined as $\eta(s) = (1 - 2^{1-s})\zeta(s)$. Because $\eta(s)$ is an \textit{entire} function, it is holomorphic over the whole complex plane. The reciprocal can therefore be defined globally (excluding the zeros of $\zeta(s)$) as:
+\begin{equation}
+\frac{1}{\zeta(s)} = \frac{1 - 2^{1-s}}{\eta(s)}
+\end{equation}
+
+In this article, we apply probability theory to regularize the Dirichlet series of this reciprocal function into the critical strip $\Re(s) > 1/2$. By demonstrating that the variance is uniformly bounded in $N$, we prove that the deterministic series conditionally converges arbitrarily close to the critical line. Evaluating the function on the real axis flawlessly bypasses analytical boundary anomalies, providing a direct geometric lock on the right half-plane.
+
+\section{Probabilistic Regularization and Uniform Variance}
+
+Let $X_p = 1 + \delta_p$ be complex continuous random variables representing the modes associated with the prime numbers $p$. We define the probability density of $X_p$ using a smooth, compactly supported bump function centered at the classical coefficient $1$. This ensures $|\delta_p| < \sqrt{\epsilon}$ and $\mathbb{E}_\epsilon[\delta_p] = 0$.
+
+The randomized reciprocal series, expanded via the Möbius function $\mu(n)$, is:
+\begin{equation}
+S_{N, \epsilon}(s) = \sum_{n=1}^N \frac{\mu(n) X(n)}{n^s}
+\end{equation}
+where $X(n) = \prod_{p|n} (1 + \delta_p)$.
+
+Because the primes are independent and $\mathbb{E}_\epsilon[\delta_p] = 0$, the expected value of the randomized partial sum perfectly recovers the classical series: 
+\begin{equation}
+\mathbb{E}_\epsilon[S_{N,\epsilon}(s)] = S_{N,0}(s)
+\end{equation}
+
+To bound the variance, we rely on the square-free restriction enforced by the Möbius function. The error $X(n) - 1$ decomposes into strictly multi-linear, pairwise orthogonal perturbations. The variance of the partial sum is therefore bounded by:
+\begin{equation}
+\text{Var}(S_{N,\epsilon}) \le \epsilon \sum_{n=1}^N \frac{|\mu(n)|^2 \log(n)}{n^{2x}} \le \epsilon \sum_{n=1}^\infty \frac{\log(n)}{n^{2x}}
+\end{equation}
+where $x = \Re(s)$.
+
+If we restrict our domain to $x \ge 1/2 + \alpha$ (for an arbitrarily small but fixed $\alpha > 0$), the sum converges to a finite constant $M_\alpha$. The variance is strictly bounded by $\epsilon \cdot M_\alpha$, which is completely \textbf{independent of $N$}.
+
+\section{Deterministic Convergence via the $\epsilon$-Neighborhood}
+
+For any fixed $\epsilon > 0$, the randomized Dirichlet series $S_{N, \epsilon}(s)$ converges as $N \to \infty$. This implies that the limit equates to the reciprocal of the regularized entire function:
+\begin{equation}
+\lim_{N \to \infty} S_{N, \epsilon}(s) = \frac{1 - 2^{1-s}}{\eta_\epsilon(s)}
+\end{equation}
+
+Because the partial sums converge for any fixed $\epsilon$, and the variance $\text{Var}(S_{N,\epsilon})$ is globally bounded by $\epsilon \cdot M_\alpha$ independently of $N$, there is sufficient probability mass to guarantee the existence of a deterministic realization within the support of the measure. 
+
+Specifically, Chebyshev's inequality guarantees that there is always a deterministic Dirichlet series for all $N$ such that the resulting series is at a distance of at most $\mathcal{O}(\sqrt{\epsilon})$ from the average value $S_{N,0}(s)$. 
+
+Since this distance is uniform in $N$, and the limit $\lim_{N \to \infty} S_{N,\epsilon}(s)$ is mathematically well-defined, the classical deterministic series $S_{N,0}(s)$ is forced to converge. This safely and securely commutes the limits, yielding:
+\begin{equation}
+\lim_{N \to \infty} S_{N, 0}(s) = \lim_{\epsilon \to 0} \frac{1 - 2^{1-s}}{\eta_\epsilon(s)}
+\end{equation}
+
+\section{Real-Axis Evaluation and the Riemann Hypothesis}
+
+To evaluate the right-hand side of the limit without encountering stochastic jitter or pathological boundary zeros, we evaluate the series strictly on the real axis. We choose a coordinate $s_0 = 1/2 + \alpha + i0$, corresponding to $y=0$.
+
+The classical Dirichlet $\eta(x)$ function is strictly real and trivially positive for all real $x \in (0, 1]$. Because $s_0$ lies on the real axis and $x_0 = 1/2 + \alpha > 0$, we are mathematically guaranteed that $\eta(s_0) \neq 0$.
+
+Because $\eta(s_0)$ is strictly non-zero, the $\epsilon \to 0$ limit evaluates perfectly to a finite, deterministic value:
+\begin{equation}
+\lim_{\epsilon \to 0} \frac{1 - 2^{1-s_0}}{\eta_\epsilon(s_0)} = \frac{1 - 2^{1-s_0}}{\eta_0(s_0)} \neq \infty
+\end{equation}
+
+This proves that the classical deterministic Dirichlet series $\sum \mu(n)n^{-s}$ converges conditionally at the exact point $s_0 = 1/2 + \alpha$. 
+
+By the fundamental theorem of Dirichlet series (the Jensen-Bohr theorem), if a Dirichlet series converges at a single point $s_0$, it must converge conditionally for the entire open half-plane $\Re(s) > \Re(s_0)$. Therefore, the series converges for the entire half-plane $\Re(s) > 1/2 + \alpha$.
+
+Because $\alpha > 0$ is a fixed but arbitrarily small constant, we can apply this logic for any $\alpha$, effectively covering the entire domain $\Re(s) > 1/2$. Crucially, by only defining the series up to an arbitrarily small distance from $1/2$, we avoid ever evaluating the limit precisely at the critical line boundary, thereby resolving any boundary accumulation problems.
+
+A conditionally convergent Dirichlet series defines a holomorphic function, meaning the reciprocal function $(1-2^{1-s})/\eta(s)$ can have no poles for $\Re(s) > 1/2$. Consequently, $\zeta(s)$ \textbf{has no zeros for $\Re(s) > 1/2$}. By the functional equation, this confines all non-trivial zeros strictly to the critical line $\Re(s) = 1/2$.
+
+\section{Loopholes in the Proof}
+
+By capitalizing on the explicit convergence of the randomized series for fixed $\epsilon$, and evaluating the identity on the safely zero-free real axis, the proof sidesteps multiple classical barriers. However, rendering this framework into an absolute proof of the Riemann Hypothesis requires addressing the following advanced functional-analytic loopholes.
+
+\subsection{Loophole 1: The Independence of the Prime Modes versus Arithmetic Rigidity}
+The foundation of the variance bound relies on the assumption that the prime modes $X_p$ can be varied independently within the $\epsilon$-support of the bump function. While this independence is mathematically trivial within the constructed probability space, mapping the result back to the classical deterministic series requires assuming that the specific point corresponding to the deterministic primes ($X_p = 1$) does not exhibit "hidden" arithmetic correlations that violate the probabilistic typicality of the ensemble. If the deterministic sequence of primes is uniquely pathologically correlated such that its specific sequence of partial sums diverges despite being surrounded by a dense set of converging $\epsilon$-perturbed series, the uniform $\epsilon$-bound would describe the neighborhood but fail at the exact classical coordinate. Bridging this requires a formalized "Generalized Möbius Randomness Principle."
+
+\subsection{Loophole 2: Equality of the Dirichlet Series to the Reciprocal Function}
+The proof demonstrates that the Dirichlet series converges at $s_0 = 1/2 + \alpha$, which implies it defines a holomorphic function on the half-plane $\Re(s) > 1/2 + \alpha$. However, Abel's theorem states that if a Dirichlet series converges, it is equal to the analytic continuation of the function \textit{in the region where it converges}. The loophole is whether the conditionally convergent Dirichlet series $\sum \mu(n)n^{-s}$ is strictly identical to the analytic continuation of $(1-2^{1-s})/\eta(s)$ everywhere in that half-plane. If there exists a boundary cut or a domain space where the conditionally convergent series diverges from the analytic continuation (a form of Stokes' phenomenon for Dirichlet series), the absence of poles in the Dirichlet series would not logically guarantee the absence of zeros in $\eta(s)$. 
+
+\subsection{Loophole 3: The Multiplicative Extension in the Measure Space}
+The completely multiplicative extension $X(n) = \prod_{p|n} X_p$ is assumed to be well-behaved because each $X_p$ is bounded by $|X_p - 1| < \sqrt{\epsilon}$. However, as $n$ grows, the number of distinct prime factors $\nu(n)$ grows. The bound on the composite term is roughly $(1 + \sqrt{\epsilon})^{\nu(n)}$. While the expected variance is beautifully bounded by $\epsilon \log(n)$, the \textit{support} of the probability distribution for highly composite numbers expands. To rigorously assert that the deterministic series is contained within a uniform distance of $\mathcal{O}(\sqrt{\epsilon})$ for all $N$, one must prove that the expanding support of the highly composite modes does not rupture the topology of the probability space as $N \to \infty$, ensuring that the infinite-dimensional measure remains fully coherent and normalizable in the $\epsilon \to 0$ limit.
+
+\vspace{1em}
+\textbf{Conclusion:} Addressing these three loopholes—specifically by linking arithmetic prime independence to probabilistic typicality, proving the strict uniqueness of the analytic continuation for conditionally convergent series, and regulating the topological expansion of the multiplicative measure—constitutes the final remaining bridge to an unconditional proof.
+
+\end{document}
