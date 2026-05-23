@@ -44,21 +44,21 @@ lake build
 | :--- | :--- | :---: | :--- |
 | Finite Sum Linearity | `E_sum` | **PROVED** | `Finset.induction_on` + `classical` |
 | Expectation Equivalence | `expected_S_random_eq_S_classical` | **PROVED** | Unfolds sums, uses linearity axioms |
+| Uniform Variance Bound | `uniform_variance_bound` | **PROVED** | `Var_orthogonal_sum` → `Var_smul` → `Var_X_bound`; explicit `E` parameter |
 | Convergence at s₀ | `classical_series_converges_at_s0` | **PROVED** | Term-mode via `moore_osgood_commutation` |
 | RH Zero-Free Strip (right) | `zeta_no_zeros_right_half_plane` | **PROVED** | Contradiction; `dsimp`+`linarith` |
+| Riemann Zeta Symmetry | `zeta_symm` | **PROVED** | Uses Mathlib `riemannZeta_one_sub` |
 | Riemann Hypothesis | `riemann_hypothesis` | **PROVED** | `lt_trichotomy`; both halves closed |
-| Prime Perturbation Mean | `exp_X_eq_one` | *Axiom* | $\mathbb{E}[X(\epsilon,n)] = 1$ |
+| Prime Perturbation Mean | `exp_X_eq_one` | *Axiom* | E[X(ε,n)] = 1 |
 | Prime Orthogonality | `X_orthogonal` | *Axiom* | Mean-zero orthogonality |
-| Log Variance Bound | `Var_X_bound` | *Axiom* | $\text{Var}(X(\epsilon,n)) \le \epsilon\log n$ |
+| Log Variance Bound | `Var_X_bound` | *Axiom* | Var(X(ε,n)) ≤ ε·log n |
 | Linearity of Expectation | `E_zero`, `E_add`, `E_smul` | *Axiom* | Abstract operator properties |
-| Variance under Scaling | `Var_smul` | *Axiom* | $\text{Var}(c \cdot f) = \|c\|^2 \cdot \text{Var}(f)$ |
+| Variance under Scaling | `Var_smul` | *Axiom* | Var(c·f) = ‖c‖²·Var(f) |
 | Variance Additivity | `Var_orthogonal_sum` | *Axiom* | Var of orthogonal sum = sum of Vars |
-| Uniform Variance Bound | `uniform_variance_bound` | *Sorry* | Needs concrete measure space |
 | Limit Commutation | `moore_osgood_commutation` | *Axiom* | Chebyshev + Menchov-Rademacher |
 | Eta Non-Zero | `eta_non_zero_real_axis` | *Sorry* | Needs concrete η definition |
 | Jensen-Bohr | `jensen_bohr` | *Axiom* | Dirichlet series half-plane extension |
 | No-Poles | `convergent_series_has_no_poles` | *Axiom* | Holomorphy of limit |
-| Functional Equation | `zeta_symm` | *Axiom* | See Mathlib: `riemannZeta_one_sub` |
 
 ---
 
@@ -66,28 +66,34 @@ lake build
 
 Work through the remaining items in this order (each unlocks the next):
 
-1. **`zeta_symm`** — Replace with Mathlib's `riemannZeta_one_sub`. Signature:
+1. **Construct concrete Ω_N** — This is the master unlock. Define `Ω N` as
+   `∀ p : {p : ℕ // p.Prime ∧ p ≤ N}, ℝ` with the product ε-bump measure.
+   Then prove `E_zero`/`E_add`/`E_smul`/`exp_X_eq_one`/`X_orthogonal`/
+   `Var_X_bound`/`Var_smul`/`Var_orthogonal_sum` from
+   `MeasureTheory.integral` properties.
    ```lean
-   -- In Mathlib: Complex.riemannZeta_one_sub
-   -- (s : ℂ) : riemannZeta (1 - s) = ...
-   ```
-   Check the exact statement with `#check Complex.riemannZeta_one_sub`.
-
-2. **`uniform_variance_bound`** — Remove the `sorry` using the existing
-   `Var_orthogonal_sum` and `Var_smul` axioms:
-   ```lean
-   -- Goal after use ∑ n ∈ Icc 1 N, ‖μ n / n^s‖² * log n:
-   -- Rewrite S_random; apply Var_orthogonal_sum;
-   -- on each term apply Var_smul, then Var_X_bound.
+   -- Sketch:
+   noncomputable def Ω (N : ℕ) := ∀ p : {p : ℕ // p.Prime ∧ p ≤ N}, ℝ
+   -- Then equip with MeasureSpace using MeasureTheory.Measure.pi
    ```
 
-3. **`moore_osgood_commutation`** — Needs Chebyshev's inequality from
-   `MathLib.Probability.Variance` to derive a.s. convergence from
-   `uniform_variance_bound`.
+2. **`moore_osgood_commutation`** — Use `uniform_variance_bound` together with
+   Chebyshev's inequality from `MathLib.Probability.Variance` to derive a.s.
+   convergence of `S_random` as N → ∞ for Re(s) > 1/2, then pass to the
+   deterministic limit `S_classical`.
 
-4. **Concrete Ω** — Define `Ω` as `∀ p : Nat.Primes, ℝ` with the product
-   bump measure, then prove `E_zero`/`E_add`/`E_smul`/`Var_smul`/
-   `Var_orthogonal_sum` from `MeasureTheory.integral` properties.
+3. **`eta_non_zero_real_axis`** — Remove the `sorry`. Either:
+   - Connect to Mathlib's `riemannZeta` material via the relation
+     `η(s) = (1 - 2^(1-s)) * ζ(s)` and the known non-vanishing of `(1 - 2^(1-s))`
+     on the real axis, or
+   - Provide a direct Dirichlet-series absolute-convergence argument for real s > 1/2.
+
+4. **`jensen_bohr`** — Formalize the Bohr–Cahen theorem: convergence of a
+   Dirichlet series at s₀ implies holomorphic continuation to Re(s) > Re(s₀).
+   Use `DifferentiableOn` + Cauchy integrals from Mathlib.
+
+5. **`convergent_series_has_no_poles`** — Prove holomorphicity of the limit
+   function in the half-plane of convergence.
 
 ---
 
@@ -117,14 +123,20 @@ Work through the remaining items in this order (each unlocks the next):
    This prevents linter warnings about unused section variables in downstream
    theorems like `riemann_hypothesis`.
 
-5. **Term-mode vs. tactic-mode**:
+5. **Explicit `E` parameter in `uniform_variance_bound`**:
+   The lemma signature explicitly includes `(E : ∀ N, (Ω N → ℂ) → ℂ)` as a
+   parameter (in addition to the section variable). This is required so that
+   Lean 4 includes it in the elaborated type and the axiom calls (`E_smul`,
+   `exp_X_eq_one`, `X_orthogonal`) typecheck correctly inside the proof body.
+
+6. **Term-mode vs. tactic-mode**:
    When a proof is a direct application of an axiom to a side condition
    provable by `linarith`, prefer a clean term-mode proof:
    ```lean
    theorem foo : ... := someAxiom arg (by linarith)
    ```
 
-6. **Checking Mathlib identifiers**:
+7. **Checking Mathlib identifiers**:
    Before using a Mathlib lemma name in a `simp` call, verify it exists:
    ```bash
    lake env lean --stdin <<< '#check Complex.riemannZeta_one_sub'
