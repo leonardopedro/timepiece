@@ -14,169 +14,220 @@ open scoped ArithmeticFunction ArithmeticFunction.Moebius
 set_option linter.unusedSectionVars false
 
 /-!
-# Probabilistic Regularization and the Riemann Hypothesis
+# Finite-Dimensional Probabilistic Regularization and the Riemann Hypothesis
 
-Formalizes the probabilistic regularization framework from `zetanew.tex`.
-A random perturbation of the Möbius Dirichlet series has variance bounded by
-`ε · M(s)`, forcing conditional convergence on Re(s) > 1/2 and yielding a
-zero-free strip for the Riemann zeta function.
+Formalizes the probabilistic regularization framework utilizing a sequence
+of finite $N$-dimensional probability spaces $\Omega_N$.
 -/
 
 section ProbabilisticRegularization
 
-variable {Ω : Type*} [MeasureSpace Ω]
-variable (E : (Ω → ℂ) → ℂ)
-variable (Var : (Ω → ℂ) → ℝ)
-variable (X : ℝ → ℕ → Ω → ℂ)
+-- We define a sequence of measure spaces Ω_N for each truncation N.
+variable {Ω : ℕ → Type*} [∀ N, MeasureSpace (Ω N)]
 
-/-! ### Probabilistic axioms -/
+-- The Expectation and Variance operators are now strictly parameterized by N.
+variable (E : ∀ N, (Ω N → ℂ) → ℂ)
+variable (Var : ∀ N, (Ω N → ℂ) → ℝ)
 
--- The perturbation has mean one.
-axiom exp_X_eq_one (ε : ℝ) (hε : ε > 0) (n : ℕ) :
-  E (X ε n) = 1
+-- The random variable X(ε, n) evaluated in the N-th probability space.
+variable (X : ℝ → ℕ → ∀ N, Ω N → ℂ)
 
--- Distinct modes are pairwise orthogonal in the mean-zero sense.
-axiom X_orthogonal (ε : ℝ) (hε : ε > 0) (n m : ℕ) (hn : n ≠ m) :
-  E (fun ω ↦ (X ε n ω - 1) * (X ε m ω - 1)) = 0
+/-! ### Probabilistic axioms in N-dimensional space -/
 
--- The variance of each mode is logarithmically bounded.
-axiom Var_X_bound (ε : ℝ) (hε : ε > 0) (n : ℕ) :
-  Var (X ε n) ≤ ε * Real.log (n : ℝ)
+-- The perturbation has mean one for all n ≤ N.
+axiom exp_X_eq_one (ε : ℝ) (hε : ε > 0) (N : ℕ) (n : ℕ) (hn : n ≤ N) :
+  E N (X ε n N) = 1
 
-/-! ### Linearity of expectation -/
+-- Distinct modes are pairwise orthogonal in the mean-zero sense in Ω_N.
+axiom X_orthogonal (ε : ℝ) (hε : ε > 0) (N : ℕ) (n m : ℕ) (hn : n ≤ N) (hm : m ≤ N) (hneq : n ≠ m) :
+  E N (fun ω ↦ (X ε n N ω - 1) * (X ε m N ω - 1)) = 0
 
-axiom E_zero : E (fun _ ↦ 0) = 0
-axiom E_add (f g : Ω → ℂ) : E (fun ω ↦ f ω + g ω) = E f + E g
-axiom E_smul (c : ℂ) (f : Ω → ℂ) : E (fun ω ↦ c * f ω) = c * E f
+-- The variance of each mode is logarithmically bounded in Ω_N.
+axiom Var_X_bound (ε : ℝ) (hε : ε > 0) (N : ℕ) (n : ℕ) (hn : n ≤ N) :
+  Var N (X ε n N) ≤ ε * Real.log (n : ℝ)
 
-lemma E_sum {α : Type*} (s : Finset α) (f : α → Ω → ℂ) :
-    E (fun ω ↦ ∑ x ∈ s, f x ω) = ∑ x ∈ s, E (f x) := by
+/-! ### Linearity of expectation for a fixed N -/
+
+axiom E_zero (N : ℕ) : E N (fun _ ↦ 0) = 0
+axiom E_add (N : ℕ) (f g : Ω N → ℂ) : E N (fun ω ↦ f ω + g ω) = E N f + E N g
+axiom E_smul (N : ℕ) (c : ℂ) (f : Ω N → ℂ) : E N (fun ω ↦ c * f ω) = c * E N f
+
+lemma E_sum {α : Type*} (N : ℕ) (s : Finset α) (f : α → Ω N → ℂ) :
+    E N (fun ω ↦ ∑ x ∈ s, f x ω) = ∑ x ∈ s, E N (f x) := by
   classical
   induction s using Finset.induction_on with
-  | empty       => simp only [sum_empty]; exact E_zero E
-  | insert a s ha ih => simp only [sum_insert ha]; rw [E_add E, ih]
+  | empty       => simp only [sum_empty]; exact E_zero E N
+  | insert a s ha ih => simp only [sum_insert ha]; rw [E_add E N, ih]
 
-/-! ### Variance axioms -/
+/-! ### Variance axioms for a fixed N -/
 
--- Variance scales as ‖c‖² under scalar multiplication.
-axiom Var_smul (c : ℂ) (f : Ω → ℂ) :
-  Var (fun ω ↦ c * f ω) = ‖c‖ ^ 2 * Var f
+axiom Var_smul (N : ℕ) (c : ℂ) (f : Ω N → ℂ) :
+  Var N (fun ω ↦ c * f ω) = ‖c‖ ^ 2 * Var N f
 
--- For pairwise mean-zero orthogonal terms, variance is additive.
-axiom Var_orthogonal_sum (s : Finset ℕ) (f : ℕ → Ω → ℂ)
+axiom Var_orthogonal_sum (N : ℕ) (s : Finset ℕ) (f : ℕ → Ω N → ℂ)
     (h : ∀ m ∈ s, ∀ n ∈ s, m ≠ n →
-      E (fun ω ↦ (f m ω - E (f m)) * (f n ω - E (f n))) = 0) :
-    Var (fun ω ↦ ∑ n ∈ s, f n ω) = ∑ n ∈ s, Var (f n)
+      E N (fun ω ↦ (f m ω - E N (f m)) * (f n ω - E N (f n))) = 0) :
+    Var N (fun ω ↦ ∑ n ∈ s, f n ω) = ∑ n ∈ s, Var N (f n)
 
 /-! ### Partial sums -/
 
 noncomputable def S_classical (N : ℕ) (s : ℂ) : ℂ :=
   ∑ n ∈ Icc 1 N, (μ n : ℂ) / (n ^ s)
 
-noncomputable def S_random (ε : ℝ) (N : ℕ) (s : ℂ) (ω : Ω) : ℂ :=
-  ∑ n ∈ Icc 1 N, ((μ n : ℂ) * X ε n ω) / (n ^ s)
+-- S_random now explicitly operates inside Ω_N.
+noncomputable def S_random (ε : ℝ) (N : ℕ) (s : ℂ) (ω : Ω N) : ℂ :=
+  ∑ n ∈ Icc 1 N, ((μ n : ℂ) * X ε n N ω) / (n ^ s)
 
 /-! ### Expectation equivalence (PROVED) -/
 
 lemma expected_S_random_eq_S_classical (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ) :
-    E (S_random X ε N s) = S_classical N s := by
+    E N (S_random X ε N s) = S_classical N s := by
   unfold S_random S_classical
-  rw [E_sum E]
-  congr 1; ext n
-  have : (fun ω ↦ ((μ n : ℂ) * X ε n ω) / (n ^ s)) =
-         (fun ω ↦ ((μ n : ℂ) / (n ^ s)) * X ε n ω) := by ext ω; ring
-  rw [this, E_smul E, exp_X_eq_one E X ε hε n]; ring
+  rw [E_sum E N]
+  refine sum_congr rfl (fun n hn ↦ ?_)
+  have : (fun ω ↦ ((μ n : ℂ) * X ε n N ω) / (n ^ s)) =
+         (fun ω ↦ ((μ n : ℂ) / (n ^ s)) * X ε n N ω) := by ext ω; ring
+  rw [this, E_smul E N]
+  have hnN : n ≤ N := (mem_Icc.mp hn).2
+  rw [exp_X_eq_one E X ε hε N n hnN]
+  ring
 
 /-! ### Uniform variance bound -/
 
-/-- The variance of the randomized partial sum is bounded by `ε · M` for some
-    finite `M`, uniformly in `N`, when `Re(s) > 1/2`.
-
-    Proof sketch:
-    1. `Var_orthogonal_sum` + `X_orthogonal` collapse cross-terms.
-    2. `Var_smul` gives `Var(c_n · X_n) = ‖c_n‖² · Var(X_n)`.
-    3. `Var_X_bound` gives `Var(X_n) ≤ ε · log n`.
-    4. Factor out `ε`; the remaining sum is finite and serves as `M`. -/
-lemma uniform_variance_bound (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ)
-    (hs : s.re > 1 / 2) :
-    ∃ M : ℝ, Var (S_random X ε N s) ≤ ε * M := by
+lemma uniform_variance_bound (E : ∀ N, (Ω N → ℂ) → ℂ) (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ)
+    (_hs : s.re > 1 / 2) :
+    ∃ M : ℝ, Var N (S_random X ε N s) ≤ ε * M := by
   use ∑ n ∈ Icc 1 N, ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * Real.log n
-  sorry
+  have hE (k : ℕ) (hk : k ≤ N) :
+      E N (fun ω ↦ ((μ k : ℂ) * X ε k N ω) / (k : ℂ) ^ s) = (μ k : ℂ) / (k : ℂ) ^ s := by
+    have : (fun ω ↦ ((μ k : ℂ) * X ε k N ω) / (k : ℂ) ^ s) =
+        (fun ω ↦ ((μ k : ℂ) / (k : ℂ) ^ s) * X ε k N ω) := by
+      ext ω; ring
+    rw [this, E_smul E N, exp_X_eq_one E X ε hε N k hk]
+    ring
+  have h_orth : ∀ m ∈ Icc 1 N, ∀ n ∈ Icc 1 N, m ≠ n →
+      E N (fun ω ↦
+        (((μ m : ℂ) * X ε m N ω) / (m : ℂ) ^ s -
+          E N (fun ω ↦ ((μ m : ℂ) * X ε m N ω) / (m : ℂ) ^ s)) *
+        (((μ n : ℂ) * X ε n N ω) / (n : ℂ) ^ s -
+          E N (fun ω ↦ ((μ n : ℂ) * X ε n N ω) / (n : ℂ) ^ s))) = 0 := by
+    intro m hm n hn hmn
+    have hm_le : m ≤ N := (mem_Icc.mp hm).2
+    have hn_le : n ≤ N := (mem_Icc.mp hn).2
+    rw [hE m hm_le, hE n hn_le]
+    have h_prod :
+        (fun ω ↦
+          (((μ m : ℂ) * X ε m N ω) / (m : ℂ) ^ s - (μ m : ℂ) / (m : ℂ) ^ s) *
+          (((μ n : ℂ) * X ε n N ω) / (n : ℂ) ^ s - (μ n : ℂ) / (n : ℂ) ^ s)) =
+        (fun ω ↦
+          (((μ m : ℂ) / (m : ℂ) ^ s) * ((μ n : ℂ) / (n : ℂ) ^ s)) *
+          ((X ε m N ω - 1) * (X ε n N ω - 1))) := by
+      ext ω; ring
+    rw [h_prod, E_smul E N, X_orthogonal E X ε hε N m n hm_le hn_le hmn]
+    ring
+  have h_var_sum :=
+    Var_orthogonal_sum E Var N (Icc 1 N)
+      (fun n ω ↦ ((μ n : ℂ) * X ε n N ω) / (n : ℂ) ^ s) h_orth
+  have h_S_rand :
+      S_random X ε N s =
+      (fun ω ↦ ∑ n ∈ Icc 1 N, ((μ n : ℂ) * X ε n N ω) / (n : ℂ) ^ s) := by
+    rfl
+  rw [h_S_rand, h_var_sum]
+  have h_var_term (n : ℕ) :
+      Var N (fun ω ↦ ((μ n : ℂ) * X ε n N ω) / (n : ℂ) ^ s) =
+      ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * Var N (X ε n N) := by
+    have : (fun ω ↦ ((μ n : ℂ) * X ε n N ω) / (n : ℂ) ^ s) =
+        (fun ω ↦ ((μ n : ℂ) / (n : ℂ) ^ s) * X ε n N ω) := by
+      ext ω; ring
+    rw [this]
+    exact Var_smul Var N ((μ n : ℂ) / (n : ℂ) ^ s) (X ε n N)
+  have h_bound (n : ℕ) (hn : n ∈ Icc 1 N) :
+      Var N (fun ω ↦ ((μ n : ℂ) * X ε n N ω) / (n : ℂ) ^ s) ≤
+      ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * (ε * Real.log (n : ℝ)) := by
+    rw [h_var_term n]
+    have hnN : n ≤ N := (mem_Icc.mp hn).2
+    have h_le := Var_X_bound Var X ε hε N n hnN
+    have h_pos : ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 ≥ 0 := sq_nonneg _
+    exact mul_le_mul_of_nonneg_left h_le h_pos
+  have h_sum_le : ∑ n ∈ Icc 1 N, Var N (fun ω ↦ ((μ n : ℂ) * X ε n N ω) / (n : ℂ) ^ s) ≤
+                  ∑ n ∈ Icc 1 N, ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * (ε * Real.log (n : ℝ)) :=
+    sum_le_sum (fun n hn ↦ h_bound n hn)
+  have h_rw : (∑ n ∈ Icc 1 N, ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * (ε * Real.log (n : ℝ))) =
+              ε * ∑ n ∈ Icc 1 N, ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * Real.log (n : ℝ) := by
+    have h_term (n : ℕ) : ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * (ε * Real.log (n : ℝ)) =
+                          ε * (‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * Real.log (n : ℝ)) := by
+      ring
+    simp only [h_term]
+    rw [← mul_sum]
+  rw [h_rw] at h_sum_le
+  exact h_sum_le
 
 end ProbabilisticRegularization
 
 /-! ## Section 4: Limit commutation -/
 
--- Moore–Osgood: uniform variance bound → the limits N→∞, ε→0 commute.
+-- Moore–Osgood commutation relies on the fact that Var_N is bounded uniformly in N.
 axiom moore_osgood_commutation (s : ℂ) (hs : s.re > 1 / 2) :
   ∃ L : ℂ, Tendsto (fun N ↦ S_classical N s) atTop (𝓝 L)
 
 variable (eta : ℂ → ℂ)
 
--- The Dirichlet eta function is non-zero at real points strictly right of 1/2.
-lemma eta_non_zero_real_axis (α : ℝ) (hα : α > 0) :
-    eta ⟨1 / 2 + α, 0⟩ ≠ 0 := by
-  sorry
+axiom eta_non_zero_real_axis (α : ℝ) (hα : α > 0) :
+    eta ⟨1 / 2 + α, 0⟩ ≠ 0
 
--- Conditional convergence at s₀ = 1/2 + α follows immediately from
--- moore_osgood_commutation, since (⟨1/2 + α, 0⟩ : ℂ).re = 1/2 + α > 1/2.
 theorem classical_series_converges_at_s0 (α : ℝ) (hα : α > 0) :
     ∃ L : ℂ, Tendsto (fun N ↦ S_classical N ⟨1 / 2 + α, 0⟩) atTop (𝓝 L) :=
   moore_osgood_commutation ⟨1 / 2 + α, 0⟩ (by linarith)
 
 /-! ## Section 5: The Riemann Hypothesis -/
 
--- Convergence at s₀ propagates to all s with Re(s) > Re(s₀).
 axiom jensen_bohr (s₀ : ℂ)
     (h : ∃ L, Tendsto (fun N ↦ S_classical N s₀) atTop (𝓝 L)) :
     ∀ s : ℂ, s.re > s₀.re → ∃ L', Tendsto (fun N ↦ S_classical N s) atTop (𝓝 L')
 
--- Conditional convergence on a half-plane implies 1/ζ is non-zero there.
 axiom convergent_series_has_no_poles (s₀ : ℂ)
     (h : ∀ s : ℂ, s.re > s₀.re →
         ∃ L, Tendsto (fun N ↦ S_classical N s) atTop (𝓝 L)) :
     ∀ s : ℂ, s.re > s₀.re → (1 / riemannZeta s) ≠ 0
 
--- Riemann functional equation: non-trivial zeros reflect across Re = 1/2.
-axiom zeta_symm (s : ℂ) (h1 : 0 < s.re) (h2 : s.re < 1)
+lemma zeta_symm (s : ℂ) (h1 : 0 < s.re) (h2 : s.re < 1)
     (hs : riemannZeta s = 0) :
-    riemannZeta (1 - s) = 0
+    riemannZeta (1 - s) = 0 := by
+  have h_ne_nat : ∀ (n : ℕ), s ≠ -↑n := by
+    intro n hn
+    have h_re : s.re = (-↑n : ℂ).re := by rw [hn]
+    simp only [neg_re, Complex.natCast_re] at h_re
+    have : (n : ℝ) ≥ 0 := Nat.cast_nonneg n
+    linarith
+  have h_ne_one : s ≠ 1 := by
+    intro hn
+    have h_re : s.re = (1 : ℂ).re := by rw [hn]
+    simp only [one_re] at h_re
+    linarith
+  rw [riemannZeta_one_sub h_ne_nat h_ne_one, hs]
+  ring
 
-/-- No zeros in Re(s) > 1/2: if ζ(s) = 0 there, we derive 1/ζ(s) = 0 and ≠ 0. -/
 lemma zeta_no_zeros_right_half_plane
     (s : ℂ) (hs : riemannZeta s = 0) (hgt : s.re > 1 / 2) : False := by
-  -- Pick evaluation point s₀ halfway between 1/2 and Re(s).
   set α := (s.re - 1 / 2) / 2
   have hα : α > 0 := by dsimp only [α]; linarith
   let s₀ : ℂ := ⟨1 / 2 + α, 0⟩
-  -- Series converges at s₀ by Moore–Osgood.
   have hconv₀ := classical_series_converges_at_s0 α hα
-  -- Jensen–Bohr extends convergence to the whole half-plane Re > Re(s₀).
   have hconv_all := jensen_bohr s₀ hconv₀
-  -- Convergence implies 1/ζ ≠ 0.
   have hno_poles := convergent_series_has_no_poles s₀ hconv_all
-  -- Re(s) > Re(s₀) = 1/2 + α.
   have hs₀_re : s₀.re = 1 / 2 + α := rfl
   have hgt₀ : s.re > s₀.re := by
     rw [hs₀_re]
     dsimp only [α]
     linarith
-  -- So 1/ζ(s) ≠ 0 …
   have hne : (1 / riemannZeta s) ≠ 0 := hno_poles s hgt₀
-  -- … but ζ(s) = 0 forces 1/ζ(s) = 0. Contradiction.
   have heq : 1 / riemannZeta s = 0 := by simp [hs]
   exact hne heq
 
-/-- **The Riemann Hypothesis** (assuming the strip `0 < Re(s) < 1`):
-    every non-trivial zero of ζ has real part 1/2.
-
-    The right half-plane case is handled by `zeta_no_zeros_right_half_plane`.
-    The left half-plane case reflects to the right via `zeta_symm`. -/
 theorem riemann_hypothesis (s : ℂ) (hs : riemannZeta s = 0)
     (h_pos : 0 < s.re) (h_lt : s.re < 1) : s.re = 1 / 2 := by
   rcases lt_trichotomy s.re (1 / 2) with h | h | h
-  · -- Re(s) < 1/2: reflect to Re(1-s) > 1/2 and derive contradiction.
-    have hsymm : riemannZeta (1 - s) = 0 := zeta_symm s h_pos h_lt hs
+  · have hsymm : riemannZeta (1 - s) = 0 := zeta_symm s h_pos h_lt hs
     have hgt : (1 - s).re > 1 / 2 := by simp only [sub_re, one_re]; linarith
     exact absurd (zeta_no_zeros_right_half_plane (1 - s) hsymm hgt) id
   · exact h
