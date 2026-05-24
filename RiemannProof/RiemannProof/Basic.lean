@@ -200,7 +200,9 @@ theorem eta_non_zero_real_axis (α : ℝ) (hα : α > 0) (hα_ne : α ≠ 1 / 2)
     -- For s = ⟨1/2+α, 0⟩:  1 − s = ⟨1/2−α, 0⟩  (purely real).
     simp only [sub_ne_zero]
     have h1s : (1 : ℂ) - ⟨1 / 2 + α, 0⟩ = ((1 / 2 - α : ℝ) : ℂ) := by
-      apply Complex.ext <;> simp <;> linarith
+      apply Complex.ext
+      · simp; linarith
+      · simp
     rw [h1s]
     have h2_eq : (2 : ℂ) = ((2 : ℝ) : ℂ) := by simp
     rw [h2_eq]

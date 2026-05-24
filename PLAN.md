@@ -30,6 +30,23 @@ finite-dimensional probabilistic regularization proof of the Riemann Hypothesis
 - **Loopholes & Postulates**: **Remaining** (Represented by `axiom` / `sorry`
   tags to be resolved in future iterations; see below).
 
+Walkthrough - Proving First Factor of η Non-Zero on Real Axis
+We have successfully formulated, proved, and verified the first factor of the eta_non_zero_real_axis theorem in RiemannProof/RiemannProof/Basic.lean.
+
+Changes Made
+Basic.lean
+Modified eta_non_zero_real_axis to prove the first factor: $1 - 2^{1-s} \neq 0$ for $s = 1/2 + \alpha$.
+Replaced the abstract ext tactic with a structured application of Complex.ext followed by simp and linarith to avoid linter warnings and compilation failures.
+Rewrote the base $(2 : \mathbb{C})$ as a coerced real $2$ to allow the application of Complex.ofReal_cpow.
+Used norm_cast to move the goal to the real domain, and completed the proof using real-power monotonicity via Real.rpow_lt_rpow_of_exponent_lt in two cases depending on whether $\alpha < 1/2$ or $\alpha > 1/2$.
+Verification
+We ran lake build to compile the package. The build completed successfully:
+
+bash
+
+Build completed successfully (2931 jobs).
+The style linter style warning is clean, leaving only the expected warning that the second factor is still sorry pending further Mathlib investigation.
+
 ---
 
 ## Implemented vs. Remaining Checklist
@@ -65,6 +82,23 @@ finite-dimensional probabilistic regularization proof of the Riemann Hypothesis
 - **[x] The Riemann Hypothesis**: `riemann_hypothesis`
   Proved by `lt_trichotomy` combining `zeta_no_zeros_right_half_plane` and
   `zeta_symm` for the Re(s) < 1/2 reflection.
+
+  [x] Restore abstract variable (Ω E Var X) approach (build was hanging on MeasureSpace synth)
+[x] Define dirichletEta concretely (renamed from eta to avoid Complex.eta collision)
+[x] Fix false axiom: eta_non_zero_real_axis → sorry theorem with (hα_ne : α ≠ 1/2) guard
+[x] Delete scratch.lean
+[x] Update PLAN.md and AGENTS.md with current status, blockers, and proof paths
+[x] lake build passes (2931 jobs, only tolerated whitespace warning)
+[ ] Concrete Ω N: resolve MeasureSpace hang with explicit Measure.pi instance
+[ ] Prove E_add using integral_add (with Integrable hypotheses)
+[ ] Prove E_smul using integral_const_mul
+[ ] Prove exp_X_eq_one from bump measure normalization
+[ ] Prove X_orthogonal from IndepFun on product measure
+[ ] Prove Var_X_bound from second moment of bump
+[/] Prove eta_non_zero_real_axis (Factor 1: 1 − 2^(1−s) ≠ 0 proved; Factor 2: riemannZeta s ≠ 0 remains as sorry)
+[ ] Prove moore_osgood_commutation (Chebyshev + limit commutation)
+[ ] Prove jensen_bohr (Abel summation / Bohr-Cahen theorem)
+[ ] Prove convergent_series_has_no_poles (holomorphicity of convergent Dirichlet series)
 
 ---
 
