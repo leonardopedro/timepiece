@@ -196,24 +196,9 @@ lemma expected_S_random_eq_S_classical (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : 
   ring
 
 -- 3. Equivalence of Variance and Expected Square of H_random
--- Taking the real part on the RHS aligns the types to real numbers. (PROVED)
+-- Taking the real part on the RHS aligns the types to real numbers.
 lemma Var_eq_expected_square_H_random (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ) :
-    Var_conc N (S_random ε N s) = (E_conc N (fun ω ↦ ‖H_random ε N s ω‖ ^ 2)).re := by
-  unfold Var_conc
-  have h1 : E_conc N (S_random ε N s) = S_classical N s := expected_S_random_eq_S_classical ε hε N s
-  have h2 : (fun ω ↦ ‖S_random ε N s ω - E_conc N (S_random ε N s)‖ ^ 2) =
-            (fun ω ↦ ‖H_random ε N s ω‖ ^ 2) := by
-    ext ω
-    rw [h1]
-    rw [S_random_eq_S_classical_add_H_random ε N s ω]
-    have : S_classical N s + H_random ε N s ω - S_classical N s = H_random ε N s ω := by ring
-    rw [this]
-  change (∫ ω, ‖S_random ε N s ω - E_conc N (S_random ε N s)‖ ^ 2) =
-         (E_conc N (fun ω ↦ ‖H_random ε N s ω‖ ^ 2)).re
-  rw [h2]
-  unfold E_conc
-  rw [Complex.re_integral]
-  rfl
+    Var_conc N (S_random ε N s) = (E_conc N (fun ω ↦ ‖H_random ε N s ω‖ ^ 2)).re := sorry
 
 -- 4. Expected square of H_random clears all cross-terms m ≠ n
 -- The RHS sum starts at n = 2 to align with X_conc perturbation bounds.
