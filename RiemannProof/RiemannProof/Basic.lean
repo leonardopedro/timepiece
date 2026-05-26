@@ -9,6 +9,7 @@ import Mathlib.NumberTheory.LSeries.RiemannZeta
 import Mathlib.NumberTheory.LSeries.Dirichlet
 import Mathlib.MeasureTheory.Measure.MeasureSpace
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+import Mathlib.Analysis.Complex.ExponentialBounds
 
 open Complex Finset Filter MeasureTheory Topology
 open scoped ArithmeticFunction ArithmeticFunction.Moebius ComplexConjugate
@@ -137,7 +138,10 @@ lemma ε_div_three_le_ε_log (ε : ℝ) (hε : ε > 0) (n : ℕ) (hn : n ≥ 2) 
   have h_n_pos : (0 : ℝ) < 2 := by norm_num
   have h_n_le : (2 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
   have h_log_mono : Real.log 2 ≤ Real.log (n : ℝ) := Real.log_le_log h_n_pos h_n_le
-  have h_div : (1 : ℝ) / 3 ≤ Real.log 2 := sorry -- standard numerical log bound
+  have h_div : (1 : ℝ) / 3 ≤ Real.log 2 := by
+    have h1 : (1 : ℝ) / 3 ≤ 0.6931471803 := by norm_num
+    have h2 : 0.6931471803 < Real.log 2 := Real.log_two_gt_d9
+    exact le_of_lt (lt_of_le_of_lt h1 h2)
   have h_le : (1 : ℝ) / 3 ≤ Real.log (n : ℝ) := le_trans h_div h_log_mono
   have h_mul : ε * ((1 : ℝ) / 3) ≤ ε * Real.log (n : ℝ) :=
     mul_le_mul_of_nonneg_left h_le (le_of_lt hε)
