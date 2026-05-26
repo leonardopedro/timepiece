@@ -11,7 +11,7 @@ import Mathlib.MeasureTheory.Measure.MeasureSpace
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
 open Complex Finset Filter MeasureTheory Topology
-open scoped ArithmeticFunction ArithmeticFunction.Moebius
+open scoped ArithmeticFunction ArithmeticFunction.Moebius ComplexConjugate
 
 set_option linter.unusedSectionVars false
 
@@ -42,8 +42,7 @@ noncomputable def E_conc (N : ℕ) (f : Ω_conc N → ℂ) : ℂ :=
 noncomputable def Var_conc (N : ℕ) (f : Ω_conc N → ℂ) : ℝ :=
   ∫ ω, ‖f ω - E_conc N f‖ ^ 2
 
--- 4. Continuous Random Variable in [1-√ε, 1+√ε]
--- We scale the perturbation to be proportional to √ε to guarantee E-Var scaling.
+-- 4. Independent continuous random variables scaled proportional to √ε
 noncomputable def X_conc (ε : ℝ) (n N : ℕ) (ω : Ω_conc N) : ℂ :=
   if h : n ≤ N ∧ n > 1 then
     1 + (Real.sqrt ε : ℂ) * (2 * (ω ⟨n, Nat.lt_succ_of_le h.1⟩ : ℂ) - 1)
@@ -93,15 +92,18 @@ lemma Var_conc_smul (N : ℕ) (c : ℂ) (f : Ω_conc N → ℂ) :
               (fun ω ↦ ‖c‖ ^ 2 • ‖f ω - E_conc N f‖ ^ 2) := by
     ext ω
     rw [h_E]
+    -- Because ‖c‖^2 is a real number, scalar multiplication • is definitionally real multiplication *
     have : ‖c‖ ^ 2 • ‖f ω - E_conc N f‖ ^ 2 = ‖c‖ ^ 2 * ‖f ω - E_conc N f‖ ^ 2 := rfl
     rw [this]
     exact h_norm ω
   rw [h_rw]
   exact integral_smul (‖c‖ ^ 2) (fun ω ↦ ‖f ω - E_conc N f‖ ^ 2)
 
+-- Fixed with complex conjugate inner product to make it mathematically true
 lemma Var_conc_orthogonal_sum (N : ℕ) (s : Finset ℕ) (f : ℕ → Ω_conc N → ℂ)
     (h_orth : ∀ m ∈ s, ∀ n ∈ s, m ≠ n →
-      E_conc N (fun ω ↦ (f m ω - E_conc N (f m)) * (f n ω - E_conc N (f n))) = 0) :
+      E_conc N (fun ω ↦
+        (f m ω - E_conc N (f m)) * conj (f n ω - E_conc N (f n))) = 0) :
     Var_conc N (fun ω ↦ ∑ n ∈ s, f n ω) = ∑ n ∈ s, Var_conc N (f n) := sorry
 
 end ContinuousProbabilisticRegularization
@@ -111,7 +113,7 @@ end ContinuousProbabilisticRegularization
 =============================================================================
                           SECTION 2: PROBABILISTIC INTEGRATION BOUNDS
 =============================================================================
-Proofs resolving the novel continuous probability space mechanics.
+Proofs resolving the continuous probability space mechanics.
 -/
 
 section ContinuousProbabilisticRegularizationBounds
@@ -126,7 +128,7 @@ lemma exp_X_conc_eq_one (ε : ℝ) (hε : ε > 0) (N : ℕ) (n : ℕ) (hn : n �
 
 lemma X_conc_orthogonal (ε : ℝ) (hε : ε > 0) (N : ℕ) (n m : ℕ)
     (hn : n ≤ N) (hm : m ≤ N) (hneq : n ≠ m) :
-    E_conc N (fun ω ↦ (X_conc ε n N ω - 1) * (X_conc ε m N ω - 1)) = 0 := sorry
+    E_conc N (fun ω ↦ (X_conc ε n N ω - 1) * conj (X_conc ε m N ω - 1)) = 0 := sorry
 
 /-- Proof of logarithmic variance bounding: ε / 3 ≤ ε * log n for n ≥ 2. -/
 lemma ε_div_three_le_ε_log (ε : ℝ) (hε : ε > 0) (n : ℕ) (hn : n ≥ 2) :
@@ -162,10 +164,23 @@ noncomputable def S_classical (N : ℕ) (s : ℂ) : ℂ :=
 noncomputable def S_random (ε : ℝ) (N : ℕ) (s : ℂ) (ω : Ω_conc N) : ℂ :=
   ∑ n ∈ Icc 1 N, ((μ n : ℂ) * X_conc ε n N ω) / (n ^ s)
 
+-- 1. The Centered Perturbation Series
+noncomputable def H_random (ε : ℝ) (N : ℕ) (s : ℂ) (ω : Ω_conc N) : ℂ :=
+  ∑ n ∈ Icc 1 N, ((μ n : ℂ) * (X_conc ε n N ω - 1)) / (n ^ s)
+
+-- 2. Algebraic decomposition: S_random = S_classical + H_random
+lemma S_random_eq_S_classical_add_H_random (ε : ℝ) (N : ℕ) (s : ℂ) (ω : Ω_conc N) :
+    S_random ε N s ω = S_classical N s + H_random ε N s ω := by
+  unfold S_random S_classical H_random
+  rw [← sum_add_distrib]
+  refine sum_congr rfl (fun n _ ↦ ?_)
+  ring
+
 lemma expected_S_random_eq_S_classical (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ) :
     E_conc N (S_random ε N s) = S_classical N s := by
   unfold S_random S_classical
-  rw [E_conc_sum N (Icc 1 N) (fun n ω ↦ ((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s)
+  rw [E_conc_sum N (Icc 1 N)
+    (fun n ω ↦ ((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s)
     (fun n _ ↦ integrable_term ε N n s)]
   refine sum_congr rfl (fun n hn ↦ ?_)
   have : (fun ω ↦ ((μ n : ℂ) * X_conc ε n N ω) / (n ^ s)) =
@@ -174,6 +189,26 @@ lemma expected_S_random_eq_S_classical (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : 
   have hnN : n ≤ N := (mem_Icc.mp hn).2
   rw [exp_X_conc_eq_one ε hε N n hnN]
   ring
+
+-- 3. Equivalence of Variance and Expected Square of H_random
+-- Taking the real part on the RHS aligns the types to real numbers.
+lemma Var_eq_expected_square_H_random (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ) :
+    Var_conc N (S_random ε N s) = (E_conc N (fun ω ↦ ‖H_random ε N s ω‖ ^ 2)).re := sorry
+
+-- 4. Expected square of H_random clears all cross-terms m ≠ n
+lemma expected_square_H_random (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ) :
+    E_conc N (fun ω ↦ ‖H_random ε N s ω‖ ^ 2) =
+    (ε / 3) * ∑ n ∈ Icc 1 N, ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 := sorry
+
+-- 5. The Infinite-Dimensional space for limit convergence
+def Ω_infty := ℕ → ℝ
+
+noncomputable def H_random_infty (ε : ℝ) (N : ℕ) (s : ℂ) (ω : Ω_infty) : ℂ :=
+  ∑ n ∈ Icc 1 N, ((μ n : ℂ) * ((Real.sqrt ε : ℂ) * (2 * (ω n : ℂ) - 1))) / (n ^ s)
+
+-- Finite L² limit implies convergence of the perturbation series on Ω_infty
+lemma H_random_infty_converges (ε : ℝ) (hε : ε > 0) (s : ℂ) (hs : s.re > 1 / 2) (ω : Ω_infty) :
+    ∃ L : ℂ, Tendsto (fun N ↦ H_random_infty ε N s ω) atTop (𝓝 L) := sorry
 
 lemma uniform_variance_bound (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ) (_hs : s.re > 1 / 2) :
     ∃ M : ℝ, Var_conc N (S_random ε N s) ≤ ε * M := by
@@ -188,7 +223,7 @@ lemma uniform_variance_bound (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ) (_hs 
       E_conc N (fun ω ↦
         (((μ m : ℂ) * X_conc ε m N ω) / (m : ℂ) ^ s -
           E_conc N (fun ω ↦ ((μ m : ℂ) * X_conc ε m N ω) / (m : ℂ) ^ s)) *
-        (((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s -
+        conj (((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s -
           E_conc N (fun ω ↦ ((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s))) = 0 := by
     intro m hm n hn hmn
     have hm_le : m ≤ N := (mem_Icc.mp hm).2
@@ -197,11 +232,18 @@ lemma uniform_variance_bound (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ) (_hs 
     have h_prod :
         (fun ω ↦
           (((μ m : ℂ) * X_conc ε m N ω) / (m : ℂ) ^ s - (μ m : ℂ) / (m : ℂ) ^ s) *
-          (((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s - (μ n : ℂ) / (n : ℂ) ^ s)) =
+          conj (((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s - (μ n : ℂ) / (n : ℂ) ^ s)) =
         (fun ω ↦
-          (((μ m : ℂ) / (m : ℂ) ^ s) * ((μ n : ℂ) / (n : ℂ) ^ s)) *
-          ((X_conc ε m N ω - 1) * (X_conc ε n N ω - 1))) := by
-      ext ω; ring
+          (((μ m : ℂ) / (m : ℂ) ^ s) * conj ((μ n : ℂ) / (n : ℂ) ^ s)) *
+          ((X_conc ε m N ω - 1) * conj (X_conc ε n N ω - 1))) := by
+      ext ω
+      have h1 : (((μ m : ℂ) * X_conc ε m N ω) / (m : ℂ) ^ s - (μ m : ℂ) / (m : ℂ) ^ s) =
+                ((μ m : ℂ) / (m : ℂ) ^ s) * (X_conc ε m N ω - 1) := by ring
+      have h2 : (((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s - (μ n : ℂ) / (n : ℂ) ^ s) =
+                ((μ n : ℂ) / (n : ℂ) ^ s) * (X_conc ε n N ω - 1) := by ring
+      rw [h1, h2]
+      simp only [map_mul]
+      ring
     rw [h_prod, E_conc_smul N, X_conc_orthogonal ε hε N m n hm_le hn_le hmn]
     ring
   have h_var_sum :=
@@ -224,7 +266,8 @@ lemma uniform_variance_bound (ε : ℝ) (hε : ε > 0) (N : ℕ) (s : ℂ) (_hs 
     have hnN : n ≤ N := (mem_Icc.mp hn).2
     have h_le := Var_X_conc_bound ε hε N n hnN
     exact mul_le_mul_of_nonneg_left h_le (sq_nonneg _)
-  have h_sum_le : ∑ n ∈ Icc 1 N, Var_conc N (fun ω ↦ ((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s) ≤
+  have h_sum_le : ∑ n ∈ Icc 1 N, Var_conc N
+    (fun ω ↦ ((μ n : ℂ) * X_conc ε n N ω) / (n : ℂ) ^ s) ≤
                   ∑ n ∈ Icc 1 N, ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * (ε * Real.log (n : ℝ)) :=
     sum_le_sum (fun n hn ↦ h_bound n hn)
   have h_rw : (∑ n ∈ Icc 1 N, ‖(μ n : ℂ) / (n : ℂ) ^ s‖ ^ 2 * (ε * Real.log (n : ℝ))) =
