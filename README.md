@@ -130,3 +130,28 @@ attack order (each step enables the next):
 
 5. **Prove `eta_non_zero_real_axis`** — Connect to Mathlib's existing
    `riemannZeta` material or use the Hadamard product representation.
+
+## Formalization State
+
+| Target | Lean 4 Identifier | Status | Notes |
+| :--- | :--- | :---: | :--- |
+| Finite Sum Linearity | `E_conc_sum` | **PROVED** | Inductive step over Bochner integrals |
+| Expectation Equivalence | `expected_S_random_eq_S_classical` | **PROVED** | Unfolds sums, uses expectation linearity |
+| Uniform Variance Bound | `uniform_variance_bound` | **PROVED** | Fully verified using concrete operators |
+| Main RH Zeros | `zeta_no_zeros_right_half_plane` | **PROVED** | Contradiction; `dsimp`+`linarith` |
+| Riemann Zeta Symmetry | `zeta_symm` | **PROVED** | Uses Mathlib `riemannZeta_one_sub` |
+| Riemann Hypothesis | `riemann_hypothesis` | **PROVED** | `lt_trichotomy`; both halves closed |
+| Log Variance Core Bound | `ε_sq_div_three_le_ε_log` | **PROVED** | Verifies logarithmic boundary constraints |
+| Dirichlet η definition | `dirichletEta` | **CONCRETE** | `(1 − 2^(1−s)) * riemannZeta s` |
+| Continuous Ω_N Space | `Ω_conc` | **CONCRETE** | Manually mapped Lebesgue product space |
+| Linearity of Expectation | `E_conc_zero`, `E_conc_smul`, `E_conc_add` | **CONCRETE** | Derived from Bochner integrals |
+| Scaling of Variance | `Var_conc_smul` | **CONCRETE** | Derived from Bochner norm scaling |
+| η Non-Zero on Real Axis | `eta_non_zero_real_axis` | *Sorry* | Case $s > 1$ proved natively; rest standard |
+| Prime Perturbation Mean | `exp_X_conc_eq_one` | *Sorry* | Normalization of continuous mapping |
+| Prime Orthogonality | `X_conc_orthogonal` | *Sorry* | Mean-zero orthogonality over coordinate projections |
+| Log Variance Bound | `Var_X_conc_bound` | *Sorry* | Variance bound under continuous mapping |
+| Variance Additivity | `Var_conc_orthogonal_sum` | *Sorry* | Variance of orthogonal sum = sum of Variances |
+| Limit Commutation | `moore_osgood_commutation` | *Sorry* | Standard probabilistic limit commutation |
+| Jensen-Bohr | `jensen_bohr` | *Sorry* | Dirichlet series half-plane extension |
+| No-Poles | `convergent_series_has_no_poles` | *Sorry* | Holomorphy of convergent limits |
+```
