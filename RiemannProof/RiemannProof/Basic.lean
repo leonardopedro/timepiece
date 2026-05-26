@@ -48,26 +48,23 @@ noncomputable def X_conc (ε : ℝ) (n N : ℕ) (ω : Ω_conc N) : ℂ :=
     1 + (ε : ℂ) * (2 * (ω ⟨n, Nat.lt_succ_of_le h.1⟩ : ℂ) - 1)
   else
     1
+
 /-! ### Proving Linearity Axioms Natively for the Concrete Space -/
 
 lemma E_conc_zero (N : ℕ) : E_conc N (fun _ ↦ 0) = 0 := by
   unfold E_conc
-  exact integral_zero _
+  simp
 
 lemma E_conc_smul (N : ℕ) (c : ℂ) (f : Ω_conc N → ℂ) :
     E_conc N (fun ω ↦ c * f ω) = c * E_conc N f := by
   unfold E_conc
   exact integral_smul c f
 
--- Note: The Lebesgue integral is only additive if the functions are integrable.
--- Our concrete polynomials on the compact interval [0,1] will satisfy these
--- integrability conditions when we merge the sections.
 lemma E_conc_add (N : ℕ) (f g : Ω_conc N → ℂ) (hf : Integrable f) (hg : Integrable g) :
     E_conc N (fun ω ↦ f ω + g ω) = E_conc N f + E_conc N g := by
   unfold E_conc
   exact integral_add hf hg
 
--- Variance scaling natively follows from Bochner integral properties of the norm
 lemma Var_conc_smul (N : ℕ) (c : ℂ) (f : Ω_conc N → ℂ) :
     Var_conc N (fun ω ↦ c * f ω) = ‖c‖ ^ 2 * Var_conc N f := by
   unfold Var_conc
@@ -78,13 +75,16 @@ lemma Var_conc_smul (N : ℕ) (c : ℂ) (f : Ω_conc N → ℂ) :
     rw [norm_mul]
     exact mul_pow ‖c‖ ‖f ω - E_conc N f‖ 2
   have h_rw : (fun ω ↦ ‖(c * f ω) - E_conc N (fun ω ↦ c * f ω)‖ ^ 2) =
-              (fun ω ↦ ‖c‖ ^ 2 * ‖f ω - E_conc N f‖ ^ 2) := by
+              (fun ω ↦ ‖c‖ ^ 2 • ‖f ω - E_conc N f‖ ^ 2) := by
     ext ω
     rw [h_E]
+    -- Because ‖c‖^2 is a real number, scalar multiplication • is definitionally real multiplication *
+    have : ‖c‖ ^ 2 • ‖f ω - E_conc N f‖ ^ 2 = ‖c‖ ^ 2 * ‖f ω - E_conc N f‖ ^ 2 := rfl
+    rw [this]
     exact h_norm ω
   rw [h_rw]
-  -- We factor the real constant ‖c‖^2 out of the integral
-  exact integral_mul_left (‖c‖ ^ 2) (fun ω ↦ ‖f ω - E_conc N f‖ ^ 2)
+  exact integral_smul (‖c‖ ^ 2) (fun ω ↦ ‖f ω - E_conc N f‖ ^ 2)
+
 end ContinuousProbabilisticRegularization
 
 /-!
