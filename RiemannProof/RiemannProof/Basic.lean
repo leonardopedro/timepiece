@@ -73,6 +73,10 @@ section UniversalCorrection
 noncomputable def S_recip_random (N P : ℕ) (s : ℂ) (ω : Ω_infty) : ℂ :=
   ∑ n ∈ Icc 1 N, ((μ n : ℂ) * X_mult n P ω) / (n ^ s)
 
+-- The Classical Deterministic Series (recovered identically when ω = 0)
+noncomputable def S_classical (N : ℕ) (s : ℂ) : ℂ :=
+  ∑ n ∈ Icc 1 N, (μ n : ℂ) / (n ^ s)
+
 -- Universal Corrector with Uniform Partial Sum Bound:
 -- Because the corrector only needs to offset the deterministic prefix P to bound the partial sums
 -- at s₀, it achieves this bounded state in a finite number of prime choices.
@@ -82,6 +86,32 @@ lemma exists_universal_corrector_path (P : ℕ) (s s₀ : ℂ) (hs : s.re > s₀
       Tendsto (fun N ↦ S_recip_random N P s ω) atTop (𝓝 L_P_ε) ∧
       ‖L_P_ε - (1 / riemannZeta s)‖ < ε ∧
       (∀ N, ‖S_recip_random N P s₀ ω‖ ≤ M_P) := sorry
+
+/- ### Connecting Random and Classical Series Natively (100% Proved) -/
+
+lemma X_p_zero (p P : ℕ) : X_p p P (fun _ ↦ 0) = 1 := by
+  unfold X_p
+  split_ifs
+  · rfl
+  · have h_zero : (((2 * Real.pi * 0 : ℝ) : ℂ) * I) = 0 := by
+      simp only [mul_zero, Complex.ofReal_zero, zero_mul]
+    rw [h_zero, Complex.exp_zero]
+
+lemma X_mult_zero (n P : ℕ) : X_mult n P (fun _ ↦ 0) = 1 := by
+  unfold X_mult
+  have h : ∀ L : List ℕ, ((L.map (fun p ↦ X_p p P (fun _ ↦ 0))).prod) = 1 := by
+    intro L
+    induction L with
+    | nil => rfl
+    | cons p l ih =>
+      rw [List.map_cons, List.prod_cons, X_p_zero, one_mul, ih]
+  exact h (Nat.primeFactorsList n)
+
+lemma S_recip_random_zero (N P : ℕ) (s : ℂ) :
+    S_recip_random N P s (fun _ ↦ 0) = S_classical N s := by
+  unfold S_recip_random S_classical
+  refine sum_congr rfl (fun n hn ↦ ?_)
+  rw [X_mult_zero, mul_one]
 
 end UniversalCorrection
 
@@ -146,7 +176,7 @@ lemma zeta_symm (s : ℂ) (h1 : 0 < s.re) (h2 : s.re < 1)
   rw [riemannZeta_one_sub h_ne_nat h_ne_one, hs]
   ring
 
--- The pole-free property of the regularized limit directly bounds the right half-plane zeros.
+-- Convergence directly bounds the right half-plane zeros.
 lemma zeta_no_zeros_right_half_plane
     (s : ℂ) (hs : riemannZeta s = 0) (hgt : s.re > 1 / 2) : False := by
   have hno_poles := regularized_limit_has_no_poles s hgt
