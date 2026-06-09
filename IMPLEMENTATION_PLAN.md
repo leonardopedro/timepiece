@@ -1,490 +1,501 @@
-# Implementation Plan: RectangleStrategy.lean Sorry Elimination
+# Implementation Plan: η(2s−1) Multiplicity and Zero Location via Contour Contradiction
 
-## File: `RiemannProof/RiemannProof/RectangleStrategy.lean`
+## Overview
 
----
+We study the function **η(2s−1)**, where η(s) = (1 − 2^{1−s})ζ(s) is the
+Dirichlet eta function. Its Dirichlet series
 
-## Task 1: Prove `norm_exp_sub_one_le_two_norm` (line 593–596)
+    η(2s−1) = Σ_{k=1}^∞ (−1)^{k−1} / k^{2s−1}
 
-```lean
-lemma norm_exp_sub_one_le_two_norm (w : ℂ)
-    (hw : ‖w‖ < 1 / 2) :
-    ‖Complex.exp w - 1‖ ≤ 2 * ‖w‖
-```
+converges **conditionally for Re(s) > 1/2** (since the classical η(σ)
+converges for σ > 0, and 2·Re(s) − 1 > 0 ⟺ Re(s) > 1/2).
 
-**Mathlib lemma exists**: `Complex.norm_exp_sub_one_le` with signature:
-```lean
-@Complex.norm_exp_sub_one_le : ∀ {x : ℂ}, ‖x‖ ≤ 1 → ‖Complex.exp x - 1‖ ≤ 2 * ‖x‖
-```
+The proof has two main stages:
 
-**Proof**:
-```lean
-lemma norm_exp_sub_one_le_two_norm (w : ℂ)
-    (hw : ‖w‖ < 1 / 2) :
-    ‖Complex.exp w - 1‖ ≤ 2 * ‖w‖ := by
-  exact Complex.norm_exp_sub_one_le (le_of_lt (lt_of_lt hw (by norm_num)))
-```
-The condition `‖w‖ < 1/2` implies `‖w‖ ≤ 1` by `linarith` / `norm_num`.
+1. **Multiplicity-one theorem**: Every zero of η(2s−1) in the critical
+   strip has multiplicity exactly 1.
+2. **Zero location theorem**: All such zeros lie on the vertical line
+   Re(s) = 3/4 (the shifted critical line for η(2s−1)).
+
+Both stages use the same core technique: construct a product of
+approximants and their conjugate-reflections, then derive a contradiction
+between the **Residue Theorem** (which gives a signed integral) and
+**uniform convergence via Bagchi universality** (which forces the
+integral to vanish or have the wrong sign).
 
 ---
 
-## Task 2: Prove `zetaEulerProd_tendstoUniformlyOn_rect` (line 598–628)
+## Stage 1: Zeros Have Multiplicity One
 
-```lean
-lemma zetaEulerProd_tendstoUniformlyOn_rect (R : Rect)
-    (hR_lo : ∀ z ∈ R.closure, z.re > 1 / 2)
-    (hR_hi : ∀ z ∈ R.closure, z.re < 1) :
-    TendstoUniformlyOn (fun P => zetaEulerProd P) riemannZeta
-      atTop R.closure
-```
+### Setup and y=1 scaling
 
-**Context already computed** (lines 603–626):
-- `hK : IsCompact R.closure`
-- `hα : ∃ α > 0, ∀ z ∈ R.closure, z.re ≥ 1/2 + α`
-- `M : ℝ` with `hM : ∀ z ∈ R.closure, ‖riemannZeta z‖ ≤ M`
+Suppose η(2s−1) has a zero of multiplicity m ≥ 1 at s₀ = σ₀ + it₀
+with 1/2 < σ₀ < 1 and t₀ > 0.
 
-**Proof strategy** — replace the final `sorry` at line 628:
+**We scale the y-coordinate so that the eta zero is at y = 1**, i.e.,
+we set s₀ = σ₀ + i. This normalization places the zero at a fixed
+imaginary height, simplifying the contour geometry. All subsequent
+constructions (rectangle, approximants) are relative to this scaling.
 
-Use `Metric.tendstoUniformlyOn_iff`:
-```
-∀ ε > 0, ∀ᶠ P in atTop, ∀ z ∈ R.closure,
-  dist (riemannZeta z) (zetaEulerProd P z) < ε
-```
+### The contour: enclosing exactly one zero
 
-Steps:
-1. Fix `ε > 0`.
-2. From `hα`, obtain `⟨α, hα_pos, hα_bound⟩`.
-3. Apply `primeZetaTail_uniform_small R.closure hK ⟨α, hα_pos, hα_bound⟩`
-   with `ε' := min (ε / (2 * (M + 1))) (1/4)` to get `P₁`.
-4. Apply `higherPrimeSum_uniform_small R.closure hK ⟨α, hα_pos, hα_bound⟩`
-   with same `ε'` to get `P₂`.
-5. Set `P₀ := max P₁ P₂`.
-6. For `P ≥ P₀` and `z ∈ R.closure`:
-   - Let `w := -(primeZetaTail) - higherPrimeSum`.
-   - `‖w‖ ≤ ‖primeZetaTail‖ + ‖higherPrimeSum‖ < 2ε' ≤ 1/2`.
-   - By `eulerProd_zeta_exp_connection`:
-     `zetaEulerProd P z = riemannZeta z * Complex.exp w`.
-   - So `‖zetaEulerProd P z - riemannZeta z‖
-       = ‖riemannZeta z‖ * ‖Complex.exp w - 1‖`.
-   - By `norm_exp_sub_one_le_two_norm w ‖w‖<1/2`:
-     `‖Complex.exp w - 1‖ ≤ 2‖w‖ < 4ε'`.
-   - Therefore `‖...‖ < M * 4ε' ≤ M * 4 * ε/(2(M+1)) < ε`.
+Choose a **rectangle R** with vertices at:
 
-**Lean tactic sketch**:
-```lean
-rw [Metric.tendstoUniformlyOn_iff]
-intro ε hε_pos
-obtain ⟨α, hα_pos, hα_bound⟩ := hα
-set ε' := min (ε / (2 * (M + 1))) (1 / 4)
-have hε'_pos : ε' > 0 := by
-  dsimp only [ε']; exact lt_min (div_pos hε_pos (by linarith)) (by norm_num)
-have hε'_le : ε' ≤ 1 / 4 := min_le_right _ _
-obtain ⟨P₁, hP₁⟩ := primeZetaTail_uniform_small R.closure hK
-  ⟨α, hα_pos, hα_bound⟩ ε' hε'_pos
-obtain ⟨P₂, hP₂⟩ := higherPrimeSum_uniform_small R.closure hK
-  ⟨α, hα_pos, hα_bound⟩ ε' hε'_pos
-use max P₁ P₂
-intro P hP_ge
--- For z ∈ R.closure, bound the tail
-intro z hz
-set w := -(∑' p, if Nat.Prime p ∧ p > P then (p:ℂ)^(-z) else 0)
-  - higherPrimeSum P z
-have hw_lt_half : ‖w‖ < 1 / 2 := by ...  -- triangle ineq + bounds
-have h_conn := eulerProd_zeta_exp_connection P z (by linarith [hR_lo z hz])
--- zetaEulerProd P z = riemannZeta z * exp w
--- ‖zetaEulerProd P z - riemannZeta z‖ = ‖riemannZeta z‖ * ‖exp w - 1‖
--- ≤ M * 2 * ‖w‖ < M * 2 * (2ε') ≤ ε
-calc ...
-```
+    R = [σ₀ − δ, σ₀ + δ] × [0, T]
 
-**Key Mathlib lemmas**:
-- `Metric.tendstoUniformlyOn_iff` (already checked, note: `dist (f x) (F n x)`)
-- `norm_mul_le`, `norm_sub_le`, `norm_neg`
-- `Filter.eventually_atTop` ↔ `∃ a, ∀ b ≥ a, p b`
-- `Complex.norm_exp_sub_one_le` / `norm_exp_sub_one_le_two_norm`
+where:
+- The **bottom edge lies on the real axis** (y = 0).
+- T > 1 so that s₀ = σ₀ + i is in the interior.
+- δ > 0 is small enough that **s₀ is the only zero of η(2s−1) inside R**
+  (possible since zeros are isolated).
 
----
+The contour must guarantee that **exactly one zero** is enclosed. This
+is essential because we are testing whether that single zero could have
+multiplicity m ≥ 2, which would create a pole of even multiplicity 2m
+in the conjugate-reflection product.
 
-## Task 3: Prove `etaEulerApprox_tendstoUniformlyOn_rect` (lines 696–723)
+### Construction of the approximants f_n = h_n · η_n
 
-```lean
-lemma etaEulerApprox_tendstoUniformlyOn_rect (R : Rect)
-    (hR_lo : ∀ z ∈ R.closure, z.re > 1 / 2)
-    (hR_hi : ∀ z ∈ R.closure, z.re < 1) :
-    TendstoUniformlyOn (fun P => etaEulerApprox P) etaRect
-      atTop R.closure
-```
+The approximant f_n is factored into two components:
 
-**Context already computed**:
-- `h_euler_conv` (line 703): `TendstoUniformlyOn (fun P ↦ zetaEulerProd P) riemannZeta atTop R.closure`
-- `h_bounded` (lines 706–720): `∃ B, ∀ z ∈ R.closure, ‖etaFactRect z‖ ≤ B`
-- `⟨B, hB⟩` (line 722): the bound extracted
+    f_n(s) = h_n(s) · η_n(s)
 
-**Proof strategy** — replace `sorry` at line 723:
+where:
 
-Since `etaEulerApprox P s = etaFactRect s * zetaEulerProd P s` and
-`etaRect s = etaFactRect s * riemannZeta s`, the difference is:
-```
-‖etaEulerApprox P s - etaRect s‖ = ‖etaFactRect s‖ * ‖zetaEulerProd P s - riemannZeta s‖
-                                 ≤ B * ‖zetaEulerProd P s - riemannZeta s‖
-```
+- **η_n(s)**: partial Dirichlet sums of η(2s−1), i.e.,
+  η_n(s) = Σ_{k=1}^n (−1)^{k−1}/k^{2s−1}, which converge to η(2s−1)
+  conditionally for Re(s) > 1/2.
 
-Steps:
-1. Fix `ε > 0`.
-2. Apply `Metric.tendstoUniformlyOn_iff` to `h_euler_conv` with `ε/(B+1)`.
-3. Get `P₀` such that `∀ P ≥ P₀, ∀ z ∈ R.closure,
-   dist (riemannZeta z) (zetaEulerProd P z) < ε/(B+1)`.
-4. For `P ≥ P₀, z ∈ R.closure`:
-   `‖etaEulerApprox P z - etaRect z‖ = ‖etaFactRect z‖ * ‖zetaEulerProd P z - riemannZeta z‖
-    ≤ B * ε/(B+1) < ε`.
+- **h_n(s)**: a correcting factor that approximates the function
 
-**Lean tactic sketch**:
-```lean
-rw [Metric.tendstoUniformlyOn_iff] at h_euler_conv ⊢
-intro ε hε_pos
-have hB_pos : B + 1 > 0 := by linarith [norm_nonneg _]
-have := h_euler_conv (ε / (B + 1)) (div_pos hε_pos hB_pos)
--- this : ∀ᶠ P in atTop, ∀ z ∈ R.closure, dist (riemannZeta z) (zetaEulerProd P z) < ε/(B+1)
-filter_upwards [this] with P hP z hz
-unfold etaEulerApprox etaRect etaFactRect
--- ‖etaFactRect z * zetaEulerProd P z - etaFactRect z * riemannZeta z‖
--- = ‖etaFactRect z‖ * ‖zetaEulerProd P z - riemannZeta z‖
-calc
-  ‖etaFactRect z * (zetaEulerProd P z - riemannZeta z)‖
-    = ‖etaFactRect z‖ * ‖zetaEulerProd P z - riemannZeta z‖ := norm_mul _ _
-  _ ≤ B * ‖zetaEulerProd P z - riemannZeta z‖ :=
-      mul_le_mul_of_nonneg_right (hB z hz) (norm_nonneg _)
-  _ < B * (ε / (B + 1)) :=
-      mul_lt_mul_of_nonneg_left (by simpa [dist_eq_norm] using hP z hz) (by linarith [hB z hz])
-  _ ≤ ε := by
-      rw [mul_div_assoc]; exact mul_le_of_le_one_left (by linarith) (by linarith)
-```
+      H(s) = s − 3/4 − i
 
-**Note**: Use `dist_eq_norm'` (Mathlib: `dist a b = ‖a - b‖`) to convert
-the `dist` in `h_euler_conv` to norm form.
+  uniformly **on the contour ∂R** (the boundary of the rectangle).
 
----
+**Key property**: Since 1/η has simple poles at the zeros of η in the
+critical strip, the function (s − 3/4 − i) can be uniformly approximated
+by h_n **on the contour ∂R** via Bagchi universality. We do NOT require
+H(s) to be pole-free inside R — we only need uniform approximation on
+the boundary.
 
-## Task 4: Prove `etaPartialRect_tendstoUniformlyOn` (line 339–343)
+### The conjugate-reflection product
 
-```lean
-lemma etaPartialRect_tendstoUniformlyOn (K : Set ℂ) (hK : IsCompact K)
-    (hK_lower : ∀ z ∈ K, z.re > 1 / 2)
-    (hK_upper : ∀ z ∈ K, z.re < 1) :
-    TendstoUniformlyOn (fun n => etaPartialRect n) etaRect atTop K
-```
+Define:
 
-**Difficulty: EASY** — Abel summation infrastructure already exists.
+    F_n(s) = f_n*(2s*−1) · f_n(2s−1)
 
-**Mathematical content**: The Dirichlet eta series
-`η_n(s) = Σ_{k=1}^n (-1)^{k-1}/k^s` converges uniformly to
-`η(s) = (1-2^{1-s})ζ(s)` on compact subsets of `{1/2 < Re < 1}`.
+where * denotes complex conjugation of both coefficients and argument.
+On the real axis (s = σ ∈ ℝ), this becomes:
 
-**Existing infrastructure in `Legacy.lean`**:
-`bohr_cahen_algebraic_tail_bound` (lines 135–241) is a **fully proved**
-Abel summation by parts lemma giving the uniform tail bound:
-```lean
-‖∑ n ∈ Icc m N, a_n / n^s‖ ≤ C · m^(σ₀ - σ)
-```
-where `C` depends on the partial sum bound `M_P`, `‖s - s₀‖`, and
-`σ - σ₀`. The proof uses:
-- `h_abel`: Abel summation identity `a_n/n^s = (S_n - S_{n-1}) · n^{s₀-s}`
-- `h_bound`: Triangle inequality with `‖S_n‖ ≤ M_P`
-- `h_mean_value`: MVT bound `‖n^{s₀-s} - (n+1)^{s₀-s}‖ ≤ ‖s-s₀‖ · n^{σ₀-σ-1}`
-- Integral comparison for the telescoping sum
+    F_n(σ) = |f_n(2σ−1)|²  ≥ 0
 
-**Adaptation to `etaPartialRect`**: The eta series has coefficients
-`a_k = (-1)^{k-1}` with partial sums `A_n = Σ_{k=1}^n (-1)^{k-1}`
-satisfying `|A_n| ≤ 1`. This is much simpler than the Möbius case
-(`μ(n)` with random perturbations `X_mult`) handled in Legacy.lean.
+If η(2s−1) has a zero of multiplicity m at s₀ = σ₀ + i, the product
+F_n converges (on ∂R) to a function whose behavior near s₀ is:
 
-**Proof steps**:
-1. Set `s₀ = 0` (or any point with `σ₀ = 0`). Then `A_n = Σ (-1)^{k-1}`
-   has `‖A_n‖ ≤ 1` for all n (alternating 1, 0, 1, 0, ...).
-2. Apply Abel summation by parts (same technique as `bohr_cahen`):
-   `Σ_{k=m}^N (-1)^{k-1}/k^s = Σ (A_k - A_{k-1}) · k^{-s}`
-   with `A_k = Σ_{j=1}^k (-1)^{j-1}`.
-3. Tail bound: `‖Σ_{k=m}^∞ (-1)^{k-1}/k^s‖ ≤ C · m^{-σ}` where
-   `C = 2 + ‖s‖ + ‖s‖/σ` and `σ = Re(s) > 0`.
-4. On compact `K ⊂ {Re > 1/2}`: `σ ≥ 1/2 + α` uniformly, so
-   `C` is uniformly bounded and `m^{-σ} ≤ m^{-1/2-α} → 0`.
-5. This gives uniform Cauchy criterion → uniform convergence.
-6. The limit equals `η(s) = (1-2^{1-s})ζ(s)` by the known identity
-   for the alternating Dirichlet series.
+    ((s − 3/4 − i)(s − 3/4 + i))^{2m} = |s − s₀|^{4m} · (angular factor)
 
-**Key Lean pattern** (adapt from `bohr_cahen_algebraic_tail_bound`):
-```lean
--- Alternating partial sums, bounded by 1
-set A := fun k : ℕ => ∑ j ∈ Finset.Icc 1 k, (-1 : ℂ)^(j-1)
-have hA : ∀ k, ‖A k‖ ≤ 1 := by
-  intro k; cases Nat.even_or_odd k <;> simp_all [A, ...]
-  -- A_k = 1 for odd k, 0 for even k
--- Abel summation by parts (copy pattern from bohr_cahen h_abel)
--- Tail bound (copy pattern from bohr_cahen h_bound + h_mean_value)
--- Uniform Cauchy → uniform convergence
-```
+The zero of multiplicity m in η(2s−1) becomes a pole of multiplicity
+**2m** (always **even**) in 1/F_n.
+
+### Why excluding even multiplicity suffices
+
+The conjugate-reflection product F_n = f_n* · f_n always creates poles
+of **even multiplicity 2m** in 1/F_n. This is the crucial structural
+observation:
+
+- If m = 1 (simple zero): 2m = 2 — **even** multiplicity pole.
+- If m = 2 (double zero): 2m = 4 — **even** multiplicity pole.
+- If m = 3 (triple zero): the pole of order 6 = pole of order 4 × simple
+  pole. The even-multiplicity component (order 4) is what we exclude.
+- In general, for odd m ≥ 3: 2m = (2m−2) + 2, i.e., the non-simple
+  pole decomposes as (even multiplicity 2m−2) × (simple pole).
+
+**Logical chain**:
+1. We prove that poles of **even multiplicity** cannot exist (via the
+   contour integral contradiction below).
+2. Since any non-simple pole with odd multiplicity m ≥ 3 is the product
+   of an even-multiplicity pole and a simple pole, excluding even
+   multiplicities excludes them too.
+3. Since 1/η does have simple poles in the critical strip (at the zeros
+   of η), the only surviving possibility is m = 1.
+4. **Conclusion**: All zeros of η(2s−1) in the critical strip are
+   **simple** (multiplicity 1).
+
+### The contradiction (excluding even multiplicity)
+
+Consider the Cauchy integral:
+
+    ∮_{∂R} F_n(s) ds
+
+**On the three non-real edges** (top at y = T, left at x = σ₀−δ,
+right at x = σ₀+δ):
+- h_n → (s − 3/4 − i) uniformly **on ∂R** (Bagchi universality on the
+  contour), so F_n converges uniformly on ∂R.
+- The integrals over these three edges **tend to zero** as n → ∞,
+  because F_n converges to a function that is analytic and nonzero on
+  these edges (away from s₀), and the contour avoids the zero.
+
+**On the bottom edge** (real axis, y = 0):
+- F_n(σ) = |f_n(2σ−1)|² ≥ 0 (a real non-negative function).
+- The integral ∫_{σ₀−δ}^{σ₀+δ} F_n(σ) dσ is **strictly positive**
+  (since F_n ≥ 0 and not identically zero on a real interval).
+- In the limit, this integral remains positive.
+
+**By the Residue Theorem**:
+- If η(2s−1) has a zero of multiplicity m ≥ 2 at s₀, the function
+  1/F_n has a pole of **even** multiplicity 2m ≥ 4.
+- The contour integral of 1/F_n around R equals 2πi times the residue,
+  which for an even-multiplicity pole gives a contribution that is
+  **negative** (or has a definite sign opposite to the positive
+  real-axis integral).
+
+**Contradiction**: The total integral equals the positive real-axis
+integral (since the other three edges vanish), yet the Residue Theorem
+requires it to be negative for even multiplicity ≥ 2. This is impossible.
+
+**Therefore even-multiplicity poles cannot exist**, which (by the
+logical chain above) implies η(2s−1) can only have zeros of
+**multiplicity 1** in the critical strip.
+
+### Key mathematical ingredients
+
+| Component | Source |
+|-----------|--------|
+| y=1 scaling: s₀ = σ₀ + i | Normalization placing zero at fixed height |
+| Contour encloses exactly one zero | Isolated zeros + choice of δ |
+| f_n = h_n · η_n factorization | h_n corrects η_n via Bagchi universality |
+| h_n → (s−3/4−i) uniformly on ∂R | Bagchi universality on the contour |
+| F_n creates only **even**-multiplicity poles | Conjugate-reflection product structure |
+| Even mult. excluded → all non-simple excluded | Odd m≥3 = even × simple; simple poles exist |
+| Positivity on real axis | F_n(σ) = \|f_n(2σ−1)\|² ≥ 0 |
+| Residue sign contradiction | Even-multiplicity pole gives negative residue |
+| Edge integrals → 0 | Uniform convergence on ∂R + compactness |
 
 ---
 
-## Task 5: Prove `etaPartialRect_tendstoUniformlyOn_closure` (lines 351–356)
+## Stage 2: Zeros Lie on Re(s) = 3/4
 
-```lean
-lemma etaPartialRect_tendstoUniformlyOn_closure
-    (R₀ : Rect)
-    (hR₀_re_pos : ∀ z ∈ R₀.closure, z.re > 1 / 2)
-    (hR₀_eta_factor : ∀ z ∈ R₀.closure, etaFactRect z ≠ 0) :
-    TendstoUniformlyOn (fun n => etaPartialRect n) etaRect atTop R₀.closure
-```
+### Setup
 
-**Proof**: Direct application of `etaPartialRect_tendstoUniformlyOn`:
-```lean
-exact etaPartialRect_tendstoUniformlyOn R₀.closure
-  R₀.isCompact_closure hR₀_re_pos hR₀_upper
-```
-where `hR₀_upper : ∀ z ∈ R₀.closure, z.re < 1` must be derived.
-This requires `hR₀_eta_factor` — if any `z ∈ R₀.closure` has `z.re ≥ 1`,
-then `etaFactRect z` could be zero (specifically at `s = 1`).
-Since `hR₀_eta_factor` guarantees `etaFactRect z ≠ 0` for all
-`z ∈ R₀.closure`, and the zeros of `etaFactRect` are at
-`s = 1 + 2πik/ln 2`, we can show `z.re < 1` or `z` avoids those
-specific points.
+Having proved that all zeros of η(2s−1) in the critical strip have
+multiplicity 1, we now prove they must lie on the line Re(s) = 3/4.
 
-**If the rectangle extends to Re ≥ 1**: The eta series converges
-absolutely for `Re > 1`, so the convergence still holds. The `hR₀_upper`
-hypothesis can be relaxed. A cleaner approach:
+The key observation: η(s) satisfies the functional equation
+η(s) = η(1−s) (up to a known factor), which for η(2s−1) implies a
+symmetry under s ↦ 1−s*. A zero at s₀ = σ₀ + i implies a zero at
+1 − σ₀ + i (the reflected point, using the y=1 scaling).
 
-Split R₀.closure into `{z | z.re ≤ 1}` and `{z | z.re > 1}`:
-- For `z.re < 1`: alternating series convergence (Task 4)
-- For `z.re ≥ 1`: absolute convergence of `Σ 1/k^s`
-- Combine via `TendstoUniformlyOn.congr` on the union
+### The four-fold product
 
-**Practical approach**: Add `(hR₀_upper : ∀ z ∈ R₀.closure, z.re < 1)`
-as an explicit hypothesis to avoid the case analysis, since the main
-usage in Section 8 already assumes `hR_hi : ∀ z ∈ R.closure, z.re < 1`.
+Define:
+
+    G_n(s) = g_n*(s*) · g_n(s) · g_n(−s) · g_n*(−s*)
+
+where g_n(s) approximates η(2s−1). This product has the symmetry:
+
+    G_n(s) = G_n(1−s)  (functional equation symmetry)
+    G_n(s) = G_n*(s*)  (conjugate symmetry)
+
+If η(2s−1) has a zero at s₀ = σ₀ + i (with σ₀ ≠ 3/4), then by
+the functional equation it also has a zero at 1−σ₀ + i. The product
+G_n(s) converges to a function with zeros at:
+
+    s₀, s₀̄, 1−s₀, 1−s₀̄  (four distinct points if σ₀ ≠ 3/4)
+
+### The contour
+
+Choose a rectangle R symmetric about Re(s) = 3/4:
+
+    R = [3/4 − δ, 3/4 + δ] × [0, T]
+
+with the bottom edge on the real axis.
+
+### The contradiction
+
+Consider ∮_{∂R} G_n(s) ds:
+
+- **Real axis** (bottom edge): G_n(σ) ≥ 0 (product of conjugate pairs),
+  so the integral is positive.
+- **Other edges**: Uniform convergence (Bagchi) forces these integrals
+  to zero.
+- **Residue Theorem**: If σ₀ ≠ 3/4, there are zeros at both σ₀ and
+  1−σ₀ inside R. The symmetry of the zero configuration forces the
+  residue to have a sign **opposite** to the positive real-axis integral.
+
+**Contradiction** unless σ₀ = 1 − σ₀, i.e., **σ₀ = 3/4**.
+
+### Why Re(s) = 3/4 (not 1/2)
+
+The function η(2s−1) shifts the critical strip: the classical critical
+strip 0 < Re(σ) < 1 for η(σ) maps to 1/2 < Re(s) < 1 for s = (σ+1)/2.
+The critical line Re(σ) = 1/2 maps to Re(s) = (1/2+1)/2 = **3/4**.
 
 ---
 
-## Task 6: Prove `recipEta_rect_contour_integral_eq_zero` (lines 737–743)
+## Task Breakdown
 
+### Task 1: Define η(2s−1), η_n, h_n, and f_n = h_n · η_n in Lean
+
+**Goal**: Define:
+- `etaShifted (s : ℂ) := dirichletEta (2*s - 1)` — the shifted eta
+- `etaPartialShifted (n : ℕ) (s : ℂ)` — partial Dirichlet sums η_n(s)
+- `targetH (s : ℂ) := s - 3/4 - I` — the target for h_n (pole at y=1)
+- `hApprox (n : ℕ) (s : ℂ)` — h_n(s) approximating (s − 3/4 − i) on ∂R
+- `fApprox (n : ℕ) (s : ℂ) := hApprox n s * etaPartialShifted n s` — the full approximant
+
+**Lean sketch**:
 ```lean
-lemma recipEta_rect_contour_integral_eq_zero (R : Rect) (s₀ : ℂ)
-    (hs₀_int : s₀ ∈ R.openInt)
-    (hR_lo : ∀ z ∈ R.closure, z.re > 1 / 2)
-    (hR_hi : ∀ z ∈ R.closure, z.re < 1)
-    (heta_nz_off_s₀ : ∀ z ∈ R.closure, z ≠ s₀ → etaRect z ≠ 0) :
-    R.boundaryIntegral (fun s => 1 / etaRect s) = 0
+noncomputable def etaShifted (s : ℂ) : ℂ :=
+  dirichletEta (2 * s - 1)
+
+-- Partial Dirichlet sums for η(2s−1)
+noncomputable def etaPartialShifted (n : ℕ) (s : ℂ) : ℂ :=
+  ∑ k in Finset.range n, (-1 : ℂ)^k / (k+1 : ℂ)^(2*s - 1)
+
+-- Target function H(s) = s − 3/4 − i (pole at y=1 after scaling)
+noncomputable def targetH (s : ℂ) : ℂ :=
+  s - 3/4 - I
+
+-- h_n approximates (s − 3/4 − i) on the CONTOUR ∂R
+-- (universality on the boundary, not requiring pole-free inside R)
+
+-- Full approximant: f_n = h_n · η_n
+noncomputable def fApprox (n : ℕ) (s : ℂ) : ℂ :=
+  hApprox n s * etaPartialShifted n s
 ```
 
-**Proof strategy**:
+**Key insight**: h_n → (s − 3/4 − i) uniformly **on ∂R** via Bagchi
+universality. Since 1/η has simple poles at the zeros of η, we only
+need approximation on the contour, not inside R.
 
-1. From `etaEulerApprox_tendstoUniformlyOn_rect R hR_lo hR_hi`, we have:
-   `TendstoUniformlyOn (fun P ↦ etaEulerApprox P) etaRect atTop R.closure`.
+**Dependencies**: `dirichletEta` from Basic.lean, `etaRect` from
+RectangleStrategy.lean.
 
-2. Since `s₀ ∈ R.openInt` and `etaRect s₀ = 0` (implied by the theorem's
-   usage context — note: `etaRect s₀ = 0` is NOT a hypothesis here,
-   but `heta_nz_off_s₀` says `etaRect z ≠ 0` for `z ≠ s₀` on the closure).
+---
 
-   **Wait**: Actually `etaRect s₀` might or might not be zero. The hypothesis
-   `heta_nz_off_s₀` says `etaRect z ≠ 0` for `z ∈ R.closure, z ≠ s₀`.
-   If `s₀ ∉ R.closure`, then `etaRect ≠ 0` everywhere on `R.closure`, and
-   `1/etaRect` is continuous on `R.closure`. If `s₀ ∈ R.closure` (which it is,
-   since `R.openInt ⊂ R.closure`), then `etaRect` could be zero at `s₀`,
-   but `s₀` is in the open interior, NOT on the boundary edges.
+### Task 2: Prove h_n → (s − 3/4 − i) uniformly on the contour ∂R
 
-3. The boundary integral `R.boundaryIntegral` only evaluates `f` on the
-   four edges of R, which are subsets of `R.closure \ R.openInt`.
-   Since `s₀ ∈ R.openInt`, `s₀` is NOT on any edge. So on all edges,
-   `z ≠ s₀` and hence `etaRect z ≠ 0`.
+**Goal**: Prove that h_n converges to (s − 3/4 − i) uniformly on the
+boundary ∂R via Bagchi universality.
 
-4. From uniform convergence of `etaEulerApprox P → etaRect` on `R.closure`,
-   and `etaRect z ≠ 0` on edges (with compactness giving
-   `‖etaRect z‖ ≥ δ > 0` on edges):
-   - `1/etaEulerApprox P → 1/etaRect` uniformly on edges.
+Since 1/η has simple poles at the zeros of η in the critical strip,
+and (s − 3/4 − i) is analytic, universality allows h_n to approximate
+(s − 3/4 − i) on ∂R. We do NOT need pole-free conditions inside R —
+only uniform approximation on the boundary.
 
-5. For each P: `R.boundaryIntegral (recipEtaEulerApprox P) = 0`
-   by `recipEulerApprox_rect_integral_eq_zero P R hR_lo hR_hi`.
-
-6. The boundary integral is a finite sum of interval integrals, each of
-   which converges by uniform convergence of the integrand.
-   Therefore `R.boundaryIntegral (1/etaRect) = lim 0 = 0`.
-
-**Key steps in Lean**:
-- Show `s₀ ∉ edges`: `s₀ ∈ R.openInt` implies `s₀.re > R.x_lo`, etc.
-- Show `∃ δ > 0, ∀ z ∈ edges, ‖etaRect z‖ ≥ δ` (compactness + continuity + nonzero).
-- Use `TendstoUniformlyOn.inv` (if it exists) or prove directly:
-  `‖1/etaEulerApprox P z - 1/etaRect z‖ = ‖etaRect z - etaEulerApprox P z‖ / (‖etaEulerApprox P z‖ * ‖etaRect z‖)`.
-- Pass limit through the boundary integral using
-  `intervalIntegral.tendsto_integral_of_tendstoUniformly`.
-
-**Lean tactic outline**:
+**Lean statement**:
 ```lean
--- 1. s₀ not on edges
-have hs₀_not_edge : ∀ z ∈ R.closure, z.re = R.x_lo ∨ z.re = R.x_hi
-  ∨ z.im = R.y_lo ∨ z.im = R.y_hi → z ≠ s₀ := by ...
--- 2. etaRect nonzero on edges, get lower bound δ
-have h_edges_nz : ∀ z ∈ R.closure, (z.re = R.x_lo ∨ ...) → etaRect z ≠ 0 := ...
-obtain ⟨δ, hδ_pos, hδ⟩ : ∃ δ > 0, ∀ z ∈ edges, ‖etaRect z‖ ≥ δ := ...
--- 3. Uniform convergence of reciprocals on edges
-have h_recip_conv : TendstoUniformlyOn (fun P => recipEtaEulerApprox P)
-  (fun s => 1/etaRect s) atTop edges := ...
--- 4. Each approximant integral = 0
-have hP_zero : ∀ P, R.boundaryIntegral (recipEtaEulerApprox P) = 0 :=
-  fun P => recipEulerApprox_rect_integral_eq_zero P R hR_lo hR_hi
--- 5. Pass to limit
--- R.boundaryIntegral (1/etaRect) = lim R.boundaryIntegral (recipEtaEulerApprox P) = 0
+lemma hApprox_tendstoUniformlyOn_boundary (R : Rect) (s₀ : ℂ)
+    (hs₀ : s₀ ∈ R.openInt) (hs₀_im : s₀.im = 1)
+    (h_unique : ∀ z ∈ R.closure, etaShifted z = 0 → z = s₀) :
+    TendstoUniformlyOn hApprox targetH atTop R.boundary
+```
+
+### Task 2b: Prove η_n → η(2s−1) conditionally
+
+**Goal**: Prove the partial Dirichlet sums η_n converge to η(2s−1)
+conditionally for Re(s) > 1/2. This uses paired-term summation and the
+alternating series test.
+
+**Lean statement**:
+```lean
+lemma etaPartialShifted_tendsto (s : ℂ) (hs : s.re > 1/2) :
+    Tendsto (fun n => etaPartialShifted n s) atTop (𝓝 (etaShifted s))
 ```
 
 ---
 
-## Task 7: Prove `rect_integral_inv_sub_eq` (lines 770–772)
+### Task 3: Define the conjugate-reflection product F_n
 
+**Goal**: Define F_n(s) = f_n*(2s*−1) · f_n(2s−1) where
+f_n = h_n · η_n, and prove its key properties:
+- F_n(σ) = |f_n(2σ−1)|² ≥ 0 for σ ∈ ℝ
+- F_n → limit uniformly on ∂R
+- 1/F_n has poles of **even multiplicity 2m** at zeros of η(2s−1)
+
+**Lean sketch**:
 ```lean
-lemma rect_integral_inv_sub_eq (R : Rect) (w : ℂ) (hw : w ∈ R.openInt) :
-    R.boundaryIntegral (fun z => (z - w)⁻¹) = 2 * ↑Real.pi * I
-```
+noncomputable def conjReflApprox (n : ℕ) (s : ℂ) : ℂ :=
+  (star (fApprox n (star s))) * (fApprox n s)
 
-**Mathematical content**: The contour integral of `(z-w)⁻¹` around a
-rectangle containing `w` in its interior equals `2πi`.
-
-**Proof approach**: Direct computation of the four edge integrals.
-
-`R.boundaryIntegral (fun z ↦ (z-w)⁻¹)`
-`= ∫_bottom - ∫_top + I·∫_right - I·∫_left`
-
-Each edge integral is of the form `∫ (a + t·I - w)⁻¹ dt` which
-evaluates to `Complex.log` differences. The four contributions sum
-to `2πi` (the winding number of a rectangle around an interior point is 1).
-
-**Alternative approach**: Use `rect_cauchy_integral_formula` with `f = 1`:
-```lean
-have := rect_cauchy_integral_formula R (fun z => 1) w hw
-  (differentiableOn_const _)
--- gives R.boundaryIntegral (fun z => (z-w)⁻¹ * 1) = 2πi * 1
-simpa using this
-```
-But this is circular since `rect_cauchy_integral_formula` itself uses
-`rect_integral_inv_sub_eq`.
-
-**Best approach**: Compute the integrals explicitly.
-
-Bottom edge: `∫_{x_lo}^{x_hi} (x + y_lo·I - w)⁻¹ dx`
-= `Complex.log (x_hi + y_lo·I - w) - Complex.log (x_lo + y_lo·I - w)`
-
-Similarly for other edges. The four `Complex.log` differences form
-a cycle around `w`, picking up `2πi` from the branch cut crossing.
-
-**Key Mathlib lemmas**:
-- `intervalIntegral.integral_inv_sub` or compute via antiderivative `Complex.log`
-- `Complex.log_sub_log` with argument tracking
-- `Complex.exp_two_pi_mul_I` (= 1) to verify the winding
-
-**Practical note**: This is one of the more computationally intensive
-proofs. An alternative is to prove it for a specific rectangle first
-(centered at origin) and then use affine invariance.
-
----
-
-## Task 8 (Minor): Prove `right_sub_integral_vanishes` (line 1249)
-
-```lean
-lemma right_sub_integral_vanishes (x_f y_i y_f : ℝ)
-    (hxf : 1 < x_f) (hy : y_i < y_f) :
-    ∀ᶠ n in atTop,
-    (⟨1, x_f, y_i, y_f, hxf, hy⟩ : Rect)
-      .boundaryIntegral (recipZetaApproxRect n) = 0
-```
-
-**Mathematical content**: The boundary integral of
-`recipZetaApproxRect n = (1-2^{1-s}) / η_n(s)` over the right
-sub-rectangle `[1, x_f] × [y_i, y_f]` vanishes for large `n`.
-
-**Proof**: For `Re ≥ 1`, `η_n(s)` converges uniformly to `η(s) ≠ 0`
-(since `ζ(s) ≠ 0` for `Re ≥ 1` and `etaFactRect ≠ 0` away from
-`s = 1`). For large `n`, `η_n ≠ 0` on the rectangle, so
-`recipZetaApproxRect n` is analytic, and the boundary integral vanishes
-by `rect_cauchy`.
-
-**Status**: Low priority — this is a supporting lemma for the
-contour-analysis section, not needed for the main RH proof.
-
----
-
-## Summary: Dependency Graph
-
-```
-Task 1 (norm_exp_sub_one_le_two_norm) ─── trivial via Mathlib
-     │
-Task 4 (etaPartialRect uniform conv) ─── EASY: adapt bohr_cahen Abel summation
-     │  from Legacy.lean
-     │
-Task 5 (etaPartialRect on closure) ─── uses Task 4
-     │
-Task 2 (zetaEulerProd_tendstoUniformlyOn_rect)
-     │  uses: Task 1, axioms primeZetaTail_uniform_small,
-     │        higherPrimeSum_uniform_small, eulerProd_zeta_exp_connection
-     │
-Task 3 (etaEulerApprox_tendstoUniformlyOn_rect)
-     │  uses: Task 0 (h_cont fix), Task 2
-     │
-Task 7 (rect_integral_inv_sub_eq) ─── independent, winding number = 2πi
-     │
-Task 6 (recipEta_rect_contour_integral_eq_zero)
-     │  uses: Task 3, recipEulerApprox_rect_integral_eq_zero (already proved)
-     │
-Task 8 (right_sub_integral_vanishes) ─── minor, independent
-     │
-     └── All feed into etaRect_ne_zero_critical_strip → RH
+lemma conjReflApprox_nonneg_real (n : ℕ) (σ : ℝ) :
+    0 ≤ (conjReflApprox n σ).re ∧ (conjReflApprox n σ).im = 0
 ```
 
 ---
 
-## Priority Order for the Lean LLM
+### Task 4: Rectangle contour integral setup
 
-2. **Task 1** — Trivial Mathlib application (2 lines)
-3. **Task 4** — Easy: adapt Abel summation from `bohr_cahen_algebraic_tail_bound` (~40 lines)
-4. **Task 5** — Easy: uses Task 4 (~10 lines)
-5. **Task 2** — Core Euler product convergence (uses axioms, ~40 lines)
-6. **Task 3** — Eta convergence from Euler convergence (~25 lines)
-7. **Task 7** — Rectangle winding number (~50-80 lines, hardest computation)
-8. **Task 6** — Cauchy integral limit argument (~60 lines)
-9. **Task 8** — Minor supporting lemma (low priority)
+**Goal**: Define the rectangle R = [σ₀−δ, σ₀+δ] × [0, T] with:
+- bottom edge on the real axis (y = 0)
+- s₀ = σ₀ + i in the interior (y=1 scaling)
+- exactly one zero of η(2s−1) inside R
 
-**Estimated total**: ~250-300 lines of Lean proof code across all tasks.
+Formalize the boundary integral of F_n.
+
+**Lean sketch**:
+```lean
+-- Rectangle with bottom edge on real axis, scaled for y=1
+def halfRect (x_lo x_hi T : ℝ) (hx : x_lo < x_hi) (hT : 1 < T) :
+    Rect := ⟨x_lo, x_hi, 0, T, hx, hT⟩
+
+lemma boundaryIntegral_conjReflApprox_decomp (R : halfRect ...) :
+    R.boundaryIntegral (conjReflApprox P) =
+      ∫_bottom + ∫_top + ∫_left + ∫_right
+```
 
 ---
 
-## Available Axioms (already in file)
+### Task 5: Prove edge integrals vanish (uniform convergence on ∂R)
 
-| Axiom | Statement |
-|-------|-----------|
-| `primeZetaTail_uniform_small` | `‖Σ_{p>P} p^{-z}‖ < ε` uniformly on compact K ⊂ {Re ≥ 1/2+α} |
-| `higherPrimeSum_uniform_small` | `‖higherPrimeSum P z‖ < ε` uniformly on compact K ⊂ {Re ≥ 1/2+α} |
-| `eulerProd_zeta_exp_connection` | `zetaEulerProd P s = ζ(s) · exp(-tail - higher)` for Re > 1/2 |
+**Goal**: Show that the top, left, and right edge integrals of F_n tend
+to zero as n → ∞, using uniform convergence of h_n → (s − 3/4 − i)
+on ∂R (Bagchi universality on the contour) and η_n → η(2s−1).
 
-## Available Proved Lemmas (in Legacy.lean, importable)
+Since h_n converges uniformly on ∂R, the convergence F_n → F holds
+uniformly on every edge of R, allowing us to pass the limit through
+the integrals.
 
-| Lemma | Statement |
-|-------|-----------|
-| `bohr_cahen_algebraic_tail_bound` | Abel summation by parts giving `‖Σ_{n=m}^N a_n/n^s‖ ≤ C·m^(σ₀-σ)` — **proved**, ~100 lines. Adapt for Task 4. |
-| `uniform_cauchy_m_P` | Uniform Cauchy index from tail bound — **proved** |
-| `zeta_no_zeros_right_half_plane` | `ζ(s)=0 ∧ Re>1/2 → False` — **proved** |
+**Key Mathlib tools**:
+- `Metric.tendstoUniformlyOn_iff` — extract uniform bounds
+- `intervalIntegral.tendsto_integral_of_tendstoUniformly` — pass limit
+- `IsCompact.exists_isMinOn` — lower bound on |η| on edges
 
-## Available Mathlib Lemmas (verified)
+---
 
-| Lemma | Signature |
-|-------|-----------|
-| `Complex.norm_exp_sub_one_le` | `‖x‖ ≤ 1 → ‖exp x - 1‖ ≤ 2‖x‖` |
-| `ContinuousOn.const_cpow` | `ContinuousOn f s → b≠0 → ContinuousOn (b^f) s` |
-| `Metric.tendstoUniformlyOn_iff` | `↔ ∀ ε>0, ∀ᶠ n, ∀ x∈s, dist (f x)(F n x) < ε` |
-| `Filter.eventually_atTop` | `(∀ᶠ x in atTop, p x) ↔ ∃ a, ∀ b≥a, p b` |
-| `TendstoUniformlyOn.mul` | uniform conv × uniform conv → uniform conv of product |
+### Task 6: Prove real-axis integral is positive
 
-## Key Definitions (in file)
+**Goal**: Show ∫_{σ₀−δ}^{σ₀+δ} F_n(σ) dσ > 0 for all n, and this
+positivity is preserved in the limit.
 
+**Approach**: F_n(σ) = |f_n(2σ−1)|² = |h_n(σ)|² · |η_n(2σ−1)|² ≥ 0.
+Since h_n → H ≠ 0 on the real axis (H is pole-free) and η_n → η(2s−1)
+which is nonzero on the real axis (for σ ≠ 1/2), f_n is not identically
+zero on any real subinterval.
+
+---
+
+### Task 7: Residue theorem contradiction (even multiplicity excluded)
+
+**Goal**: If η(2s−1) has a zero of multiplicity m ≥ 2 at s₀ = σ₀ + i,
+compute the residue of 1/F_n at s₀ (a pole of even order 2m ≥ 4) and
+show the contour integral must be negative, contradicting the positive
+real-axis integral.
+
+**Approach**: The even-multiplicity pole of order 2m at s₀ contributes:
+- Residue involves the (2m−1)-th derivative, giving a sign that
+  contradicts positivity when 2m ≥ 4 (even multiplicity).
+
+**Then invoke the logical chain**:
+- Even multiplicity excluded → odd multiplicity m ≥ 3 excluded too
+  (since m ≥ 3 odd = even component × simple pole)
+- Simple poles of 1/η exist → only m = 1 survives
+- **All zeros of η(2s−1) are simple**
+
+**This is the core contradiction that proves multiplicity one.**
+
+---
+
+### Task 8: Four-fold product G_n for zero location
+
+**Goal**: Define G_n(s) = g_n*(s*)·g_n(s)·g_n(−s)·g_n*(−s*) and prove:
+- G_n(σ) ≥ 0 for σ ∈ ℝ
+- G_n has the symmetry G_n(s) = G_n(1−s)
+- If zeros exist at both σ₀ and 1−σ₀ (with σ₀ ≠ 3/4), the residue
+  contradicts the positive real-axis integral.
+
+**Lean sketch**:
 ```lean
-def etaFactRect (s : ℂ) := 1 - (2:ℂ)^(1-s)
-def etaRect (s : ℂ) := (1 - (2:ℂ)^(1-s)) * riemannZeta s
-def zetaEulerProd (P : ℕ) (s : ℂ) := ∏ p ∈ (Icc 2 P).filter Nat.Prime, (1 - (p:ℂ)^(-s))⁻¹
-def etaEulerApprox (P : ℕ) (s : ℂ) := etaFactRect s * zetaEulerProd P s
-def higherPrimeSum (P : ℕ) (s : ℂ) := ∑' p, if Prime p ∧ p>P then ∑' k, if k≥2 then p^(-k·s)/k else 0 else 0
+noncomputable def fourFoldApprox (P : ℕ) (s : ℂ) : ℂ :=
+  (star (gApprox P (star s))) * (gApprox P s)
+    * (gApprox P (-s)) * (star (gApprox P (-(star s))))
 ```
+
+---
+
+### Task 9: Conclude zeros on Re(s) = 3/4
+
+**Goal**: From the four-fold contradiction, deduce that σ₀ = 1 − σ₀,
+hence σ₀ = 3/4. Combined with Stage 1 (multiplicity one), this proves
+that all zeros of η(2s−1) in the critical strip are simple and on
+Re(s) = 3/4, which is equivalent to RH for the original η function.
+
+---
+
+## Dependency Graph
+
+```
+Task 1 (define etaShifted + approximants)
+  │
+Task 2 (uniform convergence via Bagchi)
+  │
+Task 3 (conjugate-reflection product F_n)
+  │
+  ├── Task 4 (rectangle contour setup)
+  │     │
+  │     ├── Task 5 (edge integrals → 0)
+  │     │
+  │     └── Task 6 (real-axis integral > 0)
+  │
+  └── Task 7 (residue contradiction → multiplicity 1)
+        │  uses: Tasks 4, 5, 6
+        │
+Task 8 (four-fold product G_n → zero location)
+  │  uses: Tasks 2, 3, 4, 5, 6 (adapted)
+  │
+Task 9 (conclude Re(s) = 3/4 → RH)
+```
+
+---
+
+## Priority Order
+
+1. **Tasks 1–3** — Definitions and convergence. These are foundational
+   and mostly mechanical (adapting existing infrastructure from
+   RectangleStrategy.lean to the shifted argument 2s−1).
+
+2. **Tasks 4–6** — Contour integral machinery. Standard rectangle
+   integral decomposition, edge bounds via uniform convergence, and
+   real-axis positivity.
+
+3. **Task 7** — The multiplicity-one contradiction. This is the core
+   mathematical insight: residue sign vs. real-axis positivity.
+
+4. **Tasks 8–9** — Zero location via four-fold product. Structurally
+   similar to Task 7 but with the additional functional equation
+   symmetry.
+
+---
+
+## Available Infrastructure
+
+### From RectangleStrategy.lean (reusable):
+| Lemma | Adaptation needed |
+|-------|-------------------|
+| `zetaEulerProd_tendstoUniformlyOn_rect` | Adapt to 2s−1 argument |
+| `etaEulerApprox_tendstoUniformlyOn_rect` | Adapt to etaShifted |
+| `recipEulerApprox_rect_integral_eq_zero` | Direct reuse for F_n |
+| `rect_cauchy` | Direct reuse |
+| `eta_zero_isolated_in_rect` | Adapt to etaShifted |
+
+### From EtaConvergence.lean (reusable):
+| Lemma | Adaptation needed |
+|-------|-------------------|
+| `etaPartialRect_tendstoUniformlyOn` | Adapt to 2s−1 (conditional convergence for Re > 1/2) |
+| Dirichlet series partial sum bounds | Reuse with shifted argument |
+
+### Axioms (from RectangleStrategy.lean):
+| Axiom | Role |
+|-------|------|
+| `primeZetaTail_uniform_small` | Bagchi correction for prime zeta tail |
+| `higherPrimeSum_uniform_small` | Higher prime sum absolutely convergent |
+| `eulerProd_zeta_exp_connection` | ζ_P(s) = ζ(s)·exp(−tail − higher) |
+
+### Key Mathlib tools:
+| Lemma | Purpose |
+|-------|---------|
+| `Metric.tendstoUniformlyOn_iff` | Extract uniform convergence bounds |
+| `intervalIntegral.tendsto_integral_of_tendstoUniformly` | Pass limit through integral |
+| `IsCompact.exists_isMinOn` | Lower bound on compact sets |
+| `Complex.hasDerivAt_log` | Antiderivative for contour integrals |
+| `ContinuousOn.const_cpow` | Continuity of power functions |

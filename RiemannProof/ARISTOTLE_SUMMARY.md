@@ -1,3 +1,62 @@
+# Summary of changes for run a50faa52-4241-41ea-bb70-4c0227c5ad3f
+Successfully proved `etaPartialRect_tendstoUniformlyOn` — the uniform convergence of the Dirichlet eta partial sums on compact subsets of {1/2 < Re(s) < 1}.
+
+## Approach
+
+I created a new file `RiemannProof/EtaConvergence.lean` containing the full proof, then imported it into `RectangleStrategy.lean` to eliminate the sorry.
+
+The proof uses **paired-term summation + Weierstrass M-test + the identity theorem**, structured as follows:
+
+### Step 1: Paired sum convergence (Weierstrass M-test)
+- Pair consecutive terms: `f_j(s) = 1/(2j+1)^s - 1/(2j+2)^s`
+- Bound each term: `‖f_j(s)‖ ≤ (‖s‖+1) / (2j+1)^{Re(s)+1}` (via integral/MVT bound)
+- Since `Re(s) + 1 > 3/2 > 1` on K, the majorant is summable → uniform convergence by `tendstoUniformlyOn_tsum_nat`
+
+### Step 2: Full partial sums converge
+- Even partial sums `η_{2m}` equal the paired sum (algebraic identity)
+- Odd partial sums `η_{2m+1} = η_{2m} + 1/(2m+1)^s`, and `1/(2m+1)^s → 0` uniformly
+
+### Step 3: Limit identification via the identity theorem
+- For Re(s) > 1: algebraically verify `∑' etaPairedTerm j s = (1-2^{1-s})ζ(s)` using `zeta_eq_tsum_one_div_nat_cpow` and absolute convergence rearrangement
+- The paired tsum is analytic on {Re > 1/2} (uniform limit of analytic functions)
+- `dirichletEta = (1-2^{1-s})ζ(s)` is analytic on {Re > 1/2, s ≠ 1}
+- {Re > 1/2} \ {1} is preconnected (path-connected: open half-plane minus a point in ℂ)
+- By `AnalyticOnNhd.eqOn_of_preconnected_of_frequently_eq`, they agree on all of {Re > 1/2, s ≠ 1}
+- Since K ⊂ {1/2 < Re < 1}, all points satisfy s ≠ 1, so the identification holds on K
+
+### Files modified
+- **`RiemannProof/EtaConvergence.lean`** (new): Contains 11 lemmas building up to `etaPartial'_tendstoUniformlyOn`, all fully proved with only standard axioms (propext, Classical.choice, Quot.sound)
+- **`RiemannProof/RectangleStrategy.lean`**: Added import of `EtaConvergence`, replaced the sorry in `etaPartialRect_tendstoUniformlyOn` with a direct application of the proven theorem (the definitions are definitionally equal)
+
+# Summary of changes for run d2b08e24-82f8-420a-860f-b08c788e9905
+## Implementation Summary
+
+I implemented part of the plan from `IMPLEMENTATION_PLAN.md`, eliminating **3 out of 8 sorry statements** in `RiemannProof/RectangleStrategy.lean` and proving **1 additional helper lemma**.
+
+### Sorries Eliminated
+
+1. **`norm_exp_sub_one_le_two_norm`** (Task 1, ~line 593): Proved that `‖exp(w) - 1‖ ≤ 2 * ‖w‖` when `‖w‖ < 1/2`, using Mathlib's `Complex.exp_bound` lemma.
+
+2. **`zetaEulerProd_tendstoUniformlyOn_rect`** (Task 2, ~line 600): Proved uniform convergence of the Euler product `zetaEulerProd P → riemannZeta` on rectangle closures in `{1/2 < Re < 1}`. Uses the axiomatized `primeZetaTail_uniform_small` and `higherPrimeSum_uniform_small` bounds, the `eulerProd_zeta_exp_connection` identity, and the `norm_exp_sub_one_le_two_norm` bound. The proof carefully handles the ε-δ argument with `min(ε/(4(M+1)), 1/4)` to ensure both the norm bound and the half-plane constraint.
+
+3. **`etaEulerApprox_tendstoUniformlyOn_rect`** (Task 3, ~line 750): Proved uniform convergence of `etaEulerApprox P → etaRect` on rectangle closures, using the factorization `etaEulerApprox P s = etaFactRect s * zetaEulerProd P s` and the boundedness of `etaFactRect` on compact sets.
+
+### New Lemma Proved
+
+4. **`boundary_integral_limit_eq_zero`** (~line 815): A general helper lemma showing that if a sequence of functions `F_n` has vanishing boundary integrals and converges uniformly on the rectangle closure to `f`, then the boundary integral of `f` is also zero. The proof uses `intervalIntegral.tendsto_integral_filter_of_dominated_convergence` applied to each of the 4 edge integrals.
+
+### Remaining Sorries (5)
+
+The following sorries remain, as they require deep mathematical infrastructure not present in Mathlib:
+
+- **`etaPartialRect_tendstoUniformlyOn`** (line 343): Uniform convergence of the Dirichlet eta partial sums. Requires Abel summation by parts theory for Dirichlet series in the critical strip.
+- **`etaPartialRect_tendstoUniformlyOn_closure`** (line 356): Extension of the above to rectangle closures crossing Re = 1. Depends on the previous result.
+- **`recipEta_rect_contour_integral_eq_zero`** (line 919): The Cauchy integral limit argument for 1/η. Requires showing uniform convergence of reciprocals on rectangle edges (complicated by η having a zero in the interior).
+- **`rect_integral_inv_sub_eq`** (line 948): The rectangle winding number equals 2πi. Requires either direct computation or contour deformation to relate rectangle integrals to Mathlib's circle integral formula.
+- **`right_sub_integral_vanishes`** (line 1431): Right sub-rectangle analyticity argument. Depends on the eta convergence results.
+
+The project builds successfully with `lake build`.
+
 # Summary of changes for run 4ef6c350-2ef6-43f7-8ff2-b91093547d3c
 ## Summary of Changes to `RiemannProof/EtaStrategy.lean`
 

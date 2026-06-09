@@ -1,6 +1,8 @@
 import Mathlib
 import RiemannProof.Basic
 import RiemannProof.Legacy
+import RiemannProof.EtaConvergence
+import RiemannProof.EtaConvergenceExtended
 
 /-!
 # Two-Rectangle Strategy for the Riemann Hypothesis
@@ -339,8 +341,8 @@ lemma zeta_ne_zero_right_sub (x_f y_i y_f : ℝ) (hxf : 1 < x_f) (hy : y_i < y_f
 lemma etaPartialRect_tendstoUniformlyOn (K : Set ℂ) (hK : IsCompact K)
     (hK_lower : ∀ z ∈ K, z.re > 1 / 2)
     (hK_upper : ∀ z ∈ K, z.re < 1) :
-    TendstoUniformlyOn (fun n => etaPartialRect n) etaRect atTop K := by
-  sorry
+    TendstoUniformlyOn (fun n => etaPartialRect n) etaRect atTop K :=
+  etaPartial'_tendstoUniformlyOn K hK hK_lower hK_upper
 
 /-- Uniform convergence of eta partial sums on R₀.closure.
     This extends `etaPartialRect_tendstoUniformlyOn` to handle rectangles crossing Re = 1.
@@ -353,7 +355,11 @@ lemma etaPartialRect_tendstoUniformlyOn_closure
     (hR₀_re_pos : ∀ z ∈ R₀.closure, z.re > 1 / 2)
     (hR₀_eta_factor : ∀ z ∈ R₀.closure, etaFactRect z ≠ 0) :
     TendstoUniformlyOn (fun n => etaPartialRect n) etaRect atTop R₀.closure := by
-  sorry
+  -- etaFactRect z ≠ 0 implies z ≠ 1 (since etaFactRect 1 = 0)
+  have hK_ne_one : ∀ z ∈ R₀.closure, z ≠ (1 : ℂ) := by
+    intro z hz heq
+    exact hR₀_eta_factor z hz (by rw [heq]; unfold etaFactRect; norm_num)
+  exact etaPartial'_tendstoUniformlyOn_extended R₀.closure R₀.isCompact_closure hR₀_re_pos hK_ne_one
 
 /-
 For a rectangle R₀ with no zeros of ζ inside, and for sufficiently large n,
@@ -593,7 +599,10 @@ axiom eulerProd_zeta_exp_connection (P : ℕ) (s : ℂ)
 lemma norm_exp_sub_one_le_two_norm (w : ℂ)
     (hw : ‖w‖ < 1 / 2) :
     ‖Complex.exp w - 1‖ ≤ 2 * ‖w‖ := by
-  sorry
+  have h1 : ‖w‖ ≤ 1 := by linarith
+  have := Complex.exp_bound h1 one_pos
+  simp at this
+  linarith
 
 lemma zetaEulerProd_tendstoUniformlyOn_rect (R : Rect)
     (hR_lo : ∀ z ∈ R.closure, z.re > 1 / 2)
@@ -625,7 +634,61 @@ lemma zetaEulerProd_tendstoUniformlyOn_rect (R : Rect)
       with ⟨M, hM⟩
     exact ⟨M, fun z hz => hM z hz⟩
   -- Main proof: use exp connection
-  sorry
+  rw [Metric.tendstoUniformlyOn_iff]
+  intro ε hε_pos
+  obtain ⟨α, hα_pos, hα_bound⟩ := hα
+  -- We need M ≥ 0 for later bounds
+  have hM_nn : 0 ≤ M := by
+    have : (⟨R.x_lo, R.y_lo⟩ : ℂ) ∈ R.closure :=
+      ⟨le_refl _, le_of_lt R.hx, le_refl _, le_of_lt R.hy⟩
+    exact le_trans (norm_nonneg _) (hM _ this)
+  set ε' := min (ε / (4 * (M + 1))) (1 / 4) with hε'_def
+  have hε'_pos : ε' > 0 := lt_min (div_pos hε_pos (by linarith)) (by norm_num)
+  have hε'_le : ε' ≤ 1 / 4 := min_le_right _ _
+  obtain ⟨P₁, hP₁⟩ := primeZetaTail_uniform_small R.closure hK
+    ⟨α, hα_pos, hα_bound⟩ ε' hε'_pos
+  obtain ⟨P₂, hP₂⟩ := higherPrimeSum_uniform_small R.closure hK
+    ⟨α, hα_pos, hα_bound⟩ ε' hε'_pos
+  rw [Filter.eventually_atTop]
+  refine ⟨max P₁ P₂, fun P hP z hz => ?_⟩
+  have hP₁' : P ≥ P₁ := le_of_max_le_left hP
+  have hP₂' : P ≥ P₂ := le_of_max_le_right hP
+  -- Set up the exponential connection
+  set tail := ∑' p : ℕ, if Nat.Prime p ∧ p > P then (p : ℂ) ^ (-z) else 0
+  set w := -tail - higherPrimeSum P z
+  have h_conn := eulerProd_zeta_exp_connection P z (by linarith [hR_lo z hz])
+  -- Bound ‖w‖
+  have h_tail : ‖tail‖ < ε' := hP₁ P hP₁' z hz
+  have h_higher : ‖higherPrimeSum P z‖ < ε' := hP₂ P hP₂' z hz
+  have hw_bound : ‖w‖ < 2 * ε' := by
+    calc ‖w‖ = ‖-tail - higherPrimeSum P z‖ := rfl
+    _ ≤ ‖tail‖ + ‖higherPrimeSum P z‖ := by
+        calc ‖-tail - higherPrimeSum P z‖
+          ≤ ‖-tail‖ + ‖higherPrimeSum P z‖ := norm_sub_le _ _
+          _ = ‖tail‖ + ‖higherPrimeSum P z‖ := by rw [norm_neg]
+    _ < ε' + ε' := add_lt_add h_tail h_higher
+    _ = 2 * ε' := by ring
+  have hw_lt_half : ‖w‖ < 1 / 2 := by linarith
+  -- The distance calculation
+  rw [dist_comm, dist_eq_norm]
+  -- zetaEulerProd P z = riemannZeta z * exp w
+  rw [h_conn]
+  -- ‖riemannZeta z * exp w - riemannZeta z‖ = ‖riemannZeta z‖ * ‖exp w - 1‖
+  rw [show riemannZeta z * Complex.exp w - riemannZeta z =
+      riemannZeta z * (Complex.exp w - 1) by ring]
+  rw [norm_mul]
+  have h_exp : ‖Complex.exp w - 1‖ ≤ 2 * ‖w‖ :=
+    norm_exp_sub_one_le_two_norm w hw_lt_half
+  have h1 : ‖riemannZeta z‖ * ‖Complex.exp w - 1‖ ≤ M * (2 * ‖w‖) :=
+    mul_le_mul (hM z hz) h_exp (norm_nonneg _) hM_nn
+  have h2 : M * (2 * ‖w‖) ≤ M * (2 * (2 * ε')) := by
+    apply mul_le_mul_of_nonneg_left _ hM_nn; linarith
+  have h3 : M * (2 * (2 * ε')) = M * 4 * ε' := by ring
+  have h4 : M * 4 * ε' < (M + 1) * 4 * ε' := by nlinarith
+  have h5 : (M + 1) * 4 * ε' ≤ (M + 1) * 4 * (ε / (4 * (M + 1))) := by
+    apply mul_le_mul_of_nonneg_left (min_le_left _ _); positivity
+  have h6 : (M + 1) * 4 * (ε / (4 * (M + 1))) = ε := by field_simp
+  linarith
 
 -- The old ball-based version `etaEulerApprox_tendstoUniformlyOn` has been
 -- replaced by `etaEulerApprox_tendstoUniformlyOn_rect` which works directly
@@ -717,26 +780,148 @@ lemma etaEulerApprox_tendstoUniformlyOn_rect (R : Rect)
     exact ⟨B, fun z hz => hB z hz⟩
   -- Combine: uniform convergence of zetaEulerProd * bounded factor
   obtain ⟨B, hB⟩ := h_bounded
-  sorry
+  have hB_nn : 0 ≤ B := by
+    have : (⟨R.x_lo, R.y_lo⟩ : ℂ) ∈ R.closure :=
+      ⟨le_refl _, le_of_lt R.hx, le_refl _, le_of_lt R.hy⟩
+    exact le_trans (norm_nonneg _) (hB _ this)
+  rw [Metric.tendstoUniformlyOn_iff] at h_euler_conv ⊢
+  intro ε hε
+  have hB1 : (0 : ℝ) < B + 1 := by linarith
+  have h_euler := h_euler_conv (ε / (B + 1)) (div_pos hε hB1)
+  filter_upwards [h_euler] with P hP z hz
+  have hP' := hP z hz
+  simp only [dist_eq_norm] at hP' ⊢
+  -- Goal: ‖etaRect z - etaEulerApprox P z‖ < ε
+  -- hP' : ‖riemannZeta z - zetaEulerProd P z‖ < ε / (B + 1)
+  have heq : etaRect z - etaEulerApprox P z =
+      etaFactRect z * (riemannZeta z - zetaEulerProd P z) := by
+    simp [etaEulerApprox, etaRect, etaFactRect, mul_sub]
+  rw [heq, norm_mul]
+  have step1 : ‖etaFactRect z‖ * ‖riemannZeta z - zetaEulerProd P z‖ ≤
+      B * ‖riemannZeta z - zetaEulerProd P z‖ :=
+    mul_le_mul_of_nonneg_right (hB z hz) (norm_nonneg _)
+  have step2 : B * ‖riemannZeta z - zetaEulerProd P z‖ < B * (ε / (B + 1)) + (ε / (B + 1)) := by
+    have : B * ‖riemannZeta z - zetaEulerProd P z‖ ≤ B * (ε / (B + 1)) :=
+      mul_le_mul_of_nonneg_left (le_of_lt hP') hB_nn
+    linarith [div_pos hε hB1]
+  have step3 : B * (ε / (B + 1)) + ε / (B + 1) = ε := by field_simp
+  linarith
 
-/-- The boundary integral ∮_R 1/η = 0, obtained as the limit of the
-    vanishing Cauchy integrals ∮_R 1/[etaEulerApprox P] = 0.
+set_option maxHeartbeats 800000 in
+-- Helper: if for all n, ∮_R F_n = 0, and F_n → f uniformly on R.closure,
+-- then ∮_R f = 0. Uses dominated convergence for each edge integral.
+lemma boundary_integral_limit_eq_zero (R : Rect)
+    (F : ℕ → ℂ → ℂ) (f : ℂ → ℂ)
+    (hF_zero : ∀ n, R.boundaryIntegral (F n) = 0)
+    (hF_cont : ∀ n, ContinuousOn (F n) R.closure)
+    (hf_cont : ContinuousOn f R.closure)
+    (h_unif : TendstoUniformlyOn F f atTop R.closure) :
+    R.boundaryIntegral f = 0 := by
+  have h_integrals : Filter.Tendsto (fun n => ∫ x in R.x_lo..R.x_hi, F n (x + R.y_lo * I)) Filter.atTop (nhds (∫ x in R.x_lo..R.x_hi, f (x + R.y_lo * I))) ∧ Filter.Tendsto (fun n => ∫ x in R.x_lo..R.x_hi, F n (x + R.y_hi * I)) Filter.atTop (nhds (∫ x in R.x_lo..R.x_hi, f (x + R.y_hi * I))) ∧ Filter.Tendsto (fun n => ∫ y in R.y_lo..R.y_hi, F n (R.x_hi + y * I)) Filter.atTop (nhds (∫ y in R.y_lo..R.y_hi, f (R.x_hi + y * I))) ∧ Filter.Tendsto (fun n => ∫ y in R.y_lo..R.y_hi, F n (R.x_lo + y * I)) Filter.atTop (nhds (∫ y in R.y_lo..R.y_hi, f (R.x_lo + y * I))) := by
+    refine' ⟨ _, _, _, _ ⟩;
+    · refine' intervalIntegral.tendsto_integral_filter_of_dominated_convergence _ _ _ _ _;
+      use fun x => ‖f ( x + R.y_lo * I )‖ + 1;
+      · refine' Filter.Eventually.of_forall fun n => ContinuousOn.aestronglyMeasurable _ measurableSet_Ioc;
+        refine' ContinuousOn.comp ( hF_cont n ) _ _;
+        · fun_prop;
+        · intro x hx; simp_all +decide [ Rect.closure ] ;
+          exact ⟨ by cases Set.mem_uIoc.mp hx <;> linarith [ R.hx ], by cases Set.mem_uIoc.mp hx <;> linarith [ R.hx ], by linarith [ R.hy ] ⟩;
+      · rw [ Metric.tendstoUniformlyOn_iff ] at h_unif;
+        filter_upwards [ h_unif 1 zero_lt_one ] with n hn;
+        refine' Filter.Eventually.of_forall fun x hx => _;
+        have := hn ( x + R.y_lo * I ) ?_ <;> simp_all +decide [ dist_eq_norm' ];
+        · simpa using norm_add_le ( f ( x + R.y_lo * I ) ) ( F n ( x + R.y_lo * I ) - f ( x + R.y_lo * I ) ) |> le_trans <| by linarith;
+        · exact ⟨ by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx ], by norm_num, by norm_num ; linarith [ R.hy ] ⟩;
+      · apply_rules [ ContinuousOn.intervalIntegrable ];
+        refine' ContinuousOn.add ( ContinuousOn.norm ( hf_cont.comp ( Continuous.continuousOn ( by continuity ) ) fun x hx => _ ) ) continuousOn_const;
+        exact ⟨ by cases Set.mem_uIcc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIcc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIcc.mp hx <;> norm_num, by cases Set.mem_uIcc.mp hx <;> norm_num <;> linarith [ R.hy ] ⟩;
+      · refine' Filter.Eventually.of_forall fun x hx => _;
+        rw [ Metric.tendstoUniformlyOn_iff ] at h_unif;
+        rw [ Metric.tendsto_nhds ];
+        intro ε hε; filter_upwards [ h_unif ε hε ] with n hn; rw [ dist_comm ] ; exact hn _ <| by exact ⟨ by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIoc.mp hx <;> norm_num, by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hy ] ⟩ ;
+    · refine' intervalIntegral.tendsto_integral_filter_of_dominated_convergence _ _ _ _ _;
+      use fun x => 1 + ‖f ( x + R.y_hi * Complex.I )‖;
+      · refine' Filter.Eventually.of_forall fun n => ContinuousOn.aestronglyMeasurable _ measurableSet_Ioc;
+        refine' ContinuousOn.comp ( hF_cont n ) _ _;
+        · fun_prop;
+        · intro x hx; simp_all +decide [ Set.MapsTo, Rect.closure ];
+          exact ⟨ by cases Set.mem_uIoc.mp hx <;> linarith [ R.hx ], by cases Set.mem_uIoc.mp hx <;> linarith [ R.hx ], by linarith [ R.hy ] ⟩;
+      · rw [ Metric.tendstoUniformlyOn_iff ] at h_unif;
+        filter_upwards [ h_unif 1 zero_lt_one ] with n hn;
+        refine' Filter.Eventually.of_forall fun x hx => _;
+        have := hn ( x + R.y_hi * Complex.I ) ?_ <;> simp_all +decide [ Complex.dist_eq, Complex.normSq ];
+        · simpa using norm_sub_le ( f ( x + R.y_hi * Complex.I ) - F n ( x + R.y_hi * Complex.I ) ) ( f ( x + R.y_hi * Complex.I ) ) |> le_trans <| by linarith;
+        · exact ⟨ by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hy ], by cases Set.mem_uIoc.mp hx <;> norm_num ⟩;
+      · apply_rules [ ContinuousOn.intervalIntegrable ];
+        refine' ContinuousOn.add continuousOn_const ( ContinuousOn.norm <| hf_cont.comp ( Continuous.continuousOn <| by continuity ) fun x hx => _ );
+        exact ⟨ by cases Set.mem_uIcc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIcc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIcc.mp hx <;> norm_num <;> linarith [ R.hy ], by cases Set.mem_uIcc.mp hx <;> norm_num ⟩;
+      · refine' Filter.Eventually.of_forall fun x hx => _;
+        rw [ Metric.tendstoUniformlyOn_iff ] at h_unif;
+        rw [ Metric.tendsto_nhds ];
+        intro ε hε; filter_upwards [ h_unif ε hε ] with n hn; rw [ dist_comm ] ; exact hn _ <| by exact ⟨ by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx ], by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hy ], by cases Set.mem_uIoc.mp hx <;> norm_num ⟩ ;
+    · refine' intervalIntegral.tendsto_integral_filter_of_dominated_convergence _ _ _ _ _;
+      use fun x => ‖f ( R.x_hi + x * I )‖ + 1;
+      · refine' Filter.Eventually.of_forall fun n => ContinuousOn.aestronglyMeasurable _ measurableSet_Ioc;
+        refine' ContinuousOn.comp ( hF_cont n ) _ _;
+        · fun_prop;
+        · intro y hy; constructor <;> norm_num [ Complex.ext_iff ] ; cases Set.mem_uIoc.mp hy <;> linarith [ R.hx, R.hy ] ;
+          cases Set.mem_uIoc.mp hy <;> constructor <;> linarith [ R.hx, R.hy ];
+      · rw [ Metric.tendstoUniformlyOn_iff ] at h_unif;
+        filter_upwards [ h_unif 1 zero_lt_one ] with n hn;
+        refine' Filter.Eventually.of_forall fun x hx => _;
+        have := hn ( R.x_hi + x * I ) ?_ <;> simp_all +decide [ dist_eq_norm' ];
+        · simpa using norm_add_le ( f ( R.x_hi + x * I ) ) ( F n ( R.x_hi + x * I ) - f ( R.x_hi + x * I ) ) |> le_trans <| by linarith;
+        · constructor <;> norm_num [ Complex.ext_iff ];
+          · linarith [ R.hx ];
+          · cases Set.mem_uIoc.mp hx <;> constructor <;> linarith [ R.hy ];
+      · apply_rules [ ContinuousOn.intervalIntegrable ];
+        refine' ContinuousOn.add ( ContinuousOn.norm ( hf_cont.comp _ _ ) ) continuousOn_const;
+        · fun_prop;
+        · intro x hx; constructor <;> norm_num [ Complex.ext_iff ] ; cases Set.mem_uIcc.mp hx <;> linarith [ R.hx, R.hy ] ;
+          cases Set.mem_uIcc.mp hx <;> constructor <;> linarith [ R.hx, R.hy ];
+      · refine' Filter.Eventually.of_forall fun x hx => _;
+        rw [ Metric.tendstoUniformlyOn_iff ] at h_unif;
+        rw [ Metric.tendsto_nhds ];
+        exact fun ε hε => by filter_upwards [ h_unif ε hε ] with n hn; simpa only [ dist_comm ] using hn _ ⟨ by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx, R.hy ], by cases Set.mem_uIoc.mp hx <;> norm_num, by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx, R.hy ], by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hx, R.hy ] ⟩ ;
+    · refine' intervalIntegral.tendsto_integral_filter_of_dominated_convergence _ _ _ _ _;
+      use fun x => ‖f ( R.x_lo + x * I )‖ + 1;
+      · refine' Filter.Eventually.of_forall fun n => ContinuousOn.aestronglyMeasurable _ measurableSet_Ioc;
+        refine' ContinuousOn.comp ( hF_cont n ) _ _;
+        · fun_prop;
+        · intro y hy; simp_all +decide [ Set.MapsTo, Rect.closure ];
+          exact ⟨ R.hx.le, by cases Set.mem_uIoc.mp hy <;> linarith [ R.hx, R.hy ], by cases Set.mem_uIoc.mp hy <;> linarith [ R.hx, R.hy ] ⟩;
+      · rw [ Metric.tendstoUniformlyOn_iff ] at h_unif;
+        filter_upwards [ h_unif 1 zero_lt_one ] with n hn;
+        filter_upwards [ ] with x hx;
+        have := hn ( R.x_lo + x * I ) ?_;
+        · rw [ dist_eq_norm ] at this;
+          simpa using norm_sub_le ( f ( R.x_lo + x * I ) ) ( f ( R.x_lo + x * I ) - F n ( R.x_lo + x * I ) ) |> le_trans <| by linarith;
+        · constructor <;> norm_num;
+          exact ⟨ R.hx.le, by cases Set.mem_uIoc.mp hx <;> linarith [ R.hy ], by cases Set.mem_uIoc.mp hx <;> linarith [ R.hy ] ⟩;
+      · apply_rules [ ContinuousOn.intervalIntegrable ];
+        refine' ContinuousOn.add ( ContinuousOn.norm ( hf_cont.comp _ _ ) ) continuousOn_const;
+        · fun_prop;
+        · intro x hx; constructor <;> norm_num [ R.hx, R.hy ] ;
+          exact ⟨ R.hx.le, by cases Set.mem_uIcc.mp hx <;> linarith [ R.hx, R.hy ], by cases Set.mem_uIcc.mp hx <;> linarith [ R.hx, R.hy ] ⟩;
+      · refine' Filter.Eventually.of_forall fun x hx => _;
+        rw [ Metric.tendstoUniformlyOn_iff ] at h_unif;
+        rw [ Metric.tendsto_nhds ];
+        intro ε hε; filter_upwards [ h_unif ε hε ] with n hn; specialize hn ( R.x_lo + x * Complex.I ) ; simp_all +decide [ dist_comm ] ;
+        exact hn ⟨ by norm_num, by norm_num [ R.hx.le ], by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hy ], by cases Set.mem_uIoc.mp hx <;> norm_num <;> linarith [ R.hy ] ⟩;
+  exact tendsto_nhds_unique ( Filter.Tendsto.sub ( Filter.Tendsto.add ( Filter.Tendsto.sub h_integrals.1 h_integrals.2.1 ) ( tendsto_const_nhds.smul h_integrals.2.2.1 ) ) ( tendsto_const_nhds.smul h_integrals.2.2.2 ) ) ( tendsto_const_nhds.congr fun n => hF_zero n ▸ rfl )
 
-    The rectangle R is entirely in {1/2 < Re < 1}. The function η may have
-    a zero inside R (at s₀), but s₀ is in the open interior. On the four
-    edges of R, η ≠ 0 (since s₀ ∉ edges and η has no other zeros in R).
-    Therefore:
-    - etaEulerApprox P → η uniformly on the edges (restriction of convergence
-      on R.closure)
-    - η ≠ 0 on edges, so 1/[etaEulerApprox P] → 1/η uniformly on edges
-    - The boundary integral (which only involves edge values) converges:
-      ∮_R 1/η = lim ∮_R 1/[etaEulerApprox P] = 0 -/
 lemma recipEta_rect_contour_integral_eq_zero (R : Rect) (s₀ : ℂ)
     (hs₀_int : s₀ ∈ R.openInt)
     (hR_lo : ∀ z ∈ R.closure, z.re > 1 / 2)
     (hR_hi : ∀ z ∈ R.closure, z.re < 1)
     (heta_nz_off_s₀ : ∀ z ∈ R.closure, z ≠ s₀ → etaRect z ≠ 0) :
     R.boundaryIntegral (fun s => 1 / etaRect s) = 0 := by
+  -- Strategy: show that 1/etaEulerApprox P → 1/etaRect uniformly on R.closure
+  -- and use boundary_integral_limit_eq_zero.
+  -- The function 1/etaRect is 0 at s₀ (since etaRect s₀ may be 0, and 1/0 = 0 in Lean).
+  -- On edges, etaRect ≠ 0, so 1/etaRect is well-behaved there.
+  -- We show uniform convergence of recipEtaEulerApprox P to 1/etaRect on ALL of R.closure
+  -- (including at s₀, where both sides → 0 in a suitable sense).
   sorry
 
 /-! ### Residue Theorem Infrastructure

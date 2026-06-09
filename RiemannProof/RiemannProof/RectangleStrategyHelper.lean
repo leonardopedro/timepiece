@@ -1,0 +1,4 @@
+-- Helper file used during proof development.
+-- The key lemma boundary_integral_limit_eq_zero has been
+-- transplanted into RectangleStrategy.lean.
+-- This file can be safely deleted.

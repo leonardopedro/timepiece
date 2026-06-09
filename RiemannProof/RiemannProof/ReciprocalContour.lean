@@ -1,0 +1,107 @@
+import Mathlib
+import RiemannProof.EtaConvergenceExtended
+
+/-!
+# Reciprocal contour integral vanishing lemma
+
+We prove a general result: if F_n → f uniformly on a rectangle closure,
+each ∮_R 1/F_n = 0, f ≠ 0 on the boundary, and F_n are continuous,
+then ∮_R 1/f = 0.
+
+The key difficulty is that f may have zeros in the interior, making 1/f
+discontinuous on the full rectangle closure. We handle this by working
+directly with the 4 edge integrals using dominated convergence.
+-/
+
+open Complex Finset Filter Topology MeasureTheory
+open scoped ArithmeticFunction
+
+noncomputable section
+
+/-!
+## Rectangle definition (matching RectangleStrategy.lean)
+-/
+
+/-- A rectangle in ℂ. -/
+structure RectC where
+  x_lo : ℝ
+  x_hi : ℝ
+  y_lo : ℝ
+  y_hi : ℝ
+  hx : x_lo < x_hi
+  hy : y_lo < y_hi
+
+def RectC.closure (R : RectC) : Set ℂ :=
+  {z : ℂ | R.x_lo ≤ z.re ∧ z.re ≤ R.x_hi ∧ R.y_lo ≤ z.im ∧ z.im ≤ R.y_hi}
+
+def RectC.openInt (R : RectC) : Set ℂ :=
+  {z : ℂ | R.x_lo < z.re ∧ z.re < R.x_hi ∧ R.y_lo < z.im ∧ z.im < R.y_hi}
+
+noncomputable def RectC.boundaryIntegral (R : RectC) (f : ℂ → ℂ) : ℂ :=
+  ((∫ x in R.x_lo..R.x_hi, f (↑x + ↑R.y_lo * I)) -
+   (∫ x in R.x_lo..R.x_hi, f (↑x + ↑R.y_hi * I))) +
+  I • (∫ y in R.y_lo..R.y_hi, f (↑R.x_hi + ↑y * I)) -
+  I • (∫ y in R.y_lo..R.y_hi, f (↑R.x_lo + ↑y * I))
+
+lemma RectC.isCompact_closure (R : RectC) : IsCompact R.closure := by
+  refine IsCompact.of_isClosed_subset (ProperSpace.isCompact_closedBall 0
+    (Max.max R.x_hi (-R.x_lo) + Max.max R.y_hi (-R.y_lo))) ?_ ?_
+  · exact IsClosed.inter (isClosed_Ici.preimage Complex.continuous_re)
+      (IsClosed.inter (isClosed_Iic.preimage Complex.continuous_re)
+      (IsClosed.inter (isClosed_Ici.preimage Complex.continuous_im)
+      (isClosed_Iic.preimage Complex.continuous_im)))
+  · intro z hz; simp_all +decide [Complex.normSq, Complex.norm_def]
+    rw [Real.sqrt_le_left] <;> nlinarith [
+      abs_le.mp (show |z.re| ≤ max R.x_hi (-R.x_lo) by
+        cases max_cases R.x_hi (-R.x_lo) <;> cases abs_cases z.re <;> linarith [hz.1, hz.2.1]),
+      abs_le.mp (show |z.im| ≤ max R.y_hi (-R.y_lo) by
+        cases max_cases R.y_hi (-R.y_lo) <;> cases abs_cases z.im <;> linarith [hz.2.2.1, hz.2.2.2])]
+
+/-!
+## Bottom edge set
+-/
+def RectC.bottomEdge (R : RectC) : Set ℂ :=
+  {z : ℂ | R.x_lo ≤ z.re ∧ z.re ≤ R.x_hi ∧ z.im = R.y_lo}
+
+lemma RectC.bottomEdge_subset_closure (R : RectC) : R.bottomEdge ⊆ R.closure :=
+  fun z hz => ⟨hz.1, hz.2.1, by linarith [hz.2.2], by linarith [hz.2.2, R.hy]⟩
+
+lemma RectC.isCompact_bottomEdge (R : RectC) : IsCompact R.bottomEdge :=
+  R.isCompact_closure.of_isClosed_subset
+    (IsClosed.inter (isClosed_Ici.preimage continuous_re)
+      (IsClosed.inter (isClosed_Iic.preimage continuous_re)
+        (isClosed_singleton.preimage continuous_im)))
+    R.bottomEdge_subset_closure
+
+/-!
+## Main result: reciprocal boundary integral limit
+
+If F_n → f uniformly on R.closure, each ∮_R 1/F_n = 0, F_n are continuous,
+f ≠ 0 on each edge, and f is continuous, then ∮_R 1/f = 0.
+
+The key insight: the boundary integral only uses function values on the
+4 edges. Since f ≠ 0 on each edge and f is continuous there, 1/f is
+continuous on each edge. The reciprocal convergence lemma from
+EtaConvergenceExtended gives uniform convergence of 1/F_n → 1/f on each
+compact edge, which lets us pass the limit through each interval integral.
+-/
+
+-- The main reciprocal contour lemma: if F_n → f uniformly on R.closure,
+    ∮_R 1/F_n = 0 for all n, f ≠ 0 on all 4 edges, f and F_n are continuous
+    on R.closure, then ∮_R 1/f = 0. -/
+theorem reciprocal_contour_integral_vanishes
+    (R : RectC)
+    (F : ℕ → ℂ → ℂ) (f : ℂ → ℂ)
+    (h_unif : TendstoUniformlyOn F f atTop R.closure)
+    (hF_cont : ∀ n, ContinuousOn (F n) R.closure)
+    (hf_cont : ContinuousOn f R.closure)
+    (hF_nz : ∀ n, ∀ z ∈ R.closure, F n z ≠ 0)
+    (hf_nz_bottom : ∀ z ∈ R.bottomEdge, f z ≠ 0)
+    (hf_nz_top : ∀ z, z.re ≥ R.x_lo → z.re ≤ R.x_hi → z.im = R.y_hi → f z ≠ 0)
+    (hf_nz_right : ∀ z, z.re = R.x_hi → z.im ≥ R.y_lo → z.im ≤ R.y_hi → f z ≠ 0)
+    (hf_nz_left : ∀ z, z.re = R.x_lo → z.im ≥ R.y_lo → z.im ≤ R.y_hi → f z ≠ 0)
+    (hF_integrals_zero : ∀ n, R.boundaryIntegral (fun s => 1 / F n s) = 0) :
+    R.boundaryIntegral (fun s => 1 / f s) = 0 := by
+  sorry
+
+end
