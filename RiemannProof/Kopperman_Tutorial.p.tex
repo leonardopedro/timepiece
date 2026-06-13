@@ -1,0 +1,535 @@
+\documentclass{stex}
+\input{preamble}
+
+\begin{document}
+
+
+\title{\textbf{Beyond Real Numbers: A Hilbert-Space Exchange Format for the UniFormal (UPL) Framework}}
+\author{Leonardo Pedro}
+\date{\today}
+
+\maketitle
+
+\begin{abstract}
+The transition from structural frameworks to the computational "UniFormal" Proof Language (UPL) requires a data format that unifies Symbolic Logic with Probabilistic Physics. We propose a "Metric Exchange Format" where data is represented as vectors in a Separable Hilbert Space. In this architecture, \textbf{Dhall} expressions (canonical, normalizing) serve as the indices of the basis vectors, providing a rigorous definition of "Structure." The amplitudes are governed by \textbf{Mehler's (1866) spectral methods}, providing a rigorous definition of "Uncertainty." UPL acts as the \textbf{Turing-complete host language} that manipulates these vectors. Unlike traditional total logics, UPL supports general recursion, \texttt{while} loops, and mutable state, allowing for the computational handling of uncertainty-aware formalizations without the artifacts of floating-point arithmetic.
+\end{abstract}
+
+\section{Introduction: The "Real" Bottleneck in UniFormal}
+
+The KWARC group's evolution toward the **UniFormal (UPL)** initiative aims to treat \textit{Computation} and \textit{Deduction} as first-class citizens. However, a semantic gap remains between the discrete, total world of Logic and the continuous, often undecidable world of Physics.
+
+Standard approaches rely on Real Numbers (approximated as floats, see \cite{hennigProbabilisticNumericsComputation2022}) for physics, which strips away uncertainty information. We propose upgrading the fundamental data type to **Vectors in a Separable Hilbert Space**.
+
+Crucially, we distinguish between the \textbf{Data Format} and the \textbf{Language}:
+\begin{itemize}
+    \item \textbf{The Data Format (The Vector - Dhall):} A static, rigorous mapping of Logical States to Probabilistic Amplitudes. This layer is **total** and strongly normalizing, ensuring unique canonical forms.
+    \item \textbf{The Language (The Simulator - UPL):} The **Turing-complete environment** used to define, manipulate, and simulate these vectors. As seen in \texttt{test/examples/basics.p}, UPL supports imperative features like \texttt{while} loops, mutable \texttt{var}, and general recursion. This allows for powerful simulations but requires external validity predicates (the "Decidable Dense Subset") to ensure the computed objects represent valid mathematical structures.
+\end{itemize}
+
+\section{Theoretical Foundations}
+
+A vector in a Hilbert space requires two things: a definition of its \textbf{Basis} (the dimensions) and a definition of its \textbf{Measure} (the length/probability).
+
+\subsection{The Symbolic Basis: Dhall Canonical Forms}
+For the vector space to represent logical or structural states, the basis indices cannot be arbitrary integers. They must represent unique, identifiable propositions or configurations.
+
+We utilize **Dhall**, a programmable configuration language that is strongly normalizing and non-Turing complete.
+\begin{itemize}
+    \item \textbf{Canonicalization:} Every valid Dhall expression reduces to a unique "Normal Form." Two different ways of writing the same configuration (e.g., $2+2$ vs $4$) resolve to the exact same hash.
+    \item \textbf{The Mapping:} We map these unique canonical forms to the indices of our Hilbert Space basis $|e_i\rangle$.
+    \item \textbf{Implication:} If a UPL script generates a logical statement, we normalize it (via Dhall rules) to find its "address" in the vector. This ensures that structurally identical claims share the same probability amplitude.
+\end{itemize}
+
+\subsection{The Metric Measure: Mehler (1866)}
+Once the basis is defined by Dhall, we need a way to assign values (amplitudes) to these states in a way that allows for Field Theory (continuous variables).
+
+We utilize Mehler's result, which proves that the limit of a uniform measure over an infinite-dimensional hypersphere converges to the Gaussian measure. This allows us to encode "Continuous Fields" as probability distributions over our discrete Dhall basis.
+
+\section{The Architecture: UPL, Dhall, and Hilbert}
+
+This proposal positions UPL not just as a proof assistant, but as a "Quantum-Like" Simulator for Logic.
+
+\subsection{The Vector as the Exchange Format}
+The fundamental object passed between systems is the state $|\Psi\rangle$:
+\begin{equation}
+|\Psi\rangle = \sum_{i} c_i \cdot | \text{Dhall}_i \rangle
+\end{equation}
+\begin{itemize}
+    \item $| \text{Dhall}_i \rangle$: The \textbf{Canonical Content}. (e.g., a specific configuration of a physical field, or a logical proof step).
+    \item $c_i$: The \textbf{Amplitude}. (The complex number representing the probability/weight of that configuration, governed by Mehler's measure).
+\end{itemize}
+
+\subsection{UPL as the Manipulator}
+While Dhall is intentionally restricted (non-Turing complete) to ensure unique indexing, UPL is the \textbf{Turing-complete} language that manages the system.
+\begin{itemize}
+    \item **Theories as Types/Interfaces:** As seen in \texttt{test/examples/AI.p}, Theories (like \texttt{SearchProblem}) define the *structure* or *schema* of the problem.
+    \item **Functions as Programs:** As seen in \texttt{test/examples/basics.p}, the implementation utilizes \texttt{while} loops, mutable state (\texttt{var}), and general recursion.
+\end{itemize}
+UPL defines the vector space and the operators, calculates the evolution of the vector through potentially non-terminating processes, and handles I/O. The "proof" is that the computed program (the UPL script) satisfies the type signature defined by the Theory, even if the program itself is not proven to terminate by the language's kernel.
+
+\section{Implementation Strategy}
+
+The following UPL implementation demonstrates this architecture. We explicitly construct the Complex Hilbert Space $\mathcal{H}$ starting from Complex Rational Numbers.
+
+\textbf{Note on Totality:} Since UPL is Turing-complete, the functions defined below (like \texttt{vec\_index}) are programs that \textit{compute} values. Their validity as mathematical objects (i.e., that they terminate and converge) is not enforced by a totality checker but is ensured by adhering to the "Decidable Dense Subset" strategy. The Complex Rationals (or finite Dhall ASTs) form the computable skeleton of the complete space.
+\begin{smodule}[id=Kopperman2]
+\uplsetup
+\uplinline|  theory HilbertSpace { | \\
+\uplinline$    include Numbers.Complex $\\
+\uplinline$    type num = (re: rat, im: rat) $\\
+Our fundamental object is a **Double-Indexed Sequence** $s(k, n)$, representing the $n$-th complex rational approximation of the $k$-th coordinate of a vector.
+\uplinline$    type scalar = (nat) -> num$\\
+\uplinline$    type vector = (nat) -> scalar$\\
+\uplinline$    vec : scalar -> vector = (s:scalar) -> ((k: nat) -> {if(k==0) return s; z})$\\
+\uplinline$    row: (vector, nat) -> scalar = (v, n) -> ((k: nat) -> v(k)(n))$
+
+
+\subsection{The Validity Predicates}
+
+To ensure we are selecting valid members of the completion (and not just random noise), we impose two conditions corresponding to the logic's requirements:
+
+\paragraph{1. Square Integrability (The Skeleton)}
+Each approximation row must be a finite-norm vector in the underlying complex rational space. The norm is computed using the complex inner product.
+
+
+
+\uplinline$    is_l2_at_level : (vec, nat) -> bool$\\
+\begin{upl}
+   inner_at2 : ((vec, vec, nat, nat) -> num) = (v1, v2, k, n) -> {
+    // var/val introduce immutable/mutable variables that are visible for the remainder of the block.
+    // Types can be inferred, initialization is mandatory.
+    var result : num = 0
+    var i : nat = 0
+    // if and while can be used as usual.
+    while (i<=k) {
+      result = result+ times(conj(v1(i)(n)), v2(i)(n))
+      i = i+1
+    }
+    // no "return" needed for the last expression
+    result
+  }
+  inner_at : ((vec, vec, nat) -> scalar) = (v1, v2, n) -> (k: nat) -> inner_at2(v1, v2, k, n)
+\end{upl}
+
+\uplinline$    c_sq_norm_at = (v: vector, n: nat) -> c_inner_at(v, v, n)$\\
+\uplinline$    modulus_sq = (c: num) -> times(c, conj(c))$
+
+
+\paragraph{2. Cauchy Convergence (The Limit)}
+The sequence of rows must converge. Using the index function, we express convergence at the coordinate level:
+
+\begin{upl}
+    cauchy: scalar -> bool = (s: scalar) ->{
+     forall eps. eps>z =>
+         exists N. forall n,m.
+           leq(N, n) & leq(N, m) =>
+           modulus_sq(minus(s(n), s(m))) < eps
+           }
+\end{upl}
+
+\uplinline$    valid_h_vector: |- forall v,n. cauchy(c_sq_norm_at(v, n)) & cauchy(v(n))$
+
+\subsection{Emergence of Complex Scalars}
+
+Traditional approaches postulate Complex Numbers ($\mathbb{C}$) as a black box. In this constructive view, $\mathbb{C}$ **emerges** naturally from the geometry of $\mathcal{H}$.
+
+The inner product of two vectors is computed using the index function to access coordinates. Rather than passing infinite-dimensional rows, we use coordinate-level access:
+
+\uplinline$    inner : (vector, vector) -> scalar = (v1, v2) -> n -> inner_at(v1, v2, n)$
+
+
+We must also define when two Cauchy sequences represent the same Complex Number.
+They are equivalent if their difference converges to zero.
+For complex numbers, we measure convergence using the modulus (absolute value).
+
+\uplinline$    complex_zero = (c: scalar) -> forall eps. eps>z => $ \\
+\uplinline$       exists N. forall n. leq(N,n) => modulus_sq(c(n)) < eps $ \\
+\uplinline$    complex_diff = (c1, c2) -> k -> (n -> minus(c1(k)(n), c2(k)(n)))$\\
+\uplinline$    complex_equiv = (c1, c2) -> complex_zero(complex_diff(c1, c2))$
+
+
+\subsection{Constructive Dimension}
+
+We define the dimension of our space constructively using the concept of **Finite Support**.
+
+A vector has finite support if its components eventually become (equivalent to) zero. This corresponds to the **Decidable Dense Subset** (the set of finite linear combinations of basis vectors).
+
+Using the index function, we extract coordinates without passing infinite-dimensional objects:
+
+\uplinline$    has_finite_support = (v: h_vector) ->$ \\
+\uplinline$      exists K. forall k. leq(K, k) => complex_zero(vec_index(v, k))$\\
+\uplinline$    basis_vec = i -> (k, n) -> (if (k == i) o else z)$\\
+\uplinline$    dense_subset_axiom : |- forall s. has_finite_support(s) => valid_h_vector(s)$
+
+\subsection{Transcendental Functions}
+
+Having constructed the Complex numbers as Cauchy sequences of Complex Rationals, we can now define transcendental functions (exponential, sine, cosine) via their power series expansions. These are fundamental for analyzing operators on Hilbert spaces.
+
+\paragraph{Factorial and Power}
+First, we need factorial for series coefficients and exponentiation:
+
+\uplinline$    factorial = (n: int[0;]) -> if (leq(n, z)) o else times(n, factorial(p(n)))$
+\uplinline$    power = (x: rat, n: int[0;]) -> if (leq(n, z)) o else times(x, power(x, p(n)))$
+
+\paragraph{Complex Exponential}
+The complex exponential is defined via its power series: $\exp(z) = \sum_{n=0}^{\infty} \frac{z^n}{n!}$
+
+For a complex ratber $c$ (a Cauchy sequence of complex rationals), we define $\exp(c)$ as the Cauchy sequence where each approximation is the partial sum of the series.
+
+\uplinline$    exp_partial = (x: rat, N: int[0;]) -> $\\
+\uplinline$      if (leq(N, z)) o else plus(frac(power(x, N), factorial(N)), exp_partial(x, p(N)))$
+\uplinline$    exp = (c: complex) -> n -> exp_partial(c(n), n)$
+
+Key properties:
+\uplinline$    exp_zero : |- complex_equiv(exp(n -> z), n -> o)$
+\uplinline$    exp_add : |- forall c1, c2. complex_equiv(exp(complex_sum(c1, c2)), complex_prod(exp(c1), exp(c2)))$
+
+where we define complex arithmetic:
+\uplinline$    complex_sum = (c1, c2) -> n -> plus(c1(n), c2(n))$
+\uplinline$    complex_prod = (c1, c2) -> n -> times(c1(n), c2(n))$
+\uplinline$    complex_conj = (c: complex) -> n -> conj(c(n))$
+\uplinline$    complex_neg = (c: complex) -> n -> uminus(c(n))$
+
+\paragraph{Sine and Cosine via Euler's Formula}
+Euler's formula states: $e^{ix} = \cos(x) + i\sin(x)$
+
+We can extract sine and cosine from the complex exponential:
+- $\sin(x) = \frac{e^{ix} - e^{-ix}}{2i}$
+- $\cos(x) = \frac{e^{ix} + e^{-ix}}{2}$
+
+In UPL, using the imaginary unit $i = \texttt{comp(z, o)}$:
+
+\uplinline$    i_unit = comp(z, o)$
+\uplinline$    i_times_complex = (c: complex) -> n -> times(i_unit, c(n))$
+\uplinline$    sin = (c: complex) -> n -> $\\
+\uplinline$      frac(minus(exp(i_times_complex(c))(n), exp(i_times_complex(complex_neg(c)))(n)), $\\
+\uplinline$            times(comp(z, s(s(z))), o))$
+\uplinline$    cos = (c: complex) -> n -> $\\
+\uplinline$      frac(plus(exp(i_times_complex(c))(n), exp(i_times_complex(complex_neg(c)))(n)), $\\
+\uplinline$           times(s(s(z)), o))$
+
+The Pythagorean identity follows from Euler's formula:
+\uplinline$    pythagorean : |- forall c. complex_equiv(complex_sum(complex_prod(sin(c), complex_conj(sin(c))), complex_prod(cos(c), complex_conj(cos(c)))), n -> o)$
+\uplinline|  }| 
+\end{smodule}
+
+\section{Discussion}
+
+This architecture unifies three distinct needs in formalization:
+\begin{enumerate}
+    \item \textbf{Structure (Dhall):} Ensuring that logical statements have a unique, decidable identity.
+    \item \textbf{Uncertainty (Mehler):} Ensuring that we can perform calculus and field theory with rigorous probability tracking.
+    \item \textbf{Computation (UPL):} Providing a powerful language to execute simulations using these safe data types.
+\end{enumerate}
+
+This resolves the tension between "Formal Rigor" and "Numerical Utility." We do not force Physics to become Discrete Logic; instead, we use UPL to map the Continuous Physics into a Discrete, Probability-Preserving Hilbert Space indexed by Logical Structures.
+
+\subsection{Contemporary Validation: nGPT and Hypersphere Learning}
+
+The proposed data format---representing information as normalized vectors in a Hilbert space---finds contemporary validation in modern machine learning architectures. Notably, \textbf{nGPT (normalized GPT)} from NvidiaAI demonstrates that large language models can learn entirely on the hypersphere, where all representations are normalized vectors. This architecture replaces traditional dot products with cosine similarity and maintains all embeddings, weights, and activations as unit-norm vectors on a hypersphere.
+
+The success of nGPT in language modeling tasks provides empirical evidence that normalized vector representations on hyperspheres are not merely a theoretical construct but a practical and effective data format for complex computational systems. This aligns perfectly with our proposal: just as nGPT uses the hypersphere geometry for learning language patterns, our framework uses Hilbert space geometry to unify logical structures (indexed by Dhall) with probabilistic amplitudes (governed by Mehler's measure). The key insight is that \textbf{normalization} (maintaining unit vectors) provides both numerical stability and a natural probabilistic interpretation---properties essential for both machine learning and formal reasoning under uncertainty.
+
+\section{Proposed Application: The Semantic Hierarchy ($\Delta$-Nets and C*-Algebras)}
+
+We propose this framework as the standard pathway for formalizing modern Mathematical Physics and Operator Algebra, specifically leveraging **Groupoid C*-Algebras**.
+
+By layering the models, we achieve the "Holy Grail" of semantics: the \textbf{discrete logic} of nets plus the \textbf{analytical power} of the Hilbert space, without ambiguity regarding vector coefficients.
+
+\subsection{The Layered Model}
+\begin{enumerate}
+    \item \textbf{Bottom Layer (Continuum):} Separable Hilbert Space ($\mathcal{H}$).
+    \item \textbf{Middle Layer (Algebra):} Inverse Semigroup represented as \textbf{Partial Isometries} on $\mathcal{H}$.
+    \item \textbf{Top Layer (Logic):} \textbf{$\Delta$-nets} (logic/computation) defined via the Semigroup.
+\end{enumerate}
+
+\subsection{The Bridge: Partial Isometries}
+The mathematical object that translates an \textbf{Inverse Semigroup} into a \textbf{Hilbert Space} is the \textbf{Partial Isometry}.
+\begin{itemize}
+    \item \textbf{In the Semigroup:} An element $s$ is a partial bijection mapping subset $A$ to subset $B$.
+    \item \textbf{In the Hilbert Space:} An operator $V$ is a partial isometry if $V^*V$ is a projection onto the "source" subspace (Domain) and $VV^*$ is a projection onto the "target" subspace (Range). This satisfies the inverse semigroup law: $s s^{-1} s = s \iff V V^* V = V$.
+\end{itemize}
+
+This resolves the ambiguity of "Zero":
+\begin{itemize}
+    \item \textbf{Logical Null:} Invalid paths in the $\Delta$-net yield the Semigroup Zero Element.
+    \item \textbf{Geometric Null:} The representation maps this to the \textbf{Zero Operator} ($\mathbf{0}$).
+    \item \textbf{Result:} Valid computations are restricted to valid subspaces defined by the projections ($V^*V$), effectively embedding types into the geometry.
+\end{itemize}
+
+\subsection{The Engine: The Cuntz Algebra ($\mathcal{O}_\infty$)}
+To model the duplication/muxing capability of $\Delta$-nets (Fan nodes) without violating the No-Cloning Theorem, we utilize the **Cuntz Algebra**. We define operators $S_1, S_2, \dots$ on $\mathcal{H}$ such that:
+\begin{equation}
+S_i^* S_j = \delta_{ij} I \quad \text{(Isometry: distinct shifts are orthogonal)}
+\end{equation}
+\begin{equation}
+\sum S_i S_i^* = I \quad \text{(Completeness: they cover the whole space)}
+\end{equation}
+The inverse semigroup generated by these shifts models infinite memory or replication by "shifting" data into disjoint subspaces of the same Hilbert space (standard representation on $\ell^2(\mathbb{N})$).
+
+\subsection{Benefits of the Hierarchy}
+\subsubsection{A. Thermodynamics (Trace and Entropy)}
+Embedding $\Delta$-nets into a C*-algebra allows us to compute the **Trace** ($\text{Tr}(T)$) or Determinant. This enables measuring the **Complexity** or **Entropy** of a computation and applying Ergodic Theory to predict behavior (e.g., chaotic cycling vs. stabilization).
+
+\subsubsection{B. Quantum Consistency}
+This model is compatible with **Quantum Interaction Nets**. Since Partial Isometries are the building blocks of Unitaries, this layering provides a rigorous proof that classical $\Delta$-nets can be embedded into reversible quantum systems.
+
+\appendix
+\section{Historical Foundations and Detailed Logic}
+
+For completeness, we include the comprehensive theoretical context regarding infinitary logic, set theoretic paradoxes, and the mathematical foundations that motivate this framework.
+
+\subsection{The Challenge of the Infinite: Cantor and Skolem}
+
+Cantor's Theorem (see also \textbf{Skolem's Paradox}) demonstrates that the power set of an infinite set has a strictly greater cardinality than the set itself. In the context of logic, this creates a fundamental tension between \textbf{semantics} (the set of models/truths, analogous to the power set) and \textbf{syntax} (the set of proofs/sentences, which remains countable).
+
+Ideally, logic should be both \textbf{expressively complete} (able to uniquely describe structures like the Real numbers or Hilbert spaces) and \textbf{deductively complete} (where every semantic truth has a syntactic proof). However, we are generally forced to choose. Standard First-Order Logic (FOL) is deductively complete but expressively weak; it cannot distinguish between the standard models (e.g., $\mathbb{N}, \mathbb{R}$) and non-standard models containing hyper-elements (e.g., the Hyperreals). This inability to pin down the unique standard model represents a fundamental ``knowledge gap''---an objective ambiguity in our formalism.
+
+There are many ways of generalizing First-Order Logic to close this gap, but as argued by Goodstein (see www.psiquadrat.de/downloads/goodstein63.pdf), the knowledge gap is unavoidable with countable proofs. What is needed is a framework to formalize this lack of information.
+
+\subsection{Probability as Political Choice}
+
+We can manage this uncertainty if we choose what is relevant to us. This choice is effectively \textbf{political}: since there is no objective ``degree of ignorance'' (ignorance being the absence of information), we must impose a structure on the unknown based on relevance. \textbf{Probability} is the objective representation of these political choices. By assigning a probability measure, we fill the logical gaps with a weighted preference, transitioning from absolute truths (which may be undecidable) to likely outcomes (which are calculable).
+
+\subsection{Mehler's 1866 Discovery}
+
+In 1866, Mehler (see opencommons.uconn.edu/dissertations/2137 for an updated version of his work) defined a large class of real functions with a countably infinite number of real variables in hyperspherical coordinates. While Cantor's Theorem implies that the set of \textit{all} such functions has the cardinality of the power set of the continuum ($2^{\mathfrak{c}}$), Mehler's formalism allows this space to be accessed and approximately parameterized using only the cardinality of the continuum ($\mathfrak{c}$), by defining a probability measure over the space of functions.
+
+Mehler demonstrated that Hermite polynomials arise as the limit of Gegenbauer polynomials on an infinite-dimensional sphere, effectively defining a probability measure over a space of wave-functions. Mathematically, Mehler established a simple non-perturbative Quantum Field Theory (for all practical purposes), more than 30 years before the term ``quantum'' entered the physical lexicon through Planck. He arrived at these probabilistic tools---the mathematical backbone of the Standard Model of Particle Physics---as an unintended byproduct of solving the geometry of infinite variables. Mehler never used the terms ``probability'' or ``physics'' in his article; rather, he was interested in how to define a function of infinite variables in hyperspherical coordinates.
+
+\subsection{Computation and the Decidable Dense Subset}
+
+Arbitrarily large computers can only verify a countable number of proofs, due to our physical limits irrespectively of the details of Mathematical theory involved. Note that in some mathematical theories, we can prove (and verify) that the proofs of an uncountable number of statements exist, despite that we cannot verify them one by one, but such meta-proof is done in a meta-theory of Mathematics, so that meta-theory is the mathematical theory we refer to in the following.
+
+We map one-to-one each proof we choose to verify to an element of a basis of a separable Hilbert space; this is valid in principle for all (provable) Mathematics. Fortunately, separable Hilbert spaces contain a \textbf{decidable dense subset}---specifically, the set of finite linear combinations of basis vectors with rational coefficients.
+
+The full Hilbert space also contains vectors defined by undecidable processes (where the generating algorithm may never halt). For such a vector, does a computable approximation exist? The density of the subset guarantees that a rational approximation exists arbitrarily close to the vector. But we cannot algorithmically \textit{identify} which computable element is the approximation because we cannot compute the target. Since a computable approximation exists but remains unknown, then we must guess by using a probability measure, provided the underlying space is complete.
+
+\subsection{The Hybrid Logical Framework}
+
+This necessitates a hybrid logical framework:
+
+\begin{enumerate}
+    \item \textbf{The Ontological Foundation ($L_{\omega_1, \omega_1}$):} To ensure our probability measures have a valid domain, we must refer to the standard, separable, complete Hilbert space. We need the expressive power of $L_{\omega_1, \omega_1}$ (allowing infinite quantifiers) to rigorously define this unique structure. This guarantees that the ``holes'' between our rational approximations are filled (metric completion), as strictly weaker logics cannot distinguish the ``real'' topological space from its incomplete rational skeleton.
+    
+    \item \textbf{The Epistemological Engine (Countable Fragments of $L_{\omega_1, \omega}$):} While $L_{\omega_1, \omega_1}$ guarantees the space exists, it is logically incomplete. Therefore, to perform actual derivations, we move to $L_{\omega_1, \omega}$. However, a subtle restriction is required: although the vocabulary is countable, the full set of sentences in $L_{\omega_1, \omega}$ is uncountable. Since computation is limited to countable steps, we cannot assign probabilities to every formula in the full logic. Instead, we work within a \textbf{Countable Fragment} of $L_{\omega_1, \omega}$---a recursively definable subset of sentences grounded in our decidable dense subset. This fragment is \textbf{complete} (in the sense of proofs) and allows us to prove the existence of approximations from the computable skeleton that converge to our chosen probability distribution.
+    
+    Optionally, the ``computable skeleton'' can be implemented in \textbf{non-Turing complete languages} (such as Dhall) using total functional programming. This ensures that every approximation step is decidable (halts in finite time), where each statement has a canonical form identified by an integer.
+\end{enumerate}
+
+\subsection{Countable Additivity Caveat}
+
+A critical technical caveat arises regarding \textbf{countable additivity}. Strict adherence to a countable fragment prevents us from strictly proving statements that rely on the uncountable union of null sets---a standard requirement in full measure theory. The solution lies in a shift of perspective: we treat the probability measure not as a function over \textit{all} possible subsets of the space, but as a consistent assignment of values to the \textbf{formulas} within our countable fragment. By restricting our quantification to these \textbf{definable sets} (essentially the Borel sets generated by the fragment), we bypass the need to manage the full power set. This approach aligns perfectly with \textbf{Computable Measure Theory}, ensuring that our probabilistic reasoning remains effectively calculable.
+
+\subsection{Kopperman's Contribution}
+
+Thus, we rely on the stronger, incomplete logic to guarantee the existence of the continuum (the territory), while using a countable fragment of the weaker, complete logic to construct the proofs via a decidable dense subset (the map). \textbf{Ralph Kopperman}, in his 1967 paper \textit{``The $L_{\omega_1, \omega_1}$-Theory of Hilbert Spaces''}, provided the ingredients necessary to formalize all we discussed above.
+
+\subsubsection{What is $\mathrm{L}_{\omega_1 \omega_1}$?}
+Standard logic is $\mathrm{L}_{\omega \omega}$: finite quantifier depth, finite formulas.
+$\mathrm{L}_{\omega_1 \omega_1}$ allows \textbf{countable conjunctions} ($\bigwedge_{i=0}^\infty \phi_i$) and \textbf{countable quantifiers}. This expressive power lets us pin down properties like "for all integers n..." or "there exists a limit...".
+
+\subsubsection{Formal Definition: $\mathrm{L}_{\pi \epsilon}$}
+
+Kopperman generalizes classical logic to languages $\mathrm{L}_{\pi \epsilon}^t$, characterized by two cardinal bounds:
+\begin{enumerate}
+    \item $\pi$: The bound on conjunctions and disjunctions.
+    \item $\epsilon$: The bound on quantifier strings.
+\end{enumerate}
+
+To capture the \textbf{Ontological Foundation} of Hilbert Spaces, we require $\mathrm{L}_{\omega_1 \omega_1}$:
+\begin{itemize}
+    \item $\pi = \omega_1$: We can form conjunctions of countable sets of formulas ($\bigwedge_{i < \omega} \phi_i$). 
+    \item $\epsilon = \omega_1$: We can quantify over countable sets of variables ($\forall \{x_i\}_{i < \omega} \dots$).
+\end{itemize}
+
+This logical strength is necessary for the \textbf{Completeness Axiom}. Standard First-Order Logic ($\mathrm{L}_{\omega \omega}$) cannot distinguish between the standard Reals and "gapped" fields like the Rationals because it cannot express "for \textbf{every} sequence...". $\mathrm{L}_{\omega_1 \omega_1}$ allows us to quantify over entire sequences, effectively locking down the unique complete structure.
+
+In our UPL implementation, we model these "infinite" quantifiers via \textbf{Dependent Types}, quantifying over function types such as \texttt{int -> univ} (sequences).
+
+\subsection{The Countable Fragment and UPL}
+
+While $\mathrm{L}_{\omega_1 \omega_1}$ ensures the model exists, our \textbf{Epistemological Engine}---the actual proofs we construct in UPL---operates within a \textbf{Countable Fragment}. 
+
+We do not use every possible sentence in $\mathrm{L}_{\omega_1 \omega_1}$. Instead, we restrict ourselves to recursively definable sentences that describe operations on our \textbf{Decidable Dense Subset} (the computable skeleton).
+In UPL, this corresponds to:
+\begin{itemize}
+    \item \textbf{The Skeleton}: The Rational Numbers (\texttt{Numbers.Rat}) and finite lists of them.
+    \item \textbf{The Limit}: The concept of a Cauchy Sequence, defined via a predicate.
+\end{itemize}
+
+\subsection{Representation Theorems}
+
+Kopperman proves that our axiomatic definitions fully capture the intended mathematical objects:
+\begin{enumerate}
+    \item \textbf{Reflexive Real System}: Any structure satisfying the axioms is isomorphic to $\mathbb{R}$.
+    \item \textbf{Hilbert System}: Any structure satisfying the axioms corresponds uniquely to a \textbf{Hilbert Space}.
+\end{enumerate}
+
+\section{Appendix B: The Harmonic Oscillator and Lightweight QFT}
+
+This appendix demonstrates the implementation of a "Lightweight QFT" workflow in UPL, mirroring the set-theoretic flexibility often associated with systems like Mizar. We formalize the harmonic oscillator on an $\ell^2$ basis, define unbounded operators on a dense core, and apply the Faris-Lavine theorem to prove essential self-adjointness of a polynomial Hamiltonian.
+
+\subsection{Phase 1: The Substrate ($\ell^2$ Basis and Core)}
+
+We define the canonical basis $e_n$ and the core domain $\mathcal{D}_0$ of finite linear combinations.
+
+\uplinline|  theory HarmonicOscillator {|
+\uplinline$    include HilbertSpace$
+\uplinline$    include Numbers.Nat$
+\uplinline$    $
+\uplinline$    // The Canonical Basis e_n: N -> h_vector$
+\uplinline$    // e(n) is the vector with 1 at index n and 0 elsewhere$
+\uplinline$    basis_e = n -> k -> if (k == n) (real_one) else (real_zero) $
+\uplinline$    $
+\uplinline$    // The Core: Finite Linear Combinations (Soft Type / Predicate)$
+\uplinline$    // Defined as vectors with finite support (eventually zero)$
+\uplinline$    HO_Core : h_vector -> prop$
+\uplinline$    HO_Core = v -> has_finite_support(v)$
+\uplinline|  }| 
+
+\subsection{Phase 2: Operator Algebra on the Core}
+
+We define the Number operator $N$ and the Creation/Annihilation operators $a, a^*$ as partial functions whose domain is the Core.
+
+\uplinline| theory OperatorAlgebra {|
+\uplinline$    include HarmonicOscillator$
+\uplinline$    include OperatorTheory$
+\uplinline$    $
+\uplinline$    // The Number Operator N$
+\uplinline$    // Domain: HO_Core. Action: N(e_n) = n * e_n$
+\uplinline$    N_op : Operator$
+\uplinline$    N_op = v -> k -> times(k, v(k))$
+\uplinline$    $
+\uplinline$    // Creation Operator a* (raising)$
+\uplinline$    // a*(e_n) = sqrt(n+1) * e_{n+1}$
+\uplinline$    a_star : Operator$
+\uplinline$    a_star = v -> k -> if (k == 0) real_zero else times(sqrt(k), v(k-1))$
+\uplinline$    $
+\uplinline$    // Annihilation Operator a (lowering)$
+\uplinline$    // a(e_n) = sqrt(n) * e_{n-1}$
+\uplinline$    a_op : Operator$
+\uplinline$    a_op = v -> k -> times(sqrt(k+1), v(k+1))$
+\uplinline$    $
+\uplinline$    // Commutator Check: [a, a*] = I$
+\uplinline$    canonical_commutation : |- $
+\uplinline$      forall v. HO_Core(v) => $
+\uplinline$      complex_equiv(Commutator(a_op, a_star)(v), v)$
+\uplinline|  }|
+
+\subsection{Phase 3: Essential Self-Adjointness Definitions}
+
+We define the necessary predicates to establish Essential Self-Adjointness via the closure of the operator's graph.
+
+\uplinline| theory ESA_Definitions {|
+\uplinline$    include OperatorAlgebra$
+\uplinline$    $
+\uplinline$    Graph = (A: Operator) -> (x, y) -> y == A(x)$
+\uplinline$    IsClosed = (G: (h_vector, h_vector) -> prop) -> prop // Topologically closed$
+\uplinline$    Closure = (A: Operator) -> Operator // The operator with the closed graph$
+\uplinline$    $
+\uplinline$    // Definition of Adjoint A*$
+\uplinline$    // y in dom(A*) if exists z. <Ax, y> = <x, z> forall x in dom(A)$
+\uplinline$    Adjoint = (A: Operator, DomA: Domain) -> Operator$
+\uplinline$    $
+\uplinline$    EssentiallySelfAdjoint = (A: Operator, D: Domain) ->$
+\uplinline$      SelfAdjoint(Closure(A))$
+\uplinline|  }| 
+
+\subsection{Phase 4: Faris-Lavine Estimate for HO}
+
+We specialize the Faris-Lavine theorem (Corollary 1.1) to our Harmonic Oscillator context.
+
+\uplinline| theory HO_Analysis {|
+\uplinline$    include ESA_Definitions$
+\uplinline$    $
+\uplinline$    // Lemma: N is Self-Adjoint on the Core$
+\uplinline$    N_is_SA : |- SelfAdjoint(N_op)$
+\uplinline$    $
+\uplinline$    // The Estimate for a perturbed Hamiltonian H = N + V$
+\uplinline$    // If [H, N] is bounded by N, then H is ESA.$
+\uplinline$    FarisLavineHO : |- $
+\uplinline$      forall H : Operator.$
+\uplinline$      Hermitian(H) & Included(HO_Core, Domain(H)) &$
+\uplinline$      (exists c. forall phi. HO_Core(phi) => norm(Commutator(H, N_op)(phi)) <= c * norm(N_op(phi))) $
+\uplinline$      => EssentiallySelfAdjoint(H, HO_Core)$
+\uplinline|  }| 
+
+\subsection{Phase 5: QFT Hamiltonian Application}
+
+Finally, we construct a polynomial interaction Hamiltonian $V(a, a^*)$ and prove it defines a unique quantum system.
+
+\uplinline| theory QFT_Model {| 
+\uplinline$    include HO_Analysis$
+\uplinline$    $
+\uplinline$    // Interaction Potential V (e.g., phi^4 polynomial in a, a*)$
+\uplinline$    // We define a generic polynomial operator constructor$
+\uplinline$    PolynomialOp : (Operator, Operator) -> Operator$
+\uplinline$    $
+\uplinline$    V_int = PolynomialOp(a_op, a_star)$
+\uplinline$    $
+\uplinline$    // Total Hamiltonian H = N + V$
+\uplinline$    H_total = v -> plus(N_op(v), V_int(v))$
+\uplinline$    $
+\uplinline$    // The Main Result: The QFT Model exists and is unique$
+\uplinline$    QFT_Existence : |- EssentiallySelfAdjoint(H_total, HO_Core)$
+\uplinline|  }| 
+
+\section{Appendix C: Algebraic Construction of Transcendentals}
+
+We construct transcendental functions algebraically, avoiding infinite limit definitions where possible.
+
+\uplinline| theory AlgebraicTranscendentals {| 
+\uplinline$    include HilbertSpace$
+\uplinline$    $
+\uplinline$    // 1. Chebyshev Polynomials (Recursive Definition)$
+\uplinline$    // T_n(x) = 2x T_{n-1}(x) - T_{n-2}(x)$
+\uplinline$    ChebyshevT = (n: int[0;], x: complex) -> complex$
+\uplinline$    ChebyshevT = (n, x) ->$
+\uplinline$      if (n == 0) (real_one) else$
+\uplinline$      if (n == 1) (x) else$
+\uplinline$      minus(times(times(real_two, x), ChebyshevT(n-1, x)), ChebyshevT(n-2, x))$
+\uplinline$    $
+\uplinline$    // Useful Property: T_n(cos theta) = cos(n theta)$
+\uplinline$    $
+\uplinline$    // 2. Cayley Transform (Real Line <-> Unit Circle)$
+\uplinline$    // Parametrizes the unitary group U(1)$
+\uplinline$    // z |-> (z - i)/(z + i)$
+\uplinline$    i_unit = comp(z, o)$
+\uplinline$    CayleyTransform = (z: complex) -> complex$
+\uplinline$    CayleyTransform = z -> div(minus(z, i_unit), plus(z, i_unit))$
+\uplinline$    $
+\uplinline$    // Inverse Cayley: w |-> i(1 + w)/(1 - w)$
+\uplinline$    InverseCayley = (w: complex) -> complex$
+\uplinline$    InverseCayley = w -> times(i_unit, div(plus(real_one, w), minus(real_one, w)))$
+\uplinline$    $
+\uplinline$    // 3. Imaginary Exponential via Algebraic Group Property$
+\uplinline$    // exp(ix) corresponds to rotation on the unit circle via Cayley$
+\uplinline$    ExpImag = (theta: rat) -> complex$
+\uplinline$    ExpImag = theta -> CayleyTransform(comp(z, tan_half(theta))) // where tan_half is algebraic approx$
+\uplinline$    $
+\uplinline$    // 4. General Complex Exponential via Analytic Continuation$
+\uplinline$    // exp(x + iy) = exp(x) * exp(iy)$
+\uplinline$    // Uses the real exponential (limit series) and the algebraic imaginary component$
+\uplinline$    ExpComplex = (c: complex) -> complex$
+\uplinline$    ExpComplex = c -> times(exp_real(real_part(c)), ExpImag(imag_part(c)))$
+\uplinline|  }| 
+
+\section*{References}
+
+\begin{enumerate}
+    \item \cite{mehlerUeberEntwicklungFunction1866}
+    \item \cite{koppermanLTheoryHilbertSpaces1967}
+    \item \textbf{Gabriel Gonzalez.} \textit{The Dhall Configuration Language}. \texttt{https://dhall-lang.org}
+    \item \textbf{Rabe, F. et al.} (UniFormal / KWARC). \textit{The MMT Language and System}.
+    \item \textbf{Ben Yaacov, I., et al.} (2008). \textit{Model theory for metric structures}.
+    \item \cite{hashimotoShiftinvertRationalKrylov2019}
+    \item \textbf{Doerschuk, P. et al.} (2019). \textit{Evaluation of the discretization error in the computation of the eigenvalues of the fractional Laplacian}. Springer.
+    \item \cite{loshchilovNGPTNormalizedTransformer2024}
+\end{enumerate}
+
+
+\bibliography{bib}{}
+\bibliographystyle{utphysMM}
+
+\end{document}

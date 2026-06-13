@@ -99,10 +99,13 @@ noncomputable def fourFoldLimit (s : ℂ) : ℂ :=
   starRingEnd ℂ (g (starRingEnd ℂ s)) * g s *
     g (3 / 2 - s) * starRingEnd ℂ (g (3 / 2 - starRingEnd ℂ s))
 
-/-- G_n(σ) ≥ 0 for real σ (product of conjugate pairs). -/
+/-
+G_n(σ) ≥ 0 for real σ (product of conjugate pairs).
+-/
 lemma fourFoldApprox_real_nonneg (n : ℕ) (σ : ℝ) :
     0 ≤ (fourFoldApprox n (σ : ℂ)).re := by
-  sorry
+  unfold fourFoldApprox; norm_num; ring_nf;
+  positivity
 
 /-- The four-fold product has the functional equation symmetry:
     G_n(3/2 − s) = G_n(s). -/

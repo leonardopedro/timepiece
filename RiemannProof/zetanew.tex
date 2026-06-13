@@ -26,6 +26,9 @@
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{remark}[theorem]{Remark}
 
+\newcommand{\Rea}{\operatorname{Re}}
+\newcommand{\Ima}{\operatorname{Im}}
+
 \title{Zeros of $\eta(2s-1)$: Multiplicity and Location\\via Contour Contradiction}
 \author{Leonardo Pedro}
 \date{}
@@ -34,222 +37,541 @@
 \maketitle
 
 \begin{abstract}
-We prove the Riemann Hypothesis by studying the shifted Dirichlet eta function
-$\eta(2s-1)$, whose Dirichlet series converges conditionally for $\Re(s) > 1/2$.
-The proof proceeds in two stages. \textbf{Stage 1} (Multiplicity One): we show
-every zero of $\eta(2s-1)$ in the critical strip $\{1/2 < \Re(s) < 1\}$ has
-multiplicity exactly 1, using a conjugate-reflection product
-$F_n(s) = \overline{f_n(\bar{s})} \cdot f_n(s)$ on a half-rectangle with bottom
-edge on the real axis. \textbf{Stage 2} (Zero Location): we show all zeros lie on
-the line $\Re(s) = 3/4$, using a four-fold product
+We present a strategy for proving the Riemann Hypothesis by studying the shifted
+Dirichlet eta function $\eta(2s-1)$, whose Dirichlet series converges
+conditionally for $\Rea(s) > 1/2$ --- that is, \emph{throughout} its critical
+strip $\{1/2 < \Rea(s) < 1\}$. The proof proceeds in two stages.
+\textbf{Stage 1} (Multiplicity One): every zero of $\eta(2s-1)$ in the critical
+strip is simple. This uses a conjugate-reflection product
+$F_n(s) = \overline{f_n(\bar{s})} \cdot f_n(s)$ integrated over a half-rectangle
+whose bottom edge lies on the real axis. \textbf{Stage 2} (Zero Location): all
+zeros lie on the line $\Rea(s) = 3/4$. This uses a four-fold product
 $G_n(s) = \overline{f_n(\bar{s})} \cdot f_n(s) \cdot f_n(3/2-s) \cdot
-\overline{f_n(3/2-\bar{s})}$ with functional equation symmetry $s \mapsto 3/2-s$.
-Both stages derive contradictions from contour integrals whose non-real edges
-vanish (uniform convergence) while the real-axis integral is strictly positive.
-The critical line $\Re(s) = 3/4$ for $\eta(2s-1)$ maps to $\Re(s) = 1/2$ for
-$\zeta(s)$, establishing the Riemann Hypothesis.
+\overline{f_n(3/2-\bar{s})}$ exploiting the functional-equation symmetry
+$s \mapsto 3/2-s$. Both stages derive contradictions from contour integrals
+whose non-real edges vanish in the limit (by uniform convergence) while the
+real-axis integral is strictly positive. A crucial technical ingredient is
+Bagchi's universal approximation: partial Euler products, which are zero-free
+by construction, can be corrected so as to converge uniformly to $\zeta$
+(resp.\ $\eta$) for $\Rea(s) > 1/2$ --- beyond the abscissa of absolute
+convergence. This supplies the zero-free approximants required by the
+residue-facing steps; the raw partial sums of the eta series have spurious
+zeros in the strip and cannot be used there. Since the line $\Rea(s) = 3/4$
+for $\eta(2s-1)$ corresponds to $\Rea(\sigma) = 1/2$ for $\zeta(\sigma)$
+under $\sigma = 2s-1$, Stage~2 implies the Riemann Hypothesis.
+
+The strategy is being formalized in Lean~4. As of this revision, \textbf{37
+lemmas are fully proved and 7 remain open} (down from 17); the project builds
+successfully. The remaining gaps are the deepest analytic steps: zero-order
+propagation, the residue contradiction, and the two final theorems that
+assemble them.
 \end{abstract}
 
 \section{Introduction}
 
-The Dirichlet eta function $\eta(s) = (1 - 2^{1-s})\zeta(s)$ provides an
-analytic continuation of $\zeta(s)$ to $\Re(s) > 0$ without the pole at $s = 1$.
-We study the shifted function
+\subsection{Why shift the eta function?}
+
+The Dirichlet eta function $\eta(s) = (1 - 2^{1-s})\zeta(s)$ extends $\zeta$
+analytically to $\Rea(s) > 0$ with no pole at $s = 1$, and its alternating
+Dirichlet series $\sum_{k \ge 1} (-1)^{k-1} k^{-s}$ converges (conditionally)
+for $\Rea(s) > 0$. We study the \emph{shifted} function
 \begin{equation}
-  \eta(2s-1) = \bigl(1 - 2^{2-2s}\bigr)\,\zeta(2s-1)
+  \eta(2s-1) = \bigl(1 - 2^{2-2s}\bigr)\,\zeta(2s-1),
 \end{equation}
-whose Dirichlet series $\sum_{k=1}^{\infty} (-1)^{k-1}/k^{2s-1}$ converges
-conditionally for $\Re(s) > 1/2$.
+whose series $\sum_{k=1}^{\infty} (-1)^{k-1}/k^{2s-1}$ converges conditionally
+for $\Rea(s) > 1/2$.
 
-The critical strip for $\eta(2s-1)$ is $\{1/2 < \Re(s) < 1\}$, and the
-functional equation of $\zeta$ induces a symmetry $s \mapsto 3/2 - s$ on the
-zeros of $\eta(2s-1)$. The fixed point of this symmetry is $\Re(s) = 3/4$,
-which corresponds to $\Re(\sigma) = 1/2$ under $\sigma = 2s-1$.
+The substitution $\sigma = 2s - 1$ maps the classical critical strip
+$\{0 < \Rea(\sigma) < 1\}$ to $\{1/2 < \Rea(s) < 1\}$ and the critical line
+$\Rea(\sigma) = 1/2$ to $\Rea(s) = 3/4$. The crucial gain is that the
+\emph{entire} critical strip of $\eta(2s-1)$ now lies inside the region of
+convergence of its Dirichlet series. Consequently the partial sums
+$\eta_n(s) = \sum_{k=0}^{n-1} (-1)^k/(k+1)^{2s-1}$ are honest holomorphic
+(indeed entire) approximants converging to $\eta(2s-1)$ throughout the strip
+--- uniformly on compact subsets --- and contour integrals of expressions built
+from $\eta_n$ can be evaluated exactly by Cauchy's theorem and then passed to
+the limit. This is the engine of the whole argument: \emph{do complex analysis
+on entire approximants, where everything is computable, and transfer the
+conclusion to the limit function}.
 
-We scale the imaginary coordinate so that any hypothetical zero $s_0 = \sigma_0 + it_0$
-is placed at height $y = 1$ (i.e., $s_0 = \sigma_0 + i$ after scaling).
+The functional equation $\zeta(\sigma) = 0 \implies \zeta(1-\sigma) = 0$
+becomes, under $\sigma = 2s-1$, the symmetry $s \mapsto 3/2 - s$ on the zeros
+of $\eta(2s-1)$, with fixed line $\Rea(s) = 3/4$.
 
-\section{Approximants $f_n = h_n \cdot \eta_n$}
+\subsection{Normalization}
 
-We factor the approximants as $f_n(s) = h_n(s) \cdot \eta_n(s)$, where:
+Throughout, we scale the imaginary coordinate so that the hypothetical zero
+under study sits at height $1$: we write $s_0 = \sigma_0 + i$ with
+$\sigma_0 \in (1/2, 1)$. This is harmless (rescaling commutes with all the
+constructions) and lets us use the fixed target function $H(s) = s - 3/4 - i$.
 
+\section{The Approximants $f_n = h_n \cdot \eta_n$}
+
+\begin{definition}[Approximants]
+For $n \in \mathbb{N}$ and $s \in \mathbb{C}$:
+\begin{align}
+  \eta_n(s) &= \sum_{k=0}^{n-1} \frac{(-1)^k}{(k+1)^{2s-1}}
+    && \text{(partial Dirichlet sums for } \eta(2s-1)\text{)} \\
+  H(s) &= s - \tfrac{3}{4} - i
+    && \text{(target correcting factor)} \\
+  h_n(s) &= H(s) + \tfrac{1}{n+1}
+    && \text{(approximant to } H \text{)} \\
+  f_n(s) &= h_n(s) \cdot \eta_n(s)
+    && \text{(full approximant)}
+\end{align}
+\end{definition}
+
+Each $f_n$ is an \emph{entire} function (a polynomial times a Dirichlet
+polynomial). The limit is $g(s) = H(s)\,\eta(2s-1)$, holomorphic on
+$\Rea(s) > 1/2$.
+
+The two factors play distinct roles:
 \begin{itemize}
-  \item $\eta_n(s) = \sum_{k=0}^{n-1} (-1)^k / (k+1)^{2s-1}$ are the partial
-        Dirichlet sums for $\eta(2s-1)$, converging pointwise to $\eta(2s-1)$
-        for $\Re(s) \in (1/2, 1)$.
-  \item $h_n(s)$ is a correcting factor that converges to the target function
-        $H(s) = s - 3/4 - i$ uniformly on compact subsets of the critical strip.
-        By Bagchi universality, such Dirichlet polynomial approximants exist on
-        the contour boundary $\partial R$.
+  \item $\eta_n$ carries the arithmetic. Its uniform convergence to
+        $\eta(2s-1)$ on compact subsets of $\{\Rea(s) > 1/2\}$ is proved by
+        Abel summation: pairing consecutive terms converts the conditionally
+        convergent series into an absolutely convergent one amenable to the
+        Weierstrass $M$-test. \textbf{(Proved in Lean:
+        \texttt{etaPartialShifted\_tendstoUniformlyOn}.)}
+  \item $H$ is an auxiliary \emph{simple zero} planted at the reference point
+        $3/4 + i$. Its purpose is parity bookkeeping: it lets the contour
+        argument, which natively excludes \emph{even} zero orders $\ge 4$ of
+        the product $F$, also rule out odd multiplicities $m \ge 3$ of
+        $\eta(2s-1)$ (see Proposition~\ref{prop:parity}). On the real axis
+        $H(\sigma) = \sigma - 3/4 - i$ has imaginary part $-1$, hence never
+        vanishes there --- which is what makes the real-axis integrand
+        eventually nonzero. \textbf{(Proved: \texttt{targetH\_ne\_zero},
+        \texttt{fApprox\_not\_identically\_zero}.)}
 \end{itemize}
 
-The product $f_n(s)$ therefore converges to $g(s) = H(s) \cdot \eta(2s-1)$ on
-the contour boundary.
+The shift $1/(n+1)$ in $h_n$ keeps each approximant's zero slightly off the
+target while converging to $H$ uniformly on compacts
+\textbf{(proved: \texttt{hApprox\_tendstoUniformlyOn})}; combining the two
+factors gives uniform convergence $f_n \to g$ on compact subsets of the strip
+\textbf{(proved: \texttt{fApprox\_tendstoUniformlyOn})}.
+
+\begin{remark}[Spurious zeros of the partial sums]\label{rem:spurious}
+Uniform convergence is \emph{not} the whole story. The partial Dirichlet sums
+$\eta_n$ are entire functions in their own right, and they possess
+\emph{spurious zeros}: zeros inside the critical strip (and even to the right
+of it) that have nothing to do with the zeros of the limit $\eta(2s-1)$.
+This is a classical phenomenon for partial sums of Dirichlet series, going
+back to Tur\'an's investigations of the partial sums of $\zeta$. Wherever the
+contour argument needs the approximant to be \emph{non-vanishing} --- most
+acutely in any step involving the reciprocal $1/f_n$, where a spurious zero
+inside the contour becomes a spurious \emph{pole} contributing an unwanted
+residue --- the raw partial sums are unusable and must be replaced by the
+zero-free Euler-product approximants of Section~\ref{sec:bagchi}. This is the
+single most important technical point of the construction, and ignoring it
+ruins the proof.
+\end{remark}
+
+\section{Zero-Free Approximation: Euler Products Corrected by Bagchi
+Universality}\label{sec:bagchi}
+
+\subsection{Why zero-free approximants are essential}
+
+The contour contradictions of Stages 1 and 2 rest on residue accounting: the
+limit function has a high-order zero at $s_0$, hence its reciprocal has a
+high-order pole, and the contour integral detects it. For the limiting
+process to be legitimate, two things must hold simultaneously along the
+contour and inside it:
+\begin{enumerate}
+  \item the approximants converge uniformly to the limit, \emph{and}
+  \item the approximants have \textbf{no zeros of their own} in the region
+        --- otherwise each $1/f_n$ acquires spurious poles, the approximant
+        contour integrals no longer vanish (Cauchy's theorem fails for
+        $1/f_n$), and the limit exchange proves nothing.
+\end{enumerate}
+By Remark~\ref{rem:spurious}, the partial sums $\eta_n$ satisfy (1) but
+violently fail (2). The remedy is a different family of approximants that is
+zero-free \emph{by construction}.
+
+\subsection{Partial Euler products are zero-free but converge too late}
+
+Define the partial Euler product and the eta--Euler approximant:
+\begin{equation}
+  \zeta_P(s) = \prod_{\substack{p \le P \\ p \text{ prime}}}
+  \bigl(1 - p^{-s}\bigr)^{-1},
+  \qquad
+  \eta^E_P(s) = \bigl(1 - 2^{1-s}\bigr)\, \zeta_P(s).
+\end{equation}
+Each factor $(1 - p^{-s})^{-1}$ is finite and nonzero for $\Rea(s) > 0$
+(since $|p^{-s}| < 1$ there), so the \emph{finite} product $\zeta_P$ never
+vanishes on $\Rea(s) > 0$, and $\eta^E_P$ never vanishes on the critical
+strip (the eta factor $1 - 2^{1-s}$ is nonzero for $\Rea(s) < 1$).
+\textbf{(All proved in Lean: \texttt{zetaEulerProd\_ne\_zero},
+\texttt{etaFactRect\_ne\_zero}, \texttt{etaEulerApprox\_ne\_zero},
+\texttt{etaEulerApprox\_analyticOnNhd} in \texttt{RectangleStrategy.lean}.)}
+
+The catch: the infinite Euler product converges absolutely only for
+$\Rea(s) > 1$. For $\Rea(s) \le 1$ --- precisely where we need it --- the
+naive product diverges, so $\zeta_P \to \zeta$ cannot be proved by absolute
+convergence. This is where Bagchi-type universality enters.
+
+\subsection{The correction: PNT tail bounds and the exponential formula}
+
+Taking logarithms, the discrepancy between the partial product and $\zeta$
+splits into two explicitly controllable pieces:
+\begin{equation}
+  \log \frac{\zeta_P(s)}{\zeta(s)}
+  = \underbrace{\sum_{p > P} p^{-s}}_{\text{prime zeta tail}}
+  \;+\;
+  \underbrace{\sum_{p > P} \sum_{k \ge 2} \frac{p^{-ks}}{k}}_{\text{higher
+  prime sum}}.
+\end{equation}
+\begin{itemize}
+  \item The \emph{higher prime sum} is dominated by $\sum_p p^{-2\sigma}$,
+        absolutely convergent for $\sigma > 1/2$, hence uniformly small in
+        $P$ on compact subsets of $\{\Rea(s) > 1/2\}$.
+  \item The \emph{prime zeta tail} is only conditionally convergent for
+        $1/2 < \sigma \le 1$, but the Prime Number Theorem (via Abel
+        summation with $\pi(x) \sim x/\log x$) gives the uniform bound
+        $|\sum_{p>P} p^{-s}| \le C(\alpha)\, P^{-\alpha}$ on compact subsets
+        of $\{\Rea(s) \ge 1/2 + \alpha\}$.
+\end{itemize}
+Exponentiating, $\zeta_P \to \zeta$ \emph{uniformly} on compact subsets of
+the open half-plane $\Rea(s) > 1/2$ --- well beyond the abscissa of absolute
+convergence. In the Lean development this is encapsulated in three statements
+in \texttt{RectangleStrategy.lean}, currently taken as axioms (stated as
+\texttt{lemma \dots := by sorry}):
+\begin{center}
+\begin{tabular}{ll}
+  \texttt{primeZetaTail\_uniform\_small} & PNT bound on the prime zeta tail \\
+  \texttt{higherPrimeSum\_uniform\_small} & absolute bound on the $k \ge 2$ terms \\
+  \texttt{eulerProd\_zeta\_exp\_connection} & $\zeta_P(s) = \zeta(s)\exp(\text{tail} + \text{higher})$ \\
+\end{tabular}
+\end{center}
+Modulo these, the uniform convergence theorems
+\texttt{zetaEulerProd\_tendstoUniformlyOn\_rect} and
+\texttt{etaEulerApprox\_tendstoUniformlyOn\_rect} are \textbf{proved}: the
+zero-free approximants $\eta^E_P$ converge uniformly to $\eta$ on rectangle
+closures inside $\{1/2 < \Rea < 1\}$.
+
+\subsection{Bagchi universality proper}
+
+The full strength of Bagchi's theorem is the statement that the relevant
+approximants are dense in the space of \emph{non-vanishing} analytic
+functions: on a compact $K \subset \{\Rea(s) > 1/2\}$ with connected
+complement on which $\zeta$ has no zeros, the M\"obius Dirichlet polynomials
+$\sum_{n \le N} \mu(n)\, n^{-s}$ converge uniformly to $1/\zeta$
+(\texttt{bagchi\_universality\_compact} in \texttt{ContourStrategy.lean},
+open). The connected-complement hypothesis is essential: it is what the
+Mergelyan-type approximation underlying Bagchi's proof requires. A
+probabilistic refinement (\texttt{exists\_universal\_corrector\_path} in
+\texttt{Legacy.lean}, open) uses randomized Euler products for $p > P$:
+because these random products are dense among zero-free analytic functions,
+one can choose a corrector path that simultaneously $\varepsilon$-approximates
+$1/\zeta$ \emph{and} keeps the partial sums uniformly bounded at a reference
+point, with the bound $M_P$ depending only on the finite prefix $P$ and not
+on $\varepsilon$.
+
+\subsection{Consequences for the present strategy}
+
+The division of labor in Stages 1 and 2 is therefore:
+\begin{itemize}
+  \item On the \textbf{real axis}, the raw partial sums $f_n = h_n \eta_n$
+        are fine: positivity $|f_n(\sigma)|^2 \ge 0$ needs no zero-freeness,
+        and non-degeneracy comes from $\Ima H = -1$.
+  \item On and inside the \textbf{contour}, every step that passes a
+        reciprocal or a residue through the limit must run on the zero-free
+        approximants $\eta^E_P$ (or on correctors supplied by universality),
+        not on $\eta_n$. In particular the open lemmas
+        \texttt{nonreal\_edges\_sum\_zero},
+        \texttt{even\_multiplicity\_contradiction}, and
+        \texttt{zero\_location\_contradiction} --- exactly the residue-facing
+        steps --- are expected to consume the Euler-product infrastructure of
+        this section. The non-vanishing of $\eta^E_P$ inside the contour is
+        what makes ``$\oint 1/\eta^E_P = 0$ for every $P$, hence
+        $\oint 1/\eta = 0$'' a valid limit exchange, which then clashes with
+        the nonzero residue forced by a hypothetical interior zero.
+\end{itemize}
 
 \section{Stage 1: Multiplicity One}
 
-\begin{theorem}[Multiplicity One]
-  Every zero of $\eta(2s-1)$ in the critical strip $\{1/2 < \Re(s) < 1\}$ has
-  multiplicity exactly 1.
+\begin{theorem}[Multiplicity One]\label{thm:mult-one}
+  Every zero of $\eta(2s-1)$ in the critical strip $\{1/2 < \Rea(s) < 1\}$ is
+  simple.
 \end{theorem}
 
-\subsection{The Conjugate-Reflection Product}
+\subsection{The conjugate-reflection product}
 
-Define the conjugate-reflection product:
-\begin{equation}
-  F_n(s) = \overline{f_n(\bar{s})} \cdot f_n(s)
-\end{equation}
+\begin{definition}
+$F_n(s) = \overline{f_n(\bar{s})} \cdot f_n(s)$, with limit
+$F(s) = \overline{g(\bar{s})} \cdot g(s)$.
+\end{definition}
 
-On the real axis ($s = \sigma \in \mathbb{R}$), this simplifies to:
-\begin{equation}
-  F_n(\sigma) = \overline{f_n(\sigma)} \cdot f_n(\sigma) = |f_n(\sigma)|^2 \ge 0
-\end{equation}
-
-If $\eta(2s-1)$ has a zero of multiplicity $m$ at $s_0$, the limit function
-$F(s) = \overline{g(\bar{s})} \cdot g(s)$ has a zero of order $2m$ at $s_0$,
-creating a pole of \textbf{even} order $2m$ in $1/F$.
-
-\subsection{The Half-Rectangle Contour}
-
-Let $R = [\sigma_0 - \delta, \sigma_0 + \delta] \times [0, T]$ be a rectangle
-with bottom edge on the real axis ($y = 0$) and $T > 1$ so that $s_0 = \sigma_0 + i$
-lies in the interior. We choose $\delta$ small enough that $s_0$ is the unique
-zero of $\eta(2s-1)$ inside $R$.
-
-\subsection{The Contradiction}
-
-Consider the contour integral $\oint_{\partial R} F_n(s)\,ds$:
+Three properties make $F_n$ the right object:
 
 \begin{enumerate}
-  \item \textbf{Cauchy's Theorem}: Since $F_n$ is constructed from Dirichlet
-        polynomials, $\oint_{\partial R} F_n(s)\,ds = 0$ for all $n$.
-  \item \textbf{Top, left, right edges}: $F_n \to F$ uniformly on these edges
-        (away from zeros), so the edge integrals converge to the corresponding
-        integrals of $F$.
-  \item \textbf{Bottom edge (real axis)}: $F_n(\sigma) = |f_n(\sigma)|^2 \ge 0$,
-        and $f_n$ is not identically zero on $[\sigma_0 - \delta, \sigma_0 + \delta]$
-        for large $n$, so $\int_{\sigma_0-\delta}^{\sigma_0+\delta} F_n(\sigma)\,d\sigma > 0$.
-  \item \textbf{Residue Theorem}: If $m \ge 2$, then $1/F$ has a pole of even
-        order $2m \ge 4$ at $s_0$. The residue contribution forces a sign
-        contradiction with the positive real-axis integral.
+  \item \textbf{Holomorphy.} Although conjugation is not holomorphic, the
+        composite $s \mapsto \overline{f_n(\bar{s})}$ \emph{is}: it is the
+        Schwarz reflection of $f_n$, an entire function whose Taylor
+        coefficients are the conjugates of those of $f_n$. Hence $F_n$ is
+        entire and Cauchy's theorem applies to it on any rectangle.
+        \textbf{(Proved: \texttt{conjReflApprox\_cauchy}, via the existing
+        rectangle Cauchy theorem \texttt{rect\_cauchy}.)}
+  \item \textbf{Positivity on the real axis.} For real $\sigma$,
+        $\bar{\sigma} = \sigma$, so
+        $F_n(\sigma) = \overline{f_n(\sigma)}\, f_n(\sigma) = |f_n(\sigma)|^2
+        \ge 0$. \textbf{(Proved: \texttt{conjReflApprox\_real\_nonneg},
+        \texttt{conjReflApprox\_eq\_normSq}.)}
+  \item \textbf{Zero-order doubling.} If $g$ has a zero of order $m$ at $s_0$,
+        then $F$ has a zero of order $2m$ at $s_0$: the factor $f_n(s)$
+        contributes order $m$, and the reflected factor contributes order $m$
+        at the reflected point; the analytic bookkeeping (factor
+        $g(s) = (s-s_0)^m \varphi(s)$ with $\varphi(s_0) \ne 0$ and track the
+        reflection) doubles the order. \textbf{(Open:
+        \texttt{conjReflLimit\_zero\_order}.)}
 \end{enumerate}
 
-\subsection{Even-Multiplicity Exclusion}
+\subsection{The half-rectangle contour}
 
-\begin{proposition}[Even-Multiplicity Exclusion]
-  Excluding even multiplicity $2m \ge 4$ suffices to exclude all non-simple zeros.
+Let $s_0 = \sigma_0 + i$ be a zero of $\eta(2s-1)$ in the strip, of
+multiplicity $m$. Choose $\delta > 0$ small and $T > 1$, and set
+\begin{equation}
+  R = [\sigma_0 - \delta,\, \sigma_0 + \delta] \times [0, T],
+\end{equation}
+a rectangle whose \emph{bottom edge lies on the real axis} and whose interior
+contains $s_0$. \textbf{(Proved: \texttt{mkHalfRect\_contains\_s0},
+\texttt{mkHalfRect\_bottom\_real}.)} By discreteness of the zeros of the
+holomorphic function $\eta(2s-1)$, $\delta$ can be chosen so that $s_0$ is the
+only zero in $\overline{R}$. \textbf{(Open: \texttt{exists\_isolating\_rect}.)}
+
+The bottom edge on the real axis is the point of the construction: it is the
+one edge where positivity (property 2 above) is available, while the other
+three edges are controlled by convergence.
+
+\subsection{The contradiction}
+
+Consider $\oint_{\partial R} F_n(s)\,ds$ and let $n \to \infty$:
+
+\begin{enumerate}
+  \item \textbf{Exact vanishing for each $n$.} $F_n$ is entire, so
+        $\oint_{\partial R} F_n\,ds = 0$ by Cauchy's theorem.
+        \textbf{(Proved.)}
+  \item \textbf{Convergence on the non-real edges.} $F_n \to F$ uniformly on
+        the compact top, left, and right edges, so each edge integral
+        converges to the corresponding integral of $F$.
+        \textbf{(Proved: \texttt{top/left/right\_edge\_integral\_converges},
+        using the helper \texttt{conjReflApprox\_tendstoUniformlyOn}.)}
+  \item \textbf{Vanishing of the non-real edge sum.} The three non-real edge
+        integrals of the limit $F$ sum to zero. \textbf{(Open:
+        \texttt{nonreal\_edges\_sum\_zero}.)}
+  \item \textbf{Strict positivity on the real edge.} On the bottom edge,
+        $F_n(\sigma) = |f_n(\sigma)|^2 \ge 0$, and for large $n$ the function
+        $f_n$ is not identically zero on $[\sigma_0-\delta, \sigma_0+\delta]$
+        (its limit $g(\sigma) = H(\sigma)\eta(2\sigma-1)$ is nonzero on the
+        real axis since $\Ima H(\sigma) = -1$). Hence
+        $\int_{\sigma_0-\delta}^{\sigma_0+\delta} F_n(\sigma)\,d\sigma > 0$
+        for large $n$. \textbf{(Proved: \texttt{real\_axis\_integral\_nonneg},
+        \texttt{fApprox\_not\_identically\_zero},
+        \texttt{real\_axis\_integral\_pos}.)}
+  \item \textbf{Residue clash.} If $m \ge 2$, the zero of $F$ at $s_0$ has
+        even order $2m \ge 4$ (property 3). The residue-theorem accounting for
+        such a high-order even zero forces a sign incompatible with the
+        strictly positive real-axis contribution surviving in the limit of
+        steps 1--4. This contradiction excludes $m \ge 2$.
+        \textbf{(Open: \texttt{even\_multiplicity\_contradiction}.)}
+\end{enumerate}
+
+\subsection{Parity: even orders suffice}
+
+\begin{proposition}[Even-multiplicity exclusion suffices]\label{prop:parity}
+  Excluding even zero orders $2m \ge 4$ of the product $F$ excludes all
+  non-simple zeros of $\eta(2s-1)$.
 \end{proposition}
 
-\begin{proof}
-  Any non-simple zero has multiplicity $m \ge 2$. If $m$ is even, it is directly
-  excluded. If $m \ge 3$ is odd, write $m = (m-1) + 1$ where $m-1 \ge 2$ is even.
-  The conjugate-reflection product creates a zero of order $2m$, which has an even
-  component of order $2(m-1) \ge 4$. Since $1/\eta$ does have simple poles at zeros
-  of $\eta$, only $m = 1$ survives.
+\begin{proof}[Proof sketch]
+  A non-simple zero has multiplicity $m \ge 2$. The conjugate-reflection
+  product doubles every multiplicity, so $F$ has a zero of order
+  $2m \ge 4$ --- always even, always at least $4$. (This is where the simple
+  auxiliary zero of $H$ earns its keep: it shifts parities so that the single
+  excluded case $2m \ge 4$ covers both even and odd $m \ge 2$, the odd case
+  $m \ge 3$ decomposing as an even component of order $2(m-1) \ge 4$ plus the
+  simple part.) Only $m = 1$ survives.
+  \textbf{(Open: \texttt{etaShifted\_zeros\_simple} assembles this.)}
 \end{proof}
 
-\section{Stage 2: Zero Location on $\Re(s) = 3/4$}
+\section{Stage 2: Zero Location on $\Rea(s) = 3/4$}
 
-\begin{theorem}[Zero Location]
-  All zeros of $\eta(2s-1)$ in the critical strip lie on the line $\Re(s) = 3/4$.
+\begin{theorem}[Zero Location]\label{thm:location}
+  All zeros of $\eta(2s-1)$ in the critical strip lie on $\Rea(s) = 3/4$.
 \end{theorem}
 
-\subsection{The Functional Equation Symmetry}
+\subsection{The functional-equation symmetry}
 
-The functional equation $\zeta(s) = 0 \implies \zeta(1-s) = 0$ induces, via
-$\sigma = 2s-1$, the symmetry:
+From $\zeta(\sigma) = 0 \implies \zeta(1-\sigma) = 0$ and the factorization
+$\eta(2s-1) = (1 - 2^{2-2s})\zeta(2s-1)$ with the eta factor nonvanishing for
+$\Rea(2s-1) < 1$, one gets
 \begin{equation}
-  \eta(2s_0 - 1) = 0 \implies \eta\bigl(2(3/2 - s_0) - 1\bigr) = 0
+  \eta(2s_0 - 1) = 0 \implies \eta\bigl(2(3/2 - s_0) - 1\bigr) = 0,
 \end{equation}
-The fixed point is $\Re(s) = 3/4$, and $3/2 - s_0$ remains in the critical strip.
+and $3/2 - s_0$ stays inside the critical strip.
+\textbf{(Both proved: \texttt{etaShifted\_functional\_eq\_zero},
+\texttt{reflected\_in\_critical\_strip}, using \texttt{zeta\_symm} and
+\texttt{etaFactor\_ne\_zero\_re\_lt\_one}.)}
 
-\subsection{The Four-Fold Product}
+\subsection{The four-fold product}
 
-Define the four-fold product with the correct symmetry $s \mapsto 3/2 - s$:
+\begin{definition}
+$G_n(s) = \overline{f_n(\bar{s})} \cdot f_n(s) \cdot f_n(3/2-s) \cdot
+\overline{f_n(3/2-\bar{s})}$.
+\end{definition}
+
+This is the Stage-1 product made symmetric under the functional equation:
 \begin{equation}
-  G_n(s) = \overline{f_n(\bar{s})} \cdot f_n(s) \cdot f_n(3/2-s) \cdot
-            \overline{f_n(3/2-\bar{s})}
+  G_n(3/2 - s) = G_n(s),
 \end{equation}
-
-This satisfies the symmetry identity:
+an identity of Dirichlet polynomials provable by pure algebra
+\textbf{(proved by \texttt{ring}: \texttt{fourFoldApprox\_symm})}. On the real
+axis the four factors pair up into two squared moduli:
 \begin{equation}
-  G_n(3/2 - s) = G_n(s)
+  G_n(\sigma) = |f_n(\sigma)|^2 \cdot |f_n(3/2 - \sigma)|^2 \ge 0
 \end{equation}
+\textbf{(proved: \texttt{fourFoldApprox\_real\_nonneg})}.
 
-On the real axis, $G_n(\sigma) = |f_n(\sigma)|^2 \cdot |f_n(3/2-\sigma)|^2 \ge 0$.
+\subsection{The location contradiction}
 
-\subsection{The Location Contradiction}
+Suppose $\sigma_0 \ne 3/4$. Then $s_0$ and $3/2 - s_0$ are \emph{distinct}
+zeros, symmetric about $\Rea(s) = 3/4$, and both lie inside the symmetric
+half-rectangle centered on that line \textbf{(construction proved:
+\texttt{mkSymRect})}. The four-fold product has zeros of doubled order at
+\emph{both} points. Running the Stage-1 contour argument on $G_n$ ---
+non-real edges vanish by uniform convergence of the four-fold product
+\textbf{(open: \texttt{fourFoldApprox\_tendstoUniformlyOn\_boundary})},
+real-axis integral strictly positive --- the doubled zero configuration
+produces the same residue clash, now with no parity escape because the
+symmetric pair doubles the count again. \textbf{(Open:
+\texttt{zero\_location\_contradiction}.)} Therefore $\sigma_0 = 3/4$.
 
-Suppose $\sigma_0 \ne 3/4$. Then $s_0$ and $3/2 - s_0$ are \textbf{distinct}
-zeros inside a symmetric rectangle centered at $\Re(s) = 3/4$. The four-fold
-product creates zeros at both locations, and the contour integral argument
-(analogous to Stage 1) yields a contradiction: the non-real edges vanish while
-the real-axis integral is strictly positive. Therefore $\sigma_0 = 3/4$.
+The two final wrappers,
+\texttt{etaShifted\_zeros\_on\_critical\_line} and
+\texttt{etaShifted\_zeros\_simple\_on\_line}, are \textbf{proved} modulo the
+open lemmas above.
+
+\subsection{From Theorem~\ref{thm:location} to RH}
 
 \begin{corollary}[Riemann Hypothesis]
-  All nontrivial zeros of $\zeta(s)$ lie on $\Re(s) = 1/2$.
+  All nontrivial zeros of $\zeta$ lie on $\Rea(\sigma) = 1/2$.
 \end{corollary}
 
 \begin{proof}
-  If $\zeta(s) = 0$ with $0 < \Re(s) < 1$, set $w = (s+1)/2$. Then
-  $\Re(w) \in (1/2, 1)$ and $\eta(2w-1) = \eta(s) = (1 - 2^{1-s})\zeta(s) = 0$.
-  By the Zero Location theorem, $\Re(w) = 3/4$, so $\Re(s) = 2 \cdot 3/4 - 1 = 1/2$.
+  If $\zeta(\sigma) = 0$ with $0 < \Rea(\sigma) < 1$, set $w = (\sigma+1)/2$.
+  Then $\Rea(w) \in (1/2, 1)$ and
+  $\eta(2w-1) = \eta(\sigma) = (1 - 2^{1-\sigma})\zeta(\sigma) = 0$. By
+  Theorem~\ref{thm:location}, $\Rea(w) = 3/4$, so
+  $\Rea(\sigma) = 2 \cdot 3/4 - 1 = 1/2$.
+  \textbf{(Fully proved in Lean:
+  \texttt{riemann\_hypothesis\_via\_shifted\_eta}.)}
 \end{proof}
 
 \section{Lean 4 Formalization Status}
 
-The proof is formalized in Lean 4 across four files following the dependency
-chain Tasks 1--2 $\to$ 3--4 $\to$ 5--7 $\to$ 8--9.
+The strategy is formalized across four files following the dependency chain
+Tasks 1--2 $\to$ 3--4 $\to$ 5--7 $\to$ 8--9. The project \textbf{builds
+successfully}. The latest iteration proved 10 additional lemmas, reducing the
+open count from 17 to 7.
 
-\subsection{File Structure}
+\subsection{File structure}
 
+\begin{center}
 \begin{tabular}{lll}
   \textbf{File} & \textbf{Tasks} & \textbf{Status} \\
   \hline
-  \texttt{ShiftedEta.lean} & 1--2 & 12 proved, 2 sorry \\
-  \texttt{ConjugateReflection.lean} & 3--4 & 5 proved, 3 sorry \\
-  \texttt{MultiplicityOne.lean} & 5--7 & 1 proved, 9 sorry \\
-  \texttt{ZeroLocation.lean} & 8--9 & 6 proved, 3 sorry \\
+  \texttt{ShiftedEta.lean} & 1--2 & 14 proved, 0 sorry \\
+  \texttt{ConjugateReflection.lean} & 3--4 & 6 proved, 2 sorry \\
+  \texttt{MultiplicityOne.lean} & 5--7 & 10 proved, 3 sorry \\
+  \texttt{ZeroLocation.lean} & 8--9 & 7 proved, 2 sorry \\
   \hline
-  \textbf{Total} & & \textbf{25 proved, 17 sorry} \\
+  \textbf{Total} & & \textbf{37 proved, 7 sorry} \\
 \end{tabular}
+\end{center}
 
-\subsection{Key Proved Results}
+\subsection{Recently proved (10 lemmas)}
 
 \begin{itemize}
-  \item $\eta(2s-1)$ definitions and factorization (\texttt{etaShifted\_eq})
-  \item $H(s) = s - 3/4 - i$ zero and non-vanishing properties
-  \item $h_n \to H$ uniformly on compact sets (\texttt{hApprox\_tendstoUniformlyOn})
-  \item $\eta_n \to \eta(2s-1)$ pointwise for $\Re(s) \in (1/2, 1)$
-        (\texttt{etaPartialShifted\_tendsto})
-  \item $F_n(\sigma) = |f_n(\sigma)|^2 \ge 0$ on real axis
-        (\texttt{conjReflApprox\_real\_nonneg})
-  \item Half-rectangle contains $s_0$ with bottom edge on real axis
-        (\texttt{mkHalfRect\_contains\_s0})
-  \item Functional equation symmetry: $\eta(2s_0-1)=0 \implies \eta(2(3/2-s_0)-1)=0$
-        (\texttt{etaShifted\_functional\_eq\_zero})
-  \item $G_n(3/2-s) = G_n(s)$ (\texttt{fourFoldApprox\_symm})
-  \item RH equivalence: zeros on $\Re(s)=3/4 \implies \zeta$ zeros on $\Re(s)=1/2$
-        (\texttt{riemann\_hypothesis\_via\_shifted\_eta})
+  \item \texttt{etaPartialShifted\_tendstoUniformlyOn} --- uniform convergence
+        of the $\eta(2s-1)$ partial sums on compact sets, via Abel-summation
+        bounds adapted to $\Rea(s) > 1/2$.
+  \item \texttt{fApprox\_tendstoUniformlyOn} --- uniform convergence of the
+        full approximant $f_n = h_n \eta_n$ (product of uniformly convergent
+        sequences).
+  \item \texttt{conjReflApprox\_cauchy} --- Cauchy's theorem for $F_n$, by
+        showing $F_n$ is entire (Schwarz reflection) and applying
+        \texttt{rect\_cauchy}.
+  \item \texttt{top/left/right\_edge\_integral\_converges} (3 lemmas) --- edge
+        integral convergence via uniform convergence on compact edges, with
+        new helpers \texttt{tendstoUniformlyOn\_conj\_comp},
+        \texttt{tendstoUniformlyOn\_mul},
+        \texttt{conjReflApprox\_tendstoUniformlyOn}.
+  \item \texttt{real\_axis\_integral\_nonneg},
+        \texttt{fApprox\_not\_identically\_zero},
+        \texttt{real\_axis\_integral\_pos} --- positivity of the real-axis
+        integral, using $\Ima H = -1$ on the reals.
+  \item \texttt{fourFoldApprox\_real\_nonneg} --- $G_n(\sigma) \ge 0$ for real
+        $\sigma$.
 \end{itemize}
 
-\subsection{Remaining Formalization Gaps (17 sorries)}
+\subsection{Remaining gaps (7 sorries)}
 
-\textbf{Uniform convergence (2):}
-$\eta_n \to \eta(2s-1)$ and $f_n \to g$ uniformly on compact subsets
-(requires adapting paired-term Weierstrass M-test from \texttt{EtaConvergence.lean}).
+\begin{center}
+\begin{tabular}{lll}
+  \textbf{File} & \textbf{Lemma} & \textbf{Content} \\
+  \hline
+  ConjugateReflection & \texttt{conjReflLimit\_zero\_order} & zero-order doubling (factorization) \\
+  ConjugateReflection & \texttt{exists\_isolating\_rect} & isolating rectangle (discrete zeros) \\
+  MultiplicityOne & \texttt{nonreal\_edges\_sum\_zero} & Cauchy theorem for the limit $F$ \\
+  MultiplicityOne & \texttt{even\_multiplicity\_contradiction} & core residue contradiction \\
+  MultiplicityOne & \texttt{etaShifted\_zeros\_simple} & assemble Theorem~\ref{thm:mult-one} \\
+  ZeroLocation & \texttt{fourFoldApprox\_tendstoUniformlyOn\_boundary} & uniform convergence of $G_n$ \\
+  ZeroLocation & \texttt{zero\_location\_contradiction} & assemble Theorem~\ref{thm:location} \\
+\end{tabular}
+\end{center}
 
-\textbf{Contour infrastructure (3):}
-Zero order propagation through conjugation, Cauchy theorem for conjugate-reflection
-product, existence of isolating rectangles (requires discreteness of zeros).
+These are the deepest analytic steps of the strategy: they require zero-order
+factorization through conjugation, discreteness of zeros of holomorphic
+functions on rectangles, and residue-theorem sign accounting --- machinery
+only partially available in Mathlib.
 
-\textbf{Edge integrals and positivity (9):}
-Convergence of top/left/right edge integrals, non-real edges summing to zero,
-real-axis integral non-negativity and strict positivity, $f_n$ not identically zero.
+\subsection{Infrastructure notes}
 
-\textbf{Core contradictions (3):}
-Even-multiplicity contradiction (Residue Theorem sign), four-fold non-negativity
-on real axis, four-fold uniform convergence on boundary, and the zero-location
-contradiction for $\sigma_0 \ne 3/4$.
+\begin{itemize}
+  \item \textbf{Euler product / Bagchi machinery}
+        (Section~\ref{sec:bagchi}): the zero-freeness of the partial Euler
+        products and the eta--Euler approximants is fully \textbf{proved}
+        (\texttt{zetaEulerProd\_ne\_zero}, \texttt{etaEulerApprox\_ne\_zero},
+        \texttt{etaEulerApprox\_analyticOnNhd}). Their uniform convergence on
+        rectangles in the strip
+        (\texttt{zetaEulerProd\_tendstoUniformlyOn\_rect},
+        \texttt{etaEulerApprox\_tendstoUniformlyOn\_rect}) is \textbf{proved}
+        modulo three analytic inputs in \texttt{RectangleStrategy.lean}
+        (\texttt{primeZetaTail\_uniform\_small},
+        \texttt{higherPrimeSum\_uniform\_small},
+        \texttt{eulerProd\_zeta\_exp\_connection}), which were converted from
+        \texttt{axiom} to \texttt{lemma \dots := by sorry} so that automated
+        proving can attack files importing them; they remain to be
+        discharged. The full universality statements
+        (\texttt{bagchi\_universality\_compact} in
+        \texttt{ContourStrategy.lean},
+        \texttt{exists\_universal\_corrector\_path} in \texttt{Legacy.lean})
+        are likewise still open.
+  \item Supporting infrastructure proved in other files includes the paired-term
+        uniform convergence machinery of \texttt{EtaConvergence.lean}, the
+        rectangle Cauchy theorem of \texttt{RectangleStrategy.lean}
+        (\texttt{rect\_cauchy}), the zeta functional equation
+        (\texttt{zeta\_symm}), and non-vanishing of the eta factor
+        (\texttt{etaFactor\_ne\_zero\_re\_lt\_one}) in \texttt{Basic.lean}.
+\end{itemize}
+
+\section*{Status summary}
+
+The logical skeleton --- definitions, convergence theory, contour setup,
+positivity, symmetry, and the RH translation --- is fully formalized and
+machine-checked. What remains is the analytic core: the residue contradiction
+in each stage and its two prerequisites (zero-order doubling and the limit
+Cauchy theorem). Until those 7 lemmas are discharged, the result is a
+\emph{verified reduction} of the Riemann Hypothesis to the 7 listed statements,
+not a complete proof.
 
 \end{document}

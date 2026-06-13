@@ -1,81 +1,47 @@
-# Summary of changes for run b1acc735-e9f3-4ad4-b727-73ebd618b72f
-# Implementation of η(2s−1) Multiplicity and Zero Location Strategy
+# Summary of changes for run e95705ca-1719-49ef-94b6-b474bf6ec5c4
+Completed the final outstanding item of the PnpProof formalization plan — N1, the explicit `O(k)` comparator-circuit upgrade of the model's "NP side" — leaving the whole development sorry-free and axiom-free (only `propext`, `Classical.choice`, `Quot.sound`). The pre-existing `RiemannProof` library is untouched, and `lake build` (both default targets) succeeds.
 
-I have implemented the full plan from `IMPLEMENTATION_PLAN.md` across four new Lean files, following the dependency graph Tasks 1→2→3→4→5→6→7→8→9. The project builds successfully.
+New file `PnpProof/Comparator.lean` builds the construction from scratch on top of the existing `Circuit` theory in `PnpProof/Counting.lean`:
+- A clean single-gate append API: `Gate.eval`, `Circuit.snoc`, and the two evaluation lemmas `snoc_nodeValNat_lt` / `snoc_nodeValNat_top` (plus `nodeValNat_input`, `clampFin`).
+- `step`, one ripple-comparator stage (9 gates) updating an eq/lt register pair, with its value lemmas `step_eqN_val` / `step_ltN_val` and `step_preserves`.
+- `buildLT`, the MSB-first fold of `step` over the bit positions, with the correctness invariant `buildLT_spec` (proved by induction using the relocated bit-recursion lemma `div_pow_succ_compare`).
+- `baseSt` seeding the registers from TRUE/FALSE constant nodes; `bitsOf` packing three k-bit numbers; the two chained comparators `cmp1`/`cmp2` (with `cmp1_ltN_val`/`cmp2_ltN_val`); and `fullCircuit` combining them with a final ¬·∧¬·.
+- The headline theorem `verify_circuit_cheap`: for every k ≥ 1 there is an explicit `Circuit (3*k) (s+1)` of size `s ≤ 50*k + 50` deciding `(glo ≤ u ∧ u ≤ ghi)` on the packed inputs.
 
-## New Files Created
+In `PnpProof/Main.lean` the N1-OPEN note was replaced by the NEW theorem `model_P_ne_NP_circuit`, whose NP-side conjunct is the circuit family from `verify_circuit_cheap` (phrased with `verifyBits`) and whose P-side conjunct is T2 (`almost_all_not_computable`); it carries the same "theorem about the model, not the Clay statement" docstring. As mandated by the plan, the original `model_P_ne_NP` is left exactly as it was, so both the computability form and the circuit form coexist. The bit-recursion lemma `div_pow_succ_compare` was moved from `Main.lean` to `Comparator.lean` (no longer duplicated) and `PnpProof.lean` now imports the new module.
 
-### 1. `RiemannProof/ShiftedEta.lean` (Tasks 1–2)
-**Definitions** (all fully implemented):
-- `etaShifted s` = η(2s−1) = dirichletEta(2s−1)
-- `etaPartialShifted n s` = partial Dirichlet sums for η(2s−1)
-- `targetH s` = s − 3/4 − I (target for the correcting factor)
-- `hApprox n s` = correcting factor h_n
-- `fApprox n s` = h_n · η_n (full approximant)
-- `etaFactShifted s` = 1 − 2^{2−2s} (eta factor)
+`PnpProof/IMPLEMENTED.md` was updated with a `Comparator.lean` section and the N1-complete status. Only stylistic linter warnings (line length / whitespace / multiGoal) remain, several of them pre-existing; the build itself is clean.
 
-**Proved lemmas:**
-- `etaShifted_eq` — factorization of etaShifted
-- `etaPartialShifted_zero/one` — base cases
-- `nat_succ_mem_slitPlane` — k+1 ∈ slitPlane
-- `etaPartialShifted_differentiable` — each partial sum is differentiable
-- `targetH_differentiable/zero/ne_zero` — properties of targetH
-- `hApprox_tendsto` — pointwise convergence h_n → targetH
-- `hApprox_tendstoUniformlyOn` — **uniform convergence** h_n → targetH on compact sets (proved by subagent)
-- `etaPartialShifted_tendsto` — **pointwise convergence** η_n → η(2s−1) for 1/2 < Re(s) < 1 (proved by subagent via reindexing to `etaPartialSum_tendsto_dirichletEta`)
+# Summary of changes for run 170e5877-d03a-49ef-b371-c44798f0030a
+Continued the `PnpProof` development and completed almost all of the remaining next-step queue (N1–N5 in Part 7 of the plan). The whole library still builds with `lake build PnpProof`, every new result is sorry-free, and all of them depend only on the standard axioms `propext`, `Classical.choice`, `Quot.sound` (verified with `#print axioms`). The pre-existing `RiemannProof` library is untouched.
 
-**Remaining sorries (2):** `etaPartialShifted_tendstoUniformlyOn`, `fApprox_tendstoUniformlyOn` — uniform convergence on compact sets, requires adapting the ball-based convergence from `EtaStrategy.lean`
+New work, all in `PnpProof/SphereGaussian.lean` unless noted:
 
-### 2. `RiemannProof/ConjugateReflection.lean` (Tasks 3–4)
-**Definitions:**
-- `conjReflApprox n s` = F_n(s) = conj(f_n(conj(s))) · f_n(s)
-- `conjReflLimit s` = limit function F(s)
-- `mkHalfRect` — rectangle with bottom edge on real axis
+- N3 (G5 certificate — rotation invariance of the uniform sphere measure): `sphereProj_equivariant`, `gaussianE_rotation_invariant` (via characteristic functions), and the combined `sphereUniform_rotation_invariant`. This is the certificate that `sphereUniform` deserves the name "uniform".
+- N2 (G4 second half — the Hermite normalization integral): `physHermite_hasDerivAt` (the derivative recurrence H_{n+1}'=2(n+1)H_n), `hermite_sq_integral` (∫ H_n(x)² e^{−x²} dx = √π·2ⁿ·n!, by an integration-by-parts induction with base `integral_gaussian`), and `hermite_normalization` (the chapter's value √π·2ⁿ/n!).
+- N1 (G4 first half — the normalization-constant limit): `gegenbauerScaled_rec` (the rescaled three-term recurrence), `gegenbauerScaled_bound` (a uniform-in-λ polynomial bound proved by recurrence induction), and `normalization_tendsto` (the chapter's limit, proved by dominated convergence). It is stated in the post-change-of-variables form, as the plan permits.
+- N4 (Poincaré–Borel): `gammaMeasure` (the infinite product of standard Gaussians, via `Measure.infinitePi`), `normSq`, `gaussian_concentration_sphere` (G7, the a.s. strong-law concentration), and `poincare_borel_ae` (G6, a.s. coordinatewise convergence of the √k-sphere normalization to the Gaussian coordinates).
 
-**Proved lemmas:**
-- `conjReflApprox_real_nonneg` — F_n(σ) ≥ 0 on real axis
-- `conjReflApprox_eq_normSq` — F_n(σ) = |f_n(σ)|²
-- `even_multiplicity_pole` — 2m is always even
-- `mkHalfRect_contains_s₀` — rectangle contains the target zero
-- `mkHalfRect_bottom_real` — bottom edge is on real axis
+N5 (the explicit O(k) comparator-circuit upgrade of T3's NP side) is the one item left OPEN. Its driving bit-recursion lemma `div_pow_succ_compare` is proved, but assembling the full explicit `Circuit (3*k) (s+1)` together with its node-by-node correctness proof is a large standalone construction that exceeded the available budget. Following the plan's standing instruction for N5, no `sorry` was committed and the existing `model_P_ne_NP` was left untouched, so the development remains sorry-free and axiom-free. The finite-k Chebyshev fallback (G7′) and the bounded-continuous weak-convergence corollary of G6 were not needed once the a.s. forms were in place.
 
-**Remaining sorries (3):** `conjReflLimit_zero_order`, `conjReflApprox_cauchy`, `exists_isolating_rect` — deep analytic content (zero order propagation, Cauchy's theorem for non-holomorphic product, isolated zeros)
+`PnpProof/IMPLEMENTED.md` has been updated to record the new lemmas, files, deviations, and the OPEN status of N5. `ARISTOTLE_SUMMARY.md` was left unedited as requested.
 
-### 3. `RiemannProof/MultiplicityOne.lean` (Tasks 5–7)
-**Statements formalized** (all sorry'd — these are the deep analytic steps):
-- Edge integral convergence (top, left, right edges)
-- Non-real edges sum to zero
-- Real-axis integral non-negativity and strict positivity
-- Even multiplicity contradiction
-- **`etaShifted_zeros_simple`** — main multiplicity-one theorem
+# Summary of changes for run 3e124399-f441-48ea-b531-c69e452360c5
+Implemented `PNP_IMPLEMENTATION_PLAN.md` as a new Lean library `PnpProof` (added alongside the existing `RiemannProof` in the lake project). Everything compiles and `lake build PnpProof` succeeds; every result is sorry-free and depends only on the standard axioms `propext`, `Classical.choice`, `Quot.sound`. A full report is in `PnpProof/IMPLEMENTED.md`.
 
-### 4. `RiemannProof/ZeroLocation.lean` (Tasks 8–9)
-**Key correction:** Fixed the functional equation symmetry from s ↦ 1−s to the correct s ↦ 3/2−s (since ζ(σ)=0 ⟹ ζ(1−σ)=0, and σ=2s−1 gives s ↦ 3/2−s).
+What was formalized (≈55 definitions/theorems across 6 files):
 
-**Definitions:**
-- `fourFoldApprox n s` — four-fold product G_n with correct symmetry
-- `fourFoldLimit s` — four-fold limit
-- `mkSymRect` — symmetric rectangle centered at Re = 3/4
+- `PnpProof/Foundations.lean` (Part 1, F1–F8): points/countable sets are null, the disintegration/conditional-kernel existence, no countable history realizes a target event, countability of atoms of a finite measure, mutual singularity of diffuse vs atomic parts, the CDF-jump separation, and atomlessness of the diffuse conditioning.
+- `PnpProof/Counting.lean` (Part 2, C1–C5 and C2): countability of computable functions; a from-scratch Boolean-circuit theory (`Gate`, `Circuit`, evaluation, size monotonicity); circuit counting; the Shannon bound that almost all Boolean functions need many gates (stated for n ≥ 8); and the Lebesgue-null set of computably-coded reals via binary-digit reconstruction.
+- `PnpProof/FunctionSpace.lean` (Part 3): L²([0,1]) is separable, L^∞([0,1]) is not, the wave-function √p ∈ L² with unit norm, polynomials are dense in L², the classification theorem that all infinite-dimensional separable real Hilbert spaces are isometric (the honest surrogate for the Fock–Guichardet isomorphism), and an atomless Borel probability measure on the unit sphere.
+- `PnpProof/SphereGaussian.lean` (Part 3b): physicists' Hermite and Gegenbauer polynomials, the lopez99 limit (rescaled Gegenbauer → Hermite, proved by the mandated recurrence-induction route), the weight → Gaussian limit, and the construction of the uniform measure on the √k-sphere as a Gaussian pushforward (probability measure, concentrated on the sphere).
+- `PnpProof/Model.lean` (Part 4): dyadic discretization, the inverse-transform verifier, machine computation of a selection function with a uniqueness theorem and countability of computable selections, and a concrete atomless probability prior on the space of selection functions C([0,1], ℝ).
+- `PnpProof/Main.lean` (Part 5): T1 `selection_not_history`, T2 `almost_all_not_computable` (prior-probability-1 uncomputability of the selected function), T3 `model_P_ne_NP` (the in-model separation: the candidate verifier is computable while the solution is prior-a.s. uncomputable), and the §5→§6 glue `mixed_to_continuous`.
 
-**Proved lemmas:**
-- `etaShifted_functional_eq_zero` — **functional equation**: if η(2s₀−1)=0 then η(2(3/2−s₀)−1)=0. Uses `zeta_symm` and `etaFactor_ne_zero_re_lt_one`.
-- `reflected_in_critical_strip` — 3/2−s₀ stays in the critical strip
-- `fourFoldApprox_symm` — G_n(3/2−s) = G_n(s) (proved by ring)
-- `etaShifted_zeros_on_critical_line` — all zeros on Re(s) = 3/4 (from contradiction)
-- `etaShifted_zeros_simple_on_line` — combined result (simple + on line)
-- `riemann_hypothesis_via_shifted_eta` — **RH equivalence**: translates zeros on Re(s)=3/4 to ζ zeros on Re(s)=1/2. Uses the substitution w=(s+1)/2.
+Faithfulness and deviations (all documented in the report and in docstrings):
+- T3 is explicitly a theorem *about the paper's model*, not the Clay statement; no implication to standard P ≠ NP is asserted (per Part 6).
+- Because adding axioms is not permitted, the NP side of T3 is formalized as the computability of the verifier (faithful to "verification is cheap") rather than via an explicit O(k) comparator circuit or a model axiom.
+- T4 (the §7 "realistic version") is left genuinely open with an explanatory note rather than committing to a possibly-incorrect statement.
+- A few heavy, standalone items are noted as future work: the dominated-convergence normalization limit and Hermite orthogonality value (G4), the Poincaré–Borel / infinite-product-measure concentration (G6/G7), rotation invariance of the sphere measure, and the elaborate ratStep family of H4 (whose essential "countable dense subset of L²" content is covered by separability and polynomial density).
 
-**Remaining sorries (3):** `fourFoldApprox_real_nonneg`, `fourFoldApprox_tendstoUniformlyOn_boundary`, `zero_location_contradiction` — the deep contour-integral contradiction arguments
-
-## Summary of What's Proved vs Sorry'd
-
-| Category | Proved | Sorry |
-|----------|--------|-------|
-| Definitions | All 12 definitions | — |
-| Basic properties | 14 lemmas | — |
-| Convergence | 3 (pointwise + uniform for h_n, pointwise for η_n) | 3 |
-| Contour structure | 5 (rectangle, non-negativity, symmetry) | 3 |
-| Deep analytic content | 3 (functional eq, RH translation, zero location) | 11 |
-| **Total** | **25 proved** | **17 sorry** |
-
-The sorry'd lemmas represent the deep analytic content: Bagchi universality, residue theorem applications, contour integral positivity, and the core contradiction arguments. The proved lemmas capture the algebraic structure, convergence reductions, and the logical chain connecting the contour argument to RH.
+The pre-existing `RiemannProof` library is untouched and still builds.

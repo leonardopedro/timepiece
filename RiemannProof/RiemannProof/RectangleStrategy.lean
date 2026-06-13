@@ -545,11 +545,11 @@ This follows from:
 - `π(x) = x/log x + O(x/log²x)` (PNT)
 - Integration by parts gives the bound.
 -/
-axiom primeZetaTail_uniform_small (K : Set ℂ) (hK : IsCompact K)
+lemma primeZetaTail_uniform_small (K : Set ℂ) (hK : IsCompact K)
     (hK_re : ∃ α > 0, ∀ z ∈ K, z.re ≥ 1 / 2 + α) :
     ∀ ε > 0, ∃ P₀, ∀ P ≥ P₀, ∀ z ∈ K,
       ‖∑' p : ℕ, if Nat.Prime p ∧ p > P
-        then (p : ℂ) ^ (-z) else 0‖ < ε
+        then (p : ℂ) ^ (-z) else 0‖ < ε := by sorry
 
 /-
 **Uniform bound on the higher prime sum**.
@@ -560,10 +560,10 @@ is absolutely convergent and uniformly small since:
   `|p^{-ks}/k| ≤ p^{-2σ}/2` for `k ≥ 2`
 and `Σ_p p^{-2σ} → 0` as `P → ∞` for `σ > 1/2`.
 -/
-axiom higherPrimeSum_uniform_small (K : Set ℂ) (hK : IsCompact K)
+lemma higherPrimeSum_uniform_small (K : Set ℂ) (hK : IsCompact K)
     (hK_re : ∃ α > 0, ∀ z ∈ K, z.re ≥ 1 / 2 + α) :
     ∀ ε > 0, ∃ P₀, ∀ P ≥ P₀, ∀ z ∈ K,
-      ‖higherPrimeSum P z‖ < ε
+      ‖higherPrimeSum P z‖ < ε := by sorry
 
 /-
 **Euler product – zeta connection via the exponential formula**.
@@ -584,12 +584,12 @@ Since we work on rectangles in `{1/2 < Re < 1}` where ζ ≠ 0
 (by `riemannZeta_ne_zero_of_one_le_re` for `Re ≥ 1` and the
 hypothesis `hR_lo` for `Re < 1`), the identity holds throughout.
 -/
-axiom eulerProd_zeta_exp_connection (P : ℕ) (s : ℂ)
+lemma eulerProd_zeta_exp_connection (P : ℕ) (s : ℂ)
     (hs : s.re > 1 / 2) :
     zetaEulerProd P s =
     riemannZeta s * Complex.exp
       (-(∑' p : ℕ, if Nat.Prime p ∧ p > P
-        then (p : ℂ) ^ (-s) else 0) - higherPrimeSum P s)
+        then (p : ℂ) ^ (-s) else 0) - higherPrimeSum P s) := by sorry
 
 /- The Euler product zetaEulerProd P converges uniformly to
    riemannZeta on compact subsets of {1/2 < Re < 1}, via the
