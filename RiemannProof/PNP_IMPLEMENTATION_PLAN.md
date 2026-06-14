@@ -28,15 +28,67 @@ limits, `set`/`linarith` pitfalls all apply here too).
 
 ---
 
-## Status (2026-06-12, second update): implementation COMPLETE — N1 and T5 included
+## Status (2026-06-14): implementation COMPLETE — contents re-confirmed
 
 The development lives in `PnpProof/` as a second library of this lake project
 (see deviation 1 below). It compiles **sorry-free and axiom-free** (only Lean's
 standard `propext`, `Classical.choice`, `Quot.sound`). Build verified
-2026-06-12 (8034 jobs, including `Comparator.lean` and the T5 theorems) — only
-style-linter warnings remain (`linter.style.multiGoal`,
-`linter.style.whitespace`, `linter.style.longLine`). Always restore the Mathlib
-cache before building:
+2026-06-12 (8034 jobs, including `Comparator.lean` and the T5 theorems); file
+inventory and the sorry/axiom-free status re-confirmed by inspection 2026-06-14
+(the seven `PnpProof/*.lean` files below; the only `sorry` strings in the tree
+are inside comments in `Main.lean`). Only style-linter warnings remain
+(`linter.style.multiGoal`, `linter.style.whitespace`, `linter.style.longLine`).
+
+**A new direction was proposed 2026-06-14** (mixed-measure "indicator
+separation" + a Kopperman Hilbert-space "standard model" + a Shoenfield-style
+`Π⁰₂` absoluteness transfer to the Clay statement). Its assessment is **Part 8**;
+the constructive follow-through is **Part 9**. Short version: the **Kopperman
+formalism itself is now formalized** in `PnpProof/Kopperman.lean` (compiles,
+`sorry`-free, axiom-free) — the substrate Hilbert space, the decidable dense
+skeleton, the Mehler prior, and the atomless prior, all assembled from proved
+lemmas. The measure-theoretic "indicator" half (Phases 1–3) restates
+already-implemented lemmas and is admissible *only* under the existing model
+fence. The absoluteness-transfer half (Phases 4–5) is **rejected as an `axiom`**:
+an axiom is the one construct that stops Lean from checking, so it cannot "let
+Lean decide"; the bridge may instead be *stated as a theorem and attempted*
+(Part 9), and it does not close — `model_vs_clay_disjointness` (T5) is the proved
+reason. No axiom is added; the development stays axiom-free.
+
+**A further maintainer directive (2026-06-14 #2), refined: the minimal
+assumptions needed to *define* the P-vs-NP statement within the Kopperman
+formalism are exactly the commitments of the Kopperman formalism itself — a base
+that is *incomparable* with PA (it neither contains nor is contained in PA:
+different language) yet *co-consistent* with both PA and ZFC.** Because the
+formalism is consistent with PA and ZFC and pins down the *standard* naturals (its
+decidable skeleton is indexed by genuine `ℕ`), the arithmetic P-vs-NP sentence
+defined inside it is **absolute** — it is literally the standard P-vs-NP statement,
+not a model-relative surrogate. This *corrects* the earlier "reduce to PA-or-weaker"
+framing: the goal is **not** to weaken the base toward PA, but to take the
+formalism's *own* (PA-incomparable) base as the definitional minimum and lean on
+co-consistency + standard-`ℕ` absoluteness for identity with the standard
+statement. Key distinction: this is a **definability** base (what you need to *write
+the statement down*), not a **provability** base (what you need to *prove* it). "P ≠
+NP" is a `Π⁰₂` *arithmetical* sentence (machine codes, inputs, polynomial run-time
+bounds only — no reals, measures, or uncountable sets), and the formalism's
+decidable skeleton supplies exactly the encoding of computation needed to express
+it. The Lean-native, honest realizations: **(i)** import-level tier separation (the
+arithmetic statement in a module importing neither the measure theory nor the
+`Formalism` — the witness that the two bases are independent/incomparable);
+**(ii)** axiom-footprint tracking via `#print axioms` (does the arithmetic tier
+depend on `Classical.choice`/measure theory? — the dependency proxy); **(iii)** the
+conservativity theorem **T-conserv** (Part 9/10): an arithmetic `φ : Prop` over `ℕ`
+has a truth value independent of any `Formalism` and of the `ZFSet`↔Kopperman side
+— the Lean witness of co-consistency + standard-`ℕ` identity (Lean's `ℕ` has *no*
+nonstandard elements, so the sentence is automatically the standard one). What is
+**not** available and must not be improvised: an *internal* statement of
+"incomparable-with-PA / co-consistent" or `PA ⊢ P_ne_NP` — those need formalized
+theories/interpretations (`FirstOrder.Language`, a provability predicate), which
+mainline Mathlib lacks (a large separate meta-logic project, like the `L_{ω₁,ω₁}`
+object); flag, do not build ad hoc. The identity is **not** a backdoor to the
+bridge: defining the *standard* sentence inside the formalism does not prove it —
+T5's disjointness stands. See **Part 11**.
+
+Always restore the Mathlib cache before building:
 
 ```bash
 export PATH="$HOME/.elan/bin:$PATH"
@@ -55,6 +107,7 @@ lake build PnpProof
 | `PnpProof/Model.lean` | M1–M4 (representation: deviation 3) |
 | `PnpProof/Comparator.lean` | **N1**: the explicit `O(k)` comparator circuit — `Circuit.snoc` append API, per-bit register update `step`, MSB-first fold `buildLT`, `div_pow_succ_compare`, `bitsOf`, `fullCircuit`, `verify_circuit_cheap` |
 | `PnpProof/Main.lean` | T1 `selection_not_history`, T2 `almost_all_not_computable`, M5 as `verifyBits`/`verifyBits_computable` (deviation 4), T3 `model_P_ne_NP`, `mixed_to_continuous`, **N1** `model_P_ne_NP_circuit`, **T5** `model_vs_clay_disjointness` (with `DecidesSelection`, `dense_selection_domain`, `decidesSelection_unique`, `countable_language_decided_selections`, `selection_not_language_decidable`) |
+| `PnpProof/Kopperman.lean` | **The Kopperman formalism, assembled** (Part 9): `structure Formalism`, `Substrate`/`substrate_separable`, `substrate_decidable_skeleton`, `MehlerPrior`/`mehler_isProbability`/`mehler_concentrates_on_sphere`, `admits_atomless_prior`, `modelPrior_atomless`. Plus **K-model** (Part 11): `model_has_prior`, `substrate_orthonormal_pair`, `exists_atomless_prob_substrate`, `formalismOfPrior`/`prior_formalismOfPrior`/`prior_surjective_onto_atomless`, `nonempty_formalism_substrate`, `koppermanSubstrate` — "choosing a measure = choosing a model". All from proved lemmas; `sorry`/axiom-free |
 
 The per-lemma map is `PnpProof/IMPLEMENTED.md`. No mathematical work items
 remain; the only open item is optional linter housekeeping — see Part 7.
@@ -1872,6 +1925,7 @@ below.
 | ~~N1~~ | ~~`bitsOf`, `verify_circuit_cheap`, `model_P_ne_NP_circuit`~~ | §M5, steps 0–5 | **DONE 2026-06-12** in `Comparator.lean` + `Main.lean`; do not re-implement |
 | ~~T5~~ | ~~`model_vs_clay_disjointness`~~ | §T5 | **DONE 2026-06-12** in `Main.lean`; do not re-implement |
 | N2 (optional) | Style-linter housekeeping | — | the build emits `linter.style.multiGoal`, `linter.style.whitespace`, and `linter.style.longLine` warnings (the latter mainly in `SphereGaussian.lean`); fix with `·` focus dots / whitespace / line breaks only — if any proof breaks, revert that fix |
+| **F-min (recommended)** | **Definitional-base witnesses**: import-tier separation + axiom-footprint audit + `T-conserv` | **Part 11** | the maintainer's 2026-06-14 #2 directive (refined): the definitional base is the *Kopperman formalism's own*, **incomparable with PA**, co-consistent with PA and ZFC; over standard `ℕ` it defines the *standard* P-vs-NP sentence. Lands as: (a) arithmetic-tier statement imports no measure theory / `Kopperman`; (b) `#print axioms` audit of C1/C5/N1 in `IMPLEMENTED.md`; (c) `T-conserv` proved. **No `PA ⊢ …` / theory-comparison predicate** — flagged, not built |
 
 ### Explicitly NOT on the queue
 
@@ -1883,8 +1937,928 @@ below.
 - Everything in Part 6 (Clay bridge, TM time bounds, von Neumann
   classification, Fock/Guichardet, area element, §§8–9) — permanently out of
   scope.
+- **The Shoenfield `Π⁰₂` absoluteness transfer** (2026-06-14 proposal,
+  Phases 4–5) — rejected as unsound; see **Part 8**. The `axiom
+  shoenfield_absoluteness` + `absolute_P_ne_NP` step must NOT be added: it is a
+  forbidden Clay-bridge axiom (Part 6 #1) and is refuted by T5.
 
 **Reporting duty**: unchanged — keep `PnpProof/IMPLEMENTED.md` current
 (lemma, file, any deviation). Any queue item that turns out unprovable *as
 stated here* gets the RiemannProof treatment: do not force it — restate
 minimally, record the diagnosis, and flag it in the report.
+
+---
+
+## Part 8: Assessment of the 2026-06-14 proposal (indicator separation + Kopperman/Shoenfield)
+
+A five-phase extension was proposed: (1–3) a **mixed-measure "indicator
+separation"** (condition on a constant rational output `y`, isolate the
+continuous component, show `P`-solvers are null while the indicator verifier is
+cheap); (4) a **Kopperman Hilbert-space "standard model"** in which *choosing a
+prior* is claimed to construct a valid model of the computational axioms; and
+(5) a **Shoenfield `Π⁰₂` absoluteness transfer** concluding the Clay statement
+`P ≠ NP` from the model separation, via a new `axiom shoenfield_absoluteness`
+and a theorem `absolute_P_ne_NP : P_ne_NP_Pi20`.
+
+The two halves get opposite dispositions. **Read this before touching either.**
+
+### Phases 1–3 (indicator separation) — ADMISSIBLE but mostly REDUNDANT; model-fenced
+
+Everything in Phases 1–3 is sound measure theory, and **it is already
+implemented**, under different names and the mandatory model fence:
+
+| Proposed item | Already in `PnpProof/` |
+|---|---|
+| mixed prior = continuous + countable (`conditioned_measure_structure`) | **F5** (atoms are countable) + **F6** (continuous ⊥ atomic) + **F8** (conditioning on the diffuse part is atomless) |
+| condition on constant rational `y` is well-defined though `P(y)=0` | **T1** `selection_not_history` (this is literally the paper's title fact) + **F7** (the rational-interval jump) |
+| constant-output functions are null under a continuous prior | **F1** (points null) + **T2** `almost_all_not_computable` (computable selections null) |
+| indicator verifier is cheap / in "NP" | **M5** `verifyBits_computable` and **N1** `model_P_ne_NP_circuit` (explicit `O(k)` comparator) |
+| model separation `model_indicator_P_ne_NP` | **T3** `model_P_ne_NP` (+ circuit form) |
+
+If a *literal* "indicator function" restatement is still wanted for narrative
+parity with `pnp.tex` §6 option 1, it may be added **as a new theorem beside the
+existing ones**, Tier-B, carrying the mandatory docstring ("a theorem about this
+model; NOT the Clay statement; no implication formalized"). Constraints:
+
+- **No new axioms** (Part 7 ground rules). The pieces above are all proved.
+- **Never name it `…P_ne_NP` without the `model_` prefix** (Part −1).
+- It changes nothing about the Clay relationship — that remains T5's disjointness.
+
+Net: Phases 1–3 are at best a cosmetic restatement of done work. Worth doing only
+if the maintainer wants the §6-option-1 phrasing mirrored verbatim; otherwise skip.
+
+### Phases 4–5 (Kopperman "standard model" + Shoenfield transfer) — REJECTED (unsound)
+
+This is the same Clay bridge the project has refused throughout (Tier C; Part 6
+#1; the prior "equivalence request refused as unprovable"), now dressed in
+model-theory vocabulary. It must **not** be formalized. Four independent reasons,
+any one fatal:
+
+**(a) Category error in "the prior is a standard model."** A probability measure
+on a Hilbert space is an object *inside* ZFC; it is not a transitive `∈`-model
+*of* ZFC. `IsStandardModel physical_prior ComputationalAxioms` does not type-check
+as mathematics — "standard model" in Shoenfield's theorem means a transitive
+model of (a fragment of) set theory, an entirely different notion from "a chosen
+measure." `prior_is_valid_model` cannot be proved because its statement is a
+confusion of two meanings of "model."
+
+**(b) The one rigorous reading still gives ZERO leverage.** The single sense in
+which "a measure yields a model" is genuine is **random forcing**: a measure
+algebra `B` yields a Boolean-valued model `V^B` / random-real extension `V[G]`,
+and Shoenfield absoluteness *does* hold — `Π¹₂` statements (so `Π⁰₂`, so
+`P ≠ NP`) have the **same truth value** in `V` and `V[G]`. But absoluteness is a
+**two-way conservativity**, not a proof shortcut:
+`V[G] ⊨ (P ≠ NP)  ⟺  V ⊨ (P ≠ NP)`.
+Proving the statement "in the model" is therefore *exactly as hard* as proving it
+outright. Far from enabling the transfer, Shoenfield is precisely the theorem
+saying **no such forcing/measure shortcut to `P ≠ NP` can exist.** "Prove it in
+one prior and absoluteness does the rest" inverts what the theorem says.
+
+**(c) The measure result is not "`P ≠ NP` holding in the model" — T5 proves
+this, mechanically.** `model_P_ne_NP` is a ZFC theorem about the `prior`-measure
+of subsets of `C(K, ℝ)`. The arithmetic sentence `P_ne_NP_Pi20` quantifies over
+Turing machines on finite inputs. `model_vs_clay_disjointness` (T5) — a ZFC
+theorem, hence equally true in `V` and in any `V[G]` — proves the model's hard
+object lies **outside the arena** of any computable-language class. So
+`IsTrueIn physical_prior P_ne_NP_Pi20` is exactly the unestablished (and, by T5,
+unestablishable-from-this-data) bridge; the proposed final step
+`exact model_indicator_P_ne_NP_true_in_prior` has no proof. The "P-solvers are a
+null set ⇒ no efficient algorithm" inference is the classical non-starter:
+*null ≠ empty*, and a discrete-input complexity class has no continuous prior on
+`ℝ → ℝ` attached to it.
+
+**(d) It violates the project's hard invariants.** The development is axiom-free;
+Part 6 #1 states verbatim: *"Never introduce an axiom of the form
+`model_P_ne_NP → P ≠ NP`."* The proposed `axiom shoenfield_absoluteness` plus
+`absolute_P_ne_NP` is exactly such an axiom with extra steps — and as written it
+is not even a faithful statement of Shoenfield's theorem (which has no
+`IsTrueIn (measure) (arith stmt)` premise), so importing it would let a
+measure-theoretic fact masquerade as arithmetic truth: an unsound extension of a
+currently-consistent development.
+
+### The "ZFC on top of Kopperman" layering variant — also fails
+
+A follow-up defense (2026-06-14): *the probability measure defines a model of
+the Kopperman theory, on top of which ZFC models are defined, so the measure is
+part of an overall ZFC model and Shoenfield then applies.* Checked against the
+actual `Kopperman_Tutorial.p.tex`, this does not hold.
+
+- **What Kopperman actually provides.** The file invokes Kopperman's 1967
+  *"The `L_{ω₁,ω₁}`-Theory of Hilbert Spaces"*: infinitary logic `L_{ω₁,ω₁}`
+  has the expressive power to pin down the unique separable complete Hilbert
+  space (the "Completeness Axiom"), while a *countable fragment* of `L_{ω₁,ω}`
+  supplies a complete proof system over the **decidable dense subset** (finite
+  rational combinations of basis vectors). That is a theory **of a Hilbert
+  space**, whose models *are Hilbert-space structures* `(H, …)`. It is **not**
+  set theory, contains **no** Turing machines or complexity classes, and its
+  models are **not** models of ZFC.
+- **The layering inverts the foundations (and meets Gödel II).** A Hilbert
+  space with a measure `(H, μ)` is an object constructed *inside* ZFC — it
+  presupposes `ℝ, ℂ, ℓ², Borel σ-algebras`, all defined in set theory. One does
+  not build a universe of sets "on top of" a single separable Hilbert space:
+  that space has cardinality `𝔠`, far too small to interpret ZFC, and by
+  **Gödel's second incompleteness theorem** the ambient ZFC in which the
+  Kopperman/Mehler apparatus is developed cannot exhibit a model of ZFC at all
+  (that would prove `Con(ZFC)` internally). So "a ZFC model on top of the
+  Kopperman model, with the measure inside it" is not a constructible object;
+  the dependency runs the other way.
+- **Granting the backward direction in Lean changes nothing — that is what
+  "interpretation" *guarantees*.** Lean's type theory is strictly stronger than
+  ZFC (its universe hierarchy proves `Con(ZFC)`), so Lean genuinely *can* host
+  both directions: Mathlib's `ZFSet` is a bona-fide model of ZFC, and Hilbert
+  structures are ordinary Lean objects, so "ZFC within Kopperman" and "Kopperman
+  within ZFC" can both be written. Conceded. But a relative *interpretation*, in
+  either direction, is **arithmetically conservative** by definition: it
+  transports proofs, not the *difficulty* of proofs. If `Kopperman → ZFC` is a
+  faithful interpretation, the two prove **exactly the same `Π⁰₂` sentences** —
+  so the backward route proves `P ≠ NP` **iff** the forward route does. The net
+  leverage on P vs NP is provably *zero*; you cannot discharge a hard arithmetic
+  statement by re-coordinatizing the foundation it lives in. (Encoding ZFC's
+  *syntax / proof system* in the Turing-complete UPL host is trivially possible
+  but yields only syntax — no model, no `Con`, no leverage; a genuine *model*
+  like `ZFSet` has the standard `ω`, into which the measure still does not
+  enter.)
+- **The decisive point needs none of the above — `ω` settles it.** `P ≠ NP` is
+  `Π⁰₂`: its truth in any model is a fact about that model's **natural-number
+  structure `ω` alone**. The probability measure is not part of `ω`. So no
+  matter how the measure is layered into a structure, it **cannot change, and
+  therefore cannot help decide,** which arithmetic sentences hold. If the
+  overall model is an `ω`-model, its `P ≠ NP` value equals the real one
+  (absoluteness) — established only by settling the arithmetic, which the
+  measure fact (disjoint from it by **T5**) does not touch. If it is a
+  non-`ω`-model, "`P ≠ NP`" there is a statement about nonstandard machines —
+  a *different* claim from the Clay problem, and Shoenfield (which needs
+  well-founded models) does not even apply.
+- **A ZFC universe cannot have "only one prior" — that move exits the class.**
+  The defense "build the universe so the chosen measure cannot be undone or
+  redone; other priors do not exist by definition" is self-defeating. ZFC
+  *proves* that on any measurable space many probability measures exist (Dirac
+  measures, convex mixtures, pushforwards, …). So any genuine model `M ⊨ ZFC`
+  **contains** those other priors — the premise "no other priors" is outright
+  false in `M`. Conversely, a structure engineered to admit exactly one prior
+  violates those ZFC existence theorems, so it is **not a model of ZFC**: it
+  carries neither the Clay `P vs NP` (whose definition presupposes such a model)
+  nor Shoenfield absoluteness (which quantifies over models of ZF). Moreover,
+  defining the measure "first" creates no dependency: the definitions of Turing
+  machine, `P`, `NP`, and SAT **never mention a measure**, so `P ≠ NP` is
+  measure-independent regardless of authoring order — *definitional order is not
+  logical dependency*, and `ω` is the canonical measure-free object of every ZFC
+  model. (Tellingly, a measure-*relative* "P vs NP" — i.e. `σ` — is **decided**
+  in the model: computable objects are null, full stop. A problem that turns
+  trivial upon redefinition has been replaced, not solved.)
+- **"Hilbert completion needs more than FOL; `P ≠ NP` is FOL" — both true, and
+  jointly they *shut* the door.** Categorically axiomatizing the separable
+  Hilbert space (the completeness clause "every Cauchy sequence converges") does
+  require infinitary logic `L_{ω₁,ω₁}` *in the vector language* — Kopperman's
+  genuine point. But that is axiomatizing the space as a standalone structure;
+  it is **not** the claim that Hilbert spaces are undefinable in first-order
+  ZFC. Inside ZFC, sequences are sets, the metric completion is a routine
+  first-order `∈`-construction (Mathlib's `UniformSpace.Completion`), and "many
+  probability measures exist" is an elementary first-order theorem — so the
+  previous bullet stands. The judo: *because* `P ≠ NP` is first-order
+  arithmetical, it sits in the **most absolute layer there is** — its truth is
+  fixed by `ω` and is invariant under whatever infinitary/analytic superstructure
+  (measures, `L_{ω₁,ω₁}` completeness axioms, C*-algebras) is erected above it.
+  Strengthening the ambient logic only pins `ω` down *harder* to the standard
+  model (it eliminates nonstandard `ω`); it never makes an arithmetic sentence
+  read the measure. Stay first-order and `ω` may be nonstandard — but then it is
+  not the Clay `ω`. Either way the measure never enters the truth value of
+  `P ≠ NP`: `ω` is fixed by well-foundedness/induction, never by a prior.
+- **Selecting the standard model fixes the truth *value*, never the *proof* —
+  and the disjointness holds *inside* the standard model.** Conceded: FOL cannot
+  select standard models, and infinitary logic (Kopperman) *can* pin down the
+  standard reals and standard `ω`. But **semantic determinacy is not
+  provability**. Categorically fixing *which* structure we mean fixes `P ≠ NP`
+  to its unique standard truth value; it does **not** tell you that value and
+  does **not** hand over a derivation — `Th(ℕ)` is not delivered by categoricity
+  (it is not even arithmetically definable). And the category gap is itself a
+  fact *about the standard model*: in the real `ℕ` with the real measure space,
+  `σ` = "computable selections are null" is trivially true yet says nothing about
+  whether the **one** function `SAT` has a polynomial-time machine. `SAT` is a
+  single computable point (null regardless of the prior), and `P vs NP` is a
+  *resource bound on that one machine*, not the measure of a function class. `T5`
+  is exactly this disjointness, and `T5` holds of standard structures. So
+  selecting standard reals removes nonstandard ambiguity — genuine, and entirely
+  *orthogonal* — while leaving `σ ⇒ (P ≠ NP)` exactly as unproved, now
+  demonstrably so in the very model you selected. (Aside: Lean/Mathlib
+  provability is r.e. like any first-order system; `UniformSpace.Completion` is a
+  *definition* and blocks no proof. Standardness of `ℝ` is not what stands
+  between anyone and a SAT lower bound — the relativization / natural-proofs /
+  algebrization barriers are, and a measure-zero count over a function space
+  engages none of `SAT`'s structure, so it cannot separate.)
+- **There are not "many incompatible standard `ω`'s" — this is the real crux,
+  and it is false.** Granted: there are genuinely incompatible ways to strengthen
+  FOL and discard nonstandard models — `V=L` vs forcing axioms vs large cardinals
+  — and they disagree about real statements. But that incompatibility lives at
+  the level of **the continuum and higher set theory** (`CH` and up: the
+  `Σ¹₃`-and-beyond region where Shoenfield absoluteness stops). At the level of
+  **arithmetic**, the standard model `ω` is **unique up to isomorphism**
+  (Dedekind categoricity): second-order PA, `L_{ω₁,ω}`'s standardness axiom,
+  Kopperman's `L_{ω₁,ω₁}`, and "the standard reals" all pin down the *same* `ω` —
+  there is no rival "Kopperman `ω`." Kopperman selects the standard reals; the
+  standard reals contain the standard `ω`; a first-order (`Π⁰₂`) sentence is
+  evaluated against *that* `ω` with the *same* answer under every method. So the
+  incompatibility you invoke is real but located precisely where `P vs NP` is
+  **not**. Critically, my objection assumes **none** of the rival strengthenings:
+  it grants Kopperman's standard universe wholesale and observes, *inside it*,
+  that `σ` (a measure on a function space) and `P ≠ NP` (a runtime bound on the
+  single machine for `SAT`) are different sentences. That observation needs no
+  second-order logic, no nonstandard models, no rival discarding method — it is
+  **FOL-minimal**. The bridge `σ ⇒ (P ≠ NP)` is the *only* thing here that needs
+  something beyond, and no logic supplies it. (Kopperman's one genuine divergence
+  from standard analysis — the **countable-additivity restriction**,
+  §"Countable Additivity Caveat" — constrains `σ`'s *own* proof; it does nothing
+  to connect `σ` to `P ≠ NP`.)
+- **The tutorial's own framing agrees.** Its §"Probability as Political Choice"
+  says the Mehler measure *fills the undecidable logical gaps* with "a weighted
+  preference, transitioning from absolute truths (which may be undecidable) to
+  **likely outcomes** (which are calculable)," and its §"Countable Additivity
+  Caveat" restricts the measure to *definable sets of a countable fragment*.
+  That is an **epistemic prior assigning a credence** `P(P ≠ NP)` to an
+  undecidable proposition — explicitly *not* a proof and *not* a model that
+  makes the arithmetic sentence true. Reading it as a proof inverts what the
+  framework claims for itself.
+
+The genuinely valuable Kopperman content — `L_{ω₁,ω₁}` pinning down the
+separable Hilbert space, and the **decidable dense subset / computable
+skeleton** — is real Tier-A mathematics and is *already* reflected in the
+development (H1 separability, H4/H5 the countable dense subset, F1/F2/T2 the
+null-set/computable-skeleton facts). It can be formalized further on its own
+terms. None of it is a bridge to the Clay statement.
+
+### Transport is content-preserving — it carries the statement you proved, not the one you want
+
+The final form of the defense (2026-06-14): *interpretation transports proofs,
+the measure is part of the model definition, therefore the in-model proof is a
+valid proof of `P ≠ NP`.* The first clause is true and is exactly why the
+argument fails. An interpretation maps a proof of `φ` to a proof of `i(φ)`: it
+is **content-preserving** — what comes out is (the translation of) what went in.
+
+What actually gets proved in the measure model is
+`σ := “the computable selections are μ-null”` (`model_P_ne_NP`). Transport
+therefore delivers `σ` (relabeled) on the other side — **not** the arithmetic
+sentence `P ≠ NP`. Transport does not insert the missing step `σ ⟹ (P ≠ NP)`;
+that step is a *mathematical implication*, not a logical translation, and it is
+false here (null ≠ empty; distinct arenas; this is precisely what **T5**
+proves). So a clean dichotomy closes the matter — and "the measure is part of
+the model" lands on the wrong horn of it:
+
+- **If the transported sentence is the arithmetic Clay `P ≠ NP`:** it quantifies
+  over naturals/Turing machines only. Its truth in a model depends solely on
+  that model's `ω`, and **not** on the measure — no matter how central the
+  measure is to the model's *definition*, the sentence's quantifiers never range
+  over it. The measure-null argument simply is not a derivation of this sentence
+  (it concludes a measure fact). Transport is irrelevant; the arithmetic
+  sentence was never proved.
+- **If the transported sentence is the measure-separation `σ`:** transport works
+  perfectly and hands back `σ` — which is `model_P_ne_NP`, already a ZFC
+  theorem, and which **T5** shows is disjoint from Clay `P ≠ NP`. Transport
+  delivered something true and something that is not P vs NP.
+
+Either horn: no proof of the Clay statement. "The measure is part of the model
+definition" is true and changes nothing, because the Clay sentence does not
+mention the measure, and the sentence that does mention it is not the Clay
+sentence. This is not a gap to be filled by more clever layering; it is the
+fixed content of the two distinct sentences.
+
+### "A proof of `P ≠ NP` need not live in FOL" — true, and it still does not help
+
+Conceded without reservation: a *proof* of a first-order arithmetic statement
+need **not** be first-order. Goodstein's theorem and the Paris–Harrington
+principle are `Π⁰₂` facts whose proofs need transfinite/infinitary methods
+unavailable in PA; the prime number theorem is an arithmetic statement classically
+proved through complex analysis. So "the proof may use continuous probability
+spaces / continuum-level machinery" is **not**, by itself, an objection — and I
+am not raising it as one. Higher-order tools in service of an arithmetic
+conclusion are completely legitimate.
+
+But put that together with the fact you just invoked — *the incompatible
+strengthenings disagree at the continuum level* — and a dichotomy forecloses the
+route, cleanly, using your own premise:
+
+- **Either** the measure/regularization argument's conclusion is **absolute**
+  (identical under every continuum strengthening — `V=L`, forcing axioms, large
+  cardinals). Then the choice of Kopperman did no work — any strengthening yields
+  the same conclusion — and that conclusion is `σ` ("computable selections are
+  null"), which `T5` shows is a *different sentence* from `P ≠ NP`. No bridge.
+- **Or** the conclusion genuinely **depends on the Kopperman-specific continuum
+  choice** (differs across the incompatible alternatives). Then it is a
+  non-absolute, continuum-level statement, and therefore **cannot be** the
+  arithmetic `P ≠ NP`, whose truth value is fixed by the unique standard `ω` and
+  is identical across all those strengthenings (Shoenfield / categoricity).
+  Whatever was proved, it is not the Clay statement.
+
+This is forced *precisely because* a `Π⁰₂` truth is absolute: any continuum
+machinery a **valid** proof of `P ≠ NP` employs must land on the
+**choice-independent floor** — as PNT's complex analysis does for its arithmetic
+conclusion. A conclusion that draws its force from a continuum-level *choice the
+strengthenings disagree about* is, for that very reason, disqualified from being
+an absolute arithmetic statement. So "the proof lives at the continuum, where the
+choice has force" is self-defeating *for `P ≠ NP` specifically*: the more the
+regularization choice matters, the less arithmetic the conclusion can be. The
+genuine analytic route to `P ≠ NP` uses measure/analysis as a *tool* to force a
+**circuit lower bound on `SAT`** (an absolute arithmetic fact); the
+null-set-of-a-function-class argument never touches `SAT`'s complexity and
+concludes `σ` instead — which is exactly why it is not that proof.
+
+### Bottom line — the syllogism, and the single premise that fails
+
+The defense, stripped to its logic, is a valid argument with one false premise —
+and it is **not** the premise about *whose* model we use. So the "you assume your
+own model of ZFC" charge misreads the objection:
+
+- **(P1)** *If a `Π⁰₂` sentence is true in some `ω`-model of ZFC, it is true
+  absolutely (in every `ω`-model).* — **GRANTED.** This is categoricity /
+  absoluteness, and the model may be **yours**: `M` = the Kopperman universe,
+  which selects the standard reals, hence the standard `ω`. I do **not** require
+  "the same model I assume"; work entirely in `M`. (Minor precision: absoluteness
+  delivers "true in all `ω`-models," which is the correct target — it need not be
+  "PA-provable," and you rightly do not need PA-provability. A non-FOL proof of
+  truth-in-`M` is fine.)
+- **(P2)** *The measure proof establishes that `P ≠ NP` is true in `M`.* —
+  **THIS is the false/unmet premise.** What the proof establishes in `M` is `σ`
+  = "the computable selections are `μ`-null." Since `M ⊨ ZFC`, `M` satisfies
+  `T5`; so **inside `M` itself**, `σ` does not entail `P ≠ NP`. The antecedent of
+  (P1) is never discharged.
+
+So: absoluteness — conceded; your choice of model — conceded; the proof need not
+concern "my" model — conceded. The entire disagreement reduces to (P2): in `M`,
+what is proved is `σ`, and `σ ≢ (P ≠ NP)` *in `M`* (that inequivalence is `T5`, a
+theorem `M` satisfies). No amount of choosing `M` well repairs (P2), because the
+shortfall is internal to `M`.
+
+### Why (P2) fails, concretely — no model theory required
+
+Two clarifications first. (i) *I am not arguing from the existence of other
+models.* The objection is internal to the one model `M` you choose; the
+"many measures exist" remark earlier rebutted only the separate "no other priors"
+move, and is not load-bearing here. (ii) *"A model of ZFC where no function is in
+`P`" does not exist* — every model of ZFC proves `P` is nonempty (the empty
+language, all finite languages, constant functions are in `P`). What the prior
+gives is that the computable functions are **`μ`-null**, and **null ≠ empty**: a
+null set is typically nonempty (e.g. `ℚ ⊂ ℝ`). Conflating "the `P`-functions have
+measure zero" with "no function is in `P`" is exactly the slip.
+
+Now the concrete reason `σ ⇏ (P ≠ NP)`, with no models, no logic strength, no
+priors-comparison:
+
+- `σ` = "the computable functions are `μ`-null" is provable **outright** —
+  computable ⇒ countable ⇒ null in an atomless prior — *without resolving P vs
+  NP*. So `σ` holds in a world where `P = NP` and in a world where `P ≠ NP`
+  **alike**: the countability of the computable functions does not depend on
+  whether `SAT` has a fast algorithm. A statement whose truth is **independent of
+  the P-vs-NP answer cannot discriminate between the two**, hence cannot prove
+  either. (If `σ ⇒ (P ≠ NP)` held, then `ZFC ⊢ σ` would give `ZFC ⊢ (P ≠ NP)`
+  via a one-line countability argument — the standard "too good to be true"
+  tell.)
+- Concretely: `SAT` is **decidable**, so `SAT` is one element of the (countable,
+  null) set of computable functions **whether or not `SAT ∈ P`** — the prior puts
+  it in the null set in both cases. The model's separation is therefore
+  *computable-vs-uncomputable* (a measure/cardinality fact about a random real
+  function), **not** *polynomial-vs-superpolynomial* (a resource bound on a fixed
+  decidable language). `P vs NP` asks the second question; `σ` answers only the
+  first.
+
+- **The "it's about the infinite" reading changes nothing — and here is the
+  sharpest form.** Conceded: `L ∈ P` is infinitary (`Σ⁰₂`:
+  `∃ machine, ∃ poly, ∀ inputs …`), and FOL does have nonstandard models where
+  unbounded arithmetic can wobble. Two responses, the second decisive. (i) *Your
+  transfer needs standard `ω`.* Absoluteness only moves a `Π⁰₂` truth out of an
+  **`ω`-model**, and Kopperman's standard reals supply exactly that — in which
+  case every individual `L ∈ P` (SAT included) is the **standard** infinitary
+  fact, fixed by SAT's real combinatorics, the prior playing no part. (Give up
+  standard `ω` and the transfer dies instead.) (ii) *An atomless prior is, by
+  construction, blind to every individual function.* `μ` atomless ⇒ `μ({f}) = 0`
+  for **every** singleton, so `μ({SAT}) = 0` whether or not `SAT ∈ P`. But
+  `SAT ∈ P` is a property of the *single* function SAT. Measure carries
+  information only about positive-measure ("fat") sets; individual `P`-membership
+  lives at the level of singletons, where an atomless measure is identically `0`.
+  Hence **no atomless-prior statement can ever determine an individual language's
+  `P`-membership** — `σ` (the class is null) and `SAT ∈ P` are fully compatible,
+  because the null class *contains* SAT. That is the exact form `null ≠ empty`
+  takes for the infinitary reading: the measure says the *class* is small; it
+  says nothing about the *one function* the question is about.
+
+- **The "original (continuous) functions" are not the arena — `SAT` is, and it
+  is concrete, not "formal."** Splitting the world into real "original" functions
+  (continuous selections `g : K → ℝ`, where the prior lives) versus
+  "ZFC-functions that do not really exist" mislocates the question. `P vs NP` is
+  **not about continuous selection functions** at all; it is about **languages**
+  `L ⊆ {0,1}*` (decision problems on finite strings) and Turing machines. `SAT`
+  is a language of finite strings — a decidable set, i.e. an algorithm — and a TM
+  is a finite tuple. These are **finite, concrete combinatorial objects**, as
+  real as the integers; they cannot be relegated to a "non-existent formal
+  layer." So the prior's verdict on the continuous "original" functions ("null /
+  not in `P`") is *compatible with `P vs NP`* only because it is **silent on it**:
+  `SAT` is simply not among those functions. Conversely, *encoding* `SAT` into the
+  Hilbert space (the tutorial maps syntax to basis vectors) makes it a single
+  vector, on which the atomless prior is `0` — singleton-blind again. Either way
+  the measure never reaches `SAT`. And `P vs NP` "avoiding most of ZFC" (being
+  arithmetical, needing only PA) does **not** open room — it *fixes* the
+  statement's meaning at the level of finite combinatorics / standard `ω`,
+  *independent* of the Kopperman / ZFC-set / second-order superstructure, which
+  is therefore disqualified from being what proves it.
+
+That category difference — not the existence of other models, not the choice of
+prior, not the logic — is the reason. It is exactly what `T5` records inside `M`.
+
+### The honest, sound way to "invoke Shoenfield"
+
+Absoluteness *can* be recorded — but as a remark that **reinforces** the tiers,
+not one that collapses them: *"Because `P ≠ NP` is arithmetical (`Π⁰₂`), its
+truth value is model-independent; consequently no model-relative or
+measure-relative construction — including this prior — can establish it without
+establishing the arithmetic sentence itself, which `model_vs_clay_disjointness`
+shows the model's data does not."* That is a correct use of the theorem and is
+already the moral of Part −1 and T5. If desired it can go in the `Main.lean`
+module docstring (prose, no `Prop`, no `axiom`). That is the whole of what
+Phase 5 can soundly contribute.
+
+**Standing instruction:** do not add `IsStandardModel`, `physical_prior`-as-model,
+`shoenfield_absoluteness`, `absolute_P_ne_NP`, `P_ne_NP_Pi20`, or any
+`model_… → P ≠ NP` implication **as an `axiom`**. If the maintainer wants to
+pursue the genuine logic, that is a separate research project (formalizing
+forcing / Boolean-valued models / Shoenfield in Lean) and it would, by (b), still
+not shorten a proof of `P ≠ NP`. The *theorem*-form bridge may be stated and
+attempted — see Part 9.
+
+---
+
+## Part 9: The Kopperman formalism — FORMALIZED (`PnpProof/Kopperman.lean`), and how to test the bridge
+
+Per the maintainer's request (2026-06-14): the Kopperman formalism is no longer
+discussed only in prose — it is **defined in Lean and machine-checked**. The
+module `PnpProof/Kopperman.lean` builds `sorry`-free and **axiom-free** (only
+`propext`/`Classical.choice`/`Quot.sound`; verified by `#print axioms`), and is
+wired into `PnpProof.lean`. It assembles the formalism of
+`Kopperman_Tutorial.p.tex` (Kopperman 1967, the `L_{ω₁,ω₁}`-theory of Hilbert
+spaces) from the already-proved development:
+
+| Component of the formalism | Lean (in `namespace PnpProof.Kopperman`) | Provenance |
+|---|---|---|
+| abstract data of a Kopperman formalism | `structure Formalism` (separable `H`, countable dense skeleton, atomless prior) | new packaging |
+| substrate = standard separable Hilbert space | `Substrate := Lp ℝ 2 unitMeasure`; `substrate_separable` | `l2_separable` (H1) |
+| decidable dense skeleton (computable approximants) | `substrate_decidable_skeleton` | separability |
+| Mehler prior (Gaussian limit of the uniform sphere) | `MehlerPrior := gammaMeasure`; `mehler_isProbability` | `gammaMeasure` (G-series) |
+| "lives on the ∞-dim sphere" (Poincaré–Borel) | `mehler_concentrates_on_sphere` | `gaussian_concentration_sphere` (G7) |
+| atomless prior on any substrate | `admits_atomless_prior` | `exists_atomless_sphere_measure` (H7) |
+| realized atomless prior (the model) | `modelPrior_atomless` | `prior_atomless` (M4) |
+
+So "put the formalism in place, then prove statements about it" is **done**, and
+the statements about it are exactly the proved `model_P_ne_NP` /
+`model_P_ne_NP_circuit` (the separation `σ`) and `model_vs_clay_disjointness`
+(T5). **The `L_{ω₁,ω₁}` *infinitary-logic* object itself is not built**: Mathlib
+has no infinitary logic, and it is not needed — the substrate it would pin down is
+constructed directly, and `hilbert_classification` (H6) supplies the categoricity
+content. Building `L_{ω₁,ω₁}` syntax/semantics is a large separate project; flag,
+do not improvise.
+
+### Phases 1–3 (indicator separation) — admissible, model-fenced, largely redundant
+
+These restate proved facts (see Part 8's table: F5/F6/F8, T1/F7, F1/T2, M5/N1,
+T3). They may be added as **new theorems beside** the existing ones, Tier-B, with
+the mandatory "about this model; NOT the Clay statement; no implication
+formalized" docstring, **no new axiom**, **`model_`-prefixed names only**. The
+`ContinuousMeasure`/`IsStandardMeasure` typeclasses in the draft should be the
+existing `NoAtoms`/atomless predicates. Worth doing only for §6-option-1 narrative
+parity; otherwise skip.
+
+### Phases 4–5 (the bridge) — "let Lean decide" means a THEOREM, not an `axiom`
+
+The draft's Phase 4.3 (`prior_is_valid_model : IsStandardModel …`) and Phase 5
+(`axiom shoenfield_absoluteness`, then `absolute_P_ne_NP`) cannot be added as
+written, and the reason is exactly the maintainer's own principle — *implement it
+and let Lean say what is true*:
+
+- **An `axiom` is the one construct that prevents Lean from deciding.** Lean does
+  not *check* an axiom; it *accepts it unproved*. Writing `axiom
+  shoenfield_absoluteness …` and then `absolute_P_ne_NP := by apply …` does not
+  let Lean adjudicate the bridge — it *asserts* it. To genuinely let Lean decide,
+  the bridge must be a **`theorem` with a proof Lean verifies**.
+- **So state it as a theorem and attempt it.** The honest Lean experiment is:
+  ```lean
+  -- the bridge, as a CHECKABLE obligation (do NOT axiomatize):
+  theorem model_separation_implies_clay
+      (hσ : prior {g : C(K, ℝ) | ∃ c, ComputesSelection c g} = 0) :
+      P_ne_NP_arith := by
+    sorry  -- attempt; do not commit the sorry
+  ```
+  where `P_ne_NP_arith` is the *genuine* arithmetical statement (quantifying over
+  `Nat.Partrec.Code` / Turing machines and run-time bounds on `SAT`), **not** a
+  measure-relative restatement. Attempting this is the experiment the maintainer
+  asks for. It will not close — and that *is* Lean deciding: there is no term of
+  this type derivable from `hσ`. `model_vs_clay_disjointness` (T5) is the proved
+  statement of *why* (the hypothesis concerns a different arena; `σ` is blind to
+  the individual decidable language `SAT` — Part 8).
+- **`prior_is_valid_model : IsStandardModel`** is not a statable theorem (a
+  measure is not a transitive ZFC model — Part 8); there is no honest Lean type
+  for it. Do not introduce `IsStandardModel`, `IsTrueIn (measure) (arith)`, or
+  `IsPi20` as new axiomatic predicates — they would encode the category error.
+- **The standing rule is unchanged:** a `theorem`-form bridge may be *stated and
+  attempted* (no committed `sorry`, no `axiom`); the `axiom`-form bridge is
+  forbidden, because it is the negation of "let Lean decide" and would make a
+  currently-consistent, axiom-free development unsound.
+
+The genuinely provable positive theorem this all points at — and the one worth
+formalizing next — is the **`Π⁰₂`-invariance / conservativity** statement: that
+the truth value of an arithmetical sentence is unchanged across the
+`ZFSet`↔Kopperman interpretation and across the choice of `Formalism.prior`. That
+makes "no prior, no foundation, moves a first-order arithmetic truth"
+machine-checked, and it is fully within reach of `Kopperman.lean` + Mathlib's
+`ZFSet`.
+
+---
+
+## Part 10: Specialist task list for the 2026-06-14 Phases
+
+Actionable tasks, in this document's idiom (exact Lean target + verdict +
+instructions). Ground rules of Part 7 apply verbatim: **no committed `sorry`, no
+new `axiom`, never weaken an existing theorem, `model_`-prefix any model-side
+separation, verify Mathlib names before use.** Build with `lake build PnpProof`.
+
+### Phase 4 — Kopperman formalism — **DONE** (`PnpProof/Kopperman.lean`)
+Already implemented and checked (Part 9). The extension below is now also done:
+
+- **K-ext (PROVABLE) — DONE.** A concrete witness of `Formalism` on
+  `Substrate = Lp ℝ 2 unitMeasure`: `koppermanSubstrate : Formalism Substrate`
+  (and `nonempty_formalism_substrate`), built from `exists_atomless_prob_substrate`
+  (an atomless prior via `exists_atomless_sphere_measure` = H7) fed through
+  `formalismOfPrior`. The orthonormal pair (`substrate_orthonormal_pair`) was
+  realized by the `√2`-scaled indicators of `[0,½]` and `(½,1]` — **simpler than the
+  planned Legendre `√3·(2x−1)` route**: `inner_indicatorConstLp_indicatorConstLp`
+  (orthogonality from disjoint support) + `norm_indicatorConstLp` (unit norm),
+  no nontrivial integral. Sorry-free, axiom-free. **This is the existence witness
+  for K-model.1** (Part 11): "choosing a measure = choosing a model."
+
+### Phase 1 — Mixed prior + conditioning — **PROVABLE** (assemble existing)
+The draft's `IsStandardMeasure`/`ContinuousMeasure`/`Conditioned` should be the
+development's existing predicates (`NoAtoms`, atomless), not new typeclasses.
+
+- **T-mix (PROVABLE).**
+  ```lean
+  theorem mixed_prior_decomposition {α : Type*} [MeasurableSpace α]
+      [MeasurableSingletonClass α] (μ : Measure α) [IsFiniteMeasure μ] :
+      ∃ (μc μd : Measure α), μ = μc + μd ∧ (∀ x, μc {x} = 0) ∧
+        μd {x | μ {x} = 0} = 0
+  ```
+  Route: this is **F5** (atoms countable) + **F6** (continuous ⟂ atomic) + **F8**
+  (conditioning on the diffuse part is atomless), already in `Foundations.lean`.
+  Wrap them; do not re-prove. The conditioning-on-constant-`y` content is **T1**
+  `selection_not_history` (already proved) — reuse, do not restate.
+
+### Phase 2 — Indicator decision problem — **PROVABLE** (mirror M5/N1)
+- **defn + T-ind-NP (PROVABLE).**
+  ```lean
+  def indicatorDecide (y u : ℕ) : Bool := decide (u = y)
+  theorem indicatorDecide_computable :
+      Computable (fun p : ℕ × ℕ => indicatorDecide p.1 p.2)
+  ```
+  Route: identical shape to `verifyBits_computable` (`Main.lean`); `decide`-based
+  equality is computable. The circuit-form (`O(k)` comparator) reuses
+  `Comparator.lean` exactly as `model_P_ne_NP_circuit` does. Keep on `ℕ`
+  (deviation 4); the `ℝ→ℝ`/`ℚ` framing of the draft is the model picture, realized
+  on `ℕ` data here.
+
+### Phase 3 — Measure-zero separation — **PROVABLE**, model-fenced
+- **T-const-null (PROVABLE).** "constant-output functions are prior-null":
+  ```lean
+  theorem model_constant_output_null (y : ℝ) :
+      prior {g : C(K, ℝ) | ∀ x : K, g x = y} = 0
+  ```
+  Route: this set is a subset of a single fibre of the injective `selMap`; it is
+  either empty or a singleton in the range, and `prior_atomless` (M4) kills
+  singletons; `measure_mono_null`. (If nonempty it is `{selMap t}` for the unique
+  `t` — use `selMap_injective`.)
+- **T-ind-sep (PROVABLE), `model_`-prefixed, mandatory docstring.**
+  ```lean
+  theorem model_indicator_separation (y : ℝ) :
+      Computable (fun p : ℕ × ℕ => indicatorDecide p.1 p.2) ∧
+      prior {g : C(K, ℝ) | ∃ c, ComputesSelection c g} = 0
+  ```
+  Route: `⟨indicatorDecide_computable, almost_all_not_computable⟩` — i.e. **T3
+  with the indicator verifier**. Docstring **must** carry the standard honesty
+  text ("about this model; NOT the Clay statement; no implication formalized").
+
+### Phase 5 — The bridge — **EXPERIMENT only; `axiom` form FORBIDDEN**
+This is the Tier-C bridge. Per **Part 6** the Clay classes are *not* defined here,
+and per **Part 8** the implication is unsound; per Part 9, *letting Lean decide*
+means a theorem, never an axiom.
+
+- **FORBIDDEN (do not add):** `axiom shoenfield_absoluteness`, `absolute_P_ne_NP`,
+  `prior_is_valid_model : IsStandardModel …`, and the predicates
+  `IsStandardModel`, `IsTrueIn (measure) (sentence)`, `IsPi20`. Each either encodes
+  the category error (a measure is not a transitive ZFC model) or asserts the
+  conclusion unproved. Adding any makes the development non-axiom-free and, given
+  T5, unsound.
+- **The only Clay-facing statement permitted remains T5**
+  (`model_vs_clay_disjointness`), already done.
+- **If — and only if — the maintainer supplies a faithful arithmetical
+  `P_ne_NP_arith`** (a real definition over `Nat.Partrec.Code` + run-time bounds
+  on a fixed `NP`-complete language; itself a large task, and note Part 6's
+  caution against defining the Clay classes), the bridge may be **stated as a
+  theorem and attempted**:
+  ```lean
+  theorem model_separation_implies_clay
+      (hσ : prior {g : C(K, ℝ) | ∃ c, ComputesSelection c g} = 0) :
+      P_ne_NP_arith := by
+    sorry   -- ATTEMPT ONLY; do not commit. Report non-closure.
+  ```
+  Expected outcome: **no closing term exists** — `hσ` constrains a measure on
+  `C(K,ℝ)`, while `P_ne_NP_arith` constrains run-times of machines on a single
+  decidable language; T5 is the proof of their disjointness. Report the
+  non-closure (that is Lean deciding); do **not** rescue it with an axiom.
+
+### Recommended positive next target (PROVABLE, genuinely new)
+- **T-conserv.** `Π⁰₂`-invariance: for an arithmetical `φ : Prop` decided by `ℕ`,
+  its truth is independent of any `F : Formalism H` and of the `ZFSet`↔Kopperman
+  side. Formalize "no prior / no foundation moves an arithmetic truth" as a
+  checked theorem. Within reach of `Kopperman.lean` + `Mathlib.SetTheory.ZFC`.
+  This is the honest, machine-checkable core the whole proposal points at.
+  **It is also step (c) of the foundational-minimization directive — see Part 11.**
+
+---
+
+## Part 11: The definitional base of the P-vs-NP statement (the Kopperman formalism's own commitments — PA-incomparable, co-consistent with PA and ZFC)
+
+**Maintainer directive (2026-06-14 #2, as refined).** The minimal assumptions
+needed to *define* the P-vs-NP statement within the Kopperman formalism are
+exactly the commitments of the **Kopperman formalism itself** — *not* PA, and *not*
+a weakening toward PA. That base is **incomparable** with PA and is **co-consistent**
+with both PA and ZFC; because of co-consistency and the standardness of the
+formalism's naturals, the statement defined inside it **is** the standard P-vs-NP
+statement. This Part is the disposition; it is the recommended forward direction
+(queue item **F-min**, Part 7). It **supersedes** the first draft's "reduce to
+PA-or-weaker" framing, which answered the wrong question (provability base, not
+definability base).
+
+### The crucial distinction: definability base vs. provability base
+
+"Minimal assumptions to **define** the statement" ≠ "minimal assumptions to
+**prove** it." The directive is about the first. To *write the statement down* you
+need exactly the apparatus that lets you express "a computation," "a verifier,"
+and "a selection" — and the Kopperman formalism *is* that apparatus (its countable
+decidable skeleton is the encoding of computation; the substrate and prior carry
+the model's selection picture). You do **not** need PA's induction schema as a
+primitive, and you do **not** need full ZFC. The earlier draft's reverse-math /
+"conservative over PA" discussion is about *provability* and is therefore beside
+this point; it is retained below only as the reason co-consistency holds.
+
+### Why this is sound and not a backdoor (read first)
+
+Four facts, none of which is improvised:
+
+1. **"P ≠ NP" is a `Π⁰₂` arithmetical sentence.** Phrased over an NP-complete
+   language (`SAT`): `∀ M ∀ c ∃ x . (M run for ≤ |x|^c + c steps disagrees with
+   SAT(x))`, with a *decidable* matrix (bounded simulation + a decidable `SAT`
+   check). It quantifies only over machine codes, constants, and inputs — all
+   natural numbers. **No reals, no measures, no uncountable sets, no powerset.**
+   The formalism's decidable skeleton supplies exactly the encoding of computation
+   the sentence needs. (This matches the document's existing `P_ne_NP_Pi20` name.)
+2. **The definitional minimum is the Kopperman formalism's own base** — separable
+   substrate + countable decidable skeleton + atomless prior (the `structure
+   Formalism` of `Kopperman.lean`). That is the least you need to even *state* the
+   model's P-vs-NP picture. ZFC's extra strength (uncountable objects,
+   `Classical.choice`-backed measure theory) is *expressive richness used to build
+   the formalism*, not part of the statement's commitments; and **T5**
+   (`model_vs_clay_disjointness`) shows that richness does *not* decide the
+   arithmetic sentence.
+3. **This base is incomparable with PA but co-consistent with PA and ZFC.** It does
+   **not contain** PA — its language is the Hilbert substrate + skeleton + measure,
+   and it does not assert arithmetic induction over its own primitives. PA does
+   **not contain** it — PA cannot even express a Hilbert space or a measure. Yet
+   all three are jointly realizable: inside ZFC (with the standard `ℕ` and `L²`)
+   there is a single structure satisfying the Kopperman axioms while PA holds of
+   `ℕ`. So they are mutually consistent while neither proves the other — exactly the
+   maintainer's "different from PA, neither contains nor is contained in PA, yet
+   consistent with ZFC and PA." The reverse-math conservativity results (`ACA₀`
+   arithmetically conservative over `PA`; `WKL₀` `Π¹₁`-conservative over `PA`,
+   Friedman; `RCA₀` over `IΣ₁`) are the standard witnesses that adding the analytic
+   layer adds **no** arithmetic theorems — i.e. the layer is conservative, hence
+   co-consistent, over the arithmetic base.
+4. **Hence the Kopperman-defined statement IS the standard P-vs-NP statement
+   (absoluteness via standard `ℕ`).** A `Π⁰₂` arithmetical sentence has the same
+   meaning and truth value in any structure whose naturals are the *standard* `ℕ`.
+   The formalism's skeleton is indexed by the genuine standard naturals, so the
+   sentence it defines is absolute — identical to the standard statement, not a
+   model-relative surrogate. **In Lean this is automatic**: Lean's `ℕ` has no
+   nonstandard elements, so a sentence over `Nat.Partrec.Code` / `ℕ` literally *is*
+   the standard sentence, and `T-conserv` (its truth is independent of the chosen
+   `Formalism`) is the machine-checkable witness of that identity.
+
+**This identity is not a backdoor to the bridge.** Defining the *standard* sentence
+inside the formalism makes the *statement* canonical; it does not make the model
+separation *prove* it. T5 is untouched: the formalism suffices to *state* P ≠ NP
+and to *carry* the model facts, but the separation still does not imply the Clay
+statement.
+
+### What lands in Lean (PROVABLE / mechanical — three concrete steps)
+
+Lean has no built-in theory-comparison or provability predicate, so "the base is
+PA-incomparable but co-consistent, and the defined sentence is the standard one"
+is realized by its honest, *available* proxies — **import tier + axiom footprint +
+conservativity** — not by an internal meta-logical claim:
+
+- **(a) Import-tier separation — the incomparability/independence witness.**
+  Confirm (and, for any new `P_ne_NP_arith`, *ensure*) that the arithmetic
+  statement lives in a module importing only the computability/finite-combinatorics
+  slice of Mathlib (`Nat.Partrec.Code`, `Computable`, `Fintype` counting) and
+  **neither the measure theory nor `Kopperman.lean`/`Formalism`**. This is the
+  literal, machine-checkable rendering of "the arithmetic base and the Kopperman
+  base are independent — neither's definitions require the other's." (The
+  measure-heavy `Foundations`/`SphereGaussian`/`Model`/`Kopperman` modules stay put;
+  the point is the arithmetic tier does not depend on them, and they do not depend
+  on it as primitives either — that is the "incomparable" relation made concrete in
+  the import DAG.)
+
+- **(b) Axiom-footprint audit (`#print axioms`) — the dependency proxy.** For each
+  load-bearing *arithmetic-tier* result, record which of Lean's axioms it actually
+  uses. Target results — already in the development and already pure arithmetic /
+  finite combinatorics:
+  - **C1** `countable_computable` (codes are countable),
+  - **C5** `shannon_fraction` (the counting lower bound — finite combinatorics),
+  - **N1** `verify_circuit_cheap` / `model_P_ne_NP_circuit` (the explicit `O(k)`
+    comparator — finite, decidable),
+  - any future `P_ne_NP_arith` statement.
+  *Document* the footprint (ideally `propext`/`Quot.sound` only; flag every
+  `Classical.choice` use) in `IMPLEMENTED.md`. This shows the arithmetic content
+  does **not** route through the formalism's `Classical.choice`-backed measure
+  layer — the dependency-level confirmation that the statement's commitments are not
+  ZFC's. It is **not** a provability claim and **not** a claim that the base "is"
+  PA (it is incomparable with PA). An audit, not a refactor: **do not** rewrite
+  proofs to shed choice unless trivial and still closing; record what is there.
+
+- **(c) `T-conserv` (genuinely new theorem) — the co-consistency + standard-`ℕ`
+  identity witness.** As specified in Part 9/10: for an arithmetical `φ : Prop`
+  decided by `ℕ`, its truth is invariant under any `F : Formalism H` and across the
+  `ZFSet`↔Kopperman interpretation. Provable because `φ` syntactically does not
+  mention `F` — the statement is essentially `(φ ↔ φ)` made non-trivial by
+  quantifying the irrelevant `Formalism`/foundation parameter and showing it drops
+  out. This is the checked core of "the Kopperman base is co-consistent with the
+  arithmetic base and, over the *standard* `ℕ`, defines the *same* arithmetic
+  sentence" — no prior, no foundation moves an arithmetic truth. (Lean's `ℕ` has no
+  nonstandard elements, so the standardness condition behind the identity is free.)
+  Within reach of `Kopperman.lean` + `Mathlib.SetTheory.ZFC`.
+
+### K-model: "choosing a measure = choosing a model of the formalism" — IMPLEMENTED (`PnpProof/Kopperman.lean`); deep form out of scope
+
+**Status (2026-06-14):** K-model.0 and K-model.1 (incl. K-ext) are **implemented,
+sorry-free and axiom-free** in `PnpProof/Kopperman.lean` (`#print axioms` = the
+standard three). Lemma names: `model_has_prior`, `substrate_orthonormal_pair`,
+`exists_atomless_prob_substrate`, `formalismOfPrior`, `prior_formalismOfPrior`,
+`prior_surjective_onto_atomless`, `nonempty_formalism_substrate`,
+`koppermanSubstrate`. K-model.2 remains out of scope (von Neumann/MASA).
+
+**Maintainer claim (2026-06-14 #3):** within the Koopman/Kopperman formalism,
+*choosing a probability measure is choosing a model* — equivalently, *every model
+of the formalism carries (requires) a probability measure*. **Correct, and it is
+the defensible reading**, sharply distinct from the **rejected** Part 8 claim:
+there "model" wrongly meant *a transitive model of ZFC* (category error — a measure
+is an object *in* ZFC, not a model *of* it); here "model" means *a model of the
+formalism as a structure* — an inhabitant of `structure Formalism` — whose `prior`
+is literally one of its fields.
+
+**It gives no Clay leverage — for an *arithmetic*, not a foundational, reason
+(maintainer correction, 2026-06-14 #4).** The earlier wording ("a model of the
+formalism is not a model of set theory") was beside the point and is **withdrawn**:
+we agreed P vs NP is `Π⁰₂` arithmetical and needs *neither ZFC nor PA* to state, so
+nobody needs a model *of set theory* — only a model of whatever P vs NP minimally
+requires, which the formalism (standard `ℕ` skeleton) supplies. The real obstruction
+is arithmetic: what the measure establishes is the separation `σ` (computable
+selections are prior-null), and `σ` is a *different arithmetic sentence* from
+"SAT ∉ P". `σ` says a *generic/random* selection is uncomputable (a Shannon-style
+counting fact); the Clay statement is the hardness of the *specific* language SAT.
+**T5** (`model_vs_clay_disjointness`) proves the two are disjoint — `σ` is blind to
+any individual decidable language. **T5 stands** (see Fences).
+
+**The formalism's two computational layers (maintainer note, 2026-06-14 #5).** The
+formalism is *not* "anti-computable", and the prior nulling computable selections is
+only half of it. There are two layers, and `model_P_ne_NP` (T3) is their
+coexistence:
+- **P-side (uncomputable witness).** The atomless prior gives measure zero to
+  machine-computable *selection* functions — `almost_all_not_computable` (T2). The
+  selected ("hard") object is, prior-almost-surely, not computable.
+- **NP-side (computable verification + computable approximations).** The formalism
+  *defines computable NP functions*: the candidate *verification* is computable
+  (`verifyBits_computable`, M5) and indeed an explicit `O(k)` Boolean comparator
+  circuit (`model_P_ne_NP_circuit`, N1); the **decidable dense skeleton** is the
+  layer of *computable approximations*, and the dyadic discretization gives
+  *computable probabilities*. This is faithful to `pnp.tex`: §6 option 1 — "there is
+  no function in `P` corresponding to the indicator function for `y`, which is in
+  `NP`"; §10 — "verification of a candidate output is a computable (cheap)
+  operation, while no deterministic machine computes the selected function"; §"we
+  start by noticing" — the domain "can be defined by a dense countable basis" of a
+  Hilbert space (the computable approximants). Without this layer there is **no NP
+  side** to separate from P.
+
+**Fidelity gap to fix or accept.** In `Kopperman.lean` the `Formalism.skeleton`
+field currently asserts only `Countable ∧ Dense` — it does **not** itself assert
+that the skeleton is *computable/decidable*. The computability of the NP layer is
+carried by the *separate* `Computable`/circuit theorems (`verifyBits_computable`,
+`model_P_ne_NP_circuit`, in `Main.lean`/`Comparator.lean`), and by the dyadic index
+machinery — not by a field of the `Formalism` structure. Two honest options, on the
+maintainer's call:
+1. **Accept and document** (current state): the structure names the skeleton
+   "decidable dense" in prose; its computability is realized and proved *elsewhere*
+   in the development. Cheapest; nothing to build.
+2. **Strengthen the structure** (enhancement, PROVABLE but real work): add a
+   `skeleton_decidable`/computable-enumeration field to `Formalism` (or a companion
+   structure), witnessed by the **rational step functions / rational polynomials**
+   (the paper's integer coding; H4's `ratStep` content — countable, dense, and
+   computably enumerable), and optionally a computable-verifier field tying
+   `verifyBits_computable` into the formalism. Caveats: `Main.lean` (verifier) and
+   `Kopperman.lean` are currently *parallel leaves* (neither imports the other), so
+   a verifier field needs an import restructure or a new top file; and a genuinely
+   *computable* dense enumeration of the substrate must be built (H4 was subsumed,
+   deviation 2, not exposed as a standalone computable enumerator). Flag, do not
+   force; attempt only on maintainer request.
+
+*(Naming: the Lean file/structure is `Kopperman` after Kopperman 1967's
+`L_{ω₁,ω₁}`-theory of Hilbert spaces; the maintainer's "Koopman" also evokes the
+Koopman–von Neumann formulation of mechanics on `L²(phase space, μ)`. The same
+`Formalism` object serves both, and — fittingly — the KvN "Hilbert space built from
+a base measure" reading is exactly what makes K-model.2 below the deep version.)*
+
+Three tiers, by increasing depth:
+
+- **K-model.0 (trivial — projection) — DONE.** Every model carries an atomless
+  probability measure, as `model_has_prior`:
+  ```lean
+  theorem model_has_prior {H} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
+      [CompleteSpace H] [MeasurableSpace H] (F : Formalism H) :
+      IsProbabilityMeasure F.prior ∧ ∀ x, F.prior {x} = 0 :=
+    ⟨F.prior_isProb, F.prior_atomless⟩
+  ```
+  True by definition (`prior` is a field) — the literal "every model *has* a
+  measure," by-construction, not deep.
+
+- **K-model.1 (the genuine content — existence + correspondence) — DONE.** What
+  makes "choosing the measure is a *real, required* choice" non-vacuous:
+  * **existence (K-ext)** — the substrate admits a model:
+    `nonempty_formalism_substrate`/`koppermanSubstrate : Formalism Substrate`. The
+    orthonormal pair was realized **not** by the Legendre `√3·(2x−1)` route but by
+    the `√2`-scaled indicators of the two halves `[0,½]`, `(½,1]`
+    (`substrate_orthonormal_pair`) — no nontrivial integral, just
+    `inner_indicatorConstLp_indicatorConstLp` + `norm_indicatorConstLp` — fed to
+    `exists_atomless_sphere_measure` (H7) as `exists_atomless_prob_substrate`. The
+    substrate carries its Borel σ-algebra (`local instance … := borel _`).
+  * **correspondence** — `formalismOfPrior : (μ atomless prob) → Formalism Substrate`
+    is the "measure ↦ model" map, with `prior_formalismOfPrior : (…).prior = μ`
+    (`rfl`) its section, packaged as `prior_surjective_onto_atomless` (every
+    atomless probability measure is *some* model's prior). With substrate + the
+    canonical (chosen) skeleton fixed, `F ↦ F.prior` is thereby a bijection onto the
+    atomless probability measures — the precise "choosing a measure = choosing a
+    model."
+  * **non-uniqueness** (optional, NOT done) — exhibiting ≥ 2 *provably distinct*
+    atomless priors would reduce the bijection-content from "surjective with a
+    section" to a literal `Equiv`; it needs a measure-distinctness lemma and was
+    left out (the surjection already carries the "the choice is free" content). Add
+    only if a clean distinguishing set is available.
+
+- **K-model.2 (the deep reading — measure *forced* without baking it in) — OUT OF
+  SCOPE.** The strongest "every model requires a measure" *drops* the `prior` field
+  and *derives* a measure from the abstract data. By **H6**
+  (`hilbert_classification`) all separable Hilbert substrates are isomorphic, so the
+  measure is **not** recoverable from the Hilbert space alone — it is the invariant
+  of a *maximal abelian von Neumann subalgebra* (the "observables/position"
+  algebra), which by the spectral multiplicity theorem is unitarily
+  `L^∞(X, μ)`-multiplication, with the measure class the complete invariant. This is
+  exactly the **von Neumann algebra classification marked OUT OF SCOPE in Part −1,
+  §5** ("huge, unused"). It is the genuinely non-tautological "model ⟺ measure," but
+  it is a large project and **Mathlib lacks MASA/multiplicity theory** — **flag, do
+  not improvise.** Attempt only on an explicit maintainer decision to take on the
+  von Neumann classification.
+
+### Fences (do NOT improvise — honesty rules)
+
+- **No internal "PA-incomparable / co-consistent" or `PA ⊢ P_ne_NP` theorem.**
+  Stating *as a Lean theorem* that the Kopperman base is incomparable with PA, or
+  that the sentence is provable/consistent in any named theory, requires formalized
+  first-order theories and interpretations (`FirstOrder.Language`, a provability
+  predicate, a soundness/representation bridge). Mainline Mathlib has no such
+  apparatus; the `FormalizedFormalLogic`/`Foundation` development is separate.
+  Building it is a large meta-logic effort on the scale of the `L_{ω₁,ω₁}` object —
+  **flag, do not improvise.** The import DAG / `#print axioms` / `T-conserv` are
+  *proxies* for these meta-claims, not internal proofs of them; say so wherever
+  reported.
+- **No new axioms**, and the identity is **not** a route to the bridge: defining the
+  *standard* sentence inside the formalism does not make the model separation prove
+  it. T5 stands; the only Clay-facing theorem remains T5.
+- **K-model gives no Clay leverage — an *arithmetic*, not foundational, obstruction.**
+  Do **not** justify this with "a measure is not a model of set theory" (true but
+  beside the point: P vs NP needs no set-theory model — maintainer correction
+  #4). The correct reason: what the measure proves is the separation `σ`, a
+  *different arithmetic sentence* from "SAT ∉ P" — `σ` is random/Shannon-style
+  hardness, the Clay statement is specific-language (SAT) hardness, and **T5**
+  proves them disjoint (`σ` is blind to any individual decidable language). Do not
+  chain K-model into any `σ → (P ≠ NP)` argument; that resurrects the rejected
+  bridge. *(Part 8b's "measure ≠ ZF-model" point still correctly rebuts the
+  Shoenfield-invoking proposal there — that argument explicitly needed ZF models;
+  K-model does not, so it must not lean on that rebuttal.)*
+- **Do not weaken existing theorems** to chase a smaller footprint. If a choice-free
+  reproof of C1/C5/N1 does not close cleanly, leave the existing proof and just
+  record the footprint. Upgrades are new lemmas beside the old ones (Part 7).
+- **Do not re-import the discarded "reduce to PA" goal.** PA is *not* the target
+  base; it is one of the two incomparable theories the formalism is co-consistent
+  with. The bounded-arithmetic remark (`IΔ₀+exp`/`S¹₂`) is only a note on where the
+  *sentence* naturally lives; formalizing provability in any such theory is the same
+  separate meta-logic project — flag, do not start it under this directive.

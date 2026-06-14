@@ -37,7 +37,7 @@ theorem selection_not_history :
       (_ : IsProbabilityMeasure P) (Y : ℕ → Ω → ℝ),
       (∀ n, Measurable (Y n)) → (∀ n y, P {ω | Y n ω = y} = 0) →
       ∀ y₀, P {ω | ∃ n, Y n ω = y₀} = 0 := by
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨?_, ?_, ?_⟩
   · exact selection_exists;
   · intro y₀;
     erw [ MeasureTheory.Measure.restrict_apply' ];
@@ -95,7 +95,7 @@ theorem mixed_to_continuous {α : Type*} [MeasurableSpace α]
     [MeasurableSingletonClass α] (μ : Measure α) [IsFiniteMeasure μ]
     (h : μ {x | μ {x} ≠ 0}ᶜ ≠ 0) :
     ∃ ν : Measure α, IsProbabilityMeasure ν ∧ (∀ x, ν {x} = 0) := by
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨?_, ?_, ?_⟩
   exact ( μ { x | μ { x } ≠ 0 } ᶜ ) ⁻¹ • μ.restrict { x | μ { x } ≠ 0 } ᶜ;
   · constructor;
     simp +decide [ ENNReal.inv_mul_cancel h ];

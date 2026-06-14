@@ -146,6 +146,34 @@ strengthens the NP side of `model_P_ne_NP` to this circuit family; the original
 `model_P_ne_NP` is left untouched. Everything is sorry-free and depends only on
 `propext`, `Classical.choice`, `Quot.sound`.
 
+### `PnpProof/Kopperman.lean` — Part 9 (the formalism) + Part 11 (K-model)
+
+| Item | Name | Status |
+|------|------|--------|
+| formalism data | `structure Formalism`, `Substrate`, `substrate_separable`, `substrate_decidable_skeleton` | ✓ |
+| Mehler prior | `MehlerPrior`, `mehler_isProbability`, `mehler_concentrates_on_sphere` | ✓ |
+| atomless layer | `admits_atomless_prior`, `modelPrior_atomless` | ✓ |
+| K-model.0 | `model_has_prior` (every model carries an atomless probability prior) | ✓ |
+| orthonormal pair | `substrate_orthonormal_pair` (`√2`·indicators of `[0,½]`, `(½,1]`) | ✓ |
+| existence (K-ext) | `exists_atomless_prob_substrate`, `nonempty_formalism_substrate`, `koppermanSubstrate` | ✓ |
+| correspondence | `formalismOfPrior`, `prior_formalismOfPrior`, `prior_surjective_onto_atomless` | ✓ |
+| F-min (c) T-conserv | `Pi02`, `interpPi02`, `arith_truth_invariant`, `pi02_invariant_of_formalism`, `interpPi02_eq` | ✓ |
+
+**K-model** ("choosing a measure = choosing a model of the formalism", Part 11):
+`model_has_prior` projects every `Formalism` to its atomless prior;
+`formalismOfPrior` is the converse "measure ↦ model" map, with
+`prior_formalismOfPrior` (`rfl`) its section and `prior_surjective_onto_atomless`
+packaging surjectivity onto the atomless probability measures — so with substrate
+and a canonical skeleton fixed, `F ↦ F.prior` is a bijection. `koppermanSubstrate`
+is a concrete model on `L²([0,1])`, built from `substrate_orthonormal_pair` (the
+`√2`-scaled indicators of the two halves, orthonormal via
+`inner_indicatorConstLp_indicatorConstLp` + `norm_indicatorConstLp` — no integral)
+fed to `exists_atomless_sphere_measure` (H7). Sorry-free, axiom-free (`propext`,
+`Classical.choice`, `Quot.sound`). **No Clay leverage:** the obstruction is
+arithmetic (the measure proves `σ`, a different sentence from "SAT ∉ P"; T5
+disjointness), *not* foundational — no model of set theory is needed, since P vs NP
+is `Π⁰₂` arithmetic.
+
 ### Deviations on the NP side of T3 (Part 4 M5)
 
 The plan offered an explicit `O(k)` comparator circuit *or* a labelled model
@@ -172,10 +200,54 @@ statement; no implication to standard `P ≠ NP` is asserted. The only
 Clay-facing statement in code is T5 (`model_vs_clay_disjointness`), which
 proves the two arenas are *disjoint*.
 
+### F-min — definitional-base witnesses (Part 11, recommended queue item) — DONE
+
+The three honest, machine-checkable proxies for "the definitional base is the
+Kopperman formalism's own (incomparable with PA, co-consistent with PA and ZFC),
+and over the standard `ℕ` it defines the *standard* P-vs-NP sentence". Per the
+Part 11 fences, these are *proxies*; no internal `PA ⊢ …` / theory-comparison /
+provability predicate is introduced (Mathlib has no such apparatus).
+
+- **(a) Import-tier separation.** The arithmetic-tier results live in modules
+  whose dependency closure does **not** contain `Kopperman.lean` or the
+  measure-theory modules (`Foundations.lean`, `Model.lean`, `SphereGaussian.lean`):
+  `Counting.lean` imports only `Mathlib`; `Comparator.lean` imports only
+  `Mathlib` and `Counting.lean`. So **C1** (`countable_computable`), **C5**
+  (`shannon_fraction`), and **N1** (`verify_circuit_cheap`,
+  `model_P_ne_NP_circuit`'s circuit core) do not depend on the formalism. This is
+  the import-DAG rendering of "the arithmetic base and the Kopperman base are
+  independent — neither's definitions require the other's."
+
+- **(b) Axiom-footprint audit (`#print axioms`).** Each load-bearing
+  arithmetic-tier result depends only on the standard three axioms
+  (`propext`, `Classical.choice`, `Quot.sound`) — none routes through anything
+  exotic, and the finite/decidable content does not depend on the
+  `Classical.choice`-backed measure layer as a *primitive* (the arithmetic
+  modules do not import it at all, per (a)):
+  | Result | File | Axioms |
+  |--------|------|--------|
+  | C1 `countable_computable` | `Counting.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+  | C5 `shannon_fraction` | `Counting.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+  | N1 `verify_circuit_cheap` | `Comparator.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+  | N1 `model_P_ne_NP_circuit` | `Main.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+  This is a dependency-level audit, **not** a provability claim and **not** a
+  claim that the base "is" PA (it is incomparable with PA). No proof was
+  rewritten to shed `Classical.choice`; the footprint is recorded as-is.
+
+- **(c) `T-conserv` (genuinely new theorem).** `arith_truth_invariant`
+  (`Kopperman.lean`): for a `Π⁰₂` arithmetical sentence `Pi02 p := ∀ a, ∃ b, p a b`
+  over the standard `ℕ`, its truth is invariant under any choice of `Formalism H`
+  *and* any `ZFSet` foundation parameter — both drop out
+  (`interpPi02 p F z ↔ Pi02 p`, `interpPi02_eq`). It is the checked core of "no
+  prior, no foundation moves an arithmetic truth": the parameters genuinely appear
+  in the statement and are proved irrelevant. Sorry-free, axiom-free (the standard
+  three). It is a proxy for, not an internal proof of, the meta-logical
+  co-consistency/standardness claims (Part 11 fences).
+
 ## Next steps (queue in `PNP_IMPLEMENTATION_PLAN.md`, Part 7)
 
-All mathematical queue items (N1, T5) are complete. The only open item is
-optional style-linter housekeeping (`linter.style.multiGoal`,
+All mathematical queue items (N1, T5, **F-min**) are complete. The only open item
+is optional style-linter housekeeping (`linter.style.multiGoal`,
 `linter.style.whitespace`, `linter.style.longLine`): fix with focus dots /
 whitespace / line breaks only, and revert any fix that breaks a proof.
 Ground rules: every change lands sorry-free or not at all; **no new axioms,

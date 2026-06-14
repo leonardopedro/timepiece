@@ -1,839 +1,564 @@
-# Implementation Plan: Discharging the 7 Remaining Sorries
+# Implementation Plan: The Rectangle Strategy via Gaussian Euler Products
 
-**Audience**: a Lean 4 formalization agent. Each section below gives the exact
-current Lean statement, a verdict on provability, and a complete English proof
-written at the level of detail needed to formalize directly. Mathlib lemma
-names cited here have been **verified to exist in this project's Mathlib
-snapshot** unless marked "(search)".
+**Audience**: a Lean 4 formalization agent.
 
-**Status**: 37 lemmas proved, 7 sorries remaining. Completed work:
-`../IMPLEMENTED.md`. Strategy exposition: `zetanew.tex`.
+**This revision pivots the strategy.** The earlier plan discharged a hypothetical
+zero with the *conjugate-reflection / four-fold product* machinery
+(`ConjugateReflection.lean`, `MultiplicityOne.lean`, `ZeroLocation.lean`) and a
+*multiplicative, modulus-1* randomized Euler product (`Legacy.lean`). That
+approach is preserved in the files but is **no longer the spine of the proof**.
 
-| # | File | Lemma | Verdict |
-|---|------|-------|---------|
-| S1 | `ZeroLocation.lean` | `zero_location_contradiction` | **PROVABLE** (short, via H6) |
-| S2 | `ConjugateReflection.lean` | `conjReflLimit_zero_order` | **PROVABLE** (direct, via H4/H5) |
-| S3 | `ZeroLocation.lean` | `fourFoldApprox_tendstoUniformlyOn_boundary` | **PROVABLE after adding one hypothesis** (`Re < 1` on closure) |
-| S4 | `MultiplicityOne.lean` | `even_multiplicity_contradiction` | **RESTATE in normalized coordinates** (current `h_order` is inconsistent → only vacuously provable; the corrected, normalized statement is the genuine core — see N1–N4 and S4) |
-| S5 | `MultiplicityOne.lean` | `nonreal_edges_sum_zero` | **NOT PROVABLE AS STATED** — restatement + full proof of replacement given |
-| S6 | `ConjugateReflection.lean` | `exists_isolating_rect` | **NOT PROVABLE AS STATED** — partial discharge + restatement given |
-| S7 | `MultiplicityOne.lean` | `etaShifted_zeros_simple` | **FALSE AS STATED** — restatement (provable weaker form) given; the intended content is the open core |
+We **recover the direct rectangle strategy** of `RectangleStrategy.lean`
+(`∮_{∂R} 1/η = 0` ⇒ no interior zero) and re-power its single deep input —
+zero-free uniform approximation — with a **new random model**:
 
-Work in the order S1 → S2 → S3 → S4, then handle S5–S7 per their sections
-(they require statement changes, which is safe: their only consumers are
-themselves sorry'd or trivially adjusted).
+1. **Gaussian 2D coefficients** (independent Gaussian real and imaginary parts)
+   in place of modulus-1 phases `e^{2πiω}`.
+2. **An Euler product of *exponential* form** — `exp` of a Dirichlet sum over
+   primes — in place of the *multiplicative* product `∏(1 − X_p p^{−s})^{−1}`.
 
----
+These two changes are what make the rectangle close. They buy three things the
+old model could not deliver simultaneously:
 
-## Part 0: Definitions and verified API
-
-### Project definitions (exact)
-
-```lean
--- EtaStrategy.lean
-def dirichletEta (s : ℂ) : ℂ := (1 - (2:ℂ) ^ (1 - s)) * riemannZeta s
-def etaFactor    (s : ℂ) : ℂ := 1 - (2:ℂ) ^ (1 - s)
-
--- RectangleStrategy.lean  (definitionally equal to dirichletEta!)
-def etaRect (s : ℂ) : ℂ := (1 - (2:ℂ) ^ (1 - s)) * riemannZeta s
-
--- ShiftedEta.lean
-def etaShifted (s : ℂ) : ℂ := dirichletEta (2 * s - 1)
-def etaPartialShifted (n : ℕ) (s : ℂ) : ℂ :=
-  ∑ k ∈ Finset.range n, (-1:ℂ)^k / ((k:ℂ)+1) ^ (2*s-1)
-def targetH (s : ℂ) : ℂ := s - (3/4 : ℂ) - I
-def hApprox (n : ℕ) (s : ℂ) : ℂ := targetH s + (1 / ((n:ℂ)+1))
-def fApprox (n : ℕ) (s : ℂ) : ℂ := hApprox n s * etaPartialShifted n s
-
--- ConjugateReflection.lean
-def conjReflApprox (n : ℕ) (s : ℂ) : ℂ :=
-  starRingEnd ℂ (fApprox n (starRingEnd ℂ s)) * fApprox n s
-def conjReflLimit (s : ℂ) : ℂ :=
-  starRingEnd ℂ (targetH (starRingEnd ℂ s) * etaShifted (starRingEnd ℂ s)) *
-    (targetH s * etaShifted s)
-
--- RectangleStrategy.lean
-structure Rect where x_lo x_hi y_lo y_hi : ℝ; hx : x_lo < x_hi; hy : y_lo < y_hi
-def Rect.closure (R) : Set ℂ := {z | x_lo ≤ re ∧ re ≤ x_hi ∧ y_lo ≤ im ∧ im ≤ y_hi}
-def Rect.openInt (R) : Set ℂ := {z | strict versions}
-def Rect.boundaryIntegral (R) (f) : ℂ :=
-  ((∫ x in x_lo..x_hi, f (x + y_lo*I)) - (∫ x in x_lo..x_hi, f (x + y_hi*I)))
-  + I • (∫ y in y_lo..y_hi, f (x_hi + y*I)) - I • (∫ y in y_lo..y_hi, f (x_lo + y*I))
-```
-
-### Proved project lemmas you will use
-
-| Lemma | File | Statement |
-|-------|------|-----------|
-| `rect_cauchy` | RectangleStrategy:204 | `DifferentiableOn ℂ f R.closure → R.boundaryIntegral f = 0` |
-| `etaRect_ne_zero_critical_strip` | RectangleStrategy:1320 | `1/2 < re s < 1 → etaRect s ≠ 0` ⚠ downstream of legacy sorries (see Part 3) |
-| `zeta_symm` | Basic:15 | `0 < re < 1 → ζ s = 0 → ζ (1-s) = 0` |
-| `etaFactor_ne_zero_re_lt_one` | EtaStrategy:87 | `re s < 1 → etaFactor s ≠ 0` |
-| `dirichletEta_ne_zero_at_two` | EtaStrategy:482 | `dirichletEta 2 ≠ 0` |
-| `etaShifted_functional_eq_zero` | ZeroLocation:53 | strip zero at s₀ → zero at 3/2−s₀ |
-| `fApprox_tendstoUniformlyOn` | ShiftedEta:249 | `f_n → targetH·etaShifted` unif. on compact `K ⊂ {1/2<re<1}` |
-| `tendstoUniformlyOn_conj_comp` | MultiplicityOne:25 | conv. on `conj '' K` → conj-composite conv. on `K` |
-| `tendstoUniformlyOn_mul` | MultiplicityOne:35 | product of unif.-conv. **bounded** sequences |
-| `conjReflApprox_tendstoUniformlyOn` | MultiplicityOne:64 | (its proof is the **template** for S3's boundedness blocks) |
-| `targetH_differentiable`, `targetH_ne_zero` | ShiftedEta | — |
-| `etaPartialShifted_differentiable` | ShiftedEta:110 | — |
-| `isPreconnected_halfplane_minus_one` | EtaConvergence:260 | `{re > 1/2} \ {1}` preconnected |
-
-### Verified Mathlib API (this snapshot)
-
-| Name | Location | Signature (informal) |
-|------|----------|----------------------|
-| `riemannZeta_residue_one` | NumberTheory/LSeries/RiemannZeta.lean:217 | `Tendsto (fun s => (s-1) * ζ s) (𝓝[≠] 1) (𝓝 1)` |
-| `conj_cpow` | Analysis/SpecialFunctions/Pow/Complex.lean:231 | `x.arg ≠ π → conj x ^ n = conj (x ^ conj n)` |
-| `cpow_conj` | ibid:234 | `x.arg ≠ π → x ^ conj n = conj (conj x ^ n)` |
-| `HasDerivAt.conj_conj` | Analysis/Calculus/Deriv/Star.lean:84 | `HasDerivAt f f' x → HasDerivAt (conj ∘ f ∘ conj) (conj f') (conj x)` |
-| `DifferentiableAt.conj_conj` | ibid:89 | `DifferentiableAt ℂ f x → DifferentiableAt ℂ (conj ∘ f ∘ conj) (conj x)` |
-| `AnalyticAt.eventually_eq_zero_or_eventually_ne_zero` | Analysis/Analytic/IsolatedZeros.lean:130 | isolated zeros dichotomy |
-| `analyticOrderAt`, `analyticOrderAt_eq_top` | Analysis/Analytic/Order.lean:48,76 | order of vanishing; `= ⊤ ↔ ∀ᶠ z in 𝓝 z₀, f z = 0` |
-| `AnalyticAt.analyticOrderAt_eq_natCast` | Analysis/Analytic/Order.lean (≈45) | `order = n ↔ ∃ g, AnalyticAt ∧ g z₀ ≠ 0 ∧ ∀ᶠ z, f z = (z-z₀)^n • g z` |
-| `isConnected_compl_singleton_of_one_lt_rank` | Analysis/Normed/Module/Connected.lean:125 | `1 < rank ℝ E → IsConnected {x}ᶜ` (use `rank_real_complex`: rank ℝ ℂ = 2) |
-| `TendstoUniformlyOn.comp` | Topology/UniformSpace/UniformConvergence.lean:230 | `TendstoUniformlyOn F f p s → ∀ g, TendstoUniformlyOn (F · ∘ g) (f ∘ g) p (g ⁻¹' s)` |
-| `differentiableAt_riemannZeta` | Mathlib | `s ≠ 1 → DifferentiableAt ℂ riemannZeta s` |
-| `hasDerivAt_iff_tendsto_slope` | Mathlib | derivative as limit of difference quotients |
-| `intervalIntegral.integral_nonneg`, `Complex.mul_conj`, `Complex.normSq_nonneg` | Mathlib | — |
-
-**NOT available in this Mathlib snapshot**: `riemannZeta_conj` (Schwarz
-reflection for ζ). It must be proved as helper H3 below.
+| Property | multiplicative, modulus-1 | exponential, Gaussian-2D |
+|---|---|---|
+| zero-free approximant | needs a separate non-vanishing proof | **free**: `exp` is never 0 |
+| variance of the product | nonlinear in the `X_p` | **∝ variance of the `X_p`** (log is linear) |
+| convergence regime | abs. conv. only `Re > 1`; strip needs Bagchi | **universality `Re > 1/2`**, abs. conv. a.s. `Re > 1` |
 
 ---
 
-## Part 1: Helper lemmas (prove these first — they unlock S1–S5)
+## Current implementation status (2026-06-14)
 
-Place H1–H5 at the top of `ConjugateReflection.lean` (all their dependencies
-are already imported there), or in a new file imported by it. H6 can go in the
-same place (its ingredients `etaRect_ne_zero_critical_strip`, `zeta_symm`,
-`etaFactor_ne_zero_re_lt_one` are all transitively imported).
+The strategy below is **partially implemented** in
+`RiemannProof/GaussianEuler.lean` (builds: `lake build RiemannProof.GaussianEuler`,
+8032 jobs). The S0–S9 scaffold of Part 3 is in place; **5 sorries remain**
+(S3, S4, S5, S6, S8). Snapshot:
 
-### H1. The junk value at 1 — `dirichletEta_one`
+| Item | Lemma | Status |
+|---|---|---|
+| defs | `Ω`, `Xg`, `cCorr`, `gaussSum`, `logEulerG`, `eulerG` | **DONE** |
+| S0 | `exp_cCorr_eq_etaEulerApprox` | **DONE** |
+| S1 | `eulerG_ne_zero`, `gaussSum_differentiable`, `eulerG_eq_mul`, `eulerG_differentiableOn` | **DONE** |
+| S2 | `recipEulerG_boundaryIntegral_eq_zero` | **DONE** |
+| v=0 | `eulerG_zero_eq_etaEulerApprox`, `eulerG_zero_tendstoUniformlyOn_rect` | **DONE** |
+| S3 | `eulerG_tendstoUniformly_absConv` | `sorry` (line 202) |
+| S4 | `exists_gaussian_corrector_uniform` | `sorry` (216) |
+| S5 | `recipEulerG_tendsto_recipEta_onEdges` | `sorry` (229) |
+| S6 | `recipEta_rect_contour_integral_eq_zero'` | `sorry` (242) |
+| S7 | `no_zero_in_rect` | **DONE** (delegates to RectangleStrategy residue API) |
+| S8 | `exists_straddling_isolating_rect` | `sorry` (272) |
+| S9 | `zeta_no_zeros_re_gt_half`, `riemann_hypothesis_via_rectangle` | **DONE** (delegates to `riemann_hypothesis_rect`) |
 
-```lean
-lemma dirichletEta_one : dirichletEta 1 = 0
-```
-**Proof.** Unfold: `(1 - 2^(1-1)) * ζ 1 = (1 - 2^(0:ℂ)) * ζ 1 = (1-1) * ζ 1 = 0`.
-Use `Complex.cpow_zero`, then `sub_self`, `zero_mul`. One line:
-`simp [dirichletEta, Complex.cpow_zero]`. ∎
+**Two wiring facts the implementer must know:**
 
-Also record `etaShifted_one : etaShifted 1 = 0` (since `2*1-1 = 1`; `norm_num`
-inside `etaShifted` then `dirichletEta_one`).
+1. **`GaussianEuler.lean` is orphaned from the build root.** `RiemannProof.lean`
+   imports only `Basic, Legacy, TwoLimits, SimplifiedStrategy, EtaStrategy,
+   ContourStrategy, RectangleStrategy` — *not* `GaussianEuler`. First task:
+   `import RiemannProof.GaussianEuler` in `RiemannProof.lean` so the new spine is
+   part of the default build.
+2. **S7 and S9 are "DONE" only by delegating to still-`sorry`'d
+   RectangleStrategy lemmas.** `no_zero_in_rect` (S7) calls the *old*
+   `recipEta_rect_contour_integral_eq_zero` (RectangleStrategy:913, `sorry`) and
+   `recipEta_rect_integral_ne_zero_of_zero`; `riemann_hypothesis_via_rectangle`
+   (S9) calls `riemann_hypothesis_rect` / `zetaRect_ne_zero_critical_strip`
+   (RectangleStrategy), which themselves rest on the legacy sorries. So the RH
+   wrapper *type-checks* but is **not yet sorry-free end to end**. The point of S6
+   (`…_eq_zero'`, the Gaussian-powered contour integral) is precisely to
+   **discharge the old `recipEta_rect_contour_integral_eq_zero` (913)** — but S7
+   currently still calls the old one. Rewire S7 to use S6′ once S6′ is proved.
 
-### H2. The true limit at 1 — `dirichletEta_tendsto_log_two`
-
-```lean
-lemma dirichletEta_tendsto_log_two :
-    Tendsto dirichletEta (𝓝[≠] (1:ℂ)) (𝓝 (Complex.log 2))
-```
-This formalizes: *Mathlib's `riemannZeta` carries a junk value at 1, so
-`dirichletEta` (defined as `etaFactor * ζ`) is **discontinuous** at 1: its
-value there is 0 (H1) but its limit is `log 2 ≠ 0`.* This discontinuity is the
-engine of S4 and the reason S7 is false as stated.
-
-**Proof.**
-1. **Factor through the pole.** For `w ≠ 1`,
-   `dirichletEta w = (etaFactor w / (w-1)) * ((w-1) * riemannZeta w)`
-   (multiply and divide by `w-1 ≠ 0`; `field_simp`/`ring`-style rewrite under
-   the filter `𝓝[≠] 1` via `Filter.Tendsto.congr'` with
-   `eventually_mem_nhdsWithin : ∀ᶠ w in 𝓝[≠] 1, w ∈ {1}ᶜ`).
-2. **Second factor → 1.** Exactly `riemannZeta_residue_one`.
-3. **First factor → log 2.** `etaFactor 1 = 0` (as in H1), so
-   `etaFactor w / (w-1)` is the difference quotient (slope) of `etaFactor`
-   at 1. Show `HasDerivAt etaFactor (Complex.log 2) 1`:
-   - `etaFactor w = 1 - 2^(1-w)`. Since `(2:ℂ) ≠ 0`, rewrite
-     `2^(1-w) = Complex.exp ((1-w) * Complex.log 2)` by
-     `Complex.cpow_def_of_ne_zero` (mind the argument order of the product in
-     that lemma — adjust with `mul_comm` as needed).
-   - Chain rule: `u w := (1-w) * Complex.log 2` has `HasDerivAt u (-Complex.log 2) w`
-     (`HasDerivAt.const_mul` of `((hasDerivAt_id w).const_sub 1)`, modulo
-     argument order). Then `(Complex.hasDerivAt_exp _).comp` gives
-     `HasDerivAt (fun w => exp (u w)) (exp (u 1) * (-log 2)) 1`, and
-     `exp (u 1) = exp 0 = 1`. Finally
-     `HasDerivAt (fun w => 1 - exp (u w)) (log 2) 1` by `HasDerivAt.const_sub`.
-   - Convert with `hasDerivAt_iff_tendsto_slope`; `slope etaFactor 1 w`
-     is definitionally `(etaFactor w - etaFactor 1) / (w - 1)`
-     (`slope_def_field`, and `etaFactor 1 = 0` kills the subtraction —
-     note Mathlib's `slope f a b = (f b - f a) / (b - a)`; match directions).
-4. Multiply: `Tendsto.mul` of (3) and (2) gives limit `log 2 * 1 = log 2`. ∎
-
-Corollary used later:
-```lean
-lemma etaShifted_tendsto_log_two :
-    Tendsto etaShifted (𝓝[≠] (1:ℂ)) (𝓝 (Complex.log 2))
-```
-**Proof.** `etaShifted = dirichletEta ∘ (fun s => 2*s-1)`. The affine map
-`s ↦ 2s-1` is continuous, sends 1 to 1, and is injective, so it maps
-`𝓝[≠] 1 → 𝓝[≠] 1`: continuity gives `Tendsto _ (𝓝 1) (𝓝 1)`; refine to
-`nhdsWithin` with `tendsto_nhdsWithin_iff` — the membership condition
-`2*s-1 ≠ 1` follows from `s ≠ 1` (`by intro h; apply hs; linarith`-style on
-real/imaginary parts, or `sub_ne_zero` + `mul_left_cancel₀`). Compose with H2. ∎
-
-And the non-vanishing of the limit value:
-`Complex.log 2 ≠ 0` — its real part is `Real.log 2 > 0`
-(`Complex.log_re`-type simp lemmas, or: `Complex.log 2 = ↑(Real.log 2)` for the
-positive real 2 via `Complex.ofReal_log` / `Complex.natCast_log` (search the
-exact name), then `Real.log_pos one_lt_two`).
-
-### H3. Schwarz reflection for ζ — `riemannZeta_conj'`
-
-```lean
-lemma riemannZeta_conj' (s : ℂ) (hs : s ≠ 1) :
-    riemannZeta (starRingEnd ℂ s) = starRingEnd ℂ (riemannZeta s)
-```
-**Proof.** Let `A : ℂ → ℂ := fun z => conj (riemannZeta (conj z))` and
-`U : Set ℂ := {z | z ≠ 1}`. We show `A = riemannZeta` on `U` by the identity
-theorem; the goal then follows by applying `conj` to `A s = ζ s`
-(`conj` is an involution: `Complex.conj_conj` / `RingHom.injective`-free
-manipulation: from `conj (ζ (conj s)) = ζ s` conclude
-`ζ (conj s) = conj (ζ s)` by applying `starRingEnd ℂ` to both sides and
-`conj_conj`). **Careful**: the final goal has `conj s`, but the identity is
-proved at the point `s`; both `s ∈ U` and that is all we need.
-
-1. **`A` is analytic on `U`.** `U` is open (`isOpen_compl_singleton`). For
-   `z ∈ U`: `conj z ≠ 1` (conj fixes 1; if `conj z = 1` then
-   `z = conj (conj z) = conj 1 = 1`). So `differentiableAt_riemannZeta`
-   applies at `conj z`, and `DifferentiableAt.conj_conj` (verified, Deriv/Star.lean:89)
-   gives `DifferentiableAt ℂ (conj ∘ ζ ∘ conj) (conj (conj z)) = ... z`.
-   Note the Mathlib lemma produces differentiability **at `conj x` given
-   differentiability at `x`** — instantiate `x := conj z` and rewrite with
-   `conj_conj`. Then `DifferentiableOn.analyticOnNhd` (open set).
-2. **`riemannZeta` is analytic on `U`.** `differentiableAt_riemannZeta` +
-   `DifferentiableOn.analyticOnNhd`.
-3. **They agree on `{re > 1}`.** For `re z > 1` use the series
-   `zeta_eq_tsum_one_div_nat_add_one_cpow` (or `zeta_eq_tsum_one_div_nat_cpow`;
-   both exist for `1 < re`): `ζ z = ∑' n, 1 / (n+1)^z`. Then
-   `conj (ζ (conj z)) = ∑' n, conj (1/(n+1)^(conj z))`
-   (conjugation commutes with `tsum`: `conj` = `starRingEnd ℂ` is a continuous
-   ring isomorphism; use `Complex.conj_tsum`-style: `map_tsum` with
-   `Complex.continuous_conj`, or `(Complex.conjCLE : ℂ ≃L[ℝ] ℂ).map_tsum`
-   (search: `ContinuousLinearEquiv.map_tsum` / `tsum_star`)). Termwise:
-   `conj ((n+1)^(conj z)) = (n+1)^z` from `conj_cpow` with base `x = (n+1 : ℂ)`
-   — a positive real, so `x.arg = 0 ≠ π` (`Complex.arg_natCast`-style /
-   `Complex.arg_ofReal_of_nonneg`; conclude `≠ π` from `Real.pi_ne_zero`),
-   `conj x = x` (`Complex.conj_natCast`), and `conj_conj`. And
-   `conj (1/y) = 1/(conj y)` (`map_div₀`, `map_one`).
-4. **Identity theorem.** `{re > 1}` is open and nonempty (contains 2), and
-   `2 ∈ U`. Agreement on an open neighborhood of 2 gives
-   `A =ᶠ[𝓝 2] riemannZeta`. `U` is preconnected:
-   `(isConnected_compl_singleton_of_one_lt_rank (by rw [rank_real_complex]; norm_num) 1).isPreconnected`
-   (verified name; `U = {1}ᶜ` after `Set.ext`). Apply
-   `AnalyticOnNhd.eqOn_of_preconnected_of_eventuallyEq` (this exact pattern,
-   with `frequently` variant, is already used in EtaConvergence.lean:304 —
-   copy it). Conclude `A s = ζ s`. ∎
-
-### H4. Schwarz reflection for the shifted eta — `etaShifted_conj`
-
-```lean
-lemma etaShifted_conj (s : ℂ) :
-    etaShifted (starRingEnd ℂ s) = starRingEnd ℂ (etaShifted s)
-```
-**Proof.** Case `s = 1`: both sides are `0` by H1's corollary
-(`conj 1 = 1`, `etaShifted 1 = 0`, `conj 0 = 0`). Case `s ≠ 1`: unfold
-`etaShifted` and `dirichletEta`. Since `2 * conj s - 1 = conj (2*s - 1)`
-(`map_mul`, `map_sub`, `Complex.conj_ofNat`/`map_one`), it suffices to show
-`dirichletEta (conj w) = conj (dirichletEta w)` for `w := 2*s-1 ≠ 1`
-(`w = 1 ↔ s = 1` by linear algebra on the equation). Two factors:
-- `1 - 2^(1 - conj w) = conj (1 - 2^(1-w))`: `1 - conj w = conj (1 - w)`, then
-  `conj (2^(1-w)) = 2^(conj (1-w))` from `conj_cpow 2 _ (arg 2 ≠ π)` — for the
-  base: `(2:ℂ).arg = 0` since 2 is a positive real
-  (`Complex.arg_ofNat`/`Complex.arg_two` (search); or rewrite `(2:ℂ) = ((2:ℝ):ℂ)`
-  and use `Complex.arg_ofReal_of_nonneg`), and `0 ≠ π` by `Real.pi_ne_zero.symm`;
-  also `conj (2:ℂ) = 2`.
-- `ζ (conj w) = conj (ζ w)`: H3 with `w ≠ 1`.
-Multiply with `map_mul`. ∎
-
-### H5. Closed form of the conjugate-reflection limit — `conjReflLimit_eq`
-
-```lean
-lemma conjReflLimit_eq (s : ℂ) :
-    conjReflLimit s = (s - 3/4 + I) * targetH s * (etaShifted s)^2
-```
-**Proof.** Unfold `conjReflLimit` and push `starRingEnd` through the product
-(`map_mul`):
-`conjReflLimit s = conj (targetH (conj s)) * conj (etaShifted (conj s)) * (targetH s * etaShifted s)`.
-- `conj (targetH (conj s)) = conj (conj s - 3/4 - I) = s - 3/4 + I`
-  (`map_sub`, `conj_conj`, `Complex.conj_I`, and `conj (3/4 : ℂ) = 3/4` via
-  `map_div₀`/`map_ofNat` — the same simp set as in `fourFoldApprox_symm`
-  (ZeroLocation:115) works).
-- `conj (etaShifted (conj s)) = etaShifted s`: apply `conj` to H4 and use
-  `conj_conj`.
-Then `ring` (with `sq`/`pow_two`). ∎
-
-**Consequence (record it):** `conjReflLimit` is ℂ-differentiable away from 1:
-```lean
-lemma etaShifted_differentiableAt {s : ℂ} (hs : s ≠ 1) :
-    DifferentiableAt ℂ etaShifted s
-```
-(`etaFactor` part: `DifferentiableAt.const_cpow` with `Or.inl two_ne_zero`,
-composed with the affine map; ζ part: `differentiableAt_riemannZeta` at
-`2*s-1 ≠ 1`, composed with the affine map; product/composition rules.)
-```lean
-lemma conjReflLimit_differentiableOn :
-    DifferentiableOn ℂ conjReflLimit {s | s ≠ 1}
-```
-(rewrite by H5 `funext`-style or via `DifferentiableOn.congr`; polynomial
-factors are entire; `(etaShifted ·)^2` differentiable at `s ≠ 1`.)
-
-### H6. All strip zeros lie on Re = 3/4 — `etaShifted_zero_re_eq`
-
-```lean
-lemma etaShifted_zero_re_eq (s₀ : ℂ) (hσ₁ : s₀.re > 1/2) (hσ₂ : s₀.re < 1)
-    (h_zero : etaShifted s₀ = 0) : s₀.re = 3/4
-```
-⚠ **Dependency note**: this uses `etaRect_ne_zero_critical_strip`
-(RectangleStrategy:1320), which is proved *in that file* but sits downstream
-of RectangleStrategy's own sorries (see Part 3). The project already accepts
-this kind of dependency: the **proved** lemma `fApprox_not_identically_zero`
-(MultiplicityOne:381) already uses `riemann_hypothesis_rect` from the same
-chain.
-
-**Proof.** `etaShifted s₀ = dirichletEta (2s₀-1)` and `dirichletEta = etaRect`
-**definitionally** (both unfold to `(1 - 2^(1-w)) * ζ w`; `rfl` after
-unfolding, or `show etaRect (2*s₀-1) = 0 at h_zero`). Let `w := 2*s₀-1`; note
-`w.re = 2*s₀.re - 1 ∈ (0, 1)` (`Complex.sub_re`, `Complex.mul_re`,
-`Complex.ofNat_re` simp; then `linarith`). Trichotomy on `s₀.re` vs `3/4`:
-- **`s₀.re > 3/4`**: then `w.re ∈ (1/2, 1)`, contradicting
-  `etaRect_ne_zero_critical_strip w`.
-- **`s₀.re = 3/4`**: done.
-- **`s₀.re < 3/4`**: by `etaShifted_functional_eq_zero` — **but** that lemma
-  lives in ZeroLocation.lean; to avoid an import cycle when H6 is placed in
-  ConjugateReflection.lean, inline its 10-line proof (it only uses
-  `etaFactor_ne_zero_re_lt_one` and `zeta_symm`, both available):
-  from `etaRect w = 0` and `etaFactor w ≠ 0` (since `w.re < 1`) get
-  `ζ w = 0`; `zeta_symm w` (with `0 < w.re < 1`) gives `ζ (1-w) = 0`; and
-  `1 - w = 2*(3/2 - s₀) - 1`, with `(3/2-s₀).re = 3/2 - s₀.re ∈ (3/4, 1)`,
-  so `(1-w).re = 2*(3/2-s₀).re - 1 ∈ (1/2, 1)`. Then
-  `etaRect (1-w) = etaFactor (1-w) * ζ (1-w) = 0`, contradicting
-  `etaRect_ne_zero_critical_strip (1-w)`. ∎
-
-*(If H6 is only needed inside ZeroLocation.lean, the case `s₀.re < 3/4` can
-simply call `etaShifted_functional_eq_zero` and then the first case at
-`3/2 - s₀`.)*
-
-### N. The normalization layer (required to repair S2's hypothesis and S4)
-
-The contour argument was always intended to run in **normalized coordinates**:
-the hypothetical zero `s₀ = σ₀ + i·t₀` is moved to the reference point
-`3/4 + I` (height 1), which is where `targetH` plants its zero and where the
-fixed half-rectangle geometry lives. The current Lean statements omit this
-layer, which is exactly why `h_order`/`h_eta_order` came out inconsistent
-(they force a factorization through the junk point `s = 1`; see S4). The
-normalization treats x and y differently — **x is shifted and scaled, y is
-only scaled** — but it must be implemented as a single *complex-affine
-(conformal) map with real coefficients*; a coordinate map with two distinct
-dilation factors for x and y is not holomorphic and would destroy Cauchy's
-theorem.
-
-**Definitions** (place next to H1–H6; parameters `σ₀ t₀ : ℝ` with `0 < t₀`):
-```lean
-/-- Affine normalization: sends the normalized plane to the original one.
-    Coordinates: x ↦ t₀·x + (σ₀ - (3/4)·t₀),  y ↦ t₀·y.
-    Sends the reference point 3/4 + I to s₀ = σ₀ + i·t₀. -/
-def normMap (σ₀ t₀ : ℝ) (z : ℂ) : ℂ :=
-  (t₀ : ℂ) * z + ((σ₀ : ℂ) - (3/4) * (t₀ : ℂ))
-
-/-- The shifted eta function in normalized coordinates. -/
-def etaShiftedNorm (σ₀ t₀ : ℝ) (z : ℂ) : ℂ := etaShifted (normMap σ₀ t₀ z)
-
-/-- The pulled-back singular point: normMap σ₀ t₀ z₁ = 1.  NOTE: it is REAL. -/
-def normBadPoint (σ₀ t₀ : ℝ) : ℂ := (3/4 : ℂ) + ((1 - σ₀) / t₀ : ℂ)
-```
-
-**N1. Basic properties** (each a few lines):
-- `normMap_ref : normMap σ₀ t₀ (3/4 + I) = σ₀ + t₀*I` — `push_cast; ring`.
-- `normMap_conj : normMap σ₀ t₀ (conj z) = conj (normMap σ₀ t₀ z)` — the
-  coefficients are real (`Complex.conj_ofReal`, `map_mul`, `map_add`); this is
-  what keeps the real axis and the Schwarz reflection intact.
-- `normMap_real : (normMap σ₀ t₀ x).im = 0` for real `x` — immediate from the
-  coordinate form (`Complex.add_im`, `Complex.mul_im`, `Complex.ofReal_im`).
-- `normMap` is entire and injective for `t₀ ≠ 0` (affine with nonzero slope);
-  differentiability: `(differentiable_const _).mul differentiable_id |>.add_const _`-style.
-- `normMap_bad : normMap σ₀ t₀ (normBadPoint σ₀ t₀) = 1` — `field_simp; ring`
-  (uses `t₀ ≠ 0`).
-- WLOG `t₀ > 0`: zeros come in conjugate pairs — from H4,
-  `etaShifted s₀ = 0 → etaShifted (conj s₀) = 0` (apply H4 at `s₀` and
-  `map_eq_zero`); so a zero with `t₀ < 0` can be replaced by its reflection.
-  Zeros with `t₀ = 0` (real zeros) are a separate elementary exclusion:
-  on the real segment `(1/2, 1)` the value `dirichletEta (2σ-1)` is a
-  *positive* real — provable from the paired-series representation
-  `paired_tsum_eq_dirichletEta` (EtaConvergence.lean, proved): each paired
-  term `1/(2j+1)^x - 1/(2j+2)^x` is positive for real `x ∈ (0,1)`, the sum of
-  a summable sequence of positive terms is positive (`tsum_pos`). Record as
-  `etaShifted_pos_of_real : ∀ σ ∈ Ioo (1/2) 1, 0 < (etaShifted σ).re`-style,
-  or just `≠ 0`.
-
-**N2. Reflection and zero transport**:
-- `etaShiftedNorm_conj : etaShiftedNorm σ₀ t₀ (conj z) = conj (etaShiftedNorm σ₀ t₀ z)`
-  — chain `normMap_conj` and H4.
-- `etaShiftedNorm (3/4 + I) = etaShifted s₀` (by `normMap_ref`); in particular
-  the normalized function vanishes at `3/4 + I` iff `etaShifted` vanishes at
-  `s₀`, **and any local factorization of order m transports across the affine
-  map** with `φ` rescaled by `t₀^m`:
-  `etaShifted s = (s - s₀)^m · φ s  ↔  etaShiftedNorm z = (z - (3/4+I))^m · (t₀^m · φ (normMap z))`
-  because `normMap z - s₀ = t₀ · (z - (3/4 + I))` (`ring`) and `mul_pow`.
-- `etaShiftedNorm` is differentiable away from `normBadPoint σ₀ t₀`
-  (composition: `etaShifted_differentiableAt` away from 1, `normMap` affine,
-  `normMap z = 1 ↔ z = normBadPoint` by injectivity).
-
-**N3. Geometry — the normalized rectangle excludes the bad point.** Use the
-*fixed* half-rectangle `R := mkHalfRect (3/4 - δ) (3/4 + δ) T` with any
-`T > 1` (e.g. `T = 2`) and any
-`δ < min (σ₀ - 1/2) (1 - σ₀) / t₀`.
-Then for `z ∈ R.closure`:
-`(normMap σ₀ t₀ z).re = t₀ * (z.re - 3/4) + σ₀ ∈ (σ₀ - t₀δ, σ₀ + t₀δ) ⊂ (1/2, 1)`,
-so the image of the rectangle stays in the critical strip, and in particular
-`normBadPoint = 3/4 + (1-σ₀)/t₀` lies **outside** `R.closure` (its distance
-from `3/4` along the real axis is `(1-σ₀)/t₀ > δ`). This is the normalized
-analogue of the `hR_re'` hypothesis and removes the junk point from the
-contour. Note the reference zero sits at height exactly 1, `s₀ ∈` image of
-`R.openInt`, and the bottom edge maps into the real axis (`normMap_real`).
-
-**N3½. Why the y-shift (height 1) is load-bearing — pole simplicity.** The
-normalization must place the zero at height `y = 1`, strictly off the real
-axis, and this is not cosmetic. In the conjugate-reflection product
-`F_n(z) = conj (f_n (conj z)) · f_n z`, each zero `w` of `f_n` contributes a
-zero of the *conjugated* factor at the **mirror point** `conj w`. The
-`targetH` factor of `f_n` vanishes near `3/4 + I` (height `+1`); its mirror in
-the conjugated factor vanishes near `3/4 - I` (height `−1`). Because of the
-y-shift these are *distinct* points, two apart in y — so the corresponding
-poles of `1/F_n` (and of the reciprocal of the limit) **remain simple**, one
-in the upper half-plane and one in the lower. Without the y-shift (target on
-the real axis, `targetH s = s - 3/4`) the zero and its mirror would *collide
-at the same real point*: the product would acquire a double zero **on the
-bottom edge of the contour**, `1/F_n` a double pole there, and both the
-positivity argument and the residue accounting would break. The same
-separation applies to the zero under study: `s₀` normalizes to `3/4 + I`
-while its reflection partner sits at `3/4 - I`, outside the upper
-half-rectangle. Any restatement or refactor must preserve this: **the
-normalized zero has `im = 1`, never `im = 0`.**
-
-**N4. Normalized approximants.** `fApproxNorm n z := fApprox n (normMap σ₀ t₀ z)`
-is entire (composition of entire functions), satisfies the same Schwarz
-reflection (`normMap_conj` + the conjugation identity for `fApprox` already
-established inside `conjReflApprox_cauchy`, ConjugateReflection:144–149), so:
-- the normalized conjugate-reflection product
-  `conjReflApproxNorm n z := conj (fApproxNorm n (conj z)) * fApproxNorm n z`
-  is entire, its rectangle boundary integral vanishes (same proof as
-  `conjReflApprox_cauchy` — or directly: it *equals* `conjReflApprox n ∘ normMap`
-  up to the conj-equivariance identities),
-- it is `≥ 0` on the real axis (same `Complex.mul_conj` computation as
-  `conjReflApprox_eq_normSq`, using `normMap_real`),
-- uniform convergence on `R.closure` follows from
-  `conjReflApprox_tendstoUniformlyOn` via `TendstoUniformlyOn.comp _ (normMap σ₀ t₀)`
-  applied on the compact image `normMap '' R.closure ⊂ {1/2 < re < 1}` (N3),
-- the limit has the closed form
-  `(z - 3/4 + I) * (z - 3/4 - I) * (etaShiftedNorm z)^2` on `R.closure`
-  (H5 composed with `normMap`, valid away from the bad point — excluded by N3).
+**Legacy / off-critical-path files (the superseded conjugate-reflection route).**
+The 51 total `sorry`s in `RiemannProof/` are dominated by the *old* strategy:
+`SimplifiedStrategy.lean` (11), `MultiplicityOne.lean` (7), `ContourStrategy.lean`
+(5), `Legacy.lean` (4), `EtaStrategy.lean` (3), `ZeroLocation.lean` (2),
+`TwoLimits.lean` (2), `ReciprocalContour.lean` (1), `ConjugateReflection.lean`
+(1). **None of these are on the Gaussian critical path.** Only the sorries in
+`GaussianEuler.lean` (5) and the load-bearing `RectangleStrategy.lean` ones
+(below) matter for RH via this route. Recommend marking the conjugate-reflection
+files as legacy (or moving them under a `Legacy/` namespace) so the live
+obligation count is the ~10 that matter, not 51.
 
 ---
 
-## Part 2: The seven sorries
+## Part 0: The strategy in one page
 
-### S1. `zero_location_contradiction` (ZeroLocation.lean:145) — PROVABLE
+Work directly with `ζ` and `η(s) = (1 − 2^{1−s}) ζ(s)` (the *unshifted* objects of
+`RectangleStrategy.lean`; **no `2s−1` substitution** here). `η`'s alternating
+Dirichlet series `∑ (−1)^{k−1} k^{−s}` converges conditionally for `Re(s) > 0`,
+so `η` is honest on the whole half-plane `Re(s) > 0`; `η` and `ζ` share zeros in
+`0 < Re(s) < 1` because the factor `1 − 2^{1−s}` is nonzero for `Re(s) < 1`
+(`etaFactor_ne_zero_re_lt_one`, `etaFactRect_ne_zero`).
 
-```lean
-lemma zero_location_contradiction (s₀ : ℂ)
-    (hσ₁ : s₀.re > 1/2) (hσ₂ : s₀.re < 1)
-    (h_zero : etaShifted s₀ = 0)
-    (h_off_line : s₀.re ≠ 3/4) : False
+**Goal.** Exclude zeros of `ζ` with `Re(s) > 1/2`. With the functional equation
+`ζ(s)=0 ⟹ ζ(1−s)=0` (`zeta_symm`) this leaves only `Re(s) = 1/2` — the Riemann
+Hypothesis.
+
+**Mechanism — the rectangle.** Let `s₀` be a hypothetical zero with
+`1/2 < Re(s₀) < 1`. Enclose it in a rectangle `R` that **straddles the critical
+strip**: left edge at `x_lo` close to `1/2`, right edge at `x_hi > 1`, bottom and
+top edges at heights `y_lo < Im(s₀) < y_hi`. If we can show
 ```
-**Proof.** `exact h_off_line (etaShifted_zero_re_eq s₀ hσ₁ hσ₂ h_zero)` —
-H6 directly contradicts `h_off_line`. (In ZeroLocation.lean the `< 3/4` branch
-of H6 may use the already-proved `etaShifted_functional_eq_zero` of the same
-file, provided H6 is stated *after* it and *before* this lemma.) ∎
-
-Note: this entirely bypasses the four-fold contour argument. The contour
-machinery (S3) remains useful as independent infrastructure, but RH-side
-closure for Stage 2 reduces, after S1, to the legacy sorries of Part 3.
-
-### S2. `conjReflLimit_zero_order` (ConjugateReflection.lean:75) — PROVABLE
-
-```lean
-lemma conjReflLimit_zero_order (s₀ : ℂ) (m : ℕ) (hm : m ≥ 1)
-    (h_eta_order : ∃ φ : ℂ → ℂ, Differentiable ℂ φ ∧ φ s₀ ≠ 0 ∧
-      ∀ s, etaShifted s = (s - s₀)^m * φ s)
-    (h_targetH : targetH s₀ ≠ 0)
-    (h_targetH_conj : targetH (starRingEnd ℂ s₀) ≠ 0) :
-    ∃ ψ : ℂ → ℂ, Differentiable ℂ ψ ∧ ψ s₀ ≠ 0 ∧
-      ∀ s, conjReflLimit s = (s - s₀)^(2*m) * ψ s
+∮_{∂R} 1/η = 0,
 ```
-**Proof.** Obtain `⟨φ, hφ_diff, hφ_ne, hφ_eq⟩ := h_eta_order`. Define
-```lean
-ψ : ℂ → ℂ := fun s => (s - 3/4 + I) * targetH s * (φ s)^2
-```
-1. **Factorization.** For every `s`, by H5 and `hφ_eq s`:
-   `conjReflLimit s = (s-3/4+I) * targetH s * ((s-s₀)^m * φ s)^2
-    = (s-s₀)^(2*m) * ψ s`.
-   Power bookkeeping: `((s-s₀)^m)^2 = (s-s₀)^(m*2) = (s-s₀)^(2*m)` via
-   `← pow_mul` and `Nat.mul_comm` (or `mul_pow` + `pow_mul'`); then `ring`.
-2. **Differentiability.** `(· - 3/4 + I)` and `targetH` are entire
-   (`targetH_differentiable`; the first by `fun_prop` or
-   `(differentiable_id.sub_const _).add_const _`); `φ^2` by
-   `hφ_diff.pow` (or `hφ_diff.mul hφ_diff`). Product rule twice.
-3. **Non-vanishing at `s₀`.** `mul_ne_zero` twice:
-   - `s₀ - 3/4 + I ≠ 0`: suppose it is 0. Apply `starRingEnd ℂ`:
-     `conj (s₀ - 3/4 + I) = conj s₀ - 3/4 - I = targetH (conj s₀)`
-     (same simp set as H5), and `conj 0 = 0`, contradicting `h_targetH_conj`.
-     (Direction check: `map_eq_zero`-style — `starRingEnd ℂ x = 0 ↔ x = 0`,
-     available as `map_eq_zero` for the ring hom or `star_eq_zero`.)
-   - `targetH s₀ ≠ 0`: hypothesis.
-   - `(φ s₀)^2 ≠ 0`: `pow_ne_zero _ hφ_ne`. ∎
+then `η` (hence `ζ`) has **no zero inside `R`** — because an interior zero `s₀`
+contributes a nonzero residue (`Res_{s₀} 1/η = 1/η'(s₀) ≠ 0` at a simple zero,
+and a nonzero total at a zero of any order via the argument principle), so a
+zero would force `∮ 1/η ≠ 0` (`rect_integral_inv_sub_eq`,
+`rect_cauchy_integral_formula`, `boundaryIntegral_recipEta_eq`). Contradiction.
 
-**Remark (do not rely on it, but know it):** `h_eta_order` is actually
-*inconsistent* — see S4. The direct proof above is preferred because it
-survives any future repair of the hypothesis.
+**Why `∮ 1/η = 0` — zero-free exponential approximants.** Let `E_P` be the
+exponential Gaussian Euler product (Part 2). Three facts close the loop:
 
-### S3. `fourFoldApprox_tendstoUniformlyOn_boundary` (ZeroLocation.lean:119) — PROVABLE AFTER ADDING `hR_re'`
+- **`E_P` is entire and *never zero*** (it is `exp` of an entire Dirichlet
+  polynomial). Hence `1/E_P` is *entire*, so `∮_{∂R} 1/E_P = 0` by Cauchy
+  (`rect_cauchy`) — **with no zero-freeness side condition to discharge**. This
+  is the structural payoff of the exponential form: in the multiplicative model
+  one had to prove `etaEulerApprox P ≠ 0` on `R`; here it is automatic.
+- **`E_P → η` uniformly on `∂R`** — edge by edge (Part 3):
+  - *right edge* `x_hi > 1`: by **absolute convergence** of the Gaussian
+    Dirichlet sum (holds a.s. for `Re > 1`);
+  - *left, top, bottom edges* (`Re ≥ x_lo`, with `x_lo > 1/2`): by
+    **universality** of the Gaussian model (holds for `Re > 1/2`).
+- **`η` is bounded away from 0 on `∂R`** (the zero `s₀` is interior; edges are
+  zero-free after an isolating choice of `R`). So `1/E_P → 1/η` uniformly on
+  `∂R`, and the limit exchange `∮ 1/η = lim_P ∮ 1/E_P = 0` is legitimate
+  (`boundary_integral_limit_eq_zero`).
 
-```lean
--- CURRENT (cannot be proved):
-lemma fourFoldApprox_tendstoUniformlyOn_boundary (R : Rect) (s₀ : ℂ)
-    (hs₀ : s₀ ∈ R.openInt)
-    (hR_re : ∀ s ∈ R.closure, s.re > 1/2)
-    (h_unique : ∀ z ∈ R.closure, etaShifted z = 0 → z = s₀ ∨ z = 3/2 - s₀) :
-    TendstoUniformlyOn (fun n => fourFoldApprox n) fourFoldLimit atTop
-      (R.closure \ R.openInt)
-```
-**Required change**: add `(hR_re' : ∀ s ∈ R.closure, s.re < 1)`. Without it
-the statement is **false**: if `1 ∈ R.closure \ R.openInt`, pointwise
-convergence already fails at `s = 1` — `etaPartialShifted n 1 = ∑_{k<n} (-1)^k/(k+1)
-→ log 2 ≠ 0`, while the limit `fourFoldLimit 1` contains the factor
-`etaShifted 1 = 0` (H1); moreover the factor `fApprox n (3/2 - 1) =
-fApprox n (1/2)` contains `etaPartialShifted n (1/2) = ∑_{k<n} (-1)^k`, which
-oscillates between 1 and 0. This mirrors the `hR_re'` hypothesis that was
-already added to the three edge-integral lemmas in MultiplicityOne.lean.
-The lemma's only would-be consumer (`zero_location_contradiction`) is
-discharged independently in S1, so the signature change is safe.
-
-**Proof (with `hR_re'`).** Prove convergence on all of `K := R.closure`
-(compact: `Rect.isCompact_closure`), then restrict with
-`TendstoUniformlyOn.mono (Set.diff_subset)`.
-
-Write `g : ℂ → ℂ := fun s => targetH s * etaShifted s`. By definition
-(check associativity: both `fourFoldApprox` and `fourFoldLimit` are
-left-associated products), `fourFoldApprox n = ((T₁ n * T₂ n) * T₃ n) * T₄ n`
-and `fourFoldLimit = ((G₁ * G₂) * G₃) * G₄` where:
-
-| i | `Tᵢ n s` | `Gᵢ s` | uniform convergence on `K` |
-|---|----------|--------|----------------------------|
-| 1 | `conj (fApprox n (conj s))` | `conj (g (conj s))` | `tendstoUniformlyOn_conj_comp` applied to `fApprox_tendstoUniformlyOn` on `conj '' K` — compact (`hK.image Complex.continuous_conj`), and `re (conj z) = re z` so both Re-bounds transfer (`aesop` handled this in conjReflApprox_tendstoUniformlyOn:68–75; copy). |
-| 2 | `fApprox n s` | `g s` | `fApprox_tendstoUniformlyOn K hK hR_re hR_re'` (after converting the `R.closure`-quantified hypotheses; they are literally about `K`). |
-| 3 | `fApprox n (3/2 - s)` | `g (3/2 - s)` | Let `r : ℂ → ℂ := fun s => 3/2 - s` and `K' := r '' K` (compact: image under the continuous `r`; for `z = 3/2 - w`, `z.re = 3/2 - w.re ∈ (1/2, 1)` because `w.re ∈ (1/2,1)` — this is where `hR_re'` is essential). Take `fApprox_tendstoUniformlyOn K' ...`, apply `TendstoUniformlyOn.comp _ r` to get convergence of `fun n => fApprox n ∘ r` on `r ⁻¹' K'`, and `K ⊆ r ⁻¹' K'` (each `w ∈ K` has `r w ∈ r '' K = K'`), finish with `.mono`. |
-| 4 | `conj (fApprox n (3/2 - conj s))` | `conj (g (3/2 - conj s))` | Apply `tendstoUniformlyOn_conj_comp` to the **row-3 construction performed on the set `conj '' K`** (which is compact with the same Re-bounds): that gives uniform convergence of `fun n s => conj ((fApprox n ∘ r) (conj s))` on `K`, which is definitionally `T₄`. |
-
-Now combine with `tendstoUniformlyOn_mul` three times. Each application needs
-uniform-in-`n` bounds `∃ M, ∀ n, ∀ s ∈ K, ‖Tᵢ n s‖ ≤ M` (and for the partial
-products, the product of the two bounds). The boundedness argument is already
-implemented **twice** in this repo — copy the block from
-`conjReflApprox_tendstoUniformlyOn` (MultiplicityOne.lean:77–140):
-1. The limit `Gᵢ` is continuous on the relevant compact set (continuity of
-   `targetH`, of `etaShifted` away from 1 — every point of `K`, `conj '' K`,
-   `r '' K`, `r '' (conj '' K)` has `re < 1` hence `≠ 1`; use
-   `etaShifted_differentiableAt.continuousAt` from H5's consequence, or copy
-   the `differentiableAt_riemannZeta`-based continuity blocks at
-   MultiplicityOne:83–87), so `IsCompact.exists_bound_of_continuousOn` gives
-   `M'` with `‖Gᵢ‖ ≤ M'`.
-2. By uniform convergence, eventually (say `n ≥ N`) `‖Tᵢ n s‖ ≤ M' + 1`.
-3. For the finitely many `n < N`, each `Tᵢ n` is continuous on the compact set
-   (finite sums/products of continuous functions — the blocks at
-   MultiplicityOne:100–118 do exactly this), hence bounded; take the max.
-4. `‖conj x‖ = ‖x‖` (`RCLike.norm_conj` / `Complex.norm_conj` (search exact
-   name; `norm_star` also works)) transfers bounds through rows 1 and 4. ∎
-
-### S4. `even_multiplicity_contradiction` (MultiplicityOne.lean:466) — RESTATE in normalized coordinates
-
-```lean
--- CURRENT (do not prove as written):
-lemma even_multiplicity_contradiction (R : Rect) (s₀ : ℂ) (m : ℕ)
-    (hm : m ≥ 2) (hs₀ : s₀ ∈ R.openInt) (hR_bottom : R.y_lo = 0)
-    (hR_re : ∀ s ∈ R.closure, s.re > 1/2)
-    (hR_re' : ∀ s ∈ R.closure, s.re < 1)
-    (h_unique : ∀ z ∈ R.closure, etaShifted z = 0 → z = s₀)
-    (h_boundary_ne : ∀ z ∈ R.closure \ R.openInt, etaShifted z ≠ 0)
-    (h_order : ∃ φ : ℂ → ℂ, Differentiable ℂ φ ∧ φ s₀ ≠ 0 ∧
-      ∀ s, etaShifted s = (s - s₀)^m * φ s) :
-    False
-```
-
-**Diagnosis (confirmed).** As written, `h_order` is *inconsistent*: the global
-factorization `∀ s, etaShifted s = (s-s₀)^m * φ s` with `φ` entire forces
-`etaShifted` to be continuous at `1`, contradicting H1 (value 0) vs H2 (limit
-`log 2 ≠ 0`). So the current statement is only provable **vacuously**
-(continuity argument + `tendsto_nhds_unique` on `𝓝[≠] 1`, which is `NeBot`
-for ℂ), which formalizes nothing. **Do not take the vacuous route.** The root
-cause is a missing modelling layer: the statement quantifies the factorization
-over all of ℂ in *original* coordinates, where the junk point `s = 1` is in
-scope. The intended setup normalizes coordinates first (see Part 1 N): the
-zero `s₀ = σ₀ + i·t₀` is moved to the reference point `3/4 + I` by the affine
-map `normMap` — x is shifted and scaled, y is only scaled — and all
-hypotheses are then stated on the fixed normalized rectangle, from which the
-pulled-back junk point `normBadPoint σ₀ t₀ = 3/4 + (1-σ₀)/t₀` (a **real**
-point!) is excluded by the choice of `δ` (N3).
-
-**Replacement statement** (consumers: only the S7 chain, itself being
-restated — the signature change is safe):
-```lean
-lemma even_multiplicity_contradiction' (σ₀ t₀ : ℝ) (m : ℕ) (hm : 2 ≤ m)
-    (hσ : 1/2 < σ₀) (hσ' : σ₀ < 1) (ht : 0 < t₀)
-    (h_zero : etaShifted (σ₀ + t₀ * I) = 0)
-    (h_order : ∃ φ : ℂ → ℂ,
-      (∀ z, z ≠ normBadPoint σ₀ t₀ → DifferentiableAt ℂ φ z) ∧
-      φ (3/4 + I) ≠ 0 ∧
-      ∀ z, z ≠ normBadPoint σ₀ t₀ →
-        etaShiftedNorm σ₀ t₀ z = (z - (3/4 + I))^m * φ z) :
-    False
-```
-Notes on the shape:
-- The factorization now lives on `ℂ \ {normBadPoint σ₀ t₀}` — exactly the
-  set where `etaShiftedNorm` is differentiable (N2) — so `h_order` is
-  **consistent** (it is satisfied by the true local order at any genuine zero,
-  extended by `φ z := etaShiftedNorm z / (z - (3/4+I))^m` off the zero), and
-  the lemma now carries its intended content: *no zero of order ≥ 2*.
-- `WLOG t₀ > 0` and the exclusion of real zeros are handled *outside* this
-  lemma by N1 (conjugate-pair symmetry; positivity of η on the real segment).
-- The uniqueness/boundary hypotheses of the old statement are dropped here:
-  they were tied to S6's unprovable isolation claim. If the eventual proof
-  needs zero-freeness on the contour edges, add it back as an explicit
-  hypothesis in normalized form (`∀ z ∈ R.closure \ R.openInt,
-  etaShiftedNorm σ₀ t₀ z ≠ 0`) rather than re-deriving it from isolation.
-
-**Status of the proof: genuine open core — research-level.** With the
-normalization in place nothing is vacuous anymore, and the intended residue
-argument becomes well-posed on the fixed rectangle
-`R = mkHalfRect (3/4-δ) (3/4+δ) T`, `T > 1`, `δ < min (σ₀-1/2) (1-σ₀) / t₀`
-(N3). The available pieces, all in normalized form via N4:
-1. `conjReflApproxNorm n` is entire; `R.boundaryIntegral (conjReflApproxNorm n) = 0`
-   (N4, via `conjReflApprox_cauchy` composed with `normMap`).
-2. Uniform convergence on `R.closure` to the closed-form limit
-   `(z-3/4+I)(z-3/4-I)·(etaShiftedNorm z)²` (N4); edge integrals converge
-   (the proved edge lemmas, transported through `TendstoUniformlyOn.comp`).
-3. Bottom edge: `conjReflApproxNorm n (x) = ‖fApproxNorm n x‖² ≥ 0` (N4), and
-   strict positivity for large n (transport `real_axis_integral_pos`;
-   its non-degeneracy input `fApprox_not_identically_zero` is proved).
-4. `h_order` + N4's closed form give the limit a zero of order exactly
-   `2m + 1 ≥ 5` at `3/4 + I`: `2m` from `etaShiftedNorm²` **plus 1** from the
-   factor `(z - 3/4 - I)`, which vanishes there to order 1 — while its mirror
-   factor `(z - 3/4 + I)` does **not** vanish at `3/4 + I` (it equals `2I`);
-   it vanishes at the reflected point `3/4 - I`, outside the upper
-   half-rectangle. This separation is exactly the point of the y-shift
-   (N3½): the `targetH` zero and its conjugate mirror stay simple and apart
-   instead of colliding into a double zero on the real axis. Net effect of
-   the design: a simple zero (`m = 1`) gives the limit an order-3 zero at
-   `3/4 + I`, while `m ≥ 2` gives order `2m + 1 ≥ 5`; the contradiction must
-   separate these cases through the contour data.
-5. The missing step is the actual contradiction: a residue/argument-principle
-   computation for `1/limit` (pole of even order ≥ 6 at `3/4+I`) against the
-   positive bottom edge, with the zero-free Euler approximants of Part 3
-   replacing the partial sums wherever a reciprocal crosses the limit. The
-   `dslope` machinery in RectangleStrategy.lean
-   (`boundaryIntegral_recipEta_eq`, `recipEta_rect_integral_ne_zero_of_zero`)
-   is the closest template. **No complete mathematical writeup of this step
-   exists in the repo.** Formalize steps 1–4 (all within reach), then stop
-   and report; do not improvise step 5.
-
-### S5. `nonreal_edges_sum_zero` (MultiplicityOne.lean:350) — NOT PROVABLE AS STATED; restate
-
-```lean
--- CURRENT:
-lemma nonreal_edges_sum_zero (R : Rect) (s₀ : ℂ)
-    (hs₀ : s₀ ∈ R.openInt)
-    (h_boundary_ne : ∀ z ∈ R.closure \ R.openInt, conjReflLimit z ≠ 0) :
-    ∫ x in R.x_lo..R.x_hi, conjReflLimit (x + R.y_hi * I) +
-    ∫ y in R.y_lo..R.y_hi, conjReflLimit (R.x_hi + y * I) -
-    ∫ y in R.y_lo..R.y_hi, conjReflLimit (R.x_lo + y * I) = 0
-```
-**Problems.** (a) Lean's `∫ x in a..b, e` notation extends to the end of the
-expression, so the *first* integrand swallows the following `+ ∫ ... - ∫ ...`;
-the statement does not say what its name suggests. (b) Even with intended
-parenthesization, the combination lacks the `I`-weights of the Cauchy/Green
-boundary orientation and omits the bottom edge, so it does not follow from
-holomorphy and there is no reason for it to be true. (c) There are no
-Re-bounds, so `1` may lie in `R.closure`, where `conjReflLimit` is not even
-continuous (H1/H2 via H5).
-
-**Replacement** (safe: the only consumers are S4, handled above, and prose):
-```lean
-lemma conjReflLimit_boundaryIntegral_zero (R : Rect)
-    (hR_re' : ∀ s ∈ R.closure, s.re < 1) :
-    R.boundaryIntegral conjReflLimit = 0
-```
-**Proof.** By H5 (as a `funext` or via `DifferentiableOn.congr`),
-`conjReflLimit = fun s => (s - 3/4 + I) * targetH s * (etaShifted s)^2`.
-Every `z ∈ R.closure` has `z.re < 1`, hence `z ≠ 1` (real parts differ), so
-`etaShifted` is differentiable at `z` (`etaShifted_differentiableAt`, H5
-consequence), and the polynomial factors are entire. Therefore
-`DifferentiableOn ℂ conjReflLimit R.closure`
-(`DifferentiableAt.differentiableWithinAt` pointwise). Apply
-`rect_cauchy R conjReflLimit` (RectangleStrategy:204). ∎
-
-If an "edges" reformulation is wanted afterwards, derive it by unfolding
-`Rect.boundaryIntegral`:
-`∫bottom = ∫top - I•∫right + I•∫left` — i.e. the real-axis (bottom) integral
-equals the correctly-weighted combination of the three non-real edges. State
-that as a corollary by `linear_combination` / `linarith`-style rearrangement
-of the boundary identity.
-
-### S6. `exists_isolating_rect` (ConjugateReflection.lean:159) — NOT PROVABLE AS STATED; partial + restate
-
-```lean
--- CURRENT:
-lemma exists_isolating_rect (s₀ : ℂ) (hσ₁ : s₀.re > 1/2) (hσ₂ : s₀.re < 1)
-    (h_zero : etaShifted s₀ = 0) :
-    ∃ (δ T : ℝ) (hδ : 0 < δ) (hT : s₀.im + 1 < T) (hx : ...) (hT' : 0 < T),
-      let R := mkHalfRect (s₀.re - δ) (s₀.re + δ) T hx hT'
-      s₀ ∈ R.openInt ∧ (∀ z ∈ R.closure, etaShifted z = 0 → z = s₀) ∧
-      (∀ z ∈ R.closure \ R.openInt, etaShifted z ≠ 0)
-```
-**Why it cannot be proved.** Two independent obstructions:
-1. If `s₀.im ≤ 0`, the first conjunct `s₀ ∈ R.openInt` is false for every
-   admissible `R` (`y_lo = 0` forces `0 < s₀.im`), and the hypotheses cannot
-   refute `s₀.im ≤ 0` for `s₀.re = 3/4` (zeros come in conjugate pairs, so
-   lower-half-plane zeros are consistent with everything available).
-2. Even with `0 < s₀.im`: by H6, every available zero has `re = 3/4`, so when
-   `s₀.re = 3/4` the rectangle necessarily contains the critical segment
-   `{3/4 + iy : 0 ≤ y ≤ T}` with `T > s₀.im + 1`, and **no available result
-   excludes other zeros on that segment below height `T`** (in actual
-   mathematics such zeros exist once `s₀.im` is large, so no proof can exist).
-
-**What IS provable — formalize these two pieces:**
-
-(i) *Vacuous discharge off the line*: if one adds the hypothesis
-`s₀.re ≠ 3/4`, the lemma is provable by `exact absurd (etaShifted_zero_re_eq
-s₀ hσ₁ hσ₂ h_zero) h_off` (H6). Not useful by itself, but it documents that
-the only live case is `re = 3/4`.
-
-(ii) *Isolation in a small square* (the honest replacement; prove it and leave
-the original statement sorry'd or delete it after updating callers — it has
-no proved consumers):
-```lean
-lemma etaShifted_isolated_zero (s₀ : ℂ) (hσ₁ : s₀.re > 1/2) (hσ₂ : s₀.re < 1) :
-    ∃ ε > 0, ∀ z, z ≠ s₀ → ‖z - s₀‖ < ε → etaShifted z ≠ 0
-```
-**Proof.**
-1. `s₀ ≠ 1` (`re < 1`). `etaShifted` is analytic at `s₀`:
-   `etaShifted_differentiableAt` on the open set `{s | s ≠ 1}` upgraded with
-   `DifferentiableOn.analyticAt` (the pattern at RectangleStrategy:1260,
-   `eta_zero_isolated_in_rect`, does this for `etaRect`; compose with
-   `s ↦ 2s-1` or redo directly).
-2. Dichotomy `AnalyticAt.eventually_eq_zero_or_eventually_ne_zero`
-   (IsolatedZeros.lean:130): either `etaShifted =ᶠ[𝓝 s₀] 0` or
-   `∀ᶠ z in 𝓝[≠] s₀, etaShifted z ≠ 0`. The second alternative yields `ε` by
-   `Metric.eventually_nhdsWithin_iff` / `Metric.mem_nhdsWithin_iff` unpacking.
-3. Rule out the first alternative: if `etaShifted` vanishes on a neighborhood
-   of `s₀`, then by the identity theorem it vanishes on the preconnected open
-   set `U := {s | s.re > 1/2 ∧ s ≠ 1}` (preconnectedness:
-   `isPreconnected_halfplane_minus_one`, EtaConvergence:260; analyticity of
-   `etaShifted` on `U` as in step 1; use
-   `AnalyticOnNhd.eqOn_zero_of_preconnected_of_eventuallyEq_zero` (search this
-   family — the `frequently` variant is used at EtaConvergence:304)). But
-   `(3/2 : ℂ) ∈ U` and `etaShifted (3/2) = dirichletEta 2 ≠ 0`
-   (`dirichletEta_ne_zero_at_two`, EtaStrategy:482; the argument computation
-   `2*(3/2)-1 = 2` is `norm_num`). Contradiction. ∎
-
-This is the exact analogue of the proved `eta_zero_isolated_in_rect`
-(RectangleStrategy:1260) — mirror its Lean structure.
-
-### S7. `etaShifted_zeros_simple` (MultiplicityOne.lean:481) — FALSE AS STATED; restate
-
-```lean
--- CURRENT:
-theorem etaShifted_zeros_simple (s₀ : ℂ) (hσ₁ : s₀.re > 1/2)
-    (hσ₂ : s₀.re < 1) (h_zero : etaShifted s₀ = 0) :
-    ∃ φ : ℂ → ℂ, Differentiable ℂ φ ∧ φ s₀ ≠ 0 ∧
-      ∀ s, etaShifted s = (s - s₀) * φ s
-```
-**Why it is false.** The conclusion forces `etaShifted` to be continuous at
-`1` (product of continuous functions), but `etaShifted` is discontinuous at 1
-(value 0 by H1, limit `log 2 ≠ 0` by H2). So the conclusion is refutable
-whenever the hypotheses hold — and the hypotheses are satisfiable (zeros of η
-on the critical line exist in actual mathematics, with `re = 3/4` after the
-shift; nothing in scope refutes them). Hence no proof can exist. **Do not
-attempt the statement as written.**
-
-**Two-layer repair:**
-
-*Layer 1 (provable now — existence of a finite order).* Prove:
-```lean
-theorem etaShifted_zero_finite_order (s₀ : ℂ) (hσ₁ : s₀.re > 1/2)
-    (hσ₂ : s₀.re < 1) (h_zero : etaShifted s₀ = 0) :
-    ∃ (m : ℕ) (φ : ℂ → ℂ), 0 < m ∧ AnalyticAt ℂ φ s₀ ∧ φ s₀ ≠ 0 ∧
-      ∀ᶠ s in 𝓝 s₀, etaShifted s = (s - s₀)^m • φ s
-```
-**Proof.** `h_an : AnalyticAt ℂ etaShifted s₀` (S6 step 1).
-`analyticOrderAt etaShifted s₀ ≠ ⊤`: by `analyticOrderAt_eq_top`
-(Order.lean:76) it would mean `etaShifted =ᶠ[𝓝 s₀] 0`, refuted exactly as in
-S6 step 3. So the order is a natural number `m`
-(`ENat` case analysis / `ENat.ne_top_iff_exists`), and
-`AnalyticAt.analyticOrderAt_eq_natCast` (Order.lean, statement quoted in
-Part 0) provides `φ` with the eventual factorization. `0 < m`: if `m = 0` the
-factorization at `s = s₀` gives `etaShifted s₀ = φ s₀ ≠ 0` (the `(s-s₀)^0 = 1`
-case; evaluate the `∀ᶠ` at `s₀` itself — `Filter.Eventually.self_of_nhds`),
-contradicting `h_zero`. (The `•` here is ℂ-scalar multiplication on ℂ, i.e.
-multiplication; `smul_eq_mul` converts.) ∎
-
-*Layer 2 (NOT provable — the open core).* `m = 1` (simplicity). This is the
-genuine mathematical content of Stage 1 and nothing in the repository proves
-it; simplicity of ζ-zeros is an open problem. Options: leave a sorry'd lemma
-`etaShifted_order_eq_one` clearly marked as the open core, or restate
-downstream results to carry `m` as data. Downstream impact:
-`etaShifted_zeros_simple_on_line` (ZeroLocation:174) must be restated to use
-the Layer-1 form (its other component, `etaShifted_zeros_on_critical_line`,
-becomes fully proved once S1 lands). `riemann_hypothesis_via_shifted_eta` is
-unaffected (it only uses the location theorem).
+**The left-edge subtlety (read this).** Universality lives on the *open*
+half-plane `Re > 1/2`; the Gaussian log-sum `∑_p X_p p^{−s}` does **not** even
+converge a.s. for `Re ≤ 1/2` (its variance `∑_p v_p p^{−2x}` diverges there). So
+the left edge cannot literally sit at `x_lo < 1/2`. The honest realization of
+"start the rectangle at `x < 1/2`" is a **limit**: take `x_lo = 1/2 + δ`, run the
+argument to exclude zeros with `Re > 1/2 + δ`, then let `δ ↓ 0`. The union over
+`δ` exhausts `{Re > 1/2}`, giving the full exclusion. (A second, heavier route —
+reflect the left edge across `Re = 1/2` with the functional equation into the
+universality region — is available but not needed; prefer the `δ ↓ 0` limit, it
+is airtight and matches the existing `hR_lo : ∀ z ∈ R.closure, z.re > 1/2`
+hypothesis already threaded through `RectangleStrategy.lean`.)
 
 ---
 
-## Part 3: After S1–S7 — what actually remains, and where Bagchi enters
+## Part 1: Why Gaussian 2D + exponential form (the mathematics)
 
-Once S1–S4 are formalized and S5–S7 are restated as above, the **only**
-unproved inputs below `riemann_hypothesis_via_shifted_eta` are:
+### 1.1 The exponential Euler product
 
-1. **The legacy chain under `etaRect_ne_zero_critical_strip`**
-   (RectangleStrategy.lean), used by H6/S1 and by the already-proved
-   `fApprox_not_identically_zero`:
-   - `recipEta_rect_contour_integral_eq_zero` (line 913) — `∮ 1/η = 0` as a
-     limit of `∮ 1/etaEulerApprox P = 0`. **This is where Bagchi
-     universality is load-bearing**: the approximants must be *zero-free* on
-     the rectangle (proved: `etaEulerApprox_ne_zero`) and converge uniformly
-     (proved modulo the three PNT inputs:
-     `etaEulerApprox_tendstoUniformlyOn_rect`); the reciprocal then converges
-     uniformly by `reciprocal_tendstoUniformlyOn_of_nonvanishing`
-     (EtaConvergenceExtended:51, proved). The raw partial sums `η_n` must NOT
-     be used here — they have spurious zeros in the strip.
-   - `rect_integral_inv_sub_eq` (line 952) — `∮ 1/(z-w) = 2πi` for `w` inside
-     a rectangle (standard winding-number computation; Mathlib's
-     `Complex.integral_boundary_rect_eq_zero...` family and
-     `DiffContOnCl.circleIntegral_sub_inv_smul` are the raw material).
-   - The three Bagchi/PNT inputs (lines 548, 563, 587):
-     `primeZetaTail_uniform_small`, `higherPrimeSum_uniform_small`,
-     `eulerProd_zeta_exp_connection`. The first is a genuine PNT consequence
-     (Abel summation against `π(x) ~ x/log x`; Mathlib now has PNT-adjacent
-     material in `Mathlib.NumberTheory.PrimeCounting` /
-     `PrimeNumberTheoremAnd`-style results — survey before attempting). The
-     second is elementary domination (`∑_p p^{-2σ}` summable for `σ > 1/2`).
-     The third is the exp-log Euler identity (`Complex.exp_sum`,
-     `riemannZeta_eulerProduct`-family lemmas exist in Mathlib:
-     `riemannZeta_eulerProduct_exp_log` (search) is close).
-2. **The simplicity core** (S7 Layer 2) — open mathematics; no plan can
-   discharge it.
-3. If S4's `h_order` hypothesis is ever repaired to its intended meaning
-   (factorization away from `s = 1`), the residue argument reopens — see the
-   "intended route" paragraph in S4.
+For a finite cutoff `P`, a variance scale `v ≥ 0`, and randomness `ω`, define the
+log-product as a **Dirichlet sum over primes** and the product as its exponential:
+```
+D_P(s, ω) = ∑_{p ≤ P}  X_p(ω) · p^{−s} + c_P(s)         -- entire in s
+E_P(s, ω) = exp( D_P(s, ω) )                            -- entire, never 0
+```
+where `c_P(s)` is a deterministic *centering / correction* term (Part 1.3) and
+the `X_p(ω) ∈ ℂ` are the new coefficients. Contrast the old multiplicative
+`zetaEulerProd P s = ∏_{p ≤ P} (1 − p^{−s})^{−1}`: that is recovered as the
+`v = 0`, `X_p ≡ 0` deterministic skeleton via the classical identity
+`log ∏ (1−p^{−s})^{−1} = ∑_p ∑_{k≥1} p^{−ks}/k` (`eulerProd_zeta_exp_connection`
+is exactly this identity for `ζ`), so the exponential form is **not a new
+function** — it is the same Euler product written multiplicatively-in-the-log,
+which is what lets us inject Gaussian randomness *linearly*.
 
-### Recommended execution order for the formalizer
+### 1.2 Gaussian 2D coefficients (replacing modulus-1)
 
-1. H1, H2 (self-contained; only Mathlib).
-2. H3, H4, H5 (Schwarz reflection stack).
-3. S2 (uses H4/H5 only).
-4. H6, then S1 (note import placement: H6's reflection case can inline the
-   functional-equation argument to avoid cycles).
-5. S3 (after adding `hR_re'` to its statement).
-6. S5 replacement, S6 replacement (`etaShifted_isolated_zero`), S7 Layer 1
-   (`etaShifted_zero_finite_order`) — these three share S6-step-1's
-   `AnalyticAt` infrastructure; build it once.
-7. S4 last (vacuous; confirm with project owner before merging, per the
-   warning).
-8. `lake build` after each lemma; all listed project lemmas compile today, so
-   any breakage is local to your edit.
+Replace `Legacy.lean`'s
+`X_p p P ω = if p ≤ P then 1 else exp(2πi·ω_p·I)` (modulus 1, multiplicative)
+with **independent complex Gaussians**:
+```
+X_p(ω) = √v · ( g_p^{re}(ω) + i · g_p^{im}(ω) ),   g_p^{re}, g_p^{im} ~ N(0,1) iid.
+```
+So each `X_p` is a centered complex Gaussian of variance `v` (i.e.
+`E|X_p|² = v`), the real and imaginary parts independent. This is the only place
+the probability space changes; everything downstream is a consequence.
+
+### 1.3 Variance of the product is proportional to `v`
+
+This is the crux and the reason for *both* changes. Because `log E_P = D_P` is a
+**linear** functional of the Gaussian vector `(X_p)_{p≤P}`, `D_P(s,ω)` is itself
+a complex Gaussian for each fixed `s`, with
+```
+Var( log E_P(s, ·) ) = Var( D_P(s, ·) ) = ∑_{p ≤ P} v · |p^{−s}|² = v · ∑_{p ≤ P} p^{−2 Re(s)}.
+```
+Hence **the variance of (the log of) the Euler product is proportional to the
+variance `v` of the Gaussian coefficients**, with proportionality constant
+`∑_{p≤P} p^{−2x}` — finite and uniformly bounded on any closed half-plane
+`Re ≥ x_lo > 1/2`. The multiplicative model has *no such identity*: `log` of a
+product of `(1 − X_p p^{−s})^{−1}` is `∑_p ∑_k X_p^k p^{−ks}/k`, **nonlinear** in
+`X_p`, so its variance does not scale linearly and cannot be driven down cleanly.
+
+**Consequence (small-variance approximation).** Pick `v` small. Then `D_P(s,·)`
+concentrates on its mean `E[D_P](s) = c_P(s)` uniformly on the compact `R.closure`
+(a Gaussian field with small variance is uniformly close to its mean with
+probability `→ 1`; quantitatively, `P(sup_{R.closure}|D_P − c_P| > ε) → 0` as
+`v → 0` by a maximal/Borell–TIS-type bound, or elementarily by a union bound over
+an `ε`-net of the compact edge since `D_P` is a finite sum of entire functions).
+Therefore **there exists a realization `ω` with `E_P(·,ω)` uniformly `ε`-close on
+`R.closure` to the deterministic target `exp(c_P)`**. Choosing `c_P` so that
+`exp(c_P)` is the Bagchi-corrected Euler product approximating `η` (Part 1.4),
+`E_P(·,ω)` uniformly approximates `η` on `R.closure`.
+
+### 1.4 Two convergence regimes (universality vs. absolute convergence)
+
+The centering `c_P(s)` is the **Bagchi correction** that turns the bare partial
+product into a uniform approximant of `η` on the strip. Writing
+`c_P(s) = log(1 − 2^{1−s}) + ∑_{p≤P} ∑_{k≥1} p^{−ks}/k − (tail corrections)`, the
+deterministic skeleton `exp(c_P) → η` reduces to the three analytic inputs
+already isolated in `RectangleStrategy.lean`:
+`eulerProd_zeta_exp_connection`, `primeZetaTail_uniform_small`,
+`higherPrimeSum_uniform_small`. These give:
+
+- **Universality regime — `Re > 1/2`.** Because `Var(D_P) = v ∑ p^{−2x}` stays
+  bounded for `x > 1/2`, the Gaussian field — and with it `E_P` — has a genuine
+  a.s. limit `E_∞(s,ω)` analytic on `Re > 1/2`, and the family of such limits is
+  **dense among zero-free analytic functions** on compacts of `{Re > 1/2}`
+  (Voronin/Bagchi universality, in its Gaussian incarnation). This is what lets a
+  realization `ω` track `η` uniformly on the left/top/bottom edges (`Re ≥ x_lo`,
+  `x_lo > 1/2`). **This is the deep, research-level input** — the Gaussian analog
+  of `bagchi_universality_compact` (`ContourStrategy.lean`) and
+  `exists_universal_corrector_path` (`Legacy.lean`).
+- **Absolute-convergence regime — `Re > 1`.** Here `∑_p E|X_p| p^{−x} =
+  √v · E|g| · ∑_p p^{−x} < ∞` for `x > 1`, so the Dirichlet sum `∑_p X_p p^{−s}`
+  converges **absolutely a.s.**, `E_P → E_∞` absolutely and uniformly on the
+  right edge `x_hi > 1`, and there `E_∞ = η` by the ordinary (absolutely
+  convergent) Euler product for `ζ`. **This regime is elementary** — Weierstrass
+  `M`-test against `∑_p p^{−x_hi}` — and needs no universality.
+
+The split is exactly the user's design: **universality handles every edge except
+the `Re > 1` vertical; absolute convergence handles that one.** It mirrors `η`'s
+own dichotomy (conditional convergence in the strip, absolute convergence for
+`Re > 1`), now realized inside the *approximants* so that complex analysis can be
+done on the entire, zero-free `E_P`.
+
+---
+
+## Part 2: Lean definitions to add (`GaussianEuler.lean`, new file)
+
+Place these in a new file importing `RiemannProof.Basic` and
+`RiemannProof.RectangleStrategy`. Reuse the existing `Rect`, `Rect.closure`,
+`Rect.openInt`, `Rect.boundaryIntegral`, `rect_cauchy`, `etaRect`, `etaFactRect`,
+`riemannZeta`. Keep `Legacy.lean`'s `Ω_infty := ℕ → ℝ` only if convenient; the
+Gaussian model is cleaner over a Mathlib probability space.
+
+```lean
+-- Probability space: independent N(0,1) reals; package as complex Gaussians.
+-- Use Mathlib's `ProbabilityTheory.gaussianReal`/`MeasureTheory` API; the index
+-- set is ℕ (primes embedded). `Ω := ℕ → ℝ × ℝ` with the product Gaussian measure,
+-- or `MeasureTheory.Measure.infinitePi` of `gaussianReal 0 1`.
+
+/-- Complex Gaussian coefficient of variance `v` at prime index `p`. -/
+noncomputable def Xg (v : ℝ) (p : ℕ) (ω : Ω) : ℂ :=
+  (Real.sqrt v : ℂ) * ((ω p).1 + Complex.I * (ω p).2)
+
+/-- Log-product: a Dirichlet sum over primes ≤ P, plus deterministic centering. -/
+noncomputable def logEulerG (P : ℕ) (v : ℝ) (s : ℂ) (ω : Ω) : ℂ :=
+  (∑ p ∈ Finset.filter Nat.Prime (Finset.range (P+1)), Xg v p ω * (p : ℂ) ^ (-s))
+  + cCorr P s
+
+/-- The exponential Euler product. Entire in `s`; NEVER zero. -/
+noncomputable def eulerG (P : ℕ) (v : ℝ) (s : ℂ) (ω : Ω) : ℂ :=
+  Complex.exp (logEulerG P v s ω)
+
+/-- Deterministic Bagchi centering so that `exp (cCorr P ·) → η` on the strip.
+    Built from the existing `eulerProd_zeta_exp_connection` data. -/
+noncomputable def cCorr (P : ℕ) (s : ℂ) : ℂ := sorry  -- see Part 1.4 / S0
+```
+
+`cCorr` is *not* new mathematics: it is `log etaEulerApprox P` reorganized
+(`log (1−2^{1−s}) + log (zetaEulerProd P s)`), so `exp (cCorr P s) =
+etaEulerApprox P s` and the existing `etaEulerApprox_tendstoUniformlyOn_rect`
+already proves `exp(cCorr P) → η` uniformly on rectangles in the strip (modulo
+the three PNT sorries). Define `cCorr` as that log and record the identity as S0.
+
+---
+
+## Part 3: The lemmas, in dependency order
+
+Each entry: exact intended statement, a provability verdict, and a proof sketch
+at formalization detail. Reused proved lemmas are cited by `File:line`.
+
+### S0. `eulerG` is the exponential of the existing approximant — **PROVABLE (easy)**
+```lean
+lemma exp_cCorr_eq_etaEulerApprox (P : ℕ) (s : ℂ) (hs : s.re > 1/2) :
+    Complex.exp (cCorr P s) = etaEulerApprox P s
+```
+**Proof.** Define `cCorr P s := Complex.log (etaEulerApprox P s)` (legitimate:
+`etaEulerApprox P s ≠ 0` on `Re > 0` by `etaEulerApprox_ne_zero`, which needs
+`Re > 0` and `Re < 1` — for the right edge `Re > 1` use instead the plain Euler
+factor identity, `zetaEulerProd_ne_zero` holds for `Re > 0` with no upper
+bound). Then `Complex.exp_log` (nonzero argument). For a version valid through
+`Re > 1` too, base `cCorr` on `zetaEulerProd` (nonzero for `Re > 0`) and the
+entire factor `log(1−2^{1−s})` where defined; on the right edge avoid the eta
+factor's log branch by keeping `etaFactRect s = 1 − 2^{1−s}` as an explicit
+factor outside the exp. ∎
+
+### S1. `eulerG` is entire and never zero — **PROVABLE (easy; the structural win)**
+```lean
+lemma eulerG_ne_zero (P : ℕ) (v : ℝ) (s : ℂ) (ω : Ω) : eulerG P v s ω ≠ 0
+lemma eulerG_differentiable (P : ℕ) (v : ℝ) (ω : Ω) :
+    Differentiable ℂ (fun s => eulerG P v s ω)
+```
+**Proof.** `eulerG = exp ∘ logEulerG`. `Complex.exp_ne_zero` gives non-vanishing
+with *no hypotheses on `s`* — this is the whole point. `logEulerG` is a finite
+sum of `s ↦ Xg v p ω * p^{−s}` (each `Differentiable` via
+`Differentiable.const_cpow`/`differentiable_const.mul`) plus `cCorr P` (entire
+where `cCorr` is the log of the nonvanishing `zetaEulerProd`, by
+`Complex.differentiable_log`-type composition, or simply carry `cCorr` as an
+entire Dirichlet polynomial in the `Re>1` analysis). `Complex.differentiable_exp.comp`. ∎
+
+### S2. `∮_{∂R} 1/eulerG = 0` for every `P, v, ω` — **PROVABLE (easy)**
+```lean
+lemma recipEulerG_boundaryIntegral_eq_zero (P : ℕ) (v : ℝ) (ω : Ω) (R : Rect) :
+    R.boundaryIntegral (fun s => 1 / eulerG P v s ω) = 0
+```
+**Proof.** `fun s => 1 / eulerG P v s ω = fun s => exp (−logEulerG P v s ω)` is
+entire (S1), in particular `DifferentiableOn ℂ _ R.closure`. Apply
+`rect_cauchy R _`. **No `hR_lo`/`hR_hi`/non-vanishing hypotheses needed** — unlike
+`recipEulerApprox_rect_integral_eq_zero` (RectangleStrategy:746), which needed
+`etaEulerApprox ≠ 0` on `R`. The rectangle here may cross `Re = 1` freely. ∎
+
+### S3. Right edge — absolute convergence to `η` for `Re > 1` — **PROVABLE (standard)**
+```lean
+lemma eulerG_tendstoUniformly_absConv {v : ℝ} (hv : 0 ≤ v) (a : ℝ) (ha : 1 < a) :
+    ∀ᵐ ω, TendstoUniformlyOn (fun P s => eulerG P v s ω) etaRect atTop
+      {s | s.re ≥ a}    -- or any compact subset of {Re > 1}
+```
+**Proof.** On `Re ≥ a > 1`: `‖Xg v p ω · p^{−s}‖ ≤ √v ‖(ω p).1, (ω p).2‖ · p^{−a}`,
+and `∑_p p^{−a} < ∞`. The a.s. summability of `∑_p ‖Xg v p ω‖ p^{−a}` follows from
+`∑_p E‖Xg v p ω‖ p^{−a} = √v·E‖g‖·∑_p p^{−a} < ∞` (Tonelli + finite Gaussian
+absolute moment), hence the random series converges absolutely a.s.; uniform
+convergence of partial sums on `{Re ≥ a}` by the Weierstrass `M`-test with the a.s.
+summable majorant. `exp` is uniformly continuous on bounded sets, so
+`eulerG P = exp(D_P) → exp(D_∞)` uniformly; identify `exp(D_∞) = η` on `Re > 1`
+via S0 + `etaEulerApprox_tendstoUniformlyOn_rect` (the abs.-conv. region, where
+that proof simplifies — `zetaEulerProd → ζ` is the ordinary Euler product). ∎
+
+*Note*: this lemma is the only place randomness in the *tail* is genuinely
+needed; on the right edge even `v = 0` (deterministic) works, since the plain
+Euler product converges absolutely for `Re > 1`. Keep a `v = 0` corollary as the
+clean fallback.
+
+### S4. Other edges — universality to `η` for `Re > 1/2` — **RESEARCH-LEVEL (the core)**
+```lean
+lemma exists_gaussian_corrector_uniform (R : Rect)
+    (hR_lo : ∀ z ∈ R.closure, z.re > 1/2)        -- left edge strictly right of 1/2
+    (hs₀ : s₀ ∈ R.openInt) (hη : ∀ z ∈ R.closure, z ≠ s₀ → etaRect z ≠ 0) :
+    ∀ ε > 0, ∃ (v : ℝ) (ω : Ω), 0 < v ∧
+      ∀ z ∈ R.closure \ R.openInt, ‖eulerG P v z ω − etaRect z‖ < ε
+```
+**Verdict: NOT provable from current repo material.** This is the Gaussian
+universality / density statement — the analog of `bagchi_universality_compact`
+(ContourStrategy:409) and `exists_universal_corrector_path` (Legacy:88), both
+still open. It is the one genuinely deep input and **must not be improvised**.
+
+**What the Gaussian model contributes (record as design, not proof).** The
+small-variance concentration of Part 1.3 reduces universality on the
+left/top/bottom edges to: *the deterministic skeleton `exp(cCorr P)` approximates
+`η` there, and the Gaussian fluctuation can be made uniformly `< ε` by shrinking
+`v`* (Part 1.3). The skeleton approximation is `etaEulerApprox_tendstoUniformlyOn_rect`
+(RectangleStrategy:759) — **proved modulo the three PNT sorries**. So *if* one is
+willing to grant the deterministic Bagchi convergence on the strip (the three PNT
+inputs), the small-`v` Gaussian step **upgrades it to a single zero-free
+approximant** without a separate density argument — because we are approximating
+the *specific* function `η`, not an arbitrary target. In that reading S4 splits:
+- **S4a (provable modulo PNT sorries):** uniform `exp(cCorr P) → η` on
+  `R.closure ∩ {Re ≤ 1}` — already `etaEulerApprox_tendstoUniformlyOn_rect`.
+- **S4b (provable, probabilistic):** for fixed `P` and `ε`, ∃ `v>0, ω` with
+  `sup_{R.closure} ‖eulerG P v · ω − exp(cCorr P)‖ < ε` — Part 1.3 concentration;
+  formalize via a union bound over a finite `ε/2`-net of the compact `R.closure`
+  and a Gaussian tail bound (`ProbabilityTheory.measure_ge_le_exp...` /
+  Chebyshev on each net point), choosing `v` small enough that the bad event has
+  measure `< 1`, hence the good event is nonempty.
+
+  Then S4 = (triangle inequality on S4a + S4b). **Formalize S4a's reduction and
+  S4b in full; leave the genuine density form of S4 (needed only if one drops the
+  PNT skeleton) clearly marked open.** Recommended: state S4 as the conjunction
+  S4a ∧ S4b and prove it under the existing three PNT sorries — that keeps the
+  whole rectangle argument honest and free of *new* axioms beyond the ones the
+  repo already carries.
+
+### S5. Edge approximation of the reciprocal — **PROVABLE (given S3+S4)**
+```lean
+lemma recipEulerG_tendsto_recipEta_onEdges (R : Rect) (s₀ : ℂ)
+    (hR_lo : ∀ z ∈ R.closure, z.re > 1/2) (hx_hi : 1 < R.x_hi)
+    (hs₀ : s₀ ∈ R.openInt) (hη : ∀ z ∈ R.closure, z ≠ s₀ → etaRect z ≠ 0) :
+    -- along a chosen sequence (P_k, v_k, ω_k):
+    TendstoUniformlyOn (fun k s => 1 / eulerG (P_k) (v_k) s (ω_k))
+      (fun s => 1 / etaRect s) atTop (R.closure \ R.openInt)
+```
+**Proof.** Split `∂R` into the right edge (`Re = x_hi > 1`, use S3) and the other
+three edges (`Re ≥ x_lo > 1/2`, use S4). On each, `eulerG → η` uniformly and
+`η` is bounded below in modulus: edges avoid the unique interior zero `s₀` (`hη`)
+and `η` is continuous on the compact edge, so `inf ‖η‖ > 0`
+(`IsCompact.exists_forall_le` / `IsCompact.exists_isMinOn` on `‖η‖`). Then
+`reciprocal_tendstoUniformlyOn_of_nonvanishing` (EtaConvergenceExtended:51,
+**proved**) upgrades `eulerG → η` to `1/eulerG → 1/η` uniformly. Glue the edge
+pieces (`TendstoUniformlyOn` on a finite union). Choose the diagonal sequence
+`(P_k, v_k, ω_k)` so that both regimes hold simultaneously: `P_k → ∞` (skeleton
+accuracy, S4a + S3), `v_k ↓ 0` and `ω_k` from S4b at tolerance `ε_k ↓ 0`. ∎
+
+### S6. `∮_{∂R} 1/η = 0` — **PROVABLE (given S2+S5)**
+```lean
+lemma recipEta_rect_contour_integral_eq_zero' (R : Rect) (s₀ : ℂ)
+    (hR_lo : ∀ z ∈ R.closure, z.re > 1/2) (hx_hi : 1 < R.x_hi)
+    (hs₀ : s₀ ∈ R.openInt) (hη : ∀ z ∈ R.closure, z ≠ s₀ → etaRect z ≠ 0) :
+    R.boundaryIntegral (fun s => 1 / etaRect s) = 0
+```
+This is the open `recipEta_rect_contour_integral_eq_zero` (RectangleStrategy:913),
+now **dischargeable** with the new approximants. **Proof.** `∮ 1/eulerG = 0` for
+every `k` (S2). `1/eulerG → 1/η` uniformly on `R.closure \ R.openInt = ∂R` (S5).
+Pass to the limit with `boundary_integral_limit_eq_zero` (RectangleStrategy:813)
+— uniform convergence on the edges sends each edge integral to its limit and the
+constant-zero sequence to 0. **Note the hypothesis upgrade:** the original
+lemma's `hR_hi : ∀ z ∈ R.closure, z.re < 1` is **dropped** — the new rectangle is
+*allowed* to cross `Re = 1`, which is what the right edge needs. ∎
+
+### S7. No interior zero — the residue contradiction — **PROVABLE (given S6 + repo residue API)**
+```lean
+lemma no_zero_in_rect (R : Rect) (s₀ : ℂ)
+    (hR_lo : ∀ z ∈ R.closure, z.re > 1/2) (hx_hi : 1 < R.x_hi)
+    (hs₀ : s₀ ∈ R.openInt) (h_zero : etaRect s₀ = 0)
+    (h_iso : ∀ z ∈ R.closure, z ≠ s₀ → etaRect z ≠ 0) : False
+```
+**Proof.** From `boundaryIntegral_recipEta_eq` (RectangleStrategy:1175) /
+`rect_cauchy_integral_formula` (967) + `rect_integral_inv_sub_eq` (952): a zero
+of `η` at the interior `s₀`, with `η` analytic and nonzero elsewhere on
+`R.closure`, gives `∮_{∂R} 1/η = 2πi · (nonzero residue) ≠ 0` (factor
+`η(z) = (z−s₀)^m · g(z)`, `g(s₀) ≠ 0`, via `dslope`; the leading residue does not
+cancel for `1/η` at a single isolated zero). This contradicts S6 (`= 0`). ∎
+
+*Dependency note:* `rect_integral_inv_sub_eq` (952) and the `dslope` plumbing of
+`boundaryIntegral_recipEta_eq` are themselves `sorry` in the repo today; they are
+**standard** (winding number `= 1` for an interior point; `Complex.dslope`
+factorization) and independent of the universality core. Discharge them as
+ordinary complex-analysis lemmas.
+
+### S8. Isolating rectangle — **PROVABLE (mirror existing isolation lemma)**
+```lean
+lemma exists_straddling_isolating_rect (s₀ : ℂ)
+    (hσ : 1/2 < s₀.re) (hσ' : s₀.re < 1) (h_zero : etaRect s₀ = 0) :
+    ∀ δ ∈ Set.Ioo 0 (s₀.re − 1/2), ∃ R : Rect,
+      R.x_lo = 1/2 + δ ∧ 1 < R.x_hi ∧ s₀ ∈ R.openInt ∧
+      (∀ z ∈ R.closure, z.re > 1/2) ∧
+      (∀ z ∈ R.closure, z ≠ s₀ → etaRect z ≠ 0)
+```
+**Proof.** `η = etaRect` is analytic on `Re > 0` away from nothing (entire there;
+`etaRect = etaFactRect · ζ`, `ζ` analytic except at `1`, and `1` is excluded by
+`Re`-bounds once `x_lo > 1/2`... note `Re = 1` *is* in the rectangle, but `ζ`'s
+pole is at the point `s = 1`, `Im = 0`; choose `y_lo > 0` so the rectangle avoids
+it, or handle `s=1` as the lone removable point — `etaRect` has a *removable*
+behavior there since `etaFactRect 1 = 0`). Zeros of the analytic `η` are isolated
+(`AnalyticAt.eventually_eq_zero_or_eventually_ne_zero`, IsolatedZeros:130 — `η`
+is not locally zero, witnessed by `dirichletEta_ne_zero_at_two`-type
+non-triviality). Shrink the height window `[y_lo, y_hi] ∋ Im(s₀)` and keep
+`x_lo = 1/2+δ`, `x_hi` fixed `> 1` so the only zero in `R.closure` is `s₀`.
+This is the straddling analog of `eta_zero_isolated_in_rect`
+(RectangleStrategy:1260) / `etaShifted_isolated_zero`; mirror its structure.
+**Subtlety to handle explicitly:** the right part of `R` (`Re > 1`) is zero-free
+for free (`ζ ≠ 0` for `Re ≥ 1`, `riemannZeta_ne_zero_of_one_le_re`), so isolation
+only has to work in the strip part. ∎
+
+### S9. Assemble: no zeros with `Re > 1/2`, hence RH — **PROVABLE (given S7+S8)**
+```lean
+theorem zeta_no_zeros_re_gt_half (s₀ : ℂ) (hσ : 1/2 < s₀.re) (hσ' : s₀.re < 1) :
+    riemannZeta s₀ ≠ 0
+theorem riemann_hypothesis_via_rectangle :
+    ∀ s, riemannZeta s = 0 → 0 < s.re → s.re < 1 → s.re = 1/2
+```
+**Proof.** Suppose `ζ s₀ = 0`, `1/2 < Re(s₀) < 1`. Then `η s₀ = 0`
+(`etaFactRect_ne_zero` for `Re < 1`). By S8 pick `δ ∈ (0, Re(s₀)−1/2)` small and
+the straddling isolating `R`; S7 gives `False`. Hence no zeros with
+`1/2 < Re < 1`. The `δ ↓ 0` quantifier in S8 is already absorbed: each fixed `s₀`
+with `Re(s₀) > 1/2` admits a `δ < Re(s₀) − 1/2`, so `s₀` is enclosed with
+`x_lo = 1/2+δ > 1/2`. Combine with the functional equation `zeta_symm` (Basic:15)
+to fold `Re < 1/2` onto `Re > 1/2`, leaving `Re = 1/2`. This reuses the final
+wrapper structure of `riemann_hypothesis_via_shifted_eta`. ∎
+
+---
+
+## Part 4: Execution order and status
+
+```
+S0  exp_cCorr_eq_etaEulerApprox            DONE
+S1  eulerG_ne_zero / _differentiable       DONE
+S2  recipEulerG_boundaryIntegral_eq_zero   DONE        (S1 + rect_cauchy)
+S7  no_zero_in_rect                         DONE*       (*calls sorry'd RectangleStrategy:913 — rewire to S6′)
+S9  RH wrappers                             DONE*       (*delegates to riemann_hypothesis_rect, sorry-backed)
+--- remaining 5 sorries, in recommended order ---
+W0  import RiemannProof.GaussianEuler       do FIRST    (wire the new spine into the build root)
+S3  right edge, absolute convergence       standard    (Weierstrass M-test; the v=0 case suffices — see note)
+S8  exists_straddling_isolating_rect       standard    (mirror eta_zero_isolated_in_rect; right part Re>1 zero-free for free)
+S4b small-variance concentration           probabilistic, provable (Gaussian net + Chebyshev)
+S4a skeleton → η on strip                  ⚠ = etaEulerApprox_tendstoUniformlyOn_rect, modulo the 3 PNT sorries
+S4  exists_gaussian_corrector_uniform = S4a ∧ S4b      provable *modulo* the 3 PNT sorries
+S5  recipEulerG_tendsto_recipEta_onEdges   S3 + S4 + reciprocal_tendstoUniformlyOn_of_nonvanishing
+S6  recipEta_rect_contour_integral_eq_zero' S2 + S5 + boundary_integral_limit_eq_zero
+W1  discharge RectangleStrategy:913 via S6′ then rewire S7  (collapses the old contour sorry)
+```
+
+**Note on S3 (right edge).** The right edge sits at `Re = x_hi > 1`, where the
+*ordinary* Euler product already converges absolutely; the `v = 0` skeleton
+(`eulerG_zero_tendstoUniformlyOn_rect`, already **DONE**) covers it. So S3 can be
+proved at `v = 0` first (no randomness needed on the right edge), and S5 only
+needs the randomness on the left/top/bottom edges via S4. Prioritise the `v = 0`
+right-edge path before the general `eulerG_tendstoUniformly_absConv`.
+
+**Recommended immediate next steps (in order):** W0 (wire the import) → S8 and the
+`v=0` form of S3 (both standard, independent) → S4b (probabilistic, self-contained)
+→ then S4a/S4 sit on the three PNT sorries → S5 → S6 → W1 (discharge 913, rewire
+S7). After W1, the only remaining inputs are the three PNT sorries and the
+standard winding/`dslope` lemmas (`rect_integral_inv_sub_eq`, 952).
+
+> **Per-obligation recipes now live in the code.** Each of the 5 sorries in
+> `GaussianEuler.lean` carries a complete `SPECIALIST RECIPE` comment, and the
+> file opens with cross-cutting `SPECIALIST NOTES` N-A/N-B/N-C. Two findings from
+> reading the actual signatures (2026-06-14), folded in there:
+> * **N-A (eta-factor zeros).** `etaFactRect = 1 − 2^{1−s}` vanishes on `Re = 1`
+>   at `1 − 2πik/log 2`; a straddling rectangle crosses that line, so **S8 must
+>   choose its height window to avoid those points** (and there is an honest edge
+>   case when `Im s₀ = −2πk/log 2`). S1/S2/S7 must replace `Re < 1` by
+>   "`etaEulerApprox ≠ 0` on `R.closure`" (N-C).
+> * **N-B (S4 is not a separate universality theorem).** Taking `ω = 0` makes
+>   `eulerG = etaEulerApprox`, so S4 reduces to `etaEulerApprox → η` on `R.closure`
+>   = the PNT machinery (`eulerProd_zeta_exp_connection`, stated for `Re > 1/2`,
+>   covers the straddling closure). The genuine Voronin/Bagchi density is **not
+>   needed** for the statement as written.
+
+**What is genuinely open after this plan.**
+1. **No separate universality theorem is needed (revised — see N-B).** With
+   `ω = 0`, S4 reduces to the deterministic skeleton convergence
+   `etaEulerApprox → η`, which is the three PNT inputs below. The full
+   Voronin/Bagchi density would only be required for a `v > 0`, generic-`ω`
+   variant the statement does not ask for.
+2. **The three PNT inputs** `primeZetaTail_uniform_small`,
+   `higherPrimeSum_uniform_small`, `eulerProd_zeta_exp_connection`
+   (RectangleStrategy:548/563/587) — genuine PNT / Euler-identity analysis,
+   unchanged by the pivot. Survey `Mathlib.NumberTheory.PrimeCounting` /
+   `PrimeNumberTheoremAnd` before attempting.
+3. **Standard complex-analysis plumbing** `rect_integral_inv_sub_eq`,
+   `rect_cauchy_integral_formula`, `boundaryIntegral_recipEta_eq`
+   (RectangleStrategy:952/967/1175) — winding number and `dslope`; no deep input.
+
+**What the pivot *buys* over the conjugate-reflection plan.** The seven sorries
+of the previous plan (`conjReflLimit_zero_order`, `even_multiplicity_contradiction`,
+`nonreal_edges_sum_zero`, `etaShifted_zeros_simple`, …) and the open *simplicity*
+core (`m = 1`) are **no longer on the critical path**: the residue argument here
+(S7) excludes a zero of *any* multiplicity directly from `∮ 1/η = 0`, so neither
+multiplicity-one nor the four-fold symmetric product is needed. The strategy now
+rests on exactly three classical pillars — PNT tail bounds, the winding-number
+integral, and small-variance Gaussian concentration — plus the entirely
+mechanical zero-freeness of `exp`.
+
+### Reused proved infrastructure (do not re-prove)
+
+| Lemma | File:line | Use |
+|---|---|---|
+| `rect_cauchy` | RectangleStrategy:204 | S2 |
+| `boundary_integral_limit_eq_zero` | RectangleStrategy:813 | S6 |
+| `etaEulerApprox_tendstoUniformlyOn_rect` | RectangleStrategy:759 | S4a, S3 |
+| `etaEulerApprox_ne_zero`, `zetaEulerProd_ne_zero` | RectangleStrategy:453,443 | S0 |
+| `reciprocal_tendstoUniformlyOn_of_nonvanishing` | EtaConvergenceExtended:51 | S5 |
+| `eta_zero_isolated_in_rect` | RectangleStrategy:1260 | S8 (template) |
+| `riemannZeta_ne_zero_of_one_le_re` | Mathlib | S8 |
+| `etaFactor_ne_zero_re_lt_one` / `etaFactRect_ne_zero` | Basic / RectangleStrategy | S9 |
+| `zeta_symm` | Basic:15 | S9 |
+
+`lake build` after each lemma; all cited lemmas compile today.

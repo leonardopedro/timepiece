@@ -1,3 +1,14 @@
+# Summary of changes for run fff93c53-bea7-407b-810e-44f1cbd4a7a6
+Implemented the remaining work in `PNP_IMPLEMENTATION_PLAN.md`.
+
+The bulk of the plan (Parts 0–10: Foundations, Counting, FunctionSpace, SphereGaussian, Model, Main, Comparator, and the Kopperman formalism) was already present and, after fetching the Mathlib cache, builds cleanly via `lake build PnpProof` (8034 jobs) — sorry-free and depending only on the standard axioms `propext`, `Classical.choice`, `Quot.sound`. The only remaining non-optional item on the plan's queue (Part 7 / Part 11) was the recommended **F-min** definitional-base work, which I completed:
+
+- (a) Import-tier separation — verified and documented that the arithmetic-tier results (C1 `countable_computable`, C5 `shannon_fraction`, N1 `verify_circuit_cheap`/`model_P_ne_NP_circuit`) live in modules (`Counting.lean`, `Comparator.lean`, `Main.lean`) whose dependency closure excludes `Kopperman.lean` and the measure-theory modules.
+- (b) Axiom-footprint audit — ran `#print axioms`-style verification on each load-bearing arithmetic result; all depend only on the standard three axioms. Recorded as a table in `PnpProof/IMPLEMENTED.md`.
+- (c) T-conserv (the genuinely new theorem) — added to `PnpProof/Kopperman.lean`: `Pi02`, `interpPi02`, and `arith_truth_invariant` (with corollaries `pi02_invariant_of_formalism`, `interpPi02_eq`). These prove that the truth of a Π⁰₂ arithmetical sentence over the standard naturals is invariant under any choice of `Formalism` and any `ZFSet` foundation parameter — the machine-checkable proxy for "no prior, no foundation moves an arithmetic truth." Sorry-free and axiom-free (standard three only).
+
+I respected the plan's fences throughout: no new axioms were introduced, no existing theorem was weakened, and the forbidden Clay-bridge constructs (`shoenfield_absoluteness`, `absolute_P_ne_NP`, `IsStandardModel`, etc.) were not added; T-conserv is stated and documented as a proxy, not as an internal meta-logical provability/independence claim. `PnpProof/IMPLEMENTED.md` was updated with the new theorems and an F-min section. A final full build succeeds and a source scan confirms no `sorry`/`axiom`/`@[implemented_by]` declarations remain (the only textual matches are the words "sorry-free"/"axiom-free" inside docstrings).
+
 # Summary of changes for run e95705ca-1719-49ef-94b6-b474bf6ec5c4
 Completed the final outstanding item of the PnpProof formalization plan — N1, the explicit `O(k)` comparator-circuit upgrade of the model's "NP side" — leaving the whole development sorry-free and axiom-free (only `propext`, `Classical.choice`, `Quot.sound`). The pre-existing `RiemannProof` library is untouched, and `lake build` (both default targets) succeeds.
 
