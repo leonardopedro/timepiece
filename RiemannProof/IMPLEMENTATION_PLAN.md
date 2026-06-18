@@ -28,12 +28,14 @@ old model could not deliver simultaneously:
 
 ---
 
-## Current implementation status (2026-06-14)
+## Current implementation status (2026-06-14, updated)
 
 The strategy below is **partially implemented** in
-`RiemannProof/GaussianEuler.lean` (builds: `lake build RiemannProof.GaussianEuler`,
-8032 jobs). The S0–S9 scaffold of Part 3 is in place; **5 sorries remain**
-(S3, S4, S5, S6, S8). Snapshot:
+`RiemannProof/GaussianEuler.lean` (builds clean: `lake build
+RiemannProof.GaussianEuler`, 8032 jobs, 6.4 s). The S0–S9 scaffold of Part 3 is in
+place and the file is now **wired into the build root** (W0 done — see below).
+**6 sorries remain** (S3-core, S4, S5, S6, S8, and the new universality core).
+Snapshot (line numbers as of this revision):
 
 | Item | Lemma | Status |
 |---|---|---|
@@ -42,22 +44,38 @@ The strategy below is **partially implemented** in
 | S1 | `eulerG_ne_zero`, `gaussSum_differentiable`, `eulerG_eq_mul`, `eulerG_differentiableOn` | **DONE** |
 | S2 | `recipEulerG_boundaryIntegral_eq_zero` | **DONE** |
 | v=0 | `eulerG_zero_eq_etaEulerApprox`, `eulerG_zero_tendstoUniformlyOn_rect` | **DONE** |
-| S3 | `eulerG_tendstoUniformly_absConv` | `sorry` (line 202) |
-| S4 | `exists_gaussian_corrector_uniform` | `sorry` (216) |
-| S5 | `recipEulerG_tendsto_recipEta_onEdges` | `sorry` (229) |
-| S6 | `recipEta_rect_contour_integral_eq_zero'` | `sorry` (242) |
+| S3 | `eulerG_tendstoUniformly_absConv` (right edge) | **DONE** (assembly proved) |
+| S3-core | `zetaEulerProd_tendstoUniformlyOn_halfplane` | `sorry` (line 288) — the **only** gap under S3 |
+| S4 | `exists_gaussian_corrector_uniform` | `sorry` (337) |
+| S5 | `recipEulerG_tendsto_recipEta_onEdges` | `sorry` (370) |
+| S6 | `recipEta_rect_contour_integral_eq_zero'` | `sorry` (397) |
 | S7 | `no_zero_in_rect` | **DONE** (delegates to RectangleStrategy residue API) |
-| S8 | `exists_straddling_isolating_rect` | `sorry` (272) |
+| S8 | `exists_straddling_isolating_rect` | `sorry` (438) |
+| univ | `Rect.threeLeftEdges`, `…_subset_closure`, `…isCompact_threeLeftEdges` | **DONE** |
+| univ-core | `eulerG_universality_threeLeftEdges` | `sorry` (510) — the genuine Voronin/Bagchi input |
+| univ-seq | `eulerG_seq_tendstoUniformlyOn_threeLeftEdges` | **DONE** (proved from univ-core) |
 | S9 | `zeta_no_zeros_re_gt_half`, `riemann_hypothesis_via_rectangle` | **DONE** (delegates to `riemann_hypothesis_rect`) |
 
-**Two wiring facts the implementer must know:**
+**What changed since the previous revision of this plan.**
 
-1. **`GaussianEuler.lean` is orphaned from the build root.** `RiemannProof.lean`
-   imports only `Basic, Legacy, TwoLimits, SimplifiedStrategy, EtaStrategy,
-   ContourStrategy, RectangleStrategy` — *not* `GaussianEuler`. First task:
-   `import RiemannProof.GaussianEuler` in `RiemannProof.lean` so the new spine is
-   part of the default build.
-2. **S7 and S9 are "DONE" only by delegating to still-`sorry`'d
+1. **W0 is done.** `RiemannProof.lean` now imports `RiemannProof.GaussianEuler`
+   (line 8), so the new spine is part of the default `lake build`.
+2. **S3 is now assembled and proved** (`eulerG_tendstoUniformly_absConv`): the
+   right-edge convergence `eulerG P 0 → η` on `{a ≤ Re}` (`a > 1`) is fully
+   discharged via `eulerG_zero_eq_etaEulerApprox_gt_one` + an `etaFactRect` modulus
+   bound. The single remaining input is the *self-contained, strip-free* lemma
+   `zetaEulerProd_tendstoUniformlyOn_halfplane` (uniform convergence of the
+   ordinary Euler product to `ζ` on `Re ≥ a > 1` — a Weierstrass `M`-test).
+3. **S4 has been re-factored through a compact "U"-arc.** The genuine universality
+   debt is now isolated as `eulerG_universality_threeLeftEdges` over
+   `Rect.threeLeftEdges` (left + bottom + top edges — the arc with connected
+   complement, exactly the Voronin/Mergelyan setting). The downstream
+   sequence-of-approximants form `eulerG_seq_tendstoUniformlyOn_threeLeftEdges` is
+   **proved** from that core by running it at tolerances `ε_k = 1/(k+1)`.
+
+**Wiring facts the implementer must still know:**
+
+1. **S7 and S9 are "DONE" only by delegating to still-`sorry`'d
    RectangleStrategy lemmas.** `no_zero_in_rect` (S7) calls the *old*
    `recipEta_rect_contour_integral_eq_zero` (RectangleStrategy:913, `sorry`) and
    `recipEta_rect_integral_ne_zero_of_zero`; `riemann_hypothesis_via_rectangle`
@@ -74,10 +92,12 @@ The 51 total `sorry`s in `RiemannProof/` are dominated by the *old* strategy:
 (5), `Legacy.lean` (4), `EtaStrategy.lean` (3), `ZeroLocation.lean` (2),
 `TwoLimits.lean` (2), `ReciprocalContour.lean` (1), `ConjugateReflection.lean`
 (1). **None of these are on the Gaussian critical path.** Only the sorries in
-`GaussianEuler.lean` (5) and the load-bearing `RectangleStrategy.lean` ones
+`GaussianEuler.lean` (6) and the load-bearing `RectangleStrategy.lean` ones
 (below) matter for RH via this route. Recommend marking the conjugate-reflection
 files as legacy (or moving them under a `Legacy/` namespace) so the live
-obligation count is the ~10 that matter, not 51.
+obligation count is the ~10 that matter, not 51. (The Gaussian-path count is now
+**6** — see the table above — after S3's assembly was discharged and the
+universality core was split off as its own `sorry`.)
 
 ---
 
@@ -480,34 +500,66 @@ wrapper structure of `riemann_hypothesis_via_shifted_eta`. ∎
 S0  exp_cCorr_eq_etaEulerApprox            DONE
 S1  eulerG_ne_zero / _differentiable       DONE
 S2  recipEulerG_boundaryIntegral_eq_zero   DONE        (S1 + rect_cauchy)
+S3  eulerG_tendstoUniformly_absConv        DONE        (assembly; sole gap = S3-core below)
 S7  no_zero_in_rect                         DONE*       (*calls sorry'd RectangleStrategy:913 — rewire to S6′)
 S9  RH wrappers                             DONE*       (*delegates to riemann_hypothesis_rect, sorry-backed)
---- remaining 5 sorries, in recommended order ---
-W0  import RiemannProof.GaussianEuler       do FIRST    (wire the new spine into the build root)
-S3  right edge, absolute convergence       standard    (Weierstrass M-test; the v=0 case suffices — see note)
-S8  exists_straddling_isolating_rect       standard    (mirror eta_zero_isolated_in_rect; right part Re>1 zero-free for free)
-S4b small-variance concentration           probabilistic, provable (Gaussian net + Chebyshev)
-S4a skeleton → η on strip                  ⚠ = etaEulerApprox_tendstoUniformlyOn_rect, modulo the 3 PNT sorries
-S4  exists_gaussian_corrector_uniform = S4a ∧ S4b      provable *modulo* the 3 PNT sorries
+W0  import RiemannProof.GaussianEuler       DONE        (wired at RiemannProof.lean:8)
+univ-seq eulerG_seq_tendstoUniformlyOn_threeLeftEdges  DONE  (proved from univ-core at εₖ=1/(k+1))
+--- remaining 6 sorries, in recommended order ---
+S3-core zetaEulerProd_tendstoUniformlyOn_halfplane    standard, self-contained (Weierstrass M-test, NO strip content) — do FIRST
+S8  exists_straddling_isolating_rect       standard    (mirror eta_zero_isolated_in_rect; right part Re>1 zero-free for free; mind N-A edge case)
+univ-core eulerG_universality_threeLeftEdges  ⚠ via ω=0 reduces to the 3 PNT sorries (N-B); genuine density only if v>0 insisted on
+S4  exists_gaussian_corrector_uniform      provable *modulo* univ-core / the 3 PNT sorries (ω=0, N-B)
 S5  recipEulerG_tendsto_recipEta_onEdges   S3 + S4 + reciprocal_tendstoUniformlyOn_of_nonvanishing
 S6  recipEta_rect_contour_integral_eq_zero' S2 + S5 + boundary_integral_limit_eq_zero
 W1  discharge RectangleStrategy:913 via S6′ then rewire S7  (collapses the old contour sorry)
 ```
 
-**Note on S3 (right edge).** The right edge sits at `Re = x_hi > 1`, where the
-*ordinary* Euler product already converges absolutely; the `v = 0` skeleton
-(`eulerG_zero_tendstoUniformlyOn_rect`, already **DONE**) covers it. So S3 can be
-proved at `v = 0` first (no randomness needed on the right edge), and S5 only
-needs the randomness on the left/top/bottom edges via S4. Prioritise the `v = 0`
-right-edge path before the general `eulerG_tendstoUniformly_absConv`.
+**Note on S3 (right edge) — now DONE.** The right edge sits at `Re = x_hi > 1`,
+where the *ordinary* Euler product already converges absolutely; the `v = 0`
+skeleton (`eulerG_zero_eq_etaEulerApprox_gt_one`) collapses `eulerG` to
+`etaEulerApprox` there with no upper `Re` bound, and the assembly
+`eulerG_tendstoUniformly_absConv` is fully proved against an `etaFactRect` modulus
+bound. The **only** remaining gap is the strip-free core
+`zetaEulerProd_tendstoUniformlyOn_halfplane` — uniform `∏(1−p⁻ˢ)⁻¹ → ζ` on
+`{a ≤ Re}`, `a > 1`. No randomness, no critical-strip content; it needs only an
+absolutely-convergent Euler-product uniform-convergence fact that Mathlib does not
+yet package. **This is the cleanest, most self-contained next target.**
 
-**Recommended immediate next steps (in order):** W0 (wire the import) → S8 and the
-`v=0` form of S3 (both standard, independent) → S4b (probabilistic, self-contained)
-→ then S4a/S4 sit on the three PNT sorries → S5 → S6 → W1 (discharge 913, rewire
-S7). After W1, the only remaining inputs are the three PNT sorries and the
-standard winding/`dslope` lemmas (`rect_integral_inv_sub_eq`, 952).
+**Recommended immediate next steps (in order):**
 
-> **Per-obligation recipes now live in the code.** Each of the 5 sorries in
+1. **S3-core** (`zetaEulerProd_tendstoUniformlyOn_halfplane`, line 288) — the
+   lowest-risk win. Survey Mathlib for `EulerProduct.eulerProduct_tendsto` /
+   `Mathlib.NumberTheory.EulerProduct.Basic` and `riemannZeta_eulerProduct`; bridge
+   from `HasProd`/`Multipliable` to `TendstoUniformlyOn` on `{a ≤ Re}` via an
+   `M`-test against `∑ n⁻ᵃ`. Once proved, S3 is fully sorry-free.
+2. **S8** (`exists_straddling_isolating_rect`, line 438) — mirror
+   `eta_zero_isolated_in_rect`; the `Re > 1` part is zero-free for free
+   (`riemannZeta_ne_zero_of_one_le_re`). **Prove the helper first:**
+   `etaFactRect z = 0 ↔ ∃ k:ℤ, z = 1 − (2πk/log 2)·I` (via `Complex.exp_eq_one_iff`),
+   then pick a thin height window inside one gap of `{−2πk/log 2}`. Handle the N-A
+   coincidence `Im s₀ = −2πk/log 2` explicitly — do not assume it away.
+3. **univ-core / S4** — with `ω = 0` (N-B) the universality core reduces to
+   `etaEulerApprox → η` uniformly on the `threeLeftEdges` arc, i.e. to the three
+   PNT sorries (`eulerProd_zeta_exp_connection`, `primeZetaTail_uniform_small`,
+   `higherPrimeSum_uniform_small`, stated for `Re > 1/2`, no upper bound).
+   `eulerG_seq_tendstoUniformlyOn_threeLeftEdges` is already proved *from* univ-core,
+   so discharging univ-core immediately unlocks the sequence form S5 will consume.
+4. **S5 → S6** — assembly only, given S3 + S4: glue the right edge (S3) and the
+   three-left-edges arc (univ-seq) into uniform `1/eulerG → 1/η` on `∂R`
+   (`reciprocal_tendstoUniformlyOn_of_nonvanishing`), then push through
+   `boundary_integral_limit_eq_zero`. Note S2 needs its N-C restatement
+   (`etaEulerApprox ≠ 0 on R.closure` in place of `hR_hi : Re < 1`) to apply on a
+   straddling rectangle.
+5. **W1** — discharge `RectangleStrategy:913` via S6′ and rewire `no_zero_in_rect`
+   (S7) to call S6′ instead of the old contour lemma.
+
+After S3-core + S8 + W1, the only genuinely deep debt left is the **three PNT
+sorries** (item 2 below) behind univ-core/S4, plus the standard winding/`dslope`
+lemmas (`rect_integral_inv_sub_eq`, 952). No new universality *axiom* is required
+(N-B): the route closes against the PNT skeleton already in `RectangleStrategy.lean`.
+
+> **Per-obligation recipes now live in the code.** Each of the 6 sorries in
 > `GaussianEuler.lean` carries a complete `SPECIALIST RECIPE` comment, and the
 > file opens with cross-cutting `SPECIALIST NOTES` N-A/N-B/N-C. Two findings from
 > reading the actual signatures (2026-06-14), folded in there:

@@ -62,7 +62,7 @@ def verify (G : ℝ → ℝ) (u : ℝ) (k : ℕ) (i : Fin (2^k)) : Prop :=
 /-
 If `G` is monotone with `G 0 ≤ u ≤ G 1`, some interval verifies.
 -/
-theorem verify_exists (G : ℝ → ℝ) (hG : Monotone G) (u : ℝ) (k : ℕ)
+theorem verify_exists (G : ℝ → ℝ) (_hG : Monotone G) (u : ℝ) (k : ℕ)
     (h0 : G 0 ≤ u) (h1 : u ≤ G 1) : ∃ i : Fin (2^k), verify G u k i := by
   revert u h0 h1;
   induction' k with k ih;

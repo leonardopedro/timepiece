@@ -158,7 +158,7 @@ theorem step_preserves {n : ℕ} (hn : 0 < n) (st : St n) (aN bN : ℕ)
 theorem step_eqN_val {n : ℕ} (hn : 0 < n) (st : St n) (aN bN : ℕ)
     (x : Fin n → Bool)
     (haN : aN < n + st.s) (hbN : bN < n + st.s)
-    (heN : st.eqN < n + st.s) (hlN : st.ltN < n + st.s) :
+    (heN : st.eqN < n + st.s) (_hlN : st.ltN < n + st.s) :
     (step hn st aN bN).C.nodeValNat x (n + st.s + 5) =
       ((st.C.nodeValNat x st.eqN) &&
         ((st.C.nodeValNat x aN && st.C.nodeValNat x bN) ||

@@ -9,11 +9,13 @@ lake project alongside `RiemannProof`). Build everything with
 `lake exe cache get && lake build PnpProof` (never skip the cache step —
 otherwise Mathlib compiles from source).
 
-**Build independently verified 2026-06-12** (toolchain
+**Build independently verified 2026-06-18** (toolchain
 `leanprover/lean4:v4.28.0`, Mathlib pin `v4.28.0`): `lake build PnpProof`
-succeeds (8034 jobs, including `Comparator.lean` and the T5 theorems); a
-`grep` over the sources confirms no `sorry` and no `axiom` declarations. The
-only diagnostics are style-linter warnings (`linter.style.multiGoal`,
+succeeds (8038 jobs, including `GeometricTruth.lean`, `NPComplete.lean`, and
+`Skeleton.lean`, all now imported by the root `PnpProof.lean`); a `grep` over the
+sources confirms no `sorry` and no `axiom` declarations, and `#print axioms` on
+the new modules' key theorems shows only the standard three (`npc_not_inP` uses
+none). The only diagnostics are style-linter warnings (`linter.style.multiGoal`,
 `linter.style.whitespace`, `linter.style.longLine`).
 
 ## Files and contents
@@ -174,6 +176,106 @@ arithmetic (the measure proves `σ`, a different sentence from "SAT ∉ P"; T5
 disjointness), *not* foundational — no model of set theory is needed, since P vs NP
 is `Π⁰₂` arithmetic.
 
+### `PnpProof/GeometricTruth.lean` — Part 12 (geometric truth model)
+
+| Item | Name | Status |
+|------|------|--------|
+| K12.1 | `coeff`, `coeff_memlp` (coefficients lie in ℓ²) | ✓ |
+| K12.2 | `psiOf`, `psiTrue` (the completed vectors) | ✓ |
+| K12.3 | `psiOf_eq_iff`, `norm_psiOf_sub_eq_zero_iff` | ✓ |
+| K12.4 | `okOf`, `okOf_all_true_iff` (Σ⁰₁ sub-formula, noncomputable) | ✓ |
+| K12.5 | `interpPi02_geom`, `interpPi02_geom_iff`, `interpPi02_geom_invariant`, `interpPi02_geom_eq_interp` | ✓ |
+| K12.6 | `p_ne_np_geometric` (statement-level assembly) | ✓ |
+
+A `Π⁰₂` sentence `∀x ∃y, p x y` is encoded as the completed vector
+`Ψ_p = Σ_x [OK_p x]/(x+1)·e_x` in the substrate, and its truth read off as the
+metric identity `‖Ψ_p − Ψ_true‖ = 0`. The core `interpPi02_geom_iff` proves this
+identity **equals** `Pi02 p` with a concrete vector-identity witness — a strict
+refinement of `Kopperman.lean`'s trivial `interpPi02_eq` (`Iff.rfl`). **K12.0 was
+deferred as a parameter**: every theorem takes `b : HilbertBasis ℕ ℝ H` as an
+explicit hypothesis rather than constructing it (the plan permitted this). The
+`Classical.choice` footprint enters precisely through the noncomputable `okOf`/
+`psiOf` — the honest rendering of "completed/`ATR₀` comprehension"; this places
+the module in the **measure/formalism tier**, not the arithmetic tier (it imports
+`Kopperman`/Hilbert/`lp`). **Fences (Part 12): restatement, not decision** — it
+stores the answer, does not compute it; **no Clay leverage**, T5 stands.
+
+### `PnpProof/NPComplete.lean` — K12.9 (NP-completeness closure theorem)
+
+| Item | Name | Status |
+|------|------|--------|
+| NC1 data | `Lang`, `toNat`, `bitlen` | ✓ |
+| NC4 math | `poly_comp` (polynomial-in-polynomial), `evaln_comp_some` (reduction-∘-decider at machine level) | ✓ |
+| NC5 | `structure ComplexityModel` (with `P_closed` field = NC4), `NPComplete` | ✓ |
+| NC6 | `npc_not_inP` (one `NP\P` language ⇒ NP-complete `∉ P`; **no axioms**) | ✓ |
+| NC7 | `sat_not_inP` (specialization to SAT given `hSAT`) | ✓ |
+
+**Deviation 8 (ratified).** The plan's NC2 proposed a *concrete* polynomial-time
+predicate `InP L := ∃ c k, ∀ x, evaln (bitlen x ^ k + k) c x = some …`. This is
+**not faithful**: Mathlib's `Nat.Partrec.Code.evaln` fuel is a value/recursion-
+depth bound (`evaln_bound`: `x ∈ evaln K c n → n < K`), not a step count, so the
+polynomial fuel `bitlen x ^ k + k ~ (log₂ x)^k` is eventually `≪ x` and the check
+is `none` for all large `x` — making the concrete `InP` *vacuously false for every
+language*, and every theorem over it vacuously true (the unsoundness the plan
+forbids). The closure theorem is therefore stated **abstractly** over
+`ComplexityModel`, whose `P_closed` field *is* the load-bearing NC4 (`P` closed
+under reductions); `npc_not_inP`/`sat_not_inP` hold for any instance. The genuine
+content behind NC4 is preserved as the non-vacuous `poly_comp` and
+`evaln_comp_some`. What is missing — and is research-scale — is a faithful
+*runtime* `InP` to instantiate the structure (`Turing.TM2ComputableInPolyTime` is
+unpopulated; see M5). Cook–Levin (NC8, `NPComplete SAT`) stays the hypothesis
+`hSAT`, per the plan's recommended "abstract `C`" route. **Fence:** this is not
+the Clay statement and defines no Clay classes; whether the `pnp.tex` model
+supplies the `∃ L, InNP L ∧ ¬ InP L` hypothesis is the open crux (T5/P5/NC11).
+
+### `PnpProof/Skeleton.lean` — Part 13 (explicit computably-enumerable dense skeleton)
+
+| Item | Name | Status |
+|------|------|--------|
+| S13.1 | `RatStepCode` (+ auto `DecidableEq`/`Encodable`/`Countable` instances) | ✓ |
+| S13.2 | `ratStepFun` (decoder into `Substrate` via `indicatorConstLp`) | ✓ |
+| S13.3 | `ratStepFun_denseRange` (density `[LB]`) | **NOT proved — open fidelity upgrade** |
+| S13.4 | `structure EnumSkeleton`, `substrate_enumSkeleton`, `enumSkeleton_refines` | ✓ (fallback witness) |
+
+**Deviation 9 (ratified) — fallback route.** The load-bearing density theorem
+S13.3 (`ratStepFun_denseRange`: measurable set ≈ finite union of rational `Ioc`
+intervals in `L²`) was **not** achieved with the available Mathlib API, so
+`substrate_enumSkeleton` takes the plan's sanctioned **fallback**: code type `ℕ`
+with `enum := TopologicalSpace.denseSeq Substrate` (dense by
+`denseRange_denseSeq`, off `substrate_separable`), **not** the rational-step
+witness `ratStepFun`. The `RatStepCode`/`ratStepFun` code and decoder are retained
+in the file as the documented *intended* witness (S13.1/S13.2 stand). This upgrades
+the skeleton from the abstract `Classical.choose substrate_decidable_skeleton`
+*set* to an **explicit `ℕ`-indexed enumeration with dense range**.
+
+**Honesty ceiling (in the module docstring).** `Substrate = Lp ℝ 2 unitMeasure` is
+an a.e.-quotient; Mathlib has no `Computable` instance on `Lp` and none is
+*statable*, so "computable skeleton" is rendered as an `Encodable`/`DecidableEq`
+**code** type with a `noncomputable` decoder `enum`, never as `Computable` on the
+`Lp`-elements. The computable content lives at the `Code` level only.
+
+**Companion structure, `Formalism` untouched** (Part 7 ground rule): `EnumSkeleton`
+sits beside `Formalism`; `enumSkeleton_refines` records that any `EnumSkeleton`'s
+range is countable-and-dense (so a legitimate `skeleton`), but `formalismOfPrior`
+and every theorem over `Formalism` are unchanged.
+
+**Axiom footprint (`#print axioms`, verified 2026-06-18):** all three exported
+declarations depend only on the standard three.
+| Result | File | Axioms |
+|--------|------|--------|
+| `substrate_enumSkeleton` | `Skeleton.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+| `ratStepFun` | `Skeleton.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+| `enumSkeleton_refines` | `Skeleton.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+
+The `Classical.choice` enters via `denseSeq` (and the underlying `Lp`
+constructions), as predicted — within budget.
+
+**Fences.** No Clay leverage: this is a fidelity/expressibility upgrade of the
+NP-side "computable approximants" picture; it does not touch T5, the bridge, `σ`,
+or any arithmetic claim. **S13.5** (a computable-verifier field tying in
+`verifyBits_computable`) stays **deferred** — it needs the `Main.lean` ↔
+`Kopperman.lean` import restructure (they are parallel leaves today).
+
 ### Deviations on the NP side of T3 (Part 4 M5)
 
 The plan offered an explicit `O(k)` comparator circuit *or* a labelled model
@@ -211,12 +313,15 @@ provability predicate is introduced (Mathlib has no such apparatus).
 - **(a) Import-tier separation.** The arithmetic-tier results live in modules
   whose dependency closure does **not** contain `Kopperman.lean` or the
   measure-theory modules (`Foundations.lean`, `Model.lean`, `SphereGaussian.lean`):
-  `Counting.lean` imports only `Mathlib`; `Comparator.lean` imports only
-  `Mathlib` and `Counting.lean`. So **C1** (`countable_computable`), **C5**
-  (`shannon_fraction`), and **N1** (`verify_circuit_cheap`,
-  `model_P_ne_NP_circuit`'s circuit core) do not depend on the formalism. This is
-  the import-DAG rendering of "the arithmetic base and the Kopperman base are
-  independent — neither's definitions require the other's."
+  `Counting.lean` and `NPComplete.lean` import only `Mathlib`; `Comparator.lean`
+  imports only `Mathlib` and `Counting.lean`. So **C1** (`countable_computable`),
+  **C5** (`shannon_fraction`), **N1** (`verify_circuit_cheap`,
+  `model_P_ne_NP_circuit`'s circuit core), and **K12.9** (`npc_not_inP`,
+  `poly_comp`, `evaln_comp_some`) do not depend on the formalism. Only the
+  model-facing wrapper `model_P_ne_NP_circuit` lives in `Main.lean` (which does
+  import the measure layer) — by design, since it *states* a fact about the model.
+  This is the import-DAG rendering of "the arithmetic base and the Kopperman base
+  are independent — neither's definitions require the other's."
 
 - **(b) Axiom-footprint audit (`#print axioms`).** Each load-bearing
   arithmetic-tier result depends only on the standard three axioms
@@ -230,9 +335,13 @@ provability predicate is introduced (Mathlib has no such apparatus).
   | C5 `shannon_fraction` | `Counting.lean` | `propext`, `Classical.choice`, `Quot.sound` |
   | N1 `verify_circuit_cheap` | `Comparator.lean` | `propext`, `Classical.choice`, `Quot.sound` |
   | N1 `model_P_ne_NP_circuit` | `Main.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+  | K12.9 `npc_not_inP` | `NPComplete.lean` | **none** (no axioms at all) |
   This is a dependency-level audit, **not** a provability claim and **not** a
   claim that the base "is" PA (it is incomparable with PA). No proof was
   rewritten to shed `Classical.choice`; the footprint is recorded as-is.
+  (Re-verified 2026-06-17 against the current tree.) Note `npc_not_inP` is the
+  *strongest* case — its proof uses **no** non-`Lean.core` axioms whatsoever, so
+  the NP-completeness closure does not even touch `Classical.choice`.
 
 - **(c) `T-conserv` (genuinely new theorem).** `arith_truth_invariant`
   (`Kopperman.lean`): for a `Π⁰₂` arithmetical sentence `Pi02 p := ∀ a, ∃ b, p a b`
@@ -246,10 +355,36 @@ provability predicate is introduced (Mathlib has no such apparatus).
 
 ## Next steps (queue in `PNP_IMPLEMENTATION_PLAN.md`, Part 7)
 
-All mathematical queue items (N1, T5, **F-min**) are complete. The only open item
-is optional style-linter housekeeping (`linter.style.multiGoal`,
-`linter.style.whitespace`, `linter.style.longLine`): fix with focus dots /
-whitespace / line breaks only, and revert any fix that breaks a proof.
+All mathematical queue items (N1, T5, **F-min**, **Part 12 K12.1–K12.6**, **K12.9
+NC1–NC7**) are complete, and the newest modules — `GeometricTruth.lean`,
+`NPComplete.lean`, and **`Skeleton.lean`** (Part 13, wired in 2026-06-18) — are
+all imported by the root `PnpProof.lean` (covered by the default-target regression
+guard; full build green at 8038 jobs). Remaining items:
+
+- **S13.3 `ratStepFun_denseRange` (open fidelity upgrade).** The genuine density
+  theorem that would switch `substrate_enumSkeleton` from the `ℕ`/`denseSeq`
+  fallback to the `RatStepCode` rational-step witness. Recipe in
+  `PNP_IMPLEMENTATION_PLAN.md` Part 13 (S13.3 + "Next steps"): simple-function
+  density (`Lp.simpleFunc.dense`) + Borel-regularity approximation of each level
+  set by finite unions of rational `Ioc` intervals + `ℚ`-value rationalization.
+  Lands sorry-free or not at all. When done, swap the witness and promote
+  deviation 9/S13.3 to DONE.
+
+- *Optional style-linter housekeeping (N2) — safe subset done 2026-06-17.* Cleared
+  (build stays green, 8037 jobs): all missing-final-newline `linter.style.whitespace`
+  warnings (7 files), the `linter.unusedSectionVars` on `norm_psiOf_sub_eq_zero_iff`
+  (`omit [CompleteSpace H] in`), and all 5 `unused variable` warnings (→ `_name`).
+  Left as-is (≈477 warnings, all touching working-proof internals or bulk
+  reformatting): `linter.style.longLine`, `linter.flexible`/`simp`→`simp only`,
+  `refine'`→`refine`, unused-`simp`-args, `induction'`→`induction`,
+  `linter.style.multiGoal`. Fix only file-by-file with a rebuild after each, and
+  revert any fix that breaks a proof.
+- *Open by design — stop-and-report, never `sorry`/`axiom`*: P5
+  `sigma_pnp_iff_clay` (the `σ_pnp` ↔ "SAT ∉ P" link — pnp.tex §10's expert-review
+  gap, = T5 with the sign that makes the bridge fail); NC11.2/NC11.3 (verify/solve
+  classification against the selected rcp kernel `κ_sel`, not the joint-derived
+  `G`); a faithful runtime `InP` to instantiate `ComplexityModel`; NC8 Cook–Levin.
+
 Ground rules: every change lands sorry-free or not at all; **no new axioms,
 ever**; never weaken an existing theorem. T4 stays prose-only unless the
 maintainer supplies a precise statement plus a complete English proof.

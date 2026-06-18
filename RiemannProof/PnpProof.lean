@@ -5,3 +5,6 @@ import PnpProof.SphereGaussian
 import PnpProof.Model
 import PnpProof.Main
 import PnpProof.Kopperman
+import PnpProof.Skeleton
+import PnpProof.GeometricTruth
+import PnpProof.NPComplete

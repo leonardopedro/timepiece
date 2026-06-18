@@ -827,7 +827,7 @@ formalization plan is \texttt{PNP\_IMPLEMENTATION\_PLAN.md} and the
 per-lemma map is \texttt{PnpProof/IMPLEMENTED.md}. The development
 compiles \emph{without any \texttt{sorry} and without any axioms} beyond
 Lean's standard three (\texttt{propext}, \texttt{Classical.choice},
-\texttt{Quot.sound}); the build was last verified on 2026-06-12.
+\texttt{Quot.sound}); the build was last verified on 2026-06-17.
 
 The following machine-checked theorems cover the claims of this article:
 
@@ -881,6 +881,25 @@ The following machine-checked theorems cover the claims of this article:
   formalization of the Clay classes \(P\) and \(NP\), since
   \(NP \subseteq EXPTIME\) --- prior-almost-surely no member of the
   collection decides the selected function's dyadic data.
+\item
+  \texttt{interpPi02\_geom\_iff}: every \(\Pi^0_2\) arithmetical sentence
+  \(\forall x\,\exists y\,p(x,y)\) is encoded as a single completed vector
+  \(\Psi_p = \sum_x [\mathrm{OK}_p(x)]/(x+1)\,e_x\) in the separable Hilbert
+  substrate of a model, and its truth is the metric identity
+  \(\lVert \Psi_p - \Psi_{\mathrm{true}}\rVert = 0\); this identity is proved
+  \emph{equal} to the sentence. The coordinate \(\mathrm{OK}_p\) is
+  noncomputable (it decides the inner \(\Sigma^0_1\) formula), so this is an
+  \emph{expressibility} device --- it stores the answer, it does not compute it
+  --- and it yields no implication to the Clay statement.
+\item
+  \texttt{npc\_not\_inP}: the NP-completeness closure theorem --- a single
+  language in \(NP \setminus P\) forces every NP-complete problem (e.g.\ SAT)
+  out of \(P\) --- proved over an abstract complexity model whose one
+  load-bearing property is that \(P\) is closed under polynomial-time
+  reductions. (A faithful concrete runtime model is left abstract because
+  Mathlib's fuel-indexed evaluator bounds a recursion depth, not a step count;
+  whether the present construction supplies the \(NP \setminus P\) witness is
+  exactly the open modelling question above.)
 \end{itemize}
 
 To keep the formal development honest, the following are

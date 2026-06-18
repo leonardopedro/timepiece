@@ -6,3 +6,5 @@ import RiemannProof.EtaStrategy
 import RiemannProof.ContourStrategy
 import RiemannProof.RectangleStrategy
 import RiemannProof.GaussianEuler
+import RiemannProof.RcpEuler
+import RiemannProof.SchoenfeldPRA

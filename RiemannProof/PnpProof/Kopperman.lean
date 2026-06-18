@@ -274,7 +274,18 @@ def Pi02 (p : ℕ → ℕ → Bool) : Prop := ∀ a, ∃ b, p a b = true
 /-- The interpretation of a `Π⁰₂` sentence *"inside a formalism `F`, over a
 foundation `z`"*. It ignores both the `Formalism` and the `ZFSet` parameter,
 because the matrix ranges over the standard `ℕ` — that is the whole content of
-`T-conserv` below. -/
+`T-conserv` below.
+
+This is the *trivial* wrapper (truth `:= Pi02 p`). A **non-trivial geometric
+witness** of the same truth lives in `PnpProof/GeometricTruth.lean`
+(`PNP_IMPLEMENTATION_PLAN.md` Part 12): `interpPi02_geom b p F`, defined as the
+metric identity `‖Ψ_p − Ψ_true‖ = 0` for the completed vector
+`Ψ_p = Σ_x OK_p x /(x+1) · e_x` in `F`'s separable substrate, with
+`interpPi02_geom_iff : interpPi02_geom b p F ↔ Pi02 p`. That refinement realizes
+the truth *inside the substrate of the chosen model* rather than as the present
+`Iff.rfl`; it is a faithful **restatement**, not a decision procedure (its `OK_p`
+is noncomputable / `Classical.choice`), and it gives no Clay leverage (Part 12
+fences; T5 stands). -/
 def interpPi02 {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
     [CompleteSpace H] [MeasurableSpace H]
     (p : ℕ → ℕ → Bool) (_F : Formalism H) (_z : ZFSet) : Prop := Pi02 p
@@ -300,7 +311,9 @@ theorem pi02_invariant_of_formalism {H : Type*} [NormedAddCommGroup H]
   arith_truth_invariant p F₁ F₂ z z
 
 /-- The interpreted truth coincides with the plain arithmetic sentence: the
-formalism/foundation wrapping is content-free. -/
+formalism/foundation wrapping is content-free. (The geometric refinement
+`interpPi02_geom_iff` of Part 12 proves the *same* coincidence with a non-trivial
+vector-identity witness instead of `Iff.rfl`.) -/
 theorem interpPi02_eq {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
     [CompleteSpace H] [MeasurableSpace H]
     (p : ℕ → ℕ → Bool) (F : Formalism H) (z : ZFSet) :

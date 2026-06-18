@@ -57,7 +57,7 @@ theorem selection_exists :
 /-! ### F4. No complete history realizes the selected event -/
 
 theorem no_history {Ω : Type*} [MeasurableSpace Ω] (P : Measure Ω)
-    [IsProbabilityMeasure P] (Y : ℕ → Ω → ℝ) (hY : ∀ n, Measurable (Y n))
+    [IsProbabilityMeasure P] (Y : ℕ → Ω → ℝ) (_hY : ∀ n, Measurable (Y n))
     (hlaw : ∀ n, ∀ y : ℝ, P {ω | Y n ω = y} = 0) (y₀ : ℝ) :
     P {ω | ∃ n, Y n ω = y₀} = 0 := by
   rw [ show { ω | ∃ n, Y n ω = y₀ } = ⋃ n, { ω | Y n ω = y₀ } by ext; aesop ] ; exact MeasureTheory.measure_iUnion_null fun n => hlaw n y₀;
@@ -112,7 +112,7 @@ theorem atomless_mutuallySingular_atomic {α : Type*} [MeasurableSpace α]
 
 /-! ### F7. A jump separates a mixed CDF from a continuous one -/
 
-theorem cdf_jump_separation (F G : ℝ → ℝ) (hF : Monotone F) (hG : Monotone G)
+theorem cdf_jump_separation (F G : ℝ → ℝ) (_hF : Monotone F) (_hG : Monotone G)
     (x₀ : ℝ) (hFc : ContinuousAt F x₀) (ε : ℝ) (hε : 0 < ε)
     (hjump : ∀ a b : ℝ, a < x₀ → x₀ < b → G b - G a ≥ ε) :
     ∃ a b : ℚ, (a:ℝ) < b ∧ |(G b - G a) - (F b - F a)| ≥ ε / 2 := by

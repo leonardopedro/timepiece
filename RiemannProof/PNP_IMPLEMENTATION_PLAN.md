@@ -88,6 +88,76 @@ object); flag, do not build ad hoc. The identity is **not** a backdoor to the
 bridge: defining the *standard* sentence inside the formalism does not prove it —
 T5's disjointness stands. See **Part 11**.
 
+**A further maintainer directive (2026-06-16): express the P-vs-NP sentence
+*geometrically* inside the formalism's substrate.** A `Π⁰₂` arithmetical sentence
+`∀x ∃y Q(x,y)` is encoded as a single completed vector
+`Ψ_Φ = Σ_x OK(x)/(x+1)·e_x` in the separable Hilbert substrate (over a chosen
+ℕ-indexed Hilbert basis), with `OK(x) = 1` iff `∃y Q(x,y)`; its truth is then the
+*metric* identity `‖Ψ_Φ − Ψ_true‖ = 0`. The substrate is `L²([0,1])` — *functions
+of a continuous variable* — and the model is chosen by a *continuous* (atomless)
+prior, i.e. the already-built `formalismOfPrior`. **Part 12** is the disposition:
+the geometric truth equivalence `‖Ψ_Φ − Ψ_true‖ = 0 ↔ Pi02 p` is **PROVABLE**
+(a concrete realization of `interpPi02`/`arith_truth_invariant`, which currently
+wrap truth trivially). It changes *nothing* about the fences: the encoding
+*re-expresses* the sentence, it does not *decide* it; the `OK` vector is
+**noncomputable** (`Classical.choice`) — the honest Lean rendering of "completed
+Turing-jump / `ATR₀` comprehension," an expressibility device, not a proof; and it
+gives **no Clay leverage** — T5 stands. See **Part 12**.
+
+**Status (2026-06-17): Part 12 and K12.9 landed in Lean.** Two new modules now
+exist, both build sorry-free and within the standard axiom budget
+(`propext`/`Classical.choice`/`Quot.sound`; verified 2026-06-17, 8033 jobs):
+
+* **`PnpProof/GeometricTruth.lean`** — Part 12 core (K12.1–K12.6): `coeff`/
+  `coeff_memlp` (ℓ²), `psiOf`/`psiTrue`, `psiOf_eq_iff`,
+  `norm_psiOf_sub_eq_zero_iff`, `okOf`/`okOf_all_true_iff`, `interpPi02_geom`,
+  the core equivalence `interpPi02_geom_iff`, its invariance corollary, and the
+  statement-level assembly `p_ne_np_geometric`. **K12.0 was deferred as a
+  parameter** (the file takes `b : HilbertBasis ℕ ℝ H` as a hypothesis rather
+  than constructing it — the plan explicitly sanctioned this). The
+  `Classical.choice` footprint is exactly the predicted `okOf`/`psiOf`
+  noncomputability — Part 12's fences hold as written.
+* **`PnpProof/NPComplete.lean`** — K12.9 closure theorem (NC1–NC7), but realized
+  **abstractly** over a `ComplexityModel` structure, **not** with the plan's
+  concrete `evaln`-based `InP`. This is **ratified deviation 8** below: the
+  concrete `DecidesInPoly`/`InP` of NC2 is *vacuously false for every language*
+  (Mathlib's `evaln` fuel is a value/recursion-depth bound, not a step count —
+  `evaln_bound` forces fuel `> input value`, while `bitlen x ^ k + k ~ (log x)^k`
+  is eventually `≪ x`), so every theorem stated over it would be vacuous. The
+  abstract `ComplexityModel` (carrying `InP`/`InNP`/`ReducesP` and the one
+  load-bearing field `P_closed`, NC4) is the **non-vacuous** logical content of
+  NC6/NC7; `npc_not_inP`/`sat_not_inP` are proved over it (the former uses *no*
+  axioms). The genuine supporting math is kept honest: `poly_comp` (NC4 fuel
+  arithmetic) and `evaln_comp_some` (machine-level reduction-∘-decider) are real,
+  non-vacuous lemmas; only the faithful *runtime* `InP` that would assemble them
+  is missing (and is research-scale — `Turing.TM2ComputableInPolyTime` is
+  unpopulated, as M5 records). **Cook–Levin (NC8) stays a hypothesis** (`hSAT`).
+
+**Status (2026-06-17 #2): both modules are now wired into `PnpProof.lean`** —
+item W is **DONE**. `PnpProof.lean` imports `GeometricTruth` and `NPComplete`
+after `Kopperman`, so the two modules are now covered by the default-target
+regression guard. The full default target (`RiemannProof` + `PnpProof`) builds
+green at **8037 jobs** (2026-06-17), sorry-free and within the standard axiom
+budget; only style-linter warnings remain (N2). `PvsNP.lean` packaging (K12.8)
+remains **out** of the default target while `sigma_pnp_iff_clay` (P5) is open —
+that fence is unchanged.
+
+**Status (2026-06-18): Part 13 landed as `PnpProof/Skeleton.lean` (fallback route).**
+A new module `PnpProof/Skeleton.lean` implements the explicit
+computably-enumerable dense skeleton (Part 13): `RatStepCode` + its
+`Encodable`/`DecidableEq`/`Countable` instances (S13.1), `ratStepFun` (S13.2), and
+the companion `EnumSkeleton`/`substrate_enumSkeleton`/`enumSkeleton_refines`
+(S13.4). The load-bearing density lemma S13.3 (`ratStepFun_denseRange`) was **not**
+achieved, so the witness took the sanctioned **fallback**: code type `ℕ` with
+`enum := TopologicalSpace.denseSeq Substrate` (off `substrate_separable`); the
+rational-step data are kept as documented intent. Builds sorry-free, standard axiom
+budget. **Two follow-ups remain** (Part 13 "Next steps"): the module is **not yet
+imported by `PnpProof.lean`** (so it is outside the default-target regression guard
+— a mechanical wire-in, the Part-13 analogue of item W), and the genuine
+`ratStepFun_denseRange` density theorem is the open fidelity upgrade. Fences hold:
+companion structure only (`Formalism` untouched), no `Computable` on `Lp`, no Clay
+leverage. See **Part 13**.
+
 Always restore the Mathlib cache before building:
 
 ```bash
@@ -107,10 +177,19 @@ lake build PnpProof
 | `PnpProof/Model.lean` | M1–M4 (representation: deviation 3) |
 | `PnpProof/Comparator.lean` | **N1**: the explicit `O(k)` comparator circuit — `Circuit.snoc` append API, per-bit register update `step`, MSB-first fold `buildLT`, `div_pow_succ_compare`, `bitsOf`, `fullCircuit`, `verify_circuit_cheap` |
 | `PnpProof/Main.lean` | T1 `selection_not_history`, T2 `almost_all_not_computable`, M5 as `verifyBits`/`verifyBits_computable` (deviation 4), T3 `model_P_ne_NP`, `mixed_to_continuous`, **N1** `model_P_ne_NP_circuit`, **T5** `model_vs_clay_disjointness` (with `DecidesSelection`, `dense_selection_domain`, `decidesSelection_unique`, `countable_language_decided_selections`, `selection_not_language_decidable`) |
-| `PnpProof/Kopperman.lean` | **The Kopperman formalism, assembled** (Part 9): `structure Formalism`, `Substrate`/`substrate_separable`, `substrate_decidable_skeleton`, `MehlerPrior`/`mehler_isProbability`/`mehler_concentrates_on_sphere`, `admits_atomless_prior`, `modelPrior_atomless`. Plus **K-model** (Part 11): `model_has_prior`, `substrate_orthonormal_pair`, `exists_atomless_prob_substrate`, `formalismOfPrior`/`prior_formalismOfPrior`/`prior_surjective_onto_atomless`, `nonempty_formalism_substrate`, `koppermanSubstrate` — "choosing a measure = choosing a model". All from proved lemmas; `sorry`/axiom-free |
+| `PnpProof/Kopperman.lean` | **The Kopperman formalism, assembled** (Part 9): `structure Formalism`, `Substrate`/`substrate_separable`, `substrate_decidable_skeleton`, `MehlerPrior`/`mehler_isProbability`/`mehler_concentrates_on_sphere`, `admits_atomless_prior`, `modelPrior_atomless`. Plus **K-model** (Part 11): `model_has_prior`, `substrate_orthonormal_pair`, `exists_atomless_prob_substrate`, `formalismOfPrior`/`prior_formalismOfPrior`/`prior_surjective_onto_atomless`, `nonempty_formalism_substrate`, `koppermanSubstrate` — "choosing a measure = choosing a model". `interpPi02` docstring now cross-references the Part-12 geometric witness. All from proved lemmas; `sorry`/axiom-free |
+| `PnpProof/GeometricTruth.lean` | **Part 12 (K12.1–K12.6)**: `coeff`/`coeff_memlp`, `psiOf`/`psiTrue`, `psiOf_eq_iff`, `norm_psiOf_sub_eq_zero_iff`, `okOf`/`okOf_all_true_iff`, `interpPi02_geom`, `interpPi02_geom_iff` (core), `interpPi02_geom_invariant`, `interpPi02_geom_eq_interp`, `p_ne_np_geometric` (statement-level). K12.0 deferred as a `HilbertBasis ℕ ℝ H` parameter (sanctioned). `sorry`-free; standard axioms only |
+| `PnpProof/NPComplete.lean` | **K12.9 (NC1–NC7), abstract form** (deviation 8): `Lang`/`toNat`/`bitlen`, `poly_comp`, `evaln_comp_some`, `structure ComplexityModel` (with `P_closed` = NC4), `NPComplete`, `npc_not_inP` (NC6, *no axioms*), `sat_not_inP` (NC7). The concrete `evaln`-`InP` of NC2 is **rejected as vacuous**; Cook–Levin (NC8) is a hypothesis. `sorry`-free |
+| `PnpProof/Skeleton.lean` | **Part 13 (S13.1, S13.2, S13.4), fallback route** (deviation 9): `RatStepCode` + auto `Encodable`/`DecidableEq`/`Countable`, `ratStepFun`, `structure EnumSkeleton`, `substrate_enumSkeleton` (code `ℕ` + `denseSeq` — fallback, **not** `ratStepFun`), `enumSkeleton_refines`. Density S13.3 `ratStepFun_denseRange` **not proved** (open fidelity upgrade); `ratStepFun`/`RatStepCode` kept as documented intent. `sorry`-free, standard axioms. **Not yet imported by `PnpProof.lean`** (wire-in pending) |
 
-The per-lemma map is `PnpProof/IMPLEMENTED.md`. No mathematical work items
-remain; the only open item is optional linter housekeeping — see Part 7.
+The per-lemma map is `PnpProof/IMPLEMENTED.md` (predates the two 2026-06-17
+modules — update it when convenient). No mathematical work items remain in the
+sorry-free core; the open *research/modelling* items (P5 `sigma_pnp_iff_clay`,
+NC11 rcp classification, a faithful runtime `InP`, NC8 Cook–Levin) are
+stop-and-report by design — see Part 7 and Parts 12/K12.8–K12.11. The wire-in
+mechanical item (W) is **done** (both modules imported by `PnpProof.lean`,
+2026-06-17); the only remaining mechanical item is optional linter housekeeping
+(N2).
 
 ### Ratified deviations from the original plan text
 
@@ -153,6 +232,37 @@ superseded:
    bounded-continuous weak-convergence corollary `poincare_borel` were not
    needed once the a.s. forms were available; they stay unformalized and are
    **not** on the queue.
+8. **K12.9 closure theorem realized ABSTRACTLY** (`NPComplete.lean`): the plan's
+   concrete polynomial-time predicate `InP L := ∃ c k, ∀ x, evaln (bitlen x^k+k)
+   c x = some …` (NC2) is **rejected as faithfully unimplementable** — Mathlib's
+   `Nat.Partrec.Code.evaln` fuel is a *value/recursion-depth* bound (`evaln_bound`:
+   `x ∈ evaln K c n → n < K`), not a step count, so `bitlen x^k+k ~ (log x)^k` is
+   eventually below `x` and the concrete `InP` is *vacuously false for every `L`*
+   (every downstream theorem would be vacuously true — the unsoundness the plan
+   forbids). The closure theorem is instead stated over an abstract
+   `structure ComplexityModel` carrying `InP`/`InNP`/`ReducesP` and the single
+   load-bearing field `P_closed` (NC4); `npc_not_inP`/`sat_not_inP` (NC6/NC7) are
+   proved over any instance (NC6 axiom-free). The honest underlying math is kept
+   as the non-vacuous lemmas `poly_comp` (NC4 fuel arithmetic) and
+   `evaln_comp_some` (reduction-∘-decider at the machine level). What is missing —
+   and is genuinely research-scale — is a faithful *runtime* `InP` to instantiate
+   the structure (`Turing.TM2ComputableInPolyTime` is unpopulated; see M5). This
+   ratifies the file's deviation; **NC2's concrete `InP`/`InNP`/`ReducesP` and
+   `InP.of_reducesP` (NC4) as written in Part 12/K12.9 are superseded** by the
+   abstract structure. (NC8 Cook–Levin remains a hypothesis, as the plan already
+   recommended via "abstract `C`".)
+9. **Part 13 skeleton realized via the FALLBACK** (`Skeleton.lean`): the
+   load-bearing density theorem S13.3 `ratStepFun_denseRange` (measurable set ≈
+   finite union of rational intervals in `L²`) was **not** achieved with the
+   available Mathlib API, so `substrate_enumSkeleton` uses the plan's sanctioned
+   fallback — **code type `ℕ` with `TopologicalSpace.denseSeq Substrate`** (off
+   `substrate_separable`) — rather than the rational-step witness `ratStepFun`.
+   The `RatStepCode`/`ratStepFun` code and decoder are **retained** in the file as
+   the documented intended witness (S13.1/S13.2 stand), and the honesty ceiling is
+   in the module docstring. This is the plan-blessed partial landing, not
+   stop-and-report. **S13.4's `substrate_enumSkeleton := { Code := RatStepCode, … }`
+   form is superseded** by the `ℕ`/`denseSeq` form until S13.3 lands. The module is
+   **not yet wired into `PnpProof.lean`** (Part-13 analogue of the W wire-in).
 
 ---
 
@@ -1900,10 +2010,25 @@ density), H2 (L^∞ pathology), M1–M4.
 ## Part 7: Status and next steps
 
 All ten original milestones are **complete**, and so are the follow-up items
-N1 (the `O(k)` comparator circuit, `Comparator.lean` + `model_P_ne_NP_circuit`)
-and T5 (`model_vs_clay_disjointness`) — see the Status section at the top. The
-development compiles sorry-free and axiom-free. What remains is the queue
-below.
+N1 (the `O(k)` comparator circuit, `Comparator.lean` + `model_P_ne_NP_circuit`),
+T5 (`model_vs_clay_disjointness`), **Part 12 K12.1–K12.6** (`GeometricTruth.lean`),
+and **K12.9 NC1–NC7** (`NPComplete.lean`, abstract form — deviation 8) — see the
+Status section at the top. Both new modules are now **wired into `PnpProof.lean`**
+(item W, done 2026-06-17): the full default target builds green at 8037 jobs,
+sorry-free and axiom-free (`#print axioms` confirmed for the two new modules).
+What remains is the queue below — **F-min is now also done** (all three
+definitional-base witnesses are present and recorded in `IMPLEMENTED.md`;
+re-verified 2026-06-17). **S13** (the explicit computably-enumerable dense
+skeleton — Part 13) is now **landed in `PnpProof/Skeleton.lean` via the fallback
+route** (2026-06-18): the structure and witness are built sorry-free, but the
+load-bearing density `ratStepFun_denseRange` (S13.3) was not achieved, so the
+`ℕ`/`denseSeq` fallback is in use. **Two follow-ups remain on S13**: (i) the
+mechanical **wire-in of `Skeleton.lean` into `PnpProof.lean`** (it is imported
+nowhere today, so it is outside the regression guard — do this first), and (ii) the
+open **`ratStepFun_denseRange` density theorem** (the genuine fidelity upgrade that
+would switch the witness to the `RatStepCode` rational-step form). The only other
+mechanical item is the **optional** N2 (linter housekeeping); everything else is
+open-by-design (stop-and-report). See **Part 13 → "Next steps"**.
 
 **Ground rules for every queue item:**
 
@@ -1924,8 +2049,28 @@ below.
 |---|------|---------------------------|-------|
 | ~~N1~~ | ~~`bitsOf`, `verify_circuit_cheap`, `model_P_ne_NP_circuit`~~ | §M5, steps 0–5 | **DONE 2026-06-12** in `Comparator.lean` + `Main.lean`; do not re-implement |
 | ~~T5~~ | ~~`model_vs_clay_disjointness`~~ | §T5 | **DONE 2026-06-12** in `Main.lean`; do not re-implement |
-| N2 (optional) | Style-linter housekeeping | — | the build emits `linter.style.multiGoal`, `linter.style.whitespace`, and `linter.style.longLine` warnings (the latter mainly in `SphereGaussian.lean`); fix with `·` focus dots / whitespace / line breaks only — if any proof breaks, revert that fix |
-| **F-min (recommended)** | **Definitional-base witnesses**: import-tier separation + axiom-footprint audit + `T-conserv` | **Part 11** | the maintainer's 2026-06-14 #2 directive (refined): the definitional base is the *Kopperman formalism's own*, **incomparable with PA**, co-consistent with PA and ZFC; over standard `ℕ` it defines the *standard* P-vs-NP sentence. Lands as: (a) arithmetic-tier statement imports no measure theory / `Kopperman`; (b) `#print axioms` audit of C1/C5/N1 in `IMPLEMENTED.md`; (c) `T-conserv` proved. **No `PA ⊢ …` / theory-comparison predicate** — flagged, not built |
+| ~~K12.1–K12.6~~ | ~~geometric truth equivalence~~ | §Part 12 | **DONE 2026-06-17** in `GeometricTruth.lean` (K12.0 deferred as a parameter); do not re-implement |
+| ~~K12.9 NC1–NC7~~ | ~~NP-completeness closure theorem~~ | §K12.9 | **DONE 2026-06-17** in `NPComplete.lean`, **abstract form** (deviation 8); do not re-implement |
+| ~~W~~ | ~~Wire `GeometricTruth` + `NPComplete` into `PnpProof.lean`~~ | — | **DONE 2026-06-17**: `PnpProof.lean` imports both after `Kopperman`; default target builds green at 8037 jobs and the regression guard now covers them. `PvsNP.lean` (K12.8) deliberately stays out while P5 is open |
+| N2 (optional, *partly done*) | Style-linter housekeeping | — | **Safe subset cleared 2026-06-17** (build stays green, 8037 jobs): all missing-final-newline `linter.style.whitespace` warnings (7 files), the `linter.unusedSectionVars` on `norm_psiOf_sub_eq_zero_iff` (added `omit [CompleteSpace H] in`), and all 5 `unused variable` warnings (renamed to `_name`). **Deliberately left** (≈477 warnings remain): `linter.style.longLine` (≈240), `linter.flexible`/`simp`→`simp only` (≈104), `refine'`→`refine` (≈48), unused-`simp`-args (≈23), `induction'`→`induction` (≈19), `linter.style.multiGoal` (≈14) — all touch the **internals of working sorry-free/axiom-free proofs** or are bulk reformatting; per the ground rule "revert any fix that breaks a proof," these are not worth the risk and are not on the critical path. Attempt only file-by-file with a rebuild after each, reverting on any breakage |
+| **S13 (DONE via fallback, 2026-06-18)** | **Explicit computably-enumerable dense skeleton** — `RatStepCode`, `ratStepFun`, `EnumSkeleton`/`substrate_enumSkeleton`/`enumSkeleton_refines` landed in **`PnpProof/Skeleton.lean`**, sorry-free, standard axioms | **Part 13** | Companion structure beside `Formalism` (untouched); honesty ceiling stated in docstring. **Density `ratStepFun_denseRange` (S13.3) NOT proved** — witness uses the `ℕ`/`denseSeq` **fallback**, with `RatStepCode`/`ratStepFun` kept as documented intent (deviation 9). **Two follow-ups remain:** (i) **wire `Skeleton.lean` into `PnpProof.lean`** — imported nowhere today, so outside the regression guard (do first); (ii) prove `ratStepFun_denseRange` to switch the witness to the rational-step form (open fidelity upgrade). S13.5 (verifier-field tie-in) stays **deferred**. See Part 13 → "Next steps" |
+| ~~F-min~~ | ~~Definitional-base witnesses: import-tier separation + axiom-footprint audit + `T-conserv`~~ | **Part 11** | **DONE** (recorded in `IMPLEMENTED.md`, re-verified 2026-06-17). All three proxies present: **(a)** the arithmetic-tier statements live in modules whose dependency closure excludes the measure theory and `Kopperman` — `Counting.lean` (C1 `countable_computable`, C5 `shannon_fraction`), `Comparator.lean` (N1 `verify_circuit_cheap`), `NPComplete.lean` (`npc_not_inP`) import only `Mathlib` (+`Counting`); only the model-facing wrapper `model_P_ne_NP_circuit` sits in `Main.lean` by design. **(b)** `#print axioms` on C1/C5/N1 = exactly `{propext, Classical.choice, Quot.sound}` (no measure-layer axiom; `Classical.choice` is the global Mathlib budget, not a measure-tier dependency). **(c)** `T-conserv` already proved — `arith_truth_invariant`/`pi02_invariant_of_formalism`/`interpPi02_eq` (`Kopperman.lean`) + non-trivial-witness form `interpPi02_geom_invariant` (`GeometricTruth.lean`). **No `PA ⊢ …` / theory-comparison predicate** — flagged, not built (Part 11 fences) |
+
+**Open by design (stop-and-report items, NOT queue work — never `sorry`/`axiom`):**
+
+- **P5 `sigma_pnp_iff_clay`** (K12.8): the lone conceptual link "Shannon/generic
+  hardness `σ_pnp` ↔ SAT ∉ P". This is the same gap as T5 / pnp.tex §10's expert-
+  review disclaimer; on current evidence (T5) it does not close from the model.
+  Needs an independent complexity-theory proof, not a translation task.
+- **NC11.2 / NC11.3** (K12.11): the verify/solve classification against the
+  *selected rcp kernel* `κ_sel` (not the joint-derived `G`). Both OPEN; NC11.3
+  (no-P-solver / prior-domain existence notion) is the genuine crux. Do not import
+  T2/T5 as "not NP" here (NC11.4).
+- **A faithful runtime `InP`** to instantiate `ComplexityModel` (deviation 8):
+  research-scale; Mathlib's poly-time machine API (`Turing.TM2ComputableInPolyTime`)
+  is unpopulated. Until it exists, the closure theorem stays abstract.
+- **NC8 Cook–Levin** (`NPComplete SAT`): optional/large; the abstract `C`/`hSAT`
+  route keeps NC6/NC7 independent of it.
 
 ### Explicitly NOT on the queue
 
@@ -2769,8 +2914,10 @@ maintainer's call:
    `Kopperman.lean` are currently *parallel leaves* (neither imports the other), so
    a verifier field needs an import restructure or a new top file; and a genuinely
    *computable* dense enumeration of the substrate must be built (H4 was subsumed,
-   deviation 2, not exposed as a standalone computable enumerator). Flag, do not
-   force; attempt only on maintainer request.
+   deviation 2, not exposed as a standalone computable enumerator). **Now specified
+   for implementation in Part 13** (companion-structure form, rational-step witness
+   with a `denseSeq` fallback, honesty ceiling stated; the verifier-field tie-in
+   stays deferred as Part 13's S13.5). Maintainer requested it 2026-06-17.
 
 *(Naming: the Lean file/structure is `Kopperman` after Kopperman 1967's
 `L_{ω₁,ω₁}`-theory of Hilbert spaces; the maintainer's "Koopman" also evokes the
@@ -2862,3 +3009,1065 @@ Three tiers, by increasing depth:
   with. The bounded-arithmetic remark (`IΔ₀+exp`/`S¹₂`) is only a note on where the
   *sentence* naturally lives; formalizing provability in any such theory is the same
   separate meta-logic project — flag, do not start it under this directive.
+
+---
+
+## Part 12: The geometric truth model — P vs NP as a vector identity in the substrate (continuous prior)
+
+**Maintainer directive (2026-06-16).** Express the P-vs-NP `Π⁰₂` sentence *inside
+the Kopperman formalism* as a single completed vector in the separable Hilbert
+substrate, with truth read off as a metric identity, and pin the model down with a
+**continuous prior on functions of a continuous variable** (the already-built
+`formalismOfPrior` on the substrate `L²([0,1])`).
+
+This Part is **PROVABLE** end to end and is a *strict refinement* of Part 11: the
+existing `interpPi02`/`arith_truth_invariant` (`Kopperman.lean`) wrap the truth of a
+`Π⁰₂` sentence trivially (`interpPi02 p _ _ := Pi02 p`, `arith_truth_invariant :=
+Iff.rfl`). Part 12 replaces the *trivial* wrapper with the *geometric* one
+`‖Ψ_Φ − Ψ_true‖ = 0` and proves it equals `Pi02 p`. New module:
+`PnpProof/GeometricTruth.lean` (imports `Kopperman.lean` and the Hilbert-basis /
+`lp` slice of Mathlib; it is in the **measure/formalism tier**, *not* the arithmetic
+tier — see Fences). It changes none of the dispositions of Parts 8–11.
+
+> **IMPLEMENTED (2026-06-17): K12.1–K12.6 are DONE in `PnpProof/GeometricTruth.lean`,
+> sorry-free, standard axioms only.** The signatures below match the file, with one
+> sanctioned change: **K12.0 is deferred** — every theorem takes
+> `b : HilbertBasis ℕ ℝ H` as an explicit parameter rather than constructing the
+> basis (the plan permitted exactly this). `Classical.choice` appears via `okOf`/
+> `psiOf` precisely as the Fences predicted. The K12.x subsections below now read as
+> a record of the landed proof; the only remaining geometric work is the optional
+> K12.0 existence lemma for `Substrate` (if a parameter-free `p_ne_np_geometric` over
+> `Substrate` is wanted) and the still-open arithmetic input `pPNP`/`hPNP` (P5).
+
+### The construction (faithful to the directive's text)
+
+For a `Π⁰₂` matrix `p : ℕ → ℕ → Bool` (decidable relation `Q`, `Pi02 p := ∀x ∃y,
+p x y = true`), put the `Σ⁰₁` sub-formula's truth function
+```
+OK_p x = 1   if ∃ y, p x y = true        OK_p x = 0   otherwise.
+```
+Over an ℕ-indexed Hilbert basis `{e_x}` of the substrate, form the **completed
+vector**
+```
+Ψ_p = Σ_x  OK_p x / (x+1) · e_x          Ψ_true = Σ_x  1 / (x+1) · e_x.
+```
+Both are genuine points of the Hilbert space: the coefficient sequences lie in `ℓ²`
+because `Σ_x 1/(x+1)² < ∞` (`= π²/6`). The directive's truth relation is
+```
+Pi02 p   ⇔   ‖Ψ_p − Ψ_true‖ = 0.
+```
+*(We index from `x+1` rather than `x` to use the genuine `ℕ` basis without dropping
+`x = 0`; the directive's `1/x`, `x ≥ 1`, is the same series reindexed.)*
+
+### K12.0. An ℕ-indexed Hilbert basis of the substrate — PROVABLE (existence; (search)-heavy)
+
+```lean
+-- H is the substrate (separable, infinite-dimensional, complete inner-product space).
+theorem exists_natHilbertBasis
+    {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H] [CompleteSpace H]
+    [SeparableSpace H] [Infinite ...] :          -- exact infinite-dim hypothesis: (search)
+    Nonempty (HilbertBasis ℕ ℝ H)
+```
+
+**Proof.** `exists_hilbertBasis ℝ H` (search; gives `∃ (s : Set H) (b : HilbertBasis
+s ℝ H), ⇑b = ((↑) : s → H)`). For separable infinite-dimensional `H` the index set
+`s` is countably infinite, so `s ≃ ℕ` (`Set.Countable` from separability + `Infinite`
+⇒ `Denumerable s` ⇒ `s ≃ ℕ`; (search) `nonempty_equiv_of_countable`,
+`Denumerable.eqv`). Transport with `HilbertBasis.reindex b e.symm` (search; exists).
+Note: which exact hypotheses cut down `s` to `ℕ` is the only fiddly part — if the
+infinite-dimensionality bookkeeping stalls, **state the rest of Part 12 with
+`(b : HilbertBasis ℕ ℝ H)` as an explicit parameter** and discharge `exists_natHilbertBasis`
+separately for `Substrate := Lp ℝ 2 unitMeasure` (its separability is H1; its
+infinite-dimensionality is standard). Everything below only needs *some* fixed `b`. ∎
+
+### K12.1. The coefficient sequence lies in ℓ² — PROVABLE
+
+```lean
+/-- Coefficients of Ψ for a truth-function `g : ℕ → Bool`. -/
+def coeff (g : ℕ → Bool) : ℕ → ℝ := fun x => (if g x then (1:ℝ) else 0) / (x + 1)
+
+theorem coeff_memlp (g : ℕ → Bool) : Memℓp (coeff g) 2
+```
+
+**Proof.** `Memℓp f 2 ↔ Summable (fun x => ‖f x‖ ^ 2)` (search: `memℓp_gen`,
+`Real.rpow_natCast`, or the `p = 2` specialization `memℓp_two_iff_summable_sq`).
+Bound `‖coeff g x‖^2 = (if g x then 1 else 0)²/(x+1)² ≤ 1/(x+1)²` (the indicator
+is `0` or `1`; `div_le_div_of_nonneg_right`, `sq` cases on `g x`). `Summable (fun x
+=> 1/((x:ℝ)+1)^2)` from `Real.summable_one_div_nat_pow.mpr (by norm_num : 1 < 2)`
+reindexed by `x ↦ x+1` (search: `summable_nat_add_iff`), or
+`Real.summable_one_div_nat_rpow`. Conclude by `Summable.of_nonneg_of_le`
+(nonneg: squares; bound: above). ∎
+
+### K12.2. The completed vectors — DEFINITIONS
+
+```lean
+variable {H} [NormedAddCommGroup H] [InnerProductSpace ℝ H] [CompleteSpace H]
+  (b : HilbertBasis ℕ ℝ H)
+
+/-- Ψ for a truth-function `g`: the basis-sum Σ_x coeff(g)(x)·e_x. -/
+noncomputable def psiOf (g : ℕ → Bool) : H :=
+  b.repr.symm ⟨coeff g, coeff_memlp g⟩
+
+/-- The "all-true" target Ψ_true. -/
+noncomputable def psiTrue : H := psiOf b (fun _ => true)
+```
+
+`b.repr : H ≃ₗᵢ[ℝ] lp (fun _ : ℕ => ℝ) 2` is Mathlib's `HilbertBasis.repr`
+(LinearIsometryEquiv); `b.repr.symm` realizes the abstract sum without manual
+`tsum`/`HasSum` bookkeeping. (If preferred, `psiOf b g = ∑' x, coeff g x • b x`
+holds by `HilbertBasis.repr_symm_apply`/`HilbertBasis.hasSum_repr` (search) — record
+it as a lemma `psiOf_eq_tsum` only if a downstream step wants the explicit series.)
+
+### K12.3. The geometric truth equivalence — PROVABLE (the core lemma)
+
+```lean
+theorem psiOf_eq_iff (g₁ g₂ : ℕ → Bool) :
+    psiOf b g₁ = psiOf b g₂ ↔ ∀ x, g₁ x = g₂ x
+
+theorem norm_psiOf_sub_eq_zero_iff (g : ℕ → Bool) :
+    ‖psiOf b g - psiTrue b‖ = 0 ↔ ∀ x, g x = true
+```
+
+**Proof (first).** `b.repr.symm` is injective (`LinearIsometryEquiv.injective`), so
+`psiOf b g₁ = psiOf b g₂ ↔ (⟨coeff g₁, _⟩ : lp _ 2) = ⟨coeff g₂, _⟩`; by
+`Subtype.ext_iff` / `lp.ext_iff` (search) this is `coeff g₁ = coeff g₂`, i.e.
+`∀ x, coeff g₁ x = coeff g₂ x` (`funext_iff`). For each `x`, `(x:ℝ)+1 ≠ 0`, so
+dividing out (`div_left_injective₀` / `div_right_injective`, search) gives
+`coeff g₁ x = coeff g₂ x ↔ (if g₁ x then 1 else 0) = (if g₂ x then (1:ℝ) else 0)`,
+and `(0:ℝ) ≠ 1` makes the indicator equality `↔ g₁ x = g₂ x` (case split on the two
+Booleans; `by_cases`/`decide`). **Second**: `norm_eq_zero` + `sub_eq_zero` reduce
+`‖psiOf b g − psiTrue b‖ = 0` to `psiOf b g = psiTrue b = psiOf b (fun _ => true)`;
+apply the first lemma; `g₂ x = true` is `rfl`-trivial, leaving `∀ x, g x = true`. ∎
+
+### K12.4. The Σ⁰₁ sub-formula as a (noncomputable) truth-function — PROVABLE
+
+```lean
+open Classical in
+/-- `OK_p x = decide (∃ y, p x y = true)`. NONCOMPUTABLE (no decision procedure for
+the existential) — this is the honest rendering of "completed/ATR₀ comprehension". -/
+noncomputable def okOf (p : ℕ → ℕ → Bool) : ℕ → Bool :=
+  fun x => decide (∃ y, p x y = true)
+
+theorem okOf_all_true_iff (p : ℕ → ℕ → Bool) :
+    (∀ x, okOf p x = true) ↔ Pi02 p
+```
+
+**Proof.** Pointwise `okOf p x = true ↔ ∃ y, p x y = true` by `decide_eq_true_iff`
+(with `Classical.propDecidable`); `forall_congr'` over `x`; the RHS is
+`Pi02 p` by definition. ∎
+
+### K12.5. Geometric interpretation of a Π⁰₂ sentence — PROVABLE (refines `interpPi02`)
+
+```lean
+/-- The GEOMETRIC interpretation: truth of `p` is the metric identity
+`‖Ψ_p − Ψ_true‖ = 0` in the substrate of the model `F`. Refines `interpPi02`. -/
+noncomputable def interpPi02_geom {H} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
+    [CompleteSpace H] [MeasurableSpace H]
+    (b : HilbertBasis ℕ ℝ H) (p : ℕ → ℕ → Bool) (_F : Formalism H) : Prop :=
+  ‖psiOf b (okOf p) - psiTrue b‖ = 0
+
+/-- The geometric reading is faithful: it equals the plain arithmetic sentence —
+exactly `arith_truth_invariant`/`interpPi02_eq`, now with a non-trivial witness. -/
+theorem interpPi02_geom_iff {H} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
+    [CompleteSpace H] [MeasurableSpace H]
+    (b : HilbertBasis ℕ ℝ H) (p : ℕ → ℕ → Bool) (F : Formalism H) :
+    interpPi02_geom b p F ↔ Pi02 p
+```
+
+**Proof.** `interpPi02_geom b p F` unfolds to `‖psiOf b (okOf p) − psiTrue b‖ = 0`;
+`norm_psiOf_sub_eq_zero_iff` (K12.3) rewrites it to `∀ x, okOf p x = true`;
+`okOf_all_true_iff` (K12.4) to `Pi02 p`. ∎
+
+**Invariance corollary** (the geometric `T-conserv`): `interpPi02_geom b p F₁ ↔
+interpPi02_geom b p F₂` and `↔ interpPi02 p F z` — all by chaining `interpPi02_geom_iff`
+with `interpPi02_eq`. The model `F` (its prior) drops out, *and now the witness is a
+concrete vector identity in `F`'s substrate*, not a definitional `Iff.rfl`.
+
+### K12.6. The continuous-prior model and the P-vs-NP instance — PROVABLE (assembly)
+
+Tie the encoding to the directive's "model with functions of a continuous variable,
+chosen by a continuous prior":
+
+```lean
+-- Substrate := Lp ℝ 2 unitMeasure  (functions of a continuous variable);
+-- bSub : HilbertBasis ℕ ℝ Substrate  from K12.0.
+-- For any atomless probability measure μ on Substrate, formalismOfPrior μ : Formalism Substrate
+-- (Part 11, DONE) is "the model chosen by the continuous prior μ".
+
+theorem p_ne_np_geometric
+    (bSub : HilbertBasis ℕ ℝ Substrate)
+    (μ : Measure Substrate) (hμ : IsProbabilityMeasure μ) (hμ0 : ∀ x, μ {x} = 0)
+    (pPNP : ℕ → ℕ → Bool)              -- the SAT-based Π⁰₂ matrix of "P ≠ NP" (Part 11 pt 1)
+    (hPNP : Pi02 pPNP ↔ P_ne_NP_arith) -- the standing arithmetic identity (Part 11; reuse `P_ne_NP_Pi20`)
+    : interpPi02_geom bSub pPNP (formalismOfPrior μ ...) ↔ P_ne_NP_arith :=
+  (interpPi02_geom_iff bSub pPNP _).trans hPNP
+```
+
+So: *inside one model of the Kopperman formalism — `Substrate = L²([0,1])`, model
+selected by the continuous (atomless) prior `μ` — the standard P-vs-NP sentence is
+the single vector identity `‖Ψ_{P≠NP} − Ψ_true‖ = 0`.* The `pPNP`/`P_ne_NP_arith`
+inputs are exactly the Part-11 `Π⁰₂` SAT encoding (`P_ne_NP_Pi20`); **do not
+re-derive them here** — if that arithmetic predicate is not yet a standalone def,
+this theorem stays *statement-only* against an assumed `hPNP`, and the work item is
+to expose `P_ne_NP_Pi20` from the arithmetic tier (Part 11 step (a)). The geometric
+layer does not produce it.
+
+### Build order
+
+`K12.1 → K12.2 → K12.3` (core), `K12.4` (independent), `K12.5 = K12.3 + K12.4`,
+`K12.0` (existence, isolable as a parameter), `K12.6 = K12.5 + Part 11 inputs`.
+New file `PnpProof/GeometricTruth.lean`, imported by `PnpProof.lean` after
+`Kopperman`. Verify every `(search)` name before use (`exists_hilbertBasis`,
+`HilbertBasis.reindex`, `HilbertBasis.repr`, `memℓp_two_iff_summable_sq`,
+`Real.summable_one_div_nat_pow`, `lp.ext_iff`, `decide_eq_true_iff`).
+
+### K12.7. The "model where P≠NP, then absoluteness" argument — the obligation chain, and the one step Lean will not close
+
+**Maintainer proposal (2026-06-16 #2).** *Once a model of `Π⁰₂` is a Hilbert
+space, choose a Hilbert space where only uncomputable functions exist; define an
+NP-computable function (as in `pnp.tex`) but no P-computable function; this gives a
+model of `Π⁰₂` where P≠NP; and since a `Π⁰₂` sentence evaluates the same in all
+models of `Π⁰₂`, P≠NP.*
+
+This is the **bridge** of Part 8, now routed through the Part-12 geometry. The plan's
+job is to render it as Lean obligations so the arbiter (Lean) shows where it stands.
+It splits into five steps; **four are already PROVABLE in the development, and the
+fifth has no inhabiting term** — that gap is precisely `T5`.
+
+| Step | Claim | Lean obligation | Disposition |
+|------|-------|-----------------|-------------|
+| **S1** | a Hilbert space defines a model of `Π⁰₂` | `interpPi02_geom` + `interpPi02_geom_iff` | **PROVABLE** (K12.5) |
+| **S2** | choose a model where "only uncomputable functions exist" | an atomless prior `μ` with `μ {computable selections} = 0` | **PROVABLE** as stated *honestly* — see note (a) |
+| **S3** | define an NP-computable function but no P-computable one | `model_P_ne_NP` (T3) + `verifyBits_computable` (M5) | **PROVABLE** — but about *model*-P/*model*-NP, i.e. the sentence `σ`, note (b) |
+| **S4** | ∴ there is a model of `Π⁰₂` where **P≠NP** | `interpPi02_geom bSub p_PvsNP F` for some `F` | **DOES NOT CLOSE** — note (c); this is `T5` |
+| **S5** | a `Π⁰₂` sentence is the same in all models ⇒ P≠NP | `arith_truth_invariant` | **PROVABLE** as invariance — but it *defeats* the construction, note (d) |
+
+**(a) "A Hilbert space where only uncomputable functions exist" — the honest
+reading.** Literally there is no such space: the computable (indeed rational
+step / polynomial) functions are **dense** in `L²([0,1])` (H4/H5), so they cannot
+be removed from the substrate; they are *present*, merely **null**. The honest,
+PROVABLE version is the prior statement, not a set-membership statement: the
+atomless prior gives **measure zero** to machine-computable selection functions —
+`almost_all_not_computable` (T2). Keep this distinction; *null ≠ absent* is the
+recurring Part-8 error (`σ` is a measure fact, not an existence fact).
+
+**(b) What S2+S3 actually deliver is `σ`, a *different* `Π⁰₂` sentence.** T3/T2
+establish: under this prior, the *selected* object is a.s. uncomputable while the
+*verification* is computable — i.e. `model-P ≠ model-NP`. As an arithmetic sentence
+this is `σ` := "a prior-generic selection is uncomputable" (a Shannon/counting
+statement). It is **not** `p_PvsNP` := "SAT ∉ P" (`P_ne_NP_Pi20`, Part 11 pt 1).
+
+**(c) S4 is the load-bearing step and it has no term.** By K12.3+K12.5,
+`interpPi02_geom bSub p_PvsNP F` unfolds to `‖Ψ_{p_PvsNP} − Ψ_true‖ = 0`, which holds
+**iff** `∀ x, okOf p_PvsNP x = true`, i.e. **iff `Pi02 p_PvsNP`**, i.e. iff the full
+arithmetic statement "SAT ∉ P" already holds. Nothing about choosing `F` (the prior,
+the Hilbert space) supplies this: there is **no Lean term**
+```lean
+-- WANTED (S4), and it does not exist:
+model_P_ne_NP → interpPi02_geom bSub p_PvsNP F      -- i.e.  σ → Pi02 p_PvsNP
+```
+because the antecedent is `σ` and the consequent is `Pi02 p_PvsNP`, and these are
+**disjoint** arithmetic sentences — which is exactly what
+`model_vs_clay_disjointness` (T5) proves: for any collection `NP` of *computable*
+languages (every faithful Clay class), the prior gives measure zero to the event "some
+member decides the selection," so the model's hardness witness is blind to the
+truth value of any specific decidable language including SAT. **S4 is `T5`, with the
+sign that makes the bridge fail.**
+
+**(d) S5 is true — and it sinks the construction rather than saving it.**
+`arith_truth_invariant` does say the truth value of `Pi02 p_PvsNP` is the same across
+**all** `Formalism`s (it is fixed by the standard `ℕ`, K12.5 invariance corollary).
+But read the quantifier honestly: this means the prior / Hilbert-space choice **cannot
+move** that truth value, so "**construct** a model where P≠NP holds" is not a
+construction at all — by invariance, `interpPi02_geom bSub p_PvsNP F` holds for *some*
+`F` **iff** it holds for *every* `F` **iff** `Pi02 p_PvsNP`. You cannot manufacture the
+"some model" without already possessing `Pi02 p_PvsNP`. Absoluteness is the reason S4
+cannot be cheap, not a lever that turns `σ` into `p_PvsNP`.
+
+**The only way S4 ever closes (honest statement of the open problem).** Provide a
+genuine proof term of `Pi02 p_PvsNP` — i.e. prove "SAT ∉ P" arithmetically, from the
+computability/finite-combinatorics tier, with **no** appeal to the prior. Then S1+S5
+package it geometrically and it holds in every model. The geometry (Part 12) and the
+measure separation (T2/T3) contribute **nothing** to that term — they re-express and
+they separate `σ`, neither of which is `p_PvsNP`. **Do not** write S4 as a `theorem`
+with a `sorry`, and **do not** introduce it as an `axiom` (Part 9 forbids both); state
+S1–S3, S5 as the PROVABLE lemmas above and leave S4 as the named open obligation
+`Pi02 p_PvsNP`, with `T5` cited as the proof that the model layer does not discharge
+it.
+
+### K12.8. Step-by-step implementation plan — prove `Pi02 p_PvsNP` via the continuous-prior model extension
+
+**Maintainer directive (2026-06-16 #3).** Implement, step by step, a proof of the
+strictly `Π⁰₂` P-vs-NP sentence (functions, integers, `∀`, `∃` only) *using the
+extension of the model to continuous functions distributed by a continuous prior*.
+The specialist implements steps **P1–P5 in order**; **Lean is the arbiter** of P5.
+Per Part 0's sorry policy and Part 9's `axiom` ban, **P5 carries no `sorry` and no
+`axiom`**: if it does not close, **stop and report** with the open tactic state —
+that report is the deliverable, not a fabricated term.
+
+Notation: `Sub := Lp ℝ 2 unitMeasure` (the substrate — *functions of a continuous
+variable*); `p_PvsNP : ℕ → ℕ → Bool` the `Π⁰₂` matrix of "SAT ∉ P".
+
+#### P1. The continuous-prior model extension — DONE (reuse), assemble as a named model
+
+Reuse the K-model layer; no new math.
+```lean
+-- μ : an atomless (continuous) probability measure on Sub  -- exists_atomless_prob_substrate (DONE)
+-- Fμ : Formalism Sub := formalismOfPrior μ …               -- (DONE);  Fμ.prior = μ  (rfl)
+```
+Deliverable: a single `def pnpModel (μ) (hμ : atomless prob) : Formalism Sub :=
+formalismOfPrior μ …`. **Disposition: PROVABLE (assembly of DONE lemmas).**
+
+#### P2. The "better-suited problem" — pnp.tex's OWN separation as the Π⁰₂ sentence — DONE (this is the conceptual bridge, and it is already formalized)
+
+**This replaces the research-sized SAT encoding.** The maintainer's "equivalent,
+better-suited problem" is *not* the from-scratch Clay matrix; it is **pnp.tex's own
+indicator/selection problem** (§3, §5–6 option 1), whose arithmetic core is already
+proved in the repo. The Lean specialist cannot extract this from pnp.tex; here it is
+explicitly, mapped section-by-section to existing Lean objects. **No new large
+development is required — P2 is the assembly of DONE lemmas; the bulk is conceptual,
+done here.**
+
+pnp.tex's separation, and its Lean image:
+
+| pnp.tex | claim | Lean object (DONE) |
+|---|---|---|
+| §2 last ¶ | Shannon: almost all `n`-bit Boolean functions need `>2ⁿ/(4n)` gates ⇒ not in `P`; the continuous prior gives null measure to `P`-approximable functions | `shannon_fraction` (C5) + `almost_all_not_computable` (T2) |
+| §3, §5 last ¶, §6 | the inverse-transform **verification** of a candidate output is computable / cheap (`NP` side) | `verifyBits_computable` (M5), `model_P_ne_NP_circuit` (N1, ≤ `50k+50` gates) |
+| §5–6 option 1 | the indicator of the selected `y` (constant-in-`x` on a finite interval) has null prior measure ⇒ **no `P` function reproduces it**, while it is verifiable (`NP`) | `model_P_ne_NP` (T3) |
+| §5 | mixed→continuous reduction (rescale the diffuse part); the CDF jump that separates the measures | `mixed_to_continuous` (F8), `cdf_jump_separation` (F7) |
+
+**The Π⁰₂ (arithmetic) sentence the model actually establishes.** Call it `σ_pnp`.
+Its hard, prior-independent kernel is **Shannon's counting bound**, a genuine
+arithmetical statement of the right shape (decidable matrix, ranges over `ℕ`):
+```lean
+-- σ_pnp : a Π⁰₂ / Π⁰₁ arithmetic sentence, PROVED as `shannon_fraction` (C5):
+--   ∀ n ≥ 8, (number of n-bit Boolean functions of circuit-size ≤ 2ⁿ/(4n))
+--              · 2^(2ⁿ/4)  ≤  2^(2ⁿ)
+```
+Together with the computable-verifier side (M5/N1), `σ_pnp` is exactly the arithmetic
+content of "`model`-`NP` ⊄ `model`-`P`" = `model_P_ne_NP` (T3). **All PROVED.** So the
+"define P vs NP within the framework as a Π⁰₂ sentence, then prove it in the model"
+program is *already complete for `σ_pnp`*: `Pi02`-style sentence + model proof both
+exist. **Disposition: DONE — the explicit pnp.tex relation is `T3`, resting on `C5`
+(the arithmetic Π⁰₂ kernel) + `T2` + `M5`/`N1`.**
+
+**What this does and does not give (read before P5).** By Part-11/Part-12 absoluteness,
+`σ_pnp` (being arithmetic over standard `ℕ`) evaluates the same in every model — and it
+is **true and proved**. What it is **not** is the Clay sentence `Pi02 p_PvsNP` =
+"SAT ∉ P": `σ_pnp` asserts *generic/Shannon* hardness (almost every Boolean function is
+hard), the Clay sentence asserts hardness of the *one specific* language SAT. pnp.tex
+**itself flags this gap**: the Abstract and §1 say the P≠NP claim "still needs to be
+reviewed by experts" and "it is likely … something went wrong in the relation"; §10
+records that the formalization names the theorem `model_P_ne_NP`, **never** `P_ne_NP`,
+and asserts **no** implication to Clay. The relation `σ_pnp` ⟷ Clay is the **only**
+open link, and it is P5.
+
+> **Recentered (2026-06-17):** P3/P4 below are the **code-level shadow** — `verifyBits`
+> (bounds-given) and `T2`/`T5` (computable codes). The faithful verify/solve formulation is
+> against the selected rcp kernel `κ_sel` (**NC11**); read P3/P4 as the bounds-given /
+> code-level facts, not as the live separation, and do not treat `verifyBits` as a function
+> `G` of the joint.
+
+#### P3. NP side — the bounds-given verifier (code-level shadow of NC11.2) — DONE (reuse)
+
+With the local `κ_sel` values supplied as input, the check is computable:
+`verifyBits_computable` (M5), `model_P_ne_NP_circuit` / `verify_circuit_cheap` (N1). This
+is NC11.2 in the special case "rcp data handed in"; the live case (verifier *reads* `κ_sel`)
+is NC11.2, OPEN. **Disposition: DONE (bounds-given shadow).**
+
+#### P4. P side — the code-level non-existence of a computable solver — DONE (reuse)
+
+`almost_all_not_computable` (T2): machine-computable selections are prior-null. This is the
+*computable-code* shadow of NC11.3. **Do not** read it in the rcp setting as "solver
+uncomputable ⇒ not NP" (NC11.4 forbids the conflation); the live no-P-solver question is
+NC11.3, OPEN. Expose T2 (and T5) as the code-level inputs only. **Disposition: DONE
+(code-level shadow).**
+
+#### P5. The crux — the `σ_pnp` ⟷ Clay relation — LOAD-BEARING; Lean decides; this is the ONE conceptual step pnp.tex leaves open
+
+P1–P4 deliver `σ_pnp` (pnp.tex's separation, **proved**: `T3` on `C5`+`T2`+`M5`/`N1`).
+Absoluteness (Part 11/12) propagates `σ_pnp` to every model. The maintainer's
+syllogism — *"a model where P≠NP, plus Π⁰₂ same in all models, gives P≠NP"* — closes
+**iff** the sentence proved in the model is the same Π⁰₂ sentence one wants absolute.
+So the entire remaining content is the single relation:
+```lean
+-- P5-GOAL (the only open link; everything else is DONE):
+theorem sigma_pnp_iff_clay : σ_pnp ↔ Pi02 p_PvsNP        -- "Shannon/generic hardness" ↔ "SAT ∉ P"
+```
+If `sigma_pnp_iff_clay` holds, then `σ_pnp` (proved) ⇒ `Pi02 p_PvsNP` (Clay), and
+absoluteness finishes. **This identification is exactly the relation pnp.tex says
+"still needs to be reviewed by experts," and the only honest open item.**
+
+Implementation guidance — the precise obligation, and the existing evidence about it:
+- **Direction that is already settled (the obstruction).** `model_vs_clay_disjointness`
+  (`T5`) proves: for any collection of *computable* languages (every faithful Clay class,
+  since `NP ⊆ EXPTIME ⊆ Computable`), the prior gives measure zero to "some member decides
+  the selection." I.e. `σ_pnp`'s witness (the prior-generic hard selection) is **blind to
+  every specific decidable language**, SAT included. So the `←`/transfer direction has no
+  model-generic inhabitant: `σ_pnp` does not, through the prior, name a failing input for
+  SAT. **Do not** route `sigma_pnp_iff_clay` through `Fμ.prior` — `T5` is the proof that
+  route is empty.
+- **What a genuine proof would require.** A term of `sigma_pnp_iff_clay` must consume the
+  *definitions* of both sides arithmetically — relate Shannon's counting bound (`C5`) to
+  the specific circuit/time complexity of SAT — with **no** appeal to `μ`/`Fμ` (which, by
+  `interpPi02_eq`'s `Iff.rfl`, contribute nothing to an arithmetic goal; and a
+  model-generic term would prove even the false matrix `fun _ _ => false`). That is a
+  complexity-theory theorem (generic hardness ⇒ specific-language hardness), **not** a
+  Lean-translation task and **not** something pnp.tex supplies.
+- **Disposition: OPEN — and it is the SAME open item as T5 / pnp.tex §10's disclaimer,
+  not a new one.** Per Part 0 + Part 9: **no `sorry`, no `axiom`.** If `sigma_pnp_iff_clay`
+  is not provided with a complete English proof, **stop and report** — the deliverable is
+  `σ_pnp` (DONE) plus the explicit statement of the one open relation, exactly as pnp.tex
+  itself leaves it.
+
+**Net status.** P1, P2 (`σ_pnp` = `T3`), P3, P4 are **DONE**; the "fully define P vs NP
+within the framework as Π⁰₂ and prove it in the model" goal is **achieved for `σ_pnp`**.
+The only thing between `σ_pnp` and Clay `P ≠ NP` is `sigma_pnp_iff_clay` (P5), which is
+`T5`'s disjointness with the sign reversed — the precise point pnp.tex assigns to expert
+review. Lean is the arbiter, and on the current evidence (`T5`, proved) the link does not
+close from the model; it would need an independent complexity-theoretic proof.
+
+#### P6. Formalize "does the model's NP object qualify as a single problem in NP \ P?" — the code already decides it
+
+The maintainer asks (rightly, by NP-completeness: one language in `NP \ P` ⇒ `SAT ∉ P`)
+to formalize whether the model's NP function is a single `NP \ P` witness. State it
+precisely against the **actual** definitions (`Main.lean`) and read the answer off the
+existing theorems. The NP object is `verifyBits glo ghi u := decide (glo ≤ u ∧ u ≤ ghi)`.
+
+- **(a) Is it a decidable language / in NP?** **YES — proved.** `verifyBits_computable`
+  (primitive recursive). The language `L_V := {p | verifyBits p.1 p.2.1 p.2.2 = true}`
+  is decidable; it genuinely is "a single NP problem."
+- **(b) Is it *not* in P?** **NO — it is in P, and the code proves it.**
+  `model_P_ne_NP_circuit` gives, for each `k`, a circuit of size `≤ 50k+50` deciding
+  `verifyBits` on `k`-bit inputs — a poly-size decider, i.e. `L_V ∈ P`. So
+  `L_V ∈ NP ∩ P`, **not** `NP \ P`.
+- **(c) The "not in P" object is the selection, not the verifier.** The second conjunct
+  of `model_P_ne_NP` is about `g : C(K, ℝ)` (a *continuous function, not a language*),
+  a.s. uncomputable; `model_vs_clay_disjointness` (T5) proves a.s. **no** computable
+  language decides it — so as a language it is *undecidable*, hence `∉ NP`.
+
+Formalization target (make the answer explicit; both directions provable from DONE
+theorems):
+```lean
+-- (b) the NP object is in P  ⇒  it is NOT a NP\P witness:
+theorem verifyBits_polysize_decider :        -- from model_P_ne_NP_circuit
+    ∀ k, 1 ≤ k → ∃ s, s ≤ 50*k + 50 ∧ ∃ C : Circuit (3*k) (s+1),
+      ∀ glo ghi u : Fin (2^k), C.eval (bitsOf k glo ghi u) = verifyBits glo ghi u := …
+-- (c) the hard object is not a decidable language ⇒ NOT in NP:
+theorem selection_not_decidable_language :    -- = model_vs_clay_disjointness
+    ∀ NP : Set (ℕ → Bool), (∀ L ∈ NP, Computable L) →
+      prior {g : C(K, ℝ) | ∃ L ∈ NP, DecidesSelection L g} = 0 := …
+```
+**Conclusion (code-grounded): the model exhibits one object in `NP ∩ P` (the verifier)
+and one object outside the decidable languages (the selection); neither is a single
+language in `NP \ P`.** So the NP-completeness route has no witness to feed it — exactly
+the gap recorded as P5 / `T5` / pnp.tex §10. **Disposition: the *question* is
+formalizable and answered NO by existing theorems; the *NP\P witness* is the open
+item, identical to P5.**
+
+#### Build order
+
+`P1`–`P4` are **all assembly of DONE lemmas** (`formalismOfPrior`; `C5`/`shannon_fraction`;
+`T2`; `M5`/`N1`; packaged by `T3`) — `σ_pnp` and its model proof already exist, so the
+only file work is exposing them as a named `σ_pnp` + restating `T3` as "the pnp.tex
+relation." `P5` (`sigma_pnp_iff_clay`) is the lone open item and, per its disposition,
+is **not** to be `sorry`/`axiom`-stubbed: state it and stop-and-report. If a new file is
+wanted for the packaging, `PnpProof/PvsNP.lean` importing `Kopperman` + `Main`; keep it
+**out of** `PnpProof.lean`'s default target while `sigma_pnp_iff_clay` is open (preserve
+the sorry-free invariant). No research-sized SAT/`Turing` development is required — that
+was the point of choosing pnp.tex's better-suited problem.
+
+### K12.9. Detailed plan — formalize "a single language in NP \ P ⟹ the NP-complete problem ∉ P" (the NP-completeness closure theorem), and the "check"
+
+**Maintainer directive (2026-06-16 #4).** Formalize the theorem *"even a single problem
+in `NP \ P` implies `SAT ∉ P`"* (NP-completeness closure) so we can then check, in Lean,
+whether the model's NP object instantiates its hypothesis. New file
+`PnpProof/NPComplete.lean`. Everything below is **PROVABLE with a complete English
+proof** *except* Cook–Levin for SAT specifically (NC8), which is flagged and routed
+around by an abstract NP-complete `C`. The Lean specialist translates; it invents no
+proof.
+
+> **IMPLEMENTED (2026-06-17): NC1–NC7 are DONE in `PnpProof/NPComplete.lean`,
+> sorry-free — but realized ABSTRACTLY (ratified deviation 8).** During
+> implementation the concrete NC2 predicate (`DecidesInPoly`/`InP` over `evaln`) was
+> found to be **vacuously false for every language** — Mathlib's `evaln` fuel is a
+> value/recursion-depth bound (`evaln_bound`: `n < K`), not a step count, so the
+> polynomial fuel `bitlen x ^ k + k` is eventually `≪ x` and the check is `none` for
+> all large `x`. A faithful runtime predicate needs a populated poly-time machine
+> API that Mathlib lacks (M5). So NC2–NC4's concrete `InP`/`InNP`/`ReducesP`/
+> `InP.of_reducesP` are **superseded**: the closure theorem is stated over an
+> abstract `structure ComplexityModel` whose `P_closed` field *is* NC4, and
+> `npc_not_inP`/`sat_not_inP` (NC6/NC7) are proved over it (NC6 uses no axioms). The
+> real content behind NC4 is preserved as the non-vacuous lemmas `poly_comp` (the
+> fuel arithmetic) and `evaln_comp_some` (machine-level reduction-∘-decider). Read
+> NC2–NC4 below as the *intended-but-rejected* concrete route, and the abstract
+> `ComplexityModel` as what actually shipped; NC5–NC7 below match the file. The
+> faithful runtime `InP` and Cook–Levin (NC8) remain open/out-of-scope.
+
+**Π⁰₂ framing.** Inputs/outputs/codes are all `ℕ` (`Encodable`); the only quantifiers
+are `∀`/`∃` over `ℕ` and over `Code`. For a *fixed decidable* language `C`, `¬ InP C`
+is a genuine `Π⁰₂` sentence (`∀ code, ∀ k, ∃ input, the code fails or overruns`). The
+closure theorem is an arithmetic implication whose conclusion is that `Π⁰₂` sentence.
+
+#### NC1. Machine model + cost — DEFINITIONS (reuse Mathlib)
+
+Use `Nat.Partrec.Code` and the **fuel-indexed** evaluator `Nat.Partrec.Code.evaln`
+(search: `evaln : ℕ → Code → ℕ → Option ℕ`; `evaln_sound`/`evaln_complete` relate it to
+`eval`). Bit length `bitlen x := Nat.size x` (search; `Nat.size`). These exist in
+Mathlib; **no new computability core.** Disposition: DEFINITIONS.
+
+#### NC2. Polynomial time, `InP`, `InNP` — DEFINITIONS
+
+```lean
+abbrev Lang := ℕ → Bool
+def toNat (b : Bool) : ℕ := bif b then 1 else 0
+
+/-- `c` decides `L` within fuel `bitlen x ^ k + k`. -/
+def DecidesInPoly (c : Code) (k : ℕ) (L : Lang) : Prop :=
+  ∀ x, evaln (bitlen x ^ k + k) c x = some (toNat (L x))
+
+def InP (L : Lang) : Prop := ∃ c k, DecidesInPoly c k L
+
+/-- Poly-time verifier with poly-length certificate. -/
+def InNP (L : Lang) : Prop :=
+  ∃ (V : Code) (k : ℕ),
+    (∀ x, L x = true ↔
+       ∃ w, bitlen w ≤ bitlen x ^ k + k ∧
+            evaln (bitlen (Nat.pair x w) ^ k + k) V (Nat.pair x w) = some 1)
+```
+Disposition: DEFINITIONS. **Key recorded fact (used by the check):** `InNP L → ` `L`
+is *decidable* — brute-force over the (finitely many, length-bounded) `w`. State it:
+```lean
+theorem InNP.decidable {L} (h : InNP L) : ∃ c, ∀ x, evaln _ c x = some (toNat (L x))
+```
+**PROVABLE** (bounded search over `w` with `bitlen w ≤ bitlen x^k+k`; `evaln` is
+monotone in fuel — `evaln_mono`, search). This is the lemma that decides P6/(c):
+membership in `NP` forces decidability.
+
+#### NC3. Polynomial many-one reduction — DEFINITION
+
+```lean
+/-- `f`-code computes a poly-time function reducing `L` to `M`: `L x = M (f x)`. -/
+def ReducesP (L M : Lang) : Prop :=
+  ∃ (f : Code) (k : ℕ) (g : ℕ → ℕ),
+    (∀ x, evaln (bitlen x ^ k + k) f x = some (g x)) ∧
+    (∀ x, bitlen (g x) ≤ bitlen x ^ k + k) ∧          -- output poly-bounded
+    (∀ x, L x = M (g x))
+```
+Disposition: DEFINITION.
+
+#### NC4. `P` is closed under poly reductions — PROVABLE (the technical core)
+
+```lean
+theorem InP.of_reducesP {L M} (hr : ReducesP L M) (hM : InP M) : InP L
+```
+**Proof.** `hr` gives reducer `(f,k₁,g)`; `hM` gives decider `(c,k₂)` for `M`. The
+composite "run `f`, then run `c` on the result" decides `L`: by `hr.3`,
+`L x = M (g x) = ` value `c` outputs on `g x`. Build the composite `Code`
+(`Code.comp`, search) and bound its fuel: `f` costs `bitlen x^k₁+k₁`; `c` on `g x`
+costs `bitlen (g x)^k₂+k₂ ≤ (bitlen x^k₁+k₁)^k₂+k₂` by `hr.2` and `Nat.pow_le_pow_left`;
+the sum is `≤ bitlen x^k₃+k₃` for `k₃ := (k₁+1)*(k₂+1)+…` — a polynomial-in-polynomial
+is a polynomial (`Nat` arithmetic; `nlinarith`/`Nat.pow_le_pow` glue, the same style as
+C5). Provide the explicit `k₃`. **This is the one nontrivial proof; budget for the fuel
+arithmetic, which is routine but fiddly (mirror C4/C5's `omega`/`nlinarith` discipline).**
+
+#### NC5. NP-completeness — DEFINITION
+
+```lean
+def NPComplete (C : Lang) : Prop := InNP C ∧ ∀ L, InNP L → ReducesP L C
+```
+
+#### NC6. The closure theorem — PROVABLE (the requested theorem)
+
+```lean
+/-- **"A single language in NP \ P implies the NP-complete problem ∉ P."** -/
+theorem npc_not_inP {C : Lang} (hC : NPComplete C)
+    (h : ∃ L, InNP L ∧ ¬ InP L) : ¬ InP C := by
+  obtain ⟨L, hLnp, hLnotP⟩ := h
+  intro hCinP
+  exact hLnotP (InP.of_reducesP (hC.2 L hLnp) hCinP)
+```
+**Proof.** Direct: the witness `L` reduces to `C` (`hC.2`); if `C ∈ P` then `L ∈ P`
+(NC4), contradicting `L ∉ P`. ∎ Disposition: **PROVABLE — three lines on NC4.** This is
+the entire logical content of "one NP\P language ⟹ NP-complete ∉ P."
+
+#### NC7. Specialize to SAT — the corollary the maintainer named
+
+```lean
+theorem sat_not_inP (hSAT : NPComplete SAT)
+    (h : ∃ L, InNP L ∧ ¬ InP L) : ¬ InP SAT := npc_not_inP hSAT h
+```
+`¬ InP SAT` is the target `Π⁰₂` sentence. Disposition: **PROVABLE given `hSAT`** —
+trivial specialization of NC6. The content reduces to NC6 + `NPComplete SAT` (NC8).
+
+#### NC8. `NPComplete SAT` (Cook–Levin) — LARGE; flagged, not on the critical path
+
+Defining `SAT` (an `Encodable` CNF + a decidable satisfaction relation) is light; the
+hard half is `∀ L, InNP L → ReducesP L SAT` (the Tseitin/tableau reduction) — **Cook–
+Levin**, a major translation (thousands of lines; done in Coq/Isabelle as standalone
+projects; **not in Mathlib**). It is a *known* proof (so within the specialist's remit in
+principle) but **research-scale in effort**. **Two honest options:**
+1. **Abstract `C` (recommended for the "check"):** keep NC6/NC7 with `C`/`hSAT` as a
+   *hypothesis*. The check (NC9) and the closure theorem need only NC1–NC6; SAT-specificity
+   via Cook–Levin is orthogonal. **Do this first.**
+2. **Full Cook–Levin:** schedule as a separate epic; **stop-and-report** scope before
+   starting. Not required to answer the maintainer's question.
+
+#### NC9. THE CHECK — instantiate the hypothesis with the model's objects (CODE-LEVEL SHADOW; the live question is NC11)
+
+The point: *can the model's NP function serve as the `L` in `npc_not_inP`?* **NB:** this
+step is the **bounds-given / code-level shadow** of the live question. The faithful ground
+truth is the regular conditional probability kernel `κ_sel` (**NC11**), *not* the
+joint-derived `verifyBits`/`G`; the verify/solve classification belongs to NC11.2–3 and is
+**OPEN**. NC9 only records the bounds-given fact, which is genuinely settled:
+
+- **Verifier with the bounds given** `L_V x := verifyBits (dec₀ x) (dec₁ x) (dec₂ x)`:
+  ```lean
+  theorem L_V_inP : InP L_V
+  ```
+  **PROVABLE** from `model_P_ne_NP_circuit` (≤ `50k+50`-gate decider) or `verifyBits_computable`.
+  So *with the bounds (the local `κ_sel` values) already supplied*, the check is in P. This
+  is the rcp-NC11.2 question in the special case "`κ_sel` data handed in as input"; it does
+  **not** settle the case where the verifier must read `κ_sel` itself (NC11.2, OPEN).
+
+**Do NOT conclude "the selection is ∉ NP" here from `T5`.** `T5` is the *computable-code*
+statement; reading it as "not in NP" in the rcp setting is the conflation NC11.4 forbids.
+NC9's only durable content is `L_V_inP` (bounds-given ⇒ in P). Whether the model yields an
+`NP\P` witness is **NC11.3**, OPEN.
+
+#### NC10. The Sudoku-form — the explicit-input branch (A) is in P; the rcp branch is NC11
+
+NP **is** the "Sudoku abstraction": explicit input `x`, certificate `w`, fixed rule
+`V x w`, `L x := ∃ w, V x w` (NC2's `InNP`). For the model the rule's ground truth is the
+selected rcp kernel `κ_sel` (NC11). Two branches by what is the explicit input:
+
+- **(A) Bounds `(glo,ghi)` = the local `κ_sel` values given in the input.**
+  ```lean
+  def L_sudoku_A : Lang := fun x => decide (dec₀ x ≤ dec₁ x)
+  theorem L_sudoku_A_inP : InP L_sudoku_A
+  ```
+  **PROVABLE — in P.** With the `κ_sel` data handed in, the rule is an interval check; the
+  problem is in P. Not an `NP\P` witness (the answer-data was in the grid).
+
+- **(B) Input = the raw index `x`; the rule reads the selected rcp `κ_sel(x)`.** This is
+  the genuine Sudoku-form, and its classification is **NC11.2–3 (OPEN)** — *not* a closed
+  "uncomputable" verdict. The earlier "`V` must evaluate the selection ⇒ uncomputable" was
+  the `G`-as-function collapse; **superseded by NC11**: the verifier reads `κ_sel` (a
+  genuine rcp object, free at the conditioning point, not `μ`-determined), and whether it
+  is poly-time (NC11.2) and whether a P solver exists (NC11.3) are the open questions Lean
+  must decide. Do not prejudge either.
+
+*(Side note: generalized `n×n` Sudoku is a legitimate NP-complete `C` for `npc_not_inP`
+(NC6), needing its own NP-completeness proof (NC8-scale). Whether the model's rcp problem
+reduces to it is downstream of NC11.3.)*
+
+#### Build order & disposition
+
+`NC1→NC2→NC3→NC4→NC5→NC6→NC7` (closure theorem; **PROVABLE, medium**). `NC9`/`NC10-A` are
+the **bounds-given shadow** (`L_V_inP`, `L_sudoku_A_inP`; PROVABLE). The **live** verify/
+solve classification is **NC11.2–3 against `κ_sel`** (OPEN — do not prejudge; do not import
+`T5` as "not NP", per NC11.4). `NC8` (Cook–Levin) is **OPTIONAL/LARGE** — use the abstract
+`C` so NC6/NC7 do not depend on it. **Net:** the closure theorem (NC6/NC7) is formalizable
+now; whether the model supplies its `NP\P` hypothesis is the rcp question NC11, posed on the
+correct object with no prejudgment.
+
+### K12.11. The regular-conditional-probability formulation — recentered on `condKernel` (SUPERSEDES the `G`-as-function framing of P3/P4/NC9/NC10)
+
+**Maintainer directive (2026-06-17), agreed.** The verify/solve separation must be stated
+against the **regular conditional probability kernel itself**, *not* a function `G(y|x)`
+derived from the joint. Treating the conditional as a joint-derived function is the
+error that makes the binary-search inversion look valid; it is the ZFC reflex
+("the conditional is determined by the joint") that **conditioning on a null event
+breaks** — and that breakage is the paper's thesis (§1, §3: *selecting a null event is
+not rewriting the a.e. history*). This subsection is the corrected ground truth; where it
+conflicts with the `G`-function language of P3/P4/NC9/NC10, **this supersedes**.
+
+#### The conceptual correction (record verbatim for the specialist)
+
+For the joint `μ : Measure (ℝ × ℝ)` (from the model's wave-function), the disintegration
+`μ = μ.fst ⊗ₘ μ.condKernel` (Mathlib `Measure.condKernel` / `ProbabilityTheory.condDistrib`)
+determines the conditional kernel `κ := μ.condKernel` **only `μ.fst`-a.e.** At a *specific*
+`x` (a `μ.fst`-null point) `κ(x)` is **one of many a.e.-equivalent versions**, and the
+**selection picks a particular version**. Consequently:
+
+- The **selected** kernel `κ_sel` is **not** a function of the joint pointwise — no
+  algorithm reading only `μ` recovers `κ_sel(x)` at the specific `x` that matters.
+- **Binary-search-on-the-joint inverts the *generic* (a.e.) conditional, not `κ_sel`.**
+  So "P-verify ⟹ P-solve via binary search" is **invalid**: it solves the wrong
+  conditional. This is the precise repair of the earlier mistaken argument.
+
+#### NC11.1. The rcp ground truth — DEFINITIONS (reuse Mathlib rcp API)
+
+```lean
+-- joint, its marginal, its regular conditional kernel:
+variable (μ : Measure (ℝ × ℝ)) [IsProbabilityMeasure μ]
+-- κ := μ.condKernel  : Kernel ℝ ℝ    (the a.e.-determined conditional)
+-- a SELECTED version: a kernel κ_sel with κ_sel =ᵐ[μ.fst] μ.condKernel, with chosen
+-- values at the conditioning points. Model `κ_sel` as the given datum of the model
+-- (the "selection"), NOT as something computed from μ.
+```
+Reuse `Measure.condKernel`, `Measure.disintegrate`/`compProd_fst_condKernel`,
+`ProbabilityTheory.condDistrib` (the same API as `IMPLEMENTATION_PLAN_RCP.md`). The
+**selection** is a choice of version of `condKernel` — formalize it as an explicit kernel
+field of the model, with the a.e.-agreement `κ_sel =ᵐ[μ.fst] μ.condKernel` recorded.
+Disposition: DEFINITIONS (rcp API exists; the *selection-as-version* packaging is new but
+light). **The earlier `glo,ghi` are exactly the local CDF values of `κ_sel(x)`** — i.e.
+reading `κ_sel`, not a function of `μ`.
+
+#### NC11.2. The verifier reads `κ_sel` — the poly-time question
+
+```lean
+-- V x ycand : Bool := "ycand consistent with κ_sel(x)'s CDF at the candidate interval"
+-- QUESTION 1 (to formalize, Lean to decide): is `V` poly-time when it reads `κ_sel`?
+```
+This is *not* prejudged. Pose it precisely: with `κ_sel` available as an oracle/datum,
+is the consistency check poly in the bit-length? (The check itself is an interval
+comparison — `verifyBits`-like — but now the inputs are values of `κ_sel`, a genuine rcp
+object, not outputs of a joint-evaluation.) Disposition: **OPEN — formalize and let Lean
+classify.**
+
+#### NC11.3. The solver inverts `κ_sel` — the no-P-solver question
+
+```lean
+-- S x : output := invert κ_sel(x)'s CDF at the sample
+-- QUESTION 2 (the crux): does a poly-time solver for S exist?
+-- Key input (the repair): S cannot be obtained by binary-search-on-μ, because
+--   κ_sel(x) ≠ (the joint-determined generic conditional) at the conditioning point.
+```
+Here is where the non-joint-determinacy of `κ_sel` (NC11.0) is load-bearing: any solver
+computing from `μ` produces the *generic* conditional's inverse, which is **not** `S`. So
+the binary-search route is closed *by construction of the rcp*, not by an uncomputability
+axiom.
+
+**Intended proof-route (maintainer, 2026-06-17) — record and formalize.** The claim is
+that the *only* solver is the brute-force one (running the verifier over candidates), and
+it is exp-time, so **no P solver exists ⇒ the problem is NP\P**. The argument:
+
+1. **Every solver appears in the prior.** A solver is a function `x ↦ output`; the prior
+   ranges over exactly such functions. So "which solvers exist" = "which functions the
+   prior gives to."
+2. **The discrete part is excluded by the §5 isolation.** We selected the *continuous*
+   prior out of the worst-case (mixed) prior by conditioning away the atoms (§5;
+   `mixed_to_continuous`/F8). The discrete atoms are where computable solvers — including
+   any P solver — lived; conditioning removes them.
+3. **The continuous prior gives no computable solver** (`almost_all_not_computable`/T2:
+   computable selections are prior-null). So among prior-selected solvers, none is
+   computable.
+4. **Only the brute-force solver remains** — and it is computable only *relative to the
+   verifier* (which reads `κ_sel`), running in exp time. So there is an exp-time solver
+   and no P solver: **NP\P.**
+
+**This step is `not-ZFC` and the formalization must encode that explicitly (maintainer's
+note).** It turns on reading "a solver *exists*" as "*is selected by / lies in the domain
+of* the prior" — so a prior-null (computable) solver does **not** exist in the model's
+sense, while the brute-force solver exists relative to `κ_sel`. In ZFC, "null ≠ empty," so
+a P solver would still exist as a function object (Part 8 fence); the maintainer's point is
+that **this is a model of `Π⁰₂`, not ZFC**, where existence = prior-domain membership. The
+specialist must therefore formalize the **existence/quantifier notion** (over the prior's
+domain, not over all `ℕ → output` functions) — this is the load-bearing, genuinely
+non-ZFC modelling choice, and where Lean will adjudicate whether step 3⇒4 closes.
+Disposition: **OPEN — the genuine crux; the route above is the intended proof; formalize
+the prior-domain existence notion and let Lean classify.**
+
+#### NC11.4. Relationship to T2/T5 (do not over-read them here)
+
+`T2`/`T5` are about *computable codes / computable languages* deciding the selection, and
+they remain true. But they answered the **`G`-as-function / code** question, not the
+**rcp-kernel** question NC11.2–3 now pose. In particular, "the solver is uncomputable"
+(T2) was the *code* statement; the rcp formulation replaces it with the sharper "no solver
+arises from `μ` because `κ_sel` is not `μ`-determined," and leaves the **poly-solver**
+question open as Question 2. **Do not** cite T2 as "the solver is uncomputable, therefore
+not NP" in the rcp setting — that conflates the two formulations. State NC11.2–3 against
+`κ_sel` and let Lean classify each.
+
+#### Build order & disposition
+
+`NC11.1` (rcp objects; DEFINITIONS, reuse Mathlib rcp + the RH plan's API) → `NC11.2`
+(verifier-reads-`κ_sel`; **OPEN**, classify) → `NC11.3` (solver-inverts-`κ_sel`; **OPEN**,
+the crux). This **recenters P3/P4 and NC9/NC10** away from `G`-as-function; the `verifyBits`
+/`ComputesSelection` pair stays as the *code-level* shadow, but the live questions are
+NC11.2–3 against the rcp kernel. **Net:** the separation is now posed on the correct object
+(the selected rcp), with the binary-search objection formally dissolved (NC11.0), and the
+two poly-time questions isolated for Lean to decide — no prejudgment in either direction.
+
+### Fences (do NOT improvise — these CARRY OVER from Parts 8–11 unchanged)
+
+- **Restatement, not decision.** `interpPi02_geom_iff` proves the vector identity
+  *equals* `Pi02 p`; it does **not** evaluate either side. Computing `‖Ψ_p − Ψ_true‖`
+  requires knowing `OK_p`, which requires deciding the `Σ⁰₁` sub-formula — the
+  geometry stores the answer, it does not compute it. This is the same content as
+  `arith_truth_invariant`, now with a concrete witness; it is **not** a proof of any
+  `Pi02 p`, and in particular **not** of P ≠ NP.
+- **`okOf` / `psiOf` are NONCOMPUTABLE (`Classical.choice`).** The completed
+  "Turing-jump" vector exists as a real coordinate *only* via classical
+  comprehension. This is the honest Lean rendering of the directive's `ATR₀`-strength
+  remark: an **expressibility/definability** device, not a provability one. Record the
+  `#print axioms` footprint (`Classical.choice` present) in `IMPLEMENTED.md`, and note
+  that this places Part 12 squarely in the **measure/formalism tier** — it must **not**
+  be cited as choice-free arithmetic content (Part 11 import-tier fence (a) is
+  preserved: `GeometricTruth.lean` imports `Kopperman`/Hilbert/`lp`, so it does **not**
+  belong to the arithmetic tier and adds nothing to it).
+- **No Clay leverage; T5 stands.** Encoding the *standard* sentence as a vector
+  identity makes the *statement* canonical inside the model (Part 11 pt 4); it does
+  **not** make the model's measure-theoretic separation `σ` prove it.
+  `model_vs_clay_disjointness` (T5) is untouched — `σ` (random/Shannon hardness) and
+  "SAT ∉ P" (specific-language hardness) remain disjoint arithmetic sentences. **Do
+  not** chain K12 into any `σ → P_ne_NP` argument.
+- **Do NOT claim a "geometric model of full PA".** The directive's prose ("complete
+  geometric model of PA", "every arithmetic statement of arbitrary complexity") is an
+  *expressibility* aspiration. Lean-honestly, K12 delivers the `Π⁰₂` case
+  (`interpPi02_geom_iff`); the analogous `Π⁰ₙ`/`Σ⁰ₙ` encodings are the *same* pattern
+  with a deeper classical comprehension (still `Classical.choice`, still
+  noncomputable) and may be added as parallel lemmas — but a single theorem asserting
+  "models all of PA" needs a formalized truth predicate / arithmetic hierarchy, which
+  mainline Mathlib lacks (Part 11 meta-logic fence). **Flag, do not build ad hoc.**
+
+---
+
+## Part 13: Strengthening the skeleton to an explicit (computably-enumerable) dense enumeration
+
+> **STATUS (2026-06-18): IMPLEMENTED in `PnpProof/Skeleton.lean` via the FALLBACK
+> route.** S13.1 (`RatStepCode` + its `Encodable`/`DecidableEq`/`Countable`
+> instances), S13.2 (`ratStepFun`), and S13.4 (`EnumSkeleton`,
+> `substrate_enumSkeleton`, `enumSkeleton_refines`) are all built sorry-free. The
+> load-bearing density lemma **S13.3 `ratStepFun_denseRange` was NOT proved** (the
+> measurable-set ≈ finite-union-of-rational-intervals crux of step 2 resisted the
+> available Mathlib API), so per the sanctioned fallback `substrate_enumSkeleton`
+> uses **code type `ℕ` with `enum := TopologicalSpace.denseSeq Substrate`**
+> (`denseRange_denseSeq`, off `substrate_separable`), not `ratStepFun`. The
+> `RatStepCode`/`ratStepFun` data are retained in the file as the documented
+> *intended* witness, and the honesty ceiling is stated in the module docstring.
+> This is a legitimate partial landing (an explicit `ℕ`-indexed dense enumeration
+> in place of the abstract `Classical.choose` set), **not** a stop-and-report.
+> Standard axioms only. **Two remaining improvements** (see "Next steps" below):
+> (a) `Skeleton.lean` is **imported nowhere** — wire it into `PnpProof.lean` so it
+> joins the regression-guarded default target; (b) the genuine `ratStepFun_denseRange`
+> density theorem remains the open fidelity upgrade that would let the witness use
+> `RatStepCode` (S13.4 as originally written) instead of the `ℕ`/`denseSeq` fallback.
+> S13.5 (verifier-field tie-in) stays deferred.
+
+**Maintainer directive (2026-06-17).** Build Part 11's *option 2* fidelity fix:
+the `Formalism.skeleton` field currently asserts only `Countable ∧ Dense` (and is
+populated by `Classical.choose substrate_decidable_skeleton`, an abstract
+existence witness); the NP-side "computable approximants" picture is carried by
+*separate* theorems, not by the structure. This Part specifies an **explicit
+ℕ-indexed (encodable-coded) dense enumeration** of the substrate, witnessed by
+**rational step functions** — the faithful Lean rendering of the paper's
+"decidable dense skeleton / computable approximants" (`pnp.tex` §"we start by
+noticing": the domain "can be defined by a dense countable basis"). It is
+PROVABLE; it is **real work** (a genuine density theorem), not a translation.
+
+### READ FIRST — the honesty ceiling (what "computable skeleton" can and cannot mean)
+
+`Substrate = Lp ℝ 2 unitMeasure` is a **quotient** by a.e.-equivalence. Mathlib has
+**no `Computable` instance on `Lp`**, and none can be *stated*: an Lp element is an
+equivalence class of functions, not a code. Therefore "computable skeleton" must
+**not** be rendered as `Computable (enum : ℕ → Substrate)` — that is unstatable, and
+any attempt to fake it is forbidden. The faithful, *available* rendering is:
+
+> an enumeration `enum : Code → Substrate` from an **`Encodable` / `DecidableEq`
+> code type** of rational step functions, with **dense range**.
+
+The *computable* content lives at the level of the **codes** (rational data:
+decidable equality, an explicit `Encodable` bijection with `ℕ`, computable
+operations), **not** at the level of the Lp-elements (`enum` is `noncomputable`, as
+all `Lp` constructions are — and that is fine). This is strictly stronger than the
+present skeleton (a concrete coded enumeration vs. `Classical.choose`), and it is the
+honest ceiling. **State this limitation in the module docstring**; do not assert
+`Computable` on `Substrate`/`Lp` anywhere.
+
+### Ground rule — companion structure, do NOT modify `Formalism`
+
+Per Part 7 ("never modify or weaken an existing theorem; upgrades are NEW
+declarations beside the old ones"), do **not** add a field to `Formalism`: that
+would force every existing constructor (`formalismOfPrior`, `koppermanSubstrate`,
+`nonempty_formalism_substrate`) and all downstream theorems to change. Instead add a
+**companion structure** beside `Formalism` and a theorem that the substrate admits
+one. The existing `Formalism`, its `skeleton`/`skeleton_countable`/`skeleton_dense`
+fields, and every theorem over it stay **exactly** as they are.
+
+### Where it lands
+
+A new file **`PnpProof/Skeleton.lean`** (imported by `Kopperman.lean`, or kept as a
+parallel leaf and imported by the root `PnpProof.lean`), or a new section of
+`Kopperman.lean` beside `substrate_decidable_skeleton`. New file preferred to keep
+`Kopperman.lean` focused. Reuses the existing `indicatorConstLp` infrastructure that
+already builds `substrate_orthonormal_pair` (indicators of rational-endpoint
+intervals of `unitMeasure`). Must land **sorry-free or be reverted**; **no new
+axioms** (the standard three only).
+
+### Deliverables
+
+**S13.1 — the code type (the "computably enumerable codes" content).**
+```lean
+/-- A code for a rational step function on `[0,1]`: a finite list of
+    `(left, right, value)` rational triples; the coded vector is
+    `Σ (q : value) • 𝟙_(Ioc a b)` in `L²`. -/
+abbrev RatStepCode := List (ℚ × ℚ × ℚ)
+```
+`DecidableEq`, `Encodable`, and `Countable` are all **derived automatically**
+(`List`/`Prod`/`ℚ` carry them). Confirm with
+`example : Encodable RatStepCode := inferInstance` and
+`example : Countable RatStepCode := inferInstance`. This instance-level decidability
+*is* the faithful "decidable skeleton" datum.
+
+**S13.2 — the decoding map** (mark `noncomputable`):
+```lean
+noncomputable def ratStepFun : RatStepCode → Substrate :=
+  fun L => (L.map (fun t =>
+    indicatorConstLp 2 (measurableSet_Ioc)
+      (measure_ne_top unitMeasure (Set.Ioc (t.1 : ℝ) (t.2.1 : ℝ))) (t.2.2 : ℝ))).sum
+```
+Each triple `(a, b, q)` ↦ the `L²` indicator of `Ioc (a:ℝ) (b:ℝ)` scaled to value
+`q`; sum the list in `Lp` (`List.sum`). Mirrors `substrate_orthonormal_pair`.
+(`unitMeasure` is finite, so `measure_ne_top` discharges the `≠ ∞` side; verify the
+exact `indicatorConstLp` argument order against the snapshot — it is used at
+`Kopperman.lean:178–189`.)
+
+**S13.3 — density `[LB]` (the load-bearing math lemma).**
+```lean
+theorem ratStepFun_denseRange : DenseRange ratStepFun
+```
+Recipe (standard real analysis; **non-trivial in Lean**):
+1. Simple functions are dense in `Lp ℝ 2 μ` for `1 ≤ p < ∞` — **verified** Mathlib
+   `MeasureTheory.Lp.simpleFunc.dense : p ≠ ⊤ → Dense ↑(simpleFunc E p μ)` (needs
+   `[Fact (1 ≤ p)]`, discharge with `Fact.mk (by norm_num)`; `simpleFunc E p μ` is
+   the dense subspace, with `…denseRange` the `DenseRange Subtype.val` form). So any
+   `f : Substrate` is `ε`-close to some simple function.
+2. Every simple function (finite measurable partition of `[0,1]` + real values) is
+   `ε`-close in `L²` to a step function with **rational interval endpoints and
+   rational values**: approximate each measurable set by a finite union of rational
+   intervals in measure (Lebesgue regularity on `[0,1]`: inner/outer regularity, the
+   `Ioc`-generated algebra is dense in measure — **(search)** the regularity lemma),
+   and each real value by a nearby `ℚ`. Combine with the triangle inequality.
+3. The rational step function of step 2 is `ratStepFun` of some `RatStepCode`. Hence
+   `Set.range ratStepFun` is dense.
+The **crux** is step 2's set-approximation (measurable set ≈ finite union of
+rational intervals in `L²`/measure); it may need a dedicated helper lemma. If no
+clean Mathlib path exists, **see the FALLBACK before improvising — do not force a
+sorry-laden proof.**
+
+**S13.4 — the companion structure + witness + refinement bridge.**
+```lean
+/-- An explicit computably-enumerable dense skeleton: a dense enumeration of `H` by
+    an `Encodable` code type. The faithful rendering of "decidable/computable
+    skeleton" — the computability is in `Code`, not in the noncomputable `enum`
+    into the `Lp`-quotient (see the honesty ceiling). -/
+structure EnumSkeleton (H : Type*) [TopologicalSpace H] where
+  Code : Type
+  [codeEnc : Encodable Code]
+  enum : Code → H
+  enum_dense : DenseRange enum
+
+/-- The substrate admits an explicit rational-step-function dense enumeration. -/
+noncomputable def substrate_enumSkeleton : EnumSkeleton Substrate where
+  Code := RatStepCode
+  enum := ratStepFun
+  enum_dense := ratStepFun_denseRange
+
+/-- The explicit skeleton *refines* the abstract `Formalism.skeleton` data: its
+    range is a countable dense set, so it is a legitimate `skeleton`. (Recorded as a
+    bridge; `formalismOfPrior` is **not** changed.) -/
+theorem enumSkeleton_refines (S : EnumSkeleton Substrate) :
+    (Set.range S.enum).Countable ∧ Dense (Set.range S.enum) :=
+  ⟨Set.countable_range _, S.enum_dense⟩
+```
+Notes (verified against the snapshot):
+- `DenseRange S.enum` is **definitionally** `Dense (Set.range S.enum)`, so
+  `S.enum_dense` *is* the second component directly — there is no `DenseRange.dense`
+  (do not write `.dense`).
+- `Set.countable_range` needs `[Countable S.Code]`; supply it from `codeEnc` with
+  `haveI := S.codeEnc; haveI := Encodable.countable S.Code` (or
+  `letI := S.codeEnc`), since `Code`'s `Encodable` is an *instance field*, not a
+  global instance.
+
+### FALLBACK (guaranteed to close) — accept only if S13.3 resists
+
+If the rational-step density (S13.3 step 2) does not land cleanly with available
+API, drop the *code type* to `ℕ` and use Mathlib's
+`TopologicalSpace.denseSeq Substrate` (an explicit `ℕ → Substrate` with dense range
+in any separable space, `denseRange_denseSeq`):
+```lean
+noncomputable def substrate_enumSkeleton : EnumSkeleton Substrate :=
+  haveI : SeparableSpace Substrate := substrate_separable
+  { Code := ℕ
+    enum := TopologicalSpace.denseSeq Substrate
+    enum_dense := TopologicalSpace.denseRange_denseSeq Substrate }
+```
+`TopologicalSpace.denseSeq`/`denseRange_denseSeq` require `[SeparableSpace
+Substrate]` and `[Nonempty Substrate]`: the former is the existing **theorem**
+`substrate_separable` (a theorem, not an instance — supply it locally with `haveI`
+as shown), and the latter is automatic (`Lp` is an `AddCommGroup`, so `inferInstance`
+finds `Nonempty` via `0`; both verified). This is **noncomputable** (`Classical.choice`)
+and is **not** the rational-step
+witness — but it still upgrades the skeleton from an abstract `Classical.choose`
+*set* to an **explicit `ℕ`-indexed enumeration with dense range**, a real (smaller)
+fidelity gain. If you take the fallback: keep `S13.1` (`RatStepCode`, its
+`Encodable`/`DecidableEq` instances, and `ratStepFun`) in the file as the *coded*
+data even though density was proved via `denseSeq` — they document the intended
+witness — and **state plainly in the docstring** that the rational-step density
+lemma was not achieved and why. This is a legitimate partial landing, **not** a
+stop-and-report failure. **Prefer the rational-step witness; accept the fallback
+only if the density lemma genuinely resists.**
+
+### Deferred — S13.5 computable-verifier field (do NOT do without a separate go-ahead)
+
+Part 11 option 2 also floats "optionally a computable-verifier field" tying
+`verifyBits_computable` into the structure. That needs `Main.lean` and
+`Kopperman.lean` (currently **parallel leaves**, neither imports the other) to share
+an import — an import restructure or a new top file. **Defer**; it is not part of the
+S13.1–S13.4 core and should be attempted only on an explicit maintainer request.
+
+### Fences
+
+- **Companion structure only.** `Formalism` and every theorem over it are
+  **untouched** (Part 7 ground rule).
+- **Honesty ceiling holds.** No `Computable` on `Lp`/`Substrate` anywhere;
+  computability is at the `Code` level only — say so in the docstring.
+- **No new axioms.** Aim for the standard three; the fallback's `Classical.choice`
+  (via `denseSeq`) is within budget. Record `#print axioms substrate_enumSkeleton`
+  in `IMPLEMENTED.md`.
+- **No Clay leverage.** This is a fidelity/expressibility upgrade of the NP-side
+  "computable approximants" picture (Part 11); it does **not** touch T5, the bridge,
+  `σ`, or any arithmetic claim, and is **not** a step toward P5. Do not chain it into
+  any separation argument.
+- **Sorry-free or revert.** Verify every Mathlib name
+  (`MeasureTheory.Lp.simpleFunc.dense`, `indicatorConstLp`, `measurableSet_Ioc`,
+  `measure_ne_top`, `TopologicalSpace.denseSeq`/`denseRange_denseSeq`,
+  `Set.countable_range`, `DenseRange.dense`, `Encodable.countable`) with
+  `lake env lean --stdin <<< '#check …'` before relying on it.
+
+### Next steps (2026-06-18, in priority order)
+
+1. **Wire `Skeleton.lean` into `PnpProof.lean` (mechanical, do first).** The module
+   currently sits outside the default target — nothing imports it, so the
+   regression build never compiles it. Add `import PnpProof.Skeleton` to
+   `PnpProof.lean` (it already imports `Kopperman`, on which `Skeleton` depends, so
+   place it after that line), then rebuild the full default target
+   (`lake build PnpProof`) and confirm it stays sorry-free within the standard axiom
+   budget; bump the job count in the Status header. This is the Part-13 analogue of
+   item W and the single highest-value follow-up — an un-imported module silently
+   rots. No risk to the fences (companion structure, no `Formalism` change).
+2. **Prove the genuine density `ratStepFun_denseRange` (S13.3) — the real fidelity
+   upgrade.** This is the load-bearing math that lets `substrate_enumSkeleton` use
+   the **`RatStepCode` rational-step witness** (S13.4 as originally written) instead
+   of the `ℕ`/`denseSeq` fallback, making "computable approximants" faithful at the
+   *code* level rather than via an abstract `denseSeq`. Recipe is S13.3 above; the
+   crux is step 2 (measurable set ≈ finite union of rational `Ioc` intervals in
+   `L²`/measure). Suggested attack the implementer did **not** exhaust: route through
+   `MeasureTheory.SimpleFunc.dense`/`Lp.simpleFunc.dense` for the simple-function
+   reduction (already verified present), then approximate each level set with the
+   Borel-regularity API on `[0,1]` (search `MeasurableSet`/`Measure.regular`,
+   `exists_isOpen_lt_of_lt`, `innerRegular`, and the `Real`-interval generators);
+   the value-rationalization half is routine `ℚ`-density + triangle inequality. When
+   it lands, **swap `substrate_enumSkeleton` to the `RatStepCode` form**, delete the
+   fallback note, and promote S13.3/deviation 9 to DONE. If it again resists after a
+   genuine effort, leave the fallback and stop — do not force a sorry.
+3. **S13.5 computable-verifier field stays deferred.** Needs the `Main.lean` ↔
+   `Kopperman.lean` import restructure (parallel leaves today); attempt only on an
+   explicit maintainer go-ahead, as already specified above.
+4. **Housekeeping.** Record `#print axioms substrate_enumSkeleton` (expect the
+   standard three; `denseSeq` pulls `Classical.choice`) in `PnpProof/IMPLEMENTED.md`,
+   and add the `Skeleton.lean` row to that per-lemma map (it currently predates the
+   2026-06-17/18 modules). Optional linter pass (N2) is unchanged.
