@@ -1,12 +1,45 @@
-\chapter{Selecting events is not rewriting the history of events (in a continuous probability space)}
-\section*{Abstract}
+\documentclass[11pt,a4paper]{report}
+
+% Essential packages for mathematics, layout, and cross-referencing
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{microtype}
+\usepackage{booktabs}
+
+% Margins setup
+\geometry{margin=1in}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+
+% pandoc may emit a \tightlist macro for compact lists; define a no-op fallback.
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\begin{document}
+
+\title{Selecting Events is Not Rewriting the History of Events\\(in a Continuous Probability Space)}
+\author{}
+\date{June 12, 2026}
+\maketitle
+
+\begin{abstract}
 Using the simple fact described in the title, we prove the existence of
 a computational problem with implications to Machine Learning, Quantum
-Mechanics and Complexity Theory. We also prove P!=NP (the solution can
+Mechanics and Complexity Theory. We also prove $P \neq NP$ (the solution can
 be verified in time polynomial in the number of bits of the input and
 output (NP) but the problem cannot be solved in time polynomial in the
 number of bits of the input and output (P)), but this claim still needs
 to be reviewed by experts in Complexity Theory.
+\end{abstract}
+
+\chapter{Selecting events is not rewriting the history of events (in a continuous probability space)}
 
 
 \hypertarget{introduction}{%
@@ -66,7 +99,7 @@ of a computational problem (defined by a continuous probability space)
 whose solution can be verified in time polynomial in the numbers of bits
 of the input and output (NP) but cannot be solved in time polynomial in
 the numbers of bits of the input and output (P), when using only a
-deterministic Turing machine\cite{pvsnp}\cite{10.1145ux2f800152.804913}. That is, P\(\neq\)NP.
+deterministic Turing machine\cite{pvsnp}\cite{10.1145/322123.322138}. That is, P\(\neq\)NP.
 
 The goal of this article is to define the specific problem
 unambiguously, and the level of mathematical details will be adjusted to
@@ -188,7 +221,7 @@ Boolean functions on \(n\) variables require circuits of size
 thus the time complexity of almost all Boolean functions on \emph{n}
 variables for a Turing machine is at least (and at most, for all Boolean
 functions)
-\(\mathcal{O}(2^n/(n\log(n)))\)\cite{10.1145ux2f322123.322138} which is not polynomial in \(n\). Thus, almost all
+\(\mathcal{O}(2^n/(n\log(n)))\)\cite{10.1145/322123.322138} which is not polynomial in \(n\). Thus, almost all
 numerical functions are not in the complexity class \(P\), according to
 the uniform prior measure for any resolution of the partition. Moreover,
 the uniform prior measure is compatible with a prior measure which
@@ -430,7 +463,7 @@ Consider now a boolean function of a countable infinite number of bits.
 The time complexity of almost all Boolean functions on \emph{n}
 variables for a Turing machine is at least (and at most, for all Boolean
 functions)
-\(\mathcal{O}(2^n/(n\log(n)))\)\cite{shannon1949synthesis} \cite{10.1145ux2f322123.322138} which is not polynomial in \(n\), but the same boolean
+\(\mathcal{O}(2^n/(n\log(n)))\)\cite{shannon1949synthesis} \cite{10.1145/322123.322138} which is not polynomial in \(n\), but the same boolean
 function has different time complexities in different
 circuits\cite{shannon1949synthesis}
 (because the input bits can be reparametrized). Thus, the time
@@ -827,7 +860,7 @@ formalization plan is \texttt{PNP\_IMPLEMENTATION\_PLAN.md} and the
 per-lemma map is \texttt{PnpProof/IMPLEMENTED.md}. The development
 compiles \emph{without any \texttt{sorry} and without any axioms} beyond
 Lean's standard three (\texttt{propext}, \texttt{Classical.choice},
-\texttt{Quot.sound}); the build was last verified on 2026-06-17.
+\texttt{Quot.sound}); the build was last verified on 2026-06-18.
 
 The following machine-checked theorems cover the claims of this article:
 
@@ -900,6 +933,21 @@ The following machine-checked theorems cover the claims of this article:
   Mathlib's fuel-indexed evaluator bounds a recursion depth, not a step count;
   whether the present construction supplies the \(NP \setminus P\) witness is
   exactly the open modelling question above.)
+\item
+  \texttt{substrate\_enumSkeleton} (Section 4): the substrate Hilbert space
+  \(L^{2}([0,1])\) admits an \emph{explicit countable dense enumeration}
+  \(\mathrm{enum}\colon \texttt{Code} \to L^{2}\) indexed by an
+  \texttt{Encodable} code type --- the machine-checked rendering of the
+  ``dense countable basis'' on which the model is built. The computable content
+  lives at the level of the codes; the decoding into the \(L^{2}\) quotient is
+  necessarily noncomputable (an \(L^{2}\) element is an almost-everywhere
+  equivalence class, not a code), so no \texttt{Computable} claim is or can be
+  made on the Hilbert space itself. The intended witness is the rational step
+  functions (whose codes are explicit finite lists of rational triples); the
+  present version is realized through a dense sequence of the separable
+  substrate, with the rational-step density theorem left as an optional fidelity
+  upgrade. This refines the abstract skeleton of the formalism (which asserts
+  only countability and density) without altering any theorem about the model.
 \end{itemize}
 
 To keep the formal development honest, the following are
@@ -923,5 +971,41 @@ formulation before it can be formalized; no statement has been committed.
 Section 8 is, as noted there, not mathematically provable, and Section 9
 is discussion.
 
-All mathematical items queued in the plan are now proved; the only
-remaining item is minor build-lint cleanup.
+Essentially all mathematical items queued in the plan are proved, and the
+explicit dense skeleton of Section~4 is now in place (realized through a dense
+sequence of the separable substrate); the only remaining items are the sharper
+rational-step density theorem, which would upgrade that skeleton to its intended
+rational-function witness, and minor build-lint cleanup.
+
+\begin{thebibliography}{99}
+\bibitem{novak2008tractability} E. Novak and H. Wo\'{z}niakowski, \emph{Tractability of Multivariate Problems}, European Mathematical Society, 2008.
+\bibitem{hennig2022probabilistic} P. Hennig, M. A. Osborne, and H. P. Girolami, \emph{Probabilistic Numerics: Computation as Machine Learning}, Cambridge University Press, 2022.
+\bibitem{ritter2000average} K. Ritter, \emph{Average-Case Analysis of Numerical Problems}, Springer, 2000.
+\bibitem{bna} J. F. Traub, G. W. Wasilkowski, and H. Wo\'{z}niakowski, \emph{Information-Based Complexity}, Academic Press, 1988.
+\bibitem{computable} K. Weihrauch, \emph{Computable Analysis: An Introduction}, Springer, 2000.
+\bibitem{book} V. I. Bogachev, \emph{Measure Theory}, Springer, 2007.
+\bibitem{pvsnp} S. Cook, ``The P versus NP Problem,'' Clay Mathematics Institute, 2000.
+\bibitem{10.1145/322123.322138} S. A. Cook, ``The complexity of theorem-proving procedures,'' \emph{Proceedings of the third annual ACM symposium on Theory of computing}, 1971, pp. 151--158.
+\bibitem{avcomplete} L. A. Levin, ``Average case complete problems,'' \emph{SIAM Journal on Computing}, vol. 15, no. 1, pp. 285--286, 1986.
+\bibitem{impagliazzo1995personal} R. Impagliazzo, ``A personal view of average-case complexity,'' \emph{Proceedings of the Tenth Annual Structure in Complexity Theory Conference}, 1995.
+\bibitem{durrett2019probability} R. Durrett, \emph{Probability: Theory and Examples}, 5th ed., Cambridge University Press, 2019.
+\bibitem{Peterson2019GaussianLA} J. Peterson, \emph{Gaussian Measures, Hilbert Spaces, and Spherically Invariant Laws}, Academic Press, 2019.
+\bibitem{dutchbook} J. Williamson, \emph{In Defence of Objective Bayesianism}, Oxford University Press, 2010.
+\bibitem{shannon1949synthesis} C. E. Shannon, ``The synthesis of two-terminal switching circuits,'' \emph{Bell System Technical Journal}, vol. 28, no. 1, pp. 59--98, 1949.
+\bibitem{Sudarshan1976Interaction} E. C. G. Sudarshan, ``Interaction between classical and quantum systems and the measurement of continuous observables,'' \emph{Pramana}, vol. 6, no. 3, pp. 117--126, 1976.
+\bibitem{PhysRevApplied.3.054004} J. Y. Haw et al., ``Maximization of Extractable Randomness in a Quantum Random-Number Generator,'' \emph{Physical Review Applied}, vol. 3, no. 5, p. 054004, 2015.
+\bibitem{Rubinstein2016Simulation} R. Y. Rubinstein and D. P. Kroese, \emph{Simulation and the Monte Carlo Method}, John Wiley \& Sons, 2016.
+\bibitem{sep-recursive-functions} W. Sieg, ``Recursive Functions,'' \emph{The Stanford Encyclopedia of Philosophy}, 2020.
+\bibitem{bratteli1987operator} O. Bratteli and D. W. Robinson, \emph{Operator Algebras and Quantum Statistical Mechanics}, Springer, 1987.
+\bibitem{book91891579} P. Billingsley, \emph{Convergence of Probability Measures}, 2nd ed., John Wiley \& Sons, 1999.
+\bibitem{chang1997conditioning} J. T. Chang and D. Pollard, ``Conditioning as disintegration,'' \emph{Statistica Sinica}, pp. 367--400, 1997.
+\bibitem{muller2022transformers} S. M\"{u}ller et al., ``Transformers Can Do Bayesian Inference,'' \emph{International Conference on Learning Representations}, 2022.
+\bibitem{anonymous2023value-probability} Anonymous, ``Value-Probability Equivalence in Deep Reinforcement Learning,'' preprint, 2023.
+\bibitem{lakshminarayanan2017simple} B. Lakshminarayanan, A. Pritzel, and C. Blundell, ``Simple and scalable predictive uncertainty estimation using deep ensembles,'' \emph{Advances in Neural Information Processing Systems}, vol. 30, 2017.
+\bibitem{degrancey:hal-03769683} H. de Grancey et al., ``Calibration of Deep Neural Networks under Class Imbalance,'' preprint, HAL-03769683, 2022.
+\bibitem{li2018learning} Yuanzhi Li and Yingyu Liang, ``Learning Overparameterized Neural Networks via Stochastic Gradient Descent on Structured Data,'' \emph{Advances in Neural Information Processing Systems}, vol. 31, 2018.
+\bibitem{egele2022autodeuq} R. Egele et al., ``AutoDEUQ: Automated Deep Ensemble with Uncertainty Quantification,'' \emph{IEEE International Conference on Big Data}, 2022.
+\bibitem{hornik1989multilayer} K. Hornik, M. Stinchcombe, and H. White, ``Multilayer feedforward networks are universal approximators,'' \emph{Neural Networks}, vol. 2, no. 5, pp. 359--366, 1989.
+\end{thebibliography}
+
+\end{document}

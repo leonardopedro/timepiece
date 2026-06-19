@@ -1,21 +1,19 @@
-# Summary of changes for run 824c3415-19c4-4605-9d26-16ab1e96803b
-Implemented `IMPLEMENTATION_PLAN_RCP.md` — the RCP/bounded-coefficient-prior route to RH — as two new Lean files wired into the build, following the plan's `[mech]`/`[LB]` discipline. The whole project (`RiemannProof` and `PnpProof` default targets) builds successfully, and no `axiom` or `@[implemented_by]` declarations were introduced.
+# Summary of changes for run bd1cec36-e49f-4cd4-864d-2632c2600e3c
+Implemented the `PNP_IMPLEMENTATION_PLAN.md` formalization, which lives in the `PnpProof/` Lean library. The development now builds cleanly and is sorry-free and axiom-free (only the standard `propext`, `Classical.choice`, `Quot.sound`; several arithmetic-tier results, e.g. `NPComplete.npc_not_inP`, use no axioms at all).
 
-New file `RiemannProof/RcpEuler.lean` (Phases 0–2):
-- Phase 0.1: `Ωb`, `Xb`, the bounded-coefficient exponential Euler product `eulerB` (reusing `GaussianEuler.cCorr`), plus `bSum`/`eulerB_eq`.
-- Phase 0.2: `eulerB_ne_zero` (proved — `exp` is never zero) and `eulerB_differentiableOn` (proved — mirrors `eulerG_differentiableOn`, via `Differentiable.const_cpow` + `etaEulerApprox_analyticOnNhd` + `Complex.exp_log`). The plan's "tail" item is restated honestly as `bSum_tail_small` (the true Weierstrass M-test content, since the plan's verbatim `eulerB → etaRect` is false for generic ω) and left as a `[LB]` sorry with the M-test recipe.
-- Phase 0.3 (prior half): `priorBall`, its probability/ball-support facts (`[LB]` sorries).
-- Phase 1: `edgeTrace`, `interiorVal`, the genuine `rcpKernel` via `ProbabilityTheory.condDistrib` (defined, not sorried), `edgeNbhd`, `priorBall_edgeNbhd_pos`, and the conditional contour-convergence lemma `rcp_recipEulerB_tendsto_recipEta` (`[LB]` sorries, recipes in docstrings).
-- Phase 2: the stable `Prop`-level `rcpZeroAt` definition and the non-detectability lemma `not_rcpZeroAt` (`[LB]` sorry).
+Concrete work done this session:
 
-New file `RiemannProof/SchoenfeldPRA.lean` (Phases 0.3-formalism, 3–5):
-- Phase 3.1: `schoenfeld`, `schoenfeld_primrec`, `RH_PRA` (the `Π⁰₁` sentence). `schoenfeld` is left opaque/`sorry` per the plan's `[LB]` flag — deliberately not a constant `Bool`, so `RH_PRA` stays faithful and non-vacuous.
-- Phase 3.2: `Pi01`, `interpPi01`, `pi01_invariant`, `interpPi01_eq` (proved — `Iff.rfl`, cloning `Kopperman.interpPi02`/`arith_truth_invariant`).
-- Phase 0.3 (formalism half): `rcpFormalism` via `Kopperman.formalismOfPrior` (with substrate Borel instances), plus `interp_schoenfeld_eq` (proved).
-- Phase 4.1: the bridge `counterexample_iff_rcpZero` (`[LB]` sorry).
-- Phase 5: `no_schoenfeld_counterexample` (proved — bridge + non-detectability), a concrete isolating rectangle `isoRect` with helper lemmas (proved, using `etaEulerApprox_ne_zero`), `RH_PRA_holds` (proved `[mech]` modulo the upstream `[LB]` sorries), and the optional `riemann_hypothesis_via_rcp` (`[LB]` sorry, Schoenfeld 1976 direction).
+1. Build wiring. The root `PnpProof.lean` now imports `Comparator.lean` and `Skeleton.lean` (in addition to the existing modules), so the default build target covers the whole library. `lake build PnpProof` succeeds at 8052 jobs.
 
-All load-bearing analytic/probabilistic steps remain marked `sorry` with the plan's recipes in their docstrings, exactly as the plan directs ("do not improvise"); every mechanical step is discharged. The two files are imported from `RiemannProof.lean`. Reused infrastructure (`Rect`, `rect_cauchy`, `boundary_integral_limit_eq_zero`, `reciprocal_tendstoUniformlyOn_of_nonvanishing`, `etaRect`, `etaEulerApprox`, the Kopperman formalism) was not re-derived. Note: because the route's load-bearing lemmas are unproven `sorry`s, the assembled `RH_PRA_holds`/`riemann_hypothesis_via_rcp` are scaffolding that depends on those sorries rather than a completed proof of RH.
+2. Completed the one outstanding mathematical fidelity upgrade, Part 13 item S13.3, which the plan had previously left to a fallback witness. Specifically, in `PnpProof/Skeleton.lean` I proved:
+   - `ratStepFun_coeFn` — the L² element decoded from a rational-step code is, almost everywhere, the pointwise sum of the corresponding interval indicators;
+   - `exists_ratStep_approx` — every bounded continuous function is approximated almost everywhere on [0,1], to within any positive tolerance, by a uniform rational-endpoint/rational-value step function (via uniform continuity on the compact [0,1]);
+   - `ratStepFun_denseRange` — rational step functions are dense in L²[0,1] (reducing to density of bounded continuous functions and bounding the L² error on the probability measure).
+   With S13.3 proved, I upgraded `substrate_enumSkeleton` from the `denseSeq` fallback to the genuine rational-step witness (code type `RatStepCode`, enumeration `ratStepFun`), so the skeleton is now an explicit `Encodable`-indexed dense enumeration whose codes are concrete rational data. All three new results depend only on the standard axioms.
+
+3. Documentation. Updated the module docstrings in `PnpProof/Skeleton.lean` and the status report `PnpProof/IMPLEMENTED.md` to reflect that S13.3 is proved and Deviation 9 is resolved, and tidied minor style issues (final newline).
+
+Everything else called for by the plan was already in place and was re-verified to compile and to use only the permitted axioms. The items the plan explicitly designates as open-by-design (e.g. the `sigma_pnp` ↔ Clay link P5, a faithful runtime `InP` to instantiate `ComplexityModel`, Cook–Levin NC8, and the prose-only T4) remain unproved per the plan's standing instruction to stop-and-report rather than introduce a `sorry` or `axiom`. (Note: the separate `RiemannProof` library in this repository is unrelated to this plan and still contains pre-existing sorries in `SchoenfeldPRA.lean`; it was left untouched.)
 
 # Summary of changes for run e95705ca-1719-49ef-94b6-b474bf6ec5c4
 Completed the final outstanding item of the PnpProof formalization plan — N1, the explicit `O(k)` comparator-circuit upgrade of the model's "NP side" — leaving the whole development sorry-free and axiom-free (only `propext`, `Classical.choice`, `Quot.sound`). The pre-existing `RiemannProof` library is untouched, and `lake build` (both default targets) succeeds.

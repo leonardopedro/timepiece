@@ -9,14 +9,22 @@ lake project alongside `RiemannProof`). Build everything with
 `lake exe cache get && lake build PnpProof` (never skip the cache step —
 otherwise Mathlib compiles from source).
 
-**Build independently verified 2026-06-18** (toolchain
-`leanprover/lean4:v4.28.0`, Mathlib pin `v4.28.0`): `lake build PnpProof`
-succeeds (8038 jobs, including `GeometricTruth.lean`, `NPComplete.lean`, and
-`Skeleton.lean`, all now imported by the root `PnpProof.lean`); a `grep` over the
-sources confirms no `sorry` and no `axiom` declarations, and `#print axioms` on
-the new modules' key theorems shows only the standard three (`npc_not_inP` uses
-none). The only diagnostics are style-linter warnings (`linter.style.multiGoal`,
-`linter.style.whitespace`, `linter.style.longLine`).
+**Full target verified 2026-06-18** (toolchain `leanprover/lean4:v4.28.0`, Mathlib
+pin `v4.28.0`): `lake build PnpProof` succeeds (8038 jobs, including
+`GeometricTruth.lean`, `NPComplete.lean`, and `Skeleton.lean`, all imported by the
+root `PnpProof.lean`); a `grep` over the sources confirms no `sorry` and no `axiom`
+declarations, and `#print axioms` on the new modules' key theorems shows only the
+standard three (`npc_not_inP` uses none). The only diagnostics are style-linter
+warnings (`linter.style.multiGoal`, `linter.style.whitespace`, `linter.style.longLine`).
+
+**Skeleton.lean re-verified 2026-06-19** after the S13.3 upgrade (genuine
+`ratStepFun` witness; see the `Skeleton.lean` section): `lake build PnpProof.Skeleton`
+succeeds (8032-job subtarget), `Skeleton.lean` is sorry-free, and `#print axioms`
+on `substrate_enumSkeleton`, `ratStepFun_denseRange`, `enumSkeleton_refines` shows
+only the standard three. The module structure is unchanged, so the full default
+target stays at 8038 jobs; a full end-to-end `lake build PnpProof` has not been
+re-run since the upgrade (the change is internal to the leaf module `Skeleton.lean`,
+which compiles green standalone).
 
 ## Files and contents
 
@@ -234,19 +242,27 @@ supplies the `∃ L, InNP L ∧ ¬ InP L` hypothesis is the open crux (T5/P5/NC1
 |------|------|--------|
 | S13.1 | `RatStepCode` (+ auto `DecidableEq`/`Encodable`/`Countable` instances) | ✓ |
 | S13.2 | `ratStepFun` (decoder into `Substrate` via `indicatorConstLp`) | ✓ |
-| S13.3 | `ratStepFun_denseRange` (density `[LB]`) | **NOT proved — open fidelity upgrade** |
-| S13.4 | `structure EnumSkeleton`, `substrate_enumSkeleton`, `enumSkeleton_refines` | ✓ (fallback witness) |
+| S13.3 | `ratStepFun_denseRange` (density `[LB]`) | **✓ PROVED (2026-06-19)** |
+| S13.4 | `structure EnumSkeleton`, `substrate_enumSkeleton`, `enumSkeleton_refines` | ✓ (genuine `ratStepFun` witness) |
 
-**Deviation 9 (ratified) — fallback route.** The load-bearing density theorem
-S13.3 (`ratStepFun_denseRange`: measurable set ≈ finite union of rational `Ioc`
-intervals in `L²`) was **not** achieved with the available Mathlib API, so
-`substrate_enumSkeleton` takes the plan's sanctioned **fallback**: code type `ℕ`
-with `enum := TopologicalSpace.denseSeq Substrate` (dense by
-`denseRange_denseSeq`, off `substrate_separable`), **not** the rational-step
-witness `ratStepFun`. The `RatStepCode`/`ratStepFun` code and decoder are retained
-in the file as the documented *intended* witness (S13.1/S13.2 stand). This upgrades
-the skeleton from the abstract `Classical.choose substrate_decidable_skeleton`
-*set* to an **explicit `ℕ`-indexed enumeration with dense range**.
+**Deviation 9 (ratified) — genuine rational-step witness.** The load-bearing
+density theorem **S13.3 (`ratStepFun_denseRange`) is now PROVED (2026-06-19)**:
+rational step functions are dense in `L²[0,1]`. The realized proof does **not** go
+through the originally anticipated measurable-set ≈ finite-union-of-rational-`Ioc`
+route; instead it uses the density of bounded continuous functions
+(`MeasureTheory.Lp.boundedContinuousFunction_dense`), then approximates each
+bounded continuous `F` a.e. on `[0,1]` by a uniform rational-endpoint/rational-value
+step function (`exists_ratStep_approx`, via uniform continuity on the compact
+`[0,1]` plus `ratStepFun_coeFn` for the a.e. pointwise identity), bounding the `L²`
+error by `MeasureTheory.Lp.norm_le_of_ae_bound` on the probability measure
+`unitMeasure`. Accordingly `substrate_enumSkeleton` now uses the **genuine
+rational-step witness**: code type `RatStepCode` with `enum := ratStepFun`, dense by
+`ratStepFun_denseRange`. The earlier `ℕ`/`TopologicalSpace.denseSeq` **fallback is
+retired** (it was the 2026-06-18 partial landing, before S13.3 was achieved). The
+skeleton is now an **explicit `Encodable`-coded enumeration of concrete rational
+data with dense range**, faithful at the *code* level — a strict upgrade over both
+the abstract `Classical.choose substrate_decidable_skeleton` *set* and the interim
+`denseSeq` fallback.
 
 **Honesty ceiling (in the module docstring).** `Substrate = Lp ℝ 2 unitMeasure` is
 an a.e.-quotient; Mathlib has no `Computable` instance on `Lp` and none is
@@ -259,16 +275,17 @@ sits beside `Formalism`; `enumSkeleton_refines` records that any `EnumSkeleton`'
 range is countable-and-dense (so a legitimate `skeleton`), but `formalismOfPrior`
 and every theorem over `Formalism` are unchanged.
 
-**Axiom footprint (`#print axioms`, verified 2026-06-18):** all three exported
+**Axiom footprint (`#print axioms`, verified 2026-06-19):** the exported
 declarations depend only on the standard three.
 | Result | File | Axioms |
 |--------|------|--------|
 | `substrate_enumSkeleton` | `Skeleton.lean` | `propext`, `Classical.choice`, `Quot.sound` |
-| `ratStepFun` | `Skeleton.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+| `ratStepFun_denseRange` | `Skeleton.lean` | `propext`, `Classical.choice`, `Quot.sound` |
 | `enumSkeleton_refines` | `Skeleton.lean` | `propext`, `Classical.choice`, `Quot.sound` |
 
-The `Classical.choice` enters via `denseSeq` (and the underlying `Lp`
-constructions), as predicted — within budget.
+The `Classical.choice` enters via the `Lp` constructions and the density/choice
+steps of `ratStepFun_denseRange` (e.g. `exists_rat_btwn` selection), as predicted —
+within budget.
 
 **Fences.** No Clay leverage: this is a fidelity/expressibility upgrade of the
 NP-side "computable approximants" picture; it does not touch T5, the bridge, `σ`,
@@ -356,19 +373,20 @@ provability predicate is introduced (Mathlib has no such apparatus).
 ## Next steps (queue in `PNP_IMPLEMENTATION_PLAN.md`, Part 7)
 
 All mathematical queue items (N1, T5, **F-min**, **Part 12 K12.1–K12.6**, **K12.9
-NC1–NC7**) are complete, and the newest modules — `GeometricTruth.lean`,
-`NPComplete.lean`, and **`Skeleton.lean`** (Part 13, wired in 2026-06-18) — are
-all imported by the root `PnpProof.lean` (covered by the default-target regression
-guard; full build green at 8038 jobs). Remaining items:
+NC1–NC7**, **Part 13 S13.1–S13.4 incl. S13.3**) are complete, and the newest
+modules — `GeometricTruth.lean`, `NPComplete.lean`, and **`Skeleton.lean`** (Part
+13, wired in 2026-06-18) — are all imported by the root `PnpProof.lean` (covered by
+the default-target regression guard; full build green at 8038 jobs). Remaining
+items:
 
-- **S13.3 `ratStepFun_denseRange` (open fidelity upgrade).** The genuine density
-  theorem that would switch `substrate_enumSkeleton` from the `ℕ`/`denseSeq`
-  fallback to the `RatStepCode` rational-step witness. Recipe in
-  `PNP_IMPLEMENTATION_PLAN.md` Part 13 (S13.3 + "Next steps"): simple-function
-  density (`Lp.simpleFunc.dense`) + Borel-regularity approximation of each level
-  set by finite unions of rational `Ioc` intervals + `ℚ`-value rationalization.
-  Lands sorry-free or not at all. When done, swap the witness and promote
-  deviation 9/S13.3 to DONE.
+- ~~**S13.3 `ratStepFun_denseRange`**~~ **DONE 2026-06-19.** The genuine density
+  theorem is proved, so `substrate_enumSkeleton` now uses the `RatStepCode`
+  rational-step witness and the `ℕ`/`denseSeq` fallback is retired (see the
+  `Skeleton.lean` section above). The realized proof went through
+  bounded-continuous-function density + uniform-continuity rational-step
+  approximation + `Lp.norm_le_of_ae_bound`, **not** the originally-anticipated
+  simple-function/Borel-regularity route. No S13 math items remain (S13.5
+  verifier-field tie-in stays deferred by design).
 
 - *Optional style-linter housekeeping (N2) — safe subset done 2026-06-17.* Cleared
   (build stays green, 8037 jobs): all missing-final-newline `linter.style.whitespace`

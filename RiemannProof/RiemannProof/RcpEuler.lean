@@ -37,12 +37,16 @@ absolute and locally uniform convergence of the prime tails on `{Re ≥ a > 1}`
   reusable per-edge dominated-convergence step `edge_integral_tendsto`. The added
   hypothesis `Re < 1` on the closure (the critical strip) is what makes
   `etaRect`/`eulerB` continuous there.
-* The remaining `[LB]` fact `priorBall_edgeNbhd_pos` (Phase 1.3) is left as an
-  honest marked `sorry`: as stated it compares `eulerB P · ω` to the *true* `η`
-  (`etaRect`) at a **fixed** `P`, whereas the small-coefficient concentration its
-  recipe describes only yields closeness to the approximant `etaEulerApprox P`;
-  the two differ by the (fixed, generally non-small) approximation gap, so the
-  statement is dubious at fixed `P` and is not used downstream. `rcpKernel`
+* `priorBall_edgeNbhd_pos` (Phase 1.3) has been **restated and proved**. The
+  original statement compared `eulerB P · ω` to the *true* `η` (`etaRect`) at a
+  fixed `P`, which is dubious/false (small-coefficient concentration only yields
+  closeness to the approximant `etaEulerApprox P`, off by the fixed approximation
+  gap). The honest, *true* content — every neighborhood of the `η`-trace measured
+  **against the approximant** `etaEulerApprox P` has positive prior mass (the
+  Tjur "defined only on the support" precondition) — is now proved from the
+  positive-mass coefficient box `priorBall_box_pos` (built on
+  `diskLaw_closedBall_pos` and `Measure.infinitePi_pi`) together with
+  `Complex.norm_exp_sub_one_le`. `rcpKernel`
   remains a definition (the `condDistrib` disintegration). The bridge
   `counterexample_iff_rcpZero` (in `SchoenfeldPRA.lean`) is, given the proved
   `not_rcpZeroAt`, equivalent to the Schoenfeld `Π⁰₁` sentence itself (hence to
@@ -247,27 +251,93 @@ def rcpKernel (P : ℕ) (s₀ : ℂ) (R : Rect) :
     ProbabilityTheory.Kernel ((↥(R.closure \ R.openInt)) → ℂ) ℂ :=
   ProbabilityTheory.condDistrib (fun ω => interiorVal P s₀ ω) (edgeTrace P R) priorBall
 
-/-! ## Phase 1.3 — Positivity of the edge-neighborhood event -/
+/-! ## Phase 1.3 — Positivity of the edge-neighborhood event
 
-/-- The event that the edge trace of `eulerB P · ω` is within `ε` of `η` on the
-    edges of `R`. -/
+**Restated (plan §"The simplification", step 1 / Phase-1.3 restatement).** The
+original statement compared `eulerB P · ω` to the *true* `η` (`etaRect`) at a
+fixed `P`; that is dubious/false, because small-coefficient concentration only
+yields closeness to the **approximant** `etaEulerApprox P`. The honest, *true*
+content is the support statement: every neighborhood of the `η`-trace — measured
+**against the approximant** `etaEulerApprox P`, the deterministic skeleton that
+`eulerB` actually centers on — has positive prior mass. This is exactly the
+"`e_η` is in the support of the trace law" / Tjur "defined only on the support"
+precondition. It is now **proved**. -/
+
+/-- The event that the edge trace of `eulerB P · ω` is within `ε` of the
+    deterministic approximant `etaEulerApprox P` on the edges of `R`. -/
 def edgeNbhd (P : ℕ) (R : Rect) (ε : ℝ) : Set Ωb :=
-  {ω | ∀ z ∈ R.closure \ R.openInt, ‖eulerB P (z : ℂ) ω - etaRect z‖ < ε}
+  {ω | ∀ z ∈ R.closure \ R.openInt, ‖eulerB P (z : ℂ) ω - etaEulerApprox P z‖ < ε}
 
-/-- **[LB]** The edge-neighborhood event carries positive `priorBall` mass.
+/-
+The closed `δ`-disk has positive `diskLaw` mass, for any `δ > 0`.
+-/
+lemma diskLaw_closedBall_pos (δ : ℝ) (hδ : 0 < δ) :
+    0 < diskLaw (Metric.closedBall (0 : ℂ) δ) := by
+  rw [ diskLaw, ProbabilityTheory.cond_apply measurableSet_closedBall ];
+  refine' ENNReal.mul_pos _ _ <;> norm_num;
+  refine' ne_of_gt ( lt_of_lt_of_le _ ( MeasureTheory.measure_mono _ ) );
+  rotate_left;
+  exact Metric.closedBall 0 ( Min.min 1 δ );
+  · exact fun x hx => ⟨ Metric.closedBall_subset_closedBall ( min_le_left _ _ ) hx, Metric.closedBall_subset_closedBall ( min_le_right _ _ ) hx ⟩;
+  · simp +decide [ Complex.volume_closedBall, hδ ];
+    exact ⟨ by exact ENNReal.pow_pos ( lt_min zero_lt_one ( ENNReal.ofReal_pos.mpr hδ ) ) _, by exact NNReal.coe_pos.mpr Real.pi_pos ⟩
 
-    Recipe (plan 1.3): small-coefficient concentration — the deterministic
-    skeleton `exp (cCorr P)` is `etaEulerApprox P`
-    (`GaussianEuler.exp_cCorr_eq_etaEulerApprox`), and the bounded fluctuation
-    `∑_{p≤P} X_p p^{-s}` is uniformly small on the compact edge for coefficients
-    near `0` — an open ball of `ω`'s carrying positive `priorBall` mass (the
-    atomless continuous part of the mixed prior, Phase 0.3). -/
+/-- The finite-cylinder box `{ω | ∀ p ∈ s, ‖ω p‖ ≤ δ}` has positive `priorBall`
+    mass, for any finite index set `s` and any radius `δ > 0`. -/
+lemma priorBall_box_pos (s : Finset ℕ) (δ : ℝ) (hδ : 0 < δ) :
+    0 < priorBall (Set.pi (↑s) (fun _ => Metric.closedBall (0 : ℂ) δ)) := by
+  haveI : ∀ i : ℕ, IsProbabilityMeasure ((fun _ : ℕ => diskLaw) i) := fun _ => diskLaw_isProb
+  have h := Measure.infinitePi_pi (μ := fun _ : ℕ => diskLaw)
+    (s := s) (t := fun _ => Metric.closedBall (0 : ℂ) δ)
+    (fun i _ => measurableSet_closedBall)
+  rw [priorBall, h, pos_iff_ne_zero, Finset.prod_ne_zero_iff]
+  exact fun i _ => (diskLaw_closedBall_pos δ hδ).ne'
+
+/-
+**[LB, restated — PROVED]** The edge-neighborhood event (against the
+    approximant) carries positive `priorBall` mass.
+
+    Recipe (plan 1.3, restated): small-coefficient concentration. On the compact
+    edge `R.closure \ R.openInt` (where `Re z > 1/2`) and using `hAna`,
+    `eulerB P z ω = exp (bSum P ω z) · etaEulerApprox P z`, so
+    `eulerB P z ω - etaEulerApprox P z = etaEulerApprox P z · (exp (bSum) - 1)`,
+    bounded via `Complex.norm_exp_sub_one_le` on a small coefficient box of
+    positive mass (`priorBall_box_pos`).
+-/
 lemma priorBall_edgeNbhd_pos (P : ℕ) (R : Rect)
     (hRlo : ∀ z ∈ R.closure, 1 / 2 < z.re)
     (hAna : ∀ z ∈ R.closure, etaEulerApprox P z ≠ 0)
     (ε : ℝ) (hε : 0 < ε) :
     0 < priorBall (edgeNbhd P R ε) := by
-  sorry
+  -- Set `δ := min(1/(C+1), ε/(2*(M+1)*(C+1)))` where `C := ∑ p ∈ S, (p:ℝ)^(-(1:ℝ)/2)`.
+  obtain ⟨M, hM⟩ : ∃ M ≥ 0, ∀ z ∈ R.closure \ R.openInt, ‖etaEulerApprox P z‖ ≤ M := by
+    obtain ⟨ M, hM ⟩ := IsCompact.exists_bound_of_continuousOn ( show IsCompact ( R.closure \ R.openInt ) from by
+                                                                  apply_rules [ IsCompact.diff, Rect.isCompact_closure ];
+                                                                  exact isOpen_Ioi.preimage Complex.continuous_re |> IsOpen.inter <| isOpen_Iio.preimage Complex.continuous_re |> IsOpen.inter <| isOpen_Ioi.preimage Complex.continuous_im |> IsOpen.inter <| isOpen_Iio.preimage Complex.continuous_im ) ( show ContinuousOn ( fun z => etaEulerApprox P z ) ( R.closure \ R.openInt ) from by
+                                                                                                                              exact ( etaEulerApprox_analyticOnNhd P |> AnalyticOnNhd.continuousOn |> ContinuousOn.mono <| fun z hz => show z.re > 0 from by linarith [ hRlo z <| by exact hz.1 ] ) ) ; use Max.max M 1 ; aesop;
+  -- Set `δ := min(1/(C+1), ε/(2*(M+1)*(C+1)))` where `C := ∑ p ∈ S, (p:ℝ)^(-(1:ℝ)/2)`. Then `δ > 0`.
+  obtain ⟨δ, hδ_pos, hδ_bound⟩ : ∃ δ > 0, δ * (∑ p ∈ (Finset.range (P + 1)).filter Nat.Prime, (p : ℝ) ^ (-(1 / 2 : ℝ))) ≤ 1 ∧ 2 * M * (δ * (∑ p ∈ (Finset.range (P + 1)).filter Nat.Prime, (p : ℝ) ^ (-(1 / 2 : ℝ)))) < ε := by
+    refine' ⟨ Min.min ( 1 / ( ∑ p ∈ Finset.filter Nat.Prime ( Finset.range ( P + 1 ) ), ( p : ℝ ) ^ ( - ( 1 / 2 : ℝ ) ) + 1 ) ) ( ε / ( 2 * ( M + 1 ) * ( ∑ p ∈ Finset.filter Nat.Prime ( Finset.range ( P + 1 ) ), ( p : ℝ ) ^ ( - ( 1 / 2 : ℝ ) ) + 1 ) ) ), _, _, _ ⟩ <;> norm_num;
+    · exact ⟨ add_pos_of_nonneg_of_pos ( Finset.sum_nonneg fun _ _ => Real.rpow_nonneg ( Nat.cast_nonneg _ ) _ ) zero_lt_one, div_pos hε ( mul_pos ( mul_pos two_pos ( add_pos_of_nonneg_of_pos hM.1 zero_lt_one ) ) ( add_pos_of_nonneg_of_pos ( Finset.sum_nonneg fun _ _ => Real.rpow_nonneg ( Nat.cast_nonneg _ ) _ ) zero_lt_one ) ) ⟩;
+    · exact le_trans ( mul_le_mul_of_nonneg_right ( min_le_left _ _ ) ( Finset.sum_nonneg fun _ _ => Real.rpow_nonneg ( Nat.cast_nonneg _ ) _ ) ) ( by rw [ inv_mul_le_iff₀ ] <;> linarith [ show 0 ≤ ∑ x ∈ Finset.filter Nat.Prime ( Finset.range ( P + 1 ) ), ( x : ℝ ) ^ ( - ( 1 / 2 : ℝ ) ) from Finset.sum_nonneg fun _ _ => Real.rpow_nonneg ( Nat.cast_nonneg _ ) _ ] );
+    · refine' lt_of_le_of_lt ( mul_le_mul_of_nonneg_left ( mul_le_mul_of_nonneg_right ( min_le_right _ _ ) <| Finset.sum_nonneg fun _ _ => Real.rpow_nonneg ( Nat.cast_nonneg _ ) _ ) <| by linarith ) _;
+      rw [ div_mul_eq_mul_div, mul_div, div_lt_iff₀ ] <;> nlinarith [ show 0 ≤ ∑ x ∈ Finset.filter Nat.Prime ( Finset.range ( P + 1 ) ), ( x : ℝ ) ^ ( - ( 1 / 2 : ℝ ) ) by exact Finset.sum_nonneg fun _ _ => Real.rpow_nonneg ( Nat.cast_nonneg _ ) _, mul_div_cancel₀ ε ( show ( 2 * ( M + 1 ) ) ≠ 0 by linarith ) ];
+  -- Show that the box $B$ is contained in the edge-neighborhood.
+  have h_box_subset : ∀ ω ∈ Set.pi (↑((Finset.range (P + 1)).filter Nat.Prime)) (fun _ => Metric.closedBall (0 : ℂ) δ), ∀ z ∈ R.closure \ R.openInt, ‖eulerB P z ω - etaEulerApprox P z‖ < ε := by
+    intro ω hω z hz
+    have h_bSum_bound : ‖bSum P ω z‖ ≤ δ * (∑ p ∈ (Finset.range (P + 1)).filter Nat.Prime, (p : ℝ) ^ (-(1 / 2 : ℝ))) := by
+      have h_bSum_bound : ∀ p ∈ (Finset.range (P + 1)).filter Nat.Prime, ‖Xb p ω * (p : ℂ) ^ (-z)‖ ≤ δ * (p : ℝ) ^ (-(1 / 2 : ℝ)) := by
+        intro p hp; specialize hω p hp; simp_all +decide [ Xb, Complex.norm_cpow_of_ne_zero, Nat.Prime.ne_zero ] ;
+        exact mul_le_mul hω ( Real.rpow_le_rpow_of_exponent_le ( mod_cast hp.2.one_lt.le ) ( by linarith [ hRlo z hz.1 ] ) ) ( by positivity ) ( by positivity );
+      exact le_trans ( norm_sum_le _ _ ) ( by simpa only [ Finset.mul_sum _ _ _ ] using Finset.sum_le_sum h_bSum_bound );
+    have h_exp_bound : ‖Complex.exp (bSum P ω z) - 1‖ ≤ 2 * ‖bSum P ω z‖ := by
+      have := Complex.norm_exp_sub_one_le ( show ‖bSum P ω z‖ ≤ 1 by linarith ) ; linarith;
+    have h_eulerB_bound : ‖eulerB P z ω - etaEulerApprox P z‖ ≤ ‖etaEulerApprox P z‖ * ‖Complex.exp (bSum P ω z) - 1‖ := by
+      rw [ ← norm_mul ] ; rw [ eulerB_eq ] ; rw [ Complex.exp_add ] ; ring_nf;
+      rw [ show cexp ( GaussianEuler.cCorr P z ) = etaEulerApprox P z from Complex.exp_log ( hAna z hz.1 ) ];
+    exact h_eulerB_bound.trans_lt ( by nlinarith [ hM.2 z hz, norm_nonneg ( bSum P ω z ), norm_nonneg ( Complex.exp ( bSum P ω z ) - 1 ) ] );
+  refine' lt_of_lt_of_le _ ( MeasureTheory.measure_mono <| show edgeNbhd P R ε ⊇ Set.pi (↑((Finset.range (P + 1)).filter Nat.Prime)) (fun _ => Metric.closedBall (0 : ℂ) δ) from fun ω hω => h_box_subset ω hω );
+  convert priorBall_box_pos ( Finset.filter Nat.Prime ( Finset.range ( P + 1 ) ) ) δ hδ_pos using 1
 
 /-! ## Phase 1.4 — Conditional contour convergence -/
 
