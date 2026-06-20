@@ -7,4 +7,5 @@ import RiemannProof.ContourStrategy
 import RiemannProof.RectangleStrategy
 import RiemannProof.GaussianEuler
 import RiemannProof.RcpEuler
+import RiemannProof.SchoenfeldMatrix
 import RiemannProof.SchoenfeldPRA

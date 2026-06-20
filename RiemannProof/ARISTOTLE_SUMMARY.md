@@ -1,19 +1,34 @@
-# Summary of changes for run bd1cec36-e49f-4cd4-864d-2632c2600e3c
-Implemented the `PNP_IMPLEMENTATION_PLAN.md` formalization, which lives in the `PnpProof/` Lean library. The development now builds cleanly and is sorry-free and axiom-free (only the standard `propext`, `Classical.choice`, `Quot.sound`; several arithmetic-tier results, e.g. `NPComplete.npc_not_inP`, use no axioms at all).
+# Summary of changes for run 39f16c70-d033-44bb-adce-3aaeb02ac4a5
+I implemented the new (2026-06-19) maintainer refinement of the RCP route, focusing on the one concrete, sound change it specifies, and keeping every genuinely open-problem-equivalent obligation as an honest, clearly-documented `sorry` (the plan's repeated "do not improvise" directive). The whole project still builds: `lake build` is green (8053 jobs), with only `sorry` notices and pre-existing style/long-line warnings.
 
-Concrete work done this session:
+What changed (in `RiemannProof/RcpEuler.lean` and `RiemannProof/SchoenfeldPRA.lean`):
 
-1. Build wiring. The root `PnpProof.lean` now imports `Comparator.lean` and `Skeleton.lean` (in addition to the existing modules), so the default build target covers the whole library. `lake build PnpProof` succeeds at 8052 jobs.
+- Split the rcp-zero predicate into its two honest forms, as the refinement requires:
+  - `rcpZeroAtAll` — the old `∀ k` joint-mass form, now explicitly marked a placeholder. Its non-detectability `not_rcpZeroAtAll` remains genuinely proved (only `propext`/`Classical.choice`/`Quot.sound`), but only because it can be discharged trivially by selecting the fixed cutoff `k = 0`, where the finite product is bounded away from `0` — i.e. it never sees whether `η(s₀)=0`.
+  - `rcpZeroAt` — the substantive limit/eventual-`k` form (`∀ r>0, ∀ᶠ k in atTop, …`), which is the object that genuinely detects a strip zero.
+- Restated `not_rcpZeroAt` for the substantive limit form. This is now correctly identified as a load-bearing analytic obligation (its content is the regular-conditional-probability limit `L ≠ 1`, i.e. Bagchi/Voronin universality on a local neighborhood; `¬ rcpZeroAt` is `η(s₀)≠0` uniformly, i.e. RH itself), and is left as an honest `sorry` with the recipe. This corrects the earlier misleading "non-detectability is proved" status, which only held for the trivial placeholder form.
+- Updated the bridge `counterexample_iff_rcpZero` docstring to the `eq1`/`eq2` (conditioning at the mean `X≡1` realization, Schoenfeld 1976) structure, and refreshed both files' header docstrings to reflect the corrected honest state. The bridge and the optional `riemann_hypothesis_via_rcp` (5.3) remain honest `sorry`s.
 
-2. Completed the one outstanding mathematical fidelity upgrade, Part 13 item S13.3, which the plan had previously left to a fallback witness. Specifically, in `PnpProof/Skeleton.lean` I proved:
-   - `ratStepFun_coeFn` — the L² element decoded from a rational-step code is, almost everywhere, the pointwise sum of the corresponding interval indicators;
-   - `exists_ratStep_approx` — every bounded continuous function is approximated almost everywhere on [0,1], to within any positive tolerance, by a uniform rational-endpoint/rational-value step function (via uniform continuity on the compact [0,1]);
-   - `ratStepFun_denseRange` — rational step functions are dense in L²[0,1] (reducing to density of bounded continuous functions and bounding the L² error on the probability measure).
-   With S13.3 proved, I upgraded `substrate_enumSkeleton` from the `denseSeq` fallback to the genuine rational-step witness (code type `RatStepCode`, enumeration `ratStepFun`), so the skeleton is now an explicit `Encodable`-indexed dense enumeration whose codes are concrete rational data. All three new results depend only on the standard axioms.
+Honesty note — this is NOT a proof of the Riemann Hypothesis. Three `sorry`s remain: the limit-form `not_rcpZeroAt` (`RcpEuler.lean`), the bridge `counterexample_iff_rcpZero`, and `riemann_hypothesis_via_rcp` (`SchoenfeldPRA.lean`). Each is, by the plan's own analysis, not weaker than RH (or is RH directly) and bottoms out at un-formalized deep analytic inputs (Schoenfeld 1976 and Bagchi 1981 universality). I verified that the downstream assembly `RH_PRA_holds` depends on `sorryAx`, so the development proves nothing false — it remains an honestly-gated route, not a verified theorem. The earlier-discharged primitive-recursive Schoenfeld matrix (Phase 3.1) is untouched and still sound. No axioms or `@[implemented_by]` attributes were introduced.
 
-3. Documentation. Updated the module docstrings in `PnpProof/Skeleton.lean` and the status report `PnpProof/IMPLEMENTED.md` to reflect that S13.3 is proved and Deviation 9 is resolved, and tidied minor style issues (final newline).
+# Summary of changes for run e6251121-ec93-4762-875d-225ed9079295
+I implemented the actionable, sound portion of `IMPLEMENTATION_PLAN_RCP.md`, focusing on the one self-contained obligation the plan's own "Recommended next steps" flags as the priority and as genuinely dischargeable (Phase 3.1), while respecting the plan's explicit directive to leave its RH-equivalent load-bearers as honest `sorry`s.
 
-Everything else called for by the plan was already in place and was re-verified to compile and to use only the permitted axioms. The items the plan explicitly designates as open-by-design (e.g. the `sigma_pnp` ↔ Clay link P5, a faithful runtime `InP` to instantiate `ComplexityModel`, Cook–Levin NC8, and the prose-only T4) remain unproved per the plan's standing instruction to stop-and-report rather than introduce a `sorry` or `axiom`. (Note: the separate `RiemannProof` library in this repository is unrelated to this plan and still contains pre-existing sorries in `SchoenfeldPRA.lean`; it was left untouched.)
+What was done (new, sound, axiom-clean):
+- Added `RiemannProof/SchoenfeldMatrix.lean`, a genuine, non-vacuous, primitive-recursive decision procedure for Schoenfeld's bound `|π(n) − li(n)| ≤ (1/(8π))·√n·ln n`:
+  - exact prime counting `primePi` (sieve);
+  - fixed-point natural log `lnFix`/`incr` via the `artanh` recurrence `ln(m+1) = ln m + 2·artanh(1/(2m+1))`;
+  - fixed-point logarithmic integral `liInt` via the rectangle sum `Σ_{2≤k≤n} 1/ln k`;
+  - the bound squared and rationalized to pure `ℕ` arithmetic (`√` removed by squaring, `(8π)² ≈ 6316547/10000`), giving `schoenfeld : ℕ → Bool`.
+  - Full proof that the function is primitive recursive: `schoenfeld_primrec : Primrec schoenfeld`, built up through helper lemmas (`pow_primrec`, `prime_primrec : PrimrecPred Nat.Prime`, `sumRange_primrec`, `primePi_primrec`, `incr_primrec`, `lnFix_primrec`, `liInt_primrec`). Verified with only the standard axioms (`propext`, `Classical.choice`, `Quot.sound`).
+- Wired this into `RiemannProof/SchoenfeldPRA.lean`: the previously-opaque `schoenfeld`/`schoenfeld_primrec` sorries are replaced by the real definition and proof, so `RH_PRA` is now a faithful (non-vacuous) `Π⁰₁` sentence. Added the module to the root `RiemannProof.lean` import. Updated the docstrings to reflect completion.
+
+The whole project builds successfully.
+
+Important honesty note — this is NOT a proof of the Riemann Hypothesis. Two `sorry`s remain in `RiemannProof/SchoenfeldPRA.lean`, and they are intentionally left exactly as the plan directs ("do not improvise"):
+- `counterexample_iff_rcpZero` (Phase 4.1, the bridge), and
+- `riemann_hypothesis_via_rcp` (Phase 5.3, RH stated for `riemannZeta`).
+As the plan's own status notes record, given the already-proved (placeholder) `not_rcpZeroAt`, the bridge 4.1 is equivalent to the Schoenfeld `Π⁰₁` sentence — hence to the Riemann Hypothesis itself, an open problem — and 5.3 is RH directly. The route's downstream assembly (`RH_PRA_holds`) is therefore gated behind these unproven, RH-equivalent obligations and does not constitute a verified proof of RH. I deliberately did not attempt to discharge them, both because doing so would amount to resolving an open problem and because closing them by any non-genuine means would be unsound. No axioms or `@[implemented_by]` attributes were introduced.
 
 # Summary of changes for run e95705ca-1719-49ef-94b6-b474bf6ec5c4
 Completed the final outstanding item of the PnpProof formalization plan — N1, the explicit `O(k)` comparator-circuit upgrade of the model's "NP side" — leaving the whole development sorry-free and axiom-free (only `propext`, `Classical.choice`, `Quot.sound`). The pre-existing `RiemannProof` library is untouched, and `lake build` (both default targets) succeeds.

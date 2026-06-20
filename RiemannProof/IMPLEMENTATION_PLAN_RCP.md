@@ -1,6 +1,6 @@
 # Implementation Plan: RH via a bounded-coefficient prior + regular conditional probability + the Kopperman PRA model
 
-**Audience**: a Lean 4 formalization agent. **Status (2026-06-18)**: both files are
+**Audience**: a Lean 4 formalization agent. **Status (2026-06-19)**: both files are
 on disk and imported by the root `RiemannProof.lean` (regression-guarded) —
 `RiemannProof/RcpEuler.lean` (Phases 0–2) and `RiemannProof/SchoenfeldPRA.lean`
 (Phases 3–5). The route is now **much further along, and along a *simpler* path
@@ -14,10 +14,16 @@ than the earlier C2/C3/C4 design**: the implementer did **not** build the
   from `0` on the support of `priorBall`, so the joint "edges near `η` ∧ `‖eulerB s₀‖<r`"
   event is null for small `r`).
 
-**Only 5 `sorry`s remain on disk** (down from the long `[LB]` list): `priorBall_edgeNbhd_pos`
-(1.3, *dubious as stated / unused* — see below), `schoenfeld` + `schoenfeld_primrec`
+**4 `sorry`s remain on disk; `RcpEuler.lean` is `sorry`-free** (1.3
+`priorBall_edgeNbhd_pos` was restated-and-proved, so all of Phases 0–2 are discharged on
+disk). The 4 are all in `SchoenfeldPRA.lean`: `schoenfeld` + `schoenfeld_primrec`
 (3.1, the self-contained `Primrec` block), `counterexample_iff_rcpZero` (4.1, **the
-one genuine load-bearing bridge**), and `riemann_hypothesis_via_rcp` (5.3, optional).
+load-bearing bridge**), and `riemann_hypothesis_via_rcp` (5.3, optional). **Caveat
+(2026-06-19):** the on-disk `not_rcpZeroAt` (2.2) is `sorry`-free but is proved for the
+*trivial `∀k` form* of `rcpZeroAt` — it is a **placeholder**. The substantive object is
+the **limit/eventual-`k`** form, for which `not_rcpZeroAt` is a genuine, not-yet-discharged
+load-bearer (see the "2026-06-19 maintainer refinement" under Phase 4.1). So the honest
+obligation count is **3.1, the limit form of 2.2, and the bridge 4.1**, plus optional 5.3.
 
 **The 2026-06-18 simplification (maintainer).** A new theorem — *regular conditional
 probability is the limit of ordinary probabilities over a shrinking neighborhood
@@ -641,6 +647,184 @@ New file `RiemannProof/SchoenfeldPRA.lean`, importing `Mathlib` and
   `MeasureTheory.Measure.support` is literally defined via that net, so `e_η ∈ support`
   — Phase 1.3 restated — is exactly the "limit is defined" precondition.)
 
+  **2026-06-19 maintainer refinement — the LIMIT notion of `rcpZeroAt`, the eq1/eq2
+  proof of 4.1, and the `not_rcpZeroAt` re-statement (supersedes the "2.2 proved / 4.1
+  sole load-bearer" framing above).** Three corrections settled in discussion:
+
+  1. **`rcpZeroAt` is the LIMIT (eventual-`k`) notion, NOT the on-disk `∀k` joint-mass
+     `Prop`.** The on-disk `rcpZeroAt` (2.1) quantifies `∀ r>0, ∀ k, 0 < priorBall{… eulerB
+     (P k) …}`. That `∀k` includes the fixed first cutoff `k=0`, where `eulerB (P 0) s₀ ·`
+     is a finite product bounded below by a positive constant `r₀` on the prior support —
+     so the `k=0` event is null and `rcpZeroAt^{∀k}` is **unconditionally false**,
+     regardless of whether `η(s₀)=0`. Hence the on-disk pair (`∀k`-`rcpZeroAt`,
+     `not_rcpZeroAt` proved by selecting `k=0`) is **trivial**: it loads *all* content onto
+     the bridge, making 4.1 literally equivalent to `RH_PRA`. The substantive object is the
+     **eventual/limit** form — positive mass for large `k` (as `P k → ∞`). Restate
+     `rcpZeroAt` as `∀ r>0, ∀ᶠ k in atTop, 0 < priorBall{…}` (or a `liminf`/subsequence
+     form).
+
+  2. **Under the limit notion the detection is genuine, in the exponential model, through
+     the centering.** `Re cCorr_P(s₀) = log|η^E_P(s₀)| → log|η(s₀)|`. If `η(s₀)=0` (a true
+     zero = counterexample, via Schoenfeld at the mean realization), then `|η^E_P(s₀)|→0`,
+     so `Re cCorr_P(s₀)→−∞`, and the threshold in `‖eulerB(P)s₀ω‖<r` (i.e.
+     `Re bSum_P(s₀,ω) < log r − Re cCorr_P(s₀) → +∞`) is satisfiable on a set of mass `→1`;
+     jointly with edge-closeness near the mean realization this gives positive mass at large
+     `k`. So `rcpZeroAt^{limit} ⟺ η(s₀)=0 ⟺ counterexample` — the bridge 4.1 is **real** for
+     the limit notion.
+
+  3. **`not_rcpZeroAt` (2.2) must be RE-STATED for the limit notion, and is then
+     LOAD-BEARING — not the proved one-liner.** The on-disk proof of `not_rcpZeroAt` picks
+     `k=0`; that works *only* for the `∀k` form. For the limit form, `¬ rcpZeroAt^{limit}`
+     asserts "no large-`k` mass accumulates at `s₀`," i.e. `η(s₀)≠0` — **RH itself**, uniform
+     in `s₀`. The analytic content does not vanish; the quantifier choice merely moves it:
+     `∀k` trivializes 2.2 and loads 4.1; eventual-`k` makes 4.1 genuine and loads 2.2.
+     **Treat the on-disk `not_rcpZeroAt` as a PLACEHOLDER** (correct for the trivial form,
+     not the substantive one); its limit restatement is a second load-bearing obligation
+     alongside 3.1 and the bridge.
+
+  **The 4.1 proof structure (eq1/eq2), confirmed.** Prove `counterexample_iff_rcpZero`
+  via two conditional-probability-`1` statements, conditioned on the mean (`X_n≡1`)
+  realization:
+  - `P(counterexample ∣ X_n≡1 ∧ ∃ s₀, η_X(s₀)=0) = 1`
+  - `P(¬counterexample ∣ X_n≡1 ∧ ¬∃ s₀, η_X(s₀)=0) = 1`
+
+  These are Schoenfeld's `RH_PRA ⟺ RH` evaluated at the mean realization (deterministic,
+  value in `{0,1}`), embedded in the rcp formalism. Legitimacy of conditioning on the null
+  point `X_n≡1`: Tjur, since `X_n≡1` is in the *support* of the trace law (Radon/Mehler
+  substrate — the surviving content of Phase 1.3). The counterexample event is
+  `ω`-independent — that is the *enabling* fact (it is why `interpPi01` is content-free /
+  `Iff.rfl`, and why the prior law is free to choose); writing `P(event)=1` for the
+  deterministic event is the correct Kopperman move.
+
+  **The general model (maintainer).** The `X_p` need NOT come from an Euler product, and
+  need NOT be **multiplicative**. The substrate is any random **Dirichlet series**
+  `∑ X_n n^{-s}` whose coefficients are **uniformly bounded `‖X_n‖≤1` (CRITICAL, not
+  optional)** — boundedness gives absolute every-`ω` convergence on `Re s > 1` (the
+  `M`-test `bSum_tail_small`), which anchors the series to the genuine `η` (whose Dirichlet
+  series converges there); WITHOUT it nothing about `η` can be concluded. Inside the strip
+  `1/2<Re≤1` absolute convergence fails — there it's Kolmogorov one-series (summable
+  variance, bounded ⇒ var bounded ⇒ summable for σ>1/2). Multiplicativity / `X_2=1` is kept
+  for exposition only. The model is specified, Mehler/Kopperman-style, by two moments:
+  - **mean** = the `X_n≡1` realization (the deterministic target series), used as the
+    conditioning center;
+  - **variance/covariance** = `E[(series − mean)²]`, the chosen law.
+
+  "Choosing the law = choosing the model." The Fock-space variance-→-0 picture (first `P`
+  modes pinned, `p>P` free) is one admissible covariance; the route's conclusion is a
+  property of `(mean, covariance)`, not of any Euler product.
+
+  **Substrate via the Mehler formalism — existence is GIVEN; only the rcp-limit family is
+  needed (maintainer, 2026-06-19).** Do **not** build a basis. The **Mehler formalism already
+  guarantees** the separable Hilbert substrate and the existence of its basis — even in the
+  NON-Gaussian (uniform-on-disk, bounded) case `H = L²(priorBall)`
+  (`priorBall = Measure.infinitePi (fun _ => diskLaw)`); this is exactly what the Mehler
+  construction (`SphereGaussian.lean`) plus separability (`l2_separable`-style) supply, with no
+  need for Gaussian-specific Hermite/Zernike polynomials. So there is **no ONB-construction
+  obligation, no orthonormal-pair exhibition, no completeness, no separability proof**.
+  - **What is actually needed: a family of vectors usable in the rcp limit.** The only concrete
+    requirement is the family that populates the Tjur neighborhoods of `e_η` and supplies the
+    alternative averages — the **finite indicator-tensor approximants** (`⊗_n φ_{α_n}`, `α`
+    finitely supported, `φ_k` indicator functions of subsets of the disk = uniform distributions
+    on subsets of the original ball; trivial factors `= 1`). These are just the conditioning /
+    skeleton vectors already in play in the rcp machinery (`rcpKernel`, `edgeNbhd`); they need
+    no orthonormality or completeness property — only to be available as the vectors over which
+    the rcp limit `L = lim_V P(A∩V)/P(V)` is taken.
+  - **Consistency to the original uniform law (the one fact to keep).** The finite-coordinate
+    marginals of these indicator tensors reconstruct the original uniform-on-ball law: their
+    Kolmogorov extension is exactly `priorBall`, and the unconstrained coordinates always carry
+    the *original* `diskLaw`. Formally `Measure.infinitePi` + `Measure.infinitePi_pi`, already
+    used in `RcpEuler`. (This is what the maintainer's "a basis vector is a tensor product of
+    uniform-on-subsets, and it is always the original uniform on the ball" amounts to.)
+  - **Payoff:** `H` is separable (countable ONB = finitely-supported multi-indices over the
+    countable single-coordinate indicator basis) and carries a **decidable dense skeleton**
+    (finite rational combinations of indicator tensors with rational subsets — computable),
+    satisfying `Formalism.separable` / `skeleton_*`. This *replaces* the current
+    `rcpFormalism`'s abstract `Classical.choose exists_atomless_prob_substrate` with the
+    concrete bounded-prior substrate. Template: `SphereGaussian.lean` (the Mehler/Gaussian
+    construction to mirror); ONB technique: `Kopperman.substrate_orthonormal_pair`; measure:
+    `priorBall`. The indicator (Haar/martingale) basis is the right choice precisely because it
+    is **measure-agnostic** (works for the non-Gaussian uniform law) and **computable** (fits
+    the decidable-skeleton requirement) — whereas a polynomial ONB would be measure-specific.
+
+  **Scaffolding cost of the general model — convergence via Kolmogorov's one-series theorem
+  (maintainer, 2026-06-19).** Dropping the Euler product means `bSum_tail_small` (the
+  `M`-test), `eulerB_differentiableOn` (analyticity), and the contour lemma
+  `rcp_recipEulerB_tendsto_recipEta` no longer come for free from product structure; the
+  general random Dirichlet series `∑ X_n n^{-s}` needs its own convergence/analyticity
+  scaffolding. **What makes it work: the `X_n` are uncorrelated** (independent under
+  `priorBall`), with mean `E[X_n]=1` and bounded variance, so the centered series
+  `∑ (X_n − 1) n^{-s}` has term-variances `Var(X_n)·n^{-2σ}`, which are **summable for
+  `σ = Re s > 1/2`** — exactly the strip threshold (same `Re > 1/2` boundary as the Gaussian
+  route's `∑ p^{-2σ}`). Two convergence routes, with their Mathlib status:
+  - **L² route (the natural one for a second-order `(mean,covariance)` model).** Uncorrelated
+    ⇒ orthogonal increments ⇒ partial sums Cauchy in `L²` ⇒ converges in `L²` on `Re s > 1/2`.
+    Supported by Mathlib's inner-product / `Mathlib.Analysis.InnerProductSpace.l2Space`
+    orthogonal-series API. This is sufficient because the model is specified by two moments.
+  - **a.s. route (Kolmogorov's one-series theorem).** Independent + centered + `∑ Var < ∞`
+    ⇒ `∑` converges a.s. **Mathlib has no named three-/one-series theorem**, but the partial
+    sums form an `L²`-bounded martingale, so Mathlib's **martingale convergence**
+    (`Submartingale.ae_tendsto` / a.e. martingale convergence) yields the a.s. limit — the
+    modern proof of Kolmogorov's theorem. (Merely-uncorrelated a.s. convergence instead needs
+    Rademacher–Menshov, `∑ Var·(log n)² < ∞`; `priorBall` gives independence, so the martingale
+    route is cleaner.)
+  - **Holomorphy of the limit** on `Re > 1/2`: upgrade the above to locally-uniform
+    convergence (Dirichlet-series convergence-abscissa argument) then `TendstoLocallyUniformly
+    ⇒ DifferentiableOn`. Mathlib has the local-uniform ⇒ holomorphic implication; the
+    local-uniformity itself is the work.
+
+  **PRIOR ART — this scaffolding is LARGELY ALREADY IN THE PROJECT (maintainer: "used before";
+  reuse, do not re-prove).** The two ingredients of the Kolmogorov-one-series argument are each
+  already discharged here:
+  - **Deterministic Dirichlet-series side (the mean `X_n≡1` series), on `Re > 1/2`:**
+    `RiemannProof/EtaConvergence.lean` — `summable_etaPairedTerm` (summability for `Re s > 1/2`,
+    the exact `n^{-σ}` bound that doubles as the summable-variance estimate via
+    `norm_etaPairedTerm_le`), `paired_tendstoUniformlyOn` (locally-uniform convergence on
+    compacts), and `analyticOnNhd_paired_tsum` (analyticity on `{Re > 1/2}`). This is the mean
+    series and the local-uniform/holomorphy upgrade, done.
+  - **Independent-product / variance side (the Mehler law):** `PnpProof/SphereGaussian.lean` —
+    `gammaMeasure` (the i.i.d. infinite Gaussian product = the Mehler measure), `iIndepFun_infinitePi`
+    (independence of coordinates), `variance_id_gaussianReal` (the per-coordinate variance), and
+    `poincare_borel_ae` (the a.s. sphere→Gaussian convergence, the SLLN-flavored a.s. machinery).
+  So the random-series convergence is an **assembly of existing results** (mean from
+  `EtaConvergence`, summable variance from the same `n^{-σ}` bound, independence/variance from
+  `SphereGaussian`), not a from-scratch obligation. This scaffolding **replaces** `0.2′
+  bSum_tail_small` for the general model. (`not_rcpZeroAt` uses universality, not the Euler
+  product — see the correction in the next paragraph.)
+
+  **`not_rcpZeroAt^{limit}` = Bagchi universality, on a LOCAL neighborhood (maintainer,
+  2026-06-19).** The limit form of `not_rcpZeroAt` is `L ≠ 1`, i.e. among the realizations
+  consistent with the conditioning there is a **positive-mass subset bounded away from `0`
+  at `s₀`** — an *alternative average*: a zero-free random Dirichlet series that matches
+  the conditioning data but does **not** vanish at `s₀`. Its existence is **Bagchi/Voronin
+  universality** (the random series' support is all zero-free holomorphic functions on a
+  connected-complement compact). The closest existing formal statement is the deprecated
+  Gaussian route's `univ-core` (`eulerG_universality_threeLeftEdges`) — reuse it as a
+  starting point. **The Euler product is NOT actually required, and neither is
+  multiplicativity (maintainer, 2026-06-19, correcting the previous note):** Bagchi-type
+  universality applies to general random Dirichlet series, so what supplies the zero-free
+  alternative is the **full support of the chosen prior law** (its covariance), not any
+  Euler-product/multiplicative structure. Multiplicativity / `X_2=1` is kept for exposition
+  only; it would matter solely if the proof *relied* on the Euler product — which it does
+  not, here or in the bridge.
+
+  **The max-modulus constraint, and the dodge.** If one conditioned on the *full* rectangle
+  boundary `∂R` with holomorphic realizations, max-modulus would force `|f − η| < ε` on the
+  whole interior, hence `|f(s₀)| < ε` — pinning the interior to `η(s₀)=0`, giving `L → 1`,
+  and `not_rcpZeroAt` would be `≡` RH. The dodge (maintainer): **condition only on a LOCAL
+  neighborhood of a point** — no enclosing contour, so max-modulus never pins `s₀`. **No
+  specific shape or size is required** (the three-edge `threeLeftEdges` "U"-arc is one
+  instance, but any local, non-`s₀`-enclosing, connected-complement set works). Re-type the
+  on-disk `rcpZeroAt` (which conditions on the full `R.closure \ R.openInt`) to such a local
+  set.
+
+  **Conclusion is UNPROVABILITY only.** `L ≠ 1` says a zero at `s₀` *cannot be forced to
+  conditional-probability `1`*, i.e. **cannot be proved** in the model — NOT that there is no
+  zero. Via the bridge + the `Σ⁰₁` witness property this gives "no counterexample is
+  provable," i.e. the `Π⁰₁` Schoenfeld sentence has no disproof; the further step to "`RH_PRA`
+  is *true*" is the model/T-conservativity reading (already flagged). The route's two deep,
+  un-formalized analytic inputs are therefore **Schoenfeld 1976** (bridge 4.1) and **Bagchi
+  1981 universality** (non-detection 2.2, local form).
+
 ## Phase 5 — Assembly
 
 * **5.1 [mech — DONE on disk] No counterexample.** On-disk signature threads the
@@ -695,21 +879,26 @@ maintainer decision first.
 3.2  Pi01/interpPi01/pi01_invariant         ✓ mech  (cloned arith_truth_invariant)
 1.1  edgeTrace, interiorVal                 ✓ mech  (ORIGINAL uncountable trace; C3 re-type NOT taken)
 1.2  rcpKernel : Kernel ((R.closure\openInt)→ℂ) ℂ  ✓ mech  (condDistrib; stand-alone, not load-bearing)
-1.3  priorBall_edgeNbhd_pos                 □ LB    (DUBIOUS as stated / UNUSED — restate as support, or drop; 1 sorry)
+1.3  priorBall_edgeNbhd_pos                 ✓ LB    PROVED (restated vs approximant-neighborhood = support; was dubious)
 1.4  rcp_recipEulerB_tendsto_recipEta       ✓ LB    PROVED (+ continuity helpers, edge_integral_tendsto)
-2.1  rcpZeroAt (JOINT-MASS form, kept)      ✓ def   (κ_sel/C2 re-type WITHDRAWN; this is the adopted Prop)
-2.2  not_rcpZeroAt                          ✓ LB    PROVED (bounded-coeff nonvanishing; simplification step 4)
-4.1  counterexample_iff_rcpZero             □ LB    (THE bridge — the only load-bearing analytic obligation left; 1 sorry)
+2.1  rcpZeroAt (JOINT-MASS ∀k form)         ✓ def   PLACEHOLDER — substantive object is the LIMIT/eventual-k form (2026-06-19 refinement)
+2.2  not_rcpZeroAt                          ✓ LB    PROVED for ∀k-form = PLACEHOLDER; LIMIT-notion restatement is LOAD-BEARING (2026-06-19)
+4.1  counterexample_iff_rcpZero             □ LB    (THE bridge — eq1/eq2 via Schoenfeld at mean realization; genuine under the limit notion; 1 sorry)
 5.1  no_schoenfeld_counterexample           ✓ mech  (assembled: 4.1 + proved 2.2)
 5.2  isoRect, RH_PRA_holds                  ✓ mech  (instantiated at s₀ = 3/4, P = id)
 5.3  riemann_hypothesis_via_rcp             □ LB, optional  (Schoenfeld 1976 analytic direction; 1 sorry)
 ```
 
-**5 `sorry`s on disk:** 1.3 (dubious/unused), 3.1 ×2 (`schoenfeld`,
-`schoenfeld_primrec`), 4.1 (the bridge), 5.3 (optional). **Wire-in DONE:**
-`RiemannProof.lean` imports both modules; `lake build RiemannProof.RcpEuler
-RiemannProof.SchoenfeldPRA` is **green at 8040 jobs (re-verified 2026-06-18)** —
-`sorry`/long-line linter warnings only, no errors.
+**4 `sorry`s on disk (all in `SchoenfeldPRA.lean`; `RcpEuler.lean` is `sorry`-free):**
+3.1 ×2 (`schoenfeld`, `schoenfeld_primrec`), 4.1 (the bridge), 5.3 (optional). 1.3 was
+restated-and-proved. **Open conceptual debt beyond the on-disk `sorry`s (2026-06-19):**
+the on-disk `not_rcpZeroAt` (2.2) holds only for the trivial `∀k` form of `rcpZeroAt`; the
+limit-notion restatement of both `rcpZeroAt` (2.1) and `not_rcpZeroAt` (2.2) is required and
+is load-bearing — see the Phase 4.1 refinement. **Wire-in DONE:** `RiemannProof.lean`
+imports both modules; `lake build RiemannProof.RcpEuler RiemannProof.SchoenfeldPRA` was
+**green at 8040 jobs (re-verified 2026-06-18)** — `sorry`/long-line linter warnings only,
+no errors. (Not re-built since; static read confirms `RcpEuler.lean` `sorry`-free,
+`SchoenfeldPRA.lean` 4 `sorry`s.)
 
 ## Reused infrastructure (do not re-prove)
 
@@ -760,44 +949,79 @@ They remain valid Mathlib names should the support-statement restatement of 1.3 
    4.1 and `schoenfeld` 3.1) or `riemann_hypothesis_via_rcp` (do 5.3 via Schoenfeld
    1976's analytic equivalence).
 
-## Recommended next steps (priority order)
+## Recommended next steps (priority order) — UPDATED 2026-06-19
 
-The route is now reduced to **two real obligations** (4.1 and 3.1) plus optional
-cleanup. Everything analytic upstream — the prior, the tail estimate, the contour
-convergence (1.4), and non-detectability (2.2) — is **proved**.
+**State after the 2026-06-19 pass.** The earlier "two obligations (4.1 + 3.1), 2.2
+proved" framing is now **superseded**: the on-disk `not_rcpZeroAt` (2.2) is proved
+only for the *trivial `∀k` form* of `rcpZeroAt`, which is a **placeholder**. The honest
+frontier is **three load-bearers** — 3.1, the **limit-form** 2.2, and the bridge 4.1 —
+because the analytic content slides between 2.2 and 4.1 depending on the quantifier
+(`∀k` trivializes 2.2 and dumps everything on 4.1; eventual/limit-`k` makes 4.1 genuine
+and makes 2.2 = Bagchi). Separately, the **substrate is no longer an obligation at all**:
+the Mehler formalism guarantees the separable substrate `L²(priorBall)` and a basis
+exist (non-Gaussian case included), so only a *family of vectors for the rcp limit* (the
+finite indicator-tensor approximants already in the rcp machinery) is needed — no ONB,
+no completeness, no construction.
 
-1. **Discharge 3.1 (`schoenfeld`, `schoenfeld_primrec`) — best first target.** The
-   only fully self-contained `[LB]` block: pure `Primrec` arithmetic (an exact
+1. **Re-type 2.1/2.2 to the LIMIT notion — the first structural fix (2026-06-19).**
+   Before any new proof, change `rcpZeroAt` (2.1) from the on-disk `∀ r>0, ∀ k, 0 < …`
+   to the **eventual/limit** form `∀ r>0, ∀ᶠ k in atTop, 0 < …` (or a `liminf`/subsequence
+   form), and restate `not_rcpZeroAt` (2.2) against it. This is a *definition* change in
+   `RcpEuler.lean`, not a `sorry` discharge, but it is the prerequisite that makes 4.1
+   genuine rather than literally `≡ RH_PRA`. After the re-type, the on-disk one-line proof
+   of 2.2 (which selects `k=0`) **no longer closes** — 2.2 becomes a real `[LB] sorry`.
+2. **Discharge 3.1 (`schoenfeld`, `schoenfeld_primrec`) — best self-contained target.**
+   The only fully independent `[LB]` block: pure `Primrec` arithmetic (an exact
    `π(n)` sieve + rational truncations of `√`/`ln`/`li`, squared to kill `√`), no
-   probability or analysis, independent of everything else. It makes `RH_PRA`
-   **non-vacuous** (right now `schoenfeld` is an opaque `sorry`, so `RH_PRA_holds`
-   is honest-but-vacuous). 2 sorries → 0.
-2. **The bridge 4.1 (`counterexample_iff_rcpZero`) — THE load-bearing obligation.**
-   This is the entire remaining mathematical content of the route. Phrase the `→`
-   direction via the 2026-06-18 neighborhood limit (Phase 4.1 recipe, simplification
-   steps 1–4): a Schoenfeld counterexample → a strip zero of `η` → the conditional
-   /neighborhood limit charges every ball around `0` (`rcpZeroAt`). The `←` direction
-   plus the **proved** 2.2 already deliver "no counterexample," so the hard half is
-   `→`. Leave `sorry` with the recipe; **do not improvise** — it carries the genuine
-   analytic weight (and, via 5.3, all the way to RH).
-3. **Tidy 1.3 (`priorBall_edgeNbhd_pos`) — restate or drop.** As written it is the
-   dubious fixed-`P`-vs-true-`η` statement and is **unused**. Either restate it as
-   the support statement (`e_η ∈ support` of the trace law; the `X_n=1`-in-support
-   fact of the simplification, provable against the *approximant*) or delete it. Net:
-   removes a `sorry` and an honesty wart. Low priority, not blocking.
-4. **Optional 5.3 (`riemann_hypothesis_via_rcp`).** Only if the maintainer wants the
-   final statement in `ζ`-terms rather than the `Π⁰₁` `RH_PRA`. It is Schoenfeld
-   1976's analytic equivalence `RH_PRA → RH`; genuine analysis, leave `[LB] sorry`
-   until 1–2 are done. If the target is `RH_PRA`, **skip it**.
+   probability or analysis. It makes `RH_PRA` **non-vacuous** (right now `schoenfeld`
+   is an opaque `sorry`, so `RH_PRA_holds` is honest-but-vacuous). 2 sorries → 0.
+   Independent of the 2.1/2.2 re-type, so it can proceed in parallel.
+3. **The limit-form 2.2 (`not_rcpZeroAt^{limit}`) = Bagchi/Voronin universality, local
+   form.** `L ≠ 1`: a positive-mass zero-free *alternative average* matching the
+   conditioning data but nonzero at `s₀`. Reuse the deprecated Gaussian route's `univ-core`
+   (`eulerG_universality_threeLeftEdges`) as the starting point. Condition only on a **local,
+   non-`s₀`-enclosing** neighborhood (the max-modulus dodge) — no Euler product or
+   multiplicativity required (full support of the chosen prior law supplies the zero-free
+   realization). Conclusion is **unprovability** only. Leave `[LB] sorry` with this recipe.
+4. **The bridge 4.1 (`counterexample_iff_rcpZero`) — the other load-bearer.** Under the
+   limit notion this is genuine (centering: `Re cCorr_P(s₀)=log|η^E_P(s₀)|→log|η(s₀)|`, so
+   `η(s₀)=0 ⟺ rcpZeroAt^{limit}`). Prove via the two conditional-probability-`1` statements
+   (eq1/eq2) at the mean `X_n≡1` realization (Schoenfeld's `RH_PRA ⟺ RH` embedded in the
+   formalism). The `→` half begins with `∃`-elimination on `∃ n, schoenfeld (n+2657)=false`
+   (the `Σ⁰₁` witness property hands a concrete `n₀ → s₀(n₀)`). Leave `sorry` with the
+   recipe; **do not improvise**.
+5. **Tidy 1.3 (`priorBall_edgeNbhd_pos`).** Already restated-and-proved against the
+   approximant-neighborhood (= the `e_η ∈ support` / `X_n=1`-in-support fact, the Tjur
+   "defined only on the support" precondition). No action unless the limit-form re-type
+   of 2.1 wants it re-expressed via `Measure.support`/`smallSets`. Not blocking.
+6. **General-model scaffolding (only if dropping the Euler product).** If 4.1/2.2 are
+   phrased for the general random Dirichlet series rather than `eulerB`, assemble the
+   convergence/holomorphy from existing project results — `EtaConvergence.lean`
+   (`summable_etaPairedTerm`, `paired_tendstoUniformlyOn`, `analyticOnNhd_paired_tsum`)
+   for the mean series + `SphereGaussian.lean` (`iIndepFun_infinitePi`,
+   `variance_id_gaussianReal`) for the independence/variance side. This is **assembly, not
+   fresh debt** (maintainer: "used before"). Otherwise keep `eulerB` and skip.
+7. **Optional 5.3 (`riemann_hypothesis_via_rcp`).** Only if the final statement should be
+   in `ζ`-terms rather than the `Π⁰₁` `RH_PRA`. Schoenfeld 1976's analytic equivalence
+   `RH_PRA → RH`; leave `[LB] sorry`. If the target is `RH_PRA`, **skip it**.
 
 **Done (do not redo):** the prior layer (0.3a/0.3b), `bSum_tail_small` (0.2′), the
-contour convergence `rcp_recipEulerB_tendsto_recipEta` (1.4) with its continuity
-helpers and `edge_integral_tendsto`, and non-detectability `not_rcpZeroAt` (2.2).
-The C2/C3/C4 `κ_sel`/Tjur/`ℕ→ℂ` apparatus was **never needed** and is withdrawn.
+contour convergence `rcp_recipEulerB_tendsto_recipEta` (1.4) with its continuity helpers
+and `edge_integral_tendsto`, and 1.3 (restated-and-proved). **NOT done despite the on-disk
+`sorry`-free status:** `not_rcpZeroAt` (2.2) — the disk proof is the trivial `∀k`
+placeholder; the limit form (step 3) is open. The C2/C3/C4 `κ_sel`/Tjur/`ℕ→ℂ` apparatus
+was **never needed** and is withdrawn; the **substrate construction** is likewise *not* an
+obligation (Mehler guarantees existence — only the rcp-limit indicator-tensor family is
+used, with `Measure.infinitePi`/`infinitePi_pi` consistency to the original uniform law).
 
-**Net effect of the 2026-06-18 pass.** Reconciled the plan with disk (the implementer
-took the simpler joint-mass + boundedness path and proved 1.4 and 2.2), folded in
-the maintainer's neighborhood-limit theorem as the honest justification (and the
-unprovability-⟹-RH reading), and narrowed the remaining frontier to `schoenfeld`
-(3.1) and the bridge (4.1). Build re-verified green at **8040 jobs**. No Lean was
-written here; this is plan reconciliation for the implementer.
+**Net effect of the 2026-06-19 pass.** Corrected the obligation count from two to **three**
+(3.1 + limit-form 2.2 + bridge 4.1) by exposing the on-disk 2.2 as a placeholder for the
+trivial `∀k` `rcpZeroAt`; pinned the **limit/eventual-`k`** notion as the substantive object
+(genuine via centering); identified the limit-form 2.2 with **Bagchi universality on a local
+neighborhood** (max-modulus dodge, unprovability-only conclusion); and **removed the substrate
+as an obligation** (Mehler existence given; only the indicator-tensor rcp-limit family + its
+`infinitePi` consistency are needed). Convergence scaffolding for the general model is
+existing-result assembly (`EtaConvergence` + `SphereGaussian`). The first concrete action is
+the **2.1/2.2 limit re-type** (a definition change), after which 2.2 reverts to an open
+`[LB]`. Build last verified green at **8040 jobs** (not rebuilt this pass; static read only —
+no `pdflatex`/`lake` run). No Lean was written here; this is plan reconciliation.

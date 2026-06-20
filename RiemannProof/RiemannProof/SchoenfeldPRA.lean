@@ -1,6 +1,7 @@
 import Mathlib
 import PnpProof.Kopperman
 import RiemannProof.RcpEuler
+import RiemannProof.SchoenfeldMatrix
 
 /-!
 # The Schoenfeld `Π⁰₁` encoding and the rcp bridge
@@ -17,8 +18,18 @@ This file implements **Phases 3–5** of `IMPLEMENTATION_PLAN_RCP.md`:
 * Phase 5 — the assembly `no_schoenfeld_counterexample`, `RH_PRA_holds`, and the
   optional analytic return `riemann_hypothesis_via_rcp`.
 
-`[LB]` (load-bearing) steps are left as marked `sorry` with the plan's recipe, as
-the plan directs; `[mech]` steps are discharged.
+Phase 3.1 (`schoenfeld`, `schoenfeld_primrec`) is now **discharged** in
+`RiemannProof.SchoenfeldMatrix` (a genuine, primitive-recursive fixed-point
+decision procedure). The two remaining `[LB]` (load-bearing) steps —
+`counterexample_iff_rcpZero` (4.1) and `riemann_hypothesis_via_rcp` (5.3) — are
+left as marked `sorry`: under the substantive *limit* form of `rcpZeroAt`
+(2026-06-19 maintainer refinement), the bridge 4.1 (`eq1`/`eq2` via Schoenfeld
+1976 at the mean realization) and the limit-form `RcpEuler.not_rcpZeroAt`
+(Bagchi/Voronin universality on a local neighborhood) are the two genuine
+load-bearing analytic obligations; each is not weaker than the Riemann Hypothesis
+(an open problem), and 5.3 is RH stated for `riemannZeta`. They carry the entire
+un-formalized analytic content of the route and are not improvised, exactly as the
+plan directs. `[mech]` steps are discharged.
 -/
 
 open Complex Filter Topology MeasureTheory
@@ -34,21 +45,20 @@ namespace SchoenfeldPRA
 `|π(n) − li(n)| ≤ (1/(8π))·√n·ln n` for `n ≥ 2657`, squared and rationalized to
 integer arithmetic so that it is primitive recursive.
 
-Recipe (plan 3.1; left `[LB] sorry`, do not improvise):
-* implement `π(n)` exactly (`Nat.primeCounting` / a sieve);
-* take rational truncations of `√`, `ln`, `li` to a predictable precision (all
-  `Primrec` — bounded `for` loops);
-* the squaring step removes `√`; the precision bound removes the series tails.
-API: `Primrec`, `Primrec.nat_*`, `Nat.Primrec`.
+Implementation (plan 3.1, now **done** in `RiemannProof.SchoenfeldMatrix`):
+* `π(n)` exact, by a sieve (`SchoenfeldMatrix.primePi`);
+* rational fixed-point truncations of `ln`/`li` via the `artanh` recurrence and a
+  rectangle sum (`SchoenfeldMatrix.lnFix`, `SchoenfeldMatrix.liInt`), all
+  `Primrec`;
+* the squaring step removes `√`; `(8π)²` is the fixed rational `6316547/10000`.
 
 It is deliberately **not** defined as a constant `Bool` (that would make `RH_PRA`
-vacuously true), but left opaque/`sorry` so the `Π⁰₁` sentence stays faithful. -/
-def schoenfeld : ℕ → Bool := by
-  sorry
+vacuously true): it is the genuine, primitive-recursive fixed-point decision
+procedure for Schoenfeld's bound built in `RiemannProof.SchoenfeldMatrix`. -/
+def schoenfeld : ℕ → Bool := SchoenfeldMatrix.schoenfeld
 
-/-- **[LB]** The Schoenfeld matrix is primitive recursive. -/
-theorem schoenfeld_primrec : Primrec schoenfeld := by
-  sorry
+/-- **[LB → done]** The Schoenfeld matrix is primitive recursive. -/
+theorem schoenfeld_primrec : Primrec schoenfeld := SchoenfeldMatrix.schoenfeld_primrec
 
 /-- The Schoenfeld `Π⁰₁` sentence: the bound holds for every `n ≥ 2657`. -/
 def RH_PRA : Prop := ∀ n, schoenfeld (n + 2657) = true
@@ -132,10 +142,15 @@ end Substrate
     the rcp side (no standard `η`): a Schoenfeld counterexample corresponds,
     *via the prior-model interpretation*, to an rcp-zero of `η` in the strip.
 
-    Recipe (plan 4.1): the `→` direction routes a Schoenfeld counterexample, via
-    the prior-model interpretation, to nonvanishing conditional mass at `0` (an
-    rcp-zero); the `←` direction is its converse. Left `sorry` with the recipe
-    until Phases 1.x/2.x are discharged. -/
+    Recipe (plan 4.1, 2026-06-19 limit form): prove the equivalence via two
+    conditional-probability-`1` statements at the mean (`X_n ≡ 1`) realization —
+    `eq1 : P(counterexample ∣ X≡1 ∧ ∃ zero) = 1` and
+    `eq2 : P(¬ counterexample ∣ X≡1 ∧ ¬ ∃ zero) = 1` — which are Schoenfeld's
+    `RH_PRA ⇔ RH` evaluated at the deterministic mean series, embedded in the rcp
+    formalism (conditioning on the null point `X ≡ 1` is legitimate by Tjur, as it
+    lies in the support of the trace law). Under the *limit* form of `rcpZeroAt`
+    this equivalence is genuine (not the trivial placeholder). Left `sorry` with
+    the recipe; **do not improvise** — it is not weaker than RH. -/
 theorem counterexample_iff_rcpZero (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ)
     (hs₀ : s₀ ∈ R.openInt) :
     (∃ n, schoenfeld (n + 2657) = false) ↔ RcpEuler.rcpZeroAt P R s₀ := by

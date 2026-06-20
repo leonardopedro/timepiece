@@ -553,6 +553,28 @@ using conditioned probability. The results in (the new interval of the
 input random sample) \([0,1]\) cannot be fully reproduced by any other
 measure which is mixed in \([0,1]\).
 
+The reason an \emph{isolated continuous part} must exist to be selected ---
+and the reason it cannot be replaced by a dense countable prior on the outputs
+--- is the conditioning itself. The selection (verification) conditions the
+probability on a \emph{constant rational output} \(y\); for this to be a
+genuine selection --- a null event, in agreement with the title fact that only
+a countable history of events is realized --- the conditioning event
+\(\{Y = y\}\) must have null measure. A dense countable prior on the outputs
+would place non-null mass exactly on a dense countable set of rationals, and
+\(y\) is one of them, so conditioning on the constant rational \(y\) would land
+on an atom of positive measure: the selection would become a reproducible
+positive-probability event and the separation would collapse (this is the
+countable-menu case above, where we would instead conclude \(P=NP\)). Since we
+work in a \emph{standard} probability space, the classification above leaves
+only two kinds of component --- the continuous (Lebesgue) part and the
+atomic (point-mass) part --- with no standard dense-countable component that
+behaves like a continuum. Conditioning on a constant rational output excludes
+the atomic (point-mass) part (it is precisely the discrete atoms we condition
+away), so the only surviving standard component on which the selection is a
+null event is the continuous part. An isolated continuous part is therefore
+forced; it is not a modelling choice but a consequence of conditioning on a
+constant rational output inside a standard probability space.
+
 Given any other measure which is mixed in \([0,1]\), there is an
 interval with rational endpoints of the input random sample where there
 is a finite difference between the two cumulative probability
@@ -860,7 +882,10 @@ formalization plan is \texttt{PNP\_IMPLEMENTATION\_PLAN.md} and the
 per-lemma map is \texttt{PnpProof/IMPLEMENTED.md}. The development
 compiles \emph{without any \texttt{sorry} and without any axioms} beyond
 Lean's standard three (\texttt{propext}, \texttt{Classical.choice},
-\texttt{Quot.sound}); the build was last verified on 2026-06-18.
+\texttt{Quot.sound}); the full target was verified on 2026-06-18, and the
+explicit-skeleton module \texttt{Skeleton.lean} was re-verified on 2026-06-19
+after its density theorem was completed (see the \texttt{substrate\_enumSkeleton}
+item below).
 
 The following machine-checked theorems cover the claims of this article:
 
@@ -938,16 +963,21 @@ The following machine-checked theorems cover the claims of this article:
   \(L^{2}([0,1])\) admits an \emph{explicit countable dense enumeration}
   \(\mathrm{enum}\colon \texttt{Code} \to L^{2}\) indexed by an
   \texttt{Encodable} code type --- the machine-checked rendering of the
-  ``dense countable basis'' on which the model is built. The computable content
-  lives at the level of the codes; the decoding into the \(L^{2}\) quotient is
-  necessarily noncomputable (an \(L^{2}\) element is an almost-everywhere
-  equivalence class, not a code), so no \texttt{Computable} claim is or can be
-  made on the Hilbert space itself. The intended witness is the rational step
-  functions (whose codes are explicit finite lists of rational triples); the
-  present version is realized through a dense sequence of the separable
-  substrate, with the rational-step density theorem left as an optional fidelity
-  upgrade. This refines the abstract skeleton of the formalism (which asserts
-  only countability and density) without altering any theorem about the model.
+  ``dense countable basis'' on which the model is built. The witness is now the
+  intended one: the \emph{rational step functions}, whose codes
+  (\texttt{RatStepCode}) are explicit finite lists of rational triples
+  \((a,b,q)\), decoded to \(\sum (q)\,\mathbf{1}_{(a,b]}\) in \(L^{2}\). Its
+  density --- \texttt{ratStepFun\_denseRange}, that rational step functions are
+  dense in \(L^{2}([0,1])\) --- is now \emph{proved} (via the density of bounded
+  continuous functions, then a uniform-continuity rational-step approximation on
+  the compact \([0,1]\), with the \(L^{2}\) error controlled by an
+  almost-everywhere bound), completing the earlier dense-sequence placeholder.
+  The computable content lives at the level of the codes; the decoding into the
+  \(L^{2}\) quotient is necessarily noncomputable (an \(L^{2}\) element is an
+  almost-everywhere equivalence class, not a code), so no \texttt{Computable}
+  claim is or can be made on the Hilbert space itself. This refines the abstract
+  skeleton of the formalism (which asserts only countability and density) without
+  altering any theorem about the model.
 \end{itemize}
 
 To keep the formal development honest, the following are
@@ -971,11 +1001,162 @@ formulation before it can be formalized; no statement has been committed.
 Section 8 is, as noted there, not mathematically provable, and Section 9
 is discussion.
 
-Essentially all mathematical items queued in the plan are proved, and the
-explicit dense skeleton of Section~4 is now in place (realized through a dense
-sequence of the separable substrate); the only remaining items are the sharper
-rational-step density theorem, which would upgrade that skeleton to its intended
-rational-function witness, and minor build-lint cleanup.
+All mathematical items queued in the plan are proved, and the explicit dense
+skeleton of Section~4 is now in place \emph{with its intended rational-step-function
+witness} (its density theorem proved, superseding the earlier dense-sequence
+placeholder). The only remaining item is optional build-lint cleanup; no
+mathematical work remains in the machine-checked core.
+
+\subsection*{10.1 Strategy of the formalization: two computational layers and a
+firewall}
+
+The development is organized around a distinction that the prose of Sections 2--6
+makes informally and that the Lean code makes structural. There are \emph{two
+computational layers}, and the entire honesty of the project rests on never
+collapsing them.
+
+\begin{itemize}
+\item
+  \textbf{The arithmetic layer} (the countable/computable world). Boolean
+  circuits are built from scratch, Shannon's counting bound is proved, computable
+  codes are shown to be countable, the explicit \(\mathcal{O}(k)\) comparator
+  circuit is verified gate by gate, and the NP-completeness closure theorem
+  (\texttt{npc\_not\_inP}: one language in \(NP \setminus P\) ejects every
+  NP-complete problem from \(P\)) is proved over an abstract complexity model.
+  These modules import only Mathlib --- not the measure theory --- and a
+  \texttt{\#print axioms} confirms they do not depend on the measure layer. This
+  is the layer in which the Clay statement is \emph{posed}.
+\item
+  \textbf{The measure/formalism layer} (the continuous world). The substrate
+  \(L^{2}([0,1])\), the atomless prior (the Gaussian limit of the uniform measure
+  on the high-dimensional sphere), and the dense skeleton live here. Selection by
+  conditioning, the null-event arguments, and the model separation
+  \(\sigma\) (``computable selections are prior-null while verification is
+  cheap'') are all statements of this layer.
+\end{itemize}
+
+The \emph{firewall} between them is itself machine-checked. The separation
+theorem is named \texttt{model\_P\_ne\_NP}, never \texttt{P\_ne\_NP}, and no Lean
+theorem asserts an implication from one to the other. What \emph{is} proved is
+their relationship: \texttt{model\_vs\_clay\_disjointness} (T5) shows that the
+model's hard object lies, prior-almost-surely, \emph{outside} the arena of
+computable languages in which the Clay problem is played (every faithful
+formalization of \(P\) and \(NP\) consists of computable languages, since
+\(NP \subseteq \mathrm{EXPTIME}\)). The two statements therefore do not imply each
+other, and the bridge between them is left as prose to be reviewed by experts ---
+\emph{not} introduced as an axiom, since asserting an axiom is precisely the act
+of telling the proof checker to stop checking.
+
+\subsection*{10.2 The Kopperman formalism as a single object}
+
+Following Kopperman's categorical axiomatization of Hilbert space, the model of
+Sections 3--6 is packaged as \emph{one} explicit Lean object,
+\texttt{structure Formalism}, carrying exactly three pieces of data:
+
+\begin{enumerate}
+\item
+  a \textbf{separable real Hilbert substrate} (\texttt{separable}) --- in Lean the
+  standard space \(\texttt{Substrate} = L^{2}([0,1])\), separable by
+  \texttt{substrate\_separable};
+\item
+  a \textbf{countable dense decidable skeleton} (\texttt{skeleton},
+  \texttt{skeleton\_countable}, \texttt{skeleton\_dense}) --- the
+  \emph{computable approximants}, whose explicit witness is the rational-step
+  enumeration \texttt{substrate\_enumSkeleton} of Section~4;
+\item
+  an \textbf{atomless probability prior} (\texttt{prior},
+  \texttt{prior\_isProb}, \texttt{prior\_atomless}) --- the Mehler ``uncertainty''
+  layer, a probability measure giving every single state mass zero.
+\end{enumerate}
+
+Packaging the model as a structure is what lets the development make statements
+\emph{about the formalism itself}, not merely inside it. The key such statement is
+``choosing a measure is choosing a model'': \texttt{formalismOfPrior} turns any
+atomless probability measure on the substrate into a \texttt{Formalism}, and ---
+with the substrate and a canonical skeleton fixed --- the prior-projection
+\(F \mapsto F.\mathtt{prior}\) is a bijection onto the atomless probability
+measures (\texttt{prior\_surjective\_onto\_atomless}). The formalism is thus
+``not anti-computable'': the prior is the uncertainty layer and the skeleton is
+the layer of computable approximations, two faces of the \emph{same} object.
+
+\subsection*{10.3 The \(\Pi^0_2\) model definition: arithmetic truth as a vector
+identity}
+
+The most subtle part of the formalization is how an arithmetical sentence is
+\emph{interpreted inside} a model of the formalism. ``\(P \neq NP\)'', over an
+NP-complete language, has the shape of a \(\Pi^0_2\) sentence
+\(\forall x\,\exists y\,p(x,y)\) with a decidable matrix \(p\); in Lean,
+\[
+  \texttt{Pi02}\ p \;:=\; \forall a,\ \exists b,\ p\,a\,b = \texttt{true}.
+\]
+
+\paragraph{The interpretation and why the model drops out.} The interpretation of
+such a sentence ``inside a model \(F\), over a set-theoretic foundation \(z\)'' is
+\texttt{interpPi02 p F z}. Its definition is the \emph{trivial wrapper}
+\texttt{:= Pi02 p}: it ignores both the \texttt{Formalism} parameter \(F\)
+\emph{and} the \texttt{ZFSet} foundation parameter \(z\). The reason is the
+content of the theorem \texttt{arith\_truth\_invariant} (``\textbf{T-conserv}''):
+because the matrix ranges over the \emph{standard} naturals, and Lean's \(\mathbb{N}\)
+has no nonstandard elements, a \(\Pi^0_2\) sentence over it is \emph{absolute} ---
+it literally \emph{is} the standard arithmetic sentence, so no prior and no
+foundation can move its truth value:
+\[
+  \texttt{interpPi02}\ p\ F_1\ z_1 \;\longleftrightarrow\; \texttt{interpPi02}\ p\ F_2\ z_2 .
+\]
+This is the checked proxy for ``no prior, no foundation moves an arithmetic
+truth''; it does \emph{not} claim to settle the meta-logical standardness question
+internally (Part 11 of the plan states this fence).
+
+\paragraph{The non-trivial geometric witness (the model definition proper).} The
+trivial wrapper proves the invariance by \texttt{Iff.rfl}, which says nothing
+about \emph{how} the model carries the sentence. The geometric model
+(\texttt{PnpProof/GeometricTruth.lean}) replaces \texttt{Iff.rfl} by an honest
+witness \emph{inside the substrate}. Fix an \(\mathbb{N}\)-indexed Hilbert basis
+\(\{e_x\}\) of the substrate. Then:
+\begin{itemize}
+\item
+  each truth-function \(g\colon \mathbb{N} \to \texttt{Bool}\) has coefficient
+  sequence \(\texttt{coeff}\,g\,(x) = [g\,x]/(x+1)\), which lies in \(\ell^2\)
+  (\texttt{coeff\_memlp}) and hence names a genuine substrate vector
+  \(\Psi_g = \sum_x [g\,x]/(x+1)\,e_x\) (\texttt{psiOf});
+\item
+  the inner \(\Sigma^0_1\) sub-formula is read off as the \emph{noncomputable}
+  truth-function \(\texttt{OK}_p(x) = \texttt{decide}(\exists y,\ p\,x\,y)\)
+  (\texttt{okOf}, marked \texttt{noncomputable} / \texttt{Classical.choice}) ---
+  the honest Lean rendering of ``completed comprehension'' / a Turing jump;
+\item
+  the \(\Pi^0_2\) sentence is then encoded as the \emph{single completed vector}
+  \(\Psi_p = \sum_x \texttt{OK}_p(x)/(x+1)\,e_x\), and its truth is declared to be
+  the \textbf{metric identity}
+  \[
+    \texttt{interpPi02\_geom}\ b\ p\ F \;:=\; \bigl\lVert \Psi_p - \Psi_{\mathrm{true}} \bigr\rVert = 0,
+  \]
+  where \(\Psi_{\mathrm{true}}\) is the all-true vector (\texttt{psiTrue}).
+\end{itemize}
+That this geometric reading is \emph{faithful} is the theorem
+\texttt{interpPi02\_geom\_iff}, which proves
+\(\bigl(\lVert \Psi_p - \Psi_{\mathrm{true}}\rVert = 0\bigr) \leftrightarrow \texttt{Pi02}\,p\)
+--- now with a concrete vector-identity witness rather than \texttt{Iff.rfl}. Its
+model-independence is the geometric \textbf{T-conserv}
+(\texttt{interpPi02\_geom\_invariant}), and specializing the matrix to the SAT
+encoding gives \texttt{p\_ne\_np\_geometric}: inside any one model of the
+formalism, the standard \(P \neq NP\) sentence \emph{is} the single vector
+identity \(\lVert \Psi_{P\neq NP} - \Psi_{\mathrm{true}}\rVert = 0\).
+
+\paragraph{Why this gives no shortcut to the Clay problem.} Three fences, all
+respected in the code, keep this an \emph{expressibility} device and nothing more.
+First, it is a \emph{restatement, not a decision}: the identity equals
+\(\texttt{Pi02}\,p\) but evaluates neither side, and actually computing
+\(\lVert \Psi_p - \Psi_{\mathrm{true}}\rVert\) would require knowing
+\(\texttt{OK}_p\), i.e.\ deciding the \(\Sigma^0_1\) sub-formula --- the geometry
+\emph{stores} the answer, it does not \emph{compute} it. Second, \texttt{okOf} and
+\texttt{psiOf} are noncomputable (\texttt{Classical.choice}), which places the
+whole construction in the measure/formalism layer of \S10.1, not the arithmetic
+layer. Third, there is \emph{no Clay leverage}: making the sentence canonical
+inside the model does not make the model's measure separation \(\sigma\) prove it,
+and \texttt{model\_vs\_clay\_disjointness} (T5) is untouched. The vector identity
+is a way of \emph{writing} \(P \neq NP\) inside the substrate of a chosen model ---
+not a way of deciding it.
 
 \begin{thebibliography}{99}
 \bibitem{novak2008tractability} E. Novak and H. Wo\'{z}niakowski, \emph{Tractability of Multivariate Problems}, European Mathematical Society, 2008.

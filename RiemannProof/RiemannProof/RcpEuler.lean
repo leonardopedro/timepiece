@@ -25,11 +25,19 @@ absolute and locally uniform convergence of the prime tails on `{Re ≥ a > 1}`
   (the independent product), `priorBall_isProb`, `priorBall_ball` (support in the
   closed unit ball) and `priorBall_atomless` (the prior is atomless, so its
   continuous part is nontrivial, cf. N1).
-* `not_rcpZeroAt` (Phase 2.2) is now **proved**: with coefficients in the closed
-  unit ball, the interior value `eulerB (P 0) s₀ ·` is bounded away from `0` by a
-  positive constant on the support of `priorBall`, so the joint event with
-  `‖eulerB s₀ ω‖ < r` is null for small `r`. This is the route's genuine
-  "rcp non-detectability" content.
+* rcp non-detectability (Phase 2.2) comes in **two forms** (2026-06-19 maintainer
+  refinement). `not_rcpZeroAtAll` — the `∀ k` *placeholder* form `rcpZeroAtAll` —
+  is **proved** but trivial: with coefficients in the closed unit ball, the
+  interior value `eulerB (P 0) s₀ ·` is bounded away from `0` by a positive
+  constant on the support of `priorBall`, so selecting the fixed cutoff `k = 0`
+  makes the joint event null for small `r`. It needs only boundedness and does not
+  see whether `η(s₀) = 0`. The substantive object is the **limit / eventual-`k`**
+  form `rcpZeroAt`, whose non-detectability `not_rcpZeroAt` is genuinely
+  load-bearing (`¬ rcpZeroAt` is `η(s₀) ≠ 0` uniformly in `s₀`, i.e. RH itself; its
+  content is the rcp limit `L ≠ 1`, Bagchi/Voronin universality on a local
+  neighborhood). `not_rcpZeroAt` is therefore left as an honest `sorry` with the
+  recipe — it is not weaker than RH and is not improvised, exactly as the plan
+  directs.
 * `rcp_recipEulerB_tendsto_recipEta` (Phase 1.4) is now **proved**, together with
   its supporting continuity helpers (`etaRect_continuousOn`,
   `etaEulerApprox_ne_zero_closure`, `eulerB_continuousOn`,
@@ -48,11 +56,11 @@ absolute and locally uniform convergence of the prime tails on `{Re ≥ a > 1}`
   `diskLaw_closedBall_pos` and `Measure.infinitePi_pi`) together with
   `Complex.norm_exp_sub_one_le`. `rcpKernel`
   remains a definition (the `condDistrib` disintegration). The bridge
-  `counterexample_iff_rcpZero` (in `SchoenfeldPRA.lean`) is, given the proved
-  `not_rcpZeroAt`, equivalent to the Schoenfeld `Π⁰₁` sentence itself (hence to
-  RH), so it is left as an honest `sorry`; it carries the entire load-bearing
-  analytic content of the route and is not improvised, exactly as the plan
-  directs ("do not improvise a proof").
+  `counterexample_iff_rcpZero` (in `SchoenfeldPRA.lean`) is the second
+  load-bearing obligation (Schoenfeld 1976 at the mean realization); it is left as
+  an honest `sorry`. Together with `not_rcpZeroAt` (the limit form) these carry the
+  entire un-formalized analytic content of the route and are not improvised,
+  exactly as the plan directs ("do not improvise a proof").
 
 The reused infrastructure (`Rect`, `Rect.boundaryIntegral`, `rect_cauchy`,
 `boundary_integral_limit_eq_zero`, `reciprocal_tendstoUniformlyOn_of_nonvanishing`,
@@ -544,37 +552,53 @@ on edge-closeness to `η`, the conditional law of the interior value charges eve
 neighborhood of `0` even in the `ε → 0` limit. We phrase this concretely in terms
 of `priorBall` masses of the joint events (positive conditional mass near `0`
 persisting as `ε ↓ 0`), which is a stable `Prop` and avoids the kernel typeclass
-overhead while capturing exactly the kernel-level meaning of `rcpKernel`. -/
+overhead while capturing exactly the kernel-level meaning of `rcpKernel`.
 
-/-- **[LB, definition]** The rcp-zero predicate at `s₀` over a cutoff schedule
-    `P`. There is a schedule `ε k ↓ 0` of edge tolerances along which, for every
-    radius `r > 0`, the joint event "edges within `ε k` of `η`" **and** "interior
-    value within `r` of `0`" keeps positive `priorBall` mass — i.e. the
-    conditional mass near `0` does not vanish as the edges are pinned to `η`. -/
-def rcpZeroAt (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ) : Prop :=
+**Two forms (2026-06-19 maintainer refinement).** The honest, substantive object
+is the **limit / eventual-`k`** form `rcpZeroAt` below: for every radius `r > 0`
+the joint event keeps positive `priorBall` mass *for all sufficiently large `k`*
+(as the cutoff `P k → ∞`, neighborhood size `ε k ↓ 0`). The earlier `∀ k` form
+(kept as `rcpZeroAtAll`) is a **placeholder**: because it also quantifies over the
+fixed first cutoff `k = 0`, where `eulerB (P 0) s₀ ·` is a finite product bounded
+away from `0` on the prior support, that event is null and `rcpZeroAtAll` is
+*unconditionally false* (`not_rcpZeroAtAll`), regardless of whether `η(s₀) = 0`.
+The `∀ k` form therefore loads *all* content onto the bridge; the eventual-`k`
+form is the one that genuinely detects a strip zero. -/
+
+/-- **[LB, placeholder]** The `∀ k` (joint-mass at *every* cutoff) form. This is
+    the trivial placeholder: it is unconditionally false (`not_rcpZeroAtAll`) via
+    the `k = 0` finite product, so it carries no analytic content. -/
+def rcpZeroAtAll (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ) : Prop :=
   ∃ ε : ℕ → ℝ, (∀ k, 0 < ε k) ∧ Tendsto ε atTop (𝓝 0) ∧
     ∀ r > 0, ∀ k,
       0 < priorBall {ω | (∀ z ∈ R.closure \ R.openInt,
             ‖eulerB (P k) (z : ℂ) ω - etaRect z‖ < ε k) ∧ ‖eulerB (P k) s₀ ω‖ < r}
 
+/-- **[LB, definition — the substantive limit form]** The rcp-zero predicate at
+    `s₀` over a cutoff schedule `P`. There is a schedule `ε k ↓ 0` of edge
+    tolerances along which, for every radius `r > 0`, the joint event "edges within
+    `ε k` of `η`" **and** "interior value within `r` of `0`" keeps positive
+    `priorBall` mass **for all sufficiently large `k`** — i.e. the conditional mass
+    near `0` does not vanish in the neighborhood (`P k → ∞`, `ε k ↓ 0`) limit. -/
+def rcpZeroAt (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ) : Prop :=
+  ∃ ε : ℕ → ℝ, (∀ k, 0 < ε k) ∧ Tendsto ε atTop (𝓝 0) ∧
+    ∀ r > 0, ∀ᶠ k in atTop,
+      0 < priorBall {ω | (∀ z ∈ R.closure \ R.openInt,
+            ‖eulerB (P k) (z : ℂ) ω - etaRect z‖ < ε k) ∧ ‖eulerB (P k) s₀ ω‖ < r}
+
 /-! ## Phase 2.2 — rcp non-detectability of a strip zero -/
 
-/-
-**[LB]** Under the bounded prior, there is **no** rcp-zero in the strip
-    interior.
-
-    Recipe (plan 2.2, the maintainer's argument): conditioned on edge-closeness
-    to `η`, the bounded coefficients keep `eulerB s₀` in a region bounded away
-    from `0`; a mixed-measure rcp (N1) does not collapse to the direct route, so
-    the conditional mass near `0` stays null. This is the load-bearing
-    analytic/probabilistic lemma of the route — left `sorry` with the recipe; do
-    not improvise.
--/
-lemma not_rcpZeroAt (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ) (hs₀ : s₀ ∈ R.openInt)
+/-- **[placeholder, proved]** The `∀ k` placeholder form `rcpZeroAtAll` has no
+    rcp-zero, **unconditionally** — by selecting the fixed cutoff `k = 0`, where the
+    finite product `eulerB (P 0) s₀ ·` is bounded away from `0` on the prior support
+    (`priorBall_ball`), so the joint event with `‖eulerB (P 0) s₀ ω‖ < r` is
+    `priorBall`-null for small `r`. This needs **only boundedness**, which is exactly
+    why it is trivial: it does not see whether `η(s₀) = 0`. -/
+lemma not_rcpZeroAtAll (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ) (hs₀ : s₀ ∈ R.openInt)
     (hRlo : ∀ z ∈ R.closure, 1 / 2 < z.re)
     (hAna : ∀ k, ∀ z ∈ R.closure, etaEulerApprox (P k) z ≠ 0) :
-    ¬ rcpZeroAt P R s₀ := by
-  contrapose! hAna; simp_all +decide [ rcpZeroAt ] ;
+    ¬ rcpZeroAtAll P R s₀ := by
+  contrapose! hAna; simp_all +decide [ rcpZeroAtAll ] ;
   obtain ⟨ ε, hε_pos, hε_tendsto, hε ⟩ := hAna; have := hε ( 1 / 2 ) ( by norm_num ) 0; simp_all +decide [ Complex.norm_exp ] ;
   -- Choose $r$ small enough such that the set where the real part of the exponential is less than $r$ has measure zero.
   obtain ⟨ r, hr_pos, hr_small ⟩ : ∃ r > 0, ∀ ω : Ωb, (∀ p, ‖Xb p ω‖ ≤ 1) → Real.exp ((bSum (P 0) ω s₀).re + (GaussianEuler.cCorr (P 0) s₀).re) ≥ r := by
@@ -589,5 +613,25 @@ lemma not_rcpZeroAt (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ) (hs₀ : s₀ ∈ 
     exact MeasureTheory.measure_mono_null ( fun x hx => by contrapose! hx; aesop ) h_measure_zero;
   contrapose! hε;
   exact ⟨ r, hr_pos, 0, le_trans ( MeasureTheory.measure_mono <| fun x hx => hx.2 ) h_measure_zero.le ⟩
+
+/-- **[LB — load-bearing, 2026-06-19]** Under the bounded prior, there is **no**
+    rcp-zero (in the substantive *limit* form `rcpZeroAt`) in the strip interior.
+
+    Unlike `not_rcpZeroAtAll`, the limit form cannot be discharged by selecting a
+    fixed cutoff: `¬ rcpZeroAt` asserts that no positive joint mass accumulates at
+    `s₀` for *large* `k` (`P k → ∞`), i.e. `η(s₀) ≠ 0` — uniformly in `s₀`, which is
+    the Riemann Hypothesis itself. Its genuine content is the rcp limit `L ≠ 1`:
+    the existence of a zero-free random Dirichlet series consistent with the
+    (local) edge conditioning, which is **Bagchi/Voronin universality** (1981) on a
+    local, non-`s₀`-enclosing neighborhood (so the maximum-modulus principle never
+    pins `s₀`). This is one of the route's two deep, un-formalized analytic inputs
+    (the other being Schoenfeld 1976 in the bridge). Left `sorry` with the recipe;
+    **do not improvise** — it is not weaker than RH.
+-/
+lemma not_rcpZeroAt (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ) (hs₀ : s₀ ∈ R.openInt)
+    (hRlo : ∀ z ∈ R.closure, 1 / 2 < z.re)
+    (hAna : ∀ k, ∀ z ∈ R.closure, etaEulerApprox (P k) z ≠ 0) :
+    ¬ rcpZeroAt P R s₀ := by
+  sorry
 
 end RcpEuler

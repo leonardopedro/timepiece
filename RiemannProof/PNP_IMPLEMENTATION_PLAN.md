@@ -3816,6 +3816,26 @@ it is exp-time, so **no P solver exists ⇒ the problem is NP\P**. The argument:
    prior out of the worst-case (mixed) prior by conditioning away the atoms (§5;
    `mixed_to_continuous`/F8). The discrete atoms are where computable solvers — including
    any P solver — lived; conditioning removes them.
+
+   **Why the isolation is forced (root justification, maintainer 2026-06-19 — record).**
+   The §5 isolation is not an arbitrary modelling move: it is forced by the *form of the
+   conditioning*. The selection/verification conditions on a **constant rational output**
+   `y` (`selection_exists`/F3, `selection_not_history`/T1), and for this to be a genuine
+   selection — a null event, the title fact `P(Y=y)=0` (`no_history`/F4) — the conditioning
+   event `{Y=y}` must have null measure. A **dense countable prior on the outputs** would
+   place non-null mass on a dense countable set of rationals, and `y` is one of them, so
+   conditioning on the constant rational `y` would hit an **atom** of positive measure: the
+   selection becomes a reproducible positive-probability event and the separation collapses
+   (the countable-menu case ⇒ `P=NP`). In a **standard** probability space the §5 / von
+   Neumann classification leaves only two component types — the continuous (Lebesgue) part
+   and the **atomic (point-mass) part**; there is no standard dense-countable component
+   behaving like a continuum. Conditioning on a constant rational output excludes the
+   atomic (point-mass) part (exactly the atoms we condition away), so the only surviving
+   standard component on which the selection is null is the continuous part. *Hence: condition on a
+   constant rational `y` ⟹ output atom at `y` excluded ⟹ standardness leaves only the
+   continuous part.* This is the root reason step 2's isolation holds, upstream of the
+   `null ≠ empty` / prior-domain-existence discussion below (which is the Π⁰₂-vs-ZFC
+   reading of "a solver exists"). Mirrored in `pnp.tex` §5.
 3. **The continuous prior gives no computable solver** (`almost_all_not_computable`/T2:
    computable selections are prior-null). So among prior-selected solvers, none is
    computable.
