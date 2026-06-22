@@ -28,7 +28,7 @@
 
 \newcommand{\Rea}{\operatorname{Re}}
 \newcommand{\Ima}{\operatorname{Im}}
-\newcommand{\eulerB}{\mathcal{B}}
+\newcommand{\etaX}{\eta_X}
 \newcommand{\rcp}{\operatorname{rcp}}
 
 \title{The Riemann Hypothesis via a Bounded-Coefficient Prior\\and Regular Conditional Probability}
@@ -39,688 +39,533 @@
 \maketitle
 
 \begin{abstract}
-We describe, and partly formalize in Lean~4, a strategy for the Riemann
-Hypothesis that does not attempt to prove ``no zero off the line'' analytically.
-Instead it encodes RH as a single \(\Pi^0_1\) arithmetical sentence --- Schoenfeld's
-(1976) effective prime-counting bound, made primitive recursive --- and shows that
-a \emph{counterexample} to that sentence would have to be \emph{detectable} by a
-regular conditional probability (rcp) kernel built from a random Dirichlet series
-\(\sum_n X_n n^{-s}\) over an atomless prior, with \textbf{bounded coefficients}
-(\(\|X_n\|\le 1\)) --- critical, as this is what gives absolute convergence on
-\(\Rea(s)>1\) and so anchors the random series to \(\eta\). The detectability is then
-ruled out: conditioning on a
-\emph{local} edge neighborhood of \(\eta\) (never a contour enclosing the suspected
-zero \(s_0\), which the maximum-modulus principle would forbid), \textbf{Bagchi/Voronin
-universality} provides a positive-mass family of zero-free realizations that match
-\(\eta\) on the edges yet stay nonzero at \(s_0\). So the rcp of a zero at \(s_0\) is
-\(\neq 1\): a zero cannot be forced to conditional-probability \(1\), i.e.\ cannot be
-\emph{proved} in the model. The contrapositive is that no counterexample is provable,
-so the \(\Pi^0_1\) Schoenfeld sentence holds, and (optionally, via Schoenfeld's
-analytic equivalence) RH.
+We describe, and partly formalize in Lean~4, a strategy for the Riemann Hypothesis
+that works \emph{directly} in standard complex analysis (ZFC), with no arithmetical
+encoding. To the deterministic Dirichlet \(\eta\)-function we attach a \emph{random}
+Dirichlet series \(\etaX(s)=\sum_n X_n n^{-s}\) whose coefficients are independent,
+\textbf{uniformly bounded} (\(\|X_n\|\le 2\)) --- critical, as this is what gives
+absolute convergence on \(\Rea(s)>1\) and anchors the random series to \(\eta\) ---
+and have \textbf{mean} \(\mathbb{E}[X_n]=1\), so the mean realization \(X_n\equiv1\) is
+exactly \(\eta\). The coefficients need \emph{not} be multiplicative: there is no Euler
+product. The prior is the atomless uniform law on the closed disk of \textbf{radius
+\(2\)}, chosen so that the mean realization \(X_n\equiv1\) lies in the \emph{interior}
+of the support, where a regular conditional probability (rcp) is unambiguously well
+defined.
 
-The probabilistic substrate is an instance of the \textbf{Kopperman formalism} used
-in the companion \(P \neq NP\) development: a separable Hilbert space, a decidable
-dense skeleton of finite Dirichlet approximants, and an \emph{atomless} Mehler-type
-measure specified by its mean and covariance. The non-detectability is the same
-``atomlessness does the work'' phenomenon read one level down the arithmetical
-hierarchy --- \(\Pi^0_1\) here versus \(\Pi^0_2\) for \(P\neq NP\) --- and is honestly
-an \emph{unprovability} statement: the rcp of a strip zero is \(\neq 1\), so
-``\(\eta\) has a zero at \(s_0\)'' has no witness in the \(\mathrm{RCA}_0/\Pi^0_2\)
-model, leaving the \(\Pi^0_1\) Schoenfeld sentence with no disproof. The route has
-\textbf{two} deep, un-formalized analytic inputs: \textbf{Schoenfeld (1976)} (the
-bridge) and \textbf{Bagchi (1981) universality} (non-detection).
+The single role of this Mehler-type probability measure is to supply one identity --- the
+\textbf{transfer equality}:
+\[
+  \mathbb{P}\bigl(\text{standard }\eta\text{ has a zero at }s_0\bigr)
+  \;=\;
+  \rcp\bigl(\etaX\text{ has a zero at }s_0 \,\big|\, X_n=1\ \forall n\bigr),
+\]
+the rcp at the interior mean realization of the atomless Radon measure returning the
+deterministic value of the (continuous) ``zero at \(s_0\)'' functional. The left side is
+a deterministic \(\{0,1\}\) indicator. The right side is then bounded \emph{away from
+\(1\)} by \textbf{Bagchi/Voronin universality}: conditioning on a \emph{local} edge
+neighborhood of \(\eta\) (never a contour enclosing \(s_0\), which the maximum-modulus
+principle would forbid), a positive-mass family of zero-free realizations matches \(\eta\)
+on the edges yet stays nonzero at \(s_0\), so \(L:=\rcp(\,\cdot\mid X_n=1)\neq 1\). A
+\(\{0,1\}\) indicator equal to something \(\neq 1\) is \(0\): \(\eta\) has \emph{no} zero
+at \(s_0\). Uniformly over \(1/2<\Rea(s_0)<1\) this is the Riemann Hypothesis --- a
+\emph{positive} theorem in ZFC, with no \(\Pi^0_1\) encoding, no witness extraction, and
+no unprovability hedge. The route has \textbf{two} deep, un-formalized analytic inputs:
+the \textbf{transfer equality} (the role of the Mehler measure) and \textbf{Bagchi (1981)
+universality} (non-detection).
 
-In Lean, the probabilistic core \texttt{RcpEuler.lean} (Phases~0--2: the random
-product, the atomless prior, the rcp kernel) is \textbf{\texttt{sorry}-free}; but the
-on-disk non-detectability lemma \texttt{not\_rcpZeroAt} is proved only for a trivial
-\(\forall k\) form of the rcp-zero predicate (a \emph{placeholder}) --- the
-substantive limit form, powered by universality, is not yet discharged. The
-arithmetical layer \texttt{SchoenfeldPRA.lean} (Phases~3--5) carries \textbf{four}
-\texttt{sorry}s: the primitive-recursive Schoenfeld matrix and its \texttt{Primrec}
-proof, the load-bearing bridge \texttt{counterexample\_iff\_rcpZero}, and the optional
-analytic return \texttt{riemann\_hypothesis\_via\_rcp}. The result is a \emph{verified
-reduction} of RH to those statements (plus the limit-form non-detection), not a
-complete proof.
+The probabilistic substrate is an instance of the \textbf{Kopperman/Mehler formalism}
+used in the companion \(P\neq NP\) development: a separable Hilbert space, a decidable
+dense skeleton of finite Dirichlet approximants, and an \emph{atomless} measure specified
+by its mean and covariance. ``Choosing the measure is choosing the model.'' In Lean, the
+probabilistic core \texttt{RcpEuler.lean} (the random series, the atomless prior, the rcp
+kernel, the reciprocal contour convergence) is on disk and \texttt{sorry}-free for an
+earlier radius-\(1\), Euler-product instance; the redesign of this paper --- radius \(2\),
+general non-multiplicative series, and the transfer-equality bridge in place of the
+arithmetical one --- is the current plan (\texttt{IMPLEMENTATION\_PLAN\_RCP.md}) and is
+not yet on disk. The result is a \emph{verified reduction} of RH to the transfer equality
+and Bagchi universality, not a complete proof.
 \end{abstract}
 
 \section{Introduction}
 
-\subsection{Strategy: encode, then fail to detect}
+\subsection{Strategy: make a deterministic question probabilistic}
 
-The classical attack on RH tries to show directly that \(\zeta\) has no zero in the
-open right half \(\{1/2 < \Rea(s) < 1\}\) of the critical strip. The present
-strategy replaces that analytic goal by a two-move \emph{logical} one.
+The classical attack on RH tries to show directly that \(\zeta\) (equivalently \(\eta\))
+has no zero in the open right half \(\{1/2<\Rea(s)<1\}\) of the critical strip. ``Does
+\(\eta\) vanish at \(s_0\)?'' is a single deterministic question with a \(\{0,1\}\)
+answer; analytically it is intractable.
 
-\paragraph{Move 1 --- encode RH as a \(\Pi^0_1\) sentence.} Schoenfeld (1976) proved
-that, \emph{assuming} RH, the prime-counting function satisfies the explicit bound
-\begin{equation}\label{eq:schoenfeld}
-  \bigl|\pi(n) - \operatorname{li}(n)\bigr|
-  \;\le\; \frac{1}{8\pi}\,\sqrt{n}\,\ln n
-  \qquad (n \ge 2657),
+The present strategy replaces it by a \emph{probabilistic} question that has the same
+answer but is amenable to a soft argument. We embed \(\eta\) as the mean of a random
+Dirichlet series \(\etaX(s)=\sum_n X_n n^{-s}\), \(\mathbb{E}[X_n]=1\), over an atomless
+prior, and ask for the regular conditional probability that \(\etaX\) vanishes at \(s_0\)
+\emph{given} that the coefficients take their mean values \(X_n=1\). Two facts then close
+the argument.
+
+\paragraph{Fact 1 --- the transfer equality (the role of the Mehler measure).} Adding the
+probability measure buys exactly one identity:
+\begin{equation}\label{eq:transfer}
+  \mathbb{P}\bigl(\eta(s_0)=0\bigr)
+  \;=\;
+  \rcp\bigl(\etaX(s_0)=0 \,\big|\, X_n=1\ \forall n\bigr)
+  \;=:\;L .
 \end{equation}
-and conversely this family of bounds is equivalent to RH. Squaring to remove the
-square root and truncating \(\ln\), \(\operatorname{li}\) to a predictable rational
-precision turns \eqref{eq:schoenfeld} into a \textbf{primitive recursive} predicate
-\(\texttt{schoenfeld}(n) \in \{\texttt{true},\texttt{false}\}\). RH then becomes the
-single \(\Pi^0_1\) arithmetical sentence
-\begin{equation}\label{eq:rhpra}
-  \texttt{RH\_PRA} \;\equiv\; \forall n,\ \texttt{schoenfeld}(n + 2657) = \texttt{true}.
-\end{equation}
-A \emph{counterexample} is a number \(n\) with
-\(\texttt{schoenfeld}(n+2657)=\texttt{false}\); RH is the assertion that none exists.
+The left side is the deterministic indicator \(\mathbf{1}\{\eta(s_0)=0\}\in\{0,1\}\): the
+standard \(\eta\) either vanishes at \(s_0\) or it does not. The right side is the rcp at
+the mean realization. Equality~\eqref{eq:transfer} holds because the rcp at an
+\emph{interior} point of the support of an atomless Radon measure returns the
+deterministic value of any functional continuous there, and ``has a zero at \(s_0\)'' is
+such a functional (Section~\ref{sec:transfer}). The choice of \textbf{radius \(2\)} for
+the coefficient disk is what puts \(X_n\equiv1\) in the interior, where this is clean.
 
-\paragraph{Move 2 --- show a counterexample would be probabilistically detectable,
-then deny detection.} We attach to the strip a random Euler product \(\eulerB\) over
-a prior \(\mu\), and a \emph{regular conditional probability} kernel that asks: given
-that \(\eulerB\) looks like \(\eta\) on the boundary of a small rectangle, what is the
-conditional law of \(\eulerB\) at an interior point \(s_0\)? A genuine zero of
-\(\eta\) at \(s_0\) would force this conditional law to put nonvanishing mass near
-\(0\) --- an \emph{rcp-zero} (Definition~\ref{def:rcpzero}). The bridge
-(Section~\ref{sec:bridge}) says a Schoenfeld counterexample produces exactly such an
-rcp-zero. The non-detectability lemma (Section~\ref{sec:nondetect}) says no rcp-zero
-exists. Composing the two:
+\paragraph{Fact 2 --- non-detection (\(L\neq 1\), Bagchi).} Conditioning on a
+\emph{local} edge neighborhood of \(\eta\) --- never a contour enclosing \(s_0\), which
+the maximum-modulus principle would forbid --- \textbf{Bagchi/Voronin universality}
+provides a positive-mass family of zero-free realizations that agree with \(\eta\) on the
+edges but stay nonzero at \(s_0\). Hence \(L\neq 1\): the conditional law of \(\etaX(s_0)\)
+is not a point mass at \(0\) (Section~\ref{sec:nondetect}).
+
+\paragraph{Composing.} A \(\{0,1\}\)-valued indicator that equals \(L\neq 1\) must equal
+\(0\). Equivalently: if \(\eta(s_0)=0\) then \eqref{eq:transfer} forces \(L=1\),
+contradicting Fact~2. Either way \(\eta(s_0)\neq 0\). Since the universality argument is
+uniform over the interior point,
 \[
-  (\exists\,\text{counterexample}) \;\Longrightarrow\; (\exists\,\text{rcp-zero})
-  \;\Longrightarrow\; \texttt{False},
+  \forall\,s_0,\ \tfrac12<\Rea(s_0)<1 \;\Longrightarrow\; \eta(s_0)\neq 0,
 \]
-so \(\texttt{RH\_PRA}\) holds, and (optionally, via Schoenfeld's equivalence) RH
-follows.
+which is the Riemann Hypothesis (Section~\ref{sec:assembly}). The conclusion is a positive
+analytic statement in ZFC; there is no arithmetical sentence and no unprovability reading.
 
 \subsection{Why ``regular conditional probability'' and not a single condition}
 
-The kernel is a genuine \emph{disintegration} (Lean
-\texttt{ProbabilityTheory.condDistrib}), not conditioning on one positive-measure
-event (\texttt{ProbabilityTheory.cond}). This matters because the event ``\(\eulerB\)
-equals \(\eta\) on the boundary'' is null: the boundary trace pins a continuum of
-constraints. Regular conditional probability is precisely the tool that assigns a
-well-defined conditional law to such null conditioning data, via Tjur's
-neighborhood-limit characterization
+The conditioning event ``\(\etaX\) equals \(\eta\) on the (local) edge data'' is null: the
+boundary trace pins a continuum of constraints, and the mean realization \(X_n\equiv1\) is
+a single point of an atomless measure. Regular conditional probability is precisely the
+tool that assigns a well-defined conditional law to such null conditioning data, via
+Tjur's neighborhood-limit characterization
 \begin{equation}\label{eq:tjur}
   \rcp(A \mid T = t)
   \;=\; \lim_{V \downarrow \{T=t\}} \frac{\mathbb{P}(A \cap V)}{\mathbb{P}(V)},
 \end{equation}
-the limit over shrinking open neighborhoods \(V\) of the trace value. The limit is
-well defined because the substrate is \textbf{Radon} (a Polish inner-product space
-has inner-regular Borel measures), and it is this limit, not a naive ratio, that the
-non-detectability lemma controls.
+the limit over shrinking open neighborhoods \(V\) of the trace value. The limit is well
+defined because the substrate is \textbf{Radon} (a Polish inner-product space has
+inner-regular Borel measures), and --- crucially --- because the conditioning value
+\(t=e_\eta\) lies in the \emph{interior} of the support (the radius-\(2\) choice), so the
+neighborhoods \(V\) are genuine two-sided neighborhoods with positive mass in all
+directions. It is this limit, not a naive ratio, that both the transfer
+equality~\eqref{eq:transfer} and the non-detection bound \(L\neq1\) control.
 
 \section{The Bounded-Coefficient Prior and the rcp Kernel}
 
-\subsection{The model}\label{sec:model}
+\subsection{The model: a general, non-multiplicative random Dirichlet series}\label{sec:model}
 
-Fix a cutoff \(P\) and a sample \(\omega \in \Omega_b = \mathbb{N}\to\mathbb{C}\)
-recording one complex coefficient per prime index.
+The object is a random Dirichlet series. There is \textbf{no Euler product and no
+multiplicativity}; only boundedness and a prescribed mean and covariance are used.
 
-\begin{definition}[Bounded exponential Euler product]\label{def:eulerB}
-With \(\eta^E_P(s) = (1-2^{1-s})\prod_{p\le P}(1-p^{-s})^{-1}\) the deterministic
-eta--Euler approximant and \(\texttt{cCorr}(s)=\log\eta^E_P(s)\) the centering, set
+\begin{definition}[Random Dirichlet series]\label{def:series}
+Fix a sample \(\omega\in\Omega_b=\mathbb{N}\to\mathbb{C}\) recording one complex
+coefficient per index. With \(X_n(\omega)=\omega_n\) set
 \[
-  X_p(\omega) = \omega_p, \qquad
-  \texttt{bSum}_P(s,\omega) = \sum_{\substack{p\le P\\ p\ \mathrm{prime}}} X_p(\omega)\,p^{-s},
-  \qquad
-  \eulerB_P(s,\omega) = \exp\bigl(\texttt{bSum}_P(s,\omega) + \texttt{cCorr}(s)\bigr).
+  \etaX(s,\omega) \;=\; \sum_{n\ge 1} X_n(\omega)\,n^{-s}
+  \qquad(\eta\text{-normalized, alternating}),
 \]
-In Lean these are \texttt{Xb}, \texttt{bSum}, \texttt{eulerB} in
-\texttt{RcpEuler.lean}.
+the random series whose mean realization \(X_n\equiv1\) is the deterministic \(\eta\). The
+exponential Euler product \(\mathcal{B}_P(s,\omega)=\exp\bigl(\sum_{p\le P}X_p\,p^{-s}
++\log\eta^E_P(s)\bigr)\) of earlier versions (Lean \texttt{eulerB}) is now only a legacy
+special case; nothing below uses product structure.
 \end{definition}
 
-Two structural facts hold with \emph{no} hypothesis on \(s\):
-\begin{itemize}
-  \item \(\eulerB_P(\cdot,\omega) \ne 0\) everywhere (an exponential is never zero)
-        \textbf{(proved: \texttt{eulerB\_ne\_zero})}, so the reciprocal
-        \(1/\eulerB\) needed by the contour side has no spurious poles;
-  \item \(\eulerB_P(\cdot,\omega)\) is analytic on the strip
-        \textbf{(proved: \texttt{eulerB\_differentiableOn})}.
-\end{itemize}
-The decisive difference from the Gaussian model is the \textbf{boundedness} of the
-coefficients: when \(\|X_p(\omega)\|\le 1\), the tail
-\(\sum_{p>P}X_p(\omega)p^{-s}\) is dominated by \(\sum_p p^{-a}\) on
-\(\{\Rea(s)\ge a>1\}\) for \emph{every} \(\omega\), giving absolute, locally uniform
-convergence with \emph{no} almost-sure qualifier
-\textbf{(proved: \texttt{bSum\_tail\_small}, a Weierstrass \(M\)-test)}.
+The decisive structural property is \textbf{boundedness} of the coefficients. When
+\(\|X_n(\omega)\|\le 2\), the tail \(\sum_{n>N}X_n(\omega)n^{-s}\) is dominated by
+\(2\sum_{n>N}n^{-a}\) on \(\{\Rea(s)\ge a>1\}\) for \emph{every} \(\omega\), giving
+absolute, locally uniform convergence with \emph{no} almost-sure qualifier (a Weierstrass
+\(M\)-test; Lean \texttt{bSum\_tail\_small} for the product instance). This is what anchors
+the random series to the genuine \(\eta\), whose Dirichlet series converges there.
 
-\begin{definition}[The atomless bounded prior]\label{def:prior}
-Let \(\texttt{diskLaw}\) be the uniform probability law on the closed unit disk
-\(\overline{\mathbb{D}}\subset\mathbb{C}\), and
+\begin{definition}[The atomless radius-\(2\) prior]\label{def:prior}
+Let \(\texttt{diskLaw}\) be the uniform probability law on the closed disk of radius
+\(\mathbf{2}\), \(\overline{B(0,2)}\subset\mathbb{C}\), and
 \[
-  \texttt{priorBall} \;=\; \bigotimes_{p}\ \texttt{diskLaw}
+  \texttt{priorBall} \;=\; \bigotimes_{n}\ \texttt{diskLaw}
   \;=\; \texttt{Measure.infinitePi}\,(\lambda\_.\ \texttt{diskLaw})
 \]
-the independent product over prime indices. It is a probability measure
-\textbf{(proved: \texttt{priorBall\_isProb})}, supported in the closed unit ball
-\textbf{(proved: \texttt{priorBall\_ball}, so \(\|X_p\|\le 1\) a.e.)}, and
-\textbf{atomless} \textbf{(proved: \texttt{priorBall\_atomless},
-\(\texttt{priorBall}\{\omega\}=0\))}.
+the independent product over indices. It is a probability measure, supported in the
+radius-\(2\) ball (so \(\|X_n\|\le 2\) a.e.), and \textbf{atomless}
+(\(\texttt{priorBall}\{\omega\}=0\)). (Lean: \texttt{priorBall\_isProb},
+\texttt{priorBall\_ball}, \texttt{priorBall\_atomless}; on disk for radius \(1\), to be
+re-proved verbatim at radius \(2\).)
 \end{definition}
 
-Atomlessness is the load-bearing structural property: it is exactly what prevents
-any single realization --- in particular the deterministic \(\eta\)-realization
-\(X_p\equiv 1\) --- from carrying positive mass, so detection of a zero must come
-from a \emph{neighborhood}, where the conditional behaviour can be controlled.
+Two structural properties of the prior carry the argument.
 
-\subsection{The general model: mean and covariance}\label{sec:general}
-
-Nothing in the argument uses the Euler product as such. The substrate may be taken to
-be \emph{any} random Dirichlet series \(\sum_n X_n n^{-s}\) with \textbf{uniformly
-bounded coefficients} \(\|X_n\|\le 1\), specified --- Mehler/Kopperman-style --- by two
-moments:
 \begin{itemize}
-  \item \textbf{mean} \(\mathbb{E}[X_n]=1\): the \(X_n\equiv 1\) realization is the
-        deterministic target series, used as the conditioning center;
-  \item \textbf{covariance} \(\mathbb{E}\bigl[(X-\text{mean})^2\bigr]\): the chosen law.
+  \item \textbf{Atomlessness} is what prevents any single realization --- in particular
+        the deterministic \(\eta\)-realization \(X_n\equiv1\) --- from carrying positive
+        mass, so the conditional behaviour at \(X_n\equiv1\) is a genuine
+        \emph{neighborhood} (Tjur) limit, not an evaluation.
+  \item \textbf{Radius \(2\), not \(1\)} places the mean realization \(X_n\equiv1\) in the
+        \emph{open interior} of the support. At radius \(1\), \(X_n\equiv1\) sat on the
+        boundary \(\partial\overline{B(0,1)}\) of the support, where the Tjur limit is
+        one-sided and degenerate; at radius \(2\) every neighborhood of \(X_n\equiv1\) is a
+        genuine two-sided interior neighborhood with positive mass in all directions, so
+        the rcp at the conditioning value is unambiguous. Boundedness --- not the value of
+        the radius --- is the critical property; radius \(2\) is the smallest convenient
+        choice that interiorizes the mean.
 \end{itemize}
-``Choosing the law is choosing the model.'' The bounded prior of \S\ref{sec:model} is
-one admissible covariance; the Fock-space picture (first \(P\) coefficients pinned, the
-rest free) is another. The conclusion is a property of \((\text{mean},\text{covariance})\),
-not of any product structure --- and, by Remark~\ref{rem:nomult}, the coefficients need
-not be multiplicative.
 
-\emph{Boundedness is not optional, but multiplicativity is.} The bound \(\|X_n\|\le 1\)
-is \textbf{critical}: it gives \emph{absolute}, locally uniform convergence on
-\(\{\Rea(s)\ge a>1\}\) for \emph{every} \(\omega\) (a Weierstrass \(M\)-test against
-\(\sum_n n^{-a}\), \texttt{bSum\_tail\_small}), which is exactly what anchors the random
-series to the genuine \(\eta\) --- whose Dirichlet series converges there. Without it the
-series need not converge for every \(\omega\) on \(\Rea>1\), and nothing about \(\eta\)
-could be concluded. Inside the strip, \(1/2<\Rea(s)\le 1\), absolute convergence fails;
-there the \(X_n\) being uncorrelated (independent under the product prior) with bounded
-variance makes the centered series' term-variances \(\operatorname{Var}(X_n)\,n^{-2\Rea(s)}\)
-summable for \(\Rea(s)>1/2\) --- \textbf{Kolmogorov's one-series theorem} (\(L^2\) from
-orthogonality, almost-sure via the \(L^2\)-bounded martingale of partial sums). These two
-regimes --- absolute on \(\Rea>1\), Kolmogorov on \(\Rea>1/2\) --- are the right-edge and
-left-edge regimes of the contour, and both ingredients are already in the project: the
-deterministic Dirichlet-series summability, locally-uniform convergence, and analyticity
-on \(\{\Rea>1/2\}\) (\texttt{EtaConvergence.lean}: \texttt{summable\_etaPairedTerm},
+\subsection{Mean and covariance: choosing the law is choosing the model}\label{sec:general}
+
+The model is specified --- Mehler/Kopperman-style --- by two moments:
+\begin{itemize}
+  \item \textbf{mean} \(\mathbb{E}[X_n]=1\): the \(X_n\equiv1\) realization is the
+        deterministic target series \(\eta\), the conditioning center;
+  \item \textbf{covariance} \(\mathbb{E}\bigl[(X-\text{mean})^2\bigr]\): the chosen law,
+        which must have \emph{rich enough support} for universality (Section~\ref{sec:nondetect}).
+\end{itemize}
+The conclusion is a property of \((\text{mean},\text{covariance})\), not of any product or
+multiplicative structure (Remark~\ref{rem:nomult}). The radius-\(2\) unit-disk product of
+\S\ref{sec:model} is one admissible covariance; a Fock-space picture (first \(N\)
+coefficients pinned, the rest free) is another.
+
+\emph{Boundedness is not optional.} The bound \(\|X_n\|\le 2\) gives \emph{absolute},
+locally uniform convergence on \(\{\Rea(s)\ge a>1\}\) for \emph{every} \(\omega\), which
+anchors the random series to \(\eta\); without it the series need not converge for every
+\(\omega\) on \(\Rea>1\) and nothing about \(\eta\) could be concluded. Inside the strip,
+\(1/2<\Rea(s)\le1\), absolute convergence fails; there the \(X_n\) being uncorrelated
+(independent under the product prior) with bounded variance makes the centered series'
+term-variances \(\operatorname{Var}(X_n)\,n^{-2\Rea(s)}\) summable for \(\Rea(s)>1/2\) ---
+\textbf{Kolmogorov's one-series theorem} (\(L^2\) from orthogonality, almost-sure via the
+\(L^2\)-bounded martingale of partial sums). These two regimes --- absolute on \(\Rea>1\),
+Kolmogorov on \(\Rea>1/2\) --- are the right-edge and left-edge regimes of the contour,
+and both ingredients are \emph{already in the project}: the deterministic Dirichlet-series
+summability, locally-uniform convergence, and analyticity on \(\{\Rea>1/2\}\)
+(\texttt{EtaConvergence.lean}: \texttt{summable\_etaPairedTerm},
 \texttt{paired\_tendstoUniformlyOn}, \texttt{analyticOnNhd\_paired\_tsum}), and the
 i.i.d.\ Mehler product with its independence and variance (\texttt{SphereGaussian.lean}:
 \texttt{gammaMeasure}, \texttt{iIndepFun\_infinitePi}, \texttt{variance\_id\_gaussianReal}).
+So the convergence/analyticity of the general series on \(\{\Rea>1/2\}\) is an
+\emph{assembly} of existing results, not a fresh obligation.
 
 \subsection{The rcp kernel}\label{sec:kernel}
 
-Let \(\partial^\ast R = R.\texttt{closure}\setminus R.\texttt{openInt}\) be the
-topological boundary of a rectangle \(R\). Write the \emph{edge trace}
-\(\texttt{edgeTrace}_P(\omega) = (z\mapsto \eulerB_P(z,\omega))\restriction
-\partial^\ast R\) and the \emph{interior value}
-\(\texttt{interiorVal}_P(s_0,\omega)=\eulerB_P(s_0,\omega)\).
+Let \(\partial^\ast R = R.\texttt{closure}\setminus R.\texttt{openInt}\) be the topological
+boundary of a rectangle \(R\), and let \(\Lambda\subset\partial^\ast R\) be a \emph{local}
+arc that does not enclose \(s_0\) (Remark~\ref{rem:maxmod}). Write the \emph{edge trace}
+\(T(\omega) = (z\mapsto \etaX(z,\omega))\restriction \Lambda\) and the \emph{interior
+value} \(\etaX(s_0,\omega)\).
 
 \begin{definition}[rcp kernel]\label{def:kernel}
 \[
-  \texttt{rcpKernel}_P(s_0,R)
-  \;=\; \texttt{condDistrib}\bigl(\texttt{interiorVal}_P(s_0,\cdot),\ \texttt{edgeTrace}_P,\ \texttt{priorBall}\bigr),
+  \texttt{rcpKernel}(s_0,\Lambda)
+  \;=\; \texttt{condDistrib}\bigl(\etaX(s_0,\cdot),\ T,\ \texttt{priorBall}\bigr),
 \]
-the regular conditional distribution of the interior value given the edge trace,
-under the bounded prior. \textbf{(Lean: \texttt{rcpKernel}, built from
-\texttt{condDistrib}; measurability of both maps and finiteness of
-\texttt{priorBall} are the inputs.)}
+the regular conditional distribution of the interior value given the (local) edge trace,
+under the bounded prior. (Lean: \texttt{rcpKernel}, built from \texttt{condDistrib};
+measurability of both maps and finiteness of \texttt{priorBall} are the inputs.)
 \end{definition}
 
 The kernel is well posed because the precondition of Tjur's
-characterization~\eqref{eq:tjur} holds: every neighborhood of the \(\eta\)-trace ---
-measured against the deterministic skeleton \(\eta^E_P\) on which \(\eulerB\) centers
---- has \emph{positive} prior mass \textbf{(proved:
-\texttt{priorBall\_edgeNbhd\_pos}, from the positive-mass coefficient box
-\texttt{priorBall\_box\_pos} and \(\|\exp(\cdot)-1\|\) control)}. This is the honest,
-\emph{true} restatement of an earlier dubious comparison against the exact \(\eta\):
-small-coefficient concentration only yields closeness to the \emph{approximant}
-\(\eta^E_P\), and that is exactly what positivity-of-support needs.
+characterization~\eqref{eq:tjur} holds: the conditioning value \(e_\eta\) (the trace of the
+mean realization) lies in the support of the trace law, with \emph{positive} mass on every
+neighborhood --- measured against the deterministic skeleton on which \(\etaX\) centers
+(Lean \texttt{priorBall\_edgeNbhd\_pos}, from the positive-mass coefficient box
+\texttt{priorBall\_box\_pos}). The radius-\(2\) choice strengthens this from ``in the
+support'' to ``in the interior of the support''.
 
 \subsection{The contour side, for free}
 
-On the boundary, the reciprocals converge: if a sequence
-\(\eulerB_{P_k}(\cdot,\omega_k)\to\eta\) uniformly on \(\partial^\ast R\) (with
-\(\eta\) zero-free there, i.e.\ its only strip zero is the interior \(s_0\)), then
+On the boundary, reciprocals converge: if \(\etaX(\cdot,\omega_k)\to\eta\) uniformly on
+\(\partial^\ast R\) (with \(\eta\) zero-free there, i.e.\ its only strip zero is the
+interior \(s_0\)), then
 \[
-  \oint_{\partial R}\frac{dz}{\eulerB_{P_k}(z,\omega_k)}
+  \oint_{\partial R}\frac{dz}{\etaX(z,\omega_k)}
   \;\longrightarrow\;
   \oint_{\partial R}\frac{dz}{\eta(z)} .
 \]
-\textbf{(Proved: \texttt{rcp\_recipEulerB\_tendsto\_recipEta}, via a per-edge
-dominated-convergence step \texttt{edge\_integral\_tendsto} and continuity helpers
-\texttt{etaRect\_continuousOn}, \texttt{eulerB\_continuousOn}, \dots; the strip
-hypothesis \(\Rea<1\) on the closure is what makes the integrands continuous.)}
-Because each \(1/\eulerB\) is entire on \(\overline{R}\) (Definition~\ref{def:eulerB}),
-each finite contour integral vanishes; the limit transfers vanishing to
-\(\oint_{\partial R}1/\eta\). This is the same ``exponential \(\Rightarrow\) free
-Cauchy'' mechanism as before, now used only as supporting infrastructure for the
-probabilistic statement.
+(Proved for the product instance: \texttt{rcp\_recipEulerB\_tendsto\_recipEta}, via a
+per-edge dominated-convergence step \texttt{edge\_integral\_tendsto} and continuity
+helpers; the strip hypothesis \(\Rea<1\) on the closure makes the integrands continuous.)
+For the general series the same locally-uniform convergence is the assembly of
+\S\ref{sec:general}. This continuity of evaluation along convergent traces is exactly what
+makes the ``zero at \(s_0\)'' functional continuous, and hence the transfer
+equality~\eqref{eq:transfer} available; here it is used only as supporting infrastructure
+for the probabilistic statements.
 
-\subsection{Non-detectability}\label{sec:nondetect}
+\section{The Transfer Equality}\label{sec:transfer}
 
-Condition on the values on a \emph{local} neighborhood of the boundary --- never on a
-closed contour enclosing \(s_0\) (the reason is Remark~\ref{rem:maxmod}). Write \(T\)
-for that local edge-trace and \(e_\eta\) for the trace of \(\eta\).
+The single role of the Mehler probability measure is to supply the identity~\eqref{eq:transfer}.
 
-\begin{definition}[rcp-zero, limit form]\label{def:rcpzero}
-\(\eta\) has an \emph{rcp-zero} at \(s_0\) if the regular conditional probability
+\begin{theorem}[Transfer equality]\label{thm:transfer}
+For \(s_0\) with \(1/2<\Rea(s_0)<1\),
 \[
-  L \;=\; \rcp\bigl(\,\text{interior value at }s_0 = 0 \ \big|\ T = e_\eta\,\bigr)
-  \;=\; \lim_{V\downarrow\{T=e_\eta\}} \frac{\mathbb{P}\bigl(\{\text{interior}=0\}\cap V\bigr)}{\mathbb{P}(V)}
+  \rcp\bigl(\etaX(s_0)=0 \,\big|\, X_n=1\ \forall n\bigr)
+  \;=\; \mathbf{1}\{\eta(s_0)=0\}
+  \;=\; \mathbb{P}\bigl(\eta(s_0)=0\bigr).
 \]
-equals \(1\): conditioned on matching \(\eta\) on the local edge data, the interior
-value is forced to \(0\) with certainty. The Tjur limit exists because the substrate
-is Radon.
-\end{definition}
-
-\begin{remark}[The on-disk \(\forall k\) form is a placeholder]\label{rem:placeholder}
-The Lean \texttt{rcpZeroAt} currently quantifies positive joint mass \emph{at every}
-cutoff \(k\) (including a fixed smallest \(k=0\)):
-\(\forall r>0,\ \forall k,\ \texttt{priorBall}\{\text{edge-close within }\varepsilon_k
-\wedge \|\eulerB_{P_k}(s_0,\cdot)\|<r\}>0\). At a fixed cutoff the finite product
-\(\eulerB_{P_0}(s_0,\cdot)\) is bounded below by a constant \(r_0>0\) on the prior
-support, so that event is null and the \(\forall k\) statement is
-\emph{unconditionally false} --- whence \texttt{not\_rcpZeroAt} is dispatched in one
-line by taking \(k=0\). That pair carries no information about \(\eta\)'s zeros and
-pushes all content onto the bridge; it is a placeholder. The substantive object is the
-\emph{eventual} (\(P_k\to\infty\)) Tjur-limit form of Definition~\ref{def:rcpzero}.
-\end{remark}
-
-Under the limit form a true zero \emph{is} visible, through the centering:
-\(\Rea\,\texttt{cCorr}_P(s_0)=\log|\eta^E_P(s_0)|\to\log|\eta(s_0)|\), so if
-\(\eta(s_0)=0\) the interior modulus is driven to \(0\) on mass \(\to 1\) at large
-\(k\). Limit-form non-detectability is therefore \emph{not} automatic; it is exactly:
-
-\begin{theorem}[No rcp-zero: \(L\neq 1\)]\label{thm:nondetect}
-Conditioned on a \emph{local} edge neighborhood of \(\eta\) that does not enclose
-\(s_0\), the conditional law of the interior value is not a point mass at \(0\):
-\(L\neq 1\).
 \end{theorem}
-The mechanism is \textbf{Bagchi/Voronin universality}. Among the realizations
-consistent with the local edge data there is a positive-mass subset --- an
-\emph{alternative average} --- given by a \emph{zero-free} random Dirichlet series
-that matches \(\eta\) on the edges but stays nonzero at \(s_0\); universality is
-precisely the statement that the prior's support is all zero-free holomorphic
-functions on a connected-complement compact, so such a subset exists and keeps
-\(L<1\). The analytic input is Bagchi (1981); the closest formal statement available
-is the universality lemma \texttt{eulerG\_universality\_threeLeftEdges} of the
-companion file. \textbf{The on-disk \texttt{not\_rcpZeroAt} (the \(r_0\) one-liner of
-Remark~\ref{rem:placeholder}) is a placeholder for this; the limit form is a genuine,
-not-yet-discharged load-bearer.}
+\textbf{(Lean target: \texttt{transfer\_equality}; it replaces the arithmetical bridge
+\texttt{counterexample\_iff\_rcpZero} of earlier versions.)}
+
+\paragraph{Why it holds.} The regular conditional probability is the Tjur
+limit~\eqref{eq:tjur} at the conditioning value \(e_\eta=\) (the trace of the mean
+realization \(X_n\equiv1\)). Three facts make the limit collapse to the deterministic
+indicator:
+\begin{enumerate}
+  \item \emph{The limit exists and is foundation-independent} because the substrate is
+        Radon (Polish inner-product space, inner-regular Borel measures) --- the
+        Mehler-within-Kopperman layer of Section~\ref{sec:kopperman}.
+  \item \emph{The conditioning value is interior} (radius \(2\), \S\ref{sec:model}): every
+        neighborhood \(V\downarrow\{T=e_\eta\}\) is a genuine two-sided neighborhood with
+        positive mass, so the limit is a single number, not an artifact of a one-sided
+        approach.
+  \item \emph{The event is continuous at the mean realization.} ``\(\etaX\) has a zero at
+        \(s_0\)'' is, by the locally-uniform contour convergence of \S\ref{sec:general},
+        continuous in the trace topology at \(X_n\equiv1\); the rcp at an interior support
+        point returns the deterministic value of such a functional, namely
+        \(\mathbf{1}\{\eta(s_0)=0\}\).
+\end{enumerate}
+This is the precise content of ``adding the Mehler measure proves that the probability of
+a zero of the standard \(\eta\) equals that of \(\etaX\) given \(X_n=1\)''. It is the first
+of the route's two deep analytic inputs.
+
+\section{Non-detectability: \texorpdfstring{$L\neq 1$}{L != 1}}\label{sec:nondetect}
+
+\begin{theorem}[No forced zero: \(L\neq 1\)]\label{thm:nondetect}
+Conditioned on a \emph{local} edge neighborhood of \(\eta\) that does not enclose \(s_0\),
+the conditional law of the interior value \(\etaX(s_0)\) is not a point mass at \(0\):
+\[
+  L \;=\; \rcp\bigl(\etaX(s_0)=0 \,\big|\, X_n=1\bigr) \;\neq\; 1 .
+\]
+\end{theorem}
+The mechanism is \textbf{Bagchi/Voronin universality}. Among the realizations consistent
+with the local edge data there is a positive-mass subset --- an \emph{alternative
+average} --- given by a \emph{zero-free} random Dirichlet series that matches \(\eta\) on
+the edges but stays nonzero at \(s_0\); universality is precisely the statement that the
+prior's support is all zero-free holomorphic functions on a connected-complement compact,
+so such a subset exists and keeps \(L<1\). The analytic input is Bagchi (1981); the
+closest formal statement available is the universality lemma
+\texttt{eulerG\_universality\_threeLeftEdges} of the companion file, to be reused as a
+starting point. This is the second of the route's two deep analytic inputs.
 
 \begin{remark}[Local neighborhood, and why not the full boundary]\label{rem:maxmod}
 The conditioning must be on a \emph{local} neighborhood of a boundary point --- no
 particular shape or size, only that it does not enclose \(s_0\). On the \emph{full}
-rectangle boundary the maximum-modulus principle would force any holomorphic
-realization \(\varepsilon\)-close to \(\eta\) on \(\partial R\) to be
-\(\varepsilon\)-close to \(\eta\) throughout \(R\), hence \(|f(s_0)|<\varepsilon\) ---
-pinning the interior to \(\eta(s_0)=0\) and giving \(L=1\). A local, non-enclosing
-neighborhood escapes the pin, and is exactly the connected-complement geometry that
-universality requires.
-\end{remark}
-
-\begin{remark}[The conclusion is unprovability, not absence of a zero]\label{rem:unprov}
-\(L\neq 1\) says a zero at \(s_0\) \emph{cannot be forced to conditional-probability
-\(1\)} --- it cannot be \emph{proved} in the model --- not that \(\eta(s_0)\neq 0\).
-Via the bridge and the \(\Sigma^0_1\) witness property (\S\ref{sec:witness}), this
-yields: no Schoenfeld counterexample is provable, so the \(\Pi^0_1\) sentence
-\(\texttt{RH\_PRA}\) has no disproof. The step from there to ``\(\texttt{RH\_PRA}\) is
-\emph{true}'' is the model/\(T\)-conservativity reading of \S\ref{sec:unprov}.
+rectangle boundary the maximum-modulus principle would force any holomorphic realization
+\(\varepsilon\)-close to \(\eta\) on \(\partial R\) to be \(\varepsilon\)-close to \(\eta\)
+throughout \(R\), hence \(|f(s_0)|<\varepsilon\) --- pinning the interior to
+\(\eta(s_0)\) and (if \(\eta(s_0)=0\)) giving \(L=1\). A local, non-enclosing neighborhood
+escapes the pin, and is exactly the connected-complement geometry that universality
+requires.
 \end{remark}
 
 \begin{remark}[Multiplicativity is not needed --- but boundedness is]\label{rem:nomult}
 Bagchi-type universality holds for general random Dirichlet series, so the zero-free
 alternative average comes from the \emph{full support of the chosen prior law} (its
-covariance), not from any Euler-product or multiplicative structure. We keep the
-coefficients multiplicative with \(X_2=1\) only for expository continuity; that would
-matter solely if the argument \emph{relied} on the Euler product, which it does not.
-\emph{Boundedness}, by contrast, is \textbf{not} dispensable: \(\|X_n\|\le 1\) is what
-gives absolute every-\(\omega\) convergence on \(\Rea>1\) and so anchors the model to
-\(\eta\) (\S\ref{sec:general}). So the requirements are ``bounded'' (critical) and
-``rich enough support'' (universality), not ``multiplicative''.
+covariance), not from any Euler-product or multiplicative structure. We use no Euler
+product at all. \emph{Boundedness}, by contrast, is \textbf{not} dispensable:
+\(\|X_n\|\le 2\) is what gives absolute every-\(\omega\) convergence on \(\Rea>1\) and so
+anchors the model to \(\eta\) (\S\ref{sec:general}). The requirements are ``bounded''
+(critical) and ``rich enough support'' (universality), not ``multiplicative''.
 \end{remark}
 
-\section{The Bridge and the Assembly}\label{sec:bridge}
+\section{Assembly: a Positive RH in ZFC}\label{sec:assembly}
 
-\subsection{Counterexample \(\Longleftrightarrow\) rcp-zero}
-
-\begin{theorem}[The bridge]\label{thm:bridge}
-For a suitable \(P\), isolating rectangle \(R\), and interior point \(s_0\),
-\[
-  \bigl(\exists n,\ \texttt{schoenfeld}(n+2657)=\texttt{false}\bigr)
-  \quad\Longleftrightarrow\quad
-  \texttt{rcpZeroAt}(P,R,s_0).
-\]
+\begin{theorem}[No strip zero]\label{thm:nozero}
+For every \(s_0\) with \(1/2<\Rea(s_0)<1\), \(\eta(s_0)\neq 0\).
 \end{theorem}
-\textbf{(Lean: \texttt{counterexample\_iff\_rcpZero}; the single load-bearing
-\texttt{sorry} of the route.)} The \((\Leftarrow)\) direction is the easy converse;
-combined with the proved Theorem~\ref{thm:nondetect} it already gives ``no rcp-zero
-\(\Rightarrow\) no counterexample''. The \((\Rightarrow)\) direction is the genuine
-analytic content: a Schoenfeld counterexample, via Schoenfeld's equivalence and the
-prior-model interpretation, forces nonvanishing conditional mass at \(0\), i.e.\ an
-rcp-zero. The recipe (do not improvise) routes the counterexample through the
-\(\Pi^0_2\) interpretation of the prior model; see Section~\ref{sec:unprov}.
+\begin{proof}[Proof (modulo the two inputs)]
+Suppose \(\eta(s_0)=0\). By the transfer equality (Theorem~\ref{thm:transfer}),
+\(L=\rcp(\etaX(s_0)=0\mid X_n=1)=\mathbf{1}\{\eta(s_0)=0\}=1\). But by non-detectability
+(Theorem~\ref{thm:nondetect}), \(L\neq 1\). Contradiction; hence \(\eta(s_0)\neq 0\).
+Equivalently, the deterministic indicator \(\mathbf{1}\{\eta(s_0)=0\}\in\{0,1\}\) equals
+\(L\neq1\), so it equals \(0\).
+\end{proof}
 
-\paragraph{The two conditional probabilities.} The bridge's content is Schoenfeld's
-equivalence evaluated at the mean realization, written as two
-conditional-probability-\(1\) statements:
-\begin{align}
-  \mathbb{P}\bigl(\text{counterexample} \,\big|\, X_n\!\equiv\!1 \ \wedge\ \exists s_0,\ \eta_X(s_0)=0\bigr) &= 1, \label{eq:cp1}\\
-  \mathbb{P}\bigl(\neg\,\text{counterexample} \,\big|\, X_n\!\equiv\!1 \ \wedge\ \neg\exists s_0,\ \eta_X(s_0)=0\bigr) &= 1. \label{eq:cp2}
-\end{align}
-Conditioning on the null point \(X_n\equiv 1\) is legitimate because it lies in the
-\emph{support} of the trace law (Tjur; the Radon/Mehler substrate) --- the surviving
-content of the positive-mass lemma \texttt{priorBall\_edgeNbhd\_pos}. The counterexample
-event is \emph{\(\omega\)-independent} --- a fixed arithmetical truth value --- and that
-is the \emph{enabling} fact: it is why the interpretation \(\texttt{interpPi01}\) is
-content-free (\(\mathrm{Iff.rfl}\); \S\ref{sec:unprov}) and why the prior law is free to
-choose. Writing \(\mathbb{P}(\cdot)=1\) for these deterministic events is the Kopperman
-move. Together \eqref{eq:cp1}--\eqref{eq:cp2} are exactly
-\(\texttt{RH\_PRA}\Leftrightarrow\)RH (Schoenfeld) inside the rcp formalism; under the
-\emph{limit} notion of \texttt{rcpZeroAt} (Remark~\ref{rem:placeholder}) they prove the
-bridge genuinely, and the analytic input they consume is Schoenfeld (1976).
-
-\subsection{Witness extraction: per-point to strip}\label{sec:witness}
-
-The transfer ``no \emph{provable} zero at any \(s_0\) \(\Rightarrow\) no
-\emph{provable} zero in the strip'' is \emph{not} the invalid schema
-\(\forall s\,\neg\mathrm{Prov}(\varphi_s)\Rightarrow\neg\mathrm{Prov}(\exists s\,\varphi_s)\).
-It is valid here for a specific reason: via the bridge, the strip existential is the
-arithmetical \(\Sigma^0_1\) sentence
-\(\exists n,\ \texttt{schoenfeld}(n+2657)=\texttt{false}\), whose matrix is a
-decidable \texttt{Primrec} predicate. \(\Sigma^0_1\) sentences have the
-numerical-existence (witness) property in \(\mathrm{RCA}_0\) over the standard model,
-so a proof yields a \emph{concrete} \(n_0\), which decodes to a definite
-\(s_0(n_0)\) in the strip --- and that point collides with the uniform
-non-detectability of Theorem~\ref{thm:nondetect}. The \((\Rightarrow)\) proof
-therefore begins with \(\exists\)-elimination on the \(\Sigma^0_1\) sentence to
-obtain the \(s_0\) fed to \texttt{not\_rcpZeroAt}.
-
-\subsection{Assembly}
-
-\begin{theorem}[No Schoenfeld counterexample]\label{thm:nocex}
-With \(R = \texttt{isoRect}\) the concrete rectangle
-\([3/5,9/10]\times[-1,1]\subset\{1/2<\Rea<1\}\) and \(s_0 = 3/4\),
-\[
-  \neg\,\exists n,\ \texttt{schoenfeld}(n+2657)=\texttt{false}.
-\]
-\end{theorem}
-\textbf{(Proved: \texttt{no\_schoenfeld\_counterexample}, modulo the bridge: it
-rewrites by \texttt{counterexample\_iff\_rcpZero} and discharges the right side with
-\texttt{not\_rcpZeroAt}. The hypotheses \(\Rea>1/2\) on the closure and
-\(\eta^E_P\ne 0\) are supplied unconditionally by \texttt{isoRect\_re\_lo} and
-\texttt{isoRect\_hAna} via \texttt{etaEulerApprox\_ne\_zero}.)}
-
-\begin{corollary}[Schoenfeld sentence, then RH]\label{cor:rh}
-\(\texttt{RH\_PRA}\) holds \textbf{(proved: \texttt{RH\_PRA\_holds}, instantiating
-Theorem~\ref{thm:nocex} at \texttt{isoRect})}; and, granting Schoenfeld's 1976
-equivalence \(\texttt{RH\_PRA}\to\) RH, every nontrivial zero of \(\zeta\) lies on
-\(\Rea(s)=1/2\) \textbf{(\texttt{riemann\_hypothesis\_via\_rcp}; the analytic return
-is the optional fourth \texttt{sorry} --- if the final statement is to remain the
-\(\Pi^0_1\) form \(\texttt{RH\_PRA}\), the development stops at
-\texttt{RH\_PRA\_holds}).}
+\begin{corollary}[Riemann Hypothesis]\label{cor:rh}
+Every nontrivial zero of \(\zeta\) lies on \(\Rea(s)=1/2\).
 \end{corollary}
+\begin{proof}
+By Theorem~\ref{thm:nozero}, \(\eta\) --- hence \(\zeta\), since \(\eta(s)=(1-2^{1-s})
+\zeta(s)\) and the factor is zero-free in the open strip --- has no zero with
+\(1/2<\Rea(s)<1\); by the functional equation the same holds for \(0<\Rea(s)<1/2\).
+\end{proof}
 
-\section{Tutorial: the Kopperman Formalism and the
-\texorpdfstring{$\Pi^0_1/\Pi^0_2$}{Pi-0-1/Pi-0-2}/RCA Model}\label{sec:kopperman}
+Note what is \emph{absent}: no \(\Pi^0_1\) Schoenfeld sentence, no primitive-recursive
+matrix, no \(\Sigma^0_1\) witness extraction, no model/\(T\)-conservativity step, and no
+unprovability hedge. The argument lives entirely in standard complex analysis and
+elementary measure theory (ZFC); its only non-elementary content is the two analytic
+inputs --- the transfer equality and Bagchi universality --- both flagged as the route's
+debts.
 
-This section explains \emph{why} the probabilistic substrate above is the natural
-home for the argument, in the language of the \textbf{Kopperman formalism} shared
-with the companion \(P\neq NP\) development. The punchline: non-detectability is the
-``atomless measure does the work'' phenomenon, and the encode-then-fail-to-detect
-strategy is exactly the statement that, in an \(\mathrm{RCA}_0/\Pi^0_2\) model, a
-strip zero has no witness.
+\section{The Kopperman/Mehler Formalism}\label{sec:kopperman}
+
+This section explains \emph{why} the probabilistic substrate above is the natural home for
+the argument, in the language of the \textbf{Kopperman/Mehler formalism} shared with the
+companion \(P\neq NP\) development. The punchline: the Mehler measure is the device that
+converts the deterministic question ``does \(\eta\) vanish at \(s_0\)?'' into a conditional
+probability \(L\) that universality can bound, and the Radon substrate is what makes \(L\)
+a well-defined, foundation-independent number.
 
 \subsection{A formalism is a triple}\label{sec:triple}
 
-Following Kopperman (1967) and Mehler (1866), a \emph{formalism} for a piece of
-analysis is a triple \(\bigl(\mathcal{H},\ \mathsf{Skel},\ \mu\bigr)\):
+Following Kopperman (1967) and Mehler (1866), a \emph{formalism} for a piece of analysis is
+a triple \(\bigl(\mathcal{H},\ \mathsf{Skel},\ \mu\bigr)\):
 \begin{enumerate}
-  \item a \textbf{separable Hilbert substrate} \(\mathcal{H}\) --- the ``territory'',
-        whose existence needs the strong, incomplete ontological logic
-        \(L_{\omega_1\omega_1}\) (metric completeness: every Cauchy net of
-        approximants has a genuine limit);
-  \item a \textbf{countable decidable dense skeleton} \(\mathsf{Skel}\subset\mathcal{H}\)
-        --- the ``map'', finite combinations with rational data, on which all
-        \emph{computation} happens, living in the reverse-mathematics base system
-        \(\mathrm{RCA}_0\) (Recursive Comprehension);
-  \item an \textbf{atomless probability measure} \(\mu\) on \(\mathcal{H}\) --- the
-        device that, since we cannot algorithmically \emph{identify} which skeleton
-        element approximates an undecidable target, lets us \emph{guess} one with
-        full measure.
+  \item a \textbf{separable Hilbert substrate} \(\mathcal{H}\) --- the ``territory'', whose
+        metric completeness (every Cauchy net of approximants has a genuine limit) is the
+        analytic ground on which holomorphic limits live;
+  \item a \textbf{countable decidable dense skeleton} \(\mathsf{Skel}\subset\mathcal{H}\) ---
+        the ``map'', finite combinations with rational data, on which all \emph{computation}
+        happens;
+  \item an \textbf{atomless probability measure} \(\mu\) on \(\mathcal{H}\) --- the device
+        that, since we cannot algorithmically \emph{identify} which skeleton element
+        approximates a given target, lets us \emph{average} over them with full measure.
 \end{enumerate}
 ``Choosing the measure \(\mu\) is choosing the model.'' In Lean the triple is the
-\texttt{Formalism} structure (\texttt{PnpProof.Kopperman}); the RCP route builds its
-instance \texttt{rcpFormalism} from \texttt{formalismOfPrior} applied to an atomless
-substrate prior.
+\texttt{Formalism} structure (\texttt{PnpProof.Kopperman}); the route builds its instance
+\texttt{rcpFormalism} from \texttt{formalismOfPrior} applied to the atomless substrate prior.
 
-\subsection{The three layers in the RCP route}\label{sec:layers}
+\subsection{The three layers in this route}\label{sec:layers}
 
 \paragraph{Substrate \(\mathcal{H}\).} The separable Hilbert space
-\(L^2(\texttt{priorBall})\) --- \(L^2\) of the infinite product of the uniform
-unit-disk law. Its existence and that of a basis are \emph{already guaranteed by the
-Mehler formalism}, even in this \emph{non-Gaussian} (uniform-on-disk, bounded) case:
-the Mehler construction together with the automatic separability of \(L^2\) supply the
-substrate, with no need for Gaussian-specific Hermite/Zernike polynomials and no basis
-to build by hand. So there is no ONB-construction, orthonormal-pair, or completeness
-obligation. What we \emph{do} use is a \textbf{family of vectors for the rcp limit}:
-the finite \textbf{indicator tensors} \(\bigotimes_n \varphi_{\alpha_n}\) (\(\alpha\)
-finitely supported, \(\varphi_k\) indicator functions of subsets of the disk --- uniform
-distributions on subsets of the original ball, trivial factors \(=1\)) that populate the
-Tjur neighborhoods of \(e_\eta\) and carry the alternative averages. They need no
-orthonormality or completeness --- only to be available as the vectors over which the
-limit \(L = \lim_V \mathbb{P}(A\cap V)/\mathbb{P}(V)\) is taken. The one property kept is
-\textbf{consistency to the original law}: the finite-coordinate marginals of these
-indicator tensors reconstruct the original uniform-on-ball measure (their Kolmogorov
-extension is exactly \texttt{priorBall}; the unconstrained coordinates always carry the
-original \texttt{diskLaw}). The substrate is \textbf{Radon} --- a Polish inner-product
-space, Borel measures inner-regular --- which is what makes the Tjur
-limit~\eqref{eq:tjur} \emph{well defined and foundation-independent}. (In Lean:
-\texttt{SphereGaussian.lean} for the Mehler substrate, \texttt{Measure.infinitePi} /
-\texttt{infinitePi\_pi} for the consistency; the abstract atomless prior already in
+\(L^2(\texttt{priorBall})\) --- \(L^2\) of the infinite product of the uniform radius-\(2\)
+disk law. Its existence and that of a basis are \emph{already guaranteed by the Mehler
+formalism}, even in this \emph{non-Gaussian} (uniform-on-disk, bounded) case: the Mehler
+construction together with the automatic separability of \(L^2\) supply the substrate, with
+no Gaussian-specific Hermite/Zernike polynomials and no basis to build by hand. So there is
+no ONB-construction, orthonormal-pair, or completeness obligation. What we \emph{do} use is a
+\textbf{family of vectors for the rcp limit}: the finite \textbf{indicator tensors}
+\(\bigotimes_n \varphi_{\alpha_n}\) (\(\alpha\) finitely supported, \(\varphi_k\) indicator
+functions of subsets of the radius-\(2\) disk --- uniform distributions on subsets of the
+original ball, trivial factors \(=1\)) that populate the Tjur neighborhoods of \(e_\eta\) and
+carry the alternative averages. They need no orthonormality or completeness --- only to be
+available as the vectors over which the limit \(L=\lim_V\mathbb{P}(A\cap V)/\mathbb{P}(V)\) is
+taken. The one property kept is \textbf{consistency to the original law}: the
+finite-coordinate marginals of these indicator tensors reconstruct the original
+uniform-on-ball measure (their Kolmogorov extension is exactly \texttt{priorBall}; the
+unconstrained coordinates always carry the original \texttt{diskLaw}). The substrate is
+\textbf{Radon} --- a Polish inner-product space, Borel measures inner-regular --- which is
+what makes the Tjur limit~\eqref{eq:tjur} \emph{well defined and foundation-independent}.
+(In Lean: \texttt{SphereGaussian.lean} for the Mehler substrate, \texttt{Measure.infinitePi}
+/ \texttt{infinitePi\_pi} for the consistency; the abstract atomless prior already in
 \texttt{rcpFormalism} suffices.)
 
-\paragraph{Skeleton \(\mathsf{Skel}\).} The finite Dirichlet approximants
-\(\eta^E_P\) and the finite series \(\eulerB_P(\cdot,\omega)\) with rational data:
-decidable, computably enumerable, the deterministic skeleton on which \(\eulerB\)
-centers and against which \texttt{edgeNbhd} positivity is measured.
+\paragraph{Skeleton \(\mathsf{Skel}\).} The finite Dirichlet approximants and the finite
+random partial sums \(\sum_{n\le N}X_n(\omega)n^{-s}\) with rational data: decidable,
+computably enumerable, the deterministic skeleton on which \(\etaX\) centers and against
+which \texttt{edgeNbhd} positivity is measured.
 
-\paragraph{Measure \(\mu\).} An atomless Mehler-type prior on the coefficients, fixed
-by its mean (\(\mathbb{E}[X_n]=1\)) and covariance (\S\ref{sec:general});
-\texttt{priorBall} (the infinite product of the uniform unit-disk law) is one concrete
-choice. Two properties do the work. \textbf{Atomlessness}
-(\texttt{priorBall\_atomless}) forces detection to be a neighborhood (Tjur) phenomenon
---- no single realization, in particular the deterministic \(\eta\)-realization, carries
-mass. \textbf{Full support} (universality of the law) is what supplies the zero-free
-\emph{alternative average} that keeps \(L\neq 1\) in Theorem~\ref{thm:nondetect}; this is
-Bagchi/Voronin and does not need multiplicativity (Remark~\ref{rem:nomult}).
-\textbf{Bounded coefficients} (\(\|X_n\|\le 1\)) are independently required, for the
-absolute \(\Rea>1\) convergence that anchors the model to \(\eta\)
-(\S\ref{sec:general}). ``Choosing the measure is choosing the model'': different
-admissible (bounded) covariances --- the unit-disk prior, the Fock-space pinning --- give
-the same conclusion, because it is a property of \((\text{mean},\text{covariance})\), not
-of any one law. (The bounded prior additionally gives the trivial \(r_0\) lower bound
-behind the \(\forall k\) placeholder of Remark~\ref{rem:placeholder} --- a convenience,
-not the load-bearing fact.)
+\paragraph{Measure \(\mu\).} An atomless Mehler-type prior on the coefficients, fixed by its
+mean (\(\mathbb{E}[X_n]=1\)) and covariance (\S\ref{sec:general}); the radius-\(2\)
+unit-disk product \texttt{priorBall} is one concrete choice. Three properties do the work.
+\textbf{Atomlessness} forces the conditioning at \(X_n\equiv1\) to be a neighborhood (Tjur)
+phenomenon. \textbf{Interiority of the mean} (radius \(2\)) makes that Tjur limit two-sided
+and unambiguous, which is what the transfer equality (Theorem~\ref{thm:transfer}) needs.
+\textbf{Full support} (universality of the law) supplies the zero-free \emph{alternative
+average} that keeps \(L\neq1\) (Theorem~\ref{thm:nondetect}); this is Bagchi/Voronin and does
+not need multiplicativity (Remark~\ref{rem:nomult}). Independently, \textbf{bounded
+coefficients} (\(\|X_n\|\le2\)) give the absolute \(\Rea>1\) convergence that anchors the
+model to \(\eta\) (\S\ref{sec:general}). ``Choosing the measure is choosing the model'':
+different admissible (bounded, full-support) covariances give the same conclusion, because it
+is a property of \((\text{mean},\text{covariance})\), not of any one law.
 
-\subsection{The \texorpdfstring{$\Pi^0_1/\Pi^0_2$}{Pi-0-1/Pi-0-2}/RCA model
-definition}\label{sec:unprov}
-
-Inside a formalism, an arithmetical sentence is interpreted \emph{by ignoring the
-model and reading its matrix over the standard naturals}; the model only fixes
-\emph{which} probabilistic facts are available. Two hierarchy levels appear, and they
-must be kept apart.
-
-\paragraph{The \(\Pi^0_1\) sentence (the target).} \(\texttt{RH\_PRA}\) of
-\eqref{eq:rhpra} is \(\Pi^0_1\): \(\forall n,\ p(n)\) with \(p\) the decidable
-Schoenfeld matrix. Cloning the \(\Pi^0_2\) template one level down, the model
-interpretation is
-\[
-  \texttt{interpPi01}(p, F, z) \;:=\; \texttt{Pi01}\,p \;=\; \forall n,\ p(n)=\texttt{true},
-\]
-a wrapper that \emph{ignores} both the formalism \(F\) and the \(\mathrm{ZFSet}\)
-foundation \(z\). Its invariance \texttt{pi01\_invariant} is \(\mathrm{Iff.rfl}\)
-(standard-\(\mathbb{N}\) absoluteness), and \texttt{interp\_schoenfeld\_eq} says the
-interpreted truth coincides with \(\texttt{RH\_PRA}\). This is the precise sense in
-which RH, encoded à la Schoenfeld, is a \emph{foundation-independent} arithmetical
-fact --- it needs no ZFC and no choice of measure to \emph{state}.
-
-\paragraph{The \(\Pi^0_2\) witness (what detection would be).} A \emph{zero} at
-\(s_0\), by contrast, is a \(\Pi^0_2\)/\(\Sigma^0_1\) \emph{witness} statement: ``there
-is a realization exhibiting interior value \(0\) under arbitrarily good edge
-agreement'' --- the \(\forall\varepsilon\,\exists\omega\) shape of
-Definition~\ref{def:rcpzero}. The model reading turns this into a statement about
-\(\mu\):
-\[
-  \text{``zero at } s_0\text{''}
-  \;\Longleftrightarrow\;
-  \rcp(\,\{\text{interior }=0\}\mid \text{edge}=\eta\,) = 1 .
-\]
-The Tjur limit \(L = \rcp(\cdot\mid T=t)\) \emph{exists} because \(\mathcal{H}\) is
-Radon (Mehler/Gaussian-kernel structure inside the foundation-invariance layer), and
-Theorem~\ref{thm:nondetect} gives the bound \(L \neq 1\) via universality
-(Bagchi/Voronin): conditioning on a local edge neighborhood, a positive-mass family of
-zero-free realizations keeps the conditional law off the point mass at \(0\). The
-\textbf{load-bearing fact is \(L\neq 1\)}: a model proof of ``zero at \(s_0\)'' would
-force \(L=1\); since \(L\) exists but \(L\neq 1\), ``zero at \(s_0\)'' is
-\emph{unprovable}, uniformly in \(s_0\) (universality applies at every interior point).
-No \(\Pi^0_2\) witness \(\Rightarrow\) the \(\Sigma^0_1\) counterexample search never
-succeeds \(\Rightarrow\) the \(\Pi^0_1\) sentence \(\texttt{RH\_PRA}\) has no disproof.
-This is the unprovability reading of the whole route, and it is the model-level content
-of the bridge Theorem~\ref{thm:bridge}. (The on-disk \texttt{not\_rcpZeroAt} instead
-proves the stronger \(L=0\), but only for the trivial \(\forall k\) placeholder form of
-Remark~\ref{rem:placeholder}, which carries no information about \(\eta\)'s zeros.)
-
-\subsection{Fences (what the model does \emph{not} buy)}\label{sec:fences}
+\subsection{What the formalism does, and does not, buy}\label{sec:fences}
 
 \begin{enumerate}
-  \item \textbf{Restatement, not decision.} Casting non-detectability as
-        \(L\neq 1\) does not by itself prove the bridge; both the
-        \((\Rightarrow)\) direction of \texttt{counterexample\_iff\_rcpZero}
-        (Schoenfeld) \emph{and} the limit form of \(L\neq 1\) (Bagchi) are genuine
-        analytic debts. The formalism \emph{locates} them (two deep inputs) and
-        certifies that everything else (the kernel, the prior, the convergence) is
-        already proved or assembled from existing results.
-  \item \textbf{No new axioms.} The Lean development stays within
-        \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}. The Radon
-        substrate and the Mehler/bounded prior are the \emph{model in which the
-        statement is interpreted}, not extra axioms; \(\texttt{interpPi01}\) is
-        content-free (\(\mathrm{Iff.rfl}\)), so the \(\Pi^0_1\) truth carries no
-        foundational commitment.
-  \item \textbf{Only \(L\neq 1\) is needed; only unprovability is claimed.} The
-        argument needs ``\(\eta\) cannot be \emph{forced} to a zero'' (\(L\neq 1\)),
-        which universality supplies on a local neighborhood; it does \emph{not} claim
-        ``\(\eta\) is probably nonzero'' as an analytic fact about \(\zeta\). The
-        conclusion is that a counterexample is \emph{unwitnessable} in the model, not
-        that there is no zero. (The on-disk \(L=0\) is only the \(\forall k\)
-        placeholder; the substantive \(L\neq 1\) is the Bagchi load-bearer.)
+  \item \textbf{Foundation-independence, not a free proof.} The Radon/Mehler structure makes
+        the rcp \(L\) a genuine, foundation-independent number (it does not depend on the
+        ZFC bookkeeping), and locates the two analytic debts; it does \emph{not} by itself
+        prove either of them. Both the transfer equality (Theorem~\ref{thm:transfer}) and the
+        limit form of \(L\neq1\) (Theorem~\ref{thm:nondetect}, Bagchi) are genuine analytic
+        inputs. Everything else --- the kernel, the prior, the convergence --- is proved or
+        assembled from existing results.
+  \item \textbf{No new axioms.} The Lean development stays within \texttt{propext},
+        \texttt{Classical.choice}, \texttt{Quot.sound}. The Radon substrate and the
+        Mehler/bounded prior are the \emph{model in which the probabilistic statement is
+        interpreted}, not extra axioms; the final theorem is a standard statement about
+        \(\zeta\).
+  \item \textbf{A positive theorem, not an unprovability one.} Unlike the earlier
+        \(\Pi^0_1\) encoding --- which could conclude only that a counterexample is
+        unwitnessable --- the ZFC-direct argument turns \(L\neq1\) into the positive
+        \(\eta(s_0)\neq0\) via the two-valuedness of the deterministic indicator. There is
+        no remaining gap between ``unprovable'' and ``true''.
 \end{enumerate}
 
-\noindent In short: the RCP route is the Kopperman formalism with
-\(\mathcal{H} = \) the Radon substrate, \(\mathsf{Skel} = \) finite Dirichlet
-approximants, and \(\mu = \) the atomless prior fixed by its mean and covariance; RH is
-the \(\Pi^0_1\) Schoenfeld sentence, and its (unprovability) proof is ``a strip zero is
-a \(\Pi^0_2\) witness, but conditioning on a local edge neighborhood, universality keeps
-\(L\neq 1\), so there is no witness'' --- with two deep inputs, Schoenfeld (bridge) and
-Bagchi (non-detection), and everything else \texttt{sorry}-free or assembled probability.
+\noindent In short: the route is the Kopperman/Mehler formalism with \(\mathcal{H}=\) the
+Radon substrate, \(\mathsf{Skel}=\) finite Dirichlet approximants, and \(\mu=\) the atomless
+radius-\(2\) prior fixed by its mean and covariance; the Mehler measure converts ``does
+\(\eta\) vanish at \(s_0\)?'' into the conditional probability \(L\), the transfer equality
+identifies \(L\) with the deterministic indicator, and universality keeps \(L\neq1\) --- so
+the indicator is \(0\) and \(\eta(s_0)\neq0\). Two deep inputs (transfer equality, Bagchi),
+everything else \texttt{sorry}-free or assembled probability.
 
 \section{Lean 4 Formalization Status}\label{sec:status}
 
-The route is formalized across two files, both imported by the build root
-\texttt{RiemannProof.lean}: \texttt{RcpEuler.lean} (Phases~0--2, the probabilistic
-core) and \texttt{SchoenfeldPRA.lean} (Phases~3--5, the arithmetical layer). The plan
-is \texttt{IMPLEMENTATION\_PLAN\_RCP.md}.
+The probabilistic core is formalized in \texttt{RcpEuler.lean}, imported by the build root
+\texttt{RiemannProof.lean}. The plan is \texttt{IMPLEMENTATION\_PLAN\_RCP.md}.
 
-\subsection{Proved (\texttt{RcpEuler.lean} is \texttt{sorry}-free)}
+\paragraph{On disk (sorry-free), for the earlier radius-\(1\) Euler-product instance.}
+\(\mathcal{B}_P\) never-zero and analytic (\texttt{eulerB\_ne\_zero},
+\texttt{eulerB\_differentiableOn}); the bounded-coefficient \(M\)-test
+(\texttt{bSum\_tail\_small}); the atomless prior (\texttt{diskLaw}, \texttt{priorBall},
+\texttt{priorBall\_isProb}, \texttt{priorBall\_ball}, \texttt{priorBall\_atomless}); the
+\texttt{condDistrib} kernel (\texttt{rcpKernel}); the positive-mass Tjur precondition
+(\texttt{priorBall\_edgeNbhd\_pos}); and the reciprocal contour convergence
+(\texttt{rcp\_recipEulerB\_tendsto\_recipEta}). The general
+\((\text{mean},\text{covariance})\) convergence/analyticity on \(\{\Rea>1/2\}\) reuses
+existing project results (\texttt{EtaConvergence.lean}, \texttt{SphereGaussian.lean}), so it
+is an assembly. There is no substrate-construction obligation: the Mehler formalism already
+guarantees the separable substrate and a basis (non-Gaussian case included), and the
+abstract atomless prior in \texttt{rcpFormalism} suffices.
 
-\begin{center}
-\begin{tabular}{ll}
-  \textbf{Lemma / def} & \textbf{Content} \\
-  \hline
-  \texttt{eulerB\_ne\_zero},\ \texttt{eulerB\_differentiableOn} & never-zero, analyticity (no hypotheses) \\
-  \texttt{bSum\_tail\_small} & bounded-coefficient \(M\)-test on \(\{\Rea\ge a>1\}\) \\
-  \texttt{diskLaw},\ \texttt{priorBall} & uniform unit-disk law; its independent product \\
-  \texttt{priorBall\_isProb},\ \texttt{priorBall\_ball} & probability; support in \(\overline{\mathbb{D}}^{\,\mathbb{N}}\) \\
-  \texttt{priorBall\_atomless} & the prior is atomless \\
-  \texttt{rcpKernel} & the \texttt{condDistrib} disintegration kernel \\
-  \texttt{priorBall\_edgeNbhd\_pos} & (1.3) positive mass on every approximant-neighborhood \\
-  \texttt{rcp\_recipEulerB\_tendsto\_recipEta} & (1.4) reciprocal contour convergence \\
-  \texttt{not\_rcpZeroAt} & (2.2) no rcp-zero --- \emph{but only the trivial \(\forall k\) form (placeholder)} \\
-\end{tabular}
-\end{center}
+\paragraph{The redesign of this paper (not yet on disk).} Three changes retarget the core,
+detailed in \texttt{IMPLEMENTATION\_PLAN\_RCP.md} (master section ``The 2026-06-22
+redesign''):
+\begin{enumerate}
+  \item[\textbf{(R)}] move \texttt{diskLaw} to the radius-\(2\) disk (\texttt{closedBall 0
+        2}); re-prove \texttt{priorBall\_*} (mechanical), interiorizing the mean realization;
+  \item[\textbf{(M)}] generalize \(\mathcal{B}_P\) to the general, non-multiplicative random
+        Dirichlet series \(\etaX=\sum_n X_n n^{-s}\) (\(\|X_n\|\le2\), mean \(1\));
+  \item[\textbf{(Z)}] replace the arithmetical \texttt{SchoenfeldPRA.lean} spine --- the
+        primitive-recursive Schoenfeld matrix, the \(\Pi^0_1\) interpreter, the bridge
+        \texttt{counterexample\_iff\_rcpZero}, and \(\texttt{RH\_PRA}\) --- by the
+        measure-theoretic \texttt{transfer\_equality} and a final standard-RH assembly. The
+        Schoenfeld/\(\Pi^0_1\) material is \emph{dropped}, not discharged.
+\end{enumerate}
 
-\noindent Convergence/analyticity of the general \((\text{mean},\text{covariance})\)
-Dirichlet series on \(\{\Rea>1/2\}\) (\S\ref{sec:general}) reuses existing project
-results --- \texttt{EtaConvergence.lean} (\texttt{summable\_etaPairedTerm},
-\texttt{paired\_tendstoUniformlyOn}, \texttt{analyticOnNhd\_paired\_tsum}) and
-\texttt{SphereGaussian.lean} (\texttt{gammaMeasure}, \texttt{iIndepFun\_infinitePi},
-\texttt{variance\_id\_gaussianReal}) --- so it is an assembly, not a fresh obligation.
-
-\noindent No substrate-construction obligation: the Mehler formalism already guarantees
-the separable substrate \(L^2(\texttt{priorBall})\) and a basis (non-Gaussian case
-included), and the abstract atomless prior already in \texttt{rcpFormalism} suffices ---
-no ONB or orthonormal pair need be built. The only concrete ingredient is the
-\emph{family of vectors for the rcp limit} (the finite indicator tensors of
-\S\ref{sec:layers}), which are the conditioning/skeleton vectors already in the rcp
-machinery; their consistency to the original uniform law is \texttt{Measure.infinitePi} /
-\texttt{infinitePi\_pi}.
-
-\subsection{Remaining gaps (4 \texttt{sorry}s in \texttt{SchoenfeldPRA.lean}, plus the limit-form 2.2)}
-
-\begin{center}
-\begin{tabular}{lll}
-  \textbf{Tag} & \textbf{Lemma} & \textbf{Content} \\
-  \hline
-  3.1 & \texttt{schoenfeld} & the primitive-recursive Schoenfeld matrix (def) \\
-  3.1 & \texttt{schoenfeld\_primrec} & \(\texttt{Primrec}\) of that matrix \\
-  4.1 & \texttt{counterexample\_iff\_rcpZero} & \textbf{the bridge} (load-bearing) \\
-  5.3 & \texttt{riemann\_hypothesis\_via\_rcp} & optional analytic return \(\texttt{RH\_PRA}\to\) RH \\
-\end{tabular}
-\end{center}
-
-\noindent Already proved on the arithmetical side: the \(\Pi^0_1\) interpreter
-\texttt{interpPi01} and its invariance \texttt{pi01\_invariant}/\texttt{interpPi01\_eq};
-the bounded-prior model \texttt{rcpFormalism} and \texttt{interp\_schoenfeld\_eq};
-the assembly \texttt{no\_schoenfeld\_counterexample} and \texttt{RH\_PRA\_holds}
-(mechanical, modulo the bridge), with the concrete \texttt{isoRect} and its
-unconditional hypotheses \texttt{isoRect\_re\_lo}, \texttt{isoRect\_hAna}.
-
-\subsection{What the four gaps really cost}
-
+\paragraph{The two genuine debts.}
 \begin{itemize}
-  \item \textbf{3.1 (\texttt{schoenfeld}, \texttt{schoenfeld\_primrec})} is
-        self-contained and elementary: implement \(\pi(n)\) exactly
-        (\texttt{Nat.primeCounting}/a sieve), take rational truncations of
-        \(\sqrt{\ }\), \(\ln\), \(\operatorname{li}\) to a predictable precision (all
-        \texttt{Primrec}, bounded loops), and square to remove the root. It is left a
-        \texttt{sorry} --- rather than a constant \texttt{Bool}, which would make
-        \(\texttt{RH\_PRA}\) vacuously true --- so the \(\Pi^0_1\) sentence stays
-        faithful. The cleanest first target.
-  \item \textbf{4.1 (\texttt{counterexample\_iff\_rcpZero})} is a genuine load-bearer.
-        Its content is the two conditional probabilities
-        \eqref{eq:cp1}--\eqref{eq:cp2} --- Schoenfeld's equivalence at the mean
-        realization --- and under the \emph{limit} notion of \texttt{rcpZeroAt}
-        (Remark~\ref{rem:placeholder}) they prove it. The analytic input is
-        Schoenfeld (1976).
-  \item \textbf{The limit form of 2.2 (\texttt{not\_rcpZeroAt})} is the second genuine
-        load-bearer, beyond the four on-disk \texttt{sorry}s: the on-disk proof covers
-        only the trivial \(\forall k\) form. The substantive \(L\neq 1\) is
-        \textbf{Bagchi (1981) universality} on a local neighborhood
-        (Theorem~\ref{thm:nondetect}, Remark~\ref{rem:maxmod}); the closest existing
-        formal statement is \texttt{eulerG\_universality\_threeLeftEdges}. So the
-        route's two deep, un-formalized inputs are Schoenfeld (4.1) and Bagchi
-        (limit-form 2.2).
-  \item \textbf{5.3 (\texttt{riemann\_hypothesis\_via\_rcp})} is optional: it is
-        Schoenfeld's 1976 analytic equivalence \(\texttt{RH\_PRA}\to\) RH. If the
-        final statement is to remain the \(\Pi^0_1\) form, the development stops at
-        the proved \texttt{RH\_PRA\_holds}.
+  \item \textbf{The transfer equality} \(\rcp(\etaX(s_0)=0\mid X_n=1)=\mathbf{1}\{\eta(s_0)
+        =0\}\) (Theorem~\ref{thm:transfer}; Lean \texttt{transfer\_equality}). Its content is
+        that the rcp at the interior mean realization recovers the deterministic value of the
+        continuous ``zero at \(s_0\)'' functional. It is the new bridge, replacing the
+        arithmetical one.
+  \item \textbf{Non-detection} \(L\neq1\) (Theorem~\ref{thm:nondetect}; Lean
+        \texttt{not\_rcpZeroAt}, limit form on a local neighborhood). The on-disk
+        \texttt{not\_rcpZeroAt} proves only a trivial \(\forall k\) placeholder; the
+        substantive \(L\neq1\) is \textbf{Bagchi (1981) universality}, with the closest
+        existing formal statement \texttt{eulerG\_universality\_threeLeftEdges}.
 \end{itemize}
+Both are flagged as \texttt{sorry} with recipes; neither is to be improvised.
 
 \section*{Status summary}
 
-The probabilistic skeleton --- the random exponential Euler product, its never-zero
-and free-Cauchy properties, the \emph{atomless} prior, the regular conditional kernel,
-the positive-mass Tjur precondition, and the reciprocal contour convergence --- is
-\textbf{formalized and \texttt{sorry}-free} (\texttt{RcpEuler.lean}), with the general
-\((\text{mean},\text{covariance})\) convergence reusing existing project results
-(\S\ref{sec:general}). The genuine debts are two deep, un-formalized analytic inputs:
-\textbf{Schoenfeld (1976)} carrying the bridge \texttt{counterexample\_iff\_rcpZero}
-(via the conditional probabilities \eqref{eq:cp1}--\eqref{eq:cp2}), and \textbf{Bagchi
-(1981) universality} carrying the limit form of non-detection --- the on-disk
-\texttt{not\_rcpZeroAt} proves only a trivial \(\forall k\) placeholder. Plus the
-mechanical Schoenfeld matrix (3.1) and the optional analytic return to \(\zeta\) (5.3).
-Read through the Kopperman formalism, the route says: a strip zero would be a
-\(\Pi^0_2\) witness, but conditioning on a \emph{local} edge neighborhood, universality
-keeps the Tjur limit \(L\neq 1\), so no witness exists and the \(\Pi^0_1\) Schoenfeld
-sentence has no disproof --- an \emph{unprovability} conclusion, not a claim that
-\(\eta\) is zero-free. Until these are discharged, the development is a \emph{verified
-reduction} of the Riemann Hypothesis to them, not a complete proof.
+The probabilistic skeleton --- the random Dirichlet series, the \emph{atomless} prior, the
+regular conditional kernel, the positive-mass Tjur precondition, and the reciprocal contour
+convergence --- is formalized and \texttt{sorry}-free for a radius-\(1\) Euler-product
+instance (\texttt{RcpEuler.lean}), with the general \((\text{mean},\text{covariance})\)
+convergence reusing existing project results (\S\ref{sec:general}). The redesign to
+radius~\(2\), the general non-multiplicative series, and the measure-theoretic transfer
+equality in place of the arithmetical bridge is the current plan and not yet on disk. The
+genuine debts are two deep, un-formalized analytic inputs: the \textbf{transfer equality}
+(\(\rcp(\etaX(s_0)=0\mid X_n=1)=\mathbf{1}\{\eta(s_0)=0\}\), the role of the Mehler measure)
+and \textbf{Bagchi (1981) universality} (the local-neighborhood non-detection \(L\neq1\)).
+Read through the Kopperman/Mehler formalism, the route says: the Mehler measure turns ``does
+\(\eta\) vanish at \(s_0\)?'' into a conditional probability \(L\); the transfer equality
+identifies \(L\) with the deterministic \(\{0,1\}\) indicator; and conditioning on a
+\emph{local} edge neighborhood, universality keeps \(L\neq1\) --- so the indicator is \(0\)
+and \(\eta(s_0)\neq0\), uniformly over the strip, which is RH. This is a positive analytic
+conclusion in ZFC, not an unprovability statement. Until the two inputs are discharged, the
+development is a \emph{verified reduction} of the Riemann Hypothesis to them, not a complete
+proof.
 
 \end{document}

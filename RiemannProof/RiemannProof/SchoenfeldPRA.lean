@@ -201,10 +201,12 @@ theorem RH_PRA_holds : RH_PRA := by
   exact no_schoenfeld_counterexample (fun k => k) isoRect ((3 : ℂ) / 4)
     isoRect_s₀_mem isoRect_re_lo (isoRect_hAna (fun k => k)) ⟨n, hfalse⟩
 
-/-- **[LB, optional]** The analytic return to `ζ` (plan 5.3): `RH_PRA → RH` is
+/-
+**[LB, optional]** The analytic return to `ζ` (plan 5.3): `RH_PRA → RH` is
     Schoenfeld's 1976 equivalence (the genuine analytic content). Left `sorry`;
     if the final statement is to remain the `Π⁰₁` form `RH_PRA`, stop at
-    `RH_PRA_holds`. -/
+    `RH_PRA_holds`.
+-/
 theorem riemann_hypothesis_via_rcp :
     ∀ s : ℂ, riemannZeta s = 0 → 0 < s.re → s.re < 1 → s.re = 1 / 2 := by
   sorry
