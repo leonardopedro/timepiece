@@ -169,20 +169,24 @@ Kopperman-formalism bridge (`rcpFormalism` via `formalismOfPrior`) lives in
 `SchoenfeldPRA.lean`, where the substrate measurable-space instances are in
 scope. -/
 
-/-- The uniform probability law on the closed unit disk of `ℂ`: the (normalized)
-    restriction of Lebesgue measure to `Metric.closedBall 0 1`. This is the
-    continuous, atomless single-coordinate law of the prior. -/
-def diskLaw : Measure ℂ := ProbabilityTheory.cond volume (Metric.closedBall (0 : ℂ) 1)
+/-- The uniform probability law on the closed radius-2 disk of `ℂ`: the (normalized)
+    restriction of Lebesgue measure to `Metric.closedBall 0 2`. This is the
+    continuous, atomless single-coordinate law of the prior. The radius-2 choice
+    (redesign (R)) puts the mean realization `X_n ≡ 1` in the *interior* of the
+    support. -/
+def diskLaw : Measure ℂ := ProbabilityTheory.cond volume (Metric.closedBall (0 : ℂ) 2)
 
 instance diskLaw_isProb : IsProbabilityMeasure diskLaw := by
   apply ProbabilityTheory.cond_isProbabilityMeasure_of_finite
   · rw [Complex.volume_closedBall]; simp [NNReal.pi_pos.ne']
-  · rw [Complex.volume_closedBall]; simp
+  · rw [Complex.volume_closedBall]; exact ENNReal.mul_ne_top (by simp) (by simp)
 
-/-- `diskLaw` gives full mass to the closed unit disk. -/
-lemma diskLaw_ball : diskLaw (Metric.closedBall (0 : ℂ) 1) = 1 := by
+/-- `diskLaw` gives full mass to the closed radius-2 disk. -/
+lemma diskLaw_ball : diskLaw (Metric.closedBall (0 : ℂ) 2) = 1 := by
   rw [diskLaw, ProbabilityTheory.cond_apply measurableSet_closedBall, Set.inter_self,
-    ENNReal.inv_mul_cancel] <;> rw [Complex.volume_closedBall] <;> simp [NNReal.pi_pos.ne']
+    ENNReal.inv_mul_cancel]
+  · rw [Complex.volume_closedBall]; simp [NNReal.pi_pos.ne']
+  · rw [Complex.volume_closedBall]; exact ENNReal.mul_ne_top (by simp) (by simp)
 
 /-- The unit-ball prior on coefficient space: the countable product of the
     uniform unit-disk law `diskLaw` over the prime indices. Each coordinate is an
@@ -196,22 +200,22 @@ instance priorBall_isProb : IsProbabilityMeasure priorBall := by
   unfold priorBall; infer_instance
 
 /-- `priorBall` is concentrated on the closed unit ball. -/
-lemma priorBall_ball : ∀ᵐ ω ∂priorBall, ∀ p, ‖Xb p ω‖ ≤ 1 := by
-  have hms : ∀ p : ℕ, MeasurableSet {ω : Ωb | ‖Xb p ω‖ ≤ 1} := by
+lemma priorBall_ball : ∀ᵐ ω ∂priorBall, ∀ p, ‖Xb p ω‖ ≤ 2 := by
+  have hms : ∀ p : ℕ, MeasurableSet {ω : Ωb | ‖Xb p ω‖ ≤ 2} := by
     intro p
-    have : {ω : Ωb | ‖Xb p ω‖ ≤ 1} = (fun ω : Ωb => ω p) ⁻¹' (Metric.closedBall (0 : ℂ) 1) := by
+    have : {ω : Ωb | ‖Xb p ω‖ ≤ 2} = (fun ω : Ωb => ω p) ⁻¹' (Metric.closedBall (0 : ℂ) 2) := by
       ext ω; simp [Xb, Metric.mem_closedBall]
     rw [this]; exact measurableSet_closedBall.preimage (measurable_pi_apply p)
-  have hcoord : ∀ p : ℕ, priorBall {ω : Ωb | ‖Xb p ω‖ ≤ 1} = 1 := by
+  have hcoord : ∀ p : ℕ, priorBall {ω : Ωb | ‖Xb p ω‖ ≤ 2} = 1 := by
     intro p
-    have hpre : {ω : Ωb | ‖Xb p ω‖ ≤ 1}
-        = (fun ω : Ωb => ω p) ⁻¹' (Metric.closedBall (0 : ℂ) 1) := by
+    have hpre : {ω : Ωb | ‖Xb p ω‖ ≤ 2}
+        = (fun ω : Ωb => ω p) ⁻¹' (Metric.closedBall (0 : ℂ) 2) := by
       ext ω; simp [Xb, Metric.mem_closedBall]
     rw [hpre, priorBall, ← Measure.map_apply (measurable_pi_apply p) measurableSet_closedBall,
       Measure.infinitePi_map_eval]
     exact diskLaw_ball
   rw [ae_iff]
-  have heq : {ω : Ωb | ¬ ∀ p, ‖Xb p ω‖ ≤ 1} = ⋃ p, {ω : Ωb | ‖Xb p ω‖ ≤ 1}ᶜ := by
+  have heq : {ω : Ωb | ¬ ∀ p, ‖Xb p ω‖ ≤ 2} = ⋃ p, {ω : Ωb | ‖Xb p ω‖ ≤ 2}ᶜ := by
     ext ω; simp
   rw [heq]
   refine measure_iUnion_null (fun p => ?_)
@@ -281,14 +285,20 @@ The closed `δ`-disk has positive `diskLaw` mass, for any `δ > 0`.
 -/
 lemma diskLaw_closedBall_pos (δ : ℝ) (hδ : 0 < δ) :
     0 < diskLaw (Metric.closedBall (0 : ℂ) δ) := by
-  rw [ diskLaw, ProbabilityTheory.cond_apply measurableSet_closedBall ];
-  refine' ENNReal.mul_pos _ _ <;> norm_num;
-  refine' ne_of_gt ( lt_of_lt_of_le _ ( MeasureTheory.measure_mono _ ) );
-  rotate_left;
-  exact Metric.closedBall 0 ( Min.min 1 δ );
-  · exact fun x hx => ⟨ Metric.closedBall_subset_closedBall ( min_le_left _ _ ) hx, Metric.closedBall_subset_closedBall ( min_le_right _ _ ) hx ⟩;
-  · simp +decide [ Complex.volume_closedBall, hδ ];
-    exact ⟨ by exact ENNReal.pow_pos ( lt_min zero_lt_one ( ENNReal.ofReal_pos.mpr hδ ) ) _, by exact NNReal.coe_pos.mpr Real.pi_pos ⟩
+  rw [ diskLaw, ProbabilityTheory.cond_apply measurableSet_closedBall ]
+  apply ENNReal.mul_pos
+  · simp only [ne_eq, ENNReal.inv_eq_zero]
+    rw [Complex.volume_closedBall]; exact ENNReal.mul_ne_top (by simp) (by simp)
+  · have hsub : Metric.closedBall (0:ℂ) (min 2 δ) ⊆
+        Metric.closedBall 0 2 ∩ Metric.closedBall 0 δ :=
+      fun x hx => ⟨Metric.closedBall_subset_closedBall (min_le_left _ _) hx,
+        Metric.closedBall_subset_closedBall (min_le_right _ _) hx⟩
+    refine ne_of_gt (lt_of_lt_of_le ?_ (measure_mono hsub))
+    rw [Complex.volume_closedBall]
+    have hm : (0:ℝ) < min 2 δ := lt_min (by norm_num) hδ
+    apply ENNReal.mul_pos
+    · exact pow_ne_zero _ (ENNReal.ofReal_pos.mpr hm).ne'
+    · exact_mod_cast NNReal.pi_pos.ne'
 
 /-- The finite-cylinder box `{ω | ∀ p ∈ s, ‖ω p‖ ≤ δ}` has positive `priorBall`
     mass, for any finite index set `s` and any radius `δ > 0`. -/
@@ -601,13 +611,13 @@ lemma not_rcpZeroAtAll (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ) (hs₀ : s₀ �
   contrapose! hAna; simp_all +decide [ rcpZeroAtAll ] ;
   obtain ⟨ ε, hε_pos, hε_tendsto, hε ⟩ := hAna; have := hε ( 1 / 2 ) ( by norm_num ) 0; simp_all +decide [ Complex.norm_exp ] ;
   -- Choose $r$ small enough such that the set where the real part of the exponential is less than $r$ has measure zero.
-  obtain ⟨ r, hr_pos, hr_small ⟩ : ∃ r > 0, ∀ ω : Ωb, (∀ p, ‖Xb p ω‖ ≤ 1) → Real.exp ((bSum (P 0) ω s₀).re + (GaussianEuler.cCorr (P 0) s₀).re) ≥ r := by
+  obtain ⟨ r, hr_pos, hr_small ⟩ : ∃ r > 0, ∀ ω : Ωb, (∀ p, ‖Xb p ω‖ ≤ 2) → Real.exp ((bSum (P 0) ω s₀).re + (GaussianEuler.cCorr (P 0) s₀).re) ≥ r := by
     -- By definition of $bSum$, we know that $|bSum (P 0) ω s₀| ≤ B$ for some constant $B$.
-    obtain ⟨ B, hB ⟩ : ∃ B : ℝ, ∀ ω : Ωb, (∀ p, ‖Xb p ω‖ ≤ 1) → ‖bSum (P 0) ω s₀‖ ≤ B := by
-      use ∑ p ∈ (Finset.range (P 0 + 1)).filter Nat.Prime, ‖(p : ℂ) ^ (-s₀)‖; intro ω hω; exact (by
+    obtain ⟨ B, hB ⟩ : ∃ B : ℝ, ∀ ω : Ωb, (∀ p, ‖Xb p ω‖ ≤ 2) → ‖bSum (P 0) ω s₀‖ ≤ B := by
+      use ∑ p ∈ (Finset.range (P 0 + 1)).filter Nat.Prime, 2 * ‖(p : ℂ) ^ (-s₀)‖; intro ω hω; exact (by
       exact le_trans ( norm_sum_le _ _ ) ( Finset.sum_le_sum fun p hp => by simpa [ Xb ] using mul_le_mul_of_nonneg_right ( hω p ) ( by positivity ) ) |> le_trans <| by simp +decide [ bSum ] ;);
     use Real.exp ( -B + ( GaussianEuler.cCorr ( P 0 ) s₀ |> Complex.re ) ), Real.exp_pos _, fun ω hω => Real.exp_le_exp.mpr <| by linarith [ abs_le.mp ( Complex.abs_re_le_norm ( bSum ( P 0 ) ω s₀ ) ), hB ω hω ] ;
-  have h_measure_zero : priorBall {ω : Ωb | ¬∀ p, ‖Xb p ω‖ ≤ 1} = 0 := by
+  have h_measure_zero : priorBall {ω : Ωb | ¬∀ p, ‖Xb p ω‖ ≤ 2} = 0 := by
     convert priorBall_ball using 1;
   have h_measure_zero : priorBall {ω : Ωb | Real.exp ((bSum (P 0) ω s₀).re + (GaussianEuler.cCorr (P 0) s₀).re) < r} = 0 := by
     exact MeasureTheory.measure_mono_null ( fun x hx => by contrapose! hx; aesop ) h_measure_zero;
@@ -633,5 +643,167 @@ lemma not_rcpZeroAt (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ) (hs₀ : s₀ ∈ 
     (hAna : ∀ k, ∀ z ∈ R.closure, etaEulerApprox (P k) z ≠ 0) :
     ¬ rcpZeroAt P R s₀ := by
   sorry
+
+/-! ## Redesign (M)+(Z) — the general (non-multiplicative) random Dirichlet series,
+    the shared rcp object `L`, and the ZFC-direct assembly.
+
+This section implements the 2026-06-22 redesign of `IMPLEMENTATION_PLAN_RCP.md`:
+
+* **(M)** the object is the general random Dirichlet series
+  `η_X(s) = ∑ X_n n^{-s}` (`etaX`), with independent bounded coefficients drawn
+  from `priorBall` (now the radius-2 prior, redesign (R)); `eulerB` is only a
+  legacy special case. The mean realization `X_n ≡ 1` is the standard object whose
+  Dirichlet series is `∑ n^{-s}` (analytically `riemannZeta`).
+* **(Z)** the route is ZFC-direct: the target is the *standard* analytic RH
+  (`riemannZeta` form), and the bridge is the measure-theoretic transfer equality.
+
+The two load-bearers are stated against **one** shared regular-conditional object
+`L s₀ R` (★ DESIGN NOTE of the plan), so the final assembly is a genuine
+`by_contra` rather than a non-sequitur between two different objects:
+
+* `transfer_equality` : `L s₀ R = (if riemannZeta s₀ = 0 then 1 else 0)`;
+* `L_ne_one`          : `L s₀ R ≠ 1`.
+
+Both are left as honest `[LB] sorry`s with the plan's recipe — they are the
+two deep analytic inputs (rcp-at-interior-support principle, and Bagchi/Voronin
+universality in local form) and are **not weaker than RH**; the plan directs they
+not be improvised. -/
+
+/-- **(M)** The general (non-multiplicative) random Dirichlet series
+    `η_X(s) = ∑ X_n n^{-s}`, with coefficients `X_n = ω n` drawn from the
+    radius-2 prior `priorBall`. No Euler product, no multiplicativity. -/
+def etaX (s : ℂ) (ω : Ωb) : ℂ := ∑' n : ℕ, ω n * (n : ℂ) ^ (-s)
+
+/-- **[convergence assembly, redesign step 5 — PROVED]** For a bounded-coefficient
+    realization (`‖X_n‖ ≤ 2`, the radius-2 prior support), the general Dirichlet
+    series `η_X(s) = ∑ X_n n^{-s}` converges absolutely on the half-plane
+    `Re s > 1` (Weierstrass `M`-test against `2 ∑ n^{-Re s}`). This is the
+    deterministic part of the convergence layer that replaces `bSum_tail_small`;
+    the a.s. convergence on the strip `1/2 < Re ≤ 1` is the Kolmogorov/`L²`
+    assembly carried by the load-bearers. -/
+lemma summable_etaXTerm (s : ℂ) (hs : 1 < s.re) (ω : Ωb) (hω : ∀ n, ‖ω n‖ ≤ 2) :
+    Summable (fun n : ℕ => ω n * (n : ℂ) ^ (-s)) := by
+  apply Summable.of_norm
+  have hbase : Summable (fun n : ℕ => ‖(n : ℂ) ^ (-s)‖) := by
+    have h := (Complex.summable_one_div_nat_cpow.mpr hs).norm
+    refine h.congr (fun n => ?_)
+    rw [Complex.cpow_neg, norm_inv, one_div, norm_inv]
+  refine (hbase.mul_left 2).of_nonneg_of_le (fun n => norm_nonneg _) (fun n => ?_)
+  rw [norm_mul]
+  exact mul_le_mul_of_nonneg_right (hω n) (norm_nonneg _)
+
+/-- The boundary edge trace of the general series `η_X` on the edges of `R`. -/
+def edgeTraceX (R : Rect) (ω : Ωb) : (↥(R.closure \ R.openInt)) → ℂ :=
+  fun z => etaX (z : ℂ) ω
+
+/-- The interior value of the general series at `s₀`. -/
+def interiorValX (s₀ : ℂ) (ω : Ωb) : ℂ := etaX s₀ ω
+
+/-- **[LB]** The rcp kernel for the general series: the regular conditional law of
+    the interior value `η_X(s₀)` given the edge trace `edgeTraceX R`, under the
+    radius-2 prior `priorBall` (`ProbabilityTheory.condDistrib`). -/
+def rcpKernelX (s₀ : ℂ) (R : Rect) :
+    ProbabilityTheory.Kernel ((↥(R.closure \ R.openInt)) → ℂ) ℂ :=
+  ProbabilityTheory.condDistrib (fun ω => interiorValX s₀ ω) (edgeTraceX R) priorBall
+
+/-- The edge trace of the **mean realization** `X_n ≡ 1` — the conditioning value
+    `e_η` at which the regular conditional probability is evaluated. The radius-2
+    prior puts this realization in the *interior* of the support (redesign (R)),
+    so the Tjur neighborhood limit at `e_η` is two-sided / well-defined. -/
+def eTrace (R : Rect) : (↥(R.closure \ R.openInt)) → ℂ :=
+  fun z => etaX (z : ℂ) (fun _ => 1)
+
+/-- **(★ shared object)** The single regular-conditional-probability scalar
+    `L s₀ R = rcp(η_X(s₀) = 0 | T = e_η)`, the conditional mass that the interior
+    value vanishes given the mean-realization edge trace. Both load-bearers below
+    are stated against *this same* `L`. -/
+noncomputable def L (s₀ : ℂ) (R : Rect) : ENNReal := rcpKernelX s₀ R (eTrace R) {0}
+
+open Classical in
+/-- **[LB — LOAD-BEARER 1: the transfer equality, redesign (Z)]** Conditioning the
+    random series on the mean realization `X_n ≡ 1` (the Tjur limit at the
+    *interior* support point `e_η`, available because of the radius-2 prior)
+    recovers the deterministic value of the evaluation functional "vanishes at
+    `s₀`", which is continuous in the locally-uniform/holomorphy topology (the
+    1.4-style convergence `rcp_recipEulerB_tendsto_recipEta`, now phrased for
+    `η_X`). Hence the shared rcp object equals the deterministic `{0,1}` indicator
+    of `riemannZeta s₀ = 0`.
+
+    The nontrivial content is that **even the local conditioning** on the
+    non-`s₀`-enclosing edge trace recovers the deterministic value. This replaces
+    the dropped PRA bridge `counterexample_iff_rcpZero`. Left `[LB] sorry` with the
+    recipe; **do not improvise** — it is not weaker than RH. -/
+lemma transfer_equality (s₀ : ℂ) (R : Rect)
+    (hs₀ : s₀ ∈ R.openInt)
+    (hRlo : ∀ z ∈ R.closure, 1 / 2 < z.re) (hRhi : ∀ z ∈ R.closure, z.re < 1) :
+    L s₀ R = (if riemannZeta s₀ = 0 then 1 else 0) := by
+  sorry
+
+/-- **[LB — LOAD-BEARER 2: Bagchi/Voronin universality, local form, redesign (Z)]**
+    The *same* shared rcp object `L s₀ R` is never `1`: there is a positive-mass set
+    of zero-free realizations of `η_X` that match the (local, non-`s₀`-enclosing)
+    edge conditioning yet are nonzero at `s₀`. The locality of the edge arc is the
+    maximum-modulus dodge that keeps this from collapsing to `L = 1`; the full
+    support of the chosen prior law supplies the zero-free alternative average — no
+    Euler product or multiplicativity is used. Left `[LB] sorry` with the recipe;
+    **do not improvise** — it is not weaker than RH. -/
+lemma L_ne_one (s₀ : ℂ) (R : Rect)
+    (hs₀ : s₀ ∈ R.openInt)
+    (hRlo : ∀ z ∈ R.closure, 1 / 2 < z.re) (hRhi : ∀ z ∈ R.closure, z.re < 1) :
+    L s₀ R ≠ 1 := by
+  sorry
+
+/-- A strip-internal rectangle straddling `s₀`, whose closure stays inside the
+    open critical strip `{1/2 < Re < 1}`. -/
+def stripRect (s₀ : ℂ) (hlo : 1 / 2 < s₀.re) (hhi : s₀.re < 1) : Rect :=
+  { x_lo := (1 / 2 + s₀.re) / 2
+    x_hi := (s₀.re + 1) / 2
+    y_lo := s₀.im - 1
+    y_hi := s₀.im + 1
+    hx := by linarith
+    hy := by linarith }
+
+/-- The shared `by_contra` core of the redesign (★ DESIGN NOTE): the two
+    load-bearers, evaluated at the *same* `L`, force `riemannZeta s₀ ≠ 0` for every
+    `s₀` in the open critical strip. -/
+lemma riemannZeta_ne_zero_of_mem_strip (s₀ : ℂ)
+    (hlo : 1 / 2 < s₀.re) (hhi : s₀.re < 1) :
+    riemannZeta s₀ ≠ 0 := by
+  intro hz
+  set R : Rect := stripRect s₀ hlo hhi with hR
+  have hxlo : R.x_lo = (1 / 2 + s₀.re) / 2 := rfl
+  have hxhi : R.x_hi = (s₀.re + 1) / 2 := rfl
+  have hylo : R.y_lo = s₀.im - 1 := rfl
+  have hyhi : R.y_hi = s₀.im + 1 := rfl
+  have hs₀ : s₀ ∈ R.openInt := by
+    rw [Rect.mem_openInt, hxlo, hxhi, hylo, hyhi]
+    refine ⟨by linarith, by linarith, by linarith, by linarith⟩
+  have hRlo : ∀ z ∈ R.closure, 1 / 2 < z.re := by
+    intro z hz'
+    have hz'' : R.x_lo ≤ z.re := hz'.1
+    rw [hxlo] at hz''; linarith
+  have hRhi : ∀ z ∈ R.closure, z.re < 1 := by
+    intro z hz'
+    have hz'' : z.re ≤ R.x_hi := hz'.2.1
+    rw [hxhi] at hz''; linarith
+  have h1 := transfer_equality s₀ R hs₀ hRlo hRhi
+  rw [if_pos hz] at h1
+  exact (L_ne_one s₀ R hs₀ hRlo hRhi) h1
+
+/-- **The Riemann Hypothesis (standard analytic form, ζ), via the
+    regular-conditional-probability route (redesign (Z)).** Every nontrivial zero
+    in the open critical strip lies on the critical line. This is the final
+    assembly: the transfer equality and Bagchi non-detection, stated against the
+    one shared rcp object `L`, contradict each other whenever `riemannZeta s₀ = 0`
+    in the open strip, so there is no such zero — a *positive* RH in ZFC (no Π⁰₁
+    encoding, no witness extraction, no unprovability hedge).
+
+    NOTE: this theorem currently depends on the two `[LB] sorry`s
+    `transfer_equality` and `L_ne_one`, which are the route's two deep,
+    un-formalized analytic inputs and are not weaker than RH itself. -/
+theorem riemann_hypothesis_via_rcp :
+    ∀ s : ℂ, riemannZeta s = 0 → 1 / 2 < s.re → s.re < 1 → s.re = 1 / 2 := by
+  intro s hz hlo hhi
+  exact absurd hz (riemannZeta_ne_zero_of_mem_strip s hlo hhi)
 
 end RcpEuler

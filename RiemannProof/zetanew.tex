@@ -324,8 +324,37 @@ indicator:
         \(\mathbf{1}\{\eta(s_0)=0\}\).
 \end{enumerate}
 This is the precise content of ``adding the Mehler measure proves that the probability of
-a zero of the standard \(\eta\) equals that of \(\etaX\) given \(X_n=1\)''. It is the first
-of the route's two deep analytic inputs.
+a zero of the standard \(\eta\) equals that of \(\etaX\) given \(X_n=1\)''.
+
+\begin{remark}[The transfer equality is a \emph{standard} theorem in the pinned regime --- and the
+tension this creates with \(L\neq1\)]\label{rem:tradeoff}
+When the conditioning \emph{pins the interior} --- exact agreement \(X_n\equiv1\), or agreement on a
+\emph{full} boundary arc --- the transfer equality is not a deep input at all. Conditioning on the
+exact mean realization makes \(\etaX\) deterministically \(\eta\)
+(\(\etaX(\cdot,X\!\equiv\!1)=\sum_n n^{-s}=\zeta\)), so the conditional law of \(\etaX(s_0)\) is the
+Dirac \(\delta_{\eta(s_0)}\) and \(L=\mathbf{1}\{\eta(s_0)=0\}\). The \emph{only} non-trivial
+ingredient is that the rcp at the null point \(X\!\equiv\!1\) is \emph{defined} --- the standard
+theorem ``the Tjur neighborhood limit exists iff the space is Radon'', here automatic. Equivalently,
+for a full boundary arc the \textbf{identity theorem} (a holomorphic \(\etaX\) agreeing with \(\eta\)
+on a set with a limit point agrees everywhere, hence has coefficients \(X_n=1\)) collapses the
+conditioning to that single point.
+
+But that pinning is exactly what makes Theorem~\ref{thm:nondetect} \emph{fail}: a pinned interior
+gives \(L=\mathbf{1}\{\eta(s_0)=0\}\), so ``\(L\neq1\)'' would read \(\eta(s_0)\neq0\) --- the Riemann
+Hypothesis itself --- and universality cannot deliver it (Voronin needs a \emph{connected-complement}
+compact, which a full rectangle boundary, separating the plane, is not). The two theorems use
+\emph{one} shared conditional object \(L\) (\S\ref{sec:assembly}); so its conditioning must be the
+\emph{local}, non-\(s_0\)-enclosing one of Theorem~\ref{thm:nondetect}, under which the interior is
+\emph{not} pinned --- and then the transfer equality is \emph{not} the easy identity above but the
+genuine claim that the local edge data \emph{still} recovers the deterministic interior value in the
+Tjur limit. \textbf{Conditioning strength splits the difficulty} between the two theorems: strong
+(full/exact) makes the transfer trivial but \(L\neq1\) circular; weak (local) makes \(L\neq1\) a real
+universality statement but the transfer non-trivial. The route commits to the local regime, where
+the lone deep analytic input is the universality of Theorem~\ref{thm:nondetect}. (The Lean
+\texttt{transfer\_equality}/\texttt{L\_ne\_one} on disk currently condition on the \emph{full}
+boundary --- the strong regime --- so the trace must be re-typed to a local one before
+\texttt{L\_ne\_one} is a Bagchi statement; see the implementation plan's 2026-06-23 note.)
+\end{remark}
 
 \section{Non-detectability: \texorpdfstring{$L\neq 1$}{L != 1}}\label{sec:nondetect}
 
@@ -344,7 +373,10 @@ prior's support is all zero-free holomorphic functions on a connected-complement
 so such a subset exists and keeps \(L<1\). The analytic input is Bagchi (1981); the
 closest formal statement available is the universality lemma
 \texttt{eulerG\_universality\_threeLeftEdges} of the companion file, to be reused as a
-starting point. This is the second of the route's two deep analytic inputs.
+starting point. Because the transfer equality is a standard theorem once the conditioning is
+fixed (Remark~\ref{rem:tradeoff}), \textbf{this is the route's lone genuinely deep analytic
+input}, and it is meaningful only in the local regime: Theorem~\ref{thm:nondetect} is stated for
+the \emph{same} shared \(L\) as Theorem~\ref{thm:transfer}, conditioned on a local arc.
 
 \begin{remark}[Local neighborhood, and why not the full boundary]\label{rem:maxmod}
 The conditioning must be on a \emph{local} neighborhood of a boundary point --- no
@@ -352,9 +384,13 @@ particular shape or size, only that it does not enclose \(s_0\). On the \emph{fu
 rectangle boundary the maximum-modulus principle would force any holomorphic realization
 \(\varepsilon\)-close to \(\eta\) on \(\partial R\) to be \(\varepsilon\)-close to \(\eta\)
 throughout \(R\), hence \(|f(s_0)|<\varepsilon\) --- pinning the interior to
-\(\eta(s_0)\) and (if \(\eta(s_0)=0\)) giving \(L=1\). A local, non-enclosing neighborhood
-escapes the pin, and is exactly the connected-complement geometry that universality
-requires.
+\(\eta(s_0)\) and (if \(\eta(s_0)=0\)) giving \(L=1\). In the exact limit the
+\textbf{identity theorem} sharpens this: agreement with \(\eta\) on a full boundary arc forces
+\(\etaX\equiv\eta\), so there is \emph{no} zero-free alternative average at all and \(L\neq1\)
+would be the Riemann Hypothesis itself, not a universality consequence (Remark~\ref{rem:tradeoff}).
+A local, non-enclosing neighborhood escapes both pins, and is exactly the connected-complement
+geometry that universality requires --- the plane minus a full rectangle boundary is
+\emph{disconnected}, so Voronin's theorem does not even apply there.
 \end{remark}
 
 \begin{remark}[Multiplicativity is not needed --- but boundedness is]\label{rem:nomult}
