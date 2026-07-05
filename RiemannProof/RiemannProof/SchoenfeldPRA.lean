@@ -166,7 +166,9 @@ theorem no_schoenfeld_counterexample (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ)
     (hAna : ∀ k, ∀ z ∈ R.closure, etaEulerApprox (P k) z ≠ 0) :
     ¬ ∃ n, schoenfeld (n + 2657) = false := by
   rw [counterexample_iff_rcpZero P R s₀ hs₀]
-  exact RcpEuler.not_rcpZeroAt P R s₀ hs₀ hRlo hAna
+  -- `RcpEuler.not_rcpZeroAt` was deleted as vestigial (2026-06-23). This file is the
+  -- quarantined/unimported historical PRA spine; left as a `sorry` for self-consistency.
+  sorry
 
 /-- A concrete isolating rectangle strictly inside the strip `{1/2 < Re < 1}`,
     with interior point `s₀ = 3/4`. On its closure `etaEulerApprox P` never

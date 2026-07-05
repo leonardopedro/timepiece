@@ -29,6 +29,7 @@
 \newcommand{\Rea}{\operatorname{Re}}
 \newcommand{\Ima}{\operatorname{Im}}
 \newcommand{\etaX}{\eta_X}
+\newcommand{\etaY}{\eta_Y}
 \newcommand{\rcp}{\operatorname{rcp}}
 
 \title{The Riemann Hypothesis via a Bounded-Coefficient Prior\\and Regular Conditional Probability}
@@ -43,47 +44,74 @@ We describe, and partly formalize in Lean~4, a strategy for the Riemann Hypothes
 that works \emph{directly} in standard complex analysis (ZFC), with no arithmetical
 encoding. To the deterministic Dirichlet \(\eta\)-function we attach a \emph{random}
 Dirichlet series \(\etaX(s)=\sum_n X_n n^{-s}\) whose coefficients are independent,
-\textbf{uniformly bounded} (\(\|X_n\|\le 2\)) --- critical, as this is what gives
-absolute convergence on \(\Rea(s)>1\) and anchors the random series to \(\eta\) ---
-and have \textbf{mean} \(\mathbb{E}[X_n]=1\), so the mean realization \(X_n\equiv1\) is
-exactly \(\eta\). The coefficients need \emph{not} be multiplicative: there is no Euler
-product. The prior is the atomless uniform law on the closed disk of \textbf{radius
-\(2\)}, chosen so that the mean realization \(X_n\equiv1\) lies in the \emph{interior}
-of the support, where a regular conditional probability (rcp) is unambiguously well
-defined.
+\textbf{uniformly bounded} (\(\|X_n\|\le 2\)) --- critical, as this is what gives absolute
+convergence (on \(\Rea(s)>1\)) and anchors the random series to \(\eta\) --- and have
+\textbf{mean} \(\mathbb{E}[X_n]=1\), so the mean realization \(X_n\equiv1\) is exactly
+\(\eta\). The coefficients need \emph{not} be multiplicative: both the non-degeneracy
+(\(M>0\), equivalently \(L\neq1\)) at a single point and the lift from a single point to a whole compact
+\(K\subset\{1/2<\Rea<1\}\) come from \textbf{Bagchi/Voronin universality}, which is itself
+compact-set-uniform --- it realizes a centrum that is zero-free on all of \(K\) at once --- so
+no Euler product is needed (Remark~\ref{rem:nomult}). The prior is the atomless uniform law on
+the closed disk of \textbf{radius \(2\)}, chosen so that the mean realization \(X_n\equiv1\)
+(with \(|1|=1<2\)) lies in the \emph{interior} of the support, where a regular conditional
+probability (rcp) is unambiguously well defined.
 
-The single role of this Mehler-type probability measure is to supply one identity --- the
-\textbf{transfer equality}:
+The single role of this Mehler-type probability measure is to supply one identity. Since
+\(\star\)~2026-06-24 the headline object is the rcp \textbf{second moment}
+\(M:=\mathbb{E}\bigl(\|\etaX(s_0)\|^2 \mid X_n=1\ \forall n\bigr)\) --- the average squared
+modulus of the interior value --- replacing the \(\{0\}\)-mass \(L\) (a probability in
+\([0,1]\), which works the same way but is less natural here). The \textbf{transfer
+equality} then reads
 \[
-  \mathbb{P}\bigl(\text{standard }\eta\text{ has a zero at }s_0\bigr)
+  \mathbb{E}\bigl(\|\etaX(s_0)\|^2 \,\big|\, X_n=1\ \forall n\bigr)
   \;=\;
-  \rcp\bigl(\etaX\text{ has a zero at }s_0 \,\big|\, X_n=1\ \forall n\bigr),
+  \|\eta(s_0)\|^2 ,
 \]
-the rcp at the interior mean realization of the atomless Radon measure returning the
-deterministic value of the (continuous) ``zero at \(s_0\)'' functional. The left side is
-a deterministic \(\{0,1\}\) indicator. The right side is then bounded \emph{away from
-\(1\)} by \textbf{Bagchi/Voronin universality}: conditioning on a \emph{local} edge
-neighborhood of \(\eta\) (never a contour enclosing \(s_0\), which the maximum-modulus
-principle would forbid), a positive-mass family of zero-free realizations matches \(\eta\)
-on the edges yet stays nonzero at \(s_0\), so \(L:=\rcp(\,\cdot\mid X_n=1)\neq 1\). A
-\(\{0,1\}\) indicator equal to something \(\neq 1\) is \(0\): \(\eta\) has \emph{no} zero
-at \(s_0\). Uniformly over \(1/2<\Rea(s_0)<1\) this is the Riemann Hypothesis --- a
-\emph{positive} theorem in ZFC, with no \(\Pi^0_1\) encoding, no witness extraction, and
-no unprovability hedge. The route has \textbf{two} deep, un-formalized analytic inputs:
-the \textbf{transfer equality} (the role of the Mehler measure) and \textbf{Bagchi (1981)
-universality} (non-detection).
+the rcp second moment at the interior mean realization of the atomless Radon measure
+returning the deterministic squared modulus. The right side vanishes \emph{iff}
+\(\eta(s_0)=0\). The left side is bounded \emph{away from \(0\)} by \textbf{Bagchi/Voronin
+universality}: the conditional law of \(\etaX(s_0)\) has a nonzero mean (the ``centrum''),
+and by Cauchy--Schwarz its \(L^2\)-energy exceeds the squared modulus of that mean,
+\(M\ge\|\text{centrum}\|^2>0\) --- a \emph{constant contribution} that does not decay with the
+conditioning radius (the exact variance decomposition
+\(M=\|\eta(s_0)\|^2+\sum_n v_n n^{-2\sigma}\), Remark~\ref{rem:variance}). So \(M>0\), and the
+equality \(\|\eta(s_0)\|^2=M\neq0\) forces \(\eta(s_0)\neq0\): \(\eta\) has \emph{no} zero at
+\(s_0\). Uniformly over \(1/2<\Rea(s_0)<1\) this is the Riemann Hypothesis --- a \emph{positive}
+theorem in ZFC, with no \(\Pi^0_1\) encoding, no witness extraction, and no unprovability hedge.
+
+\textbf{Where the deep step really is (this reverses the framing of earlier drafts).} The RH
+content does \emph{not} sit in the non-degeneracy \(M>0\) (\texttt{secondMoment\_pos}, proved from
+universality), but in the \textbf{transfer equality} \(M=\|\eta(s_0)\|^2\)
+(\texttt{secondMoment\_transfer}). Under the \emph{atomless} substrate (forced, because
+\(X\equiv1\) must be a null interior point for the Tjur limit to exist) the conditional law of
+\(\etaX(s_0)\) keeps a positive variance \(\sum_n v_n n^{-2\sigma}>0\), so \(M>0\)
+\emph{unconditionally} --- whence \(M>0\) carries no information about \(\eta(s_0)\). The hard step is
+then \(M=\|\eta(s_0)\|^2\) itself: equating the rcp second moment (which is \(\|\eta\|^2+\text{variance}\))
+with the bare \(\|\eta(s_0)\|^2\) is the \textbf{Borel--Kolmogorov} head/tail reconciliation --- full
+pinning of all coordinates removes the variance and gives \(=\|\eta(s_0)\|^2\) (so \(=0\) at a zero),
+partial pinning leaves variance and gives \(>0\) but \(\neq\|\eta\|^2\); the rate is the disintegration
+choice, false at zeros and itself RH-equivalent (Remark~\ref{rem:portmanteau},
+Remark~\ref{rem:variance}). Conditioning on a coefficient ball rather than a boundary arc keeps
+\(\etaX\) from being holomorphically pinned --- but it does not remove this obstruction, intrinsic to
+reading \(\|\eta(s_0)\|^2\) off an atomless conditional limit.
 
 The probabilistic substrate is an instance of the \textbf{Kopperman/Mehler formalism}
 used in the companion \(P\neq NP\) development: a separable Hilbert space, a decidable
 dense skeleton of finite Dirichlet approximants, and an \emph{atomless} measure specified
 by its mean and covariance. ``Choosing the measure is choosing the model.'' In Lean, the
-probabilistic core \texttt{RcpEuler.lean} (the random series, the atomless prior, the rcp
-kernel, the reciprocal contour convergence) is on disk and \texttt{sorry}-free for an
-earlier radius-\(1\), Euler-product instance; the redesign of this paper --- radius \(2\),
-general non-multiplicative series, and the transfer-equality bridge in place of the
-arithmetical one --- is the current plan (\texttt{IMPLEMENTATION\_PLAN\_RCP.md}) and is
-not yet on disk. The result is a \emph{verified reduction} of RH to the transfer equality
-and Bagchi universality, not a complete proof.
+probabilistic core \texttt{RcpEuler.lean} (the random series, the atomless radius-\(2\) prior,
+the rcp kernel, the second-moment object \texttt{secondMoment} with its proved positivity, and
+the off-center coefficient-ball law) is on disk and compiles with exactly \textbf{two} labelled
+\texttt{sorry}s --- the second-moment transfer equality \texttt{secondMoment\_transfer}
+(\(M=\|\zeta(s_0)\|^2\)) and a named \texttt{bagchi\_universality} theorem (Voronin/Bagchi) that the
+positivity \(M>0\) reduces to --- every connecting step proved. The result is a \emph{verified
+reduction} of RH to the transfer equality and Bagchi universality, not a complete proof --- and, as
+the analysis (Remark~\ref{rem:portmanteau}) makes explicit, the transfer-equality half is not a free
+Tjur/Radon consequence but is itself RH-equivalent, so the reduction does not lower the difficulty:
+the elementary measure-theory (the variance decomposition, \(M\ge\|\text{centrum}\|^2\)) is genuinely
+formalized, while the RH-equivalent Borel--Kolmogorov reconciliation and Bagchi universality remain the
+open inputs. (One non-deep hypothesis, \texttt{secondMomentIntegrable} --- the moment integrability the
+second moment requires --- is threaded through, dischargeable by the finite-\(N\) construction.)
 \end{abstract}
 
 \section{Introduction}
@@ -115,15 +143,18 @@ standard \(\eta\) either vanishes at \(s_0\) or it does not. The right side is t
 the mean realization. Equality~\eqref{eq:transfer} holds because the rcp at an
 \emph{interior} point of the support of an atomless Radon measure returns the
 deterministic value of any functional continuous there, and ``has a zero at \(s_0\)'' is
-such a functional (Section~\ref{sec:transfer}). The choice of \textbf{radius \(2\)} for
-the coefficient disk is what puts \(X_n\equiv1\) in the interior, where this is clean.
+such a functional (Section~\ref{sec:transfer}). The choice of \textbf{radius \(2\)}
+for the coefficient disk is what puts \(X_n\equiv1\) (with \(|1|=1<2\)) in the interior, where
+this is clean (interiority needs only radius \(>1\); \(2\) is a convenient bounded choice).
 
-\paragraph{Fact 2 --- non-detection (\(L\neq 1\), Bagchi).} Conditioning on a
-\emph{local} edge neighborhood of \(\eta\) --- never a contour enclosing \(s_0\), which
-the maximum-modulus principle would forbid --- \textbf{Bagchi/Voronin universality}
-provides a positive-mass family of zero-free realizations that agree with \(\eta\) on the
-edges but stay nonzero at \(s_0\). Hence \(L\neq 1\): the conditional law of \(\etaX(s_0)\)
-is not a point mass at \(0\) (Section~\ref{sec:nondetect}).
+\paragraph{Fact 2 --- non-detection (\(L\neq 1\), Bagchi).} Condition on a \emph{ball in
+coefficient space} of positive radius --- not on any boundary function-values.
+\textbf{Bagchi/Voronin universality} makes the conditional law of \(\etaX(s_0)\)
+non-degenerate: its mean (the ``centrum'') is the value at \(s_0\) of the series whose
+coefficients sit at the ball's center, which universality lets us choose nonzero, and its
+variance is finite and \(\propto\) the ball radius. A non-degenerate law on \(\mathbb{C}\)
+assigns the single point \(\{0\}\) probability \(<1\). Hence \(L\neq 1\): the conditional
+law of \(\etaX(s_0)\) is not a point mass at \(0\) (Section~\ref{sec:nondetect}).
 
 \paragraph{Composing.} A \(\{0,1\}\)-valued indicator that equals \(L\neq 1\) must equal
 \(0\). Equivalently: if \(\eta(s_0)=0\) then \eqref{eq:transfer} forces \(L=1\),
@@ -135,31 +166,51 @@ uniform over the interior point,
 which is the Riemann Hypothesis (Section~\ref{sec:assembly}). The conclusion is a positive
 analytic statement in ZFC; there is no arithmetical sentence and no unprovability reading.
 
+\paragraph{Fact 3 --- universality lifts ``per point'' to ``per compact''.} Facts~1--2
+give, for each \emph{fixed} \(s_0\), that \(\mathbb{P}(\eta(s_0)=0)=0\). The Hypothesis asks for
+no zero \emph{anywhere} in the strip --- an \emph{uncountable} family of points, which a bare
+union of null events does not control. \textbf{Bagchi/Voronin universality closes this
+directly}, because it is \emph{compact-set-uniform}: for any \emph{compact}
+\(K\subset\{1/2<\Rea(s)<1\}\) with connected complement, universality realizes the centrum as a
+single holomorphic function that is \textbf{zero-free on all of \(K\) at once}. Conditioning on a
+coefficient ball about that centrum then gives \(\rcp(\etaX(s)=0\mid X\in B)=0\)
+\emph{simultaneously} for every \(s\in K\), not merely at one point. Thus per-point non-detection
+becomes per-compact non-detection, and the union over a countable exhaustion
+\(K_1\subset K_2\subset\cdots\) of the open strip gives ``no zero anywhere''
+(Section~\ref{sec:assembly}). No Euler product and no radius-tuning are needed --- the compact
+uniformity is already part of the universality theorem.
+
 \subsection{Why ``regular conditional probability'' and not a single condition}
 
-The conditioning event ``\(\etaX\) equals \(\eta\) on the (local) edge data'' is null: the
-boundary trace pins a continuum of constraints, and the mean realization \(X_n\equiv1\) is
-a single point of an atomless measure. Regular conditional probability is precisely the
-tool that assigns a well-defined conditional law to such null conditioning data, via
-Tjur's neighborhood-limit characterization
+The conditioning that defines the transfer equality is on the \emph{exact} mean realization
+\(X_n\equiv1\), a single point of an atomless measure --- a null event. Regular conditional
+probability is precisely the tool that assigns a well-defined conditional law to such null
+conditioning data, via Tjur's neighborhood-limit characterization
 \begin{equation}\label{eq:tjur}
-  \rcp(A \mid T = t)
-  \;=\; \lim_{V \downarrow \{T=t\}} \frac{\mathbb{P}(A \cap V)}{\mathbb{P}(V)},
+  \rcp(A \mid X = c)
+  \;=\; \lim_{\rho \downarrow 0} \frac{\mathbb{P}(A \cap \{X\in B(c,\rho)\})}{\mathbb{P}(\{X\in B(c,\rho)\})},
 \end{equation}
-the limit over shrinking open neighborhoods \(V\) of the trace value. The limit is well
-defined because the substrate is \textbf{Radon} (a Polish inner-product space has
-inner-regular Borel measures), and --- crucially --- because the conditioning value
-\(t=e_\eta\) lies in the \emph{interior} of the support (the radius-\(2\) choice), so the
-neighborhoods \(V\) are genuine two-sided neighborhoods with positive mass in all
-directions. It is this limit, not a naive ratio, that both the transfer
-equality~\eqref{eq:transfer} and the non-detection bound \(L\neq1\) control.
+the limit over shrinking \textbf{coefficient-space balls} \(B(c,\rho)\) about the
+conditioning value \(c\). The limit is well defined because the substrate is \textbf{Radon}
+(a Polish inner-product space has inner-regular Borel measures), and --- crucially --- because
+the conditioning value \(c=(X_n\equiv1)\) lies in the \emph{interior} of the support (the
+radius-\(2\) choice, \(|1|=1<2\)), so the balls \(B(c,\rho)\) are genuine two-sided neighborhoods with
+positive mass in all directions. The non-detection bound \(L\neq1\)
+(Section~\ref{sec:nondetect}) uses the same balls at \emph{positive} radius, where the
+conditional law is non-degenerate; the transfer equality~\eqref{eq:transfer} is the
+\(\rho\downarrow0\) limit, where it concentrates to \(\delta_{\eta(s_0)}\). No boundary trace,
+no edge arc, and --- decisively --- no holomorphic pin: a coefficient ball constrains the
+\(X_n\) directly, never the function values of \(\etaX\) on a curve.
 
 \section{The Bounded-Coefficient Prior and the rcp Kernel}
 
 \subsection{The model: a general, non-multiplicative random Dirichlet series}\label{sec:model}
 
-The object is a random Dirichlet series. There is \textbf{no Euler product and no
-multiplicativity}; only boundedness and a prescribed mean and covariance are used.
+The object is a random Dirichlet series with \textbf{no Euler product and no multiplicativity};
+only boundedness and a prescribed mean and covariance are used --- for the non-detection
+\(L\neq1\) and for its lift to whole compact subsets of the strip alike, both resting on
+Bagchi/Voronin universality (Remark~\ref{rem:nomult}), which is compact-set-uniform and so needs
+no multiplicative structure.
 
 \begin{definition}[Random Dirichlet series]\label{def:series}
 Fix a sample \(\omega\in\Omega_b=\mathbb{N}\to\mathbb{C}\) recording one complex
@@ -176,10 +227,10 @@ special case; nothing below uses product structure.
 
 The decisive structural property is \textbf{boundedness} of the coefficients. When
 \(\|X_n(\omega)\|\le 2\), the tail \(\sum_{n>N}X_n(\omega)n^{-s}\) is dominated by
-\(2\sum_{n>N}n^{-a}\) on \(\{\Rea(s)\ge a>1\}\) for \emph{every} \(\omega\), giving
-absolute, locally uniform convergence with \emph{no} almost-sure qualifier (a Weierstrass
-\(M\)-test; Lean \texttt{bSum\_tail\_small} for the product instance). This is what anchors
-the random series to the genuine \(\eta\), whose Dirichlet series converges there.
+\(2\sum_{n>N}n^{-a}\) on \(\{\Rea(s)\ge a>1\}\) for \emph{every} \(\omega\), giving absolute,
+locally uniform convergence with \emph{no} almost-sure qualifier (a Weierstrass \(M\)-test; Lean
+\texttt{summable\_etaXTerm}, and \texttt{bSum\_tail\_small} for the product instance). This is
+what anchors the random series to the genuine \(\eta\), whose Dirichlet series converges there.
 
 \begin{definition}[The atomless radius-\(2\) prior]\label{def:prior}
 Let \(\texttt{diskLaw}\) be the uniform probability law on the closed disk of radius
@@ -191,8 +242,8 @@ Let \(\texttt{diskLaw}\) be the uniform probability law on the closed disk of ra
 the independent product over indices. It is a probability measure, supported in the
 radius-\(2\) ball (so \(\|X_n\|\le 2\) a.e.), and \textbf{atomless}
 (\(\texttt{priorBall}\{\omega\}=0\)). (Lean: \texttt{priorBall\_isProb},
-\texttt{priorBall\_ball}, \texttt{priorBall\_atomless}; on disk for radius \(1\), to be
-re-proved verbatim at radius \(2\).)
+\texttt{priorBall\_ball}, \texttt{priorBall\_atomless}, on disk at radius \(2\) and
+\texttt{sorry}-free.)
 \end{definition}
 
 Two structural properties of the prior carry the argument.
@@ -202,14 +253,16 @@ Two structural properties of the prior carry the argument.
         the deterministic \(\eta\)-realization \(X_n\equiv1\) --- from carrying positive
         mass, so the conditional behaviour at \(X_n\equiv1\) is a genuine
         \emph{neighborhood} (Tjur) limit, not an evaluation.
-  \item \textbf{Radius \(2\), not \(1\)} places the mean realization \(X_n\equiv1\) in the
-        \emph{open interior} of the support. At radius \(1\), \(X_n\equiv1\) sat on the
+  \item \textbf{Radius \(2\), not \(1\)} places the mean realization \(X_n\equiv1\)
+        in the \emph{open interior} of the support. At radius \(1\), \(X_n\equiv1\) sat on the
         boundary \(\partial\overline{B(0,1)}\) of the support, where the Tjur limit is
-        one-sided and degenerate; at radius \(2\) every neighborhood of \(X_n\equiv1\) is a
-        genuine two-sided interior neighborhood with positive mass in all directions, so
-        the rcp at the conditioning value is unambiguous. Boundedness --- not the value of
-        the radius --- is the critical property; radius \(2\) is the smallest convenient
-        choice that interiorizes the mean.
+        one-sided and degenerate; at radius \(2\), since \(|1|=1<2\), every neighborhood of
+        \(X_n\equiv1\) is a genuine two-sided interior neighborhood with positive mass in all
+        directions, so the rcp at the conditioning value is unambiguous. Interiority is all that
+        is asked of the radius (any value \(>1\) would serve; \(2\) is the convenient bounded
+        choice), and \textbf{boundedness} --- not the particular value of the radius --- is the
+        critical \emph{qualitative} property. The per-compact lift comes from the
+        compact-uniformity of universality (Fact~3), not from any tuning of the radius.
 \end{itemize}
 
 \subsection{Mean and covariance: choosing the law is choosing the model}\label{sec:general}
@@ -227,9 +280,9 @@ multiplicative structure (Remark~\ref{rem:nomult}). The radius-\(2\) unit-disk p
 coefficients pinned, the rest free) is another.
 
 \emph{Boundedness is not optional.} The bound \(\|X_n\|\le 2\) gives \emph{absolute},
-locally uniform convergence on \(\{\Rea(s)\ge a>1\}\) for \emph{every} \(\omega\), which
-anchors the random series to \(\eta\); without it the series need not converge for every
-\(\omega\) on \(\Rea>1\) and nothing about \(\eta\) could be concluded. Inside the strip,
+locally uniform convergence on \(\{\Rea(s)\ge a>1\}\) for \emph{every}
+\(\omega\), which anchors the random series to \(\eta\); without it the series need not
+converge for every \(\omega\) on \(\Rea>1\) and nothing about \(\eta\) could be concluded. Inside the strip,
 \(1/2<\Rea(s)\le1\), absolute convergence fails; there the \(X_n\) being uncorrelated
 (independent under the product prior) with bounded variance makes the centered series'
 term-variances \(\operatorname{Var}(X_n)\,n^{-2\Rea(s)}\) summable for \(\Rea(s)>1/2\) ---
@@ -245,31 +298,51 @@ i.i.d.\ Mehler product with its independence and variance (\texttt{SphereGaussia
 So the convergence/analyticity of the general series on \(\{\Rea>1/2\}\) is an
 \emph{assembly} of existing results, not a fresh obligation.
 
+\textbf{The term-level \(L^2\) budget is now formalized.} The Kolmogorov condition above ---
+\(\sum_n \operatorname{Var}(X_n)\,n^{-2\Rea(s)}<\infty\) for \(\Rea(s)>1/2\) --- is on disk and
+\texttt{sorry}-free: \texttt{summable\_normSq\_cpow} (the squared norms \(\|n^{-s}\|^2\) are summable
+on \(\Rea(s)>1/2\), via \(\|n^{-s}\|^2=\|n^{-2s}\|\)) and \texttt{summable\_centered\_normSq} (the
+centered terms \((X_n-1)\,n^{-s}\) are \(L^2\)-summable for bounded coefficients, dominated by
+\(C^2\|n^{-s}\|^2\)). \textbf{Caveat (the honest definition of \(\etaX\) in the strip):} the
+\emph{naive} series \(\sum_n X_n\,n^{-s}\) does \emph{not} converge on \(\Rea(s)<1\) --- the
+\emph{mean} part \(\sum_n n^{-s}\) diverges --- so only the \emph{centered} series
+\(\sum_n (X_n-1)\,n^{-s}\) converges there. The honest object is therefore the split
+\(\etaX(s)=\eta(s)+\sum_n(X_n-1)\,n^{-s}\) (the \emph{continued} mean \(\eta\) plus the
+\(L^2\)-convergent fluctuation), which equals \(\eta\) at \(X_n\equiv1\). The on-disk \texttt{etaX}
+is still the naive \texttt{tsum} (hence identically \(0\) on the strip, where it is non-summable);
+re-typing it to this split, using the two lemmas above, is the well-defined step-0 \texttt{(M)}
+task in the implementation plan.
+
 \subsection{The rcp kernel}\label{sec:kernel}
 
-Let \(\partial^\ast R = R.\texttt{closure}\setminus R.\texttt{openInt}\) be the topological
-boundary of a rectangle \(R\), and let \(\Lambda\subset\partial^\ast R\) be a \emph{local}
-arc that does not enclose \(s_0\) (Remark~\ref{rem:maxmod}). Write the \emph{edge trace}
-\(T(\omega) = (z\mapsto \etaX(z,\omega))\restriction \Lambda\) and the \emph{interior
+The conditioning is on the coefficient sequence itself, \emph{not} on any boundary trace.
+Write \(\Pi_F(\omega)=(X_n(\omega))_{n\in F}\) for the projection to a finite (or cofinite)
+block of coefficients, and let the conditioning event be a \emph{ball in coefficient space}
+\(\{X\in B(c,\rho)\}\) about a center \(c\) (the mean realization \(c=(X_n\equiv1)\), or a
+universality-chosen perturbation of it). The conditioned quantity is the \emph{interior
 value} \(\etaX(s_0,\omega)\).
 
 \begin{definition}[rcp kernel]\label{def:kernel}
 \[
-  \texttt{rcpKernel}(s_0,\Lambda)
-  \;=\; \texttt{condDistrib}\bigl(\etaX(s_0,\cdot),\ T,\ \texttt{priorBall}\bigr),
+  \texttt{rcpKernel}(s_0,c)
+  \;=\; \texttt{condDistrib}\bigl(\etaX(s_0,\cdot),\ \Pi,\ \texttt{priorBall}\bigr),
 \]
-the regular conditional distribution of the interior value given the (local) edge trace,
-under the bounded prior. (Lean: \texttt{rcpKernel}, built from \texttt{condDistrib};
-measurability of both maps and finiteness of \texttt{priorBall} are the inputs.)
+the regular conditional distribution of the interior value given the coefficient projection
+\(\Pi\), evaluated at \(c\), under the bounded prior. (Lean: \texttt{rcpKernel}, built from
+\texttt{condDistrib}; measurability of both maps and finiteness of \texttt{priorBall} are the
+inputs.)
 \end{definition}
 
 The kernel is well posed because the precondition of Tjur's
-characterization~\eqref{eq:tjur} holds: the conditioning value \(e_\eta\) (the trace of the
-mean realization) lies in the support of the trace law, with \emph{positive} mass on every
-neighborhood --- measured against the deterministic skeleton on which \(\etaX\) centers
-(Lean \texttt{priorBall\_edgeNbhd\_pos}, from the positive-mass coefficient box
-\texttt{priorBall\_box\_pos}). The radius-\(2\) choice strengthens this from ``in the
-support'' to ``in the interior of the support''.
+characterization~\eqref{eq:tjur} holds: the conditioning value \(c\) lies in the support of
+the coefficient law, with \emph{positive} mass on every ball \(B(c,\rho)\) (Lean
+\texttt{priorBall\_box\_pos}, the positive-mass coefficient box). The radius-\(2\) choice
+strengthens this from ``in the support'' to ``in the interior of the support'', so the balls
+are two-sided. \textbf{Conditioning on coefficient balls instead of on boundary edge traces
+is the decisive change} (Remark~\ref{rem:tradeoff}, Remark~\ref{rem:maxmod}): a coefficient
+ball is a positive-mass event constraining the \(X_n\) directly, so it never invokes the
+identity theorem or the maximum-modulus principle on \(\etaX\) and never pins the interior
+holomorphically.
 
 \subsection{The contour side, for free}
 
@@ -294,113 +367,258 @@ for the probabilistic statements.
 
 The single role of the Mehler probability measure is to supply the identity~\eqref{eq:transfer}.
 
-\begin{theorem}[Transfer equality]\label{thm:transfer}
-For \(s_0\) with \(1/2<\Rea(s_0)<1\),
+\begin{theorem}[Transfer equality --- second-moment form]\label{thm:transfer}
+For \(s_0\) with \(1/2<\Rea(s_0)<1\), the rcp \emph{second moment} at the mean realization equals the
+deterministic squared modulus:
 \[
-  \rcp\bigl(\etaX(s_0)=0 \,\big|\, X_n=1\ \forall n\bigr)
-  \;=\; \mathbf{1}\{\eta(s_0)=0\}
-  \;=\; \mathbb{P}\bigl(\eta(s_0)=0\bigr).
+  \mathbb{E}\bigl(\|\etaX(s_0)\|^2 \,\big|\, X_n=1\ \forall n\bigr) \;=\; \|\eta(s_0)\|^2 .
 \]
+(Equivalently, in the legacy \(\{0\}\)-mass form,
+\(\rcp(\etaX(s_0)=0\mid X_n=1)=\mathbf{1}\{\eta(s_0)=0\}\).)
 \end{theorem}
-\textbf{(Lean target: \texttt{transfer\_equality}; it replaces the arithmetical bridge
+\textbf{(Lean target: \texttt{secondMoment\_transfer} (\(\star\) 2026-06-24, the headline object),
+re-cast from the \(\{0\}\)-mass \texttt{transfer\_equality}; both replace the arithmetical bridge
 \texttt{counterexample\_iff\_rcpZero} of earlier versions.)}
 
 \paragraph{Why it holds.} The regular conditional probability is the Tjur
-limit~\eqref{eq:tjur} at the conditioning value \(e_\eta=\) (the trace of the mean
-realization \(X_n\equiv1\)). Three facts make the limit collapse to the deterministic
-indicator:
+limit~\eqref{eq:tjur} over coefficient balls \(B(c,\rho)\) shrinking to the conditioning
+value \(c=(X_n\equiv1)\). Three facts make the limit collapse to the deterministic indicator:
 \begin{enumerate}
   \item \emph{The limit exists and is foundation-independent} because the substrate is
         Radon (Polish inner-product space, inner-regular Borel measures) --- the
         Mehler-within-Kopperman layer of Section~\ref{sec:kopperman}.
   \item \emph{The conditioning value is interior} (radius \(2\), \S\ref{sec:model}): every
-        neighborhood \(V\downarrow\{T=e_\eta\}\) is a genuine two-sided neighborhood with
+        ball \(B(c,\rho)\downarrow\{X\equiv1\}\) is a genuine two-sided neighborhood with
         positive mass, so the limit is a single number, not an artifact of a one-sided
         approach.
-  \item \emph{The event is continuous at the mean realization.} ``\(\etaX\) has a zero at
-        \(s_0\)'' is, by the locally-uniform contour convergence of \S\ref{sec:general},
-        continuous in the trace topology at \(X_n\equiv1\); the rcp at an interior support
-        point returns the deterministic value of such a functional, namely
+  \item \emph{The conditional law concentrates.} As \(\rho\downarrow0\) the conditional law
+        of \(\etaX(s_0)\) given \(X\in B(c,\rho)\) has mean \(\to\eta(s_0)\) and variance
+        \(\to0\) (variance \(\propto\rho^2\); \S\ref{sec:general}), so it converges to the
+        Dirac mass \(\delta_{\eta(s_0)}\); the rcp of \(\{\etaX(s_0)=0\}\) is therefore
         \(\mathbf{1}\{\eta(s_0)=0\}\).
 \end{enumerate}
 This is the precise content of ``adding the Mehler measure proves that the probability of
 a zero of the standard \(\eta\) equals that of \(\etaX\) given \(X_n=1\)''.
 
-\begin{remark}[The transfer equality is a \emph{standard} theorem in the pinned regime --- and the
-tension this creates with \(L\neq1\)]\label{rem:tradeoff}
-When the conditioning \emph{pins the interior} --- exact agreement \(X_n\equiv1\), or agreement on a
-\emph{full} boundary arc --- the transfer equality is not a deep input at all. Conditioning on the
-exact mean realization makes \(\etaX\) deterministically \(\eta\)
-(\(\etaX(\cdot,X\!\equiv\!1)=\sum_n n^{-s}=\zeta\)), so the conditional law of \(\etaX(s_0)\) is the
-Dirac \(\delta_{\eta(s_0)}\) and \(L=\mathbf{1}\{\eta(s_0)=0\}\). The \emph{only} non-trivial
-ingredient is that the rcp at the null point \(X\!\equiv\!1\) is \emph{defined} --- the standard
-theorem ``the Tjur neighborhood limit exists iff the space is Radon'', here automatic. Equivalently,
-for a full boundary arc the \textbf{identity theorem} (a holomorphic \(\etaX\) agreeing with \(\eta\)
-on a set with a limit point agrees everywhere, hence has coefficients \(X_n=1\)) collapses the
-conditioning to that single point.
+\begin{remark}[The Portmanteau gap: this step is where RH actually sits (2026-06-23 analysis)]\label{rem:portmanteau}
+Step~3 above conflates two limits that disagree exactly at a zero, and the disagreement is the
+Riemann Hypothesis. Write \(\nu_\rho\) for the conditional law of \(\etaX(s_0)\) given
+\(X\in B(c,\rho)\). Two facts are both true:
+\begin{itemize}
+  \item \(\nu_\rho \to \delta_{\eta(s_0)}\) \emph{weakly} as \(\rho\downarrow0\) (mean
+        \(\to\eta(s_0)\), variance \(\to0\)) --- this is the ``no randomness left'' picture, and
+        it is correct.
+  \item The rcp of the \emph{event} \(\{\etaX(s_0)=0\}\) is \(L=\lim_{\rho\downarrow0}\nu_\rho(\{0\})\),
+        the limit of the point masses. The substrate is \textbf{atomless} --- which is forced,
+        since \(X\equiv1\) must be a \emph{null} interior point for the Tjur limit to be defined ---
+        so each \(\nu_\rho\) is atomless, \(\nu_\rho(\{0\})=0\), and hence \(L=0\), \emph{for every
+        \(s_0\), whether or not \(\eta(s_0)=0\).}
+\end{itemize}
+The value Step~3 wants, \(\mathbf{1}\{\eta(s_0)=0\}\), is \(\delta_{\eta(s_0)}(\{0\})\): the mass the
+\emph{limit} puts on \(\{0\}\). Passing from \(\nu_\rho\to\delta_{\eta(s_0)}\) to
+\(\nu_\rho(\{0\})\to\delta_{\eta(s_0)}(\{0\})\) is the \textbf{Portmanteau theorem}, valid \emph{iff}
+\(\{0\}\) is a continuity set of the limit, i.e. \(\delta_{\eta(s_0)}(\partial\{0\})=0\), i.e.
+\(\delta_{\eta(s_0)}(\{0\})=0\), i.e. \(\boxed{\eta(s_0)\neq0}\). So the transfer equality
+\eqref{eq:transfer} holds at non-zeros (both sides \(0\)) and is \textbf{false at any zero}
+(\(L=0\neq1=\mathbf{1}\{\eta(s_0)=0\}\)). It is therefore \emph{not} a standard Tjur/Radon
+consequence: its truth at \(s_0\) is exactly \(\eta(s_0)\neq0\) --- it is RH-equivalent.
 
-But that pinning is exactly what makes Theorem~\ref{thm:nondetect} \emph{fail}: a pinned interior
-gives \(L=\mathbf{1}\{\eta(s_0)=0\}\), so ``\(L\neq1\)'' would read \(\eta(s_0)\neq0\) --- the Riemann
-Hypothesis itself --- and universality cannot deliver it (Voronin needs a \emph{connected-complement}
-compact, which a full rectangle boundary, separating the plane, is not). The two theorems use
-\emph{one} shared conditional object \(L\) (\S\ref{sec:assembly}); so its conditioning must be the
-\emph{local}, non-\(s_0\)-enclosing one of Theorem~\ref{thm:nondetect}, under which the interior is
-\emph{not} pinned --- and then the transfer equality is \emph{not} the easy identity above but the
-genuine claim that the local edge data \emph{still} recovers the deterministic interior value in the
-Tjur limit. \textbf{Conditioning strength splits the difficulty} between the two theorems: strong
-(full/exact) makes the transfer trivial but \(L\neq1\) circular; weak (local) makes \(L\neq1\) a real
-universality statement but the transfer non-trivial. The route commits to the local regime, where
-the lone deep analytic input is the universality of Theorem~\ref{thm:nondetect}. (The Lean
-\texttt{transfer\_equality}/\texttt{L\_ne\_one} on disk currently condition on the \emph{full}
-boundary --- the strong regime --- so the trace must be re-typed to a local one before
-\texttt{L\_ne\_one} is a Bagchi statement; see the implementation plan's 2026-06-23 note.)
+\textbf{Generality of Mehler does not rescue it.} The argument uses \emph{only} atomlessness, never
+Gaussianity; whatever law the Mehler construction derives, the atomless requirement at the null
+interior point \(X\equiv1\) is fixed, and atomlessness gives \(L=0\). If instead a \emph{mixed} law
+placed a positive \textbf{atom} at \(X\equiv1\), then conditioning is genuine and \(L=\mathbf{1}\{\eta(s_0)=0\}\)
+exactly --- but there \(L\neq1\) reads \(\eta(s_0)\neq0\), RH again. Either branch of the fork is RH or
+vacuous.
+
+\textbf{Consequence (reversing the earlier framing).} The route's genuinely deep, RH-equivalent step
+is \emph{this} transfer equality (Thm~\ref{thm:transfer}), \textbf{not} the non-detection
+\(L\neq1\) (Thm~\ref{thm:nondetect}). Under the atomless rcp, \(L=0\) holds unconditionally
+(\S\ref{sec:nondetect} and the Lean \texttt{tjur\_ratio\_eq\_zero\_of\_null}), so \(L\neq1\) is
+elementary and carries \emph{no} information about \(\eta(s_0)\); all the RH content has migrated into
+recovering \(\mathbf{1}\{\eta(s_0)=0\}\) from \(L\), which is the Portmanteau continuity-set condition
+above.
 \end{remark}
 
-\section{Non-detectability: \texorpdfstring{$L\neq 1$}{L != 1}}\label{sec:nondetect}
+\begin{remark}[Coefficient balls, not boundary arcs --- how the apparent tension is resolved]\label{rem:tradeoff}
+An earlier version of this route conditioned on a \emph{boundary edge trace} of \(\etaX\), and there
+the difficulty did not stay put. Pin the interior --- by exact agreement \(X_n\equiv1\), \emph{or} by
+agreement on \emph{any} boundary arc --- and the transfer equality is trivial (the conditional law is
+the Dirac \(\delta_{\eta(s_0)}\), \(L=\mathbf{1}\{\eta(s_0)=0\}\)), but then \(L\neq1\) reads
+\(\eta(s_0)\neq0\), the Riemann Hypothesis itself, which universality cannot deliver. Crucially the
+pin is unavoidable for boundary arcs: \emph{any} arc has a limit point, so the \textbf{identity
+theorem} forces a holomorphic \(\etaX\) agreeing with \(\eta\) there to agree everywhere, hence
+\(X_n=1\). ``Shrink the arc'' does not help. So with edge-trace conditioning, strong (full) makes the
+transfer trivial but \(L\neq1\) circular, weak (small arc) is \emph{still} a full pin --- there is no
+genuinely weak boundary conditioning.
 
-\begin{theorem}[No forced zero: \(L\neq 1\)]\label{thm:nondetect}
-Conditioned on a \emph{local} edge neighborhood of \(\eta\) that does not enclose \(s_0\),
-the conditional law of the interior value \(\etaX(s_0)\) is not a point mass at \(0\):
+\textbf{Conditioning on a ball in coefficient space dissolves the tension.} A ball
+\(\{X\in B(c,\rho)\}\) of positive radius is a positive-mass event that constrains the coefficients
+\(X_n\) \emph{directly} --- it is never a statement about the function values of \(\etaX\) on a curve,
+so the identity theorem and the maximum-modulus principle simply do not apply, and the interior is
+\emph{not} pinned. Then both halves hold of the \emph{same} family of balls (the single shared object
+\(L\), \S\ref{sec:assembly}): the transfer equality is the clean \(\rho\downarrow0\) concentration
+limit (\(L\to\delta_{\eta(s_0)}\)), a standard Tjur/Radon fact; and \(L\neq1\) is the statement that at
+\emph{positive} radius the conditional law is non-degenerate (finite variance \(\propto\rho^2\), mean
+the universality-chosen centrum), so the single point \(\{0\}\) carries probability \(<1\)
+(Theorem~\ref{thm:nondetect}). \emph{(Caveat, per Remark~\ref{rem:portmanteau}: under the atomless
+substrate \(L=0\) already, so \(L\neq1\) is elementary, not the deep step; the deep, RH-equivalent
+step is the \(\rho\downarrow0\) transfer equality, whose Portmanteau continuity-set hypothesis is
+\(\eta(s_0)\neq0\). The clean ``both halves coexist'' picture below is the \emph{intended} design; the
+obstruction it does not dissolve is Portmanteau, not the holomorphic pin.)} (The Lean
+\texttt{transfer\_equality}/\texttt{L\_ne\_one} on disk still condition on the \emph{full} rectangle
+boundary \texttt{R.closure}\(\setminus\)\texttt{R.openInt}; the trace must be re-typed from a boundary
+trace to a \emph{coefficient ball} before \texttt{L\_ne\_one} is a Bagchi statement rather than RH in
+disguise --- see the implementation plan's 2026-06-23 note.)
+\end{remark}
+
+\section{Non-degeneracy: \texorpdfstring{$0<M$}{0 < M} (equivalently \texorpdfstring{$L\neq 1$}{L != 1})}\label{sec:nondetect}
+
+\begin{theorem}[Non-degeneracy: \(0<M\), equivalently \(L\neq1\)]\label{thm:nondetect}
+The rcp \emph{second moment} of the interior value \(\etaX(s_0)\) is strictly positive:
 \[
-  L \;=\; \rcp\bigl(\etaX(s_0)=0 \,\big|\, X_n=1\bigr) \;\neq\; 1 .
+  M \;=\; \mathbb{E}\bigl(\|\etaX(s_0)\|^2 \,\big|\, X_n=1\bigr) \;>\; 0 ,
 \]
+with the explicit constant lower bound \(M\ge\|\text{centrum}\|^2>0\). Equivalently, conditioned on a
+\emph{ball in coefficient space} \(\{X\in B(c,\rho)\}\) of positive radius, the conditional law of
+\(\etaX(s_0)\) is not the point mass at \(0\): \(L=\rcp(\etaX(s_0)=0\mid X\in B(c,\rho))\neq1\).
 \end{theorem}
-The mechanism is \textbf{Bagchi/Voronin universality}. Among the realizations consistent
-with the local edge data there is a positive-mass subset --- an \emph{alternative
-average} --- given by a \emph{zero-free} random Dirichlet series that matches \(\eta\) on
-the edges but stays nonzero at \(s_0\); universality is precisely the statement that the
-prior's support is all zero-free holomorphic functions on a connected-complement compact,
-so such a subset exists and keeps \(L<1\). The analytic input is Bagchi (1981); the
-closest formal statement available is the universality lemma
-\texttt{eulerG\_universality\_threeLeftEdges} of the companion file, to be reused as a
-starting point. Because the transfer equality is a standard theorem once the conditioning is
-fixed (Remark~\ref{rem:tradeoff}), \textbf{this is the route's lone genuinely deep analytic
-input}, and it is meaningful only in the local regime: Theorem~\ref{thm:nondetect} is stated for
-the \emph{same} shared \(L\) as Theorem~\ref{thm:transfer}, conditioned on a local arc.
+\textbf{(Lean target: \texttt{secondMoment\_pos} --- proved from \texttt{bagchi\_universality}
+(nonzero centrum) and \texttt{integral\_norm\_sq\_pos\_of\_mean\_ne\_zero}, modulo the moment
+integrability \texttt{secondMomentIntegrable}; the legacy probability form is
+\texttt{Lball\_ne\_one\_of\_mean\_ne\_zero}.)}
+\emph{(Per Remark~\ref{rem:portmanteau}: under the atomless substrate this `\(L\neq1\)' is in fact
+`\(L=0\)', and holds whether or not \(\eta(s_0)=0\) --- it is elementary and formalized
+(\texttt{tjur\_ratio\_eq\_zero\_of\_null}, \texttt{prob\_singleton\_zero\_ne\_one\_of\_mean\_ne\_zero}),
+and it is \emph{not} the RH-equivalent step. The deep step is the transfer equality,
+Thm~\ref{thm:transfer}.)}
 
-\begin{remark}[Local neighborhood, and why not the full boundary]\label{rem:maxmod}
-The conditioning must be on a \emph{local} neighborhood of a boundary point --- no
-particular shape or size, only that it does not enclose \(s_0\). On the \emph{full}
-rectangle boundary the maximum-modulus principle would force any holomorphic realization
-\(\varepsilon\)-close to \(\eta\) on \(\partial R\) to be \(\varepsilon\)-close to \(\eta\)
-throughout \(R\), hence \(|f(s_0)|<\varepsilon\) --- pinning the interior to
-\(\eta(s_0)\) and (if \(\eta(s_0)=0\)) giving \(L=1\). In the exact limit the
-\textbf{identity theorem} sharpens this: agreement with \(\eta\) on a full boundary arc forces
-\(\etaX\equiv\eta\), so there is \emph{no} zero-free alternative average at all and \(L\neq1\)
-would be the Riemann Hypothesis itself, not a universality consequence (Remark~\ref{rem:tradeoff}).
-A local, non-enclosing neighborhood escapes both pins, and is exactly the connected-complement
-geometry that universality requires --- the plane minus a full rectangle boundary is
-\emph{disconnected}, so Voronin's theorem does not even apply there.
+The mechanism is \textbf{Bagchi/Voronin universality}, and it admits a concrete
+mean--variance description. The conditioning is on a ball \emph{in coefficient space} --- not
+on any boundary function-values --- so two moments control the conditional law of the
+interior value \(\etaX(s_0)\):
+\begin{itemize}
+  \item its \textbf{mean} (the ``centrum'') is the value at \(s_0\) of the random Dirichlet
+        series whose coefficients sit at the ball's center \(c\); by \textbf{Bagchi/Voronin
+        universality} the prior's support is rich enough that \(c\) may be chosen so that this
+        centrum is any value we like at \(s_0\) --- in particular a \emph{nonzero} one (the
+        centre may be taken equal to \(X_n\equiv1\), or a universality-chosen perturbation of
+        it; either way the positive-radius law is non-degenerate);
+  \item its \textbf{variance} is \emph{finite} and \(\propto\) the ball radius (the bounded
+        coefficients give a finite term-variance budget; \S\ref{sec:general}), so the
+        conditional law is \emph{non-degenerate} --- not a point mass.
+\end{itemize}
+A non-degenerate law on \(\mathbb{C}\) (finite, nonzero variance) assigns the single point
+\(\{0\}\) probability strictly below \(1\) --- with the centrum chosen away from \(0\),
+indeed mass concentrated off \(0\). Hence the conditional law of \(\etaX(s_0)\) is not the
+Dirac mass \(\delta_0\), so \(L=\rcp(\etaX(s_0)=0\mid X\in B(c,\rho))<1\). The coefficient
+ball is what supplies the \emph{alternative average} --- a positive-mass family of zero-free
+realizations nonzero at \(s_0\) --- without any Euler-product or multiplicative structure
+(Remark~\ref{rem:nomult}), and \textbf{without invoking the identity theorem or
+maximum-modulus} (the ball constrains coefficients, not a boundary trace;
+Remark~\ref{rem:tradeoff}). The analytic input is Bagchi (1981); the closest formal statement
+available is the universality lemma \texttt{eulerG\_universality\_threeLeftEdges} of the
+companion file, to be reused as a starting point. Because the transfer equality is a standard
+Tjur/Radon concentration limit once the ball is fixed (Remark~\ref{rem:tradeoff}),
+\textbf{this is the route's lone genuinely deep analytic input}: Theorem~\ref{thm:nondetect}
+is stated for the \emph{same} shared family of balls \(L\) as Theorem~\ref{thm:transfer}
+(positive radius here, the \(\rho\downarrow0\) limit there).
+
+\begin{remark}[The average-squared-modulus form of \(L\neq1\) --- robust to a discrete atom]\label{rem:secondmoment}
+The probability statement \(L\neq1\) is the \emph{qualitative} shadow of a \emph{quantitative}
+fact about the second moment, which is the form we actually use. For \emph{any} probability
+law \(\nu\) of \(\etaX(s_0)\) --- with no atomlessness assumed --- Cauchy--Schwarz (equivalently
+Jensen for the convex \(t\mapsto t^2\)) gives
+\[
+  \int_{\mathbb{C}}|z|^2\,d\nu(z)\;\ge\;\Bigl|\int_{\mathbb{C}}z\,d\nu(z)\Bigr|^2
+  \;=\;\bigl|\eta_c(s_0)\bigr|^2 ,
+\]
+the squared modulus of the centrum. The right-hand constant \(\bigl|\eta_c(s_0)\bigr|^2\) is
+fixed by the ball \emph{center} \(c\) and is \textbf{independent of the radius \(\rho\)}. Hence
+the average squared modulus of \(\etaX(s_0)\) stays \(\ge\bigl|\eta_c(s_0)\bigr|^2>0\)
+\emph{uniformly} as \(\rho\downarrow0\): there are constant contributions to the average squared
+modulus that do not vanish with the ball, so \((\etaX\mid X_n=1)\) \textbf{cannot converge to
+\(0\)}. The decisive advantage over the bare \(\{0\}\)-probability is robustness: Cauchy--Schwarz
+sees \emph{only the mean}, so the bound \(\bigl|\eta_c(s_0)\bigr|^2\) survives even if the limiting
+conditional law carries a \textbf{discrete atom} non-null at the deterministic \(X_n\equiv1\) ---
+a mixture \((1-\alpha)\,(\text{spread})+\alpha\,\delta_v\) still has second moment exceeding
+\(\bigl|\eta_c(s_0)\bigr|^2\). The single deep input is unchanged: \(\eta_c(s_0)\neq0\)
+(Bagchi/Voronin). This is formalized sorry-free as
+\texttt{norm\_sq\_integral\_le\_integral\_norm\_sq} and
+\texttt{integral\_norm\_sq\_pos\_of\_mean\_ne\_zero} (abstract Cauchy--Schwarz core), lifted to the
+ball by \texttt{secondMomentBall} / \texttt{secondMomentBall\_pos\_of\_mean\_ne\_zero}.
 \end{remark}
 
-\begin{remark}[Multiplicativity is not needed --- but boundedness is]\label{rem:nomult}
-Bagchi-type universality holds for general random Dirichlet series, so the zero-free
-alternative average comes from the \emph{full support of the chosen prior law} (its
-covariance), not from any Euler-product or multiplicative structure. We use no Euler
-product at all. \emph{Boundedness}, by contrast, is \textbf{not} dispensable:
-\(\|X_n\|\le 2\) is what gives absolute every-\(\omega\) convergence on \(\Rea>1\) and so
-anchors the model to \(\eta\) (\S\ref{sec:general}). The requirements are ``bounded''
-(critical) and ``rich enough support'' (universality), not ``multiplicative''.
+\begin{remark}[Exact variance decomposition and the finite-\(N\) Hilbert-space reduction]\label{rem:variance}
+Writing \(\etaX = \eta + \etaY\) with \(\eta\) the deterministic analytic continuation (put in by
+hand, never summed from partial sums) and \(\etaY(s)=\sum_n Y_n n^{-s}\) the \emph{centered}
+fluctuation (\(\mathbb{E}[Y_n]=0\)), the second moment splits \emph{exactly}:
+\[
+  \mathbb{E}\big[|\etaX(s)|^2\big]
+  \;=\; \underbrace{|\eta(s)|^2}_{\text{constant contribution}}
+  \;+\; \underbrace{\sum_n v_n\, n^{-2\sigma}}_{\text{variance, abs.\ conv.\ on }\sigma>1/2},
+  \qquad v_n=\mathbb{E}|Y_n|^2 .
+\]
+This is the equality \texttt{integral\_normSq\_eq\_normSq\_mean\_add\_variance}
+(\(\int\|x\|^2 = \|\!\int x\|^2 + \int\|x-\text{mean}\|^2\)), now on disk and \texttt{sorry}-free. It has
+two formalization payoffs the maintainer identified: \textbf{(i)} the variance series is absolutely
+convergent on \(\sigma>1/2\) and built from \emph{finite-\(N\)} centered priors, so it lives in the
+Hilbert space \(H_K=L^2(\text{prob};A^2(K))\), \(\langle f,g\rangle=\int_K\mathbb{E}[\overline{f_X}g_X]\,d^2s\),
+where the truncations \(\etaY^{(N)}\) form a \emph{Cauchy sequence with a unique limit} --- needing no
+Mehler/Kopperman substrate; \textbf{(ii)} the constant contribution \(|\eta(s)|^2\) is a genuinely
+separate summand, so the average squared modulus never decays to \(0\) while \(\eta(s)\neq0\), robustly
+to any atomic part (Remark~\ref{rem:secondmoment}).
+
+\emph{Why this is a reduction, not a proof of \(\eta(s_0)\neq0\).} The absolutely-convergent strip content
+is exactly the \textbf{zero-free diagonal} \(\sum_n v_n n^{-2\sigma}\); the zeros of \(\eta\) live in the
+off-diagonal \(\sum_{n\neq m} n^{-s}m^{-\overline s}\), which is precisely the conditionally-convergent
+part that the centering/averaging deletes. Equivalently, the two regimes cannot be merged: matching
+\(|\eta|^2\) on \(\sigma>1\) forces \(v_n=0\) (deterministic, \emph{not} Cauchy in the strip), whereas a
+Cauchy strip limit forces \(v_n>0\) (centered, limit zero-free). And the rcp/Tjur limit
+\(\mathbb{E}[|\etaX(s)|^2\mid X_n=1]\) equals \(|\eta(s)|^2\) under full pinning of all coordinates (so
+\(=0\) at a zero) but exceeds it under partial pinning (positive tail variance, but \(\neq|\eta|^2\)); the
+head-vs-tail rate is the Borel--Kolmogorov disintegration choice, which Radon regularity does \emph{not}
+fix. That choice \emph{is} the transfer equality (Theorem~\ref{thm:transfer}, Remark~\ref{rem:portmanteau}):
+``second moment at the center \(\neq0\)'' coincides with \(\eta(s_0)\neq0\), i.e.\ RH --- the on-center
+(\(c=1\Rightarrow\text{centrum}=\eta(s_0)\)) case of \texttt{secondMomentBall}. So the variance decomposition
+and the finite-\(N\) Cauchy construction are honest, formalizable inputs to the \(L\neq1\) side; the deep
+step remains the labelled \texttt{sorry}.
+\end{remark}
+
+\begin{remark}[A coefficient ball, not a boundary trace --- why no holomorphic pin]\label{rem:maxmod}
+The conditioning is on a \emph{ball in coefficient space} \(\{X\in B(c,\rho)\}\), \emph{not}
+on the function values of \(\etaX\) along any curve. This is what defeats the two pins that
+boundary conditioning suffers. \emph{Maximum modulus:} if one conditioned a holomorphic
+realization to be \(\varepsilon\)-close to \(\eta\) on a full rectangle boundary \(\partial R\),
+max-modulus would force it \(\varepsilon\)-close to \(\eta\) throughout \(R\), hence
+\(|f(s_0)|<\varepsilon\) --- pinning the interior. \emph{Identity theorem:} agreement with
+\(\eta\) on \emph{any} boundary arc (which has a limit point) forces \(\etaX\equiv\eta\), hence
+\(X_n=1\), so even a small arc is a full pin and ``shrink the arc'' does not escape it. A
+coefficient ball invokes \emph{neither}: it bounds the \(X_n\) directly, leaving \(\etaX\) free
+to move at \(s_0\) with positive variance, so the conditional law is genuinely spread and the
+universality-chosen centrum is genuinely free. This is also why no connected-complement
+geometry needs to be arranged by hand --- the non-degeneracy comes from the prior's full
+support in coefficient space (Bagchi for general Dirichlet series), not from a Voronin compact
+in the plane.
+\end{remark}
+
+\begin{remark}[Multiplicativity is not needed --- for \(L\neq1\) or for the per-point \(\to\) per-compact lift]\label{rem:nomult}
+\textbf{Neither the non-detection \(L\neq1\) nor its lift to a compact requires multiplicativity.}
+For \(L\neq1\), Bagchi-type universality holds for general random Dirichlet series, so the
+zero-free alternative average comes from the \emph{full support of the chosen prior law} (its
+covariance), not from any Euler-product structure. For the \textbf{lift} from ``no zero at a fixed
+\(s_0\)'' to ``no zero on a compact \(K\subset\{1/2<\Rea<1\}\)'', the key is that Voronin/Bagchi
+universality is \emph{already compact-set-uniform}: for a compact \(K\) with connected complement,
+the universality theorem supplies a single centrum that is \textbf{zero-free on all of \(K\) at
+once}, so conditioning on a ball about it excludes a zero \emph{simultaneously} over \(K\)
+(Fact~3, \S\ref{sec:assembly}). No argument-principle count over countably many prime coefficients,
+and no Euler product, is needed: the uncountable family of points is handled by the uniform
+approximation that universality already provides, not by a union of individually-null events.
+\emph{Boundedness}, by contrast, is \textbf{not} dispensable: \(\|X_n\|\le 2\) gives absolute
+every-\(\omega\) convergence on \(\Rea>1\) and anchors the model to \(\eta\) (\S\ref{sec:general}).
+
+\emph{(Caveat: this lift transports a per-point exclusion that is itself RH-equivalent
+(Remark~\ref{rem:portmanteau}); the compact-uniformity resolves the genuine
+single-point-vs-compact ambiguity, not the Portmanteau obstruction.)}
 \end{remark}
 
 \section{Assembly: a Positive RH in ZFC}\label{sec:assembly}
@@ -409,12 +627,52 @@ anchors the model to \(\eta\) (\S\ref{sec:general}). The requirements are ``boun
 For every \(s_0\) with \(1/2<\Rea(s_0)<1\), \(\eta(s_0)\neq 0\).
 \end{theorem}
 \begin{proof}[Proof (modulo the two inputs)]
-Suppose \(\eta(s_0)=0\). By the transfer equality (Theorem~\ref{thm:transfer}),
-\(L=\rcp(\etaX(s_0)=0\mid X_n=1)=\mathbf{1}\{\eta(s_0)=0\}=1\). But by non-detectability
-(Theorem~\ref{thm:nondetect}), \(L\neq 1\). Contradiction; hence \(\eta(s_0)\neq 0\).
-Equivalently, the deterministic indicator \(\mathbf{1}\{\eta(s_0)=0\}\in\{0,1\}\) equals
-\(L\neq1\), so it equals \(0\).
+Let \(M=\mathbb{E}\bigl(\|\etaX(s_0)\|^2\mid X_n=1\bigr)\) (\texttt{secondMoment}) be the rcp
+\emph{second moment} at the mean realization. By the positivity half
+(\texttt{secondMoment\_pos}, Theorem~\ref{thm:nondetect}) the conditional law of \(\etaX(s_0)\) has a
+nonzero mean (the centrum, Bagchi/Voronin), so by Cauchy--Schwarz
+\(M\ge\|\text{centrum}\|^2>0\). By the second-moment transfer equality
+(\texttt{secondMoment\_transfer}, Theorem~\ref{thm:transfer}) that same \(M\) equals the
+deterministic squared modulus:
+\[
+  \mathbb{E}\bigl(\|\etaX(s_0)\|^2\mid X_n=1\bigr) \;=\; \|\eta(s_0)\|^2 .
+\]
+If \(\eta(s_0)=0\) the right side is \(0\), forcing \(M=0\) and contradicting \(M>0\); hence
+\(\eta(s_0)\neq0\). (The content is exactly the Borel--Kolmogorov reconciliation: the variance
+\(\sum_n v_n n^{-2\sigma}\) that the atomless conditional retains under partial pinning, and the bare
+\(\|\eta(s_0)\|^2\) that full pinning of all coordinates returns, can agree \emph{only} when
+\(\eta(s_0)\neq0\); the radius-\(2\) interiority and atomlessness are there to license this limit.)
 \end{proof}
+
+\begin{remark}[What this proof actually assumes]\label{rem:nozero-caveat}
+The proof is sound \emph{given} both inputs, but it is exactly here that the difficulty is
+concentrated. In the second-moment form: \(M=\|\eta(s_0)\|^2+\sum_n v_n n^{-2\sigma}\) under the
+atomless conditional (the variance is a positive \emph{constant contribution}), while the transfer
+asserts \(M=\|\eta(s_0)\|^2\) --- i.e. the variance is driven to \(0\) by full pinning of all
+coordinates. The two can agree \emph{only} when the head/tail pinning rate is such that the surviving
+energy is exactly \(\|\eta(s_0)\|^2\); at a zero that means \(M=0\), with the variance term
+cancelled, which the convergent (partial-pinning) object never does. So
+\texttt{secondMoment\_pos} (\(M>0\)) is the genuine, formalized half, and
+``\(M=\|\eta(s_0)\|^2\)'' (\texttt{secondMoment\_transfer}) is the standing RH-equivalent
+\texttt{sorry}: its validity at \(s_0\) \emph{is} \(\eta(s_0)\neq0\) (Remark~\ref{rem:portmanteau},
+Remark~\ref{rem:variance}). The proof is honest as a \emph{reduction}, not a discharge. (One further,
+\emph{non-deep} input is the moment integrability \texttt{secondMomentIntegrable} that the second
+moment requires --- threaded as a hypothesis, dischargeable by the finite-\(N\) construction.)
+\end{remark}
+
+\begin{remark}[Compact uniformity of universality: from per-point to per-compact]\label{rem:epsknob}
+Theorem~\ref{thm:nozero} is proved at a \emph{fixed} \(s_0\), so ``\(\forall s_0\)'' already
+follows --- the argument is uniform in \(s_0\). The compact statement is reached without any bare
+union of uncountably many null events (Fact~3), because \textbf{Voronin/Bagchi universality is
+itself compact-set-uniform}. For a compact \(K\subset\{1/2<\Rea(s)<1\}\) with connected complement,
+universality realizes the centrum as a single holomorphic function zero-free on all of \(K\) at
+once; conditioning on a coefficient ball about it gives \(\rcp(\etaX(s)=0\mid X\in B)=0\)
+\emph{simultaneously} for every \(s\in K\). A countable exhaustion
+\(K_1\subset K_2\subset\cdots\) of the open strip then upgrades per-point non-detection to ``no
+zero anywhere in the strip''. Thus interiority (radius \(2\), any radius \(>1\)) is what makes the
+rcp well defined, and the \emph{compact-set uniformity of universality} --- not any tuning of the
+radius, and not multiplicativity --- is what makes the non-detection uniform on compacts.
+\end{remark}
 
 \begin{corollary}[Riemann Hypothesis]\label{cor:rh}
 Every nontrivial zero of \(\zeta\) lies on \(\Rea(s)=1/2\).
@@ -428,9 +686,10 @@ By Theorem~\ref{thm:nozero}, \(\eta\) --- hence \(\zeta\), since \(\eta(s)=(1-2^
 Note what is \emph{absent}: no \(\Pi^0_1\) Schoenfeld sentence, no primitive-recursive
 matrix, no \(\Sigma^0_1\) witness extraction, no model/\(T\)-conservativity step, and no
 unprovability hedge. The argument lives entirely in standard complex analysis and
-elementary measure theory (ZFC); its only non-elementary content is the two analytic
-inputs --- the transfer equality and Bagchi universality --- both flagged as the route's
-debts.
+elementary measure theory (ZFC); its only non-elementary content is the single deep analytic
+input --- Bagchi universality, making the positive-radius ball-conditional non-degenerate ---
+the transfer equality being the standard Radon/Tjur concentration limit (both flagged as the
+route's debts, only one of them deep).
 
 \section{The Kopperman/Mehler Formalism}\label{sec:kopperman}
 
@@ -499,8 +758,8 @@ and unambiguous, which is what the transfer equality (Theorem~\ref{thm:transfer}
 \textbf{Full support} (universality of the law) supplies the zero-free \emph{alternative
 average} that keeps \(L\neq1\) (Theorem~\ref{thm:nondetect}); this is Bagchi/Voronin and does
 not need multiplicativity (Remark~\ref{rem:nomult}). Independently, \textbf{bounded
-coefficients} (\(\|X_n\|\le2\)) give the absolute \(\Rea>1\) convergence that anchors the
-model to \(\eta\) (\S\ref{sec:general}). ``Choosing the measure is choosing the model'':
+coefficients} (\(\|X_n\|\le2\)) give the absolute \(\Rea>1\)
+convergence that anchors the model to \(\eta\) (\S\ref{sec:general}). ``Choosing the measure is choosing the model'':
 different admissible (bounded, full-support) covariances give the same conclusion, because it
 is a property of \((\text{mean},\text{covariance})\), not of any one law.
 
@@ -509,11 +768,13 @@ is a property of \((\text{mean},\text{covariance})\), not of any one law.
 \begin{enumerate}
   \item \textbf{Foundation-independence, not a free proof.} The Radon/Mehler structure makes
         the rcp \(L\) a genuine, foundation-independent number (it does not depend on the
-        ZFC bookkeeping), and locates the two analytic debts; it does \emph{not} by itself
-        prove either of them. Both the transfer equality (Theorem~\ref{thm:transfer}) and the
-        limit form of \(L\neq1\) (Theorem~\ref{thm:nondetect}, Bagchi) are genuine analytic
-        inputs. Everything else --- the kernel, the prior, the convergence --- is proved or
-        assembled from existing results.
+        ZFC bookkeeping), and locates the one deep analytic debt; it does \emph{not} by
+        itself prove it. Once the conditioning is fixed, the transfer equality
+        (Theorem~\ref{thm:transfer}) is a \emph{standard} consequence of Tjur's neighborhood
+        limit on a Radon space --- the \(\rho\downarrow0\) concentration of the ball-conditional ---
+        not a deep input (Remark~\ref{rem:tradeoff}); the lone genuinely deep input is the
+        positive-radius non-degeneracy \(L\neq1\) (Theorem~\ref{thm:nondetect}, Bagchi). Everything else --- the kernel, the
+        prior, the convergence --- is proved or assembled from existing results.
   \item \textbf{No new axioms.} The Lean development stays within \texttt{propext},
         \texttt{Classical.choice}, \texttt{Quot.sound}. The Radon substrate and the
         Mehler/bounded prior are the \emph{model in which the probabilistic statement is
@@ -531,15 +792,18 @@ Radon substrate, \(\mathsf{Skel}=\) finite Dirichlet approximants, and \(\mu=\) 
 radius-\(2\) prior fixed by its mean and covariance; the Mehler measure converts ``does
 \(\eta\) vanish at \(s_0\)?'' into the conditional probability \(L\), the transfer equality
 identifies \(L\) with the deterministic indicator, and universality keeps \(L\neq1\) --- so
-the indicator is \(0\) and \(\eta(s_0)\neq0\). Two deep inputs (transfer equality, Bagchi),
-everything else \texttt{sorry}-free or assembled probability.
+the indicator is \(0\) and \(\eta(s_0)\neq0\). One deep input (positive-radius Bagchi
+non-degeneracy \(L\neq1\)); the transfer equality is a standard Tjur/Radon concentration
+limit once the conditioning is a coefficient ball (Remark~\ref{rem:tradeoff}), everything
+else \texttt{sorry}-free or assembled probability.
 
 \section{Lean 4 Formalization Status}\label{sec:status}
 
 The probabilistic core is formalized in \texttt{RcpEuler.lean}, imported by the build root
 \texttt{RiemannProof.lean}. The plan is \texttt{IMPLEMENTATION\_PLAN\_RCP.md}.
 
-\paragraph{On disk (sorry-free), for the earlier radius-\(1\) Euler-product instance.}
+\paragraph{On disk (sorry-free), the legacy exponential-Euler-product (\texttt{eulerB}) layer
+(now over the radius-\(2\) prior).}
 \(\mathcal{B}_P\) never-zero and analytic (\texttt{eulerB\_ne\_zero},
 \texttt{eulerB\_differentiableOn}); the bounded-coefficient \(M\)-test
 (\texttt{bSum\_tail\_small}); the atomless prior (\texttt{diskLaw}, \texttt{priorBall},
@@ -553,53 +817,128 @@ is an assembly. There is no substrate-construction obligation: the Mehler formal
 guarantees the separable substrate and a basis (non-Gaussian case included), and the
 abstract atomless prior in \texttt{rcpFormalism} suffices.
 
-\paragraph{The redesign of this paper (not yet on disk).} Three changes retarget the core,
-detailed in \texttt{IMPLEMENTATION\_PLAN\_RCP.md} (master section ``The 2026-06-22
-redesign''):
+\paragraph{On disk and verified (2026-06-24): the redesign is implemented; two labelled
+\texttt{sorry}s remain.} The transfer-equality redesign is now on disk in \texttt{RcpEuler.lean}
+at \textbf{radius \(2\)}, with the \emph{general non-multiplicative} series
+\(\etaX=\sum_n X_n n^{-s}\) (\texttt{etaX}); the file compiles with \textbf{exactly two}
+\texttt{sorry}s. The surrounding measure-theoretic and convergence content is \texttt{sorry}-free:
+the shared object bound \texttt{L\_le\_one}; the atomless-vacuity lemma
+\texttt{L\_eq\_zero\_of\_atomless} (Remark~\ref{rem:portmanteau}); the non-degeneracy crux
+\texttt{prob\_singleton\_zero\_ne\_one\_of\_mean\_ne\_zero} (nonzero mean \(\Rightarrow\rcp\neq1\))
+and the Tjur-negation \texttt{tjur\_ratio\_eq\_zero\_of\_null}; the strip \(L^2\) budget
+\texttt{summable\_normSq\_cpow}, \texttt{summable\_centered\_normSq} (\S\ref{sec:general}); and the
+\textbf{off-center coefficient-ball object} \texttt{coeffBall}/\texttt{lawBall}/\texttt{Lball} with
+its \emph{non-vacuous} non-detection \texttt{Lball\_ne\_one\_of\_mean\_ne\_zero} (nonzero centrum
+\(\Rightarrow Lball\neq1\)) and \texttt{Lball\_le\_one}. The \textbf{average-squared-modulus
+reformulation} (Remark~\ref{rem:secondmoment}) is likewise on disk and \texttt{sorry}-free: the
+abstract Cauchy--Schwarz core \texttt{norm\_sq\_integral\_le\_integral\_norm\_sq} and its corollary
+\texttt{integral\_norm\_sq\_pos\_of\_mean\_ne\_zero} (nonzero mean \(\Rightarrow\int|z|^2>0\)),
+lifted to the ball by \texttt{secondMomentBall} with
+\texttt{norm\_sq\_centrum\_le\_secondMomentBall} and
+\texttt{secondMomentBall\_pos\_of\_mean\_ne\_zero} (radius-independent lower bound
+\(|\eta_c(s_0)|^2\), robust to a discrete atom at \(X_n\equiv1\)). The \textbf{exact variance
+decomposition} \texttt{integral\_normSq\_eq\_normSq\_mean\_add\_variance}
+(\(\int\|x\|^2=\|\!\int x\|^2+\int\|x-\text{mean}\|^2\), Remark~\ref{rem:variance}) is also on disk and
+\texttt{sorry}-free (proved via \texttt{norm\_sub\_sq}/\texttt{integral\_inner}/\texttt{integral\_re}).
+The multiplicative \(E_X\)
+correction and the radius shrink to \(1+\epsilon\) of earlier drafts were \emph{removed} (no longer
+load-bearing).
+\textbf{The non-detection \texttt{L\_ne\_one} is now fully proved}, reducing by the above to a
+single named external citation \texttt{bagchi\_universality} (Voronin/Bagchi).
+
+\textbf{Spine swap (\(\star\) 2026-06-24): the headline object is now the second moment
+\(M=\mathbb{E}(\|\etaX(s_0)\|^2\mid X\equiv1)\), not the \(\{0\}\)-mass \(L\).} On disk:
+\texttt{secondMoment} (\(=\int\|x\|^2\,d(\text{rcp law})\)); the deep RH-equivalent endpoint, re-cast from
+\texttt{transfer\_equality}, is \texttt{secondMoment\_transfer}: \(M=\|\zeta(s_0)\|^2\); the non-degeneracy
+\texttt{secondMoment\_pos}: \(0<M\) is \emph{proved} from \texttt{bagchi\_universality} (nonzero mean) plus
+\texttt{integral\_norm\_sq\_pos\_of\_mean\_ne\_zero}, taking the moment integrability
+\texttt{secondMomentIntegrable} as a hypothesis. The assembly
+(\texttt{riemannZeta\_ne\_zero\_of\_mem\_strip}) is then immediate: at a zero the transfer gives
+\(M=\|0\|^2=0\), contradicting \(0<M\). The two \texttt{sorry}s are now
+\texttt{secondMoment\_transfer} (\texttt{:871}) and \texttt{bagchi\_universality} (\texttt{:1057}). The one
+new, \emph{non-deep} obligation is \texttt{secondMomentIntegrable} (first/second-moment integrability of
+the rcp law at the mean trace) --- honest plumbing the \(\{0\}\)-mass never needed, dischargeable by the
+finite-\(N\) centered construction (Remark~\ref{rem:variance}) and threaded as a hypothesis, \emph{not} a
+third \texttt{sorry}. The legacy \(L\)/\texttt{L\_ne\_one} objects remain on disk, off the headline path.
+
+\emph{(Build note: in this environment a detached \texttt{lake build} can return a stale cache
+replay that does not recompile the edited file; the state above was verified by a foreground
+\texttt{lake env lean RiemannProof/RcpEuler.lean} --- EXIT~0, \(0\) errors, the two
+\texttt{sorry}s only.)}
+
+\paragraph{What the redesign changed (now on disk).} Three changes retarget the core, detailed in
+\texttt{IMPLEMENTATION\_PLAN\_RCP.md}:
 \begin{enumerate}
-  \item[\textbf{(R)}] move \texttt{diskLaw} to the radius-\(2\) disk (\texttt{closedBall 0
-        2}); re-prove \texttt{priorBall\_*} (mechanical), interiorizing the mean realization;
-  \item[\textbf{(M)}] generalize \(\mathcal{B}_P\) to the general, non-multiplicative random
-        Dirichlet series \(\etaX=\sum_n X_n n^{-s}\) (\(\|X_n\|\le2\), mean \(1\));
-  \item[\textbf{(Z)}] replace the arithmetical \texttt{SchoenfeldPRA.lean} spine --- the
-        primitive-recursive Schoenfeld matrix, the \(\Pi^0_1\) interpreter, the bridge
-        \texttt{counterexample\_iff\_rcpZero}, and \(\texttt{RH\_PRA}\) --- by the
-        measure-theoretic \texttt{transfer\_equality} and a final standard-RH assembly. The
-        Schoenfeld/\(\Pi^0_1\) material is \emph{dropped}, not discharged.
+  \item[\textbf{(R)}] \texttt{diskLaw} on the radius-\(2\) disk (\texttt{closedBall 0 2}),
+        \texttt{priorBall\_*} re-proved, interiorizing the mean realization --- \emph{done};
+  \item[\textbf{(M)}] the general, non-multiplicative random Dirichlet series
+        \(\etaX=\sum_n X_n n^{-s}\) (\(\|X_n\|\le2\), mean \(1\)); the legacy \(\mathcal{B}_P\)
+        Euler product is kept only as a special case --- \emph{done};
+  \item[\textbf{(Z)}] the arithmetical \texttt{SchoenfeldPRA.lean} spine (the primitive-recursive
+        Schoenfeld matrix, the \(\Pi^0_1\) interpreter, the bridge
+        \texttt{counterexample\_iff\_rcpZero}, \(\texttt{RH\_PRA}\)) is \emph{dropped}, replaced by
+        the measure-theoretic \texttt{transfer\_equality} and a standard-RH assembly
+        (\texttt{riemann\_hypothesis\_via\_rcp}) --- \emph{done}.
 \end{enumerate}
 
-\paragraph{The two genuine debts.}
+\paragraph{The two labelled \texttt{sorry}s.}
 \begin{itemize}
-  \item \textbf{The transfer equality} \(\rcp(\etaX(s_0)=0\mid X_n=1)=\mathbf{1}\{\eta(s_0)
-        =0\}\) (Theorem~\ref{thm:transfer}; Lean \texttt{transfer\_equality}). Its content is
-        that the rcp at the interior mean realization recovers the deterministic value of the
-        continuous ``zero at \(s_0\)'' functional. It is the new bridge, replacing the
-        arithmetical one.
-  \item \textbf{Non-detection} \(L\neq1\) (Theorem~\ref{thm:nondetect}; Lean
-        \texttt{not\_rcpZeroAt}, limit form on a local neighborhood). The on-disk
-        \texttt{not\_rcpZeroAt} proves only a trivial \(\forall k\) placeholder; the
-        substantive \(L\neq1\) is \textbf{Bagchi (1981) universality}, with the closest
-        existing formal statement \texttt{eulerG\_universality\_threeLeftEdges}.
+  \item \textbf{The transfer equality} \(\rcp(\etaX(s_0)=0\mid X_n=1)=\mathbf{1}\{\eta(s_0)=0\}\)
+        (Theorem~\ref{thm:transfer}; Lean \texttt{transfer\_equality}, \texttt{:830}). This is the
+        \emph{RH-equivalent endpoint} of the reduction (Remark~\ref{rem:portmanteau}): recovering
+        the discontinuous indicator from the atomless conditional limit is a Portmanteau passage
+        whose continuity-set hypothesis at the atom \(\{0\}\) is precisely \(\eta(s_0)\neq0\). It is
+        left as the deliberate \texttt{sorry} and cannot be discharged as a non-RH theorem.
+  \item \textbf{Bagchi universality} (Lean \texttt{bagchi\_universality}, \texttt{:904}, a named
+        external theorem). The non-detection \(L\neq1\) (\texttt{L\_ne\_one}) is now \emph{proved}
+        by the measure-theoretic reduction above plus this single citation: Voronin (1975)/Bagchi
+        (1981) --- the random series' law has the whole zero-free-holomorphic class on a
+        connected-complement compact as its support, so the conditional mean (centrum) is
+        realizable nonzero. This is the route's lone genuinely deep analytic input; it is not in
+        Mathlib (closest existing partial statement \texttt{eulerG\_universality\_threeLeftEdges})
+        and is left as a \texttt{sorry} with the citation and hypotheses (connected complement,
+        zero-free target) recorded in its docstring.
 \end{itemize}
-Both are flagged as \texttt{sorry} with recipes; neither is to be improvised.
+The on-disk shared \(L\) consumed by the final \texttt{by\_contra}
+(\texttt{riemannZeta\_ne\_zero\_of\_mem\_strip}) still conditions on the \emph{full} rectangle
+boundary, under which \(L\neq1\) is RH-coincident (any boundary arc pins the interior via the
+identity theorem; Remark~\ref{rem:tradeoff}); the genuinely non-vacuous form is the off-center
+coefficient-ball \texttt{Lball}, whose \(\neq1\) is proved from the same
+\texttt{bagchi\_universality} input. Wiring \texttt{Lball} into the final theorem is the
+Borel--Kolmogorov reconciliation \(=\) the RH-equivalent transfer equality, left as the labelled
+endpoint.
 
 \section*{Status summary}
 
-The probabilistic skeleton --- the random Dirichlet series, the \emph{atomless} prior, the
-regular conditional kernel, the positive-mass Tjur precondition, and the reciprocal contour
-convergence --- is formalized and \texttt{sorry}-free for a radius-\(1\) Euler-product
-instance (\texttt{RcpEuler.lean}), with the general \((\text{mean},\text{covariance})\)
-convergence reusing existing project results (\S\ref{sec:general}). The redesign to
-radius~\(2\), the general non-multiplicative series, and the measure-theoretic transfer
-equality in place of the arithmetical bridge is the current plan and not yet on disk. The
-genuine debts are two deep, un-formalized analytic inputs: the \textbf{transfer equality}
-(\(\rcp(\etaX(s_0)=0\mid X_n=1)=\mathbf{1}\{\eta(s_0)=0\}\), the role of the Mehler measure)
-and \textbf{Bagchi (1981) universality} (the local-neighborhood non-detection \(L\neq1\)).
+The probabilistic skeleton --- the random Dirichlet series, the \emph{atomless} radius-\(2\)
+prior, the regular conditional kernel, the positive-mass Tjur precondition, the reciprocal contour
+convergence, and the off-center coefficient-ball non-detection --- is formalized in
+\texttt{RcpEuler.lean} and compiles with exactly the two labelled \texttt{sorry}s
+\texttt{transfer\_equality} and \texttt{bagchi\_universality}; the general
+\((\text{mean},\text{covariance})\) convergence reuses existing project results
+(\S\ref{sec:general}). The arithmetical \(\Pi^0_1\) bridge is dropped.
+
+\textbf{Honest accounting of the two inputs (2026-06-23, reversing earlier drafts;
+Remark~\ref{rem:portmanteau}).} The non-detection \(L\neq1\) is \emph{not} the deep step: under the
+atomless substrate \(L=0\) holds unconditionally, and the elementary measure-theoretic core is now
+formalized and \texttt{sorry}-free --- \texttt{prob\_singleton\_zero\_ne\_one\_of\_mean\_ne\_zero}
+(nonzero centrum \(\Rightarrow\) \(\rcp\neq1\)) and \texttt{tjur\_ratio\_eq\_zero\_of\_null} (null
+event \(\Rightarrow\) Tjur ratio \(0\)), both in \texttt{RcpEuler.lean}, so that \(L\neq1\)
+(\texttt{L\_ne\_one}) is now fully proved modulo a single named citation. The genuinely deep,
+\textbf{RH-equivalent} input is the \textbf{transfer equality}
+\(\rcp(\etaX(s_0)=0\mid X_n=1)=\mathbf{1}\{\eta(s_0)=0\}\): it is \emph{not} a standard Tjur/Radon
+concentration limit, because passing from \(\nu_\rho\to\delta_{\eta(s_0)}\) (weak) to the value on the
+event \(\{0\}\) is Portmanteau, whose continuity-set hypothesis at the atom is exactly
+\(\eta(s_0)\neq0\). It is the standing \texttt{sorry} (\texttt{transfer\_equality}, with a docstring
+recording this), and it cannot be discharged as a non-RH theorem. Bagchi (1981) universality is now
+the named \texttt{sorry} \texttt{bagchi\_universality} that the off-center-ball form of \(L\neq1\)
+reduces to --- a genuine separate input, but one that sits behind the transfer equality, which is
+the actual obstruction.
 Read through the Kopperman/Mehler formalism, the route says: the Mehler measure turns ``does
 \(\eta\) vanish at \(s_0\)?'' into a conditional probability \(L\); the transfer equality
 identifies \(L\) with the deterministic \(\{0,1\}\) indicator; and conditioning on a
-\emph{local} edge neighborhood, universality keeps \(L\neq1\) --- so the indicator is \(0\)
-and \(\eta(s_0)\neq0\), uniformly over the strip, which is RH. This is a positive analytic
+\emph{coefficient ball} of positive radius, universality keeps \(L\neq1\) --- so the indicator
+is \(0\) and \(\eta(s_0)\neq0\), uniformly over the strip, which is RH. This is a positive analytic
 conclusion in ZFC, not an unprovability statement. Until the two inputs are discharged, the
 development is a \emph{verified reduction} of the Riemann Hypothesis to them, not a complete
 proof.

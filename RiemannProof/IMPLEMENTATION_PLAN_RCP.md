@@ -1,16 +1,352 @@
-# Implementation Plan: RH via a bounded-coefficient prior + regular conditional probability (radius-2 ball, non-multiplicative Dirichlet series, ZFC-direct)
+# Implementation Plan: RH via a bounded-coefficient prior + regular conditional probability (radius-`1+ε` ball, multiplicative Euler product `exp(prime series)·E_X` with `X₂=1`, ZFC-direct)
+
+> ## ★★★ 2026-06-25 (l) — NEW STRATEGY (maintainer), AUTHORITATIVE. READ THIS FIRST.
+> **Multiplicative coefficients on a tiny ball `B(1,ε)` + variance bound + Hurwitz on a random Euler product.**
+> This supersedes the *conclusion mechanism* of (j)/(k) (the `secondMoment_transfer` + `bagchi_universality`
+> pair). The (k) **integrability engine stays valid infrastructure** (`integrable_id_and_normSq_of_bound`
+> and the finite-`N` truncation pattern are reused verbatim below). The Lean file is unchanged this round
+> and remains at the (k) green state (2 sorries); the central-object redesign described here is the next
+> on-disk step (see "Lean targets" at the end of this banner).
+>
+> ### ★ MANDATE — this is a program to BUILD, not to avoid.
+> Five steps, four of them non-deep. The implementer formalizes O1, O3, O4, O5 (concentration, projection,
+> disintegration, Hurwitz) — all standard analysis/measure theory — and states O2 as the single deep input.
+> "Formalize O2's *statement* and reduce RH to it" is a task to DO; do not stall on the fact that O2 is deep.
+>
+> ### The model (replaces the radius-2 non-multiplicative disk law)
+> - **Coefficients are multiplicative.** Draw `X_p` i.i.d. over primes `p`, `X_p ~ Uniform(B(1,ε))`
+>   (closed disk of radius `ε` centered at **1**, `ε>0` tunable as small as we like). Extend
+>   multiplicatively: `X_n = ∏_{p^a ‖ n} X_p^a`. Then `η_X(s) = ∑_n X_n n^{-s} = ∏_p (1 − X_p p^{-s})^{-1}`
+>   (Euler product) where it converges.
+> - **Every coefficient has mean 1.** Because `Uniform(B(1,ε))` is rotation-invariant about `1`,
+>   `E[X_p^k] = 1` for all `k≥0` (all higher moments of the centered part vanish), hence `E[X_n] = 1` for
+>   **all** `n`, so `E[η_X(s)] = ζ(s)`. The prior concentrates on `ζ` (= `η`).
+> - **Second moment is `O(ε²)` and summable down to `1/2`.** `E[|X_p|^{2k}] = 1 + k·(ε²/2) + O(ε⁴)`, so
+>   `Var(X_n) ≈ Ω(n)·ε²/2` (`Ω` = number of prime factors with multiplicity), and
+>   `Var(η_X(s)) = ∑_n Var(X_n) n^{-2σ} ≈ (ε²/2)∑_n Ω(n) n^{-2σ}`, which **converges for `σ>1/2`**
+>   (`∑_n Ω(n)n^{-2σ} = ζ(2σ)·∑_p p^{-2σ}/(1−p^{-2σ})`).
+>
+> ### The five steps
+> - **O1 — Variance bound.** `Var(η_X(s)) ≤ C₁²ε²` on `Re s > 1/2 + C₂ε` (some `C₁,C₂>0`). Concrete,
+>   non-deep: it is the summability above plus uniformity on a half-plane edge. *Lean target:*
+>   `variance_etaX_le` — reuse the `summable_centered_normSq` machinery and the (k) bound pattern.
+> - **O2 — Non-singular / zero-free Euler product on `K` (THE deep input).** For a.e. realization in the
+>   support, the realized Euler product `∏_p (1 − x_p p^{-s})^{-1}` is a **holomorphic, zero-free** function
+>   on the compact `K ⊂ {1/2<Re<1}` (a *non-singular Euler product*). *Lean target:*
+>   `eulerProduct_zero_free_on_compact` — left as the single labeled `sorry`. **See the load-bearer note
+>   below; this is where the difficulty now lives, and it deserves an explicit derivation before Lean.**
+> - **O3 — Projection / filter (concentration).** On a Hilbert space `H_K` of holomorphic functions on `K`
+>   (Bergman/Hardy `L²` space), the orthogonal projection / event `{‖η_X − η‖_{H_K} ≤ ε}` carries
+>   probability `→ 1` as `ε↓0` by Chebyshev + O1. *Lean target:* `filter_mass_to_one` — Chebyshev on O1.
+> - **O4 — Disintegration ↔ holomorphic / Euler.** Disintegrate the (filtered) prior over the coefficient
+>   sequence. For a.e. `X_n = x_n` in the support, the conditional ("infinitesimal") measure is carried by a
+>   single holomorphic function on `K`, in one-to-one correspondence with a non-singular Euler product
+>   (O2 supplies the latter's zero-freeness). *Lean target:* `condDistrib`-based `disintegration_holomorphic`.
+> - **O5 — Hurwitz transfer (the contradiction).** If `η` had a zero `s_0 ∈ K`, then since `η_X → η`
+>   uniformly on `K` (O1 + O3) and each (filtered) `η_X` is holomorphic, **Hurwitz's theorem** forces each
+>   nearby `η_X` to have a zero close to `s_0` — contradicting O2 (zero-free Euler products). Hence `η` has
+>   no zero in `K`; exhaust the strip by compacts ⇒ RH. *Lean target:* `hurwitz_transfer` (needs a Hurwitz
+>   theorem — check Mathlib `Mathlib.Analysis`; if absent, derive from Rouché / argument principle, itself a
+>   useful contribution). This **replaces** `secondMoment_transfer` as the RH-endpoint.
+>
+> ### Old → new obligation map
+> | retired (j)/(k) object | replaced by |
+> | --- | --- |
+> | `secondMoment_transfer` (RH-equiv Borel–Kolmogorov reconciliation) | `hurwitz_transfer` (O5) — the new RH-endpoint, **non-deep given O2** |
+> | `bagchi_universality` (Voronin centrum ≠ 0) | `eulerProduct_zero_free_on_compact` (O2) — the single deep input |
+> | `integrable_id_and_normSq_of_bound`, `etaXpartial`, `secondMomentIntegrable_partial` | **kept** — reused for O1's finite-`N` variance bound |
+>
+> Net: still essentially **one deep input**, now `O2` (zero-free Euler product on `K`) rather than the
+> Bagchi/transfer pair. The conclusion is **positive** (Hurwitz gives `η` zero-free, not just "`≠1`").
+>
+> ### ⚠ Load-bearer note (honest, for the maintainer — not a blocker, a request to pin down O2).
+> With coefficients centered at **1**, concentration says `η_X → ζ` on `K`. But the *common* deterministic
+> backbone `E[log η_X](s) = ∑_p p^{-s} + (corrections)` is the prime zeta `P(s)`, which is **singular at the
+> zeros of `ζ`** (`P(s) = ∑_k μ(k)/k · log ζ(ks)`; the `k=1` term has a log-branch point at each zero `ρ`).
+> So `η_X = exp(P + ε·R + …)` formally inherits a near-zero wherever `ζ` has a zero, for **every**
+> realization — i.e. concentration `η_X → ζ` pushes *against* "`η_X` zero-free on `K`" (O2). The two can only
+> coexist if `ζ` is already zero-free on `K` — which is what Hurwitz would then *conclude*. **This is not a
+> refutation**; it is the precise place the *filter/disintegration* (O3/O4) must do real work: it must select
+> a sub-population of realizations whose Euler products genuinely *converge and stay zero-free on `K`* (so the
+> conditional limit is a non-singular Euler product), and the claim is that this sub-population still has
+> `η_X → η` in the disintegrated limit. **Maintainer: please confirm the mechanism by which the filtered
+> Euler products are zero-free on `K` despite tracking `ζ` (e.g. does the filter restrict to the convergence
+> region of the product, and why does that region a.s. contain `K`?).** O2 is currently RH-equivalent until
+> that is pinned; pinning it is what turns this from "reduces RH to O2" into "proves RH". Everything in O1,
+> O3, O4, O5 is honest, non-deep, and worth formalizing *now* regardless of how O2 resolves.
+>
+> **★ 2026-06-25 exchange logged (open).** Maintainer's justification for O2: "the filtered products are
+> non-singular because the original measure is non-singular, for **almost all** `X_n = x_n`." Reviewer's
+> standing obstruction (not yet resolved): the two senses of "non-singular" come apart. The decisive identity
+> is `E[log η_X](s) = ∑_p∑_k E[X_p^k]/k · p^{-ks} = ∑_p∑_k p^{-ks}/k = log ζ(s)` **exactly** (`E[X_p^k]=1`),
+> so for **every** realization `log η_X = log ζ + (a.s.-finite random holomorphic on Re>1/2)`; at a zero
+> `s_0` of `ζ`, `log ζ(s_0) = −∞ ⇒ η_X(s_0)=0`. Thus `η_X` vanishes at `ζ`'s zeros on a **measure-one**
+> (indeed sure) event — *not* a null event — so "for a.e. `x_n` the product is zero-free at `s_0`" is the
+> reverse of what holds: a.e. `x_n` gives `η_X(s_0)=0`. Measure-non-singularity (atomlessness of the prior)
+> cannot remove a singularity that already sits in the **mean** `log ζ`, since "almost all" only discards
+> null sets. **Open question to maintainer:** identify the mechanism that produces zero-free products on a
+> `K ∋ s_0` despite `E[log η_X]=log ζ`, or change the centering/comparison (but centering away from `ζ`
+> breaks `η_X→ζ`, so Hurwitz would no longer speak about `ζ`). Until then O2 is not just deep but appears
+> *false* on the `K` the contradiction needs, so the Lean/paper were left untouched.
+>
+> **★ 2026-06-25 iteration 2 (open).** Maintainer accepted the above and patched the MODEL: prior re-centered
+> at `X_n=0` (radius `1+ε`); condition a positive-measure event = first `N` coordinates in `B(1,ε)` (head near
+> 1), tail `n>N` free (mean 0). This **does fix iteration-1's defect** — with a mean-0 tail, `E[log η_X] ≠ log ζ`,
+> the tail `∑_{n>N}X_n n^{-s}` converges a.s. on `Re>1/2` (`∑Var·n^{-2σ}<∞`, the "squared terms → 0" remark is
+> correct), head is finite, so `η_X` is an honest convergent random holomorphic function with no forced zero at
+> `ζ`'s zeros. **New gap (iteration 2):** conditional mean `E[η_X]=∑_{n≤N}n^{-s}=ζ_N(s)=ζ(s)+N^{1-s}/(1-s)+O(N^{-σ})`
+> (Euler–Maclaurin); the overshoot `N^{1-s}/(1-s)` has modulus `N^{1-σ}/|1-s|→∞` for `σ<1`, so `η_X` concentrates
+> on the Dirichlet **polynomial** `ζ_N` (zeros = Turán/Montgomery, clustering toward `σ=1`), **not** on `ζ`. So
+> Hurwitz now speaks about `ζ_N`'s zeros, not `ζ`'s — `η_X→ζ` (which O5 needs) was traded away to buy convergence.
+> **Structural diagnosis (the Hurwitz wall, model-independent):** Hurwitz forbids zero-free holomorphic functions
+> from converging locally-uniformly to a function with a zero. The route needs BOTH O2 (`η_X` zero-free on `K`)
+> and O5 (`η_X→η` uniformly on `K`); if `η` has a zero in `K` these are jointly impossible unless `η` is already
+> zero-free — the conclusion. Mult/mean-1 ⇒ O2 fails (tracks `ζ`'s zero); additive/truncated ⇒ O5 fails (`η_X→ζ_N`).
+> Hence "zero-free Euler-product approximants → `ζ` on a strip compact" exists **iff** RH (Hurwitz both ways), so
+> O2 is RH-EQUIVALENT regardless of centering/truncation. **Fork put to maintainer:** (1) treat the route as an
+> honest *reduction* — O2 as a labeled RH-equivalent hypothesis, formalize O1/O3/O4/O5 (matches the current
+> 1-deep-sorry spine); or (2) supply a genuinely new input that breaks the Hurwitz symmetry (must keep BOTH
+> `η_X→ζ` and `η_X` zero-free). Lean/paper untouched pending the choice.
+>
+> ### Lean targets (next on-disk step, after O2's mechanism is confirmed)
+> 1. `def Xp` (i.i.d. `Uniform(B(1,ε))` over primes), `def Xmult` (multiplicative extension), `def etaXmult`.
+> 2. `variance_etaX_le` (O1) — reuse `summable_centered_normSq` + (k) engine.
+> 3. `filter_mass_to_one` (O3) — Chebyshev on O1.
+> 4. `eulerProduct_zero_free_on_compact` (O2) — the single `sorry`.
+> 5. `hurwitz_transfer` (O5) — Hurwitz/Rouché; the RH-endpoint, sorry-free given O2.
+> 6. Rewire `riemannZeta_ne_zero_of_mem_strip` to conclude from O5 instead of the secondMoment pair.
+> Keep the (k) green state until these are staged; build with FOREGROUND `lake env lean RiemannProof/RcpEuler.lean`.
+
+> ## ★★ 2026-06-24 (k) — READ FIRST. The ONE clean job for the Lean-specialist, now fully unblocked with a proved engine on disk.
+>
+> **★ MANDATE — this is a task to DO, not to avoid.** There is exactly one non-deep, fully-closable
+> Lean obligation on this route, and the reusable lemma that discharges it is now PROVED and on disk.
+> Pick it up and finish it. Do **not** touch the two deep sorries (`secondMoment_transfer`,
+> `bagchi_universality`) — those are off-limits by design, not by your hesitation. Everything below is
+> green-lit, type-accurate, and verified to compile (`lake env lean RiemannProof/RcpEuler.lean`, EXIT=0).
+>
+> **What is already PROVED and on disk (use it):**
+> `integrable_id_and_normSq_of_bound` in `RcpEuler.lean` (just after
+> `integral_norm_sq_pos_of_mean_ne_zero`):
+> ```
+> lemma integrable_id_and_normSq_of_bound
+>     {μ : Measure ℂ} [IsFiniteMeasure μ] {C : ℝ}
+>     (hC : ∀ᵐ x ∂μ, ‖x‖ ≤ C) :
+>     Integrable (fun x => x) μ ∧ Integrable (fun x => ‖x‖ ^ 2) μ
+> ```
+> This is the entire analytic content of the `secondMomentIntegrable` plumbing: **a uniform a.e. bound
+> `‖x‖ ≤ C` on the law gives both integrable moments, for free, on any finite measure.** No Mehler, no
+> Kopperman, no convergence theory.
+>
+> **Honest diagnosis (why the obligation looked stuck — now resolved).** The headline predicate
+> `secondMomentIntegrable s₀ R` is stated against `rcpKernelX s₀ R (eTrace R)` =
+> `condDistrib(interiorValX s₀, edgeTraceX R, priorBall)` *evaluated at the single point* `eTrace R`.
+> Two facts make that exact object un-closable by generic API, and they are the legitimate reason the
+> obligation could not be discharged as literally typed: (1) `condDistrib` is only specified a.e. in the
+> conditioning variable, so a property *at one deterministic point* is not derivable from the disintegration
+> API alone; (2) `interiorValX s₀ ω = etaX s₀ ω = ∑' n, ω n · n^{-s₀}` is the **bare** Dirichlet tsum,
+> which on the strip (`σ ≤ 1`) is non-summable ⇒ `= 0` a.s. by Mathlib's `tsum` convention — i.e. the bare
+> object is degenerate exactly where we need it, and its honest content lives in the deterministic-continuation
+> + centered-series split `η_X = η_det + η_Y` (the same off-diagonal/natural-boundary obstruction that keeps
+> `secondMoment_transfer` a sorry). So `secondMomentIntegrable` *rightly stays a hypothesis* on the headline
+> (`riemannZeta_ne_zero_of_mem_strip` / `riemann_hypothesis_via_rcp` already carry it as `hint`, NOT as a sorry).
+>
+> **The finite-`N` deliverable is now DONE on disk (steps 1–4, all sorry-free, verified EXIT=0).**
+> Implemented in `RcpEuler.lean` right after `integrable_id_and_normSq_of_bound`:
+> 1. `def etaXpartial (N : ℕ) (s : ℂ) (ω : Ωb) : ℂ := ∑ n ∈ Finset.range N, ω n * (n : ℂ) ^ (-s)` — the
+>    bounded, everywhere-defined truncation (vs. the bare strip-degenerate tsum `etaX`).
+> 2. `measurable_etaXpartial` — finite sum of `(measurable_pi_apply n).mul_const _`.
+> 3. `etaXpartial_bound : ∀ᵐ ω ∂priorBall, ‖etaXpartial N s ω‖ ≤ 2 * ∑ n ∈ range N, ‖(n:ℂ)^(-s)‖`
+>    (`filter_upwards [priorBall_ball]` + `norm_sum_le` + `Finset.mul_sum`).
+> 4. `secondMomentIntegrable_partial : Integrable id ν ∧ Integrable ‖·‖² ν` for
+>    `ν := priorBall.map (etaXpartial N s)` — `Measure.isProbabilityMeasure_map` + `ae_map_iff` +
+>    `integrable_id_and_normSq_of_bound`. **This is the `secondMomentIntegrable` predicate, proved with
+>    zero deep input.** It witnesses the headline's `hint` hypothesis is honest (satisfiable, non-vacuous).
+>
+> **The one remaining open item (a maintainer design call — flag, don't undertake silently):** re-type
+> `interiorValX`/`rcpKernelX` so the conditional law *is* an everywhere-defined finite-`N` (or
+> `η_det + η_Y`) law rather than `condDistrib`-at-a-point. Then `secondMomentIntegrable` for the headline
+> object becomes a *theorem* (via `secondMomentIntegrable_partial`'s pattern) and the `hint` hypothesis
+> drops from `riemannZeta_ne_zero_of_mem_strip` / `riemann_hypothesis_via_rcp` entirely. This changes the
+> route's central object, so it needs maintainer sign-off. **Until then the plumbing is complete and honest:
+> the engine + the finite-`N` witness are both proved; only the two deep sorries
+> (`secondMoment_transfer`, `bagchi_universality`) and this one re-typing decision remain.**
+
+> **Latest design (★ 2026-06-23 (f), authoritative):** coefficient prior on the **radius-`1+ε`** closed
+> disk with a small tunable `ε>0` (any radius `>1` puts `X=1` in the *open interior* — the rcp limit
+> ranges over *open* neighborhoods — and `1+ε` is the **minimal-perturbation** choice, strictly better
+> than radius 2: it keeps `η_X` a tight perturbation of the standard `η` and makes the squared-prime
+> correction `E_X` genuinely convergent on `Re>1/2`). **Multiplicative** Euler product realized as
+> `exp(∑_p X_p p^{−s})·E_X(s)`, `X₂=1`; `η_X` is **absolutely convergent on `Re s > 1+αε`** (some fixed
+> `α>0`). The **ε knob closes the per-point → all-point gap directly**: on any compact `K ⊂ {Re>1/2}`,
+> `P(η_X(s)=0 | X_n=1) = 0` because `ε` can be shrunk as small as needed. This **supersedes (e)'s
+> "radius must be 2"** (radius 2 was correct on interiority but needlessly large) and the
+> non-multiplicative (M) — read the "★ 2026-06-23 (f)" section first.
+
+> **★ 2026-06-23 (g) — SUPERSEDES (e)+(f) on multiplicativity and radius (authoritative, maintainer).**
+> **No multiplicative coefficients are needed, and the coefficient modulus is bounded by `2` again.**
+> Rationale: (e)/(f) introduced the Euler product `exp(∑_p X_p p^{−s})·E_X` and the ε-knob *only* to
+> lift per-point nullity to per-compact (zero-freeness off the prime locus + argument-principle count).
+> That lift is now supplied **directly by Bagchi/Voronin universality**, which is *inherently
+> compact-set uniform*: choosing the centrum `η_c` to approximate a **zero-free** target on a compact
+> `K ⊂ {1/2<Re<1}` makes `η_c` zero-free on **all of `K` at once** — "no zeros of the centrum in any
+> compact subspace." So multiplicativity and the ε-knob are **dropped**, and the radius reverts to `2`
+> (interiority needs only radius `>1`; the (f) reason to shrink to `1+ε` — making `E_X` converge on
+> `Re>1/2` — evaporates with `E_X`). **Consequences:**
+> 1. **Delete `EXterm`/`EX`/`EX_ne_zero`/`summable_EXterm`** (the squared-prime correction) — no longer
+>    load-bearing. The old "step 2.5 per-point→strip lift via argument principle" obligation is **gone**.
+> 2. **Revert radius `1+ε`(=`11/10`) → `2`** in `diskLaw`, `priorBall_ball`, `diskLaw_ball/isProb`,
+>    `not_rcpZeroAtAll`. The L²/convergence lemmas already use `‖ω n‖ ≤ 2` and are unaffected.
+> 3. **The real next step is UNCHANGED: re-type `L`'s conditioning from the full boundary `edgeTraceX`
+>    to a COEFFICIENT BALL `B(c,ρ)`** (the (b) decision), `c` off-center so the centrum `η_c(s₀)≠0`.
+>    That makes `L_ne_one` a **genuine, non-vacuous** off-center-ball statement closed by the already-proved
+>    `prob_singleton_zero_ne_one_of_mean_ne_zero` from the one input `∫ x ∂ν ≠ 0` (= Voronin centrum
+>    nonzero / zero-free on `K`). `transfer_equality` remains the **RH-equivalent** endpoint (Portmanteau /
+>    Borel–Kolmogorov `ρ↓0` reconciliation) — a labeled `sorry`, NOT removed by (g).
+> **Obligation count: was {transfer(RH-equiv), L_ne_one(vacuous on disk full-boundary), per-compact lift
+> via Euler product} → now {transfer(RH-equiv), L_ne_one(genuine off-center Bagchi)}.** One fewer
+> obligation; `L_ne_one` upgraded from vacuous to honest. **Hypothesis flag:** Voronin/Mergelyan needs
+> `K` with *connected complement* and the target zero-free + holomorphic on `K` — state this explicitly
+> on the compact, do not assume arbitrary `K`.
+>
+> **★ ON DISK (2026-06-23 (g)) — Steps A and B are DONE in `RcpEuler.lean`; build GREEN (8033 jobs,
+> exit 0), still exactly two `sorry`s (`transfer_equality`, `L_ne_one`).**
+> - **Step A (mechanical) — done.** Deleted `EXterm`/`EX`/`EX_ne_zero`/`summable_EXterm` (the multiplicative
+>   squared-prime correction) and reverted the prior radius `11/10 → 2` in `diskLaw`, `diskLaw_ball/isProb`,
+>   `priorBall_ball`, `not_rcpZeroAtAll`, and all radius docstrings. The L²/convergence lemmas
+>   (`summable_etaXTerm`, `summable_normSq_cpow`, `summable_centered_normSq`) already used `‖ω n‖ ≤ 2` and
+>   were untouched. The "step 2.5 per-point→strip lift via argument principle" obligation is **gone**.
+> - **Step B (off-center coefficient-ball object) — done, sorry-FREE.** Added `coeffBall N c ρ`
+>   (finite-cylinder ball constraining the first `N` coordinates within `ρ` of center `c`), `lawBall`
+>   (law of `η_X(s₀)` under the ball conditioning, via naive `ProbabilityTheory.cond` on the positive-mass
+>   event), `Lball := lawBall {0}`, and the **non-vacuous** reduction `Lball_ne_one_of_mean_ne_zero`:
+>   `hmean : ∫ x ∂lawBall ≠ 0 ⟹ Lball ≠ 1` (via the proved `prob_singleton_zero_ne_one_of_mean_ne_zero`),
+>   plus `Lball_le_one`. The lone deep input is `hmean` (centrum `η_c(s₀)` nonzero = Voronin, not in Mathlib);
+>   `hpos` (positive ball mass) and `hmeas` (`η_X(s₀)` measurable) are TRUE plumbing facts taken as explicit
+>   hypotheses (provable separately; not RH-hard). This puts the genuine **non-circular** object on disk:
+>   unlike the full-boundary `L` (whose `L=0` makes `≠1` vacuous), `Lball ≠ 1` depends on the off-center
+>   centrum, not on `η(s₀)`.
+> - **NOT done (deliberately): wiring `Lball` into the final theorem.** The single-`L` `by_contra`
+>   (`riemannZeta_ne_zero_of_mem_strip`) is UNCHANGED. Wiring `Lball` in replaces it with the
+>   Borel–Kolmogorov reconciliation of the `ρ↓0` limit = the RH-equivalent `transfer_equality`, which stays
+>   the labeled `sorry`. The route still reduces RH to `transfer_equality`; Step B made `L_ne_one`'s
+>   coefficient-ball cousin honest, it did not (and cannot, without Voronin + the reconciliation) close RH.
+>
+> **★ ON DISK (2026-06-24) — `L_ne_one` now PROVED via a named `bagchi_universality` theorem.** Per
+> maintainer request ("replace the `L_ne_one` sorry by the standard theorem of Bagchi universality, prove
+> the remaining as much as possible"): added `theorem bagchi_universality (s₀ R …) : ∫ x ∂(rcpKernelX s₀ R
+> (eTrace R)) ≠ 0 := sorry` — the precise external citation (Voronin 1975 / Bagchi 1981: the random
+> Dirichlet series' law has the whole zero-free-holomorphic class on a connected-complement compact as its
+> support, so the centrum is realizable nonzero), documented with the connected-complement/zero-free
+> hypotheses and the honest scope caveat (genuine for the off-center `Lball`; RH-coincident for the on-disk
+> full-boundary trace). `L_ne_one`'s body is now the fully-proved reduction `… ; exact bagchi_universality
+> s₀ R hs₀ hRlo hRhi` — **no anonymous gap**. Sorry count stays 2 (`transfer_equality` :830,
+> `bagchi_universality` :904), but the second is now a named standard theorem, not an unexplained hole.
+> Also fixed a real bug surfaced by a genuine compile: Step B used the wrong name `isProbabilityMeasure_map`
+> → corrected to `Measure.isProbabilityMeasure_map`.
+>
+> **⚠️ BUILD-INFRA LESSON (important for future sessions).** Detached `nohup lake build RiemannProof.RcpEuler`
+> in this environment is UNRELIABLE: it repeatedly returned exit 0 after an ~18 s **stale cache replay** that
+> stopped at job `[8032/8033]` and **never recompiled `RcpEuler`** (the edited file), so "8033 jobs green"
+> reports here can be false. The RELIABLE verification is **foreground** `lake env lean RiemannProof/RcpEuler.lean`
+> (deps cached ⇒ ~70–90 s, well under the 300 s tool timeout): it always elaborates the target file from
+> source and prints real errors + `declaration uses sorry` warnings. That is how the 2026-06-24 state above
+> was actually verified (EXIT=0, 0 errors, sorries at 830 + 904).
+
+> **★ ON DISK (2026-06-24 (h)) — average-squared-modulus reformulation of `L_ne_one` ADDED, sorry-free.**
+> Per maintainer request ("focus on the average value of the squared modulus of η_X instead of the
+> probability; constant contributions to the average squared modulus as the ball radius shrinks prove
+> that (η_X|X_n=1) cannot converge to 0, even with a discrete part of the measure non-null at X_n=1").
+> Added five proof-bearing, sorry-free declarations in `RcpEuler.lean`:
+> (1) `norm_sq_integral_le_integral_norm_sq` — abstract Cauchy–Schwarz/Jensen core: for any probability
+> measure μ on ℂ, `‖∫ x ∂μ‖² ≤ ∫ ‖x‖² ∂μ` (proof: `norm_integral_le_integral_norm`, square via
+> `pow_le_pow_left₀`, then Jensen `(∫‖x‖)² ≤ ∫‖x‖²` via `(convexOn_pow (𝕜:=ℝ) 2).map_integral_le`).
+> (2) `integral_norm_sq_pos_of_mean_ne_zero` — corollary: nonzero mean ⇒ `0 < ∫‖x‖²`, explicit constant
+> lower bound `‖mean‖²`. (3) `secondMomentBall s₀ N c ρ := ∫ ‖x‖² ∂(lawBall …)`. (4)
+> `norm_sq_centrum_le_secondMomentBall` and (5) `secondMomentBall_pos_of_mean_ne_zero` — the ball-level
+> lifts. **The conceptual gain (the maintainer's point):** the lower bound `‖η_c(s₀)‖²` is fixed by the
+> ball CENTER c and is INDEPENDENT of the radius ρ, so the L²-mass stays ≥ that constant uniformly as
+> ρ↓0 ⇒ no convergence to 0; and because Cauchy–Schwarz uses ONLY the mean, the bound is ROBUST to a
+> discrete atom of the conditional law at X_n≡1 (the `{0}`-probability `Lball` cannot see this). The deep
+> input is unchanged: `‖centrum‖≠0` (`bagchi_universality`). Sorry count UNCHANGED at 2. Verified
+> foreground `lake env lean` EXIT=0; the two sorries shifted to `transfer_equality` :834,
+> `bagchi_universality` :965 (the abstract lemmas were inserted between them). zetanew.tex gained
+> `rem:secondmoment` + §7 listing (static checks pass: braces 798/798, refs resolve).
+
+> **★ ON DISK (2026-06-24 (i)) — variance decomposition (exact "constant contribution") ADDED, sorry-free;
+> + finite-N/Cauchy spec for the specialist.** Per maintainer dialogue (the `η_X = η + centered series`
+> decomposition; "make it just a reduction, not a full proof"). Added one PROVED lemma in `RcpEuler.lean`:
+> `integral_normSq_eq_normSq_mean_add_variance` — for any prob measure μ on ℂ,
+> `∫‖x‖²∂μ = ‖∫x∂μ‖² + ∫‖x−mean‖²∂μ` (the EQUALITY refining the earlier `≤`). Proof via `norm_sub_sq`
+> (𝕜:=ℂ) + `integral_inner`/`integral_re` + `RCLike.inner_apply'`/`inner_conj_symm`/`RCLike.conj_re`.
+> In route language `η_X=η+η_Y`: `E|η_X(s)|² = |η(s)|² + Σ_n v_n n^{-2σ}` — constant contribution `|η(s)|²`
+> (`=‖mean‖²`) + absolutely convergent variance (`Σ v_n n^{-2σ}`, finite on σ>1/2). Sorry count UNCHANGED
+> at 2; verified foreground `lake env lean` EXIT=0, sorries now at `transfer_equality` :834,
+> `bagchi_universality` :1020.
+>
+> **HONEST-REDUCTION SCOPE (the dialogue's conclusion — do NOT try to discharge `transfer_equality`).**
+> The maintainer proposed proving `E(|η_X(s)|²|X_n=1)` defines `|η(s)|²` on σ>1/2 via finite-N Cauchy
+> sequences in the Hilbert space `H_K=L²(prob;Bergman(K))`, `⟨f,g⟩=∫_K E[\overline{f_X}g_X]d²s`. Analysis
+> (recorded in the conversation) shows this is a genuine simplification for the CENTERED object but does NOT
+> move `transfer_equality`, for a sharp reason: the absolutely-convergent strip content is only the
+> zero-free diagonal `Σ_n v_n n^{-2σ}`; the zeros live in the off-diagonal `Σ_{n≠m} n^{-s}m^{-\overline s}`,
+> which is exactly what averaging deletes. The two boundary conditions are incompatible — agreeing with
+> `|η|²` on σ>1 needs `v_n=0` (deterministic, divergent in strip ⇒ NOT Cauchy), while a Cauchy strip limit
+> needs `v_n>0` (centered, limit zero-free). And the rcp/Tjur limit `E[|η_X(s)|²|X_n=1]`: full pinning of
+> all coords ⇒ `=|η(s)|²` (0 at zeros); partial pinning ⇒ `>0` from tail variance but `≠|η|²`. WHICH one
+> (head/tail rate) is the Borel–Kolmogorov disintegration choice = `transfer_equality`; Radon-ness does NOT
+> fix it. So "second moment at center `≠0` ⟺ η(s₀)≠0" IS RH (= the on-center centrum case of
+> `bagchi_universality`/`secondMomentBall`, where `c=1 ⇒ centrum=η(s₀)`). KEEP `transfer_equality` a labelled
+> sorry.
+>
+> **SPEC for the specialist — the genuinely-simpler CENTERED pieces (all sorry-free, NOT transfer):**
+> (1) finite-`N` product prior on `(Metric.closedBall (0:ℂ) 2)^{Fin N}` (no Mehler/Kopperman needed); set
+> `Y_n` centered (mean 0). (2) `η_Y^{(N)}(s)=Σ_{n<N} Y_n n^{-s}`; prove `E‖η_Y^{(N)}(s)−η_Y^{(M)}(s)‖² =
+> Σ_{M≤n<N} v_n n^{-2σ} → 0` on σ>1/2 (Cauchy; reuse `summable_centered_normSq`). (3) the Hilbert space
+> `H_K=L²(prob;A²(K))`; the Cauchy sequence has a unique limit `η_Y^{(∞)}` (Bergman completeness). (4) define
+> `η_X=η+η_Y` with `η` the deterministic continuation (`riemannZeta`/`riemannEta`) put in by hand — this
+> SIDESTEPS the natural-boundary issue. (5) `E|η_X(s)|² = |η(s)|² + Σ_n v_n n^{-2σ}` is exactly
+> `integral_normSq_eq_normSq_mean_add_variance` applied with `mean=η(s)`; the variance summand feeds
+> `secondMomentBall`. Label every output as the centered diagonal, NOT `|η|²`. The lone deep step
+> (`transfer_equality`) is the head/tail Borel–Kolmogorov reconciliation and stays a sorry.
+
+> **★ ON DISK (2026-06-24 (j)) — SPINE SWAP: the route's headline object is now the SECOND MOMENT
+> `secondMoment s₀ R = E(‖η_X(s₀)‖² ∣ X≡1)`, NOT the `{0}`-mass `L`** (maintainer: "I want
+> `E(|η_X|²|X_n=1)` instead of `L`"). Verified foreground `lake env lean` EXIT=0, still exactly 2 sorries.
+> New on disk in `RcpEuler.lean`: `secondMoment` (def, `∫‖x‖²∂(rcpKernelX s₀ R (eTrace R))`);
+> `secondMomentIntegrable` (Prop: `Integrable id ∧ Integrable ‖·‖²` of the rcp law — the honest plumbing
+> `L` never needed); `secondMoment_transfer : secondMoment s₀ R = ‖riemannZeta s₀‖²` (the deep
+> RH-equivalent sorry, RE-CAST from the old `transfer_equality`, same Borel–Kolmogorov/Portmanteau
+> obstruction: atomless ⇒ `M=‖η‖²+Σv_n n^{-2σ}`, the variance is the constant contribution, equating with
+> bare `‖ζ‖²` is false at zeros); `secondMoment_pos : 0 < secondMoment s₀ R` (PROVED via
+> `bagchi_universality` for mean≠0 + `integral_norm_sq_pos_of_mean_ne_zero`, taking `secondMomentIntegrable`
+> as hypothesis — the second-moment mirror of `L_ne_one`, NO new sorry). `riemannZeta_ne_zero_of_mem_strip`
+> rewired: at a zero, transfer ⇒ `secondMoment=‖0‖²=0` contradicts `0<secondMoment`; it now carries a
+> `secondMomentIntegrable` hypothesis. `riemann_hypothesis_via_rcp` threads `hint : ∀ s …,
+> secondMomentIntegrable s (stripRect …)` (NOT a sorry — dischargeable by the ★(i) finite-N construction).
+> **The 2 deep sorries are now `secondMoment_transfer` :871 + `bagchi_universality` :1137.** `transfer_equality`
+> no longer exists (renamed); `L`/`L_le_one`/`L_eq_zero_of_atomless`/`L_ne_one` kept as legacy `{0}`-mass
+> companions off the headline path (still compile, `L_ne_one` still proved-mod-bagchi). NET for the
+> specialist: discharging `secondMomentIntegrable` (first+second moment integrability of the rcp law at the
+> mean trace, via finite-N centered priors) removes the `hint` hypothesis and is now the ONE clean
+> non-deep obligation; the two sorries remain off-limits (RH-equivalent / external citation).
 
 **Audience**: a Lean 4 formalization agent. **Status (2026-06-22 — REDESIGN).**
 The maintainer has retargeted the route along three changes (see the authoritative master
 section "**The 2026-06-22 redesign**" immediately below, which supersedes the PRA/Schoenfeld
 spine of Phases 3–5 and the radius-1 / Euler-product choices of Phase 0):
 
-* **(R)** the coefficient prior moves to the **radius-2** disk, so the mean realization
+* **(R)** the coefficient prior moves off radius 1, so the mean realization
   `X_n ≡ 1` sits in the *interior* of the support — killing the boundary pathology that
-  radius 1 created at the conditioning point;
+  radius 1 created at the conditioning point; **— REVISED by ★ 2026-06-23 (f): the rcp limit uses
+  *open* neighborhoods, so `X=1` MUST be interior ⇒ radius `>1`; the chosen radius is now `1+ε`
+  (small tunable `ε>0`), the minimal-perturbation interior choice, NOT radius 2 (which was correct
+  on interiority but needlessly large and broke `E_X` convergence on `Re>1/2`);**
 * **(M)** the model is the **general, non-multiplicative** random Dirichlet series
   `η_X(s) = ∑ X_n n^{-s}` (independent, bounded coefficients, mean 1, chosen covariance —
-  **no Euler product, no multiplicativity**);
+  **no Euler product, no multiplicativity**); **— SUPERSEDED by ★ 2026-06-23 (e): the model is
+  now MULTIPLICATIVE, an Euler product realized as `exp(∑_p X_p p^{−s})·E_X(s)` (squared-prime
+  correction `E_X` convergent on `Re>1/2`), `X₂=1`, needed to lift per-point nullity to the strip;**
 * **(Z)** the route is **ZFC-direct**: the target is the standard analytic RH, the bridge
   is a measure-theoretic **transfer equality** `P(std η zero) = P(η_X zero | X_n=1)`, and
   there is **no PRA/Schoenfeld encoding, no Π⁰₁/witness machinery, no unprovability hedge**.
@@ -20,10 +356,17 @@ The implementer has carried out (R)+(M)+(Z) on disk; the route now lives **entir
 `RiemannProof/RcpEuler.lean`** (imported by the root), and `SchoenfeldPRA.lean` is
 **quarantined — unimported** (the root `RiemannProof.lean` comments it out as "the historical
 PRA/Schoenfeld spine"; its remaining `sorry`s are **not part of the build**). On disk now:
-* **(R) DONE, `sorry`-free:** `diskLaw` on `Metric.closedBall 0 2` (radius 2), `priorBall :=
-  Measure.infinitePi (fun _ => diskLaw)`, `priorBall_ball` (`‖X_n‖ ≤ 2`), `priorBall_atomless`.
-* **(M) DONE:** `etaX s ω = ∑' n, ω n · n^(-s)` (general, non-multiplicative); `summable_etaXTerm`
-  (absolute convergence on `Re > 1`, the `M`-test) **proved**. `eulerB` kept only as legacy.
+* **(R) DONE on disk at radius 2, but ★ 2026-06-23 (f) RE-TYPES the radius to `1+ε`:** on disk
+  `diskLaw` on `Metric.closedBall 0 2`, `priorBall := Measure.infinitePi (fun _ => diskLaw)`,
+  `priorBall_ball` (`‖X_n‖ ≤ 2`), `priorBall_atomless`. ★ (f) shrinks the radius to **`1+ε`** (small
+  tunable `ε>0`): interiority needs only radius `>1` (`|1|=1<1+ε`), and `1+ε` is the
+  minimal-perturbation choice that (i) keeps `η_X` a tight perturbation of `η` and (ii) makes `E_X`
+  genuinely convergent on `Re>1/2` (radius 2 failed (ii)). Re-type `closedBall 0 2`→`closedBall 0 (1+ε)`,
+  `‖X_n‖≤2`→`‖X_n‖≤1+ε`.
+* **(M) on disk as general non-multiplicative**, `etaX s ω = ∑' n, ω n · n^(-s)`, `summable_etaXTerm`
+  proved — but ★ 2026-06-23 (e) **re-types it to MULTIPLICATIVE**, the Euler product realized as
+  `exp(∑_p X_p p^{−s})·E_X(s)` with the squared-prime correction `E_X` convergent on `Re>1/2` and
+  `X₂=1`, needed for the per-point → strip lifting. `eulerB` kept as legacy.
 * **(Z) STRUCTURE DONE, two `sorry`s:** the **shared object** `L s₀ R := rcpKernelX s₀ R (eTrace R) {0}`
   is defined once (`eTrace` = mean-realization trace, the ★ DESIGN NOTE realized); the final
   theorem `riemann_hypothesis_via_rcp : ∀ s, riemannZeta s = 0 → 1/2 < Re s < 1 → Re s = 1/2`
@@ -36,14 +379,26 @@ note below):**
    on-disk full-boundary `L` this is DOWNGRADED to a standard theorem** — rcp/Tjur limit defined
    iff Radon (`inferInstance`; `condDistrib` existence) + the deterministic identity
    `etaX(·,1·)=ζ` + continuity — **not** a deep input.
-2. **`L_ne_one`** (LB2) — `L s₀ R ≠ 1` — meant to be Bagchi/Voronin universality (local form), the
+2. **`L_ne_one`** (LB2) — `L s₀ R ≠ 1` — meant to be Bagchi/Voronin universality, the
    route's one genuinely deep input. **Caveat:** with the on-disk *full-boundary* conditioning it
    is RH-in-disguise (identity theorem pins the interior; Voronin needs a connected-complement
-   compact); it becomes a real Bagchi statement only after the conditioning of `L` is **weakened
-   to a local trace** — the maintainer DECISION flagged in the ★ note below.
+   compact); it becomes a real Bagchi statement only after the conditioning of `L` is **re-typed
+   from a boundary trace to a COEFFICIENT BALL** `{X ∈ B(c,ρ)}` — the maintainer resolution in
+   the ★ 2026-06-23 (b) note below (a *local arc* does NOT suffice — any arc has a limit point, so
+   the identity theorem still pins).
 Plus a vestigial `sorry` (`not_rcpZeroAt`, the **legacy `eulerB` limit form**, superseded by
 `L_ne_one`, **unused** by the final theorem — safe to delete). The conclusion is a **positive** RH
 in ZFC: the `{0,1}` indicator equals `L ≠ 1`, so it is `0`.
+
+**★ NEW obligation (★ 2026-06-23 (e), REALIZED via the ε-knob in (f)) — the per-point → strip
+lifting.** LB1+LB2 establish, for each **fixed** `s₀`, that `L s₀ = 0` (no zero at `s₀`). RH needs
+**no zero anywhere in the strip**. ★ 2026-06-23 (f) supplies the concrete mechanism: the **radius
+`1+ε` is tunable**, so on any **compact** `K ⊂ {Re>1/2}` one chooses `ε=ε(K)` small enough that
+`P(η_X(s)=0 | X_n=1)=0` **uniformly on `K`** — the multiplicative `exp(prime)·E_X` structure keeps
+`η_X` an analytically-controlled, zero-free-off-the-prime-locus perturbation (abs. convergent on
+`Re>1+αε`), and the ε-knob turns per-point nullity into per-compact nullity. This is a **third**
+genuine piece of content, on top of the two load-bearers; it is **not yet on disk** (the on-disk
+`etaX` is non-multiplicative and the radius is 2) and is gated on the (R)+(M) re-typing in step 0.
 
 ### ★ 2026-06-23 (maintainer) — `transfer_equality` (LB1) downgrades to a STANDARD theorem, which exposes a conditioning-strength tradeoff with `L_ne_one` (LB2)
 
@@ -77,15 +432,164 @@ the FULL boundary `R.closure \ R.openInt`** (a continuous set) — the *strong* 
 `transfer_equality` is the downgradable one and **`L_ne_one` is currently RH-in-disguise, not a
 Bagchi statement.**
 
-**DECISION REQUIRED (maintainer).** To make the route non-circular, re-type the conditioning
-`edgeTraceX`/`L` to a genuinely **weaker** trace — a *finite/local sample* of edge points, or an
-*ε-approximate* local agreement on a non-`s₀`-enclosing connected-complement compact — under
-which (i) `L_ne_one` becomes a real universality consequence and (ii) `transfer_equality` must be
-re-proved for that weaker conditioning (where it is the deep "local edge data still recovers the
-interior value in the Tjur limit" claim, **not** the user's exact-identity argument). Whichever
-trace is chosen, **both** load-bearers must be stated against it (shared-`L` discipline). Until
-this is pinned: LB1 is a standard theorem **for the on-disk full-boundary `L`**, but with that
-same `L` the route's deep content is entirely in LB2 and **LB2 is not yet a Bagchi statement**.
+**DECISION — already made (maintainer), now an implementer task.** To make the route non-circular,
+re-type the conditioning of `L` away from a boundary trace. **This is RESOLVED** (2026-06-23 (b)
+below: condition on a coefficient ball, not any boundary trace/arc) — there is **no pending
+maintainer decision to wait on**. The implementer should carry out the re-typing (step 0) and then
+prove LB1/LB2 against the ball form.
+
+### ★ 2026-06-23 (b) (maintainer, "No arc is needed anymore, just a ball") — the tradeoff is RESOLVED by conditioning on a coefficient-space ball
+
+**The fix.** Do **not** condition on the function-values of `η_X` on any boundary set — not the
+full boundary, and not a *local arc* either. Condition directly on a **ball in coefficient space**
+`{X ∈ B(c,ρ)}` (center `c`, radius `ρ>0`). Why this dissolves the tradeoff (and why "local arc"
+did **not**):
+- **Any boundary arc still pins.** A local arc has a limit point, so the **identity theorem**
+  forces a holomorphic `η_X` agreeing with `η` there to agree everywhere ⟹ `X=1` ⟹ interior
+  pinned. Shrinking the arc does not help. The earlier "weaken to a local trace" decision was
+  therefore still broken; this corrects it.
+- **A coefficient ball never pins.** `{X ∈ B(c,ρ)}` constrains the coefficients `X_n` *directly*;
+  it is **not** a statement about `η_X`'s values on a curve, so neither the identity theorem nor
+  the maximum-modulus principle applies. The conditional law of `η_X(s₀)` stays non-degenerate.
+- **Both load-bearers now hold of the SAME family of balls** (shared-`L` discipline preserved):
+  - **LB2 / `L_ne_one`** (positive radius `ρ>0`): conditional law of `η_X(s₀)` has mean = centrum
+    (= `η_c(s₀)`, choosable nonzero via Bagchi universality) and finite variance `∝ ρ²`, hence
+    **non-degenerate / absolutely continuous** ⟹ the atom `{0}` has mass `<1` (in fact `0`) ⟹
+    `L(ρ) ≠ 1`. This is the genuine Bagchi input.
+  - **LB1 / `transfer_equality`** (the `ρ↓0` limit): the ball-conditionals concentrate, mean
+    `→ η(s₀)`, variance `→0`, so the law `⇒ δ_{η(s₀)}` and the rcp at the exact point `X=1` (the
+    canonical Radon neighborhood limit) `= 1{η(s₀)=0}`. Standard Tjur/Radon concentration.
+- **The assembly is the Borel–Kolmogorov reconciliation.** `1{η(s₀)=0} = rcp(·|X=1) =
+  lim_{ρ↓0} L(ρ) = 0` (the absolutely-continuous ball-conditionals give the atom `{0}` mass 0,
+  so their limit is 0). Hence the indicator is 0, i.e. `η(s₀)≠0`. The naive "δ_{η(s₀)} so value
+  = 1{η(s₀)=0}" and the canonical ball-limit (= 0) agree at `{0}` **only** when `η(s₀)≠0`; the
+  uniqueness of the Radon rcp forbids disagreement ⟹ no zero. (This is exactly what "rcp defined
+  iff Radon" + interiority + atomlessness license; see zetanew.tex §5 proof of thm:nozero.)
+
+**Lean consequence.** The on-disk `edgeTraceX`/`eTrace` (FULL boundary `R.closure \ R.openInt`)
+must be replaced by a **coefficient-ball conditioning**: condition `condDistrib(etaX s₀, Π, priorBall)`
+on a finite/cofinite coefficient projection `Π` landing in a ball `B(c,ρ)`, NOT on the boundary
+trace. Then `L_ne_one` is the non-degeneracy of that ball-conditional (Bagchi), and
+`transfer_equality` is its `ρ↓0` concentration. **Net: the route is no longer circular — the lone
+deep input is LB2 (Bagchi non-degeneracy of the positive-radius ball-conditional).**
+
+### ★ 2026-06-23 (f) (maintainer) — radius `1+ε` (small tunable `ε>0`), absolutely convergent on `Re>1+αε`, and the ε-knob that closes the per-point → all-point gap
+
+Revises **(R)** [radius `2` → radius **`1+ε`**] and sharpens how the per-point → strip lift is
+obtained. Keeps the **multiplicative** Euler product and `X₂=1` from (e). **This supersedes (e)'s
+"radius must be 2" conclusion** — the interiority *reasoning* in (e) is right, the *value* `2` was
+not forced.
+
+**Radius `1+ε`, not 2 — interiority needs radius `>1`, and `1+ε` is the better choice.** The (e)
+analysis is correct that the rcp neighborhood (Tjur) limit at `X=1` ranges over **open**
+neighborhoods, so `X=1` must be an **interior** point of the support — which rules out radius 1
+(there `|1|=1` is on the boundary). But interiority needs only radius **`>1`**: for the closed disk
+`closedBall 0 (1+ε)` the point `X=1` satisfies `|1| = 1 < 1+ε`, so it lies in the **open interior**
+`ball 0 (1+ε)` for **every** `ε>0`. Radius 2 was thus an over-large, unnecessary perturbation. Take
+`ε>0` **small and tunable**. This is strictly better than radius 2 because:
+- **`η_X` stays a tight perturbation of the standard `η`** — `‖X_n‖ ≤ 1+ε` keeps every coefficient
+  within `ε` of the deterministic value, so as `ε↓0` the random model collapses onto `η`.
+- **the squared-prime correction `E_X` becomes genuinely convergent on `Re>1/2`.** With `‖X_p‖ ≤ 2`
+  (radius 2), `∑_p ∑_{k≥2}(1/k)‖X_p‖^k p^{−kσ}` needs `2·p^{−σ}<1`, i.e. `σ>1` at `p=2` — so the
+  (e) claim "`E_X` converges on `Re>1/2`" actually **failed at radius 2**. With `‖X_p‖ ≤ 1+ε` it
+  needs only `(1+ε)p^{−σ}<1`, i.e. `σ > log_p(1+ε) ≈ ε/ln p`, which **holds on `Re>1/2`** for small
+  `ε`. Radius `1+ε` is what makes the (e) `exp(prime)·E_X` realization actually work on the strip.
+
+**Absolute convergence on `Re>1+αε`.** With `‖X_n‖ ≤ 1+ε` the Dirichlet series `η_X(s) = ∑_n X_n n^{−s}`
+(equivalently the `exp(prime series)·E_X` Euler product) is **absolutely convergent for `Re s > 1+αε`**
+for a fixed `α>0` — the abscissa of absolute convergence sits a controlled `O(ε)` to the right of `1`,
+and `→ 1` as `ε↓0`, recovering the abscissa of the standard `η`. (The genuinely sensitive/divergent
+part on the strip remains the *linear* prime series `∑_p X_p p^{−s}`; `E_X` converges on `Re>1/2` as
+above.)
+
+**The ε-knob CLOSES the per-point → all-point gap directly.** The gap (e) identified — per-point
+nullity `P(zero at s₀)=0` does not, by a bare uncountable union, give `P(zero anywhere)=0` — is now
+closed by the **tunability of `ε`** together with **compactness**: on any **compact** `K ⊂ {Re>1/2}`,
+`P(η_X(s)=0 | X_n=1) = 0` **uniformly on `K`**, because `ε` can be chosen as small as needed
+(`ε = ε(K)`). The mechanism: shrinking `ε` makes `η_X` an arbitrarily tight (analytically controlled,
+since absolutely convergent on `Re>1+αε`) perturbation of `η`; the rcp at the interior point `X=1`
+then assigns the zero-set — a measure-zero analytic-subvariety condition — probability `0` on all of
+`K` at once. So the multiplicative `exp(prime)·E_X` structure (which is what keeps the perturbation
+analytically controlled and zero-free off the prime-series locus) plus the ε-knob **realize** the
+per-point → strip lift of step 2.5 — they are not a separate argument-principle obligation but the
+concrete way that obligation is met. `X₂=1` retained (eta normalization).
+
+**Lean consequence (step 0, (R) radius → `1+ε`; (M) unchanged from (e)).**
+- `diskLaw` on `closedBall 0 (1+ε)` for a fixed small `ε>0` (a `variable (ε : ℝ) (hε : 0 < ε)` or a
+  concrete small literal, e.g. `1/10`); `‖X_n‖ ≤ 1+ε`; atomless — interiority holds since `1 < 1+ε`.
+  Port the `‖X_n‖≤2` estimates with constant `1+ε`.
+- `η_X` absolute convergence on `Re>1+αε` (M-test with the `(1+ε)·n^{−σ}` bound); the `E_X`
+  correction now genuinely convergent on `Re>1/2` (domination `(1+ε)^k p^{−kσ}`, summable for `σ>1/2`
+  at small `ε`).
+- **The lifting lemma (step 2.5) is realized via ε:** "`L s₀ = 0` for each `s₀ ∈ K`" ⇒ "no zero on
+  `K`" by choosing `ε=ε(K)` so that the ball-conditional zero-probability is `0` uniformly on the
+  compact `K`. (The Euler-product zero-freeness / argument-principle count is the *qualitative*
+  reason the perturbation has no zeros off the prime-series locus; the ε-knob is the *quantitative*
+  uniformity that turns per-point into per-compact.)
+
+---
+
+### ★ 2026-06-23 (e) (maintainer) — multiplicative Euler product as `exp(prime Dirichlet series) × convergent squared-prime factor`; radius STAYS 2 [radius SUPERSEDED by (f): radius is now `1+ε`]; closing the per-point → all-point gap
+
+Revises **(M)** [non-multiplicative → **multiplicative**] and specifies *how* the Euler product is
+realized. **(R) radius 2 STANDS** — an earlier draft of this section wrongly reverted it to radius 1;
+**corrected below: the radius must be 2.**
+
+**Radius must be 2 (the rcp limit uses OPEN neighborhoods — interiority is required).** The
+neighborhood-limit (Tjur) definition of the rcp at the conditioning point `X = 1` is the limit over
+**open** neighborhoods `U ∋ (X=1)` of `P(A ∩ Π⁻¹U)/P(Π⁻¹U)`. For that limit to be well-defined, `X=1`
+must be an **interior** point of the support, so that small *open* neighborhoods of it lie **inside**
+the support. At radius 1 the point `X=1` is on the **boundary** (`|1| = 1`), every open neighborhood
+of it sticks out of the closed disk, and the open-neighborhood limit is ill-defined. "The closed
+support contains `X=1`" is **not enough** — the limit ranges over *open* sets. **So `diskLaw` stays on
+`closedBall 0 2`, `‖X_n‖ ≤ 2`, and `X=1` stays in the interior** (this is exactly what redesign (R)
+was for; the radius-1 claim in the previous draft of (e) is retracted).
+
+**The gap (why (b) alone is not yet RH).** The coefficient-ball machinery of (b) delivers, for each
+**fixed** `s₀`, that `P(η has a zero at s₀) = 0`. But RH needs `P(η has a zero **anywhere** in the
+strip) = 0` — over the **uncountable** family of points `s₀`. A bare union / Fubini over uncountably
+many individually-null events does **not** close this gap; something must transport "null at each
+point" to "null on the whole region". The **multiplicative** structure supplies that transport.
+
+**The model — multiplicative Euler product, realized as `exp(prime series) × convergent factor`.**
+Keep the Euler product (the previous (e) message), and realize it as
+`η_X(s) = exp( ∑_p X_p p^{−s} ) · E_X(s)`, where:
+- `∑_p X_p p^{−s}` is the **prime Dirichlet series** — *linear* in the prime coefficients `X_p`, the
+  randomness-carrying, zero-controlling part; at `X_p = 1` it is the prime zeta `P(s) = ∑_p p^{−s}`.
+- `E_X(s) = exp( ∑_p ∑_{k≥2} (1/k) X_p^k p^{−ks} )` is the **higher-power correction factor**, which
+  **converges absolutely for `Re s > 1/2`** because it involves only **squared (and higher) primes**
+  — it is dominated by `∑_p p^{−2s}` (convergent on `Re s > 1/2`), or by any factor that can be
+  bounded by such a squared-prime Dirichlet series.
+
+This is the standard `log ζ = ∑_p p^{−s} + O(∑_p p^{−2s})` decomposition, lifted to the random model.
+**Why it matters:** `η_X = exp(…)` is **manifestly zero-free wherever its exponent converges**, and on
+the strip `1/2 < Re s < 1` the **only** sensitive part is the *linear* prime series `∑_p X_p p^{−s}`
+(the correction `E_X` always converges there). So "no zero at `s`" ⟺ "the prime series converges at
+`s`", and both the per-point ball non-degeneracy (LB2) and the per-point → strip lift act on the
+**linear prime series**, with the squared-prime factor a harmless convergent, **non-vanishing**
+multiplier. `X₂ = 1` (eta normalization, pinning the `(1 − 2^{1−s})` factor) is retained.
+
+**The per-point → strip lift (what multiplicativity buys).** Because `η_X = exp(prime series) · E_X`
+with `E_X ≠ 0`, the zero-set of `η_X` on the strip is exactly the set where the prime-series
+representation fails — controlled, via the argument-principle / `η_X'/η_X` contour count, by the
+**countably many** prime coefficients `X_p`. Hence per-point non-detection of the *linear prime
+series* propagates to "no zero in the region". This upgrades "`P(zero at s₀)=0` for every fixed `s₀`"
+to "`P(∃ zero in the strip)=0`". **Consequence:** the Euler product / multiplicativity is **no longer
+"exposition only"** (cf. the older note) — it is **load-bearing** for the per-point → all-point lift
+(though **not** for LB2's non-degeneracy, which the full support of the prior law still supplies).
+
+**Lean consequence (step 0, (M) only — radius UNCHANGED at 2).**
+- `diskLaw` on `closedBall 0 2`, `‖X_n‖ ≤ 2`, atomless — **all unchanged** (interiority needed).
+- Re-type `etaX` to `exp(primeSeries X s) * correctionFactor X s` with
+  `primeSeries X s = ∑_p X_p p^{−s}` and `correctionFactor X s = exp(∑_p ∑_{k≥2} (1/k) X_p^k p^{−ks})`;
+  prove the correction's absolute convergence on `Re s > 1/2` by **domination by `∑_p p^{−2s}`** (a
+  `Real.summable_nat_rpow`-style bound at exponent `2σ > 1`), and `correctionFactor ≠ 0` (it is an
+  `exp`). `X₂ = 1` fixed.
+- **NEW obligation — the per-point → strip lifting lemma:** from "`L s₀ = 0` for every `s₀` in the
+  open strip" (no zero at each point — equivalently the linear prime series converges at each point)
+  conclude "`η_X` (equivalently `ζ`) has no zero in the strip", via Euler-product zero-freeness
+  (`exp(…)·E_X`, `E_X≠0`) + the argument-principle count over the countably many `X_p`. **Genuine new
+  analytic content, separate from LB1/LB2.**
 
 ---
 
@@ -575,9 +1079,11 @@ never applied to it.
   layer is in `PnpProof/Kopperman.lean`. The arithmetic-invariance proxy
   (`arith_truth_invariant`, `interpPi02`) is there too and is the template for the
   `Π⁰₁` interpretation in Phase 3.
-* **N4 — mark the load-bearing steps as `sorry`, with the recipe in a comment.**
-  Steps flagged **[LB]** carry the mathematical content; do not improvise a proof.
-  Steps flagged **[mech]** are mechanical given their dependencies.
+* **N4 — the load-bearing steps carry the deep content; prove them on the cited inputs.**
+  Steps flagged **[LB]** are where the real mathematics lives: build each proof on the deep input
+  named in its recipe (don't hand-wave or re-invoke another open `sorry`) — but **do replace the
+  `sorry` with a real proof**, that is the goal. Steps flagged **[mech]** are mechanical given their
+  dependencies.
 
 ---
 
@@ -827,9 +1333,10 @@ New file `RiemannProof/SchoenfeldPRA.lean`, importing `Mathlib` and
   combined with 2.2 already yields "no counterexample"; the genuinely hard half is
   `→` (a counterexample *would* produce an rcp-zero), which is where the Fock-space
   variance-→-0 picture and the analytic content of Schoenfeld's encoding are
-  consumed. Keep `sorry` with this recipe; do not improvise. **This is the only
-  load-bearing analytic obligation left in the route** (3.1 is independent
-  arithmetic; 5.3 is optional).
+  consumed. *(HISTORICAL — this paragraph describes the **dropped** Schoenfeld bridge
+  `counterexample_iff_rcpZero` in the quarantined `SchoenfeldPRA.lean`; it is **not** a current
+  task. The live obligations are LB1/LB2 in `RcpEuler.lean` — see the ★ MANDATE banner and steps
+  0–2.5. Do not work this `sorry`.)*
 
   **The `ε`–`U`–`V` device for "`L ≠ 1`" (the conditional probability of a zero at
   `s₀` is not `1`).** The quantitative core of the route is a bound on the rcp
@@ -1082,27 +1589,35 @@ from the spine (quarantined/unimported, not part of the build).
 
 ```
 RcpEuler.lean (imported by root RiemannProof.lean) — THE route, builds green:
-(R) diskLaw on closedBall 0 2; priorBall_ball ‖X_n‖≤2  ✓   radius-2; mean realization interior
-(M) etaX s ω = ∑' n, ω n · n^(-s)                       ✓   general, non-multiplicative; eulerB legacy
+(R) diskLaw on closedBall 0 2; priorBall_ball ‖X_n‖≤2  ✓   ★(f) RE-TYPE radius 2 → 1+ε (small ε>0): interior needs only >1; 1+ε minimal pert., fixes E_X conv on Re>1/2
+(M) etaX s ω = ∑' n, ω n · n^(-s)                       ✓   on disk non-mult; ★(e) RE-TYPE to exp(∑_p X_p p^{-s})·E_X, X₂=1; abs conv on Re>1+αε
+    per-point → strip lifting (ε-knob on compacts)      ·   ★(e/f) NEW obligation; (f): shrink ε=ε(K) ⇒ P(zero|X=1)=0 unif. on compact K⊂{Re>1/2}; NOT on disk (needs (R)+(M) re-type)
     summable_etaXTerm (abs conv on Re>1, M-test)        ✓   the Re>1 convergence layer (replaces bSum_tail_small)
     priorBall, isProb, _ball, _atomless                 ✓   radius-2 prior, sorry-free
-    rcpKernelX, edgeTraceX, interiorValX, eTrace        ✓   the general-series rcp kernel + mean-realization trace
-    L s₀ R := rcpKernelX s₀ R (eTrace R) {0}            ✓   the ★ SHARED object (DESIGN NOTE realized)
-    transfer_equality  L = if riemannZeta s₀=0 then 1 0 □   LOAD-BEARER 1 (sorry @ RcpEuler.lean:736)
-    L_ne_one           L ≠ 1                            □   LOAD-BEARER 2 = Bagchi local form (sorry @ :750)
-    stripRect, riemannZeta_ne_zero_of_mem_strip         ✓   the three-line by_contra on the shared L
-    riemann_hypothesis_via_rcp (standard ζ-form RH)     ✓   FINAL THEOREM, proved modulo the 2 load-bearers
-    not_rcpZeroAt (LEGACY eulerB limit form)            □   VESTIGIAL sorry @ :641 — superseded by L_ne_one, unused; delete
+    rcpKernelX, edgeTraceX, interiorValX, eTrace        ✓   on-disk uses a BOUNDARY trace; step 0 re-types to a coefficient ball
+    secondMoment s₀ R := ∫‖x‖²∂(rcpKernelX s₀ R(eTrace)) ✓  ★(j) the SHARED HEADLINE object (replaces {0}-mass L)
+    secondMomentIntegrable s₀ R (Prop)                  ✓   moment-integrability plumbing, threaded as hyp (NOT a sorry)
+    integrable_id_and_normSq_of_bound                   ✓   ★(k) PROVED engine: a.e. bound ‖x‖≤C ⇒ Integrable id ∧ ‖·‖² (no analytic input)
+    etaXpartial / measurable_ / _bound                  ✓   ★(k) bounded finite-N truncation Σ_{n<N}ω_n n^{-s} (vs strip-degenerate tsum etaX)
+    secondMomentIntegrable_partial                      ✓   ★(k) PROVED: the integrability predicate holds for priorBall.map(etaXpartial N s) — hint is honest
+    secondMoment_transfer  M = ‖riemannZeta s₀‖²        □   LOAD-BEARER 1 = RH-equivalent Borel–Kolmogorov (sorry @ :871)
+    secondMoment_pos       0 < M                        ✓   LOAD-BEARER 2 PROVED via bagchi_universality + integral_norm_sq_pos_of_mean_ne_zero
+    bagchi_universality (mean ≠ 0)                      □   external Voronin/Bagchi citation (sorry @ :1137)
+    stripRect, riemannZeta_ne_zero_of_mem_strip         ✓   by_contra on M: zero ⇒ M=‖0‖²=0 contra 0<M (carries secondMomentIntegrable hyp)
+    riemann_hypothesis_via_rcp (standard ζ-form RH)     ✓   FINAL THEOREM, proved modulo the 2 load-bearers (threads hint)
+    L / L_ne_one / integral_normSq_eq_..._variance      ✓   legacy {0}-mass + variance-decomposition companions (off headline path)
 ---- quarantined: SchoenfeldPRA.lean is UNIMPORTED (not in the build) ----------------------
     schoenfeld/schoenfeld_primrec, Pi01/interpPi01      ✗   Π⁰₁ encoding dropped (redesign Z)
     counterexample_iff_rcpZero, RH_PRA / RH_PRA_holds   ✗   PRA bridge & target dropped (2 stale sorries, not in build)
 ```
 
-**Verified build (2026-06-23):** `lake build RiemannProof.RcpEuler` → **`Build completed
-successfully (8033 jobs)`**, exit 0. Exactly **three `sorry` warnings**: `:641`
-(`not_rcpZeroAt`, vestigial legacy), `:736` (`transfer_equality`, LB1), `:750` (`L_ne_one`,
-LB2) — plus long-line style lints only, no errors. So the **standard-ζ-form RH is on disk and
-assembled**, reduced to the two deep analytic load-bearers. **Dropped (not discharged):** the
+**Verified build (2026-06-24, ★(j)):** foreground `lake env lean RiemannProof/RcpEuler.lean` →
+EXIT 0, exactly **two `sorry` warnings**: `:871` (`secondMoment_transfer`, LB1 — the RH-equivalent
+endpoint) and `:1137` (`bagchi_universality`, the external citation LB2 reduces to) — plus style
+lints only, no errors. (`not_rcpZeroAt` was deleted earlier; `transfer_equality` was renamed to
+`secondMoment_transfer`.) So the **standard-ζ-form RH is on disk and assembled** against the
+second-moment object `M`, reduced to the two deep load-bearers (plus the non-deep
+`secondMomentIntegrable` hypothesis, dischargeable by the finite-N construction). **Dropped (not discharged):** the
 entire `SchoenfeldPRA.lean` Π⁰₁/Schoenfeld spine is quarantined (root comments out its import).
 **No substrate-construction obligation** — Mehler guarantees existence; only the rcp-limit
 family + `Measure.infinitePi`/`infinitePi_pi` consistency is used.
@@ -1133,14 +1648,18 @@ They remain valid Mathlib names should the support-statement restatement of 1.3 
 
 ## Open items the maintainer must pin before/at the relevant step
 
-1. **The exact prior `priorBall` — RESOLVED, but RADIUS 1→2 (redesign (R), 2026-06-22).** The
-   prior is the **pure continuous** law `priorBall := Measure.infinitePi (fun _ => diskLaw)`,
-   an independent product of the uniform law on the closed disk of radius **2** (`diskLaw :=
-   ProbabilityTheory.cond volume (closedBall 0 2)`; was `closedBall 0 1`); a probability
-   measure, supported in the radius-2 ball, and **atomless** (`priorBall_atomless`). The
-   radius-2 choice puts the mean realization `X_n ≡ 1` in the *interior* of the support
-   (well-defined two-sided Tjur limit at the conditioning point). The on-disk file still uses
-   radius 1 — the `closedBall 0 1 → closedBall 0 2` change is the first mechanical action. The
+1. **The exact prior `priorBall` — radius **`1+ε`** (redesign (R), ★ 2026-06-23 (f); SUPERSEDES the
+   (e) "radius 2" choice).**
+   The prior is the **pure continuous** law `priorBall := Measure.infinitePi (fun _ => diskLaw)`, an
+   independent product of the uniform law on the closed disk of radius **`1+ε`** (small tunable
+   `ε>0`; `diskLaw := ProbabilityTheory.cond volume (closedBall 0 (1+ε))`); a probability measure,
+   supported in the radius-`1+ε` ball, and **atomless** (`priorBall_atomless`). The radius-`1+ε`
+   choice puts the mean realization `X_n ≡ 1` in the **interior** of the support — **required**,
+   because the rcp neighborhood limit ranges over *open* neighborhoods of `X=1`, which must lie inside
+   the support (radius 1 fails: `|1|=1` is on the boundary). Interiority needs only radius **`>1`**, so
+   the over-large radius 2 of (e) is replaced by the minimal-perturbation `1+ε`, which additionally
+   makes the squared-prime correction `E_X` genuinely convergent on `Re>1/2` (radius 2 did not). The
+   on-disk file is currently radius 2; **re-type `closedBall 0 2`→`closedBall 0 (1+ε)`, `‖X_n‖≤2`→`‖X_n‖≤1+ε`**. The
    substrate transport `rcpPriorOnSubstrate` is the canonical atomless measure from
    `exists_atomless_prob_substrate` (the `Π⁰₁` interpretation is content-free in the
    prior, so only atomlessness is structurally required). *Note:* this is the
@@ -1164,6 +1683,66 @@ They remain valid Mathlib names should the support-statement restatement of 1.3 
 
 ## Recommended next steps (priority order) — REDESIGN (2026-06-22)
 
+> **★ MANDATE TO THE LEAN IMPLEMENTER — these `sorry`s ARE your job; prove them.** This plan does
+> **not** tell you to stop, wait, or leave anything unproven. The remaining content is exactly the
+> two `sorry`s `transfer_equality` (`:736`) and `L_ne_one` (`:750`), and your task is to **eliminate
+> both by writing real proofs.** The only sequencing guidance is: **first** do step 0 (re-type the
+> model/radius/conditioning to the coefficient-ball form), **then** prove LB1 and LB2 *against that
+> re-typed `L`*. The recipes below are the intended proof strategy — **follow them rather than
+> inventing an unrelated shortcut**, but "follow the recipe" means *write the proof*, not skip it.
+> - Where the plan says "do **not** attempt LB1/LB2 against the on-disk *full-boundary* `L`", that is
+>   **scoped to the OLD formulation** (which is provably circular) — it is **not** a ban on proving
+>   the lemmas. After step 0 re-types `L` to the ball form, you are **expected to prove both**.
+> - "Do not improvise" / "[LB] carry the mathematical content" means *use the cited deep inputs
+>   (Tjur/Radon concentration for LB1, Bagchi/Voronin universality for LB2) instead of a hand-wave* —
+>   it does **not** mean leave the `sorry` in place.
+> - If a step genuinely cannot be completed, **report the specific Lean/maths obstruction you hit**;
+>   do **not** conclude "the plan said there is nothing to do." There is something to do (the EASY
+>   STEPS below), and the deep step is now precisely identified.
+
+> **★ 2026-06-23 UPDATE — which `sorry` is which, and the EASY provable work (READ THIS FIRST).**
+> A measure-theoretic analysis (zetanew.tex `rem:portmanteau`; the `transfer_equality` docstring)
+> settled which load-bearer is deep, and it is the **opposite** of the older framing:
+> - **`transfer_equality` is RH-EQUIVALENT — do NOT attempt it.** Under the atomless substrate the
+>   honest rcp value is `L = 0` (proved: `tjur_ratio_eq_zero_of_null`, `L_eq_zero_of_atomless`).
+>   Turning that into `𝟙{η(s₀)=0}` is the Portmanteau continuity-set step, valid iff `η(s₀)≠0`. So
+>   `transfer_equality` is false at any zero and is not a non-RH theorem. **It is the deliberate
+>   endpoint of a verified *reduction*; leave it as a labeled `sorry`.** This is NOT "there is nothing
+>   to do" — see the easy steps.
+> - **`L_ne_one` is NOT deep** (it is `L = 0`, unconditional and vacuous), but it is **not cleanly
+>   provable against the on-disk `L`** until `L` is re-typed from `condDistrib`-at-a-point to the Tjur
+>   neighborhood limit (the point value is version-dependent). That re-typing is a real but larger task.
+>
+> **EASY STEPS (genuinely provable, not RH-hard — do these; each is broken into Lean-sized pieces):**
+> 1. **[DONE]** Measure-theoretic core + strip-`L²` convergence are on disk and `sorry`-free:
+>    `L_le_one`, `L_eq_zero_of_atomless`, `prob_singleton_zero_ne_one_of_mean_ne_zero`,
+>    `tjur_ratio_eq_zero_of_null`, `summable_normSq_cpow`, `summable_centered_normSq`. (And the
+>    vestigial `not_rcpZeroAt` was deleted.)
+> 2. **Fix `etaX` in the strip (the real bug).** On disk `etaX s ω = ∑' n, ω n · n^{-s}` is the naive
+>    `tsum`, which is **non-summable for `Re s < 1`** (the mean `∑ n^{-s}` diverges), so Mathlib returns
+>    `0` and `etaX ≡ 0` on the strip. Re-define it as the honest split. Lean-sized pieces:
+>    (a) define `etaCentered s ω := ∑' n, (ω n - 1) · n^{-s}` and prove it converges/has `L²` terms via
+>        the new `summable_centered_normSq` (bounded coeffs, `Re>1/2`); (b) define
+>        `etaX s ω := riemannZeta-based η s + etaCentered s ω` (mean part = the *continued* `η`, not the
+>        divergent sum); (c) check `etaX s (fun _ => 1) = η s` (centered part is `0` at `ω ≡ 1`); (d)
+>        confirm `summable_etaXTerm` (`Re>1`) still ports (there the naive sum *does* converge and equals
+>        the split). This makes `etaX` well-posed and is the substance of step-0 `(M)`.
+> 3. **Radius `closedBall 0 2 → closedBall 0 (1+ε)`** (step-0 `(R)`). Mechanical: introduce
+>    `variable (ε : ℝ) (hε : 0 < ε)` (or a literal like `(1:ℝ)/10`), change `diskLaw`'s ball and the
+>    `‖X_n‖ ≤ 2` bounds to `‖X_n‖ ≤ 1+ε`, re-run the `priorBall_*` proofs (they port verbatim with the
+>    new constant). Interiority holds since `|1| = 1 < 1+ε`.
+> 4. **(Optional, for the compact-lift) `E_X` convergence on `Re>1/2`.** Define
+>    `E_X s ω := exp(∑_p ∑_{k≥2} (1/k) (ω p)^k p^{-ks})` and prove the exponent converges absolutely on
+>    `Re>1/2` by domination by `∑_p p^{-2σ}` (use `summable_normSq_cpow`-style bounds restricted to
+>    primes); `E_X ≠ 0` since it is an `exp`. Then `etaX = exp(∑_p (ω p) p^{-s}) · E_X` is the
+>    multiplicative form used for excluding zeros on compacts (zetanew.tex `rem:nomult`).
+>
+> **Larger but well-defined (do only if pursuing a clean end-state):** re-type `L`/`rcpKernelX` from
+> the `condDistrib`-at-`eTrace R` value to the **Tjur neighborhood limit**. After it, `L_ne_one`
+> becomes provable as `L = 0` via `L_eq_zero_of_atomless` + atomlessness of `etaX(s₀)`'s law, leaving
+> `transfer_equality` as the **sole** (labeled, RH-equivalent) `sorry`. **Do NOT** attempt
+> `transfer_equality` itself or Voronin/Bagchi universality.
+
 **State after the 2026-06-23 build.** The redesign is **largely implemented and builds green**
 (`lake build RiemannProof.RcpEuler` → 8033 jobs, exit 0). (R)+(M)+(Z) are on disk; the shared
 object `L` and the ★ DESIGN NOTE are realized exactly; the **standard-ζ-form RH theorem
@@ -1172,41 +1751,115 @@ entire remaining mathematical content is **two `sorry`s in `RcpEuler.lean`** —
 (`:736`) and `L_ne_one` (`:750`) — plus mechanical cleanup. Everything else (radius-2 prior,
 `etaX`, `summable_etaXTerm`, the rcp kernel, the `by_contra` assembly) is `sorry`-free.
 
-**DONE on disk (do not redo):**
-- **(R)** radius-2 prior — `diskLaw` on `closedBall 0 2`, `priorBall_*`, `‖X_n‖≤2`, atomless.
+**DONE on disk (★ 2026-06-23 (f) re-types the radius; (e) re-types (M) — see step 0):**
+- **(R)** radius-2 prior on disk — `diskLaw` on `closedBall 0 2`, `priorBall_*`, `‖X_n‖≤2`, atomless.
+  **★ (f): RE-TYPE radius 2 → `1+ε`** — the rcp limit ranges over *open* neighborhoods, so `X=1` must
+  be **interior**; radius 1 (boundary point) fails, but interiority needs only radius `>1`, so `1+ε`
+  (small tunable `ε>0`) replaces the over-large radius 2 and additionally makes `E_X` converge on
+  `Re>1/2`. Re-type `closedBall 0 2`→`closedBall 0 (1+ε)`, `‖X_n‖≤2`→`‖X_n‖≤1+ε`.
 - **(M)** `etaX = ∑' n, ω n · n^(-s)` (general, non-multiplicative) + `summable_etaXTerm`
-  (absolute convergence on `Re>1`). The strip `1/2<Re≤1` a.s. convergence is currently *folded
-  into* the two load-bearers rather than a standalone lemma (see optional step 3).
+  (absolute convergence on `Re>1`). **★ (e): re-type to the MULTIPLICATIVE Euler product**
+  `exp(∑_p X_p p^{−s})·E_X(s)`, squared-prime correction `E_X` convergent on `Re>1/2`, `X₂=1` —
+  required for the per-point → strip lifting. The strip `1/2<Re≤1` a.s. convergence is currently
+  *folded into* the two load-bearers rather than a standalone lemma (see optional step 3).
 - **(Z)** the shared `L s₀ R := rcpKernelX s₀ R (eTrace R) {0}`, `eTrace` = mean-realization
   trace, `stripRect`, `riemannZeta_ne_zero_of_mem_strip` (the three-line `by_contra`), and the
   final `riemann_hypothesis_via_rcp` — all `sorry`-free modulo LB1/LB2.
 
+**★ IMPLEMENTER FEEDBACK (run `1400d993`, see `ARISTOTLE_SUMMARY.md`) — and why it does NOT
+block the route.** The most recent implementer run reported, honestly, that (i) the build is green
+with the two `sorry`s, but (ii) "the two remaining obligations cannot be honestly discharged …
+with the on-disk full-boundary conditioning the route is currently circular (one of the two is
+RH-in-disguise)", and (iii) it *rejected and reverted* an auto-generated proof of `L_ne_one` that
+merely re-invoked the still-open `transfer_equality` (a parasitic circular discharge). **That
+assessment is correct — but it was made against the OLD full-boundary `edgeTraceX` conditioning,
+and predates the maintainer's ★ 2026-06-23 (b) resolution.** The circularity the implementer hit
+is *exactly* the tradeoff that conditioning on a **coefficient ball** dissolves (a coefficient ball
+never pins the interior, so LB2 is a genuine Bagchi non-degeneracy and LB1 is a standard `ρ↓0`
+concentration — independent). **So the conclusion is NOT "the plan cannot be executed"; it is "step
+0 must be done first, then both lemmas get proved."** Concretely: **do step 0 yourself** (re-type the
+conditioning from the full-boundary trace to a coefficient ball), **then prove LB1 and LB2 against
+the re-typed `L`** — they become independent and non-circular. The only thing to avoid is burning
+effort proving them against the *old* full-boundary `L` (that formulation is circular, so a proof
+there would be a parasitic re-invocation, exactly what the implementer rightly rejected). After
+step 0 the proofs are expected and the recipes below tell you how. **Step 0 is itself implementer
+work — it is not a maintainer gate you must wait on.**
+
 **REMAINING — gated on the conditioning-strength DECISION (see the ★ 2026-06-23 note above).**
-The two load-bearers are NOT independent: the strength of the `edgeTraceX`/`L` conditioning
-decides which one is trivial and which is deep, and the on-disk full-boundary choice makes LB2
-circular. So **step 0 is a design decision**, then the two load-bearers follow.
-0. **Pin the conditioning of `L` (maintainer).** Re-type `edgeTraceX`/`eTrace`/`L` from the
-   on-disk **full boundary** `R.closure \ R.openInt` to a **weaker local trace** (finite/local
-   edge sample, or ε-approximate agreement on a non-`s₀`-enclosing connected-complement compact),
-   so that `L_ne_one` can be a genuine universality statement. Both LB1 and LB2 are then stated
-   against this one re-typed `L`.
-1. **`transfer_equality` (LB1, `RcpEuler.lean:736`).**
-   - *For the on-disk full-boundary `L`:* **downgraded — discharge it, not a deep input.**
-     `L = 1{ζ(s₀)=0}` follows from the **standard theorem** (rcp/Tjur limit defined iff Radon;
-     substrate Radon by `inferInstance`; `condDistrib` gives existence) **plus** the deterministic
-     identity `etaX(·, fun _ => 1) = ζ` and continuity (the interior is pinned by max-modulus /
-     the identity theorem). Recipe: `condDistrib`-disintegration at the point `eTrace R`, evaluated
-     via `etaX(·,1·)=ζ`.
-   - *For a weakened local `L` (step 0):* it reverts to the deep claim "local edge data still
-     recovers the interior value in the Tjur limit" — **do not improvise** in that case.
-2. **`L_ne_one` (LB2, `RcpEuler.lean:750`) = Bagchi/Voronin universality, local form.** `L s₀ R
-   ≠ 1` (the SAME `L`): a positive-mass zero-free alternative average matching the **local** edge
-   conditioning but nonzero at `s₀`. **Only meaningful once step 0 weakens the conditioning** — on
-   the on-disk full boundary it is RH-in-disguise (identity theorem pins the interior; Voronin
-   needs a connected-complement compact, which a full rectangle boundary is not). Reuse the
+The two load-bearers are NOT independent *as long as `L` conditions on the boundary trace*: the
+strength of the on-disk `edgeTraceX`/`L` conditioning decides which one is trivial and which is
+deep, and the full-boundary choice makes LB2 circular. **Step 0 (re-type to a coefficient ball)
+breaks this coupling** — after it, LB1 and LB2 are independent. So **do step 0 first**, then **prove
+the two load-bearers** (both are implementer tasks; nothing here waits on the maintainer).
+0. **Re-type the model, the radius, and the conditioning (maintainer, ★ 2026-06-23 (b)+(e)+(f)).** The
+   radius, conditioning, and model re-typings, done together before touching LB1/LB2:
+   - **(b) conditioning → coefficient ball.** Replace `edgeTraceX`/`eTrace` (on-disk **full boundary**
+     `R.closure \ R.openInt`, a function-value trace) by conditioning on a **ball in coefficient
+     space** `{X ∈ B(c,ρ)}` — `condDistrib(etaX s₀, Π, priorBall)` where `Π` projects to a
+     finite/cofinite coefficient block landing in `B(c,ρ)`. **Not a local arc** (any arc pins via the
+     identity theorem; see ★ 2026-06-23 (b)). This makes LB2 a genuine Bagchi statement AND keeps LB1
+     standard — both against the same ball-conditional `L`.
+   - **(f) radius `2` → `1+ε`.** Re-type `diskLaw` to `closedBall 0 (1+ε)`, `‖X_n‖≤1+ε` (small tunable
+     `ε>0`). Interiority needs only radius `>1` (`|1|=1<1+ε`), so radius 1 is still excluded (boundary)
+     but radius 2 is unnecessarily large; `1+ε` keeps `η_X` a tight perturbation of `η` AND makes `E_X`
+     converge on `Re>1/2` (radius 2 did not). `η_X` is then abs. convergent on `Re>1+αε`. This is the
+     radius the per-point → strip lift (step 2.5) tunes.
+   - **(e) non-multiplicative → multiplicative Euler product `exp(prime series)·E_X`.** Re-type `etaX`
+     to `exp(∑_p X_p p^{−s}) · E_X(s)` with `E_X(s) = exp(∑_p ∑_{k≥2}(1/k)X_p^k p^{−ks})`; prove
+     `E_X` converges absolutely on `Re>1/2` by **domination by `∑_p p^{−2s}`**, and `E_X ≠ 0` (it is
+     an `exp`). Fix `X₂=1`. Port `summable_etaXTerm` (`Re>1`) and the strip convergence with bound `2`.
+     This is what step 2.5 (the lifting) depends on.
+1. **`transfer_equality` (LB1, `RcpEuler.lean:736`) — the `ρ↓0` concentration limit, standard.**
+   Discharge, not a deep input. With ball conditioning: as `ρ↓0` the conditional law of `etaX s₀`
+   given `X∈B(1·,ρ)` concentrates (mean `→η(s₀)`, variance `∝ρ²→0`) to `δ_{η(s₀)}`, so the rcp at
+   the exact point `X=1·` (the canonical Radon neighborhood limit) `= 1{η(s₀)=0}`. Recipe: rcp/Tjur
+   limit defined iff Radon (`inferInstance`; `condDistrib` existence) + concentration of the
+   ball-conditional + `etaX(·,1·)=ζ`. **No max-modulus / identity theorem needed any more** (those
+   were artifacts of the boundary-trace conditioning).
+2. **`L_ne_one` (LB2, `RcpEuler.lean:750`) = Bagchi/Voronin universality, ball form — the lone deep
+   input.** `L(ρ) = rcp(etaX s₀ = 0 | X∈B(c,ρ)) ≠ 1` for `ρ>0` (the SAME ball family). Reuse the
    deprecated Gaussian route's `univ-core` (`eulerG_universality_threeLeftEdges`); **no Euler
-   product / multiplicativity** (full support of the prior law supplies the zero-free realization).
-   **Do not improvise — this is the route's one genuinely deep analytic input.**
+   product / multiplicativity** (full support of the prior law supplies the non-degeneracy).
+   **This is the route's one genuinely deep analytic input — so build the proof on the cited
+   universality result and the mean/variance recipe below, rather than a hand-wave; but it IS to be
+   proved (replace the `sorry`).** If the universality lemma you need is not yet available in a usable
+   form, state precisely which statement is missing — that is the real remaining maths, and surfacing
+   it is progress.
+
+   **★ concrete mean/variance recipe for LB2 (from the author; updated 2026-06-23 (b)).** The
+   `L_ne_one` proof is a **mean–variance non-degeneracy** argument, not an abstract existence
+   statement. Condition on a **coefficient ball `{X∈B(c,ρ)}`** (positive radius `ρ>0`; center `c` =
+   `X_n≡1` or a universality-chosen perturbation). The conditional law of the interior value
+   `etaX s₀` has:
+   - **mean** = the ``centrum'' = `etaX s₀` evaluated at the ball's *center* `c`; by Bagchi/Voronin
+     universality the prior's support is rich enough that `c` can be chosen so the centrum is any
+     value at `s₀` — in particular **nonzero**;
+   - **variance** = **finite** and **∝ ρ²** (bounded coefficients ⇒ finite term-variance budget;
+     the strip `L²`/Kolmogorov assembly of EtaConvergence+SphereGaussian).
+
+   A non-degenerate law (finite nonzero variance, absolutely continuous) assigns the single point
+   `{0}` mass `<1` (in fact `0`) ⇒ the conditional law of `etaX s₀` is **not** `δ₀` ⇒ `L(ρ) ≠ 1`.
+   This is the formalization target: coefficient ball ⇒ centrum-via-universality + finite-variance
+   ⇒ non-degenerate ⇒ atom `{0}` mass `<1`. (Mirrors zetanew.tex §4 thm:nondetect; the assembly
+   contradiction is the Borel–Kolmogorov reconciliation `1{η(s₀)=0} = lim_{ρ↓0} L(ρ) = 0`,
+   zetanew.tex §5 thm:nozero.)
+
+2.5. **Per-point → strip LIFTING (★ 2026-06-23 (e), REALIZED via the ε-knob in (f)) — the NEW third
+   piece, needs the multiplicative model AND the tunable radius.** LB1+LB2 give `L s₀ = 0` (no zero)
+   for **each fixed** `s₀`; this step lifts that to **no zero anywhere in the open strip**. A
+   measure-theoretic union over the uncountable family of points does **not** suffice. ★ (f) gives the
+   concrete mechanism: on any **compact** `K ⊂ {Re>1/2}`, choose `ε = ε(K)` small enough that
+   `P(η_X(s)=0 | X_n=1) = 0` **uniformly on `K`**. Why it works: the **multiplicative** structure
+   `η_X = exp(∑_p X_p p^{−s})·E_X` with `E_X ≠ 0` (squared-prime correction, `exp`-form, convergent on
+   `Re>1/2` at radius `1+ε`) makes `η_X` **zero-free wherever its exponent converges** — a zero can
+   occur only on the linear-prime-series locus — and the tunable radius `1+ε` (with `η_X` abs.
+   convergent on `Re>1+αε`) keeps `η_X` an analytically-controlled perturbation of `η` whose zero-set
+   probability shrinks to `0` uniformly on the compact `K` as `ε↓0`. (Qualitatively the
+   argument-principle / `η_X'/η_X` count over the **countably many** `X_p` is why zeros are confined to
+   the prime-series locus; quantitatively the ε-knob is what makes per-point into per-compact.) **Gated
+   on the step-0 (R)+(M) re-typing** (the on-disk `etaX` is non-multiplicative and the radius is 2, so
+   this cannot start until `etaX` is `exp(prime series)·E_X` on `closedBall 0 (1+ε)`). Genuine analytic
+   content, separate from LB1/LB2 — do not fold it into them.
 
 **CLEANUP (mechanical, optional, low priority):**
 3. **Delete the vestigial `not_rcpZeroAt` (`RcpEuler.lean:641`)** — the legacy `eulerB` limit-form
@@ -1221,9 +1874,40 @@ circular. So **step 0 is a design decision**, then the two load-bearers follow.
 
 **Net effect of the 2026-06-23 pass (plan reconciled to disk).** The previous plan claimed the
 redesign was "not yet on disk"; in fact the implementer has built it. (R)+(M)+(Z) compile green
-(8033 jobs); the **standard ζ-form RH is assembled on disk** and reduced to **two deep analytic
-inputs** — `transfer_equality` (rcp-at-interior-support principle) and `L_ne_one` (Bagchi local
-universality) — both honest `sorry`s in `RcpEuler.lean`, stated against the **one shared `L`** so
+(8033 jobs); the **standard ζ-form RH is assembled on disk** and reduced to **one deep analytic
+input** — `L_ne_one` (Bagchi local universality, the off-center-ball mean/variance recipe above)
+— plus `transfer_equality`, which downgrades to a **standard** Tjur/Radon-plus-identity theorem
+once the conditioning is fixed (still an honest `sorry` because not yet formalized, not because
+it is hard). Both are honest `sorry`s in `RcpEuler.lean`, stated against the **one shared `L`** so
 the final `by_contra` is genuine. The PRA spine is quarantined (unimported). The conclusion is a
 **positive** RH in ZFC (`{0,1}` indicator `= L ≠ 1 ⟹ = 0`), not an unprovability statement. This
 pass was plan-update only; I did not edit Lean (build was a read-only verification).
+
+**★ 2026-06-23 (e) addendum — multiplicative Euler product + a new lifting obligation; radius stays 2.**
+The maintainer revised the **model** (not the radius): **non-multiplicative → multiplicative**, the
+Euler product realized as `exp(∑_p X_p p^{−s})·E_X(s)` with the squared-prime correction `E_X`
+convergent on `Re>1/2` (dominated by `∑_p p^{−2s}`) and `X₂=1`; **radius STAYS 2** (the rcp limit
+ranges over *open* neighborhoods ⇒ `X=1` must be interior — a brief (e) draft reverting to radius 1
+was wrong and is retracted). This adds a **NEW** obligation — the **per-point → strip lifting** (step
+2.5): LB1+LB2 kill the zero at each *fixed* `s₀`, and the multiplicative `exp(prime series)·E_X`
+structure (`E_X≠0`, so `η_X` is zero-free where the prime series converges; argument-principle count
+over countably many `X_p`) transports that to "no zero anywhere in the strip" (which a bare uncountable
+union cannot do). So the open analytic content is now **three** pieces — LB2 (Bagchi ball
+non-degeneracy), the lifting (2.5, multiplicative), and LB1 (standard concentration) — and step 0
+grows to include the non-mult→mult re-typing alongside the coefficient-ball re-typing. None of (e) is
+on disk yet (on-disk `etaX` is still non-multiplicative; radius is already 2).
+
+**★ 2026-06-23 (f) addendum — radius `2` → `1+ε`, and the ε-knob REALIZES the lifting (supersedes
+(e)'s radius).** The maintainer revised the **radius**: interiority (the (e) reason for moving off
+radius 1) needs only radius **`>1`**, so the over-large radius 2 is replaced by **`1+ε`** (small
+**tunable** `ε>0`) — the minimal-perturbation interior choice. This is strictly better than radius 2:
+it keeps `η_X` a tight perturbation of the standard `η`, makes `η_X` **absolutely convergent on
+`Re>1+αε`**, and — crucially — makes the squared-prime correction `E_X` **genuinely convergent on
+`Re>1/2`** (which it was **not** at radius 2, where `‖X_p‖≤2` forces the correction's abscissa to `1`).
+The tunable `ε` also **realizes the per-point → strip lift** (step 2.5) directly: on any compact
+`K ⊂ {Re>1/2}`, shrinking `ε=ε(K)` gives `P(η_X(s)=0 | X_n=1)=0` **uniformly on `K`** — turning
+per-point nullity into per-compact nullity, with the multiplicative `exp(prime)·E_X` zero-freeness as
+the qualitative backbone. So step 0 now also re-types the radius (`closedBall 0 2`→`closedBall 0 (1+ε)`,
+`‖X_n‖≤2`→`‖X_n‖≤1+ε`), and the lifting (2.5) is no longer a free-standing argument-principle
+obligation but the ε-knob uniformity. None of (e)/(f) is on disk yet (on-disk `etaX` non-multiplicative;
+radius still 2).
