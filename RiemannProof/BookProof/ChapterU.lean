@@ -51,12 +51,14 @@ theorem bornMeasure_isProbability (Ψ : X → ℂ) (μ : Measure X)
 noncomputable def conditionedState (Ψ : X → ℂ) (μ : Measure X) (E : Set X) : X → ℂ :=
   fun x => (Real.sqrt ((bornMeasure Ψ μ) E).toReal)⁻¹ • E.indicator Ψ x
 
-/-
-**U.1 headline — the quantum⇄Bayes bridge.** The Born measure of the
+/-- **U.1 headline — the quantum⇄Bayes bridge.** The Born measure of the
 projected-and-renormalized state is exactly the classical conditional measure
 (`ProbabilityTheory.cond`, `μ[|E]`): wave-function collapse onto an event and
 Bayesian conditioning are the same operation.
--/
+
+§0 S7 / `../unfer`: this is the Born layer implemented by the `prob_kernel`
+crate's `Session.condition`; the present theorem is its measure-theoretic
+correctness statement. -/
 theorem born_conditioning (Ψ : X → ℂ) (μ : Measure X) (E : Set X)
     (hE : MeasurableSet E) (hpos : bornMeasure Ψ μ E ≠ 0)
     (hfin : bornMeasure Ψ μ E ≠ ∞) :
@@ -112,7 +114,11 @@ theorem prodToTensor_comp_tensorToProd :
 /-- **U.3 — the exponential property of the (bosonic) Fock functor.**
 `Sym(M × N) ≅ Sym M ⊗ Sym N` as `R`-algebras: the tensor product of two Fock
 spaces is again a Fock space (so no infinite-dimensional tensor product is
-needed). -/
+needed).
+
+§0 S7 / `../unfer`: this exponential law is the implemented Fock layer of the
+`nested_fock_algebra` crate (the bosonic symmetric-algebra model reused by the
+CCR field package `ChapterF1`). -/
 noncomputable def prodEquiv :
     SymmetricAlgebra R (M × N) ≃ₐ[R] (SymmetricAlgebra R M ⊗[R] SymmetricAlgebra R N) :=
   AlgEquiv.ofAlgHom (prodToTensor R M N) (tensorToProd R M N)

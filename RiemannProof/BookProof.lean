@@ -54,3 +54,7 @@ import BookProof.ChapterG2
 import BookProof.ChapterB7
 import BookProof.Substrate
 import BookProof.ChapterU
+import BookProof.ChapterF1
+import BookProof.ChapterF2
+import BookProof.ChapterA4h
+import BookProof.ChapterA3w

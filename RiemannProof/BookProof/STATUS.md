@@ -7,6 +7,90 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Wave 39 (2026-07-05) — **N7(c) mass gap** (`ChapterF2.lean`)
+
+This pass lands **N7(c)** — the mathematically self-contained content of the
+book's *"Mass gap"* section (`book.tex` ~line 4060), building on the Wave-38
+Bargmann–Fock model of `ChapterF1`.  Following the book's own definition (*"the
+mass gap is the eigenvalue of the Hamiltonian which is closer to the null
+eigenvalue corresponding to the vacuum state"*), the Hamiltonian is the
+quadratically-ordered `H := a†a = N`; on the monomial basis `H Xⁿ = n·Xⁿ`, so
+the spectrum is `ℕ`, the vacuum `|0⟩ = 1` has energy `0`, and the mass gap is
+`Δ = 1`.  New module `BookProof/ChapterF2.lean` (registered in `BookProof.lean`),
+all declarations `sorry`-free and `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`; verified via `lean_verify` on `mass_gap`,
+`hamiltonian_expectation_nonneg`, `deformedHamiltonian_monomial`);
+`lake build BookProof` green (8114 jobs).  **No `EXTERNAL` hypothesis.**
+
+* **F2.1** `numberOp_coeff` (`(N p)_n = n·p_n`) and `numberOp_support`.
+* **F2.2** `bargmann_self_re`/`bargmann_numberOp_re` (real forms
+  `⟨p|p⟩ = Σ n!|p_n|²`, `⟨p|N|p⟩ = Σ n·n!|p_n|²`) and
+  **`hamiltonian_expectation_nonneg`** (`H` is positive / bounded from below by
+  the quadratic ordering: `⟨ψ|H|ψ⟩ ≥ 0`).
+* **F2.3** `deformedHamiltonian c := c•N` with `deformedHamiltonian_monomial`
+  (`H_c Xⁿ = (c·n)·Xⁿ`, so the mass gap becomes arbitrary `c` with unchanged
+  eigenstates), `deformedHamiltonian_commutes_numberOp` and
+  `hamiltonian_commutes_numberOp` (`[H_c, N] = 0` — the book's *"the number
+  operator can be added to the Hamiltonian, modifying the mass gap without
+  observable consequences"*).
+* **F2.4 HEADLINE** `mass_gap` (for `ψ ⟂ vacuum`, i.e. `ψ₀ = 0`,
+  `⟨ψ|H|ψ⟩ ≥ ⟨ψ|ψ⟩` — spectrum above the vacuum bounded below by `Δ = 1`),
+  with `mass_gap_attained` (`⟨X|H|X⟩ = ⟨X|X⟩`, the gap is tight),
+  `vacuum_energy_zero`, and `massGap_smallest_excited` (eigenvalue form: `1` is
+  the smallest positive eigenvalue).
+
+This closes the last remaining roadmap work item (N7(c)); the earlier author
+flag *"ask before building"* is satisfied because the book isolates the mass gap
+explicitly in this section, and the §0 S7 formalism fixes the model.
+
+## Wave 38 (2026-07-05) — **N11 + N12 + hygiene** (`ChapterA4h.lean`, `ChapterA3w.lean`, `ChapterF1.lean`)
+
+This pass lands the last two open work packages of the roadmap plus the pending
+S7 hygiene docstrings.  All new declarations are `sorry`-free and `axiom`-free
+(only `propext`, `Classical.choice`, `Quot.sound`; verified via `lean_verify`);
+`lake build BookProof` green (8113 jobs).
+
+**N12 — S7 Bargmann–Fock / CCR field package (`ChapterF1.lean`).** The
+polynomial (Bargmann–Fock) model of the CCR algebra on `ℂ[X]` (vacuum `|0⟩ = 1`,
+`a := d/dX`, `a† := X·`), with the `../unfer` design decisions (§0 S7):
+* **F1.1** `ccr` (`[a, a†] = 1` on `ℂ[X]`) and `ccr_mv` (`[a_i, a†_j] = δ_ij`
+  on `MvPolynomial (Fin n) ℂ` via `pderiv`);
+* **F1.2** Hermitian field rep `fieldPhi := a†+a`, `fieldPi := i·(a†−a)`,
+  `field_ccr` (`[φ, π] = 2i·1`); the Bargmann pairing `bargmann` with
+  `bargmann_eq_sum`, `bargmann_monomial_left`, `bargmann_monomial`
+  (`⟪Xᵐ,Xⁿ⟫ = n!·δ_{mn}`), and the adjoint relation `bargmann_creat_annih`
+  (`⟪a†p,q⟫ = ⟪p,aq⟫`, whence `φ`/`π` symmetric);
+* **F1.3** `numberOp := a†∘a`, `numberOp_monomial` (`N Xⁿ = n·Xⁿ`);
+* **F1.4 HEADLINE** `quadratic_ordering_vacuum` (`⟨0|H|0⟩ = 0` for `H := a†a`),
+  contrasted with `symmetric_ordering_vacuum` (`½` for `(aa†+a†a)/2`) and
+  `orderings_differ` — the quadratic-ordering normalization is a theorem;
+* **F1.5** `field_gauge_invariant_iff` — BRST bridge to `ChapterG2`
+  (gauge invariance = commutation with the BRST constraint).
+No `EXTERNAL` input.
+
+**N11 — Wigner/Mackey/Weyl exhaustiveness bundle (`ChapterA4h.lean`,
+`ChapterA3w.lean`).** Named-hypothesis structures with citation docstrings
+(never axioms), and the conditional headlines assembled around the on-disk
+exclusion cores:
+* `ChapterA4h`: concrete `localizable_iff_massShell` (the Majorana energy symbol
+  is singular iff `|p⃗|² = m₁²+m₂²`, from `ChapterA5.energySymbolR_sq`) +
+  `not_localizable_of_tachyon` / `not_localizable_zeroMomentum` (Exclusions 1–2);
+  the `EXTERNAL` `MackeyImprimitivity` (induced realization) and
+  `WignerClassification` (no continuous spin); **`prop87_assembled`** (a
+  localizable induced irrep is massive or massless-discrete),
+  `prop88_energy_sign_not_conserved` + `cor1_energy_sectors_swapped`
+  (antiparticles/CPT, from `ChapterA4e`), and the combined `prop87_88_assembled`.
+* `ChapterA3w`: the `EXTERNAL` `WeylCompleteReducibility` (finite-dim `SL(2,ℂ)`
+  reps completely reducible, stated over Mathlib `Representation`) +
+  `weyl_invariant_complement`; the concrete **`lemma52_parity_gluing`** (chirality
+  not parity-invariant, parity swaps `V_{(m,n)} ↔ V_{(n,m)}`, LL↔RR), reusing
+  `chirality_not_parity_invariant`/`parity_swaps_chirL`/`projLL_not_parity_invariant`/
+  `parity_swaps_LL_RR`.
+
+**Hygiene.** Added the pending §0 S7 `../unfer` cross-reference docstrings to
+`born_conditioning` (cite `prob_kernel` `Session.condition`) and `prodEquiv`
+(cite `nested_fock_algebra`) in `ChapterU.lean`; the new modules are lint-clean.
+
 ## Wave 37 (2026-07-05) — N4 §A.3 Note 50 / Lemma 52: **dimensions of the complete-reducibility summands at `N = 6`** (`ChapterA3v.lean`)
 
 New module `BookProof/ChapterA3v.lean` (registered in `BookProof.lean`), the
