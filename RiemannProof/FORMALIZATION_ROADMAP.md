@@ -29,12 +29,13 @@ Mathlib names, sized comparably to Chapters B–E combined.
 algorithms promoted to flagship work packages.** The author has flagged that
 *"there are many chapters in `book.tex` still unformalized"* and that **"the
 `Hashimoto.tex` and `QFM.tex` algorithms are very important and can be
-formalized."** Both source documents live in the sibling repo `../unfer`
-(the Rust reference implementation governed by §0 S7):
-`../unfer/Hashimoto.md` (Hashimoto–Nodera, *Shift-invert Rational Krylov (SIRK)
-method for an operator φ-function of an unbounded operator*, JJIAM 2019 — the
-numerical-analysis backbone that `book.tex` cites at lines 1147 and 2055 to
-justify the finite-energy/Krylov-convergence argument) and `../unfer/QFM.tex`
+formalized."** Both source documents have been **copied into `RiemannProof/`**
+(alongside this roadmap) from the sibling repo `../unfer` (the Rust reference
+implementation governed by §0 S7), and are referenced there from here on:
+`RiemannProof/Hashimoto.md` (Hashimoto–Nodera, *Shift-invert Rational Krylov
+(SIRK) method for an operator φ-function of an unbounded operator*, JJIAM 2019 —
+the numerical-analysis backbone that `book.tex` cites at lines 1147 and 2055 to
+justify the finite-energy/Krylov-convergence argument) and `RiemannProof/QFM.tex`
 (*Wavefunction Flows in the `unfer` Kernel* — Quantum Flow Matching, the
 generative-flow architecture built on the Mehler/Hashimoto/Fock formalism,
 implemented in `../unfer/qfm/`). These become the two **new flagship packages
@@ -44,6 +45,12 @@ sitting at the **front of the queue**. Full English-proof specs with pinned
 Mathlib names are in the N13/N14 queue entries below. Both follow §0 S7 (the
 `../unfer` Mehler/Kopperman formalism) and reuse the on-disk Fock layer
 (N12/`ChapterF1`) and Mehler chain (`PnpProof/SphereGaussian.lean`).
+**Self-containment (important): the Lean specialist needs NO `../unfer` access.**
+The source docs are now in-tree at `RiemannProof/Hashimoto.md` and
+`RiemannProof/QFM.tex`; the N13/N14 entries restate all the mathematics inline;
+and every remaining `../unfer/...` crate path in this document is a **docstring
+citation string only** — write it verbatim, never open it (see the ⚠ box in
+§0 S7).
 
 ---
 
@@ -67,8 +74,8 @@ wave-37 snapshot below) closed the last three items** — see
 
 **⇒ The original roadmap queue (N1–N12, including N7(c)) is now 100 % complete.
 The genuinely open work is the two NEW, author-prioritized (2026-07-06)
-flagship packages: N13 (Hashimoto SIRK, `../unfer/Hashimoto.md`) and N14 (QFM,
-`../unfer/QFM.tex`).** Both are fully specified with English proofs + pinned
+flagship packages: N13 (Hashimoto SIRK, `RiemannProof/Hashimoto.md`) and N14 (QFM,
+`RiemannProof/QFM.tex`).** Both are fully specified with English proofs + pinned
 Mathlib names in the N13/N14 queue entries below; N14 reuses the on-disk
 `ChapterF1.numberOp` (N12) and `PnpProof/SphereGaussian.lean`.
 
@@ -169,7 +176,7 @@ N1–N12 are DONE (N11 + N12 in wave 38, N7(c) in wave 39) and N4's concrete/
 algebraic content is DONE. The only genuinely open items are the two NEW,
 author-prioritized flagship packages:**
 - **N13 (NEW, 2026-07-06 — FLAGSHIP, author-prioritized: the Hashimoto SIRK
-  package).** `../unfer/Hashimoto.md` formalized: the φ-functions and their
+  package).** `RiemannProof/Hashimoto.md` formalized: the φ-functions and their
   recurrence, the exponential-integrator Duhamel identity, the resolvent /
   rational-Krylov algebra (the clean `X_j = (I + h(m−j)X_m)^{-1}X_m` identity
   and the rational-function characterization of the SIRK subspace), the
@@ -179,7 +186,7 @@ author-prioritized flagship packages:**
   N13 queue entry. Target `BookProof/ChapterH1.lean` (+ `ChapterH2.lean`)
   (both filenames verified free).
 - **N14 (NEW, 2026-07-06 — FLAGSHIP, author-prioritized: the QFM package).**
-  `../unfer/QFM.tex` formalized: continuity-Hamiltonian Hermiticity, the
+  `RiemannProof/QFM.tex` formalized: continuity-Hamiltonian Hermiticity, the
   orthogonal-Fock disjoint-support identities, the diagonal-Gram closed-form
   `O(M)` training solution, exact commutativity/time-averaging, the vacuum
   projector (self-adjoint idempotent) and dressed-vacuum Bessel bound
@@ -228,8 +235,8 @@ accomplish anything significant. Note that there are many chapters in
 are very important and can be formalized)."** **The entire original queue
 (N1–N12, including N7(c)) is already DONE (waves 4–39); the next pass is
 exactly the two new flagship packages, and nothing else:** **N13** (the
-Hashimoto SIRK package — `../unfer/Hashimoto.md`, ~12 deliverables H1.1–H2.4)
-**+ N14** (the QFM package — `../unfer/QFM.tex`, ~12 deliverables F2.1–F3.5).
+Hashimoto SIRK package — `RiemannProof/Hashimoto.md`, ~12 deliverables H1.1–H2.4)
+**+ N14** (the QFM package — `RiemannProof/QFM.tex`, ~12 deliverables F2.1–F3.5).
 These two alone carry enough independent, fully-specified deliverables to fill
 several substantial passes — there is no excuse for a "too fast" pass. **N14
 reuses the on-disk `ChapterF1.numberOp` (N12, already landed wave 38) — no new
@@ -322,7 +329,7 @@ obstruction note) and `lake build BookProof` is green.
   cores and §A.5 CPT/mass-shell **complete**. **What is left of N4 is
   exactly N11 below** (the Wigner/Mackey/Weyl exhaustiveness clauses).
 - **N13 — the Hashimoto SIRK package (FLAGSHIP, author-prioritized 2026-07-06;
-  FIRST OPEN ITEM). Source: `../unfer/Hashimoto.md`.** Target
+  FIRST OPEN ITEM). Source: `RiemannProof/Hashimoto.md`.** Target
   `BookProof/ChapterH1.lean` (φ-functions + exponential integrator + resolvent
   algebra) and `BookProof/ChapterH2.lean` (Krylov compression + convergence).
   §0 S7 governs (this is the numerical backbone of the Mehler/Hashimoto Fock
@@ -406,7 +413,7 @@ obstruction note) and `lake build BookProof` is green.
   H2.3/H2.4 are conditional on the one named `CrouzeixBound` hypothesis. No
   `axiom`, ever.
 - **N14 — the QFM (Quantum Flow Matching) package (FLAGSHIP,
-  author-prioritized 2026-07-06; SECOND OPEN ITEM). Source: `../unfer/QFM.tex`
+  author-prioritized 2026-07-06; SECOND OPEN ITEM). Source: `RiemannProof/QFM.tex`
   (impl `../unfer/qfm/`).** Target `BookProof/ChapterF3.lean` (continuity
   Hamiltonian + Fock encoding + training) and `BookProof/ChapterF4.lean`
   (tomographic recovery) — **`ChapterF1` (N12) and `ChapterF2` (N7(c) mass gap)
@@ -725,8 +732,24 @@ at its root, `AGENTS.md` + `docs/ARCHITECTURE.md` for orientation) is the
 **reference implementation** of the formalism for everything field-theoretic. It is
 Rust, not Lean — the rule is not "port the code" but "**formalize the same design
 decisions**": whenever a package involves fields or field theory, the Lean
-statements must mirror how `../unfer` sets the objects up, and their docstrings must
-cite the corresponding crate/module. The load-bearing design decisions:
+statements must mirror these design decisions, and their docstrings should
+cite the corresponding crate/module.
+
+> **⚠ NO `../unfer` ACCESS IS REQUIRED to execute this roadmap.** The Lean
+> specialist does **not** need to open `../unfer` for any deliverable. Everything
+> load-bearing is in-tree: (i) the field-theory **design decisions are listed
+> inline immediately below** (and the concrete N12 `ChapterF1` already realizes
+> them on disk); (ii) the two algorithm **source documents are copied into
+> `RiemannProof/`** — `RiemannProof/Hashimoto.md` and `RiemannProof/QFM.tex` —
+> and the N13/N14 queue entries restate their full mathematical content with
+> English proofs + pinned Mathlib names; (iii) the `../unfer` crate paths
+> (`nested_fock_algebra`, `fock_sirk`, `prob_kernel`, `qfm/src/*.rs`) appear
+> **only as docstring citation strings** — write the path verbatim as a `/--
+> cf. … -/` reference; you never have to read the file it names. If a Rust
+> detail were ever genuinely needed for a proof, that would be a roadmap bug —
+> record it in `STATUS.md` and prove the strongest in-tree variant instead.
+
+The load-bearing design decisions (stated here in full — no external read):
 - **Fock layer** (`nested_fock_algebra` crate): fields live on (nested) Fock spaces
   over the Kopperman substrate — an **Outer** Fock space (the "multiverse", the
   probability-space-of-probability-spaces of book-Ch.-B §10 ensemble forecasting;
@@ -779,8 +802,8 @@ Scope: this binds **N4 (§A.3–A.5)**, **N9 G.11 (BRST)**, **Ch. U** cross-refe
 | H | Consciousness as a Bayesian prior (9122) | Bayesian-prior representation lemma(s) | Triaged non-formalizable (prose) |
 | P | Physics-heavy (3699, 6486, 7125, 7522, 7881) | discrete lemmas only | Mined — no discrete lemmas beyond Ch. A/B/E reuse; deeper gauge content now lives in Ch. G |
 | **U** | **Unitary inference / unfer (added 2026-07-02; source `../test` gitbook + pubpub ec0in, to be merged into book.tex)** | **Born-rule conditioning = classical conditional measure (`ProbabilityTheory.cond`), Fock exponential property `Sym(M×N) ≅ Sym M ⊗ Sym N`, 1/√n portfolio risk, Lévy nowhere-differentiability (`EXTERNAL`)** | **DONE in Lean** (`BookProof/ChapterU.lean`, run `e3ffd49f`: U.1 headline `born_conditioning`, U.3 `prodEquiv`, U.4 `EXTERNAL` + wrappers, U.5 portfolio; U.2 = cross-ref to `PnpProof/SphereGaussian.lean`); merge into book.tex remains editorial (author's task) |
-| **SIRK** | **Hashimoto shift-invert rational Krylov (added 2026-07-06; source `../unfer/Hashimoto.md`; `book.tex` cites at 1147/2055)** | **φ-functions + recurrence, exponential-integrator Duhamel identity, resolvent/rational-Krylov algebra (`Xⱼ=(I+h(m−j)Xₘ)⁻¹Xₘ`, rational-function characterization), Arnoldi/SIRK compression, `e^{−hm}` convergence bound conditional on `EXTERNAL` Crouzeix** | **OPEN — N13 (FLAGSHIP, FIRST open item), full guided spec in queue; target `ChapterH1.lean`/`ChapterH2.lean`** |
-| **QFM** | **Quantum Flow Matching (added 2026-07-06; source `../unfer/QFM.tex`, impl `../unfer/qfm/`)** | **continuity-Hamiltonian Hermiticity, orthogonal-Fock disjoint-support identities, diagonal-Gram `O(M)` closed-form training, exact commutativity/time-averaging, vacuum projector + dressed-vacuum Bessel bound `Σεⱼ²≤1`, Mehler overlap `⟨0\|xⱼ⟩=εⱼ>0`, Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse recovery** | **OPEN — N14 (FLAGSHIP, SECOND open item), full guided spec in queue; reuses on-disk `ChapterF1.numberOp` (N12) + `SphereGaussian.lean`; target `ChapterF3.lean`/`ChapterF4.lean` (F1/F2 already taken)** |
+| **SIRK** | **Hashimoto shift-invert rational Krylov (added 2026-07-06; source `RiemannProof/Hashimoto.md`; `book.tex` cites at 1147/2055)** | **φ-functions + recurrence, exponential-integrator Duhamel identity, resolvent/rational-Krylov algebra (`Xⱼ=(I+h(m−j)Xₘ)⁻¹Xₘ`, rational-function characterization), Arnoldi/SIRK compression, `e^{−hm}` convergence bound conditional on `EXTERNAL` Crouzeix** | **OPEN — N13 (FLAGSHIP, FIRST open item), full guided spec in queue; target `ChapterH1.lean`/`ChapterH2.lean`** |
+| **QFM** | **Quantum Flow Matching (added 2026-07-06; source `RiemannProof/QFM.tex`, impl `../unfer/qfm/`)** | **continuity-Hamiltonian Hermiticity, orthogonal-Fock disjoint-support identities, diagonal-Gram `O(M)` closed-form training, exact commutativity/time-averaging, vacuum projector + dressed-vacuum Bessel bound `Σεⱼ²≤1`, Mehler overlap `⟨0\|xⱼ⟩=εⱼ>0`, Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse recovery** | **OPEN — N14 (FLAGSHIP, SECOND open item), full guided spec in queue; reuses on-disk `ChapterF1.numberOp` (N12) + `SphereGaussian.lean`; target `ChapterF3.lean`/`ChapterF4.lean` (F1/F2 already taken)** |
 
 **Suggested Lean build order (dependencies).** A.0 (Systems core) → A.1
 (real/complex map) → A.2 (Schur classification) → A.3 (imprimitivity, EXTERNAL
@@ -2583,8 +2606,8 @@ the two NEW packages **N13 (Hashimoto SIRK)** and **N14 (QFM)**.
 | **Ch. G (G.0–G.7)** | gauge group of a parametrization, orbit=fiber, invariance⇔factoring, invariant subalgebras, gauge-independent expectations, Dirac no-invariant-state obstruction, gauge-fixing sections, Haar averaging, **pushforward-implements-constraints headline**; BRST Ω²=0; Koopman `koopmanEquiv`; damped-oscillator flow group | **Complete** (this doc, 2026-07-02; all Mathlib names pinned) | **DONE** — `ChapterG.lean` (N6 ✅, run `bee1f248`, no `EXTERNAL`) |
 | **Ch. G II (G.8–G.12)** | conditioning fails on null constraint sets; Dirac obstruction for any infinite gauge group; **Gribov headline `no_continuous_gauge_fixing_circle`**; BRST cohomology + `brst_physical_iff_gauge_invariant`; Haar averaging = invariant projection, expectation-preserving | **Complete** (this doc, 2026-07-03; all Mathlib names pinned; no `EXTERNAL`) | **DONE** — `ChapterG2.lean` (N9 ✅, wave 4 run `8296bfb3`, all of G.8–G.12) |
 | **Ch. B §§7–9** | Koopman functoriality (`koopman_comp`/`koopmanRep_mul` — symmetry groups act unitarily), constants fixed, deterministic = event-algebra automorphism (`koopman_indicatorConstLp`), complementarity contrast (`hadamard_not_deterministic`) | **Complete** (this doc, 2026-07-03; builds on on-disk `koopmanEquiv`; no `EXTERNAL`) | **DONE** — `ChapterB7.lean` (N10 ✅, wave 4 run `8296bfb3`, B7.1–B7.4) |
-| **N13 Hashimoto SIRK** | φ-functions + recurrence, exponential-integrator Duhamel, resolvent shift identity `Xⱼ=(I+h(m−j)Xₘ)⁻¹Xₘ`, rational-Krylov = rational functions of `Xₘ`, Arnoldi/SIRK compression, `e^{−hm}` SIRK convergence conditional on `EXTERNAL` Crouzeix (~12 deliverables H1.1–H2.4) | **Full guided spec in the N13 queue entry** (2026-07-06; pins verified: `resolvent`, `integral_exp`, `Orthonormal`) | **Open (N13 — FLAGSHIP, FIRST open item; source `../unfer/Hashimoto.md`; target `ChapterH1.lean` / `ChapterH2.lean`)** |
-| **N14 QFM** | continuity-Hamiltonian Hermiticity, orthogonal-Fock disjoint-support identities, diagonal-Gram `O(M)` closed-form training, exact commutativity/time-averaging, vacuum projector + dressed-vacuum Bessel `Σεⱼ²≤1`, Mehler overlap `εⱼ>0`, Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse recovery (~12 deliverables F2.1–F3.5) | **Full guided spec in the N14 queue entry** (2026-07-06; pins verified: `orthogonalProjection`, `selfAdjoint.expUnitary`, Bessel) | **Open (N14 — FLAGSHIP, SECOND open item; source `../unfer/QFM.tex`; reuses on-disk `ChapterF1.numberOp` (N12) + `SphereGaussian.lean`; target `ChapterF3.lean` / `ChapterF4.lean` — F1/F2 taken)** |
+| **N13 Hashimoto SIRK** | φ-functions + recurrence, exponential-integrator Duhamel, resolvent shift identity `Xⱼ=(I+h(m−j)Xₘ)⁻¹Xₘ`, rational-Krylov = rational functions of `Xₘ`, Arnoldi/SIRK compression, `e^{−hm}` SIRK convergence conditional on `EXTERNAL` Crouzeix (~12 deliverables H1.1–H2.4) | **Full guided spec in the N13 queue entry** (2026-07-06; pins verified: `resolvent`, `integral_exp`, `Orthonormal`) | **Open (N13 — FLAGSHIP, FIRST open item; source `RiemannProof/Hashimoto.md`; target `ChapterH1.lean` / `ChapterH2.lean`)** |
+| **N14 QFM** | continuity-Hamiltonian Hermiticity, orthogonal-Fock disjoint-support identities, diagonal-Gram `O(M)` closed-form training, exact commutativity/time-averaging, vacuum projector + dressed-vacuum Bessel `Σεⱼ²≤1`, Mehler overlap `εⱼ>0`, Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse recovery (~12 deliverables F2.1–F3.5) | **Full guided spec in the N14 queue entry** (2026-07-06; pins verified: `orthogonalProjection`, `selfAdjoint.expUnitary`, Bessel) | **Open (N14 — FLAGSHIP, SECOND open item; source `RiemannProof/QFM.tex`; reuses on-disk `ChapterF1.numberOp` (N12) + `SphereGaussian.lean`; target `ChapterF3.lean` / `ChapterF4.lean` — F1/F2 taken)** |
 | **N11 exhaustiveness bundle** | `WignerClassification` + `MackeyImprimitivity` + `WeylCompleteReducibility` named hypotheses; conditional assemblies of Props 81/87/88 + Cor 1 and of Lemma 52's `V_{(m,n)}` identification | **Complete** | **DONE (wave 38)** — `ChapterA4h.lean` + `ChapterA3w.lean`, `sorry`/`axiom`-free |
 | **N12 S7 field package** | Bargmann–Fock polynomial CCR model: `[a, a†] = 1`, Hermitian rep `φ = a†+a` / `π = i(a†−a)`, number operator, **`quadratic_ordering_vacuum` (⟨0\|H\|0⟩ = 0)** headline, BRST bridge to `ChapterG2`; docstrings cite `../unfer` crates (§0 S7) | **Complete** | **DONE (wave 38)** — `ChapterF1.lean` (`numberOp`, `quadratic_ordering_vacuum`; reused by N14 F2.7) |
 | **N7(c) mass gap** | Bargmann–Fock mass gap: `H := a†a = numberOp`, `H Xⁿ = n·Xⁿ`, vacuum energy 0, gap `Δ = 1`, `deformedHamiltonian c := c•N`, `[H_c, N] = 0` | **Complete** | **DONE (wave 39)** — `ChapterF2.lean` (`mass_gap`) |
@@ -2612,12 +2635,12 @@ for "a lot of guided work", so the only remaining order is:**
 **N13 (the Hashimoto SIRK package `ChapterH1`/`H2`: φ-functions + recurrence,
 Duhamel, the resolvent shift identity, rational-Krylov characterization,
 Arnoldi/SIRK compression, `e^{−hm}` bound conditional on `EXTERNAL` Crouzeix —
-~12 deliverables H1.1–H2.4, source `../unfer/Hashimoto.md`)** →
+~12 deliverables H1.1–H2.4, source `RiemannProof/Hashimoto.md`)** →
 **N14 (the QFM package `ChapterF3`/`F4`: continuity-Hamiltonian Hermiticity,
 disjoint-Fock identities, `O(M)` diagonal-Gram training, commutativity/
 time-averaging, vacuum projector + Bessel `Σεⱼ²≤1`, Mehler overlap,
 Count-Sketch unbiasedness, unitary flow, pseudo-inverse recovery — ~12
-deliverables F2.1–F3.5, source `../unfer/QFM.tex`; REUSES the on-disk
+deliverables F2.1–F3.5, source `RiemannProof/QFM.tex`; REUSES the on-disk
 `ChapterF1.numberOp` (N12) + `SphereGaussian.lean`, no new prerequisite)**.
 Then — only when the author names it — the next `book.tex` chapter promoted to
 a package (author note: "there are many chapters in `book.tex` still
