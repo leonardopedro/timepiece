@@ -58,3 +58,10 @@ import BookProof.ChapterF1
 import BookProof.ChapterF2
 import BookProof.ChapterA4h
 import BookProof.ChapterA3w
+import BookProof.ChapterH1
+import BookProof.ChapterH2
+import BookProof.ChapterF3
+import BookProof.ChapterF5
+import BookProof.ChapterF7
+import BookProof.ChapterEntropy
+import BookProof.ChapterMajoranaFourier

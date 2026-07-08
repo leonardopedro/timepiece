@@ -54,7 +54,93 @@ citation string only** — write it verbatim, never open it (see the ⚠ box in
 
 ---
 
-## ★ IMPLEMENTATION STATE (2026-07-06) — `BookProof` is on disk, 60 modules; the ENTIRE original queue N1–N12 (incl. N7(c)) is DONE; the only open work is the two NEW packages N13 (Hashimoto SIRK) + N14 (QFM)
+## ★ IMPLEMENTATION STATE (2026-07-08) — 68 modules on disk: the committed 60-module wave-1–39 base (N1–N12 100 % DONE) **+ 8 NEW off-log modules that land most of N13/N14** (unregistered/uncommitted — do the HYGIENE block first); open = registration hygiene → N13 residue → N14 residue
+
+**★ 2026-07-08 DROP (READ FIRST).** Eight new modules appeared in
+`BookProof/` at 2026-07-08 03:53 from implementation runs that left **no
+entry** in `ARISTOTLE_SUMMARY.md` or `BookProof/STATUS.md` (the same off-log
+pattern as waves 38–39; their docstrings self-cite wave numbers up to
+"Wave 58"). They are **git-untracked and NOT imported by `BookProof.lean`**
+(still 60 imports), so `lake build BookProof` does not yet elaborate them.
+What landed, mapped to the queue:
+
+- **N13 (Hashimoto SIRK) — majority landed.** `ChapterH1.lean`: **H1.1**
+  (`phi`, `phi_zero`, `phi_at_zero`), **H1.2** (`phi_succ_mul`, `phi_one`),
+  **H1.4 eigenvalue half** (`numericalRange`, `eigenvalue_mem_numericalRange`),
+  **H1.6** (`resolvent_identity`, `resolvent_shift_mul`). `ChapterH2.lean`:
+  **H2.1** (`hessenberg_vanishing`, `compression_upper_hessenberg`).
+  **Residue = H1.3 (Duhamel), H1.5 (`phiOp` via resolvent), H1.7
+  (rational-Krylov characterization), H2.2 (SIRK compression), H2.3/H2.4
+  (conditional on the named `EXTERNAL` `CrouzeixBound` — `ChapterH2`'s
+  docstring explicitly defers them).**
+- **N14 (QFM) — the F2.x half landed, across three files.**
+  `ChapterF3.lean`: **F2.3** (`disjoint_support_mul`,
+  `disjoint_support_inner_zero`), **F2.4**
+  (`diagonal_gram_residual_orthogonal`), **F2.6** (`projOnto_idempotent`/
+  `_isSymmetric`/`_eq_starProjection`), **F2.7** (`diagGen_vacuum`,
+  `diagGen_eigenstate`, reusing `ChapterF1.numberOp` as designed), **F2.8**
+  (`mehler_arc_integral`, `overlap_prod_pos`, `dressed_vacuum_bessel`),
+  **F2.9** (`mehler_projector_matrix`). `ChapterF5.lean`: **F2.1/F2.2
+  algebraic cores** (`anticommutator_isSymmetric`, `i_commutator_isSymmetric`)
+  + **F2.5** (`commuting_flow_two`/`_finset`). `ChapterF7.lean`: **F2.1/F2.2
+  concretely** on Schwartz space (`l2pair`, `position_l2Symmetric`,
+  `mulOp_l2Symmetric`, `momentum_l2Symmetric` via
+  `schwartz_integration_by_parts`, `continuityHamiltonian_l2Symmetric`,
+  `kinetic_l2Symmetric`, `conservativeHamiltonian_l2Symmetric`).
+  **Residue = the ENTIRE tomographic-recovery half F3.1–F3.5** (Count-Sketch
+  unbiasedness, observable-matrix identities, unitary reduced flow,
+  pseudo-inverse left-inverse, optional Misra–Gries): the runs' own
+  `ChapterF5` docstring references a `ChapterF4.lean` that **never landed on
+  disk** — F3.1–F3.5 remain targeted at `ChapterF4.lean` (filename still free).
+- **Bonus, outside the queue:** `ChapterEntropy.lean` (book Ch. C ~9474:
+  `invertibleProb_tendsto_zero`, Stirling equivalent, plus the C.2 witness
+  `exists_injective_not_surjective`; note it **re-proves C.1 already on disk
+  in `ChapterC.lean`** — treat `ChapterC` as canonical for C.1, the genuinely
+  new content is the C.2 witness) and `ChapterMajoranaFourier.lean` (§A.5
+  Prop 73 algebraic core: the 2×2 boost-mixing block with a Hermitian
+  involution `A = (n̂·γ⃗)γ⁰` is unitary — headline
+  `majoranaFourier_boostBlock_unitary`, complementing `ChapterA4`'s
+  Plancherel-level Prop 73).
+- **Casualty: `ChapterSphericalBessel2.lean` CANNOT BUILD** — it imports
+  `BookProof.ChapterSphericalBessel` (a "Wave 58" parent with the Rayleigh
+  closed forms `j₀, j₁, j₂`) which is **not on disk**, and its own content is
+  closed-form spherical-Bessel numerics (derivatives of `j₁`/`j₂`, ODE
+  satisfaction, the three-term recurrence at `l = 1`) that the author has
+  ruled unneeded — see **STOP RULE #2** below.
+
+**★ HYGIENE block — the FIRST work items of the next pass (before any new
+mathematics):**
+1. **Register the seven keeper modules** in `BookProof.lean` (`ChapterH1`,
+   `ChapterH2`, `ChapterF3`, `ChapterF5`, `ChapterF7`, `ChapterEntropy`,
+   `ChapterMajoranaFourier` — import order respecting `ChapterF3 → ChapterF1`,
+   `ChapterH2 → ChapterH1`, `ChapterMajoranaFourier → ChapterA3`), run
+   `lake build BookProof`, and repair anything that fails to elaborate; then
+   re-run the `#print axioms` spot checks on the headlines
+   (`dressed_vacuum_bessel`, `resolvent_shift_mul`,
+   `compression_upper_hessenberg`, `majoranaFourier_boostBlock_unitary`).
+2. **Delete `BookProof/ChapterSphericalBessel2.lean`** (broken import — its
+   parent never landed — and content covered by STOP RULE #2). Do **not**
+   recreate `ChapterSphericalBessel.lean`; if the author later wants the
+   Hankel–Majorana Defs 65–71, they will promote it as a named package.
+3. **Write the missing catch-up entries** in `BookProof/STATUS.md` and
+   `ARISTOTLE_SUMMARY.md` for this drop (⚠ runs are known to overwrite
+   `STATUS.md` — re-read it from disk before editing), and commit everything.
+
+**★ STOP RULE #2 — special-function numerics (author instruction,
+2026-07-08: "some proofs involving numerics of spherical Bessel functions
+seem to have been unneeded, make sure that does not happen next time").**
+Closed-form special-function verification chains — explicit
+derivative/ODE/recurrence checks for `j₀, j₁, j₂, …` (Rayleigh closed forms,
+three-term recurrences, ODE satisfaction) and analogous Bessel /
+hypergeometric / orthogonal-polynomial identity numerics — are **not roadmap
+work unless a queue deliverable names the specific identity as load-bearing
+for a book claim**. `ChapterSphericalBessel`/`ChapterSphericalBessel2` were
+exactly this failure mode: no queue entry requested them, and no on-disk
+theorem consumes them. This is the same "empty pass" trap as the closed
+`N = 7, 8, …` dimension-count thread (STOP RULE #1 below). The productive
+check is one line: **before opening any computational thread, find its
+deliverable ID (H*.x / F*.x / …) in the queue; if it has none, spend the pass
+on the queue's open residues instead.**
 
 **Thirty-nine waves of execution passes are complete** and the whole original
 work-package queue is exhausted. **Waves 38–39 (2026-07-05/06, after the
@@ -171,32 +257,32 @@ above and per-file in `BookProof/STATUS.md`):**
 | `BookProof/ChapterA2c.lean` | **§A.2 Props 18–19 (N2 ✅ trichotomy complete)** | **Prop 18** `Rcomplex_realCommutant_eq_complex` (R-complex commutant = ℂ), **Prop 19** `Rpseudoreal_realCommutant_eq_quaternion` (R-pseudoreal commutant = ℍ, via `qembed : ℍ →ₐ[ℝ] (V →L[ℝ] V)` + `qembed_injective`); infrastructure `RealCommutes`, `mulI`, `thetaR`, `cembed`, `Plin`/`Qanti`/`cplxify` |
 | `BookProof/ChapterB3.lean` | §B.3 partial-isometry API (N3) | `IsPartialIsometry` (`V V† V = V`) built from scratch (absent from Mathlib): `V†V`/`VV†` self-adjoint idempotents, `IsPartialIsometry.adjoint`, characterization `isPartialIsometry_iff_adjointComp_isIdempotent`, `norm_map_of_adjointComp_eq` |
 
-**What remains open (2026-07-06). The ENTIRE original queue is exhausted —
-N1–N12 are DONE (N11 + N12 in wave 38, N7(c) in wave 39) and N4's concrete/
-algebraic content is DONE. The only genuinely open items are the two NEW,
-author-prioritized flagship packages:**
-- **N13 (NEW, 2026-07-06 — FLAGSHIP, author-prioritized: the Hashimoto SIRK
-  package).** `RiemannProof/Hashimoto.md` formalized: the φ-functions and their
-  recurrence, the exponential-integrator Duhamel identity, the resolvent /
-  rational-Krylov algebra (the clean `X_j = (I + h(m−j)X_m)^{-1}X_m` identity
-  and the rational-function characterization of the SIRK subspace), the
-  Arnoldi/SIA/SIRK compression relations on the Kopperman core, and the SIRK
-  `e^{-hm}` convergence headline *conditional* on a named `EXTERNAL` Crouzeix
-  bound. A large package with ~12 independent deliverables — full spec in the
-  N13 queue entry. Target `BookProof/ChapterH1.lean` (+ `ChapterH2.lean`)
-  (both filenames verified free).
-- **N14 (NEW, 2026-07-06 — FLAGSHIP, author-prioritized: the QFM package).**
-  `RiemannProof/QFM.tex` formalized: continuity-Hamiltonian Hermiticity, the
-  orthogonal-Fock disjoint-support identities, the diagonal-Gram closed-form
-  `O(M)` training solution, exact commutativity/time-averaging, the vacuum
-  projector (self-adjoint idempotent) and dressed-vacuum Bessel bound
-  `Σεⱼ² ≤ 1`, the Mehler overlap `⟨0|xⱼ⟩ = εⱼ > 0`, and the tomographic-recovery
-  algebra (Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse
-  left-inverse). **Reuses the on-disk `ChapterF1.numberOp` (N12, wave 38) and
-  `SphereGaussian.lean` — import, do not rebuild.** Another large package with
-  ~12 deliverables — full spec in the N14 queue entry. Target
-  `BookProof/ChapterF3.lean` (+ `ChapterF4.lean`) — **note `ChapterF1` (N12)
-  and `ChapterF2` (N7(c) mass gap) are already on disk, so QFM uses F3/F4**.
+**What remains open (2026-07-08). The ENTIRE original queue is exhausted —
+N1–N12 are DONE (N11 + N12 in wave 38, N7(c) in wave 39) — and the 2026-07-08
+drop landed most of N13 and the F2.x half of N14 (see the ★ 2026-07-08 DROP
+block above). The open items, in order:**
+- **HYGIENE (FIRST — see the ★ HYGIENE block above):** register the seven
+  keeper modules in `BookProof.lean` + build green + axiom spot-checks; delete
+  the un-buildable `ChapterSphericalBessel2.lean`; write the catch-up
+  `STATUS.md`/`ARISTOTLE_SUMMARY.md` entries; commit.
+- **N13 residue (Hashimoto SIRK — `RiemannProof/Hashimoto.md`).** Landed
+  2026-07-08: H1.1, H1.2, H1.4 (eigenvalue half), H1.6 in `ChapterH1.lean`;
+  H2.1 in `ChapterH2.lean`. **Still open: H1.3 (Duhamel identity), H1.5
+  (`phiOp` via the resolvent), H1.7 (rational-Krylov = rational functions of
+  `X_m`), H2.2 (SIRK compression `Vₘ* Xₘ Vₘ = Hₘ Kₘ⁻¹`), H2.3/H2.4 (the
+  `e^{-hm}` convergence headline + SIA comparison, conditional on the named
+  `EXTERNAL` `CrouzeixBound`).** Full per-deliverable spec in the N13 queue
+  entry; extend `ChapterH1.lean`/`ChapterH2.lean` (or add `ChapterH3.lean` if
+  the conditional layer is cleaner separate).
+- **N14 residue (QFM — `RiemannProof/QFM.tex`, impl `../unfer/qfm/`).** Landed
+  2026-07-08: F2.3/F2.4/F2.6/F2.7/F2.8/F2.9 in `ChapterF3.lean`, F2.1/F2.2
+  algebraic cores + F2.5 in `ChapterF5.lean`, F2.1/F2.2 concrete Schwartz
+  `x̂`/`p̂` realization in `ChapterF7.lean`. **Still open: the entire
+  tomographic-recovery half F3.1–F3.5** (Count-Sketch linearity/unbiasedness,
+  observable-matrix identities, unitary reduced flow, pseudo-inverse
+  left-inverse, optional Misra–Gries). Full spec in the N14 queue entry;
+  target `BookProof/ChapterF4.lean` (filename free — the run that wrote
+  `ChapterF5` referenced it but never landed it).
 - **DONE in wave 38 (no longer open): N11** — the Wigner/Mackey/Weyl
   exhaustiveness bundle, `ChapterA4h.lean` + `ChapterA3w.lean` (external
   theorems as named hypotheses, conditional headlines proved). **DONE in
@@ -209,11 +295,16 @@ author-prioritized flagship packages:**
   promote next (author note 2026-07-06: "there are many chapters in `book.tex`
   still unformalized"). Treat the N13/N14 entries as the template for turning a
   cited algorithm into a fully-guided package when the author names the next one.
-- **STOP RULE for the dimension-count thread**: waves 33–37 computed the
+- **STOP RULE #1 for the dimension-count thread**: waves 33–37 computed the
   complete-reducibility summand dimensions at `N = 2…6`; together with the
   general orbit-count lemma `card_fixedTuples` (any `N`, any `σ`) that thread
   is **closed**. Do NOT continue to `N = 7, 8, …` — additional instances add
-  no new mathematics. Spend the pass on N13/N14 instead.
+  no new mathematics. Spend the pass on the open N13/N14 residues instead.
+- **STOP RULE #2 for special-function numerics** (author, 2026-07-08; full
+  text in the ★ 2026-07-08 DROP block above): closed-form Bessel /
+  hypergeometric / orthogonal-polynomial identity-verification chains are not
+  roadmap work unless a queue deliverable names the identity as load-bearing.
+  Every computational thread must carry a deliverable ID from the queue.
 - E.5 is a cross-reference into §A.2 and is covered by the landed §A.2 files.
 - Out of scope per this roadmap (not blockers): the fermionic
   (exterior-algebra) analogue of U.3 and the U.6 prose/software items.
@@ -233,16 +324,19 @@ guided work for the LLM-Lean-specialist to do. The last run was too fast to
 accomplish anything significant. Note that there are many chapters in
 `book.tex` still unformalized (the `Hashimoto.tex` and `QFM.tex` algorithms
 are very important and can be formalized)."** **The entire original queue
-(N1–N12, including N7(c)) is already DONE (waves 4–39); the next pass is
-exactly the two new flagship packages, and nothing else:** **N13** (the
-Hashimoto SIRK package — `RiemannProof/Hashimoto.md`, ~12 deliverables H1.1–H2.4)
-**+ N14** (the QFM package — `RiemannProof/QFM.tex`, ~12 deliverables F2.1–F3.5).
-These two alone carry enough independent, fully-specified deliverables to fill
-several substantial passes — there is no excuse for a "too fast" pass. **N14
-reuses the on-disk `ChapterF1.numberOp` (N12, already landed wave 38) — no new
-prerequisite work is needed.** Land as many H*/F* deliverables as the pass
-allows, in order, continuing to the next after each; re-verifying the already-
-green N1–N12 files is NOT progress.
+(N1–N12, including N7(c)) is already DONE (waves 4–39), and the 2026-07-08
+drop landed most of N13 + the F2.x half of N14; the next pass is exactly:
+(1) the ★ HYGIENE block (register the seven keeper modules, delete
+`ChapterSphericalBessel2.lean`, catch up `STATUS.md`/`ARISTOTLE_SUMMARY.md`,
+commit), then (2) the N13 residue** (H1.3, H1.5, H1.7, H2.2, H2.3/H2.4 —
+spec in the N13 queue entry) **and (3) the N14 residue** (F3.1–F3.5, target
+`ChapterF4.lean` — spec in the N14 queue entry). These residues carry enough
+independent, fully-specified deliverables to fill a substantial pass — there
+is no excuse for a "too fast" pass. Land as many H*/F* deliverables as the
+pass allows, in order, continuing to the next after each; re-verifying the
+already-green files is NOT progress, and **neither is any computational
+thread without a queue deliverable ID (STOP RULES #1 and #2)** — the
+2026-07-08 spherical-Bessel numerics were exactly such wasted work.
 **Standing rule (author, 2026-07-03): everything that involves fields or
 field theory follows §0 S7 — the Mehler/Kopperman formalism as implemented in
 the sibling repo `../unfer` (Hermitian field representation, quadratic
@@ -329,7 +423,10 @@ obstruction note) and `lake build BookProof` is green.
   cores and §A.5 CPT/mass-shell **complete**. **What is left of N4 is
   exactly N11 below** (the Wigner/Mackey/Weyl exhaustiveness clauses).
 - **N13 — the Hashimoto SIRK package (FLAGSHIP, author-prioritized 2026-07-06;
-  FIRST OPEN ITEM). Source: `RiemannProof/Hashimoto.md`.** Target
+  ★ 2026-07-08 STATUS: H1.1 ✅, H1.2 ✅, H1.4 ✅ (eigenvalue half), H1.6 ✅
+  landed in `ChapterH1.lean`; H2.1 ✅ landed in `ChapterH2.lean` — both
+  awaiting registration, see the ★ HYGIENE block. OPEN residue = H1.3, H1.5,
+  H1.7, H2.2, H2.3, H2.4 below.) Source: `RiemannProof/Hashimoto.md`.** Target
   `BookProof/ChapterH1.lean` (φ-functions + exponential integrator + resolvent
   algebra) and `BookProof/ChapterH2.lean` (Krylov compression + convergence).
   §0 S7 governs (this is the numerical backbone of the Mehler/Hashimoto Fock
@@ -340,7 +437,7 @@ obstruction note) and `lake build BookProof` is green.
   are named hypotheses with citation docstrings, NEVER axioms; everything
   around them is proved.** Deliverables (each independent — land as many as the
   pass allows):
-  - **H1.1 — the φ-functions and their values.** Define
+  - **H1.1 ✅ (landed 2026-07-08, `ChapterH1.lean`) — the φ-functions and their values.** Define
     `phi : ℕ → ℂ → ℂ`, `phi 0 z = exp z`,
     `phi (k+1) z = ∫ s in 0..1, exp (s*z) * (1-s)^k / k!` (eq. 3). Prove
     `phi_zero : phi 0 = exp`, `phi_at_zero : phi k 0 = 1/k!`
@@ -348,12 +445,12 @@ obstruction note) and `lake build BookProof` is green.
     (a fixed convergent power series). Pin `integral_exp`
     (`Mathlib/Analysis/SpecialFunctions/Integrals/Basic.lean:235`),
     `integral_exp_mul_complex` (:241), `intervalIntegral`.
-  - **H1.2 — the φ-recurrence.** `phi_succ_mul : z * phi (k+1) z = phi k z − 1/k!`
+  - **H1.2 ✅ (landed 2026-07-08, `ChapterH1.lean`) — the φ-recurrence.** `phi_succ_mul : z * phi (k+1) z = phi k z − 1/k!`
     for the entire functions (equivalently `phi (k+1) z = (phi k z − 1/k!)/z`
     for `z ≠ 0`), by integration by parts on the defining integral
     (`intervalIntegral.integral_mul_deriv_eq_deriv_mul` /
     `integral_deriv_mul_eq_sub`). Corollary `phi_one : z ≠ 0 → phi 1 z = (exp z − 1)/z`.
-  - **H1.3 — the exponential-integrator Duhamel identity (scheme (4)).** For a
+  - **H1.3 (OPEN) — the exponential-integrator Duhamel identity (scheme (4)).** For a
     bounded operator `A` (or a matrix on the core), the exact solution of
     `u' = A u + g` (`g` constant) over `[0,δ]` is
     `u δ = exp (δ • A) u₀ + δ • (phiOp 1 (δ • A)) g`, i.e. prove
@@ -361,7 +458,7 @@ obstruction note) and `lake build BookProof` is green.
     `phiOp` is the operator φ-function of H1.5. Reduce to the scalar H1.1/H1.2
     identity on each spectral/finite-rank component (§0 S3). Pin
     `Matrix.exp`/`NormedSpace.exp` and `hasDerivAt` for `exp (t • A)`.
-  - **H1.4 — the resolvent set-up and the numerical-range spectral inclusion.**
+  - **H1.4 ✅ (eigenvalue half landed 2026-07-08, `ChapterH1.lean`) — the resolvent set-up and the numerical-range spectral inclusion.**
     Define `X γ A = resolvent A γ` (Mathlib `resolvent`,
     `Mathlib/Algebra/Algebra/Spectrum/Basic.lean:79`; `resolvent_eq` :159,
     `mem_resolventSet_iff` :134). Prove the easy half of the Toeplitz–Hausdorff
@@ -370,34 +467,34 @@ obstruction note) and `lake build BookProof` is green.
     Rayleigh quotients). *Convexity of `W(A)` (full Toeplitz–Hausdorff) may be a
     named `EXTERNAL` hypothesis with citation; the eigenvalue inclusion is
     proved.*
-  - **H1.5 — the operator φ-function via the resolvent (Definition 2.4).** For
+  - **H1.5 (OPEN) — the operator φ-function via the resolvent (Definition 2.4).** For
     bounded `X = (γ − A)⁻¹` define `phiOp k A := psi k γ ∘ (functional calculus at X)`
     with `psi k γ z = phi k (γ − z⁻¹)`, and prove the *defining identity*
     `psiOp k γ X = phiOp k A` on the finite-rank core (a rewrite of the CFC:
     `f_γ((γ−A)⁻¹) = f(A)`). This is the Taylor (1951)/Güttel (2010) definition;
     cite in docstring.
-  - **H1.6 — the resolvent shift identity (the clean SIRK algebra core).** For
+  - **H1.6 ✅ (landed 2026-07-08, `ChapterH1.lean`) — the resolvent shift identity (the clean SIRK algebra core).** For
     `γ_j = N − h·j`, prove the operator identity
     `X_j = (I + h*(m−j) • X_m)⁻¹ * X_m` where `X_j = (γ_j − A)⁻¹`
     (§4 eq. between (10) and (11)); purely algebraic from the resolvent
     identity `X_j − X_m = (γ_m − γ_j) • X_j * X_m`. **Fully self-contained,
     no analysis — a high-value first deliverable.**
-  - **H1.7 — the rational-Krylov subspace = rational functions of `X_m`
+  - **H1.7 (OPEN) — the rational-Krylov subspace = rational functions of `X_m`
     (eq. 11).** With `Q_m {X_j} v = span{v, X₁v, X₂X₁v, …}` and
     `R_SIRK = {p/q : p ∈ 𝒫_{m−1}, q(z) = ∏_{i=1}^{m}(1 + h·i·z)}`, prove
     `Q_m {X_j} v = { r X_m v | r ∈ R_SIRK }` by induction on `m` using H1.6
     (each `X_j` applied to a degree-`d` rational in `X_m` raises the numerator
     degree by ≤1 and multiplies the denominator by one more `(1+h j z)` factor).
     Clean finite induction over the core.
-  - **H2.1 — the Arnoldi/Krylov compression relation (eqs. 5, 7).** Given an
+  - **H2.1 ✅ (landed 2026-07-08, `ChapterH2.lean`) — the Arnoldi/Krylov compression relation (eqs. 5, 7).** Given an
     orthonormal basis `{v₁,…,v_m}` of `𝒦_m(X, v)` on the core, the compression
     `Vₘ* X Vₘ = Hₘ` is upper-Hessenberg (`h_{i,j} = 0` for `i > j+1`), because
     `X 𝒦_j ⊆ 𝒦_{j+1}`. Use `LinearMap` restriction to the span + the
     orthonormal basis `OrthonormalBasis`; the Hessenberg vanishing is
     `⟪X vⱼ, vᵢ⟫ = 0` for `i > j+1` from the nesting.
-  - **H2.2 — the SIRK compression `Vₘ* X_m Vₘ = Hₘ Kₘ⁻¹` (eq. 10).** Assemble
+  - **H2.2 (OPEN) — the SIRK compression `Vₘ* X_m Vₘ = Hₘ Kₘ⁻¹` (eq. 10).** Assemble
     from H1.6 + H2.1 + the RK relation (9), on the core (finite matrices).
-  - **H2.3 — the SIRK convergence headline (Theorem 4.1), CONDITIONAL.**
+  - **H2.3 (OPEN) — the SIRK convergence headline (Theorem 4.1), CONDITIONAL.**
     Introduce `CrouzeixBound` as a named `EXTERNAL` structure/hypothesis
     (`∀ f A, ‖f A‖ ≤ C * ‖f‖_{∞,W(A)}` with `C ∈ [2, 11.08]`; cite Crouzeix
     2007, Crouzeix–Palencia). Then prove, *given* `CrouzeixBound`, the SIRK
@@ -405,7 +502,7 @@ obstruction note) and `lake build BookProof` is green.
     `‖phiOp k A v − Vₘ ψ(HₘKₘ⁻¹) Vₘ* v‖ ≤ 2C‖v‖ e^{−h m} · minᵣ ‖f_{k,N} − r‖_{∞,Σ}`
     (eq. 12), following the paper's proof (triangle inequality + the two
     `CrouzeixBound` applications (14)). The `e^{−h m}` decay is the payoff.
-  - **H2.4 — the existing-methods comparison (Remark 4.2), optional.** State the
+  - **H2.4 (OPEN, optional) — the existing-methods comparison (Remark 4.2).** State the
     SIA bound (15) as a conditional corollary of `CrouzeixBound` and record the
     `e^{−h m}` advantage of SIRK over SIA as an inequality of the two bounds.
   Definition of done: H1.1, H1.2, H1.4-eigenvalue, H1.6, H1.7, H2.1 are pure
@@ -413,33 +510,39 @@ obstruction note) and `lake build BookProof` is green.
   H2.3/H2.4 are conditional on the one named `CrouzeixBound` hypothesis. No
   `axiom`, ever.
 - **N14 — the QFM (Quantum Flow Matching) package (FLAGSHIP,
-  author-prioritized 2026-07-06; SECOND OPEN ITEM). Source: `RiemannProof/QFM.tex`
+  author-prioritized 2026-07-06; ★ 2026-07-08 STATUS: the entire F2.x half ✅
+  landed — F2.3/F2.4/F2.6/F2.7/F2.8/F2.9 in `ChapterF3.lean`, F2.1/F2.2
+  algebraic cores + F2.5 in `ChapterF5.lean`, F2.1/F2.2 concrete Schwartz
+  `x̂`/`p̂` realization in `ChapterF7.lean` — all awaiting registration, see
+  the ★ HYGIENE block. OPEN residue = the tomographic-recovery half
+  F3.1–F3.5 below, target `ChapterF4.lean`.) Source: `RiemannProof/QFM.tex`
   (impl `../unfer/qfm/`).** Target `BookProof/ChapterF3.lean` (continuity
-  Hamiltonian + Fock encoding + training) and `BookProof/ChapterF4.lean`
-  (tomographic recovery) — **`ChapterF1` (N12) and `ChapterF2` (N7(c) mass gap)
-  are already on disk, so QFM uses F3/F4; both verified free.** §0 S7 governs
+  Hamiltonian + Fock encoding + training — ✅ landed) and
+  `BookProof/ChapterF4.lean` (tomographic recovery — still free, the open
+  target) — **`ChapterF1` (N12) and `ChapterF2` (N7(c) mass gap)
+  are already on disk, so QFM uses F3/F4.** §0 S7 governs
   (this IS the Mehler/Kopperman generative flow); **reuses N12's number
   operator `ChapterF1.numberOp` (already landed wave 38; `numberOp_monomial :
   N Xⁿ = n·Xⁿ`) and the Mehler chain in `PnpProof/SphereGaussian.lean` —
   import, never rebuild.** Deliverables:
-  - **F2.1 — continuity-Hamiltonian Hermiticity (§4, eq. 4.2).** On the Schwartz
+  - **F2.1 ✅ (landed 2026-07-08: algebraic core `anticommutator_isSymmetric` in `ChapterF5.lean`, concrete Schwartz `x̂`/`p̂` version in `ChapterF7.lean`) — continuity-Hamiltonian Hermiticity (§4, eq. 4.2).** On the Schwartz
     / finite-support core, `x̂ⱼ` (multiplication) and `p̂ⱼ = −i ∂ⱼ` are symmetric,
     and the symmetrized `H = ½(p̂·v(x̂) + v(x̂)·p̂)` is symmetric
     (`IsSymmetric`), even though `p̂` and `v(x̂)` do not commute. Reuse the
     N12 `a†+a` symmetry pattern (§0 S7). Pin `LinearMap.IsSymmetric`,
     `integral_deriv_mul_eq_sub` (integration by parts for the `p̂` symmetry).
-  - **F2.2 — conservative commutator form (§4, eqs. 4.4–4.6).** For
+  - **F2.2 ✅ (landed 2026-07-08: `i_commutator_isSymmetric` in `ChapterF5.lean`, `kinetic_l2Symmetric` + `conservativeHamiltonian_l2Symmetric` in `ChapterF7.lean`; the explicit `∇²V` action formula was not needed for the symmetry payoff) — conservative commutator form (§4, eqs. 4.4–4.6).** For
     `v = ∇V`, prove `H^c = i • [K, V(x̂)]` with `K = ½ p̂·p̂`, and the explicit
     action `(H^c Ψ)(x) = −(i/2)(Ψ ∇²V + 2 ∇V·∇Ψ)`. `i[K,V]` is symmetric since
     `K, V` are (a clean `IsSymmetric` corollary — commutator of symmetrics
     times `i`).
-  - **F2.3 — orthogonal-Fock disjoint-support identities (§5.1, eqs. 5.2–5.4).**
+  - **F2.3 ✅ (landed 2026-07-08, `ChapterF3.lean`) — orthogonal-Fock disjoint-support identities (§5.1, eqs. 5.2–5.4).**
     For packets `Ψⱼ` with pairwise a.e.-disjoint supports: `Ψⱼ * Ψₖ = 0` (`j≠k`)
     and `= Ψⱼ²` (`j=k`); `∇Ψⱼ · ∇Ψₖ = 0` (`j≠k`); `⟪Ψᵢ, Ψⱼ⟫ = δᵢⱼ` when unit-
     normalized. Pin `MeasureTheory` disjoint-support ⇒ product-zero /
     orthogonality (`Set.indicator`, `MeasureTheory.integral_eq_zero`); this is
     the "zero data loss" claim as a theorem.
-  - **F2.4 — the diagonal-Gram closed-form training solution (§5.2,
+  - **F2.4 ✅ (landed 2026-07-08, `ChapterF3.lean`, `diagonal_gram_residual_orthogonal`) — the diagonal-Gram closed-form training solution (§5.2,
     eqs. 5.7–5.9) — the `O(M)` payoff.** State the least-squares CFM problem
     `minimize ‖Σⱼ αⱼ gⱼ − b‖²` with `gⱼ = ∇Ψⱼ`. By F2.3 the Gram matrix
     `⟪gⱼ, gₖ⟫` is diagonal, so the minimizer is the per-coordinate closed form
@@ -447,26 +550,26 @@ obstruction note) and `lake build BookProof` is green.
     the minimizer of a quadratic over an orthogonal family decouples. Pin
     `Orthonormal`/`orthogonalProjection` and `inner_sum`. **Self-contained
     linear algebra; the "training is `O(M)` with zero data loss" theorem.**
-  - **F2.5 — exact commutativity and time-averaging (§5.4).** Disjoint supports
+  - **F2.5 ✅ (landed 2026-07-08, `ChapterF5.lean`, `commuting_flow_two`/`_finset`) — exact commutativity and time-averaging (§5.4).** Disjoint supports
     ⇒ `[ĥⱼ, ĥₖ] = 0` ⇒ `[H_t, H_{t'}] = 0`; therefore the time-ordered flow
     equals `exp(−i • H̄)` with the time-averaged generator
     `H̄ = ∫₀¹ H_t dt` (a commuting family ⇒ the Magnus/Dyson series truncates to
     the average). Prove on the finite-dim core: pairwise-commuting bounded
     generators ⇒ `∏ exp = exp(∑)` and the average identity.
-  - **F2.6 — the vacuum projector `|0⟩⟨0|` (§5.3, `ProjectVacuum`).** The rank-1
+  - **F2.6 ✅ (landed 2026-07-08, `ChapterF3.lean`, `projOnto_*`) — the vacuum projector `|0⟩⟨0|` (§5.3, `ProjectVacuum`).** The rank-1
     map `P s = ⟪ψ, s⟫ • ψ` (`ψ` unit) is self-adjoint, idempotent
     (`P∘P = P`), `‖P‖ = 1`, and `= orthogonalProjection (span{ψ})`. Pin
     `orthogonalProjection` (`Mathlib/Analysis/InnerProductSpace/Projection/Basic.lean:143`),
     `innerSL` (`Mathlib/Analysis/InnerProductSpace/Dual.lean:68`). Also
     `ProjectOnto ψ`: `H s = ⟪ψ,s⟫•ψ`, idempotent ⇔ `‖ψ‖ = 1` (the rank-1
     shortcut, eq. `rank1shortcut`).
-  - **F2.7 — the diagonal generator's eigenstates (§5.5, eq. 5.13).** For
+  - **F2.7 ✅ (landed 2026-07-08, `ChapterF3.lean`, `diagGen_vacuum`/`diagGen_eigenstate`, reusing `ChapterF1.numberOp` as designed) — the diagonal generator's eigenstates (§5.5, eq. 5.13).** For
     `H_impl = |0⟩⟨0| + Σⱼ ᾱⱼ n̂ⱼ` with `n̂ⱼ` the N12 number operator,
     `H_impl |0⟩ = |0⟩` and `H_impl |xⱼ⟩ = ᾱⱼ |xⱼ⟩`. **Direct reuse of N12's
     `numberOp` eigenvalue lemma** — this is the concrete bridge that makes N12
     a prerequisite. The Born populations are stationary (phase-only evolution):
     `‖e^{−i H_impl t}|xⱼ⟩‖ = ‖|xⱼ⟩‖`.
-  - **F2.8 — the Mehler overlap and the dressed-vacuum Bessel bound (§6,
+  - **F2.8 ✅ (landed 2026-07-08, `ChapterF3.lean`, `mehler_arc_integral`/`overlap_prod_pos`/`dressed_vacuum_bessel`) — the Mehler overlap and the dressed-vacuum Bessel bound (§6,
     eqs. 6.16, 6.18).** The overlap `⟪0, xⱼ⟫ = εⱼ = ∏ᵢ √(w_{j,i}/2π)`: prove the
     single-arc integral `∫_arc √(1/w)·√(1/2π) dφ = √(w/2π)`
     (`integral_const`/`intervalIntegral`), and `εⱼ > 0` as a *finite* product of
@@ -479,35 +582,35 @@ obstruction note) and `lake build BookProof` is green.
     `|0⟩ = c₀|vac⟩_F + Σ εⱼ Bⱼ†|vac⟩_F` with `c₀ = √(1 − Σεⱼ²)` is well-defined
     and unit-norm. **High-value, clean, and it grounds the whole "vacuum is not
     orthogonal to the channels" mechanism.**
-  - **F2.9 — the Mehler projector as the off-diagonal generator (§5.3, §8).**
+  - **F2.9 ✅ (landed 2026-07-08, `ChapterF3.lean`, `mehler_projector_matrix`) — the Mehler projector as the off-diagonal generator (§5.3, §8).**
     The rank-1 projector `H₀ = |0⟩⟨0|` onto the dressed vacuum has channel
     matrix elements `⟪xᵢ, H₀ xⱼ⟫ = εᵢ εⱼ` (using `εⱼ` real ≥ 0). A one-line
     corollary of F2.6 + F2.8 that makes precise "the projector is by itself an
     off-diagonal generator."
-  - **F3.1 — Count-Sketch linearity and unbiasedness (§8, `S₁`).** `S₁ : ℝ^d →
+  - **F3.1 (OPEN — target `ChapterF4.lean`) — Count-Sketch linearity and unbiasedness (§8, `S₁`).** `S₁ : ℝ^d →
     ℝ^k`, `(S₁ x)_h = Σ_{c : h(c)=h} s(c) x_c`, is linear; and with Rademacher
     signs `s(c)` (`E[s(c) s(c')] = δ_{cc'}`) the sketch preserves inner products
     in expectation: `E[⟪S₁ x, S₁ y⟫] = ⟪x, y⟫` (the AMS/Count-Sketch estimator).
     Pin `ProbabilityTheory` independence + `Finset.sum`; **self-contained
     probabilistic identity, reuses the §0 S4 Rademacher/√2-indicator ONB idea.**
-  - **F3.2 — the observable-matrix identities (§8, eqs. for `W_prob`, `Φ`).**
+  - **F3.2 (OPEN — target `ChapterF4.lean`) — the observable-matrix identities (§8, eqs. for `W_prob`, `Φ`).**
     With one-hot projectors `P_a = |a⟩⟨a|` and Krylov operator basis
     `E_{r,s} = |e_r⟩⟨e_s|`, prove `(W_prob)_{a,(r,s)} = Tr(E_{r,s}† W† P_a W) =
     conj(W_{a,r}) W_{a,s}` (outer-product-of-a-row identity), and likewise for
     the image basis `Φ`. Clean finite-matrix trace algebra
     (`Matrix.trace`, `Matrix.mul_apply`).
-  - **F3.3 — the unitary reduced flow (§8 Phase 2; AGENTS.md §4 mandate).** For
+  - **F3.3 (OPEN — target `ChapterF4.lean`) — the unitary reduced flow (§8 Phase 2; AGENTS.md §4 mandate).** For
     Hermitian `H_m`, `e^{−i H_m t}` is unitary, hence `‖c₁‖ = ‖c₀‖`
     (norm-preserving generation, the rev-14 `preserves_norm` test as a theorem).
     Pin `selfAdjoint.expUnitary`
     (`Mathlib/Analysis/CStarAlgebra/Exponential.lean:37`) /
     `Matrix.IsHermitian` spectral route. **The clean AGENTS.md §4 unitarity
     guarantee.**
-  - **F3.4 — the pseudo-inverse left-inverse (§8, `Φ̃⁺`).** For full-column-rank
+  - **F3.4 (OPEN — target `ChapterF4.lean`) — the pseudo-inverse left-inverse (§8, `Φ̃⁺`).** For full-column-rank
     `Φ̃`, the Moore–Penrose `Φ̃⁺ = (Φ̃ᵀΦ̃)⁻¹Φ̃ᵀ` satisfies `Φ̃⁺ Φ̃ = I` (the
     subspace-recovery guarantee). Pin `Matrix` invertibility of the Gram
     `Φ̃ᵀΦ̃` when columns are independent (`Matrix.PosDef`/`Matrix.det_ne_zero`).
-  - **F3.5 (optional) — the Misra–Gries heavy-hitter bound (§8 Phase 4).** With
+  - **F3.5 (OPEN, optional — target `ChapterF4.lean`) — the Misra–Gries heavy-hitter bound (§8 Phase 4).** With
     `k` counters, the frequency estimate `f̂` of any item satisfies
     `f − N/k ≤ f̂ ≤ f` (the top-1 peak-recovery guarantee). A self-contained
     combinatorial deliverable; lower priority.
@@ -792,9 +895,9 @@ Scope: this binds **N4 (§A.3–A.5)**, **N9 G.11 (BRST)**, **Ch. U** cross-refe
 
 | # | Chapter (line) | Formalizable content | Status |
 |---|----------------|----------------------|--------|
-| A | Real representations / CPT (4218) | ~30 numbered Props/Lemmas: real↔complex systems, Schur classification (ℝ/ℂ/ℍ), imprimitivity, finite-dim Lorentz reps, unitary Poincaré reps, Majorana–Fourier/Energy transforms | **§A.0–A.2 DONE IN FULL** (`ChapterA`, `ChapterA1`–`A1h` + `Complexification`, `ChapterA2`–`A2e`: Defs 8–10, Props 11–12 both directions, L14 + P15–19; L20/28/34 `EXTERNAL` by design); **§A.3 DONE** (`ChapterA3`–`A3v`: Clifford model, L40/P37/P46/Def 49, Lemma 48 complete incl. `Υ`, `det exp = exp tr`, `lemma48_bridge`; Lemma 52 machinery + `N=2…6` dimensions); **§A.4–A.5 cores DONE** (`ChapterA4`–`A4g`, `ChapterA5`: P61/73/74/76 unitarity, P79 little groups, P81 rep laws, P87 exclusions, P88/Cor 1, CPT mass-shell). **Residue = N11 exhaustiveness bundle only** |
+| A | Real representations / CPT (4218) | ~30 numbered Props/Lemmas: real↔complex systems, Schur classification (ℝ/ℂ/ℍ), imprimitivity, finite-dim Lorentz reps, unitary Poincaré reps, Majorana–Fourier/Energy transforms | **§A.0–A.2 DONE IN FULL** (`ChapterA`, `ChapterA1`–`A1h` + `Complexification`, `ChapterA2`–`A2e`: Defs 8–10, Props 11–12 both directions, L14 + P15–19; L20/28/34 `EXTERNAL` by design); **§A.3 DONE** (`ChapterA3`–`A3v`: Clifford model, L40/P37/P46/Def 49, Lemma 48 complete incl. `Υ`, `det exp = exp tr`, `lemma48_bridge`; Lemma 52 machinery + `N=2…6` dimensions); **§A.4–A.5 cores DONE** (`ChapterA4`–`A4g`, `ChapterA5`: P61/73/74/76 unitarity, P79 little groups, P81 rep laws, P87 exclusions, P88/Cor 1, CPT mass-shell); **N11 exhaustiveness bundle DONE wave 38** (`ChapterA4h`/`ChapterA3w`); **+ 2026-07-08 bonus `ChapterMajoranaFourier.lean`** (Prop 73 algebraic core `majoranaFourier_boostBlock_unitary`, unregistered — ★ HYGIENE). **No open residue** |
 | B | Wave-function parametrization of a probability measure (1238) | §3: every conditional prob. measure on a standard space is a pullback; free-field/ONB parametrization | **DONE IN FULL** — `ChapterB.lean` (B.1–B.2 + `condKernel_disintegration`), `ChapterB3.lean` (`IsPartialIsometry` layer + B.3c `conditional_operator_identity`), `ChapterB3b.lean` (**`denseCore_svd`**, wave 15) |
-| C | Entropy + irreversible deterministic time-evolution coexist (9474) | measure-dynamics coexistence statement | **C.1 DONE in Lean** (`BookProof/ChapterC.lean`); C.2 author-dependent |
+| C | Entropy + irreversible deterministic time-evolution coexist (9474) | measure-dynamics coexistence statement | **C.1 DONE in Lean** (`BookProof/ChapterC.lean` — canonical); **C.2 witness DONE 2026-07-08** (`ChapterEntropy.lean` `exists_injective_not_surjective`; note that file also re-proves C.1 — see the duplication note in the ★ 2026-07-08 DROP block) |
 | D | Aligned deep learning as random sampling (9606) | sampling-method equivalence lemma(s) | **D.1 DONE in Lean** (`BookProof/ChapterD.lean`) |
 | E | Wave-function collapse vs Euler's formula (3229) | Euler-formula identities for phase spaces | **E.1–E.4 DONE in Lean** (`BookProof/ChapterE.lean`); E.5 = cross-ref into §A.2 |
 | F | Reconstructing the classical trajectory (2494) | conditional-expectation trajectory statement | Triaged non-formalizable (prose); Wigner anchor = N7(b) |
@@ -802,8 +905,9 @@ Scope: this binds **N4 (§A.3–A.5)**, **N9 G.11 (BRST)**, **Ch. U** cross-refe
 | H | Consciousness as a Bayesian prior (9122) | Bayesian-prior representation lemma(s) | Triaged non-formalizable (prose) |
 | P | Physics-heavy (3699, 6486, 7125, 7522, 7881) | discrete lemmas only | Mined — no discrete lemmas beyond Ch. A/B/E reuse; deeper gauge content now lives in Ch. G |
 | **U** | **Unitary inference / unfer (added 2026-07-02; source `../test` gitbook + pubpub ec0in, to be merged into book.tex)** | **Born-rule conditioning = classical conditional measure (`ProbabilityTheory.cond`), Fock exponential property `Sym(M×N) ≅ Sym M ⊗ Sym N`, 1/√n portfolio risk, Lévy nowhere-differentiability (`EXTERNAL`)** | **DONE in Lean** (`BookProof/ChapterU.lean`, run `e3ffd49f`: U.1 headline `born_conditioning`, U.3 `prodEquiv`, U.4 `EXTERNAL` + wrappers, U.5 portfolio; U.2 = cross-ref to `PnpProof/SphereGaussian.lean`); merge into book.tex remains editorial (author's task) |
-| **SIRK** | **Hashimoto shift-invert rational Krylov (added 2026-07-06; source `RiemannProof/Hashimoto.md`; `book.tex` cites at 1147/2055)** | **φ-functions + recurrence, exponential-integrator Duhamel identity, resolvent/rational-Krylov algebra (`Xⱼ=(I+h(m−j)Xₘ)⁻¹Xₘ`, rational-function characterization), Arnoldi/SIRK compression, `e^{−hm}` convergence bound conditional on `EXTERNAL` Crouzeix** | **OPEN — N13 (FLAGSHIP, FIRST open item), full guided spec in queue; target `ChapterH1.lean`/`ChapterH2.lean`** |
-| **QFM** | **Quantum Flow Matching (added 2026-07-06; source `RiemannProof/QFM.tex`, impl `../unfer/qfm/`)** | **continuity-Hamiltonian Hermiticity, orthogonal-Fock disjoint-support identities, diagonal-Gram `O(M)` closed-form training, exact commutativity/time-averaging, vacuum projector + dressed-vacuum Bessel bound `Σεⱼ²≤1`, Mehler overlap `⟨0\|xⱼ⟩=εⱼ>0`, Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse recovery** | **OPEN — N14 (FLAGSHIP, SECOND open item), full guided spec in queue; reuses on-disk `ChapterF1.numberOp` (N12) + `SphereGaussian.lean`; target `ChapterF3.lean`/`ChapterF4.lean` (F1/F2 already taken)** |
+| **SIRK** | **Hashimoto shift-invert rational Krylov (added 2026-07-06; source `RiemannProof/Hashimoto.md`; `book.tex` cites at 1147/2055)** | **φ-functions + recurrence, exponential-integrator Duhamel identity, resolvent/rational-Krylov algebra (`Xⱼ=(I+h(m−j)Xₘ)⁻¹Xₘ`, rational-function characterization), Arnoldi/SIRK compression, `e^{−hm}` convergence bound conditional on `EXTERNAL` Crouzeix** | **MOSTLY LANDED 2026-07-08 (N13): H1.1/H1.2/H1.4/H1.6 in `ChapterH1.lean`, H2.1 in `ChapterH2.lean` (unregistered — ★ HYGIENE); OPEN residue = H1.3/H1.5/H1.7/H2.2/H2.3/H2.4** |
+| **QFM** | **Quantum Flow Matching (added 2026-07-06; source `RiemannProof/QFM.tex`, impl `../unfer/qfm/`)** | **continuity-Hamiltonian Hermiticity, orthogonal-Fock disjoint-support identities, diagonal-Gram `O(M)` closed-form training, exact commutativity/time-averaging, vacuum projector + dressed-vacuum Bessel bound `Σεⱼ²≤1`, Mehler overlap `⟨0\|xⱼ⟩=εⱼ>0`, Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse recovery** | **F2.x HALF LANDED 2026-07-08 (N14): F2.3–F2.9 in `ChapterF3.lean`, F2.1/F2.2 cores + F2.5 in `ChapterF5.lean`, concrete `x̂`/`p̂` in `ChapterF7.lean` (unregistered — ★ HYGIENE); OPEN residue = F3.1–F3.5, target `ChapterF4.lean`** |
+| — | Hankel–Majorana transform / spherical Bessel numerics (§A.5, book ~5805, Defs 65–71) | closed-form `jₗ` derivatives, ODEs, recurrences | **TRIAGED OUT (STOP RULE #2, author 2026-07-08: numerics unneeded)** — `ChapterSphericalBessel2.lean` slated for deletion (broken import, parent never landed); formalize only if the author promotes a named package |
 
 **Suggested Lean build order (dependencies).** A.0 (Systems core) → A.1
 (real/complex map) → A.2 (Schur classification) → A.3 (imprimitivity, EXTERNAL
@@ -2586,9 +2690,11 @@ and the (2026-07-02-promoted) Chapter G package.
 Legend: **English proof** = written in this document, Lean-ready.
 **Lean DONE** = implemented sorry/axiom-free in `BookProof/` (see the
 ★ IMPLEMENTATION STATE section at the top and `BookProof/STATUS.md`);
-`lake build` green through **wave 39 (8114 jobs, run `c14d1ff7`, 60 modules)**.
-The entire original queue N1–N12 (incl. N7(c)) is DONE; the only open items are
-the two NEW packages **N13 (Hashimoto SIRK)** and **N14 (QFM)**.
+`lake build` green through **wave 39 (8114 jobs, run `c14d1ff7`, 60 registered
+modules)**. The entire original queue N1–N12 (incl. N7(c)) is DONE. The
+2026-07-08 off-log drop added 8 modules (**unregistered/uncommitted — see the
+★ HYGIENE block**): most of **N13** and the F2.x half of **N14** landed; open
+work = hygiene + the N13/N14 residues.
 
 | Section | Content | English proof | Lean status |
 |---|---|---|---|
@@ -2599,15 +2705,17 @@ the two NEW packages **N13 (Hashimoto SIRK)** and **N14 (QFM)**.
 | §A.4–A.5 | Bargmann–Wigner, Majorana–Fourier/Energy unitarity, localizable-rep classification, CPT/Cor 1 | **Written**; unitarity props doable, classification `EXTERNAL` Wigner/Mackey | **Cores DONE (waves 15–17, 19–20, 22, 24–25)** — `ChapterA4`–`A4g` (P61/73/74/76 unitarity, P79 little groups `SU(2)`/`SE(2)`, P81 rep laws, P87 exclusions, P88/Cor 1 energy-sign cores), `ChapterA5` (CPT/mass-shell). **Residue: exhaustiveness clauses = N11, DONE wave 38 (`ChapterA4h`/`ChapterA3w`)** |
 | Ch. B.1–B.2 | Born parametrization both ways + `Ψ = 𝒰 e₀` | **Complete** | **DONE** — `ChapterB.lean` |
 | Ch. B.2′/B.3 | condKernel disintegration converse; operator form/SVD via §0 dense-core | **Complete** | **DONE IN FULL (N3 ✅, waves 10 + 15)** — `condKernel_disintegration` (`ChapterB.lean`); `ChapterB3.lean` (`IsPartialIsometry` layer + B.3c `conditional_operator_identity`); `ChapterB3b.lean` (**`denseCore_svd`** finite-rank SVD) |
-| Ch. C | C.1 `n!/nⁿ→0` (Stirling) | **Complete**; C.2 author-dependent | **DONE** — `ChapterC.lean` |
+| Ch. C | C.1 `n!/nⁿ→0` (Stirling) | **Complete**; C.2 author-dependent | **DONE** — `ChapterC.lean` (canonical); **C.2 witness DONE 2026-07-08** — `ChapterEntropy.lean` (`exists_injective_not_surjective`; re-proves C.1, duplication noted in the DROP block) |
 | Ch. D | D.1 computable ⇒ countable ⇒ a.e. uncomputable | **Complete**; D.2 non-math | **DONE** — `ChapterD.lean` |
 | Ch. E | 2-state clock, stochastic-map classification, Hadamard/DFT uniformization, hyperspherical Born recursion onto simplex | **Complete** | **DONE** — `ChapterE.lean` (E.5 = cross-ref into §A.2) |
 | §0 substrate glue | instantiate Ch. B/E at `koppermanSubstrate` / `MehlerPrior` | — (already formalized in `PnpProof`) | **DONE** — `Substrate.lean` (N5 ✅) |
 | **Ch. G (G.0–G.7)** | gauge group of a parametrization, orbit=fiber, invariance⇔factoring, invariant subalgebras, gauge-independent expectations, Dirac no-invariant-state obstruction, gauge-fixing sections, Haar averaging, **pushforward-implements-constraints headline**; BRST Ω²=0; Koopman `koopmanEquiv`; damped-oscillator flow group | **Complete** (this doc, 2026-07-02; all Mathlib names pinned) | **DONE** — `ChapterG.lean` (N6 ✅, run `bee1f248`, no `EXTERNAL`) |
 | **Ch. G II (G.8–G.12)** | conditioning fails on null constraint sets; Dirac obstruction for any infinite gauge group; **Gribov headline `no_continuous_gauge_fixing_circle`**; BRST cohomology + `brst_physical_iff_gauge_invariant`; Haar averaging = invariant projection, expectation-preserving | **Complete** (this doc, 2026-07-03; all Mathlib names pinned; no `EXTERNAL`) | **DONE** — `ChapterG2.lean` (N9 ✅, wave 4 run `8296bfb3`, all of G.8–G.12) |
 | **Ch. B §§7–9** | Koopman functoriality (`koopman_comp`/`koopmanRep_mul` — symmetry groups act unitarily), constants fixed, deterministic = event-algebra automorphism (`koopman_indicatorConstLp`), complementarity contrast (`hadamard_not_deterministic`) | **Complete** (this doc, 2026-07-03; builds on on-disk `koopmanEquiv`; no `EXTERNAL`) | **DONE** — `ChapterB7.lean` (N10 ✅, wave 4 run `8296bfb3`, B7.1–B7.4) |
-| **N13 Hashimoto SIRK** | φ-functions + recurrence, exponential-integrator Duhamel, resolvent shift identity `Xⱼ=(I+h(m−j)Xₘ)⁻¹Xₘ`, rational-Krylov = rational functions of `Xₘ`, Arnoldi/SIRK compression, `e^{−hm}` SIRK convergence conditional on `EXTERNAL` Crouzeix (~12 deliverables H1.1–H2.4) | **Full guided spec in the N13 queue entry** (2026-07-06; pins verified: `resolvent`, `integral_exp`, `Orthonormal`) | **Open (N13 — FLAGSHIP, FIRST open item; source `RiemannProof/Hashimoto.md`; target `ChapterH1.lean` / `ChapterH2.lean`)** |
-| **N14 QFM** | continuity-Hamiltonian Hermiticity, orthogonal-Fock disjoint-support identities, diagonal-Gram `O(M)` closed-form training, exact commutativity/time-averaging, vacuum projector + dressed-vacuum Bessel `Σεⱼ²≤1`, Mehler overlap `εⱼ>0`, Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse recovery (~12 deliverables F2.1–F3.5) | **Full guided spec in the N14 queue entry** (2026-07-06; pins verified: `orthogonalProjection`, `selfAdjoint.expUnitary`, Bessel) | **Open (N14 — FLAGSHIP, SECOND open item; source `RiemannProof/QFM.tex`; reuses on-disk `ChapterF1.numberOp` (N12) + `SphereGaussian.lean`; target `ChapterF3.lean` / `ChapterF4.lean` — F1/F2 taken)** |
+| **N13 Hashimoto SIRK** | φ-functions + recurrence, exponential-integrator Duhamel, resolvent shift identity `Xⱼ=(I+h(m−j)Xₘ)⁻¹Xₘ`, rational-Krylov = rational functions of `Xₘ`, Arnoldi/SIRK compression, `e^{−hm}` SIRK convergence conditional on `EXTERNAL` Crouzeix (~12 deliverables H1.1–H2.4) | **Full guided spec in the N13 queue entry** (2026-07-06; pins verified: `resolvent`, `integral_exp`, `Orthonormal`) | **MOSTLY LANDED 2026-07-08** — H1.1/H1.2/H1.4/H1.6 (`ChapterH1.lean`) + H2.1 (`ChapterH2.lean`), unregistered (★ HYGIENE); **open residue H1.3/H1.5/H1.7/H2.2/H2.3/H2.4** |
+| **N14 QFM** | continuity-Hamiltonian Hermiticity, orthogonal-Fock disjoint-support identities, diagonal-Gram `O(M)` closed-form training, exact commutativity/time-averaging, vacuum projector + dressed-vacuum Bessel `Σεⱼ²≤1`, Mehler overlap `εⱼ>0`, Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse recovery (~12 deliverables F2.1–F3.5) | **Full guided spec in the N14 queue entry** (2026-07-06; pins verified: `orthogonalProjection`, `selfAdjoint.expUnitary`, Bessel) | **F2.x HALF LANDED 2026-07-08** — F2.3–F2.9 (`ChapterF3.lean`), F2.1/F2.2 cores + F2.5 (`ChapterF5.lean`), concrete `x̂`/`p̂` (`ChapterF7.lean`), unregistered (★ HYGIENE); **open residue F3.1–F3.5, target `ChapterF4.lean`** |
+| **§A.5 bonus (2026-07-08)** | Prop 73 algebraic core: boost-mixing block `S = [[c, −sA],[sA, c]]` with Hermitian involution `A = (n̂·γ⃗)γ⁰` is unitary | — (landed off-log) | **DONE 2026-07-08** — `ChapterMajoranaFourier.lean` (`majoranaFourier_boostBlock_unitary`), unregistered (★ HYGIENE) |
+| **Spherical-Bessel numerics** | closed-form `jₗ` derivative/ODE/recurrence checks (Hankel–Majorana §A.5, Defs 65–71) | — | **TRIAGED OUT (STOP RULE #2, author 2026-07-08)** — `ChapterSphericalBessel2.lean` slated for deletion (broken import; parent `ChapterSphericalBessel.lean` never landed) |
 | **N11 exhaustiveness bundle** | `WignerClassification` + `MackeyImprimitivity` + `WeylCompleteReducibility` named hypotheses; conditional assemblies of Props 81/87/88 + Cor 1 and of Lemma 52's `V_{(m,n)}` identification | **Complete** | **DONE (wave 38)** — `ChapterA4h.lean` + `ChapterA3w.lean`, `sorry`/`axiom`-free |
 | **N12 S7 field package** | Bargmann–Fock polynomial CCR model: `[a, a†] = 1`, Hermitian rep `φ = a†+a` / `π = i(a†−a)`, number operator, **`quadratic_ordering_vacuum` (⟨0\|H\|0⟩ = 0)** headline, BRST bridge to `ChapterG2`; docstrings cite `../unfer` crates (§0 S7) | **Complete** | **DONE (wave 38)** — `ChapterF1.lean` (`numberOp`, `quadratic_ordering_vacuum`; reused by N14 F2.7) |
 | **N7(c) mass gap** | Bargmann–Fock mass gap: `H := a†a = numberOp`, `H Xⁿ = n·Xⁿ`, vacuum energy 0, gap `Δ = 1`, `deformedHamiltonian c := c•N`, `[H_c, N] = 0` | **Complete** | **DONE (wave 39)** — `ChapterF2.lean` (`mass_gap`) |
@@ -2627,26 +2735,30 @@ classification, Varadarajan Thm 6.12, Wigner's symmetry theorem) is flagged
 `EXTERNAL` and introduced as a **named hypothesis** (as Lemma 27 already does
 for the Schur property), never asserted. No `sorry` anywhere in `BookProof`.
 
-**Remaining implementation order (updated 2026-07-06). The ENTIRE original
+**Remaining implementation order (updated 2026-07-08). The ENTIRE original
 queue N1–N12 (including N7(c), the mass gap) is DONE — N11 + N12 in wave 38,
-N7(c) in wave 39; `BookProof` is 60 modules, green at 8114 jobs. The author
-(2026-07-06) then prioritized two new `../unfer` algorithm packages and asked
-for "a lot of guided work", so the only remaining order is:**
-**N13 (the Hashimoto SIRK package `ChapterH1`/`H2`: φ-functions + recurrence,
-Duhamel, the resolvent shift identity, rational-Krylov characterization,
-Arnoldi/SIRK compression, `e^{−hm}` bound conditional on `EXTERNAL` Crouzeix —
-~12 deliverables H1.1–H2.4, source `RiemannProof/Hashimoto.md`)** →
-**N14 (the QFM package `ChapterF3`/`F4`: continuity-Hamiltonian Hermiticity,
-disjoint-Fock identities, `O(M)` diagonal-Gram training, commutativity/
-time-averaging, vacuum projector + Bessel `Σεⱼ²≤1`, Mehler overlap,
-Count-Sketch unbiasedness, unitary flow, pseudo-inverse recovery — ~12
-deliverables F2.1–F3.5, source `RiemannProof/QFM.tex`; REUSES the on-disk
-`ChapterF1.numberOp` (N12) + `SphereGaussian.lean`, no new prerequisite)**.
+N7(c) in wave 39; the 2026-07-08 off-log drop then landed most of N13 + the
+F2.x half of N14 (8 new modules, unregistered/uncommitted). The remaining
+order is:**
+**(1) the ★ HYGIENE block (register `ChapterH1`/`H2`/`F3`/`F5`/`F7`/
+`Entropy`/`MajoranaFourier` in `BookProof.lean` + build green + axiom
+spot-checks; delete the un-buildable `ChapterSphericalBessel2.lean`; catch up
+`STATUS.md`/`ARISTOTLE_SUMMARY.md`; commit)** →
+**(2) the N13 residue (`ChapterH1`/`H2`: H1.3 Duhamel, H1.5 `phiOp` via the
+resolvent, H1.7 rational-Krylov characterization, H2.2 SIRK compression,
+H2.3/H2.4 `e^{−hm}` bound conditional on `EXTERNAL` Crouzeix — source
+`RiemannProof/Hashimoto.md`)** →
+**(3) the N14 residue (`ChapterF4.lean`: F3.1 Count-Sketch unbiasedness, F3.2
+observable-matrix identities, F3.3 unitary reduced flow, F3.4 pseudo-inverse
+recovery, F3.5 optional Misra–Gries — source `RiemannProof/QFM.tex`)**.
 Then — only when the author names it — the next `book.tex` chapter promoted to
 a package (author note: "there are many chapters in `book.tex` still
 unformalized"). **The dimension-count thread (`ChapterA3r`–`A3v`) is CLOSED at
-`N = 6`** — do not extend it; a useful pass lands the N13 + N14
-sub-deliverables, not more instances of already-general results, and not a
-re-verification of the already-green N1–N12 files (see the ★ MANDATE and STOP
-RULE at the top). Treat N13/N14 as the template for turning a cited algorithm
-into a fully-guided package.
+`N = 6` (STOP RULE #1), and closed-form special-function numerics threads are
+CLOSED unless a queue deliverable names them (STOP RULE #2, author 2026-07-08
+after the unneeded spherical-Bessel proofs)** — a useful pass lands the
+hygiene block plus N13/N14 sub-deliverables, not more instances of
+already-general results, not identity-numerics without a deliverable ID, and
+not a re-verification of already-green files (see the ★ MANDATE at the top).
+Treat N13/N14 as the template for turning a cited algorithm into a
+fully-guided package.

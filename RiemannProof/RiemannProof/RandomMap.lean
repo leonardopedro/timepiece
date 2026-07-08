@@ -181,6 +181,145 @@ def omega (x : NatMult P) : ℕ :=
 end NatMult
 
 /-!
+### Step 1.3: Realizing the Beurling Primes as Reals (the Gödelian Safety Shield)
+
+The abstract type `P` above is deliberately uncommitted as to *what* the primes
+are. Realize them concretely as a countable family of multiplicatively independent real numbers
+greater than 1 — e.g. $p_0=\sqrt2,\ p_1=e,\ p_2=\pi,\dots$ — rather than as formal atoms, and let
+a label evaluate to an honest real number by taking the product over its prime factorization:
+
+$$\text{realize}(n) = \prod_{p \in n} p$$
+
+Log-independence of the `p i` (multiplicative independence) makes this map injective — unique factorization.
+
+#### Recipe for the Lean specialist: `realize_injective`
+
+`realize_injective` is proved in six steps, each keyed to a specific Mathlib lemma:
+
+1. **Logs turn the product equality into a sum equality.** For `hp_pos : ∀ i, 0 < p i` (from
+   `hp_pos`), use `Real.log_multiset_prod` on `s := n.map p`, then `Multiset.map_map` to fold
+   `(n.map p).map Real.log` into `n.map (Real.log ∘ p)`. Applied to both `n₁` and `n₂` and
+   chained through `congrArg Real.log h`, this gives
+   `(n₁.map (Real.log ∘ p)).sum = (n₂.map (Real.log ∘ p)).sum`.
+2. **Multiset sums become count-weighted `Finset` sums.** Use
+   `Finset.sum_multiset_map_count` on both sides.
+3. **Extend both sums to the common support** `s := n₁.toFinset ∪ n₂.toFinset` via
+   `Finset.sum_subset` using `Finset.subset_union_left` / `Finset.subset_union_right` and
+   `Multiset.count_eq_zero_of_not_mem` to discharge `hf`.
+4. **Convert `ℕ`-`nsmul` to real multiplication** (`nsmul_eq_mul`) and split the resulting
+   difference with `Finset.sum_sub_distrib`, `sub_eq_zero`, to land on
+   `∑ m ∈ s, ((n₁.count m : ℝ) − (n₂.count m : ℝ)) * Real.log (p m) = 0`.
+5. **Feed this into log-independence.** Set `g : P → ℚ := fun m => (n₁.count m : ℚ) −
+   (n₂.count m : ℚ)`; note `g m • Real.log (p m) = (↑(g m) : ℝ) * Real.log (p m)` by
+   `Rat.smul_def`, so step 4's equation is exactly `∑ m ∈ s, g m • (fun i => Real.log (p i)) m = 0`.
+   Apply `linearIndependent_iff'` (with `R := ℚ`, `v := fun i => Real.log (p i)`) to get
+   `∀ m ∈ s, g m = 0`, i.e. `n₁.count m = n₂.count m` for every `m` in the common support.
+6. **Close with `Multiset.ext`.** `Multiset.ext_iff` reduces to `∀ a, s.count a = t.count a`.
+   For `a ∈ s` use step 5; for `a ∉ s`, both counts are `0` by
+   `Multiset.count_eq_zero_of_not_mem`.
+-/
+
+variable (p : P → ℝ)
+
+/-- A Beurling integer evaluates to a real number by taking the product over its prime factors.
+    Log-independence of the `p i` makes this map injective — unique factorization. -/
+noncomputable def realize (n : NatMult P) : ℝ := (n.map p).prod
+
+theorem realize_injective [DecidableEq P] (hp_pos : ∀ i, 0 < p i)
+    (hp_indep : LinearIndependent ℚ (fun i : P => Real.log (p i))) :
+    Function.Injective (realize p) := by
+  intro n₁ n₂ h
+  have hp_ne : ∀ i, p i ≠ 0 := fun i => by linarith [hp_pos i]
+  have h_log : Real.log (realize p n₁) = Real.log (realize p n₂) := by rw [h]
+  unfold realize at h_log
+  -- Step 1: Log turns the product equality into a sum equality
+  have h_map_sum_eq : (n₁.map (Real.log ∘ p)).sum = (n₂.map (Real.log ∘ p)).sum := by
+    have h₁ := Real.log_multiset_prod (s := n₁.map p) (fun x hx => by
+      rcases Multiset.mem_map.mp hx with ⟨i, _, rfl⟩
+      exact hp_ne i)
+    have h₂ := Real.log_multiset_prod (s := n₂.map p) (fun x hx => by
+      rcases Multiset.mem_map.mp hx with ⟨i, _, rfl⟩
+      exact hp_ne i)
+    rw [h₁, h₂] at h_log
+    simpa [Multiset.map_map] using h_log
+  -- Step 2: Multiset sums become count-weighted Finset sums
+  have h_finset_sum_eq : (∑ m ∈ n₁.toFinset, (n₁.count m : ℝ) • Real.log (p m)) =
+      (∑ m ∈ n₂.toFinset, (n₂.count m : ℝ) • Real.log (p m)) := by
+    -- Finset.sum_multiset_map_count rewrites (Multiset.map f s).sum to ∑ m ∈ s.toFinset, s.count m • f m
+    have hleft : (n₁.map (Real.log ∘ p)).sum =
+        (∑ m ∈ n₁.toFinset, (n₁.count m : ℝ) • Real.log (p m)) := by
+      simpa [Finset.sum_multiset_map_count, smul_eq_mul] using rfl
+    have hright : (n₂.map (Real.log ∘ p)).sum =
+        (∑ m ∈ n₂.toFinset, (n₂.count m : ℝ) • Real.log (p m)) := by
+      simpa [Finset.sum_multiset_map_count, smul_eq_mul] using rfl
+    rw [hleft, hright] at h_map_sum_eq
+    exact h_map_sum_eq
+  -- Step 3: Extend both sums to the common support s
+  let s := n₁.toFinset ∪ n₂.toFinset
+  have h_subset₁ : n₁.toFinset ⊆ s := Finset.subset_union_left (s₂ := n₂.toFinset)
+  have h_subset₂ : n₂.toFinset ⊆ s := Finset.subset_union_right (s₁ := n₁.toFinset)
+  have h_zero₁ : ∀ x ∈ s, x ∉ n₁.toFinset → (n₁.count x : ℝ) • Real.log (p x) = 0 := by
+    intro x hx hx'
+    have hcount : n₁.count x = 0 :=
+      Multiset.count_eq_zero.mpr (fun h => hx' (Multiset.mem_toFinset.mpr h))
+    simp [hcount]
+  have h_zero₂ : ∀ x ∈ s, x ∉ n₂.toFinset → (n₂.count x : ℝ) • Real.log (p x) = 0 := by
+    intro x hx hx'
+    have hcount : n₂.count x = 0 :=
+      Multiset.count_eq_zero.mpr (fun h => hx' (Multiset.mem_toFinset.mpr h))
+    simp [hcount]
+  have h_sum₁ : (∑ m ∈ n₁.toFinset, (n₁.count m : ℝ) • Real.log (p m)) =
+      (∑ m ∈ s, (n₁.count m : ℝ) • Real.log (p m)) :=
+    Finset.sum_subset h_subset₁ h_zero₁
+  have h_sum₂ : (∑ m ∈ n₂.toFinset, (n₂.count m : ℝ) • Real.log (p m)) =
+      (∑ m ∈ s, (n₂.count m : ℝ) • Real.log (p m)) :=
+    Finset.sum_subset h_subset₂ h_zero₂
+  rw [h_sum₁, h_sum₂] at h_finset_sum_eq
+  -- Step 4: Convert to ℝ multiplication and split the difference
+  have h_diff_eq_zero : (∑ m ∈ s, ((n₁.count m : ℝ) - (n₂.count m : ℝ)) * Real.log (p m)) = 0 := by
+    calc
+      (∑ m ∈ s, ((n₁.count m : ℝ) - (n₂.count m : ℝ)) * Real.log (p m))
+          = (∑ m ∈ s, ((n₁.count m : ℝ) * Real.log (p m) - (n₂.count m : ℝ) * Real.log (p m))) := by
+        refine Finset.sum_congr rfl (fun m _ => ?_)
+        ring
+      _ = (∑ m ∈ s, (n₁.count m : ℝ) * Real.log (p m)) -
+          (∑ m ∈ s, (n₂.count m : ℝ) * Real.log (p m)) := by
+        rw [Finset.sum_sub_distrib]
+      _ = (∑ m ∈ s, (n₁.count m : ℝ) • Real.log (p m)) -
+          (∑ m ∈ s, (n₂.count m : ℝ) • Real.log (p m)) := by
+        simp [smul_eq_mul]
+      _ = 0 := by rw [h_finset_sum_eq, sub_self]
+  -- Step 5: Feed into log-independence
+  let g : P → ℚ := fun m => (n₁.count m : ℚ) - (n₂.count m : ℚ)
+  have h_g_smul : (∑ m ∈ s, g m • Real.log (p m)) = 0 := by
+    calc
+      (∑ m ∈ s, g m • Real.log (p m)) = (∑ m ∈ s, ((g m : ℝ) * Real.log (p m))) := by
+        refine Finset.sum_congr rfl (fun m _ => ?_)
+        rw [Rat.smul_def]
+      _ = (∑ m ∈ s, (((n₁.count m : ℝ) - (n₂.count m : ℝ)) * Real.log (p m))) := by
+        unfold g; simp
+      _ = 0 := h_diff_eq_zero
+  have h_indep := (linearIndependent_iff' (R := ℚ) (v := fun i : P => Real.log (p i))).mp hp_indep
+  have h_all_zero : ∀ m ∈ s, g m = 0 := h_indep s g h_g_smul
+  -- Step 6: Close with Multiset.ext
+  have h_count_eq : ∀ m, n₁.count m = n₂.count m := by
+    intro m
+    by_cases hm : m ∈ s
+    · have hzero := h_all_zero m hm
+      dsimp [g] at hzero
+      -- hzero : (n₁.count m : ℚ) - (n₂.count m : ℚ) = 0
+      have h_int : (n₁.count m : ℤ) = (n₂.count m : ℤ) := by
+        have h_eq : (n₁.count m : ℚ) = (n₂.count m : ℚ) := by linarith
+        exact_mod_cast h_eq
+      omega
+    · have h₁ : n₁.count m = 0 :=
+        Multiset.count_eq_zero.mpr (fun h => hm (Finset.mem_union_left _ (Multiset.mem_toFinset.mpr h)))
+      have h₂ : n₂.count m = 0 :=
+        Multiset.count_eq_zero.mpr (fun h => hm (Finset.mem_union_right _ (Multiset.mem_toFinset.mpr h)))
+      rw [h₁, h₂]
+  exact Multiset.ext.mpr h_count_eq
+
+/-!
 ## Phase 2: Configuration Space (The Mappings)
 
 `MapConfig P` is the space of all bijections from `NatAdd` to `NatMult P`.
@@ -370,3 +509,24 @@ theorem measurable_set_propHolds (P_test : NatMult P → Bool) :
     have h := DiscreteTopology.eq_bot (α := MapConfig P)
     simpa [h] using trivial
   exact h_open.measurableSet
+
+/-- The Mehler prior probability measure on the space of all mappings.
+    Constructed as the restriction of the product measure on `(NatMult P) ^ (NatAdd)`
+    to the subset of bijections. This is a diffuse probability measure: each
+    individual bijection has measure zero, but sets of bijections have positive
+    measure. -/
+noncomputable def mehlerPrior : Measure (MapConfig P) :=
+  -- Phase 3: Construct the prior.
+  -- Strategy: define a probability measure on `NatMult P` (e.g. uniform over primes),
+  -- take the product measure on `(NatMult P) ^ (NatAdd)`, then restrict to the
+  -- subset of bijections that are actually bijections onto all primes.
+  sorry
+
+/-- The ultimate evaluation: the probability that the proposition `P_test` holds
+    under the Mehler prior. For a finite toy model (e.g., `P = {2, 3}`), this
+    evaluates to a rational fraction. -/
+noncomputable def probabilityOfTruth (P_test : NatMult P → Bool) : ℝ :=
+  -- Phase 6: Calculating the probability of truth.
+  -- The probability is the Mehler measure of the set {ω | propHolds ω P_test}.
+  -- For a finite toy model, this can be computed explicitly.
+  sorry

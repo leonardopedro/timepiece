@@ -56,6 +56,126 @@ def NatMult := FreeCommMonoid BeurlingPrimes
 
 ---
 
+### Step 1.3: Realizing the Beurling Primes as Reals (the Gödelian Safety Shield)
+
+The abstract type `BeurlingPrimes` above is deliberately uncommitted as to *what* the primes
+are. Realize them concretely as a countable family of multiplicatively independent real numbers
+greater than 1 — e.g. $p_0=\sqrt2,\ p_1=e,\ p_2=\pi,\dots$ — rather than as formal atoms, and let
+a label evaluate to an honest real number by taking the product over its prime factorization:
+
+```lean
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+
+variable (p : BeurlingPrimes → ℝ) (hp_one_lt : ∀ i, 1 < p i)
+  (hp_indep : LinearIndependent ℚ (fun i => Real.log (p i)))
+
+/-- A Beurling integer (an element of `NatMult`) evaluates to a real number by taking
+    the product over its multiset of prime factors. Log-independence of the `p i`
+    (multiplicative independence) makes this map injective — unique factorization. -/
+noncomputable def realize (n : NatMult BeurlingPrimes) : ℝ := (n.map p).prod
+```
+
+This one design choice closes the last possible gap back to Peano arithmetic, for two
+independent reasons:
+
+1.  **Julia Robinson's theorem does not fire.** Her 1949 result that $\langle\mathbb N,\times,<\rangle$
+    alone defines $+$ relies on the rigid, uniform $+1$ gap of the standard integers — that $n$
+    and $n+1$ are always coprime and nothing lies between them. Because the `p i` are chosen as
+    multiplicatively independent reals rather than the standard primes marching over a fixed
+    lattice, the image of `realize` is an irregularly spaced set of reals with no uniform gap at
+    all. Robinson's construction of $+$ from $\times$ and $<$ has nothing rigid to grab onto, so
+    `NatMult`'s order and product cannot reconstruct `NatAdd`'s successor structure.
+2.  **Tarski's real closed field absorbs the operations, and its quantifier-elimination theorem
+    forbids ever isolating the image.** Since `realize` lands in $\mathbb R$, the $\times$ and $<$
+    used on labels are literally Tarski's RCF operations, whose complete first-order theory is
+    decidable. Tarski's quantifier elimination further shows that no first-order formula over
+    $\mathbb R$ can define an infinite discrete subset such as the image of `realize`. Without a
+    definable set to induct over, no first-order induction schema over the Beurling integers can
+    even be *stated*, let alone used to reconstruct Gödel's diagonal argument.
+
+Net effect: the type-level split of Phase 1 (`NatAdd` vs. `NatMult`) is not merely a typing
+discipline we promise to maintain — it is backed by an external, non-formalized theorem pair
+(Robinson 1949; Tarski 1951) guaranteeing that no bridge we could build back from labels to
+clock, however clever, can smuggle Peano's undecidability in from the multiplicative side alone.
+The only place undecidability could possibly re-enter is the identification map itself — which
+is exactly the object Phase 2 onward puts a probability measure over, instead of asserting.
+
+#### Recipe for the Lean specialist: `realize_injective`
+
+Action Plan item 6 asks for `Function.Injective (realize p)` given `hp_indep`. This has been
+worked out end-to-end against the project's vendored Mathlib checkout
+(`.lake/packages/mathlib`, pinned v4.28.0) so the specialist has a checked recipe rather than a
+blank page. State it (inside `namespace NatMult`, so `[DecidableEq P]` is already in scope) as:
+
+```lean
+theorem realize_injective (hp_pos : ∀ i, 0 < p i)
+    (hp_indep : LinearIndependent ℚ (fun i : P => Real.log (p i))) :
+    Function.Injective (realize p) := by
+  ...
+```
+
+and prove it in six steps, each keyed to a specific Mathlib lemma:
+
+1.  **Logs turn the product equality into a sum equality.** For `hp_ne : ∀ i, p i ≠ 0` (from
+    `hp_pos`), use `Real.log_multiset_prod {s : Multiset ℝ} (h : ∀ x ∈ s, x ≠ 0) : Real.log
+    s.prod = (s.map Real.log).sum` on `s := n.map p`, then `Multiset.map_map` to fold
+    `(n.map p).map Real.log` into `n.map (Real.log ∘ p)`. Applied to both `n₁` and `n₂` and
+    chained through `congrArg Real.log h`, this gives
+    `(n₁.map (Real.log ∘ p)).sum = (n₂.map (Real.log ∘ p)).sum`.
+2.  **Multiset sums become count-weighted `Finset` sums.** Use
+    `Finset.sum_multiset_map_count (s : Multiset ι) (f : ι → M) [DecidableEq ι] [AddCommMonoid M]
+    : (s.map f).sum = ∑ m ∈ s.toFinset, s.count m • f m` (the `to_additive` sibling of
+    `Finset.prod_multiset_map_count`) on both sides.
+3.  **Extend both sums to the common support** `s := n₁.toFinset ∪ n₂.toFinset` via
+    `Finset.sum_subset (h : s₁ ⊆ s₂) (hf : ∀ x ∈ s₂, x ∉ s₁ → f x = 0) : ∑ i ∈ s₁, f i = ∑ i ∈
+    s₂, f i`, using `Finset.subset_union_left` / `Finset.subset_union_right` and
+    `Multiset.count_eq_zero_of_not_mem` to discharge `hf`.
+4.  **Convert `ℕ`-`nsmul` to real multiplication** (`nsmul_eq_mul`) and split the resulting
+    difference with `Finset.sum_sub_distrib`, `sub_eq_zero`, to land on
+    `∑ m ∈ s, ((n₁.count m : ℝ) − (n₂.count m : ℝ)) * Real.log (p m) = 0`.
+5.  **Feed this into log-independence.** Set `g : P → ℚ := fun m => (n₁.count m : ℚ) −
+    (n₂.count m : ℚ)`; note `g m • Real.log (p m) = (↑(g m) : ℝ) * Real.log (p m)` by
+    `Rat.smul_def (a : ℚ) (x : K) [DivisionRing K] : a • x = ↑a * x`, so step 4's equation is
+    exactly `∑ m ∈ s, g m • (fun i => Real.log (p i)) m = 0`. Apply
+    `linearIndependent_iff' : LinearIndependent R v ↔ ∀ s, ∀ g, (∑ i ∈ s, g i • v i = 0) → ∀ i ∈
+    s, g i = 0` (with `R := ℚ`, `v := fun i => Real.log (p i)`) to get `∀ m ∈ s, g m = 0`, i.e.
+    `n₁.count m = n₂.count m` (cast back from `ℚ` to `ℕ`) for every `m` in the common support.
+6.  **Close with `Multiset.ext`.** `Multiset.ext {s t : Multiset α} [DecidableEq α] : s = t ↔ ∀
+    a, s.count a = t.count a`. For `a ∈ s` use step 5; for `a ∉ s`, `a` is in neither `n₁.toFinset`
+    nor `n₂.toFinset`, so both counts are `0` by `Multiset.count_eq_zero_of_not_mem` directly.
+
+None of steps 1–6 needs Robinson's or Tarski's theorems themselves (per Action Plan item 6) —
+`hp_indep` is taken as the one external hypothesis, exactly the log-independence fact those
+theorems justify choosing `p` to satisfy.
+
+#### Remark: the genuine primes suffice — Beurling generality is optional
+
+Nothing in the framework requires the primes to be exotic. `P` may be instantiated with the
+ordinary rational primes, `P := {q : ℕ // q.Prime}` with `p := fun q => (q : ℝ)`, *taken as a
+bare unordered countable type*: the load-bearing safety requirement was never irregular spacing
+per se, but the refusal to install an order on the labels or identify them with the additive
+clock — the identification is exactly what Phase 2 randomizes. Under this instantiation the
+shield's division of labor shifts but both halves stand: Robinson's construction is defeated by
+pure type discipline (the ordered structure $\langle \mathbb N, \times, < \rangle$ her theorem
+needs is simply never assembled, because no order is installed on `P`), and Tarski's half is
+unchanged — $\mathbb N \subset \mathbb R$ is the *canonical* example of a set undefinable in
+RCF. What the Beurling generalization buys is insurance, not necessity: irregularly spaced
+primes would defeat Robinson even if the ambient real order leaked onto the labels.
+
+The instantiation also *upgrades* Step 1.3: `hp_indep` stops being a hypothesis and becomes a
+provable lemma, because ℚ-linear independence of `fun q : P => Real.log (q : ℝ)` *is* the
+fundamental theorem of arithmetic in logarithmic dress. The vendored Mathlib has no ready-made
+`linearIndependent` statement for logs of primes (checked), but the proof is elementary and the
+pins exist: from a vanishing rational combination, clear denominators and exponentiate to get an
+equality of two natural-number products of prime powers, then compare exponents via unique
+factorization — `Nat.factorizationEquiv` (unique factorization as an `Equiv` between `ℕ+` and
+prime-supported finsupps), `Nat.factorization_prod_pow_eq_self`, and `Nat.eq_factorization_iff`
+(`Mathlib/Data/Nat/Factorization/Basic.lean:86` and nearby). Call the new lemma
+`log_primes_linearIndependent`; feeding it to `realize_injective` makes injectivity
+*unconditional* for the genuine primes.
+
+---
+
 ## Phase 2: Defining the Configuration Space (The Mappings)
 We define the space of all possible ways to map our additive clock to our multiplicative basis. This space represents the "configurations of the universe."
 
@@ -111,6 +231,69 @@ def HilbertSpaceConfig (ω : MapConfig P) := lp (fun (_ : NatAdd) => Real) 2
 -- Define the standard orthonormal basis vectors `e_n` in this space.
 ```
 
+### Step 4.1: Completeness Without Infinite Objects (the Sorted Cauchy Condition)
+
+Step 1.3 closed the definability loophole on the *labels*; there is one more place a Gödelian
+ghost could hide, and it is in the *analysis*. In a first-order real closed field one cannot
+define or quantify over an arbitrary completed infinite sequence of reals as a single object —
+if one could, the field could carve out the integers inside itself, and Tarski's quantifier
+elimination (and with it decidability) would instantly collapse. A naive statement of Hilbert
+space completeness quantifies over exactly such infinite sequences. So completeness must be
+stated in a form where the scalar sort never sees an infinite object. The Cauchy condition
+admits precisely such a sorted formulation, with every vector index bounded:
+
+$$ \forall \epsilon > 0 \quad \exists N \quad \forall M > N \quad \forall n, m \;\; (N < n, m < M \implies \| x_n - x_m \| < \epsilon) $$
+
+Three observations make this work:
+
+1.  **Bounded indices keep the scalars finite-dimensional.** For each fixed $M$, the segment
+    $(x_1, \dots, x_M)$ is not an infinite object — it is a single point of $\mathbb R^M$, and
+    finite tuples of reals, their norms, and their comparisons are exactly what Tarski's RCF
+    defines and decides, no matter how large $M$ grows. The scalar sort only ever evaluates the
+    metric on finite-dimensional spaces.
+2.  **The one unbounded quantifier lives in the Presburger sort.** The $\forall M > N$ ranges
+    over the additive clock (`NatAdd`), a separate sort where unbounded quantification is safe:
+    Presburger arithmetic is complete and decidable. The clock ticks out ever-larger finite
+    bounds; for each bound, the reals check a finite tuple. Infinity is handed entirely to the
+    sort that can carry it.
+3.  **Completeness becomes constructive metric completion.** The Hilbert space is not asserted
+    into existence as a set of infinite sequences; it is the limit of the finite-dimensional
+    spaces $\mathbb R^M$ as $M$ grows under the clock. This is the ultimate form of the
+    "decidable dense subset": Tarski reals for finite-dimensional geometry, Presburger
+    arithmetic as the finite-approximation clock, Beurling semigroups as the multiplicative
+    basis — every axiomatic step decidable.
+
+A precision worth recording: **the sorted condition is not first-order — and that is the
+mechanism, not a defect.** Because the quantifiers $\exists N$ and $\forall M$ range over the
+clock sort, the displayed condition is a *multi-sorted* (second-order-like relative to the
+field) statement, not a formula of RCF. This is exactly why the shield of Step 1.3 survives the
+analysis: the completeness statement never enters the scalar sort's own first-order language, so
+Tarski's quantifier elimination and decidability are never confronted with it.
+
+The multi-sorted reading also buys a **constructive-emergence upgrade**. The scalar sort need
+not start as the full continuum: any model of RCF will do — in particular the countable, fully
+computable field of real algebraic numbers $\mathbb R_{\text{alg}}$ (RCF is complete, so
+$\mathbb R_{\text{alg}}$ is elementarily equivalent to $\mathbb R$). $\mathbb R_{\text{alg}}$ is
+an Archimedean ordered field, and an Archimedean ordered field has a *unique* metric completion
+— so the multi-sorted Cauchy completion of $\mathbb R_{\text{alg}}$ is uniquely isomorphic to
+the standard, uncountable $\mathbb R$, transcendentals ($\pi$, $e$, Euler's $\gamma$) included.
+Where classical foundations postulate the uncountable continuum as a static, pre-existing black
+box, this framework postulates only a decidable first-order field and the additive clock, and
+the continuum *emerges* as the completed geometric workspace.
+
+For the Lean specialist this costs nothing new: Mathlib's `lp … 2` *is* the constructive metric
+completion of the finitely supported sequences, and its `CauchySeq`/`Summable` infrastructure
+already factors every convergence statement through `Finset`-indexed partial sums — i.e. through
+finite tuples with the unbounded quantifier on the index sort. The deliverables of Action Plan
+item 4 automatically have the sorted shape; the item below just asks that this be recorded.
+The emergence point is likewise already how the library works, not a new obligation: Mathlib's
+`Real` is *defined* as equivalence classes of Cauchy sequences of $\mathbb Q$
+(`Mathlib/Data/Real/Basic.lean`, `structure Real where ofCauchy :: cauchy :
+CauSeq.Completion.Cauchy (abs : ℚ → ℚ)`) — a constructed completion of a countable decidable
+field, not a postulated continuum — and uniqueness of Archimedean completions means completing
+$\mathbb Q$ or $\mathbb R_{\text{alg}}$ lands in the same $\mathbb R$. Record this in the
+docstrings per Action Plan item 7; do not build a separate $\mathbb R_{\text{alg}}$ in Lean.
+
 ---
 
 ## Phase 5: Formulating the Metric Proposition
@@ -150,6 +333,102 @@ noncomputable def probabilityOfTruth (P_test : NatMult P → Bool) : Real :=
 
 ---
 
+## Phase 7: Convergence Disintegration (Absolute vs. Conditional)
+
+There is a synergy between this framework and Mathlib that deserves its own phase: **in Mathlib,
+unordered summation natively forces unconditional convergence.** `Summable`/`tsum` over an
+arbitrary index type are defined via the net of partial sums over finite subsets (`Finset`) — no
+order on the index ever enters — and over $\mathbb R$ (indeed any finite-dimensional space)
+unconditional convergence coincides with absolute convergence (`summable_norm_iff`,
+`Mathlib/Analysis/Normed/Module/FiniteDimension.lean:659`). Since `NatMult P` carries no order
+(it is `Multiset P`, the free commutative monoid — do not add one), *any sum that can even be
+written over the labels is automatically order-blind, hence absolutely convergent whenever it
+exists.* Conditional convergence is not expressible over the labels at all: it can only be
+formulated by pulling the family back to the ordered additive clock along a configuration
+$\omega$ — at which point it is a property of the random map, i.e. an **event**. This phase
+proves the two sides of that disintegration.
+
+### Step 7.1: Absolute Convergence Is Invariant Under Every Map (provable now)
+
+For an absolutely convergent family on the labels, every configuration transports the sum
+identically. This is a deterministic, for-all-$\omega$ statement — strictly stronger than
+almost-sure, and no measure theory is involved:
+
+```lean
+theorem absolute_convergence_invariance
+    (c : NatMult P → ℝ) (hc : Summable c) (ω : MapConfig P) :
+    Summable (c ∘ ω) ∧ ∑' n, c (ω n) = ∑' m, c m :=
+  ⟨(Equiv.summable_iff ω).mpr hc, Equiv.tsum_eq ω c⟩
+```
+
+The two lemmas are pinned in the vendored Mathlib: `Equiv.summable_iff (e : γ ≃ β) :
+Summable (f ∘ e) ↔ Summable f` and `Equiv.tsum_eq (e : γ ≃ β) (f : β → α) :
+∑' c, f (e c) = ∑' b, f b`, the `to_additive` siblings of `Equiv.multipliable_iff` /
+`Equiv.tprod_eq` (`Mathlib/Topology/Algebra/InfiniteSum/Basic.lean:175`, `:525`). Note the names
+— they are *not* `Summable.equiv` / `tsum_eq_tsum_of_equiv`; those do not exist in this
+checkout. Holding for all $\omega$, the identity holds in particular `mehlerPrior`-almost
+surely.
+
+### Step 7.2: Conditional Convergence Is a Null Event (one external input)
+
+Sequential summation needs an enumeration of the clock. `NatAdd.toNat` is already on disk
+(`RandomMap.lean:101`); add its inverse and the convergence event:
+
+```lean
+/-- Enumeration of the clock: the inverse of `NatAdd.toNat`. -/
+def NatAdd.ofNat : ℕ → NatAdd
+  | 0 => .zero
+  | n + 1 => .succ (ofNat n)
+
+/-- The event that the clock-ordered partial sums of `c ∘ ω` converge. -/
+def ConvergentMaps (c : NatMult P → ℝ) : Set (MapConfig P) :=
+  { ω | ∃ L : ℝ,
+      Filter.Tendsto (fun N => ∑ i ∈ Finset.range N, c (ω (NatAdd.ofNat i)))
+        Filter.atTop (nhds L) }
+
+/-- If `c` is not absolutely summable, an exchangeable prior gives the
+    clock-ordered convergence event measure zero. -/
+theorem conditional_convergence_is_null
+    (hμ_exch : ∀ σ : Equiv.Perm NatAdd, {σ moves only finitely many ticks} →
+      MeasurePreserving (fun ω : MapConfig P => (σ : NatAdd ≃ NatAdd).trans ω) μ μ)
+    (c : NatMult P → ℝ) (hc_not : ¬ Summable c) :
+    μ (ConvergentMaps c) = 0 := sorry
+```
+
+**An honesty caveat that shapes the statement.** For an *arbitrary* probability measure $\mu$
+the theorem is false: by Riemann's rearrangement theorem a non-absolutely-convergent (real,
+null) family admits orderings summing to any prescribed value, and a Dirac prior concentrated on
+one such ordering gives `ConvergentMaps` measure $1$. The null-set claim is a property of the
+*prior*, not of bijections — hence the exchangeability hypothesis `hμ_exch` (invariance of $\mu$
+under precomposition with every finitely-supported permutation of the clock). This is exactly
+the "complete ignorance" property the Mehler prior is designed to have, so the hypothesis is
+discharged once Action Plan item 3 constructs `mehlerPrior` from cylinder sets over finite
+partial bijections.
+
+Proof architecture, in three layers:
+
+1.  **Measurability of `ConvergentMaps`.** Rewrite the event as a countable
+    intersection/union over rational $\epsilon$ and clock bounds $N, M$ of conditions each
+    depending on finitely many coordinates of $\omega$ (cylinder events) — the Cauchy criterion
+    in the sorted form of Step 4.1, `Finset.range`-bounded throughout. This is routine once the
+    intended pointwise-convergence Polish topology from Action Plan item 2 replaces the on-disk
+    discrete placeholder (`RandomMap.lean:356`).
+2.  **Zero–one dichotomy.** A finitely-supported permutation of the clock changes only finitely
+    many partial sums, so `ConvergentMaps` is invariant under the `hμ_exch` action: it is an
+    exchangeable event, and the Hewitt–Savage zero–one law forces
+    $\mu(\text{ConvergentMaps}) \in \{0, 1\}$. (If Hewitt–Savage is not available in the
+    vendored Mathlib, fold this layer into the named external input of layer 3 rather than
+    formalizing it from scratch.)
+3.  **The lone deep input: ruling out $1$.** That a *randomly* rearranged
+    non-absolutely-convergent series diverges almost surely is the classical
+    random-rearrangement phenomenon (Kakutani's problem; Dvoretzky-style results). Record it as
+    a named, docstring-cited theorem with a `sorry` body —
+    `theorem random_rearrangement_divergence … := sorry` — exactly the practice used for
+    `bagchi_universality` elsewhere in this repo: one honest, clearly-labeled external citation,
+    with everything around it proved.
+
+---
+
 ## Action Plan for the Lean 4 Specialist
 
 1.  **Axiomatic Hygiene:** Do not import `Mathlib.SetTheory.ZFC` or any non-constructive choice axioms unless strictly necessary. Keep the background logic restricted to the constructive, dependent type theory of Lean 4.
@@ -157,3 +436,7 @@ noncomputable def probabilityOfTruth (P_test : NatMult P → Bool) : Real :=
 3.  **Construct the Prior:** Define `mehlerPrior` explicitly. Since `MapConfig` is homeomorphic to a closed subspace of $\mathbb{N}^\mathbb{N}$ (the Baire space), the specialist should construct the measure using the standard product measure on the Baire space and then restrict it to the bijective mappings.
 4.  **Prove $L^2$ Convergence:** Provide the explicit proof that $\sum \frac{1}{n^2}$ and $\sum \frac{P(\omega(n))^2}{n^2}$ are Cauchy sequences. Use Mathlib's `lp` space theorems to show that `psiTrue` and `psiTruth` are valid, completed elements of the Hilbert space.
 5.  **Calculate a Toy Model:** To verify the code compiles and runs, have the specialist compute `probabilityOfTruth` for a trivial, finite toy model (e.g., $P = \{2, 3\}$, where the probability evaluates to a rational fraction like $0.5$). This ensures the measure theory and the metric geometry are perfectly aligned.
+6.  **Record, Don't Formalize, the External Shield:** The safety argument in Step 1.3 (Julia Robinson's theorem's dependence on the standard integers' uniform $+1$ gap; Tarski's quantifier-elimination undefinability of infinite discrete subsets of $\mathbb R$) is a metamathematical justification for the design, not itself a Lean deliverable — do not attempt to formalize Robinson's or Tarski's theorems. The one concrete consequence that *is* checkable and should be proved is `Function.Injective (realize p)` given `hp_indep`, confirming that unique factorization survives the real-valued realization. For the genuine-primes instantiation (see the Remark closing Step 1.3), additionally prove `log_primes_linearIndependent` via the `Nat.factorizationEquiv` pins there, which discharges `hp_indep` and makes `realize_injective` unconditional.
+7.  **Keep the Cauchy Quantifiers Sorted:** When discharging item 4, phrase (and, in docstrings, record) all convergence and completeness facts through `Finset`-indexed partial sums, per Step 4.1: the only unbounded quantifier ranges over the index sort (`NatAdd`), and the scalar side only ever compares finite tuples in $\mathbb R^M$. Mathlib's `Summable`/`CauchySeq`/`lp` API already has this shape, so this is a documentation discipline, not a proof obligation — a docstring on the convergence lemmas noting the sorted form (bounded vector indices, unbounded quantifier on the clock) suffices. Include the two Step 4.1 precisions in the same docstrings: the condition is deliberately *multi-sorted*, not a first-order RCF formula (that is why Tarski decidability is untouched), and the continuum itself emerges from the completion (Mathlib's `Real` is already the Cauchy completion of $\mathbb Q$, not a postulate).
+8.  **Prove Step 7.1 as stated:** `absolute_convergence_invariance` closes with the two pinned lemmas `Equiv.summable_iff` and `Equiv.tsum_eq` — zero external input, and do not introduce any order on `NatMult P` while doing it (Mathlib's unordered `tsum` doing the work is the point).
+9.  **Formalize Step 7.2 with the honest hypothesis:** state `conditional_convergence_is_null` with the exchangeability hypothesis on the prior (to be discharged for `mehlerPrior` once item 3 lands); prove measurability of `ConvergentMaps` via `Finset.range`-bounded Cauchy conditions on cylinder events (item 2 topology, item 7 discipline); and record the lone deep input as the named, docstring-cited external theorem `random_rearrangement_divergence` (Kakutani's problem on random rearrangements) with a `sorry` body — the same citation practice as `bagchi_universality`. If the Hewitt–Savage zero–one law is missing from the vendored Mathlib, fold the dichotomy into that same named input rather than formalizing it from scratch.
