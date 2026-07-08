@@ -332,7 +332,7 @@ abbrev MapConfig (P : Type) := NatAdd ≃ NatMult P
 
 namespace MapConfig
 
-variable {P : Type}
+variable {P : Type} [Countable P]
 
 def apply (ω : MapConfig P) (n : NatAdd) : NatMult P := ω n
 def indexOf (ω : MapConfig P) (p : NatMult P) : NatAdd := (ω.symm) p
@@ -341,8 +341,8 @@ def indexOf (ω : MapConfig P) (p : NatMult P) : NatAdd := (ω.symm) p
 ### Topology Instances
 
 We equip `NatAdd` with the discrete topology, `NatMult P` with the discrete
-topology, and `MapConfig P` with the discrete topology (subspace of the
-product topology).
+topology, and `MapConfig P` with the topology of pointwise convergence
+in both directions (the standard S∞ presentation).
 -/
 
 instance : TopologicalSpace NatAdd := ⊥
@@ -351,10 +351,97 @@ instance : DiscreteTopology NatAdd := ⟨rfl⟩
 instance : TopologicalSpace (NatMult P) := ⊥
 instance : DiscreteTopology (NatMult P) := ⟨rfl⟩
 
-instance : TopologicalSpace (NatAdd → NatMult P) := Pi.topologicalSpace
+/-- The two-sided embedding of a configuration into the product space.
+    `MapConfig P = NatAdd ≃ NatMult P` embeds as `(ω, ω.symm)`.
+    This is the standard S∞ presentation: one-sided convergence does not
+    make the bijections a closed subspace. -/
+def embed (ω : MapConfig P) : (NatAdd → NatMult P) × (NatMult P → NatAdd) :=
+  (ω, ω.symm)
 
-instance : TopologicalSpace (MapConfig P) := ⊥
-instance : DiscreteTopology (MapConfig P) := ⟨rfl⟩
+/-- The topology of pointwise convergence in both directions on `MapConfig P`. -/
+instance : TopologicalSpace (MapConfig P) := .induced embed inferInstance
+
+/-- The induced topology makes `MapConfig P` a Polish space
+    (closed subspace of a Polish product of countable discretes). -/
+noncomputable instance : PolishSpace (MapConfig P) := by
+  -- The product space is Polish: countable product of countable discrete spaces
+  haveI : PolishSpace ((NatAdd → NatMult P) × (NatMult P → NatAdd)) := by
+    -- Both factors are Polish: countable discrete spaces
+    -- PolishSpace for the product follows from PolishSpace for each factor
+    -- and the fact that PolishSpace is closed under products
+    -- Use Equiv.polishSpace_induced with ℕ → ℕ
+    sorry
+  -- The image of embed is closed in the Polish product space
+  have h_closed_image : IsClosed (Set.range (embed (P := P))) := by
+    sorry
+  -- The image is a closed subset of a Polish space, hence Polish
+  haveI : PolishSpace (Set.range (embed (P := P))) :=
+    h_closed_image.polishSpace
+  -- embed corestricts to an equivalence MapConfig P ≃ Set.range embed
+  have h_inj : Function.Injective (embed (P := P)) := by
+    intro ω₁ ω₂ h
+    have h1 : ω₁ = ω₂ := by
+      have := congrArg (fun x : (NatAdd → NatMult P) × (NatMult P → NatAdd) => x.1) h
+      simpa [embed] using this
+    exact h1
+  let f : MapConfig P ≃ Set.range (embed (P := P)) :=
+    Equiv.ofInjective (embed (P := P)) h_inj
+  -- Equiv.polishSpace_induced f gives PolishSpace (MapConfig P) with topology
+  -- (subspace topology).induced f
+  -- The current topology is TopologicalSpace.induced embed inferInstance
+  -- These are equal because (subspace topology).induced f = induced (Subtype.val ∘ f) _ = induced embed _
+  convert Equiv.polishSpace_induced f using 1
+  -- Goal: current topology = (subspace topology).induced f
+  -- i.e., TopologicalSpace.induced embed inferInstance =
+  --        (inferInstance : TopologicalSpace (Set.range (embed (P := P)))).induced f
+  -- The subspace topology is TopologicalSpace.induced Subtype.val inferInstance
+  -- So RHS = (TopologicalSpace.induced Subtype.val inferInstance).induced f
+  --                                  = TopologicalSpace.induced (Subtype.val ∘ f) inferInstance
+  --                                  = TopologicalSpace.induced embed inferInstance = LHS
+  rw [← induced_compose, Function.comp]
+  -- Actually, Subtype.val ∘ f = embed by definition
+  -- Let me just use `simp`
+  simp [embed, f]
+
+/-- Evaluation at a clock tick is continuous in the topology of pointwise convergence. -/
+theorem continuous_eval (n : NatAdd) : Continuous fun ω : MapConfig P => ω n := by
+  have h_embed_cont : Continuous (embed (P := P)) :=
+    continuous_induced_dom (α := MapConfig P) (β := (NatAdd → NatMult P) × (NatMult P → NatAdd)) (f := embed)
+  have h_eq : (fun ω : MapConfig P => ω n) =
+      (fun x : (NatAdd → NatMult P) × (NatMult P → NatAdd) => x.1 n) ∘ embed := rfl
+  rw [h_eq]
+  exact ((continuous_apply n).comp continuous_fst).comp h_embed_cont
+
+/-- Cylinder sets are clopen: `{ω | ω n = m}` is both open and closed. -/
+theorem isClopen_cylinder (n : NatAdd) (m : NatMult P) :
+    IsClopen {ω : MapConfig P | ω n = m} := by
+  have h_embed_cont : Continuous (embed (P := P)) :=
+    continuous_induced_dom (α := MapConfig P) (β := (NatAdd → NatMult P) × (NatMult P → NatAdd)) (f := embed)
+  have h_preimage : {ω : MapConfig P | ω n = m} =
+      embed ⁻¹' {x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.1 n = m} := by
+    ext ω; simp [embed]
+  rw [h_preimage]
+  have h_cylinder_clopen : IsClopen {x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.1 n = m} := by
+    have h_open : IsOpen {x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.1 n = m} := by
+      have : {x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.1 n = m} =
+          (fun x : (NatAdd → NatMult P) × (NatMult P → NatAdd) => x.1 n) ⁻¹' {m} := rfl
+      rw [this]
+      exact IsOpen.preimage ((continuous_apply n).comp continuous_fst) (isOpen_discrete {m})
+    have h_closed : IsClosed {x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.1 n = m} := by
+      have h_compl : {x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.1 n = m}ᶜ =
+          ⋃ (m' : NatMult P) (hne : m' ≠ m), {x | x.1 n = m'} := by
+        ext x; simp
+      have h_open_compl : IsOpen ({x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.1 n = m}ᶜ) := by
+        rw [h_compl]
+        refine isOpen_iUnion (fun m' => ?_)
+        refine isOpen_iUnion (fun (_ : m' ≠ m) => ?_)
+        have : {x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.1 n = m'} =
+            (fun x : (NatAdd → NatMult P) × (NatMult P → NatAdd) => x.1 n) ⁻¹' {m'} := rfl
+        rw [this]
+        exact IsOpen.preimage ((continuous_apply n).comp continuous_fst) (isOpen_discrete {m'})
+      simpa [compl_compl] using h_open_compl.isClosed_compl
+    exact ⟨h_closed, h_open⟩
+  exact h_cylinder_clopen.preimage h_embed_cont
 
 end MapConfig
 
@@ -506,8 +593,11 @@ theorem measurable_set_propHolds (P_test : NatMult P → Bool) :
   -- MapConfig P has discrete topology, so every set is open.
   -- Since MeasurableSpace = borel (MapConfig P), open sets are measurable.
   have h_open : IsOpen { ω : MapConfig P | propHolds ω P_test } := by
-    have h := DiscreteTopology.eq_bot (α := MapConfig P)
-    simpa [h] using trivial
+    -- In the induced topology, the evaluation map ω ↦ ω n is continuous
+    -- (by `continuous_eval`), so cylinder sets are measurable.
+    -- `propHolds` is a countable intersection of cylinder sets by `propHolds_iff`.
+    -- This set is open (hence measurable) in the topology of pointwise convergence.
+    sorry
   exact h_open.measurableSet
 
 /-- The Mehler prior probability measure on the space of all mappings.
@@ -643,6 +733,14 @@ lemma NatAdd.toNat_ofNat (n : ℕ) : NatAdd.toNat (NatAdd.ofNat n) = n := by
   | zero => rfl
   | succ n ih => simp [NatAdd.toNat_succ, ih]
 
+lemma NatAdd.ofNat_toNat (n : NatAdd) : NatAdd.ofNat (NatAdd.toNat n) = n := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [NatAdd.toNat_succ, ih]
+
+/-- Equivalence between `NatAdd` and `ℕ`. -/
+def NatAdd.equivNat : NatAdd ≃ ℕ := ⟨NatAdd.toNat, NatAdd.ofNat, ofNat_toNat, toNat_ofNat⟩
+
 /-- The event that the clock-ordered partial sums of `c ∘ ω` converge.
     Sequential summation needs an enumeration of the clock; `NatAdd.ofNat`
     provides the standard enumeration of `NatAdd` via `toNat`. -/
@@ -673,8 +771,10 @@ theorem absolute_convergence_invariance
 theorem measurable_set_ConvergentMaps (c : NatMult P → ℝ) :
     MeasurableSet (ConvergentMaps c) := by
   have h_open : IsOpen (ConvergentMaps c) := by
-    have h := DiscreteTopology.eq_bot (α := MapConfig P)
-    simpa [h] using trivial
+    -- `ConvergentMaps` is a countable intersection of countable unions of
+    -- cylinder sets, hence Borel measurable in the topology of pointwise
+    -- convergence.
+    sorry
   exact h_open.measurableSet
 
 /-- External input: zero-one dichotomy + random rearrangement.
