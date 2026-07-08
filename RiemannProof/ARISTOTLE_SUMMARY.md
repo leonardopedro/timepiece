@@ -1,3 +1,1093 @@
+# Summary of changes for run 5e4df198-c2f9-4696-8620-3fec23294d0e
+Continued executing `FORMALIZATION_ROADMAP.md`. The single remaining open (optional) queue item was **N14 / F3.5 — the Misra–Gries heavy-hitter bound** (targeted at `BookProof/ChapterF4.lean`); it is now fully implemented and proved, completing the last outstanding roadmap deliverable. (The only `sorry`s left in the project are in `RiemannProof/`, which the roadmap explicitly places out of scope.)
+
+What was added to `BookProof/ChapterF4.lean` — a self-contained, executable formalization of the Misra–Gries streaming frequency-estimation algorithm and its two-sided guarantee:
+- `mgSupport`, `mgStep`, `mgRun`: the active-counter count, one processing step (increment if tracked; else open a new counter if fewer than `k` are active; else decrement all counters and record a decrement round), and the run over a stream (`List`).
+- `mgSum_decrement`: a full decrement lowers the total by exactly the number of active counters.
+- `mgStep_support_le` / `mgRun_support_le`: at most `k` counters are ever active.
+- `mgRun_sum`: the conservation invariant `(∑ counters) + (k+1)·(#decrement rounds) = N`.
+- `mgRun_decrement_le`: the decrement budget `k·d ≤ N`.
+- `mgRun_undercount` (`f̂ ≤ f`) and `mgRun_error_le` (`f ≤ f̂ + d`).
+- `misraGries_bound` (the F3.5 headline): the heavy-hitter guarantee `f − N/k ≤ f̂ ≤ f`, stated in truncated-subtraction-free form as `f̂ ≤ f ∧ f ≤ f̂ + N/k`, where `f = xs.count x`, `f̂ = (mgRun k xs).1 x`, `N = xs.length`.
+
+Verification: `lake build` on all default targets is green (8123 jobs). Every new declaration is `sorry`-free and `axiom`-free (`misraGries_bound` checked with the axiom checker: only `propext`, `Classical.choice`, `Quot.sound`); a grep confirms no `sorry`/`admit`/`axiom` in `ChapterF4.lean`, and the `BookProof` library remains fully `sorry`-free. Documentation was updated: `BookProof/ChapterF4.lean` docstring, `BookProof/STATUS.md` (new Wave 41 entry), and `ARISTOTLE_SUMMARY.md` (new top entry, per the explicit request). All changes are committed and pushed.
+
+# Summary of changes — F3.5 (Misra–Gries) completion
+
+Continued `FORMALIZATION_ROADMAP.md`. The single remaining open (optional) queue
+item was **N14 / F3.5 — the Misra–Gries heavy-hitter bound** (target
+`BookProof/ChapterF4.lean`, §8 Phase 4). It is now fully implemented and proved;
+this was the last outstanding roadmap deliverable. (All other `sorry`s in the
+project remain confined to `RiemannProof/`, which the roadmap explicitly places
+out of scope.)
+
+**F3.5 (new content in `BookProof/ChapterF4.lean`).** A self-contained,
+executable formalization of the Misra–Gries frequency-estimation algorithm and
+its two-sided guarantee:
+- `mgSupport`, `mgStep`, `mgRun` — the counter-support size, one processing step
+  (increment if tracked; else open a new counter if fewer than `k` are active;
+  else decrement every counter and record a decrement round), and the run of the
+  algorithm over a stream (a `List`).
+- `mgSum_decrement` — decrementing every counter reduces the total by exactly the
+  number of active counters (stated additively over `ℕ`).
+- `mgStep_support_le` / `mgRun_support_le` — the invariant that at most `k`
+  counters are ever active.
+- `mgRun_sum` — the master conservation invariant
+  `(∑ counters) + (k+1)·(#decrement rounds) = N` (stream length).
+- `mgRun_decrement_le` — the decrement budget `k·d ≤ N`.
+- `mgRun_undercount` — the estimate never exceeds the true frequency (`f̂ ≤ f`).
+- `mgRun_error_le` — the error is bounded by the number of decrement rounds
+  (`f ≤ f̂ + d`).
+- `misraGries_bound` (**F3.5 headline**) — the heavy-hitter guarantee
+  `f - N/k ≤ f̂ ≤ f`, stated in the truncated-subtraction-free form
+  `f̂ ≤ f ∧ f ≤ f̂ + N/k` with `f = xs.count x`, `f̂ = (mgRun k xs).1 x`,
+  `N = xs.length`.
+
+The file docstring's deliverable list was extended with an F3.5 bullet.
+
+**Verification.** `lake build` on all default targets is green (8123 jobs). Every
+new declaration is `sorry`-free and `axiom`-free (`misraGries_bound` checked with
+the axiom checker: only `propext`, `Classical.choice`, `Quot.sound`); a grep
+confirms no `sorry`/`admit`/`axiom` in `ChapterF4.lean`. The `BookProof` library
+remains fully `sorry`-free. All changes are committed and pushed.
+
+---
+
+# Summary of changes for run 5d334a3d-01a2-46a8-8e96-be6f227b5114
+Executed `FORMALIZATION_ROADMAP.md`. The only work still open in the roadmap was the two flagship residues — N13 (Hashimoto Shift-invert Rational Krylov) and N14 (Quantum Flow Matching); both are now complete, and the HYGIENE block was confirmed already satisfied (the seven keeper modules are registered in `BookProof.lean` and the broken `ChapterSphericalBessel2.lean` is absent).
+
+N13 residue (in `BookProof/ChapterH1.lean` and `BookProof/ChapterH2.lean`):
+- H1.3 — `phiOp1` (operator φ₁-function) and `duhamel_phiOp1` (the exponential-integrator Duhamel identity `∫₀^δ e^{(δ−s)·A}g ds = δ·phiOp1(δ·A)g`).
+- H1.5 — `psi` (ψ_{k,γ}(x)=φ_k(γ−x⁻¹), Def 2.4), `psi_resolvent`, and `resolvent_eigenvector` (the spectral bridge for φ_k(A)=ψ_{k,γ}(X)).
+- H1.7 — `resolvent_shift_repr` (`X_j = (1+h(m−j)·X_m)⁻¹·X_m`, the rational-Krylov generating step of eq. 11).
+- H2.2 — `sirk_compression` (`Vᴴ X V = H K⁻¹`, eq. 10).
+- H2.3 — `sirk_error_bound_of_crouzeix` (the (13)+(14) SIRK error bound, conditional on two named Crouzeix-inequality applications supplied as hypotheses — no axiom).
+- H2.4 — `sirk_advantage_factor` (`e^{−hm}·B ≤ B`, the Remark 4.2 decay advantage).
+
+N14 residue (new `BookProof/ChapterF4.lean`, registered in `BookProof.lean`):
+- F3.1 — `countSketch`, `countSketch_add`, and `countSketch_unbiased` (Count-Sketch inner-product unbiasedness for Rademacher signs).
+- F3.2 — `observable_matrix_entry` (the trace identity `Tr(Eᴴ Wᴴ P_a W) = conj(W_{a,r})·W_{a,s}`).
+- F3.3 — `hermitian_flow_unitary` and `hermitian_flow_preserves_normSq` (the reduced flow e^{−itH} is unitary and norm-preserving).
+- F3.4 — `pseudoInverse_left_inverse` (`(ΦᵀΦ)⁻¹Φᵀ·Φ = I`).
+The optional/low-priority F3.5 (Misra–Gries) is noted as future work.
+
+Verification: `lake build` on all default targets is green (8123 jobs). Every new declaration is sorry-free and axiom-free (only `propext`, `Classical.choice`, `Quot.sound`, spot-checked with the axiom checker on `duhamel_phiOp1`, `sirk_error_bound_of_crouzeix`, and `countSketch_unbiased`); a source scan confirms no `sorry`/`admit`/`axiom` in the new code. The `BookProof` library remains fully sorry-free. The only remaining `sorry`s in the project are in `RiemannProof/` (the Riemann Hypothesis chapter), which the roadmap explicitly places out of scope. Documentation was updated (`BookProof/STATUS.md` Wave 40, the roadmap status header, and `ARISTOTLE_SUMMARY.md`). All changes are committed and pushed.
+
+# Summary of changes for the Wave 40 run (N13 + N14 residues)
+
+Executed `FORMALIZATION_ROADMAP.md`. The remaining open work in the roadmap was
+the N13 (Hashimoto SIRK) and N14 (QFM) residues; both are now complete, and the
+HYGIENE block was verified already satisfied (keeper modules registered in
+`BookProof.lean`, `ChapterSphericalBessel2.lean` absent).
+
+**N13 residue (`BookProof/ChapterH1.lean`, `BookProof/ChapterH2.lean`).**
+- H1.3: `phiOp1` + `duhamel_phiOp1` (exponential-integrator Duhamel identity).
+- H1.5: `psi`, `psi_resolvent`, `resolvent_eigenvector` (Def 2.4 spectral bridge).
+- H1.7: `resolvent_shift_repr` (rational-Krylov generating step, eq. 11).
+- H2.2: `sirk_compression` (`Vᴴ X V = H K⁻¹`, eq. 10).
+- H2.3: `sirk_error_bound_of_crouzeix` (SIRK error bound (13)+(14), conditional on
+  the two named Crouzeix applications — no axiom).
+- H2.4: `sirk_advantage_factor` (`e^{−hm}·B ≤ B`, Remark 4.2).
+
+**N14 residue (new `BookProof/ChapterF4.lean`, registered in `BookProof.lean`).**
+- F3.1: `countSketch`, `countSketch_add`, `countSketch_unbiased` (Count-Sketch
+  unbiasedness for Rademacher signs).
+- F3.2: `observable_matrix_entry` (trace identity `Tr(Eᴴ Wᴴ P_a W) = conj(W_{a,r})·W_{a,s}`).
+- F3.3: `hermitian_flow_unitary`, `hermitian_flow_preserves_normSq`.
+- F3.4: `pseudoInverse_left_inverse` (`(ΦᵀΦ)⁻¹Φᵀ·Φ = I`).
+- F3.5 (Misra–Gries) was optional/low-priority; left as future work.
+
+All new declarations are `sorry`-free and `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`, spot-checked with `lean_verify`).
+`lake build` on all default targets is green (8123 jobs). BookProof remains fully
+`sorry`-free. The only remaining `sorry`s in the project are in `RiemannProof/`
+(the Riemann Hypothesis chapter), which the roadmap explicitly places out of
+scope. See `BookProof/STATUS.md` Wave 40 for details.
+
+# Summary of changes for run 2c67c6af-fbb5-48fd-85f3-0c347cc354e3
+Completed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 63**, extending the previous spherical Bessel work one order further to `j₆`.
+
+**New module** `BookProof/ChapterSphericalBessel6.lean` (registered in `BookProof.lean`), covering the §A.5 "Hankel–Majorana Transform" subsection. Building on the earlier `j₀…j₅` closed forms and derivatives, it proves:
+- `sj6` / `deriv_sj6` — the closed form `j₆(r) = (10395/r⁷ − 4725/r⁵ + 210/r³ − 1/r) sin r − (10395/r⁶ − 1260/r⁴ + 21/r²) cos r` and its first derivative;
+- `sbessel_six_eq` — the Rayleigh formula reproduces the closed form, `sbessel 6 r = j₆(r)`;
+- `sj6_satisfies_ode` — `j₆` solves the l = 6 spherical Bessel ODE `r² j'' + 2 r j' + (r² − 42) j = 0`;
+- `sbessel_recurrence_456` — the three-term recurrence at l = 5: `j₄ + j₆ = (11/r)·j₅`;
+- `deriv_recurrence_sj5` — the differentiation law `d/dr j₅ = j₄ − 6/r j₅`.
+
+With this addition the seven lowest spherical Bessel functions `j₀…j₆` are all shown to arise from the Rayleigh formula, satisfy their defining second-order ODEs, and obey both the three-term and first-derivative recurrences.
+
+**Verification.** Each identity was checked numerically first (against the standard recurrence). The full `lake build` is green (8141 jobs); the new module is `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), confirmed by a `sorry` grep and the axiom checker on the headline theorems. The three heavy proofs use a locally-scoped, commented `maxHeartbeats` (needed because the `j₆` closed form carries terms up to `r⁻⁸`); no new linter warnings remain. `BookProof/STATUS.md` and `ARISTOTLE_SUMMARY.md` were both updated with a Wave 63 entry. All work is committed and pushed.
+
+# Summary of changes — Wave 63
+Completed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 63**, extending the spherical Bessel function work of the previous waves one order further to `j₆`.
+
+**New module** `BookProof/ChapterSphericalBessel6.lean` (registered in `BookProof.lean`), covering the §A.5 "Hankel–Majorana Transform" subsection. Building on the earlier `j₀…j₅` closed forms and derivatives, it proves:
+- `sj6` / `deriv_sj6` — the closed form `j₆(r) = (10395/r⁷ − 4725/r⁵ + 210/r³ − 1/r) sin r − (10395/r⁶ − 1260/r⁴ + 21/r²) cos r` and its first derivative;
+- `sbessel_six_eq` — the Rayleigh formula reproduces the closed form, `sbessel 6 r = j₆(r)`;
+- `sj6_satisfies_ode` — `j₆` solves the l = 6 spherical Bessel ODE `r² j'' + 2 r j' + (r² − 42) j = 0`;
+- `sbessel_recurrence_456` — the three-term recurrence at l = 5: `j₄ + j₆ = (11/r)·j₅`;
+- `deriv_recurrence_sj5` — the differentiation law `d/dr j₅ = j₄ − 6/r j₅`.
+
+With this addition the seven lowest spherical Bessel functions `j₀…j₆` are all shown to arise from the Rayleigh formula, satisfy their defining second-order ODEs, and obey both the three-term and first-derivative recurrences.
+
+**Verification.** Each identity was checked numerically first (against the standard three-term recurrence). The full `lake build` is green (8141 jobs); the new module is `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), confirmed by a `sorry` grep and the axiom checker on the headline theorems (`sbessel_six_eq`, `sj6_satisfies_ode`). `BookProof/STATUS.md` and `ARISTOTLE_SUMMARY.md` were both updated with a Wave 63 entry. All work is committed and pushed.
+
+# Summary of changes for run 2d58541c-07b4-4a6e-b992-891af330f111
+Completed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 62**, extending the spherical Bessel function work of the previous waves one order further to `j₅`.
+
+**New module** `BookProof/ChapterSphericalBessel5.lean` (registered in `BookProof.lean`), covering the §A.5 "Hankel–Majorana Transform" subsection. Building on the earlier `j₀…j₄` closed forms and derivatives, it proves:
+- `sj5` / `deriv_sj5` — the closed form `j₅(r) = (945/r⁶ − 420/r⁴ + 15/r²) sin r − (945/r⁵ − 105/r³ + 1/r) cos r` and its first derivative;
+- `sbessel_five_eq` — the Rayleigh formula reproduces the closed form, `sbessel 5 r = j₅(r)`;
+- `sj5_satisfies_ode` — `j₅` solves the l = 5 spherical Bessel ODE `r² j'' + 2 r j' + (r² − 30) j = 0`;
+- `sbessel_recurrence_345` — the three-term recurrence at l = 4: `j₃ + j₅ = (9/r)·j₄`;
+- `deriv_recurrence_sj4` — the differentiation law `d/dr j₄ = j₃ − 5/r j₄`.
+
+With this addition the six lowest spherical Bessel functions `j₀…j₅` are all shown to arise from the Rayleigh formula, satisfy their defining second-order ODEs, and obey both the three-term and first-derivative recurrences.
+
+**Verification.** Each identity was checked numerically first. The full `lake build` is green (8140 jobs); the new module is `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), confirmed by a `sorry` grep and the axiom checker on the headline theorems. `BookProof/STATUS.md` and `ARISTOTLE_SUMMARY.md` were both updated with a Wave 62 entry. All work is committed and pushed.
+
+# Summary of changes — Wave 62
+Continued the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 62**, extending the spherical Bessel function work of Waves 58–61 one order further to `j₅`.
+
+**New module** `BookProof/ChapterSphericalBessel5.lean` (registered in `BookProof.lean`), covering the §A.5 "Hankel–Majorana Transform" subsection (Definitions 65–71). Building on the earlier `j₀…j₄` closed forms and derivatives, it proves:
+- `sj5` / `deriv_sj5` — the closed form `j₅(r) = (945/r⁶ − 420/r⁴ + 15/r²) sin r − (945/r⁵ − 105/r³ + 1/r) cos r` and its first derivative;
+- `sbessel_five_eq` — the Rayleigh formula reproduces the closed form, `sbessel 5 r = j₅(r)`;
+- `sj5_satisfies_ode` — `j₅` solves the l = 5 spherical Bessel ODE `r² j'' + 2 r j' + (r² − 30) j = 0`;
+- `sbessel_recurrence_345` — the three-term recurrence at l = 4: `j₃ + j₅ = (9/r)·j₄`;
+- `deriv_recurrence_sj4` — the differentiation law `d/dr j₄ = j₃ − 5/r j₄`.
+
+With this addition the six lowest spherical Bessel functions `j₀, j₁, j₂, j₃, j₄, j₅` are all shown to arise from the Rayleigh formula, satisfy their defining second-order ODEs, and obey both the three-term and first-derivative recurrences.
+
+**Verification.** Every identity was checked numerically before formalization. The full `lake build` is green (8140 jobs); the new module is `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), confirmed by a `sorry` grep and the axiom checker on the headline theorems. `BookProof/STATUS.md` and `ARISTOTLE_SUMMARY.md` were both updated with a Wave 62 entry. All work is committed and pushed.
+
+# Summary of changes for run 0da57b2b-c9a5-48d6-b046-044b9fb8c929
+Continued the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 61**, extending the spherical Bessel function work of the previous waves one order further to `j₄`.
+
+**New module** `BookProof/ChapterSphericalBessel4.lean` (registered in `BookProof.lean`), covering the §A.5 "Hankel–Majorana Transform" subsection (Definitions 65–71). Building on the earlier `j₀…j₃` closed forms and derivatives, it proves:
+- `sj4` / `deriv_sj4` — the closed form `j₄(r) = (105/r⁵ − 45/r³ + 1/r) sin r − (105/r⁴ − 10/r²) cos r` and its first derivative;
+- `sbessel_four_eq` — the Rayleigh formula reproduces the closed form, `sbessel 4 r = j₄(r)`;
+- `sj4_satisfies_ode` — `j₄` solves the l = 4 spherical Bessel ODE `r² j'' + 2 r j' + (r² − 20) j = 0`;
+- `sbessel_recurrence_234` — the three-term recurrence at l = 3: `j₂ + j₄ = (7/r)·j₃`;
+- `deriv_recurrence_sj3` — the differentiation law `d/dr j₃ = j₂ − 4/r j₃`.
+
+With this addition the five lowest spherical Bessel functions `j₀, j₁, j₂, j₃, j₄` are all shown to arise from the Rayleigh formula, satisfy their defining second-order ODEs, and obey both the three-term and first-derivative recurrences.
+
+**Verification.** Every identity was checked numerically before formalization. The full `lake build` is green (8139 jobs); the new module is `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), confirmed by a `sorry` grep and the axiom checker on all headline theorems.
+
+`BookProof/STATUS.md` and `ARISTOTLE_SUMMARY.md` were both updated with a Wave 61 entry. All work is committed and pushed.
+
+# Summary of changes — Wave 61
+Continued the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 61**, extending the spherical Bessel function work of Waves 58–60 one order further to `j₄`.
+
+**New module** `BookProof/ChapterSphericalBessel4.lean` (registered in `BookProof.lean`), covering the §A.5 "Hankel–Majorana Transform" subsection (Definitions 65–71). It reuses the earlier closed forms/derivatives and proves:
+- `sj4` / `deriv_sj4` — the closed form `j₄(r) = (105/r⁵ − 45/r³ + 1/r) sin r − (105/r⁴ − 10/r²) cos r` and its first derivative;
+- `sbessel_four_eq` — the Rayleigh formula reproduces the closed form, `sbessel 4 r = j₄(r)`;
+- `sj4_satisfies_ode` — `j₄` solves the l = 4 spherical Bessel ODE `r² j'' + 2 r j' + (r² − 20) j = 0`;
+- `sbessel_recurrence_234` — the three-term recurrence at l = 3: `j₂(r) + j₄(r) = (7/r)·j₃(r)`;
+- `deriv_recurrence_sj3` — the differentiation law `d/dr j₃ = j₂ − 4/r j₃`.
+
+With Waves 58–61 the five lowest spherical Bessel functions `j₀, j₁, j₂, j₃, j₄` are shown to arise from the Rayleigh formula, satisfy their defining second-order ODEs, and obey both the three-term and first-derivative recurrences.
+
+**Verification.** Each identity was checked numerically before formalization. The full `lake build` is green (8139 jobs); the new module is `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`; no `native_decide`, no external hypotheses), confirmed by a `sorry` grep and the axiom checker on all headline theorems.
+
+`BookProof/STATUS.md` and `ARISTOTLE_SUMMARY.md` were both updated with a Wave 61 entry. All work is committed and pushed.
+
+# Summary of changes for run 42a25b7b-af17-4523-9309-45e21072f29c
+Continued the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 60**, extending the spherical Bessel function work of Waves 58–59.
+
+**New module** `BookProof/ChapterSphericalBessel3.lean` (registered in `BookProof.lean`), covering the §A.5 "Hankel–Majorana Transform" subsection (Definitions 65–71). It reuses the earlier closed forms/derivatives and proves:
+- `sj3` / `deriv_sj3` — the closed form `j₃(r) = (15/r⁴ − 6/r²) sin r − (15/r³ − 1/r) cos r` and its first derivative;
+- `sbessel_three_eq` — the Rayleigh formula reproduces the closed form, `sbessel 3 r = j₃(r)`;
+- `sj3_satisfies_ode` — `j₃` solves the l = 3 spherical Bessel ODE `r² j'' + 2 r j' + (r² − 12) j = 0`;
+- `sbessel_recurrence_123` — the three-term recurrence at l = 2: `j₁(r) + j₃(r) = (5/r)·j₂(r)`;
+- `deriv_recurrence_sj1` / `deriv_recurrence_sj2` — the differentiation law `d/dr jₗ = jₗ₋₁ − (l+1)/r jₗ` at l = 1, 2.
+
+With Waves 58–60 the four lowest spherical Bessel functions `j₀, j₁, j₂, j₃` are shown to arise from the Rayleigh formula, satisfy their defining second-order ODEs, and obey both the three-term and first-derivative recurrences.
+
+**Verification.** Each identity was checked numerically before formalization. The full `lake build` is green (8138 jobs); the new module is `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`; no `native_decide`, no external hypotheses), confirmed by a `sorry` grep and the axiom checker on all headline theorems. I also cleaned up the machine-found proofs (removed dangling semicolons, split over-long lines) so the file is warning-free.
+
+`BookProof/STATUS.md` and `ARISTOTLE_SUMMARY.md` were both updated with a Wave 60 entry. All work is committed and pushed.
+
+# Summary of changes — Wave 60
+Executed the next step of the standing roadmap directive (mine the next
+self-contained mathematical content from `book.tex`) as **Wave 60**, and updated
+`ARISTOTLE_SUMMARY.md` as requested.
+
+**What I did.** Extended the classical analytic characterisation of the spherical
+Bessel functions of the first kind `jₗ` (the `book.tex` §A.5 subsection
+*"Hankel–Majorana Transform"*, Definitions 65–71) one order beyond Waves 58–59.
+The new module `BookProof/ChapterSphericalBessel3.lean` (registered in
+`BookProof.lean`) reuses the earlier closed forms/derivatives and proves:
+
+- `sj3` / `deriv_sj3` — the closed form
+  `j₃(r) = (15/r⁴ − 6/r²) sin r − (15/r³ − 1/r) cos r` and its first derivative;
+- `sbessel_three_eq` — the Rayleigh formula reproduces the closed form,
+  `sbessel 3 r = j₃(r)` (assembled from Wave 59's `sbessel_two_eq` via one more
+  Rayleigh iterate);
+- `sj3_satisfies_ode` — `j₃` solves the `l = 3` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 12) j = 0`;
+- `sbessel_recurrence_123` — the three-term recurrence at `l = 2`:
+  `j₁(r) + j₃(r) = (5/r) · j₂(r)`;
+- `deriv_recurrence_sj1` / `deriv_recurrence_sj2` — the differentiation law
+  `d/dr jₗ = jₗ₋₁ − (l+1)/r jₗ` at `l = 1, 2`.
+
+With Waves 58–60 the four lowest spherical Bessel functions `j₀, j₁, j₂, j₃` are
+shown to arise from the Rayleigh formula, satisfy their defining second-order
+ODEs, and obey both the three-term and first-derivative recurrences.
+
+**Verification.** Each new identity was first checked numerically, then
+formalized. The full build is green (8138 jobs); the new module is `sorry`-free
+and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`; no
+`native_decide`, no external hypotheses), confirmed by a `sorry` grep and the
+axiom checker on all headline theorems. Wave 60 entries were added to
+`BookProof/STATUS.md` and prepended here. All work is committed and pushed.
+
+# Summary of changes for run 4f0309eb-35a5-486b-98aa-cc9129ed5053
+Executed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 59**, and updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**What I did.** Completed the classical analytic characterisation of the spherical Bessel functions of the first kind `jₗ` begun in Wave 58 (the `book.tex` §A.5 subsection *"Hankel–Majorana Transform"*, Definitions 65–71). The new module `BookProof/ChapterSphericalBessel2.lean` (registered in `BookProof.lean`) reuses the Wave 58 closed forms `sj0`/`sj1`/`sj2` and proves:
+
+- `deriv_sj1` / `deriv_sj2` — the first derivatives of the closed forms `j₁(r) = sin r / r² − cos r / r` and `j₂(r) = (3/r³ − 1/r) sin r − (3/r²) cos r`;
+- `sj1_satisfies_ode` — `j₁` solves the `l = 1` spherical Bessel ODE `r² j'' + 2 r j' + (r² − 2) j = 0`;
+- `sj2_satisfies_ode` — `j₂` solves the `l = 2` spherical Bessel ODE `r² j'' + 2 r j' + (r² − 6) j = 0`;
+- `sbessel_recurrence_012` — the classical three-term recurrence `jₗ₋₁ + jₗ₊₁ = (2l+1)/r · jₗ` at `l = 1`: `j₀(r) + j₂(r) = (3/r) · j₁(r)`.
+
+Together with Wave 58's `sj0_satisfies_ode` and `rayleigh_raise_01`, the three lowest spherical Bessel functions are now shown to satisfy their defining ODEs and the recurrence relations that generate the family.
+
+**Verification.** The three claims were first checked numerically, then formalized. The full build is green (8137 jobs); the new module is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`; no `native_decide`, no external hypotheses), confirmed by a `sorry` grep and the axiom checker on all headline theorems. Wave 59 entries were added to `BookProof/STATUS.md` and prepended to `ARISTOTLE_SUMMARY.md`. All work is committed and pushed.
+
+# Summary of changes — Wave 59
+Executed the next step of the standing roadmap directive (mine the next
+self-contained mathematical content from `book.tex`) as **Wave 59**, and updated
+`ARISTOTLE_SUMMARY.md` as requested.
+
+**What I did.** Completed the classical analytic characterisation of the
+**spherical Bessel functions of the first kind** `jₗ` begun in Wave 58 (the
+`book.tex` §A.5 subsection *"Hankel–Majorana Transform"*, Definitions 65–71). The
+new module `BookProof/ChapterSphericalBessel2.lean` (registered in
+`BookProof.lean`) reuses the Wave 58 closed forms `sj0`/`sj1`/`sj2` and proves:
+
+- `deriv_sj1` / `deriv_sj2` — the first derivatives of the closed forms
+  `j₁(r) = sin r / r² − cos r / r` and
+  `j₂(r) = (3/r³ − 1/r) sin r − (3/r²) cos r`;
+- `sj1_satisfies_ode` — `j₁` solves the `l = 1` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 2) j = 0`;
+- `sj2_satisfies_ode` — `j₂` solves the `l = 2` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 6) j = 0`;
+- `sbessel_recurrence_012` — the classical three-term recurrence
+  `jₗ₋₁ + jₗ₊₁ = (2l+1)/r · jₗ` at `l = 1`: `j₀(r) + j₂(r) = (3/r) · j₁(r)`.
+
+**Verification.** The full `lake build` is green (8137 jobs). The new module is
+`sorry`-free and `axiom`-free — confirmed by a `sorry` grep and by the axiom
+checker on `sj1_satisfies_ode`, `sj2_satisfies_ode`, and `sbessel_recurrence_012`
+(only `propext`, `Classical.choice`, `Quot.sound`; no `native_decide`, no
+`axiom`, no external hypotheses). The three claims (both ODEs and the recurrence)
+were first checked numerically before formalizing. Matching Wave 59 entries were
+added to `BookProof/STATUS.md` and prepended here. All work committed and pushed.
+
+# Summary of changes for run 84ccc86f-d487-4655-b162-e6a65fa3ed07
+Executed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 58**, and updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**What I did.** Formalized the analytic backbone of the `book.tex` §A.5 subsection *"Hankel–Majorana Transform"* (Definitions 65–71): the **spherical Bessel functions of the first kind** `jₗ`, defined by the **Rayleigh formula** `jₗ(r) = rˡ (-(1/r) d/dr)ˡ (sin r / r)`. These special functions are absent from Mathlib (only the Legendre *symbol* exists — no spherical Bessel functions, spherical harmonics, or Legendre polynomials), so the new module `BookProof/ChapterSphericalBessel.lean` (registered in `BookProof.lean`) builds the core from scratch:
+
+- `rayleighOp` — the Rayleigh operator `T f (r) = -(1/r)·f'(r)`;
+- `sbesselBase` / `sbessel` — the generator `j₀ = sin r / r` and the general `jₗ(r) = rˡ (Tˡ (sin r / r))(r)` (Definition 67);
+- `sj0` / `sj1` / `sj2` — the closed forms `j₀ = sin r / r`, `j₁ = sin r / r² − cos r / r`, `j₂ = (3/r³ − 1/r) sin r − (3/r²) cos r`;
+- `deriv_sbesselBase` — `d/dr (sin r / r) = cos r / r − sin r / r²`;
+- `sbessel_zero` / `sbessel_one_eq` / `sbessel_two_eq` — the Rayleigh formula reproduces the three closed forms (l = 1, 2 via first/second derivatives);
+- `rayleigh_raise_01` — the raising relation `j₁ = −(d/dr) j₀`;
+- `sj0_satisfies_ode` — `j₀ = sin r / r` solves the l = 0 spherical Bessel ODE `r² j'' + 2 r j' + r² j = 0`.
+
+**Verification.** The full `lake build` is green (8136 jobs). The new module is `sorry`-free and `axiom`-free — confirmed by a `sorry` grep and by the axiom checker on the headline results `sbessel_two_eq` and `sj0_satisfies_ode` (only `propext`, `Classical.choice`, `Quot.sound`; no `native_decide`, no `axiom`, no external hypotheses). Proofs were cleaned of leftover `grind`/multi-goal artifacts and the module compiles warning-free. Matching Wave 58 entries were added to `BookProof/STATUS.md` and prepended to `ARISTOTLE_SUMMARY.md`. All work committed and pushed.
+
+# Summary of changes — Wave 58
+Executed the next step of the standing roadmap directive (mine the next
+self-contained mathematical content from `book.tex`) as **Wave 58**, and updated
+`ARISTOTLE_SUMMARY.md` as requested.
+
+**New work.** Formalized the analytic backbone of the `book.tex` §A.5 subsection
+*"Hankel–Majorana Transform"* (line ~5805, Definitions 65–71): the **spherical
+Bessel functions of the first kind** `jₗ`, defined (Definition 67) by the
+**Rayleigh formula** `jₗ(r) = rˡ (-(1/r) d/dr)ˡ (sin r / r)`.  These special
+functions are **absent from Mathlib** (only the Legendre *symbol* exists; there
+are no spherical Bessel functions, spherical harmonics, or Legendre
+polynomials), so the new module `BookProof/ChapterSphericalBessel.lean`
+(registered in `BookProof.lean`) builds the self-contained core from scratch:
+
+- `rayleighOp` — the Rayleigh differential operator `T f (r) = -(1/r) · f'(r)`;
+- `sbesselBase` / `sbessel` — the generator `j₀(r) = sin r / r` and the general
+  spherical Bessel function `jₗ(r) = rˡ (Tˡ (sin r / r))(r)` (Definition 67);
+- `sj0` / `sj1` / `sj2` — the classical closed forms `j₀ = sin r / r`,
+  `j₁ = sin r / r² − cos r / r`, `j₂ = (3/r³ − 1/r) sin r − (3/r²) cos r`;
+- `deriv_sbesselBase` — `d/dr (sin r / r) = cos r / r − sin r / r²`;
+- `sbessel_zero` / `sbessel_one_eq` / `sbessel_two_eq` — the Rayleigh formula
+  reproduces the three closed forms (the `l = 1, 2` cases via the first/second
+  derivatives, with `Filter.EventuallyEq.deriv_eq` on the punctured line);
+- `rayleigh_raise_01` — the raising relation `j₁ = −(d/dr) j₀`;
+- `sj0_satisfies_ode` — `j₀(r) = sin r / r` solves the `l = 0` spherical Bessel
+  ODE `r² j'' + 2 r j' + r² j = 0`.
+
+The surrounding representation-theoretic modelling (unitarity of the full
+Hankel–Majorana transform, spherical-harmonic expansions, Clebsch–Gordan
+assembly) is left as prose.
+
+**Verification.** Full `lake build` is green (8136 jobs). The module is
+`sorry`-free and `axiom`-free — confirmed by a `sorry` grep and by the axiom
+checker on the headline declarations `sbessel_two_eq` and `sj0_satisfies_ode`
+(only `propext`, `Classical.choice`, `Quot.sound`; no `native_decide`, no
+`axiom`, no external hypotheses).  Added a matching Wave 58 entry to
+`BookProof/STATUS.md` and prepended this Wave 58 section to
+`ARISTOTLE_SUMMARY.md`.  All work committed and pushed.
+
+# Summary of changes for run 5bb8dec8-ed3c-4860-92f7-3102ef2b71cf
+Executed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 57**, and updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**New work.** Formalized the finite-dimensional algebraic core of the `book.tex` §A.5 subsection *"Spinor frame and CPT theorem"*. There the author states that the most general mass in the Hamiltonian `iH` covariant under the connected component of the Lorentz group is `iH = ∂⃗·γ⃗ γ⁰ + i γ⁰ m₁ + γ⁰γ⁵ m₂`, invariant under parity–time reversal ("essentially the CPT theorem"). Working in the concrete 4×4 Majorana model of §A.3 (`BookProof/ChapterA3.lean`), the plane-wave form (`∂ⱼ ↦ i kⱼ`) is the matrix `D(k,m₁,m₂) = i (Σⱼ kⱼ γ^{j+1}γ⁰) + i m₁ γ⁰ + m₂ γ⁰γ⁵`. New module `BookProof/ChapterCPTHamiltonian.lean` (registered in `BookProof.lean`) establishes:
+- the five building-block matrices `γ^{j+1}γ⁰`, `iγ⁰`, `γ⁰γ⁵` are each casts of explicit integer matrices;
+- they are mutually anticommuting involutions with squares `+1,+1,+1,-1,-1` (Clifford relations reduced to the §A.3 integer model, closed by `decide`);
+- the kinetic blocks are Hermitian, the two mass blocks anti-Hermitian;
+- `diracHamOp_conjTranspose`: `iH` is anti-Hermitian (`Dᴴ = -D`), i.e. the Hamiltonian `H` is self-adjoint;
+- `diracHamOp_sq`: the relativistic mass-shell / dispersion relation `D² = -(k₀²+k₁²+k₂²+m₁²+m₂²) • 1`, so the eigenvalues of `H` are `±√(k⃗²+m₁²+m₂²)` — `m₁, m₂` are exactly the covariant mass parameters. The surrounding physical modelling is left as prose.
+
+**Verification.** Full `lake build` is green (8135 jobs). The module is `sorry`-free and `axiom`-free — confirmed by a `sorry` grep and by the axiom checker on the two headline declarations `diracHamOp_conjTranspose` and `diracHamOp_sq` (only `propext`, `Classical.choice`, `Quot.sound`; no `native_decide`, no `axiom`, no external hypotheses). Added a matching Wave 57 entry to `BookProof/STATUS.md` and prepended a Wave 57 section to `ARISTOTLE_SUMMARY.md`. All work committed and pushed.
+
+# Summary of changes — Wave 57
+Executed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 57**.
+
+**New work.** Formalized the finite-dimensional algebraic core of the `book.tex` §A.5 subsection *"Spinor frame and CPT theorem"* (line ~6453). There the author states that, in space coordinates, the most general mass in the Hamiltonian `iH` covariant under the connected component of the Lorentz group is `iH = ∂⃗·γ⃗ γ⁰ + i γ⁰ m₁ + γ⁰γ⁵ m₂`, and that this operator is invariant under a parity–time reversal ("this is essentially the CPT theorem"). Working in the concrete `4×4` Majorana model of §A.3 (`BookProof/ChapterA3.lean`), the plane-wave form of that operator (`∂ⱼ ↦ i kⱼ`) is the `4×4` complex matrix `D(k,m₁,m₂) = i (Σⱼ kⱼ γ^{j+1}γ⁰) + i m₁ γ⁰ + m₂ γ⁰γ⁵`. New module `BookProof/ChapterCPTHamiltonian.lean` (registered in `BookProof.lean`) proves:
+- `Kin` / `MassA` / `MassB` and `Kin_eq_cast` / `MassA_eq_cast` / `MassB_eq_cast` — the five building-block matrices `γ^{j+1}γ⁰` (`j : Fin 3`), `iγ⁰`, `γ⁰γ⁵` are each the cast of an explicit integer matrix;
+- `Kin_sq` (`=1`), `Kin_anticomm`, `MassA_sq` / `MassB_sq` (`=-1`), `MassA_MassB_anticomm`, `Kin_MassA_anticomm`, `Kin_MassB_anticomm` — the five matrices are mutually anticommuting involutions with squares `+1,+1,+1,-1,-1` (Clifford relations reduced to the §A.3 integer model and closed by `decide`);
+- `Kin_conjTranspose` / `MassA_conjTranspose` / `MassB_conjTranspose` — the kinetic blocks are Hermitian and the two mass blocks anti-Hermitian;
+- `diracHamOp_conjTranspose` — `iH` is anti-Hermitian (`Dᴴ = -D`), i.e. the Hamiltonian `H` is self-adjoint;
+- `diracHamOp_sq` — the relativistic mass-shell / dispersion relation `D² = -(k₀²+k₁²+k₂²+m₁²+m₂²) • 1`, so the eigenvalues of `H` are `±√(k⃗²+m₁²+m₂²)`: `m₁, m₂` are exactly the covariant mass parameters.
+
+The surrounding physical modelling (spinor frames, the `Pin(3,1)` principal homogeneous space, field reparametrizations) is left as prose.
+
+**Verification.** Full `lake build` is green (8135 jobs). The module is `sorry`-free and `axiom`-free — verified via the axiom checker on the two headline declarations `diracHamOp_conjTranspose` and `diracHamOp_sq` (only `propext`, `Classical.choice`, `Quot.sound`; no `native_decide`, no `axiom`, no external hypotheses). Added a matching Wave 57 entry to `BookProof/STATUS.md` and prepended this Wave 57 section to `ARISTOTLE_SUMMARY.md` as requested. All work committed and pushed.
+
+# Summary of changes for run 1efe807a-29c3-45d9-8f3a-93605308f572
+Executed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 56**.
+
+**New work.** Formalized the finite-dimensional algebraic core of the `book.tex` chapter *"On the physical parity transformation and antiparticles"*. The chapter's central thesis — that at the quantum level all fields are real representations (self-adjoint operators), so CP and P coincide and the (generalized) parity transformation is order four, which forces the Lorentz double cover to be `Pin(3,1)` rather than `Pin(1,3)` — rests on a handful of concrete linear-algebra facts. New module `BookProof/ChapterParity.lean` (registered in `BookProof.lean`), reusing the concrete 4×4 Dirac model in `BookProof/ChapterA3.lean`, proves:
+- `field_hermitian_decomp` (with `hermPart`/`antihermPart` and their `IsHermitian` proofs) — "any non-Hermitian field decomposes into a sum of two Hermitian fields": every square complex matrix `X = A + iB` with `A = ½(X+Xᴴ)`, `B = (2i)⁻¹(X−Xᴴ)` Hermitian;
+- the Higgs (generalized) parity `iσ₂` is order four: `pauli2_sq` (`σ₂²=1`), `higgsParity_sq` (`(iσ₂)²=−1`), `higgsParity_pow_four`, `higgsParity_order_four`;
+- the Majorana fermion parity `iγ⁰` is order four with `(iγ⁰)²=−1` (`mgamma0_sq`, `fermionParity_order_four`) versus the naive Dirac `(γ⁰)²=+1` (`dgamma0_sq`) — the `−1` being the invariant selecting `Pin(3,1)`;
+- the eight `SU(3)` Gell-Mann matrices realize the ℤ₂ outer automorphism under complex conjugation with sign pattern `ε=(+,−,+,+,−,+,−,+)` (`gellMann_conj`), and the chapter's gluon parity sign `s^a=−ε^a` (`gellMann_parity_sign`).
+
+The surrounding physical modelling is left as prose.
+
+**Verification.** Full `lake build` is green (8134 jobs). The module is `sorry`-free and `axiom`-free — verified via the axiom checker on the headline declarations (only `propext`, `Classical.choice`, `Quot.sound`; no `native_decide`, no `axiom`, no external hypotheses). Added a matching Wave 56 entry to `BookProof/STATUS.md` and prepended a Wave 56 section to `ARISTOTLE_SUMMARY.md` as requested. All work committed and pushed.
+
+# Summary of changes — Wave 56
+Executed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 56**.
+
+**New work.** Formalized the finite-dimensional algebraic core of the `book.tex` chapter **"On the physical parity transformation and antiparticles"** (line ~7522). The chapter's central thesis — that at the quantum level all fields are *real representations* (self-adjoint operators), so CP and P coincide and the (generalized) parity transformation is **order four**, which forces the Lorentz double cover to be `Pin(3,1)` rather than `Pin(1,3)` — rests on a handful of concrete linear-algebra facts. New module `BookProof/ChapterParity.lean` (registered in `BookProof.lean`), reusing the concrete `4×4` Dirac model `BookProof.ChapterA3.mgamma`/`dgamma`, proves:
+- `field_hermitian_decomp` (with `hermPart`/`antihermPart` and their `IsHermitian` proofs) — *"any non-Hermitian field can always be decomposed into a sum of two Hermitian fields"*: every square complex matrix `X = A + iB` with `A = ½(X+Xᴴ)`, `B = (2i)⁻¹(X−Xᴴ)` Hermitian;
+- the Higgs (generalized) parity `iσ₂` is order four: `pauli2_sq` (`σ₂²=1`), `higgsParity_sq` (`(iσ₂)²=−1`), `higgsParity_pow_four` (`(iσ₂)⁴=1`), `higgsParity_order_four`;
+- the Majorana fermion parity `iγ⁰` is order four with `(iγ⁰)²=−1` (`mgamma0_sq`, `fermionParity_order_four`) versus the naive Dirac `(γ⁰)²=+1` (`dgamma0_sq`) — the `−1` is the invariant selecting `Pin(3,1)` over `Pin(1,3)`;
+- the eight `SU(3)` Gell-Mann matrices realize the `ℤ₂` outer automorphism under complex conjugation with sign pattern `ε=(+,−,+,+,−,+,−,+)` (`gellMann_conj`), and the chapter's gluon parity sign is `s^a=−ε^a`, i.e. `s^{1,3,4,6,8}=−1`, `s^{2,5,7}=+1` (`gellMann_parity_sign`).
+
+The surrounding physical modelling (canonical quantization of a real Hilbert space, the Standard-Model Lagrangian, path-integral measures) is left as prose.
+
+**Verification.** Full `lake build` is green (8134 jobs). The module is `sorry`-free and `axiom`-free — verified via `lean_verify` on the headline declarations, which depend only on `propext`, `Classical.choice`, `Quot.sound` (no `native_decide`, no `axiom`, no `EXTERNAL` hypothesis). Added a Wave 56 entry to `BookProof/STATUS.md` and prepended this matching section to `ARISTOTLE_SUMMARY.md`. All work committed and pushed.
+
+# Summary of changes for run 3bded584-b260-499f-8722-079a7793f95e
+Executed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 55**.
+
+**New work.** Formalized the algebraic core of **Proposition 73** of `book.tex` §A.5 ("Application to the momentum of Majorana spinor fields"). The book proves the Majorana–Fourier transform `𝓕_M = S ∘ 𝓕_P^Θ` is unitary by reducing to the claim that the explicit 2×2 block "boost mixing" matrix `S = [[c, −s·A],[s·A, c]]` is orthogonal/unitary, where `c = √((E+m)/(2E))`, `s = √((E−m)/(2E))` are the boost half-angle coefficients (`E = √(q²+m²)`, `q = |p⃗|`, `m ≥ 0`) and `A = (n̂·γ⃗)γ⁰` is the Dirac spatial slash of the unit momentum direction. The development reuses the existing concrete 4×4 Dirac model in `BookProof/ChapterA3.lean`.
+
+New module `BookProof/ChapterMajoranaFourier.lean` (registered in `BookProof.lean`) proves:
+- the boost half-angle identities `c²+s²=1`, `c²−s²=m/E`, `2cs=q/E`;
+- `γ⁰` is Hermitian and spatial `γⁱ` anti-Hermitian, with spatial Clifford relations `(γⁱ)²=−1`, `γⁱγʲ=−γʲγⁱ`;
+- `A = n̸γ⁰` is a Hermitian involution (`Aᴴ=A`, `A²=1`), the unit-vector slash squaring to `−1`;
+- the abstract block-unitarity lemma (Hermitian involution + `c²+s²=1` ⇒ `SᴴS=1`);
+- the headline `majoranaFourier_boostBlock_unitary`: the concrete Prop-73 boost mixing matrix is unitary.
+
+The surrounding analytic content (the integral operators and their L²-unitarity) is left as prose.
+
+**Verification.** Full `lake build` is green (8133 jobs). The module is `sorry`-free and `axiom`-free — verified via `#print axioms majoranaFourier_boostBlock_unitary`, which depends only on `propext`, `Classical.choice`, `Quot.sound` (no `native_decide`, no `axiom`, no `EXTERNAL` hypothesis). Added a Wave 55 entry to `BookProof/STATUS.md` and prepended a matching section to `ARISTOTLE_SUMMARY.md` as requested. All work committed and pushed.
+
+# Summary of changes — Wave 55
+Continued the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) with **Wave 55**.
+
+**New work.** Formalized the algebraic core of **Proposition 73** of `book.tex` §A.5 (*"Application to the momentum of Majorana spinor fields"*, line ~5900): the book proves the **Majorana–Fourier transform** `𝓕_M = S ∘ 𝓕_P^Θ` is unitary by reducing to the claim that the explicit `2×2` block "boost mixing" matrix `S = [[c, −s·A],[s·A, c]]` is orthogonal/unitary. Here `c = √((E+m)/(2E))`, `s = √((E−m)/(2E))` are the boost half-angle coefficients (`E = √(q²+m²)` the energy, `q = |p⃗|`, `m ≥ 0` the mass), and `A = (n̂·γ⃗) γ⁰` is the Dirac spatial slash of the unit momentum direction. The proof reuses the existing concrete `4×4` Dirac model `BookProof.ChapterA3.dgamma`.
+
+New module `BookProof/ChapterMajoranaFourier.lean` (registered in `BookProof.lean`) proves, sorry-free and axiom-free (no `native_decide`):
+- the boost half-angle identities `c² + s² = 1`, `c² − s² = m/E`, `2cs = q/E` (`boost_sq_add`, `boost_sq_sub`, `boost_two_mul`);
+- Hermiticity of the Dirac matrices: `γ⁰` Hermitian, spatial `γⁱ` anti-Hermitian (`dgamma_conjTranspose`), plus the spatial Clifford relations `(γⁱ)² = −1` and `γⁱγʲ = −γʲγⁱ` (`dgamma_spatial_sq`, `dgamma_spatial_anticomm`);
+- `A = n̸ γ⁰` is a Hermitian involution (`Aop_conjTranspose`, `Aop_sq`), where the unit-vector slash squares to `−1` (`nslash_sq`);
+- the abstract block-unitarity lemma `boostBlock_unitary` (Hermitian involution + `c²+s²=1` ⇒ `Sᴴ S = 1`);
+- the headline `majoranaFourier_boostBlock_unitary`: the concrete Prop-73 boost mixing matrix is unitary.
+
+The surrounding analytic content (the integral operators `𝓕_P`, `𝓕_M` and their `L²`-unitarity) is left as prose.
+
+**Verification.** Full `lake build` is green (8133 jobs); the module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, via `#print axioms majoranaFourier_boostBlock_unitary`). Added a Wave 55 entry to `BookProof/STATUS.md` and prepended this section to `ARISTOTLE_SUMMARY.md`. All work committed and pushed.
+
+# Summary of changes for run e15221d3-4483-4244-8cef-69616962ffd8
+Continued the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) with **Wave 54**.
+
+**New work.** Formalized the section *"6. Free field parametrization for finite sample spaces and the spin-statistics theorem"* (`book.tex` line ~1816). The book parametrizes a finite sample space `ℤ₂` by a fermionic Fock space and, for the product `ℤ₂ × ℤ₂`, requires a graded tensor product so the two fermionic modes **anticommute** — the algebra underlying spin–statistics. Extending the single-mode ghost CAR of Wave 53, I built the two-mode fermionic Fock space `ℂ⁴ ≅ ℂ² ⊗ ℂ²` via the Jordan–Wigner realization `b₁ = a ⊗ I`, `b₂ = Z ⊗ a` (parity string `Z = diag(1,-1)`) as explicit 4×4 complex matrices.
+
+New module `BookProof/ChapterSpinStatistics.lean` (registered in `BookProof.lean`) proves, sorry-free and axiom-free:
+- explicit creation-operator matrices (`fermiCreate1_eq`, `fermiCreate2_eq`, each the conjugate-transpose adjoint of its annihilation operator);
+- the diagonal CAR `{bᵢ, bᵢ†} = 1` (`fermi_CAR₁`, `fermi_CAR₂`);
+- the off-diagonal CAR `{b₁, b₂†} = 0`, `{b₂, b₁†} = 0` (`fermi_CAR_cross`, `fermi_CAR_cross'`);
+- fermionic statistics `{b₁, b₂} = 0`, `{b₁†, b₂†} = 0` (`fermiAnticomm_annih`, `fermiAnticomm_create`);
+- per-mode nilpotency `bᵢ² = 0`, `bᵢ†² = 0` (Pauli exclusion);
+- number operators `Nᵢ = bᵢ† bᵢ` with Hermiticity, idempotence, commutativity `N₁N₂ = N₂N₁`, and the total number `N₁ + N₂ = diag(0,1,1,2)`.
+
+The representation-theoretic spin–statistics claim itself is left as prose.
+
+**Verification.** Full `lake build` is green (8132 jobs); the module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, checked via the axiom tracer). Added a Wave 54 entry to `BookProof/STATUS.md` and prepended a matching section to `ARISTOTLE_SUMMARY.md` as requested. All work committed and pushed.
+
+# Summary of changes — Wave 54
+Executed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 54**.
+
+**New work.** Formalized the section *"6. Free field parametrization for finite sample spaces and the spin-statistics theorem"* (`book.tex` line ~1816). The book parametrizes a finite sample space `ℤ₂` by a fermionic Fock space and, for the product `ℤ₂ × ℤ₂`, requires a graded tensor product so that the two fermionic modes **anticommute** (rather than producing spurious products of creation operators) — the algebraic content behind the spin–statistics correspondence. Extending the single-mode ghost CAR of Wave 53, this builds the **two-mode** fermionic Fock space `ℂ⁴ ≅ ℂ² ⊗ ℂ²` via the Jordan–Wigner realization `b₁ = a ⊗ I`, `b₂ = Z ⊗ a` (parity string `Z = diag(1,-1)`), realized as explicit `4×4` complex matrices.
+
+**New module** `BookProof/ChapterSpinStatistics.lean` (registered in `BookProof.lean`) proves:
+- `fermiCreate1_eq`, `fermiCreate2_eq` — explicit matrix form of the creation operators `b₁†`, `b₂†` (each the conjugate-transpose adjoint of its annihilation operator);
+- `fermi_CAR₁`, `fermi_CAR₂` — the diagonal CAR `{bᵢ, bᵢ†} = 1`;
+- `fermi_CAR_cross`, `fermi_CAR_cross'` — the off-diagonal CAR `{b₁, b₂†} = 0`, `{b₂, b₁†} = 0` (distinct modes canonically anticommute);
+- `fermiAnticomm_annih`, `fermiAnticomm_create` — the fermionic statistics `{b₁, b₂} = 0`, `{b₁†, b₂†} = 0` (so `b₁ b₂ = − b₂ b₁`);
+- `fermiAnnih₁_sq`, `fermiAnnih₂_sq`, `fermiCreate₁_sq`, `fermiCreate₂_sq` — per-mode nilpotency `bᵢ² = 0`, `bᵢ†² = 0` (Pauli exclusion);
+- `fermiNumber₁_eq`, `fermiNumber₂_eq` — the number operators `Nᵢ = bᵢ† bᵢ` (`diag(0,0,1,1)`, `diag(0,1,0,1)`), with `fermiNumber₁_hermitian`/`fermiNumber₂_hermitian` and `fermiNumber₁_idem`/`fermiNumber₂_idem` (Hermitian projections, eigenvalues `0,1`), `fermiNumber_commute` (`N₁ N₂ = N₂ N₁`), and `fermiTotalNumber_eq` (`N = N₁ + N₂ = diag(0,1,1,2)`).
+
+The representation-theoretic spin–statistics claim (fermionic vs. bosonic representability of symmetry transformations) is left as prose.
+
+**Verification.** Full `lake build` is green (8132 jobs); the module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified via `lean_verify`). Added a Wave 54 entry to `BookProof/STATUS.md` and prepended this section to `ARISTOTLE_SUMMARY.md`.
+
+---
+
+# Summary of changes for run 398e31ba-db94-4a74-97be-2d20897b690b
+Executed the next step of the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) as **Wave 53**.
+
+**New work.** Formalized the fermionic **BRST ghost-field algebra** of the section *"Free field parametrization in Navier–Stokes equations"* (`book.tex` line ~4134), where the incompressibility (divergence) constraint of Navier–Stokes is implemented à la BRST through a single fermionic ghost `ψ`. Using the explicit realization the book writes down (`ψ†{a}(…,j)=a(…,1)δ_{j0}`, `ψ{a}(…,j)=a(…,0)δ_{j1}`), realized on the two-dimensional occupation space `ℂ²` as the 2×2 matrices `ψ = !![0,0;1,0]`, `ψ† = ψᴴ = !![0,1;0,0]`.
+
+**New module** `BookProof/ChapterNavierStokes.lean` (registered in `BookProof.lean`) proves:
+- `ghostCreate_eq`, `ghostCreate_eq_conjTranspose` — explicit form of `ψ†` and that it is the conjugate-transpose (adjoint) of `ψ`;
+- `ghost_CAR` — the canonical anticommutation relation `ψψ† + ψ†ψ = 1` (the book's `{ψ,ψ†}=1`);
+- `ghostAnnih_sq`, `ghostCreate_sq`, `ghostAnticomm_annih`, `ghostAnticomm_create` — nilpotency `ψ²=0`, `ψ†²=0` (fermionic Pauli exclusion) and the paired anticommutators;
+- `ghostNumber_eq`, `ghostNumber_hermitian`, `ghostNumber_idem` — the number operator `N = ψ†ψ = !![1,0;0,0]` is Hermitian and idempotent (occupation eigenvalues 0, 1);
+- `ghost_annih_create_eq`, `ghostNumber_resolution` — `ψψ† = !![0,0;0,1]` and the identity resolution `N + ψψ† = 1`.
+
+The surrounding field-theoretic construction (full graded Lie superalgebra, essential self-adjointness of the polynomial Hamiltonian, existence/uniqueness) is physical modelling left as prose.
+
+**Verification.** Full `lake build` is green (8131 jobs); the module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified on the headline results). 
+
+**Docs.** Added a Wave 53 entry to `BookProof/STATUS.md` and prepended a matching Wave 53 section to `ARISTOTLE_SUMMARY.md` (as requested). All work is committed and pushed.
+
+# Summary of changes — Wave 53: Book "Free field parametrization … Navier–Stokes", *Navier–Stokes* section: the BRST ghost-field CAR algebra `{ψ, ψ†} = 1` (`ChapterNavierStokes`)
+
+Continued the standing roadmap directive (mine the next self-contained
+mathematical content from `book.tex`) with a new wave (Wave 53), then updated the
+status docs.
+
+**What I did.** Formalized the fermionic **ghost field** of the section *"Free
+field parametrization in Navier–Stokes equations"* (`book.tex` line ~4134). There
+the divergence (incompressibility) constraint of the Navier–Stokes equations is
+implemented à la BRST through a single fermionic ghost `ψ` (with BRST charge
+`Ω = ∫ u_{j,j} ψ†`), governed by the canonical anticommutation relation
+`{ψ, ψ†} = ψψ† + ψ†ψ = 1`, using the explicit realization the book writes down:
+`ψ†{a}(…,j) = a(…,1) δ_{j0}` and `ψ{a}(…,j) = a(…,0) δ_{j1}`. On the
+two-dimensional occupation space `ℂ²` (`j = 0`: no ghost, `j = 1`: one ghost)
+these are the `2×2` matrices `ψ = !![0,0;1,0]` and `ψ† = ψᴴ = !![0,1;0,0]`.
+
+**New module** `BookProof/ChapterNavierStokes.lean` (registered in
+`BookProof.lean`):
+- `ghostCreate_eq` — explicit matrix form of `ψ†`;
+- `ghostCreate_eq_conjTranspose` — `ψ†` is the conjugate-transpose (adjoint) of
+  `ψ`, so the CAR pair is a genuine operator/adjoint pair;
+- `ghost_CAR` — the canonical anticommutation relation `ψψ† + ψ†ψ = 1`
+  (the book's `{ψ, ψ†} = 1`);
+- `ghostAnnih_sq` / `ghostCreate_sq` — nilpotency `ψ² = 0`, `ψ†² = 0` (fermionic
+  Pauli exclusion), with the paired `{ψ,ψ} = 0`, `{ψ†,ψ†} = 0`;
+- `ghostNumber_eq`, `ghostNumber_hermitian`, `ghostNumber_idem` — the number
+  operator `N = ψ†ψ = !![1,0;0,0]` is Hermitian and idempotent (eigenvalues
+  `0, 1`, the fermionic occupation numbers);
+- `ghost_annih_create_eq`, `ghostNumber_resolution` — `ψψ† = !![0,0;0,1]` and the
+  resolution of the identity `N + ψψ† = 1` into the two occupation sectors.
+
+The surrounding field-theoretic construction (the full graded Lie superalgebra,
+essential self-adjointness of the polynomial Navier–Stokes Hamiltonian, and the
+existence/uniqueness claim) is physical modelling left as prose.
+
+**Verification.** Full `lake build` is green (8131 jobs). The module is confirmed
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`,
+verified via `lean_verify` on the headline results). Added a Wave 53 entry to
+`BookProof/STATUS.md` and prepended this matching section to
+`ARISTOTLE_SUMMARY.md` (as requested). All work is committed and pushed.
+
+---
+
+# Summary of changes for run dbd9874a-904b-44b8-89d1-9d9a5d571912
+Continued the standing roadmap directive (mine the next self-contained mathematical content from `book.tex`) with a new wave (Wave 52).
+
+**What I did.** Formalized the section *"Holomorphic fields"* (`book.tex` line ~4105), where the field-theory Hamiltonian is *defined by the Cauchy–Riemann equations*. The book states the distributional (Weyl-lemma) version — a locally-integrable function whose Cauchy–Riemann equations hold weakly is a.e. equal to an analytic function — which relies on elliptic regularity not available in the library. I formalized the classical (strong-derivative) core it rests on: a complex function that is real-differentiable on an open domain and satisfies the Cauchy–Riemann equations there is complex analytic (holomorphic), so it is its own analytic representative.
+
+**New module** `BookProof/ChapterHolomorphic.lean` (registered in `BookProof.lean`), over an open `s ⊆ ℂ`:
+- `cauchyRiemann_analyticOn` — operator form (`∂f/∂y = i · ∂f/∂x`) ⇒ analytic;
+- `cauchyRiemann_partial_analyticOn` — classical partial-derivative form (`u_x = v_y`, `u_y = -v_x`, with `f = u + i v`) ⇒ analytic;
+- `analyticOn_cauchyRiemann` — the converse (holomorphic ⇒ Cauchy–Riemann);
+- `cauchyRiemann_iff_analyticOn` — the resulting characterization;
+- `cauchyRiemann_contDiffOn` — the smoothness payoff (`C^∞`).
+
+The docstring is explicit that the classical version is formalized (not the stronger distributional Weyl-lemma statement).
+
+**Verification.** Full `lake build` is green (8130 jobs). The module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), verified on the headline results. Added a Wave 52 entry to `BookProof/STATUS.md` and prepended a matching section to `ARISTOTLE_SUMMARY.md` (as explicitly requested in the new prompt). All work is committed and pushed.
+
+# Summary of changes — Wave 52: Book "Free field parametrization … Navier–Stokes", *Holomorphic fields*: Cauchy–Riemann ⇒ holomorphic (`ChapterHolomorphic`)
+
+Executed the next `FORMALIZATION_ROADMAP.md` step (the standing directive to mine
+the next self-contained mathematical content from `book.tex`) and updated the
+status docs.
+
+**New work (Wave 52).** Formalized the self-contained mathematical claim of the
+section *"Holomorphic fields"* (`book.tex` line ~4105), where the field theory's
+Hamiltonian is *defined by the Cauchy–Riemann equations*. The book states the
+distributional (Weyl-lemma) version — a locally-integrable function whose
+Cauchy–Riemann equations hold weakly is a.e. equal to an analytic function; that
+elliptic-regularity statement is not in Mathlib. This pass formalizes the
+classical (strong-derivative) core it rests on: a complex function that is
+real-differentiable on an open domain and satisfies the Cauchy–Riemann equations
+there is complex analytic (holomorphic), hence its own analytic representative.
+
+New module `BookProof/ChapterHolomorphic.lean` (registered in `BookProof.lean`),
+all `sorry`-free and `axiom`-free. Over an open `s ⊆ ℂ`:
+- `cauchyRiemann_analyticOn` — operator form (`fderiv ℝ f z I = I • fderiv ℝ f z 1`,
+  i.e. `∂f/∂y = i · ∂f/∂x`) ⇒ `AnalyticOn ℂ f s`;
+- `cauchyRiemann_partial_analyticOn` — the classical partial-derivative form
+  `u_x = v_y`, `u_y = -v_x` (writing `f = u + i v`) ⇒ analyticity;
+- `analyticOn_cauchyRiemann` — the converse (holomorphic ⇒ Cauchy–Riemann);
+- `cauchyRiemann_iff_analyticOn` — the resulting characterization;
+- `cauchyRiemann_contDiffOn` — the smoothness payoff (`C^∞`).
+
+**Verification.** Full `lake build` is green (8130 jobs); the module is confirmed
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`,
+verified via `lean_verify` on the headline results). Added a Wave 52 entry to
+`BookProof/STATUS.md` and prepended this section to `ARISTOTLE_SUMMARY.md`. All
+work is committed and pushed.
+
+# Summary of changes for run 79d62767-170e-4f05-86e1-15c971f8ee84
+Executed the next `FORMALIZATION_ROADMAP.md` step (mine the next self-contained mathematical content from `book.tex`) and updated the status docs.
+
+**New work (Wave 51).** Formalized the self-contained, finite-dimensional core of the `book.tex` section *"3. Any conditional probability measure in a standard measure space is parametrized by a unitary operator"* (Chapter *"Wave-function parametrization of a probability measure"*, book line ~1392): the claim that a joint probability density `p(x,y)` can be written as `|𝒰(y,x,0)|²` for a unitary `𝒰` built by Gram–Schmidt with a chosen column equal to the wave-function `Ψ` (`|Ψ|²=p`), together with its converse. The abstract L²/Hilbert-basis form already existed (`ChapterB.unit_vector_extends`); this pass adds the concrete matrix form.
+
+New module `BookProof/ChapterJointUnitary.lean` (registered in `BookProof.lean`), all `sorry`-free and `axiom`-free. Over a finite index type:
+- `exists_unitary_column` — Gram–Schmidt crux: every unit vector `v` (`∑ᵢ ‖v i‖² = 1`) is the `i₀`-th column of some unitary matrix (via extension to an orthonormal basis of `EuclideanSpace ℂ ι`);
+- `exists_unitary_of_prob` — every finite probability distribution `p` is the squared modulus of a column of a unitary matrix (using `v i = √(p i)`);
+- `exists_unitary_joint` — the book's two-space form: every joint distribution `p(x,y)` on a finite `X × Y` is `|U|²` along a column of a unitary matrix indexed by `X × Y`;
+- `sqAbs_isProb_of_frobenius_one` + `frobenius_eq_trace` — the converse: any matrix `B` with `∑_{i,j} ‖B i j‖² = 1` (i.e. `tr(Bᴴ B) = 1`) makes `(i,j) ↦ ‖B i j‖²` a genuine probability distribution.
+
+**Verification.** Full `lake build` is green (8129 jobs); the module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified on the headlines). Added a Wave 51 entry to `BookProof/STATUS.md` and prepended a matching section to `ARISTOTLE_SUMMARY.md` as requested. All work is committed and pushed.
+
+# Summary of changes — Wave 51: Book §3 "Any conditional probability measure is parametrized by a unitary operator": the finite-dimensional matrix version (`ChapterJointUnitary`)
+
+Executed the next `FORMALIZATION_ROADMAP.md` step (mine the next self-contained
+mathematical content from `book.tex`) and updated the status docs.
+
+**Starting point.** The roadmap queue N1–N14 and mining Waves 46–50 were
+complete; `BookProof` was `sorry`/`axiom`-free and the build green. The
+standing directive is to mine the next self-contained content from `book.tex`.
+
+**What I did.** Formalized the self-contained, finite-dimensional core of the
+`book.tex` section *"3. Any conditional probability measure in a standard measure
+space is parametrized by a unitary operator"* (Chapter *"Wave-function
+parametrization of a probability measure"*, book line ~1392): the book's claim
+that a joint probability density `p(x,y)` can be written as `p(x,y)=|𝒰(y,x,0)|²`
+for a unitary `𝒰` built "through the Gram–Schmidt process" so that a chosen column
+of `𝒰` reproduces the wave-function `Ψ` with `|Ψ|²=p`, together with its converse.
+The abstract `L²`/Hilbert-basis form already exists (`ChapterB.unit_vector_extends`);
+this pass adds the concrete matrix form of the Gram–Schmidt construction.
+
+New module `BookProof/ChapterJointUnitary.lean` (registered in `BookProof.lean`),
+all `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, verified via `lean_verify` on the headlines); full `lake build`
+green (8129 jobs). Over a finite index type:
+- `exists_unitary_column` — the Gram–Schmidt crux: every unit vector `v`
+  (`∑ᵢ ‖v i‖² = 1`) is the `i₀`-th column of some unitary matrix (extend `v` to
+  an orthonormal basis of `EuclideanSpace ℂ ι`; its coordinate matrix is unitary
+  with `i₀`-column `v`);
+- `exists_unitary_of_prob` — every finite probability distribution `p` is the
+  squared modulus `|·|²` of a column of a unitary matrix (via `v i = √(p i)`);
+- `exists_unitary_joint` — the book's exact two-space statement: every joint
+  distribution `p(x,y)` on a finite `X × Y` is `|U|²` along a column of a unitary
+  matrix indexed by `X × Y`;
+- `sqAbs_isProb_of_frobenius_one` + `frobenius_eq_trace` — the converse: any
+  matrix `B` with `∑_{i,j} ‖B i j‖² = 1` (i.e. `tr(Bᴴ B) = 1`) makes
+  `(i,j) ↦ ‖B i j‖²` a genuine probability distribution.
+
+**Verification.** Full `lake build` is green (8129 jobs); the module is
+`sorry`-free and `axiom`-free. Updated `BookProof/STATUS.md` with a Wave 51
+entry and prepended this section to `ARISTOTLE_SUMMARY.md`. All work committed
+and pushed.
+
+# Summary of changes for run 323a669d-1c34-4af8-8f56-28e7cdf77c19
+Executed the next `FORMALIZATION_ROADMAP.md` step (mine the next self-contained mathematical content from `book.tex`) and updated the status docs.
+
+**New work (Wave 50).** Formalized the self-contained claim of the `book.tex` section *"11. Conditions for the classical limit of Quantum Mechanics"* (Chapter *"Wave-function parametrization of a probability measure"*): that step, polynomial, and smooth functions are dense in the `L²` measure, and that any bounded function on a compact domain can be `L²`-approximated by such calculable functions.
+
+New module `BookProof/ChapterClassicalLimit.lean` (registered in `BookProof.lean`), all `sorry`-free and `axiom`-free. Over a compact `s ⊆ ℝ` with any finite, weakly-regular Borel measure `μ`:
+- `simpleFunc_dense_L2` — step / simple functions dense in `L²`;
+- `continuousMap_denseRange_L2` — continuous functions dense in `L²`;
+- `polynomialFunctions_val_denseRange` — Stone–Weierstrass: polynomials dense in `C(s, ℝ)`;
+- `polynomial_denseRange_L2` — polynomial (hence also smooth) functions dense in `L²`, by composition;
+- headline `exists_polynomial_approx_L2` — for every `F ∈ L²(μ)` and `ε > 0` there is a polynomial `q` with `‖q|ₛ − F‖₂ < ε`.
+
+**Verification.** Full `lake build` is green (8128 jobs); the module is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, confirmed on the headline). Updated `BookProof/STATUS.md` with a Wave 50 entry and prepended a matching section to `ARISTOTLE_SUMMARY.md`. All work is committed and pushed.
+
+# Summary of changes — Wave 50: Book "Conditions for the classical limit of Quantum Mechanics": calculable functions are dense in `L²` (`ChapterClassicalLimit`)
+
+Executed the next `FORMALIZATION_ROADMAP.md` step (mine the next self-contained
+mathematical content from `book.tex`) and updated the status docs.
+
+**Starting point.** The roadmap queue N1–N14 and the recent mining Waves 46–49
+were complete; `BookProof` was `sorry`/`axiom`-free and the build was green.
+The roadmap's standing "Beyond N13/N14" directive is to mine the next
+self-contained content from `book.tex`.
+
+**What I did.** Formalized the self-contained claim of the `book.tex` section
+*"11. Conditions for the classical limit of Quantum Mechanics"* (Chapter
+*"Wave-function parametrization of a probability measure"*, line ~2081):
+*"step, polynomial or smooth functions are dense in the `L²` measure"*, and that
+any bounded function on a compact domain can be `L²`-approximated by such
+calculable functions.
+
+New module `BookProof/ChapterClassicalLimit.lean` (registered in
+`BookProof.lean`), all `sorry`-free and `axiom`-free. Working over a compact
+`s ⊆ ℝ` with any finite, weakly-regular Borel measure `μ`:
+- `simpleFunc_dense_L2` (step / simple functions dense in `L²`);
+- `continuousMap_denseRange_L2` (continuous functions dense in `L²`);
+- `polynomialFunctions_val_denseRange` (Stone–Weierstrass: polynomials dense in
+  `C(s, ℝ)`);
+- `polynomial_denseRange_L2` (polynomial — hence also smooth — functions dense in
+  `L²`, by composition);
+- headline `exists_polynomial_approx_L2` (for every `F ∈ L²(μ)` and `ε > 0` a
+  polynomial `q` with `‖q|ₛ − F‖₂ < ε`).
+
+**Verification.** Full `lake build` is green (8128 jobs); the module is
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`,
+confirmed via `lean_verify` on the headline). All work is committed and pushed.
+
+**Docs updated.** Added a Wave 50 entry to `BookProof/STATUS.md` and prepended
+this section to `ARISTOTLE_SUMMARY.md`.
+
+# Summary of changes for run b81e6f04-0771-4a23-a49a-7991144e3542
+Executed the next `FORMALIZATION_ROADMAP.md` step and updated the summary docs.
+
+**Next step done (Wave 49).** Following the roadmap's standing directive to mine the next self-contained mathematical content from `book.tex`, I formalized the linear-algebra core of the section *"Time translation is a stochastic process if and only if it is deterministic"* (Chapter *"Reconstructing the classical trajectory of any isolated quantum system"*). This is the book's claim that a Wigner symmetry `U` induces a well-defined group action on the post-collapse probability distributions **iff** `U` is *deterministic* (each column has at most one nonzero entry).
+
+New module `BookProof/ChapterReconstruct.lean` (registered in `BookProof.lean`), all `sorry`-free and `axiom`-free:
+- `IsDeterministicCol`/`IsDeterministic` and the off-diagonal Born sum `offDiag`;
+- `offDiag_eq` (the full-bilinear-product-minus-diagonal identity);
+- `offDiag_of_isDeterministicCol` (forward) and `isDeterministicCol_of_offDiag` (backward, via the polarization witnesses `Ψ = δ_{·m} + zδ_{·l}`, `z ∈ {1, i}`, the rigorous form of the book's real witness);
+- headlines `offDiag_eq_zero_iff` (per column) and `offDiag_eq_zero_iff_isDeterministic` (global);
+- `offDiag_unit_iff` (the book's exact unit-state form).
+
+**Verification.** Full `lake build` is green (8127 jobs); the module is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, confirmed on the headline). Only cosmetic long-line style warnings remain, consistent with the rest of the library.
+
+**Docs updated.** Added a Wave 49 entry to `BookProof/STATUS.md` and prepended a matching section to `ARISTOTLE_SUMMARY.md`. All work is committed and pushed.
+
+# Summary of changes — Wave 49: Book "Reconstructing the classical trajectory": a symmetry acts on probability distributions iff it is deterministic (`ChapterReconstruct`)
+
+Executed the next `FORMALIZATION_ROADMAP.md` step and updated the status docs.
+
+**Starting point.** The roadmap queue N1–N14 and the recent mining Waves 46–48
+were complete; `BookProof` was `sorry`/`axiom`-free and the build was green. The
+roadmap's standing "Beyond N13/N14" note directs mining the next self-contained
+content from `book.tex`.
+
+**What I did.** Formalized the self-contained linear-algebra core of the
+`book.tex` section *"Time translation is a stochastic process if and only if it
+is deterministic"* (Chapter *"Reconstructing the classical trajectory of any
+isolated quantum system"*, line ~2613) in a new module
+`BookProof/ChapterReconstruct.lean` (registered in `BookProof.lean`). The book's
+main result there is that a Wigner symmetry `U` induces a well-defined group
+action on the (post-collapse) probability distributions **iff** `U` is
+*deterministic* — each column of `U` has at most one nonzero entry. Deliverables
+(all proved, no `sorry`/`axiom`/`EXTERNAL`):
+- `IsDeterministicCol`/`IsDeterministic` definitions and the `offDiag`
+  off-diagonal Born sum `S_a(Ψ) = ∑_{k≠b} conj(U k a)·Ψ k·conj(Ψ b)·U b a`;
+- `offDiag_eq`: the full-bilinear-product-minus-diagonal identity for `S_a`;
+- `offDiag_of_isDeterministicCol` (forward direction) and
+  `isDeterministicCol_of_offDiag` (backward direction via the polarization
+  witnesses `Ψ = δ_{·m} + zδ_{·l}`, `z ∈ {1, i}` — the rigorous form of the
+  book's real witness);
+- headlines `offDiag_eq_zero_iff` (per column) and
+  `offDiag_eq_zero_iff_isDeterministic` (global): the Born-rule map is a
+  well-defined action on distributions iff `U` is deterministic;
+- `offDiag_unit_iff`: the book's exact unit-state (pure-density-matrix) form.
+No unitarity hypothesis is needed for this algebraic equivalence.
+
+**Verification.** Full `lake build` is green (8127 jobs); the module is
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`,
+confirmed via the theorem checker on `offDiag_eq_zero_iff_isDeterministic`). Only
+cosmetic long-line style warnings remain (consistent with the rest of the
+library).
+
+**Documentation.** Added a Wave 49 entry to `BookProof/STATUS.md` and prepended
+this section to `ARISTOTLE_SUMMARY.md`. All work is committed and pushed.
+
+---
+
+# Summary of changes for run f47bb112-1319-470e-93eb-8516db60498c
+Executed the next `FORMALIZATION_ROADMAP.md` step and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting point.** The roadmap queue N1–N14, the Wave-46 Gleason sanity check, and the Wave-47 Entropy `n!/nⁿ` nugget were already complete; `BookProof` was `sorry`/`axiom`-free and the build was green. The roadmap's standing "Beyond N13/N14" note directs mining the next self-contained content from `book.tex`.
+
+**What I did.** Formalized the `book.tex` sections *"Euler's formula for a phase-space with 4 states"* and *"Euler's formula for a generic phase-space"* (Chapter *"Wave-function collapse versus Euler's formula"*) in a new module `BookProof/ChapterE2.lean` (registered in `BookProof.lean`). The existing `BookProof/ChapterE.lean` had only covered the 2-state clock; this pass formalizes the `n`-state / countable stick-breaking Born parametrization `P(1)=c₁²`, `P(2)=(s₁c₂)²`, `P(3)=(s₁s₂c₃)²`, …. Deliverables (all proved, no `sorry`/`axiom`/`EXTERNAL`):
+- `stick`/`remainder`/`bornProb` definitions plus basic identities (`stick_eq`, `remainder_succ`, `remainder_zero`, `stick_nonneg`, `remainder_nonneg`, `remainder_le_one`);
+- `sum_stick_add_remainder`: the telescoping normalization `(∑_{n<N} stick θ n) + remainder θ N = 1`;
+- `bornProb_nonneg` + `bornProb_sum_eq_one`: the `n`-state Born family is a genuine probability distribution;
+- `cos_sq_surjective`: conditional probabilities `cos²(θ)` are arbitrary over `[0,1]`;
+- headline `exists_angles_realize`: *every* probability distribution on `n` states is realized by the Born rule of some wave-function (the book's claim), via the stick-breaking construction `cos²θ_k = q_k / R_k`.
+
+**Verification.** Full `lake build` is green (8126 jobs); the module is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, confirmed via the theorem checker on the two headlines). The heavy headline proof carries a local `set_option maxHeartbeats 1000000` so it elaborates under the default build limit. Only cosmetic style-linter warnings remain.
+
+**Documentation.** Added a Wave 48 entry to `BookProof/STATUS.md` and prepended a matching section to `ARISTOTLE_SUMMARY.md`. The out-of-scope `RiemannProof/RcpEuler.lean` sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes — Book "Wave-function collapse versus Euler's formula": the generic-phase-space (stick-breaking) Born parametrization (`ChapterE2`)
+
+Executed the next `FORMALIZATION_ROADMAP.md` step and updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**Starting point.** The roadmap queue N1–N14 (both flagship packages), the
+Wave-46 Gleason sanity check, and the Wave-47 Entropy `n!/nⁿ` nugget were already
+complete, `BookProof` was `sorry`/`axiom`-free, and the build was green.  The
+roadmap's standing "Beyond N13/N14" note flags that `book.tex` still has
+unformalized chapters to mine, so this pass formalizes the next self-contained
+mathematical content.
+
+**What I did.** Formalized the `book.tex` sections *"Euler's formula for a
+phase-space with 4 states"* and *"Euler's formula for a generic phase-space"*
+(Chapter *"Wave-function collapse versus Euler's formula"*, line ~3565) in a new
+module `BookProof/ChapterE2.lean` (registered in `BookProof.lean`).  The existing
+`BookProof/ChapterE.lean` had only covered the 2-state clock (E.1–E.4); this pass
+formalizes the `n`-state / countable generalization.  The book parametrizes a
+real normalized wave-function by Euler angles via `vₙ = cos(θₙ) lₙ + sin(θₙ) vₙ₊₁`,
+yielding the *stick-breaking* Born probabilities `P(1)=c₁²`, `P(2)=(s₁c₂)²`,
+`P(3)=(s₁s₂c₃)²`, ….  Deliverables (all proved):
+- `stick`, `remainder`, `bornProb` definitions and basic identities;
+- `sum_stick_add_remainder`: the telescoping normalization
+  `(∑_{n<N} stick θ n) + remainder θ N = 1`;
+- `bornProb_nonneg` and `bornProb_sum_eq_one`: the `n`-state Born family is a
+  genuine probability distribution;
+- `cos_sq_surjective`: the conditional probabilities `cos²(θ)` are arbitrary over
+  `[0,1]`;
+- headline `exists_angles_realize`: *every* probability distribution on `n`
+  states is realized by the Born rule of some wave-function (the book's claim
+  "any probability distribution can be reproduced by the Born rule for some
+  wave-function"), via the stick-breaking construction `cos²θ_k = q_k / R_k`.
+
+**Verification.** The full `lake build` is green (8126 jobs); the module is
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`,
+confirmed via `lean_verify` on the two headlines); no `EXTERNAL` hypothesis and
+no `axiom`.  (The headline proof carries a local `set_option maxHeartbeats
+1000000` so it elaborates under the default build limit.)
+
+**Documentation.** Added a Wave 48 entry to `BookProof/STATUS.md` and prepended
+this section to `ARISTOTLE_SUMMARY.md`.  The out-of-scope
+`RiemannProof/RcpEuler.lean` sorries are unchanged.  All work is committed and
+pushed.
+
+# Summary of changes for run 891ff3a5-ce81-4c36-9d74-8af81ffb80c1
+Executed the next `FORMALIZATION_ROADMAP.md` step and updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**Starting point.** I confirmed the roadmap queue N1–N14 (both flagship packages, Hashimoto SIRK and QFM) plus the earlier Gleason sanity check were already complete, `BookProof` was `sorry`/`axiom`-free, and the build was green. The roadmap's standing "Beyond N13/N14" note flags that `book.tex` still has unformalized chapters to mine, so this pass formalizes the next self-contained numbered claim.
+
+**What I did.** Formalized the mathematical content of the `book.tex` chapter *"Entropy and an irreversible deterministic time-evolution coexist"* (§"Irreversible deterministic time-evolution") in a new module `BookProof/ChapterEntropy.lean` (registered in `BookProof.lean`). The chapter partitions the rescaled joint sample square into `n²` cells and asserts that the probability a uniformly random discrete self-map of the `n` index cells is invertible (a bijection) is `n!/nⁿ ~ √(2πn) e^{-n}`, which tends to `0` — its arrow-of-time mechanism. Deliverables (all proved):
+- `card_selfMaps` / `card_bijections`: an `n`-element index set has `nⁿ` self-maps and `n!` bijections;
+- `invertibleProb` with `invertibleProb_eq` (`= (n! : ℝ)/nⁿ`), and `invertibleProb_nonneg` / `invertibleProb_le_one` (a genuine probability in `[0,1]`);
+- headline `invertibleProb_tendsto_zero` (it tends to `0`);
+- `invertibleProb_isEquivalent_stirling` (the book's Stirling asymptotic `n!/nⁿ ~ √(2πn) e^{-n}`);
+- `exists_injective_not_surjective` (successor map on `ℕ`: injective "non-singular" yet not surjective "not invertible").
+
+**Verification.** The full `lake build` is green (8125 jobs); the module is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, confirmed via the theorem checker); no `EXTERNAL` hypothesis and no `axiom`.
+
+**Documentation.** Added a Wave 47 entry to `BookProof/STATUS.md` and prepended a new section to `ARISTOTLE_SUMMARY.md`. The out-of-scope `RiemannProof/RcpEuler.lean` sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes — Book "Entropy and irreversible time-evolution": the invertibility probability `n!/nⁿ` (`ChapterEntropy`)
+
+Executed the next `FORMALIZATION_ROADMAP.md` step and updated this file as requested.
+
+**Context.** The whole roadmap queue N1–N14 (both flagship packages, Hashimoto SIRK and QFM) plus the Wave-46 Gleason sanity check were already complete and `lake build` was green. The roadmap's standing "Beyond N13/N14" note flags that `book.tex` still has unformalized chapters to mine. This pass formalizes the next self-contained numbered claim: the chapter *"Entropy and an irreversible deterministic time-evolution coexist"* (`book.tex` line ~9474, §"Irreversible deterministic time-evolution").
+
+**New module `BookProof/ChapterEntropy.lean`** (registered in `BookProof.lean`), all `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified via `lean_verify` on the headlines); full `lake build` green (8125 jobs). No `EXTERNAL` hypothesis, no `axiom`.
+
+The book partitions the rescaled joint sample square `[0,1]×[0,1]` into `n²` cells and states that the probability that a uniformly random discrete self-map of the `n` index cells is invertible (a bijection) is `n!/nⁿ ~ √(2πn) e^{-n}`, which tends to `0` — so a randomly sampled time-evolution is almost surely non-invertible (irreversible), the book's arrow-of-time mechanism. Deliverables:
+- `card_selfMaps` / `card_bijections`: an `n`-element index set has `nⁿ` self-maps and `n!` bijections.
+- `invertibleProb` (ratio of the two counts) with `invertibleProb_eq` (`= (n! : ℝ)/nⁿ`), and `invertibleProb_nonneg` / `invertibleProb_le_one` (a genuine probability in `[0,1]`, via `Nat.factorial_le_pow`).
+- headline `invertibleProb_tendsto_zero` (it tends to `0`, from `tendsto_factorial_div_pow_self_atTop`).
+- `invertibleProb_isEquivalent_stirling` (the book's Stirling asymptotic `n!/nⁿ ~ √(2πn) e^{-n}`, from `Stirling.factorial_isEquivalent_stirling` divided by `nⁿ`).
+- `exists_injective_not_surjective` (successor map on `ℕ`: injective "non-singular" yet not surjective "not invertible" — a concrete irreversible-dynamics witness).
+
+**Documentation.** Added a Wave 47 entry to `BookProof/STATUS.md` and this section to `ARISTOTLE_SUMMARY.md`. The out-of-scope `RiemannProof/RcpEuler.lean` sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes for run 0a559911-9e42-47a4-8bc3-a4fc460b560f
+Executed the next `FORMALIZATION_ROADMAP.md` step and updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**Starting point.** I first confirmed the current state: the full roadmap queue N1–N14 (including both flagship packages — Hashimoto SIRK and QFM) was already complete, and `lake build` was green. I verified there were no remaining open queue items and that the previously-pending §0 S7 hygiene item (the `../unfer` cross-reference docstrings on `born_conditioning` and `prodEquiv` in `ChapterU.lean`) was in fact already present, so no edit was needed there.
+
+**What I did — the next open item.** The remaining previously-unimplemented deliverable explicitly flagged in the roadmap (Chapter B remark, "worth adding as a sanity check") is the concrete 2-dimensional real **Gleason contrast** from `book.tex` §4. I formalized it as a new module `BookProof/ChapterB4.lean` (registered in `BookProof.lean`), `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified with the theorem checker on the headlines). The full project builds cleanly (8124 jobs), with no `EXTERNAL` hypothesis and no `axiom`.
+
+Fixing the two non-commuting real projections `P₁ = [[1,0],[0,0]]` and `P₂ = ½[[1,1],[1,1]]`, with a pure state defined as a rank-one projector `v vᵀ` (unit `v`) and a density matrix defined as Hermitian, positive-semidefinite, unit-trace:
+- `pure_state_satisfies_P1` / `pure_state_satisfies_P2`: a pure state realizes each Born constraint `tr(ρ P) = ½` individually;
+- headline `no_pure_state_satisfies_both`: no pure state realizes both `tr(ρ P₁) = ½` and `tr(ρ P₂) = ½` at once;
+- `mixed_state_satisfies_both`, `mixed_state_isDensityMatrix`, `mixed_state_not_pure`: the mixed state `ρ = ½ I` satisfies both constraints and is a genuine (non-pure) density matrix.
+
+This captures the book's point that a wave-function (pure state) cannot match the Born data of two non-commuting projections simultaneously, whereas Gleason's mixed-state density matrix can.
+
+**Documentation.** Added a Wave 46 entry to `BookProof/STATUS.md` and prepended a new section to `ARISTOTLE_SUMMARY.md`. The out-of-scope `RiemannProof/RcpEuler.lean` sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes — Book §4 Gleason contrast (`ChapterB4`)
+Executed the next `FORMALIZATION_ROADMAP.md` step and updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**Context.** The entire roadmap queue N1–N14 was already complete (both flagship packages, Hashimoto SIRK and QFM, landed in prior waves). The next remaining, previously-unimplemented item explicitly flagged in `FORMALIZATION_ROADMAP.md` (Chapter B remark, "worth adding as a sanity check") is the concrete `2`-dimensional real **Gleason contrast** from `book.tex` §4 (line ~1637). This pass formalizes it.
+
+**New module `BookProof/ChapterB4.lean`** (registered in `BookProof.lean`), all `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified via `lean_verify` on the headlines); full `lake build` green (8124 jobs). No `EXTERNAL` hypothesis, no `axiom`.
+
+Fix the two non-commuting real projections `P₁ = [[1,0],[0,0]]` and `P₂ = ½[[1,1],[1,1]]`. A **pure state** is a rank-one projector `v vᵀ` for a real unit vector `v` (`IsPureState`); a **density matrix** is Hermitian, positive-semidefinite, unit-trace (`IsDensityMatrix`); the Born value of projection `P` in state `ρ` is `tr(ρ P)`.
+- `pure_state_satisfies_P1` / `pure_state_satisfies_P2`: a pure state (namely `P₂`, resp. `P₁`, each shown pure via `P2_isPureState` / `P1_isPureState`) individually realizes each Born constraint `= ½`.
+- **headline `no_pure_state_satisfies_both`**: no pure state realizes both `tr(ρ P₁) = ½` and `tr(ρ P₂) = ½` simultaneously.
+- `mixed_state_satisfies_both` + `mixed_state_isDensityMatrix` + `mixed_state_not_pure`: the genuinely mixed state `ρ = ½ I` does satisfy both constraints and is a legitimate (Gleason) density matrix, yet is not pure.
+
+This captures the book's point: the wave-function (pure states) cannot match the Born data of two non-commuting projections at once, whereas Gleason's mixed-state density matrix can. Separately confirmed the §0 S7 hygiene item (the `../unfer` cross-reference docstrings on `born_conditioning` and `prodEquiv` in `ChapterU.lean`) is already present, so no edit was needed there. A Wave 46 entry was added to `BookProof/STATUS.md`. The out-of-scope `RiemannProof/RcpEuler.lean` sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes for run 44b696f5-29f9-45bd-82b2-997b47ea4216
+Executed the next `FORMALIZATION_ROADMAP.md` step — the last recorded open item of the two flagship packages — and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was done.** The remaining open work across N13/N14 (per the previous summary/`BookProof/STATUS.md`) was the concrete `p̂ = −i ∂` / `x̂` integration-by-parts *function-space* model underlying the QFM package's deliverables F2.1 and F2.2 (whose purely algebraic cores were already in `BookProof/ChapterF5.lean`). This pass supplies that concrete model.
+
+**New module `BookProof/ChapterF7.lean`** (registered in `BookProof.lean`), `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified on the headline theorems); the full `lake build` is green (8123 jobs). No `EXTERNAL` hypothesis, no `axiom`.
+
+The domain is the Schwartz space `𝓢(ℝ, ℂ)` with the sesquilinear L² pairing `⟪f, g⟫ = ∫ conj(f x)·g x`:
+- `l2pair` with integrability helper and full (conjugate-)bilinearity; `IsL2Symmetric T` = Hermiticity on the dense Schwartz domain.
+- Position / real-multiplication operators (`mulOp`): `mulOp_l2Symmetric`, `position_l2Symmetric`.
+- Momentum (`−i Ψ′`): `momentum_l2Symmetric`, whose analytic heart is `schwartz_integration_by_parts` (`∫ conj(f′) g = −∫ conj(f) g′`), proved from Mathlib's `integral_deriv_mul_eq_sub` with vanishing boundary terms (Schwartz decay) and Schwartz-product integrability.
+- F2.1 concretely: `anticomm_l2Symmetric` ⇒ `continuityHamiltonian_l2Symmetric` (the continuity Hamiltonian `H = ½(p̂ v(x̂) + v(x̂) p̂)` is Hermitian).
+- F2.2 concretely: `i_comm_l2Symmetric` + `kinetic_l2Symmetric` (`K = ½ p̂·p̂`) ⇒ `conservativeHamiltonian_l2Symmetric` (the conservative Hamiltonian `H^c = i[K, V(x̂)]` is Hermitian).
+
+With this pass both flagship packages (Hashimoto SIRK and QFM) are complete, including the previously-deferred concrete `x̂`/`p̂` model. Added a Wave 45 entry to `BookProof/STATUS.md` and a new top section to `ARISTOTLE_SUMMARY.md`. The out-of-scope `RiemannProof/RcpEuler.lean` sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes — N14 QFM concrete `x̂`/`p̂` model (F2.1/F2.2), `ChapterF7`
+Executed the next `FORMALIZATION_ROADMAP.md` step — the last recorded open item
+of the two flagship packages — then updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**What the pass did.** The remaining open work across N13/N14 (per the previous
+`ARISTOTLE_SUMMARY.md` / `BookProof/STATUS.md` wave-44 note) was the concrete
+`p̂ = −i ∂` / `x̂` integration-by-parts *function-space* model underlying N14's
+QFM deliverables **F2.1** and **F2.2** — the algebraic cores of which were
+already in `ChapterF5`. This pass supplies that concrete model.
+
+**New module `BookProof/ChapterF7.lean`** (registered in `BookProof.lean`) —
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`,
+verified via `lean_verify` on the headline theorems); full `lake build` green
+(8123 jobs). **No `EXTERNAL` hypothesis, no `axiom`.**
+
+The domain is the Schwartz space `𝓢(ℝ, ℂ)` with the sesquilinear `L²` pairing
+`⟪f, g⟫ = ∫ conj (f x) · g x`:
+- **`l2pair`** with integrability helper `l2pair_integrable` and full
+  (conjugate-)bilinearity (`l2pair_add/sub/smul_left/right`); `IsL2Symmetric T`
+  = Hermiticity on the dense Schwartz domain.
+- **Position / real multiplication** `mulOp v` (via `SchwartzMap.bilinLeftCLM`):
+  `mulOp_l2Symmetric` (multiplication by any real temperate-growth function is
+  `L²`-symmetric, since `conj (v x) = v x`); `position_l2Symmetric`.
+- **Momentum** `momentum` (`−i Ψ′`, via `SchwartzMap.derivCLM`):
+  `momentum_l2Symmetric`, whose analytic heart is the integration-by-parts
+  lemma `schwartz_integration_by_parts` (`∫ conj(f′) g = −∫ conj(f) g′`), proved
+  from `integral_deriv_mul_eq_sub` with vanishing boundary terms (Schwartz decay
+  at `±∞`) and Schwartz-product integrability.
+- **F2.1 concretely**: `anticomm_l2Symmetric` ⇒ `continuityHamiltonian_l2Symmetric`
+  (the symmetrized continuity Hamiltonian `H = ½(p̂ v(x̂) + v(x̂) p̂)` is Hermitian).
+- **F2.2 concretely**: `i_comm_l2Symmetric` + `kinetic_l2Symmetric` (`K = ½ p̂·p̂`)
+  ⇒ `conservativeHamiltonian_l2Symmetric` (the conservative continuity
+  Hamiltonian `H^c = i[K, V(x̂)]` is Hermitian).
+
+With this pass **both flagship packages N13 (Hashimoto SIRK) and N14 (QFM) are
+complete**, including the previously-deferred concrete `x̂`/`p̂` model. A Wave 45
+entry was added to `BookProof/STATUS.md`. The out-of-scope `RiemannProof/`
+sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes for run 75c5ea0b-3b77-4639-80bb-66b931d6ff96
+Executed the next `FORMALIZATION_ROADMAP.md` steps, completing the N13 (Hashimoto Shift-invert Rational Krylov) work package, then updated `ARISTOTLE_SUMMARY.md`.
+
+**New module `BookProof/ChapterH4.lean`** (registered in `BookProof.lean`), landing the four remaining N13 deliverables — all `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, confirmed via `#print axioms`); full `lake build` green (8122 jobs). The two deep analytic inputs (Crouzeix's inequality; the deferred `e^{−hm}` deformation of the source Theorem 5) are introduced as named hypotheses with citation docstrings, never axioms.
+
+- **H1.5** — operator φ-function via the resolvent (Definition 2.4): the scalar function `psi k γ w := φ_k(γ − w⁻¹)` and its spectral-consistency identity `psi_shift_eq_phi`.
+- **H2.2** — the SIRK compression `compress V X := V∗ X V` (exactly the paper's `Hₘ Kₘ⁻¹`, eq. 10) with the full transfer chain `compress_X_comp_V`, `compress_pow` (`Xⁿ∘V = V∘Bⁿ`), `compress_transfer`, `compress_inv_transfer`, yielding the load-bearing identity `r(Xₘ)v = Vₘ r(HₘKₘ⁻¹) Vₘ∗ v`.
+- **H2.3** — the SIRK convergence headline (Theorem 4.1): `sirk_error_bound` (triangle-inequality core `≤ 2C·D·‖v‖`, conditional on the two named Crouzeix bounds) and `sirk_error_bound_decay` (the eq.-(12) form `≤ 2C·e^{−hm}·Dmin·‖v‖`).
+- **H2.4** — the existing-methods comparison (Remark 4.2): `sia_error_bound` (SIA bound (15)) and `sirk_le_sia` (the `e^{−hm}` advantage of SIRK over SIA).
+
+With this pass the N13 (Hashimoto SIRK) package is complete (H1.1–H2.4). Documentation: added a Wave 44 entry to `BookProof/STATUS.md` and a new top section to `ARISTOTLE_SUMMARY.md`. The remaining open item across the two flagship packages is the concrete function-space (`p̂ = −i ∂` / `x̂` integration-by-parts) model underlying N14's F2.1/F2.2, whose algebraic cores are already done in `ChapterF5`. The out-of-scope `RiemannProof/` sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes — N13 SIRK completed (H1.5 + H2.2 + H2.3 + H2.4, `ChapterH4`)
+Executed the next `FORMALIZATION_ROADMAP.md` steps, landing the four remaining N13 (Hashimoto Shift-invert Rational Krylov) deliverables, then updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**New deliverables — N13 H1.5, H2.2, H2.3, H2.4 (Hashimoto SIRK, source `Hashimoto.md`).** Added one new module, `BookProof/ChapterH4.lean` (registered in `BookProof.lean`), all `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, confirmed via `#print axioms`), with **no `axiom`**. The full project `lake build` is green (8122 jobs). The two genuinely deep analytic inputs (Crouzeix's inequality and the deferred `e^{−hm}` deformation of the source Theorem 5) are introduced as **named hypotheses with citation docstrings**, never axioms.
+
+Content: **H1.5** — the operator φ-function via the resolvent (Definition 2.4): the scalar function `psi k γ w := φ_k(γ − w⁻¹)` and its spectral-consistency identity `psi_shift_eq_phi` (`ψ_{k,γ}((γ − z)⁻¹) = φ_k(z)`). **H2.2** — the SIRK compression `compress V X := V∗ X V` (this is exactly the paper's `Hₘ Kₘ⁻¹`, eq. 10) with the full rational-function transfer chain `compress_X_comp_V`, `compress_pow` (`Xⁿ∘V = V∘Bⁿ`), `compress_transfer`, `compress_inv_transfer`, giving the load-bearing identity `r(Xₘ)v = Vₘ r(HₘKₘ⁻¹) Vₘ∗ v`. **H2.3** — the SIRK convergence headline (Theorem 4.1): `sirk_error_bound` (the eq.-(13)→(14) triangle-inequality core `≤ 2C·D·‖v‖`, conditional on the two named Crouzeix bounds) and `sirk_error_bound_decay` (the eq.-(12) form `≤ 2C·e^{−hm}·Dmin·‖v‖`). **H2.4** — the existing-methods comparison (Remark 4.2): `sia_error_bound` (the SIA bound (15)) and `sirk_le_sia` (the `e^{−hm}` advantage of SIRK over SIA as an inequality of the two bounds).
+
+With this pass the **N13 (Hashimoto SIRK) package is complete** (H1.1–H2.4). Documentation: added a Wave 44 entry to `BookProof/STATUS.md`. Remaining open work is the concrete `p̂ = −i ∂` / `x̂` integration-by-parts function-space model underlying N14's F2.1/F2.2 (whose algebraic cores are already done in `ChapterF5`); the QFM pure-proof definition of done is otherwise complete. The out-of-scope `RiemannProof/` sorries are unchanged. All work is committed and pushed.
+
+---
+
+# Summary of changes for run aea415f2-3ff9-488d-9663-d5010ef55a26
+Executed the next `FORMALIZATION_ROADMAP.md` step, continuing the N14 (Quantum Flow Matching) work package, then updated `ARISTOTLE_SUMMARY.md` as requested.
+
+**New deliverable — F3.5, the Misra–Gries heavy-hitter bound (QFM §8 Phase 4).** Added one new module, `BookProof/ChapterF6.lean` (registered in `BookProof.lean`), all `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, confirmed via verification), with no `EXTERNAL` hypothesis and no `axiom`. The full project `lake build` is green (8121 jobs).
+
+The complete streaming frequency-estimation state machine is formalized: the counter table is a finitely-supported map `T : α →₀ ℕ`; `mgStep k` processes one stream item (increment when present or a slot is free, else decrement every counter by one); `mgT k`/`mg k` fold the step over the stream; `mgD k` counts the decrement rounds. The headline `misra_gries_bound` proves the top-1 peak-recovery guarantee `f(x) − N/k ≤ f̂(x) ≤ f(x)` for capacity `k ≥ 1`, where `f(x) = s.count x` is the true frequency, `f̂(x) = (mg k s) x` the estimate, and `N = s.length`. The proof rests on three induction invariants: `mg_upper` (never overshoots), `mg_lower` (undershoots by at most the decrement count `D`), and `mgD_bound` (`k·D ≤ N`) from the mass-conservation identity `mgSum(mgT) + (k+1)·D = mgSum(T₀) + N` (`mgT_sum_add`), using the capacity invariant `mgStep_card_le` and `mgSum_mapRange_pred`.
+
+This was the next open pure-proof deliverable of N14. Remaining N14/N13 items stay documented rather than asserted (the concrete `p̂ = −i ∂` / `x̂` function-space model for F2.1/F2.2, and the N13 CFC/`CrouzeixBound` layers), so nothing is stated without proof.
+
+Documentation: added a Wave 43 entry to `BookProof/STATUS.md` and a new top summary section to `ARISTOTLE_SUMMARY.md`. The out-of-scope `RiemannProof/` sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes — N14 QFM: F3.5 Misra–Gries heavy-hitter bound (`ChapterF6`)
+
+Executed the next `FORMALIZATION_ROADMAP.md` step, continuing the **N14 (Quantum
+Flow Matching)** work package.  Added one new module, `BookProof/ChapterF6.lean`
+(registered in `BookProof.lean`), all **`sorry`-free** and **`axiom`-free** (only
+`propext`, `Classical.choice`, `Quot.sound`, confirmed via `lean_verify`), with
+**no `EXTERNAL` hypothesis and no `axiom`**.  The full project `lake build` is
+green (8121 jobs).
+
+New result:
+- **F3.5 — the Misra–Gries heavy-hitter bound (QFM §8 Phase 4).**  The complete
+  streaming frequency-estimation state machine is formalized: the counter table
+  is a finitely-supported map `T : α →₀ ℕ`; `mgStep k` processes one stream item
+  (increment its counter when it is already present or a slot is free, else
+  decrement *every* counter by one); `mgT k` / `mg k` fold the step over the
+  stream; and `mgD k` counts the decrement rounds.  The headline
+  `misra_gries_bound` proves the top-1 peak-recovery guarantee
+  `f(x) − N/k ≤ f̂(x) ≤ f(x)` for capacity `k ≥ 1`, where `f(x) = s.count x` is the
+  true frequency, `f̂(x) = (mg k s) x` the estimate, and `N = s.length`.
+  The proof combines three invariants proved by induction over the stream:
+  `mg_upper` (the estimate never overshoots), `mg_lower` (it undershoots by at
+  most the number of decrement rounds `D`), and `mgD_bound` (`k · D ≤ N`), the
+  last derived from the mass-conservation identity
+  `mgSum(mgT) + (k+1)·D = mgSum(T₀) + N` (`mgT_sum_add`) — each decrement round
+  removes exactly `k` units of stored mass once the table is full, using the
+  capacity invariant `mgStep_card_le` and `mgSum_mapRange_pred`.
+
+This was the next open pure-proof deliverable of N14.  Remaining N14/N13 items
+stay documented rather than asserted (the concrete `p̂ = −i ∂` / `x̂`
+function-space model for F2.1/F2.2, and the N13 CFC/`CrouzeixBound` layers), so
+nothing is stated without proof.  `BookProof/STATUS.md` gained a Wave 43 entry.
+The out-of-scope `RiemannProof/` sorries are unchanged.  All work is committed
+and pushed.
+
+---
+
+# Summary of changes for run 4cf3b228-17c7-421f-b5fb-b136ce4eda1f
+Executed the next `FORMALIZATION_ROADMAP.md` steps, continuing the N14 (Quantum Flow Matching) work package. Added one new module, `BookProof/ChapterF5.lean` (registered in `BookProof.lean`), all `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, confirmed via `#print axioms`), with no `EXTERNAL` hypothesis and no `axiom`. The full project `lake build` is green (8120 jobs).
+
+New results:
+- F2.1 (continuity-Hamiltonian Hermiticity, algebraic core): `anticommutator_isSymmetric` — the symmetrized product `K ∘ V + V ∘ K` of two symmetric operators is symmetric with no commutation hypothesis, the reason `H = ½(p̂·v(x̂) + v(x̂)·p̂)` is Hermitian.
+- F2.2 (conservative commutator form, algebraic core): `i_commutator_isSymmetric` — `i • [K, V]` is symmetric whenever `K, V` are, the reason `H^c = i • [K, V(x̂)]` is Hermitian.
+- F2.5 (exact commutativity / time-averaging): `commuting_flow_two` and `commuting_flow_finset` — a pairwise-commuting family of channel generators has a factorizing time-ordered flow `exp(−i t • ∑ⱼ Hⱼ) = ∏ⱼ exp(−i t • Hⱼ)`.
+
+Remaining N14 items (F3.5 Misra–Gries; the concrete `p̂ = −i ∂`/`x̂` model) and N13 items (H1.5, H2.2, H2.3/H2.4) stay documented rather than asserted, as they need larger infrastructure or remain conditional on the named `CrouzeixBound` input.
+
+Documentation updated as requested: `BookProof/STATUS.md` gained a Wave 42 entry and `ARISTOTLE_SUMMARY.md` gained a new summary section at the top. All work is committed and pushed.
+
+# Summary of changes (continued run) — N14 QFM: F2.1/F2.2 symmetric generators + F2.5 commuting flows
+
+Executed the next `FORMALIZATION_ROADMAP.md` steps, continuing the **N14 (Quantum
+Flow Matching)** package. Added one new module, `BookProof/ChapterF5.lean`
+(registered in `BookProof.lean`), all **`sorry`-free** and **`axiom`-free** (only
+`propext`, `Classical.choice`, `Quot.sound`, confirmed via `#print axioms`), with
+**no `EXTERNAL` hypothesis and no `axiom`**. The full project `lake build` is
+green.
+
+New results:
+- **F2.1** — continuity-Hamiltonian Hermiticity, algebraic core (§4 eq. 4.2):
+  `anticommutator_isSymmetric` shows the symmetrized product `K ∘ V + V ∘ K` of
+  two symmetric operators is symmetric with no commutation hypothesis — the
+  reason `H = ½(p̂·v(x̂) + v(x̂)·p̂)` is Hermitian even when `p̂` and `v(x̂)` do
+  not commute.
+- **F2.2** — conservative commutator form, algebraic core (§4 eqs. 4.4–4.6):
+  `i_commutator_isSymmetric` shows `i • [K, V] = i • (K ∘ V − V ∘ K)` is
+  symmetric whenever `K, V` are (commutator of symmetrics is skew, `i` restores
+  symmetry) — the reason `H^c = i • [K, V(x̂)]` is Hermitian.
+- **F2.5** — exact commutativity and time-averaging (§5.4): `commuting_flow_two`
+  and `commuting_flow_finset` prove a pairwise-commuting family of channel
+  generators has a factorizing time-ordered flow
+  `exp(−i t • ∑ⱼ Hⱼ) = ∏ⱼ exp(−i t • Hⱼ)`.
+
+Remaining N14 items stay documented rather than asserted: F3.5 (Misra–Gries,
+optional) needs a streaming state machine, and the concrete `p̂ = −i ∂` / `x̂`
+integration-by-parts symmetry underlying F2.1/F2.2 needs the function-space
+differentiation model. Remaining N13 items are unchanged: H1.5 (operator φ via
+CFC), H2.2 (SIRK compression assembly), H2.3/H2.4 (convergence, conditional on
+the named `CrouzeixBound`). Documentation updated: `BookProof/STATUS.md` gained a
+Wave 42 entry. All work is committed and pushed.
+
+# Summary of changes for run 7e179af5-a4c7-427b-975a-75587e56b814
+Executed the next `FORMALIZATION_ROADMAP.md` steps, continuing the N13 (Hashimoto SIRK) package that was previously left documented-but-not-asserted. Added one new module, `BookProof/ChapterH3.lean` (registered in `BookProof.lean`), all `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, confirmed via `#print axioms`), with no `EXTERNAL` hypothesis and no `axiom`. The full project `lake build` is green.
+
+New results:
+- H1.3 — exponential-integrator Duhamel identity (scalar/per-spectral-component core): `duhamel_scalar` proves `∫₀^δ e^{(δ−s) z} ds = δ·φ₁(δ z)` and `duhamel_scalar_smul` its constant-forcing corollary, where `φ₁` is `ChapterH1.phi 1` from H1.1/H1.2.
+- H1.7 — rational-Krylov ⊆ rational functions of Xₘ: `sirkKrylov` (the SIRK Krylov iterates) and `sirk_krylov_mem_adjoin`, showing that under the H1.6 shift identity `X_j = Y_j · Xₘ`, every Krylov iterate is a rational function of the single operator `Xₘ` applied to `v` (lies in the image of `v` under the subalgebra generated by `Xₘ` and the resolvent factors).
+
+Remaining N13 items stay documented rather than asserted: H1.5 (operator φ via continuous functional calculus) and H2.2 (SIRK compression assembly) need the full operator-φ CFC layer, and H2.3/H2.4 (convergence) remain conditional on the named `CrouzeixBound` deep analytic input (kept a named hypothesis, never an axiom).
+
+Documentation updated as requested: `BookProof/STATUS.md` gained a Wave 41 entry and `ARISTOTLE_SUMMARY.md` gained a new summary section at the top. The out-of-scope `RiemannProof/` sorries are unchanged. All work is committed and pushed.
+
+# Summary of changes (continued run) — N13 SIRK: H1.3 Duhamel + H1.7 rational-Krylov
+
+Picking up where the previous run left off, I executed the next `FORMALIZATION_ROADMAP.md` steps: two further **N13 (Hashimoto SIRK)** deliverables that were previously documented-but-not-asserted. Added one new module, `BookProof/ChapterH3.lean` (registered in `BookProof.lean`), **`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`, `Quot.sound`; verified with `#print axioms`), with **no `EXTERNAL` hypothesis and no `axiom`**. Full project `lake build` is green.
+
+- **H1.3 — exponential-integrator Duhamel identity (scalar/per-spectral-component core, §0 S3):** `duhamel_scalar` proves `∫₀^δ e^{(δ−s) z} ds = δ·φ₁(δ z)` and `duhamel_scalar_smul` its constant-forcing corollary `∫₀^δ e^{(δ−s) z}·g ds = δ·φ₁(δ z)·g`, where `φ₁` is `ChapterH1.phi 1` from H1.1/H1.2. Proof: reflection substitution `u = δ−s` and rescaling `u = δ t`.
+- **H1.7 — rational-Krylov ⊆ rational functions of `Xₘ` (eq. 11):** `sirkKrylov` (the SIRK Krylov iterates `w_j = X_j ⋯ X_1 v`) and `sirk_krylov_mem_adjoin` — given the H1.6 shift identity `X_j = Y_j · Xₘ`, every Krylov iterate lies in `{ r v | r ∈ adjoin ℂ ({Xₘ} ∪ range Y) }`, i.e. is a rational function of the single operator `Xₘ` applied to `v`. This is the load-bearing inclusion behind the SIRK convergence theory (the reverse/surjectivity direction is noted in the docstring, not needed for the error bound).
+
+Remaining N13 items stay documented (not asserted): H1.5 (operator φ via CFC) and H2.2 (SIRK compression assembly) need the full continuous-functional-calculus operator-φ layer; H2.3/H2.4 (convergence) remain conditional on the named `CrouzeixBound` deep analytic input. `BookProof/STATUS.md` updated with a Wave 41 entry. The out-of-scope `RiemannProof/` sorries are unchanged.
+
+---
+
+# Summary of changes for run e4c19907-e1ba-465e-8250-70f8336f7173
+Executed `FORMALIZATION_ROADMAP.md`. On entry the entire original work-package queue (N1–N12) was already complete and the `BookProof` library was sorry-free; the only open items were the two flagship packages the roadmap promoted 2026-07-06: **N13 (Hashimoto Shift-invert Rational Krylov, SIRK)** and **N14 (Quantum Flow Matching, QFM)**. I formalized and proved both, adding four new modules — all `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), with **no `EXTERNAL` hypothesis and no `axiom`**. The full project `lake build` is green (8118 jobs).
+
+New modules (registered in `BookProof.lean`):
+- `BookProof/ChapterH1.lean` (N13): H1.1 the φ-functions (`phi`, `phi_zero`, `phi_at_zero`); H1.2 the φ-recurrence (`phi_succ_mul`, `phi_one`); H1.4 numerical range and eigenvalue inclusion (`eigenvalue_mem_numericalRange`); H1.6 the SIRK resolvent algebra core (`resolvent_identity`, `resolvent_shift_mul`).
+- `BookProof/ChapterH2.lean` (N13): H2.1 the Arnoldi/Krylov compression is upper-Hessenberg (`hessenberg_vanishing`, `compression_upper_hessenberg`).
+- `BookProof/ChapterF3.lean` (N14): F2.3 disjoint-support identities; F2.4 diagonal-Gram closed-form training; F2.6 the vacuum projector (`projOnto`, idempotent/self-adjoint/= orthogonal projection); F2.7 the diagonal generator's eigenstates (reusing N12's `numberOp`); F2.8 the dressed-vacuum Bessel bound `Σεⱼ²≤1` plus the single-arc integral and overlap positivity; F2.9 the Mehler-projector matrix elements.
+- `BookProof/ChapterF4.lean` (N14): F3.1 Count-Sketch linearity and unbiasedness (`countsketch_unbiased`, with the Rademacher `sign_pair_expectation`); F3.2 the observable-matrix identity; F3.3 the unitary reduced flow (`unitary_preserves_dotProduct`, `selfAdjoint_exp_star_mul_self`); F3.4 the pseudo-inverse left-inverse.
+
+N14's complete pure-proof "definition of done" is delivered. For N13, all pure-proof items are delivered except H1.7 (the rational-Krylov characterization); the remaining N13 items (H1.3/H1.5/H2.2 core-reductions and H2.3/H2.4, which are conditional on the deep analytic `CrouzeixBound` input) are documented in `BookProof/STATUS.md` rather than asserted, so nothing is stated without proof. Documentation updated in `BookProof/STATUS.md` and `ARISTOTLE_SUMMARY.md`.
+
+The out-of-scope `RiemannProof/` (Riemann Hypothesis chapter) sorries are unchanged, as the roadmap directs. All work is committed and pushed.
+
+# Summary of changes — N13 (Hashimoto SIRK) + N14 (QFM) flagship packages
+
+Executed `FORMALIZATION_ROADMAP.md`.  On entry the entire original queue
+(N1–N12) was complete; the only open items were the two flagship packages
+promoted 2026-07-06: **N13 (Hashimoto SIRK)** and **N14 (Quantum Flow
+Matching)**.  This pass lands them in four new modules, all `sorry`-free and
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), with **no
+`EXTERNAL` hypothesis and no `axiom`**.  `lake build` is green (8118 jobs).
+
+- **`BookProof/ChapterH1.lean`** (N13): H1.1 φ-functions (`phi`, `phi_zero`,
+  `phi_at_zero`), H1.2 recurrence (`phi_succ_mul`, `phi_one`), H1.4 numerical
+  range (`eigenvalue_mem_numericalRange`), H1.6 the SIRK resolvent algebra
+  (`resolvent_identity`, `resolvent_shift_mul`).
+- **`BookProof/ChapterH2.lean`** (N13): H2.1 Krylov/Arnoldi compression is
+  upper-Hessenberg (`hessenberg_vanishing`, `compression_upper_hessenberg`).
+- **`BookProof/ChapterF3.lean`** (N14): F2.3, F2.4, F2.6, F2.7, F2.8, F2.9 —
+  disjoint-support identities, diagonal-Gram closed-form training, the vacuum
+  projector, the diagonal-generator eigenstates (reusing N12 `numberOp`), the
+  dressed-vacuum Bessel bound `Σεⱼ²≤1`, and the Mehler-projector matrix.
+- **`BookProof/ChapterF4.lean`** (N14): F3.1 Count-Sketch linearity +
+  unbiasedness (`countsketch_unbiased`), F3.2 observable-matrix identity, F3.3
+  unitary reduced flow, F3.4 pseudo-inverse left-inverse.
+
+N14's full pure-proof *definition of done* is complete.  N13's pure-proof set is
+complete except H1.7 (rational-Krylov characterization); the remaining N13
+items (H1.3/H1.5/H2.2 core-reductions and H2.3/H2.4 conditional on the named
+`CrouzeixBound`) are documented in `BookProof/STATUS.md`, not asserted.
+
+The out-of-scope `RiemannProof/` (Riemann Hypothesis) sorries are unchanged.
+
+---
+
 # Summary of changes for run c14d1ff7-3dcc-433d-ba8a-23f8068b42d8
 Per your choice, I re-verified the whole project and confirmed there is no remaining roadmap work.
 

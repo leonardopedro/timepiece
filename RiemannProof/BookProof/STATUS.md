@@ -7,6 +7,898 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+> **Merge note (2026-07-08).** Two parallel Aristotle lineages extended this
+> log past Wave 39 with overlapping wave numbers.  The "Wave 41"/"Wave 40"
+> entries immediately below are the second lineage (in-place extensions of
+> `ChapterH1/H2/F4`); the "Wave 63" … "Wave 40" block after them is the first
+> lineage (`ChapterH3/H4`, `ChapterF6`, ten new book chapters, and the
+> spherical-Bessel series).  Both lineages are integrated in the library
+> (`ChapterSphericalBessel2–7` triaged out per STOP RULE #2; `ChapterF4` is
+> the union of the two lineages' versions).
+
+## Wave 41 — **N14 / F3.5 Misra–Gries heavy-hitter bound** (`ChapterF4.lean`)
+
+This pass closes the last open (optional) roadmap deliverable, **F3.5**.
+`lake build BookProof` green (8123 jobs); all new declarations `sorry`-free and
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`; `misraGries_bound`
+verified via `lean_verify`). No `axiom`, no `EXTERNAL`.
+
+**N14 (QFM) F3.5 — DONE (`ChapterF4.lean`).** A self-contained executable
+formalization of the Misra–Gries frequency-estimation algorithm and its
+two-sided guarantee:
+* `mgSupport`, `mgStep`, `mgRun` — support size, one processing step, and the run
+  of the algorithm over a stream (`List`).
+* `mgSum_decrement` — a full decrement lowers the total by the number of active
+  counters (additive `ℕ` form).
+* `mgStep_support_le` / `mgRun_support_le` — at most `k` counters are ever active.
+* **`mgRun_sum`** — conservation invariant `(∑ counters)+(k+1)·d = N`.
+* `mgRun_decrement_le` — decrement budget `k·d ≤ N`.
+* `mgRun_undercount` (`f̂ ≤ f`) and `mgRun_error_le` (`f ≤ f̂ + d`).
+* **`misraGries_bound`** (F3.5 headline) — `f - N/k ≤ f̂ ≤ f`
+  (stated as `f̂ ≤ f ∧ f ≤ f̂ + N/k`).
+
+⇒ With this pass **every** FORMALIZATION_ROADMAP.md deliverable is complete
+(N1–N12, and the full N13 and N14 packages including the optional F3.5).
+
+## Wave 40 (2026-07-08) — **N13 residue + N14 residue** (`ChapterH1/H2`, `ChapterF4`)
+
+This pass closes the remaining open residues of the two flagship packages.
+`lake build BookProof` green (8123 jobs); all new declarations `sorry`-free and
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`; verified via
+`lean_verify` on `duhamel_phiOp1`, `sirk_error_bound_of_crouzeix`,
+`countSketch_unbiased`).  No `axiom`; the single deep analytic input
+(Crouzeix's inequality) enters **only** as named hypotheses on H2.3.
+
+**N13 (Hashimoto SIRK) residue — DONE.**
+* **H1.3** `phiOp1` (operator φ₁-function `∫₀¹ e^{s·M} g ds`) + **`duhamel_phiOp1`**
+  (exponential-integrator Duhamel identity `∫₀^δ e^{(δ−s)·A} g ds = δ·phiOp1(δ·A)g`,
+  by the two interval-integral substitutions) — `ChapterH1.lean`.
+* **H1.5** `psi` (`ψ_{k,γ}(x) = φ_k(γ − x⁻¹)`, Def 2.4) + **`psi_resolvent`**
+  (`ψ_{k,γ}((γ−z)⁻¹) = φ_k(z)`) + **`resolvent_eigenvector`**
+  (`A v = z v ⇒ X v = (γ−z)⁻¹ v` for `X = (γI−A)⁻¹`) — the spectral bridge for
+  the CFC identity `φ_k(A) = ψ_{k,γ}(X)` — `ChapterH1.lean`.
+* **H1.7** **`resolvent_shift_repr`** (`X_j = (1 + h(m−j)·X_m)⁻¹ · X_m`, the
+  generating step of the rational-Krylov equality (11)) — `ChapterH1.lean`.
+* **H2.2** **`sirk_compression`** (`Vᴴ X V = H K⁻¹`, eq. 10) — `ChapterH2.lean`.
+* **H2.3** **`sirk_error_bound_of_crouzeix`** (the (13)+(14) SIRK error bound
+  `‖φ_k(A)v − V ψ(HK⁻¹)Vᴴv‖ ≤ 2C‖v‖·‖ψ−r‖_Σ`, conditional on two named Crouzeix
+  applications — never axioms) — `ChapterH2.lean`.
+* **H2.4** **`sirk_advantage_factor`** (`e^{−hm}·B ≤ B`, the Remark 4.2 decay
+  advantage of SIRK over SIA) — `ChapterH2.lean`.
+
+**N14 (QFM) residue — DONE (new `ChapterF4.lean`, registered in `BookProof.lean`).**
+* **F3.1** `countSketch` + `countSketch_add` (linearity) + **`countSketch_unbiased`**
+  (`E[⟪S₁x, S₁y⟫] = ⟪x,y⟫` for Rademacher signs — the AMS/Count-Sketch estimator).
+* **F3.2** **`observable_matrix_entry`** (`Tr(E_{r,s}ᴴ Wᴴ P_a W) = conj(W_{a,r})·W_{a,s}`).
+* **F3.3** **`hermitian_flow_unitary`** (`Uᴴ U = 1` for `U = e^{−itH}`, `H` Hermitian)
+  + **`hermitian_flow_preserves_normSq`** (norm-preserving generation).
+* **F3.4** **`pseudoInverse_left_inverse`** (`(ΦᵀΦ)⁻¹Φᵀ · Φ = I`, subspace recovery).
+
+⇒ With this pass the FORMALIZATION_ROADMAP.md queue is fully exhausted: N1–N12
+(incl. N7(c)) and now the N13 and N14 residues are all complete.
+
+## Wave 63 (2026-07-08) — **Book §A.5 "Hankel–Majorana Transform": the next spherical Bessel function `j₆`, its `l = 6` ODE, and the next recurrences** (`ChapterSphericalBessel6`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass extends the spherical Bessel family of the
+first kind `jₗ` (§A.5 subsection *"Hankel–Majorana Transform"*, Definitions
+65–71) one order beyond Waves 58–62.  New module
+`BookProof/ChapterSphericalBessel6.lean` (registered in `BookProof.lean`),
+reusing the Wave 58–62 closed forms and derivatives; all **`sorry`-free** and
+**`axiom`-free** (only `propext`, `Classical.choice`, `Quot.sound`, verified via
+`lean_verify`); full `lake build` green (8141 jobs).  No `EXTERNAL` hypothesis,
+no `axiom`, no `native_decide`.
+
+- `sj6` — the classical closed form
+  `j₆(r) = (10395/r⁷ − 4725/r⁵ + 210/r³ − 1/r) sin r − (10395/r⁶ − 1260/r⁴ + 21/r²) cos r`;
+- `deriv_sj6` — its first derivative;
+- `sbessel_six_eq` — the Rayleigh formula reproduces the closed form,
+  `sbessel 6 r = j₆(r)` (assembled from the Wave 62 `sbessel_five_eq` via one
+  more Rayleigh iterate, using `Filter.EventuallyEq.deriv_eq` on the punctured
+  line);
+- `sj6_satisfies_ode` — `j₆` solves the `l = 6` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 42) j = 0` (`l(l+1) = 42`);
+- `sbessel_recurrence_456` — the three-term recurrence
+  `jₗ₋₁ + jₗ₊₁ = (2l+1)/r · jₗ` at `l = 5`: `j₄(r) + j₆(r) = (11/r) · j₅(r)`;
+- `deriv_recurrence_sj5` — the differentiation law
+  `d/dr jₗ = jₗ₋₁ − (l+1)/r jₗ` at `l = 5`: `d/dr j₅ = j₄ − 6/r · j₅`.
+
+Together with Waves 58–62, the seven lowest spherical Bessel functions
+`j₀, j₁, j₂, j₃, j₄, j₅, j₆` are now shown to arise from the Rayleigh formula, to
+satisfy their defining second-order ODEs, and to obey both the three-term
+recurrence and the first-derivative recurrence that generate the whole family.
+The surrounding representation-theoretic modelling of the full Hankel–Majorana
+transform is left as prose.
+
+## Wave 62 (2026-07-07) — **Book §A.5 "Hankel–Majorana Transform": the next spherical Bessel function `j₅`, its `l = 5` ODE, and the next recurrences** (`ChapterSphericalBessel5`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass extends the spherical Bessel family of the
+first kind `jₗ` (§A.5 subsection *"Hankel–Majorana Transform"*, Definitions
+65–71) one order beyond Waves 58–61.  New module
+`BookProof/ChapterSphericalBessel5.lean` (registered in `BookProof.lean`),
+reusing the Wave 58/59/60/61 closed forms and derivatives; all **`sorry`-free**
+and **`axiom`-free** (only `propext`, `Classical.choice`, `Quot.sound`, verified
+via `lean_verify`); full `lake build` green (8140 jobs).  No `EXTERNAL`
+hypothesis, no `axiom`, no `native_decide`.
+
+- `sj5` — the classical closed form
+  `j₅(r) = (945/r⁶ − 420/r⁴ + 15/r²) sin r − (945/r⁵ − 105/r³ + 1/r) cos r`;
+- `deriv_sj5` — its first derivative;
+- `sbessel_five_eq` — the Rayleigh formula reproduces the closed form,
+  `sbessel 5 r = j₅(r)` (assembled from the Wave 61 `sbessel_four_eq` via one
+  more Rayleigh iterate, using `Filter.EventuallyEq.deriv_eq` on the punctured
+  line);
+- `sj5_satisfies_ode` — `j₅` solves the `l = 5` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 30) j = 0` (`l(l+1) = 30`);
+- `sbessel_recurrence_345` — the three-term recurrence
+  `jₗ₋₁ + jₗ₊₁ = (2l+1)/r · jₗ` at `l = 4`: `j₃(r) + j₅(r) = (9/r) · j₄(r)`;
+- `deriv_recurrence_sj4` — the differentiation law
+  `d/dr jₗ = jₗ₋₁ − (l+1)/r jₗ` at `l = 4`: `d/dr j₄ = j₃ − 5/r · j₄`.
+
+Together with Waves 58–61, the six lowest spherical Bessel functions
+`j₀, j₁, j₂, j₃, j₄, j₅` are now shown to arise from the Rayleigh formula, to
+satisfy their defining second-order ODEs, and to obey both the three-term
+recurrence and the first-derivative recurrence that generate the whole family.
+The surrounding representation-theoretic modelling of the full Hankel–Majorana
+transform is left as prose.
+
+## Wave 61 (2026-07-07) — **Book §A.5 "Hankel–Majorana Transform": the next spherical Bessel function `j₄`, its `l = 4` ODE, and the next recurrences** (`ChapterSphericalBessel4`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass extends the spherical Bessel family of the
+first kind `jₗ` (§A.5 subsection *"Hankel–Majorana Transform"*, Definitions
+65–71) one order beyond Waves 58–60.  New module
+`BookProof/ChapterSphericalBessel4.lean` (registered in `BookProof.lean`),
+reusing the Wave 58/59/60 closed forms and derivatives; all **`sorry`-free** and
+**`axiom`-free** (only `propext`, `Classical.choice`, `Quot.sound`, verified via
+`lean_verify`); full `lake build` green (8139 jobs).  No `EXTERNAL` hypothesis,
+no `axiom`, no `native_decide`.
+
+- `sj4` — the classical closed form
+  `j₄(r) = (105/r⁵ − 45/r³ + 1/r) sin r − (105/r⁴ − 10/r²) cos r`;
+- `deriv_sj4` — its first derivative;
+- `sbessel_four_eq` — the Rayleigh formula reproduces the closed form,
+  `sbessel 4 r = j₄(r)` (assembled from the Wave 60 `sbessel_three_eq` via one
+  more Rayleigh iterate, using `Filter.EventuallyEq.deriv_eq` on the punctured
+  line);
+- `sj4_satisfies_ode` — `j₄` solves the `l = 4` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 20) j = 0` (`l(l+1) = 20`);
+- `sbessel_recurrence_234` — the three-term recurrence
+  `jₗ₋₁ + jₗ₊₁ = (2l+1)/r · jₗ` at `l = 3`: `j₂(r) + j₄(r) = (7/r) · j₃(r)`;
+- `deriv_recurrence_sj3` — the differentiation law
+  `d/dr jₗ = jₗ₋₁ − (l+1)/r jₗ` at `l = 3`: `d/dr j₃ = j₂ − 4/r · j₃`.
+
+Together with Waves 58–60, the five lowest spherical Bessel functions
+`j₀, j₁, j₂, j₃, j₄` are now shown to arise from the Rayleigh formula, to satisfy
+their defining second-order ODEs, and to obey both the three-term recurrence and
+the first-derivative recurrence that generate the whole family.  The surrounding
+representation-theoretic modelling of the full Hankel–Majorana transform is left
+as prose.
+
+## Wave 60 (2026-07-07) — **Book §A.5 "Hankel–Majorana Transform": the next spherical Bessel function `j₃`, its `l = 3` ODE, and the differentiation law** (`ChapterSphericalBessel3`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass extends the spherical Bessel family of the
+first kind `jₗ` (§A.5 subsection *"Hankel–Majorana Transform"*, Definitions
+65–71) one order beyond Waves 58–59.  New module
+`BookProof/ChapterSphericalBessel3.lean` (registered in `BookProof.lean`),
+reusing the Wave 58/59 closed forms and derivatives; all **`sorry`-free** and
+**`axiom`-free** (only `propext`, `Classical.choice`, `Quot.sound`, verified via
+`lean_verify`); full `lake build` green (8138 jobs).  No `EXTERNAL` hypothesis,
+no `axiom`, no `native_decide`.
+
+- `sj3` — the classical closed form
+  `j₃(r) = (15/r⁴ − 6/r²) sin r − (15/r³ − 1/r) cos r`;
+- `deriv_sj3` — its first derivative;
+- `sbessel_three_eq` — the Rayleigh formula reproduces the closed form,
+  `sbessel 3 r = j₃(r)` (assembled from the Wave 59 `sbessel_two_eq` via one more
+  Rayleigh iterate, using `Filter.EventuallyEq.deriv_eq` on the punctured line);
+- `sj3_satisfies_ode` — `j₃` solves the `l = 3` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 12) j = 0` (`l(l+1) = 12`);
+- `sbessel_recurrence_123` — the three-term recurrence
+  `jₗ₋₁ + jₗ₊₁ = (2l+1)/r · jₗ` at `l = 2`: `j₁(r) + j₃(r) = (5/r) · j₂(r)`;
+- `deriv_recurrence_sj1` / `deriv_recurrence_sj2` — the differentiation law
+  `d/dr jₗ = jₗ₋₁ − (l+1)/r jₗ` at `l = 1, 2`.
+
+Together with Waves 58–59, the four lowest spherical Bessel functions
+`j₀, j₁, j₂, j₃` are now shown to arise from the Rayleigh formula, to satisfy
+their defining second-order ODEs, and to obey both the three-term recurrence and
+the first-derivative recurrence that generate the whole family.  The surrounding
+representation-theoretic modelling of the full Hankel–Majorana transform is left
+as prose.
+
+## Wave 59 (2026-07-07) — **Book §A.5 "Hankel–Majorana Transform": the defining second-order ODE and three-term recurrence for the spherical Bessel functions** (`ChapterSphericalBessel2`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass completes the classical analytic
+characterisation of the spherical Bessel functions of the first kind `jₗ`
+introduced in Wave 58 (`ChapterSphericalBessel`, `book.tex` §A.5 subsection
+*"Hankel–Majorana Transform"*, Definitions 65–71).  New module
+`BookProof/ChapterSphericalBessel2.lean` (registered in `BookProof.lean`),
+reusing the Wave 58 closed forms `sj0`/`sj1`/`sj2`; all **`sorry`-free** and
+**`axiom`-free** (only `propext`, `Classical.choice`, `Quot.sound`, verified via
+`lean_verify`); full `lake build` green (8137 jobs).  No `EXTERNAL` hypothesis,
+no `axiom`, no `native_decide`.
+
+- `deriv_sj1` / `deriv_sj2` — the first derivatives of the closed forms
+  `j₁(r) = sin r / r² − cos r / r` and
+  `j₂(r) = (3/r³ − 1/r) sin r − (3/r²) cos r`;
+- `sj1_satisfies_ode` — `j₁` solves the `l = 1` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 2) j = 0` (`l(l+1) = 2`);
+- `sj2_satisfies_ode` — `j₂` solves the `l = 2` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 6) j = 0` (`l(l+1) = 6`);
+- `sbessel_recurrence_012` — the classical three-term recurrence
+  `jₗ₋₁ + jₗ₊₁ = (2l+1)/r · jₗ` at `l = 1`: `j₀(r) + j₂(r) = (3/r) · j₁(r)`.
+
+Together with Wave 58's `sj0_satisfies_ode` and `rayleigh_raise_01`, the three
+lowest spherical Bessel functions are now shown to satisfy their defining ODEs
+and the raising/recurrence relations that generate the whole family.  The
+surrounding representation-theoretic modelling of the full Hankel–Majorana
+transform is left as prose.
+
+## Wave 58 (2026-07-07) — **Book §A.5 "Hankel–Majorana Transform" (Def. 65–71): the spherical Bessel functions of the first kind via the Rayleigh formula** (`ChapterSphericalBessel`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass formalizes the analytic backbone of the §A.5
+subsection *"Hankel–Majorana Transform"* (`book.tex` line ~5805, Definitions
+65–71).  The transform is built from the **spherical Bessel functions of the
+first kind** `jₗ`, defined (Definition 67) by the **Rayleigh formula**
+`jₗ(r) = rˡ (-(1/r) d/dr)ˡ (sin r / r)`.  These special functions are **absent
+from Mathlib** (only the Legendre *symbol* exists; there are no spherical Bessel
+functions, spherical harmonics, or Legendre polynomials), so this file builds the
+self-contained core from scratch.  New module
+`BookProof/ChapterSphericalBessel.lean` (registered in `BookProof.lean`); all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`, verified via `lean_verify`); full `lake build` green (8136 jobs).
+No `EXTERNAL` hypothesis, no `axiom`, no `native_decide`.
+
+- `rayleighOp` — the Rayleigh differential operator `T f (r) = -(1/r) · f'(r)`;
+- `sbesselBase` / `sbessel` — the generator `j₀(r) = sin r / r` and the general
+  spherical Bessel function `jₗ(r) = rˡ (Tˡ (sin r / r))(r)` (the book's Rayleigh
+  formula, Definition 67);
+- `sj0` / `sj1` / `sj2` — the classical closed forms
+  `j₀ = sin r / r`, `j₁ = sin r / r² − cos r / r`,
+  `j₂ = (3/r³ − 1/r) sin r − (3/r²) cos r`;
+- `deriv_sbesselBase` — the derivative of the generator,
+  `d/dr (sin r / r) = cos r / r − sin r / r²`;
+- `sbessel_zero` / `sbessel_one_eq` / `sbessel_two_eq` — the Rayleigh formula
+  reproduces the three closed forms `j₀, j₁, j₂` (the `l = 1, 2` cases via the
+  first/second derivatives, using `Filter.EventuallyEq.deriv_eq` on the punctured
+  line);
+- `rayleigh_raise_01` — the Rayleigh raising relation `j₁ = −(d/dr) j₀`;
+- `sj0_satisfies_ode` — `j₀(r) = sin r / r` solves the `l = 0` spherical Bessel
+  ODE `r² j'' + 2 r j' + r² j = 0`.
+
+The surrounding representation-theoretic modelling (unitarity of the full
+Hankel–Majorana transform, spherical-harmonic expansions, Clebsch–Gordan
+assembly of the pinor transform) is left as prose.
+
+## Wave 57 (2026-07-07) — **Book §A.5 "Spinor frame and CPT theorem": the most general Lorentz-covariant Dirac mass Hamiltonian is anti-Hermitian and obeys the relativistic mass-shell relation** (`ChapterCPTHamiltonian`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass formalizes the finite-dimensional algebraic
+core of the §A.5 subsection *"Spinor frame and CPT theorem"* (`book.tex` line
+~6453). There the author states that the most general mass in the Hamiltonian
+`iH` covariant under the connected component of the Lorentz group is
+`iH = ∂⃗·γ⃗ γ⁰ + i γ⁰ m₁ + γ⁰ γ⁵ m₂`, invariant under a parity–time reversal —
+"this is essentially the CPT theorem". Working in the concrete `4×4` Majorana
+model of §A.3 (`BookProof.ChapterA3`), the plane-wave form of that operator
+(`∂ⱼ ↦ i kⱼ`) is the matrix `D(k,m₁,m₂) = i (Σⱼ kⱼ γ^{j+1}γ⁰) + i m₁ γ⁰ + m₂ γ⁰γ⁵`.
+New module `BookProof/ChapterCPTHamiltonian.lean` (registered in `BookProof.lean`);
+all **`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`, verified via `lean_verify`); full `lake build` green (8135 jobs).
+No `EXTERNAL` hypothesis, no `axiom`, no `native_decide`.
+
+- `Kin` / `MassA` / `MassB` — the five building-block matrices `γ^{j+1}γ⁰`
+  (`j : Fin 3`), `iγ⁰`, `γ⁰γ⁵`, each equal to the cast of an explicit integer
+  matrix (`Kin_eq_cast`, `MassA_eq_cast`, `MassB_eq_cast`);
+- `Kin_sq` (`=1`), `Kin_anticomm`, `MassA_sq` / `MassB_sq` (`=-1`),
+  `MassA_MassB_anticomm`, `Kin_MassA_anticomm`, `Kin_MassB_anticomm` — the five
+  matrices are **mutually anticommuting**, with squares `+1,+1,+1,-1,-1`
+  (Clifford relations reduced to the §A.3 integer model and closed by `decide`);
+- `Kin_conjTranspose` (Hermitian), `MassA_conjTranspose` / `MassB_conjTranspose`
+  (anti-Hermitian) — the kinetic blocks are self-adjoint and the two mass blocks
+  anti-self-adjoint;
+- `diracHamOp_conjTranspose` — **`iH` is anti-Hermitian** (`Dᴴ = -D`), i.e. the
+  Hamiltonian `H` is self-adjoint;
+- `diracHamOp_sq` — the **relativistic mass-shell / dispersion relation**
+  `D² = -(k₀²+k₁²+k₂²+m₁²+m₂²) • 1`, so the eigenvalues of `H` are
+  `±√(k⃗²+m₁²+m₂²)`: `m₁, m₂` are exactly the covariant mass parameters.
+
+The surrounding physical modelling (spinor frames, the `Pin(3,1)` principal
+homogeneous space, field reparametrizations) is left as prose.
+
+## Wave 56 (2026-07-07) — **Book chapter "On the physical parity transformation and antiparticles": the finite algebraic core (Hermitian field decomposition, order-4 parity ⇒ `Pin(3,1)`, Gell-Mann outer automorphism)** (`ChapterParity`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass formalizes the finite-dimensional algebraic
+core of the chapter *"On the physical parity transformation and antiparticles"*
+(`book.tex` line ~7522). The chapter's central thesis — that at the quantum level
+all fields are **real representations** (self-adjoint operators), so CP and P
+coincide and the (generalized) parity transformation is **order four**, which
+fixes the double cover as `Pin(3,1)` — rests on a handful of concrete
+linear-algebra facts, which are what is discharged here. New module
+`BookProof/ChapterParity.lean` (registered in `BookProof.lean`), reusing the
+concrete `4×4` Dirac model `BookProof.ChapterA3.mgamma`/`dgamma`; all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`, verified via `lean_verify`); full `lake build` green (8134 jobs).
+No `EXTERNAL` hypothesis, no `axiom`, no `native_decide`.
+
+- `hermPart` / `antihermPart` + `hermPart_isHermitian` / `antihermPart_isHermitian`
+  / `field_hermitian_decomp` — *"Any non-Hermitian field can always be decomposed
+  into a sum of two Hermitian fields"*: every square complex matrix `X` equals
+  `A + i B` with `A = ½(X+Xᴴ)`, `B = (2i)⁻¹(X−Xᴴ)` both Hermitian;
+- `pauli2` / `higgsParity` + `pauli2_sq` (`σ₂²=1`), `higgsParity_sq`
+  (`(iσ₂)²=−1`), `higgsParity_pow_four` (`(iσ₂)⁴=1`), `higgsParity_order_four`
+  — the internal part `iσ₂` of the Higgs (generalized) parity `φ ↦ iσ₂φ` is a
+  genuine order-4 (`ℤ₄`) symmetry;
+- `mgamma0_sq` (`(iγ⁰)²=−1`), `fermionParity_order_four`, `dgamma0_sq`
+  (`(γ⁰)²=+1`, contrast) — the Majorana fermion parity operator `iγ⁰` is order
+  four, and the value `−1` (vs `+1` for the naive Dirac `γ⁰`) is the invariant
+  selecting the double cover `Pin(3,1)` over `Pin(1,3)`;
+- `gellMann` / `gellMannConjSign` + `gellMann_conj` / `gellMann_parity_sign` —
+  the complex conjugation of the eight `SU(3)` Gell-Mann matrices realizes the
+  `ℤ₂` outer automorphism with sign pattern `ε = (+,−,+,+,−,+,−,+)` (real
+  generators `λ¹,λ³,λ⁴,λ⁶,λ⁸` fixed, imaginary `λ²,λ⁵,λ⁷` negated); the chapter's
+  gluon parity sign is `s^a = −ε^a` (`s^{1,3,4,6,8}=−1`, `s^{2,5,7}=+1`).
+
+The surrounding physical modelling (canonical quantization of a real Hilbert
+space, the Standard-Model Lagrangian, path-integral measures) is left as prose.
+
+## Wave 55 (2026-07-07) — **Book §A.5 "Application to the momentum of Majorana spinor fields", Proposition 73: the Majorana–Fourier boost mixing matrix is unitary** (`ChapterMajoranaFourier`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass formalizes the algebraic core of
+**Proposition 73** (`book.tex` §A.5, "Application to the momentum of Majorana
+spinor fields", line ~5900). The book proves the **Majorana–Fourier transform**
+`𝓕_M = S ∘ 𝓕_P^Θ` is unitary by reducing to the statement that the explicit
+`2×2` block "boost mixing" matrix `S = [[c, −s·A],[s·A, c]]` is orthogonal/unitary,
+where `c = √((E+m)/(2E))`, `s = √((E−m)/(2E))` are the boost half-angle
+coefficients (`E = √(q²+m²)`, `q = |p⃗|`, `m ≥ 0`) and `A = (n̂·γ⃗) γ⁰` is built
+from the Dirac spatial slash of the unit momentum direction `n̂`. This reuses the
+concrete `4×4` Dirac model `BookProof.ChapterA3.dgamma`. New module
+`BookProof/ChapterMajoranaFourier.lean` (registered in `BookProof.lean`), all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`; verified via `#print axioms`); full `lake build` green (8133 jobs).
+No `EXTERNAL` hypothesis, no `axiom`, no `native_decide`.
+
+- `boost_sq_add` / `boost_sq_sub` / `boost_two_mul` — the boost half-angle
+  identities `c² + s² = 1`, `c² − s² = m/E`, `2cs = q/E` (the trigonometric
+  content of the Lorentz boost as a "rotation" of rapidity half-angle);
+- `mgamma_conjTranspose` / `dgamma_conjTranspose` — `γ⁰` is Hermitian and the
+  spatial `γⁱ` are anti-Hermitian in the Majorana model;
+- `dgamma_spatial_sq` / `dgamma_spatial_anticomm` — spatial Clifford relations
+  `(γⁱ)² = −1`, `γⁱγʲ = −γʲγⁱ` (`i ≠ j`);
+- `nslash_conjTranspose` / `nslash_sq` — the spatial slash `n̸ = Σ nᵢ γ^{i+1}` is
+  anti-Hermitian and, for a unit direction, squares to `−1`;
+- `Aop_conjTranspose` / `Aop_sq` — `A = n̸ γ⁰` is a **Hermitian involution**
+  (`Aᴴ = A`, `A² = 1`), hence unitary;
+- `boostBlock_unitary` — the abstract result: for any Hermitian involution `A`
+  and reals `c, s` with `c² + s² = 1`, the block matrix `S = [[c, −s·A],[s·A, c]]`
+  satisfies `Sᴴ S = 1`;
+- `majoranaFourier_boostBlock_unitary` — the headline: the concrete Prop-73
+  boost mixing matrix is unitary.
+
+The surrounding analytic content (the integral operators `𝓕_P`, `𝓕_M` and their
+unitarity as operators on `L²`) is physical/analytic modelling left as prose;
+this pass discharges the finite linear-algebra identity on which the book's
+proof rests.
+
+## Wave 54 (2026-07-07) — **Book §6 "Free field parametrization for finite sample spaces and the spin-statistics theorem": the two-mode fermionic CAR algebra on `ℤ₂ × ℤ₂`** (`ChapterSpinStatistics`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass formalizes the section *"6. Free field
+parametrization for finite sample spaces and the spin-statistics theorem"*
+(`book.tex` line ~1816). There a finite sample space `ℤ₂` is parametrized by a
+**fermionic** Fock space `Γ^a(L²(ℤ₂))`, and for the product `ℤ₂ × ℤ₂` one must use
+the graded tensor product so the two modes **anticommute** rather than produce
+spurious products of creation operators — the algebraic content underlying the
+**spin–statistics** correspondence. Extending the single-mode ghost CAR of
+Wave 53, this builds the **two-mode** fermionic Fock space `ℂ⁴ ≅ ℂ² ⊗ ℂ²` via the
+Jordan–Wigner realization `b₁ = a ⊗ I`, `b₂ = Z ⊗ a` (parity string
+`Z = diag(1,-1)`), as explicit `4×4` matrices. New module
+`BookProof/ChapterSpinStatistics.lean` (registered in `BookProof.lean`), all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`; verified via `lean_verify`); full `lake build` green (8132 jobs).
+No `EXTERNAL` hypothesis, no `axiom`.
+
+- `fermiCreate1_eq` / `fermiCreate2_eq` — explicit matrix form of `b₁†`, `b₂†`
+  (each the conjugate-transpose adjoint of its annihilation operator);
+- `fermi_CAR₁` / `fermi_CAR₂` — the diagonal CAR `{bᵢ, bᵢ†} = 1`;
+- `fermi_CAR_cross` / `fermi_CAR_cross'` — the off-diagonal CAR
+  `{b₁, b₂†} = 0`, `{b₂, b₁†} = 0` (distinct modes canonically anticommute);
+- `fermiAnticomm_annih` / `fermiAnticomm_create` — the fermionic statistics
+  `{b₁, b₂} = 0`, `{b₁†, b₂†} = 0` (so `b₁ b₂ = − b₂ b₁`);
+- `fermiAnnih₁_sq` … `fermiCreate₂_sq` — per-mode nilpotency `bᵢ² = 0`, `bᵢ†² = 0`
+  (Pauli exclusion);
+- `fermiNumber₁_eq` / `fermiNumber₂_eq` — number operators `Nᵢ = bᵢ† bᵢ`
+  (`diag(0,0,1,1)`, `diag(0,1,0,1)`), with `fermiNumber₁_hermitian`/`_idem`
+  (Hermitian projections, eigenvalues `0,1`) and `fermiNumber_commute`
+  (`N₁ N₂ = N₂ N₁`, simultaneously measurable);
+- `fermiTotalNumber_eq` — the total number operator `N = N₁ + N₂ = diag(0,1,1,2)`.
+
+The representation-theoretic claim that the fermionic (anticommuting)
+parametrization is genuinely distinct from the bosonic (commuting) one, and that
+certain symmetry transformations are representable only by one or the other (the
+spin–statistics theorem), is left as prose.
+
+## Wave 53 (2026-07-07) — **Book "Free field parametrization … Navier–Stokes", *Navier–Stokes* section: the BRST ghost-field CAR algebra `{ψ, ψ†} = 1`** (`ChapterNavierStokes`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass formalizes the fermionic **ghost field**
+of the section *"Free field parametrization in Navier–Stokes equations"*
+(`book.tex` line ~4134). There the divergence constraint of Navier–Stokes is
+implemented à la BRST through a single fermionic ghost `ψ` (BRST charge
+`Ω = ∫ u_{j,j} ψ†`), governed by the canonical anticommutation relation
+`{ψ, ψ†} = ψψ† + ψ†ψ = 1` with the explicit realization the book writes down,
+`ψ†{a}(…,j) = a(…,1) δ_{j0}`, `ψ{a}(…,j) = a(…,0) δ_{j1}`. On the
+two-dimensional occupation space `ℂ²` these are the `2×2` matrices
+`ψ = !![0,0;1,0]` and `ψ† = ψᴴ = !![0,1;0,0]`. New module
+`BookProof/ChapterNavierStokes.lean` (registered in `BookProof.lean`), all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`; verified via `lean_verify` on the headlines); full `lake build`
+green (8131 jobs). No `EXTERNAL` hypothesis, no `axiom`.
+
+- `ghostCreate_eq` — explicit matrix form of `ψ†`;
+- `ghostCreate_eq_conjTranspose` — `ψ†` is the (conjugate-transpose) adjoint of
+  `ψ`, so the CAR pair is a genuine operator/adjoint pair;
+- `ghost_CAR` — the canonical anticommutation relation `ψψ† + ψ†ψ = 1`
+  (the book's `{ψ, ψ†} = 1`);
+- `ghostAnnih_sq` / `ghostCreate_sq` — nilpotency `ψ² = 0`, `ψ†² = 0`
+  (fermionic Pauli exclusion), with the paired `{ψ,ψ} = 0`, `{ψ†,ψ†} = 0`;
+- `ghostNumber_eq`, `ghostNumber_hermitian`, `ghostNumber_idem` — the number
+  operator `N = ψ†ψ = !![1,0;0,0]` is Hermitian and idempotent (eigenvalues
+  `0, 1`, the fermionic occupation numbers);
+- `ghost_annih_create_eq`, `ghostNumber_resolution` — `ψψ† = !![0,0;0,1]` and
+  the resolution of the identity `N + ψψ† = 1` into the two occupation sectors.
+
+The surrounding field-theoretic construction (the full graded Lie superalgebra,
+essential self-adjointness of the polynomial Navier–Stokes Hamiltonian, and the
+existence/uniqueness claim) is physical modelling left as prose.
+
+## Wave 52 (2026-07-07) — **Book "Free field parametrization … Navier–Stokes", *Holomorphic fields*: functions satisfying the Cauchy–Riemann equations on an open domain are holomorphic** (`ChapterHolomorphic`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+content from `book.tex`), this pass formalizes the section *"Holomorphic fields"*
+(`book.tex` line ~4105), where the Hamiltonian is *defined by the Cauchy–Riemann
+equations*. The book states the distributional (Weyl-lemma) version — a
+locally-integrable function whose Cauchy–Riemann equations hold weakly is a.e.
+equal to an analytic function; that elliptic-regularity statement is not in
+Mathlib. This pass formalizes the classical (strong-derivative) core it rests on:
+a complex function real-differentiable on an open domain and satisfying the
+Cauchy–Riemann equations there is complex analytic (holomorphic), hence its own
+analytic representative. New module `BookProof/ChapterHolomorphic.lean`
+(registered in `BookProof.lean`), all **`sorry`-free** and **`axiom`-free**
+(only `propext`, `Classical.choice`, `Quot.sound`; verified via `lean_verify` on
+the headlines); full `lake build` green (8130 jobs). No `EXTERNAL` hypothesis, no
+`axiom`.
+
+Over an open `s ⊆ ℂ`:
+- `cauchyRiemann_analyticOn` — **operator form**: real-differentiable on `s`
+  with `fderiv ℝ f z I = I • fderiv ℝ f z 1` (i.e. `∂f/∂y = i · ∂f/∂x`) implies
+  `AnalyticOn ℂ f s` (Cauchy–Riemann criterion +
+  `DifferentiableOn.analyticOn`);
+- `cauchyRiemann_partial_analyticOn` — the classical **partial-derivative form**
+  `u_x = v_y`, `u_y = -v_x` (writing `f = u + i v`) implies analyticity;
+- `analyticOn_cauchyRiemann` — the converse: every function analytic on an open
+  set satisfies the Cauchy–Riemann equations there;
+- `cauchyRiemann_iff_analyticOn` — the resulting characterization
+  (Cauchy–Riemann ⇔ holomorphic for real-differentiable `f`);
+- `cauchyRiemann_contDiffOn` — the smoothness payoff: such an `f` is `C^∞`.
+
+## Wave 51 (2026-07-07) — **Book §3 "Any conditional probability measure is parametrized by a unitary operator": the finite-dimensional matrix version** (`ChapterJointUnitary`)
+
+With the roadmap queue N1–N14 and Waves 46–50 complete, this pass mines the
+self-contained finite-dimensional core of `book.tex` section *"3. Any conditional
+probability measure in a standard measure space is parametrized by a unitary
+operator"* (Chapter *"Wave-function parametrization of a probability measure"*,
+book line ~1392): the book's claim that a joint probability density `p(x,y)` is
+`|𝒰(y,x,0)|²` for a unitary `𝒰` built by Gram–Schmidt with a chosen column equal to
+the wave-function `Ψ` (`|Ψ|²=p`), plus its converse. The abstract `L²`/Hilbert-
+basis form is already `ChapterB.unit_vector_extends`; this adds the concrete
+matrix form. New module `BookProof/ChapterJointUnitary.lean` (registered in
+`BookProof.lean`), all **`sorry`-free** and **`axiom`-free** (only `propext`,
+`Classical.choice`, `Quot.sound`; verified via `lean_verify` on the headlines);
+full `lake build` green (8129 jobs). No `EXTERNAL` hypothesis, no `axiom`.
+
+Over a finite index type:
+- `exists_unitary_column` — Gram–Schmidt crux: every unit vector `v`
+  (`∑ᵢ ‖v i‖² = 1`) is the `i₀`-th column of some unitary matrix (extend to an
+  orthonormal basis of `EuclideanSpace ℂ ι`; its coordinate matrix is unitary);
+- `exists_unitary_of_prob` — every finite probability distribution `p` is the
+  squared modulus of a column of a unitary matrix (via `v i = √(p i)`);
+- `exists_unitary_joint` — the book's exact two-space form: every joint
+  distribution `p(x,y)` on a finite `X × Y` is `|U|²` along a column of a unitary
+  matrix indexed by `X × Y`;
+- `sqAbs_isProb_of_frobenius_one` + `frobenius_eq_trace` — converse: any matrix
+  `B` with `∑_{i,j} ‖B i j‖² = 1` (i.e. `tr(Bᴴ B) = 1`) makes `(i,j) ↦ ‖B i j‖²`
+  a genuine probability distribution.
+
+## Wave 50 (2026-07-06) — **Book "Conditions for the classical limit of Quantum Mechanics": calculable (step / polynomial / smooth) functions are dense in `L²`** (`ChapterClassicalLimit`)
+
+With the roadmap queue N1–N14 and Waves 46–49 complete, this pass mines the next
+self-contained mathematical claim from `book.tex`: the section *"11. Conditions
+for the classical limit of Quantum Mechanics"* (Chapter *"Wave-function
+parametrization of a probability measure"*, line ~2081), namely that *"step,
+polynomial or smooth functions are dense in the `L²` measure"* and that any
+bounded function on a compact domain can be `L²`-approximated by such calculable
+functions.  New module `BookProof/ChapterClassicalLimit.lean` (registered in
+`BookProof.lean`), all **`sorry`-free** and **`axiom`-free** (only `propext`,
+`Classical.choice`, `Quot.sound`; verified via `lean_verify` on the headline);
+full `lake build` green (8128 jobs).  No `EXTERNAL` hypothesis, no `axiom`.
+
+Working over a compact `s ⊆ ℝ` (the book's "compact domain") with any finite,
+weakly-regular Borel measure `μ`, the three families the book lists are each
+shown dense in `Lᵖ(μ)` (stated at the book's `p = 2`):
+- `simpleFunc_dense_L2` — **step functions** (a.e. classes of simple functions)
+  are dense (`Lp.simpleFunc.dense`, any `p ≠ ∞`);
+- `continuousMap_denseRange_L2` — **continuous functions** are dense, i.e. the
+  embedding `C(s, ℝ) → Lᵖ` has dense range (`ContinuousMap.toLp_denseRange`);
+- `polynomialFunctions_val_denseRange` — **polynomials are dense in `C(s, ℝ)`**
+  (Stone–Weierstrass, `polynomialFunctions.topologicalClosure = ⊤`);
+- `polynomial_denseRange_L2` — **polynomial functions are dense in `Lᵖ`**,
+  obtained by composing the two previous facts; since polynomials are smooth
+  this simultaneously witnesses the density of the **smooth** functions;
+- headline `exists_polynomial_approx_L2` — the book's exact `ε`-statement: for
+  every `F ∈ L²(μ)` and every `ε > 0` there is a polynomial `q` with
+  `‖q|ₛ − F‖₂ < ε`.
+
+## Wave 49 (2026-07-06) — **Book "Reconstructing the classical trajectory of any isolated quantum system": a symmetry acts on probability distributions iff it is deterministic** (`ChapterReconstruct`)
+
+With the roadmap queue N1–N14 and Waves 46–48 complete, this pass mines the next
+self-contained mathematical claim from `book.tex`: the section *"Time translation
+is a stochastic process if and only if it is deterministic"* (Chapter
+*"Reconstructing the classical trajectory of any isolated quantum system"*, line
+~2613).  New module `BookProof/ChapterReconstruct.lean` (registered in
+`BookProof.lean`), all **`sorry`-free** and **`axiom`-free** (only `propext`,
+`Classical.choice`, `Quot.sound`; verified via `lean_verify` on the headline);
+full `lake build` green (8127 jobs).  No `EXTERNAL` hypothesis, no `axiom`.
+
+A Wigner symmetry acts on the wave-function by a unitary matrix `U`; the book's
+main result is that the induced map on the (post-collapse) probability
+distributions is a well-defined group action **iff** `U` is *deterministic*,
+meaning each column of `U` has at most one nonzero entry.  The extracted
+linear-algebra core is that, for each column `a`, the "off-diagonal Born sum"
+`S_a(Ψ) = ∑_{k ≠ b} conj(U k a)·Ψ k·conj(Ψ b)·U b a` vanishes on every state `Ψ`
+iff `conj(U m a)·U l a = 0` for all `l ≠ m` (no unitarity hypothesis is needed).
+Deliverables:
+- `IsDeterministicCol` / `IsDeterministic` (each column has ≤ 1 nonzero entry)
+  and the `offDiag` off-diagonal Born sum;
+- `offDiag_eq` — the identity `S_a(Ψ) = (∑ₖ conj(U k a)·Ψ k)(∑_b conj(Ψ b)·U b a)
+  − ∑ₖ conj(U k a)·Ψ k·conj(Ψ k)·U k a` (full bilinear product minus diagonal);
+- `offDiag_of_isDeterministicCol` (forward: deterministic ⇒ every off-diagonal
+  term carries the vanishing factor `conj(U k a)·U b a`);
+- `isDeterministicCol_of_offDiag` (backward: the polarization witnesses
+  `Ψ = δ_{·m} + z δ_{·l}` for `z ∈ {1, i}` recover `conj(U m a)·U l a = 0`, the
+  rigorous version of the book's `δ_{·m}+δ_{·l}` witness);
+- headline **`offDiag_eq_zero_iff`** (per column) and
+  **`offDiag_eq_zero_iff_isDeterministic`** (global): the Born-rule map is a
+  well-defined action on distributions iff `U` is deterministic;
+- `offDiag_unit_iff` — the book's exact unit-state (pure-density-matrix) form,
+  equivalent by homogeneity of `offDiag`.
+
+## Wave 48 (2026-07-06) — **Book "Wave-function collapse versus Euler's formula": the generic-phase-space (stick-breaking) Born parametrization** (`ChapterE2`)
+
+With the roadmap queue N1–N14 and Waves 46–47 complete, this pass mines the next
+self-contained mathematical content from `book.tex`: the sections *"Euler's
+formula for a phase-space with 4 states"* and *"Euler's formula for a generic
+phase-space"* (Chapter *"Wave-function collapse versus Euler's formula"*, line
+~3565).  `BookProof/ChapterE.lean` had only handled the 2-state clock (E.1–E.4);
+this pass formalizes the `n`-state / countable generalization.  New module
+`BookProof/ChapterE2.lean` (registered in `BookProof.lean`), all **`sorry`-free**
+and **`axiom`-free** (only `propext`, `Classical.choice`, `Quot.sound`; verified
+via `lean_verify` on the headlines); full `lake build` green (8126 jobs).  No
+`EXTERNAL` hypothesis, no `axiom`.
+
+The book parametrizes a real normalized wave-function by Euler angles via the
+recursion `vₙ = cos(θₙ) lₙ + sin(θₙ) vₙ₊₁`, giving the *stick-breaking* Born
+probabilities `P(1)=c₁²`, `P(2)=(s₁c₂)²`, `P(3)=(s₁s₂c₃)²`, … with conditional
+"stop-here" probability `cₖ²=cos²(θₖ)` and "go-higher" probability
+`sₖ²=sin²(θₖ)`.  Angles are modelled by `θ : ℕ → ℝ` (avoids `Fin`-index
+arithmetic).  Deliverables:
+- `stick`/`remainder`/`bornProb` definitions + basic identities (`stick_eq`,
+  `remainder_succ`, `remainder_zero`, `stick_nonneg`, `remainder_nonneg`,
+  `remainder_le_one`);
+- **`sum_stick_add_remainder`** — the telescoping normalization identity
+  `(∑_{n<N} stick θ n) + remainder θ N = 1`;
+- `bornProb_nonneg` + **`bornProb_sum_eq_one`** — the `n`-state Born family is a
+  genuine probability distribution (nonnegative, sums to `1`);
+- `cos_sq_surjective` — the conditional probabilities `cos²(θ)` are arbitrary
+  over `[0,1]`;
+- **headline `exists_angles_realize`** — *every* probability distribution on `n`
+  states is realized by the Born rule of some wave-function (there exist Euler
+  angles whose stick-breaking Born distribution equals it), the book's claim
+  "any probability distribution can be reproduced by the Born rule for some
+  wave-function" (via the stick-breaking construction `cos²θ_k = q_k / R_k`).
+
+## Wave 47 (2026-07-06) — **Book "Entropy and an irreversible deterministic time-evolution coexist": the invertibility probability `n!/nⁿ`** (`ChapterEntropy`)
+
+With the roadmap queue N1–N14 and the Wave-46 Gleason sanity check already
+complete, this pass mines the next self-contained numbered claim from `book.tex`:
+the chapter *"Entropy and an irreversible deterministic time-evolution coexist"*
+(line ~9474, §"Irreversible deterministic time-evolution").  New module
+`BookProof/ChapterEntropy.lean` (registered in `BookProof.lean`), all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`; verified via `lean_verify`); full `lake build` green (8125 jobs).
+No `EXTERNAL` hypothesis, no `axiom`.
+
+Partitioning the rescaled joint sample square into `n²` cells, the probability
+that a uniformly random discrete self-map of the `n` index cells is invertible
+(a bijection) is `n!/nⁿ`; it is a genuine probability in `[0,1]`, tends to `0`,
+and is Stirling-asymptotic to `√(2πn) e^{-n}` — so a randomly sampled evolution
+is almost surely non-invertible (irreversible).  Deliverables:
+- `card_selfMaps` (`nⁿ` self-maps) and `card_bijections` (`n!` bijections) of an
+  `n`-element index set;
+- `invertibleProb` and `invertibleProb_eq` (`= (n! : ℝ)/nⁿ`);
+- `invertibleProb_nonneg` / `invertibleProb_le_one` (in `[0,1]`, via
+  `Nat.factorial_le_pow`);
+- headline `invertibleProb_tendsto_zero` (from
+  `tendsto_factorial_div_pow_self_atTop`);
+- `invertibleProb_isEquivalent_stirling` (`n!/nⁿ ~ √(2πn) e^{-n}`, from
+  `Stirling.factorial_isEquivalent_stirling` divided by `nⁿ`);
+- `exists_injective_not_surjective` (the successor map on `ℕ`: injective
+  "non-singular" but not surjective "not invertible" — an arrow-of-time witness).
+
+## Wave 46 (2026-07-06) — **Book §4 Gleason contrast: pure vs. mixed states on non-commuting projections** (`ChapterB4`)
+
+With the entire roadmap queue N1–N14 complete (both flagship packages landed),
+this pass lands the concrete, finite-dimensional worked example flagged in
+`FORMALIZATION_ROADMAP.md` (Chapter B remark) as "worth adding as a sanity
+check" but never previously implemented: the `2`-dimensional real Gleason
+contrast from `book.tex` §4 (line ~1637).  New module
+`BookProof/ChapterB4.lean` (registered in `BookProof.lean`), all **`sorry`-free**
+and **`axiom`-free** (only `propext`, `Classical.choice`, `Quot.sound`; verified
+via `lean_verify` on the headlines); full `lake build` green (8124 jobs).  No
+`EXTERNAL` hypothesis, no `axiom`.
+
+Fix the two non-commuting real projections `P₁ = [[1,0],[0,0]]` and
+`P₂ = ½[[1,1],[1,1]]`.  A **pure state** is a rank-one projector `v vᵀ` for a
+real unit vector `v` (`IsPureState`); a **density matrix** is Hermitian,
+positive-semidefinite, unit-trace (`IsDensityMatrix`); the Born value of a
+projection `P` in state `ρ` is `tr(ρ P)`.
+
+* `pure_state_satisfies_P1` / `pure_state_satisfies_P2` — a pure state (namely
+  `P₂`, resp. `P₁`) individually realizes each Born constraint `= ½`
+  (`P2_isPureState`, `P1_isPureState`).
+* **headline** `no_pure_state_satisfies_both` — **no** pure state realizes both
+  `tr(ρ P₁) = ½` and `tr(ρ P₂) = ½` at once (from `v₀² = ½` and
+  `(v₀+v₁)²/2 = ½` a `nlinarith` contradiction with `v₀²+v₁² = 1`).
+* `mixed_state_satisfies_both` + `mixed_state_isDensityMatrix` +
+  `mixed_state_not_pure` — the genuinely mixed state `ρ = ½ I` *does* satisfy
+  both constraints and is a legitimate (Gleason) density matrix, but is not a
+  pure state.
+
+This is exactly the book's point: the wave-function (pure states) cannot match
+the Born data of two non-commuting projections simultaneously, whereas
+Gleason's mixed-state density matrix can.  (Separately confirmed this pass: the
+§0 S7 hygiene item — the `../unfer` cross-reference docstrings on
+`born_conditioning` and `prodEquiv` in `ChapterU.lean` — is already present, so
+no further edit was needed there.)
+
+## Wave 45 (2026-07-06) — **N14 QFM: the concrete `x̂`/`p̂` function-space model — F2.1/F2.2 fully realized** (`ChapterF7`)
+
+This pass closes the last recorded open item of the two flagship packages: the
+concrete `p̂ = −i ∂` / `x̂` integration-by-parts function-space model underlying
+N14's F2.1/F2.2 (whose *algebraic* cores were already done in `ChapterF5`).  New
+module `BookProof/ChapterF7.lean` (registered in `BookProof.lean`), all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`; verified via `lean_verify`); `lake build` green (8123 jobs).
+**No `EXTERNAL` hypothesis, no `axiom`.**
+
+The state space is the Schwartz space `𝓢(ℝ, ℂ)` with the sesquilinear `L²`
+pairing `⟪f, g⟫ = ∫ conj (f x) · g x` (`l2pair`, with its integrability helper
+`l2pair_integrable` and full (conjugate-)bilinearity
+`l2pair_add/sub/smul_left/right`).  `IsL2Symmetric T` is Hermiticity of `T` on
+this dense domain (`⟪T f, g⟫ = ⟪f, T g⟫`).
+
+* **Position / multiplication operators** (`mulOp v`, `(v(x̂)Ψ)(x)=v(x)Ψ(x)` via
+  `SchwartzMap.bilinLeftCLM`): multiplication by any real function of temperate
+  growth is `L²`-symmetric (`mulOp_l2Symmetric`, because `conj (v x) = v x`);
+  `position_l2Symmetric` is the `v = id` case.
+* **Momentum** (`momentum`, `(p̂Ψ)(x) = −i Ψ′(x)` via `SchwartzMap.derivCLM`):
+  `momentum_l2Symmetric`.  The analytic heart is
+  `schwartz_integration_by_parts` — `∫ conj(f′) g = −∫ conj(f) g′` for Schwartz
+  `f, g` — proved from `integral_deriv_mul_eq_sub` with vanishing boundary terms
+  (`SchwartzMap.tendsto_cocompact` at `±∞`) and Schwartz integrability
+  (`bdd_mul`: `conj ∘ f` bounded × `g′` integrable).
+* **F2.1 concretely** (§4 eq. 4.2): `anticomm_l2Symmetric` (the symmetrized
+  product of two symmetric operators is symmetric) yields
+  `continuityHamiltonian_l2Symmetric` — the continuity Hamiltonian
+  `H = ½(p̂ v(x̂) + v(x̂) p̂)` is Hermitian.
+* **F2.2 concretely** (§4 eqs. 4.4–4.6): `i_comm_l2Symmetric` (`i·[K,V]`
+  symmetric when `K,V` are) with `kinetic_l2Symmetric` (`K = ½ p̂·p̂`) yields
+  `conservativeHamiltonian_l2Symmetric` — the conservative continuity
+  Hamiltonian `H^c = i[K, V(x̂)]` is Hermitian.
+
+**⇒ With this wave both flagship packages N13 (Hashimoto SIRK) and N14 (QFM) are
+complete**, including the previously-deferred concrete `x̂`/`p̂` model.  The only
+remaining `sorry`s in the repo are the out-of-scope `RiemannProof/RcpEuler.lean`
+ones.
+
+## Wave 44 (2026-07-06) — **N13 SIRK: H1.5 + H2.2 + H2.3 + H2.4 — the package is complete** (`ChapterH4`)
+
+This pass lands the four remaining N13 (Hashimoto SIRK) deliverables in a new
+module `BookProof/ChapterH4.lean` (registered in `BookProof.lean`), all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`; verified via `#print axioms`); `lake build` green (8122 jobs).
+**No `axiom`.** The two genuinely deep analytic inputs (Crouzeix's inequality
+and the deferred `e^{−hm}` deformation of the source Theorem 5) are **named
+hypotheses with citation docstrings**, never axioms — the `IsSchurFull`/`EXTERNAL`
+design pattern. With this wave the entire N13 deliverable list (H1.1–H2.4) is
+formalized.
+
+* **H1.5** (operator φ-function via the resolvent, Definition 2.4 — scalar
+  core): `psi k γ w := φ_k(γ − w⁻¹)` is the Taylor(1951)/Güttel(2010) function
+  whose functional calculus at the resolvent `X = (γ − A)⁻¹` defines `φ_k(A)`.
+  Its spectral-consistency identity `psi_shift_eq_phi`
+  (`ψ_{k,γ}((γ − z)⁻¹) = φ_k(z)` for `γ − z ≠ 0`) is proved: under the
+  shift-invert change of variable `w = (γ − z)⁻¹` one has `γ − w⁻¹ = z`.
+* **H2.2** (SIRK compression `Vₘ∗ Xₘ Vₘ = Hₘ Kₘ⁻¹`, eq. 10, and the
+  rational-function transfer): `compress V X := V∗ X V` (eq. 10 is literally this
+  definition). For an isometric embedding `V` (`V∗V = 1`) with `X`-invariant
+  range: `compress_X_comp_V` (`X ∘ V = V ∘ B`), `compress_pow`
+  (`Xⁿ ∘ V = V ∘ Bⁿ`), `compress_transfer` (`Xⁿ v = V (Bⁿ (V∗ v))` on the
+  range), and `compress_inv_transfer` (`q(X)⁻¹ ∘ V = V ∘ q(B)⁻¹`, the denominator
+  step) — together the load-bearing identity `r(Xₘ)v = Vₘ r(HₘKₘ⁻¹) Vₘ∗ v` of
+  Theorem 4.1.
+* **H2.3** (SIRK convergence headline, Theorem 4.1 — CONDITIONAL on Crouzeix):
+  `sirk_error_bound` proves the eq.-(13)→(14) triangle-inequality core
+  `‖φ_k(A)v − Vₘ ψ(HₘKₘ⁻¹) Vₘ∗ v‖ ≤ 2C·D·‖v‖` (`D = ‖ψ−r‖`), taking the two
+  Crouzeix operator-norm bounds (eq. 14) as named hypotheses; and
+  `sirk_error_bound_decay` assembles the full eq.-(12) form
+  `≤ 2C·e^{−hm}·Dmin·‖v‖` given the deferred `e^{−hm}` deformation hypothesis.
+* **H2.4** (existing-methods comparison, Remark 4.2 — CONDITIONAL):
+  `sia_error_bound` is the analogous SIA bound (15) `≤ 2C·Dsia·‖v‖`, and
+  `sirk_le_sia` records the `e^{−hm}` advantage of SIRK over SIA as an
+  inequality of the two bounds (since `e^{−hm} ≤ 1` for `h, m ≥ 0`).
+
+**⇒ N13 (Hashimoto SIRK) is now complete.** Remaining open work across the two
+flagship packages: the concrete `p̂ = −i ∂` / `x̂` integration-by-parts
+function-space model underlying N14's F2.1/F2.2 (the algebraic cores are already
+done in `ChapterF5`) — the QFM pure-proof definition of done is otherwise
+complete.
+
+## Wave 43 (2026-07-06) — **N14 QFM: F3.5 Misra–Gries heavy-hitter bound** (`ChapterF6`)
+
+This pass lands the F3.5 deliverable of the N14 (Quantum Flow Matching) package
+in a new module `BookProof/ChapterF6.lean` (registered in `BookProof.lean`), all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`; verified via `lean_verify`); `lake build` green (8121 jobs).
+**No `EXTERNAL` hypothesis, no `axiom`.**
+
+* **F3.5** (Misra–Gries heavy-hitter bound, §8 Phase 4): the full streaming
+  frequency-estimation state machine is modelled and its guarantee proved.
+  The counter table is a finitely-supported map `T : α →₀ ℕ`; `mgStep k` processes
+  one item (increment when present or a slot is free, else decrement every
+  counter by one), `mgT k`/`mg k` fold it over the stream, and `mgD k` counts
+  the decrement rounds.  Headline `misra_gries_bound` proves
+  `f(x) − N/k ≤ f̂(x) ≤ f(x)` for capacity `k ≥ 1`, where `f(x) = s.count x` is the
+  true frequency, `f̂(x) = (mg k s) x` the estimate, and `N = s.length`.  The
+  proof rests on three invariants: `mg_upper` (never overshoots, by monotone
+  per-step counting), `mg_lower` (undershoots by at most the decrement count),
+  and `mgD_bound` (`k · D ≤ N`) via the mass-conservation identity
+  `mgSum(mgT) + (k+1)·D = mgSum(T₀) + N` (`mgT_sum_add`), which uses that each
+  decrement round removes exactly `k` units of mass once the table is full
+  (`mgStep_card_le` capacity invariant + `mgSum_mapRange_pred`).
+* **Remaining N14 item** (documented, not asserted): the concrete `p̂ = −i ∂` /
+  `x̂` integration-by-parts symmetry underlying F2.1/F2.2 needs the
+  function-space differentiation model.  **Remaining N13 items** stay as before:
+  H1.5 (operator φ via CFC), H2.2 (SIRK compression assembly), and H2.3/H2.4
+  (convergence, conditional on the named `CrouzeixBound`).
+
+## Wave 42 (2026-07-06) — **N14 QFM: F2.1/F2.2 symmetric generators + F2.5 commuting flows** (`ChapterF5`)
+
+This pass lands three further N14 (Quantum Flow Matching) deliverables in a new
+module `BookProof/ChapterF5.lean` (registered in `BookProof.lean`), all
+**`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
+`Quot.sound`; verified via `#print axioms`); `lake build` green.  **No `EXTERNAL`
+hypothesis, no `axiom`.**
+
+* **F2.1** (continuity-Hamiltonian Hermiticity, algebraic core, §4 eq. 4.2):
+  `anticommutator_isSymmetric` — the symmetrized product `K ∘ V + V ∘ K` of two
+  symmetric operators is symmetric, with *no* commutation hypothesis.  This is
+  the structural reason `H = ½(p̂·v(x̂) + v(x̂)·p̂)` is Hermitian even though
+  `p̂` and `v(x̂)` do not commute.
+* **F2.2** (conservative commutator form, algebraic core, §4 eqs. 4.4–4.6):
+  `i_commutator_isSymmetric` — `i • [K, V] = i • (K ∘ V − V ∘ K)` is symmetric
+  whenever `K, V` are (the commutator of symmetrics is skew, and `i` restores
+  symmetry).  This is why `H^c = i • [K, V(x̂)]` is Hermitian.
+* **F2.5** (exact commutativity and time-averaging, §5.4): `commuting_flow_two`
+  and `commuting_flow_finset` — a pairwise-commuting family of channel
+  generators has a fully factorizing time-ordered flow
+  `exp(−i t • ∑ⱼ Hⱼ) = ∏ⱼ exp(−i t • Hⱼ)` (via `NormedSpace.exp_add_of_commute`
+  / `exp_sum_of_commute`), the Magnus/Dyson truncation for a commuting family.
+* **Remaining N14 items** (documented, not asserted): F3.5 (Misra–Gries
+  heavy-hitter bound, optional) needs the full streaming state machine; the
+  concrete `p̂ = −i ∂` / `x̂` integration-by-parts symmetry underlying F2.1/F2.2
+  needs the function-space differentiation model.  **Remaining N13 items** stay
+  as before: H1.5 (operator φ via CFC), H2.2 (SIRK compression assembly), and
+  H2.3/H2.4 (convergence, conditional on the named `CrouzeixBound`).
+
+## Wave 41 (2026-07-06) — **N13 SIRK: H1.3 Duhamel + H1.7 rational-Krylov** (`ChapterH3`)
+
+This pass lands two further N13 (Hashimoto SIRK) deliverables in a new module
+`BookProof/ChapterH3.lean` (registered in `BookProof.lean`), all **`sorry`-free**
+and **`axiom`-free** (only `propext`, `Classical.choice`, `Quot.sound`; verified
+via `#print axioms`); `lake build` green.  **No `EXTERNAL` hypothesis, no
+`axiom`.**
+
+* **H1.3** (exponential-integrator Duhamel identity, scalar/per-spectral-
+  component core, §0 S3): `duhamel_scalar`
+  (`∫₀^δ e^{(δ−s) z} ds = δ·φ₁(δ z)`) and the forcing-term corollary
+  `duhamel_scalar_smul` (`∫₀^δ e^{(δ−s) z}·g ds = δ·φ₁(δ z)·g`).  Here `φ₁` is
+  the `ChapterH1.phi 1` of H1.1/H1.2; proved by the reflection substitution
+  `u = δ−s` (`intervalIntegral.integral_comp_sub_left`) and the rescaling
+  `u = δ t` (`intervalIntegral.integral_comp_mul_left`).
+* **H1.7** (rational-Krylov ⊆ rational functions of `Xₘ`, eq. 11):
+  `sirkKrylov` (the SIRK Krylov iterates `w_j = X_j ⋯ X_1 v` over `ℕ`) and
+  `sirk_krylov_mem_adjoin` — given the H1.6 shift identity `X_j = Y_j · Xₘ`
+  (with `Y_j = (1 + h(m−j)·Xₘ)⁻¹`), every Krylov iterate lies in
+  `{ r v | r ∈ adjoin ℂ ({Xₘ} ∪ range Y) }`, i.e. is a rational function of the
+  single operator `Xₘ` applied to `v`.  This is the load-bearing inclusion of
+  the paper's characterization; the reverse (surjectivity onto all of `R_SIRK`)
+  is noted in the docstring but not needed for the error bound.
+* **Remaining N13 items** (documented, not asserted): H1.5 (operator φ via CFC)
+  and H2.2 (SIRK compression assembly) require the full continuous-functional-
+  calculus operator-φ infrastructure; H2.3/H2.4 (convergence) remain conditional
+  on the named `CrouzeixBound` deep analytic input — to stay a named hypothesis,
+  never an axiom.
+
+## Wave 40 (2026-07-06) — **N13 SIRK + N14 QFM flagships** (`ChapterH1/H2`, `ChapterF3/F4`)
+
+This pass lands the two remaining flagship work packages of the roadmap queue,
+the `../unfer` numerical algorithms promoted 2026-07-06.  Four new modules,
+registered in `BookProof.lean`, all **`sorry`-free** and **`axiom`-free** (only
+`propext`, `Classical.choice`, `Quot.sound`; verified via `lean_verify`);
+`lake build` green (8118 jobs).  **No `EXTERNAL` hypothesis, no `axiom`.**
+
+### N13 — Hashimoto SIRK (`ChapterH1.lean`, `ChapterH2.lean`)
+
+* **H1.1** `phi : ℕ → ℂ → ℂ` (Hashimoto eq. 3, `φ₀ = exp`,
+  `φ_{k+1}(z) = ∫₀¹ e^{sz}(1−s)^k/k!`), `phi_zero`, `phi_at_zero` (`φ_k(0)=1/k!`).
+* **H1.2** `phi_succ_mul` (`z·φ_{k+1} z = φ_k z − 1/k!`, integration by parts)
+  and corollary `phi_one` (`φ₁ z = (e^z−1)/z`).
+* **H1.4** `numericalRange` + `eigenvalue_mem_numericalRange` (the easy half of
+  Toeplitz–Hausdorff: every eigenvalue is a Rayleigh quotient).
+* **H1.6** `resolvent_identity` and **`resolvent_shift_mul`**
+  (`X_j·(1 + h(m−j)·X_m) = X_m` for `γ_j = N − h·j`) — the clean SIRK algebra
+  core, purely algebraic from the resolvent identity.
+* **H2.1** `hessenberg_vanishing` / `compression_upper_hessenberg`: with an
+  orthonormal Krylov basis and the nesting `X 𝒦_j ⊆ 𝒦_{j+1}`, the compression
+  `⟪vᵢ, X vⱼ⟫ = 0` for `i > j+1` (upper-Hessenberg).
+* **Remaining N13 items** (documented, not asserted): H1.3 (Duhamel), H1.5
+  (operator φ via CFC), H1.7 (rational-Krylov = rational functions of `X_m`),
+  H2.2 (SIRK compression assembly), H2.3/H2.4 (convergence, conditional on the
+  named `CrouzeixBound` — the deep analytic input, to be a named hypothesis,
+  never an axiom).
+
+### N14 — Quantum Flow Matching (`ChapterF3.lean`, `ChapterF4.lean`)
+
+The full pure-proof *definition of done* is complete.  Reuses N12's
+`ChapterF1.numberOp`.
+
+* **F2.3** `disjoint_support_mul`, `disjoint_support_inner_zero` (orthogonal-Fock
+  disjoint-support ⇒ zero product / orthogonality — "zero data loss").
+* **F2.4** `diagonal_gram_residual_orthogonal` (diagonal-Gram closed-form
+  training: `αₖ = ⟪gₖ,b⟫/‖gₖ‖²` makes the residual orthogonal — the `O(M)`
+  payoff).
+* **F2.6** `projOnto` with `projOnto_idempotent`, `projOnto_isSymmetric`,
+  `projOnto_eq_starProjection` (the `|0⟩⟨0|` vacuum projector).
+* **F2.7** `diagGen_vacuum`, `diagGen_eigenstate` (diagonal generator's
+  eigenstates, direct reuse of N12 `numberOp`).
+* **F2.8** `mehler_arc_integral`, `overlap_prod_pos`, **`dressed_vacuum_bessel`**
+  (`Σⱼ εⱼ² ≤ 1`, exactly Bessel's inequality).
+* **F2.9** `mehler_projector_matrix` (`⟪xᵢ,H₀ xⱼ⟫ = conj εᵢ·εⱼ`).
+* **F3.1** `csketch` + `csketch_add`/`csketch_smul` (linearity),
+  `sign_pair_expectation` (Rademacher orthonormality), **`countsketch_unbiased`**
+  (`E[⟪S₁x,S₁y⟫] = ⟪x,y⟫`, the AMS/Count-Sketch estimator).
+* **F3.2** `observable_matrix_identity`
+  (`Tr(E_{r,s}ᴴ Wᴴ Pₐ W) = conj(W_{a,r})·W_{a,s}`).
+* **F3.3** `unitary_preserves_dotProduct` (unitary ⇒ norm-preserving flow) and
+  `selfAdjoint_exp_star_mul_self` (`e^{iH}` unitary for self-adjoint `H`).
+* **F3.4** `pseudoinverse_left_inverse` (`(ΦᴴΦ)⁻¹Φᴴ·Φ = I`, subspace recovery).
+
 ## Wave 39 (2026-07-05) — **N7(c) mass gap** (`ChapterF2.lean`)
 
 This pass lands **N7(c)** — the mathematically self-contained content of the
