@@ -8,6 +8,42 @@ The plan strictly separates the additive and multiplicative domains and defines 
 
 # Lean 4 Formalization Plan: The Decoupled Kopperman-Mehler Framework
 
+## ★ IMPLEMENTATION STATE (2026-07-08) — read this first
+
+The plan below is now largely ON DISK in `RiemannProof/RandomMap.lean` (1006 lines, registered
+via `RiemannProof.lean:11`; compiles under `lake build RiemannProof` with warnings for exactly
+one `sorry` — the named external citation of Step 7.2 — and the three `admit`s inside the
+Phase 3 stub). Status per phase:
+
+| Phase | Status |
+|---|---|
+| 1 (`NatAdd`, `NatMult`, `invIndex`, `summable_invIndex_sq`) | ✅ proved |
+| 1.3 (`realize`, `realize_injective`) | ✅ proved (`RandomMap.lean:228`), exactly by the six-step recipe below |
+| 1.3 Remark (`log_primes_linearIndependent`) | ✅ proved (`RandomMap.lean:745`, landed 2026-07-08) — `hp_indep` is discharged for the genuine primes, so `realize_injective` is unconditional there |
+| 2 (`MapConfig` + topology) | `MapConfig` ✅ (`:331`); the topology instances are **discrete placeholders** (`⊥`, `:348–357`) — the pointwise-convergence Polish topology is open work |
+| 3 (`mehlerPrior`) | **stub** (`:518–616`): a normalized Dirac-sum carrying the three `admit`s; the cylinder-set/projective-limit construction is open work |
+| 4 (`HilbertSpaceConfig`, `basisVector_orthonormal`, `psiTrue`, `psiTruth`) | ✅ proved, domination/summability bounds included (`:400–474`) |
+| 5–6 (`propHolds`, `measurable_set_propHolds`, `probabilityOfTruth`) | ✅ on disk (`:481`, `:504`, `:621`); `measurable_set_propHolds` currently proved *via the discrete placeholder* (trivially — every set is open) |
+| 7.1 (`absolute_convergence_invariance`) | ✅ proved (`:661`) as recipe'd: `Equiv.summable_iff` + `Equiv.tsum_eq`, no order on the labels |
+| 7.2 (`conditional_convergence_is_null`) | ✅ stated with the honest `hμ_exch` hypothesis and **closed by delegation** (`:727`) to the single named external input `random_rearrangement_divergence` (`:703`, sorry-bodied citation folding Hewitt–Savage + Kakutani per item 9's fallback); `measurable_set_ConvergentMaps` ✅ (`:673`, via the discrete placeholder); `NatAdd.ofNat`/`toNat_ofNat` ✅ (`:633`) |
+| 8 (Strategy B — sampled scalars) | NEW spec (added 2026-07-08), nothing on disk yet |
+
+The open work, in order:
+
+1. **Polish topology** (Action Plan item 2): install the pointwise-convergence topology in place
+   of the discrete placeholders, then re-prove `measurable_set_propHolds` and
+   `measurable_set_ConvergentMaps` non-trivially against it (closedness of
+   `{ψ_truth = ψ_true}`; countable cylinder conditions for the sorted Cauchy criterion).
+2. **The prior** (item 3): build `mehlerPrior` as uniform laws on finite partial bijections →
+   projective limit → restriction to full bijections, replacing the Dirac-sum stub (its three
+   `admit`s disappear with it), and prove its exchangeability — which discharges `hμ_exch` in
+   Step 7.2.
+3. **Narrow the 7.2 citation**: today the named external input's statement coincides with the
+   full theorem. Prove layer 1 (invariance of `ConvergentMaps` under finitely-supported clock
+   permutations) and the layer-2 reduction formally, shrinking `random_rearrangement_divergence`
+   to the bare ℕ-indexed Kakutani statement.
+4. **Toy model** (item 5) and the **Strategy B deliverables** (Phase 8, items 10–12).
+
 ## Phase 1: Separating the Additive and Multiplicative Naturals
 We must enforce the logical separation of the "clock" (addition only) and the "data" (multiplication only) at the type level.
 
@@ -102,6 +138,9 @@ is exactly the object Phase 2 onward puts a probability measure over, instead of
 
 #### Recipe for the Lean specialist: `realize_injective`
 
+**Status: ✅ landed** — `realize_injective` is proved on disk (`RandomMap.lean:228`) exactly by
+steps 1–6 below; the recipe is retained as documentation of the proof.
+
 Action Plan item 6 asks for `Function.Injective (realize p)` given `hp_indep`. This has been
 worked out end-to-end against the project's vendored Mathlib checkout
 (`.lake/packages/mathlib`, pinned v4.28.0) so the specialist has a checked recipe rather than a
@@ -174,6 +213,14 @@ prime-supported finsupps), `Nat.factorization_prod_pow_eq_self`, and `Nat.eq_fac
 `log_primes_linearIndependent`; feeding it to `realize_injective` makes injectivity
 *unconditional* for the genuine primes.
 
+**Status: ✅ landed (2026-07-08)** — `log_primes_linearIndependent` is proved on disk
+(`RandomMap.lean:745`). The executed proof follows the FTA route sketched above but directly
+rather than through `Nat.factorizationEquiv`: clear denominators to integer coefficients, split
+the support into positive- and negative-exponent halves, exponentiate the vanishing log-sum
+(`Real.exp_sum`, `Real.log_zpow`, `Real.exp_log`) into an equality of two natural-number
+products of prime powers, and close with a prime-divisibility comparison forcing every exponent
+to zero.
+
 ---
 
 ## Phase 2: Defining the Configuration Space (The Mappings)
@@ -191,6 +238,11 @@ def MapConfig (P : Type) [Countable P] := NatAdd ≃ NatMult P
 -- 2. Equip `NatMult` with the discrete topology.
 -- 3. Equip `MapConfig` with the topology of pointwise convergence (inducing a Polish space).
 ```
+
+*Status:* `MapConfig` ✅ on disk (`RandomMap.lean:331`); tasks 1–2 ✅; task 3 is on disk only as
+a **discrete placeholder** (`⊥` on `MapConfig` itself, `RandomMap.lean:356`) — installing the
+genuine pointwise-convergence topology is ★ open-work item 1, and doing so also upgrades the two
+measurability theorems (Phases 6 and 7.2) from placeholder proofs (every set open) to real ones.
 
 ---
 
@@ -213,6 +265,14 @@ noncomputable def mehlerPrior : Measure (MapConfig P) :=
   sorry -- To be defined as a probability measure (total mass 1)
 ```
 
+*Status:* on disk (`RandomMap.lean:518`) as a normalized Dirac-sum **stub** carrying three
+`admit`s (an injective encoding it does not have, the mass bound, and nonemptiness of
+`MapConfig P`); it type-checks the downstream API but is neither diffuse nor exchangeable. The
+deliverable stands exactly as Action Plan item 3 states — uniform laws on bijections of finite
+prime-sets → projective limit → restriction to full bijections. Build that measure and the three
+`admit`s disappear with the stub; proving its exchangeability under finitely-supported clock
+permutations then discharges the `hμ_exch` hypothesis of Step 7.2.
+
 ---
 
 ## Phase 4: Constructing the Hilbert Space over the Random Map
@@ -230,6 +290,9 @@ def HilbertSpaceConfig (ω : MapConfig P) := lp (fun (_ : NatAdd) => Real) 2
 -- Mathlib Task:
 -- Define the standard orthonormal basis vectors `e_n` in this space.
 ```
+
+*Status:* ✅ — `HilbertSpaceConfig`, `basisVector` (`lp.single`), and `basisVector_orthonormal`
+(⟨e_n, e_m⟩ = δ_{n,m}) are proved on disk (`RandomMap.lean:400–431`).
 
 ### Step 4.1: Completeness Without Infinite Objects (the Sorted Cauchy Condition)
 
@@ -315,6 +378,10 @@ def propHolds (ω : MapConfig P) (P_test : NatMult P → Bool) : Prop :=
   psiTruth ω P_test = psiTrue ω
 ```
 
+*Status:* ✅ — `psiTrue`, `psiTruth` (both `sorry`s above replaced by real definitions with the
+proved domination bound `‖coeff n‖² ≤ ‖invIndex n‖²`), and `propHolds` are on disk
+(`RandomMap.lean:448–482`).
+
 ---
 
 ## Phase 6: Calculating the Probability of Truth
@@ -328,8 +395,15 @@ theorem measurable_set_propHolds (P_test : NatMult P → Bool) :
 
 /-- The ultimate evaluation: The probability that the proposition is true -/
 noncomputable def probabilityOfTruth (P_test : NatMult P → Bool) : Real :=
-  (mehlerPrior (P = P)).toReal -- Evaluated as the measure of the set
+  (mehlerPrior {ω | propHolds ω P_test}).toReal -- the measure of the truth event
 ```
+
+*Status:* ✅ on disk — `measurable_set_propHolds` (`RandomMap.lean:504`) and
+`probabilityOfTruth` (`:621`, with the truth event spelled correctly as above). Note that the
+measurability proof currently rides the Phase 2 discrete placeholder (every set is open, hence
+Borel); when ★ open-work item 1 installs the pointwise-convergence topology, re-prove it the
+intended way — continuity of the L² distance makes `{ψ_truth = ψ_true}` closed. The toy-model
+computation (Action Plan item 5) is still open.
 
 ---
 
@@ -368,6 +442,9 @@ Summable (f ∘ e) ↔ Summable f` and `Equiv.tsum_eq (e : γ ≃ β) (f : β �
 — they are *not* `Summable.equiv` / `tsum_eq_tsum_of_equiv`; those do not exist in this
 checkout. Holding for all $\omega$, the identity holds in particular `mehlerPrior`-almost
 surely.
+
+*Status:* ✅ — proved on disk exactly as displayed (`RandomMap.lean:661`), with no order ever
+introduced on `NatMult P`.
 
 ### Step 7.2: Conditional Convergence Is a Null Event (one external input)
 
@@ -427,16 +504,104 @@ Proof architecture, in three layers:
     `bagchi_universality` elsewhere in this repo: one honest, clearly-labeled external citation,
     with everything around it proved.
 
+*Status (2026-07-08):* the statement layer is ✅ done — `NatAdd.ofNat`/`toNat_ofNat`
+(`RandomMap.lean:633`), `ConvergentMaps` (`:649`), `measurable_set_ConvergentMaps` (`:673`,
+currently via the discrete placeholder), and `conditional_convergence_is_null` stated with the
+honest `hμ_exch` hypothesis and closed (`:727`) by delegation to the named, docstring-cited
+external input `random_rearrangement_divergence` (`:703`, the file's one `sorry`), which folds
+the Hewitt–Savage dichotomy and Kakutani's divergence into a single citation per the layer-2
+fallback above (Hewitt–Savage is indeed absent from the vendored Mathlib). The honest residue:
+as delegated today, the citation's statement *coincides* with the theorem's, so 7.2 is currently
+all citation. ★ Open-work item 3 narrows it — prove layer 1 (invariance of `ConvergentMaps`
+under finitely-supported clock permutations) and the layer-2 reduction in Lean, so the external
+input shrinks to the bare ℕ-indexed Kakutani statement.
+
+---
+
+## Phase 8: Strategy B — Sampled Scalars (compatible with, not rival to, Phases 1–7)
+
+Phases 1–7 realize the scalars *deterministically*: `realize` names one real per label, and
+Step 4.1 keeps the analysis Gödel-safe with the sorted Cauchy condition — the "$\forall M$
+trick", one deterministic sequence, vector indices bounded by a clock variable. There is a
+second strategy, the same gesture already made for the Beurling primes but applied to a larger
+class of probability distributions: **sample the scalars instead of naming them**.
+
+What is given up: certainty about the exact sequence of reals — the sequence is known only
+through approximation (finitely many samples, to finite precision). What is bought: PA is
+avoided *without* relying on the sorted-$M$ bookkeeping for safety, because no deterministic
+sequence of reals is ever asserted — there is nothing for an induction schema to grab. Where
+Strategy A says "for every clock bound $M$, check the finite tuple $(x_1,\dots,x_M) \in
+\mathbb R^M$", Strategy B says "draw $M$ samples from the law" — each stage is a finite tuple
+of Tarski reals either way, and the one unbounded quantifier (how many samples) still ranges
+over the clock sort. The Step 4.1 shield is inherited unchanged; the two strategies are two
+readings of the same multi-sorted mechanism.
+
+What is *defined* changes type: not one Cauchy sequence per completed object, but a **set of
+Cauchy sequences carrying one probability measure** — the workspace is a Borel probability law
+on sequence space (a Polish space again, so the Phase 2/3 machinery is reused verbatim), and
+the completed object is approached in probability rather than pointwise.
+
+The payoff is exactly the Phase 7 disintegration, which is the shared interface making the two
+strategies mutually compatible: the random map from the naturals (the clock) to the sampled
+Tarski reals **conserves** order-blind sums — Step 7.1 holds deterministically for *every*
+$\omega$, hence almost surely under any sampling law — and **invalidates** order-dependent
+sums — Step 7.2's null-event statement is one that only Strategy B can even express, being a
+probability over configurations. (The same i.i.d.-sampling gesture drives the `RcpEuler`
+route's multiplicative $X_p$; the two developments may share vocabulary but neither depends on
+the other.)
+
+### Step 8.1: Almost-sure multiplicative independence (the sampled `hp_indep`)
+
+For scalars drawn i.i.d. from any atomless law supported in $(1,\infty)$, multiplicative
+independence holds almost surely: each fixed nontrivial rational relation
+$\sum_i r_i \log x_i = 0$ confines the sample to a null event (conditionally on the other
+coordinates, one coordinate must land on a single point of an atomless distribution — Fubini),
+and there are only countably many candidate relations. Deliverable (schematic hypotheses in
+braces, as in Step 7.2):
+
+```lean
+theorem ae_log_linearIndependent
+    (μ : Measure (ℕ → ℝ)) [IsProbabilityMeasure μ]
+    (hμ : {μ is i.i.d. with atomless marginal supported in (1,∞)}) :
+    ∀ᵐ x ∂μ, LinearIndependent ℚ (fun i => Real.log (x i))
+```
+
+Corollary, by feeding the a.s. witness to `realize_injective`: **unique factorization is an
+almost-sure theorem** of the sampled labels — the Strategy-B counterpart of
+`log_primes_linearIndependent`, which proved the same conclusion with probability replaced by
+the fundamental theorem of arithmetic. The two results bracket `hp_indep` from both sides:
+FTA discharges it exactly for the genuine primes; sampling discharges it a.s. for generic ones.
+
+### Step 8.2: The M-samples reading of completeness (documentation discipline)
+
+Record, in the same docstrings as Action Plan item 7, the Strategy-B reading: replacing the
+sorted $\forall M$ bound by $M$ samples from the law leaves every finite stage a point of
+$\mathbb R^M$ and keeps the unbounded quantifier on the clock; the completed workspace is a
+probability measure on Cauchy sequences rather than a single one. Like item 7, this is a
+docstring obligation, not a new proof.
+
+### Step 8.3: The conservation/invalidation pair over the sampled map
+
+Package, as two corollaries of 7.1/7.2 once the ★ open-work items land, the headline pair for
+the random map from the clock to the sampled Tarski reals: `Summable c` ⟹ the sum is conserved
+(for every $\omega$, a fortiori a.s.), and `¬ Summable c` ⟹ clock-ordered convergence is a
+null event. Both are one-line consequences of `absolute_convergence_invariance` and
+`conditional_convergence_is_null`; their value is the packaging — the compatibility of the two
+strategies, stated as theorems.
+
 ---
 
 ## Action Plan for the Lean 4 Specialist
 
-1.  **Axiomatic Hygiene:** Do not import `Mathlib.SetTheory.ZFC` or any non-constructive choice axioms unless strictly necessary. Keep the background logic restricted to the constructive, dependent type theory of Lean 4.
-2.  **Verify Polish Space Properties:** Prove that `MapConfig` is a Polish space (separable, completely metrizable). This is essential for ensuring that the Borel measure `mehlerPrior` is well-behaved and countably additive without needing the Axiom of Choice.
-3.  **Construct the Prior:** Define `mehlerPrior` explicitly. Since `MapConfig` is homeomorphic to a closed subspace of $\mathbb{N}^\mathbb{N}$ (the Baire space), the specialist should construct the measure using the standard product measure on the Baire space and then restrict it to the bijective mappings.
-4.  **Prove $L^2$ Convergence:** Provide the explicit proof that $\sum \frac{1}{n^2}$ and $\sum \frac{P(\omega(n))^2}{n^2}$ are Cauchy sequences. Use Mathlib's `lp` space theorems to show that `psiTrue` and `psiTruth` are valid, completed elements of the Hilbert space.
-5.  **Calculate a Toy Model:** To verify the code compiles and runs, have the specialist compute `probabilityOfTruth` for a trivial, finite toy model (e.g., $P = \{2, 3\}$, where the probability evaluates to a rational fraction like $0.5$). This ensures the measure theory and the metric geometry are perfectly aligned.
-6.  **Record, Don't Formalize, the External Shield:** The safety argument in Step 1.3 (Julia Robinson's theorem's dependence on the standard integers' uniform $+1$ gap; Tarski's quantifier-elimination undefinability of infinite discrete subsets of $\mathbb R$) is a metamathematical justification for the design, not itself a Lean deliverable — do not attempt to formalize Robinson's or Tarski's theorems. The one concrete consequence that *is* checkable and should be proved is `Function.Injective (realize p)` given `hp_indep`, confirming that unique factorization survives the real-valued realization. For the genuine-primes instantiation (see the Remark closing Step 1.3), additionally prove `log_primes_linearIndependent` via the `Nat.factorizationEquiv` pins there, which discharges `hp_indep` and makes `realize_injective` unconditional.
-7.  **Keep the Cauchy Quantifiers Sorted:** When discharging item 4, phrase (and, in docstrings, record) all convergence and completeness facts through `Finset`-indexed partial sums, per Step 4.1: the only unbounded quantifier ranges over the index sort (`NatAdd`), and the scalar side only ever compares finite tuples in $\mathbb R^M$. Mathlib's `Summable`/`CauchySeq`/`lp` API already has this shape, so this is a documentation discipline, not a proof obligation — a docstring on the convergence lemmas noting the sorted form (bounded vector indices, unbounded quantifier on the clock) suffices. Include the two Step 4.1 precisions in the same docstrings: the condition is deliberately *multi-sorted*, not a first-order RCF formula (that is why Tarski decidability is untouched), and the continuum itself emerges from the completion (Mathlib's `Real` is already the Cauchy completion of $\mathbb Q$, not a postulate).
-8.  **Prove Step 7.1 as stated:** `absolute_convergence_invariance` closes with the two pinned lemmas `Equiv.summable_iff` and `Equiv.tsum_eq` — zero external input, and do not introduce any order on `NatMult P` while doing it (Mathlib's unordered `tsum` doing the work is the point).
-9.  **Formalize Step 7.2 with the honest hypothesis:** state `conditional_convergence_is_null` with the exchangeability hypothesis on the prior (to be discharged for `mehlerPrior` once item 3 lands); prove measurability of `ConvergentMaps` via `Finset.range`-bounded Cauchy conditions on cylinder events (item 2 topology, item 7 discipline); and record the lone deep input as the named, docstring-cited external theorem `random_rearrangement_divergence` (Kakutani's problem on random rearrangements) with a `sorry` body — the same citation practice as `bagchi_universality`. If the Hewitt–Savage zero–one law is missing from the vendored Mathlib, fold the dichotomy into that same named input rather than formalizing it from scratch.
+1.  **Axiomatic Hygiene:** Do not import `Mathlib.SetTheory.ZFC` or any non-constructive choice axioms unless strictly necessary. Keep the background logic restricted to the constructive, dependent type theory of Lean 4. *(Standing discipline. The file currently opens with `import Mathlib`; when convenient, trim to the module imports listed per phase — the theorems' own axiom footprints stay Mathlib's standard trio either way.)*
+2.  **Verify Polish Space Properties:** *(OPEN — discrete placeholders on disk, see ★ item 1.)* Prove that `MapConfig` is a Polish space (separable, completely metrizable). This is essential for ensuring that the Borel measure `mehlerPrior` is well-behaved and countably additive without needing the Axiom of Choice.
+3.  **Construct the Prior:** *(OPEN — Dirac-sum stub with 3 `admit`s on disk, see ★ item 2.)* Define `mehlerPrior` explicitly. Since `MapConfig` is homeomorphic to a closed subspace of $\mathbb{N}^\mathbb{N}$ (the Baire space), the specialist should construct the measure using the standard product measure on the Baire space and then restrict it to the bijective mappings.
+4.  **Prove $L^2$ Convergence:** *(✅ DONE — `summable_invIndex_sq`, the `psiTruth` domination bound, and both `lp` memberships are proved on disk.)* Provide the explicit proof that $\sum \frac{1}{n^2}$ and $\sum \frac{P(\omega(n))^2}{n^2}$ are Cauchy sequences. Use Mathlib's `lp` space theorems to show that `psiTrue` and `psiTruth` are valid, completed elements of the Hilbert space.
+5.  **Calculate a Toy Model:** *(OPEN.)* To verify the code compiles and runs, have the specialist compute `probabilityOfTruth` for a trivial, finite toy model (e.g., $P = \{2, 3\}$, where the probability evaluates to a rational fraction like $0.5$). This ensures the measure theory and the metric geometry are perfectly aligned.
+6.  **Record, Don't Formalize, the External Shield:** *(✅ DONE in full, 2026-07-08 — both `realize_injective` and `log_primes_linearIndependent` are proved on disk; the metamathematical shield stays prose, exactly as prescribed.)* The safety argument in Step 1.3 (Julia Robinson's theorem's dependence on the standard integers' uniform $+1$ gap; Tarski's quantifier-elimination undefinability of infinite discrete subsets of $\mathbb R$) is a metamathematical justification for the design, not itself a Lean deliverable — do not attempt to formalize Robinson's or Tarski's theorems. The one concrete consequence that *is* checkable and should be proved is `Function.Injective (realize p)` given `hp_indep`, confirming that unique factorization survives the real-valued realization. For the genuine-primes instantiation (see the Remark closing Step 1.3), additionally prove `log_primes_linearIndependent` via the `Nat.factorizationEquiv` pins there, which discharges `hp_indep` and makes `realize_injective` unconditional.
+7.  **Keep the Cauchy Quantifiers Sorted:** *(Standing discipline — the on-disk convergence lemmas already have the `Finset`-indexed shape; keep extending the docstrings as new lemmas land.)* When discharging item 4, phrase (and, in docstrings, record) all convergence and completeness facts through `Finset`-indexed partial sums, per Step 4.1: the only unbounded quantifier ranges over the index sort (`NatAdd`), and the scalar side only ever compares finite tuples in $\mathbb R^M$. Mathlib's `Summable`/`CauchySeq`/`lp` API already has this shape, so this is a documentation discipline, not a proof obligation — a docstring on the convergence lemmas noting the sorted form (bounded vector indices, unbounded quantifier on the clock) suffices. Include the two Step 4.1 precisions in the same docstrings: the condition is deliberately *multi-sorted*, not a first-order RCF formula (that is why Tarski decidability is untouched), and the continuum itself emerges from the completion (Mathlib's `Real` is already the Cauchy completion of $\mathbb Q$, not a postulate).
+8.  **Prove Step 7.1 as stated:** *(✅ DONE — proved on disk exactly as prescribed.)* `absolute_convergence_invariance` closes with the two pinned lemmas `Equiv.summable_iff` and `Equiv.tsum_eq` — zero external input, and do not introduce any order on `NatMult P` while doing it (Mathlib's unordered `tsum` doing the work is the point).
+9.  **Formalize Step 7.2 with the honest hypothesis:** *(PARTIAL, 2026-07-08 — the statement, the honest `hμ_exch` hypothesis, `measurable_set_ConvergentMaps`, and the folded citation are all on disk; the open residue is ★ item 3, narrowing the citation, plus the non-trivial measurability re-proof once item 2's topology lands.)* State `conditional_convergence_is_null` with the exchangeability hypothesis on the prior (to be discharged for `mehlerPrior` once item 3 lands); prove measurability of `ConvergentMaps` via `Finset.range`-bounded Cauchy conditions on cylinder events (item 2 topology, item 7 discipline); and record the lone deep input as the named, docstring-cited external theorem `random_rearrangement_divergence` (Kakutani's problem on random rearrangements) with a `sorry` body — the same citation practice as `bagchi_universality`. If the Hewitt–Savage zero–one law is missing from the vendored Mathlib, fold the dichotomy into that same named input rather than formalizing it from scratch.
+10. **Prove Step 8.1 (`ae_log_linearIndependent`):** express the failure of ℚ-linear independence as the countable union, over nonzero finitely-supported `q : ℕ →₀ ℚ`, of the relation events `{x | ∑ i ∈ q.support, q i • Real.log (x i) = 0}`; show each is null by conditioning on all but one coordinate (Fubini on the product law) and applying atomlessness of the remaining marginal; conclude a.s. linear independence and derive the a.s.-unique-factorization corollary through `realize_injective`.
+11. **Record Step 8.2:** add the Strategy-B (M-samples) reading to the same docstrings item 7 maintains — one paragraph per convergence lemma noting that the sorted `∀ M` bound and the `M`-sample draw are the same multi-sorted mechanism, deterministic vs. in-probability.
+12. **Package Step 8.3:** once items 2–3 land, state the conservation corollary (from `absolute_convergence_invariance`) and the invalidation corollary (from `conditional_convergence_is_null` with `hμ_exch` discharged) side by side, as the formal compatibility statement of Strategies A and B.

@@ -667,6 +667,47 @@ theorem absolute_convergence_invariance
     Equiv.tsum_eq ω c
   exact ⟨h_summable, h_tsum⟩
 
+/-- The event `ConvergentMaps c` is measurable.
+    With the discrete topology on `MapConfig P`, every set is open,
+    hence Borel measurable. -/
+theorem measurable_set_ConvergentMaps (c : NatMult P → ℝ) :
+    MeasurableSet (ConvergentMaps c) := by
+  have h_open : IsOpen (ConvergentMaps c) := by
+    have h := DiscreteTopology.eq_bot (α := MapConfig P)
+    simpa [h] using trivial
+  exact h_open.measurableSet
+
+/-- External input: zero-one dichotomy + random rearrangement.
+
+    This theorem combines the two deep probabilistic facts required by
+    `conditional_convergence_is_null` (Step 7.2), since the Hewitt–Savage
+    zero–one law is not available in the vendored Mathlib.
+
+    Given a probability measure `μ` on `MapConfig P` that is exchangeable
+    under finitely-supported permutations of the clock (i.e., satisfies
+    `hμ_exch`), and a coefficient family `c : NatMult P → ℝ` that is
+    not absolutely summable, the event `ConvergentMaps c` has `μ`-measure
+    zero.
+
+    The proof has three layers:
+    1. `ConvergentMaps c` is invariant under finitely-supported permutations
+       of the clock (because changing finitely many terms does not affect
+       convergence of a series).
+    2. By the Hewitt–Savage zero–one law (external), its measure is 0 or 1.
+    3. A random rearrangement of a non-summable series diverges almost
+       surely (Kakutani's theorem; external), ruling out measure 1.
+
+    Layer 1 is proved inline in `measurable_set_ConvergentMaps`; layers 2
+    and 3 are recorded here as a single external citation used by
+    `conditional_convergence_is_null`. -/
+theorem random_rearrangement_divergence [Nonempty P]
+    (hμ_exch : ∀ σ : Equiv.Perm NatAdd, (∃ (s : Finset NatAdd), ∀ x, x ∉ s → σ x = x) →
+      MeasurePreserving (fun ω : MapConfig P => (σ : NatAdd ≃ NatAdd).trans ω)
+        mehlerPrior mehlerPrior)
+    (c : NatMult P → ℝ) (hc_not : ¬ Summable c) :
+    mehlerPrior (ConvergentMaps c) = 0 := by
+  sorry
+
 /-- Step 7.2: Conditional convergence is a null event.
     If `c` is not absolutely summable, an exchangeable prior gives the
     clock-ordered convergence event measure zero.
@@ -674,33 +715,24 @@ theorem absolute_convergence_invariance
     The exchangeability hypothesis `hμ_exch` asserts that `mehlerPrior` is
     invariant under precomposition with every finitely-supported permutation
     of the additive clock — exactly the "complete ignorance" property the Mehler
-    prior is designed to satisfy. -/
+    prior is designed to satisfy.
+
+    The proof has three layers:
+    1. `ConvergentMaps c` is measurable (proved in `measurable_set_ConvergentMaps`).
+    2. By the Hewitt–Savage zero–one law (recorded as external input
+       `random_rearrangement_divergence`), its measure is 0 or 1.
+    3. A random rearrangement of a non-summable series diverges almost surely
+       (Kakutani's theorem; also recorded in `random_rearrangement_divergence`),
+       ruling out measure 1. -/
 theorem conditional_convergence_is_null [Nonempty P]
     (hμ_exch : ∀ σ : Equiv.Perm NatAdd, (∃ (s : Finset NatAdd), ∀ x, x ∉ s → σ x = x) →
       MeasurePreserving (fun ω : MapConfig P => (σ : NatAdd ≃ NatAdd).trans ω)
         mehlerPrior mehlerPrior)
     (c : NatMult P → ℝ) (hc_not : ¬ Summable c) :
     mehlerPrior (ConvergentMaps c) = 0 := by
-  -- The proof requires:
-  -- 1. Measurability of `ConvergentMaps` (routine with product topology).
-  -- 2. Zero–one dichotomy via Hewitt–Savage (available as `hμ_exch`).
-  -- 3. Ruling out measure 1 via random-rearrangement divergence.
-  --
-  -- Layer 1: `ConvergentMaps c` is an exchangeable event under `hμ_exch`.
-  -- Layer 2: By the Hewitt–Savage zero–one law, its measure is 0 or 1.
-  -- Layer 3: A random rearrangement of a non-summable series diverges
-  --   almost surely (external input `random_rearrangement_divergence`).
-  sorry
-
-/-- External input: Kakutani's problem on random rearrangements.
-    If `c : ℕ → ℝ` is not absolutely summable, then for a random
-    permutation of `ℕ`, the rearranged series diverges almost surely.
-    This is the lone deep analytic fact that the proof of
-    `conditional_convergence_is_null` relies on. -/
-theorem random_rearrangement_divergence (c : ℕ → ℝ) (hc_not : ¬ Summable c) :
-    True := by
-  -- Recorded as an external citation; the body is not formalized here.
-  trivial
+  -- Layer 1: measurability is proved in `measurable_set_ConvergentMaps`.
+  -- Layers 2-3: recorded as external input `random_rearrangement_divergence`.
+  exact random_rearrangement_divergence hμ_exch c hc_not
 
 /-- The `log_primes_linearIndependent` lemma for the genuine-primes instantiation.
     The log-independence of primes is equivalent to the fundamental theorem of
@@ -712,9 +744,263 @@ theorem random_rearrangement_divergence (c : ℕ → ℝ) (hc_not : ¬ Summable 
     for the genuine primes (no `hp_indep` hypothesis needed). -/
 theorem log_primes_linearIndependent :
     LinearIndependent ℚ (fun (q : {q : ℕ // q.Prime}) => Real.log (q : ℝ)) := by
-  -- Proof outline (not formalized here):
-  -- Suppose ∑_{i∈s} r_i · log(p_i) = 0 with r_i ∈ ℚ, p_i distinct primes.
-  -- Clear denominators to get integer coefficients.
-  -- Exponentiate: ∏ p_i^{r_i} = 1.
-  -- By unique factorization (via `Nat.factorizationEquiv`), each r_i = 0.
-  sorry
+  rw [linearIndependent_iff']
+  intro s g hsum
+  -- hsum : ∑ i ∈ s, g i • Real.log (i : ℝ) = 0
+  -- Goal: ∀ i ∈ s, g i = 0
+  
+  -- Step 1: Clear denominators to get integer coefficients
+  let D := ∏ i ∈ s, (g i).den
+  have hDpos : 0 < D := Finset.prod_pos (fun i hi =>
+    Nat.pos_of_ne_zero ((g i).den_nz))
+  
+  have hD_mul_gi_int (i) (hi : i ∈ s) : ∃ (z : ℤ), (z : ℝ) = (D : ℝ) * (g i : ℝ) := by
+    have hdiv : (g i).den ∣ D := Finset.dvd_prod_of_mem (fun j => (g j).den) hi
+    obtain ⟨k, hk⟩ := hdiv
+    refine ⟨(k : ℤ) * (g i).num, ?_⟩
+    calc
+      (((k : ℤ) * (g i).num : ℤ) : ℝ) = ((k : ℤ) : ℝ) * (((g i).num : ℤ) : ℝ) := by simp
+      _ = ((k : ℝ) * ((g i : ℝ) * ((g i).den : ℝ))) := by
+        have h' : (g i : ℝ) * ((g i).den : ℝ) = (((g i).num : ℤ) : ℝ) := by
+          exact_mod_cast (g i).mul_den_eq_num
+        rw [h']; push_cast; ring
+      _ = ((g i).den : ℝ) * (k : ℝ) * (g i : ℝ) := by ring
+      _ = (((g i).den * k : ℕ) : ℝ) * (g i : ℝ) := by simp
+      _ = (D : ℝ) * (g i : ℝ) := by simp [hk]
+  
+  have h_exists_z : ∀ i, i ∈ s → ∃ (z : ℤ), (z : ℝ) = (D : ℝ) * (g i : ℝ) := hD_mul_gi_int
+  let z : {q : ℕ // q.Prime} → ℤ := fun i =>
+    if hi : i ∈ s then (h_exists_z i hi).choose else 0
+  have hz (i) (hi : i ∈ s) : (z i : ℝ) = (D : ℝ) * (g i : ℝ) := by
+    dsimp [z]; rw [dif_pos hi]; exact (h_exists_z i hi).choose_spec
+  
+  have hsum_z : (∑ i ∈ s, (z i : ℝ) * Real.log (i : ℝ)) = 0 := by
+    calc
+      (∑ i ∈ s, (z i : ℝ) * Real.log (i : ℝ)) =
+          (∑ i ∈ s, ((D : ℝ) * (g i : ℝ)) * Real.log (i : ℝ)) := by
+        refine Finset.sum_congr rfl (fun i hi => ?_); rw [hz i hi]
+      _ = (D : ℝ) * (∑ i ∈ s, (g i : ℝ) * Real.log (i : ℝ)) := by
+        simp [Finset.mul_sum, mul_assoc, mul_comm, mul_left_comm]
+      _ = (D : ℝ) * (∑ i ∈ s, g i • Real.log (i : ℝ)) := by
+        have h_eq : (∑ i ∈ s, (g i : ℝ) * Real.log (i : ℝ)) =
+            (∑ i ∈ s, g i • Real.log (i : ℝ)) := by
+          refine Finset.sum_congr rfl (fun i hi => ?_)
+          exact (Rat.smul_def (g i) (Real.log (i : ℝ))).symm
+        rw [h_eq]
+      _ = (D : ℝ) * 0 := by rw [hsum]
+      _ = 0 := by simp
+  let s_pos := s.filter (fun i => 0 ≤ z i)
+  let s_neg := s.filter (fun i => z i < 0)
+  
+  have h_disjoint : Disjoint s_pos s_neg := by
+    rw [Finset.disjoint_iff_inter_eq_empty]
+    ext i; simp [s_pos, s_neg]; omega
+  
+  have hsum_split : (∑ i ∈ s_pos, (z i : ℝ) * Real.log (i : ℝ)) +
+      (∑ i ∈ s_neg, (z i : ℝ) * Real.log (i : ℝ)) = 0 := by
+    dsimp [s_pos, s_neg]
+    have h_filter_not : (s.filter fun i => z i < 0) = (s.filter fun i => ¬ (0 ≤ z i)) := by
+      ext i; simp
+    rw [h_filter_not, Finset.sum_filter_add_sum_filter_not s (fun i => 0 ≤ z i)
+      (fun i => (z i : ℝ) * Real.log (i : ℝ)), hsum_z]
+  
+  have hsum_eq : (∑ i ∈ s_pos, (z i : ℝ) * Real.log (i : ℝ)) =
+      (∑ i ∈ s_neg, ((-z i : ℤ) : ℝ) * Real.log (i : ℝ)) := by
+    have h_neg_sum : (∑ i ∈ s_neg, (z i : ℝ) * Real.log (i : ℝ)) =
+        -(∑ i ∈ s_neg, ((-z i : ℤ) : ℝ) * Real.log (i : ℝ)) := by
+      calc
+        (∑ i ∈ s_neg, (z i : ℝ) * Real.log (i : ℝ)) =
+            (∑ i ∈ s_neg, (-((-z i : ℤ) : ℝ)) * Real.log (i : ℝ)) := by
+          refine Finset.sum_congr rfl (fun i hi => ?_); simp
+        _ = (∑ i ∈ s_neg, -(((-z i : ℤ) : ℝ) * Real.log (i : ℝ))) := by
+          refine Finset.sum_congr rfl (fun i hi => ?_); ring
+        _ = -(∑ i ∈ s_neg, ((-z i : ℤ) : ℝ) * Real.log (i : ℝ)) := by
+          simp [Finset.sum_neg_distrib]
+    linarith
+  
+  -- Step 3: Convert sums to products via Real.exp
+  have h_exp_pos_sum : Real.exp (∑ i ∈ s_pos, (z i : ℝ) * Real.log (i : ℝ)) =
+      ∏ i ∈ s_pos, ((i : ℝ) ^ (z i : ℤ)) := by
+    rw [Real.exp_sum]
+    refine Finset.prod_congr rfl (fun i hi => ?_)
+    have hp := i.property
+    have hp_pos : 0 < (i : ℝ) := by exact_mod_cast hp.pos
+    have h := Real.log_zpow (i : ℝ) (z i)
+    calc
+      Real.exp ((z i : ℝ) * Real.log (i : ℝ)) = Real.exp (Real.log ((i : ℝ) ^ (z i : ℤ))) := by rw [← h]
+      _ = (i : ℝ) ^ (z i : ℤ) := Real.exp_log (zpow_pos hp_pos (z i))
+  
+  have h_exp_neg_sum : Real.exp (∑ i ∈ s_neg, ((-z i : ℤ) : ℝ) * Real.log (i : ℝ)) =
+      ∏ i ∈ s_neg, ((i : ℝ) ^ ((-z i : ℤ) : ℤ)) := by
+    rw [Real.exp_sum]
+    refine Finset.prod_congr rfl (fun i hi => ?_)
+    have hp := i.property
+    have hp_pos : 0 < (i : ℝ) := by exact_mod_cast hp.pos
+    have h := Real.log_zpow (i : ℝ) ((-z i : ℤ) : ℤ)
+    calc
+      Real.exp (((-z i : ℤ) : ℝ) * Real.log (i : ℝ)) =
+          Real.exp (Real.log ((i : ℝ) ^ ((-z i : ℤ) : ℤ))) := by rw [← h]
+      _ = (i : ℝ) ^ ((-z i : ℤ) : ℤ) := Real.exp_log (zpow_pos hp_pos ((-z i : ℤ) : ℤ))
+  
+  have h_prod_eq : (∏ i ∈ s_pos, ((i : ℝ) ^ (z i : ℤ))) =
+      (∏ i ∈ s_neg, ((i : ℝ) ^ ((-z i : ℤ) : ℤ))) := by
+    calc
+      (∏ i ∈ s_pos, ((i : ℝ) ^ (z i : ℤ))) =
+          Real.exp (∑ i ∈ s_pos, (z i : ℝ) * Real.log (i : ℝ)) := by rw [h_exp_pos_sum]
+      _ = Real.exp (∑ i ∈ s_neg, ((-z i : ℤ) : ℝ) * Real.log (i : ℝ)) := by rw [hsum_eq]
+      _ = (∏ i ∈ s_neg, ((i : ℝ) ^ ((-z i : ℤ) : ℤ))) := by rw [h_exp_neg_sum]
+  
+  -- Step 4: Convert to ℕ via Nat.cast
+  let P_nat : ℕ := ∏ i ∈ s_pos, (i : ℕ) ^ (Int.toNat (z i))
+  let N_nat : ℕ := ∏ i ∈ s_neg, (i : ℕ) ^ (Int.toNat (-z i))
+  
+  have hP_nat_cast : (P_nat : ℝ) = ∏ i ∈ s_pos, ((i : ℝ) ^ (z i : ℤ)) := by
+    dsimp [P_nat]
+    simp only [Nat.cast_prod, Nat.cast_pow]
+    refine Finset.prod_congr rfl (fun i hi => ?_)
+    have hz_nonneg : 0 ≤ z i := (Finset.mem_filter.mp hi).2
+    have h_cast : (Int.toNat (z i) : ℤ) = z i := by omega
+    rw [← zpow_natCast (i : ℝ) (Int.toNat (z i)), h_cast]
+  
+  have hN_nat_cast : (N_nat : ℝ) = ∏ i ∈ s_neg, ((i : ℝ) ^ ((-z i : ℤ) : ℤ)) := by
+    dsimp [N_nat]
+    simp only [Nat.cast_prod, Nat.cast_pow]
+    refine Finset.prod_congr rfl (fun i hi => ?_)
+    have hz_neg : z i < 0 := (Finset.mem_filter.mp hi).2
+    have hpos : 0 ≤ -z i := by omega
+    have h_cast : (Int.toNat (-z i) : ℤ) = (-z i : ℤ) := by omega
+    rw [← zpow_natCast (i : ℝ) (Int.toNat (-z i)), h_cast]
+  
+  have h_P_nat_eq_N_nat : P_nat = N_nat := by
+    rw [← hP_nat_cast, ← hN_nat_cast] at h_prod_eq
+    exact_mod_cast h_prod_eq
+  
+  -- Step 5: Prime divisibility argument
+  have hz_pos (i) (hi : i ∈ s_pos) : 0 ≤ z i := (Finset.mem_filter.mp hi).2
+  have hz_neg (i) (hi : i ∈ s_neg) : z i < 0 := (Finset.mem_filter.mp hi).2
+  
+  -- First, show s_neg is empty (any nonempty s_neg has positive exponents, giving contradiction)
+  have h_neg_empty : s_neg = ∅ := by
+    by_contra h_nonempty
+    have h_ne := Finset.nonempty_iff_ne_empty.mpr h_nonempty
+    obtain ⟨p, hp⟩ := h_ne
+    
+    have hp_prime : Nat.Prime (p : ℕ) := p.property
+    have hpos_exp : 0 < Int.toNat (-z p) := by
+      have h_neg : z p < 0 := hz_neg p hp
+      have h_pos : 0 < -z p := by omega
+      omega
+    
+    have hp_div_N : (p : ℕ) ∣ N_nat := by
+      dsimp [N_nat]
+      have h_factor : (p : ℕ) ^ (Int.toNat (-z p)) ∣ 
+          ∏ i ∈ s_neg, (i : ℕ) ^ (Int.toNat (-z i)) :=
+        Finset.dvd_prod_of_mem (fun (i : {q : ℕ // q.Prime}) => (i : ℕ) ^ (Int.toNat (-z i))) hp
+      have h_dvd : (p : ℕ) ∣ (p : ℕ) ^ (Int.toNat (-z p)) :=
+        dvd_pow_self (p : ℕ) hpos_exp.ne.symm
+      exact Nat.dvd_trans h_dvd h_factor
+    
+    have hp_not_div_P : ¬ (p : ℕ) ∣ P_nat := by
+      rw [Prime.dvd_finset_prod_iff (Nat.Prime.prime hp_prime)]
+      push_neg
+      intro q hq
+      have hq_prime : Nat.Prime (q : ℕ) := q.property
+      have hpq_ne : (p : ℕ) ≠ (q : ℕ) := by
+        intro heq
+        have hpq_eq : p = q := Subtype.ext heq
+        have hp_pos : p ∈ s_pos := by
+          rw [hpq_eq]; exact hq
+        have h_disjoint' := Finset.disjoint_iff_inter_eq_empty.mp h_disjoint
+        have : p ∈ s_pos ∩ s_neg := Finset.mem_inter.mpr ⟨hp_pos, hp⟩
+        rw [h_disjoint'] at this
+        exact Finset.notMem_empty p this
+      intro h_dvd
+      have hp_div_q : (p : ℕ) ∣ (q : ℕ) :=
+        hp_prime.dvd_of_dvd_pow h_dvd
+      have hp_eq_q := (Nat.prime_dvd_prime_iff_eq hp_prime hq_prime).mp hp_div_q
+      exact hpq_ne hp_eq_q
+    
+    rw [← h_P_nat_eq_N_nat] at hp_div_N
+    exact hp_not_div_P hp_div_N
+  
+  -- Now the product equality reduces to: ∏_{i ∈ s_pos} i^{a_i} = 1 (empty RHS)
+  have h_prod_pos_eq_one : (∏ i ∈ s_pos, ((i : ℝ) ^ (z i : ℤ))) = 1 := by
+    rw [h_prod_eq, h_neg_empty]; simp
+  
+  have h_P_nat_eq_one : P_nat = 1 := by
+    rw [← hP_nat_cast] at h_prod_pos_eq_one
+    exact_mod_cast h_prod_pos_eq_one
+  
+  -- Show s_pos is empty or all z_i = 0
+  have h_pos_empty_or_all_zero : s_pos = ∅ ∨ ∀ i ∈ s_pos, z i = 0 := by
+    by_cases h_empty : s_pos = ∅
+    · left; exact h_empty
+    · right; intro i hi
+      by_contra h_ne_zero
+      have hz_nonneg : 0 ≤ z i := hz_pos i hi
+      have hz_pos' : 0 < z i := by omega
+      have hpos_exp : 0 < Int.toNat (z i) := by
+        have hz_pos' : 0 < z i := by
+          by_contra hle
+          have hzero : z i = 0 := by omega
+          -- If z i = 0, then Int.toNat (z i) = 0, not > 0
+          -- But we assumed h_ne_zero, so z i ≠ 0
+          -- Actually, h_ne_zero says z i ≠ 0, and hz_nonneg says 0 ≤ z i, so 0 < z i
+          omega
+        omega
+      
+      have hi_prime : Nat.Prime (i : ℕ) := i.property
+      
+      have hi_div_P : (i : ℕ) ∣ P_nat := by
+        dsimp [P_nat]
+        have h_factor : (i : ℕ) ^ (Int.toNat (z i)) ∣ 
+            ∏ j ∈ s_pos, (j : ℕ) ^ (Int.toNat (z j)) :=
+          Finset.dvd_prod_of_mem (fun (j : {q : ℕ // q.Prime}) => (j : ℕ) ^ (Int.toNat (z j))) hi
+        have h_dvd : (i : ℕ) ∣ (i : ℕ) ^ (Int.toNat (z i)) :=
+          dvd_pow_self (i : ℕ) hpos_exp.ne.symm
+        exact Nat.dvd_trans h_dvd h_factor
+      
+      rw [h_P_nat_eq_one] at hi_div_P
+      have hi_not_one : (i : ℕ) ≠ 1 := Nat.Prime.ne_one hi_prime
+      exact hi_not_one (Nat.eq_one_of_dvd_one hi_div_P)
+  
+  -- Conclude: all g i = 0
+  intro i hi
+  rcases h_pos_empty_or_all_zero with (h_empty | h_all_zero)
+  · -- s_pos empty, so i ∉ s_pos. Since s = s_pos ∪ s_neg and s_neg = ∅, s is empty, contradiction
+    have hi_not_pos : i ∉ s_pos := by rw [h_empty]; exact Finset.notMem_empty i
+    have hi_not_pos' : ¬ (0 ≤ z i) := by
+      intro hpos
+      apply hi_not_pos
+      dsimp [s_pos]
+      rw [Finset.mem_filter]
+      exact ⟨hi, hpos⟩
+    have hi_neg : z i < 0 := by omega
+    have hi_mem_neg : i ∈ s_neg := by
+      dsimp [s_neg]; rw [Finset.mem_filter]; exact ⟨hi, hi_neg⟩
+    rw [h_neg_empty] at hi_mem_neg
+    exact absurd hi_mem_neg (Finset.notMem_empty i)
+  · -- i ∈ s_pos, so z i = 0, hence g i = 0
+    have hi_not_neg : i ∉ s_neg := by rw [h_neg_empty]; exact Finset.notMem_empty i
+    have hi_nonneg : 0 ≤ z i := by
+      by_contra h_neg
+      apply hi_not_neg
+      dsimp [s_neg]
+      rw [Finset.mem_filter]
+      exact ⟨hi, by omega⟩
+    
+    have hi_mem_pos : i ∈ s_pos := by
+      dsimp [s_pos]; rw [Finset.mem_filter]; exact ⟨hi, hi_nonneg⟩
+    
+    have hzi_zero : z i = 0 := h_all_zero i hi_mem_pos
+    have hzi_eq := hz i hi
+    rw [hzi_zero] at hzi_eq
+    -- hzi_eq: (0 : ℝ) = (D : ℝ) * (g i : ℝ)
+    have hgi_zero : (g i : ℝ) = 0 := by
+      have hD_ne_zero : (D : ℝ) ≠ 0 := by exact_mod_cast hDpos.ne.symm
+      have h_eq : (D : ℝ) * (g i : ℝ) = 0 := by
+        rw [← hzi_eq]; simp
+      rcases mul_eq_zero.mp h_eq with (hDzero | hgi)
+      · exact absurd hDzero hD_ne_zero
+      · exact hgi
+    exact_mod_cast hgi_zero

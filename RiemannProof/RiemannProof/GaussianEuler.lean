@@ -50,13 +50,14 @@ The genuinely deep inputs are kept honest and clearly marked:
   no critical-strip content) but requires Euler-product uniform-convergence
   infrastructure not present in Mathlib, so it is left as the only `sorry` of S3.
 * `exists_gaussian_corrector_uniform` (S4, the left/top/bottom edges) is the
-  genuinely research-level input. Its plan-suggested `ω = 0` reduction needs
-  `etaEulerApprox P → η` *uniformly on the part of the boundary inside the strip*
-  `1/2 < Re < 1`; that is **false** for the bare Euler product, since the
-  prime-zeta tail `∑_{p>P} p^{-s}` diverges for `Re ≤ 1`. The underlying
-  `RectangleStrategy` lemmas it would invoke (`eulerProd_zeta_exp_connection`,
-  `primeZetaTail_uniform_small`) are correspondingly `sorry` and not true as
-  stated on `Re > 1/2`. So S4 — and S5, S6 which depend on it — are left `sorry`.
+  single deep input of the Gaussian route. It requires:
+  1. The infinite-product Gaussian measure on `Ω` (not yet constructed).
+  2. Bagchi/Voronin universality: the support of the Gaussian Dirichlet field
+     includes `η(s)` on the three left edges (not yet formalized).
+  3. The three PNT tail bounds from `RectangleStrategy.lean`.
+  The `ω = 0` reduction proposed in N-B is mathematically invalid (the
+  deterministic skeleton does not converge on the left edge). S5 and S6,
+  which depend on S4, are also left `sorry`.
 * S8 (`exists_straddling_isolating_rect`) is left `sorry`; note it is in fact
   **false in the edge case** `Im s₀ = -2π k / log 2` (then the eta-factor zero at
   `(1, Im s₀)` is forced into the rectangle interior), as flagged in note N-A.
@@ -90,21 +91,15 @@ right part of any rectangle that straddles `Re = 1`. Consequences:
     `R.closure` avoids eta-factor zeros, i.e. `etaEulerApprox P · ≠ 0` on
     `R.closure` (true once S8 holds, since `zetaEulerProd ≠ 0` for `Re > 0`).
 
-### N-B. With `ω = 0` the "Gaussian corrector" collapses to the PNT skeleton —
-S4 is **not** separately research-level *as stated*. `exists_gaussian_corrector_uniform`
-asks only for *some* `v > 0` and *some* `ω`; take **`ω = 0`** (any `v`): then
-`Xg v p 0 = 0`, `gaussSum = 0`, and `eulerG P v z 0 = etaEulerApprox P z` wherever
-`etaEulerApprox ≠ 0` (`eulerG_eq_mul` + `exp_zero`). So S4 reduces to
-*`etaEulerApprox P → η` uniformly on `R.closure`*, which is exactly
-`eulerProd_zeta_exp_connection` + the two PNT tail bounds
-(`primeZetaTail_uniform_small`, `higherPrimeSum_uniform_small`,
-RectangleStrategy:548/563/587) — and those are stated for **`Re > 1/2` with no
-upper bound**, so they cover the whole straddling closure (including `Re ≥ 1`),
-provided the eta-factor zeros are avoided (N-A). The genuine
-Voronin/Bagchi universality (random `v > 0`, density) is only needed if one
-*insists* on `v > 0` with generic `ω`; the statement does not, because we
-approximate the *specific* target `η`. So the real remaining analytic debt of the
-whole route is the **three PNT sorries**, not a new universality theorem.
+### N-B (RETRACTED — ω=0 cheat is mathematically invalid).
+`exists_gaussian_corrector_uniform` asks for *some* `v > 0` and *some* `ω`.
+Taking `ω = 0` gives `gaussSum = 0` and `eulerG = etaEulerApprox` wherever
+`etaEulerApprox ≠ 0`. But `etaEulerApprox P → η` uniformly only on compact
+subsets of `{Re > 1}` (absolute convergence), NOT on the left edge
+`Re ∈ (1/2, 1)` where the prime-zeta tail `∑_{p>P} p^{-s}` diverges.
+Hence the deterministic skeleton does not approximate η on the three left edges.
+Genuine Bagchi/Voronin universality is required. See `exists_gaussian_corrector_uniform`
+for the corrected dependency statement.
 
 ### N-C. Two statements need restating for the straddling regime (`Re > 1` allowed).
 `recipEulerG_boundaryIntegral_eq_zero` (S2) and `eulerG_differentiableOn` (S1) and
@@ -128,6 +123,11 @@ namespace GaussianEuler
 /-- The probability sample space: for each prime index a pair of reals, the
     independent real and imaginary parts of the Gaussian coefficient. -/
 abbrev Ω : Type := ℕ → ℝ × ℝ
+
+-- The infinite-product Gaussian measure on Ω is not yet constructed.
+-- It requires Mathlib's probability library (product measures, Gaussian distributions).
+-- Placeholder for the construction:
+--   noncomputable instance : MeasureSpace Ω := ...
 
 /-- Complex Gaussian coefficient of variance `v` at prime index `p`:
     `X_p(ω) = √v · (g_p^{re} + i · g_p^{im})`. -/
@@ -333,40 +333,38 @@ field onto its mean `exp (cCorr P)`. -/
 
 /-- **S4.** For a rectangle straddling the strip with left edge strictly right of
     `1/2`, there is a small variance `v` and a realization `ω` making `eulerG`
-    uniformly `ε`-close to `η` on the boundary. Research-level; left open. -/
+    uniformly `ε`-close to `η` on the boundary.
+
+    This is the genuine universality input: Voronin/Bagchi universality in its
+    Gaussian incarnation. The proof is blocked by the three PNT sorries in
+    `RectangleStrategy.lean` (`primeZetaTail_uniform_small`,
+    `higherPrimeSum_uniform_small`, `eulerProd_zeta_exp_connection`) and by the
+    need to construct the infinite-product Gaussian measure on `Ω`.
+
+    The determinstic skeleton (`v = 0`, `ω = 0`) collapses to `etaEulerApprox`,
+    but `etaEulerApprox P → η` uniformly only on compact subsets of `{Re > 1}`
+    (absolute convergence), not on the left edge `Re ∈ (1/2, 1)` where the
+    prime-zeta tail diverges. Hence the ω=0 "cheat" (N-B) is mathematically
+    invalid; genuine Bagchi universality is required. -/
 lemma exists_gaussian_corrector_uniform (P : ℕ) (R : Rect) (s₀ : ℂ)
     (hR_lo : ∀ z ∈ R.closure, z.re > 1 / 2)
     (hs₀ : s₀ ∈ R.openInt)
     (hη : ∀ z ∈ R.closure, z ≠ s₀ → etaRect z ≠ 0) :
     ∀ ε > 0, ∃ (v : ℝ) (ω : Ω), 0 < v ∧
       ∀ z ∈ R.closure \ R.openInt, ‖eulerG P v z ω - etaRect z‖ < ε := by
-  -- SPECIALIST RECIPE (S4) — see N-B: this is NOT a separate universality theorem.
-  -- Take `v := 1`, `ω := 0`. Then `Xg 1 p 0 = 0`, `gaussSum P 1 z 0 = 0`, so
-  -- `eulerG P 1 z 0 = exp (cCorr P z) = etaEulerApprox P z` wherever
-  -- `etaEulerApprox P z ≠ 0` (`eulerG_eq_mul` + `Complex.exp_zero`). On `R.closure`,
-  -- `etaEulerApprox P ≠ 0` because S8 makes `R.closure` avoid eta-factor zeros and
-  -- `zetaEulerProd ≠ 0` (N-A). So the goal becomes
-  --   `∀ z ∈ ∂R, ‖etaEulerApprox P z - η z‖ < ε`.
-  -- NOTE the binder: this lemma fixes `P` then asks closeness; but uniform
-  -- convergence gives the bound only for LARGE `P`. So either (a) restate S4 to
-  -- existentially choose `P` too (`∃ P v ω, …`), or (b) feed S4 the already-large
-  -- `P` from the diagonal in S5. Recommended: change S4 to `∃ P v ω` and prove it
-  -- directly from the uniform convergence below.
-  -- The convergence `etaEulerApprox P → η` uniformly on `R.closure` (straddling,
-  -- `Re > 1/2`, eta-factor zeros avoided) is `eulerProd_zeta_exp_connection`
-  -- (RectangleStrategy:587, hypothesis `Re > 1/2`, NO upper bound) together with
-  -- the two PNT tail bounds `primeZetaTail_uniform_small` (548) and
-  -- `higherPrimeSum_uniform_small` (563). These three are the ONLY genuine analytic
-  -- debt (they are `sorry` in RectangleStrategy). `etaEulerApprox_tendstoUniformlyOn_rect`
-  -- (759) packages them for the strip; generalise its `Re < 1` hypothesis to
-  -- "`R.closure` avoids eta-factor zeros" to cover the straddling closure.
+  -- This lemma is a `sorry` — it is the single deep input of the Gaussian route.
+  -- Its proof requires:
+  -- 1. The infinite-product Gaussian measure on Ω (to be constructed).
+  -- 2. Bagchi/Voronin universality: the support of the Gaussian Dirichlet field
+  --    includes η(s) on the three left edges.
+  -- 3. The three PNT tail bounds from RectangleStrategy.lean.
   sorry
 
 /-! ## S5: reciprocal edge convergence -/
 
 /-- **S5.** There is a diagonal sequence `(P_k, v_k, ω_k)` along which the
     reciprocals `1/eulerG` converge uniformly to `1/η` on the rectangle boundary.
-    Depends on S3/S4; left open. -/
+    Depends on S3 + S4; left open as a `sorry`. -/
 lemma recipEulerG_tendsto_recipEta_onEdges (R : Rect) (s₀ : ℂ)
     (hR_lo : ∀ z ∈ R.closure, z.re > 1 / 2) (hx_hi : 1 < R.x_hi)
     (hs₀ : s₀ ∈ R.openInt)
@@ -374,42 +372,21 @@ lemma recipEulerG_tendsto_recipEta_onEdges (R : Rect) (s₀ : ℂ)
     ∃ (P : ℕ → ℕ) (v : ℕ → ℝ) (ω : ℕ → Ω),
       TendstoUniformlyOn (fun k s => 1 / eulerG (P k) (v k) s (ω k))
         (fun s => 1 / etaRect s) atTop (R.closure \ R.openInt) := by
-  -- SPECIALIST RECIPE (S5):
-  -- 1. From S4 (in its `∃ P v ω`-per-ε form, run at `ε = 1/(k+1)`) build sequences
-  --    `P k, v k, ω k` with `eulerG (P k) (v k) · (ω k) → η` uniformly on `∂R`
-  --    (`∂R := R.closure \ R.openInt`, compact). Concretely `v k = 1`, `ω k = 0`,
-  --    `P k` the cutoff S4 returns for tolerance `1/(k+1)`.
-  -- 2. `η = etaRect` is bounded away from 0 on `∂R`: `s₀ ∈ R.openInt` so `s₀ ∉ ∂R`;
-  --    by `hη` every `z ∈ ∂R` has `etaRect z ≠ 0`; `etaRect` is continuous on the
-  --    compact `∂R`, so `IsCompact.exists_forall_le` on `‖etaRect‖` gives a positive
-  --    lower bound.
-  -- 3. `eulerG (P k) (v k) · (ω k) ≠ 0` everywhere (`eulerG_ne_zero`) — the `exp`
-  --    form gives this for free, no zero-freeness side goal.
-  -- 4. Apply `reciprocal_tendstoUniformlyOn_of_nonvanishing`
-  --    (EtaConvergenceExtended:51) with f_k = eulerG…, f = η, on `∂R`, to conclude
-  --    `1/eulerG → 1/η` uniformly. Return `⟨P, v, ω, this⟩`.
+  -- This lemma is a `sorry` — it depends on S4 (`exists_gaussian_corrector_uniform`)
+  -- which is itself a `sorry` (the deep universality input).
   sorry
 
 /-! ## S6: the reciprocal contour integral of `η` vanishes -/
 
 /-- **S6.** `∮_{∂R} 1/η = 0` for a rectangle isolating a single interior zero
-    `s₀`. Depends on S2 + S5; left open. -/
+    `s₀`. Depends on S2 + S5; left open as a `sorry`. -/
 lemma recipEta_rect_contour_integral_eq_zero' (R : Rect) (s₀ : ℂ)
     (hR_lo : ∀ z ∈ R.closure, z.re > 1 / 2) (hx_hi : 1 < R.x_hi)
     (hs₀ : s₀ ∈ R.openInt)
     (hη : ∀ z ∈ R.closure, z ≠ s₀ → etaRect z ≠ 0) :
     R.boundaryIntegral (fun s => 1 / etaRect s) = 0 := by
-  -- SPECIALIST RECIPE (S6):
-  -- 1. `obtain ⟨P, v, ω, hconv⟩ := recipEulerG_tendsto_recipEta_onEdges R s₀ hR_lo
-  --    hx_hi hs₀ hη` (S5): `1/eulerG (P k) (v k) · (ω k) → 1/η` uniformly on `∂R`.
-  -- 2. For each `k`, `R.boundaryIntegral (1/eulerG (P k) (v k) · (ω k)) = 0` by S2
-  --    `recipEulerG_boundaryIntegral_eq_zero` — BUT S2 currently needs `hR_hi : Re < 1`,
-  --    false on the straddling `R`. Use the N-C restatement of S2 with hypothesis
-  --    `etaEulerApprox (P k) z ≠ 0 on R.closure` (true via S8's no-eta-zero closure),
-  --    so `eulerG` is analytic and never zero on `R.closure` and `rect_cauchy` applies.
-  -- 3. Pass to the limit: `boundary_integral_limit_eq_zero` (RectangleStrategy:813)
-  --    from (uniform convergence on the four edges, step 1) + (each integral is 0,
-  --    step 2) gives `R.boundaryIntegral (1/η) = 0`.
+  -- This lemma is a `sorry` — it depends on S5 (`recipEulerG_tendsto_recipEta_onEdges`)
+  -- which is itself a `sorry`, and on the N-C restatement of S2 for straddling rectangles.
   sorry
 
 /-! ## S7: a zero forces a contradiction (residue argument) -/
