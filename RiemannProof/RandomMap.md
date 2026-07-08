@@ -28,21 +28,14 @@ Phase 3 stub). Status per phase:
 | 7.2 (`conditional_convergence_is_null`) | ✅ stated with the honest `hμ_exch` hypothesis and **closed by delegation** (`:727`) to the single named external input `random_rearrangement_divergence` (`:703`, sorry-bodied citation folding Hewitt–Savage + Kakutani per item 9's fallback); `measurable_set_ConvergentMaps` ✅ (`:673`, via the discrete placeholder); `NatAdd.ofNat`/`toNat_ofNat` ✅ (`:633`) |
 | 8 (Strategy B — sampled scalars) | NEW spec (added 2026-07-08), nothing on disk yet |
 
-The open work, in order:
-
-1. **Polish topology** (Action Plan item 2): install the pointwise-convergence topology in place
-   of the discrete placeholders, then re-prove `measurable_set_propHolds` and
-   `measurable_set_ConvergentMaps` non-trivially against it (closedness of
-   `{ψ_truth = ψ_true}`; countable cylinder conditions for the sorted Cauchy criterion).
-2. **The prior** (item 3): build `mehlerPrior` as uniform laws on finite partial bijections →
-   projective limit → restriction to full bijections, replacing the Dirac-sum stub (its three
-   `admit`s disappear with it), and prove its exchangeability — which discharges `hμ_exch` in
-   Step 7.2.
-3. **Narrow the 7.2 citation**: today the named external input's statement coincides with the
-   full theorem. Prove layer 1 (invariance of `ConvergentMaps` under finitely-supported clock
-   permutations) and the layer-2 reduction formally, shrinking `random_rearrangement_divergence`
-   to the bare ℕ-indexed Kakutani statement.
-4. **Toy model** (item 5) and the **Strategy B deliverables** (Phase 8, items 10–12).
+The open work is organized as the numbered deliverable packages **RM1–RM14** in the
+**★ WORK QUEUE** section immediately below; every implementation pass picks the lowest-numbered
+package not yet ✅ (or any package the closing order marks as anytime-filler) and lands it.
+Headline items: RM4 is a **design-critical no-go theorem** (fully exchangeable priors on
+bijections cannot exist — it reshapes Phase 3 and Step 7.2 and is provable in a single pass);
+RM9 builds the **block-shuffle prior**, a genuine diffuse probability measure that replaces the
+Dirac-sum stub and yields a Kolmogorov zero–one dichotomy with **zero external input**; RM6
+installs the Polish topology; RM10 is the Strategy-B almost-sure-independence theorem.
 
 ## Phase 1: Separating the Additive and Multiplicative Naturals
 We must enforce the logical separation of the "clock" (addition only) and the "data" (multiplication only) at the type level.
