@@ -7,6 +7,1342 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Wave 112 (2026-07-10) — **Book "Free field parametrization in Classical Statistical Field Theory and Navier-Stokes equations", §"Mass gap"** (`ChapterMassGap`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained mathematical backbone of the
+§*"Mass gap"* section (`book.tex` line ~4061): *"the number operator commutes
+with the algebra of observables which implies that the number operator can be
+added to the Hamiltonian, modifying the mass gap without observable
+consequences"* — so a bounded-from-below Hamiltonian with a null mass gap (the
+free electromagnetic field) can be turned into one with an arbitrary mass gap
+without any observable consequence. One new file, `sorry`-free / `axiom`-free
+(only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterMassGap.lean` — **observable invariance** in an arbitrary complex Banach
+  algebra `𝔸` of operators: `exp_conj_eq_self` (conjugation by `exp Y` is trivial
+  when the observable commutes with `Y`), and the headline
+  `heisenberg_number_shift_invariant` — if `H` and every observable `Obs` commute
+  with the number operator `N`, then Heisenberg evolution of `Obs` under the
+  shifted Hamiltonian `H + λN` equals its evolution under `H`
+  (`exp(t(H+λN))·Obs·exp(-t(H+λN)) = exp(tH)·Obs·exp(-tH)`), for every scalar `t`
+  and shift `λ` (the number-operator shift is invisible to all observables). Plus
+  the diagonal **spectral shift** model (`numberOp`, `shiftedSpectrum`, `excited`,
+  `massGap`): `shiftedSpectrum_vacuum` (vacuum energy unchanged),
+  `shiftedSpectrum_excited` (every excited energy shifted by exactly `λ`), and the
+  headline `massGap_shifted_gapless` — for the gapless free field (`E ≡ 0`) the
+  shifted mass gap equals `λ`, i.e. it can be set to any value. Registered in
+  `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 111 (2026-07-10) — **Book "Reconstructing the classical trajectory of any isolated quantum system", §"Any deterministic theory compatible with relativistic Quantum Mechanics necessarily respects relativistic causality"** (`ChapterCausality`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the mathematical backbone of the subsection *"Any
+deterministic theory compatible with relativistic Quantum Mechanics necessarily
+respects relativistic causality"* (`book.tex` line ~2915): *"Since in relativistic
+Quantum Mechanics the probability that the system moves faster than light is null,
+then no system (described by the deterministic theory) in the ensemble moves
+faster than light."* Built directly on the explicit deterministic decoder of
+`ChapterInverseTransform` (uniform seed `u ∈ [0,1)`, member with seed `u` yields
+outcome `k` when `u ∈ seedSet p k`). One new file, `sorry`-free / `axiom`-free
+(only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterCausality.lean` — the faster-than-light outcomes are a finite set
+  `S ⊆ {0,…,n-1}`; the members whose outcome is in `S` are exactly
+  `⋃_{k∈S} seedSet p k`. `seedSet_biUnion_measure` — the measure of that set is
+  `∑_{k∈S} p k` (the deterministic ensemble reproduces the quantum probability of
+  *any* set of outcomes, via `measure_biUnion_finset` and the pairwise
+  disjointness of the seed intervals). Headlines: `causality` — if Quantum
+  Mechanics predicts a **null** faster-than-light probability (`∑_{k∈S} p k = 0`),
+  the set of ensemble members moving faster than light is a **null set**; and
+  `causality_ae` — the a.e. reformulation, for **almost every** seed `u` the
+  member does not land in `S` (the precise sense of *"no system in the ensemble
+  moves faster than light"*). This completes the last formalizable subsection of
+  the "Reconstructing the classical trajectory" chapter that is off the Bell/EPR
+  comparison thread (the remaining *"Quantum Mechanics is EPR-complete"* and
+  *"Do the Bell inequalities hold"* subsections are prose / Bell-comparison and
+  out of scope per the author's instruction). Registered in `BookProof.lean`;
+  `lake build BookProof` green (8167 jobs).
+
+## Wave 110 (2026-07-10) — **Book "Wave-function parametrization of a probability measure", §9 "Deterministic transformations": commutation criterion for determinism** (`ChapterDeterministic`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the headline result of §9 *"Deterministic
+transformations"* (`book.tex` line ~1958): *"an automorphism `U` is deterministic
+if and only if `P_A` and `U P_B U†` commute for all events `A, B`."* This is the
+commutation form of the same determinism criterion whose off-diagonal-Born core
+lives in `ChapterReconstruct` and whose density-matrix/trace form lives in
+`ChapterTimeTranslation`. One new file, `sorry`-free / `axiom`-free (only
+`propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterDeterministic.lean` — building on `ChapterTimeTranslation`'s rank-one
+  projection `proj a = |e_a⟩⟨e_a|` and transformed measurement operator
+  `measOp U b = U P_b U†`, and `ChapterReconstruct`'s `IsDeterministic` (each
+  column has ≤ 1 nonzero entry). Entry lemmas `proj_mul_measOp_apply`
+  (`(P_a·U P_b U†) i j = if i=a then U a b·conj(U j b) else 0`) and
+  `measOp_mul_proj_apply`. Per-column criterion
+  `commute_proj_measOp_iff_isDeterministicCol` (for fixed `b`, `P_a` commutes with
+  `U P_b U†` for all `a` iff column `b` of `U` is deterministic). Headlines:
+  `commute_proj_measOp_iff_isDeterministic` (single-outcome form — `P_a` and
+  `U P_b U†` commute for all `a, b` iff `U` is deterministic); and, with event
+  projections `projSet A = ∑_{a∈A} P_a`, transformed event operator
+  `measOpSet U B = U P_B U†` and `measOpSet_eq_sum` (`= ∑_{b∈B} U P_b U†`),
+  the literal book statement `commute_projSet_measOpSet_iff_isDeterministic`
+  (`P_A` and `U P_B U†` commute for **all events** `A, B` iff `U` is
+  deterministic). Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 109 (2026-07-10) — **Book "Reconstructing the classical trajectory of any isolated quantum system", §"Reconstruction of the trajectory": post-selection / ABL conditional probability** (`ChapterTrajectory`)
+
+Stayed on the book's main-conclusion thread (author instruction: off Bell/CHSH,
+off Gravity, no Hankel; Majorana fine). The subsection *"Reconstruction of the
+trajectory"* (`book.tex` line ~3044) argues that although only the *final* time of
+a quantum trajectory is directly measurable, *post-selection* — "using
+probabilities conditional on the final state and the same quantum time-evolution"
+— lets one "predict the results of a measurement at another time between the
+initial and final times", reconstructing the trajectory. One new file,
+`sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterTrajectory.lean` — the three-instant (initial → intermediate → final)
+  *collapsed* Born process on `Fin n`: `midProb U Ψ a = ‖(U Ψ)_a‖²` (intermediate
+  Born law), `transProb V f a = ‖V_{f a}‖²` (post-collapse transition law),
+  `jointProb = midProb · transProb`, `finalProb = ∑ₐ jointProb`,
+  `condProb = jointProb / finalProb` (the Aharonov–Bergmann–Lebowitz / two-state
+  post-selected law), and `coherentFinal V U Ψ f = ‖(V U Ψ)_f‖²` (coherent final
+  law with no intermediate measurement). Nonnegativity lemmas; `transProb_sum`
+  and `midProb_sum` (unitary columns / vectors have unit ℓ² mass). Headlines:
+  `finalProb_total` (the collapsed process is a genuine probability law,
+  `∑_f finalProb = 1`), `jointProb_sum_final_eq_midProb` (**reconstruction
+  consistency** — summing the post-selected joint law over final outcomes
+  recovers the intermediate Born law), `condProb_sum` (the post-selected law is a
+  probability distribution). Double-slit capstone (reusing `ChapterDoubleSlit`'s
+  Hadamard `H`): `dslit_finalProb`/`dslit_condProb` (collapsed & post-selected
+  laws are uniform `1/2`), `dslit_coherentFinal` (coherent law is certain `(1,0)`),
+  and `dslit_interference` (`finalProb = 1/2 ≠ 1 = coherentFinal`, the
+  self-interference "mystery"). Registered in `BookProof.lean`; `lake build
+  BookProof` green (8165 jobs).
+
+## Wave 108 (2026-07-10) — **Book "Reconstructing the classical trajectory of any isolated quantum system", §"Symmetries as irreversible processes": entropy form** (`ChapterIrreversible`)
+
+Stayed on the book's main-conclusion thread (author instruction: off Bell/CHSH,
+off Gravity, no Hankel; Majorana fine). The subsection *"Symmetries as
+irreversible processes"* (`book.tex` line ~2679) states: *"A non-deterministic
+symmetry transformation, when acting on a deterministic ensemble increases the
+entropy of the ensemble after the wave-function collapse and therefore must be an
+irreversible transformation"*, whereas a deterministic symmetry preserves the
+entropy (reversible). This is the Shannon-entropy counterpart of the chapter's
+main result (*time translation is a stochastic process iff deterministic*). One
+new file, `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`):
+
+* `ChapterIrreversible.lean` — `entropy p = ∑ a, Real.negMulLog (p a)` (Shannon
+  entropy of a finite probability vector); `IsPointMass` (deterministic
+  ensemble); `bornDist v a = ‖v a‖²` (Born distribution after wave-function
+  collapse of the column `v = U e_k`); `IsDeterministicColumn` (the symmetry
+  sends a basis state to a basis state up to phase). Lemmas: `entropy_nonneg`,
+  `entropy_pointMass_zero` (deterministic ensemble ⇒ entropy 0),
+  `entropy_pos_of_not_pointMass` (non-deterministic ensemble ⇒ entropy > 0),
+  `entropy_eq_zero_iff_pointMass`, `isPointMass_bornDist_iff`. Headlines:
+  `entropy_bornDist_eq_zero_iff` (**reversible** case — for a unit column, the
+  collapsed ensemble has entropy 0 iff the column is deterministic) and
+  `entropy_bornDist_pos_iff` (**irreversible** case — the collapsed ensemble has
+  strictly positive entropy iff the column is non-deterministic: the symmetry
+  strictly increases the entropy).
+
+## Wave 107 (2026-07-10) — **Book "Reconstructing the classical trajectory of any isolated quantum system", §"Time translation is a stochastic process if and only if it is deterministic": density-matrix / trace form** (`ChapterTimeTranslation`)
+
+Stayed on the book's main-conclusion thread (author instruction: off Bell/CHSH,
+off Gravity, no Hankel). The section *"Time translation is a stochastic process if
+and only if it is deterministic"* (`book.tex` line ~2613) is called by the book
+*"one of the main results of this paper"*. Its linear-algebra core — the
+off-diagonal Born sum `↔` determinism — was already in `ChapterReconstruct`
+(`offDiag_eq_zero_iff_isDeterministic`, `offDiag_unit_iff`). This wave adds the
+missing **density-matrix layer**: the book's literal statement that the two Born
+probabilities `tr(diag(ρ)·U P_a U†)` (collapse first) and `tr(ρ·U P_a U†)` (act on
+the full quantum state) coincide iff the symmetry is deterministic. One new file,
+`sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterTimeTranslation.lean` — pure-state density matrix `rho Ψ = |Ψ⟩⟨Ψ|`,
+  wave-function collapse `diagPart` (keep the diagonal), rank-one outcome
+  projection `proj a = |e_a⟩⟨e_a|`, and measurement operator `measOp U a = U P_a U†`.
+  `measOp_apply` computes `measOp U a k l = U k a · conj(U l a)`; `trace_rho_measOp`
+  and `trace_diagPart_measOp` identify the full and collapsed Born probabilities
+  with the full and diagonal Born sums; `trace_diff` shows their difference is
+  exactly `ChapterReconstruct.offDiag`. Headlines: `trace_eq_iff_isDeterministic`
+  (the two traces agree for all outcomes/states ↔ `IsDeterministic U`) and
+  `trace_eq_iff_isDeterministic_pure` (same, restricted to pure states
+  `∑ ‖Ψ k‖² = 1`, matching the book's "for any pure density matrix"). Builds on
+  `ChapterReconstruct`; registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 106 (2026-07-10) — **Book "Reconstructing the classical trajectory of any isolated quantum system", §"A deterministic theory compatible with relativistic Quantum Mechanics": discrete inverse-transform sampling** (`ChapterInverseTransform`)
+
+Moved off the Bell/CHSH thread (author instruction: the Bell/CHSH results are a
+*comparison* only and the main conclusions do not depend on them) to the
+main-conclusion subsection *"A deterministic theory compatible with relativistic
+Quantum Mechanics"* (`book.tex` line ~2952). The book answers *"Does a
+deterministic theory — consistent with the non-deterministic time evolution of
+Quantum Mechanics — exist?"* constructively with **yes**, exhibiting one built on
+**inverse-transform sampling**: since an experimental setting has discretely many
+outcomes, QM predicts a CDF, and a uniform pseudo-random seed decoded through that
+CDF reproduces the QM distribution. One new file, `sorry`-free / `axiom`-free
+(only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterInverseTransform.lean` — for a discrete distribution `p : ℕ → ℝ` on
+  outcomes `0,…,n-1` (`p i ≥ 0`, `∑_{i<n} p i = 1`), the CDF `cdf p k = ∑_{i<k} p i`
+  and the per-outcome **seed intervals** `seedSet k = [cdf p k, cdf p (k+1))`.
+  Results: `seedSet_measure` — `volume (seedSet k) = ENNReal.ofReal (p k)` (a
+  uniformly drawn seed lands in `seedSet k` with probability exactly `p k`, so the
+  deterministic decoder reproduces the quantum distribution; holds for any real
+  `p k` since `Ico` is empty when `p k ≤ 0`); `seedSet_disjoint` — the seed
+  intervals are pairwise disjoint (each seed yields at most one outcome, via
+  `Monotone.pairwise_disjoint_on_Ico_succ`); `seedSet_cover` — the `n` seed
+  intervals tile `[0,1)` exactly (each seed yields at least one outcome), using
+  `cdf p 0 = 0` and `cdf p n = 1`; `seedSet_total_measure` — the seed intervals
+  carry total measure `1`. Together: `seed ↦ (unique k<n with seed ∈ seedSet k)`
+  is a well-defined *deterministic* map `[0,1) → {0,…,n-1}` pushing the uniform
+  seed distribution forward to `p` — a deterministic theory experimentally
+  indistinguishable from QM, the book's claim. The surrounding
+  physical/metaphysical discussion stays prose. Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 105 (2026-07-10) — **Book "Reconstructing the classical trajectory of any isolated quantum system", §"Do the Bell inequalities hold?": Tsirelson's bound is tight** (`ChapterTsirelson`)
+
+Continued the Bell chapter of Wave 104 (author instruction: do the next steps, prioritize
+chapters other than Gravity, no Hankel). Mathlib already contains the abstract **Tsirelson
+inequality** `tsirelson_inequality` (for any CHSH tuple in an ordered `*`-algebra over `ℝ`,
+`A₀B₀ + A₀B₁ + A₁B₀ − A₁B₁ ≤ √2^3 • 1`), and its docstring flags as *future work* that the
+bound is tight: there is a CHSH tuple of `4×4` complex matrices whose CHSH operator has
+`2√2` as an eigenvalue. This wave supplies that witness, tied to the concrete `ChapterBell`
+two-qubit model. One new file, `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`):
+
+* `ChapterTsirelson.lean` — the two-qubit CHSH tuple written as genuine elements of the
+  *one* `*`-ring `Matrix (Fin 2 × Fin 2) (Fin 2 × Fin 2) ℂ`: Alice's `alA0 = σ_z ⊗ 1`,
+  `alA1 = σ_x ⊗ 1`, Bob's `boB0 = 1 ⊗ (σ_z+σ_x)/√2`, `boB1 = 1 ⊗ (σ_z−σ_x)/√2`.
+  `chshTuple_isCHSHTuple` proves this quadruple is a Mathlib `IsCHSHTuple` (each observable
+  a self-adjoint involution; Alice's commute with Bob's), i.e. it satisfies exactly the
+  hypotheses of `tsirelson_inequality`. `chshOp_eq_tuple` shows `ChapterBell.chshOp` equals
+  the tuple's CHSH combination `alA0*boB0 + alA0*boB1 + alA1*boB0 − alA1*boB1` (via the mixed
+  Kronecker product `(A⊗1)(1⊗B)=A⊗B`). `tsirelson_value_eq` records `2√2 = √2^3` (the
+  Tsirelson value equals the abstract bound constant). `chshOp_eigenvector` is the tightness
+  witness: `chshOp *ᵥ |Φ⁺⟩ = 2√2 • |Φ⁺⟩` — the Bell state is an eigenvector with eigenvalue
+  `2√2` (refining `ChapterBell.chsh_quantum_value`, which only gave the expectation value).
+  Headline `tsirelson_bound_tight` bundles: the concrete tuple is a CHSH tuple whose
+  operator has the abstract bound `√2^3 = 2√2` as an eigenvalue, so `tsirelson_inequality`
+  cannot be improved. Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 104 (2026-07-10) — **Book "Reconstructing the classical trajectory of any isolated quantum system", §"Do the Bell inequalities hold?": the Bell/CHSH inequality and its quantum (Tsirelson) violation** (`ChapterBell`)
+
+Moved off the parity thread to a fresh, unmined chapter (author instruction: do the next
+steps, prioritize chapters other than Gravity, no Hankel). The `book.tex` section *"Do the
+Bell inequalities hold?"* (line ~3175) concedes the Bell inequalities are *"mathematically
+valid inequalities [that] involve unrealistic assumptions"*; the two formalizable facts are
+the inequality itself and its quantum violation. One new file, `sorry`-free / `axiom`-free
+(only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterBell.lean` — Part A (classical / local hidden variables): `chsh_pointwise`, the
+  elementary pointwise bound `|a₀b₀ + a₀b₁ + a₁b₀ − a₁b₁| ≤ 2` for `a₀,a₁,b₀,b₁ ∈ [-1,1]`;
+  and `chsh_local`, the measure-theoretic Bell/CHSH inequality — for any probability
+  measure `μ` and `[-1,1]`-valued random variables `A₀,A₁,B₀,B₁`, the CHSH correlator
+  `|∫ (A₀B₀ + A₀B₁ + A₁B₀ − A₁B₁) dμ| ≤ 2`. Part B (quantum violation, Tsirelson value):
+  the concrete two-qubit model with Alice's `A₀ = σ_z`, `A₁ = σ_x`, Bob's
+  `B₀ = (σ_z+σ_x)/√2`, `B₁ = (σ_z−σ_x)/√2`, the CHSH operator `chshOp` on `ℂ²⊗ℂ²`
+  (Kronecker products), and the Bell state `|Φ⁺⟩ = (|00⟩+|11⟩)/√2`; `chsh_quantum_value`
+  computes the expectation `⟨Φ⁺|S|Φ⁺⟩ = 2√2`, and `chsh_quantum_violates_local_bound`
+  records `2 < 2√2` — quantum mechanics exceeds the classical Bell bound. Registered in
+  `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 103 (2026-07-10) — **Book "On the physical parity transformation and antiparticles", §"Majorana spinors in the Standard Model": the combined `Z_4` background-symmetry generator** (`ChapterParityZ4`)
+
+Continued the parity chapter (off the gravity line, off the Hankel line; Majorana in
+scope). The book states that, promoting the CKM matrix to a background field, the
+electroweak Lagrangian is invariant under `SU(2)_L × (SU(3)_C × U(1)_Y) ⋊ Z₄`, where the
+`Z₄` factor is generated by the *single* generalized parity-reversal transformation acting
+simultaneously on all fields. The preceding waves proved each per-field internal parity is
+order four; this wave assembles them into that one generator. One new file, `sorry`-free /
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterParityZ4.lean` — the combined operator `combinedParity = (higgsParity, QLParity,
+  mgamma 0, mgamma 0)` on the product monoid `FieldOps` of field-space endomorphisms
+  (Higgs doublet `iσ₂` on `ℂ²`, left-handed quark doublet `-(σ₂⊗iγ⁰)` on `ℂ²⊗ℂ⁴`, and the
+  right-handed quarks `iγ⁰` on `ℂ⁴` each). Results: `combinedParity_sq`
+  (`P² = (-1,-1,-1,-1)`, every field squaring to `-1`), `combinedParity_sq_ne_one`
+  (`P² ≠ 1`, not an involution), `combinedParity_pow_four` (`P⁴ = 1`),
+  `combinedParity_order_four` (the conjunction), and the headline `combinedParity_orderOf`
+  (`orderOf combinedParity = 4`) — the precise sense in which the one parity transformation
+  generates a cyclic group `ℤ₄ = ℤ/4ℤ`. The full background gauge group and its semidirect
+  structure remain prose. Reuses `ChapterParity.higgsParity_sq`/`mgamma0_sq` and
+  `ChapterParityQL.QLParity_sq`. Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 102 (2026-07-10) — **Book "On the physical parity transformation and antiparticles", §"Majorana spinors in canonical quantization and antiparticles": the complex structure `J` and the creation/annihilation split** (`ChapterParityMajoranaQuant`)
+
+Continued the parity chapter (off the gravity line, off the Hankel line; Majorana in
+scope), this time formalizing the *canonical-quantization* subsection (`book.tex` line
+~7680) rather than the Standard-Model subsection of the preceding waves. One new file,
+`sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterParityMajoranaQuant.lean` — the book quantizes a **real** Hilbert/symplectic space
+  by a *skew-symmetric* complex structure `J` (`J² = -1`) and splits the self-adjoint field
+  `a(v) = a(v+iJv) + a(v−iJv)` into annihilation (`v+iJv`) and creation (`v−iJv = (v+iJv)*`)
+  parts. On the finite model `V = ℂᵐ`, `J` is a matrix with `J·J = -1` and `Jᴴ = -J`. With
+  `iJ = i·J`, `annihProj = ½(1+iJ)`, `creatProj = ½(1−iJ)`: `iJ_herm` (`(iJ)ᴴ = iJ`) and
+  `iJ_sq` (`(iJ)² = 1`, a Hermitian involution with eigenvalues `±1`); `proj_add`
+  (`annihProj + creatProj = 1`, the field split); `annihProj_idem`/`creatProj_idem`
+  (idempotents); `annih_creat_zero`/`creat_annih_zero` (complementary, product `0`);
+  `annihProj_herm`/`creatProj_herm` (Hermitian, i.e. orthogonal projections); and the
+  eigen-relations `J_annih` (`J·annihProj = (−i)·annihProj`), `J_creat`
+  (`J·creatProj = i·creatProj`) exhibiting them as the `∓i`-eigenprojections of `J`. A
+  concrete non-vacuous witness `stdJ = !![0,1;−1,0]` (`stdJ_sq`, `stdJ_skew`) shows the
+  hypotheses are satisfiable. The abstract Clifford/CAR `C*`-algebra, the bosonic symplectic
+  CCR `[a(v),a(w)] = ⟨v,Jw⟩i`, and the vacuum functional remain prose.
+
+Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 101 (2026-07-09) — **Book "On the physical parity transformation and antiparticles", §"Majorana spinors in the Standard Model": the chirality projector in the left-handed quark doublet `Q_L`** (`ChapterParityChirality`)
+
+Continued the parity chapter (off the gravity line, off the Hankel line; Majorana in
+scope), extending `ChapterParity`/`ChapterParityQL`/`ChapterParitySU2`. One new file,
+`sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterParityChirality.lean` — the chapter's chirality/projection constraint on the
+  left-handed quark doublet, `iγ⁵ Q_L = iσ₃ Q_L`, and the footnote's *"projector in
+  `Q_L`"* used to halve the count of `SU(2)_L`-invariant Yukawa products (the `4`
+  custodial matrices `{1, iσⱼ}` of `ChapterParityCustodial` "divided by `2`", leaving
+  `2`). On `ℂ²⊗ℂ⁴ ≅ ℂ⁸`, with `isigma3 = (iσ₃)⊗1` and `igamma5 = 1⊗(iγ⁵ = mgamma5)`:
+  `isigma3_sq`/`igamma5_sq` (`(iσ₃)² = (iγ⁵)² = -1`), `isigma3_igamma5`/`igamma5_isigma3`
+  (they commute, both products equal the **chirality operator** `chi = (iσ₃)⊗(iγ⁵)`),
+  `chi_sq` (`χ² = 1`, an involution with eigenvalues `±1`) and `chi_trace` (`tr χ = 0`, so
+  the `±1` eigenspaces have equal dimension — the footnote's "divide by `2`"). The `Q_L`
+  chirality **projector** `QLProj = ½(1 - χ)` is idempotent (`QLProj_idem`) with
+  `tr = 4 = ½·dim` (`QLProj_trace`). Headline `chirality_iff`: the constraint
+  `iσ₃ Q_L = iγ⁵ Q_L` ⇔ `χ Q_L = -Q_L`; `chirality_iff_proj`: ⇔ `Q_L` lies in the range of
+  the projector, `QLProj Q_L = Q_L`. The full Standard-Model Yukawa Lagrangian and the
+  `SU(2)_L × (SU(3)_C × U(1)_Y) ⋊ ℤ₄` background symmetry remain prose.
+
+Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 100 (2026-07-09) — **Book "On the physical parity transformation and antiparticles", §"Majorana spinors in the Standard Model": the custodial commutant / Pauli basis, and the `U(1)_Y` phase group generated by `iγ⁵`** (`ChapterParityCustodial`, `ChapterParityHypercharge`)
+
+Continued the parity chapter (off the gravity line, off the Hankel line; Majorana in
+scope), extending `ChapterParity`/`ChapterParitySU2`. Two new files, `sorry`-free /
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterParityCustodial.lean` — the representation theory behind the chapter's footnote
+  *"the basis of matrices commuting with the generators of `SU(2)_L` is `{1, iσ_j}`, for a
+  total of 4 matrices."* `commutant_pauli_scalar`: the Pauli matrices `σ₁, σ₂, σ₃` act
+  irreducibly on `ℂ²`, so any matrix commuting with all three is a scalar `M = (M 0 0)•1`
+  (Schur's lemma for the doublet). `pauli_basis_indep`: `{1, σ₁, σ₂, σ₃}` are linearly
+  independent over `ℂ` (hence a basis of `Matrix (Fin 2) (Fin 2) ℂ`), so the custodial
+  generators `{1, iσ_j}` are four linearly independent matrices.
+* `ChapterParityHypercharge.lean` — the chapter's *"the generator of the gauge group
+  `U(1)_Y` is `iγ⁵`"* / *"the imaginary unit replaced by `iγ⁵`"*. In the concrete real
+  Majorana model, `mgamma5_real`: `iγ⁵ = mgamma5` is a genuine **real** matrix
+  (`conj(iγ⁵) = iγ⁵`) which, with `(iγ⁵)² = -1` (`ChapterA3.mgamma5_sq`), is a *real*
+  complex structure. The `U(1)_Y` phase `e^{ϑ iγ⁵}` has the closed form
+  `hyperPhase ϑ = cos ϑ·1 + sin ϑ·iγ⁵`; `hyperPhase_zero`, `hyperPhase_add`
+  (`hyperPhase ϑ · hyperPhase φ = hyperPhase (ϑ+φ)`, the abelian group law via the
+  cos/sin addition formulas and `(iγ⁵)² = -1`), `hyperPhase_neg_mul` (invertibility), and
+  `hyperPhase_comm` establish it as the one-parameter `U(1)_Y` group generated by `iγ⁵`.
+  The `SU(3)` outer-nontriviality and the full Standard-Model gauge structure remain prose.
+
+Both registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 99 (2026-07-09) — **Book "On the physical parity transformation and antiparticles", §"Majorana spinors in the Standard Model": the Higgs is a real representation, and `SU(2)_L` has trivial outer automorphism** (`ChapterParityHiggs`, `ChapterParitySU2`)
+
+Continued the parity chapter (off the gravity line, off the Hankel line; Majorana in
+scope), extending `ChapterParity`/`ChapterParityQL`. Two new files, `sorry`-free /
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterParityHiggs.lean` — the chapter's thesis that at the quantum level all fields are
+  **real representations**, for the electroweak Higgs doublet: the Majorana condition
+  `iσ₂ φ = iτ₂ φ*` is realized on the bidoublet `ℂ²⊗ℂ²` by the antilinear operator
+  `C(φ) = (τ₂⊗σ₂) φ*`. The antilinear reality operator `realityOp M v = M *ᵥ v*` has square
+  `realityOp_realityOp` : `C_M∘C_M = (M·M*) *ᵥ ·`, so it is a real structure iff `M·M* = 1`
+  and a quaternionic (pseudoreal) structure iff `M·M* = -1`. A single doublet is
+  **pseudoreal** (`pauli2_map_conj` `σ₂* = -σ₂`, `pauli2_pseudoreal` `σ₂·σ₂* = -1`,
+  `higgsDoublet_pseudoreal` `C₀² = -id`), but the general lemma
+  `pseudoreal_kron_pseudoreal_real` (`A·A*=-1`, `B·B*=-1` ⇒ `(A⊗B)·(A⊗B)*=1`) gives the
+  headline `higgs_real_structure` `C∘C = id` — **a tensor product of two quaternionic
+  structures is a real structure**, so the Higgs bidoublet carries a genuine real structure
+  even though neither `SU(2)` factor alone does.
+* `ChapterParitySU2.lean` — the chapter's remark *"the outer automorphism group of `SU(3)`
+  or `U(1)_Y` is `Z₂`, while the outer automorphism group of `SU(2)_L` is the trivial
+  group."* For `SU(2)` the relevant automorphism (complex conjugation `g ↦ g*`) is **inner**:
+  the pseudoreality intertwiner `pauliV_pseudoreal` `σ₂ σ_j σ₂ = -(σ_j)*` gives
+  `su2_conj_inner` `conj(iσ_j) = σ₂ (iσ_j) σ₂` (with `σ₂²=1`), so the complex-conjugate
+  representation is unitarily equivalent to the original — the outer automorphism group is
+  trivial, in contrast with `SU(3)` whose conjugation negates `λ²,λ⁵,λ⁷`
+  (`ChapterParity.gellMann_conj`, the nontrivial `Z₂`). The `SU(3)` outer-nontriviality and
+  the full Standard-Model gauge structure remain prose.
+
+Both registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 98 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Spinor frame and CPT theorem": the Dirac mass Hamiltonian is PT (CPT) invariant** (`ChapterCPTPT`)
+
+Picked up directly after Wave 96/97, closing the full PT statement that `ChapterCPTParity`
+explicitly left as prose (off the gravity line, off the Hankel line; Majorana in scope).
+One new file, `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterCPTPT.lean` — the book's remark that the most general Lorentz-covariant Dirac
+  mass Hamiltonian `iH = ∂⃗·γ⃗γ⁰ + iγ⁰m₁ + γ⁰γ⁵m₂` "is invariant under a parity–time
+  reversal transformation (PT) … this is essentially the CPT theorem." The PT map is the
+  antiunitary `ψ(t,x⃗) ↦ γ⁵ ψ*(-t,-x⃗)`, split into: **time reversal** = entrywise complex
+  conjugation, which (since the three building blocks `Kin j = γʲγ⁰`, `MassA = iγ⁰`,
+  `MassB = γ⁰γ⁵` are real matrices — `Kin_map_conj`, `MassA_map_conj`, `MassB_map_conj`)
+  only flips the explicit `i`, i.e. flips the momentum: `conj_diracHamOp`
+  `conj(D(k,m₁,m₂)) = D(-k,m₁,m₂)`; and the **γ⁵ dressing**, where `γ⁵ = dgamma5` commutes
+  with the kinetic blocks and anticommutes with both mass blocks (`Kin_dgamma5_comm`,
+  `MassA_dgamma5_anticomm`, `MassB_dgamma5_anticomm`, from integer-model `decide` relations
+  transported along the cast), giving `pt_diracHamOp` `D(k)·γ⁵ = -(γ⁵·D(-k))`. Headline
+  `cpt_diracHamOp`: `γ⁵ · conj(D(k,m₁,m₂)) = -(D(k,m₁,m₂) · γ⁵)` — a single-equation PT
+  invariance holding for **arbitrary** `m₂`, even though parity `P` alone is broken by the
+  `γ⁰γ⁵ m₂` term (`ChapterCPTParity.parity_diracHamOp`). The antiunitary field-representation
+  wrappers remain prose.
+
+Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 97 (2026-07-09) — **Book "On the physical parity transformation and antiparticles", §"Majorana spinors in the Standard Model": the left-handed quark-doublet parity is order four** (`ChapterParityQL`)
+
+Continued the parity chapter (off the gravity line, off the Hankel line; Majorana in
+scope), extending `ChapterParity`. One new file, `sorry`-free / `axiom`-free (only
+`propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterParityQL.lean` — the internal (matrix) part of the generalized-parity
+  transformation of the left-handed quark doublet `Q_L(t,x⃗) ↦ -σ₂ γ⁰ Q_L(t,-x⃗)`.
+  Because `Q_L` carries both an `SU(2)_L` doublet index (acted on by `σ₂`) and a Majorana
+  spinor index (acted on by the parity `i γ⁰ = mgamma 0`), the operator is the Kronecker
+  product `QLParity = -(σ₂ ⊗ iγ⁰)` on `ℂ² ⊗ ℂ⁴ ≅ ℂ⁸`. Headline `QLParity_order_four`:
+  it has order exactly four — `QLParity_sq` gives `(-σ₂ ⊗ iγ⁰)² = -1` (from
+  `ChapterParity.pauli2_sq` `σ₂² = 1` and `ChapterParity.mgamma0_sq` `(iγ⁰)² = -1`, via
+  `Matrix.mul_kronecker_mul`), and `QLParity_pow_four` gives `(…)⁴ = 1`, while the square
+  is `-1 ≠ 1`. As for the right-handed quarks (`ChapterParity.fermionParity_order_four`),
+  the value `-1` (not `+1`) selects the double cover `Pin(3,1)` over `Pin(1,3)`. The full
+  Standard-Model Lagrangian and the `SU(2)_L × (SU(3)_C × U(1)_Y) ⋊ ℤ₄` background
+  symmetry remain prose.
+
+Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 96 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Spinor frame and CPT theorem": parity classification of the Dirac mass Hamiltonian** (`ChapterCPTParity`)
+
+Picked up directly after Wave 95's Localization obstruction (off the gravity line,
+off the Hankel line; Majorana in scope). One new file, `sorry`-free / `axiom`-free:
+
+* `ChapterCPTParity.lean` — the concrete parity content of the section's CPT-theorem
+  discussion, built on `ChapterCPTHamiltonian`'s `diracHamOp` (the plane-wave form of
+  `iH = ∂⃗·γ⃗γ⁰ + iγ⁰m₁ + γ⁰γ⁵m₂`). The parity (spatial-reflection) operation is the
+  momentum flip `k⃗ ↦ -k⃗` plus spinor conjugation by the Majorana parity matrix
+  `P = iγ⁰ = mgamma 0` (`P² = -1`, `P⁻¹ = -P`; `parity_mul_neg_self`). The three
+  building blocks are classified (integer model by `decide`, complex model by cast):
+  kinetic `Kin j = γʲγ⁰` **parity-odd** (`parity_Kin`/`parity_KinZ`), `m₁` mass
+  `MassA = iγ⁰` **parity-even** (`parity_MassA`/`parity_MassAZ`), `m₂` mass
+  `MassB = γ⁰γ⁵` **parity-odd** — the book's parity-breaking term
+  (`parity_MassB`/`parity_MassBZ`). Headline `parity_diracHamOp`:
+  `P · D(-k, m₁, m₂) · P⁻¹ = D(k, m₁, -m₂)`; corollary
+  `parity_diracHamOp_invariant` (`m₂ = 0` ⇒ exactly parity-invariant), so a nonzero
+  `γ⁰γ⁵` mass is the sole source of parity (CP) violation. The full PT/CPT antiunitary
+  invariance statement remains prose.
+
+Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 95 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Localization": the algebraic core of Proposition 88 / Corollary 1** (`ChapterLocalization`)
+
+Picked up directly after Wave 94's Prop 79 (off the gravity line, off the Hankel
+line; Majorana in scope). One new file, `sorry`-free / `axiom`-free:
+
+* `ChapterLocalization.lean` — the load-bearing algebraic fact behind **Prop 88**
+  and **Corollary 1**: "`γ⁰` does not commute with the matrices `γ⃗γ⁰`", so the
+  `iγ⁰`-eigenspace projectors are not preserved by the system of imprimitivity.
+  In the concrete real Majorana model (`ChapterA3`, `M_μ = iγ^μ`) the commutator
+  is computed in closed form: for every spatial `i ≠ 0`,
+  `(iγ⁰)·((iγⁱ)(iγ⁰)) − ((iγⁱ)(iγ⁰))·(iγ⁰) = (iγⁱ) + (iγⁱ)`
+  (`commZ_gamma0_spatial` over ℤ by `decide`, `comm_gamma0_spatial` over ℂ by
+  transport along the integer cast), whence the non-commutation
+  `gamma0_not_comm_spatialZ` / `gamma0_not_comm_spatial` (`iγⁱ ≠ 0` as it is
+  unitary). Complementarily, `commZ_gamma0_rotation` / `comm_gamma0_rotation`
+  show the spatial rotation generators `(iγⁱ)(iγʲ)` (`i, j ≠ 0`) do commute with
+  `iγ⁰` — the massive little group `SU(2)` of Prop 79. The analytic wrappers of Prop 88 / Corollary 1 (systems of
+  imprimitivity, direct-sum decompositions) remain prose.
+
+Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 94 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Real unitary representations of the Poincaré group": Definition 77, Definition 78 + Proposition 79** (`ChapterIPin`, `ChapterLittleGroup`, `ChapterSE2`)
+
+Continued the Poincaré-representation section (off the gravity line, off the
+Hankel line; Majorana in scope). Three new files, all `sorry`-free / `axiom`-free:
+
+* `ChapterLittleGroup.lean` — **Def 78** little group `G_l = Subgroup.centralizer
+  {q l₀}` (`mem_littleGroup`) and **Prop 79** headline `prop79`: in any group `G`
+  with injective momentum map `q`, intertwiners `α` and Lorentz action `Λ`, the set
+  `H_k = {(α (Λ S k))⁻¹ S (α k) : S}` equals `G_l`. Concrete `SU(2)`/`SE(2)`
+  instances are prose.
+* `ChapterIPin.lean` — **Def 77** the `IPin(3,1)` / Poincaré group `Pin(3,1) ⋉ ℝ⁴`
+  as the Mathlib semidirect product `Multiplicative V ⋊[φ] P` (`phiHom`, `IPin`),
+  with the product formula `(A,a)(B,b) = (A B, a + Λ(A) b)` (`ipin_right`,
+  `ipin_left`).
+* `ChapterSE2.lean` — **Prop 79** `SE(2)` translation subgroup over the concrete
+  real Majorana matrices (`ChapterA3`): `N(a,b) = 1 + iγ⁵(γ¹a+γ²b)(γ⁰+γ³)` forms an
+  abelian group `≅ ℝ²` (`Nmat_mul`, `Nmat_zero`, `Nmat_inv`, capstone `NmatHom`),
+  from light-cone nilpotency `(γ⁰+γ³)²=0` (`se2_P_sq`) and `X·X=0`
+  (`Xmat_mul_Xmat`), reducing to decidable integer identities `se2_coef_*`. The
+  `e^{iγ⁰γ³γ⁵θ}` rotation factor is prose.
+
+All registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 93 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Fourier-Majorana Transform", Proposition 76: the energy transform `𝓔` and the energy–momentum transform `𝓔∘𝓕_M` are unitary** (`ChapterMajoranaProp76`)
+
+Formalized `book.tex` **Proposition 76**: the **energy transform**
+`𝓔 = Θ_{L²} ∘ 𝓕_P(−p⁰) ∘ Θ_{L²}⁻¹` (Pauli–Fourier transform in the *time*
+coordinate, conjugated by the real-linear identification `Θ`) is **unitary**
+"for the same conjugation reason" as Prop 73, and the composite `𝓔∘𝓕_M` is the
+unitary **energy–momentum transform**.  Discharged the structural core via
+Note 4's unitarity predicate `IsNote4Unitary` (surjective + diagonal-inner
+preserving, as used in Prop 5): `note4_comp` (composition of Note-4 unitaries is
+one), `LinearIsometryEquiv.isNote4Unitary` (any `≃ₗᵢ` is one), and `note4_conj`
+(conjugation by a linear isometry equivalence preserves unitarity — needs no
+linearity of the conjugated map).  Headlines `energyTransform_unitary` and
+`energyMomentum_unitary`, plus a concrete instantiation on Mathlib's
+`MeasureTheory.Lp.fourierTransformₗᵢ` (Plancherel `≃ₗᵢ[ℂ]`):
+`fourierTransform_isNote4Unitary`, `energyTransform_fourier_unitary`.  The
+`𝓔∘𝓗_M` "spherical" branch (Majorana–Hankel) is deliberately omitted (off the
+Hankel line); off the gravity line.  `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`).  New file `BookProof/ChapterMajoranaProp76.lean`
+(registered in `BookProof.lean`).
+
+## Wave 92 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Systems on real and complex Hilbert spaces", Proposition 5: (anti-)unitarity is a realification-invariant** (`ChapterA1Prop5`)
+
+Formalized `book.tex` **Proposition 5** (line ~4797): for complex Hilbert spaces
+`H₁, H₂` and their realifications `H₁ʳ, H₂ʳ`, an operator `U : H₁ → H₂` is
+(anti-)unitary — surjective and `⟪U x, U x⟫ = ⟪x, x⟫` (Note 4) — iff its
+realification `Uʳ = U` is (anti-)unitary between the realifications.  The
+realification is the same carrier with `⟪·,·⟫_ℝ = re ⟪·,·⟫_ℂ` (Mathlib's
+`InnerProductSpace.rclikeToReal`, a **local** instance), so `Uʳ` is literally `U`
+and surjectivity is shared verbatim.  The core `inner_self_complex_iff_real`
+(for an arbitrary function `T`, `∀x, ⟪Tx,Tx⟫_ℂ = ⟪x,x⟫_ℂ` iff
+`∀x, ⟪Tx,Tx⟫_ℝ = ⟪x,x⟫_ℝ`) needs no (anti-)linearity, so it covers the unitary
+and anti-unitary cases uniformly; headline `prop5` plus the `prop5_linear`
+(`→ₗ[ℂ]`) / `prop5_antilinear` (`→ₗ⋆[ℂ]`) specializations.  `sorry`-free /
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`).  Off the gravity
+line and off the Hankel line.  New file `BookProof/ChapterA1Prop5.lean`
+(registered in `BookProof.lean`).
+
+## Wave 91 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Fourier-Majorana Transform", Proposition 74: the inverse Majorana–Fourier intertwining identities** (`ChapterMajoranaProp74`)
+
+Formalized `book.tex` **Proposition 74** (line ~6003): the inverse Majorana–Fourier
+transform `𝓕_M⁻¹ = (𝓕_P^Θ)⁻¹ ∘ S⁻¹` intertwines the Dirac operator with the energy
+multiplier, `Q·S⁻¹ = S⁻¹·R`, and the momentum-component block `Dⱼ` commutes with
+the boost mixing `S⁻¹`, `Dⱼ·S⁻¹ = S⁻¹·Dⱼ`.  Both are `2×2`-block matrix identities
+over the concrete `4×4` Dirac model of `ChapterMajoranaFourier` (blocks `Qmat`,
+`Sinv`, `Rmat`, `Dmat`; `A = (n̂·γ⃗)γ⁰`).  Proved abstractly first
+(`prop74_intertwine`, `prop74_Rj_comm`) for any `g, ns` with `g²=1`, `ns²=−1`,
+`g·ns=−ns·g`, then instantiated on the Dirac matrices (`majoranaFourier_prop74`,
+`majoranaFourier_prop74_Rj`) using the boost half-angle identities.  Helper Clifford
+lemmas `ns_mul_A`/`g_mul_A`/`A_mul_g`.  `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`, confirmed via `lean_verify` on both headline
+theorems).  Off the gravity line and off the Hankel line.  New file
+`BookProof/ChapterMajoranaProp74.lean` (registered in `BookProof.lean`).
+
+## Wave 90 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Fourier-Majorana Transform", Proposition 61: the boost intertwiner `U'` is unitary** (`ChapterMajoranaProp61`)
+
+Formalized `book.tex` **Proposition 61** (line ~5712): given a unitary `U` with
+`U H² = E² U` (Majorana/Dirac `iH = γ⁰(∂⃗·γ⃗) + iγ⁰m`), the boost intertwiner
+`U' = (E + U H γ⁰ U†)/(√(E+m)√(2E))` is unitary.  The operator identity is
+captured as pure `ℝ`-star-algebra content in a general
+`[Ring 𝒜] [StarRing 𝒜] [Algebra ℝ 𝒜] [StarModule ℝ 𝒜]` with the Majorana setup
+as named hypotheses (Clifford anticommutator `H*g + g*H = (2m)•1`, intertwining
+`E² = U H² U†`, `E`/normaliser commuting with `A = U H γ⁰ U†`).  Declarations:
+`gsq_Hsq_comm` (`g*(H*H) = (H*H)*g` from the anticommutator), `Aop`/`Uprime`,
+`prop61_star_mul_self` (`(U')†U' = 1`), `prop61_mul_star_self` (`U'(U')† = 1`),
+headline `prop61_isUnit` (`U'` is a unit with inverse `(U')†`).  Off the gravity
+line and off the Hankel line (the Hankel-Majorana material of Defs 65–66 is
+untouched).  New file `BookProof/ChapterMajoranaProp61.lean` (registered in
+`BookProof.lean`).
+
+## Wave 89 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Lemma 52: the four representation spaces form an internal direct sum** (`ChapterLorentzRealRepDirect`)
+
+Continuing Waves 86–88 (`ChapterLorentzRealRep`, `ChapterLorentzRealRepSum`,
+`ChapterLorentzRealRepFull`; the four mutually Frobenius-orthogonal real
+representation spaces `WHalf`/`W10`/`WPs`/`WTwo` inside the 16-dimensional real
+matrix algebra, with the decomposition certified only through a dimension count),
+this wave upgrades the informal direct-sum claim to the genuine structural
+statement.  Off the gravity line and off the Hankel line (Majorana matrices in
+scope).  New file `BookProof/ChapterLorentzRealRepDirect.lean` (registered in
+`BookProof.lean`).
+
+- the family `WFam = ![WHalf, W10, WPs, WTwo]`;
+- **spanning** `iSup_WFam_eq_top` (`⨆ i, WFam i = ⊤`);
+- **dimension count** `sum_finrank_WFam` (`∑ i, finrank (WFam i) = finrank (Matrix (Fin 4) (Fin 4) ℝ)`);
+- **headline** `WFam_isInternal : DirectSum.IsInternal WFam` (the canonical map
+  `⨁ᵢ WFam i → Matrix (Fin 4) (Fin 4) ℝ` is an isomorphism, via the
+  finite-dimensional bijectivity argument: surjective with range `⨆ i, WFam i = ⊤`
+  and domain of dimension `∑ finrank (WFam i) = 16 = finrank` of the codomain);
+- **independence** `WFam_iSupIndep : iSupIndep WFam`;
+- **conjugation representation** `WFam_conj_invariant` — conjugation by every
+  `S ∈ Ω` maps each `WFam i` into itself, so the 16-dimensional conjugation
+  representation of the discrete Pin subgroup `Ω` decomposes as the internal
+  direct sum of the four subrepresentations.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify` on `WFam_isInternal` and
+`WFam_conj_invariant`).  `lake build BookProof` green (the only build failure is
+the pre-existing, out-of-scope `RiemannProof/RandomMap.lean`).
+
+## Wave 88 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Lemma 52: the complete orthogonal decomposition of the 16-dimensional matrix algebra** (`ChapterLorentzRealRepFull`)
+
+Continuing Waves 86–87 (`ChapterLorentzRealRep`, `ChapterLorentzRealRepSum`; the
+three real representation spaces `WHalf`/`W10`/`WPs` and their 14-dimensional
+mutually-orthogonal internal direct sum), this wave exhibits the **remaining
+two-dimensional summand** and hence the *complete* orthogonal decomposition of
+the full 16-dimensional real matrix algebra `Matrix (Fin 4) (Fin 4) ℝ`.  The
+missing directions are the two "discrete" Majorana matrices `WTwo = span{iγ⁰,
+γ⁰γ⁵}` that generate the covering group `Ω`.  Off the gravity line and off the
+Hankel line (Majorana matrices in scope).  New file
+`BookProof/ChapterLorentzRealRepFull.lean` (registered in `BookProof.lean`).
+
+- **conjugation invariance** `conj_inv_two` (over `ℤ`, by `decide`) and the
+  `Submodule` form `WTwo_invariant` (conjugation by every `S ∈ Ω` maps `WTwo`
+  into itself);
+- **Frobenius Gram / orthogonality** `gram_two`/`gram_twoR` (`= 4·I`) and the
+  cross pairings `gram_two_halfR`/`gram_two_10R`/`gram_two_PsR` (`WTwo ⟂ WHalf,
+  W10, WPs`); `w2R_linearIndependent`, `finrank_WTwo = 2`;
+- **concatenated 16-element basis** `bFull`/`bFullR` with Frobenius Gram `4·I`
+  (`gram_fullR`), hence `bFullR_linearIndependent`; span identification
+  `range_bFullR`/`span_bFullR_eq` (`span (range bFullR) = WHalf ⊔ W10 ⊔ WPs ⊔ WTwo`);
+- **complete decomposition** `finrank_matrix` (`dim (M₄(ℝ)) = 16`),
+  `finrank_full = 16`, the headline `decomposition_top`
+  (`WHalf ⊔ W10 ⊔ WPs ⊔ WTwo = ⊤`) and `finrank_full_eq_add`
+  (`16 = dim WHalf + dim W10 + dim WPs + dim WTwo = 4 + 6 + 4 + 2`), certifying
+  the complete internal direct sum.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build
+BookProof.ChapterLorentzRealRepFull` green (the only build failure is the
+pre-existing, out-of-scope `RiemannProof/RandomMap.lean`, left untouched).
+
+## Wave 87 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Lemma 52: the three real representations are mutually orthogonal and form an internal direct sum** (`ChapterLorentzRealRepSum`)
+
+Continuing Wave 86 (`ChapterLorentzRealRep`, the three real representation spaces
+`WHalf`/`W10`/`WPs` of **Lemma 52**), this wave discharges the *distinctness* half
+of the classification: the three spaces are **mutually orthogonal** in the
+Frobenius inner product `⟨A,B⟩ = tr(Aᵀ B)`, so their sum inside the 16-dimensional
+space of real `4×4` matrices is an **internal direct sum** of dimension
+`4 + 6 + 4 = 14`.  Off the gravity line and off the Hankel line (Majorana matrices
+in scope).  New file `BookProof/ChapterLorentzRealRepSum.lean` (registered in
+`BookProof.lean`).
+
+- **mutual orthogonality** `gram_half10`/`gram_halfPs`/`gram_10Ps` (over `ℤ`, by
+  `decide`) and real casts `gram_half10R`/`gram_halfPsR`/`gram_10PsR` — every
+  cross Frobenius pairing between two different bases vanishes;
+- **concatenated basis** `bAll : Fin 14 → …` (the 4+6+4 concatenation) with real
+  cast `bAllR`; `gram_all`/`gram_allR` show its Frobenius Gram matrix is `4·I`,
+  hence `bAllR_linearIndependent` (the 14 matrices are linearly independent);
+- **span identification** `range_bAllR` and `span_bAllR_eq`
+  (`span (range bAllR) = WHalf ⊔ W10 ⊔ WPs`);
+- **dimensions** `finrank_WHalf = 4`, `finrank_W10 = 6`, `finrank_WPs = 4`,
+  `finrank_sup = 14`, and the headline `finrank_sup_eq_add`
+  (`dim (WHalf ⊔ W10 ⊔ WPs) = dim WHalf + dim W10 + dim WPs`), certifying the
+  internal direct sum.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green (the
+only build failure is the pre-existing, out-of-scope `RiemannProof/RandomMap.lean`,
+left untouched).
+
+## Wave 86 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Finite-dimensional representations of SL(2,C)", Lemma 52: the concrete real irreducible representations** (`ChapterLorentzRealRep`)
+
+Continuing Waves 84–85 (`ChapterPinOmega` `Ω ≅ Q₈`; `ChapterPinDoubleCover` the
+cover `Λ : Ω → Δ`), this wave discharges the concrete core of **Lemma 52**
+(`book.tex` line ~5560): the three explicit real irreducible representation
+spaces of `SL(2,C)` on which the spin group acts by conjugation `A ↦ S A S†`,
+verified over the discrete Pin group `Ω`.  Off the gravity line and off the
+Hankel line (Majorana matrices in scope).  New file
+`BookProof/ChapterLorentzRealRep.lean` (registered in `BookProof.lean`).
+
+- The **`(1/2,1/2)` vector rep** `WHalf` = span `{1, γ⁰γ¹, γ⁰γ², γ⁰γ³}` (dim 4),
+  the **`(1,0)` rep** `W10` = span `{iγ¹, iγ², iγ³, γ¹γ⁵, γ²γ⁵, γ³γ⁵}` (dim 6),
+  the **pseudo-`(1/2,1/2)` rep** `WPs` = span `{iγ⁵, iγ⁵γᵏγ⁰}` (dim 4);
+- **conjugation invariance** `conj_inv_half`/`conj_inv_10`/`conj_inv_ps` — for
+  every `S ∈ Ω`, `S A S⁻¹` is `±` a basis matrix (signed permutation), by `decide`
+  over `ℤ`; `cinv`/`cinv_correct` give the in-`Ω` inverse;
+- **dimension** via `linIndep_of_gram` (Frobenius Gram `= 4·I` ⇒ linearly
+  independent) applied to `gram_halfR`/`gram_10R`/`gram_psR`: headlines
+  `bHalfR_linearIndependent`, `b10R_linearIndependent`, `bPsR_linearIndependent`;
+- **`Submodule` invariance** `WHalf_invariant`/`W10_invariant`/`WPs_invariant`
+  (the conjugation map carries each `ℝ`-span into itself for `S ∈ Ω`), with
+  elementwise corollary `WHalf_invariant_apply`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green (the
+only build failure is the pre-existing, out-of-scope `RiemannProof/RandomMap.lean`,
+left untouched).
+
+## Wave 85 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Definition 49: the discrete Pin subgroup `Ω` is the *double cover* of the discrete Lorentz subgroup `Δ`** (`ChapterPinDoubleCover`)
+
+Continuing Wave 84 (`ChapterPinOmega`, `Ω ≅ Q₈`), this wave discharges the
+remaining finite core of **Definition 49** (`book.tex` line ~5510): the two-to-one
+covering map `Λ : Ω → Δ` onto the Klein-four discrete Lorentz subgroup
+`Δ = {1, η, -η, -1}` (`η = diag(1,-1,-1,-1)`).  `Λ` is defined by the conjugation
+action on the Majorana basis, `S⁻¹(iγ^μ)S = Λ(S)^μ_ν iγ^ν`; rewritten without
+inverses this is decidable over the integer Majorana model `mgammaZ` of
+`ChapterA3`.  Per the current instruction this stays **off the gravity line** and
+**off the Hankel-transform line** (Majorana matrices in scope).  New file
+`BookProof/ChapterPinDoubleCover.lean` (registered in `BookProof.lean`).
+
+- `qi`/`qj`/`qk`, `etaZ` (with `etaZ_eq_mink` tying `η` to `minkowskiZ`), the
+  8-element `Omega` (`Omega_card = 8`) and 4-element `Delta` (`Delta_card = 4`);
+- `LamZ` — the explicit induced Lorentz matrix, `±1 ↦ 1`, `±iγ⁰ ↦ η`,
+  `±γ⁰γ⁵ ↦ -η`, `±iγ⁵ ↦ -1`;
+- `LamZ_spec` — the **defining conjugation relation** `(iγ^μ)S = S(Σ_ν Λ^μ_ν iγ^ν)`
+  validating the formula for `LamZ`;
+- `LamZ_mem_Delta` (lands in `Δ`), `LamZ_surjective` (`Δ = Ω.image LamZ`, onto),
+  `LamZ_hom` (homomorphism `Λ(ST)=Λ(S)Λ(T)`), `LamZ_neg` (`Λ(S)=Λ(-S)`) and
+  `LamZ_fiber_card` (every fibre has exactly **2** elements) — i.e. `Λ : Ω → Δ`
+  is a surjective **2-to-1 homomorphism**, the double cover of Def 49;
+- `LamZ_spec_C` — the conjugation relation transported to the complex Majorana
+  matrices `mgamma`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green (the
+only build failure is the pre-existing, out-of-scope `RiemannProof/RandomMap.lean`,
+left untouched).
+
+## Wave 84 (2026-07-08) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Definition 49: the discrete Pin subgroup `Ω` is the quaternion group `Q₈`** (`ChapterPinOmega`)
+
+From the same §*"On the Lorentz, SL(2,C) and Pin(3,1) groups"* (`book.tex` line
+~5510), **Definition 49** introduces the discrete `Pin(3,1)` subgroup
+`Ω = {±1, ±iγ⁰, ±γ⁰γ⁵, ±iγ⁵}` and asserts (via the two-to-one cover `Λ`) that
+it is a group of order `8` — the double cover of the Klein-four discrete Lorentz
+subgroup `Δ`.  This wave pins down the algebraic core: `Ω` **is the quaternion
+group `Q₈`**.  Per the current instruction this stays **off the gravity line**
+and **off the Hankel-transform line** (Majorana matrices are now in scope); it
+reuses only the concrete `4×4` real Majorana/Dirac matrix model of
+`BookProof.ChapterA3`.  New file `BookProof/ChapterPinOmega.lean` (registered in
+`BookProof.lean`).
+
+- `qi = iγ⁰`, `qj = γ⁰γ⁵ = -(iγ⁰)(iγ⁵)`, `qk = iγ⁵` — the three imaginary
+  units (integer model `mgammaZ`/`mgamma5Z`);
+- `qi_sq`/`qj_sq`/`qk_sq` — `qi² = qj² = qk² = -1`;
+- `qi_qj`/`qj_qk`/`qk_qi` and the anti-commuted `qj_qi`/`qk_qj`/`qi_qk` — the
+  **quaternion relations** `ij=k, jk=i, ki=j` (and `ji=-k`, …);
+- `qi_qj_qk` — Hamilton's identity `qi·qj·qk = -1`; `noncomm` — `Ω` nonabelian;
+- `Omega` (the 8-element `Finset`), `Omega_card = 8`, `one_mem_Omega`,
+  `neg_one_mem_Omega`, `Omega_mul_closed` (**closure**), `Omega_inv`
+  (**inverses**) — i.e. `Ω` is a group of order `8` (⇒ `≅ Q₈`);
+- the complex model `qiC`/`qjC`/`qkC` with `qjC_eq_dirac` (identifying `qj` with
+  `γ⁰γ⁵` in the book's `γ^μ = -i(iγ^μ)` normalization) and the transported
+  relations `qiC_sq`/…/`qiC_qjC_qkC`/`qjC_qiC`/`noncommC`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green.
+
+## Wave 83 (2026-07-08) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Note 47 / Def 49: the `SU(2) → SO(3)` restriction of the spinor map** (`ChapterPauliSU2`)
+
+Continuing Wave 82 (`ChapterPauliLorentz`) with the next self-contained claim of
+the same §*"On the Lorentz, SL(2,C) and Pin(3,1) groups"* (`book.tex` line
+~5455): the spinor map `Υ : SL(2,ℂ) → SO⁺(1,3)`, `Υᵘ_ν(T) σ^ν = T† σᵘ T`,
+restricts on the compact subgroup `SU(2) = Spin⁺(3,1) ∩ SU(4)` to the **double
+cover of `SO(3)`**.  As requested this stays **off the gravity line** and **off
+the Hankel–Majorana line**: it uses only the concrete `2×2` Pauli machinery of
+`ChapterPauliLorentz` (no gamma/Majorana matrices, no spherical-Bessel
+numerics).  New file `BookProof/ChapterPauliSU2.lean` (registered in
+`BookProof.lean`).
+
+- `spinorAction T X = Tᴴ * X * T` — the spinor conjugation;
+- `spinorAction_comp` — it is a (right) action: conjugation by `T₁*T₂` is
+  conjugation by `T₁` then `T₂` (compatibility with group multiplication);
+- `spinorAction_neg` — **two-to-one**: `T` and `-T` induce the *same* conjugation
+  (the `±1` kernel making `Υ` a double cover);
+- `spinorAction_isHermitian` — the conjugation preserves hermiticity;
+- `spinorAction_trace_of_unitary` — for **unitary** `T` (`T†T = 1`) the
+  conjugation **preserves the trace** (via cyclicity of trace + `T T† = 1`);
+- `su2_preserves_time` — hence a unitary `T` **fixes the time component** `x⁰`
+  of the 4-vector (`x⁰ = ½ tr(X)`);
+- `su2_preserves_spatialNormSq` — **headline**: for `T ∈ SU(2)` (`T†T = 1`,
+  `det T = 1`) the conjugation preserves the Euclidean spatial length
+  `(x¹)² + (x²)² + (x³)²`, combining `su2_preserves_time` with the Minkowski-form
+  preservation `spinorMap_preserves_mink` from `ChapterPauliLorentz` — i.e. the
+  induced map is a rotation in `SO(3)`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green.
+
+## Wave 82 (2026-07-08) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Definition 42 + Note 47: the Pauli 4-vector map and the `SL(2,ℂ)` spinor conjugation preserves the Minkowski form** (`ChapterPauliLorentz`)
+
+From the chapter *"Real representations, CPT theorem and the relativistic
+position operator"*, §*"On the Lorentz, SL(2,C) and Pin(3,1) groups"*,
+**Definition 42** and **Note 47** (`book.tex` line ~5344, ~5455): the Pauli
+matrices `σᵏ` are `2×2` hermitian, unitary, anti-commuting complex matrices, and
+there is a two-to-one surjection `Υ : SL(2,ℂ) → SO⁺(1,3)` given by
+`Υᵘ_ν(T) σ^ν = T† σᵘ T`. This wave formalizes the algebraic heart of Note 47:
+the correspondence between real Minkowski 4-vectors and hermitian `2×2` complex
+matrices, and the fact that the spinor conjugation `X ↦ T† X T` by
+`T ∈ SL(2,ℂ)` (`det T = 1`) **preserves the Minkowski quadratic form** — which
+is exactly what makes `Υ(T)` a Lorentz transformation. As requested this stays
+**off the gravity line** and **off the Hankel–Majorana line**: it uses only the
+concrete Pauli matrices (`2×2` complex), no gamma/Majorana matrices and no
+spherical-Bessel numerics. New file `BookProof/ChapterPauliLorentz.lean`
+(registered in `BookProof.lean`).
+
+- `σ1_herm`/`σ2_herm`/`σ3_herm`, `σ1_sq`/`σ2_sq`/`σ3_sq` (`(σᵏ)²=1`),
+  `σ1σ2_anti`/`σ2σ3_anti`/`σ1σ3_anti` — **Definition 42**: the Pauli matrices
+  are hermitian, unitary/involutive and pairwise anti-commuting;
+- `hermMat` — the hermitian matrix `X = xᵤσᵘ` of a real 4-vector `x`;
+  `hermMat_eq_pauli` (Pauli expansion), `hermMat_isHermitian`;
+- `det_hermMat` — **the key identity**: `det(xᵤσᵘ) = (x⁰)²−(x¹)²−(x²)²−(x³)²`,
+  i.e. the determinant of the hermitian matrix *is* the Minkowski norm;
+- `vecOfMat` / `hermMat_vecOfMat` / `hermMat_injective` — every hermitian `2×2`
+  matrix is `xᵤσᵘ` for a unique real 4-vector (`vecOfMat` is a left inverse of
+  `hermMat` on hermitians, and `hermMat` is injective on the four components),
+  i.e. the real-linear bijection between 4-vectors and hermitian matrices;
+- `spinorMap_preserves_mink` — **headline**: for `T` with `det T = 1` and any
+  real 4-vector `x`, the transformed matrix `T† (xᵤσᵘ) T` is again `yᵤσᵘ` with
+  `mink y = mink x` (via `det(T† X T) = det X`).
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green.
+
+## Wave 81 (2026-07-08) — **Book "Reconstructing the classical trajectory of any isolated quantum system", §"The Young's double slit experiment": the double slit as an involutive Hadamard evolution** (`ChapterDoubleSlit`)
+
+From the chapter *"Reconstructing the classical trajectory of any isolated
+quantum system"*, §*"The Young's double slit experiment"* (`book.tex` line
+~3082): the two-angle electron is modelled by the normalized `2×2` Hadamard
+matrix `H = (1/√2)·[[1,1],[1,-1]]` with source state `Ψ = (1,0)`. The book's
+"mystery" — a `50/50` intermediate probability becoming a `100/0` detector
+probability once the second slit is open — is pinned down as the purely
+algebraic fact that `H` is an **involution** (`H² = 1`): composing the two
+non-deterministic symmetry transformations yields certainty. As requested this
+stays **off the gravity line** and **off the Hankel–Majorana line**; it reuses
+only the concrete Hadamard matrix (as in `ChapterE.lean`). New file
+`BookProof/ChapterDoubleSlit.lean` (registered in `BookProof.lean`).
+
+- `H_unitary` — `Hᴴ H = 1` (the Hadamard evolution is unitary);
+- `H_involutive` — **the crux**: `H² = 1`;
+- `Hpsi0` — `H·Ψ = (1/√2)(1,1)`, the uniform intermediate superposition;
+- `slit_closed_born` — **slit closed**: final Born distribution `(1/2, 1/2)`;
+- `slit_open_state` / `slit_open_born` — **slit open**: `H·(H·Ψ) = Ψ`, final
+  Born distribution `(1, 0)` (the electron arrives only along angle 1).
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green.
+
+## Wave 80 (2026-07-08) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Note 43: the coset / semidirect decomposition `O(1,3) = Δ ⋉ SO⁺(1,3)`** (`ChapterLorentzDecomp`)
+
+Continuing Waves 78–79 (Note 43) with the next self-contained claim of the
+**same Note 43** (`book.tex` line ~5366): the discrete Klein-four subgroup
+`Δ = {1, η, -η, -1}` and the proper orthochronous normal subgroup `SO⁺(1,3)`
+assemble into the whole group as a semidirect product `O(1,3) = Δ ⋉ SO⁺(1,3)` —
+equivalently, `Δ` is a complete and irredundant transversal for `SO⁺(1,3)`, so
+the quotient `O(1,3)/SO⁺(1,3) ≅ Δ` is the Klein four-group of the four connected
+components indexed by `(det λ, sign λ⁰₀) ∈ {±1} × {±1}`.  As requested this stays
+**off the gravity line** and **off the Hankel–Majorana line**: it uses only the
+Minkowski metric `η` and the groups from `ChapterLorentzGroup` /
+`ChapterLorentzOrthochronous` (no gamma / Majorana matrices).  New file
+`BookProof/ChapterLorentzDecomp.lean` (registered in `BookProof.lean`).
+
+- `delta_mul_time` — for a diagonal discrete generator `δ ∈ Δ`, the time
+  component of a product factors: `(δ * m)⁰₀ = δ⁰₀ · m⁰₀`;
+- `lorentz_delta_decomp` — **existence**: every `λ ∈ O(1,3)` factors as
+  `λ = δ * s` with `δ ∈ Δ` and `s ∈ SO⁺(1,3)`, the discrete factor chosen by a
+  4-way case split on `(sign det λ, sign λ⁰₀)`;
+- `lorentz_delta_decomp_unique` — **uniqueness**: the two factors are determined
+  by `λ`, because the map `δ ↦ (det δ, sign δ⁰₀)` is injective on `Δ` (its four
+  values `(1,1),(−1,1),(−1,−1),(1,−1)` are distinct) and `s ∈ SO⁺(1,3)` has
+  `det s = 1`, `s⁰₀ > 0`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green.
+
+## Wave 79 (2026-07-08) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Note 43: the proper orthochronous Lorentz group `SO⁺(1,3)` is a normal subgroup of `O(1,3)`** (`ChapterLorentzOrthochronous`)
+
+Continuing Wave 78 (Note 43) with the next self-contained claim of the **same
+Note 43** (`book.tex` line ~5366): *"The proper orthochronous Lorentz subgroup is
+defined by `SO⁺(1,3) ≡ {λ ∈ O(1,3) : det(λ)=1, λ⁰₀>0}`. It is a normal
+subgroup."*  As requested, this stays **off the gravity line** and **off the
+Hankel–Majorana line**: it uses *only* the Minkowski metric `η` and the group
+`O(1,3)` from Wave 78 (no gamma / Majorana matrices).  New file
+`BookProof/ChapterLorentzOrthochronous.lean` (registered in `BookProof.lean`).
+
+- `isLorentz_neg` — `O(1,3)` is closed under negation;
+- `lorentz_inv_eq` — the explicit inverse `λ⁻¹ = η λᵀ η`;
+- `isLorentz_mul_eta_transpose` — the dual metric relation `λ η λᵀ = η`;
+- `lorentz_time_col` / `lorentz_time_row` — the time–column / time–row unit
+  identities `(λ⁰₀)² = 1 + Σᵢ(λⁱ₀)² = 1 + Σᵢ(λ⁰ᵢ)²`;
+- `lorentz_time_sq_ge_one` (`(λ⁰₀)² ≥ 1`), `lorentz_time_ne_zero` (`λ⁰₀ ≠ 0`);
+- `lorentz_inv_time` — `(λ⁻¹)⁰₀ = λ⁰₀`;
+- `product_time_component` — the `(0,0)` entry of a matrix product;
+- `orthochronous_mul` — **the crux**: `a⁰₀ > 0`, `b⁰₀ > 0 ⇒ (ab)⁰₀ > 0`, via the
+  reverse Cauchy–Schwarz inequality on the time components;
+- `IsProperOrthochronous` — the predicate defining `SO⁺(1,3)`;
+- `isPO_one`, `isPO_mul`, `isPO_inv` — `SO⁺(1,3)` is a **subgroup**;
+- `isPO_conj` — **headline**: `SO⁺(1,3)` is a **normal** subgroup of `O(1,3)`
+  (`g ∈ O(1,3)`, `s ∈ SO⁺(1,3) ⇒ g s g⁻¹ ∈ SO⁺(1,3)`), by a sign case split on
+  `g⁰₀` using that `-g` is Lorentz with `(-g)⁻¹ = -g⁻¹`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green.
+
+## Wave 78 (2026-07-08) — **Book "Real representations, CPT theorem and the relativistic position operator", §"On the Lorentz, SL(2,C) and Pin(3,1) groups", Note 43: the Lorentz group `O(1,3)` and its discrete Klein-four subgroup `Δ = {1, η, -η, -1}`** (`ChapterLorentzGroup`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`) and — per the author's latest instruction —
+**prioritizing a chapter other than gravity** and **staying off the
+Hankel–Majorana line** (this wave uses *only* the Minkowski metric
+`η = diag(1,-1,-1,-1)`; no gamma/Majorana matrices are involved).  From the
+chapter *"Real representations, CPT theorem and the relativistic position
+operator"*, §*"On the Lorentz, SL(2,C) and Pin(3,1) groups"*, **Note 43**
+(`book.tex` line ~5340): the Lorentz group
+`O(1,3) = {λ ∈ ℝ^{4×4} : λᵀ η λ = η}` is the set of real matrices preserving the
+metric `η = diag(1,-1,-1,-1)`, and `Δ = {1, η, -η, -1}` is the discrete Lorentz
+subgroup of parity and time-reversal.  New file
+`BookProof/ChapterLorentzGroup.lean` (registered in `BookProof.lean`).
+
+- `eta_transpose`, `eta_mul_self` (`η² = 1`), `eta_det` (`det η = -1`) — the basic
+  properties of the Minkowski metric;
+- `IsLorentz` — the defining predicate `λᵀ η λ = η` of `O(1,3)`;
+- `isLorentz_one`, `isLorentz_mul`, `isLorentz_inv` — `O(1,3)` is closed under
+  the identity, matrix product, and matrix inverse: it is a **group**;
+- `lorentz_det_sq_one` (`(det λ)² = 1`) and `lorentz_det_ne_zero` — every Lorentz
+  matrix is invertible with determinant `±1`;
+- `isLorentz_eta`, `isLorentz_neg_eta`, `isLorentz_neg_one` — the three
+  nontrivial discrete generators lie in `O(1,3)`;
+- `Delta`, `delta_subset_lorentz` (`Δ ⊆ O(1,3)`), `delta_mul_closed`
+  (closed under multiplication), `delta_involutive` (every element squares to
+  `1`, so `Δ` is abelian `≅ ℤ₂ × ℤ₂`, the **Klein four-group**), and
+  `delta_card_four` (the four elements are distinct, `|Δ| = 4`).
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green
+(8130 jobs).  (The full semidirect-product decomposition
+`O(1,3) = Δ ⋉ SO⁺(1,3)` is left as prose; this wave lands the group structure
+and the Klein-four subgroup.)
+
+## Wave 77 (2026-07-08) — **Book "Yang-Mills … Classical Statistical Field Theory" / "Timepiece and the Gribov ambiguity", §"Pure Yang-Mills theory": the ℤ₂-graded (super) commutator unifying the bosonic CCR and fermionic CAR** (`ChapterSuperBracket`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`), and — per the author's latest instruction —
+**prioritizing chapters other than gravity** (and staying off the
+Hankel–Majorana line).  For `SU(3)` Yang–Mills the author builds the Hilbert
+space as a tensor product of a symmetric (bosonic) and an antisymmetric
+(fermionic) Fock space, giving *"a graded Lie superalgebra of creation and
+annihilation operators"* with the unified canonical (anti)commutation relation
+carrying the sign `(-1)^{(α mod 2)(β mod 2)}`.  New file
+`BookProof/ChapterSuperBracket.lean` (registered in `BookProof.lean`), modelling
+the ℤ₂-parity of a homogeneous operator by a `Bool` (`false` = even/bosonic,
+`true` = odd/fermionic) inside an arbitrary associative ring `R`.
+
+- `eps p q = (-1)^{p·q}` (the Koszul sign) and `sbracket p q a b = a·b − ε(p,q)·(b·a)`
+  (the super-bracket `⟦a,b⟧`);
+- `eps_comm`, `eps_mul_self`, `eps_false_left`/`eps_false_right` — the sign is
+  symmetric, squares to `1`, and is trivial against an even element;
+- `sbracket_even_even` — even/even gives the **commutator** `a·b − b·a` (bosonic
+  CCR side);
+- `sbracket_odd_odd` — odd/odd gives the **anticommutator** `a·b + b·a`
+  (fermionic CAR side): the single formula unifying the two canonical relations;
+- `sbracket_even_left`/`sbracket_even_right` — against an even element the bracket
+  is always the commutator;
+- `sbracket_graded_antisymm` — **graded antisymmetry** `⟦a,b⟧ = −ε(p,q)⟦b,a⟧`;
+- `super_jacobi` — **headline** the graded Jacobi identity
+  `ε(p,r)⟦a,⟦b,c⟧⟧ + ε(q,p)⟦b,⟦c,a⟧⟧ + ε(r,q)⟦c,⟦a,b⟧⟧ = 0` (inner bracket
+  parity `xor q r`), which makes `(R, ⟦·,·⟧)` a **Lie superalgebra** — exactly
+  the graded-Lie-superalgebra structure the book asserts;
+- `commutator_jacobi` — the all-even specialization is the ordinary Jacobi
+  identity of the commutator.
+
+All `sorry`-free / `axiom`-free (`super_jacobi` needs only `propext`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green.
+(The Hankel–Majorana line is left untouched; this wave stays off the gravity
+line, on the Yang-Mills chapter.)
+
+## Wave 76 (2026-07-08) — **Book "Yang-Mills … Classical Statistical Field Theory", §"Lorentz covariance": the space-time translation representation `T(x)Ψ(γv) = e^{iMτ}Ψ(γv)` in the momentum-diagonal basis** (`ChapterLorentzTranslation`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`), and — per the author's latest instruction — **prioritizing
+chapters other than gravity** (and, as always, staying off the Hankel–Majorana
+line).  From the chapter *"Quantization due to time-evolution: Yang-Mills and
+Classical Statistical Field Theory"*, §*"Lorentz covariance"* (line ~6506): in a
+basis where the 3-momentum operator is diagonal, the space-time translations of a
+free system of invariant mass `M` act by the phase
+`T(x) Ψ(γv) = e^{i M τ(γv, x)} Ψ(γv)` with proper time
+`τ(γv, x) = γ x₀ − (γv)·x`, `γ = √(1 + (γv)²)`.  The book notes this has "the
+same structure as the non-relativistic time-evolution, with `M` as Hamiltonian
+and `τ` as (proper) time".  New file `BookProof/ChapterLorentzTranslation.lean`
+(registered in `BookProof.lean`), modelling the spatial momentum `γv` by
+`w : Fin 3 → ℝ`.
+
+- `gamma`, `properTime`, `transPhase` — the Lorentz factor `γ`, the proper-time
+  functional `τ`, and the translation phase `e^{iMτ}`;
+- `gamma_sq` / `mass_shell` — the four-velocity `(γ, γv)` is on the unit mass
+  shell `γ² − (γv)² = 1`;
+- `gamma_zero` — rest-frame value `γ = 1`;
+- `properTime_add`, `properTime_zero` — `τ` is additive in the translation `x`
+  (a homomorphism `(ℝ⁴,+) → (ℝ,+)`);
+- `properTime_rest` — in the rest frame `τ = x₀` (proper = coordinate time);
+- `transPhase_add` — **headline** `T(x + y) = T(x)·T(y)` (with `transPhase_zero`
+  `T(0) = 1`, a one-dimensional representation of the translation group);
+- `transPhase_norm` — each `T(x)` is unitary (`‖·‖ = 1`, real `M`);
+- `transPhase_rest` — rest-frame reduction `T(x) = e^{i M x₀}`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `lean_verify`).  `lake build BookProof` green.
+(Per the author's instruction the Hankel–Majorana line is left untouched, and
+this wave deliberately steps off the gravity line onto the Yang-Mills chapter.)
+
+## Wave 75 (2026-07-08) — **Book "Diffeomorphisms and gravity", §"Classical Hamiltonian": the irreducible `SO(3)` decomposition of a spatial tensor `T_{ab} = ½S + ½A + ⅓T·I`** (`ChapterGravityIrrep`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`), extending the gravity projector/metric line (Waves
+69–74).  In the Einstein–Cartan / teleparallel Hamiltonian formalism the author
+decomposes the *spatial* torsion tensor `T_{ab}` (both indices projected by the
+spatial projector `χ` of Wave 69, so it lives on the `3`-dimensional spatial
+hyperplane `v^⊥` where the induced metric is positive definite, Wave 70) into
+its three `SO(3)`-irreducible pieces: the antisymmetric part
+`A_{ab} = T_{ab} − T_{ba}`, the trace `T = η^{ab}T_{ab}`, and the symmetric
+traceless part `S_{ab} = T_{ab} + T_{ba} − (2/3)η_{ab}T` (the book's `A`, `T`,
+`S`).  Modelling the spatial slice as Euclidean `Fin 3` (`η = δ`, so `tr δ = 3`,
+which is exactly why the `2/3` factor makes `S` traceless).  New file
+`BookProof/ChapterGravityIrrep.lean` (registered in `BookProof.lean`).
+
+- `antisymPart`, `symTracelessPart`, `frobInner` — the pieces `A`, `S`, and the
+  Frobenius inner product `⟨X,Y⟩ = ∑_{i,j} X_{ij}Y_{ij}`;
+- `antisymPart_antisymm` — `Aᵀ = −A`;
+- `symTracelessPart_symm` — `Sᵀ = S`;
+- `trace_symTracelessPart` — `tr S = 0` (the `2/3`/`dim = 3` fact);
+- `irrep_reconstruction` — **headline** `M = ½S + ½A + ⅓(tr M)·I`;
+- `frob_symTraceless_antisym`, `frob_symTraceless_trace`, `frob_antisym_trace` —
+  the three pieces are mutually Frobenius-orthogonal (the decomposition is
+  orthogonal).
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green.
+(Per the author's instruction the Hankel–Majorana line is left untouched.)
+
+## Wave 74 (2026-07-08) — **Book "Diffeomorphisms and gravity", §"Classical Hamiltonian": `h` and `h♯` form a generalized-inverse pair** (`ChapterGravityGenInverse`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`), and building on Wave 70's induced spatial metric `h`
+and Wave 72's raised metric `h♯`.  Although both are degenerate (they vanish
+along the time direction `v`, `minkSq v = -1`), the pair `(h, h♯)` satisfies the
+two defining absorption identities of a **generalized (Moore–Penrose-type)
+inverse pair** on the spatial hyperplane `v^⊥`.  New file
+`BookProof/ChapterGravityGenInverse.lean` (registered in `BookProof.lean`),
+reusing `spatialProj_idempotent`, `spatialMetric_eq_metric_mul_proj`,
+`invSpatialMetric_mulVec_lower_self`, `invSpatialMetric_symm` and the headline
+`invSpatialMetric_mul_spatialMetric` (`h♯·h = χ`).
+
+- `spatialMetric_mul_spatialProj` — `h · χ = h` (χ is identity on the image of `h`);
+- `spatialProj_mul_invSpatialMetric` — `χ · h♯ = h♯` (χ is identity on the image
+  of `h♯`);
+- `spatialMetric_genInverse` — **headline** `h · h♯ · h = h`;
+- `invSpatialMetric_genInverse` — **headline** `h♯ · h · h♯ = h♯`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green.
+(Per the author's instruction the Hankel–Majorana line is left untouched.)
+
+## Wave 73 (2026-07-08) — **Book "Diffeomorphisms and gravity", §"Classical Hamiltonian": the orthogonal `3+1` spacetime split `x = χx + Πx`** (`ChapterGravitySplit`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`), and packaging together Wave 69's spatial projector `χ`
+and Wave 71's temporal projector `Π`.  Relative to the globally defined **unit
+timelike vector** `v` (`minkSq v = -1`), every contravariant vector `x` splits
+uniquely into its **spatial part** `χx ∈ v^⊥` and its **temporal part** `Πx`
+(a multiple of `v`); the two parts are Minkowski-orthogonal.  This is the
+linear-algebra content behind the book's use of `χ` to split every torsion
+tensor into spatial and temporal pieces.  New file
+`BookProof/ChapterGravitySplit.lean` (registered in `BookProof.lean`), reusing
+`spatialProj`, `timeProj`, `metric`, `lower`, `minkSq`, `spatialProj_mulVec_self`,
+`spatialProj_mulVec_of_orthogonal` and `spatialProj_add_timeProj`.
+
+- `minkForm x y` — the Minkowski bilinear form `⟨x,y⟩_η = ∑ₐ xᵃ y_a`;
+- `minkForm_comm` — the Minkowski form is symmetric;
+- `minkForm_self` — `minkForm x x = minkSq x`;
+- `spatialPart v x`, `timePart v x` — the spatial (`χx`) and temporal (`Πx`) parts;
+- `spatialPart_add_timePart` — **completeness** `χx + Πx = x`;
+- `timePart_eq_smul` — the temporal part is `Πx = −⟨x,v⟩_η · v`, a multiple of `v`;
+- `spatialPart_orthogonal` — the spatial part is Minkowski-orthogonal to `v`
+  (`⟨χx, v⟩_η = 0`), i.e. it lies in `v^⊥`;
+- `parts_orthogonal` — **headline** `⟨χx, Πx⟩_η = 0`: the spatial and temporal
+  parts are Minkowski-orthogonal;
+- `split_unique` — the `3+1` split is unique: if `x = s + c • v` with `s ⊥ v`
+  then `s = χx` and `c • v = Πx`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green.
+(Per the author's instruction the Hankel–Majorana line is left untouched.)
+
+## Wave 72 (2026-07-08) — **Book "Diffeomorphisms and gravity", §"Classical Hamiltonian": the inverse (raised) spatial metric `h♯ = η + v⊗v`** (`ChapterGravityInvMetric`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`), and building directly on Wave 69's projector `χ` and
+Wave 70's induced spatial metric `h_{ab} = η_{ab} + v_a v_b`.  Raising both
+indices of `h` with the Minkowski metric gives the **inverse spatial metric**
+`h^{ab} = η^{ab} + v^a v^b`, the metric induced on the cotangent spatial
+hyperplane.  New file `BookProof/ChapterGravityInvMetric.lean` (registered in
+`BookProof.lean`), reusing `metric`, `lower`, `minkSq`, `spatialProj` from
+`ChapterGravityProjector` and `spatialMetric` from `ChapterGravityMetric`.
+
+- `invSpatialMetric` — the raised metric `h^{ab} = η^{ab} + v^a v^b`;
+- `metric_mul_metric` — the Minkowski metric is an **involution** `η · η = 1`
+  (so `η` is its own inverse, `η^{ab} η_{bc} = δ^a{}_c`);
+- `invSpatialMetric_symm` — `h^♯` is symmetric (`(h♯)ᵀ = h♯`);
+- `invSpatialMetric_mulVec_lower_self` — `h^{ab} v_b = 0`: the inverse metric
+  degenerates along the time covector, complementary to `h_{ab} v^b = 0`
+  (Wave 70);
+- `invSpatialMetric_mul_spatialMetric` — **headline** `h^♯ · h = χ`: the raised
+  and lowered spatial metrics compose to the spatial projector `χ` (identity on
+  `v^⊥`), the defining relation of an inverse-metric pair on the degenerate
+  hyperplane.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green.
+(Per the author's instruction the Hankel–Majorana line is left untouched.)
+
+## Wave 71 (2026-07-08) — **Book "Diffeomorphisms and gravity", §"Classical Hamiltonian": the complementary temporal projector `Π = δ − χ = −v⊗v♭`** (`ChapterGravityTimeProj`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`), and building directly on Wave 69's projector `χ`.  The
+gravity chapter's mixed projector `χ_a{}^b = δ_a{}^b + v_a v^b` onto the spatial
+hyperplane `v^⊥` has a complement `Π = δ − χ = −v⊗v♭`, the **temporal
+projector** onto the `1`-dimensional time direction spanned by the unit timelike
+vector `v` (`minkSq v = −1`).  New file `BookProof/ChapterGravityTimeProj.lean`
+(registered in `BookProof.lean`), reusing `metric`, `lower`, `minkSq`,
+`spatialProj` from `ChapterGravityProjector`.
+
+- `timeProj` — the projector `Π^a{}_b = −v^a v_b`;
+- `spatialProj_add_timeProj` — **completeness** `χ + Π = δ` (the identity split
+  of spacetime into spatial + temporal parts);
+- `timeProj_idempotent` — `Π² = Π` (a genuine projector);
+- `trace_timeProj` — `tr Π = 1` (rank `1`: the time direction, complementary to
+  `tr χ = 3`);
+- `timeProj_mulVec_self` — `Π v = v`: `v` is fixed, spanning the image of `Π`
+  (complementary to `χ v = 0`);
+- `spatialProj_mul_timeProj` — `χ · Π = 0`: the two projectors are orthogonal;
+- `timeProj_mul_spatialProj` — `Π · χ = 0`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green.
+(Per the author's instruction the Hankel–Majorana line is left untouched.)
+
+## Wave 70 (2026-07-08) — **Book "Diffeomorphisms and gravity", §"Classical Hamiltonian": the induced spatial metric `h = η + v♭⊗v♭` is positive semidefinite** (`ChapterGravityMetric`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`), and building directly on Wave 69's projector.  Lowering
+the free index of the mixed projector `χ_a{}^b = δ_a{}^b + v_a v^b` with the
+Minkowski metric produces the associated `(0,2)` **induced spatial metric**
+`h_{ab} = η_{ab} + v_a v_b`, the Riemannian metric on the spatial hyperplane
+`v^⊥`.  New file `BookProof/ChapterGravityMetric.lean` (registered in
+`BookProof.lean`), reusing `metric`, `lower`, `minkSq`, `spatialProj` from
+`ChapterGravityProjector`.
+
+- `spatialMetric` — the matrix `h_{ab} = η_{ab} + v_a v_b`;
+- `spatialMetric_symm` — `h` is symmetric (`hᵀ = h`);
+- `spatialMetric_eq_metric_mul_proj` — the tensor identity `h = η · χ` (the
+  spatial metric is the projector `χ` with its free index lowered);
+- `spatialMetric_mulVec_self` — `h v = 0`: `v` spans the kernel, so `h`
+  degenerates exactly along the time direction;
+- `reverse_cauchy_schwarz` — the **reverse Cauchy–Schwarz inequality** for the
+  unit timelike vector `v`: `⟨x,v⟩_η² ≥ −⟨x,x⟩_η` for all `x` (proved via the
+  SOS identity `s·F = (a v₀ − x₀ s)² + Lagrange`, `s = v₁²+v₂²+v₃²`);
+- `spatialMetric_quadForm_nonneg` — **headline**: `0 ≤ xᵀ h x` for all `x` (the
+  quadratic form equals `minkSq x + ⟨x,v⟩_η²`, nonneg by reverse Cauchy–Schwarz);
+- `spatialMetric_posSemidef` — the packaged `Matrix.PosSemidef`: `h` is a
+  genuine (degenerate) Riemannian metric, positive definite on `v^⊥`.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green
+(8122 jobs).  (Per the author's instruction the Hankel–Majorana line is left
+untouched.)
+
+## Wave 69 (2026-07-08) — **Book "Diffeomorphisms and gravity", §"Classical Hamiltonian": the spatial projector `χ = δ + v⊗v`** (`ChapterGravityProjector`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`).  The gravity chapter (§*"Classical Hamiltonian"*,
+`book.tex` line ~8091) introduces, relative to a globally defined **unit
+timelike vector** `v` (`vᵘ vᵤ = −1` in the mostly-plus Minkowski metric
+`η = diag(−1,1,1,1)`), the mixed tensor `χ_a{}^b = δ_a{}^b + v_a v^b`, used
+pervasively to split the torsion tensors into their spatial / temporal parts.
+This `χ` is exactly the **orthogonal projector onto the spatial hyperplane**
+`v^⊥`.  New file `BookProof/ChapterGravityProjector.lean` (registered in
+`BookProof.lean`); the `(1,1)` tensor `χ^a{}_b = δ^a{}_b + v^a v_b` is modelled
+as an explicit `4×4` real matrix acting on contravariant vectors.
+
+- `metric` / `lower` / `minkSq` — the Minkowski metric, index lowering
+  `v_a = η_{ab} v^b`, and the Minkowski square `v^a v_a`;
+- `spatialProj` — the projector `χ^a{}_b = δ^a{}_b + v^a v_b`;
+- `spatialProj_mulVec_self` — `χ v = 0`: `v` spans the kernel;
+- `spatialProj_idempotent` — **headline**: `χ² = χ` (a genuine projector; the
+  key identity `M² = −M` for `M = v⊗v_♭` follows from `v·v = −1`);
+- `trace_spatialProj` — `tr χ = 3`: it is a rank-`3` projector (the spatial
+  slice);
+- `spatialProj_mulVec_of_orthogonal` — `χ` is the identity on `v^⊥`, confirming
+  it is the orthogonal projection onto the spatial hyperplane.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green
+(8121 jobs).
+
+## Wave 68 (2026-07-08) — **Book §A.5 "Hankel–Majorana Transform": the spherical Bessel function `j₃`, its `l = 3` ODE, and the next recurrences** (`ChapterSphericalBessel2`)
+
+Extends the base `ChapterSphericalBessel` module (which had `j₀, j₁, j₂` and the
+`l = 0` ODE) one order further, to the spherical Bessel function of the first
+kind `j₃`.  New file `BookProof/ChapterSphericalBessel2.lean` (registered in
+`BookProof.lean`), reusing the base module's `sbessel`, `sj1`, `sj2` and Rayleigh
+machinery.
+
+- `sj3` — the closed form
+  `j₃(r) = (15/r⁴ − 6/r²) sin r − (15/r³ − 1/r) cos r`;
+- `deriv_sj2` — the first derivative of `j₂`;
+- `sbessel_three_eq` — the Rayleigh formula reproduces `j₃`
+  (`sbessel 3 r = j₃ r`, via one more Rayleigh iterate on `sbessel_two_eq` using
+  `Filter.EventuallyEq.deriv_eq` on the punctured line);
+- `sbessel_recurrence_123` — the three-term recurrence at `l = 2`:
+  `j₁(r) + j₃(r) = (5/r) · j₂(r)`;
+- `deriv_recurrence_sj2` — the differentiation law at `l = 2`:
+  `d/dr j₂ = j₁ − (3/r) · j₂`;
+- `sj3_satisfies_ode` — `j₃` solves the `l = 3` spherical Bessel ODE
+  `r² j'' + 2 r j' + (r² − 12) j = 0` (`l(l+1) = 12`).
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green.
+
+## Wave 67 (2026-07-08) — **Book §10 "Ensemble forecasting …": there is no uniform countable measure** (`ChapterNoUniformCountable`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`).  The §10 chapter *"Ensemble forecasting allows the
+approximation of a non-linear infinite-dimensional model …"* (`book.tex`
+line ~2005) opens with the foundational assertion
+
+> "There is no uniform countable measure. Thus, the rationals are not enough for
+> Probability Theory. A standard probability space (which has countable and
+> continuous measures) seems irreducible."
+
+This measure-theoretic fact — distinct from the *infinite-dimensional Lebesgue*
+non-existence result already in `ChapterNoLebesgue` — had not been formalized.
+New file `BookProof/ChapterNoUniformCountable.lean` (registered in
+`BookProof.lean`).
+
+- `no_uniform_countable_measure` — **headline**: on a countably infinite
+  measurable space with measurable singletons there is no probability measure
+  assigning a common mass `c` to every singleton.  (Countable additivity gives
+  total mass `∑' _, c`, which is `0` when `c = 0` and `⊤` when `c ≠ 0` — never
+  `1`.)
+- `no_uniform_measure_nat` — the book's concrete `ℕ` instance ("the rationals
+  are not enough"): no probability measure on `ℕ` is uniform on singletons.
+
+Engine: `MeasureTheory.Measure.tsum_indicator_apply_singleton` (total mass = sum
+of singleton masses) and `ENNReal.tsum_const_eq_top_of_ne_zero`.  All
+`sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`,
+confirmed via `#print axioms`).  `lake build BookProof` green (8119 jobs).
+
+## Wave 66 (2026-07-08) — **Book "Wave-function collapse versus Euler's formula": Euler's formula for a *generic* phase-space** (`ChapterE4`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`).  The chapter *"Wave-function collapse versus Euler's
+formula"* has a further section, *"Euler's formula for a generic phase-space"*
+(`book.tex` line ~3565), which extends the finite 4-state density matrix of
+`ChapterE3` to a **countable** orthonormal basis `{lₙ}` via the recursion
+`vₙ = cos(θₙ)·lₙ + sin(θₙ)·vₙ₊₁`, and states that *collapse for a generic
+phase-space is a recursion of collapses of 2-dimensional real wave-functions*.
+This bridges the two prior chapters — `ChapterE2` (stick-breaking Born
+*probabilities*) and `ChapterE3` (finite density matrix) — and was not yet
+formalized.
+
+New file `BookProof/ChapterE4.lean` (registered in `BookProof.lean`).  Model:
+countable index space `ℕ`, orthonormal basis the standard basis
+`eₖ = Pi.single k 1 : ℕ → ℝ`, and a finite-support recursion `wave θ s d`
+(leading index `s`, `d` remaining stick-breaks, base `e_{s+d}`); outer products
+`v v†` written entrywise as `v i * v j`.
+
+- `wave_eq_zero_of_lt` — the tail `vₛ` is supported on indices `≥ s`
+  (orthogonality of the tail to the already-measured basis vectors).
+- `wave_self_succ` — the leading component is `cos θₛ`.
+- `density_recursion` — **headline**: the entrywise density-matrix recursion
+  `vₛ vₛ† = cₛ² eₛ eₛ† + sₛ² vₛ₊₁ vₛ₊₁† + cₛ sₛ (eₛ vₛ₊₁† + vₛ₊₁ eₛ†)`, a purely
+  algebraic identity requiring no orthonormality.
+- `cross_diag_zero` — the Euler cross term `eₛ vₛ₊₁†` has a vanishing diagonal.
+- `diag_collapse` — "taking the real part": the diagonal obeys the classical
+  stick-breaking recursion `(vₛ)ᵢ² = cₛ² (eₛ)ᵢ² + sₛ² (vₛ₊₁)ᵢ²`.
+- `cond_prob_sum` — `cₛ² + sₛ² = 1`, the book's
+  `P(s | s or above) + P(s+1 or above | s or above) = 1`.
+- `wave_prob_sum` — **total probability is conserved**:
+  `∑ i ∈ Icc s (s+d), (vₛ)ᵢ² = 1` (the trace of the density matrix is `1`).
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green
+(8118 jobs).
+
+## Wave 65 (2026-07-08) — **Book "Wave-function collapse versus Euler's formula": Euler's formula for the density matrix** (`ChapterE3`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`).  The chapter *"Wave-function collapse versus Euler's
+formula"* (`book.tex` §"Euler's formula for a phase-space with 4 states", line
+~3478) writes each collapse step of a real normalized wave-function
+`φ = cos θ · l + sin θ · w` as an **"Euler's formula for the corresponding
+density matrices"**: the rank-1 projector `φφ†` decomposes with a
+`cos(2θ) + J sin(2θ)` structure, `J := l w† − w l†` playing the role of the
+imaginary unit in `span{l, w}`, and "collapse = taking the real part" being the
+`cos(2θ)` (diagonal) part.  Prior chapters covered only the 2-state clock
+(`ChapterE`) and the stick-breaking Born *probabilities* (`ChapterE2`); the
+density-matrix identity itself was not yet formalized.
+
+New file `BookProof/ChapterE3.lean` (registered in `BookProof.lean`), column
+vectors `l w : Fin n → ℝ`, outer products via `Matrix.vecMulVec`:
+
+- `euler_density_matrix` — **headline**: the density-matrix Euler formula
+  `φφ† = ½(l l† + w w†) + ½ cos(2θ)(l l† − w w†) + ½ sin(2θ)(l w† + w l†)`, a
+  purely algebraic (double-angle) identity requiring no orthonormality.
+- `eulerJ_antisymm` — the "imaginary unit" `J = l w† − w l†` is antisymmetric
+  (`Jᵀ = −J`).
+- `eulerJ_sq` — under orthonormality `J² = −(l l† + w w†)`: `J` squares to minus
+  the identity of the subspace, so it genuinely behaves like `i`.
+- `euler_density_diag_real` — "taking the real part": the `l`-diagonal entry of
+  `φφ†` is `cos²θ = ½ + ½ cos(2θ)`, the book's conditional probability
+  `P(l | l or above)`.
+- `euler_density_isIdempotent` — under orthonormality `φφ†` is a genuine rank-1
+  projector (`φφ† · φφ† = φφ†`), the density matrix of a pure state.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`, confirmed via `#print axioms`).  `lake build BookProof` green
+(8117 jobs).
+
+## Wave 64 (2026-07-08) — **Book "Yang-Mills … Classical Statistical Field Theory" / gauge chapters: there is no infinite-dimensional Lebesgue measure** (`ChapterNoLebesgue`)
+
+Continuing the standing directive (mine the next self-contained mathematical
+claim from `book.tex`).  The Yang-Mills chapter (line ~6660) and the gauge
+chapters (line 2128) repeatedly invoke, as a load-bearing premise for the whole
+free-field / gauge-*variant* probability-measure framework, the classical fact
+that a translation-invariant "Lebesgue-like" measure on an
+infinite-dimensional space **cannot exist**:
+
+> "the Feynman's path integral assumes the existence of a translation-invariant
+> σ-finite (i.e. Lebesgue like) measure … Yet, it is proved that in rigor such
+> infinite-dimensional Lebesgue measure cannot exist."
+
+New file `BookProof/ChapterNoLebesgue.lean` (registered in `BookProof.lean`),
+for a real normed space `E` with a Borel measure `μ`:
+
+- `measure_ball_eq_measure_ball_zero` — a translation-invariant (`IsAddLeftInvariant`)
+  measure gives every ball the same mass as the concentric ball at the origin.
+- `measure_ball_zero_eq_zero` — **core estimate**: if `E` is infinite-dimensional
+  (`¬ FiniteDimensional ℝ E`), `μ` is translation-invariant and finite on
+  bounded sets, then every origin ball has measure `0`.  Proof rescales a bounded
+  `1`-separated sequence (`exists_seq_norm_le_one_le_norm_sub`) by `2r` to get
+  infinitely many disjoint radius-`r` balls inside one bounded set; positivity
+  would force infinite measure there.
+- `eq_zero_of_isAddLeftInvariant_of_finite_on_bounded` — **headline**: on an
+  infinite-dimensional real normed space the only translation-invariant Borel
+  measure finite on bounded sets is the zero measure.
+- `not_exists_nonzero_isAddLeftInvariant_finite_on_bounded` — existence restatement.
+- `not_finite_on_bounded_of_isAddLeftInvariant_of_pos_ball` — contrapositive
+  used in the book: a translation-invariant measure positive on some ball cannot
+  be finite on all bounded sets.
+
+All `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`); `lake build BookProof` green.  The physical modelling of the
+gauge-variant Gaussian measure that replaces the impossible Lebesgue measure is
+left as prose.
+
 > **Merge note (2026-07-08).** Two parallel Aristotle lineages extended this
 > log past Wave 39 with overlapping wave numbers.  The "Wave 41"/"Wave 40"
 > entries immediately below are the second lineage (in-place extensions of

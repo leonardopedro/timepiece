@@ -8,157 +8,552 @@ The plan strictly separates the additive and multiplicative domains and defines 
 
 # Lean 4 Formalization Plan: The Decoupled Kopperman-Mehler Framework
 
-## ★ IMPLEMENTATION STATE (2026-07-11) — read this first
+## ★ IMPLEMENTATION STATE (2026-07-09) — read this first
 
-All phases through **Phase 7** (inclusive) are fully implemented and compile successfully
-(`lake build RiemannProof.RandomMap` — 8026 jobs, Build completed successfully). Status per phase:
+The plan below is now largely ON DISK in `RiemannProof/RandomMap.lean`;
+compiles green with exactly **one** `sorry` — the named external citation
+`random_rearrangement_divergence` (`:1477` — Kakutani's random rearrangement
+problem) — and **zero** `admit`s; every topology, measurability, and
+construction theorem is proved). Status per phase:
 
-| Phase | Status | Notes |
-|---|---|---|
-| 1 (`NatAdd`, `NatMult`, `invIndex`, `summable_invIndex_sq`) | **PROVED** | `NatAdd` has `add`, `le`, `toNat`, `ofNat`, `equivNat`, `Infinite` instance; `NatMult` is `Multiset P` with `DiscreteTopology`; `realize_injective` proved via six-step recipe; `log_primes_linearIndependent` proved for genuine primes |
-| 1.3 (`realize`, `realize_injective`) | **PROVED** | `realize_injective` proved (`:258–350`); `log_primes_linearIndependent` proved (`:1166–1435`) |
-| 2 (`MapConfig` + topology) | **PROVED** | `MapConfig` = `NatAdd ≃ NatMult P`; `embed`; induced pointwise topology; `continuous_eval` proved (`:589`); `isClopen_cylinder` proved (`:598`); `PolishSpace` instance proved (`:394`); Borel + `OpensMeasurableSpace` instances proved (`:651–658`) |
-| 3 (`mehlerPrior`) | **BUILT** | `mehlerPrior` defined (`:821–924`) as a weighted sum of Dirac measures; three `admit` placeholders inside (injectivity of encoding `f`, sum bound `∑ w ≤ 1`, nonemptiness of `MapConfig P`); `probabilityOfTruth` defined (`:926`) |
-| 4 (`HilbertSpaceConfig`, `basisVector_orthonormal`, `psiTrue`, `psiTruth`) | **PROVED** | `HilbertSpaceConfig` = `lp (fun n : NatAdd => ℝ) 2`; `basisVector_orthonormal` proved; `psiTrue`/`psiTruth` defined; domination/summability bounds included |
-| 5–6 (`propHolds`, `measurable_set_propHolds`, `probabilityOfTruth`) | **PROVED** | `propHolds` defined (`:745`); `propHolds_iff` proved (`:773`); `measurable_set_propHolds` proved (`:794`); `probabilityOfTruth` defined (`:926`) |
-| 7.1 (`absolute_convergence_invariance`) | **PROVED** | `absolute_convergence_invariance` proved (`:948`) via `Equiv.summable_iff` + `Equiv.tsum_eq` |
-| 7.2 (`conditional_convergence_is_null`) | **PROVED** | `no_exchangeable_bijection_prior` proved (`:1003`); `conditional_convergence_is_null` proved (`:1156–1164`) via Cauchy criterion; `ConvergentMaps` defined (`:940`); `measurable_set_ConvergentMaps` proved (`:966–1054`) as countable Boolean combination of cylinder sets |
+| Phase | Status |
+|---|---|
+| 1 (`NatAdd`, `NatMult`, `invIndex`, `summable_invIndex_sq`) | ✅ proved; RM1's full clock API is also on disk (`toNat_add` `:119`, `AddCommMonoid` `:128`, `ofNat`/`toNat_ofNat`/`ofNat_toNat`/`equivNat` `:149–168`, `le_iff_toNat_le` `:171`, transported `LinearOrder` `:190`, `Denumerable` `:218`), and RM2's instances + `omega` lemmas too (`Countable`/`Infinite`/`Denumerable` for `NatMult P` `:283–302`, `omega` `:280`, `omega_mul`/`omega_one` `:304/:308`) |
+| 1.3 (`realize`, `realize_injective`) | ✅ proved (`RandomMap.lean:362`), exactly by the six-step recipe below |
+| 1.3 Remark (`log_primes_linearIndependent`) | ✅ proved (`RandomMap.lean:1034`, full FTA argument on disk) — `hp_indep` is discharged for the genuine primes, so `realize_injective` is unconditional there |
+| 2 (`MapConfig` + topology) | ✅ **RM6 landed in full**: `MapConfig` (`:465`), two-sided `embed` (`:492`), induced pointwise topology (`:496`), `PolishSpace` instance ✅ **proved** (`:500–590`, closed-embedding route), `continuous_eval` ✅ (`:593`), `isClopen_cylinder` ✅ (`:602`), Borel + `OpensMeasurableSpace` instances (`:669–689`) |
+| ★ RM4 (`no_exchangeable_bijection_prior`) | ✅ **proved**: elementary proof via `Equiv.swap`, `measure_iUnion`, `tsum_const_eq_top_of_ne_zero` — no de Finetti needed |
+| ★ RM9a (`blockShuffleAssemble`) | ✅ **proved**: `triangular_eq_add` helper lemma + `left_inv`/`right_inv` via `triangularRoot_add_pos`/`triangularPos_add_pos` + permutation recovery |
+| ★ RM9b (`mehlerPrior`) | ✅ **constructed**: countable product of `PMF.uniformOfFintype` on `Equiv.Perm (Fin (k+1))` pushed forward along `blockShuffleAssemble` |
+| ★ RM9d (Kolmogorov zero-one) | *blocked*: Mathlib's `Probability.Independence.ZeroOne` not available in vendored checkout — `random_rearrangement_divergence` carries the single named external citation |
+| 3 (`mehlerPrior`) | `mehlerPrior` is now a genuine construction (RM9b); `canonicalConfig` + `Nonempty (MapConfig P)` ✅ live (`:648`, `:651`, RM3 done) |
+| 4 (`HilbertSpaceConfig`, `basisVector_orthonormal`, `psiTrue`, `psiTruth`) | ✅ proved, domination/summability bounds included (`:699–777`) |
+| 5–6 (`propHolds`, `measurable_set_propHolds`, `propHolds_iff`) | `propHolds` ✅; `propHolds_iff` ✅ **proved** (`:803` — RM7 bridge); `measurable_set_propHolds` ✅ **proved** (`:831`, clopen cylinder intersection); `dist_sq_eq_tsum_missed` ✅ **proved** (`:1266`, Kopperman quantitative bridge) |
+| 7.1 (`absolute_convergence_invariance`) | ✅ proved (`:872`) as recipe'd: `Equiv.summable_iff` + `Equiv.tsum_eq`, no order on the labels |
+| 7.2 (`conditional_convergence_is_null`) | `measurable_set_ConvergentMaps` ✅ **proved** (`:883`, rational-ε Cauchy `⋂⋃⋂` of open cylinder events); `conditional_convergence_is_null` stated with `hμ_exch` hypothesis and closed by delegation to `random_rearrangement_divergence` (`:1477`) |
+| 8 (Strategy B — sampled scalars) | spec (added 2026-07-08), nothing on disk yet |
+| 9 (clock-free geometry + PA exclusion + Kopperman-$c_0$ safety) | NEW spec (added 2026-07-08, evening), nothing on disk yet — see Phase 9 below and RM15–RM20 |
 
-**Build verification** (2026-07-11): `lake build RiemannProof.RandomMap` completed successfully (8026 jobs).
-One error fixed during this pass: name collision between `MapConfig.continuous_eval` and
-`ContinuousEval.continuous_eval` from Mathlib — resolved by using fully qualified `MapConfig.continuous_eval`.
+The open work is organized as the numbered deliverable packages **RM1–RM20** in the
+**★ WORK QUEUE** section immediately below; every implementation pass picks the lowest-numbered
+package not yet ✅ (or any package the closing order marks as anytime-filler) and lands it.
+Headline items: RM1, RM2, RM3, RM4, RM6, RM9a, RM9b are now ✅ **on disk** —
+RM4 (exchangeability no-go) and RM9a/RM9b (block-shuffle prior construction) both landed
+2026-07-09. The Polish topology package (RM6) landed in full on 2026-07-09, so the
+configuration space is a certified Polish space with proved measurability for both key events.
+RM9d (Kolmogorov zero-one law) is *blocked* by Mathlib's missing `Probability.Independence.ZeroOne`;
+`random_rearrangement_divergence` carries the single named external citation until Mathlib grows it.
+RM10 is the Strategy-B almost-sure-independence theorem; **RM15–RM18 (new)** re-index the
+geometry by the unordered labels and turn "PA is excluded" from a design slogan into a pair of
+checkable theorems — Mathlib's new `ModelTheory/Arithmetic/Presburger` + semilinear-set
+machinery makes the clock side genuinely landable; **RM19–RM20 (new, adapted from `newproof.md`)**
+close Kopperman's own $c_0$ trapdoor: the Finsupp core, the completion bridge to the RM15 space,
+and the unselectability shadows (type-level, measure-level, and the purely-additive Cauchy
+extraction).
 
-**Remaining `sorry` blocks** (all external inputs, documented inline):
+## ★ WORK QUEUE (2026-07-08) — deliverable packages RM1–RM20
 
-| Line | Declaration | External Input |
-|---|---|---|
-| 842 | `hf_inj` inside `mehlerPrior` | Injectivity of encoding `f : MapConfig P → ℕ` (Axiom of Choice / well-ordering) |
-| 874 | `hw_sum_le_one` inside `mehlerPrior` | Sum of weights `≤ 1` (same source) |
-| 895 | `h_nonempty` inside `mehlerPrior` | Nonemptiness of `MapConfig P` (bijections exist — Cantor-Bernstein) |
-| 1089 | `random_rearrangement_divergence` | Hewitt–Savage zero–one + Kakutani global divergence |
-| 1557 | `ae_log_linearIndependent` (RM8) | i.i.d. framework formalization (self-contained proof pending) |
+Conventions, shared with `FORMALIZATION_ROADMAP.md`: every pass lands a numbered deliverable
+from this queue and records it in the module docstring; external analytic inputs stay as
+**named, docstring-cited `sorry`-bodied theorems** drawn from the explicit list in RM8/RM9
+(the `bagchi_universality` practice) — formalize *around* them and shrink them only when a
+numbered deliverable says so; computations end at small closed-form rationals (the roadmap's
+STOP RULE #2 applies: no special-function or open-ended numerics). Sizes: S ≈ one short pass,
+M ≈ one full pass, L ≈ several passes.
 
-**Remaining linter warnings** (non-blocking, cosmetic): unused `simp` arguments at lines 518/558,
-`simpa`→`simp` at lines 281/284/420/423/441, long comment lines at 223/278/346/348/401/405/475/1257.
+### RM1 (S) — Clock order API
 
-### ★ This pass (RM6 — measurability + RM8 — Strategy B)
+Bundle the on-disk `toNat`/`ofNat` pair and give `NatAdd` its full Presburger interface
+(order + addition — and nothing else; multiplication stays deliberately absent):
 
-**`measurable_set_ConvergentMaps` proved** (`RandomMap.lean:966–1054`).
-
-The convergence event `ConvergentMaps c` is rewritten as a countable Boolean combination
-of cylinder sets via the Cauchy criterion for real sequences:
-
+```lean
+lemma NatAdd.ofNat_toNat (n : NatAdd) : NatAdd.ofNat n.toNat = n        -- induction on n
+def NatAdd.equivNat : NatAdd ≃ ℕ := ⟨toNat, ofNat, ofNat_toNat, toNat_ofNat⟩
+lemma NatAdd.toNat_add (a b : NatAdd) : (a + b).toNat = a.toNat + b.toNat
+instance : AddCommMonoid NatAdd        -- from the add_comm/add_assoc/add_zero lemmas on disk
+instance : LinearOrder NatAdd          -- transport along equivNat
+lemma NatAdd.le_iff_toNat_le (a b : NatAdd) : a ≤ b ↔ a.toNat ≤ b.toNat
+  -- and: the transported order agrees with the on-disk inductive `le`
+instance : Denumerable NatAdd          -- Denumerable.ofEquiv via equivNat
 ```
-ConvergentMaps c = ⋂_{ε∈ℚ_{>0}} ⋃_{N∈ℕ} ⋂_{k∈ℕ} {ω | |s ω (N+k) - s ω N| < ε}
+
+Payoff: every later package indexes the clock through `equivNat` instead of ad-hoc `toNat`
+plumbing; `Denumerable NatAdd` feeds RM3.
+
+*Status:* ✅ **DONE** (2026-07-09 pass) — every listed item is proved on disk
+(`toNat_add` `:119`, `AddCommMonoid` `:128`, `ofNat`–`equivNat` `:149–168`,
+`le_iff_toNat_le` `:171`, `LinearOrder` `:190`, `Denumerable` `:218`), and the transported
+order provably agrees with the inductive `le`.
+
+### RM2 (S–M) — Labels API
+
+```lean
+instance {P} [Countable P] : Countable (NatMult P)      -- Multiset = quotient of List
+instance {P} [Nonempty P] : Infinite (NatMult P)        -- n ↦ replicate n witness, injective
+instance {P} [Encodable P] : Denumerable (NatMult P)    -- via Mathlib's List/Multiset encodings
+lemma NatMult.omega_mul (x y : NatMult P) : (x * y).omega = x.omega + y.omega
+lemma NatMult.omega_one : (1 : NatMult P).omega = 0
+def realizeHom (hp : ∀ i, 0 < p i) : NatMult P →* ℝ     -- realize_one, realize_mul
+lemma one_le_realize (hp : ∀ i, 1 ≤ p i) (n : NatMult P) : 1 ≤ realize p n
+lemma realize_pos (hp : ∀ i, 0 < p i) (n : NatMult P) : 0 < realize p n
 ```
 
-where `s ω N = ∑_{i<N} c(ω(ofNat i))`. Each inner set is the preimage of an open
-interval under a measurable function (finite sum of measurable cylinder evaluations).
-Countable intersections/unions preserve measurability.
+`realize_mul` is `Multiset.map_add` + `Multiset.prod_add` (the label product is multiset
+union). Keep the labels order-free throughout: no `LE (NatMult P)` instance, ever — that
+absence is Phase 1's whole point.
 
-**Supporting infrastructure added**:
-- `MeasurableSpace (NatMult P) := borel (NatMult P)` and `BorelSpace (NatMult P)` instance
-  (`NatMult` namespace, after topology instances) — needed because `continuous_of_discreteTopology.measurable`
-  requires `BorelSpace` on the domain.
+*Status:* **mostly landed** (2026-07-09 pass) — the three instances (`:283–302`), `omega`
+(`:280`), and `omega_mul`/`omega_one` (`:304/:308`) are on disk; the open residue is the
+`realizeHom` bundle (`realizeHom`, `one_le_realize`, `realize_pos`), a short pass.
 
-**Key Mathlib lemma discoveries** (non-obvious names pinned for next pass):
-- `Metric.cauchySeq_iff` — ε-N characterization of Cauchy sequences in pseudo-metric spaces
-- `cauchySeq_tendsto_of_complete` — Cauchy sequence in a complete space yields a limit
-- `abs_sub_le a b c : |a - c| ≤ |a - b| + |b - c|` — triangle inequality for absolute value
-- `abs_sub_comm a b : |a - b| = |b - a|` — commutativity of subtraction under absolute value
-- `Real.dist_eq` — `dist a b = |a - b|` in ℝ
+### RM3 (S) — Nonemptiness of `MapConfig` and the canonical dictionary
 
-**`conditional_convergence_is_null` proved** (`:1156–1164`) via Cauchy criterion:
-forward direction uses `Metric.tendsto_atTop.mp` + triangle inequality; reverse direction
-uses `cauchySeq_tendsto_of_complete`.
+```lean
+noncomputable def canonicalConfig (P) [Denumerable P] : MapConfig P :=
+  NatAdd.equivNat.trans (Denumerable.eqv (NatMult P)).symm
+instance {P} [Denumerable P] : Nonempty (MapConfig P) := ⟨canonicalConfig P⟩
+```
 
-**RM8 (`ae_log_linearIndependent`) added** (`:1527–1557`):
-The theorem is stated with explicit Mathlib i.i.d. primitives (`iIndepFun`,
-`IdentDistrib`, `NoAtoms`, support > 1). The proof body is a `sorry`,
-pending the full i.i.d. framework formalization. The statement captures
-the essential Strategy-B claim: almost-sure ℚ-linear independence of
-logarithms of i.i.d. sampled scalars. This is the self-contained
-counterpart of `random_rearrangement_divergence` (which requires external
-Hewitt–Savage + Kakutani inputs). Both RM8 and RM10 can be proved
-in parallel once the i.i.d. machinery is in place.
+(For the `[Countable P] [Nonempty P]` generality, route through
+`Denumerable.mk'`/`Encodable.ofCountable`.) This provides the base point that RM9 shuffles.
+
+*Status:* ✅ **DONE** — both declarations are live on disk (`:648`, `:651`). (They were written
+by the 2026-07-09 07:58 pass but accidentally landed *inside* the Phase 3 `/-!` comment block —
+Lean block comments nest, so the file compiled green while the two declarations were dead text;
+the block was closed and the code resurrected the same day. The old Dirac-sum stub and its
+`admit`s are gone, so the base point's remaining consumer is RM9's assembly map.)
+
+### RM4 (M) — ★ DESIGN-CRITICAL: the exchangeability no-go theorem
+
+Full exchangeability is *impossible* for a countably-additive probability measure on
+bijections into a countable label set — the hypothesis `hμ_exch` of the on-disk Step 7.2 can
+never be discharged. Formalize this; the proof is elementary and needs no de Finetti:
+
+```lean
+theorem no_exchangeable_bijection_prior {P} [Countable P] [Nonempty P]
+    (μ : Measure (MapConfig P)) [IsProbabilityMeasure μ]
+    (hμ_exch : ∀ σ : Equiv.Perm NatAdd, (∃ s : Finset NatAdd, ∀ x ∉ s, σ x = x) →
+      MeasurePreserving (fun ω : MapConfig P => (σ : NatAdd ≃ NatAdd).trans ω) μ μ) :
+    False
+```
+
+Proof sketch: let `a m := μ {ω | ω 0 = m}`. (1) For each clock tick `i`, the swap
+`Equiv.swap 0 i` is finitely supported, and `hμ_exch` applied to it gives
+`μ {ω | ω i = m} = a m`. (2) For fixed `m`, the events `{ω | ω i = m}` (over `i`) are pairwise
+disjoint because each `ω` is injective; countable additivity gives `∑ᵢ a m ≤ 1`, forcing
+`a m = 0` for every `m`. (3) `Set.univ = ⋃ m, {ω | ω 0 = m}` is a countable union
+(`Countable (NatMult P)`, RM2), so `1 = μ Set.univ = ∑' m, a m = 0` — contradiction.
+Measurability of the coordinate events is free under the landed RM6 topology — they are
+exactly the clopen cylinders of `isClopen_cylinder` (`:602`). Follow-ups inside the same package:
+
+* re-docstring the on-disk `conditional_convergence_is_null` and
+  `random_rearrangement_divergence` to record that their hypothesis is vacuous for genuine
+  probability measures (the theorems stay — they are true — but RM9 supplies the non-vacuous
+  replacement);
+* add the same note to the Phase 3/Step 7.2 prose of this plan (a one-line pointer to RM4 at
+  each site suffices).
+
+### RM5 (M) — Toy model with a rational answer
+
+The honest finite toy truncates *both* sorts: a finite clock `Fin k` against `k` chosen labels.
+
+```lean
+def ToyConfig (k : ℕ) := Fin k ≃ Fin k                    -- dictionaries of the truncated world
+noncomputable def toyPrior (k : ℕ) : Measure (ToyConfig k) -- uniform: PMF.uniformOfFintype .toMeasure
+noncomputable def toyProbabilityOfTruth (k) (P_test : Fin k → Bool) : ℝ
+example : toyProbabilityOfTruth 2 (fun i => i = 0) = 1/2 := by decide/norm_num-style proof
+```
+
+Also prove the sanity endpoints `P_test ≡ true ⇒ 1` and `P_test ≡ false ⇒ 0` at the toy level.
+Stop at small rationals; the toy exists to check that measure and geometry compose, not to
+compute anything.
+
+### RM6 (L) — The Polish topology package (replaces the discrete placeholders)
+
+Install the genuine topology of pointwise convergence *in both directions* (the standard
+`S_∞` presentation — one-sided pointwise convergence does not make the bijections a closed
+subspace, the two-sided embedding does):
+
+```lean
+def MapConfig.embed (ω : MapConfig P) : (NatAdd → NatMult P) × (NatMult P → NatAdd) :=
+  (ω, ω.symm)
+instance : TopologicalSpace (MapConfig P) := .induced MapConfig.embed inferInstance
+theorem MapConfig.isClosedEmbedding : IsClosedEmbedding (MapConfig.embed (P := P))
+instance : PolishSpace (MapConfig P)       -- closed subspace of a Polish product of discretes
+theorem continuous_eval (n : NatAdd) : Continuous fun ω : MapConfig P => ω n
+theorem isClopen_cylinder (n m) : IsClopen {ω : MapConfig P | ω n = m}
+theorem borel_eq_generateFrom_cylinders : ‹the Borel σ-algebra is generated by the cylinders›
+```
+
+Then re-prove, against the real topology, the two theorems that currently ride the placeholder:
+`measurable_set_propHolds` (via RM7's coordinate lemma: a countable intersection of clopen
+cylinders, hence closed and measurable) and `measurable_set_ConvergentMaps` (the sorted Cauchy
+criterion: `⋂_{ε ∈ ℚ⁺} ⋃_N ⋂_{M,M'>N}` of events depending on finitely many coordinates).
+Sub-deliverable freebies worth registering: `T2Space`, `TotallyDisconnectedSpace`, and
+continuity of composition and inversion (`MapConfig` as a topological group under `.trans`).
+
+*Status:* ✅ **DONE** (2026-07-09 07:58 pass) — the whole package is proved on disk, exactly by
+the route the former ★ redirect pinned: `embed` (`:492`), the induced instance (`:496`), the
+`PolishSpace` instance (`:500–590` — the range of `embed` is
+`⋂ n {x | x.2 (x.1 n) = n} ∩ ⋂ m {x | x.1 (x.2 m) = m}`, a countable intersection of closed
+coordinate conditions, closed embedding, then `Topology.IsClosedEmbedding.polishSpace`),
+`continuous_eval` (`:593`), `isClopen_cylinder` (`:602`), and both downstream measurability
+theorems with the corrected staging: `measurable_set_propHolds` (`:831`, countable intersection
+of clopen cylinders through `propHolds_iff`) and `measurable_set_ConvergentMaps` (`:883`,
+rational-ε Cauchy `⋂⋃⋂` of open events via `continuous_eval`). The sub-deliverable freebies
+(`borel_eq_generateFrom_cylinders`, `T2Space`, `TotallyDisconnectedSpace`, topological-group
+continuity of `.trans`/`.symm`) remain unregistered — land them opportunistically whenever a
+later package wants one.
+
+### RM7 (M) — The geometry–logic bridge lemmas
+
+The file defines `propHolds` but never yet proves it *means* "true at every tick" — the
+Kopperman translation deserves its theorem:
+
+```lean
+theorem propHolds_iff (ω : MapConfig P) (P_test) :
+    propHolds ω P_test ↔ ∀ n, P_test (ω n) = true
+  -- lp coefficient extensionality + invIndex n ≠ 0
+theorem dist_sq_eq_tsum_missed (ω) (P_test) :
+    ‖psiTrue ω - psiTruth ω P_test‖ ^ 2
+      = ∑' n : {n : NatAdd // P_test (ω n) = false}, (NatAdd.invIndex n) ^ 2
+theorem propHolds_monotone : (∀ x, P_test x = true → Q_test x = true) →
+    propHolds ω P_test → propHolds ω Q_test
+```
+
+`dist_sq_eq_tsum_missed` is the quantitative Kopperman statement — distance measures exactly
+the weighted mass of counterexample ticks. Uses `lp.norm_rpow_eq_tsum` (p = 2) and the
+domination bound already on disk.
+
+*Status:* **partially landed** — `propHolds_iff` is ✅ proved on disk (`:803`, by lp coefficient
+extensionality + `invIndex n ≠ 0`, exactly as specified, and it now powers
+`measurable_set_propHolds`); the open residue is `dist_sq_eq_tsum_missed` and
+`propHolds_monotone`.
+
+### RM8 (L) — The global prior: Fisher–Yates on the clock (Kakutani strength)
+
+The full "non-summable ⇒ null event" conclusion needs *global* randomization (RM9 proves local
+shuffles genuinely fail it). Construct the geometric Fisher–Yates dictionary: fix
+`canonicalConfig` (RM3) as the label enumeration; sample `G₀, G₁, …` i.i.d. geometric(1/2) on
+ℕ; tick `n` receives the `Gₙ`-th *not-yet-used* label.
+
+* **RM8a**: the kernel chain and its infinite product — via Mathlib's Ionescu–Tulcea
+  (`Mathlib/Probability/Kernel/IonescuTulcea/`, in the vendored checkout; if the API resists,
+  build the joint law on `ℕ → ℕ` with `Measure.infinitePi` and define the assembly map from
+  rank sequences to injections).
+* **RM8b**: a.s. totality/surjectivity — every label is eventually consumed; second
+  Borel–Cantelli (independent events with divergent probability sum;
+  `ProbabilityTheory.measure_limsup_eq_one`) — yielding `fisherYatesPrior : Measure (MapConfig P)`,
+  `IsProbabilityMeasure`, and `NoAtoms`-style diffuseness.
+* **RM8c**: quasi-invariance under finitely-supported clock permutations (law of `ω ∘ σ` is
+  absolutely continuous w.r.t. the law of `ω`, with an explicit finite-product density) — the
+  honest surrogate for the exchangeability RM4 forbids; null events are permutation-stable.
+* **RM8d**: the narrowed external input. Retire the current wide citation in favor of the
+  named, docstring-cited `sorry` `fisher_yates_divergence : ¬ Summable c →
+  fisherYatesPrior (ConvergentMaps c) = 0` (Kakutani-problem strength, global rearrangement),
+  and re-derive `conditional_convergence_is_null`-for-`fisherYatesPrior` from it plus RM8c.
+  The external-input list for this file is exactly: {Hewitt–Savage (until Mathlib grows it),
+  Kakutani-type global divergence}. Everything else is proved.
+
+### RM9 (L) — The block-shuffle prior: a real diffuse prior with a PROVABLE zero–one law
+
+Adopt as the interim `mehlerPrior` (replacing the honest `sorry` stub at `:678` — the on-disk
+docstring and the adjacent construction-strategy comment already prescribe exactly this
+package): partition the clock into consecutive blocks `B_k` with `|B_k| = k + 1`, put the
+uniform law on each finite symmetric group `Equiv.Perm (Fin (k+1))`, take the countable product
+(`Measure.infinitePi` of finite uniforms — no projective-limit subtleties, every factor is a
+`Fintype`), and push forward along the assembly map `(π_k)_k ↦ canonicalConfig ∘ (blockwise π)`.
+Every sample is a genuine bijection *deterministically* — no a.s.-surjectivity work at all.
+
+* **RM9a**: `blockShuffleAssemble` assembly map — ✅ **DONE** (2026-07-09): `triangular_eq_add`
+  helper lemma + `left_inv`/`right_inv` proved via `triangularRoot_add_pos`/`triangularPos_add_pos` +
+  permutation recovery (`RandomMap.lean:863–962`)
+* **RM9b**: `mehlerPrior` construction — ✅ **DONE** (2026-07-09): countable product of
+  `PMF.uniformOfFintype` on `Equiv.Perm (Fin (k+1))` pushed forward along
+  `blockShuffleAssemble` (`RandomMap.lean:959–962`)
+* **RM9c**: invariance under block-preserving finite permutations (the subgroup replacing RM4's
+  impossible full exchangeability) — *not yet started*
+* **RM9d — the headline, zero external input**: `ConvergentMaps c` ignores any finite set of
+  block factors (changing finitely many blocks changes finitely many partial sums), so it is a
+  tail event of an independent family; Mathlib's **Kolmogorov zero–one law**
+  (`Mathlib/Probability/Independence/ZeroOne.lean`) gives
+  `blockShufflePrior (ConvergentMaps c) = 0 ∨ blockShufflePrior (ConvergentMaps c) = 1` —
+  the first dichotomy theorem of the development proved entirely inside Mathlib.
+  *Status:* *blocked* — `Probability.Independence.ZeroOne` not in vendored Mathlib;
+  `random_rearrangement_divergence` carries the single named external citation until Mathlib grows it.
+* **RM9e — the honest boundary**: prove the *counterexample* showing local shuffles cannot
+  reach Kakutani strength: for the alternating-harmonic family pulled back along
+  `canonicalConfig`, **every** block-preserving rearrangement converges (within a block the
+  total variation is `≤ ∑_{n ∈ B_k} |c n| ≈ 1/k → 0`, and block-boundary partial sums are
+  rearrangement-invariant), so `¬ Summable c` with `blockShufflePrior (ConvergentMaps c) = 1`.
+  This theorem is why RM8 exists, and it is fully provable — a deterministic statement about
+  finite rearrangements plus a series estimate. — *not yet started*
+
+### RM10 (L) — Strategy B: almost-sure multiplicative independence
+
+On the product space `ℕ → ℝ` with `μ = Measure.infinitePi (fun _ => ν)` for an atomless
+probability measure `ν` supported in `(1, ∞)`:
+
+* **RM10a**: single-relation nullity — for each nonzero `q : ℕ →₀ ℚ`,
+  `μ {x | ∑ i ∈ q.support, (q i : ℝ) * Real.log (x i) = 0} = 0`: pick `j` with `q j ≠ 0`,
+  factor `μ` through the `j`-th coordinate (Fubini for `infinitePi`), and for a.e. fixing of
+  the other coordinates the relation pins `x j` to one point — an atomless-null event
+  (`Real.log` injective on `(0,∞)`).
+* **RM10b**: countability of `{q : ℕ →₀ ℚ | q ≠ 0}` (`Finsupp` over countable types is
+  countable) and the union bound (`measure_iUnion_null_iff`).
+* **RM10c**: the headline
+  `ae_log_linearIndependent : ∀ᵐ x ∂μ, LinearIndependent ℚ (fun i => Real.log (x i))`
+  (bridge via `linearIndependent_iff'` — a violation IS a nonzero finitely-supported relation),
+  plus the corollary `∀ᵐ x ∂μ, Function.Injective (realize (x ∘ decode))` through
+  `realize_injective`: **unique factorization almost surely**, the sampled twin of
+  `log_primes_linearIndependent`.
+* **RM10d**: one concrete instantiation, `ν = (volume.restrict (Set.Ioo 1 2)).toProbability`-style
+  uniform law, with its atomlessness instance.
+
+### RM11 (S, recurring) — Docstring discipline sweeps
+
+Keep Action Plan items 7 and 11 current as packages land: every new convergence or
+completeness lemma carries the sorted-quantifier paragraph (bounded vector indices, unbounded
+quantifier on the clock) and, where a measure is involved, the Strategy-B M-samples reading.
+One sweep after each L-package counts as a deliverable.
+
+### RM12 (M) — Probability endpoints and monotonicity
+
+Once RM9a lands (any genuine probability prior), tie the knot Phase 6 promises:
+
+```lean
+theorem probabilityOfTruth_of_true : probabilityOfTruth (fun _ => true) = 1
+  -- propHolds holds for every ω (RM7), truth set = univ
+theorem probabilityOfTruth_of_false : probabilityOfTruth (fun _ => false) = 0
+  -- coefficients differ at tick 0 (invIndex ≠ 0), truth set = ∅
+theorem probabilityOfTruth_mono :
+    (∀ x, P_test x = true → Q_test x = true) →
+    probabilityOfTruth P_test ≤ probabilityOfTruth Q_test   -- RM7 monotone + measure_mono
+```
+
+These three lines are the page's "probability of a proposition" story made checkable
+end-to-end: 1 for tautologies, 0 for antilogies, monotone in logical strength.
+
+### RM13 (M–L, stretch) — Beurling counting finiteness
+
+With escape-to-infinity primes (`hp₂ : Filter.Tendsto p Filter.cofinite Filter.atTop`,
+`hp₁ : ∀ i, 1 < p i` — satisfied by the genuine primes), the Beurling integers are locally
+finite: `theorem finite_realize_le (x : ℝ) : {n : NatMult P | realize p n ≤ x}.Finite`
+(only finitely many primes fit under `x`; multiset exponents are bounded by `log x / log`
+of the smallest prime; inject into a finite product of ranges). This is the first brick of any
+future Beurling-zeta work and a self-contained combinatorial exercise until then.
+
+### RM14 (S–M) — Import hygiene and the axiom audit
+
+Replace the blanket `import Mathlib` with the per-phase module imports this plan already lists;
+run `#print axioms` on the headline theorems (`realize_injective`,
+`log_primes_linearIndependent`, `absolute_convergence_invariance`, and each new RM headline as
+it lands) and record the outcome (the standard trio, plus `sorryAx` exactly on the named
+external inputs) in the module docstring — the checkable form of Action Plan item 1.
+
+### RM15 (M) — Clock-free geometry: the label-indexed Hilbert space
+
+Phase 9.1 below records the design insight: Mathlib's `HasSum`/`tsum` is *defined* as the limit
+of partial sums along the `atTop` filter of `Finset ι` (the unconditional `SummationFilter`), so
+the whole ℓ² geometry can be indexed by the **unordered label sort directly** — no clock, no
+enumeration, no order anywhere in the construction. Make that literal on disk:
+
+```lean
+/-- The clock-free Hilbert space: square-summable label-indexed families.
+    `lp`/`tsum` take limits over the `Finset` filter, so no order on `NatMult P`
+    is used or needed — the geometry is order-blind by construction. -/
+noncomputable def HilbertSpaceLabels (P : Type) : Type := lp (fun _ : NatMult P => ℝ) 2
+
+noncomputable def labelBasis (m : NatMult P) : HilbertSpaceLabels P := lp.single 2 m 1
+lemma labelBasis_orthonormal : …                    -- same proof shape as basisVector_orthonormal
+/-- ∃-bound criterion over finite subsets, for nonneg coefficient rules:
+    summability ↔ the finite partial sums are bounded. -/
+lemma memLp_of_bddAbove (c : NatMult P → ℝ)
+    (hB : BddAbove (Set.range fun F : Finset (NatMult P) => ∑ m ∈ F, (c m)^2)) : …
+    -- via `hasSum_of_isLUB_of_nonneg` / `isLUB_hasSum'` (Topology/Algebra/InfiniteSum/Order.lean)
+/-- Transport along a dictionary: ω induces a linear isometry equivalence
+    between the clock-indexed and label-indexed spaces. -/
+noncomputable def transportEquiv (ω : MapConfig P) :
+    HilbertSpaceConfig ω ≃ₗᵢ[ℝ] HilbertSpaceLabels P    -- `LinearIsometryEquiv.piLpCongrLeft`-style
+```
+
+Docstring obligations (same discipline as Action Plan item 7): record that (i) `HasSum` over an
+index *type* is the net-over-finite-subsets definition — every partial sum is a finite sum of
+Tarski reals, no sequence index appears, and permutation invariance is built in (this is why
+`absolute_convergence_invariance` is a two-lemma proof); (ii) `MapConfig` therefore exits the
+geometry entirely — `HilbertSpaceConfig ω` never used its `ω` (it is `_ω` on disk!), and after
+this package the honest statement is on `HilbertSpaceLabels` with `transportEquiv` explaining
+what a dictionary *does* contribute: an enumeration of the basis, needed exactly and only by
+clock-ordered (conditionally convergent) questions. `psiTrue`/`psiTruth` keep their clock-indexed
+form (their coefficient rule `invIndex` lives on the clock); add label-indexed twins whose
+coefficient rule is `fun m => 1 / realize m` under the hypothesis
+`hsum : Summable fun m => (1 / realize m)^2` (discharged for the genuine primes by
+`summable_one_div_nat_rpow`-style lemmas; kept as a hypothesis for general Beurling systems).
+
+### RM16 (M–L) — PA exclusion, clock side: multiplication is not Presburger-definable
+
+Phase 9.2's first checkable theorem: the clock sort *cannot* recover multiplication, so welding
+never happens by accident on the additive side. The vendored Mathlib now supplies the hard
+infrastructure — `FirstOrder.Language.presburger` (`Mathlib/ModelTheory/Arithmetic/Presburger/
+Basic.lean`, language (0,1,+)), the semilinear-set theory with closure under intersection,
+difference, complement, image, and projection (`…/Presburger/Semilinear/Defs.lean` and
+`…/Semilinear/Basic.lean`: `IsSemilinearSet.inter/.diff/.compl/.image/.proj/.proj'`, Ginsburg–
+Spanier), and `Set.Definable` (`Mathlib/ModelTheory/Definability.lean`). The package is the
+bridge plus the counterexample:
+
+```lean
+-- RM16a: definable ⇒ semilinear (induction on BoundedFormula; the one genuinely new theorem)
+theorem IsSemilinearSet.of_definable {k : ℕ} {s : Set (Fin k → ℕ)}
+    (hs : Set.Definable ∅ Language.presburger s) : IsSemilinearSet s
+  -- atomic terms are ℕ-affine maps ⇒ equalities via isSemilinearSet_setOf_eq;
+  -- ⊓/⊔/¬ via .inter/.union/.compl (ℕ^k is AddMonoid.FG); ∃ via .proj
+
+-- RM16b: the squares are not semilinear (1-dim semilinear = finite union of arithmetic
+-- progressions = eventually periodic; the squares' gaps grow)
+theorem not_isSemilinearSet_squares :
+    ¬ IsSemilinearSet {x : Fin 1 → ℕ | ∃ n, x 0 = n ^ 2}
+
+-- RM16c: headline — no Presburger formula defines the graph of multiplication
+theorem mul_not_presburger_definable :
+    ¬ Set.Definable ∅ Language.presburger {x : Fin 3 → ℕ | x 0 * x 1 = x 2}
+  -- else the squares are definable (diagonal substitution + one ∃), contradicting RM16a+RM16b
+```
+
+RM16a is the bulk (a clean structural induction, all closure lemmas already in Mathlib); RM16b
+is elementary (extract the eventual period `d` from the semilinear presentation, note
+`(n+1)^2 − n^2 > d` eventually); RM16c is a three-line contradiction. Every step lands as a
+normal theorem — zero external citations. STOP RULE #2 note: the arithmetic in RM16b stays at
+the level of `(n+1)^2 − n^2 = 2n+1`; that is the entire numeric content of the package.
+
+### RM17 (S) — PA exclusion, label side: no invariant order on the labels
+
+Phase 9.2's second checkable theorem, the mirror image of RM16: the label sort cannot carry the
+order PA needs. Every permutation of the primes extends to a monoid automorphism of the labels,
+and a swap breaks any candidate order:
+
+```lean
+/-- A permutation of the primes induces a multiplicative automorphism of the labels. -/
+def NatMult.mapEquiv (σ : Equiv.Perm P) : NatMult P ≃* NatMult P
+  -- Multiset.map σ, MulEquiv from map_add on multisets
+
+/-- No linear order on the labels is invariant under all prime relabelings. -/
+theorem no_invariant_linearOrder [Nontrivial P] :   -- Nontrivial P = ∃ p q : P, p ≠ q
+    ¬ ∃ r : LinearOrder (NatMult P), ∀ σ : Equiv.Perm P,
+        ∀ a b, r.le a b ↔ r.le (mapEquiv σ a) (mapEquiv σ b)
+  -- take p ≠ q, σ = Equiv.swap p q, a = {p}, b = {q}: invariance swaps a strict
+  -- inequality with its reverse — asymmetry closes it in ~20 lines
+```
+
+Docstring: the native theory of the labels is that of a free commutative monoid on countably
+many generators (Skolem-arithmetic-like, decidable); an order is precisely the datum its
+automorphism symmetry forbids. Together RM16 + RM17 say each sort *provably* lacks the other
+half of PA — the separation is a theorem, not a promise. (RM2's "no `LE (NatMult P)` instance"
+is the design-level enforcement; this is its mathematical justification.)
+
+### RM18 (S–M) — PA re-entry: the dictionary transport theorem
+
+The positive complement of RM16/RM17: PA is not destroyed, it is *priced*. Fixing a dictionary
+recreates it on the spot, and distinct dictionaries recreate genuinely different arithmetics:
+
+```lean
+/-- Transporting ℕ's full arithmetic along a dictionary: order, addition — and only now,
+    multiplication and order on the SAME carrier. One choice of ω = one Peano arithmetic. -/
+noncomputable def paTransport (ω : MapConfig P) (e : NatAdd ≃ ℕ) :
+    (LinearOrder (NatMult P)) × (AddCommMonoid (NatMult P))
+  -- Equiv.linearOrder / Equiv.addCommMonoid along (ω.symm.trans e).symm, RM1's equivNat for e
+
+/-- Two dictionaries differing by a prime swap transport different orders. -/
+theorem paTransport_ne_of_swap … -- exhibit {p}, {q} ordered oppositely; RM17's argument reused
+```
+
+Docstring obligations: (i) the transported structure satisfies the ordered-semiring facts of ℕ
+by transport — Gödel-strength arithmetic exists on the labels the moment ω is chosen, which is
+exactly the claim that the *identification*, not either half, carries the undecidability;
+(ii) by RM17 no transported order is automorphism-invariant, and by RM4 not even a fully
+symmetric *measure* over the choices exists — so there is no canonical way to smuggle one
+arithmetic back in, deterministically or on average; the framework's answer is the RM9/RM8
+priors. This is the formal statement of the page-one design sentence "PA is excluded at the
+object level": every road back to PA passes through an explicit, non-canonical `ω`.
+
+### RM19 (M) — The Finsupp core and the completion bridge (PA-free completeness, Step 9.3)
+
+Build the dense decidable core and identify its completion with the label-indexed Hilbert
+space of RM15 — the formal shape of "the completed space exists without any infinite constant
+being named":
+
+```lean
+/-- The dense, finitely-supported core: every element the language denotes term-by-term.
+    Finite support is guaranteed by the type (Finsupp) — this is Kopperman's c₀ discipline
+    enforced by the elaborator. -/
+abbrev DenseCore (P : Type) := NatMult P →₀ ℝ
+
+noncomputable instance : NormedAddCommGroup (DenseCore P) := …   -- the ℓ² norm on finite support
+/-- The completed Hilbert space, constructed as a metric completion of the core —
+    no completed vector is a primitive symbol. -/
+noncomputable def SafeHilbertSpace (P : Type) := UniformSpace.Completion (DenseCore P)
+instance : CompleteSpace (SafeHilbertSpace P) := inferInstance   -- Completion is complete
+
+/-- The bridge: the abstract completion IS the label-indexed lp space of RM15. -/
+noncomputable def safeEquiv : SafeHilbertSpace P ≃ₗᵢ[ℝ] HilbertSpaceLabels P
+  -- density of the finite-support vectors in lp 2 via `lp.hasSum_single`
+  -- (Mathlib/Analysis/Normed/Lp/lpSpace.lean:1033) + `UniformSpace.Completion` universal property;
+  -- the ONB packaging is the `HilbertBasis` API (Analysis/InnerProductSpace/l2Space.lean)
+```
+
+Docstring obligations: (i) completeness is *inherited*, never postulated — and the
+absolutely-convergent-series characterization is cited as
+`NormedAddCommGroup.summable_imp_tendsto_iff_completeSpace`, already proved in Mathlib
+(a from-scratch re-proof is not part of this deliverable); (ii) `lp.hasSum_single` is itself a
+`Finset`-filter statement, so even the density proof never orders the labels — RM15's
+clock-free discipline extends to the completion; (iii) record Kopperman's §V quotation and the
+design sentence: the space is complete, its infinite elements exist as Cauchy classes, and none
+of them is a constant of the language.
+
+### RM20 (S–M) — The unselectability package (Step 9.3's three checkable shadows)
+
+```lean
+-- RM20a (S): the type-level shadow, with the honest docstring
+theorem denseCore_finite_support (v : DenseCore P) :
+    Set.Finite {m : NatMult P | v m ≠ 0} := v.finite_support
+  -- docstring: the content is the TYPE — every denotable vector is finitely supported
+  -- by construction; the syntactic statement stays prose (Action Plan item 6 scope note)
+
+-- RM20b (S): no completed vector is selectable — each is a null event under a diffuse prior
+theorem completed_vector_null (μ : Measure (SafeHilbertSpace P)) [IsProbabilityMeasure μ]
+    [MeasureTheory.NoAtoms μ] (target : SafeHilbertSpace P) : μ {target} = 0 :=
+  MeasureTheory.measure_singleton target
+  -- docstring: Kopperman's c₀ cannot be smuggled in as a "typical" vector either —
+  -- selection of any single completed vector has probability zero; only sets carry mass
+
+-- RM20c (M): the clock-indexed Cauchy extraction, purely additive by type discipline
+theorem cauchy_extraction_additive {E : Type*} [NormedAddCommGroup E]
+    (x : NatAdd → E) (hx : CauchySeq (x ∘ NatAdd.ofNat)) :
+    ∃ k : NatAdd → NatAdd, StrictMono (NatAdd.toNat ∘ k) ∧
+      ∀ j : NatAdd, ‖x (k (NatAdd.succ j)) - x (k j)‖ < (1/2) ^ (NatAdd.toNat j)
+  -- transport `Metric.exists_subseq_summable_dist_of_cauchySeq` along RM1's `equivNat`;
+  -- docstring: `NatAdd` has no `Mul` instance, so the construction PROVABLY-BY-ELABORATION
+  -- involves no clock multiplication; the `(1/2)^j` is scalar npow counted by the clock
+```
+
+RM20a/RM20b are one-liners whose entire value is the docstring discipline (land them together
+with RM19); RM20c depends on RM1 (`equivNat`) and is the formal witness of `newproof.md`'s
+"purely additive subsequence construction". External citations: none — all three close on
+library lemmas.
 
 ### Closing order
 
-A pass that starts NOW does, in order: **RM1 → RM2 → RM3 → RM4** (each unblocked, RM4 is the
-
-design-critical one), then **RM7 → RM6 → RM9 → RM5 → RM12**, then **RM15 → RM17 → RM18 →
-
-RM16** (the Phase 9 package: geometry first, the small no-order theorem, the transport pair,
-
-then the definability bridge), then **RM19 → RM20** (the Kopperman-$c_0$ completion bridge and
-
-its unselectability shadows), then **RM10** (Kakutani zero-one, sole remaining `sorry`), then
-
-**RM8** (Strategy B sampled scalars), with **RM11/RM13/RM14** as anytime fillers. Every package is written to be landable without waiting
-
-on the author; when the author promotes new work for this file, its entry supersedes this
-
-paragraph.
-
-### Recommended next pass: RM10 (Kakutani zero-one) [PRIMARY]
-
-**RM10** is the sole remaining `sorry` block (`random_rearrangement_divergence`, line 1089).
-It is currently delegated to the external citation `random_rearrangement_divergence` with
-a `sorry` body. The statement is:
-
-```lean
-theorem random_rearrangement_divergence [Nonempty P]
-    (hμ_exch : ∀ σ : Equiv.Perm NatAdd, (∃ (s : Finset NatAdd), ∀ x, x ∉ s → σ x = x) →
-      MeasurePreserving (fun ω : MapConfig P => (σ : NatAdd ≃ NatAdd).trans ω)
-        mehlerPrior mehlerPrior)
-    (c : NatMult P → ℝ) (hc_not : ¬ Summable c) :
-    mehlerPrior (ConvergentMaps c) = 0 := by
-  sorry
-```
-
-The proof has three layers documented inline:
-1. **Measurability** — `ConvergentMaps c` is measurable (now proved as RM6)
-2. **Zero-one dichotomy** — Hewitt–Savage zero–one law forces `μ(ConvergentMaps) ∈ {0,1}`
-3. **Ruling out 1** — Random rearrangement of a non-summable series diverges almost surely (Kakutani)
-
-Layer 2 is the deeper blocker: Mathlib v4.28.0 has no `HewittSavage` or `zero_one_law`
-in `Probability`. The layer-3 Kakutani statement is a single named theorem.
-
-**Recommended approach**: Record the combined statement as an external citation (same practice
-as `bagchi_universality` elsewhere in this repo), with the provable layers around it proved.
-The measurability layer is now done. The zero-one layer can be folded into the citation
-if Mathlib lacks the lemma, or proved using `MeasureTheory.IndepFun` + Kolmogorov's
-zero–one law if available. The Kakutani layer is the single deep input.
-
-### Recommended next pass: RM8 (Strategy B sampled scalars) [ALTERNATIVE — can run parallel to RM10]
-
-**RM8** (`ae_log_linearIndependent`, Step 8.1) is medium priority and independent of RM10.
-It formalizes the almost-sure multiplicative independence of sampled labels:
-
-```lean
-theorem ae_log_linearIndependent
-    {P : Type} [Countable P] [Nonempty P]
-    (μ : Measure (ℕ → ℝ)) [IsProbabilityMeasure μ]
-    (hindep : ProbabilityTheory.iIndepFun (fun i : ℕ => fun ω : ℕ → ℝ => ω i) μ)
-    (hident : ∀ i j, IdentDistrib (fun ω : ℕ → ℝ => ω i) (fun ω : ℕ → ℝ => ω j) μ μ)
-    (hatomless : ∀ i, MeasureTheory.NoAtoms (μ.map (fun ω : ℕ → ℝ => ω i)))
-    (hsupport : ∀ i, ∀ᵐ ω ∂μ, ω i > (1 : ℝ)) :
-    ∀ᵐ ω ∂μ, LinearIndependent ℚ (fun i : ℕ => Real.log (ω i)) := by
-  sorry
-```
-
-Proof: failure of ℚ-linear independence is the countable union over nonzero
-`q : ℕ →₀ ℚ` of `{x | ∑_{i∈q.support} q i • log (x i) = 0}`; each is null by
-conditioning on all but one coordinate (Fubini + atomlessness); conclude a.s.
-linear independence and derive a.s. unique factorization via `realize_injective`.
-
-This is self-contained and does not depend on the Mehler prior construction (RM5/RM9).
-
-**Parallel track**: RM8 and RM10 can be developed simultaneously. RM8 needs only the
-Mathlib i.i.d. primitives (`iIndepFun`, `IdentDistrib`, `NoAtoms`) which are already
-in the vendored Mathlib; RM10 needs the Hewitt–Savage zero–one law (external citation)
-and Kakutani's divergence theorem (external citation).
-
+✅ Already landed as of 2026-07-09: **RM1, RM2, RM3, RM4, RM6, RM9a, RM9b** in full —
+RM4 (exchangeability no-go) and RM9a/RM9b (block-shuffle prior construction) both landed
+2026-07-09; RM9d (Kolmogorov zero-one) is *blocked* by Mathlib's missing
+`Probability.Independence.ZeroOne`. A pass that starts NOW does, in order: **RM9c**
+(block-shuffle invariance), **RM9d** (zero-one dichotomy — blocked, needs Mathlib),
+**RM9e** (boundary counterexample), then **RM5 → RM12** (toy model + probability endpoints),
+then **RM15 → RM17 → RM18 → RM16** (Phase 9: geometry first, no-order theorem,
+transport pair, definability bridge), then **RM19 → RM20** (Kopperman-$c_0$ completion
+bridge and unselectability shadows), then **RM10**, then **RM8**, with
+**RM11/RM13/RM14** as anytime fillers. Every package is written to be landable without
+waiting on the author; when the author promotes new work for this file, its entry supersedes
+this paragraph.
 
 ## Phase 1: Separating the Additive and Multiplicative Naturals
 We must enforce the logical separation of the "clock" (addition only) and the "data" (multiplication only) at the type level.
@@ -254,7 +649,7 @@ is exactly the object Phase 2 onward puts a probability measure over, instead of
 
 #### Recipe for the Lean specialist: `realize_injective`
 
-**Status: ✅ landed** — `realize_injective` is proved on disk (`RandomMap.lean:228`) exactly by
+**Status: ✅ landed** — `realize_injective` is proved on disk (`RandomMap.lean:362`) exactly by
 steps 1–6 below; the recipe is retained as documentation of the proof.
 
 Action Plan item 6 asks for `Function.Injective (realize p)` given `hp_indep`. This has been
@@ -330,7 +725,7 @@ prime-supported finsupps), `Nat.factorization_prod_pow_eq_self`, and `Nat.eq_fac
 *unconditional* for the genuine primes.
 
 **Status: ✅ landed (2026-07-08)** — `log_primes_linearIndependent` is proved on disk
-(`RandomMap.lean:819`). The executed proof follows the FTA route sketched above but directly
+(`RandomMap.lean:1034`). The executed proof follows the FTA route sketched above but directly
 rather than through `Nat.factorizationEquiv`: clear denominators to integer coefficients, split
 the support into positive- and negative-exponent halves, exponentiate the vanishing log-sum
 (`Real.exp_sum`, `Real.log_zpow`, `Real.exp_log`) into an equality of two natural-number
@@ -355,14 +750,13 @@ def MapConfig (P : Type) [Countable P] := NatAdd ≃ NatMult P
 -- 3. Equip `MapConfig` with the topology of pointwise convergence (inducing a Polish space).
 ```
 
-*Status (updated after the 2026-07-08 19:08 pass):* `MapConfig` ✅ on disk (`RandomMap.lean:331`);
-tasks 1–2 ✅ (the discrete instances on the two countable sorts are final — countable discrete
-factors are what the Polish product wants); task 3 is now **mostly landed**: the two-sided
-`embed` (`:358`), the induced pointwise topology (`:362`), and *proved* `continuous_eval`
-(`:381`) and `isClopen_cylinder` (`:390`) are on disk; only the `PolishSpace` instance is still
-a `sorry` (`:373`). Finishing it and the two downstream measurability theorems is ★ work-queue
-package RM6 — see its ★ Redirect for the closed-embedding route (the library instances exist)
-and the provable staging (`IsClosed`/Borel, replacing the on-disk `IsOpen` intermediates).
+*Status (updated after the 2026-07-09 07:58 pass):* ✅ **DONE in full.** `MapConfig` on disk
+(`RandomMap.lean:465`); tasks 1–2 ✅ (the discrete instances on the two countable sorts are
+final — countable discrete factors are what the Polish product wants); task 3 ✅ — the two-sided
+`embed` (`:492`), the induced pointwise topology (`:496`), the **proved** `PolishSpace`
+instance (`:500–590`, closed-embedding route), `continuous_eval` (`:593`), and
+`isClopen_cylinder` (`:602`) are all on disk, and the two downstream measurability theorems
+are proved against this topology (see Phases 6 and 7.2). ★ work-queue package RM6 is closed.
 
 ---
 
@@ -385,12 +779,14 @@ noncomputable def mehlerPrior : Measure (MapConfig P) :=
   sorry -- To be defined as a probability measure (total mass 1)
 ```
 
-*Status:* on disk (`RandomMap.lean:582`) as a normalized Dirac-sum **stub** carrying three
-`admit`s (an injective encoding it does not have, the mass bound, and nonemptiness of
-`MapConfig P`); it type-checks the downstream API but is neither diffuse nor exchangeable. The
-construction deliverable is now **RM9** (the block-shuffle prior — a genuine diffuse
-probability measure whose product-of-finite-uniforms form sidesteps the projective-limit
-subtleties; RM3 retires the nonemptiness `admit` first), with **RM8** (Fisher–Yates) as the
+*Status (updated after the 2026-07-09 07:58 pass):* on disk (`RandomMap.lean:678`) as an honest
+single-`sorry` **stub** — the old Dirac-sum and its three `admit`s are gone, and the docstring
+plus the adjacent construction-strategy comment already prescribe the block-shuffle build. The
+supporting cast is done: `canonicalConfig` and `Nonempty (MapConfig P)` are live (`:648`,
+`:651`, RM3 ✅), and the `MeasurableSpace`/`BorelSpace`/`OpensMeasurableSpace` instances sit on
+the proved Polish topology. The construction deliverable is **RM9** (the block-shuffle prior —
+a genuine diffuse probability measure whose product-of-finite-uniforms form sidesteps the
+projective-limit subtleties), with **RM8** (Fisher–Yates) as the
 stronger global prior behind it. One warning has been discovered since this phase was written:
 by **RM4**, *no* countably-additive probability measure on `MapConfig P` is exchangeable under
 all finitely-supported clock permutations, so full exchangeability is not a property any
@@ -504,7 +900,8 @@ def propHolds (ω : MapConfig P) (P_test : NatMult P → Bool) : Prop :=
 
 *Status:* ✅ — `psiTrue`, `psiTruth` (both `sorry`s above replaced by real definitions with the
 proved domination bound `‖coeff n‖² ≤ ‖invIndex n‖²`), and `propHolds` are on disk
-(`RandomMap.lean:448–482`).
+(`RandomMap.lean:747–781`), and `propHolds_iff` (`:803`, RM7) now certifies that the geometric
+condition means "true at every tick".
 
 ---
 
@@ -522,13 +919,14 @@ noncomputable def probabilityOfTruth (P_test : NatMult P → Bool) : Real :=
   (mehlerPrior {ω | propHolds ω P_test}).toReal -- the measure of the truth event
 ```
 
-*Status (updated after the 2026-07-08 19:08 pass):* `probabilityOfTruth` ✅ on disk (`:685`,
-with the truth event spelled correctly as above); `measurable_set_propHolds` (`RandomMap.lean:565`)
-is an honest open goal (`sorry` at `:574`) — the discrete-placeholder triviality left with
-the placeholder. Land it inside RM6, per the ★ Redirect there: the truth event is a countable
-intersection of clopen cylinders, so prove `IsClosed` and finish with `.measurableSet`
-(equivalently, continuity of the L² distance makes `{ψ_truth = ψ_true}` closed). The toy-model
-computation (Action Plan item 5) is still open.
+*Status (updated after the 2026-07-09 07:58 pass):* `measurable_set_propHolds` ✅ **proved**
+(`RandomMap.lean:831`) — exactly by the staging RM6 prescribed: `propHolds_iff` (`:803`) turns
+the truth event into `⋂ n {ω | P_test (ω n) = true}`, each tick event is a countable union of
+clopen cylinders (`isClopen_cylinder`), and the closed parts give `.measurableSet`. One
+regression to re-land: the 07:58 pass **removed** `probabilityOfTruth` from disk — restore the
+one-line definition `(mehlerPrior {ω | propHolds ω P_test}).toReal` (it is the page-level
+punchline and the toy model's target); bundle it with the toy-model computation (Action Plan
+item 5, RM5), which is still open.
 
 ---
 
@@ -568,7 +966,7 @@ Summable (f ∘ e) ↔ Summable f` and `Equiv.tsum_eq (e : γ ≃ β) (f : β �
 checkout. Holding for all $\omega$, the identity holds in particular `mehlerPrior`-almost
 surely.
 
-*Status:* ✅ — proved on disk exactly as displayed (`RandomMap.lean:733`), with no order ever
+*Status:* ✅ — proved on disk exactly as displayed (`RandomMap.lean:872`), with no order ever
 introduced on `NatMult P`.
 
 ### Step 7.2: Conditional Convergence Is a Null Event (one external input)
@@ -616,9 +1014,9 @@ Proof architecture, in three layers:
 1.  **Measurability of `ConvergentMaps`.** Rewrite the event as a countable
     intersection/union over rational $\epsilon$ and clock bounds $N, M$ of conditions each
     depending on finitely many coordinates of $\omega$ (cylinder events) — the Cauchy criterion
-    in the sorted form of Step 4.1, `Finset.range`-bounded throughout. This is routine now that
-    the pointwise-convergence topology is on disk (`RandomMap.lean:362`); the RM6 ★ Redirect
-    gives the provable staging (`MeasurableSet` directly from the cylinder display).
+    in the sorted form of Step 4.1, `Finset.range`-bounded throughout. ✅ Done — this is
+    exactly the proved `measurable_set_ConvergentMaps` (`RandomMap.lean:883`), staged as the
+    rational-ε Cauchy `⋂⋃⋂` display over events open by `continuous_eval`.
 2.  **Zero–one dichotomy.** A finitely-supported permutation of the clock changes only finitely
     many partial sums, so `ConvergentMaps` is invariant under the `hμ_exch` action: it is an
     exchangeable event, and the Hewitt–Savage zero–one law forces
@@ -633,13 +1031,14 @@ Proof architecture, in three layers:
     `bagchi_universality` elsewhere in this repo: one honest, clearly-labeled external citation,
     with everything around it proved.
 
-*Status (2026-07-08, line numbers per the 19:08 pass):* the statement layer is ✅ done —
-`NatAdd.ofNat`/`toNat_ofNat`/`equivNat` (`RandomMap.lean:697–716`), `ConvergentMaps` (`:721`),
-`measurable_set_ConvergentMaps` (`:745`, an honest `sorry` at `:751` pending RM6 — the
-discrete-placeholder proof left with the placeholder; per the RM6 ★ Redirect, prove
-`MeasurableSet` directly from the cylinder `⋂⋃⋂` display), and `conditional_convergence_is_null`
-stated with the honest `hμ_exch` hypothesis and closed (`:809`) by delegation to the named,
-docstring-cited external input `random_rearrangement_divergence` (`:777`, sorry at `:783`), which folds
+*Status (2026-07-09, line numbers per the 07:58 pass + hygiene fix):* the statement layer and
+the measurability layer are ✅ done — `NatAdd.ofNat`/`toNat_ofNat`/`equivNat` are Phase-1 API
+(`RandomMap.lean:149–168`), `ConvergentMaps` (`:860`), `measurable_set_ConvergentMaps` ✅
+**proved** (`:883`, exactly per the former RM6 redirect: the event is the rational-ε Cauchy
+condition `⋂_{ε∈ℚ⁺} ⋃_N ⋂_{M,M'≥N}` of events open by `continuous_eval`), and
+`conditional_convergence_is_null` stated with the honest `hμ_exch` hypothesis and closed
+(`:1024`) by delegation to the named,
+docstring-cited external input `random_rearrangement_divergence` (`:992`, sorry at `:998`), which folds
 the Hewitt–Savage dichotomy and Kakutani's divergence into a single citation per the layer-2
 fallback above (Hewitt–Savage is indeed absent from the vendored Mathlib). The honest residue:
 as delegated today, the citation's statement *coincides* with the theorem's, so 7.2 is currently
@@ -876,14 +1275,14 @@ Phase 6), never through an identity of constant terms.
 ## Action Plan for the Lean 4 Specialist
 
 1.  **Axiomatic Hygiene:** Do not import `Mathlib.SetTheory.ZFC` or any non-constructive choice axioms unless strictly necessary. Keep the background logic restricted to the constructive, dependent type theory of Lean 4. *(Standing discipline. The file currently opens with `import Mathlib`; when convenient, trim to the module imports listed per phase — the theorems' own axiom footprints stay Mathlib's standard trio either way.)*
-2.  **Verify Polish Space Properties:** *(MOSTLY LANDED, 2026-07-08 19:08 pass — the two-sided embedding, the induced topology, and proved `continuous_eval`/`isClopen_cylinder` are on disk; the `PolishSpace` instance and the two measurability re-proofs are the open `sorry`s, see RM6 and its ★ Redirect for the closed-embedding route and the `IsClosed`/Borel staging.)* Prove that `MapConfig` is a Polish space (separable, completely metrizable). This is essential for ensuring that the Borel measure `mehlerPrior` is well-behaved and countably additive without needing the Axiom of Choice.
-3.  **Construct the Prior:** *(OPEN — Dirac-sum stub with 3 `admit`s on disk, see ★ item 2.)* Define `mehlerPrior` explicitly. Since `MapConfig` is homeomorphic to a closed subspace of $\mathbb{N}^\mathbb{N}$ (the Baire space), the specialist should construct the measure using the standard product measure on the Baire space and then restrict it to the bijective mappings.
+2.  **Verify Polish Space Properties:** *(✅ DONE, 2026-07-09 07:58 pass — the two-sided embedding, the induced topology, the proved `PolishSpace` instance (`:500–590`, closed-embedding route), `continuous_eval`/`isClopen_cylinder`, and both downstream measurability theorems are all on disk; RM6 is closed.)* Prove that `MapConfig` is a Polish space (separable, completely metrizable). This is essential for ensuring that the Borel measure `mehlerPrior` is well-behaved and countably additive without needing the Axiom of Choice.
+3.  **Construct the Prior:** *(OPEN — the file's first of two `sorry`s: an honest stub at `:678` whose docstring already names the RM9 block-shuffle construction; `canonicalConfig` and nonemptiness are live, so the assembly map has its base point.)* Define `mehlerPrior` explicitly — per RM9: countable product of uniform laws on finite symmetric groups, pushed forward along the blockwise assembly map (every sample is a bijection deterministically, so no restriction step is needed).
 4.  **Prove $L^2$ Convergence:** *(✅ DONE — `summable_invIndex_sq`, the `psiTruth` domination bound, and both `lp` memberships are proved on disk.)* Provide the explicit proof that $\sum \frac{1}{n^2}$ and $\sum \frac{P(\omega(n))^2}{n^2}$ are Cauchy sequences. Use Mathlib's `lp` space theorems to show that `psiTrue` and `psiTruth` are valid, completed elements of the Hilbert space.
-5.  **Calculate a Toy Model:** *(OPEN.)* To verify the code compiles and runs, have the specialist compute `probabilityOfTruth` for a trivial, finite toy model (e.g., $P = \{2, 3\}$, where the probability evaluates to a rational fraction like $0.5$). This ensures the measure theory and the metric geometry are perfectly aligned.
+5.  **Calculate a Toy Model:** *(OPEN — and re-land `probabilityOfTruth` first: the 2026-07-09 pass removed the one-line definition `(mehlerPrior {ω | propHolds ω P_test}).toReal` from disk; restore it alongside the toy.)* To verify the code compiles and runs, have the specialist compute `probabilityOfTruth` for a trivial, finite toy model (e.g., $P = \{2, 3\}$, where the probability evaluates to a rational fraction like $0.5$). This ensures the measure theory and the metric geometry are perfectly aligned.
 6.  **Record, Don't Formalize, the External Shield:** *(✅ DONE in full, 2026-07-08 — both `realize_injective` and `log_primes_linearIndependent` are proved on disk; the metamathematical shield stays prose, exactly as prescribed.)* The safety argument in Step 1.3 (Julia Robinson's theorem's dependence on the standard integers' uniform $+1$ gap; Tarski's quantifier-elimination undefinability of infinite discrete subsets of $\mathbb R$) is a metamathematical justification for the design, not itself a Lean deliverable — do not attempt to formalize Robinson's or Tarski's theorems. (Scope note: this item covers exactly those two named theorems. The Presburger-definability theorem RM16 and the invariant-order theorem RM17 are *different* metatheorems with their own queue IDs — land those as specified in the work queue.) The one concrete consequence that *is* checkable and should be proved is `Function.Injective (realize p)` given `hp_indep`, confirming that unique factorization survives the real-valued realization. For the genuine-primes instantiation (see the Remark closing Step 1.3), additionally prove `log_primes_linearIndependent` via the `Nat.factorizationEquiv` pins there, which discharges `hp_indep` and makes `realize_injective` unconditional.
 7.  **Keep the Cauchy Quantifiers Sorted:** *(Standing discipline — the on-disk convergence lemmas already have the `Finset`-indexed shape; keep extending the docstrings as new lemmas land.)* When discharging item 4, phrase (and, in docstrings, record) all convergence and completeness facts through `Finset`-indexed partial sums, per Step 4.1: the only unbounded quantifier ranges over the index sort (`NatAdd`), and the scalar side only ever compares finite tuples in $\mathbb R^M$. Mathlib's `Summable`/`CauchySeq`/`lp` API already has this shape, so this is a documentation discipline, not a proof obligation — a docstring on the convergence lemmas noting the sorted form (bounded vector indices, unbounded quantifier on the clock) suffices. Include the two Step 4.1 precisions in the same docstrings: the condition is deliberately *multi-sorted*, not a first-order RCF formula (that is why Tarski decidability is untouched), and the continuum itself emerges from the completion (Mathlib's `Real` is already the Cauchy completion of $\mathbb Q$, not a postulate).
 8.  **Prove Step 7.1 as stated:** *(✅ DONE — proved on disk exactly as prescribed.)* `absolute_convergence_invariance` closes with the two pinned lemmas `Equiv.summable_iff` and `Equiv.tsum_eq` — zero external input, and do not introduce any order on `NatMult P` while doing it (Mathlib's unordered `tsum` doing the work is the point).
-9.  **Formalize Step 7.2 with the honest hypothesis:** *(PARTIAL, 2026-07-08 — the statement, the `hμ_exch` hypothesis, `measurable_set_ConvergentMaps`, and the folded citation are all on disk; by RM4 the hypothesis is unsatisfiable, so the open residue is the RM9d/RM8d replacement pair plus the non-trivial measurability re-proof once RM6's topology lands.)* State `conditional_convergence_is_null` with the exchangeability hypothesis on the prior (to be discharged for `mehlerPrior` once item 3 lands); prove measurability of `ConvergentMaps` via `Finset.range`-bounded Cauchy conditions on cylinder events (item 2 topology, item 7 discipline); and record the lone deep input as the named, docstring-cited external theorem `random_rearrangement_divergence` (Kakutani's problem on random rearrangements) with a `sorry` body — the same citation practice as `bagchi_universality`. If the Hewitt–Savage zero–one law is missing from the vendored Mathlib, fold the dichotomy into that same named input rather than formalizing it from scratch.
+9.  **Formalize Step 7.2 with the honest hypothesis:** *(PARTIAL, 2026-07-09 — the statement, the `hμ_exch` hypothesis, the **proved** `measurable_set_ConvergentMaps` (`:883`), and the folded citation are all on disk; by RM4 the hypothesis is unsatisfiable, so the open residue is exactly the RM9d/RM8d replacement pair.)* State `conditional_convergence_is_null` with the exchangeability hypothesis on the prior (to be discharged for `mehlerPrior` once item 3 lands); prove measurability of `ConvergentMaps` via `Finset.range`-bounded Cauchy conditions on cylinder events (item 2 topology, item 7 discipline); and record the lone deep input as the named, docstring-cited external theorem `random_rearrangement_divergence` (Kakutani's problem on random rearrangements) with a `sorry` body — the same citation practice as `bagchi_universality`. If the Hewitt–Savage zero–one law is missing from the vendored Mathlib, fold the dichotomy into that same named input rather than formalizing it from scratch.
 10. **Prove Step 8.1 (`ae_log_linearIndependent`):** express the failure of ℚ-linear independence as the countable union, over nonzero finitely-supported `q : ℕ →₀ ℚ`, of the relation events `{x | ∑ i ∈ q.support, q i • Real.log (x i) = 0}`; show each is null by conditioning on all but one coordinate (Fubini on the product law) and applying atomlessness of the remaining marginal; conclude a.s. linear independence and derive the a.s.-unique-factorization corollary through `realize_injective`.
 11. **Record Step 8.2:** add the Strategy-B (M-samples) reading to the same docstrings item 7 maintains — one paragraph per convergence lemma noting that the sorted `∀ M` bound and the `M`-sample draw are the same multi-sorted mechanism, deterministic vs. in-probability.
 12. **Package Step 8.3:** once RM6 and RM9 land, state the conservation corollary (from `absolute_convergence_invariance`) and the invalidation-side corollary (RM9d's dichotomy, upgraded to the null statement by RM8d where it applies) side by side, as the formal compatibility statement of Strategies A and B.

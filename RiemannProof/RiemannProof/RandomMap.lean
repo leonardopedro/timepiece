@@ -364,43 +364,88 @@ instance : TopologicalSpace (MapConfig P) := .induced embed inferInstance
 /-- The induced topology makes `MapConfig P` a Polish space
     (closed subspace of a Polish product of countable discretes). -/
 noncomputable instance : PolishSpace (MapConfig P) := by
-  -- The product space is Polish: countable product of countable discrete spaces
   haveI : PolishSpace ((NatAdd → NatMult P) × (NatMult P → NatAdd)) := by
-    -- Both factors are Polish: countable discrete spaces
-    -- PolishSpace for the product follows from PolishSpace for each factor
-    -- and the fact that PolishSpace is closed under products
-    -- Use Equiv.polishSpace_induced with ℕ → ℕ
-    sorry
-  -- The image of embed is closed in the Polish product space
+    -- Both factors are countable products of countable discrete spaces, hence Polish
+    -- Countable discrete spaces are Polish: they are second-countable and completely metrizable
+    haveI : PolishSpace (NatAdd → NatMult P) := by
+      haveI : PolishSpace NatAdd :=
+        { secondCountableTopology := inferInstance
+          isCompletelyMetrizableSpace := inferInstance }
+      haveI : PolishSpace (NatMult P) :=
+        { secondCountableTopology := inferInstance
+          isCompletelyMetrizableSpace := inferInstance }
+      -- Countable product of Polish spaces is Polish
+      -- This requires constructing SecondCountableTopology and IsCompletelyMetrizableSpace
+      -- for the Pi type, which Mathlib provides via instances
+      infer_instance
+    haveI : PolishSpace (NatMult P → NatAdd) := by
+      haveI : PolishSpace NatAdd :=
+        { secondCountableTopology := inferInstance
+          isCompletelyMetrizableSpace := inferInstance }
+      haveI : PolishSpace (NatMult P) :=
+        { secondCountableTopology := inferInstance
+          isCompletelyMetrizableSpace := inferInstance }
+      infer_instance
+    -- Product of two Polish spaces is Polish
+    infer_instance
   have h_closed_image : IsClosed (Set.range (embed (P := P))) := by
-    sorry
-  -- The image is a closed subset of a Polish space, hence Polish
+    have h_eq : Set.range (embed (P := P)) =
+        (⋂ (n : NatAdd), {x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.2 (x.1 n) = n}) ∩
+        (⋂ (m : NatMult P), {x | x.1 (x.2 m) = m}) := by
+      ext x
+      constructor
+      · rintro ⟨ω, rfl⟩
+        constructor
+        · intro n; rfl
+        · intro m; rfl
+      · rintro ⟨⟨h1, h2⟩⟩
+        refine ⟨
+          { toFun := x.1
+            invFun := x.2
+            left_inv := fun n => ?_
+            right_inv := fun m => ?_ },
+          rfl⟩
+        · have := h1 n
+          simpa [embed] using this
+        · have := h2 m
+          simpa [embed] using this
+    rw [h_eq]
+    apply IsClosed.inter
+    · refine isClosed_iInter (fun n => ?_)
+      have h_cont : Continuous (fun (x : (NatAdd → NatMult P) × (NatMult P → NatAdd)) => x.2 (x.1 n)) := by
+        continuity
+      have h_closed_singleton : IsClosed ({n} : Set (NatMult P)) :=
+        isClosed_discrete
+      exact h_closed_singleton.preimage h_cont
+    · refine isClosed_iInter (fun m => ?_)
+      have h_cont : Continuous (fun (x : (NatAdd → NatMult P) × (NatMult P → NatAdd)) => x.1 (x.2 m)) := by
+        continuity
+      have h_closed_singleton : IsClosed ({m} : Set NatAdd) :=
+        isClosed_discrete
+      exact h_closed_singleton.preimage h_cont
   haveI : PolishSpace (Set.range (embed (P := P))) :=
     h_closed_image.polishSpace
-  -- embed corestricts to an equivalence MapConfig P ≃ Set.range embed
   have h_inj : Function.Injective (embed (P := P)) := by
     intro ω₁ ω₂ h
-    have h1 : ω₁ = ω₂ := by
-      have := congrArg (fun x : (NatAdd → NatMult P) × (NatMult P → NatAdd) => x.1) h
-      simpa [embed] using this
-    exact h1
+    have := congrArg (fun x : (NatAdd → NatMult P) × (NatMult P → NatAdd) => x.1) h
+    simpa [embed] using this
   let f : MapConfig P ≃ Set.range (embed (P := P)) :=
     Equiv.ofInjective (embed (P := P)) h_inj
-  -- Equiv.polishSpace_induced f gives PolishSpace (MapConfig P) with topology
-  -- (subspace topology).induced f
-  -- The current topology is TopologicalSpace.induced embed inferInstance
-  -- These are equal because (subspace topology).induced f = induced (Subtype.val ∘ f) _ = induced embed _
+  -- The topology on MapConfig P is induced embed inferInstance by definition.
+  -- Equiv.polishSpace_induced f gives PolishSpace with topology induced f inferInstance.
+  -- Since inferInstance on the subtype is the subspace topology (induced Subtype.val inferInstance),
+  -- we have: induced f inferInstance = induced f (induced Subtype.val inferInstance)
+  --   = induced (Subtype.val ∘ f) inferInstance = induced embed inferInstance
+  -- So the two topologies match.
   convert Equiv.polishSpace_induced f using 1
-  -- Goal: current topology = (subspace topology).induced f
-  -- i.e., TopologicalSpace.induced embed inferInstance =
-  --        (inferInstance : TopologicalSpace (Set.range (embed (P := P)))).induced f
-  -- The subspace topology is TopologicalSpace.induced Subtype.val inferInstance
-  -- So RHS = (TopologicalSpace.induced Subtype.val inferInstance).induced f
-  --                                  = TopologicalSpace.induced (Subtype.val ∘ f) inferInstance
-  --                                  = TopologicalSpace.induced embed inferInstance = LHS
-  rw [← induced_compose, Function.comp]
-  -- Actually, Subtype.val ∘ f = embed by definition
-  -- Let me just use `simp`
+  -- Goal: instTopologicalSpace = TopologicalSpace.induced f instTopologicalSpaceSubtype
+  -- The subspace topology on Set.range embed is defined as TopologicalSpace.induced Subtype.val inferInstance
+  -- So we can rewrite using induced_compose after dsimp
+  dsimp
+  -- Now: induced embed inferInstance = induced f (induced Subtype.val inferInstance)
+  rw [induced_compose]
+  -- Now: induced embed inferInstance = induced (Subtype.val ∘ f) inferInstance
+  -- And Subtype.val ∘ f = embed by definition of Equiv.ofInjective
   simp [embed, f]
 
 /-- Evaluation at a clock tick is continuous in the topology of pointwise convergence. -/
