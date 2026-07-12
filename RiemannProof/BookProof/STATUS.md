@@ -7,6 +7,805 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Wave 139 (2026-07-12) — **Book main-conclusion thread: the Gaussian-built uniform measure really lives on the unit sphere (`ChapterFreeFieldSphereSupport`)**
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). One new file, `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`), the natural next step after Waves 137/138.
+
+* `ChapterFreeFieldSphereSupport.lean` — §5 of "Wave-function parametrization of
+  a probability measure" (`book.tex` ~line 1706). Wave 137 built `stdGaussian`
+  (rotation-invariant Gaussian prior) and Wave 138's `ChapterFreeFieldSphere`
+  defined `sphereGaussian` (the Gaussian pushed to the sphere by radial
+  normalization) and proved *it* rotation-invariant. This file verifies the
+  construction actually yields a measure **on the sphere**: since the Gaussian
+  has no atom at the origin, after normalization all the mass lands on the unit
+  sphere. Proves `normalize_mem_sphere` (`x ≠ 0 ⇒ normalize x ∈ sphere 0 1`),
+  `stdGaussian_singleton` (for `n ≥ 1` the Gaussian is atomless,
+  `stdGaussian n {x} = 0`, via `noAtoms_gaussianReal` + `Measure.pi_pi`), and
+  headline `sphereGaussian_sphere_eq_one` (for `n ≥ 1`,
+  `sphereGaussian n (Metric.sphere 0 1) = 1`; the preimage of the sphere under
+  normalization is `{0}ᶜ`, of full Gaussian mass).
+
+Registered in `BookProof.lean`; `lake build BookProof` green. (The only
+repository build failure remains the pre-existing, out-of-scope
+`RiemannProof/RandomMap.lean`, left untouched.)
+
+## Wave 138 (2026-07-12) — **Book main-conclusion thread: the Born-rule parametrization fiber (`ChapterBornPhaseFiber`) and the uniform sphere measure from the Gaussian (`ChapterFreeFieldSphere`)**
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Two new files, both `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`).
+
+* `ChapterBornPhaseFiber.lean` — the **gauge ambiguity of the Born-rule
+  parametrization** (Introduction, §"Wave-function collapse versus Euler's
+  formula", `book.tex` ~line 805: *"two wave-functions are always related by a
+  rotation of the hypersphere"*). Surjectivity of the Born map is already done
+  (`ChapterB.born_forward`, `ChapterE.stickBreaking_surjective`,
+  `ChapterEulerNState.euler_reproduces`); this file supplies the exact **fiber**.
+  Proves `Complex.normSq_eq_iff_exists_phase` and headline `born_fiber_complex`
+  (two complex wave-functions `u, v : Fin n → ℂ` give equal Born probabilities
+  iff they differ by a coordinate-wise phase `e^{iθₖ}` — a diagonal unitary),
+  and `sq_eq_iff_exists_sign` + headline `born_fiber_real` (real case: a
+  coordinate-wise sign `±1`).
+
+* `ChapterFreeFieldSphere.lean` — the explicit next step after Wave 137's
+  `ChapterFreeFieldGaussian`. §5 of "Wave-function parametrization of a
+  probability measure" (`book.tex` ~line 1706) builds a uniform sphere prior
+  from the Gaussian. This file pushes `stdGaussian n` to the unit sphere by
+  radial normalization `x ↦ ‖x‖⁻¹ • x` and proves the result is
+  rotation-invariant: `normalize`, `measurable_normalize`, `normalize_comm`
+  (normalization commutes with orthogonal maps), `sphereGaussian` +
+  `instIsProbabilityMeasure_sphereGaussian`, and headline
+  `sphereGaussian_map_linearIsometryEquiv`
+  (`(sphereGaussian n).map L = sphereGaussian n` for every orthogonal `L`).
+
+Both registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 137 (2026-07-12) — **Book "Wave-function parametrization of a probability measure", §5 "Free field parametrization in Bayesian inference and Statistical Mechanics": the standard Gaussian prior is rotation-invariant (the free-field / uniform-on-sphere construction)** (`ChapterFreeFieldGaussian`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained finite-dimensional heart of §5
+(`book.tex` line ~1706): *"a uniform (Lebesgue-like) measure of an
+infinite-dimensional sphere can be defined using the Gaussian measure and the
+Fock-space."* Since there is **no** infinite-dimensional Lebesgue measure
+(`ChapterNoLebesgue`), the book builds its free-field / uniform-on-sphere prior
+out of the Gaussian measure; the mathematical content that makes this work is
+that the standard Gaussian is **rotationally symmetric**, so after radial
+normalization it induces the uniform measure on the sphere. One new file,
+`sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterFreeFieldGaussian.lean` — over `EuclideanSpace ℝ (Fin n)`. Defines
+  `stdGaussian n` (the standard `n`-dimensional Gaussian, the product of `n`
+  copies of `gaussianReal 0 1` transported to the L² inner-product structure by
+  `WithLp.toLp 2`). Proves `instIsProbabilityMeasure_stdGaussian` (it is a
+  probability measure — a legitimate Bayesian prior), `charFun_stdGaussian` (its
+  characteristic function is the standard Gaussian form `t ↦ exp(-‖t‖²/2)`,
+  depending only on `‖t‖`, via `charFun_pi` + `charFun_gaussianReal`), and the
+  headline **`stdGaussian_map_linearIsometryEquiv`** (for every orthogonal map
+  `L : EuclideanSpace ℝ (Fin n) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin n)` the pushforward
+  `(stdGaussian n).map L = stdGaussian n` — the free-field Gaussian prior is
+  rotation-invariant, via `Measure.ext_of_charFun`). This is the positive
+  companion to `ChapterNoLebesgue` (no infinite-dimensional Lebesgue measure) and
+  `ChapterNoUniformCountable` (no uniform countable measure). Registered in
+  `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 136 (2026-07-12) — **Book "Wave-function collapse versus Euler's formula", §"Complex and Quaternionic Hilbert spaces": the complex/quaternionic Born distribution is the realification of a real one, `P(n)=∑_{m} P(n,m)`** (`ChapterEulerComplexQuat`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained content of the subsection
+*"Complex and Quaternionic Hilbert spaces"* (`book.tex` §"Euler's formula for a
+generic phase-space", line ~3639): *"we have a discrete state space defined by
+two real numbers `n,m`, with `1 ≤ m ≤ 4` and we only consider the probabilities
+for `n` independently of `m`, `P(n) = ∑_{m=1}^4 P(n,m)` … The complex case is
+just the above case with complex numbers replacing quaternions and a state space
+which is the union of 2 identical spaces."* The book's point is that a complex
+(resp. quaternionic) wave-function is the *realification* of a real
+wave-function on a state space with twice (resp. four times) as many outcomes,
+and the complex/quaternionic Born probability `P(n)=|vₙ|²` is exactly the sum of
+the 2 (resp. 4) real Born probabilities of the underlying real coordinates. This
+is the book's justification for using complex/quaternionic Hilbert spaces while
+keeping the real Euler-angle parametrization of `ChapterEulerNState`. One new
+file, `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`):
+
+* `ChapterEulerComplexQuat.lean` — over `Fin n → ℂ` and `Fin n → ℍ[ℝ]`. Defines
+  the complex Born probability `cbornProb v k = Complex.normSq (v k)` and the
+  quaternionic `qbornProb v k = Quaternion.normSq (v k)`. Proves
+  `complex_born_split` (`P(k) = (Re vₖ)² + (Im vₖ)²`, the union of 2 real
+  spaces), `quat_born_split` (`P(k) = re² + imI² + imJ² + imK²`, the book's
+  `P(n)=∑_{m=1}^4 P(n,m)`), `complex_realification_norm` /
+  `quat_realification_norm` (the realification preserves total probability), and
+  the headlines **`complex_reproduces`** / **`quat_reproduces`** (every
+  probability distribution `p` on `{0,…,n-1}` is reproduced by the Born rule of a
+  complex, resp. quaternionic, unit wave-function). Complements
+  `ChapterEulerNState` (real case), `ChapterEulerStochastic` (2-state) and
+  `ChapterE3` (density-matrix Euler formula). Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 135 (2026-07-12) — **Book "Wave-function collapse versus Euler's formula", §§"Euler's formula for a phase-space with 4 states" / "Euler's formula for a generic phase-space": the Born rule reproduces an arbitrary probability distribution via the Euler-angle parametrization** (`ChapterEulerNState`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained claim of §"Euler's formula for a
+phase-space with 4 states" (`book.tex` line ~3478) and its generalization
+§"Euler's formula for a generic phase-space" (line ~3565): *"any probability
+distribution for `n` states can be reproduced by the Born rule for some
+wave-function"* via the Euler-angle / stick-breaking parametrization
+`P(1)=c₁², P(2)=(s₁c₂)², P(3)=(s₁s₂c₃)², P(4)=(s₁s₂s₃)²` (`cₙ=cos θₙ`,
+`sₙ=sin θₙ`), *"since for any probability `p` there is an angle `θₙ` such that
+`cₙ²=p`."* This generalizes the 2-state result of `ChapterEulerStochastic` (Wave
+134) to `n` states. One new file, `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`):
+
+* `ChapterEulerNState.lean` — real coordinates in the book's orthonormal
+  `l`-basis, indexed over `ℕ` for a fixed number of states `n`. Defines
+  `tailProd θ m = ∏_{i<m} sin²(θ i)` (the remainder weight `P(m or above)`),
+  the Euler wave-function coordinate `eulerWave θ n k` (`(∏_{i<k} sin θᵢ)·cos θₖ`,
+  with a cosine-free last coordinate), and the Born probability
+  `bornProb θ n k = P(k) = |φₖ|²`. Proves `eulerWave_sq` (Born rule:
+  `bornProb = (eulerWave)²`), `bornProb_nonneg`, the telescoping identity
+  `sum_cos_tail`, the headline **`euler_sum_one`** (any angles give a probability
+  distribution: `∑_{k<n} bornProb θ n k = 1`), `euler_wave_unit` (the Euler
+  wave-function is a unit vector), and the headline **`euler_reproduces`** (for
+  any probability distribution `p` on `{0,…,n-1}` there exist Euler angles whose
+  Born probabilities equal `p` — every distribution is reproduced by the Born
+  rule, via the tail-sum construction `exists_theta_tailProd` and
+  `exists_cos_sq`/`exists_sin_sq`). Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 134 (2026-07-12) — **Book "Wave-function collapse versus Euler's formula", §"Euler's formula for the probability clock": the most general probability-preserving linear map on a 2-state phase space is `M(a,b)`, and the one collapsing the uniform state to a vertex is singular** (`ChapterEulerStochastic`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained finite-dimensional claim of the
+section *"Euler's formula for the probability clock"* (`book.tex` line ~3310):
+*"the most general linear transformation of a probability distribution that
+preserves the space of probability distributions is
+`M(a,b) = [[cos²a, cos²b],[sin²a, sin²b]]` … the matrix `M` such that
+`M·½(1,1) = (1,0)` is necessarily singular and so it is not suitable to
+represent a symmetry group."* The book uses this to contrast the *invertible*
+rotations acting on the wave-function with the fact that on the probability
+simplex the only linear symmetries are (column-)stochastic matrices, the
+collapse-to-vertex one being singular. One new file, `sorry`-free / `axiom`-free
+(only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterEulerStochastic.lean` — over `Matrix (Fin 2) (Fin 2) ℝ`. `IsProbVec v`
+  (`v i ≥ 0`, `v 0 + v 1 = 1`); `PreservesProb M` (`M` maps every probability
+  vector to a probability vector); `Mmat a b` = the book's `M(a,b)`. Proves
+  `Mmat_preservesProb` (every `M(a,b)` preserves probability distributions),
+  `preservesProb_iff_columnStochastic` (a map preserves the simplex iff each
+  column is a probability vector), the headline
+  **`preservesProb_iff_exists_angles`** (a linear map preserves the space of
+  probability distributions iff it equals `M(a,b)` for some real angles `a,b` —
+  the book's "most general" claim, via `exists_cos_sq`: every `p ∈ [0,1]` is
+  `cos² a`), and the headline **`uniform_to_vertex_singular`** (any
+  probability-preserving `M` with `M·½(1,1) = (1,0)` has `det = 0`, so it cannot
+  represent a symmetry group). Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 133 (2026-07-12) — **Book "Wave-function parametrization of a probability measure", §10 "Ensemble forecasting …": measurements reproduce the probability distribution in the infinite-measurement limit (strong law of large numbers)** (`ChapterMeasurementLLN`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained mathematical content of §10
+(`book.tex` line ~2005): *"a measurement … reproduc[es] the probability
+distribution in the limit of infinite measurements … not different from an
+unbiased sampling process taken over infinite time."* This is the strong law of
+large numbers for a finite-outcome measurement. One new file, `sorry`-free /
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterMeasurementLLN.lean` — over a probability space `(Ω, μ)` and an i.i.d.
+  sequence of `Fin k`-valued measurements `M : ℕ → Ω → Fin k` (each measurable,
+  pairwise independent, identically distributed to `M 0`). Defines
+  `outcomeIndicator M a i` (the `{0,1}` indicator of "`Mᵢ = a`"), proves
+  `outcomeIndicator_integral` (its expectation is the outcome probability
+  `(μ {ω | M 0 ω = a}).toReal`), the general observable version
+  `measurement_average_tendsto` (the running average of any observable `f ∘ Mᵢ`
+  tends a.s. to `∫ f (M 0 ω) ∂μ` — the "unbiased sampling over infinite time"
+  statement, via `ProbabilityTheory.strong_law_ae_real`), and the headline
+  **`measurement_frequency_tendsto`** (for every outcome `a`, the empirical
+  frequency `(∑_{i<n} 𝟙[Mᵢ = a])/n` converges almost surely to the true outcome
+  probability `(μ {ω | M 0 ω = a}).toReal` — infinitely many measurements
+  reproduce the distribution). Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 132 (2026-07-12) — **Book "Wave-function parametrization of a probability measure", §5 "Free field parametrization in Bayesian inference and Statistical Mechanics": the density matrix as a diagonal probability operator rotated by a unitary** (`ChapterDensitySpectral`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained finite-dimensional content of the
+last paragraph of §5 (`book.tex` line ~1706): *"We can always define the density
+matrix through a diagonal operator rotated by a unitary operator, with the
+diagonal operator defining the marginal probability of the initial state and the
+unitary operator defining the conditioned probability of the final state
+conditioned by the initial state."* This is the spectral decomposition of a
+density matrix. One new file, `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`):
+
+* `ChapterDensitySpectral.lean` — over `Matrix n n ℂ` (finite `n`),
+  `IsDensityMatrix ρ` = `ρ.IsHermitian ∧ ρ.PosSemidef ∧ ρ.trace = 1`. Proves
+  `density_eigenvalues_nonneg` (eigenvalues `≥ 0`), `density_eigenvalues_sum_one`
+  (eigenvalues sum to `1`, so the eigenvalue vector is a probability distribution
+  — the book's "marginal probability of the initial state"), `density_spectral`
+  (the decomposition `ρ = U · diag(eigenvalues) · U†` via
+  `Matrix.IsHermitian.spectral_theorem`, the "diagonal operator rotated by a
+  unitary"), the converse `isDensityMatrix_of_unitary_diagonal` (for any unitary
+  `U` and probability distribution `d`, `U · diag(d) · U†` is a density matrix),
+  and the headline **`density_iff_exists_unitary_diagonal`** (a matrix is a
+  density matrix iff it is a probability-diagonal operator rotated by a unitary).
+  Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 131 (2026-07-12) — **Book "Wave-function parametrization of a probability measure", §4 "Quantum Mechanics versus a non-commutative generalization of probability theory": the 2D-real pure- vs. mixed-state (Gleason) contrast and the collapse mechanism** (`ChapterGleasonPureMixed`, `ChapterCollapseDiagonal`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained finite-dimensional core of §4
+(`book.tex` line ~1550), which contrasts the book's own wave-function
+(**pure-state**) parametrization with Gleason's theorem (general density /
+**mixed** states). Two new files, `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`):
+
+* `ChapterGleasonPureMixed.lean` — the book's explicit **2-dimensional real**
+  example, over `Matrix (Fin 2) (Fin 2) ℝ` with `E ρ A = tr(ρ A)`. The two
+  non-commuting projections `P0 = [[1,0],[0,0]]`, `Q = ½[[1,1],[1,1]]`
+  (`P0_Q_not_commute`). `IsPureState` = real symmetric idempotent of unit trace
+  (line projection); `IsMixedState` = PSD of unit trace. Proves `P0_isPure`,
+  `Q_isPure`, `E_Q_P0`/`E_P0_Q` (`= ½`), `exists_pure_expP0`/`exists_pure_expQ`,
+  the headline **`no_pure_state_both`** (no pure state realizes both
+  `tr(ρ P0)=½` and `tr(ρ Q)=½`), `halfI_isMixed`/`halfI_not_pure`, the headline
+  **`exists_mixed_state_both`** (the mixed `½·I` does), and the summary
+  `pure_vs_mixed_gleason_contrast`. Docstring notes the real-field restriction is
+  the book's own (over `ℂ`, `[[½,i/2],[-i/2,½]]` is pure and satisfies both).
+* `ChapterCollapseDiagonal.lean` — the collapse mechanism of §4. Over `Fin n`,
+  complex matrices, `IsDiagonal ρ`: `trace_diagonal_mul`
+  (`tr(ρ O) = ∑ i, ρ i i · O i i`), the headline **`trace_diag_nullDiag_zero`**
+  (diagonal `ρ`, null-diagonal `O` ⇒ `tr(ρ O)=0`, the post-collapse condition
+  `E(O)=0`), and `trace_diagonal_mul_diag`.
+
+Both registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 130 (2026-07-12) — **Book "Wave-function parametrization of a probability measure", §§7–8 "Symmetries and unitary representations" / "Conservative transformations": the unitary time-evolution `U(t) = e^{iHt}` is a conservative (measure-preserving) transformation and a one-parameter unitary representation of `ℝ`** (`ChapterConservative`, `ChapterSymmetryRep`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained finite-dimensional core of the
+book's section *"8. Conservative transformations"* (`book.tex` line ~1917): a
+conservative (canonical) transformation preserving the measure is realized by a
+**unitary time-evolution** `U(t) = e^{iHt}` for a self-adjoint Hamiltonian `H`
+(*"any unitary automorphism can be defined as a time-evolution, for some
+Hamiltonian and time"*), and such a transformation *preserves the measure*
+(total probability). One new file, `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`):
+
+* `ChapterConservative.lean` — over a finite index set `n`, complex matrices,
+  `timeEvo H t = NormedSpace.exp ((t : ℂ) • (Complex.I • H))` is the book's
+  `e^{iHt}`. Proves `timeEvo_zero` (`U(0) = 1`), `timeEvo_commute` (the exponents
+  at two times commute), `timeEvo_add` (the one-parameter group law
+  `U(s)·U(t) = U(s+t)`), `timeEvo_unitary` / `timeEvo_unitary'` (`U(t)` is
+  unitary, `U(t)ᴴ U(t) = 1` and `U(t) U(t)ᴴ = 1`, using
+  `Matrix.exp_conjTranspose` and skew-Hermiticity of `iH`),
+  `timeEvo_mem_unitaryGroup` (hence `U(t) ∈ unitaryGroup n ℂ`), `timeEvo_inv`
+  (the inverse is the time-reversed evolution `U(t)·U(-t) = 1`), and the headline
+  **`timeEvo_conj_trace`** (the conservative property: conjugating a density
+  operator `ρ` by `U(t)` preserves its trace, `tr(U(t) ρ U(t)ᴴ) = tr ρ`, so
+  total probability `tr ρ = 1` is preserved). Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+* `ChapterSymmetryRep.lean` — §7 (`book.tex` line ~1857): *"When a subset of
+  canonical transformations forms a group, such subset is always a linear
+  unitary representation of a group which is then called symmetry group."* The
+  concrete self-contained instance is the one-parameter **time-translation
+  group**. Building on `ChapterConservative`, it proves `timeEvoU_one`
+  (`U(0) = 1` in the unitary group) and `timeEvoU_mul` (`U(s+t) = U(s)·U(t)`),
+  and bundles them into **`timeEvoRep`**: a `MonoidHom` from `Multiplicative ℝ`
+  (the additive reals viewed multiplicatively) into `Matrix.unitaryGroup n ℂ`,
+  `t ↦ e^{iHt}` — a genuine one-parameter unitary representation of the symmetry
+  group `ℝ`; `timeEvoRep_apply` identifies its underlying matrix with
+  `timeEvo H t`. Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 129 (2026-07-11) — **Book "Wave-function parametrization of a probability measure", §2 "Probability updates, machine learning and Quantum Mechanics": unitary inference reproduces Bayesian inference** (`ChapterBayesInference`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained finite-dimensional core of the
+book's central §2 compatibility claim (`book.tex` line ~1338): *"given a Bayesian
+model, a prior probability and data that allows to produce a posterior
+probability through Bayesian inference, there is a reversible model that produces
+the same posterior probability as a function of the prior probability."* A finite
+Bayesian model is a prior `prior : X → ℝ` and a likelihood / Markov kernel
+`L : X → Y → ℝ` (each row a distribution on the data `Y`); the reversible model is
+the unitary parametrization of §3 (`ChapterJointUnitary.exists_unitary_joint`),
+and Born-rule conditioning on the observed data reproduces the Bayes posterior.
+One new file, `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`):
+
+* `ChapterBayesInference.lean` — `joint prior L x y = prior x * L x y`,
+  `evidence prior L y = ∑_x prior x * L x y`, and
+  `posterior prior L y x = prior x * L x y / evidence`. Proves `joint_nonneg` /
+  `joint_sum_one` (the joint density is a probability distribution on `X × Y`),
+  `evidence_eq_marginal` / `evidence_nonneg`, `posterior_nonneg` /
+  `posterior_sum_one` (for data `y` with positive evidence the posterior is a
+  distribution on `X`), `posterior_eq_joint_div_evidence` (the Bayes chain rule),
+  the headline **`posterior_eq_born_conditional`** (with the wave-function
+  `Ψ = √p`, the Bayes posterior equals the Born-rule conditional
+  `|Ψ(x,y)|² / ∑_{x'} |Ψ(x',y)|²`), and the headline
+  **`exists_unitary_reproduces_posterior`** (there is a *unitary* matrix `U` on
+  `X × Y` and a column index `i₀` with `‖U (x,y) i₀‖² = p(x,y)` such that for
+  every data point `y` with positive evidence the Bayes posterior is reproduced
+  by Born-rule conditioning of that column of `U`). Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 128 (2026-07-11) — **Book "Wave-function parametrization of a probability measure", §3 "Any conditional probability measure in a standard measure space is parametrized by a unitary operator": the converse — marginal and regular conditional probability of a bounded operator** (`ChapterConditional`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained finite-dimensional core of the
+**converse** direction of the central §3 theorem (`book.tex` line ~1478, the
+paragraph *"The converse also holds"*): *"Given a bounded operator `B`, such that
+`tr(BB†)=1`, then it defines a joint probability distribution `p(x,y)=|B(y,x)|²`.
+From the joint probability, if `p(x)={B†B}(x,x)>0` for all `x∈X`, then we can
+define a regular conditional probability density."* The joint-distribution half
+is already `ChapterJointUnitary.sqAbs_isProb_of_frobenius_one`; this wave supplies
+the **marginal / regular-conditional** layer. One new file, `sorry`-free /
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterConditional.lean` — over finite index sets `X, Y`, `RCLike`-agnostic,
+  with `pJoint B x y = ‖B y x‖²`, `pMarg B x = ∑_y ‖B y x‖²`, and
+  `pCond B x y = pJoint / pMarg`. Proves **`pMarg_eq_diagBHB`** (the book's
+  `p(x) = {B†B}(x,x)`: the marginal is the diagonal of the Gram matrix `Bᴴ B`),
+  **`trace_gram_eq_one`** (the normalization `tr(BᴴB)=tr(BB†)=1` in trace form),
+  `pJoint_sum_one` / `pMarg_sum_one` (joint on `X×Y` and marginal on `X` are
+  genuine probability distributions), `pJoint_nonneg` / `pMarg_nonneg` /
+  `pCond_nonneg`, **`pCond_sum_one`** (for every `x` with `p(x)>0` the
+  conditional `p(y|x)=p(x,y)/p(x)` is a probability distribution on `Y`: the
+  regular conditional density), and **`pJoint_eq_cond_mul_marg`** (the chain rule
+  `p(x,y)=p(y|x)·p(x)`, reconstructing the joint from marginal and conditional).
+  Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 127 (2026-07-11) — **Book "Wave-function parametrization of a probability measure", §2 "Probability updates, machine learning and Quantum Mechanics": Markov processes are entropy-monotone, hence Bayesian inference is irreversible** (`ChapterMarkovEntropy`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained finite-dimensional content of the
+book's §2 claim (`book.tex` line ~1338), used to motivate its *reversible*
+"Unitary inference" against ordinary Bayesian inference: *"Markov processes
+cannot produce an arbitrary function of time, because there is an ordering
+(related with the concept of entropy) with respect to which all continuous-time
+Markov processes are monotonic. Thus, Bayesian inference is irreversible."* The
+self-contained core is the discrete **`H`-theorem**: a doubly-stochastic
+(bistochastic) Markov map cannot decrease Shannon entropy, and preserves it
+exactly on the reversible (permutation) transitions. One new file, `sorry`-free /
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterMarkovEntropy.lean` — `entropy p = ∑ a, negMulLog (p a)`,
+  `applyMarkov M p j = ∑ i, M j i * p i`, and `IsDoublyStochastic M` (nonnegative
+  entries, row sums and column sums both `= 1`). Proves the headline
+  **`entropy_applyMarkov_ge`** (`H(p) ≤ H(M p)` for doubly-stochastic `M` and any
+  nonnegative `p`, by row-wise concave Jensen `Real.concaveOn_negMulLog.le_map_sum`
+  with the row-sum constraint, then reindexing and the column-sum constraint),
+  and — for the reversible boundary case — `permMatrix σ`,
+  `permMatrix_doublyStochastic`, `applyMarkov_permMatrix` (`(M p) j = p (σ⁻¹ j)`)
+  and **`entropy_applyMarkov_permMatrix`** (a permutation transition preserves
+  entropy exactly). The contrast — permutation (deterministic, invertible) maps
+  keep entropy fixed while a genuinely mixing doubly-stochastic step can only
+  raise it — is precisely the irreversibility the book invokes. Registered in
+  `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 126 (2026-07-11) — **Book "Wave-function parametrization of a probability measure", §3 "Any conditional probability measure in a standard measure space is parametrized by a unitary operator": the Cauchy–Schwarz / Hilbert–Schmidt boundedness of the kernel operator** (`ChapterKernelBound`)
+
+Stayed on the book's **main-conclusion** thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained analytic step the book's central
+§3 theorem uses on the way to the singular-value expansion `Ψ = W D U†` (already
+in `ChapterB3`/`ChapterB3b`): having written a joint density as `p(x,y) =
+|Ψ(x,y)|²` for a normalized wave-function `Ψ ∈ L²(X×Y)`, the book views `Ψ` as an
+integral operator `Ψ{Φ}(y) = ∫ dx Ψ(x,y) Φ(x)` and notes that *"the
+Cauchy–Schwarz inequality implies … `Ψ(x,y)` is bounded when defined as an
+operator `Ψ : L²(X) → L²(Y)`"* (`book.tex` line ~1478). This is the classical
+**Hilbert–Schmidt bound** (an integral operator with an `L²` kernel is bounded,
+with operator norm ≤ the `L²`/Hilbert–Schmidt norm of the kernel). Consistently
+with the finite-dimensional models used throughout `BookProof` (e.g. the finite
+SVD in `ChapterB3b`) it is formalized for a **discretized** kernel over finite
+index sets, `RCLike`-field agnostic. One new file, `sorry`-free / `axiom`-free
+(only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterKernelBound.lean` — `kernelOp Ψ Φ y = ∑ x, Ψ y x * Φ x` is the book's
+  `Ψ{Φ}(y)`. Proves `kernel_row_bound` (row-wise Cauchy–Schwarz
+  `‖Ψ{Φ}(y)‖² ≤ (∑ x ‖Ψ y x‖²)(∑ x ‖Φ x‖²)`), the headline
+  **`kernel_hs_sq_bound`** (summing over the outputs: `∑ y ‖Ψ{Φ}(y)‖² ≤
+  (∑ y ∑ x ‖Ψ(y,x)‖²)(∑ x ‖Φ(x)‖²)`), **`kernel_l2_bound`** (the book's
+  inequality verbatim in `L²` form: `‖Ψ{Φ}‖_{L²} ≤ ‖Ψ‖_{HS} · ‖Φ‖_{L²}`), and
+  **`kernel_contraction`** (the book's normalized conclusion: a normalized
+  kernel `∑ y ∑ x ‖Ψ(y,x)‖² = 1` gives a contraction `∑ y ‖Ψ{Φ}(y)‖² ≤
+  ∑ x ‖Φ(x)‖²`, hence a bounded operator). Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 125 (2026-07-11) — **Book "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory", §"Quantization due to time evolution": the Weyl relations (exponentiated CCR) from conjugation** (`ChapterQuantizationWeyl`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained algebraic content of the book's
+central **quantization** claim (`book.tex` line ~6802): that the canonical
+commutation relations of position and momentum — strictly, the **Weyl relations**,
+the exponentiated CCR — arise from a **non-deterministic time-evolution** acting
+by conjugation, via the Trotter/Baker–Campbell–Hausdorff formula
+`e^{εA} e^{B} e^{-εA} = e^{B - ε[A,B] + O(ε²)}` and the concrete
+`e^{iεp²} e^{ix} e^{-iεp²} = e^{i(x+εp)}`. One new file, `sorry`-free /
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterQuantizationWeyl.lean` — since the full CCR `[x,p]=i·1` has **no
+  finite-dimensional representation**, the honest finite model is the
+  **Heisenberg algebra / group** of `3×3` real matrices: `Xgen = e₁₂` (position),
+  `Ygen = e₂₃` (momentum), `Zgen = e₁₃` (central `[X,Y]`), all nilpotent so the
+  exponential series terminates and every BCH/Trotter identity is **exact** (no
+  `O(ε²)` remainder). Proves `comm_XY` (`[X,Y]=Z`) and `comm_scaled`
+  (`[aX,bY]=(ab)Z`); `Zgen_central`/`Zgen_sq`; the Heisenberg **group law**
+  `Heis_mul` (`H(a,b,c)·H(a',b',c')=H(a+a',b+b',c+c'+a·b')`); the **exponential
+  map** `exp_Ngen` (`exp(aX+bY+cZ)=H(a,b,c+ab/2)`, via three-step nilpotency and
+  `NormedSpace.exp_eq_tsum`); the headline **`weyl`** (`exp(aX)·exp(bY) =
+  exp(aX+bY+(ab/2)Z)`, the exponentiated CCR / exact BCH product formula, the
+  `(ab/2)Z` correction being `½[aX,bY]`); and the **`weyl_shift`** conjugation /
+  quantization identity (`exp(aX)·exp(bY)·exp(-aX) = exp(bY+(ab)Z) =
+  exp(bY+a[X,Y])`, the exact finite-dimensional model of the book's
+  `e^{εA}e^{B}e^{-εA}=e^{B-ε[A,B]}` and `e^{iεp²}e^{ix}e^{-iεp²}=e^{i(x+εp)}`:
+  conjugating the "momentum" one-parameter subgroup by the "position" time-step
+  shifts it in the central `[X,Y]` direction). Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 124 (2026-07-11) — **Book "Wave-function parametrization of a probability measure", §4 "Quantum Mechanics versus a non-commutative generalization of probability theory": the 2-dimensional real comparison with Gleason's theorem** (`ChapterGleason2D`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the concrete **2-dimensional real** example the book
+uses (in §4 of the foundational chapter *"Wave-function parametrization of a
+probability measure"*, `book.tex` line ~1550) to contrast its wave-function
+parametrization — which uses only *commuting* projections, i.e. **pure states** —
+with **Gleason's theorem**, which handles *non-commuting* projections and needs
+**mixed states**. One new file, `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`):
+
+* `ChapterGleason2D.lean` — takes the two non-commuting rank-one projections on
+  `ℝ²` from the book, `P₁ = !![1,0;0,0]` (first axis) and `Q = ½!![1,1;1,1]`
+  (diagonal `(1,1)` direction), the pure-state model `ρ = v vᵀ` (`pure`) for a
+  unit vector `v`, and the expectation `expec ρ A = tr(ρ A)`. Proves
+  `P1_Q_noncomm` (`P₁Q ≠ QP₁`, the complementary observables), `P1_isProjection`
+  / `Q_isProjection` (each is a symmetric idempotent of trace one), the two
+  expectation formulas `expec_pure_P1` (`tr(v vᵀ P₁) = v₀²`) and `expec_pure_Q`
+  (`tr(v vᵀ Q) = (v₀+v₁)²/2`), the separate realizability `pure_realizes_P1`
+  and `pure_realizes_Q` (a pure state achieving each constraint `tr(ρ·)=½` on
+  its own), the headline **`no_pure_state_both`** (**no** pure state realizes
+  both `tr(ρ P₁)=½` and `tr(ρ Q)=½` simultaneously — forcing `v₀²=v₁²=½` yet
+  `v₀v₁=0`, a contradiction), and **`mixed_state_both`** (the maximally mixed
+  state `ρ=½·I` is a density matrix and realizes **both** constraints, exactly as
+  Gleason's theorem predicts). Registered in `BookProof.lean`; `lake build
+  BookProof` green.
+
+## Wave 123 (2026-07-11) — **Book "On the physical parity transformation and antiparticles", §"Majorana spinors in the Standard Model": the electroweak `SU(2)_L` field strength via the trace projection** (`ChapterElectroweakFieldStrength`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained algebraic content of the electroweak
+field-strength tensors recorded in the book's Standard-Model section (`book.tex`
+line ~7728), which defines them as *trace projections* of the covariant-derivative
+commutator onto the Pauli generators:
+`W_{μν}^j = -\frac{i}{g}\,\mathrm{tr}([D_μ,D_ν]\,τ^j) = ∂_μ W_ν^j - ∂_ν W_μ^j - g\,ε^{jkl} W_μ^k W_ν^l`
+and `B_{μν} = -\frac{i}{g'}\,\mathrm{tr}([D_μ,D_ν]\,σ_3) = ∂_μ B_ν - ∂_ν B_μ`. One new
+file, `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterElectroweakFieldStrength.lean` — reuses the Pauli matrices of
+  `ChapterParitySU2`/`ChapterParity` and introduces the totally antisymmetric
+  `su(2)` structure constants `eps` (`ε_{jkl}`, with `eps_cyclic`/`eps_swap`).
+  Proves the generator identities `pauli_trace_orthonormal` (`tr(σ_a σ_b) = 2δ_{ab}`),
+  `pauli_triple_trace` (`tr(σ_a σ_b σ_c) = 2i ε_{abc}`), `pauli_commutator`
+  (the `su(2)` relations `[σ_k,σ_l] = 2i ∑_m ε_{klm} σ_m`) and
+  `pauli_commutator_trace` (`tr([σ_k,σ_l]σ_j) = 4i ε_{klj}`). Models the
+  `su(2)`-valued connection `connection W = ∑_j W^j (σ_j/2)` and the curvature
+  `Fmat g G Wμ Wν = i g (∑_j G_j σ_j/2) + (i g)² [A_μ,A_ν]` written from the
+  covariant-derivative commutator (`G_j = ∂_μ W_ν^j - ∂_ν W_μ^j` the abstract curl
+  input), with trace projection `proj g F j = -\frac{i}{g}\,\mathrm{tr}(F σ^j)`.
+  Supporting `linear_trace` (projection of the linear part returns `G_j`) and
+  `connection_comm_trace` (projection of the quadratic part returns
+  `i ∑_{k,l} ε_{klj} W_μ^k W_ν^l`) assemble into the headline
+  **`electroweak_fieldStrength`** (`proj g (Fmat …) j = G_j - g ∑_{k,l} ε^{jkl} W_μ^k W_ν^l`),
+  the book's `W_{μν}^j`. Companion **`abelian_fieldStrength`** shows that for a single
+  abelian `U(1)` field along a fixed generator the quadratic term drops (a matrix
+  commutes with itself), so the projection returns the pure curl `G` (the book's
+  `B_{μν}`). Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 122 (2026-07-11) — **Book "On the physical parity transformation and antiparticles", §"Majorana spinors in canonical quantization and antiparticles": the bosonic canonical commutation relations (CCR)** (`ChapterBosonicCCR`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the **bosonic** paragraph of the Majorana
+quantization section (`book.tex` line ~7700), the companion of Wave 118's
+fermionic Clifford/CAR construction. The book states that for bosons the
+commutation relation `[a(v),a(w)] = ⟪v, J w⟫ i` (a symplectic product) replaces
+the fermionic anticommutation `{a(v),a(w)} = ⟪v,w⟫ 1`, with the field operators
+`a(v)` again self-adjoint ("a particle which is its own antiparticle"). One new
+file, `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`):
+
+* `ChapterBosonicCCR.lean` — since the Weyl/CCR algebra has **no
+  finite-dimensional representation** and Mathlib has no ready-made Weyl algebra,
+  the two book relations are packaged (like `ChapterBRSTNilpotent`'s `GhostCAR`)
+  as a **hypothesis structure** `BosonicCCR` on an abstract complex `*`-algebra
+  `R`, with a real-linear field map `a : V →ₗ[ℝ] R`, `selfAdjoint` (each `a(v)`
+  self-adjoint) and `ccr` (`[a(v),a(w)] = algebraMap ℂ R (i·⟪v,J w⟫)`). Proves:
+  `symplectic_antisymm` / `symplectic_self` (the form `ω(v,w)=⟪v,Jw⟫` from a skew
+  `J` is antisymmetric and alternating); `field_commute_self_scalar` (the CCR
+  scalar vanishes for `v=w`); `commutator_antiSelfAdjoint` (`[a(v),a(w)]` is
+  anti-self-adjoint, the constraint satisfied by `i·ω·1`);
+  `field_comp_selfAdjoint` (**real representations preserve self-adjointness** —
+  `a(Tv)` self-adjoint for any real-linear `T`); `ccr_symplectic_invariant` (a
+  **symplectic symmetry** `T` transports the CCR unchanged to `a∘T`); the
+  **creation/annihilation split** `ann`/`cre` (`a(v±iJv)`) with `star_ann` /
+  `star_cre` (the involution swaps annihilation and creation) and `ann_add_cre`
+  (`ann v + cre v = a v + a v`); `commutator_field_Jfield`
+  (`[a(v),a(Jv)] = -(i·‖v‖²)·1`, using `J²=-1`); and `commutator_cre_ann`
+  (the **number-operator CCR** `[c(v),a(v)] = (2‖v‖²)·1`, the bosonic analogue of
+  `[a,a†]=1`). Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 121 (2026-07-11) — **Book "Timepiece and the Gribov ambiguity", §"Free electromagnetic field: an exact example": the abelian reduction of the field strength** (`ChapterFreeEMField`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained content of the book section
+*"Free electromagnetic field: an exact example"* (`book.tex` line ~7413),
+which specializes the previous section's Yang-Mills machinery to the **abelian
+(electromagnetic) case** by *"setting the structure constants `f_{abc}` to
+zero"*. One new file, `sorry`-free / `axiom`-free (only `propext`, `Quot.sound`):
+
+* `ChapterFreeEMField.lean` — building on `ChapterYangMillsFieldStrength.lean`,
+  defines the **abelian field strength** (a single curl component / exterior
+  derivative) `emFieldStrength δ A j k = δ_j (A_k) - δ_k (A_j)` and proves:
+  `emFieldStrength_antisymm` (`F_{jk} = -F_{kj}`);
+  `emFieldStrength_gauge_invariant` (**abelian gauge invariance / "no Gribov
+  ambiguity"** — invariance under `A_j ↦ A_j + δ_j θ`, the curl of a gradient
+  vanishing by commutativity of the partial derivatives);
+  `fieldStrengthMul_eq_emFieldStrength_of_commute` (**the `f = 0` reduction** —
+  when the connection components commute, the non-abelian `fieldStrengthMul` of
+  `ChapterYangMillsFieldStrength` loses its quadratic `[a_j,a_k]` correction and
+  becomes the linear abelian one, which is why *"the Hamiltonian is quadratic in
+  the fields"*);
+  `Fbook_eq_emFieldStrength_of_commute` (the same reduction for the book's
+  coupled `Fbook`); and `emFieldStrength_isSelfAdjoint` (**the curl of
+  self-adjoint operator fields is self-adjoint** — the book's *"local
+  self-adjoint operator `∂×π`, the curl of the Electric Field"*). Registered in
+  `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 120 (2026-07-11) — **Book "Timepiece and the Gribov ambiguity", §"Renormalization, the mass gap and the Millennium prize" / Yang-Mills Weyl-gauge Hamiltonian: positive-definiteness** (`ChapterWeylHamiltonian`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the **positive-definiteness of the Weyl-gauge
+Yang-Mills Hamiltonian**, the fact the book invokes for the Millennium
+mass-gap discussion (`book.tex` line ~7490: *"the Hamiltonian in the Weyl
+gauge is positive definite"*), and the direct bridge to the earlier
+`ChapterMassGap` result. One new file, `sorry`-free / `axiom`-free (only
+`propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterWeylHamiltonian.lean` — on an arbitrary complex Hilbert space, with
+  the electric-field operators `π : Fin n → H →L[ℂ] H` and magnetic-field
+  operators `B : Fin m → H →L[ℂ] H` modelled as bounded **self-adjoint**
+  operators, defines the Weyl-gauge Hamiltonian density
+  `weylHamiltonian π B = ½•(∑ i, π i ∘L π i) + ½•(∑ a, B a ∘L B a)` and proves
+  `weylHamiltonian_isPositive` (**it is a positive operator** — the book's
+  "positive definite"), `weylHamiltonian_expectation_nonneg` (every expectation
+  value `re ⟪H_W x, x⟫ ≥ 0`, the operational bounded-below form), and
+  `weylHamiltonian_isSelfAdjoint` (it is itself a genuine observable).
+  Supporting lemmas: `selfAdjoint_sq_isPositive` (the square of a self-adjoint
+  operator is positive, via `isPositive_adjoint_comp_self`) and
+  `smul_nonneg_isPositive` (a nonnegative real multiple of a positive operator
+  is positive). Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 119 (2026-07-11) — **Book "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory", §"Pure SU(3) Yang-Mills theory": nilpotency of the BRST charge** (`ChapterBRSTNilpotent`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the **central algebraic fact behind the book's
+BRST / gauge-invariant-algebra programme** (`book.tex` lines ~7050 and ~7343):
+the **nilpotency of the BRST charge**, `Ω² = 0`, which makes the BRST cohomology
+— hence the physical / gauge-invariant algebra the book proposes as the
+definition of Quantum Yang-Mills — well defined. One new file, `sorry`-free /
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterBRSTNilpotent.lean` — isolates the **cubic ghost term** of the BRST
+  charge (the only part whose nilpotency needs the non-abelian structure). In any
+  associative `ℝ`-algebra `R`, with ghost creation operators `χ : Fin n → R`
+  (the book's `ψ†_a`) and annihilation operators `β : Fin n → R` (`ψ_a`)
+  satisfying the **canonical anticommutation relations** (`GhostCAR`:
+  `{χ_a,χ_b}=0`, `{β_a,β_b}=0`, `{β_a,χ_b}=δ_{ab}`), and real structure
+  constants `f` antisymmetric in their first two indices and satisfying the
+  **Jacobi identity** (both proved for the SU(N) generators in
+  `ChapterYangMillsSU3.lean`), the cubic ghost charge
+  `Q = ∑_{a,b,e} f_{abe} · (χ_a χ_b β_e)` satisfies `brst_charge_nilpotent`
+  (`Q·Q = 0`). Supporting lemmas: `beta_move` (normal-ordering a single
+  annihilation operator past a pair of creation operators), `chi_swap4` /
+  `chi_cyc3` (fermionic reordering of creation operators), `quartic_term_zero`
+  (the fully normal-ordered quartic piece of `Q²` vanishes by fermionic
+  antisymmetry alone), and `contracted_terms_zero` (the contracted pieces combine
+  and vanish by the Jacobi identity). Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 118 (2026-07-11) — **Book "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory", §"Majorana spinors in canonical quantization and antiparticles": the complex Clifford C\*-algebra of a real Hilbert space** (`ChapterMajoranaClifford`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained algebraic content of the book
+section *"Majorana spinors in canonical quantization and antiparticles"*
+(`book.tex` line ~7680), where a real Hilbert space `V` gives rise to a complex
+Clifford C\*-algebra with **self-adjoint** field operators `a(v)` (Majorana
+fermions — *"a particle which is its own antiparticle"*). One new file,
+`sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterMajoranaClifford.lean` — realizes the book's `C(V)` as Mathlib's
+  `CliffordAlgebra Q` for the quadratic form `Q v = ⟪v,v⟫` induced by the inner
+  product (`Qform`, `polar_Qform`), with generator `a v = ι Q v` and the
+  canonical involution `*` = `CliffordAlgebra.reverse`. Proves the **Clifford
+  relation** `a_sq` (`a(v)² = ⟪v,v⟫·1`), the **canonical anticommutation
+  relation** `car` (`{a(v),a(w)} = 2⟪v,w⟫·1`), **self-adjointness** `a_selfAdjoint`
+  (`reverse (a v) = a v`, the book's `a*(v) = a(v)` / Majorana property), the
+  involution being an order-two **anti-automorphism** (`reverse_antihom`,
+  `reverse_involutive`), that a real symmetry `a(v) → a(Tv)` **preserves
+  self-adjointness** for any real linear `T` (`a_map_selfAdjoint`, real
+  representations), orthogonal directions give **anticommuting** operators
+  (`a_anticomm_of_orthogonal`), and the **creation/annihilation split**
+  `a_anticomm_skew` (for a skew-symmetric complex structure `J`, `a(v)` and
+  `a(J v)` anticommute — the real shadow of the CAR between `a(v+iJv)` and
+  `a(v−iJv)`). Registered in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 117 (2026-07-11) — **Book "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory", §"Pure SU(3) Yang-Mills theory": the non-abelian field strength / magnetic field** (`ChapterYangMillsFieldStrength`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Continued the SU(3) Yang-Mills section right after Wave 116's
+Bianchi identity, formalizing the explicit **non-abelian field strength formula**
+the book records right after the covariant derivative (`book.tex` line ~7020):
+`[D_j, D_k] = -i g T_a F_{j k a}` with
+`B_{i a} = ½ ε_{i j k}(∂_j A_{k a} - ∂_k A_{j a} - g f_{a b c} A_{j b} A_{k c})`.
+One new file, `sorry`-free / `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`):
+
+* `ChapterYangMillsFieldStrength.lean` — models the covariant derivative acting
+  on the ring `R` of field values as `D_j x = δ_j x + a_j * x`, where
+  `δ : Fin 3 → R → R` is a family of commuting Leibniz derivations (the partial
+  derivatives `∂_j`) and `a_j ∈ R` is the connection (`a_j = -i g A_j`). The
+  headline `nonabelian_fieldStrength` proves that **the commutator of two
+  covariant derivatives is multiplication by the field strength**,
+  `[D_j, D_k] x = F_{j k} * x` with
+  `F_{j k} = δ_j a_k - δ_k a_j + (a_j a_k - a_k a_j)` — the second-order terms
+  cancel by commutativity of the `δ`'s and the mixed first-order terms cancel
+  identically, leaving a pure zeroth-order (multiplication) operator, exactly the
+  book's `[D_j, D_k] = -i g T_a F_{j k a}`. Plus `fieldStrengthMul_antisymm`
+  (`F_{j k} = -F_{k j}`); the book-notation `Fbook`
+  (`F^{book}_{j k} = (∂_j A_k - ∂_k A_j) - i g (A_j A_k - A_k A_j)`) with the
+  specialization `commutator_eq_coupling`
+  (`[D_j, D_k] x = (-i g • F^{book}_{j k}) * x` for the book's connection
+  `a_j = -i g A_j` in a complex algebra — the non-abelian term `-i g [A_j, A_k]`
+  expands via `[T_a, T_b] = i f_{a b c} T_c` into the book's
+  `+ g f_{a b c} A_{j b} A_{k c}`); and `Fbook_antisymm`. Registered in
+  `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 116 (2026-07-11) — **Book "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory", §"Pure SU(3) Yang-Mills theory": the covariant derivative and the Bianchi (Jacobi) identity** (`ChapterYangMillsBianchi`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Continued the SU(3) Yang-Mills section right after Wave 115's
+structure constants, formalizing the covariant derivative `D_j` and the
+**Jacobi (Bianchi) relation** the book states for it,
+`ε_{i j k} [D_i, [D_j, D_k]] = 0` (`book.tex` line ~7010). One new file,
+`sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterYangMillsBianchi.lean` — the covariant derivatives `D_i` are elements
+  of an arbitrary associative ring `R` with the ambient commutator bracket
+  `⁅a,b⁆ = a*b - b*a`. Defines the Levi-Civita symbol `eps` on `Fin 3` (as the
+  sign of the product of pairwise differences) and the field strength
+  `fieldStrength D j k = ⁅D j, D k⁆` (`= -i g T_a F_{j k a}` in book notation).
+  Proves `fieldStrength_antisymm` (`F_{j k} = -F_{k j}`), the cyclic Jacobi
+  identity `bianchi_cyclic`, the book's headline `bianchi`
+  (`ε_{i j k} [D_i, [D_j, D_k]] = 0`, obtained by expanding the triple `Fin 3`
+  sum: the 21 repeated-index terms have `eps = 0`, and the 6 permutation terms
+  collapse to `2·(Jacobi sum) = 0`), and its field-strength form
+  `bianchi_fieldStrength` (`ε_{i j k} [D_i, F_{j k}] = 0`). This is the identity
+  underlying the homogeneous Yang-Mills equation / `∇·B = 0` recorded in the
+  book right after `B_{i a}`. Registered in `BookProof.lean`;
+  `lake build BookProof` green.
+
+## Wave 115 (2026-07-11) — **Book "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory", §"Pure SU(3) Yang-Mills theory": the structure constants** (`ChapterYangMillsSU3`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Having finished the Navier-Stokes chapter (waves 112–114),
+moved to the next main-thread field-theory chapter, §*"Pure SU(3) Yang-Mills
+theory"* (`book.tex` line ~7001), formalizing the self-contained algebraic
+content of the SU(N) generators and their structure constants. One new file,
+`sorry`-free / `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterYangMillsSU3.lean` — an arbitrary finite family of complex matrices
+  `T : Fin d → Matrix (Fin n) (Fin n) ℂ` satisfying the book's two defining
+  relations, the trace-orthonormality `tr(T_a T_b) = ½ δ_{ab}`
+  (`TraceOrthonormal`) and closure with **real** structure constants
+  `[T_a, T_b] = i f_{abc} T_c` (`ClosesWithStructureConstants`).  Proves the
+  closed formula `structureConstant_formula` (`f_{abd} = -2 i · tr([T_a,T_b] T_d)`,
+  the algebraic reason the two relations determine `f` uniquely); the
+  antisymmetry in the first two indices `structureConstant_antisymm_swap`
+  (`f_{abc} = -f_{bac}`) and in the last two `structureConstant_antisymm_rotate`
+  (`f_{abc} = -f_{acb}`, via cyclicity of the trace); the combined
+  `structureConstant_totally_antisymmetric`; and the **Jacobi identity for the
+  structure constants** `structureConstant_jacobi`
+  (`Σₑ (f_{abe} f_{ech} + f_{bce} f_{eah} + f_{cae} f_{ebh}) = 0`), obtained by
+  projecting the matrix Jacobi identity onto the trace-orthonormal basis — the
+  identity underlying the nilpotency of the BRST charge `Ω`. Registered in
+  `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 114 (2026-07-10) — **Book "Free field parametrization in Classical Statistical Field Theory and Navier-Stokes equations", §"Free field parametrization in Navier-Stokes equations": the fermionic ghost field and BRST charge** (`ChapterGhostField`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the self-contained algebraic content of the ghost
+field / BRST construction of the §*"Free field parametrization in Navier-Stokes
+equations"* section (`book.tex` line ~4134), where the divergence constraint is
+imposed via a single fermionic ghost field `ψ` with BRST charge
+`Ω = ∫ … [u_{j,j} ψ†]`. One new file, `sorry`-free / `axiom`-free (only
+`propext`, `Classical.choice`, `Quot.sound`):
+
+* `ChapterGhostField.lean` — the single fermionic mode as the concrete `2×2`
+  matrix model on the `ℤ₂` Fock factor `ℂ²` (`psi = !![0,0;1,0]`,
+  `psiDag = !![0,1;0,0]`, matching the book's action `ψ†{a}(j)=a(1)δ_{j0}`,
+  `ψ{a}(j)=a(0)δ_{j1}`): `psiDag_eq_conjTranspose` (`ψ†=ψᴴ`, it is the adjoint),
+  the **canonical anticommutation relations** `car` (`{ψ,ψ†}=ψψ†+ψ†ψ=1`),
+  `psi_sq`/`psiDag_sq` (`ψ²=0`, `ψ†²=0`, Pauli exclusion / ghost nilpotency).
+  The ghost **number operator** `numberOp = ψ†ψ`: `numberOp_eq`
+  (`= !![1,0;0,0]`), `numberOp_idempotent` (`N²=N`) and `numberOp_selfAdjoint`
+  (`N=Nᴴ`) — so `N` is an orthogonal projection (occupation `0` or `1`), plus
+  `numberOp_add_hole` (`ψ†ψ+ψψ†=1`). Finally the abstract **nilpotency of the
+  BRST charge** `brst_charge_nilpotent` — in any ring, if `f²=0` and `b`
+  commutes with `f` then `(b·f)²=0` — and its ghost instance
+  `brst_charge_nilpotent_ghost` (`(b·ψ†)²=0` for `b` commuting with `ψ†`), i.e.
+  `Ω²=0`, the property that makes the BRST cohomology well-defined. Registered
+  in `BookProof.lean`; `lake build BookProof` green.
+
+## Wave 113 (2026-07-10) — **Book "Free field parametrization in Classical Statistical Field Theory and Navier-Stokes equations", §§"Local operators and the momentum constraint" and "Quadratic Ordering"** (`ChapterLocalOperators`, `ChapterQuadraticOrdering`)
+
+Stayed on the book's main-conclusion thread (author instruction: prioritize
+chapters other than Gravity and off the Bell/CHSH comparison results; no Hankel,
+Majorana fine). Formalized the two self-contained sections of the Navier-Stokes
+chapter that immediately precede the already-done §"Mass gap" (`book.tex` lines
+~4011 and ~4031). Two new files, both `sorry`-free / `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`):
+
+* `ChapterLocalOperators.lean` — §*"Local operators and the momentum
+  constraint"*: for an operator-valued field `l : ℝ^d → E` (values in a real
+  Banach space `E`), `localIntegral_translation_invariant` — the space integral
+  `∫ l(x) dx` **is** translation invariant (`∫ l(x + y) dx = ∫ l(x) dx`, via
+  `integral_add_right_eq_self`), the admissible translation-invariant operator
+  `∫ d\vec{x}\ l(\vec{x})`; and `not_translationInvariant_of_pointSupported` —
+  a genuinely local (single-point-supported, nonzero) field is **not**
+  translation invariant (dimension `d ≥ 1`), the precise sense in which
+  "in rigor we can't" define local operators under the momentum constraint.
+
+* `ChapterQuadraticOrdering.lean` — §*"Quadratic Ordering"*: the algebraic heart
+  of *"the (symmetric) Weyl ordering of operators conserves the exponential of
+  operators, unlike normal-ordering"* — the **central Baker–Campbell–Hausdorff
+  identity** in an arbitrary real Banach algebra `𝔸`. For a central commutator
+  `C = A·B − B·A` (commuting with both `A` and `B`, the canonical / Heisenberg
+  situation): `exp_smul_mul_central` (adjoint identity
+  `exp(t•A)·B = (B + t•C)·exp(t•A)`), the headline `exp_mul_exp_central`
+  (`exp A · exp B = exp(A+B) · exp(½•C)` — the normal-ordered product equals the
+  symmetric-ordered `exp(A+B)` times the central correction `exp(½•C)`),
+  `exp_add_central` (rearranged form `exp(A+B) = exp A · exp B · exp(−½•C)`), and
+  `symmetric_ordering_correction_of_sq_zero` (for a square-zero/nilpotent
+  commutator the correction is the affine factor `1 + ½•C`). Supporting:
+  `exp_of_sq_eq_zero` (`exp x = 1 + x` when `x² = 0`), and the two ODE
+  derivative lemmas `hasDerivAt_normalCurve` / `hasDerivAt_symCurve` (both curves
+  `exp(t•A)exp(t•B)` and `exp(t•(A+B))exp((t²/2)•C)` solve the same linear ODE
+  `y' = (A+B+t•C)·y`), assembled via `ODE_solution_unique_of_mem_Icc_right`.
+  Both registered in `BookProof.lean`; `lake build BookProof` green.
+
 ## Wave 112 (2026-07-10) — **Book "Free field parametrization in Classical Statistical Field Theory and Navier-Stokes equations", §"Mass gap"** (`ChapterMassGap`)
 
 Stayed on the book's main-conclusion thread (author instruction: prioritize

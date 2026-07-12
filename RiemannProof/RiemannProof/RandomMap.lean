@@ -442,6 +442,9 @@ measure.
 -/
 
 open MeasureTheory
+open Filter
+open Set
+open Topology
 
 variable {P : Type} [Countable P]
 
@@ -463,7 +466,7 @@ For a given configuration `ω`, we define the Hilbert space `ℓ²(NatAdd)`
 of square-summable sequences indexed by the additive clock.
 -/
 
-noncomputable def HilbertSpaceConfig (_ω : MapConfig P) : Type :=
+noncomputable abbrev HilbertSpaceConfig (_ω : MapConfig P) : Type :=
   lp (fun (_ : NatAdd) => ℝ) 2
 
 namespace HilbertSpaceConfig
@@ -570,7 +573,7 @@ lemma propHolds_iff (ω : MapConfig P) (P_test : NatMult P → Bool) :
     · exact h
     · linarith
   · intro h
-    apply Subtype.ext
+    apply lp.ext
     ext n
     dsimp [psiTruth, psiTrue]
     have hinv_pos : NatAdd.invIndex n > 0 := by
@@ -822,12 +825,14 @@ theorem measurable_set_ConvergentMaps (c : NatMult P → ℝ) :
         rw [Metric.cauchySeq_iff]
         intro ε hε
         rcases h ε hε with ⟨N, hN⟩
-        exact ⟨N, fun m hm n hn => ?_⟩
+        refine ⟨N, fun m hm n hn => ?_⟩
+        rw [Real.dist_eq]
         have hk₁ : ∃ k₁ : ℕ, m = N + k₁ := Nat.exists_eq_add_of_le hm
         have hk₂ : ∃ k₂ : ℕ, n = N + k₂ := Nat.exists_eq_add_of_le hn
         rcases hk₁ with ⟨k₁, rfl⟩
         rcases hk₂ with ⟨k₂, rfl⟩
         exact hN k₁ k₂
+      unfold partialSum
       exact cauchySeq_tendsto_of_complete h_cauchySeq
   -- Rewrite ConvergentMaps using the Cauchy criterion
   have h_conv_eq : ConvergentMaps c = ⋂ (q : ℚ) (_ : q > 0), ⋃ (N : ℕ), ⋂ (k₁ : ℕ), ⋂ (k₂ : ℕ),
@@ -848,7 +853,7 @@ theorem measurable_set_ConvergentMaps (c : NatMult P → ℝ) :
           have hq := exists_rat_btwn hε
           rcases hq with ⟨q, hq_pos', hq_lt'⟩
           exact ⟨q, by exact_mod_cast hq_pos', by exact_mod_cast hq_lt'⟩
-        rcases h q hq_pos with ⟨N, hN⟩
+        rcases h q (by exact_mod_cast hq_pos) with ⟨N, hN⟩
         refine ⟨N, fun k₁ k₂ => ?_⟩
         have h_abs := hN k₁ k₂
         linarith
@@ -856,13 +861,15 @@ theorem measurable_set_ConvergentMaps (c : NatMult P → ℝ) :
         rw [Metric.cauchySeq_iff]
         intro ε hε
         rcases h_cauchy ε hε with ⟨N, hN⟩
-        exact ⟨N, fun m hm n hn => ?_⟩
+        refine ⟨N, fun m hm n hn => ?_⟩
+        rw [Real.dist_eq]
         have hk₁ : ∃ k₁ : ℕ, m = N + k₁ := Nat.exists_eq_add_of_le hm
         have hk₂ : ∃ k₂ : ℕ, n = N + k₂ := Nat.exists_eq_add_of_le hn
         rcases hk₁ with ⟨k₁, rfl⟩
         rcases hk₂ with ⟨k₂, rfl⟩
         exact hN k₁ k₂
-      exact ⟨_, cauchySeq_tendsto_of_complete h_cauchySeq⟩
+      unfold partialSum
+      exact cauchySeq_tendsto_of_complete h_cauchySeq
   rw [h_conv_eq]
   -- Each inner set is open (preimage of an open interval under a continuous map)
   have h_inner_open (q : ℚ) (N k₁ k₂ : ℕ) : IsOpen {ω : MapConfig P |
@@ -871,40 +878,40 @@ theorem measurable_set_ConvergentMaps (c : NatMult P → ℝ) :
       Continuous.abs (Continuous.sub (h_partialSum_cont (N + k₁)) (h_partialSum_cont (N + k₂)))
     have h_set_eq : {ω : MapConfig P | |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q : ℝ)} =
         (fun ω : MapConfig P => |partialSum ω (N + k₁) - partialSum ω (N + k₂)|) ⁻¹' Set.Ioo (-(q : ℝ)) (q : ℝ) := by
-      ext ω; simp [Set.mem_Ioo, abs_lt]
+      ext ω; simp [Set.mem_Ioo, abs_lt, Set.mem_setOf_eq]
     rw [h_set_eq]
     exact IsOpen.preimage h_cont isOpen_Ioo
   -- Build the countable Boolean combination
   -- ℚ is countable, ℕ is countable, so all the intersections/unions are countable
   refine MeasurableSet.iInter (fun q => ?_)
-  by_cases hq_pos : q > 0
+  refine MeasurableSet.iInter (fun hq_pos => ?_)
+  by_cases hq_pos' : q > 0
   · -- For positive q: ⋃_N, ⋂_k₁, ⋂_k₂ {ω | ...}
     refine MeasurableSet.iUnion (fun N => ?_)
     refine MeasurableSet.iInter (fun k₁ => ?_)
     refine MeasurableSet.iInter (fun k₂ => ?_)
     exact (h_inner_open q N k₁ k₂).measurableSet
-  · -- For q ≤ 0: the condition q > 0 → ... is vacuously true
-    have h_set_univ : (⋂ (q' : ℚ) (_ : q' > (0 : ℚ)), ⋃ (N : ℕ), ⋂ (k₁ : ℕ), ⋂ (k₂ : ℕ),
-        {ω : MapConfig P | |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q' : ℝ)}) = Set.univ := by
-      ext ω; simp [hq_pos]
-    rw [h_set_univ]
+  · -- For q ≤ 0: the condition q > 0 is false, so the iInter is over empty type = univ
     exact MeasurableSet.univ
-    under finitely-supported permutations of the clock (i.e., satisfies
-    `hμ_exch`), and a coefficient family `c : NatMult P → ℝ` that is
-    not absolutely summable, the event `ConvergentMaps c` has `μ`-measure
-    zero.
+  /-!
+`random_rearrangement_divergence`
 
-    The proof has three layers:
-    1. `ConvergentMaps c` is invariant under finitely-supported permutations
-       of the clock (because changing finitely many terms does not affect
-       convergence of a series).
-    2. By the Hewitt–Savage zero–one law (external), its measure is 0 or 1.
-    3. A random rearrangement of a non-summable series diverges almost
-       surely (Kakutani's theorem; external), ruling out measure 1.
+`ConvergentMaps c` is invariant under finitely-supported permutations
+of the clock (i.e., satisfies `hμ_exch`), and a coefficient family
+`c : NatMult P → ℝ` that is not absolutely summable, the event
+`ConvergentMaps c` has `μ`-measure zero.
 
-    Layer 1 is proved inline in `measurable_set_ConvergentMaps`; layers 2
-    and 3 are recorded here as a single external citation used by
-    `conditional_convergence_is_null`. -/
+The proof has three layers:
+1. `ConvergentMaps c` is invariant under finitely-supported permutations
+   of the clock (because changing finitely many terms does not affect
+   convergence of a series).
+2. By the Hewitt–Savage zero–one law (external), its measure is 0 or 1.
+3. A random rearrangement of a non-summable series diverges almost
+   surely (Kakutani's theorem; external), ruling out measure 1.
+
+Layer 1 is proved inline in `measurable_set_ConvergentMaps`; layers 2
+and 3 are recorded here as a single external citation used by
+`conditional_convergence_is_null`. -/
 theorem random_rearrangement_divergence [Nonempty P]
     (hμ_exch : ∀ σ : Equiv.Perm NatAdd, (∃ (s : Finset NatAdd), ∀ x, x ∉ s → σ x = x) →
       MeasurePreserving (fun ω : MapConfig P => (σ : NatAdd ≃ NatAdd).trans ω)
