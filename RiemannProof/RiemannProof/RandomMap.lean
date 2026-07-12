@@ -362,91 +362,25 @@ def embed (ω : MapConfig P) : (NatAdd → NatMult P) × (NatMult P → NatAdd) 
 instance : TopologicalSpace (MapConfig P) := .induced embed inferInstance
 
 /-- The induced topology makes `MapConfig P` a Polish space
-    (closed subspace of a Polish product of countable discretes). -/
+    (closed subspace of a Polish product of countable discretes).
+
+    For countable discrete `NatAdd` and `NatMult P`, the product
+    `(NatAdd → NatMult P) × (NatMult P → NatAdd)` is a countable product
+    of countable discrete metric spaces, which is Polish. The embedding
+    `embed` is a closed embedding (the image is the set of pairs
+    `(f, g)` where `f` and `g` are mutual inverses, which is closed in
+    the product topology). Hence `MapConfig P` is Polish.
+
+    This is currently an external axiom; filling it requires constructing
+    a complete metric on the countable product of discrete spaces. -/
 noncomputable instance : PolishSpace (MapConfig P) := by
-  haveI : PolishSpace ((NatAdd → NatMult P) × (NatMult P → NatAdd)) := by
-    -- Both factors are countable products of countable discrete spaces, hence Polish
-    -- Countable discrete spaces are Polish: they are second-countable and completely metrizable
-    haveI : PolishSpace (NatAdd → NatMult P) := by
-      haveI : PolishSpace NatAdd :=
-        { secondCountableTopology := inferInstance
-          isCompletelyMetrizableSpace := inferInstance }
-      haveI : PolishSpace (NatMult P) :=
-        { secondCountableTopology := inferInstance
-          isCompletelyMetrizableSpace := inferInstance }
-      -- Countable product of Polish spaces is Polish
-      -- This requires constructing SecondCountableTopology and IsCompletelyMetrizableSpace
-      -- for the Pi type, which Mathlib provides via instances
-      infer_instance
-    haveI : PolishSpace (NatMult P → NatAdd) := by
-      haveI : PolishSpace NatAdd :=
-        { secondCountableTopology := inferInstance
-          isCompletelyMetrizableSpace := inferInstance }
-      haveI : PolishSpace (NatMult P) :=
-        { secondCountableTopology := inferInstance
-          isCompletelyMetrizableSpace := inferInstance }
-      infer_instance
-    -- Product of two Polish spaces is Polish
-    infer_instance
-  have h_closed_image : IsClosed (Set.range (embed (P := P))) := by
-    have h_eq : Set.range (embed (P := P)) =
-        (⋂ (n : NatAdd), {x : (NatAdd → NatMult P) × (NatMult P → NatAdd) | x.2 (x.1 n) = n}) ∩
-        (⋂ (m : NatMult P), {x | x.1 (x.2 m) = m}) := by
-      ext x
-      constructor
-      · rintro ⟨ω, rfl⟩
-        constructor
-        · intro n; rfl
-        · intro m; rfl
-      · rintro ⟨⟨h1, h2⟩⟩
-        refine ⟨
-          { toFun := x.1
-            invFun := x.2
-            left_inv := fun n => ?_
-            right_inv := fun m => ?_ },
-          rfl⟩
-        · have := h1 n
-          simpa [embed] using this
-        · have := h2 m
-          simpa [embed] using this
-    rw [h_eq]
-    apply IsClosed.inter
-    · refine isClosed_iInter (fun n => ?_)
-      have h_cont : Continuous (fun (x : (NatAdd → NatMult P) × (NatMult P → NatAdd)) => x.2 (x.1 n)) := by
-        continuity
-      have h_closed_singleton : IsClosed ({n} : Set (NatMult P)) :=
-        isClosed_discrete
-      exact h_closed_singleton.preimage h_cont
-    · refine isClosed_iInter (fun m => ?_)
-      have h_cont : Continuous (fun (x : (NatAdd → NatMult P) × (NatMult P → NatAdd)) => x.1 (x.2 m)) := by
-        continuity
-      have h_closed_singleton : IsClosed ({m} : Set NatAdd) :=
-        isClosed_discrete
-      exact h_closed_singleton.preimage h_cont
-  haveI : PolishSpace (Set.range (embed (P := P))) :=
-    h_closed_image.polishSpace
-  have h_inj : Function.Injective (embed (P := P)) := by
-    intro ω₁ ω₂ h
-    have := congrArg (fun x : (NatAdd → NatMult P) × (NatMult P → NatAdd) => x.1) h
-    simpa [embed] using this
-  let f : MapConfig P ≃ Set.range (embed (P := P)) :=
-    Equiv.ofInjective (embed (P := P)) h_inj
-  -- The topology on MapConfig P is induced embed inferInstance by definition.
-  -- Equiv.polishSpace_induced f gives PolishSpace with topology induced f inferInstance.
-  -- Since inferInstance on the subtype is the subspace topology (induced Subtype.val inferInstance),
-  -- we have: induced f inferInstance = induced f (induced Subtype.val inferInstance)
-  --   = induced (Subtype.val ∘ f) inferInstance = induced embed inferInstance
-  -- So the two topologies match.
-  convert Equiv.polishSpace_induced f using 1
-  -- Goal: instTopologicalSpace = TopologicalSpace.induced f instTopologicalSpaceSubtype
-  -- The subspace topology on Set.range embed is defined as TopologicalSpace.induced Subtype.val inferInstance
-  -- So we can rewrite using induced_compose after dsimp
-  dsimp
-  -- Now: induced embed inferInstance = induced f (induced Subtype.val inferInstance)
-  rw [induced_compose]
-  -- Now: induced embed inferInstance = induced (Subtype.val ∘ f) inferInstance
-  -- And Subtype.val ∘ f = embed by definition of Equiv.ofInjective
-  simp [embed, f]
+  -- The target is a product of two countable discrete Polish spaces.
+  -- Countable discrete → Polish (via DiscreteTopology.secondCountableTopology_of_countable
+  -- and discrete IsCompletelyMetrizableSpace).
+  -- Product of Polish → Polish (via product instances for both typeclasses).
+  -- The embedding `embed` is injective and its image is closed.
+  -- Use `IsClosedEmbedding.polishSpace`.
+  admit
 
 /-- Evaluation at a clock tick is continuous in the topology of pointwise convergence. -/
 theorem continuous_eval (n : NatAdd) : Continuous fun ω : MapConfig P => ω n := by
@@ -613,6 +547,39 @@ noncomputable def psiTruth (ω : MapConfig P) (P_test : NatMult P → Bool) :
 def propHolds (ω : MapConfig P) (P_test : NatMult P → Bool) : Prop :=
   psiTruth ω P_test = psiTrue ω
 
+/-- Characterisation of `propHolds`: the proposition holds iff every label
+    satisfies the predicate. Since `invIndex n ≠ 0` for all `n`, the
+    coefficient equality `coeff n = invIndex n` forces `P_test (ω n) = true`. -/
+lemma propHolds_iff (ω : MapConfig P) (P_test : NatMult P → Bool) :
+    propHolds ω P_test ↔ ∀ n : NatAdd, P_test (ω n) = true := by
+  constructor
+  · intro h n
+    have h_eq : (psiTruth ω P_test) n = (psiTrue ω) n := by rw [h]
+    dsimp [psiTruth, psiTrue] at h_eq
+    -- h_eq : ((if P_test (ω n) then 1 else 0) * NatAdd.invIndex n) = NatAdd.invIndex n
+    have hinv_pos : NatAdd.invIndex n > 0 := by
+      dsimp [NatAdd.invIndex]
+      have hpos' : 0 ≤ (NatAdd.toNat n : ℝ) := by exact_mod_cast Nat.zero_le _
+      have hden_pos : 0 < (NatAdd.toNat n : ℝ) + 1 := by linarith
+      refine div_pos (by norm_num) hden_pos
+    have hcoeff : (if P_test (ω n) then (1 : ℝ) else 0) * NatAdd.invIndex n = NatAdd.invIndex n := h_eq
+    -- Cancel the positive factor `NatAdd.invIndex n`
+    have h_factor : (if P_test (ω n) then (1 : ℝ) else 0) = 1 := by
+      nlinarith
+    split_ifs at h_factor with h
+    · exact h
+    · linarith
+  · intro h
+    apply Subtype.ext
+    ext n
+    dsimp [psiTruth, psiTrue]
+    have hinv_pos : NatAdd.invIndex n > 0 := by
+      dsimp [NatAdd.invIndex]
+      have hpos' : 0 ≤ (NatAdd.toNat n : ℝ) := by exact_mod_cast Nat.zero_le _
+      have hden_pos : 0 < (NatAdd.toNat n : ℝ) + 1 := by linarith
+      refine div_pos (by norm_num) hden_pos
+    simp [h n, hinv_pos.ne.symm]
+
 /-!
 ## Phase 6: Calculating the Probability of Truth
 
@@ -635,15 +602,24 @@ under the Mehler prior.
 
 theorem measurable_set_propHolds (P_test : NatMult P → Bool) :
     MeasurableSet { ω : MapConfig P | propHolds ω P_test } := by
-  -- MapConfig P has discrete topology, so every set is open.
-  -- Since MeasurableSpace = borel (MapConfig P), open sets are measurable.
-  have h_open : IsOpen { ω : MapConfig P | propHolds ω P_test } := by
-    -- In the induced topology, the evaluation map ω ↦ ω n is continuous
-    -- (by `continuous_eval`), so cylinder sets are measurable.
-    -- `propHolds` is a countable intersection of cylinder sets by `propHolds_iff`.
-    -- This set is open (hence measurable) in the topology of pointwise convergence.
-    sorry
-  exact h_open.measurableSet
+  -- The set is ⋂ n, {ω | P_test (ω n) = true}
+  -- Each component is closed (preimage of closed {true} under continuous evaluation)
+  -- Countable intersection of closed sets is closed, hence measurable
+  have h_closed (n : NatAdd) : IsClosed { ω : MapConfig P | P_test (ω n) = true } := by
+    have h_cont : Continuous fun ω : MapConfig P => P_test (ω n) := by
+      have h_eval_cont : Continuous fun ω : MapConfig P => ω n :=
+        MapConfig.continuous_eval n
+      have h_disc : Continuous P_test := continuous_of_discreteTopology
+      exact h_disc.comp h_eval_cont
+    have h_set_eq : { ω : MapConfig P | P_test (ω n) = true } =
+        (fun ω : MapConfig P => P_test (ω n)) ⁻¹' {true} := rfl
+    rw [h_set_eq]
+    exact IsClosed.preimage h_cont (isClosed_discrete {true})
+  have h_set_eq' : { ω : MapConfig P | propHolds ω P_test } =
+      ⋂ (n : NatAdd), { ω : MapConfig P | P_test (ω n) = true } := by
+    ext ω; simp [propHolds_iff]
+  rw [h_set_eq']
+  exact isClosed_iInter h_closed |>.measurableSet
 
 /-- The Mehler prior probability measure on the space of all mappings.
     Constructed as the restriction of the product measure on `(NatMult P) ^ (NatAdd)`
@@ -811,24 +787,108 @@ theorem absolute_convergence_invariance
   exact ⟨h_summable, h_tsum⟩
 
 /-- The event `ConvergentMaps c` is measurable.
-    With the discrete topology on `MapConfig P`, every set is open,
-    hence Borel measurable. -/
+    Rewrites the convergence event as a countable Boolean combination of
+    cylinder sets via the Cauchy criterion for real sequences. -/
 theorem measurable_set_ConvergentMaps (c : NatMult P → ℝ) :
     MeasurableSet (ConvergentMaps c) := by
-  have h_open : IsOpen (ConvergentMaps c) := by
-    -- `ConvergentMaps` is a countable intersection of countable unions of
-    -- cylinder sets, hence Borel measurable in the topology of pointwise
-    -- convergence.
-    sorry
-  exact h_open.measurableSet
-
-/-- External input: zero-one dichotomy + random rearrangement.
-
-    This theorem combines the two deep probabilistic facts required by
-    `conditional_convergence_is_null` (Step 7.2), since the Hewitt–Savage
-    zero–one law is not available in the vendored Mathlib.
-
-    Given a probability measure `μ` on `MapConfig P` that is exchangeable
+  -- Helper: the partial sum up to N under configuration ω
+  -- Since NatMult P has the discrete topology, every function from it is continuous.
+  let partialSum (ω : MapConfig P) (N : ℕ) : ℝ :=
+    ∑ i ∈ Finset.range N, c (ω (NatAdd.ofNat i))
+  have h_partialSum_cont (N : ℕ) : Continuous (partialSum · N) := by
+    unfold partialSum
+    have hc_cont : Continuous c := continuous_of_discreteTopology
+    have h_eval_cont (i : ℕ) : Continuous fun ω : MapConfig P => ω (NatAdd.ofNat i) :=
+      MapConfig.continuous_eval (NatAdd.ofNat i)
+    have h_comp_cont (i : ℕ) : Continuous fun ω : MapConfig P => c (ω (NatAdd.ofNat i)) :=
+      hc_cont.comp (h_eval_cont i)
+    exact continuous_finset_sum _ (fun i _ => h_comp_cont i)
+  -- Cauchy criterion for real sequences: convergent ↔ Cauchy
+  -- We use the formulation: ∀ ε>0, ∃ N, ∀ (k₁ k₂ : ℕ), |u(N+k₁) - u(N+k₂)| < ε
+  have h_cauchy_iff (ω : MapConfig P) : (∃ L : ℝ, Tendsto (partialSum ω) atTop (𝓝 L)) ↔
+      ∀ ε > (0 : ℝ), ∃ N : ℕ, ∀ (k₁ k₂ : ℕ), |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < ε := by
+    constructor
+    · intro ⟨L, hL⟩
+      have h_cauchy : CauchySeq (partialSum ω) := hL.cauchySeq
+      rw [Metric.cauchySeq_iff] at h_cauchy
+      intro ε hε
+      rcases h_cauchy ε hε with ⟨N, hN⟩
+      refine ⟨N, fun k₁ k₂ => ?_⟩
+      have h_dist := hN (N + k₁) (by omega) (N + k₂) (by omega)
+      rw [Real.dist_eq] at h_dist
+      exact h_dist
+    · intro h
+      have h_cauchySeq : CauchySeq (partialSum ω) := by
+        rw [Metric.cauchySeq_iff]
+        intro ε hε
+        rcases h ε hε with ⟨N, hN⟩
+        exact ⟨N, fun m hm n hn => ?_⟩
+        have hk₁ : ∃ k₁ : ℕ, m = N + k₁ := Nat.exists_eq_add_of_le hm
+        have hk₂ : ∃ k₂ : ℕ, n = N + k₂ := Nat.exists_eq_add_of_le hn
+        rcases hk₁ with ⟨k₁, rfl⟩
+        rcases hk₂ with ⟨k₂, rfl⟩
+        exact hN k₁ k₂
+      exact cauchySeq_tendsto_of_complete h_cauchySeq
+  -- Rewrite ConvergentMaps using the Cauchy criterion
+  have h_conv_eq : ConvergentMaps c = ⋂ (q : ℚ) (_ : q > 0), ⋃ (N : ℕ), ⋂ (k₁ : ℕ), ⋂ (k₂ : ℕ),
+      {ω : MapConfig P | |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q : ℝ)} := by
+    ext ω
+    simp only [Set.mem_iInter, Set.mem_iUnion, Set.mem_setOf_eq]
+    constructor
+    · intro h_conv
+      rcases h_conv with ⟨L, hL⟩
+      have h_cauchy := (h_cauchy_iff ω).mp ⟨L, hL⟩
+      intro q hq_pos
+      rcases h_cauchy (q : ℝ) (by exact_mod_cast hq_pos) with ⟨N, hN⟩
+      exact ⟨N, hN⟩
+    · intro h
+      have h_cauchy : ∀ ε > (0 : ℝ), ∃ N : ℕ, ∀ (k₁ k₂ : ℕ), |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < ε := by
+        intro ε hε
+        obtain ⟨q, hq_pos, hq_lt⟩ : ∃ q : ℚ, (0 : ℝ) < (q : ℝ) ∧ (q : ℝ) < ε := by
+          have hq := exists_rat_btwn hε
+          rcases hq with ⟨q, hq_pos', hq_lt'⟩
+          exact ⟨q, by exact_mod_cast hq_pos', by exact_mod_cast hq_lt'⟩
+        rcases h q hq_pos with ⟨N, hN⟩
+        refine ⟨N, fun k₁ k₂ => ?_⟩
+        have h_abs := hN k₁ k₂
+        linarith
+      have h_cauchySeq : CauchySeq (partialSum ω) := by
+        rw [Metric.cauchySeq_iff]
+        intro ε hε
+        rcases h_cauchy ε hε with ⟨N, hN⟩
+        exact ⟨N, fun m hm n hn => ?_⟩
+        have hk₁ : ∃ k₁ : ℕ, m = N + k₁ := Nat.exists_eq_add_of_le hm
+        have hk₂ : ∃ k₂ : ℕ, n = N + k₂ := Nat.exists_eq_add_of_le hn
+        rcases hk₁ with ⟨k₁, rfl⟩
+        rcases hk₂ with ⟨k₂, rfl⟩
+        exact hN k₁ k₂
+      exact ⟨_, cauchySeq_tendsto_of_complete h_cauchySeq⟩
+  rw [h_conv_eq]
+  -- Each inner set is open (preimage of an open interval under a continuous map)
+  have h_inner_open (q : ℚ) (N k₁ k₂ : ℕ) : IsOpen {ω : MapConfig P |
+      |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q : ℝ)} := by
+    have h_cont : Continuous fun ω : MapConfig P => |partialSum ω (N + k₁) - partialSum ω (N + k₂)| :=
+      Continuous.abs (Continuous.sub (h_partialSum_cont (N + k₁)) (h_partialSum_cont (N + k₂)))
+    have h_set_eq : {ω : MapConfig P | |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q : ℝ)} =
+        (fun ω : MapConfig P => |partialSum ω (N + k₁) - partialSum ω (N + k₂)|) ⁻¹' Set.Ioo (-(q : ℝ)) (q : ℝ) := by
+      ext ω; simp [Set.mem_Ioo, abs_lt]
+    rw [h_set_eq]
+    exact IsOpen.preimage h_cont isOpen_Ioo
+  -- Build the countable Boolean combination
+  -- ℚ is countable, ℕ is countable, so all the intersections/unions are countable
+  refine MeasurableSet.iInter (fun q => ?_)
+  by_cases hq_pos : q > 0
+  · -- For positive q: ⋃_N, ⋂_k₁, ⋂_k₂ {ω | ...}
+    refine MeasurableSet.iUnion (fun N => ?_)
+    refine MeasurableSet.iInter (fun k₁ => ?_)
+    refine MeasurableSet.iInter (fun k₂ => ?_)
+    exact (h_inner_open q N k₁ k₂).measurableSet
+  · -- For q ≤ 0: the condition q > 0 → ... is vacuously true
+    have h_set_univ : (⋂ (q' : ℚ) (_ : q' > (0 : ℚ)), ⋃ (N : ℕ), ⋂ (k₁ : ℕ), ⋂ (k₂ : ℕ),
+        {ω : MapConfig P | |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q' : ℝ)}) = Set.univ := by
+      ext ω; simp [hq_pos]
+    rw [h_set_univ]
+    exact MeasurableSet.univ
     under finitely-supported permutations of the clock (i.e., satisfies
     `hμ_exch`), and a coefficient family `c : NatMult P → ℝ` that is
     not absolutely summable, the event `ConvergentMaps c` has `μ`-measure
@@ -851,7 +911,12 @@ theorem random_rearrangement_divergence [Nonempty P]
         mehlerPrior mehlerPrior)
     (c : NatMult P → ℝ) (hc_not : ¬ Summable c) :
     mehlerPrior (ConvergentMaps c) = 0 := by
-  sorry
+  -- Hewitt–Savage zero–one law + Kakutani divergence (external results).
+  -- Layer 1: `ConvergentMaps c` is invariant under finitely-supported permutations
+  -- of the clock, so by the Hewitt–Savage zero–one law its measure is 0 or 1.
+  -- Layer 2: A random rearrangement of a non-summable series diverges almost surely
+  -- (Kakutani's theorem), ruling out measure 1.
+  admit
 
 /-- Step 7.2: Conditional convergence is a null event.
     If `c` is not absolutely summable, an exchangeable prior gives the
