@@ -868,8 +868,7 @@ theorem measurable_set_ConvergentMaps (c : NatMult P → ℝ) :
         rcases hk₁ with ⟨k₁, rfl⟩
         rcases hk₂ with ⟨k₂, rfl⟩
         exact hN k₁ k₂
-      unfold partialSum
-      exact cauchySeq_tendsto_of_complete h_cauchySeq
+      simpa [partialSum] using cauchySeq_tendsto_of_complete h_cauchySeq
   rw [h_conv_eq]
   -- Each inner set is open (preimage of an open interval under a continuous map)
   have h_inner_open (q : ℚ) (N k₁ k₂ : ℕ) : IsOpen {ω : MapConfig P |
@@ -878,20 +877,39 @@ theorem measurable_set_ConvergentMaps (c : NatMult P → ℝ) :
       Continuous.abs (Continuous.sub (h_partialSum_cont (N + k₁)) (h_partialSum_cont (N + k₂)))
     have h_set_eq : {ω : MapConfig P | |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q : ℝ)} =
         (fun ω : MapConfig P => |partialSum ω (N + k₁) - partialSum ω (N + k₂)|) ⁻¹' Set.Ioo (-(q : ℝ)) (q : ℝ) := by
-      ext ω; simp [Set.mem_Ioo, abs_lt, Set.mem_setOf_eq]
+      ext ω
+      simp only [Set.mem_setOf_eq, Set.mem_preimage, Set.mem_Ioo, abs_lt]
+      constructor
+      · rintro ⟨h_left, h_right⟩
+        have h_abs' : -↑q < |partialSum ω (N + k₁) - partialSum ω (N + k₂)| := by
+          have hx : partialSum ω (N + k₁) - partialSum ω (N + k₂) ≤
+              |partialSum ω (N + k₁) - partialSum ω (N + k₂)| := le_abs_self _
+          linarith
+        exact ⟨h_abs', h_left, h_right⟩
+      · rintro ⟨_, h_left, h_right⟩
+        exact ⟨h_left, h_right⟩
     rw [h_set_eq]
     exact IsOpen.preimage h_cont isOpen_Ioo
   -- Build the countable Boolean combination
   -- ℚ is countable, ℕ is countable, so all the intersections/unions are countable
   refine MeasurableSet.iInter (fun q => ?_)
-  refine MeasurableSet.iInter (fun hq_pos => ?_)
-  by_cases hq_pos' : q > 0
-  · -- For positive q: ⋃_N, ⋂_k₁, ⋂_k₂ {ω | ...}
+  by_cases hq_pos : q > 0
+  · -- For positive q: ⋂ (_ : q > 0), ... = ⋃ N, ⋂ k₁, ⋂ k₂ {ω | ...}
+    have h_eq : (⋂ (_ : q > 0), ⋃ (N : ℕ), ⋂ (k₁ : ℕ), ⋂ (k₂ : ℕ),
+        {ω : MapConfig P | |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q : ℝ)}) =
+        ⋃ (N : ℕ), ⋂ (k₁ : ℕ), ⋂ (k₂ : ℕ),
+        {ω : MapConfig P | |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q : ℝ)} := by
+      ext ω; simp [hq_pos]
+    rw [h_eq]
     refine MeasurableSet.iUnion (fun N => ?_)
     refine MeasurableSet.iInter (fun k₁ => ?_)
     refine MeasurableSet.iInter (fun k₂ => ?_)
     exact (h_inner_open q N k₁ k₂).measurableSet
-  · -- For q ≤ 0: the condition q > 0 is false, so the iInter is over empty type = univ
+  · -- For q ≤ 0: ⋂ (_ : q > 0), ... = Set.univ
+    have h_eq : (⋂ (_ : q > 0), ⋃ (N : ℕ), ⋂ (k₁ : ℕ), ⋂ (k₂ : ℕ),
+        {ω : MapConfig P | |partialSum ω (N + k₁) - partialSum ω (N + k₂)| < (q : ℝ)}) = Set.univ := by
+      ext ω; simp [hq_pos]
+    rw [h_eq]
     exact MeasurableSet.univ
   /-!
 `random_rearrangement_divergence`

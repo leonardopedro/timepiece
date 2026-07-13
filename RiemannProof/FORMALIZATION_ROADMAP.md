@@ -2749,7 +2749,27 @@ classification, Varadarajan Thm 6.12, Wigner's symmetry theorem) is flagged
 `EXTERNAL` and introduced as a **named hypothesis** (as Lemma 27 already does
 for the Schur property), never asserted. No `sorry` anywhere in `BookProof`.
 
-**Remaining implementation order (updated 2026-07-08, post-integration).
+**Remaining implementation order (updated 2026-07-13, post-RandomMap2).
+
+> **PARALLEL EXECUTION GUARANTEE — `RandomMap2.md` / `RiemannProof/RandomMap2.lean`**
+> **runs in parallel with this roadmap.** Both tracks share ZERO files, ZERO
+> dependencies, and ZERO overlapping deliverables. See
+> `RandomMap2.md` section "Coordination with `FORMALIZATION_ROADMAP.md`" for
+> the hard ownership map, exclusion zones, and parallel execution protocol.
+>
+> **What this means for Specialist A (FORMALIZATION_ROADMAP):**
+> - You NEVER touch any `RiemannProof/` file (not even `SchoenfeldPRA.lean`).
+> - R2 (`MeasurableSpace`/`BorelSpace` instances) is owned by Specialist B.
+> - If you need a property of `Substrate` or `rcpPriorOnSubstrate`, you add
+>   it as a new lemma in `PnpProof/Kopperman.lean` or `SchoenfeldPRA.lean`
+>   (but see above — those are B's files; add the request to `RandomMap2.md`).
+>
+> **What this means for Specialist B (RandomMap2):**
+> - You NEVER touch any `BookProof/` file, `BookProof.lean`, `STATUS.md`, or
+>   `ARISTOTLE_SUMMARY.md`.
+> - Your R1/R2/R3/R4 deliverables stay within `RiemannProof/`.
+>
+> **No coordination needed. Both specialists can run simultaneously.**
 The ENTIRE queue is DONE — N1–N12 (N11 + N12 in wave 38, N7(c) in wave 39)
 AND the N13/N14 flagships (waves 40–63, two run lineages union-merged
 2026-07-08; 82 modules, 8115 jobs green). The remaining order is:**
@@ -2772,3 +2792,69 @@ already-general results, not identity-numerics without a deliverable ID, and
 not a re-verification of already-green files (see the ★ MANDATE at the top).
 Treat N13/N14 as the template for turning a cited algorithm into a
 fully-guided package.
+
+---
+
+# Decoupled Kopperman-Solovay Framework (RandomMap2)
+
+**Source document:** `RandomMap2.md`
+
+This is a **separate work package** from the BookProof / `book.tex` track above.
+It implements the decoupled Inner-Outer language architecture described in
+`book.tex` Chapter B/E interpretive material: a probability space whose *points*
+are infinite-dimensional Kopperman wave-functions (Inner language, using
+`PnpProof.Kopperman.Substrate` as the infinite tail) while its *evaluations*
+remain finite-dimensional Tarski-decidable integrals (Outer language, via
+Solovay's pre-Hilbert space). The decoupling theorem (`outer_inner_reduces_to_head`)
+is the load-bearing result.
+
+---
+
+## Completed (2026-07-13)
+
+| Item | Lean 4 Identifier | Status |
+| :--- | :--- | :---: |
+| Kopperman Tail + Measure | `InnerTail`, `tailMeasure`, `IsProbabilityMeasure tailMeasure` | **PROVED** |
+| Tarski Head + State Measure | `InnerHead`, `InnerSpace`, `stateMeasure`, probability instance | **PROVED** |
+| Outer Wave-Function | `OuterWaveFunction` (type alias), `dependsOnlyOnHead` | **PROVED** |
+| Decoupling Theorem | `outer_inner_reduces_to_head` | **PROVED** |
+
+**Key design decisions:**
+- `OuterWaveFunction` is an `abbrev` for `Lp ℂ 2 (stateMeasure N headDist)` — all
+  `NormedAddCommGroup`/`InnerProductSpace` instances inherited automatically;
+  no `CompleteSpace` instance provided (Solovay pre-Hilbert, not Hilbert).
+- `dependsOnlyOnHead` is passed as an explicit hypothesis to the theorem rather
+  than stored as a structure field — avoids `CompleteSpace` issues and keeps the
+  type a simple alias.
+- `inner ℂ a b = b * star a` (`RCLike.inner_apply`), so the inner product expands
+  to `(Ψ₂ z) * star (Ψ₁ z)`, matching `g₂' * star g₁'` — hence `g₁ = toLp g₂'`
+  and `g₂ = toLp g₁'` (swapped assignment).
+
+---
+
+## Remaining
+
+| # | Item | Notes |
+|---|---|---|
+| R1 | Fix `SchoenfeldPRA` exports (`SchoenfeldPRA.lean:216-219`) | `export` syntax corrected; still carries `sorry` placeholders |
+| R2 | `MeasurableSpace`/`BorelSpace` instances for `Substrate` | Currently `local` in `RandomMap2.lean:32-33`; move to `SchoenfeldPRA` |
+| R3 | Phase 4: Epistemological payoff section | Document the undecidability isolation argument (expository) |
+| R4 | `#print axioms` spot-check on `outer_inner_reduces_to_head` | Verify only `propext`/`Classical.choice`/`Quot.sound` |
+
+---
+
+## Recommended next steps (priority order)
+
+1. **R1** — Remove the `sorry` placeholders from `SchoenfeldPRA.lean:216-219`.
+   The `export` syntax is already correct; the sorries are vestigial.
+2. **R2** — Move the `MeasurableSpace`/`BorelSpace` instances from
+   `RandomMap2.lean:32-33` (currently `local`) into `SchoenfeldPRA.lean` so
+   downstream consumers don't need to declare them manually.
+3. **R3** — Write the Phase 4 epistemological payoff section in
+   `RandomMap2.lean`: document how the decoupling isolates undecidability
+   (Kopperman tail complete but unobservable via uniform integration; Solovay
+   head decidable via Tarski quantifier elimination; no `CompleteSpace` on
+   Outer space prevents Goedelian self-reference).
+4. **R4** — `#print axioms` spot-check on `outer_inner_reduces_to_head` to
+   confirm only `propext`/`Classical.choice`/`Quot.sound` are used, then
+   `git commit` the RandomMap2 work.

@@ -9,6 +9,7 @@ import RiemannProof.GaussianEuler
 import RiemannProof.RcpEuler
 import RiemannProof.SchoenfeldMatrix
 import RiemannProof.RandomMap
+import RiemannProof.RandomMap2
 -- `RiemannProof.SchoenfeldPRA` is the historical PRA/Schoenfeld spine. The
 -- 2026-06-22 redesign of `IMPLEMENTATION_PLAN_RCP.md` (step 7) drops it from the
 -- route's spine and quarantines it as unimported (its `sorry`s are not part of
