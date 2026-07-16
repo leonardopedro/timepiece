@@ -238,3 +238,13 @@ theorem decidability_corollary {N : ℕ} {headDist : Measure (InnerHead N)}
     ∃ (g₁ g₂ : Lp ℂ 2 headDist),
       inner ℂ Ψ₁ Ψ₂ = ∫ x, g₁ x * star (g₂ x) ∂headDist :=
   outer_inner_reduces_to_head Ψ₁ Ψ₂ hcyl₁ hcyl₂
+
+/-! ## R4 Verification: `#print axioms` results
+
+```
+'outer_inner_reduces_to_head' depends on axioms: [propext, Classical.choice, Quot.sound]
+'decidability_corollary' depends on axioms: [propext, Classical.choice, Quot.sound]
+```
+
+Both theorems use only standard classical axioms. No `sorry` or additional axioms.
+-/

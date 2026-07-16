@@ -155,6 +155,7 @@ The languages are cleanly decoupled: the output of the infinite ontological lang
 | Decoupling Theorem | `outer_inner_reduces_to_head` | **PROVED** | `RandomMap2.lean:92-189` |
 | Epistemological Payoff | Phase 4 section + `decidability_corollary` | **PROVED** | `RandomMap2.lean:190-240` |
 | Substrate Instances | `MeasurableSpace`/`BorelSpace` `local` instances | **PROVED** | `RandomMap2.lean:32-34` |
+| `#print axioms` Verification | `outer_inner_reduces_to_head` + `decidability_corollary` use only `[propext, Classical.choice, Quot.sound]` | **VERIFIED** | `RandomMap2.lean:242-248` |
 
 ---
 
@@ -165,7 +166,7 @@ The languages are cleanly decoupled: the output of the infinite ontological lang
 | R1 | A (Roadmap) | Fix `riemann_hypothesis_via_rcp` sorry in `SchoenfeldPRA.lean` (`SchoenfeldPRA.lean:217-219`) | Pending |
 | R2 | A (Roadmap) | `MeasurableSpace`/`BorelSpace` instances in `SchoenfeldPRA.lean:105-111` — already done; verify they export correctly | **DONE** |
 | R3 | B (RandomMap2) | Phase 4 epistemological payoff section in `RandomMap2.lean` — `decidability_corollary` already proved (`RandomMap2.lean:232-240`); add Phase 4 prose if not yet written | **DONE** |
-| R4 | B (RandomMap2) | `#print axioms` on `outer_inner_reduces_to_head` + `decidability_corollary`, then `git commit` RandomMap2 work | Pending |
+| R4 | B (RandomMap2) | `#print axioms` on `outer_inner_reduces_to_head` + `decidability_corollary`, then `git commit` RandomMap2 work | **DONE** |
 
 **Neither track depends on the other. Both can start immediately.**
 

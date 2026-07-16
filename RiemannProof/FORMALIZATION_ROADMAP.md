@@ -2848,7 +2848,7 @@ is the load-bearing result.
 | R1 | Fix `riemann_hypothesis_via_rcp` sorry (`SchoenfeldPRA.lean:217-219`) | **A (Roadmap)** | `sorry` placeholder; the statement `∀ s, riemannZeta s = 0 → 0 < s.re → s.re < 1 → s.re = 1/2` is a known open problem (RH) — must remain `sorry`; only the `export` syntax fix is needed |
 | R2 | `MeasurableSpace`/`BorelSpace` instances for `Substrate` | **A (Roadmap)** | **DONE** — exported `instance` declarations in `SchoenfeldPRA.lean:105-111` (R2); `local` instances retained in `RandomMap2.lean:32-34` as self-contained scoping layer |
 | R3 | Phase 4 epistemological payoff section | **B (RandomMap2)** | **DONE** — `decidability_corollary` (`RandomMap2.lean:232-240`) proved; Phase 4 docstring updated |
-| R4 | `#print axioms` + git commit for RandomMap2 | **B (RandomMap2)** | Verify only `propext`/`Classical.choice`/`Quot.sound` on `outer_inner_reduces_to_head` and `decidability_corollary` |
+| R4 | `#print axioms` + git commit for RandomMap2 | **B (RandomMap2)** | **DONE** — verified only `[propext, Classical.choice, Quot.sound]` on both theorems (`RandomMap2.lean:242-248`) |
 
 ---
 
@@ -2862,8 +2862,7 @@ is the load-bearing result.
    touch `RandomMap2.lean` or any other `RiemannProof/` file.
 
 **Track B (RandomMap2):**
-1. **R4** — `#print axioms` spot-check on `outer_inner_reduces_to_head` and
-   `decidability_corollary`, then `git commit` the RandomMap2 work.
+1. **R4 is DONE** — `#print axioms` verified `[propext, Classical.choice, Quot.sound]` on both theorems; axioms comment added at `RandomMap2.lean:242-248`. All RandomMap2 deliverables complete.
 2. **R3** is already complete (`decidability_corollary` proved at
    `RandomMap2.lean:232-240`; Phase 4 docstring updated).
 
