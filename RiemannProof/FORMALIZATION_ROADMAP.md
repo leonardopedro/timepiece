@@ -2758,16 +2758,25 @@ for the Schur property), never asserted. No `sorry` anywhere in `BookProof`.
 > the hard ownership map, exclusion zones, and parallel execution protocol.
 >
 > **What this means for Specialist A (FORMALIZATION_ROADMAP):**
-> - You NEVER touch any `RiemannProof/` file (not even `SchoenfeldPRA.lean`).
-> - R2 (`MeasurableSpace`/`BorelSpace` instances) is owned by Specialist B.
+> - You NEVER touch `RandomMap2.lean`, `RiemannProof.lean`, or any `BookProof/`
+>   file except for hygiene (`BookProof.lean`, `STATUS.md`, `ARISTOTLE_SUMMARY.md`).
+> - **R1** (`riemann_hypothesis_via_rcp` sorry in `SchoenfeldPRA.lean`) and
+>   **R2** (`MeasurableSpace`/`BorelSpace` instances, now exported from
+>   `SchoenfeldPRA.lean:105-111`) are YOUR deliverables — you fix the sorry
+>   and verify the instances export correctly.
 > - If you need a property of `Substrate` or `rcpPriorOnSubstrate`, you add
 >   it as a new lemma in `PnpProof/Kopperman.lean` or `SchoenfeldPRA.lean`
->   (but see above — those are B's files; add the request to `RandomMap2.md`).
+>   (R2 is your file, so add properties there directly; downstream requests
+>   go to `RandomMap2.md`).
 >
 > **What this means for Specialist B (RandomMap2):**
 > - You NEVER touch any `BookProof/` file, `BookProof.lean`, `STATUS.md`, or
 >   `ARISTOTLE_SUMMARY.md`.
-> - Your R1/R2/R3/R4 deliverables stay within `RiemannProof/`.
+> - **R3** (`decidability_corollary` + Phase 4 prose in `RandomMap2.lean`) and
+>   **R4** (`#print axioms` + git commit) are YOUR deliverables.
+> - You retain `local instance` declarations in `RandomMap2.lean:32-34` as a
+>   self-contained scoping layer; the exported instances live in
+>   `SchoenfeldPRA.lean:105-111` (Roadmap's file).
 >
 > **No coordination needed. Both specialists can run simultaneously.**
 The ENTIRE queue is DONE — N1–N12 (N11 + N12 in wave 38, N7(c) in wave 39)
@@ -2834,27 +2843,28 @@ is the load-bearing result.
 
 ## Remaining
 
-| # | Item | Notes |
-|---|---|---|
-| R1 | Fix `SchoenfeldPRA` exports (`SchoenfeldPRA.lean:216-219`) | `export` syntax corrected; still carries `sorry` placeholders |
-| R2 | `MeasurableSpace`/`BorelSpace` instances for `Substrate` | Currently `local` in `RandomMap2.lean:32-33`; move to `SchoenfeldPRA` |
-| R3 | Phase 4: Epistemological payoff section | Document the undecidability isolation argument (expository) |
-| R4 | `#print axioms` spot-check on `outer_inner_reduces_to_head` | Verify only `propext`/`Classical.choice`/`Quot.sound` |
+| # | Item | Owner | Notes |
+|---|---|---|---|
+| R1 | Fix `riemann_hypothesis_via_rcp` sorry (`SchoenfeldPRA.lean:217-219`) | **A (Roadmap)** | `sorry` placeholder; the statement `∀ s, riemannZeta s = 0 → 0 < s.re → s.re < 1 → s.re = 1/2` is a known open problem (RH) — must remain `sorry`; only the `export` syntax fix is needed |
+| R2 | `MeasurableSpace`/`BorelSpace` instances for `Substrate` | **A (Roadmap)** | **DONE** — exported `instance` declarations in `SchoenfeldPRA.lean:105-111` (R2); `local` instances retained in `RandomMap2.lean:32-34` as self-contained scoping layer |
+| R3 | Phase 4 epistemological payoff section | **B (RandomMap2)** | **DONE** — `decidability_corollary` (`RandomMap2.lean:232-240`) proved; Phase 4 docstring updated |
+| R4 | `#print axioms` + git commit for RandomMap2 | **B (RandomMap2)** | Verify only `propext`/`Classical.choice`/`Quot.sound` on `outer_inner_reduces_to_head` and `decidability_corollary` |
 
 ---
 
 ## Recommended next steps (priority order)
 
-1. **R1** — Remove the `sorry` placeholders from `SchoenfeldPRA.lean:216-219`.
-   The `export` syntax is already correct; the sorries are vestigial.
-2. **R2** — Move the `MeasurableSpace`/`BorelSpace` instances from
-   `RandomMap2.lean:32-33` (currently `local`) into `SchoenfeldPRA.lean` so
-   downstream consumers don't need to declare them manually.
-3. **R3** — Write the Phase 4 epistemological payoff section in
-   `RandomMap2.lean`: document how the decoupling isolates undecidability
-   (Kopperman tail complete but unobservable via uniform integration; Solovay
-   head decidable via Tarski quantifier elimination; no `CompleteSpace` on
-   Outer space prevents Goedelian self-reference).
-4. **R4** — `#print axioms` spot-check on `outer_inner_reduces_to_head` to
-   confirm only `propext`/`Classical.choice`/`Quot.sound` are used, then
-   `git commit` the RandomMap2 work.
+> **Split by track.** Both tracks can run simultaneously — zero coordination.
+
+**Track A (FORMALIZATION_ROADMAP):**
+1. **R1** — Remove the `sorry` placeholders from `SchoenfeldPRA.lean:217-219`
+   (`riemann_hypothesis_via_rcp`). This is a Roadmap deliverable; do NOT
+   touch `RandomMap2.lean` or any other `RiemannProof/` file.
+
+**Track B (RandomMap2):**
+1. **R4** — `#print axioms` spot-check on `outer_inner_reduces_to_head` and
+   `decidability_corollary`, then `git commit` the RandomMap2 work.
+2. **R3** is already complete (`decidability_corollary` proved at
+   `RandomMap2.lean:232-240`; Phase 4 docstring updated).
+
+**Neither track depends on the other. Both can start immediately.**

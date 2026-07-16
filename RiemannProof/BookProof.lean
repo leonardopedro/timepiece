@@ -86,7 +86,6 @@ import BookProof.ChapterMajoranaProp76
 import BookProof.ChapterParity
 import BookProof.ChapterCPTHamiltonian
 import BookProof.ChapterSphericalBessel
-import BookProof.ChapterSphericalBessel2
 import BookProof.ChapterNoLebesgue
 import BookProof.ChapterNoUniformCountable
 import BookProof.ChapterMeasurementLLN

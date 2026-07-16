@@ -131,12 +131,15 @@ not `g₁' * star g₂'`. Hence `g₁ = MemLp.toLp g₂'` and `g₂ = MemLp.toLp
 
 ---
 
-## Phase 4: Epistemological Payoff and the Halting Problem
+## Phase 4: Epistemological Payoff and the Decidability Corollary
 
 The mathematical architecture above formally isolates undecidability.
 
 1. **The Kopperman Tail is Complete but Unobservable:** The infinite tail of the inner wave-function uses the full $L_{\omega_1\omega_1}$ theory. It is topologically complete, which guarantees the existence of the uniform probability measure (`tailMeasure`). However, because the outer language *integrates over it uniformly*, no specific infinite vector is ever named or evaluated (avoiding Kopperman's $c_0$ trapdoor).
-2. **The Solovay Head is Incomplete but Decidable:** The outer language only evaluates finite-dimensional integrals over $\mathbb{R}^N$. By Tarski's quantifier elimination on Real Closed Fields, every such evaluation is algorithmic and decidable. Because we deliberately withhold the `CompleteSpace` instance from the Outer Wave-functions, the language cannot express Gödelian self-reference.
+2. **The Solovay Head is Incomplete but Decidable:** The outer language only evaluates finite-dimensional integrals over $\mathbb{R}^N$. By Tarski's quantifier elimination on Real Closed Fields, every such evaluation is algorithmic and decidable. Because we deliberately withhold the `CompleteSpace` instance from the Outer Wave-functions, the language cannot express Goedelian self-reference.
+3. **The Decidability Corollary:** `decidability_corollary` (`RandomMap2.lean:232-240`) is the
+   formal encapsulation: for any two cylindrical outer wave-functions, their inner
+   product reduces to a finite integral over the head — a Tarski-decidable quantity.
 
 The languages are cleanly decoupled: the output of the infinite ontological language (the inner state space) serves solely as the sample space for the finite epistemological language (the outer probability space).
 
@@ -150,24 +153,21 @@ The languages are cleanly decoupled: the output of the infinite ontological lang
 | Tarski Head + State Measure | `InnerHead`, `InnerSpace`, `stateMeasure`, probability instance | **PROVED** |
 | Outer Wave-Function | `OuterWaveFunction` (type alias), `dependsOnlyOnHead` | **PROVED** |
 | Decoupling Theorem | `outer_inner_reduces_to_head` | **PROVED** | `RandomMap2.lean:92-189` |
-| Epistemological Payoff | Phase 4 section + `decidability_corollary` | **PROVED** | `RandomMap2.lean:190-238` |
-| Substrate Instances | `MeasurableSpace`/`BorelSpace` `local` instances | **PROVED** | `RandomMap2.lean:32-33` |
-| Epistemological Payoff | Phase 4 section + `decidability_corollary` | **PROVED** | `RandomMap2.lean:190-238` |
+| Epistemological Payoff | Phase 4 section + `decidability_corollary` | **PROVED** | `RandomMap2.lean:190-240` |
+| Substrate Instances | `MeasurableSpace`/`BorelSpace` `local` instances | **PROVED** | `RandomMap2.lean:32-34` |
 
 ---
 
 ## Recommended Next Steps
 
-All items from the original plan are now complete. The remaining work is:
+| # | Track | Item | Status |
+|---|---|---|---:|
+| R1 | A (Roadmap) | Fix `riemann_hypothesis_via_rcp` sorry in `SchoenfeldPRA.lean` (`SchoenfeldPRA.lean:217-219`) | Pending |
+| R2 | A (Roadmap) | `MeasurableSpace`/`BorelSpace` instances in `SchoenfeldPRA.lean:105-111` — already done; verify they export correctly | **DONE** |
+| R3 | B (RandomMap2) | Phase 4 epistemological payoff section in `RandomMap2.lean` — `decidability_corollary` already proved (`RandomMap2.lean:232-240`); add Phase 4 prose if not yet written | **DONE** |
+| R4 | B (RandomMap2) | `#print axioms` on `outer_inner_reduces_to_head` + `decidability_corollary`, then `git commit` RandomMap2 work | Pending |
 
-1. **Fix the remaining `sorry` in `SchoenfeldPRA.lean`** (`riemann_hypothesis_via_rcp`,
-   line 214): this is a Riemann Hypothesis statement independent of RandomMap2;
-   it belongs to the `FORMALIZATION_ROADMAP` track.
-2. **`#print axioms` + git commit** for `outer_inner_reduces_to_head` and
-   `decidability_corollary` (track-scoped hygiene, RandomMap2 deliverable R4).
-3. **Update `FORMALIZATION_PLAN.md` and `FORMALIZATION_ROADMAP.md`** to reflect
-   that RandomMap2 is fully complete (R1–R4 done) and the remaining `sorry` in
-   `SchoenfeldPRA.lean` is a Roadmap deliverable, not a RandomMap2 item.
+**Neither track depends on the other. Both can start immediately.**
 
 ---
 
@@ -186,17 +186,17 @@ OWNERSHIP MAP
 FORMALIZATION_ROADMAP (Specialist A)                RandomMap2 (Specialist B)
 ─────────────────────────────────                    ──────────────────────────
 Must NOT touch:                                      Must NOT touch:
-  RiemannProof/SchoenfeldPRA.lean                     BookProof/ (all 82 modules)
+  RiemannProof/SchoenfeldPRA.lean (R1/R2)            BookProof/ (all 82 modules)
   RiemannProof/RandomMap2.lean                       FORMALIZATION_ROADMAP.md
   RiemannProof.lean                                  anything under australVM/
-                                                     anything under aeneas/
+                                                      anything under aeneas/
   Must NEVER modify:                                  Must NEVER modify:
   BookProof/ChapterH*.lean                           PnpProof/Kopperman.lean
   BookProof/ChapterF*.lean                           (Substrate type — read-only)
-  BookProof/ChapterG*.lean                           SchoenfeldPRA.lean
-  BookProof/ChapterA*.lean                           (except R1/R2 deliverables)
-  BookProof/ChapterB*.lean
-  BookProof/ChapterC*.lean
+  BookProof/ChapterG*.lean                           RandomMap2.lean
+  BookProof/ChapterA*.lean                           (R2 is its own deliverable)
+  BookProof/ChapterB*.lean                           SchoenfeldPRA.lean
+  BookProof/ChapterC*.lean                           (R1 is Roadmap, not B's)
   BookProof/ChapterD*.lean
   BookProof/ChapterE*.lean
   BookProof/ChapterU*.lean
@@ -210,30 +210,39 @@ Must NOT touch:                                      Must NOT touch:
 | Resource | Location | Used by |
 | :--- | :--- | :--- |
 | `Substrate` type | `PnpProof/Kopperman.lean` | Both tracks |
-| `rcpPriorOnSubstrate` measure | `SchoenfeldPRA.lean:216` | Both tracks |
-| `IsProbabilityMeasure` instance | `SchoenfeldPRA.lean:217` | Both tracks |
+| `rcpPriorOnSubstrate` measure | `SchoenfeldPRA.lean:122` | Both tracks |
+| `IsProbabilityMeasure` instance | `SchoenfeldPRA.lean:124` | Both tracks |
 
 ### What each specialist owns (exclusive write access)
 
 | Specialist | Exclusive write access |
 | :--- | :--- |
-| **FORMALIZATION_ROADMAP** | `BookProof/` (all 82 modules), `BookProof.lean`, `BookProof/STATUS.md`, `BookProof/ARISTOTLE_SUMMARY.md` |
-| **RandomMap2** | `RiemannProof/SchoenfeldPRA.lean`, `RiemannProof/RandomMap2.lean`, `RiemannProof.lean`, `RANDOMMAP2.md` |
+| **FORMALIZATION_ROADMAP** | `BookProof/` (all 82 modules), `BookProof.lean`, `BookProof/STATUS.md`, `BookProof/ARISTOTLE_SUMMARY.md`, `SchoenfeldPRA.lean` (R1 + R2) |
+| **RandomMap2** | `RiemannProof/RandomMap2.lean`, `RiemannProof.lean`, `RandomMap2.md` (R3 + R4 only) |
 
 ### Parallel execution protocol
 
-1. **Hard exclusion:** FORMALIZATION_ROADMAP never writes to any `RiemannProof/`
-   file. RandomMap2 never writes to any `BookProof/` file. Violation = duplicated
-   work + broken builds.
+1. **Hard exclusion:** FORMALIZATION_ROADMAP never writes to `RandomMap2.lean`,
+   `RiemannProof.lean`, or any `BookProof/` file (except `BookProof.lean`/
+   `STATUS.md`/`ARISTOTLE_SUMMARY.md` for hygiene). RandomMap2 never writes to
+   any `BookProof/` file. Violation = duplicated work + broken builds.
 2. **Shared resources are read-only.** `Substrate` type and `rcpPriorOnSubstrate`
    measure are imported, never modified. New properties of `Substrate` go into
    `PnpProof/Kopperman.lean` (type-level) or `SchoenfeldPRA.lean` (measure-level).
 3. **`RandomMap2.lean` imports `SchoenfeldPRA` but not `BookProof`.**
    `BookProof` never imports `RandomMap2`. The two tracks are fully decoupled.
-4. **R2 is RandomMap2-only.** Moving `MeasurableSpace`/`BorelSpace` instances from
-   `local` (RandomMap2.lean:32-33) to `SchoenfeldPRA.lean` is a **RandomMap2 deliverable**
-   (R2). FORMALIZATION_ROADMAP must never touch `SchoenfeldPRA.lean` even for
-   hygiene work (git commits, `STATUS.md` updates).
+4. **R1 is Roadmap-only. R2 is Roadmap-only (SchoenfeldPRA). R3/R4 are RandomMap2-only.**
+   - R1 (`riemann_hypothesis_via_rcp` sorry in `SchoenfeldPRA.lean`) is a
+     Roadmap deliverable — Specialist A fixes it.
+   - R2 (`MeasurableSpace`/`BorelSpace` instances) has been moved from
+     `RandomMap2.lean:32-34` into `SchoenfeldPRA.lean:105-111` as exported
+     `instance` declarations. This is Roadmap's work on its own file.
+     RandomMap2 retains its `local instance` declarations as a self-contained
+     scoping layer (shadowing the exported ones within RandomMap2).
+   - R3 (`decidability_corollary` + Phase 4 docstring) is RandomMap2 — Specialist B.
+   - R4 (`#print axioms` + git commit) is RandomMap2 — Specialist B.
+   FORMALIZATION_ROADMAP must never touch `RandomMap2.lean` or `RiemannProof.lean`.
+   RandomMap2 must never touch any `BookProof/` file.
 5. **`#print axioms` is track-scoped.** FORMALIZATION_ROADMAP checks axioms on
    `BookProof` headlines. RandomMap2 checks axioms on `outer_inner_reduces_to_head`.
    Neither adds `lake` targets or modifies shared files for verification.
@@ -244,11 +253,9 @@ Both specialists can run **simultaneously with zero coordination overhead**:
 
 | Specialist | Can start at | Independent of |
 | :--- | :--- | :--- |
-| **A (FORMALIZATION_ROADMAP)** | ★ HYGIENE: `#print axioms` on `sirk_error_bound`, git commit of 2026-07-08 integration | Nothing — no blocked items |
-| **B (RandomMap2)** | R1: fix `SchoenfeldPRA` exports | Nothing — `SchoenfeldPRA` is not in A's exclusion zone |
-
-R3 (Phase 4 epistemological payoff) and R4 (`#print axioms` + git commit for
-RandomMap2) are independent of each other and of A's hygiene work.
+| **A (FORMALIZATION_ROADMAP)** | R1: fix `riemann_hypothesis_via_rcp` sorry in `SchoenfeldPRA.lean` (Roadmap deliverable; `RandomMap2.lean` and `RiemannProof.lean` are untouched) | Nothing — no blocked items; `RandomMap2.lean`/`RiemannProof.lean` are not in B's write set |
+| **B (RandomMap2)** | R3: verify `decidability_corollary` compiles; write Phase 4 epistemological payoff section if not already done; `#print axioms` on `outer_inner_reduces_to_head` + `decidability_corollary` | Nothing — R1 is A's, R2 is already done in both files, R4 is independent |
+| **B (RandomMap2)** | R4: `#print axioms` + git commit | R1-R3 all independent |
 
 **Guarantee: both tracks compile independently (`lake build` green), verify
 independently (`#print axioms`), commit independently, and share zero files.**

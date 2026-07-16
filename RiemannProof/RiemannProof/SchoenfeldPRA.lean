@@ -102,8 +102,13 @@ the `[LB]` data, left `sorry`. -/
 
 section Substrate
 
-local instance substrateMeasurableSpace : MeasurableSpace Substrate := borel _
-local instance substrateBorelSpace : BorelSpace Substrate := ⟨rfl⟩
+/-- The canonical Borel measurable structure on the Kopperman substrate.
+Exported here so downstream constructions using `rcpPriorOnSubstrate` do not
+have to redeclare the formerly-local instance. -/
+instance substrateMeasurableSpace : MeasurableSpace Substrate := borel _
+
+/-- The Kopperman substrate carries its canonical Borel measurable structure. -/
+instance substrateBorelSpace : BorelSpace Substrate := ⟨rfl⟩
 
 /-- The atomless probability measure used as the substrate prior of the
     bounded-prior model. The bounded unit-ball prior `RcpEuler.priorBall` is
