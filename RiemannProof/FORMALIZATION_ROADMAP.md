@@ -2849,6 +2849,9 @@ is the load-bearing result.
 | R2 | `MeasurableSpace`/`BorelSpace` instances for `Substrate` | **A (Roadmap)** | **DONE** — exported `instance` declarations in `SchoenfeldPRA.lean:105-111` (R2); `local` instances retained in `RandomMap2.lean:32-34` as self-contained scoping layer |
 | R3 | Phase 4 epistemological payoff section | **B (RandomMap2)** | **DONE** — `decidability_corollary` (`RandomMap2.lean:232-240`) proved; Phase 4 docstring updated |
 | R4 | `#print axioms` + git commit for RandomMap2 | **B (RandomMap2)** | **DONE** — verified only `[propext, Classical.choice, Quot.sound]` on both theorems (`RandomMap2.lean:242-248`) |
+| R5 | Bridge RCP framework with RandomMap2 decoupled architecture | **A (Roadmap)** | New theorems in `SchoenfeldPRA.lean` connecting `rcpPriorOnSubstrate` to `stateMeasure`; prove that the RCP zero-free strip implies the decoupling theorem's hypotheses |
+| R6 | Solovay model construction | **A (Roadmap)** | Formalize the Solovay-Hilbert space as a `CompleteSpace` space; prove that `dependsOnlyOnHead` prevents Gödelian self-reference; this is the explicit mechanism ensuring object-level decidability |
+| R7 | RH zero-free strip via RandomMap2 framework | **A (Roadmap)** | Formalize `zeta_no_zeros_right_half_plane` using the decoupled architecture; bridge the existing `riemann_hypothesis_rect` result with the RandomMap2 framework |
 
 ---
 
@@ -2860,10 +2863,41 @@ is the load-bearing result.
 1. **R1** — Remove the `sorry` placeholders from `SchoenfeldPRA.lean:217-219`
    (`riemann_hypothesis_via_rcp`). This is a Roadmap deliverable; do NOT
    touch `RandomMap2.lean` or any other `RiemannProof/` file.
+2. **R5** — Bridge the RCP framework with the RandomMap2 decoupled architecture:
+   new theorems in `SchoenfeldPRA.lean` connecting `rcpPriorOnSubstrate` to
+   `stateMeasure`. These read `RandomMap2.lean` (which is B's exclusive file)
+   but never modify it. Uses the shared resources: `Substrate`, `tailMeasure`,
+   `rcpPriorOnSubstrate`.
+3. **R6** — Formalize the Solovay model construction in `SchoenfeldPRA.lean`:
+   define `SolovayHilbertSpace` as a `CompleteSpace` space and prove that
+   `dependsOnlyOnHead` prevents Gödelian self-reference. This is the
+   explicit mechanism ensuring object-level decidability.
+4. **R7** — Formalize `zeta_no_zeros_right_half_plane` via the RandomMap2
+   framework in `SchoenfeldPRA.lean`. Bridge the existing `riemann_hypothesis_rect`
+   result with the decoupled architecture. This proves the RH zero-free strip
+   using only finite head integrals (the outer language).
 
 **Track B (RandomMap2):**
-1. **R4 is DONE** — `#print axioms` verified `[propext, Classical.choice, Quot.sound]` on both theorems; axioms comment added at `RandomMap2.lean:242-248`. All RandomMap2 deliverables complete.
-2. **R3** is already complete (`decidability_corollary` proved at
-   `RandomMap2.lean:232-240`; Phase 4 docstring updated).
+1. **Phase 4 is DONE** — `decidability_corollary` proved (`RandomMap2.lean:232-240`); axioms verified (`RandomMap2.lean:242-248`).
+2. **Phase 5** — Prove expectation/variance axioms from measure theory:
+   `E_zero`, `E_add`, `E_smul`, `exp_X_eq_one`, `X_orthogonal`, `Var_X_bound`.
+3. **Phase 6** — Prove `Var_orthogonal_sum`, `Var_smul`, `uniform_variance_bound`,
+   `moore_osgood_commutation` using the Phase 5 results.
+4. **Phase 7** — Prove `zeta_no_zeros_right_half_plane`, `riemann_hypothesis_decoupled`,
+   `eta_non_zero_real_axis` using the decoupled architecture.
+5. **Phase 8** — Prove `jensen_bohr`, `convergent_series_has_no_poles`,
+   construct `SolovayHilbertSpace`.
 
-**Neither track depends on the other. Both can start immediately.**
+**Data flow between tracks:**
+```
+Track B (RandomMap2.lean)                    Track A (SchoenfeldPRA.lean)
+──────────────────────────                  ─────────────────────────────
+Phase 5: prove axioms from measure theory   R5: bridge theorems (read R2)
+Phase 6: uniform variance bound             R6: Solovay model (standalone)
+Phase 7: RH via decoupled arch             R7: RH zero-free strip via R2
+Phase 8: jensen_bohr, convergent_series     (standalone)
+```
+
+Track A's R5-R7 **read** `RandomMap2.lean` but never modify it.
+Track B's Phases 5-8 **never touch** `SchoenfeldPRA.lean` or any `BookProof/` file.
+Both tracks compile independently (`lake build` green).
