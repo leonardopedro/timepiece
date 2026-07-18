@@ -7,6 +7,85 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Wave 143 (2026-07-17) — **Final roadmap hygiene certificate and current-state reconciliation**
+
+Executed the only actionable next step left in the roadmap's hygiene block.
+Extended `ChapterRoadmapAudit.lean` with the kernel-checked theorem
+`roadmap_finite_born_certificate`, which simultaneously certifies:
+
+* the full spectrum of finite Born-fiber cardinalities: a cardinality occurs
+  exactly when it is `2 ^ k` for some `1 ≤ k ≤ n`; and
+* the index-two orientation law for the diagonal sign gauge: an xor/product
+  preserves orientation exactly when its two factors have equal orientation
+  parity.
+
+The roadmap's implementation-state header and historical hygiene block now
+reflect the current 198-module aggregate rather than the superseded 82-module
+2026-07-08 snapshot. `lake build BookProof` succeeds (8255 jobs), the new
+certificate is proof-placeholder-free, and its axiom footprint is exactly
+`propext`, `Classical.choice`, and `Quot.sound`. The numbered queue remains
+complete; further mathematical work requires a newly promoted book package.
+
+## Wave 142 (2026-07-17) — **Roadmap integration: all completed `BookProof` modules registered**
+
+Executed the current roadmap integration residue by registering every completed
+but previously unregistered module in `BookProof.lean` (25 modules):
+
+* the full diagonal-sign gauge action, its orthogonal representation, orientation
+  character, index-two orientation-preserving subgroup, and quotient (11 modules);
+* the exact finite Born-fiber classification, cardinality formula
+  `2 ^ #(posSupport p)`, sharp bounds, extremal cases, achievable spectrum, and
+  orbit-stabilizer identity (8 modules);
+* prior dependence and posterior-odds identities (2 modules);
+* the deep-learning-as-random-sampling/MAP package (3 modules); and
+* `ChapterRoadmapAudit`, the certificate collecting the roadmap headlines.
+
+`BookProof.lean` now imports all 198 files in `BookProof/`; there are no orphaned
+modules. `lake build BookProof` is green (8255 jobs), the registered source tree
+contains no proof placeholders or added axioms, and representative new headlines
+were checked to use only `propext`, `Classical.choice`, and `Quot.sound`.
+
+## Wave 141 (2026-07-16) — **The finite-dimensional Born map continuously parametrizes the probability simplex (`ChapterFreeFieldBorn*`)**
+
+Continued the §5 free-field thread from Wave 140 by registering the existing,
+sorry-free seven-module core of the Born-parametrization development in
+`BookProof.lean`:
+
+* `ChapterFreeFieldBorn` defines the coordinate-square Born map, proves that it
+  sends the unit sphere into `stdSimplex`, and proves that the Born pushforward
+  of `sphereGaussian` gives the simplex full measure;
+* `ChapterFreeFieldBornSurj` constructs the coordinatewise square-root section
+  and proves that every finite probability distribution is the Born image of a
+  unit vector;
+* `ChapterFreeFieldBornCont` proves continuity and identifies the simplex with
+  the image of the sphere;
+* `ChapterFreeFieldBornGauge` records the antipodal gauge ambiguity and proves
+  that the full-sphere parametrization is not injective in positive dimension;
+* `ChapterFreeFieldBornQuotient` packages the continuous surjection as a
+  quotient map;
+* `ChapterFreeFieldBornSectionBij` restricts to the nonnegative orthant and
+  proves bijectivity there;
+* `ChapterFreeFieldBornHomeo` upgrades that restricted bijection to a
+  homeomorphism between the nonnegative sphere sector and the simplex.
+
+Thus the book's finite-dimensional claim is now represented at the measure,
+set-theoretic, quotient-topological, and homeomorphic-section levels. The seven
+modules build without proof placeholders.
+
+## Wave 140 (2026-07-16) — **The Gaussian-built sphere measure is a fixed point of radial normalization (`ChapterFreeFieldSphereFixpoint`)**
+
+Continued the book's §5 free-field / uniform-sphere thread from Waves 137–139.
+The existing, sorry-free `ChapterFreeFieldSphereFixpoint.lean` is now registered
+in `BookProof.lean` and therefore included in the library build. It proves:
+
+* `normalize_normalize`: radial normalization is idempotent away from the origin;
+* headline `sphereGaussian_map_normalize`: for `n ≥ 1`, pushing the
+  Gaussian-built sphere measure forward by radial normalization again leaves it
+  unchanged.
+
+The headline's axiom footprint is exactly `propext`, `Classical.choice`, and
+`Quot.sound`.
+
 ## Wave 139 (2026-07-12) — **Book main-conclusion thread: the Gaussian-built uniform measure really lives on the unit sphere (`ChapterFreeFieldSphereSupport`)**
 
 Stayed on the book's **main-conclusion** thread (author instruction: prioritize

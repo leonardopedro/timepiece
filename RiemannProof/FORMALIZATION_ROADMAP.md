@@ -54,7 +54,17 @@ citation string only** — write it verbatim, never open it (see the ⚠ box in
 
 ---
 
-## ★ IMPLEMENTATION STATE (2026-07-08, post-integration) — 82 registered modules GREEN (`lake build BookProof` 8115 jobs): the wave-1–39 base (N1–N12 100 % DONE) + waves 40–63 fully integrated (**N13 DONE, N14 DONE**, 12 bonus book chapters); open = `#print axioms` spot-checks + git commit, then await the author's next promoted package
+## ★ IMPLEMENTATION STATE (2026-07-17, current) — all 198 `BookProof` modules registered and GREEN (`lake build BookProof`, 8255 jobs); N1–N14 and all subsequently mined book packages integrated; hygiene complete; await the author's next promoted package
+
+**2026-07-17 completion update.** The historical 2026-07-08 integration record
+below is retained for provenance. Its two open hygiene actions are now closed:
+`ChapterRoadmapAudit.roadmap_headline_certificate` checks the original SIRK,
+streaming, holomorphic, Gleason, and Majorana headlines, while the new
+`roadmap_finite_born_certificate` checks the complete finite Born-fiber
+cardinality spectrum and the index-two orientation law for the sign gauge.
+Both certificates build without proof placeholders and use only `propext`,
+`Classical.choice`, and `Quot.sound`. All 198 Lean modules under `BookProof/`
+are imported by `BookProof.lean`; the numbered roadmap queue remains empty.
 
 **★ 2026-07-08 INTEGRATION (READ FIRST — supersedes the earlier "8-module
 off-log drop" narrative).** The morning drop turned out to be the first
@@ -117,12 +127,10 @@ colliding wave numbers). `BookProof.lean` registers all **82 modules**;
 3. ✅ **DONE** — `STATUS.md`/`ARISTOTLE_SUMMARY.md` caught up via the
    lossless union merges above (⚠ runs are known to overwrite `STATUS.md` —
    re-read it from disk before editing).
-4. **REMAINING** — `#print axioms` spot-checks on the new headlines
-   (`sirk_error_bound`, `misraGries_bound`, `countsketch_unbiased`,
-   `cauchyRiemann_iff_analyticOn`, `no_pure_state_satisfies_both`,
-   `majoranaFourier_boostBlock_unitary`), and the **git commit** — every
-   2026-07-08 change (15 new modules, updated H1/H2, merged F4, merged logs,
-   `BookProof.lean`) is still uncommitted.
+4. ✅ **DONE** — the requested `#print axioms` checks are collected in
+   `ChapterRoadmapAudit.lean`; the original integration was committed, and the
+   2026-07-17 follow-up adds a checked certificate for the final finite
+   Born-fiber/sign-gauge integration wave.
 
 **★ STOP RULE #2 — special-function numerics (author instruction,
 2026-07-08: "some proofs involving numerics of spherical Bessel functions
@@ -2849,9 +2857,9 @@ is the load-bearing result.
 | R2 | `MeasurableSpace`/`BorelSpace` instances for `Substrate` | **A (Roadmap)** | **DONE** — exported `instance` declarations in `SchoenfeldPRA.lean:105-111` (R2); `local` instances retained in `RandomMap2.lean:32-34` as self-contained scoping layer |
 | R3 | Phase 4 epistemological payoff section | **B (RandomMap2)** | **DONE** — `decidability_corollary` (`RandomMap2.lean:232-240`) proved; Phase 4 docstring updated |
 | R4 | `#print axioms` + git commit for RandomMap2 | **B (RandomMap2)** | **DONE** — verified only `[propext, Classical.choice, Quot.sound]` on both theorems (`RandomMap2.lean:242-248`) |
-| R5 | Bridge RCP framework with RandomMap2 decoupled architecture | **A (Roadmap)** | New theorems in `SchoenfeldPRA.lean` connecting `rcpPriorOnSubstrate` to `stateMeasure`; prove that the RCP zero-free strip implies the decoupling theorem's hypotheses |
-| R6 | Solovay model construction | **A (Roadmap)** | Formalize the Solovay-Hilbert space as a `CompleteSpace` space; prove that `dependsOnlyOnHead` prevents Gödelian self-reference; this is the explicit mechanism ensuring object-level decidability |
-| R7 | RH zero-free strip via RandomMap2 framework | **A (Roadmap)** | Formalize `zeta_no_zeros_right_half_plane` using the decoupled architecture; bridge the existing `riemann_hypothesis_rect` result with the RandomMap2 framework |
+| R5 | Bridge RCP framework with RandomMap2 decoupled architecture | **A (Roadmap)** | **DONE 2026-07-17** — `RiemannProof/RcpRandomMapBridge.lean`: exact head/tail marginal theorems and `rcp_stateMeasure_decoupling`; placed in a separate downstream module to avoid the `SchoenfeldPRA` → `RandomMap2` import cycle |
+| R6 | Solovay model construction | **A (Roadmap)** | **DONE 2026-07-17** — `RiemannProof/SolovayHilbert.lean`: the finite-head `L²` space is complete; `solovayLift` embeds it linearly and isometrically into product-space outer wave-functions; `solovayObservable_tail_invariant`, `solovayLift_ae_eq_observable`, and `godelian_trapdoor_sealed` prove that every represented observable ignores the infinite tail (pointwise for its canonical representative and a.e. for its `L²` class) |
+| R7 | RH zero-free strip via RandomMap2 framework | **HONEST REDUCTION DONE 2026-07-17; unconditional claim BLOCKED** | `RiemannProof/RandomMap2RH.lean` proves the exact equivalence `RectangleRH ↔ ZeroFreeRightHalfPlane` and packages the conditional zero-free conclusion with finite-head dimensional reduction. The unconditional claim is RH-equivalent and the historical `riemann_hypothesis_rect` depends on unresolved RH-strength placeholders, so it is not imported as evidence. |
 
 ---
 
@@ -2863,24 +2871,40 @@ is the load-bearing result.
 1. **R1** — Remove the `sorry` placeholders from `SchoenfeldPRA.lean:217-219`
    (`riemann_hypothesis_via_rcp`). This is a Roadmap deliverable; do NOT
    touch `RandomMap2.lean` or any other `RiemannProof/` file.
-2. **R5** — Bridge the RCP framework with the RandomMap2 decoupled architecture:
-   new theorems in `SchoenfeldPRA.lean` connecting `rcpPriorOnSubstrate` to
-   `stateMeasure`. These read `RandomMap2.lean` (which is B's exclusive file)
-   but never modify it. Uses the shared resources: `Substrate`, `tailMeasure`,
-   `rcpPriorOnSubstrate`.
-3. **R6** — Formalize the Solovay model construction in `SchoenfeldPRA.lean`:
-   define `SolovayHilbertSpace` as a `CompleteSpace` space and prove that
-   `dependsOnlyOnHead` prevents Gödelian self-reference. This is the
-   explicit mechanism ensuring object-level decidability.
-4. **R7** — Formalize `zeta_no_zeros_right_half_plane` via the RandomMap2
-   framework in `SchoenfeldPRA.lean`. Bridge the existing `riemann_hypothesis_rect`
-   result with the decoupled architecture. This proves the RH zero-free strip
-   using only finite head integrals (the outer language).
+2. **R5 is DONE** — `RcpRandomMapBridge.lean` proves that `stateMeasure` has
+   `headDist` as its first marginal and `rcpPriorOnSubstrate` as its second,
+   then packages those facts with `outer_inner_reduces_to_head`. The downstream
+   bridge module avoids an import cycle and leaves `RandomMap2.lean` untouched.
+3. **R6 is DONE** — `SolovayHilbert.lean` defines the complete finite-head
+   `SolovayHilbertSpace`, its canonical linear-isometric lift into the product
+   state space, and proves both pointwise tail invariance and the intrinsic a.e.
+   head-dependence statement `godelian_trapdoor_sealed`. A downstream module is
+   used rather than `SchoenfeldPRA.lean` to avoid the existing import cycle and
+   to keep the quarantined historical RH placeholders out of the proof.
+4. **R7 honest reduction is DONE; unconditional R7 is BLOCKED by RH** —
+   `RandomMap2RH.lean` defines `RectangleRH` and `ZeroFreeRightHalfPlane`, proves
+   their equivalence without using `riemann_hypothesis_rect`, and combines the
+   conditional analytic conclusion with `outer_inner_reduces_to_head`. This
+   establishes that the requested unconditional zero-free theorem is exactly
+   RH-strength; the decoupled finite-head architecture supplies no proof of its
+   analytic premise. The historical rectangle result cannot be used honestly
+   because it depends transitively on unresolved RH-strength placeholders.
+5. **Track B Phase 5 sound core is DONE (2026-07-18)** —
+   `RandomMap2Moments.lean` constructs the normalized product bump and proves
+   expectation linearity, normalization, centered first moments, and the valid
+   coordinate variance bound `≤ ε²`.  The roadmap’s displayed `Var_X_bound`
+   (a constant integral bounded by `ε * log (N+1)`) is false for `0 < ε < 1`
+   and `N > 0`, so it was replaced rather than asserted.  Phase 6 is next.
 
 **Track B (RandomMap2):**
 1. **Phase 4 is DONE** — `decidability_corollary` proved (`RandomMap2.lean:232-240`); axioms verified (`RandomMap2.lean:242-248`).
-2. **Phase 5** — Prove expectation/variance axioms from measure theory:
-   `E_zero`, `E_add`, `E_smul`, `exp_X_eq_one`, `X_orthogonal`, `Var_X_bound`.
+2. **Phase 5 sound core is DONE (2026-07-18)** —
+   `RandomMap2Moments.lean` proves `E_zero`, `E_add`, `E_smul`,
+   `exp_X_eq_one`, `X_coordinate_orthogonal`, `X_orthogonal`, and
+   `Var_X_coordinate_bound`, plus the full-inner-space expectation laws.  The
+   bump is a finite product of conditional Lebesgue probability measures.  The
+   originally requested `Var_X_bound` statement is false when `0 < ε < 1` and
+   `N > 0`; its sound second-moment replacement is `≤ ε²`.
 3. **Phase 6** — Prove `Var_orthogonal_sum`, `Var_smul`, `uniform_variance_bound`,
    `moore_osgood_commutation` using the Phase 5 results.
 4. **Phase 7** — Prove `zeta_no_zeros_right_half_plane`, `riemann_hypothesis_decoupled`,
@@ -2892,7 +2916,7 @@ is the load-bearing result.
 ```
 Track B (RandomMap2.lean)                    Track A (SchoenfeldPRA.lean)
 ──────────────────────────                  ─────────────────────────────
-Phase 5: prove axioms from measure theory   R5: bridge theorems (read R2)
+Phase 5: DONE (`RandomMap2Moments`)        R5: DONE (`RcpRandomMapBridge`)
 Phase 6: uniform variance bound             R6: Solovay model (standalone)
 Phase 7: RH via decoupled arch             R7: RH zero-free strip via R2
 Phase 8: jensen_bohr, convergent_series     (standalone)

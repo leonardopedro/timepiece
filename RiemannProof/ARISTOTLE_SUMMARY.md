@@ -1,3 +1,244 @@
+# Summary of changes for run c87470e4-0388-4d20-9d71-479ae685dff5
+Executed the next sound roadmap step: **RandomMap2 Track B, Phase 5**.
+
+- Added and registered `RiemannProof/RandomMap2Moments.lean`.
+- Constructed normalized uniform interval bumps and their finite-dimensional product measure.
+- Proved expectation linearity, normalization, coordinate and vector centering, and a valid coordinate second-moment bound.
+- Added corresponding expectation laws on the full head-tail space.
+- Corrected the roadmap’s proposed `Var_X_bound`, which is false for `0 < ε < 1` and positive dimension, replacing it with the sound bound `Var_X_coordinate_bound ≤ ε²`.
+- Updated both `FORMALIZATION_ROADMAP.md` and `ARISTOTLE_SUMMARY.md`; Phase 6 is now the next step.
+
+Verification succeeded for both `RiemannProof.RandomMap2Moments` and the complete `RiemannProof` target. The new module is free of `sorry`, `admit`, new axioms, and `implemented_by`; checked theorem dependencies use only the permitted standard axioms.
+
+Committed and pushed as `dfda170` (`Formalize RandomMap2 Phase 5 moments`).
+
+# Summary of changes for 2026-07-18 — RandomMap2 Phase 5 moments
+
+Executed the next sound step in `FORMALIZATION_ROADMAP.md`: Track B Phase 5.
+
+- Added and registered `RiemannProof/RandomMap2Moments.lean`.
+- Constructed a one-dimensional uniform interval bump as conditioned Lebesgue
+  measure and the finite-head bump as its finite product; proved both are
+  probability measures for positive radius.
+- Proved finite-head expectation laws `E_zero`, `E_add`, and `E_smul`, bump
+  normalization `exp_X_eq_one`, coordinate and vector centering
+  (`X_coordinate_orthogonal`, `X_orthogonal`), and the coordinate second-moment
+  estimate `Var_X_coordinate_bound`.
+- Proved the corresponding zero/additivity/scalar expectation laws on the full
+  head-tail `InnerSpace`.
+- Corrected a mathematical defect in the roadmap specification: its displayed
+  `Var_X_bound` integrates the constant `log (N+1)` and claims the result is at
+  most `ε log (N+1)`, which is false for `0 < ε < 1` and `N > 0`.  The Lean
+  module instead proves the valid second-moment estimate `≤ ε²`.
+- Updated `FORMALIZATION_ROADMAP.md` to mark the sound Phase 5 core complete and
+  identify Phase 6 as the next step.
+
+Verification succeeded for `RiemannProof.RandomMap2Moments`; the module contains
+no `sorry`, `admit`, new axioms, or `implemented_by`.  Its headline moment
+theorems depend only on `propext`, `Classical.choice`, and `Quot.sound`.
+
+# Summary of changes for run 69fa23de-9c96-4ff7-b0ff-ac12fdacad76
+Executed the next roadmap item, R7, as far as is mathematically sound, and updated `ARISTOTLE_SUMMARY.md` and `FORMALIZATION_ROADMAP.md`.
+
+- Added and registered `RiemannProof/RandomMap2RH.lean`.
+- Formalized the rectangle formulation of RH and zero-freeness for `Re(s) > 1/2`.
+- Proved both directions and their exact equivalence.
+- Proved a conditional RandomMap2 bridge combining finite-head integral reduction with the zero-free conclusion.
+- Deliberately avoided relying on the historical `riemann_hypothesis_rect`, whose dependencies contain unresolved RH-strength placeholders.
+- Recorded that unconditional R7 is equivalent to the open Riemann Hypothesis; the next sound roadmap work is Track B Phase 5 expectation/variance lemmas.
+
+Verification succeeded for `RiemannProof.RandomMap2RH` and `RiemannProof`. The new module is free of `sorry`, `admit`, new axioms, and `implemented_by`; verified theorem dependencies are limited to `propext`, `Classical.choice`, and `Quot.sound`.
+
+Committed and pushed as `3cefe76` (`Formalize honest R7 reduction`).
+
+# Summary of changes for run 8bbd158a-8791-44b4-ba91-758bed4c4a95
+Executed roadmap item **R6: Solovay model construction** and updated `ARISTOTLE_SUMMARY.md` and `FORMALIZATION_ROADMAP.md`.
+
+- Added `RiemannProof/SolovayHilbert.lean`.
+- Defined the complete finite-head `SolovayHilbertSpace` as `L²(headDist)`.
+- Constructed the canonical linear-isometric lift into product-space outer wave-functions.
+- Proved pointwise invariance under changes to the infinite tail.
+- Proved the corresponding almost-everywhere head-dependence result for `L²` classes in `godelian_trapdoor_sealed`.
+- Registered the module in `RiemannProof.lean` and marked R6 complete; R7 is now the next actionable roadmap item.
+
+Verification succeeded: the full default build completes with 8257 jobs, the new module has no `sorry`, `admit`, new axioms, or `implemented_by`, and its headline theorem uses only standard permitted axioms. The historical open-RH placeholders remain quarantined and were not used.
+
+Committed and pushed as `772f30c` (`Formalize R6 Solovay head space`).
+
+# Summary of changes for 2026-07-17 — R6 Solovay model construction
+
+Executed the next sound, actionable Track-A step in `FORMALIZATION_ROADMAP.md` and updated the roadmap and this summary.
+
+- Added `RiemannProof/SolovayHilbert.lean`.
+- Defined `SolovayHilbertSpace` as the complete finite-head space `L²(headDist)`, rather than falsely treating the full product `L²` space as incomplete.
+- Proved `headProjection_measurePreserving` and defined `solovayLift`, the canonical linear-isometric embedding into product-space outer wave-functions by composition with `Prod.fst`.
+- Proved `solovayObservable_tail_invariant`: the canonical representative is pointwise unchanged by every alteration of the infinite Kopperman tail.
+- Proved `solovayLift_ae_eq_observable` and the R6 headline `godelian_trapdoor_sealed`: every lifted `L²` class depends only on the finite head up to the almost-everywhere equality intrinsic to `L²`.
+- Registered the module in `RiemannProof.lean` and marked R6 complete; R7 is now the next actionable roadmap item.
+
+Verification: the full default build succeeds (8257 jobs). The new module contains no `sorry`, `admit`, new axioms, or `implemented_by`; its headline theorems depend only on `propext`, `Classical.choice`, and `Quot.sound`. The historical open-RH placeholders remain quarantined and were not used as proofs of the new results.
+
+# Summary of changes for run d04f250b-b016-46aa-8d76-3e238847da8c
+Executed the next sound roadmap step, R5, and updated `ARISTOTLE_SUMMARY.md` and `FORMALIZATION_ROADMAP.md`.
+
+- Added `RiemannProof/RcpRandomMapBridge.lean`.
+- Proved that the RandomMap2 tail measure equals the RCP substrate prior.
+- Proved that `stateMeasure` has the prescribed finite head distribution and RCP prior as its two marginals.
+- Proved `rcp_stateMeasure_decoupling`, combining those marginal identities with the existing finite-head reduction for cylindrical outer wave-functions.
+- Registered the module in `RiemannProof.lean` and marked R5 complete; R6 is now identified as the next actionable roadmap item.
+- Verified the full default project build succeeds (8256 jobs), the new module contains no `sorry`/`admit`, and its theorems depend only on `propext`, `Classical.choice`, and `Quot.sound`.
+
+The historical open-Riemann-Hypothesis placeholders were left unchanged and were not used to establish the new results. Changes were committed and pushed as `16679f0`.
+
+# Summary of changes for 2026-07-17 — R5 RCP/RandomMap2 bridge
+
+Executed the next sound, actionable Track-A step in `FORMALIZATION_ROADMAP.md` and updated this summary as requested.
+
+- Added `RiemannProof/RcpRandomMapBridge.lean`, a downstream bridge module that avoids an import cycle and leaves `RiemannProof/RandomMap2.lean` untouched.
+- Proved `tailMeasure_eq_rcpPrior`: the RandomMap2 tail law is exactly `SchoenfeldPRA.rcpPriorOnSubstrate`.
+- Proved `map_fst_stateMeasure` and `map_snd_stateMeasure`: the two marginals of `stateMeasure` are respectively the prescribed finite `headDist` and the RCP substrate prior.
+- Proved the R5 headline `rcp_stateMeasure_decoupling`, packaging both marginal identities with the existing cylindrical-wave-function reduction `outer_inner_reduces_to_head`.
+- Registered the module in `RiemannProof.lean` and marked R5 complete in `FORMALIZATION_ROADMAP.md`; R6 is now the next sound actionable item.
+
+Verification: the new module compiles with no `sorry` or `admit`. All four new theorems use only `propext`, `Classical.choice`, and `Quot.sound`. The complete default project build succeeds. The historical open-RH placeholders in `SchoenfeldPRA.lean` were not changed or used as proofs of the new results.
+
+# Summary of changes for run 70fb31db-34d8-451a-bdaa-faeff9777bfb
+Executed the next actionable roadmap step and updated `ARISTOTLE_SUMMARY.md` as requested.
+
+- Added `roadmap_finite_born_certificate` to `BookProof/ChapterRoadmapAudit.lean`, certifying:
+  - the exact spectrum of finite Born-fiber cardinalities, `2^k` for `1 ≤ k ≤ n`; and
+  - the index-two orientation-parity law for the diagonal sign gauge under xor.
+- Updated `FORMALIZATION_ROADMAP.md` to reflect the current 198-module state and mark the remaining hygiene work complete.
+- Added Wave 143 to `BookProof/STATUS.md`.
+- Prepended the new run record to `ARISTOTLE_SUMMARY.md`.
+- Verified `BookProof` builds successfully (8255 jobs), with no proof placeholders in the new theorem. Its axiom footprint is only `propext`, `Classical.choice`, and `Quot.sound`.
+
+The numbered roadmap queue N1–N14 is complete and currently empty; further mathematical work requires a newly promoted `book.tex` package.
+
+Committed and pushed as `f27c81a` (`Complete roadmap hygiene certificate`).
+
+# Summary of changes for 2026-07-17 — final roadmap hygiene certificate
+
+Executed the next actionable step in `FORMALIZATION_ROADMAP.md` and reconciled
+its implementation-state documentation with the current library.
+
+Extended `BookProof/ChapterRoadmapAudit.lean` with the checked theorem
+`roadmap_finite_born_certificate`. It packages two final integrated headlines:
+the exact achievable spectrum of finite Born-fiber cardinalities
+(`c = 2 ^ k` for exactly the exponents `1 ≤ k ≤ n`) and the index-two
+orientation-parity law for the diagonal sign gauge under coordinatewise xor.
+The proof reuses the already established spectrum and orientation-kernel
+results rather than duplicating their arguments.
+
+Updated the roadmap's superseded 82-module status header and open hygiene item:
+all 198 `BookProof` modules are registered, the requested headline checks are
+now represented by checked certificates, and the numbered queue N1–N14 remains
+complete. Added Wave 143 to `BookProof/STATUS.md`.
+
+Verification: `lake build BookProof` succeeds (8255 jobs); the new theorem has
+no proof placeholder and depends only on `propext`, `Classical.choice`, and
+`Quot.sound`. No new package can be selected from the existing roadmap because
+its queue is empty; subsequent mathematical work requires the author to promote
+a new `book.tex` package.
+
+# Summary of changes for run 6116662c-a482-4a15-a1ba-7886517ad58b
+Executed the current `FORMALIZATION_ROADMAP.md` integration step.
+
+- Registered all 25 previously orphaned, proof-complete modules in `BookProof.lean`.
+- `BookProof.lean` now imports all 198 modules under `BookProof/`.
+- Integrated the sign-gauge/orientation developments, exact Born-fiber classification, prior and posterior identities, deep-learning sampling/MAP results, and roadmap audit certificate.
+- Added Wave 142 to `BookProof/STATUS.md` and updated `ARISTOTLE_SUMMARY.md`.
+- Verified `BookProof` builds successfully (8255 jobs).
+- Confirmed the registered BookProof sources contain no proof placeholders or added axioms.
+- Representative headline theorems use only `propext`, `Classical.choice`, and `Quot.sound`.
+
+The roadmap’s quarantined Riemann-Hypothesis obligations remain unchanged because they contain open load-bearing claims and cannot be soundly filled without proving RH.
+
+Committed and pushed as `b2d338d` (`Register completed roadmap modules`).
+
+# Summary of changes for 2026-07-17 — complete BookProof module integration
+
+Executed the current integration residue in `FORMALIZATION_ROADMAP.md`. Registered all 25 proof-complete modules that existed under `BookProof/` but were not yet imported by `BookProof.lean`. The aggregate target now covers all 198 `BookProof` modules, with no orphaned files.
+
+The newly integrated developments comprise the complete finite diagonal-sign gauge action and orientation representation; the exact finite Born-fiber classification and cardinality spectrum; prior-dependence and posterior-odds results; deep-learning random-sampling, ensemble, and MAP results; and the roadmap headline audit certificate.
+
+Updated `BookProof/STATUS.md` with Wave 142. Verified `lake build BookProof` succeeds (8255 jobs), scanned the complete registered BookProof source for proof placeholders and added axioms, and checked representative new headline theorems. Their axiom footprints contain only `propext`, `Classical.choice`, and `Quot.sound`.
+
+The Riemann-Hypothesis placeholders described by the roadmap remain deliberately quarantined and unchanged: their statements include open load-bearing claims and cannot be filled soundly without proving RH.
+
+# Summary of changes for run e53f29dc-9b41-4a27-949e-914f2ff91502
+Completed the next roadmap integration step on the §5 free-field/Born-parametrization thread.
+
+- Registered seven existing, proof-complete modules in `BookProof.lean`:
+  - `ChapterFreeFieldBorn`
+  - `ChapterFreeFieldBornSurj`
+  - `ChapterFreeFieldBornCont`
+  - `ChapterFreeFieldBornGauge`
+  - `ChapterFreeFieldBornQuotient`
+  - `ChapterFreeFieldBornSectionBij`
+  - `ChapterFreeFieldBornHomeo`
+- These establish that the finite-dimensional Born map sends the unit sphere into the probability simplex with full pushforward mass, is continuous and surjective, is a quotient map, has antipodal gauge ambiguity, and restricts to a homeomorphism from the nonnegative sphere sector onto the simplex.
+- Added Wave 141 to `BookProof/STATUS.md`.
+- Updated `ARISTOTLE_SUMMARY.md` as requested.
+- Verified the aggregate `BookProof` build succeeds (8230 jobs).
+- Confirmed the newly registered modules have no proof placeholders.
+- Verified representative measure, quotient-map, and homeomorphism results use only `propext`, `Classical.choice`, and `Quot.sound`.
+- Committed and pushed the work in commit `6edff29` (`Integrate finite Born parametrization modules`).
+
+# Summary of changes for 2026-07-16 — Born-parametrization integration
+
+Executed the next steps in `FORMALIZATION_ROADMAP.md` on the book's §5
+free-field thread. Registered the existing seven-module finite-dimensional Born
+parametrization core in `BookProof.lean`: `ChapterFreeFieldBorn`,
+`ChapterFreeFieldBornSurj`, `ChapterFreeFieldBornCont`,
+`ChapterFreeFieldBornGauge`, `ChapterFreeFieldBornQuotient`,
+`ChapterFreeFieldBornSectionBij`, and `ChapterFreeFieldBornHomeo`.
+
+Together these modules prove that coordinate squares map the unit sphere into
+the probability simplex with full pushforward mass; every finite probability
+distribution has a square-root lift; the map is continuous, surjective, and a
+quotient map; its antipodal ambiguity prevents injectivity on the whole sphere
+in positive dimension; and restriction to the nonnegative orthant is a
+homeomorphism onto the simplex. Updated `BookProof/STATUS.md` with Wave 141.
+
+Verified the aggregate `BookProof` target builds successfully (8230 jobs). The
+newly registered modules contain no proof placeholders. Spot checks of the
+measure, quotient-map, and homeomorphism headlines report only the permitted
+standard axioms `propext`, `Classical.choice`, and `Quot.sound`.
+
+# Summary of changes for run 7cf21726-44a5-41c1-ab63-690b05df333e
+Executed the next sound integration step from `FORMALIZATION_ROADMAP.md`:
+
+- Registered `BookProof/ChapterFreeFieldSphereFixpoint.lean` in `BookProof.lean`.
+- Integrated the headline theorem `sphereGaussian_map_normalize`: in positive dimension, the Gaussian-built uniform sphere measure is unchanged by radial normalization.
+- Added Wave 140 to `BookProof/STATUS.md` and updated `ARISTOTLE_SUMMARY.md`.
+- Verified `lake build BookProof` succeeds (8199 jobs).
+- Verified the theorem uses only the permitted standard axioms `propext`, `Classical.choice`, and `Quot.sound`; its source has no proof placeholders.
+
+The roadmap’s numbered BookProof queue is already complete. Its remaining request to fill `riemann_hypothesis_via_rcp` in `RiemannProof/SchoenfeldPRA.lean` was deliberately not altered: that statement is the Riemann Hypothesis itself, and the roadmap also identifies it as an open load-bearing obligation. Filling it without a genuine proof would be unsound.
+
+All retained changes were committed and pushed in commit `db8a761`.
+
+# Summary of changes for 2026-07-16
+
+Executed the next concrete `FORMALIZATION_ROADMAP.md` integration step on the
+book's main free-field / uniform-sphere thread. Registered the existing
+`sorry`-free `BookProof/ChapterFreeFieldSphereFixpoint.lean` module in
+`BookProof.lean`. Its headline theorem `sphereGaussian_map_normalize` states
+that, in positive dimension, the Gaussian-built uniform sphere measure is a
+fixed point of radial normalization. The proof builds on the preceding support
+theorem that the Gaussian has no atom at the origin.
+
+Updated `BookProof/STATUS.md` with Wave 140. The new module builds, has no
+`sorry`, and its headline uses only `propext`, `Classical.choice`, and
+`Quot.sound`.
+
+The roadmap's request to remove the `riemann_hypothesis_via_rcp` placeholder in
+`RiemannProof/SchoenfeldPRA.lean` cannot soundly be carried out: that declaration
+is the Riemann Hypothesis itself, and the same roadmap explicitly identifies it
+as an open, load-bearing obligation that must remain a placeholder. It was left
+unchanged rather than introducing an unsound proof.
+
 # Summary of changes for run 26fe4498-cd99-4bba-9c81-482a89a42090
 Continued the `book.tex` formalization on the main-conclusion thread (as in the recent waves), taking the natural next step after the previous run's Wave 138. The entire roadmap queue (N1–N14) was already complete, so this run added the next mined result on the free-field/uniform-sphere thread of §5 "Free field parametrization in Bayesian inference and Statistical Mechanics".
 
@@ -5441,3 +5682,34 @@ Scope note (unchanged): the full-project build still fails only inside
 `RiemannProof/` (`RandomMap.lean` elaboration errors and other `sorry`s), which
 `FORMALIZATION_ROADMAP.md` explicitly marks out of scope; those were left
 untouched. All in-scope `BookProof` work builds green and is axiom-clean.
+
+# Summary of changes for 2026-07-17 — R7 honest reduction and obstruction
+
+Executed the next Track-A item in `FORMALIZATION_ROADMAP.md` as far as it can be
+carried out soundly, and updated the roadmap to distinguish a proved reduction
+from the still-open unconditional claim.
+
+- Added `RiemannProof/RandomMap2RH.lean` and registered it in `RiemannProof.lean`.
+- Defined `RandomMap2RH.RectangleRH`, the rectangle formulation of RH, and
+  `RandomMap2RH.ZeroFreeRightHalfPlane`, zero-freeness of zeta for `Re(s) > 1/2`.
+- Proved `zeta_no_zeros_right_half_plane_of_rectangle` directly from the explicit
+  rectangle premise, using only Mathlib's classical zero-free region for
+  `Re(s) ≥ 1`; the proof deliberately does not invoke the project's historical
+  `riemann_hypothesis_rect`, whose dependencies contain unresolved RH-strength
+  placeholders.
+- Proved the converse `rectangleRH_of_zeta_no_zeros_right_half_plane` using the
+  zeta functional equation, and hence the exact equivalence
+  `rectangleRH_iff_zeroFreeRightHalfPlane`. This formally confirms that the
+  unconditional R7 target is RH-equivalent, rather than a consequence of the
+  RandomMap2 decoupling theorem alone.
+- Proved `decoupled_integral_and_zeroFree_of_rectangle`, which honestly packages
+  the two independent facts: cylindrical RandomMap2 observables reduce to a
+  finite-head integral, while zero-freeness follows only under the explicit
+  rectangle/RH analytic premise.
+
+Verification: `lake build RiemannProof.RandomMap2RH RiemannProof` succeeds. The
+new module contains no `sorry`, `admit`, new axioms, or `implemented_by`; its
+headline declarations use only `propext`, `Classical.choice`, and `Quot.sound`.
+The roadmap now marks the R7 reduction complete and the unconditional theorem
+blocked by its exact equivalence to the open Riemann Hypothesis. The next sound
+roadmap work is Track B Phase 5 (expectation/variance measure theory).

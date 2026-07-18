@@ -8,6 +8,8 @@ import BookProof.ChapterF4
 import BookProof.ChapterHolomorphic
 import BookProof.ChapterB4
 import BookProof.ChapterMajoranaFourier
+import BookProof.ChapterFreeFieldBornFiberSpectrum
+import BookProof.ChapterFreeFieldBornSignOrientationKernel
 
 /-!
 # Roadmap headline certificate
@@ -57,7 +59,34 @@ theorem roadmap_headline_certificate :
       BookProof.ChapterMajoranaFourier.majoranaFourier_boostBlock_unitary
         m q hm hq n hn
 
+/-
+A second checked certificate covers the final finite Born-fiber and sign-gauge
+integration wave.  It records both the complete spectrum of possible fiber
+cardinalities and the index-two parity law for the orientation character.
+-/
+theorem roadmap_finite_born_certificate :
+    (∀ (n c : ℕ),
+      (∃ p : ↥(stdSimplex ℝ (Fin n)),
+          Nat.card ↥(BookProof.ChapterFreeFieldBornQuotient.bornMapSphere n ⁻¹' {p}) = c) ↔
+        ∃ k, 1 ≤ k ∧ k ≤ n ∧ c = 2 ^ k) ∧
+    (∀ (n : ℕ) (b₁ b₂ : Fin n → Bool),
+      BookProof.ChapterFreeFieldBornSignMatrix.flipMatrix
+          (fun k => xor (b₁ k) (b₂ k)) ∈
+          Matrix.specialOrthogonalGroup (Fin n) ℝ ↔
+        (BookProof.ChapterFreeFieldBornSignMatrix.flipMatrix b₁ ∈
+            Matrix.specialOrthogonalGroup (Fin n) ℝ ↔
+         BookProof.ChapterFreeFieldBornSignMatrix.flipMatrix b₂ ∈
+            Matrix.specialOrthogonalGroup (Fin n) ℝ)) := by
+  constructor
+  · intro n c
+    exact BookProof.ChapterFreeFieldBornFiberSpectrum.bornFiber_card_achievable_iff
+  · intro n b₁ b₂
+    exact
+      BookProof.ChapterFreeFieldBornSignOrientationKernel.orientationPreserving_xor_iff
+        b₁ b₂
+
 #print axioms roadmap_headline_certificate
+#print axioms roadmap_finite_born_certificate
 #print axioms BookProof.ChapterH4.sirk_error_bound
 #print axioms BookProof.ChapterF4.misraGries_bound
 #print axioms BookProof.ChapterF4.countsketch_unbiased
