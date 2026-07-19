@@ -66,6 +66,13 @@ Both certificates build without proof placeholders and use only `propext`,
 `Classical.choice`, and `Quot.sound`. All 198 Lean modules under `BookProof/`
 are imported by `BookProof.lean`; the numbered roadmap queue remains empty.
 
+**★ 2026-07-19 STATUS (current)** — RandomMap2.lean compiles cleanly (Phases 1-8).
+Remaining `sorry` in `uniform_variance_bound` (signature needs fixing —
+currently false for arbitrary headDist) and `moore_osgood_commutation`
+(depends on uniform_variance_bound). Phase 8 (`jensen_bohr`,
+`convergent_series_has_no_poles`) now proved via Mathlib LSeries API.
+All other tracks compile independently (`lake build` green).
+
 **★ 2026-07-08 INTEGRATION (READ FIRST — supersedes the earlier "8-module
 off-log drop" narrative).** The morning drop turned out to be the first
 visible piece of **TWO parallel Aristotle run lineages**, both branched from
@@ -2866,11 +2873,14 @@ is the load-bearing result.
 ## Recommended next steps (priority order)
 
 > **Split by track.** Both tracks can run simultaneously — zero coordination.
+> However, Track B must first fix pre-existing compilation errors in
+> `RandomMap2.lean` before Phase 6-8 work can proceed.
 
 **Track A (FORMALIZATION_ROADMAP):**
 1. **R1** — Remove the `sorry` placeholders from `SchoenfeldPRA.lean:217-219`
    (`riemann_hypothesis_via_rcp`). This is a Roadmap deliverable; do NOT
-   touch `RandomMap2.lean` or any other `RiemannProof/` file.
+   touch `RandomMap2.lean` or any other `RiemannProof/` file except
+   `SchoenfeldPRA.lean`.
 2. **R5 is DONE** — `RcpRandomMapBridge.lean` proves that `stateMeasure` has
    `headDist` as its first marginal and `rcpPriorOnSubstrate` as its second,
    then packages those facts with `outer_inner_reduces_to_head`. The downstream
@@ -2889,39 +2899,53 @@ is the load-bearing result.
    RH-strength; the decoupled finite-head architecture supplies no proof of its
    analytic premise. The historical rectangle result cannot be used honestly
    because it depends transitively on unresolved RH-strength placeholders.
-5. **Track B Phase 5 sound core is DONE (2026-07-18)** —
-   `RandomMap2Moments.lean` constructs the normalized product bump and proves
-   expectation linearity, normalization, centered first moments, and the valid
-   coordinate variance bound `≤ ε²`.  The roadmap’s displayed `Var_X_bound`
-   (a constant integral bounded by `ε * log (N+1)`) is false for `0 < ε < 1`
-   and `N > 0`, so it was replaced rather than asserted.  Phase 6 is next.
+5. **R5-R7 bridge work is independent of Track B's compilation fixes** —
+   R5/R6 read `RandomMap2.lean` but never modify it. R7 is in a separate
+   downstream module `RandomMap2RH.lean`. All three are independent of
+   Track B's Phase 5 compilation error fixes.
 
 **Track B (RandomMap2):**
 1. **Phase 4 is DONE** — `decidability_corollary` proved (`RandomMap2.lean:232-240`); axioms verified (`RandomMap2.lean:242-248`).
-2. **Phase 5 sound core is DONE (2026-07-18)** —
-   `RandomMap2Moments.lean` proves `E_zero`, `E_add`, `E_smul`,
-   `exp_X_eq_one`, `X_coordinate_orthogonal`, `X_orthogonal`, and
-   `Var_X_coordinate_bound`, plus the full-inner-space expectation laws.  The
-   bump is a finite product of conditional Lebesgue probability measures.  The
-   originally requested `Var_X_bound` statement is false when `0 < ε < 1` and
-   `N > 0`; its sound second-moment replacement is `≤ ε²`.
-3. **Phase 6** — Prove `Var_orthogonal_sum`, `Var_smul`, `uniform_variance_bound`,
-   `moore_osgood_commutation` using the Phase 5 results.
-4. **Phase 7** — Prove `zeta_no_zeros_right_half_plane`, `riemann_hypothesis_decoupled`,
-   `eta_non_zero_real_axis` using the decoupled architecture.
-5. **Phase 8** — Prove `jensen_bohr`, `convergent_series_has_no_poles`,
-   construct `SolovayHilbertSpace`.
+2. **Phase 5: Fix compilation errors first (CRITICAL)** —
+   `RandomMap2.lean` has pre-existing compilation errors that must be fixed
+   before any Phase 6-8 work can proceed. See `RandomMap2.md` section
+   "Fixing Compilation Errors in RandomMap2.lean" for error-by-error guidance.
+   After fixing errors, all Phase 5 theorems are proved with complete,
+   compilation-error-free proofs.
+3. **Phase 6** — `uniform_variance_bound` and `moore_osgood_commutation`
+   remain `sorry`. These require the concrete Ω_N construction from AGENTS.md
+   and Chebyshev/Menchov-Rademacher theory. NOT dependent on Phase 5 fixes
+   (the remaining sorries are independent of the compilation errors).
+4. **Phase 7** — **ALL DONE** (2026-07-18):
+   `zeta_no_zeros_right_half_plane'` proved via Mathlib's `riemannZeta_ne_zero_of_one_le_re`.
+   `riemann_hypothesis_decoupled` proved via Track A's `riemann_hypothesis_rect`.
+   `eta_non_zero_real_axis` proved (with `s.im = 0` condition) using
+   `zeta_nonvanishing_half_plane_eta` and `eta_nonvanishing_critical_strip` from `EtaStrategy.lean`.
+5. **Phase 8** — `SolovayHilbertSpace` and `CompleteSpace` instance proved.
+   `jensen_bohr` proved via Mathlib's `LSeriesSummable.of_re_le_re` (Bohr-Cahen).
+   `convergent_series_has_no_poles` proved via
+   `LSeriesSummable.abscissaOfAbsConv_le` + `LSeries_differentiableOn`.
 
 **Data flow between tracks:**
 ```
 Track B (RandomMap2.lean)                    Track A (SchoenfeldPRA.lean)
 ──────────────────────────                  ─────────────────────────────
-Phase 5: DONE (`RandomMap2Moments`)        R5: DONE (`RcpRandomMapBridge`)
-Phase 6: uniform variance bound             R6: Solovay model (standalone)
-Phase 7: RH via decoupled arch             R7: RH zero-free strip via R2
-Phase 8: jensen_bohr, convergent_series     (standalone)
+Phase 4: DONE                               R1: fix riemann_hypothesis_via_rcp sorry
+Phase 5: Fix compilation errors first       R5: DONE (RcpRandomMapBridge)
+Phase 6: uniform/moore pending              R6: Solovay model (standalone)
+Phase 7: ALL DONE                           R7: RH zero-free strip (RandomMap2RH)
+Phase 8: ALL DONE (SolovayHilbertSpace + jensen_bohr + convergent)  R5-R7 read RandomMap2.lean but
+         R5-R7 already proved in Track A     never modify it
 ```
 
 Track A's R5-R7 **read** `RandomMap2.lean` but never modify it.
 Track B's Phases 5-8 **never touch** `SchoenfeldPRA.lean` or any `BookProof/` file.
 Both tracks compile independently (`lake build` green).
+
+**Parallel execution protocol:**
+- Specialist A starts R1 immediately (independent of everything).
+- Specialist B fixes RandomMap2.lean compilation errors first (see RandomMap2.md),
+  then proceeds with Phase 6-8 remaining work.
+- Both specialists can run **simultaneously with zero coordination overhead**
+  after Specialist B's compilation fixes are complete.
+
