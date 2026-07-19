@@ -1,5 +1,5 @@
 import Mathlib
-import RiemannProof.EtaConvergence
+import UsedRoute.EtaConvergence
 
 /-!
 # Extended uniform convergence of eta partial sums

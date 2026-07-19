@@ -1,6 +1,6 @@
 import Mathlib
-import RiemannProof.RectangleStrategy
-import RiemannProof.GaussianEuler
+import UsedRoute.RectangleStrategy
+import UsedRoute.GaussianEuler
 
 /-!
 # RH via a bounded-coefficient prior + regular conditional probability

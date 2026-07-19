@@ -1,4 +1,4 @@
-import RiemannProof.RandomMap2
+import RandomMap.RandomMap2
 
 /-!
 # RCP–RandomMap2 bridge

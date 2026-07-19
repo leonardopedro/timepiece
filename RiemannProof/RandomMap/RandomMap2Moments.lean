@@ -1,4 +1,4 @@
-import RiemannProof.RandomMap2
+import RandomMap.RandomMap2
 
 /-!
 # RandomMap2 Phase 5: finite-head expectation and moments

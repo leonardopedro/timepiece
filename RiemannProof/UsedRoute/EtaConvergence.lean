@@ -1,5 +1,5 @@
 import Mathlib
-import RiemannProof.EtaStrategy
+import UsedRoute.EtaStrategy
 
 /-!
 # Uniform convergence of Dirichlet eta partial sums

@@ -1,6 +1,6 @@
 import Mathlib
-import RiemannProof.Basic
-import RiemannProof.EtaStrategy
+import UsedRoute.Basic
+import UsedRoute.EtaStrategy
 
 /-!
 # Shifted Eta Function η(2s−1) and Approximants

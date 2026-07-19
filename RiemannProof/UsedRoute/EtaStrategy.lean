@@ -1,5 +1,4 @@
 import Mathlib
-import RiemannProof.Legacy
 
 /-!
 # Eta Strategy: Partial Sum Approximants for η via Abel Summation

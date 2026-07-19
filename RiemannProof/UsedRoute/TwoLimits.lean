@@ -1,4 +1,3 @@
-import RiemannProof.Legacy
 
 /-!
 # Two-Limit Approaches to the Riemann Hypothesis

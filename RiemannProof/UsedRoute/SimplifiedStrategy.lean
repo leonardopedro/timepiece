@@ -1,5 +1,4 @@
 import Mathlib
-import RiemannProof.Legacy
 
 /-!
 # Simplified Strategy: P-Regularization via Corrected Euler Products

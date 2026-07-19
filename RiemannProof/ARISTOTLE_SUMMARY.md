@@ -1,3 +1,112 @@
+# Summary of changes for 2026-07-19 — exact RandomMap2 energy expectation
+
+Strengthened the infinite-walk expectation bounds to exact formulas in Lean.
+
+- Added `coordinate_secondMoment_eq`, computing the exact second moment of each
+  uniform centered bump as `(ε n)² / 3`.
+- Added `totalEnergy_expectation_eq`, proving that under summable squared radii
+  the expected infinite centered energy is exactly
+  `(∑' n, (ε n)²) / 3`.
+- Updated module documentation, `FORMALIZATION_ROADMAP.md`, and this summary.
+
+Verification: the affected module and aggregate target build without proof
+placeholders; both exact formulas use only permitted standard axioms.
+
+# Summary of changes for 2026-07-19 — expected infinite RandomMap2 energy
+
+Extended the Lean formalization from almost-sure convergence to expectation.
+
+- Added `integrable_coordinate_energy` for every coordinate square under the
+  compatible infinite product law.
+- Added `totalEnergy_expectation_bound`: when the squared radii are summable,
+  the expected infinite centered energy is bounded by the total squared-radius
+  budget.
+- Updated the module documentation and `FORMALIZATION_ROADMAP.md`.
+
+Verification: the new declarations and aggregate target build without proof
+placeholders and use only permitted standard axioms.
+
+# Summary of changes for 2026-07-19 — total RandomMap2 energy convergence
+
+Continued the Lean formalization of the compatible infinite walk.
+
+- Added `ae_tsum_centered_energy_le`: under summable squared radii, total
+  centered energy is almost surely bounded by the total radius budget.
+- Added `ae_tendsto_partial_energy`: ordinary finite partial energies converge
+  almost surely to the total centered energy.
+- Updated the module documentation and `FORMALIZATION_ROADMAP.md` to record the
+  completed total-energy refinement.
+
+Verification: the affected module and aggregate target build without proof
+placeholders; the new theorems use only permitted standard axioms.
+
+# Summary of changes for 2026-07-19 — almost-sure RandomMap2 finite energy
+
+Formalized the next infinite-walk convergence step in Lean.
+
+- Added `coordinate_abs_sub_le_radius`: every coordinate sampled from the
+  compatible countable-product bump law lies within its prescribed radius
+  almost surely.
+- Added `ae_summable_centered_energy`: if `∑ n, (ε n)²` is summable, then the
+  centered squared increments are summable almost surely.
+- Updated `FORMALIZATION_ROADMAP.md` to mark the almost-sure finite-energy step
+  complete.
+
+Verification: `RiemannProof.RandomMap2InfiniteWalk` and the aggregate
+`RiemannProof` target build without `sorry`, `admit`, or exploratory `exact?`;
+the new headline theorem uses only permitted standard axioms.
+
+# Summary of changes for 2026-07-19 — compatible infinite RandomMap2 walk laws
+
+Completed the next step identified by `FORMALIZATION_ROADMAP.md` after the
+finite Phase-6 estimates.
+
+- Added and registered `RiemannProof/RandomMap2InfiniteWalk.lean`.
+- Defined `infiniteWalkMeasure`, the countable product of centered scalar bump
+  laws with coordinate-dependent positive radii.
+- Proved that it is a probability measure, that every finite restriction is
+  exactly the corresponding finite product law, and that finite marginals are
+  mutually compatible under restriction.
+- Proved coordinate centering and coordinate second-moment bounds for the
+  infinite law, plus `finiteEnergy_expectation_bound` for every finite set of
+  coordinates.
+- Updated `FORMALIZATION_ROADMAP.md` to record this projective-family step as
+  complete. The next honest extension is an almost-sure finite-energy theorem
+  under a square-summability assumption on the coordinate radii.
+
+Verification: the new module and aggregate `RiemannProof` target build without
+`sorry` or `admit`; checked headline declarations use only permitted standard
+axioms.# Summary of changes for run 737c9491-40da-4fa4-bbd4-7a85051e71cf
+Completed the next actionable roadmap step: a sound, concrete-law replacement for RandomMap2 Phase 6.
+
+- Added `RiemannProof/RandomMap2Walk.lean` and registered it in `RiemannProof.lean`.
+- Defined the active coordinates and finite centered-walk energy under the normalized product-bump law.
+- Proved:
+  - `card_activeCoordinates`
+  - `integrable_partialEnergy`
+  - `partialEnergy_expectation_bound`: expected first-`n` energy is at most `min n N · ε²`
+  - `fullEnergy_expectation_bound`: expected full energy is at most `N · ε²`
+  - `meanEnergy_expectation_bound`: for `N > 0`, expected mean squared increment is at most `ε²`
+- Updated `FORMALIZATION_ROADMAP.md` to mark the corrected finite-law Phase 6 bounds complete while retaining the honest limitation that an infinite almost-sure convergence result needs a compatible family of finite laws.
+- Updated `ARISTOTLE_SUMMARY.md` as requested.
+
+Verification completed: the full default project build succeeds with 8260 jobs. The new module contains no `sorry`, `admit`, new axioms, `implemented_by`, or exploratory `exact?`; checked headline results use only the permitted standard axioms.
+
+Committed and pushed as `4f9b31f` (`Add corrected RandomMap2 finite walk bounds`).
+
+# Summary of changes for run 077cc94b-3a2f-4455-943d-77168536de43
+Executed the actionable items in `FORMALIZATION_ROADMAP.md` and completed the RandomMap2 integration cleanup.
+
+- Fixed the full default project build: `lake build` now succeeds with 8259 jobs.
+- Preserved the non-elaborating Phase 5–8 draft in `RiemannProof/RandomMap2.lean` as noncompiled historical material rather than exporting broken or unsound declarations.
+- Kept the sound finite-head moment implementation in `RiemannProof/RandomMap2Moments.lean`, including normalized product bump measures, vector centering (`X_orthogonal`), and the coordinate second-moment bound (`Var_X_coordinate_bound`).
+- Documented that the proposed `uniform_variance_bound` was false for an arbitrary probability measure; a distant Dirac measure is a counterexample. No false replacement theorem was introduced.
+- Kept the RH result honest: `RiemannProof/RandomMap2RH.lean` exports the conditional equivalence/reduction rather than relying silently on unresolved RH-strength placeholders.
+- Retained the completed finite-head Hilbert-space construction in `RiemannProof/SolovayHilbert.lean`.
+- Updated `FORMALIZATION_ROADMAP.md` to reflect the corrected implementation state and remove obsolete instructions about compilation failures.
+- Verified representative theorems use only `propext`, `Classical.choice`, and `Quot.sound`.
+- Committed and pushed the changes as commit `870059c` (`Complete roadmap RandomMap2 integration`).
+
 # Summary of changes for run c87470e4-0388-4d20-9d71-479ae685dff5
 Executed the next sound roadmap step: **RandomMap2 Track B, Phase 5**.
 
@@ -5713,3 +5822,31 @@ headline declarations use only `propext`, `Classical.choice`, and `Quot.sound`.
 The roadmap now marks the R7 reduction complete and the unconditional theorem
 blocked by its exact equivalence to the open Riemann Hypothesis. The next sound
 roadmap work is Track B Phase 5 (expectation/variance measure theory).
+
+# Summary of changes for 2026-07-19 — RandomMap2 corrected Phase 6 finite walk
+
+Continued the next actionable item in `FORMALIZATION_ROADMAP.md`: replacing the
+false arbitrary-measure Phase 6 variance statement with a theorem about an
+explicit concrete law.
+
+- Added `RiemannProof/RandomMap2Walk.lean` and registered it in
+  `RiemannProof.lean`.
+- Defined `activeCoordinates` and `partialEnergy`, the squared energy of the
+  first `n` centered coordinate increments when the head is sampled from the
+  normalized product bump of `RandomMap2Moments.lean`.
+- Proved `card_activeCoordinates` and `integrable_partialEnergy`.
+- Proved the corrected headline `partialEnergy_expectation_bound`:
+  `E[partialEnergy n] ≤ min n N * ε²`, using the previously established
+  coordinate second-moment estimate.
+- Proved `fullEnergy_expectation_bound` and
+  `meanEnergy_expectation_bound`, giving expected full energy at most
+  `N * ε²` and expected mean squared increment at most `ε²` for `N > 0`.
+- Updated `FORMALIZATION_ROADMAP.md` to mark this finite-law Phase 6 replacement
+  complete. The roadmap remains explicit that almost-sure infinite convergence
+  needs a compatible family of finite laws, and that the false estimate for an
+  arbitrary probability measure is not restored.
+
+Verification: the full default build succeeds with 8260 jobs. The new file has
+no `sorry`, `admit`, `axiom`, `implemented_by`, or exploratory `exact?`; checked
+headline theorem dependencies use only `propext`, `Classical.choice`, and
+`Quot.sound`.

@@ -1,8 +1,7 @@
 import Mathlib
-import RiemannProof.Basic
-import RiemannProof.Legacy
-import RiemannProof.EtaConvergence
-import RiemannProof.EtaConvergenceExtended
+import UsedRoute.Basic
+import UsedRoute.EtaConvergence
+import UsedRoute.EtaConvergenceExtended
 
 /-!
 # Two-Rectangle Strategy for the Riemann Hypothesis

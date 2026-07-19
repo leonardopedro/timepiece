@@ -196,3 +196,4 @@ import BookProof.ChapterDeepLearningSampling
 import BookProof.ChapterDeepLearningEnsemble
 import BookProof.ChapterDeepLearningMAP
 import BookProof.ChapterRoadmapAudit
+import BookProof.RandomMap2Audit

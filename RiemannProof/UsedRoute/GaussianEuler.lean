@@ -1,7 +1,7 @@
 import Mathlib
-import RiemannProof.Basic
-import RiemannProof.RectangleStrategy
-import RiemannProof.EtaConvergenceExtended
+import UsedRoute.Basic
+import UsedRoute.RectangleStrategy
+import UsedRoute.EtaConvergenceExtended
 
 /-!
 # The Rectangle Strategy via Gaussian Euler Products

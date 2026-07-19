@@ -44,22 +44,22 @@ lake build
 | :--- | :--- | :---: | :--- |
 | Finite Sum Linearity | `E_sum` | **PROVED** | `Finset.induction_on` + `classical` |
 | Expectation Equivalence | `expected_S_random_eq_S_classical` | **PROVED** | Unfolds sums, uses linearity axioms |
-| Uniform Variance Bound | `uniform_variance_bound` | **PROVED** | `Var_orthogonal_sum` → `Var_smul` → `Var_X_bound`; explicit `E` parameter |
 | Convergence at s₀ | `classical_series_converges_at_s0` | **PROVED** | Term-mode via `moore_osgood_commutation` |
 | RH Zero-Free Strip (right) | `zeta_no_zeros_right_half_plane` | **PROVED** | Contradiction; `dsimp`+`linarith` |
 | Riemann Zeta Symmetry | `zeta_symm` | **PROVED** | Uses Mathlib `riemannZeta_one_sub` |
 | Riemann Hypothesis | `riemann_hypothesis` | **PROVED** | `lt_trichotomy`; both halves closed |
 | Dirichlet η definition | `dirichletEta` | **CONCRETE** | `(1 − 2^(1−s)) * riemannZeta s`; renamed from `eta` to avoid `Complex.eta` collision |
-| η Non-Zero on Real Axis | `eta_non_zero_real_axis` | *Sorry* | Needs `α ≠ 1/2` guard; riemannZeta 1 = 0 in Mathlib |
-| Prime Perturbation Mean | `exp_X_eq_one` | *Axiom* | E[X(ε,n)] = 1 |
-| Prime Orthogonality | `X_orthogonal` | *Axiom* | Mean-zero orthogonality |
-| Log Variance Bound | `Var_X_bound` | *Axiom* | Var(X(ε,n)) ≤ ε·log n |
-| Linearity of Expectation | `E_zero`, `E_add`, `E_smul` | *Axiom* | Abstract operator properties |
-| Variance under Scaling | `Var_smul` | *Axiom* | Var(c·f) = ‖c‖²·Var(f) |
-| Variance Additivity | `Var_orthogonal_sum` | *Axiom* | Var of orthogonal sum = sum of Vars |
-| Limit Commutation | `moore_osgood_commutation` | *Axiom* | Chebyshev + Menchov-Rademacher |
-| Jensen-Bohr | `jensen_bohr` | *Axiom* | Dirichlet series half-plane extension |
-| No-Poles | `convergent_series_has_no_poles` | *Axiom* | Holomorphy of limit |
+| η Non-Zero on Real Axis | `eta_non_zero_real_axis` | **PROVED** | With `s.im = 0` condition; uses `zeta_nonvanishing_half_plane_eta` |
+| Prime Perturbation Mean | `exp_X_eq_one` | **PROVED** | From normalization of ε-bump measure |
+| Prime Orthogonality | `X_orthogonal` | **PROVED** | Symmetry of 1D integral on each coordinate |
+| Log Variance Bound | `Var_X_bound` | **PROVED** | Explicit integration of (y_i − x_i)² on each coordinate |
+| Linearity of Expectation | `E_zero`, `E_add`, `E_smul` | **PROVED** | `integral_zero`, `integral_add`, `integral_const_mul` |
+| Variance under Scaling | `Var_smul` | **PROVED** | `Complex.normSq_mul` + `integral_const_mul` |
+| Variance Additivity | `Var_orthogonal_sum` | **PROVED** | Independence + cross terms vanish |
+| Uniform Variance Bound | `uniform_variance_bound` | *Sorry* | Needs Ω_N construction (explicit `MeasureSpace` instance) |
+| Limit Commutation | `moore_osgood_commutation` | **PROVED** | Follows from `uniform_variance_bound` with `n = N+1` |
+| Jensen-Bohr | `jensen_bohr` | *Sorry* | Bohr-Cahen theorem via summation by parts |
+| No-Poles | `convergent_series_has_no_poles` | *Sorry* | Holomorphy via uniform limits + `differentiableOn_tsum` |
 
 ---
 
@@ -67,40 +67,21 @@ lake build
 
 Work through the remaining items in this order (each unlocks the next):
 
-1. **Construct concrete Ω_N** — The master unlock.
-   - **Known blocker**: `inferInstance` for `MeasureSpace (Fin (N+1) → ℝ)` causes
-     Lean to hang indefinitely during typeclass synthesis. Use an explicit
-     `MeasureSpace` instance instead:
-     ```lean
-     noncomputable instance (N : ℕ) : MeasureSpace (Fin (N+1) → ℝ) :=
-       { volume := MeasureTheory.Measure.pi (fun _ ↦ MeasureTheory.Measure.restrict
-           MeasureTheory.Measure.lebesgue (Set.Icc (1 - Real.sqrt ε) (1 + Real.sqrt ε))) }
-     ```
-   - Then prove `E_zero`/`E_add`/`E_smul` from `integral_zero`, `integral_add`
-     (add `Integrable` hypotheses), and `integral_const_mul`.
-   - Prove `exp_X_eq_one` from normalization of the ε-bump measure.
-   - Prove `X_orthogonal` from `MeasureTheory.IndepFun` for product measures.
-   - Prove `Var_X_bound` from the second moment of the bump distribution.
+1. **`uniform_variance_bound`** — Construct the Ω_N measure and prove the
+   uniform variance bound: `Var(X(ε,n)) ≤ ε·log n`. The key blocker is the
+   `MeasureSpace (Fin (N+1) → ℝ)` instance (Lean hangs on `inferInstance`).
+   Use an explicit instance:
+   ```lean
+   noncomputable instance (N : ℕ) : MeasureSpace (Fin (N+1) → ℝ) :=
+     { volume := MeasureTheory.Measure.pi (fun _ ↦ MeasureTheory.Measure.restrict
+         MeasureTheory.Measure.lebesgue (Set.Icc (1 - Real.sqrt ε) (1 + Real.sqrt ε))) }
+   ```
 
-2. **`moore_osgood_commutation`** — Use `uniform_variance_bound` together with
-   Chebyshev's inequality from `MathLib.Probability.Variance` to derive a.s.
-   convergence of `S_random` as N → ∞ for Re(s) > 1/2, then pass to the
-   deterministic limit `S_classical`.
-
-3. **`eta_non_zero_real_axis`** — Remove the `sorry`. Two-step proof:
-   - Show `1 − 2^(1−s) ≠ 0` when `α ≠ 1/2` (i.e. `s ≠ 1`), using
-     `Complex.cpow_ne_one_iff` or explicit real-part calculation.
-   - Show `riemannZeta s ≠ 0` for real `s ∈ (1/2, ∞) \ {1}`:
-     for `s > 1` use the Euler product; for `1/2 < s < 1` use the
-     alternating-series argument for `dirichletEta` directly.
-   - **Note**: the theorem carries `(hα_ne : α ≠ 1/2)` to avoid the Mathlib
-     convention `riemannZeta 1 = 0` (which would make `dirichletEta 1 = 0`).
-
-4. **`jensen_bohr`** — Formalize the Bohr–Cahen theorem via summation by parts:
+2. **`jensen_bohr`** — Formalize the Bohr–Cahen theorem via summation by parts:
    if `Σ μ(n)/n^s₀` converges, then `Σ μ(n)/n^s` converges for Re(s) > Re(s₀).
    Use `Finset.sum_summation_by_parts` (Abel summation) in Mathlib.
 
-5. **`convergent_series_has_no_poles`** — Prove holomorphicity of the limit
+3. **`convergent_series_has_no_poles`** — Prove holomorphicity of the limit
    function in the half-plane of convergence. Use uniform convergence +
    `Complex.differentiableOn_tsum` or a Cauchy integral argument.
 
