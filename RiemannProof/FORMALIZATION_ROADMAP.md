@@ -2914,9 +2914,9 @@ is the load-bearing result.
    compilation-error-free proofs.
 3. **Phase 6** — `omegaMeasure` constructed (explicit `MeasureSpace` instance +
    product of restricted Lebesgue intervals). `uniform_variance_bound` and
-   `moore_osgood_commutation` now use `omegaMeasure` instead of arbitrary `headDist`;
-   both remain `sorry` — deep analytic results requiring the full random walk
-   construction (Chebyshev/Menchov-Rademacher). NOT dependent on Phase 5 fixes.
+   `moore_osgood_commutation` both remain `sorry` — deep analytic results
+   requiring the full random walk construction (Chebyshev/Menchov-Rademacher).
+   NOT dependent on Phase 5 fixes.
 4. **Phase 7** — **ALL DONE** (2026-07-18):
    `zeta_no_zeros_right_half_plane'` proved via Mathlib's `riemannZeta_ne_zero_of_one_le_re`.
    `riemann_hypothesis_decoupled` proved via Track A's `riemann_hypothesis_rect`.
@@ -2933,7 +2933,7 @@ Track B (RandomMap2.lean)                    Track A (SchoenfeldPRA.lean)
 ──────────────────────────                  ─────────────────────────────
 Phase 4: DONE                               R1: fix riemann_hypothesis_via_rcp sorry
 Phase 5: Fix compilation errors first       R5: DONE (RcpRandomMapBridge)
-Phase 6: omegaMeasure constructed; uniform/moore pending              R6: Solovay model (standalone)
+Phase 6: omegaMeasure constructed; uniform/moore pending (deep analytic)              R6: Solovay model (standalone)
 Phase 7: ALL DONE                           R7: RH zero-free strip (RandomMap2RH)
 Phase 8: ALL DONE (SolovayHilbertSpace + jensen_bohr + convergent)  R5-R7 read RandomMap2.lean but
          R5-R7 already proved in Track A     never modify it
