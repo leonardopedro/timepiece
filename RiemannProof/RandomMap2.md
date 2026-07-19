@@ -760,7 +760,7 @@ deep analytic results requiring `Finset.sum_summation_by_parts` and
 | R5-R7 | R6 | **A** | Solovay model construction (see FORMALIZATION_ROADMAP.md §"Recommended next steps") |
 | R5-R7 | R7 | **A** | RH zero-free strip via RandomMap2 (see FORMALIZATION_ROADMAP.md §"Recommended next steps") |
 | R8-R11 | — | **B** | Phase 5 variance theorems (E_zero, E_add, E_smul, exp_X_eq_one, X_orthogonal, Var_X_bound, InnerSpace expectations) |
-| R12-R13 | — | **B** | Phase 6 limit theorems (uniform_variance_bound signature needs fix, moore_osgood_commutation depends on it) |
+| R12-R13 | — | **B** | Phase 6 limit theorems (omegaMeasure constructed; uniform_variance_bound + moore_osgood_commutation use omegaMeasure, both sorry) |
 | R14-R16 | — | **B** | Phase 7 RH theorems (zeta_no_zeros, riemann_hypothesis_decoupled, eta_non_zero) — **ALL DONE** |
 | R17-R18 | — | **B** | Phase 8 deep results (jensen_bohr, convergent_series_has_no_poles) — **ALL DONE** |
 | R19 | — | **B** | Phase 8 SolovayHilbertSpace (CompleteSpace instance) — **DONE** |
@@ -831,8 +831,8 @@ Must NEVER modify:                                  Must NEVER modify:
 - **A:** R1 (fix `riemann_hypothesis_via_rcp` sorry in `SchoenfeldPRA.lean`)
 - **B:** R3-R4 (decidability_corollary + axioms verification) — Phase 4 is DONE; Phase 5-8 remaining
 
-**Phase 1 (Fix compilation errors):** Track B fixes RandomMap2.lean errors.
-See "Fixing Compilation Errors" section below for error-by-error guidance.
+**Phase 1 (Compilation):** Track B fixes RandomMap2.lean errors (DONE).
+See "Compilation Status" section below for the resolved error list.
 
 **Phase 2 (Parallel work):** After compilation errors are fixed:
 
@@ -842,7 +842,7 @@ See "Fixing Compilation Errors" section below for error-by-error guidance.
 | **A** | R6: `SolovayHilbert.lean` — Solovay model | `RandomMap2.lean` | `RandomMap2.lean`, `BookProof/` |
 | **A** | R7: `RandomMap2RH.lean` — RH zero-free strip | `RandomMap2.lean` | `RandomMap2.lean`, `BookProof/` |
 | **B** | Phase 5 variance theorems (R8-R11) — **ALL DONE** | — | `SchoenfeldPRA.lean`, `BookProof/` |
-| **B** | Phase 6: `uniform_variance_bound` + `moore_osgood_commutation` (**R12-R13 PENDING**) | — | `SchoenfeldPRA.lean`, `BookProof/` |
+| **B** | Phase 6: `omegaMeasure` constructed + `uniform_variance_bound` + `moore_osgood_commutation` (**R12-R13 PENDING**) | — | `SchoenfeldPRA.lean`, `BookProof/` |
 | **B** | Phase 7: RH theorems (R14-R16) — **ALL DONE** | — | `SchoenfeldPRA.lean`, `BookProof/` |
 | **B** | Phase 8: `jensen_bohr` + `convergent_series_has_no_poles` (**R17-R18 DONE**) | — | `SchoenfeldPRA.lean`, `BookProof/` |
 

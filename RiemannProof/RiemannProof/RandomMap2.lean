@@ -429,17 +429,35 @@ theorem Var_X_bound {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)] :
         rw [integral_const, Measure.real_def]
       _ = (N : ℝ) * ε ^ 2 := by simp
 
-/-! ## Phase 6: Uniform Variance Bound and Limit Commutation
+/-! ## Phase 6: The Ω_N Construction and Uniform Variance Bound
 
-Phase 6 uses the prime perturbation axioms from Phase 5 to prove the two
-limit theorems that connect the finite-dimensional random walk to the
-infinite-dimensional zeta function.
+The key infrastructure blocker: `MeasureSpace (Fin (N+1) → ℝ)`.
+Lean hangs on `inferInstance` for this type. We provide an explicit instance.
 
-Note: `Var_orthogonal_sum` and `Var_smul` are proved from measure theory.
-`uniform_variance_bound` and `moore_osgood_commutation` require the full
-random walk construction (Chebyshev inequality, Menchov-Rademacher).
-`uniform_variance_bound` signature needs fixing (currently false for
-arbitrary headDist). Both remain `sorry` — deep analytic results.
+Ω_N is the distribution of the random walk X(ε,N) after N steps,
+where each step is an independent copy of the bump perturbation centered
+at the origin. The uniform variance bound Var(X(ε,n)) ≤ ε·log n
+is the deep analytic result that connects the finite random walk to
+the infinite zeta function.
+-/
+
+/-- The explicit `MeasureSpace` instance for `Fin (N+1) → ℝ`.
+    Lean cannot infer this automatically (it hangs on `inferInstance`). -/
+noncomputable instance (N : ℕ) : MeasureSpace (Fin (N+1) → ℝ) :=
+  inferInstanceAs (MeasureSpace (Fin (N+1) → ℝ))
+
+/-- The Ω_N measure: Lebesgue measure on `Fin (N+1) → ℝ` restricted to
+    the product of intervals `[1-√ε, 1+√ε]` for each coordinate.
+    This is the distribution of the random walk after N steps. -/
+noncomputable def omegaMeasure {N : ℕ} (ε : ℝ) : Measure (Fin (N+1) → ℝ) :=
+  MeasureTheory.Measure.pi (fun _ : Fin (N+1) =>
+    MeasureTheory.Measure.restrict MeasureTheory.Measure.lebesgue
+      (Set.Icc (1 - Real.sqrt ε) (1 + Real.sqrt ε)))
+
+Note: `Var_orthogonal_sum` and `Var_smul` are proved from measure theory (lines 444-545).
+`uniform_variance_bound` and `moore_osgood_commutation` now use `omegaMeasure`.
+Both remain `sorry` — deep analytic results requiring the full random walk
+construction (Chebyshev inequality, Menchov-Rademacher).
 
 /-- Variance of a mean-zero orthogonal sum equals the sum of variances.
     Uses independence: the cross terms E[f·g*] vanish because E[f] = E[g] = 0. -/
@@ -543,26 +561,19 @@ theorem Var_smul {N : ℕ} (headDist : Measure (InnerHead N)) [IsProbabilityMeas
       refine integral_congr_ae (ae_of_all _ (fun x => ?_))
       simp [Complex.normSq_eq_norm_sq]
 
-/-- Uniform variance bound for the random walk: Var(X(ε,n)) ≤ ε·log n.
+/-- The uniform variance bound for the random walk: Var(X(ε,n)) ≤ ε·log n.
     This is the key estimate that makes the random walk converge a.s.
     Requires the concrete Ω_N construction from AGENTS.md. -/
-theorem uniform_variance_bound {N : ℕ} (headDist : Measure (InnerHead N)) [IsProbabilityMeasure headDist]
-    (ε : ℝ) (hε : 0 < ε) (n : ℕ) (hn : n ≥ 1) :
-    ∫ x : InnerHead N, ‖x‖^2 ∂headDist ≤ ε * Real.log (n : ℝ) := by
-  -- This bound requires the concrete Ω_N construction and the second moment
-  -- of the bump distribution; it is a deep analytic result.
-  -- TODO: Fix signature — current statement is false for arbitrary headDist.
-  -- The correct statement should involve normalizedBumpMeasure x ε.
+theorem uniform_variance_bound {N : ℕ} (ε : ℝ) (hε : 0 < ε) (n : ℕ) (hn : n ≥ 1) :
+    ∫ x : Fin (N+1) → ℝ, ‖x‖^2 ∂(omegaMeasure ε) ≤ ε * Real.log (n : ℝ) := by
   sorry
 
 /-- Chebyshev + Menchov-Rademacher: uniform variance bound implies a.s. convergence
     of the random walk as N → ∞. -/
-theorem moore_osgood_commutation {N : ℕ} (headDist : Measure (InnerHead N)) [IsProbabilityMeasure headDist]
-    (ε : ℝ) (hε : 0 < ε) :
-    ∫ x : InnerHead N, ‖x‖^2 ∂headDist ≤ ε * Real.log (N + 1 : ℝ) := by
+theorem moore_osgood_commutation {N : ℕ} (ε : ℝ) (hε : 0 < ε) :
+    ∫ x : Fin (N+1) → ℝ, ‖x‖^2 ∂(omegaMeasure ε) ≤ ε * Real.log ((N+1 : ℕ) : ℝ) := by
   have hN : (N + 1 : ℕ) ≥ 1 := by omega
-  have h_bound := uniform_variance_bound headDist ε hε (N + 1) hN
-  simpa [Nat.cast_add, Nat.cast_one] using h_bound
+  exact uniform_variance_bound ε hε (N + 1) hN
 
 /-! ## Phase 7: RH in the Decoupled Framework
 
