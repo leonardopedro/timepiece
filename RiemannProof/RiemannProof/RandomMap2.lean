@@ -574,17 +574,12 @@ theorem Var_smul {N : ℕ} (headDist : Measure (InnerHead N)) [IsProbabilityMeas
     the infinite zeta function. -/
 theorem uniform_variance_bound {N : ℕ} (ε : ℝ) (hε : 0 < ε) (n : ℕ) (hn : n ≥ 1) :
     ∫ x : Fin (N+1) → ℝ, ‖x‖^2 ∂(omegaMeasure ε) ≤ ε * Real.log (n : ℝ) := by
-  -- For n ≤ exp((N+1)·ε), the bound follows from Var_X_bound (N+1)·ε².
-  -- For larger n, the random walk construction with Chebyshev/Menchov-Rademacher
-  -- gives the ε·log n bound.
   sorry
 
 /-- Chebyshev + Menchov-Rademacher: uniform variance bound implies a.s. convergence
     of the random walk as N → ∞. -/
 theorem moore_osgood_commutation {N : ℕ} (ε : ℝ) (hε : 0 < ε) :
     ∫ x : Fin (N+1) → ℝ, ‖x‖^2 ∂(omegaMeasure ε) ≤ ε * Real.log ((N+1 : ℕ) : ℝ) := by
-  -- Follows from uniform_variance_bound with n = N+1, provided the
-  -- random walk distribution is absolutely continuous w.r.t. omegaMeasure.
   sorry
 
 /-! ## Phase 7: RH in the Decoupled Framework

@@ -760,7 +760,7 @@ deep analytic results requiring `Finset.sum_summation_by_parts` and
 | R5-R7 | R6 | **A** | Solovay model construction (see FORMALIZATION_ROADMAP.md §"Recommended next steps") |
 | R5-R7 | R7 | **A** | RH zero-free strip via RandomMap2 (see FORMALIZATION_ROADMAP.md §"Recommended next steps") |
 | R8-R11 | — | **B** | Phase 5 variance theorems (E_zero, E_add, E_smul, exp_X_eq_one, X_orthogonal, Var_X_bound, InnerSpace expectations) |
-| R12-R13 | — | **B** | Phase 6 limit theorems (omegaMeasure constructed; uniform_variance_bound + moore_osgood_commutation both sorry — deep analytic: Chebyshev/Menchov-Rademacher) |
+| R12-R13 | — | **B** | Phase 6 limit theorems (omegaMeasure constructed; uniform_variance_bound + moore_osgood_commutation both DEEP ANALYTIC BLOCKER — needs random walk definition + Chebyshev/Menchov-Rademacher) |
 | R14-R16 | — | **B** | Phase 7 RH theorems (zeta_no_zeros, riemann_hypothesis_decoupled, eta_non_zero) — **ALL DONE** |
 | R17-R18 | — | **B** | Phase 8 deep results (jensen_bohr, convergent_series_has_no_poles) — **ALL DONE** |
 | R19 | — | **B** | Phase 8 SolovayHilbertSpace (CompleteSpace instance) — **DONE** |
@@ -842,7 +842,7 @@ See "Compilation Status" section below for the resolved error list.
 | **A** | R6: `SolovayHilbert.lean` — Solovay model | `RandomMap2.lean` | `RandomMap2.lean`, `BookProof/` |
 | **A** | R7: `RandomMap2RH.lean` — RH zero-free strip | `RandomMap2.lean` | `RandomMap2.lean`, `BookProof/` |
 | **B** | Phase 5 variance theorems (R8-R11) — **ALL DONE** | — | `SchoenfeldPRA.lean`, `BookProof/` |
-| **B** | Phase 6: `omegaMeasure` constructed; `uniform_variance_bound` + `moore_osgood_commutation` (**R12-R13 PENDING**) | — | `SchoenfeldPRA.lean`, `BookProof/` |
+| **B** | Phase 6: `omegaMeasure` constructed; `uniform_variance_bound` + `moore_osgood_commutation` (**R12-R13 BLOCKER**) | — | `SchoenfeldPRA.lean`, `BookProof/` |
 | **B** | Phase 7: RH theorems (R14-R16) — **ALL DONE** | — | `SchoenfeldPRA.lean`, `BookProof/` |
 | **B** | Phase 8: `jensen_bohr` + `convergent_series_has_no_poles` (**R17-R18 DONE**) | — | `SchoenfeldPRA.lean`, `BookProof/` |
 
@@ -1088,8 +1088,8 @@ The file now compiles cleanly (`lake build` green).
 
 | # | Theorem | Location | Status | Notes |
 |---|---------|----------|--------|-------|
-| R12 | `uniform_variance_bound` | `RandomMap2.lean:567` | **SORRY** | Requires Chebyshev/Menchov-Rademacher for random walk on Ω_N |
-| R13 | `moore_osgood_commutation` | `RandomMap2.lean:573` | **SORRY** | Depends on uniform_variance_bound; needs random walk distribution defined |
+| R12 | `uniform_variance_bound` | `RandomMap2.lean:567` | **BLOCKER** | Needs random walk X(ε,n) defined; Chebyshev/Menchov-Rademacher |
+| R13 | `moore_osgood_commutation` | `RandomMap2.lean:573` | **BLOCKER** | Depends on R12; needs random walk distribution a.e. w.r.t. omegaMeasure |
 | R17 | `jensen_bohr` | `RandomMap2.lean:669` | **PROVED** | Via `LSeriesSummable.of_re_le_re` (Mathlib) |
 | R18 | `convergent_series_has_no_poles` | `RandomMap2.lean:683` | **PROVED** | Via `LSeriesSummable.abscissaOfAbsConv_le` + `LSeries_differentiableOn` |
 
