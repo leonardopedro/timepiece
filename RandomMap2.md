@@ -752,7 +752,8 @@ decoupling, R31's expectation bridge, and RcpRandomMap2Bridge),
 **zero `sorry`s in `BookProof/randomMap2_axioms.lean`** (R23, Track A),
 **zero `sorry`s in `BookProof/randomMap2RH_axioms.lean`** (R26, Track B),
 **zero `sorry`s in `RiemannProof.RcpRandomMap2Bridge`** (R24, Track A), and
-**zero `sorry`s in `SchoenfeldPRA.lean`** (R1, Track A). Track A owns the
+**zero sorries in all Track B files** (`RandomMap2.lean`, `RandomMap2Walk.lean`, `RandomMap2Moments.lean`, `RandomMap2InfiniteWalk.lean`, `RandomMap2RH.lean`).
+**`SchoenfeldPRA.lean`** has 2 remaining sorries (`counterexample_iff_rcpZero` at line 162 and `no_schoenfeld_counterexample` at line 176), both EXTERNAL — dependent on `RcpEuler.rcpZeroAt` not available in-tree. Track A owns the
 RH analytic return + verification; Track B owns the decoupled architecture
 generalization + verification + new structural theorems.
 
@@ -773,7 +774,7 @@ the SchoenfeldPRA framework.
 
 | # | Item | Owner | Status | File |
 |---|:---|:---:|:---:|:---|
-| R1 | `riemann_hypothesis_via_rcp` — RH via RCP | **A** | **PROVED** | `SchoenfeldPRA.lean:217-219` |
+| R1 | `riemann_hypothesis_via_rcp` — RH via RCP | **A** | **PROVED** | `SchoenfeldPRA.lean:214-216` |
 | R20 | `integrable_totalEnergy` in infinite walk | **A** | **PROVED** | `RandomMap2InfiniteWalk.lean` |
 | R22 | `finiteEnergy_expectation_eq` in infinite walk | **A** | **PROVED** | `RandomMap2InfiniteWalk.lean` |
 | R23 | `#print axioms` + git commit for RandomMap2 | **A** | **PROVED** | `BookProof/randomMap2_axioms.lean` |
@@ -786,7 +787,7 @@ the SchoenfeldPRA framework.
 | R32 | `cross_covariance_bound` — independence + zero mean | **B** | **PROVED** | `RandomMap2.lean` |
 | R33 | `total_variance_bound` — sharp N·ε²/3 for product bump | **B** | **PROVED** | `RandomMap2.lean` |
 | R34 | Fill sorries in `RandomMap2.lean` (0 remaining) | **B** | **DONE** | `RandomMap2.lean` |
-| R35 | Fill sorries in `SchoenfeldPRA.lean` (2 remaining) | **B** | **PARTIAL** | `SchoenfeldPRA.lean` |
+| R35 | Fill sorries in `SchoenfeldPRA.lean` (2 remaining, EXTERNAL) | **B** | **PARTIAL** (EXTERNAL: dependent on `RcpEuler.rcpZeroAt`) | `SchoenfeldPRA.lean` |
 
 **Track A (FORMALIZATION_ROADMAP):** Owns `SchoenfeldPRA.lean`, `BookProof/`, and all
 **Track B (RandomMap2):** Owns `RandomMap2.lean`, `RandomMap2RH.lean`, `RandomMap2Walk.lean`,
