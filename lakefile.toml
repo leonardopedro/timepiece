@@ -1,0 +1,33 @@
+name = "RiemannProof"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["PnpProof", "BookProof"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.28.0"
+
+[[lean_lib]]
+name = "UsedRoute"
+
+[[lean_lib]]
+name = "UnusedRoute"
+
+[[lean_lib]]
+name = "RandomMap"
+
+[[lean_lib]]
+name = "PnpProof"
+
+[[lean_lib]]
+name = "BookProof"
+
+[[lean_lib]]
+name = "Singularity"
