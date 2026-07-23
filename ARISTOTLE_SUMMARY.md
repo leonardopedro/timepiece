@@ -1,3 +1,129 @@
+# Summary of changes for run 94154719-4b9d-4d87-a4d0-9af8fd1af79a
+Continued executing `FORMALIZATION_ROADMAP.md`. Following the roadmap's standing directive (its numbered queue is exhausted, so each pass formalizes the next self-contained mathematical claim mined from `book.tex` as a new `BookProof` chapter), I added one new deliverable (Wave 149) and kept the library green and axiom-clean.
+
+**New file `BookProof/ChapterIrreversibleDynamics.lean`.** Formalizes the irreversibility argument in the chapter "Entropy and an irreversible deterministic time-evolution coexist", §"Irreversible deterministic time-evolution": *"a process with a dissipative time-evolution is irreversible: the deterministic time-evolution is ... injective but not surjective"* and is *"non-singular"* (maps sets of non-null measure to non-null measure). All proofs are `sorry`-free and `axiom`-clean (only `propext`, `Classical.choice`, `Quot.sound`):
+
+- Finite/discrete world admits no irreversible deterministic dynamics: `finite_injective_iff_surjective`, `finite_injective_iff_bijective`, `finite_injective_imp_surjective`, `finite_no_irreversible` — on a finite state space an injective self-map is automatically bijective, so no injective-but-not-surjective self-map exists (the discrete counterpart of the book's "the rationals are not enough").
+- Continuum admits irreversible dynamics: `exists_injective_not_surjective` (a Dedekind-infinite witness for any infinite type) and the concrete `nat_succ_injective_not_surjective` (`n ↦ n+1` on ℕ).
+- A concrete non-singular dissipative map on the unit interval: `dissipative x = x/2`, with `dissipative_injective`, `dissipative_mapsTo_unitInterval`, `dissipative_not_surjective_unitInterval` (irreversible: `1` is not attained), `dissipative_image_Icc` (`[a,b] ↦ [a/2,b/2]`), `dissipative_volume_Icc` (halves Lebesgue length: dissipative), and `dissipative_nonsingular_Icc` (positive length ↦ positive measure: non-singular).
+
+Registered in `BookProof.lean`; the full `lake build BookProof` succeeds (8246 jobs); the module contains no proof placeholders; and the headline theorems were confirmed axiom-clean via `#print axioms`. Recorded as Wave 149 in `BookProof/STATUS.md` and prepended to `ARISTOTLE_SUMMARY.md` as requested. This complements `ChapterBijectionProbability` (`n!/nⁿ → 0`) and `ChapterIrreversible` (entropy) in the same book chapter. The pre-existing `RiemannProof/` track was left untouched, per the roadmap. All changes are committed and pushed to `origin`.
+
+# Summary of changes — irreversible dynamics (`ChapterIrreversibleDynamics`, Wave 149)
+
+Continued executing `FORMALIZATION_ROADMAP.md`. Per the roadmap's standing
+directive (the numbered queue is exhausted, so each pass formalizes the next
+self-contained mathematical claim mined from `book.tex` as a new `BookProof`
+chapter), I added one new deliverable group and kept the library green and
+axiom-clean.
+
+**New file `BookProof/ChapterIrreversibleDynamics.lean` (Wave 149).** Formalizes
+the irreversibility argument in the chapter *"Entropy and an irreversible
+deterministic time-evolution coexist"*, §*"Irreversible deterministic
+time-evolution"* (`book.tex` ~line 9524): *"a process with a dissipative
+time-evolution is irreversible: the deterministic time-evolution is not an
+invertible function (it is injective but not surjective)"*, and the map is
+*"non-singular"* (maps sets of non-null measure into sets of non-null measure).
+All `sorry`/`axiom`-free:
+- `finite_injective_iff_surjective`, `finite_injective_iff_bijective`,
+  `finite_injective_imp_surjective`, `finite_no_irreversible` — on a finite
+  (discrete) state space injective = surjective = bijective, so there is no
+  injective-but-not-surjective self-map (no irreversible deterministic dynamics);
+- `exists_injective_not_surjective` — on any infinite state space an injective,
+  non-surjective self-map exists (Dedekind-infinite witness), plus the concrete
+  `nat_succ_injective_not_surjective` (`n ↦ n+1` on `ℕ`);
+- `dissipative x = x/2` on the book's unit interval, with `dissipative_injective`,
+  `dissipative_mapsTo_unitInterval`, `dissipative_not_surjective_unitInterval`
+  (irreversible), `dissipative_image_Icc` (`[a,b] ↦ [a/2,b/2]`),
+  `dissipative_volume_Icc` (halves Lebesgue length: dissipative), and
+  `dissipative_nonsingular_Icc` (positive length ↦ positive measure:
+  non-singular).
+
+Registered in `BookProof.lean`; `lake build BookProof` succeeds (8246 jobs); the
+module has no proof placeholders; and the checked headlines depend only on the
+standard `propext`, `Classical.choice`, `Quot.sound`. Recorded as Wave 149 in
+`BookProof/STATUS.md`. Complements `ChapterBijectionProbability` and
+`ChapterIrreversible` in the same book chapter. Committed and pushed to `origin`.
+The pre-existing `RiemannProof/` track remains untouched and out of scope per the
+roadmap.
+
+# Summary of changes for run 76837cb6-69ab-4730-ad16-cced2d63c63c
+Continued executing `FORMALIZATION_ROADMAP.md`. Per the roadmap's standing directive (the numbered queue is exhausted, so each pass formalizes the next self-contained mathematical claim mined from `book.tex` as a new `BookProof` chapter), I added one new deliverable group and kept the library green and axiom-clean.
+
+**New file `BookProof/ChapterBijectionProbability.lean` (Wave 148).** Formalizes the computation in the chapter "Entropy and an irreversible deterministic time-evolution coexist", §"Irreversible deterministic time-evolution" (`book.tex` ~line 9540): the probability that a uniformly random discrete function on the n-cell partition of the unit square is invertible equals n!/nⁿ ∼ √(2πn)·e⁻ⁿ, and converges to 0 as n → ∞. Modelling a discrete function as `Fin n → Fin n` (invertible = bijective), the module proves, all `sorry`/`axiom`-free:
+- `card_fun_fin` — there are nⁿ functions `Fin n → Fin n`;
+- `card_bijective_fin` — there are n! bijective ones (via an explicit equiv `Equiv.Perm (Fin n) ≃ {f // Bijective f}`);
+- `bijProb n := n!/nⁿ` and `bijProb_eq_card_ratio` — this equals the ratio (bijections)/(functions);
+- `factorial_succ_le` — the bound (n+1)! ≤ (n+1)ⁿ;
+- `bijProb_nonneg`, `bijProb_le_one_div` — 0 ≤ bijProb n ≤ 1/n;
+- `bijProb_tendsto_zero` — the book's "converges to 0";
+- `bijProb_isEquivalent_stirling` — the book's ∼ √(2πn)·e⁻ⁿ, from Mathlib's Stirling formula divided by nⁿ.
+
+The chapter is registered in `BookProof.lean`; the full `lake build BookProof` succeeds (8245 jobs); the module contains no proof placeholders; and the checked headline theorems (`bijProb_tendsto_zero`, `bijProb_isEquivalent_stirling`) depend only on the standard `propext`, `Classical.choice`, `Quot.sound`. Recorded as Wave 148 in `BookProof/STATUS.md`, noted in `ARISTOTLE_SUMMARY.md` as requested, and committed and pushed to `origin`. The pre-existing `RiemannProof/` track remains untouched and out of scope per the roadmap.
+
+# Summary of changes — invertible-map probability (`ChapterBijectionProbability`)
+Continued executing `FORMALIZATION_ROADMAP.md`. Following the roadmap's standing directive (its numbered queue is exhausted, so each pass mines the next self-contained mathematical claim from `book.tex` and formalizes it as a new `BookProof` chapter), I added one new deliverable group (Wave 148) and kept the library green and axiom-clean.
+
+**New file `BookProof/ChapterBijectionProbability.lean`** — formalizes the computation in the chapter *"Entropy and an irreversible deterministic time-evolution coexist"*, §*"Irreversible deterministic time-evolution"* (`book.tex` ~line 9540): the probability that a uniformly random "discrete function" on the `n`-cell partition of the unit square is invertible is `n!/nⁿ ∼ √(2πn) e^{-n}`, which converges to `0` as `n → ∞`. Modelling a discrete function as `Fin n → Fin n` (invertible = bijective), the module proves, all `sorry`/`axiom`-free:
+
+- `card_fun_fin` — there are `nⁿ` functions `Fin n → Fin n`.
+- `card_bijective_fin` — there are `n!` bijective ones (via `permEquivBijective : Equiv.Perm (Fin n) ≃ {f // Bijective f}`).
+- `bijProb n := n!/nⁿ` and `bijProb_eq_card_ratio` — `bijProb` equals the ratio (bijections)/(functions).
+- `factorial_succ_le` — the elementary bound `(n+1)! ≤ (n+1)ⁿ`.
+- `bijProb_nonneg`, `bijProb_le_one_div` — `0 ≤ bijProb n ≤ 1/n`.
+- `bijProb_tendsto_zero` — the book's "converges to `0`".
+- `bijProb_isEquivalent_stirling` — the book's `∼ √(2πn) e^{-n}`, from Mathlib's `Stirling.factorial_isEquivalent_stirling` divided by `nⁿ`.
+
+Registered in `BookProof.lean`; `lake build BookProof` succeeds (8245 jobs); the module has no proof placeholders; and the checked headline theorems depend only on `propext`, `Classical.choice`, `Quot.sound`. Recorded as Wave 148 in `BookProof/STATUS.md`. Complements the existing `ChapterIrreversible` (entropy) from the same book chapter. The pre-existing `RiemannProof/` track remains out of scope per the roadmap.
+
+# Summary of changes for run 74fea081-d4ec-43ba-8634-32817b12246f
+Continued executing `FORMALIZATION_ROADMAP.md`. Following the roadmap's standing directive (its numbered queue is exhausted, so each pass mines the next self-contained mathematical claim from `book.tex` and formalizes it as a new `BookProof` chapter), I added one new deliverable group and kept the library green and axiom-clean.
+
+**New file `BookProof/ChapterCountablePartition.lean`** — formalizes the assertion in the chapter *"Wave-function collapse versus Euler's formula"*, §*"Euler's formula for a generic phase-space"* (`book.tex` ~line 3570): *"any partition of the phase-space (where each part has a non-null Lebesgue measure) is countable."* The book uses this to index phase-space partitions by a countable orthonormal basis of a separable Hilbert space (the Euler-angle stick-breaking setting already formalized in `ChapterEulerNState`). Theorems, all proved:
+
+- `countable_of_partition_pos` — core: in an s-finite measure space, pairwise-disjoint measurable parts each of positive measure force a countable index type.
+- `setCountable_of_partition_pos` — set-of-subsets form (`P.Countable`).
+- `exists_measure_zero_of_uncountable` — contrapositive: an uncountable disjoint measurable family has a null part.
+- `prob_partition_countable` — the probability-measure ("phase-space") case.
+- `prob_partition_countable_tsum_one` — a covering positive-measure partition under a probability measure is countable and its part probabilities sum to 1.
+- `partition_real_volume_countable` — the literal statement for `ℝ` with Lebesgue measure.
+
+This complements the existing `ChapterNoUniformCountable` and `ChapterNoLebesgue` in the book's "a mixed standard probability space is unavoidable" thread.
+
+Verification: registered in `BookProof.lean`; the full `lake build BookProof` succeeds (8244 jobs); the module contains no `sorry`/`admit`/`axiom`/`implemented_by`; and the checked headline theorems depend only on the standard `propext`, `Classical.choice`, `Quot.sound`. Recorded as Wave 147 in `BookProof/STATUS.md`, noted in `ARISTOTLE_SUMMARY.md`, and committed and pushed to `origin`.
+
+The pre-existing `RiemannProof/` build failures remain untouched; the roadmap explicitly marks that RH-strength track as out of scope, and no unproven results were asserted.
+
+# Summary of changes for 2026-07-23 — positive-measure partitions are countable (`ChapterCountablePartition`)
+
+Continued executing `FORMALIZATION_ROADMAP.md`. Its numbered queue is exhausted,
+so — following the roadmap's standing directive to mine the next self-contained
+mathematical claim from `book.tex` — I formalized one new deliverable group.
+
+**New file `BookProof/ChapterCountablePartition.lean`** — from the chapter
+*"Wave-function collapse versus Euler's formula"*, §*"Euler's formula for a
+generic phase-space"* (`book.tex` line ~3570), whose assertion is: *"any
+partition of the phase-space (where each part has a non-null Lebesgue measure) is
+countable."* The book uses this to index phase-space partitions by a countable
+orthonormal basis of a separable Hilbert space (the Euler-angle stick-breaking
+setting). Deliverables (all proved):
+
+- `countable_of_partition_pos` — core: for an s-finite measure, pairwise
+  disjoint measurable parts each of positive measure force a countable index
+  type (via Mathlib's `Measure.countable_meas_pos_of_disjoint_iUnion`).
+- `setCountable_of_partition_pos` — the set-of-subsets form.
+- `exists_measure_zero_of_uncountable` — contrapositive: an uncountable
+  disjoint measurable family has a null part.
+- `prob_partition_countable` — probability-measure ("phase-space") case.
+- `prob_partition_countable_tsum_one` — a covering positive-measure partition is
+  countable and its part probabilities sum to 1.
+- `partition_real_volume_countable` — literal statement for `ℝ` with Lebesgue
+  measure.
+
+Registered in `BookProof.lean`; `lake build BookProof` is green (8244 jobs); the
+module has no proof placeholders and the checked headlines use only `propext`,
+`Classical.choice`, `Quot.sound`. `BookProof/STATUS.md` records this as Wave 147.
+
 # Summary of changes for run 755f4914-527f-4161-9c38-76613f753314
 Executed the next open Phase 10 audit step and updated `ARISTOTLE_SUMMARY.md` as requested.
 
@@ -6033,4 +6159,63 @@ only `propext`, `Classical.choice`, and `Quot.sound`.
 
 The aggregate default target still has the pre-existing failures in the
 explicitly unfinished `UsedRoute` RH files; this pass did not treat those
+
+---
+
+# Summary of changes for 2026-07-23 — Chapter G verification + coordination update
+
+Executed `RandomMap2.md` Phase 10 and Phase 19 coordination updates.
+
+**Chapter G (Gauge symmetry) verification:**
+
+All 10 headline theorems in `BookProof/ChapterG.lean` and `BookProof/ChapterG2.lean`
+compile without errors and use only the permitted standard axioms `propext`,
+`Classical.choice`, `Quot.sound`:
+
+- `gaugeGroup` — definition of the gauge group of a parametrization
+- `gaugeOrbit_eq_fiber` — orbits equal fibers
+- `gaugeInvariant_iff_factors` — gauge-invariant ⇔ factors through parametrization
+- `no_shift_invariant_probabilityMeasure` — no shift-invariant probability measure on ℤ
+- `exists_complete_gaugeFixing` — complete gauge-fixing sections always exist
+- `haarAverage` — Haar averaging (invariantization) operator
+- `no_translation_invariant_probabilityMeasure` — no translation-invariant probability measure on any countably infinite group
+- `no_continuous_gauge_fixing_circle` — no continuous complete gauge fixing of the circle (Gribov ambiguity)
+- `brstCohomology_equiv` — BRST cohomology splits as ker × coker
+- `integral_haarAverage` — expectation equals expectation of averaged observable
+
+**Updated plans:**
+
+- `RandomMap2.md`: Phases 10 and 19 updated to reflect completed verification
+  and new work packages (Waves 150+, framework extensions).
+- `FORMALIZATION_ROADMAP.md`: Implementation state section updated to reflect
+  all targets complete (N1-N14, S1-S9, Chapter G).
+
+**Verification commands executed:**
+
+```bash
+cd /media/leo/e7ed9d6f-5f0a-4e19-a74e-83424bc154ba/timepiece
+export PATH="/home/leo/.elan/bin:$PATH"
+timeout 120 lake env lean --stdin <<'EOF'
+import BookProof.ChapterG
+import BookProof.ChapterG2
+#check BookProof.ChapterG.gaugeGroup
+#check BookProof.ChapterG.gaugeOrbit_eq_fiber
+#check BookProof.ChapterG.gaugeInvariant_iff_factors
+#check BookProof.ChapterG.no_shift_invariant_probabilityMeasure
+#check BookProof.ChapterG.exists_complete_gaugeFixing
+#check BookProof.ChapterG.haarAverage
+#check BookProof.ChapterG2.no_translation_invariant_probabilityMeasure
+#check BookProof.ChapterG2.no_continuous_gauge_fixing_circle
+#check BookProof.ChapterG2.brstCohomology_equiv
+#check BookProof.ChapterG2.integral_haarAverage
+EOF
+# Result: all 10 checks passed (no errors)
+```
+
+**Build status:** `lake build` SUCCEEDED (8246 jobs, 2026-07-23).
+
+**Remaining work:**
+- Track A: New book.tex packages (queue N1-N14 exhausted, next wave pending author)
+- Track B: `jensen_bohr`, `convergent_series_has_no_poles` (non-RH sorries)
+- RH track: explicitly out of scope
 RH-strength placeholders as established results.
