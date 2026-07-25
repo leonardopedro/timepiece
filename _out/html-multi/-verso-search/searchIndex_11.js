@@ -1,0 +1,1 @@
+window.docContents[11].resolve({"/The-Gauge-Ambiguity-of-the-Born-Parametrization/#born-fiber":{"contents":"\n\n\n\n\n\n\n\n\n\n","context":"Timepiece: A Verified Mathematical Tour","header":"10. The Gauge Ambiguity of the Born Parametrization","id":"/The-Gauge-Ambiguity-of-the-Born-Parametrization/#born-fiber"}});

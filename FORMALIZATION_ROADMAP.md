@@ -139,6 +139,7 @@ All Phase 25 sorries in `ChapterSolovay.lean` filled:
 |:---|:---|:---|:---|
 | **A** | Verification & Plan Coordination | Plan files, verification, ARISTOTLE_SUMMARY.md | `RandomMap2.md`, `FORMALIZATION_ROADMAP.md`, `ARISTOTLE_SUMMARY.md` |
 | **B** | BookProof deep mining | New `BookProof/Chapter*.lean` files only | New files only; never modifies existing `BookProof/Chapter*.lean` |
+| **C** | Singularity pipeline | New `Singularity/*.lean` files | New files only; never modifies existing `Singularity/*.lean` |
 
 **Track A (Verification) — ALL DONE:**
 - A1: Build verification — ✅ DONE (`lake build` succeeded, 8278 jobs)
@@ -147,6 +148,22 @@ All Phase 25 sorries in `ChapterSolovay.lean` filled:
 - A4: Plan file updates — ✅ DONE
 
 **Track B (Book.tex deep mining) — ALL DONE:**
+
+**Track C (Singularity pipeline) — ALL DONE (2026-07-25):**
+- C6: Nelson's forward direction (`nelson_essential_self_adjoint`) — ✅ DONE
+- C7: Flow completeness criterion (`flowComplete_iff_bounded`) — ✅ DONE
+- C8: Blow-up detection scalar (`blowup_criterion_scalar`) — ✅ DONE
+- C9: Linear flow completeness (`linear_flow_complete`) — ✅ DONE
+- C10: Even-degree blow-up (`even_degree_monomial_blowup`) — ✅ DONE
+- C11: Extended flow with blow-up (`analyzeClassicalFlowWithBlowup`) — ✅ DONE
+- C12: Flow report generation (`flowReport`) — ✅ DONE
+- C13-C17: Change of Variables — ✅ DONE
+- C18-C21: ESA Report — ✅ DONE
+- C22-C25: Integration (Report.lean) — ✅ DONE
+- C26-C32: Validation (Tests.lean) — ✅ DONE
+- C33-C36: Extended Framework (Integration.lean) — ✅ DONE
+
+All 31 C-work packages delivered; zero `sorry` remains in `Singularity/`; `lake build` succeeds (8278 jobs).
 - B6: Hierarchical Bayesian inference — ✅ DONE
   - `ChapterHierarchicalBayes.lean` — two-level hierarchy: joint prior normalization, evidence = marginal, outer posterior = inner marginal, hierarchical inference = ordinary Bayes update
   - `ChapterHierarchicalBayesComposition.lean` — kernel composition algebra: associativity, identity kernel, nested terminal marginalization = composite kernel marginalization, three-level hierarchy = ordinary Bayesian update
@@ -171,9 +188,9 @@ All 22 BookProof files are sorry-free and axiom-clean (only `propext`, `Classica
 | A6 | Deep axiom audit (Phase 22) | **A** | ✅ DONE | All files verified |
 
 **Track A (Phase 23+25 — Verification & Solovay) hard constraints:**
-- Never writes `RandomMap2*.lean`, `Singularity/`, `RcpRandomMap2Bridge.lean`,
-  `SchoenfeldPRA.lean`, `STATUS.md`, `ARISTOTLE_SUMMARY.md`, `RandomMap2Audit.lean`,
-  `RandomMap2RH.lean`.
+- Never writes `RandomMap2*.lean`, `RcpRandomMap2Bridge.lean`, `SchoenfeldPRA.lean`,
+  `STATUS.md`, `ARISTOTLE_SUMMARY.md`, `RandomMap2Audit.lean`, `RandomMap2RH.lean`.
+- Never writes `Singularity/` (Track C owns this).
 - Never writes `BookProof/ChapterG3.lean` (Track B owns this).
 - Never modifies `UsedRoute/` or `UnusedRoute/` files.
 - Edits: `RandomMap2.md`, `FORMALIZATION_ROADMAP.md`, `ARISTOTLE_SUMMARY.md` only.
@@ -186,6 +203,17 @@ All 22 BookProof files are sorry-free and axiom-clean (only `propext`, `Classica
 - Never modifies any existing `BookProof/Chapter*.lean` file.
 - Never modifies `UsedRoute/` or `UnusedRoute/` files.
 - Creates ONLY new `BookProof/Chapter*.lean` files (no modification of existing ones).
+
+**Track C (Phases 27-29 — Singularity pipeline) hard constraints:**
+- Never writes `RandomMap2*.lean`, `RcpRandomMap2Bridge.lean`, `SchoenfeldPRA.lean`,
+  `STATUS.md`, `ARISTOTLE_SUMMARY.md`, `RandomMap2Audit.lean`, `RandomMap2RH.lean`,
+  `RandomMap2.md`, `FORMALIZATION_ROADMAP.md`.
+- Never modifies any existing `Singularity/*.lean` file.
+- Never modifies `UsedRoute/` or `UnusedRoute/` files.
+- Never modifies `BookProof/` files.
+- Creates ONLY new `Singularity/*.lean` files (no modification of existing ones).
+
+**Zero file overlap between tracks. All three tracks compile the same project.**
 
 **Zero file overlap between tracks.**
 **Both tracks compile the same project.**

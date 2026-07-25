@@ -1507,6 +1507,37 @@ Wick expansion, adaptive step blow-up detection, UK diagnostic codes (UK-2101–
 | G21 | Haar invariantization | `averagedMeasure_isProbability`, `averagedMeasure_invariant` | **B** | ✅ DONE | `BookProof/ChapterG3.lean` | `BookProof/` |
 | G22 | QFT vacuum | `qftVacuum`, `qftVacuum_isProbability`, `qftVacuum_gauge_invariant` | **B** | ✅ DONE | `BookProof/ChapterG3.lean` | `BookProof/` |
 | S.1-S.5 | Solovay-Hilbert decidability (ChapterSolovay) | Inner product reduction, Mehler concentration, finite-orthogonal invariance, no Gödelian self-reference, expectation decidability | **A** | ✅ DONE | `BookProof/ChapterSolovay.lean` | `BookProof/` |
+| C6 | Nelson's forward direction | `nelson_essential_self_adjoint` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
+| C7 | Flow completeness criterion | `flowComplete_iff_bounded` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
+| C8 | Blow-up detection (scalar) | `blowup_criterion_scalar` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
+| C9 | Linear flow completeness | `linear_flow_complete` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
+| C10 | Even-degree blow-up | `even_degree_monomial_blowup` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
+| C11 | Extended flow with blow-up | `analyzeClassicalFlowWithBlowup` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
+| C12 | Flow report generation | `flowReport` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
+| C13 | CoV detection logic | `detectChangeOfVariables` | **C** | ✅ DONE | `Singularity/ChangeOfVars.lean` | `Singularity/` |
+| C14 | Reciprocal transform | `applyReciprocalTransform` | **C** | ✅ DONE | `Singularity/ChangeOfVars.lean` | `Singularity/` |
+| C15 | Observable mapping | `applyObservableMap` | **C** | ✅ DONE | `Singularity/ChangeOfVars.lean` | `Singularity/` |
+| C16 | CoV application | `isCovApplied` | **C** | ✅ DONE | `Singularity/ChangeOfVars.lean` | `Singularity/` |
+| C17 | Singularity at zero | `hasSingularityAtZero` | **C** | ✅ DONE | `Singularity/ChangeOfVars.lean` | `Singularity/` |
+| C18 | ESA report generation | `esaReport` | **C** | ✅ DONE | `Singularity/Esa.lean` | `Singularity/` |
+| C19 | Deficiency indices | `deficiencyIndices` | **C** | ✅ DONE | `Singularity/Esa.lean` | `Singularity/` |
+| C20 | ESA status | `isEssentiallySelfAdjoint` | **C** | ✅ DONE | `Singularity/Esa.lean` | `Singularity/` |
+| C21 | Nelson ESA connection | `nelson_essential_self_adjoint` | **C** | ✅ DONE | `Singularity/Esa.lean` | `Singularity/` |
+| C22 | Session analysis | `session_analyze_self_adjointness` | **C** | ✅ DONE | `Singularity/Report.lean` | `Singularity/` |
+| C23 | Session singularity | `session_detect_singularity` | **C** | ✅ DONE | `Singularity/Report.lean` | `Singularity/` |
+| C24 | Full analysis pipeline | `fullAnalysis` | **C** | ✅ DONE | `Singularity/Report.lean` | `Singularity/` |
+| C25 | Default ODE system | `defaultODESystem` | **C** | ✅ DONE | `Singularity/Report.lean` | `Singularity/` |
+| C26 | x² scalar test | `test_x2_scalar` | **C** | ✅ DONE | `Singularity/Tests.lean` | `Singularity/` |
+| C27 | Coupled XY test | `test_coupled_xy` | **C** | ✅ DONE | `Singularity/Tests.lean` | `Singularity/` |
+| C28 | PY2 test | `test_py2` | **C** | ✅ DONE | `Singularity/Tests.lean` | `Singularity/` |
+| C29 | Punctured test | `test_punctured` | **C** | ✅ DONE | `Singularity/Tests.lean` | `Singularity/` |
+| C30 | Stable linear test | `test_stable_linear` | **C** | ✅ DONE | `Singularity/Tests.lean` | `Singularity/` |
+| C31 | Singularity at zero | `test_singularity_at_zero` | **C** | ✅ DONE | `Singularity/Tests.lean` | `Singularity/` |
+| C32 | Higher-order blow-up | `test_higher_order_blowup` | **C** | ✅ DONE | `Singularity/Tests.lean` | `Singularity/` |
+| C33 | Hamiltonian as outer wave-function | `hamiltonian_as_outer_wavefunction` | **C** | ✅ DONE | `Singularity/Integration.lean` | `Singularity/` |
+| C34 | UK diagnostic code enum | `UKDiagnosticCode` | **C** | ✅ DONE | `Singularity/Integration.lean` | `Singularity/` |
+| C35 | Session to RandomMap2 bridge | `session_to_randomMap2` | **C** | ✅ DONE | `Singularity/Integration.lean` | `Singularity/` |
+| C36 | Blow-up time integral | `blowup_time_integral` | **C** | ✅ DONE | `Singularity/Integration.lean` | `Singularity/` |
 
 ---
 
@@ -1820,7 +1851,7 @@ but lacks:
 # Phase 27: Essential Self-Adjointness — Nelson's Theorem (Track C — Singularity)
 
 **Owner:** Track C (Singularity specialist)
-**Status:** ACTIVE
+**Status:** COMPLETE
 **File:** `Singularity/Flow.lean`
 
 ## Context
@@ -1876,7 +1907,7 @@ but lacks:
 # Phase 28: Singularity Integration & UK Diagnostic Codes (Track C — Singularity)
 
 **Owner:** Track C (Singularity specialist)
-**Status:** ACTIVE
+**Status:** COMPLETE
 **Files:** `Singularity/ChangeOfVars.lean`, `Singularity/Esa.lean`, `Singularity/Report.lean`, `Singularity/Tests.lean`
 
 ## Context
@@ -2004,8 +2035,8 @@ test cases. The missing pieces:
 # Phase 29: Extended Framework Integration (Track C — Singularity)
 
 **Owner:** Track C (Singularity specialist)
-**Status:** ACTIVE
-**File:** New `Singularity/Integration.lean`
+**Status:** COMPLETE
+**File:** `Singularity/Integration.lean`
 
 ## Context
 

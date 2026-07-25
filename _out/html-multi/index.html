@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      (function(){
+  const {protocol:proto, host:hostName, pathname:path, search:srch, hash:hsh} = window.location;
+  if (!(path.endsWith("/") || path.endsWith(".html"))) {
+    window.location.replace(`${proto}//${hostName}${path}/${srch}${hsh}`);
+  }
+})()</script>
+    <base href="./"><meta charset="utf-8">
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>Timepiece: A Verified Mathematical Tour</title><link rel="stylesheet" href="book.css">
+    <link rel="stylesheet" href="verso-vars.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" integrity="sha384-zbcZAIxlvJtNE3Dp5nxLXdXtXyxwOdnILY1TDPVmKFhl4r4nSUG1r8bcFXGVa4Te" crossorigin="anonymous"></script>
+    <script src="-verso-search/elasticlunr.min.js"></script>
+    <script src="-verso-search/fuzzysort.min.js"></script>
+    <script src="-verso-search/searchIndex.js"></script>
+    <script type="module" src="-verso-search/search-init.js"></script>
+    <link rel="stylesheet" href="-verso-search/search-box.css">
+    <link rel="stylesheet" href="-verso-search/search-highlight.css">
+    <link rel="stylesheet" href="-verso-search/domain-display.css">
+    <script src="-verso-data/katex/math.js"></script>
+    <script src="-verso-data/katex/katex.js"></script>
+    <link rel="stylesheet" href="-verso-data/katex/katex.css">
+    <style>
+    main .theIndex {
+      padding-left: 0;
+      font-family: var(--verso-text-font-family);
+    }
+
+    main .theIndex nav {
+      position: sticky;
+      top: var(--verso-header-height);
+      background: white;
+      font-family: var(--verso-structure-font-family);
+    }
+
+    main .theIndex [id] {
+      /* This needs the combined height of the index header and the page header. We
+         know the height of the page header, but the index header height varies, so
+         we use the maximum height it gets which also works well for readers with
+         wide screens */
+      scroll-margin-top: calc(var(--verso-header-height) + 7.5rem);
+    }
+
+    @media screen and (max-width: 700px) {
+      /* On mobile, the sticky index takes up half the screen. */
+      main .theIndex nav {
+        position: static;
+      }
+
+      main .theIndex [id] {
+        /* On mobile, the index header is not sticky, so we just need to
+        be below the page header. */
+        scroll-margin-top: var(--verso-header-height);
+      }
+    }
+
+    main .theIndex nav ol {
+      padding: 0;
+    }
+
+    main .theIndex nav ol li {
+      display: inline-block;
+    }
+
+    main .theIndex nav ol li a {
+      /* Padding instead of margin to have a bigger click target */
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    /* Increase the size of the touch target on phones */
+    @media screen and (max-width: 700px) {
+      main .theIndex nav ol li a {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+    }
+
+    main .theIndex nav ol li:first-child a {
+      padding-left: 0;
+    }
+
+    main .theIndex nav ol li + li:before {
+      content: "|";
+    }
+
+    main .theIndex h1,
+    main .theIndex h2,
+    main .theIndex h3,
+    main .theIndex h4,
+    main .theIndex h5,
+    main .theIndex h6 {
+      margin-top: 0;
+    }
+
+    main .theIndex ol {
+      list-style-type: none;
+    }
+
+    main .theIndex .division > ol {
+      padding-left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      overflow-wrap: break-word;
+    }
+
+   main .theIndex .division > ol > li {
+      margin-bottom: 0.5rem;
+    }
+
+    main .theIndex .division ol ol {
+      padding-left: 1rem;
+    }
+
+    main .theIndex .division {
+      break-inside: avoid;
+      counter-reset: none;
+      max-width: none;
+      width: auto;
+    }
+    </style><script src="-verso-search/search-highlight.js" defer="defer"></script>
+    </head>
+  <body>
+    <header>
+      <div class="header-logo-wrapper"></div>
+      <div class="header-title-wrapper">
+        <a href="" class="header-title"><h1>
+            Timepiece</h1>
+          </a></div>
+      </header>
+    <label for="toggle-toc" id="toggle-toc-click"><span class="line line1"></span><span class="line line2"></span><span class="line line3"></span></label><div class="with-toc">
+      <div class="toc-backdrop" onclick="document.getElementById('toggle-toc-click')?.click()"></div>
+      <nav id="toc">
+        <input type="checkbox" id="toggle-toc"><div class="first">
+          <a href="" class="toc-title"><h1>
+              Timepiece</h1>
+            </a><div class="split-tocs">
+            <div class="split-toc book">
+              <div class="title">
+                <label for="--verso-manual-toc-----bookRoot" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-----bookRoot" checked="checked"></label><span class="">Table of Contents</span></div>
+              <table><tr class="unnumbered"><td class="num"><td><a href="Preface___-How-to-Read-This-Book/#preface">Preface: How to Read This Book</a></td></tr><tr class="numbered"><td class="num">1.</td><td><a href="Introduction/#introduction">Introduction</a></td></tr><tr class="numbered"><td class="num">2.</td><td><a href="Probability-as-Coherent-Belief/#part-probability">Probability as Coherent Belief</a></td></tr><tr class="numbered"><td class="num">3.</td><td><a href="The-Dutch-book-Theorem___-Probability-Is-Coherence/#dutch-book">The Dutch-book Theorem: Probability Is Coherence</a></td></tr><tr class="numbered"><td class="num">4.</td><td><a href="Bayesian-Updating-Is-Associative/#sequential-bayes">Bayesian Updating Is Associative</a></td></tr><tr class="numbered"><td class="num">5.</td><td><a href="Maximum-Entropy-Selects-the-Uniform-Prior/#max-entropy">Maximum Entropy Selects the Uniform Prior</a></td></tr><tr class="numbered"><td class="num">6.</td><td><a href="The-Law-of-Total-Variance/#total-variance">The Law of Total Variance</a></td></tr><tr class="numbered"><td class="num">7.</td><td><a href="Wave-functions___-Euler___s-Formula___-and-the-Born-Rule/#part-born">Wave-functions, Euler's Formula, and the Born Rule</a></td></tr><tr class="numbered"><td class="num">8.</td><td><a href="The-Probability-Clock-and-Euler___s-Formula/#probability-clock">The Probability Clock and Euler's Formula</a></td></tr><tr class="numbered"><td class="num">9.</td><td><a href="The-Born-Rule-Reproduces-Every-Distribution/#born-reproduces">The Born Rule Reproduces Every Distribution</a></td></tr><tr class="numbered"><td class="num">10.</td><td><a href="The-Gauge-Ambiguity-of-the-Born-Parametrization/#born-fiber">The Gauge Ambiguity of the Born Parametrization</a></td></tr><tr class="numbered"><td class="num">11.</td><td><a href="Information-Erasure___-the-Stern___Gerlach-Experiment/#stern-gerlach">Information Erasure: the Stern–Gerlach Experiment</a></td></tr><tr class="numbered"><td class="num">12.</td><td><a href="Free-Fields___-the-Gaussian-and-the-Uniform-Sphere/#free-field">Free Fields: the Gaussian and the Uniform Sphere</a></td></tr><tr class="numbered"><td class="num">13.</td><td><a href="Entropy___-Irreversibility___-and-the-Arrow-of-Time/#part-entropy">Entropy, Irreversibility, and the Arrow of Time</a></td></tr><tr class="numbered"><td class="num">14.</td><td><a href="Irreversibility___-Injective-but-Not-Surjective/#irreversibility">Irreversibility: Injective but Not Surjective</a></td></tr><tr class="numbered"><td class="num">15.</td><td><a href="A-Random-Map-Is-Almost-Surely-Non-Invertible/#bijection-probability">A Random Map Is Almost Surely Non-Invertible</a></td></tr><tr class="numbered"><td class="num">16.</td><td><a href="Null-Measure-Sets-Need-Not-Be-Small/#null-measure">Null-Measure Sets Need Not Be Small</a></td></tr><tr class="numbered"><td class="num">17.</td><td><a href="Cosmological-Amplification-of-the-Matter___Radiation-Ratio/#baryon-asymmetry">Cosmological Amplification of the Matter/Radiation Ratio</a></td></tr><tr class="numbered"><td class="num">18.</td><td><a href="Measurements-Reproduce-the-Distribution/#measurement-lln">Measurements Reproduce the Distribution</a></td></tr><tr class="numbered"><td class="num">19.</td><td><a href="Resolution-of-the-Singularity-of-an-ODE/#part-ode">Resolution of the Singularity of an ODE</a></td></tr><tr class="numbered"><td class="num">20.</td><td><a href="Resolution-of-the-Singularity-of-an-ODE/#ode-chapter">Resolution of the Singularity of an ODE</a></td></tr><tr class="numbered"><td class="num">21.</td><td><a href="Completeness-without-Peano-Arithmetic/#part-pa-free">Completeness without Peano Arithmetic</a></td></tr><tr class="numbered"><td class="num">22.</td><td><a href="Completeness-without-Peano-Arithmetic/#pa-free-chapter">Completeness without Peano Arithmetic</a></td></tr><tr class="unnumbered"><td class="num"><td><a href="Appendix___-Proof-Plans/#proof-plans">Appendix: Proof Plans</a></td></tr><tr class="unnumbered"><td class="num"><td><a href="Index/#index">Index</a></td></tr></table></div>
+            </div>
+          </div>
+        <div class="last"></div>
+        </nav>
+      <main><div class="content-wrapper">
+          <nav class="prev-next-buttons">
+            <div></div>
+            <a class="local-button active" href="Preface___-How-to-Read-This-Book/#preface" rel="next" title="Preface: How to Read This Book"><span class="where">Preface: How to Read This Book</span><span class="arrow">→</span></a></nav>
+          <section>
+            <div class="titlepage">
+              <h1>
+                 Timepiece: A Verified Mathematical Tour<span class="permalink-widget inline"><a href="find/?domain=Verso.Genre.Manual.section&amp;name=Timepiece___-A-Verified-Mathematical-Tour" title="Permalink">🔗</a></span></h1>
+              <div class="authors">
+                <span class="author">The Timepiece Project</span></div>
+              <p>
+                <span id="--index-"></span></p>
+              <p>
+                This book is a pedagogical, machine-verified tour of the mathematical ideas behind
+the <em>Timepiece</em> programme: the observation that an ordinary probability measure can
+be <strong>parametrized by a wave-function</strong>, and that this single change of variables
+naturally reproduces the structural backbone of quantum mechanics — Born's rule,
+unitary time-evolution, gauge symmetry, quantization, and the classical limit — as
+theorems of probability theory rather than as physical postulates.</p>
+              <p>
+                Every mathematical claim that can be made precise here is backed by a formal proof
+in the Lean 4 proof assistant, checked against the Mathlib library. The companion
+library <code>BookProof</code> contains these proofs; this book presents them.</p>
+              </div>
+            <section>
+              <h2>
+                Contents</h2>
+              <ol class="section-toc">
+                <li>
+                  <a href="Preface___-How-to-Read-This-Book/#preface"><span class="unnumbered"></span>Preface: How to Read This Book</a></li>
+                <li>
+                  <a href="Introduction/#introduction"><span class="number">1.</span> Introduction</a></li>
+                <li>
+                  <a href="Probability-as-Coherent-Belief/#part-probability"><span class="number">2.</span> Probability as Coherent Belief</a></li>
+                <li>
+                  <a href="The-Dutch-book-Theorem___-Probability-Is-Coherence/#dutch-book"><span class="number">3.</span> The Dutch-book Theorem: Probability Is Coherence</a></li>
+                <li>
+                  <a href="Bayesian-Updating-Is-Associative/#sequential-bayes"><span class="number">4.</span> Bayesian Updating Is Associative</a></li>
+                <li>
+                  <a href="Maximum-Entropy-Selects-the-Uniform-Prior/#max-entropy"><span class="number">5.</span> Maximum Entropy Selects the Uniform Prior</a></li>
+                <li>
+                  <a href="The-Law-of-Total-Variance/#total-variance"><span class="number">6.</span> The Law of Total Variance</a></li>
+                <li>
+                  <a href="Wave-functions___-Euler___s-Formula___-and-the-Born-Rule/#part-born"><span class="number">7.</span> Wave-functions, Euler's Formula, and the Born Rule</a></li>
+                <li>
+                  <a href="The-Probability-Clock-and-Euler___s-Formula/#probability-clock"><span class="number">8.</span> The Probability Clock and Euler's Formula</a></li>
+                <li>
+                  <a href="The-Born-Rule-Reproduces-Every-Distribution/#born-reproduces"><span class="number">9.</span> The Born Rule Reproduces Every Distribution</a></li>
+                <li>
+                  <a href="The-Gauge-Ambiguity-of-the-Born-Parametrization/#born-fiber"><span class="number">10.</span> The Gauge Ambiguity of the Born Parametrization</a></li>
+                <li>
+                  <a href="Information-Erasure___-the-Stern___Gerlach-Experiment/#stern-gerlach"><span class="number">11.</span> Information Erasure: the Stern–Gerlach Experiment</a></li>
+                <li>
+                  <a href="Free-Fields___-the-Gaussian-and-the-Uniform-Sphere/#free-field"><span class="number">12.</span> Free Fields: the Gaussian and the Uniform Sphere</a></li>
+                <li>
+                  <a href="Entropy___-Irreversibility___-and-the-Arrow-of-Time/#part-entropy"><span class="number">13.</span> Entropy, Irreversibility, and the Arrow of Time</a></li>
+                <li>
+                  <a href="Irreversibility___-Injective-but-Not-Surjective/#irreversibility"><span class="number">14.</span> Irreversibility: Injective but Not Surjective</a></li>
+                <li>
+                  <a href="A-Random-Map-Is-Almost-Surely-Non-Invertible/#bijection-probability"><span class="number">15.</span> A Random Map Is Almost Surely Non-Invertible</a></li>
+                <li>
+                  <a href="Null-Measure-Sets-Need-Not-Be-Small/#null-measure"><span class="number">16.</span> Null-Measure Sets Need Not Be Small</a></li>
+                <li>
+                  <a href="Cosmological-Amplification-of-the-Matter___Radiation-Ratio/#baryon-asymmetry"><span class="number">17.</span> Cosmological Amplification of the Matter/Radiation Ratio</a></li>
+                <li>
+                  <a href="Measurements-Reproduce-the-Distribution/#measurement-lln"><span class="number">18.</span> Measurements Reproduce the Distribution</a></li>
+                <li>
+                  <a href="Resolution-of-the-Singularity-of-an-ODE/#part-ode"><span class="number">19.</span> Resolution of the Singularity of an ODE</a></li>
+                <li>
+                  <a href="Resolution-of-the-Singularity-of-an-ODE/#ode-chapter"><span class="number">20.</span> Resolution of the Singularity of an ODE</a></li>
+                <li>
+                  <a href="Completeness-without-Peano-Arithmetic/#part-pa-free"><span class="number">21.</span> Completeness without Peano Arithmetic</a></li>
+                <li>
+                  <a href="Completeness-without-Peano-Arithmetic/#pa-free-chapter"><span class="number">22.</span> Completeness without Peano Arithmetic</a></li>
+                <li>
+                  <a href="Appendix___-Proof-Plans/#proof-plans"><span class="unnumbered"></span>Appendix: Proof Plans</a></li>
+                <li>
+                  <a href="Index/#index"><span class="unnumbered"></span>Index</a></li>
+                </ol>
+              </section>
+            </section>
+          <nav class="prev-next-buttons">
+            <div></div>
+            <a class="local-button active" href="Preface___-How-to-Read-This-Book/#preface" rel="next" title="Preface: How to Read This Book"><span class="where">Preface: How to Read This Book</span><span class="arrow">→</span></a></nav>
+          </div>
+        </main></div>
+    </body>
+  </html>
+

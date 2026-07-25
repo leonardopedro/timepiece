@@ -1,0 +1,1 @@
+window.docContents[22].resolve({"/The-Law-of-Total-Variance/#total-variance":{"contents":"\n\n\n\n\n\n\n\n\n\n","context":"Timepiece: A Verified Mathematical Tour","header":"6. The Law of Total Variance","id":"/The-Law-of-Total-Variance/#total-variance"}});

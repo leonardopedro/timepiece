@@ -1,0 +1,1 @@
+window.docContents[67].resolve({"/Irreversibility___-Injective-but-Not-Surjective/#irreversibility":{"contents":"\n\n\n\n\n\n\n\n\n\n","context":"Timepiece: A Verified Mathematical Tour","header":"14. Irreversibility: Injective but Not Surjective","id":"/Irreversibility___-Injective-but-Not-Surjective/#irreversibility"}});

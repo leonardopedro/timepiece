@@ -1,0 +1,1 @@
+window.docContents[91].resolve({"/Cosmological-Amplification-of-the-Matter___Radiation-Ratio/#baryon-asymmetry":{"contents":"\n\n\n\n\n\n\n\n","context":"Timepiece: A Verified Mathematical Tour","header":"17. Cosmological Amplification of the Matter/Radiation Ratio","id":"/Cosmological-Amplification-of-the-Matter___Radiation-Ratio/#baryon-asymmetry"}});

@@ -1,0 +1,244 @@
+# PLAN A — ODE Core (Track A)
+
+**Owner:** LLM-Lean-Specialist-A
+**Machine:** Machine A
+**Target files:** `Singularity/*.lean`, `Singularity/EnergyBounded.lean` (NEW)
+**Hard constraints:** Never writes `BookProof/`, `BookProof.lean`, `lakefile.toml`, `RiemannProof/`, `UsedRoute/`, `UnusedRoute/`
+
+---
+
+## Task A1: Adjoint on NormalOrderedOp (Poly.lean)
+
+**File:** `Singularity/Poly.lean` (MODIFY)
+
+Add an adjoint operation `adj : NormalOrderedOp M → NormalOrderedOp M` that represents the
+Wick algebra involution `T ↦ T†`. In the normal-ordered representation:
+
+- Swap creation/annihilation counts: `(k,l) ↦ (l,k)` per mode
+- Reverse the order of multiplication (Wick multiplication is not commutative)
+- Coefficients stay real (so no conjugation needed)
+
+### Deliverables
+
+```lean
+/-- Adjoint of a normal-ordered operator: swap creation/annihilation counts.
+    T = Σ c·a†^k a^l  →  T† = Σ c·a†^l a^k
+    This is the Wick algebra involution on the Fock algebra. -/
+noncomputable def adj (op : NormalOrderedOp M) : NormalOrderedOp M :=
+  { terms := op.terms.mapDomain (fun ts i => (ts i).2, (ts i).1) }
+
+/-- adj is involutive -/
+theorem adj_involutive (op : NormalOrderedOp M) : adj (adj op) = op := ...
+
+/-- adj is additive -/
+theorem adj_add (op1 op2 : NormalOrderedOp M) : adj (op1.add op2) = (adj op1).add (adj op2) := ...
+
+/-- adj commutes with real scalar multiplication -/
+theorem adj_smul (c : ℝ) (op : NormalOrderedOp M) : adj (op.smul c) = (adj op).smul c := ...
+
+/-- adj of Wick multiplication is contravariant: (op1 * op2)† = op2† * op1† -/
+theorem adj_mul (op1 op2 : NormalOrderedOp M) : adj (op1.mul op2) = (adj op2).mul (adj op1) := ...
+```
+
+### Key mathematical facts to prove
+
+1. `adj` is well-defined on Finsupp (domain shift by swapping pairs)
+2. `adj_add`, `adj_smul` follow from Finsupp `mapDomain` properties
+3. `adj_mul` is the hard one — it requires commuting the sums in `mul` and showing
+   that `wickTerm` is symmetric under swapping inputs with swapped outputs
+
+**Estimated effort:** 4-6 hours for a Lean specialist
+
+---
+
+## Task A2: Self-Adjointness of Weyl Hamiltonian (Hamiltonian.lean)
+
+**File:** `Singularity/Hamiltonian.lean` (MODIFY)
+
+Prove `weyl_symmetrization_self_adjoint`: the Weyl-symmetrized Hamiltonian is self-adjoint.
+
+### Current state
+```lean
+theorem weyl_symmetrization_self_adjoint {M : ℕ} (sys : ODESystem M) :
+    True := by trivial
+```
+
+### Target state
+```lean
+/-- The Weyl symmetrization f·p + p·f is self-adjoint.
+    H = Σᵢ (toNormalOrdered(fᵢ) · pᵢ - (I/2) · derivative(toNormalOrdered(fᵢ)))
+    H† = H because (f·p)† = p·f and (∂f)† = -∂f. -/
+theorem weyl_symmetrization_self_adjoint {M : ℕ} (sys : ODESystem M) :
+    adj (odeToHamiltonian sys) = odeToHamiltonian sys := by
+  -- Expand odeToHamiltonian as sum over modes
+  -- Use adj_add, adj_smul, adj_mulXMode, adj_mulPMode, adj_derivative
+  -- Show that each term pairs with its adjoint to give the same operator
+  sorry
+```
+
+### Supporting lemmas to prove in this task
+
+```lean
+/-- adj of x-mode multiplication -/
+theorem adj_mulXMode (op : NormalOrderedOp M) (i : Fin M) :
+    adj (mulXMode op i) = mulPMode (adj op) i := ...
+
+/-- adj of p-mode multiplication -/
+theorem adj_mulPMode (op : NormalOrderedOp M) (i : Fin M) :
+    adj (mulPMode op i) = mulXMode (adj op) i := ...
+
+/-- adj of derivative: (∂f)† = -∂f (derivative of a real polynomial is real,
+    and the minus sign comes from integration by parts) -/
+theorem adj_derivative (op : NormalOrderedOp M) (i : Fin M) :
+    adj (derivative op i) = derivative (adj op) i := ...
+```
+
+### Key insight
+
+The Weyl symmetrization is:
+```
+H = Σᵢ (toNormalOrdered(fᵢ) · pᵢ - (I/2) · derivative(toNormalOrdered(fᵢ)))
+```
+
+Taking adjoint:
+```
+H† = Σᵢ (pᵢ · toNormalOrdered(fᵢ) - (I/2) · derivative(toNormalOrdered(fᵢ)))
+```
+
+Since `toNormalOrdered(fᵢ)` is a function of x only (not p), and x and p are
+self-adjoint in the sense that the combination `f·p + p·f` is self-adjoint.
+
+But `toNormalOrdered(fᵢ)` contains both x and p terms after normal ordering.
+The key is that `adj (toNormalOrdered p i)` should equal `toNormalOrdered p i`
+when p is a polynomial in x (since x is self-adjoint in the real polynomial ring).
+
+**Estimated effort:** 6-8 hours (depends on Task A1)
+
+---
+
+## Task A3: Nelson's Essential Self-Adjointness (Esa.lean)
+
+**File:** `Singularity/Esa.lean` (MODIFY)
+
+Prove the equivalence: `isEssentiallySelfAdjoint H ↔ (analyzeClassicalFlow sys 0).isComplete`
+
+### Current state
+```lean
+theorem nelson_essential_self_adjoint {M : ℕ} (sys : ODESystem M) :
+    isEssentiallySelfAdjoint (odeToHamiltonian sys) →
+    (analyzeClassicalFlow sys 0).isComplete := by
+  intro h_esa
+  exact (analyzeClassicalFlow sys 0).isComplete
+```
+
+### Target state
+```lean
+/-- Nelson's theorem: the Hamiltonian D = i(v·∇ + (1/2)div v) is essentially
+    self-adjoint on C_c^∞(ℝ^n) iff the classical flow generated by v is complete
+    (trajectories do not reach infinity in finite time).
+    
+    Formalized as: deficiency indices are (0,0) iff flow is complete. -/
+theorem nelson_essential_self_adjoint {M : ℕ} (sys : ODESystem M) :
+    isEssentiallySelfAdjoint (odeToHamiltonian sys) ↔
+    (analyzeClassicalFlow sys 0).isComplete := by
+  constructor
+  · intro h_esa
+    -- ESA → complete flow: if deficiency indices are (0,0), the flow is complete
+    -- This is the hard direction (Nelson's theorem proper)
+    sorry
+  · intro h_flow_complete
+    -- Complete flow → ESA: if flow is complete, there exists a dense set of
+    -- analytic vectors, hence H is essentially self-adjoint
+    -- Use the flow to construct analytic vectors via exponentiation
+    sorry
+```
+
+### Approach
+
+**Forward direction (ESA → complete):**
+- `isEssentiallySelfAdjoint H` means `deficiencyIndices H = (0,0)`
+- Use the spectral theorem for symmetric operators: if H is ESA, its closure
+  has no deficiency subspaces
+- Connect to flow completeness via the unitary group generated by iH
+- This is the deeper analytic direction; may need to be stated as an axiom
+  with a clear documentation that it's Nelson's theorem
+
+**Reverse direction (complete → ESA):**
+- If the flow is complete, construct analytic vectors via
+  `ψ_t = exp(-t·H) ψ₀` for compactly supported ψ₀
+- These analytic vectors are dense (by the spectral theorem)
+- Nelson's theorem: symmetric operator with dense analytic vectors is ESA
+- This requires formalizing analytic vectors in Lean
+
+### Recommended approach
+
+Given the depth, implement the forward direction as a `sorry` with a clear
+`EXTERNAL` marker and detailed docstring, and implement the reverse direction
+using the flow to construct the unitary group.
+
+**Estimated effort:** 8-12 hours (the deepest task)
+
+---
+
+## Task A4: Energy-Bounded Initial Conditions (EnergyBounded.lean)
+
+**File:** `Singularity/EnergyBounded.lean` (NEW)
+
+Prove that for an essentially self-adjoint Hamiltonian H, the spectral projection
+onto `[-∞, E_max]` gives energy-bounded states.
+
+### Deliverables
+
+```lean
+/-- Energy-bounded initial conditions: for ψ in the spectral subspace [-∞, E_max],
+    ‖H ψ‖ ≤ E_max ‖ψ‖. -/
+theorem energy_bounded_initial {M : ℕ} (sys : ODESystem M)
+    (h_esa : isEssentiallySelfAdjoint (odeToHamiltonian sys))
+    (E_max : ℝ) (hE : 0 ≤ E_max) : ... := ...
+```
+
+### Content
+
+- Define the spectral projection via the spectral theorem for self-adjoint operators
+- Prove the energy bound using the spectral radius formula
+- Connect to the flow: if the flow is complete, the Hamiltonian has purely
+  absolutely continuous spectrum (no eigenvalues), so the energy bound holds trivially
+
+**Estimated effort:** 4-6 hours (depends on Task A3)
+
+---
+
+## Task A5: Build Verification
+
+After completing Tasks A1-A4:
+
+```bash
+export PATH="/home/leo/.elan/bin:$PATH"
+cd /media/leo/e7ed9d6f-5f0a-4e19-a74e-83424bc154ba/timepiece
+lake build
+```
+
+Verify:
+- No new `sorry` introduced
+- All `#print axioms` show only `propext`, `Classical.choice`, `Quot.sound`
+
+---
+
+## Execution Order
+
+```
+A1 (Poly.lean) → A2 (Hamiltonian.lean) → A3 (Esa.lean) → A4 (EnergyBounded.lean) → A5 (build)
+```
+
+A1 and A3 can be worked on in parallel (A3 depends on A1 indirectly through the
+`adj` operation, but the proof strategy for A3 can be developed independently).
+
+## Summary
+
+| Task | File | Status | Effort |
+|------|------|--------|--------|
+| A1 | Poly.lean (adj) | TO DO | 4-6h |
+| A2 | Hamiltonian.lean | TO DO | 6-8h |
+| A3 | Esa.lean (Nelson) | TO DO | 8-12h |
+| A4 | EnergyBounded.lean (NEW) | TO DO | 4-6h |
+| A5 | Build verification | TO DO | 1h |
