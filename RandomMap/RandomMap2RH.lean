@@ -88,8 +88,8 @@ theorem decoupled_integral_and_zeroFree_of_rectangle {N : ℕ}
     (hcyl₂ : dependsOnlyOnHead (Ψ₂ : InnerSpace N → ℂ)) :
     (∃ (g₁ g₂ : Lp ℂ 2 headDist),
       inner ℂ Ψ₁ Ψ₂ = ∫ x, g₁ x * star (g₂ x) ∂headDist) ∧
-    ZeroFreeRightHalfPlane := by
-  exact ⟨outer_inner_reduces_to_head Ψ₁ Ψ₂ hcyl₁ hcyl₂,
+    ZeroFreeRightHalfPlane :=
+  ⟨outer_inner_reduces_to_head Ψ₁ Ψ₂ hcyl₁ hcyl₂,
     zeta_no_zeros_right_half_plane_of_rectangle hrect⟩
 
 /-

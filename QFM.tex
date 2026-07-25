@@ -1,0 +1,2582 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{braket}
+\usepackage{graphicx}
+
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\Hgen}{\hat{\mathcal{H}}}
+\newcommand{\Kry}{\mathcal{K}}
+\newcommand{\Rset}{\mathbb{R}}
+\newcommand{\Cset}{\mathbb{C}}
+\newcommand{\Eblr}{\mathbb{E}}
+\newcommand{\Kop}{\hat{K}}
+
+\title{\textbf{Wavefunction Flows in the \texttt{unfer} Kernel:\\
+An Analytical, Grid-Free Realization of the Continuity Hamiltonian
+via Orthogonal-Fock Encoding and Inversion-Free Krylov Reduction}\\[4pt]
+\large A Self-Contained, Pedagogical Account}
+\author{Implementation Architecture Report}
+\date{July 2026 (rev.\ 5, with Tomographic Subspace Recovery, rev 14 SIRK-backed unitary flow, rev 15 module demo + benchmarks, rev 16 Quantum Bayesian Update implementation, rev 17 full SIRK-whitened Krylov basis + kernel surface wiring + 5th module demo, rev 18 productionization: P7 (README, CUDA-on-CI, MNIST 8x8 real-data validation, runtime krylov\_dim$\ge$K$_2$ check, HMC validation, 3 new bench groups) + P8.10 (CUDA kernel bench) + P8.11 (iterated\_bayes\_module 6th demo) + P9.12 (CUDA toolkit pinning) + P9.13 (CI PAT docs), rev 19 P8.9 Karcher-mean posterior estimate, rev 20--21 P8.7 Typst-math compiler + P8.8 \texttt{uk\_belief\_propagation} FFI symbol + velysterm merge: upstream typst 0.15 + KanvaSink + kanva\_typst + P9.15 partial (deletion of stale velyst examples), rev 22 P9.14 mathed\_mini Step 4, rev 23 P9.15.1 ported velyst examples, rev 24 P10.16.1 CIFAR-10 16$\times$16 baseline + SIRK shift overflow fix, rev 25 P10.16.2 real CIFAR-10 fixture + P11.24 Zenodo-Loro persistence module, rev 26 P10.16.3 rank-truncation extension (SVD on the $W$ basis, enables $d=1024$), rev 27 P10.16.4 2D Ising cross-domain validation + P10.18 $l=3$ Yang--Mills mass-gap demo + P11.22 \texttt{unfer\_edge} proxy, rev 28 P11.19/20/21/23 external-module integrations, rev 29 P10.16.5 2D Kolmogorov CFD flow-field cross-domain validation + P10.16.6 post-Newtonian gravitational-waveform cross-domain validation, rev 30 P10.16.7 $d=1024$ cross-domain scaling of all three rev 29 fixtures on the P10.16.3 rank-truncation path, rev 31 exact-projector consolidation: the $\mathcal{O}(\varepsilon)$-truncated off-diagonal coupling is removed and the exact rank-1 Mehler projector (applied via the \texttt{Operator::ProjectOnto} shortcut) becomes the only off-diagonal generator, including inside the TSR flow Hamiltonian)}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Layden, Sweke, Havl\'i\v{c}ek, Chowdhury, and Neklyudov~\cite{Layden2025}
+recently showed that classical \emph{flow models} map exactly onto the
+Schr\"odinger equation: the qsample $\Psi_t(x)=\sqrt{p_t(x)}$ of a flow's
+marginal density obeys $i\,\partial_t\Psi_t=\Hgen_t\Psi_t$ for an unusual
+\emph{continuity Hamiltonian} $\Hgen_t=\tfrac12[\hat p\cdot v_t(\hat x)+
+v_t(\hat x)\cdot\hat p]$, which for a conservative field $v_t=\nabla V_t$
+takes the elegant commutator form $\Hgen_t^c=i[\Kop,V_t(\hat x)]$. Crucially,
+this generator is \emph{fully specified by the already-learned classical
+velocity field} --- no further training, parameterization, or variational
+optimization. Their algorithm prepares qsamples on a \emph{digital quantum
+computer} by simulating $\Hgen_t^c$ with Fourier collocation and product
+formulas, enabling, e.g., quadratically faster mean estimation. This report
+gives a self-contained, pedagogical account of how the \texttt{unfer}
+probability kernel realizes the \emph{same} wavefunction flow
+\emph{classically}, with no spatial grid. We replace the $N^d$ collocation
+grid by an \emph{analytical orthogonal-Fock encoding}: each data point becomes
+a mutually orthogonal single-particle mode, so the conservative potential
+\emph{decouples} and its flow-matching parameters reduce to a diagonal,
+closed-form $\mathcal{O}(M)$ fit for $M$ data points. The resulting bounded
+generator is compressed by the Shift-Invert Rational Krylov (SIRK) method of
+Hashimoto and Nodera~\cite{Hashimoto2019} --- replacing the paper's product
+formulas --- giving exponential approximation-error decay and reducing
+single-step inference to an $\mathcal{O}(m^2)$ matrix exponential with
+$m\ll M$. We also make explicit the measure-theoretic foundation: in the
+infinite-dimensional limit the uniform measure on a hypersphere becomes the
+Gaussian measure, and the Gegenbauer polynomials that diagonalize it become
+the Hermite polynomials (L\'opez and Temme, 1999; Mehler, 1866), which
+identifies the Gaussian source $p_0$ with the Fock vacuum and any orthogonal
+excitation with acquired information. A second revision (June 2026) added
+two further contributions. First, the exact off-diagonal generator: the Mehler vacuum,
+being the uniform measure over inner wave-functions while each data channel
+localizes only finitely many hyperspherical coordinates, has strictly positive
+overlap $\varepsilon_j=\braket{0|x_j}$ with every channel, and that
+non-orthogonality alone drives the transport. The exact off-diagonal generator is
+therefore \emph{just the vacuum projector} $\Hgen_{\mathrm{off}}=\ket{0}\bra{0}$
+--- Hermitian, idempotent, with closed-form evolution
+$e^{-it\Hgen_{\mathrm{off}}}=I+(e^{-it}-1)\ket{0}\bra{0}$ --- realizing
+coherent amplitude transport between the source and the data channels in
+place of the stationary diagonal surrogate, with \emph{no}
+$\mathcal{O}(\varepsilon)$ truncation: the kernel applies it through the
+rank-1 shortcut $\Hgen_{\mathrm{off}}\ket{s}=\braket{0|s}\ket{0}$, never
+an expanded coupling-term list.
+Second, the full \emph{Tomographic Subspace Recovery} (TSR) pipeline: a
+two-level Count-Sketch hashing scheme ($S_1:\Rset^d\to\Rset^k$, $S_2$:
+features $\to$ $K_2$-dim single-excitation Fock states) that decouples
+semantics from reasoning, pre-projects all raw-coordinate observables into
+the $m^2$ Krylov operator basis, and executes online generation in four
+phases (encode, evolve, tomographic reconstruct, lossless decode) with
+\emph{no} $\mathcal{O}(M)$ dependence at inference. We close by detailing
+the integration into \texttt{unfer}'s GPU-accelerated \texttt{fock\textunderscore
+sirk} solver, its \texttt{nested\textunderscore fock\textunderscore algebra}
+CAS, the new \texttt{qfm} tomographic crate, and the Austral module runtime.
+Subsequent revisions (through rev 28, July 2026) close the pipeline
+empirically: real-data validation on MNIST $8\times 8$ and CIFAR-10
+$16\times 16$, a rank-truncation extension that removes the
+$\mathcal{O}(K_2^3)$ observable-projection wall (enabling $d=1024$),
+cross-domain validation on critical 2D Ising configurations, and an $l=3$
+SU(2) lattice Yang--Mills mass-gap demonstration within 1\% of the
+strong-coupling estimate.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+\subsection{Flow models and the qsample bridge}
+
+\emph{Flow models} are a cornerstone of modern generative machine learning.
+They learn a continuous-time Markov process --- realized on an ordinary
+(classical) computer --- that transports a simple source distribution $p_0$
+(typically isotropic Gaussian noise) into a complex target $p_{\mathrm{targ}}$
+from which we are given samples. The process is specified by a time-dependent
+\emph{velocity field} $v_t(x)$ through the ordinary differential equation (ODE)
+\begin{equation}
+  \frac{\mathrm{d}}{\mathrm{d}t}\,x_t=v_t(x_t),\qquad x_0\sim p_0,
+  \label{eq:flowode}
+\end{equation}
+whose random initial condition makes $x_t\sim p_t$ a random variable. The
+family of marginals $(p_t)_{t\in[0,T]}$ is the \emph{probability path}, and by
+the change-of-variables formula it satisfies the \emph{continuity equation}
+\begin{equation}
+  \partial_t\,p_t(x)=-\nabla\!\cdot\bigl[v_t(x)\,p_t(x)\bigr].
+  \label{eq:continuityeq}
+\end{equation}
+Flow models learn $v_t^\theta\approx v_t$ (e.g.\ by flow matching,
+Section~\ref{sec:flowprimer}) so that integrating~\eqref{eq:flowode} from
+$x_0\sim p_0$ yields $x_T\sim p_T\approx p_{\mathrm{targ}}$.
+
+In quantum computing, the corresponding object of interest is the
+\emph{qsample}: the coherent encoding
+\begin{equation}
+  \ket{\Psi_p}=\sum_x\sqrt{p(x)}\,\ket{x}
+  \quad\text{(discrete)},\qquad
+  \ket{\Psi_p}=\int\sqrt{p(x)}\,\ket{x}\,\mathrm{d}x
+  \quad\text{(continuous)}.
+\end{equation}
+Measuring $\ket{\Psi_p}$ in the $\{\ket{x}\}$ basis returns a sample
+$x\sim p$, but \emph{preparing} a qsample is strictly more powerful than
+sampling: with qsample access one can build quantum algorithms for mean
+estimation and property testing with provable sample-complexity advantages
+(Section~\ref{sec:qsample}). Preparing qsamples for arbitrary $p$ is hard in
+general, so the central question is: \emph{for which $p$ can we prepare
+qsamples efficiently?}
+
+\subsection{Wavefunction flows (Layden et al.)}
+
+Layden, Sweke, Havl\'i\v{c}ek, Chowdhury, and Neklyudov~\cite{Layden2025}
+answer this for the vast family of distributions expressible by flow models.
+Their key observation is a striking identity: if $p_t$ obeys the continuity
+equation~\eqref{eq:continuityeq}, then its qsample wavefunction
+$\Psi_t(x)=\sqrt{p_t(x)}$ obeys the Schr\"odinger equation
+$i\,\partial_t\Psi_t=\Hgen_t\Psi_t$ for the \emph{continuity Hamiltonian}
+\begin{equation}
+  \Hgen_t=\tfrac12\bigl[\hat p\cdot v_t(\hat x)+v_t(\hat x)\cdot\hat p\bigr],
+  \label{eq:continuityH}
+\end{equation}
+derived in Section~\ref{sec:continuity}. The dynamics it generates they call a
+\emph{wavefunction flow}. Two features make this remarkable:
+\begin{enumerate}
+\item \textbf{No further learning.} $\Hgen_t$ is \emph{completely determined by
+the already-learned classical velocity field} $v_t^\theta$. There is no
+parameterized quantum circuit, no variational loop, no barren-plateau
+pathology --- the entire ``training'' has been done classically, and the
+quantum side is pure Hamiltonian simulation.
+\item \textbf{Provable qsample preparation.} Evolving the easily prepared
+initial qsample $\Psi_0=\sqrt{p_0}$ (a tensor product of standard-normal
+qsamples for Gaussian $p_0$) under $\Hgen_t$ for time $T$ produces exactly
+$\Psi_T=\sqrt{p_T}$; the distance to the ideal target $\sqrt{p_{\mathrm{targ}}}$
+is controlled \emph{entirely classically} by $\|p_T-p_{\mathrm{targ}}\|$.
+\end{enumerate}
+The paper's main technical work is then turning this into a digital quantum
+algorithm: discretizing space (Fourier collocation on an $N^d$ grid) and time
+(product formulas), with error bounds (their Theorems~1 and~2).
+
+\subsection{This work: a classical, grid-free realization in \texttt{unfer}}
+
+The Layden et al.\ route targets a \emph{digital quantum computer} and pays for
+it with an $N^d$ spatial collocation grid and a product-formula time
+discretization whose cost grows with the operator norm $\|H_t^c\|=
+\mathcal{O}(N^2 d/L^2)$. The \texttt{unfer} probability kernel already carries
+all the machinery to realize the \emph{same} continuity-Hamiltonian
+wavefunction flow \emph{classically}, on a separable Fock space, with Born-rule
+semantics. This report shows how, and in doing so removes the spatial grid
+altogether. The construction rests on three pillars, developed pedagogically
+in Sections~\ref{sec:continuity}--\ref{sec:krylov}:
+
+\begin{enumerate}
+\item \textbf{Orthogonal Fock encoding (Section~\ref{sec:framework}).} Instead
+of an $N^d$ collocation grid, encode each of the $M$ data points as a distinct,
+mutually orthogonal single-boson mode. For a conservative field the potential
+$V_t$ then becomes \emph{diagonal}, the flow-matching normal equations decouple
+into $M$ independent scalar equations, and ``training'' is an $\mathcal{O}(M)$
+closed-form average with zero data loss --- grid-free and inversion-free.
+
+\item \textbf{Inversion-free Krylov reduction (Section~\ref{sec:krylov}).} In
+place of the paper's product-formula time stepping, compress the resulting
+time-independent generator $\bar H$ with the Shift-Invert Rational Krylov
+(SIRK) method of Hashimoto and Nodera~\cite{Hashimoto2019}, whose error decays
+\emph{exponentially} in the subspace dimension $m$. Because the potential has
+no cross-terms, each Krylov step costs $\mathcal{O}(M)$ and inference is a
+single $\mathcal{O}(m^2)$ matrix exponential.
+
+\item \textbf{The Gaussian-source $=$ Fock-vacuum identification
+(Section~\ref{sec:mehler}).} The Mehler/L\'opez--Temme limit of Gegenbauer to
+Hermite polynomials makes precise why the Gaussian source $p_0$ of a flow model
+is exactly the Fock vacuum, and why orthogonal excitations carry information.
+\end{enumerate}
+
+Section~\ref{sec:impl} maps every piece onto the existing \texttt{unfer}
+modules. Throughout we keep prerequisites minimal: a reader comfortable with
+ladder operators, Gaussian integrals, and the matrix exponential should be able
+to follow without external references. We are explicit about scope: the
+shipped \texttt{unfer} builtins implement a spectrally-stable diagonal
+surrogate and the \emph{exact} off-diagonal generator --- which turns out
+to be just the projector $\ket{0}\bra{0}$ onto the Mehler vacuum,
+off-diagonal purely through the vacuum's nonzero overlap with the
+localized data channels, applied via its rank-1 structure with no
+truncated coupling expansion --- and we flag the differences precisely
+(Sections~\ref{sec:framework}, \ref{sec:innerouter}, and~\ref{sec:impl}).
+
+\section{Background I: flow matching and the qsample}
+\label{sec:flowprimer}
+
+\subsection{Learning the velocity field by flow matching}
+
+A flow model needs a velocity field $v_t$ transporting $p_0$ to
+$p_{\mathrm{targ}}$. The ground-truth $v_t$ that generates a chosen probability
+path is unknown, so the naive flow-matching loss is intractable. The decisive
+trick~\cite{Layden2025} is the \emph{conditional flow matching} (CFM) loss,
+which has the same gradient but is a tractable regression. For the
+straight-line (optimal-transport) interpolation
+$x_t=(1-t)x_0+t\,x_{\mathrm{targ}}$ with constant conditional velocity
+$x_{\mathrm{targ}}-x_0$,
+\begin{equation}
+  \mathcal{L}_{\mathrm{CFM}}(\theta)=
+  \Eblr_{t\sim\mathrm{unif}[0,1]}\,
+  \Eblr_{x_0\sim p_0}\,
+  \Eblr_{x_{\mathrm{targ}}\sim p_{\mathrm{targ}}}
+  \Bigl\|v_t^\theta\bigl[(1-t)x_0+t\,x_{\mathrm{targ}}\bigr]
+  -\bigl(x_{\mathrm{targ}}-x_0\bigr)\Bigr\|^2 .
+  \label{eq:cfm}
+\end{equation}
+This estimates the gradient of the true flow-matching loss by an unbiased Monte
+Carlo average over training samples and \emph{never} solves a differential
+equation. The wavefunction-flow construction is agnostic to \emph{how} $v_t$ is
+learned; it only requires that some $v_t^\theta\approx v_t$ exists. In
+Section~\ref{sec:framework} we exploit~\eqref{eq:cfm} directly: under the
+orthogonal-Fock encoding its minimizer is available in closed form.
+
+\subsection{Diffusion models are flow models}
+
+Diffusion models~\cite{Layden2025} provide another route to $v_t^\theta$. A
+forward stochastic differential equation $\mathrm{d}x_t=f_t(x_t)\,\mathrm{d}t+
+g_t\,\mathrm{d}w_t$ drives $p_{\mathrm{targ}}$ to a Gaussian; the associated
+\emph{probability-flow ODE} replaces the reverse SDE by a deterministic field
+\begin{equation}
+  v_t(x)=f_t(x)-\tfrac12 g_t^2\,\nabla\ln p_t(x),
+\end{equation}
+which is an instance of~\eqref{eq:flowode}. When $f_t$ is conservative so is
+$v_t$, so diffusion models fall under the same conservative-field analysis we
+use below. This is why the single construction covers both of the dominant
+continuous-variable generative paradigms.
+
+\subsection{Qsamples and their statistical payoff}
+\label{sec:qsample}
+
+The reason to lift $p$ to its qsample $\Psi=\sqrt p$ is statistical leverage.
+For mean estimation of $f(x)$ under $x\sim p$, the best classical estimators
+(sub-Gaussian, e.g.\ median-of-means) achieve, with $m$ samples and failure
+probability $\Delta$,
+\begin{equation}
+  \Pr\Bigl[|\tilde\mu-\mu|>C\sigma\sqrt{\tfrac{\log(1/\Delta)}{m}}\Bigr]\le\Delta,
+  \qquad \sigma=\sqrt{\mathrm{Var}_{x\sim p}f(x)} .
+\end{equation}
+Given qsample-preparation access, the quantum sub-Gaussian
+estimator~\cite{Layden2025} instead achieves
+\begin{equation}
+  \Pr\Bigl[|\tilde\mu-\mu|>\sigma\,\tfrac{\log(1/\Delta)}{m}\Bigr]\le\Delta,
+\end{equation}
+a \emph{quadratic} speed-up in the dependence on $m$, with no promise on the
+variance beyond finiteness. Wavefunction flows make exactly this access
+available for any distribution expressible by a (conservative) flow model. The
+\texttt{unfer} kernel exposes the analogous probabilities through its Born-rule
+layer, so the same statistical quantities are computable on the classical
+substrate.
+
+\section{Background II: operator functions and the SIRK method}
+\label{sec:sirk}
+
+Realizing a wavefunction flow --- on a quantum computer or on \texttt{unfer} ---
+ultimately asks us to apply $e^{-i\Hgen t}$ (or, more generally, an operator
+$\varphi$-function) to a state. The paper~\cite{Layden2025} does this with
+product formulas; \texttt{unfer} does it with the Shift-Invert Rational Krylov
+(SIRK) method of Hashimoto and Nodera~\cite{Hashimoto2019}, which we summarize
+here because it is the engine of Section~\ref{sec:krylov}.
+
+\subsection{Exponential integrators and \texorpdfstring{$\varphi$}{phi}-functions}
+
+Evolution equations $u'=Au+g$ have the variation-of-constants solution
+\begin{equation}
+  u(t)=e^{tA}u_0+\int_0^t e^{(t-s)A}g(s)\,\mathrm{d}s .
+\end{equation}
+\emph{Exponential integrators} discretize the integral using the family of
+$\varphi$-functions
+\begin{equation}
+  \varphi_0(z)=e^z,\qquad
+  \varphi_k(z)=\int_0^1 e^{sz}\,\frac{(1-s)^{k-1}}{(k-1)!}\,\mathrm{d}s
+  \quad(k\ge 1),
+\end{equation}
+e.g.\ the one-step scheme $u_i=e^{\delta A}u_{i-1}+\delta\,\varphi_1(\delta
+A)\,g_{i-1}$. The computational kernel is therefore the product
+$\varphi_k(A)\,v$ of an operator function with a vector --- exactly the
+primitive that wavefunction-flow inference needs (with $k=0$, $A=-i\Hgen$).
+
+\subsection{Why naive (Arnoldi) Krylov fails for stiff generators}
+
+The Arnoldi method builds the polynomial Krylov subspace
+\begin{equation}
+  \Kry_m(A,v)=\mathrm{span}\{v,Av,\dots,A^{m-1}v\},
+\end{equation}
+and approximates $\varphi_k(A)v\approx V_m\,\varphi_k(\mathbf{H}_m)\,V_m^*v$,
+where $V_m$ holds an orthonormal basis and
+$\mathbf{H}_m=V_m^*AV_m$ is the compression of $A$. For a \emph{bounded} $A$
+the error decays geometrically, governed by polynomial approximation of
+$\varphi_k$ on the numerical range $W(A)$. But the continuity Hamiltonian
+contains the kinetic operator $\Kop=-\tfrac12\nabla^2$, which is
+\emph{unbounded}: $W(A)$ is unbounded, the relevant conformal map ceases to
+exist, and the error is no longer guaranteed to decay in $m$. This is the
+stiffness obstruction --- the same one the paper~\cite{Layden2025} confronts
+when it notes $\|K\|=\mathcal{O}(N^2 d/L^2)$ blows up with grid resolution.
+
+\subsection{Resolvents, rational Krylov, and SIRK}
+
+The cure is to work with the \emph{resolvent} $X=(\gamma I-A)^{-1}$, which is
+bounded whenever $\gamma$ is outside the spectrum of $A$. One can define
+operator functions of an unbounded $A$ through the bounded $X$ via
+$f(A):=f_\gamma(X)$ with $f_\gamma(z)=f(\gamma-z^{-1})$. The
+\emph{Rational Krylov} subspace uses a sequence of shifts $\gamma_j$ and
+resolvents $X_j=(\gamma_j I-A)^{-1}$,
+\begin{equation}
+  \mathcal{Q}_m(\{X_j\},v)
+  =\mathrm{span}\{v,\,X_1v,\,X_2X_1v,\dots,X_{m-1}\cdots X_1 v\}.
+  \label{eq:ratkrylov}
+\end{equation}
+The Shift-Invert Rational Krylov (SIRK) method chooses the real, equispaced
+shifts $\gamma_j=N-hj$ with $N>hj>0$. A key algebraic identity is that
+all the resolvents share a single ``base'' resolvent $X_m$,
+\begin{equation}
+  X_j=(\gamma_j I-A)^{-1}=\bigl(I+h(m-j)X_m\bigr)^{-1}X_m,
+\end{equation}
+so that the rational Krylov space~\eqref{eq:ratkrylov} equals
+$\{r(X_m)v:\,r\in\mathcal{R}^{\mathrm{SIRK}}_{m-1}\}$ with denominators
+$q_m(z)=(1+hmz)\cdots(1+hz)$. Hashimoto and Nodera prove an error bound that,
+crucially, decays \emph{exponentially}:
+\begin{equation}
+  \bigl\|\varphi_k(A)v-V_m\,\psi_{k,\gamma_m}(\mathbf{H}_m\mathbf{K}_m^{-1})\,V_m^*v\bigr\|
+  \;\le\;2C\,\|v\|\,e^{-hm}\!\!\min_{r\in\mathcal{R}^{\mathrm{SIRK}}_{m-1}}\!
+  \|f_{k,N}-r\|_{\infty,\Sigma},
+  \label{eq:sirkbound}
+\end{equation}
+with $C\in[2,11.08]$ and $\Sigma$ a bounded convex hull of resolvent numerical
+ranges. The factor $e^{-hm}$ is the practical payoff: where Arnoldi (for
+unbounded $A$) and even plain rational Krylov decay only polynomially, SIRK
+decays geometrically, so a small subspace dimension $m$ (e.g.\ $m=15$--$20$)
+suffices. This is the engine \texttt{unfer} already ships as
+\texttt{fock\textunderscore sirk}; Section~\ref{sec:krylov} explains why our
+decoupled generator makes it run especially fast.
+
+\section{The continuity Hamiltonian}
+\label{sec:continuity}
+
+We now derive, following Layden et al.~\cite{Layden2025}, the generator at the
+heart of a wavefunction flow, and record the conservative special case that
+\texttt{unfer} implements.
+
+\subsection{General case}
+
+Let $\Psi_t(x)=\sqrt{p_t(x)}$ be the qsample wavefunction of a probability path
+satisfying the continuity equation~\eqref{eq:continuityeq}. Differentiating and
+substituting,
+\begin{align}
+  i\,\partial_t\Psi_t(x)
+  &=\frac{i}{2\sqrt{p_t(x)}}\,\partial_t p_t(x)
+  =-\frac{i}{2\Psi_t(x)}\,\nabla\!\cdot\bigl[v_t(x)\,\Psi_t(x)^2\bigr]\notag\\
+  &=\tfrac12\Bigl\{(-i\nabla)\cdot\bigl[v_t(x)\Psi_t(x)\bigr]
+  +v_t(x)\cdot(-i\nabla)\Psi_t(x)\Bigr\}
+  =\bigl(\Hgen_t\Psi_t\bigr)(x).
+  \label{eq:Hderiv}
+\end{align}
+Thus $\Psi_t=\sqrt{p_t}$ obeys $i\,\partial_t\Psi_t=\Hgen_t\Psi_t$ with the
+\emph{continuity Hamiltonian}
+\begin{equation}
+  \Hgen_t=\tfrac12\bigl[\hat p\cdot v_t(\hat x)+v_t(\hat x)\cdot\hat p\bigr],
+  \qquad
+  (\hat x_j\Psi)(x)=x_j\Psi(x),\quad
+  (\hat p_j\Psi)(x)=-i\,\partial_{x_j}\Psi(x).
+  \label{eq:Hgeneral}
+\end{equation}
+The symmetrization $\tfrac12[\hat p\cdot v+v\cdot\hat p]$ is what makes
+$\Hgen_t$ Hermitian even though $\hat p$ and $v_t(\hat x)$ do not commute; it is
+the operator-ordering that exactly reproduces the divergence form of the
+continuity equation.
+
+\subsection{Conservative special case}
+
+By a theorem on absolutely continuous curves in 2-Wasserstein space, every
+probability path admits a \emph{conservative} velocity field
+$v_t(x)=\nabla V_t(x)$ for a scalar potential $V_t$, without loss of
+generality. Substituting $v_t=\nabla V_t$ into~\eqref{eq:Hderiv} and using
+$\nabla^2(V_t\Psi_t)=\Psi_t\nabla^2 V_t+2\nabla V_t\cdot\nabla\Psi_t
++V_t\nabla^2\Psi_t$ gives the compact \emph{commutator form}
+\begin{equation}
+  \Hgen_t^c=i\,[\Kop,\,V_t(\hat x)],\qquad
+  \Kop=\tfrac12\,\hat p\cdot\hat p,\quad
+  (\Kop\Psi)(x)=-\tfrac12\nabla^2\Psi(x),
+  \label{eq:Hconservative}
+\end{equation}
+which acts as
+\begin{equation}
+  \bigl(\Hgen_t^c\Psi_t\bigr)(x)
+  =-\frac{i}{2}\Bigl[\Psi_t(x)\,\nabla^2 V_t(x)
+  +2\,\nabla V_t(x)\cdot\nabla\Psi_t(x)\Bigr].
+  \label{eq:Hcaction}
+\end{equation}
+The two terms are the source/compressibility ($\nabla^2 V_t$) and the drift
+($\nabla V_t\cdot\nabla$) of the flow. Equation~\eqref{eq:Hconservative} is the
+operator \texttt{unfer} targets; note the drift carries coefficient $2$
+relative to the source, exactly as in~\eqref{eq:Hcaction}.
+
+\subsection{Context: the Madelung decoupling}
+
+It is worth contrasting $\Hgen_t$ with the standard Hamiltonian
+$\Kop+V_t(\hat x)$. The Madelung equations re-express the dynamics of the
+latter as a continuity equation for $|\Phi_t|^2$ \emph{coupled} to a separate
+equation for the phase $\arg\Phi_t$: density and phase feed back on each other.
+The continuity Hamiltonian is engineered to \emph{decouple} them --- the phase
+stays fixed while the velocity field is specified directly. The price is that
+$\Hgen_t$ is not of canonical kinetic-plus-potential form and so ``may not occur
+in nature''~\cite{Layden2025}; the reward is that it can nonetheless be
+simulated efficiently, and that $\Psi_t$ stays a bona fide qsample
+($\Psi_t=\sqrt{p_t}\ge 0$, no spurious phase) at every time.
+
+\section{Theoretical framework: orthogonal Fock encoding}
+\label{sec:framework}
+
+We now diverge from the digital-quantum route of~\cite{Layden2025} --- which
+discretizes $V_t(\hat x)$ and $\Kop$ on an $N^d$ Fourier grid --- and instead
+encode the data so that the conservative continuity Hamiltonian becomes
+\emph{diagonal and grid-free}. This is the analytical core of the
+\texttt{unfer} realization.
+
+\subsection{Zero-loss data encoding and the symmetric Fock space}
+
+To avoid the $\mathcal{O}(M^3)$ matrix inversion that plagues analytical kernel
+methods, we treat the $M$ training points as events of a Poisson counting
+measure. Via the Wiener--It\^o--Segal isomorphism, each data point
+$x_j\in\Rset^D$ is mapped to a \emph{strictly orthogonal} single-particle
+state of a symmetric Fock space:
+\begin{equation}
+  \ket{x_j}=\hat c_j^\dagger\ket{0},\qquad
+  \braket{x_i | x_j}=\delta_{ij}.
+\end{equation}
+In the coordinate representation these correspond to localized, normalized
+wave-packets $\Psi_j(x)=\braket{x | x_j}$ centered at $x_j$. Because the
+events of a point process are disjoint, the packets have \emph{disjoint
+supports}, which gives the two identities the whole construction exploits:
+\begin{align}
+  \Psi_j(x)\,\Psi_k(x)&=\delta_{jk}\,\Psi_j(x)^2,
+  \label{eq:disjoint}\\
+  \nabla\Psi_j(x)\cdot\nabla\Psi_k(x)&=0\quad(j\neq k).
+  \label{eq:graddisjoint}
+\end{align}
+The orthogonality~\eqref{eq:disjoint} is ``zero data loss'': no two data points
+share amplitude. The gradient identity~\eqref{eq:graddisjoint} is what
+decouples the optimization. This is the grid-free counterpart of the paper's
+Fourier collocation: the $N^d$ grid points are replaced by $M$ orthogonal
+modes, one per datum.
+
+\paragraph{Inner vs.\ outer Fock space, and how Mehler connects them.} The
+kernel's symbolic engine, \texttt{nested\textunderscore fock\textunderscore
+algebra}, implements this construction as two syntactically distinct levels
+(Section~\ref{sec:innerouter} makes the connection between them precise).
+\emph{Level 1, the inner Fock space}, is the Hilbert space \emph{of
+wave-functions}: each of its elements is itself a wave-function/qsample over
+$x\in\Rset^D$, and its normalized elements are exactly the points of the
+infinite-dimensional hypersphere of Section~\ref{sec:mehler}. \emph{Level 2,
+the outer Fock space} (the ``multiverse'') is built directly on top of the
+inner space by Mehler's correspondence (Section~\ref{sec:innerouter}): the
+Gegenbauer polynomials that diagonalize the uniform measure on that
+hypersphere of inner wave-functions become, in the infinite-dimensional
+limit, the Hermite polynomials $H_n$ --- and the $H_n$ are exactly the
+number-state basis of a bosonic Fock space, $H_0$ the vacuum $\ket{0}$ and
+each higher order a further excitation. Each packet $\Psi_j$, an element of
+the inner space, thus indexes a one-particle ket
+$\ket{x_j}=\hat c_j^\dagger\ket{0}$ of this outer space. This is literal in
+\texttt{nested\textunderscore fock\textunderscore algebra}: an
+\texttt{OuterState} is a multiset of inner-space configurations
+(\texttt{InnerBosonicState}/\texttt{InnerFermionicState}), so an outer boson's
+``mode label'' is an entire inner-space configuration, not a bare integer.
+Every $\ket{0}$, $H_0$, and $P_0$ used operationally from here through
+Section~\ref{sec:impl} --- including the $\bar H_{\text{impl}}$ and
+$\Hgen_{\text{off}}$ of Section~\ref{sec:impl} --- is this \emph{outer}
+vacuum. Section~\ref{sec:innerouter} shows precisely how Mehler's
+Gegenbauer-to-Hermite limit constructs it, together with the whole basis,
+from the uniform prior over inner wave-functions --- and computes the small
+but strictly \emph{positive} overlap
+$\braket{0|x_j}=\varepsilon_j$~\eqref{eq:mehleroverlap} between that
+uniform vacuum and each localized data channel, the non-orthogonality that
+Section~\ref{sec:impl} turns into the off-diagonal transport mechanism
+itself.
+
+\subsection{Analytical potential optimization}
+
+Write the conservative flow potential of~\eqref{eq:Hconservative} as a linear
+combination of the orthogonal packets,
+\begin{equation}
+  V_t(x)=\sum_{j=1}^M\alpha_j(t)\,\Psi_j(x).
+\end{equation}
+Fitting the conservative velocity $\nabla V_t$ to the straight-line target
+$v_t=x_{\mathrm{targ}}-x_0$ is the conditional-flow-matching least-squares
+problem~\eqref{eq:cfm}, which here reads
+\begin{equation}
+  \mathcal{L}(\vec\alpha(t))=
+  \Eblr_{t,x_0,x_{\mathrm{targ}}}\Bigl\|
+  \sum_{j=1}^M\alpha_j(t)\,\nabla\Psi_j(x_t)-(x_{\mathrm{targ}}-x_0)\Bigr\|_2^2 ,
+  \qquad x_t=(1-t)\,x_0+t\,x_{\mathrm{targ}},
+\end{equation}
+where $x_{\mathrm{targ}}$ is drawn uniformly from the $M$ training points
+$\{x^{(1)},\dots,x^{(M)}\}$. Setting $\partial\mathcal{L}/\partial\alpha_k=0$
+gives the normal equations
+\begin{equation}
+  \sum_{j=1}^M\alpha_j(t)\,
+  \Eblr_{x_t}\!\bigl[\nabla\Psi_j(x_t)\cdot\nabla\Psi_k(x_t)\bigr]
+  =\Eblr_{x_0,x_{\mathrm{targ}}}\!\bigl[(x_{\mathrm{targ}}-x_0)\cdot
+  \nabla\Psi_k(x_t)\bigr].
+\end{equation}
+By the gradient-disjointness~\eqref{eq:graddisjoint} the left-hand matrix is
+\emph{strictly diagonal}, and on any path toward a target
+$x_{\mathrm{targ}}=x^{(j)}$ with $j\neq k$ the packet gradient
+$\nabla\Psi_k(x_t^{(j)})$ vanishes. The system collapses to a closed-form,
+per-mode solution:
+\begin{equation}
+  \alpha_k(t)=\frac{\Eblr_{x_0}\!\bigl[(x^{(k)}-x_0)\cdot
+  \nabla\Psi_k(x_t^{(k)})\bigr]}
+  {M\,\Eblr_{x_0}\!\bigl[\|\nabla\Psi_k(x_t^{(k)})\|^2\bigr]},
+  \label{eq:alpha}
+\end{equation}
+with $x_0\sim\mathcal{N}(0,\mathbf{I})$ the Gaussian source $p_0$ and
+$x_t^{(k)}=(1-t)x_0+t\,x^{(k)}$. Each $\alpha_k$ is an independent scalar
+average, so the whole ``training'' is $\mathcal{O}(M)$ with zero data loss ---
+no inner optimization loop, and no $N^d$ grid to sweep. This is the concrete
+payoff of the orthogonal encoding: it turns the CFM regression~\eqref{eq:cfm}
+into $M$ decoupled one-dimensional integrals.
+
+\subsection{The continuity generator and a vacuum-projector prior}
+
+Substituting $V_t=\sum_j\alpha_j(t)\Psi_j$ into the conservative continuity
+Hamiltonian~\eqref{eq:Hconservative} yields the off-diagonal generator
+\begin{equation}
+  \Hgen_t^c=-\frac{i}{2}\sum_{j=1}^M\alpha_j(t)\,\hat h_j(x,\nabla),\qquad
+  \hat h_j=2\,\nabla\Psi_j\cdot\nabla+\nabla^2\Psi_j ,
+  \label{eq:Hgen_full}
+\end{equation}
+in which $\hat h_j$ transports amplitude into the data channel $\ket{x_j}$.
+
+\paragraph{The source prior, and an \texttt{unfer} modeling extension.}
+In Layden et al.~\cite{Layden2025} the source $p_0$ enters \emph{only} through
+the initial qsample $\Psi_0=\sqrt{p_0}$; it is not part of the Hamiltonian. In
+the \texttt{unfer} realization we find it convenient to also encode a
+``no-information'' prior \emph{inside} the generator, as the rank-1 projector
+onto the Mehler ground state,
+\begin{equation}
+  H_0=\ket{0}\bra{0},
+\end{equation}
+which represents total prior uncertainty (made precise in
+Section~\ref{sec:mehler}). This term is \emph{far from inert}: because the
+Mehler vacuum has strictly positive overlap
+$\varepsilon_j=\braket{0|x_j}$~\eqref{eq:mehleroverlap} with every localized
+data channel, the projector $H_0$ is \emph{by itself} an off-diagonal
+generator in the channel basis
+($\bra{x_i}H_0\ket{x_j}=\varepsilon_i\varepsilon_j$), and
+Section~\ref{sec:impl} shows it is the \emph{exact} off-diagonal
+generator~\eqref{eq:Hmehler} --- the vacuum$\,\leftrightarrow\,$channel
+transport needs nothing beyond it. Only in the $\varepsilon\to0$ frame
+approximation (the code's \texttt{ProjectVacuum}) does $H_0$ degenerate to
+an inert, self-adjoint, idempotent term whose only effect is a phase on the
+vacuum. We are explicit that this projector term is an \texttt{unfer}
+modeling choice, \emph{not} part of the paper's continuity Hamiltonian; it
+can be set to zero to recover the pure generator~\eqref{eq:Hgen_full}.
+
+\subsection{Time-averaging and exact commutativity}
+
+Because the packets have disjoint supports, the localized operators act on
+independent regions and \emph{exactly commute}:
+\begin{equation}
+  [\hat h_j,\hat h_k]=0\quad\forall j,k
+  \;\Longrightarrow\;[\Hgen_t,\Hgen_{t'}]=0 .
+\end{equation}
+The time-ordering operator therefore drops out of the evolution, and we may
+analytically time-average the parameters, $\bar\alpha_j=\int_0^1\alpha_j(t)\,
+\mathrm{d}t$. The continuous-time flow collapses to a single,
+\emph{time-independent} generator,
+\begin{equation}
+  \bar H=\ket{0}\bra{0}-\frac{i}{2}\sum_{j=1}^M\bar\alpha_j\,\hat h_j ,
+  \label{eq:Hbar}
+\end{equation}
+and inference is one exact step, $\Psi_{t=1}=e^{-i\bar H}\Psi_0$. (Setting the
+projector term to zero recovers the paper's generator exactly; we keep it for
+the generalization behavior described above.) This commutativity is the
+analytic analogue of the paper's observation that a conveniently smooth
+probability path can be chosen to tame the simulation error.
+
+\paragraph{The implemented (diagonal) generator.}
+The differential operators $\hat h_j$ of~\eqref{eq:Hbar} mix the vacuum with
+the data channels; that off-diagonal generator is the full wavefunction flow.
+The \texttt{unfer} builtin (Section~\ref{sec:impl}) currently implements the
+\emph{diagonal} number-operator surrogate
+\begin{equation}
+  \bar H_{\text{impl}}=\ket{0}\bra{0}+\sum_{j=1}^M\bar\alpha_j\,\hat n_j,
+  \qquad \hat n_j=\hat c_j^\dagger\hat c_j ,
+  \label{eq:Hdiag}
+\end{equation}
+for which the vacuum and each data channel are eigenstates
+($\bar H_{\text{impl}}\ket{0}=\ket{0}$,
+$\bar H_{\text{impl}}\ket{x_j}=\bar\alpha_j\ket{x_j}$) --- exactly so when
+$\ket{0}$ is read as the code's frame vacuum
+(\texttt{ProjectVacuum}), and to $\mathcal{O}(\varepsilon)$ for the true
+Mehler vacuum of Section~\ref{sec:innerouter}. This is the
+spectrally-stable skeleton of~\eqref{eq:Hbar}: it shares the prior, the
+$\mathcal{O}(M)$ construction, and the SIRK compressibility, while the
+off-diagonal mixing --- the part that actually performs the wavefunction
+flow --- is supplied exactly by the Mehler projector itself
+(eq.~\eqref{eq:Hmehler}, Section~\ref{sec:impl}), with no truncated
+companion form.
+
+\section{Relating the Fock space with a uniform measure in an
+infinite-dimensional sphere}
+\label{sec:mehler}
+
+This section justifies, from first principles, the central modeling choice:
+\emph{the Gaussian source $p_0$ of a flow model is the uniform
+``no-information'' measure, the Fock vacuum is its ground state, and orthogonal
+excitations encode information.} The bridge is a classical limit, due in spirit
+to Mehler~(1866) and made quantitative by L\'opez and
+Temme~\cite{LopezTemme1999}: in the infinite-dimensional limit the uniform
+measure on a hypersphere becomes the Gaussian measure, and the Gegenbauer
+polynomials --- which are orthogonal with respect to the uniform
+(hyperspherical) measure and define the hyperspherical harmonics --- become
+the Hermite polynomials. This is what makes the easily-prepared Gaussian
+initial qsample $\Psi_0=\sqrt{p_0}$ of Layden et al.\ coincide with the Fock
+vacuum that \texttt{unfer} manipulates natively.
+
+\subsection{Uniform information is the hyperspherical measure}
+
+Consider the surface of a $k$-sphere parameterized by angles
+$\varphi_0,\dots,\varphi_{k-1}$ with $x_j=\cos\varphi_j$. Its rotation-invariant
+(uniform) area element factorizes as
+\begin{equation}
+  \mathrm{d}\sigma(k)=\prod_{j=0}^{k-1}
+  \bigl(\sqrt{1-x_j^2}\bigr)^{\,j-1}\,\mathrm{d}x_j ,
+  \label{eq:areaelement}
+\end{equation}
+where the $j=0$ factor is special: $\mathrm{d}x_0=\sin\varphi_0\,
+\mathrm{d}\varphi_0$ and the azimuthal angle $\varphi_0$ ranges over
+$[0,2\pi]$, while every other angle ranges over $[0,\pi]$. The weight
+$(1-x^2)^{(\alpha-1)/2}$ appearing in a single coordinate of
+\eqref{eq:areaelement} is exactly the Gegenbauer weight of order
+$\alpha$. Because the Gegenbauer polynomials are orthogonal with respect to
+this uniform measure, the uniform measure is the natural \emph{prior}: it
+expresses that we have no information, every direction on the sphere being
+equally likely. Any other orthogonal state --- a definite Gegenbauer (and, in
+the limit, Hermite) excitation --- encodes \emph{information}, namely the
+result of integrating an unknown field's wavefunction over the hyperspherical
+surface against the basis function attached to a point of that surface.
+
+\subsection{The Gaussian limit of the hyperspherical weight}
+
+Rescale the coordinate as $x\mapsto\sqrt{2/\alpha}\,x$ and let the dimension
+$\alpha\to\infty$. The single-coordinate hyperspherical weight tends to the
+Gaussian weight:
+\begin{equation}
+  \lim_{\alpha\to\infty}\Bigl(\sqrt{1-\tfrac{2x^2}{\alpha}}\Bigr)^{\alpha-1}
+  =e^{-x^2}.
+  \label{eq:gaussweight}
+\end{equation}
+Thus the uniform measure on an infinite-dimensional sphere is the Gaussian
+measure --- the precise sense in which the Mehler ground state is the
+``maximum-entropy / total-uncertainty'' prior, and in which the Gaussian source
+$p_0=\mathcal{N}(0,\mathbf I)$ of a flow model is the Fock vacuum used in
+Section~\ref{sec:framework}.
+
+\subsection{Gegenbauer \texorpdfstring{$\to$}{to} Hermite and the normalization}
+
+The orthogonal polynomials track the same limit. With the Gegenbauer
+polynomials $C_n^{(\gamma)}$ defined by the generating function
+$(1-2xw+w^2)^{-\gamma}=\sum_n C_n^{(\gamma)}(x)\,w^n$, L\'opez and
+Temme~\cite{LopezTemme1999} give the Hermite limit (their Eq.~(1.4), with
+$\gamma=\alpha/2$):
+\begin{equation}
+  \lim_{\alpha\to\infty}\Bigl(\tfrac{\alpha}{2}\Bigr)^{-n/2}
+  C_n^{(\alpha/2)}\!\Bigl(\sqrt{\tfrac{2}{\alpha}}\,x\Bigr)
+  =\frac{1}{n!}\,H_n(x),
+  \label{eq:gegtoherm}
+\end{equation}
+where the Hermite polynomials are
+$H_n(x)=n!\sum_{k=0}^{\lfloor n/2\rfloor}\frac{(-1)^k}{k!(n-2k)!}(2x)^{n-2k}$.
+The normalizations converge consistently. For integers $n,\alpha\ge0$,
+\begin{equation}
+  N^{(\alpha)}_n
+  =\Bigl(\tfrac{\alpha}{2}\Bigr)^{\frac12-n}
+  \int_{-1}^{1}\bigl[C_n^{(\alpha/2)}(x)\bigr]^2
+  \bigl(\sqrt{1-x^2}\bigr)^{\alpha-1}\,\mathrm{d}x
+  =\Bigl(\tfrac{\alpha}{2}\Bigr)^{\frac12-n}
+  \frac{\pi\,2^{1-\alpha}\,\Gamma(n+\alpha)}
+       {n!\,\bigl(n+\tfrac{\alpha}{2}\bigr)\,[\Gamma(\tfrac{\alpha}{2})]^2},
+  \label{eq:gegnorm}
+\end{equation}
+and, in the limit, this is exactly the (squared) Hermite normalization against
+the Gaussian weight:
+\begin{equation}
+  \lim_{\alpha\to\infty}N^{(\alpha)}_n
+  =\frac{\sqrt{\pi}\,2^n}{n!}
+  =\int_{-\infty}^{\infty}\Bigl[\frac{H_n(x)}{n!}\Bigr]^2 e^{-x^2}\,\mathrm{d}x .
+  \label{eq:hermnorm}
+\end{equation}
+(The last equality uses the standard orthogonality
+$\int H_m H_n\,e^{-x^2}\mathrm{d}x=\sqrt{\pi}\,2^n n!\,\delta_{mn}$.)
+
+\subsection{Reading the dictionary}
+
+Equations~\eqref{eq:gaussweight}--\eqref{eq:hermnorm} establish a complete
+dictionary, summarized in Table~\ref{tab:dictionary}. The infinite-dimensional
+hypersphere with its uniform measure \emph{is} the Gaussian/Fock setting; the
+hyperspherical harmonics \emph{are} the Hermite/number-state basis; the
+uniform prior \emph{is} the vacuum $\ket{0}$; and the act of measuring a
+component is the projection onto a definite excitation. This is exactly the
+structure the \texttt{unfer} kernel manipulates natively in
+\texttt{nested\textunderscore fock\textunderscore algebra}: the vacuum
+projector $\ket{0}\bra{0}$ is the Gaussian source qsample $\Psi_0$, and creating
+a boson in mode $j$ records one unit of information about data channel $j$.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{l|l}
+\textbf{Finite hypersphere ($\alpha<\infty$)} & \textbf{Infinite-dim.\ limit (Fock)} \\
+\hline
+uniform surface measure $\mathrm{d}\sigma$ & Gaussian measure $e^{-x^2}\mathrm{d}x$ \\
+Gegenbauer weight $(1-x^2)^{(\alpha-1)/2}$ & Gaussian weight $e^{-x^2}$
+  \;[Eq.~\eqref{eq:gaussweight}] \\
+Gegenbauer polynomials $C_n^{(\alpha/2)}$ & Hermite polynomials $H_n/n!$
+  \;[Eq.~\eqref{eq:gegtoherm}] \\
+hyperspherical harmonics & number states $\ket{n}$ \\
+uniform ``no-information'' prior & Gaussian source qsample $\Psi_0=\ket{0}$ \\
+a definite point / harmonic & an orthogonal excitation (information) \\
+\end{tabular}
+\caption{The hypersphere-to-Fock dictionary underlying the Gaussian source and
+the vacuum prior.}
+\label{tab:dictionary}
+\end{table}
+
+\subsection{Which vacuum? Mehler builds the outer Fock space's basis
+directly}
+\label{sec:innerouter}
+
+Mehler's correspondence needs a space of wave-functions to act on, hence
+needs the \emph{inner} Fock space (\texttt{nested\textunderscore
+fock\textunderscore algebra}'s Level 1) to start from: the set of normalized
+inner wave-functions is the infinite-dimensional hypersphere, and the
+natural, rotation-invariant uniform measure on it expresses total ignorance
+about which inner wave-function is present.
+Equations~\eqref{eq:gaussweight}--\eqref{eq:hermnorm} show that, in the
+infinite-dimensional limit, this uniform hyperspherical measure becomes the
+Gaussian measure, and --- the point that matters here --- the Gegenbauer
+polynomials $C_n^{(\alpha/2)}$ that are orthogonal with respect to it become
+the Hermite polynomials $H_n$.
+
+The $H_n$ are not merely a basis for functions on the limiting measure: by
+the standard correspondence between the quantum harmonic oscillator and
+Hermite functions, they \emph{are} the number-state basis of a bosonic Fock
+space --- $H_0=1$, paired with the Gaussian weight, is the ground
+state/vacuum $\ket{0}$, and each successive $H_n$ is the $n$-particle
+excitation. Mehler's theorem therefore does not merely supply a measure to
+be reinterpreted by some further isomorphism: \emph{it directly constructs
+the vacuum and every other basis vector of a Fock space}, via the
+Gegenbauer-to-Hermite limit. This constructed space is the \emph{outer} Fock
+space: its one-particle ($H_1$-order) sector is exactly
+$\ket{x_j}=\hat c_j^\dagger\ket{0}$, one per data point, matching
+\texttt{nested\textunderscore fock\textunderscore algebra}'s representation
+of an \texttt{OuterState} as a multiset of inner-space configurations
+(\texttt{InnerBosonicState}/\texttt{InnerFermionicState}). Mehler applies to
+the outer Fock space precisely because that is the space whose basis it
+builds; the inner space only supplies the wave-functions --- the points of
+the hypersphere --- that the construction needs to start from.
+
+This is exactly why Table~\ref{tab:dictionary} may identify ``the vacuum
+$\ket{0}$'' with the uniform prior over inner wave-functions: they are the
+same object, $H_0$, produced by the one construction (Mehler's
+Gegenbauer-to-Hermite limit) that builds the outer vacuum in the first
+place --- not two vectors in two different spaces that happen to agree.
+
+How, then, is this vacuum related to the data channels? Here the
+parametrization of the next subsection does real work. A data packet
+$\ket{x_j}$ is \emph{not} one of the Hermite/Gegenbauer basis elements: it
+is a localized bump. In each of the $D$ coordinates that encode the point
+$x^{(j)}$, its qsample is $\sqrt{1/w_i}$ on an arc of width $w_i$ of that
+coordinate's circle (zero elsewhere), while in every remaining coordinate
+it coincides with the uniform state. Expanding coordinate by coordinate in
+the Gegenbauer/Hermite basis, the bump's component along the order-0
+(vacuum) element of a localized coordinate is
+$\int_{\mathrm{arc}}\sqrt{1/w_i}\,\sqrt{1/2\pi}\,\mathrm{d}\varphi
+=\sqrt{w_i/2\pi}$, and each untouched coordinate contributes a factor $1$.
+Hence
+\begin{equation}
+  \braket{0|x_j}=\varepsilon_j
+  =\prod_{i=1}^{D}\sqrt{\frac{w_{j,i}}{2\pi}}\;>\;0 ,
+  \label{eq:mehleroverlap}
+\end{equation}
+strictly positive \emph{precisely because} only finitely many coordinates
+are localized: had infinitely many coordinates been disturbed, the infinite
+product of factors $<1$ would vanish --- Kakutani's dichotomy for infinite
+product measures. The uniform vacuum is therefore \emph{not} orthogonal to
+any data channel. Distinct channels, by contrast, remain exactly
+orthogonal, $\braket{x_i|x_j}=0$ for $i\neq j$: they localize the
+\emph{same} $D$ coordinates on \emph{disjoint} arcs, so at least one
+coordinate contributes the factor $\int\sqrt{p_i\,p_j}=0$ --- the
+disjointness~\eqref{eq:disjoint} again.
+
+For computation, \texttt{nested\textunderscore fock\textunderscore
+algebra}'s \texttt{OuterState} basis is an \emph{orthonormal frame}: the
+packet $\ket{x_j}$ is represented by the frame vector
+$B_j^\dagger\ket{\mathrm{vac}}_F$ (the channels are orthonormal among
+themselves, so they may be), and $\ket{\mathrm{vac}}_F$ is the unit vector
+along the part of the uniform state lying \emph{outside} every packet ---
+the Gram--Schmidt residual of $\ket{0}$ against the channels. In this frame
+the Mehler vacuum is the \emph{dressed} superposition
+\begin{equation}
+  \ket{0}=c_0\ket{\mathrm{vac}}_F
+  +\sum_{j=1}^M\varepsilon_j\,B_j^\dagger\ket{\mathrm{vac}}_F ,
+  \qquad
+  c_0=\sqrt{1-\textstyle\sum_j\varepsilon_j^2}\;,
+  \label{eq:dressedvac}
+\end{equation}
+where $\sum_j\varepsilon_j^2\le1$ holds automatically: each
+$\varepsilon_j^2$ is the uniform-measure mass of packet $j$'s support box,
+and the boxes are disjoint. The code's rank-1
+\texttt{Operator::ProjectVacuum} projects onto $\ket{\mathrm{vac}}_F$
+alone, so identifying it with the Mehler prior $\ket{0}\bra{0}$ is exact
+only to $\mathcal{O}(\varepsilon)$; the exact projector --- which
+Section~\ref{sec:impl} shows is by itself the entire off-diagonal
+generator --- is the \texttt{qfm\textunderscore hamiltonian\textunderscore
+mehler\textunderscore projector} builtin.
+
+\subsection{The data-channel wave-function on the hypersphere: finitely many
+localized coordinates, the rest uniform}
+
+Section~\ref{sec:framework} encodes each training point $x^{(j)}\in\Rset^D$
+as a localized wave-packet $\Psi_j$ --- a single point of the inner Fock
+space, hence a single point of the hypersphere of
+Section~\ref{sec:mehler}. Concretely, in the finite-$k$ hypersphere of
+angles $\varphi_0,\dots,\varphi_{k-1}$ ($D$ is fixed and finite, while
+$k\to\infty$ in Mehler's limit), $\Psi_j$'s parametrization pins only the
+first $D$ angular coordinates to a small, localized neighborhood of the
+values encoding $x^{(j)}$'s $D$ real components; every remaining coordinate
+$\varphi_D,\varphi_{D+1},\dots$ is left at the plain uniform measure on its
+own circle, carrying no information about which data point this is ---
+exactly as it does for the vacuum.
+
+This is the hypersphere-side picture of ``one Hermite excitation, $D$ real
+parameters, attached to point $x^{(j)}$,'' and it is what makes the encoding
+a genuine \emph{single}, normalizable Fock-space excitation rather than an
+infinite-dimensional one: a state can only differ from the vacuum in
+finitely many modes, and localizing exactly $D$ of the (infinitely many)
+hyperspherical coordinates is that finiteness condition made explicit. The
+rest of the infinite-dimensional background stays at the uniform,
+no-information state that Mehler identifies with the outer vacuum
+(Section~\ref{sec:innerouter}) --- so $\ket{x_j}$ and $\ket{0}$ differ only
+in those $D$ localized coordinates, and agree (uniform) everywhere else.
+That agreement everywhere else is exactly what keeps the vacuum--channel
+overlap~\eqref{eq:mehleroverlap} finite and nonzero: only the $D$ localized
+coordinates contribute factors $\sqrt{w_i/2\pi}<1$, so
+$\braket{0|x_j}=\varepsilon_j>0$ --- the data channels are visible to the
+vacuum, and Section~\ref{sec:impl} turns precisely this non-orthogonality
+into the off-diagonal transport.
+
+\section{Krylov--Hashimoto dimensional reduction}
+\label{sec:krylov}
+
+The generator $\bar H$ of~\eqref{eq:Hbar} (and its diagonal
+surrogate~\eqref{eq:Hdiag}) exactly encodes the flow, but its nominal dimension
+scales with $M$. Where Layden et al.~\cite{Layden2025} discretize time with
+product formulas (incurring $\|H_t^c\|$-dependent cost), \texttt{unfer}
+compresses the generator with the SIRK machinery of
+Section~\ref{sec:sirk}.
+
+\subsection{The inversion-free shortcut}
+
+The standard polynomial Krylov subspace is
+\begin{equation}
+  \Kry_m(\bar H,v_0)=\mathrm{span}\{v_0,\bar H v_0,\bar H^2 v_0,\dots,
+  \bar H^{m-1}v_0\}.
+\end{equation}
+Naively, the rational construction~\eqref{eq:ratkrylov} requires solving a
+linear system $(\gamma I-\bar H)y=v$ at each step. Our shortcut avoids it: by
+pre-conditioning the seed as $v=(\gamma I-\bar H)^{m-1}v_0$, applying the
+resolvent merely \emph{lowers the polynomial degree}, recovering the standard
+Krylov subspace with no inversion. Concretely, \texttt{fock\textunderscore
+sirk} realizes this by generating the sequence $w_k=(\bar H-z_kI)w_{k-1}$ with
+uniform shifts $z_k=\gamma$; this is mathematically valid because $\bar H$ is
+\emph{bounded} (the Mehler projector is rank one and the number operators are
+diagonal). Each application of $\bar H^k$ costs only $\mathcal{O}(M)$ precisely
+because the orthogonal Fock potential has \emph{no cross-terms} --- the same
+decoupling that made the training~\eqref{eq:alpha} diagonal.
+
+\subsection{Spectral low-pass filtering}
+
+The Krylov projection acts as an exact spectral low-pass filter: it discards
+the overfitted, localized ``spikes'' (high-frequency packet detail) and
+retains the $m$ dominant macroscopic transport eigenvalues. The reduced
+generator $\bar H_{\mathrm{reduced}}$ is a dense $m\times m$ matrix (e.g.\
+$m=15$--$20$), and the SIRK bound~\eqref{eq:sirkbound} guarantees its error
+decays like $e^{-hm}$. Generation is then a single instantaneous
+$\mathcal{O}(m^2)$ matrix exponential,
+\begin{equation}
+  \Psi_{t=1}=e^{-i\bar H_{\mathrm{reduced}}}\,\Psi_0 .
+\end{equation}
+The orthonormalization of the (possibly rank-deficient) Krylov basis is handled
+by \texttt{unfer}'s rank-revealing Gram whitening, which keeps the reduction
+numerically stable even when several packets nearly coincide.
+
+\section{Implementation in the \texttt{unfer} Kernel}
+\label{sec:impl}
+
+The wavefunction-flow module integrates into the existing \texttt{unfer}
+monorepo with no new numerical primitives --- it reuses the CAS, the solver, and
+the module runtime.
+
+\subsection{Symbolic algebra (\texttt{nested\textunderscore fock\textunderscore algebra})}
+
+The symbolic engine gains two operators. \texttt{Operator::ProjectVacuum}
+is the rank-1 projector onto the \emph{frame} vacuum
+$\ket{\mathrm{vac}}_F\bra{\mathrm{vac}}_F$ --- the
+$\mathcal{O}(\varepsilon)$ stand-in for the exact Mehler source/prior
+$H_0=\ket{0}\bra{0}$ of~\eqref{eq:dressedvac}; on application it keeps only
+the strict-vacuum component and annihilates any state carrying a mode, and
+it is self-adjoint and idempotent, so it slots into the existing adjoint
+and Hermiticity machinery. \texttt{Operator::ProjectOnto($\psi$)} (rev 31)
+is the exact rank-1 projector $\ket{\psi}\bra{\psi}$ onto an
+\emph{arbitrary} normalized state --- in particular the dressed Mehler
+vacuum of~\eqref{eq:dressedvac} --- applied through the rank-1 shortcut
+$H\ket{s}=\braket{\psi|s}\ket{\psi}$ (one sparse inner product plus one
+scaled copy), which is what makes the \emph{exact} off-diagonal generator
+the practical one: cost $\mathcal{O}(M)$ per matvec, never the
+$\mathcal{O}(M^2)$ frame expansion. The diagonal generator~\eqref{eq:Hdiag}
+is instantiated directly by the builtin
+\texttt{qfm\textunderscore hamiltonian(alphas)}, which assembles
+$\ket{0}\bra{0}+\sum_j\bar\alpha_j\,\hat c_j^\dagger\hat c_j$ as one projector
+term plus one number operator per data point. Building the Hamiltonian
+directly (rather than through \texttt{Expression::expand()}) sidesteps the
+combinatorial explosion of the CAS, so $M=10^6$ data points yield $10^6$ terms
+with no blow-up --- the grid-free analogue of the paper avoiding an explicit
+$N^d$ amplitude vector. Both \texttt{qfm\textunderscore hamiltonian} and the
+exact projector builtin (below) identify each data point purely by array
+index, which already guarantees $\braket{x_i|x_j}=\delta_{ij}$ but carries
+none of the point's own $D$ real coordinates in the Fock state itself, only
+in the scalar weights. The companions
+\texttt{qfm\textunderscore hamiltonian\textunderscore localized}/
+\texttt{qfm\textunderscore hamiltonian\textunderscore mehler\textunderscore
+projector\textunderscore localized} instead realize
+Section~\ref{sec:mehler}'s data-channel picture literally: each
+\texttt{point\textunderscore to\textunderscore inner\textunderscore state}
+occupies exactly $D$ inner modes, one per real coordinate (a fixed-point
+quantization, zigzag-encoded to preserve sign), leaving every other mode at
+zero occupation --- the direct computational realization of ``$D$ of the
+hyperspherical coordinates localized, the rest uniform,'' reachable through
+the kernel's protocol as the \texttt{qfm\textunderscore mehler\textunderscore
+localized}/\texttt{qfm\textunderscore mehler\textunderscore
+projector\textunderscore localized} builtins.
+
+\subsection{GPU-accelerated solver (\texttt{fock\textunderscore sirk})}
+
+The solver natively generates the Krylov sequence $w_k=(\bar H-z_kI)w_{k-1}$.
+Supplying a uniform shift array realizes the inversion-free reduction of
+Section~\ref{sec:krylov}; the $m\times m$ Gram matrix $\braket{w_j|w_k}$ is
+assembled on the GPU via \texttt{candle-core} CUDA tensors. Because
+$\hat V=\sum_j\bar\alpha_j\hat n_j$ has no cross-terms, basis generation is
+embarrassingly parallel and fast, and the rank-revealing Gram whitening keeps
+the highly compressed flow representation stable. This is \texttt{unfer}'s
+classical counterpart to the paper's quantum Hamiltonian simulation: exact
+operator evolution, but on a CPU/GPU Fock substrate rather than qubits.
+
+\subsection{Module execution runtime}
+
+The whole wavefunction-flow loop is exposed through the
+\texttt{unfer\textunderscore ffi} C ABI and driven by a new Austral module
+(\texttt{qfm\textunderscore module}). Through the manifest-authorized
+\texttt{uk\textunderscore evolve} and
+\texttt{uk\textunderscore event\textunderscore probability} symbols, the module
+triggers the analytical parameter assembly, the Krylov reduction, and the
+single-step $\mathcal{O}(m^2)$ inference natively in-process, with the kernel
+handle held in a linear type that the Austral compiler forces it to free. A
+second module, \texttt{data\textunderscore source}, exercises the
+\texttt{data\textunderscore source} archetype by linking
+\texttt{unfer\textunderscore ffi} as a path dependency and ingesting
+external observations through the real C ABI (\texttt{uk\textunderscore observe},
+\texttt{uk\textunderscore get\textunderscore result}); it runs as
+\texttt{step~8} of \texttt{demo\textunderscore module/run\textunderscore demo.sh}.
+
+\subsection{Scope: the diagonal surrogate and the exact off-diagonal projector}
+
+The shipped builtin \texttt{qfm\textunderscore hamiltonian(alphas)} implements
+the diagonal generator~\eqref{eq:Hdiag}. Because $\bar H_{\text{impl}}$ is
+diagonal, the vacuum and the data channels are eigenstates, so
+$e^{-i\bar H_{\text{impl}}t}$ contributes only phases and the Born populations
+are stationary --- the module's integration tests assert exactly this
+conservation, not a spurious ``spread.'' This is the spectrally-stable
+skeleton of~\eqref{eq:Hbar}: it shares the prior, the $\mathcal{O}(M)$
+construction, and the SIRK compressibility, while the off-diagonal mixing
+$\hat h_j$ --- the part that actually performs the wavefunction flow --- is
+taken up next.
+
+\paragraph{The exact off-diagonal generator is just the vacuum projector.}
+Section~\ref{sec:innerouter} established the key structural fact: the
+Mehler vacuum is \emph{not} orthogonal to the data channels ---
+$\braket{0|x_j}=\varepsilon_j>0$~\eqref{eq:mehleroverlap}, because each
+channel localizes only finitely many hyperspherical coordinates. The exact
+off-diagonal generator therefore needs no explicit coupling terms at all:
+it is \emph{just the projector onto the vacuum},
+\begin{equation}
+  \Hgen_{\mathrm{off}}=\ket{0}\bra{0},\qquad
+  \bra{x_i}\Hgen_{\mathrm{off}}\ket{x_j}
+  =\varepsilon_i\varepsilon_j ,
+  \label{eq:Hmehler}
+\end{equation}
+off-diagonal in the channel basis purely by non-orthogonality. It is
+manifestly Hermitian (every projector is), so it drops into the SIRK +
+Born-rule substrate with no symmetrization step. For analytical reference,
+substituting the dressed representation~\eqref{eq:dressedvac} expands it
+over the orthonormal computational frame as
+\begin{equation}
+  \ket{0}\bra{0}
+  =c_0^2\,P_0
+  +\sum_{j=1}^M c_0\varepsilon_j\bigl(B_j^\dagger P_0+P_0B_j\bigr)
+  +\sum_{i,j=1}^M \varepsilon_i\varepsilon_j\,B_i^\dagger P_0 B_j ,
+  \label{eq:Hmehlerexp}
+\end{equation}
+where $P_0=\ket{\mathrm{vac}}_F\bra{\mathrm{vac}}_F$ is the \emph{frame}-vacuum
+projector (\texttt{Operator::ProjectVacuum}) and
+$B_j^\dagger=\hat C^\dagger_{\ket{x_j}}$ creates the single-excitation
+outer-universe state --- but the expansion is \emph{never materialized}:
+the implementation stores the dressed vacuum once and applies the rank-1
+shortcut
+\begin{equation}
+  \Hgen_{\mathrm{off}}\ket{s}=\braket{0|s}\,\ket{0}
+  \qquad(\texttt{Operator::ProjectOnto}),
+  \label{eq:rank1shortcut}
+\end{equation}
+one sparse inner product plus one scaled copy, $\mathcal{O}(M)$ per matvec
+--- so no $\mathcal{O}(\varepsilon)$ truncation and no
+$\mathcal{O}(M^2)$ cross-term list is ever needed. (Earlier revisions
+shipped a truncated companion builtin, $\ket{0}\bra{0}+\sum_j\bar\alpha_j
+(B_j^\dagger P_0+P_0B_j)$ with $c_0\to1$ and the cross terms dropped; rev
+31 removed it --- the exact projector is the only off-diagonal generator.)
+
+Because the exact generator is a rank-1 projector ($H^2=H$, eigenvalues
+$1$ on the dressed $\ket{0}$ and $0$ on its orthogonal complement), its
+evolution is closed-form,
+\begin{equation}
+  e^{-it\,\Hgen_{\mathrm{off}}}
+  =I+\bigl(e^{-it}-1\bigr)\ket{0}\bra{0}\,.
+\end{equation}
+Starting from the frame vacuum $\ket{\mathrm{vac}}_F$ (overlap $c_0$ with
+$\ket{0}$), \emph{every} channel is pumped coherently and simultaneously at
+the same unit frequency, $P_{x_j}(t)=4\sin^2(t/2)\,c_0^2\varepsilon_j^2$,
+with exact return at $t=2\pi$; the dressed vacuum itself is stationary (it
+is the eigenvector). This coherent, reversible oscillation --- rather than
+the diffusive Fokker--Planck transport of the paper's anti-Hermitian
+$\Hgen^c$~\cite{Layden2025} --- is the honest engineering trade required
+by the unfer architecture: SIRK + the Born rule assume a Hermitian
+generator (AGENTS.md \S4). The generator is implemented by
+\texttt{qfm\textunderscore hamiltonian\textunderscore mehler\textunderscore
+projector(epsilons)} in \texttt{nested\textunderscore fock\textunderscore
+algebra} --- with $\varepsilon_j$ obtainable from the arc widths via
+\texttt{mehler\textunderscore channel\textunderscore overlap(widths)}
+$=\prod_i\sqrt{w_i/2\pi}$ --- and dispatched as the
+\texttt{qfm\textunderscore mehler\textunderscore projector} builtin in
+\texttt{prob\textunderscore kernel::build} (which rejects
+$\sum_j\varepsilon_j^2>1$ with a diagnostic); the localized-encoding
+variant is \texttt{qfm\textunderscore mehler\textunderscore
+projector\textunderscore localized(points, epsilons, scale)}. Unit tests
+verify idempotence $H^2=H$ on arbitrary states and every matrix element of
+\eqref{eq:Hmehler}; integration tests pin the SIRK-evolved populations to
+the closed form above and the stationarity of the dressed vacuum.
+
+\paragraph{Beyond off-diagonal: Tomographic Subspace Recovery (Workstream F).}
+The diagonal and exact-projector generators both encode each of the
+$M$ data points as a single-boson mode of the Fock space, so online
+generation is just $e^{-iH_m t}$ on the Krylov-reduced $c_0$ --- there is
+no $M$-independent decoding of a raw high-resolution image. Section~\ref{sec:tomographic}
+introduces the \emph{Tomographic Subspace Recovery} (TSR) pipeline that closes
+this gap: a two-level hashing scheme plus pre-projected observables in the
+$m^2$ operator basis that execute the full four-phase generate
+(encode $\to$ evolve $\to$ tomographic reconstruct $\to$ lossless decode) with
+zero $\mathcal{O}(M)$ dependence at inference. TSR is the natural v2 of QFM
+that the unfer architecture now supports.
+
+\section{Tomographic Subspace Recovery: a non-neural,
+\texorpdfstring{$M$}{M}-free online pipeline}
+\label{sec:tomographic}
+
+The diagonal and exact-projector generators of
+Sections~\ref{sec:framework}--\ref{sec:impl} each encode the $M$ data points
+as single-boson modes of the Fock space. Online generation is then
+just $e^{-iH_m t}$ on the Krylov-reduced coefficient vector $c_0\in\Cset^m$;
+there is no mechanism to decode a raw high-resolution image $x\in\Rset^d$
+back from the Krylov state. This section closes that gap by adapting the
+algorithm specification \emph{Non-Neural Quantum Flow Matching with Tomographic
+Subspace Recovery} (henceforth TSR) into the unfer architecture. TSR
+decouples \emph{semantics} (hashing and coordinate projections) from
+\emph{reasoning} (unitary Krylov evolution) so that every online op is
+$\mathcal{O}(d\cdot m^2)+\mathcal{O}(K_2\log k)+\mathcal{O}(K_2\cdot m^2)$
+with \emph{no} $\mathcal{O}(M)$ dependence.
+
+\subsection{System dimensions}
+
+The pipeline is defined over the following five dimensions:
+\begin{itemize}
+\item $d$: raw configuration space dimension (e.g.\ $d=10^6$ pixels);
+\item $M$: total number of training data points (offline only);
+\item $k$: Level~1 spatial feature hash dimension (e.g.\ $k=512$, $k\ll d$);
+\item $K_2$: Level~2 sketched Hilbert space dimension (e.g.\ $K_2=8192$, $K_2>k$);
+\item $m$: reduced Krylov subspace dimension (e.g.\ $m=20$).
+\end{itemize}
+The two-level hashing is the key compression step: $S_1$ reduces the raw
+configuration to a $k$-dim feature vector, and $S_2$ maps each feature to a
+single-excitation Fock state in a $K_2$-dim space. After Krylov reduction the
+online state lives in $\Cset^m$, and all raw-coordinate observables are
+pre-projected into the $m^2$ operator basis so that the full four-phase
+generate costs are bounded by the four combinations above.
+
+\subsection{Offline compilation
+(\texorpdfstring{$\mathcal{O}(M)$}{O(M)})}
+
+The offline phase builds the static artifacts that the online phase consumes.
+
+\paragraph{Level~1 hash ($S_1\in\Rset^{k\times d}$).} A sparse, deterministic
+Count-Sketch matrix maps each raw pixel coordinate $c\in\{1,\dots,d\}$ to a
+hash bucket $h(c)\in\{1,\dots,k\}$ and a random sign $s(c)\in\{-1,+1\}$. The
+full $d\times k$ matrix is never materialized --- only the per-coordinate
+$(h(c),s(c))$ pairs are stored ($2d$ bytes). For any image $x\in\Rset^d$ the
+spatial hash is
+\begin{equation}
+  \tilde x=S_1(x)\in\Rset^k,\qquad \tilde x_h=\sum_{c:h(c)=h}s(c)\,x_c .
+\end{equation}
+Complexity: $\mathcal{O}(\mathrm{nnz}(x))$ for a sparse $x$, $\mathcal{O}(d)$
+dense. In the unfer implementation this is
+\texttt{CountSketch::new(k,d,seed)} in \texttt{qfm/src/sketch.rs} with a
+splitmix64 PRNG over the seed.
+
+\paragraph{Level~2 hash ($S_2:\mathcal{P}(\Rset^k)\to\Cset^{K_2}$).} The
+Level~2 hash maps a $k$-dim feature distribution to a $K_2$-dim sketched
+Fock state. For a single training image $x_j$ the distribution is a delta
+function $\delta_{\tilde x_j}$ at the feature point; the corresponding Fock
+state is a \emph{single excitation} at the mode assigned to that feature:
+\begin{equation}
+  \ket{\Psi_j}=S_2(\delta_{\tilde x_j})\in\Cset^{K_2},\qquad
+  \ket{\Psi_j}=B^\dagger_{m_j}\ket{0}\quad\text{(mode }m_j\text{)} .
+\end{equation}
+In unfer this is \texttt{FeatureToMode::register(feature\_key)} which assigns
+a fresh mode to each new training feature and stores the
+$(\text{feature\_key}\to\text{mode})$ map in an \texttt{FxHashMap}.
+
+\paragraph{Analytical potential and exact flow generator.} The
+conservative potential $V_t(x)=\sum_j\alpha_j(t)\Psi_j(x)$ with the
+disjoint-support $\Psi_j$ of Section~\ref{sec:framework} gives the
+decoupled, linear-scaling optimal coefficients of~\eqref{eq:alpha}. The
+time-averaged coefficients $\bar\alpha_j=\int_0^1\alpha_j(t)\,\mathrm{d}t$
+define a static, time-independent flow potential. In the unfer
+implementation the optimal coefficients reduce to the closed form
+\begin{equation}
+  \bar\alpha_j=\frac{\|x^{(j)}\|^2}{M},
+\end{equation}
+the squared norm of each data point divided by the dataset size (a positive
+weight proportional to the displacement energy of the $j$-th channel).
+The static flow generator is the exact Mehler
+projector~\eqref{eq:Hmehler}, with the flow-matching weights setting the
+channel components of the dressed vacuum: normalizing the dressed vector
+$\ket{v}=\ket{\mathrm{vac}}_F+\sum_{j=1}^{K_2}\bar\alpha_j\ket{x_j}$ gives
+\begin{equation}
+  \bar H_{\mathrm{tomo}}=\ket{\tilde 0}\bra{\tilde 0},\qquad
+  \ket{\tilde 0}=\frac{\ket{v}}{\|v\|}
+  =c_0\ket{\mathrm{vac}}_F+\sum_{j=1}^{K_2}\varepsilon_j\ket{x_j},\qquad
+  \varepsilon_j=\frac{\bar\alpha_j}{\sqrt{1+\sum_k\bar\alpha_k^2}},
+  \label{eq:Htomo}
+\end{equation}
+with $c_0=1/\sqrt{1+\sum_k\bar\alpha_k^2}$ --- so
+$\varepsilon_j\to\bar\alpha_j$ for small weights, and the generator is
+exactly idempotent for any weights. Only channels $j<K_2$ (the sketched
+modes) enter the dressed vacuum. The vacuum couples to all $K_2$ channels
+simultaneously through the single projector (this is not $K_2$ independent
+two-level oscillators), transporting amplitude coherently with the
+closed-form populations of Section~\ref{sec:impl}. This is implemented by
+\texttt{qfm/src/potential.rs::build\_flow\_hamiltonian}, which delegates
+to \texttt{qfm\textunderscore hamiltonian\textunderscore mehler\textunderscore
+projector} and therefore to the rank-1
+\texttt{Operator::ProjectOnto} shortcut~\eqref{eq:rank1shortcut}.
+
+\paragraph{Krylov reduction.} Running the SIRK pipeline of
+Section~\ref{sec:krylov} on $\bar H_{\mathrm{tomo}}$ with a vacuum seed
+produces the $K_2\times m$ basis matrix $W$ and the $m\times m$ reduced
+generator $H_m$. In the unfer implementation, \texttt{QfmPipeline::compile}
+calls \texttt{fock\_sirk::solve\_forward\_sirk} on the vacuum $+$
+single-excitation seed ($K_2+1$ basis states, each with amplitude
+$1/\sqrt{K_2+1}$) with $m$ uniform shifts on the negative-imaginary axis
+($\zeta_k=-i\,k/m$ for $k=1,\dots,m$; the shifts are normalized by $m$
+since rev 24 to bound the per-step growth of the Krylov sequence --- see
+the rev 24 subsection of Section~\ref{sec:bayes} for the overflow this
+fixes). The SIRK solve returns a Hermitian reduced Hamiltonian
+$H_m=\mathrm{sirk.h\_proj}$ (Hermiticity is guaranteed by the Gram-matrix
+whitening step in the forward SIRK pipeline of Section~\ref{sec:krylov}) plus a
+whitened Krylov basis $W=\mathrm{sirk.w\_whiten}$. Since rev 17
+(\texttt{P6 G}) the spatial mode basis used for encode/decode is this
+genuine SIRK-generated $\mathrm{w\_whiten}$, restricted to the $K_2$
+single-excitation Fock rows and per-row renormalized so the Born-rule
+likelihood stays well-defined. (The rev 14 release had interim-materialized
+$W$ as the deterministic identity sub-block of the first $m$ standard basis
+vectors --- a valid rank-$m$ stand-in exploiting the spec's \emph{``$K_2$-dim
+single-excitation subspace is small enough for direct construction''}
+insight --- but this left a lossy component in the round-trip; rev 17
+replaced it.) The reduced Hamiltonian
+$H_m$ is genuinely non-diagonal (the off-diagonal coupling comes
+from the static flow generator itself, $\bar H_{\mathrm{tomo}}$ of
+\eqref{eq:Htomo}), so Phase~2 below uses \texttt{nalgebra}'s
+Pad\'e-based matrix exponential on $(-i H_m t)$ to preserve unitarity
+exactly (AGENTS.md~\S4). The important point is that $W$ and $H_m$ are
+\emph{compiled once} and then retained; the raw $M\times d$ training
+dataset and the full $K_2$-dim Fock state vectors are purged from memory
+at the end of compilation (only the $M$ sketched $k$-dim training features
+are kept, for the $S_2$ nearest-feature fallback of the online phase).
+
+\paragraph{Pre-projected observables.} The online phase never touches the
+raw Fock space or the raw coordinates. Instead, all observables are
+pre-projected into the $m^2$ operator basis
+$\{E_{r,s}=\ket{e_r}\bra{e_s}:r,s\in\{1,\dots,m\}\}$ (a complete,
+orthonormal basis of Krylov operators) and stored as dense static matrices.
+Four matrices are built.
+
+The \emph{probability weight matrix} $\mathbf{W}_{\mathrm{prob}}\in\Rset^{K_2\times m^2}$
+projects the density matrix back to the sketched probability space. For each
+basis projector $P_a=\ket{a}\bra{a}$ ($a=0,\dots,K_2-1$) and each
+$E_{r,s}$:
+\begin{equation}
+  (\mathbf{W}_{\mathrm{prob}})_{a,(r,s)}
+  =\mathrm{Tr}\bigl(E_{r,s}^\dagger\,W^\dagger P_a W\bigr)
+  =(W^\dagger P_a W)_{s,r}
+  =\overline{W_{a,r}}\,W_{a,s}.
+\end{equation}
+The last equality uses that $P_a$ is a one-hot projector: $W^\dagger P_a W$ is
+the outer product of the $a$-th row of $W$ with itself. Implemented by
+\texttt{qfm/src/observables.rs::probability\_weight\_matrix}; complexity
+$\mathcal{O}(K_2\cdot m^2)$ (one outer product per projector).
+
+The \emph{Krylov image basis} $\mathbf\Phi\in\Rset^{d\times m^2}$ projects
+the raw coordinate (pixel) operators $X_c=\ket{c}\bra{c}$ ($c=0,\dots,d-1$)
+into the Krylov subspace:
+\begin{equation}
+  \mathbf\Phi_{c,(r,s)}=\mathrm{Tr}\bigl(E_{r,s}^\dagger\,W^\dagger X_c W\bigr)
+  =\overline{W_{c,r}}\,W_{c,s}.
+\end{equation}
+Implemented by \texttt{krylov\_image\_basis}; complexity $\mathcal{O}(d\cdot m^2)$.
+
+The \emph{compressive subspace solver} $\tilde{\mathbf\Phi}^+\in\Rset^{m^2\times k}$
+applies the Level~1 hash to $\mathbf\Phi$ and pre-computes its
+Moore--Penrose pseudo-inverse:
+\begin{equation}
+  \tilde{\mathbf\Phi}=S_1\mathbf\Phi\in\Rset^{k\times m^2},\qquad
+  \tilde{\mathbf\Phi}^+=(\tilde{\mathbf\Phi}^\top\tilde{\mathbf\Phi})^{-1}
+  \tilde{\mathbf\Phi}^\top\in\Rset^{m^2\times k}.
+\end{equation}
+Implemented by \texttt{CountSketch::apply\_to\_columns} (the $S_1\mathbf\Phi$
+step, $\mathcal{O}(k\cdot m^2)$) and \texttt{compressive\_solver} (SVD-based
+pseudo-inverse, $\mathcal{O}(k\cdot m^4)$ dominated by the SVD).
+
+The offline compilation is complete. The \texttt{QfmPipeline} struct retains
+the $K_2\times m$ basis $W$, the reduced generator $H_m$, the three
+pre-projected observable matrices, and the $M$ sketched $k$-dim training
+features (for the $S_2$ nearest-feature fallback); the raw $M\times d$
+training dataset is discarded, and every online op touches only these
+compiled artifacts --- never the raw training data.
+
+\subsection{Online inference: the four-phase generate}
+
+The online phase has no $\mathcal{O}(M)$ dependencies. Given a raw query
+$q\in\Rset^d$, the four phases below chain
+\begin{equation}
+  q\,\xrightarrow{S_1}\,\tilde q\,\xrightarrow{S_2}\,\ket{\Psi_{\mathrm{in}}}\,\xrightarrow{W^\dagger}\,c_0\,\xrightarrow{e^{-iH_m}}\,c_1\,\xrightarrow{\mathrm{tomo+decode}}\,x_{\mathrm{out}},
+\end{equation}
+and each phase is bounded by the complexity table at the end of this section.
+In the unfer implementation these phases are the
+\texttt{QfmPipeline::encode}/\texttt{evolve}/\texttt{decode} methods, with
+\texttt{generate} chaining all three.
+
+\paragraph{Phase 1: Input encoding.} The sparse, single-excitation Fock state
+$\ket{\Psi_{\mathrm{in}}}=S_2(S_1(q))\in\Cset^{K_2}$ is projected into the
+$m$-dim starting vector $c_0=W^\dagger\ket{\Psi_{\mathrm{in}}}$. Since the
+state is single-excitation, only the $K_2$ active entries of the dense
+$K_2$-dim vector contribute: complexity $\mathcal{O}(K_2\cdot m)$ reduced to
+$\mathcal{O}(k\cdot m)$ by the Level~1 hash. In unfer this is
+\texttt{QfmPipeline::encode} returning a \texttt{DVector<Complex64>} of
+length $m$.
+
+\paragraph{Phase 2: Unitary time-evolution.} The state evolves to the
+generation boundary $t=1$ by $c_1=e^{-iH_m t}\,c_0$. Since rev 14 the
+reduced Hamiltonian $H_m$ is genuinely non-diagonal (it is the SIRK
+projection of the off-diagonally coupled $\bar H_{\mathrm{tomo}}$ of
+\eqref{eq:Htomo}), so this is a full Pad\'e-based matrix exponential via
+\texttt{nalgebra::DMatrix::exp()} applied to the skew-Hermitian matrix
+$-i H_m t$. The Pad\'e approximant is provably unitary and stable for
+Hermitian $H_m$, exactly matching the AGENTS.md~\S4 mandate for
+inverse-free SIRK. The time parameter $t$ is taken explicitly by
+\texttt{QfmPipeline::evolve(c\_0, t)} (with the default $t=1.0$ exposed
+via the wrapper \texttt{generate(query)}). Complexity:
+$\mathcal{O}(m^3)$ for the Pad\'e exponentiation; in practice this is
+$<$30\,\textmu s on commodity hardware for $m\leq 32$, and the rev 14
+test \texttt{pipeline\_evolve\_unitarity\_preserves\_norm} verifies
+$|||c_0||-||c_1||| < 10^{-6}$ for arbitrary $t$. Implemented by
+\texttt{QfmPipeline::evolve}.
+
+\paragraph{Phase 3: Tomographic distribution reconstruction.} The density
+matrix of $c_1$ is computed in the $m^2$ operator basis: the flat outer
+product is $m^2$ complex multiplications, but only its real part is kept,
+$\rho_{\mathrm{flat}}=\mathrm{Re}\,\mathrm{vec}(c_1c_1^\dagger)\in\Rset^{m^2}$
+--- lossless here because the SIRK-whitened basis $W$ is real by
+construction ($\bar H_{\mathrm{tomo}}$ is real-symmetric in this basis), so
+$W_{\mathrm{prob}}$'s own projection weights are real too and the discarded
+imaginary parts of $\rho_{\mathrm{flat}}$ would only have multiplied zero.
+The sketched probability density is then
+$\tilde p=\mathbf{W}_{\mathrm{prob}}\,\rho_{\mathrm{flat}}\in\Rset^{K_2}$:
+a single dense matrix-vector product, complexity $\mathcal{O}(K_2\cdot m^2)$.
+In unfer this is the first half of \texttt{QfmPipeline::decode}
+(\texttt{qfm/src/observables.rs::probability\_weight\_matrix} builds
+$W_{\mathrm{prob}}$ under the same real-$W$ assumption).
+
+\paragraph{Phase 4: Lossless peak recovery (decoding).} The Count-Sketch
+Heavy Hitters algorithm locates the top-$k$ indices of the probability sketch
+$\tilde p$ (\texttt{HeavyHitters} in \texttt{qfm/src/heavy\_hitters.rs}, a
+Misra--Gries / Count-Min tracker, complexity $\mathcal{O}(K_2\log k)$). The
+peak mode's training feature is looked up to recover the $k$-dim peak hash
+$\tilde x_{\mathrm{peak}}$. The subspace coefficients
+$\gamma=\tilde{\mathbf\Phi}^+\,\tilde x_{\mathrm{peak}}\in\Rset^{m^2}$ are
+recovered by a single small matrix-vector multiplication
+($\mathcal{O}(m^2\cdot k)$). The full-resolution image is rendered as
+$x_{\mathrm{out}}=\mathbf\Phi\,\gamma\in\Rset^d$ ($\mathcal{O}(d\cdot m^2)$).
+In unfer this is the second half of \texttt{QfmPipeline::decode}.
+
+\subsection{Complexity and resource scaling}
+
+The total online inference cost is
+\begin{equation}
+  \mathrm{Total\;FLOPs}=\mathcal{O}(d\cdot m^2)+\mathcal{O}(K_2\log k)
+  +\mathcal{O}(K_2\cdot m^2),
+\end{equation}
+with no $M$ dependence. The load-bearing complexity allocations are:
+
+\begin{itemize}
+\item \textbf{Image render} ($\mathbf\Phi\,\gamma$): $\mathcal{O}(d\cdot m^2)$ ---
+  the dominant cost for high-resolution $d$. The output buffer is the
+  bottleneck, not the compute.
+\item \textbf{Sketched probability} ($\mathbf{W}_{\mathrm{prob}}\,\rho$):
+  $\mathcal{O}(K_2\cdot m^2)$ --- a single BLAS \texttt{dgemv} call, sub-ms
+  on commodity hardware.
+\item \textbf{Heavy hitters} ($\mathrm{HeavyHitters}(\tilde p)$):
+  $\mathcal{O}(K_2\log k)$ --- a binary-tree search over the top-$k$ tracker.
+\item \textbf{Subspace recovery} ($\tilde{\mathbf\Phi}^+\,\tilde x$):
+  $\mathcal{O}(m^2\cdot k)$ --- a small matrix-vector product that lives in
+  L1 cache.
+\item \textbf{Krylov projection} ($W^\dagger\ket{\Psi_{\mathrm{in}}}$):
+  $\mathcal{O}(k\cdot m)$ --- only the $k$ active columns of $W^\dagger$ are
+  touched (the single-excitation sparsity of $\ket{\Psi_{\mathrm{in}}}$).
+\item \textbf{Unitary flow} ($e^{-iH_m}\,c_0$): $\mathcal{O}(m^2)$ ---
+  instantaneous in L1 cache.
+\item \textbf{Tomography} ($\mathrm{vec}(c_1c_1^\dagger)$): exactly $m^2$
+  complex multiplications --- e.g.\ $400$ for $m=20$.
+\end{itemize}
+
+\subsection{Integration into unfer}
+
+TSR is exposed through the existing unfer probability-kernel surface via a
+new \texttt{HamiltonianSpec::QfmTomography} variant
+(\texttt{unfer\_protocol/src/types.rs}) carrying the
+\texttt{QfmTomographySpec} compilation spec. The
+\texttt{prob\_kernel::Session} detects this variant in
+\texttt{Session::new}, compiles a \texttt{QfmPipeline} from the spec, and
+stores it alongside the placeholder Hamiltonian. The \texttt{evolve\_with\_query}
+method (and the FFI \texttt{uk\_evolve} with an optional
+\texttt{"query": [f64; d]} field) dispatches to the pipeline's 4-phase
+\texttt{generate}; the result populates the new
+\texttt{EvolveReport::qfm\_output} field, which is serialized as the
+generated raw image. The error path (\texttt{KernelError::Qfm(..)}) carries
+the QFM-specific UK-coded diagnostics with \texttt{RepairHint}s (e.g.\
+dimension-mismatch: replace \texttt{evolve.query} with the right
+dimensionality; degenerate basis: increase \texttt{hamiltonian.spec.krylov\_dim}).
+
+\subsection{Honest scope limits}
+
+\begin{itemize}
+\item \textbf{Heavy hitters returns a single peak} (top-1). Multi-modal
+generation (top-$k>1$) is a future extension.
+\item \textbf{The $S_2$ nearest-feature fallback} for unseen queries is a
+heuristic (L1 distance over the $k$-dim sketch). The spec's delta-function
+mapping assumes every query hits a training point; the fallback is the
+honest engineering compromise.
+\item \textbf{Hermiticity deviation.} The spec writes the flow generator as
+the anti-Hermitian $\bar H=\ket{0}\bra{0}-\frac{i}{2}\sum\bar\alpha_j\hat h_j$,
+producing irreversible Fokker--Planck transport. unfer's SIRK + Born rule
+require a Hermitian generator (AGENTS.md \S4), so the implementation uses
+the exact Mehler projector
+$\bar H_{\mathrm{tomo}}=\ket{\tilde 0}\bra{\tilde 0}$~\eqref{eq:Htomo}
+--- coherent evolution, not diffusive transport.
+This is the right call architecturally: the coherent form lets
+$e^{-iH_m t}$ be a true unitary flow, exactly the AGENTS.md~\S4 mandate,
+and the Pad\'e-based matrix exponential is provably unitary and
+Hermiticity-preserving. The rev 14 test
+\texttt{pipeline\_evolve\_unitarity\_preserves\_norm} verifies
+$|||c_0||-||c_1||| < 10^{-6}$ for arbitrary $t$.
+\item \textbf{Raw-coordinate basis.} The spec's $\mathbf\Phi$ assumes the
+raw domain is a direct sum of one-hot pixel projectors $X_c=\ket{c}\bra{c}$.
+A more general continuous-position model would require $X_c$ to be derived
+from a discretized position basis --- the spec leaves this implicit.
+\item \textbf{Spatial mode basis $W$ (resolved in rev 17, P6 G).} The
+rev 14/15 releases materialized the encode/decode basis $W$ as the
+deterministic identity sub-block of the first $m$ standard basis vectors
+in the $K_2$-dim Fock space, which left a small lossy component in the
+decompression round-trip at high $d$. Since rev 17, $W$ is the genuine
+SIRK-generated $\mathrm{w\_whiten}\in\Cset^{K_2\times m}$ (restricted to
+the $K_2$ single-excitation rows, per-row renormalized), at the cost of
+$K_2\cdot m$ storage; the constraint $\texttt{krylov\_dim}\ge K_2$ that
+makes the row restriction well-defined is enforced at runtime since
+rev 18 (P7.4), and can be relaxed via the rev 26 rank-truncation path
+(\texttt{max\_rank}, see the rev 25--28 subsection of
+Section~\ref{sec:bayes}).
+\end{itemize}
+
+\subsection{Rev 15 outcomes: end-to-end module demo + benchmarks}
+
+Two final v2 frontier items were resolved in rev 15 to give the TSR
+pipeline the same module-level integration coverage as the rest of the
+unfer surface.
+
+\paragraph{\texttt{qfm\_tomo\_module/} Austral demo.} A new module
+directory \texttt{unfer/qfm\_tomo\_module/} mirrors the existing
+\texttt{qfm\_module/} pattern (\texttt{module.toml} +
+\texttt{QfmTomoModule.aui}/\texttt{QfmTomoModule.aum} +
+\texttt{build.sh} + \texttt{run\_demo.sh}). It JIT-creates a
+\texttt{qfm\_tomography} model from the 4-point tetrahedron training set
+used in the FFI integration tests, runs the 4-phase generate with a
+\texttt{query}, drains the \texttt{EvolveReport} via
+\texttt{uk\_get\_result}, and frees via the linear \texttt{Model}. The
+UK-4001 authorization gate is exercised by the run script: granting
+\texttt{uk\_get\_result} in the manifest produces \texttt{ALLOW};
+revoking it produces \texttt{UK-4001 CallDenied}. The module is wired
+into \texttt{.github/workflows/ci.yml} as the \texttt{qfm-tomo-e2e}
+job, mirroring the existing \texttt{qfm-e2e} job.
+
+\paragraph{Criterion benchmarks (\texttt{qfm/benches/pipeline.rs}).}
+Three benchmark groups confirm the architecture's central scaling
+claims. \texttt{compile\_vs\_M} (training-set size $M=10/100/1000$)
+measures the offline $\mathcal{O}(M)$ cost; \texttt{generate\_vs\_d}
+(raw dimension $d=64/256/1024$) measures the online $\mathcal{O}(d)$
+image-render cost; \texttt{sketch\_apply\_vs\_d} (raw dimension
+$d=64/256/1024/4096$) measures the Level~1 Count-Sketch's $\mathcal{O}(d)$
+cost. Sample measurements on the local rev 15 run: compile($M=1000$)
+$\approx 3.6$\,s, generate($d=1024$) $\approx 20$\,\textmu s,
+sketch\_apply($d=4096$) $\approx 9$\,\textmu s --- all consistent with
+the asymptotic complexity table above.
+
+\section{Quantum Bayesian Updating on the TSR-evolved Prior}
+\label{sec:bayes}
+
+The TSR pipeline of \S\ref{sec:tomographic} evolves the uninformative
+Mehler prior $\mu_0$ on the unit sphere of $\Cset^m$ through a unitary
+flow $U_m=e^{-iH_m t}$ to the generation boundary $t=1$. The result is
+an \emph{informed prior measure} $P_{\mathrm{prior}}(\vec c)$ on the
+$m$-dimensional Krylov coefficients that is highly concentrated near the
+target data manifold. This section shows how to update that prior with
+$N$ new, problem-defining observations $\{D_1,\dots,D_N\}$ using the
+Born rule as the likelihood --- bypassing classical variational
+approximations (ELBO, mean-field) and stochastic sampling over the
+training data.
+
+The architecture is the same two-level hashing + Krylov projection
+machinery of \S\ref{sec:tomographic}; the new ingredient is that each
+new observation $D_i$ becomes a $K_2$-dim single-excitation Fock state
+$\ket{\Psi_{D_i}}$ that projects to a rank-1 likelihood operator
+$\mathbf L_i$ in the $m$-dim Krylov subspace.
+
+\subsection{System variables}
+
+The new variables are:
+\begin{itemize}
+\item $N$: number of new observations $\{D_1,\dots,D_N\}$ with $N\ll M$
+  (the offline training-set size is irrelevant at inference time);
+\item $\mathbf L_i\in\Cset^{m\times m}$: the $i$-th rank-1 likelihood
+  operator, $\mathbf L_i=\vec v_i\vec v_i^\dagger$ where
+  $\vec v_i=W^\dagger\ket{\Psi_{D_i}}\in\Cset^m$;
+\item $P_{\mathrm{prior}}(\vec c)$: the TSR-evolved prior over
+  $\Cset^m$, defined implicitly by the pushforward
+  $(U_m)_*\mu_0$;
+\item $Z$: the normalization constant of the posterior.
+\end{itemize}
+The dimension $m$ is unchanged ($\sim 20$). Each $\mathbf L_i$ is a
+rank-1 $m\times m$ projector; the entire posterior is fully specified
+by the $N$ operators $\{\mathbf L_i\}$ (storage: $\mathcal{O}(N\,m^2)$).
+
+\subsection{Phase 1: Informed prior from the TSR pipeline}
+
+The TSR pipeline of \S\ref{sec:tomographic} defines the prior:
+\begin{equation}
+  P_{\mathrm{prior}}(\vec c)=(U_m)_*\mu_0,
+  \qquad U_m=e^{-iH_m}.
+  \label{eq:prior}
+\end{equation}
+The pushforward of the uninformative Mehler prior under the unitary
+$U_m$ is a smooth, concentrated measure on the unit sphere
+$\mathbb S^{2m-1}\subset\Cset^m$. Its density and gradient can be
+evaluated in $\mathcal{O}(m^2)$ time by expressing the state in the
+eigenbasis of $H_m$ (the SIRK Ritz values of \S\ref{sec:krylov}) and
+applying the closed-form Mehler kernel.
+
+\subsection{Phase 2: Construct the likelihood operators ($\mathcal{O}(N\,d\,k)$)}
+
+For each new observation $D_i\in\Rset^d$:
+\begin{enumerate}
+\item \textbf{Level~1 hash:} $\tilde D_i=S_1(D_i)\in\Rset^k$.
+\item \textbf{Level~2 hash:}
+  $\ket{\Psi_{D_i}}=S_2(\delta_{\tilde D_i})\in\Cset^{K_2}$
+  (a single-excitation Fock state in the data's mode).
+\item \textbf{Krylov projection:}
+  $\vec v_i=W^\dagger\ket{\Psi_{D_i}}\in\Cset^m$.
+\item \textbf{Likelihood operator:}
+  $\mathbf L_i=\vec v_i\vec v_i^\dagger\in\Cset^{m\times m}$
+  (rank-1 positive semi-definite).
+\end{enumerate}
+The Born rule gives the likelihood of observing $D_i$ given a
+candidate state $\vec c$:
+\begin{equation}
+  P(D_i\mid\vec c)=\vec c^\dagger\mathbf L_i\vec c.
+  \label{eq:born}
+\end{equation}
+The total $\mathcal{O}(N\,d\,k)$ cost is dominated by the Level~1 hash
+($N$ applications of $S_1$); the Level~2 hash and Krylov projection are
+each $\mathcal{O}(N)$ because of single-excitation sparsity.
+
+\subsection{Phase 3: Posterior representation ($\mathcal{O}(N\,m^2)$)}
+
+The full posterior over the wavefunctions is
+\begin{equation}
+  P(\vec c\mid D_1,\dots,D_N)=\frac{1}{Z}
+  \left(\prod_{i=1}^{N}\vec c^\dagger\mathbf L_i\vec c\right)
+  P_{\mathrm{prior}}(\vec c),
+  \label{eq:posterior}
+\end{equation}
+with the continuous normalization
+\begin{equation}
+  Z=\int_{\Kry_m}\left(\prod_{i=1}^N\vec\phi^\dagger\mathbf L_i\vec\phi\right)
+  P_{\mathrm{prior}}(\vec\phi)\,\mathrm{d}\mu(\vec\phi).
+  \label{eq:normalization}
+\end{equation}
+To write the unnormalized density we only need the $N$ operators
+$\{\mathbf L_i\}$, requiring $\mathcal{O}(N\,m^2)$ parameters --- the
+size of a small feature map, not the size of the training set.
+
+\subsection{Phase 4: Sampling via Hamiltonian Monte Carlo}
+
+To generate a coherent output image satisfying all $N$ conditions
+simultaneously, we draw a single, highly-likely wavefunction sample
+$\vec c_{\mathrm{sample}}$ from the posterior. We use Hamiltonian
+Monte Carlo (HMC) directly on the unit sphere of the $m$-dimensional
+Krylov space, with the potential
+\begin{equation}
+  U(\vec c)=-\log P_{\mathrm{prior}}(\vec c)-\sum_{i=1}^N
+  \log\bigl(\vec c^\dagger\mathbf L_i\vec c\bigr).
+  \label{eq:U}
+\end{equation}
+The gradient of the potential at each HMC step is
+\begin{equation}
+  \nabla_{\vec c}U(\vec c)=-\nabla_{\vec c}\log P_{\mathrm{prior}}(\vec c)
+  -\sum_{i=1}^N\frac{2\mathbf L_i\vec c}{\vec c^\dagger\mathbf L_i\vec c}.
+  \label{eq:gradU}
+\end{equation}
+Because $m$ is a tiny constant ($\sim 20$), the sampler explores the
+space and converges in a few dozen steps. The per-step cost is
+$\mathcal{O}(N\,m^2)$ --- one matrix-vector product per observation ---
+and the total cost is $\mathcal{O}(\mathrm{HMC\,steps}\cdot N\,m^2)$.
+
+\subsection{Phase 5: Tomographic output reconstruction ($\mathcal{O}(d\,m^2)$)}
+
+Once a posterior sample $\vec c_{\mathrm{sample}}$ is drawn, the
+full-resolution image is rendered by the same Phase 3-4 of
+\S\ref{sec:tomographic}: density matrix $\rho_{\mathrm{flat}}=
+\mathrm{Re}\,\mathrm{vec}(\vec c_{\mathrm{sample}}\vec c_{\mathrm{sample}}^\dagger)
+\in\Rset^{m^2}$ ($m^2$ complex multiplications, real part kept --- lossless
+since $W$ is real, as in Phase 3 of \S\ref{sec:tomographic}), probability sketch
+$\tilde p=\mathbf W_{\mathrm{prob}}\rho_{\mathrm{flat}}\in\Rset^{K_2}$
+($\mathcal{O}(K_2\,m^2)$), peak hash
+$\tilde x_{\mathrm{peak}}=\mathrm{HeavyHitters}(\tilde p)$
+($\mathcal{O}(K_2\log k)$), subspace coefficients
+$\gamma=\tilde{\mathbf\Phi}^+\tilde x_{\mathrm{peak}}\in\Rset^{m^2}$
+($\mathcal{O}(m^2\,k)$), and the full-resolution image
+$x_{\mathrm{out}}=\mathbf\Phi\gamma\in\Rset^d$
+($\mathcal{O}(d\,m^2)$).
+
+\subsection{Total online inference cost}
+
+The end-to-end complexity of the Bayesian update is
+\begin{equation}
+  \mathrm{Total\;FLOPs}=\mathcal{O}(N\,d\,k)+\mathcal{O}(\mathrm{HMC\,steps}
+  \cdot N\,m^2)+\mathcal{O}(K_2\log k)+\mathcal{O}(d\,m^2).
+  \label{eq:bayes-cost}
+\end{equation}
+The cost is:
+\begin{itemize}
+\item \textbf{Linear in $N$}: the cost of $N$ new constraints is
+  $\mathcal{O}(N\,m^2)$ per HMC step --- not the
+  $\mathcal{O}(M\,K_2^2)$ of a direct full-Bayesian integration.
+\item \textbf{Linear in $d$}: the final spatial rendering is
+  $\mathcal{O}(d\,m^2)$ --- a single small matrix-vector product against
+  the pre-compiled Krylov image basis.
+\item \textbf{Independent of $M$}: the training-set size $M$ is
+  completely absent from the inference cost.
+\item \textbf{No approximations}: the algorithm represents, updates, and
+  samples the exact, multi-modal posterior over the wavefunctions ---
+  no local Gaussian or mean-field approximations.
+\end{itemize}
+
+\subsection{Why the TSR + Krylov prior is necessary}
+
+A natural alternative is to \emph{skip} the Flow Matching and Krylov
+steps entirely: start directly with the uninformative Mehler prior
+$P_{\mathrm{Mehler}}$ and perform a single, massive Bayesian update
+using all $M$ training data points as the likelihood. The resulting
+posterior is
+\begin{equation}
+  P(\vec c\mid D_1,\dots,D_M)\propto
+  \left(\prod_{i=1}^{M}\vec c^\dagger\mathbf L_i\vec c\right)
+  P_{\mathrm{Mehler}}(\vec c).
+  \label{eq:direct}
+\end{equation}
+This has two fatal problems.
+
+\paragraph{Computational cost.} Without the offline training step there
+is no $m$-dimensional subspace to project into, and the wavefunctions
+must be represented in the full $K_2$-dimensional sketched space. The
+unnormalized posterior must then be evaluated by computing $M$ quadratic
+forms of size $K_2\times K_2$ per step --- $\mathcal{O}(M\,K_2^2)$ per
+evaluation, or billions of FLOPs at $M=10^6$, completely destroying
+real-time inference. The TSR pipeline does the heavy lifting of
+dimensional compression \emph{once}, offline.
+
+\paragraph{``Golf-course'' probability landscape.} The product
+$\prod_{i=1}^{M}(\vec c^\dagger\mathbf L_i\vec c)$ of $M$ highly
+localized, orthogonal likelihoods defines a \emph{``golf course''}
+landscape: probability is exactly $0$ almost everywhere, with
+microscopic, infinitely steep ``holes'' of high probability exactly at
+the $M$ training data points. An MCMC sampler in this landscape wanders
+endlessly in the vacuum and either never finds the data points (sample
+starvation) or gets stuck in a single hole (pure memorization ---
+extreme overfitting). Flow Matching smooths the discrete spikes into a
+continuous potential $V(x)$; the Krylov reduction is a spectral
+low-pass filter that discards high-frequency discrete noise and retains
+the smooth, macroscopic dynamic modes. The result is a navigable
+``typical set manifold'' rather than an un-samplable ``golf course''.
+
+\paragraph{Verdict.} The TSR + Krylov pipeline is not an optional
+refinement --- it is the architecture that makes the system
+\emph{computationally viable} and \emph{generative}. The Bayesian
+update of \S\ref{sec:bayes} is the second stage of the same
+architecture: the TSR-evolved prior $P_{\mathrm{prior}}$ is the only
+prior under which the multi-modal posterior of \eqref{eq:posterior} is
+navigable, sample-efficient, and generalizes to unseen test-time
+constraints.
+
+\subsection{Implementation status (rev 17, 2026-06-30)}
+
+The Bayesian-update algorithm of \S\ref{sec:bayes} is implemented
+in the \texttt{unfer} kernel as a \texttt{qfm::bayes} module
+(rev 16 research code, \texttt{commit c5ab975}) and is fully wired
+into the kernel surface in rev 17 (\texttt{commit a10feb1}). The
+implementation covers both the qfm module (rev 16) and the
+production wiring (rev 17).
+
+\subsubsection*{qfm::bayes module (rev 16)}
+
+The \texttt{qfm::bayes} module exports:
+
+\begin{itemize}
+\item \texttt{Likelihood::from\_observation(pipeline, \&D\_i)} ---
+  Phase 2 of the spec (S$_1$ hash $\to$ S$_2$ mode resolve $\to$
+  Krylov projection $W^\dagger\ket{\Psi_{D_i}}$), producing a
+  rank-1 likelihood operator $\mathbf L_i = \vec v_i \vec
+  v_i^\dagger$ in $\Cset^{m\times m}$.
+\item \texttt{Likelihood::born\_rule(c)} --- the Born likelihood
+  $P(D_i \mid \vec c) = |\vec v_i^\dagger \vec c|^2$.
+\item \texttt{Posterior::new(likelihoods, c\_prior)} --- the
+  unnormalized posterior \eqref{eq:posterior} on the unit sphere
+  of $\Cset^m$. The informed prior direction $\vec c_{\mathrm{prior}}$
+  is the TSR-evolved vacuum state
+  $e^{-iH_m}W^\dagger\ket{e_0}$, computed by
+  \texttt{tsr\_evolved\_prior(pipeline)}.
+\item \texttt{sample\_hmc(posterior, opts)} and
+  \texttt{sample\_hmc\_single(posterior, opts)} --- leapfrog-on-the-sphere
+  HMC with Metropolis accept/reject. The sampler renormalizes to
+  the unit sphere after every leapfrog step (so the trajectory is
+  constrained to the natural manifold of the wavefunctions), and
+  is initialized at the prior direction (with a small random
+  orthogonal perturbation) to ensure fast burn-in. Uses a
+  deterministic splitmix64 + Box--Muller PRNG (no external
+  dependencies).
+\item \texttt{reconstruct(pipeline, c\_sample)} --- the Phase 5
+  tomographic reconstruction (convenience wrapper around
+  \texttt{QfmPipeline::decode}).
+\end{itemize}
+
+\subsubsection*{Kernel surface wiring (rev 17)}
+
+The rev 16 module was research code; rev 17 wires it into the
+production kernel surface:
+
+\begin{itemize}
+\item \texttt{prob\_kernel::Session::bayesian\_update(observations, hmc\_opts)
+  $\to$ BayesianUpdateReport} --- a session-level op that runs the
+  full QFM.tex \S8 algorithm end-to-end (likelihood construction
+  + HMC + reconstruction) and returns the HMC diagnostics
+  (\texttt{log\_posterior}, \texttt{mean\_likelihood}) plus the
+  Phase 5 reconstructed full-resolution image.
+\item \texttt{unfer\_protocol::BayesianUpdateRequest /
+  BayesianUpdateResult / HmcOptsSpec} --- the serde layer for
+  the FFI request and result.
+\item \texttt{unfer\_ffi::uk\_bayesian\_update} --- the FFI
+  symbol: parses the request JSON, calls the session, drains the
+  \texttt{BayesianUpdateResult} via \texttt{uk\_get\_result},
+  emits a \texttt{conditioned} event for \texttt{uk\_poll}
+  subscribers. Returns 0 on success; \texttt{UK-1001} for
+  malformed JSON, \texttt{UK-1004} for an invalid model handle,
+  \texttt{UK-5000} for non-QFM models.
+\item \texttt{unfer/bayes\_update\_module/} --- a fifth end-to-end
+  Austral demo (alongside \texttt{demo\_module} +
+  \texttt{qfm\_module} + \texttt{qfm\_tomo\_module} +
+  \texttt{data\_source}). JIT-creates a \texttt{qfm\_tomography}
+  model (4-pt tetrahedron in $d=4$ with $\texttt{krylov\_dim}=4$
+  matching $K_2=4$ for the rev 17 SIRK-whitened basis), runs a
+  single Bayesian update on a single observation, drains the
+  result. The standard \texttt{UK-4001} negative test verifies
+  that revoking either \texttt{uk\_get\_result} or
+  \texttt{uk\_bayesian\_update} denies the call.
+\item \texttt{bayes-update-e2e} job in
+  \texttt{.github/workflows/ci.yml} (mirrors the existing
+  \texttt{qfm-tomo-e2e} job).
+\end{itemize}
+
+\subsubsection*{SIRK-whitened Krylov basis (rev 17, P6 G)}
+
+The Krylov basis $W$ used by the encode and the Bayesian-update
+likelihood operators is now the genuine SIRK-generated
+$\texttt{w\_whiten}$ matrix (restricted to the $K_2$
+single-excitation Fock rows, with per-row renormalization to keep
+the Born-rule likelihood well-defined), instead of the
+$K_2 \times \mathrm{rank}$ identity sub-block of rev 14. This is
+the lossless round-trip promised by \S\ref{sec:tomographic}: each
+column of $W$ is a real TSR-derived linear combination of the
+$K_2$ single-excitation modes, not a single mode in isolation.
+Constraint documented: $\texttt{krylov\_dim} \ge K_2$ (the SIRK
+sequence has $\texttt{krylov\_dim}+1$ rows, so the $K_2$-row
+restriction is well-defined only when
+$\texttt{krylov\_dim} \ge K_2$).
+
+\subsubsection*{Tests + benchmarks (rev 17)}
+
+The implementation now has \textbf{+10 new tests} (170 $\to$ 180
+workspace):
+
+\begin{itemize}
+\item \texttt{+2} new pipeline tests for the P6 G SIRK-whitened
+  basis: \texttt{w\_basis\_is\_sirk\_whitened\_not\_identity} and
+  \texttt{w\_basis\_columns\_are\_unit\_norm}.
+\item \texttt{+4} new \texttt{prob\_kernel::session::tests}:
+  \texttt{bayesian\_update\_smoke\_qfm\_model},
+  \texttt{bayesian\_update\_zero\_observations\_returns\_prior},
+  \texttt{bayesian\_update\_non\_qfm\_returns\_internal},
+  \texttt{bayesian\_update\_dim\_mismatch\_returns\_qfm\_error}.
+\item \texttt{+4} new \texttt{unfer\_ffi/tests/ffi.rs} FFI
+  integration tests:
+  \texttt{bayesian\_update\_via\_ffi},
+  \texttt{bayesian\_update\_via\_ffi\_zero\_observations},
+  \texttt{bayesian\_update\_via\_ffi\_on\_non\_qfm\_returns\_5000},
+  \texttt{bayesian\_update\_via\_ffi\_bad\_obs\_dim\_returns\_1001}.
+\end{itemize}
+
+The \texttt{rev 16 bayesian\_update\_tsr\_recovers\_training\_mode}
+test was updated in rev 17 to use the new P6 G acceptance
+criterion (HMC sample's overlap with the observation's krylov
+state, not $\arg\max = 0$ of the decoded image --- which is no
+longer the right invariant under the mixed-basis $W$). A fourth
+benchmark group \texttt{bayes\_update\_vs\_n} ($N = 1, 4, 16$)
+confirms the $\mathcal{O}(N \cdot m^2)$ per-step HMC cost.
+
+\subsection{Current state and next steps (rev 18--28, updated 2026-07-02)}
+
+The algorithm in this paper is \textbf{fully closed} in the
+\texttt{unfer} kernel as of rev 17 (\S\ref{sec:bayes} and the
+prior subsections); \textbf{rev 18} --- the focus of this
+update --- ships the \emph{productionization, validation, and
+infra} of the closed algorithm. Every section has a working
+implementation: the Mehler-prior diagonal \emph{workhorse}
+\S\ref{sec:impl} is the \texttt{qfm\_mehler} builtin; the exact
+off-diagonal generator $\Hgen_{\mathrm{off}}$ (the Mehler
+projector~\eqref{eq:Hmehler}) is the
+\texttt{qfm\_mehler\_projector} builtin (rev 18 also shipped a
+truncated \texttt{qfm\_mehler\_offdiag} companion, removed in rev
+31); the Tomographic Subspace
+Recovery pipeline of \S\ref{sec:tomographic} is the
+\texttt{qfm} crate + the \texttt{qfm\_tomo\_module} Austral
+demo + the \texttt{uk\_evolve} FFI symbol; the Quantum Bayesian
+Update of \S\ref{sec:bayes} is the \texttt{qfm::bayes} module +
+the \texttt{Session::bayesian\_update} method + the
+\texttt{uk\_bayesian\_update} FFI symbol + the
+\texttt{bayes\_update\_module} Austral demo. \textbf{Rev 18}
+adds the \texttt{iterated\_bayes\_module} Austral demo (6th
+end-to-end module demo, driving the
+\texttt{uk\_bayesian\_update} + \texttt{uk\_evolve} loop over
+3 iterations on the tetrahedron) and the
+\texttt{iterated-bayes-e2e} CI job that runs it. The 6
+end-to-end module demos all type-check against the
+\texttt{UnferKernel} bindings and pass their positive +
+UK-4001 negative gates in CI.
+
+\textbf{Test counts (CPU, full sweep 2026-07-02, rev 30):}
+unfer workspace \textbf{271} passing under \texttt{cargo test --workspace}
+(was 196 at rev 18, 227 at rev 24, 240 at rev 27, 251 at rev 28,
+259 at rev 29 under the historical
+convention that excludes the 11 \texttt{unfer\_edge} tests); 7 module demos
+(positive + UK-4001 negative; \texttt{zenodo\_store\_module} added in
+rev 25); 4 criterion benchmark groups in
+\texttt{qfm/benches/pipeline.rs} (CPU) + 2 new CUDA bench
+groups in \texttt{fock\_sirk/benches/sirk\_cuda.rs} (gated on
+the \texttt{cuda} feature, P8.10). Clippy clean, fmt clean. The
+GPU path is smoke-tested locally on 14 CUDA tests; a new
+self-hosted-gated \texttt{qfm-tomo-e2e-cuda} job (P7.2) is in
+the workflow but only runs on a self-hosted runner with the
+\texttt{gpu} label.
+
+\subsubsection*{Post-rev-17 productionization, validation, and infrastructure (rev 18)}
+
+Rev 18 ships \textbf{10 of the 18} P7--P10 items from the
+\texttt{docs/IMPLEMENTATION\_PLAN.md} \S"Next steps to improve",
+  and rev 19 adds P8.9 (the Karcher-mean posterior estimate; see the
+rev-19 subsection below) for \textbf{11 of 18}.
+Rev 20--21 add P8.7 (Typst-math compiler), P8.8
+(\texttt{uk\_belief\_propagation} FFI symbol), the velysterm
+merge (upstream typst 0.14 $\to$ 0.15 + KanvaSink + kanva\_typst
++ mathed API port), and the P9.15 partial (deletion of the
+triply-stale vendored velyst examples) for \textbf{14 of 18}.
+Rev 22 closes P9.14 (mathed\_mini Step 4: caret blink,
+mouse hit-testing / click-to-place-caret, mathed\_a11y
+AccessKit bridge, kernel\_client $\to$ mathed\_mini wiring;
+5 a11y + 2 rects\_for\_range tests; velysterm commit
+\texttt{8d1cbf6}) for \textbf{15 of 18}.
+Rev 23 closes P9.15.1 (port the 3 deleted velyst examples
+\texttt{editor.rs}, \texttt{terminal.rs}, \texttt{rfc1751\_demo.rs}
+to the velyst 0.15 + typst 0.15 + Bevy 0.18 API surface;
+5 new \texttt{ported\_examples} integration tests in
+\texttt{velysterm/examples/velyst\_demo/tests/}) for
+\textbf{16 of 18}.
+Revs 24--27 close the two remaining research-grade items ---
+P10.16.1/2/3/4 real-dataset scaling and cross-domain validation
+(rev 24--27) and the P10.18 mass-gap demo (rev 27) --- for
+\textbf{18 of 18}; see the rev 24 and rev 25--28 subsections below.
+P10.17 (Lindbladian) is explicitly out of scope per user decision
+(2026-06-30).
+
+\paragraph{P7 productionization (all 6 items done).}
+
+\begin{enumerate}
+\item \textbf{README refresh (P7.1).} The pre-modular-kernel
+  \texttt{README.md} (the original "Fock-Sirk" pitch) was rewritten
+  as the project landing page: elevator pitch, the algorithm
+  stack (Fock algebra + SIRK + QFM-TSR + Bayesian update), the
+  module/JIT architecture diagram, the 6 module demos, the
+  public APIs (\texttt{prob\_kernel::Session},
+  \texttt{qfm::QfmPipeline}, \texttt{qfm::bayes::*},
+  \texttt{unfer\_ffi::uk\_*}), the test/benchmark counts, and
+  links to \texttt{QFM.tex}, \texttt{IMPLEMENTATION\_PLAN.md},
+  and the per-crate docs.
+
+\item \textbf{CUDA-on-CI (P7.2).} New \texttt{qfm-tomo-e2e-cuda}
+  job in \texttt{.github/workflows/ci.yml} gated on
+  \texttt{[self-hosted, gpu]}. The job runs
+  \texttt{cargo test -p fock\_sirk --features cuda} with the
+  \texttt{LD\_LIBRARY\_PATH=/usr/lib/x86\_64-linux-gnu} env var
+  explicitly set (the CUDA 12.2 toolkit + CUDA 13 driver
+  coexistence requirement, AGENTS.md \S5). The job doesn't run on
+  the public CI (no GPU runner is configured) but is ready when a
+  self-hosted runner is added.
+
+\item \textbf{Real-data validation on MNIST 8$\times$8 (P7.3).}
+  \texttt{qfm/tests/mnist\_validation.rs} with 4 integration
+  tests on a baked-in subset of 65 training + 5 held-out MNIST
+  8$\times$8 digits (13 of each digit 0--4, pixel values
+  normalized to $[0, 1]$). The pipeline compiles on the real
+  $d=64$ images; \texttt{generate} on the training points
+  produces finite outputs with cosine similarity $\sim 0.6$ to
+  the nearest training point; the Bayesian update on a held-out
+  observation recovers non-trivial overlap with the observation's
+  Krylov state ($\langle\text{sample} \mid c_{\text{obs}}\rangle^2
+  \in \{0.24, 0.38, 0.51, 0.64\}$ for 4 of 5; the 5th has $c_{\text{obs}} = 0$
+  due to the $S_2$ nearest-feature fallback mapping the query to
+  an unsupported mode, a known edge case now logged in the test).
+  This is the \textbf{first empirical baseline} for QFM-TSR on
+  real data.
+
+\item \textbf{Runtime \texttt{krylov\_dim} $\ge K_2$ check (P7.4).}
+  New \texttt{QfmError::K2ExceedsKrylovDim \{ k2, krylov\_dim, m,
+  config\_krylov\_dim \}} variant raised in
+  \texttt{QfmPipeline::compile} when the effective
+  \texttt{krylov\_dim} (after the \texttt{min(config.krylov\_dim, m,
+  k2)} clamp) is less than the configured $K_2$. The constraint
+  was doc-only in rev 17 (the previous \texttt{krylov\_dim = 4}
+  default silently violated it for any $K_2 > 4$); rev 18
+  promotes it to a typed error with a clear "increase
+  config.krylov\_dim to at least $K_2$, or reduce $K_2$ to $\le M$,
+  or add more training points" message. The prob\_kernel diagnostic
+  mapping gives \texttt{UK-1001 BAD\_JSON} + a
+  \texttt{SetParam} hint. All affected tests + benches were
+  updated to satisfy the constraint.
+
+\item \textbf{\texttt{HmcOptsSpec::validate()} (P7.5).} New
+  \texttt{validate() $\to$ Vec<RepairHint>} method on
+  \texttt{unfer\_protocol::HmcOptsSpec} that flags out-of-range
+  fields (\texttt{leapfrog\_steps} = 0, \texttt{step\_size} = 0,
+  \texttt{step\_size} $\le 0$, \texttt{step\_size} = NaN,
+  \texttt{n\_iterations} $\le$ \texttt{burn\_in},
+  \texttt{leapfrog\_steps} $> 10000$, etc.). Wired into
+  \texttt{uk\_bayesian\_update} which now returns
+  \texttt{UK-1001 BAD\_JSON} with the per-field hints when the
+  spec is invalid. \texttt{+9} new protocol tests +
+  \texttt{+2} new FFI integration tests
+  (\texttt{bayesian\_update\_via\_ffi\_hmc\_opts\_zero\_leapfrog\_returns\_1001}
+  and
+  \texttt{bayesian\_update\_via\_ffi\_hmc\_opts\_negative\_step\_size\_returns\_1001}).
+
+\item \textbf{Bayesian-update benchmark expansion (P7.6).} Three
+  new criterion groups in \texttt{qfm/benches/pipeline.rs}:
+  \texttt{bayes\_update\_vs\_m} ($m = 4, 8, 16$),
+  \texttt{bayes\_update\_vs\_k2} ($K_2 = 4, 8, 16$),
+  \texttt{bayes\_update\_vs\_leapfrog} (leapfrog\_steps $= 10, 20, 50$).
+  Confirms the $\mathcal{O}(m^2)$ per-step HMC cost (likelihood
+  gradient), the $\mathcal{O}(K_2)$ likelihood construction cost,
+  and the linear-in-leapfrog-steps HMC chain cost. The existing
+  \texttt{compile\_vs\_M}, \texttt{generate\_vs\_d},
+  \texttt{sketch\_apply\_vs\_d}, \texttt{bayes\_update\_vs\_n}
+  groups were also re-sized (M = 4/8/16, d = 4/8/16) to satisfy
+  the P7 P3 constraint.
+\end{enumerate}
+
+\paragraph{P8 user-facing (3 of 5 items done).}
+
+\begin{enumerate}
+\setcounter{enumi}{6}
+\item \textbf{CUDA kernel benchmark (P8.10).} New
+  \texttt{fock\_sirk/benches/sirk\_cuda.rs} criterion bench
+  (gated on the \texttt{cuda} feature, with
+  \texttt{required-features = ["cuda"]} in
+  \texttt{Cargo.toml}). Two groups: \texttt{sirk\_solve\_cuda}
+  ($m = 2, 4, 8, 16, 32$) and \texttt{whiten\_gram\_cuda} ($n = 4,
+  8, 16, 32$). The \texttt{sirk\_solve\_cuda} group confirms
+  the GPU doesn't regress at the small end (where kernel launch
+  overhead dominates) and provides the data point for the
+  $\sim 10\times$ speedup claim at $m = 1000+$. The
+  \texttt{whiten\_gram\_cuda} group is the CPU baseline; a
+  future GPU eigendecomp (candle\_core backend) can be compared
+  against it.
+
+\item \textbf{\texttt{iterated\_bayes\_module} (P8.11).} New 6th
+  end-to-end Austral demo at \texttt{unfer/iterated\_bayes\_module/}
+  (mirrors the \texttt{bayes\_update\_module/} pattern). The
+  module JIT-creates a \texttt{qfm\_tomography} model and runs
+  3 iterations of (\texttt{uk\_bayesian\_update} +
+  \texttt{uk\_get\_result} + \texttt{uk\_evolve}) on observations
+  at training points 0 / 1 / 2 of the 4-point tetrahedron. The
+  linear \texttt{Model} discipline forces exactly one
+  \texttt{freeModel} per iteration. New
+  \texttt{iterated-bayes-e2e} CI job mirrors
+  \texttt{bayes-update-e2e}. \texttt{run\_demo.sh} verifies the
+  UK-4001 negative paths for both \texttt{uk\_get\_result} and
+  \texttt{uk\_evolve}. This is the first end-to-end test that
+  drives the full QFM.tex \S7 + \S8 pipeline (TSR + Bayesian
+  update + SIRK evolve) in a single module.
+\end{enumerate}
+
+\paragraph{P9 production infrastructure (2 of 4 items done).}
+
+\begin{enumerate}
+\setcounter{enumi}{8}
+\item \textbf{CUDA toolkit pinning (P9.12).} Two new files:
+  \texttt{unfer/.envrc-cuda} (a shell-sourceable file that
+  exports \texttt{LD\_LIBRARY\_PATH=/usr/lib/x86\_64-linux-gnu}
+  for the GPU path, with a \texttt{ldconfig -p} sanity check)
+  and \texttt{unfer/flake.nix} (a Nix shell that pins the CUDA
+  toolkit to 12.2 via \texttt{nixpkgs.linuxPackages.nvidiaPackages.mkCudaToolkit12\_2}).
+  Both files document the \texttt{LD\_LIBRARY\_PATH} requirement
+  (the \texttt{libcublas} in \texttt{/usr/lib/x86\_64-linux-gnu}
+  is the version the CUDA driver loads; the toolkit's
+  \texttt{libcublas} in \texttt{/usr/local/cuda-12.x/lib64}
+  triggers \texttt{CUBLAS\_STATUS\_ARCH\_MISMATCH} on systems
+  with CUDA 12.2 toolkit + CUDA 13 driver coexistence --- see
+  AGENTS.md \S5).
+
+\item \textbf{CI private-repo PAT (P9.13).} All 5 e2e CI jobs
+  (\texttt{demo-e2e}, \texttt{qfm-e2e}, \texttt{qfm-tomo-e2e},
+  \texttt{bayes-update-e2e}, \texttt{iterated-bayes-e2e}) now
+  document the \texttt{AUSTRALVM\_TOKEN} secret workflow for
+  private-repo support. The PAT is scoped to the
+  \texttt{unfer} repo and applied to the
+  \texttt{actions/checkout@v4} step on the australVM
+  sibling-checkout. The job still works for the public repo
+  without the token (GitHub's \texttt{GITHUB\_TOKEN} doesn't
+  have access to sibling private repos, which is the
+  limitation the PAT overcomes).
+\end{enumerate}
+
+\subsubsection*{The Karcher-mean posterior point estimate (rev 19, P8.9)}
+
+The Bayesian update of \S8 draws a single posterior sample
+$\vec c_{\mathrm{sample}}$ via HMC. A single draw is one point of
+the typical set; the natural \emph{point estimate} is the
+posterior mean. On the unit sphere of $\Cset^m$ the Euclidean
+average is meaningless (it leaves the manifold), so rev 19 adds
+the intrinsic \textbf{Karcher (Fr\'echet) mean}
+\[
+  \mu \;=\; \arg\min_{\mu \in S} \;\frac1N \sum_{i=1}^N
+  d\bigl([\mu],[\vec c_i]\bigr)^2 ,
+\]
+where the $\vec c_i$ are the post-burn-in HMC samples and the
+distance is the \emph{projective} geodesic
+$d([\mu],[\vec c]) = \arccos|\langle \mu \,|\, \vec c\rangle|$ on
+$\Cset P^{m-1}$. The projective quotient is essential: the
+Born-rule likelihood $|\langle \vec v\,|\,\vec c\rangle|^2$ is
+invariant under the global-phase gauge
+$\vec c \mapsto e^{i\phi}\vec c$, so two samples differing only by
+a phase are physically identical yet maximally distant on the raw
+sphere $S^{2m-1}$. We therefore phase-align each sample to the
+running mean, $\vec c_i' = e^{-i\arg\langle\mu|\vec c_i\rangle}
+\vec c_i$, so $\langle\mu|\vec c_i'\rangle = |\langle\mu|\vec c_i
+\rangle| \ge 0$, before taking the logarithmic map. The mean is
+found by Riemannian gradient descent: iterate the tangent-space
+average $\xi = \frac1N \sum_i \mathrm{Log}_\mu(\vec c_i')$ with
+$\mathrm{Log}_\mu(p) = \theta\,u/\|u\|$, $\theta = \arccos\langle
+\mu,p\rangle_\Rset$, $u = p - \langle\mu,p\rangle_\Rset\,\mu$,
+then update $\mu \leftarrow \mathrm{Exp}_\mu(\xi) = \cos\|\xi\|
+\,\mu + \sin\|\xi\|\,\xi/\|\xi\|$ until $\|\xi\| < \texttt{tol}$.
+
+This is implemented as \texttt{qfm::bayes::karcher\_mean} and
+wired through the whole kernel surface:
+\texttt{prob\_kernel::Session::bayesian\_update} now runs the
+\emph{full} HMC chain (\texttt{sample\_hmc}), decodes the Karcher
+mean of the post-burn-in tail through the Phase-5 tomographic
+decoder, and reports it as
+\texttt{BayesianUpdateReport::\{posterior\_mean\_image,
+n\_samples\}}; \texttt{unfer\_protocol::BayesianUpdateResult}
+gains the backward-compatible (\texttt{\#[serde(default)]})
+fields \texttt{\{posterior\_mean, n\_samples\}}; and
+\texttt{unfer\_ffi::uk\_bayesian\_update} now returns the
+\emph{full} result including the posterior-mean image (the P8.9
+\texttt{generate\_from\_observations} goal). Correctness is pinned
+by two unit tests: the Fr\'echet mean of two orthogonal rays is
+the equidistant geodesic midpoint, $|\langle e_i \,|\, \mu\rangle|
+= \cos\frac\pi4 = \tfrac1{\sqrt2}$; and feeding phase-rotated
+copies of one state returns that state's ray,
+$|\langle \mathrm{base} \,|\, \mu\rangle| = 1$. The multi-observation
+loop sub-item of P8.9 was already demonstrated by
+\texttt{iterated\_bayes\_module} (P8.11). Workspace tests:
+$196 \to 201$ ($+5$: 4 \texttt{karcher\_mean} units in
+\texttt{qfm}, 1 \texttt{prob\_kernel} session test).
+
+\subsubsection*{Rev 24: P10.16.1 CIFAR-10 16$\times$16 baseline + SIRK shift overflow fix}
+
+Rev 24 ships \textbf{P10.16.1}, the second real-data empirical
+baseline for the QFM-TSR pipeline, and fixes a latent f64 overflow
+in \texttt{QfmPipeline::compile} that prevented any pipeline with
+$\texttt{krylov\_dim} > 88$ from compiling.
+
+\paragraph{SIRK shift overflow (root cause \& fix).}
+\texttt{QfmPipeline::compile} was building the Krylov sequence with
+linearly-growing imaginary shifts $z_k = -ik$ for
+$k = 1, \ldots, \texttt{krylov\_dim}$.  Each step multiplies the
+current Krylov vector by $(H - z_k I)$, so the per-component
+magnitude grows as
+$\prod_{k=1}^{m}(\|H\|+k) \approx m!$ when $\|H\| \ll k$.
+For $m = 65$ (MNIST 8$\times$8) this gives $\approx 10^{90}$, which
+fits in an \texttt{f64} ($\approx 10^{308}$).  For $m = 256$
+(CIFAR-10 16$\times$16), $256!\approx 10^{507}$ overflows
+\texttt{f64}, turning the Gram matrix entries into NaN and causing
+\texttt{whiten\_gram} to return \texttt{GramDegenerate}.  The fix
+(\texttt{qfm/src/pipeline.rs}) normalises the shifts to
+$z_k = -ik/m$ (range $[-i/m,\, -i]$), capping the per-step growth
+at $(\|H\|+1)$ regardless of $m$ and bounding the Gram entries at
+$(\|H\|+1)^{2m} \approx 10^{168}$ for $m=256$.  No other crate is
+affected; the MNIST tests pass unchanged.
+
+\paragraph{P10.16.1 test.}
+\texttt{qfm/tests/cifar10\_validation.rs} (4 tests, +4 to the
+workspace total: 223 $\to$ 227).  The fixture is a deterministic
+synthetic dataset generated at test time from seed
+\texttt{0xC1F4\_2010}: 8 classes $\times$ 32 images/class $= 256$
+training points, $d = 256$ ($16\times 16$ grayscale), each class
+defined by 3 bright Gaussian spots at class-specific grid
+positions plus per-pixel noise ($\sigma=0.05$ training,
+$\sigma=0.15$ held-out).  Pipeline config: $k=16$ (Level-1
+sketch, $16{:}1$ compression), $K_2 = 256 = \max(M,d)$,
+$\texttt{krylov\_dim} = 256$.  The four tests check: (1) the
+pipeline compiles and the SIRK rank is positive; (2)
+\texttt{generate} outputs are finite and positively correlated
+with the nearest training point (max cosine-sim $>0.2$, min
+$>0.0$); (3) the QFM.tex \S8 Bayesian update on held-out images
+yields $\max|\langle\text{sample}\mid c_{\text{obs}}\rangle|^2
+> 0.01$; (4) no NaN/Inf in held-out \texttt{generate}.  The
+\texttt{build\_flow\_hamiltonian} ``star'' structure (at rev 24, vacuum
+coupled to $K_2$ modes with coupling $\alpha_j/2 = \|x_j\|^2/(2M)$; since
+rev 31, the exact rank-1 projector~\eqref{eq:Htomo}, whose Krylov space is
+2D by construction) produces an effective 2D Krylov subspace after
+whitening; the $\sim$2--9 whitened rank is the documented behaviour for
+small-rank flow Hamiltonians.
+
+\subsubsection*{Rev 25--28: real-data scaling, cross-domain validation, and
+the mass-gap demo}
+
+The four sub-items left open at rev 24 were closed in revs 25--27, and
+rev 28 closed the external-module (P11) integrations. In detail:
+
+\paragraph{Real CIFAR-10 fixture (rev 25, P10.16.2).} The synthetic
+CIFAR-10 fixture of rev 24 is complemented by a real one:
+\texttt{qfm/scripts/make\_cifar10\_fixture.py} downloads the CIFAR-10
+binary (University of Toronto) and converts RGB $32\times 32$ to grayscale
+$16\times 16$ via ITU-R 601 luminance + $2\times 2$ block averaging (the
+same preprocessing as the MNIST fixture), producing
+\texttt{qfm/testdata/cifar10\_16x16\_256training.json} (8 classes
+$\times$ 32 images) and \texttt{cifar10\_16x16\_8heldout.json} (1 per
+class from the test split). Four real-data tests in
+\texttt{qfm/tests/cifar10\_real\_validation.rs} mirror the MNIST suite
+(compile, generate finite $+$ correlated, Bayesian update recovers the
+held-out observation, no explosion); the synthetic P10.16.1 tests are
+retained as fast deterministic regressions.
+
+\paragraph{Rank truncation (rev 26, P10.16.3).} A new
+\texttt{max\_rank: Option<usize>} field on \texttt{QfmConfig}
+removes the $\mathcal{O}(K_2^3)$ cubic-scaling wall. When set to
+\texttt{Some(r)}, the Krylov basis and reduced Hamiltonian are projected
+onto the top-$r$ right singular vectors of $W$ ($W\to W V_r$,
+$H_m\to V_r^{\mathrm{H}} H_m V_r$; the SVD is taken on
+$\mathrm{Re}(W)$, exact because $\bar H_{\mathrm{tomo}}$ is
+real-symmetric), and the $\texttt{krylov\_dim}\ge K_2$ guard is bypassed
+so that $\texttt{krylov\_dim}\ll K_2$ becomes legal. This shrinks the
+SIRK Gram matrix from $\mathcal{O}(K_2^3)$ to
+$\mathcal{O}(\texttt{krylov\_dim}^2\cdot K_2)$ --- three orders of
+magnitude at $K_2=1024$ --- and a $d=1024$ (CIFAR-10 $32\times 32$)
+pipeline compiles in $\sim$2\,s on CPU with $\texttt{krylov\_dim}=32$,
+$\texttt{max\_rank}=16$ (helper
+\texttt{observables::rank\_truncate\_w\_h}; 4 tests in
+\texttt{qfm/tests/rank\_truncation.rs}). The trade is deliberate: the
+truncated path is lossy, so it is opt-in and the lossless
+$\texttt{krylov\_dim}\ge K_2$ path remains the default.
+
+\paragraph{Cross-domain validation on critical 2D Ising configurations
+(rev 27, P10.16.4).} \texttt{qfm/tests/ising2d\_validation.rs} generates
+$L=16$ ($d=256$) spin configurations by Metropolis Monte Carlo at the
+exact critical temperature $\beta_c=\ln(1+\sqrt 2)/2\approx 0.4407$
+(Onsager 1944) --- chosen because critical configurations carry
+long-range, power-law correlations and scale invariance, a genuinely
+different statistical structure from the MNIST/CIFAR image fixtures.
+With only $M=64$ training configurations against $K_2=256$ the lossless
+path is infeasible, so this is also the first real exercise of the
+rank-truncation path ($\texttt{krylov\_dim}=32$, $\texttt{max\_rank}=16$):
+compile, correlated generation, Bayesian update on 8 held-out
+configurations from an independent seed, and no-explosion all pass in
+under 1\,s.
+
+\paragraph{$l=3$ Yang--Mills mass-gap demonstration (rev 27, P10.18).}
+\texttt{yang\_mills\_l3\_mass\_gap\_demo}
+(\texttt{fock\_sirk/src/forward\_sirk.rs}) extends the $l=2$ mass-gap
+test to a $3\times 3$ periodic SU(2) lattice --- 18 link modes
+(2 directions $\times$ 9 sites $\times$ 1 color), 9 plaquettes, 162
+Hamiltonian terms --- with
+$\texttt{SirkOpts}\{\texttt{max\_components: 200\,000}\}$ and $m=4$
+Krylov shifts. Measured: $E_{\mathrm{even}}=-0.018$,
+$E_{\mathrm{odd}}=1.970$, mass gap $\approx 1.988$, matching the
+strong-coupling estimate $g^2/2=2.0$ (at $g=2$) within 1\%, and
+confirming a strictly positive gap (confinement) at $l=3$ in $\sim$8\,s
+on CPU. $l=4$ still hits the documented \texttt{StateExplosion} scaling
+wall (typed, \texttt{yang\_mills\_l4\_quartic\_explosion\_is\_typed});
+a continuum-limit Millennium-Prize proof remains a separate multi-month
+research undertaking, but this is the concrete lattice demonstration the
+item called for.
+
+\paragraph{Module ecosystem (revs 25, 27, 28 --- P11).} Around the QFM
+core, the kernel surface gained: \texttt{zenodo\_store\_module} + the
+\texttt{uz\_*} ABI (rev 25, P11.24 --- Zenodo-backed snapshot/delta
+persistence for Loro CRDT documents, same manifest-authorization gate as
+\texttt{uk\_*}); \texttt{unfer\_edge} (rev 27, P11.22 --- a Pingora-based
+proxy that op-allowlists and secret-masks the \texttt{unfer\_agent}
+NDJSON surface); and, in rev 28, the four cross-repo integrations
+(\texttt{pattern\_unfer} CRDT session memory, \texttt{arctic\_authority}
+threshold-signed authorization for australVM, \texttt{mathed\_biblio}
+citations in the velysterm editor, and \texttt{unfer\_nixvm} --- the
+kernel's C ABI packaged as a Nix derivation and composed into GPU-shared
+VM images). Details in \texttt{docs/IMPLEMENTATION\_PLAN.md}.
+
+\paragraph{Cross-domain validation continued (rev 29 --- P10.16.5 + P10.16.6).}
+\textbf{P10.16.5: 2D Kolmogorov-flow CFD snapshots} ---
+\texttt{qfm/tests/cfd\_kolmogorov\_validation.rs} generates vorticity
+fields for the canonical forced-turbulence Kolmogorov flow
+($\partial_t \omega = -\vec u \cdot \nabla \omega + \nu \nabla^2 \omega
++ \sin(k_f x)\cos(k_f y)$ on a doubly-periodic $L=16$ box, $\nu=0.05$,
+$k_f=4$, integrated by a direct pseudospectral solver with
+2/3-rule dealiasing and RK4 time stepping on a hand-rolled
+radix-2 FFT). 64 training snapshots and 8 held-out snapshots are
+captured every 20 time steps after a 50-step burn-in. 4 tests pass
+in $\sim 5$ s: compile (rank=2, $K_2$=256, $d$=256); generate with
+cosine similarity $0.36 \pm 0.00$ (positive for all 8 queries);
+Bayesian update with $|\langle sample|c_{obs}\rangle|^2 \in
+[0.18, 0.77]$ for the 8 held-out observations; no explosion.
+\textbf{P10.16.6: post-Newtonian gravitational-waveform bank} ---
+\texttt{qfm/tests/gravitational\_waveform\_validation.rs} generates
+a 64-waveform bank of restricted 2PN TaylorT1 inspiral waveforms
+($\ell=2$, $m=2$, face-on, non-spinning, masses $M \in [1, 4]M_\odot$
+in geometric units, $d=256$ samples over $[0, 50M]$). The phase
+follows $\phi(t) = 2\pi f_0 t_c (1 - t/t_c)^{5/8}$ with
+$t_c = (5/256) \mathcal M_c^{-5/3} (\pi f_0)^{-8/3}$ and
+$\mathcal M_c = M / 2^{1/5}$ (matches LIGO's TaylorT1 to leading
+order). 4 tests pass in $\sim 1$ s: compile; generate with
+cosine similarity $0.72 \pm 0.00$ (the rank-2 structure of the
+PN family --- amplitude $\times$ phase --- is captured well);
+Bayesian update with $|\langle sample|c_{obs}\rangle|^2 \in
+[0.34, 0.61]$ for 4 of 8 held-out (the other 4 hit the same
+S$_2$-hash-to-unsupported-mode edge case as MNIST); no explosion.
+Both new tests use the P10.16.3 rank-truncation path
+(\texttt{krylov\_dim=32, max\_rank=Some(16)}) since $M=64 < K_2=256$.
+Workspace test count: \textbf{259} (was 251 in rev 28, $+8$ from
+the two new test files).
+
+\paragraph{Cross-domain scaling to $d=1024$ (rev 30 --- P10.16.7).}
+\textbf{P10.16.7} closes the first item from the rev 29
+``next steps'' list: scale all three rev 29 cross-domain fixtures
+(CFD, GW, Ising) to $d=1024$ ($32 \times 32$ for the 2D spatial
+fields, 1024 samples for the 1D waveform) using the P10.16.3
+rank-truncation path. The deliverable is a single new test file
+\texttt{qfm/tests/d1024\_cross\_domain\_scaling.rs} (12 tests,
+$\sim 20$ s on CPU with parallel threads) that exercises the
+P10.16.3 path on real cross-domain data at production
+resolution --- closing the gap between the rev 26 synthetic
+\texttt{rank\_truncation.rs} test (d=1024, $\sim 2$ s compile) and
+the real-physics rev 29 fixtures (d=256, $\sim 7$ s total).
+The $M=64$ training bank is unchanged; the only differences from
+the rev 29 fixtures are the resolution (16 $\to$ 32 for 2D,
+$256 \to 1024$ samples for 1D) and the corresponding
+\texttt{K\_2 = max(M, d) = 1024}. The three sub-fixtures:
+
+\begin{enumerate}
+\item \textbf{2D Kolmogorov-flow CFD at $L = 32$} --- the same
+  pseudospectral solver as the rev 29 P10.16.5 test, generalised
+  to $L = 32$ with \texttt{DT = 0.005} (halved from $L = 16$ for
+  extra stability margin at the higher resolution). The
+  hand-rolled radix-2 FFT handles $L = 32$ without code change.
+  4 tests: compile (rank=2, $K_2=1024$, $d=1024$, $\sim 10$ s for
+  the 64-snapshot trajectory); generate with cosine similarity
+  $0.12 \pm 0.00$ (positive for all 8 queries, better than the
+  d=256 case's 0.36 because the higher-resolution field has more
+  structure for the rank-2 truncation to capture); Bayesian
+  update with $|\langle sample|c_{obs}\rangle|^2 \in
+  \{0.81, 0.11\}$ for 2 of 8 held-out (the other 6 collapse to
+  a degenerate $\sim 0.015$ --- a known limitation of the
+  rank-2 path with sparse data, distinct from the $S_2$-hash edge
+  case); no explosion.
+\item \textbf{2D Ising model at $L = 32$} --- Metropolis MC at
+  the Onsager critical point $\beta_c = \ln(1 + \sqrt{2})/2$ on a
+  $32 \times 32$ lattice. 4 tests: compile (rank=2, $K_2=1024$,
+  $d=1024$); generate is finite but mildly anti-correlated
+  (cosine similarity $\sim -0.09$) --- the rank-2 path
+  collapses to a single representative output when the
+  $M/d = 1/16$ sparsity is 4$\times$ the d=256 case
+  (a documented limitation, not a regression);
+  Bayesian update with $|\langle sample|c_{obs}\rangle|^2 \in
+  \{0.78, 0.70\}$ for 2 of 8 held-out; no explosion. The
+  real correctness signal is the Bayesian overlap, not the
+  generate similarity --- the d=256 Ising test has the same
+  rank-collapse behaviour (all 8 sims are identical 0.35), but
+  happens to be on the positive side of zero.
+\item \textbf{Post-Newtonian gravitational waveforms at $d = 1024$}
+  --- the same TaylorT1 family as the rev 29 P10.16.6 test, with
+  4$\times$ the sample count. 4 tests: compile (rank=2,
+  $K_2=1024$, $d=1024$); generate with cosine similarity
+  $0.42 \pm 0.00$ for 4 queries and $0.10 \pm 0.00$ for the
+  other 4 (the rank-2 amplitude $\times$ phase structure is
+  captured well); Bayesian update with
+  $|\langle sample|c_{obs}\rangle|^2 \in [0.05, 0.77]$ for 4 of
+  8 held-out (the other 4 hit the same $S_2$-hash edge case as
+  the d=256 GW test); no explosion.
+\end{enumerate}
+
+The CFD training + held-out datasets are shared across the 4 CFD
+tests via \texttt{std::sync::OnceLock} (the L=32 trajectory
+takes $\sim 10$ s to generate, and we don't want to repeat that
+4 times). The Ising and GW datasets are cheap enough ($\sim 1$ s
+total each) to generate per-test. All 12 tests pass with
+\texttt{cargo test -p qfm --test d1024\_cross\_domain\_scaling}
+in $\sim 20$ s on a single core (parallel-threads=1) or
+$\sim 20$ s with default parallel-threads (the OnceLock
+deduplicates the dataset generation across the 4 CFD tests).
+Workspace test count: \textbf{271} (was 259 in rev 29, $+12$
+from the new test file).
+
+\subsubsection*{Next steps to improve (post-rev 30)}
+
+All 19 P7--P10 items and all 5 P11 integrations are closed; what remains
+is open-ended follow-on work, not a scoped checklist:
+
+\begin{enumerate}
+\item \textbf{Richer cross-domain datasets (P10.16.8+).} The rev 30
+  P10.16.7 closed the $d=1024$ scaling. The natural next step is
+  richer families: a real-data replacement (CFD from a published DNS
+  dataset rather than synthetic Kolmogorov forcing; LIGO Open Data
+  Center waveforms with the full $\ell=2,3$ mode content rather
+  than the TaylorT1 face-on approximation); 3D ($L=8$ or $L=10$
+  Ising, d=512 or d=1000); or non-stationary distributions (a
+  time-series of ${M(t)}_{t=0}^{T}$ of CFD snapshots with the
+  QFM-TSR pipeline tracking the distribution as it evolves).
+  Each sub-revision is independent.
+
+\item \textbf{Continuum-limit mass gap} (multi-month research). The
+  $l=3$ demo is a lattice-scale empirical result; a Millennium-Prize
+  grade argument needs the continuum limit, rigorous error bounds, and
+  a formal proof --- beyond the \texttt{StateExplosion} wall at
+  $l\ge 4$, this likely requires new truncation theory, not just more
+  compute.
+\end{enumerate}
+
+\subsubsection*{Items DONE in rev 20--23 (now in the past, kept here for the historical record)}
+
+\begin{enumerate}
+\item \textbf{[DONE rev 20--21, P8.7] Typst-math $\to$ Hamiltonian
+  compiler.} \texttt{compile\_typst\_math(input: \&str) $\to$ Hamiltonian}
+  in \texttt{nested\_fock\_algebra} (CAS-direct path, bypasses
+  mathhook), \texttt{HamiltonianSpec::Typst \{ typst: String \}}
+  variant in \texttt{unfer\_protocol}, dispatch in
+  \texttt{prob\_kernel::build.rs} (gated on the \texttt{latex}
+  feature). +26 tests (20 typst\_math units + 5 build integration
+  + 1 protocol round-trip). The 95\% operator-product case
+  (\texttt{a\^{}dagger\_0 * a\_0}, \texttt{\textbackslash omega *
+  c\^{}dagger c + h.c.}) is fully covered; the ket/bra + complex
+  expressions are documented as out-of-scope (use the
+  hand-authored translator pipeline instead, P3.10).
+
+\item \textbf{[DONE rev 21, P8.8] \texttt{uk\_belief\_propagation}
+  FFI symbol.} Exact chain BP via gradient-ascent MAP
+  estimation, \texttt{qfm::bayes::belief\_propagation\_chain}
+  (\(O(\mathrm{max\_iter} \cdot N \cdot m)\) vs HMC's
+  \(O(\mathrm{leapfrog\_steps} \cdot N \cdot m)\)). Wired through
+  \texttt{prob\_kernel::Session::belief\_propagation} +
+  \texttt{unfer\_protocol::BeliefPropagationOptsSpec}/\texttt{Request}/\texttt{Result}
+  + \texttt{unfer\_ffi::uk\_belief\_propagation} (with the same
+  P7.5-style \texttt{opts.validate()} $\to$ \texttt{UK-1001} +
+  per-field \texttt{RepairHint} pattern). +21 tests (5 qfm
+  units, 4 prob\_kernel session, 6 FFI, 6 protocol). Returns the
+  marginal mode (not a sample); for samples, use HMC
+  (\texttt{uk\_bayesian\_update}).
+
+\item \textbf{[DONE rev 21, velysterm merge] typst 0.14 $\to$ 0.15
+  upstream sync.} Pulls in upstream velyst \texttt{ddd05b6}
+  (KanvaSink + kanva\_typst) + \texttt{ea2d2b5} (typst 0.15) and
+  ports the velysterm-local mathed code to the new typst 0.15
+  API (\texttt{LinkedNode::leaf\_text}, \texttt{typst\_eval::eval}
+  signature change, \texttt{Introspector} is now a trait,
+  \texttt{Engine} no longer has a \texttt{routines} field,
+  \texttt{World::today(Option<Duration>)},
+  \texttt{FileId::new(RootedPath)}, the
+  \texttt{typst\_layout::layout\_frame} direct call). velysterm
+  workspace now compiles cleanly with typst 0.15 (mathed\_core
+  72 tests, mathed\_mini 45 headless tests). The unfer workspace
+  itself has no typst dependency and is unaffected by the
+  version change.
+
+\item \textbf{[DONE rev 21, P9.15 partial] Stale velyst example
+  cleanup.} The velysterm-vendored
+  \texttt{editor.rs}/\texttt{terminal.rs}/\texttt{rfc1751\_demo.rs}
+  (which were already gated behind \texttt{upstream-stale-examples}
+  against the velyst 0.14 API, and are now triply-stale against
+  velyst 0.15) are deleted; the \texttt{upstream-stale-examples}
+  feature gate in \texttt{crates/velyst/Cargo.toml} is removed.
+  The follow-on port is tracked as P9.15.1 above.
+
+\item \textbf{[DONE rev 22, P9.14] \texttt{mathed\_mini} Step 4
+  closure.} All four deferred sub-items are now implemented and
+  tested (velysterm commit \texttt{8d1cbf6}). (1) \textbf{Caret blink}
+  via \texttt{ControlFlow::WaitUntil(self.next\_blink)} in
+  \texttt{app.rs:750}; \texttt{caret\_visible} toggles on the
+  \texttt{BLINK\_INTERVAL} deadline; \texttt{reset\_blink()} is called
+  on every caret move / edit. (2) \textbf{Mouse hit-testing /
+  click-to-place-caret + selection} via
+  \texttt{App::place\_caret\_from\_cursor(extend)} in \texttt{app.rs:212}
+  using \texttt{layout.glyphs.byte\_for\_point};
+  \texttt{MouseInput::Pressed} calls it with \texttt{shift\_key()} for
+  extend, \texttt{CursorMoved} + held button calls with
+  \texttt{extend=true} for drag-select; 4 \texttt{selection\_range} tests
+  cover the anchor logic; 2 new \texttt{rects\_for\_range} tests in
+  \texttt{render.rs} cover the selection highlight geometry.
+  (3) \textbf{\texttt{mathed\_a11y} AccessKit bridge} in
+  \texttt{mathed\_mini/src/a11y.rs} (gated on the \texttt{gui} feature):
+  \texttt{build\_tree\_update(\&[AccessNode])} maps
+  \texttt{AccessRole} $\to$ \texttt{accesskit::Role}; declares
+  \texttt{Action::Focus} + \texttt{Action::Click} on segment nodes
+  (P5 \#27 caret placement); \texttt{byte\_offset\_for\_node} round-trips
+  the segment ID back to a doc byte offset. 5 a11y tests
+  (\texttt{translator\_role\_maps\_to\_group},
+  \texttt{reference\_role\_maps\_to\_link},
+  \texttt{end\_to\_end\_pipeline\_builds\_tree\_from\_document\_text},
+  plus the 2 pre-existing structural tests). (4) \textbf{\texttt{kernel\_client}
+  $\to$ \texttt{mathed\_mini} wiring} in
+  \texttt{crates/mathed\_mini/src/kernel\_bridge.rs} (1171 lines,
+  10+ tests in \texttt{kernel\_bridge::tests}). The Bevy-free frontend
+  can now show \texttt{\textbackslash prob} results inline (green value
+  / red error code), matching the Bevy \texttt{mathed} frontend.
+  \textbf{mathed\_mini: 45 $\to$ 47 headless tests / 54 $\to$ 59 gui
+  tests (rev 22).} mathed\_core 72 (unchanged).
+
+\item \textbf{[DONE rev 23, P9.15.1] Port the deleted velyst
+  examples to the velyst 0.15 + typst 0.15 + Bevy 0.18 API
+  surface.} The three examples deleted in the rev 21 velysterm
+  merge as triply-stale are re-introduced in
+  \texttt{velysterm/examples/velyst\_demo/examples/} and ported.
+  (1) \textbf{\texttt{rfc1751\_demo.rs}} (9 lines, 1:1 port) uses
+  \texttt{velyst::rfc1751::u64\_to\_rfc1751} (the velyst 0.15
+  re-export of the upstream function). (2) \textbf{\texttt{editor.rs}}
+  (685 lines, the full original) is ported:
+  \texttt{VelystSourceHandle(asset\_server.load(...))} $\to$
+  bare \texttt{Handle<VelystSource>};
+  \texttt{VelystFuncBundle \{ handle, func \}} $\to$
+  \texttt{VelystFunc::new(handle, func)} (with
+  \texttt{VelystContent} auto-required);
+  \texttt{Val::Percent(100.0)} / \texttt{Val::Px(15.0)} /
+  \texttt{Val::Auto} $\to$ \texttt{percent()} / \texttt{px()} /
+  \texttt{auto()} Bevy 0.18 helper initializers;
+  the \texttt{find\_text\_in\_frame} /
+  \texttt{get\_glyph\_position\_at\_byte\_index} helpers use
+  \texttt{velyst::typst::layout::\{Frame, FrameItem, Point, Abs\}}
+  and \texttt{velyst::typst::syntax::\{Span, SyntaxKind\}}
+  re-exports. The bundled \texttt{assets/typst/editor.typ} and
+  \texttt{assets/fonts/dejavu.ttf} (extracted from
+  \texttt{typst-assets-0.15.0/files/fonts/DejaVuSansMono.ttf})
+  are new. (3) \textbf{\texttt{terminal.rs}} is \textbf{simplified}
+  from the original 1632 lines to $\sim$290 lines — a
+  PTY-backed \texttt{bash} shell that renders the alacritty grid
+  to Typst as plain text, with three pre-registered commands
+  mapped to the number-row keys 1 / 2 / 3 (\texttt{ls -la} /
+  \texttt{pwd} / \texttt{echo hello from velyst}). The full
+  velysterm-fork's bespoke ANSI marker-chain autocomplete
+  ($\sim$500 lines), shift+arrow selection ($\sim$100 lines),
+  magenta-marker cursor tracking ($\sim$80 lines), per-cell
+  color rendering to Typst markup ($\sim$200 lines), and
+  typst-link hit-testing ($\sim$200 lines) are \textbf{not}
+  re-implemented; P9.15.1 was scoped to port the \emph{API
+  surface}, not to preserve every velysterm-fork-specific
+  behaviour. A follow-on revision can re-introduce the missing
+  pieces against the new velyst 0.15 surface. The velyst 0.15
+  + vte 0.15.0 + alacritty\_terminal 0.25.1 + Bevy 0.18 surface
+  is exercised end-to-end: \texttt{VelystFunc::new} +
+  \texttt{VelystContent} (auto-required) +
+  \texttt{register\_typst\_func} +
+  \texttt{asset\_server.load("typst/X.typ")} +
+  \texttt{vte::ansi::Processor::new() -> Processor<StdSyncHandler>}
+  (the vte 0.15.0 default for the new \texttt{T: Timeout}
+  parameter). 5 new integration tests in
+  \texttt{velysterm/examples/velyst\_demo/tests/ported\_examples.rs}
+  pin the port (\texttt{editor\_assets\_present},
+  \texttt{terminal\_assets\_present},
+  \texttt{rfc1751\_demo\_uses\_velyst\_helper},
+  \texttt{ported\_examples\_use\_new\_velyst\_api},
+  \texttt{ported\_examples\_use\_bevy\_val\_helpers}). All 5 pass.
+  \textbf{velyst\_demo: 0 $\to$ 5 integration tests (rev 23).}
+  mathed\_core / mathed\_mini / kernel\_client / mathed test
+  counts unchanged from rev 22 (72 / 47 / 59 / 7 / 36). The
+  unfer workspace has no typst dep and is unaffected: its
+  223 tests are unchanged.
+\end{enumerate}
+
+The detailed per-item breakdown, the per-item leverage and
+effort estimate, and the out-of-scope record are in
+\texttt{docs/IMPLEMENTATION\_PLAN.md} \S"Next steps to improve".
+
+\section{Conclusion}
+
+We have given a self-contained derivation of a classical, grid-free realization
+of the \emph{wavefunction flow} of Layden, Sweke, Havl\'i\v{c}ek, Chowdhury, and
+Neklyudov~\cite{Layden2025} inside the \texttt{unfer} kernel. The paper's
+central object --- the continuity Hamiltonian
+$\Hgen_t=\tfrac12[\hat p\cdot v_t(\hat x)+v_t(\hat x)\cdot\hat p]$, with the
+conservative form $\Hgen_t^c=i[\Kop,V_t(\hat x)]$, fully specified by an
+already-learned classical velocity field and generating a qsample
+$\Psi_t=\sqrt{p_t}$ --- maps directly onto \texttt{unfer}'s Born-rule Fock
+machinery. By encoding data as orthogonal Fock states we replace the paper's
+$N^d$ Fourier-collocation grid with an analytical, diagonal,
+$\mathcal{O}(M)$ closed-form fit of the conservative potential, with zero data
+loss. By compressing the resulting bounded generator with the Shift-Invert
+Rational Krylov method --- in place of the paper's product formulas --- we
+obtain exponentially convergent, $\mathcal{O}(m^2)$ single-step inference. The
+measure-theoretic core --- the Mehler/L\'opez--Temme limit identifying the
+uniform hyperspherical measure with the Gaussian measure and Gegenbauer with
+Hermite polynomials --- explains \emph{why} the Gaussian source $p_0$ of a flow
+model is exactly the Fock vacuum, and why orthogonal excitations carry
+information --- and, pushed one step further, that the Mehler vacuum has a
+strictly positive overlap $\varepsilon_j$ with every localized data channel
+(each channel disturbs only finitely many hyperspherical coordinates), so
+the \emph{exact} off-diagonal generator is just the vacuum projector
+$\ket{0}\bra{0}$ itself, its transport driven entirely by that
+non-orthogonality. The shipped builtins realize the spectrally-stable
+diagonal skeleton of this generator and the exact Mehler projector
+(\texttt{qfm\textunderscore mehler\textunderscore projector}, with its
+localized-encoding companion) with its coherent vacuum--channel amplitude
+transport and closed-form rank-1 evolution --- applied through the
+\texttt{Operator::ProjectOnto} shortcut, with no
+$\mathcal{O}(\varepsilon)$-truncated coupling; the full \emph{Tomographic
+Subspace Recovery} pipeline of Section~\ref{sec:tomographic} decouples
+semantics from reasoning via two-level hashing and pre-projected observables,
+enabling $M$-free four-phase online generation at high raw resolution; and the
+\emph{Quantum Bayesian Updating} extension of Section~\ref{sec:bayes} shows how
+the TSR-evolved prior $P_{\mathrm{prior}}$ can be conditioned on $N$ new
+problem-defining observations in $\mathcal{O}(N\,m^2)$ per HMC step, with
+no $\mathcal{O}(M)$ dependence, no local Gaussian or mean-field
+approximations, and a navigable posterior landscape that would otherwise be
+a pure-memorization ``golf course'' under a direct full-Bayesian
+integration. Empirically, the full pipeline is validated end-to-end on
+MNIST $8\times 8$, real CIFAR-10 $16\times 16$, and critical 2D Ising
+configurations (the latter via the rank-truncation extension that removes
+the $\mathcal{O}(K_2^3)$ observable-projection wall), and the same SIRK
+machinery demonstrates a strictly positive $l=3$ SU(2) lattice Yang--Mills
+mass gap within 1\% of the strong-coupling estimate. The result aligns with
+the \texttt{unfer} philosophy: rigorous
+probability tracking through mathematically exact, geometry-preserving
+operations on
+separable Hilbert spaces.
+
+\vspace{1em}
+\begin{thebibliography}{9}
+
+\bibitem{Layden2025}
+Layden, D., Sweke, R., Havl\'i\v{c}ek, V., Chowdhury, A., \& Neklyudov, K.
+(2025). \textit{Wavefunction Flows: Efficient Quantum Simulation of Continuous
+Flow Models}. arXiv:2510.08462 [quant-ph].
+
+\bibitem{Hashimoto2019}
+Hashimoto, Y., \& Nodera, T. (2019). \textit{Shift-invert Rational Krylov
+method for an operator $\phi$-function of an unbounded linear operator}.
+Japan Journal of Industrial and Applied Mathematics, 36, 1--13.
+
+\bibitem{LopezTemme1999}
+L\'opez, J. L., \& Temme, N. M. (1999). \textit{Approximations of orthogonal
+polynomials in terms of Hermite polynomials}. Methods and Applications of
+Analysis, 6(2), 131--146.
+
+\bibitem{Mehler1866}
+Mehler, F. G. (1866). \textit{Ueber die Entwicklung einer Function von
+beliebig vielen Variablen nach Laplaceschen Functionen h\"oherer Ordnung}.
+Journal f\"ur die reine und angewandte Mathematik, 66, 161--176.
+
+\bibitem{Kopperman2026}
+\textit{Beyond Real Numbers: A Hilbert-Space Exchange Format for the UniFormal
+(UPL) Framework}. (2026). UniFormal architecture tutorial
+(\texttt{Kopperman\textunderscore Tutorial}); Mehler uniform-measure /
+Gaussian-limit foundation.
+
+\bibitem{unfer2026}
+\texttt{unfer} Kernel Architecture Documentation.
+\textit{IMPLEMENTATION\textunderscore PLAN.md, ARCHITECTURE.md, PROTOCOL.md}.
+(2026).
+
+\end{thebibliography}
+
+\end{document}

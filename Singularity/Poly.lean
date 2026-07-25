@@ -21,53 +21,45 @@ mapping) is implemented via `(a + a†)/√2` and `-i(a - a†)/√2`.
 open Complex
 
 /-- A normal-ordered operator on M bosonic modes.
-    Terms are keyed by a vector of `(creations, annihilations)` pairs,
-    one entry per mode.  The coefficient is real. -/
+    Represented as a finitely-supported function from mode-key vectors
+    `(Fin M → ℕ × ℕ)` to ℝ coefficients. -/
 structure NormalOrderedOp (M : ℕ) where
   terms : (Fin M → ℕ × ℕ) → ℝ
 
+namespace NormalOrderedOp
+
+variable {M : ℕ}
+
 /-- Multiplication by the x-mode (creation + annihilation):
     implement `(a + a†)/√2` multiplication using the bosonic mapping. -/
-def mulXMode (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
-  -- Multiply by (aᵢ + aᵢ†)/√2 using commutation relations.
-  -- TODO: Implement normal-ordered multiplication:
-  -- 1. For each term ts, expand (aᵢ + aᵢ†) · ts
-  -- 2. Use [aᵢ, aⱼ†] = δᵢⱼ to reorder
-  -- 3. Divide coefficient by √2
-  { terms := op.terms }
+noncomputable def mulXMode (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
+  -- TODO: implement Weyl normal-ordered multiplication
+  sorry
 
-/-- Multiplication by the p-mode: implement `-i(a - a†)/√2` multiplication.
-    pᵢ = -i(aᵢ - aᵢ†)/√2 -/
-def mulPMode (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
-  -- TODO: Implement normal-ordered multiplication by -i(a - a†)/√2
-  -- 1. For each term ts, expand (aᵢ - aᵢ†) · ts
-  -- 2. Use [aᵢ, aⱼ†] = δᵢⱼ to reorder
-  -- 3. Multiply by -i and divide by √2
-  { terms := op.terms }
+/-- Multiplication by the p-mode: implement `-i(a - a†)/√2` multiplication. -/
+noncomputable def mulPMode (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
+  -- TODO: implement Weyl normal-ordered multiplication
+  sorry
 
-/-- Degree: maximum a†^k a^l count across all terms.
-    For each mode i, the degree is k + l (creations + annihilations),
-    and the overall degree is the maximum over all terms and modes. -/
-def degree (op : NormalOrderedOp M) : ℕ :=
-  -- TODO: Compute the degree from the terms
-  -- For each mode i, sum k + l for the (k,l) pair with largest coefficient
+/-- Degree: maximum a†^k a^l count across all terms. -/
+noncomputable def degree (op : NormalOrderedOp M) : ℕ :=
+  -- TODO: compute maximum degree from the terms
   0
 
 /-- Pretty-print a normal-ordered operator for debugging. -/
-def toString (op : NormalOrderedOp M) : String :=
-  -- TODO: format the terms as a string
+noncomputable def toString (op : NormalOrderedOp M) : String :=
   "NormalOrderedOp"
 
 /-- Empty operator (identity). -/
-def emptyOp : NormalOrderedOp M :=
+noncomputable def emptyOp : NormalOrderedOp M :=
   { terms := fun _ => 0 }
 
 /-- Scalar multiplication: multiply all coefficients by c. -/
-def smul (c : ℝ) (op : NormalOrderedOp M) : NormalOrderedOp M :=
+noncomputable def smul (c : ℝ) (op : NormalOrderedOp M) : NormalOrderedOp M :=
   { terms := fun ts => c * op.terms ts }
 
 /-- Addition of two normal-ordered operators. -/
-def add (op1 op2 : NormalOrderedOp M) : NormalOrderedOp M :=
+noncomputable def add (op1 op2 : NormalOrderedOp M) : NormalOrderedOp M :=
   { terms := fun ts => op1.terms ts + op2.terms ts }
 
-end
+end NormalOrderedOp

@@ -7,6 +7,495 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Latest wave — **Cosmological amplification of the matter/radiation ratio (`ChapterBaryonAsymmetry`)** + build repair
+
+Continued executing `FORMALIZATION_ROADMAP.md`.  This pass first **repaired the
+build** (it had drifted against the pinned Mathlib `v4.28.0`): fixed two API-drift
+errors in `RandomMap/RandomMap2.lean` (`convergent_series_has_no_poles`: an `EReal`
+coercion in `lt_of_le_of_lt`, and `DifferentiableWithinAt → DifferentiableAt` via
+`Complex.isOpen_re_gt_EReal`), and rewrote `BookProof/ChapterSolovay.lean` (which
+had drifted to internally-inconsistent, out-of-scope definitions) to reuse the
+canonical `RandomMap.RandomMap2` objects (`InnerHead`/`InnerTail`/`InnerSpace`/
+`stateMeasure`/`OuterWaveFunction`/`dependsOnlyOnHead`/`decidability_corollary`)
+plus the `UniformSpace.Completion` layer.  The whole `BookProof` library is green
+again and axiom-clean.
+
+Then it mined the next self-contained claim: in the chapter *"Entropy and an
+irreversible deterministic time-evolution coexist"*, § *"Baryon asymmetry"*
+(`book.tex` line ~9590), the book relies on the fact that *"the expansion of the
+Universe increases the ratio of the energies in the matter vs. radiation
+contents, proportional to the scale of the Universe"* (so a small CP asymmetry is
+*"much amplified by the expansion of the Universe"*).  The self-contained content
+is the classical FRW scaling of perfect-fluid energy densities.
+
+The new module `BookProof/ChapterBaryonAsymmetry.lean` formalizes this (all
+`sorry`-free, axiom-clean — only `propext`, `Classical.choice`, `Quot.sound`).
+For a scale factor `a > 0`:
+
+* `matterDensity ρm0 a = ρm0 / a³`, `radDensity ρr0 a = ρr0 / a⁴` — the FRW
+  power-law densities for matter (`w = 0`) and radiation (`w = 1/3`);
+* `matter_satisfies_continuity`, `radiation_satisfies_continuity` — these laws
+  satisfy the FRW continuity equation `a·ρ'(a) + 3(1+w)ρ(a) = 0`, fixing the
+  dilution exponents `3` and `4` (a genuine `deriv` computation);
+* `matterRadiationRatio` and HEADLINE `matterRadiationRatio_eq` — **the book's
+  "proportional to the scale of the Universe"**: the ratio equals
+  `(ρm0/ρr0)·a`;
+* `matterRadiationRatio_strictMonoOn` — the ratio strictly increases in `a`;
+* HEADLINE `matterRadiationRatio_tendsto_atTop` — **the book's "amplified by the
+  expansion of the Universe"**: the ratio tends to `+∞` as `a → +∞`.
+
+Registered in `BookProof.lean`; `lake build BookProof` green (8263 jobs); the
+headlines were confirmed axiom-clean via `#print axioms`.
+
+## Latest wave — **Law of total variance (`ChapterTotalVariance`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  In the chapter *"Aligned deep learning as a
+random sampling method"*, §2 *"Systematic uncertainties and Bayesian priors"*
+(`book.tex` line ~9731), the book frames systematic uncertainties as Bayesian
+priors and, in §10 (`book.tex` line ~2005), describes ensemble forecasting — a
+*probability space of probability spaces* — as combining the variability *within*
+each member with the variability *between* members (aleatoric vs. epistemic
+uncertainty).  The precise, self-contained fact underpinning that picture is the
+classical **law of total variance**: the total variance splits *exactly* into the
+within-group (aleatoric) variance plus the between-group (epistemic) variance.
+
+The new module `BookProof/ChapterTotalVariance.lean` formalizes this (all
+`sorry`-free, axiom-clean — only `propext`, `Classical.choice`, `Quot.sound`).
+For a finite sample space `Ω` with nonnegative weights `w`, a quantity
+`Y : Ω → ℝ`, and a grouping `X : Ω → κ` into finitely many groups:
+
+* `mean`, `groupProb`, `condMean` — the expectation `E[Y]`, the group
+  probabilities `P(X = g)`, and the conditional means `E[Y | X = g]` (with the
+  convention `0/0 = 0` on zero-probability groups);
+* `variance`, `within`, `between` — the total variance `Var[Y]`, the mean of the
+  conditional variances `E[Var(Y | X)]`, and the variance of the conditional
+  means `Var(E[Y | X])`;
+* `groupBalance` — for every group the `w`-weighted residuals `Y − E[Y|X]` sum to
+  zero (defining orthogonality of conditional expectation; uses `w ≥ 0` only for
+  zero-probability groups);
+* `crossTerm_zero` — hence the cross term in the Pythagorean expansion vanishes;
+* HEADLINE `total_variance` — `Var[Y] = E[Var(Y | X)] + Var(E[Y | X])`, i.e.
+  `variance = within + between`;
+* `within_nonneg`, `between_nonneg`, `variance_nonneg`, and the consequences
+  `within_le_variance`, `between_le_variance`.
+
+The algebraic identity needs only nonnegativity of the weights (not that they sum
+to one).  Registered in `BookProof.lean`; `lake build` green (8257 jobs); the
+headline was confirmed axiom-clean via `#print axioms`.
+
+## Prior wave — **Sequential = batch Bayesian updating (`ChapterSequentialBayes`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  In the chapter *"Aligned deep learning as a
+random sampling method"*, §3 *"Bayesian inference in the presence of Big Data"*
+(`book.tex` line ~9858), the book stresses that *"Bayesian inference is still
+valid in the presence of Big Data, since it is valid for an arbitrarily large
+number of random variables, as long as it is a finite number"*.  The precise,
+self-contained fact underlying that statement is the **coherence (associativity)
+of Bayesian updating**: processing conditionally-independent observations one at
+a time (each posterior becoming the next prior) gives *exactly* the same final
+posterior as one batch update on the product likelihood.
+
+The new module `BookProof/ChapterSequentialBayes.lean` formalizes this (all
+`sorry`-free, axiom-clean — only `propext`, `Classical.choice`, `Quot.sound`).
+For a finite hypothesis space `X`, prior `prior : X → ℝ` and likelihood weight
+`ℓ : X → ℝ`, the **Bayes update** is
+`bayesUpdate prior ℓ x = prior x · ℓ x / (∑_{x'} prior x' · ℓ x')`:
+
+* `bayesUpdate_nonneg` — the updated distribution is nonnegative;
+* `bayesUpdate_sum_one` — with positive evidence it is a probability distribution;
+* `bayesUpdate_evidence` — the second-step evidence factorizes as
+  `(∑ prior·ℓ₁·ℓ₂) / (∑ prior·ℓ₁)`;
+* HEADLINE `sequential_eq_batch` — `bayesUpdate (bayesUpdate prior ℓ₁) ℓ₂
+  = bayesUpdate prior (ℓ₁·ℓ₂)`;
+* `posterior_eq_bayesUpdate` — the book's `ChapterBayesInference.posterior`
+  observing data `y` is exactly `bayesUpdate` with the likelihood column
+  `x ↦ L x y`, so the coherence transfers verbatim to that framework;
+* `posterior_sequential_eq_batch` — the coherence statement phrased with
+  `posterior` and a two-observation product (conditionally-independent) likelihood.
+
+Registered in `BookProof.lean`; `lake build` green (8256 jobs); the headlines were
+confirmed axiom-clean via `#print axioms`.
+
+## Prior wave — **The maximum-entropy uniform prior (`ChapterMaxEntropy`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  The book appeals to the *maximum-entropy /
+non-informative prior* principle — it lists *"reasoning with maximal entropy"*
+among the tools of automated reasoning (`book.tex` line ~9772) and stresses that
+*"there are no non-informative priors"* (`book.tex` lines ~9349, ~9451).  On a
+finite sample space the least-informative prior is the **uniform** one, in the
+precise sense that it **uniquely maximizes the Shannon entropy**.
+
+The new module `BookProof/ChapterMaxEntropy.lean` formalizes that classical
+fact (all `sorry`-free, axiom-clean — only `propext`, `Classical.choice`,
+`Quot.sound`).  For a finite probability distribution `p` on a nonempty finite
+sample space `α` with `n = |α|`, and `entropy p = ∑ᵢ negMulLog (p i) = ∑ᵢ −pᵢ log pᵢ`:
+
+* `IsProb`, `entropy`, `uniform`; `IsProb.le_one`; `entropy_nonneg` (`0 ≤ H(p)`).
+* `negMulLog_sub_le` — the pointwise Gibbs/tangent-line bound
+  `negMulLog x − x·log n ≤ n⁻¹ − x` (from `log t ≤ t − 1`); `negMulLog_sub_eq_imp`
+  — its strict companion (equality forces `x = n⁻¹`).
+* `entropy_le_log_card` — the maximum-entropy bound `H(p) ≤ log n`.
+* `isProb_uniform`, `entropy_uniform` — the uniform distribution attains it,
+  `H(uniform) = log n`.
+* HEADLINE `entropy_le_entropy_uniform` — `H(p) ≤ H(uniform)` for every `p`;
+  `entropy_eq_log_card_iff` — `H(p) = log n ↔ p = uniform` (**unique** maximizer).
+
+Registered in `BookProof.lean`; `lake build` green (8255 jobs); the headlines were
+confirmed axiom-clean via `#print axioms`.
+
+## Prior wave — **The de Finetti Dutch-book coherence theorem (`ChapterDutchBook`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  In the chapter *"Consciousness as a
+representation of a Bayesian prior"*, §*"Non-informative priors vs. Fermi
+Paradox and Artificial General Intelligence"* (`book.tex` line ~9142), the book
+invokes the classical **Dutch-book** argument (`\cite{dutchbook}`) underpinning
+the Bayesian interpretation of probability on which the whole book rests: a
+system of betting prices is *coherent* (cannot be turned into a guaranteed loss)
+**iff** those prices are the expectations of a genuine probability distribution.
+
+The new module `BookProof/ChapterDutchBook.lean` formalizes that statement
+(finite version on a finite sample space `Ω`, all `sorry`-free, axiom-clean —
+only `propext`, `Classical.choice`, `Quot.sound`):
+
+* Setup: `betIndicator`, `payoff` (net payoff of a finite family of gambles),
+  `HasDutchBook` (a gamble family with strictly-negative payoff in every state),
+  `Coherent := ¬ HasDutchBook`, `IsProb`, `Represents`.
+* Easy direction `represents_isProb_coherent` — prices coming from a genuine
+  probability distribution are coherent (the `p`-expected payoff of any gamble
+  family is exactly `0`, so it cannot be negative in every state).
+* From coherence the probability axioms follow by explicit Dutch-book witnesses:
+  `Coherent.empty` (`Pr ∅ = 0`), `Coherent.univ` (`Pr univ = 1`),
+  `Coherent.nonneg` (`0 ≤ Pr A`), `Coherent.le_one` (`Pr A ≤ 1`),
+  `Coherent.additive` (finite additivity on disjoint events, via a 3-gamble
+  book).
+* `Coherent.represents_singleton` — `Pr A = ∑_{ω ∈ A} Pr {ω}` (additivity over
+  singletons), whence the hard direction `coherent_exists_prob` — a coherent
+  price function is represented by the probability distribution `ω ↦ Pr {ω}`.
+* HEADLINE `coherent_iff_exists_prob` — `Coherent Pr ↔ ∃ probability p,
+  Represents Pr p` (the finite de Finetti Dutch-book theorem).
+
+Registered in `BookProof.lean`; `lake build BookProof` green (8254 jobs); the
+headline was confirmed axiom-clean via `#print axioms`.
+
+## Prior wave — **Probability clock: stochastic transformations vs. the invertible rotation (`ChapterProbabilityClockStochastic`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  In the chapter *"Wave-function collapse
+versus Euler's formula"*, §*"Euler's formula for the probability clock"*
+(`book.tex` line ~3320), the book contrasts the invertible **rotation** acting on
+wave-functions with the **direct** linear action on probability distributions:
+
+> *"the most general linear transformation of a probability distribution that
+> preserves the space of probability distributions is `M(a,b) = [[cos²a,
+> cos²b],[sin²a, sin²b]]` … the matrix `M` such that `M·(1/2)[1,1]ᵀ = [1,0]ᵀ`
+> is necessarily singular and so it is not suitable to represent a symmetry
+> group."*
+
+The new module `BookProof/ChapterProbabilityClockStochastic.lean` formalizes
+that linear-algebra core (all `sorry`-free, axiom-clean — only `propext`,
+`Classical.choice`, `Quot.sound`):
+
+* `IsProbabilityVector` / `IsColumnStochastic`; `Mab a b` +
+  `Mab_isColumnStochastic`.
+* `IsColumnStochastic.mulVec_isProbabilityVector` and
+  `preserves_prob_iff_isColumnStochastic` — probability-preserving ⇔
+  column-stochastic.
+* `isColumnStochastic_eq_Mab` — every column-stochastic `2×2` matrix is `M(a,b)`.
+* HEADLINE `stochastic_uniform_to_deterministic_singular` (`det M = 0`) +
+  `stochastic_uniform_to_deterministic_not_isUnit` (not invertible).
+* Contrast: `rotMat`, `rotMat_det` (`= 1`), `rotMat_isUnit`,
+  `rotMat_mulVec_clockPsi` (`Ψ(t+a) = rotMat a · Ψ(t)`), `Jgen_sq` (`J² = -1`),
+  and the matrix Euler's formula `rotMat_eq_exp` (`exp(a•J) = rotMat a`, via
+  `Complex.liftAux` + `NormedSpace.map_exp`) with `clockPsi_eq_exp`.
+
+Registered in `BookProof.lean`; `lake build BookProof` green (8253 jobs); the
+headlines were confirmed axiom-clean via `#print axioms`.
+
+## Prior wave — **Consciousness / Fermi paradox: null-measure sets need not be small (`ChapterConsciousnessNullMeasure`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  In the chapter *"Consciousness as a
+representation of a Bayesian prior"*, §*"Non-informative priors vs. Fermi
+Paradox and Artificial General Intelligence"* (`book.tex` line ~9122), the book
+argues (solving the Fermi paradox) that a null-measure event is not automatically
+special or lower-dimensional:
+
+> *"A point with null measure is not necessarily special, if all other points
+> also have null-measure as in the uniform measure in a real interval. Moreover,
+> a subset with null measure does not imply that the subset has one less
+> dimension than the set, since there are subsets of a real interval which have a
+> fractal dimension (which can be very close to one, but not one) and thus are
+> also uncountable."*
+
+The new module `BookProof/ChapterConsciousnessNullMeasure.lean` formalizes the
+measure-theoretic core (all `sorry`-free, axiom-clean — only `propext`,
+`Classical.choice`, `Quot.sound`):
+
+* `singleton_volume_zero`, `singletons_equal_measure` — under Lebesgue measure
+  every point is null and all singletons carry the same measure `0` (no point is
+  special).
+* `countable_volume_zero`, `rat_range_volume_zero` — countable sets (e.g. the
+  rationals) are null.
+* `cantorSet_uncountable` — the ternary Cantor set is uncountable (via Mathlib's
+  `cantorSetEquivNatToBool` and Cantor's theorem `ℵ₀ < 2^ℵ₀`).
+* `cantorSet_volume_zero` — the Cantor set has Lebesgue measure zero (via the
+  self-similarity `cantorSet_eq_union_halves`, giving `μ(C) ≤ (2/3)·μ(C)` with
+  `μ(C) < ∞`).
+* HEADLINE `exists_uncountable_null_subset` — there is an uncountable subset of
+  `[0,1]` with measure zero: a null subset of a real interval that is *not*
+  "one dimension less", exactly the book's point.
+
+Registered in `BookProof.lean`; `lake build BookProof` green (8252 jobs); the
+headlines were confirmed axiom-clean via `#print axioms`.
+
+## Prior wave — **Black hole information paradox and the Stern-Gerlach experiment (`ChapterSternGerlach`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  In the chapter *"Wave-function collapse
+versus Euler's formula"*, section *"Black hole information paradox and the
+Stern-Gerlach experiment"* (`book.tex` lines ~3344–3476), the book asserts that
+*"there is always a unitary transformation such that the corresponding
+probability distribution is necessarily the constant distribution, for all
+initial states in the same orthogonal basis."*  Under Born's rule this is the
+statement that for **any** finite dimension `n` there is a unitary matrix whose
+every entry has squared modulus `1/n`, so every basis input maps to the uniform
+(maximally mixed, information-erased) output.  The new module
+`BookProof/ChapterSternGerlach.lean` realizes this with the normalized discrete
+Fourier transform / complex-Hadamard matrix `Uᵢⱼ = exp(2πi·i·j/n)/√n` (for
+`n = 2`, the Hadamard gate of the two-state Stern-Gerlach model).  Contents (all
+`sorry`-free, axiom-clean):
+
+* `dftMatrix`, helper `normSq_exp_mul_I` (`|exp(θi)|² = 1`).
+* `dft_normSq` — every entry has squared modulus exactly `1/n` (constant/uniform distribution).
+* `dft_column_sum` — each column is a genuine probability distribution.
+* `dft_geom_sum_zero` — geometric-sum vanishing over a full period.
+* `dft_unitary` / `dft_mem_unitaryGroup` — the DFT matrix is unitary.
+* **HEADLINE `exists_uniform_unitary`** — existence of a unitary sending every basis state to the constant law `i ↦ 1/n`.
+* `sg_cos_sq_quarter` / `sg_sin_sq_quarter` — the Stern-Gerlach `π/4` rotation gives `50%/50%`.
+
+Registered in `BookProof.lean`; `lake build` succeeds (8250 jobs); the module has
+no proof placeholders; the headline was confirmed axiom-clean.
+
+## Wave — **Euler's formula for a generic phase-space: the countable conditional-probability chain (`ChapterEulerCountableChain`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  In the chapter *"Wave-function collapse
+versus Euler's formula"*, §*"Euler's formula for a generic phase-space"*
+(`book.tex` lines ~3565–3640), the book treats a **countable (possibly infinite)**
+partition of the phase-space and records (Eq. `eq:cond`) the probability
+distribution as a product of conditional probabilities
+`P(n) = (∏_{k<n} P((k+1 or above)|(k or above))) · P(n|(n or above))`, with the
+normalization `P(n|(n or above)) + P((n+1 or above)|(n or above)) = 1` and the
+remark that *"the recursion does not need to stop"*.  The new module
+`BookProof/ChapterEulerCountableChain.lean` formalizes the self-contained core of
+this infinite stick-breaking chain over `c : ℕ → ℝ` (the conditional
+probabilities `c n = P(n | (n or above)) ∈ [0,1]`), *independent* of any
+Hilbert-space structure.  Contents (all `sorry`-free, axiom-clean):
+
+* `stickTail c N = ∏_{k<N} (1 - c k)` (`= P(N or above)`), `stickProb c n = T n · c n` (`= P(n)`).
+* `stickTail_succ` — the tail recursion `T (N+1) = T N · (1 - c N)`.
+* `stickTail_nonneg` / `stickTail_le_one` / `stickProb_nonneg` — the weights are genuine probabilities.
+* **`partial_sum`** — the exact telescoping normalization `∑_{n<N} P(n) = 1 - T N`.
+* **HEADLINE `stick_hasSum_one`** / `stick_tsum_one` — if `T N → 0` the point masses sum to exactly `1`.
+* `condCos`/`condCos_mem`/`one_sub_condCos`/`stickProb_euler`/`euler_tsum_one` — the Euler-angle connection
+  `c n = cos²(θ n)`, recovering the book's `P(n) = (∏_{k<n} sin²(θ k))·cos²(θ n)`.
+
+Complements the *finite* `n`-state result of `ChapterEulerNState` and the
+*single-step* density-matrix identity of `ChapterEulerGenericDensity` with the
+*infinite / countable* case the book emphasizes.  Registered in `BookProof.lean`;
+`lake build` succeeds (8249 jobs); the module has no proof placeholders; headlines
+confirmed axiom-clean via `#print axioms`.
+
+## Wave — **Euler's formula for a generic phase-space: density-matrix recursion (`ChapterEulerGenericDensity`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  In the chapter *"Wave-function collapse
+versus Euler's formula"*, §§*"Euler's formula for a phase-space with 4 states"* /
+*"Euler's formula for a generic phase-space"* (`book.tex` lines ~3478 / ~3565),
+the book parametrizes the wave-function recursively as `vₙ = cₙ·lₙ + sₙ·vₙ₊₁`
+and writes the projector `vₙ vₙ†` in Euler form
+`½ + ½(lₙ lₙ† − vₙ₊₁ vₙ₊₁†)(cos 2θₙ + Jₙ sin 2θₙ)` with imaginary unit
+`Jₙ = lₙ vₙ₊₁† − vₙ₊₁ lₙ†`; collapse suppresses the `Jₙ`-proportional off-diagonal
+terms, leaving `diag(vₙ vₙ†) = cₙ² lₙ lₙ† + sₙ² vₙ₊₁ vₙ₊₁†`.  The new module
+`BookProof/ChapterEulerGenericDensity.lean` formalizes that single recursion step
+for *arbitrary* orthonormal real vectors `l, w` in `Fin d → ℝ` (any dimension),
+generalizing the concrete 2-state case of `ChapterEulerDensityMatrix`.  Contents
+(all `sorry`-free, axiom-clean):
+
+* `eulerVec`, `Jgen`, and helper `vecMulVec_mul_vecMulVec`.
+* `eulerVec_unit` — `v` is a unit vector.
+* `outer_eulerVec` — `v vᵀ = c²·llᵀ + s²·wwᵀ + cs·(lwᵀ + wlᵀ)`.
+* `Jgen_sq` — `J² = −(llᵀ + wwᵀ)`.
+* `Jgen_mul` — `(llᵀ − wwᵀ)·J = lwᵀ + wlᵀ`.
+* **HEADLINE `density_euler_generic`** — the projector in Euler form.
+* **`density_collapse_generic`** — collapse to the diagonal recursion.
+* `density_trace`, `density_symm`, `density_idempotent`.
+
+Registered in `BookProof.lean`; `lake build` succeeds (8248 jobs); the module has
+no proof placeholders; headlines confirmed axiom-clean via `#print axioms`.
+
+# `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`
+
+This library formalizes the self-contained mathematical content of
+`FORMALIZATION_ROADMAP.md` (the master reference distilled from `book.tex`).
+
+Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
+standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
+`lake build BookProof` and `#print axioms`.
+
+## Wave 150 (2026-07-23) — **Euler's formula for the 2-state density matrix (`ChapterEulerDensityMatrix`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`.  In the chapter *"Wave-function collapse
+versus Euler's formula"*, §*"Euler's formula for the probability clock"*
+(`book.tex` line ~3300), the book writes the *density matrix* of the 2-state
+probability clock `Ψ(t) = (cos t, sin t)` as a multi-dimensional Euler's formula
+
+> `Ψ Ψ† = [[cos²t, cos t sin t],[cos t sin t, sin²t]]`
+>        `= ½·I + [[½,0],[0,-½]]·(cos 2t + J sin 2t)`,  with  `J = [[0,1],[-1,0]]`,
+
+and describes collapse as *"setting the off-diagonal part (the part proportional
+to `J`) to zero"*, leaving the classical diagonal distribution
+`[[cos²t,0],[0,sin²t]]`.  The new module
+`BookProof/ChapterEulerDensityMatrix.lean` formalizes the self-contained core
+(all `sorry`-free, `axiom`-clean — only `propext`, `Classical.choice`,
+`Quot.sound`):
+
+* `clockPsi`, `densityMatrix` (`= Ψ Ψᵀ` via `Matrix.vecMulVec`), `Jdens`,
+  `Zdiag` — the wave function, density matrix, imaginary-unit matrix `J`, and
+  diagonal generator `Z`.
+* `clockPsi_normSq` — `Ψ·Ψ = 1` (unit vector).
+* `densityMatrix_eq` / `densityMatrix_apply_zero` / `densityMatrix_apply_one` —
+  the explicit entries, with the diagonal equal to the Born probabilities
+  `cos²t`, `sin²t`.
+* `Jdens_sq` — **`J² = -1`** (`J` is the imaginary unit).
+* **HEADLINE `density_euler`** — the full pre-collapse density matrix in Euler
+  form `ρ(t) = ½·I + Z·(cos 2t·I + sin 2t·J)`.
+* **`density_collapse`** — removing the `J`-proportional part
+  `sin 2t·(Z·J)` yields exactly the classical diagonal distribution
+  `[[cos²t,0],[0,sin²t]]` (the book's collapse rule).
+* `densityMatrix_trace` (`tr ρ = 1`), `densityMatrix_symm` (`ρᵀ = ρ`), and
+  `densityMatrix_idempotent` (`ρ² = ρ`: a *pure* state).
+
+Registered in `BookProof.lean`; `lake build BookProof` succeeds (8247 jobs), the
+module has no proof placeholders, and checked headlines (`density_euler`,
+`density_collapse`, `densityMatrix_idempotent`, `Jdens_sq`,
+`densityMatrix_trace`) use only `propext`, `Classical.choice`, and `Quot.sound`.
+This complements `ChapterE` (which proves the *collapsed* diagonal identity
+`collapse_density`) and `ChapterEulerStochastic` in the same book chapter.
+
+## Wave 149 (2026-07-23) — **Irreversibility as an injective, non-surjective, non-singular self-map (`ChapterIrreversibleDynamics`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`. In the chapter *"Entropy and an irreversible
+deterministic time-evolution coexist"*, §*"Irreversible deterministic
+time-evolution"* (`book.tex` line ~9524), the book argues:
+
+> *"A process with a dissipative time-evolution is irreversible: the
+> deterministic time-evolution is not an invertible function (it is injective
+> but not surjective). Then there is time asymmetry."*
+
+and that the random discrete map *"almost surely maps sets of non-null measure
+into sets of non-null measure (that is, it is non-singular)"*. The new module
+`BookProof/ChapterIrreversibleDynamics.lean` formalizes the self-contained core:
+
+* **Finite/discrete world admits no irreversible deterministic dynamics.**
+  `finite_injective_iff_surjective`, `finite_injective_iff_bijective`,
+  `finite_injective_imp_surjective`, and `finite_no_irreversible` — on a finite
+  state space an injective self-map is automatically surjective, so there is no
+  injective-but-not-surjective self-map (the discrete counterpart of *"the
+  rationals are not enough"*).
+* **Continuum admits irreversible dynamics.** `exists_injective_not_surjective`
+  (a Dedekind-infinite witness for any infinite type) and
+  `nat_succ_injective_not_surjective` (the concrete `n ↦ n+1` on `ℕ`).
+* **A concrete non-singular dissipative map on `[0,1]`.** `dissipative x = x/2`,
+  with `dissipative_injective`, `dissipative_mapsTo_unitInterval`,
+  `dissipative_not_surjective_unitInterval` (irreversible — `1` is not
+  attained), `dissipative_image_Icc` (`[a,b] ↦ [a/2,b/2]`),
+  `dissipative_volume_Icc` (halves Lebesgue length: dissipative), and
+  `dissipative_nonsingular_Icc` (positive length ↦ positive measure:
+  non-singular).
+
+Registered in `BookProof.lean`; `lake build BookProof` succeeds (8246 jobs), the
+module has no proof placeholders, and checked headlines
+(`finite_no_irreversible`, `exists_injective_not_surjective`,
+`dissipative_nonsingular_Icc`, `dissipative_not_surjective_unitInterval`) use
+only `propext`, `Classical.choice`, and `Quot.sound`. This complements
+`ChapterBijectionProbability` (`n!/nⁿ → 0`) and `ChapterIrreversible` (entropy)
+in the same book chapter.
+
+## Wave 148 (2026-07-23) — **The probability a random discrete map is invertible is `n!/nⁿ ∼ √(2πn)e^{-n} → 0` (`ChapterBijectionProbability`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`. In the chapter *"Entropy and an irreversible
+deterministic time-evolution coexist"*, §*"Irreversible deterministic
+time-evolution"* (`book.tex` line ~9540), the book computes the probability that
+a uniformly random "discrete function" on the `n`-cell partition of the unit
+square is invertible:
+
+> *"...the probability of an invertible discrete function ... is
+> `n!/nⁿ ∼ √(2πn) e^{-n}` ... Thus it converges to `0` when `n → +∞`."*
+
+Modelling a discrete function as a map `Fin n → Fin n` (invertible = bijective),
+the new module `BookProof/ChapterBijectionProbability.lean` proves:
+
+* `card_fun_fin` — there are `nⁿ` functions `Fin n → Fin n`.
+* `card_bijective_fin` — there are `n!` bijective ones (via a computable-free
+  equiv `permEquivBijective : Equiv.Perm (Fin n) ≃ {f // Bijective f}`).
+* `bijProb n := n!/nⁿ` and `bijProb_eq_card_ratio` — `bijProb` is exactly the
+  ratio (bijections)/(functions), i.e. the uniform probability.
+* `factorial_succ_le` — the elementary bound `(n+1)! ≤ (n+1)ⁿ`.
+* `bijProb_nonneg`, `bijProb_le_one_div` — `0 ≤ bijProb n ≤ 1/n`.
+* `bijProb_tendsto_zero` — **the book's "converges to `0`"**.
+* `bijProb_isEquivalent_stirling` — **the book's `∼ √(2πn)e^{-n}`**, obtained
+  from Mathlib's `Stirling.factorial_isEquivalent_stirling` divided by `nⁿ`.
+
+Registered in `BookProof.lean`; `lake build BookProof` succeeds (8245 jobs), the
+module has no proof placeholders, and the checked headlines
+(`bijProb_tendsto_zero`, `bijProb_isEquivalent_stirling`) use only `propext`,
+`Classical.choice`, and `Quot.sound`. This complements `ChapterIrreversible`
+(entropy) in the same book chapter.
+
+## Wave 147 (2026-07-23) — **A positive-measure partition of the phase space is countable (`ChapterCountablePartition`)**
+
+Continued executing `FORMALIZATION_ROADMAP.md` by mining the next self-contained
+mathematical claim from `book.tex`. In the chapter *"Wave-function collapse
+versus Euler's formula"*, §*"Euler's formula for a generic phase-space"*
+(`book.tex` line ~3570), the book asserts:
+
+> *"any partition of the phase-space (where each part of the phase-space has a
+> non-null Lebesgue measure) is countable."*
+
+The book uses this to index the parts of a phase-space partition by a countable
+orthonormal basis of a separable Hilbert space (the setting of the Euler-angle
+stick-breaking parametrization already formalized in `ChapterEulerNState`). The
+new module `BookProof/ChapterCountablePartition.lean` gives the underlying
+measure-theoretic fact and several forms:
+
+* `countable_of_partition_pos` — **core**: for an s-finite measure `μ`, if
+  `As : ι → Set α` are pairwise disjoint, measurable, and *every* part has
+  positive measure, then `ι` is countable (from Mathlib's
+  `Measure.countable_meas_pos_of_disjoint_iUnion`).
+* `setCountable_of_partition_pos` — the set-of-subsets form (`P.Countable`).
+* `exists_measure_zero_of_uncountable` — contrapositive: an uncountable
+  pairwise-disjoint measurable family must contain a null part.
+* `prob_partition_countable` — the book's probability-measure ("phase-space")
+  case.
+* `prob_partition_countable_tsum_one` — a covering positive-measure partition
+  under a probability measure is countable and its part probabilities sum to `1`.
+* `partition_real_volume_countable` — the literal statement for `ℝ` with
+  Lebesgue measure.
+
+Registered in `BookProof.lean`; `lake build BookProof` succeeds (8244 jobs), the
+module has no proof placeholders, and checked headlines use only `propext`,
+`Classical.choice`, and `Quot.sound`. This complements `ChapterNoUniformCountable`
+and `ChapterNoLebesgue` in pinning down the book's "a mixed standard probability
+space is unavoidable" thread.
+
 ## Wave 146 (2026-07-21) — **Every finite prior is a posterior from uniform prior and suitable data (`ChapterUniformPriorPosterior`)**
 
 Continued the Bayesian sequence with the next self-contained assertion in

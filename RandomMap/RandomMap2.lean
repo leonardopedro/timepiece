@@ -140,7 +140,6 @@ theorem outer_inner_reduces_to_head {N : ℕ} {headDist : Measure (InnerHead N)}
     exact h_equiv.mpr h_mem_comp₂
   let g₁ : Lp ℂ 2 headDist := h_mem_g₂.toLp g₂'
   let g₂ : Lp ℂ 2 headDist := h_mem_g₁.toLp g₁'
-  refine ⟨g₁, g₂, ?_⟩
   have h_inner_eq : inner ℂ Ψ₁ Ψ₂ = ∫ z : InnerSpace N, (g₂' z.1) * star (g₁' z.1) ∂(headDist.prod tailMeasure) := by
     rw [MeasureTheory.L2.inner_def (𝕜 := ℂ) Ψ₁ Ψ₂]
     simp_rw [RCLike.inner_apply]
@@ -172,6 +171,7 @@ theorem outer_inner_reduces_to_head {N : ℕ} {headDist : Measure (InnerHead N)}
     refine integral_congr_ae ?_
     filter_upwards [MemLp.coeFn_toLp h_mem_g₂, MemLp.coeFn_toLp h_mem_g₁] with x h₂ h₁
     simp [h₂, h₁]
+  refine ⟨g₁, g₂, ?_⟩
   rw [h_inner_eq, h_fubini_eq, h_g_eq]
 
 /-! ## Phase 4: Epistemological Payoff and the Decidability Corollary
@@ -950,11 +950,49 @@ theorem convergent_series_has_no_poles {N : ℕ} (headDist : Measure (InnerHead 
     (h_conv : Summable fun n : ℕ => (ArithmeticFunction.moebius n : ℂ) / (n : ℂ) ^ s₀)
     (s : ℂ) (hs : s.re > s₀.re) :
     DifferentiableAt ℂ (fun s' : ℂ => ∑' n : ℕ, (ArithmeticFunction.moebius n : ℂ) / (n : ℂ) ^ s') s := by
-  -- This is a deep analytic result: uniform convergence on compact subsets
-  -- plus differentiability of L-series implies differentiability of the sum.
-  -- We leave this as a sorry for now; it requires the Bohr-Cahen theorem
-  -- (summation by parts) which is also deferred.
-  sorry
+  have h_moebius_zero : (ArithmeticFunction.moebius 0 : ℂ) = 0 := by simp
+  have h_lseries : LSeriesSummable (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) s₀ := by
+    rw [LSeriesSummable]
+    have h_term_eq : LSeries.term (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) s₀ =
+        (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ) / (n : ℂ) ^ s₀) := by
+      ext n
+      by_cases hn : n = 0
+      · simp [hn, h_moebius_zero]
+      · simp [hn, LSeries.term_of_ne_zero hn]
+    rw [h_term_eq]
+    exact h_conv
+  have h_abscissa : LSeries.abscissaOfAbsConv (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) ≤ s₀.re :=
+    LSeriesSummable.abscissaOfAbsConv_le h_lseries
+  have h_lt : LSeries.abscissaOfAbsConv (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) < s.re :=
+    lt_of_le_of_lt h_abscissa (by exact_mod_cast hs)
+  have h_diff_on : DifferentiableOn ℂ (LSeries (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)))
+      {s' | LSeries.abscissaOfAbsConv (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) < s'.re} :=
+    LSeries_differentiableOn (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ))
+  have h_mem : s ∈ {s' | LSeries.abscissaOfAbsConv (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) < s'.re} := h_lt
+  have h_diff_at : DifferentiableAt ℂ (LSeries (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ))) s :=
+    h_diff_on.differentiableAt (by
+      have h_open : IsOpen {s' : ℂ | LSeries.abscissaOfAbsConv (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) < (s'.re : EReal)} := by
+        -- {s' | a < s'.re} = re⁻¹' {x | a < x}
+        have h_cont : Continuous fun s' : ℂ => (s'.re : EReal) :=
+          continuous_coe_real_ereal.comp continuous_re
+        -- The set {x : EReal | a < x} is open (it's Ioi a)
+        have h_open_Ioi : IsOpen {x : EReal | LSeries.abscissaOfAbsConv (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) < x} :=
+          isOpen_Ioi
+        -- The preimage of an open set under a continuous map is open
+        exact h_cont.isOpen_preimage _ h_open_Ioi
+      rw [mem_nhds_iff]
+      exact ⟨{s' | LSeries.abscissaOfAbsConv (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) < (s'.re : EReal)},
+        Set.Subset.rfl, h_open, h_lt⟩)
+  have h_eq : LSeries (fun n : ℕ => (ArithmeticFunction.moebius n : ℂ)) =
+      (fun s' : ℂ => ∑' n : ℕ, (ArithmeticFunction.moebius n : ℂ) / (n : ℂ) ^ s') := by
+    ext s' : 1
+    dsimp [LSeries]
+    refine tsum_congr (fun n => ?_)
+    by_cases hn : n = 0
+    · simp [hn, h_moebius_zero]
+    · simp [hn, LSeries.term_of_ne_zero hn]
+  rw [h_eq] at h_diff_at
+  exact h_diff_at
 
 /-- The Solovay-Hilbert space: a complete Hilbert space where the
     `dependsOnlyOnHead` condition prevents Goedelian self-reference. -/

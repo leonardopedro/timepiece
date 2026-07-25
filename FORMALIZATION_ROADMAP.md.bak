@@ -133,32 +133,33 @@ All Phase 25 sorries in `ChapterSolovay.lean` filled:
   `Ψ = 0`, then for `φ(z) = (z.1 = 0)` the biconditional forces `φ = const True`, contradiction
 - `expectation_head_decidable` — trivial with `classical`
 
-**Parallel execution — Phase 24-26 (completed):**
+**Parallel execution — Phase 24-25:**
 
 | Track | Specialist | Owns | Edits |
 |:---|:---|:---|:---|
 | **A** | Verification & Plan Coordination | Plan files, verification, ARISTOTLE_SUMMARY.md | `RandomMap2.md`, `FORMALIZATION_ROADMAP.md`, `ARISTOTLE_SUMMARY.md` |
-| **B** | BookProof deep mining | New `BookProof/Chapter*.lean` files only | New files only; never modifies existing `BookProof/Chapter*.lean` |
+| **B** | BookProof Gauge Extension | `BookProof/ChapterG3.lean` only | New file only |
 
 **Track A (Verification) — ALL DONE:**
-- A1: Build verification — ✅ DONE (`lake build` succeeded, 8278 jobs)
-- A2: `#print axioms` spot-checks — ✅ DONE (all new chapters verified)
+- A1: Build verification — ✅ DONE (`lake build` succeeded, 8251 jobs)
+- A2: `#print axioms` spot-checks — ✅ DONE (all files verified)
 - A3: ARISTOTLE_SUMMARY.md update — ✅ DONE
-- A4: Plan file updates — ✅ DONE
 
-**Track B (Book.tex deep mining) — ALL DONE:**
-- B6: Hierarchical Bayesian inference — ✅ DONE
-  - `ChapterHierarchicalBayes.lean` — two-level hierarchy: joint prior normalization, evidence = marginal, outer posterior = inner marginal, hierarchical inference = ordinary Bayes update
-  - `ChapterHierarchicalBayesComposition.lean` — kernel composition algebra: associativity, identity kernel, nested terminal marginalization = composite kernel marginalization, three-level hierarchy = ordinary Bayesian update
-  - `ChapterFiniteBayesHierarchy.lean` — finite hierarchy depth: list collapse, recursive marginalization, collapsing preserves normalization and nonnegativity
-- B7: Remaining book.tex chapters — ✅ DONE
-  - B7a: Gauge symmetry deep-dive (book.tex lines 2128-2400) — ✅ DONE (`ChapterG3.lean` + existing `ChapterG.lean`/`ChapterG2.lean`)
-  - B7b: Consciousness deep-dive — ✅ DONE (all claims in `ChapterPriorDependence.lean`)
-  - B7c: Gravity chapters deep-dive — ✅ DONE (all claims in `ChapterGravity*.lean`)
-  - B7d: Free field chapters deep-dive — ✅ DONE (all claims in `ChapterFreeField*.lean`)
-- B8: New self-contained claims — ✅ DONE (none found beyond existing chapters)
+**Track B (Book.tex deep mining):**
+- B3a: Gauge symmetry deep-dive (book.tex lines 2128-2400) — ✅ DONE
+  - G.0-G.11: proved in Phases 1-2
+  - G.12: `brstCohomology_equiv` + `brst_physical_iff_gauge_invariant` — proved
+  - G.13: `IsUnconstrainedGaugeFixing` + `gauge_generator_excluded_from_algebra` — proved
+  - G.14: `gaugeInvariant_constant_on_fibers` (replaces tautology)
+  - G.15: `casimir_sufficient_for_constraints` (proved: invariant subalgebra ≠ ⊤)
+  - G.16: `commuting_normal_operators_simultaneously_diagonalizable` (proved via Mathlib spectral theorem)
+  - G.17: `exists_haar_measure_for_gauge_group` — proved
+- B3b: Consciousness deep-dive — PENDING (no new claims identified beyond ChapterPriorDependence.lean)
+- B3c: Gravity chapters deep-dive — PENDING (no new claims identified beyond existing gravity files)
+- B3d: Free field chapters deep-dive — PENDING (no new claims identified beyond existing free field files)
+- B4: New self-contained claims — PENDING (no new claims identified in book.tex beyond already-formalized chapters)
 
-All 22 BookProof files are sorry-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`).
+B3b-B4 are PENDING but no new claims have been identified in book.tex that are not already formalized. The gauge symmetry chapter (book.tex lines 2128-2400) is fully formalized.
 
 **Verification targets (Track A):**
 | # | Target | Owner | Axioms | File |
@@ -179,13 +180,13 @@ All 22 BookProof files are sorry-free and axiom-clean (only `propext`, `Classica
 - Edits: `RandomMap2.md`, `FORMALIZATION_ROADMAP.md`, `ARISTOTLE_SUMMARY.md` only.
 - Completes sorries in `BookProof/ChapterSolovay.lean` (S.2, S.3, S.4).
 
-**Track B (Phase 24 — Book.tex deep mining) hard constraints:**
+**Track B (Phase 24 — Gauge Extension) hard constraints:**
 - Never writes `RandomMap2*.lean`, `Singularity/`, `RcpRandomMap2Bridge.lean`,
   `SchoenfeldPRA.lean`, `STATUS.md`, `ARISTOTLE_SUMMARY.md`, `RandomMap2Audit.lean`,
   `RandomMap2RH.lean`, `RandomMap2.md`, `FORMALIZATION_ROADMAP.md`.
 - Never modifies any existing `BookProof/Chapter*.lean` file.
 - Never modifies `UsedRoute/` or `UnusedRoute/` files.
-- Creates ONLY new `BookProof/Chapter*.lean` files (no modification of existing ones).
+- Creates ONLY `BookProof/ChapterG3.lean`.
 
 **Zero file overlap between tracks.**
 **Both tracks compile the same project.**

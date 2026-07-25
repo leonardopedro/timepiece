@@ -1,5 +1,7 @@
 import Mathlib
 
+import Singularity.OdeSystem
+import Singularity.Report
 /-!
 # S9: Validation Test Cases
 
@@ -44,7 +46,7 @@ def runTest {M : ℕ} (tc : TestCase M) : (EsaReport × Option (ℝ × List (Fin
   -- TODO: execute fullAnalysis on the test case
   fullAnalysis 
     { vars := tc.ode.vars
-      rhs := fun i => (tc.ode.rhs i).toString
+      rhs := fun _ => "placeholder"
       changeOfVariables := none
     }
     tc.x0
@@ -58,7 +60,7 @@ def expectedOutcomes {M : ℕ} (tc : TestCase M) : List String :=
   []
 
 /-- First test case: x' = x² (scalar blow-up). -/
-def test_x2_scalar : TestCase 1 :=
+noncomputable def test_x2_scalar : TestCase 1 :=
   { name := "x2_scalar"
     ode := mk1D (Polynomial.X ^ 2)
     x0 := fun _ => 1.0
@@ -104,7 +106,7 @@ def test_punctured : TestCase 3 :=
   }
 
 /-- Fifth test case: stable linear x' = -x. -/
-def test_stable_linear : TestCase 1 :=
+noncomputable def test_stable_linear : TestCase 1 :=
   { name := "stable_linear"
     ode := mk1D (-Polynomial.X)
     x0 := fun _ => 1.0
@@ -118,4 +120,3 @@ def runAllTests : List (String × Bool) :=
   -- TODO: execute all tests and report pass/fail
   []
 
-end

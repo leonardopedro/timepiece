@@ -1,5 +1,6 @@
 import Mathlib
 
+import Singularity.OdeSystem
 /-!
 # S6: Change of Variables
 
@@ -20,9 +21,9 @@ open Real
 /-- Types of coordinate transformations that can resolve singularities. -/
 inductive CoV where
   | none
-  | reciprocal — w = 1/x
-  | logarithmic — w = ln(x)
-  | power — w = x^p for p ≠ 0,1
+  | reciprocal
+  | logarithmic
+  | power
 
 /-- The transformed ODE system after applying a change of variables. -/
 structure TransformedSystem (M : ℕ) where
@@ -62,4 +63,3 @@ def hasSingularityAtZero {M : ℕ} (sys : ODESystem M) : Bool :=
   -- e.g., x' = 1/x has singularity at x=0
   false
 
-end

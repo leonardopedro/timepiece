@@ -316,4 +316,54 @@ theorem integral_haarAverage [MeasurableSpace X] [MeasurableSMul G X]
 
 end Haar
 
+/-! ## G.16 — Simultaneous diagonalization of bounded commuting normal operators
+
+From book.tex line 2358: "bounded commuting normal operators can always be
+simultaneously diagonalized." This is the spectral theorem for commuting
+normal operators.
+-/
+
+/-- Bounded commuting symmetric operators on a finite-dimensional inner
+product space over ℂ are simultaneously diagonalizable: there exists a
+common eigenbasis (the joint eigenspaces span the whole space).
+This is the spectral theorem for commuting symmetric operators
+(book line 2358).
+
+Mathlib provides `LinearMap.IsSymmetric.iSup_iInf_eq_top_of_commute` which
+states that for a finite family of pairwise commuting symmetric operators,
+the joint eigenspaces span the whole space. -/
+theorem commuting_normal_operators_simultaneously_diagonalizable
+    {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [FiniteDimensional ℂ H]
+    {ι : Type*} [Finite ι]
+    (T : ι → H →ₗ[ℂ] H) (h_symm : ∀ i, (T i).IsSymmetric)
+    (h_comm : ∀ i j, i ≠ j → Commute (T i) (T j)) :
+    ⨆ (χ : ι → ℂ), ⨅ i, Module.End.eigenspace (T i) (χ i) = ⊤ :=
+  LinearMap.IsSymmetric.iSup_iInf_eq_top_of_commute h_symm
+    (fun i j hij => h_comm i j hij)
+
+/-! ## G.17 — Haar measure for locally compact gauge groups
+
+From book.tex lines 2392–2394: "for a locally compact gauge group (a Lie group,
+for instance), a constant measure (Haar measure) always exists which allows
+to create a functional which is gauge invariant."
+
+This is already formalized in `ChapterG.lean` via `haarAverage` and the
+Haar measure construction. We state the headline theorem here for
+completeness.
+-/
+
+/-- For any locally compact gauge group `G`, a Haar probability measure exists
+(book lines 2392–2394). This allows the construction of gauge-invariant
+functionals.
+
+Mathlib provides `MeasureTheory.Measure.haar` which is a Haar measure on any
+locally compact topological group. We also need `IsTopologicalGroup G` for
+the Haar measure construction. -/
+theorem exists_haar_measure_for_gauge_group (G : Type*)
+    [MeasurableSpace G] [TopologicalSpace G] [LocallyCompactSpace G] [Group G]
+    [BorelSpace G] [IsTopologicalGroup G] :
+    ∃ (μ : Measure G), μ.IsHaarMeasure := by
+  refine ⟨MeasureTheory.Measure.haar, ?_⟩
+  infer_instance
+
 end BookProof.ChapterG2

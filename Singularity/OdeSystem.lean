@@ -16,34 +16,32 @@ open Polynomial
 
 /-- An autonomous polynomial ODE system in M variables.
     Each equation is `dx_i/dt = f_i(x)` where `f_i` is a polynomial
-    in variables `x_1, ..., x_M`. -/
+    in the i-th variable (univariate). For multivariate polynomials,
+    use `MvPolynomial`. -/
 structure ODESystem (M : ℕ) where
   vars : Fin M → String
-  rhs : Fin M → Polynomial (Fin M → ℝ)
-  
-  /-- Evaluate the RHS at a point x : Fin M → ℝ. -/
-  def evalRHS (x : Fin M → ℝ) : Fin M → ℝ :=
-    fun i => (rhs i).eval x
+  rhs : Fin M → Polynomial ℝ
+
+/-- Evaluate the RHS at a point x : Fin M → ℝ.
+    Each component `rhs i` is evaluated at `x i`. -/
+def ODESystem.evalRHS {M : ℕ} (sys : ODESystem M) (x : Fin M → ℝ) : Fin M → ℝ :=
+  fun i => (sys.rhs i).eval (x i)
 
 /-- Total order (maximum degree) of the ODE system.
-    This is the maximum total degree across all polynomials. -/
-def order (sys : ODESystem M) : ℕ :=
-  -- TODO: compute the maximum degree across all rhs polynomials
-  Finset.sup' (Finset.univ : Finset (Fin M)) (by simp) fun i =>
-    (sys.rhs i).degree
+    This is the maximum natDegree across all rhs polynomials. -/
+noncomputable def ODESystem.order {M : ℕ} (sys : ODESystem M) : ℕ :=
+  if h : (Finset.univ : Finset (Fin M)).Nonempty then
+    Finset.sup' (Finset.univ : Finset (Fin M)) h fun i =>
+      (sys.rhs i).natDegree
+  else
+    0
 
 /-- Check if the ODE system is linear (all rhs are linear polynomials). -/
-def isLinear (sys : ODESystem M) : Bool :=
-  -- TODO: check if all rhs have degree ≤ 1
-  true
+noncomputable def ODESystem.isLinear {M : ℕ} (sys : ODESystem M) : Bool :=
+  decide (∀ i, (sys.rhs i).natDegree ≤ 1)
 
 /-- Construct a simple 1D ODE: dx/dt = f(x) where f is a polynomial. -/
-def mk1D (f : Polynomial ℝ) : ODESystem 1 :=
+noncomputable def mk1D (f : Polynomial ℝ) : ODESystem 1 :=
   { vars := fun _ => "x"
-    rhs := fun i => 
-      -- Map the single-variable polynomial to a polynomial in Fin 1 → ℝ
-      -- TODO: implement the mapping
-      Polynomial.map (fun _ => 0) f
+    rhs := fun _ => f
   }
-
-end

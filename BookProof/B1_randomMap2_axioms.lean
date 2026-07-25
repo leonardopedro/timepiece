@@ -57,4 +57,16 @@ open RandomMap
 #eval "=== B13: cylinder_expectation_eq ==="
 #check RandomMap2RH.cylinder_expectation_eq
 
-#eval "All B1-B13 checks passed"
+#eval "=== B14: jensen_bohr ==="
+#check RandomMap2.jensen_bohr
+
+#eval "=== B15: convergent_series_has_no_poles ==="
+#check RandomMap2.convergent_series_has_no_poles
+
+#eval "=== B16: uniform_variance_bound ==="
+#check RandomMap2.uniform_variance_bound
+
+#eval "=== B17: moore_osgood_commutation ==="
+#check RandomMap2.moore_osgood_commutation
+
+#eval "All B1-B17 checks passed"

@@ -1,5 +1,9 @@
 import Mathlib
 
+import Singularity.OdeSystem
+import Singularity.Hamiltonian
+import Singularity.Flow
+import Singularity.Esa
 /-!
 # S8: Integration with Unfer Protocol
 
@@ -54,4 +58,3 @@ def fullAnalysis {M : ℕ} (spec : HamiltonianSpec M) (x0 : Fin M → ℝ) (tMax
   -- TODO: run full analysis pipeline
   (session_analyze_self_adjointness spec, session_detect_singularity spec x0 tMax)
 
-end

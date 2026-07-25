@@ -1,5 +1,6 @@
 import Mathlib
 
+import Singularity.OdeSystem
 /-!
 # S5: Singularity Detection
 
@@ -44,4 +45,3 @@ def detectSingularity {M : ℕ} (sys : ODESystem M) (x0 : Fin M → ℝ) (tMax :
   -- 3. Return (TBlowup, divergentAxes) or None if no blow-up
   sorry
 
-end
