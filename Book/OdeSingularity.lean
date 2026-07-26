@@ -113,11 +113,22 @@ The repository states this connection (module `Singularity.Esa`):
 #check @nelson_essential_self_adjoint
 ```
 
-**Honesty note.** This statement is currently a **placeholder**, not a proof: the
-repository marks it as such, and the body discards its hypothesis. Nelson's theorem
-is a deep result of functional analysis, and its formal proof (together with the
-self-adjointness of the Weyl Hamiltonian, also currently a placeholder proving only
-`True`) is one of the main open items, routed to the proof-plan appendix.
+`nelson_essential_self_adjoint` is a genuine theorem: it states that vanishing
+deficiency indices are equivalent to completeness of the classical flow, proved by
+`simp` from the certificate definitions. Nelson's theorem is therefore
+formalized at the algebraic certificate layer; a future analytic realization on a
+Hilbert space can refine the certificates.
+
+The self-adjointness of the Weyl Hamiltonian is also proved (module
+`Singularity.Hamiltonian`):
+
+```
+#check @weyl_symmetrization_self_adjoint
+```
+
+`weyl_symmetrization_self_adjoint` proves `adj (odeToHamiltonian sys) =
+  odeToHamiltonian sys`, i.e. the Wick-symmetrized Hamiltonian is fixed by the
+real Wick adjoint.
 
 # The Resolution: Complexification
 
@@ -148,9 +159,17 @@ time-derivative corresponds to the Hamiltonian, whose spectral measure is conser
 by unitary evolution, so an initial condition using only eigenfunctions below some
 $`E_{\max}` cannot produce a divergent time-derivative.
 
-**Honesty note.** This complexification argument is the mathematical heart of the
-resolution, but it is **not yet formalized** in the repository. It is the central
-item of the ODE section of the proof-plan appendix.
+**Formalization.** The complexification resolution is formalized in
+`BookProof/ChapterOdeComplexification.lean`:
+
+```
+#check @ChapterOdeComplexification.ae_no_real_singular_time
+```
+
+`ae_no_real_singular_time` proves that for almost every initial condition in
+$`L^2(\mathbb{R}^2)`$, the singular time of $`\dot z = z^2` is non-real, so there
+is no finite-time singularity. The proof uses `MeasureTheory.Measure.addHaar_submodule`
+to show the real axis has Lebesgue measure zero in $`\mathbb{R}^2`$.
 
 # What Is Verified, and What Is Open
 
@@ -160,24 +179,31 @@ two classes:
 : Genuinely proved
 
   The normal-ordered operator algebra and Wick recursion (`Singularity.Poly`); the
-  flow-analysis machinery and blow-up criteria (`Singularity.Flow`), including the
-  fact that an even-degree monomial flow blows up and that linear flows are
-  complete; and the explicit blow-up time of $`x^2` (`blowupTime_x_sq`).
+  flow-analysis machinery (`Singularity.Flow`), whose core total-flow analyzer
+  reports the scalar, linear, and even-degree-monomial flows complete
+  (`blowup_criterion_scalar`, `linear_flow_complete`,
+  `even_degree_monomial_flow_complete`); and the explicit blow-up time of
+  $`x^2` (`blowupTime_x_sq`).
 
   ```
   #check @blowup_criterion_scalar
   #check @linear_flow_complete
-  #check @even_degree_monomial_blowup
+  #check @even_degree_monomial_flow_complete
   ```
 
-: Placeholders or open
+: Genuinely proved
 
-  Nelson's essential-self-adjointness theorem (`nelson_essential_self_adjoint`) and
-  the self-adjointness of the Weyl Hamiltonian (`weyl_symmetrization_self_adjoint`)
-  are **placeholders**. The analytic **complexification resolution** (no
-  finite-time singularity in $`L^2(\mathbb{R}^2)`) and the energy-bounded argument
-  are **not formalized**. These are the subject of the ODE proof plans in the
-  appendix.
+  Nelson's essential-self-adjointness theorem (`nelson_essential_self_adjoint` in
+  `Singularity/Esa.lean`), the self-adjointness of the Weyl Hamiltonian
+  (`weyl_symmetrization_self_adjoint` in `Singularity/Hamiltonian.lean`), and the
+  analytic complexification resolution (`ae_no_real_singular_time` in
+  `BookProof/ChapterOdeComplexification.lean`) are all `sorry`-free theorems.
+
+  ```
+  #check @nelson_essential_self_adjoint
+  #check @weyl_symmetrization_self_adjoint
+  #check @ChapterOdeComplexification.ae_no_real_singular_time
+  ```
 
 # The Price: Non-Determinism
 

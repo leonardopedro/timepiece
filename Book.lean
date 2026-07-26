@@ -17,7 +17,20 @@ import Book.BaryonAsymmetry
 import Book.MeasurementLLN
 import Book.OdeSingularity
 import Book.PaFreeHilbert
+import Book.DeterministicTransformations
+import Book.CollapseKeepsKolmogorov
+import Book.EulerGeneric
+import Book.TimeTranslationStochastic
+import Book.DoubleSlit
+import Book.BellInequalities
+import Book.EPRComplete
+import Book.ClassicalLimit
 import Book.ProofPlans
+import Book.SpinStatistics
+import Book.SymmetryRep
+import Book.TrajectoryReconstruction
+import Book.SolovayTensor
+import Book.ConditionalUnitary
 
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
@@ -70,17 +83,20 @@ verification. From the repository root:
 lake build BookProof
 ```
 
-compiles the entire library of formal proofs (it is `sorry`-free and `axiom`-free,
-relying only on Lean's standard `propext`, `Classical.choice`, and `Quot.sound`).
+compiles the entire library of formal proofs. It is `sorry`-free, and every theorem
+cited in this book relies only on Lean's standard `propext`, `Classical.choice`, and
+`Quot.sound`. The library's only `axiom` declarations are two `axiom … : True`
+placeholders in the P-versus-NP module (`ChapterSelectingEvents`), which this edition
+does not cite; since `True` is already provable, they add no logical strength.
 And
 
 ```
 lake build book && lake exe book
 ```
 
-rebuilds this book and renders the HTML you are reading into the directory
-`_out/html-multi/`. (The Lean statements are currently shown as plain code blocks;
-upgrading them to elaborated, hover-enabled blocks, and migrating to
+rebuilds this book and renders the HTML you are reading as a single page at
+`_out/html-single/index.html`. (The Lean statements are currently shown as plain code
+blocks; upgrading them to elaborated, hover-enabled blocks, and migrating to
 `verso-blueprint`, are planned — see {ref "proof-plans"}[the appendix].)
 
 **Scope of this edition.** This is a curated edition. It follows the structure of
@@ -135,8 +151,12 @@ The heart of the book. We make precise the parametrization of a probability
 distribution by a wave-function: the probability clock and Euler's formula in two
 dimensions, the fact that the Born rule reproduces _every_ distribution in any finite
 (or countable) dimension, the gauge ambiguity (the invisible phase) of the
-parametrization, information erasure in the Stern–Gerlach experiment, and the
-free-field construction of a uniform measure on a sphere out of the Gaussian.
+parametrization, the parametrization of any joint or conditional probability by a
+unitary operator (the finite-dimensional core of the book's commutative Wigner
+theorem), information erasure in the Stern–Gerlach experiment, the
+free-field construction of a uniform measure on a sphere out of the Gaussian, and the
+spin–statistics dichotomy that distinguishes bosonic commutation from fermionic
+anticommutation in a finite tensor product of sample spaces.
 
 {include 0 Book.ProbabilityClock}
 
@@ -144,9 +164,13 @@ free-field construction of a uniform measure on a sphere out of the Gaussian.
 
 {include 0 Book.BornFiber}
 
+{include 0 Book.ConditionalUnitary}
+
 {include 0 Book.SternGerlach}
 
 {include 0 Book.FreeField}
+
+{include 0 Book.SpinStatistics}
 
 # Entropy, Irreversibility, and the Arrow of Time
 %%%
@@ -187,9 +211,53 @@ tag := "part-pa-free"
 
 A metamathematical chapter replacing the manuscript's chapters on _P versus NP_ and
 the _Riemann Hypothesis_: the completed Hilbert space is complete and decidable
-because its infinite elements are kept internally unselectable.
+because its infinite elements are kept internally unselectable. The second chapter
+builds the Solovay–Kopperman tensor product on this foundation: a finite-dimensional
+factor carrying an arbitrary probability law, tensored with a separable
+infinite-dimensional factor whose law is forced to be the Mehler measure precisely
+because the language cannot distinguish its elements.
 
 {include 0 Book.PaFreeHilbert}
+
+{include 0 Book.SolovayTensor}
+
+# Determinism, Complementarity, and Collapse
+%%%
+tag := "part-foundations"
+%%%
+
+The conceptual core of the manuscript's quantum-foundations chapters. We begin with
+the group-theoretic fact that a symmetry group of canonical transformations is a
+unitary representation, taking the one-parameter time-translation group as the
+prototype; characterize deterministic versus non-deterministic symmetry
+transformations and locate the origin of complementarity; show why wave-function
+collapse keeps quantum mechanics an ordinary Kolmogorov probability theory, and how
+this differs from Gleason's theorem; extend the Euler-angle parametrization to
+arbitrary, countable, complex, and quaternionic dimension; prove that time-translation
+is a stochastic process _if and only if_ it is deterministic; reconstruct a quantum
+trajectory at intermediate times by post-selection; work the double-slit and
+Bell/CHSH experiments; and close with EPR-completeness, relativistic causality, a
+concrete deterministic theory, and the classical limit.
+
+{include 1 Book.SymmetryRep}
+
+{include 1 Book.DeterministicTransformations}
+
+{include 1 Book.CollapseKeepsKolmogorov}
+
+{include 1 Book.EulerGeneric}
+
+{include 1 Book.TimeTranslationStochastic}
+
+{include 1 Book.TrajectoryReconstruction}
+
+{include 1 Book.DoubleSlit}
+
+{include 1 Book.BellInequalities}
+
+{include 1 Book.EPRComplete}
+
+{include 1 Book.ClassicalLimit}
 
 {include 0 Book.ProofPlans}
 

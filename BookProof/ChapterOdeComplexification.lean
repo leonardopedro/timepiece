@@ -20,13 +20,13 @@ theorem singular_time_real_iff_im_zero (z0 : ℂ) (hz0 : z0 ≠ 0) :
     have h_inv_im : (z0⁻¹).im = 0 := by
       simpa [div_eq_inv_mul] using h
     have h_norm_sq_ne_zero : Complex.normSq z0 ≠ 0 :=
-      Complex.normSq_ne_zero.mpr hz0
+      mt Complex.normSq_eq_zero.mp hz0
     rw [Complex.inv_im] at h_inv_im
     field_simp [h_norm_sq_ne_zero] at h_inv_im
     linarith
   · intro h
     rcases eq_or_ne z0 0 with (rfl | hz0')
-    · exact hz0 rfl
+    · exfalso; exact hz0 rfl
     · have h_real : z0 = (z0.re : ℂ) := by
         apply Complex.ext <;> simp [h]
       rw [h_real]
@@ -45,11 +45,17 @@ theorem real_axis_volume_zero : volume {z : ℂ | z.im = 0} = 0 := by
     { carrier := {z | z.im = 0}
       add_mem' := by
         intro a b ha hb
-        simp [ha, hb]
+        dsimp at ha hb
+        dsimp
+        rw [ha, hb]
+        simp
       zero_mem' := by simp
       smul_mem' := by
         intro r z hz
-        simp [hz]
+        dsimp at hz
+        dsimp
+        rw [hz]
+        simp
     }
   have hs_proper : s ≠ ⊤ := by
     intro h_eq
@@ -75,5 +81,7 @@ theorem ae_no_real_singular_time : ∀ᵐ z0 ∂(volume : Measure ℂ), (1 / z0)
       · intro h; exact (singular_time_real_iff_im_zero z hz0).mp h
       · intro h; exact (singular_time_real_iff_im_zero z hz0).mpr h
   rw [ae_iff]
-  rw [h_set]
+  have : {z0 | ¬((1 / z0).im ≠ 0)} = {z : ℂ | (1 / z).im = 0} := by
+    ext z; simp only [Set.mem_setOf_eq, not_ne_iff]
+  rw [this, h_set]
   exact real_axis_volume_zero

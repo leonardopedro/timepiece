@@ -36,6 +36,35 @@ lake exe cache get
 lake build
 ```
 
+### Building the Verso book (single-page HTML)
+
+The root manual `Book.lean` includes 26 chapters. Stock Verso v4.28.0 needs two
+small patches (both tracked under `patches/`, applied by `apply-verso-patches.sh`):
+
+1. `verso-0001-annotate-subparts.patch` — annotates the sub-parts array in
+   `FinishedPart.toSyntax` so the 26-chapter root `#doc` elaborates (otherwise a
+   stuck genre metavariable, `PartMetadata ?m`).
+2. `verso-0002-toc-fragment-links.patch` — makes empty-path ToC entries emit
+   `#fragment` anchors instead of `href="/"`, so the in-body Table of Contents
+   scrolls in place rather than navigating to the output directory's file listing.
+
+Because `.lake/` is gitignored, the patches must be re-applied after any fresh
+clone or `lake update`:
+
+```bash
+# Apply the tracked Verso patch (idempotent; safe to re-run)
+./patches/apply-verso-patches.sh
+
+# Build and render the single-page HTML
+lake build book && lake exe book
+
+# Post-process: hide TOC by default, remove HTTP-redirect script (file:// fix)
+./patches/postprocess-html.sh
+# -> _out/html-single/index.html
+```
+
+See `BOOK_PROOF_PLAN.md` Priority 4 for the root cause and fix details.
+
 ---
 
 ## Formalization State

@@ -216,6 +216,7 @@ import BookProof.ChapterRoadmapAudit
 import BookProof.RandomMap2Audit
 import BookProof.ChapterSelectingEvents
 import BookProof.ChapterSolovay
+import BookProof.ChapterSolovayCoordinates
 import BookProof.ChapterG3
 import BookProof.ChapterBaryonAsymmetry
 import BookProof.ChapterParitySU3
@@ -225,3 +226,11 @@ import BookProof.ChapterGellMann
 import BookProof.ChapterHierarchicalBayesComposition
 import BookProof.ChapterHierarchicalBayes
 import BookProof.ChapterFiniteBayesHierarchy
+import BookProof.ChapterOdeComplexification
+import BookProof.ChapterPaFreeCompletion
+import BookProof.ChapterDefinabilityFragment
+
+import BookProof.ChapterKopperman
+import BookProof.ChapterFiniteArithmeticPrior
+import BookProof.ChapterCountableDefinability
+import BookProof.ChapterProbabilityInterface

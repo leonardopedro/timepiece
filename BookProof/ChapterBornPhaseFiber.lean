@@ -89,4 +89,45 @@ theorem born_fiber_real {n : ℕ} (u v : Fin n → ℝ) :
     grind;
   · grind
 
+
+/-! ## Probability amplitudes and average versus maximal control -/
+
+/-- A finite probability density has a square-root amplitude of squared `ℓ²`
+norm one. -/
+theorem sqrt_density_sq_sum {n : ℕ} (ρ : Fin n → ℝ)
+    (hρ : ∀ i, 0 ≤ ρ i) (hsum : ∑ i, ρ i = 1) :
+    ∑ i, (Real.sqrt (ρ i)) ^ 2 = 1 := by
+  simp_rw [Real.sq_sqrt (hρ _)]
+  exact hsum
+
+/-- On a finite probability space, average squared error is bounded by maximal
+squared error.  This cleanly separates `L²` average control from `L∞` control. -/
+theorem average_sq_le_max_sq {n : ℕ} (p : Fin n → ℝ)
+    (hp : ∀ i, 0 ≤ p i) (hsum : ∑ i, p i = 1)
+    (e : Fin n → ℝ) (C : ℝ) (hC : ∀ i, |e i| ≤ C) :
+    ∑ i, p i * (e i) ^ 2 ≤ C ^ 2 := by
+  by_cases hn : n = 0
+  · subst n
+    simp
+    positivity
+  have hC0 : 0 ≤ C :=
+    (abs_nonneg (e ⟨0, Nat.pos_of_ne_zero hn⟩)).trans
+      (hC ⟨0, Nat.pos_of_ne_zero hn⟩)
+  calc
+    ∑ i, p i * (e i) ^ 2 ≤ ∑ i, p i * C ^ 2 := by
+      apply Finset.sum_le_sum
+      intro i _
+      apply mul_le_mul_of_nonneg_left _ (hp i)
+      simpa only [sq_abs] using
+        (sq_le_sq₀ (abs_nonneg (e i)) hC0 |>.mpr (hC i))
+    _ = C ^ 2 := by rw [← Finset.sum_mul, hsum, one_mul]
+
+/-- Multiplication operators by scalar functions commute pointwise; this is the
+finite-dimensional abelian-algebra core of the `L∞` multiplication-operator
+statement. -/
+theorem multiplication_operators_commute {n : ℕ} (f g v : Fin n → ℂ) :
+    (fun i => f i * (g i * v i)) = (fun i => g i * (f i * v i)) := by
+  funext i
+  ring
+
 end BookProof.ChapterBornPhaseFiber

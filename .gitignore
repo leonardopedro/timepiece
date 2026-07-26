@@ -4,3 +4,6 @@ kopperman.tex
 Solovay.tex
 lopez99.md
 repomix-output.xml
+
+# Verso build output (rendered HTML; regenerate with `lake exe book`)
+/_out

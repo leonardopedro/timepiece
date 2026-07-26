@@ -1,1 +1,0 @@
-window.docContents[145].resolve({"/Index/#index":{"contents":"\n\n","context":"Timepiece: A Verified Mathematical Tour","header":"Index","id":"/Index/#index"}});

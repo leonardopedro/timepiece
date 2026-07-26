@@ -122,4 +122,16 @@ theorem frobenius_eq_trace (B : Matrix ι ι ℂ) :
   simp +decide [ Matrix.trace, Matrix.mul_apply, Complex.normSq, Complex.sq_norm ];
   rw [ Finset.sum_comm ] ; congr ; ext ; congr ; ext ; simp +decide [ Complex.ext_iff ] ; ring;
 
+
+
+/-- **Finite purification / linearization headline.** A normalized statistical
+amplitude is obtained by applying a linear unitary matrix to a distinguished
+basis state.  Thus its possibly nonlinear construction as an amplitude is
+represented linearly after passage to the Hilbert-space model. -/
+theorem finite_purification_linearization (v : ι → ℂ) (i₀ : ι)
+    (hv : ∑ i, ‖v i‖ ^ 2 = 1) :
+    ∃ U : Matrix ι ι ℂ, U ∈ Matrix.unitaryGroup ι ℂ ∧
+      ∀ i, U i i₀ = v i := by
+  exact exists_unitary_column v i₀ hv
+
 end BookProof.ChapterJointUnitary

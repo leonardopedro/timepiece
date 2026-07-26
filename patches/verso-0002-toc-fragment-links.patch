@@ -1,0 +1,35 @@
+From: Timepiece Project
+Subject: [PATCH] Verso: emit fragment anchors for empty-path ToC entries
+
+`Toc.html` renders each table-of-contents entry as a link. When a part has
+no path of its own (`path.isEmpty`), it emitted `href="/"`. In the
+single-page HTML output (`emitHtmlSingle`), every top-level part has an empty
+path, so the entire in-body "Table of Contents" rendered as `href="/"` (which
+the browser relativizes to `href=""` against `<base href="./">`). Clicking any
+of those entries navigated to the output *directory* — showing a file listing
+— instead of scrolling to the section, forcing the reader to click
+`index.html` by hand.
+
+For an empty path, the correct link is a pure fragment anchor `#<htmlId>`,
+which resolves to the current document and scrolls to the section. Use the
+part's `id` (an `Option String`) to build it, falling back to `"/"` only when
+no id is present (preserving the old behaviour for that edge case). Non-empty
+paths still use `path.link id`, so multi-page output is unaffected.
+
+Applies to verso v4.28.0 (commit 372f82ee4e67c863cf473a9174a1a77e0bec74a2).
+
+--- a/src/verso-manual/VersoManual/Html.lean
++++ b/src/verso-manual/VersoManual/Html.lean
+@@ -213,7 +213,10 @@ public partial def Toc.html (depth : Option Nat) : Toc → Html
+   | {title, shortTitle := _, path, id, sectionNum, children} =>
+     if depth = some 0 then .empty
+     else
+       let page :=
+-        if path.isEmpty then "/"
++        -- An empty path means the part has no page of its own (single-page output).
++        -- Link to its fragment anchor so the entry scrolls in place instead of
++        -- navigating to the output directory (which shows a file listing).
++        if path.isEmpty then id.map (fun htmlId => "#" ++ htmlId) |>.getD "/"
+         else path.link id
+       let sectionNum :=
+         match sectionNum with

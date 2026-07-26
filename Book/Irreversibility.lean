@@ -27,8 +27,8 @@ surjectivity: an injection from a finite set to itself is automatically a biject
 (the pigeonhole principle). So:
 
 ```
-#check @ChapterIrreversibleDynamics.finite_injective_iff_surjective
-#check @ChapterIrreversibleDynamics.finite_no_irreversible
+#check @IrreversibleDynamics.finite_injective_iff_surjective
+#check @IrreversibleDynamics.finite_no_irreversible
 ```
 
 There is **no** injective-but-not-surjective self-map of a finite set. A genuinely
@@ -44,8 +44,8 @@ non-surjective self-map; the simplest is the successor $`n \mapsto n+1` on
 $`\mathbb{N}`, which misses $`0`:
 
 ```
-#check @ChapterIrreversibleDynamics.exists_injective_not_surjective
-#check @ChapterIrreversibleDynamics.nat_succ_injective_not_surjective
+#check @IrreversibleDynamics.exists_injective_not_surjective
+#check @IrreversibleDynamics.nat_succ_injective_not_surjective
 ```
 
 # A Concrete Dissipative Map on the Interval
@@ -68,10 +68,10 @@ It has all the required properties at once:
 The verified statements (module `BookProof.ChapterIrreversibleDynamics`):
 
 ```
-#check @ChapterIrreversibleDynamics.dissipative_injective
-#check @ChapterIrreversibleDynamics.dissipative_not_surjective_unitInterval
-#check @ChapterIrreversibleDynamics.dissipative_volume_Icc
-#check @ChapterIrreversibleDynamics.dissipative_nonsingular_Icc
+#check @IrreversibleDynamics.dissipative_injective
+#check @IrreversibleDynamics.dissipative_not_surjective_unitInterval
+#check @IrreversibleDynamics.dissipative_volume_Icc
+#check @IrreversibleDynamics.dissipative_nonsingular_Icc
 ```
 
 # The Arrow of Time From Pure Set Theory

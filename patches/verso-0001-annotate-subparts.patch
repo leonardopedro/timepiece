@@ -1,0 +1,35 @@
+From: Timepiece Project
+Subject: [PATCH] Verso: annotate sub-parts array to fix stuck genre metavariable
+
+`FinishedPart.toSyntax` already annotates each block with `(b : Block genre)`
+to work around a limitation in Lean's list/array elaboration: when an array
+literal is "chunked", the intermediate let-bindings may fail to infer their
+type. The sub-parts array was left unannotated, so for a manual with many
+included chapters (~26) the chunked sub-parts let-bindings leave the implicit
+genre of nested parts unresolved. A nested part's metadata then elaborates
+against `PartMetadata ?m` with `?m` stuck, producing the hard error:
+
+    invalid {...} notation, expected type is not of the form (C ...)
+      Verso.Doc.Genre.PartMetadata ?m
+
+Annotate the sub-parts with `(s : Part genre)`, mirroring the existing block
+annotation. This lets the root `#doc` of the Timepiece book (26 included
+chapters) elaborate and the single-page HTML to build.
+
+Applies to verso v4.28.0 (commit 372f82ee4e67c863cf473a9174a1a77e0bec74a2).
+
+--- a/src/verso/Verso/Doc/Elab/Basic.lean
++++ b/src/verso/Verso/Doc/Elab/Basic.lean
+@@ -40,7 +40,11 @@ public partial def FinishedPart.toSyntax [Monad m] [MonadQuotation m]
+     -- Adding type annotations works around a limitation in list and array elaboration, where intermediate
+     -- let bindings introduced by "chunking" the elaboration may fail to infer types
+     let typedBlocks ← blocks.mapM fun b => `(($b : Block $genre))
+-    ``(Part.mk #[$titleInlines,*] $(quote titleString) $metaStx #[$typedBlocks,*] #[$subStx,*])
++    -- The sub-parts array must be annotated for the same reason: without the annotation, chunking
++    -- leaves the implicit genre of nested parts unresolved, so their metadata elaborates against a
++    -- stuck `PartMetadata ?m` (this surfaces as a hard error once a manual has ~26 included chapters).
++    let typedSubParts ← subStx.mapM fun s => `(($s : Part $genre))
++    ``(Part.mk #[$titleInlines,*] $(quote titleString) $metaStx #[$typedBlocks,*] #[$typedSubParts,*])
+   | .included name => ``(VersoDoc.toPart $name)
+ 
+ public partial def FinishedPart.toTOC : FinishedPart → TOC

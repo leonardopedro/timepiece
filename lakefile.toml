@@ -7,7 +7,14 @@ defaultTargets = ["PnpProof", "BookProof"]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 relaxedAutoImplicit = false
 weak.linter.mathlibStandardSet = true
-maxSynthPendingDepth = 3
+maxSynthPendingDepth = 10
+# NOTE: was `3`; raised to 10 during investigation of the 26-chapter root manual build.
+# The actual 26-include failure was a Verso bug (unannotated sub-parts array in
+# `FinishedPart.toSyntax`), now fixed by patches/verso-0001-annotate-subparts.patch —
+# see BOOK_PROOF_PLAN.md Priority 4. This option is kept at 10 (harmless).
+# autoImplicit = false  # DISABLED: not needed for the book build (kept default).
+# experimental.module = true  # DISABLED: breaks the Verso book build and is not needed
+# (the book uses plain code blocks; verification is via `lake build BookProof`).
 
 [[require]]
 name = "mathlib"

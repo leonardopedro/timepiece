@@ -9,6 +9,57 @@ open Verso.Genre.Manual.InlineLean
 tag := "introduction"
 %%%
 
+# What Probability Does: Relating the Complex to the Intuitive
+
+:::paragraph
+We begin not with a definition of probability, but with a description of what a
+probability **does**. The point of view of this book is that a probability is a
+_map from complex random events to standard, intuitive random events_. It does not
+tell us what randomness _is_; it tells us how an event we do not understand lines
+up with one we do.
+:::
+
+:::paragraph
+Here is the picture from the source manuscript. Suppose someone tells you that a
+certain event has probability $`0.32`. The number is a shorthand for the following
+sentence:
+:::
+
+:::paragraph
+_This event is as likely as finding a small object — say, a lost ring — that we
+know is buried somewhere in the sand of a one-kilometre beach, if we search for it
+with a metal detector over a $`320`-metre interval._
+:::
+
+:::paragraph
+The treasure hunt is itself ambiguous: we do not know whether there are clues to
+the ring's location, how it was lost, or who else has walked the beach. But that
+ambiguity has been **moved** by the map. Whatever is mysterious about our original
+event has been transferred onto a standard random event — _a point chosen on an
+interval_ — that everyone already understands intuitively. The map from the complex
+event to the treasure hunt is unambiguous, even though the treasure hunt is not.
+:::
+
+:::paragraph
+This is the whole game. We do not need to settle what probability _means_. We need
+only a disciplined way of **relating** an arbitrary, possibly very complicated
+random event to a standard one — a point on a line, a draw from an urn, a spin of a
+wheel — whose behaviour is transparent. Kolmogorov's axioms are precisely the rules
+that make this relating consistent: a probability space is a sample space (the set
+of possible states), a Boolean algebra of events (subsets of states), and a measure
+assigning each event a number in $`[0,1]`, with the whole space carrying measure
+$`1`.
+:::
+
+:::paragraph
+Most probability spaces that arise in applications are **standard** measure spaces:
+up to sets of measure zero they are the unit interval with Lebesgue measure, a
+finite or countable discrete space, or a mixture of the two. On a standard measure
+space one can always form regular conditional probabilities, and — this is the
+technical fact the whole book rests on — one can always parametrize the resulting
+probability distributions by a wave-function on a sphere.
+:::
+
 # The Central Idea
 
 :::paragraph
@@ -45,6 +96,124 @@ wave-function $`\psi` on the sphere — is the seed from which the whole book gr
 It is a _parametrization_: it does not change the probabilities, only the
 coordinates we use to describe them. And yet, as we will see, the new coordinates
 make visible a structure that was invisible on the simplex.
+:::
+
+# One Answer Among Many: Coherent Belief
+
+:::paragraph
+Because a probability is a _relation_ between events rather than a substance, one
+can ask what constraints this relation must obey. Different answers give different
+foundations of the same calculus.
+:::
+
+:::paragraph
+One influential answer treats probabilities as **degrees of belief** and asks: when
+is a system of beliefs internally consistent? The **Dutch-book** argument shows
+that a bettor whose degrees of belief violate the probability axioms can be offered
+a combination of bets that loses money no matter what happens — a _sure loss_.
+Avoiding such a sure loss forces the degrees of belief to obey exactly the
+probability axioms. We develop this in {ref "dutch-book"}[Part I]. It is a beautiful
+and useful answer, and it is _one_ example of what probability can be.
+:::
+
+:::paragraph
+But it is not the answer this book is built around. The Dutch-book view explains
+what coherence _demands_ of a single agent's beliefs. The view we take here is
+broader and, we think, closer to how probability is actually used in physics and
+engineering: probability is the **bridge** that lets us reason about a complex
+random event by relating it to an intuitive one. The wave-function parametrization
+is a construction _on that bridge_. Everything else in the book — Born's rule,
+unitary evolution, gauge symmetry, the classical limit — is read off from the
+geometry of the bridge, not from any single philosophical account of what
+probability _is_.
+:::
+
+# Why a Simple Solution Exists
+
+:::paragraph
+The source manuscript opens with a diagnosis. Real-world engineering is impossible
+without managing uncertainty, yet the mathematical tools of engineering
+(differential geometry, the calculus of variations) are built on deterministic
+logic. The difficulty is sharpest in infinite-dimensional spaces: there is no
+Lebesgue measure on an infinite-dimensional Euclidean-like space, and once
+probabilities are placed on a space of functions one typically leaves the separable
+world in which computation is possible. The result is a zoo of _ad hoc_ methods.
+:::
+
+:::paragraph
+The manuscript's claim is that the obstruction is narrower than it looks.
+Infinite dimensions are not themselves the problem. A **uniform, Lebesgue-like
+measure on an infinite-dimensional sphere** _can_ be defined, using the Gaussian
+measure and the **Fock space** (the separable Hilbert space used in the second
+quantization of free fields). Such a sphere parametrizes the probability
+distribution of another probability distribution — a _free-field parametrization_.
+We make the finite-dimensional version of this construction precise in
+{ref "free-field"}[the free-field chapter].
+:::
+
+:::paragraph
+The real problem, then, is not infinity but **constraints**: how to impose an exact
+constraint inside a separable probability space _without_ giving the constrained set
+measure zero. The manuscript's thesis is that **quantum constraints** — which,
+unlike classical ones, need not commute with the variables that define the sample
+space — solve precisely this. This is the thread that connects the foundations of
+probability to the foundations of quantum field theory, and it is the reason a
+"simple solution" is even plausible.
+:::
+
+# Why "Timepiece"
+
+:::paragraph
+The name of the programme refers to a piece of structure that the manuscript insists
+on. A **dynamical system** has two parts: a _state_, which is a point of a state
+space and involves no time (it is the _present_ state); and an _evolution rule_,
+which says how a future state is produced from the present one. The notion of
+"time" is determined by the evolution rule itself; it is not a pre-existing
+concept, and it may be measured by integers, by real or complex numbers, or by a
+more general algebraic object.
+:::
+
+:::paragraph
+In a Hamiltonian formalism with **time-dependent** transformations, the symplectic
+form of conservative classical mechanics is not invariant. The cleanest way to make
+non-relativistic mechanics consistent with that fact is to formulate it as a field
+theory whose phase space is a fibred manifold over an extra "time" axis. The name
+_Timepiece_ refers to this extra axis — defined by the phase space — which is
+complementary to the ordinary time defined by the time-evolution operator. The
+distinction between these two notions of time recurs throughout the book, and it is
+what makes the wave-function parametrization compatible with both classical
+Hamiltonian mechanics and quantum mechanics.
+:::
+
+# Aim, and What Quantization Is Not
+
+:::paragraph
+The aim is a simple, mathematically meaningful account of **quantization** that
+applies uniformly to quantum mechanics and to (classical and quantum) statistical
+field theory, and that shows the "mystery" of quantum mechanics to be a feature of
+the parametrization rather than of nature. To clear the ground, the manuscript is
+explicit about what quantization is **not**:
+:::
+
+ * It is not **prequantization** — the mechanical replacement of Poisson brackets by
+   commutators — which can always be done for analytic functions but does not by
+   itself yield useful results.
+ * It is not **second quantization** (the Fock-space passage from one particle to
+   many), which can only be applied to a theory that is already quantum — hence
+   "second".
+ * It is not the **Feynman path integral**, which lacks the $`\sigma`-additivity
+   that would make it an integral in the first place.
+ * It is not a **perturbative expansion** or a **lattice regularization**: both are
+   well-defined approximations, but they are complementary, so neither can serve as
+   the _definition_.
+
+:::paragraph
+The positive proposal is that quantization is a consequence of **time-evolution**:
+the wave-function is one parametrization of an arbitrary probability distribution,
+the parametrization is a surjective map from a hypersphere to the set of all
+probability distributions, and two wave-functions are always related by a rotation
+of that hypersphere. The non-commutativity of operators is then intrinsic to _any_
+statistical theory, not a deformation imposed on a classical algebra.
 :::
 
 # Why Parametrize a Probability by a Wave-function?
@@ -127,8 +296,11 @@ it explicit in {ref "probability-clock"}[The probability clock and Euler's formu
 The formal counterpart of this book is the Lean 4 library `BookProof`. It currently
 contains well over one hundred modules, each formalizing one self-contained
 mathematical claim from the source manuscript. The whole library is
-**`sorry`-free** (no proof is omitted) and **`axiom`-free** (it adds no axioms
-beyond Lean's standard logical foundations). The statements quoted in this book are
+**`sorry`-free** (no proof is omitted) and **`axiom`-free** in substance: it relies
+only on Lean's standard `propext`, `Classical.choice`, and `Quot.sound`. (The only
+`axiom` declarations are two `axiom … : True` placeholders in the P-versus-NP module,
+which this edition does not cite; since `True` is already provable, they add no
+logical strength.) The statements quoted in this book are
 drawn from that library; each is identified by its Lean name so that you can find
 its full proof.
 :::
@@ -155,7 +327,7 @@ confirming that the theorem exists and has exactly this type.
 # Roadmap
 
 :::paragraph
-The book is organized into five parts.
+The book is organized into six parts.
 :::
 
 : Part I — Probability as Coherent Belief
@@ -181,11 +353,23 @@ The book is organized into five parts.
 : Part IV — Resolution of the Singularity of an ODE
 
   An operator-theoretic resolution of the blow-up of $`x' = x^2`, via
-  Koopman–von Neumann theory, Weyl quantization, and Nelson's essential
-  self-adjointness theorem.
+  Koopman–von Neumann theory, Weyl quantization, Nelson's essential
+  self-adjointness theorem, and the complexification argument
+  (`ae_no_real_singular_time`). All results are `sorry`-free.
 
 : Part V — Completeness without Peano Arithmetic
 
   A metamathematical chapter: the completed Hilbert space is a complete, decidable,
   conservative extension that does not leak undecidable arithmetic, because its
   infinite elements are kept internally unselectable.
+
+: Part VI — Determinism, Complementarity, and Collapse
+
+  The conceptual core of the manuscript's quantum-foundations chapters: deterministic
+  versus non-deterministic transformations and the origin of complementarity; why
+  wave-function collapse keeps quantum mechanics an ordinary (Kolmogorov)
+  probability theory, and how this differs from Gleason's theorem; the Euler-angle
+  parametrization in arbitrary, countable, complex, and quaternionic dimension; the
+  theorem that time-translation is a stochastic process _if and only if_ it is
+  deterministic; the double-slit and Bell/CHSH experiments; EPR-completeness and
+  relativistic causality; and the classical limit.

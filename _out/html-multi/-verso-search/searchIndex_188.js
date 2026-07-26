@@ -1,1 +1,0 @@
-window.docContents[188].resolve({"/Free-Fields___-the-Gaussian-and-the-Uniform-Sphere/#free-field":{"contents":"\n\n\n\n\n\n\n\n\n\n\n\n","context":"Timepiece: A Verified Mathematical Tour","header":"12. Free Fields: the Gaussian and the Uniform Sphere","id":"/Free-Fields___-the-Gaussian-and-the-Uniform-Sphere/#free-field"}});

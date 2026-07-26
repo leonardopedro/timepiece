@@ -5,5 +5,6 @@ import Singularity.Singularity
 import Singularity.Hamiltonian
 import Singularity.Flow
 import Singularity.Esa
+import Singularity.EnergyBounded
 import Singularity.Report
 import Singularity.Tests

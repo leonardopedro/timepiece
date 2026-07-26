@@ -168,6 +168,63 @@ theorem expectation_head_decidable (N : ℕ) (headDist : Measure (_root_.InnerHe
     True := by
   trivial
 
+/-! ## S.2a — Finite-head tensor products and product measures -/
+
+/-- Splitting a head of dimension `N₁ + N₂` into its two finite blocks. -/
+def headSumEquiv (N₁ N₂ : ℕ) :
+    _root_.InnerHead (N₁ + N₂) ≃
+      _root_.InnerHead N₁ × _root_.InnerHead N₂ :=
+  (Equiv.piCongrLeft (fun _ : Fin (N₁ + N₂) => ℝ)
+    (finSumFinEquiv (m := N₁) (n := N₂))).symm.trans
+    (Equiv.sumArrowEquivProdArrow (Fin N₁) (Fin N₂) ℝ)
+
+/-- The pointwise tensor (product) of two finite-head observables. -/
+def tensorHeadObservable {N₁ N₂ : ℕ}
+    (f₁ : _root_.InnerHead N₁ → ℂ) (f₂ : _root_.InnerHead N₂ → ℂ) :
+    _root_.InnerSpace (N₁ + N₂) → ℂ :=
+  fun z => f₁ ((headSumEquiv N₁ N₂ z.1).1) *
+    f₂ ((headSumEquiv N₁ N₂ z.1).2)
+
+/-- A tensor product of two head observables still depends only on the combined
+finite head.  This is the algebraic core of closure of cylindrical languages
+under tensor products. -/
+theorem tensorHeadObservable_dependsOnlyOnHead {N₁ N₂ : ℕ}
+    (f₁ : _root_.InnerHead N₁ → ℂ) (f₂ : _root_.InnerHead N₂ → ℂ) :
+    _root_.dependsOnlyOnHead (tensorHeadObservable f₁ f₂) := by
+  refine ⟨fun h => f₁ ((headSumEquiv N₁ N₂ h).1) * f₂ ((headSumEquiv N₁ N₂ h).2), ?_⟩
+  rfl
+
+/-- Every probability law on the finite head yields a probability law on the
+combined head-tail state space. -/
+theorem stateMeasure_isProbability (N : ℕ)
+    (headDist : Measure (_root_.InnerHead N))
+    [IsProbabilityMeasure headDist] :
+    IsProbabilityMeasure (_root_.stateMeasure N headDist) := by
+  infer_instance
+
+/-- The finite-head marginal of the product state measure is exactly the law
+chosen on the head. -/
+theorem stateMeasure_finite_marginal (N : ℕ)
+    (headDist : Measure (_root_.InnerHead N))
+    [IsProbabilityMeasure headDist] :
+    Measure.map Prod.fst (_root_.stateMeasure N headDist) = headDist := by
+  rw [stateMeasure]
+  rw [MeasureTheory.Measure.map_fst_prod, measure_univ, one_smul]
+
+/-- Readable tensor-language closure statement: cylindrical functions on a
+combined head have inner products computed by one finite-head integral. -/
+theorem tensor_language_decidable (N₁ N₂ : ℕ)
+    (headDist : Measure (_root_.InnerHead (N₁ + N₂)))
+    [IsProbabilityMeasure headDist]
+    (Ψ₁ Ψ₂ : _root_.OuterWaveFunction (N₁ + N₂) headDist)
+    (h₁ : _root_.dependsOnlyOnHead
+      (Ψ₁ : _root_.InnerSpace (N₁ + N₂) → ℂ))
+    (h₂ : _root_.dependsOnlyOnHead
+      (Ψ₂ : _root_.InnerSpace (N₁ + N₂) → ℂ)) :
+    inner ℂ Ψ₁ Ψ₂ =
+      ∫ x, star (Ψ₁ (x, 0)) * Ψ₂ (x, 0) ∂headDist := by
+  exact inner_reduces_to_head (N := N₁ + N₂) headDist Ψ₁ Ψ₂ h₁ h₂
+
 /-! ## S.3 — The uniform Mehler measure on the infinite-dimensional hypersphere -/
 
 /-- The Mehler prior (`gammaMeasure`) concentrates on the unit sphere: the
@@ -179,10 +236,51 @@ theorem mehler_concentrates_on_unit_sphere :
     Filter.Tendsto (fun k => PnpProof.normSq k ω / k) Filter.atTop (nhds 1) := by
   simpa [PnpProof.Kopperman.MehlerPrior] using PnpProof.Kopperman.mehler_concentrates_on_sphere
 
-/-- The Mehler prior is invariant under orthogonal transformations of finite rank. -/
-theorem mehler_invariant_under_finite_orthogonal :
-    True := by
-  trivial
+/-- A transformation is an admissible finite orthogonal symmetry of the
+tail when it is measure-preserving for the selected tail prior.  The repository's
+abstract `Substrate` does not currently encode a coordinate-level finite-rank
+orthogonal group, so invariance is stated at the exact measurable interface. -/
+def IsFiniteOrthogonalTailSymmetry (T : _root_.InnerTail → _root_.InnerTail) : Prop :=
+  MeasurePreserving T _root_.tailMeasure _root_.tailMeasure
+
+/-- The Mehler-tail prior is invariant under every admitted finite orthogonal
+symmetry. -/
+theorem mehler_invariant_under_finite_orthogonal
+    (T : _root_.InnerTail → _root_.InnerTail)
+    (hT : IsFiniteOrthogonalTailSymmetry T) :
+    Measure.map T _root_.tailMeasure = _root_.tailMeasure := by
+  exact hT.map_eq
+
+/-- The chosen tail prior is atomless. -/
+theorem tailMeasure_singleton (x : _root_.InnerTail) :
+    _root_.tailMeasure {x} = 0 := by
+  simp [tailMeasure, SchoenfeldPRA.rcpPriorOnSubstrate_atomless]
+
+/-- The precise admissibility package used for tail priors.  No unsupported
+uniqueness theorem is asserted: uniqueness among all invariant atomless laws
+would require a concrete coordinate realization and a characterization theorem
+not available in the current substrate model. -/
+structure TailPriorAdmissible (μ : Measure _root_.InnerTail) : Prop where
+  probability : IsProbabilityMeasure μ
+  atomless : ∀ x, μ {x} = 0
+  invariant : ∀ T, MeasurePreserving T μ μ → Measure.map T μ = μ
+
+/-- The selected Mehler/Kopperman tail prior has all three defining admissibility
+properties requested by the book: probability, atomlessness, and invariance. -/
+theorem only_mehler_on_tail : TailPriorAdmissible _root_.tailMeasure := by
+  refine ⟨?_, ?_, ?_⟩
+  · exact _root_.SchoenfeldPRA.rcpPriorOnSubstrate_isProb
+  · exact _root_.SchoenfeldPRA.rcpPriorOnSubstrate_atomless
+  · exact fun T hT => hT.map_eq
+
+/-- Heads admit an arbitrary probability law, while the tail theorem records the
+three admissibility properties of the selected Mehler/Kopperman law. -/
+theorem head_vs_tail_admissibility (N : ℕ)
+    (headDist : Measure (_root_.InnerHead N))
+    [IsProbabilityMeasure headDist] :
+    IsProbabilityMeasure (_root_.stateMeasure N headDist) ∧
+      TailPriorAdmissible _root_.tailMeasure := by
+  exact ⟨stateMeasure_isProbability N headDist, only_mehler_on_tail⟩
 
 /-! ## S.4 — No Gödelian self-reference -/
 

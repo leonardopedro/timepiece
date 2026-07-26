@@ -34,6 +34,15 @@ limits — **without** adding any infinite element to the language as a primitiv
 constant. The space should be complete _ontologically_ (its limits exist) but
 _epistemologically unselectable_ (no infinite element can be named).
 
+The verified formalization of Kopperman's setting confirms that the substrate
+Hilbert space is **separable** (has a countable dense subset), which is the
+topological precondition for his model-theoretic analysis:
+
+```
+#check @kopperman_substrate_separable
+#check @all_formalism_models_separable
+```
+
 # The Construction
 
 The construction has three layers.
@@ -136,6 +145,18 @@ the completed space — has probability zero:
 This is the measure-theoretic form of "the infinite elements are unselectable": no
 single one of them can be picked out with positive probability.
 
+**Only countably many elements are definable.** A countable formal language can
+name only countably many reals, so **most** reals — and hence most elements of the
+completed space — are not definable in the base language:
+
+```
+#check @definable_reals_countable
+#check @exists_nondefinable_real
+```
+
+This is the definability-theoretic form of unselectability: the elements that
+Kopperman's trap would need to isolate simply cannot be named.
+
 # The Metamathematical Interpretation (Not a Theorem)
 
 We must now be precise about what has and has not been proved.
@@ -146,6 +167,15 @@ We must now be precise about what has and has not been proved.
   convergent series of finite vectors (Riesz–Fischer). Every _writable_ vector is
   finitely supported and decidable. Under a diffuse prior, individual infinite
   elements are null events.
+
+  Additionally, a **bounded-arithmetic prior** on any finite type is a genuine
+  probability measure, and its "certain extension" to known propositions is
+  verified:
+
+  ```
+  #check @prior_is_probability
+  #check @certainExtension_known
+  ```
 
 : Interpretation (metamathematics, not a Lean theorem)
 
@@ -175,3 +205,131 @@ ontologically but is kept unselectable, so that Kopperman's trap never springs. 
 verified content is always the same analytic fact, the Riesz–Fischer characterization
 of completeness by absolutely convergent series; the rest is the disciplined refusal
 to add the infinite object to the language as a constant.
+
+# Tensor Products of Decidable Languages
+
+The construction above gives a single decidable language. The manuscript's quantum
+chapters require **composing** two such languages — the tensor product of two
+Hilbert spaces — and the question is whether decidability survives composition.
+
+## Head ⊗ Tail Decomposition
+
+Every state in the Solovay–Kopperman space decomposes as a **finite head** (the
+first $`N` coordinates, carrying the observable content) tensored with an
+**infinite tail** (the remaining coordinates, carrying the measure-theoretic
+substrate). The verified equivalence:
+
+```
+#check @headSumEquiv
+```
+
+splits $`\mathbb{R}^{N_1 + N_2} \times \text{Tail}` into
+$`\mathbb{R}^{N_1} \times (\mathbb{R}^{N_2} \times \text{Tail})`, showing that
+tensoring two finite heads simply concatenates their coordinates while the tail
+is shared. The state measure respects this:
+
+```
+#check @coordinateStateMeasure
+```
+
+takes an **arbitrary** probability distribution on the finite head and pairs it
+with the fixed Mehler (Gaussian) measure on the tail.
+
+## Decidability is Preserved
+
+The central theorem: if two observables each depend only on their respective
+finite heads, then their tensor product depends only on the concatenated head,
+and the expectation over the product state is decidable.
+
+```
+#check @tensor_language_decidable
+```
+
+This is the formal content of "the tensor product of two decidable languages is
+decidable": the infinite tail never needs to be inspected to compute any
+observable expectation.
+
+## The Tail Admits the Mehler Measure
+
+While the head carries an arbitrary probability law, the tail is rigid. The
+verified theorem:
+
+```
+#check @only_mehler_on_tail
+```
+
+states that the Mehler (standard Gaussian product) measure is an admissible prior
+on the tail: it is a probability measure, atomless (no singleton is distinguishable),
+and invariant under every measure-preserving transformation of the tail. These three
+properties are the admissibility criteria; the theorem confirms the Mehler prior
+satisfies all of them. (Full uniqueness — that no other measure can satisfy them — is
+not asserted; the formal docstring explicitly disclaims it.) The contrast with the
+head is made explicit:
+
+```
+#check @head_vs_tail_admissibility
+```
+
+Any probability distribution whatsoever is admissible on the finite head; the
+Mehler measure is the canonical admissible prior on the infinite tail.
+
+## Cross-Dimensional Inner Products
+
+A subtle point: the Solovay inner product of two states with **different**
+finite-part dimensions is well-defined, because the uniform Mehler measure on
+the tail **splits** so that the finite coordinates match. The coordinate-level
+realization:
+
+```
+#check @tailSplitEquiv
+```
+
+is a measure-preserving equivalence that peels off the first $`k` coordinates
+from the tail, and:
+
+```
+#check @tailTensorEquiv
+```
+
+identifies the product of two tails with a single tail (via a bijection
+$`\text{Fin}\,2 \times \mathbb{N} \simeq \mathbb{N}`). Together they show that
+padding a state with extra zero coordinates does not change its measure class:
+
+```
+#check @enlargeEquiv
+```
+
+## Invariance Under Finite Orthogonal Symmetries
+
+The Mehler measure is invariant under any measure-preserving transformation of
+the tail coordinates:
+
+```
+#check @mehler_invariant_under_finite_orthogonal
+```
+
+At the current certificate layer, "finite-orthogonal symmetry" is defined as
+measure-preservation of the tail prior, so this theorem confirms the interface is
+consistent (the conclusion is exactly the hypothesis). A coordinate-level
+finite-rank orthogonal group on the substrate is future work; the physical content
+— no finite rotation of the unselectable tail can be detected by any observable,
+because observables depend only on the finite head — is captured by the
+head-only decidability predicate.
+
+## Summary of the Tensor-Product Layer
+
+: Verified (Lean theorems)
+
+  Head–tail decomposition (`headSumEquiv`); tensor closure and decidability
+  (`tensor_language_decidable`); admissibility of the Mehler tail prior
+  (`only_mehler_on_tail`); head/tail asymmetry (`head_vs_tail_admissibility`);
+  coordinate splitting (`tailSplitEquiv`, `tailTensorEquiv`); enlargement
+  invariance (`enlargeEquiv`); measure-preserving invariance
+  (`mehler_invariant_under_finite_orthogonal`).
+
+: Structural consequence (metamathematical)
+
+  Because every observable in the tensor-product language still depends only on
+  a finite head, Kopperman's trap never springs: no infinite constant is ever
+  named, and the completed tensor-product space remains a conservative,
+  decidable extension of the base theories.

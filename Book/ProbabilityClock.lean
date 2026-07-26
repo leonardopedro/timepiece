@@ -52,11 +52,11 @@ $$`\Psi(t+a) = R(a)\,\Psi(t).`
 The verified statements (module `BookProof.ChapterProbabilityClockStochastic`):
 
 ```
-#check @ChapterProbabilityClockStochastic.Jgen_sq
-#check @ChapterProbabilityClockStochastic.rotMat_eq_exp
-#check @ChapterProbabilityClockStochastic.rotMat_det
-#check @ChapterProbabilityClockStochastic.rotMat_mulVec_clockPsi
-#check @ChapterProbabilityClockStochastic.clockPsi_eq_exp
+#check @ProbabilityClockStochastic.Jgen_sq
+#check @ProbabilityClockStochastic.rotMat_eq_exp
+#check @ProbabilityClockStochastic.rotMat_det
+#check @ProbabilityClockStochastic.rotMat_mulVec_clockPsi
+#check @ProbabilityClockStochastic.clockPsi_eq_exp
 ```
 
 # Why Act on the Wave-function and Not on the Probability?
@@ -75,7 +75,7 @@ The verified classification (module `BookProof.ChapterEulerStochastic`):
 
 ```
 #check @ChapterEulerStochastic.preservesProb_iff_exists_angles
-#check @ChapterProbabilityClockStochastic.isColumnStochastic_eq_Mab
+#check @ProbabilityClockStochastic.isColumnStochastic_eq_Mab
 ```
 
 Now ask: is there such a map that sends the **uniform** distribution
@@ -84,7 +84,7 @@ any such map has determinant **zero**:
 
 ```
 #check @ChapterEulerStochastic.uniform_to_vertex_singular
-#check @ChapterProbabilityClockStochastic.stochastic_uniform_to_deterministic_singular
+#check @ProbabilityClockStochastic.stochastic_uniform_to_deterministic_singular
 ```
 
 A singular matrix is **not invertible**, so it cannot represent a symmetry (a

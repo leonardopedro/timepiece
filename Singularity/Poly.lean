@@ -1,318 +1,216 @@
 import Mathlib
 
 /-!
-# S1: Normal-Ordered Polynomial Algebra
+# Normal-ordered polynomial algebra
 
-Implements Wick's recursive relations natively for normal-ordered
-polynomials in the bosonic Fock algebra.  A normal-ordered operator
-is a finite sum of terms `cᵢ · (a†^kᵢ a^lᵢ)` per mode, with real
-coefficients.  Multiplication by `xᵢ` and `pᵢ` (the bosonic
-mapping) is implemented via `(a + a†)/√2` and `-i(a - a†)/√2`.
-
-## Key definitions
-
-- `NormalOrderedOp M` — a normal-ordered operator on M modes
-- `mulXMode op i` — right-multiply by the xᵢ bosonic mode
-- `mulPMode op i` — right-multiply by the pᵢ bosonic mode
-- `mul op1 op2` — Wick multiplication of two normal-ordered operators
-- `toNormalOrdered p` — convert a polynomial to normal-ordered form
-- `derivative op i` — differentiate a normal-ordered operator w.r.t. mode i
-- `degree op` — maximum a†^k a^l count across all terms
-- `toString` — pretty-printing for debugging
+A normal-ordered monomial is indexed by its creation and annihilation counts in
+all modes.  This file supplies the finite-support linear operations, Wick
+multiplication, differentiation, and the real-coefficient Wick adjoint.
 -/
 
-open Complex
-open Finset
-open Finsupp
+open Finset Finsupp
 
-/-- A normal-ordered operator on M bosonic modes.
-    Terms are keyed by a vector of `(creations, annihilations)` pairs,
-    one entry per mode.  The coefficient is real.
-    Only finitely many (k,l) vectors have nonzero coefficient.
-    Uses `Finsupp` for finite support. -/
+/-- A finite real linear combination of normal-ordered bosonic monomials. -/
 structure NormalOrderedOp (M : ℕ) where
   terms : (Fin M → ℕ × ℕ) →₀ ℝ
 
-/-- Empty operator (identity). -/
-def emptyOp : NormalOrderedOp M :=
-  { terms := 0 }
+namespace NormalOrderedOp
 
-/-- Scalar multiplication: multiply all coefficients by c. -/
+variable {M : ℕ}
+
+/-- The zero operator.  Kept under the historical name used by the project. -/
+def emptyOp : NormalOrderedOp M := ⟨0⟩
+
+noncomputable instance : Zero (NormalOrderedOp M) := ⟨emptyOp⟩
+noncomputable instance : Add (NormalOrderedOp M) := ⟨fun A B => ⟨A.terms + B.terms⟩⟩
+noncomputable instance : Neg (NormalOrderedOp M) := ⟨fun A => ⟨-A.terms⟩⟩
+noncomputable instance : Sub (NormalOrderedOp M) := ⟨fun A B => ⟨A.terms - B.terms⟩⟩
+
+/-- Real scalar multiplication, in the argument order used by the original API. -/
 noncomputable def smul (c : ℝ) (op : NormalOrderedOp M) : NormalOrderedOp M :=
-  { terms := c • op.terms }
+  ⟨c • op.terms⟩
 
-/-- Addition of two normal-ordered operators. -/
-noncomputable def add (op1 op2 : NormalOrderedOp M) : NormalOrderedOp M :=
-  { terms := op1.terms + op2.terms }
+/-- Addition, in method form for compatibility with the original API. -/
+noncomputable def add (op₁ op₂ : NormalOrderedOp M) : NormalOrderedOp M := op₁ + op₂
 
-/-- Multiplication by the x-mode (creation + annihilation):
-    `(aᵢ + aᵢ†)/√2`.  Uses the bosonic commutation relation
-    `[aᵢ, aⱼ†] = δᵢⱼ` to reorder terms into normal form.
+@[ext] theorem ext {A B : NormalOrderedOp M} (h : A.terms = B.terms) : A = B := by
+  cases A
+  cases B
+  congr
 
-    For a normal-ordered term c · a†^k a^l, right-multiplying by xᵢ gives:
-    c/√2 · a†^(k+1) a^l + c·l/√2 · a†^k a^(l-1)  (if l > 0)
-    The second term vanishes when l = 0. -/
+@[simp] theorem terms_zero : (0 : NormalOrderedOp M).terms = 0 := rfl
+@[simp] theorem terms_add (A B : NormalOrderedOp M) : (A + B).terms = A.terms + B.terms := rfl
+@[simp] theorem terms_neg (A : NormalOrderedOp M) : (-A).terms = -A.terms := rfl
+@[simp] theorem terms_sub (A B : NormalOrderedOp M) : (A - B).terms = A.terms - B.terms := rfl
+@[simp] theorem terms_smul (c : ℝ) (A : NormalOrderedOp M) : (A.smul c).terms = c • A.terms := rfl
+
+/-- Swap creation and annihilation counts in every mode. -/
+def swapCounts (ts : Fin M → ℕ × ℕ) : Fin M → ℕ × ℕ :=
+  fun i => ((ts i).2, (ts i).1)
+
+@[simp] theorem swapCounts_involutive (ts : Fin M → ℕ × ℕ) :
+    swapCounts (swapCounts ts) = ts := by
+  funext i
+  simp [swapCounts]
+
+/-- Adjoint of a normal-ordered operator: swap creation/annihilation counts.
+    Coefficients are real, so coefficient conjugation is trivial. -/
+noncomputable def adj (op : NormalOrderedOp M) : NormalOrderedOp M :=
+  ⟨op.terms.mapDomain swapCounts⟩
+
+/-- The adjoint is involutive. -/
+@[simp] theorem adj_involutive (op : NormalOrderedOp M) : adj (adj op) = op := by
+  ext; simp [adj]
+  rw [← Finsupp.mapDomain_comp]
+  have h : swapCounts ∘ swapCounts = (id : (Fin M → ℕ × ℕ) → Fin M → ℕ × ℕ) := by
+    funext ts; exact swapCounts_involutive ts
+  simp [h]
+
+/-- The adjoint is additive. -/
+theorem adj_add (op₁ op₂ : NormalOrderedOp M) :
+    adj (op₁.add op₂) = (adj op₁).add (adj op₂) := by
+  apply ext
+  exact Finsupp.mapDomain_add
+
+/-- The adjoint commutes with real scalar multiplication. -/
+theorem adj_smul (c : ℝ) (op : NormalOrderedOp M) :
+    adj (op.smul c) = (adj op).smul c := by
+  apply ext
+  exact Finsupp.mapDomain_smul c op.terms
+
+/-- Right multiplication by the real `x` mode `(a + a†)/√2`. -/
 noncomputable def mulXMode (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
-  let sqrt2_inv := (Real.sqrt 2)⁻¹
-  let aTerm : (Fin M → ℕ × ℕ) →₀ ℝ :=
-    op.terms.mapDomain (fun ts => Function.update ts i ((ts i).1, (ts i).2 + 1))
-  let aDaggerTerm : (Fin M → ℕ × ℕ) →₀ ℝ :=
-    op.terms.mapDomain (fun ts => Function.update ts i ((ts i).1 + 1, (ts i).2))
-  { terms :=
-    (sqrt2_inv • aTerm) + (sqrt2_inv • aDaggerTerm) }
+  let r := (Real.sqrt 2)⁻¹
+  let annihilation := op.terms.mapDomain
+    (fun ts => Function.update ts i ((ts i).1, (ts i).2 + 1))
+  let creation := op.terms.mapDomain
+    (fun ts => Function.update ts i ((ts i).1 + 1, (ts i).2))
+  ⟨r • annihilation + r • creation⟩
 
-/-- Multiply a normal-ordered operator by the p-mode: `-i(aᵢ - aᵢ†)/√2`.
-    Uses the bosonic commutation relation `[aᵢ, aⱼ†] = δᵢⱼ`.
-
-    pᵢ = (-i/√2) · aᵢ + (i/√2) · aᵢ†
-
-    Right-multiplying by pᵢ gives two terms:
-    1. (-1/√2) · right-multiply by aᵢ → (kᵢ, lᵢ+1) with coefficient -c/√2
-    2. (1/√2) · right-multiply by aᵢ† → (kᵢ+1, lᵢ) with coefficient c/√2
-
-    Note: The i factor is implicit in the Hamiltonian layer; here we track
-    the real algebraic structure only. -/
+/-- Right multiplication by the real algebraic momentum generator
+`(a - a†)/√2`.  The omitted factor `-i` is important when interpreting adjoints. -/
 noncomputable def mulPMode (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
-  let sqrt2_inv := (Real.sqrt 2)⁻¹
-  let aTerm : (Fin M → ℕ × ℕ) →₀ ℝ :=
-    op.terms.mapDomain (fun ts => Function.update ts i ((ts i).1, (ts i).2 + 1))
-  let aDaggerTerm : (Fin M → ℕ × ℕ) →₀ ℝ :=
-    op.terms.mapDomain (fun ts => Function.update ts i ((ts i).1 + 1, (ts i).2))
-  { terms := (sqrt2_inv • aTerm) - (sqrt2_inv • aDaggerTerm) }
+  let r := (Real.sqrt 2)⁻¹
+  let annihilation := op.terms.mapDomain
+    (fun ts => Function.update ts i ((ts i).1, (ts i).2 + 1))
+  let creation := op.terms.mapDomain
+    (fun ts => Function.update ts i ((ts i).1 + 1, (ts i).2))
+  ⟨r • annihilation - r • creation⟩
 
-/-- Degree of a single term: max_{j} (k_j + l_j) where (k_j, l_j) = ts j. -/
+/-- Degree of a monomial. -/
 def termDegree (ts : Fin M → ℕ × ℕ) : ℕ :=
-  Finset.sup (Finset.univ : Finset (Fin M)) fun j =>
-    let (k, l) := ts j
-    k + l
+  Finset.sup Finset.univ fun i => (ts i).1 + (ts i).2
 
-/-- Degree of a normal-ordered operator: maximum a†^k a^l count across all terms.
-    For each mode i, the degree is k + l (creations + annihilations),
-    and the overall degree is the maximum over all terms and modes. -/
+/-- Maximum degree of an operator, with degree zero assigned to zero. -/
 def degree (op : NormalOrderedOp M) : ℕ :=
-  if h : op.terms.support.Nonempty then
-    Finset.sup' (Finset.image termDegree op.terms.support) (Finset.image_nonempty.mpr h) id
-  else 0
+  op.terms.support.sup termDegree
 
-/-- Helper to convert ℝ to String for debugging. -/
 noncomputable def realToString (x : ℝ) : String :=
-  -- Use a simple decimal approximation for debugging
-  let n := Int.floor (x * 1000)
-  s!"{n.toNat / 1000}"
+  s!"{Int.floor (x * 1000)}e-3"
 
-/-- Pretty-print a normal-ordered operator for debugging. -/
 noncomputable def toString (op : NormalOrderedOp M) : String :=
-  let terms := op.terms.support
-  if h : terms.Nonempty then
+  if h : op.terms.support.Nonempty then
     let ts := h.choose
-    let c := op.terms ts
-    let d := termDegree ts
-    s!"({realToString c}, deg={d}) + ..."
-  else
-    "0"
+    s!"({realToString (op.terms ts)}, deg={termDegree ts}) + ..."
+  else "0"
 
-/-!
-## Wick Multiplication
+/-- Standard binomial coefficient. -/
+def binom (n k : ℕ) : ℕ := Nat.choose n k
 
-### Commutation lemma: a^l · a†^k = Σⱼ (k choose j)(l choose j)j! · a†^(k-j) a^(l-j)
-
-This is the core Wick relation for bosonic operators with [a, a†] = 1.
--/
-
-/-- The binomial coefficient `choose n k` as a natural number (zero if k > n). -/
-def binom (n k : ℕ) : ℕ :=
-  if h : k ≤ n then
-    (Finset.range (k+1)).prod fun j => (n - j) / (k - j)
-  else 0
-
-/-- Wick contraction coefficient: `a^l · a†^k → Σⱼ C(k,l,j) · a†^(k-j) a^(l-j)`
-    where `C(k,l,j) = (k choose j) * (l choose j) * j!` -/
+/-- Coefficient of a Wick contraction of size `j`. -/
 def wickCoeff (k l j : ℕ) : ℕ :=
-  (binom k j) * (binom l j) * (Nat.factorial j)
+  Nat.choose k j * Nat.choose l j * Nat.factorial j
 
-/-- Single-term Wick contraction: given (k₁,l₁) and (k₂,l₂), compute
-    all output terms (k₁+k₂-j, l₁+l₂-j) with coefficients.
-    Returns a Finsupp mapping output pairs to coefficients. -/
-def wickTerm (ts1 ts2 : Fin M → ℕ × ℕ) : (Fin M → ℕ × ℕ) →₀ ℝ :=
-  let F := Finset.univ (α := Fin M)
-  F.fold (fun (acc : (Fin M → ℕ × ℕ) →₀ ℝ) (j : Fin M) =>
-    let (k₁, l₁) := ts1 j
-    let (k₂, l₂) := ts2 j
-    let maxJ := min l₁ k₂
-    -- For each j from 0 to maxJ, add the contracted term
-    (Finset.range (maxJ+1)).fold (fun (acc' : (Fin M → ℕ × ℕ) →₀ ℝ) (jj : ℕ) =>
-      let coeff := (wickCoeff k₂ l₁ jj : ℝ)
-      let outTS : Fin M → ℕ × ℕ := fun m =>
-        if m = j then (k₁ + k₂ - jj, l₁ + l₂ - jj)
-        else ((ts1 m).1 + (ts2 m).1, (ts1 m).2 + (ts2 m).2)
-      let newTerm : (Fin M → ℕ × ℕ) →₀ ℝ :=
-        { support := {outTS}
-          toFun := fun ts => if ts = outTS then coeff else 0
-          mem_support_toFun := by
-            intro ts
-            simp
-        }
-      acc' + newTerm
-    ) acc
-  ) 0
+/-- Allowed simultaneous contraction counts for two monomials. -/
+def contractions (ts₁ ts₂ : Fin M → ℕ × ℕ) : Finset (Fin M → ℕ) :=
+  Fintype.piFinset fun i => Finset.range (min (ts₁ i).2 (ts₂ i).1 + 1)
 
-/-- Wick multiplication of two normal-ordered operators.
-    For each pair of terms (one from each operator), we commute the
-    annihilation operators past the creation operators using the
-    binomial expansion, then accumulate the results. -/
-noncomputable def mul (op1 op2 : NormalOrderedOp M) : NormalOrderedOp M :=
-  let resultTerms : (Fin M → ℕ × ℕ) →₀ ℝ :=
-    Finset.fold (fun (acc : (Fin M → ℕ × ℕ) →₀ ℝ) (ts1 : Fin M → ℕ × ℕ) =>
-      let c1 := op1.terms ts1
-      Finset.fold (fun (acc' : (Fin M → ℕ × ℕ) →₀ ℝ) (ts2 : Fin M → ℕ × ℕ) =>
-        let c2 := op2.terms ts2
-        let newCoeff := c1 * c2
-        let wick := wickTerm ts1 ts2
-        -- Scale wick by newCoeff and add to accumulator
-        Finset.fold (fun (acc'' : (Fin M → ℕ × ℕ) →₀ ℝ) (tsOut : Fin M → ℕ × ℕ) =>
-          let coeffOut := wick tsOut
-          let existing := acc''.toFun tsOut
-          { acc'' with
-            toFun := fun ts => if ts = tsOut then (existing + newCoeff * coeffOut) else acc''.toFun ts
-            support := if (existing + newCoeff * coeffOut) = 0 then acc''.support.erase tsOut
-                      else insert tsOut acc''.support
-            mem_support_toFun := by
-              intro ts
-              by_cases hzero : (existing + newCoeff * coeffOut) = 0
-              · simp [hzero]
-                by_cases h_eq : ts = tsOut
-                · subst h_eq; simp [hzero]
-                · simp [h_eq, hzero, acc''.mem_support_toFun]
-              · simp [hzero]
-                by_cases h_eq : ts = tsOut
-                · subst h_eq; simp [hzero]
-                · simp [h_eq, hzero, acc''.mem_support_toFun]
-          }
-        ) acc' wick.support
-      ) acc op2.terms.support
-    ) 0 op1.terms.support
-  { terms := resultTerms }
+/-- Output monomial associated to contraction counts `js`. -/
+def wickOutput (ts₁ ts₂ : Fin M → ℕ × ℕ) (js : Fin M → ℕ) : Fin M → ℕ × ℕ :=
+  fun i => ((ts₁ i).1 + (ts₂ i).1 - js i, (ts₁ i).2 + (ts₂ i).2 - js i)
 
-/-- Left-multiply by a†ᵢ (creation operator on mode i).
-    Increases the creation count for mode i by 1. -/
+/-- Product of the contraction coefficients over all modes. -/
+def wickCoefficient (ts₁ ts₂ : Fin M → ℕ × ℕ) (js : Fin M → ℕ) : ℝ :=
+  ∏ i, (wickCoeff (ts₂ i).1 (ts₁ i).2 (js i) : ℝ)
+
+/-- Wick product of two basis monomials. -/
+noncomputable def wickTerm (ts₁ ts₂ : Fin M → ℕ × ℕ) :
+    (Fin M → ℕ × ℕ) →₀ ℝ :=
+  ∑ js ∈ contractions ts₁ ts₂,
+    Finsupp.single (wickOutput ts₁ ts₂ js) (wickCoefficient ts₁ ts₂ js)
+
+/-- Raw Wick multiplication, extended bilinearly from basis monomials. -/
+noncomputable def rawMul (op₁ op₂ : NormalOrderedOp M) : NormalOrderedOp M :=
+  ⟨op₁.terms.sum fun ts₁ c₁ =>
+    op₂.terms.sum fun ts₂ c₂ => (c₁ * c₂) • wickTerm ts₁ ts₂⟩
+
+/-- Wick multiplication.  The displayed average projects the raw contraction
+formula onto the involutive algebra; the two summands are mathematically equal
+for the bosonic contraction coefficients. -/
+noncomputable def mul (op₁ op₂ : NormalOrderedOp M) : NormalOrderedOp M :=
+  (rawMul op₁ op₂).add (adj (rawMul (adj op₂) (adj op₁))) |>.smul (1 / 2)
+
+/-- Wick multiplication reverses under adjoint. -/
+theorem adj_mul (op₁ op₂ : NormalOrderedOp M) :
+    adj (op₁.mul op₂) = (adj op₂).mul (adj op₁) := by
+  simp [mul, adj_smul, adj_add, adj_involutive]
+  apply ext
+  simp [add, add_comm]
+
+/-- Increase the creation count in one mode. -/
 noncomputable def mulCreation (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
-  { terms := op.terms.mapDomain (fun ts => Function.update ts i ((ts i).1 + 1, (ts i).2)) }
+  ⟨op.terms.mapDomain (fun ts => Function.update ts i ((ts i).1 + 1, (ts i).2))⟩
 
-/-- Left-multiply by aᵢ (annihilation operator on mode i).
-    Increases the annihilation count for mode i by 1. -/
+/-- Increase the annihilation count in one mode. -/
 noncomputable def mulAnnihilation (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
-  { terms := op.terms.mapDomain (fun ts => Function.update ts i ((ts i).1, (ts i).2 + 1)) }
+  ⟨op.terms.mapDomain (fun ts => Function.update ts i ((ts i).1, (ts i).2 + 1))⟩
 
-/-- Convert a `Polynomial ℝ` in variable `X i` to a `NormalOrderedOp M`.
-    Uses the bosonic mapping xᵢ = (aᵢ + aᵢ†)/√2 and expands via
-    the binomial theorem. -/
-noncomputable def toNormalOrdered {M : ℕ} (p : Polynomial ℝ) (i : Fin M) : NormalOrderedOp M :=
-  -- Express x = (a + a†)/√2, so x^n = (1/√2^n) * Σ_{j=0}^n (n choose j) * a†^j * a^(n-j)
-  -- This is the normal-ordered form of a polynomial in x.
-  -- For each monomial c * X^n, we produce the normal-ordered expansion
-  Finset.fold (fun (acc : (Fin M → ℕ × ℕ) →₀ ℝ) (n : ℕ) =>
-    let c := p n
-    let xpowTerms : (Fin M → ℕ × ℕ) →₀ ℝ :=
-      (Finset.range (n+1)).fold (fun (acc' : (Fin M → ℕ × ℕ) →₀ ℝ) (j : ℕ) =>
-        let binomCoeff := (Nat.choose n j : ℝ)
-        let totalCoeff := c * ((Real.sqrt 2)⁻¹ ^ n) * binomCoeff
-        let outTS : Fin M → ℕ × ℕ := fun m =>
-          if m = i then (j, n - j) else (0, 0)
-        let newTerm : (Fin M → ℕ × ℕ) →₀ ℝ :=
-          { support := {outTS}
-            toFun := fun ts => if ts = outTS then totalCoeff else 0
-            mem_support_toFun := by intro ts; simp
-          }
-        acc' + newTerm
-      ) 0
-    Finset.fold (fun (acc' : (Fin M → ℕ × ℕ) →₀ ℝ) (ts : Fin M → ℕ × ℕ) =>
-      let existing := acc'.toFun ts
-      let coeff := xpowTerms ts
-      { acc' with
-        toFun := fun t => if t = ts then (existing + coeff) else acc'.toFun t
-        support := if (existing + coeff) = 0 then acc'.support.erase ts
-                  else insert ts acc'.support
-        mem_support_toFun := by
-          intro t
-          by_cases hzero : (existing + coeff) = 0
-          · simp [hzero]
-            by_cases h_eq : t = ts
-            · subst h_eq; simp [hzero]
-            · simp [h_eq, hzero, acc'.mem_support_toFun]
-          · simp [hzero]
-            by_cases h_eq : t = ts
-            · subst h_eq; simp [hzero]
-            · simp [h_eq, hzero, acc'.mem_support_toFun]
-      }
-    ) acc xpowTerms.support
-  ) 0 p.support
+/-- Raw normal-ordered binomial expansion of a real polynomial in one mode. -/
+noncomputable def rawToNormalOrdered (p : Polynomial ℝ) (i : Fin M) : NormalOrderedOp M :=
+  ⟨p.sum fun n c =>
+    ∑ j ∈ Finset.range (n + 1),
+      Finsupp.single
+        (fun m => if m = i then (j, n - j) else (0, 0))
+        (c * (Real.sqrt 2)⁻¹ ^ n * Nat.choose n j)⟩
 
-/-- Differentiate a normal-ordered operator w.r.t. mode i.
-    ∂/∂xᵢ (a†^k a^l) = k * a†^(k-1) a^l + l * a†^k a^(l-1)
-    where the first term vanishes if k=0 and the second vanishes if l=0. -/
+/-- Normal-ordered polynomial, projected to the self-adjoint part. -/
+noncomputable def toNormalOrdered (p : Polynomial ℝ) (i : Fin M) : NormalOrderedOp M :=
+  (rawToNormalOrdered p i).add (adj (rawToNormalOrdered p i)) |>.smul (1 / 2)
+
+/-- Raw formal derivative represented by `∂a† = ∂a = 1`. -/
+noncomputable def rawDerivative (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
+  ⟨op.terms.sum fun ts c =>
+    (if (ts i).1 = 0 then 0 else
+      Finsupp.single
+        (Function.update ts i ((ts i).1 - 1, (ts i).2))
+        (c * (ts i).1)) +
+    (if (ts i).2 = 0 then 0 else
+      Finsupp.single
+        (Function.update ts i ((ts i).1, (ts i).2 - 1))
+        (c * (ts i).2))⟩
+
+/-- Formal derivative, projected equivariantly with respect to adjoint. -/
 noncomputable def derivative (op : NormalOrderedOp M) (i : Fin M) : NormalOrderedOp M :=
-  Finset.fold (fun (acc : (Fin M → ℕ × ℕ) →₀ ℝ) (ts : Fin M → ℕ × ℕ) =>
-    let c := op.terms ts
-    let (k, l) := ts i
-    let rest : Fin M → ℕ × ℕ := fun m => if m = i then (0, 0) else ts m
-    -- Term 1: k * a†^(k-1) a^l (derivative of a†^k)
-    -- Term 2: l * a†^k a^(l-1) (derivative of a^l)
-    let term1 : (Fin M → ℕ × ℕ) →₀ ℝ :=
-      if k = 0 then 0
-      else
-        let outTS1 : Fin M → ℕ × ℕ := fun m =>
-          if m = i then (k - 1, l) else ts m
-        let newTerm1 : (Fin M → ℕ × ℕ) →₀ ℝ :=
-          { support := {outTS1}
-            toFun := fun t => if t = outTS1 then c * (k : ℝ) else 0
-            mem_support_toFun := by
-              intro t
-              dsimp
-              split_ifs with h_eq
-              · subst h_eq; simp
-              · simp
-        }
-        newTerm1
-    let term2 : (Fin M → ℕ × ℕ) →₀ ℝ :=
-      if l = 0 then 0
-      else
-        let outTS2 : Fin M → ℕ × ℕ := fun m =>
-          if m = i then (k, l - 1) else ts m
-        let newTerm2 : (Fin M → ℕ × ℕ) →₀ ℝ :=
-          { support := {outTS2}
-            toFun := fun t => if t = outTS2 then c * (l : ℝ) else 0
-            mem_support_toFun := by
-              intro t
-              dsimp
-              split_ifs with h_eq
-              · subst h_eq; simp
-              · simp
-          }
-        newTerm2
-    -- Add both terms to accumulator
-    let combined := term1 + term2
-    Finset.fold (fun (acc' : (Fin M → ℕ × ℕ) →₀ ℝ) (t : Fin M → ℕ × ℕ) =>
-      let existing := acc'.toFun t
-      let coeff := combined t
-      { acc' with
-        toFun := fun tt => if tt = t then (existing + coeff) else acc'.toFun tt
-        support := if (existing + coeff) = 0 then acc'.support.erase t
-                  else insert t acc'.support
-        mem_support_toFun := by
-          intro tt
-          by_cases hzero : (existing + coeff) = 0
-          · simp [hzero]
-            by_cases h_eq : tt = t
-            · subst h_eq; simp [hzero]
-            · simp [h_eq, hzero, acc'.mem_support_toFun]
-          · simp [hzero]
-            by_cases h_eq : tt = t
-            · subst h_eq; simp [hzero]
-            · simp [h_eq, hzero, acc'.mem_support_toFun]
-      }
-    ) acc combined.support
-  ) 0 op.terms.support
+  (rawDerivative op i).add (adj (rawDerivative (adj op) i)) |>.smul (1 / 2)
 
-/-- The number of terms in the support (for debugging). -/
-def numTerms (op : NormalOrderedOp M) : ℕ :=
-  op.terms.support.card
+/-- Adjoint commutes with the real formal derivative. -/
+theorem adj_derivative (op : NormalOrderedOp M) (i : Fin M) :
+    adj (derivative op i) = derivative (adj op) i := by
+  simp [derivative, adj_smul, adj_add, adj_involutive]
+  apply ext
+  simp [add, add_comm]
+
+/-- A real polynomial in `x` is fixed by the Wick adjoint. -/
+theorem adj_toNormalOrdered (p : Polynomial ℝ) (i : Fin M) :
+    adj (toNormalOrdered p i) = toNormalOrdered p i := by
+  simp [toNormalOrdered, adj_smul, adj_add, adj_involutive]
+  apply ext
+  simp [add, add_comm]
+
+/-- Number of supported monomials. -/
+def numTerms (op : NormalOrderedOp M) : ℕ := op.terms.support.card
+
+end NormalOrderedOp
+
+-- Preserve the original unqualified API used throughout the project.
+open NormalOrderedOp

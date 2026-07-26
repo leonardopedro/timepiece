@@ -23,8 +23,8 @@ Under Lebesgue measure on $`\mathbb{R}`, **every** single point has measure zero
 all singletons have the **same** measure:
 
 ```
-#check @ChapterConsciousnessNullMeasure.singleton_volume_zero
-#check @ChapterConsciousnessNullMeasure.singletons_equal_measure
+#check @ConsciousnessNullMeasure.singleton_volume_zero
+#check @ConsciousnessNullMeasure.singletons_equal_measure
 ```
 
 So a point having measure zero carries no information about its being special: in the
@@ -38,8 +38,8 @@ additivity (a countable union of null singletons is null). In particular the
 rationals, though dense, are null:
 
 ```
-#check @ChapterConsciousnessNullMeasure.countable_volume_zero
-#check @ChapterConsciousnessNullMeasure.rat_range_volume_zero
+#check @ConsciousnessNullMeasure.countable_volume_zero
+#check @ConsciousnessNullMeasure.rat_range_volume_zero
 ```
 
 # But Null Does Not Mean Countable: the Cantor Set
@@ -55,7 +55,7 @@ Its uncountability follows from Cantor's theorem (it is in bijection with
 $`\{0,1\}^{\mathbb{N}}`, so $`\aleph_0 < 2^{\aleph_0}`):
 
 ```
-#check @ChapterConsciousnessNullMeasure.cantorSet_uncountable
+#check @ConsciousnessNullMeasure.cantorSet_uncountable
 ```
 
 Its null measure follows from self-similarity: $`C` is the disjoint union of two
@@ -63,7 +63,7 @@ scaled copies of itself, each by factor $`1/3`, so $`\mu(C) \le (2/3)\,\mu(C)`,
 which (since $`\mu(C) < \infty`) forces $`\mu(C) = 0`:
 
 ```
-#check @ChapterConsciousnessNullMeasure.cantorSet_volume_zero
+#check @ConsciousnessNullMeasure.cantorSet_volume_zero
 ```
 
 # The Headline
@@ -72,7 +72,7 @@ Putting these together, there exists an **uncountable** subset of $`[0,1]` with
 Lebesgue measure **zero**:
 
 ```
-#check @ChapterConsciousnessNullMeasure.exists_uncountable_null_subset
+#check @ConsciousnessNullMeasure.exists_uncountable_null_subset
 ```
 
 This is exactly the manuscript's point: "a subset with null measure does not imply

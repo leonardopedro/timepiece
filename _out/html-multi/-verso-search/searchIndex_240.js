@@ -1,1 +1,0 @@
-window.docContents[240].resolve({"/A-Random-Map-Is-Almost-Surely-Non-Invertible/#bijection-probability":{"contents":"\n\n\n\n\n\n\n\n","context":"Timepiece: A Verified Mathematical Tour","header":"15. A Random Map Is Almost Surely Non-Invertible","id":"/A-Random-Map-Is-Almost-Surely-Non-Invertible/#bijection-probability"}});
