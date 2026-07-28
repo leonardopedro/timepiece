@@ -74,6 +74,17 @@ Lebesgue measure on the infinite-dimensional ambient space. This is the
 manuscript's free-field prior: "a uniform measure of an infinite-dimensional sphere
 defined using the Gaussian measure and the Fock space."
 
+This uniform sphere measure is the **Mehler measure**, and it is the exception to the
+slogan this chapter opened with. There is no _Lebesgue_ uniform probability measure
+on an infinite-dimensional space, but the Gaussian-built sphere measure is a genuine
+uniform prior on the infinite-dimensional hypersphere. It is genuinely
+non-informative — invariant under every symmetry the language can express — in the
+{ref "solovay-tensor"}[Solovay–Kopperman space], where the restricted decidable
+language forbids the reparametrizations that would otherwise turn a uniform prior
+into an informative one ({ref "sequential-bayes"}[non-informativeness is
+coordinate-dependent]). The free-field construction is the finite-dimensional shadow
+of that infinite-dimensional exception.
+
 # Born Pushes the Sphere to the Simplex
 
 Composing the two maps — normalize the Gaussian to the sphere, then apply the Born
