@@ -94,7 +94,7 @@ theorem prop61_star_mul_self :
     simp_all +decide [ mul_assoc, sub_mul, mul_sub ]
     simp +decide [ two_smul, add_assoc, add_sub_assoc ]
     abel1
-  -- By the properties of the adjoint and the given hypotheses, we can simplify the expression further.
+  -- By the properties of the adjoint and the given hypotheses,    we can simplify the expression further.
   have h_simp' : star Ni = Ni := by
     have h_star_Ni : star Ni * N = 1 := by
       rw [ ← star_one, ← hNi₁, star_mul, hN_sa ]

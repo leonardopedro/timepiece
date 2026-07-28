@@ -98,6 +98,16 @@ the incoherent sequence give different answers, and there is no reason they shou
 agree — because time plays no fundamental role, and there is no probability
 distribution at the intermediate instant $`S_2`.
 
+And just as for the probability clock, the "interference" is not a physical wave
+interfering with itself. The wave-function is one parametrization of a probability
+distribution; in these coordinates the two slit-amplitudes add (the $`H^2` product)
+and a cross term appears. Call that cross term "interference" if you like, but it is
+a feature of the parametrization, not a phenomenon in the world — the manuscript's
+point that the wave-function is "nothing else than one possible parametrization of
+any probability distribution." The exotic reading, on which the electron literally
+passes through both slits as a wave, is precisely what the parametrization
+dissolves.
+
 The verified contrast between the coherent and the incoherent composition (module
 `BookProof.ChapterTrajectory`):
 

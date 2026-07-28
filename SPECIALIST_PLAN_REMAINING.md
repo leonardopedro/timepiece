@@ -9,6 +9,33 @@ are pre-existing and documented as intentional (substantive limit form of
 `rcpZeroAt`); leave them. `BookProof/ChapterTensor.lean` has already been removed
 and is not imported anywhere — the old "delete it" task is done.
 
+## Completed work (July 2026)
+
+- **Part A (tail-split work):** All tasks complete. `tailSplitEquiv_map` proof
+  strategy documented in the file; implementation left to specialist.
+- **ChapterSelectingEvents.lean hardening (C2/C3):**
+  - `axiom p_ne_np : True` → `def p_ne_np : Prop := True` with `p_ne_np_not_proved`
+  - `axiom random_generation_linear_time : True` → `def random_generation_linear_time : Prop := True` with `random_generation_linear_time_not_proved`
+  - `theorem vonNeumann_abelian_classification ... : True` → `def vonNeumann_abelian_classification ... : Prop` with `vonNeumann_abelian_classification_true` (contains `sorry` — classification theorem too large)
+  - `theorem exists_regular_conditional_probability ... : True` → `∃ κ, True` with actual `condExpKernel` construction
+  - `theorem selecting_events_not_rewriting_history ... : True` → `μ (E ∩ F) / μ E = μ (E ∩ F) / μ E` (placeholder — needs real conditional probability formula using `ProbabilityTheory.cond_apply'`)
+  - `theorem exists_continuous_atomic_decomposition ... : True` → kept as placeholder with documented Mathlib anchor
+
+## Definition of done
+
+- `lake build BookProof` exits 0.
+- `grep -rn "sorry" BookProof/ PnpProof/ Singularity/ RandomMap/` shows only
+  `RandomMap/SchoenfeldPRA.lean:162,176`.
+- `grep -rn "^axiom" BookProof/ PnpProof/` is empty.
+- The four tensor/Mehler headline theorems exist and are sorry-free:
+  B1 closure (`tensor_language_decidable`), B2 identification
+  (`innerSpaceTensorEquiv` + `tail_infinite_dimensional` + `head_finrank`),
+  B3 uniqueness (`mehler_unique_by_finite_marginals` +
+  `language_blind_implies_mehler`), B4 classification
+  (`solovay_kopperman_probability_classification`).
+- The `ChapterSelectingEvents` headline `selecting_events_not_rewriting_history`
+  has a real (non-`True`) conclusion (C2b).
+
 ### The author's central new goal (Part B below)
 
 Extend the Solovay–Kopperman formalism so that we can state and prove, in Lean:

@@ -108,7 +108,7 @@ form of a `ℂ`-linear map is a ring homomorphism `Mat₂(ℂ) → Mat₄(ℝ)`)
 theorem Treal_mul (A B : Matrix (Fin 2) (Fin 2) ℂ) :
     Treal (A * B) = Treal A * Treal B := by
   unfold Treal;
-  ext i j; fin_cases i <;> fin_cases j <;> simp +decide [ Matrix.mul_apply, Fin.sum_univ_succ ] <;> ring;
+  ext i j;    fin_cases i <;> fin_cases j <;> simp +decide [ Matrix.mul_apply, Fin.sum_univ_succ ] <;> ring;
 
 /-- `Treal 1 = 1`. -/
 theorem Treal_one : Treal (1 : Matrix (Fin 2) (Fin 2) ℂ) = 1 := by

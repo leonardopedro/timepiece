@@ -1,7 +1,7 @@
 import Mathlib
 
 /-!
-# Chapter *"Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory"*, §*"Majorana spinors in canonical quantization and antiparticles"*
+# Chapter *"Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory"*,  §*"Majorana spinors in canonical quantization and antiparticles"*
 
 This file formalizes the self-contained algebraic content of the book section
 *"Majorana spinors in canonical quantization and antiparticles"*

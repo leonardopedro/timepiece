@@ -154,7 +154,7 @@ theorem hasLambda_mul {S₁ S₂ Λ₁ Λ₂ : Matrix (Fin 4) (Fin 4) ℝ}
   simp +decide [ Matrix.mul_apply, Finset.mul_sum _ _ _, Finset.sum_mul, hL2 ];
   simp +decide [ hL2, Finset.sum_smul, smul_smul ];
   rw [ Finset.sum_comm ];
-  exact Finset.sum_congr rfl fun _ _ => by rw [ hL2 ] ; simp +decide [ Finset.smul_sum, smul_smul, mul_assoc ] ;
+  exact Finset.sum_congr rfl fun _ _ => by rw [ hL2 ] ;    simp +decide [ Finset.smul_sum, smul_smul, mul_assoc ] ;
 
 /-
 `Pin(3,1)` is closed under multiplication.
@@ -183,18 +183,18 @@ The Majorana-basis combination `β^μ = Σ_ν Λ^μ_ν (iγ^ν)` of a Lorentz ma
 theorem cliffordR_lorentz_comb (Λ : Matrix (Fin 4) (Fin 4) ℝ) (hΛ : Λ ∈ LorentzO) :
     IsCliffordR (fun μ => ∑ ν, Λ μ ν • mgammaR ν) := by
   intro μ ν;
-  -- By definition of matrix multiplication and the properties of the Majorana matrices, we can expand the products.
+  -- By definition of matrix multiplication and the properties of the Majorana matrices,    we can expand the products.
   have h_expand : (∑ α, Λ μ α • mgammaR α) * (∑ β, Λ ν β • mgammaR β) +
       (∑ β, Λ ν β • mgammaR β) * (∑ α, Λ μ α • mgammaR α) =
       ∑ α, ∑ β, (Λ μ α * Λ ν β) • (mgammaR α * mgammaR β + mgammaR β * mgammaR α) := by
         simp +decide only [Finset.mul_sum _ _ _, mul_smul_comm, Finset.sum_mul, smul_mul_assoc, smul_add];
         simp +decide only [Finset.smul_sum, smul_smul, mul_comm, Finset.sum_add_distrib];
         rw [ Finset.sum_comm ];
-  -- By definition of matrix multiplication and the properties of the Majorana matrices, we can simplify the expression.
+  -- By definition of matrix multiplication and the properties of the Majorana matrices,    we can simplify the expression.
   have h_simplify : ∑ α, ∑ β, (Λ μ α * Λ ν β) • (mgammaR α * mgammaR β + mgammaR β * mgammaR α) =
       ∑ α, ∑ β, (Λ μ α * Λ ν β) • ((-2 * minkowskiR α β) • 1) := by
         exact Finset.sum_congr rfl fun i hi => Finset.sum_congr rfl fun j hj => by rw [ mgammaR_clifford i j ] ;
-  -- By definition of matrix multiplication and the properties of the Minkowski metric, we can simplify the expression.
+  -- By definition of matrix multiplication and the properties of the Minkowski metric,    we can simplify the expression.
   have h_final : ∑ α, ∑ β, (Λ μ α * Λ ν β) • (-2 * minkowskiR α β) • (1 : Matrix (Fin 4) (Fin 4) ℝ) =
       (-2 * (Λ * minkowskiMat * Λᵀ) μ ν) • (1 : Matrix (Fin 4) (Fin 4) ℝ) := by
         simp +decide [ Matrix.mul_apply, Finset.mul_sum _ _ _, mul_assoc, mul_left_comm, Finset.sum_mul ];
@@ -236,7 +236,7 @@ theorem lambda_surjective (hpf : PauliFundamental)
     (Λ : Matrix (Fin 4) (Fin 4) ℝ) (hΛ : Λ ∈ LorentzO) :
     ∃ S : Matrix (Fin 4) (Fin 4) ℝ, IsPin S ∧ LambdaOf S = Λ := by
   have := @cliffordR_lorentz_comb Λ hΛ;
-  obtain ⟨S, hS⟩ : ∃ S : Matrix (Fin 4) (Fin 4) ℝ, |S.det| = 1 ∧ (∀ μ, mgammaR μ = S * (∑ ν, Λ μ ν • mgammaR ν) * S⁻¹) := by
+  obtain ⟨S, hS⟩ : ∃ S : Matrix (Fin 4) (Fin 4) ℝ,    |S.det| = 1 ∧ (∀ μ, mgammaR μ = S * (∑ ν, Λ μ ν • mgammaR ν) * S⁻¹) := by
     have := @real_pauli hpf ( fun μ => ∑ ν, Λ μ ν • mgammaR ν ) mgammaR this mgammaR_clifford;
     exact ⟨ this.choose, this.choose_spec.1, this.choose_spec.2.1 ⟩;
   refine' ⟨ S, ⟨ _, hS.1, _ ⟩, _ ⟩;

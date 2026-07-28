@@ -20,7 +20,7 @@ open Finset
     definable in the finite-support language. -/
 theorem finitely_supported_vectors_are_finite (v : ℕ →₀ ℝ) :
     (v.support : Set ℕ).Finite := by
-  simpa using Finsupp.finite_support v
+  simp
 
 /-- No vector in the completion is term-denotable unless it is finitely supported.
     This is the contrapositive: if a vector requires infinite support,

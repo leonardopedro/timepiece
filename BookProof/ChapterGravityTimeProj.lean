@@ -96,7 +96,7 @@ The spatial and temporal projectors are orthogonal: `Π · χ = 0`.
 -/
 theorem timeProj_mul_spatialProj (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     timeProj v * spatialProj v = 0 := by
-  -- Since timeProj = 1 - spatialProj (from spatialProj_add_timeProj), we can rewrite the goal using this equality.
+  -- Since timeProj = 1 - spatialProj (from spatialProj_add_timeProj),    we can rewrite the goal using this equality.
   have h_timeProj : timeProj v = 1 - spatialProj v := by
     exact eq_sub_of_add_eq' ( spatialProj_add_timeProj v );
   simp +decide [ h_timeProj, sub_mul,mul_sub,spatialProj_idempotent v hv ]

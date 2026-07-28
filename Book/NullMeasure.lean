@@ -91,9 +91,15 @@ there is **no uniform probability measure** that makes every point equally likel
 no countably-additive way to spread mass uniformly over uncountably many points).
 Worse, the "special" outcomes one might want to privilege (a particular observed
 value, a particular observer) are null and **indistinguishable**, by the measure,
-from every other point. Any prior on a continuous space is therefore necessarily
-_informative_: it must break the symmetry that the (nonexistent) uniform measure
-would have preserved. This is the rigorous content of the manuscript's slogan "there
-are no non-informative priors," and it connects back to
-{ref "max-entropy"}[the maximum-entropy chapter], where the uniform prior existed
-precisely because the space was **finite**.
+from every other point. On a general continuous space, then, a prior that looks
+non-informative in one parametrization becomes informative in another: a change of
+coordinates multiplies the density by a Jacobian, and there is no coordinate-invariant
+"uniform" prior to be had. This is the precise sense of the manuscript's slogan
+"there are no non-informative priors" — the coordinate argument of
+{ref "sequential-bayes"}[the Bayesian-updating chapter]. It connects back to
+{ref "max-entropy"}[the maximum-entropy chapter], where a uniform prior existed only
+because the space was **finite** (and even there only relative to a labeling), and
+forward to the one exception in this book: the
+{ref "solovay-tensor"}[Solovay–Kopperman tail], where the restricted decidable
+language forbids the very reparametrizations that would break uniformity, so the
+Mehler prior on the infinite-dimensional hypersphere stays genuinely uniform.

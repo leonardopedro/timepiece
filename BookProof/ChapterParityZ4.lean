@@ -67,7 +67,7 @@ theorem combinedParity_sq :
 
 /-- The combined parity is not an involution: `P² ≠ 1`. -/
 theorem combinedParity_sq_ne_one : combinedParity ^ 2 ≠ 1 := by
-  intro h; have := congrArg ( fun m => m.1 0 0 ) h; norm_num [ combinedParity_sq, Matrix.one_apply ] at this;
+  intro h;    have := congrArg ( fun m => m.1 0 0 ) h; norm_num [ combinedParity_sq, Matrix.one_apply ] at this;
 
 /-- The combined parity is order dividing four: `P⁴ = 1`. -/
 theorem combinedParity_pow_four : combinedParity ^ 4 = 1 := by

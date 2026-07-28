@@ -77,7 +77,7 @@ Gram matrix `Bᴴ B`.
 -/
 theorem pMarg_eq_diagBHB (B : Matrix Y X 𝕜) (x : X) :
     ((Bᴴ * B) x x) = ((pMarg B x : ℝ) : 𝕜) := by
-  -- By definition of matrix multiplication and the conjugate transpose, we have (Bᴴ * B) x x = ∑ y, (Bᴴ) x y * B y x.
+  -- By definition of matrix multiplication and the conjugate transpose,    we have (Bᴴ * B) x x = ∑ y, (Bᴴ) x y * B y x.
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply];
   simp +decide [ mul_comm, pMarg, RCLike.mul_conj ]
 

@@ -166,8 +166,8 @@ theorem wave_prob_sum (θ : ℕ → ℝ) (s d : ℕ) :
   induction' d with d ih generalizing s;
   · simp +decide [ wave_zero, basisVec ];
   · -- Apply the_diag_collapse theorem to rewrite the sum.
-    have h_sum : ∑ i ∈ Finset.Icc s (s + d + 1), (wave θ s (d + 1) i) ^ 2 = (Real.cos (θ s)) ^ 2 * (∑ i ∈ Finset.Icc s (s + d + 1), (basisVec s i) ^ 2) + (Real.sin (θ s)) ^ 2 * (∑ i ∈ Finset.Icc s (s + d + 1), (wave θ (s + 1) d i) ^ 2) := by
-      rw [ Finset.mul_sum _ _ _, Finset.mul_sum _ _ _, ← Finset.sum_add_distrib ] ; exact Finset.sum_congr rfl fun _ _ => diag_collapse θ s d _;
+    have h_sum : ∑ i ∈ Finset.Icc s (s + d + 1),      (wave θ s (d + 1) i) ^ 2 = (Real.cos (θ s)) ^ 2 * (∑ i ∈ Finset.Icc s (s + d + 1), (basisVec s i) ^ 2) + (Real.sin (θ s)) ^ 2 * (∑ i ∈ Finset.Icc s (s + d + 1), (wave θ (s + 1) d i) ^ 2) := by
+      rw [ Finset.mul_sum _ _ _, Finset.mul_sum _ _ _, ← Finset.sum_add_distrib ] ;        exact Finset.sum_congr rfl fun _ _ => diag_collapse θ s d _;
     -- Evaluate the sums using the properties of the basis vectors and the induction hypothesis.
     have h_basis : ∑ i ∈ Finset.Icc s (s + d + 1), (basisVec s i) ^ 2 = 1 := by
       rw [ Finset.sum_eq_single s ] <;> simp +contextual [ basisVec ];

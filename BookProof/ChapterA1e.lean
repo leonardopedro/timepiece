@@ -116,7 +116,7 @@ lemma inf_JY_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
 -/
 lemma sup_JY_Jinvariant (Y : Submodule ℝ V) :
     ∀ x ∈ Y ⊔ JY Y, Jmap x ∈ Y ⊔ JY Y := by
-  intro x hx; rw [ Submodule.mem_sup ] at hx; obtain ⟨ a, ha, b, hb, rfl ⟩ := hx; simp_all +decide [ Submodule.mem_sup ] ;
+  intro x hx;    rw [ Submodule.mem_sup ] at hx;    obtain ⟨ a, ha, b, hb, rfl ⟩ := hx; simp_all +decide [ Submodule.mem_sup ] ;
   refine' ⟨ Complex.I • b, _, Complex.I • a, _, _ ⟩ <;> simp_all +decide [ JY ];
   · obtain ⟨ y, hy, rfl ⟩ := hb; simp +decide [ ← smul_assoc, hy ] ;
   · exact add_comm _ _
@@ -127,7 +127,7 @@ The topological closure `(Y ⊔ J Y)‾` is `J`-invariant.
 lemma sup_JY_closure_Jinvariant (Y : Submodule ℝ V) :
     ∀ x ∈ (Y ⊔ JY Y).topologicalClosure, Jmap x ∈ (Y ⊔ JY Y).topologicalClosure := by
   intro x hx;
-  -- Since $Jmap$ is continuous and $Y ⊔ JY Y$ is $J$-invariant, we have $Jmap x ∈ (Y ⊔ JY Y).topologicalClosure$.
+  -- Since $Jmap$ is continuous and $Y ⊔ JY Y$ is $J$-invariant,    we have $Jmap x ∈ (Y ⊔ JY Y).topologicalClosure$.
   have hJmap_cont : Continuous (Jmap : V → V) := by
     exact Jmap.toContinuousLinearEquiv.continuous;
   have hJmap_invariant : ∀ x ∈ Y ⊔ JY Y, Jmap x ∈ Y ⊔ JY Y := sup_JY_Jinvariant Y
@@ -151,7 +151,7 @@ lemma sup_JY_closure_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
       have := JY_isSubsystem M hY;
       exact this.2 m hm;
     rw [ Submodule.mem_sup ] at hw ⊢;
-    rcases hw with ⟨ y, hy, z, hz, rfl ⟩ ; exact ⟨ m y, h_maps_to y hy, m z, h_maps_to_JY z hz, by simp +decide [ map_add ] ⟩ ;
+    rcases hw with ⟨ y, hy, z, hz, rfl ⟩ ;      exact ⟨ m y, h_maps_to y hy, m z, h_maps_to_JY z hz, by simp +decide [ map_add ] ⟩ ;
   exact mem_closure_of_tendsto ( m.continuous.continuousAt.tendsto.comp ( show Filter.Tendsto ( fun n : ℕ => Classical.choose ( mem_closure_iff_seq_limit.mp hw ) n ) Filter.atTop ( nhds w ) from Classical.choose_spec ( mem_closure_iff_seq_limit.mp hw ) |>.2 ) ) ( Filter.Eventually.of_forall fun n => h_maps_to _ ( Classical.choose_spec ( mem_closure_iff_seq_limit.mp hw ) |>.1 n ) )
 
 /-! ## Headline: the `V ⊕ V̄` dichotomy -/

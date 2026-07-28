@@ -336,3 +336,15 @@ single principle: tensor a finite, freely-chosen factor with a separable infinit
 factor whose law is forced by the very fact that the language cannot distinguish its
 elements. Probability on the infinite part is not a choice; it is the Mehler measure.
 :::
+
+:::paragraph
+This also identifies the construction as the **single exception** to the slogan
+"there are no non-informative priors." On a general continuous space a uniform prior
+stops being uniform under a change of coordinates
+({ref "sequential-bayes"}[non-informativeness is coordinate-dependent]); here the
+cylindrical language admits no such change — arbitrary unitary transforms are not
+defined on the non-metrically-complete restricted space — so the Mehler prior on the
+infinite-dimensional hypersphere stays uniform under every symmetry the language can
+express. It is uniform not by a parametrization-dependent trick (the finite case) but
+intrinsically, because the offending reparametrizations are absent from the language.
+:::

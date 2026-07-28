@@ -76,7 +76,7 @@ time covector, complementary to `h_{ab} v^b = 0`.
 theorem invSpatialMetric_mulVec_lower_self (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (invSpatialMetric v).mulVec (lower v) = 0 := by
       convert spatialProj_mulVec_self v hv using 1;
-      unfold invSpatialMetric spatialProj; ext; simp +decide [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ;
+      unfold invSpatialMetric spatialProj;        ext; simp +decide [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ;
       unfold lower metric; simp +decide [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
       rename_i i; fin_cases i <;> simp +decide [ Matrix.one_apply ]; all_goals ring
 

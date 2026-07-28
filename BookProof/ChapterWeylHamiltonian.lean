@@ -1,7 +1,7 @@
 import Mathlib
 
 /-!
-# Chapter "Timepiece and the Gribov ambiguity", §"Renormalization, the mass gap and the Millennium prize"
+# Chapter "Timepiece and the Gribov ambiguity",  §"Renormalization, the mass gap and the Millennium prize"
 
 Source: `book.tex`, chapter *"Timepiece and the Gribov ambiguity"*,
 §*"Free electromagnetic field: an exact example"* / §*"Renormalization, the mass

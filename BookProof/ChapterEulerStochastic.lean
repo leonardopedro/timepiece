@@ -80,9 +80,20 @@ theorem isProbVec_e1 : IsProbVec ![0, 1] := by
 probability distributions.
 -/
 theorem Mmat_preservesProb (a b : ℝ) : PreservesProb (Mmat a b) := by
-  intro v hv; constructor <;> norm_num [ Mmat ] at *;
-  · exact ⟨ add_nonneg ( mul_nonneg ( sq_nonneg _ ) ( hv.1 0 ) ) ( mul_nonneg ( sq_nonneg _ ) ( hv.1 1 ) ), add_nonneg ( mul_nonneg ( sq_nonneg _ ) ( hv.1 0 ) ) ( mul_nonneg ( sq_nonneg _ ) ( hv.1 1 ) ) ⟩;
-  · rw [ Real.sin_sq, Real.sin_sq ] ; ring!; nlinarith! [ hv.1 0, hv.1 1, hv.2 ] ;
+  intro v hv
+  rcases hv with ⟨hv_nonneg, hvsum⟩
+  have hcos_sq_a : 0 ≤ Real.cos a ^ 2 := by positivity
+  have hcos_sq_b : 0 ≤ Real.cos b ^ 2 := by positivity
+  have hsin_sq_a : 0 ≤ Real.sin a ^ 2 := by positivity
+  have hsin_sq_b : 0 ≤ Real.sin b ^ 2 := by positivity
+  have hv0 : 0 ≤ v 0 := hv_nonneg 0
+  have hv1 : 0 ≤ v 1 := hv_nonneg 1
+  simp [PreservesProb, IsProbVec, Mmat, Matrix.mulVec, Fin.sum_univ_two]
+  have hsum : Real.cos a ^ 2 * v 0 + Real.cos b ^ 2 * v 1 + (Real.sin a ^ 2 * v 0 + Real.sin b ^ 2 * v 1) = 1 := by
+    nlinarith [Real.sin_sq_add_cos_sq a, Real.sin_sq_add_cos_sq b, hvsum]
+  refine ⟨⟨?_, ?_⟩, hsum⟩
+  · nlinarith
+  · nlinarith
 
 /-
 A matrix preserves probability distributions iff it is column-stochastic
@@ -91,13 +102,32 @@ A matrix preserves probability distributions iff it is column-stochastic
 theorem preservesProb_iff_columnStochastic (M : Matrix (Fin 2) (Fin 2) ℝ) :
     PreservesProb M ↔
       (IsProbVec (fun i => M i 0) ∧ IsProbVec (fun i => M i 1)) := by
-        refine ⟨ ?_, fun h => ?_ ⟩;
-        · intro hM
-          constructor;
-          · have := hM ( fun i => if i = 0 then 1 else 0 ) ; simp_all +decide [ IsProbVec, Matrix.mulVec ] ;
-          · have := hM ( fun i => if i = 0 then 0 else 1 ) ?_ <;> simp_all +decide [ IsProbVec, Matrix.mulVec ];
-        · intro v hv; rw [ IsProbVec ] at *; simp_all +decide [ Matrix.mulVec, Fin.sum_univ_two ] ;
-          exact ⟨ ⟨ by nlinarith [ h.2.1 0, h.2.1 1 ], by nlinarith [ h.2.1 0, h.2.1 1 ] ⟩, by nlinarith [ h.2.2 ] ⟩
+    refine ⟨?_, fun h => ?_⟩
+    · intro hM
+      constructor
+      · have := hM (fun i => if i = 0 then 1 else 0)
+        simp [IsProbVec, Matrix.mulVec] at this ⊢
+        exact this
+      · have := hM (fun i => if i = 0 then 0 else 1)
+        simp [IsProbVec, Matrix.mulVec] at this ⊢
+        exact this
+    · intro v hv
+      rcases hv with ⟨hv_nonneg, hvsum⟩
+      have hv0 : 0 ≤ v 0 := hv_nonneg 0
+      have hv1 : 0 ≤ v 1 := hv_nonneg 1
+      have h0 := h.1
+      have h1 := h.2
+      simp [IsProbVec, Fin.forall_fin_two] at h0 h1
+      rcases h0 with ⟨⟨hM00, hM10⟩, hMsum0⟩
+      rcases h1 with ⟨⟨hM01, hM11⟩, hMsum1⟩
+      simp [IsProbVec, Matrix.mulVec, Fin.sum_univ_two]
+      have hsum : (M 0 0 * v 0 + M 0 1 * v 1) + (M 1 0 * v 0 + M 1 1 * v 1) = 1 := by
+        nlinarith
+      have hpos0 : 0 ≤ M 0 0 * v 0 + M 0 1 * v 1 := by
+        nlinarith
+      have hpos1 : 0 ≤ M 1 0 * v 0 + M 1 1 * v 1 := by
+        nlinarith
+      exact ⟨⟨hpos0, hpos1⟩, hsum⟩
 
 /-
 **Headline.** A linear transformation preserves the space of probability
@@ -107,15 +137,17 @@ on a 2-state phase space.
 -/
 theorem preservesProb_iff_exists_angles (M : Matrix (Fin 2) (Fin 2) ℝ) :
     PreservesProb M ↔ ∃ a b : ℝ, M = Mmat a b := by
-      constructor <;> intro h;
-      · -- By `preservesProb_iff_columnStochastic`, both columns are probability vectors: `0 ≤ M 0 0`, `0 ≤ M 1 0`, `M 0 0 + M 1 0 = 1`, and likewise `0 ≤ M 0 1`, `0 ≤ M 1 1`, `M 0 1 + M 1 1 = 1`.
-        obtain ⟨h00, h01, h10, h11, hsum⟩ : 0 ≤ M 0 0 ∧ 0 ≤ M 0 1 ∧ 0 ≤ M 1 0 ∧ 0 ≤ M 1 1 ∧ M 0 0 + M 1 0 = 1 ∧ M 0 1 + M 1 1 = 1 := by
-          have := preservesProb_iff_columnStochastic M |>.1 h; simp_all +decide [ Fin.forall_fin_two, IsProbVec ] ;
-        -- From these, `M 0 0 ∈ [0,1]` and `M 0 1 ∈ [0,1]`. By `exists_cos_sq` get `a` with `Real.cos a ^ 2 = M 0 0` and `b` with `Real.cos b ^ 2 = M 0 1`.
+      constructor <;> intro h
+      · -- Both columns are probability vectors
+        obtain ⟨h00, h01, h10, h11, hsum⟩ : 0 ≤ M 0 0 ∧ 0 ≤ M 0 1 ∧ 0 ≤ M 1 0 ∧
+            0 ≤ M 1 1 ∧ M 0 0 + M 1 0 = 1 ∧ M 0 1 + M 1 1 = 1 := by
+          have := preservesProb_iff_columnStochastic M |>.1 h
+          simp_all +decide [Fin.forall_fin_two, IsProbVec]
         obtain ⟨a, ha⟩ : ∃ a : ℝ, Real.cos a ^ 2 = M 0 0 := exists_cos_sq h00 (by linarith)
-        obtain ⟨b, hb⟩ : ∃ b : ℝ, Real.cos b ^ 2 = M 0 1 := exists_cos_sq h01 (by linarith);
-        use a, b; ext i j; fin_cases i <;> fin_cases j <;> simp +decide [ *, Mmat ] ; linarith [ Real.sin_sq_add_cos_sq a, Real.sin_sq_add_cos_sq b ] ;
-        linarith [ Real.sin_sq_add_cos_sq b ];
+        obtain ⟨b, hb⟩ : ∃ b : ℝ, Real.cos b ^ 2 = M 0 1 := exists_cos_sq h01 (by linarith)
+        use a, b; ext i j; fin_cases i <;> fin_cases j
+          <;> simp +decide [*, Mmat] <;>
+          linarith [Real.sin_sq_add_cos_sq a, Real.sin_sq_add_cos_sq b]
       · exact h.elim fun a ha => ha.elim fun b hb => hb ▸ Mmat_preservesProb a b
 
 /-

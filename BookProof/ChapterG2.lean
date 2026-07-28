@@ -40,7 +40,7 @@ the negative half that motivates the pushforward construction of G.5.
 theorem not_isProbabilityMeasure_cond_null (μ : Measure Ω) {C : Set Ω}
     (hC : μ C = 0) : ¬ IsProbabilityMeasure μ[|C] := by
   intro h;
-  have := congr_arg ( fun m => m Set.univ ) ( cond_of_null μ hC ) ; simp_all +decide [ IsProbabilityMeasure.measure_univ ] ;
+  have := congr_arg ( fun m => m Set.univ ) ( cond_of_null μ hC ) ;    simp_all +decide [ IsProbabilityMeasure.measure_univ ] ;
 
 /-! ## G.9 — The Dirac obstruction in general form -/
 
@@ -97,12 +97,12 @@ theorem no_continuous_gauge_fixing_circle :
     fun_prop
   have hF_int : ∀ t : ℝ, ∃ m : ℤ, s (Circle.exp t) - t = m * (2 * Real.pi) := by
     intro t; specialize hs ( Circle.exp t ) ; simp_all +decide [ Circle.ext_iff ] ;
-    rw [ Complex.exp_eq_exp_iff_exists_int ] at hs; obtain ⟨ m, hm ⟩ := hs; exact ⟨ m, by norm_num [ Complex.ext_iff ] at hm; linarith ⟩ ;
+    rw [ Complex.exp_eq_exp_iff_exists_int ] at hs;      obtain ⟨ m, hm ⟩ := hs; exact ⟨ m, by norm_num [ Complex.ext_iff ] at hm; linarith ⟩ ;
   have hF_const : ∃ c : ℝ, ∀ t : ℝ, s (Circle.exp t) - t = c := by
     choose m hm using hF_int;
     have hF_const : Continuous (fun t : ℝ => m t : ℝ → ℤ) := by
       have hF_const : Continuous (fun t : ℝ => (m t : ℝ)) := by
-        convert hF.div_const ( 2 * Real.pi ) using 1 ; ext t ; rw [ hm t ] ; ring ; norm_num [ Real.pi_ne_zero ];
+        convert hF.div_const ( 2 * Real.pi ) using 1 ;          ext t ; rw [ hm t ] ; ring ; norm_num [ Real.pi_ne_zero ];
       convert hF_const using 1;
       norm_num [ Metric.continuous_iff ];
     have hF_const : IsConnected (Set.range m) := by
@@ -110,7 +110,7 @@ theorem no_continuous_gauge_fixing_circle :
     have := hF_const.isPreconnected.subsingleton;
     exact ⟨ m 0 * ( 2 * Real.pi ), fun t => by have := this ( Set.mem_range_self t ) ( Set.mem_range_self 0 ) ; aesop ⟩
   generalize_proofs at *;
-  cases' hF_const with c hc; have := hc 0; have := hc ( 2 * Real.pi ) ; simp_all +decide [ sub_eq_iff_eq_add ] ;
+  cases' hF_const with c hc;    have := hc 0; have := hc ( 2 * Real.pi ) ; simp_all +decide [ sub_eq_iff_eq_add ] ;
 
 /-
 Corollary: any set-theoretic gauge-fixing section of the circle is
@@ -235,7 +235,7 @@ theorem brstCohomology_equiv_right :
     (Submodule.liftQ _ (brstFwd Q) (brstFwd_ker Q)) ∘ₗ (brstGinv Q) = LinearMap.id := by
   ext ⟨a, y⟩; simp [brstGinv, brstG1, brstG2];
   · rfl;
-  · unfold brstGinv brstG1 brstFwd; simp +decide [ Submodule.Quotient.mk_eq_zero, Submodule.mem_comap ] ;
+  · unfold brstGinv brstG1 brstFwd;    simp +decide [ Submodule.Quotient.mk_eq_zero, Submodule.mem_comap ] ;
   · simp +decide [ brstFwd, brstGinv, brstG1, brstG2 ];
     erw [ Submodule.liftQ_apply ] ; simp +decide [ brstG2base ];
   · simp +decide [ brstGinv, brstG1, brstG2, brstFwd ];

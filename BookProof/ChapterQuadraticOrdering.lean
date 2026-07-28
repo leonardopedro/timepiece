@@ -90,9 +90,9 @@ This is the linearized `exp(tA) B exp(−tA) = B + t·C` written multiplicativel
 theorem exp_smul_mul_central (A B : 𝔸) (hA : Commute A (A * B - B * A)) (t : ℝ) :
     exp (t • A) * B = (B + t • (A * B - B * A)) * exp (t • A) := by
   -- We'll use the exponential property: $\exp(tA) B \exp(-tA) = B + tC$.
-  have h_exp : ∀ t : ℝ, (NormedSpace.exp (t • A)) * B * (NormedSpace.exp (-t • A)) = B + t • (A * B - B * A) := by
+  have h_exp : ∀ t : ℝ,    (NormedSpace.exp (t • A)) * B * (NormedSpace.exp (-t • A)) = B + t • (A * B - B * A) := by
     intro t
-    have h_deriv : ∀ t : ℝ, HasDerivAt (fun s => (NormedSpace.exp (s • A)) * B * (NormedSpace.exp (-s • A))) (A * B - B * A) t := by
+    have h_deriv : ∀ t : ℝ,      HasDerivAt (fun s => (NormedSpace.exp (s • A)) * B * (NormedSpace.exp (-s • A))) (A * B - B * A) t := by
       intro t
       have h_deriv : HasDerivAt (fun s => (NormedSpace.exp (s • A)) * B * (NormedSpace.exp (-s • A))) ((NormedSpace.exp (t • A)) * A * B * (NormedSpace.exp (-t • A)) - (NormedSpace.exp (t • A)) * B * A * (NormedSpace.exp (-t • A))) t := by
         have h_deriv : HasDerivAt (fun s => (NormedSpace.exp (s • A)) * B) ((NormedSpace.exp (t • A)) * A * B) t := by
@@ -103,7 +103,7 @@ theorem exp_smul_mul_central (A B : 𝔸) (hA : Commute A (A * B - B * A)) (t : 
           convert this ( -A ) t using 1; all_goals simp +decide [ neg_smul ];
         convert HasDerivAt.mul ‹HasDerivAt ( fun s => exp ( s • A ) * B ) ( exp ( t • A ) * A * B ) t› h_deriv using 1 ; simp +decide [ mul_assoc, sub_eq_add_neg ];
       have h_comm : (NormedSpace.exp (t • A)) * (A * B - B * A) = (A * B - B * A) * (NormedSpace.exp (t • A)) := by
-        have h_comm : ∀ s : ℝ, (NormedSpace.exp (s • A)) * (A * B - B * A) = (A * B - B * A) * (NormedSpace.exp (s • A)) := by
+        have h_comm : ∀ s : ℝ,          (NormedSpace.exp (s • A)) * (A * B - B * A) = (A * B - B * A) * (NormedSpace.exp (s • A)) := by
           intro s;
           have h_comm : ∀ s : ℝ, Commute (s • A) (A * B - B * A) := by
             exact fun s => hA.smul_left s;
@@ -114,7 +114,7 @@ theorem exp_smul_mul_central (A B : 𝔸) (hA : Commute A (A * B - B * A)) (t : 
           exact h_comm s;
         exact h_comm t;
       have h_comm : (NormedSpace.exp (t • A)) * (NormedSpace.exp (-t • A)) = 1 := by
-        have h_comm : ∀ x y : 𝔸, Commute x y → NormedSpace.exp (x + y) = NormedSpace.exp x * NormedSpace.exp y := by
+        have h_comm : ∀ x y : 𝔸,          Commute x y → NormedSpace.exp (x + y) = NormedSpace.exp x * NormedSpace.exp y := by
           intro x y hxy;
           convert NormedSpace.exp_add_of_commute hxy;
           exact NormedAlgebra.restrictScalars ℚ ℝ 𝔸;
@@ -124,15 +124,15 @@ theorem exp_smul_mul_central (A B : 𝔸) (hA : Commute A (A * B - B * A)) (t : 
       simp_all +decide [ ← mul_assoc, ← eq_sub_iff_add_eq' ];
       simp_all +decide [ mul_assoc, sub_eq_iff_eq_add ];
       simp_all +decide [ mul_assoc, add_mul, sub_mul ];
-    have h_integral : ∀ a b : ℝ, ∫ x in a..b, deriv (fun s => (NormedSpace.exp (s • A)) * B * (NormedSpace.exp (-s • A))) x = (NormedSpace.exp (b • A)) * B * (NormedSpace.exp (-b • A)) - (NormedSpace.exp (a • A)) * B * (NormedSpace.exp (-a • A)) := by
+    have h_integral : ∀ a b : ℝ,      ∫ x in a..b,      deriv (fun s => (NormedSpace.exp (s • A)) * B * (NormedSpace.exp (-s • A))) x = (NormedSpace.exp (b • A)) * B * (NormedSpace.exp (-b • A)) - (NormedSpace.exp (a • A)) * B * (NormedSpace.exp (-a • A)) := by
       intro a b;
       rw [ intervalIntegral.integral_deriv_eq_sub ];
       · exact fun x hx => HasDerivAt.differentiableAt ( h_deriv x );
       · rw [ show deriv _ = _ from funext fun x => HasDerivAt.deriv ( h_deriv x ) ] ; norm_num;
-    have := h_integral 0 t; rw [ funext fun x => HasDerivAt.deriv ( h_deriv x ) ] at this; norm_num at this;
+    have := h_integral 0 t;      rw [ funext fun x => HasDerivAt.deriv ( h_deriv x ) ] at this; norm_num at this;
     simp_all +decide [ smul_sub, sub_eq_iff_eq_add' ];
   have h_exp_neg : exp (-t • A) * exp (t • A) = 1 := by
-    have h_exp_neg : ∀ x y : 𝔸, Commute x y → NormedSpace.exp x * NormedSpace.exp y = NormedSpace.exp (x + y) := by
+    have h_exp_neg : ∀ x y : 𝔸,      Commute x y → NormedSpace.exp x * NormedSpace.exp y = NormedSpace.exp (x + y) := by
       haveI := NormedAlgebra.restrictScalars ℚ ℝ 𝔸
       exact fun x y hxy => (NormedSpace.exp_add_of_commute hxy).symm
     rw [ h_exp_neg ] <;> norm_num;

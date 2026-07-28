@@ -51,19 +51,19 @@ equal to `Ψ`.
 theorem exists_unitary_column (v : ι → ℂ) (i₀ : ι)
     (hv : ∑ i, ‖v i‖ ^ 2 = 1) :
     ∃ U : Matrix ι ι ℂ, U ∈ Matrix.unitaryGroup ι ℂ ∧ ∀ i, U i i₀ = v i := by
-  obtain ⟨U, hU⟩ : ∃ U : Matrix ι ι ℂ, U * U.conjTranspose = 1 ∧ U.conjTranspose * U = 1 ∧ ∀ i, U i i₀ = v i := by
+  obtain ⟨U, hU⟩ : ∃ U : Matrix ι ι ℂ,    U * U.conjTranspose = 1 ∧ U.conjTranspose * U = 1 ∧ ∀ i, U i i₀ = v i := by
     -- By the Gram-Schmidt process, there exists an orthonormal basis $\{u_i\}$ such that $u_{i_0} = v$.
     obtain ⟨u, hu⟩ : ∃ u : OrthonormalBasis ι ℂ (EuclideanSpace ℂ ι), u i₀ = (fun i => v i) := by
       have h_unit : ‖(EuclideanSpace.equiv ι ℂ).symm v‖ = 1 := by
         norm_num [ EuclideanSpace.norm_eq, hv ];
-      obtain ⟨u, hu⟩ : ∃ u : OrthonormalBasis ι ℂ (EuclideanSpace ℂ ι), u i₀ = (EuclideanSpace.equiv ι ℂ).symm v := by
+      obtain ⟨u, hu⟩ : ∃ u : OrthonormalBasis ι ℂ (EuclideanSpace ℂ ι),        u i₀ = (EuclideanSpace.equiv ι ℂ).symm v := by
         have := @Orthonormal.exists_orthonormalBasis_extension_of_card_eq;
         specialize @this ℂ _ ( EuclideanSpace ℂ ι ) _ _ _ ι _ ( by simp +decide [ Module.finrank_pi ] ) ( fun _ => ( EuclideanSpace.equiv ι ℂ ).symm v ) { i₀ } ; simp_all +decide [ Orthonormal ];
       exact ⟨ u, by aesop ⟩;
     refine' ⟨ Matrix.of fun i j => u j i, _, _, _ ⟩;
     · ext i j; simp +decide [ Matrix.mul_apply, Matrix.conjTranspose_apply ] ;
-      have := u.sum_repr ( EuclideanSpace.single i 1 ) ; have := u.sum_repr ( EuclideanSpace.single j 1 ) ; simp_all +decide [ EuclideanSpace.norm_eq, Finset.sum_apply, Matrix.one_apply ] ;
-      convert congr_arg ( fun x => inner ℂ ( EuclideanSpace.single i 1 ) x ) this using 1 ; simp +decide [ inner_sum, inner_smul_right ] ; ring;
+      have := u.sum_repr ( EuclideanSpace.single i 1 ) ;        have := u.sum_repr ( EuclideanSpace.single j 1 ) ;        simp_all +decide [ EuclideanSpace.norm_eq, Finset.sum_apply, Matrix.one_apply ] ;
+      convert congr_arg ( fun x => inner ℂ ( EuclideanSpace.single i 1 ) x ) this using 1 ;        simp +decide [ inner_sum, inner_smul_right ] ; ring;
       · simp +decide [ u.repr_apply_apply, inner ];
         ac_rfl;
       · simp +decide [ EuclideanSpace.inner_single_left ];
@@ -82,7 +82,7 @@ of a column of a unitary matrix.
 theorem exists_unitary_of_prob (p : ι → ℝ) (i₀ : ι)
     (hp : ∀ i, 0 ≤ p i) (hsum : ∑ i, p i = 1) :
     ∃ U : Matrix ι ι ℂ, U ∈ Matrix.unitaryGroup ι ℂ ∧ ∀ i, ‖U i i₀‖ ^ 2 = p i := by
-  obtain ⟨U, hU⟩ : ∃ U : Matrix ι ι ℂ, U ∈ Matrix.unitaryGroup ι ℂ ∧ ∀ i, U i i₀ = Real.sqrt (p i) := by
+  obtain ⟨U, hU⟩ : ∃ U : Matrix ι ι ℂ,    U ∈ Matrix.unitaryGroup ι ℂ ∧ ∀ i, U i i₀ = Real.sqrt (p i) := by
     convert exists_unitary_column _ _ _ ; aesop;
   exact ⟨ U, hU.1, fun i => by simp +decide [ hU.2 i, Real.sq_sqrt ( hp i ) ] ⟩
 
@@ -97,7 +97,7 @@ theorem exists_unitary_joint {X Y : Type*} [Fintype X] [DecidableEq X]
     (xy₀ : X × Y) :
     ∃ U : Matrix (X × Y) (X × Y) ℂ, U ∈ Matrix.unitaryGroup (X × Y) ℂ ∧
       ∀ x y, ‖U (x, y) xy₀‖ ^ 2 = p x y := by
-  have h_unitary : ∃ U : Matrix (X × Y) (X × Y) ℂ, U ∈ Matrix.unitaryGroup (X × Y) ℂ ∧ ∀ xy, ‖U xy xy₀‖ ^ 2 = p xy.1 xy.2 := by
+  have h_unitary : ∃ U : Matrix (X × Y) (X × Y) ℂ,    U ∈ Matrix.unitaryGroup (X × Y) ℂ ∧ ∀ xy, ‖U xy xy₀‖ ^ 2 = p xy.1 xy.2 := by
     apply exists_unitary_of_prob;
     · exact fun i => hp i.1 i.2;
     · erw [ Finset.sum_product ] ; aesop;

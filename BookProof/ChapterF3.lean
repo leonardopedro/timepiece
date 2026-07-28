@@ -83,9 +83,12 @@ theorem diagonal_gram_residual_orthogonal {ι : Type*} [Fintype ι]
     (horth : ∀ i j, i ≠ j → inner (𝕜 := ℂ) (g i) (g j) = 0)
     (hne : ∀ i, g i ≠ 0) (k : ι) :
     inner (𝕜 := ℂ) (g k)
-      (b - ∑ j, ((inner (𝕜 := ℂ) (g j) b) / ((‖g j‖ : ℂ) ^ 2)) • g j) = 0 := by
+      (b - ∑ j, ((inner (𝕜 := ℂ) (g j) b) / ((‖g j‖ : ℂ) ^ 2)) • g j) = 0 :=
+    by
   simp +decide [ inner_sub_right, Finset.sum_ite, Finset.filter_eq', Finset.filter_ne', horth, hne ];
-  rw [ Finset.sum_eq_single k ] <;> simp_all +decide [ div_eq_inv_mul, mul_assoc, mul_left_comm, inner_self_eq_norm_sq_to_K ];
+  rw [Finset.sum_eq_single k]
+    <;> simp_all +decide [div_eq_inv_mul, mul_assoc, mul_left_comm,
+      inner_self_eq_norm_sq_to_K]
   exact fun i hi => Or.inr ( horth _ _ ( Ne.symm hi ) )
 
 /-! ## F2.6 — the vacuum projector `|0⟩⟨0|` (`nested_fock_algebra` `ProjectVacuum`) -/
@@ -137,8 +140,10 @@ diagonal generator `a·N̂` with eigenvalue `a·n` — direct reuse of N12's
 evolution).
 -/
 theorem diagGen_eigenstate (a : ℂ) (n : ℕ) :
-    (a • ChapterF1.numberOp) (X ^ n) = (a * n) • X ^ n := by
-  convert congr_arg ( fun x => a • x ) ( ChapterF1.numberOp_monomial n ) using 1 ; norm_num [ mul_assoc, smul_smul ]
+    (a • ChapterF1.numberOp) (X ^ n) = (a * n) • X ^ n :=
+  by
+  convert congr_arg (fun x => a • x) (ChapterF1.numberOp_monomial n) using 1
+    <;> norm_num [mul_assoc, smul_smul]
 
 /-! ## F2.8 — the Mehler overlap and the dressed-vacuum Bessel bound -/
 

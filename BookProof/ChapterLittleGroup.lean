@@ -82,7 +82,7 @@ theorem prop79 (q : K → G) (hq : Function.Injective q) (l₀ : K)
     (hΛ : ∀ (S : G) (k : K), S * q k * S⁻¹ = q (Λ S k))
     (k : K) :
     Hset α Λ k = (littleGroup q l₀ : Set G) := by
-  -- Let's take an element g from Hset α Λ k. By definition, there exists some S such that g = (α (Λ S k))⁻¹ * S * α k.
+  -- Let's take an element g from Hset α Λ k. By definition,    there exists some S such that g = (α (Λ S k))⁻¹ * S * α k.
   apply Set.eq_of_subset_of_subset;
   · intro g hg
     obtain ⟨S, rfl⟩ := hg

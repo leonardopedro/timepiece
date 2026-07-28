@@ -69,17 +69,17 @@ theorem measure_ball_zero_eq_zero (hE : ¬ FiniteDimensional ℝ E)
   have hc_pos : 0 < μ (Metric.ball 0 r) := by
     exact pos_iff_ne_zero.mpr hc;
   -- By `exists_seq_norm_le_one_le_norm_sub hE`, obtain a bounded `1`-separated sequence `f : ℕ → E`.
-  obtain ⟨R, f, hR⟩ : ∃ R : ℝ, ∃ f : ℕ → E, 1 < R ∧ (∀ n, ‖f n‖ ≤ R) ∧ Pairwise (fun m n => 1 ≤ ‖f m - f n‖) := by
+  obtain ⟨R, f, hR⟩ : ∃ R : ℝ,    ∃ f : ℕ → E, 1 < R ∧ (∀ n, ‖f n‖ ≤ R) ∧ Pairwise (fun m n => 1 ≤ ‖f m - f n‖) := by
     convert exists_seq_norm_le_one_le_norm_sub hE using 1;
   -- Consider the balls `A n := Metric.ball ((2*r) • f n) r`.
   set A : ℕ → Set E := fun n => Metric.ball ((2 * r) • f n) r;
   have hA_disjoint : Pairwise (fun m n => Disjoint (A m) (A n)) := by
     intro m n hmn; simp_all +decide [ Metric.ball_disjoint_ball ] ;
     refine' Metric.ball_disjoint_ball _;
-    rw [ dist_eq_norm, ← smul_sub, norm_smul, Real.norm_of_nonneg ( by positivity ) ] ; nlinarith [ hR.2.2 hmn ] ;;
+    rw [ dist_eq_norm, ← smul_sub, norm_smul, Real.norm_of_nonneg ( by positivity ) ] ;      nlinarith [ hR.2.2 hmn ] ;;
   have hA_subset : ⋃ n, A n ⊆ Metric.ball 0 (2 * r * R + r) := by
     simp +decide [ Set.subset_def, A ];
-    intro x n hx; rw [ dist_eq_norm ] at hx; rw [ ← sub_add_cancel x ( ( 2 * r ) • f n ) ] ; exact lt_of_le_of_lt ( norm_add_le _ _ ) ( by nlinarith [ norm_smul_of_nonneg ( show 0 ≤ 2 * r by positivity ) ( f n ), hR.2.1 n ] ) ;;
+    intro x n hx;      rw [ dist_eq_norm ] at hx;      rw [ ← sub_add_cancel x ( ( 2 * r ) • f n ) ] ;      exact lt_of_le_of_lt ( norm_add_le _ _ ) ( by nlinarith [ norm_smul_of_nonneg ( show 0 ≤ 2 * r by positivity ) ( f n ), hR.2.1 n ] ) ;;
   have hA_measure : μ (⋃ n, A n) ≠ ∞ := by
     exact ne_of_lt ( lt_of_le_of_lt ( MeasureTheory.measure_mono hA_subset ) ( lt_top_iff_ne_top.mpr ( hbdd _ ( Metric.isBounded_ball ) ) ) );
   have hA_sum_measure : μ (⋃ n, A n) = ∑' n, μ (A n) := by

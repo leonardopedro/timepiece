@@ -36,13 +36,18 @@ html = re.sub(
 # the top of the current page instead.
 html = html.replace('href=""', 'href="#"')
 
-# 1c. Repoint the <base> tag at the document itself. Verso emits <base href="./">,
-# which resolves to the output *directory*; a fragment link then navigates to
-# `html-single/#frag` and the browser shows the directory listing (index.html is
-# "missing" from the path). Pointing the base at index.html makes fragment links
-# resolve to `html-single/index.html#frag`, so they scroll in place. Relative
-# resource links (book.css, -verso-data/...) still resolve to the same directory.
-html = html.replace('<base href="./">', '<base href="index.html">')
+# 1c. Remove the <base> tag entirely. Verso emits <base href="./"> (a previous
+# version of this script repointed it at index.html). With ANY <base> present, the
+# browser resolves a fragment link #frag against the document's absolute file://
+# location, so when the page is printed to PDF the bookmarks/links embed this
+# machine's filesystem path (file:///media/...) and fail on every other machine.
+# With no <base>, a fragment link stays a same-document anchor: the PDF gets an
+# internal "go to position" link that is fully portable, and in-page scrolling still
+# works whether the file is opened as index.html or via its directory. The relative
+# resource links (book.css, -verso-data/...) resolve against the document's own
+# directory either way, so they are unaffected. The regex removes whichever form is
+# present, which also makes the step idempotent.
+html = re.sub(r'<base[^>]*>', '', html, count=1)
 
 # 1d. Fix the heading permalink widgets (the 🔗 next to every section). Verso emits
 # href="find/?domain=Verso.Genre.Manual.section&name=ID", a server/search route that

@@ -164,7 +164,7 @@ theorem hadamard_not_deterministic :
   refine' ⟨ Matrix.diagonal ( fun i ↦ if i = 0 then 1 else 0 ), Matrix.diagonal ( fun i ↦ if i = 0 then 1 else 0 ), _, _, _ ⟩;
   · simp +zetaDelta at *;
   · aesop;
-  · intro h; have := congr_fun ( congr_fun h 0 ) 1; norm_num [ Fin.sum_univ_succ, Fin.prod_univ_succ, Finset.sum_range_succ, Finset.prod_range_succ, hadamardU ] at this;
+  · intro h;    have := congr_fun ( congr_fun h 0 ) 1;    norm_num [ Fin.sum_univ_succ, Fin.prod_univ_succ, Finset.sum_range_succ, Finset.prod_range_succ, hadamardU ] at this;
     simp +decide [ Matrix.vecMul, dotProduct ] at this
 
 end BookProof.ChapterB7

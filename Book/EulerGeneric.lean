@@ -55,8 +55,10 @@ spanned by $`\{l_k, v_{k+1}\}`, one has $`J_k^2 = -\mathbf 1` on that plane, and
 
 $$`v_k v_k^\dagger = \tfrac12(\cdots) + \tfrac12(l_k l_k^\dagger - v_{k+1}v_{k+1}^\dagger)\,(\cos 2\theta_k + J_k \sin 2\theta_k).`
 
-The term proportional to $`J_k` is the off-diagonal coherence. **Collapse** is, once
-again, taking the "real part" — deleting the $`J_k` term — leaving a diagonal
+The term proportional to $`J_k` is the off-diagonal coherence — a feature of the
+wave-function parametrization, not a physical quantity (as in
+{ref "probability-clock"}[the probability clock]). **Collapse** is, once again,
+taking the "real part" — deleting the $`J_k` term — leaving a diagonal
 operator whose entries are the conditional probabilities
 $`P(k \mid k \text{ or above}) = c_k^2`. The verified statements (module
 `BookProof.ChapterEulerGenericDensity`):

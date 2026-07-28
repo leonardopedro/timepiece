@@ -105,8 +105,8 @@ theorem sign_pair_expectation (c c' : Fin d) :
     (∑ ω : Fin d → Bool, sgn (ω c) * sgn (ω c')) = if c = c' then (2 ^ d : ℝ) else 0 := by
   by_cases h : c = c';
   · simp +decide [ ← sq, h, sgn_sq ];
-  · -- For $c \ne c'$, we can pair each $\omega$ with $\omega'$ where $\omega'$ differs from $\omega$ only at position $c$.
-    have h_pair : ∑ ω : Fin d → Bool, sgn (ω c) * sgn (ω c') = ∑ ω : Fin d → Bool, -sgn (ω c) * sgn (ω c') := by
+  · -- For $c \ne c'$,    we can pair each $\omega$ with $\omega'$ where $\omega'$ differs from $\omega$ only at position $c$.
+    have h_pair : ∑ ω : Fin d → Bool,      sgn (ω c) * sgn (ω c') = ∑ ω : Fin d → Bool, -sgn (ω c) * sgn (ω c') := by
       apply Finset.sum_bij (fun ω _ => Function.update ω c (¬ω c));
       · simp;
       · intro a₁ _ a₂ _ h; ext i; by_cases hi : i = c <;> replace h := congr_fun h i <;> aesop;
@@ -122,8 +122,8 @@ estimator is unbiased for the inner product.
 theorem countsketch_unbiased (h : Fin d → Fin k) (x y : Fin d → ℝ) :
     expectation (fun ω => ∑ j, csketch h ω x j * csketch h ω y j) = ∑ c, x c * y c := by
   -- Apply the linearity of the expectation and the fact that `sgn (ω c)` are independent Rademacher variables.
-  have h_exp : ∑ ω : Fin d → Bool, (∑ j : Fin k, csketch h ω x j * csketch h ω y j) = ∑ c, ∑ c', (if h c = h c' then (∑ ω : Fin d → Bool, sgn (ω c) * sgn (ω c')) * (x c * y c') else 0) := by
-    have h_exp : ∀ ω : Fin d → Bool, ∑ j : Fin k, csketch h ω x j * csketch h ω y j = ∑ c, ∑ c', (if h c = h c' then sgn (ω c) * sgn (ω c') * (x c * y c') else 0) := by
+  have h_exp : ∑ ω : Fin d → Bool,    (∑ j : Fin k, csketch h ω x j * csketch h ω y j) = ∑ c,    ∑ c', (if h c = h c' then (∑ ω : Fin d → Bool, sgn (ω c) * sgn (ω c')) * (x c * y c') else 0) := by
+    have h_exp : ∀ ω : Fin d → Bool,      ∑ j : Fin k,      csketch h ω x j * csketch h ω y j = ∑ c,      ∑ c', (if h c = h c' then sgn (ω c) * sgn (ω c') * (x c * y c') else 0) := by
       intro ω;
       simp +decide [ csketch, Finset.sum_ite ];
       simp +decide only [mul_comm, Finset.sum_mul _ _ _, Finset.mul_sum, mul_left_comm, mul_assoc];
@@ -133,8 +133,7 @@ theorem countsketch_unbiased (h : Fin d → Fin k) (x y : Fin d → ℝ) :
     rw [ Finset.sum_comm ];
     exact Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => by split_ifs <;> simp +decide [ * ] );
   convert congr_arg ( fun x : ℝ => x / 2 ^ d ) h_exp using 1;
-  rw [ Finset.sum_div _ _ _ ] ; congr ; ext c ; rw [ Finset.sum_eq_single c ] <;> simp +contextual [ Finset.sum_ite, sign_pair_expectation ] ; ring;
-  grind
+  rw [ Finset.sum_div _ _ _ ] ;    congr ;    ext c ;    rw [ Finset.sum_eq_single c ] <;> simp +contextual [ Finset.sum_ite, sign_pair_expectation ] ; ring;  grind
 
 /-! ## F3.2 — the observable-matrix identity (`qfm/src/observables.rs`) -/
 
@@ -233,8 +232,8 @@ theorem countSketch_unbiased (μ : Measure Ω) [IsProbabilityMeasure μ]
       = ∑ c, x c * y c := by
   rw [ MeasureTheory.integral_finset_sum ];
   · -- Expand the product inside the integral.
-    have h_expand : ∀ ω h, (countSketch hash s x ω h) * (countSketch hash s y ω h) = ∑ c ∈ Finset.univ.filter (fun c => hash c = h), ∑ c' ∈ Finset.univ.filter (fun c' => hash c' = h), (x c * y c') * (s c ω * s c' ω) := by
-      exact fun ω h => by rw [ countSketch, countSketch, Finset.sum_mul ] ; exact Finset.sum_congr rfl fun _ _ => by rw [ Finset.mul_sum ] ; exact Finset.sum_congr rfl fun _ _ => by ring;
+    have h_expand : ∀ ω h,      (countSketch hash s x ω h) * (countSketch hash s y ω h) = ∑ c ∈ Finset.univ.filter (fun c => hash c = h), ∑ c' ∈ Finset.univ.filter (fun c' => hash c' = h), (x c * y c') * (s c ω * s c' ω) := by
+      exact fun ω h => by rw [ countSketch, countSketch, Finset.sum_mul ] ;        exact Finset.sum_congr rfl fun _ _ => by rw [ Finset.mul_sum ] ;        exact Finset.sum_congr rfl fun _ _ => by ring;
     simp +decide only [h_expand];
     rw [ Finset.sum_congr rfl fun h _ => MeasureTheory.integral_finset_sum _ fun c _ => ?_ ];
     · rw [ Finset.sum_congr rfl fun h _ => Finset.sum_congr rfl fun i hi => MeasureTheory.integral_finset_sum _ fun j hj => ?_ ];
@@ -387,7 +386,7 @@ theorem mgRun_sum (k : ℕ) (xs : List ι) :
       · rw [ show mgRun k ( xs :: ih ) = mgStep k ( mgRun k ih ) xs from rfl ];
         unfold mgStep; split_ifs <;> simp_all +decide [ mgSupport ] ;
         · simp +decide [ *, Finset.sum_update_of_mem ];
-          rw [ ← Finset.sum_sdiff ( Finset.subset_univ { xs } ) ] at * ; simp_all +decide [ Finset.sum_singleton ] ; linarith;
+          rw [ ← Finset.sum_sdiff ( Finset.subset_univ { xs } ) ] at * ;            simp_all +decide [ Finset.sum_singleton ] ; linarith;
         · rw [ Finset.sum_eq_add_sum_diff_singleton ( Finset.mem_univ xs ) ] at *;
           simp_all +decide [ Function.update_apply ];
           rw [ Finset.sum_congr rfl fun x hx => if_neg ( Finset.mem_singleton.not.mp ( Finset.mem_sdiff.mp hx |>.2 ) ) ] ; linarith;

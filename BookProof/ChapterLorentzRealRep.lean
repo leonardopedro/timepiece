@@ -159,13 +159,13 @@ theorem castR_trace (A : Matrix (Fin 4) (Fin 4) ℤ) : (castR A).trace = ((A.tra
 
 theorem gram_halfR :
     ∀ i j : Fin 4, ((bHalfR i)ᵀ * bHalfR j).trace = if i = j then (4 : ℝ) else 0 := by
-  intro i j; rw [ show bHalfR i = castR ( bHalf i ) from rfl, show bHalfR j = castR ( bHalf j ) from rfl ] ; rw [ ← castR_transpose, ← castR_mul, castR_trace ] ; norm_num [ gram_half ] ;
+  intro i j;    rw [ show bHalfR i = castR ( bHalf i ) from rfl, show bHalfR j = castR ( bHalf j ) from rfl ] ;    rw [ ← castR_transpose, ← castR_mul, castR_trace ] ; norm_num [ gram_half ] ;
 
 theorem gram_10R : ∀ i j : Fin 6, ((b10R i)ᵀ * b10R j).trace = if i = j then (4 : ℝ) else 0 := by
-  intro i j; rw [ b10R, b10R, ← castR_transpose, ← castR_mul, castR_trace, gram_10 ] ; split_ifs <;> norm_num;
+  intro i j;    rw [ b10R, b10R, ← castR_transpose, ← castR_mul, castR_trace, gram_10 ] ; split_ifs <;> norm_num;
 
 theorem gram_psR : ∀ i j : Fin 4, ((bPsR i)ᵀ * bPsR j).trace = if i = j then (4 : ℝ) else 0 := by
-  intros i j; rw [ show bPsR i = castR ( bPs i ) from rfl, show bPsR j = castR ( bPs j ) from rfl, ← castR_transpose, ← castR_mul, castR_trace ] ;
+  intros i j;    rw [ show bPsR i = castR ( bPs i ) from rfl, show bPsR j = castR ( bPs j ) from rfl, ← castR_transpose, ← castR_mul, castR_trace ] ;
   split_ifs <;> simp_all +decide [ gram_ps ]
 
 /-! ## Linear independence from Frobenius orthogonality -/
@@ -218,7 +218,8 @@ theorem conjL_apply (S T A : Matrix (Fin 4) (Fin 4) ℝ) : conjL S T A = S * A *
 
 /-! ### Every element of the signed bases casts into the corresponding span -/
 
-theorem castR_mem_WHalf : ∀ M ∈ SBHalf, castR M ∈ WHalf := by
+theorem castR_mem_WHalf : ∀ M ∈ SBHalf, castR M ∈ WHalf :=
+  by
   intro M hM
   unfold SBHalf at hM
   simp at hM;

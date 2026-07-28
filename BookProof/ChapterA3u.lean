@@ -113,7 +113,7 @@ theorem card_fixedTuples {N : ℕ} (σ : Equiv.Perm (Fin N)) :
         have h_cycle_eq : σ.SameCycle x (σ.cycleOf x |>.support.min' <| Finset.nonempty_of_ne_empty <| by
           grind) := by
           have h_cycle_eq : ∀ y ∈ (σ.cycleOf x).support, σ.SameCycle x y := by
-            intro y hy; have := Equiv.Perm.mem_support.mp ( show y ∈ ( σ.cycleOf x ).support from by aesop ) ; simp_all +decide [ Equiv.Perm.mem_support, Equiv.Perm.cycleOf_apply ] ;
+            intro y hy;              have := Equiv.Perm.mem_support.mp ( show y ∈ ( σ.cycleOf x ).support from by aesop ) ;              simp_all +decide [ Equiv.Perm.mem_support, Equiv.Perm.cycleOf_apply ] ;
           generalize_proofs at *;
           exact h_cycle_eq _ <| Finset.min'_mem _ _
         generalize_proofs at *;

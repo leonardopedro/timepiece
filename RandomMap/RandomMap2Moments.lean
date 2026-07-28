@@ -18,55 +18,14 @@ noncomputable section
 def scalarBumpMeasure (a ε : ℝ) : Measure ℝ :=
   volume[|Icc (a - ε) (a + ε)]
 
-/-- The finite-dimensional product bump centered at `x`. -/
-def normalizedBumpMeasure {N : ℕ} (x : InnerHead N) (ε : ℝ) :
-    Measure (InnerHead N) :=
-  Measure.pi (fun i => scalarBumpMeasure (x i) ε)
-
 instance scalarBumpMeasure_isProbability (a ε : ℝ) [Fact (0 < ε)] :
     IsProbabilityMeasure (scalarBumpMeasure a ε) := by
   constructor;
   unfold scalarBumpMeasure;
   rw [ ProbabilityTheory.cond_apply ];
-  · rw [ Set.inter_univ, ENNReal.inv_mul_cancel ] <;> norm_num [ Real.volume_Icc, Fact.out ( p := 0 < ε ) ];
+  · rw [ Set.inter_univ, ENNReal.inv_mul_cancel ]
+    <;> norm_num [Real.volume_Icc, Fact.out (p := 0 < ε)]
   · exact measurableSet_Icc
-
-instance normalizedBumpMeasure_isProbability {N : ℕ} (x : InnerHead N) (ε : ℝ)
-    [Fact (0 < ε)] : IsProbabilityMeasure (normalizedBumpMeasure x ε) := by
-  constructor;
-  unfold normalizedBumpMeasure;
-  simp +decide [ MeasureTheory.Measure.pi_univ ]
-
-/-
-Expectation sends the zero observable to zero.
--/
-theorem E_zero {N : ℕ} (headDist : Measure (InnerHead N)) :
-    ∫ _x : InnerHead N, (0 : ℂ) ∂headDist = 0 := by
-  cases isEmpty_or_nonempty ( InnerHead N ) <;> simp_all +decide [ MeasureTheory.MeasureSpace.volume ]
-
-/-
-Additivity of expectation for integrable finite-head observables.
--/
-theorem E_add {N : ℕ} (headDist : Measure (InnerHead N))
-    (f g : InnerHead N → ℂ) (hf : Integrable f headDist) (hg : Integrable g headDist) :
-    ∫ x, (f + g) x ∂headDist =
-      (∫ x, f x ∂headDist) + ∫ x, g x ∂headDist := by
-  convert MeasureTheory.integral_add hf hg using 1
-
-/-
-Complex scalar multiplication commutes with expectation.
--/
-theorem E_smul {N : ℕ} (headDist : Measure (InnerHead N))
-    (c : ℂ) (f : InnerHead N → ℂ) :
-    ∫ x, c * f x ∂headDist = c * ∫ x, f x ∂headDist := by
-  convert MeasureTheory.integral_const_mul c f using 1
-
-/-
-The normalized bump has total expectation one.
--/
-theorem exp_X_eq_one {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)] :
-    ∫ _y : InnerHead N, (1 : ℂ) ∂normalizedBumpMeasure x ε = 1 := by
-  simp +decide [ MeasureTheory.Measure.real ]
 
 /-
 Each coordinate of the product bump is centered at the corresponding coordinate of `x`.
@@ -74,49 +33,24 @@ Each coordinate of the product bump is centered at the corresponding coordinate 
 theorem X_coordinate_orthogonal {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)]
     (i : Fin N) :
     ∫ y : InnerHead N, (y i - x i) ∂normalizedBumpMeasure x ε = 0 := by
-  unfold normalizedBumpMeasure;
-  -- By definition of product measure, we can write the integral as the product of the integrals over each coordinate.
-  have h_prod_measure : ∫ y : InnerHead N, (y i - x i) ∂Measure.pi (fun i => scalarBumpMeasure (x i) ε) = (∫ y : ℝ, (y - x i) ∂scalarBumpMeasure (x i) ε) * (∏ j ∈ Finset.univ.erase i, ∫ y : ℝ, (1 : ℝ) ∂scalarBumpMeasure (x j) ε) := by
-    have h_prod_measure : ∀ (f : Fin N → ℝ → ℂ), (∫ y : InnerHead N, (∏ j, f j (y j)) ∂Measure.pi (fun i => scalarBumpMeasure (x i) ε)) = (∏ j, ∫ y : ℝ, f j y ∂scalarBumpMeasure (x j) ε) := by
-      intro f;
-      rw [ ← MeasureTheory.integral_fintype_prod_eq_prod ];
-    convert h_prod_measure ( fun j y => if j = i then y - x i else 1 ) using 1;
-    simp +decide [ Finset.prod_ite, Finset.filter_eq', Finset.filter_ne' ];
-    rw [ Finset.prod_eq_single i ] <;> simp +contextual [ Finset.prod_ite, Finset.filter_eq', Finset.filter_ne' ];
-    norm_cast;
-    convert Iff.rfl;
-    convert Complex.ofReal_inj; all_goals convert integral_ofReal;
-  -- By definition of the scalar bump measure, we know that the integral of (y - x_i) over the interval [x_i - ε, x_i + ε] is zero.
-  have h_scalar_bump : ∫ y in Set.Icc (x i - ε) (x i + ε), (y - x i) = 0 := by
-    rw [ MeasureTheory.integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le ] <;> norm_num ; linarith [ Fact.out ( p := 0 < ε ) ];
-    linarith [ Fact.out ( p := 0 < ε ) ];
-  simp_all +decide [ scalarBumpMeasure, ProbabilityTheory.cond ]
-
-/-
-The vector-valued centered bump has mean zero.
--/
-theorem X_orthogonal {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)] :
-    ∫ y : InnerHead N, (y - x) ∂normalizedBumpMeasure x ε = 0 := by
-  by_contra h_nonzero;
-  have h_integral : ∀ i : Fin N, ∫ y : InnerHead N, (y i - x i) ∂normalizedBumpMeasure x ε = 0 := by
-    intro i
-    exact X_coordinate_orthogonal x ε i;
-  have h_integral : ∫ y : InnerHead N, (y - x) ∂normalizedBumpMeasure x ε = ∑ i : Fin N, (∫ y : InnerHead N, (y i - x i) ∂normalizedBumpMeasure x ε) • (Pi.single i 1 : InnerHead N) := by
-    have h_integrable : MeasureTheory.Integrable (fun y : InnerHead N => y - x) (normalizedBumpMeasure x ε) := by
-      exact ( Classical.not_not.1 fun h => h_nonzero <| MeasureTheory.integral_undef h )
-    have h_integral : ∀ i : Fin N, ∫ y : InnerHead N, (y i - x i) • (Pi.single i 1 : InnerHead N) ∂normalizedBumpMeasure x ε = (∫ y : InnerHead N, (y i - x i) ∂normalizedBumpMeasure x ε) • (Pi.single i 1 : InnerHead N) := by
-      intro i; rw [ integral_smul_const ] ;
-    rw [ ← Finset.sum_congr rfl fun i _ => h_integral i, ← MeasureTheory.integral_finset_sum ];
-    · congr! 2;
-      ext i; simp +decide [ Pi.single_apply ] ;
-    · intro i hi;
-      refine' MeasureTheory.Integrable.smul_const _ _;
-      refine' MeasureTheory.Integrable.mono' _ _ _;
-      use fun y => ‖y - x‖;
-      · exact h_integrable.norm;
-      · exact Continuous.aestronglyMeasurable ( by continuity );
-      · exact Filter.Eventually.of_forall fun y => norm_le_pi_norm ( y - x ) i;
-  aesop
+  have hε_pos : 0 < ε := Fact.out
+  have h_smul_def : normalizedBumpMeasure x ε =
+      (ENNReal.ofReal (1 / ((2 * ε) ^ N : ℝ))) • bumpMeasure x ε := rfl
+  have h_inner : ∫ y : InnerHead N, (y i - x i) ∂(bumpMeasure x ε) = 0 := by
+    dsimp [bumpMeasure]
+    let f : Fin N → ℝ → ℝ := fun j t => if j = i then t - x i else 1
+    have h_eq : (fun y : InnerHead N => y i - x i) =
+        (fun y => ∏ j : Fin N, f j (y j)) := by
+      ext y; simp [f]
+    rw [h_eq]
+    rw [integral_fintype_prod_eq_prod f]
+    have h_i : ∫ y : ℝ, f i y ∂(volume.restrict (Set.Icc (x i - ε) (x i + ε))) = 0 := by
+      simp [f, integral_sub_eq_zero_1d (x i) ε hε_pos]
+    apply Finset.prod_eq_zero (Finset.mem_univ i)
+    simpa
+  rw [h_smul_def, integral_smul_measure]
+  rw [h_inner]
+  simp
 
 /-
 A coordinate of the centered bump has second moment at most `ε²`.
@@ -128,20 +62,66 @@ inequality, it is valid for every positive `ε`.
 theorem Var_X_coordinate_bound {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)]
     (i : Fin N) :
     ∫ y : InnerHead N, (y i - x i) ^ 2 ∂normalizedBumpMeasure x ε ≤ ε ^ 2 := by
-  refine' le_trans ( MeasureTheory.integral_mono_of_nonneg _ _ _ ) _;
-  refine' fun y => ε ^ 2;
-  · exact Filter.Eventually.of_forall fun y => sq_nonneg _;
-  · exact MeasureTheory.integrable_const _;
-  · refine' MeasureTheory.measure_mono_null _ _;
-    exact { y : InnerHead N | ∃ j : Fin N, y j ∉ Set.Icc ( x j - ε ) ( x j + ε ) };
-    · intro y hy; contrapose! hy; simp_all +decide [ Set.subset_def ] ;
-      nlinarith [ hy i ];
-    · rw [ show { y : InnerHead N | ∃ j, y j ∉ Icc ( x j - ε ) ( x j + ε ) } = ( ⋃ j, { y : InnerHead N | y j ∉ Icc ( x j - ε ) ( x j + ε ) } ) by ext; aesop ];
-      refine' MeasureTheory.measure_iUnion_null _;
-      intro i; erw [ show { y : InnerHead N | y i ∉ Icc ( x i - ε ) ( x i + ε ) } = ( Set.pi Set.univ fun j => if j = i then Set.univ \ Icc ( x i - ε ) ( x i + ε ) else Set.univ ) from ?_ ] ; erw [ MeasureTheory.Measure.pi_pi ] ; simp +decide [ scalarBumpMeasure ] ;
-      · rw [ Finset.prod_eq_zero ( Finset.mem_univ i ) ] ; simp +decide [ ProbabilityTheory.cond ];
-      · ext; simp [Set.mem_pi];
-  · simp +decide [ MeasureTheory.measureReal_def ]
+  have hε_pos : 0 < ε := Fact.out
+  have h_nonneg : 0 ≤ᵐ[normalizedBumpMeasure x ε]
+      (fun y : InnerHead N => (y i - x i) ^ 2) := by
+    refine Filter.Eventually.of_forall (fun y => sq_nonneg _)
+  have h_bound : (fun y : InnerHead N => (y i - x i) ^ 2) ≤ᵐ[normalizedBumpMeasure x ε]
+      (fun _ : InnerHead N => ε ^ 2) := by
+    have h_set : {y : InnerHead N | (y i - x i) ^ 2 > ε ^ 2} ⊆
+        {y : InnerHead N | y i ∉ Set.Icc (x i - ε) (x i + ε)} := by
+      intro y hy
+      simp_rw [Set.mem_setOf_eq] at hy ⊢
+      have hy' : (y i - x i) ^ 2 > ε ^ 2 := hy
+      contrapose! hy'
+      simp_rw [Set.mem_Icc] at hy'
+      nlinarith
+    have h_coord_zero : (normalizedBumpMeasure x ε)
+        {y : InnerHead N | y i ∉ Set.Icc (x i - ε) (x i + ε)} = 0 := by
+      rw [normalizedBumpMeasure, Measure.smul_apply, smul_eq_mul]
+      have h_zero : (bumpMeasure x ε)
+          {y : InnerHead N | y i ∉ Set.Icc (x i - ε) (x i + ε)} = 0 := by
+        dsimp [bumpMeasure]
+        have h_set_eq : {y : InnerHead N | y i ∉ Set.Icc (x i - ε) (x i + ε)} =
+            Set.univ.pi (fun j : Fin N =>
+              if j = i then (Set.Icc (x i - ε) (x i + ε))ᶜ
+              else Set.univ) := by
+          ext y; simp
+        rw [h_set_eq]
+        rw [MeasureTheory.Measure.pi_pi]
+        have h_i_restrict : (volume.restrict (Set.Icc (x i - ε) (x i + ε)))
+            ((Set.Icc (x i - ε) (x i + ε))ᶜ) = 0 := by
+          rw [Measure.restrict_apply
+            (s := Set.Icc (x i - ε) (x i + ε))
+            (t := (Set.Icc (x i - ε) (x i + ε))ᶜ)
+            (ht := (measurableSet_Icc (a := x i - ε)
+              (b := x i + ε)).compl)]
+          simp
+        refine Finset.prod_eq_zero (Finset.mem_univ i) ?_
+        simp [h_i_restrict]
+      rw [h_zero, mul_zero]
+    have h_measure_zero : (normalizedBumpMeasure x ε)
+        {y : InnerHead N | (y i - x i) ^ 2 > ε ^ 2} = 0 :=
+      MeasureTheory.measure_mono_null h_set h_coord_zero
+    have h_ae : ∀ᵐ y ∂(normalizedBumpMeasure x ε),
+        (y i - x i) ^ 2 ≤ ε ^ 2 := by
+      rw [MeasureTheory.ae_iff]
+      simpa using h_measure_zero
+    simpa [Filter.EventuallyLE] using h_ae
+  have h_int_bound : Integrable (fun _ : InnerHead N => ε ^ 2)
+      (normalizedBumpMeasure x ε) :=
+    integrable_const _
+  refine le_trans
+    (MeasureTheory.integral_mono_of_nonneg h_nonneg h_int_bound h_bound) ?_
+  calc
+    ∫ y : InnerHead N, ε ^ 2 ∂(normalizedBumpMeasure x ε) =
+        (normalizedBumpMeasure x ε).real Set.univ • (ε ^ 2) := by
+      rw [integral_const]
+    _ = 1 • (ε ^ 2) := by
+      have h_mass : (normalizedBumpMeasure x ε).real Set.univ = 1 := by
+        rw [Measure.real_def, measure_univ, ENNReal.toReal_one]
+      simp [h_mass]
+    _ ≤ ε ^ 2 := by simp
 
 /-
 Expectation sends the zero observable on the full inner space to zero.
@@ -155,7 +135,8 @@ theorem E_zero_space {N : ℕ} (headDist : Measure (InnerHead N))
 Additivity of expectation on the full inner space.
 -/
 theorem E_add_space {N : ℕ} (headDist : Measure (InnerHead N))
-    [IsProbabilityMeasure headDist] (f g : InnerSpace N → ℂ) (hf : Integrable f (stateMeasure N headDist))
+    [IsProbabilityMeasure headDist]
+    (f g : InnerSpace N → ℂ) (hf : Integrable f (stateMeasure N headDist))
     (hg : Integrable g (stateMeasure N headDist)) :
     ∫ z, (f + g) z ∂stateMeasure N headDist =
       (∫ z, f z ∂stateMeasure N headDist) + ∫ z, g z ∂stateMeasure N headDist := by

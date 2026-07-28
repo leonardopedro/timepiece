@@ -94,8 +94,13 @@ $`p_k = |\psi_k|^2` over the complex numbers) is **Born's rule**.
 This change of variables — from a distribution $`p` on the simplex to a
 wave-function $`\psi` on the sphere — is the seed from which the whole book grows.
 It is a _parametrization_: it does not change the probabilities, only the
-coordinates we use to describe them. And yet, as we will see, the new coordinates
-make visible a structure that was invisible on the simplex.
+coordinates we use to describe them. The source manuscript is emphatic that this is
+all it is — a "mere (but very useful) parametrization" of probability. The
+wave-function is "nothing else than one possible parametrization of any probability
+distribution"; the "coherence," "interference," and "collapse" that appear in these
+coordinates are features of the parametrization, not new physical phenomena. The
+whole quantum formalism is read this way here, against the "exotic" view that
+quantum mechanics is a new physics that "shook our sense of reality."
 :::
 
 # One Answer Among Many: Coherent Belief
@@ -333,8 +338,9 @@ The book is organized into six parts.
 : Part I — Probability as Coherent Belief
 
   The probabilistic foundations: the Dutch-book derivation of the probability
-  axioms, the associativity of Bayesian updating, the maximum-entropy origin of the
-  uniform prior, and the law of total variance.
+  axioms, the associativity of Bayesian updating, the maximum-entropy
+  characterization of the uniform prior (and why it holds only relative to a chosen
+  parametrization), and the law of total variance.
 
 : Part II — Wave-functions, Euler's Formula, and the Born Rule
 

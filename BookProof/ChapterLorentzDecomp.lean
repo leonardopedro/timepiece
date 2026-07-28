@@ -92,7 +92,8 @@ theorem lorentz_delta_decomp_unique
     {δ₁ δ₂ s₁ s₂ : Matrix (Fin 4) (Fin 4) ℝ}
     (hδ₁ : δ₁ ∈ Delta) (hδ₂ : δ₂ ∈ Delta)
     (hs₁ : IsProperOrthochronous s₁) (hs₂ : IsProperOrthochronous s₂)
-    (heq : δ₁ * s₁ = δ₂ * s₂) : δ₁ = δ₂ ∧ s₁ = s₂ := by
+    (heq : δ₁ * s₁ = δ₂ * s₂) : δ₁ = δ₂ ∧ s₁ = s₂ :=
+  by
   -- First, prove that δ₁ = δ₂.
   have hδ : δ₁ = δ₂ := by
     have hdet : δ₁.det = δ₂.det := by
@@ -110,7 +111,7 @@ theorem lorentz_delta_decomp_unique
     · unfold eta at * ; norm_num at * ; linarith [ hs₁.2.2, hs₂.2.2 ];
     · linarith [ hs₁.2.2, hs₂.2.2 ];
   simp_all +decide [ mul_eq_mul_right_iff ];
-  -- Since δ₂ is invertible, we can multiply both sides of the equation δ₂ * s₁ = δ₂ * s₂ by δ₂⁻¹ to get s₁ = s₂.
+  -- Since δ₂ is invertible,    we can multiply both sides of the equation δ₂ * s₁ = δ₂ * s₂ by δ₂⁻¹ to get s₁ = s₂.
   have h_inv : Invertible δ₂ := by
     convert Matrix.invertibleOfDetInvertible δ₂;
     convert invertibleOfNonzero _;

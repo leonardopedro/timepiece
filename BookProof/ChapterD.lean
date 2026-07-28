@@ -31,7 +31,7 @@ theorem computable_bool_countable : {f : ℕ → Bool | Computable f}.Countable 
   · convert h.preimage _;
     rotate_left;
     exact fun f n => if f n = Bool.true then 1 else 0;
-    · exact fun f g hfg => funext fun n => by have := congr_fun hfg n; by_cases hn : f n = true <;> by_cases hn' : g n = true <;> simpa [ hn, hn' ] using this;
+    · exact fun f g hfg => funext fun n => by have := congr_fun hfg n;      by_cases hn : f n = true <;> by_cases hn' : g n = true <;> simpa [ hn, hn' ] using this;
     · ext;
       constructor <;> intro h;
       · convert Computable.cond h ( Computable.const 1 ) ( Computable.const 0 ) using 1;

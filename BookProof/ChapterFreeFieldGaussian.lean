@@ -78,7 +78,7 @@ characteristic function. -/
 theorem charFun_stdGaussian (t : EuclideanSpace ℝ (Fin n)) :
     charFun (stdGaussian n) t = Complex.exp (-(‖t‖ ^ 2 : ℝ) / 2) := by
   convert MeasureTheory.charFun_pi t using 1;
-  · rw [ Finset.prod_congr rfl fun _ _ => ProbabilityTheory.charFun_gaussianReal _ ] ; norm_num [ Complex.exp_neg, neg_div ];
+  · rw [ Finset.prod_congr rfl fun _ _ => ProbabilityTheory.charFun_gaussianReal _ ] ;    norm_num [ Complex.exp_neg, neg_div ];
     rw [ ← Complex.exp_sum ] ; norm_cast ; norm_num [ EuclideanSpace.norm_eq ] ; ring;
     rw [ Real.sq_sqrt <| Finset.sum_nonneg fun _ _ => sq_nonneg _, ← Finset.sum_mul ];
   · infer_instance

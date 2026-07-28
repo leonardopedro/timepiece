@@ -64,7 +64,7 @@ theorem phi_at_zero (k : ℕ) : phi k 0 = 1 / k.factorial := by
   · norm_num [ phi_zero_apply ];
   · simp +decide [ *, phi_succ_apply ];
     norm_cast;
-    erw [ intervalIntegral.integral_ofReal, intervalIntegral.integral_comp_sub_left fun x => x ^ k ] ; norm_num [ Nat.factorial_succ ];
+    erw [ intervalIntegral.integral_ofReal, intervalIntegral.integral_comp_sub_left fun x => x ^ k ] ;      norm_num [ Nat.factorial_succ ];
     ring
 
 /-! ## H1.2 — the φ-recurrence -/
@@ -77,17 +77,19 @@ integral is `z·φ_{k+1}(z)`.
 -/
 theorem phi_succ_mul (k : ℕ) (z : ℂ) :
     z * phi (k + 1) z = phi k z - 1 / k.factorial := by
-  by_cases h : z = 0 <;> simp_all +decide [ div_eq_inv_mul, mul_assoc, mul_comm, mul_left_comm, intervalIntegral.integral_comp_mul_right ];
+  by_cases h : z = 0
+    <;> simp_all +decide [div_eq_inv_mul, mul_assoc, mul_comm, mul_left_comm,
+      intervalIntegral.integral_comp_mul_right];
   · rw [ phi_at_zero ] ; ring;
-  · have h_int_parts : ∫ s in (0 : ℝ)..1, deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s = (Complex.exp (1 * z) * (1 - 1) ^ k) - (Complex.exp (0 * z) * (1 - 0) ^ k) := by
+  · have h_int_parts : ∫ s in (0 : ℝ)..1,    deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s = (Complex.exp (1 * z) * (1 - 1) ^ k) - (Complex.exp (0 * z) * (1 - 0) ^ k) := by
       rw [ intervalIntegral.integral_eq_sub_of_hasDerivAt ];
       rotate_right;
       use fun x => Complex.exp ( x * z ) * ( 1 - x ) ^ k;
       · norm_num;
-      · intro x hx; convert HasDerivAt.comp x ( hasDerivAt_deriv_iff.mpr <| show DifferentiableAt ℂ ( fun s => Complex.exp ( s * z ) * ( 1 - s ) ^ k ) _ from DifferentiableAt.mul ( Complex.differentiableAt_exp.comp _ <| differentiableAt_id.mul_const _ ) <| DifferentiableAt.pow ( differentiableAt_id.const_sub _ ) _ ) ( hasDerivAt_id _ |> HasDerivAt.ofReal_comp ) using 1; aesop;
+      · intro x hx;        convert HasDerivAt.comp x ( hasDerivAt_deriv_iff.mpr <| show DifferentiableAt ℂ ( fun s => Complex.exp ( s * z ) * ( 1 - s ) ^ k ) _ from DifferentiableAt.mul ( Complex.differentiableAt_exp.comp _ <| differentiableAt_id.mul_const _ ) <| DifferentiableAt.pow ( differentiableAt_id.const_sub _ ) _ ) ( hasDerivAt_id _ |> HasDerivAt.ofReal_comp ) using 1; aesop;
       · apply_rules [ Continuous.intervalIntegrable ];
         fun_prop;
-    have h_int_parts : ∫ s in (0 : ℝ)..1, deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s = ∫ s in (0 : ℝ)..1, (z * Complex.exp (s * z) * (1 - s) ^ k - k * Complex.exp (s * z) * (1 - s) ^ (k - 1)) := by
+    have h_int_parts : ∫ s in (0 : ℝ)..1,      deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s = ∫ s in (0 : ℝ)..1,      (z * Complex.exp (s * z) * (1 - s) ^ k - k * Complex.exp (s * z) * (1 - s) ^ (k - 1)) := by
       refine' intervalIntegral.integral_congr fun x hx => _;
       convert HasDerivAt.deriv ( HasDerivAt.mul ( HasDerivAt.comp _ ( Complex.hasDerivAt_exp _ ) ( hasDerivAt_mul_const _ ) ) ( HasDerivAt.comp _ ( hasDerivAt_pow k _ ) ( hasDerivAt_id' _ |> HasDerivAt.const_sub _ ) ) ) using 1 ; norm_num ; ring;
     rcases k with ( _ | k ) <;> simp_all +decide [ mul_assoc, mul_div_assoc ];
@@ -200,7 +202,7 @@ theorem resolvent_identity (a : A) (gj gm : ℂ) (Xj Xm : A)
     (hjl : (algebraMap ℂ A gj - a) * Xj = 1) (hjr : Xj * (algebraMap ℂ A gj - a) = 1)
     (hml : (algebraMap ℂ A gm - a) * Xm = 1) (hmr : Xm * (algebraMap ℂ A gm - a) = 1) :
     Xj - Xm = (gm - gj) • (Xj * Xm) := by
-  -- Using the fact that $Xj * (γ_m - a) = 1$ and $Xm * (γ_m - a) = 1$, we can simplify the expression.
+  -- Using the fact that $Xj * (γ_m - a) = 1$ and $Xm * (γ_m - a) = 1$,    we can simplify the expression.
   have h_simp : Xj * (gm - gj) • 1 * Xm = Xj * (algebraMap ℂ A gm - a) * Xm - Xj * (algebraMap ℂ A gj - a) * Xm := by
     simp +decide [ sub_mul, mul_sub, Algebra.smul_def ];
   convert h_simp.symm using 1 <;> simp +decide [ mul_assoc, hjl, hjr, hml, hmr ]

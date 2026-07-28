@@ -90,9 +90,9 @@ non-negative and, given positive evidence, sums to one:
 # Every Prior Is a Posterior From the Uniform Prior
 
 :::paragraph
-A consequence that the source manuscript uses repeatedly is that **no prior is
-truly primitive**. Any finite prior can be obtained by starting from the
-_maximally uninformative_ (uniform) prior and conditioning on suitable data.
+A fact the source manuscript uses repeatedly is that **no finite prior is
+primitive**. Any finite prior can be obtained by starting from the uniform prior
+and conditioning on suitable data.
 :::
 
 :::paragraph
@@ -104,29 +104,98 @@ $$`L(x, \mathsf{true}) = q(x), \qquad L(x, \mathsf{false}) = 1 - q(x).`
 :::paragraph
 Starting from any positive constant prior and conditioning on the outcome
 $`\mathsf{true}`, the posterior is exactly $`q`. So the choice of a prior can always
-be re-expressed as the choice of a likelihood acting on the uniform prior. This is
-the formal sense in which "there are no non-informative priors": even the uniform
-prior, once you condition on data, becomes an arbitrary one.
+be re-expressed as the choice of a likelihood acting on the uniform prior.
 :::
 
 ```
 #check @ChapterUniformPriorPosterior.exists_likelihood_uniform_prior_posterior
 ```
 
-# The Uniform Prior Is the Relabeling-Invariant One
+:::paragraph
+This is sometimes misread as saying that the uniform prior is the natural,
+non-informative starting point. It says no such thing. The information has not
+vanished; it has only **moved from the prior into the likelihood**. The uniform
+prior is not privileged here — it is merely a convenient origin from which every
+other prior is reachable. The next sections make precise both why the uniform prior
+is _not_ intrinsically special, and what is actually true in the slogan "there are
+no non-informative priors."
+:::
+
+# The Real Sense: Non-Informativeness Is Coordinate-Dependent
 
 :::paragraph
-There is, however, a precise sense in which the uniform prior is distinguished: it
-is the **unique** prior that treats all hypotheses symmetrically. If a prior is
-unchanged under every permutation of the hypothesis labels, then it must be
-constant; and a constant probability distribution on a finite non-empty space is
-the uniform one, $`1/|X|`.
+The slogan refers to a different and deeper fact:
+**non-informativeness is not invariant under a change of coordinates.** A density
+that is flat — and therefore apparently non-informative — in one parametrization is
+generally _not_ flat in another. Under a smooth reparametrization $`y = f(x)` the
+density picks up the Jacobian factor $`|dx/dy|`, so a constant $`p_x` becomes a
+non-constant $`p_y`. The prior that "assumed nothing" in the $`x`-coordinates quietly
+assumes something in the $`y`-coordinates.
+:::
+
+:::paragraph
+The converse is just as important, and it is what removes any special status the
+uniform prior might seem to have: **any prior that is non-null on a finite set of
+events can be made uniform on that same set by a reparametrization.** Given a
+distribution $`p` on $`\{0, \dots, n-1\}` with $`p_k > 0`, form its cumulative sum
+$`\mathrm{cdf}(k) = \sum_{i<k} p_i` and partition the unit interval into the seed
+intervals $`[\mathrm{cdf}(k), \mathrm{cdf}(k+1))`, whose lengths are exactly the
+$`p_k`. A _uniform_ seed on $`[0,1)`, decoded by which interval it falls in,
+reproduces $`p`; read the other way, the cumulative-sum map sends $`p` back to the
+uniform measure. The two distributions are the _same_ prior written in different
+coordinates:
+:::
+
+```
+#check @InverseTransform.seedSet_measure
+#check @InverseTransform.seedSet_cover
+#check @InverseTransform.seedSet_total_measure
+```
+
+:::paragraph
+So uniformity is not an intrinsic property of a prior at all. It is a property of a
+prior _relative to a chosen parametrization_. On a finite set every non-null prior
+is "uniform in disguise," and which disguise counts as the neutral one is itself an
+informative choice. _This_ is the precise sense of "there are no non-informative
+priors": an apparently non-informative prior becomes apparently informative the
+moment the coordinates are changed — and an apparently informative one can be made
+to look non-informative just as easily. The measure-theoretic obstructions behind
+the same slogan are taken up in
+{ref "null-measure"}[null-measure sets need not be small] and
+{ref "free-field"}[the free-field chapter].
+:::
+
+# The Uniform Prior Is Special Only Within a Parametrization
+
+:::paragraph
+None of this means the standard characterizations of the uniform prior are false.
+They are true — and worth proving — but each of them is a statement _relative to a
+fixed parametrization_, and that caveat is essential.
+:::
+
+:::paragraph
+Within a fixed labeling of the hypotheses, the uniform prior is the **unique** prior
+that treats all labels symmetrically: a prior unchanged under every permutation of
+the labels must be constant, and a constant probability distribution on a finite
+non-empty space is the uniform one, $`1/|X|`.
 :::
 
 ```
 #check @ChapterUniformPrior.isRelabelingInvariant_iff_constant
 #check @ChapterUniformPrior.normalized_isRelabelingInvariant_eq_uniform
 ```
+
+:::paragraph
+But "relabeling-invariant" privileges one particular labeling of the hypotheses.
+The previous section showed that any non-null prior can be reparametrized into the
+uniform one; in those new coordinates it is the reparametrized prior, not the old
+uniform one, that is "the invariant" prior. Symmetry under relabeling is a property
+of the _coordinate system_, not an intrinsic property that singles out one prior
+across all parametrizations. The same caveat attaches to the maximum-entropy
+characterization ({ref "max-entropy"}[the maximum-entropy chapter]): entropy is
+computed with respect to a chosen base measure, and changing coordinates changes
+which distribution maximizes it.
+:::
 
 :::paragraph
 A useful corollary connects two estimators that are often confused. The
@@ -142,5 +211,57 @@ so the two coincide:
 
 :::paragraph
 This is the rigorous content of the common advice that "maximum likelihood is
-Bayesian inference with a flat prior."
+Bayesian inference with a flat prior" — always understood as "flat _in the chosen
+coordinates_."
+:::
+
+# The Exception: Infinite Events Need the Mehler Formalism
+
+:::paragraph
+On a **finite** set of events, then, uniform priors are cheap: any non-null prior
+can be reparametrized into one. But that uniformity is parametrization-dependent,
+hence not genuinely non-informative. On an **infinite** set of events the situation
+is reversed. There is no Lebesgue probability measure on an infinite-dimensional
+space ({ref "free-field"}[no translation-invariant finite measure]), and the
+reparametrization trick that worked in finite dimension is exactly what destroys
+uniformity there. To have a uniform prior on an infinite set at all, one needs the
+**Mehler formalism**.
+:::
+
+:::paragraph
+This is the one setting in the manuscript where the slogan "there are no
+non-informative priors" does not bite, and it is the setting this book is built
+around. In the {ref "solovay-tensor"}[Solovay–Kopperman inner-product space] the
+infinite tail is not a completed Hilbert space on which arbitrary unitary transforms
+act. The admissible language is **cylindrical**: it may query only finitely many
+coordinates, so it cannot name or distinguish individual elements of the
+infinite-dimensional space. Because of that restriction the space is
+**not necessarily metrically complete**, and arbitrary unitary transforms are simply
+**not defined** within the language. The reparametrizations that would turn a uniform
+prior into an informative one are not available.
+:::
+
+:::paragraph
+The symmetries that survive are precisely the **admissible finite-orthogonal
+symmetries** of the tail — the measure-preserving maps the language can express —
+and the Mehler prior is invariant under every one of them. It is a probability
+measure, it is atomless, and it concentrates on the infinite-dimensional unit
+sphere:
+:::
+
+```
+#check @only_mehler_on_tail
+#check @mehler_invariant_under_finite_orthogonal
+#check @mehler_concentrates_on_unit_sphere
+```
+
+:::paragraph
+So within the restricted decidable language the Mehler uniform prior on the
+infinite-dimensional hypersphere **is** genuinely uniform: every symmetry the
+language can express leaves it unchanged, and there is no admissible change of
+coordinates that could make it informative. Finite sets admit uniform priors only by
+a parametrization-dependent trick; the infinite set admits a uniform prior only
+through the Mehler formalism, and there it is intrinsic. Probability on the infinite
+part is not a choice; it is the forced Mehler measure
+({ref "solovay-tensor"}[The Solovay–Kopperman Tensor Product]).
 :::

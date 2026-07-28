@@ -102,7 +102,8 @@ gives `tr(w wᵀ P₁) = w₀² = ½`.
 -/
 theorem pure_realizes_P1 :
     ∃ v : Fin 2 → ℝ, (v 0) ^ 2 + (v 1) ^ 2 = 1 ∧ expec (pure v) P1 = 1/2 := by
-      refine' ⟨ fun i => if i = 0 then 1 / Real.sqrt 2 else 1 / Real.sqrt 2, _, _ ⟩ <;> norm_num [ expec, P1 ];
+      refine' ⟨fun i => if i = 0 then 1 / Real.sqrt 2 else 1 / Real.sqrt 2, _, _⟩
+        <;> norm_num [expec, P1];
       convert expec_pure_P1 ( fun _ => ( Real.sqrt 2 ) ⁻¹ ) using 1 ; norm_num [ pure ]
 
 /-! ## No pure state realizes both constraints simultaneously. -/

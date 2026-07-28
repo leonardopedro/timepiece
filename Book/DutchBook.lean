@@ -167,3 +167,50 @@ the simplex. The parametrizations of Part II will be maps _into_ this simplex, a
 the theorem above tells us exactly what it means for the image to be a legitimate
 probability.
 :::
+
+# The Rules Are Objective; The Priors Are Not
+
+:::paragraph
+There is a misreading the theorem invites, and the source manuscript is explicit in
+resisting it. The Dutch-book argument makes the **rules** of probability objective:
+coherence forces non-negativity, normalization, and finite additivity, and there is
+no choice in the matter. It does **not** make the **priors** objective. Coherence
+constrains the _form_ a probability must take — it must be a point of the simplex —
+but it is silent on _which_ point of the simplex is the right one. The prior is a
+free, unavoidable act of theoretical prejudice.
+:::
+
+:::paragraph
+The manuscript leans on this repeatedly, citing the result of Eaton and Freedman
+(_Dutch book against some 'objective' priors_, Bernoulli 10(5), 2004, 861–872): "in
+Bayesian inference there is always a prior probability distribution, and there is no
+prior which is better for all cases." Priors that are marketed as "objective" —
+symmetry priors, reference priors, and the uniform prior among them — can themselves
+be Dutch-booked; no single prior is good for every problem. The same source draws
+the sharper conclusion that "there are no non-informative priors in Bayesian
+inference, therefore theoretical prejudice is unavoidable."
+:::
+
+:::paragraph
+This is the betting-theoretic complement to the coordinate argument of
+{ref "sequential-bayes"}[the previous chapter]. There the point was that the uniform
+prior's distinguishing properties — relabeling-invariance, maximum entropy — hold
+only _within a fixed parametrization_, and that any non-null finite prior can be
+reparametrized into the uniform one. Here the point is that coherence cannot certify
+any prior as the correct one, because against any proposed "objective" prior an
+adversary can construct a Dutch book in some problem. The uniform prior is
+appropriate "in many cases, not in all cases": a useful default, not an objective
+truth.
+:::
+
+:::paragraph
+So the Dutch-book theorem fixes the **objective** part of probability — the
+calculus, the simplex, the rules any coherent belief must obey — and leaves the
+**subjective** part exactly where it belongs, in the choice of prior. The
+parametrizations of Part II map into this objectively fixed simplex; the point they
+land on is never forced by coherence alone. The one place a prior _is_ forced is the
+infinite-dimensional tail of the {ref "solovay-tensor"}[Solovay–Kopperman
+construction], and there it is forced not by Dutch-book objectivity but by the
+blindness of the decidable language: the Mehler measure is the only law the language
+can express, not the only law a rational agent may hold.
+:::

@@ -1,7 +1,7 @@
 import Mathlib
 
 /-!
-# Chapter "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory", §"Pure SU(3) Yang-Mills theory" — the structure constants
+# Chapter "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory",  §"Pure SU(3) Yang-Mills theory" — the structure constants
 
 Source: `book.tex`, chapter *"Quantization due to time-evolution: Yang-Mills and
 Classical Statistical Field Theory"*, §*"Pure SU(3) Yang-Mills theory"*
@@ -77,7 +77,7 @@ lemma structureConstant_antisymm_swap
     (hT : TraceOrthonormal T) (hf : ClosesWithStructureConstants T f)
     (a b c : Fin d) :
     f a b c = - f b a c := by
-  have := structureConstant_formula hT hf a b c; ( have := structureConstant_formula hT hf b a c; ( simp_all +decide [ Complex.ext_iff, mul_assoc ] ; ) );
+  have := structureConstant_formula hT hf a b c;    ( have := structureConstant_formula hT hf b a c; ( simp_all +decide [ Complex.ext_iff, mul_assoc ] ;    ) );
   simp +decide [ sub_mul, mul_sub, Matrix.trace ]
 
 /-
@@ -113,10 +113,10 @@ lemma structureConstant_jacobi
     (hT : TraceOrthonormal T) (hf : ClosesWithStructureConstants T f)
     (a b c h : Fin d) :
     ∑ e, (f a b e * f e c h + f b c e * f e a h + f c a e * f e b h) = 0 := by
-  have h_sum_zero : ∑ e, ∑ g, (f a b e * f e c g + f b c e * f e a g + f c a e * f e b g) • Matrix.trace ((T g) * (T h)) = 0 := by
-    have h_sum_zero : ∑ e, ∑ g, (f a b e * f e c g + f b c e * f e a g + f c a e * f e b g) • (T g) = 0 := by
+  have h_sum_zero : ∑ e,    ∑ g,    (f a b e * f e c g + f b c e * f e a g + f c a e * f e b g) • Matrix.trace ((T g) * (T h)) = 0 := by
+    have h_sum_zero : ∑ e,      ∑ g, (f a b e * f e c g + f b c e * f e a g + f c a e * f e b g) • (T g) = 0 := by
       -- Using the hypothesis `hf`, we can rewrite the commutators in terms of the structure constants.
-      have h_comm : ∀ a b c, (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = - ∑ e, ∑ g, (f a b e * f e c g : ℂ) • T g := by
+      have h_comm : ∀ a b c,        (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = - ∑ e,        ∑ g, (f a b e * f e c g : ℂ) • T g := by
         intros a b c
         have h_comm : (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = Complex.I • (∑ e, (f a b e : ℂ) • (T e * T c - T c * T e)) := by
           simp +decide [ hf a b, mul_sub, sub_mul, Finset.mul_sum _ _ _, Finset.sum_mul, mul_assoc,

@@ -52,7 +52,7 @@ theorem invertible_ratio_isEquivalent :
   · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
     norm_num [ div_pow, Real.exp_neg, mul_assoc, mul_comm, mul_left_comm, hn.ne' ];
     rw [ div_eq_iff ( by positivity ) ] ; ring;
-  · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn ; norm_num [ Real.exp_neg, div_pow, mul_pow, mul_assoc, mul_comm, mul_left_comm, hn.ne' ];
+  · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn ;    norm_num [ Real.exp_neg, div_pow, mul_pow, mul_assoc, mul_comm, mul_left_comm, hn.ne' ];
     rw [ div_eq_iff ( by positivity ) ] ; ring
 
 /-

@@ -118,8 +118,8 @@ theorem upsilonC_real (T : Matrix (Fin 2) (Fin 2) ℂ) (μ ν : Fin 4) :
   field_simp;
   convert congr_arg ( fun x : ℂ => x / 2 ) ( show ( starRingEnd ℂ ) ( Matrix.trace ( pauliσ μ * ( Tᴴ * pauliσ ν * T ) ) ) = Matrix.trace ( pauliσ μ * ( Tᴴ * pauliσ ν * T ) ) from ?_ ) using 1;
   · norm_num [ Complex.ext_iff, div_eq_mul_inv ];
-  · -- By the properties of the trace and the Hermitian nature of the Pauli matrices, we can show that the trace of the conjugate transpose is equal to the trace of the original matrix.
-    have h_trace_conj : ∀ (M : Matrix (Fin 2) (Fin 2) ℂ), (starRingEnd ℂ) (Matrix.trace M) = Matrix.trace (Mᴴ) := by
+  · -- By the properties of the trace and the Hermitian nature of the Pauli matrices,    we can show that the trace of the conjugate transpose is equal to the trace of the original matrix.
+    have h_trace_conj : ∀ (M : Matrix (Fin 2) (Fin 2) ℂ),      (starRingEnd ℂ) (Matrix.trace M) = Matrix.trace (Mᴴ) := by
       simp +decide [ Matrix.trace, Matrix.conjTranspose ];
     rw [ h_trace_conj, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul ];
     rw [ ← Matrix.trace_mul_comm ] ; simp +decide [ Matrix.mul_assoc, pauliσ_herm ] ;
@@ -190,7 +190,7 @@ theorem bilC_ext {A B : Matrix (Fin 4) (Fin 4) ℂ} (hA : Aᵀ = A) (hB : Bᵀ =
   -- For each `i`, specialize `h` at `e_i = ![0,0,0,1]`.
   have h_diag (i : Fin 4) : A i i = B i i := by
     convert h ( fun j => if j = i then 1 else 0 ) using 1 <;> simp +decide [ bilC ];
-  -- For each `i ≠ j`, specialize `h` at `e_i + e_j` (the vector with 1 in slots `i` and `j`), simplify to get `A i i + A j j + A i j + A j i = B i i + B j j + B i j + B j i`; substitute the diagonal equalities, and use the symmetry hypotheses `hA : Aᵀ = A`, `hB : Bᵀ = B` (which give `A j i = A i j` and `B j i = B i j` via `Matrix.transpose_apply`/`congrFun`) to conclude `2 * A i j = 2 * B i j`, hence `A i j = B i j`.
+  -- For each `i ≠ j`,    specialize `h` at `e_i + e_j` (the vector with 1 in slots `i` and `j`),    simplify to get `A i i + A j j + A i j + A j i = B i i + B j j + B i j + B j i`;    substitute the diagonal equalities,    and use the symmetry hypotheses `hA : Aᵀ = A`,    `hB : Bᵀ = B` (which give `A j i = A i j` and `B j i = B i j` via `Matrix.transpose_apply`/`congrFun`) to conclude `2 * A i j = 2 * B i j`, hence `A i j = B i j`.
   have h_off_diag (i j : Fin 4) (hij : i ≠ j) : A i j = B i j := by
     -- Substitute x = e_i + e_j into the hypothesis h and simplify.
     have h_sub : bilC A (fun k => if k = i ∨ k = j then 1 else 0) = bilC B (fun k => if k = i ∨ k = j then 1 else 0) := by
@@ -198,7 +198,7 @@ theorem bilC_ext {A B : Matrix (Fin 4) (Fin 4) ℂ} (hA : Aᵀ = A) (hB : Bᵀ =
     -- Expand the bilinear forms using the definition of `bilC`.
     simp [bilC] at h_sub;
     simp_all +decide [ Finset.sum_ite, Finset.filter_or, Finset.filter_eq', Finset.sum_add_distrib ];
-    replace hA := congr_fun ( congr_fun hA i ) j; replace hB := congr_fun ( congr_fun hB i ) j; simp_all +decide [ Matrix.transpose_apply ] ;
+    replace hA := congr_fun ( congr_fun hA i ) j;      replace hB := congr_fun ( congr_fun hB i ) j; simp_all +decide [ Matrix.transpose_apply ] ;
     linear_combination' h_sub / 2;
   exact Matrix.ext fun i j => if hij : i = j then hij ▸ h_diag i else h_off_diag i j hij
 

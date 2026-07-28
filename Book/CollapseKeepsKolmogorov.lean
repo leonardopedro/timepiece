@@ -118,6 +118,12 @@ collapse is neglected.
    state.
  * Therefore quantum mechanics is **not** a non-commutative generalization of
    probability theory; the collapse keeps it Kolmogorov.
- * The wave-function parametrizes **commuting** projections (pure states); Gleason's
-   density matrix parametrizes **non-commuting** projections (mixed states). The two
-   differ exactly where the collapse is or is not used.
+  * The wave-function parametrizes **commuting** projections (pure states); Gleason's
+    density matrix parametrizes **non-commuting** projections (mixed states). The two
+    differ exactly where the collapse is or is not used.
+
+In the manuscript's phrasing, quantum mechanics is "a generalization of classical
+statistical mechanics (but not of probability theory)." The non-commutativity and the
+off-diagonal coherence are artifacts of the wave-function parametrization; once the
+collapse is taken seriously they dissolve, and what remains is an ordinary Kolmogorov
+probability theory.

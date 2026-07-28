@@ -87,12 +87,20 @@ theorem commute_proj_measOp_iff_isDeterministicCol
   constructor;
   · intro h_comm;
     intro l m hlm;
-    convert congr_arg ( fun x : ℂ => starRingEnd ℂ x ) ( congr_fun ( congr_fun ( h_comm m ) m ) l ) using 1 ; simp +decide [ *, proj, measOp_apply ];
-    · simp +decide [ Matrix.mul_apply, measOp_apply ];
-    · rw [ measOp_mul_proj_apply ] ; aesop;
-  · intro h a; ext i j; by_cases hi : i = a <;> by_cases hj : j = a <;> simp +decide [ *, proj_mul_measOp_apply, measOp_mul_proj_apply ] ;
-    · specialize h j a ; aesop;
-    · specialize h i a ; aesop
+    convert congr_arg (fun x : ℂ => starRingEnd ℂ x)
+      (congr_fun (congr_fun (h_comm m) m) l) using 1
+      <;> simp +decide [*, proj, measOp_apply]
+    · simp +decide [Matrix.mul_apply, measOp_apply]
+    · have h := measOp_mul_proj_apply U m b m l
+      simp [proj, hlm] at h
+      rw [h]
+      simp
+  · intro h a
+    ext i j
+    by_cases hi : i = a <;> by_cases hj : j = a
+      <;> simp +decide [*, proj_mul_measOp_apply, measOp_mul_proj_apply]
+    · specialize h j a; aesop
+    · specialize h i a; aesop
 
 /-
 **Headline (single-outcome form).** The projections `P_a` and the transformed
@@ -124,7 +132,7 @@ The transformed event operator is the sum of the single-outcome ones:
 -/
 theorem measOpSet_eq_sum (U : Matrix (Fin n) (Fin n) ℂ) (B : Finset (Fin n)) :
     measOpSet U B = ∑ b ∈ B, measOp U b := by
-  unfold measOpSet measOp; simp +decide [ Matrix.vecMul, dotProduct, Finset.mul_sum, Finset.sum_mul, mul_assoc ] ;
+  unfold measOpSet measOp;    simp +decide [ Matrix.vecMul, dotProduct, Finset.mul_sum, Finset.sum_mul, mul_assoc ] ;
   unfold projSet; simp +decide [ Matrix.sum_apply, Finset.sum_mul, Finset.mul_sum ] ;
 
 /-
@@ -143,6 +151,6 @@ theorem commute_projSet_measOpSet_iff_isDeterministic
   · -- By the single-outcome headline, we have that for all a and b, P_a and U P_b U† commute.
     have h_single : ∀ a b : Fin n, Commute (proj a) (measOp U b) := by
       exact fun a b => ( commute_proj_measOp_iff_isDeterministic U ).mpr h a b;
-    exact fun A B => by rw [ measOpSet_eq_sum, projSet ] ; exact Commute.sum_left _ _ _ fun a _ => Commute.sum_right _ _ _ fun b _ => h_single a b;
+    exact fun A B => by rw [ measOpSet_eq_sum, projSet ] ;      exact Commute.sum_left _ _ _ fun a _ => Commute.sum_right _ _ _ fun b _ => h_single a b;
 
 end BookProof.ChapterDeterministic

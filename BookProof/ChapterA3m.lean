@@ -186,7 +186,7 @@ noncomputable def parityDiag3 : M3 := (mgamma 0 ⊗ₖ mgamma 0) ⊗ₖ mgamma 0
 theorem swap12_spinGenDiag_comm (μ ν : Fin 4) :
     swap12 * spinGenDiag3 μ ν = spinGenDiag3 μ ν * swap12 := by
   -- Applying the identity for `swap12` to each term in `spinGenDiag3`.
-  have step1 : ∀ (μ ν : Fin 4), (swap12 * (spinGen μ ν ⊗ₖ 1) ⊗ₖ 1 = ((1 ⊗ₖ spinGen μ ν) ⊗ₖ 1) * swap12) := by
+  have step1 : ∀ (μ ν : Fin 4),    (swap12 * (spinGen μ ν ⊗ₖ 1) ⊗ₖ 1 = ((1 ⊗ₖ spinGen μ ν) ⊗ₖ 1) * swap12) := by
     intro μ ν;
     convert swap12_kronecker ( spinGen μ ν ) 1 1 using 1;
   convert congr_arg₂ ( fun x y => x + y ) ( congr_arg₂ ( fun x y => x + y ) ( step1 μ ν ) ( swap12_kronecker ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ( spinGen μ ν ) ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ) ) ( swap12_kronecker ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ( spinGen μ ν ) ) using 1;
@@ -205,7 +205,7 @@ theorem swap13_spinGenDiag_comm (μ ν : Fin 4) :
     swap13 * spinGenDiag3 μ ν = spinGenDiag3 μ ν * swap13 := by
   unfold spinGenDiag3;
   simp +decide [ Matrix.mul_add, Matrix.add_mul ];
-  have := swap13_kronecker ( spinGen μ ν ) 1 1; ( have := swap13_kronecker 1 ( spinGen μ ν ) 1; ( have := swap13_kronecker 1 1 ( spinGen μ ν ) ; simp_all +decide [ Matrix.mul_assoc ] ; ) );
+  have := swap13_kronecker ( spinGen μ ν ) 1 1;    ( have := swap13_kronecker 1 ( spinGen μ ν ) 1; ( have := swap13_kronecker 1 1 ( spinGen μ ν ) ; simp_all +decide [ Matrix.mul_assoc ] ; ) );
   abel1
 
 theorem swap12_parityDiag_comm : swap12 * parityDiag3 = parityDiag3 * swap12 := by

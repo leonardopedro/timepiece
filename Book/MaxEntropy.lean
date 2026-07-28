@@ -15,7 +15,10 @@ tag := "max-entropy"
 The previous chapter singled out the uniform prior as the unique
 _relabeling-invariant_ one. There is a second, independent route to the same
 destination, due to Jaynes: the uniform prior is the distribution that
-**maximizes the Shannon entropy**, and so it is the prior that assumes the least.
+**maximizes the Shannon entropy**. Within a fixed parametrization this is the prior
+that assumes the least — but, as we stress at the end, "least" is measured relative
+to the chosen coordinates, and the conclusion is no more objective than the
+parametrization it rests on.
 :::
 
 :::paragraph
@@ -36,10 +39,14 @@ out. The claim we prove is:
 :::
 
 :::paragraph
-This is the **maximum-entropy principle**: if the only thing you know about a
-system is the set of possibilities, the honest prior is the one with the largest
-entropy, namely the uniform one. Any other prior is secretly assuming extra
-information that you do not have.
+This is the **maximum-entropy principle**: _relative to a fixed set of labeled
+outcomes_, if the only thing you know is the set of possibilities, the prior with
+the largest entropy is the uniform one, and any other prior assumes extra
+information beyond the labeling. The italicized clause is essential. Entropy is
+computed against the counting measure on the chosen labels; change the
+parametrization and a different prior becomes the maximum-entropy one. The principle
+selects the uniform prior within a coordinate system — it does not certify the
+uniform prior as objectively non-informative.
 :::
 
 # Sketch Proof (Gibbs' Inequality)
@@ -117,16 +124,29 @@ The pointwise Gibbs bound that drives the proof is itself verified:
 #check @ChapterMaxEntropy.negMulLog_sub_le
 ```
 
-# Two Roads, One Prior
+# Two Roads, One Prior — Both Within a Parametrization
 
 :::paragraph
 We now have two independent characterizations of the uniform prior: it is the unique
 _relabeling-invariant_ distribution ({ref "sequential-bayes"}[previous chapter]) and
-the unique _maximum-entropy_ distribution. That two such different principles — a
-symmetry principle and an optimization principle — agree is strong evidence that the
-uniform prior is the correct formalization of "assuming nothing." The source
-manuscript leans on this repeatedly, while also cautioning (in its discussion of
-consciousness and priors) that on a _continuous_ space there is in general **no**
-non-informative prior at all — a subtlety we meet again in
-{ref "null-measure"}[Null-measure sets need not be small].
+the unique _maximum-entropy_ distribution. That a symmetry principle and an
+optimization principle agree makes the uniform prior a natural default **within a
+fixed parametrization**. It is not evidence that the uniform prior is objectively
+"the" non-informative prior. Both characterizations are parametrization-dependent:
+relabeling-invariance privileges a labeling, and entropy privileges the counting
+measure on that labeling, and {ref "sequential-bayes"}[the previous chapter] showed
+that any non-null finite prior can be reparametrized into the uniform one — which
+then becomes the maximum-entropy prior in the new coordinates.
+:::
+
+:::paragraph
+The source manuscript leans on the uniform prior as a convenient default while
+insisting it is never objectively forced. Citing Eaton and Freedman
+({ref "dutch-book"}[Dutch book against some 'objective' priors]), it holds that
+"there is no prior which is better for all cases" and that "there are no
+non-informative priors in Bayesian inference." On a _continuous_ space the point is
+sharper still: there is in general **no** non-informative prior at all
+({ref "null-measure"}[Null-measure sets need not be small]). The maximum-entropy
+principle is a rule for choosing a prior once coordinates are fixed — not a proof
+that any prior, uniform or otherwise, is written into the problem.
 :::

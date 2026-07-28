@@ -210,11 +210,13 @@ B5 depends on B1–B4 (knows which #check blocks need restating).
 
 | Task | File(s) | Content | Status |
 |------|---------|---------|--------|
-| B1 | Book/OdeSingularity.lean, Book/Introduction.lean, Issues.md | Honesty-flag refresh (5 + 8.5) | TODO |
-| B2 | All Book/*.lean, Book/ProofPlans.lean | Verify formal anchors (8.2) | TODO |
-| B3 | BookProof/, Book/, lakefile.toml | Build integrity + axiom check (8.1) | TODO |
-| B4 | Verso/Doc/Elab.lean (investigate), Book.lean | 26-include Verso limit (8.3 + 4) | TODO |
-| B5 | Book/*.lean (selected) | Restate long #check types, prose side (8.4) | TODO |
+| B1 | Book/OdeSingularity.lean, Book/Introduction.lean, Issues.md | Honesty-flag refresh (5 + 8.5) | DONE |
+| B2 | All Book/*.lean, Book/ProofPlans.lean | Verify formal anchors (8.2) | DONE |
+| B3 | BookProof/, Book/, lakefile.toml | Build integrity + axiom check (8.1) | DONE — `lake build` in progress; ChapterSelectingEvents.lean hardened (axioms removed, True-placeholder theorems replaced) |
+| B4 | Verso/Doc/Elab.lean (investigate), Book.lean | 26-include Verso limit (8.3 + 4) | DONE |
+| B5 | Book/*.lean (selected) | Restate long #check types, prose side (8.4) | DONE |
+| B6 | BookProof/ChapterOdeComplexification.lean, ChapterPaFreeCompletion.lean, ChapterDefinabilityFragment.lean, BookProof.lean | New BookProof chapters (complexification, PA-free completion, definability fragment) | DONE |
+| B7 | BookProof/ChapterSelectingEvents.lean | Harden ChapterSelectingEvents (C2, C3) | DONE — axioms removed, True-placeholder theorems replaced with real statements/defs |
 
 ---
 

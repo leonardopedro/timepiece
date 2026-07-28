@@ -79,7 +79,7 @@ theorem spatialProj_idempotent (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
   have hM2 : ∀ a b, (∑ c, (v a * lower v c) * (v c * lower v b)) = -(v a * lower v b) := by
     simp_all +decide [ minkSq, lower, Fin.sum_univ_four ];
     grind;
-  ext a b; simp +decide [ *, Matrix.mul_apply, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul ] ; ring;
+  ext a b;    simp +decide [ *, Matrix.mul_apply, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul ] ;    ring;
   simp_all +decide [ spatialProj, Matrix.mul_apply, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul ] ; ring;
   simp_all +decide [ Finset.sum_add_distrib, mul_assoc, Matrix.one_apply ] ; ring
 

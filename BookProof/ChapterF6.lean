@@ -156,7 +156,7 @@ theorem mgT_le_apply_add_mgD (k : ℕ) (T : α →₀ ℕ) (s : List α) (y : α
   induction' s using List.reverseRecOn with s x ih generalizing T y;
   · simp +decide [ mgT, mgD ];
   · have h_step : mgD k T (s ++ [x]) = mgD k T s + (if 0 < (mgT k T s) x ∨ (mgT k T s).support.card < k then 0 else 1) := by
-      have h_step : ∀ (T : α →₀ ℕ) (s : List α) (x : α), mgD k T (s ++ [x]) = mgD k T s + (if 0 < (mgT k T s) x ∨ (mgT k T s).support.card < k then 0 else 1) := by
+      have h_step : ∀ (T : α →₀ ℕ) (s : List α) (x : α),        mgD k T (s ++ [x]) = mgD k T s + (if 0 < (mgT k T s) x ∨ (mgT k T s).support.card < k then 0 else 1) := by
         intros T s x
         induction' s with s x ih generalizing T;
         · simp +decide [ mgD, mgT ];
@@ -196,7 +196,7 @@ theorem mgSum_mapRange_pred (T : α →₀ ℕ) :
   refine' eq_tsub_of_add_eq _;
   unfold mgSum; simp +decide [ Finsupp.sum_mapRange_index ] ;
   zify [ Finset.sum_add_distrib ];
-  rw [ Finset.card_eq_sum_ones ] ; rw [ Finsupp.sum, Finsupp.sum ] ; simp +decide [ Finset.sum_add_distrib ] ; ring;
+  rw [ Finset.card_eq_sum_ones ] ;    rw [ Finsupp.sum, Finsupp.sum ] ; simp +decide [ Finset.sum_add_distrib ] ; ring;
   rw [ Finset.sum_congr rfl fun x hx => Nat.cast_sub <| Nat.one_le_iff_ne_zero.mpr <| Finsupp.mem_support_iff.mp hx ] ; simp +decide [ Finset.sum_add_distrib ]
 
 /-

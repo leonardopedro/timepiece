@@ -84,8 +84,7 @@ theorem schur_normal_irreducible (M : System 𝔽 V) (hM : IsNormal M)
   have hW_orthogonal : IsClosed (Wᗮ : Set V) ∧ ∀ m ∈ M.ops, ∀ w ∈ Wᗮ, m w ∈ Wᗮ := by
     convert orthogonal_isSubsystem M hM ⟨ hW_subsystem, hW_closed ⟩ using 1;
   obtain ⟨c, hc⟩ := hSchur (W.starProjection) (by
-  intro m hm; ext v; simp +decide [ Submodule.starProjection_eq_self_iff, hW_closed m hm, hW_orthogonal.2 m hm ] ;
-  have h_decomp : m v = m (W.starProjection v) + m (v - W.starProjection v) := by
+  intro m hm;    ext v; simp +decide [ Submodule.starProjection_eq_self_iff, hW_closed m hm, hW_orthogonal.2 m hm ] ;  have h_decomp : m v = m (W.starProjection v) + m (v - W.starProjection v) := by
     rw [ ← map_add, add_sub_cancel ];
   have h_comm : W.starProjection (m (v - W.starProjection v)) = 0 := by
     have h_comm : m (v - W.starProjection v) ∈ Wᗮ := by
@@ -97,7 +96,7 @@ theorem schur_normal_irreducible (M : System 𝔽 V) (hM : IsNormal M)
   by_cases hc0 : c = 0;
   · simp_all +decide [ Submodule.eq_bot_iff ];
     left;
-    intro x hx; replace hc := congr_arg ( fun f => f x ) hc; simp_all +decide [ Submodule.starProjection_eq_self_iff ] ;
+    intro x hx;      replace hc := congr_arg ( fun f => f x ) hc;      simp_all +decide [ Submodule.starProjection_eq_self_iff ] ;
     rw [ Submodule.starProjection_eq_self_iff.mpr hx ] at hc ; aesop;
   · have hW_top : ∀ v : V, v ∈ W := by
       intro v

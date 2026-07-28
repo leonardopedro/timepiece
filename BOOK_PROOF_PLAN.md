@@ -13,6 +13,13 @@ They were executed by the LLM-Lean-specialist as two parallel tracks:
 All new/modified files are **`sorry`-free and `axiom`-free** (verified: `rg -c sorry` = 0
 in every file; only `propext`, `Classical.choice`, `Quot.sound` are used).
 
+**Current axiom audit:**
+- `BookProof/` and `PnpProof/`: no `axiom` lines remain (the two `axiom : True` in
+  `ChapterSelectingEvents.lean` were converted to `def`s in July 2026).
+- `Singularity/` and `RandomMap/`: no `axiom` lines.
+- Only acceptable `sorry`s: `RandomMap/SchoenfeldPRA.lean:162,176` (pre-existing,
+  documented as intentional).
+
 **Target environment (do not change without coordination):**
 - Lean toolchain: `leanprover/lean4:v4.28.0` (see `lean-toolchain`)
 - Mathlib: `v4.28.0`
@@ -45,10 +52,10 @@ lake build book && lake exe book   # the Verso book -> _out/html-single/
 | §3.1 Inline-elaborated Lean blocks | **BLOCKED** | `experimental.module` breaks the Verso book build (see Priority 3) |
 | §3.2 verso-blueprint migration | **DEFERRED** | toolchain blocker (needs Lean ≥ v4.29.0) |
 | §4 26-`{include}` book-build limit | **DONE** | root cause = unannotated sub-parts array in Verso `toSyntax`; fixed by `patches/verso-0001-annotate-subparts.patch` (Priority 4 / 8.3) |
-| §5 Book honesty-flag refresh (ODE) | **DONE** | Book/OdeSingularity.lean updated: "genuine theorem", complexification formalized, no more "placeholder" language |
+| §5 Book honesty-flag refresh (ODE) | **DONE** | Book/OdeSingularity.lean, Book/Introduction.lean, Issues.md updated: all three ODE theorems listed as `sorry`-free; no more "placeholder" language |
 | §6 Solovay–Kopperman tensor product | **MOSTLY DONE** | 6.1 ✓ (headSumEquiv, tensor closure, tensor_language_decidable); 6.3 ✓ (arbitrary head law, marginal); 6.4 ✓ (atomless, invariant, TailPriorAdmissible, head_vs_tail); 6.6 partial (tailSplitEquiv_map sorry → proof in SPECIALIST_PLAN_REMAINING.md); 6.2/6.5 partial (finite purification done; full L²⊗L² ≅ L² and ¬FiniteDimensional deferred) |
 | §7 Further `book.tex` claims | **DONE** | ChapterProbabilityInterface, ChapterCountableDefinability, ChapterKopperman, ChapterFiniteArithmeticPrior, ChapterBornPhaseFiber extended, density reuse confirmed |
-| §8 `Issues.md`-derived tasks | **DONE** | 8.1 build integrity (specialist verified); 8.3 26-include DONE; 8.4 readable headlines added |
+| §8 `Issues.md`-derived tasks | **DONE** | 8.1 build integrity (specialist verified); 8.3 26-include DONE; 8.4 readable headlines added; 8.5 ChapterSelectingEvents.lean hardened (C2/C3: axioms removed, True-placeholder theorems replaced with real statements) |
 
 ---
 

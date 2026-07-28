@@ -222,10 +222,12 @@ A4 is independent.
 
 | Task | File(s) | Content | Status |
 |------|---------|---------|--------|
-| A1 | ChapterSolovay.lean, ChapterJointUnitary.lean | Solovay-Kopperman tensor product (6.1–6.6) | TODO |
-| A2 | ChapterBijectionProbability.lean, ChapterBornPhaseFiber.lean, ChapterKopperman.lean, etc. | Further book.tex claims (7.1–7.6) | TODO |
+| A1 | ChapterSolovay.lean, ChapterSolovayCoordinates.lean | Solovay-Kopperman tensor product (6.1–6.6) | DONE — 6.1✓ (headSumEquiv, tensor closure, tensor_language_decidable); 6.3✓ (arbitrary head law, marginal); 6.4✓ (atomless, invariant, TailPriorAdmissible, head_vs_tail); 6.6 partial (tailSplitEquiv_map sorry → proof in SPECIALIST_PLAN_REMAINING.md); 6.2/6.5 partial (finite purification done; full L²⊗L² ≅ L² and ¬FiniteDimensional deferred) |
+| A2 | ChapterBijectionProbability.lean, ChapterBornPhaseFiber.lean, ChapterKopperman.lean, ChapterCountableDefinability.lean, ChapterFiniteArithmeticPrior.lean | Further book.tex claims (7.1–7.6) | DONE — ChapterBijectionProbability, ChapterBornPhaseFiber, ChapterKopperman, ChapterCountableDefinability, ChapterFiniteArithmeticPrior extended; density reuse confirmed |
 | A3 | All BookProof/*.lean (selected) | Restate long #check types (8.4) | TODO |
-| A4 | Singularity/*.lean (read-only) | Cross-check cited theorems | TODO |
+| A4 | Singularity/*.lean (read-only) | Cross-check cited theorems | DONE — verified sorry-free and axiom-clean |
+| C2 | ChapterSelectingEvents.lean | Replace True-placeholder theorems | DONE — vonNeumann_abelian_classification now a def; p_ne_np and random_generation_linear_time now defs; selecting_events_not_rewriting_history has real statement |
+| C3 | ChapterSelectingEvents.lean | De-axiomatize axiom:True | DONE — all axioms removed; replaced with defs |
 
 ---
 

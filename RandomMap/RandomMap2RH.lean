@@ -191,7 +191,7 @@ theorem outer_inner_reduces_to_head_generalized {X Y : Type*}
       exact (integrable_congr h_eq).mpr h_int_inner
     have h_fubini : ∫ z : X × Y, (g₂' z.1) * star (g₁' z.1) ∂(μ.prod ν) =
         ∫ y, ∫ x, (g₂' x) * star (g₁' x) ∂μ ∂ν := by
-      rw [integral_prod_symm (fun z : X × Y => (g₂' z.1) * star (g₁' z.1)) h_int_comp]
+      exact integral_prod_symm (fun z : X × Y => (g₂' z.1) * star (g₁' z.1)) h_int_comp
     rw [h_fubini]
     simp [integral_const]
   have h_g_eq : ∫ x, (g₂' x) * star (g₁' x) ∂μ = ∫ x, g₁ x * star (g₂ x) ∂μ := by
@@ -241,7 +241,7 @@ theorem cylinder_expectation_eq {X Y : Type*}
     exact h_mem.integrable (by norm_num)
   calc
     ∫ z : X × Y, f z.1 ∂(μ.prod ν) = ∫ y, ∫ x, f x ∂μ ∂ν := by
-      rw [integral_prod_symm (fun z : X × Y => f z.1) h_int_comp]
+      exact integral_prod_symm (fun z : X × Y => f z.1) h_int_comp
     _ = ∫ x, f x ∂μ := by simp [integral_const]
 
 end RandomMap2RH

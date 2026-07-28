@@ -73,7 +73,7 @@ trace.
 -/
 theorem hasDerivAt_det_line (A : Matrix (Fin n) (Fin n) ℝ) :
     HasDerivAt (fun t : ℝ => (1 + t • A).det) A.trace 0 := by
-  obtain ⟨P, hP⟩ : ∃ P : Polynomial ℝ, ∀ t : ℝ, (1 + t • A).det = 1 + A.trace * t + P.eval t * t ^ 2 := by
+  obtain ⟨P, hP⟩ : ∃ P : Polynomial ℝ,    ∀ t : ℝ, (1 + t • A).det = 1 + A.trace * t + P.eval t * t ^ 2 := by
     exact ⟨ _, fun t => Matrix.det_one_add_smul t A ⟩;
   norm_num [ sq, mul_assoc, mul_comm, mul_left_comm, Polynomial.differentiableAt, hP ];
   convert HasDerivAt.add ( HasDerivAt.add ( hasDerivAt_const _ _ ) ( HasDerivAt.mul ( hasDerivAt_id ( 0 : ℝ ) ) ( hasDerivAt_const _ _ ) ) ) ( HasDerivAt.mul ( hasDerivAt_id ( 0 : ℝ ) ) ( HasDerivAt.mul ( hasDerivAt_id ( 0 : ℝ ) ) ( P.hasDerivAt 0 ) ) ) using 1 ; norm_num

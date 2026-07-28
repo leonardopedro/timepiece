@@ -83,7 +83,7 @@ theorem kernel_hs_sq_bound (Ψ : ιy → ιx → 𝕜) (Φ : ιx → 𝕜) :
 theorem kernel_l2_bound (Ψ : ιy → ιx → 𝕜) (Φ : ιx → 𝕜) :
     Real.sqrt (∑ y, ‖kernelOp Ψ Φ y‖ ^ 2)
       ≤ Real.sqrt (∑ y, ∑ x, ‖Ψ y x‖ ^ 2) * Real.sqrt (∑ x, ‖Φ x‖ ^ 2) := by
-  rw [ ← Real.sqrt_mul <| Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => sq_nonneg _ ] ; exact Real.sqrt_le_sqrt <| by simpa only [kernelOp] using kernel_hs_sq_bound _ _;
+  rw [ ← Real.sqrt_mul <| Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => sq_nonneg _ ] ;    exact Real.sqrt_le_sqrt <| by simpa only [kernelOp] using kernel_hs_sq_bound _ _;
 
 /--
 **The book's normalized conclusion.**  If the kernel is normalized (a

@@ -50,7 +50,7 @@ theorem exp_J (t : ℝ) :
     intro n; induction n <;> simp_all +decide [ Nat.mul_succ, pow_succ, pow_mul ] ;
     simp_all +decide [ show J * J = -1 from by ext i j; fin_cases i <;> fin_cases j <;> norm_num [ J ] ];
   -- Let's split the sum into two parts: one for even $n$ and one for odd $n$.
-  have h_split : ∑' n, (t ^ n / Nat.factorial n) • (J ^ n) = (∑' n, (t ^ (2 * n) / Nat.factorial (2 * n)) • (J ^ (2 * n))) + (∑' n, (t ^ (2 * n + 1) / Nat.factorial (2 * n + 1)) • (J ^ (2 * n + 1))) := by
+  have h_split : ∑' n,    (t ^ n / Nat.factorial n) • (J ^ n) = (∑' n, (t ^ (2 * n) / Nat.factorial (2 * n)) • (J ^ (2 * n))) + (∑' n, (t ^ (2 * n + 1) / Nat.factorial (2 * n + 1)) • (J ^ (2 * n + 1))) := by
     rw [ ← tsum_even_add_odd ];
     · simp_all +decide [ ← mul_assoc, ← pow_mul ];
       have := Real.hasSum_cos t;
@@ -61,7 +61,7 @@ theorem exp_J (t : ℝ) :
   simp_all +decide [ ← mul_assoc, ← smul_assoc ];
   -- Recognize that the sums are the Taylor series for $\cos t$ and $\sin t$.
   have h_cos_sin : (∑' n, (t ^ (2 * n) / Nat.factorial (2 * n)) * (-1) ^ n) = Real.cos t ∧ (∑' n, (t ^ (2 * n + 1) / Nat.factorial (2 * n + 1)) * (-1) ^ n) = Real.sin t := by
-    exact ⟨ by rw [ Real.cos_eq_tsum ] ; exact tsum_congr fun n => by ring, by rw [ Real.sin_eq_tsum ] ; exact tsum_congr fun n => by ring ⟩;
+    exact ⟨ by rw [ Real.cos_eq_tsum ] ; exact tsum_congr fun n => by ring, by rw [ Real.sin_eq_tsum ] ;      exact tsum_congr fun n => by ring ⟩;
   rw [ Summable.tsum_smul_const, Summable.tsum_smul_const ] ; norm_num [ h_cos_sin ];
   · ext i j ; fin_cases i <;> fin_cases j <;> norm_num [ J ];
   · exact Summable.of_norm <| by simpa using Real.summable_pow_div_factorial _ |> Summable.comp_injective <| by intro m n h; simpa using h;
@@ -121,18 +121,20 @@ that maps every computational basis state to the uniform Born distribution
 `|·|² = 1/n` (the DFT / "black hole" uniformizer).
 -/
 theorem exists_uniformizer (n : ℕ) (hn : 1 ≤ n) :
-    ∃ U : Matrix (Fin n) (Fin n) ℂ, Uᴴ * U = 1 ∧ ∀ i j, ‖U i j‖ ^ 2 = 1 / n := by
+    ∃ U : Matrix (Fin n) (Fin n) ℂ, Uᴴ * U = 1 ∧ ∀ i j, ‖U i j‖ ^ 2 = 1 / n :=
+  by
   refine' ⟨ fun i j => Complex.exp ( 2 * Real.pi * Complex.I * i.val * j.val / n ) / Real.sqrt n, _, _ ⟩ <;> norm_num [ Complex.norm_exp ];
-  ext i j ; by_cases hij : i = j <;> simp_all +decide [ Matrix.mul_apply, Complex.exp_ne_zero, div_eq_mul_inv ];
-  · simp +decide [ mul_assoc, mul_comm, mul_left_comm, Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.norm_exp, hij, Matrix.one_apply ];
+  ext i j ; by_cases hij : i = j <;> simp_all +decide [ Matrix.mul_apply, Complex.exp_ne_zero, div_eq_mul_inv ]
+  · simp +decide [ mul_assoc, mul_comm, mul_left_comm, Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.norm_exp, hij, Matrix.one_apply ]
     norm_num [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ; ring_nf ; norm_num [ show n ≠ 0 by linarith ] ;
     norm_num [ Real.sin_sq, Real.cos_sq ] ; ring ; norm_num [ show n ≠ 0 by linarith ] ;
     norm_num [ sq, show n ≠ 0 by linarith ];
   · -- Simplify the expression inside the sum.
     suffices h_simp : ∑ x : Fin n, Complex.exp (2 * Real.pi * Complex.I * (x.val : ℝ) * (j.val - i.val) / n) = 0 by
-      convert congr_arg ( fun x : ℂ => x * ( Real.sqrt n : ℂ ) ⁻¹ ^ 2 ) h_simp using 1 <;> ring;
-      rw [ Finset.mul_sum _ _ _ ] ; congr ; ext ; norm_num [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ; ring;
-      norm_cast; norm_num [ Real.sin_add, Real.cos_add ] ; ring_nf ; norm_num;
+      convert congr_arg ( fun x : ℂ => x * ( Real.sqrt n : ℂ ) ⁻¹ ^ 2 ) h_simp using 1;
+      · rw [ Finset.sum_mul ] ; congr ; ext x ; norm_num [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] <;> ring;
+        norm_cast; norm_num [ Real.sin_add, Real.cos_add ] ; ring_nf ; norm_num;
+      · simp
     -- Recognize that the sum is a geometric series with common ratio $e^{2 \pi i (j - i) / n}$.
     have h_geo_series : ∑ x : Fin n, (Complex.exp (2 * Real.pi * Complex.I * (j.val - i.val) / n)) ^ x.val = 0 := by
       rw [ ← Finset.sum_range ];
@@ -162,7 +164,7 @@ theorem stickBreaking_surjective {N : ℕ} (P : Fin N → ℝ)
   · aesop;
   · -- Define the tail T_n for n in Fin (N+1)
     let T : Fin (N + 1) → ℝ := fun n => ∑ k ∈ Finset.Ici n, P k;
-    -- Prove that $T_n$ is nonincreasing, $T_0 = 1$, each $T_n \geq 0$, and $T_n = P_n + T_{n+1}$ for the successor within range.
+    -- Prove that $T_n$ is nonincreasing,      $T_0 = 1$, each $T_n \geq 0$, and $T_n = P_n + T_{n+1}$ for the successor within range.
     have hT_noninc : ∀ n m : Fin (N + 1), n ≤ m → T m ≤ T n := by
       exact fun n m hnm => Finset.sum_le_sum_of_subset_of_nonneg ( Finset.Ici_subset_Ici.mpr hnm ) fun _ _ _ => hP0 _
     have hT0 : T 0 = 1 := by
@@ -174,8 +176,8 @@ theorem stickBreaking_surjective {N : ℕ} (P : Fin N → ℝ)
       intro n; simp +decide [ T, Finset.sum_Ico_eq_sub _ ] ; ring;
       rw [ eq_sub_iff_add_eq', ← Finset.sum_erase_add _ _ ( show n.castSucc ∈ Finset.Ici n.castSucc from Finset.mem_Ici.mpr le_rfl ), add_comm ];
       rcongr k ; aesop;
-    -- Choose angles: for each `n`, if `T n > 0` pick `θ n` with `Real.cos (θ n) ^ 2 = P n / T n` (possible by `cos_sq_surjective`, since `0 ≤ P n / T n ≤ 1` as `0 ≤ P n ≤ T n`); if `T n = 0` pick `θ n` with `Real.cos (θ n)^2 = 0` i.e. `θ n = π/2` so `Real.sin (θ n)^2 = 1`...
-    obtain ⟨θ, hθ⟩ : ∃ θ : Fin (N + 1) → ℝ, ∀ n : Fin (N + 1), Real.cos (θ n) ^ 2 = if T n > 0 then P n / T n else 0 := by
+    -- Choose angles: for each `n`,      if `T n > 0` pick `θ n` with `Real.cos (θ n) ^ 2 = P n / T n` (possible by `cos_sq_surjective`, since `0 ≤ P n / T n ≤ 1` as `0 ≤ P n ≤ T n`); if `T n = 0` pick `θ n` with `Real.cos (θ n)^2 = 0` i.e. `θ n = π/2` so `Real.sin (θ n)^2 = 1`...
+    obtain ⟨θ, hθ⟩ : ∃ θ : Fin (N + 1) → ℝ,      ∀ n : Fin (N + 1), Real.cos (θ n) ^ 2 = if T n > 0 then P n / T n else 0 := by
       use fun n => Real.arccos ( Real.sqrt ( if T n > 0 then P n / T n else 0 ) );
       intro n; split_ifs <;> simp_all +decide [ Real.cos_arccos ] ;
       · rw [ Real.cos_arccos ];

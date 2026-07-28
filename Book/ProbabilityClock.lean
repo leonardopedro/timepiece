@@ -95,8 +95,11 @@ matrices, and the operation that turns a superposition into a definite outcome â
 
 By contrast, the rotation $`R(a)` acting on the wave-function has determinant
 $`1`: it is invertible, hence a genuine symmetry. **Reversible dynamics lives on the
-wave-function; irreversible collapse lives on the probabilities.** This is the
-mathematical origin of the contrast between unitary evolution and measurement.
+wave-function; irreversible collapse lives on the probabilities.** But this contrast
+is a feature of the parametrization, not a physical dichotomy: it says only that the
+wave-function coordinates admit invertible maps that the probability coordinates do
+not. The manuscript reads it exactly this way, as a property of the chosen
+coordinates rather than a new fact about the world.
 
 # The Density Matrix and Collapse
 
@@ -131,6 +134,25 @@ The last of these, $`\rho^2 = \rho`, says the clock is in a **pure** state; the
 trace $`\operatorname{tr}\rho = 1` says it is normalized. Collapse destroys the
 idempotent purity by deleting the coherence term, leaving a genuine classical
 probability on the diagonal.
+
+# Coherence Is a Feature of the Parametrization, Not a Phenomenon
+
+A word of interpretation the source manuscript insists on. The off-diagonal
+"coherence" term above is **not a physical phenomenon**. It is an artifact of
+describing a probability distribution in wave-function coordinates: the same
+distribution, written on the simplex, carries no such term. The wave-function is
+"nothing else than one possible parametrization of any probability distribution,"
+and the coherence is bookkeeping the parametrization carries, not a substance in the
+world.
+
+Read this way, **collapse** is not a physical process either. It is exactly the
+operation the manuscript calls "a generalization of taking the real part of Euler's
+formula": delete the $`J`-proportional (off-diagonal) part and keep the diagonal
+probabilities. And because _every_ probability distribution admits a wave-function
+parametrization, the same "collapse" can be written down for any random phenomenon
+whatsoever. This is the manuscript's conclusion that "the wave-function collapse is
+a feature of all random phenomena" â€” not a mysterious quantum event, but a
+consequence of choosing these coordinates.
 
 # Summary
 

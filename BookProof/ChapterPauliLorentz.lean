@@ -135,9 +135,9 @@ theorem hermMat_vecOfMat {H : Matrix (Fin 2) (Fin 2) ℂ} (hH : Hᴴ = H) :
   unfold hermMat vecOfMat;
   ext i j; fin_cases i <;> fin_cases j <;> simp +decide [ Complex.ext_iff ];
   · exact ⟨ by ring, by have := congr_fun ( congr_fun hH 0 ) 0; norm_num [ Complex.ext_iff ] at this; linarith ⟩;
-  · have := congr_fun ( congr_fun hH 1 ) 0; norm_num [ Complex.ext_iff ] at this; constructor <;> linarith;
-  · have := congr_fun ( congr_fun hH 0 ) 1; norm_num [ Complex.ext_iff ] at this; constructor <;> linarith;
-  · have := congr_fun ( congr_fun hH 1 ) 1; norm_num [ Complex.ext_iff ] at this; constructor <;> linarith;
+  · have := congr_fun ( congr_fun hH 1 ) 0;    norm_num [ Complex.ext_iff ] at this; constructor <;> linarith;
+  · have := congr_fun ( congr_fun hH 0 ) 1;    norm_num [ Complex.ext_iff ] at this; constructor <;> linarith;
+  · have := congr_fun ( congr_fun hH 1 ) 1;    norm_num [ Complex.ext_iff ] at this; constructor <;> linarith;
 
 /-- `hermMat` is injective on 4-vectors: `X = xᵤσᵘ` determines `x` on its four
 components.  Together with `hermMat_vecOfMat` this exhibits the real-linear

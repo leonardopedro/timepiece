@@ -68,10 +68,10 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
     NormedSpace.exp (-G) * mgammaR μ * NormedSpace.exp G
       = ∑ ν, (NormedSpace.exp (-A)) μ ν • mgammaR ν := by
   -- By definition of $Z$, we know that its derivative is $-(G * Z t - Z t * G)$.
-  have hZ_deriv : ∀ t : ℝ, HasDerivAt (fun t => ∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) (-(G * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) - (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * G)) t := by
+  have hZ_deriv : ∀ t : ℝ,    HasDerivAt (fun t => ∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) (-(G * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) - (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * G)) t := by
     intro t
     have hZ_deriv_step : HasDerivAt (fun t => ∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) (∑ ν, ((-A) * NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) t := by
-      have hZ_deriv : ∀ ν, HasDerivAt (fun t => (NormedSpace.exp (t • (-A))) μ ν) ((-A * NormedSpace.exp (t • (-A))) μ ν) t := by
+      have hZ_deriv : ∀ ν,        HasDerivAt (fun t => (NormedSpace.exp (t • (-A))) μ ν) ((-A * NormedSpace.exp (t • (-A))) μ ν) t := by
         intro ν
         have h_entry_deriv : HasDerivAt (fun t => (NormedSpace.exp (t • (-A)))) ((-A) * (NormedSpace.exp (t • (-A)))) t := by
           convert hasDerivAt_exp_smul_const' ( -A ) t using 1;
@@ -83,13 +83,13 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
         simp +decide [ SemiconjBy, mul_smul_comm ];
       have := h_comm.exp_right;
       rw [ neg_mul, this.eq ];
-    have h_sum : ∑ ν, (NormedSpace.exp (t • (-A)) * A) μ ν • mgammaR ν = ∑ ν, (NormedSpace.exp (t • (-A))) μ ν • (G * mgammaR ν - mgammaR ν * G) := by
+    have h_sum : ∑ ν,      (NormedSpace.exp (t • (-A)) * A) μ ν • mgammaR ν = ∑ ν,      (NormedSpace.exp (t • (-A))) μ ν • (G * mgammaR ν - mgammaR ν * G) := by
       simp_all +decide [ Matrix.mul_apply, Finset.mul_sum _ _ _, mul_assoc, mul_left_comm, Finset.sum_mul ];
       simp_all +decide [ Finset.sum_smul, smul_sub, sub_smul, Finset.smul_sum, Finset.sum_add_distrib, Finset.sum_sub_distrib, mul_sub, sub_mul, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul _ _ _, HasAdLambda ];
       exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by simp +decide [ mul_assoc, mul_comm, mul_left_comm, smul_smul ] );
     simp_all +decide [ Matrix.mul_sum, Matrix.sum_mul, Finset.mul_sum _ _ _, Finset.sum_mul _ _ _, smul_sub, sub_mul, mul_sub ];
   -- By definition of $φ$, we know that its derivative is zero.
-  have hφ_deriv : ∀ t : ℝ, HasDerivAt (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) 0 t := by
+  have hφ_deriv : ∀ t : ℝ,    HasDerivAt (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) 0 t := by
     intro t
     have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • G)) (G * NormedSpace.exp (t • G)) t := by
       convert hasDerivAt_exp_smul_const' G t using 1;
@@ -105,8 +105,8 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
       exact Commute.smul_right ( Commute.refl G ) t;
     simp +decide [ ← mul_assoc, ← h_comm.eq ];
   -- Since the derivative of $φ$ is zero, $φ$ is constant.
-  have hφ_const : ∀ t₁ t₂ : ℝ, NormedSpace.exp (t₁ • G) * (∑ ν, (NormedSpace.exp (t₁ • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t₁ • (-G)) = NormedSpace.exp (t₂ • G) * (∑ ν, (NormedSpace.exp (t₂ • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t₂ • (-G)) := by
-    have hφ_const : ∀ t : ℝ, deriv (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) t = 0 := by
+  have hφ_const : ∀ t₁ t₂ : ℝ,    NormedSpace.exp (t₁ • G) * (∑ ν, (NormedSpace.exp (t₁ • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t₁ • (-G)) = NormedSpace.exp (t₂ • G) * (∑ ν, (NormedSpace.exp (t₂ • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t₂ • (-G)) := by
+    have hφ_const : ∀ t : ℝ,      deriv (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) t = 0 := by
       intro t;
       convert HasDerivAt.deriv ( hφ_deriv t ) using 1;
     apply_rules [ is_const_of_deriv_eq_zero ];

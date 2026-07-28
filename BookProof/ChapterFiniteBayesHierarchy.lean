@@ -52,7 +52,7 @@ theorem collapseKernels_normalized (ks : List (S → S → ℝ))
   | nil => exact idKernel_normalized
   | cons k ks ih => 
     simp [collapseKernels]
-    exact compKernel_normalized k (collapseKernels ks) (hks k (by simp)) (ih fun k hk => hks k (by simp; exact Or.inr hk))
+    exact compKernel_normalized k (collapseKernels ks) (hks k (by simp)) (ih fun k hk => hks k (by simp;      exact Or.inr hk))
 
 /-- Every finite composition of nonnegative kernels is nonnegative. -/
 theorem collapseKernels_nonnegative (ks : List (S → S → ℝ))

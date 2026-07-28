@@ -135,9 +135,9 @@ theorem exists_angles_realize (n : ℕ) (p : Fin n → ℝ)
   · -- Set the remaining mass `R j = 1 - ∑ k ∈ Finset.range j, q k`.
     set q : ℕ → ℝ := fun k => if h : k < n + 1 then p ⟨k, h⟩ else 0
     set R : ℕ → ℝ := fun j => 1 - ∑ k ∈ Finset.range j, q k;
-    -- Set the target conditional `t j = if R j = 0 then 0 else q j / R j`, and the angle `θ j = Real.arccos (Real.sqrt (t j))`.
+    -- Set the target conditional `t j = if R j = 0 then 0 else q j / R j`,      and the angle `θ j = Real.arccos (Real.sqrt (t j))`.
     obtain ⟨θ, hθ⟩ : ∃ θ : ℕ → ℝ, ∀ j, Real.cos (θ j) ^ 2 = if R j = 0 then 0 else q j / R j := by
-      have h_t_range : ∀ j, 0 ≤ (if R j = 0 then 0 else q j / R j) ∧ (if R j = 0 then 0 else q j / R j) ≤ 1 := by
+      have h_t_range : ∀ j,        0 ≤ (if R j = 0 then 0 else q j / R j) ∧ (if R j = 0 then 0 else q j / R j) ≤ 1 := by
         intro j
         have hR_nonneg : 0 ≤ R j := by
           refine' sub_nonneg_of_le _;
@@ -178,7 +178,7 @@ theorem exists_angles_realize (n : ℕ) (p : Fin n → ℝ)
         by_cases hj : R j = 0 <;> simp_all +decide [ Finset.sum_range_succ ];
         · simp +zetaDelta at *;
           by_cases hj' : j ≤ n <;> simp_all +decide [ Finset.sum_range_succ ];
-          · have h_sum_le_one : ∑ k ∈ Finset.range (j + 1), (if h : k ≤ n then p ⟨k, by linarith⟩ else 0) ≤ 1 := by
+          · have h_sum_le_one : ∑ k ∈ Finset.range (j + 1),            (if h : k ≤ n then p ⟨k, by linarith⟩ else 0) ≤ 1 := by
               rw [ ← hsum ];
               rw [ Finset.sum_fin_eq_sum_range ];
               rw [ ← Finset.sum_range_add_sum_Ico _ ( by linarith : j + 1 ≤ n + 1 ) ];
