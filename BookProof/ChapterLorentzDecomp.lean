@@ -48,10 +48,10 @@ product factors: `(δ * m)⁰₀ = δ⁰₀ · m⁰₀`.
 theorem delta_mul_time {δ : Matrix (Fin 4) (Fin 4) ℝ} (hδ : δ ∈ Delta)
     (m : Matrix (Fin 4) (Fin 4) ℝ) : (δ * m) 0 0 = δ 0 0 * m 0 0 := by
   rcases hδ with ( rfl | rfl | rfl | rfl ) <;> norm_num [ Fin.sum_univ_succ, Fin.prod_univ_succ ];
-  · simp +decide [ eta, Matrix.mul_apply ];
-    simp +decide [ Fin.sum_univ_succ ];
+  · simp [ eta, Matrix.mul_apply ];
+    simp [ Fin.sum_univ_succ ];
   · unfold eta; norm_num [ Fin.sum_univ_succ, Fin.prod_univ_succ ] ;
-    simp +decide [ Matrix.vecMul ];
+    simp [ Matrix.vecMul ];
     rfl
 
 /-
@@ -68,14 +68,15 @@ theorem lorentz_delta_decomp {l : Matrix (Fin 4) (Fin 4) ℝ} (h : IsLorentz l) 
     grind +suggestions;
   cases' h_det with h_det h_det <;> cases' lt_or_gt_of_ne h_time with h_time h_time;
   · refine' ⟨ -1, _, -1 * l, _, _ ⟩ <;> norm_num [ Delta ];
-    exact ⟨ isLorentz_neg h, by simp +decide [ h_det, Matrix.det_neg ], by simpa using neg_pos.mpr h_time ⟩;
-  · exact ⟨ 1, by simp +decide [ Delta ], l, ⟨ h, h_det, h_time ⟩, by norm_num ⟩;
+    exact ⟨ isLorentz_neg h, by norm_num [ h_det, Matrix.det_neg ],
+      by simpa using neg_pos.mpr h_time ⟩;
+  · exact ⟨ 1, by simp [ Delta ], l, ⟨ h, h_det, h_time ⟩, by norm_num ⟩;
   · refine' ⟨ -eta, _, -eta * l, _, _ ⟩ <;> norm_num [ Delta ];
     · constructor;
       · convert isLorentz_neg ( isLorentz_mul ( isLorentz_eta ) h ) using 1;
       · norm_num [ Matrix.det_neg, h_det ];
         exact ⟨ by rw [ eta_det ] ; norm_num, by rw [ show ( eta * l ) 0 0 = eta 0 0 * l 0 0 by exact delta_mul_time ( by norm_num [ Delta ] ) l ] ; norm_num [ eta ] ; linarith ⟩;
-    · simp +decide [ ← Matrix.mul_assoc, eta_mul_self ];
+    · simp [ ← Matrix.mul_assoc, eta_mul_self ];
   · refine' ⟨ eta, _, eta * l, _, _ ⟩ <;> norm_num [ Delta ];
     · refine' ⟨ _, _, _ ⟩;
       · exact isLorentz_mul ( isLorentz_eta ) h;
@@ -98,9 +99,9 @@ theorem lorentz_delta_decomp_unique
   have hδ : δ₁ = δ₂ := by
     have hdet : δ₁.det = δ₂.det := by
       apply_fun Matrix.det at heq;
-      simp_all +decide [ IsProperOrthochronous ]
+      simp_all [ IsProperOrthochronous ]
     have htime : δ₁ 0 0 * s₁ 0 0 = δ₂ 0 0 * s₂ 0 0 := by
-      convert congr_arg ( fun m : Matrix ( Fin 4 ) ( Fin 4 ) ℝ => m 0 0 ) heq using 1 <;> simp +decide [ Matrix.mul_apply ];
+      convert congr_arg ( fun m : Matrix ( Fin 4 ) ( Fin 4 ) ℝ => m 0 0 ) heq using 1 <;> simp [ Matrix.mul_apply ];
       · convert delta_mul_time hδ₁ s₁ |> Eq.symm using 1;
       · convert delta_mul_time hδ₂ s₂ |> Eq.symm using 1;
     rcases hδ₁ with ( rfl | rfl | rfl | rfl ) <;> rcases hδ₂ with ( rfl | rfl | rfl | rfl ) <;> norm_num at hdet htime ⊢;
@@ -110,7 +111,7 @@ theorem lorentz_delta_decomp_unique
       linarith [ hs₁.2.2, hs₂.2.2 ];
     · unfold eta at * ; norm_num at * ; linarith [ hs₁.2.2, hs₂.2.2 ];
     · linarith [ hs₁.2.2, hs₂.2.2 ];
-  simp_all +decide [ mul_eq_mul_right_iff ];
+  simp_all ;
   -- Since δ₂ is invertible,    we can multiply both sides of the equation δ₂ * s₁ = δ₂ * s₂ by δ₂⁻¹ to get s₁ = s₂.
   have h_inv : Invertible δ₂ := by
     convert Matrix.invertibleOfDetInvertible δ₂;

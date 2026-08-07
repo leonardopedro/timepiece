@@ -108,13 +108,13 @@ form of a `ℂ`-linear map is a ring homomorphism `Mat₂(ℂ) → Mat₄(ℝ)`)
 theorem Treal_mul (A B : Matrix (Fin 2) (Fin 2) ℂ) :
     Treal (A * B) = Treal A * Treal B := by
   unfold Treal;
-  ext i j;    fin_cases i <;> fin_cases j <;> simp +decide [ Matrix.mul_apply, Fin.sum_univ_succ ] <;> ring;
+  ext i j;    fin_cases i <;> fin_cases j <;> simp [ Matrix.mul_apply, Fin.sum_univ_succ ] <;> ring;
 
 /-- `Treal 1 = 1`. -/
 theorem Treal_one : Treal (1 : Matrix (Fin 2) (Fin 2) ℂ) = 1 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [Treal, Matrix.one_apply] <;> norm_num
+    simp [Treal] <;> norm_num
 
 /-- `Treal` of a scalar matrix `c • 1` is `(Re c)·1 + (Im c)·J` — in particular
 `Treal ((1:ℂ) • 1) = 1`.  Packaged for the determinant computation:
@@ -124,7 +124,7 @@ theorem T_mul_adj2 (T : Matrix (Fin 2) (Fin 2) ℂ)
     T * adj2 T = 1 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [adj2, Matrix.mul_apply, Fin.sum_univ_two, Matrix.one_apply] <;>
+    simp [adj2, Matrix.mul_apply, Fin.sum_univ_two] <;>
     first | linear_combination hdet | ring
 
 /-- `adj2 T · T = 1` when `det T = 1`. -/
@@ -133,7 +133,7 @@ theorem adj2_mul_T (T : Matrix (Fin 2) (Fin 2) ℂ)
     adj2 T * T = 1 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [adj2, Matrix.mul_apply, Fin.sum_univ_two, Matrix.one_apply] <;>
+    simp [adj2, Matrix.mul_apply, Fin.sum_univ_two] <;>
     first | linear_combination hdet | ring
 
 /-- `Σᵀ Σ = 2·1`. -/
@@ -158,21 +158,21 @@ set_option maxHeartbeats 2000000 in
 theorem spinorInv_conj_mgamma (T : Matrix (Fin 2) (Fin 2) ℂ) (μ : Fin 4) :
     SpinorInv T * mgamma μ * Spinor T = ∑ ν, UpsilonC T ν μ • mgamma ν := by
   unfold SpinorInv Spinor UpsilonC mgamma;
-  simp +decide [ SigmaC, SigmaZ, Treal, adj2, mgammaZ, pauliCoeff, pauliσ,
+  simp [ SigmaC, SigmaZ, Treal, adj2, mgammaZ, pauliCoeff, pauliσ,
     Fin.sum_univ_four, Matrix.mul_apply, Matrix.trace, Matrix.diag,
-    Matrix.conjTranspose_apply, RingHom.mapMatrix_apply, Matrix.smul_apply,
-    Matrix.transpose_apply, Matrix.of_apply, Matrix.cons_val_zero,
-    Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val', Matrix.empty_val',
-    Matrix.cons_val_fin_one, Matrix.head_fin_const ];
+    Matrix.conjTranspose_apply, RingHom.mapMatrix_apply, 
+    Matrix.of_apply, Matrix.cons_val_zero,
+    Matrix.cons_val_one, Matrix.cons_val', Matrix.empty_val',
+    Matrix.cons_val_fin_one ];
   rw [ ← Matrix.ext_iff ] at *;
-  fin_cases μ <;> simp +decide [ Fin.sum_univ_succ, Matrix.mul_apply, Matrix.trace ] at *;
-  · simp +decide [ Fin.forall_fin_succ, Complex.ext_iff ] at *;
+  fin_cases μ <;> simp [ Fin.sum_univ_succ, Matrix.mul_apply ] at *;
+  · simp [ Fin.forall_fin_succ, Complex.ext_iff ] at *;
     grind;
   · norm_num [ Fin.forall_fin_succ, Complex.ext_iff ] at *;
     grind;
-  · simp +decide [ Fin.forall_fin_succ, Complex.ext_iff ] at *;
+  · simp [ Fin.forall_fin_succ, Complex.ext_iff ] at *;
     grind;
-  · simp +decide [ Fin.forall_fin_succ, Complex.ext_iff ] at *;
+  · simp [ Fin.forall_fin_succ, Complex.ext_iff ] at *;
     grind
 
 /-- `Spinor T · SpinorInv T = 1` for `T ∈ SL(2,ℂ)` (`det T = 1`). -/

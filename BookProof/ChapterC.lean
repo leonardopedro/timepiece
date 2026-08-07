@@ -24,13 +24,13 @@ namespace BookProof.ChapterC
 The number of invertible discrete maps `Fin n → Fin n` is `n!`.
 -/
 theorem card_invertible (n : ℕ) : Fintype.card (Equiv.Perm (Fin n)) = n ! := by
-  simp +decide [ Fintype.card_perm ]
+  simp [ Fintype.card_perm ]
 
 /-
 The number of all discrete maps `Fin n → Fin n` is `nⁿ`.
 -/
 theorem card_all (n : ℕ) : Fintype.card (Fin n → Fin n) = n ^ n := by
-  simp +decide [ Fintype.card_pi ]
+  simp [ Fintype.card_pi ]
 
 /-
 The probability that a uniformly random discrete map is invertible is `n!/nⁿ`.

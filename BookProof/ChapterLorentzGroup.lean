@@ -53,7 +53,7 @@ theorem eta_transpose : etaᵀ = eta := by
 The metric is an involution: `η² = 1`.
 -/
 theorem eta_mul_self : eta * eta = 1 := by
-  ext i j; fin_cases i <;> fin_cases j <;> simp +decide [ eta, Matrix.mul_apply ] ;
+  ext i j; fin_cases i <;> fin_cases j <;> simp [ eta, Matrix.mul_apply ] ;
   all_goals norm_num [ Fin.sum_univ_succ, Fin.sum_univ_zero ] ;
 
 /-
@@ -61,7 +61,7 @@ The determinant of the metric is `-1`.
 -/
 theorem eta_det : eta.det = -1 := by
   norm_num [ Matrix.det_succ_row_zero, eta ];
-  simp +decide [ Fin.sum_univ_succ ]
+  simp [ Fin.sum_univ_succ ]
 
 /-- The Lorentz group `O(1,3)`: real `4×4` matrices preserving the Minkowski
 metric `η`, i.e. `λᵀ η λ = η`. -/
@@ -79,8 +79,8 @@ The product of two Lorentz transformations is a Lorentz transformation.
 -/
 theorem isLorentz_mul {a b : Matrix (Fin 4) (Fin 4) ℝ}
     (ha : IsLorentz a) (hb : IsLorentz b) : IsLorentz (a * b) := by
-      unfold IsLorentz at *; simp_all +decide [ Matrix.mul_assoc ] ;
-      simp_all +decide [ ← Matrix.mul_assoc ]
+      unfold IsLorentz at *; simp_all [ Matrix.mul_assoc ] ;
+      simp_all [ ← Matrix.mul_assoc ]
 
 /-
 The determinant of a Lorentz transformation squares to `1`.
@@ -108,8 +108,8 @@ theorem isLorentz_inv {l : Matrix (Fin 4) (Fin 4) ℝ} (h : IsLorentz l) :
       have h_inv : IsUnit l.det := by
         exact isUnit_iff_ne_zero.mpr ( lorentz_det_ne_zero h );
       replace h := congr_arg ( fun x => x * l⁻¹ ) h
-      simp_all +decide [ Matrix.mul_assoc, isUnit_iff_ne_zero ]
-      simp +decide [ ← h, h_inv, isUnit_iff_ne_zero ]
+      simp_all [ Matrix.mul_assoc, isUnit_iff_ne_zero ]
+      simp [ ← h, h_inv, isUnit_iff_ne_zero ]
 
 /-
 The metric `η` (parity × time-reversal) is a Lorentz transformation.

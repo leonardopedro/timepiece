@@ -1,7 +1,9 @@
 name = "RiemannProof"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["PnpProof", "BookProof"]
+# `PnpProof` is not included in this repository snapshot, so it cannot be a
+# default build target.  Keep the complete proof and book targets buildable.
+defaultTargets = ["BookProof", "Book", "Singularity"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`

@@ -77,7 +77,7 @@ noncomputable def projNeg : Matrix (Fin 4) (Fin 4) ℂ :=
 `P₊ + P₋ = 1`: the two energy-sign projectors are complementary.
 -/
 theorem projPos_add_projNeg : projPos + projNeg = 1 := by
-  ext i j; simp +decide [ projPos, projNeg ] ; ring
+  ext i j; simp [ projPos, projNeg ] ; ring
 
 /-
 `P₊² = P₊`: the positive-sign projector is idempotent.

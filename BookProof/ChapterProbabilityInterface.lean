@@ -22,7 +22,7 @@ noncomputable def transportMeasure {X Y : Type*} [MeasurableSpace X]
 theorem transportMeasure_symm {X Y : Type*} [MeasurableSpace X]
     [MeasurableSpace Y] (e : X ≃ᵐ Y) (μ : Measure X) :
     transportMeasure e.symm (transportMeasure e μ) = μ := by
-  simp [transportMeasure, Measure.map_map, e.symm_comp_self]
+  simp [transportMeasure]
 
 /-- Probability is preserved by translation through a measurable equivalence. -/
 theorem transportMeasure_isProbability {X Y : Type*} [MeasurableSpace X]

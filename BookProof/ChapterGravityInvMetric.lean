@@ -58,14 +58,14 @@ The Minkowski metric is an involution: `η · η = 1`.  Equivalently `η^{ab}` (
 `η_{ab}` numerically) is its own inverse, `η^{ab} η_{bc} = δ^a{}_c`.
 -/
 theorem metric_mul_metric : metric * metric = 1 := by
-  ext i j; fin_cases i <;> fin_cases j <;> simp +decide [ metric ] ;
+  ext i j; fin_cases i <;> fin_cases j <;> simp [ metric ] ;
 
 /-
 `h^♯` is symmetric.
 -/
 theorem invSpatialMetric_symm (v : Fin 4 → ℝ) :
     (invSpatialMetric v)ᵀ = invSpatialMetric v := by
-      ext i j; simp +decide [ invSpatialMetric, Matrix.transpose_apply, mul_comm ] ;
+      ext i j; simp [ invSpatialMetric, Matrix.transpose_apply, mul_comm ] ;
       fin_cases i <;> fin_cases j <;> rfl
 
 /-
@@ -76,9 +76,9 @@ time covector, complementary to `h_{ab} v^b = 0`.
 theorem invSpatialMetric_mulVec_lower_self (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (invSpatialMetric v).mulVec (lower v) = 0 := by
       convert spatialProj_mulVec_self v hv using 1;
-      unfold invSpatialMetric spatialProj;        ext; simp +decide [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ;
-      unfold lower metric; simp +decide [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
-      rename_i i; fin_cases i <;> simp +decide [ Matrix.one_apply ]; all_goals ring
+      unfold invSpatialMetric spatialProj;        ext; simp [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ;
+      unfold lower metric; simp [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
+      rename_i i; fin_cases i <;> simp [ Matrix.one_apply ]; all_goals ring
 
 /-
 **Headline.** The raised and lowered spatial metrics compose to the spatial
@@ -88,9 +88,9 @@ spatial hyperplane `v^⊥`.
 theorem invSpatialMetric_mul_spatialMetric (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     invSpatialMetric v * spatialMetric v = spatialProj v := by
       unfold invSpatialMetric spatialMetric spatialProj;
-      ext a b; simp +decide [ *, Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
-      simp +decide [ Fin.sum_univ_four, Matrix.mulVec, dotProduct, lower, minkSq, metric ] at *;
-      simp +decide [ Matrix.one_apply, Matrix.diagonal_apply ] at *;
+      ext a b; simp [ *, Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
+      simp [ Fin.sum_univ_four, Matrix.mulVec, dotProduct, lower, minkSq, metric ] at *;
+      simp [ Matrix.one_apply, Matrix.diagonal_apply ] at *;
       grind
 
 end BookProof.ChapterGravityInvMetric

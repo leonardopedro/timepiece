@@ -63,32 +63,32 @@ theorem σ3_herm : σ3ᴴ = σ3 := by
 /-- `(σ¹)² = 1` (hence `σ¹` is unitary, being also hermitian). -/
 theorem σ1_sq : σ1 * σ1 = 1 := by
   ext i j; fin_cases i <;> fin_cases j <;>
-    simp [σ1, Matrix.mul_apply, Fin.sum_univ_two, Matrix.one_apply]
+    simp [σ1, Matrix.mul_apply, Fin.sum_univ_two]
 
 /-- `(σ²)² = 1`. -/
 theorem σ2_sq : σ2 * σ2 = 1 := by
   ext i j; fin_cases i <;> fin_cases j <;>
-    simp [σ2, Matrix.mul_apply, Fin.sum_univ_two, Matrix.one_apply, Complex.I_mul_I]
+    simp [σ2, Matrix.mul_apply, Fin.sum_univ_two, Complex.I_mul_I]
 
 /-- `(σ³)² = 1`. -/
 theorem σ3_sq : σ3 * σ3 = 1 := by
   ext i j; fin_cases i <;> fin_cases j <;>
-    simp [σ3, Matrix.mul_apply, Fin.sum_univ_two, Matrix.one_apply]
+    simp [σ3, Matrix.mul_apply, Fin.sum_univ_two]
 
 /-- `σ¹` and `σ²` anti-commute. -/
 theorem σ1σ2_anti : σ1 * σ2 + σ2 * σ1 = 0 := by
   ext i j; fin_cases i <;> fin_cases j <;>
-    simp [σ1, σ2, Matrix.mul_apply, Fin.sum_univ_two]
+    simp [σ1, σ2]
 
 /-- `σ²` and `σ³` anti-commute. -/
 theorem σ2σ3_anti : σ2 * σ3 + σ3 * σ2 = 0 := by
   ext i j; fin_cases i <;> fin_cases j <;>
-    simp [σ2, σ3, Matrix.mul_apply, Fin.sum_univ_two]
+    simp [σ2, σ3]
 
 /-- `σ¹` and `σ³` anti-commute. -/
 theorem σ1σ3_anti : σ1 * σ3 + σ3 * σ1 = 0 := by
   ext i j; fin_cases i <;> fin_cases j <;>
-    simp [σ1, σ3, Matrix.mul_apply, Fin.sum_univ_two]
+    simp [σ1, σ3]
 
 /-! ## The 4-vector ↔ hermitian-matrix correspondence -/
 
@@ -105,7 +105,7 @@ def mink (x : Fin 4 → ℝ) : ℝ := (x 0) ^ 2 - (x 1) ^ 2 - (x 2) ^ 2 - (x 3) 
 theorem hermMat_eq_pauli (x : Fin 4 → ℝ) :
     hermMat x = (x 0 : ℂ) • σ0 + (x 1 : ℂ) • σ1 + (x 2 : ℂ) • σ2 + (x 3 : ℂ) • σ3 := by
   ext i j; fin_cases i <;> fin_cases j <;>
-    simp [hermMat, σ0, σ1, σ2, σ3, Matrix.one_apply] <;> ring
+    simp [hermMat, σ0, σ1, σ2, σ3] <;> ring
 
 /-- `hermMat x` is hermitian. -/
 theorem hermMat_isHermitian (x : Fin 4 → ℝ) : (hermMat x)ᴴ = hermMat x := by
@@ -133,7 +133,7 @@ noncomputable def vecOfMat (H : Matrix (Fin 2) (Fin 2) ℂ) : Fin 4 → ℝ :=
 theorem hermMat_vecOfMat {H : Matrix (Fin 2) (Fin 2) ℂ} (hH : Hᴴ = H) :
     hermMat (vecOfMat H) = H := by
   unfold hermMat vecOfMat;
-  ext i j; fin_cases i <;> fin_cases j <;> simp +decide [ Complex.ext_iff ];
+  ext i j; fin_cases i <;> fin_cases j <;> simp [ Complex.ext_iff ];
   · exact ⟨ by ring, by have := congr_fun ( congr_fun hH 0 ) 0; norm_num [ Complex.ext_iff ] at this; linarith ⟩;
   · have := congr_fun ( congr_fun hH 1 ) 0;    norm_num [ Complex.ext_iff ] at this; constructor <;> linarith;
   · have := congr_fun ( congr_fun hH 0 ) 1;    norm_num [ Complex.ext_iff ] at this; constructor <;> linarith;

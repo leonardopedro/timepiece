@@ -31,20 +31,31 @@ def orientationCharacter (n : ℕ) : (Fin n → Bool) →+ Bool where
 /-
 The boolean parity sum vanishes exactly when the Hamming weight is even.
 -/
+theorem boolSum_eq_false_iff_even_card {α : Type*} (s : Finset α) (f : α → Bool) :
+    (∑ k ∈ s, f k) = false ↔ Even (s.filter (fun k => f k = true)).card := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp; rfl
+  | insert a s ha ih =>
+    rw [Finset.sum_insert ha, Finset.filter_insert]
+    cases hfa : f a with
+    | false => simpa [hfa] using ih
+    | true =>
+      have hcard : (insert a (s.filter (fun k => f k = true))).card
+          = (s.filter (fun k => f k = true)).card + 1 :=
+        Finset.card_insert_of_notMem (by simp [ha])
+      rw [if_pos rfl, hcard]
+      cases hs : (∑ k ∈ s, f k) with
+      | false => simp [Nat.even_add_one, ih.1 hs]
+      | true =>
+        have hno : ¬ Even (s.filter (fun k => f k = true)).card := by
+          intro h; simpa [hs] using ih.2 h
+        simp only [Nat.even_add_one, hno, not_false_iff, iff_true]
+        decide
+
 theorem orientationCharacter_eq_false_iff_even {n : ℕ} (b : Fin n → Bool) :
     orientationCharacter n b = false ↔ Even (flipCount b) := by
-  induction n <;> simp_all +decide [ Fin.sum_univ_succ, orientationCharacter, flipCount ];
-  rename_i n ih;
-  by_cases h : b 0 <;> simp_all +decide [ Finset.filter_insert, parity_simps ];
-  · rw [ show ( Finset.univ.filter fun k => b k = true ) = Finset.image ( fun k => Fin.succ k ) ( Finset.univ.filter fun k => b ( Fin.succ k ) = true ) ∪ { 0 } from ?_, Finset.card_union ] <;> norm_num [ Finset.card_image_of_injective, Function.Injective, h ];
-    · cases Nat.mod_two_eq_zero_or_one ( Finset.card ( Finset.filter ( fun k => b ( Fin.succ k ) = true ) Finset.univ ) ) <;> simp_all +decide [ Nat.even_iff, Nat.add_mod ];
-      · convert ih _ |>.2 ‹_› using 1;
-      · specialize ih ( fun k => b k.succ ) ; aesop;
-    · ext ( _ | k ) <;> simp +decide [ h ];
-      exact ⟨ fun hk => ⟨ ⟨ k, by linarith ⟩, hk, rfl ⟩, by rintro ⟨ a, ha, ha' ⟩ ; cases a ; aesop ⟩;
-  · convert ih ( fun i => b i.succ ) using 1;
-    rw [ Finset.card_filter, Finset.card_filter ];
-    rw [ Fin.sum_univ_succ ] ; aesop
+  simpa [orientationCharacter, flipCount] using boolSum_eq_false_iff_even_card Finset.univ b
 
 /-
 The orientation-preserving sign subgroup is the kernel of the parity

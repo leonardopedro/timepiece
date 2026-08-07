@@ -98,7 +98,7 @@ A deterministic ensemble has zero entropy.
 theorem entropy_pointMass_zero (p : Fin n → ℝ) (hp : IsPointMass p) :
     entropy p = 0 := by
   obtain ⟨ a, ha ⟩ := hp;
-  exact Finset.sum_eq_zero fun i hi => by by_cases hi' : i = a <;> simp +decide [ * ] ;
+  exact Finset.sum_eq_zero fun i hi => by by_cases hi' : i = a <;> simp [ * ] ;
 
 /-
 The entropy of any probability vector is nonnegative.
@@ -114,7 +114,7 @@ coordinate strictly between `0` and `1`.
 theorem exists_mem_Ioo_of_not_pointMass (p : Fin n → ℝ) (hnn : ∀ a, 0 ≤ p a)
     (hsum : ∑ a, p a = 1) (hnp : ¬ IsPointMass p) :
     ∃ a, 0 < p a ∧ p a < 1 := by
-  contrapose! hnp; simp_all +decide [ IsPointMass ] ;
+  contrapose! hnp; simp_all [ IsPointMass ] ;
   -- Since $p$ is not a point mass, there exists some $a$ such that $p(a) > 0$.
   obtain ⟨a, ha⟩ : ∃ a, 0 < p a := by
     exact not_forall_not.mp fun h => by norm_num [ show p = fun _ => 0 by funext a; linarith [ h a, hnn a ] ] at hsum;
@@ -149,9 +149,9 @@ theorem isPointMass_bornDist_iff (v : Fin n → ℂ) (hv : ∑ a, ‖v a‖ ^ 2 
     IsPointMass (bornDist v) ↔ IsDeterministicColumn v := by
   constructor <;> intro h;
   · obtain ⟨ a, ha₁, ha₂ ⟩ := h;
-    exact ⟨ a, by contrapose! ha₁; simp_all +decide [ bornDist ], fun b hb => by specialize ha₂ b hb; simp_all +decide [ bornDist ] ⟩;
-  · obtain ⟨ a, ha₁, ha₂ ⟩ := h; use a; simp_all +decide [ IsPointMass, IsDeterministicColumn ] ;
-    simp_all +decide [ Finset.sum_eq_single a, bornDist ]
+    exact ⟨ a, by contrapose! ha₁; simp_all [ bornDist ], fun b hb => by specialize ha₂ b hb; simp_all [ bornDist ] ⟩;
+  · obtain ⟨ a, ha₁, ha₂ ⟩ := h; use a; simp_all  ;
+    simp_all [ Finset.sum_eq_single a, bornDist ]
 
 /-
 **Reversible case.** For a unit column `v`, the collapsed ensemble has

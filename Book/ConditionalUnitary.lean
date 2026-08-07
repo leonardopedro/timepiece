@@ -13,14 +13,14 @@ tag := "conditional-unitary"
 :::paragraph
 The Born rule ({ref "born-reproduces"}[the Born rule reproduces every
 distribution]) parametrizes a single probability distribution by a wave-function:
-$`p(x) = |\Psi(x)|^2`. The manuscript goes further. **Any joint probability density**
+$`p(x) = |\Psi(x)|^2`. The manuscript goes further. *Any joint probability density*
 $`p(x,y)` between two standard measure spaces $`X, Y` can be written as
 :::
 
 $$`p(x,y) = |\mathcal{U}(y,x,0)|^2,`
 
 :::paragraph
-where $`\mathcal{U} : L^2(\mathbb{Z}) \to L^2(X \times Y)` is a **unitary** operator.
+where $`\mathcal{U} : L^2(\mathbb{Z}) \to L^2(X \times Y)` is a *unitary* operator.
 The book calls this "a commutative version of Wigner's theorem." Its consequence is
 that any conditional probability measure in a standard measure space is parametrized
 by a unitary operator — and therefore quantum processes are not exotic, they are
@@ -56,7 +56,7 @@ squared modulus of a column of a unitary matrix:
 ```
 
 :::paragraph
-And in the book's exact two-space form: **every joint probability distribution**
+And in the book's exact two-space form: *every joint probability distribution*
 $`p(x,y)` on a finite $`X \times Y` is $`|U|^2` on a column of a unitary matrix
 indexed by $`X \times Y`:
 :::
@@ -87,7 +87,7 @@ the same object. This is the algebraic backbone of the wave-function parametriza
 # The Kernel Operator Is Bounded
 
 :::paragraph
-The book now views $`\Psi` as an **integral operator**
+The book now views $`\Psi` as an *integral operator*
 $`\Psi : L^2(X) \to L^2(Y)`, acting by
 $`\Psi\{\Phi\}(y) = \int dx\, \Psi(x,y)\,\Phi(x)`. By Cauchy–Schwarz, this operator
 is bounded, with operator norm at most the Hilbert–Schmidt norm of the kernel. In the
@@ -102,7 +102,7 @@ finite (discretized) model the kernel operator and its bound are explicit:
 
 :::paragraph
 In particular, when the kernel has $`L^2` norm at most $`1` — which holds for a
-normalized wave-function — the operator is a **contraction**:
+normalized wave-function — the operator is a *contraction*:
 :::
 
 ```
@@ -132,7 +132,7 @@ square roots of its eigenvalues:
 
 :::paragraph
 The factor $`V` that appears before completion to the unitary $`W` is a
-**partial isometry**: $`V^\dagger V` and $`V V^\dagger` are orthogonal projections,
+*partial isometry*: $`V^\dagger V` and $`V V^\dagger` are orthogonal projections,
 and $`V V^\dagger V = V`:
 :::
 
@@ -154,7 +154,7 @@ change-of-marginal identity is verified at the operator level:
 
 :::paragraph
 Finally the book reads the probabilities back off the operator. For a bounded
-operator $`B`, the joint distribution is $`p(x,y) = |B(y,x)|^2`, the **marginal** is
+operator $`B`, the joint distribution is $`p(x,y) = |B(y,x)|^2`, the *marginal* is
 the diagonal of the Gram matrix $`B^\dagger B`, and the normalization is the trace:
 :::
 
@@ -167,7 +167,7 @@ the diagonal of the Gram matrix $`B^\dagger B`, and the normalization is the tra
 
 :::paragraph
 When the marginal is positive, $`p(x) = \{B^\dagger B\}(x,x) > 0`, the
-**regular conditional probability** $`p(y|x) = p(x,y)/p(x)` is defined, is
+*regular conditional probability* $`p(y|x) = p(x,y)/p(x)` is defined, is
 non-negative, and sums to one over $`y`:
 :::
 
@@ -188,10 +188,10 @@ parametrizes it, $`p(x,y) = p(y|x)\,p(x)`:
 # What Is Verified and What Is Infinite-Dimensional
 
 :::paragraph
-Everything cited above is verified `sorry`-free, over **finite** index sets (the
+Everything cited above is verified `sorry`-free, over *finite* index sets (the
 discretized models used throughout `BookProof`). This is the concrete content of the
 book's Gram–Schmidt, Cauchy–Schwarz, and singular-value arguments. The
-manuscript states the result for arbitrary **standard** measure spaces, possibly with
+manuscript states the result for arbitrary *standard* measure spaces, possibly with
 continuous parts; the abstract measure-theoretic layer — the classification of
 standard measure spaces, the identification of commutative von Neumann algebras with
 $`L^\infty(X,\mu)`, and regular conditional probabilities via disintegration on a

@@ -106,14 +106,14 @@ noncomputable def boostZ (l : ℂ) : Matrix (Fin 2) (Fin 2) ℂ := !![l, 0; 0, l
 `det (boostZ l) = 1` for `l ≠ 0`.
 -/
 theorem boostZ_det {l : ℂ} (hl : l ≠ 0) : (boostZ l).det = 1 := by
-  unfold boostZ; simp +decide [ hl, Matrix.det_fin_two ] ;
+  unfold boostZ; simp [ hl, Matrix.det_fin_two ] ;
 
 /-
 `boostZ l · boostZ l⁻¹ = 1` for `l ≠ 0` (so `boostZ l⁻¹` is the inverse of
 `boostZ l`).
 -/
 theorem boostZ_mul_inv {l : ℂ} (hl : l ≠ 0) : boostZ l * boostZ l⁻¹ = 1 := by
-  ext i j ; fin_cases i <;> fin_cases j <;> simp +decide [ *, boostZ ]
+  ext i j ; fin_cases i <;> fin_cases j <;> simp [ *, boostZ ]
 
 /-
 Conjugation by the `z`-boost **fixes the `SO(2)` rotation angle** `a = T 0 0`
@@ -121,8 +121,8 @@ of an `SE(2)` element.
 -/
 theorem boostZ_preserves_angle {l : ℂ} (hl : l ≠ 0) (T : Matrix (Fin 2) (Fin 2) ℂ) :
     (boostZ l * T * boostZ l⁻¹) 0 0 = T 0 0 := by
-      unfold boostZ; simp +decide [ hl, Matrix.mul_apply ] ;
-      simp +decide [ Matrix.vecMul, hl ];
+      unfold boostZ; simp [ Matrix.mul_apply ] ;
+      simp [ Matrix.vecMul ];
       exact mul_div_cancel_left₀ _ hl
 
 /-
@@ -131,7 +131,7 @@ theorem boostZ_preserves_angle {l : ℂ} (hl : l ≠ 0) (T : Matrix (Fin 2) (Fin
 -/
 theorem boostZ_scales_translation (l : ℂ) (T : Matrix (Fin 2) (Fin 2) ℂ) :
     (boostZ l * T * boostZ l⁻¹) 1 0 = (l⁻¹) ^ 2 * T 1 0 := by
-      simp +decide [ Matrix.mul_apply, pow_two, mul_assoc ];
+      simp [ Matrix.mul_apply, pow_two, mul_assoc ];
       unfold boostZ; norm_num; ring;
 
 /-
@@ -142,12 +142,12 @@ stabiliser of the null axis).
 theorem boostZ_conj_mem {l : ℂ} (hl : l ≠ 0) {T : Matrix (Fin 2) (Fin 2) ℂ}
     (hT : T ∈ SEtwo) : boostZ l * T * boostZ l⁻¹ ∈ SEtwo := by
       refine ⟨ ?_, ?_, ?_ ⟩;
-      · simp_all +decide [ Matrix.det_fin_two, boostZ ];
-        simp_all +decide [ Matrix.vecMul, Matrix.mul_apply, Fin.sum_univ_succ, SEtwo ];
-        simp_all +decide [ vecHead, vecTail, Matrix.det_fin_two ];
+      · simp_all [ Matrix.det_fin_two, boostZ ];
+        simp_all [ Matrix.vecMul, Matrix.mul_apply, Fin.sum_univ_succ, SEtwo ];
+        simp_all [ vecHead, vecTail, Matrix.det_fin_two ];
         grind;
-      · simp_all +decide [ Fin.sum_univ_succ, Matrix.mul_apply ];
-        simp_all +decide [ boostZ ];
+      · simp_all [ Fin.sum_univ_succ, Matrix.mul_apply ];
+        simp_all [ boostZ ];
         exact hT.2.1;
       · rw [ boostZ_preserves_angle hl ] ; exact hT.2.2
 

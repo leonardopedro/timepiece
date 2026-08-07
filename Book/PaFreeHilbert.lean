@@ -10,8 +10,8 @@ tag := "pa-free-chapter"
 
 This chapter replaces the manuscript's chapters on _P versus NP_ and on the _Riemann
 Hypothesis_. Those chapters both turned on a single metamathematical point, isolated
-here in self-contained form: a completed Hilbert space can be **topologically
-complete** and yet **decidable**, provided its infinite elements are kept
+here in self-contained form: a completed Hilbert space can be *topologically
+complete* and yet *decidable*, provided its infinite elements are kept
 _internally unselectable_. The chapter is careful to separate what is a verified
 theorem of analysis from what is a metamathematical interpretation.
 
@@ -22,20 +22,20 @@ the logic of Hilbert spaces:
 
 "If even one constant $`c_0` is added to the language of Hilbert systems, the new theory is no longer compact. This results from the fact that it is possible to introduce a predicate into the language which is satisfied by only a single complex number."
 
-The mechanism is important. A **named constant vector** $`c_0` lets you write a
+The mechanism is important. A *named constant vector* $`c_0` lets you write a
 first-order formula that isolates a specific complex number. From one named complex
-number you can reconstruct the integers; from the integers you get **Peano
-Arithmetic (PA)**; and PA is undecidable and non-compact (by Gödel's theorem). So the
+number you can reconstruct the integers; from the integers you get *Peano
+Arithmetic (PA)*; and PA is undecidable and non-compact (by Gödel's theorem). So the
 moment you add a single infinite constant to the language, the clean decidable
 geometry is contaminated by undecidable arithmetic.
 
-The goal is therefore to have a **complete** Hilbert space — one that contains its
-limits — **without** adding any infinite element to the language as a primitive
+The goal is therefore to have a *complete* Hilbert space — one that contains its
+limits — *without* adding any infinite element to the language as a primitive
 constant. The space should be complete _ontologically_ (its limits exist) but
 _epistemologically unselectable_ (no infinite element can be named).
 
 The verified formalization of Kopperman's setting confirms that the substrate
-Hilbert space is **separable** (has a countable dense subset), which is the
+Hilbert space is *separable* (has a countable dense subset), which is the
 topological precondition for his model-theoretic analysis:
 
 ```
@@ -49,14 +49,14 @@ The construction has three layers.
 
 : The dense, decidable core
 
-  Start with the **finitely-supported** vectors
+  Start with the *finitely-supported* vectors
   $`\mathcal{H}_0 = P \to_0 \mathbb{R}_{\mathrm{alg}}` (a `Finsupp`). Every vector in
-  $`\mathcal{H}_0` has **finite support** by definition, so its representation is
+  $`\mathcal{H}_0` has *finite support* by definition, so its representation is
   strictly finite and decidable. There is no infinite object here at all.
 
 : The metric completion
 
-  Define the completed Hilbert space $`\mathcal{H}` as the **metric completion** of
+  Define the completed Hilbert space $`\mathcal{H}` as the *metric completion* of
   $`\mathcal{H}_0`: Cauchy sequences of finite vectors, modulo the equivalence
   relation of converging to the same limit. This is a standard, purely topological
   construction; it adds limit points without naming any of them.
@@ -64,7 +64,7 @@ The construction has three layers.
 : Existence of elements = absolute convergence
 
   By the Banach-space characterization below, every element of the completion
-  corresponds to an **absolutely convergent series** of finite vectors. So the
+  corresponds to an *absolutely convergent series* of finite vectors. So the
   infinite elements exist (as equivalence classes of Cauchy sequences / convergent
   series) but are never introduced as primitive constants.
 
@@ -73,7 +73,7 @@ The construction has three layers.
 The mathematical engine of the whole argument is a genuine, verified theorem of
 functional analysis, present in Mathlib as `completeSpace_iff_summable_norm`:
 
-**A normed space $`E` is complete (a Banach space) if and only if every absolutely convergent series in $`E` converges.**
+*A normed space $`E` is complete (a Banach space) if and only if every absolutely convergent series in $`E` converges.*
 
 This is the standard tool for proving that $`L^p` spaces are complete, and it is the
 fact that lets the completion be characterized by convergent series of finite
@@ -93,7 +93,7 @@ and the completeness of the metric completion itself:
 
 Because this theorem is the verified core, it is worth seeing the proof in full.
 
-**($`\Rightarrow`) Complete $`\Rightarrow` absolutely convergent series converge.**
+*($`\Rightarrow`) Complete $`\Rightarrow` absolutely convergent series converge.*
 Let $`\sum_{n} u_n` be absolutely convergent, $`\sum_n \|u_n\| < \infty`, and let
 $`s_N = \sum_{n < N} u_n` be the partial sums. For $`M > N`, the triangle inequality
 gives
@@ -104,13 +104,13 @@ Since the real series $`\sum \|u_n\|` converges, its partial sums are Cauchy, so
 right-hand side is $`< \varepsilon` for all large $`N`. Hence $`(s_N)` is Cauchy in
 $`E`, and completeness makes it converge.
 
-**($`\Leftarrow`) Absolutely convergent $`\Rightarrow` complete.** Let $`(x_n)` be a
+*($`\Leftarrow`) Absolutely convergent $`\Rightarrow` complete.* Let $`(x_n)` be a
 Cauchy sequence. Choose a subsequence $`x_{k(j)}` with
 $`\|x_p - x_q\| < 2^{-(j+2)}` for all $`p,q \ge k(j)`, and set
 
 $$`u_0 = x_{k(0)}, \qquad u_j = x_{k(j)} - x_{k(j-1)} \;\;(j \ge 1).`
 
-The partial sums **telescope** to the subsequence:
+The partial sums *telescope* to the subsequence:
 $`u_0 + \sum_{j=1}^{M} u_j = x_{k(M)}`. And the series is absolutely convergent,
 because
 
@@ -124,7 +124,7 @@ the same limit. Hence $`E` is complete. $`\blacksquare`
 
 Two pieces of the safety argument are themselves ordinary, verifiable mathematics.
 
-**Every writable vector has finite support.** This is immediate from the definition
+*Every writable vector has finite support.* This is immediate from the definition
 of `Finsupp`: a term of type $`P \to_0 \mathbb{R}` carries an explicit finite
 support, so anything you can actually write down is finitely supported and decidable.
 
@@ -132,9 +132,9 @@ support, so anything you can actually write down is finitely supported and decid
 #check @Finsupp.finite_support
 ```
 
-**Infinite elements are null events under a diffuse prior.** Since the infinite
+*Infinite elements are null events under a diffuse prior.* Since the infinite
 elements cannot be named as constants, the manuscript represents them as measurable
-sets under a diffuse probability prior. Under any **diffuse** measure (every
+sets under a diffuse probability prior. Under any *diffuse* measure (every
 singleton has measure zero), any particular infinite vector — being a single point of
 the completed space — has probability zero:
 
@@ -145,8 +145,8 @@ the completed space — has probability zero:
 This is the measure-theoretic form of "the infinite elements are unselectable": no
 single one of them can be picked out with positive probability.
 
-**Only countably many elements are definable.** A countable formal language can
-name only countably many reals, so **most** reals — and hence most elements of the
+*Only countably many elements are definable.* A countable formal language can
+name only countably many reals, so *most* reals — and hence most elements of the
 completed space — are not definable in the base language:
 
 ```
@@ -168,7 +168,7 @@ We must now be precise about what has and has not been proved.
   finitely supported and decidable. Under a diffuse prior, individual infinite
   elements are null events.
 
-  Additionally, a **bounded-arithmetic prior** on any finite type is a genuine
+  Additionally, a *bounded-arithmetic prior* on any finite type is a genuine
   probability measure, and its "certain extension" to known propositions is
   verified:
 
@@ -179,16 +179,16 @@ We must now be precise about what has and has not been proved.
 
 : Interpretation (metamathematics, not a Lean theorem)
 
-  The claim that "the completed space **does not leak Peano Arithmetic**" / "is a
-  **conservative, decidable extension** of the base theories" is a statement about
-  **formal languages and definability**, not an internal statement of analysis. It
+  The claim that "the completed space *does not leak Peano Arithmetic*" / "is a
+  *conservative, decidable extension* of the base theories" is a statement about
+  *formal languages and definability*, not an internal statement of analysis. It
   says: because we never add an infinite element as a primitive constant, no
   first-order formula of the base language can isolate one, so Kopperman's
   reconstruction of the integers never gets started.
 
 This interpretation is mathematically reasonable and is exactly the point the
 manuscript's _P vs NP_ and _Riemann Hypothesis_ chapters were making, but it is
-**not** a single theorem that Lean can state and prove inside the theory. Making it
+*not* a single theorem that Lean can state and prove inside the theory. Making it
 fully rigorous would require formalizing a notion of "definable constant in the base
 language" and proving a conservativity / non-definability result about the
 completion — a model-theoretic task well beyond the verified analysis above. We
@@ -199,8 +199,8 @@ interpretation.
 
 Both replaced chapters relied on the same maneuver: an apparently undecidable or
 intractable object (the complexity of a decision problem; the zeros of the zeta
-function) is represented not as a **named infinite constant** but as a **limit /
-expectation over a measure space** — an element of a completion that exists
+function) is represented not as a *named infinite constant* but as a *limit /
+expectation over a measure space* — an element of a completion that exists
 ontologically but is kept unselectable, so that Kopperman's trap never springs. The
 verified content is always the same analytic fact, the Riesz–Fischer characterization
 of completeness by absolutely convergent series; the rest is the disciplined refusal
@@ -209,14 +209,14 @@ to add the infinite object to the language as a constant.
 # Tensor Products of Decidable Languages
 
 The construction above gives a single decidable language. The manuscript's quantum
-chapters require **composing** two such languages — the tensor product of two
+chapters require *composing* two such languages — the tensor product of two
 Hilbert spaces — and the question is whether decidability survives composition.
 
 ## Head ⊗ Tail Decomposition
 
-Every state in the Solovay–Kopperman space decomposes as a **finite head** (the
+Every state in the Solovay–Kopperman space decomposes as a *finite head* (the
 first $`N` coordinates, carrying the observable content) tensored with an
-**infinite tail** (the remaining coordinates, carrying the measure-theoretic
+*infinite tail* (the remaining coordinates, carrying the measure-theoretic
 substrate). The verified equivalence:
 
 ```
@@ -232,7 +232,7 @@ is shared. The state measure respects this:
 #check @coordinateStateMeasure
 ```
 
-takes an **arbitrary** probability distribution on the finite head and pairs it
+takes an *arbitrary* probability distribution on the finite head and pairs it
 with the fixed Mehler (Gaussian) measure on the tail.
 
 ## Decidability is Preserved
@@ -275,9 +275,9 @@ Mehler measure is the canonical admissible prior on the infinite tail.
 
 ## Cross-Dimensional Inner Products
 
-A subtle point: the Solovay inner product of two states with **different**
+A subtle point: the Solovay inner product of two states with *different*
 finite-part dimensions is well-defined, because the uniform Mehler measure on
-the tail **splits** so that the finite coordinates match. The coordinate-level
+the tail *splits* so that the finite coordinates match. The coordinate-level
 realization:
 
 ```

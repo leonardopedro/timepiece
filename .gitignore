@@ -7,3 +7,6 @@ repomix-output.xml
 
 # Verso build output (rendered HTML; regenerate with `lake exe book`)
 /_out
+
+# Backup of the lake packages cache (regenerate with `lake update`)
+/.lake_bk

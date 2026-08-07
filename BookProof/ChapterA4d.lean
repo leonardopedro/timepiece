@@ -113,17 +113,17 @@ theorem nullConj_iff_form (T : Matrix (Fin 2) (Fin 2) ℂ) :
     Tᴴ * (pauliσ 0 + pauliσ 3) * T = pauliσ 0 + pauliσ 3 ↔
       T 0 1 = 0 ∧ Complex.normSq (T 0 0) = 1 := by
   constructor <;> intro h
-  · simp_all +decide [← Matrix.ext_iff, Fin.forall_fin_two, Matrix.mul_apply,
+  · simp_all [← Matrix.ext_iff, Fin.forall_fin_two, Matrix.mul_apply,
       Matrix.conjTranspose_apply, Complex.normSq]
-    simp_all +decide [Complex.ext_iff, pauliσ]
+    simp_all [Complex.ext_iff, pauliσ]
     linarith
   · ext i j
     fin_cases i <;> fin_cases j <;>
-      simp_all +decide [Matrix.mul_apply, Fin.sum_univ_succ] <;> ring
-    · simp_all +decide [Complex.ext_iff, pauliσ]
+      simp_all [Matrix.mul_apply, Fin.sum_univ_succ] <;> ring
+    · simp_all [Complex.ext_iff, pauliσ]
       norm_num [Complex.normSq] at h; constructor <;> linarith
-    · simp_all +decide [pauliσ]
-    · simp_all +decide [pauliσ]
+    · simp_all [pauliσ]
+    · simp_all [pauliσ]
     · unfold pauliσ; norm_num
 
 /-- **Proposition 79 (massless little group).**  The little group of a massless

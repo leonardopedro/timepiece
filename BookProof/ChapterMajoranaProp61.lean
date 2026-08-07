@@ -55,9 +55,9 @@ operators.)
 -/
 theorem gsq_Hsq_comm (H g : 𝒜) (m : ℝ) (hanti : H * g + g * H = (2 * m) • (1 : 𝒜)) :
     g * (H * H) = (H * H) * g := by
-  simp_all +decide [ mul_assoc, ← eq_sub_iff_add_eq' ]
-  simp +decide [ ← mul_assoc, hanti ]
-  simp +decide [ mul_sub, sub_mul, mul_assoc, hanti ]
+  simp_all [ mul_assoc, ← eq_sub_iff_add_eq' ]
+  simp [ ← mul_assoc, hanti ]
+  simp [ mul_sub, sub_mul, mul_assoc, hanti ]
 
 /-- The `γ⁰`-dressed conjugated operator `A = U H γ⁰ U†` of Proposition 61. -/
 def Aop (U H g : 𝒜) : 𝒜 := U * H * g * star U
@@ -89,29 +89,29 @@ theorem prop61_star_mul_self :
     star (Uprime U H g E Ni) * Uprime U H g E Ni = 1 := by
   -- By the properties of the adjoint and the given hypotheses, we can simplify the expression.
   have h_simp : (E + star (Aop U H g)) * (E + Aop U H g) = N * N := by
-    simp_all +decide [ Aop, mul_add, add_mul ]
-    simp_all +decide [ ← mul_assoc, ← eq_sub_iff_add_eq' ]
-    simp_all +decide [ mul_assoc, sub_mul, mul_sub ]
-    simp +decide [ two_smul, add_assoc, add_sub_assoc ]
+    simp_all [ Aop, mul_add, add_mul ]
+    simp_all [ ← mul_assoc, ← eq_sub_iff_add_eq' ]
+    simp_all [ mul_assoc, sub_mul, mul_sub ]
+    simp [ two_smul, add_assoc, add_sub_assoc ]
     abel1
   -- By the properties of the adjoint and the given hypotheses,    we can simplify the expression further.
   have h_simp' : star Ni = Ni := by
     have h_star_Ni : star Ni * N = 1 := by
       rw [ ← star_one, ← hNi₁, star_mul, hN_sa ]
-    apply_fun ( · * Ni ) at h_star_Ni; simp_all +decide [ mul_assoc ]
+    apply_fun ( · * Ni ) at h_star_Ni; simp_all [ mul_assoc ]
   have h_simp'' : Ni * (E + star (Aop U H g)) = (E + star (Aop U H g)) * Ni := by
     have h_simp'' : Ni * E = E * Ni := by
-      apply_fun (fun x => Ni * x) at hNE; simp_all +decide [ mul_assoc ]
+      apply_fun (fun x => Ni * x) at hNE; simp_all [ mul_assoc ]
       grind
     have h_simp''' : Ni * star (Aop U H g) = star (Aop U H g) * Ni := by
       have h_simp''' : N * star (Aop U H g) = star (Aop U H g) * N := by
-        apply_fun star at hNA; simp_all +decide [ mul_assoc, star_mul ]
+        apply_fun star at hNA; simp_all [ mul_assoc, star_mul ]
       apply_fun (fun x => Ni * x) at h_simp'''
       grind
-    simp_all +decide [ mul_add, add_mul ]
+    simp_all [ mul_add, add_mul ]
   convert congr_arg ( fun x => Ni * Ni * x ) h_simp using 1
-  · simp +decide [ Uprime, mul_assoc, h_simp', h_simp'' ]
-    simp +decide [ ← mul_assoc, hE_sa, h_simp'' ]
+  · simp [ Uprime, mul_assoc, h_simp' ]
+    simp [ ← mul_assoc, hE_sa, h_simp'' ]
   · grind
 
 set_option maxHeartbeats 2000000 in
@@ -121,19 +121,19 @@ theorem prop61_mul_star_self :
   -- Using the hypothesis `hNi₂ : Ni * N = 1`, we can simplify the expression.
   have h_comm : Ni * (E + Aop U H g) * (E + star (Aop U H g)) * Ni = Ni * N * N * Ni := by
     have h_comm : (E + Aop U H g) * (E + star (Aop U H g)) = 2 • (E * E) + (2 * m) • E := by
-      simp +decide [ two_smul, add_mul, mul_add, hEA, hE2 ]
-      simp_all +decide [ ← mul_assoc, Aop ]
-      simp_all +decide [ mul_assoc, ← eq_sub_iff_add_eq' ]
-      simp_all +decide [ mul_sub, sub_mul, mul_assoc, smul_sub, sub_smul ]
+      simp [ two_smul, add_mul, mul_add, hE2 ]
+      simp_all [ ← mul_assoc, Aop ]
+      simp_all [ mul_assoc, ← eq_sub_iff_add_eq' ]
+      simp_all [ mul_sub, sub_mul, mul_assoc ]
       abel1
-    simp +decide only [mul_assoc, h_comm]
-    simp +decide [ ← mul_assoc, ← hN2 ]
-    simp +decide [ mul_add, add_mul, mul_assoc, two_mul, hN2 ]
+    simp only [mul_assoc, h_comm]
+    simp [ ← mul_assoc ]
+    simp [ mul_add, add_mul, mul_assoc, two_mul, hN2 ]
     rw [ two_smul ]
-  unfold Uprime; simp_all +decide [ mul_assoc ]
+  unfold Uprime; simp_all [ mul_assoc ]
   have h_star_Ni : star Ni * N = 1 := by
-    rw [ ← star_inj ] ; simp +decide [ * ]
-  apply_fun ( · * Ni ) at h_star_Ni; simp_all +decide [ mul_assoc ]
+    rw [ ← star_inj ] ; simp [ * ]
+  apply_fun ( · * Ni ) at h_star_Ni; simp_all [ mul_assoc ]
 
 /-- **Proposition 61 (headline).**  The boost intertwiner `U'` is unitary: it has the
 two-sided inverse `(U')†`. -/

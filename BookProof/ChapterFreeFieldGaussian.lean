@@ -67,7 +67,7 @@ instance instIsProbabilityMeasure_stdGaussian (n : ℕ) :
   constructor;
   unfold stdGaussian;
   rw [ Measure.map_apply ];
-  · simp +decide [ MeasureTheory.Measure.pi_univ ];
+  · simp ;
   · fun_prop;
   · exact MeasurableSet.univ
 
@@ -97,7 +97,7 @@ theorem stdGaussian_map_linearIsometryEquiv
   convert charFun_stdGaussian ( L.symm t ) using 1;
   · convert MeasureTheory.integral_map _ _ using 3;
     · convert MeasureTheory.integral_congr_ae _ using 3;
-      filter_upwards [ ] with x using by rw [ ← L.inner_map_map ] ; simp +decide [ L.symm_apply_apply ] ;
+      filter_upwards [ ] with x using by rw [ ← L.inner_map_map ] ; simp  ;
     · exact L.continuous.aemeasurable;
     · fun_prop;
   · convert charFun_stdGaussian t using 1 ; norm_num [ L.norm_map ]

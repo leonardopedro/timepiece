@@ -32,20 +32,152 @@ which we may still choose a probability measure.
 :::
 
 :::paragraph
-The manuscript also repeatedly forms **tensor products of sample spaces**. A joint
+The manuscript also repeatedly forms *tensor products of sample spaces*. A joint
 probability density lives on a product $`X \times Y`; the prior wave-function can be
 "redefined as a tensor product of two Fock-spaces"; and often "we are interested in a
 tensor product of sample spaces, some of which have finite degrees of freedom," for
 instance $`\mathbb{Z}_2^n \times \mathbb{R}^m`. The construction below answers the
 Introduction's problem precisely by building such a tensor product: a
-**finite-dimensional** factor that carries an **arbitrary** probability law, tensored
-with a **separable infinite-dimensional** factor that carries a **forced** law.
+*finite-dimensional* factor that carries an *arbitrary* probability law, tensored
+with a *separable infinite-dimensional* factor that carries a *forced* law.
+:::
+
+:::paragraph
+A simpler finite-dimensional instance of the same problem arises in
+{ref "double-slit"}[the double-slit chapter]: given only the final screen position,
+can one reconstruct the intermediate "which slit" trajectory? The
+Aharonov–Bergmann–Lebowitz (ABL) two-state reconstruction answers this affirmatively.
+The reconstruction is a finite-phase-space version of the same idea: a quantum
+trajectory can be measured directly only at its final time, but the intermediate
+instants can be recovered from the statistics of runs that ended in a chosen final
+outcome — using probabilities conditional on the final state and the same quantum
+time-evolution.
+:::
+
+# The Three-Instant ABL Reconstruction
+
+:::paragraph
+Model three instants — initial, intermediate, final — on a finite phase space. A unit
+initial wave-function $`\Psi` is evolved by a unitary $`U` to the intermediate time,
+where a measurement in the standard basis yields outcome $`a` with the Born
+probability and *collapses* the state to $`e_a`:
+:::
+
+```
+#check @midProb
+```
+
+:::paragraph
+The collapsed state is then evolved by a unitary $`V` to the final time, where outcome
+$`f` occurs with probability
+:::
+
+```
+#check @transProb
+```
+
+:::paragraph
+Both are genuine probabilities — non-negative, and each sums to one over its outcomes:
+:::
+
+```
+#check @midProb_nonneg
+#check @midProb_sum
+#check @transProb_sum
+```
+
+# The Joint and Marginal Laws
+
+:::paragraph
+The joint law of the intermediate outcome $`a` and the final outcome $`f` is the
+product of the two Born factors:
+:::
+
+```
+#check @jointProb
+```
+
+:::paragraph
+Summing over the intermediate outcome gives the marginal law of the final outcome:
+:::
+
+```
+#check @finalProb
+```
+
+:::paragraph
+The collapsed three-instant process is a genuine probability law: the marginal final
+probabilities sum to one. This uses only the unitarity of $`U` and $`V` and the
+normalization $`\|\Psi\| = 1`:
+:::
+
+```
+#check @finalProb_total
+```
+
+# Post-Selection: the Reconstruction Formula
+
+:::paragraph
+Now condition on the final outcome $`f`. The *post-selected* law of the intermediate
+outcome — the probability that the trajectory passed through $`a`, given that it ended
+at $`f` — is the conditional probability
+:::
+
+$$`\mathrm{condProb}(f, a) = \frac{\mathrm{jointProb}(f, a)}{\mathrm{finalProb}(f)}.`
+
+```
+#check @condProb
+#check @condProb_nonneg
+```
+
+:::paragraph
+For each fixed final outcome $`f`, this is again a probability distribution over the
+intermediate outcomes:
+:::
+
+```
+#check @condProb_sum
+```
+
+:::paragraph
+This is the reconstruction: although $`a` was not recorded, its conditional
+distribution is determined by the final outcome and the same unitary evolution, and it
+is a honest probability law.
+:::
+
+# Consistency of the Reconstruction
+
+:::paragraph
+The reconstruction does not depend on which final outcome one post-selects. Summing
+the post-selected joint law over *all* final outcomes recovers the original
+intermediate Born distribution:
+:::
+
+```
+#check @jointProb_sum_final_eq_midProb
+```
+
+:::paragraph
+So the intermediate statistics are stable: marginalizing the reconstructed joint law
+back over the final outcomes returns exactly the Born probabilities one would have
+measured directly at the intermediate time. The post-selection adds information about
+individual runs without distorting the ensemble.
+:::
+
+# The Solovay–Kopperman Tensor Product
+
+:::paragraph
+The ABL reconstruction is a finite-phase-space instance of the general problem. The
+general construction — the Solovay–Kopperman tensor product — answers the
+Introduction's question directly: it is a systematic separable probability space
+carrying an arbitrary law on a finite part and a controlled (forced) law on an
+infinite part.
 :::
 
 # The Two Factors
 
 :::paragraph
-The total sample space splits as a finite **head** times an infinite **tail**:
+The total sample space splits as a finite *head* times an infinite *tail*:
 :::
 
 ```
@@ -55,9 +187,9 @@ The total sample space splits as a finite **head** times an infinite **tail**:
 ```
 
 :::paragraph
-The head $`\mathrm{InnerHead}\,N = \mathrm{Fin}\,N \to \mathbb{R} \cong \mathbb{R}^N`
+The head $`\mathrm{InnerHead}\,N = \mathrm{Fin}\,N \to \mathbb{R} \cong \mathbb{R}^N`$
 is an ordinary finite-dimensional Euclidean Hilbert space. The tail
-$`\mathrm{InnerTail}` is the Kopperman **substrate**, the standard separable real
+$`\mathrm{InnerTail}` is the Kopperman *substrate*, the standard separable real
 Hilbert space $`L^2([0,1])`. Its separability is the topological precondition for
 everything that follows, and it is verified directly:
 :::
@@ -68,7 +200,7 @@ everything that follows, and it is verified directly:
 ```
 
 :::paragraph
-Thus the tail is infinite-dimensional but **separable**: it possesses a countable
+Thus the tail is infinite-dimensional but *separable*: it possesses a countable
 dense skeleton of computable approximants. This is exactly the property the
 Introduction asked for. The finite head is the part we _know_; the separable infinite
 tail is the part we are _uncertain_ about.
@@ -77,7 +209,7 @@ tail is the part we are _uncertain_ about.
 # Decidable Languages Close Under Tensor Product
 
 :::paragraph
-A **language** here is an explicit Boolean decision procedure: a classifier
+A *language* here is an explicit Boolean decision procedure: a classifier
 $`\mathrm{decide} : \alpha \to \mathrm{Bool}`. The tensor product of two languages is
 conjunction on pairs — a point of the product carrier is accepted exactly when both
 components accept it:
@@ -97,8 +229,8 @@ tensor language is decidable for every point of the product carrier:
 ```
 
 :::paragraph
-This is the first half of the author's goal: **the tensor product of two decidable
-languages is a decidable language.** The same closure holds for the
+This is the first half of the author's goal: *the tensor product of two decidable
+languages is a decidable language.* The same closure holds for the
 Hilbert-space languages used in this book. The "cylindrical" observables — those that
 depend only on the finite head — form a decidable language, because the head is
 finite-dimensional and hence Tarski-decidable. A tensor product of two such
@@ -125,7 +257,7 @@ operation:
 :::paragraph
 The tensor product of the two factors is the total space
 $`\mathrm{InnerSpace}\,N = \mathrm{InnerHead}\,N \times \mathrm{InnerTail}`, and its
-Hilbert completion is the **Solovay–Hilbert space**:
+Hilbert completion is the *Solovay–Hilbert space*:
 :::
 
 ```
@@ -155,7 +287,7 @@ mere product of sets:
 ```
 
 :::paragraph
-The decisive simplification is the **decoupling theorem**: because the cylindrical
+The decisive simplification is the *decoupling theorem*: because the cylindrical
 wave-functions depend only on the finite head, and the tail measure is an independent
 probability measure, the $`L^2` inner product over the infinite-dimensional total
 space collapses exactly to a finite-dimensional integral over the head
@@ -176,7 +308,7 @@ us relate arbitrarily complex random events to standard, intuitive ones.
 # An Arbitrary Law on the Finite Part
 
 :::paragraph
-On the finite head we may choose **any** probability law. Given any probability
+On the finite head we may choose *any* probability law. Given any probability
 measure $`\mathrm{headDist}` on $`\mathbb{R}^N`, the product with the tail law is a
 probability measure on the total space, and its finite marginal is exactly the law we
 chose:
@@ -198,15 +330,15 @@ product of standard Gaussians:
 ```
 
 :::paragraph
-This is the finite-dimensional freedom the author wants: **our knowledge of the
-finite-dimensional part is an arbitrary probability distribution.** Nothing
+This is the finite-dimensional freedom the author wants: *our knowledge of the
+finite-dimensional part is an arbitrary probability distribution.* Nothing
 constrains it; it is the part we are free to choose.
 :::
 
 # Only the Mehler Measure on the Infinite Part
 
 :::paragraph
-The infinite tail is different. The Kopperman language is **cylindrical**: it can
+The infinite tail is different. The Kopperman language is *cylindrical*: it can
 query only finitely many coordinates at a time. Consequently it cannot distinguish
 two tail points that agree on every finite set of coordinates — no individual element
 of the infinite-dimensional Hilbert space can be named or singled out. (This is the
@@ -215,8 +347,8 @@ adding a named infinite element to the language would destroy decidability.)
 :::
 
 :::paragraph
-A probability law on the tail that respects this blindness must be **atomless** (no
-single state carries mass) and **invariant** under the symmetries the language can
+A probability law on the tail that respects this blindness must be *atomless* (no
+single state carries mass) and *invariant* under the symmetries the language can
 express. The selected Mehler/Kopperman prior has precisely these admissibility
 properties:
 :::
@@ -262,10 +394,20 @@ So the only data the language can observe is the family of finite-dimensional
 marginals, and a probability measure on $`\mathbb{N} \to \mathbb{R}` is determined by
 its finite marginals. The intended conclusion — that the Mehler measure is the
 _unique_ probability law whose every finite marginal is the standard Gaussian product,
-and hence the **only** law the blind language can use — is stated as the next target
-in {ref "proof-plans"}[the appendix] (`mehler_unique_by_finite_marginals`). The
-verified content above is the admissibility half: the Mehler law is probability,
-atomless, and invariant. The two halves together give the author's classification:
+and hence the _only_ law the blind language can use — is now proved: cylinder sets
+form a generating π-system, so a projective limit of finite measures is unique.
+:::
+
+```
+#check @BookProof.ChapterMehlerUniqueness.mehler_unique_by_finite_marginals
+#check @BookProof.ChapterMehlerUniqueness.mehler_characterization
+#check @BookProof.ChapterMehlerUniqueness.language_blind_implies_mehler
+#check @BookProof.ChapterMehlerUniqueness.solovay_kopperman_probability_classification
+```
+
+:::paragraph
+The other half is admissibility: the Mehler law is a probability measure, atomless,
+and invariant. The two halves together give the author's classification:
 :::
 
 ```
@@ -273,14 +415,30 @@ atomless, and invariant. The two halves together give the author's classificatio
 ```
 
 :::paragraph
-**Heads admit an arbitrary law; the tail admits the Mehler law.** That single
+The invariance half is now available in *concrete coordinates*, not only at the
+abstract measure-preserving interface. The characteristic function of the standard
+$`k`-dimensional Gaussian is $`\exp(-\|t\|^2/2)`, a function of the norm alone, so
+the finite Gaussian head is invariant under the whole orthogonal group $`O(k)`; and
+rotating the first $`k` coordinates of the infinite tail therefore leaves the Mehler
+law unchanged:
+:::
+
+```
+#check @BookProof.ChapterMehlerOrthogonalInvariance.charFun_stdGaussianEuclidean
+#check @BookProof.ChapterMehlerOrthogonalInvariance.stdGaussianEuclidean_map_isometry
+#check @BookProof.ChapterMehlerOrthogonalInvariance.gaussianHead_map_orthogonal
+#check @BookProof.ChapterMehlerOrthogonalInvariance.coordinateTailMeasure_map_headRotation
+```
+
+:::paragraph
+*Heads admit an arbitrary law; the tail admits the Mehler law.* That single
 statement is the probabilistic content of the Solovay–Kopperman tensor product.
 :::
 
 # The Cross-Dimensional Inner Product
 
 :::paragraph
-Because the Mehler tail **splits** — the first $`k` Gaussian coordinates separate off
+Because the Mehler tail *splits* — the first $`k` Gaussian coordinates separate off
 as an independent finite Gaussian block, leaving a fresh copy of the tail — we may
 enlarge the finite head by adjoining $`k` tail coordinates:
 :::
@@ -291,15 +449,38 @@ enlarge the finite head by adjoining $`k` tail coordinates:
 ```
 
 :::paragraph
-This makes the inner product well-defined **across dimensions**: an element with
+This makes the inner product well-defined *across dimensions*: an element with
 $`N` head-coordinates and an element with $`N+k` head-coordinates can be compared
 after padding the smaller one with $`k` fresh Gaussian coordinates, and the result
 does not depend on the padding, because the added coordinates integrate to $`1`. The
 finite dimensions "match" precisely because the Mehler measure is a product. The
-measure-preservation of this enlargement (the theorem that the padding leaves the
-state law unchanged) is the in-progress companion to the tail-split above; see
-{ref "proof-plans"}[the appendix].
+measure-preservation of the coordinate tail-split — the theorem that splitting off
+the first $`k` coordinates carries the Mehler law to the product of a finite Gaussian
+head with a fresh copy of the tail — is proved:
 :::
+
+```
+#check @tailSplitEquiv_map
+```
+
+:::paragraph
+The cross-dimensional statement is now a theorem, not just an assertion: the
+enlargement map $`N \mapsto N+k` is a *measure-preserving isomorphism* of the
+corresponding state spaces, so it is a genuine embedding of the $`N`-dimensional
+coordinate model into the $`(N+k)`-dimensional one. Consequently every expectation,
+and in particular the $`L^2` inner product of two wave-functions, is unchanged when
+it is computed after enlarging the head — the value does not depend on which head
+dimension the computation is performed in. This is the manuscript's "the inner
+product is well defined across head dimensions," made precise:
+:::
+
+```
+#check @BookProof.ChapterSolovayCrossDim.cross_dim_embedding
+#check @BookProof.ChapterSolovayCrossDim.integral_cross_dim_well_defined
+#check @BookProof.ChapterSolovayCrossDim.inner_cross_dim_well_defined
+#check @BookProof.ChapterSolovayCrossDim.lintegral_cross_dim_well_defined
+#check @BookProof.ChapterSolovayCrossDim.cross_dim_isProbability
+```
 
 # What Is Proved and What Is Planned
 
@@ -308,29 +489,35 @@ This edition separates the verified layer from the open one.
 :::
 
 :::paragraph
-**Verified.** The two factors and their separability; closure of decidable languages
-under tensor product; the tensor-product Hilbert space and the decoupling theorem;
-the arbitrary finite-head law and its marginal; the admissibility of the Mehler tail
-(probability, atomlessness, invariance, concentration on the sphere); and the
-self-interleaving of the infinite tail. Every theorem cited above is `sorry`-free.
+*Verified.* The ABL three-instant reconstruction (midProb, transProb, jointProb,
+condProb, consistency); the two factors and their separability; closure of decidable
+languages under tensor product; the tensor-product Hilbert space and the decoupling
+theorem; the arbitrary finite-head law and its marginal; the admissibility of the
+Mehler tail (probability, atomlessness, invariance, concentration on the sphere);
+and the self-interleaving of the infinite tail. Every theorem cited above is
+`sorry`-free.
 :::
 
 :::paragraph
-**Planned.** Two statements are made precise and quarantined in
-{ref "proof-plans"}[the appendix]: the **uniqueness** of the Mehler tail law from its
-finite marginals (`mehler_unique_by_finite_marginals`, the forcing half of "only the
-Mehler measure"), and the **measure-preservation** of the coordinate tail-split
-(`tailSplitEquiv_map`) from which the cross-dimensional inner product follows. They
-are the content of the next formalization pass, not assertions of this edition.
+*Newly verified.* The two statements previously quarantined as planned are now
+theorems: the *uniqueness* of the Mehler tail law from its finite marginals
+(`mehler_unique_by_finite_marginals`, the forcing half of "only the Mehler
+measure") and the *measure-preservation* of the coordinate tail-split
+(`tailSplitEquiv_map`), from which the cross-dimensional inner product follows —
+together with the coordinate-level orthogonal invariance of the Mehler law cited
+above.
 :::
 
 # Why This Matters Here
 
 :::paragraph
-The construction answers the Introduction directly: it is a systematic separable
-probability space carrying an arbitrary law on a finite part and a controlled
-(forced) law on an infinite part. It also explains the recurring tensor products of
-the manuscript — a joint density on $`X \times Y`, a prior as a tensor product of two
+The ABL reconstruction shows that even when only the final outcome is known, the
+intermediate trajectory can be recovered as a probability law — a finite-phase-space
+instance of the general principle. The Solovay–Kopperman tensor product extends
+this to the infinite-dimensional case: it is a systematic separable probability
+space carrying an arbitrary law on a finite part and a controlled (forced) law on an
+infinite part. Together they explain the recurring tensor products of the manuscript
+— a joint density on $`X \times Y`, a prior as a tensor product of two
 Fock-spaces, a sample space $`\mathbb{Z}_2^n \times \mathbb{R}^m` — as instances of a
 single principle: tensor a finite, freely-chosen factor with a separable infinite
 factor whose law is forced by the very fact that the language cannot distinguish its
@@ -338,7 +525,7 @@ elements. Probability on the infinite part is not a choice; it is the Mehler mea
 :::
 
 :::paragraph
-This also identifies the construction as the **single exception** to the slogan
+This also identifies the construction as the *single exception* to the slogan
 "there are no non-informative priors." On a general continuous space a uniform prior
 stops being uniform under a change of coordinates
 ({ref "sequential-bayes"}[non-informativeness is coordinate-dependent]); here the

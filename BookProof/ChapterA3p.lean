@@ -62,8 +62,8 @@ so the sum equals its own negative and therefore vanishes.
 theorem sum_signC_eq_zero {N : ℕ} (hN : 2 ≤ N) :
     ∑ σ : Equiv.Perm (Fin N), signC σ = 0 := by
   have h_transposition : ∃ t : Equiv.Perm (Fin N), Equiv.Perm.sign t = -1 := by
-    exact ⟨ Equiv.swap ⟨ 0, by linarith ⟩ ⟨ 1, by linarith ⟩, by simp +decide ⟩;
-  obtain ⟨ t, ht ⟩ := h_transposition;    have := Equiv.sum_comp ( Equiv.mulLeft t ) ( fun x => signC x ) ; simp_all +decide [ signC ] ;
+    exact ⟨ Equiv.swap ⟨ 0, by linarith ⟩ ⟨ 1, by linarith ⟩, by simp ⟩;
+  obtain ⟨ t, ht ⟩ := h_transposition;    have := Equiv.sum_comp ( Equiv.mulLeft t ) ( fun x => signC x ) ; simp_all [ signC ] ;
   linear_combination' -this / 2
 
 /-
@@ -83,17 +83,17 @@ theorem projSym_mul_projAnti {N : ℕ} (hN : 2 ≤ N) :
       apply Finset.sum_bij (fun τ _ => σ * τ);
       · simp;
       · aesop;
-      · exact fun b _ => ⟨ σ⁻¹ * b, Finset.mem_univ _, by simp +decide ⟩;
-      · simp +decide [ ← mul_assoc, signC ];
+      · exact fun b _ => ⟨ σ⁻¹ * b, Finset.mem_univ _, by simp ⟩;
+      · simp [ ← mul_assoc, signC ];
     rw [ Finset.sum_congr rfl fun σ _ => h_fubini σ, Finset.sum_comm ];
-    simp +decide only [Finset.sum_smul];
+    simp only [Finset.sum_smul];
   convert congr_arg ( fun x : MN N => ( N.factorial : ℂ ) ⁻¹ ^ 2 • x ) h_fubini using 1;
-  · simp +decide [ sq, smul_smul, Finset.smul_sum, Finset.sum_mul, BookProof.ChapterA3n.permMat_mul ];
-    simp +decide [ Finset.mul_sum _ _ _, Finset.sum_mul, mul_assoc, mul_left_comm, Finset.smul_sum, smul_smul, BookProof.ChapterA3n.permMat_mul ];
+  · simp [ sq, smul_smul, Finset.smul_sum, Finset.sum_mul ];
+    simp [ Finset.mul_sum _ _ _, mul_assoc, Finset.smul_sum, smul_smul, BookProof.ChapterA3n.permMat_mul ];
   · -- By definition of $signC$,    we know that $\sum_{\sigma} signC(\sigma \rho) = \sum_{\sigma} signC(\sigma)$ for any $\rho$.
     have h_signC_sum : ∀ ρ : Equiv.Perm (Fin N),      ∑ σ : Equiv.Perm (Fin N), signC (σ * ρ) = ∑ σ : Equiv.Perm (Fin N), signC σ := by
       exact fun ρ => Equiv.sum_comp ( Equiv.mulRight ρ ) fun σ => signC σ;
-    simp +decide [ h_signC_sum, sum_signC_eq_zero hN ]
+    simp [ h_signC_sum, sum_signC_eq_zero hN ]
 
 /-
 **Orthogonality (N ≥ 2), other order.** The antisymmetrizer annihilates the
@@ -105,8 +105,8 @@ theorem projAnti_mul_projSym {N : ℕ} (hN : 2 ≤ N) :
   have h_sum_zero : ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N),    signC σ • permMat (σ * τ) = ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N), signC σ • permMat τ := by
     exact Finset.sum_congr rfl fun σ _ => Equiv.sum_comp ( Equiv.mulLeft σ ) fun τ => signC σ • permMat τ;
   convert congr_arg ( fun x : MN N => ( N.factorial : ℂ ) ⁻¹ • ( N.factorial : ℂ ) ⁻¹ • x ) h_sum_zero using 1;
-  · simp +decide [ Finset.sum_mul _ _ _, Finset.mul_sum, smul_smul, mul_assoc, mul_left_comm, Finset.sum_add_distrib, add_mul, mul_add, Finset.sum_smul, Finset.smul_sum, BookProof.ChapterA3n.permMat_mul ];
-  · simp +decide [ ← Finset.smul_sum, ← Finset.sum_smul, sum_signC_eq_zero hN ]
+  · simp [ Finset.sum_mul _ _ _, Finset.mul_sum, smul_smul, Finset.smul_sum, BookProof.ChapterA3n.permMat_mul ];
+  · simp [ ← Finset.smul_sum, ← Finset.sum_smul, sum_signC_eq_zero hN ]
 
 /-
 **Complementarity (N = 2).** On the tensor square the symmetrizer and
@@ -114,7 +114,7 @@ antisymmetrizer sum to the identity: `(1/2)(1+τ) + (1/2)(1-τ) = 1`.
 -/
 theorem projSym_add_projAnti_two :
     projSym 2 + projAnti 2 = 1 := by
-  ext a b; simp +decide [ projSym, projAnti ] ;
+  ext a b; simp [ projSym, projAnti ] ;
   unfold permMat signC;
   rw [ Finset.sum_eq_multiset_sum, Finset.sum_eq_multiset_sum ] ; norm_cast;
   erw [ show ( Finset.univ.val : Multiset ( Equiv.Perm ( Fin 2 ) ) )

@@ -51,7 +51,7 @@ noncomputable def timeProj (v : Fin 4 → ℝ) : Matrix (Fin 4) (Fin 4) ℝ :=
 -/
 theorem spatialProj_add_timeProj (v : Fin 4 → ℝ) :
     spatialProj v + timeProj v = 1 := by
-  ext a b; simp +decide [ spatialProj, timeProj ] ;
+  ext a b; simp [ spatialProj, timeProj ] ;
 
 /-
 `Π` is idempotent: `Π² = Π`, a genuine (rank-1) projector.
@@ -59,8 +59,8 @@ theorem spatialProj_add_timeProj (v : Fin 4 → ℝ) :
 theorem timeProj_idempotent (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     timeProj v * timeProj v = timeProj v := by
   unfold timeProj;
-  ext a b; simp +decide [ Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
-  unfold minkSq at hv; simp_all +decide [ Fin.sum_univ_four, lower ] ;
+  ext a b; simp [ Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
+  unfold minkSq at hv; simp_all [ Fin.sum_univ_four, lower ] ;
   linear_combination' hv * v a * ( metric *ᵥ v ) b
 
 /-
@@ -68,7 +68,7 @@ theorem timeProj_idempotent (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
 -/
 theorem trace_timeProj (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (timeProj v).trace = 1 := by
-  unfold timeProj; simp +decide [ hv, Matrix.trace ] ; ring;
+  unfold timeProj; simp [ Matrix.trace ] ; ring;
   linarith!
 
 /-
@@ -79,7 +79,7 @@ theorem timeProj_mulVec_self (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (timeProj v).mulVec v = v := by
   ext a;
   simp [minkSq, timeProj] at hv ⊢;
-  simp_all +decide [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ];
+  simp_all [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ];
   linear_combination -hv * v a
 
 /-
@@ -88,7 +88,7 @@ The spatial and temporal projectors are orthogonal: `χ · Π = 0`.
 theorem spatialProj_mul_timeProj (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     spatialProj v * timeProj v = 0 := by
   rw [ show timeProj v = 1 - spatialProj v from _ ];
-  · simp +decide [ mul_sub, spatialProj_idempotent v hv ];
+  · simp [ mul_sub, spatialProj_idempotent v hv ];
   · exact eq_sub_of_add_eq' ( spatialProj_add_timeProj v )
 
 /-
@@ -99,6 +99,6 @@ theorem timeProj_mul_spatialProj (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
   -- Since timeProj = 1 - spatialProj (from spatialProj_add_timeProj),    we can rewrite the goal using this equality.
   have h_timeProj : timeProj v = 1 - spatialProj v := by
     exact eq_sub_of_add_eq' ( spatialProj_add_timeProj v );
-  simp +decide [ h_timeProj, sub_mul,mul_sub,spatialProj_idempotent v hv ]
+  simp [ h_timeProj, sub_mul,spatialProj_idempotent v hv ]
 
 end BookProof.ChapterGravityTimeProj

@@ -93,11 +93,11 @@ theorem Q_isPure : IsPureState Q := by
 
 /-- `E Q P0 = tr(Q P0) = ½`. -/
 theorem E_Q_P0 : E Q P0 = 1/2 := by
-  simp [E, Q, P0, Matrix.trace, Fin.sum_univ_two, Matrix.mul_apply]
+  simp [E, Q, P0, Matrix.trace, Fin.sum_univ_two]
 
 /-- `E P0 Q = tr(P0 Q) = ½`. -/
 theorem E_P0_Q : E P0 Q = 1/2 := by
-  simp [E, Q, P0, Matrix.trace, Fin.sum_univ_two, Matrix.mul_apply]
+  simp [E, Q, P0, Matrix.trace, Fin.sum_univ_two]
 
 /-- There **is** a pure state `ρ` with `tr(ρ P0) = ½` (namely `ρ = Q`). -/
 theorem exists_pure_expP0 : ∃ ρ : Matrix (Fin 2) (Fin 2) ℝ,
@@ -120,7 +120,7 @@ theorem no_pure_state_both :
   simp only [Matrix.mul_apply, Fin.sum_univ_two, Matrix.transpose_apply] at e00 esym
   simp only [E, P0, Q, Matrix.trace, Fin.sum_univ_two, Matrix.mul_apply,
     Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-    Matrix.head_cons, Matrix.diag_apply] at hP0 hQ htr
+    Matrix.diag_apply] at hP0 hQ htr
   nlinarith [sq_nonneg (ρ 0 1), sq_nonneg (ρ 1 0), e00, esym, hP0, hQ, htr]
 
 /-- The maximally mixed state `½·I` is a mixed state. -/
@@ -128,7 +128,7 @@ theorem halfI_isMixed :
     IsMixedState ((1/2 : ℝ) • (1 : Matrix (Fin 2) (Fin 2) ℝ)) := by
   refine ⟨?_, ?_⟩
   · exact Matrix.PosSemidef.one.smul (by norm_num)
-  · simp [Matrix.trace, Fin.sum_univ_two]
+  · simp [Matrix.trace]
 
 /-- The mixed witness `½·I` is genuinely **not** a pure state (it is not
 idempotent). -/
@@ -145,8 +145,8 @@ projections. -/
 theorem exists_mixed_state_both : ∃ ρ : Matrix (Fin 2) (Fin 2) ℝ,
     IsMixedState ρ ∧ E ρ P0 = 1/2 ∧ E ρ Q = 1/2 := by
   refine ⟨(1/2 : ℝ) • (1 : Matrix (Fin 2) (Fin 2) ℝ), halfI_isMixed, ?_, ?_⟩
-  · simp [E, P0, Matrix.trace, Fin.sum_univ_two, Matrix.mul_apply]
-  · simp [E, Q, Matrix.trace, Fin.sum_univ_two, Matrix.mul_apply]; norm_num
+  · simp [E, P0, Matrix.trace, Fin.sum_univ_two]
+  · simp [E, Q, Matrix.trace, Fin.sum_univ_two]; norm_num
 
 /-- **Summary (the book's §4 contrast).** For the two non-commuting projections
 `P0`, `Q`: no *pure* state realizes the pair of values `(½, ½)`, yet a *mixed*

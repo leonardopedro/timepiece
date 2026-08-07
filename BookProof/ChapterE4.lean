@@ -103,7 +103,7 @@ theorem wave_eq_zero_of_lt (θ : ℕ → ℝ) (s d i : ℕ) (h : i < s) : wave �
   induction' d with d hd generalizing s i;
   · exact Pi.single_eq_of_ne ( ne_of_lt h ) _;
   · rw [ wave_succ ];
-    simp +decide [ basisVec, h.ne, hd _ _ ( Nat.lt_succ_of_lt h ) ]
+    simp [ basisVec, h.ne, hd _ _ ( Nat.lt_succ_of_lt h ) ]
 
 /-
 The leading component of `vₛ` (after at least one stick-break) is `cos θₛ`.
@@ -112,7 +112,7 @@ theorem wave_self_succ (θ : ℕ → ℝ) (s d : ℕ) :
     wave θ s (d + 1) s = Real.cos (θ s) := by
   -- Unfold one stick-break; the tail contributes nothing at index `s`.
   rw [wave_succ]
-  simp +decide [ basisVec, Pi.single_apply ];
+  simp [ basisVec ];
   exact Or.inr ( wave_eq_zero_of_lt _ _ _ _ ( Nat.lt_succ_self _ ) )
 
 /-
@@ -135,7 +135,7 @@ for every `i` (if `i = s` then `(vₛ₊₁)ₛ = 0` by orthogonality, else `(e�
 -/
 theorem cross_diag_zero (θ : ℕ → ℝ) (s d i : ℕ) :
     basisVec s i * wave θ (s + 1) d i = 0 := by
-  by_cases hi : i = s <;> simp +decide [ basisVec, hi ];
+  by_cases hi : i = s <;> simp [ basisVec, hi ];
   exact Or.inr ( wave_eq_zero_of_lt _ _ _ _ ( Nat.lt_succ_self _ ) )
 
 /-
@@ -164,7 +164,7 @@ theorem cond_prob_sum (θ : ℕ → ℝ) (s : ℕ) :
 theorem wave_prob_sum (θ : ℕ → ℝ) (s d : ℕ) :
     ∑ i ∈ Finset.Icc s (s + d), (wave θ s d i) ^ 2 = 1 := by
   induction' d with d ih generalizing s;
-  · simp +decide [ wave_zero, basisVec ];
+  · simp [ wave_zero, basisVec ];
   · -- Apply the_diag_collapse theorem to rewrite the sum.
     have h_sum : ∑ i ∈ Finset.Icc s (s + d + 1),      (wave θ s (d + 1) i) ^ 2 = (Real.cos (θ s)) ^ 2 * (∑ i ∈ Finset.Icc s (s + d + 1), (basisVec s i) ^ 2) + (Real.sin (θ s)) ^ 2 * (∑ i ∈ Finset.Icc s (s + d + 1), (wave θ (s + 1) d i) ^ 2) := by
       rw [ Finset.mul_sum _ _ _, Finset.mul_sum _ _ _, ← Finset.sum_add_distrib ] ;        exact Finset.sum_congr rfl fun _ _ => diag_collapse θ s d _;
@@ -180,6 +180,6 @@ theorem wave_prob_sum (θ : ℕ → ℝ) (s d : ℕ) :
         ext; aesop
       rw [hIcc, show wave θ (s + 1) d s = 0 from wave_eq_zero_of_lt _ _ _ _ (by linarith)]
       norm_num
-    simp_all +decide [← add_assoc]
+    simp_all [← add_assoc]
 
 end BookProof.ChapterE4

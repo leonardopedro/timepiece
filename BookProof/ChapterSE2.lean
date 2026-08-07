@@ -91,14 +91,14 @@ noncomputable def Nmat (a b : ℝ) : Matrix (Fin 4) (Fin 4) ℝ := 1 + Xmat a b
 /-- `X` is additive in `(a,b)`: `X(a,b) + X(c,d) = X(a+c, b+d)`. -/
 theorem Xmat_add (a b c d : ℝ) : Xmat a b + Xmat c d = Xmat (a + c) (b + d) := by
   unfold Xmat; ring;
-  simp +decide only [mul_add, mul_smul_comm, Pr, add_mul, add_smul] ; abel_nf;
+  simp only [mul_add, mul_smul_comm, Pr, add_mul, add_smul] ; abel_nf;
 
 /-- The translations are **nilpotent**: `X(a,b) · X(c,d) = 0`. -/
 theorem Xmat_mul_Xmat (a b c d : ℝ) : Xmat a b * Xmat c d = 0 := by
   -- By expanding the product using the definitions of `Xmat`,    `M`, `M5`, and `Pr`, we can apply the nilpotency conditions.
   have h_expand : (M5 * (a • M 1 + b • M 2) * Pr) * (M5 * (c • M 1 + d • M 2) * Pr) = 0 := by
-    simp +decide [ mul_add, add_mul, mul_assoc, smul_mul_assoc, mul_smul_comm, smul_smul, M, M5, Pr ];
-    simp +decide [ ← mul_assoc, ← map_mul, ← map_add, se2_coef_11, se2_coef_12, se2_coef_21, se2_coef_22 ];
+    simp [ mul_add, add_mul, mul_assoc, smul_smul, M, M5, Pr ];
+    simp [ ← mul_assoc, ← map_mul ];
     unfold castR; norm_num [ mgamma5Z, mgammaZ ] ;
     ext i j ;      fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, Fin.sum_univ_succ ] <;> ring!;
   unfold Xmat; aesop;
@@ -111,7 +111,7 @@ theorem Nmat_zero : Nmat 0 0 = 1 := by
 `N(a,b) · N(c,d) = N(a+c, b+d)`. -/
 theorem Nmat_mul (a b c d : ℝ) : Nmat a b * Nmat c d = Nmat (a + c) (b + d) := by
   convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℝ => 1 + x ) ( Xmat_add a b c d ) using 1;
-  unfold Nmat; simp +decide [ add_mul, mul_add, Matrix.mul_assoc, Xmat_mul_Xmat ] ;
+  unfold Nmat; simp [ add_mul, mul_add, Xmat_mul_Xmat ] ;
   rw [ add_assoc ]
 
 /-- Each `N(a,b)` is invertible with inverse `N(-a,-b)`. -/

@@ -80,7 +80,7 @@ def Heis (a b c : ℝ) : M := !![1,a,c;0,1,b;0,0,1]
 /-- The canonical commutation relation `[X, Y] = Z`. -/
 theorem comm_XY : Xgen * Ygen - Ygen * Xgen = Zgen := by
   unfold Xgen Ygen Zgen; ext i j; fin_cases i <;> fin_cases j <;>
-    simp [Matrix.mul_apply, Fin.sum_univ_three]
+    simp 
 
 /-- The central generator `Z` commutes with both `X` and `Y` (and in fact
 `XZ = ZX = YZ = ZY = 0`). -/
@@ -102,7 +102,7 @@ theorem Zgen_sq : Zgen ^ 2 = 0 := by
 theorem comm_scaled (a b : ℝ) :
     (a • Xgen) * (b • Ygen) - (b • Ygen) * (a • Xgen) = (a * b) • Zgen := by
   unfold Xgen Ygen Zgen; ext i j; fin_cases i <;> fin_cases j <;>
-    simp [Matrix.mul_apply, Fin.sum_univ_three] <;> ring
+    simp  <;> ring
 
 /-- The Heisenberg **group law**
 `H(a,b,c)·H(a',b',c') = H(a+a', b+b', c+c'+a·b')`.  This is the exponentiated

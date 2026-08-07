@@ -1,4 +1,4 @@
-import RiemannProof.RandomMap2RH
+import RandomMap.RandomMap2RH
 
 /-!
 # RandomMap2RH Axiom Verification

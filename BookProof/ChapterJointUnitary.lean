@@ -58,17 +58,17 @@ theorem exists_unitary_column (v : ι → ℂ) (i₀ : ι)
         norm_num [ EuclideanSpace.norm_eq, hv ];
       obtain ⟨u, hu⟩ : ∃ u : OrthonormalBasis ι ℂ (EuclideanSpace ℂ ι),        u i₀ = (EuclideanSpace.equiv ι ℂ).symm v := by
         have := @Orthonormal.exists_orthonormalBasis_extension_of_card_eq;
-        specialize @this ℂ _ ( EuclideanSpace ℂ ι ) _ _ _ ι _ ( by simp +decide [ Module.finrank_pi ] ) ( fun _ => ( EuclideanSpace.equiv ι ℂ ).symm v ) { i₀ } ; simp_all +decide [ Orthonormal ];
+        specialize @this ℂ _ ( EuclideanSpace ℂ ι ) _ _ _ ι _ ( by simp  ) ( fun _ => ( EuclideanSpace.equiv ι ℂ ).symm v ) { i₀ } ; simp_all [ Orthonormal ];
       exact ⟨ u, by aesop ⟩;
     refine' ⟨ Matrix.of fun i j => u j i, _, _, _ ⟩;
-    · ext i j; simp +decide [ Matrix.mul_apply, Matrix.conjTranspose_apply ] ;
-      have := u.sum_repr ( EuclideanSpace.single i 1 ) ;        have := u.sum_repr ( EuclideanSpace.single j 1 ) ;        simp_all +decide [ EuclideanSpace.norm_eq, Finset.sum_apply, Matrix.one_apply ] ;
-      convert congr_arg ( fun x => inner ℂ ( EuclideanSpace.single i 1 ) x ) this using 1 ;        simp +decide [ inner_sum, inner_smul_right ] ; ring;
-      · simp +decide [ u.repr_apply_apply, inner ];
+    · ext i j; simp [ Matrix.mul_apply, Matrix.conjTranspose_apply ] ;
+      have := u.sum_repr ( EuclideanSpace.single i 1 ) ;        have := u.sum_repr ( EuclideanSpace.single j 1 ) ;        simp_all [ Matrix.one_apply ] ;
+      convert congr_arg ( fun x => inner ℂ ( EuclideanSpace.single i 1 ) x ) this using 1 ;        simp  ; ring;
+      · simp [ u.repr_apply_apply, inner ];
         ac_rfl;
-      · simp +decide [ EuclideanSpace.inner_single_left ];
-    · ext i j; simp +decide [ Matrix.mul_apply, Matrix.one_apply ] ;
-      have := u.orthonormal; simp_all +decide [ orthonormal_iff_ite ] ;
+      · simp [ EuclideanSpace.inner_single_left ];
+    · ext i j; simp [ Matrix.mul_apply, Matrix.one_apply ] ;
+      have := u.orthonormal; simp_all [ orthonormal_iff_ite ] ;
       convert this i j using 1;
       exact Finset.sum_congr rfl fun _ _ => mul_comm _ _;
     · aesop;
@@ -84,7 +84,7 @@ theorem exists_unitary_of_prob (p : ι → ℝ) (i₀ : ι)
     ∃ U : Matrix ι ι ℂ, U ∈ Matrix.unitaryGroup ι ℂ ∧ ∀ i, ‖U i i₀‖ ^ 2 = p i := by
   obtain ⟨U, hU⟩ : ∃ U : Matrix ι ι ℂ,    U ∈ Matrix.unitaryGroup ι ℂ ∧ ∀ i, U i i₀ = Real.sqrt (p i) := by
     convert exists_unitary_column _ _ _ ; aesop;
-  exact ⟨ U, hU.1, fun i => by simp +decide [ hU.2 i, Real.sq_sqrt ( hp i ) ] ⟩
+  exact ⟨ U, hU.1, fun i => by simp [ hU.2 i, Real.sq_sqrt ( hp i ) ] ⟩
 
 /-
 **Joint two-space form (the book's `p(x,y) = |𝒰(y,x,0)|²`).** Every joint
@@ -119,8 +119,8 @@ omit [DecidableEq ι] in
 theorem frobenius_eq_trace (B : Matrix ι ι ℂ) :
     (Matrix.trace (Bᴴ * B)).re = ∑ i, ∑ j, ‖B i j‖ ^ 2 := by
   convert Complex.ofReal_re ?_;
-  simp +decide [ Matrix.trace, Matrix.mul_apply, Complex.normSq, Complex.sq_norm ];
-  rw [ Finset.sum_comm ] ; congr ; ext ; congr ; ext ; simp +decide [ Complex.ext_iff ] ; ring;
+  simp [ Matrix.trace, Matrix.mul_apply, Complex.normSq, Complex.sq_norm ];
+  rw [ Finset.sum_comm ] ; congr ; ext ; congr ; ext ; simp [ Complex.ext_iff ] ; ring;
 
 
 

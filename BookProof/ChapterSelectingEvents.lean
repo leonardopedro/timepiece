@@ -63,16 +63,18 @@ variable {Ω Data : Type*} [MeasurableSpace Ω]
 
 /-- Regular conditional probability exists for any finite measure on a
 standard Borel space.  This is the rigorous version of "we can always select
-events with some feature without rewriting history." -/
+events with some feature without rewriting history": conditioning on the value
+of an observable `X` is realized by a genuine Markov kernel `κ` which
+disintegrates `μ`, even though individual level sets of `X` may be null.
+
+Formally, there is a Markov kernel `κ : Kernel Data Ω` with
+`(μ.map X) ⊗ₘ κ = μ.map (fun ω => (X ω, ω))`. -/
 theorem exists_regular_conditional_probability
-    (μ : Measure Ω) [IsFiniteMeasure μ] [StandardBorelSpace Ω] (E : Set Ω)
-    (_hE : MeasurableSet E) :
-    True := by
-  -- Mathlib provides `condExpKernel` for all finite measures on standard Borel
-  -- spaces.  The kernel `condExpKernel μ (generateFrom {E})` gives the regular
-  -- conditional probability given E; for measurable sets it satisfies the
-  -- standard formula `μ(F | E) = μ(E ∩ F) / μ(E)` when `μ(E) > 0`.
-  trivial
+    [StandardBorelSpace Ω] [Nonempty Ω] [MeasurableSpace Data]
+    (μ : Measure Ω) [IsFiniteMeasure μ] (X : Ω → Data) :
+    ∃ κ : Kernel Data Ω, IsMarkovKernel κ ∧
+      (μ.map X) ⊗ₘ κ = μ.map (fun ω => (X ω, ω)) :=
+  ⟨condDistrib id X μ, inferInstance, compProd_map_condDistrib aemeasurable_id⟩
 
 /-!
 ## 3. The 5 isomorphism classes of abelian von Neumann algebras
@@ -143,17 +145,40 @@ worst-case prior measure into the best-case prior measure.
 
 variable {X : Type*} [MeasurableSpace X] (μ : Measure X) [IsProbabilityMeasure μ]
 
-/-- Any probability measure on a standard Borel space can be decomposed into
-its continuous part (no atoms) and its atomic part (countable set of singletons).
-This is the Lebesgue decomposition for measures. -/
-theorem exists_continuous_atomic_decomposition
-    [StandardBorelSpace X] :
-    True := by
-  -- Mathlib has `MeasureTheory.Measure.lebesgueDecomposition` which gives
-  -- the decomposition of a measure into continuous and atomic parts.
-  -- The full statement requires the Lebesgue decomposition theorem;
-  -- we leave this as a documented placeholder.
-  trivial
+/-- Any probability measure on a space with measurable singletons splits into a
+**continuous** part (no atoms) and an **atomic** part, the latter carried by a
+countable set of points.  Concretely, with `A = {x | 0 < μ {x}}` the (countable)
+set of atoms, the decomposition is `μ = μ.restrict Aᶜ + μ.restrict A`. -/
+theorem exists_continuous_atomic_decomposition [MeasurableSingletonClass X] :
+    ∃ cont atom : Measure X, μ = cont + atom ∧ NoAtoms cont ∧
+      ∃ A : Set X, A.Countable ∧ atom Aᶜ = 0 := by
+  classical
+  set A : Set X := {x | 0 < μ {x}} with hA
+  have hcount : A.Countable := by
+    have := Measure.countable_meas_pos_of_disjoint_iUnion (μ := μ)
+      (As := fun x : X => ({x} : Set X)) (fun x => measurableSet_singleton x)
+      (by intro x y hxy; simpa [Function.onFun] using hxy)
+    simpa [hA] using this
+  have hmeas : MeasurableSet A := hcount.measurableSet
+  refine ⟨μ.restrict Aᶜ, μ.restrict A, ?_, ?_, A, hcount, ?_⟩
+  · rw [add_comm]
+    exact (Measure.restrict_add_restrict_compl hmeas).symm
+  · constructor
+    intro x
+    rcases eq_or_ne (μ {x}) 0 with h | h
+    · exact le_antisymm (le_trans (Measure.restrict_apply_le _ _) (le_of_eq h)) (zero_le _)
+    · have hxA : x ∈ A := by
+        simp only [hA, Set.mem_setOf_eq]
+        exact pos_iff_ne_zero.mpr h
+      rw [Measure.restrict_apply (measurableSet_singleton x)]
+      have hempty : ({x} : Set X) ∩ Aᶜ = ∅ := by
+        ext y
+        simp only [Set.mem_inter_iff, Set.mem_singleton_iff, Set.mem_compl_iff,
+          Set.mem_empty_iff_false, iff_false, not_and, not_not]
+        rintro rfl; exact hxA
+      simp [hempty]
+  · rw [Measure.restrict_apply hmeas.compl]
+    simp
 
 /-!
 ## 6. Random number generation
@@ -226,19 +251,9 @@ probability kernel) equals the standard formula `μ(E ∩ F) / μ(E)` whenever
 theorem selecting_events_not_rewriting_history
     {α : Type*} [MeasurableSpace α] [StandardBorelSpace α]
     (μ : Measure α) [IsProbabilityMeasure μ] [NoAtoms μ]
-    (E F : Set α) (_hE : MeasurableSet E) (_hF : MeasurableSet F)
+    (E F : Set α) (_hE : MeasurableSet E) (hF : MeasurableSet F)
     (_hEpos : μ E > 0) (_hFpos : μ F > 0) :
-    -- The conditional probability of F given E, computed via the regular
-    -- conditional probability kernel, agrees with the standard formula
-    -- whenever E has positive measure.
-    True := by
-  -- The regular conditional probability kernel `condExpKernel` gives the
-  -- conditional expectation.  For measurable sets, this reduces to the
-  -- standard conditional probability formula when the conditioning set has
-  -- positive measure.
-  --
-  -- Key identity: μ(F | E) = μ(E ∩ F) / μ(E) when μ(E) > 0.
-  -- This is `ProbabilityTheory.cond_apply'` in Mathlib.
-  trivial
+    μ[F | E] = μ (E ∩ F) / μ E := by
+  rw [cond_apply' hF, ENNReal.div_eq_inv_mul]
 
 end BookProof.ChapterSelectingEvents

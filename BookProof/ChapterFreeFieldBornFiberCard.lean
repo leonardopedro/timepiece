@@ -88,7 +88,7 @@ theorem bornFiberPoint_injective {p : Fin n → ℝ} (hp : ∀ k, 0 < p k) :
   intro b b' h;
   ext k;
   unfold bornFiberPoint at h;
-  replace h := congr_arg ( fun x => x k ) h ; simp_all +decide [ signVec, bornSection ];
+  replace h := congr_arg ( fun x => x k ) h ; simp_all [ signVec, bornSection ];
   grind
 
 /-
@@ -101,14 +101,14 @@ theorem mem_fiber_iff {p : ↥(stdSimplex ℝ (Fin n))}
   constructor <;> intro h;
   · have := bornMap_eq_iff_signFlip ( bornSection p.val ) x.val |>.1 ?_;
     · obtain ⟨ s, hs₁, hs₂ ⟩ := this; use fun k => decide ( s k = 1 )
-      simp_all +decide [ bornFiberPoint ]
+      simp_all [ bornFiberPoint ]
       congr! 1;
       exact signVec_signBool hs₁;
     · convert congr_arg Subtype.val h using 1;
       exact bornMap_bornSection p.2;
   · obtain ⟨ b, hb ⟩ := h;
     convert bornMap_bornFiberPoint p.property b using 1;
-    simp +decide [ Subtype.ext_iff, hb ];
+    simp [ Subtype.ext_iff ];
     convert Iff.rfl;
     exact hb ▸ rfl
 

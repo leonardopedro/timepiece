@@ -71,8 +71,8 @@ lemma beta_move (χ β : Fin n → R) (hCAR : GhostCAR χ β) (e d g : Fin n) :
   have h_combined : β e * (χ d * χ g) = (β e * χ d) * χ g := by
     rw [ mul_assoc ];
   convert congr_arg ( · * χ g ) ( show β e * χ d = ( if e = d then 1 else 0 ) - χ d * β e from ?_ ) using 1;
-  · have := hCAR.betachi e g; simp_all +decide [ add_mul, mul_assoc, sub_mul ] ;
-    split_ifs <;> simp_all +decide [ ← eq_sub_iff_add_eq', mul_assoc ];
+  · have := hCAR.betachi e g; simp_all [ mul_assoc, sub_mul ] ;
+    split_ifs <;> simp_all [ ← eq_sub_iff_add_eq' ];
     · rw [ mul_sub, mul_one ];
     · grind;
   · exact eq_sub_of_add_eq ( hCAR.betachi e d )
@@ -87,12 +87,12 @@ lemma chi_swap4 (χ β : Fin n → R) (hCAR : GhostCAR χ β) (a b c d : Fin n) 
     χ a * χ b * χ c * χ d = χ c * χ d * χ a * χ b := by
   -- By anticommuting χa past χc and χd, we get another negative sign.
   have h_acd : χ a * (χ c * χ d) = (χ c * χ d) * χ a := by
-    have := hCAR.chichi a c;      have := hCAR.chichi a d;      have := hCAR.chichi c d; simp_all +decide [ mul_assoc, ← eq_sub_iff_add_eq ] ;
-    simp_all +decide [ ← mul_assoc ];
-    simp_all +decide [ mul_assoc, neg_mul ];
+    have := hCAR.chichi a c;      have := hCAR.chichi a d;      have := hCAR.chichi c d; simp_all [ mul_assoc, ← eq_sub_iff_add_eq ] ;
+    simp_all [ ← mul_assoc ];
+    simp_all [ mul_assoc ];
   have h_comm : χ b * (χ c * χ d) = (χ c * χ d) * χ b := by
-    simp_all +decide [ ← mul_assoc, GhostCAR.chichi ];
-    have := hCAR.chichi b c;      have := hCAR.chichi b d; simp_all +decide [ mul_assoc, add_eq_zero_iff_eq_neg ] ;
+    simp_all [ ← mul_assoc ];
+    have := hCAR.chichi b c;      have := hCAR.chichi b d; simp_all [ mul_assoc, add_eq_zero_iff_eq_neg ] ;
   grind
 
 /-
@@ -107,7 +107,7 @@ lemma chi_cyc3 (χ β : Fin n → R) (hCAR : GhostCAR χ β) (a b c : Fin n) :
     exact eq_neg_of_add_eq_zero_left ( hCAR.chichi a b )
   have h2 : χ a * χ c = - (χ c * χ a) := by
     exact eq_neg_of_add_eq_zero_left ( hCAR.chichi a c );
-  simp +decide [ mul_assoc, h1, h2 ]
+  simp [ mul_assoc, h1, h2 ]
 
 /-
 **The purely quartic ghost term vanishes.**  The fully normal-ordered piece
@@ -122,24 +122,24 @@ lemma quartic_term_zero (f : Fin n → Fin n → Fin n → ℝ) (χ β : Fin n �
   by_contra h_nonzero;
   -- Reindex the sum by swapping the two index-triples `(a,b,e) ↔ (d,g,h)`.
   have h_reindex : ∑ a : Fin n,    ∑ b : Fin n,    ∑ e : Fin n,    ∑ d : Fin n,    ∑ g : Fin n,    ∑ h : Fin n,    (f a b e * f d g h) • (χ a * χ b * χ d * χ g * β e * β h) = ∑ a : Fin n,    ∑ b : Fin n,    ∑ e : Fin n,    ∑ d : Fin n,    ∑ g : Fin n, ∑ h : Fin n, (f a b e * f d g h) • (χ d * χ g * χ a * χ b * β h * β e) := by
-    simp +decide only [Finset.sum_sigma'];
+    simp only [Finset.sum_sigma'];
     apply Finset.sum_bij (fun x _ => ⟨x.snd.snd.snd.fst, x.snd.snd.snd.snd.fst, x.snd.snd.snd.snd.snd, x.fst, x.snd.fst, x.snd.snd.fst⟩);
-    · simp +decide;
+    · simp;
     · grind;
-    · simp +decide;
+    · simp;
       exact fun b => ⟨ b.2.2.2.1, b.2.2.2.2.1, b.2.2.2.2.2, b.1, b.2.1, b.2.2.1, rfl ⟩;
-    · simp +decide [ mul_assoc, mul_comm, mul_left_comm ];
+    · simp [ mul_assoc, mul_comm ];
   -- Simplify the summand using the properties of the ghost operators.
   have h_simplify : ∀ a b e d g h : Fin n,    (f a b e * f d g h) • (χ d * χ g * χ a * χ b * β h * β e) = -(f a b e * f d g h) • (χ a * χ b * χ d * χ g * β e * β h) := by
     intro a b e d g h
     have h_simplify : β h * β e = - (β e * β h) := by
       exact eq_neg_of_add_eq_zero_left ( hCAR.betabeta _ _ );
-    simp +decide [ mul_assoc, h_simplify ];
-    simp +decide only [← mul_assoc, chi_swap4 χ β hCAR];
-  simp +decide only [h_simplify] at h_reindex;
-  simp +decide [ Finset.sum_neg_distrib, neg_smul ] at h_reindex;
+    simp [ mul_assoc, h_simplify ];
+    simp only [← mul_assoc, chi_swap4 χ β hCAR];
+  simp only [h_simplify] at h_reindex;
+  simp [ Finset.sum_neg_distrib, neg_smul ] at h_reindex;
   rw [ eq_neg_iff_add_eq_zero ] at h_reindex;
-  simp +decide [ ← two_smul ℝ, h_nonzero ] at h_reindex
+  simp [ ← two_smul ℝ, h_nonzero ] at h_reindex
 
 /-
 **The contracted terms vanish by the Jacobi identity.**  The two terms
@@ -154,17 +154,17 @@ lemma contracted_terms_zero (f : Fin n → Fin n → Fin n → ℝ) (χ β : Fin
       ∑ e, (f a b e * f e c h + f b c e * f e a h + f c a e * f e b h) = 0) :
     (∑ a, ∑ b, ∑ e, ∑ g, ∑ h,
       (f a b e * f e g h) • (χ a * χ b * χ g * β h)) = 0 := by
-  simp +decide [ Finset.sum_add_distrib, Finset.smul_sum, smul_add, add_smul ] at hjac;
+  simp [ Finset.sum_add_distrib ] at hjac;
   -- By combining the results from the three sums, we conclude that the entire expression is zero.
   have h_combined : ∑ a, ∑ b, ∑ g, ∑ h, (∑ e, f a b e * f e g h) • (χ a * χ b * χ g * β h) =
     ∑ a, ∑ b, ∑ g, ∑ h, (∑ e, f b g e * f e a h) • (χ a * χ b * χ g * β h) := by
-      simp +decide only [← Finset.sum_product'];
+      simp only [← Finset.sum_product'];
       apply Finset.sum_bij (fun x _ => (x.2.2.1, x.1, x.2.1, x.2.2.2));
       · grind;
       · grind;
-      · simp +decide;
+      · simp;
       · intro a ha
-        simp +decide [ mul_assoc, chi_cyc3 χ β hCAR ];
+        simp [ mul_assoc, chi_cyc3 χ β hCAR ];
   have h_combined2 : ∑ a, ∑ b, ∑ g, ∑ h, (∑ e, f a b e * f e g h) • (χ a * χ b * χ g * β h) =
     ∑ a, ∑ b, ∑ g, ∑ h, (∑ e, f g a e * f e b h) • (χ a * χ b * χ g * β h) := by
       refine' Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => _ ) );
@@ -172,13 +172,13 @@ lemma contracted_terms_zero (f : Fin n → Fin n → Fin n → ℝ) (χ β : Fin
   have h_combined3 : ∑ a, ∑ b, ∑ g, ∑ h, (∑ e, f a b e * f e g h) • (χ a * χ b * χ g * β h) +
     ∑ a, ∑ b, ∑ g, ∑ h, (∑ e, f b g e * f e a h) • (χ a * χ b * χ g * β h) +
     ∑ a, ∑ b, ∑ g, ∑ h, (∑ e, f g a e * f e b h) • (χ a * χ b * χ g * β h) = 0 := by
-      simp +decide only [← Finset.sum_add_distrib];
+      simp only [← Finset.sum_add_distrib];
       refine' Finset.sum_eq_zero fun a ha => Finset.sum_eq_zero fun b hb => Finset.sum_eq_zero fun c hc => Finset.sum_eq_zero fun d hd => _;
       rw [ ← add_smul, ← add_smul, hjac a b c d, zero_smul ];
   convert congr_arg ( fun x : R => ( 1 / 3 : ℝ ) • x ) h_combined3 using 1 <;> norm_num [ ← Finset.sum_smul, ← Finset.smul_sum ];
   rw [ ← h_combined, ← h_combined2 ] ; ring;
   norm_num [ ← add_smul ];
-  simp +decide only [Finset.sum_smul];
+  simp only [Finset.sum_smul];
   exact Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_comm )
 
 /-
@@ -199,21 +199,21 @@ theorem brst_charge_nilpotent (f : Fin n → Fin n → Fin n → ℝ) (χ β : F
   -- Apply the definitions of `Q` and `beta_move` to expand `Q * Q`.
   have h_expand : Q f χ β * Q f χ β = ∑ a,    ∑ b, ∑ e, ∑ d, ∑ g, ∑ h, (f a b e * f d g h) • (χ a * χ b * β e * χ d * χ g * β h) := by
     unfold Q;
-    simp +decide only [Finset.sum_mul _ _ _, Finset.mul_sum, mul_smul_comm, Algebra.smul_mul_assoc, smul_smul];
+    simp only [Finset.sum_mul _ _ _, Finset.mul_sum, mul_smul_comm, Algebra.smul_mul_assoc, smul_smul];
     ac_rfl;
   -- Apply `beta_move` to rewrite each term in the expansion.
   have h_rewrite : ∀ a b e d g h,    χ a * χ b * β e * χ d * χ g * β h = (if e = d then χ a * χ b * χ g * β h else 0) - (if e = g then χ a * χ b * χ d * β h else 0) + χ a * χ b * χ d * χ g * β e * β h := by
     intro a b e d g h;
-    convert congr_arg ( fun x => χ a * χ b * x * β h ) ( beta_move χ β hCAR e d g ) using 1 <;> simp +decide [ mul_assoc ];
-    simp +decide [ mul_add, add_mul, mul_assoc, sub_mul, mul_sub ];
+    convert congr_arg ( fun x => χ a * χ b * x * β h ) ( beta_move χ β hCAR e d g ) using 1 <;> simp [ mul_assoc ];
+    simp [ mul_add, add_mul, mul_assoc, sub_mul, mul_sub ];
   -- Substitute the rewritten terms back into the expansion.
   have h_substitute : Q f χ β * Q f χ β = (∑ a, ∑ b, ∑ e, ∑ g, ∑ h, (f a b e * f e g h) • (χ a * χ b * χ g * β h)) - (∑ a, ∑ b, ∑ e, ∑ d, ∑ h, (f a b e * f d e h) • (χ a * χ b * χ d * β h)) + (∑ a, ∑ b, ∑ e, ∑ d, ∑ g, ∑ h, (f a b e * f d g h) • (χ a * χ b * χ d * χ g * β e * β h)) := by
     rw [ h_expand ];
-    simp +decide only [h_rewrite, smul_add, smul_sub, Finset.sum_add_distrib];
-    simp +decide [ Finset.sum_ite, Finset.filter_eq, Finset.filter_ne ];
+    simp only [h_rewrite, smul_add, smul_sub, Finset.sum_add_distrib];
+    simp ;
   -- Apply the contracted_terms_zero lemma to the second term.
   have h_contracted : ∑ a,    ∑ b,    ∑ e,    ∑ d,    ∑ h,    (f a b e * f d e h) • (χ a * χ b * χ d * β h) = -∑ a,    ∑ b, ∑ e, ∑ g, ∑ h, (f a b e * f e g h) • (χ a * χ b * χ g * β h) := by
-    simp +decide only [← Finset.sum_neg_distrib];
+    simp only [← Finset.sum_neg_distrib];
     refine' Finset.sum_congr rfl fun a ha => Finset.sum_congr rfl fun b hb => Finset.sum_congr rfl fun e he => Finset.sum_congr rfl fun d hd => Finset.sum_congr rfl fun h hh => _;
     rw [ hf12 d e h ] ; ring;
     rw [ neg_smul ];

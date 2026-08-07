@@ -33,7 +33,7 @@ Positive coordinate radii make the infinite product a probability measure.
 -/
 instance infiniteWalkMeasure_isProbability (x ε : ℕ → ℝ)
     [∀ n, Fact (0 < ε n)] : IsProbabilityMeasure (infiniteWalkMeasure x ε) := by
-  constructor ; simp +decide [ infiniteWalkMeasure ]
+  constructor ; simp [ infiniteWalkMeasure ]
 
 /-
 The finite marginal indexed by `I` is the finite product of the same scalar
@@ -207,7 +207,7 @@ theorem integrable_coordinate_energy (x ε : ℕ → ℝ)
     Integrable (fun y => (y n - x n) ^ 2) (infiniteWalkMeasure x ε) := by
   refine' MeasureTheory.Integrable.mono' _ _ _;
   refine' fun y => ( ε n ) ^ 2;
-  · simp +decide [ MeasureTheory.integrable_const_iff ];
+  · simp [ MeasureTheory.integrable_const_iff ];
   · exact Measurable.aestronglyMeasurable ( by measurability );
   · filter_upwards [ coordinate_abs_sub_le_radius x ε n ] with y hy using by simpa using pow_le_pow_left₀ ( abs_nonneg _ ) hy 2;
 
@@ -226,7 +226,7 @@ theorem totalEnergy_expectation_bound (x ε : ℕ → ℝ)
     · refine' le_trans ( MeasureTheory.lintegral_mono_ae _ ) _;
       use fun y => ENNReal.ofReal ( ∑' n, ( ε n ) ^ 2 );
       · filter_upwards [ ae_tsum_centered_energy_le x ε hε ] with y hy using ENNReal.ofReal_le_ofReal hy;
-      · simp +decide [ MeasureTheory.IsProbabilityMeasure.measure_univ ];
+      · simp [ MeasureTheory.IsProbabilityMeasure.measure_univ ];
     · rw [ ENNReal.toReal_ofReal ( tsum_nonneg fun _ => sq_nonneg _ ) ];
   · exact Filter.Eventually.of_forall fun y => tsum_nonneg fun n => sq_nonneg _;
   · refine' MeasureTheory.AEStronglyMeasurable.congr _ _;

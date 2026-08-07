@@ -50,7 +50,7 @@ ball the same measure as the corresponding ball centered at the origin.
 theorem measure_ball_eq_measure_ball_zero (μ : Measure E) [μ.IsAddLeftInvariant]
     (a : E) (r : ℝ) : μ (Metric.ball a r) = μ (Metric.ball 0 r) := by
   convert MeasureTheory.measure_preimage_add μ ( -a ) ( Metric.ball 0 r ) using 1;
-  simp +decide [ dist_eq_norm, sub_eq_add_neg ]
+  simp [ sub_eq_add_neg ]
 
 /-- **Core estimate.** For a translation-invariant measure that is finite on
 bounded sets on an infinite-dimensional normed space, every ball centered at the
@@ -74,11 +74,11 @@ theorem measure_ball_zero_eq_zero (hE : ¬ FiniteDimensional ℝ E)
   -- Consider the balls `A n := Metric.ball ((2*r) • f n) r`.
   set A : ℕ → Set E := fun n => Metric.ball ((2 * r) • f n) r;
   have hA_disjoint : Pairwise (fun m n => Disjoint (A m) (A n)) := by
-    intro m n hmn; simp_all +decide [ Metric.ball_disjoint_ball ] ;
+    intro m n hmn; simp_all  ;
     refine' Metric.ball_disjoint_ball _;
     rw [ dist_eq_norm, ← smul_sub, norm_smul, Real.norm_of_nonneg ( by positivity ) ] ;      nlinarith [ hR.2.2 hmn ] ;;
   have hA_subset : ⋃ n, A n ⊆ Metric.ball 0 (2 * r * R + r) := by
-    simp +decide [ Set.subset_def, A ];
+    simp [ Set.subset_def, A ];
     intro x n hx;      rw [ dist_eq_norm ] at hx;      rw [ ← sub_add_cancel x ( ( 2 * r ) • f n ) ] ;      exact lt_of_le_of_lt ( norm_add_le _ _ ) ( by nlinarith [ norm_smul_of_nonneg ( show 0 ≤ 2 * r by positivity ) ( f n ), hR.2.1 n ] ) ;;
   have hA_measure : μ (⋃ n, A n) ≠ ∞ := by
     exact ne_of_lt ( lt_of_le_of_lt ( MeasureTheory.measure_mono hA_subset ) ( lt_top_iff_ne_top.mpr ( hbdd _ ( Metric.isBounded_ball ) ) ) );
@@ -88,7 +88,7 @@ theorem measure_ball_zero_eq_zero (hE : ¬ FiniteDimensional ℝ E)
   have hA_sum_measure_pos : ∑' n, μ (A n) = ∑' n : ℕ, μ (Metric.ball 0 r) := by
     exact tsum_congr fun n => measure_ball_eq_measure_ball_zero μ _ _;
   have hA_sum_measure_inf : ∑' n : ℕ, μ (Metric.ball 0 r) = ⊤ := by
-    simp +decide [ hc, ENNReal.tsum_const ];
+    simp [ hc, ENNReal.tsum_const ];
   aesop;
 
 /-- **No infinite-dimensional Lebesgue measure.** On an infinite-dimensional real
@@ -108,7 +108,7 @@ theorem eq_zero_of_isAddLeftInvariant_of_finite_on_bounded
   -- Note `Set.univ = ⋃ (n : ℕ), Metric.ball 0 (n + 1)`.
   have h_univ_eq_iUnion : Set.univ = ⋃ n : ℕ, Metric.ball (0 : E) (n + 1) := by
     ext x
-    simp [Set.mem_iUnion];
+    simp ;
   rw [ h_univ_eq_iUnion, MeasureTheory.measure_iUnion_null_iff ];
   exact fun n => measure_ball_zero_eq_zero hE μ hbdd ( by positivity ))
 

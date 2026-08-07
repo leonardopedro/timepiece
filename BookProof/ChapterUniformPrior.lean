@@ -60,7 +60,7 @@ theorem normalized_isRelabelingInvariant_eq_uniform [Fintype Hyp] [Nonempty Hyp]
     (p : Hyp → ℝ) (hp : IsRelabelingInvariant p) (hsum : ∑ x, p x = 1) :
     p = fun _ => (1 : ℝ) / Fintype.card Hyp := by
   obtain ⟨c, hc⟩ := isRelabelingInvariant_iff_constant p |>.1 hp;
-  simp_all +decide [ funext_iff ];
+  simp_all [ funext_iff ];
   exact eq_inv_of_mul_eq_one_right hsum
 
 /-
@@ -75,7 +75,7 @@ theorem uniform_prior_posterior_le_iff [Fintype Hyp]
     BookProof.ChapterBayesInference.posterior (fun _ : Hyp => c) likelihood d a ≤
         BookProof.ChapterBayesInference.posterior (fun _ : Hyp => c) likelihood d b ↔
       likelihood a d ≤ likelihood b d := by
-  simp_all +decide [ ChapterBayesInference.posterior, ChapterBayesInference.evidence ];
+  simp_all [ ChapterBayesInference.posterior, ChapterBayesInference.evidence ];
   rw [ div_le_div_iff_of_pos_right hevidence, mul_le_mul_iff_right₀ hc ]
 
 /-

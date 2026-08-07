@@ -13,7 +13,7 @@ tag := "introduction"
 
 :::paragraph
 We begin not with a definition of probability, but with a description of what a
-probability **does**. The point of view of this book is that a probability is a
+probability *does*. The point of view of this book is that a probability is a
 _map from complex random events to standard, intuitive random events_. It does not
 tell us what randomness _is_; it tells us how an event we do not understand lines
 up with one we do.
@@ -34,7 +34,7 @@ with a metal detector over a $`320`-metre interval._
 :::paragraph
 The treasure hunt is itself ambiguous: we do not know whether there are clues to
 the ring's location, how it was lost, or who else has walked the beach. But that
-ambiguity has been **moved** by the map. Whatever is mysterious about our original
+ambiguity has been *moved* by the map. Whatever is mysterious about our original
 event has been transferred onto a standard random event — _a point chosen on an
 interval_ — that everyone already understands intuitively. The map from the complex
 event to the treasure hunt is unambiguous, even though the treasure hunt is not.
@@ -42,7 +42,7 @@ event to the treasure hunt is unambiguous, even though the treasure hunt is not.
 
 :::paragraph
 This is the whole game. We do not need to settle what probability _means_. We need
-only a disciplined way of **relating** an arbitrary, possibly very complicated
+only a disciplined way of *relating* an arbitrary, possibly very complicated
 random event to a standard one — a point on a line, a draw from an urn, a spin of a
 wheel — whose behaviour is transparent. Kolmogorov's axioms are precisely the rules
 that make this relating consistent: a probability space is a sample space (the set
@@ -52,7 +52,7 @@ $`1`.
 :::
 
 :::paragraph
-Most probability spaces that arise in applications are **standard** measure spaces:
+Most probability spaces that arise in applications are *standard* measure spaces:
 up to sets of measure zero they are the unit interval with Lebesgue measure, a
 finite or countable discrete space, or a mixture of the two. On a standard measure
 space one can always form regular conditional probabilities, and — this is the
@@ -63,14 +63,14 @@ probability distributions by a wave-function on a sphere.
 # The Central Idea
 
 :::paragraph
-A **probability distribution** on a finite set of outcomes $`\{1, \dots, n\}` is a
+A *probability distribution* on a finite set of outcomes $`\{1, \dots, n\}` is a
 list of non-negative numbers that sum to one:
 :::
 
 $$`p_1, \dots, p_n \ge 0, \qquad \sum_{k=1}^{n} p_k = 1.`
 
 :::paragraph
-The set of all such lists is the **probability simplex**. It is a convex body: a
+The set of all such lists is the *probability simplex*. It is a convex body: a
 mixture $`\lambda p + (1-\lambda) q` of two distributions is again a distribution.
 This convexity is the mathematical expression of the fact that one can be
 _uncertain about which of two models is correct_.
@@ -86,8 +86,8 @@ $$`\psi = (\psi_1, \dots, \psi_n), \qquad \sum_{k=1}^{n} \psi_k^2 = 1,`
 :::paragraph
 then setting $`p_k = \psi_k^2` automatically gives a probability distribution:
 each $`p_k \ge 0` and $`\sum_k p_k = 1`. The vector $`\psi` is a
-**wave-function**, and the rule $`p_k = \psi_k^2` (more generally
-$`p_k = |\psi_k|^2` over the complex numbers) is **Born's rule**.
+*wave-function*, and the rule $`p_k = \psi_k^2` (more generally
+$`p_k = |\psi_k|^2` over the complex numbers) is *Born's rule*.
 :::
 
 :::paragraph
@@ -112,8 +112,8 @@ foundations of the same calculus.
 :::
 
 :::paragraph
-One influential answer treats probabilities as **degrees of belief** and asks: when
-is a system of beliefs internally consistent? The **Dutch-book** argument shows
+One influential answer treats probabilities as *degrees of belief* and asks: when
+is a system of beliefs internally consistent? The *Dutch-book* argument shows
 that a bettor whose degrees of belief violate the probability axioms can be offered
 a combination of bets that loses money no matter what happens — a _sure loss_.
 Avoiding such a sure loss forces the degrees of belief to obey exactly the
@@ -125,7 +125,7 @@ and useful answer, and it is _one_ example of what probability can be.
 But it is not the answer this book is built around. The Dutch-book view explains
 what coherence _demands_ of a single agent's beliefs. The view we take here is
 broader and, we think, closer to how probability is actually used in physics and
-engineering: probability is the **bridge** that lets us reason about a complex
+engineering: probability is the *bridge* that lets us reason about a complex
 random event by relating it to an intuitive one. The wave-function parametrization
 is a construction _on that bridge_. Everything else in the book — Born's rule,
 unitary evolution, gauge symmetry, the classical limit — is read off from the
@@ -147,9 +147,9 @@ world in which computation is possible. The result is a zoo of _ad hoc_ methods.
 
 :::paragraph
 The manuscript's claim is that the obstruction is narrower than it looks.
-Infinite dimensions are not themselves the problem. A **uniform, Lebesgue-like
-measure on an infinite-dimensional sphere** _can_ be defined, using the Gaussian
-measure and the **Fock space** (the separable Hilbert space used in the second
+Infinite dimensions are not themselves the problem. A *uniform, Lebesgue-like
+measure on an infinite-dimensional sphere* _can_ be defined, using the Gaussian
+measure and the *Fock space* (the separable Hilbert space used in the second
 quantization of free fields). Such a sphere parametrizes the probability
 distribution of another probability distribution — a _free-field parametrization_.
 We make the finite-dimensional version of this construction precise in
@@ -157,9 +157,9 @@ We make the finite-dimensional version of this construction precise in
 :::
 
 :::paragraph
-The real problem, then, is not infinity but **constraints**: how to impose an exact
+The real problem, then, is not infinity but *constraints*: how to impose an exact
 constraint inside a separable probability space _without_ giving the constrained set
-measure zero. The manuscript's thesis is that **quantum constraints** — which,
+measure zero. The manuscript's thesis is that *quantum constraints* — which,
 unlike classical ones, need not commute with the variables that define the sample
 space — solve precisely this. This is the thread that connects the foundations of
 probability to the foundations of quantum field theory, and it is the reason a
@@ -170,7 +170,7 @@ probability to the foundations of quantum field theory, and it is the reason a
 
 :::paragraph
 The name of the programme refers to a piece of structure that the manuscript insists
-on. A **dynamical system** has two parts: a _state_, which is a point of a state
+on. A *dynamical system* has two parts: a _state_, which is a point of a state
 space and involves no time (it is the _present_ state); and an _evolution rule_,
 which says how a future state is produced from the present one. The notion of
 "time" is determined by the evolution rule itself; it is not a pre-existing
@@ -179,7 +179,7 @@ more general algebraic object.
 :::
 
 :::paragraph
-In a Hamiltonian formalism with **time-dependent** transformations, the symplectic
+In a Hamiltonian formalism with *time-dependent* transformations, the symplectic
 form of conservative classical mechanics is not invariant. The cleanest way to make
 non-relativistic mechanics consistent with that fact is to formulate it as a field
 theory whose phase space is a fibred manifold over an extra "time" axis. The name
@@ -193,27 +193,27 @@ Hamiltonian mechanics and quantum mechanics.
 # Aim, and What Quantization Is Not
 
 :::paragraph
-The aim is a simple, mathematically meaningful account of **quantization** that
+The aim is a simple, mathematically meaningful account of *quantization* that
 applies uniformly to quantum mechanics and to (classical and quantum) statistical
 field theory, and that shows the "mystery" of quantum mechanics to be a feature of
 the parametrization rather than of nature. To clear the ground, the manuscript is
-explicit about what quantization is **not**:
+explicit about what quantization is *not*:
 :::
 
- * It is not **prequantization** — the mechanical replacement of Poisson brackets by
+ * It is not *prequantization* — the mechanical replacement of Poisson brackets by
    commutators — which can always be done for analytic functions but does not by
    itself yield useful results.
- * It is not **second quantization** (the Fock-space passage from one particle to
+ * It is not *second quantization* (the Fock-space passage from one particle to
    many), which can only be applied to a theory that is already quantum — hence
    "second".
- * It is not the **Feynman path integral**, which lacks the $`\sigma`-additivity
+ * It is not the *Feynman path integral*, which lacks the $`\sigma`-additivity
    that would make it an integral in the first place.
- * It is not a **perturbative expansion** or a **lattice regularization**: both are
+ * It is not a *perturbative expansion* or a *lattice regularization*: both are
    well-defined approximations, but they are complementary, so neither can serve as
    the _definition_.
 
 :::paragraph
-The positive proposal is that quantization is a consequence of **time-evolution**:
+The positive proposal is that quantization is a consequence of *time-evolution*:
 the wave-function is one parametrization of an arbitrary probability distribution,
 the parametrization is a surjective map from a hypersphere to the set of all
 probability distributions, and two wave-functions are always related by a rotation
@@ -226,13 +226,13 @@ statistical theory, not a deformation imposed on a classical algebra.
 :::paragraph
 The parametrization $`p_k = \psi_k^2` is many-to-one. Both $`\psi` and
 $`-\psi` give the same distribution, and over the complex numbers the whole
-**phase** $`e^{i\theta}` is invisible to $`p_k = |\psi_k|^2`. The wave-function
+*phase* $`e^{i\theta}` is invisible to $`p_k = |\psi_k|^2`. The wave-function
 therefore carries _more_ information than the distribution: it remembers a phase
 that the probabilities have forgotten.
 :::
 
 :::paragraph
-This redundancy is not a defect; it is the origin of **interference**. On the
+This redundancy is not a defect; it is the origin of *interference*. On the
 simplex, probabilities only ever add. On the sphere, wave-functions add _first_ and
 are squared _afterwards_, so two alternatives $`\psi` and $`\phi` combine as
 :::
@@ -240,7 +240,7 @@ are squared _afterwards_, so two alternatives $`\psi` and $`\phi` combine as
 $$`|\psi + \phi|^2 = |\psi|^2 + |\phi|^2 + 2\,\mathrm{Re}(\overline{\psi}\,\phi),`
 
 :::paragraph
-and the final **cross term** is precisely the interference that has no analogue on
+and the final *cross term* is precisely the interference that has no analogue on
 the simplex. The double-slit experiment, the Stern–Gerlach experiment, and the rest
 of the phenomenology of quantum mechanics are, in this view, consequences of doing
 linear algebra on $`\psi` before applying Born's rule.
@@ -248,14 +248,14 @@ linear algebra on $`\psi` before applying Born's rule.
 
 :::paragraph
 The programme of this book is to make this precise and to prove it. The slogan is:
-**quantum mechanics is what probability theory looks like when you parametrize the
-simplex by the sphere.**
+*quantum mechanics is what probability theory looks like when you parametrize the
+simplex by the sphere.*
 :::
 
 :::paragraph
 The unitary time-evolution of quantum mechanics becomes a rotation of the sphere;
 the quantization of energy becomes a statement about periodic rotations; gauge
-symmetry becomes the invisibility of the phase; and the **classical limit** becomes
+symmetry becomes the invisibility of the phase; and the *classical limit* becomes
 the question of when the interference cross terms become negligible.
 :::
 
@@ -264,7 +264,7 @@ the question of when the interference cross terms become negligible.
 :::paragraph
 There is an even more explicit form of the same parametrization, and it is the one
 that gives the book its name. Any probability distribution on $`n` outcomes can be
-written using **Euler angles** $`\theta_1, \dots, \theta_{n-1}` as a telescoping
+written using *Euler angles* $`\theta_1, \dots, \theta_{n-1}` as a telescoping
 product of sines and cosines:
 :::
 
@@ -274,12 +274,12 @@ $$`p_1 = \cos^2\theta_1, \quad p_2 = \sin^2\theta_1\cos^2\theta_2, \quad p_3 = \
 with the last outcome carrying the remaining product of sines. Because every
 number in $`[0,1]` is a $`\cos^2` of some angle, this parametrization reaches
 _every_ distribution; and because the sines and cosines telescope, the
-probabilities sum to one **identically**, for every choice of angles. We prove this
+probabilities sum to one *identically*, for every choice of angles. We prove this
 in {ref "born-reproduces"}[The Born rule reproduces every distribution].
 :::
 
 :::paragraph
-For a single two-outcome system the parametrization is the **probability clock**
+For a single two-outcome system the parametrization is the *probability clock*
 $`\Psi(t) = (\cos t, \sin t)`. As $`t` advances, the point travels around the unit
 circle and the probabilities $`(\cos^2 t, \sin^2 t)` oscillate. The infinitesimal
 generator of this motion is the matrix
@@ -289,7 +289,7 @@ $$`J = \begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix}, \qquad J^2 = -\mathbf{1},`
 
 :::paragraph
 which squares to minus the identity — it is a real incarnation of the imaginary
-unit, and **Euler's formula** $`e^{tJ} = \cos t\,\mathbf{1} + \sin t\, J` is the
+unit, and *Euler's formula* $`e^{tJ} = \cos t\,\mathbf{1} + \sin t\, J` is the
 statement that the rotation of the probability clock is the exponential of this
 generator. This is the bridge from probability to the complex numbers, and we make
 it explicit in {ref "probability-clock"}[The probability clock and Euler's formula].
@@ -301,7 +301,7 @@ it explicit in {ref "probability-clock"}[The probability clock and Euler's formu
 The formal counterpart of this book is the Lean 4 library `BookProof`. It currently
 contains well over one hundred modules, each formalizing one self-contained
 mathematical claim from the source manuscript. The whole library is
-**`sorry`-free** (no proof is omitted) and **`axiom`-free** in substance: it relies
+*`sorry`-free* (no proof is omitted) and *`axiom`-free* in substance: it relies
 only on Lean's standard `propext`, `Classical.choice`, and `Quot.sound`. (The only
 `axiom` declarations are two `axiom … : True` placeholders in the P-versus-NP module,
 which this edition does not cite; since `True` is already provable, they add no

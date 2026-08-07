@@ -12,17 +12,17 @@ tag := "born-reproduces"
 
 The probability clock parametrized a two-outcome distribution by one angle. The
 same idea extends to any finite number $`n` of outcomes using
-$`n-1` **Euler angles** $`\theta_0, \dots, \theta_{n-2}`. The construction is a
-telescoping **stick-breaking** process: at step $`k` we break off a fraction
+$`n-1` *Euler angles* $`\theta_0, \dots, \theta_{n-2}`. The construction is a
+telescoping *stick-breaking* process: at step $`k` we break off a fraction
 $`\cos^2\theta_k` of the probability mass that remains, and pass the rest
 $`\sin^2\theta_k` onward.
 
-Concretely, define the **tail product** (the mass still unassigned before outcome
+Concretely, define the *tail product* (the mass still unassigned before outcome
 $`m`)
 
 $$`T(\theta, m) = \prod_{i < m} \sin^2 \theta_i,`
 
-and the **Born probability** of outcome $`k`
+and the *Born probability* of outcome $`k`
 
 $$`\mathrm{bornProb}(\theta, n, k) = T(\theta, k)\,\cos^2\theta_k = \Big(\prod_{i<k}\sin^2\theta_i\Big)\cos^2\theta_k,`
 
@@ -44,14 +44,14 @@ The verified statement (module `BookProof.ChapterEulerNState`):
 #check @ChapterEulerNState.euler_wave_unit
 ```
 
-The second of these says the underlying **Euler wave-function**
-$`\varphi_k = (\prod_{i<k}\sin\theta_i)\cos\theta_k` is a **unit vector**,
+The second of these says the underlying *Euler wave-function*
+$`\varphi_k = (\prod_{i<k}\sin\theta_i)\cos\theta_k` is a *unit vector*,
 $`\sum_k \varphi_k^2 = 1`; the Born probabilities are its squared coordinates
 $`\mathrm{bornProb} = \varphi_k^2`.
 
 # It Reaches Every Distribution
 
-The converse is the substantive claim: **every** probability distribution on
+The converse is the substantive claim: *every* probability distribution on
 $`n` outcomes arises this way. Given $`p_0, \dots, p_{n-1} \ge 0` summing to one,
 choose the angles backwards from the tail. The key elementary fact is that every
 number in $`[0,1]` is a $`\cos^2` (and a $`\sin^2`) of some angle:
@@ -68,12 +68,12 @@ that outcome $`k` should carry — reproduces $`p` exactly:
 ```
 
 This is the finite-dimensional heart of the book's thesis: the Born-rule
-parametrization is **surjective** onto the simplex. No distribution is left out.
+parametrization is *surjective* onto the simplex. No distribution is left out.
 
 # The Countable Case: an Infinite Stick-Breaking Chain
 
 The manuscript emphasizes that "the recursion does not need to stop." For a
-**countably infinite** partition, write the conditional probabilities
+*countably infinite* partition, write the conditional probabilities
 $`c_n = P(n \mid n \text{ or above}) \in [0,1]` and define
 
 $$`T(c, N) = \prod_{k < N} (1 - c_k), \qquad P(n) = T(c,n)\, c_n.`
@@ -100,11 +100,11 @@ finite formula:
 
 # Complex and Quaternionic Wave-functions
 
-So far the wave-function has been real. Over the **complex** numbers, the Born
+So far the wave-function has been real. Over the *complex* numbers, the Born
 probability of coordinate $`k` is $`|v_k|^2 = (\operatorname{Re} v_k)^2 + (\operatorname{Im} v_k)^2`:
-a complex wave-function is just a real one on a state space with **twice** as many
+a complex wave-function is just a real one on a state space with *twice* as many
 outcomes, and its Born probability is the sum of the two real Born probabilities.
-The manuscript's quaternionic case is the same with **four** real coordinates,
+The manuscript's quaternionic case is the same with *four* real coordinates,
 $`P(n) = \sum_{m=1}^{4} P(n,m)`:
 
 ```
@@ -124,3 +124,35 @@ This justifies the book's use of complex (and quaternionic) Hilbert spaces while
 keeping the real Euler-angle parametrization as the underlying construction: passing
 to $`\mathbb{C}` or $`\mathbb{H}` does not change which distributions are
 reachable, only how many real coordinates each outcome hides.
+
+# Average versus Maximal Error
+
+The parametrization has a pleasant analytic consequence that the manuscript
+relies on when comparing models. When a probability density $`\rho` is written as
+the square of a wave-function, $`\rho = \psi^2` with $`\psi = \sqrt{\rho}`, the
+wave-function is automatically *normalized* whenever the density is: its squared
+$`L^2` norm is the total mass of $`\rho`, namely $`1`:
+
+```
+#check @BookProof.ChapterErrorNorms.wavefunction_l2_norm_sq_eq_integral
+#check @BookProof.ChapterErrorNorms.wavefunction_lintegral_sq_eq_one
+```
+
+:::paragraph
+The manuscript contrasts two ways of measuring the error of a model: the *average*
+error (the $`L^2` norm of the wave-function) and the *maximal* error (the
+$`L^\infty` essential supremum). On a probability space the average error is always
+dominated by the maximal error — the two live in different $`L^p` spaces and the
+order of the $`L^p` norms on a probability space is $`\|f\|_2 \le \|f\|_\infty`:
+:::
+
+```
+#check @BookProof.ChapterErrorNorms.l2_le_linfty_of_finite
+#check @BookProof.ChapterErrorNorms.l2_le_of_ae_bound
+```
+
+:::paragraph
+So bounding the pointwise (maximal) error automatically bounds the average error,
+and the wave-function normalization is not an additional constraint but a direct
+consequence of the density's being a probability density.
+:::

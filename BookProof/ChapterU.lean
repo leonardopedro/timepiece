@@ -64,19 +64,19 @@ theorem born_conditioning (Ψ : X → ℂ) (μ : Measure X) (E : Set X)
     (hfin : bornMeasure Ψ μ E ≠ ∞) :
     bornMeasure (conditionedState Ψ μ E) μ = (bornMeasure Ψ μ)[|E] := by
   ext s hs;
-  simp +decide [ *, bornMeasure, ProbabilityTheory.cond_apply ];
-  simp +decide [ conditionedState, Set.indicator_apply ];
-  simp +decide [ ENNReal.mul_rpow_of_nonneg, ENNReal.inv_mul_cancel, hpos, hfin, Set.indicator_apply, mul_pow, ← MeasureTheory.lintegral_indicator, hE, hs ];
+  simp [ *, bornMeasure, ProbabilityTheory.cond_apply ];
+  simp [ conditionedState ];
+  simp [ mul_pow, ← MeasureTheory.lintegral_indicator, hE, hs ];
   have h_const : (∫⁻ x, s.indicator (fun x => ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ) = ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ∫⁻ x, s.indicator (fun x => ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ := by
     rw [ ← MeasureTheory.lintegral_const_mul' ];
-    · congr with x ; by_cases hx : x ∈ s <;> simp +decide [ hx ];
+    · congr with x ; by_cases hx : x ∈ s <;> simp [ hx ];
     · finiteness
   convert h_const using 2;
   · norm_num [ ENorm.enorm ];
   · rw [ ← ENNReal.toReal_eq_toReal_iff' ] <;> norm_num;
     · unfold bornMeasure; aesop;
     · unfold bornMeasure at * ; aesop;
-  · congr with x ; by_cases hx : x ∈ E <;> by_cases hx' : x ∈ s <;> simp +decide [ hx, hx' ]
+  · congr with x ; by_cases hx : x ∈ E <;> by_cases hx' : x ∈ s <;> simp [ hx, hx' ]
 
 /-! ## U.3 — Fock-space layer: the exponential property `Sym(M ⊕ N) ≅ Sym M ⊗ Sym N` -/
 
@@ -105,11 +105,11 @@ noncomputable def tensorToProd :
 
 theorem tensorToProd_comp_prodToTensor :
     (tensorToProd R M N).comp (prodToTensor R M N) = AlgHom.id R _ := by
-  ext x; all_goals simp +decide [ tensorToProd, prodToTensor ]
+  ext x; all_goals simp [ tensorToProd, prodToTensor ]
 
 theorem prodToTensor_comp_tensorToProd :
     (prodToTensor R M N).comp (tensorToProd R M N) = AlgHom.id R _ := by
-  ext x; all_goals simp +decide [ prodToTensor, tensorToProd ]
+  ext x; all_goals simp [ prodToTensor, tensorToProd ]
 
 /-- **U.3 — the exponential property of the (bosonic) Fock functor.**
 `Sym(M × N) ≅ Sym M ⊗ Sym N` as `R`-algebras: the tensor product of two Fock
@@ -140,7 +140,7 @@ theorem no_differentiable_trajectory {Ω : Type*} [MeasurableSpace Ω] (P : Meas
     (hext : ∀ᵐ ω ∂P, ∀ t, ¬ DifferentiableAt ℝ (path ω) t) :
     P {ω | ∃ t, DifferentiableAt ℝ (path ω) t}ᶜ = 1 := by
   rw [ MeasureTheory.measure_congr, IsProbabilityMeasure.measure_univ ];
-  simp_all +decide [ MeasureTheory.ae_iff ]
+  simp_all [ MeasureTheory.ae_iff ]
 
 /-
 The `P(differentiable) = 0` corollary of `no_differentiable_trajectory`.
@@ -167,10 +167,10 @@ theorem portfolio_risk_inv_sqrt {n : ℕ} (hn : 0 < n) (X : Fin n → Ω → ℝ
     ProbabilityTheory.variance (fun ω => (∑ i, X i ω) / n) P = σ ^ 2 / n := by
   have h_var_sum : (ProbabilityTheory.variance (fun ω => ∑ i, X i ω) P) = ∑ i,    (ProbabilityTheory.variance (X i) P) := by
     convert ProbabilityTheory.IndepFun.variance_sum ( fun i _ => hmem i ) _;
-    · simp +decide [ Finset.sum_apply ];
+    · simp [ Finset.sum_apply ];
     · intro i _ j _ hij; exact hindep.indepFun hij;
-  simp_all +decide [ div_eq_inv_mul, ProbabilityTheory.variance_const_mul ];
-  simp +decide [ sq, mul_assoc, hn.ne' ]
+  simp_all [ div_eq_inv_mul, ProbabilityTheory.variance_const_mul ];
+  simp [ sq, mul_assoc, hn.ne' ]
 
 /-
 Standard-deviation form of `portfolio_risk_inv_sqrt`: the aggregate

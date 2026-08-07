@@ -88,7 +88,7 @@ theorem Mmat_preservesProb (a b : ℝ) : PreservesProb (Mmat a b) := by
   have hsin_sq_b : 0 ≤ Real.sin b ^ 2 := by positivity
   have hv0 : 0 ≤ v 0 := hv_nonneg 0
   have hv1 : 0 ≤ v 1 := hv_nonneg 1
-  simp [PreservesProb, IsProbVec, Mmat, Matrix.mulVec, Fin.sum_univ_two]
+  simp [IsProbVec, Mmat, Matrix.mulVec]
   have hsum : Real.cos a ^ 2 * v 0 + Real.cos b ^ 2 * v 1 + (Real.sin a ^ 2 * v 0 + Real.sin b ^ 2 * v 1) = 1 := by
     nlinarith [Real.sin_sq_add_cos_sq a, Real.sin_sq_add_cos_sq b, hvsum]
   refine ⟨⟨?_, ?_⟩, hsum⟩
@@ -120,7 +120,7 @@ theorem preservesProb_iff_columnStochastic (M : Matrix (Fin 2) (Fin 2) ℝ) :
       simp [IsProbVec, Fin.forall_fin_two] at h0 h1
       rcases h0 with ⟨⟨hM00, hM10⟩, hMsum0⟩
       rcases h1 with ⟨⟨hM01, hM11⟩, hMsum1⟩
-      simp [IsProbVec, Matrix.mulVec, Fin.sum_univ_two]
+      simp [IsProbVec, Matrix.mulVec]
       have hsum : (M 0 0 * v 0 + M 0 1 * v 1) + (M 1 0 * v 0 + M 1 1 * v 1) = 1 := by
         nlinarith
       have hpos0 : 0 ≤ M 0 0 * v 0 + M 0 1 * v 1 := by
@@ -142,11 +142,11 @@ theorem preservesProb_iff_exists_angles (M : Matrix (Fin 2) (Fin 2) ℝ) :
         obtain ⟨h00, h01, h10, h11, hsum⟩ : 0 ≤ M 0 0 ∧ 0 ≤ M 0 1 ∧ 0 ≤ M 1 0 ∧
             0 ≤ M 1 1 ∧ M 0 0 + M 1 0 = 1 ∧ M 0 1 + M 1 1 = 1 := by
           have := preservesProb_iff_columnStochastic M |>.1 h
-          simp_all +decide [Fin.forall_fin_two, IsProbVec]
+          simp_all [Fin.forall_fin_two, IsProbVec]
         obtain ⟨a, ha⟩ : ∃ a : ℝ, Real.cos a ^ 2 = M 0 0 := exists_cos_sq h00 (by linarith)
         obtain ⟨b, hb⟩ : ∃ b : ℝ, Real.cos b ^ 2 = M 0 1 := exists_cos_sq h01 (by linarith)
         use a, b; ext i j; fin_cases i <;> fin_cases j
-          <;> simp +decide [*, Mmat] <;>
+          <;> simp [*, Mmat] <;>
           linarith [Real.sin_sq_add_cos_sq a, Real.sin_sq_add_cos_sq b]
       · exact h.elim fun a ha => ha.elim fun b hb => hb ▸ Mmat_preservesProb a b
 
@@ -159,7 +159,7 @@ theorem uniform_to_vertex_singular (M : Matrix (Fin 2) (Fin 2) ℝ)
     (hM : PreservesProb M) (hcollapse : M *ᵥ ![1/2, 1/2] = ![1, 0]) :
     M.det = 0 := by
       rw [ Matrix.det_fin_two ];
-      simp_all +decide [ funext_iff, Fin.forall_fin_two, Matrix.mulVec ];
+      simp_all [ funext_iff, Fin.forall_fin_two, Matrix.mulVec ];
       have := hM ![1, 0] ; have := hM ![0, 1] ; norm_num [ IsProbVec ] at *;
       norm_num [ Matrix.vecHead, Matrix.vecTail, Matrix.mulVec ] at * ; nlinarith!
 

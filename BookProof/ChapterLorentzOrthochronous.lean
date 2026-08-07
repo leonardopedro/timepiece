@@ -173,9 +173,9 @@ theorem isPO_conj {g s : Matrix (Fin 4) (Fin 4) ℝ}
         orthochronous_mul (isLorentz_mul hng hsL) hnginvL h1 hnginv0
       have hneginv : (-g)⁻¹ = -(g⁻¹) := by
         rw [lorentz_inv_eq hng, lorentz_inv_eq hg, transpose_neg]
-        simp [Matrix.neg_mul]
+        simp 
       have heq : (-g) * s * (-g)⁻¹ = g * s * g⁻¹ := by
-        rw [hneginv]; simp [Matrix.mul_neg]
+        rw [hneginv]; simp 
       rw [heq] at key; exact key
     · -- `g⁰₀ > 0`: both `g` and `g⁻¹` are orthochronous
       have hginv0 : 0 < g⁻¹ 0 0 := by rw [lorentz_inv_time hg]; exact hpos

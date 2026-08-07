@@ -107,10 +107,10 @@ The complexification of a real Clifford set is a complex Clifford set.
 -/
 theorem isCliffordC_toC {A : Fin 4 → Matrix (Fin 4) (Fin 4) ℝ} (hA : IsCliffordR A) :
     IsCliffordC (fun μ => toC (A μ)) := by
-  intro μ ν; specialize hA μ ν; simp_all +decide [ ← Matrix.ext_iff, Matrix.mul_apply ] ;
+  intro μ ν; specialize hA μ ν; simp_all [ ← Matrix.ext_iff, Matrix.mul_apply ] ;
   convert hA using 3;
-  simp +decide [ ← Complex.ofReal_inj, minkowski, minkowskiR, toC ];
-  simp +decide [ Matrix.one_apply ];
+  simp [ ← Complex.ofReal_inj, minkowski, minkowskiR, toC ];
+  simp [ Matrix.one_apply ];
   split_ifs <;> norm_num
 
 /-
@@ -118,20 +118,20 @@ Complexification is a ring homomorphism on `4×4` matrices: it preserves
 products.
 -/
 theorem toC_mul (M N : Matrix (Fin 4) (Fin 4) ℝ) : toC (M * N) = toC M * toC N := by
-  ext i j; simp +decide [ toC, Matrix.mul_apply ] ;
+  ext i j; simp [ toC, Matrix.mul_apply ] ;
 
 /-
 Complexification preserves the identity.
 -/
 theorem toC_one : toC (1 : Matrix (Fin 4) (Fin 4) ℝ) = 1 := by
-  ext i j; by_cases hij : i = j <;> simp +decide [ hij, toC ] ;
-  simp +decide [ hij, Matrix.one_apply ]
+  ext i j; by_cases hij : i = j <;> simp [ hij, toC ] ;
+  simp [ hij, Matrix.one_apply ]
 
 /-
 The determinant of a complexified matrix is the cast of the determinant.
 -/
 theorem toC_det (M : Matrix (Fin 4) (Fin 4) ℝ) : (toC M).det = (M.det : ℂ) := by
-  unfold toC; simp +decide [ Matrix.det_apply' ] ;
+  unfold toC; simp [ Matrix.det_apply' ] ;
 
 /-
 Entrywise conjugation fixes a complexified real matrix.
@@ -147,8 +147,8 @@ real matrix.
 theorem exists_real_of_conj_fixed {N : Matrix (Fin 4) (Fin 4) ℂ}
     (hN : N.map (starRingEnd ℂ) = N) : ∃ M : Matrix (Fin 4) (Fin 4) ℝ, toC M = N := by
   use Matrix.of (fun i j => (N i j).re);
-  ext i j; simp +decide [ toC, hN ];
-  replace hN := congr_fun ( congr_fun hN i ) j; simp_all +decide [ Complex.ext_iff ] ;
+  ext i j; simp [ toC ];
+  replace hN := congr_fun ( congr_fun hN i ) j; simp_all [ Complex.ext_iff ] ;
   grobner
 
 /-
@@ -156,18 +156,18 @@ Complexification is injective.
 -/
 theorem toC_injective : Function.Injective toC := by
   intro M N h;
-  ext i j; have := congr_fun ( congr_fun h i ) j; simp_all +decide [ Complex.ext_iff, toC ] ;
+  ext i j; have := congr_fun ( congr_fun h i ) j; simp_all [ Complex.ext_iff, toC ] ;
 
 /-
 Complexification commutes with the matrix inverse.
 -/
 theorem toC_inv (M : Matrix (Fin 4) (Fin 4) ℝ) : toC M⁻¹ = (toC M)⁻¹ := by
-  by_cases h : IsUnit ( Matrix.det M ) <;> simp_all +decide [ Matrix.inv_def ];
-  · ext i j ; simp +decide [ toC, h ];
-    simp +decide [ Matrix.det_apply', Matrix.adjugate_apply, Matrix.map_apply ];
-    simp +decide [ Matrix.updateRow_apply, Pi.single_apply ];
+  by_cases h : IsUnit ( Matrix.det M ) <;> simp_all [ Matrix.inv_def ];
+  · ext i j ; simp [ toC ];
+    simp [ Matrix.det_apply', Matrix.adjugate_apply, Matrix.map_apply ];
+    simp [ Matrix.updateRow_apply, Pi.single_apply ];
     exact Or.inl ( Finset.sum_congr rfl fun _ _ => by congr; ext; aesop );
-  · simp_all +decide [ toC, Matrix.det_apply' ];
+  · simp_all [ toC, Matrix.det_apply' ];
     norm_cast at * ; aesop
 
 /-
@@ -192,7 +192,7 @@ theorem real_pauli (hpf : PauliFundamental)
   obtain ⟨c, hc⟩ : ∃ c : ℂ, c ≠ 0 ∧ T.map (starRingEnd ℂ) = c • T := by
     apply (hpf A B (isCliffordC_toC hα) (isCliffordC_toC hβ)).2 T (T.map (starRingEnd ℂ)) hT.1 (by
     convert hT.1.map ( starRingEnd ℂ ) using 1;
-    simp +decide [ Matrix.det_apply' ]) (by
+    simp [ Matrix.det_apply' ]) (by
     exact hT.2) (by
     intro μ
     have hTc : B μ = (T.map (starRingEnd ℂ)) * A μ * (T.map (starRingEnd ℂ))⁻¹ := by
@@ -201,7 +201,7 @@ theorem real_pauli (hpf : PauliFundamental)
           rw [ Matrix.inv_eq_left_inv ];
           rw [ ← Matrix.map_mul ];
           ext i j ; by_cases hi : i = j <;> aesop;
-        simp +decide [ hTc_eq, Matrix.map_mul ];
+        simp [ hTc_eq, Matrix.map_mul ];
         exact congr_arg₂ _ ( congr_arg₂ _ rfl ( by ext i j; exact (by
         exact Eq.symm ( by exact (by
           have := toC_conj (α μ);
@@ -217,13 +217,13 @@ theorem real_pauli (hpf : PauliFundamental)
     obtain ⟨w, hw⟩ : ∃ w : ℂ, w^2 = c ∧ ‖w‖ = 1 := by
       have hw : ‖c‖ = 1 := by
         have h_det : Matrix.det (T.map (starRingEnd ℂ)) = starRingEnd ℂ (Matrix.det T) := by
-          simp +decide [ Matrix.det_apply' ];
-        replace h_det := congr_arg Norm.norm h_det ; simp_all +decide [ pow_eq_one_iff_of_nonneg ];
+          simp [ Matrix.det_apply' ];
+        replace h_det := congr_arg Norm.norm h_det ; simp_all [ pow_eq_one_iff_of_nonneg ];
       exact ⟨ c ^ ( 1 / 2 : ℂ ), by rw [ ← Complex.cpow_nat_mul ] ; norm_num, by rw [ Complex.norm_cpow_of_ne_zero hc.1 ] ; norm_num [ hw ] ⟩
     use r, w, r * w, (r * w) • T;
-    simp_all +decide [ mul_pow, abs_of_pos hr.1 ];
-    ext i j; simp +decide [ *, mul_assoc, mul_comm, mul_left_comm ] ;
-    replace hc := congr_fun ( congr_fun hc.2 i ) j;      simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
+    simp_all [ mul_pow, abs_of_pos hr.1 ];
+    ext i j; simp [ *, mul_comm, mul_left_comm ] ;
+    replace hc := congr_fun ( congr_fun hc.2 i ) j;      simp_all [ mul_assoc, mul_comm, mul_left_comm ] ;
     rw [ ← hw.1 ] ; ring;
     rw [ show w ^ 2 = w * w by ring, mul_assoc ] ; rw [ show ( starRingEnd ℂ ) w = w⁻¹ from ?_ ] ; ring;
     · grind;
@@ -236,28 +236,28 @@ theorem real_pauli (hpf : PauliFundamental)
     rw [ ← hS, toC_det ] ; norm_cast;
   · intro μ
     have h_inter : B μ = S0 * A μ * S0⁻¹ := by
-      simp_all +decide [ Matrix.inv_def ];
-      simp +decide [ Matrix.adjugate_smul, smul_smul, mul_assoc, mul_left_comm, mul_comm, hr.ne', show w ≠ 0 from by aesop_cat ];
-      simp +decide [ show (w * r) ^ 4 = (w * r) ^ 3 * (w * r) by ring, mul_assoc,
+      simp_all [ Matrix.inv_def ];
+      simp [ Matrix.adjugate_smul, smul_smul, mul_assoc, mul_comm ];
+      simp [ show (w * r) ^ 4 = (w * r) ^ 3 * (w * r) by ring, mul_assoc,
         mul_left_comm, hr.ne', show w ≠ 0 from by aesop_cat ];
-      simp +decide [ mul_assoc, mul_left_comm ( w : ℂ ), hr.ne', show w ≠ 0 from by aesop_cat ];
+      simp [ mul_left_comm ( w : ℂ ), hr.ne', show w ≠ 0 from by aesop_cat ];
     refine' toC_injective _;
     convert h_inter using 1;
     rw [ ← hS, toC_mul, toC_mul, toC_inv ];
   · intro S' hS' hS'_eq
     obtain ⟨d, hd⟩ : ∃ d : ℂ, d ≠ 0 ∧ toC S' = d • toC S := by
       have h_conj : ∀ μ, toC (β μ) = toC S' * toC (α μ) * (toC S')⁻¹ := by
-        intro μ; rw [ hS'_eq μ ] ; simp +decide [ toC_mul, toC_inv ] ;
+        intro μ; rw [ hS'_eq μ ] ; simp [ toC_mul, toC_inv ] ;
       have := hpf A B ( isCliffordC_toC hα ) ( isCliffordC_toC hβ );
       apply this.right;
-      · simp_all +decide [ Matrix.det_smul ];
+      · simp_all ;
         exact ⟨ hr.ne', by rintro rfl; norm_num at ha ⟩;
       · rw [ toC_det ];
         exact isUnit_iff_ne_zero.mpr ( by aesop_cat );
-      · intro μ; specialize hT; have := hT.2 μ; simp_all +decide [ Matrix.mul_assoc ] ;
-        simp +decide [ Matrix.inv_def, Matrix.smul_eq_diagonal_mul ];
-        simp +decide [ ← mul_assoc, ← Matrix.smul_eq_diagonal_mul, Matrix.adjugate_smul ];
-        simp +decide [ ← smul_assoc, ← mul_assoc, ← pow_succ', hr.ne',
+      · intro μ; specialize hT; have := hT.2 μ; simp_all [ Matrix.mul_assoc ] ;
+        simp [ Matrix.inv_def, Matrix.smul_eq_diagonal_mul ];
+        simp [ ← mul_assoc, ← Matrix.smul_eq_diagonal_mul, Matrix.adjugate_smul ];
+        simp [ ← smul_assoc, ← mul_assoc, 
           show w ≠ 0 from by aesop_cat ];
         field_simp;
         rw [show (r * w / (T.det * r * w)) = (1 / T.det) by
@@ -267,13 +267,13 @@ theorem real_pauli (hpf : PauliFundamental)
     -- Since `toC S' = d • toC S`, we have `S' = d • S`.
     have hS'_eq_dS : S' = d.re • S := by
       ext i j; simp [toC] at hd; (
-      replace hd := congr_fun ( congr_fun hd.2 i ) j; simp_all +decide [ Complex.ext_iff ] ;);
+      replace hd := congr_fun ( congr_fun hd.2 i ) j; simp_all [ Complex.ext_iff ] ;);
     have h_det_S : |S.det| = 1 := by
       have h_det_S : ‖(toC S).det‖ = 1 := by
         grind;
       convert h_det_S using 1;
       norm_num [ toC_det ];
-    simp_all +decide [ abs_mul, Matrix.det_smul ];
+    simp_all [ abs_mul ];
     rcases eq_or_eq_neg_of_abs_eq
       (show |d.re| = 1 by
         rw [pow_eq_one_iff_of_nonneg (abs_nonneg _)] at hS' <;> aesop) with h | h <;>
@@ -300,21 +300,21 @@ theorem lorentz_of_conj (S : Matrix (Fin 4) (Fin 4) ℂ) (hS : IsUnit S.det)
   have hP_eq : ∀ (μ ν : Fin 4),    (-2 * minkowski μ ν) • (1 : Matrix (Fin 4) (Fin 4) ℂ) = ∑ α,    ∑ β, ((Lam μ α : ℂ) * (Lam ν β : ℂ)) • ((mgamma α * mgamma β + mgamma β * mgamma α)) := by
     intro μ ν
     have hP_eq : (S⁻¹ * mgamma μ * S) * (S⁻¹ * mgamma ν * S) + (S⁻¹ * mgamma ν * S) * (S⁻¹ * mgamma μ * S) = (-2 * minkowski μ ν) • (1 : Matrix (Fin 4) (Fin 4) ℂ) := by
-      simp_all +decide [ mul_assoc, Matrix.isUnit_iff_isUnit_det ];
-      simp_all +decide [ ← hLam, mul_assoc, Finset.sum_mul _ _ _ ];
-      convert congr_arg ( fun x => S⁻¹ * x * S ) ( mgamma_clifford μ ν ) using 1 <;> simp +decide [ mul_assoc, hS, isUnit_iff_ne_zero ];
-      simp +decide only [Matrix.add_mul, mul_assoc, Matrix.mul_add];
+      simp_all [ mul_assoc ];
+      simp_all [ ← hLam, mul_assoc ];
+      convert congr_arg ( fun x => S⁻¹ * x * S ) ( mgamma_clifford μ ν ) using 1 <;> simp [ mul_assoc, hS, isUnit_iff_ne_zero ];
+      simp only [Matrix.add_mul, mul_assoc, Matrix.mul_add];
     rw [ ← hP_eq, hLam, hLam ];
-    simp +decide [ mul_add, add_mul, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul, smul_add, smul_mul_assoc, mul_smul_comm ];
-    simp +decide [ Finset.smul_sum, Finset.sum_add_distrib, smul_smul, mul_comm ];
+    simp [ Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul, smul_add ];
+    simp [ Finset.smul_sum, smul_smul, mul_comm ];
     exact congrArg₂ ( · + · ) ( Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by norm_cast ) ) ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by norm_cast );
   -- By equating the two expressions for `P`,    we can conclude that the sums are equal. Use the fact that `mgamma_clifford` holds.
   have hP_eq' : ∀ (μ ν : Fin 4),    (-2 * minkowski μ ν) • (1 : Matrix (Fin 4) (Fin 4) ℂ) = (-2 * ∑ α, ∑ β, (Lam μ α : ℂ) * (minkowskiR α β) * (Lam ν β : ℂ)) • (1 : Matrix (Fin 4) (Fin 4) ℂ) := by
-    intro μ ν;      rw [ hP_eq μ ν ] ;      simp +decide [ mgamma_clifford, Finset.mul_sum _ _ _, Finset.sum_mul, mul_assoc, mul_left_comm, mul_comm ] ; ring;
-    simp +decide [ Finset.sum_smul, smul_smul, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _,      Finset.sum_mul, minkowski, minkowskiR ];
-  ext μ ν; specialize hP_eq' μ ν; simp_all +decide [ ← Matrix.ext_iff ] ;
+    intro μ ν;      rw [ hP_eq μ ν ] ;      simp [ mgamma_clifford, Finset.mul_sum _ _ _, mul_left_comm, mul_comm ] ; ring;
+    simp [ Finset.sum_smul, smul_smul, mul_assoc, mul_comm, mul_left_comm, minkowski, minkowskiR ];
+  ext μ ν; specialize hP_eq' μ ν; simp_all [ ← Matrix.ext_iff ] ;
   convert congr_arg Complex.re hP_eq'.symm using 1 ;    norm_num [ Complex.ext_iff, Matrix.mul_apply ] ; ring;
-  simp +decide only [minkowskiMat, Finset.sum_mul _ _ _];
+  simp only [minkowskiMat, Finset.sum_mul _ _ _];
   exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring! )
 
 end BookProof.ChapterA3

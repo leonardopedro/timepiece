@@ -111,7 +111,7 @@ omit [CompleteSpace V] in
 lemma conjugation_avg_antifixed (θ : AntiUnitary V) (hθ : ∀ x, θ (θ x) = x) (x : V) :
     θ ((2⁻¹ : ℂ) • (x - θ x)) = -((2⁻¹ : ℂ) • (x - θ x)) := by
   have key : θ ( x - θ x ) = - ( x - θ x ) := by
-    have := θ.map_sub x ( θ x ) ; simp_all +decide [ sub_eq_add_neg ]
+    have := θ.map_sub x ( θ x ) ; simp_all [ sub_eq_add_neg ]
   convert congr_arg ( fun y => ( 2⁻¹ : ℂ ) • y ) key using 1;
   · convert θ.map_smulₛₗ ( 2⁻¹ : ℂ ) ( x - θ x ) using 1;
     erw [ Complex.conj_inv, Complex.conj_ofReal ] ; norm_num;
@@ -123,7 +123,7 @@ omit [CompleteSpace V] in
 lemma conjugation_decomp (θ : AntiUnitary V) (x : V) :
     x = (2⁻¹ : ℂ) • (x + θ x) + (2⁻¹ : ℂ) • (x - θ x) := by
   rw [ ← smul_add, add_comm ];
-  simp +decide [ ← two_smul ℂ ]
+  simp [ ← two_smul ℂ ]
 
 /-! ### Structural lemmas for an R-imaginary operator -/
 
@@ -131,7 +131,7 @@ omit [CompleteSpace W] in
 /-- An R-imaginary operator is skew: `⟪J x, x⟫_ℝ = 0` for every `x`. -/
 lemma rimaginary_orthogonal (J : W ≃ₗᵢ[ℝ] W) (hJ : ∀ x, J (J x) = -x) (x : W) :
     inner ℝ (J x) x = 0 := by
-  have := J.inner_map_map ( J x ) x; simp_all +decide [ inner_neg_left ] ;
+  have := J.inner_map_map ( J x ) x; simp_all [ inner_neg_left ] ;
   linarith [ real_inner_comm x ( J x ) ]
 
 omit [CompleteSpace W] in

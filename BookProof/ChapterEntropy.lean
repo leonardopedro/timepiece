@@ -105,7 +105,7 @@ theorem invertibleProb_isEquivalent_stirling :
   · ext n
     norm_num [Real.exp_neg, div_pow]
     ring_nf
-    by_cases h : (n : ℝ) = 0 <;> simp +decide [h]
+    by_cases h : (n : ℝ) = 0 <;> simp [h]
   · rfl
 
 /-- A concrete irreversible deterministic dynamics on the countable index set

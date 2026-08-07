@@ -52,14 +52,14 @@ theorem timeEvo_zero (H : Matrix n n ℂ) : timeEvo H 0 = 1 := by
 /-- The exponents at two times commute (both are scalar multiples of `I • H`). -/
 theorem timeEvo_commute (H : Matrix n n ℂ) (s t : ℝ) :
     Commute ((s : ℂ) • (Complex.I • H)) ((t : ℂ) • (Complex.I • H)) := by
-  ext i j; simp +decide [ mul_assoc, mul_comm, mul_left_comm ]
+  ext i j; simp [ mul_left_comm ]
 
 /-- One-parameter group law: `U(s) · U(t) = U(s + t)`. -/
 theorem timeEvo_add (H : Matrix n n ℂ) (s t : ℝ) :
     timeEvo H s * timeEvo H t = timeEvo H (s + t) := by
   unfold timeEvo
   rw [← Matrix.exp_add_of_commute]
-  · simp +decide [add_smul]
+  · simp [add_smul]
   · exact timeEvo_commute H s t
 
 /-- The time-evolution is unitary: `U(t)ᴴ · U(t) = 1` for Hermitian `H`. -/
@@ -68,12 +68,12 @@ theorem timeEvo_unitary (H : Matrix n n ℂ) (hH : H.IsHermitian) (t : ℝ) :
   have hU : timeEvo H t = NormedSpace.exp ((t : ℂ) • (Complex.I • H)) := rfl
   -- Since `H` is Hermitian, `((t:ℂ) • (I • H))ᴴ = -(t:ℂ) • (I • H)`.
   have h_conj : ((t : ℂ) • (Complex.I • H))ᴴ = -(t : ℂ) • (Complex.I • H) := by
-    simp +decide [Matrix.IsHermitian, Complex.ext_iff] at hH ⊢
+    simp [Matrix.IsHermitian] at hH ⊢
     rw [hH]
   rw [hU, ← Matrix.exp_conjTranspose]
   rw [h_conj, ← Matrix.exp_add_of_commute]
-  · simp +decide [NormedSpace.exp_zero]
-  · simp +decide [mul_smul_comm, smul_smul]
+  · simp [NormedSpace.exp_zero]
+  · simp [smul_smul]
 
 /-- The time-evolution is unitary: `U(t) · U(t)ᴴ = 1` for Hermitian `H`. -/
 theorem timeEvo_unitary' (H : Matrix n n ℂ) (hH : H.IsHermitian) (t : ℝ) :
@@ -93,7 +93,7 @@ theorem timeEvo_mem_unitaryGroup (H : Matrix n n ℂ) (hH : H.IsHermitian) (t : 
 theorem timeEvo_inv (H : Matrix n n ℂ) (t : ℝ) :
     timeEvo H t * timeEvo H (-t) = 1 := by
   convert timeEvo_add H t (-t) using 1
-  simp +decide [timeEvo_zero]
+  simp [timeEvo_zero]
 
 /-- **Conservative property.** Conjugating a density operator `ρ` by the unitary
 time-evolution preserves its trace, so total probability `tr ρ = 1` is

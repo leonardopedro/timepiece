@@ -91,9 +91,9 @@ theorem mgStep_card_le (k : ℕ) (T : α →₀ ℕ) (x : α) (hT : T.support.ca
     (mgStep k T x).support.card ≤ k := by
   refine' le_trans ( Finset.card_le_card _ ) _;
   exact if 0 < T x ∨ T.support.card < k then insert x T.support else T.support;
-  · intro y hy; split_ifs <;> simp_all +decide [ mgStep ] ;
+  · intro y hy; split_ifs <;> simp_all [ mgStep ] ;
     · contrapose! hy; aesop;
-    · exact fun h => hy <| by simp +decide [ h ] ;
+    · exact fun h => hy <| by simp [ h ] ;
   · grind
 
 /-
@@ -103,7 +103,7 @@ other counter by more than the indicator of `x`.
 theorem mgStep_apply_le (k : ℕ) (T : α →₀ ℕ) (x y : α) :
     (mgStep k T x) y ≤ T y + (if y = x then 1 else 0) := by
   unfold mgStep;
-  split_ifs <;> simp_all +decide [ Finsupp.single_apply, Finsupp.mapRange_apply ]
+  split_ifs <;> simp_all [ Finsupp.mapRange_apply ]
 
 /-
 Per-step lower bound: the counter of `y` plus the occurrence indicator is at
@@ -112,7 +112,7 @@ most the new counter plus the decrement indicator.
 theorem mgStep_le_apply_add (k : ℕ) (T : α →₀ ℕ) (x y : α) :
     T y + (if y = x then 1 else 0)
       ≤ (mgStep k T x) y + (if 0 < T x ∨ T.support.card < k then 0 else 1) := by
-  unfold mgStep; split_ifs <;> simp_all +decide [ Finsupp.single_apply, Finsupp.mapRange_apply ] ;
+  unfold mgStep; split_ifs <;> simp_all [ Finsupp.mapRange_apply ] ;
   omega
 
 /-! ### The capacity invariant -/
@@ -122,7 +122,7 @@ The running table never exceeds capacity `k`.
 -/
 theorem mgT_card_le (k : ℕ) (T : α →₀ ℕ) (s : List α) (hT : T.support.card ≤ k) :
     (mgT k T s).support.card ≤ k := by
-  induction' s with x s ih generalizing T <;> simp_all +decide [ mgT_cons ];
+  induction' s with x s ih generalizing T <;> simp_all [ mgT_cons ];
   exact ih _ ( mgStep_card_le k T x hT )
 
 /-! ### Upper bound -/
@@ -134,8 +134,8 @@ value plus the number of occurrences.
 theorem mgT_apply_le (k : ℕ) (T : α →₀ ℕ) (s : List α) (y : α) :
     (mgT k T s) y ≤ T y + s.count y := by
   induction' s using List.reverseRecOn with s x ih generalizing T y;
-  · simp +decide [ mgT ];
-  · simp_all +decide [ mgT, List.count ];
+  · simp [ mgT ];
+  · simp_all [ mgT, List.count ];
     refine' le_trans ( mgStep_apply_le k _ _ _ ) _;
     grind
 
@@ -154,16 +154,16 @@ most the estimate plus the number of decrement rounds.
 theorem mgT_le_apply_add_mgD (k : ℕ) (T : α →₀ ℕ) (s : List α) (y : α) :
     T y + s.count y ≤ (mgT k T s) y + mgD k T s := by
   induction' s using List.reverseRecOn with s x ih generalizing T y;
-  · simp +decide [ mgT, mgD ];
+  · simp [ mgT, mgD ];
   · have h_step : mgD k T (s ++ [x]) = mgD k T s + (if 0 < (mgT k T s) x ∨ (mgT k T s).support.card < k then 0 else 1) := by
       have h_step : ∀ (T : α →₀ ℕ) (s : List α) (x : α),        mgD k T (s ++ [x]) = mgD k T s + (if 0 < (mgT k T s) x ∨ (mgT k T s).support.card < k then 0 else 1) := by
         intros T s x
         induction' s with s x ih generalizing T;
-        · simp +decide [ mgD, mgT ];
-        · simp +decide [ mgD, mgT, ih ];
+        · simp [ mgD, mgT ];
+        · simp [ mgD, mgT, ih ];
           ring;
       exact h_step T s x;
-    have := mgStep_le_apply_add k ( mgT k T s ) x y; simp_all +decide [ mgT ] ;
+    have := mgStep_le_apply_add k ( mgT k T s ) x y; simp_all [ mgT ] ;
     grind
 
 /-- **Lower bound**: the estimate undershoots by at most the number of decrement
@@ -186,7 +186,7 @@ An increment adds exactly one unit of mass.
 -/
 theorem mgSum_add_single (T : α →₀ ℕ) (x : α) :
     mgSum (T + Finsupp.single x 1) = mgSum T + 1 := by
-  simp +decide [ mgSum, Finsupp.sum_add_index' ]
+  simp [ mgSum, Finsupp.sum_add_index' ]
 
 /-
 A decrement round removes exactly `T.support.card` units of mass.
@@ -194,10 +194,10 @@ A decrement round removes exactly `T.support.card` units of mass.
 theorem mgSum_mapRange_pred (T : α →₀ ℕ) :
     mgSum (T.mapRange (fun n => n - 1) (by norm_num)) = mgSum T - T.support.card := by
   refine' eq_tsub_of_add_eq _;
-  unfold mgSum; simp +decide [ Finsupp.sum_mapRange_index ] ;
+  unfold mgSum; simp [ Finsupp.sum_mapRange_index ] ;
   zify [ Finset.sum_add_distrib ];
-  rw [ Finset.card_eq_sum_ones ] ;    rw [ Finsupp.sum, Finsupp.sum ] ; simp +decide [ Finset.sum_add_distrib ] ; ring;
-  rw [ Finset.sum_congr rfl fun x hx => Nat.cast_sub <| Nat.one_le_iff_ne_zero.mpr <| Finsupp.mem_support_iff.mp hx ] ; simp +decide [ Finset.sum_add_distrib ]
+  rw [ Finset.card_eq_sum_ones ] ;    rw [ Finsupp.sum, Finsupp.sum ] ; simp  ; ring;
+  rw [ Finset.sum_congr rfl fun x hx => Nat.cast_sub <| Nat.one_le_iff_ne_zero.mpr <| Finsupp.mem_support_iff.mp hx ] ; simp 
 
 /-
 The core mass-conservation invariant: each decrement round removes exactly
@@ -206,10 +206,10 @@ The core mass-conservation invariant: each decrement round removes exactly
 theorem mgT_sum_add (k : ℕ) (T : α →₀ ℕ) (s : List α) (hT : T.support.card ≤ k) :
     mgSum (mgT k T s) + (k + 1) * mgD k T s = mgSum T + s.length := by
   induction' s with x s ih generalizing T;
-  · simp +decide [ mgT, mgD ];
-  · simp_all +decide [ mgT, mgD ];
+  · simp [ mgT, mgD ];
+  · simp_all [ mgT, mgD ];
     convert congr_arg ( · + ( k + 1 ) * ( if 0 < T x ∨ T.support.card < k then 0 else 1 ) ) ( ih ( mgStep k T x ) ( mgStep_card_le k T x hT ) ) using 1 ; ring;
-    split_ifs <;> simp_all +decide [ mgStep ];
+    split_ifs <;> simp_all [ mgStep ];
     · rw [ mgSum_add_single ] ; ring;
     · rw [ if_neg ( by linarith ) ];
       rw [ mgSum_mapRange_pred ] ; ring;
@@ -220,7 +220,7 @@ theorem mgT_sum_add (k : ℕ) (T : α →₀ ℕ) (s : List α) (hT : T.support.
 -/
 theorem mgD_bound (k : ℕ) (s : List α) : k * mgD k 0 s ≤ s.length := by
   have h_dec : (k + 1) * mgD k 0 s ≤ s.length := by
-    have := mgT_sum_add k 0 s; simp_all +decide [ mgSum ] ;
+    have := mgT_sum_add k 0 s; simp_all [ mgSum ] ;
     exact this ▸ Nat.le_add_left _ _;
   grind
 

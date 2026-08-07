@@ -49,9 +49,9 @@ theorem hessenberg_vanishing {n : ℕ} (v : Fin n → E) (hv : Orthonormal ℂ v
   refine' Submodule.span_induction _ _ _ _ hnest;
   · simp +zetaDelta at *;
     intro x l hl hx; rw [ hx, hv.2 ( show i ≠ l from by rintro rfl; linarith ) ] ;
-  · simp +decide;
-  · simp +contextual [ inner_add_right ];
-  · simp +contextual [ inner_smul_right ]
+  · simp;
+  · simp +contextual ;
+  · simp +contextual 
 
 /-- **H2.1** (compression is upper-Hessenberg): the compressed operator entries
 `Hₘ_{i,j} := ⟪vᵢ, X vⱼ⟫` vanish below the first subdiagonal (`i > j+1`), given the
@@ -104,7 +104,7 @@ theorem sirk_error_bound_of_crouzeix
     (v : E) :
     ‖T v - V (SH (W v))‖ ≤ 2 * C * D * ‖v‖ := by
   convert le_trans ( norm_add_le ( ( T - rXm ) v ) ( V ( ( rH - SH ) ( W v ) ) ) ) _ using 1;
-  · simp +decide [ hrepr, sub_add ];
+  · simp [ hrepr, sub_add ];
   · refine' le_trans ( add_le_add ( ContinuousLinearMap.le_opNorm _ _ ) ( ContinuousLinearMap.le_opNorm _ _ ) ) _;
     refine' le_trans ( add_le_add ( mul_le_mul_of_nonneg_right hC1 ( norm_nonneg _ ) ) ( mul_le_mul hVnorm ( ContinuousLinearMap.le_opNorm _ _ ) ( by positivity ) ( by positivity ) ) ) _;
     rw [ norm_sub_rev ];

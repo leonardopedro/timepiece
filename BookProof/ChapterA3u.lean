@@ -60,9 +60,9 @@ An invariant tuple is constant along the `σ`-orbit: `a ((σ^k) x) = a x`.
 -/
 theorem invariant_apply_zpow {N : ℕ} {σ : Equiv.Perm (Fin N)} {a : Idx N}
     (ha : a ∘ σ = a) (k : ℤ) (x : Fin N) : a ((σ ^ k) x) = a x := by
-  rcases k with ( _ | k ) <;> simp_all +decide [ funext_iff ];
-  · induction ‹ℕ› <;> simp_all +decide [ pow_succ', Equiv.Perm.mul_apply ];
-  · induction' k with k ih generalizing x <;> simp_all +decide [ pow_succ', mul_assoc ];
+  rcases k with ( _ | k ) <;> simp_all [ funext_iff ];
+  · induction ‹ℕ› <;> simp_all [ pow_succ', Equiv.Perm.mul_apply ];
+  · induction' k with k ih generalizing x <;> simp_all [ pow_succ' ];
     · grind;
     · convert ih ( σ⁻¹ x ) using 1;
       rw [ ← ha ( σ⁻¹ x ), Equiv.Perm.apply_inv_self ]
@@ -95,39 +95,39 @@ theorem card_fixedTuples {N : ℕ} (σ : Equiv.Perm (Fin N)) :
     · simp +zetaDelta at *;
       rw [ show Fintype.card { x // σ x = x } = N - σ.cycleType.sum from ?_, show σ.cycleFactorsFinset.card = σ.cycleType.card from ?_ ];
       · rw [ Equiv.Perm.cycleType_def ];
-        simp +decide [ Function.comp ];
-      · have := Equiv.Perm.sum_cycleType σ; simp_all +decide [ Fintype.card_subtype ] ;
+        simp [ Function.comp ];
+      · have := Equiv.Perm.sum_cycleType σ; simp_all [ Fintype.card_subtype ] ;
         rw [ show ( Finset.univ.filter fun x => σ x = x ) = Finset.univ \ σ.support from ?_, Finset.card_sdiff ] <;> aesop;
     · refine' Equiv.ofBijective ( fun a => Sum.elim ( fun x => a.val x ) ( fun c => a.val ( c.val.support.min' <| Finset.nonempty_of_ne_empty <| by
-        intro h; have := c.2; simp_all +decide [ Equiv.Perm.mem_cycleFactorsFinset_iff ] ; ) ) ) ⟨ _, _ ⟩
+        intro h; have := c.2; simp_all [ Equiv.Perm.mem_cycleFactorsFinset_iff ] ; ) ) ) ⟨ _, _ ⟩
       all_goals generalize_proofs at *;
-      · intro a b h; ext x; by_cases hx : σ x = x <;> simp_all +decide [ funext_iff ] ;
+      · intro a b h; ext x; by_cases hx : σ x = x <;> simp_all [ funext_iff ] ;
         have h_cycle : σ.cycleOf x ∈ σ.cycleFactorsFinset := by
-          simp +decide [ Equiv.Perm.mem_cycleFactorsFinset_iff, hx ];
+          simp [ Equiv.Perm.mem_cycleFactorsFinset_iff ];
           refine' ⟨ _, _ ⟩
           all_goals generalize_proofs at *;
           · exact Equiv.Perm.isCycle_cycleOf _ hx;
-          · simp +decide [ Equiv.Perm.cycleOf_apply ];
+          · simp [ Equiv.Perm.cycleOf_apply ];
             tauto
         generalize_proofs at *;
         have h_cycle_eq : σ.SameCycle x (σ.cycleOf x |>.support.min' <| Finset.nonempty_of_ne_empty <| by
           grind) := by
           have h_cycle_eq : ∀ y ∈ (σ.cycleOf x).support, σ.SameCycle x y := by
-            intro y hy;              have := Equiv.Perm.mem_support.mp ( show y ∈ ( σ.cycleOf x ).support from by aesop ) ;              simp_all +decide [ Equiv.Perm.mem_support, Equiv.Perm.cycleOf_apply ] ;
+            intro y hy;              have := Equiv.Perm.mem_support.mp ( show y ∈ ( σ.cycleOf x ).support from by aesop ) ;              simp_all [ Equiv.Perm.mem_support, Equiv.Perm.cycleOf_apply ] ;
           generalize_proofs at *;
           exact h_cycle_eq _ <| Finset.min'_mem _ _
         generalize_proofs at *;
         grind +suggestions;
       · intro g;
-        refine' ⟨ ⟨ fun x => if hx : σ x = x then g ( Sum.inl ⟨ x, hx ⟩ ) else g ( Sum.inr ⟨ σ.cycleOf x, _ ⟩ ), _ ⟩, _ ⟩ <;> simp_all +decide [ funext_iff ];
+        refine' ⟨ ⟨ fun x => if hx : σ x = x then g ( Sum.inl ⟨ x, hx ⟩ ) else g ( Sum.inr ⟨ σ.cycleOf x, _ ⟩ ), _ ⟩, _ ⟩ <;> simp_all [ funext_iff ];
         all_goals generalize_proofs at *;
-        · simp +decide [ Equiv.Perm.mem_cycleFactorsFinset_iff, hx ];
+        · simp [ Equiv.Perm.mem_cycleFactorsFinset_iff ];
           refine' ⟨ _, _ ⟩;
           · exact Equiv.Perm.isCycle_cycleOf _ ( by aesop );
-          · intro a ha; simp_all +decide [ Equiv.Perm.cycleOf_apply ] ;
-        · intro a ha; split_ifs <;> simp_all +decide [ Equiv.Perm.mem_cycleFactorsFinset_iff ] ;
-          · have := Equiv.Perm.mem_cycleFactorsFinset_iff.mp ha; simp_all +decide [ Equiv.Perm.IsCycle ] ;
-            have := Finset.min'_mem ( a.support ) ; simp_all +decide [ Equiv.Perm.mem_support ] ;
+          · intro a ha; simp_all [ Equiv.Perm.cycleOf_apply ] ;
+        · intro a ha; split_ifs <;> simp_all [ Equiv.Perm.mem_cycleFactorsFinset_iff ] ;
+          · have := Equiv.Perm.mem_cycleFactorsFinset_iff.mp ha; simp_all [ Equiv.Perm.IsCycle ] ;
+            have := Finset.min'_mem ( a.support ) ; simp_all [ Equiv.Perm.mem_support ] ;
             grind;
           · congr! 2;
             exact Subtype.ext <| Equiv.Perm.mem_cycleFactorsFinset_iff.mp ha |>.2 |> fun h => by

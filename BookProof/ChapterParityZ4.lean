@@ -62,7 +62,7 @@ squares to `-1` (the invariant selecting the double cover `Pin(3,1)`).
 -/
 theorem combinedParity_sq :
     combinedParity ^ 2 = (-1, -1, -1, -1) := by
-  simp [combinedParity, higgsParity_sq];
+  simp [combinedParity];
   exact ⟨ by simpa [ sq ] using higgsParity_sq, by simpa [ sq ] using QLParity_sq, by simpa [ sq ] using mgamma0_sq ⟩
 
 /-- The combined parity is not an involution: `P² ≠ 1`. -/
@@ -71,8 +71,8 @@ theorem combinedParity_sq_ne_one : combinedParity ^ 2 ≠ 1 := by
 
 /-- The combined parity is order dividing four: `P⁴ = 1`. -/
 theorem combinedParity_pow_four : combinedParity ^ 4 = 1 := by
-  simp +decide [ pow_succ' ];
-  simp +decide [ ← mul_assoc, ← pow_two, combinedParity_sq ]
+  simp [ pow_succ' ];
+  simp [ ← mul_assoc, ← pow_two, combinedParity_sq ]
 
 /-- The combined parity has order exactly four: `P² ≠ 1` while `P⁴ = 1`. -/
 theorem combinedParity_order_four :
@@ -87,6 +87,11 @@ theorem combinedParity_orderOf : orderOf combinedParity = 4 := by
   rw [ orderOf_eq_of_pow_and_pow_div_prime ];
   · decide;
   · exact h_order.1;
-  · intro p pp dp; have := Nat.le_of_dvd ( by decide ) dp; interval_cases p <;> simp_all +decide ;
+  · intro p pp dp
+    have hle := Nat.le_of_dvd ( by decide ) dp
+    interval_cases p <;> first
+      | exact absurd pp ( by decide )
+      | exact absurd dp ( by decide )
+      | simpa using h_order.2
 
 end BookProof.ChapterParityZ4

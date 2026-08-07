@@ -1,3 +1,38 @@
+# Summary of changes for run c1d2c8a6-7c1d-4efa-831d-3ce6d788e738
+I continued executing `PLAN_LEAN_SPECIALIST_UNPROVED.md` from where the previous pass stopped (Priorities 1–5 of the queue were already landed and green), and delivered six new packages in `BookProof/`, all `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean` and cross-referenced from the corresponding book chapter.
+
+**1. `BookProof/ChapterMehlerOrthogonalInvariance.lean` — the Priority-1 follow-on the plan asked for.** The chapter previously asserted invariance of the Mehler tail prior only at the abstract "measure-preserving" interface. Now proved concretely:
+- `charFun_stdGaussianEuclidean` — the characteristic function of the standard k-dimensional Gaussian is `exp(-‖t‖²/2)`, a function of the norm alone;
+- `stdGaussianEuclidean_map_isometry` — hence invariance under every linear isometry of ℝᵏ, i.e. the full orthogonal group O(k);
+- `gaussianHead_map_orthogonal` — the same in raw coordinates, for an orthogonal matrix acting by `x ↦ O *ᵥ x`;
+- `coordinateTailMeasure_map_headRotation` / `measurePreserving_headRotation` — the infinite Mehler coordinate prior is invariant under a rotation of its first k coordinates.
+
+**2. `BookProof/ChapterMehlerUniqueness.lean` — the forcing half of "only the Mehler measure".** `mehler_unique_by_finite_marginals` (a law on ℕ → ℝ whose finite-coordinate marginals are all the standard Gaussian product *is* the Mehler law), `mehler_characterization`, `language_blind_implies_mehler`, and `solovay_kopperman_probability_classification` (arbitrary law on the finite head, only the Mehler law on the infinite tail). This closes the two statements the book chapter still listed as "planned".
+
+**3. `BookProof/ChapterAtomicDecomposition.lean` — the Priority-2 residue.** `atoms_countable`, `noAtoms_continuousPart`, `eq_continuousPart_add_atomicPart`, `atomicPart_eq_sum_dirac` (the atomic part *is* ∑ₓ μ{x}·δₓ), and the headline `probability_measure_five_types`: every probability measure lies in exactly one of five mutually exclusive classes, matching the book's five types one for one. This is the measure-theoretic skeleton only — von Neumann's full *-isomorphism classification remains an explicitly documented gap.
+
+**4. `BookProof/ChapterAbelianVonNeumannFinite.lean` — the first of those five types as a genuine theorem.** For a Hermitian matrix with pairwise distinct eigenvalues, `commutant_eq_range_conjDiagonal` and `abelian_commutant_isomorphic_ellInfty` show the commutant is exactly a faithful *-algebra copy of ℓ∞({1,…,n}).
+
+**5. `BookProof/ChapterMixedPrior.lean` — worst-case vs best-case priors.** `atomless_prior_not_purelyAtomic`, `noAtoms_normalizedContinuousPart`, and `exists_continuous_prior_beyond_atomic`: rescaling the continuous part of a mixed prior yields a continuous probability measure that no discrete prior can reproduce.
+
+**6. Hygiene (the plan's final wave).** Axiom checks on every new headline; `#check` blocks added to `Book/SolovayTensor.lean` and `Book/NullMeasure.lean`, with the affected prose updated to reflect that the previously "planned" statements are now proved; a dated wave note added to `BookProof/STATUS.md`.
+
+Verification: the full default build (`BookProof`, `Book`, `Singularity`) completes successfully, and a repository-wide search confirms the only remaining `sorry`s are the two pre-existing, intentional ones in `RandomMap/SchoenfeldPRA.lean`, with no `axiom` declarations in `BookProof/` or `PnpProof/`. (The book target additionally needs the repository's tracked Verso patches applied to the local dependency checkout, as documented in `patches/`.) All work is committed and pushed.
+
+# Summary of changes for run 9d2ead15-df95-4e23-af42-c7f070ccfd50
+Fixed the project’s build errors and a substantial set of warnings.
+
+Changes include:
+- Removed unavailable modules from the `BookProof` aggregate imports.
+- Replaced the absent `PnpProof` default target with targets present in this repository snapshot.
+- Fixed formatting, whitespace, unused-variable, long-line, and flexible-tactic warnings throughout `Singularity`.
+- Corrected Verso emphasis markup throughout `Book/`; `lake build Book` now completes with zero warnings.
+- `lake build Singularity` now completes with zero warnings.
+- `lake build BookProof` and the full default `lake build` now complete successfully with no errors.
+- Confirmed no `sorry` or `admit` proof bodies were introduced in the repaired default targets.
+
+The full build still reports pre-existing Mathlib style-linter warnings in 113 `BookProof/` source files (primarily unused simp arguments, flexible tactics, and long lines). These do not prevent compilation; 1,953 such warnings remain.
+
 # Summary of changes for run d8c3de01-bd5f-4ab3-9d22-82583ec28542
 Completed the remaining step in `PLAN_A_ODE_CORE.md` and updated `ARISTOTLE_SUMMARY.md`.
 

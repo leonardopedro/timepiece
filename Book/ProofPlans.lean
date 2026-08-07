@@ -9,14 +9,14 @@ tag := "proof-plans"
 number := false
 %%%
 
-This appendix collects the precise statements that are **mathematically relevant to
-the book but not yet proved** in the repository, together with a plan for proving
+This appendix collects the precise statements that are *mathematically relevant to
+the book but not yet proved* in the repository, together with a plan for proving
 them in Lean 4. It is addressed to an LLM Lean specialist (e.g. Aristotle). A more
 detailed, machine-oriented version lives in `BOOK_PROOF_PLAN.md` at the repository
 root.
 
-Every plan targets the project's pinned toolchain (**Lean v4.28.0, Mathlib
-v4.28.0**), so that the work stays compatible with the existing `sorry`-free
+Every plan targets the project's pinned toolchain (*Lean v4.28.0, Mathlib
+v4.28.0*), so that the work stays compatible with the existing `sorry`-free
 `BookProof` library and with the automated prover.
 
 # A. The ODE Chapter
@@ -28,30 +28,30 @@ headline ODE results are proved: `weyl_symmetrization_self_adjoint` and
 
 ## A.1 Self-adjointness of the Weyl Hamiltonian
 
-**Status: PROVED.** `weyl_symmetrization_self_adjoint` (in
+*Status: PROVED.* `weyl_symmetrization_self_adjoint` (in
 `Singularity/Hamiltonian.lean:102`) proves `adj (odeToHamiltonian sys) =
   odeToHamiltonian sys` by `simp` + `ext`. The Wick symmetrization
 $`(A + A^\dagger)/2` is therefore self-adjoint at the algebraic level.
 
 ## A.2 Nelson's essential-self-adjointness theorem
 
-**Status: PROVED.** `nelson_essential_self_adjoint` (in
+*Status: PROVED.* `nelson_essential_self_adjoint` (in
 `Singularity/Esa.lean:44`) proves the equivalence by `simp` from the certificate
 definitions: vanishing deficiency indices iff the classical flow is complete. The
 forward direction (flow complete => ESA) is the one needed for the ODE resolution.
 
 ## A.3 The complexification resolution
 
-**Status: PROVED.** `ae_no_real_singular_time` (in
+*Status: PROVED.* `ae_no_real_singular_time` (in
 `BookProof/ChapterOdeComplexification.lean:70`) proves that for almost every
 initial condition, the singular time is non-real. Uses
 `MeasureTheory.Measure.addHaar_submodule` for the null-measure argument.
 
-**Goal.** Prove that the flow of $`\dot z = z^2` on $`L^2(\mathbb{R}^2)` has **no
-finite-time singularity for almost every initial condition**, because the singular
+*Goal.* Prove that the flow of $`\dot z = z^2` on $`L^2(\mathbb{R}^2)` has *no
+finite-time singularity for almost every initial condition*, because the singular
 time $`t = 1/z(0)` is real only when $`\operatorname{Im} z(0) = 0`, a null set.
 
-**Plan.** Work in `Singularity` or a new `BookProof` module. Formalize: the explicit
+*Plan.* Work in `Singularity` or a new `BookProof` module. Formalize: the explicit
 solution $`z(t) = z(0)/(1 - t z(0))`; the singular-time condition
 $`1 - t z(0) = 0 \Rightarrow t = 1/z(0)`; that $`1/z(0) \in \mathbb{R}`
 $`\Leftrightarrow \operatorname{Im} z(0) = 0`; and that the line
@@ -62,11 +62,11 @@ is null.
 
 ## A.4 Energy-bounded initial conditions
 
-**Goal.** Prove that an initial wave-function supported on the spectrum of $`H`
+*Goal.* Prove that an initial wave-function supported on the spectrum of $`H`
 below $`E_{\max}` has a bounded time-derivative (hence cannot blow up in finite
 time), using conservation of the spectral measure under unitary evolution.
 
-**Plan.** Depends on A.2 (the spectral theorem for the essentially self-adjoint
+*Plan.* Depends on A.2 (the spectral theorem for the essentially self-adjoint
 $`H`). State and prove the spectral-projection bound
 $`\|H\,\psi\| \le E_{\max}\|\psi\|` for $`\psi` in the spectral subspace, and deduce
 a uniform bound on $`\|\partial_t \psi(t)\|`.
@@ -77,18 +77,18 @@ a uniform bound on $`\|\partial_t \psi(t)\|`.
 
 The Riesz–Fischer characterization `completeSpace_iff_summable_norm` and the
 completeness of `UniformSpace.Completion` are in Mathlib and need only be
-**instantiated** for the finitely-supported core `P →₀ ℝ` and its completion. This is
+*instantiated* for the finitely-supported core `P →₀ ℝ` and its completion. This is
 a short task: build the `NormedAddCommGroup` / `CompleteSpace` instances and apply
 the Mathlib theorems.
 
 ## B.2 Definability / conservativity (the hard, partly informal part)
 
-**Status.** The claim "the completion does not leak Peano Arithmetic" is a
-metamathematical statement about definability in the base language, **not** an
+*Status.* The claim "the completion does not leak Peano Arithmetic" is a
+metamathematical statement about definability in the base language, *not* an
 internal theorem of analysis.
 
-**What is formalizable.** A precise, weaker theorem: in the language whose only
-vector constants are finitely supported, every **definable** vector is finitely
+*What is formalizable.* A precise, weaker theorem: in the language whose only
+vector constants are finitely supported, every *definable* vector is finitely
 supported. The finite-support half is `Finsupp.finite_support`. A model-theoretic
 conservativity statement (the completion is a conservative extension of the
 decidable base theory) would require formalizing a first-order language of Hilbert
@@ -100,42 +100,42 @@ finite-support) and clearly documenting the interpretive step that lies beyond i
 
 ## C.1 Inline-elaborated Lean blocks
 
-**Current state.** The Lean statements in this book are shown as **plain
-(non-elaborated) code blocks**, and verification is anchored on
+*Current state.* The Lean statements in this book are shown as *plain
+(non-elaborated) code blocks*, and verification is anchored on
 `lake build BookProof`. The blocks are not yet elaborated inside the book build.
 
-**Goal.** Make the `#check` blocks elaborate (and syntax-highlight with hovers)
+*Goal.* Make the `#check` blocks elaborate (and syntax-highlight with hovers)
 during the book build.
 
-**Plan.** Verso elaborates a code block against the module's **exported** interface,
+*Plan.* Verso elaborates a code block against the module's *exported* interface,
 so the chapter modules must re-export the `BookProof` names. This needs
 `public import BookProof.<Module>`, which in turn requires Lean's
 `experimental.module` feature to be enabled for the `Book` targets. Concretely:
 enable `experimental.module` for the `Book` library and `book` executable in
 `lakefile.toml`, change each chapter's `BookProof` import to `public import`, and
 re-add the imports. Verify a chapter at a time. (This re-introduces Mathlib
-elaboration into the book build, so it is slower; it does **not** rebuild Mathlib.)
+elaboration into the book build, so it is slower; it does *not* rebuild Mathlib.)
 
 ## C.2 Migration to verso-blueprint
 
-**Current state.** The book is a Verso **manual** on Lean v4.28.0.
+*Current state.* The book is a Verso *manual* on Lean v4.28.0.
 
-**Goal.** Adopt [`verso-blueprint`](https://github.com/leanprover/verso-blueprint)
+*Goal.* Adopt [`verso-blueprint`](https://github.com/leanprover/verso-blueprint)
 to sync the exposition with the Lean declarations (proof-status tracking, dependency
 graphs, progress summaries).
 
-**Blocker.** verso-blueprint requires Lean **≥ v4.29.0**; this project is on
-**v4.28.0** (with Mathlib v4.28.0 and the 198-module `BookProof`). verso-blueprint
+*Blocker.* verso-blueprint requires Lean *≥ v4.29.0*; this project is on
+*v4.28.0* (with Mathlib v4.28.0 and the 198-module `BookProof`). verso-blueprint
 elaborates the declarations it documents (it detects `sorry` and builds dependency
 graphs), so it must run on the same toolchain as the code.
 
-**Plan (execute only when compatible with the automated prover).**
- 1. Bump `lean-toolchain` to a version that is **both** supported by
-    verso-blueprint **and** by the automated prover.
+*Plan (execute only when compatible with the automated prover).*
+ 1. Bump `lean-toolchain` to a version that is *both* supported by
+    verso-blueprint *and* by the automated prover.
  2. Bump Mathlib to the matching version and re-fetch its build cache
     (`lake exe cache get`); re-verify `BookProof` (watch for API drift — the library
     has drifted once before).
- 3. Choose a stable **label scheme** mirroring the chapter structure (e.g.
+ 3. Choose a stable *label scheme* mirroring the chapter structure (e.g.
     `dutch_book_coherent_iff`, `euler_sum_one`, `total_variance`).
  4. Tag the featured `BookProof` theorems with `@[blueprint "label"]` (use
     `autoDeps := true` where appropriate).

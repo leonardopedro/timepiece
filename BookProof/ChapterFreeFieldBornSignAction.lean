@@ -88,7 +88,7 @@ theorem boolFlip_false (x : EuclideanSpace ℝ (Fin n)) :
 -/
 theorem boolFlip_comp (b₁ b₂ : Fin n → Bool) (x : EuclideanSpace ℝ (Fin n)) :
     boolFlip b₁ (boolFlip b₂ x) = boolFlip (fun k => xor (b₁ k) (b₂ k)) x := by
-  ext k; simp +decide [*]
+  ext k; simp [*]
   grind +qlia
 
 /-
@@ -117,7 +117,7 @@ theorem boolFlip_eq_self_iff {b : Fin n → Bool} {x : EuclideanSpace ℝ (Fin n
     boolFlip b x = x ↔ ∀ k, x k ≠ 0 → b k = false := by
   refine ⟨fun h => ?_, fun h => ?_⟩
   · grind +suggestions
-  · ext k; by_cases hk : x.ofLp k = 0 <;> simp_all +decide [boolFlip_apply]
+  · ext k; by_cases hk : x.ofLp k = 0 <;> simp_all [boolFlip_apply]
 
 /-
 **Headline (free action on the strictly positive sphere).** If every

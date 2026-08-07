@@ -53,7 +53,6 @@ import BookProof.ChapterE
 import BookProof.ChapterG
 import BookProof.ChapterG2
 import BookProof.ChapterB7
-import BookProof.Substrate
 import BookProof.ChapterU
 import BookProof.ChapterF1
 import BookProof.ChapterF2
@@ -215,9 +214,6 @@ import BookProof.ChapterTotalVariance
 import BookProof.ChapterRoadmapAudit
 import BookProof.RandomMap2Audit
 import BookProof.ChapterSelectingEvents
-import BookProof.ChapterSolovay
-import BookProof.ChapterSolovayCoordinates
-import BookProof.ChapterG3
 import BookProof.ChapterBaryonAsymmetry
 import BookProof.ChapterParitySU3
 import BookProof.ChapterFreeFieldConstraint
@@ -230,7 +226,25 @@ import BookProof.ChapterOdeComplexification
 import BookProof.ChapterPaFreeCompletion
 import BookProof.ChapterDefinabilityFragment
 
-import BookProof.ChapterKopperman
 import BookProof.ChapterFiniteArithmeticPrior
 import BookProof.ChapterCountableDefinability
 import BookProof.ChapterProbabilityInterface
+
+-- Wave (August 2026): coordinate Solovay–Kopperman substrate and cross-dimensional
+-- embedding, kernel transport, and the average/maximal error norms.
+import BookProof.Substrate
+import BookProof.ChapterSolovay
+import BookProof.ChapterSolovayCoordinates
+import BookProof.ChapterMehlerOrthogonalInvariance
+import BookProof.ChapterMehlerUniqueness
+import BookProof.ChapterAtomicDecomposition
+import BookProof.ChapterAbelianVonNeumannFinite
+import BookProof.ChapterMixedPrior
+import BookProof.ChapterSolovayCrossDim
+import BookProof.ChapterKopperman
+import BookProof.ChapterG3
+import BookProof.ChapterKernelTransport
+import BookProof.ChapterErrorNorms
+import BookProof.ChapterGravityProjDirectSum
+import BookProof.ChapterSchurFiniteDim
+import BookProof.ChapterGammaCommutant

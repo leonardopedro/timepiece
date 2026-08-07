@@ -122,6 +122,19 @@ Its non-abelian term `-i g [A_j, A_k]` expands, via `[T_a, T_b] = i f_{a b c} T_
 def Fbook (δ : Fin 3 → R → R) (g : ℝ) (A : Fin 3 → R) (j k : Fin 3) : R :=
   (δ j (A k) - δ k (A j)) - (I * (g : ℂ)) • (A j * A k - A k * A j)
 
+/-- **Bridge between the two normalizations.**  Substituting the book's
+connection `a_j = -i g A_j` into the abstract field strength `fieldStrengthMul`
+yields exactly `-i g` times the book's field-strength combination `Fbook`.  So
+the abstract and the physical normalizations agree up to the coupling. -/
+theorem fieldStrengthMul_eq_Fbook
+    (δ : Fin 3 → R → R) (g : ℝ) (A : Fin 3 → R)
+    (hsmul : ∀ (j : Fin 3) (c : ℂ) x, δ j (c • x) = c • δ j x) (j k : Fin 3) :
+    fieldStrengthMul δ (fun j => (-(I * (g : ℂ))) • A j) j k
+      = (-(I * (g : ℂ))) • Fbook δ g A j k := by
+  simp only [fieldStrengthMul, Fbook]
+  rw [hsmul, hsmul, smul_mul_smul_comm, smul_mul_smul_comm]
+  module
+
 /-- **The book's non-abelian field strength.**  Specializing the connection to
 `a_j = -i g A_j` (the book's `D_j = ∂_j - i g T_a A_{j a}`), the commutator of
 covariant derivatives is multiplication by `-i g F^{book}_{j k}`:
@@ -142,11 +155,8 @@ theorem commutator_eq_coupling
     Dcov δ (fun j => (-(I * (g : ℂ))) • A j) j (Dcov δ (fun j => (-(I * (g : ℂ))) • A j) k x)
       - Dcov δ (fun j => (-(I * (g : ℂ))) • A j) k (Dcov δ (fun j => (-(I * (g : ℂ))) • A j) j x)
       = ((-(I * (g : ℂ))) • Fbook δ g A j k) * x := by
-  rw [nonabelian_fieldStrength δ _ hadd hleib hcomm]
-  congr 1
-  simp only [fieldStrengthMul, Fbook]
-  rw [hsmul, hsmul, smul_mul_smul_comm, smul_mul_smul_comm]
-  module
+  rw [nonabelian_fieldStrength δ _ hadd hleib hcomm,
+    fieldStrengthMul_eq_Fbook δ g A hsmul j k]
 
 /-- The book's field strength is antisymmetric: `F^{book}_{j k} = - F^{book}_{k j}`. -/
 theorem Fbook_antisymm (δ : Fin 3 → R → R) (g : ℝ) (A : Fin 3 → R) (j k : Fin 3) :

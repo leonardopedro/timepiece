@@ -69,7 +69,7 @@ backward direction holds for any system: scalars are central.)
 theorem commutant_eq_complex_scalars (M : System ℂ V) (hSchur : IsSchurFull M)
     (S : V →L[ℂ] V) :
     M.Commutes S ↔ ∃ c : ℂ, S = c • (1 : V →L[ℂ] V) := by
-  exact ⟨ fun h => hSchur S h, fun ⟨ c, hc ⟩ => by rw [ hc ] ; exact fun m hm => by simp +decide [ mul_smul_comm, smul_mul_assoc ] ⟩
+  exact ⟨ fun h => hSchur S h, fun ⟨ c, hc ⟩ => by rw [ hc ] ; exact fun m hm => by simp  ⟩
 
 /-! ## Prop 17 — the R-real commutant is `ℝ` -/
 
@@ -87,7 +87,7 @@ conjugate-linear, `θ ((r : ℂ) • x) = conj (r : ℂ) • θ x = (r : ℂ) �
 theorem real_scalar_commutesConj (θ : AntiUnitary V) (r : ℝ) :
     CommutesConj θ (((r : ℂ)) • (1 : V →L[ℂ] V)) := by
   intros x; exact (by
-  have := θ.map_smulₛₗ ( r : ℂ ) x; simp_all +decide [ Complex.ext_iff, mul_comm ] ;)
+  have := θ.map_smulₛₗ ( r : ℂ ) x; simp_all  ;)
 
 /-
 **Prop 17 (R-real commutant `≅ ℝ`).**  For a complex Schur system `(M, V)`
@@ -111,14 +111,14 @@ theorem Rreal_commutant_eq_real_scalars (M : System ℂ V) (hSchur : IsSchurFull
   · obtain ⟨c, hc⟩ := hSchur S h.1;
     by_cases hc : c = starRingEnd ℂ c;
     · rw [ eq_comm ] at hc;
-      simp_all +decide [ Complex.ext_iff ];
-      exact ⟨ c.re, by congr; simp +decide [ Complex.ext_iff, show c.im = 0 by linarith ] ⟩;
+      simp_all [ Complex.ext_iff ];
+      exact ⟨ c.re, by congr; simp [ Complex.ext_iff, show c.im = 0 by linarith ] ⟩;
     · have h_subsingleton : ∀ x : V, x = 0 := by
         intro x
         have h_eq : (c - starRingEnd ℂ c) • θ x = 0 := by
-          have := h.2 x; simp_all +decide [ sub_smul, θ.map_smulₛₗ ] ;
-        simp_all +decide [ sub_eq_iff_eq_add ];
-      exact ⟨ 0, by ext; simp +decide [ h_subsingleton ] ⟩;
+          have := h.2 x; simp_all [ sub_smul, θ.map_smulₛₗ ] ;
+        simp_all [ sub_eq_iff_eq_add ];
+      exact ⟨ 0, by ext; simp [ h_subsingleton ] ⟩;
   · rcases h with ⟨ r, rfl ⟩; exact ⟨ fun m hm => by simp, real_scalar_commutesConj θ r ⟩
 
 end BookProof.ChapterA

@@ -105,8 +105,8 @@ This is the factorisation of a sum over tuples of a product of factors.
 theorem tensorPow_mul {N : ℕ} (M M' : Fin N → Matrix (Fin 4) (Fin 4) ℂ) :
     tensorPow M * tensorPow M' = tensorPow (fun i => M i * M' i) := by
   ext a c;
-  simp +decide [ tensorPow, Matrix.mul_apply ];
-  simp +decide only [← Finset.prod_mul_distrib];
+  simp [ tensorPow, Matrix.mul_apply ];
+  simp only [← Finset.prod_mul_distrib];
   exact Eq.symm (Fintype.prod_sum fun i j ↦ M i (a i) j * M' i j (c i))
 
 /-
@@ -115,8 +115,8 @@ The tensor operator of the all-identity family is the identity.
 theorem tensorPow_one {N : ℕ} :
     tensorPow (N := N) (fun _ => (1 : Matrix (Fin 4) (Fin 4) ℂ)) = 1 := by
   unfold tensorPow;
-  ext a b; simp +decide [ Matrix.one_apply ] ;
-  by_cases h : a = b <;> simp +decide [ h ];
+  ext a b; simp [ Matrix.one_apply ] ;
+  by_cases h : a = b <;> simp [ h ];
   rw [ Finset.prod_eq_zero_iff ] ; contrapose! h ; aesop
 
 /-! ## The permutation representation -/
@@ -126,15 +126,15 @@ theorem tensorPow_one {N : ℕ} :
 -/
 theorem permMat_mul {N : ℕ} (σ τ : Equiv.Perm (Fin N)) :
     permMat σ * permMat τ = permMat (σ * τ) := by
-  ext a c; simp +decide [ Matrix.mul_apply, Finset.sum_ite ] ;
-  unfold permMat; simp +decide [ Finset.sum_ite, Function.comp ] ;
+  ext a c; simp [ Matrix.mul_apply ] ;
+  unfold permMat; simp [ Finset.sum_ite ] ;
   rfl
 
 /-
 `permMat` sends the identity permutation to the identity matrix.
 -/
 theorem permMat_one {N : ℕ} : permMat (1 : Equiv.Perm (Fin N)) = 1 := by
-  ext a b; simp [permMat, Matrix.one_apply, Function.comp_id];
+  ext a b; simp [permMat, Matrix.one_apply];
   grind
 
 /-! ## The braiding relation -/
@@ -148,7 +148,7 @@ theorem permMat_braiding {N : ℕ} (σ : Equiv.Perm (Fin N))
     (M : Fin N → Matrix (Fin 4) (Fin 4) ℂ) :
     permMat σ * tensorPow M = tensorPow (fun j => M (σ⁻¹ j)) * permMat σ := by
   ext a c;
-  simp +decide [ Matrix.mul_apply, permMat, tensorPow ];
+  simp [ Matrix.mul_apply, permMat, tensorPow ];
   rw [ Finset.sum_eq_single ( c ∘ σ.symm ) ];
   · conv_rhs => rw [ ← Equiv.prod_comp σ ] ;
     grind;
@@ -195,8 +195,8 @@ theorem sum_permMat_sq {N : ℕ} :
     fun σ => Equiv.sum_comp (Equiv.mulLeft σ) fun τ => permMat τ
   convert Finset.sum_congr rfl fun σ _ => h_sum σ using 1
   any_goals exact Finset.univ
-  · simp +decide [ Finset.sum_mul _ _ _, Finset.mul_sum, permMat_mul ]
-  · simp +decide [ Fintype.card_perm ]
+  · simp [ Finset.sum_mul _ _ _, Finset.mul_sum, permMat_mul ]
+  · simp [ Fintype.card_perm ]
     norm_num [ Algebra.smul_def ]
 
 /-
@@ -214,8 +214,8 @@ The symmetrizer commutes with the uniform (diagonal-parity) operator.
 theorem projSym_uniform_comm {N : ℕ} (A : Matrix (Fin 4) (Fin 4) ℂ) :
     projSym N * uniform A = uniform A * projSym N := by
   unfold projSym;
-  simp +decide only [smul_mul_assoc, mul_smul_comm];
-  simp +decide only [Finset.sum_mul, permMat_uniform_comm, Finset.mul_sum _ _ _]
+  simp only [smul_mul_assoc, mul_smul_comm];
+  simp only [Finset.sum_mul, permMat_uniform_comm, Finset.mul_sum _ _ _]
 
 /-
 The symmetrizer commutes with the diagonal `Spin⁺` generator.
@@ -223,8 +223,8 @@ The symmetrizer commutes with the diagonal `Spin⁺` generator.
 theorem projSym_diagGen_comm {N : ℕ} (A : Matrix (Fin 4) (Fin 4) ℂ) :
     projSym N * diagGen A = diagGen A * projSym N := by
   unfold projSym;
-  simp +decide only [smul_mul_assoc, mul_smul_comm];
-  simp +decide only [Finset.sum_mul, permMat_diagGen_comm, Finset.mul_sum _ _ _]
+  simp only [smul_mul_assoc, mul_smul_comm];
+  simp only [Finset.sum_mul, permMat_diagGen_comm, Finset.mul_sum _ _ _]
 
 /-! ## Lemma 52 payoff — the symmetric power is a full-Lorentz subrepresentation -/
 

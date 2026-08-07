@@ -70,16 +70,16 @@ theorem smul_nonneg_isPositive (T : H →L[ℂ] H) (h : T.IsPositive)
     {c : ℝ} (hc : 0 ≤ c) : ((c : ℂ) • T).IsPositive := by
   constructor
   · intro x y
-    simp +decide [mul_comm]
+    simp 
     convert congr_arg (fun z => c • z) (h.1 x y) using 1 <;>
-      simp +decide [inner_smul_left, inner_smul_right]
+      simp 
     · convert inner_smul_left _ _ _
-      simp +decide [Complex.ext_iff]
+      simp 
     · convert inner_smul_right _ _ _ using 1
-  · simp +decide [ContinuousLinearMap.reApplyInnerSelf, inner_smul_left, inner_smul_right, hc]
+  · simp [ContinuousLinearMap.reApplyInnerSelf]
     intro x
     have : (inner ℂ (c • T x) x).re = c * (inner ℂ (T x) x).re := by
-      simp +decide [inner_smul_left, inner_smul_right]
+      simp 
     rw [this]
     exact mul_nonneg hc (h.2 x)
 

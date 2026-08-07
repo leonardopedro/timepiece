@@ -62,11 +62,11 @@ theorem iSup_WFam_eq_top : (⨆ i, WFam i) = ⊤ := by
   convert BookProof.ChapterLorentzRealRepFull.decomposition_top using 1;
   refine' le_antisymm _ _;
   · refine' iSup_le _;
-    intro i; fin_cases i <;> simp +decide [ WFam ] ;
+    intro i; fin_cases i <;> simp [ WFam ] ;
     · exact le_sup_of_le_left ( le_sup_of_le_left ( le_sup_of_le_left le_rfl ) );
     · exact le_sup_of_le_left ( le_sup_of_le_left ( le_sup_right ) );
     · exact le_sup_of_le_left ( le_sup_of_le_right le_rfl );
-  · simp +decide [ iSup, WFam ];
+  · simp [ iSup, WFam ];
     exact ⟨ ⟨ le_sup_of_le_right <| le_sup_of_le_right <| le_sup_of_le_right le_rfl, le_sup_of_le_right <| le_sup_of_le_right <| le_sup_of_le_left le_rfl ⟩, le_sup_of_le_right <| le_sup_of_le_left le_rfl ⟩
 
 /-
@@ -115,8 +115,8 @@ the internal direct sum of the four subrepresentations `WHalf`, `W10`, `WPs`,
 `WTwo`. -/
 theorem WFam_conj_invariant (S : Matrix (Fin 4) (Fin 4) ℤ) (hS : S ∈ Omega) (i : Fin 4) :
     (WFam i).map (conjL (castR S) (castR (cinv S))) ≤ WFam i := by
-  fin_cases i <;> simp only [WFam, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
-    Matrix.cons_val_two, Matrix.cons_val_three, Matrix.tail_cons]
+  fin_cases i <;> simp only [WFam, 
+    Matrix.tail_cons]
   · exact WHalf_invariant S hS
   · exact W10_invariant S hS
   · exact WPs_invariant S hS

@@ -54,7 +54,7 @@ orthogonal maps preserve the norm.
 -/
 theorem normalize_comm (L : EuclideanSpace ℝ (Fin n) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin n))
     (x : EuclideanSpace ℝ (Fin n)) : normalize (L x) = L (normalize x) := by
-  simp +decide [ normalize, L.norm_map ]
+  simp [ normalize, L.norm_map ]
 
 /-- The **uniform measure on the sphere** built from the Gaussian: the
 pushforward of the standard Gaussian prior under radial normalization. -/

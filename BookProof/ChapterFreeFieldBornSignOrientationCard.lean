@@ -36,8 +36,8 @@ theorem natCard_even_flip (n : ℕ) :
             (-1 : ℝ) ^ (Finset.univ.filter fun k => i k = true).card =
           ∏ _k : Fin (n + 1), ∑ b : Bool, (-1 : ℝ) ^ (if b then 1 else 0) := by
       rw [Finset.prod_sum]
-      refine' Finset.sum_bij (fun i _ => fun k _ => i k) _ _ _ _ <;> simp +decide
-      · simp +decide [funext_iff]
+      refine' Finset.sum_bij (fun i _ => fun k _ => i k) _ _ _ _ <;> simp
+      · simp [funext_iff]
       · exact fun b => ⟨fun k => b k (Finset.mem_univ k), rfl⟩
       · intro a
         rw [Finset.prod_ite]
@@ -49,10 +49,10 @@ theorem natCard_even_flip (n : ℕ) :
           (∑ i : Fin (n + 1) → Bool, (if Odd (flipCount i) then 1 else 0) : ℝ) = 0 := by
     rw [← Finset.sum_sub_distrib]
     exact Eq.trans (Finset.sum_congr rfl fun _ _ => by aesop) h_gen_fun
-  simp_all +decide [sub_eq_iff_eq_add]
+  simp_all [sub_eq_iff_eq_add]
   have hcard := Finset.card_add_card_compl
     (Finset.univ.filter fun x : Fin (n + 1) → Bool => Even (flipCount x))
-  simp_all +decide [pow_succ']
+  simp_all [pow_succ']
   linarith
 
 /-- Exactly half of the diagonal sign matrices in positive dimension preserve

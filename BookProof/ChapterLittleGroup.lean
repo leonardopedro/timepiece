@@ -88,20 +88,20 @@ theorem prop79 (q : K → G) (hq : Function.Injective q) (l₀ : K)
     obtain ⟨S, rfl⟩ := hg
     have h_comm : ((α (Λ S k))⁻¹ * S * α k) * q l₀ = q l₀ * ((α (Λ S k))⁻¹ * S * α k) := by
       have h_comm : S * α k * q l₀ = q (Λ S k) * S * α k := by
-        simp +decide [ ← hΛ, mul_assoc ];
+        simp [ ← hΛ, mul_assoc ];
         simpa [ mul_assoc ] using eq_mul_inv_of_mul_eq ( hα k );
       have := hα ( Λ S k );
-      simp +decide [ ← this, mul_assoc, h_comm ]
+      simp [ ← this, mul_assoc, h_comm ]
     generalize_proofs at *;
     exact fun x hx => by aesop;
   · intro g hg
     use α k * g * (α k)⁻¹;
-    simp_all +decide [ mul_assoc, littleGroup, Subgroup.mem_centralizer_iff ];
-    simp_all +decide [ ← mul_assoc, hq.eq_iff ];
+    simp_all [ mul_assoc, littleGroup, Subgroup.mem_centralizer_iff ];
+    simp_all [ ← mul_assoc, hq.eq_iff ];
     have hΛ_eq : Λ (α k * g * (α k)⁻¹) k = k := by
       have h_comm : (α k * g * (α k)⁻¹) * (α k * q l₀ * (α k)⁻¹) * (α k * g * (α k)⁻¹)⁻¹ = α k * q l₀ * (α k)⁻¹ := by
-        simp +decide [ mul_assoc, hg ];
-        simp +decide [ ← mul_assoc, ← hg ];
+        simp [ mul_assoc ];
+        simp [ ← mul_assoc, ← hg ];
       grind;
     rw [ hΛ_eq, inv_mul_cancel ]
 

@@ -51,6 +51,53 @@ theorem finiteCoordinateMarginal (I : Finset ℕ) :
       Measure.pi (fun _ : I => standardGaussian) := by
   exact Measure.infinitePi_map_restrict (fun _ : ℕ => standardGaussian)
 
+/-- Pushing an infinite product measure indexed by a sum type forward along the
+canonical `(Π i : ι ⊕ ι', X i) ≃ (Π i : ι, X (.inl i)) × (Π j : ι', X (.inr j))`
+splitting: the image is the product of the two factor product measures.  Stated
+here in the direction of the inverse equivalence, where the characterization of
+`Measure.infinitePi` by its values on measurable boxes applies directly. -/
+theorem infinitePi_map_sumPiEquivProdPi_symm {ι ι' : Type*} {X : ι ⊕ ι' → Type*}
+    [∀ i, MeasurableSpace (X i)] (mu : ∀ i, Measure (X i))
+    [∀ i, IsProbabilityMeasure (mu i)] :
+    Measure.map (MeasurableEquiv.sumPiEquivProdPi X).symm
+      ((Measure.infinitePi fun i : ι => mu (Sum.inl i)).prod
+        (Measure.infinitePi fun j : ι' => mu (Sum.inr j))) = Measure.infinitePi mu := by
+  refine Measure.eq_infinitePi _ fun s t ht => ?_
+  rw [Measure.map_apply (MeasurableEquiv.measurable _)
+    (MeasurableSet.pi s.countable_toSet fun _ _ => ht _)]
+  have hpre : ⇑(MeasurableEquiv.sumPiEquivProdPi X).symm ⁻¹' ((s : Set (ι ⊕ ι')).pi t)
+      = ((s.toLeft : Set ι).pi fun i => t (Sum.inl i)) ×ˢ
+        ((s.toRight : Set ι').pi fun j => t (Sum.inr j)) := by
+    ext ⟨a, b⟩
+    constructor
+    · intro h
+      refine ⟨fun i hi => ?_, fun j hj => ?_⟩
+      · simpa using h (Sum.inl i) (by simpa using hi)
+      · simpa using h (Sum.inr j) (by simpa using hj)
+    · rintro ⟨h1, h2⟩ i hi
+      cases i with
+      | inl i => simpa using h1 i (by simpa using hi)
+      | inr j => simpa using h2 j (by simpa using hi)
+  rw [hpre, Measure.prod_prod,
+    Measure.infinitePi_pi (μ := fun i : ι => mu (Sum.inl i)) (s := s.toLeft)
+      (t := fun i => t (Sum.inl i)) (fun i _ => ht _),
+    Measure.infinitePi_pi (μ := fun j : ι' => mu (Sum.inr j)) (s := s.toRight)
+      (t := fun j => t (Sum.inr j)) (fun j _ => ht _),
+    Finset.prod_sum_eq_prod_toLeft_mul_prod_toRight s (fun i => mu i (t i))]
+
+/-- Forward form of `infinitePi_map_sumPiEquivProdPi_symm` when the left index
+type is finite: the infinite product over `ι ⊕ ι'` splits as the finite product
+measure on the `ι`-block times the infinite product measure on the `ι'`-block. -/
+theorem infinitePi_map_sumPiEquivProdPi {ι ι' : Type*} [Fintype ι] {X : ι ⊕ ι' → Type*}
+    [∀ i, MeasurableSpace (X i)] (mu : ∀ i, Measure (X i))
+    [∀ i, IsProbabilityMeasure (mu i)] :
+    Measure.map (MeasurableEquiv.sumPiEquivProdPi X) (Measure.infinitePi mu)
+      = (Measure.pi fun i : ι => mu (Sum.inl i)).prod
+        (Measure.infinitePi fun j : ι' => mu (Sum.inr j)) := by
+  rw [← Measure.infinitePi_eq_pi]
+  exact (MeasurableEquiv.map_apply_eq_iff_map_symm_apply_eq _).2
+    (infinitePi_map_sumPiEquivProdPi_symm mu).symm
+
 /-- Split the first `k` coordinates from an infinite sequence. -/
 def tailSplitEquiv (k : ℕ) : CoordinateTail ≃ᵐ (Fin k → ℝ) × CoordinateTail :=
   (MeasurableEquiv.piCongrLeft (fun _ : ℕ => ℝ) (finSumNatEquiv k)).symm.trans
@@ -81,8 +128,7 @@ theorem tailSplitEquiv_map (k : ℕ) :
       (Measure.infinitePi (fun _ : Fin k ⊕ ℕ => gaussianReal 0 1)) =
       (Measure.pi (fun _ : Fin k => gaussianReal 0 1)).prod
       (Measure.infinitePi (fun _ : ℕ => gaussianReal 0 1)) := by
-    -- This follows from the fact that infinitePi on a sum type splits as product
-    sorry
+    exact infinitePi_map_sumPiEquivProdPi (fun _ : Fin k ⊕ ℕ => gaussianReal 0 1)
   calc
     Measure.map
       ((MeasurableEquiv.piCongrLeft (fun _ : ℕ => ℝ) (finSumNatEquiv k)).symm.trans

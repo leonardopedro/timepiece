@@ -10,7 +10,7 @@ tag := "null-measure"
 
 # A Null Event Is Not Automatically Special
 
-A recurring intuitive error is to treat a **measure-zero** event as negligible in a
+A recurring intuitive error is to treat a *measure-zero* event as negligible in a
 strong, geometric sense — as if a null subset of a space must be "one dimension
 smaller," or as if a null point must be a special, distinguished point. The
 manuscript argues, in its discussion of consciousness and Bayesian priors (and of
@@ -19,8 +19,8 @@ measure-theoretic core precise.
 
 # No Point Is Special
 
-Under Lebesgue measure on $`\mathbb{R}`, **every** single point has measure zero, and
-all singletons have the **same** measure:
+Under Lebesgue measure on $`\mathbb{R}`, *every* single point has measure zero, and
+all singletons have the *same* measure:
 
 ```
 #check @ConsciousnessNullMeasure.singleton_volume_zero
@@ -33,7 +33,7 @@ uniform measure on an interval, _every_ point is null. Singling out one null poi
 
 # Countable Sets Are Null
 
-More generally, every **countable** set has Lebesgue measure zero, by countable
+More generally, every *countable* set has Lebesgue measure zero, by countable
 additivity (a countable union of null singletons is null). In particular the
 rationals, though dense, are null:
 
@@ -44,12 +44,12 @@ rationals, though dense, are null:
 
 # But Null Does Not Mean Countable: the Cantor Set
 
-Here is the key counterexample to "null means small." The **ternary Cantor set**
+Here is the key counterexample to "null means small." The *ternary Cantor set*
 $`C \subset [0,1]` — obtained by repeatedly removing the open middle third — is
 simultaneously:
 
- * **uncountable**, and
- * of Lebesgue **measure zero**.
+ * *uncountable*, and
+ * of Lebesgue *measure zero*.
 
 Its uncountability follows from Cantor's theorem (it is in bijection with
 $`\{0,1\}^{\mathbb{N}}`, so $`\aleph_0 < 2^{\aleph_0}`):
@@ -68,8 +68,8 @@ which (since $`\mu(C) < \infty`) forces $`\mu(C) = 0`:
 
 # The Headline
 
-Putting these together, there exists an **uncountable** subset of $`[0,1]` with
-Lebesgue measure **zero**:
+Putting these together, there exists an *uncountable* subset of $`[0,1]` with
+Lebesgue measure *zero*:
 
 ```
 #check @ConsciousnessNullMeasure.exists_uncountable_null_subset
@@ -86,11 +86,11 @@ arbitrarily close to one.
 # Why This Matters for Priors
 
 The consequence for the Bayesian thread of the book is direct. On a continuous space
-there is **no uniform probability measure** that makes every point equally likely
+there is *no uniform probability measure* that makes every point equally likely
 (each point would have to be null, yet the whole space has measure one — and there is
 no countably-additive way to spread mass uniformly over uncountably many points).
 Worse, the "special" outcomes one might want to privilege (a particular observed
-value, a particular observer) are null and **indistinguishable**, by the measure,
+value, a particular observer) are null and *indistinguishable*, by the measure,
 from every other point. On a general continuous space, then, a prior that looks
 non-informative in one parametrization becomes informative in another: a change of
 coordinates multiplies the density by a Jacobian, and there is no coordinate-invariant
@@ -98,8 +98,63 @@ coordinates multiplies the density by a Jacobian, and there is no coordinate-inv
 "there are no non-informative priors" — the coordinate argument of
 {ref "sequential-bayes"}[the Bayesian-updating chapter]. It connects back to
 {ref "max-entropy"}[the maximum-entropy chapter], where a uniform prior existed only
-because the space was **finite** (and even there only relative to a labeling), and
+because the space was *finite* (and even there only relative to a labeling), and
 forward to the one exception in this book: the
 {ref "solovay-tensor"}[Solovay–Kopperman tail], where the restricted decidable
 language forbids the very reparametrizations that would break uniformity, so the
 Mehler prior on the infinite-dimensional hypersphere stays genuinely uniform.
+
+# Atomic and Continuous Parts: the Five Types
+
+The distinction between a *continuous* prior and a *discrete* (mixed) one can be
+made completely precise. Every measure splits into a continuous part and a part
+carried by its atoms — the points of positive mass — and the atoms are always a
+countable set:
+
+```
+#check @BookProof.ChapterAtomicDecomposition.atoms_countable
+#check @BookProof.ChapterAtomicDecomposition.noAtoms_continuousPart
+#check @BookProof.ChapterAtomicDecomposition.eq_continuousPart_add_atomicPart
+```
+
+The atomic part is literally a countable sum of point masses $`\sum_x \mu\{x\}\,
+\delta_x`:
+
+```
+#check @BookProof.ChapterAtomicDecomposition.atomicPart_eq_sum_dirac
+```
+
+Since a probability measure cannot have both parts trivial, exactly five
+combinations remain — continuous part present or absent, crossed with no atoms,
+finitely many atoms, or countably infinitely many atoms. These are precisely the
+five types of the manuscript's list of abelian von Neumann algebras
+($`\ell^\infty(\{1,\dots,n\})`, $`\ell^\infty(\mathbb{N})`, $`L^\infty([0,1])`,
+and the two mixtures):
+
+```
+#check @BookProof.ChapterAtomicDecomposition.not_continuousPart_zero_and_atoms_empty
+#check @BookProof.ChapterAtomicDecomposition.probability_measure_five_types
+```
+
+The first type is a theorem, not just a label: for a Hermitian matrix with
+distinct eigenvalues, the algebra of matrices commuting with it is exactly a
+unitary conjugate of the diagonal matrices, i.e. a faithful copy of
+$`\ell^\infty(\{1,\dots,n\})`:
+
+```
+#check @BookProof.ChapterAbelianVonNeumannFinite.commutant_eq_range_conjDiagonal
+#check @BookProof.ChapterAbelianVonNeumannFinite.abelian_commutant_isomorphic_ellInfty
+```
+
+# Continuous Priors Are Out of Reach of Discrete Ones
+
+The splitting also settles the manuscript's "worst-case versus best-case prior"
+argument. Rescaling the continuous part of a mixed prior (conditioning on the
+complement of its atoms) yields a genuine *continuous* probability measure, and no
+purely atomic prior can reproduce it:
+
+```
+#check @BookProof.ChapterMixedPrior.atomless_prior_not_purelyAtomic
+#check @BookProof.ChapterMixedPrior.noAtoms_normalizedContinuousPart
+#check @BookProof.ChapterMixedPrior.exists_continuous_prior_beyond_atomic
+```

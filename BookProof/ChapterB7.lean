@@ -41,7 +41,7 @@ theorem koopman_comp (f : α ≃ᵐ β) (g : β ≃ᵐ γ) (hf : MeasurePreservi
     (hg : MeasurePreserving g ν ρ) (hfg : MeasurePreserving (f.trans g) μ ρ)
     (u : Lp E p ρ) :
     koopmanEquiv f hf (koopmanEquiv g hg u) = koopmanEquiv (f.trans g) hfg u := by
-  simp +decide [ koopmanEquiv ];
+  simp [ koopmanEquiv ];
   refine' Lp.ext _;
   have h_eq : (Lp.compMeasurePreservingₗᵢ ℝ (⇑f) hf) ((Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u) =ᵐ[μ] (fun x => u (g (f x))) := by
     have h_eq : (Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u =ᵐ[ν] (fun x => u (g x)) := by
@@ -129,7 +129,7 @@ The event map is invertible: it is a Boolean automorphism.
 -/
 theorem eventMap_leftInverse (f : α ≃ᵐ α) (A : Set α) :
     f.symm ⁻¹' (f ⁻¹' A) = A := by
-  ext x; simp [Set.mem_preimage]
+  ext x; simp 
 
 end EventAlgebra
 
@@ -165,6 +165,6 @@ theorem hadamard_not_deterministic :
   · simp +zetaDelta at *;
   · aesop;
   · intro h;    have := congr_fun ( congr_fun h 0 ) 1;    norm_num [ Fin.sum_univ_succ, Fin.prod_univ_succ, Finset.sum_range_succ, Finset.prod_range_succ, hadamardU ] at this;
-    simp +decide [ Matrix.vecMul, dotProduct ] at this
+    simp [ Matrix.vecMul, dotProduct ] at this
 
 end BookProof.ChapterB7

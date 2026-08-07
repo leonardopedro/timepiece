@@ -87,25 +87,25 @@ noncomputable def projRL : M2 := projChirR ⊗ₖ projChirL
 theorem chir1_sq : chir1 * chir1 = -1 := by
   -- Unfold the definition of `chir1` as `chir ⊗ₖ 1`.
   unfold chir1;
-  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp +decide [ Matrix.mul_apply, kroneckerMap_apply ] ; ring;
-  convert congr_arg ( fun m : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => m i k * ( if j = l then 1 else 0 ) ) ( BookProof.ChapterA3j.chir_sq ) using 1 <;> simp +decide [ Matrix.mul_apply, Matrix.one_apply ] ; ring;
+  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp [ Matrix.mul_apply, kroneckerMap_apply ] ; ring;
+  convert congr_arg ( fun m : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => m i k * ( if j = l then 1 else 0 ) ) ( BookProof.ChapterA3j.chir_sq ) using 1 <;> simp [ Matrix.mul_apply, Matrix.one_apply ] ; ring;
   · erw [ Finset.sum_product ] ; aesop;
   · grind
 
 theorem chir2_sq : chir2 * chir2 = -1 := by
   unfold chir2;
   convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ⊗ₖ x ) BookProof.ChapterA3j.chir_sq using 1;
-  · ext i j; simp +decide [ Matrix.mul_apply, Matrix.one_apply, Finset.sum_mul ] ;
-    split_ifs <;> simp_all +decide [ Finset.sum_ite ];
+  · ext i j; simp [ Matrix.mul_apply, Matrix.one_apply ] ;
+    split_ifs <;> simp_all [ Finset.sum_ite ];
     refine' Finset.sum_bij ( fun x hx => x.2 ) _ _ _ _ <;> aesop;
   · ext i j ; fin_cases i <;> fin_cases j <;> norm_num
 
 /-- The two per-slot chirality operators commute (they act on different slots). -/
 theorem chir1_chir2_comm : chir1 * chir2 = chir2 * chir1 := by
   unfold chir1 chir2;
-  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp +decide [ Matrix.mul_apply ];
+  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp [ Matrix.mul_apply ];
   erw [ Finset.sum_product ] ; erw [ Finset.sum_product ] ; ring;
-  simp +decide [ Matrix.one_apply, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ]
+  simp [ Matrix.one_apply, mul_comm ]
 
 /-! ## Diagonal `Spin⁺`-invariance of the chirality operators -/
 
@@ -115,8 +115,8 @@ theorem chir1_chir2_comm : chir1 * chir2 = chir2 * chir1 := by
 theorem chir1_spinGenDiag_comm (μ ν : Fin 4) :
     chir1 * spinGenDiag μ ν = spinGenDiag μ ν * chir1 := by
       unfold spinGenDiag chir1;
-      simp +decide only [mul_add, add_mul, ← mul_kronecker_mul];
-      simp +decide [ BookProof.ChapterA3j.chir_spinGen_comm ]
+      simp only [mul_add, add_mul, ← mul_kronecker_mul];
+      simp [ BookProof.ChapterA3j.chir_spinGen_comm ]
 
 /--
 `1 ⊗ iγ⁵` commutes with the diagonal `Spin⁺` generator.
@@ -124,8 +124,8 @@ theorem chir1_spinGenDiag_comm (μ ν : Fin 4) :
 theorem chir2_spinGenDiag_comm (μ ν : Fin 4) :
     chir2 * spinGenDiag μ ν = spinGenDiag μ ν * chir2 := by
   unfold chir2 spinGenDiag
-  simp +decide only [mul_add, add_mul, ← mul_kronecker_mul]
-  simp +decide [BookProof.ChapterA3j.chir_spinGen_comm]
+  simp only [mul_add, add_mul, ← mul_kronecker_mul]
+  simp [BookProof.ChapterA3j.chir_spinGen_comm]
 
 /-! ## Parity anticommutes with each per-slot chirality -/
 
@@ -155,7 +155,7 @@ theorem projSum : projLL + projLR + projRL + projRR = 1 := by
   have h_sum : (projChirL + projChirR) ⊗ₖ (projChirL + projChirR) = 1 := by
     rw [ BookProof.ChapterA3j.projChirL_add_projChirR ] ; aesop;
   convert h_sum using 1;
-  ext; simp +decide [ projLL, projLR, projRL, projRR ] ; ring;
+  ext; simp [ projLL, projLR, projRL, projRR ] ; ring;
 
 /-! ## Diagonal `Spin⁺`-invariance of the four blocks -/
 
@@ -165,7 +165,7 @@ theorem projSum : projLL + projLR + projRL + projRR = 1 := by
 theorem projLL_spinGenDiag_comm (μ ν : Fin 4) :
     projLL * spinGenDiag μ ν = spinGenDiag μ ν * projLL := by
       unfold projLL spinGenDiag;
-      simp +decide only [mul_add, ← mul_kronecker_mul, add_mul];
+      simp only [mul_add, ← mul_kronecker_mul, add_mul];
       rw [ BookProof.ChapterA3j.projChirL_spinGen_comm ];
       norm_num
 
@@ -175,7 +175,7 @@ theorem projLL_spinGenDiag_comm (μ ν : Fin 4) :
 theorem projRR_spinGenDiag_comm (μ ν : Fin 4) :
     projRR * spinGenDiag μ ν = spinGenDiag μ ν * projRR := by
       unfold projRR spinGenDiag;
-      simp +decide only [mul_add, ← mul_kronecker_mul, add_mul];
+      simp only [mul_add, ← mul_kronecker_mul, add_mul];
       rw [ BookProof.ChapterA3j.projChirR_spinGen_comm ] ; norm_num
 
 /-! ## The payoff: parity swaps `(m,n) ↔ (n,m)` -/
@@ -187,14 +187,14 @@ chirality blocks: `γ⁰⊗γ⁰` maps `V⁻⊗V⁻` onto `V⁺⊗V⁺`, i.e.
 reps together.
 -/
 theorem parity_swaps_LL_RR : parityDiag * projRR = projLL * parityDiag := by
-  simp +decide [ parityDiag, projRR, projLL, ← Matrix.mul_kronecker_mul ];
+  simp [ parityDiag, projRR, projLL, ← Matrix.mul_kronecker_mul ];
   rw [ BookProof.ChapterA3j.parity_swaps_chirL ]
 
 /--
 Symmetrically, parity maps `V⁺⊗V⁺` onto `V⁻⊗V⁻`.
 -/
 theorem parity_swaps_RR_LL : parityDiag * projLL = projRR * parityDiag := by
-  simp +decide [parityDiag, projLL, projRR, ← Matrix.mul_kronecker_mul]
+  simp [parityDiag, projLL, projRR, ← Matrix.mul_kronecker_mul]
   rw [BookProof.ChapterA3j.parity_swaps_chirR]
 
 /--
@@ -202,7 +202,7 @@ Parity swaps the two mixed blocks `V⁺⊗V⁻ ↔ V⁻⊗V⁺`.
 -/
 theorem parity_swaps_LR_RL : parityDiag * projLR = projRL * parityDiag := by
   unfold parityDiag projLR projRL;
-  simp +decide only [← mul_kronecker_mul];
+  simp only [← mul_kronecker_mul];
   rw [ BookProof.ChapterA3j.parity_swaps_chirR, BookProof.ChapterA3j.parity_swaps_chirL ]
 
 /--

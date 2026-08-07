@@ -77,7 +77,7 @@ theorem ccr_mv {n : ℕ} (i j : Fin n) (p : MvPolynomial (Fin n) ℂ) :
     (MvPolynomial.pderiv i) (MvPolynomial.X j * p)
       - MvPolynomial.X j * (MvPolynomial.pderiv i) p
       = (if i = j then p else 0) := by
-  split_ifs <;> simp_all +decide [ MvPolynomial.pderiv_X ]
+  split_ifs <;> simp_all [ MvPolynomial.pderiv_X ]
 
 /-! ## F1.3 — Number operator -/
 
@@ -89,8 +89,8 @@ noncomputable def numberOp : ℂ[X] →ₗ[ℂ] ℂ[X] := creat ∘ₗ annih
 `N Xⁿ = n·Xⁿ` — so the spectrum of `N` on the monomial basis is `ℕ`.
 -/
 theorem numberOp_monomial (n : ℕ) : numberOp (X ^ n) = (n : ℂ) • X ^ n := by
-  induction n <;> simp_all +decide [ pow_succ', numberOp ];
-  simp +decide [ add_smul, mul_add, add_comm ]
+  induction n <;> simp_all [ pow_succ', numberOp ];
+  simp [ add_smul, mul_add, add_comm ]
 
 /-! ## F1.2 — Hermitian field representation -/
 
@@ -108,7 +108,7 @@ theorem field_ccr :
     fieldPhi ∘ₗ fieldPi - fieldPi ∘ₗ fieldPhi = (2 * Complex.I) • LinearMap.id := by
   ext p
   unfold fieldPhi fieldPi
-  simp +decide [← mul_assoc, ← Polynomial.C_mul_X_pow_eq_monomial,
+  simp [← mul_assoc, ← Polynomial.C_mul_X_pow_eq_monomial,
     Polynomial.coeff_X_pow, mul_sub, mul_add,
     mul_comm, LinearMap.comp_apply, LinearMap.smul_apply,
     LinearMap.add_apply, LinearMap.sub_apply]
@@ -139,7 +139,7 @@ The pairing with a monomial on the left collapses to a single coefficient:
 theorem bargmann_monomial_left (m : ℕ) (q : ℂ[X]) :
     bargmann (X ^ m) q = (m.factorial : ℂ) * q.coeff m := by
   unfold bargmann;
-  rw [ Finset.sum_eq_single m ] <;> simp_all +decide [ Polynomial.coeff_X_pow ]
+  rw [ Finset.sum_eq_single m ] <;> simp_all [ Polynomial.coeff_X_pow ]
 
 /--
 **F1.2** (monomial pairing): `⟪Xᵐ, Xⁿ⟫ = n!·δ_{mn}`.
@@ -156,10 +156,10 @@ are symmetric (Hermitian) w.r.t. the pairing.
 -/
 theorem bargmann_creat_annih (m n : ℕ) :
     bargmann (creat (X ^ m)) (X ^ n) = bargmann (X ^ m) (annih (X ^ n)) := by
-  simp +decide [ bargmann_monomial_left ];
+  simp [ bargmann_monomial_left ];
   norm_num [ ← pow_succ', Polynomial.coeff_derivative ];
-  split_ifs <;> simp_all +decide [ bargmann_monomial ];
-  norm_cast ; simp +decide [ ← ‹_›, Nat.factorial_succ, mul_comm ]
+  split_ifs <;> simp_all [ bargmann_monomial ];
+  norm_cast ; simp [ ← ‹_›, Nat.factorial_succ, mul_comm ]
 
 /-! ## F1.4 — Quadratic ordering and the vacuum energy (HEADLINE) -/
 

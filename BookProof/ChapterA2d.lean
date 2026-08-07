@@ -114,11 +114,11 @@ lemma conjCLM_unitScale (α : V ≃ₗᵢ[ℂ] W) (l : ℂ) (hl : ‖l‖ = 1) (
   ext x;
   -- By definition of `unitScaleEquiv`, we know that `unitScaleEquiv l hl x = l • x`.
   have h_unitScaleEquiv : (α.trans (unitScaleEquiv l hl)).symm x = (1 / l) • (α.symm x) := by
-    simp +decide [ unitScaleEquiv ];
+    simp [ unitScaleEquiv ];
     exact α.symm.map_smul _ _;
   convert congr_arg ( fun y => α ( l • m y ) ) h_unitScaleEquiv using 1;
-  · simp +decide [ conjCLM, unitScaleEquiv ];
-  · simp +decide [ smul_smul, show l ≠ 0 by rintro rfl; simp +decide at hl ]
+  · simp [ conjCLM, unitScaleEquiv ];
+  · simp [ smul_smul, show l ≠ 0 by rintro rfl; simp at hl ]
 
 /-
 The transported conjugation `ϑ = α θ_M α⁻¹` commutes with `N` when `α` is a
@@ -127,8 +127,8 @@ system isometry and `θ_M` commutes with `M`.
 lemma conjAU_commutesAntiUnitary {M : System ℂ V} {N : System ℂ W} {α : V ≃ₗᵢ[ℂ] W}
     (hα : IsSystemIso M N α) {θ : AntiUnitary V} (hθ : CommutesAntiUnitary M θ) :
     CommutesAntiUnitary N (conjAU α θ) := by
-  intro n hn; simp_all +decide [ IsSystemIso, CommutesAntiUnitary ] ;
-  obtain ⟨ m, hm, rfl ⟩ := hn; simp +decide [ conjCLM_apply, hθ m hm ] ;
+  intro n hn; simp_all [ IsSystemIso, CommutesAntiUnitary ] ;
+  obtain ⟨ m, hm, rfl ⟩ := hn; simp [ conjCLM_apply, hθ m hm ] ;
 
 /-
 **Prop 15 (R-real systems: isometric ⇔ complexifications isometric).**
@@ -159,13 +159,13 @@ theorem Rreal_isometric_iff_complexification_isometric
     exact BookProof.ChapterA.antiisometry_unique_up_to_phase N hN
       (conjAU_commutesAntiUnitary hα hθM.commutesAntiUnitary) hθN.commutesAntiUnitary
   obtain ⟨l, hl⟩ : ∃ l : ℂ, l^2 = c ∧ ‖l‖ = 1 := exists_unit_sqrt c hc.left;
-  refine' ⟨ α.trans ( unitScaleEquiv l hl.2 ), _, _ ⟩ <;> simp_all +decide [ IsSystemIso ];
+  refine' ⟨ α.trans ( unitScaleEquiv l hl.2 ), _, _ ⟩ <;> simp_all [ IsSystemIso ];
   · ext; simp [conjCLM_unitScale];
-  · intro x; simp +decide [ ← hl.1, smul_smul, mul_comm ] ;
+  · intro x; simp [ ← hl.1 ] ;
     have h_unitScaleEquiv : α (θM (l • x)) = (starRingEnd ℂ) l • α (θM x) := by
       convert α.map_smul ( starRingEnd ℂ l ) ( θM x ) using 1;
       exact congr_arg _ ( θM.map_smulₛₗ _ _ );
-    simp +decide [ h_unitScaleEquiv, sq, mul_assoc, hl.2 ];
-    simp +decide [ ← smul_assoc, mul_assoc, hl.2, Complex.mul_conj, Complex.normSq_eq_norm_sq ]
+    simp [ h_unitScaleEquiv, sq ];
+    simp [ ← smul_assoc, mul_assoc, hl.2, Complex.mul_conj, Complex.normSq_eq_norm_sq ]
 
 end BookProof.ChapterA

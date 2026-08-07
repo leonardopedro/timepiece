@@ -62,21 +62,21 @@ pointwise product of sign vectors, exhibiting it as a group homomorphism from
 -/
 theorem flipVec_xor (b₁ b₂ : Fin n → Bool) :
     flipVec (fun k => xor (b₁ k) (b₂ k)) = flipVec b₁ * flipVec b₂ := by
-  ext k; unfold flipVec; by_cases h₁ : b₁ k <;> by_cases h₂ : b₂ k <;> simp +decide [h₁, h₂]
+  ext k; unfold flipVec; by_cases h₁ : b₁ k <;> by_cases h₂ : b₂ k <;> simp [h₁, h₂]
 
 /-
 Each sign vector is self-inverse (the group is 2-torsion).
 -/
 theorem flipVec_mul_self (b : Fin n → Bool) :
     flipVec b * flipVec b = (1 : Fin n → ℝ) := by
-  ext k; unfold flipVec; by_cases h : b k <;> simp +decide [h]
+  ext k; unfold flipVec; by_cases h : b k <;> simp [h]
 
 /-
 Distinct boolean flip choices give distinct sign vectors: `flipVec` is
 injective, so the diagonal gauge group really has `2ⁿ` elements.
 -/
 theorem flipVec_injective : Function.Injective (flipVec : (Fin n → Bool) → (Fin n → ℝ)) := by
-  intro b₁ b₂ h; ext k; replace h := congr_fun h k; simp_all +decide [flipVec]
+  intro b₁ b₂ h; ext k; replace h := congr_fun h k; simp_all [flipVec]
   grind
 
 /-

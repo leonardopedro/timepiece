@@ -49,9 +49,9 @@ theorem Complex.normSq_eq_iff_exists_phase (z w : ℂ) :
     Complex.normSq z = Complex.normSq w ↔ ∃ θ : ℝ, w = Complex.exp (θ * Complex.I) * z := by
   constructor <;> intro h;
   · rw [ ← Complex.norm_mul_exp_arg_mul_I w, ← Complex.norm_mul_exp_arg_mul_I z ];
-    simp_all +decide [ Complex.normSq_eq_norm_sq ];
-    exact ⟨ w.arg - z.arg, by push_cast; rw [ mul_left_comm, ← Complex.exp_add ] ; simp +decide [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ⟩;
-  · obtain ⟨ θ, rfl ⟩ := h; simp +decide [ Complex.normSq_eq_norm_sq, Complex.norm_exp ] ;
+    simp_all [ Complex.normSq_eq_norm_sq ];
+    exact ⟨ w.arg - z.arg, by push_cast; rw [ mul_left_comm, ← Complex.exp_add ] ; simp [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ⟩;
+  · obtain ⟨ θ, rfl ⟩ := h; simp [ Complex.normSq_eq_norm_sq, Complex.norm_exp ] ;
 
 /-
 **Born fiber (complex case).** Two complex wave-functions `u, v : Fin n → ℂ`
@@ -66,7 +66,7 @@ theorem born_fiber_complex {n : ℕ} (u v : Fin n → ℂ) :
   constructor;
   · intro h;
     exact ⟨ fun k => Classical.choose ( Complex.normSq_eq_iff_exists_phase ( u k ) ( v k ) |>.1 ( h k ) ), fun k => Classical.choose_spec ( Complex.normSq_eq_iff_exists_phase ( u k ) ( v k ) |>.1 ( h k ) ) ⟩;
-  · rintro ⟨ θ, hθ ⟩ k; simp +decide [ hθ k, Complex.normSq_eq_norm_sq ] ;
+  · rintro ⟨ θ, hθ ⟩ k; simp [ hθ k, Complex.normSq_eq_norm_sq ] ;
 
 /-
 Pointwise real sign fiber: two reals have equal squares iff they differ by a

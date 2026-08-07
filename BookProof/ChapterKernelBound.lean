@@ -73,7 +73,7 @@ bound over the outputs `y`:
 theorem kernel_hs_sq_bound (Ψ : ιy → ιx → 𝕜) (Φ : ιx → 𝕜) :
     ∑ y, ‖kernelOp Ψ Φ y‖ ^ 2
       ≤ (∑ y, ∑ x, ‖Ψ y x‖ ^ 2) * (∑ x, ‖Φ x‖ ^ 2) := by
-  exact le_trans ( Finset.sum_le_sum fun y _ => kernel_row_bound Ψ Φ y ) ( by simp +decide [ Finset.sum_mul _ _ _ ] )
+  exact le_trans ( Finset.sum_le_sum fun y _ => kernel_row_bound Ψ Φ y ) ( by simp [ Finset.sum_mul _ _ _ ] )
 
 /--
 **The book's inequality verbatim** (`L²` form of the Hilbert–Schmidt bound):

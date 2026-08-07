@@ -56,7 +56,7 @@ The Minkowski form is symmetric.
 -/
 theorem minkForm_comm (x y : Fin 4 → ℝ) : minkForm x y = minkForm y x := by
   unfold minkForm lower metric; norm_num [ Fin.sum_univ_four ] ; ring;
-  simp +decide [ *, Matrix.mulVec ] ; ring!;
+  simp [ *, Matrix.mulVec ] ; ring!;
 
 /-
 `minkForm x x` is the Minkowski square `minkSq x`.
@@ -84,7 +84,7 @@ The temporal part is a scalar multiple of `v`: `Πx = −⟨x,v⟩_η · v`.
 theorem timePart_eq_smul (v x : Fin 4 → ℝ) :
     timePart v x = (-(minkForm x v)) • v := by
   ext a;
-  unfold timePart minkForm; simp +decide [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
+  unfold timePart minkForm; simp [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
   unfold timeProj; norm_num; ring;
 
 /-
@@ -94,9 +94,9 @@ spatial hyperplane `v^⊥`.
 theorem spatialPart_orthogonal (v x : Fin 4 → ℝ) (hv : minkSq v = -1) :
     minkForm (spatialPart v x) v = 0 := by
   unfold minkForm;
-  unfold spatialPart; simp +decide [ *, Matrix.mulVec, dotProduct ] ; ring;
-  unfold spatialProj; simp +decide [ *, Matrix.mulVec, dotProduct ] ; ring;
-  unfold minkSq at hv; simp_all +decide [ Fin.sum_univ_four, lower ] ; ring;
+  unfold spatialPart; simp [ *, Matrix.mulVec, dotProduct ] ; ring;
+  unfold spatialProj; simp [ * ] ; ring;
+  unfold minkSq at hv; simp_all [ Fin.sum_univ_four, lower ] ; ring;
   grobner
 
 /-
@@ -107,7 +107,7 @@ theorem parts_orthogonal (v x : Fin 4 → ℝ) (hv : minkSq v = -1) :
     minkForm (spatialPart v x) (timePart v x) = 0 := by
   rw [ timePart_eq_smul ];
   convert congr_arg ( fun y => ( -minkForm x v ) * y ) ( spatialPart_orthogonal v x hv ) using 1 ;    ring;
-  · unfold minkForm lower; simp +decide [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
+  · unfold minkForm lower; simp [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
   · ring
 
 /-
@@ -119,10 +119,10 @@ theorem split_unique (v x s : Fin 4 → ℝ) (c : ℝ) (hv : minkSq v = -1)
     (hs : minkForm s v = 0) (hx : x = s + c • v) :
     s = spatialPart v x ∧ c • v = timePart v x := by
   unfold spatialPart timePart;
-  simp_all +decide [ spatialProj, timeProj, Matrix.mulVec_add, Matrix.mulVec_smul ];
-  simp_all +decide [ Matrix.add_mulVec, Matrix.mulVec_smul, minkForm ];
-  simp_all +decide [ funext_iff, Matrix.mulVec, dotProduct ];
-  simp_all +decide [ mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, minkSq ];
-  simp_all +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul, mul_assoc, mul_comm, mul_left_comm, Finset.sum_add_distrib ]
+  simp_all [ spatialProj, timeProj, Matrix.mulVec_add, Matrix.mulVec_smul ];
+  simp_all [ Matrix.add_mulVec, minkForm ];
+  simp_all [ funext_iff, Matrix.mulVec, dotProduct ];
+  simp_all [ mul_comm, mul_left_comm, Finset.mul_sum _ _ _, minkSq ];
+  simp_all [ ← Finset.mul_sum _ _ _ ]
 
 end BookProof.ChapterGravitySplit

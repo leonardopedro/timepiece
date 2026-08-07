@@ -86,8 +86,8 @@ theorem sum_signed_permMat_sq {N : ℕ} :
           (∑ σ : Equiv.Perm (Fin N), signC σ • permMat σ)
         = ∑ σ : Equiv.Perm (Fin N), ∑ τ : Equiv.Perm (Fin N),
             (signC σ * signC τ) • permMat (σ * τ) := by
-    simp +decide only [Finset.sum_mul_sum]
-    simp +decide [mul_comm, smul_smul, permMat_mul]
+    simp only [Finset.sum_mul_sum]
+    simp [mul_comm, smul_smul, permMat_mul]
   -- For each fixed `σ`, reindex the inner sum by `ρ = σ * τ`; the signed scalar
   -- collapses to `signC ρ`, independent of `σ`.
   have h_inner_sum : ∀ σ : Equiv.Perm (Fin N),
@@ -97,9 +97,9 @@ theorem sum_signed_permMat_sq {N : ℕ} :
     apply Finset.sum_bij (fun τ _ => σ * τ)
     · simp
     · aesop
-    · exact fun b _ => ⟨σ⁻¹ * b, Finset.mem_univ _, by simp +decide⟩
-    · simp +decide [signC]
-  simp_all +decide [Finset.card_univ, Fintype.card_perm]
+    · exact fun b _ => ⟨σ⁻¹ * b, Finset.mem_univ _, by simp⟩
+    · simp [signC]
+  simp_all [Finset.card_univ, Fintype.card_perm]
   norm_num [Algebra.smul_def]
 
 /-- `projAnti N` is idempotent — a genuine projector onto the exterior power. -/

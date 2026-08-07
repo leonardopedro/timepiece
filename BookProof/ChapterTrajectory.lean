@@ -116,9 +116,9 @@ theorem condProb_nonneg (U V : Matrix (Fin n) (Fin n) ℂ) (psi : Fin n → ℂ)
 /-- Columns of a unitary matrix have unit `ℓ²` norm: `∑_f |V_{f a}|² = 1`. -/
 theorem transProb_sum (V : Matrix (Fin n) (Fin n) ℂ) (hV : Vᴴ * V = 1)
     (a : Fin n) : ∑ f, transProb V f a = 1 := by
-  unfold transProb; simp +decide [ ← Matrix.ext_iff ] at *;
-  simp_all +decide [ Matrix.mul_apply, Complex.normSq, Complex.sq_norm ];
-  simp_all +decide [ Complex.ext_iff, Matrix.one_apply ]
+  unfold transProb; simp [ ← Matrix.ext_iff ] at *;
+  simp_all [ Matrix.mul_apply, Complex.normSq, Complex.sq_norm ];
+  simp_all [ Complex.ext_iff, Matrix.one_apply ]
 
 /-- **Reconstruction consistency.**  Summing the post-selected joint law over all
 final outcomes recovers the intermediate Born distribution: the intermediate
@@ -140,12 +140,12 @@ theorem midProb_sum (U : Matrix (Fin n) (Fin n) ℂ) (psi : Fin n → ℂ)
         = ∑ a, x a * starRingEnd ℂ (x a) := by
       have h_step : ∑ a, (U *ᵥ x) a * starRingEnd ℂ ((U *ᵥ x) a)
           = ∑ a, (starRingEnd ℂ (x a)) * (Uᴴ *ᵥ (U *ᵥ x)) a := by
-        simp +decide [Matrix.mulVec, dotProduct, Finset.mul_sum,
+        simp [Matrix.mulVec, dotProduct, Finset.mul_sum,
           mul_assoc, mul_comm, mul_left_comm]
         exact Finset.sum_comm.trans (Finset.sum_congr rfl fun _ _ =>
           Finset.sum_congr rfl fun _ _ =>
             Finset.sum_congr rfl fun _ _ => by ring)
-      simp_all +decide [mul_comm]
+      simp_all [mul_comm]
     convert congr_arg Complex.re h_sum using 1 <;>
       norm_num [Complex.normSq, Complex.sq_norm]
   exact h_unitary psi
@@ -176,7 +176,7 @@ open BookProof.ChapterDoubleSlit
 
 /-- Every Hadamard entry has squared modulus `1/2`. -/
 theorem transProb_H (f a : Fin 2) : transProb H f a = 1 / 2 := by
-  fin_cases f <;> fin_cases a <;> simp +decide [transProb, H]
+  fin_cases f <;> fin_cases a <;> simp [transProb, H]
 
 /-- Intermediate Born distribution for the double slit is uniform `1/2`. -/
 theorem midProb_H (a : Fin 2) : midProb H psi0 a = 1 / 2 := by
@@ -200,7 +200,7 @@ theorem dslit_coherentFinal :
 intermediate law. -/
 theorem dslit_condProb (f a : Fin 2) : condProb H H psi0 f a = 1 / 2 := by
   fin_cases f <;> fin_cases a <;>
-    simp +decide [condProb, jointProb, midProb_H, transProb_H, dslit_finalProb]
+    simp [condProb, jointProb, midProb_H, transProb_H, dslit_finalProb]
 
 /-- **The self-interference "mystery".**  The reconstructed (post-selected,
 collapsed) final law differs from the coherent final law: `1/2 ≠ 1`. -/

@@ -65,7 +65,7 @@ noncomputable def swap : M2 :=
 -/
 theorem swap_kronecker (A B : Matrix (Fin 4) (Fin 4) ℂ) :
     swap * (A ⊗ₖ B) = (B ⊗ₖ A) * swap := by
-  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp +decide [ Matrix.mul_apply, swap ];
+  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp [ Matrix.mul_apply, swap ];
   rw [ ← Finset.sum_filter ] ; rw [ ← Finset.sum_filter ] ;
   rw [ show ( Finset.univ.filter fun a : Fin 4 × Fin 4 => i = a.2 ∧ j = a.1 ) = { ( j, i ) } from ?_, show ( Finset.univ.filter fun a : Fin 4 × Fin 4 => a.1 = l ∧ a.2 = k ) = { ( l, k ) } from ?_ ] <;> norm_num;
   · ring;

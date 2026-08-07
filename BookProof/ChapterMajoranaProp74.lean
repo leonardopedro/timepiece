@@ -110,8 +110,8 @@ theorem prop74_intertwine (g ns : Matrix (Fin 4) (Fin 4) ℂ)
     (hq : q = 2 * c * s * E) :
     Qmat g ns m q * Sinv (ns * g) c s = Sinv (ns * g) c s * Rmat g E := by
       unfold Qmat Sinv Rmat;
-      simp +decide [ Matrix.fromBlocks_multiply, ← Matrix.mul_assoc, ← Matrix.smul_eq_diagonal_mul ];
-      simp_all +decide [ mul_assoc, mul_left_comm, mul_comm ];
+      simp [ Matrix.fromBlocks_multiply, ← Matrix.mul_assoc ];
+      simp_all [ mul_assoc, mul_left_comm, mul_comm ];
       refine' ⟨ _, _, _, _ ⟩ <;> ext <;> norm_num <;> ring;
       · rw [ show ( s : ℂ ) ^ 2 = 1 - c ^ 2 by norm_cast; linarith ] ; ring;
       · rw [ show ( s : ℂ ) ^ 3 = s * s ^ 2 by ring, show ( s : ℂ ) ^ 2 = 1 - c ^ 2 by norm_cast; linarith ] ; ring;
@@ -127,9 +127,9 @@ theorem prop74_Rj_comm (g ns : Matrix (Fin 4) (Fin 4) ℂ)
     (hg2 : g * g = 1) (hgns : g * ns = -(ns * g)) (c s pj : ℝ) :
     Dmat g pj * Sinv (ns * g) c s = Sinv (ns * g) c s * Dmat g pj := by
       unfold Dmat Sinv;
-      simp +decide [ fromBlocks_multiply, Matrix.mul_assoc ];
-      simp +decide [ ← mul_assoc, ← smul_assoc, hgns ];
-      exact ⟨ by ext; simp +decide [ mul_assoc, mul_left_comm ], by ext; simp +decide [ mul_assoc, mul_left_comm ], by ext; simp +decide [ mul_assoc, mul_left_comm ] ⟩
+      simp [ fromBlocks_multiply, Matrix.mul_assoc ];
+      simp [ ← mul_assoc, ← smul_assoc, hgns ];
+      exact ⟨ by ext; simp [ mul_assoc, mul_left_comm ], by ext; simp [ mul_assoc, mul_left_comm ], by ext; simp [ mul_assoc, mul_left_comm ] ⟩
 
 /-! ## The concrete Dirac-model instantiations -/
 

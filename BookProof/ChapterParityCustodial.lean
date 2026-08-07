@@ -57,8 +57,8 @@ theorem commutant_pauli_scalar (M : Matrix (Fin 2) (Fin 2) ℂ)
     (h1 : M * pauli1 = pauli1 * M) (h2 : M * pauli2 = pauli2 * M)
     (h3 : M * pauli3 = pauli3 * M) :
     M = (M 0 0) • (1 : Matrix (Fin 2) (Fin 2) ℂ) := by
-  simp_all +decide [← Matrix.ext_iff, Fin.forall_fin_two, mul_comm, mul_left_comm,
-    Fin.sum_univ_succ, Fin.sum_univ_zero, Matrix.mul_apply, Matrix.one_apply]
+  simp_all [← Matrix.ext_iff, Fin.forall_fin_two, mul_comm, 
+    Fin.sum_univ_succ, Matrix.mul_apply, Matrix.one_apply]
   unfold pauli1 pauli2 pauli3 at *
   norm_num at *
   grind
@@ -73,8 +73,8 @@ theorem pauli_basis_indep (c0 c1 c2 c3 : ℂ)
     (h : c0 • (1 : Matrix (Fin 2) (Fin 2) ℂ) + c1 • pauli1 + c2 • pauli2 + c3 • pauli3 = 0) :
     c0 = 0 ∧ c1 = 0 ∧ c2 = 0 ∧ c3 = 0 := by
   unfold pauli1 pauli2 pauli3 at h
-  simp_all +decide [← Matrix.ext_iff, Fin.forall_fin_two]
-  simp_all +decide [Complex.ext_iff, add_eq_zero_iff_eq_neg]
+  simp_all [← Matrix.ext_iff, Fin.forall_fin_two]
+  simp_all [Complex.ext_iff, add_eq_zero_iff_eq_neg]
   refine ⟨⟨by linarith, by linarith⟩, ⟨by linarith, by linarith⟩,
     ⟨by linarith, by linarith⟩, by linarith, by linarith⟩
 

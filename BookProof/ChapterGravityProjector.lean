@@ -65,9 +65,9 @@ of the spatial projector.
 theorem spatialProj_mulVec_self (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (spatialProj v).mulVec v = 0 := by
   ext a;
-  simp +decide [ spatialProj, Matrix.mulVec, dotProduct ];
-  simp_all +decide [ Finset.sum_add_distrib, add_mul, mul_assoc, minkSq, lower ];
-  simp_all +decide [ mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Matrix.one_apply ];
+  simp [ spatialProj, Matrix.mulVec, dotProduct ];
+  simp_all [ Finset.sum_add_distrib, add_mul, mul_assoc, minkSq, lower ];
+  simp_all [ mul_comm, Matrix.one_apply ];
   rw [ ← Finset.mul_sum _ _ _, hv ] ; ring
 
 /-
@@ -77,11 +77,11 @@ theorem spatialProj_idempotent (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     spatialProj v * spatialProj v = spatialProj v := by
   -- M*M at (a,b) = ∑_c (v a * lower v c)(v c * lower v b) = v a * lower v b * (∑_c lower v c * v c)
   have hM2 : ∀ a b, (∑ c, (v a * lower v c) * (v c * lower v b)) = -(v a * lower v b) := by
-    simp_all +decide [ minkSq, lower, Fin.sum_univ_four ];
+    simp_all [ minkSq, lower, Fin.sum_univ_four ];
     grind;
-  ext a b;    simp +decide [ *, Matrix.mul_apply, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul ] ;    ring;
-  simp_all +decide [ spatialProj, Matrix.mul_apply, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul ] ; ring;
-  simp_all +decide [ Finset.sum_add_distrib, mul_assoc, Matrix.one_apply ] ; ring
+  ext a b;    simp [ *, Matrix.mul_apply ] ;    ring;
+  simp_all [ spatialProj ] ; ring;
+  simp_all [ Finset.sum_add_distrib, mul_assoc, Matrix.one_apply ] ; ring
 
 /-
 `χ` has trace `3`: it is a rank-`3` projector (the `3`-dimensional spatial
@@ -99,9 +99,9 @@ is the orthogonal projection onto the spatial hyperplane `v^⊥`.
 theorem spatialProj_mulVec_of_orthogonal (v x : Fin 4 → ℝ)
     (hx : ∑ a, lower v a * x a = 0) :
     (spatialProj v).mulVec x = x := by
-  simp_all +decide [ spatialProj, Matrix.mulVec, funext_iff ];
-  simp_all +decide [ Matrix.one_apply, dotProduct, Finset.sum_add_distrib, mul_assoc, Finset.mul_sum _ _ _ ];
-  simp_all +decide [ Finset.sum_add_distrib, add_mul, Finset.mul_sum _ _ _, Finset.sum_mul ];
-  simp_all +decide [ mul_assoc, ← Finset.mul_sum _ _ _ ]
+  simp_all [ spatialProj, Matrix.mulVec, funext_iff ];
+  simp_all [ Matrix.one_apply, dotProduct ];
+  simp_all [ Finset.sum_add_distrib, add_mul ];
+  simp_all [ mul_assoc, ← Finset.mul_sum _ _ _ ]
 
 end BookProof.ChapterGravityProjector

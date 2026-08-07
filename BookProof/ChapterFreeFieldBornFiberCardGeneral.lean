@@ -84,8 +84,8 @@ is already `0`, so only the support carries sign information.)
 -/
 theorem fiberPoint_injective (p : Fin n → ℝ) :
     Function.Injective (fiberPoint p) := by
-  intro b b' h; simp_all +decide [ fiberPoint, signFlip, bornSection ] ;
-  simp_all +decide [ funext_iff, sBool ];
+  intro b b' h; simp_all [ fiberPoint, signFlip, bornSection ] ;
+  simp_all [ funext_iff, sBool ];
   grind
 
 /-
@@ -105,8 +105,8 @@ theorem mem_fiber_iff_general {p : ↥(stdSimplex ℝ (Fin n))}
     use fun k => decide (s k.val = 1);
     ext k;
     by_cases hk : k ∈ posSupport p.val <;>
-      simp_all +decide [ fiberPoint, signFlip_apply, bornSection_apply ];
-    · cases hs.1 k <;> simp_all +decide [ sBool ];
+      simp_all [ fiberPoint, signFlip_apply, bornSection_apply ];
+    · cases hs.1 k <;> simp_all [ sBool ];
       · rfl;
       · norm_num [ hk ];
         exact if_pos hk;
@@ -114,7 +114,7 @@ theorem mem_fiber_iff_general {p : ↥(stdSimplex ℝ (Fin n))}
       exact Or.inr <| Real.sqrt_eq_zero_of_nonpos hk;
   · rintro ⟨ b, hb ⟩;
     convert bornMap_fiberPoint p.2 b;
-    constructor <;> intro h <;> simp_all +decide [ Subtype.ext_iff ];
+    constructor <;> intro h <;> simp_all [ Subtype.ext_iff ];
     · convert bornMap_fiberPoint p.2 b;
     · convert h using 1;
       exact hb ▸ rfl

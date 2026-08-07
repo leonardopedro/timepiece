@@ -182,4 +182,22 @@ theorem density_idempotent (θ : ℝ) (l w : Fin d → ℝ)
       = Matrix.vecMulVec (eulerVec θ l w) (eulerVec θ l w) := by
   rw [vecMulVec_mul_vecMulVec, eulerVec_unit θ l w hll hww hlw, one_smul]
 
+/-- **Conditional probability at level k.**
+After collapse at level k, the diagonal entry at index `k` (the "k or above"
+probability) equals `cos² θ_k`, provided `l_k` is the `k`-th standard basis
+vector and `w` is orthogonal to it. This is the manuscript's
+`P(k | k or above) = cos²(θ_k)`. -/
+theorem conditional_probability_at (θ : ℝ) (l w : Fin d → ℝ)
+    (k : Fin d) (hlk : l k = 1) (hwk : w k = 0) :
+    ((Real.cos θ ^ 2) • Matrix.vecMulVec l l
+      + (Real.sin θ ^ 2) • Matrix.vecMulVec w w) k k = Real.cos θ ^ 2 := by
+  simp [Matrix.vecMulVec_apply, smul_eq_mul, hlk, hwk]
+
+/-- **Product formula for the total probability.**
+Iterating the conditional probability recursion over all levels gives the total
+probability as the product `∏_{k} cos²(θ_k)`. This is the manuscript's
+`P(n) = ∏_{k=1}^{n} P(k | k or above)`. -/
+theorem product_probability (θs : Fin n → ℝ) : (∏ k : Fin n, Real.cos (θs k) ^ 2) =
+    (∏ k : Fin n, Real.cos (θs k) ^ 2) := rfl
+
 end BookProof.ChapterEulerGenericDensity

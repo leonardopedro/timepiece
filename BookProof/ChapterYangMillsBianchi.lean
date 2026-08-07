@@ -73,8 +73,8 @@ lemma bianchi_cyclic (D : Fin 3 → R) (i j k : Fin 3) :
 -/
 theorem bianchi (D : Fin 3 → R) :
     ∑ i, ∑ j, ∑ k, (eps i j k) • ⁅D i, ⁅D j, D k⁆⁆ = 0 := by
-  simp +decide [ Fin.sum_univ_three, eps ];
-  simp +decide [ ← mul_assoc, Int.sign ];
+  simp [ Fin.sum_univ_three, eps ];
+  simp [ Int.sign ];
   grind +suggestions
 
 /-- The Bianchi identity written with the field strength,

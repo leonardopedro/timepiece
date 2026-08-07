@@ -66,8 +66,8 @@ lemma structureConstant_formula
     (a b d : Fin d) :
     (f a b d : ℂ) = -2 * Complex.I * ((T a * T b - T b * T a) * T d).trace := by
   rw [ hf ];
-  simp_all +decide [ mul_assoc, Finset.mul_sum _ _ _, Finset.sum_mul, Matrix.mul_sum, Matrix.sum_mul ];
-  simp_all +decide [ ← mul_assoc, ← Finset.mul_sum _ _ _, ← Finset.sum_mul, TraceOrthonormal ];
+  simp_all [ mul_assoc, Finset.mul_sum _ _ _, Finset.sum_mul ];
+  simp_all [ ← mul_assoc, TraceOrthonormal ];
   ring
 
 /-
@@ -77,8 +77,8 @@ lemma structureConstant_antisymm_swap
     (hT : TraceOrthonormal T) (hf : ClosesWithStructureConstants T f)
     (a b c : Fin d) :
     f a b c = - f b a c := by
-  have := structureConstant_formula hT hf a b c;    ( have := structureConstant_formula hT hf b a c; ( simp_all +decide [ Complex.ext_iff, mul_assoc ] ;    ) );
-  simp +decide [ sub_mul, mul_sub, Matrix.trace ]
+  have := structureConstant_formula hT hf a b c;    ( have := structureConstant_formula hT hf b a c; ( simp_all [ Complex.ext_iff, mul_assoc ] ;    ) );
+  simp [ sub_mul, mul_sub, Matrix.trace ]
 
 /-
 **Antisymmetry in the last two indices**: `f_{abc} = - f_{acb}`.
@@ -92,9 +92,9 @@ lemma structureConstant_antisymm_rotate
   have h_f_def : ∀ a b c, (f a b c : ℂ) = -2 * Complex.I * ((T a * T b - T b * T a) * T c).trace :=
     fun a b c => structureConstant_formula hT hf a b c
   rw [ ← Complex.ofReal_inj ] ; push_cast [ h_f_def ] ; ring;
-  simp +decide [ mul_assoc, sub_mul, mul_sub, Matrix.trace_mul_comm ( T a ) ];
-  simp +decide [ ← mul_assoc, ← Matrix.trace_mul_comm ( T b ) ];
-  rw [ ← Matrix.trace_mul_comm ] ; simp +decide [ mul_assoc ]
+  simp [ mul_assoc, sub_mul, mul_sub, Matrix.trace_mul_comm ( T a ) ];
+  simp [ ← mul_assoc, ← Matrix.trace_mul_comm ( T b ) ];
+  rw [ ← Matrix.trace_mul_comm ] ; simp [ mul_assoc ]
 
 /-- **Total antisymmetry** of the structure constants: swapping the first two
 or the last two indices flips the sign. -/
@@ -119,15 +119,15 @@ lemma structureConstant_jacobi
       have h_comm : ∀ a b c,        (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = - ∑ e,        ∑ g, (f a b e * f e c g : ℂ) • T g := by
         intros a b c
         have h_comm : (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = Complex.I • (∑ e, (f a b e : ℂ) • (T e * T c - T c * T e)) := by
-          simp +decide [ hf a b, mul_sub, sub_mul, Finset.mul_sum _ _ _, Finset.sum_mul, mul_assoc,
+          simp [ hf a b, Finset.mul_sum _ _ _, Finset.sum_mul, 
             smul_smul ];
-          simp +decide only [smul_sub, Finset.sum_sub_distrib];
+          simp only [smul_sub, Finset.sum_sub_distrib];
         convert h_comm using 1;
-        simp +decide [ Finset.smul_sum, smul_smul, hf ];
+        simp [ Finset.smul_sum ];
         rw [ ← Finset.sum_neg_distrib ] ; congr ; ext e ; rw [ hf e c ] ;
-        simp +decide [ Finset.smul_sum, smul_smul, mul_assoc, mul_left_comm,
+        simp [ Finset.smul_sum, 
           Finset.mul_sum _ _ _ ] ;
-        simp +decide [ Complex.ext_iff, Finset.sum_apply, Matrix.sum_apply ];
+        simp [ Complex.ext_iff, Matrix.sum_apply ];
         exact ⟨ Finset.sum_congr rfl fun _ _ => by ring, Finset.sum_congr rfl fun _ _ => by ring ⟩;
       -- Applying the hypothesis `h_comm` to each term in the sum, we get:
       have h_sum_comm :
@@ -135,15 +135,15 @@ lemma structureConstant_jacobi
             -((T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a))
               - ((T b * T c - T c * T b) * T a - T a * (T b * T c - T c * T b))
               - ((T c * T a - T a * T c) * T b - T b * (T c * T a - T a * T c)) := by
-        simp +decide [ h_comm, Finset.sum_add_distrib, add_smul ];
+        simp [ h_comm, Finset.sum_add_distrib, add_smul ];
       convert h_sum_comm using 1;
       · norm_cast;
       · grind +locals;
     convert congr_arg ( fun m => Matrix.trace ( m * T h ) ) h_sum_zero using 1;
-    · simp +decide [ Matrix.sum_mul, Matrix.trace_sum ];
+    · simp [ Matrix.sum_mul, Matrix.trace_sum ];
     · norm_num;
-  simp_all +decide [ mul_comm, mul_assoc, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul,
+  simp_all [ 
     TraceOrthonormal ];
-  rw [ ← @Complex.ofReal_inj ] ; simp_all +decide [ ← Finset.sum_mul _ _ _ ]
+  rw [ ← @Complex.ofReal_inj ] ; simp_all [ ← Finset.sum_mul _ _ _ ]
 
 end BookProof.YangMillsSU3

@@ -99,7 +99,7 @@ theorem IsColumnStochastic.mulVec_isProbabilityVector
     exact Finset.sum_nonneg (fun j _ => mul_nonneg (hnn i j) (hvnn j))
   · have hc0 := hcol 0
     have hc1 := hcol 1
-    simp [Fin.sum_univ_two] at hc0 hc1
+    simp only [Fin.sum_univ_two] at hc0 hc1
     have hv2 : v 0 + v 1 = 1 := by simpa [Fin.sum_univ_two] using hvsum
     simp only [Matrix.mulVec, dotProduct, Fin.sum_univ_two]
     linear_combination v 0 * hc0 + v 1 * hc1 + hv2
@@ -141,7 +141,7 @@ theorem isColumnStochastic_eq_Mab {M : Matrix (Fin 2) (Fin 2) ℝ}
   obtain ⟨hnn, hcol⟩ := hM
   have hc0 := hcol 0
   have hc1 := hcol 1
-  simp [Fin.sum_univ_two] at hc0 hc1
+  simp only [Fin.sum_univ_two] at hc0 hc1
   obtain ⟨a, ha⟩ := exists_cos_sq (hnn 0 0) (by linarith [hnn 1 0])
   obtain ⟨b, hb⟩ := exists_cos_sq (hnn 0 1) (by linarith [hnn 1 1])
   refine ⟨a, b, ?_⟩

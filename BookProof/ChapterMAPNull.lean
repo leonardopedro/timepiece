@@ -31,7 +31,8 @@ A posterior sample almost surely does not equal a fixed MAP point.
 -/
 theorem ae_ne_map_point (μ : Measure α) [NoAtoms μ] (mapPoint : α) :
     ∀ᵐ x ∂μ, x ≠ mapPoint := by
-  convert MeasureTheory.measure_eq_zero_iff_ae_notMem.mp ( map_point_measure_zero μ mapPoint ) using 1
+  convert MeasureTheory.measure_eq_zero_iff_ae_notMem.mp
+    ( map_point_measure_zero μ mapPoint ) using 1
 
 /-
 More generally, any countable collection of posterior maximizers is null.
@@ -61,5 +62,4 @@ theorem ae_not_mem_countable_map_set (μ : Measure α) [NoAtoms μ]
     ∀ᵐ x ∂μ, x ∉ maximizers := by
   convert countable_map_set_measure_zero μ maximizers hcountable using 1;
   rw [ MeasureTheory.measure_eq_zero_iff_ae_notMem ]
-
 end BookProof.ChapterMAPNull

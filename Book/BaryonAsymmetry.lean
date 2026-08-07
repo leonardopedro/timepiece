@@ -11,17 +11,17 @@ tag := "baryon-asymmetry"
 # A Small Asymmetry, Amplified
 
 In its chapter on entropy and irreversible time-evolution, the manuscript turns to
-**baryon asymmetry**: why the observable universe contains matter but almost no
+*baryon asymmetry*: why the observable universe contains matter but almost no
 antimatter. The physical argument is that a tiny CP-violating asymmetry in the early
 universe is "much amplified by the expansion of the Universe." This chapter isolates
 the clean, self-contained mathematical core of that amplification: the classical
 Friedmann–Robertson–Walker (FRW) scaling of perfect-fluid energy densities, and the
-fact that the **matter-to-radiation ratio grows in proportion to the scale of the
-Universe**.
+fact that the *matter-to-radiation ratio grows in proportion to the scale of the
+Universe*.
 
 # FRW Scaling of the Densities
 
-Let $`a > 0` be the cosmological **scale factor** (the relative size of the
+Let $`a > 0` be the cosmological *scale factor* (the relative size of the
 Universe). A perfect fluid with equation-of-state parameter $`w` has an energy
 density that dilutes as the Universe expands. Matter (pressureless dust,
 $`w = 0`) dilutes as the volume, $`a^3`; radiation ($`w = 1/3`) dilutes one power
@@ -30,7 +30,7 @@ present-day reference densities $`\rho_{m0}, \rho_{r0}`:
 
 $$`\rho_m(a) = \frac{\rho_{m0}}{a^3}, \qquad \rho_r(a) = \frac{\rho_{r0}}{a^4}.`
 
-These power laws are not arbitrary: they are **forced** by the FRW continuity
+These power laws are not arbitrary: they are *forced* by the FRW continuity
 equation
 
 $$`a\,\rho'(a) + 3(1+w)\,\rho(a) = 0,`
@@ -45,7 +45,7 @@ and $`4` (radiation). The verified computation (a genuine derivative calculation
 
 # The Ratio Grows Like the Scale Factor
 
-The matter-to-radiation **ratio** is therefore
+The matter-to-radiation *ratio* is therefore
 
 $$`\frac{\rho_m(a)}{\rho_r(a)} = \frac{\rho_{m0}/a^3}{\rho_{r0}/a^4} = \frac{\rho_{m0}}{\rho_{r0}}\, a.`
 
@@ -55,7 +55,7 @@ The $`a^3` dilution common to both cancels, leaving a single factor of $`a`:
 #check @ChapterBaryonAsymmetry.matterRadiationRatio_eq
 ```
 
-So the ratio is **proportional to the scale of the Universe**, exactly as the
+So the ratio is *proportional to the scale of the Universe*, exactly as the
 manuscript states. It is strictly increasing in $`a`, and it diverges:
 
 ```
@@ -71,7 +71,7 @@ content relative to radiation.
 
 The physical conclusion the manuscript draws is now transparent. Suppose the early
 universe has a tiny excess of matter over antimatter (a small CP asymmetry). As the
-universe expands, the matter/radiation ratio grows **linearly in the scale factor**
+universe expands, the matter/radiation ratio grows *linearly in the scale factor*
 and without bound. A small initial imbalance in the matter sector is therefore
 magnified by the enormous growth of $`a` between the early universe and today. The
 mathematics does not by itself explain the _origin_ of the asymmetry (that is the

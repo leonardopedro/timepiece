@@ -126,7 +126,7 @@ theorem range_bAllR :
   ext x;
   constructor;
   · rintro ⟨ y, rfl ⟩;
-    fin_cases y <;> simp +decide [ bAllR, bHalfR, b10R, bPsR, bAll ];
+    fin_cases y <;> simp [ bAllR, bHalfR, b10R, bPsR, bAll ];
   · rintro ((⟨y, rfl⟩ | ⟨y, rfl⟩) | ⟨y, rfl⟩)
     · fin_cases y
       · exact ⟨0, rfl⟩

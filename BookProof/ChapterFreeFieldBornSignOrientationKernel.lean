@@ -61,7 +61,7 @@ theorem even_flipCount_xor_iff (b₁ b₂ : Fin n → Bool) :
       (Even (flipCount b₁) ↔ Even (flipCount b₂)) := by
   unfold flipCount
   induction (Finset.univ : Finset (Fin n)) using Finset.induction <;>
-    simp_all +decide [Finset.filter_insert]
+    simp_all [Finset.filter_insert]
   grind
 
 /-

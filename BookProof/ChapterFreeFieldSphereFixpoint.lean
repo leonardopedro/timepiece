@@ -50,7 +50,7 @@ theorem normalize_normalize {x : EuclideanSpace ℝ (Fin n)} (hx : x ≠ 0) :
     ChapterFreeFieldSphere.normalize (ChapterFreeFieldSphere.normalize x)
       = ChapterFreeFieldSphere.normalize x := by
   unfold ChapterFreeFieldSphere.normalize ;
-  simp +decide [ norm_smul, hx ]
+  simp [ norm_smul, hx ]
 
 /-
 **Headline.** For `n ≥ 1` the Gaussian-built uniform sphere measure is a fixed

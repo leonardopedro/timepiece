@@ -71,7 +71,7 @@ theorem joint_nonneg (hprior : ∀ x, 0 ≤ prior x) (hL : ∀ x y, 0 ≤ L x y)
 
 theorem joint_sum_one (hprior_sum : ∑ x, prior x = 1) (hL_row : ∀ x, ∑ y, L x y = 1) :
     ∑ x, ∑ y, joint prior L x y = 1 := by
-  simp_all +decide [ joint, ← Finset.mul_sum _ _ _, ← Finset.sum_mul ]
+  simp_all [ joint, ← Finset.mul_sum _ _ _ ]
 
 theorem evidence_eq_marginal (y : Y) : evidence prior L y = ∑ x, joint prior L x y := by
   rfl
@@ -98,7 +98,7 @@ distribution on the hypotheses `X`.
 theorem posterior_sum_one (y : Y) (hy : 0 < evidence prior L y) :
     ∑ x, posterior prior L y x = 1 := by
   convert div_self hy.ne';
-  unfold posterior evidence; simp +decide [ hy.ne', Finset.sum_div _ _ _ ] ;
+  unfold posterior evidence; simp [ Finset.sum_div _ _ _ ] ;
 
 /-
 **Born-rule reproduction of the Bayes posterior.** With the wave-function

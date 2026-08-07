@@ -19,7 +19,8 @@ structure EsaReport where
   deficiencyIndices : ℕ × ℕ
 
 noncomputable def EsaReport.toString (r : EsaReport) : String :=
-  s!"ESA Report: complete={r.isComplete}, deficiency=({r.deficiencyIndices.1}, {r.deficiencyIndices.2})"
+  s!"ESA Report: complete={r.isComplete}, \
+      deficiency=({r.deficiencyIndices.1}, {r.deficiencyIndices.2})"
 
 /-- Deficiency-index certificate supplied by the core model. -/
 def deficiencyIndices {M : ℕ} (_H : NormalOrderedOp M) : ℕ × ℕ := (0, 0)

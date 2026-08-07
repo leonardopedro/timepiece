@@ -70,7 +70,7 @@ theorem pauli_expand (M : Matrix (Fin 2) (Fin 2) ℂ) :
   fin_cases i <;> fin_cases j <;>
     simp [pauliσ, pauliCoeff, Fin.sum_univ_four, Matrix.trace, Matrix.mul_apply,
       Fin.sum_univ_two, Matrix.diag, Matrix.add_apply] <;> ring_nf <;>
-    (try simp only [Complex.I_sq, Complex.I_mul_I]) <;> ring
+    (try simp only [Complex.I_sq]) <;> ring
 
 /-
 The Pauli coefficient of a Pauli combination recovers the coefficient.
@@ -78,7 +78,7 @@ The Pauli coefficient of a Pauli combination recovers the coefficient.
 theorem pauliCoeff_comb (c : Fin 4 → ℂ) (μ : Fin 4) :
     pauliCoeff (∑ ν, c ν • pauliσ ν) μ = c μ := by
   unfold pauliCoeff;
-  simp +decide [ Matrix.mul_sum, Matrix.trace_sum, Matrix.mul_smul, Matrix.transpose_smul, pauliσ_trace ];
+  simp [ Matrix.mul_sum, Matrix.trace_sum, pauliσ_trace ];
   ring
 
 /-! ## The map `Υ` -/
@@ -100,12 +100,12 @@ theorem upsilon_recon (T : Matrix (Fin 2) (Fin 2) ℂ) (ν : Fin 4) :
 -/
 theorem upsilonC_antihom (T U : Matrix (Fin 2) (Fin 2) ℂ) :
     UpsilonC (T * U) = UpsilonC U * UpsilonC T := by
-  ext μ ν; simp +decide [ UpsilonC, Matrix.mul_apply ] ;
+  ext μ ν; simp [ UpsilonC, Matrix.mul_apply ] ;
   have h_expand : Tᴴ * pauliσ ν * T = ∑ x, pauliCoeff (Tᴴ * pauliσ ν * T) x • pauliσ x := by
     convert pauli_expand ( Tᴴ * pauliσ ν * T ) using 1;
-  conv_lhs => rw [ show Uᴴ * Tᴴ * pauliσ ν * ( T * U ) = Uᴴ * ( Tᴴ * pauliσ ν * T ) * U by simp +decide only [mul_assoc] ];
+  conv_lhs => rw [ show Uᴴ * Tᴴ * pauliσ ν * ( T * U ) = Uᴴ * ( Tᴴ * pauliσ ν * T ) * U by simp only [mul_assoc] ];
   conv_lhs => rw [ h_expand ];
-  simp +decide [ Matrix.mul_sum, Matrix.sum_mul, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul, pauliCoeff ]
+  simp [ mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul, pauliCoeff ]
 
 /-! ## Reality of `Υ` -/
 
@@ -120,9 +120,9 @@ theorem upsilonC_real (T : Matrix (Fin 2) (Fin 2) ℂ) (μ ν : Fin 4) :
   · norm_num [ Complex.ext_iff, div_eq_mul_inv ];
   · -- By the properties of the trace and the Hermitian nature of the Pauli matrices,    we can show that the trace of the conjugate transpose is equal to the trace of the original matrix.
     have h_trace_conj : ∀ (M : Matrix (Fin 2) (Fin 2) ℂ),      (starRingEnd ℂ) (Matrix.trace M) = Matrix.trace (Mᴴ) := by
-      simp +decide [ Matrix.trace, Matrix.conjTranspose ];
+      simp [ Matrix.trace, Matrix.conjTranspose ];
     rw [ h_trace_conj, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul ];
-    rw [ ← Matrix.trace_mul_comm ] ; simp +decide [ Matrix.mul_assoc, pauliσ_herm ] ;
+    rw [ ← Matrix.trace_mul_comm ] ; simp [ Matrix.mul_assoc, pauliσ_herm ] ;
 
 /-- The real Lorentz matrix `Υ(T)`. -/
 noncomputable def Upsilon (T : Matrix (Fin 2) (Fin 2) ℂ) :
@@ -134,7 +134,7 @@ The complexification of the real `Υ(T)` is the complex `Υ(T)`.
 -/
 theorem toC_Upsilon (T : Matrix (Fin 2) (Fin 2) ℂ) :
     toC (Upsilon T) = UpsilonC T := by
-  ext μ ν; simp +decide [ toC ] ;
+  ext μ ν; simp [ toC ] ;
   exact Complex.conj_eq_iff_re.mp ( upsilonC_real T μ ν ) ▸ rfl
 
 /-! ## The Minkowski norm as a determinant -/
@@ -161,9 +161,9 @@ theorem upsilon_apply_comb (T : Matrix (Fin 2) (Fin 2) ℂ) (x : Fin 4 → ℂ) 
   -- By definition of $U$, we know that $Tᴴ * pauliσ ν * T = ∑ μ, U μ ν • pauliσ μ$.
   have hU : ∀ ν, Tᴴ * pauliσ ν * T = ∑ μ, UpsilonC T μ ν • pauliσ μ := fun ν => upsilon_recon T ν
   convert congr_arg ( fun m => ∑ ν, v ν • m ν ) ( funext hU ) using 1;
-  · simp +decide [ Matrix.mul_sum, Matrix.sum_mul, smul_smul, mul_assoc, Finset.mul_sum _ _ _ ];
+  · simp [ Matrix.sum_mul, mul_assoc, Finset.mul_sum _ _ _ ];
     rfl;
-  · simp +decide [ Finset.smul_sum, Finset.sum_smul, mul_comm, smul_smul ];
+  · simp [ Finset.smul_sum, Finset.sum_smul, mul_comm, smul_smul ];
     exact Finset.sum_comm
 
 /-
@@ -173,7 +173,7 @@ theorem upsilonC_Qc (T : Matrix (Fin 2) (Fin 2) ℂ) (hT : T.det = 1) (x : Fin 4
     Qc (fun μ => ∑ ν, UpsilonC T μ ν * x ν) = Qc x := by
   rw [ ← det_pauli_comb, ← det_pauli_comb ];
   rw [ ← upsilon_apply_comb ];
-  simp +decide [ hT, Matrix.det_mul ]
+  simp [ hT, Matrix.det_mul ]
 
 /-! ## Polarization -/
 
@@ -189,7 +189,7 @@ theorem bilC_ext {A B : Matrix (Fin 4) (Fin 4) ℂ} (hA : Aᵀ = A) (hB : Bᵀ =
     (h : ∀ x : Fin 4 → ℂ, bilC A x = bilC B x) : A = B := by
   -- For each `i`, specialize `h` at `e_i = ![0,0,0,1]`.
   have h_diag (i : Fin 4) : A i i = B i i := by
-    convert h ( fun j => if j = i then 1 else 0 ) using 1 <;> simp +decide [ bilC ];
+    convert h ( fun j => if j = i then 1 else 0 ) using 1 <;> simp [ bilC ];
   -- For each `i ≠ j`,    specialize `h` at `e_i + e_j` (the vector with 1 in slots `i` and `j`),    simplify to get `A i i + A j j + A i j + A j i = B i i + B j j + B i j + B j i`;    substitute the diagonal equalities,    and use the symmetry hypotheses `hA : Aᵀ = A`,    `hB : Bᵀ = B` (which give `A j i = A i j` and `B j i = B i j` via `Matrix.transpose_apply`/`congrFun`) to conclude `2 * A i j = 2 * B i j`, hence `A i j = B i j`.
   have h_off_diag (i j : Fin 4) (hij : i ≠ j) : A i j = B i j := by
     -- Substitute x = e_i + e_j into the hypothesis h and simplify.
@@ -197,8 +197,8 @@ theorem bilC_ext {A B : Matrix (Fin 4) (Fin 4) ℂ} (hA : Aᵀ = A) (hB : Bᵀ =
       exact h _;
     -- Expand the bilinear forms using the definition of `bilC`.
     simp [bilC] at h_sub;
-    simp_all +decide [ Finset.sum_ite, Finset.filter_or, Finset.filter_eq', Finset.sum_add_distrib ];
-    replace hA := congr_fun ( congr_fun hA i ) j;      replace hB := congr_fun ( congr_fun hB i ) j; simp_all +decide [ Matrix.transpose_apply ] ;
+    simp_all [ Finset.sum_ite, Finset.filter_or, Finset.filter_eq', Finset.sum_add_distrib ];
+    replace hA := congr_fun ( congr_fun hA i ) j;      replace hB := congr_fun ( congr_fun hB i ) j; simp_all [ Matrix.transpose_apply ] ;
     linear_combination' h_sub / 2;
   exact Matrix.ext fun i j => if hij : i = j then hij ▸ h_diag i else h_off_diag i j hij
 
@@ -206,7 +206,7 @@ theorem bilC_ext {A B : Matrix (Fin 4) (Fin 4) ℂ} (hA : Aᵀ = A) (hB : Bᵀ =
 The bilinear form of the (complexified) Minkowski metric is `Qc`.
 -/
 theorem bilC_minkowski (x : Fin 4 → ℂ) : bilC (toC minkowskiMat) x = Qc x := by
-  unfold bilC Qc toC minkowskiMat; simp +decide [ Fin.sum_univ_four ] ; ring;
+  unfold bilC Qc toC minkowskiMat; simp [ Fin.sum_univ_four ] ; ring;
   unfold minkowskiR; norm_num [ Fin.ext_iff, minkowskiZ ] ; ring;
 
 /-
@@ -214,13 +214,13 @@ Conjugation identity `xᵀ (Aᵀ M A) x = (A x)ᵀ M (A x)`.
 -/
 theorem bilC_conj (A M : Matrix (Fin 4) (Fin 4) ℂ) (x : Fin 4 → ℂ) :
     bilC (Aᵀ * M * A) x = bilC M (fun i => ∑ j, A i j * x j) := by
-  unfold bilC; simp +decide [ Matrix.mul_apply, Fin.sum_univ_four ] ; ring!;
+  unfold bilC; simp [ Matrix.mul_apply, Fin.sum_univ_four ] ; ring!;
 
 /-
 `toC minkowskiMat` is symmetric.
 -/
 theorem toC_minkowski_symm : (toC minkowskiMat)ᵀ = toC minkowskiMat := by
-  ext i j; simp +decide [ toC ] ;
+  ext i j; simp [ toC ] ;
   fin_cases i <;> fin_cases j <;> rfl
 
 /-- The complex metric-preservation identity `Υ(T)ᵀ η Υ(T) = η`. -/
@@ -243,10 +243,10 @@ theorem upsilon_metric (T : Matrix (Fin 2) (Fin 2) ℂ) (hT : T.det = 1) :
     (Upsilon T)ᵀ * minkowskiMat * Upsilon T = minkowskiMat := by
   -- Apply the complex identity `upsilonC_metric` to conclude the proof.
   have := upsilonC_metric T hT;
-  simp_all +decide [ ← Matrix.ext_iff ];
+  simp_all [ ← Matrix.ext_iff ];
   convert this using 1;
-  simp +decide [ ← toC_Upsilon, Matrix.mul_apply ];
-  simp +decide [ toC ];
+  simp [ ← toC_Upsilon, Matrix.mul_apply ];
+  simp [ toC ];
   norm_cast
 
 /-
@@ -259,15 +259,15 @@ theorem upsilon_mem_lorentz (T : Matrix (Fin 2) (Fin 2) ℂ) (hT : T.det = 1) :
   have hη2 : η * η = 1 := by
     ext i j
     fin_cases i <;> fin_cases j <;>
-      simp +decide [η, minkowskiMat, minkowskiR, minkowskiZ, Matrix.mul_apply, Fin.sum_univ_four]
+      simp [η, minkowskiMat, minkowskiR, minkowskiZ, Matrix.mul_apply]
   have h : (Upsilon T)ᵀ * η * Upsilon T = η := upsilon_metric T hT
   generalize_proofs at *
   have h_mul : (η * (Upsilon T)ᵀ * η) * Upsilon T = 1 := by
-    simp_all +decide [Matrix.mul_assoc]
+    simp_all [Matrix.mul_assoc]
   have h_mul_comm : Upsilon T * (η * (Upsilon T)ᵀ * η) = 1 := by
     rw [← mul_eq_one_comm, h_mul]
   apply_fun (fun x => x * η) at h_mul_comm
-  simp_all +decide [Matrix.mul_assoc]
+  simp_all [Matrix.mul_assoc]
   exact funext fun i => funext fun j => by
     simpa [Matrix.mul_assoc] using congr_fun (congr_fun h_mul_comm i) j
 

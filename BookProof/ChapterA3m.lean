@@ -98,7 +98,7 @@ Braiding relation for `τ₂₃`: `τ₂₃ · ((A⊗B)⊗C) = ((A⊗C)⊗B) · 
 theorem swap23_kronecker (A B C : Matrix (Fin 4) (Fin 4) ℂ) :
     swap23 * ((A ⊗ₖ B) ⊗ₖ C) = ((A ⊗ₖ C) ⊗ₖ B) * swap23 := by
   ext a col;
-  simp +decide [ Matrix.mul_apply, swap23 ];
+  simp [ Matrix.mul_apply, swap23 ];
   rw [ Finset.sum_eq_single ( ( a.1.1, a.2 ), a.1.2 ), Finset.sum_eq_single ( ( col.1.1, col.2 ), col.1.2 ) ] <;> simp +contextual [ eq_comm ];
   · ring;
   · aesop
@@ -109,8 +109,8 @@ Braiding relation for `τ₁₃`: `τ₁₃ · ((A⊗B)⊗C) = ((C⊗B)⊗A) · 
 theorem swap13_kronecker (A B C : Matrix (Fin 4) (Fin 4) ℂ) :
     swap13 * ((A ⊗ₖ B) ⊗ₖ C) = ((C ⊗ₖ B) ⊗ₖ A) * swap13 := by
   unfold swap13;
-  ext ⟨ ⟨ i, j ⟩, k ⟩ ⟨ ⟨ l, m ⟩, n ⟩ ; simp +decide [ Matrix.mul_apply, Finset.sum_ite ] ; ring;
-  refine' Finset.sum_bij ( fun x hx => ( ⟨ n, m ⟩, l ) ) _ _ _ _ <;> simp +decide;
+  ext ⟨ ⟨ i, j ⟩, k ⟩ ⟨ ⟨ l, m ⟩, n ⟩ ; simp [ Matrix.mul_apply, Finset.sum_ite ] ; ring;
+  refine' Finset.sum_bij ( fun x hx => ( ⟨ n, m ⟩, l ) ) _ _ _ _ <;> simp;
   · aesop;
   · grind
 
@@ -131,27 +131,27 @@ theorem swap12_sq : swap12 * swap12 = 1 := by
 theorem swap23_sq : swap23 * swap23 = 1 := by
   ext a b;
   rw [ Matrix.mul_apply ];
-  simp +decide [ swap23, Matrix.one_apply ];
+  simp [ swap23, Matrix.one_apply ];
   rw [ Finset.sum_eq_single ( ( b.1.1, b.2 ), b.1.2 ) ] <;> aesop
 
 /-
 `τ₁₃² = 1`.
 -/
 theorem swap13_sq : swap13 * swap13 = 1 := by
-  ext a b; simp +decide [ swap13 ] ;
-  simp +decide [ Matrix.mul_apply, Matrix.one_apply ];
+  ext a b; simp [ swap13 ] ;
+  simp [ Matrix.mul_apply, Matrix.one_apply ];
   rw [ Finset.sum_eq_single ( ( b.2, b.1.2 ), b.1.1 ) ] <;> aesop
 
 /-
 Braid relation, left form: `τ₁₂ τ₂₃ τ₁₂ = τ₁₃`.
 -/
 theorem braid_left : swap12 * swap23 * swap12 = swap13 := by
-  ext a b; simp +decide [ *, Matrix.mul_apply ] ;
+  ext a b; simp [ *, Matrix.mul_apply ] ;
   unfold swap12 swap23 swap13;
-  simp +decide [ ChapterA3l.swap, kroneckerMap ];
-  simp +decide [ Matrix.one_apply, Finset.sum_ite ];
-  split_ifs <;> simp_all +decide [ Finset.filter_filter ];
-  · rw [ Finset.sum_eq_single ( ( a.1.2, a.2 ), a.1.1 ) ] <;> simp +decide [ * ];
+  simp [ ChapterA3l.swap, kroneckerMap ];
+  simp [ Matrix.one_apply, Finset.sum_ite ];
+  split_ifs <;> simp_all [ Finset.filter_filter ];
+  · rw [ Finset.sum_eq_single ( ( a.1.2, a.2 ), a.1.1 ) ] <;> simp [ * ];
     · rw [ Finset.card_eq_one ] ; use ( ( a.1.2, a.1.1 ), a.2 ) ; ext ; aesop;
     · aesop;
   · rw [ Finset.sum_eq_zero ] ; aesop
@@ -161,9 +161,9 @@ Braid relation, right form: `τ₂₃ τ₁₂ τ₂₃ = τ₁₃`.
 -/
 theorem braid_right : swap23 * swap12 * swap23 = swap13 := by
   unfold swap12 swap23 swap13;
-  ext a b; simp +decide [ Matrix.mul_apply, kroneckerMap ] ;
-  simp +decide [ ChapterA3l.swap, Matrix.one_apply ];
-  rw [ Finset.sum_eq_single ( ( b.1.1, b.2 ), b.1.2 ) ] <;> simp +decide;
+  ext a b; simp [ Matrix.mul_apply, kroneckerMap ] ;
+  simp [ ChapterA3l.swap, Matrix.one_apply ];
+  rw [ Finset.sum_eq_single ( ( b.1.1, b.2 ), b.1.2 ) ] <;> simp;
   · rw [ Finset.sum_eq_single ( ( b.2, b.1.1 ), b.1.2 ) ] <;> aesop;
   · aesop
 
@@ -190,22 +190,22 @@ theorem swap12_spinGenDiag_comm (μ ν : Fin 4) :
     intro μ ν;
     convert swap12_kronecker ( spinGen μ ν ) 1 1 using 1;
   convert congr_arg₂ ( fun x y => x + y ) ( congr_arg₂ ( fun x y => x + y ) ( step1 μ ν ) ( swap12_kronecker ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ( spinGen μ ν ) ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ) ) ( swap12_kronecker ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ( spinGen μ ν ) ) using 1;
-  · unfold spinGenDiag3; simp +decide [ Matrix.mul_add, add_mul ] ;
-  · unfold spinGenDiag3; simp +decide [ add_mul, mul_add, add_assoc ] ;
+  · unfold spinGenDiag3; simp [ Matrix.mul_add ] ;
+  · unfold spinGenDiag3; simp [ add_mul, add_assoc ] ;
     abel1
 
 theorem swap23_spinGenDiag_comm (μ ν : Fin 4) :
     swap23 * spinGenDiag3 μ ν = spinGenDiag3 μ ν * swap23 := by
   unfold spinGenDiag3;
-  simp +decide only [mul_add];
+  simp only [mul_add];
   rw [ swap23_kronecker, swap23_kronecker, swap23_kronecker ];
   rw [ add_mul, add_mul ] ; abel_nf;
 
 theorem swap13_spinGenDiag_comm (μ ν : Fin 4) :
     swap13 * spinGenDiag3 μ ν = spinGenDiag3 μ ν * swap13 := by
   unfold spinGenDiag3;
-  simp +decide [ Matrix.mul_add, Matrix.add_mul ];
-  have := swap13_kronecker ( spinGen μ ν ) 1 1;    ( have := swap13_kronecker 1 ( spinGen μ ν ) 1; ( have := swap13_kronecker 1 1 ( spinGen μ ν ) ; simp_all +decide [ Matrix.mul_assoc ] ; ) );
+  simp [ Matrix.mul_add, Matrix.add_mul ];
+  have := swap13_kronecker ( spinGen μ ν ) 1 1;    ( have := swap13_kronecker 1 ( spinGen μ ν ) 1; ( have := swap13_kronecker 1 1 ( spinGen μ ν ) ; simp_all  ; ) );
   abel1
 
 theorem swap12_parityDiag_comm : swap12 * parityDiag3 = parityDiag3 * swap12 := by
@@ -234,8 +234,8 @@ generator.
 theorem projSym3_spinGenDiag_comm (μ ν : Fin 4) :
     projSym3 * spinGenDiag3 μ ν = spinGenDiag3 μ ν * projSym3 := by
   unfold projSym3;
-  simp +decide [ Matrix.mul_add, add_mul, Matrix.mul_assoc, swap12_spinGenDiag_comm, swap23_spinGenDiag_comm, swap13_spinGenDiag_comm ];
-  simp +decide only [← mul_assoc, swap12_spinGenDiag_comm, swap23_spinGenDiag_comm]
+  simp [ Matrix.mul_add, add_mul, Matrix.mul_assoc, swap12_spinGenDiag_comm, swap23_spinGenDiag_comm, swap13_spinGenDiag_comm ];
+  simp only [← mul_assoc, swap12_spinGenDiag_comm, swap23_spinGenDiag_comm]
 
 /-
 **Lemma 52 payoff (symmetric-cube step).** The symmetric cube is also
@@ -246,8 +246,8 @@ Lorentz group.
 theorem projSym3_parityDiag_comm :
     projSym3 * parityDiag3 = parityDiag3 * projSym3 := by
   rw [ show projSym3 = ( 6 : ℂ ) ⁻¹ • ( 1 + swap12 + swap23 + swap12 * swap23 + swap23 * swap12 + swap13 ) from rfl ];
-  simp +decide [ Matrix.mul_smul, Matrix.smul_mul, Matrix.add_mul, Matrix.mul_add, mul_assoc ];
-  simp +decide only [swap12_parityDiag_comm, swap23_parityDiag_comm, ← Matrix.mul_assoc, swap13_parityDiag_comm]
+  simp [ Matrix.add_mul, Matrix.mul_add, mul_assoc ];
+  simp only [swap12_parityDiag_comm, swap23_parityDiag_comm, ← Matrix.mul_assoc, swap13_parityDiag_comm]
 
 /-
 `projSym3` is idempotent — a genuine projector onto the symmetric cube.
@@ -258,10 +258,10 @@ the permutation representation, closed under multiplication.
 theorem projSym3_idem : projSym3 * projSym3 = projSym3 := by
   unfold projSym3;
   -- Expand the product using the distributive property.
-  simp [Matrix.mul_add, Matrix.add_mul, Matrix.mul_assoc, Matrix.smul_mul, Matrix.mul_smul] at *;
+  simp [Matrix.mul_add, Matrix.add_mul, Matrix.mul_assoc] at *;
   rw [ show swap13 = swap12 * swap23 * swap12 from braid_left.symm ];
-  simp_all +decide [ mul_assoc, swap12_sq, swap23_sq, swap13_sq, braid_rel ];
-  simp_all +decide [ ← mul_assoc, swap12_sq, swap23_sq, swap13_sq, braid_rel ];
+  simp_all [ mul_assoc, swap12_sq, swap23_sq ];
+  simp_all [ ← mul_assoc, swap12_sq, swap23_sq, braid_rel ];
   rw [ show swap23 * swap12 * swap23 * swap23 = swap23 * swap12 by
         rw [ mul_assoc, swap23_sq, mul_one ] ]
   rw [ show swap12 * swap23 * swap23 = swap12 by

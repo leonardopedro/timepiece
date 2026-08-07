@@ -200,7 +200,7 @@ theorem range_bFullR :
   ext x
   constructor
   · rintro ⟨y, rfl⟩
-    fin_cases y <;> simp +decide [bFullR, bHalfR, b10R, bPsR, w2R, bFull]
+    fin_cases y <;> simp [bFullR, bHalfR, b10R, bPsR, w2R, bFull]
   · rintro (((⟨y, rfl⟩ | ⟨y, rfl⟩) | ⟨y, rfl⟩) | ⟨y, rfl⟩)
     · fin_cases y
       · exact ⟨0, rfl⟩

@@ -63,10 +63,10 @@ lemma Jmap_mem_of_mem_JY {Y : Submodule ℝ V} {x : V} (hx : x ∈ JY Y) : Jmap 
 `J (J Y) = Y`: applying `Jmap` twice returns the original subspace.
 -/
 lemma JY_JY (Y : Submodule ℝ V) : JY (JY Y) = Y := by
-  refine' le_antisymm _ _ <;> intro x hx <;> simp_all +decide [ mem_JY ];
+  refine' le_antisymm _ _ <;> intro x hx <;> simp_all [ mem_JY ];
   · obtain ⟨ a, ha, rfl ⟩ := hx;
-    simp +decide [ ← smul_assoc, ha ];
-  · refine' ⟨ -x, Y.neg_mem hx, _ ⟩ ; simp +decide [ ← smul_assoc ]
+    simp [ ← smul_assoc, ha ];
+  · refine' ⟨ -x, Y.neg_mem hx, _ ⟩ ; simp [ ← smul_assoc ]
 
 /-
 `J Y` is closed when `Y` is (image of a closed set under an isometric
@@ -90,7 +90,7 @@ lemma JY_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
   obtain ⟨ y, hy, rfl ⟩ := hw;
   convert Jmap_mem_JY ( hY.2 _ hm _ hy ) using 1;
   obtain ⟨ m', hm', rfl ⟩ := hm;
-  simp +decide [ rxMap, Jmap ]
+  simp [ rxMap, Jmap ]
 
 /-! ## The `J`-invariant subsystems `Y ⊓ J Y` and `(Y ⊔ J Y)‾` -/
 
@@ -116,9 +116,9 @@ lemma inf_JY_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
 -/
 lemma sup_JY_Jinvariant (Y : Submodule ℝ V) :
     ∀ x ∈ Y ⊔ JY Y, Jmap x ∈ Y ⊔ JY Y := by
-  intro x hx;    rw [ Submodule.mem_sup ] at hx;    obtain ⟨ a, ha, b, hb, rfl ⟩ := hx; simp_all +decide [ Submodule.mem_sup ] ;
-  refine' ⟨ Complex.I • b, _, Complex.I • a, _, _ ⟩ <;> simp_all +decide [ JY ];
-  · obtain ⟨ y, hy, rfl ⟩ := hb; simp +decide [ ← smul_assoc, hy ] ;
+  intro x hx;    rw [ Submodule.mem_sup ] at hx;    obtain ⟨ a, ha, b, hb, rfl ⟩ := hx; simp_all [ Submodule.mem_sup ] ;
+  refine' ⟨ Complex.I • b, _, Complex.I • a, _, _ ⟩ <;> simp_all [ JY ];
+  · obtain ⟨ y, hy, rfl ⟩ := hb; simp [ ← smul_assoc, hy ] ;
   · exact add_comm _ _
 
 /-
@@ -151,7 +151,7 @@ lemma sup_JY_closure_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
       have := JY_isSubsystem M hY;
       exact this.2 m hm;
     rw [ Submodule.mem_sup ] at hw ⊢;
-    rcases hw with ⟨ y, hy, z, hz, rfl ⟩ ;      exact ⟨ m y, h_maps_to y hy, m z, h_maps_to_JY z hz, by simp +decide [ map_add ] ⟩ ;
+    rcases hw with ⟨ y, hy, z, hz, rfl ⟩ ;      exact ⟨ m y, h_maps_to y hy, m z, h_maps_to_JY z hz, by simp [ map_add ] ⟩ ;
   exact mem_closure_of_tendsto ( m.continuous.continuousAt.tendsto.comp ( show Filter.Tendsto ( fun n : ℕ => Classical.choose ( mem_closure_iff_seq_limit.mp hw ) n ) Filter.atTop ( nhds w ) from Classical.choose_spec ( mem_closure_iff_seq_limit.mp hw ) |>.2 ) ) ( Filter.Eventually.of_forall fun n => h_maps_to _ ( Classical.choose_spec ( mem_closure_iff_seq_limit.mp hw ) |>.1 n ) )
 
 /-! ## Headline: the `V ⊕ V̄` dichotomy -/

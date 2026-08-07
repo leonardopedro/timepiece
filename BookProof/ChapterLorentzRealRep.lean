@@ -166,7 +166,7 @@ theorem gram_10R : ∀ i j : Fin 6, ((b10R i)ᵀ * b10R j).trace = if i = j then
 
 theorem gram_psR : ∀ i j : Fin 4, ((bPsR i)ᵀ * bPsR j).trace = if i = j then (4 : ℝ) else 0 := by
   intros i j;    rw [ show bPsR i = castR ( bPs i ) from rfl, show bPsR j = castR ( bPs j ) from rfl, ← castR_transpose, ← castR_mul, castR_trace ] ;
-  split_ifs <;> simp_all +decide [ gram_ps ]
+  split_ifs <;> simp_all [ gram_ps ]
 
 /-! ## Linear independence from Frobenius orthogonality -/
 
@@ -256,7 +256,7 @@ theorem WHalf_invariant (S : Matrix (Fin 4) (Fin 4) ℤ) (hS : S ∈ Omega) :
   apply Submodule.map_le_iff_le_comap.mpr;
   refine' Submodule.span_le.mpr _;
   rintro _ ⟨ i, rfl ⟩;
-  simp +decide [ conjL_apply, bHalfR ];
+  simp [ conjL_apply, bHalfR ];
   rw [ ← castR_mul, ← castR_mul ];
   exact castR_mem_WHalf _ ( conj_inv_half S hS i )
 

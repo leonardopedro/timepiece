@@ -79,7 +79,7 @@ theorem pMarg_eq_diagBHB (B : Matrix Y X 𝕜) (x : X) :
     ((Bᴴ * B) x x) = ((pMarg B x : ℝ) : 𝕜) := by
   -- By definition of matrix multiplication and the conjugate transpose,    we have (Bᴴ * B) x x = ∑ y, (Bᴴ) x y * B y x.
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply];
-  simp +decide [ mul_comm, pMarg, RCLike.mul_conj ]
+  simp [ mul_comm, pMarg, RCLike.mul_conj ]
 
 /-
 **The book's normalization `tr(BᴴB) = 1`** (equal to `tr(BB†)`), given the
@@ -88,8 +88,8 @@ Hilbert–Schmidt normalization `∑_{x,y} |B(y,x)|² = 1`.
 theorem trace_gram_eq_one (B : Matrix Y X 𝕜)
     (hB : ∑ x, ∑ y, ‖B y x‖ ^ 2 = 1) :
     (Bᴴ * B).trace = ((1 : ℝ) : 𝕜) := by
-  rw [ ← hB ] ; simp +decide [ Matrix.trace, Matrix.mul_apply ] ; ring;
-  simp +decide [ mul_comm, ← sq, RCLike.mul_conj, RCLike.ofReal_pow ]
+  rw [ ← hB ] ; simp [ Matrix.trace, Matrix.mul_apply ] ; ring;
+  simp [ mul_comm, RCLike.mul_conj ]
 
 /-
 The joint distribution sums to `1`: it is a probability distribution on
@@ -129,6 +129,6 @@ marginal and the regular conditional.
 theorem pJoint_eq_cond_mul_marg (B : Matrix Y X 𝕜) (x : X) (y : Y)
     (hx : 0 < pMarg B x) :
     pJoint B x y = pCond B x y * pMarg B x := by
-  simp_all +decide [ pCond, div_mul_cancel₀ _ hx.ne' ]
+  simp_all [ pCond, div_mul_cancel₀ _ hx.ne' ]
 
 end BookProof.ChapterConditional

@@ -112,10 +112,10 @@ coordinates.
 theorem posSupport_unifDist_card {k : ℕ} (hk : 1 ≤ k) (hkn : k ≤ n) :
     (posSupport (unifDist n k)).card = k := by
   convert Finset.card_eq_sum_ones ( Finset.Iio k ) using 1;
-  · refine' Finset.card_bij ( fun x hx => x.1 ) _ _ _ <;> simp +decide [ posSupport ];
+  · refine' Finset.card_bij ( fun x hx => x.1 ) _ _ _ <;> simp [ posSupport ];
     · unfold unifDist; aesop;
     · exact fun a₁ ha₁ a₂ ha₂ h => Fin.ext h;
-    · intro b hb; use ⟨ b, by linarith ⟩ ; simp +decide [ unifDist, hb ] ;
+    · intro b hb; use ⟨ b, by linarith ⟩ ; simp [ unifDist, hb ] ;
       linarith;
   · norm_num
 

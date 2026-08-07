@@ -7,6 +7,78 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Latest wave (2026-08-07) — **`PLAN_LEAN_SPECIALIST_UNPROVED.md`, next pass: Mehler orthogonal invariance + the atomic/continuous classification**
+
+Four new packages, all `sorry`-free and axiom-clean (only `propext`,
+`Classical.choice`, `Quot.sound`), all registered in `BookProof.lean`, with the
+corresponding `#check` blocks added to `Book/SolovayTensor.lean` and
+`Book/NullMeasure.lean`.
+
+**1. `BookProof/ChapterMehlerOrthogonalInvariance.lean` — Priority 1 follow-on.**
+The abstract chapter states finite-orthogonal invariance of the Mehler tail only
+at the measure-preserving interface.  This module supplies the concrete
+coordinate-level content:
+* `charFun_stdGaussianEuclidean` — the characteristic function of the standard
+  `k`-dimensional Gaussian is `exp(-‖t‖²/2)` (a function of the norm alone);
+* `stdGaussianEuclidean_map_isometry` — hence invariance under **every** linear
+  isometry of `ℝᵏ`, i.e. the full orthogonal group `O(k)`;
+* `gaussianHead_map_orthogonal` — the same in raw coordinates, for an orthogonal
+  matrix acting by `x ↦ O *ᵥ x`;
+* HEADLINE `coordinateTailMeasure_map_headRotation` — the infinite Mehler
+  coordinate prior is invariant under a rotation of its first `k` coordinates;
+* `measurePreserving_headRotation` — so such a rotation is an admissible finite
+  orthogonal tail symmetry in the sense of `ChapterSolovay`.
+
+**2. `BookProof/ChapterAtomicDecomposition.lean` — Priority 2 residue.**  The
+measure-theoretic skeleton of von Neumann's five-type classification (the chapter
+`ChapterSelectingEvents` previously carried only a `True` placeholder for the
+classification itself, which remains a documented gap):
+* `atoms_countable`, `noAtoms_continuousPart`, `eq_continuousPart_add_atomicPart`;
+* `atomicPart_eq_sum_dirac` — the atomic part *is* `∑ₓ μ{x}·δₓ`;
+* `not_continuousPart_zero_and_atoms_empty`;
+* HEADLINE `probability_measure_five_types` — every probability measure lies in
+  exactly one of five classes matching the book's five types one for one;
+* `five_types_pairwise_exclusive`.
+
+**3. `BookProof/ChapterAbelianVonNeumannFinite.lean` — the first type as a
+theorem.**  For a Hermitian matrix with pairwise distinct eigenvalues:
+* `commutes_diagonal_iff` — commuting with a diagonal matrix with distinct
+  entries forces diagonality;
+* `diagonalStarAlgHom`, `conjDiagonal` — `ℓ∞({1,…,n})` as a unital `*`-algebra
+  inside `Matrix n n ℂ`, and its unitary conjugate;
+* HEADLINE `commutant_eq_range_conjDiagonal` and
+  `abelian_commutant_isomorphic_ellInfty` — the commutant is exactly a faithful
+  copy of `ℓ∞({1,…,n})`.
+
+**4. `BookProof/ChapterMixedPrior.lean` — worst-case vs best-case priors
+(`book.tex` ~8677–8786).**
+* `IsPurelyAtomic`, `eq_zero_of_noAtoms_of_isPurelyAtomic`;
+* HEADLINE `atomless_prior_not_purelyAtomic` — a continuous prior is never purely
+  atomic;
+* `noAtoms_normalizedContinuousPart`,
+  `isProbabilityMeasure_normalizedContinuousPart`,
+  `exists_continuous_prior_beyond_atomic` — rescaling the continuous part of a
+  mixed prior yields a continuous probability measure out of reach of every
+  discrete prior.
+
+`lake build` green (8493 jobs, all default targets including `Book`).  The only
+`sorry`s in the repository remain the two intentional ones in
+`RandomMap/SchoenfeldPRA.lean:162,176`.  Still open and unchanged: von Neumann's
+full `*`-isomorphism classification and the `EXTERNAL` named hypotheses listed
+below.
+
+**5. `BookProof/ChapterMehlerUniqueness.lean` — the forcing half of "only the
+Mehler measure".**  `mehler_unique_by_finite_marginals`: a law on `ℕ → ℝ` whose
+every finite-coordinate marginal is the standard Gaussian product *is* the Mehler
+law (uniqueness of a projective limit of finite measures), together with the
+packaged characterization `mehler_characterization`; plus
+`language_blind_implies_mehler` (a law the cylindrical language cannot tell apart
+from the Mehler law *is* the Mehler law) and
+`solovay_kopperman_probability_classification` (arbitrary law on the finite head,
+only the Mehler law on the infinite tail).  This closes the last statements that
+`Book/SolovayTensor.lean` and `SPECIALIST_PLAN_REMAINING.md` (tasks B3/B4) listed
+as planned.
+
 ## Latest wave — **Cosmological amplification of the matter/radiation ratio (`ChapterBaryonAsymmetry`)** + build repair
 
 Continued executing `FORMALIZATION_ROADMAP.md`.  This pass first **repaired the

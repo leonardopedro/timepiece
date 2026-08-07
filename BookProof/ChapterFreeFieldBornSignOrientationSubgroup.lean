@@ -73,7 +73,7 @@ theorem orientationPreservingSigns_index (n : ℕ) :
     convert natCard_orientationPreserving_flip n using 1
   have h_index :=
     AddSubgroup.card_mul_index (orientationPreservingSigns (n + 1))
-  simp_all +decide [pow_succ']
+  simp_all [pow_succ']
   nlinarith [pow_pos (zero_lt_two' ℕ) n]
 
 end BookProof.ChapterFreeFieldBornSignOrientationSubgroup

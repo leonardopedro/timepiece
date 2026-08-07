@@ -55,7 +55,7 @@ noncomputable section
 theorem disjoint_support_mul {α : Type*} (f g : α → ℂ)
     (h : Disjoint (Function.support f) (Function.support g)) : f * g = 0 := by
   ext x;
-  by_cases hx : f x = 0 <;> simp_all +decide [ Function.mem_support, Set.disjoint_left ]
+  by_cases hx : f x = 0 <;> simp_all [ Function.mem_support, Set.disjoint_left ]
 
 /-
 **F2.3** (L² orthogonality): packets with a.e.-disjoint supports are
@@ -66,7 +66,7 @@ theorem disjoint_support_inner_zero {α : Type*} [MeasurableSpace α] (μ : Meas
     (f g : α → ℂ) (h : Disjoint (Function.support f) (Function.support g)) :
     ∫ x, (starRingEnd ℂ) (f x) * g x ∂μ = 0 := by
   convert MeasureTheory.integral_eq_zero_of_ae ( Filter.Eventually.of_forall fun x => ?_ );
-  by_cases hx : f x = 0 <;> by_cases hx' : g x = 0 <;> simp_all +decide [ Set.disjoint_left ]
+  by_cases hx : f x = 0 <;> by_cases hx' : g x = 0 <;> simp_all [ Set.disjoint_left ]
 
 /-! ## F2.4 — the diagonal-Gram closed-form training solution (`O(M)` payoff) -/
 
@@ -85,9 +85,9 @@ theorem diagonal_gram_residual_orthogonal {ι : Type*} [Fintype ι]
     inner (𝕜 := ℂ) (g k)
       (b - ∑ j, ((inner (𝕜 := ℂ) (g j) b) / ((‖g j‖ : ℂ) ^ 2)) • g j) = 0 :=
     by
-  simp +decide [ inner_sub_right, Finset.sum_ite, Finset.filter_eq', Finset.filter_ne', horth, hne ];
+  simp ;
   rw [Finset.sum_eq_single k]
-    <;> simp_all +decide [div_eq_inv_mul, mul_assoc, mul_left_comm,
+    <;> simp_all [div_eq_inv_mul, mul_assoc, mul_left_comm,
       inner_self_eq_norm_sq_to_K]
   exact fun i hi => Or.inr ( horth _ _ ( Ne.symm hi ) )
 
@@ -105,7 +105,7 @@ def projOnto (ψ : E) : E →L[ℂ] E := (innerSL ℂ ψ).smulRight ψ
 -/
 theorem projOnto_idempotent {ψ : E} (hψ : ‖ψ‖ = 1) (s : E) :
     projOnto ψ (projOnto ψ s) = projOnto ψ s := by
-  simp +decide [ hψ, inner_self_eq_norm_sq_to_K ]
+  simp [ hψ, inner_self_eq_norm_sq_to_K ]
 
 /-
 **F2.6** (self-adjointness): `projOnto ψ` is symmetric,
@@ -193,7 +193,7 @@ an off-diagonal generator.
 theorem mehler_projector_matrix (v xi xj : E') :
     inner (𝕜 := ℂ) xi (projOnto v xj)
       = (starRingEnd ℂ) (inner (𝕜 := ℂ) v xi) * inner (𝕜 := ℂ) v xj := by
-  simp +decide [ projOnto, inner_smul_right ];
+  simp [ projOnto ];
   ring
 
 end

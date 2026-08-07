@@ -62,7 +62,7 @@ For `k = 0` this is `exp 0 = 1`.  For `k+1`, the integrand at `z = 0` is
 theorem phi_at_zero (k : ℕ) : phi k 0 = 1 / k.factorial := by
   induction' k with k ih;
   · norm_num [ phi_zero_apply ];
-  · simp +decide [ *, phi_succ_apply ];
+  · simp [ *, phi_succ_apply ];
     norm_cast;
     erw [ intervalIntegral.integral_ofReal, intervalIntegral.integral_comp_sub_left fun x => x ^ k ] ;      norm_num [ Nat.factorial_succ ];
     ring
@@ -78,7 +78,7 @@ integral is `z·φ_{k+1}(z)`.
 theorem phi_succ_mul (k : ℕ) (z : ℂ) :
     z * phi (k + 1) z = phi k z - 1 / k.factorial := by
   by_cases h : z = 0
-    <;> simp_all +decide [div_eq_inv_mul, mul_assoc, mul_comm, mul_left_comm,
+    <;> simp_all [div_eq_inv_mul, 
       intervalIntegral.integral_comp_mul_right];
   · rw [ phi_at_zero ] ; ring;
   · have h_int_parts : ∫ s in (0 : ℝ)..1,    deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s = (Complex.exp (1 * z) * (1 - 1) ^ k) - (Complex.exp (0 * z) * (1 - 0) ^ k) := by
@@ -92,10 +92,10 @@ theorem phi_succ_mul (k : ℕ) (z : ℂ) :
     have h_int_parts : ∫ s in (0 : ℝ)..1,      deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s = ∫ s in (0 : ℝ)..1,      (z * Complex.exp (s * z) * (1 - s) ^ k - k * Complex.exp (s * z) * (1 - s) ^ (k - 1)) := by
       refine' intervalIntegral.integral_congr fun x hx => _;
       convert HasDerivAt.deriv ( HasDerivAt.mul ( HasDerivAt.comp _ ( Complex.hasDerivAt_exp _ ) ( hasDerivAt_mul_const _ ) ) ( HasDerivAt.comp _ ( hasDerivAt_pow k _ ) ( hasDerivAt_id' _ |> HasDerivAt.const_sub _ ) ) ) using 1 ; norm_num ; ring;
-    rcases k with ( _ | k ) <;> simp_all +decide [ mul_assoc, mul_div_assoc ];
+    rcases k with ( _ | k ) <;> simp_all [ mul_assoc ];
     · exact intervalIntegral.integral_congr fun x _ => by norm_num [ phi ] ;
     · rw [ intervalIntegral.integral_sub ] at * <;> norm_num at *;
-      · simp_all +decide [ Nat.factorial_succ, phi ];
+      · simp_all [ Nat.factorial_succ, phi ];
         field_simp;
         grind;
       · exact Continuous.intervalIntegrable ( by continuity ) _ _;
@@ -131,7 +131,7 @@ theorem duhamel_phiOp1 {n : ℕ} (A : Matrix (Fin n) (Fin n) ℂ) (g : Fin n →
   · aesop;
   · rw [ phiOp1, intervalIntegral.integral_comp_sub_left fun x => ( NormedSpace.exp ( x • A ) ).mulVec g ] ; norm_num [ hδ ];
     convert intervalIntegral.integral_comp_div _ _ using 3 <;> ring <;> norm_num [ hδ ];
-    simp +decide [ hδ, mul_assoc, mul_left_comm, smul_smul ]
+    simp [ hδ, smul_smul ]
 
 /-! ## H1.4 — numerical range and eigenvalue inclusion -/
 
@@ -150,7 +150,7 @@ then `⟪v, A v⟫ = λ·⟪v, v⟫ = λ·‖v‖² = λ`.
 theorem eigenvalue_mem_numericalRange (A : E →ₗ[ℂ] E) (l : ℂ) (v : E)
     (hv : ‖v‖ = 1) (hAv : A v = l • v) : l ∈ numericalRange A := by
   use v;
-  simp_all +decide [ inner_self_eq_norm_sq_to_K ]
+  simp_all [ inner_self_eq_norm_sq_to_K ]
 
 /-! ## H1.5 — the operator φ-function via the resolvent (Definition 2.4) -/
 
@@ -184,9 +184,9 @@ theorem resolvent_eigenvector {F : Type*} [NormedAddCommGroup F] [NormedSpace �
     (hXl : X * (γ • (1 : F →L[ℂ] F) - T) = 1) :
     X v = (γ - z)⁻¹ • v := by
   have key : X ((γ - z) • v) = v := by
-    convert congr_arg ( fun f => f v ) hXl using 1 ; simp +decide [ sub_smul, hTv ];
+    convert congr_arg ( fun f => f v ) hXl using 1 ; simp [ sub_smul, hTv ];
   convert congr_arg ( fun x => ( γ - z ) ⁻¹ • x ) key using 1;
-  simp +decide [ hz, smul_smul ]
+  simp [ hz, smul_smul ]
 
 /-! ## H1.6 — the resolvent shift identity (the clean SIRK algebra core) -/
 
@@ -204,8 +204,8 @@ theorem resolvent_identity (a : A) (gj gm : ℂ) (Xj Xm : A)
     Xj - Xm = (gm - gj) • (Xj * Xm) := by
   -- Using the fact that $Xj * (γ_m - a) = 1$ and $Xm * (γ_m - a) = 1$,    we can simplify the expression.
   have h_simp : Xj * (gm - gj) • 1 * Xm = Xj * (algebraMap ℂ A gm - a) * Xm - Xj * (algebraMap ℂ A gj - a) * Xm := by
-    simp +decide [ sub_mul, mul_sub, Algebra.smul_def ];
-  convert h_simp.symm using 1 <;> simp +decide [ mul_assoc, hjl, hjr, hml, hmr ]
+    simp [ sub_mul, mul_sub, Algebra.smul_def ];
+  convert h_simp.symm using 1 <;> simp [ mul_assoc, hjr, hml ]
 
 /-
 **H1.6** (SIRK shift form): with the SIRK shifts `γ_j = N − h·j` the resolvent
@@ -220,10 +220,10 @@ theorem resolvent_shift_mul (a : A) (N h : ℂ) (j m : ℂ)
     (hml : (algebraMap ℂ A (N - h * m) - a) * Xm = 1)
     (hmr : Xm * (algebraMap ℂ A (N - h * m) - a) = 1) :
     Xj * (1 + (h * (m - j)) • Xm) = Xm := by
-  simp_all +decide [ mul_add, mul_sub, sub_mul, mul_comm, mul_left_comm, Algebra.smul_def ];
-  apply_fun ( · * Xm ) at hjr ; simp_all +decide [ mul_assoc, sub_mul ];
-  simp_all +decide [ mul_assoc, sub_eq_iff_eq_add ];
-  simp_all +decide [ mul_add, add_mul, mul_assoc ];
+  simp_all [ mul_add, mul_sub, sub_mul, Algebra.smul_def ];
+  apply_fun ( · * Xm ) at hjr ; simp_all [ mul_assoc, sub_mul ];
+  simp_all [ sub_eq_iff_eq_add ];
+  simp_all [ mul_add ];
   grind
 
 /-
@@ -245,13 +245,13 @@ theorem resolvent_shift_repr (a : A) (N h : ℂ) (j m : ℂ) (Xj Xm : A)
     Xj = ⅟(1 + (h * (m - j)) • Xm) * Xm := by
   -- By definition of $u$, we know that $u * Xm = Xm * u$.
   have hu_comm : (1 + (h * (m - j)) • Xm) * Xm = Xm * (1 + (h * (m - j)) • Xm) := by
-    simp +decide [ mul_add, add_mul, mul_assoc, smul_mul_assoc ];
+    simp [ mul_add, add_mul ];
   have hu_inv_comm : Xm * ⅟(1 + (h * (m - j)) • Xm) = ⅟(1 + (h * (m - j)) • Xm) * Xm := by
     apply_fun (fun x => x * ⅟(1 + (h * (m - j)) • Xm)) at hu_comm;
-    simp_all +decide [ mul_assoc ];
-    apply_fun (fun x => ⅟(1 + (h * (m - j)) • Xm) * x) at hu_comm; simp_all +decide [ mul_assoc ];
+    simp_all [ mul_assoc ];
+    apply_fun (fun x => ⅟(1 + (h * (m - j)) • Xm) * x) at hu_comm; simp_all ;
   convert congr_arg ( fun x => x * ⅟ ( 1 + ( h * ( m - j ) ) • Xm ) ) ( resolvent_shift_mul a N h j m Xj Xm hjl hjr hml hmr ) using 1;
-  · simp +decide [ mul_assoc ];
+  · simp [ mul_assoc ];
   · exact hu_inv_comm.symm
 
 end

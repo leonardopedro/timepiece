@@ -52,7 +52,7 @@ positive.
 theorem posSupport_nonempty {p : Fin n → ℝ} (hp : p ∈ stdSimplex ℝ (Fin n)) :
     (posSupport p).Nonempty := by
   by_contra h_empty;
-  simp_all +decide [ Finset.ext_iff, posSupport ];
+  simp_all [ Finset.ext_iff, posSupport ];
   exact absurd ( hp.2 ▸ Finset.sum_nonpos fun i _ => h_empty i ) ( by norm_num )
 
 /-- Hence a probability distribution has at least one strictly positive
@@ -77,7 +77,7 @@ map on the unit sphere is not injective.
 -/
 theorem bornMapSphere_not_injective (hn : 0 < n) :
     ¬ Function.Injective (bornMapSphere n) := by
-  unfold bornMapSphere; intro h; simp_all +decide [Function.Injective]
+  unfold bornMapSphere; intro h; simp_all [Function.Injective]
   contrapose! h
   refine ⟨EuclideanSpace.single ⟨0, hn⟩ 1, ?_, -EuclideanSpace.single ⟨0, hn⟩ 1, ?_, ?_, ?_⟩ <;>
     norm_num [EuclideanSpace.norm_eq]

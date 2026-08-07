@@ -94,7 +94,7 @@ theorem compress_X_comp_V (V : F →L[ℂ] E) (X : E →L[ℂ] E)
     X.comp V = V.comp (compress V X) := by
   ext x;
   obtain ⟨ y, hy ⟩ := hinv x;
-  replace hVV := congr_arg ( fun f => f y ) hVV; simp_all +decide [ ContinuousLinearMap.ext_iff ] ;
+  replace hVV := congr_arg ( fun f => f y ) hVV; simp_all  ;
   unfold compress; aesop;
 
 /-
@@ -107,9 +107,9 @@ theorem compress_pow (V : F →L[ℂ] E) (X : E →L[ℂ] E)
   induction' n with n ih;
   · aesop;
   · convert congr_arg ( fun f => X.comp f ) ih using 1;
-    · simp +decide [ pow_succ' ]
+    · simp [ pow_succ' ]
       exact ContinuousLinearMap.ext (congrFun rfl)
-    · simp +decide [ pow_succ', ← ContinuousLinearMap.comp_assoc, compress_X_comp_V _ _ hVV hinv ];
+    · simp [ pow_succ', ← ContinuousLinearMap.comp_assoc, compress_X_comp_V _ _ hVV hinv ];
       exact ContinuousLinearMap.ext (congrFun rfl)
 
 /-
@@ -138,7 +138,7 @@ theorem compress_inv_transfer (V : F →L[ℂ] E)
     (hqXl : qXinv.comp qX = ContinuousLinearMap.id ℂ E)
     (hqBr : qB.comp qBinv = ContinuousLinearMap.id ℂ F) :
     qXinv.comp V = V.comp qBinv := by
-  simp_all +decide [ ContinuousLinearMap.ext_iff ]
+  simp_all [ ContinuousLinearMap.ext_iff ]
   grind
 
 /-! ## H2.3 — the SIRK convergence headline (Theorem 4.1), conditional -/

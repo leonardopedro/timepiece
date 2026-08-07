@@ -14,7 +14,7 @@ The probability clock parametrizes a two-outcome distribution by a point on the
 circle. This chapter lifts the construction to an arbitrary number of outcomes, to
 countably infinite outcome spaces, and finally to complex and quaternionic
 wave-functions. The mechanism is the same throughout: a recursive sequence of
-two-dimensional rotations — **Euler angles** — whose telescoping guarantees that the
+two-dimensional rotations — *Euler angles* — whose telescoping guarantees that the
 probabilities sum to one.
 
 # Euler Angles for Finitely Many States
@@ -39,7 +39,7 @@ where $`c_k = \cos\theta_k` and $`s_k = \sin\theta_k`. The verified statements
 
 The first two say that for any angles the Born probabilities sum to $`1` and the
 wave-function has unit norm — the telescoping identity, made formal. The third is
-the **surjectivity**: every probability distribution $`p` with $`p_k \ge 0` arises
+the *surjectivity*: every probability distribution $`p` with $`p_k \ge 0` arises
 from some choice of angles. The ingredient that makes surjectivity work is that
 every number in $`[0,1]` is a $`\cos^2`:
 
@@ -57,7 +57,7 @@ $$`v_k v_k^\dagger = \tfrac12(\cdots) + \tfrac12(l_k l_k^\dagger - v_{k+1}v_{k+1
 
 The term proportional to $`J_k` is the off-diagonal coherence — a feature of the
 wave-function parametrization, not a physical quantity (as in
-{ref "probability-clock"}[the probability clock]). **Collapse** is, once again,
+{ref "probability-clock"}[the probability clock]). *Collapse* is, once again,
 taking the "real part" — deleting the $`J_k` term — leaving a diagonal
 operator whose entries are the conditional probabilities
 $`P(k \mid k \text{ or above}) = c_k^2`. The verified statements (module
@@ -70,13 +70,13 @@ $`P(k \mid k \text{ or above}) = c_k^2`. The verified statements (module
 #check @ChapterEulerGenericDensity.density_idempotent
 ```
 
-Thus the collapse for a generic phase space is just a **recursion of collapses of
-two-dimensional real wave-functions** — the probability clock, nested.
+Thus the collapse for a generic phase space is just a *recursion of collapses of
+two-dimensional real wave-functions* — the probability clock, nested.
 
 # Countably Infinite Outcome Spaces
 
 The recursion does not need to stop. For a countable (possibly infinite) partition
-of the phase space, the same construction gives a **stick-breaking** process: at
+of the phase space, the same construction gives a *stick-breaking* process: at
 step $`n` one breaks off a fraction $`c_n` of the remaining stick. The verified
 statements (module `BookProof.ChapterEulerCountableChain`):
 
@@ -96,10 +96,10 @@ finite distribution now reaches every countable one.
 
 The real parametrization is always possible, but it need not be the most natural
 one. The manuscript's argument for the complex and quaternionic cases runs through
-the **real Schur's lemma**: if a set of normal operators (the projections together
+the *real Schur's lemma*: if a set of normal operators (the projections together
 with a unitary representation of a symmetry group) leaves no non-trivial closed
 subspace invariant, then the algebra of operators commuting with all of them is a
-**real associative division algebra** — and such an algebra is isomorphic to exactly
+*real associative division algebra* — and such an algebra is isomorphic to exactly
 one of the real numbers, the complex numbers, or the quaternions.
 
 When the commuting algebra is the complex (respectively quaternionic) numbers, one
@@ -115,13 +115,13 @@ rule then uses the squared norm. The verified statements (module
 ```
 
 Reading them: the complex Born probability $`|v_k|^2` is non-negative; the norm of
-a complex wave-function equals the norm of its **realification** (a complex
+a complex wave-function equals the norm of its *realification* (a complex
 Hilbert space is a real one of twice the dimension, with the same norm); and the
 Born rule reproduces every distribution in the complex case and in the quaternionic
 case, exactly as in the real case.
 
 The upshot: the field over which the wave-function lives — real, complex, or
-quaternionic — is **not** an extra physical postulate. It is read off from the
+quaternionic — is *not* an extra physical postulate. It is read off from the
 commuting algebra of the symmetry representation, and the parametrization of
 probability by a wave-function works uniformly over all three.
 

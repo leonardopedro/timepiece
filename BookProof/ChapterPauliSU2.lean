@@ -52,7 +52,7 @@ action of the group).
 -/
 theorem spinorAction_comp (T₁ T₂ X : Matrix (Fin 2) (Fin 2) ℂ) :
     spinorAction (T₁ * T₂) X = spinorAction T₂ (spinorAction T₁ X) := by
-  unfold spinorAction; rw [ Matrix.conjTranspose_mul ] ; simp +decide [ Matrix.mul_assoc ] ;
+  unfold spinorAction; rw [ Matrix.conjTranspose_mul ] ; simp [ Matrix.mul_assoc ] ;
 
 /-
 **Two-to-one:** `T` and `-T` induce the same spinor conjugation.  This is the
@@ -60,7 +60,7 @@ theorem spinorAction_comp (T₁ T₂ X : Matrix (Fin 2) (Fin 2) ℂ) :
 -/
 theorem spinorAction_neg (T X : Matrix (Fin 2) (Fin 2) ℂ) :
     spinorAction (-T) X = spinorAction T X := by
-  unfold spinorAction; simp +decide [ Matrix.conjTranspose_neg ] ;
+  unfold spinorAction; simp [ Matrix.conjTranspose_neg ] ;
 
 /-
 The spinor conjugation preserves hermiticity.
@@ -69,7 +69,7 @@ theorem spinorAction_isHermitian (T : Matrix (Fin 2) (Fin 2) ℂ)
     {X : Matrix (Fin 2) (Fin 2) ℂ} (hX : Xᴴ = X) :
     (spinorAction T X)ᴴ = spinorAction T X := by
   unfold spinorAction;
-  simp +decide [ hX, Matrix.mul_assoc ]
+  simp [ hX, Matrix.mul_assoc ]
 
 /-! ## The unitary case: `SU(2)` fixes the time component -/
 
@@ -83,7 +83,7 @@ theorem spinorAction_trace_of_unitary {T : Matrix (Fin 2) (Fin 2) ℂ}
     (spinorAction T X).trace = X.trace := by
   unfold spinorAction;
   convert Matrix.trace_mul_comm _ _ using 2;
-  simp +decide [ ← mul_assoc, mul_eq_one_comm.mp hT ]
+  simp [ ← mul_assoc, mul_eq_one_comm.mp hT ]
 
 /-
 For a unitary `T`, the spinor conjugation **fixes the time component** `x⁰` of
@@ -93,7 +93,7 @@ theorem su2_preserves_time {T : Matrix (Fin 2) (Fin 2) ℂ} (hT : Tᴴ * T = 1)
     (x : Fin 4 → ℝ) :
     (vecOfMat (spinorAction T (hermMat x))) 0 = x 0 := by
   unfold vecOfMat spinorAction hermMat;
-  simp_all +decide [ ← Matrix.ext_iff, Fin.forall_fin_two, Matrix.mul_apply, Matrix.adjugate_fin_two ];
+  simp_all [ ← Matrix.ext_iff, Fin.forall_fin_two, Matrix.mul_apply ];
   norm_num [ Complex.ext_iff ] at *;
   grind
 

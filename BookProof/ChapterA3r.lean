@@ -70,7 +70,7 @@ theorem trace_projSym_two : Matrix.trace (projSym 2) = 10 := by
 (the Def 57 pinor pair). -/
 theorem trace_projAnti_two : Matrix.trace (projAnti 2) = 6 := by
   unfold projAnti; norm_num;
-  simp +decide [ signC, trace_permMat ];
+  simp [ signC, trace_permMat ];
   rw [ inv_mul_eq_div, div_eq_iff ] <;> norm_cast
 
 /-- **No mixed piece at `N = 2`.**  The mixed-symmetry projector vanishes. -/

@@ -60,7 +60,8 @@ noncomputable def adj (op : NormalOrderedOp M) : NormalOrderedOp M :=
 
 /-- The adjoint is involutive. -/
 @[simp] theorem adj_involutive (op : NormalOrderedOp M) : adj (adj op) = op := by
-  ext; simp [adj]
+  apply ext
+  simp only [adj]
   rw [← Finsupp.mapDomain_comp]
   have h : swapCounts ∘ swapCounts = (id : (Fin M → ℕ × ℕ) → Fin M → ℕ × ℕ) := by
     funext ts; exact swapCounts_involutive ts
@@ -153,7 +154,8 @@ noncomputable def mul (op₁ op₂ : NormalOrderedOp M) : NormalOrderedOp M :=
 /-- Wick multiplication reverses under adjoint. -/
 theorem adj_mul (op₁ op₂ : NormalOrderedOp M) :
     adj (op₁.mul op₂) = (adj op₂).mul (adj op₁) := by
-  simp [mul, adj_smul, adj_add, adj_involutive]
+  unfold mul
+  rw [adj_smul, adj_add, adj_involutive]
   apply ext
   simp [add, add_comm]
 
@@ -196,14 +198,16 @@ noncomputable def derivative (op : NormalOrderedOp M) (i : Fin M) : NormalOrdere
 /-- Adjoint commutes with the real formal derivative. -/
 theorem adj_derivative (op : NormalOrderedOp M) (i : Fin M) :
     adj (derivative op i) = derivative (adj op) i := by
-  simp [derivative, adj_smul, adj_add, adj_involutive]
+  unfold derivative
+  rw [adj_smul, adj_add, adj_involutive]
   apply ext
   simp [add, add_comm]
 
 /-- A real polynomial in `x` is fixed by the Wick adjoint. -/
 theorem adj_toNormalOrdered (p : Polynomial ℝ) (i : Fin M) :
     adj (toNormalOrdered p i) = toNormalOrdered p i := by
-  simp [toNormalOrdered, adj_smul, adj_add, adj_involutive]
+  unfold toNormalOrdered
+  rw [adj_smul, adj_add, adj_involutive]
   apply ext
   simp [add, add_comm]
 

@@ -84,7 +84,7 @@ The Euler "imaginary unit" `J = l w† − w l†` is antisymmetric: `Jᵀ = −
 theorem eulerJ_antisymm (l w : Fin n → ℝ) :
     (eulerJ l w)ᵀ = - eulerJ l w := by
   ext i j; simp [eulerJ];
-  simp +decide [ Matrix.vecMulVec, mul_comm ]
+  simp [ Matrix.vecMulVec, mul_comm ]
 
 /-
 Under orthonormality (`⟪l,l⟫ = ⟪w,w⟫ = 1`, `⟪l,w⟫ = 0`), the Euler imaginary
@@ -120,7 +120,7 @@ theorem euler_density_diag_real (l w : Fin n → ℝ) (θ : ℝ) (i : Fin n)
     Matrix.vecMulVec (fun j => Real.cos θ * l j + Real.sin θ * w j)
         (fun j => Real.cos θ * l j + Real.sin θ * w j) i i
       = Real.cos θ ^ 2 := by
-  simp +decide [ Matrix.vecMulVec, hli, hwi, sq ]
+  simp [ Matrix.vecMulVec, hli, hwi, sq ]
 
 /-
 Under orthonormality, the density matrix `φ φ†` of the normalized
@@ -140,16 +140,16 @@ theorem euler_density_isIdempotent (l w : Fin n → ℝ) (θ : ℝ)
   have h_sum : ∑ i, (Real.cos θ * l i + Real.sin θ * w i)
       * (Real.cos θ * l i + Real.sin θ * w i) = 1 := by
     ring_nf
-    simp_all +decide [Finset.sum_add_distrib, mul_assoc, mul_comm, mul_left_comm,
+    simp_all [Finset.sum_add_distrib, mul_assoc, mul_comm, mul_left_comm,
       Real.sin_sq, Real.cos_sq]
     ring
-    simp_all +decide [Finset.sum_add_distrib, ← Finset.mul_sum _ _ _, ← Finset.sum_mul, sq]
+    simp_all [Finset.sum_add_distrib, ← Finset.mul_sum _ _ _, ← Finset.sum_mul, sq]
     ring
   convert congr_arg (fun x : ℝ => x • Matrix.vecMulVec
     (fun i => Real.cos θ * l i + Real.sin θ * w i)
     (fun i => Real.cos θ * l i + Real.sin θ * w i)) h_sum using 1
   · ext i j
-    simp +decide [Matrix.vecMulVec, Matrix.mul_apply, Finset.mul_sum _ _ _,
+    simp [Matrix.vecMulVec, Matrix.mul_apply, Finset.mul_sum _ _ _,
       mul_comm, mul_left_comm]
   · norm_num
 

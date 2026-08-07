@@ -8,7 +8,16 @@ import Book.TotalVariance
 import Book.ProbabilityClock
 import Book.BornReproduces
 import Book.BornFiber
+import Book.GaugeSymmetry
 import Book.SternGerlach
+import Book.RealRepresentations
+import Book.YangMillsQuantization
+import Book.GribovAmbiguity
+import Book.PhysicalParity
+import Book.DiffeomorphismsGravity
+import Book.ConsciousnessBayesianPrior
+import Book.AlignedDeepLearning
+import Book.CoherentState
 import Book.FreeField
 import Book.Irreversibility
 import Book.BijectionProbability
@@ -28,7 +37,6 @@ import Book.ClassicalLimit
 import Book.ProofPlans
 import Book.SpinStatistics
 import Book.SymmetryRep
-import Book.TrajectoryReconstruction
 import Book.SolovayTensor
 import Book.ConditionalUnitary
 
@@ -45,7 +53,7 @@ shortTitle := "Timepiece"
 
 This book is a pedagogical, machine-verified tour of the mathematical ideas behind
 the _Timepiece_ programme: the observation that an ordinary probability measure can
-be **parametrized by a wave-function**, and that this single change of variables
+be *parametrized by a wave-function*, and that this single change of variables
 naturally reproduces the structural backbone of quantum mechanics — Born's rule,
 unitary time-evolution, gauge symmetry, quantization, and the classical limit — as
 theorems of probability theory rather than as physical postulates.
@@ -65,7 +73,7 @@ The book is written to be read in two layers at once.
 : The mathematical layer
 
   Each chapter develops a self-contained mathematical idea in ordinary prose and
-  notation, with a complete **sketch proof**. These sketches are meant to be
+  notation, with a complete *sketch proof*. These sketches are meant to be
   readable: they explain _why_ a statement is true, not merely _that_ it is true.
 
 : The verified layer
@@ -76,7 +84,7 @@ The book is written to be read in two layers at once.
   library. Where a claim is not yet proved, we say so and give a proof plan in
   {ref "proof-plans"}[the appendix].
 
-**Verifying everything for yourself.** Two commands reproduce the whole
+*Verifying everything for yourself.* Two commands reproduce the whole
 verification. From the repository root:
 
 ```
@@ -99,7 +107,7 @@ rebuilds this book and renders the HTML you are reading as a single page at
 blocks; upgrading them to elaborated, hover-enabled blocks, and migrating to
 `verso-blueprint`, are planned — see {ref "proof-plans"}[the appendix].)
 
-**Scope of this edition.** This is a curated edition. It follows the structure of
+*Scope of this edition.* This is a curated edition. It follows the structure of
 the source manuscript `book.tex`, but it selects the threads whose mathematics is
 both self-contained and already formalized. Two chapters of the manuscript are
 deliberately replaced here:
@@ -114,7 +122,7 @@ deliberately replaced here:
    complete, decidable extension that does not leak undecidable arithmetic, provided
    its infinite elements are kept _internally unselectable_.
 
-**A note on what remains open.** Where a statement is mathematically relevant to the
+*A note on what remains open.* Where a statement is mathematically relevant to the
 narrative but is not yet proved in `BookProof`, we say so explicitly and give a
 detailed proof plan in {ref "proof-plans"}[Appendix: Proof Plans]. Nothing in the
 verified layer is asserted without a proof; the open items are quarantined there.
@@ -166,11 +174,54 @@ anticommutation in a finite tensor product of sample spaces.
 
 {include 0 Book.ConditionalUnitary}
 
+{include 0 Book.GaugeSymmetry}
+
 {include 0 Book.SternGerlach}
 
 {include 0 Book.FreeField}
 
 {include 0 Book.SpinStatistics}
+
+# Relativity, Gauge Theory, and Gravity
+%%%
+tag := "part-relativity"
+%%%
+
+The manuscript's relativistic and field-theoretic programme. We develop the
+Lorentz group and its real representations, the CPT theorem and the relativistic
+position operator; quantization arising from time-evolution (Yang–Mills, the
+Weyl/CCR relations, the nilpotent BRST charge); the Gribov ambiguity and the
+abelian (electromagnetic) case; the physical parity transformation and
+antiparticles; and the diffeomorphism/`3+1` structure of gravity.
+
+{include 0 Book.RealRepresentations}
+
+{include 0 Book.YangMillsQuantization}
+
+{include 0 Book.GribovAmbiguity}
+
+{include 0 Book.PhysicalParity}
+
+{include 0 Book.DiffeomorphismsGravity}
+
+# Consciousness, Deep Learning, and the Bayesian Prior
+%%%
+tag := "part-consciousness"
+%%%
+
+The manuscript's Bayesian foundations of agency. We show that no point of null
+measure is special and no prior is best for all cases, that a deterministic prior
+is still subjective, and that Bayesian inference is a unitary representation; and
+that randomized (deep) learning is a random sampling method inducing a Bayesian
+posterior over models. We close with the coherent-state reading of Softmax
+attention, where the Born rule on coherent states is shown to be the same equation
+as the attention mechanism.
+
+{include 0 Book.ConsciousnessBayesianPrior}
+
+{include 0 Book.AlignedDeepLearning}
+
+{include 0 Book.CoherentState}
 
 # Entropy, Irreversibility, and the Arrow of Time
 %%%
@@ -248,8 +299,6 @@ concrete deterministic theory, and the classical limit.
 {include 1 Book.EulerGeneric}
 
 {include 1 Book.TimeTranslationStochastic}
-
-{include 1 Book.TrajectoryReconstruction}
 
 {include 1 Book.DoubleSlit}
 

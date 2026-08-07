@@ -46,8 +46,8 @@ The all-false choice is represented by the identity matrix.
 theorem flipMatrix_false :
     flipMatrix (fun _ => false : Fin n → Bool) = 1 := by
   ext i j
-  by_cases hi : i = j <;> simp_all +decide [flipVec_false, flipMatrix]
-  simp +decide [hi, Matrix.one_apply]
+  by_cases hi : i = j <;> simp_all [flipVec_false, flipMatrix]
+  simp [hi, Matrix.one_apply]
 
 /-
 Coordinate-wise `xor` is represented by matrix multiplication.
@@ -55,7 +55,7 @@ Coordinate-wise `xor` is represented by matrix multiplication.
 theorem flipMatrix_xor (b₁ b₂ : Fin n → Bool) :
     flipMatrix (fun k => xor (b₁ k) (b₂ k)) = flipMatrix b₁ * flipMatrix b₂ := by
   ext i j
-  by_cases hi : i = j <;> simp +decide [hi, flipMatrix, flipVec]
+  by_cases hi : i = j <;> simp [hi, flipMatrix, flipVec]
   grind +splitImp
 
 /-
@@ -64,8 +64,8 @@ Every sign matrix squares to the identity.
 theorem flipMatrix_sq (b : Fin n → Bool) :
     flipMatrix b * flipMatrix b = 1 := by
   ext i j
-  by_cases hi : i = j <;> simp_all +decide [flipMatrix, flipVec]
-  simp +decide [hi, Matrix.one_apply]
+  by_cases hi : i = j <;> simp_all [flipMatrix, flipVec]
+  simp [hi, Matrix.one_apply]
 
 /-
 Every sign matrix is orthogonal.

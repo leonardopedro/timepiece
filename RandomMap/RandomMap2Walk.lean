@@ -56,10 +56,10 @@ theorem integrable_partialEnergy {N : ℕ} (n : ℕ) (x : InnerHead N) (ε : ℝ
     · exact Measurable.aestronglyMeasurable ( by measurability );
     · refine' MeasureTheory.measure_mono_null _ _;
       exact { y : InnerHead N | |y i - x i| > ε };
-      · simp +decide [ Set.subset_def, abs_le ];
+      · simp [ Set.subset_def, abs_le ];
         exact fun y hy => by cases abs_cases ( y i - x i ) <;> nlinarith [ Fact.out ( p := 0 < ε ) ] ;
       · erw [ show { y : Fin N → ℝ | |y i - x i| > ε } = ( Set.pi Set.univ fun j => if j = i then { y : ℝ | |y - x i| > ε } else Set.univ ) by ext; aesop ] ; erw [ MeasureTheory.Measure.pi_pi ] ;
-        rw [ Finset.prod_eq_zero ( Finset.mem_univ i ) ] ; simp +decide [ scalarBumpMeasure ];
+        rw [ Finset.prod_eq_zero ( Finset.mem_univ i ) ] ; simp [ scalarBumpMeasure ];
         rw [ ProbabilityTheory.cond_apply ];
         · rw [ show ( Icc ( x i - ε ) ( x i + ε ) ∩ { y : ℝ | ε < |y - x i| } ) = ∅ from Set.eq_empty_of_forall_notMem fun y hy => by cases abs_cases ( y - x i ) <;> linarith [ hy.1.1, hy.1.2, hy.2.out ] ] ; norm_num;
         · exact measurableSet_Icc;

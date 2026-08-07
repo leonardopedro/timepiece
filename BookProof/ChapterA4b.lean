@@ -90,24 +90,24 @@ theorem prop61_unitary_core
     exact hEsa;
   -- Now let's prove the two structural product identities.
   have h1 : (E + star c) * (E + c) = (2:ℂ) • (E * E) + (2 * m) • E := by
-    simp +decide [ two_mul, add_mul, mul_add, h_star_c, hE2, hEc.eq ]
-    simp +decide [ two_smul, sub_mul ] ; abel_nf
+    simp [ two_mul, add_mul, mul_add, h_star_c, hE2, hEc.eq ]
+    simp [ two_smul, sub_mul ] ; abel_nf
   have h2 : (E + c) * (E + star c) = (2:ℂ) • (E * E) + (2 * m) • E := by
-    simp_all +decide [ mul_add, add_mul, two_smul ]
-    simp_all +decide [ mul_sub, sub_mul, hEc.eq ]
+    simp_all [ mul_add, add_mul, two_smul ]
+    simp_all [ mul_sub, sub_mul, hEc.eq ]
     abel1
   -- Now let's prove the two product identities.
   have h3 : (E + star c) * q * (q * (E + c)) = 1 := by
     have h4 : (E + star c) * (q * q) * (E + c) = (p * p) * (q * q) := by
       have h4 : (E + star c) * (q * q) * (E + c) = ((E + star c) * (E + c)) * (q * q) := by
-        simp +decide only [h_star_c, add_mul, mul_assoc];
-        simp +decide only [mul_add, hqE.eq, hqc.eq, ← mul_assoc, hEc.eq];
+        simp only [h_star_c, add_mul, mul_assoc];
+        simp only [mul_add, hqE.eq, hqc.eq, ← mul_assoc, hEc.eq];
       rw [h4, h1, hp2];
     grind
   have h4 : q * (E + c) * (E + star c) * q = 1 := by
-    simp_all +decide [ mul_assoc, two_smul ];
-    simp +decide [ ← mul_assoc, ← hp2, hqp1, hqp2 ];
-  simp_all +decide [ ← mul_assoc ]
+    simp_all [ mul_assoc, two_smul ];
+    simp [ ← mul_assoc, ← hp2, hqp1, hqp2 ];
+  simp_all [ ← mul_assoc ]
 
 end Core
 
@@ -132,10 +132,10 @@ theorem Commute.of_mul_eq_one {p q x : A}
     (h : Commute p x) (h1 : q * p = 1) (h2 : p * q = 1) : Commute q x := by
   have h_comm : q * x = x * q := by
     have h_comm : p * q * x = p * x * q := by
-      simp +decide [ mul_assoc, h.eq ];
+      simp [ mul_assoc, h.eq ];
       grind
-    apply_fun (fun y => q * y) at h_comm; simp_all +decide [ mul_assoc ] ;
-    simp +decide [ ← mul_assoc, h1 ];
+    apply_fun (fun y => q * y) at h_comm; simp_all [ mul_assoc ] ;
+    simp [ ← mul_assoc, h1 ];
   exact h_comm
 
 end InverseHelpers

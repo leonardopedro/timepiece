@@ -90,7 +90,7 @@ theorem sum_stick_add_remainder (θ : ℕ → ℝ) (N : ℕ) :
     (∑ n ∈ range N, stick θ n) + remainder θ N = 1 := by
   induction' N with N ih N ih;
   · norm_num [ remainder ];
-  · simp_all +decide [ Finset.sum_range_succ, remainder_succ ];
+  · simp_all [ Finset.sum_range_succ, remainder_succ ];
     rw [ ← ih, stick_eq ] ; rw [ Real.sin_sq ] ; ring
 
 /-! ## The Born family is a probability distribution -/
@@ -106,10 +106,10 @@ theorem bornProb_nonneg (θ : ℕ → ℝ) (n : ℕ) (i : Fin n) : 0 ≤ bornPro
 -/
 theorem bornProb_sum_eq_one (θ : ℕ → ℝ) (n : ℕ) (hn : 1 ≤ n) :
     ∑ i : Fin n, bornProb θ n i = 1 := by
-  rcases n with ( _ | _ | n ) <;> simp_all +decide [ Fin.sum_univ_castSucc ];
+  rcases n with ( _ | _ | n ) <;> simp_all [ Fin.sum_univ_castSucc ];
   · unfold bornProb; aesop;
   · convert sum_stick_add_remainder θ ( n + 1 ) using 1;
-    simp +decide [ Finset.sum_range, Fin.sum_univ_castSucc, bornProb ]
+    simp [ Finset.sum_range, Fin.sum_univ_castSucc, bornProb ]
 
 /-! ## Arbitrariness: any distribution is realized by the Born rule -/
 
@@ -148,10 +148,10 @@ theorem exists_angles_realize (n : ℕ) (p : Fin n → ℝ)
             · aesop;
             · refine' le_trans ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.range_mono hj ) fun _ _ _ => _ ) _;
               · grind;
-              · simp +decide [ Finset.sum_range, Fin.sum_univ_castSucc ];
+              · simp [ Finset.sum_range, Fin.sum_univ_castSucc ];
           · rw [ ← Finset.sum_range_add_sum_Ico _ ( by linarith : n + 1 ≤ j ) ];
             simp +zetaDelta at *;
-            simp_all +decide [ Finset.sum_range, Fin.sum_univ_castSucc ];
+            simp_all [ Finset.sum_range, Fin.sum_univ_castSucc ];
             exact Finset.sum_nonpos fun x hx => by split_ifs <;> linarith [ Finset.mem_Ico.mp hx ] ;
         have hq_le_R : q j ≤ R j := by
           have hq_le_R : ∑ k ∈ Finset.range (j + 1), q k ≤ 1 := by
@@ -160,7 +160,7 @@ theorem exists_angles_realize (n : ℕ) (p : Fin n → ℝ)
               · exact Finset.sum_le_sum_of_subset_of_nonneg ( Finset.range_mono ( by linarith ) ) fun _ _ _ => by aesop;
               · rw [ Finset.sum_subset ( Finset.range_mono ( by linarith : n + 1 ≤ j + 1 ) ) fun x hx₁ hx₂ => by aesop ];
             exact hq_le_R.trans ( by rw [ ← hsum ] ; rw [ Finset.sum_range ] ; exact Finset.sum_le_sum fun i _ => by aesop );
-          simp_all +decide [ Finset.sum_range_succ ];
+          simp_all [ Finset.sum_range_succ ];
           linarith
         have ht_range : 0 ≤ (if R j = 0 then 0 else q j / R j) ∧ (if R j = 0 then 0 else q j / R j) ≤ 1 := by
           split_ifs <;> norm_num [ * ];
@@ -175,32 +175,32 @@ theorem exists_angles_realize (n : ℕ) (p : Fin n → ℝ)
       · have h_remainder_succ : remainder θ (j + 1) = remainder θ j * (1 - if R j = 0 then 0 else q j / R j) := by
           rw [ ← hθ j, remainder_succ ];
           rw [ Real.sin_sq ];
-        by_cases hj : R j = 0 <;> simp_all +decide [ Finset.sum_range_succ ];
+        by_cases hj : R j = 0 <;> simp_all ;
         · simp +zetaDelta at *;
-          by_cases hj' : j ≤ n <;> simp_all +decide [ Finset.sum_range_succ ];
+          by_cases hj' : j ≤ n <;> simp_all [ Finset.sum_range_succ ];
           · have h_sum_le_one : ∑ k ∈ Finset.range (j + 1),            (if h : k ≤ n then p ⟨k, by linarith⟩ else 0) ≤ 1 := by
               rw [ ← hsum ];
               rw [ Finset.sum_fin_eq_sum_range ];
               rw [ ← Finset.sum_range_add_sum_Ico _ ( by linarith : j + 1 ≤ n + 1 ) ];
               exact le_add_of_le_of_nonneg ( Finset.sum_le_sum fun _ _ => by split_ifs <;> linarith ) ( Finset.sum_nonneg fun _ _ => by split_ifs <;> linarith [ hp ⟨ _, by linarith [ Finset.mem_Ico.mp ‹_› ] ⟩ ] );
-            simp_all +decide [ Finset.sum_range_succ ];
+            simp_all [ Finset.sum_range_succ ];
             linarith [ hp ⟨ j, by linarith ⟩ ];
           · grind;
         · simp +zetaDelta at *;
           rw [ Finset.sum_range_succ, mul_sub, mul_one, mul_div_cancel₀ _ hj ] ; ring;
-    use θ; intro i; simp +decide [ bornProb, h_remainder ] ;
-    split_ifs <;> simp_all +decide [ Finset.sum_range, Fin.sum_univ_castSucc ];
+    use θ; intro i; simp [ bornProb, h_remainder ] ;
+    split_ifs <;> simp_all [ Fin.sum_univ_castSucc ];
     · rw [ stick_eq, h_remainder, hθ ];
-      split_ifs <;> simp_all +decide [ mul_div_cancel₀, ne_of_gt ];
+      split_ifs <;> simp_all [ mul_div_cancel₀ ];
       · have h_contra : ∑ k ∈ Finset.range (i + 1), q k ≤ ∑ k ∈ Finset.range (n + 1), q k := by
           exact Finset.sum_le_sum_of_subset_of_nonneg ( Finset.range_mono ( by linarith ) ) fun _ _ _ => by aesop;
         simp +zetaDelta at *;
-        simp_all +decide [ Finset.sum_range, Fin.sum_univ_castSucc ];
+        simp_all [ Finset.sum_range, Fin.sum_univ_castSucc ];
         grind;
       · grind;
     · simp +zetaDelta at *;
-      simp_all +decide [ Fin.eq_last_of_not_lt ];
-      simp_all +decide [ Finset.sum_range, Fin.sum_univ_castSucc ];
+      simp_all [ Fin.eq_last_of_not_lt ];
+      simp_all [ Finset.sum_range ];
       linarith!
 
 end BookProof.ChapterE2

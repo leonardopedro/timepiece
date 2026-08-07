@@ -67,12 +67,12 @@ holds because `h♯` annihilates the lowered timelike covector
 -/
 theorem spatialProj_mul_invSpatialMetric (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     spatialProj v * invSpatialMetric v = invSpatialMetric v := by
-  ext a c;    simp +decide [ spatialProj, Matrix.one_apply, Matrix.of_apply, Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
+  ext a c;    simp [ spatialProj, Matrix.one_apply, Matrix.of_apply, Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
   have h_sum_zero : ∑ b, lower v b * (invSpatialMetric v) b c = 0 := by
     convert congr_arg ( fun x => x c ) ( BookProof.ChapterGravityInvMetric.invSpatialMetric_mulVec_lower_self v hv ) using 1;
-    simp +decide [ Matrix.mulVec, dotProduct, mul_comm ];
+    simp [ Matrix.mulVec, dotProduct, mul_comm ];
     exact Finset.sum_congr rfl fun _ _ => by rw [ show invSpatialMetric v _ _ = invSpatialMetric v _ _ from by exact congr_fun ( congr_fun ( BookProof.ChapterGravityInvMetric.invSpatialMetric_symm v ) _ ) _ ] ;
-  fin_cases a <;> simp_all +decide [ Fin.sum_univ_four ] <;> ring!;
+  fin_cases a <;> simp_all [ Fin.sum_univ_four ] <;> ring!;
   · linear_combination' h_sum_zero * v 0;
   · linear_combination' h_sum_zero * v 1;
   · linear_combination' h_sum_zero * v 2;

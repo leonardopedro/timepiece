@@ -39,26 +39,26 @@ theorem exp_J (t : ℝ) :
     NormedSpace.exp (t • J) = !![Real.cos t, -Real.sin t; Real.sin t, Real.cos t] := by
   -- By definition of matrix exponential, we know that
   have h_exp : NormedSpace.exp (t • J) = ∑' n, (t ^ n / Nat.factorial n) • (J ^ n) := by
-    simp +decide [ div_eq_inv_mul, smul_pow, NormedSpace.exp_eq_tsum ];
+    simp [ div_eq_inv_mul ];
     convert NormedSpace.exp_eq_tsum using 3 ; norm_num [ smul_pow ];
     constructor;
     · exact fun _ 𝕂 {_} _ _ _ _ _ _ ↦ NormedSpace.exp_eq_tsum 𝕂;
-    intro h; rw [ h ℝ ] ; simp +decide [ mul_assoc, mul_comm, mul_left_comm, smul_pow ] ;
-    simp +decide [ mul_comm, smul_smul ];
+    intro h; rw [ h ℝ ] ; simp [ mul_comm, smul_pow ] ;
+    simp [ mul_comm, smul_smul ];
   -- We'll use the fact that $J^2 = -I$ to simplify the series.
   have h_simp : ∀ n : ℕ, J ^ (2 * n) = (-1 : ℝ) ^ n • 1 ∧ J ^ (2 * n + 1) = (-1 : ℝ) ^ n • J := by
-    intro n; induction n <;> simp_all +decide [ Nat.mul_succ, pow_succ, pow_mul ] ;
-    simp_all +decide [ show J * J = -1 from by ext i j; fin_cases i <;> fin_cases j <;> norm_num [ J ] ];
+    intro n; induction n <;> simp_all [ Nat.mul_succ, pow_succ, pow_mul ] ;
+    simp_all [ show J * J = -1 from by ext i j; fin_cases i <;> fin_cases j <;> norm_num [ J ] ];
   -- Let's split the sum into two parts: one for even $n$ and one for odd $n$.
   have h_split : ∑' n,    (t ^ n / Nat.factorial n) • (J ^ n) = (∑' n, (t ^ (2 * n) / Nat.factorial (2 * n)) • (J ^ (2 * n))) + (∑' n, (t ^ (2 * n + 1) / Nat.factorial (2 * n + 1)) • (J ^ (2 * n + 1))) := by
     rw [ ← tsum_even_add_odd ];
-    · simp_all +decide [ ← mul_assoc, ← pow_mul ];
+    · simp_all ;
       have := Real.hasSum_cos t;
       convert this.summable.smul_const ( 1 : Matrix ( Fin 2 ) ( Fin 2 ) ℝ ) using 2 ; ring;
       rw [ smul_smul, mul_comm ];
-    · simp_all +decide [ ← mul_assoc, ← smul_assoc ];
+    · simp_all [ ← smul_assoc ];
       exact Summable.smul_const ( by exact Summable.of_norm <| by simpa using Real.summable_pow_div_factorial _ |> Summable.comp_injective <| by intro m n h; simpa using h ) _;
-  simp_all +decide [ ← mul_assoc, ← smul_assoc ];
+  simp_all [ ← smul_assoc ];
   -- Recognize that the sums are the Taylor series for $\cos t$ and $\sin t$.
   have h_cos_sin : (∑' n, (t ^ (2 * n) / Nat.factorial (2 * n)) * (-1) ^ n) = Real.cos t ∧ (∑' n, (t ^ (2 * n + 1) / Nat.factorial (2 * n + 1)) * (-1) ^ n) = Real.sin t := by
     exact ⟨ by rw [ Real.cos_eq_tsum ] ; exact tsum_congr fun n => by ring, by rw [ Real.sin_eq_tsum ] ;      exact tsum_congr fun n => by ring ⟩;
@@ -98,7 +98,7 @@ theorem stochastic_uniform_to_vertex_singular
     (hcol : ∀ j, ∑ i, M i j = 1)
     (huniform : M *ᵥ ![1 / 2, 1 / 2] = ![1, 0]) :
     M.det = 0 := by
-  simp_all +decide [ funext_iff, Fin.forall_fin_two, Matrix.det_fin_two ];
+  simp_all [ funext_iff, Fin.forall_fin_two, Matrix.det_fin_two ];
   norm_num [ Matrix.mulVec ] at huniform ; nlinarith!
 
 /-! ## E.3 — A unitary that uniformizes every basis state -/
@@ -124,8 +124,8 @@ theorem exists_uniformizer (n : ℕ) (hn : 1 ≤ n) :
     ∃ U : Matrix (Fin n) (Fin n) ℂ, Uᴴ * U = 1 ∧ ∀ i j, ‖U i j‖ ^ 2 = 1 / n :=
   by
   refine' ⟨ fun i j => Complex.exp ( 2 * Real.pi * Complex.I * i.val * j.val / n ) / Real.sqrt n, _, _ ⟩ <;> norm_num [ Complex.norm_exp ];
-  ext i j ; by_cases hij : i = j <;> simp_all +decide [ Matrix.mul_apply, Complex.exp_ne_zero, div_eq_mul_inv ]
-  · simp +decide [ mul_assoc, mul_comm, mul_left_comm, Complex.mul_conj, Complex.normSq_eq_norm_sq, Complex.norm_exp, hij, Matrix.one_apply ]
+  ext i j ; by_cases hij : i = j <;> simp_all [ Matrix.mul_apply, div_eq_mul_inv ]
+  · simp [ mul_assoc, mul_comm, mul_left_comm, hij, Matrix.one_apply ]
     norm_num [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ; ring_nf ; norm_num [ show n ≠ 0 by linarith ] ;
     norm_num [ Real.sin_sq, Real.cos_sq ] ; ring ; norm_num [ show n ≠ 0 by linarith ] ;
     norm_num [ sq, show n ≠ 0 by linarith ];
@@ -173,13 +173,13 @@ theorem stickBreaking_surjective {N : ℕ} (P : Fin N → ℝ)
     have hT_pos : ∀ n : Fin (N + 1), 0 ≤ T n := by
       exact fun n => Finset.sum_nonneg fun _ _ => hP0 _
     have hT_succ : ∀ n : Fin N, T (Fin.succ n) = T (Fin.castSucc n) - P (Fin.castSucc n) := by
-      intro n; simp +decide [ T, Finset.sum_Ico_eq_sub _ ] ; ring;
+      intro n; simp [ T ] ; ring;
       rw [ eq_sub_iff_add_eq', ← Finset.sum_erase_add _ _ ( show n.castSucc ∈ Finset.Ici n.castSucc from Finset.mem_Ici.mpr le_rfl ), add_comm ];
       rcongr k ; aesop;
     -- Choose angles: for each `n`,      if `T n > 0` pick `θ n` with `Real.cos (θ n) ^ 2 = P n / T n` (possible by `cos_sq_surjective`, since `0 ≤ P n / T n ≤ 1` as `0 ≤ P n ≤ T n`); if `T n = 0` pick `θ n` with `Real.cos (θ n)^2 = 0` i.e. `θ n = π/2` so `Real.sin (θ n)^2 = 1`...
     obtain ⟨θ, hθ⟩ : ∃ θ : Fin (N + 1) → ℝ,      ∀ n : Fin (N + 1), Real.cos (θ n) ^ 2 = if T n > 0 then P n / T n else 0 := by
       use fun n => Real.arccos ( Real.sqrt ( if T n > 0 then P n / T n else 0 ) );
-      intro n; split_ifs <;> simp_all +decide [ Real.cos_arccos ] ;
+      intro n; split_ifs <;> simp_all  ;
       · rw [ Real.cos_arccos ];
         · rw [ div_pow, Real.sq_sqrt ( hP0 n ), Real.sq_sqrt ( hT_pos n ) ];
         · exact le_trans ( by norm_num ) ( div_nonneg ( Real.sqrt_nonneg _ ) ( Real.sqrt_nonneg _ ) );
@@ -195,8 +195,8 @@ theorem stickBreaking_surjective {N : ℕ} (P : Fin N → ℝ)
           grind;
         · ext; simp [Finset.mem_Iio, Finset.mem_Iic];
           exact ⟨ fun h => Nat.le_of_lt_succ h, fun h => Nat.lt_succ_of_le h ⟩;
-    use θ; intro n; simp +decide [ stickBreaking, h_prod_sin_sq, hθ ] ;
-    split_ifs <;> simp_all +decide [ mul_div_cancel₀, ne_of_gt ];
+    use θ; intro n; simp [ stickBreaking, h_prod_sin_sq, hθ ] ;
+    split_ifs <;> simp_all [ mul_div_cancel₀, ne_of_gt ];
     exact Eq.symm ( le_antisymm ( le_trans ( Finset.single_le_sum ( fun a _ => hP0 a ) ( by aesop ) ) ‹T n ≤ 0› ) ( hP0 n ) )
 
 end BookProof.ChapterE

@@ -64,7 +64,7 @@ theorem detExpPath_add (A : Matrix (Fin n) (Fin n) ℝ) (s t : ℝ) :
 theorem differentiable_det :
     Differentiable ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ) := by
   unfold det;
-  simp +decide [ MultilinearMap.alternatization, MultilinearMap.mkPiAlgebra, detRowAlternating ];
+  simp [ MultilinearMap.alternatization, MultilinearMap.mkPiAlgebra, detRowAlternating ];
   fun_prop
 
 /-
@@ -92,7 +92,7 @@ theorem hasDerivAt_detExpPath_zero (A : Matrix (Fin n) (Fin n) ℝ) :
   have h_det_deriv : HasDerivAt (fun t : ℝ => Matrix.det (1 + t • A)) (fderiv ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ) (1 : Matrix (Fin n) (Fin n) ℝ) A) 0 := by
     convert HasFDerivAt.comp_hasDerivAt _ _ _ using 1;
     · simpa using h_det_deriv;
-    · simp +decide [ hasDerivAt_iff_tendsto ];
+    · simp [ hasDerivAt_iff_tendsto ];
   have h_det_deriv : fderiv ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ) (1 : Matrix (Fin n) (Fin n) ℝ) A = A.trace := by
     exact h_det_deriv.unique ‹_›;
   convert HasFDerivAt.comp_hasDerivAt _ _ _ using 1;
