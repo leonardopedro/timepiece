@@ -12,9 +12,9 @@ This is an execution plan for an LLM–Lean-4-specialist agent. It has two goals
 Every new theorem must remain `sorry`-free and `axiom`-free (only `propext`,
 `Classical.choice`, `Quot.sound`).
 
-## Status (2026-08-08 — wave landed; read this before starting)
+## Status (2026-08-08 — Parts A–E landed; read this before starting)
 
-Part A (the coherent-state chapter) and Part B below are **complete**: the chapter
+Parts A, B, C, D and E are **complete**: the chapter
 builds, all its `#check` blocks elaborate, and the new theorems are `sorry`-free
 and `axiom`-free. Concretely:
 
@@ -42,10 +42,39 @@ and `axiom`-free. Concretely:
   `sorry`; no `axiom` anywhere in `BookProof/`. `lake build BookProof`, `lake build
   book`, `lake exe book` + `./patches/postprocess-html.sh` are all green.
 
-**What remains is listed in Part C and Part D below** (the next waves): Part C is
-the mathematical next deliverables; Part D is the project-wide warnings and
-build-failure hygiene pass (`PnpProof/`, `UnusedRoute/`, `UsedRoute/` out of scope
-per author mandate). Work them in order, targeting ≥ 4 deliverable groups per pass.
+- **Part C — landed.** `ChapterCoherentOverlapComplex` (the complex Bargmann
+  kernel, `coherentBornC_eq_softmax`, `bornWeightC_phase_invariant`),
+  `ChapterObservableOperator` (the observable built as an operator, with
+  `observableOp_expectation`), `ChapterAbelianDiagonalCountable` (the countable
+  MASA `ℓ∞(ℕ)` on `ℓ²(ℕ)`) and the Maschke consequences (`avgProj_idempotent`,
+  `avgProj_range_eq_W`, `maschke_decomposition`) are all proved and `#check`-ed in
+  the chapter.
+- **Part D — landed.** `lake build` (default targets) is green with **no in-scope
+  warnings**: `ChapterD`, `ChapterA3h` (`bilC_ext` rewritten) and `ChapterA3m` were
+  cleaned, and `RandomMap/RandomMap2InfiniteWalk.lean` was rewritten around the
+  scalar-bump lemmas, taking `lake build RandomMap` from a failure with 39 warnings
+  to green with none. The only remaining `sorry` notices are the two intentional
+  ones in `RandomMap/SchoenfeldPRA.lean`.
+- **Part E — landed (this wave).** The coherent-state chapter's three remaining
+  structural layers are proved and cross-referenced:
+  `ChapterCoherentGeometry` (the kernel as a metric readout, the Born weight as a
+  Softmax over minus the squared distances, "the nearest key wins"),
+  `ChapterSoftmaxOrder` (gauge invariance, order preservation, the
+  temperature-independent argmax) and `ChapterAttentionEntropy` (Shannon entropy,
+  Gibbs' inequality, maximal entropy at `β = 0`, and the entropy collapse to `0`
+  as `β → ∞`, also for the coherent Born weights).  Earlier in the same pass,
+  `ChapterCoherentOccupation` (Poisson occupation statistics, `τ` as the energy
+  expectation) and `ChapterSoftmaxSharpness` (the flat-versus-sharp dichotomy)
+  landed.
+
+**What remains** is the documented mathematical gap list, not a hygiene backlog:
+the physical derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal
+states (Part A.4), and the remaining von Neumann classes and exhaustiveness of the
+`*`-isomorphism classification (Part B.4).  Both are recorded in
+`BookProof/STATUS.md`; neither is `sorry`-ed anywhere.  Parts C and D below are
+kept for the record.  Future waves should continue to target ≥ 4 deliverable
+groups per pass (`PnpProof/`, `UnusedRoute/`, `UsedRoute/` remain out of scope per
+author mandate).
 
 ## Provenance of the new chapter (read before starting)
 

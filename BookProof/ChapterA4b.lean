@@ -93,8 +93,9 @@ theorem prop61_unitary_core
     simp [ two_mul, add_mul, mul_add, h_star_c, hE2, hEc.eq ]
     simp [ two_smul, sub_mul ] ; abel_nf
   have h2 : (E + c) * (E + star c) = (2:ℂ) • (E * E) + (2 * m) • E := by
-    simp_all [ mul_add, add_mul, two_smul ]
-    simp_all [ mul_sub, sub_mul, hEc.eq ]
+    simp_all only [add_sub_cancel, two_smul, mul_add, add_mul]
+    simp_all only [sub_mul, Algebra.smul_mul_assoc, one_mul, hEc.eq, mul_sub, Algebra.mul_smul_comm,
+        mul_one]
     abel1
   -- Now let's prove the two product identities.
   have h3 : (E + star c) * q * (q * (E + c)) = 1 := by

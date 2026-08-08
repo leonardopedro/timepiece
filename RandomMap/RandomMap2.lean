@@ -334,7 +334,7 @@ lemma integral_sub_eq_zero_1d (a ε : ℝ) (hε : 0 < ε) :
         rw [intervalIntegral.integral_neg]
       have h_comp : ∫ y in (-ε : ℝ)..(ε : ℝ), (-y) = ∫ y in (-ε : ℝ)..(ε : ℝ), y := by
         rw [intervalIntegral.integral_comp_neg (fun t : ℝ => t)]
-        ring
+        ring_nf
       linarith
 
 /-- Prime orthogonality: the centered perturbation operator has zero expectation
@@ -643,7 +643,7 @@ lemma one_d_var (ε : ℝ) (hε : 0 < ε) :
   have h_eq : (∫ x in (1 - Real.sqrt ε)..(1 + Real.sqrt ε), (x - 1) ^ 2) =
       (∫ x in (-Real.sqrt ε)..(Real.sqrt ε), x ^ 2) := by
     rw [intervalIntegral.integral_comp_sub_right (fun t : ℝ => t ^ 2) 1]
-    ring
+    ring_nf
   rw [h_eq]
   -- ∫_{-s}^{s} x² dx = 2 * ∫_{0}^{s} x² dx
   have h_symm : (∫ x in (-Real.sqrt ε)..(Real.sqrt ε), x ^ 2) =

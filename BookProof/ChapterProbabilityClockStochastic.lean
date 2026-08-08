@@ -81,7 +81,8 @@ noncomputable def Mab (a b : ℝ) : Matrix (Fin 2) (Fin 2) ℝ :=
 vector. -/
 theorem Mab_isColumnStochastic (a b : ℝ) : IsColumnStochastic (Mab a b) := by
   refine ⟨?_, ?_⟩
-  · intro i j; fin_cases i <;> fin_cases j <;> simp [Mab] <;> positivity
+  · intro i j; fin_cases i <;> fin_cases j <;> simp only [Mab, Fin.zero_eta, Fin.isValue, of_apply,
+      cons_val', cons_val_zero, cons_val_fin_one, Fin.mk_one, cons_val_one] <;> positivity
   · intro j; fin_cases j <;>
       simp [Mab, Fin.sum_univ_two, Real.cos_sq_add_sin_sq]
 

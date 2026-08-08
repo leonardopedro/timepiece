@@ -17,7 +17,7 @@ Lagrangian is invariant under a background symmetry
 generalized parity-reversal transformation** acting *simultaneously* on all fields:
 
 * Higgs doublet:  `φ(t,x⃗) ↦ i σ₂ φ(t,-x⃗)`               — internal part `higgsParity = i σ₂`;
-* left-handed quark doublet:  `Q_L(t,x⃗) ↦ -σ₂ γ⁰ Q_L(t,-x⃗)` — internal part `QLParity = -(σ₂⊗iγ⁰)`;
+* left-handed quark doublet: `Q_L(t,x⃗) ↦ -σ₂ γ⁰ Q_L(t,-x⃗)` — internal part `QLParity = -(σ₂⊗iγ⁰)`;
 * right-handed quarks:  `u_R, d_R ↦ i γ⁰ …(t,-x⃗)`        — internal part `mgamma 0 = i γ⁰`.
 
 The individual internal parts were each shown to be order four in `ChapterParity`
@@ -62,12 +62,14 @@ squares to `-1` (the invariant selecting the double cover `Pin(3,1)`).
 -/
 theorem combinedParity_sq :
     combinedParity ^ 2 = (-1, -1, -1, -1) := by
-  simp [combinedParity];
-  exact ⟨ by simpa [ sq ] using higgsParity_sq, by simpa [ sq ] using QLParity_sq, by simpa [ sq ] using mgamma0_sq ⟩
+  simp only [combinedParity, Fin.isValue, Prod.pow_mk, Prod.mk.injEq, and_self];
+  exact ⟨ by simpa [ sq ] using higgsParity_sq, by simpa [ sq ] using QLParity_sq,
+                                                   by simpa [ sq ] using mgamma0_sq ⟩
 
 /-- The combined parity is not an involution: `P² ≠ 1`. -/
 theorem combinedParity_sq_ne_one : combinedParity ^ 2 ≠ 1 := by
-  intro h;    have := congrArg ( fun m => m.1 0 0 ) h; norm_num [ combinedParity_sq, Matrix.one_apply ] at this;
+  intro h;    have := congrArg ( fun m => m.1 0 0 ) h; norm_num [ combinedParity_sq,
+      Matrix.one_apply ] at this;
 
 /-- The combined parity is order dividing four: `P⁴ = 1`. -/
 theorem combinedParity_pow_four : combinedParity ^ 4 = 1 := by

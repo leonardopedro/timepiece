@@ -82,7 +82,8 @@ theorem prop79 (q : K → G) (hq : Function.Injective q) (l₀ : K)
     (hΛ : ∀ (S : G) (k : K), S * q k * S⁻¹ = q (Λ S k))
     (k : K) :
     Hset α Λ k = (littleGroup q l₀ : Set G) := by
-  -- Let's take an element g from Hset α Λ k. By definition,    there exists some S such that g = (α (Λ S k))⁻¹ * S * α k.
+  -- Let's take an element g from Hset α Λ k. By definition, there exists some S such that g = (α (Λ
+  -- S k))⁻¹ * S * α k.
   apply Set.eq_of_subset_of_subset;
   · intro g hg
     obtain ⟨S, rfl⟩ := hg
@@ -96,10 +97,12 @@ theorem prop79 (q : K → G) (hq : Function.Injective q) (l₀ : K)
     exact fun x hx => by aesop;
   · intro g hg
     use α k * g * (α k)⁻¹;
-    simp_all [ mul_assoc, littleGroup, Subgroup.mem_centralizer_iff ];
-    simp_all [ ← mul_assoc, hq.eq_iff ];
+    simp_all only [mul_assoc, littleGroup, SetLike.mem_coe, Subgroup.mem_centralizer_iff,
+        Set.mem_singleton_iff, forall_eq, inv_mul_cancel, mul_one];
+    simp_all only [hq.eq_iff, ← mul_assoc, right_eq_mul];
     have hΛ_eq : Λ (α k * g * (α k)⁻¹) k = k := by
-      have h_comm : (α k * g * (α k)⁻¹) * (α k * q l₀ * (α k)⁻¹) * (α k * g * (α k)⁻¹)⁻¹ = α k * q l₀ * (α k)⁻¹ := by
+      have h_comm : (α k * g * (α k)⁻¹) * (α k * q l₀ * (α k)⁻¹) * (α k * g * (α k)⁻¹)⁻¹ = α k * q
+          l₀ * (α k)⁻¹ := by
         simp [ mul_assoc ];
         simp [ ← mul_assoc, ← hg ];
       grind;

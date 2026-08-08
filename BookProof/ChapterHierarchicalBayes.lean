@@ -57,6 +57,7 @@ theorem jointPrior_sum_one (outer : A → ℝ) (inner : A → B → ℝ)
     rw [← Finset.mul_sum]]
   simp [hInner, hOuter]
 
+omit [Fintype A] [Fintype B] in
 /-- Nonnegative ingredients induce a nonnegative joint prior. -/
 theorem jointPrior_nonneg (outer : A → ℝ) (inner : A → B → ℝ)
     (hOuter : ∀ a, 0 ≤ outer a) (hInner : ∀ a b, 0 ≤ inner a b) :

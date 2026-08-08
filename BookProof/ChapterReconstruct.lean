@@ -84,7 +84,7 @@ off-diagonal Born sum vanishes for every state `Ψ`.
 -/
 theorem offDiag_of_isDeterministicCol (U : Fin n → Fin n → ℂ) (a : Fin n)
     (hU : IsDeterministicCol U a) (Ψ : Fin n → ℂ) : offDiag U a Ψ = 0 := by
-  refine' Finset.sum_eq_zero fun k hk => Finset.sum_eq_zero fun b hb => _;
+  refine Finset.sum_eq_zero fun k hk => Finset.sum_eq_zero fun b hb => ?_;
   grind +locals
 
 /-
@@ -99,10 +99,27 @@ theorem isDeterministicCol_of_offDiag (U : Fin n → Fin n → ℂ) (a : Fin n)
     -- By hypothesis `hU`, we know that `offDiag U a Ψz = 0` for any `z : ℂ`.
     have hz : ∀ z : ℂ, (starRingEnd ℂ) z * C + z * (starRingEnd ℂ) C = 0 := by
       intro z
-      have hz : offDiag U a (fun k => if k = m then 1 else if k = l then z else 0) = (starRingEnd ℂ) z * C + z * (starRingEnd ℂ) C := by
+      have hz : offDiag U a (fun k => if k = m then 1 else if k = l then z else 0) = (starRingEnd ℂ)
+          z * C + z * (starRingEnd ℂ) C := by
         rw [ offDiag_eq ];
-        simp [ Finset.sum_ite, Finset.filter_eq', Finset.filter_ne', hlm ] ; ring;
-        rw [ Finset.sum_eq_add ( m ) ( l ) ] <;> simp [ hlm, hlm.symm ] ; ring!;
+        simp only [mul_ite, mul_one, mul_zero, sum_ite, filter_eq', mem_univ, ↓reduceIte,
+          sum_singleton, filter_ne', mem_erase, ne_eq, hlm, not_false_eq_true, and_self,
+          ite_mul, zero_mul, map_one] ; ring;
+        rw [ Finset.sum_eq_add ( m ) ( l ) ] <;> simp only [↓reduceIte, map_one, one_mul, hlm,
+                                                   sum_const_zero,
+                                                   sub_zero,
+                                                   zero_mul,
+                                                   add_zero,
+                                                   ne_eq,
+                                                   hlm.symm,
+                                                   not_false_eq_true,
+                                                   mem_univ,
+                                                   mul_eq_zero,
+                                                   map_eq_zero,
+                                                   and_imp,
+                                                   forall_const,
+                                                   not_true_eq_false,
+                                                   IsEmpty.forall_iff] ; focus (ring!);
         · simp [ mul_comm ];
         · aesop;
       rw [ ← hz, hU ];
@@ -135,24 +152,32 @@ sum vanishes on all unit states iff `U` is deterministic.
 theorem offDiag_unit_iff (U : Fin n → Fin n → ℂ) :
     (∀ (a : Fin n) (Ψ : Fin n → ℂ), (∑ k : Fin n, ‖Ψ k‖ ^ 2) = 1 →
         offDiag U a Ψ = 0) ↔ IsDeterministic U := by
-  refine' ⟨ fun hU => _, _ ⟩;
-  · refine' fun a => isDeterministicCol_of_offDiag U a _;
+  refine ⟨ fun hU => ?_, ?_ ⟩;
+  · refine fun a => isDeterministicCol_of_offDiag U a ?_;
     intro Ψ
     by_cases hΨ : Ψ = 0;
     · simp [hΨ, offDiag];
     · -- Let $c = \sqrt{\sum_{k} \| \Psi_k \|^2}$.
       set c := Real.sqrt (∑ k, ‖Ψ k‖ ^ 2) with hc_def
       have hc_pos : 0 < c := by
-        exact Real.sqrt_pos.mpr ( lt_of_lt_of_le ( by exact sq_pos_of_pos ( norm_pos_iff.mpr ( Classical.choose_spec ( Function.ne_iff.mp hΨ ) ) ) ) ( Finset.single_le_sum ( fun k _ => sq_nonneg ( ‖Ψ k‖ ) ) ( Finset.mem_univ ( Classical.choose ( Function.ne_iff.mp hΨ ) ) ) ) )
+        exact Real.sqrt_pos.mpr
+          ( lt_of_lt_of_le
+            ( sq_pos_of_pos
+              ( norm_pos_iff.mpr ( Classical.choose_spec ( Function.ne_iff.mp hΨ ) ) ) )
+            ( Finset.single_le_sum ( fun k _ => sq_nonneg ( ‖Ψ k‖ ) )
+              ( Finset.mem_univ ( Classical.choose ( Function.ne_iff.mp hΨ ) ) ) ) )
       have hc_unit : ∑ k, ‖(1 / c : ℂ) * Ψ k‖ ^ 2 = 1 := by
-        simp [ mul_pow, ← Finset.mul_sum _ _ _ ];
-        rw [ Real.sq_sqrt <| Finset.sum_nonneg fun _ _ => sq_nonneg _, inv_mul_cancel₀ <| ne_of_gt <| lt_of_le_of_ne ( Finset.sum_nonneg fun _ _ => sq_nonneg _ ) <| Ne.symm <| by contrapose! hΨ; ext i; simp_all  ]
+        simp only [one_div, Complex.norm_mul, norm_inv, Complex.norm_real, Real.norm_eq_abs,
+            mul_pow, inv_pow, sq_abs, ← Finset.mul_sum _ _ _];
+        rw [ Real.sq_sqrt <| Finset.sum_nonneg fun _ _ => sq_nonneg _, inv_mul_cancel₀ <| ne_of_gt
+            <| lt_of_le_of_ne ( Finset.sum_nonneg fun _ _ => sq_nonneg _ ) <| Ne.symm <|
+                by contrapose! hΨ; ext i; simp_all  ]
       have hc_offDiag : offDiag U a ((1 / c : ℂ) • Ψ) = 0 := by
         exact hU a _ hc_unit
       have hc_offDiag_zero : offDiag U a Ψ = 0 := by
         convert congr_arg (fun x : ℂ => x * c ^ 2) hc_offDiag using 1 <;>
-          norm_num [offDiag, Finset.mul_sum _ _ _, mul_assoc, mul_left_comm, mul_comm] <;>
-          ring_nf <;> norm_num [hc_pos.ne']
+          norm_num [offDiag, Finset.mul_sum _ _ _, mul_assoc, mul_left_comm, mul_comm] ;
+          ring_nf ; norm_num [hc_pos.ne']
       exact hc_offDiag_zero
   · exact fun h a Ψ _ => offDiag_of_isDeterministicCol U a (h a) Ψ
 

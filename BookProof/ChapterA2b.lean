@@ -80,6 +80,7 @@ preserves the real form `V_θ = {x : θ x = x}` (and hence descends to an
 def CommutesConj (θ : AntiUnitary V) (S : V →L[ℂ] V) : Prop :=
   ∀ x, S (θ x) = θ (S x)
 
+omit [CompleteSpace V] in
 /-
 A **real** scalar operator commutes with any anti-unitary `θ`: since `θ` is
 conjugate-linear, `θ ((r : ℂ) • x) = conj (r : ℂ) • θ x = (r : ℂ) • θ x`.
@@ -105,13 +106,13 @@ commuting with the conjugate-linear `θ` forces `c • θ x = conj c • θ x` f
 with `M`.
 -/
 theorem Rreal_commutant_eq_real_scalars (M : System ℂ V) (hSchur : IsSchurFull M)
-    {θ : AntiUnitary V} (hθ : IsConjugation M θ) (S : V →L[ℂ] V) :
+    {θ : AntiUnitary V} (_hθ : IsConjugation M θ) (S : V →L[ℂ] V) :
     (M.Commutes S ∧ CommutesConj θ S) ↔ ∃ r : ℝ, S = ((r : ℂ)) • (1 : V →L[ℂ] V) := by
   constructor <;> intro h;
   · obtain ⟨c, hc⟩ := hSchur S h.1;
     by_cases hc : c = starRingEnd ℂ c;
     · rw [ eq_comm ] at hc;
-      simp_all [ Complex.ext_iff ];
+      simp_all only [Complex.ext_iff, Complex.conj_re, Complex.conj_im, true_and, Complex.coe_smul];
       exact ⟨ c.re, by congr; simp [ Complex.ext_iff, show c.im = 0 by linarith ] ⟩;
     · have h_subsingleton : ∀ x : V, x = 0 := by
         intro x

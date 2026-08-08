@@ -159,13 +159,16 @@ theorem castR_trace (A : Matrix (Fin 4) (Fin 4) ℤ) : (castR A).trace = ((A.tra
 
 theorem gram_halfR :
     ∀ i j : Fin 4, ((bHalfR i)ᵀ * bHalfR j).trace = if i = j then (4 : ℝ) else 0 := by
-  intro i j;    rw [ show bHalfR i = castR ( bHalf i ) from rfl, show bHalfR j = castR ( bHalf j ) from rfl ] ;    rw [ ← castR_transpose, ← castR_mul, castR_trace ] ; norm_num [ gram_half ] ;
+  intro i j;    rw [ show bHalfR i = castR ( bHalf i ) from rfl, show bHalfR j = castR ( bHalf j )
+      from rfl ] ;    rw [ ← castR_transpose, ← castR_mul, castR_trace ] ; norm_num [ gram_half ] ;
 
 theorem gram_10R : ∀ i j : Fin 6, ((b10R i)ᵀ * b10R j).trace = if i = j then (4 : ℝ) else 0 := by
-  intro i j;    rw [ b10R, b10R, ← castR_transpose, ← castR_mul, castR_trace, gram_10 ] ; split_ifs <;> norm_num;
+  intro i j;    rw [ b10R, b10R, ← castR_transpose, ← castR_mul, castR_trace, gram_10 ] ; split_ifs
+      <;> norm_num;
 
 theorem gram_psR : ∀ i j : Fin 4, ((bPsR i)ᵀ * bPsR j).trace = if i = j then (4 : ℝ) else 0 := by
-  intros i j;    rw [ show bPsR i = castR ( bPs i ) from rfl, show bPsR j = castR ( bPs j ) from rfl, ← castR_transpose, ← castR_mul, castR_trace ] ;
+  intros i j;    rw [ show bPsR i = castR ( bPs i ) from rfl, show bPsR j = castR ( bPs j ) from
+      rfl, ← castR_transpose, ← castR_mul, castR_trace ] ;
   split_ifs <;> simp_all [ gram_ps ]
 
 /-! ## Linear independence from Frobenius orthogonality -/
@@ -222,15 +225,16 @@ theorem castR_mem_WHalf : ∀ M ∈ SBHalf, castR M ∈ WHalf :=
   by
   intro M hM
   unfold SBHalf at hM
-  simp at hM;
-  rcases hM with ( ⟨ i, rfl ⟩ | ⟨ i, rfl ⟩ ) <;> [ refine' Submodule.subset_span ⟨ i, rfl ⟩ ; refine' Submodule.neg_mem _ ( Submodule.subset_span ⟨ i, rfl ⟩ ) ];
+  simp only [Finset.mem_union, Finset.mem_image, Finset.mem_univ, true_and] at hM;
+  rcases hM with ( ⟨ i, rfl ⟩ | ⟨ i, rfl ⟩ ) <;> [ refine Submodule.subset_span ⟨ i, rfl ⟩ ; refine
+      Submodule.neg_mem ?_ ( Submodule.subset_span ⟨ i, rfl ⟩ ) ];
   convert Submodule.neg_mem _ ( Submodule.subset_span <| Set.mem_range_self i ) using 1;
   ext; simp [castR, bHalfR]
 
 theorem castR_mem_W10 : ∀ M ∈ SB10, castR M ∈ W10 := by
   -- By definition of `SB10`, every element is either in the image of `b10` or the image of `-b10`.
   intro M hM
-  simp [SB10] at hM;
+  simp only [SB10, Finset.mem_union, Finset.mem_image, Finset.mem_univ, true_and] at hM;
   obtain ⟨i, rfl⟩ | ⟨i, rfl⟩ := hM <;> simp only [W10]
   · exact Submodule.subset_span ⟨i, rfl⟩
   · rw [show castR (-b10 i) = -castR (b10 i) by ext; simp [castR]]
@@ -239,7 +243,7 @@ theorem castR_mem_W10 : ∀ M ∈ SB10, castR M ∈ W10 := by
 theorem castR_mem_WPs : ∀ M ∈ SBPs, castR M ∈ WPs := by
   intro M hM
   unfold SBPs at hM
-  simp at hM
+  simp only [Finset.mem_union, Finset.mem_image, Finset.mem_univ, true_and] at hM
   rcases hM with ⟨i, rfl⟩ | ⟨i, rfl⟩;
   · exact Submodule.subset_span ⟨ i, rfl ⟩;
   · convert Submodule.neg_mem _ ( Submodule.subset_span <| Set.mem_range_self i ) using 1;
@@ -254,9 +258,9 @@ maps the vector representation space into itself.
 theorem WHalf_invariant (S : Matrix (Fin 4) (Fin 4) ℤ) (hS : S ∈ Omega) :
     WHalf.map (conjL (castR S) (castR (cinv S))) ≤ WHalf := by
   apply Submodule.map_le_iff_le_comap.mpr;
-  refine' Submodule.span_le.mpr _;
+  refine Submodule.span_le.mpr ?_;
   rintro _ ⟨ i, rfl ⟩;
-  simp [ conjL_apply, bHalfR ];
+  simp only [Submodule.comap_coe, bHalfR, Set.mem_preimage, conjL_apply, SetLike.mem_coe];
   rw [ ← castR_mul, ← castR_mul ];
   exact castR_mem_WHalf _ ( conj_inv_half S hS i )
 

@@ -36,7 +36,10 @@ theorem natCard_even_flip (n : ℕ) :
             (-1 : ℝ) ^ (Finset.univ.filter fun k => i k = true).card =
           ∏ _k : Fin (n + 1), ∑ b : Bool, (-1 : ℝ) ^ (if b then 1 else 0) := by
       rw [Finset.prod_sum]
-      refine' Finset.sum_bij (fun i _ => fun k _ => i k) _ _ _ _ <;> simp
+      refine Finset.sum_bij (fun i ?_ => fun k _ => i k) ?_ ?_ ?_ ?_ <;> simp only [Finset.mem_univ,
+          Fintype.univ_bool, Finset.mem_pi, Finset.mem_insert, Finset.mem_singleton,
+              Bool.eq_true_or_eq_false_self, imp_self, implies_true, forall_const, exists_const,
+                  pow_ite, pow_one, pow_zero, Finset.prod_attach_univ]
       · simp [funext_iff]
       · exact fun b => ⟨fun k => b k (Finset.mem_univ k), rfl⟩
       · intro a

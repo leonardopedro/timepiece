@@ -65,7 +65,9 @@ The Born-fiber cardinality is a power of two with exponent between `1` and
 -/
 theorem bornFiber_card_isPowerOfTwo {p : ↥(stdSimplex ℝ (Fin n))} :
     ∃ k, 1 ≤ k ∧ k ≤ n ∧ Nat.card ↥(bornMapSphere n ⁻¹' {p}) = 2 ^ k := by
-  exact ⟨ _, BookProof.ChapterFreeFieldBornFiberTwo.one_le_posSupport_card p.2, BookProof.ChapterFreeFieldBornFiberBounds.posSupport_card_le_n, BookProof.ChapterFreeFieldBornFiberCardGeneral.bornFiber_card_general ⟩
+  exact ⟨ _, BookProof.ChapterFreeFieldBornFiberTwo.one_le_posSupport_card p.2,
+      BookProof.ChapterFreeFieldBornFiberBounds.posSupport_card_le_n,
+          BookProof.ChapterFreeFieldBornFiberCardGeneral.bornFiber_card_general ⟩
 
 /-- Every Born fiber cardinality divides `2 ^ n`. -/
 theorem bornFiber_card_dvd_two_pow_n {p : ↥(stdSimplex ℝ (Fin n))} :
@@ -98,9 +100,10 @@ theorem unifDist_mem_simplex {k : ℕ} (hk : 1 ≤ k) (hkn : k ≤ n) :
   · exact fun x => by unfold unifDist; split_ifs <;> positivity;
   · unfold unifDist;
     norm_num [ Finset.sum_ite ];
-    rw [ show ( Finset.univ.filter fun x : Fin n => ( x : ℕ ) < k ).card = k from ?_, mul_inv_cancel₀ ( by positivity ) ];
+    rw [ show ( Finset.univ.filter fun x : Fin n => ( x : ℕ ) < k ).card = k from ?_,
+        mul_inv_cancel₀ ( by positivity ) ];
     rw [ Finset.card_eq_of_bijective ];
-    use fun i hi => ⟨ i, by linarith ⟩;
+    focus (use fun i hi => ⟨ i, by linarith ⟩);
     · grind;
     · grind;
     · lia
@@ -112,7 +115,8 @@ coordinates.
 theorem posSupport_unifDist_card {k : ℕ} (hk : 1 ≤ k) (hkn : k ≤ n) :
     (posSupport (unifDist n k)).card = k := by
   convert Finset.card_eq_sum_ones ( Finset.Iio k ) using 1;
-  · refine' Finset.card_bij ( fun x hx => x.1 ) _ _ _ <;> simp [ posSupport ];
+  · refine Finset.card_bij ( fun x hx => x.1 ) ?_ ?_ ?_ <;> simp only [posSupport,
+      Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_Iio, exists_prop];
     · unfold unifDist; aesop;
     · exact fun a₁ ha₁ a₂ ha₂ h => Fin.ext h;
     · intro b hb; use ⟨ b, by linarith ⟩ ; simp [ unifDist, hb ] ;

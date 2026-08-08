@@ -65,9 +65,10 @@ of the spatial projector.
 theorem spatialProj_mulVec_self (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (spatialProj v).mulVec v = 0 := by
   ext a;
-  simp [ spatialProj, Matrix.mulVec, dotProduct ];
-  simp_all [ Finset.sum_add_distrib, add_mul, mul_assoc, minkSq, lower ];
-  simp_all [ mul_comm, Matrix.one_apply ];
+  simp only [mulVec, dotProduct, spatialProj, add_apply, of_apply, Pi.zero_apply];
+  simp_all only [minkSq, lower, add_mul, mul_assoc, Finset.sum_add_distrib];
+  simp_all only [one_apply, mul_comm, mul_ite, mul_one, mul_zero, Finset.sum_ite_eq,
+      Finset.mem_univ, ↓reduceIte];
   rw [ ← Finset.mul_sum _ _ _, hv ] ; ring
 
 /-

@@ -1,7 +1,8 @@
 import Mathlib
 
 /-!
-# Chapter "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory",  §"Pure SU(3) Yang-Mills theory" — the structure constants
+# Chapter "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory",
+§"Pure SU(3) Yang-Mills theory" — the structure constants
 
 Source: `book.tex`, chapter *"Quantization due to time-evolution: Yang-Mills and
 Classical Statistical Field Theory"*, §*"Pure SU(3) Yang-Mills theory"*
@@ -77,7 +78,9 @@ lemma structureConstant_antisymm_swap
     (hT : TraceOrthonormal T) (hf : ClosesWithStructureConstants T f)
     (a b c : Fin d) :
     f a b c = - f b a c := by
-  have := structureConstant_formula hT hf a b c;    ( have := structureConstant_formula hT hf b a c; ( simp_all [ Complex.ext_iff, mul_assoc ] ;    ) );
+  have := structureConstant_formula hT hf a b c
+  have := structureConstant_formula hT hf b a c
+  simp_all [ Complex.ext_iff, mul_assoc ]
   simp [ sub_mul, mul_sub, Matrix.trace ]
 
 /-
@@ -92,8 +95,9 @@ lemma structureConstant_antisymm_rotate
   have h_f_def : ∀ a b c, (f a b c : ℂ) = -2 * Complex.I * ((T a * T b - T b * T a) * T c).trace :=
     fun a b c => structureConstant_formula hT hf a b c
   rw [ ← Complex.ofReal_inj ] ; push_cast [ h_f_def ] ; ring;
-  simp [ mul_assoc, sub_mul, mul_sub, Matrix.trace_mul_comm ( T a ) ];
-  simp [ ← mul_assoc, ← Matrix.trace_mul_comm ( T b ) ];
+  simp only [sub_mul, mul_assoc, trace_sub, Matrix.trace_mul_comm (T a), mul_sub, neg_sub];
+  simp only [← mul_assoc, ← Matrix.trace_mul_comm (T b), sub_left_inj, mul_eq_mul_right_iff,
+      mul_eq_mul_left_iff, Complex.I_ne_zero, or_false, OfNat.ofNat_ne_zero];
   rw [ ← Matrix.trace_mul_comm ] ; simp [ mul_assoc ]
 
 /-- **Total antisymmetry** of the structure constants: swapping the first two
@@ -113,21 +117,29 @@ lemma structureConstant_jacobi
     (hT : TraceOrthonormal T) (hf : ClosesWithStructureConstants T f)
     (a b c h : Fin d) :
     ∑ e, (f a b e * f e c h + f b c e * f e a h + f c a e * f e b h) = 0 := by
-  have h_sum_zero : ∑ e,    ∑ g,    (f a b e * f e c g + f b c e * f e a g + f c a e * f e b g) • Matrix.trace ((T g) * (T h)) = 0 := by
-    have h_sum_zero : ∑ e,      ∑ g, (f a b e * f e c g + f b c e * f e a g + f c a e * f e b g) • (T g) = 0 := by
-      -- Using the hypothesis `hf`, we can rewrite the commutators in terms of the structure constants.
-      have h_comm : ∀ a b c,        (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = - ∑ e,        ∑ g, (f a b e * f e c g : ℂ) • T g := by
+  have h_sum_zero : ∑ e,    ∑ g,    (f a b e * f e c g + f b c e * f e a g + f c a e * f e b g) •
+      Matrix.trace ((T g) * (T h)) = 0 := by
+    have h_sum_zero : ∑ e,      ∑ g, (f a b e * f e c g + f b c e * f e a g + f c a e * f e b g) •
+        (T g) = 0 := by
+      -- Using the hypothesis `hf`, we can rewrite the commutators in terms of the structure
+      -- constants.
+      have h_comm : ∀ a b c,        (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) =
+          - ∑ e,        ∑ g, (f a b e * f e c g : ℂ) • T g := by
         intros a b c
-        have h_comm : (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = Complex.I • (∑ e, (f a b e : ℂ) • (T e * T c - T c * T e)) := by
+        have h_comm : (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = Complex.I • (∑
+            e, (f a b e : ℂ) • (T e * T c - T c * T e)) := by
           simp [ hf a b, Finset.mul_sum _ _ _, Finset.sum_mul, 
-            smul_smul ];
+             ];
           simp only [smul_sub, Finset.sum_sub_distrib];
         convert h_comm using 1;
-        simp [ Finset.smul_sum ];
+        simp only [Complex.coe_smul, Finset.smul_sum];
         rw [ ← Finset.sum_neg_distrib ] ; congr ; ext e ; rw [ hf e c ] ;
-        simp [ Finset.smul_sum, 
-          Finset.mul_sum _ _ _ ] ;
-        simp [ Complex.ext_iff, Matrix.sum_apply ];
+        simp only [neg_apply, Complex.coe_smul, Finset.smul_sum, smul_apply, smul_eq_mul] ;
+        simp only [sum_apply, smul_apply, smul_eq_mul, Complex.real_smul, Complex.ext_iff,
+          Complex.neg_re, Complex.re_sum, Complex.mul_re, Complex.ofReal_re,
+          Complex.ofReal_im, mul_zero, sub_zero, Complex.mul_im, zero_mul, add_zero,
+          Complex.I_re, Complex.I_im, one_mul, zero_sub, mul_neg, zero_add,
+          Finset.sum_neg_distrib, neg_zero, Complex.im_sum, neg_inj, Complex.neg_im];
         exact ⟨ Finset.sum_congr rfl fun _ _ => by ring, Finset.sum_congr rfl fun _ _ => by ring ⟩;
       -- Applying the hypothesis `h_comm` to each term in the sum, we get:
       have h_sum_comm :
@@ -142,8 +154,8 @@ lemma structureConstant_jacobi
     convert congr_arg ( fun m => Matrix.trace ( m * T h ) ) h_sum_zero using 1;
     · simp [ Matrix.sum_mul, Matrix.trace_sum ];
     · norm_num;
-  simp_all [ 
-    TraceOrthonormal ];
+  simp_all only [TraceOrthonormal, one_div, smul_ite, Complex.real_smul, Complex.ofReal_add,
+    Complex.ofReal_mul, smul_zero, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte];
   rw [ ← @Complex.ofReal_inj ] ; simp_all [ ← Finset.sum_mul _ _ _ ]
 
 end BookProof.YangMillsSU3

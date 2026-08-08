@@ -7,6 +7,127 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Latest wave (2026-08-08, Part E) — **the geometry, the order structure and the entropy of the attention measurement**
+
+With Parts A–D of `PLAN_LEAN_SPECIALIST_COHERENT.md` landed and re-verified, this
+pass adds the three structural layers that `Book/CoherentState.lean` argues from
+but had not yet proved, and syncs the chapter to them.
+
+**1. `BookProof/ChapterCoherentGeometry.lean` (new) — the wave-packet geometry.**
+`neg_two_mul_log_coherentOverlap` shows the Bargmann kernel is a *lossless readout*
+of the distance, `-2 log ⟨q|k⟩ = ‖q - k‖²`, and `coherentOverlap_le_iff_dist_le`
+(with its strict form) that the overlap is strictly decreasing in that distance.
+`bornWeight_eq_scoreSoftmax_neg_dist_sq` is the geometric face of
+`coherentBorn_eq_softmax`: the Born attention weight is a Softmax over *minus the
+squared distances* at inverse temperature `1` — unconditionally, with no hypothesis
+on the key norms, because the key penalties are exactly what the squared distance
+absorbs. Hence `bornWeight_le_iff_dist_le`, `bornWeight_max_of_nearest` and
+`bornWeight_lt_of_nearest`: attention orders the keys by proximity and the nearest
+key wins.
+
+**2. `BookProof/ChapterSoftmaxOrder.lean` (new) — what Softmax preserves.**
+`scoreSoftmax_shift` is gauge invariance (only score *differences* are physical —
+the abstract form of `coherentBorn_cancel_q`); `scoreSoftmax_le_iff`,
+`scoreSoftmax_lt_iff` and `scoreSoftmax_inj_iff` say that at any positive inverse
+temperature Softmax is a strictly increasing reparametrization of the scores, so
+`scoreSoftmax_argmax` makes the winner temperature-independent, and
+`scoreSoftmax_const` records the converse: no score contrast, no sharpening.
+`softmax_le_iff_inner_le` transports this to the attention weights, and
+`scoreSoftmax_sum_one` / `scoreSoftmax_le_one` complete the distribution facts left
+implicit in `ChapterSoftmaxSharpness`.
+
+**3. `BookProof/ChapterAttentionEntropy.lean` (new) — measuring the collapse.**
+`shannonEntropy p = -∑ pⱼ log pⱼ`, with `shannonEntropy_nonneg`, Gibbs' inequality
+`shannonEntropy_le_log_card` (proved from `log x ≤ x - 1`) and its sharpness
+`shannonEntropy_uniform`. The chapter's "high-entropy superposition" is then
+literal: `shannonEntropy_scoreSoftmax_zero` puts attention at the maximum `log m`
+at infinite temperature, and `tendsto_shannonEntropy_scoreSoftmax` proves the
+collapse — with a strict score maximizer the entropy tends to `0` as `β → ∞`.
+`tendsto_shannonEntropy_bornWeight_smul_query` states the same for the coherent
+Born weights as the query is amplified.
+
+**4. Chapter sync and honesty note.** `Book/CoherentState.lean` gained three
+`#check` blocks (§"The Geometry of the Wave-packet", §"Softmax Is the Born Rule on
+Coherent States", §"Informational Superposition and the Unknown Output"), and its
+Summary was corrected: the two caveats it still advertised (real-only parameters;
+the observable as spectral data) were already discharged by
+`ChapterCoherentOverlapComplex` and `ChapterObservableOperator`.
+*Disparity (unchanged):* the physical derivation of `τ = n̄ + 1/2` from the quantum
+fidelity of displaced thermal states remains a documented gap.
+All three new modules are `sorry`-free and axiom-clean (`propext`,
+`Classical.choice`, `Quot.sound`) and are registered in `BookProof.lean`;
+`lake build`, `lake build RandomMap` and `lake build book` are green with no
+in-scope warnings.
+
+## Latest wave (2026-08-08, Part C/D closing pass) — **the coherent-state occupation statistics, the flat-versus-sharp dichotomy, and a zero-warning tree**
+
+`PLAN_LEAN_SPECIALIST_COHERENT.md` Parts A–C were already landed and were
+re-verified rather than redone (the complex Bargmann kernel
+`ChapterCoherentOverlapComplex`, the observable operator `ChapterObservableOperator`,
+the countable MASA `ChapterAbelianDiagonalCountable`, and the Maschke consequences
+`avgProj_idempotent` / `avgProj_range_eq_W` / `maschke_decomposition` are all in
+place).  This pass delivered **four** groups: two new proof packages and the
+completion of the Part D hygiene mandate.
+
+**1. `BookProof/ChapterCoherentOccupation.lean` — the occupation statistics of a
+coherent state (new).**  `ChapterCoherentTemperature` appeals twice to facts about
+the *coherent* (Poisson) law that were not proved; they are theorems now.
+`coherentOccupation λ n = e^{-λ}λⁿ/n!` (identified with Mathlib's
+`poissonPMFReal` by `coherentOccupation_eq_poissonPMFReal`) is a probability
+distribution (`coherentOccupation_hasSum_one`) with mean `λ`
+(`coherentOccupation_mean`), second moment `λ² + λ`
+(`coherentOccupation_second_moment`) and hence variance exactly `λ`
+(`coherentOccupation_variance`) — coherent light is Poissonian.  The
+harmonic-oscillator energy observable `n + 1/2` has expectation `λ + 1/2` in a
+coherent state (`coherentOccupation_energy`) and `n̄ + 1/2` in the thermal state
+(`thermalOccupation_energy`), so `thermalTemperature_eq_energy_expectation`
+upgrades `τ = n̄ + 1/2` from a restatement of the definition to an identity for a
+genuine observable.  `coherent_variance_lt_thermal_variance` records that a
+thermal bath is strictly noisier than a coherent state of the same mean.
+*Disparity (unchanged):* the physical derivation of `τ` from the quantum fidelity
+of displaced thermal states stays a documented gap — only the occupation-statistics
+reading is proved.
+
+**2. `BookProof/ChapterSoftmaxSharpness.lean` — the chapter's opening dichotomy
+(new).**  §"The Divergence: Classical Sharpness versus Quantum Flatness" carried no
+formal backing.  `ampBorn` is the amplitude-squared rule on classical points and
+`ampBorn_smul_query` is its *flatness*: amplifying the query by any nonzero factor
+changes nothing, so the rule has no temperature.  `softmax_smul_query` shows that
+the same amplification in Softmax **is** a change of inverse temperature;
+`scoreSoftmax_zero` is the flat extreme (uniform at `β = 0`) and
+`tendsto_scoreSoftmax_max` / `tendsto_scoreSoftmax_ne` the sharp extreme
+(winner-takes-all as `β → ∞`).  `tendsto_coherentBorn_smul_query` (and its
+`_ne` companion) is the resolution: on coherent states the Born rule is Softmax,
+so it does sharpen under amplification.
+
+**3. Part D.2 — zero in-scope warnings.**  `BookProof/ChapterD.lean` (the
+`simpa`-that-should-be-`simp` chain), `BookProof/ChapterA3h.lean` (the polarization
+identity `bilC_ext`, rewritten from a fragile `simp_all` chain into an explicit
+`expand`/`h_diag`/`h_off_diag` argument) and `BookProof/ChapterA3m.lean` (the
+braid relation's flexible `simp [*]`) are now warning-free.
+
+**4. Part D.1/D.2 — `RandomMap` builds clean.**  `lake build RandomMap` is green and
+`RandomMap/RandomMap2InfiniteWalk.lean` no longer emits any of its 39 warnings: the
+module was rewritten around four new scalar lemmas — `scalarBump_integral`
+(the bump law's integral is the normalized interval integral), `scalarBump_centered`,
+`scalarBump_sq` (exact second moment `r²/3`) and `integral_coordinate` (coordinate
+observables reduce to scalar integrals) — from which `coordinate_centered`,
+`coordinate_secondMoment_eq`/`_bound`, `finiteEnergy_expectation_eq`/`_bound` and
+`totalEnergy_expectation_eq`/`_bound` follow directly; the total-energy identity now
+goes through `MeasureTheory.integral_tsum_of_summable_integral_norm` instead of a
+hand-rolled `lintegral` interchange.  All theorem names are unchanged.
+
+**Verification.**  `lake build` (default targets), `lake build RandomMap` and
+`lake build book` are green.  The only `warning:` lines from in-scope paths are the
+two intentional `sorry` notices in `RandomMap/SchoenfeldPRA.lean` (the quarantined
+PRA spine); the excluded `PnpProof/`, `UnusedRoute/`, `UsedRoute/` trees were not
+touched.  `#print axioms` on every new headline shows only `propext`,
+`Classical.choice`, `Quot.sound`.  No `axiom` declarations were added.
+
+**Book sync.**  `Book/CoherentState.lean` gained two `#check` blocks: the
+flat-versus-sharp theorems in §"The Divergence", and the occupation/energy theorems
+in §"Temperature and the Thermal Bath".
+
 ## Latest wave (2026-08-08) — **`PLAN_LEAN_SPECIALIST_COHERENT.md` landed: the Coherent State of Attention chapter, Solovay tail-split `sorry` closed, selecting-events real conclusions, and Book-chapter reference sync**
 
 The coherent-state chapter `Book/CoherentState.lean` builds and all its `#check`

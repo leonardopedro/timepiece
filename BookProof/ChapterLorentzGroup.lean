@@ -115,7 +115,7 @@ theorem isLorentz_inv {l : Matrix (Fin 4) (Fin 4) ℝ} (h : IsLorentz l) :
 The metric `η` (parity × time-reversal) is a Lorentz transformation.
 -/
 theorem isLorentz_eta : IsLorentz eta := by
-  simp [IsLorentz, eta_transpose];
+  simp only [IsLorentz, eta_transpose];
   rw [ eta_mul_self, Matrix.one_mul ]
 
 /-

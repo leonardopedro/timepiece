@@ -60,14 +60,18 @@ The fourfold supremum of the family is the whole matrix algebra.
 -/
 theorem iSup_WFam_eq_top : (⨆ i, WFam i) = ⊤ := by
   convert BookProof.ChapterLorentzRealRepFull.decomposition_top using 1;
-  refine' le_antisymm _ _;
-  · refine' iSup_le _;
-    intro i; fin_cases i <;> simp [ WFam ] ;
+  refine le_antisymm ?_ ?_;
+  · refine iSup_le ?_;
+    intro i; fin_cases i <;> simp only [WFam, Fin.zero_eta, Fin.isValue, cons_val_zero, Fin.mk_one,
+        cons_val_one, Fin.reduceFinMk, cons_val, le_sup_right] ;
     · exact le_sup_of_le_left ( le_sup_of_le_left ( le_sup_of_le_left le_rfl ) );
     · exact le_sup_of_le_left ( le_sup_of_le_left ( le_sup_right ) );
     · exact le_sup_of_le_left ( le_sup_of_le_right le_rfl );
-  · simp [ iSup, WFam ];
-    exact ⟨ ⟨ le_sup_of_le_right <| le_sup_of_le_right <| le_sup_of_le_right le_rfl, le_sup_of_le_right <| le_sup_of_le_right <| le_sup_of_le_left le_rfl ⟩, le_sup_of_le_right <| le_sup_of_le_left le_rfl ⟩
+  · simp only [iSup, WFam, range_cons, range_empty, Set.union_empty, Set.union_singleton,
+      Set.union_insert, sSup_insert, sSup_singleton, sup_le_iff, le_sup_left, and_true];
+    exact ⟨ ⟨ le_sup_of_le_right <| le_sup_of_le_right <| le_sup_of_le_right le_rfl,
+        le_sup_of_le_right <| le_sup_of_le_right <| le_sup_of_le_left le_rfl ⟩, le_sup_of_le_right
+            <| le_sup_of_le_left le_rfl ⟩
 
 /-
 The dimensions of the four summands add up to the dimension of the whole
@@ -84,13 +88,14 @@ form an internal direct sum of the whole matrix algebra: the canonical map
 `⨁ᵢ WFam i → Matrix (Fin 4) (Fin 4) ℝ` is an isomorphism.
 -/
 theorem WFam_isInternal : DirectSum.IsInternal WFam := by
-  refine' ⟨ _, _ ⟩;
+  refine ⟨ ?_, ?_ ⟩;
   · intro x y hxy;
     have h_inj : Function.Injective (DirectSum.coeLinearMap WFam) := by
       have h_surj : LinearMap.range (DirectSum.coeLinearMap WFam) = ⊤ := by
         rw [ DirectSum.range_coeLinearMap ];
         convert iSup_WFam_eq_top using 1;
-      have h_finrank : Module.finrank ℝ (DirectSum (Fin 4) fun i => WFam i) = Module.finrank ℝ (Matrix (Fin 4) (Fin 4) ℝ) := by
+      have h_finrank : Module.finrank ℝ (DirectSum (Fin 4) fun i => WFam i) = Module.finrank ℝ
+          (Matrix (Fin 4) (Fin 4) ℝ) := by
         convert sum_finrank_WFam using 1;
         convert Module.finrank_directSum ℝ ( fun i => WFam i );
       have h_inj : LinearMap.ker (DirectSum.coeLinearMap WFam) = ⊥ := by
@@ -98,7 +103,8 @@ theorem WFam_isInternal : DirectSum.IsInternal WFam := by
         rw [ h_surj, finrank_top ] at this ; aesop;
       exact LinearMap.ker_eq_bot.mp h_inj;
     exact h_inj hxy;
-  · convert LinearMap.range_eq_top.mp ( show LinearMap.range ( DirectSum.coeLinearMap WFam ) = ⊤ from ?_ ) using 1;
+  · convert LinearMap.range_eq_top.mp ( show LinearMap.range ( DirectSum.coeLinearMap WFam ) = ⊤
+      from ?_ ) using 1;
     rw [ DirectSum.range_coeLinearMap ];
     exact iSup_WFam_eq_top
 
@@ -116,7 +122,7 @@ the internal direct sum of the four subrepresentations `WHalf`, `W10`, `WPs`,
 theorem WFam_conj_invariant (S : Matrix (Fin 4) (Fin 4) ℤ) (hS : S ∈ Omega) (i : Fin 4) :
     (WFam i).map (conjL (castR S) (castR (cinv S))) ≤ WFam i := by
   fin_cases i <;> simp only [WFam, 
-    Matrix.tail_cons]
+    ]
   · exact WHalf_invariant S hS
   · exact W10_invariant S hS
   · exact WPs_invariant S hS

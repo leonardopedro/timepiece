@@ -60,11 +60,14 @@ For `k = 0` this is `exp 0 = 1`.  For `k+1`, the integrand at `z = 0` is
 `(1−s)^k / k!`, whose integral over `[0,1]` is `1/((k+1)·k!) = 1/(k+1)!`.
 -/
 theorem phi_at_zero (k : ℕ) : phi k 0 = 1 / k.factorial := by
-  induction' k with k ih;
+  induction k with
+  | zero => ?_
+  | succ k ih => ?_
   · norm_num [ phi_zero_apply ];
-  · simp [ *, phi_succ_apply ];
+  · simp only [phi_succ_apply, mul_zero, Complex.exp_zero, one_mul, integral_div, one_div];
     norm_cast;
-    erw [ intervalIntegral.integral_ofReal, intervalIntegral.integral_comp_sub_left fun x => x ^ k ] ;      norm_num [ Nat.factorial_succ ];
+    erw [ intervalIntegral.integral_ofReal, intervalIntegral.integral_comp_sub_left fun x => x ^ k ]
+        ;      norm_num [ Nat.factorial_succ ];
     ring
 
 /-! ## H1.2 — the φ-recurrence -/
@@ -78,21 +81,50 @@ integral is `z·φ_{k+1}(z)`.
 theorem phi_succ_mul (k : ℕ) (z : ℂ) :
     z * phi (k + 1) z = phi k z - 1 / k.factorial := by
   by_cases h : z = 0
-    <;> simp_all [div_eq_inv_mul, 
-      intervalIntegral.integral_comp_mul_right];
+    <;> simp_all only [zero_mul, div_eq_inv_mul, mul_one];
   · rw [ phi_at_zero ] ; ring;
-  · have h_int_parts : ∫ s in (0 : ℝ)..1,    deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s = (Complex.exp (1 * z) * (1 - 1) ^ k) - (Complex.exp (0 * z) * (1 - 0) ^ k) := by
+  · have h_int_parts : ∫ s in (0 : ℝ)..1,    deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s =
+      (Complex.exp (1 * z) * (1 - 1) ^ k) - (Complex.exp (0 * z) * (1 - 0) ^ k) := by
       rw [ intervalIntegral.integral_eq_sub_of_hasDerivAt ];
       rotate_right;
-      use fun x => Complex.exp ( x * z ) * ( 1 - x ) ^ k;
+      focus (use fun x => Complex.exp ( x * z ) * ( 1 - x ) ^ k);
       · norm_num;
-      · intro x hx;        convert HasDerivAt.comp x ( hasDerivAt_deriv_iff.mpr <| show DifferentiableAt ℂ ( fun s => Complex.exp ( s * z ) * ( 1 - s ) ^ k ) _ from DifferentiableAt.mul ( Complex.differentiableAt_exp.comp _ <| differentiableAt_id.mul_const _ ) <| DifferentiableAt.pow ( differentiableAt_id.const_sub _ ) _ ) ( hasDerivAt_id _ |> HasDerivAt.ofReal_comp ) using 1; aesop;
+      · intro x hx;        convert HasDerivAt.comp x ( hasDerivAt_deriv_iff.mpr <| show
+          DifferentiableAt ℂ ( fun s => Complex.exp ( s * z ) * ( 1 - s ) ^ k ) _ from
+              DifferentiableAt.mul ( Complex.differentiableAt_exp.comp _ <|
+                  differentiableAt_id.mul_const _ ) <| DifferentiableAt.pow (
+                      differentiableAt_id.const_sub _ ) _ ) ( hasDerivAt_id _ |>
+                          HasDerivAt.ofReal_comp ) using 1; aesop;
       · apply_rules [ Continuous.intervalIntegrable ];
         fun_prop;
-    have h_int_parts : ∫ s in (0 : ℝ)..1,      deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s = ∫ s in (0 : ℝ)..1,      (z * Complex.exp (s * z) * (1 - s) ^ k - k * Complex.exp (s * z) * (1 - s) ^ (k - 1)) := by
-      refine' intervalIntegral.integral_congr fun x hx => _;
-      convert HasDerivAt.deriv ( HasDerivAt.mul ( HasDerivAt.comp _ ( Complex.hasDerivAt_exp _ ) ( hasDerivAt_mul_const _ ) ) ( HasDerivAt.comp _ ( hasDerivAt_pow k _ ) ( hasDerivAt_id' _ |> HasDerivAt.const_sub _ ) ) ) using 1 ; norm_num ; ring;
-    rcases k with ( _ | k ) <;> simp_all [ mul_assoc ];
+    have h_int_parts : ∫ s in (0 : ℝ)..1,      deriv (fun s => Complex.exp (s * z) * (1 - s) ^ k) s
+        = ∫ s in (0 : ℝ)..1,      (z * Complex.exp (s * z) * (1 - s) ^ k - k * Complex.exp (s * z) *
+            (1 - s) ^ (k - 1)) := by
+      refine intervalIntegral.integral_congr fun x hx => ?_;
+      convert HasDerivAt.deriv ( HasDerivAt.mul ( HasDerivAt.comp _ ( Complex.hasDerivAt_exp _ ) (
+          hasDerivAt_mul_const _ ) ) ( HasDerivAt.comp _ ( hasDerivAt_pow k _ ) ( hasDerivAt_id' _
+              |> HasDerivAt.const_sub _ ) ) ) using 1 ; norm_num ; ring;
+    rcases k with ( _ | k ) <;> simp_all only [pow_zero, mul_one, differentiableAt_fun_id,
+                                  differentiableAt_const,
+                                  DifferentiableAt.fun_mul,
+                                  deriv_cexp, deriv_fun_mul,
+                                  deriv_id'', one_mul,
+                                  deriv_const', mul_zero,
+                                  add_zero, integral_mul_const,
+                                  sub_self, zero_mul,
+                                  Complex.exp_zero, sub_zero,
+                                  CharP.cast_eq_zero, zero_tsub,
+                                  integral_const_mul, zero_add,
+                                  phi_zero_apply,
+                                  Nat.factorial_zero,
+                                  Nat.cast_one, inv_one,
+                                  mul_eq_mul_left_iff, or_false,
+                                  mul_assoc, Nat.cast_add,
+                                  add_tsub_cancel_right, ne_eq,
+                                  Nat.add_eq_zero_iff,
+                                  one_ne_zero, and_false,
+                                  not_false_eq_true, zero_pow,
+                                  one_pow, zero_sub];
     · exact intervalIntegral.integral_congr fun x _ => by norm_num [ phi ] ;
     · rw [ intervalIntegral.integral_sub ] at * <;> norm_num at *;
       · simp_all [ Nat.factorial_succ, phi ];
@@ -129,7 +161,8 @@ theorem duhamel_phiOp1 {n : ℕ} (A : Matrix (Fin n) (Fin n) ℂ) (g : Fin n →
       = δ • phiOp1 (δ • A) g := by
   by_cases hδ : δ = 0;
   · aesop;
-  · rw [ phiOp1, intervalIntegral.integral_comp_sub_left fun x => ( NormedSpace.exp ( x • A ) ).mulVec g ] ; norm_num [ hδ ];
+  · rw [ phiOp1, intervalIntegral.integral_comp_sub_left fun x => ( NormedSpace.exp ( x • A )
+      ).mulVec g ] ; norm_num [ hδ ];
     convert intervalIntegral.integral_comp_div _ _ using 3 <;> ring <;> norm_num [ hδ ];
     simp [ hδ, smul_smul ]
 
@@ -167,7 +200,7 @@ finite-rank-component identity that (via §0 S3, the holomorphic functional
 calculus `f_γ((γI−A)⁻¹) = f(A)`) lifts to the operator equality `φ_k(A) =
 ψ_{k,γ}(X)`.
 -/
-theorem psi_resolvent (k : ℕ) (γ z : ℂ) (hz : γ - z ≠ 0) :
+theorem psi_resolvent (k : ℕ) (γ z : ℂ) (_hz : γ - z ≠ 0) :
     psi k γ (γ - z)⁻¹ = phi k z := by
   unfold psi; aesop;
 
@@ -180,7 +213,7 @@ This is the per-component reduction underlying the CFC identity of H1.5.
 theorem resolvent_eigenvector {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
     (T : F →L[ℂ] F) (X : F →L[ℂ] F) (γ z : ℂ) (v : F)
     (hTv : T v = z • v) (hz : γ - z ≠ 0)
-    (hXr : (γ • (1 : F →L[ℂ] F) - T) * X = 1)
+    (_hXr : (γ • (1 : F →L[ℂ] F) - T) * X = 1)
     (hXl : X * (γ • (1 : F →L[ℂ] F) - T) = 1) :
     X v = (γ - z)⁻¹ • v := by
   have key : X ((γ - z) • v) = v := by
@@ -199,11 +232,13 @@ the shifted operators `γ_j·1 − a` and `γ_m·1 − a`, then
 inverses and cancel `a`.
 -/
 theorem resolvent_identity (a : A) (gj gm : ℂ) (Xj Xm : A)
-    (hjl : (algebraMap ℂ A gj - a) * Xj = 1) (hjr : Xj * (algebraMap ℂ A gj - a) = 1)
-    (hml : (algebraMap ℂ A gm - a) * Xm = 1) (hmr : Xm * (algebraMap ℂ A gm - a) = 1) :
+    (_hjl : (algebraMap ℂ A gj - a) * Xj = 1) (hjr : Xj * (algebraMap ℂ A gj - a) = 1)
+    (hml : (algebraMap ℂ A gm - a) * Xm = 1) (_hmr : Xm * (algebraMap ℂ A gm - a) = 1) :
     Xj - Xm = (gm - gj) • (Xj * Xm) := by
-  -- Using the fact that $Xj * (γ_m - a) = 1$ and $Xm * (γ_m - a) = 1$,    we can simplify the expression.
-  have h_simp : Xj * (gm - gj) • 1 * Xm = Xj * (algebraMap ℂ A gm - a) * Xm - Xj * (algebraMap ℂ A gj - a) * Xm := by
+  -- Using the fact that $Xj * (γ_m - a) = 1$ and $Xm * (γ_m - a) = 1$, we can simplify the
+  -- expression.
+  have h_simp : Xj * (gm - gj) • 1 * Xm = Xj * (algebraMap ℂ A gm - a) * Xm - Xj * (algebraMap ℂ A
+      gj - a) * Xm := by
     simp [ sub_mul, mul_sub, Algebra.smul_def ];
   convert h_simp.symm using 1 <;> simp [ mul_assoc, hjr, hml ]
 
@@ -215,12 +250,12 @@ core that turns the rational-Krylov recurrence into a shift-invert recurrence
 -/
 theorem resolvent_shift_mul (a : A) (N h : ℂ) (j m : ℂ)
     (Xj Xm : A)
-    (hjl : (algebraMap ℂ A (N - h * j) - a) * Xj = 1)
+    (_hjl : (algebraMap ℂ A (N - h * j) - a) * Xj = 1)
     (hjr : Xj * (algebraMap ℂ A (N - h * j) - a) = 1)
     (hml : (algebraMap ℂ A (N - h * m) - a) * Xm = 1)
-    (hmr : Xm * (algebraMap ℂ A (N - h * m) - a) = 1) :
+    (_hmr : Xm * (algebraMap ℂ A (N - h * m) - a) = 1) :
     Xj * (1 + (h * (m - j)) • Xm) = Xm := by
-  simp_all [ mul_add, mul_sub, sub_mul, Algebra.smul_def ];
+  simp_all only [map_sub, map_mul, sub_mul, mul_sub, Algebra.smul_def, mul_add, mul_one];
   apply_fun ( · * Xm ) at hjr ; simp_all [ mul_assoc, sub_mul ];
   simp_all [ sub_eq_iff_eq_add ];
   simp_all [ mul_add ];
@@ -248,9 +283,10 @@ theorem resolvent_shift_repr (a : A) (N h : ℂ) (j m : ℂ) (Xj Xm : A)
     simp [ mul_add, add_mul ];
   have hu_inv_comm : Xm * ⅟(1 + (h * (m - j)) • Xm) = ⅟(1 + (h * (m - j)) • Xm) * Xm := by
     apply_fun (fun x => x * ⅟(1 + (h * (m - j)) • Xm)) at hu_comm;
-    simp_all [ mul_assoc ];
+    simp_all only [map_sub, map_mul, mul_assoc, mul_invOf_self', mul_one];
     apply_fun (fun x => ⅟(1 + (h * (m - j)) • Xm) * x) at hu_comm; simp_all ;
-  convert congr_arg ( fun x => x * ⅟ ( 1 + ( h * ( m - j ) ) • Xm ) ) ( resolvent_shift_mul a N h j m Xj Xm hjl hjr hml hmr ) using 1;
+  convert congr_arg ( fun x => x * ⅟ ( 1 + ( h * ( m - j ) ) • Xm ) ) ( resolvent_shift_mul a N h j
+      m Xj Xm hjl hjr hml hmr ) using 1;
   · simp [ mul_assoc ];
   · exact hu_inv_comm.symm
 

@@ -69,14 +69,15 @@ theorem posSupport_card_one_iff_deterministic {p : Fin n → ℝ}
   constructor <;> intro h_card;
   · obtain ⟨ i, hi ⟩ := Finset.card_eq_one.mp h_card;
     use i;
-    ext k; by_cases hk : k = i <;> simp_all [ Finset.ext_iff, posSupport ] ;
+    ext k; by_cases hk : k = i <;> simp_all only [posSupport, Finset.ext_iff, Finset.mem_filter,
+        Finset.mem_univ, true_and, Finset.mem_singleton, ↓reduceIte] ;
     · have h_sum : ∑ k ∈ Finset.univ.erase i, p k = 0 := by
         exact Finset.sum_eq_zero fun x hx =>
           le_antisymm ( le_of_not_gt fun hx' => by have := hi x; aesop ) ( hp.1 x );
       simp_all ;
       linarith [ hp.2 ];
     · exact le_antisymm ( le_of_not_gt fun h => hk <| hi k |>.1 h ) ( hp.1 k );
-  · obtain ⟨ i, rfl ⟩ := h_card; simp [ posSupport ] ;
+  · obtain ⟨ i, rfl ⟩ := h_card; simp only [posSupport] ;
     rw [ Finset.card_eq_one ] ; use i ; ext k ; aesop
 
 /-

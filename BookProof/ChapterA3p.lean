@@ -63,7 +63,9 @@ theorem sum_signC_eq_zero {N : ℕ} (hN : 2 ≤ N) :
     ∑ σ : Equiv.Perm (Fin N), signC σ = 0 := by
   have h_transposition : ∃ t : Equiv.Perm (Fin N), Equiv.Perm.sign t = -1 := by
     exact ⟨ Equiv.swap ⟨ 0, by linarith ⟩ ⟨ 1, by linarith ⟩, by simp ⟩;
-  obtain ⟨ t, ht ⟩ := h_transposition;    have := Equiv.sum_comp ( Equiv.mulLeft t ) ( fun x => signC x ) ; simp_all [ signC ] ;
+  obtain ⟨ t, ht ⟩ := h_transposition;    have := Equiv.sum_comp ( Equiv.mulLeft t ) ( fun x =>
+      signC x ) ; simp_all only [signC, Equiv.coe_mulLeft, Equiv.Perm.sign_mul, neg_mul, one_mul,
+          Units.val_neg, Int.cast_neg, Finset.sum_neg_distrib] ;
   linear_combination' -this / 2
 
 /-
@@ -77,8 +79,10 @@ theorem projSym_mul_projAnti {N : ℕ} (hN : 2 ≤ N) :
     projSym N * projAnti N = 0 := by
   unfold projSym projAnti;
   -- By Fubini's theorem, we can interchange the order of summation.
-  have h_fubini : ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N),    (signC τ • permMat (σ * τ)) = ∑ ρ : Equiv.Perm (Fin N),    (∑ σ : Equiv.Perm (Fin N), signC (σ * ρ)) • permMat ρ := by
-    have h_fubini : ∀ σ : Equiv.Perm (Fin N),      ∑ τ : Equiv.Perm (Fin N),      (signC τ • permMat (σ * τ)) = ∑ ρ : Equiv.Perm (Fin N), (signC (σ * ρ) • permMat ρ) := by
+  have h_fubini : ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N),    (signC τ • permMat (σ *
+      τ)) = ∑ ρ : Equiv.Perm (Fin N),    (∑ σ : Equiv.Perm (Fin N), signC (σ * ρ)) • permMat ρ := by
+    have h_fubini : ∀ σ : Equiv.Perm (Fin N),      ∑ τ : Equiv.Perm (Fin N),      (signC τ • permMat
+        (σ * τ)) = ∑ ρ : Equiv.Perm (Fin N), (signC (σ * ρ) • permMat ρ) := by
       intro σ;
       apply Finset.sum_bij (fun τ _ => σ * τ);
       · simp;
@@ -89,9 +93,12 @@ theorem projSym_mul_projAnti {N : ℕ} (hN : 2 ≤ N) :
     simp only [Finset.sum_smul];
   convert congr_arg ( fun x : MN N => ( N.factorial : ℂ ) ⁻¹ ^ 2 • x ) h_fubini using 1;
   · simp [ sq, smul_smul, Finset.smul_sum, Finset.sum_mul ];
-    simp [ Finset.mul_sum _ _ _, mul_assoc, Finset.smul_sum, smul_smul, BookProof.ChapterA3n.permMat_mul ];
-  · -- By definition of $signC$,    we know that $\sum_{\sigma} signC(\sigma \rho) = \sum_{\sigma} signC(\sigma)$ for any $\rho$.
-    have h_signC_sum : ∀ ρ : Equiv.Perm (Fin N),      ∑ σ : Equiv.Perm (Fin N), signC (σ * ρ) = ∑ σ : Equiv.Perm (Fin N), signC σ := by
+    simp [ Finset.mul_sum _ _ _, mul_assoc, Finset.smul_sum, smul_smul,
+        BookProof.ChapterA3n.permMat_mul ];
+  · -- By definition of $signC$, we know that $\sum_{\sigma} signC(\sigma \rho) = \sum_{\sigma}
+    -- signC(\sigma)$ for any $\rho$.
+    have h_signC_sum : ∀ ρ : Equiv.Perm (Fin N),      ∑ σ : Equiv.Perm (Fin N), signC (σ * ρ) = ∑ σ
+        : Equiv.Perm (Fin N), signC σ := by
       exact fun ρ => Equiv.sum_comp ( Equiv.mulRight ρ ) fun σ => signC σ;
     simp [ h_signC_sum, sum_signC_eq_zero hN ]
 
@@ -102,10 +109,14 @@ symmetrizer.
 theorem projAnti_mul_projSym {N : ℕ} (hN : 2 ≤ N) :
     projAnti N * projSym N = 0 := by
   unfold projAnti; unfold projSym;
-  have h_sum_zero : ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N),    signC σ • permMat (σ * τ) = ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N), signC σ • permMat τ := by
-    exact Finset.sum_congr rfl fun σ _ => Equiv.sum_comp ( Equiv.mulLeft σ ) fun τ => signC σ • permMat τ;
-  convert congr_arg ( fun x : MN N => ( N.factorial : ℂ ) ⁻¹ • ( N.factorial : ℂ ) ⁻¹ • x ) h_sum_zero using 1;
-  · simp [ Finset.sum_mul _ _ _, Finset.mul_sum, smul_smul, Finset.smul_sum, BookProof.ChapterA3n.permMat_mul ];
+  have h_sum_zero : ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N),    signC σ • permMat (σ *
+      τ) = ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N), signC σ • permMat τ := by
+    exact Finset.sum_congr rfl fun σ _ => Equiv.sum_comp ( Equiv.mulLeft σ ) fun τ => signC σ •
+        permMat τ;
+  convert congr_arg ( fun x : MN N => ( N.factorial : ℂ ) ⁻¹ • ( N.factorial : ℂ ) ⁻¹ • x )
+      h_sum_zero using 1;
+  · simp [ Finset.sum_mul _ _ _, Finset.mul_sum, smul_smul, Finset.smul_sum,
+      BookProof.ChapterA3n.permMat_mul ];
   · simp [ ← Finset.smul_sum, ← Finset.sum_smul, sum_signC_eq_zero hN ]
 
 /-
@@ -114,7 +125,8 @@ antisymmetrizer sum to the identity: `(1/2)(1+τ) + (1/2)(1-τ) = 1`.
 -/
 theorem projSym_add_projAnti_two :
     projSym 2 + projAnti 2 = 1 := by
-  ext a b; simp [ projSym, projAnti ] ;
+  ext a b; simp only [projSym, Nat.factorial_two, Nat.cast_ofNat, projAnti, add_apply, smul_apply,
+      smul_eq_mul] ;
   unfold permMat signC;
   rw [ Finset.sum_eq_multiset_sum, Finset.sum_eq_multiset_sum ] ; norm_cast;
   erw [ show ( Finset.univ.val : Multiset ( Equiv.Perm ( Fin 2 ) ) )

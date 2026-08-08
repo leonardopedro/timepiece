@@ -76,7 +76,8 @@ noncomputable def timePart (v x : Fin 4 → ℝ) : Fin 4 → ℝ := (timeProj v)
 theorem spatialPart_add_timePart (v x : Fin 4 → ℝ) :
     spatialPart v x + timePart v x = x := by
   unfold spatialPart timePart;
-  rw [ ← Matrix.add_mulVec, BookProof.ChapterGravityTimeProj.spatialProj_add_timeProj, Matrix.one_mulVec ]
+  rw [ ← Matrix.add_mulVec, BookProof.ChapterGravityTimeProj.spatialProj_add_timeProj,
+      Matrix.one_mulVec ]
 
 /-
 The temporal part is a scalar multiple of `v`: `Πx = −⟨x,v⟩_η · v`.
@@ -84,7 +85,8 @@ The temporal part is a scalar multiple of `v`: `Πx = −⟨x,v⟩_η · v`.
 theorem timePart_eq_smul (v x : Fin 4 → ℝ) :
     timePart v x = (-(minkForm x v)) • v := by
   ext a;
-  unfold timePart minkForm; simp [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
+  unfold timePart minkForm; simp only [mulVec, dotProduct, Fin.sum_univ_four, Fin.isValue,
+      neg_add_rev, Pi.smul_apply, smul_eq_mul] ; ring;
   unfold timeProj; norm_num; ring;
 
 /-
@@ -94,7 +96,7 @@ spatial hyperplane `v^⊥`.
 theorem spatialPart_orthogonal (v x : Fin 4 → ℝ) (hv : minkSq v = -1) :
     minkForm (spatialPart v x) v = 0 := by
   unfold minkForm;
-  unfold spatialPart; simp [ *, Matrix.mulVec, dotProduct ] ; ring;
+  unfold spatialPart; simp only [mulVec, dotProduct] ; ring;
   unfold spatialProj; simp [ * ] ; ring;
   unfold minkSq at hv; simp_all [ Fin.sum_univ_four, lower ] ; ring;
   grobner
@@ -106,7 +108,8 @@ theorem spatialPart_orthogonal (v x : Fin 4 → ℝ) (hv : minkSq v = -1) :
 theorem parts_orthogonal (v x : Fin 4 → ℝ) (hv : minkSq v = -1) :
     minkForm (spatialPart v x) (timePart v x) = 0 := by
   rw [ timePart_eq_smul ];
-  convert congr_arg ( fun y => ( -minkForm x v ) * y ) ( spatialPart_orthogonal v x hv ) using 1 ;    ring;
+  convert congr_arg ( fun y => ( -minkForm x v ) * y ) ( spatialPart_orthogonal v x hv ) using 1 ;
+      focus (ring);
   · unfold minkForm lower; simp [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
   · ring
 

@@ -107,3 +107,5 @@ theorem comm_gamma0_rotation (i j : Fin 4) (hi : i ≠ 0) (hj : j ≠ 0) :
     mgamma 0 * (mgamma i * mgamma j) = (mgamma i * mgamma j) * mgamma 0 := by
   have h := congrArg (Int.castRingHom ℂ).mapMatrix (commZ_gamma0_rotation i j hi hj)
   simpa only [map_mul, mgamma] using h
+
+end BookProof.ChapterLocalization

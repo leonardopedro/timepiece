@@ -59,8 +59,9 @@ theorem spatialProj_add_timeProj (v : Fin 4 → ℝ) :
 theorem timeProj_idempotent (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     timeProj v * timeProj v = timeProj v := by
   unfold timeProj;
-  ext a b; simp [ Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
-  unfold minkSq at hv; simp_all [ Fin.sum_univ_four, lower ] ;
+  ext a b; simp only [mul_apply, of_apply, mul_neg, neg_mul, neg_neg, Fin.sum_univ_four,
+      Fin.isValue] ; ring;
+  unfold minkSq at hv; simp_all only [lower, Fin.sum_univ_four, Fin.isValue] ;
   linear_combination' hv * v a * ( metric *ᵥ v ) b
 
 /-
@@ -68,7 +69,7 @@ theorem timeProj_idempotent (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
 -/
 theorem trace_timeProj (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (timeProj v).trace = 1 := by
-  unfold timeProj; simp [ Matrix.trace ] ; ring;
+  unfold timeProj; simp only [trace, diag_apply, of_apply, Finset.sum_neg_distrib] ; ring;
   linarith!
 
 /-
@@ -96,7 +97,8 @@ The spatial and temporal projectors are orthogonal: `Π · χ = 0`.
 -/
 theorem timeProj_mul_spatialProj (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     timeProj v * spatialProj v = 0 := by
-  -- Since timeProj = 1 - spatialProj (from spatialProj_add_timeProj),    we can rewrite the goal using this equality.
+  -- Since timeProj = 1 - spatialProj (from spatialProj_add_timeProj), we can rewrite the goal using
+  -- this equality.
   have h_timeProj : timeProj v = 1 - spatialProj v := by
     exact eq_sub_of_add_eq' ( spatialProj_add_timeProj v );
   simp [ h_timeProj, sub_mul,spatialProj_idempotent v hv ]

@@ -140,8 +140,8 @@ theorem midProb_sum (U : Matrix (Fin n) (Fin n) ℂ) (psi : Fin n → ℂ)
         = ∑ a, x a * starRingEnd ℂ (x a) := by
       have h_step : ∑ a, (U *ᵥ x) a * starRingEnd ℂ ((U *ᵥ x) a)
           = ∑ a, (starRingEnd ℂ (x a)) * (Uᴴ *ᵥ (U *ᵥ x)) a := by
-        simp [Matrix.mulVec, dotProduct, Finset.mul_sum,
-          mul_assoc, mul_comm, mul_left_comm]
+        simp only [Matrix.mulVec, dotProduct, map_sum, map_mul, Finset.mul_sum, mul_comm,
+          mul_assoc, Matrix.conjTranspose_apply, RCLike.star_def, mul_left_comm]
         exact Finset.sum_comm.trans (Finset.sum_congr rfl fun _ _ =>
           Finset.sum_congr rfl fun _ _ =>
             Finset.sum_congr rfl fun _ _ => by ring)

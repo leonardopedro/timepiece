@@ -68,51 +68,72 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
     NormedSpace.exp (-G) * mgammaR μ * NormedSpace.exp G
       = ∑ ν, (NormedSpace.exp (-A)) μ ν • mgammaR ν := by
   -- By definition of $Z$, we know that its derivative is $-(G * Z t - Z t * G)$.
-  have hZ_deriv : ∀ t : ℝ,    HasDerivAt (fun t => ∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) (-(G * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) - (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * G)) t := by
+  have hZ_deriv : ∀ t : ℝ,    HasDerivAt (fun t => ∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR
+      ν) (-(G * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) - (∑ ν, (NormedSpace.exp (t •
+          (-A))) μ ν • mgammaR ν) * G)) t := by
     intro t
-    have hZ_deriv_step : HasDerivAt (fun t => ∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) (∑ ν, ((-A) * NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) t := by
-      have hZ_deriv : ∀ ν,        HasDerivAt (fun t => (NormedSpace.exp (t • (-A))) μ ν) ((-A * NormedSpace.exp (t • (-A))) μ ν) t := by
+    have hZ_deriv_step : HasDerivAt (fun t => ∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) (∑
+        ν, ((-A) * NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) t := by
+      have hZ_deriv : ∀ ν,        HasDerivAt (fun t => (NormedSpace.exp (t • (-A))) μ ν) ((-A *
+          NormedSpace.exp (t • (-A))) μ ν) t := by
         intro ν
-        have h_entry_deriv : HasDerivAt (fun t => (NormedSpace.exp (t • (-A)))) ((-A) * (NormedSpace.exp (t • (-A)))) t := by
+        have h_entry_deriv : HasDerivAt (fun t => (NormedSpace.exp (t • (-A)))) ((-A) *
+            (NormedSpace.exp (t • (-A)))) t := by
           convert hasDerivAt_exp_smul_const' ( -A ) t using 1;
         exact hasDerivAt_pi.1 ( hasDerivAt_pi.1 h_entry_deriv μ ) ν;
-      convert HasDerivAt.fun_sum fun ν _ => HasDerivAt.smul_const ( hZ_deriv ν ) ( mgammaR ν ) using 1;
+      convert HasDerivAt.fun_sum fun ν _ => HasDerivAt.smul_const ( hZ_deriv ν ) ( mgammaR ν ) using
+          1;
     have h_comm : (-A) * NormedSpace.exp (t • (-A)) = -(NormedSpace.exp (t • (-A)) * A) := by
       have h_comm : Commute A (t • (-A)) := by
         simp [ Commute ];
         simp [ SemiconjBy ];
       have := h_comm.exp_right;
       rw [ neg_mul, this.eq ];
-    have h_sum : ∑ ν,      (NormedSpace.exp (t • (-A)) * A) μ ν • mgammaR ν = ∑ ν,      (NormedSpace.exp (t • (-A))) μ ν • (G * mgammaR ν - mgammaR ν * G) := by
-      simp_all [ Matrix.mul_apply ];
-      simp_all [ Finset.sum_smul, Finset.smul_sum, mul_comm, HasAdLambda ];
-      exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by simp [ mul_comm, smul_smul ] );
+    have h_sum : ∑ ν,      (NormedSpace.exp (t • (-A)) * A) μ ν • mgammaR ν = ∑ ν,
+        (NormedSpace.exp (t • (-A))) μ ν • (G * mgammaR ν - mgammaR ν * G) := by
+      simp_all only [smul_neg, mul_apply, neg_apply, neg_mul, Finset.sum_neg_distrib, neg_smul,
+          neg_inj];
+      simp_all only [HasAdLambda, Finset.sum_smul, mul_comm, Finset.smul_sum];
+      exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ =>
+          by simp [ mul_comm, smul_smul ] );
     simp_all [ Finset.mul_sum _ _ _, Finset.sum_mul _ _ _, smul_sub ];
   -- By definition of $φ$, we know that its derivative is zero.
-  have hφ_deriv : ∀ t : ℝ,    HasDerivAt (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) 0 t := by
+  have hφ_deriv : ∀ t : ℝ,    HasDerivAt (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp
+      (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) 0 t := by
     intro t
-    have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • G)) (G * NormedSpace.exp (t • G)) t := by
+    have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • G)) (G * NormedSpace.exp (t • G)) t :=
+        by
       convert hasDerivAt_exp_smul_const' G t using 1;
-    have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • (-G))) ((-G) * NormedSpace.exp (t • (-G))) t := by
+    have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • (-G))) ((-G) * NormedSpace.exp (t •
+        (-G))) t := by
       convert hasDerivAt_exp_smul_const' ( -G ) t using 1;
-    have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν)) (G * NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) + NormedSpace.exp (t • G) * (-(G * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) - (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * G))) t := by
+    have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t •
+        (-A))) μ ν • mgammaR ν)) (G * NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ
+            ν • mgammaR ν) + NormedSpace.exp (t • G) * (-(G * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν
+                • mgammaR ν) - (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * G))) t := by
       rename_i h;
       convert HasDerivAt.mul h ( hZ_deriv t ) using 1;
-    convert hφ_deriv.mul ‹HasDerivAt ( fun t => NormedSpace.exp ( t • -G ) ) ( -G * NormedSpace.exp ( t • -G ) ) t› using 1;
+    convert hφ_deriv.mul ‹HasDerivAt ( fun t => NormedSpace.exp ( t • -G ) ) ( -G * NormedSpace.exp
+        ( t • -G ) ) t› using 1;
     simp [ mul_sub, sub_mul, add_mul, ← mul_assoc ];
     have h_comm : Commute G (NormedSpace.exp (t • G)) := by
       apply_rules [ Commute.exp_right, Commute.exp_left ];
       exact Commute.smul_right ( Commute.refl G ) t;
     simp [ ← h_comm.eq ];
   -- Since the derivative of $φ$ is zero, $φ$ is constant.
-  have hφ_const : ∀ t₁ t₂ : ℝ,    NormedSpace.exp (t₁ • G) * (∑ ν, (NormedSpace.exp (t₁ • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t₁ • (-G)) = NormedSpace.exp (t₂ • G) * (∑ ν, (NormedSpace.exp (t₂ • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t₂ • (-G)) := by
-    have hφ_const : ∀ t : ℝ,      deriv (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) t = 0 := by
+  have hφ_const : ∀ t₁ t₂ : ℝ,    NormedSpace.exp (t₁ • G) * (∑ ν, (NormedSpace.exp (t₁ • (-A))) μ ν
+      • mgammaR ν) * NormedSpace.exp (t₁ • (-G)) = NormedSpace.exp (t₂ • G) * (∑ ν, (NormedSpace.exp
+          (t₂ • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t₂ • (-G)) := by
+    have hφ_const : ∀ t : ℝ,      deriv (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp
+        (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) t = 0 := by
       intro t;
       convert HasDerivAt.deriv ( hφ_deriv t ) using 1;
     apply_rules [ is_const_of_deriv_eq_zero ];
     exact fun t => ( hφ_deriv t |> HasDerivAt.differentiableAt );
-  specialize hφ_const 1 0 ; simp_all [ mul_assoc, NormedSpace.exp_zero ];
-  convert congr_arg ( fun x => NormedSpace.exp ( -G ) * x * NormedSpace.exp G ) hφ_const.symm using 1 <;> norm_num [ mul_assoc, NormedSpace.exp_add_of_commute, NormedSpace.exp_neg ];
+  specialize hφ_const 1 0 ; simp_all only [smul_neg, neg_sub, mul_assoc, one_smul, zero_smul,
+      NormedSpace.exp_zero, neg_zero, one_mul, mul_one];
+  convert congr_arg ( fun x => NormedSpace.exp ( -G ) * x * NormedSpace.exp G ) hφ_const.symm using
+      1 <;> norm_num [ mul_assoc, NormedSpace.exp_add_of_commute, NormedSpace.exp_neg ];
   · simp [ Matrix.one_apply, Finset.sum_ite_eq ];
   · simp [ ← mul_assoc, exp_neg_mul_exp ]
 
@@ -135,12 +156,17 @@ theorem lorentzLie_exp (h : A ∈ LorentzLie) :
     have h_2 : (Matrix.of minkowskiMat) * A * (Matrix.of minkowskiMat) = -A.transpose := by
       have h_mul : A * (Matrix.of minkowskiMat) + (Matrix.of minkowskiMat) * A.transpose = 0 := by
         exact h
-      convert congr_arg ( fun x => ( Matrix.of minkowskiMat ) * x ) ( eq_neg_of_add_eq_zero_left h_mul ) using 1 ; simp [ Matrix.mul_assoc ];
-      ext i j; simp [ Matrix.mul_apply, minkowskiMat ] ;
-      simp [ minkowskiR, minkowskiZ ];
+      convert congr_arg ( fun x => ( Matrix.of minkowskiMat ) * x ) ( eq_neg_of_add_eq_zero_left
+          h_mul ) using 1 ; focus (simp [ Matrix.mul_assoc ]);
+      ext i j; simp only [neg_apply, transpose_apply, minkowskiMat, mul_apply, of_apply, mul_neg,
+          Finset.sum_neg_distrib, neg_inj] ;
+      simp only [minkowskiR, minkowskiZ, Fin.isValue, Int.reduceNeg, Int.cast_ite, Int.cast_one,
+          Int.cast_neg, Int.cast_zero, ite_mul, one_mul, neg_mul, zero_mul, Finset.sum_ite_eq,
+              Finset.mem_univ, ↓reduceIte, mul_ite, mul_neg];
       fin_cases i <;> fin_cases j <;> simp [ Fin.sum_univ_succ ];
     exact h_2
-  have h_3 : NormedSpace.exp ((Matrix.of minkowskiMat) * A * (Matrix.of minkowskiMat)) = (Matrix.of minkowskiMat) * NormedSpace.exp A * (Matrix.of minkowskiMat) := by
+  have h_3 : NormedSpace.exp ((Matrix.of minkowskiMat) * A * (Matrix.of minkowskiMat)) = (Matrix.of
+      minkowskiMat) * NormedSpace.exp A * (Matrix.of minkowskiMat) := by
     convert Matrix.exp_conj ( Matrix.of minkowskiMat ) A _ using 1;
     · rw [ Matrix.inv_eq_left_inv ];
       ext i j; fin_cases i <;> fin_cases j <;> norm_num [ minkowskiMat ] ;
@@ -150,13 +176,16 @@ theorem lorentzLie_exp (h : A ∈ LorentzLie) :
       ext i j; fin_cases i <;> fin_cases j <;> norm_num [ minkowskiMat ] ;
       all_goals simp [ Matrix.mul_apply, minkowskiR ] ;
       all_goals norm_cast;
-    · convert Matrix.isUnit_of_left_inverse ( show ( of minkowskiMat ) * ( of minkowskiMat ) = 1 from ?_ ) using 1;
+    · convert IsUnit.of_mul_eq_one_right _
+        ( show ( of minkowskiMat ) * ( of minkowskiMat ) = 1 from ?_ ) using 1;
       ext i j ; fin_cases i <;> fin_cases j <;> simp [ minkowskiMat ];
       all_goals simp [ Matrix.mul_apply, minkowskiR ] ;
       all_goals norm_cast;
-  have h_4 : NormedSpace.exp (-A.transpose) = (Matrix.of minkowskiMat) * NormedSpace.exp A * (Matrix.of minkowskiMat) := by
+  have h_4 : NormedSpace.exp (-A.transpose) = (Matrix.of minkowskiMat) * NormedSpace.exp A *
+      (Matrix.of minkowskiMat) := by
     rw [ ← h_2, h_3 ]
-  have h_5 : NormedSpace.exp A * (Matrix.of minkowskiMat) * (NormedSpace.exp A).transpose = (Matrix.of minkowskiMat) := by
+  have h_5 : NormedSpace.exp A * (Matrix.of minkowskiMat) * (NormedSpace.exp A).transpose =
+      (Matrix.of minkowskiMat) := by
     have h_5 : NormedSpace.exp (-A.transpose) * NormedSpace.exp A.transpose = 1 := by
       convert exp_neg_mul_exp Aᵀ using 1;
     convert congr_arg ( fun x => ( Matrix.of minkowskiMat ) * x ) h_5 using 1 <;>

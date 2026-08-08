@@ -53,6 +53,7 @@ the book's `Ψ{Φ}(y) = ∫ dx Ψ(x,y) Φ(x)`. -/
 def kernelOp (Ψ : ιy → ιx → 𝕜) (Φ : ιx → 𝕜) : ιy → 𝕜 :=
   fun y => ∑ x, Ψ y x * Φ x
 
+omit [Fintype ιy] in
 /--
 **Row-wise Cauchy–Schwarz**: for a fixed output `y`,
 `‖∑ x, Ψ y x * Φ x‖² ≤ (∑ x, ‖Ψ y x‖²) · (∑ x, ‖Φ x‖²)`.
@@ -61,7 +62,8 @@ theorem kernel_row_bound (Ψ : ιy → ιx → 𝕜) (Φ : ιx → 𝕜) (y : ι
     ‖kernelOp Ψ Φ y‖ ^ 2 ≤ (∑ x, ‖Ψ y x‖ ^ 2) * (∑ x, ‖Φ x‖ ^ 2) := by
   -- By the properties of the inner product and the Cauchy-Schwarz inequality, we have:
   have h_inner : ‖∑ x, Ψ y x * Φ x‖ ^ 2 ≤ (∑ x, ‖Ψ y x‖ * ‖Φ x‖) ^ 2 := by
-    exact pow_le_pow_left₀ ( norm_nonneg _ ) ( norm_sum_le _ _ |> le_trans <| Finset.sum_le_sum fun _ _ => by rw [ norm_mul ] ) _;
+    exact pow_le_pow_left₀ ( norm_nonneg _ ) ( norm_sum_le _ _ |> le_trans <| Finset.sum_le_sum fun
+        _ _ => by rw [ norm_mul ] ) _;
   refine le_trans h_inner ?_
   exact sum_mul_sq_le_sq_mul_sq univ (fun i ↦ ‖Ψ y i‖) fun i ↦ ‖Φ i‖
 
@@ -73,7 +75,8 @@ bound over the outputs `y`:
 theorem kernel_hs_sq_bound (Ψ : ιy → ιx → 𝕜) (Φ : ιx → 𝕜) :
     ∑ y, ‖kernelOp Ψ Φ y‖ ^ 2
       ≤ (∑ y, ∑ x, ‖Ψ y x‖ ^ 2) * (∑ x, ‖Φ x‖ ^ 2) := by
-  exact le_trans ( Finset.sum_le_sum fun y _ => kernel_row_bound Ψ Φ y ) ( by simp [ Finset.sum_mul _ _ _ ] )
+  exact le_trans ( Finset.sum_le_sum fun y _ => kernel_row_bound Ψ Φ y ) (
+      by simp [ Finset.sum_mul _ _ _ ] )
 
 /--
 **The book's inequality verbatim** (`L²` form of the Hilbert–Schmidt bound):
@@ -83,7 +86,8 @@ theorem kernel_hs_sq_bound (Ψ : ιy → ιx → 𝕜) (Φ : ιx → 𝕜) :
 theorem kernel_l2_bound (Ψ : ιy → ιx → 𝕜) (Φ : ιx → 𝕜) :
     Real.sqrt (∑ y, ‖kernelOp Ψ Φ y‖ ^ 2)
       ≤ Real.sqrt (∑ y, ∑ x, ‖Ψ y x‖ ^ 2) * Real.sqrt (∑ x, ‖Φ x‖ ^ 2) := by
-  rw [ ← Real.sqrt_mul <| Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => sq_nonneg _ ] ;    exact Real.sqrt_le_sqrt <| by simpa only [kernelOp] using kernel_hs_sq_bound _ _;
+  rw [ ← Real.sqrt_mul <| Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => sq_nonneg _ ] ;
+      exact Real.sqrt_le_sqrt <| by simpa only [kernelOp] using kernel_hs_sq_bound _ _;
 
 /--
 **The book's normalized conclusion.**  If the kernel is normalized (a

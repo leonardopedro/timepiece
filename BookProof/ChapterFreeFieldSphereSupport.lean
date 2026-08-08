@@ -60,9 +60,10 @@ theorem stdGaussian_singleton (hn : 0 < n) (x : EuclideanSpace ℝ (Fin n)) :
   · rw [ show ( WithLp.toLp 2 ⁻¹' { x } : Set ( Fin n → ℝ ) ) = { fun i => x i } from ?_ ];
     · convert MeasureTheory.Measure.pi_pi _ _;
       rotate_right;
-      exact fun i => { x.ofLp i };
+      focus (exact fun i => { x.ofLp i });
       · aesop;
-      · simp [ gaussianReal ];
+      · simp only [gaussianReal, one_ne_zero, ↓reduceIte, measure_singleton, Finset.prod_const,
+          Finset.card_univ, Fintype.card_fin];
         rw [ zero_pow hn.ne' ];
       · exact fun _ => inferInstance;
     · aesop;

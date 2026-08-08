@@ -84,6 +84,25 @@ theorem avgProj_comm [Fintype G] (ρ : Representation ℂ G V) (pi : V →ₗ[�
   have h4 : (h⁻¹ * g)⁻¹ = g⁻¹ * h := by group
   rw [h1, h2, h3, h4]
 
+/-- The averaged projection is **idempotent**: it is a genuine projection. -/
+theorem avgProj_idempotent [Fintype G] {ρ : Representation ℂ G V} {W : Submodule ℂ V}
+    (hW : IsInvariant ρ W) (pi : V →ₗ[ℂ] V) (hpi_mem : ∀ x, pi x ∈ W)
+    (hpi_id : ∀ x ∈ W, pi x = x) (x : V) :
+    avgProj ρ pi (avgProj ρ pi x) = avgProj ρ pi x :=
+  avgProj_eq_self hW pi hpi_id (avgProj_mem hW pi hpi_mem x)
+
+/-- The **range of the averaged projection is exactly the invariant subspace**
+`W` it was built from. -/
+theorem avgProj_range_eq_W [Fintype G] {ρ : Representation ℂ G V} {W : Submodule ℂ V}
+    (hW : IsInvariant ρ W) (pi : V →ₗ[ℂ] V) (hpi_mem : ∀ x, pi x ∈ W)
+    (hpi_id : ∀ x ∈ W, pi x = x) :
+    LinearMap.range (avgProj ρ pi) = W := by
+  refine le_antisymm ?_ ?_
+  · rintro y ⟨x, rfl⟩
+    exact avgProj_mem hW pi hpi_mem x
+  · intro x hx
+    exact ⟨x, avgProj_eq_self hW pi hpi_id hx⟩
+
 /-- **Maschke's theorem (complete reducibility for finite groups).**  Every
 invariant subspace of a finite-dimensional complex representation of a finite
 group has an invariant complement.  This is the exact conclusion that
@@ -124,5 +143,51 @@ theorem maschke_invariant_complement [Finite G] [FiniteDimensional ℂ V]
       have : x = p x + (x - p x) := by abel
       rw [this]
       exact Submodule.add_mem_sup hpx hker
+
+/-- **Maschke's theorem, packaged as a decomposition.**  For every invariant
+subspace `W` of a finite-dimensional complex representation of a finite group
+there are an invariant complement `W'` and an *equivariant projection* `p` onto
+`W` along `W'`: `p` is idempotent, its range is `W`, its kernel is `W'`, and it
+commutes with the representation.  This is the book's phrasing "every invariant
+subspace is a direct summand", with the intertwining projection exhibited. -/
+theorem maschke_decomposition [Finite G] [FiniteDimensional ℂ V]
+    (ρ : Representation ℂ G V) (W : Submodule ℂ V) (hW : IsInvariant ρ W) :
+    ∃ (W' : Submodule ℂ V) (p : V →ₗ[ℂ] V),
+      IsInvariant ρ W' ∧ IsCompl W W' ∧ (∀ x, p (p x) = p x) ∧
+        LinearMap.range p = W ∧ LinearMap.ker p = W' ∧
+        (∀ (g : G) (x : V), p (ρ g x) = ρ g (p x)) := by
+  classical
+  letI : Fintype G := Fintype.ofFinite G
+  obtain ⟨W₀, hW₀⟩ := Submodule.exists_isCompl W
+  set pi : V →ₗ[ℂ] V := W.subtype ∘ₗ W.linearProjOfIsCompl W₀ hW₀ with hpidef
+  have hpi_mem : ∀ x, pi x ∈ W := fun x => (W.linearProjOfIsCompl W₀ hW₀ x).2
+  have hpi_id : ∀ x ∈ W, pi x = x := by
+    intro x hx
+    simp [hpidef, Submodule.linearProjOfIsCompl_apply_left hW₀ ⟨x, hx⟩]
+  set p : V →ₗ[ℂ] V := avgProj ρ pi with hpdef
+  have hp_mem : ∀ x, p x ∈ W := avgProj_mem hW pi hpi_mem
+  have hp_id : ∀ x ∈ W, p x = x := fun x hx => avgProj_eq_self hW pi hpi_id hx
+  have hp_comm : ∀ (g : G) (x : V), p (ρ g x) = ρ g (p x) := avgProj_comm ρ pi
+  refine ⟨LinearMap.ker p, p, ?_, ?_, ?_, ?_, rfl, hp_comm⟩
+  · intro g x hx
+    simp only [LinearMap.mem_ker] at hx ⊢
+    rw [hp_comm g x, hx, map_zero]
+  · constructor
+    · rw [disjoint_iff_inf_le]
+      intro x hx
+      have hx2 : p x = 0 := hx.2
+      rw [hp_id x hx.1] at hx2
+      simp [hx2]
+    · rw [codisjoint_iff_le_sup]
+      intro x _
+      have hpx : p x ∈ W := hp_mem x
+      have hker : x - p x ∈ LinearMap.ker p := by
+        simp only [LinearMap.mem_ker, map_sub]
+        rw [hp_id _ hpx, sub_self]
+      have hsplit : x = p x + (x - p x) := by abel
+      rw [hsplit]
+      exact Submodule.add_mem_sup hpx hker
+  · exact fun x => hp_id _ (hp_mem x)
+  · exact avgProj_range_eq_W hW pi hpi_mem hpi_id
 
 end BookProof.ChapterMaschkeFiniteGroup

@@ -69,7 +69,7 @@ theorem range_ofCore : Set.range ofCore = FinSupport := by
     refine ⟨Finsupp.onFinset hf.toFinset (fun n => (f : ℕ → ℝ) n) ?_, ?_⟩
     · intro n hn
       simpa using hn
-    · exact Subtype.ext (funext fun j => by simpa using ofCore_apply _ j)
+    · exact Subtype.ext (funext fun j => by simp)
 
 /-- **The Riesz–Fischer theorem.**  `ℓ²(ℕ)` — the completion of the dense core —
 is complete, and every one of its vectors is the norm-limit (unconditional sum)

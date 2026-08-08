@@ -51,8 +51,10 @@ theorem collapseKernels_normalized (ks : List (S → S → ℝ))
   induction ks with
   | nil => exact idKernel_normalized
   | cons k ks ih => 
-    simp [collapseKernels]
-    exact compKernel_normalized k (collapseKernels ks) (hks k (by simp)) (ih fun k hk => hks k (by simp;      exact Or.inr hk))
+    simp only [collapseKernels]
+    exact compKernel_normalized k (collapseKernels ks) (hks k (by simp)) (ih fun k hk => hks k
+                                                                  (by simp only [List.mem_cons];
+                                                                      exact Or.inr hk))
 
 /-- Every finite composition of nonnegative kernels is nonnegative. -/
 theorem collapseKernels_nonnegative (ks : List (S → S → ℝ))
@@ -60,9 +62,10 @@ theorem collapseKernels_nonnegative (ks : List (S → S → ℝ))
     IsNonnegativeKernel (collapseKernels ks) := by
   induction ks with
   | nil => exact idKernel_nonnegative
-  | cons k ks ih => 
-    simp [collapseKernels]
-    exact compKernel_nonnegative k (collapseKernels ks) (hks k (by simp)) (ih fun k hk => hks k (by simp; exact Or.inr hk))
+  | cons k ks ih =>
+    simp only [collapseKernels]
+    exact compKernel_nonnegative k (collapseKernels ks) (hks k (by simp))
+      (ih fun k hk => hks k (by simp only [List.mem_cons]; exact Or.inr hk))
 
 /-- Recursively marginalize a terminal likelihood through all hierarchy levels. -/
 def nestedMarginal : List (S → S → ℝ) → (S → ℝ) → (S → ℝ)
@@ -77,11 +80,11 @@ theorem nestedMarginal_eq_terminalMarginal (ks : List (S → S → ℝ))
       terminalMarginal (collapseKernels ks) likelihood := by
   induction ks with
   | nil =>
-    simp [nestedMarginal]
+    simp only [nestedMarginal, collapseKernels_nil]
     funext a
     simp [terminalMarginal, idKernel]
   | cons k ks ih =>
-    simp [nestedMarginal]
+    simp only [nestedMarginal, collapseKernels_cons]
     rw [ih]
     exact terminalMarginal_comp k (collapseKernels ks) likelihood
 

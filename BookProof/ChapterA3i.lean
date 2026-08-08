@@ -114,7 +114,7 @@ theorem Treal_mul (A B : Matrix (Fin 2) (Fin 2) ℂ) :
 theorem Treal_one : Treal (1 : Matrix (Fin 2) (Fin 2) ℂ) = 1 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [Treal] <;> norm_num
+    simp [Treal]
 
 /-- `Treal` of a scalar matrix `c • 1` is `(Re c)·1 + (Im c)·J` — in particular
 `Treal ((1:ℂ) • 1) = 1`.  Packaged for the determinant computation:
@@ -124,7 +124,9 @@ theorem T_mul_adj2 (T : Matrix (Fin 2) (Fin 2) ℂ)
     T * adj2 T = 1 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [adj2, Matrix.mul_apply, Fin.sum_univ_two] <;>
+    simp only [adj2, Fin.isValue, Fin.zero_eta, mul_apply, of_apply, cons_val', cons_val_zero,
+        cons_val_fin_one, Fin.sum_univ_two, cons_val_one, mul_neg, one_apply_eq, Fin.mk_one, ne_eq,
+            zero_ne_one, not_false_eq_true, one_apply_ne, one_ne_zero] <;>
     first | linear_combination hdet | ring
 
 /-- `adj2 T · T = 1` when `det T = 1`. -/
@@ -133,7 +135,9 @@ theorem adj2_mul_T (T : Matrix (Fin 2) (Fin 2) ℂ)
     adj2 T * T = 1 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [adj2, Matrix.mul_apply, Fin.sum_univ_two] <;>
+    simp only [adj2, Fin.isValue, Fin.zero_eta, mul_apply, of_apply, cons_val', cons_val_fin_one,
+        cons_val_zero, Fin.sum_univ_two, cons_val_one, neg_mul, one_apply_eq, Fin.mk_one, ne_eq,
+            zero_ne_one, not_false_eq_true, one_apply_ne, one_ne_zero] <;>
     first | linear_combination hdet | ring
 
 /-- `Σᵀ Σ = 2·1`. -/
@@ -155,15 +159,17 @@ This holds as a polynomial identity in the entries of `T`; `det T = 1` is *not*
 needed.
 -/
 set_option maxHeartbeats 2000000 in
+-- the proof below is a large finite computation; the default heartbeat budget
+-- is not enough to elaborate it
 theorem spinorInv_conj_mgamma (T : Matrix (Fin 2) (Fin 2) ℂ) (μ : Fin 4) :
     SpinorInv T * mgamma μ * Spinor T = ∑ ν, UpsilonC T ν μ • mgamma ν := by
   unfold SpinorInv Spinor UpsilonC mgamma;
-  simp [ SigmaC, SigmaZ, Treal, adj2, mgammaZ, pauliCoeff, pauliσ,
-    Fin.sum_univ_four, Matrix.mul_apply, Matrix.trace, Matrix.diag,
-    Matrix.conjTranspose_apply, RingHom.mapMatrix_apply, 
-    Matrix.of_apply, Matrix.cons_val_zero,
-    Matrix.cons_val_one, Matrix.cons_val', Matrix.empty_val',
-    Matrix.cons_val_fin_one ];
+  simp only [SigmaC, SigmaZ, Int.reduceNeg, RingHom.mapMatrix_apply, Int.coe_castRingHom, Treal,
+    adj2, Fin.isValue, of_apply, cons_val', cons_val_zero, empty_val', cons_val_fin_one,
+    cons_val_one, Complex.neg_re, Complex.ofReal_neg, Complex.neg_im, neg_neg,
+    Algebra.mul_smul_comm, mgammaZ, Algebra.smul_mul_assoc, pauliCoeff, trace, diag, pauliσ,
+    mul_apply, conjTranspose_apply, RCLike.star_def, Fin.sum_univ_two, Fin.sum_univ_four,
+    one_mul, zero_mul, add_zero, zero_add, neg_mul, neg_add_rev];
   rw [ ← Matrix.ext_iff ] at *;
   fin_cases μ <;> simp [ Fin.sum_univ_succ, Matrix.mul_apply ] at *;
   · simp [ Fin.forall_fin_succ, Complex.ext_iff ] at *;

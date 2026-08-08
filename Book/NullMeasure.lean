@@ -160,6 +160,31 @@ Neumann's classification, proved outright in `BookProof.ChapterAbelianDiagonal`:
 #check @BookProof.AbelianDiagonal.vonNeumann_abelian_typeI_case
 ```
 
+The next case on the list — the countable one, $`\ell^\infty(\mathbb{N})` — is now
+proved as well, on the separable Hilbert space $`\ell^2(\mathbb{N})` built in
+`BookProof.ChapterRieszFischer`. Each bounded sequence $`d \in \ell^\infty(\mathbb{N})`
+acts as a diagonal multiplication operator of norm at most $`\|d\|`; the
+assignment is a faithful unital $`*`-algebra map (`diagOp_injective`,
+`diagOp_mul`, `diagOp_one`, `diagOp_star`); its image is abelian; and a bounded
+operator commutes with every diagonal operator exactly when it is itself diagonal
+(`commutes_diagOp_iff`). So $`\ell^\infty(\mathbb{N})` is a maximal abelian
+self-adjoint subalgebra of $`B(\ell^2(\mathbb{N}))`:
+
+```
+#check @BookProof.ChapterAbelianDiagonalCountable.diagOp
+#check @BookProof.ChapterAbelianDiagonalCountable.norm_diagOp_le
+#check @BookProof.ChapterAbelianDiagonalCountable.diagOp_mul
+#check @BookProof.ChapterAbelianDiagonalCountable.diagOp_star
+#check @BookProof.ChapterAbelianDiagonalCountable.diagOp_injective
+#check @BookProof.ChapterAbelianDiagonalCountable.diagOp_comm
+#check @BookProof.ChapterAbelianDiagonalCountable.commutes_diagOp_iff
+#check @BookProof.ChapterAbelianDiagonalCountable.vonNeumann_abelian_class_countable
+```
+
+The remaining three classes ($`L^\infty([0,1])` and the two mixtures) need
+von-Neumann-algebra machinery that is not available in this toolchain, and the
+exhaustiveness of the five-item list remains a documented gap.
+
 The same statement is packaged, against the manuscript's five-type list, in
 `BookProof.ChapterSelectingEvents`:
 

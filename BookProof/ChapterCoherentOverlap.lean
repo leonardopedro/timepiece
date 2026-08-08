@@ -14,7 +14,10 @@ kernel gives the overlap
 This module works over `EuclideanSpace ℝ (Fin n)` (the *real* coherent-state
 parameters, where the overlap is a positive real number — the general complex
 Bargmann kernel carries an extra phase `exp (i · Im ⟪q,k⟫)` which is invisible to
-the Born rule of the next chapter section).
+the Born rule of the next chapter section).  That restriction is no longer a gap:
+`BookProof.ChapterCoherentOverlapComplex` formalizes the complex kernel, its
+modulus/phase factorization, and the fact (`coherentOverlapC_ofReal`) that the
+real kernel below is exactly its restriction to real parameters.
 
 Deliverables (all `sorry`-free, `axiom`-free):
 

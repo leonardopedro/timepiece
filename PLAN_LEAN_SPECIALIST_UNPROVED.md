@@ -34,9 +34,38 @@ are **not yet proved**. Every new theorem must remain `sorry`-free and
 > `exists_continuous_atomic_decomposition`, the finite type-`Iₙ` von Neumann case,
 > the concrete Schur/Pauli/unitary/Maschke cases, and the §5 "definability / mixed
 > priors / error norms / finite arithmetic prior / kernel transport" items are all
-> real theorems. The next-wave deliverables are listed as **Part C** of
-> `PLAN_LEAN_SPECIALIST_COHERENT.md` (complex coherent overlap, the observable
-> operator `V̂`, the `ℓ∞(ℕ)` von Neumann class, Maschke averaging consequences).
+> real theorems.
+>
+> **Status refresh (same day, Part E wave):** Parts A–E of
+> `PLAN_LEAN_SPECIALIST_COHERENT.md` are now **complete** — including the three
+> structural layers just landed and synced into `Book/CoherentState.lean`:
+>
+> - **`ChapterCoherentOverlapComplex`** — the complex Bargmann kernel
+>   (`coherentOverlapC`, `coherentBornC_eq_softmax`, `bornWeightC_phase_invariant`,
+>   `coherentBornC_cancel_q`), discarding the real-parameter caveat;
+> - **`ChapterObservableOperator`** — the observable built as a Hermitian operator
+>   `V̂ = Σ vⱼ |kⱼ⟩⟨kⱼ|` (`observableOp_isHermitian`,
+>   `observableOp_expectation`, `observableOp_expectation_mem_convexHull`,
+>   `observable_expectation_born`), so the attention output is an *expectation
+>   value*, not just spectral data;
+> - **`ChapterAbelianDiagonalCountable`** — the countable MASA `ℓ∞(ℕ)` on `ℓ²(ℕ)`
+>   (`diagOp`, `commutes_diagOp_iff`, `vonNeumann_abelian_class_countable`),
+>   upgrading the `ℓ∞(ℕ)` clause of the von Neumann classification from
+>   `ChapterAbelianDiagonal`'s finite (`Iₙ`) case;
+> - **Maschke consequences** (`avgProj_idempotent`, `avgProj_range_eq_W`,
+>   `maschke_decomposition`) and the three structural layers
+>   `ChapterCoherentGeometry` ("nearest key wins"), `ChapterSoftmaxOrder`
+>   (temperature-independent argmax) and `ChapterAttentionEntropy` (Shannon
+>   entropy, its maximal value at `β = 0` and collapse to `0` as `β → ∞`), plus
+>   `ChapterCoherentOccupation` (Poisson occupation statistics, `τ` as the energy
+>   expectation) and `ChapterSoftmaxSharpness` (flat-versus-sharp dichotomy).
+>
+> **What remains (documented gaps, *not* a `sorry` backlog):** the physical
+> derivation of `τ = n̄ + 1/2` from the quantum fidelity of displaced thermal
+> states (`ChapterCoherentTemperature`), and the exhaustiveness of the five-item
+> von Neumann list / the `L∞([0,1])` and mixture classes (need von-Neumann-algebra
+> machinery not in this toolchain). Both live records are in
+> `BookProof/STATUS.md`; neither is `sorry`-ed anywhere.
 > This file's historical items remain below for provenance.
 
 - **Actual `sorry`s:** the former real gap

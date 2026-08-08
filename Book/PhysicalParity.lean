@@ -262,6 +262,20 @@ conclusion follows from Maschke's averaging argument, with no unitarity assumed:
 ```
 
 :::paragraph
+The averaging argument gives more than the bare complement. The averaged map is
+a genuine projection — idempotent, with range exactly the invariant subspace it
+was built from — and it commutes with the representation, so the splitting is a
+decomposition *of representations*: an invariant subspace, an invariant
+complement, and an equivariant projection between them.
+:::
+
+```
+#check @BookProof.ChapterMaschkeFiniteGroup.avgProj_idempotent
+#check @BookProof.ChapterMaschkeFiniteGroup.avgProj_range_eq_W
+#check @BookProof.ChapterMaschkeFiniteGroup.maschke_decomposition
+```
+
+:::paragraph
 For the concrete $`4\times 4` Majorana model of the manuscript, Pauli's fundamental
 theorem is itself a finite computation, not an external input: the commutant of the
 four matrices $`i\gamma^\mu` is exactly the set of scalar matrices — the

@@ -67,7 +67,7 @@ change of variable `w = (γ − z)⁻¹` one has `γ − w⁻¹ = z`, hence
 `ψ_{k,γ}((γ − z)⁻¹) = φ_k(z)`.  This is why applying the functional calculus of
 `ψ_{k,γ}` to `X = (γ − A)⁻¹` reproduces `φ_k(A)`.
 -/
-theorem psi_shift_eq_phi (k : ℕ) (γ z : ℂ) (h : γ - z ≠ 0) :
+theorem psi_shift_eq_phi (k : ℕ) (γ z : ℂ) (_h : γ - z ≠ 0) :
     psi k γ ((γ - z)⁻¹) = BookProof.ChapterH1.phi k z := by
   unfold psi; aesop;
 
@@ -94,7 +94,8 @@ theorem compress_X_comp_V (V : F →L[ℂ] E) (X : E →L[ℂ] E)
     X.comp V = V.comp (compress V X) := by
   ext x;
   obtain ⟨ y, hy ⟩ := hinv x;
-  replace hVV := congr_arg ( fun f => f y ) hVV; simp_all  ;
+  replace hVV := congr_arg ( fun f => f y ) hVV; simp_all only [ContinuousLinearMap.coe_comp',
+      Function.comp_apply, ContinuousLinearMap.coe_id', id_eq]  ;
   unfold compress; aesop;
 
 /-
@@ -104,12 +105,14 @@ theorem compress_pow (V : F →L[ℂ] E) (X : E →L[ℂ] E)
     (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
     (hinv : ∀ x : F, ∃ y : F, X (V x) = V y) (n : ℕ) :
     (X ^ n).comp V = V.comp ((compress V X) ^ n) := by
-  induction' n with n ih;
+  induction n with
+  | zero => ?_
+  | succ n ih => ?_
   · aesop;
   · convert congr_arg ( fun f => X.comp f ) ih using 1;
-    · simp [ pow_succ' ]
+    · simp only [pow_succ']
       exact ContinuousLinearMap.ext (congrFun rfl)
-    · simp [ pow_succ', ← ContinuousLinearMap.comp_assoc, compress_X_comp_V _ _ hVV hinv ];
+    · simp only [pow_succ', ← ContinuousLinearMap.comp_assoc, compress_X_comp_V _ _ hVV hinv];
       exact ContinuousLinearMap.ext (congrFun rfl)
 
 /-
@@ -126,12 +129,12 @@ theorem compress_transfer (V : F →L[ℂ] E) (X : E →L[ℂ] E)
   have haux : V.adjoint (V (V.adjoint v)) = V.adjoint v := by simp [hv]
   simp [ContinuousLinearMap.comp_apply, haux]
 
+omit [CompleteSpace E] [CompleteSpace F] in
 /-
 **H2.2** (invertible-factor transfer, the denominator step of eq. 11): if the
 denominators `qX` and its compression `qB` intertwine (`qX ∘ V = V ∘ qB`) and both
 are invertible, then the inverses intertwine, `qX⁻¹ ∘ V = V ∘ qB⁻¹`.
 -/
-omit [CompleteSpace E] [CompleteSpace F] in
 theorem compress_inv_transfer (V : F →L[ℂ] E)
     (qX qXinv : E →L[ℂ] E) (qB qBinv : F →L[ℂ] F)
     (hintertwine : qX.comp V = V.comp qB)

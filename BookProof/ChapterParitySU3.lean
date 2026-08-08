@@ -57,7 +57,7 @@ open BookProof.ChapterParity
 /-- Each complex-conjugation eigenvalue of a Gell-Mann generator squares to `1`
 (`ε^a ∈ {+1, -1}`), so entrywise conjugation is an involution on each generator. -/
 theorem gellMannConjSign_sq (a : Fin 8) : gellMannConjSign a ^ 2 = 1 := by
-  fin_cases a <;> simp [gellMannConjSign] <;> ring
+  fin_cases a <;> simp [gellMannConjSign]
 
 /-- Entrywise complex conjugation is an **involution** on the Gell-Mann generators:
 `conj(conj(λ^a)) = λ^a`.  Hence the conjugation automorphism has order dividing `2`. -/

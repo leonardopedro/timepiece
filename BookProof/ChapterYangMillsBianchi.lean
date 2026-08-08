@@ -1,7 +1,8 @@
 import Mathlib
 
 /-!
-# Chapter "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory",  §"Pure SU(3) Yang-Mills theory" — the covariant derivative and the Bianchi (Jacobi) identity
+# Chapter "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory",
+§"Pure SU(3) Yang-Mills theory" — the covariant derivative and the Bianchi (Jacobi) identity
 
 Source: `book.tex`, chapter *"Quantization due to time-evolution: Yang-Mills and
 Classical Statistical Field Theory"*, §*"Pure SU(3) Yang-Mills theory"*

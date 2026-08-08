@@ -65,7 +65,8 @@ theorem metric_mul_metric : metric * metric = 1 := by
 -/
 theorem invSpatialMetric_symm (v : Fin 4 → ℝ) :
     (invSpatialMetric v)ᵀ = invSpatialMetric v := by
-      ext i j; simp [ invSpatialMetric, Matrix.transpose_apply, mul_comm ] ;
+      ext i j; simp only [invSpatialMetric, transpose_apply, add_apply, of_apply, mul_comm,
+          add_left_inj] ;
       fin_cases i <;> fin_cases j <;> rfl
 
 /-
@@ -76,8 +77,16 @@ time covector, complementary to `h_{ab} v^b = 0`.
 theorem invSpatialMetric_mulVec_lower_self (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (invSpatialMetric v).mulVec (lower v) = 0 := by
       convert spatialProj_mulVec_self v hv using 1;
-      unfold invSpatialMetric spatialProj;        ext; simp [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ;
-      unfold lower metric; simp [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
+      unfold invSpatialMetric spatialProj;        ext; simp only [mulVec, dotProduct, add_apply,
+                                                         of_apply,
+                                                         Fin.sum_univ_four,
+                                                         Fin.isValue] ;
+      unfold lower metric; simp only [Fin.isValue, mulVec, dotProduct, Fin.sum_univ_four,
+                             diagonal_apply_eq, ↓reduceIte, neg_mul,
+                             one_mul, ne_eq, zero_ne_one,
+                             not_false_eq_true, diagonal_apply_ne,
+                             zero_mul, add_zero, Fin.reduceEq,
+                             mul_neg, one_ne_zero, zero_add] ; ring;
       rename_i i; fin_cases i <;> simp [ Matrix.one_apply ]; all_goals ring
 
 /-

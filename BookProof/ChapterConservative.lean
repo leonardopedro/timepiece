@@ -49,6 +49,7 @@ noncomputable def timeEvo (H : Matrix n n ℂ) (t : ℝ) : Matrix n n ℂ :=
 theorem timeEvo_zero (H : Matrix n n ℂ) : timeEvo H 0 = 1 := by
   unfold timeEvo; aesop
 
+omit [DecidableEq n] in
 /-- The exponents at two times commute (both are scalar multiples of `I • H`). -/
 theorem timeEvo_commute (H : Matrix n n ℂ) (s t : ℝ) :
     Commute ((s : ℂ) • (Complex.I • H)) ((t : ℂ) • (Complex.I • H)) := by
@@ -68,7 +69,8 @@ theorem timeEvo_unitary (H : Matrix n n ℂ) (hH : H.IsHermitian) (t : ℝ) :
   have hU : timeEvo H t = NormedSpace.exp ((t : ℂ) • (Complex.I • H)) := rfl
   -- Since `H` is Hermitian, `((t:ℂ) • (I • H))ᴴ = -(t:ℂ) • (I • H)`.
   have h_conj : ((t : ℂ) • (Complex.I • H))ᴴ = -(t : ℂ) • (Complex.I • H) := by
-    simp [Matrix.IsHermitian] at hH ⊢
+    simp only [Matrix.IsHermitian, Complex.coe_smul, Matrix.conjTranspose_smul, star_trivial,
+        RCLike.star_def, Complex.conj_I, neg_smul, smul_neg, neg_inj] at hH ⊢
     rw [hH]
   rw [hU, ← Matrix.exp_conjTranspose]
   rw [h_conj, ← Matrix.exp_add_of_commute]

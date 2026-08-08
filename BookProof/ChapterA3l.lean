@@ -65,9 +65,12 @@ noncomputable def swap : M2 :=
 -/
 theorem swap_kronecker (A B : Matrix (Fin 4) (Fin 4) ℂ) :
     swap * (A ⊗ₖ B) = (B ⊗ₖ A) * swap := by
-  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp [ Matrix.mul_apply, swap ];
+  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp only [swap, mul_apply, of_apply, kroneckerMap_apply, ite_mul,
+      one_mul, zero_mul, mul_ite, mul_one, mul_zero];
   rw [ ← Finset.sum_filter ] ; rw [ ← Finset.sum_filter ] ;
-  rw [ show ( Finset.univ.filter fun a : Fin 4 × Fin 4 => i = a.2 ∧ j = a.1 ) = { ( j, i ) } from ?_, show ( Finset.univ.filter fun a : Fin 4 × Fin 4 => a.1 = l ∧ a.2 = k ) = { ( l, k ) } from ?_ ] <;> norm_num;
+  rw [ show ( Finset.univ.filter fun a : Fin 4 × Fin 4 => i = a.2 ∧ j = a.1 ) = { ( j, i ) } from
+      ?_, show ( Finset.univ.filter fun a : Fin 4 × Fin 4 => a.1 = l ∧ a.2 = k ) = { ( l, k ) } from
+          ?_ ] <;> norm_num;
   · ring;
   · grind;
   · grind
@@ -77,7 +80,7 @@ The braiding is an involution: `τ² = 1`.
 -/
 theorem swap_sq : swap * swap = 1 := by
   ext ⟨i, j⟩ ⟨k, l⟩
-  simp [swap, Matrix.mul_apply];
+  simp only [swap, mul_apply, of_apply, mul_ite, mul_one, mul_zero];
   rw [ Finset.sum_eq_single ( l, k ) ] <;> aesop
 
 /-! ## The braiding exchanges the two per-slot chirality operators -/

@@ -47,8 +47,12 @@ theorem mgamma_commutant_scalar (M : Matrix (Fin 4) (Fin 4) ℂ)
     M = M 0 0 • (1 : Matrix (Fin 4) (Fin 4) ℂ) := by
   have h0 := h 0; have h1 := h 1; have h2 := h 2; have h3 := h 3
   rw [← Matrix.ext_iff] at h0 h1 h2 h3
-  simp [Matrix.mul_apply, Fin.sum_univ_four, mgamma, mgammaZ, RingHom.mapMatrix_apply,
-    Matrix.map_apply, Fin.forall_fin_succ] at h0 h1 h2 h3
+  simp only [mgamma, mgammaZ, Int.reduceNeg, RingHom.mapMatrix_apply, Int.coe_castRingHom,
+    mul_apply, map_apply, of_apply, cons_val', cons_val_fin_one, Fin.sum_univ_four,
+    Fin.isValue, cons_val_zero, cons_val_one, cons_val, Fin.forall_fin_succ, Int.cast_zero,
+    mul_zero, add_zero, Int.cast_neg, Int.cast_one, mul_neg, mul_one, zero_add, cons_val_succ,
+    Fin.succ_zero_eq_one, Fin.succ_one_eq_two, Fin.reduceSucc, IsEmpty.forall_iff, and_true,
+    zero_mul, one_mul, neg_mul, neg_inj, true_and] at h0 h1 h2 h3
   obtain ⟨⟨-, p2, p3, -⟩, ⟨p5, -, -, p8⟩, -, -⟩ := h0
   obtain ⟨⟨q1, q2⟩, ⟨q3, q4⟩, ⟨q5, q6⟩, q7, q8⟩ := h1
   obtain ⟨⟨-, r2, -, -⟩, ⟨r5, -, -, -⟩, -, -⟩ := h2
@@ -78,7 +82,7 @@ theorem mgamma_commutant_iff (M : Matrix (Fin 4) (Fin 4) ℂ) :
   constructor
   · intro h; exact ⟨M 0 0, mgamma_commutant_scalar M h⟩
   · rintro ⟨c, rfl⟩ μ
-    simp [Matrix.smul_mul, Matrix.mul_smul]
+    simp []
 
 /-- A matrix commuting with all four Majorana matrices automatically commutes
 with the fifth one, `iγ⁵` (being a scalar). -/
@@ -86,7 +90,7 @@ theorem mgamma5_of_commutes (M : Matrix (Fin 4) (Fin 4) ℂ)
     (h : ∀ μ, M * mgamma μ = mgamma μ * M) :
     M * mgamma5 = mgamma5 * M := by
   rw [mgamma_commutant_scalar M h]
-  simp [Matrix.smul_mul, Matrix.mul_smul]
+  simp []
 
 /-- **Schur's lemma for the Dirac matrices.** Any complex `4×4` matrix commuting
 with all four Dirac matrices `γ^μ = -i (iγ^μ)` is a scalar. -/
@@ -189,7 +193,7 @@ theorem mgamma_conjTranspose (μ : Fin 4) :
 theorem adjoint_mgammaLin (μ : Fin 4) :
     LinearMap.adjoint (mgammaLin μ) = (if μ = 0 then (-1 : ℂ) else 1) • mgammaLin μ := by
   rw [mgammaLin, ← Matrix.toEuclideanLin_conjTranspose_eq_adjoint, mgamma_conjTranspose]
-  split_ifs <;> simp [mgammaLin]
+  split_ifs <;> simp []
 
 /-- `toEuclideanLin` turns matrix multiplication into composition. -/
 theorem toEuclideanLin_mul4 (A B : Matrix (Fin 4) (Fin 4) ℂ) :

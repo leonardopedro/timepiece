@@ -114,11 +114,22 @@ coordinate strictly between `0` and `1`.
 theorem exists_mem_Ioo_of_not_pointMass (p : Fin n → ℝ) (hnn : ∀ a, 0 ≤ p a)
     (hsum : ∑ a, p a = 1) (hnp : ¬ IsPointMass p) :
     ∃ a, 0 < p a ∧ p a < 1 := by
-  contrapose! hnp; simp_all [ IsPointMass ] ;
+  contrapose! hnp; simp_all only [IsPointMass, ne_eq] ;
   -- Since $p$ is not a point mass, there exists some $a$ such that $p(a) > 0$.
   obtain ⟨a, ha⟩ : ∃ a, 0 < p a := by
-    exact not_forall_not.mp fun h => by norm_num [ show p = fun _ => 0 by funext a; linarith [ h a, hnn a ] ] at hsum;
-  exact ⟨ a, le_antisymm ( hsum ▸ Finset.single_le_sum ( fun x _ => hnn x ) ( Finset.mem_univ a ) ) ( hnp a ha ), fun b hb => le_antisymm ( by have := hsum ▸ Finset.sum_eq_add_sum_diff_singleton ( Finset.mem_univ a ) p; linarith [ hnp a ha, hnn b, Finset.single_le_sum ( fun x _ => hnn x ) ( Finset.mem_sdiff.mpr ⟨ Finset.mem_univ b, by aesop ⟩ : b ∈ Finset.univ \ { a } ) ] ) ( hnn b ) ⟩
+    refine not_forall_not.mp fun h => ?_
+    have hp0 : p = fun _ => 0 := by funext a; linarith [ h a, hnn a ]
+    norm_num [ hp0 ] at hsum
+  exact ⟨ a,
+    le_antisymm ( hsum ▸ Finset.single_le_sum ( fun x _ => hnn x ) ( Finset.mem_univ a ) )
+      ( hnp a ha ),
+    fun b hb => le_antisymm
+      ( by
+          have := hsum ▸ Finset.sum_eq_add_sum_diff_singleton ( Finset.mem_univ a ) p
+          linarith [ hnp a ha, hnn b, Finset.single_le_sum ( fun x _ => hnn x )
+            ( Finset.mem_sdiff.mpr ⟨ Finset.mem_univ b, by aesop ⟩ :
+              b ∈ Finset.univ \ { a } ) ] )
+      ( hnn b ) ⟩
 
 /-
 A non-deterministic ensemble has strictly positive entropy: a symmetry that
@@ -128,7 +139,10 @@ the entropy.
 theorem entropy_pos_of_not_pointMass (p : Fin n → ℝ) (hnn : ∀ a, 0 ≤ p a)
     (hsum : ∑ a, p a = 1) (hnp : ¬ IsPointMass p) : 0 < entropy p := by
   obtain ⟨ a, ha₁, ha₂ ⟩ := exists_mem_Ioo_of_not_pointMass p hnn hsum hnp;
-  exact Finset.sum_pos' ( fun i _ => Real.negMulLog_nonneg ( hnn i ) ( le_one_of_prob p hnn hsum i ) ) ⟨ a, Finset.mem_univ a, by rw [ Real.negMulLog_def ] ; nlinarith [ Real.log_le_sub_one_of_pos ha₁ ] ⟩
+  refine Finset.sum_pos'
+    ( fun i _ => Real.negMulLog_nonneg ( hnn i ) ( le_one_of_prob p hnn hsum i ) )
+    ⟨ a, Finset.mem_univ a, ?_ ⟩
+  rw [ Real.negMulLog_def ] ; nlinarith [ Real.log_le_sub_one_of_pos ha₁ ]
 
 /-
 **Reversible iff deterministic (entropy form).** For a probability vector,
@@ -136,7 +150,7 @@ the entropy is `0` if and only if the ensemble is deterministic.
 -/
 theorem entropy_eq_zero_iff_pointMass (p : Fin n → ℝ) (hnn : ∀ a, 0 ≤ p a)
     (hsum : ∑ a, p a = 1) : entropy p = 0 ↔ IsPointMass p := by
-  refine' ⟨ fun h => _, fun h => _ ⟩;
+  refine ⟨ fun h => ?_, fun h => ?_ ⟩;
   · contrapose! h;
     exact ne_of_gt ( entropy_pos_of_not_pointMass p hnn hsum h );
   · exact entropy_pointMass_zero p h
@@ -149,7 +163,8 @@ theorem isPointMass_bornDist_iff (v : Fin n → ℂ) (hv : ∑ a, ‖v a‖ ^ 2 
     IsPointMass (bornDist v) ↔ IsDeterministicColumn v := by
   constructor <;> intro h;
   · obtain ⟨ a, ha₁, ha₂ ⟩ := h;
-    exact ⟨ a, by contrapose! ha₁; simp_all [ bornDist ], fun b hb => by specialize ha₂ b hb; simp_all [ bornDist ] ⟩;
+    exact ⟨ a, by contrapose! ha₁; simp_all [ bornDist ],
+      fun b hb => by specialize ha₂ b hb; simp_all [ bornDist ] ⟩;
   · obtain ⟨ a, ha₁, ha₂ ⟩ := h; use a; simp_all  ;
     simp_all [ Finset.sum_eq_single a, bornDist ]
 
@@ -171,6 +186,9 @@ deterministic ensemble — if and only if `v` is **not** a deterministic column.
 theorem entropy_bornDist_pos_iff (v : Fin n → ℂ) (hv : ∑ a, ‖v a‖ ^ 2 = 1) :
     0 < entropy (bornDist v) ↔ ¬ IsDeterministicColumn v := by
   rw [ ← entropy_bornDist_eq_zero_iff v hv ];
-  exact ⟨ fun h => ne_of_gt h, fun h => lt_of_le_of_ne ( entropy_nonneg _ ( fun a => sq_nonneg _ ) ( by simpa [ ← sq ] using hv ) ) ( Ne.symm h ) ⟩
+  exact ⟨ fun h => ne_of_gt h,
+    fun h => lt_of_le_of_ne
+      ( entropy_nonneg _ ( fun a => sq_nonneg _ ) ( by simpa [ ← sq ] using hv ) )
+      ( Ne.symm h ) ⟩
 
 end BookProof.ChapterIrreversible

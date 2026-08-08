@@ -105,7 +105,7 @@ This is the factorisation of a sum over tuples of a product of factors.
 theorem tensorPow_mul {N : ℕ} (M M' : Fin N → Matrix (Fin 4) (Fin 4) ℂ) :
     tensorPow M * tensorPow M' = tensorPow (fun i => M i * M' i) := by
   ext a c;
-  simp [ tensorPow, Matrix.mul_apply ];
+  simp only [tensorPow, mul_apply, of_apply];
   simp only [← Finset.prod_mul_distrib];
   exact Eq.symm (Fintype.prod_sum fun i j ↦ M i (a i) j * M' i j (c i))
 
@@ -115,8 +115,8 @@ The tensor operator of the all-identity family is the identity.
 theorem tensorPow_one {N : ℕ} :
     tensorPow (N := N) (fun _ => (1 : Matrix (Fin 4) (Fin 4) ℂ)) = 1 := by
   unfold tensorPow;
-  ext a b; simp [ Matrix.one_apply ] ;
-  by_cases h : a = b <;> simp [ h ];
+  ext a b; simp only [one_apply, of_apply] ;
+  by_cases h : a = b <;> simp only [h, ↓reduceIte, Finset.prod_const_one];
   rw [ Finset.prod_eq_zero_iff ] ; contrapose! h ; aesop
 
 /-! ## The permutation representation -/
@@ -126,7 +126,7 @@ theorem tensorPow_one {N : ℕ} :
 -/
 theorem permMat_mul {N : ℕ} (σ τ : Equiv.Perm (Fin N)) :
     permMat σ * permMat τ = permMat (σ * τ) := by
-  ext a c; simp [ Matrix.mul_apply ] ;
+  ext a c; simp only [mul_apply] ;
   unfold permMat; simp [ Finset.sum_ite ] ;
   rfl
 
@@ -148,7 +148,9 @@ theorem permMat_braiding {N : ℕ} (σ : Equiv.Perm (Fin N))
     (M : Fin N → Matrix (Fin 4) (Fin 4) ℂ) :
     permMat σ * tensorPow M = tensorPow (fun j => M (σ⁻¹ j)) * permMat σ := by
   ext a c;
-  simp [ Matrix.mul_apply, permMat, tensorPow ];
+  simp only [permMat, tensorPow, mul_apply, of_apply, ite_mul, one_mul, zero_mul,
+      Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte, Function.comp_apply, Equiv.Perm.coe_inv,
+          mul_ite, mul_one, mul_zero];
   rw [ Finset.sum_eq_single ( c ∘ σ.symm ) ];
   · conv_rhs => rw [ ← Equiv.prod_comp σ ] ;
     grind;

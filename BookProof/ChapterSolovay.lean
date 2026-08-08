@@ -340,7 +340,6 @@ theorem no_godelian_self_reference (N : ℕ) (headDist : Measure (_root_.InnerHe
     have h_eq_at_nonzero : φ (nonzero, 0) = (fun _ => True) (nonzero, 0) := by rw [h_eq]
     unfold φ nonzero at h_eq_at_nonzero
     exact h_nonzero_ne_zero (h_eq_at_nonzero ▸ trivial)
-
   -- The biconditional for this φ gives a contradiction.
   have h_iff := hΨ φ
   -- h_iff : (φ = (fun _ => True)) ↔ (Ψ = toSolovay N headDist 0)

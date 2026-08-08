@@ -40,7 +40,10 @@ Deliverables (all `sorry`-free, `axiom`-free):
 for general (complex) Bargmann parameters; the theorems here are proved for
 *real* parameters, where the overlap is a positive real.  The complex case adds
 only a phase `exp (i · Im ⟪q,k⟫)`, which the Born rule (squared modulus) discards,
-so the weight formula is unchanged; but that extension is not formalized here.
+so the weight formula is unchanged.  **This disparity is now closed**: the complex
+case is formalized in `BookProof.ChapterCoherentOverlapComplex`
+(`coherentBornC_eq_softmax`, `bornWeightC_phase_invariant`), and
+`bornWeightC_ofReal` identifies the weights below as its real special case.
 The chapter's informal step "each `exp(-‖k_j‖²)` is a fixed constant" is a genuine
 hypothesis, and appears as the explicit assumption `∀ l, ‖k l‖ = r`.
 

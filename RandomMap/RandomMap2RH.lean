@@ -128,7 +128,7 @@ theorem outer_inner_reduces_to_head_generalized {X Y : Type*}
   have h_ν_ne_zero : ν ≠ 0 := by
     have h_univ_one : ν Set.univ = 1 := measure_univ
     intro h_eq
-    have h_univ_zero : ν Set.univ = 0 := by simpa [h_eq] using measure_univ
+    have h_univ_zero : ν Set.univ = 0 := by simp [h_eq]
     have h_eq_one_zero : (1 : ENNReal) = 0 := by
       rw [← h_univ_one, h_univ_zero]
     norm_num at h_eq_one_zero
@@ -215,33 +215,10 @@ theorem cylinder_expectation_eq {X Y : Type*}
     (μ : Measure X) (ν : Measure Y) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     (f : X → ℂ) (hf : Integrable f μ) :
     ∫ z : X × Y, f z.1 ∂(μ.prod ν) = ∫ x, f x ∂μ := by
-  have h_ν_ne_zero : ν ≠ 0 := by
-    have h_univ_one : ν Set.univ = 1 := measure_univ
-    intro h_eq
-    have h_univ_zero : ν Set.univ = 0 := by simpa [h_eq] using measure_univ
-    have h_eq_one_zero : (1 : ENNReal) = 0 := by
-      rw [← h_univ_one, h_univ_zero]
-    norm_num at h_eq_one_zero
   have h_map_fst : Measure.map Prod.fst (μ.prod ν) = μ := by
     rw [MeasureTheory.Measure.map_fst_prod, measure_univ, one_smul]
-  have h_ae_f : AEStronglyMeasurable f μ := hf.aestronglyMeasurable
-  have h_ae_comp : AEStronglyMeasurable (fun z : X × Y => f z.1) (μ.prod ν) := by
-    have h_ae_map : AEStronglyMeasurable f (Measure.map Prod.fst (μ.prod ν)) := by
-      rw [h_map_fst]; exact h_ae_f
-    exact h_ae_map.of_comp_fst h_ν_ne_zero
-  have h_int_comp : Integrable (fun z : X × Y => f z.1) (μ.prod ν) := by
-    have h_ae_map : AEStronglyMeasurable f (Measure.map Prod.fst (μ.prod ν)) := by
-      rw [h_map_fst]; exact h_ae_f
-    have h_meas_fst : AEMeasurable Prod.fst (μ.prod ν) :=
-      measurable_fst.aemeasurable
-    have h_mem : MemLp (fun z : X × Y => f z.1) 1 (μ.prod ν) := by
-      have h_equiv := MeasureTheory.memLp_map_measure_iff (p := 1) h_ae_map h_meas_fst
-      rw [h_map_fst] at h_equiv
-      exact h_equiv.mpr hf
-    exact h_mem.integrable (by norm_num)
-  calc
-    ∫ z : X × Y, f z.1 ∂(μ.prod ν) = ∫ y, ∫ x, f x ∂μ ∂ν := by
-      exact integral_prod_symm (fun z : X × Y => f z.1) h_int_comp
-    _ = ∫ x, f x ∂μ := by simp [integral_const]
+  conv_rhs => rw [← h_map_fst]
+  rw [MeasureTheory.integral_map measurable_fst.aemeasurable
+    (by rw [h_map_fst]; exact hf.aestronglyMeasurable)]
 
 end RandomMap2RH

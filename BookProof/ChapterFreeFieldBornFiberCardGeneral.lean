@@ -105,8 +105,10 @@ theorem mem_fiber_iff_general {p : ↥(stdSimplex ℝ (Fin n))}
     use fun k => decide (s k.val = 1);
     ext k;
     by_cases hk : k ∈ posSupport p.val <;>
-      simp_all [ fiberPoint, signFlip_apply, bornSection_apply ];
-    · cases hs.1 k <;> simp_all [ sBool ];
+      simp_all only [Set.mem_preimage, Set.mem_singleton_iff, mem_posSupport, fiberPoint,
+          signFlip_apply, bornSection_apply, not_lt];
+    · cases hs.1 k <;> simp_all only [sBool, mem_posSupport, decide_true, ↓reduceIte, dite_eq_ite,
+        ite_self, one_mul, decide_eq_true_eq, ite_mul, neg_mul];
       · rfl;
       · norm_num [ hk ];
         exact if_pos hk;
@@ -114,7 +116,8 @@ theorem mem_fiber_iff_general {p : ↥(stdSimplex ℝ (Fin n))}
       exact Or.inr <| Real.sqrt_eq_zero_of_nonpos hk;
   · rintro ⟨ b, hb ⟩;
     convert bornMap_fiberPoint p.2 b;
-    constructor <;> intro h <;> simp_all [ Subtype.ext_iff ];
+    constructor <;> intro h <;> simp_all only [Set.mem_preimage, Set.mem_singleton_iff,
+        Subtype.ext_iff];
     · convert bornMap_fiberPoint p.2 b;
     · convert h using 1;
       exact hb ▸ rfl

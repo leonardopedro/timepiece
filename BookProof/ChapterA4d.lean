@@ -119,7 +119,10 @@ theorem nullConj_iff_form (T : Matrix (Fin 2) (Fin 2) ℂ) :
     linarith
   · ext i j
     fin_cases i <;> fin_cases j <;>
-      simp_all [Matrix.mul_apply, Fin.sum_univ_succ] <;> ring
+      simp_all only [Fin.isValue, Fin.zero_eta, mul_apply, conjTranspose_apply, RCLike.star_def,
+          add_apply, Fin.sum_univ_succ, Finset.univ_unique, Fin.default_eq_zero,
+              Finset.sum_singleton, Fin.succ_zero_eq_one, Fin.mk_one, mul_zero, zero_add, map_zero,
+                  zero_mul] <;> ring
     · simp_all [Complex.ext_iff, pauliσ]
       norm_num [Complex.normSq] at h; constructor <;> linarith
     · simp_all [pauliσ]

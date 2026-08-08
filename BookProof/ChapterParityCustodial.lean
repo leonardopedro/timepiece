@@ -54,11 +54,13 @@ irreducibly on `ℂ²`: any matrix `M` commuting with all three is a scalar mult
 identity, `M = (M 0 0) • 1`.
 -/
 theorem commutant_pauli_scalar (M : Matrix (Fin 2) (Fin 2) ℂ)
-    (h1 : M * pauli1 = pauli1 * M) (h2 : M * pauli2 = pauli2 * M)
+    (h1 : M * pauli1 = pauli1 * M) (_h2 : M * pauli2 = pauli2 * M)
     (h3 : M * pauli3 = pauli3 * M) :
     M = (M 0 0) • (1 : Matrix (Fin 2) (Fin 2) ℂ) := by
-  simp_all [← Matrix.ext_iff, Fin.forall_fin_two, mul_comm, 
-    Fin.sum_univ_succ, Matrix.mul_apply, Matrix.one_apply]
+  simp_all only [← ext_iff, mul_apply, Fin.sum_univ_succ, Fin.isValue, Finset.univ_unique,
+    Fin.default_eq_zero, Finset.sum_singleton, Fin.succ_zero_eq_one, mul_comm,
+    Fin.forall_fin_two, add_right_inj, add_left_inj, smul_apply, one_apply, smul_eq_mul,
+    ite_mul, one_mul, zero_mul, ↓reduceIte, zero_ne_one, true_and, one_ne_zero]
   unfold pauli1 pauli2 pauli3 at *
   norm_num at *
   grind
@@ -73,8 +75,13 @@ theorem pauli_basis_indep (c0 c1 c2 c3 : ℂ)
     (h : c0 • (1 : Matrix (Fin 2) (Fin 2) ℂ) + c1 • pauli1 + c2 • pauli2 + c3 • pauli3 = 0) :
     c0 = 0 ∧ c1 = 0 ∧ c2 = 0 ∧ c3 = 0 := by
   unfold pauli1 pauli2 pauli3 at h
-  simp_all [← Matrix.ext_iff, Fin.forall_fin_two]
-  simp_all [Complex.ext_iff, add_eq_zero_iff_eq_neg]
+  simp_all only [smul_of, smul_cons, smul_eq_mul, mul_zero, mul_one, smul_empty, mul_neg, ← ext_iff,
+      add_apply, smul_apply, of_apply, cons_val', cons_val_fin_one, zero_apply, Fin.forall_fin_two,
+          Fin.isValue, cons_val_zero, cons_val_one, one_apply_eq, add_zero, ne_eq, zero_ne_one,
+              not_false_eq_true, one_apply_ne, zero_add, one_ne_zero]
+  simp_all only [add_eq_zero_iff_eq_neg, Complex.ext_iff, Complex.neg_re, Complex.neg_im, neg_neg,
+      Complex.mul_re, Complex.I_re, mul_zero, Complex.I_im, mul_one, zero_sub, Complex.mul_im,
+          add_zero, Complex.zero_re, neg_eq_zero, Complex.zero_im]
   refine ⟨⟨by linarith, by linarith⟩, ⟨by linarith, by linarith⟩,
     ⟨by linarith, by linarith⟩, by linarith, by linarith⟩
 

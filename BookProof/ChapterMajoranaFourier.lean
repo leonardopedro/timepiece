@@ -59,7 +59,7 @@ noncomputable def boostS (m q : ℝ) : ℝ := Real.sqrt ((Ep m q - m) / (2 * Ep 
 lemma Ep_pos (m q : ℝ) (hq : 0 < q) : 0 < Ep m q := by
   exact Real.sqrt_pos.mpr ( by positivity )
 
-lemma Ep_ge (m q : ℝ) (hm : 0 ≤ m) : m ≤ Ep m q := by
+lemma Ep_ge (m q : ℝ) (_hm : 0 ≤ m) : m ≤ Ep m q := by
   exact Real.le_sqrt_of_sq_le ( by nlinarith )
 
 lemma boostC_nonneg (m q : ℝ) : 0 ≤ boostC m q := Real.sqrt_nonneg _
@@ -74,15 +74,23 @@ lemma boost_sq_add (m q : ℝ) (hm : 0 ≤ m) (hq : 0 < q) :
       rw [ boostC, boostS, Real.sq_sqrt, Real.sq_sqrt ];
       · rw [ ← add_div, div_eq_iff ] <;> ring ; norm_num [ Ep, hm, hq ];
         positivity;
-      · exact div_nonneg ( sub_nonneg.2 <| Real.le_sqrt_of_sq_le <| by nlinarith ) <| mul_nonneg zero_le_two <| Real.sqrt_nonneg _;
-      · exact div_nonneg ( add_nonneg ( Real.sqrt_nonneg _ ) hm ) ( mul_nonneg zero_le_two ( Real.sqrt_nonneg _ ) )
+      · exact div_nonneg ( sub_nonneg.2 <| Real.le_sqrt_of_sq_le <|
+          by nlinarith ) <| mul_nonneg zero_le_two <| Real.sqrt_nonneg _;
+      · exact div_nonneg ( add_nonneg ( Real.sqrt_nonneg _ ) hm ) ( mul_nonneg zero_le_two (
+          Real.sqrt_nonneg _ ) )
 
 /-
 `c² − s² = m/E`.
 -/
-lemma boost_sq_sub (m q : ℝ) (hm : 0 ≤ m) (hq : 0 < q) :
+lemma boost_sq_sub (m q : ℝ) (hm : 0 ≤ m) (_hq : 0 < q) :
     boostC m q ^ 2 - boostS m q ^ 2 = m / Ep m q := by
-      convert congr_arg₂ ( · - · ) ( Real.sq_sqrt <| show 0 ≤ ( Ep m q + m ) / ( 2 * Ep m q ) from div_nonneg ( add_nonneg ( Real.sqrt_nonneg _ ) hm ) ( mul_nonneg zero_le_two ( Real.sqrt_nonneg _ ) ) ) ( Real.sq_sqrt <| show 0 ≤ ( Ep m q - m ) / ( 2 * Ep m q ) from div_nonneg ( sub_nonneg.mpr <| Real.le_sqrt_of_sq_le <| by nlinarith ) ( mul_nonneg zero_le_two ( Real.sqrt_nonneg _ ) ) ) using 1;
+      convert congr_arg₂ ( · - · ) ( Real.sq_sqrt <| show 0 ≤ ( Ep m q + m ) / ( 2 * Ep m q ) from
+                                 div_nonneg ( add_nonneg ( Real.sqrt_nonneg _ ) hm ) ( mul_nonneg
+                                     zero_le_two ( Real.sqrt_nonneg _ ) ) ) ( Real.sq_sqrt <| show 0
+                                         ≤ ( Ep m q - m ) / ( 2 * Ep m q ) from div_nonneg (
+                                             sub_nonneg.mpr <| Real.le_sqrt_of_sq_le <|
+                                                 by nlinarith ) ( mul_nonneg zero_le_two (
+                                                     Real.sqrt_nonneg _ ) ) ) using 1;
       ring
 
 /-
@@ -94,7 +102,8 @@ lemma boost_two_mul (m q : ℝ) (hm : 0 ≤ m) (hq : 0 < q) :
       rw [ ← Real.sqrt_mul ( by positivity ) ] ; ring;
       field_simp;
       rw [ Real.sq_sqrt ( by positivity ), Real.sqrt_div' ] <;> ring <;> norm_num [ hq.le, hm ];
-      · rw [ show m ^ 2 * 4 + q ^ 2 * 4 = ( m ^ 2 + q ^ 2 ) * 4 by ring, Real.sqrt_mul ( by positivity ) ] ; ring;
+      · rw [ show m ^ 2 * 4 + q ^ 2 * 4 = ( m ^ 2 + q ^ 2 ) * 4 by ring, Real.sqrt_mul (
+                                                                   by positivity ) ] ; ring;
         rw [ mul_assoc, mul_inv_cancel₀ ( by positivity ), mul_one ];
       · positivity
 
@@ -134,7 +143,8 @@ lemma dgamma_conjTranspose (μ : Fin 4) :
 -/
 lemma gamma0_sq : dgamma 0 * dgamma 0 = 1 := by
   unfold dgamma BookProof.ChapterA3.mgamma;
-  unfold mgammaZ;    ext i j; fin_cases i <;> fin_cases j <;> norm_num [ Complex.ext_iff, Matrix.mul_apply ] ;
+  unfold mgammaZ;    ext i j; fin_cases i <;> fin_cases j <;> norm_num [ Complex.ext_iff,
+      Matrix.mul_apply ] ;
   all_goals norm_cast;
 
 /-
@@ -143,7 +153,8 @@ lemma gamma0_sq : dgamma 0 * dgamma 0 = 1 := by
 lemma gamma0_spatial_anticomm (i : Fin 3) :
     dgamma 0 * dgamma i.succ = -(dgamma i.succ * dgamma 0) := by
       have := BookProof.ChapterA3.dgamma_clifford 0 ( Fin.succ i );
-      simp_all [ minkowski, minkowskiZ ];
+      simp_all only [Fin.isValue, minkowski, minkowskiZ, ↓reduceIte, Int.cast_ite, Int.cast_one,
+          Int.cast_zero, mul_ite, mul_one, mul_zero, ite_smul, zero_smul];
       exact eq_neg_of_add_eq_zero_left ( this.trans ( by fin_cases i <;> rfl ) )
 
 /-! ## The direction slash `A = (n̂·γ⃗) γ⁰` -/
@@ -160,7 +171,7 @@ noncomputable def Aop (n : Fin 3 → ℝ) : Matrix (Fin 4) (Fin 4) ℂ :=
 The spatial slash is anti-Hermitian: `n̸ᴴ = −n̸`.
 -/
 lemma nslash_conjTranspose (n : Fin 3 → ℝ) : (nslash n)ᴴ = -nslash n := by
-  unfold nslash; simp [ Matrix.conjTranspose_sum, Matrix.conjTranspose_smul ] ;
+  unfold nslash; simp only [Complex.coe_smul, conjTranspose_sum, conjTranspose_smul, star_trivial] ;
   rw [ ← Finset.sum_neg_distrib ] ; congr ; ext i ; rw [ dgamma_conjTranspose ] ; aesop;
 
 /-
@@ -168,23 +179,29 @@ lemma nslash_conjTranspose (n : Fin 3 → ℝ) : (nslash n)ᴴ = -nslash n := by
 -/
 lemma gamma0_nslash_anticomm (n : Fin 3 → ℝ) :
     dgamma 0 * nslash n = -(nslash n * dgamma 0) := by
-      unfold nslash; simp [ Finset.mul_sum _ _ _, Finset.sum_mul ] ;
-      rw [ ← Finset.sum_neg_distrib ] ;        congr ; ext x ; rw [ gamma0_spatial_anticomm ] ; simp  ;
+      unfold nslash; simp only [Fin.isValue, Complex.coe_smul, Finset.mul_sum _ _ _,
+          Algebra.mul_smul_comm, Finset.sum_mul, Algebra.smul_mul_assoc] ;
+      rw [ ← Finset.sum_neg_distrib ] ;        congr ; ext x ; rw [ gamma0_spatial_anticomm ] ; simp
+          ;
 
 /-
 Each spatial `γⁱ` squares to `−1`.
 -/
 lemma dgamma_spatial_sq (i : Fin 3) : dgamma i.succ * dgamma i.succ = -1 := by
-  fin_cases i <;> simp ;
+  fin_cases i <;> simp only [Fin.zero_eta, Fin.isValue, Fin.succ_zero_eq_one, Fin.mk_one,
+      Fin.succ_one_eq_two, Fin.reduceFinMk, Fin.reduceSucc] ;
   · unfold dgamma;
     unfold mgamma;
     ext i j ; fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, Complex.ext_iff ];
     all_goals norm_cast;
-  · unfold dgamma; simp  ;
-    unfold mgamma; simp [ BookProof.ChapterA3.mgammaZ ] ;
+  · unfold dgamma; simp only [Fin.isValue, neg_smul, mul_neg, Algebra.mul_smul_comm, neg_mul,
+      Algebra.smul_mul_assoc, smul_neg, neg_neg]  ;
+    unfold mgamma; simp only [mgammaZ, RingHom.mapMatrix_apply, Int.coe_castRingHom] ;
     ext i j ; fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, Fin.sum_univ_succ ];
-  · unfold dgamma; simp  ;
-    unfold mgamma; simp [ BookProof.ChapterA3.mgammaZ ] ;
+  · unfold dgamma; simp only [Fin.isValue, neg_smul, mul_neg, Algebra.mul_smul_comm, neg_mul,
+      Algebra.smul_mul_assoc, smul_neg, neg_neg]  ;
+    unfold mgamma; simp only [mgammaZ, Int.reduceNeg, RingHom.mapMatrix_apply, Int.coe_castRingHom]
+        ;
     ext i j ; fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, Fin.sum_univ_succ ]
 
 /-
@@ -193,7 +210,8 @@ Distinct spatial `γⁱ`, `γʲ` anticommute.
 lemma dgamma_spatial_anticomm (i j : Fin 3) (h : i ≠ j) :
     dgamma i.succ * dgamma j.succ = -(dgamma j.succ * dgamma i.succ) := by
       have := BookProof.ChapterA3.dgamma_clifford i.succ j.succ;
-      simp_all [ minkowski, minkowskiZ ];
+      simp_all only [ne_eq, minkowski, minkowskiZ, Fin.succ_inj, ↓reduceIte, Int.cast_zero,
+          mul_zero, zero_smul];
       exact eq_neg_of_add_eq_zero_left this
 
 /-
@@ -202,13 +220,21 @@ For a **unit** direction, the slash squares to `−1`: `n̸² = −1`.
 lemma nslash_sq (n : Fin 3 → ℝ) (hn : ∑ i, (n i) ^ 2 = 1) :
     nslash n * nslash n = -1 := by
       simp only [nslash];
-      simp [ Fin.sum_univ_three, Matrix.add_mul, Matrix.mul_add ] at hn ⊢;
+      simp only [Fin.sum_univ_three, Fin.isValue, Complex.coe_smul, Fin.succ_zero_eq_one,
+          Fin.succ_one_eq_two, Fin.reduceSucc, Matrix.mul_add, Algebra.mul_smul_comm,
+              Matrix.add_mul, Algebra.smul_mul_assoc, smul_add] at hn ⊢;
       -- Apply the known identities for the squares and products of the Dirac matrices.
-      have h_identities : dgamma 1 * dgamma 1 = -1 ∧ dgamma 2 * dgamma 2 = -1 ∧ dgamma 3 * dgamma 3 = -1 ∧ dgamma 1 * dgamma 2 = -(dgamma 2 * dgamma 1) ∧ dgamma 1 * dgamma 3 = -(dgamma 3 * dgamma 1) ∧ dgamma 2 * dgamma 3 = -(dgamma 3 * dgamma 2) := by
-        exact ⟨ dgamma_spatial_sq 0, dgamma_spatial_sq 1, dgamma_spatial_sq 2, dgamma_spatial_anticomm 0 1 ( by decide ), dgamma_spatial_anticomm 0 2 ( by decide ), dgamma_spatial_anticomm 1 2 ( by decide ) ⟩
+      have h_identities : dgamma 1 * dgamma 1 = -1 ∧ dgamma 2 * dgamma 2 = -1 ∧ dgamma 3 * dgamma 3
+          = -1 ∧ dgamma 1 * dgamma 2 = -(dgamma 2 * dgamma 1) ∧ dgamma 1 * dgamma 3 = -(dgamma 3 *
+              dgamma 1) ∧ dgamma 2 * dgamma 3 = -(dgamma 3 * dgamma 2) := by
+        exact ⟨ dgamma_spatial_sq 0, dgamma_spatial_sq 1, dgamma_spatial_sq 2,
+            dgamma_spatial_anticomm 0 1 ( by decide ), dgamma_spatial_anticomm 0 2 (
+                                             by decide ), dgamma_spatial_anticomm 1 2 (
+                                                 by decide ) ⟩
       generalize_proofs at *; (
-      simp_all [ ← smul_assoc ] ; ring!;
-      convert congr_arg ( fun x : ℝ => x • ( -1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ) hn using 1 ;        norm_num ; ring!;
+      simp_all only [Fin.isValue, smul_neg, ← smul_assoc, smul_eq_mul] ; ring!;
+      convert congr_arg ( fun x : ℝ => x • ( -1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ) hn using 1 ;
+          focus (norm_num ; ring!);
       · module;
       · norm_num [ Algebra.smul_def ])
 
@@ -216,7 +242,7 @@ lemma nslash_sq (n : Fin 3 → ℝ) (hn : ∑ i, (n i) ^ 2 = 1) :
 `A = n̸ γ⁰` is Hermitian.
 -/
 lemma Aop_conjTranspose (n : Fin 3 → ℝ) : (Aop n)ᴴ = Aop n := by
-  unfold Aop; simp [ * ] ;
+  unfold Aop; simp only [Fin.isValue, conjTranspose_mul] ;
   rw [ nslash_conjTranspose, dgamma_conjTranspose ] ; norm_num;
   rw [ gamma0_nslash_anticomm, neg_neg ]
 
@@ -225,7 +251,8 @@ For a unit direction, `A = n̸ γ⁰` is an involution: `A² = 1`.
 -/
 lemma Aop_sq (n : Fin 3 → ℝ) (hn : ∑ i, (n i) ^ 2 = 1) :
     Aop n * Aop n = 1 := by
-      convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => ( nslash n ) * x * dgamma 0 ) ( gamma0_nslash_anticomm n ) using 1;
+      convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => ( nslash n ) * x * dgamma 0 ) (
+          gamma0_nslash_anticomm n ) using 1;
       · simp only [Aop, mul_assoc];
       · simp [ ← mul_assoc, nslash_sq n hn, gamma0_sq ]
 
@@ -253,8 +280,10 @@ theorem boostBlock_unitary {A : Matrix (Fin 4) (Fin 4) ℂ} (hA : Aᴴ = A)
         · simp_all [ ← Finset.mul_sum _ _ _, mul_assoc, Matrix.mul_apply ];
           norm_cast ; linarith;
         · simp_all [ ← Finset.mul_sum _ _ _, mul_assoc, Matrix.mul_apply ];
-      · simp_all [ Matrix.one_apply ];
-        replace hA := congr_fun ( congr_fun hA i ) j ;          simp_all [ Matrix.conjTranspose_apply, mul_comm ];
+      · simp_all only [one_apply, MonoidWithZeroHom.map_ite_one_zero, mul_ite, mul_one, mul_zero,
+          ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte, reduceCtorEq];
+        replace hA := congr_fun ( congr_fun hA i ) j ;          simp_all [
+            Matrix.conjTranspose_apply, mul_comm ];
       · simp_all [ Matrix.one_apply, mul_comm, mul_left_comm ];
         rw [ ← Matrix.ext_iff ] at hA ; simp_all [ Complex.ext_iff ];
         constructor <;> ring;

@@ -46,8 +46,8 @@ theorem hessenberg_vanishing {n : ℕ} (v : Fin n → E) (hv : Orthonormal ℂ v
     (hnest : X (v j) ∈ Submodule.span ℂ {w : E | ∃ l : Fin n, (l : ℕ) ≤ (j : ℕ) + 1 ∧ w = v l})
     (hij : (j : ℕ) + 1 < (i : ℕ)) :
     inner (𝕜 := ℂ) (v i) (X (v j)) = 0 := by
-  refine' Submodule.span_induction _ _ _ _ hnest;
-  · simp +zetaDelta at *;
+  refine Submodule.span_induction ?_ ?_ ?_ ?_ hnest;
+  · simp? +zetaDelta at *;
     intro x l hl hx; rw [ hx, hv.2 ( show i ≠ l from by rintro rfl; linarith ) ] ;
   · simp;
   · simp +contextual ;
@@ -105,10 +105,15 @@ theorem sirk_error_bound_of_crouzeix
     ‖T v - V (SH (W v))‖ ≤ 2 * C * D * ‖v‖ := by
   convert le_trans ( norm_add_le ( ( T - rXm ) v ) ( V ( ( rH - SH ) ( W v ) ) ) ) _ using 1;
   · simp [ hrepr, sub_add ];
-  · refine' le_trans ( add_le_add ( ContinuousLinearMap.le_opNorm _ _ ) ( ContinuousLinearMap.le_opNorm _ _ ) ) _;
-    refine' le_trans ( add_le_add ( mul_le_mul_of_nonneg_right hC1 ( norm_nonneg _ ) ) ( mul_le_mul hVnorm ( ContinuousLinearMap.le_opNorm _ _ ) ( by positivity ) ( by positivity ) ) ) _;
+  · refine le_trans ( add_le_add ( ContinuousLinearMap.le_opNorm _ _ ) (
+      ContinuousLinearMap.le_opNorm _ _ ) ) ?_;
+    refine le_trans ( add_le_add ( mul_le_mul_of_nonneg_right hC1 ( norm_nonneg _ ) )
+      ( mul_le_mul hVnorm ( ContinuousLinearMap.le_opNorm _ _ ) ( by positivity )
+        ( by positivity ) ) ) ?_;
     rw [ norm_sub_rev ];
-    nlinarith [ norm_nonneg v, norm_nonneg ( W v ), norm_nonneg ( SH - rH ), mul_le_mul_of_nonneg_left hWnorm ( norm_nonneg v ), mul_le_mul_of_nonneg_left hVnorm ( norm_nonneg v ), ContinuousLinearMap.le_opNorm W v ]
+    nlinarith [ norm_nonneg v, norm_nonneg ( W v ), norm_nonneg ( SH - rH ),
+        mul_le_mul_of_nonneg_left hWnorm ( norm_nonneg v ), mul_le_mul_of_nonneg_left hVnorm (
+            norm_nonneg v ), ContinuousLinearMap.le_opNorm W v ]
 
 /-! ## H2.4 — the SIRK-vs-SIA advantage factor (Remark 4.2) -/
 

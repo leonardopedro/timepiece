@@ -93,7 +93,7 @@ The unit vector `w = (1/√2, 1/√2)` gives a pure state with `tr(ρ Q) = ½`
 -/
 theorem pure_realizes_Q :
     ∃ v : Fin 2 → ℝ, (v 0) ^ 2 + (v 1) ^ 2 = 1 ∧ expec (pure v) Q = 1/2 := by
-      refine' ⟨ fun i => if i = 0 then 1 else 0, _, _ ⟩ <;> norm_num;
+      refine ⟨ fun i => if i = 0 then 1 else 0, ?_, ?_ ⟩ <;> norm_num;
       convert expec_pure_Q ( fun i => if i = 0 then 1 else 0 ) using 1 ; norm_num
 
 /-
@@ -102,7 +102,7 @@ gives `tr(w wᵀ P₁) = w₀² = ½`.
 -/
 theorem pure_realizes_P1 :
     ∃ v : Fin 2 → ℝ, (v 0) ^ 2 + (v 1) ^ 2 = 1 ∧ expec (pure v) P1 = 1/2 := by
-      refine' ⟨fun i => if i = 0 then 1 / Real.sqrt 2 else 1 / Real.sqrt 2, _, _⟩
+      refine ⟨fun i => if i = 0 then 1 / Real.sqrt 2 else 1 / Real.sqrt 2, ?_, ?_⟩
         <;> norm_num [expec, P1];
       convert expec_pure_P1 ( fun _ => ( Real.sqrt 2 ) ⁻¹ ) using 1 ; norm_num [ pure ]
 

@@ -61,13 +61,16 @@ crate's `Session.condition`; the present theorem is its measure-theoretic
 correctness statement. -/
 theorem born_conditioning (Ψ : X → ℂ) (μ : Measure X) (E : Set X)
     (hE : MeasurableSet E) (hpos : bornMeasure Ψ μ E ≠ 0)
-    (hfin : bornMeasure Ψ μ E ≠ ∞) :
+    (_hfin : bornMeasure Ψ μ E ≠ ∞) :
     bornMeasure (conditionedState Ψ μ E) μ = (bornMeasure Ψ μ)[|E] := by
   ext s hs;
-  simp [ *, bornMeasure, ProbabilityTheory.cond_apply ];
-  simp [ conditionedState ];
-  simp [ mul_pow, ← MeasureTheory.lintegral_indicator, hE, hs ];
-  have h_const : (∫⁻ x, s.indicator (fun x => ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ) = ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ∫⁻ x, s.indicator (fun x => ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ := by
+  simp only [bornMeasure, norm_nonneg, ENNReal.ofReal_pow, ofReal_norm, withDensity_apply,
+      ProbabilityTheory.cond_apply, MeasurableSet.inter, hs, hE];
+  simp only [conditionedState, Complex.real_smul, Complex.ofReal_inv, enorm_mul];
+  simp only [mul_pow, hs, ← lintegral_indicator, hE, MeasurableSet.inter];
+  have h_const : (∫⁻ x, s.indicator (fun x => ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 *
+      ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ) = ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ∫⁻ x, s.indicator
+          (fun x => ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ := by
     rw [ ← MeasureTheory.lintegral_const_mul' ];
     · congr with x ; by_cases hx : x ∈ s <;> simp [ hx ];
     · finiteness
@@ -165,7 +168,8 @@ theorem portfolio_risk_inv_sqrt {n : ℕ} (hn : 0 < n) (X : Fin n → Ω → ℝ
     (hindep : ProbabilityTheory.iIndepFun X P)
     (hmem : ∀ i, MemLp (X i) 2 P) (hvar : ∀ i, ProbabilityTheory.variance (X i) P = σ ^ 2) :
     ProbabilityTheory.variance (fun ω => (∑ i, X i ω) / n) P = σ ^ 2 / n := by
-  have h_var_sum : (ProbabilityTheory.variance (fun ω => ∑ i, X i ω) P) = ∑ i,    (ProbabilityTheory.variance (X i) P) := by
+  have h_var_sum : (ProbabilityTheory.variance (fun ω => ∑ i, X i ω) P) = ∑ i,
+      (ProbabilityTheory.variance (X i) P) := by
     convert ProbabilityTheory.IndepFun.variance_sum ( fun i _ => hmem i ) _;
     · simp [ Finset.sum_apply ];
     · intro i _ j _ hij; exact hindep.indepFun hij;

@@ -40,6 +40,7 @@ variable {n : Type*} [Fintype n] [DecidableEq n]
 the probability of observing the final state `i` given the initial state `j`. -/
 def bornKernel (U : Matrix n n ℂ) (i j : n) : ℝ := Complex.normSq (U i j)
 
+omit [Fintype n] [DecidableEq n] in
 theorem bornKernel_nonneg (U : Matrix n n ℂ) (i j : n) : 0 ≤ bornKernel U i j :=
   Complex.normSq_nonneg _
 
@@ -87,12 +88,12 @@ theorem density_diag_eq_kernel_apply (U : Matrix n n ℂ) (d : n → ℝ) (i : n
   push_cast
   refine Finset.sum_congr rfl fun k _ => ?_
   rw [Matrix.mul_diagonal, Matrix.conjTranspose_apply]
-  simp only [Function.comp_apply, RCLike.ofReal_real_eq_id, id_eq, bornKernel,
+  simp only [Function.comp_apply, bornKernel,
     Complex.normSq_eq_conj_mul_self]
-  push_cast
-  simp [Complex.star_def]
+  simp []
   ring
 
+omit [DecidableEq n] in
 /-- The diagonal of a density matrix is a probability distribution: the marginal
 probability of the final state in the computational basis. -/
 theorem density_diag_isProbability {ρ : Matrix n n ℂ} (h : IsDensityMatrix ρ) :

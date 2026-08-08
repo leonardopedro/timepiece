@@ -59,7 +59,7 @@ theorem sum_single_mem_finSupport (f : Ell2) (s : Finset ℕ) :
   intro j hj
   by_contra hjs
   apply hj
-  simp only [Function.mem_support, ne_eq]
+  simp only []
   rw [lp.coeFn_sum]
   simp only [Finset.sum_apply, lp.single_apply]
   refine Finset.sum_eq_zero fun i hi => ?_
@@ -81,7 +81,7 @@ theorem memℓp_geom : Memℓp (fun n : ℕ => (1 / 2 : ℝ) ^ n) 2 := by
     rw [Real.norm_eq_abs, abs_of_nonneg (by positivity)]
     simp only [ENNReal.toReal_ofNat]
     have h2 : ((1 / 2 : ℝ) ^ n) ^ (2 : ℝ) = ((1 / 2 : ℝ) ^ n) ^ (2 : ℕ) := by
-      simp [Real.rpow_natCast]
+      simp []
     rw [h2, ← pow_mul, mul_comm, pow_mul]
     norm_num
   simp only [h]

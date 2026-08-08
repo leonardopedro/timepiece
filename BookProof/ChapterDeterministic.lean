@@ -61,8 +61,9 @@ Entries of `P_a · (U P_b U†)`: nonzero only in row `a`, where it equals
 theorem proj_mul_measOp_apply (U : Matrix (Fin n) (Fin n) ℂ) (a b i j : Fin n) :
     (proj a * measOp U b) i j =
       if i = a then U a b * (starRingEnd ℂ) (U j b) else 0 := by
-  by_cases hij : i = a <;> simp [ *, Matrix.mul_apply ];
-  · unfold proj measOp; simp  ;
+  by_cases hij : i = a <;> simp only [mul_apply, ↓reduceIte, hij];
+  · unfold proj measOp; simp only [of_apply, true_and, ite_mul, one_mul, zero_mul, sum_ite_eq',
+      mem_univ, ↓reduceIte]  ;
     convert measOp_apply U b a j using 1;
   · exact Finset.sum_eq_zero fun k hk => by unfold proj; aesop;
 
@@ -85,14 +86,13 @@ theorem commute_proj_measOp_iff_isDeterministicCol
     (U : Matrix (Fin n) (Fin n) ℂ) (b : Fin n) :
     (∀ a : Fin n, Commute (proj a) (measOp U b)) ↔ IsDeterministicCol U b := by
   constructor;
-  · intro h_comm;
-    intro l m hlm;
+  · intro h_comm l m hlm;
     convert congr_arg (fun x : ℂ => starRingEnd ℂ x)
       (congr_fun (congr_fun (h_comm m) m) l) using 1
-      <;> simp [*, proj]
+      <;> simp only [proj]
     · simp [Matrix.mul_apply, measOp_apply]
     · have h := measOp_mul_proj_apply U m b m l
-      simp [proj, hlm] at h
+      simp only [proj, hlm, ↓reduceIte] at h
       rw [h]
       simp
   · intro h a
@@ -132,7 +132,7 @@ The transformed event operator is the sum of the single-outcome ones:
 -/
 theorem measOpSet_eq_sum (U : Matrix (Fin n) (Fin n) ℂ) (B : Finset (Fin n)) :
     measOpSet U B = ∑ b ∈ B, measOp U b := by
-  unfold measOpSet measOp;    simp [ mul_assoc ] ;
+  unfold measOpSet measOp;    simp only [mul_assoc] ;
   unfold projSet; simp [ Finset.sum_mul, Finset.mul_sum ] ;
 
 /-
@@ -145,12 +145,14 @@ This is exactly *"an automorphism `U` is deterministic if and only if `P_A` and
 theorem commute_projSet_measOpSet_iff_isDeterministic
     (U : Matrix (Fin n) (Fin n) ℂ) :
     (∀ A B : Finset (Fin n), Commute (projSet A) (measOpSet U B)) ↔ IsDeterministic U := by
-  refine' ⟨ _, fun h => _ ⟩;
+  refine ⟨ ?_, fun h => ?_ ⟩;
   · intro hU;
-    exact BookProof.ChapterDeterministic.commute_proj_measOp_iff_isDeterministic U |>.1 fun a b => by simpa [ projSet, measOpSet_eq_sum ] using hU { a } { b } ;
+    exact BookProof.ChapterDeterministic.commute_proj_measOp_iff_isDeterministic U |>.1 fun a b =>
+        by simpa [ projSet, measOpSet_eq_sum ] using hU { a } { b } ;
   · -- By the single-outcome headline, we have that for all a and b, P_a and U P_b U† commute.
     have h_single : ∀ a b : Fin n, Commute (proj a) (measOp U b) := by
       exact fun a b => ( commute_proj_measOp_iff_isDeterministic U ).mpr h a b;
-    exact fun A B => by rw [ measOpSet_eq_sum, projSet ] ;      exact Commute.sum_left _ _ _ fun a _ => Commute.sum_right _ _ _ fun b _ => h_single a b;
+    exact fun A B => by rw [ measOpSet_eq_sum, projSet ] ;      exact Commute.sum_left _ _ _ fun a _
+                        => Commute.sum_right _ _ _ fun b _ => h_single a b;
 
 end BookProof.ChapterDeterministic

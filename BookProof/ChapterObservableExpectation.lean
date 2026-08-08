@@ -50,8 +50,13 @@ theorem.  Here the observable is represented by its *spectral data* — the fami
 of eigenvalues `v : Fin m → E` indexed by the outcomes — and the theorem proved
 is the expectation-value identity for that data.  Building the operator `V̂`
 itself (and proving that the coherent states `|kⱼ⟩` are orthonormal, which they
-are *not* — coherent states are overcomplete) is deliberately not attempted; the
-chapter's step is exactly the finite expectation identity formalized here.
+are *not* — coherent states are overcomplete) is deliberately not attempted here;
+the chapter's step is exactly the finite expectation identity formalized below.
+**This disparity is now closed** by `BookProof.ChapterObservableOperator`, which
+builds the operator `V̂ = ∑ⱼ vⱼ |kⱼ⟩⟨kⱼ|` as a matrix, proves it Hermitian for real
+eigenvalues, and proves the operator expectation `⟨q|V̂|q⟩ = ∑ⱼ pⱼ vⱼ` with the Born
+statistics `pⱼ = |⟨kⱼ|q⟩|²` (a probability distribution for an orthonormal
+eigenbasis and a unit state).
 
 Everything here is `sorry`-free and `axiom`-free (only `propext`,
 `Classical.choice`, `Quot.sound`).

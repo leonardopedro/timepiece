@@ -87,23 +87,28 @@ noncomputable def projRL : M2 := projChirR ⊗ₖ projChirL
 theorem chir1_sq : chir1 * chir1 = -1 := by
   -- Unfold the definition of `chir1` as `chir ⊗ₖ 1`.
   unfold chir1;
-  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp [ Matrix.mul_apply, kroneckerMap_apply ] ; ring;
-  convert congr_arg ( fun m : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => m i k * ( if j = l then 1 else 0 ) ) ( BookProof.ChapterA3j.chir_sq ) using 1 <;> simp [ Matrix.mul_apply, Matrix.one_apply ] ; ring;
+  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp only [mul_apply, kroneckerMap_apply, neg_apply] ; ring;
+  convert congr_arg ( fun m : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => m i k * ( if j = l then 1 else 0 ) ) (
+      BookProof.ChapterA3j.chir_sq ) using 1 <;> simp only [one_apply, mul_ite, mul_one, mul_zero,
+          ite_mul, zero_mul, mul_apply, Prod.mk.injEq, neg_apply] ; focus (ring);
   · erw [ Finset.sum_product ] ; aesop;
   · grind
 
 theorem chir2_sq : chir2 * chir2 = -1 := by
   unfold chir2;
-  convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ⊗ₖ x ) BookProof.ChapterA3j.chir_sq using 1;
-  · ext i j; simp [ Matrix.mul_apply, Matrix.one_apply ] ;
-    split_ifs <;> simp_all [ Finset.sum_ite ];
-    refine' Finset.sum_bij ( fun x hx => x.2 ) _ _ _ _ <;> aesop;
+  convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ )
+      ⊗ₖ x ) BookProof.ChapterA3j.chir_sq using 1;
+  · ext i j; simp only [mul_apply, kroneckerMap_apply, one_apply, ite_mul, one_mul, zero_mul,
+      mul_ite, mul_zero] ;
+    split_ifs <;> simp_all only [↓reduceIte, Finset.sum_ite, Finset.sum_const_zero, add_zero,
+        ite_self];
+    refine Finset.sum_bij ( fun x hx => x.2 ) ?_ ?_ ?_ ?_ <;> aesop;
   · ext i j ; fin_cases i <;> fin_cases j <;> norm_num
 
 /-- The two per-slot chirality operators commute (they act on different slots). -/
 theorem chir1_chir2_comm : chir1 * chir2 = chir2 * chir1 := by
   unfold chir1 chir2;
-  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp [ Matrix.mul_apply ];
+  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp only [mul_apply, kroneckerMap_apply];
   erw [ Finset.sum_product ] ; erw [ Finset.sum_product ] ; ring;
   simp [ Matrix.one_apply, mul_comm ]
 
@@ -187,14 +192,14 @@ chirality blocks: `γ⁰⊗γ⁰` maps `V⁻⊗V⁻` onto `V⁺⊗V⁺`, i.e.
 reps together.
 -/
 theorem parity_swaps_LL_RR : parityDiag * projRR = projLL * parityDiag := by
-  simp [ parityDiag, projRR, projLL, ← Matrix.mul_kronecker_mul ];
+  simp only [parityDiag, Fin.isValue, projRR, ← mul_kronecker_mul, projLL];
   rw [ BookProof.ChapterA3j.parity_swaps_chirL ]
 
 /--
 Symmetrically, parity maps `V⁺⊗V⁺` onto `V⁻⊗V⁻`.
 -/
 theorem parity_swaps_RR_LL : parityDiag * projLL = projRR * parityDiag := by
-  simp [parityDiag, projLL, projRR, ← Matrix.mul_kronecker_mul]
+  simp only [parityDiag, Fin.isValue, projLL, ← mul_kronecker_mul, projRR]
   rw [BookProof.ChapterA3j.parity_swaps_chirR]
 
 /--

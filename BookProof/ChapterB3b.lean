@@ -74,8 +74,10 @@ to an orthonormal basis (`Orthonormal.exists_orthonormalBasis_extension_of_card_
 yields a unitary `W` with `B = W · diag(D)`.
 -/
 set_option maxHeartbeats 400000 in
+-- the proof below is a large finite computation; the default heartbeat budget
+-- is not enough to elaborate it
 theorem svd_completion {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
-    (B : Matrix (Fin n) (Fin n) 𝕜) (D : Fin n → ℝ) (hD : ∀ i, 0 ≤ D i)
+    (B : Matrix (Fin n) (Fin n) 𝕜) (D : Fin n → ℝ) (_hD : ∀ i, 0 ≤ D i)
     (hBB : Bᴴ * B = Matrix.diagonal (fun i => ((D i : 𝕜) ^ 2))) :
     ∃ W ∈ Matrix.unitaryGroup (Fin n) 𝕜,
       B = W * Matrix.diagonal (fun i => (D i : 𝕜)) := by
@@ -100,17 +102,18 @@ theorem svd_completion {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
       ∀ j ∈ s, e j = v j := by
     convert Orthonormal.exists_orthonormalBasis_extension_of_card_eq _ hv_orthonormal;
     simp ;
-  refine' ⟨ Matrix.of ( fun i j => e j i ), _, _ ⟩ <;>
-    simp_all [ Matrix.mem_unitaryGroup_iff' ]
+  refine ⟨ Matrix.of ( fun i j => e j i ), ?_, ?_ ⟩ <;>
+    simp_all only [mem_unitaryGroup_iff']
   · ext i j
-    simp [ Matrix.mul_apply, Matrix.star_apply ]
+    simp only [mul_apply, star_apply, of_apply, RCLike.star_def]
     have := e.orthonormal
     rw [ orthonormal_iff_ite ] at this
     convert this i j using 1
     ac_rfl
   · ext i j
     by_cases hj : D j = 0 <;>
-      simp_all [ Matrix.mul_apply, Matrix.diagonal_apply ]
+      simp_all only [mul_apply, of_apply, diagonal_apply, map_zero, ite_self, mul_zero,
+        Finset.sum_const_zero, mul_ite, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
     · replace hBB := congr_fun ( congr_fun hBB j ) j
       simp_all [ Matrix.mul_apply, Matrix.diagonal ]
       simp_all [ mul_comm, RCLike.mul_conj ]

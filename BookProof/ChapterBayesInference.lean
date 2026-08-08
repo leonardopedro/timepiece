@@ -65,25 +65,32 @@ noncomputable def posterior (prior : X → ℝ) (L : X → Y → ℝ) (y : Y) (x
 
 variable {prior : X → ℝ} {L : X → Y → ℝ}
 
+omit [Fintype X] [Fintype Y] [DecidableEq X] [DecidableEq Y] in
 theorem joint_nonneg (hprior : ∀ x, 0 ≤ prior x) (hL : ∀ x y, 0 ≤ L x y)
     (x : X) (y : Y) : 0 ≤ joint prior L x y := by
   exact mul_nonneg ( hprior x ) ( hL x y )
 
+omit [DecidableEq X] [DecidableEq Y] in
 theorem joint_sum_one (hprior_sum : ∑ x, prior x = 1) (hL_row : ∀ x, ∑ y, L x y = 1) :
     ∑ x, ∑ y, joint prior L x y = 1 := by
   simp_all [ joint, ← Finset.mul_sum _ _ _ ]
 
+omit [Fintype Y] [DecidableEq X] [DecidableEq Y] in
 theorem evidence_eq_marginal (y : Y) : evidence prior L y = ∑ x, joint prior L x y := by
   rfl
 
+omit [Fintype Y] [DecidableEq X] [DecidableEq Y] in
 theorem evidence_nonneg (hprior : ∀ x, 0 ≤ prior x) (hL : ∀ x y, 0 ≤ L x y) (y : Y) :
     0 ≤ evidence prior L y := by
   exact Finset.sum_nonneg fun x _ => mul_nonneg ( hprior x ) ( hL x y )
 
+omit [Fintype Y] [DecidableEq X] [DecidableEq Y] in
 theorem posterior_nonneg (hprior : ∀ x, 0 ≤ prior x) (hL : ∀ x y, 0 ≤ L x y)
     (y : Y) (x : X) : 0 ≤ posterior prior L y x := by
-  exact div_nonneg ( mul_nonneg ( hprior x ) ( hL x y ) ) ( Finset.sum_nonneg fun _ _ => mul_nonneg ( hprior _ ) ( hL _ _ ) )
+  exact div_nonneg ( mul_nonneg ( hprior x ) ( hL x y ) ) ( Finset.sum_nonneg fun _ _ => mul_nonneg
+      ( hprior _ ) ( hL _ _ ) )
 
+omit [Fintype Y] [DecidableEq X] [DecidableEq Y] in
 /-
 The Bayes chain rule: posterior times evidence recovers the joint density.
 -/
@@ -91,6 +98,7 @@ theorem posterior_eq_joint_div_evidence (y : Y) (x : X) :
     posterior prior L y x = joint prior L x y / evidence prior L y := by
   rfl
 
+omit [Fintype Y] [DecidableEq X] [DecidableEq Y] in
 /-
 For data `y` with positive evidence the Bayes posterior is a probability
 distribution on the hypotheses `X`.
@@ -100,6 +108,7 @@ theorem posterior_sum_one (y : Y) (hy : 0 < evidence prior L y) :
   convert div_self hy.ne';
   unfold posterior evidence; simp [ Finset.sum_div _ _ _ ] ;
 
+omit [Fintype Y] [DecidableEq X] [DecidableEq Y] in
 /-
 **Born-rule reproduction of the Bayes posterior.** With the wave-function
 `Ψ = √p` (`Ψ(x,y) = Real.sqrt (joint prior L x y)`), the Bayes posterior of the
@@ -109,7 +118,8 @@ theorem posterior_eq_born_conditional (hprior : ∀ x, 0 ≤ prior x) (hL : ∀ 
     (y : Y) (x : X) :
     posterior prior L y x =
       (Real.sqrt (joint prior L x y)) ^ 2 / ∑ x', (Real.sqrt (joint prior L x' y)) ^ 2 := by
-  rw [ posterior_eq_joint_div_evidence, Finset.sum_congr rfl fun _ _ => Real.sq_sqrt ( by unfold joint; exact mul_nonneg ( hprior _ ) ( hL _ _ ) ) ];
+  rw [ posterior_eq_joint_div_evidence, Finset.sum_congr rfl fun _ _ => Real.sq_sqrt (
+      by unfold joint; exact mul_nonneg ( hprior _ ) ( hL _ _ ) ) ];
   rw [ Real.sq_sqrt ( by exact mul_nonneg ( hprior x ) ( hL x y ) ) ] ; rfl
 
 /-
@@ -128,7 +138,8 @@ theorem exists_unitary_reproduces_posterior
       ∀ y, 0 < evidence prior L y → ∀ x,
         posterior prior L y x =
           ‖U (x, y) i₀‖ ^ 2 / ∑ x', ‖U (x', y) i₀‖ ^ 2 := by
-  have h_unitary_joint := BookProof.ChapterJointUnitary.exists_unitary_joint (fun x y => joint prior L x y) (fun x y => joint_nonneg hprior hL x y) (joint_sum_one hprior_sum hL_row) i₀;
+  have h_unitary_joint := BookProof.ChapterJointUnitary.exists_unitary_joint (fun x y => joint prior
+      L x y) (fun x y => joint_nonneg hprior hL x y) (joint_sum_one hprior_sum hL_row) i₀;
   obtain ⟨ U, hU₁, hU₂ ⟩ := h_unitary_joint; use U; aesop;
 
 end BookProof.ChapterBayesInference

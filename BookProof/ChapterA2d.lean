@@ -99,12 +99,13 @@ Every unit-modulus complex number has a unit-modulus complex square root.
 -/
 lemma exists_unit_sqrt (c : ℂ) (hc : ‖c‖ = 1) :
     ∃ l : ℂ, l ^ 2 = c ∧ ‖l‖ = 1 := by
-  refine' ⟨ c ^ ( 1 / 2 : ℂ ), _, _ ⟩ <;> norm_num [ hc ];
+  refine ⟨ c ^ ( 1 / 2 : ℂ ), ?_, ?_ ⟩ <;> norm_num [ hc ];
   · rw [ ← Complex.cpow_nat_mul ] ; norm_num;
   · rw [ Complex.norm_cpow_of_imp ] <;> aesop
 
 /-! ## Prop 15 -/
 
+omit [CompleteSpace V] [CompleteSpace W] in
 /-
 Conjugating an operator by `λ • α` gives the same result as conjugating by
 `α` when `‖λ‖ = 1` (the scalar cancels).
@@ -114,7 +115,8 @@ lemma conjCLM_unitScale (α : V ≃ₗᵢ[ℂ] W) (l : ℂ) (hl : ‖l‖ = 1) (
   ext x;
   -- By definition of `unitScaleEquiv`, we know that `unitScaleEquiv l hl x = l • x`.
   have h_unitScaleEquiv : (α.trans (unitScaleEquiv l hl)).symm x = (1 / l) • (α.symm x) := by
-    simp [ unitScaleEquiv ];
+    simp only [unitScaleEquiv, LinearIsometryEquiv.symm_trans, LinearIsometryEquiv.trans_apply,
+        one_div];
     exact α.symm.map_smul _ _;
   convert congr_arg ( fun y => α ( l • m y ) ) h_unitScaleEquiv using 1;
   · simp [ conjCLM, unitScaleEquiv ];
@@ -152,14 +154,16 @@ theorem Rreal_isometric_iff_complexification_isometric
     (hθM : IsConjugation M θM) (hθN : IsConjugation N θN) :
     (∃ α : V ≃ₗᵢ[ℂ] W, IsSystemIso M N α ∧ ∀ x, α (θM x) = θN (α x)) ↔
     (∃ α : V ≃ₗᵢ[ℂ] W, IsSystemIso M N α) := by
-  refine' ⟨ fun ⟨ α, hα, h_intertwine ⟩ => ⟨ α, hα ⟩, _ ⟩;
+  refine ⟨ fun ⟨ α, hα, h_intertwine ⟩ => ⟨ α, hα ⟩, ?_ ⟩;
   intro h;
   obtain ⟨α, hα⟩ := h
   obtain ⟨c, hc⟩ : ∃ c : ℂ, ‖c‖ = 1 ∧ ∀ x, θN x = c • (conjAU α θM) x := by
     exact BookProof.ChapterA.antiisometry_unique_up_to_phase N hN
       (conjAU_commutesAntiUnitary hα hθM.commutesAntiUnitary) hθN.commutesAntiUnitary
   obtain ⟨l, hl⟩ : ∃ l : ℂ, l^2 = c ∧ ‖l‖ = 1 := exists_unit_sqrt c hc.left;
-  refine' ⟨ α.trans ( unitScaleEquiv l hl.2 ), _, _ ⟩ <;> simp_all [ IsSystemIso ];
+  refine ⟨ α.trans ( unitScaleEquiv l hl.2 ), ?_, ?_ ⟩ <;> simp_all only [IsSystemIso, conjAU_apply,
+      LinearIsometryEquiv.trans_apply, unitScaleEquiv_apply, map_smul,
+          LinearIsometryEquiv.symm_apply_apply];
   · ext; simp [conjCLM_unitScale];
   · intro x; simp [ ← hl.1 ] ;
     have h_unitScaleEquiv : α (θM (l • x)) = (starRingEnd ℂ) l • α (θM x) := by

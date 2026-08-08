@@ -64,36 +64,97 @@ theorem finite_marginals_compatible (x ε : ℕ → ℝ)
     (Measure.pi (fun j : J => scalarBumpMeasure (x j) (ε j))).map
         (fun (y : J → ℝ) (i : I) => y ⟨i.1, hIJ i.2⟩) =
       Measure.pi (fun i : I => scalarBumpMeasure (x i) (ε i)) := by
-  rw [ MeasureTheory.Measure.pi_eq ];
-  rw [ MeasureTheory.Measure.pi_eq ];
-  any_goals exact Measure.pi fun i : J => scalarBumpMeasure ( x i ) ( ε i );
-  · intro s hs; rw [ MeasureTheory.Measure.map_apply ];
-    · rw [ show ( fun y : J → ℝ => fun i : I => y ⟨ i, hIJ i.2 ⟩ ) ⁻¹' univ.pi s = ( Set.pi ( Set.univ : Set J ) fun i => if h : i.val ∈ I then s ⟨ i.val, h ⟩ else Set.univ ) from ?_ ];
-      · rw [ MeasureTheory.Measure.pi_pi ];
-        rw [ ← Finset.prod_subset ( show Finset.image ( fun i : I => ⟨ i, hIJ i.2 ⟩ : I → J ) Finset.univ ⊆ Finset.univ from Finset.subset_univ _ ) ];
-        · rw [ Finset.prod_image ] ; aesop;
-          exact fun i _ j _ hij => by aesop;
-        · simp +contextual [ Finset.mem_image ];
-      · grind;
-    · exact measurable_pi_lambda _ fun _ => measurable_pi_apply _;
-    · exact MeasurableSet.univ_pi hs;
-  · intro s hs; rw [ MeasureTheory.Measure.pi_pi ] ;
+  rw [ MeasureTheory.Measure.pi_eq, MeasureTheory.Measure.pi_eq ]
+  any_goals exact Measure.pi fun i : J => scalarBumpMeasure ( x i ) ( ε i )
+  · intro s hs
+    rw [ MeasureTheory.Measure.map_apply ]
+    · rw [ show ( fun y : J → ℝ => fun i : I => y ⟨ i, hIJ i.2 ⟩ ) ⁻¹' univ.pi s =
+          ( Set.pi ( Set.univ : Set J ) fun i =>
+            if h : i.val ∈ I then s ⟨ i.val, h ⟩ else Set.univ ) from ?_ ]
+      · rw [ MeasureTheory.Measure.pi_pi ]
+        rw [ ← Finset.prod_subset ( show Finset.image
+            ( fun i : I => ⟨ i, hIJ i.2 ⟩ : I → J ) Finset.univ ⊆ Finset.univ from
+            Finset.subset_univ _ ) ]
+        · rw [ Finset.prod_image ]
+          · aesop
+          · exact fun i _ j _ hij => by aesop
+        · simp +contextual [ Finset.mem_image ]
+      · grind
+    · exact measurable_pi_lambda _ fun _ => measurable_pi_apply _
+    · exact MeasurableSet.univ_pi hs
+  · intro s hs; rw [ MeasureTheory.Measure.pi_pi ]
+
+/-! ### Moments of the scalar bump law -/
+
+/-
+The integral against the scalar bump law is the normalized interval integral
+over its supporting interval.
+-/
+theorem scalarBump_integral (a r : ℝ) (h : 0 < r) (f : ℝ → ℝ) :
+    ∫ y, f y ∂scalarBumpMeasure a r = (2 * r)⁻¹ * ∫ y in (a - r)..(a + r), f y := by
+  have hvol : volume (Icc (a - r) (a + r)) = ENNReal.ofReal (2 * r) := by
+    rw [Real.volume_Icc]; ring_nf
+  unfold scalarBumpMeasure
+  rw [ProbabilityTheory.cond, hvol, integral_smul_measure,
+    intervalIntegral.integral_of_le (by linarith), ← integral_Icc_eq_integral_Ioc,
+    ← ENNReal.ofReal_inv_of_pos (by linarith),
+    ENNReal.toReal_ofReal (by positivity), smul_eq_mul]
+
+/-
+The scalar bump law is centered: its first centered moment vanishes.
+-/
+theorem scalarBump_centered (a r : ℝ) (h : 0 < r) :
+    ∫ y, (y - a) ∂scalarBumpMeasure a r = 0 := by
+  rw [scalarBump_integral a r h,
+    show ∫ y in (a - r)..(a + r), (y - a) = ∫ u in (-r)..r, u by
+      have hshift := intervalIntegral.integral_comp_sub_right (a := a - r) (b := a + r)
+        (fun u => u) a
+      simpa using hshift,
+    integral_id]
+  ring
+
+/-
+The exact second centered moment of the scalar bump law is `r ^ 2 / 3`.
+-/
+theorem scalarBump_sq (a r : ℝ) (h : 0 < r) :
+    ∫ y, (y - a) ^ 2 ∂scalarBumpMeasure a r = r ^ 2 / 3 := by
+  rw [scalarBump_integral a r h,
+    show ∫ y in (a - r)..(a + r), (y - a) ^ 2 = ∫ u in (-r)..r, u ^ 2 by
+      have hshift := intervalIntegral.integral_comp_sub_right (a := a - r) (b := a + r)
+        (fun u => u ^ 2) a
+      simpa using hshift,
+    integral_pow]
+  field_simp
+  ring
+
+/-
+Coordinates of the infinite walk are distributed by the corresponding scalar
+bump law, so integrals of coordinate observables reduce to scalar integrals.
+-/
+theorem integral_coordinate (x ε : ℕ → ℝ) [∀ n, Fact (0 < ε n)] (n : ℕ) (f : ℝ → ℝ)
+    (hf : Continuous f) :
+    ∫ y, f (y n) ∂infiniteWalkMeasure x ε = ∫ z, f z ∂scalarBumpMeasure (x n) (ε n) := by
+  rw [← map_eval_infiniteWalkMeasure x ε n,
+    integral_map (measurable_pi_apply n).aemeasurable hf.aestronglyMeasurable]
 
 /-
 Every centered coordinate has mean zero under the compatible infinite law.
 -/
 theorem coordinate_centered (x ε : ℕ → ℝ) [∀ n, Fact (0 < ε n)] (n : ℕ) :
     ∫ y, (y n - x n) ∂infiniteWalkMeasure x ε = 0 := by
-  have h_mean_zero : ∫ y : ℝ, (y - x n) ∂scalarBumpMeasure (x n) (ε n) = 0 := by
-    unfold scalarBumpMeasure;
-    rw [ ProbabilityTheory.cond ];
-    rw [ MeasureTheory.integral_smul_measure ] ; norm_num [ Real.volume_Icc ];
-    rw [ MeasureTheory.integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le ] <;> norm_num ; ring ; norm_num [ (Fact.out : 0 < ε n).le ];
-    linarith [ Fact.out ( p := 0 < ε n ) ];
-  convert h_mean_zero using 1;
-  rw [ ← map_eval_infiniteWalkMeasure x ε n, MeasureTheory.integral_map ];
-  · exact measurable_pi_apply n |> Measurable.aemeasurable;
-  · exact Measurable.aestronglyMeasurable ( measurable_id.sub measurable_const )
+  rw [integral_coordinate x ε n (fun z => z - x n) (continuous_id.sub continuous_const)]
+  exact scalarBump_centered (x n) (ε n) Fact.out
+
+/-
+For the uniform bump law, each centered coordinate has exact second moment
+`ε n ^ 2 / 3`.
+-/
+theorem coordinate_secondMoment_eq (x ε : ℕ → ℝ)
+    [∀ n, Fact (0 < ε n)] (n : ℕ) :
+    ∫ y, (y n - x n) ^ 2 ∂infiniteWalkMeasure x ε = (ε n) ^ 2 / 3 := by
+  rw [integral_coordinate x ε n (fun z => (z - x n) ^ 2)
+    ((continuous_id.sub continuous_const).pow 2)]
+  exact scalarBump_sq (x n) (ε n) Fact.out
 
 /-
 Every coordinate has second moment at most its prescribed squared radius.
@@ -101,23 +162,58 @@ Every coordinate has second moment at most its prescribed squared radius.
 theorem coordinate_secondMoment_bound (x ε : ℕ → ℝ)
     [∀ n, Fact (0 < ε n)] (n : ℕ) :
     ∫ y, (y n - x n) ^ 2 ∂infiniteWalkMeasure x ε ≤ (ε n) ^ 2 := by
-  -- By definition of $ε$, we know that $ε n > 0$.
-  have hε_pos : 0 < ε n := by
-    exact Fact.out ( p := 0 < ε n );
-  have h_var_bound : ∫ y : ℝ, (y - x n) ^ 2 ∂scalarBumpMeasure (x n) (ε n) ≤ (ε n) ^ 2 := by
-    have h_var_bound : ∫ y in Set.Icc (x n - ε n) (x n + ε n), (y - x n) ^ 2 ∂volume ≤ (ε n) ^ 2 * (2 * ε n) := by
-      rw [ MeasureTheory.integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le ] <;> norm_num [ sub_sq, mul_comm ] <;> ring <;> norm_num [ hε_pos.le ];
-      nlinarith [ pow_pos hε_pos 3 ];
-    unfold scalarBumpMeasure; rw [ ProbabilityTheory.cond ] ; norm_num [ Real.volume_Icc ] ; ring_nf at *;
-    rw [ ENNReal.toReal_ofReal ( by positivity ), inv_mul_le_iff₀ ] <;> nlinarith [ pow_pos hε_pos 3 ];
-  convert h_var_bound using 1;
-  rw [ ← map_eval_infiniteWalkMeasure x ε n, MeasureTheory.integral_map ];
-  · exact measurable_pi_apply n |> Measurable.aemeasurable;
-  · exact Continuous.aestronglyMeasurable ( by continuity )
+  rw [coordinate_secondMoment_eq x ε n]
+  nlinarith [sq_nonneg (ε n)]
 
 /-- Squared centered energy on an arbitrary finite coordinate set. -/
 def finiteEnergy (I : Finset ℕ) (x y : ℕ → ℝ) : ℝ :=
   ∑ n ∈ I, (y n - x n) ^ 2
+
+/-
+Each coordinate lies within its prescribed radius almost surely.
+-/
+theorem coordinate_abs_sub_le_radius (x ε : ℕ → ℝ)
+    [∀ n, Fact (0 < ε n)] (n : ℕ) :
+    ∀ᵐ y ∂infiniteWalkMeasure x ε, |y n - x n| ≤ ε n := by
+  have h_scalar : ∀ᵐ z ∂scalarBumpMeasure (x n) (ε n), |z - x n| ≤ ε n := by
+    have h_restrict :
+        ∀ᵐ z ∂(volume.restrict (Icc (x n - ε n) (x n + ε n))), |z - x n| ≤ ε n := by
+      rw [ae_restrict_iff' measurableSet_Icc]
+      filter_upwards with z hz
+      rw [abs_le]
+      exact ⟨by linarith [hz.1], by linarith [hz.2]⟩
+    unfold scalarBumpMeasure
+    rw [ProbabilityTheory.cond]
+    exact Measure.ae_smul_measure h_restrict _
+  have hmeas : MeasurableSet {z : ℝ | |z - x n| ≤ ε n} :=
+    measurableSet_le (by fun_prop) measurable_const
+  refine (ae_map_iff (μ := infiniteWalkMeasure x ε) (f := fun y : ℕ → ℝ => y n)
+    (measurable_pi_apply n).aemeasurable hmeas).mp ?_
+  rwa [map_eval_infiniteWalkMeasure]
+
+/-
+Each coordinate-energy observable is integrable under the infinite walk law.
+-/
+theorem integrable_coordinate_energy (x ε : ℕ → ℝ)
+    [∀ n, Fact (0 < ε n)] (n : ℕ) :
+    Integrable (fun y => (y n - x n) ^ 2) (infiniteWalkMeasure x ε) := by
+  refine MeasureTheory.Integrable.mono' (g := fun _ : ℕ → ℝ => (ε n) ^ 2)
+    (by simp)
+    (Measurable.aestronglyMeasurable (by measurability)) ?_
+  filter_upwards [coordinate_abs_sub_le_radius x ε n] with y hy
+  simpa using pow_le_pow_left₀ (abs_nonneg _) hy 2
+
+/-
+The finite-coordinate energy has exact expectation equal to one third of the
+corresponding squared-radius budget.
+-/
+theorem finiteEnergy_expectation_eq (x ε : ℕ → ℝ)
+    [∀ n, Fact (0 < ε n)] (I : Finset ℕ) :
+    ∫ y, finiteEnergy I x y ∂infiniteWalkMeasure x ε =
+      ∑ n ∈ I, (ε n) ^ 2 / 3 := by
+  convert MeasureTheory.integral_finset_sum I
+    (fun n _ => integrable_coordinate_energy x ε n) using 1
+  exact Finset.sum_congr rfl fun n _ => by rw [coordinate_secondMoment_eq x ε n]
 
 /-
 The expected energy on any finite coordinate set is bounded by the sum of
@@ -127,36 +223,9 @@ theorem finiteEnergy_expectation_bound (x ε : ℕ → ℝ)
     [∀ n, Fact (0 < ε n)] (I : Finset ℕ) :
     ∫ y, finiteEnergy I x y ∂infiniteWalkMeasure x ε ≤
       ∑ n ∈ I, (ε n) ^ 2 := by
-  rw [ show ( fun y : ℕ → ℝ => finiteEnergy I x y ) = fun y : ℕ → ℝ => ∑ n ∈ I, ( y n - x n ) ^ 2 by rfl, MeasureTheory.integral_finset_sum ];
-  · exact Finset.sum_le_sum fun i _ => coordinate_secondMoment_bound x ε i;
-  · intro n hn
-    have h_integrable : MeasureTheory.Integrable (fun y : ℝ => (y - x n) ^ 2) (scalarBumpMeasure (x n) (ε n)) := by
-      unfold scalarBumpMeasure;
-      rw [ ProbabilityTheory.cond ];
-      rw [ MeasureTheory.integrable_smul_measure ] <;> norm_num;
-      · exact Continuous.integrableOn_Icc ( by continuity );
-      · exact Fact.out;
-    have h_integrable : MeasureTheory.Integrable (fun y : ℝ => (y - x n) ^ 2) (Measure.map (fun y : ℕ → ℝ => y n) (infiniteWalkMeasure x ε)) := by
-      rw [ map_eval_infiniteWalkMeasure ] ; aesop;
-    convert h_integrable.comp_measurable ( measurable_pi_apply n ) using 1
-
-/-
-Each coordinate lies within its prescribed radius almost surely.
--/
-theorem coordinate_abs_sub_le_radius (x ε : ℕ → ℝ)
-    [∀ n, Fact (0 < ε n)] (n : ℕ) :
-    ∀ᵐ y ∂infiniteWalkMeasure x ε, |y n - x n| ≤ ε n := by
-  have h_map_eval : (infiniteWalkMeasure x ε).map (fun y => y n) = scalarBumpMeasure (x n) (ε n) :=
-    map_eval_infiniteWalkMeasure x ε n
-  have h_scalar_bump : ∀ᵐ y ∂scalarBumpMeasure (x n) (ε n), |y - x n| ≤ ε n := by
-    unfold scalarBumpMeasure;
-    rw [ ProbabilityTheory.cond ];
-    rw [ MeasureTheory.ae_iff ] ; norm_num;
-    exact MeasureTheory.measure_mono_null ( fun y hy => by cases abs_cases ( y - x n ) <;> linarith [ hy.1.out, hy.2.1, hy.2.2 ] ) ( MeasureTheory.measure_empty );
-  rw [ ← h_map_eval, MeasureTheory.ae_map_iff ] at h_scalar_bump;
-  · exact h_scalar_bump;
-  · exact measurable_pi_apply n |> Measurable.aemeasurable;
-  · exact measurableSet_le ( measurable_norm.comp ( measurable_id.sub measurable_const ) ) measurable_const
+  rw [finiteEnergy_expectation_eq x ε I]
+  refine Finset.sum_le_sum fun n _ => ?_
+  nlinarith [sq_nonneg (ε n)]
 
 /-
 **Almost-sure finite-energy theorem.** If the squared coordinate radii are
@@ -167,10 +236,14 @@ theorem ae_summable_centered_energy (x ε : ℕ → ℝ)
     [∀ n, Fact (0 < ε n)] (hε : Summable (fun n => (ε n) ^ 2)) :
     ∀ᵐ y ∂infiniteWalkMeasure x ε,
       Summable (fun n => (y n - x n) ^ 2) := by
-  -- We'll use the fact that if the series of squared radii converges, then the series of squared differences also converges almost surely.
+  -- Each squared increment is dominated by the corresponding squared radius,
+  -- and the radii are summable.
   have h_summable : ∀ᵐ y ∂infiniteWalkMeasure x ε, ∀ n, (y n - x n) ^ 2 ≤ (ε n) ^ 2 := by
-    filter_upwards [ MeasureTheory.ae_all_iff.mpr fun n => coordinate_abs_sub_le_radius x ε n ] with y hy using fun n => by nlinarith [ abs_le.mp ( hy n ) ] ;
-  filter_upwards [ h_summable ] with y hy using Summable.of_nonneg_of_le ( fun n => sq_nonneg _ ) hy hε
+    filter_upwards [MeasureTheory.ae_all_iff.mpr
+      fun n => coordinate_abs_sub_le_radius x ε n] with y hy
+    exact fun n => by nlinarith [abs_le.mp (hy n)]
+  filter_upwards [h_summable] with y hy
+  exact Summable.of_nonneg_of_le (fun n => sq_nonneg _) hy hε
 
 /-
 Under summable squared radii, the total centered energy is bounded by the total
@@ -180,10 +253,9 @@ theorem ae_tsum_centered_energy_le (x ε : ℕ → ℝ)
     [∀ n, Fact (0 < ε n)] (hε : Summable (fun n => (ε n) ^ 2)) :
     ∀ᵐ y ∂infiniteWalkMeasure x ε,
       ∑' n, (y n - x n) ^ 2 ≤ ∑' n, (ε n) ^ 2 := by
-  have h_bound : ∀ᵐ y ∂infiniteWalkMeasure x ε, Summable (fun n => (y n - x n) ^ 2) := by
-    convert ae_summable_centered_energy x ε hε;
-  filter_upwards [ h_bound, MeasureTheory.ae_all_iff.mpr fun n => coordinate_abs_sub_le_radius x ε n ] with y hy₁ hy₂;
-  exact Summable.tsum_le_tsum ( fun n => by nlinarith only [ abs_le.mp ( hy₂ n ) ] ) hy₁ hε
+  filter_upwards [ae_summable_centered_energy x ε hε, MeasureTheory.ae_all_iff.mpr
+    fun n => coordinate_abs_sub_le_radius x ε n] with y hy₁ hy₂
+  exact Summable.tsum_le_tsum (fun n => by nlinarith only [abs_le.mp (hy₂ n)]) hy₁ hε
 
 /-
 The ordinary partial energies converge almost surely to the total centered
@@ -194,104 +266,9 @@ theorem ae_tendsto_partial_energy (x ε : ℕ → ℝ)
     ∀ᵐ y ∂infiniteWalkMeasure x ε,
       Tendsto (fun N => ∑ n ∈ Finset.range N, (y n - x n) ^ 2)
         atTop (𝓝 (∑' n, (y n - x n) ^ 2)) := by
-  -- For almost every $y$, the series $\sum_{n=0}^{\infty} (y_n - x_n)^2$ converges.
-  have h_summable : ∀ᵐ y ∂infiniteWalkMeasure x ε, Summable (fun n => (y n - x n) ^ 2) := by
-    convert ae_summable_centered_energy x ε hε;
-  filter_upwards [ h_summable ] with y hy using hy.hasSum.tendsto_sum_nat
-
-/-
-Each coordinate-energy observable is integrable under the infinite walk law.
--/
-theorem integrable_coordinate_energy (x ε : ℕ → ℝ)
-    [∀ n, Fact (0 < ε n)] (n : ℕ) :
-    Integrable (fun y => (y n - x n) ^ 2) (infiniteWalkMeasure x ε) := by
-  refine' MeasureTheory.Integrable.mono' _ _ _;
-  refine' fun y => ( ε n ) ^ 2;
-  · simp [ MeasureTheory.integrable_const_iff ];
-  · exact Measurable.aestronglyMeasurable ( by measurability );
-  · filter_upwards [ coordinate_abs_sub_le_radius x ε n ] with y hy using by simpa using pow_le_pow_left₀ ( abs_nonneg _ ) hy 2;
-
-/-
-The expected total centered energy is bounded by the total squared-radius
-budget.
--/
-theorem totalEnergy_expectation_bound (x ε : ℕ → ℝ)
-    [∀ n, Fact (0 < ε n)] (hε : Summable (fun n => (ε n) ^ 2)) :
-    ∫ y, (∑' n, (y n - x n) ^ 2) ∂infiniteWalkMeasure x ε ≤
-      ∑' n, (ε n) ^ 2 := by
-  rw [ MeasureTheory.integral_eq_lintegral_of_nonneg_ae ];
-  · refine' le_trans ( ENNReal.toReal_mono _ _ ) _;
-    exact ENNReal.ofReal ( ∑' n, ε n ^ 2 );
-    · exact ENNReal.ofReal_ne_top;
-    · refine' le_trans ( MeasureTheory.lintegral_mono_ae _ ) _;
-      use fun y => ENNReal.ofReal ( ∑' n, ( ε n ) ^ 2 );
-      · filter_upwards [ ae_tsum_centered_energy_le x ε hε ] with y hy using ENNReal.ofReal_le_ofReal hy;
-      · simp [ MeasureTheory.IsProbabilityMeasure.measure_univ ];
-    · rw [ ENNReal.toReal_ofReal ( tsum_nonneg fun _ => sq_nonneg _ ) ];
-  · exact Filter.Eventually.of_forall fun y => tsum_nonneg fun n => sq_nonneg _;
-  · refine' MeasureTheory.AEStronglyMeasurable.congr _ _;
-    exact fun y => ENNReal.toReal ( ∑' n, ENNReal.ofReal ( ( y n - x n ) ^ 2 ) );
-    · refine' Measurable.aestronglyMeasurable _;
-      fun_prop;
-    · filter_upwards [ ae_summable_centered_energy x ε hε ] with y hy using ENNReal.tsum_toReal_eq ( by exact fun n => ENNReal.ofReal_ne_top ) |> fun h => h.trans ( tsum_congr fun n => ENNReal.toReal_ofReal ( sq_nonneg _ ) )
-
-/-
-For the uniform bump law, each centered coordinate has exact second moment
-`ε n ^ 2 / 3`.
--/
-theorem coordinate_secondMoment_eq (x ε : ℕ → ℝ)
-    [∀ n, Fact (0 < ε n)] (n : ℕ) :
-    ∫ y, (y n - x n) ^ 2 ∂infiniteWalkMeasure x ε = (ε n) ^ 2 / 3 := by
-  -- Use the fact that the integral of a function over a product measure is the product of the integrals.
-  have h_prod : ∫ y : ℕ → ℝ, (y n - x n)^2 ∂(infiniteWalkMeasure x ε) = ∫ y : ℝ, (y - x n)^2 ∂(scalarBumpMeasure (x n) (ε n)) := by
-    rw [ ← map_eval_infiniteWalkMeasure x ε n, MeasureTheory.integral_map ];
-    · exact measurable_pi_apply n |> Measurable.aemeasurable;
-    · exact Continuous.aestronglyMeasurable ( by continuity );
-  rw [ h_prod, show ( ∫ y : ℝ, ( y - x n ) ^ 2 ∂scalarBumpMeasure ( x n ) ( ε n ) ) = ( ∫ y : ℝ in Set.Icc ( x n - ε n ) ( x n + ε n ), ( y - x n ) ^ 2 ∂MeasureTheory.volume ) / ( 2 * ε n ) from ?_ ];
-  · rw [ MeasureTheory.integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le ] <;> norm_num [ sub_sq, mul_comm ] <;> ring <;> norm_num [ ( Fact.out : 0 < ε n ) |> le_of_lt ];
-    nlinarith only [ mul_inv_cancel₀ ( ne_of_gt ( Fact.out ( p := 0 < ε n ) ) ) ];
-  · unfold scalarBumpMeasure; rw [ ProbabilityTheory.cond ] ; norm_num [ Real.volume_Icc ] ; ring;
-    rw [ ENNReal.toReal_ofReal ( by linarith [ Fact.out ( p := 0 < ε n ) ] ) ] ; ring
-
-/-
-Consequently, under summable squared radii, the expected total centered energy
-is exactly one third of the total squared-radius budget.
--/
-theorem totalEnergy_expectation_eq (x ε : ℕ → ℝ)
-    [∀ n, Fact (0 < ε n)] (hε : Summable (fun n => (ε n) ^ 2)) :
-    ∫ y, (∑' n, (y n - x n) ^ 2) ∂infiniteWalkMeasure x ε =
-      (∑' n, (ε n) ^ 2) / 3 := by
-  rw [ MeasureTheory.integral_eq_lintegral_of_nonneg_ae ];
-  · have h_interchange : ∫⁻ (a : ℕ → ℝ), ENNReal.ofReal (∑' (n : ℕ), (a n - x n) ^ 2) ∂infiniteWalkMeasure x ε = ∑' (n : ℕ), ∫⁻ (a : ℕ → ℝ), ENNReal.ofReal ((a n - x n) ^ 2) ∂infiniteWalkMeasure x ε := by
-      rw [ ← MeasureTheory.lintegral_tsum ];
-      · refine' MeasureTheory.lintegral_congr_ae _;
-        filter_upwards [ ae_summable_centered_energy x ε hε ] with a ha;
-        rw [ ENNReal.ofReal_tsum_of_nonneg fun n => sq_nonneg _ ];
-        exact ha;
-      · exact fun n => Measurable.aemeasurable ( by measurability );
-    rw [ h_interchange, ENNReal.tsum_toReal_eq ];
-    · rw [ ← tsum_div_const ] ; congr ; ext n ; rw [ ← MeasureTheory.integral_eq_lintegral_of_nonneg_ae ];
-      · convert coordinate_secondMoment_eq x ε n using 1;
-      · exact Filter.Eventually.of_forall fun _ => sq_nonneg _;
-      · exact Measurable.aestronglyMeasurable ( by measurability );
-    · intro n; exact ne_of_lt ( MeasureTheory.Integrable.lintegral_lt_top ( by exact integrable_coordinate_energy x ε n ) ) ;
-  · exact Filter.Eventually.of_forall fun y => tsum_nonneg fun n => sq_nonneg _;
-  · refine' MeasureTheory.AEStronglyMeasurable.congr _ _;
-    exact fun y => ENNReal.toReal ( ∑' n, ENNReal.ofReal ( ( y n - x n ) ^ 2 ) );
-    · refine' Measurable.aestronglyMeasurable _;
-      fun_prop;
-    · filter_upwards [ ae_summable_centered_energy x ε hε ] with y hy using ENNReal.tsum_toReal_eq ( by exact fun n => ENNReal.ofReal_ne_top ) |> fun h => h.trans ( tsum_congr fun n => ENNReal.toReal_ofReal ( sq_nonneg _ ) )
-
-/-
-The finite-coordinate energy has exact expectation equal to one third of the
-corresponding squared-radius budget.
--/
-theorem finiteEnergy_expectation_eq (x ε : ℕ → ℝ)
-    [∀ n, Fact (0 < ε n)] (I : Finset ℕ) :
-    ∫ y, finiteEnergy I x y ∂infiniteWalkMeasure x ε =
-      ∑ n ∈ I, (ε n) ^ 2 / 3 := by
-  convert MeasureTheory.integral_finset_sum I fun n hn => integrable_coordinate_energy x ε n using 1;
-  exact Finset.sum_congr rfl fun n hn => by rw [ coordinate_secondMoment_eq x ε n ] ;
+  -- For almost every `y` the series of squared increments converges.
+  filter_upwards [ae_summable_centered_energy x ε hε] with y hy
+  exact hy.hasSum.tendsto_sum_nat
 
 /-
 Under summable squared radii, the infinite total-energy observable is
@@ -311,20 +288,55 @@ theorem integrable_totalEnergy (x ε : ℕ → ℝ)
       (fun y => ∑' n, (y n - x n) ^ 2) y ≤ (fun _ : ℕ → ℝ => ∑' n, (ε n) ^ 2) y :=
     ae_tsum_centered_energy_le x ε hε
   have h_const_integrable : Integrable (fun _ : ℕ → ℝ => ∑' n, (ε n) ^ 2)
-      (infiniteWalkMeasure x ε) := by
-    apply integrable_const
+      (infiniteWalkMeasure x ε) := integrable_const _
   have h_ae_measurable : AEStronglyMeasurable (fun y : ℕ → ℝ => ∑' n, (y n - x n) ^ 2)
       (infiniteWalkMeasure x ε) := by
     have h_partial_meas (N : ℕ) : Measurable (fun y : ℕ → ℝ =>
         ∑ n ∈ Finset.range N, (y n - x n) ^ 2) := by
-      refine Finset.measurable_sum (Finset.range N) (fun n hn => ?_)
-      exact ((measurable_pi_apply n).sub measurable_const).pow 2
-    have h_tsum_eq_sup : (fun y : ℕ → ℝ => ∑' n, (y n - x n) ^ 2) =
-        (fun y => ⨆ N : ℕ, ∑ n ∈ Finset.range N, (y n - x n) ^ 2) := by
-      ext y
-      rw [tsum_eq_iSup_sum (fun n => (y n - x n) ^ 2)]
-    rw [h_tsum_eq_sup]
-    exact aestronglyMeasurable_iSup h_partial_meas
-  exact h_const_integrable.mono h_ae_measurable h_bound
+      refine Finset.measurable_sum (Finset.range N) (fun n _ => ?_)
+      exact ((measurable_pi_apply n).sub measurable_const).pow_const 2
+    refine aestronglyMeasurable_of_tendsto_ae atTop
+      (fun N => (h_partial_meas N).aestronglyMeasurable) ?_
+    exact ae_tendsto_partial_energy x ε hε
+  refine MeasureTheory.Integrable.mono' h_const_integrable h_ae_measurable ?_
+  filter_upwards [h_bound] with y hy
+  rw [Real.norm_eq_abs, abs_of_nonneg (tsum_nonneg fun n => sq_nonneg _)]
+  exact hy
+
+/-
+Under summable squared radii, the expected total centered energy is exactly one
+third of the total squared-radius budget.
+-/
+theorem totalEnergy_expectation_eq (x ε : ℕ → ℝ)
+    [∀ n, Fact (0 < ε n)] (hε : Summable (fun n => (ε n) ^ 2)) :
+    ∫ y, (∑' n, (y n - x n) ^ 2) ∂infiniteWalkMeasure x ε =
+      (∑' n, (ε n) ^ 2) / 3 := by
+  have h_norm : ∀ n : ℕ,
+      ∫ y, ‖(y n - x n) ^ 2‖ ∂infiniteWalkMeasure x ε = (ε n) ^ 2 / 3 := by
+    intro n
+    simp only [Real.norm_eq_abs, abs_pow, sq_abs]
+    exact coordinate_secondMoment_eq x ε n
+  have h_summable :
+      Summable fun n => ∫ y, ‖(y n - x n) ^ 2‖ ∂infiniteWalkMeasure x ε := by
+    rw [funext h_norm]
+    exact hε.div_const 3
+  have h_swap := MeasureTheory.integral_tsum_of_summable_integral_norm
+    (F := fun (n : ℕ) (y : ℕ → ℝ) => (y n - x n) ^ 2)
+    (fun n => integrable_coordinate_energy x ε n) h_summable
+  rw [← h_swap]
+  simp only [coordinate_secondMoment_eq]
+  rw [tsum_div_const]
+
+/-
+The expected total centered energy is bounded by the total squared-radius
+budget.
+-/
+theorem totalEnergy_expectation_bound (x ε : ℕ → ℝ)
+    [∀ n, Fact (0 < ε n)] (hε : Summable (fun n => (ε n) ^ 2)) :
+    ∫ y, (∑' n, (y n - x n) ^ 2) ∂infiniteWalkMeasure x ε ≤
+      ∑' n, (ε n) ^ 2 := by
+  rw [totalEnergy_expectation_eq x ε hε]
+  have h_nonneg : 0 ≤ ∑' n, (ε n) ^ 2 := tsum_nonneg fun _ => sq_nonneg _
+  linarith
 
 end RandomMap2InfiniteWalk

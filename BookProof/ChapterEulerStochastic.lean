@@ -63,7 +63,8 @@ Every probability `p ∈ [0,1]` is realized as `cos² a` for some angle `a`
 -/
 theorem exists_cos_sq {p : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
     ∃ a : ℝ, Real.cos a ^ 2 = p := by
-      exact ⟨ Real.arccos ( Real.sqrt p ), by rw [ Real.cos_arccos ] <;> nlinarith [ Real.mul_self_sqrt hp0 ] ⟩
+      exact ⟨ Real.arccos ( Real.sqrt p ), by rw [ Real.cos_arccos ] <;> nlinarith [
+                                              Real.mul_self_sqrt hp0 ] ⟩
 
 /-
 The two standard basis / deterministic distributions are probability
@@ -88,8 +89,12 @@ theorem Mmat_preservesProb (a b : ℝ) : PreservesProb (Mmat a b) := by
   have hsin_sq_b : 0 ≤ Real.sin b ^ 2 := by positivity
   have hv0 : 0 ≤ v 0 := hv_nonneg 0
   have hv1 : 0 ≤ v 1 := hv_nonneg 1
-  simp [IsProbVec, Mmat, Matrix.mulVec]
-  have hsum : Real.cos a ^ 2 * v 0 + Real.cos b ^ 2 * v 1 + (Real.sin a ^ 2 * v 0 + Real.sin b ^ 2 * v 1) = 1 := by
+  simp only [IsProbVec, Matrix.mulVec, Mmat, Matrix.of_apply, Matrix.cons_val',
+      Matrix.cons_val_fin_one, Matrix.vec2_dotProduct, Fin.isValue, Matrix.cons_val_zero,
+          Matrix.cons_val_one, Fin.forall_fin_two, Matrix.cons_dotProduct,
+              Matrix.dotProduct_of_isEmpty, add_zero]
+  have hsum : Real.cos a ^ 2 * v 0 + Real.cos b ^ 2 * v 1 + (Real.sin a ^ 2 * v 0 + Real.sin b ^ 2 *
+      v 1) = 1 := by
     nlinarith [Real.sin_sq_add_cos_sq a, Real.sin_sq_add_cos_sq b, hvsum]
   refine ⟨⟨?_, ?_⟩, hsum⟩
   · nlinarith
@@ -106,10 +111,14 @@ theorem preservesProb_iff_columnStochastic (M : Matrix (Fin 2) (Fin 2) ℝ) :
     · intro hM
       constructor
       · have := hM (fun i => if i = 0 then 1 else 0)
-        simp [IsProbVec, Matrix.mulVec] at this ⊢
+        simp only [IsProbVec, Fin.isValue, Fin.forall_fin_two, ↓reduceIte, zero_le_one, one_ne_zero,
+            le_refl, and_self, add_zero, Matrix.mulVec, Matrix.vec2_dotProduct, mul_one, mul_zero,
+                forall_const] at this ⊢
         exact this
       · have := hM (fun i => if i = 0 then 0 else 1)
-        simp [IsProbVec, Matrix.mulVec] at this ⊢
+        simp only [IsProbVec, Fin.isValue, Fin.forall_fin_two, ↓reduceIte, le_refl, one_ne_zero,
+            zero_le_one, and_self, zero_add, Matrix.mulVec, Matrix.vec2_dotProduct, mul_zero,
+                mul_one, forall_const] at this ⊢
         exact this
     · intro v hv
       rcases hv with ⟨hv_nonneg, hvsum⟩
@@ -117,10 +126,10 @@ theorem preservesProb_iff_columnStochastic (M : Matrix (Fin 2) (Fin 2) ℝ) :
       have hv1 : 0 ≤ v 1 := hv_nonneg 1
       have h0 := h.1
       have h1 := h.2
-      simp [IsProbVec, Fin.forall_fin_two] at h0 h1
+      simp only [IsProbVec, Fin.isValue, Fin.forall_fin_two] at h0 h1
       rcases h0 with ⟨⟨hM00, hM10⟩, hMsum0⟩
       rcases h1 with ⟨⟨hM01, hM11⟩, hMsum1⟩
-      simp [IsProbVec, Matrix.mulVec]
+      simp only [IsProbVec, Matrix.mulVec, Matrix.vec2_dotProduct, Fin.isValue, Fin.forall_fin_two]
       have hsum : (M 0 0 * v 0 + M 0 1 * v 1) + (M 1 0 * v 0 + M 1 1 * v 1) = 1 := by
         nlinarith
       have hpos0 : 0 ≤ M 0 0 * v 0 + M 0 1 * v 1 := by
@@ -156,7 +165,7 @@ uniform distribution `½(1,1)` to the vertex `(1,0)` is singular (`det = 0`), so
 it is not suitable to represent a symmetry group.
 -/
 theorem uniform_to_vertex_singular (M : Matrix (Fin 2) (Fin 2) ℝ)
-    (hM : PreservesProb M) (hcollapse : M *ᵥ ![1/2, 1/2] = ![1, 0]) :
+    (hM : PreservesProb M) (hcollapse : M *ᵥ ![1 / 2, 1 / 2] = ![1, 0]) :
     M.det = 0 := by
       rw [ Matrix.det_fin_two ];
       simp_all [ funext_iff, Fin.forall_fin_two, Matrix.mulVec ];

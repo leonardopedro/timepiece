@@ -95,12 +95,15 @@ theorem Xmat_add (a b c d : ℝ) : Xmat a b + Xmat c d = Xmat (a + c) (b + d) :=
 
 /-- The translations are **nilpotent**: `X(a,b) · X(c,d) = 0`. -/
 theorem Xmat_mul_Xmat (a b c d : ℝ) : Xmat a b * Xmat c d = 0 := by
-  -- By expanding the product using the definitions of `Xmat`,    `M`, `M5`, and `Pr`, we can apply the nilpotency conditions.
+  -- By expanding the product using the definitions of `Xmat`, `M`, `M5`, and `Pr`, we can apply the
+  -- nilpotency conditions.
   have h_expand : (M5 * (a • M 1 + b • M 2) * Pr) * (M5 * (c • M 1 + d • M 2) * Pr) = 0 := by
-    simp [ mul_add, add_mul, mul_assoc, smul_smul, M, M5, Pr ];
-    simp [ ← mul_assoc, ← map_mul ];
+    simp only [M5, M, Fin.isValue, mul_add, Algebra.mul_smul_comm, Pr, add_mul,
+        Algebra.smul_mul_assoc, mul_assoc, smul_add, smul_smul];
+    simp only [Fin.isValue, ← map_mul, ← mul_assoc];
     unfold castR; norm_num [ mgamma5Z, mgammaZ ] ;
-    ext i j ;      fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, Fin.sum_univ_succ ] <;> ring!;
+    ext i j ;      fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, Fin.sum_univ_succ ]
+        <;> ring!;
   unfold Xmat; aesop;
 
 /-- `N(0,0) = 1`. -/
@@ -111,7 +114,7 @@ theorem Nmat_zero : Nmat 0 0 = 1 := by
 `N(a,b) · N(c,d) = N(a+c, b+d)`. -/
 theorem Nmat_mul (a b c d : ℝ) : Nmat a b * Nmat c d = Nmat (a + c) (b + d) := by
   convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℝ => 1 + x ) ( Xmat_add a b c d ) using 1;
-  unfold Nmat; simp [ add_mul, mul_add, Xmat_mul_Xmat ] ;
+  unfold Nmat; simp only [mul_add, mul_one, add_mul, one_mul, Xmat_mul_Xmat, add_zero] ;
   rw [ add_assoc ]
 
 /-- Each `N(a,b)` is invertible with inverse `N(-a,-b)`. -/

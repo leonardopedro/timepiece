@@ -58,7 +58,7 @@ noncomputable def signBool (s : Fin n → ℝ) : Fin n → Bool := fun k => deci
 theorem signVec_signBool {s : Fin n → ℝ} (hs : ∀ k, s k = 1 ∨ s k = -1) :
     signVec (signBool s) = s := by
   funext k
-  rcases hs k with h | h <;> simp [signVec, signBool, h] <;> norm_num
+  rcases hs k with h | h <;> simp [signVec, signBool, h] ; norm_num
 
 /-- The wave function realizing the sign choice `b` over the distribution `p`:
 sign-flip the canonical square-root section by `signVec b`. -/
@@ -101,14 +101,14 @@ theorem mem_fiber_iff {p : ↥(stdSimplex ℝ (Fin n))}
   constructor <;> intro h;
   · have := bornMap_eq_iff_signFlip ( bornSection p.val ) x.val |>.1 ?_;
     · obtain ⟨ s, hs₁, hs₂ ⟩ := this; use fun k => decide ( s k = 1 )
-      simp_all [ bornFiberPoint ]
+      simp_all only [Set.mem_preimage, Set.mem_singleton_iff, bornFiberPoint]
       congr! 1;
       exact signVec_signBool hs₁;
     · convert congr_arg Subtype.val h using 1;
       exact bornMap_bornSection p.2;
   · obtain ⟨ b, hb ⟩ := h;
     convert bornMap_bornFiberPoint p.property b using 1;
-    simp [ Subtype.ext_iff ];
+    simp only [Set.mem_preimage, Set.mem_singleton_iff, Subtype.ext_iff];
     convert Iff.rfl;
     exact hb ▸ rfl
 

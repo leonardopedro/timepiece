@@ -1,3 +1,22 @@
+# Summary of changes for run aba8fb7a-613e-4e7c-959e-9215a8295b6e
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md`, landing a new wave (recorded in the plan as Part E) of formal content for the chapter `Book/CoherentState.lean`, plus the verification gate.
+
+**Verified the prior state first.** Parts A–D of the plan were re-checked rather than redone: a full `lake build` is green, `lake build RandomMap` and `lake build book` are green, and the only `sorry`s anywhere in `BookProof/`, `RandomMap/`, `Singularity/` are the two intentional, RH-related ones in `RandomMap/SchoenfeldPRA.lean`. The build log contains no in-scope warnings (only those two `sorry` notices, plus the excluded `PnpProof/`, `UnusedRoute/`, `UsedRoute/` directories, which were left untouched).
+
+**Three new proof modules, all `sorry`-free and axiom-clean (`propext`, `Classical.choice`, `Quot.sound`), registered in `BookProof.lean`:**
+
+1. `BookProof/ChapterCoherentGeometry.lean` — the wave-packet geometry. The coherent overlap is a lossless readout of distance (`-2·log⟨q|k⟩ = ‖q−k‖²`) and is strictly decreasing in it; the Born attention weight is *exactly* a Softmax over minus the squared distances at inverse temperature 1, with no hypothesis on the key norms; consequently attention orders the keys by proximity and the nearest key carries the largest weight (strictly, if strictly nearest).
+
+2. `BookProof/ChapterSoftmaxOrder.lean` — the order structure of the measurement: Softmax is gauge invariant (only score differences are physical), it is a strictly increasing reparametrization of the scores at any positive inverse temperature (so it reorders nothing and the argmax is temperature-independent), a constant score profile is uniform at every temperature, and the attention weights inherit the order of the query–key alignments.
+
+3. `BookProof/ChapterAttentionEntropy.lean` — the entropy of the attention distribution: Shannon entropy with nonnegativity, Gibbs' inequality `H ≤ log m` (proved from `log x ≤ x − 1`) and its sharpness at the uniform distribution; maximal entropy `log m` at infinite temperature; and the collapse — with a strict score maximizer the entropy tends to 0 as the inverse temperature grows, and likewise for the coherent-state Born weights as the query is amplified.
+
+**Chapter sync.** `Book/CoherentState.lean` gained three new prose paragraphs with `#check` blocks (in "The Geometry of the Wave-packet", "Softmax Is the Born Rule on Coherent States", and "Informational Superposition and the Unknown Output"); every referenced name was verified to elaborate. Its Summary was corrected: the two caveats it still advertised (real-only coherent parameters; the observable given only by spectral data) had already been discharged by the complex-kernel and observable-operator modules, while the physical derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states is retained as a documented gap.
+
+**Documentation.** A dated wave note describing all of the above, including the unchanged disparity, was added at the top of `BookProof/STATUS.md`, and the status section of `PLAN_LEAN_SPECIALIST_COHERENT.md` now records Parts C, D and E as landed with the remaining mathematical gaps listed explicitly. `ARISTOTLE_SUMMARY.md` was deliberately left unmodified, as the project instructions state it should not be edited; the run notes live in `BookProof/STATUS.md` instead.
+
+All work is committed and pushed.
+
 # Summary of changes for run f2550135-bbf9-43b9-84b2-33e4b030a5ce
 I continued executing `PLAN_LEAN_SPECIALIST_UNPROVED.md` and updated `ARISTOTLE_SUMMARY.md`.
 

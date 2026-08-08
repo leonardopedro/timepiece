@@ -47,9 +47,10 @@ namespace BookProof.ChapterMajoranaProp61
 
 variable {𝒜 : Type*} [Ring 𝒜] [StarRing 𝒜] [Algebra ℝ 𝒜] [StarModule ℝ 𝒜]
 
+omit [StarRing 𝒜] [StarModule ℝ 𝒜] in
 /-
-**Clifford consequence.**  If `H` and `g` satisfy the Majorana anticommutator
-`H*g + g*H = (2m)•1`, then `H²` commutes with `g`.  (This is the algebraic reason the
+**Clifford consequence.** If `H` and `g` satisfy the Majorana anticommutator
+`H*g + g*H = (2m)•1`, then `H²` commutes with `g`. (This is the algebraic reason the
 relativistic energy `E = √(H²)` is well defined and commutes with `γ⁰`-dressed
 operators.)
 -/
@@ -84,17 +85,22 @@ variable (U H g E N Ni : 𝒜) (m : ℝ)
 include hU₁ hU₂ hg_sa hg2 hH_sa hanti hE_sa hE2 hEA hN_sa hN2 hNi₁ hNi₂ hNE hNA
 
 set_option maxHeartbeats 2000000 in
+-- the proof below is a large finite computation; the default heartbeat budget
+-- is not enough to elaborate it
+omit [StarModule ℝ 𝒜] in
 /-- **Proposition 61, `(U')† U' = 1`.** -/
 theorem prop61_star_mul_self :
     star (Uprime U H g E Ni) * Uprime U H g E Ni = 1 := by
   -- By the properties of the adjoint and the given hypotheses, we can simplify the expression.
   have h_simp : (E + star (Aop U H g)) * (E + Aop U H g) = N * N := by
-    simp_all [ Aop, mul_add, add_mul ]
-    simp_all [ ← mul_assoc, ← eq_sub_iff_add_eq' ]
-    simp_all [ mul_assoc, sub_mul, mul_sub ]
-    simp [ two_smul, add_assoc, add_sub_assoc ]
+    simp_all only [Aop, star_mul, star_star, mul_add, add_mul]
+    simp_all only [← eq_sub_iff_add_eq', ← mul_assoc]
+    simp_all only [mul_assoc, mul_sub, Algebra.mul_smul_comm, mul_one, sub_mul,
+      Algebra.smul_mul_assoc, one_mul, sub_sub_cancel]
+    simp only [two_smul, add_assoc, add_sub_assoc, left_eq_add]
     abel1
-  -- By the properties of the adjoint and the given hypotheses,    we can simplify the expression further.
+  -- By the properties of the adjoint and the given hypotheses, we can simplify the expression
+  -- further.
   have h_simp' : star Ni = Ni := by
     have h_star_Ni : star Ni * N = 1 := by
       rw [ ← star_one, ← hNi₁, star_mul, hN_sa ]
@@ -115,32 +121,38 @@ theorem prop61_star_mul_self :
   · grind
 
 set_option maxHeartbeats 2000000 in
+-- the proof below is a large finite computation; the default heartbeat budget
+-- is not enough to elaborate it
+omit [StarModule ℝ 𝒜] hNE hNA in
 /-- **Proposition 61, `U' (U')† = 1`.** -/
 theorem prop61_mul_star_self :
     Uprime U H g E Ni * star (Uprime U H g E Ni) = 1 := by
   -- Using the hypothesis `hNi₂ : Ni * N = 1`, we can simplify the expression.
   have h_comm : Ni * (E + Aop U H g) * (E + star (Aop U H g)) * Ni = Ni * N * N * Ni := by
     have h_comm : (E + Aop U H g) * (E + star (Aop U H g)) = 2 • (E * E) + (2 * m) • E := by
-      simp [ two_smul, add_mul, mul_add, hE2 ]
-      simp_all [ ← mul_assoc, Aop ]
-      simp_all [ mul_assoc, ← eq_sub_iff_add_eq' ]
-      simp_all [ mul_sub, sub_mul, mul_assoc ]
+      simp only [mul_add, add_mul, hE2, two_smul]
+      simp_all only [← mul_assoc, Aop, star_mul, star_star]
+      simp_all only [← eq_sub_iff_add_eq', mul_assoc, mul_one]
+      simp_all only [sub_mul, Algebra.smul_mul_assoc, one_mul, mul_assoc, mul_sub,
+        Algebra.mul_smul_comm, mul_one]
       abel1
     simp only [mul_assoc, h_comm]
-    simp [ ← mul_assoc ]
-    simp [ mul_add, add_mul, mul_assoc, two_mul, hN2 ]
+    simp only [nsmul_eq_mul, Nat.cast_ofNat, ← mul_assoc]
+    simp only [two_mul, add_mul, mul_add, Algebra.mul_smul_comm, mul_assoc, Algebra.smul_mul_assoc,
+        hN2, add_left_inj]
     rw [ two_smul ]
-  unfold Uprime; simp_all [ mul_assoc ]
+  unfold Uprime; simp_all only [mul_assoc, one_mul, star_mul, star_add]
   have h_star_Ni : star Ni * N = 1 := by
     rw [ ← star_inj ] ; simp [ * ]
   apply_fun ( · * Ni ) at h_star_Ni; simp_all [ mul_assoc ]
 
+omit [StarModule ℝ 𝒜] in
 /-- **Proposition 61 (headline).**  The boost intertwiner `U'` is unitary: it has the
 two-sided inverse `(U')†`. -/
 theorem prop61_isUnit : IsUnit (Uprime U H g E Ni) :=
   ⟨⟨Uprime U H g E Ni, star (Uprime U H g E Ni),
       prop61_mul_star_self U H g E N Ni m hU₁ hU₂ hg_sa hg2 hH_sa hanti hE_sa hE2 hEA
-        hN_sa hN2 hNi₁ hNi₂ hNE hNA,
+        hN_sa hN2 hNi₁ hNi₂,
       prop61_star_mul_self U H g E N Ni m hU₁ hU₂ hg_sa hg2 hH_sa hanti hE_sa hE2 hEA
         hN_sa hN2 hNi₁ hNi₂ hNE hNA⟩,
     rfl⟩

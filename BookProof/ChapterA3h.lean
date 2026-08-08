@@ -100,10 +100,11 @@ theorem upsilon_recon (T : Matrix (Fin 2) (Fin 2) ℂ) (ν : Fin 4) :
 -/
 theorem upsilonC_antihom (T U : Matrix (Fin 2) (Fin 2) ℂ) :
     UpsilonC (T * U) = UpsilonC U * UpsilonC T := by
-  ext μ ν; simp [ UpsilonC, Matrix.mul_apply ] ;
+  ext μ ν; simp only [UpsilonC, conjTranspose_mul, of_apply, mul_apply] ;
   have h_expand : Tᴴ * pauliσ ν * T = ∑ x, pauliCoeff (Tᴴ * pauliσ ν * T) x • pauliσ x := by
     convert pauli_expand ( Tᴴ * pauliσ ν * T ) using 1;
-  conv_lhs => rw [ show Uᴴ * Tᴴ * pauliσ ν * ( T * U ) = Uᴴ * ( Tᴴ * pauliσ ν * T ) * U by simp only [mul_assoc] ];
+  conv_lhs => rw [ show Uᴴ * Tᴴ * pauliσ ν * ( T * U ) = Uᴴ * ( Tᴴ * pauliσ ν * T ) * U
+      by simp only [mul_assoc] ];
   conv_lhs => rw [ h_expand ];
   simp [ mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul, pauliCoeff ]
 
@@ -116,12 +117,16 @@ theorem upsilonC_real (T : Matrix (Fin 2) (Fin 2) ℂ) (μ ν : Fin 4) :
     conj (UpsilonC T μ ν) = UpsilonC T μ ν := by
   unfold UpsilonC pauliCoeff;
   field_simp;
-  convert congr_arg ( fun x : ℂ => x / 2 ) ( show ( starRingEnd ℂ ) ( Matrix.trace ( pauliσ μ * ( Tᴴ * pauliσ ν * T ) ) ) = Matrix.trace ( pauliσ μ * ( Tᴴ * pauliσ ν * T ) ) from ?_ ) using 1;
+  convert congr_arg ( fun x : ℂ => x / 2 ) ( show ( starRingEnd ℂ ) ( Matrix.trace ( pauliσ μ * ( Tᴴ
+      * pauliσ ν * T ) ) ) = Matrix.trace ( pauliσ μ * ( Tᴴ * pauliσ ν * T ) ) from ?_ ) using 1;
   · norm_num [ Complex.ext_iff, div_eq_mul_inv ];
-  · -- By the properties of the trace and the Hermitian nature of the Pauli matrices,    we can show that the trace of the conjugate transpose is equal to the trace of the original matrix.
-    have h_trace_conj : ∀ (M : Matrix (Fin 2) (Fin 2) ℂ),      (starRingEnd ℂ) (Matrix.trace M) = Matrix.trace (Mᴴ) := by
+  · -- By the properties of the trace and the Hermitian nature of the Pauli matrices, we can show
+    -- that the trace of the conjugate transpose is equal to the trace of the original matrix.
+    have h_trace_conj : ∀ (M : Matrix (Fin 2) (Fin 2) ℂ),      (starRingEnd ℂ) (Matrix.trace M) =
+        Matrix.trace (Mᴴ) := by
       simp [ Matrix.trace, Matrix.conjTranspose ];
-    rw [ h_trace_conj, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul ];
+    rw [ h_trace_conj, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul
+        ];
     rw [ ← Matrix.trace_mul_comm ] ; simp [ Matrix.mul_assoc, pauliσ_herm ] ;
 
 /-- The real Lorentz matrix `Υ(T)`. -/
@@ -134,7 +139,7 @@ The complexification of the real `Υ(T)` is the complex `Υ(T)`.
 -/
 theorem toC_Upsilon (T : Matrix (Fin 2) (Fin 2) ℂ) :
     toC (Upsilon T) = UpsilonC T := by
-  ext μ ν; simp [ toC ] ;
+  ext μ ν; simp only [toC, map_apply] ;
   exact Complex.conj_eq_iff_re.mp ( upsilonC_real T μ ν ) ▸ rfl
 
 /-! ## The Minkowski norm as a determinant -/
@@ -163,7 +168,7 @@ theorem upsilon_apply_comb (T : Matrix (Fin 2) (Fin 2) ℂ) (x : Fin 4 → ℂ) 
   convert congr_arg ( fun m => ∑ ν, v ν • m ν ) ( funext hU ) using 1;
   · simp [ Matrix.sum_mul, mul_assoc, Finset.mul_sum _ _ _ ];
     rfl;
-  · simp [ Finset.smul_sum, Finset.sum_smul, mul_comm, smul_smul ];
+  · simp only [mul_comm, Finset.sum_smul, Finset.smul_sum, smul_smul];
     exact Finset.sum_comm
 
 /-
@@ -187,26 +192,34 @@ quadratic form.
 -/
 theorem bilC_ext {A B : Matrix (Fin 4) (Fin 4) ℂ} (hA : Aᵀ = A) (hB : Bᵀ = B)
     (h : ∀ x : Fin 4 → ℂ, bilC A x = bilC B x) : A = B := by
-  -- For each `i`, specialize `h` at `e_i = ![0,0,0,1]`.
+  -- The quadratic form at the indicator of `{i, j}` is `M i i + M i j + M j i + M j j`.
+  have expand : ∀ (M : Matrix (Fin 4) (Fin 4) ℂ) (i j : Fin 4),
+      bilC M (fun k => if k = i ∨ k = j then 1 else 0)
+        = (if i = j then M i i else M i i + M i j + M j i + M j j) := by
+    intro M i j
+    fin_cases i <;> fin_cases j <;> simp [bilC, Fin.sum_univ_four] <;> ring
+  -- Specializing at `i = j` gives the diagonal entries.
   have h_diag (i : Fin 4) : A i i = B i i := by
-    convert h ( fun j => if j = i then 1 else 0 ) using 1 <;> simp [ bilC ];
-  -- For each `i ≠ j`,    specialize `h` at `e_i + e_j` (the vector with 1 in slots `i` and `j`),    simplify to get `A i i + A j j + A i j + A j i = B i i + B j j + B i j + B j i`;    substitute the diagonal equalities,    and use the symmetry hypotheses `hA : Aᵀ = A`,    `hB : Bᵀ = B` (which give `A j i = A i j` and `B j i = B i j` via `Matrix.transpose_apply`/`congrFun`) to conclude `2 * A i j = 2 * B i j`, hence `A i j = B i j`.
+    have hi := h (fun k => if k = i ∨ k = i then 1 else 0)
+    rw [expand, expand] at hi
+    simpa using hi
+  -- Specializing at `i ≠ j` and using symmetry gives `2 * A i j = 2 * B i j`.
   have h_off_diag (i j : Fin 4) (hij : i ≠ j) : A i j = B i j := by
-    -- Substitute x = e_i + e_j into the hypothesis h and simplify.
-    have h_sub : bilC A (fun k => if k = i ∨ k = j then 1 else 0) = bilC B (fun k => if k = i ∨ k = j then 1 else 0) := by
-      exact h _;
-    -- Expand the bilinear forms using the definition of `bilC`.
-    simp [bilC] at h_sub;
-    simp_all [ Finset.sum_ite, Finset.filter_or, Finset.filter_eq', Finset.sum_add_distrib ];
-    replace hA := congr_fun ( congr_fun hA i ) j;      replace hB := congr_fun ( congr_fun hB i ) j; simp_all [ Matrix.transpose_apply ] ;
-    linear_combination' h_sub / 2;
+    have hh := h (fun k => if k = i ∨ k = j then 1 else 0)
+    rw [expand, expand] at hh
+    simp only [if_neg hij] at hh
+    have hAij : A j i = A i j := congr_fun (congr_fun hA i) j
+    have hBij : B j i = B i j := congr_fun (congr_fun hB i) j
+    rw [hAij, hBij, h_diag i, h_diag j] at hh
+    linear_combination hh / 2
   exact Matrix.ext fun i j => if hij : i = j then hij ▸ h_diag i else h_off_diag i j hij
 
 /-
 The bilinear form of the (complexified) Minkowski metric is `Qc`.
 -/
 theorem bilC_minkowski (x : Fin 4 → ℂ) : bilC (toC minkowskiMat) x = Qc x := by
-  unfold bilC Qc toC minkowskiMat; simp [ Fin.sum_univ_four ] ; ring;
+  unfold bilC Qc toC minkowskiMat; simp only [map_apply, of_apply, Fin.sum_univ_four, Fin.isValue] ;
+      ring;
   unfold minkowskiR; norm_num [ Fin.ext_iff, minkowskiZ ] ; ring;
 
 /-
@@ -220,7 +233,7 @@ theorem bilC_conj (A M : Matrix (Fin 4) (Fin 4) ℂ) (x : Fin 4 → ℂ) :
 `toC minkowskiMat` is symmetric.
 -/
 theorem toC_minkowski_symm : (toC minkowskiMat)ᵀ = toC minkowskiMat := by
-  ext i j; simp [ toC ] ;
+  ext i j; simp only [toC, transpose_apply, map_apply, Complex.ofReal_inj] ;
   fin_cases i <;> fin_cases j <;> rfl
 
 /-- The complex metric-preservation identity `Υ(T)ᵀ η Υ(T) = η`. -/
@@ -243,7 +256,7 @@ theorem upsilon_metric (T : Matrix (Fin 2) (Fin 2) ℂ) (hT : T.det = 1) :
     (Upsilon T)ᵀ * minkowskiMat * Upsilon T = minkowskiMat := by
   -- Apply the complex identity `upsilonC_metric` to conclude the proof.
   have := upsilonC_metric T hT;
-  simp_all [ ← Matrix.ext_iff ];
+  simp_all only [← ext_iff];
   convert this using 1;
   simp [ ← toC_Upsilon, Matrix.mul_apply ];
   simp [ toC ];
@@ -267,7 +280,7 @@ theorem upsilon_mem_lorentz (T : Matrix (Fin 2) (Fin 2) ℂ) (hT : T.det = 1) :
   have h_mul_comm : Upsilon T * (η * (Upsilon T)ᵀ * η) = 1 := by
     rw [← mul_eq_one_comm, h_mul]
   apply_fun (fun x => x * η) at h_mul_comm
-  simp_all [Matrix.mul_assoc]
+  simp_all only [Matrix.mul_assoc, mul_one, one_mul]
   exact funext fun i => funext fun j => by
     simpa [Matrix.mul_assoc] using congr_fun (congr_fun h_mul_comm i) j
 

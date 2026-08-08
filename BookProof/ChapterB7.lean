@@ -41,15 +41,20 @@ theorem koopman_comp (f : α ≃ᵐ β) (g : β ≃ᵐ γ) (hf : MeasurePreservi
     (hg : MeasurePreserving g ν ρ) (hfg : MeasurePreserving (f.trans g) μ ρ)
     (u : Lp E p ρ) :
     koopmanEquiv f hf (koopmanEquiv g hg u) = koopmanEquiv (f.trans g) hfg u := by
-  simp [ koopmanEquiv ];
-  refine' Lp.ext _;
-  have h_eq : (Lp.compMeasurePreservingₗᵢ ℝ (⇑f) hf) ((Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u) =ᵐ[μ] (fun x => u (g (f x))) := by
+  simp only [koopmanEquiv, LinearIsometryEquiv.coe_mk, LinearEquiv.coe_mk,
+      LinearIsometry.coe_toLinearMap];
+  refine Lp.ext ?_;
+  have h_eq : (Lp.compMeasurePreservingₗᵢ ℝ (⇑f) hf) ((Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u)
+      =ᵐ[μ] (fun x => u (g (f x))) := by
     have h_eq : (Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u =ᵐ[ν] (fun x => u (g x)) := by
       apply_rules [ Lp.coeFn_compMeasurePreserving ];
-    have h_eq_comp : (Lp.compMeasurePreservingₗᵢ ℝ (⇑f) hf) ((Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u) =ᵐ[μ] (fun x => (Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u (f x)) := by
-      convert Lp.coeFn_compMeasurePreserving ( Lp.compMeasurePreservingₗᵢ ℝ ( ⇑g ) hg u ) hf using 1;
-    filter_upwards [ h_eq_comp, hf.quasiMeasurePreserving.ae ( h_eq ) ] with x hx₁ hx₂ using by aesop;
-  refine' h_eq.trans _;
+    have h_eq_comp : (Lp.compMeasurePreservingₗᵢ ℝ (⇑f) hf) ((Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg)
+        u) =ᵐ[μ] (fun x => (Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u (f x)) := by
+      convert Lp.coeFn_compMeasurePreserving ( Lp.compMeasurePreservingₗᵢ ℝ ( ⇑g ) hg u ) hf using
+          1;
+    filter_upwards [ h_eq_comp, hf.quasiMeasurePreserving.ae ( h_eq ) ] with x hx₁ hx₂ using
+        by aesop;
+  refine h_eq.trans ?_;
   convert ( Lp.coeFn_compMeasurePreserving ( u ) hfg ).symm using 1
 
 /-
@@ -57,7 +62,7 @@ The Koopman unitary of the identity is the identity.
 -/
 theorem koopman_refl (h : MeasurePreserving (MeasurableEquiv.refl α) μ μ) (u : Lp E p μ) :
     koopmanEquiv (MeasurableEquiv.refl α) h u = u := by
-  ext x;
+  ext;
   -- The Koopman unitary of the identity equivalence is the identity operator.
   apply Lp.coeFn_compMeasurePreserving
 
@@ -92,11 +97,13 @@ theorem koopman_const {α β E : Type*} [MeasurableSpace α] [MeasurableSpace β
     {p : ENNReal} [Fact (1 ≤ p)]
     (f : α ≃ᵐ β) (hf : MeasurePreserving f μ ν) (c : E) :
     koopmanEquiv f hf (Lp.const p ν c) = Lp.const p μ c := by
-  refine' Lp.ext _;
+  refine Lp.ext ?_;
   have h_const : (Lp.const p ν c : Lp E p ν) =ᵐ[ν] fun _ => c := by
     convert Lp.coeFn_const p ν c;
-  have h_const_comp : (Lp.compMeasurePreservingₗᵢ ℝ (f : α → β) hf (Lp.const p ν c) : Lp E p μ) =ᵐ[μ] fun _ => c := by
-    have h_const_comp : (Lp.compMeasurePreservingₗᵢ ℝ (f : α → β) hf (Lp.const p ν c) : Lp E p μ) =ᵐ[μ] (fun x => (Lp.const p ν c : Lp E p ν) (f x)) := by
+  have h_const_comp : (Lp.compMeasurePreservingₗᵢ ℝ (f : α → β) hf (Lp.const p ν c) : Lp E p μ)
+      =ᵐ[μ] fun _ => c := by
+    have h_const_comp : (Lp.compMeasurePreservingₗᵢ ℝ (f : α → β) hf (Lp.const p ν c) : Lp E p μ)
+        =ᵐ[μ] (fun x => (Lp.const p ν c : Lp E p ν) (f x)) := by
       convert MeasureTheory.Lp.coeFn_compMeasurePreserving ( Lp.const p ν c ) hf using 1;
     filter_upwards [ h_const_comp, hf.preimage_null h_const ] with x hx₁ hx₂ using hx₁.trans hx₂;
   exact Filter.EventuallyEq.trans ‹_› ( h_const_comp.symm )
@@ -161,10 +168,12 @@ deterministic. This is the quantum signature of complementarity.
 theorem hadamard_not_deterministic :
     ∃ P Q : Matrix (Fin 2) (Fin 2) ℂ, P * P = P ∧ Q * Q = Q ∧
       P * (hadamardU * Q * hadamardUᴴ) ≠ (hadamardU * Q * hadamardUᴴ) * P := by
-  refine' ⟨ Matrix.diagonal ( fun i ↦ if i = 0 then 1 else 0 ), Matrix.diagonal ( fun i ↦ if i = 0 then 1 else 0 ), _, _, _ ⟩;
+  refine ⟨ Matrix.diagonal ( fun i ↦ if i = 0 then 1 else 0 ), Matrix.diagonal ( fun i ↦ if i = 0
+      then 1 else 0 ), ?_, ?_, ?_ ⟩;
   · simp +zetaDelta at *;
   · aesop;
-  · intro h;    have := congr_fun ( congr_fun h 0 ) 1;    norm_num [ Fin.sum_univ_succ, Fin.prod_univ_succ, Finset.sum_range_succ, Finset.prod_range_succ, hadamardU ] at this;
+  · intro h;    have := congr_fun ( congr_fun h 0 ) 1;    norm_num [ Fin.sum_univ_succ,
+      Fin.prod_univ_succ, Finset.sum_range_succ, Finset.prod_range_succ, hadamardU ] at this;
     simp [ Matrix.vecMul, dotProduct ] at this
 
 end BookProof.ChapterB7

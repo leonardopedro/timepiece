@@ -254,9 +254,16 @@ import BookProof.ChapterGammaCommutant
 -- overlap, Softmax as the Born rule, the attention output as an expectation value,
 -- and the provable statistical core of the temperature identity.
 import BookProof.ChapterCoherentOverlap
+import BookProof.ChapterCoherentOverlapComplex
 import BookProof.ChapterSoftmaxBorn
 import BookProof.ChapterObservableExpectation
+import BookProof.ChapterObservableOperator
 import BookProof.ChapterCoherentTemperature
+import BookProof.ChapterCoherentOccupation
+import BookProof.ChapterSoftmaxSharpness
+import BookProof.ChapterCoherentGeometry
+import BookProof.ChapterSoftmaxOrder
+import BookProof.ChapterAttentionEntropy
 
 -- Wave (August 2026): Priority 4 of `PLAN_LEAN_SPECIALIST_UNPROVED.md` — the
 -- concrete-model discharge of the Pauli fundamental theorem's `EXTERNAL` flag:
@@ -271,6 +278,7 @@ import BookProof.ChapterDensityMarginalConditional
 -- Wave (August 2026): the finite (type I_n) case of the abelian von Neumann
 -- classification, replacing the `True` placeholder in `ChapterSelectingEvents`.
 import BookProof.ChapterAbelianDiagonal
+import BookProof.ChapterAbelianDiagonalCountable
 import BookProof.ChapterGravityRankSplit
 import BookProof.ChapterEll2Separable
 

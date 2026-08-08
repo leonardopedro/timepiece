@@ -34,11 +34,65 @@ The number of active coordinates is `min n N`.
 -/
 theorem card_activeCoordinates (N n : ℕ) :
     (activeCoordinates N n).card = min n N := by
-  rw [ Finset.card_eq_of_bijective ];
-  use fun i hi => ⟨ i, by linarith [ min_le_right n N ] ⟩;
-  · unfold activeCoordinates; aesop;
-  · exact fun i hi => Finset.mem_filter.mpr ⟨ Finset.mem_univ _, by linarith [ min_le_left n N ] ⟩;
-  · grind
+  rw [activeCoordinates, ← Finset.card_image_of_injective _ Fin.val_injective]
+  have himg : (Finset.univ.filter (fun i : Fin N => i.1 < n)).image Fin.val
+      = Finset.range (min n N) := by
+    ext k
+    simp only [Finset.mem_image, Finset.mem_filter, Finset.mem_univ, true_and,
+      Finset.mem_range, Nat.lt_min]
+    constructor
+    · rintro ⟨a, ha, rfl⟩; exact ⟨ha, a.2⟩
+    · rintro ⟨h1, h2⟩; exact ⟨⟨k, h2⟩, h1, rfl⟩
+  rw [himg, Finset.card_range]
+
+/-
+Almost surely under the bump law, every coordinate stays inside its interval.
+-/
+theorem ae_abs_coord_le {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)] (i : Fin N) :
+    ∀ᵐ y ∂(normalizedBumpMeasure x ε), |y i - x i| ≤ ε := by
+  have h_zero : (normalizedBumpMeasure x ε)
+      {y : InnerHead N | y i ∉ Set.Icc (x i - ε) (x i + ε)} = 0 := by
+    rw [normalizedBumpMeasure, Measure.smul_apply, smul_eq_mul]
+    have h_bump : (bumpMeasure x ε)
+        {y : InnerHead N | y i ∉ Set.Icc (x i - ε) (x i + ε)} = 0 := by
+      dsimp [bumpMeasure]
+      have h_set_eq : {y : InnerHead N | y i ∉ Set.Icc (x i - ε) (x i + ε)} =
+          Set.univ.pi (fun j : Fin N =>
+            if j = i then (Set.Icc (x i - ε) (x i + ε))ᶜ else Set.univ) := by
+        ext y; simp
+      rw [h_set_eq, MeasureTheory.Measure.pi_pi]
+      refine Finset.prod_eq_zero (Finset.mem_univ i) ?_
+      have h_i_restrict : (volume.restrict (Set.Icc (x i - ε) (x i + ε)))
+          ((Set.Icc (x i - ε) (x i + ε))ᶜ) = 0 := by
+        rw [Measure.restrict_apply (ht := (measurableSet_Icc
+          (a := x i - ε) (b := x i + ε)).compl)]
+        simp
+      simp [h_i_restrict]
+    rw [h_bump, mul_zero]
+  rw [MeasureTheory.ae_iff]
+  refine MeasureTheory.measure_mono_null ?_ h_zero
+  intro y hy
+  simp only [Set.mem_setOf_eq, not_le] at hy ⊢
+  intro hmem
+  rw [Set.mem_Icc] at hmem
+  cases abs_cases (y i - x i) with
+  | inl h => linarith [h.1, hmem.2]
+  | inr h => linarith [h.1, hmem.1]
+
+/-
+Each centered coordinate has an integrable square under the bump law.
+-/
+theorem integrable_coord_sq {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)] (i : Fin N) :
+    Integrable (fun y : InnerHead N => (y i - x i) ^ 2) (normalizedBumpMeasure x ε) := by
+  refine MeasureTheory.Integrable.mono' (g := fun _ : InnerHead N => ε ^ 2)
+    (MeasureTheory.integrable_const _)
+    (Measurable.aestronglyMeasurable (by fun_prop)) ?_
+  filter_upwards [ae_abs_coord_le x ε i] with y hy
+  have hsq : (y i - x i) ^ 2 ≤ ε ^ 2 := by
+    have h0 : (0:ℝ) ≤ |y i - x i| := abs_nonneg _
+    nlinarith [sq_abs (y i - x i)]
+  rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
+  exact hsq
 
 /-
 Each finite partial energy is integrable under the concrete product-bump law.
@@ -46,28 +100,7 @@ Each finite partial energy is integrable under the concrete product-bump law.
 theorem integrable_partialEnergy {N : ℕ} (n : ℕ) (x : InnerHead N) (ε : ℝ)
     [Fact (0 < ε)] :
     Integrable (partialEnergy n x) (normalizedBumpMeasure x ε) := by
-  refine' MeasureTheory.Integrable.mono' _ _ _;
-  refine' fun y => ( ∑ i : Fin N, ( y i - x i ) ^ 2 );
-  · refine' MeasureTheory.integrable_finset_sum _ _;
-    intro i _;
-    refine' MeasureTheory.Integrable.mono' _ _ _;
-    refine' fun y => ε ^ 2;
-    · exact MeasureTheory.integrable_const _;
-    · exact Measurable.aestronglyMeasurable ( by measurability );
-    · refine' MeasureTheory.measure_mono_null _ _;
-      exact { y : InnerHead N | |y i - x i| > ε };
-      · simp [ Set.subset_def, abs_le ];
-        exact fun y hy => by cases abs_cases ( y i - x i ) <;> nlinarith [ Fact.out ( p := 0 < ε ) ] ;
-      · erw [ show { y : Fin N → ℝ | |y i - x i| > ε } = ( Set.pi Set.univ fun j => if j = i then { y : ℝ | |y - x i| > ε } else Set.univ ) by ext; aesop ] ; erw [ MeasureTheory.Measure.pi_pi ] ;
-        rw [ Finset.prod_eq_zero ( Finset.mem_univ i ) ] ; simp [ scalarBumpMeasure ];
-        rw [ ProbabilityTheory.cond_apply ];
-        · rw [ show ( Icc ( x i - ε ) ( x i + ε ) ∩ { y : ℝ | ε < |y - x i| } ) = ∅ from Set.eq_empty_of_forall_notMem fun y hy => by cases abs_cases ( y - x i ) <;> linarith [ hy.1.1, hy.1.2, hy.2.out ] ] ; norm_num;
-        · exact measurableSet_Icc;
-  · refine' Measurable.aestronglyMeasurable _;
-    refine' Finset.measurable_sum _ _;
-    fun_prop;
-  · refine' Filter.Eventually.of_forall fun y => _;
-    exact le_trans ( Finset.abs_sum_le_sum_abs _ _ ) ( Finset.sum_le_sum_of_subset_of_nonneg ( Finset.subset_univ _ ) fun _ _ _ => abs_nonneg _ ) |> le_trans <| Finset.sum_le_sum fun _ _ => by rw [ abs_sq ] ;
+  refine MeasureTheory.integrable_finset_sum _ fun i _ => integrable_coord_sq x ε i
 
 /-
 **Corrected Phase-6 bound.** Under the concrete product-bump law, the
@@ -78,18 +111,17 @@ theorem partialEnergy_expectation_bound {N : ℕ} (n : ℕ) (x : InnerHead N)
     (ε : ℝ) [Fact (0 < ε)] :
     ∫ y, partialEnergy n x y ∂normalizedBumpMeasure x ε ≤
       (min n N : ℝ) * ε ^ 2 := by
-  have h_bound : ∀ i ∈ activeCoordinates N n,
-      ∫ y : InnerHead N, (y i - x i) ^ 2 ∂normalizedBumpMeasure x ε ≤ ε ^ 2 := by
-    intro i _
-    exact Var_X_coordinate_bound x ε i
-  convert Finset.sum_le_sum h_bound;
-  · rw [ ← MeasureTheory.integral_finset_sum ];
-    · rfl;
-    · intro i hi;
-      convert integrable_partialEnergy n x ε |> fun h => h.mono' _ _;
-      · exact Measurable.aestronglyMeasurable ( by measurability );
-      · filter_upwards [ ] with y using by rw [ Real.norm_of_nonneg ( sq_nonneg _ ) ] ; exact Finset.single_le_sum ( fun i _ => sq_nonneg ( y i - x i ) ) hi;
-  · norm_num [ card_activeCoordinates ]
+  have hsum : ∫ y, partialEnergy n x y ∂normalizedBumpMeasure x ε
+      = ∑ i ∈ activeCoordinates N n,
+          ∫ y : InnerHead N, (y i - x i) ^ 2 ∂normalizedBumpMeasure x ε :=
+    MeasureTheory.integral_finset_sum _ fun i _ => integrable_coord_sq x ε i
+  rw [hsum]
+  calc ∑ i ∈ activeCoordinates N n,
+        ∫ y : InnerHead N, (y i - x i) ^ 2 ∂normalizedBumpMeasure x ε
+      ≤ ∑ _i ∈ activeCoordinates N n, ε ^ 2 :=
+        Finset.sum_le_sum fun i _ => Var_X_coordinate_bound x ε i
+    _ = (min n N : ℝ) * ε ^ 2 := by
+        rw [Finset.sum_const, card_activeCoordinates, nsmul_eq_mul, Nat.cast_min]
 
 /-
 Full-dimensional specialization of the corrected Phase-6 estimate.
@@ -106,7 +138,8 @@ The expected mean squared increment is at most `ε²` in positive dimension.
 theorem meanEnergy_expectation_bound {N : ℕ} (hN : 0 < N)
     (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)] :
     ∫ y, partialEnergy N x y / N ∂normalizedBumpMeasure x ε ≤ ε ^ 2 := by
-  convert div_le_div_of_nonneg_right ( fullEnergy_expectation_bound x ε ) ( Nat.cast_nonneg N ) using 1;
+  convert div_le_div_of_nonneg_right (fullEnergy_expectation_bound x ε)
+      (Nat.cast_nonneg N) using 1;
   · rw [ MeasureTheory.integral_div ];
   · rw [ mul_div_cancel_left₀ _ ( by positivity ) ]
 
@@ -126,10 +159,10 @@ The centered-coordinate random walk maps `(y, x)` to `(y_i - x_i)_{i < N}`.
     For `n ≤ N`, returns `(y_i - x_i)_{i < n}` padded with zeros for `i ≥ n`.
     The walk is frozen at `N` for `n > N`. -/
 noncomputable def randomWalk {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)]
-    (n : ℕ) (hn : n ≤ N) : InnerHead N → Fin N → ℝ :=
+    (n : ℕ) (_hn : n ≤ N) : InnerHead N → Fin N → ℝ :=
   fun y i =>
-    if h : (i : ℕ) < n then
-      y (Fin.cast hn ⟨(i : ℕ), h⟩) - x (Fin.cast hn ⟨(i : ℕ), h⟩)
+    if (i : ℕ) < n then
+      y i - x i
     else
       0
 
@@ -143,79 +176,119 @@ noncomputable def randomWalkIncrement {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fa
     else
       0
 
+/-- The one-dimensional second moment: `\int_{a-\epsilon}^{a+\epsilon} (y-a)^2 = 2\epsilon^3/3`. -/
+lemma integral_sub_sq_1d (a : ℝ) {ε : ℝ} (hε : 0 < ε) :
+    ∫ y in Set.Icc (a - ε) (a + ε), (y - a) ^ 2 = 2 * ε ^ 3 / 3 := by
+  have h_le : a - ε ≤ a + ε := by linarith
+  rw [MeasureTheory.integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le h_le]
+  have h_deriv : ∀ t : ℝ, HasDerivAt (fun u : ℝ => (u - a) ^ 3 / 3) ((t - a) ^ 2) t := by
+    intro t
+    have h1 : HasDerivAt (fun u : ℝ => u - a) (1 : ℝ) t := (hasDerivAt_id t).sub_const a
+    have h3 : HasDerivAt (fun u : ℝ => u ^ 3) (3 * (t - a) ^ 2) (t - a) := by
+      simpa using hasDerivAt_pow 3 (t - a)
+    have h2 : HasDerivAt (fun u : ℝ => u ^ 3 / 3) ((t - a) ^ 2) (t - a) := by
+      simpa using (h3.div_const 3).congr_deriv (by ring)
+    simpa using h2.comp t h1
+  rw [intervalIntegral.integral_eq_sub_of_hasDerivAt (fun t _ => h_deriv t)]
+  · ring
+  · exact ((continuous_id.sub continuous_const).pow 2).intervalIntegrable _ _
+
+/-- The exact per-coordinate second moment of the centered bump law: `ε²/3`. -/
+theorem coord_sq_expectation {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)] (i : Fin N) :
+    ∫ y : InnerHead N, (y i - x i) ^ 2 ∂normalizedBumpMeasure x ε = ε ^ 2 / 3 := by
+  have hε : 0 < ε := Fact.out
+  have h_inner : ∫ y : InnerHead N, (y i - x i) ^ 2 ∂(bumpMeasure x ε)
+      = (2 * ε ^ 3 / 3) * (2 * ε) ^ (N - 1) := by
+    dsimp [bumpMeasure]
+    let f : Fin N → ℝ → ℝ := fun j t => if j = i then (t - x i) ^ 2 else 1
+    have h_eq : (fun y : InnerHead N => (y i - x i) ^ 2) = (fun y => ∏ j : Fin N, f j (y j)) := by
+      ext y; simp [f]
+    rw [h_eq, integral_fintype_prod_eq_prod f,
+      ← Finset.prod_erase_mul _ _ (Finset.mem_univ i)]
+    have hi : ∫ t : ℝ, f i t ∂(volume.restrict (Set.Icc (x i - ε) (x i + ε)))
+        = 2 * ε ^ 3 / 3 := by
+      simp only [f, if_pos rfl]
+      exact integral_sub_sq_1d (x i) hε
+    have hj : ∀ j ∈ Finset.univ.erase i,
+        ∫ t : ℝ, f j t ∂(volume.restrict (Set.Icc (x j - ε) (x j + ε))) = 2 * ε := by
+      intro j hj
+      have hne : j ≠ i := Finset.ne_of_mem_erase hj
+      simp only [f, if_neg hne, integral_const, smul_eq_mul, mul_one]
+      rw [MeasureTheory.measureReal_def]
+      simp only [Measure.restrict_apply_univ, Real.volume_Icc]
+      rw [ENNReal.toReal_ofReal (by linarith)]
+      ring
+    rw [Finset.prod_congr rfl hj, hi, Finset.prod_const,
+      Finset.card_erase_of_mem (Finset.mem_univ i), Finset.card_univ, Fintype.card_fin]
+    ring
+  rw [normalizedBumpMeasure, integral_smul_measure, h_inner,
+    ENNReal.toReal_ofReal (by positivity), smul_eq_mul]
+  have hN : 1 ≤ N := Nat.one_le_iff_ne_zero.mpr (by rintro rfl; exact absurd i.2 (by simp))
+  have hpow : ((2 : ℝ) * ε) ^ N = (2 * ε) * (2 * ε) ^ (N - 1) := by
+    conv_lhs => rw [show N = 1 + (N - 1) by omega]
+    rw [pow_add, pow_one]
+  have ht : ((2 : ℝ) * ε) ^ (N - 1) ≠ 0 := by positivity
+  rw [hpow]
+  field_simp
+
+/-- Each centered coordinate is integrable under the bump law. -/
+theorem integrable_coord_sub {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)] (i : Fin N) :
+    Integrable (fun y : InnerHead N => y i - x i) (normalizedBumpMeasure x ε) := by
+  refine MeasureTheory.Integrable.mono' (g := fun _ : InnerHead N => ε)
+    (MeasureTheory.integrable_const _)
+    (Measurable.aestronglyMeasurable (by fun_prop)) ?_
+  filter_upwards [RandomMap2Walk.ae_abs_coord_le x ε i] with y hy
+  simpa [Real.norm_eq_abs] using hy
+
 /-- The increment has zero mean (by symmetry of the bump measure on coordinate `k`). -/
 lemma randomWalkIncrement_mean_zero {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)]
     (k : ℕ) (hk : k < N) :
     ∫ y : InnerHead N, randomWalkIncrement x ε k hk y ∂(normalizedBumpMeasure x ε) = 0 := by
-  -- The increment is y_k - x_k at coordinate k and 0 elsewhere
-  have h_increment_eq : (fun (y : InnerHead N) => randomWalkIncrement x ε k hk y) =
-      (fun y i => if (i : ℕ) = k then y k - x k else (0 : ℝ)) := by
-    ext y i; simp [randomWalkIncrement]
-  rw [h_increment_eq]
-  ext i
+  have hint : ∀ i : Fin N,
+      Integrable (fun y : InnerHead N => randomWalkIncrement x ε k hk y i)
+        (normalizedBumpMeasure x ε) := by
+    intro i
+    by_cases hik : (i : ℕ) = k
+    · simpa [randomWalkIncrement, hik] using integrable_coord_sub x ε (⟨k, hk⟩ : Fin N)
+    · simp only [randomWalkIncrement, if_neg hik]
+      exact MeasureTheory.integrable_const (0 : ℝ)
+  funext i
+  rw [MeasureTheory.eval_integral hint i]
   by_cases hik : (i : ℕ) = k
-  · subst hik; simp [X_coordinate_orthogonal x ε k]
-  · simp [hik]
+  · simp only [randomWalkIncrement, hik, if_pos, Pi.zero_apply]
+    exact X_coordinate_orthogonal x ε (⟨k, hk⟩ : Fin N)
+  · simp [randomWalkIncrement, hik]
 
-/-- The increment has second moment ≤ ε²/3 (per-coordinate variance bound). -/
+/-- The increment has second moment exactly `ε²/3` (per-coordinate variance). -/
 lemma randomWalkIncrement_second_moment_bound {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)]
     (k : ℕ) (hk : k < N) :
-    ∫ y : InnerHead N, (randomWalkIncrement x ε k hk y k)^2 ∂(normalizedBumpMeasure x ε) ≤
-      ε^2 / 3 := by
-  -- The increment at coordinate k equals y_k - x_k; Var(y_k - x_k) = ε²/3
-  have hε_pos : 0 < ε := Fact.out
-  have h_increment_eq : (fun (y : InnerHead N) => (randomWalkIncrement x ε k hk y k)^2) =
-      (fun y => (y k - x k)^2) := by
-    ext y; simp [randomWalkIncrement]
-  rw [h_increment_eq]
-  -- Use Var_X_coordinate_bound which gives ∫ (y_k - x_k)² ≤ ε²
-  -- But we need the sharper bound ε²/3; we prove it directly via the 1D integral
-  have h_smul_def : normalizedBumpMeasure x ε =
-      (ENNReal.ofReal (1 / ((2 * ε) ^ N : ℝ))) • bumpMeasure x ε := rfl
-  rw [h_smul_def, integral_smul_measure]
-  · have h_moment : ∫ y : InnerHead N, (y k - x k)^2 ∂(bumpMeasure x ε) = (2 * ε^3) / 3 := by
-      have h_map : (MeasureTheory.Measure.pi
-          (fun (j : Fin N) => volume.restrict (Set.Icc (x j - ε) (x j + ε)))).map
-          (fun (y : Fin N → ℝ) => y k) =
-          (∏ j ∈ Finset.univ.erase k,
-            (volume.restrict (Set.Icc (x j - ε) (x j + ε))) Set.univ) •
-          (volume.restrict (Set.Icc (x k - ε) (x k + ε))) := by
-        rw [MeasureTheory.Measure.pi_map_eval]
-      have h_sub : (fun (y : Fin N → ℝ) => (y k - x k)^2) =
-          (fun (t : ℝ) => (t - x k)^2) ∘ (fun (y : Fin N → ℝ) => y k) := rfl
-      rw [h_sub, ← integral_map (hφ := (measurable_pi_apply k).aemeasurable)
-        (hfm := ((continuous_id.sub continuous_const).pow 2).aestronglyMeasurable)]
-      · rw [h_map, integral_smul_measure]
-        · have h_one_d : ∫ t in Set.Icc (x k - ε) (x k + ε), (t - x k)^2 = (2 * ε^3) / 3 := by
-            rw [← intervalIntegral.integral_of_le (by linarith : x k - ε ≤ x k + ε)]
-            have h_deriv (t : ℝ) : HasDerivAt (fun t : ℝ => (t - x k)^3 / 3) ((t - x k)^2) t := by
-              have h1 : HasDerivAt (fun t : ℝ => t - x k) (1 : ℝ) t := by
-                simpa using hasDerivAt_id t |>.sub_const (x k)
-              have h2 : HasDerivAt (fun u : ℝ => u^3 / 3) ((t - x k)^2) (t - x k) := by
-                have h2_inner : HasDerivAt (fun u : ℝ => u^3) (3 * (t - x k)^2) (t - x k) := by
-                  simpa using hasDerivAt_pow 3 (t - x k)
-                simpa [div_eq_mul_inv] using h2_inner.mul_const (1/3)
-              exact HasDerivAt.comp t h2 h1
-            rw [intervalIntegral.integral_eq_sub_of_hasDerivAt (h_deriv _)]
-            ring
-          rw [h_one_d]
-          ring
-        · refine ((continuous_id.sub continuous_const).pow 2).integrableOn_Icc
-        · refine ENNReal.prod_ne_top (by intro j hj; simp [ENNReal.mul_ne_top])
-      · refine ((continuous_id.sub continuous_const).pow 2).aestronglyMeasurable
-    rw [h_moment]
-    have hpos : (0 : ℝ) < (2 * ε) ^ N := by positivity
-    have h_nonneg : 0 ≤ (1 : ℝ) / ((2 * ε) ^ N : ℝ) := by positivity
-    have hcalc : (ENNReal.ofReal (1 / ((2 * ε) ^ N : ℝ))).toReal = (1 : ℝ) / ((2 * ε) ^ N) :=
-      ENNReal.toReal_ofReal h_nonneg
-    rw [hcalc]
-    field_simp [hε_pos.ne']
-    nlinarith
-  · refine ((continuous_id.sub continuous_const).pow 2).integrable_pi_of_fintype ?_
-    intro i
-    refine ((continuous_id.sub continuous_const).pow 2).integrableOn_Icc.restrict
-      (Set.Icc (x i - ε) (x i + ε))
+    ∫ y : InnerHead N, (randomWalkIncrement x ε k hk y ⟨k, hk⟩) ^ 2
+        ∂(normalizedBumpMeasure x ε) ≤ ε ^ 2 / 3 := by
+  have h_increment_eq :
+      (fun y : InnerHead N => (randomWalkIncrement x ε k hk y ⟨k, hk⟩) ^ 2)
+        = fun y : InnerHead N => (y (⟨k, hk⟩ : Fin N) - x ⟨k, hk⟩) ^ 2 := by
+    funext y
+    simp [randomWalkIncrement]
+  rw [h_increment_eq, coord_sq_expectation x ε (⟨k, hk⟩ : Fin N)]
 
+/-! ### B2b — Natural filtration and the martingale property (documented gap)
+
+The development below builds the natural filtration of the walk and proves the
+martingale property `E[X_{k+1} | ℱ_k] = X_k` from the independence of the
+coordinates of the product bump law.  It is retained here verbatim, but
+**commented out**: it does not elaborate against Mathlib v4.28.0 — it refers to
+identifiers this repository does not define (`cylindricalSigmaAlgebra`,
+`measurable_fst_cyl`), uses `Filtration` with the wrong argument order, and calls
+`MeasureTheory.condExp_indep_eq` through an API that has since changed.
+Repairing it needs a genuine re-derivation of the conditional-expectation step
+(Mathlib's `condExp_indep_eq` plus `iIndepFun` for `Measure.pi`), which is a
+documented gap rather than a `sorry`: nothing below is *assumed* anywhere else in
+the library, and the two quantitative facts the walk is used for — the
+per-coordinate second moment `coord_sq_expectation` and the L² distance bound
+`randomWalk_l2_distance_bound` — are proved outright above and below.
+-/
+
+/-
 /-! ### B2b — Natural filtration
 
 The natural filtration `F_k` is generated by `{y 0, ..., y k}`, i.e. the
@@ -268,7 +341,8 @@ theorem randomWalk_martingale_condExp {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fa
       · subst hj_eq_i; simp
       · have hj_lt_succ : (j : ℕ) < i + 1 := by omega
         simp [hj_lt_i, hj_eq_i, hj_lt_succ]
-  have h_increment_zero_mean : ∫ y, randomWalkIncrement x ε i hi y ∂(normalizedBumpMeasure x ε) = 0 :=
+  have h_increment_zero_mean :
+      ∫ y, randomWalkIncrement x ε i hi y ∂(normalizedBumpMeasure x ε) = 0 :=
     randomWalkIncrement_mean_zero x ε i hi
   -- The key: increment_i is independent of ℱ_i because it depends only on coordinate i
   -- and ℱ_i is generated by coordinates < i (which are independent of coordinate i)
@@ -308,9 +382,11 @@ theorem randomWalk_martingale_condExp {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fa
       exact Prod.iIndepFun_pi (fun j => (measurable_pi_apply j).aemeasurable)
     -- Define the head sigma-algebra (coordinates < i) and tail sigma-algebra (coordinates ≥ i)
     let m_head : MeasurableSpace (InnerHead N) :=
-      ⨆ j ∈ Finset.filter (fun j => (j : ℕ) < i) Finset.univ, MeasurableSpace.comap (coordFuns j) inferInstance
+      ⨆ j ∈ Finset.filter (fun j => (j : ℕ) < i) Finset.univ,
+        MeasurableSpace.comap (coordFuns j) inferInstance
     let m_tail : MeasurableSpace (InnerHead N) :=
-      ⨆ j ∈ Finset.filter (fun j => i ≤ (j : ℕ)) Finset.univ, MeasurableSpace.comap (coordFuns j) inferInstance
+      ⨆ j ∈ Finset.filter (fun j => i ≤ (j : ℕ)) Finset.univ,
+        MeasurableSpace.comap (coordFuns j) inferInstance
     have h_filtration_eq_m_head : randomWalkFiltration x ε i = m_head := by
       -- ℱ_i = comap (proj to Fin (min i N)) Borel = comap (proj to Fin i) Borel
       -- = ⨆ j < i, comap (coordFuns j) Borel
@@ -406,7 +482,8 @@ theorem randomWalk_martingale_condExp {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fa
       have hc_ne_top : ENNReal.ofReal (1 / ((2 * ε) ^ N : ℝ)) ≠ ∞ := ENNReal.ofReal_ne_top
       -- Indep.smul_measure hc_ne_zero hc_ne_top h_indep_coord_head
       -- Actually, the lemma is Indep.smul_measure
-      -- Let me check: Indep.smul_measure (h : c ≠ 0) (h' : c ≠ ∞) (h_indep : Indep A B μ) : Indep A B (c • μ)
+      -- Indep.smul_measure (h : c ≠ 0) (h' : c ≠ ∞) (h_indep : Indep A B μ) :
+      --   Indep A B (c • μ)
       -- But Indep.smul_measure might have different arguments
       -- Let me use Indep.comp with the scaling map instead
       -- Simpler: Indep.smul_measure is in Mathlib.Probability.Independence.Basic
@@ -468,7 +545,8 @@ theorem randomWalk_martingale_condExp {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fa
         · subst hj_eq_i; simp
         · have hj_lt_succ : (j : ℕ) < i + 1 := by omega
           simp [hj_lt_i, hj_eq_i, hj_lt_succ]
-    _ = (normalizedBumpMeasure x ε)[randomWalk x ε i (Nat.le_of_lt hi) | randomWalkFiltration x ε i] +
+    _ = (normalizedBumpMeasure x ε)[randomWalk x ε i (Nat.le_of_lt hi) |
+          randomWalkFiltration x ε i] +
         (normalizedBumpMeasure x ε)[randomWalkIncrement x ε i hi | randomWalkFiltration x ε i] := by
       rw [condExp_add (Filtration.le _) ?_ ?_]
       · rfl
@@ -518,57 +596,58 @@ theorem randomWalk_martingale_condExp {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fa
         exact h_int_bump.smul_measure ENNReal.ofReal_ne_top
     _ = randomWalk x ε i (Nat.le_of_lt hi) := by simp
 
-/-- The L² distance between `X(ε,n)` and `X(ε,m)` for `n ≤ m ≤ N` is bounded by
-    `√(m-n) · ε`. Proved by expanding `‖X_m - X_n‖²` as a sum of squared
-    increments and using `Var_X_coordinate_bound`. -/
+-/
+
+/-- **L² distance bound for the centered-coordinate walk.**
+`InnerHead N = Fin N → ℝ` carries the supremum norm, so the difference of the two
+walk positions has norm at most `ε` almost surely; integrating against the
+probability law `normalizedBumpMeasure` gives the stated bound for `n ≤ m ≤ N`. -/
 theorem randomWalk_l2_distance_bound {N : ℕ} (x : InnerHead N) (ε : ℝ) [Fact (0 < ε)]
     (n m : ℕ) (hn : n ≤ N) (hm : m ≤ N) (hnm : n ≤ m) :
     ∫ y : InnerHead N,
       ‖randomWalk x ε n hn y - randomWalk x ε m hm y‖^2 ∂(normalizedBumpMeasure x ε) ≤
       ((m - n : ℕ) : ℝ) * ε ^ 2 := by
-  -- ‖X_m - X_n‖² = Σ_{i=n}^{m-1} (y_i - x_i)²
-  -- because X_m and X_n agree on coordinates < n, and differ by y_i - x_i on coordinates n..m-1
-  have h_diff_sq (y : InnerHead N) : ‖randomWalk x ε n hn y - randomWalk x ε m hm y‖^2 =
-      ∑ i ∈ Finset.Ico n m, (y i - x i)^2 := by
-    -- For i < n: both walks have y_i - x_i, so difference is 0
-    -- For n ≤ i < m: X_n has 0, X_m has y_i - x_i
-    -- For i ≥ m: X_n has 0, X_m has 0
-    -- So ‖X_m - X_n‖² = Σ_{i=n}^{m-1} (y_i - x_i)²
-    calc
-      ‖randomWalk x ε n hn y - randomWalk x ε m hm y‖^2 =
-          (∑ i : Fin N, ((randomWalk x ε n hn y - randomWalk x ε m hm y) i)^2) := by
-        simp [PiLp.norm_sq_eq_sum]
-      _ = ∑ i : Fin N, ((randomWalk x ε n hn y) i - (randomWalk x ε m hm y) i)^2 := by
-        simp [Pi.sub_apply]
-      _ = ∑ i ∈ Finset.Ico n m, (y i - x i)^2 := by
-        -- The terms cancel outside Ico n m:
-        -- For i < n: both walks give y_i - x_i, so difference is 0
-        -- For n ≤ i < m: X_n gives 0, X_m gives y_i - x_i
-        -- For i ≥ m: both walks give 0
-        -- So only coordinates i where n ≤ i < m contribute
-        have h_eq (i : Fin N) : ((randomWalk x ε n hn y) i - (randomWalk x ε m hm y) i)^2 =
-          if (i : ℕ) ∈ Finset.Ico n m then (y i - x i)^2 else 0 := by
-          dsimp [randomWalk]
-          have hcast_n : ∀ (j : Fin n), ((Fin.cast hn j : Fin N) : ℕ) = (j : ℕ) := by
-            intro j; simp
-          by_cases hi_lt_n : (i : ℕ) < n
-          · have hi_lt_m : (i : ℕ) < m := by omega
-            have hmem : (i : ℕ) ∉ Finset.Ico n m := by
-              simp [Finset.mem_Ico, hi_lt_n]
-            simp [hi_lt_n, hi_lt_m, hcast_n, hmem]
-          · by_cases hi_lt_m : (i : ℕ) < m
-            · have hmem : (i : ℕ) ∈ Finset.Ico n m := by
-                simp [Finset.mem_Ico, hi_lt_n, hi_lt_m]
-              simp [hi_lt_n, hi_lt_m, hcast_n, hmem]
-            · have hm_le_i : m ≤ (i : ℕ) := by omega
-              have hmem : (i : ℕ) ∉ Finset.Ico n m := by
-                simp [Finset.mem_Ico, hm_le_i]
-              simp [hi_lt_n, hi_lt_m, hm_le_i, hcast_n, hmem]
-        rw [Finset.sum_congr rfl (fun i _ => h_eq i)]
-        simp [Finset.sum_filter]
-  rw [integral_congr_ae (ae_of_all _ h_diff_sq)]
-  rw [integral_finset_sum]
-  -- Now: Σ_i ∫ (y_i - x_i)² ≤ (m-n)·ε²
-  refine Finset.sum_le_sum (fun i hi => ?_)
-  -- Var_X_coordinate_bound gives ∫ (y_i - x_i)² ≤ ε²
-  exact Var_X_coordinate_bound x ε i
+  have hε : (0:ℝ) < ε := Fact.out
+  rcases eq_or_lt_of_le hnm with rfl | hlt
+  · -- `n = m`: the two walk positions coincide, so the integrand vanishes.
+    simp
+  · -- `n < m`: bound the integrand by `ε²` almost surely.
+    have hae : ∀ᵐ y ∂(normalizedBumpMeasure x ε), ∀ i : Fin N, |y i - x i| ≤ ε :=
+      (MeasureTheory.ae_all_iff).2 (fun i => RandomMap2Walk.ae_abs_coord_le x ε i)
+    have hbound : ∀ᵐ y ∂(normalizedBumpMeasure x ε),
+        ‖randomWalk x ε n hn y - randomWalk x ε m hm y‖^2 ≤ ε ^ 2 := by
+      filter_upwards [hae] with y hy
+      have hnorm : ‖randomWalk x ε n hn y - randomWalk x ε m hm y‖ ≤ ε := by
+        refine (pi_norm_le_iff_of_nonneg hε.le).2 (fun i => ?_)
+        rcases lt_or_ge (i : ℕ) n with h1 | h1
+        · have h2 : (i : ℕ) < m := lt_of_lt_of_le h1 hnm
+          simp [randomWalk, h1, h2, hε.le]
+        · rcases lt_or_ge (i : ℕ) m with h2 | h2
+          · have h1' : ¬ ((i : ℕ) < n) := not_lt.2 h1
+            simpa [randomWalk, h1', h2, Real.norm_eq_abs, abs_sub_comm] using hy i
+          · have h1' : ¬ ((i : ℕ) < n) := not_lt.2 h1
+            have h2' : ¬ ((i : ℕ) < m) := not_lt.2 h2
+            simp [randomWalk, h1', h2', hε.le]
+      have h0 : (0:ℝ) ≤ ‖randomWalk x ε n hn y - randomWalk x ε m hm y‖ := norm_nonneg _
+      nlinarith
+    have hint : Integrable
+        (fun y : InnerHead N => ‖randomWalk x ε n hn y - randomWalk x ε m hm y‖^2)
+        (normalizedBumpMeasure x ε) := by
+      refine MeasureTheory.Integrable.mono' (g := fun _ : InnerHead N => ε ^ 2)
+        (MeasureTheory.integrable_const _) ?_ ?_
+      · refine (Measurable.aestronglyMeasurable ?_)
+        refine ((measurable_pi_lambda _ (fun i => ?_)).sub
+          (measurable_pi_lambda _ (fun i => ?_))).norm.pow_const 2
+        · by_cases h : (i : ℕ) < n <;> simp only [randomWalk, h, if_true, if_false] <;> fun_prop
+        · by_cases h : (i : ℕ) < m <;> simp only [randomWalk, h, if_true, if_false] <;> fun_prop
+      · filter_upwards [hbound] with y hy
+        rwa [Real.norm_eq_abs, abs_of_nonneg (by positivity)]
+    have hone : (1:ℝ) ≤ ((m - n : ℕ) : ℝ) := by
+      have h : 1 ≤ m - n := by omega
+      exact_mod_cast h
+    calc ∫ y : InnerHead N,
+            ‖randomWalk x ε n hn y - randomWalk x ε m hm y‖^2 ∂(normalizedBumpMeasure x ε)
+        ≤ ∫ _y : InnerHead N, ε ^ 2 ∂(normalizedBumpMeasure x ε) :=
+          MeasureTheory.integral_mono_ae hint (MeasureTheory.integrable_const _) hbound
+      _ = ε ^ 2 := by simp
+      _ ≤ ((m - n : ℕ) : ℝ) * ε ^ 2 := by nlinarith [sq_nonneg ε]

@@ -1,7 +1,8 @@
 import Mathlib
 
 /-!
-# Chapter "Timepiece and the Gribov ambiguity",  §"Renormalization, the mass gap and the Millennium prize"
+# Chapter "Timepiece and the Gribov ambiguity", §"Renormalization, the mass gap and the Millennium
+prize"
 
 Source: `book.tex`, chapter *"Timepiece and the Gribov ambiguity"*,
 §*"Free electromagnetic field: an exact example"* / §*"Renormalization, the mass
@@ -65,18 +66,19 @@ theorem selfAdjoint_sq_isPositive (T : H →L[ℂ] H) (h : IsSelfAdjoint T) :
   have hp := isPositive_adjoint_comp_self T
   rwa [hh] at hp
 
+omit [CompleteSpace H] in
 /-- A nonnegative real scalar multiple of a positive operator is positive. -/
 theorem smul_nonneg_isPositive (T : H →L[ℂ] H) (h : T.IsPositive)
     {c : ℝ} (hc : 0 ≤ c) : ((c : ℂ) • T).IsPositive := by
   constructor
   · intro x y
-    simp 
+    simp only [Complex.coe_smul, coe_smul, LinearMap.smul_apply, coe_coe] 
     convert congr_arg (fun z => c • z) (h.1 x y) using 1 <;>
-      simp 
+      simp only [coe_coe, Complex.real_smul] 
     · convert inner_smul_left _ _ _
       simp 
     · convert inner_smul_right _ _ _ using 1
-  · simp [ContinuousLinearMap.reApplyInnerSelf]
+  · simp only [reApplyInnerSelf, Complex.coe_smul, coe_smul', Pi.smul_apply, RCLike.re_to_complex]
     intro x
     have : (inner ℂ (c • T x) x).re = c * (inner ℂ (T x) x).re := by
       simp 

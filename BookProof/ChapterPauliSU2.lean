@@ -115,7 +115,8 @@ theorem su2_preserves_spatialNormSq {T : Matrix (Fin 2) (Fin 2) ℂ}
     spatialNormSq (vecOfMat (spinorAction T (hermMat x))) = spatialNormSq x := by
   have h_minkowski : mink (vecOfMat (spinorAction T (hermMat x))) = mink x := by
     convert spinorMap_preserves_mink T hT x using 1;
-  convert congr_arg ( fun y => ( vecOfMat ( spinorAction T ( hermMat x ) ) ) 0 ^ 2 - y ) h_minkowski using 1 <;> norm_num [ mink, spatialNormSq ] ; ring;
+  convert congr_arg ( fun y => ( vecOfMat ( spinorAction T ( hermMat x ) ) ) 0 ^ 2 - y ) h_minkowski
+      using 1 <;> norm_num [ mink, spatialNormSq ] ; focus (ring);
   rw [ su2_preserves_time hU x ] ; ring!;
 
 end BookProof.ChapterPauliSU2

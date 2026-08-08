@@ -32,13 +32,14 @@ theorem born_forward {α : Type*} [MeasurableSpace α] (μ : Measure α)
     rw [ MeasureTheory.memLp_two_iff_integrable_sq_norm ];
     · convert MeasureTheory.integrable_of_integral_eq_one ‹_›;
       simp [ hf_def, Real.sq_sqrt ( hnonneg _ ) ];
-    · exact Complex.continuous_ofReal.comp_aestronglyMeasurable ( Real.continuous_sqrt.comp_aestronglyMeasurable hmeas.aestronglyMeasurable );
-  refine' ⟨ hf_L2.toLp f, _, _ ⟩ <;> simp_all [ MeasureTheory.Lp.norm_toLp ];
+    · exact Complex.continuous_ofReal.comp_aestronglyMeasurable (
+        Real.continuous_sqrt.comp_aestronglyMeasurable hmeas.aestronglyMeasurable );
+  refine ⟨ hf_L2.toLp f, ?_, ?_ ⟩ <;> simp_all only [Lp.norm_toLp];
   · simp_all [ eLpNorm_eq_lintegral_rpow_enorm_toReal ];
     -- Since $|f(x)|^2 = p(x)$, we have $\int |f(x)|^2 \, d\mu = \int p(x) \, d\mu = 1$.
     have h_integral : ∫⁻ x, ‖f x‖ₑ ^ 2 ∂μ = ENNReal.ofReal (∫ x, p x ∂μ) := by
       rw [ MeasureTheory.ofReal_integral_eq_lintegral_ofReal ];
-      · refine' MeasureTheory.lintegral_congr fun x => _;
+      · refine MeasureTheory.lintegral_congr fun x => ?_;
         erw [ ENNReal.coe_inj ] ; aesop;
       · exact MeasureTheory.integrable_of_integral_eq_one ‹_›;
       · exact Filter.Eventually.of_forall hnonneg;
@@ -58,7 +59,8 @@ theorem born_backward {α : Type*} [MeasurableSpace α] (μ : Measure α)
   · rw [ ← ENNReal.toReal_rpow ] ; norm_num [ ← ENNReal.ofReal_coe_nnreal ];
     rw [ ← Real.sqrt_eq_rpow, Real.sqrt_eq_one ];
   · exact Filter.Eventually.of_forall fun x => sq_nonneg _;
-  · exact MeasureTheory.AEStronglyMeasurable.pow ( MeasureTheory.Lp.aestronglyMeasurable _ |> fun h => h.norm ) _
+  · exact MeasureTheory.AEStronglyMeasurable.pow ( MeasureTheory.Lp.aestronglyMeasurable _ |> fun h
+      => h.norm ) _
 
 /-
 **Theorem B.2 (unit vector extends to a unitary).** Every unit vector `Ψ` in a
@@ -71,7 +73,8 @@ theorem unit_vector_extends {H : Type u} [NormedAddCommGroup H]
   obtain ⟨w, b, hsw, hb⟩ : ∃ (w : Set H) (b : HilbertBasis w ℂ H), {Ψ} ⊆ w ∧ ⇑b = Subtype.val := by
     have h_orthonormal : Orthonormal ℂ (Subtype.val : ({Ψ} : Set H) → H) := by
       simp [ Orthonormal, hΨ ]
-    obtain ⟨w, b, hsw, hb⟩ : ∃ (w : Set H) (b : HilbertBasis w ℂ H), {Ψ} ⊆ w ∧ ⇑b = Subtype.val := by
+    obtain ⟨w, b, hsw, hb⟩ : ∃ (w : Set H) (b : HilbertBasis w ℂ H), {Ψ} ⊆ w ∧ ⇑b = Subtype.val :=
+        by
       have := h_orthonormal.exists_hilbertBasis_extension
       exact this;
     use w, b;

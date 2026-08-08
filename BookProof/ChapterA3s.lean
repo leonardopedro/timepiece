@@ -67,7 +67,7 @@ theorem trace_projSym_three : Matrix.trace (projSym 3) = 20 := by
 theorem trace_projAnti_three : Matrix.trace (projAnti 3) = 4 := by
   unfold projAnti;
   -- Expand the trace using linearity.
-  simp [signC, trace_permMat];
+  simp only [signC, trace_smul, trace_sum, trace_permMat, smul_eq_mul];
   rw [ inv_mul_eq_div, div_eq_iff ] <;> norm_cast
 
 /-- **Dimension of the mixed-symmetry piece at `N = 3`.**  Its projector has

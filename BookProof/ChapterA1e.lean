@@ -46,28 +46,34 @@ operator `Jmap : u ↦ i·u`. -/
 noncomputable def JY (Y : Submodule ℝ V) : Submodule ℝ V :=
   Y.map (Jmap.toLinearIsometry.toLinearMap)
 
+omit [CompleteSpace V] in
 lemma mem_JY {Y : Submodule ℝ V} {x : V} : x ∈ JY Y ↔ ∃ y ∈ Y, Jmap y = x := by
   simp [JY, Submodule.mem_map]
 
+omit [CompleteSpace V] in
 /-- If `y ∈ Y` then `Jmap y ∈ J Y`. -/
 lemma Jmap_mem_JY {Y : Submodule ℝ V} {y : V} (hy : y ∈ Y) : Jmap y ∈ JY Y :=
   mem_JY.2 ⟨y, hy, rfl⟩
 
+omit [CompleteSpace V] in
 /-- If `x ∈ J Y` then `Jmap x ∈ Y` (because `J² = -1` and `Y` is a submodule). -/
 lemma Jmap_mem_of_mem_JY {Y : Submodule ℝ V} {x : V} (hx : x ∈ JY Y) : Jmap x ∈ Y := by
   obtain ⟨y, hy, rfl⟩ := mem_JY.1 hx
   rw [Jmap_sq]
   exact Y.neg_mem hy
 
+omit [CompleteSpace V] in
 /-
 `J (J Y) = Y`: applying `Jmap` twice returns the original subspace.
 -/
 lemma JY_JY (Y : Submodule ℝ V) : JY (JY Y) = Y := by
-  refine' le_antisymm _ _ <;> intro x hx <;> simp_all [ mem_JY ];
+  refine le_antisymm ?_ ?_ <;> intro x hx <;> simp_all only [mem_JY, Jmap_apply,
+      exists_exists_and_eq_and];
   · obtain ⟨ a, ha, rfl ⟩ := hx;
     simp [ ← smul_assoc, ha ];
-  · refine' ⟨ -x, Y.neg_mem hx, _ ⟩ ; simp [ ← smul_assoc ]
+  · refine ⟨ -x, Y.neg_mem hx, ?_ ⟩ ; simp [ ← smul_assoc ]
 
+omit [CompleteSpace V] in
 /-
 `J Y` is closed when `Y` is (image of a closed set under an isometric
 equivalence).
@@ -85,7 +91,7 @@ commutes with every realified (`ℂ`-linear) operator.
 -/
 lemma JY_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
     (hY : (rxSystem M).IsSubsystem Y) : (rxSystem M).IsSubsystem (JY Y) := by
-  refine' ⟨ JY_isClosed hY.1, _ ⟩;
+  refine ⟨ JY_isClosed hY.1, ?_ ⟩;
   intro m hm w hw;
   obtain ⟨ y, hy, rfl ⟩ := hw;
   convert Jmap_mem_JY ( hY.2 _ hm _ hy ) using 1;
@@ -94,12 +100,13 @@ lemma JY_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
 
 /-! ## The `J`-invariant subsystems `Y ⊓ J Y` and `(Y ⊔ J Y)‾` -/
 
+omit [CompleteSpace V] in
 /-
 `Y ⊓ J Y` is `J`-invariant.
 -/
 lemma inf_JY_Jinvariant (Y : Submodule ℝ V) :
     ∀ x ∈ Y ⊓ JY Y, Jmap x ∈ Y ⊓ JY Y := by
-  simp +zetaDelta at *;
+  simp? +zetaDelta at *;
   exact fun x hx₁ hx₂ => ⟨ Jmap_mem_of_mem_JY hx₂, Jmap_mem_JY hx₁ ⟩
 
 /-
@@ -107,31 +114,39 @@ lemma inf_JY_Jinvariant (Y : Submodule ℝ V) :
 -/
 lemma inf_JY_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
     (hY : (rxSystem M).IsSubsystem Y) : (rxSystem M).IsSubsystem (Y ⊓ JY Y) := by
-  refine' ⟨ _, _ ⟩;
+  refine ⟨ ?_, ?_ ⟩;
   · exact IsClosed.inter hY.1 ( JY_isClosed hY.1 );
   · exact fun m hm w hw => ⟨ hY.2 m hm w hw.1, JY_isSubsystem M hY |>.2 m hm w hw.2 ⟩
 
+omit [CompleteSpace V] in
 /-
 `Y ⊔ J Y` is `J`-invariant (`J` permutes the two summands up to sign).
 -/
 lemma sup_JY_Jinvariant (Y : Submodule ℝ V) :
     ∀ x ∈ Y ⊔ JY Y, Jmap x ∈ Y ⊔ JY Y := by
-  intro x hx;    rw [ Submodule.mem_sup ] at hx;    obtain ⟨ a, ha, b, hb, rfl ⟩ := hx; simp_all [ Submodule.mem_sup ] ;
-  refine' ⟨ Complex.I • b, _, Complex.I • a, _, _ ⟩ <;> simp_all [ JY ];
+  intro x hx;    rw [ Submodule.mem_sup ] at hx;    obtain ⟨ a, ha, b, hb, rfl ⟩ := hx;
+  simp_all only [Jmap_apply, smul_add, Submodule.mem_sup] ;
+  refine ⟨ Complex.I • b, ?_, Complex.I • a, ?_, ?_ ⟩ <;>
+    simp_all only [JY, Submodule.mem_map, LinearIsometry.coe_toLinearMap,
+      LinearIsometryEquiv.coe_toLinearIsometry, Jmap_apply, ne_eq, Complex.I_ne_zero,
+      not_false_eq_true, smul_right_inj, exists_eq_right];
   · obtain ⟨ y, hy, rfl ⟩ := hb; simp [ ← smul_assoc, hy ] ;
   · exact add_comm _ _
 
+omit [CompleteSpace V] in
 /-
 The topological closure `(Y ⊔ J Y)‾` is `J`-invariant.
 -/
 lemma sup_JY_closure_Jinvariant (Y : Submodule ℝ V) :
     ∀ x ∈ (Y ⊔ JY Y).topologicalClosure, Jmap x ∈ (Y ⊔ JY Y).topologicalClosure := by
   intro x hx;
-  -- Since $Jmap$ is continuous and $Y ⊔ JY Y$ is $J$-invariant,    we have $Jmap x ∈ (Y ⊔ JY Y).topologicalClosure$.
+  -- Since $Jmap$ is continuous and $Y ⊔ JY Y$ is $J$-invariant, we have $Jmap x ∈ (Y ⊔ JY
+  -- Y).topologicalClosure$.
   have hJmap_cont : Continuous (Jmap : V → V) := by
     exact Jmap.toContinuousLinearEquiv.continuous;
   have hJmap_invariant : ∀ x ∈ Y ⊔ JY Y, Jmap x ∈ Y ⊔ JY Y := sup_JY_Jinvariant Y
-  exact mem_closure_image hJmap_cont.continuousAt hx |> fun h => closure_mono ( Set.image_subset_iff.mpr hJmap_invariant ) h
+  exact mem_closure_image hJmap_cont.continuousAt hx |> fun h => closure_mono (
+      Set.image_subset_iff.mpr hJmap_invariant ) h
 
 /-
 The topological closure `(Y ⊔ J Y)‾` is a subsystem of the realification
@@ -141,7 +156,7 @@ algebraic sum `Y ⊔ J Y`).
 lemma sup_JY_closure_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
     (hY : (rxSystem M).IsSubsystem Y) :
     (rxSystem M).IsSubsystem (Y ⊔ JY Y).topologicalClosure := by
-  refine' ⟨ isClosed_closure, _ ⟩;
+  refine ⟨ isClosed_closure, ?_ ⟩;
   intro m hm w hw
   have h_maps_to : ∀ w ∈ Y ⊔ JY Y, m w ∈ Y ⊔ JY Y := by
     intro w hw
@@ -151,8 +166,13 @@ lemma sup_JY_closure_isSubsystem (M : System ℂ V) {Y : Submodule ℝ V}
       have := JY_isSubsystem M hY;
       exact this.2 m hm;
     rw [ Submodule.mem_sup ] at hw ⊢;
-    rcases hw with ⟨ y, hy, z, hz, rfl ⟩ ;      exact ⟨ m y, h_maps_to y hy, m z, h_maps_to_JY z hz, by simp [ map_add ] ⟩ ;
-  exact mem_closure_of_tendsto ( m.continuous.continuousAt.tendsto.comp ( show Filter.Tendsto ( fun n : ℕ => Classical.choose ( mem_closure_iff_seq_limit.mp hw ) n ) Filter.atTop ( nhds w ) from Classical.choose_spec ( mem_closure_iff_seq_limit.mp hw ) |>.2 ) ) ( Filter.Eventually.of_forall fun n => h_maps_to _ ( Classical.choose_spec ( mem_closure_iff_seq_limit.mp hw ) |>.1 n ) )
+    rcases hw with ⟨ y, hy, z, hz, rfl ⟩ ;      exact ⟨ m y, h_maps_to y hy, m z, h_maps_to_JY z hz,
+        by simp [ map_add ] ⟩ ;
+  exact mem_closure_of_tendsto ( m.continuous.continuousAt.tendsto.comp ( show Filter.Tendsto ( fun
+      n : ℕ => Classical.choose ( mem_closure_iff_seq_limit.mp hw ) n ) Filter.atTop ( nhds w ) from
+          Classical.choose_spec ( mem_closure_iff_seq_limit.mp hw ) |>.2 ) ) (
+              Filter.Eventually.of_forall fun n => h_maps_to _ ( Classical.choose_spec (
+                  mem_closure_iff_seq_limit.mp hw ) |>.1 n ) )
 
 /-! ## Headline: the `V ⊕ V̄` dichotomy -/
 

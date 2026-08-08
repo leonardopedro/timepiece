@@ -192,14 +192,16 @@ theorem kinSum_conjTranspose (k : Fin 3 → ℝ) :
 theorem kinSum_sq (k : Fin 3 → ℝ) :
     (∑ j : Fin 3, (k j : ℂ) • Kin j) * (∑ j : Fin 3, (k j : ℂ) • Kin j)
       = (∑ j : Fin 3, (k j : ℂ) ^ 2) • (1 : Matrix (Fin 4) (Fin 4) ℂ) := by
-  simp [Fin.sum_univ_three]
-  simp [add_mul, mul_add, sq]
-  simp [← smul_assoc, Kin_sq]
+  simp only [Complex.coe_smul, Fin.sum_univ_three, Fin.isValue]
+  simp only [Fin.isValue, mul_add, Algebra.mul_smul_comm, add_mul, Algebra.smul_mul_assoc, smul_add,
+      sq]
+  simp only [Fin.isValue, Kin_sq, ← smul_assoc, smul_eq_mul]
   have h_anticomm :
       Kin 1 * Kin 0 + Kin 0 * Kin 1 = 0 ∧ Kin 2 * Kin 0 + Kin 0 * Kin 2 = 0 ∧
         Kin 2 * Kin 1 + Kin 1 * Kin 2 = 0 :=
     ⟨Kin_anticomm 1 0 (by decide), Kin_anticomm 2 0 (by decide), Kin_anticomm 2 1 (by decide)⟩
-  simp_all [← eq_sub_iff_add_eq', ← Matrix.ext_iff]
+  simp_all only [Fin.isValue, ← eq_sub_iff_add_eq', zero_sub, ← ext_iff, neg_apply, smul_apply,
+    Complex.real_smul, Complex.ofReal_mul, sub_apply, smul_eq_mul, add_apply, smul_neg]
   intro i j; ring
 
 /-- The momentum part anticommutes with the mass block `iγ⁰`. -/

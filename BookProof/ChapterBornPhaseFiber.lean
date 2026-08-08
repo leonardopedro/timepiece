@@ -49,8 +49,10 @@ theorem Complex.normSq_eq_iff_exists_phase (z w : ℂ) :
     Complex.normSq z = Complex.normSq w ↔ ∃ θ : ℝ, w = Complex.exp (θ * Complex.I) * z := by
   constructor <;> intro h;
   · rw [ ← Complex.norm_mul_exp_arg_mul_I w, ← Complex.norm_mul_exp_arg_mul_I z ];
-    simp_all [ Complex.normSq_eq_norm_sq ];
-    exact ⟨ w.arg - z.arg, by push_cast; rw [ mul_left_comm, ← Complex.exp_add ] ; simp [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ⟩;
+    simp_all only [normSq_eq_norm_sq, norm_nonneg, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+        pow_left_inj₀, norm_mul_exp_arg_mul_I];
+    exact ⟨ w.arg - z.arg, by push_cast; rw [ mul_left_comm, ← Complex.exp_add ] ; simp [
+                              Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ⟩;
   · obtain ⟨ θ, rfl ⟩ := h; simp [ Complex.normSq_eq_norm_sq, Complex.norm_exp ] ;
 
 /-
@@ -65,7 +67,9 @@ theorem born_fiber_complex {n : ℕ} (u v : Fin n → ℂ) :
       ∃ θ : Fin n → ℝ, ∀ k, v k = Complex.exp (θ k * Complex.I) * u k := by
   constructor;
   · intro h;
-    exact ⟨ fun k => Classical.choose ( Complex.normSq_eq_iff_exists_phase ( u k ) ( v k ) |>.1 ( h k ) ), fun k => Classical.choose_spec ( Complex.normSq_eq_iff_exists_phase ( u k ) ( v k ) |>.1 ( h k ) ) ⟩;
+    exact ⟨ fun k => Classical.choose ( Complex.normSq_eq_iff_exists_phase ( u k ) ( v k ) |>.1 ( h
+        k ) ), fun k => Classical.choose_spec ( Complex.normSq_eq_iff_exists_phase ( u k ) ( v k )
+            |>.1 ( h k ) ) ⟩;
   · rintro ⟨ θ, hθ ⟩ k; simp [ hθ k, Complex.normSq_eq_norm_sq ] ;
 
 /-
@@ -108,7 +112,7 @@ theorem average_sq_le_max_sq {n : ℕ} (p : Fin n → ℝ)
     ∑ i, p i * (e i) ^ 2 ≤ C ^ 2 := by
   by_cases hn : n = 0
   · subst n
-    simp
+    simp only [Finset.univ_eq_empty, Finset.sum_empty]
     positivity
   have hC0 : 0 ≤ C :=
     (abs_nonneg (e ⟨0, Nat.pos_of_ne_zero hn⟩)).trans

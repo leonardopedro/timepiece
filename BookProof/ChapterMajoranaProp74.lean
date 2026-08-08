@@ -110,12 +110,18 @@ theorem prop74_intertwine (g ns : Matrix (Fin 4) (Fin 4) ℂ)
     (hq : q = 2 * c * s * E) :
     Qmat g ns m q * Sinv (ns * g) c s = Sinv (ns * g) c s * Rmat g E := by
       unfold Qmat Sinv Rmat;
-      simp [ Matrix.fromBlocks_multiply, ← Matrix.mul_assoc ];
-      simp_all [ mul_assoc, mul_left_comm, mul_comm ];
-      refine' ⟨ _, _, _, _ ⟩ <;> ext <;> norm_num <;> ring;
+      simp only [neg_smul, Complex.coe_smul, fromBlocks_multiply, Algebra.mul_smul_comm, mul_one,
+          mul_neg, Algebra.smul_mul_assoc, ← Matrix.mul_assoc, smul_neg, neg_mul, one_mul, mul_zero,
+              add_zero, zero_add, fromBlocks_inj];
+      simp_all only [mul_comm, mul_left_comm, Complex.ofReal_mul, Complex.ofReal_sub,
+          Complex.ofReal_pow, Complex.ofReal_ofNat, neg_mul, one_mul, smul_neg, neg_neg, mul_assoc,
+              mul_one];
+      refine ⟨ ?_, ?_, ?_, ?_ ⟩ <;> ext <;> norm_num <;> ring;
       · rw [ show ( s : ℂ ) ^ 2 = 1 - c ^ 2 by norm_cast; linarith ] ; ring;
-      · rw [ show ( s : ℂ ) ^ 3 = s * s ^ 2 by ring, show ( s : ℂ ) ^ 2 = 1 - c ^ 2 by norm_cast; linarith ] ; ring;
-      · rw [ show ( s : ℂ ) ^ 3 = s * s ^ 2 by ring, show ( s : ℂ ) ^ 2 = 1 - c ^ 2 by norm_cast; linarith ] ; ring;
+      · rw [ show ( s : ℂ ) ^ 3 = s * s ^ 2 by ring, show ( s : ℂ ) ^ 2 = 1 - c ^ 2
+                                               by norm_cast; linarith ] ; ring;
+      · rw [ show ( s : ℂ ) ^ 3 = s * s ^ 2 by ring, show ( s : ℂ ) ^ 2 = 1 - c ^ 2
+                                               by norm_cast; linarith ] ; ring;
       · rw [ show ( s : ℂ ) ^ 2 = 1 - c ^ 2 by norm_cast; linarith ] ; ring
 
 /-
@@ -124,12 +130,17 @@ with `g² = 1` and `g·ns = −ns·g`, the diagonal momentum-component block `D�
 commutes with the boost mixing `S⁻¹`: `Dⱼ · S⁻¹ = S⁻¹ · Dⱼ`.
 -/
 theorem prop74_Rj_comm (g ns : Matrix (Fin 4) (Fin 4) ℂ)
-    (hg2 : g * g = 1) (hgns : g * ns = -(ns * g)) (c s pj : ℝ) :
+    (_hg2 : g * g = 1) (hgns : g * ns = -(ns * g)) (c s pj : ℝ) :
     Dmat g pj * Sinv (ns * g) c s = Sinv (ns * g) c s * Dmat g pj := by
       unfold Dmat Sinv;
-      simp [ fromBlocks_multiply, Matrix.mul_assoc ];
-      simp [ ← mul_assoc, ← smul_assoc, hgns ];
-      exact ⟨ by ext; simp [ mul_assoc, mul_left_comm ], by ext; simp [ mul_assoc, mul_left_comm ], by ext; simp [ mul_assoc, mul_left_comm ] ⟩
+      simp only [neg_smul, Complex.coe_smul, fromBlocks_multiply, Algebra.mul_smul_comm, mul_one,
+          mul_neg, zero_mul, smul_zero, neg_zero, add_zero, Algebra.smul_mul_assoc, neg_mul,
+              smul_neg, neg_neg, zero_add, one_mul, mul_zero, Matrix.mul_assoc, fromBlocks_inj,
+                  neg_inj, and_self_left];
+      simp only [← smul_assoc, Complex.real_smul, ← mul_assoc, hgns, neg_mul, smul_neg, neg_inj];
+      exact ⟨ by ext; simp [ mul_assoc, mul_left_comm ], by ext; simp [ mul_assoc, mul_left_comm ],
+                                                            by ext; simp [ mul_assoc, mul_left_comm
+                                                                ] ⟩
 
 /-! ## The concrete Dirac-model instantiations -/
 
@@ -143,9 +154,12 @@ theorem majoranaFourier_prop74 (m q : ℝ) (hm : 0 ≤ m) (hq : 0 < q)
     (n : Fin 3 → ℝ) (hn : ∑ i, (n i) ^ 2 = 1) :
     Qmat (dgamma 0) (nslash n) m q * Sinv (Aop n) (boostC m q) (boostS m q)
       = Sinv (Aop n) (boostC m q) (boostS m q) * Rmat (dgamma 0) (Ep m q) := by
-        convert prop74_intertwine ( dgamma 0 ) ( nslash n ) gamma0_sq ( nslash_sq n hn ) ( gamma0_nslash_anticomm n ) ( boostC m q ) ( boostS m q ) m q ( Ep m q ) ( boost_sq_add m q hm hq ) _ _ using 1;
+        convert prop74_intertwine ( dgamma 0 ) ( nslash n ) gamma0_sq ( nslash_sq n hn ) (
+            gamma0_nslash_anticomm n ) ( boostC m q ) ( boostS m q ) m q ( Ep m q ) ( boost_sq_add m
+                q hm hq ) _ _ using 1;
         · rw [ boost_sq_sub m q hm hq, div_mul_cancel₀ _ ( ne_of_gt ( Ep_pos m q hq ) ) ];
-        · rw [ BookProof.ChapterMajoranaFourier.boost_two_mul m q hm hq, div_mul_cancel₀ _ ( ne_of_gt ( BookProof.ChapterMajoranaFourier.Ep_pos m q hq ) ) ]
+        · rw [ BookProof.ChapterMajoranaFourier.boost_two_mul m q hm hq, div_mul_cancel₀ _ (
+            ne_of_gt ( BookProof.ChapterMajoranaFourier.Ep_pos m q hq ) ) ]
 
 /-
 **Proposition 74, second identity (concrete Dirac model).** With `g = γ⁰` and

@@ -40,7 +40,8 @@ the negative half that motivates the pushforward construction of G.5.
 theorem not_isProbabilityMeasure_cond_null (μ : Measure Ω) {C : Set Ω}
     (hC : μ C = 0) : ¬ IsProbabilityMeasure μ[|C] := by
   intro h;
-  have := congr_arg ( fun m => m Set.univ ) ( cond_of_null μ hC ) ;    simp_all [ IsProbabilityMeasure.measure_univ ] ;
+  have := congr_arg ( fun m => m Set.univ ) ( cond_of_null μ hC ) ;    simp_all [
+      IsProbabilityMeasure.measure_univ ] ;
 
 /-! ## G.9 — The Dirac obstruction in general form -/
 
@@ -97,20 +98,24 @@ theorem no_continuous_gauge_fixing_circle :
     fun_prop
   have hF_int : ∀ t : ℝ, ∃ m : ℤ, s (Circle.exp t) - t = m * (2 * Real.pi) := by
     intro t; specialize hs ( Circle.exp t ) ; simp_all [ Circle.ext_iff ] ;
-    rw [ Complex.exp_eq_exp_iff_exists_int ] at hs;      obtain ⟨ m, hm ⟩ := hs; exact ⟨ m, by norm_num [ Complex.ext_iff ] at hm; linarith ⟩ ;
+    rw [ Complex.exp_eq_exp_iff_exists_int ] at hs;      obtain ⟨ m, hm ⟩ := hs; exact ⟨ m,
+        by norm_num [ Complex.ext_iff ] at hm; linarith ⟩ ;
   have hF_const : ∃ c : ℝ, ∀ t : ℝ, s (Circle.exp t) - t = c := by
     choose m hm using hF_int;
     have hF_const : Continuous (fun t : ℝ => m t : ℝ → ℤ) := by
       have hF_const : Continuous (fun t : ℝ => (m t : ℝ)) := by
-        convert hF.div_const ( 2 * Real.pi ) using 1 ;          ext t ; rw [ hm t ] ; ring ; norm_num [ Real.pi_ne_zero ];
+        convert hF.div_const ( 2 * Real.pi ) using 1 ;          ext t ; rw [ hm t ] ; ring ;
+            norm_num [ Real.pi_ne_zero ];
       convert hF_const using 1;
       norm_num [ Metric.continuous_iff ];
     have hF_const : IsConnected (Set.range m) := by
       exact isConnected_range hF_const;
     have := hF_const.isPreconnected.subsingleton;
-    exact ⟨ m 0 * ( 2 * Real.pi ), fun t => by have := this ( Set.mem_range_self t ) ( Set.mem_range_self 0 ) ; aesop ⟩
+    exact ⟨ m 0 * ( 2 * Real.pi ), fun t => by have := this ( Set.mem_range_self t ) (
+                                               Set.mem_range_self 0 ) ; aesop ⟩
   generalize_proofs at *;
-  cases' hF_const with c hc;    have := hc 0; have := hc ( 2 * Real.pi ) ; simp_all [ sub_eq_iff_eq_add ] ;
+  obtain ⟨ c, hc ⟩ := hF_const;    have := hc 0; have := hc ( 2 * Real.pi ) ; simp_all [
+      sub_eq_iff_eq_add ] ;
 
 /-
 Corollary: any set-theoretic gauge-fixing section of the circle is
@@ -156,7 +161,11 @@ theorem mem_brstIm_iff (v : Fin 2 → A) :
   · rintro ⟨ w, rfl ⟩ ; simp [ BRST ] ;
   · rintro ⟨ hv₀, a, hv₁ ⟩;
     use ![a, 0];
-    ext i; fin_cases i <;> simp [ *, BRST ] ;
+    ext i; fin_cases i <;> simp only [BRST, Fin.zero_eta, Fin.isValue, Matrix.mulVecBilin_apply,
+        Matrix.mulVec_cons, Nat.succ_eq_add_one, Nat.reduceAdd, zero_smul, Matrix.mulVec_empty,
+            add_zero, Pi.add_apply, Pi.smul_apply, Function.comp_apply, Matrix.cons_val_zero,
+                Matrix.head_cons, smul_eq_mul, mul_zero, Pi.zero_apply, hv₀, Fin.mk_one,
+                    Matrix.cons_val_one, Matrix.cons_val_fin_one, hv₁] ;
     exact mul_comm _ _
 
 /-- The BRST cohomology of the gauge-mechanics model. -/
@@ -233,20 +242,31 @@ noncomputable def brstGinv :
 
 theorem brstCohomology_equiv_right :
     (Submodule.liftQ _ (brstFwd Q) (brstFwd_ker Q)) ∘ₗ (brstGinv Q) = LinearMap.id := by
-  ext ⟨a, y⟩; simp [brstGinv, brstG1, brstG2];
+  ext ⟨a, y⟩; focus (simp [brstGinv, brstG1, brstG2]);
   · rfl;
   · unfold brstGinv brstG1 brstFwd;    simp  ;
-  · simp [ brstFwd, brstGinv, brstG1, brstG2 ];
+  · simp only [brstFwd, Fin.isValue, brstGinv, brstG1, brstG2, LinearMap.coe_comp,
+      LinearMap.coe_inr, Function.comp_apply, Submodule.mkQ_apply, Ideal.Quotient.mk_eq_mk, map_one,
+          LinearMap.coprod_apply, map_zero, zero_add, LinearMap.id_comp, ZeroMemClass.coe_zero,
+              ZeroMemClass.coe_eq_zero];
     erw [ Submodule.liftQ_apply ] ; simp ;
-  · simp [ brstGinv, brstG1, brstG2, brstFwd ];
+  · simp only [brstFwd, Fin.isValue, brstGinv, brstG1, brstG2, LinearMap.coe_comp,
+      LinearMap.coe_inr, Function.comp_apply, Submodule.mkQ_apply, Ideal.Quotient.mk_eq_mk, map_one,
+          LinearMap.coprod_apply, map_zero, zero_add, LinearMap.id_comp];
     erw [ Submodule.liftQ_apply ] ; simp  ;
 
 theorem brstCohomology_equiv_left :
     (brstGinv Q) ∘ₗ (Submodule.liftQ _ (brstFwd Q) (brstFwd_ker Q)) = LinearMap.id := by
   ext ⟨v, hv⟩;
-  simp [ brstGinv, brstFwd ];
+  simp only [brstGinv, brstFwd, Fin.isValue, LinearMap.coe_comp, Function.comp_apply,
+      Submodule.mkQ_apply, Submodule.liftQ_apply, LinearMap.coe_mk, AddHom.coe_mk,
+          LinearMap.coprod_apply, LinearMap.id_comp];
   erw [ Submodule.Quotient.eq ];
-  simp [ Submodule.mem_comap, mem_brstIm_iff ];
+  simp only [Fin.isValue, Submodule.mem_comap, Submodule.subtype_apply, AddSubgroupClass.coe_sub,
+      Submodule.coe_add, LinearMap.codRestrict_apply, LinearMap.coe_comp, LinearMap.coe_single,
+          Submodule.coe_subtype, Function.comp_apply, mem_brstIm_iff, Pi.sub_apply, Pi.add_apply,
+              Pi.single_eq_same, ne_eq, zero_ne_one, not_false_eq_true, Pi.single_eq_of_ne,
+                  add_zero, sub_self, one_ne_zero, zero_add, true_and];
   exact ⟨ 0, by simp ⟩
 
 /-- **Cohomology computation (book 2403–2455).** The BRST cohomology of the

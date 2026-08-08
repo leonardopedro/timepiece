@@ -61,26 +61,32 @@ noncomputable def pMarg (B : Matrix Y X 𝕜) (x : X) : ℝ := ∑ y, ‖B y x�
 noncomputable def pCond (B : Matrix Y X 𝕜) (x : X) (y : Y) : ℝ :=
     pJoint B x y / pMarg B x
 
+omit [Fintype X] [Fintype Y] [DecidableEq X] in
 theorem pJoint_nonneg (B : Matrix Y X 𝕜) (x : X) (y : Y) : 0 ≤ pJoint B x y := by
   exact sq_nonneg _
 
+omit [Fintype X] [DecidableEq X] in
 theorem pMarg_nonneg (B : Matrix Y X 𝕜) (x : X) : 0 ≤ pMarg B x := by
   exact Finset.sum_nonneg fun _ _ => sq_nonneg _
 
+omit [Fintype X] [DecidableEq X] in
 theorem pMarg_eq_sum (B : Matrix Y X 𝕜) (x : X) :
     pMarg B x = ∑ y, pJoint B x y := by
   rfl
 
+omit [Fintype X] [DecidableEq X] in
 /-
-**The book's `p(x) = {B†B}(x,x)`.**  The marginal is the diagonal of the
+**The book's `p(x) = {B†B}(x,x)`.** The marginal is the diagonal of the
 Gram matrix `Bᴴ B`.
 -/
 theorem pMarg_eq_diagBHB (B : Matrix Y X 𝕜) (x : X) :
     ((Bᴴ * B) x x) = ((pMarg B x : ℝ) : 𝕜) := by
-  -- By definition of matrix multiplication and the conjugate transpose,    we have (Bᴴ * B) x x = ∑ y, (Bᴴ) x y * B y x.
+  -- By definition of matrix multiplication and the conjugate transpose, we have (Bᴴ * B) x x = ∑ y,
+  -- (Bᴴ) x y * B y x.
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply];
   simp [ mul_comm, pMarg, RCLike.mul_conj ]
 
+omit [DecidableEq X] in
 /-
 **The book's normalization `tr(BᴴB) = 1`** (equal to `tr(BB†)`), given the
 Hilbert–Schmidt normalization `∑_{x,y} |B(y,x)|² = 1`.
@@ -91,6 +97,7 @@ theorem trace_gram_eq_one (B : Matrix Y X 𝕜)
   rw [ ← hB ] ; simp [ Matrix.trace, Matrix.mul_apply ] ; ring;
   simp [ mul_comm, RCLike.mul_conj ]
 
+omit [DecidableEq X] in
 /-
 The joint distribution sums to `1`: it is a probability distribution on
 `X × Y`.
@@ -100,6 +107,7 @@ theorem pJoint_sum_one (B : Matrix Y X 𝕜)
     ∑ x, ∑ y, pJoint B x y = 1 := by
   exact hB
 
+omit [DecidableEq X] in
 /-
 The marginal distribution sums to `1`: it is a probability distribution on
 `X`.
@@ -109,11 +117,13 @@ theorem pMarg_sum_one (B : Matrix Y X 𝕜)
     ∑ x, pMarg B x = 1 := by
   convert hB using 1
 
+omit [Fintype X] [DecidableEq X] in
 theorem pCond_nonneg (B : Matrix Y X 𝕜) (x : X) (y : Y) : 0 ≤ pCond B x y := by
   exact div_nonneg ( sq_nonneg _ ) ( Finset.sum_nonneg fun _ _ => sq_nonneg _ )
 
+omit [Fintype X] [DecidableEq X] in
 /-
-**Regular conditional probability density.**  Whenever the marginal `p(x)` is
+**Regular conditional probability density.** Whenever the marginal `p(x)` is
 strictly positive, the conditional `p(y|x) = p(x,y)/p(x)` is a genuine
 probability distribution on `Y`.
 -/
@@ -122,6 +132,7 @@ theorem pCond_sum_one (B : Matrix Y X 𝕜) (x : X) (hx : 0 < pMarg B x) :
   unfold pCond;
   rw [ ← Finset.sum_div, div_eq_iff ] <;> aesop
 
+omit [Fintype X] [DecidableEq X] in
 /-
 **Chain rule** `p(x,y) = p(y|x) · p(x)`: the joint is reconstructed from the
 marginal and the regular conditional.

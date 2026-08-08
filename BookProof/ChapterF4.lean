@@ -83,7 +83,8 @@ theorem csketch_add (h : Fin d → Fin k) (ω : Fin d → Bool) (x y : Fin d →
     csketch h ω (x + y) = csketch h ω x + csketch h ω y := by
   ext j; exact (by
   unfold csketch; simp [ mul_add ] ;
-  simpa only [ ← Finset.sum_add_distrib ] using Finset.sum_congr rfl fun _ _ => by split_ifs <;> ring;);
+  simpa only [ ← Finset.sum_add_distrib ] using Finset.sum_congr rfl fun _ _ =>
+      by split_ifs <;> ring;);
 
 /-
 **F3.1** (homogeneity in the data): `S₁ (a • x) = a • S₁ x`.
@@ -105,8 +106,10 @@ theorem sign_pair_expectation (c c' : Fin d) :
     (∑ ω : Fin d → Bool, sgn (ω c) * sgn (ω c')) = if c = c' then (2 ^ d : ℝ) else 0 := by
   by_cases h : c = c';
   · simp [ ← sq, h, sgn_sq ];
-  · -- For $c \ne c'$,    we can pair each $\omega$ with $\omega'$ where $\omega'$ differs from $\omega$ only at position $c$.
-    have h_pair : ∑ ω : Fin d → Bool,      sgn (ω c) * sgn (ω c') = ∑ ω : Fin d → Bool, -sgn (ω c) * sgn (ω c') := by
+  · -- For $c \ne c'$, we can pair each $\omega$ with $\omega'$ where $\omega'$ differs from
+    -- $\omega$ only at position $c$.
+    have h_pair : ∑ ω : Fin d → Bool,      sgn (ω c) * sgn (ω c') = ∑ ω : Fin d → Bool, -sgn (ω c) *
+        sgn (ω c') := by
       apply Finset.sum_bij (fun ω _ => Function.update ω c (¬ω c));
       · simp;
       · intro a₁ _ a₂ _ h; ext i; by_cases hi : i = c <;> replace h := congr_fun h i <;> aesop;
@@ -121,19 +124,25 @@ estimator is unbiased for the inner product.
 -/
 theorem countsketch_unbiased (h : Fin d → Fin k) (x y : Fin d → ℝ) :
     expectation (fun ω => ∑ j, csketch h ω x j * csketch h ω y j) = ∑ c, x c * y c := by
-  -- Apply the linearity of the expectation and the fact that `sgn (ω c)` are independent Rademacher variables.
-  have h_exp : ∑ ω : Fin d → Bool,    (∑ j : Fin k, csketch h ω x j * csketch h ω y j) = ∑ c,    ∑ c', (if h c = h c' then (∑ ω : Fin d → Bool, sgn (ω c) * sgn (ω c')) * (x c * y c') else 0) := by
-    have h_exp : ∀ ω : Fin d → Bool,      ∑ j : Fin k,      csketch h ω x j * csketch h ω y j = ∑ c,      ∑ c', (if h c = h c' then sgn (ω c) * sgn (ω c') * (x c * y c') else 0) := by
+  -- Apply the linearity of the expectation and the fact that `sgn (ω c)` are independent Rademacher
+  -- variables.
+  have h_exp : ∑ ω : Fin d → Bool,    (∑ j : Fin k, csketch h ω x j * csketch h ω y j) = ∑ c,    ∑
+      c', (if h c = h c' then (∑ ω : Fin d → Bool, sgn (ω c) * sgn (ω c')) * (x c * y c') else 0) :=
+          by
+    have h_exp : ∀ ω : Fin d → Bool,      ∑ j : Fin k,      csketch h ω x j * csketch h ω y j = ∑ c,
+        ∑ c', (if h c = h c' then sgn (ω c) * sgn (ω c') * (x c * y c') else 0) := by
       intro ω;
-      simp [ csketch, Finset.sum_ite ];
+      simp only [csketch, Finset.sum_ite, Finset.sum_const_zero, add_zero];
       simp only [mul_comm, Finset.sum_mul _ _ _, Finset.mul_sum, mul_left_comm, mul_assoc];
       simp only [Finset.sum_sigma'];
-      refine' Finset.sum_bij ( fun x hx => ⟨ x.snd.fst, x.snd.snd ⟩ ) _ _ _ _ <;> aesop;
+      refine Finset.sum_bij ( fun x hx => ⟨ x.snd.fst, x.snd.snd ⟩ ) ?_ ?_ ?_ ?_ <;> aesop;
     simp only [h_exp, Finset.sum_mul];
     rw [ Finset.sum_comm ];
-    exact Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => by split_ifs <;> simp [ * ] );
+    exact Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ =>
+        by split_ifs <;> simp [ * ] );
   convert congr_arg ( fun x : ℝ => x / 2 ^ d ) h_exp using 1;
-  rw [ Finset.sum_div _ _ _ ] ;    congr ;    ext c ;    rw [ Finset.sum_eq_single c ] <;> simp +contextual [ sign_pair_expectation ] ; ring;  grind
+  rw [ Finset.sum_div _ _ _ ] ;    congr ;    ext c ;    rw [ Finset.sum_eq_single c ] <;> simp
+      +contextual [ sign_pair_expectation ] ; ring;  grind
 
 /-! ## F3.2 — the observable-matrix identity (`qfm/src/observables.rs`) -/
 
@@ -148,8 +157,11 @@ theorem observable_matrix_identity {dd kk : ℕ} (W : Matrix (Fin dd) (Fin kk) �
     Matrix.trace ((Matrix.single r s (1 : ℂ) : Matrix (Fin kk) (Fin kk) ℂ)ᴴ * Wᴴ
         * (Matrix.single a a (1 : ℂ) : Matrix (Fin dd) (Fin dd) ℂ) * W)
       = (starRingEnd ℂ) (W a r) * W a s := by
-  simp [ Matrix.trace, Matrix.mul_apply ];
-  rw [ Finset.sum_eq_single s ] <;> simp_all [ Matrix.single, mul_comm ];
+  simp only [trace, conjTranspose_single, star_one, single_mul_mul_single, conjTranspose_apply,
+      RCLike.star_def, one_mul, mul_one, diag_apply, mul_apply];
+  rw [ Finset.sum_eq_single s ] <;> simp_all only [single, of_apply, true_and, mul_comm, mul_ite,
+      mul_zero, Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte, ne_eq, forall_const,
+          not_true_eq_false, mul_eq_zero, map_eq_zero, IsEmpty.forall_iff];
   exact fun b hb => Finset.sum_eq_zero fun x hx => if_neg <| by tauto;
 
 /-! ## F3.3 — the unitary reduced flow (`qfm/src/potential.rs`) -/
@@ -212,6 +224,7 @@ with hash function `hash` and per-coordinate random signs `s`. -/
 def countSketch (hash : α → κ) (s : α → Ω → ℝ) (x : α → ℝ) (ω : Ω) (h : κ) : ℝ :=
   ∑ c ∈ Finset.univ.filter (fun c => hash c = h), s c ω * x c
 
+omit [DecidableEq α] [Fintype κ] in
 /-
 The Count-Sketch map is linear in the input vector `x`.
 -/
@@ -232,19 +245,30 @@ theorem countSketch_unbiased (μ : Measure Ω) [IsProbabilityMeasure μ]
       = ∑ c, x c * y c := by
   rw [ MeasureTheory.integral_finset_sum ];
   · -- Expand the product inside the integral.
-    have h_expand : ∀ ω h,      (countSketch hash s x ω h) * (countSketch hash s y ω h) = ∑ c ∈ Finset.univ.filter (fun c => hash c = h), ∑ c' ∈ Finset.univ.filter (fun c' => hash c' = h), (x c * y c') * (s c ω * s c' ω) := by
-      exact fun ω h => by rw [ countSketch, countSketch, Finset.sum_mul ] ;        exact Finset.sum_congr rfl fun _ _ => by rw [ Finset.mul_sum ] ;        exact Finset.sum_congr rfl fun _ _ => by ring;
+    have h_expand : ∀ ω h,      (countSketch hash s x ω h) * (countSketch hash s y ω h) = ∑ c ∈
+        Finset.univ.filter (fun c => hash c = h), ∑ c' ∈ Finset.univ.filter (fun c' => hash c' = h),
+            (x c * y c') * (s c ω * s c' ω) := by
+      exact fun ω h => by rw [ countSketch, countSketch, Finset.sum_mul ] ;        exact
+                          Finset.sum_congr rfl fun _ _ => by rw [ Finset.mul_sum ] ;        exact
+                                                             Finset.sum_congr rfl fun _ _ =>
+                                                                 by ring;
     simp only [h_expand];
     rw [ Finset.sum_congr rfl fun h _ => MeasureTheory.integral_finset_sum _ fun c _ => ?_ ];
-    · rw [ Finset.sum_congr rfl fun h _ => Finset.sum_congr rfl fun i hi => MeasureTheory.integral_finset_sum _ fun j hj => ?_ ];
+    · rw [ Finset.sum_congr rfl fun h _ => Finset.sum_congr rfl fun i hi =>
+        MeasureTheory.integral_finset_sum _ fun j hj => ?_ ];
       · simp only [integral_const_mul, hs];
         simp [ Finset.sum_filter, Finset.sum_comm ];
-      · exact MeasureTheory.Integrable.const_mul ( ‹∀ c c', Integrable ( fun ω => s c ω * s c' ω ) μ› i j ) _;
-    · exact MeasureTheory.integrable_finset_sum _ fun c' _ => MeasureTheory.Integrable.const_mul ( ‹∀ c c', MeasureTheory.Integrable ( fun ω => s c ω * s c' ω ) μ› c c' ) _;
-  · intro h _; simp [ countSketch ] ;
+      · exact MeasureTheory.Integrable.const_mul ( ‹∀ c c', Integrable ( fun ω => s c ω * s c' ω )
+          μ› i j ) _;
+    · exact MeasureTheory.integrable_finset_sum _ fun c' _ => MeasureTheory.Integrable.const_mul (
+        ‹∀ c c', MeasureTheory.Integrable ( fun ω => s c ω * s c' ω ) μ› c c' ) _;
+  · intro h _; simp only [countSketch] ;
     simp only [Finset.sum_mul _ _ _, Finset.mul_sum];
-    refine' MeasureTheory.integrable_finset_sum _ fun i hi => MeasureTheory.integrable_finset_sum _ fun j hj => _;
-    convert MeasureTheory.Integrable.const_mul ( MeasureTheory.Integrable.const_mul ( ‹∀ c c', MeasureTheory.Integrable ( fun ω => s c ω * s c' ω ) μ› i j ) ( x i ) ) ( y j ) using 2 ; ring
+    refine MeasureTheory.integrable_finset_sum _ fun i hi =>
+      MeasureTheory.integrable_finset_sum _ fun j hj => ?_;
+    convert MeasureTheory.Integrable.const_mul ( MeasureTheory.Integrable.const_mul ( ‹∀ c c',
+        MeasureTheory.Integrable ( fun ω => s c ω * s c' ω ) μ› i j ) ( x i ) ) ( y j ) using 2 ;
+            ring
 
 /-! ## F3.2 — the observable-matrix identities -/
 
@@ -254,13 +278,18 @@ one-hot projector `P_a = |a⟩⟨a|` and operator basis `E_{r,s} = |e_r⟩⟨e_s
 `Tr(E_{r,s}ᴴ Wᴴ P_a W) = conj(W_{a,r}) · W_{a,s}`.
 -/
 set_option maxHeartbeats 800000 in
+-- the proof below is a large finite computation; the default heartbeat budget
+-- is not enough to elaborate it
 theorem observable_matrix_entry {d n : ℕ} (W : Matrix (Fin d) (Fin n) ℂ)
     (a : Fin d) (r s : Fin n) :
     Matrix.trace ((Matrix.single r s (1 : ℂ))ᴴ * Wᴴ * Matrix.single a a (1 : ℂ) * W)
       = (starRingEnd ℂ) (W a r) * W a s := by
-  simp [ Matrix.trace, Matrix.mul_apply, Matrix.single ];
-  simp +contextual [ Finset.sum_ite, Finset.filter_eq, Finset.filter_and, mul_comm ];
-  rw [ Finset.sum_eq_single s ] <;> simp +contextual ;
+  simp only [Matrix.trace, Matrix.single, Matrix.diag_apply, Matrix.mul_apply,
+      Matrix.conjTranspose_apply, Matrix.of_apply, RCLike.star_def,
+          MonoidWithZeroHom.map_ite_one_zero, ite_mul, one_mul, zero_mul, mul_ite, mul_one,
+              mul_zero];
+  simp? +contextual [ Finset.sum_ite, Finset.filter_eq, Finset.filter_and, mul_comm ];
+  rw [ Finset.sum_eq_single s ] <;> simp? +contextual ;
   · rw [ Finset.sum_eq_single a ] <;> aesop;
   · aesop
 
@@ -275,12 +304,13 @@ theorem hermitian_flow_unitary {n : ℕ} (H : Matrix (Fin n) (Fin n) ℂ)
     (NormedSpace.exp ((-Complex.I * (t : ℂ)) • H))ᴴ
         * NormedSpace.exp ((-Complex.I * (t : ℂ)) • H) = 1 := by
   -- By definition of exponentiation, we know that $(e^{i t H})^* = e^{-i t H}$.
-  have h_exp_conj : (NormedSpace.exp (-(Complex.I * t) • H))ᴴ = NormedSpace.exp ((Complex.I * t) • H) := by
-    simp_all [ Matrix.IsHermitian ];
+  have h_exp_conj : (NormedSpace.exp (-(Complex.I * t) • H))ᴴ = NormedSpace.exp ((Complex.I * t) •
+      H) := by
+    simp_all only [Matrix.IsHermitian, neg_smul];
     rw [ ← Matrix.exp_conjTranspose ];
     simp [ Matrix.conjTranspose_smul, hH ];
-  convert congr_arg₂ ( fun x y => x * y ) h_exp_conj rfl using 1 ; ring;
-  congr! 1;
+  convert congr_arg₂ ( fun x y => x * y ) h_exp_conj rfl using 1 ; focus (ring);
+  focus (congr! 1);
   rw [ ← Matrix.exp_add_of_commute ];
   · norm_num [ ← add_smul ];
   · exact Commute.smul_left ( Commute.smul_right ( Commute.refl _ ) _ ) _
@@ -295,9 +325,11 @@ theorem hermitian_flow_preserves_normSq {n : ℕ} (H : Matrix (Fin n) (Fin n) �
     star ((NormedSpace.exp ((-Complex.I * (t : ℂ)) • H)).mulVec c)
           ⬝ᵥ (NormedSpace.exp ((-Complex.I * (t : ℂ)) • H)).mulVec c
       = star c ⬝ᵥ c := by
-  have hU : (NormedSpace.exp ((-Complex.I * (t : ℂ)) • H))ᴴ * NormedSpace.exp ((-Complex.I * (t : ℂ)) • H) = 1 := by
+  have hU : (NormedSpace.exp ((-Complex.I * (t : ℂ)) • H))ᴴ * NormedSpace.exp ((-Complex.I * (t :
+      ℂ)) • H) = 1 := by
     convert hermitian_flow_unitary H hH t using 1;
-  have hstar : star (NormedSpace.exp ((-Complex.I * (t : ℂ)) • H) *ᵥ c) = star c ᵥ* (NormedSpace.exp ((-Complex.I * (t : ℂ)) • H))ᴴ := by
+  have hstar : star (NormedSpace.exp ((-Complex.I * (t : ℂ)) • H) *ᵥ c) = star c ᵥ* (NormedSpace.exp
+      ((-Complex.I * (t : ℂ)) • H))ᴴ := by
     ext i; simp [ Matrix.mulVec, dotProduct ] ;
     simp [ Matrix.vecMul, dotProduct, mul_comm ];
   simp_all [ Matrix.dotProduct_mulVec ]
@@ -338,9 +370,10 @@ def mgRun (k : ℕ) : List ι → (ι → ℕ) × ℕ
   | [] => (fun _ => 0, 0)
   | x :: xs => mgStep k (mgRun k xs) x
 
+omit [DecidableEq ι] in
 /-
 Helper: decrementing every counter by one reduces the total by exactly the
-number of active counters.  Stated additively over `ℕ` to avoid truncated
+number of active counters. Stated additively over `ℕ` to avoid truncated
 subtraction.
 -/
 theorem mgSum_decrement (c : ι → ℕ) :
@@ -358,10 +391,13 @@ theorem mgStep_support_le (k : ℕ) (st : (ι → ℕ) × ℕ) (x : ι)
       split_ifs;
       · unfold mgSupport at *;
         convert h using 2 ; ext a ; by_cases ha : a = x <;> simp [ *, Function.update_apply ];
-      · refine' le_trans _ ‹_›;
-        exact Finset.card_le_card ( show Finset.filter ( fun a => 0 < ( Function.update st.1 x 1 ) a ) Finset.univ ⊆ Finset.filter ( fun a => 0 < st.1 a ) Finset.univ ∪ { x } from fun a ha => by by_cases ha' : a = x <;> aesop ) |> le_trans <| Finset.card_union_le _ _;
-      · refine' le_trans _ h;
-        refine' Finset.card_le_card _;
+      · refine le_trans ?_ ‹_›;
+        exact Finset.card_le_card ( show Finset.filter ( fun a => 0 < ( Function.update st.1 x 1 ) a
+            ) Finset.univ ⊆ Finset.filter ( fun a => 0 < st.1 a ) Finset.univ ∪ { x } from fun a ha
+                => by
+          by_cases ha' : a = x <;> aesop ) |> le_trans <| Finset.card_union_le _ _;
+      · refine le_trans ?_ h;
+        refine Finset.card_le_card ?_;
         grind
 
 /-
@@ -370,7 +406,9 @@ Invariant: at most `k` counters are ever active.
 theorem mgRun_support_le (k : ℕ) (xs : List ι) :
     mgSupport (mgRun k xs).1 ≤ k := by
       -- We proceed by induction on `xs`.
-      induction' xs with a xs ih;
+      induction xs with
+      | nil => ?_
+      | cons a xs ih => ?_
       · simp [ mgRun ];
         simp [ mgSupport ];
       · convert mgStep_support_le k ( mgRun k xs ) a ih using 1
@@ -381,17 +419,23 @@ decrement round equals the stream length `N`.
 -/
 theorem mgRun_sum (k : ℕ) (xs : List ι) :
     (∑ a, (mgRun k xs).1 a) + (k + 1) * (mgRun k xs).2 = xs.length := by
-      induction' xs with xs ih;
+      induction xs with
+      | nil => ?_
+      | cons xs ih _ih => ?_
       · simp [ mgRun ];
       · rw [ show mgRun k ( xs :: ih ) = mgStep k ( mgRun k ih ) xs from rfl ];
-        unfold mgStep; split_ifs <;> simp_all [ mgSupport ] ;
-        · simp [ *, Finset.sum_update_of_mem ];
-          rw [ ← Finset.sum_sdiff ( Finset.subset_univ { xs } ) ] at * ;            simp_all [ Finset.sum_singleton ] ; linarith;
+        unfold mgStep; split_ifs <;> simp_all only [List.length_cons, not_lt, nonpos_iff_eq_zero,
+            mgSupport] ;
+        · simp only [Finset.mem_univ, Finset.sum_update_of_mem];
+          rw [ ← Finset.sum_sdiff ( Finset.subset_univ { xs } ) ] at * ;            simp_all [
+              Finset.sum_singleton ] ; linarith;
         · rw [ Finset.sum_eq_add_sum_diff_singleton ( Finset.mem_univ xs ) ] at *;
-          simp_all [ Function.update_apply ];
-          rw [ Finset.sum_congr rfl fun x hx => if_neg ( Finset.mem_singleton.not.mp ( Finset.mem_sdiff.mp hx |>.2 ) ) ] ; linarith;
+          simp_all only [zero_add, Function.update_self, Function.update_apply];
+          rw [ Finset.sum_congr rfl fun x hx => if_neg ( Finset.mem_singleton.not.mp (
+              Finset.mem_sdiff.mp hx |>.2 ) ) ] ; linarith;
         · have := mgSum_decrement ( mgRun k ih |>.1 ) ; simp_all [ mgSupport ] ;
-          linarith [ show Finset.card ( Finset.filter ( fun a => 0 < ( mgRun k ih |>.1 ) a ) Finset.univ ) = k from le_antisymm ( mgRun_support_le k ih ) ‹_› ]
+          linarith [ show Finset.card ( Finset.filter ( fun a => 0 < ( mgRun k ih |>.1 ) a )
+              Finset.univ ) = k from le_antisymm ( mgRun_support_le k ih ) ‹_› ]
 
 /-
 Decrement budget: `k · d ≤ N`.
@@ -406,21 +450,27 @@ Undercounting: the estimate never exceeds the true frequency.
 -/
 theorem mgRun_undercount (k : ℕ) (xs : List ι) (x : ι) :
     (mgRun k xs).1 x ≤ xs.count x := by
-      induction xs generalizing x ; simp_all [ mgRun ];
+      induction xs generalizing x ; focus (simp_all [ mgRun ]);
       rename_i a l ih;
-      by_cases h : 0 < (mgRun k l).1 a <;> simp_all [ mgRun, mgStep ];
+      by_cases h : 0 < (mgRun k l).1 a <;> simp_all only [mgRun, mgStep, ↓reduceIte, not_lt,
+          nonpos_iff_eq_zero, lt_self_iff_false];
       · grind;
-      · split_ifs <;> simp_all [ List.count_cons ];
+      · split_ifs <;> simp_all only [List.count_cons, beq_iff_eq, not_lt, tsub_le_iff_right];
         · grind;
-        · exact le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( ih x ) ( Nat.zero_le _ ) ) zero_le_one
+        · exact le_add_of_le_of_nonneg ( le_add_of_le_of_nonneg ( ih x ) ( Nat.zero_le _ ) )
+            zero_le_one
 
 /-
 The estimation error is bounded by the number of decrement rounds.
 -/
 theorem mgRun_error_le (k : ℕ) (xs : List ι) (x : ι) :
     xs.count x ≤ (mgRun k xs).1 x + (mgRun k xs).2 := by
-      induction' xs with a xs ih generalizing x <;> simp_all [ mgRun ];
-      by_cases hx : x = a <;> simp_all [ List.count_cons ];
+      induction xs generalizing x with
+      | nil => ?_
+      | cons a xs ih => ?_
+      all_goals simp_all only [List.count_nil, mgRun, add_zero, le_refl]
+      by_cases hx : x = a <;> simp_all only [List.count_cons_self, Order.add_one_le_iff,
+          List.count_cons, beq_iff_eq];
       · unfold mgStep; split_ifs <;> simp_all  ;
         · linarith [ ih a ];
         · grind;

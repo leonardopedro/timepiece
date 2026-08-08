@@ -67,12 +67,18 @@ holds because `h♯` annihilates the lowered timelike covector
 -/
 theorem spatialProj_mul_invSpatialMetric (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     spatialProj v * invSpatialMetric v = invSpatialMetric v := by
-  ext a c;    simp [ spatialProj, Matrix.one_apply, Matrix.of_apply, Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
+  ext a c;    simp only [spatialProj, mul_apply, add_apply, one_apply, of_apply, Fin.sum_univ_four,
+                Fin.isValue] ; ring;
   have h_sum_zero : ∑ b, lower v b * (invSpatialMetric v) b c = 0 := by
-    convert congr_arg ( fun x => x c ) ( BookProof.ChapterGravityInvMetric.invSpatialMetric_mulVec_lower_self v hv ) using 1;
-    simp [ Matrix.mulVec, dotProduct, mul_comm ];
-    exact Finset.sum_congr rfl fun _ _ => by rw [ show invSpatialMetric v _ _ = invSpatialMetric v _ _ from by exact congr_fun ( congr_fun ( BookProof.ChapterGravityInvMetric.invSpatialMetric_symm v ) _ ) _ ] ;
-  fin_cases a <;> simp_all [ Fin.sum_univ_four ] <;> ring!;
+    convert congr_arg ( fun x => x c ) (
+        BookProof.ChapterGravityInvMetric.invSpatialMetric_mulVec_lower_self v hv ) using 1;
+    simp only [mul_comm, mulVec, dotProduct];
+    exact Finset.sum_congr rfl fun _ _ => by
+      rw [ show invSpatialMetric v _ _ = invSpatialMetric v _ _ from
+        congr_fun ( congr_fun ( BookProof.ChapterGravityInvMetric.invSpatialMetric_symm v ) _ ) _ ]
+  fin_cases a <;> simp_all only [Fin.sum_univ_four, Fin.isValue, Fin.zero_eta, ↓reduceIte, one_mul,
+                    zero_ne_one, zero_mul, add_zero, Fin.reduceEq, Fin.mk_one,
+                    one_ne_zero, zero_add, add_eq_right, Fin.reduceFinMk] <;> ring!;
   · linear_combination' h_sum_zero * v 0;
   · linear_combination' h_sum_zero * v 1;
   · linear_combination' h_sum_zero * v 2;
@@ -94,6 +100,7 @@ generalized inverse pair for `h♯`.  Using `h♯ · h = χ` and `χ · h♯ = h
 -/
 theorem invSpatialMetric_genInverse (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     invSpatialMetric v * spatialMetric v * invSpatialMetric v = invSpatialMetric v := by
-  rw [ BookProof.ChapterGravityInvMetric.invSpatialMetric_mul_spatialMetric v hv, BookProof.ChapterGravityGenInverse.spatialProj_mul_invSpatialMetric v hv ]
+  rw [ BookProof.ChapterGravityInvMetric.invSpatialMetric_mul_spatialMetric v hv,
+      BookProof.ChapterGravityGenInverse.spatialProj_mul_invSpatialMetric v hv ]
 
 end BookProof.ChapterGravityGenInverse

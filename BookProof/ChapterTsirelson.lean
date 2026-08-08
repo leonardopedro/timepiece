@@ -79,15 +79,20 @@ theorem chshOp_eq_tuple :
     chshOp = alA0 * boB0 + alA0 * boB1 + alA1 * boB0 - alA1 * boB1 := by
   unfold chshOp alA0 alA1 boB0 boB1;
   congr <;> ext i j;
-  · fin_cases i <;> fin_cases j <;> simp [ Matrix.mul_apply ];
+  · fin_cases i <;> fin_cases j <;> simp only [Fin.zero_eta, Fin.isValue, kroneckerMap_apply,
+      mul_apply, Fin.mk_one];
     all_goals erw [ Finset.sum_product ] ; simp [ Matrix.one_apply ] ;
-  · fin_cases i <;> fin_cases j <;> simp [ Matrix.mul_apply ];
+  · fin_cases i <;> fin_cases j <;> simp only [Fin.zero_eta, Fin.isValue, kroneckerMap_apply,
+      mul_apply, Fin.mk_one];
     all_goals erw [ Finset.sum_product ] ; simp [ Matrix.one_apply ] ;
-  · fin_cases i <;> fin_cases j <;> simp [ Matrix.mul_apply, kroneckerMap_apply ];
-    all_goals simp [ Matrix.one_apply ] ;
+  · fin_cases i <;> fin_cases j <;> simp only [Fin.zero_eta, Fin.isValue, kroneckerMap_apply,
+      mul_apply, Fin.mk_one];
+    all_goals simp only [Fin.isValue, one_apply, mul_ite, mul_one, mul_zero, ite_mul, one_mul,
+        zero_mul] ;
     all_goals erw [ Finset.sum_product ] ; simp  ;
-  · simp [ Matrix.mul_apply, A1, B1 ];
-    fin_cases i <;> fin_cases j <;> simp [ Matrix.one_apply ];
+  · simp only [A1, B1, one_div, kroneckerMap_apply, smul_apply, sub_apply, smul_eq_mul, mul_apply];
+    fin_cases i <;> fin_cases j <;> simp only [Fin.zero_eta, Fin.isValue, one_apply, mul_ite,
+        mul_one, mul_zero, ite_mul, one_mul, zero_mul, Fin.mk_one];
     all_goals erw [ Finset.sum_product ] ; simp  ;
 
 /-- The Tsirelson value `2√2` equals the constant `√2 ^ 3` appearing in Mathlib's abstract
@@ -102,14 +107,26 @@ is its eigenvalue, this refines `ChapterBell.chsh_quantum_value`. -/
 theorem chshOp_eigenvector :
     chshOp *ᵥ bellState = ((2 * Real.sqrt 2 : ℝ) : ℂ) • bellState := by
   ext ⟨ i, j ⟩;
-  fin_cases i <;> fin_cases j <;> simp [ chshOp, bellState, A0, A1, B0, B1, sx, sz ];
-  · simp [Matrix.mulVec, dotProduct, Fintype.sum_prod_type, Fin.sum_univ_two,
-      Matrix.sub_apply, kroneckerMap]
+  fin_cases i <;> fin_cases j <;> simp only [chshOp, A0, sz, B0, one_div, sx, of_add_of, add_cons,
+      head_cons, add_zero, tail_cons, zero_add, empty_add_empty, smul_of, smul_cons, smul_eq_mul,
+          mul_one, smul_empty, mul_neg, B1, of_sub_of, sub_cons, sub_zero, zero_sub, sub_self,
+              zero_empty, A1, Fin.zero_eta, Fin.isValue, Complex.ofReal_mul, Complex.ofReal_ofNat,
+                  Pi.smul_apply, bellState, ↓reduceIte, ne_eq, Complex.ofReal_eq_zero,
+                      Nat.ofNat_nonneg, Real.sqrt_eq_zero, OfNat.ofNat_ne_zero, not_false_eq_true,
+                          mul_inv_cancel_right₀, Fin.mk_one, Prod.mk.injEq, one_ne_zero, and_false,
+                              zero_ne_one, and_true, mul_zero, and_self];
+  · simp only [mulVec, dotProduct, kroneckerMap, of_apply, cons_val', cons_val_fin_one, of_add_of,
+      Fin.isValue, sub_apply, Pi.add_apply, cons_val_zero, Fintype.sum_prod_type,
+      Fin.sum_univ_two, add_sub_cancel_right, cons_val_one, mul_neg, add_neg_cancel,
+      zero_add, sub_neg_eq_add, one_mul, zero_mul, add_zero]
     unfold bellState; norm_num; ring; norm_num [← Complex.ofReal_pow]
-  · simp [Matrix.mulVec, dotProduct, kroneckerMap]
+  · simp only [mulVec, dotProduct, kroneckerMap, of_apply, cons_val', cons_val_fin_one, of_add_of,
+      Fin.isValue, sub_apply, Pi.add_apply, cons_val_zero, cons_val_one]
     erw [Finset.sum_product]; norm_num [Fin.sum_univ_succ, bellState]
-  · simp [Matrix.mulVec, dotProduct, Fintype.sum_prod_type, Fin.sum_univ_two,
-      Matrix.sub_apply, kroneckerMap]
+  · simp only [mulVec, dotProduct, kroneckerMap, of_apply, cons_val', cons_val_fin_one, of_add_of,
+      Fin.isValue, sub_apply, Pi.add_apply, cons_val_one, cons_val_zero,
+      Fintype.sum_prod_type, Fin.sum_univ_two, add_sub_cancel_right, mul_neg, add_neg_cancel,
+      zero_add, sub_neg_eq_add, zero_mul, add_zero, one_mul, neg_mul]
     unfold bellState; norm_num
   · unfold bellState; norm_num [Matrix.mulVec, dotProduct, Fin.sum_univ_succ]
     erw [Finset.sum_product]; norm_num [Fin.sum_univ_succ]; ring;

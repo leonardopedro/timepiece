@@ -24,6 +24,7 @@ variable {Hyp : Type*} [Fintype Hyp] [DecidableEq Hyp]
 def binaryLikelihood (q : Hyp → ℝ) (x : Hyp) (observed : Bool) : ℝ :=
   if observed then q x else 1 - q x
 
+omit [DecidableEq Hyp] in
 /-
 Every coordinate of a finite probability distribution is at most one.
 -/
@@ -31,6 +32,7 @@ theorem probability_weight_le_one (q : Hyp → ℝ) (hq_nonneg : ∀ x, 0 ≤ q 
     (hq_sum : ∑ x, q x = 1) (x : Hyp) : q x ≤ 1 := by
   exact hq_sum ▸ Finset.single_le_sum (fun y _ => hq_nonneg y) (Finset.mem_univ x)
 
+omit [DecidableEq Hyp] in
 /-
 The binary likelihood is nonnegative when `q` is a probability distribution.
 -/
@@ -41,11 +43,13 @@ theorem binaryLikelihood_nonneg (q : Hyp → ℝ) (hq_nonneg : ∀ x, 0 ≤ q x)
     simp [binaryLikelihood, hq_nonneg,
       probability_weight_le_one q hq_nonneg hq_sum]
 
+omit [Fintype Hyp] [DecidableEq Hyp] in
 /-- Each row of the binary likelihood sums to one. -/
 theorem binaryLikelihood_sum (q : Hyp → ℝ) (x : Hyp) :
     ∑ observed : Bool, binaryLikelihood q x observed = 1 := by
   simp [binaryLikelihood]
 
+omit [DecidableEq Hyp] in
 /-
 Under a positive constant prior, the evidence for `true` is the constant.
 -/
@@ -56,6 +60,7 @@ theorem uniform_binary_evidence (q : Hyp → ℝ) (hq_sum : ∑ x, q x = 1)
   unfold ChapterBayesInference.evidence binaryLikelihood
   simp [← Finset.mul_sum, hq_sum]
 
+omit [DecidableEq Hyp] in
 /-
 Every finite probability distribution is exactly the posterior obtained by
 conditioning a positive uniform prior on suitable binary data.
@@ -68,6 +73,7 @@ theorem uniform_prior_posterior_eq (q : Hyp → ℝ) (hq_sum : ∑ x, q x = 1)
   rw [uniform_binary_evidence q hq_sum, mul_div_cancel_left₀ _ hc.ne']
   exact if_pos rfl
 
+omit [DecidableEq Hyp] in
 /-
 Existential form of the book's claim: a suitable valid likelihood turns a
 positive uniform prior into any prescribed finite probability distribution.
