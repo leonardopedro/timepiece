@@ -27,9 +27,12 @@ book and machine learning. It reuses the tools already formalized in the
 squared modulus of a wave-function), the {ref "free-field"}[free-field chapter]
 (the Gaussian as the canonical rotation-invariant prior), and the
 {ref "aligned-deep-learning"}[deep-learning chapter] (Bayesian updating as the
-collapse of a posterior). The coherent-state identities themselves are *not yet
-formalized*; this chapter states them precisely and gives proof plans in
-{ref "proof-plans"}[the appendix], exactly as the book does for every open claim.
+collapse of a posterior). The coherent-state identities themselves are now
+formalized as well: the overlap, the Softmax–Born identity and the
+expectation-value packaging of the attention output are theorems in `BookProof`,
+and are cited section by section below. The one claim that remains a documented
+proof plan is the thermal temperature identity; its statistical core is proved,
+its physical derivation is not.
 :::
 
 # The Divergence: Classical Sharpness versus Quantum Flatness
@@ -64,8 +67,31 @@ $$`\langle q | k \rangle = \exp\!\Big(-\tfrac12 |q|^2 - \tfrac12 |k|^2 + q \cdot
 :::paragraph
 The baseline magnitudes $`|q|^2, |k|^2` pull the amplitude down; their alignment
 $`q \cdot k` pushes it up. This is the *reproducing kernel* of the
-Bargmann–Fock space, and it is the object the formalization will make precise.
+Bargmann–Fock space.
 :::
+
+:::paragraph
+For real coherent-state parameters this is now a theorem. `coherentOverlap` is
+the overlap; `coherentOverlap_eq` is its explicit coordinate formula;
+`coherentOverlap_eq_gaussian` records the pleasant fact that the two baseline
+penalties and the alignment reward recombine into minus one half the squared
+distance, so the kernel *is* a Gaussian, `exp(-‖q-k‖²/2)`; and
+`coherentOverlap_self` is the normalization `⟨q|q⟩ = 1` of a coherent state
+(from which `coherentOverlap_unit` is the unit-parameter special case). The
+overlap is always a strictly positive real number, never exceeding one, and
+equals one exactly on the diagonal:
+:::
+
+```
+#check @BookProof.ChapterCoherentOverlap.coherentOverlap
+#check @BookProof.ChapterCoherentOverlap.coherentOverlap_eq
+#check @BookProof.ChapterCoherentOverlap.coherentOverlap_eq_gaussian
+#check @BookProof.ChapterCoherentOverlap.coherentOverlap_pos
+#check @BookProof.ChapterCoherentOverlap.coherentOverlap_le_one
+#check @BookProof.ChapterCoherentOverlap.coherentOverlap_self
+#check @BookProof.ChapterCoherentOverlap.coherentOverlap_unit
+#check @BookProof.ChapterCoherentOverlap.coherentOverlap_eq_one_iff
+```
 
 # Softmax Is the Born Rule on Coherent States
 
@@ -88,12 +114,32 @@ exactly Softmax attention:
 $$`\text{Attention Weight} = \frac{\exp(2\,q \cdot k_j)}{\sum_l \exp(2\,q \cdot k_l)}.`$$
 
 :::paragraph
-This is the headline claim of the chapter. It is a finite algebraic identity about
-Gaussians and normalization, and it is the natural first formalization target (see
-{ref "proof-plans"}[the appendix]). The *verified* ingredients already in the
-library are the two premises it rests on: the Gaussian as the rotation-invariant
-prior (the free-field construction) and the fact that squaring a wave-function
-produces a genuine probability distribution (the Born rule):
+This is the headline claim of the chapter, and it is now a theorem. It is a
+finite algebraic identity about Gaussians and normalization.
+`coherentBorn_sq_eq` is the three-factor split above. `bornWeight` is the
+normalized squared overlap and `softmax` the usual attention weight at inverse
+temperature `beta`; `bornWeight_sum_one` and `softmax_sum_one` say that each is
+a genuine probability distribution over the keys. `coherentBorn_cancel_q` is the
+cancellation of the query factor, and the headline
+`coherentBorn_eq_softmax` states that under a constant key norm the two
+distributions are *equal*, at inverse temperature `2`:
+:::
+
+```
+#check @BookProof.ChapterSoftmaxBorn.coherentBorn_sq_eq
+#check @BookProof.ChapterSoftmaxBorn.bornWeight_sum_one
+#check @BookProof.ChapterSoftmaxBorn.softmax_sum_one
+#check @BookProof.ChapterSoftmaxBorn.coherentBorn_cancel_q
+#check @BookProof.ChapterSoftmaxBorn.coherentBorn_eq_softmax
+#check @BookProof.ChapterSoftmaxBorn.coherentBorn_eq_softmax_of_unit_keys
+#check @BookProof.ChapterSoftmaxBorn.coherentBorn_temperature_half
+```
+
+:::paragraph
+The two premises the identity rests on were already in the library: the Gaussian
+as the rotation-invariant prior (the free-field construction) and the fact that
+squaring a wave-function produces a genuine probability distribution (the Born
+rule):
 :::
 
 ```
@@ -119,10 +165,30 @@ the fidelity of the thermal states introduces the noise directly into the expone
 $$`\tau = \bar n + \tfrac12.`$$
 
 :::paragraph
-The $`\tfrac12` is the zero-point energy of the vacuum. This identity is a thermal
-/ statistical-mechanics computation and is currently a documented proof plan rather
-than a proved theorem.
+The $`\tfrac12` is the zero-point energy of the vacuum. The *physical* derivation
+of this identity — the quantum fidelity of two displaced thermal states on an
+infinite-dimensional bosonic Fock space — remains a documented proof plan rather
+than a proved theorem. Its *statistical core* is proved, however. For the thermal
+occupation law $`\mathrm{Pr}(n) \propto (\bar n/(\bar n+1))^n`,
+`thermalProb_tsum_one` says it is a probability distribution on the occupation
+numbers, `thermalProb_mean` that its mean occupation really is $`\bar n`, and
+`thermalProb_variance` that its variance is $`\bar n + \bar n^2` — strictly more
+than the Poissonian variance $`\bar n` of a coherent state, which is the precise
+sense in which the bath adds noise. At $`\bar n = 0` the temperature collapses to
+the zero-point value $`\tau = 1/2`, matching the factor $`2` in the exponent of
+the Softmax derived above:
 :::
+
+```
+#check @BookProof.ChapterCoherentTemperature.thermalProb
+#check @BookProof.ChapterCoherentTemperature.thermalProb_tsum_one
+#check @BookProof.ChapterCoherentTemperature.thermalProb_mean
+#check @BookProof.ChapterCoherentTemperature.thermalProb_second_moment
+#check @BookProof.ChapterCoherentTemperature.thermalProb_variance
+#check @BookProof.ChapterCoherentTemperature.thermalTemperature_eq_mean_add_half
+#check @BookProof.ChapterCoherentTemperature.thermalTemperature_vacuum
+#check @BookProof.ChapterCoherentTemperature.half_lt_thermalTemperature
+```
 
 # Informational Superposition and the Unknown Output
 
@@ -176,8 +242,26 @@ $$`\langle \hat V \rangle = \sum_j p_j\,\mathbf{v}_j.`$$
 This is structurally identical to the attention output $`\mathbf{o}_i =
 \sum_j a_{ij}\,\mathbf{v}_j`. The output of attention is the expectation value of
 a contextual observable over the collapsed posterior — a *definite* vector where
-before there was maximum relational uncertainty. The finite, verified core of this
-is the conditional / expectation structure already in the library:
+before there was maximum relational uncertainty. This too is now a theorem.
+`observableExpectation` is the probability-weighted sum of eigenvalues, and
+`attention_eq_expectation` states that the Born weights are a probability
+distribution and that the attention output is exactly that expectation value.
+`prob_weighted_sum_mem_convexHull` and `attention_mem_convexHull` express the
+"definiteness": the output never leaves the convex hull of the possible outcomes:
+:::
+
+```
+#check @BookProof.ChapterObservableExpectation.observableExpectation
+#check @BookProof.ChapterObservableExpectation.observableExpectation_scalar
+#check @BookProof.ChapterObservableExpectation.attention_eq_expectation
+#check @BookProof.ChapterObservableExpectation.prob_weighted_sum_mem_convexHull
+#check @BookProof.ChapterObservableExpectation.attention_mem_convexHull
+#check @BookProof.ChapterObservableExpectation.attention_eq_softmax_expectation
+#check @BookProof.ChapterObservableExpectation.bayes_posterior_expectation_mem_convexHull
+```
+
+:::paragraph
+It rests on the conditional / expectation structure already in the library:
 :::
 
 ```
@@ -215,8 +299,17 @@ The forward pass of a deep model is not an arbitrary sequence of matrix products
 Setting the objects being measured to be coherent states, the Softmax attention
 weight is the Born rule, the aggregated output is the expectation value of a
 contextual observable over a posterior, and stacking layers executes a cascade of
-Bayesian updates. The two new identifiers this chapter contributes — the coherent
-overlap with its Softmax consequence, and the temperature identity — are stated as
-precise proof plans in {ref "proof-plans"}[the appendix]. Everything else here is
-backed by existing theorems in `BookProof`.
+Bayesian updates. Of the two new identifiers this chapter
+contributes, the first — the coherent overlap with its Softmax consequence — is
+now proved, in `BookProof.ChapterCoherentOverlap`,
+`BookProof.ChapterSoftmaxBorn` and `BookProof.ChapterObservableExpectation`. The
+second, the temperature identity $`\tau = \bar n + \tfrac12`, is proved only in
+its statistical core (`BookProof.ChapterCoherentTemperature`); its physical
+derivation from the fidelity of displaced thermal states remains a precise proof
+plan in {ref "proof-plans"}[the appendix]. Two honest caveats: the theorems are
+proved for *real* coherent-state parameters, where the Bargmann kernel is a
+positive real (the complex case adds only a phase, which the Born rule discards);
+and the observable is represented by its spectral data rather than by the
+operator $`\hat V` itself. Everything else here is backed by existing theorems in
+`BookProof`.
 :::

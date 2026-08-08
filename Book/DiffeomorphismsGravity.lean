@@ -74,6 +74,20 @@ manuscript's $`3+1` decomposition of spacetime itself:
 #check @BookProof.ChapterGravityProjDirectSum.isCompl_range_of_add_eq_id
 ```
 
+:::paragraph
+The decomposition is moreover of the shape the manuscript asserts: the temporal
+summand is precisely the line $`\mathbb{R}\cdot v` through the unit timelike
+vector, so it is one-dimensional, and the spatial summand is a hyperplane. The
+split is therefore literally $`4 = 3 + 1`:
+:::
+
+```
+#check @BookProof.ChapterGravityRankSplit.timeRange_eq_span
+#check @BookProof.ChapterGravityRankSplit.finrank_timeRange
+#check @BookProof.ChapterGravityRankSplit.finrank_spatialRange
+#check @BookProof.ChapterGravityRankSplit.gravity_split_three_plus_one
+```
+
 # The Induced Spatial Metric
 
 :::paragraph

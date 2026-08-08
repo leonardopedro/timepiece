@@ -62,24 +62,35 @@ is null.
 
 ## A.4 Energy-bounded initial conditions
 
-*Goal.* Prove that an initial wave-function supported on the spectrum of $`H`
-below $`E_{\max}` has a bounded time-derivative (hence cannot blow up in finite
-time), using conservation of the spectral measure under unitary evolution.
+*Status: PROVED* (in the spectral representation).
+`BookProof/ChapterSpectralEnergyBound.lean` works where the spectral theorem has
+already been applied, i.e. with $`H` the multiplication operator attached to a real
+eigenvalue function $`f`, and proves the whole chain: the spectral-projection bound
+$`\|H\psi\| \le E_{\max}\|\psi\|` for $`\psi` supported on $`\{|f| \le E_{\max}\}`
+(`norm_diagOp_le`); unitarity of the evolution (`norm_evolve`); the Schrödinger
+equation $`\psi'(t) = -iH\psi(t)` (`hasDerivAt_evolve`); the uniform bound
+$`\|\partial_t\psi(t)\| \le E_{\max}\|\psi(0)\|` (`norm_deriv_evolve_le`); and hence
+global Lipschitz continuity in time (`evolve_lipschitz`) — no finite-time
+singularity.
 
-*Plan.* Depends on A.2 (the spectral theorem for the essentially self-adjoint
-$`H`). State and prove the spectral-projection bound
-$`\|H\,\psi\| \le E_{\max}\|\psi\|` for $`\psi` in the spectral subspace, and deduce
-a uniform bound on $`\|\partial_t \psi(t)\|`.
+```
+#check @ChapterSpectralEnergyBound.norm_diagOp_le
+#check @ChapterSpectralEnergyBound.norm_deriv_evolve_le
+#check @ChapterSpectralEnergyBound.evolve_lipschitz
+```
 
 # B. The PA-Free Chapter
 
-## B.1 The verifiable analytic core (already available)
+## B.1 The verifiable analytic core (proved)
 
 The Riesz–Fischer characterization `completeSpace_iff_summable_norm` and the
-completeness of `UniformSpace.Completion` are in Mathlib and need only be
-*instantiated* for the finitely-supported core `P →₀ ℝ` and its completion. This is
-a short task: build the `NormedAddCommGroup` / `CompleteSpace` instances and apply
-the Mathlib theorems.
+completeness of `UniformSpace.Completion` are in Mathlib. The analytic core is
+now fully instantiated in `BookProof.ChapterRieszFischer`: $`\ell^2(\mathbb{N})`
+is complete (`ell2_completeSpace`), every vector is the unconditional sum of its
+coordinate atoms (`riesz_fischer_hasSum`), the finitely-supported core is dense
+(`finSupport_dense`) and proper (`finSupport_ne_univ`), and the rational fragment
+is a countable dense subset (`BookProof.ChapterEll2Separable.ell2_separable`), so
+the completion is separable.
 
 ## B.2 Definability / conservativity (the hard, partly informal part)
 
@@ -87,14 +98,14 @@ the Mathlib theorems.
 metamathematical statement about definability in the base language, *not* an
 internal theorem of analysis.
 
-*What is formalizable.* A precise, weaker theorem: in the language whose only
-vector constants are finitely supported, every *definable* vector is finitely
-supported. The finite-support half is `Finsupp.finite_support`. A model-theoretic
-conservativity statement (the completion is a conservative extension of the
-decidable base theory) would require formalizing a first-order language of Hilbert
-spaces and a definability predicate — a research-scale task. We recommend stating
-the precise, provable fragment (definable-from-finite-constants implies
-finite-support) and clearly documenting the interpretive step that lies beyond it.
+*What is formalizable.* The precise, provable fragment is now proved in
+`BookProof.ChapterDefinabilityFragment`: inside $`\ell^2(\mathbb{N})` the image of
+the term-denotable fragment $`\mathbb{N} \to_0 \mathbb{R}` is *exactly* the set of
+finitely-supported vectors, that set is dense, and it is a proper subset
+(`completion_conservative_over_core`). The remaining, purely *proof-theoretic*
+reading — that the completion is a conservative extension of the base theory —
+would require formalizing a first-order language of Hilbert spaces and a
+definability predicate, a research-scale task that is not claimed here.
 
 # C. Book Tooling
 

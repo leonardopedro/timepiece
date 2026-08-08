@@ -12,6 +12,41 @@ This is an execution plan for an LLM–Lean-4-specialist agent. It has two goals
 Every new theorem must remain `sorry`-free and `axiom`-free (only `propext`,
 `Classical.choice`, `Quot.sound`).
 
+## Status (2026-08-08 — wave landed; read this before starting)
+
+Part A (the coherent-state chapter) and Part B below are **complete**: the chapter
+builds, all its `#check` blocks elaborate, and the new theorems are `sorry`-free
+and `axiom`-free. Concretely:
+
+- **Part A.** `ChapterCoherentOverlap`, `ChapterSoftmaxBorn` (headline
+  `coherentBorn_eq_softmax`), `ChapterObservableExpectation`, and the statistical
+  core of `ChapterCoherentTemperature` are all proved, registered in `BookProof.lean`,
+  and `#check`-ed in `Book/CoherentState.lean`. A.4 (the physical temperature
+  identity) remains a documented proof plan.
+- **Part B.1.** `tailSplitEquiv_map` in `ChapterSolovayCoordinates.lean` is now
+  **proved** (no `sorry`); `mehler_unique_by_finite_marginals` is proved in
+  `ChapterMehlerUniqueness.lean`.
+- **Part B.3.** The concrete Schur (`ChapterSchurFullFiniteDim`) and Pauli
+  (`ChapterPauliCommutant`) cases, unitary complete reducibility
+  (`ChapterUnitaryCompleteReducibility`) and Maschke's theorem for finite groups
+  (`ChapterMaschkeFiniteGroup`) are proved; the general `EXTERNAL` flags are
+  retained only where the deep general theorem is genuinely out of Mathlib.
+- **Part B.4.**   `selecting_events_not_rewriting_history`,
+  `exists_regular_conditional_probability`, `exists_continuous_atomic_decomposition`
+  and the finite type-`Iₙ` case `vonNeumann_abelian_classification_typeI`
+  (`ChapterSelectingEvents.lean`, discharging the `ChapterAbelianDiagonal` core)
+  are real theorems now, not `True` placeholders. The full von Neumann
+  `*`-isomorphism classification (the remaining four classes and exhaustiveness)
+  is a documented gap.
+- **Hygiene.** Only `RandomMap/SchoenfeldPRA.lean:162,176` (intentional) carry
+  `sorry`; no `axiom` anywhere in `BookProof/`. `lake build BookProof`, `lake build
+  book`, `lake exe book` + `./patches/postprocess-html.sh` are all green.
+
+**What remains is listed in Part C and Part D below** (the next waves): Part C is
+the mathematical next deliverables; Part D is the project-wide warnings and
+build-failure hygiene pass (`PnpProof/`, `UnusedRoute/`, `UsedRoute/` out of scope
+per author mandate). Work them in order, targeting ≥ 4 deliverable groups per pass.
+
 ## Provenance of the new chapter (read before starting)
 
 `Book/CoherentState.lean` is **original content**: unlike every other curated
@@ -253,6 +288,182 @@ is not reachable in Mathlib v4.28.0.
 
 ---
 
+## Part C — Next wave (2026-08-08): close the recorded disparities and the next von Neumann class
+
+All of Part A and Part B are complete. The remaining work that is **realistic** in
+Mathlib v4.28.0 is:
+
+### C.1 — Complex coherent overlap and Born-weight invariance `ChapterCoherentOverlap` / `ChapterSoftmaxBorn`
+
+Both modules record the same documented disparity: the theorems are proved for
+*real* coherent-state parameters, where the Bargmann kernel is a positive real; the
+general *complex* kernel carries an extra phase `exp(i·Im⟪q,k⟫)` which the Born
+rule (squared modulus) discards. Close it:
+
+- Extend `coherentOverlap` to complex parameters `q k : EuclideanSpace ℂ (Fin n)`:
+  `coherentOverlap_c q k = exp(-‖q‖²/2 - ‖k‖²/2 + ⟪q,k⟫)` (complex exponent).
+- Prove the phase factor: `coherentOverlap_c q k = coherentOverlap_re (q.re,k.re) ·
+  exp(i·Im⟪q,k⟫)` (or the coordinate form), and hence
+  `‖coherentOverlap_c q k‖² = ‖coherentOverlap_re q' k'‖²` — the Born weight is
+  unchanged.
+- Upgrade `coherentBorn_sq_eq` and the headline `coherentBorn_eq_softmax` to complex
+  parameters (re-derive the three-factor split with `Complex.normSq`).
+
+**Definition of done:** `coherentOverlap_c`, the phase identity, and the complex
+`coherentBorn_eq_softmax` are `sorry`-free/`axiom`-free, registered, and `#check`-ed
+in `Book/CoherentState.lean`; the disparity note is updated to "closed".
+
+### C.2 — The observable as an operator `ChapterObservableExpectation`
+
+The second recorded disparity: the chapter writes `V̂ = ∑ⱼ vⱼ |kⱼ⟩⟨kⱼ|` and appeals
+to the spectral theorem, while the module uses only spectral data. Supply the
+finite operator itself:
+
+- Build `observableOp k v : Matrix (Fin m) (Fin m) ℂ` (or as an endomorphism of the
+  span of the keys) with `observableOp k v = ∑ⱼ vⱼ • outer kⱼ kⱼ`.
+- Prove it is **Hermitian** when the eigenvalues `vⱼ` are real
+  (`(observableOp k v)ᴴ = observableOp k v`), and that its expectation in the state
+  `|q⟩` with Born statistics `pⱼ` satisfies `⟨observableOp⟩ = ∑ⱼ pⱼ vⱼ`, i.e.
+  `attention_eq_expectation` upgraded to a genuine operator expectation.
+
+**Definition of done:** `observableOp`, Hermitianness, and the operator expectation
+identity are `sorry`-free/`axiom`-free and `#check`-ed in `Book/CoherentState.lean`.
+
+### C.3 — The second von Neumann class: maximal abelian `ℓ∞(ℕ)` on `ℓ²(ℕ)` `ChapterAbelianDiagonal` follow-on
+
+`ChapterAbelianDiagonal` proves the finite (type `Iₙ`) class: `ℓ∞({1,…,n})` realized
+as a MASA of `Mat(n,ℂ)`. The **countable** class `ℓ∞(ℕ)` is the natural next rung of
+the five-item list and is realistic now that `ChapterRieszFischer` / `ChapterEll2Separable`
+have built `ℓ²(ℕ)`:
+
+- Define the diagonal embedding `(ℕ →₀ ℝ) → Ell2` (already have `ofCore`) and, over
+  a bounded sequence, the diagonal multiplication operator on `ℓ²(ℕ)`.
+- Prove the countable analog of maximal abelianness: the diagonal bounded operators
+  on `ℓ²(ℕ)` form an abelian algebra that is its own commutant (commutant
+  computation on `lp` / `MemLp`), giving the second isomorphism class
+  `vonNeumann_abelian_class_countable`.
+
+**Definition of done:** the `ℓ∞(ℕ)` MASA theorem `sorry`-free/`axiom`-free, and
+`#check`-ed in `Book/NullMeasure.lean` next to the type-`Iₙ` case. (The `L∞([0,1])`
+and mixture classes require von-Neumann-algebra machinery absent from Mathlib
+v4.28.0; keep the full five-item classification a documented gap.)
+
+### C.4 — Maschke consequences for the averaging package `ChapterMaschkeFiniteGroup`
+
+The Maschke package proves existence of an invariant complement; its two structural
+consequences are not yet recorded:
+
+- `avgProj_idempotent` — the averaged projection is a genuine projection
+  (`avgProj ρ pi ∘ avgProj ρ pi = avgProj ρ pi`), and `avgProj_range_eq_W` — its
+  range is exactly the invariant subspace `W`.
+- `maschke_decomposition` — package the full decomposition: `V = W ⊕ W'` with both
+  `W` and `W'` invariant and the projection onto `W` commuting with `ρ` (the book's
+  "any invariant subspace is a direct summand" phrasing).
+
+**Definition of done:** `avgProj_idempotent`, `avgProj_range_eq_W`,
+`maschke_decomposition` `sorry`-free/`axiom`-free and `#check`-ed in
+`Book/PhysicalParity.lean`.
+
+---
+
+## Part D — Hygiene: fix warnings and build failures (whole project, except `PnpProof/`, `UnusedRoute/`, `UsedRoute/`)
+
+Author mandate (2026-08-08): fix the linter warnings **and** the build failures in
+this project, with `PnpProof/`, `UnusedRoute/`, `UsedRoute/` explicitly **out of
+scope** (leave them untouched, even when their warnings show up in a shared build
+log). Everything else — `BookProof/`, `RandomMap/`, `Singularity/`, `Book/`,
+`Book.lean`, `BookProof.lean` — is in scope.
+
+### Current state (surveyed 2026-08-08)
+
+- **Default targets build green.** `lake build` (default targets `BookProof`,
+  `Book`, `Singularity`) completes with 8508 jobs and no errors.
+- **`lake build RandomMap` FAILS.** `RandomMap/RandomMap2Walk.lean` has ~50 errors
+  (a `rewrite` that no longer finds its pattern, `Fin.cast`/`Fin N` vs `ℕ`
+  application-type mismatches, an unsolved instance, etc.). This module is imported
+  only by the unregistered scratch files `BookProof/randomMap2_axioms.lean` and
+  `BookProof/B1_randomMap2_axioms.lean` (not registered in `BookProof.lean`), so the
+  failure is invisible to the default build; it is still a real build failure in
+  scope. `RandomMap/SchoenfeldPRA.lean` imports the excluded `UnusedRoute.RcpEuler`
+  / `SchoenfeldMatrix`, so it cannot be built standalone until those are; treat
+  `RandomMap2Walk` as the primary fixable target.
+- **Warnings in scope:** ~1422 lines in `BookProof/` plus 2 in
+  `RandomMap/SchoenfeldPRA.lean` (the intentional `sorry`s at 159/168) on a full
+  `lake build`; `lake build RandomMap` additionally surfaces 11 in
+  `RandomMap2Walk.lean` and 1 in `RandomMap2Moments.lean`; `lake build book` shows
+  1 (the benign `verso: repository … has local changes` notice, no action).
+  Excluded-directory warnings (~1080 lines: `UsedRoute/RectangleStrategy` 350,
+  `PnpProof/SphereGaussian` 247, etc.) are **not** to be touched.
+- **Worst offenders in scope** (BookProof): `ChapterParityChirality` 90,
+  `ChapterTsirelson` 74, `ChapterMajoranaFourier` 57, `ChapterE` 57, `ChapterF4` 54,
+  `ChapterF6` 47, `ChapterA3u` 42, `ChapterA3c` 41, `ChapterA3b` 41, `ChapterE2` 35,
+  `ChapterSolovayCoordinates` 33. ~100 files carry at least one warning.
+
+### D.1 — Fix the `RandomMap` build failure (highest priority)
+
+`RandomMap/RandomMap2Walk.lean` (~50 errors) must build. Diagnose the errors in
+order:
+
+- `rewrite` at 61:164 no longer finds `(Measure.pi ?μ) (univ.pi ?s)` — likely the
+  lemma it used (`MeasureTheory.Measure.pi_congrLeft` or a `pi`-on-`univ.pi`
+  lemma) changed shape; replace with the current Mathlib v4.28.0 identity.
+- The `Fin.cast hn` / `x k` mismatches at 132–184: `hn : n ≤ N` is used as if it
+  were `n = N` and `k : ℕ` is applied to `x : InnerHead N = Fin N → ℝ`; introduce
+  the correct index coercion (`⟨k, hk⟩` / `Fin.castLT`/`Fin.ofNat`) and the
+  equality from the `Fin N` type structure. Fix the failed instance at 180.
+- If a claim needs `Measure.infinitePi`-splitting that is genuinely out of Mathlib,
+  keep it as an `EXTERNAL` named hypothesis (never `sorry`, never `axiom`); a
+  build failure must become a *green build with a documented gap*, not a broken file.
+
+**Definition of done:** `lake build RandomMap` completes; the only remaining
+`RandomMap/` warnings are the two intentional `sorry`s in `SchoenfeldPRA.lean`.
+
+### D.2 — Zero-warning pass on `BookProof/` (in-scope files only)
+
+Work the ~100 in-scope files, starting with the worst offenders listed above. Fix
+each warning at its source (never silence with `set_option linter.* false` at file
+top, and never change `lakefile.toml` `[leanOptions]`):
+
+- `simp`/`simp_all`/`aesop`/`omega`/`linarith` "is a flexible tactic modifying …",
+  "Try this:", and "uses '⊢'!" suggestions → apply the `…?`-suggested `simp only
+  [...]` / `aesop?` / `omega?` form, dropping unused simp arguments and unused
+  hypotheses.
+- `refine'` → `refine`/`apply` where possible; `exact`/`by congr`-style
+  "uses '⊢'!" fixes.
+- Long lines (> 100 chars) → wrap per the project style (AGENTS.md: no lines over
+  100 chars, no trailing whitespace, no extra alignment spaces).
+- Unused variable / unused-argument warnings → `_` / `omit` where appropriate.
+- The five newly copied files already have recorded diagnoses if the warning pass
+  resumes there: `ChapterSolovay.lean:343` (empty line inside a command),
+  `ChapterPauliCommutant.lean` (flexible `simp` at 50, unused simp args at 81/89,
+  unused `mgammaLin` at 192), `ChapterDensityMarginalConditional.lean` (unused
+  `[Fintype n] [DecidableEq n]` at 43 and unused simp args / no-op `push_cast` at
+  90–98), `ChapterRieszFischer.lean:62,84` (drop `Function.mem_support`, `ne_eq`,
+  `Real.rpow_natCast`), `ChapterPaFreeCompletion.lean:72` (`simpa` → `simp`).
+
+**Definition of done:** `lake build` (default targets) shows **no warnings from
+`BookProof/`, `Book/`, `Singularity/`, or the root files** — only the excluded
+directories' warnings may remain, and only `RandomMap/SchoenfeldPRA.lean` keeps its
+two intentional `sorry` warnings. `lake build book` stays green.
+
+### D.3 — Verification gate (do not skip)
+
+1. `lake build` green; `lake build RandomMap` green; `lake build book` green.
+2. `lake build 2>&1 | grep -E "^warning:"` must contain **only** paths under
+   `PnpProof/`, `UnusedRoute/`, `UsedRoute/` and the two `SchoenfeldPRA` `sorry`
+   notices.
+3. `grep -rn "sorry" BookProof/ RandomMap/ Singularity/` shows only
+   `RandomMap/SchoenfeldPRA.lean` (intentional) and any newly documented `EXTERNAL`
+   gaps — never a `sorry` introduced by this pass.
+4. `#print axioms` spot-checks on touched headline theorems: only `propext`,
+   `Classical.choice`, `Quot.sound`.
+5. If a warning is genuinely unfixable in Mathlib v4.28.0, record it (file:line +
+   reason) in `BookProof/STATUS.md` under a "Known warnings (2026-08-08)" note
+   rather than suppressing it.
+6. Register any new `BookProof` file created during fixes in `BookProof.lean`.
+
+---
+
 ## Definition of done (whole wave)
 
 1. `Book/CoherentState.lean` builds (it already does) and its new `#check` blocks
@@ -274,14 +485,26 @@ is not reachable in Mathlib v4.28.0.
 6. `BookProof/STATUS.md` updated with a dated wave note, including any recorded
    disparity between each new coherent-state claim and the proved theorem (per the
    provenance note above).
+7. Part D: `lake build` (default targets) green with **no in-scope warnings**
+   (`BookProof/`, `Book/`, `Singularity/`, root files; the two intentional
+   `RandomMap/SchoenfeldPRA.lean` `sorry` notices excepted); `lake build RandomMap`
+   green; `lake build book` green. Excluded directories (`PnpProof/`,
+   `UnusedRoute/`, `UsedRoute/`) untouched.
 
 ## Execution guidance
 
-- Work the queue **in order** (Part A before Part B), landing several deliverables
-  per pass (author mandate: target ≥ 4 deliverable groups per pass).
+- Work the queue **in order** (Part A before Part B; Parts C and D may proceed in
+  parallel per wave), landing several deliverables per pass (author mandate: target
+  ≥ 4 deliverable groups per pass).
+- **Part D scope is strict:** never edit `PnpProof/`, `UnusedRoute/`, `UsedRoute/`
+  even when their warnings appear in a shared `lake build` log; only `BookProof/`,
+  `RandomMap/`, `Singularity/`, `Book/`, and the root files are in scope.
 - Do not add another instance of an already-general result (the dimension-count
   thread is closed at `N = 6`).
 - Keep every theorem `sorry`-free / `axiom`-free. Where a full claim is out of
   reach, state the provable core precisely and record the gap in
   `BookProof/STATUS.md` / `FORMALIZATION_ROADMAP.md`; never `sorry` a strong claim.
 - Prefer `EXTERNAL` named hypotheses over `axiom` for the deep external theorems.
+- Fix warnings at the source (use the `…?`-suggested `simp only`/`aesop`/`omega`
+  forms, drop unused args); never suppress with file-top `set_option linter.* false`
+  and never edit `lakefile.toml` `[leanOptions]`.

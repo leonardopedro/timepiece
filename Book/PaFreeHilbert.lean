@@ -132,6 +132,37 @@ support, so anything you can actually write down is finitely supported and decid
 #check @Finsupp.finite_support
 ```
 
+*The completion adds exactly the limit points, and nothing else.* This is the
+Riesz–Fischer half of the construction, now proved rather than asserted: the
+sequence space $`\ell^2(\mathbb{N})` is complete; every one of its vectors is the
+norm-limit of its finitely-supported truncations; the image of the writable core
+$`\mathbb{N} \to_0 \mathbb{R}` is *exactly* the set of finitely-supported vectors;
+and that image is a *proper* subset, so the completion is not a vacuous
+operation.
+
+```
+#check @riesz_fischer
+#check @range_ofCore
+#check @denseCore_dense
+#check @denseCore_proper
+#check @completion_conservative_over_core
+```
+
+The Riesz–Fischer facts themselves live in `BookProof.ChapterRieszFischer`: the
+completeness of $`\ell^2(\mathbb{N})` (`ell2_completeSpace`), the unconditional
+sum representation of every vector (`riesz_fischer_hasSum`), and the properness
+witness that the completion genuinely adds elements — the geometric vector
+$`n \mapsto 2^{-n}` is square-summable but has infinite support:
+
+```
+#check @BookProof.ChapterRieszFischer.ell2_completeSpace
+#check @BookProof.ChapterRieszFischer.riesz_fischer_hasSum
+#check @BookProof.ChapterRieszFischer.finSupport_dense
+#check @BookProof.ChapterRieszFischer.finSupport_ne_univ
+#check @BookProof.ChapterRieszFischer.geomVec_not_mem_finSupport
+#check @BookProof.ChapterRieszFischer.core_proper_and_dense
+```
+
 *Infinite elements are null events under a diffuse prior.* Since the infinite
 elements cannot be named as constants, the manuscript represents them as measurable
 sets under a diffuse probability prior. Under any *diffuse* measure (every
@@ -156,6 +187,18 @@ completed space — are not definable in the base language:
 
 This is the definability-theoretic form of unselectability: the elements that
 Kopperman's trap would need to isolate simply cannot be named.
+
+Moreover the completed space $`\ell^2(\mathbb{N})` is *separable* — a countable
+language suffices to name a *dense* fragment of it. The finitely-supported
+*rational* vectors form a countable set (`ratVec_range_countable`) which is still
+dense (`ratVec_dense`), so the whole completion is the closure of a countable set
+of nameable vectors:
+
+```
+#check @BookProof.ChapterEll2Separable.ratVec_range_countable
+#check @BookProof.ChapterEll2Separable.ratVec_dense
+#check @BookProof.ChapterEll2Separable.ell2_separable
+```
 
 # The Metamathematical Interpretation (Not a Theorem)
 

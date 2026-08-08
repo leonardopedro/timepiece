@@ -159,6 +159,24 @@ time-derivative corresponds to the Hamiltonian, whose spectral measure is conser
 by unitary evolution, so an initial condition using only eigenfunctions below some
 $`E_{\max}` cannot produce a divergent time-derivative.
 
+That complementary argument is now proved, in the spectral representation where the
+Hamiltonian is multiplication by its (real) eigenvalue function, in
+`BookProof/ChapterSpectralEnergyBound.lean`: the evolution is unitary
+(`norm_evolve`), it satisfies the Schrödinger equation $`\psi'(t) = -iH\psi(t)`
+(`hasDerivAt_evolve`), an initial state supported below $`E_{\max}` obeys the
+spectral bound $`\|H\psi\| \le E_{\max}\|\psi\|` (`norm_diagOp_le`), so the
+time-derivative is bounded uniformly in time (`norm_deriv_evolve_le`) and the
+solution is globally Lipschitz — there is no finite-time singularity
+(`evolve_lipschitz`).
+
+```
+#check @ChapterSpectralEnergyBound.norm_diagOp_le
+#check @ChapterSpectralEnergyBound.norm_evolve
+#check @ChapterSpectralEnergyBound.hasDerivAt_evolve
+#check @ChapterSpectralEnergyBound.norm_deriv_evolve_le
+#check @ChapterSpectralEnergyBound.evolve_lipschitz
+```
+
 *Formalization.* The complexification resolution is formalized in
 `BookProof/ChapterOdeComplexification.lean`:
 

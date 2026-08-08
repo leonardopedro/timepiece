@@ -146,6 +146,27 @@ $`\ell^\infty(\{1,\dots,n\})`:
 #check @BookProof.ChapterAbelianVonNeumannFinite.abelian_commutant_isomorphic_ellInfty
 ```
 
+In fact the diagonal algebra is *maximal* abelian in the strongest concrete
+sense: the embedding $`\ell^\infty(\{1,\dots,n\}) \to \mathrm{Mat}(n,\mathbb{C})`
+given by $`d \mapsto \operatorname{diag}(d)` is an injective $`*`-algebra map whose
+image is exactly its own commutant — any matrix commuting with *every* diagonal
+matrix is itself diagonal. This is the finite (type $`\mathrm{I}_n`) case of von
+Neumann's classification, proved outright in `BookProof.ChapterAbelianDiagonal`:
+
+```
+#check @BookProof.AbelianDiagonal.diagonalStarAlgHom_injective
+#check @BookProof.AbelianDiagonal.diagonal_commute
+#check @BookProof.AbelianDiagonal.commutant_diagonal_eq_diagonal
+#check @BookProof.AbelianDiagonal.vonNeumann_abelian_typeI_case
+```
+
+The same statement is packaged, against the manuscript's five-type list, in
+`BookProof.ChapterSelectingEvents`:
+
+```
+#check @BookProof.ChapterSelectingEvents.vonNeumann_abelian_classification_typeI
+```
+
 # Continuous Priors Are Out of Reach of Discrete Ones
 
 The splitting also settles the manuscript's "worst-case versus best-case prior"

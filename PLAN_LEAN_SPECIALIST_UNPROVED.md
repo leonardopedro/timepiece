@@ -28,24 +28,50 @@ are **not yet proved**. Every new theorem must remain `sorry`-free and
 
 ## Current state (audit, August 2026)
 
-- **Actual `sorry`s:** only `BookProof/ChapterSolovayCoordinates.lean:85`
-  (`tailSplitEquiv_map`) is a real, fixable gap. The two in
-  `RandomMap/SchoenfeldPRA.lean:162,176` are pre-existing and intentional — leave
-  them.
-- **`True` placeholders** in `BookProof/ChapterSelectingEvents.lean` (the
-  P≠NP-adjacent chapter — prose/meta, low priority, see §5):
-  - `selecting_events_not_rewriting_history` (line 226) — conclusion is `True`;
-  - `exists_continuous_atomic_decomposition` (line 149) — conclusion is `True`;
-  - `vonNeumann_abelian_classification_true` (line 108) — contains a `sorry`.
+> **Status refresh (2026-08-08):** most Priority items below are now proved — see
+> `PLAN_LEAN_SPECIALIST_COHERENT.md` §Status. In particular `tailSplitEquiv_map`,
+> `mehler_unique_by_finite_marginals`, `selecting_events_not_rewriting_history`,
+> `exists_continuous_atomic_decomposition`, the finite type-`Iₙ` von Neumann case,
+> the concrete Schur/Pauli/unitary/Maschke cases, and the §5 "definability / mixed
+> priors / error norms / finite arithmetic prior / kernel transport" items are all
+> real theorems. The next-wave deliverables are listed as **Part C** of
+> `PLAN_LEAN_SPECIALIST_COHERENT.md` (complex coherent overlap, the observable
+> operator `V̂`, the `ℓ∞(ℕ)` von Neumann class, Maschke averaging consequences).
+> This file's historical items remain below for provenance.
+
+- **Actual `sorry`s:** the former real gap
+  `BookProof/ChapterSolovayCoordinates.lean:85` (`tailSplitEquiv_map`) is now
+  **proved**. The two in `RandomMap/SchoenfeldPRA.lean:162,176` are pre-existing
+  and intentional — leave them.
+- **`True` placeholders** in `BookProof/ChapterSelectingEvents.lean` — all now
+  **replaced by real theorems** (kept here for provenance):
+  - `selecting_events_not_rewriting_history` — now proves `μ[F | E] = μ(E∩F)/μ(E)`;
+  - `exists_continuous_atomic_decomposition` — now proves a genuine atomic +
+    atom-free decomposition;
+  - `vonNeumann_abelian_classification_typeI` — replaces the former `True`/`sorry`
+    pair with the proved finite type-`Iₙ` case (the old `True` placeholder pair is
+    preserved commented out in the file).
 - **Named `EXTERNAL` hypotheses** (documented, never `axiom`): Schur's lemma for
-  unitary reps, Weyl complete reducibility, Wigner/Mackey imprimitivity
-  exhaustiveness, Pauli's fundamental theorem of γ-matrices, Varadarajan Thm 6.12,
+  unitary reps (`IsSchurUnitary`, `IsSchurFull`), Weyl complete reducibility
+  (`WeylCompleteReducibility`), Wigner/Mackey imprimitivity exhaustiveness,
+  Pauli's fundamental theorem of γ-matrices (`PauliFundamental`), Varadarajan Thm 6.12,
   `levy_paths_nowhere_differentiable`, `CrouzeixBound`. These are the deepest open
-  inputs; §4 lists which are realistically provable in Mathlib.
+  inputs; §4 lists which are realistically provable in Mathlib. **Status (2026-08-08):**
+  the concrete finite-dimensional cases are proved `EXTERNAL`-free (finite Schur
+  `ChapterSchurFullFiniteDim.commutant_eq_scalars_of_irreducible`, the 4×4
+  Pauli/Majorana commutant `BookProof.ChapterA3.mgamma_commutant_scalar` /
+  `mgamma_irreducible`, unitary complete reducibility
+  `ChapterUnitaryCompleteReducibility.unitary_complete_reducibility`, Maschke
+  `ChapterMaschkeFiniteGroup.maschke_invariant_complement`); the general deep
+  statements remain named hypotheses.
 
 ---
 
 ## Priority 1 — Close the one real `sorry` (Mehler tail split)
+
+> **Status (2026-08-08): DONE.** `tailSplitEquiv_map` (then at line 85) is now
+> proved with no `sorry`; the dependent Solovay structure theorems landed too.
+> Kept below for provenance.
 
 File: `BookProof/ChapterSolovayCoordinates.lean`, theorem `tailSplitEquiv_map`
 (line 85). This is the only genuine `sorry` in the new code and it is the
@@ -88,6 +114,13 @@ may be unproved or partially proved):
 ---
 
 ## Priority 2 — `ChapterSelectingEvents` real conclusions (conditional-probability core)
+
+> **Status (2026-08-08): DONE.** `selecting_events_not_rewriting_history` now
+> proves `μ[F | E] = μ(E∩F)/μ(E)`; `exists_continuous_atomic_decomposition` has a
+> real continuous+atomic conclusion; `exists_regular_conditional_probability` is
+> realized via `compProd`/`condDistrib`; and the finite type-`Iₙ` case
+> `vonNeumann_abelian_classification_typeI` replaces the former `True`/`sorry`
+> pair. Kept below for provenance.
 
 The chapter's *mathematical* (non-P≠NP) content is the claim that selecting a
 positive-measure event does not "rewrite history": the regular conditional
@@ -232,6 +265,9 @@ $`\rho = U D U^\dagger` with $`D` diagonal real and $`U` unitary. Use Mathlib's
 as the conditional via `BookProof/ChapterDensitySpectral.lean` and
 `ChapterConditional.lean`. Deliverable: `density_spectral_unitary_decomposition`.
 
+**Status (2026-08-08): DONE.** `BookProof.DensitySpectral.density_spectral` proves
+`ρ = U D U†` with `U` the eigenvector unitary and `D` diagonal real.
+
 ### 5.2 Average (L²) vs maximal (L^∞) error duality
 `book.tex` ~8405–8414: average error = $`L^2` norm of $`\sqrt{\rho}`; maximal error
 = $`L^\infty` norm.
@@ -242,12 +278,19 @@ inequality on a finite measure space. Use Mathlib `MeasureTheory.Lp` /
 `MeasureTheory.lintegral`. Deliverable: `wavefunction_l2_norm_sq_eq_integral`,
 `l2_le_linfty_of_finite`.
 
+**Status (2026-08-08): DONE.** Both theorems proved in `BookProof/ChapterErrorNorms.lean`
+(`BookProof.ChapterErrorNorms.wavefunction_l2_norm_sq_eq_integral`,
+`l2_le_linfty_of_finite`).
+
 ### 5.3 Countable definability of the reals
 `book.tex` ~8430–8434: the set of reals definable in a fixed countable language is
 countable. `BookProof/ChapterDefinabilityFragment.lean` and
 `ChapterCountableDefinability.lean` already prove `definable_reals_countable` and
 `exists_nondefinable_real`. Verify they are `sorry`-free; if the roadmap notes any
 gap, complete it. Deliverable already present — confirm and add `#check`.
+
+**Status (2026-08-08): DONE.** `BookProof.ChapterCountableDefinability.definable_reals_countable`
+and `exists_nondefinable_real` both prove; `sorry`-free.
 
 ### 5.4 Finite computation + Bayesian prior for large integers
 `book.tex` ~10646–10653. `BookProof/ChapterFiniteArithmeticPrior.lean` already proves
@@ -256,17 +299,27 @@ finite truncation of multiplication (bounded by `B`) is consistent with the exac
 arithmetic on `[0,B]`, and the extension prior is a genuine probability distribution.
 Verify `#check`-able; complete any placeholder.
 
+**Status (2026-08-08): DONE.** `BookProof.ChapterFiniteArithmeticPrior.prior_is_probability`
+(`0 ≤ prior h` ∧ `Σ h, prior h = 1`) and `certainExtension_known` both prove.
+
 ### 5.5 Kopperman `L_{ω₁ω₁}`: all models separable
 `book.tex` ~10630–10644. `PnpProof/Kopperman.lean` has `substrate_separable` and the
 Π⁰₂-invariance facts. Add (if not present) the explicit theorem "every `Formalism H`
 model carries a separable Hilbert structure" and the invariance of finitary truth
 across models. Keep full infinitary completeness/compactness as a documented gap.
 
+**Status (2026-08-08): DONE.** `PnpProof.Kopperman.substrate_separable` and the
+`BookProof.ChapterKopperman` wrapper `kopperman_substrate_separable` prove.
+
 ### 5.6 Probability as a universal language (kernel transport)
 `book.tex` ~8402, 8702. Prove: a Markov/conditional kernel $`X \to Y` transports any
 probability measure, and the transported measure is a probability measure. Use
 `MeasureTheory.Measure.map` / `ProbabilityTheory.cond`. Deliverable:
 `kernel_transport_isProbability`.
+
+**Status (2026-08-08): DONE.** `BookProof.ChapterKernelTransport.kernel_transport_isProbability`
+(plus `kernel_transport_apply`, `kernel_transport_lintegral`, `kernel_transport_deterministic`)
+all prove.
 
 ---
 

@@ -185,6 +185,24 @@ parametrizes it, $`p(x,y) = p(y|x)\,p(x)`:
 #check @pJoint_eq_cond_mul_marg
 ```
 
+:::paragraph
+The same marginal/conditional split is available for a *density matrix*. The
+spectral decomposition $`\rho = U\,\mathrm{diag}(d)\,U^\dagger` has a diagonal
+$`d` which is a probability distribution — the marginal of the initial state —
+while the Born matrix $`\|U_{ij}\|^2` of the unitary is a *doubly stochastic*
+conditional probability, and the final-state marginal is obtained from $`d` by
+that conditional, $`\rho_{ii} = \sum_k \|U_{ik}\|^2 d_k`:
+:::
+
+```
+#check @BookProof.DensitySpectral.bornKernel
+#check @BookProof.DensitySpectral.bornKernel_row_sum
+#check @BookProof.DensitySpectral.bornKernel_col_sum
+#check @BookProof.DensitySpectral.density_diag_eq_kernel_apply
+#check @BookProof.DensitySpectral.density_diag_isProbability
+#check @BookProof.DensitySpectral.density_marginal_conditional
+```
+
 # What Is Verified and What Is Infinite-Dimensional
 
 :::paragraph
@@ -195,10 +213,27 @@ manuscript states the result for arbitrary *standard* measure spaces, possibly w
 continuous parts; the abstract measure-theoretic layer — the classification of
 standard measure spaces, the identification of commutative von Neumann algebras with
 $`L^\infty(X,\mu)`, and regular conditional probabilities via disintegration on a
-standard Borel space — is the infinite-dimensional extension. Parts of that layer are
-recorded as proof plans in {ref "proof-plans"}[the appendix] (and as placeholders in
-`ChapterSelectingEvents`); the finite-dimensional algebraic core proved here is what
-makes the parametrization work, and it is the part the book actually computes.
+standard Borel space — is the infinite-dimensional extension. Parts of that layer
+are proved in `BookProof.ChapterSelectingEvents`: regular conditional probabilities
+exist for any finite measure on a standard Borel space
+(`exists_regular_conditional_probability`), singletons and finite sets are null in a
+continuous space (`singleton_null_in_continuous`, `finite_set_null_in_continuous`),
+every probability measure splits into a continuous and an atomic part
+(`exists_continuous_atomic_decomposition`), and the finite type-$`\mathrm{I}_n` case
+of the von Neumann classification is a theorem (`vonNeumann_abelian_classification_typeI`):
+:::
+
+```
+#check @BookProof.ChapterSelectingEvents.exists_regular_conditional_probability
+#check @BookProof.ChapterSelectingEvents.singleton_null_in_continuous
+#check @BookProof.ChapterSelectingEvents.finite_set_null_in_continuous
+#check @BookProof.ChapterSelectingEvents.exists_continuous_atomic_decomposition
+#check @BookProof.ChapterSelectingEvents.selecting_events_not_rewriting_history
+```
+
+:::paragraph
+The finite-dimensional algebraic core proved here is what makes the
+parametrization work, and it is the part the book actually computes.
 :::
 
 # Why This Matters Here

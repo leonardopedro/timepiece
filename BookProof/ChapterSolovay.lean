@@ -177,13 +177,23 @@ theorem inner_reduces_to_head (N : ℕ) (headDist : Measure (_root_.InnerHead N)
     _ = ∫ x : _root_.InnerHead N, star (Ψ₁ (x, 0)) * (Ψ₂ (x, 0)) ∂headDist := by
       simp [hg₁, hg₂]
 
-/-- The expectation of a head-only observable is Tarski-decidable:
-    it equals a finite integral over ℝ^N. -/
+/-- **S.2.2 — The expectation of a head-only observable is Tarski-decidable.**
+
+The expectation of a cylindrical (head-only) observable over the full
+infinite-dimensional inner space collapses to a *finite-dimensional* integral
+over `ℝ^N`: the tail contributes only its total mass `1`.
+
+This replaces an earlier placeholder whose conclusion was the trivially true
+proposition. -/
 theorem expectation_head_decidable (N : ℕ) (headDist : Measure (_root_.InnerHead N))
     [IsProbabilityMeasure headDist]
-    (f : _root_.InnerHead N → ℂ) (_hf : AEStronglyMeasurable f headDist) :
-    True := by
-  trivial
+    (f : _root_.InnerHead N → ℂ) (hf : AEStronglyMeasurable f headDist) :
+    ∫ z : _root_.InnerSpace N, f z.1 ∂(headDist.prod _root_.tailMeasure) =
+      ∫ x : _root_.InnerHead N, f x ∂headDist := by
+  have h_map_fst : Measure.map Prod.fst (headDist.prod _root_.tailMeasure) = headDist := by
+    rw [MeasureTheory.Measure.map_fst_prod, measure_univ, one_smul]
+  rw [← integral_map (φ := Prod.fst) measurable_fst.aemeasurable (by rwa [h_map_fst]),
+    h_map_fst]
 
 /-! ## S.2a — Finite-head tensor products and product measures -/
 

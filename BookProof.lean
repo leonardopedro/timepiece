@@ -223,6 +223,7 @@ import BookProof.ChapterHierarchicalBayesComposition
 import BookProof.ChapterHierarchicalBayes
 import BookProof.ChapterFiniteBayesHierarchy
 import BookProof.ChapterOdeComplexification
+import BookProof.ChapterRieszFischer
 import BookProof.ChapterPaFreeCompletion
 import BookProof.ChapterDefinabilityFragment
 
@@ -248,3 +249,38 @@ import BookProof.ChapterErrorNorms
 import BookProof.ChapterGravityProjDirectSum
 import BookProof.ChapterSchurFiniteDim
 import BookProof.ChapterGammaCommutant
+
+-- Wave (August 2026): the new chapter `Book/CoherentState.lean` — the coherent-state
+-- overlap, Softmax as the Born rule, the attention output as an expectation value,
+-- and the provable statistical core of the temperature identity.
+import BookProof.ChapterCoherentOverlap
+import BookProof.ChapterSoftmaxBorn
+import BookProof.ChapterObservableExpectation
+import BookProof.ChapterCoherentTemperature
+
+-- Wave (August 2026): Priority 4 of `PLAN_LEAN_SPECIALIST_UNPROVED.md` — the
+-- concrete-model discharge of the Pauli fundamental theorem's `EXTERNAL` flag:
+-- the commutant of the fixed 4×4 Majorana/Dirac γ-matrices is exactly the scalars.
+import BookProof.ChapterPauliCommutant
+
+-- Wave (August 2026): Priority 5.1 of `PLAN_LEAN_SPECIALIST_UNPROVED.md` — the
+-- probabilistic reading of the density-matrix spectral decomposition (diagonal =
+-- marginal, unitary = doubly stochastic conditional).
+import BookProof.ChapterDensityMarginalConditional
+
+-- Wave (August 2026): the finite (type I_n) case of the abelian von Neumann
+-- classification, replacing the `True` placeholder in `ChapterSelectingEvents`.
+import BookProof.ChapterAbelianDiagonal
+import BookProof.ChapterGravityRankSplit
+import BookProof.ChapterEll2Separable
+
+-- Wave (August 2026, third pass of `PLAN_LEAN_SPECIALIST_UNPROVED.md`):
+-- Schur's lemma in its full commutant form in finite dimensions, and Weyl's
+-- unitarian trick (complete reducibility of unitary representations).
+import BookProof.ChapterSchurFullFiniteDim
+import BookProof.ChapterUnitaryCompleteReducibility
+
+-- Wave (August 2026): goal A.4 of the book's Proof-Plans appendix — the spectral
+-- energy bound and the resulting absence of a finite-time singularity.
+import BookProof.ChapterSpectralEnergyBound
+import BookProof.ChapterMaschkeFiniteGroup

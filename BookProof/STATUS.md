@@ -7,6 +7,158 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Latest wave (2026-08-08) — **`PLAN_LEAN_SPECIALIST_COHERENT.md` landed: the Coherent State of Attention chapter, Solovay tail-split `sorry` closed, selecting-events real conclusions, and Book-chapter reference sync**
+
+The coherent-state chapter `Book/CoherentState.lean` builds and all its `#check`
+blocks elaborate. Parts A and B of the coherent plan are complete; the only
+remaining work is documented as **Part C** of that plan. Key items landed:
+
+- **Part A.** `ChapterCoherentOverlap` (Gaussian reproducing kernel),
+  `ChapterSoftmaxBorn` (headline `coherentBorn_eq_softmax`: Softmax is the Born
+  rule on coherent states), `ChapterObservableExpectation` (attention output is an
+  expectation), and the statistical core of `ChapterCoherentTemperature` —
+  `sorry`-free, `axiom`-free, registered, `#check`-ed in `Book/CoherentState.lean`.
+- **Part B.1.** `BookProof/ChapterSolovayCoordinates.lean` `tailSplitEquiv_map`
+  is **proved** (no `sorry`) — the last real gap; the Solovay structure theorems
+  that depended on it are proved.
+- **Part B.3.** Finite-dimensional Schur commutant (`ChapterSchurFullFiniteDim`),
+  unitary complete reducibility (`ChapterUnitaryCompleteReducibility`), Maschke for
+  finite groups (`ChapterMaschkeFiniteGroup`), and the 4×4 Pauli/Majorana commutant
+  (`BookProof.ChapterA3.mgamma_commutant_scalar`, `mgamma_irreducible`) are proved;
+  the general deep `EXTERNAL` statements remain named hypotheses.
+- **Part B.4.** `ChapterSelectingEvents` — `selecting_events_not_rewriting_history`,
+  `exists_regular_conditional_probability`, `exists_continuous_atomic_decomposition`
+  and the finite type-`Iₙ` case `vonNeumann_abelian_classification_typeI` are real
+  theorems (not `True` placeholders).
+- **Book sync.** `Book/NullMeasure.lean` gained the `AbelianDiagonal` + type-`Iₙ`
+  `#check` block; `Book/PaFreeHilbert.lean` gained the `ChapterRieszFischer` +
+  `ChapterEll2Separable` block; `Book/ConditionalUnitary.lean` replaced stale
+  "placeholder" prose with the real selecting-events theorems; `Book/ProofPlans.lean`
+  §B.1/§B.2 updated to PROVED; `Book.lean` preface now documents the two intentional
+  `RandomMap/SchoenfeldPRA.lean` sorries.
+- **Hygiene.** Only `RandomMap/SchoenfeldPRA.lean:162,176` (intentional) carry
+  `sorry`; no `axiom` anywhere in `BookProof/`. `lake build BookProof`, `lake build
+  book`, `lake exe book` + `./patches/postprocess-html.sh` all green.
+
+Next-wave deliverables are listed as Part C of `PLAN_LEAN_SPECIALIST_COHERENT.md`
+(complex coherent overlap + Born invariance, the observable operator `V̂`, the
+`ℓ∞(ℕ)` von Neumann class, Maschke averaging consequences).
+
+## Latest wave (2026-08-08) — **`PLAN_LEAN_SPECIALIST_UNPROVED.md`, third pass: Schur (commutant form), complete reducibility (unitary and finite-group), and the spectral energy bound**
+
+Four new packages, all `sorry`-free and axiom-clean (only `propext`,
+`Classical.choice`, `Quot.sound`), all registered in `BookProof.lean`, with
+`#check` blocks added to `Book/PhysicalParity.lean` and `Book/OdeSingularity.lean`
+and the `Book/ProofPlans.lean` status entry for goal A.4 updated.
+
+**1. `BookProof/ChapterSchurFullFiniteDim.lean` — the commutant form of Schur's
+lemma in finite dimensions.**  `ChapterA2b` introduces `IsSchurFull` (*every*
+bounded operator commuting with the system is a complex scalar) as a named
+`EXTERNAL` hypothesis.  `isSchurFull_of_irreducible` proves it for an irreducible
+system on a nonzero finite-dimensional complex inner-product space, so in finite
+dimensions the trichotomy of `ChapterA2b` runs with no external input;
+`commutant_eq_scalars_of_irreducible` and `commutant_eq_span_one` record the
+commutant as exactly the line `ℂ·1`.
+
+**2. `BookProof/ChapterUnitaryCompleteReducibility.lean` — Weyl's unitarian
+trick.**  The complete-reducibility clause that `ChapterA3w` must assume for the
+non-compact `SL(2,ℂ)` is a theorem for unitary representations of *any* group:
+`orthogonal_isInvariant` (the orthogonal complement of an invariant subspace is
+invariant), `unitary_complete_reducibility` (in finite dimensions every invariant
+subspace has an invariant complement), `exists_irreducible_invariant_le` (a
+minimal nonzero invariant subspace exists) and `exists_irreducible_decomposition`
+(every invariant subspace is the join of a finite list of irreducible invariant
+subspaces).
+
+**3. `BookProof/ChapterMaschkeFiniteGroup.lean` — the same conclusion for finite
+groups, without unitarity.**  `avgProj` averages an arbitrary linear projection
+onto an invariant subspace over the group; `avgProj_mem` / `avgProj_eq_self` show
+it is still a projection onto that subspace, `avgProj_comm` that it now commutes
+with the representation, and `maschke_invariant_complement` concludes that its
+kernel is an invariant complement.  Stated in exactly the shape of
+`ChapterA3w.WeylCompleteReducibility`, with `SL(2,ℂ)` replaced by a finite group.
+
+**4. `BookProof/ChapterSpectralEnergyBound.lean` — goal A.4 of the book's
+Proof-Plans appendix.**  In the spectral representation (`H` = multiplication by
+a real eigenvalue function): `norm_diagOp_le` (the spectral bound
+`‖Hψ‖ ≤ E‖ψ‖` for a state supported on `{|f| ≤ E}`), `norm_evolve` (unitarity of
+the phase flow), `evolve_support` (the spectral subspace is preserved),
+`hasDerivAt_evolve` (the Schrödinger equation `ψ'(t) = -iHψ(t)`),
+`norm_deriv_evolve_le` (the time-derivative is bounded by `E‖ψ(0)‖`, uniformly in
+time) and `evolve_lipschitz` (global Lipschitz continuity: no finite-time
+singularity).
+
+Hygiene: `lake build BookProof` and `lake build Book` green, the latter now with
+zero warnings; `#print axioms` on each headline shows only `propext`,
+`Classical.choice`, `Quot.sound`; the only `sorry`s in the repository remain the
+two intentional, pre-existing ones in `RandomMap/SchoenfeldPRA.lean`.
+
+## Latest wave (2026-08-07, second pass) — **`PLAN_LEAN_SPECIALIST_UNPROVED.md`: Priority 4 (Pauli, concrete case), Riesz–Fischer, Priority 5.1 marginal/conditional, finite abelian classification**
+
+Five deliverable groups, all `sorry`-free and axiom-clean (only `propext`,
+`Classical.choice`, `Quot.sound`), all registered in `BookProof.lean`, with
+`#check` blocks added to `Book/PhysicalParity.lean`, `Book/PaFreeHilbert.lean`
+and `Book/ConditionalUnitary.lean`.
+
+**1. `BookProof/ChapterPauliCommutant.lean` — Priority 4, the Pauli `EXTERNAL`
+flag discharged for the fixed model.**  `ChapterA3b.lean` takes the Pauli
+fundamental theorem as an `EXTERNAL` named hypothesis in full generality.  For
+the concrete `4×4` Majorana model of `ChapterA3.lean` the irreducibility input is
+now *proved*:
+- `mgamma_commutant_scalar` / `mgamma_commutant_iff` — the commutant of
+  `{iγ⁰,iγ¹,iγ²,iγ³}` in `Mat(4,ℂ)` is exactly `ℂ·1` (Schur, by explicit finite
+  computation);
+- `mgamma5_of_commutes`, `dgamma_commutant_scalar` — the same for `iγ⁵` and for
+  the Dirac matrices `γ^μ = -i(iγ^μ)`;
+- `mgamma_conjugation_unique_up_to_scalar` — the **uniqueness clause** of the
+  Pauli theorem for this family, `EXTERNAL`-free;
+- `mgamma_conj_eq_self_iff` — the conjugation stabiliser is the scalars;
+- `mgamma_conjTranspose`, `adjoint_mgammaLin`, `mgammaLin_orthogonal_invariant`,
+  `mgamma_irreducible` — the family is adjoint-closed up to a sign, so the
+  orthogonal projection onto an invariant subspace is a scalar: the concrete
+  Majorana representation on `ℂ⁴` is **irreducible**.
+
+**2. `BookProof/ChapterRieszFischer.lean` — the analytic core of the PA-free
+completion.**  `ell2_completeSpace`, `riesz_fischer_hasSum` (every `ℓ²(ℕ)` vector
+is the unconditional sum of its coordinate atoms), `sum_single_mem_finSupport`,
+`finSupport_dense`, `memℓp_geom`, `geomVec_not_mem_finSupport`,
+`finSupport_ne_univ`, `core_proper_and_dense`.
+
+**3. `BookProof/ChapterPaFreeCompletion.lean` / `ChapterDefinabilityFragment.lean`
+— `True` placeholders replaced by real conclusions.**  `riesz_fischer` was
+`noncomputable def riesz_fischer : True`; it is now the genuine
+completeness + unconditional-summation statement.  `conservativity_documentation
+: True` is replaced by `completion_conservative_over_core`.  New in the same
+wave: `ofCore`, `ofCore_apply`, `range_ofCore` (the image of `ℕ →₀ ℝ` in `ℓ²(ℕ)`
+is *exactly* the finitely-supported vectors), `denseCore_dense`,
+`denseCore_proper`.
+
+**4. `BookProof/ChapterDensityMarginalConditional.lean` — Priority 5.1, the
+probabilistic reading.**  `ChapterDensitySpectral.lean` already proves
+`ρ = U·diag(d)·U†`.  This module supplies the book's reading of the two factors:
+`bornKernel U i j = ‖U i j‖²` is nonnegative (`bornKernel_nonneg`) with unit row
+sums (`bornKernel_row_sum`) and unit column sums (`bornKernel_col_sum`), i.e.
+doubly stochastic; `density_diag_eq_kernel_apply` shows the computational-basis
+diagonal is the transport of `d` by that kernel; `density_diag_isProbability` and
+the headline `density_marginal_conditional` package both halves.
+
+**5. `BookProof/ChapterAbelianDiagonal.lean` — the finite (type `I_n`) case of the
+abelian von Neumann classification.**  `diagonalStarAlgHom` (the `*`-algebra
+embedding `ℓ∞({1,…,n}) → Mat(n,ℂ)`), `diagonalStarAlgHom_injective`,
+`diagonal_commute`, `commutant_diagonal_eq_diagonal` (maximal abelianness), and
+the headline `vonNeumann_abelian_typeI_case`.  Consequently the `True`
+placeholder pair `vonNeumann_abelian_classification` /
+`vonNeumann_abelian_classification_true` in `ChapterSelectingEvents.lean` is
+retired (kept commented out, for the record) and replaced by the *proved*
+`vonNeumann_abelian_classification_typeI`.  The remaining `True`-valued `Prop`
+placeholders in that file (`p_ne_np`, `random_generation_linear_time`) are
+likewise retired to comments: nothing is claimed for them.
+
+Hygiene: `lake build BookProof` and `lake build book` green;
+`grep -rn "^\s*sorry" BookProof/ PnpProof/ Singularity/ RandomMap/` shows only the
+two intentional, pre-existing `RandomMap/SchoenfeldPRA.lean:162,176`;
+no `axiom` declarations anywhere in `BookProof/` or `PnpProof/`.
+
 ## Latest wave (2026-08-07) — **`PLAN_LEAN_SPECIALIST_UNPROVED.md`, next pass: Mehler orthogonal invariance + the atomic/continuous classification**
 
 Four new packages, all `sorry`-free and axiom-clean (only `propext`,

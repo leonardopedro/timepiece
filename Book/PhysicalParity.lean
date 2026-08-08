@@ -163,6 +163,25 @@ group:
 #check @BookProof.ChapterParityHypercharge.hyperPhase_neg_mul
 ```
 
+:::paragraph
+The fixed $`4\times 4` model is *irreducible* in the strongest concrete sense:
+any complex matrix commuting with all four Majorana matrices $`i\gamma^\mu` is a
+scalar. This is Schur's lemma for the concrete representation — proved outright
+by a finite computation, so the Pauli fundamental theorem's uniqueness clause is
+available for this model without any external input: two invertible matrices
+that conjugate the $`i\gamma^\mu` to the same family differ by a nonzero scalar.
+:::
+
+```
+#check @BookProof.ChapterA3.mgamma_commutant_scalar
+#check @BookProof.ChapterA3.mgamma_commutant_iff
+#check @BookProof.ChapterA3.dgamma_commutant_scalar
+#check @BookProof.ChapterA3.mgamma_conjugation_unique_up_to_scalar
+#check @BookProof.ChapterA3.mgamma_conj_eq_self_iff
+#check @BookProof.ChapterA3.mgamma_conjTranspose
+#check @BookProof.ChapterA3.mgamma_irreducible
+```
+
 # Majorana Quantization
 
 :::paragraph
@@ -208,6 +227,38 @@ This is Schur's lemma, and discharging it in finite dimensions turns the book's
 ```
 #check @BookProof.ChapterSchurFiniteDim.schur_scalar_of_irreducible
 #check @BookProof.ChapterSchurFiniteDim.isSchurUnitary_of_irreducible
+```
+
+:::paragraph
+The same argument settles the *commutant* form of Schur's lemma, which is the one
+the manuscript's trichotomy of real, complex and pseudo-real systems uses: in
+finite dimensions the commutant of an irreducible system is exactly the line of
+scalar operators $`\mathbb{C}\cdot 1`, so the `IsSchurFull` hypothesis is a
+theorem there as well:
+:::
+
+```
+#check @BookProof.ChapterSchurFullFiniteDim.isSchurFull_of_irreducible
+#check @BookProof.ChapterSchurFullFiniteDim.commutant_eq_scalars_of_irreducible
+#check @BookProof.ChapterSchurFullFiniteDim.commutant_eq_span_one
+```
+
+:::paragraph
+Schur's lemma is one half of the classification machinery; the other half is
+*complete reducibility* — that an invariant subspace can always be split off. For
+a *unitary* representation this is Weyl's unitarian trick and it is now proved
+outright: the orthogonal complement of an invariant subspace is invariant, so in
+finite dimensions every invariant subspace has an invariant complement and the
+representation is a sum of irreducibles. For a *finite* group the same
+conclusion follows from Maschke's averaging argument, with no unitarity assumed:
+:::
+
+```
+#check @BookProof.ChapterUnitaryCompleteReducibility.orthogonal_isInvariant
+#check @BookProof.ChapterUnitaryCompleteReducibility.unitary_complete_reducibility
+#check @BookProof.ChapterUnitaryCompleteReducibility.exists_irreducible_invariant_le
+#check @BookProof.ChapterUnitaryCompleteReducibility.exists_irreducible_decomposition
+#check @BookProof.ChapterMaschkeFiniteGroup.maschke_invariant_complement
 ```
 
 :::paragraph

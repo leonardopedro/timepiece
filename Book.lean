@@ -33,7 +33,6 @@ import Book.TimeTranslationStochastic
 import Book.DoubleSlit
 import Book.BellInequalities
 import Book.EPRComplete
-import Book.ClassicalLimit
 import Book.ProofPlans
 import Book.SpinStatistics
 import Book.SymmetryRep
@@ -93,10 +92,10 @@ lake build BookProof
 
 compiles the entire library of formal proofs. It is `sorry`-free, and every theorem
 cited in this book relies only on Lean's standard `propext`, `Classical.choice`, and
-`Quot.sound`. The library's only `axiom` declarations are two `axiom … : True`
-placeholders in the P-versus-NP module (`ChapterSelectingEvents`), which this edition
-does not cite; since `True` is already provable, they add no logical strength.
-And
+`Quot.sound`. The only `sorry`s in the repository are the two intentional,
+quarantined ones in `RandomMap/SchoenfeldPRA.lean` (a historical PRA spine this
+edition does not import); the claims they leave open are stated and planned in
+{ref "proof-plans"}[the appendix]. And
 
 ```
 lake build book && lake exe book
@@ -305,8 +304,6 @@ concrete deterministic theory, and the classical limit.
 {include 1 Book.BellInequalities}
 
 {include 1 Book.EPRComplete}
-
-{include 1 Book.ClassicalLimit}
 
 {include 0 Book.ProofPlans}
 

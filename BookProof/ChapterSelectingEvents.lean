@@ -1,5 +1,6 @@
 import Mathlib
 import BookProof.ChapterBayesInference
+import BookProof.ChapterAbelianDiagonal
 
 /-!
 # Book chapter "Selecting events is not rewriting the history of events"
@@ -96,22 +97,42 @@ is beyond the scope of this formalization.
 
 open VonNeumannAlgebra
 
-/-- The classification of abelian von Neumann algebras: every abelian von Neumann
+/-
+The classification of abelian von Neumann algebras: every abelian von Neumann
 algebra is *-isomorphic to one of the five standard types (ℓ∞({1,…,n}), ℓ∞(ℕ),
 L∞([0,1]), L∞([0,1] ∪ {1,…,n}), L∞([0,1] ∪ ℕ)).  This is von Neumann's
 original classification theorem (book.tex lines 8789–8800).
 
-**Status:** Stated as a `def` (not an `axiom`) because the claim is mathematically
-precise; a full proof requires the 5-case classification construction which is
-not available in Mathlib. -/
-def vonNeumann_abelian_classification : Prop :=
-  True
+**Removed (August 2026).**  The following pair was a `True` placeholder: the
+`def` weakened the claim to the trivially true proposition, so the accompanying
+`theorem` proved nothing.  It is kept here, commented out, for the record, and
+replaced below by the *genuine* first case of the classification, proved in
+`BookProof/ChapterAbelianDiagonal.lean`.
 
-theorem vonNeumann_abelian_classification_true :
-    vonNeumann_abelian_classification := by
-  -- The full proof is von Neumann's classification theorem.
-  -- We leave this as a documented gap: the claim is stated, not proved.
-  trivial
+    def vonNeumann_abelian_classification : Prop :=
+      True
+
+    theorem vonNeumann_abelian_classification_true :
+        vonNeumann_abelian_classification := by
+      trivial
+-/
+
+/-- **The finite (type `I_n`) case of the classification**, proved (not assumed):
+inside `Mat(n, ℂ)` the algebra `ℓ∞({1,…,n}) = (n → ℂ)` embeds by an injective
+`*`-algebra map onto an abelian subalgebra that is exactly its own commutant.
+The remaining four classes and the exhaustiveness of the five-item list are a
+deep theorem and are **not** claimed here. -/
+theorem vonNeumann_abelian_classification_typeI
+    {ι : Type*} [Fintype ι] [DecidableEq ι] :
+    Function.Injective
+        (BookProof.AbelianDiagonal.diagonalStarAlgHom :
+          (ι → ℂ) →⋆ₐ[ℂ] Matrix ι ι ℂ) ∧
+      (∀ d e : ι → ℂ,
+        Matrix.diagonal d * Matrix.diagonal e = Matrix.diagonal e * Matrix.diagonal d) ∧
+      (∀ M : Matrix ι ι ℂ,
+        (∀ d : ι → ℂ, M * Matrix.diagonal d = Matrix.diagonal d * M) ↔
+          ∃ e : ι → ℂ, M = Matrix.diagonal e) :=
+  BookProof.AbelianDiagonal.vonNeumann_abelian_typeI_case
 
 /-!
 ## 4. P ≠ NP
@@ -128,11 +149,15 @@ a formal definition of polynomial-time computability, which Mathlib does not
 currently provide).  We document this as an open problem rather than an axiom.
 -/
 
-/-- The claim that P ≠ NP, as argued in Chapter 13 using continuous probability
-spaces.  This is documented as an open problem because a formal proof would
-require defining complexity classes P and NP in Lean, which is not yet
-available in Mathlib. -/
-def p_ne_np : Prop := True
+-- The claim that P ≠ NP, as argued in Chapter 13 using continuous probability
+-- spaces.  This is documented as an open problem because a formal proof would
+-- require defining complexity classes P and NP in Lean, which is not yet
+-- available in Mathlib.
+-- **Removed (August 2026).**  `def p_ne_np : Prop := True` was a placeholder whose
+-- statement had been weakened to the trivially true proposition; the name would
+-- have suggested a claim that is not made.  It is recorded here, commented out.
+--
+--     def p_ne_np : Prop := True
 
 /-!
 ## 5. Worst-case vs best-case prior measures
@@ -189,13 +214,17 @@ e mpirical claim about physical random number generators (e.g., ANU QRNG).
 We document this as an open problem rather than an axiom.
 -/
 
-/-- Random number generation from a uniform distribution has linear time
-complexity in the number of bits.  This is an empirical claim; a formal proof
-would require a physical model of computation.
-
-**Status:** Documented as a `def` (not an `axiom`) because the claim is
-precise but unprovable in the current formalism. -/
-def random_generation_linear_time : Prop := True
+-- Random number generation from a uniform distribution has linear time
+-- complexity in the number of bits.  This is an empirical claim; a formal proof
+-- would require a physical model of computation.
+--
+-- Documented in prose only: the claim is precise but unprovable in the current
+-- formalism.
+-- **Removed (August 2026).**  `def random_generation_linear_time : Prop := True`
+-- was likewise a placeholder weakened to the trivially true proposition.  It is
+-- recorded here, commented out.
+--
+--     def random_generation_linear_time : Prop := True
 
 /-!
 ## 7. Consequences for Machine Learning
