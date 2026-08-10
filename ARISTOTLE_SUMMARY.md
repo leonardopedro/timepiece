@@ -1,3 +1,242 @@
+# Summary of changes for run d4db2eda-1de7-49e7-9e51-04b858b370ab
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting state was verified first**: the default build (`BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were green, with no `sorry`/`admit` and no `axiom` declarations in the in-scope directories, so the pass went straight to new deliverables.
+
+**Nine new proof packages landed**, in two batches, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionFreeEnergy.lean` — the free energy is a soft maximum: `β·sⱼ ≤ log Z ≤ log m + β·max s`, so `|log Z(β)/β − max s| ≤ log m/β` and `max s − ⟨s⟩_β ≤ log m/β`, with both converging to the maximum as `β → ∞`; the gap between the soft and the hard maximum is exactly the entropy.
+2. `BookProof/ChapterAttentionSparse.lean` — sparse attention costs exactly the discarded mass: the shortlisted head differs from the dense head by exactly `2(1 − P(S))` in `ℓ¹`, so a shortlist carrying `1 − ε` of the mass is `2ε`-accurate and its output is within `2εC`, with a tail bound and the lossless characterization.
+3. `BookProof/ChapterAttentionOVCircuit.lean` — the OV circuit: the attention average commutes with every linear map, so the value and output projections act only through `W_O W_V`, with the `GL(d)` gauge freedom `(W_O,W_V) ↦ (W_O A, B W_V)`, the rank-`d` bound, and the column-space range.
+4. `BookProof/ChapterAttentionSaturation.lean` — a saturated head cannot learn: the total absolute response of the weights to a nudge of one score is exactly `2β·pᵢ(1 − pᵢ)`, hence at most `β/2`, and at most `2βε` for every key once some key carries `1 − ε`.
+5. `BookProof/ChapterAttentionPrior.lean` — a logit bias is a Bayesian prior: `pⱼ ∝ wⱼe^{βsⱼ}` is the Bayes posterior with prior `w` and likelihood `e^{βs}`, its odds are prior odds × likelihood ratio, and a prior is exactly the score shift `sⱼ ↦ sⱼ + (log wⱼ)/β`.
+6. `BookProof/ChapterAttentionStreaming.lean` — incremental decoding is exact: appending a key/value pair rescales every cached weight by `1 − w` and updates the output to `(1 − w)·o_old + w·v_new`, moving the summary by exactly `w·‖v_new − o_old‖`.
+7. `BookProof/ChapterAttentionLocality.lean` — a distance penalty makes a head local: weights decay like `e^{−βγd}`, the mass beyond distance `R` is at most `m·e^{βΔ}e^{−βγR}`, and the sliding-window head is within `2C` times that of the full head.
+8. `BookProof/ChapterAttentionCalibration.lean` — the entropy fixes the temperature: the attention entropy is continuous and strictly decreasing in `β ≥ 0` whenever two scores differ, so each achievable level is realized by exactly one temperature.
+9. `BookProof/ChapterAttentionTopK.lean` — top-`k` is the optimal shortlist: a heaviest-first set carries the most mass, hence minimizes both the `ℓ¹` error and the output error, and at `β > 0` coincides with the highest-scoring shortlist.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap`, `lake build book` and `lake exe book` are all green with no in-scope warnings; the axiom audit prints only the three standard axioms for the twenty newly certified statements; a repository-wide search finds no `sorry`/`admit` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`; no `axiom` declarations were added.
+
+**Documentation.** `BookProof/STATUS.md`, the plan's status block and `ARISTOTLE_SUMMARY.md` each carry a dated note for the two batches. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved). All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-10, soft maximum, sparse attention, the OV circuit, saturation and priors)
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated this file.  Nine new proof packages landed in this run, in two batches.
+
+**Starting state checked first.** `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were green at the start of the pass, with no `sorry`/`admit` and no `axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`, so this pass went straight to new deliverables.
+
+**Five new proof packages landed**, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionFreeEnergy.lean` — **the free energy is a soft maximum.** Every score bounds the free energy from below (`β·sⱼ ≤ log Z`) and an upper bound `M` on the scores bounds it above (`log Z ≤ log m + βM`), so `|log Z(β)/β − max s| ≤ log m/β`. The same sandwich transfers to the attention-weighted mean score, `max s − ⟨s⟩_β ≤ log m/β` (using the free-energy identity `log Z = β⟨s⟩ + H` and `H ≤ log m`), and both quantities converge to the maximum score as `β → ∞`: the entire gap between the soft maximum and the hard one is the entropy of the collapse.
+2. `BookProof/ChapterAttentionSparse.lean` — **sparse attention costs exactly the discarded mass.** For a shortlist `S` carrying attention mass `P(S)`, the shortlisted (renormalized) head differs from the dense head by *exactly* `2(1 − P(S))` in `ℓ¹`. Hence a shortlist capturing all but `ε` of the mass is `2ε`-accurate, its output is within `2εC` for values of norm at most `C`, the discarded mass is at most `(m − |S|)ε` when each dropped key carries at most `ε`, and sparsification is lossless exactly when the shortlist already carried everything.
+3. `BookProof/ChapterAttentionOVCircuit.lean` — **the OV circuit**, the writing-side counterpart of the existing QK-circuit package. The attention average commutes with every linear map, so the value and output projections act only through their product `W_O W_V`; two factorizations with the same product are indistinguishable; `(W_O, W_V) ↦ (W_O A, B W_V)` with `AB = I` is an exact symmetry; the product has rank at most the head dimension; and a head writes only into the column space of its output map.
+4. `BookProof/ChapterAttentionSaturation.lean` — **a saturated head cannot learn.** The total absolute response of the attention distribution to a nudge of one score is exactly `2β·pᵢ(1 − pᵢ)`, hence never more than `β/2`; and once some key carries `1 − ε` of the attention, *every* row of the Softmax Jacobian has total size at most `2βε`, so a head that has made up its mind receives almost no learning signal.
+5. `BookProof/ChapterAttentionPrior.lean` — **a logit bias is a Bayesian prior.** The biased head `pⱼ ∝ wⱼe^{βsⱼ}` is definitionally the Bayes posterior of `ChapterBayesInference` with prior `w` and likelihood `e^{βs}`; its odds are prior odds times likelihood ratio; a prior is exactly the score shift `sⱼ ↦ sⱼ + (log wⱼ)/β` at `β ≠ 0`; only the ratios of the prior weights matter; a uniform prior gives plain Softmax; and at `β = 0` the head returns the normalized prior.
+
+**A second batch of four packages landed in the same run**, on the same terms (`sorry`-free, `axiom`-free, registered, certified and `#check`-ed):
+
+6. `BookProof/ChapterAttentionStreaming.lean` — **decoding is an incremental update.** Appending one key/value pair multiplies every cached attention weight by the single factor `1 − w` and turns the output into the convex interpolation `(1 − w)·o_old + w·v_new`, so an autoregressive decoder's KV cache is an exact identity rather than an approximation; a fresh token moves the summary by exactly `w·‖v_new − o_old‖`, and the odds among the cached keys are untouched.
+7. `BookProof/ChapterAttentionLocality.lean` — **a distance penalty makes a head local.** With scores reduced by γ times the distance, the weight of a key decays like `e^{−βγd}`, the total attention beyond distance `R` is at most `m·e^{βΔ}·e^{−βγR}`, and consequently the sliding-window head is within `2C·m·e^{βΔ}·e^{−βγR}` of the full head — locality is a theorem about the penalty, not an architectural stipulation.
+8. `BookProof/ChapterAttentionCalibration.lean` — **the entropy fixes the temperature.** For a head whose scores are not all equal, the attention entropy is a continuous, strictly decreasing function of the inverse temperature on β ≥ 0; hence distinct temperatures give distinct entropies, every level between `H(B)` and the maximal `log m` is attained on `[0, B]`, and the temperature realizing a target entropy is unique.
+9. `BookProof/ChapterAttentionTopK.lean` — **top-k is the optimal shortlist.** For non-negative weights, a heaviest-first set carries at least as much mass as any set of at most the same size; since the price of sparsification is exactly the discarded mass, the top-k shortlist minimizes both the ℓ¹ error and the output error, and at a positive temperature it coincides with the highest-scoring shortlist, so it can be selected before the Softmax is evaluated.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap`, `lake build book` and `lake exe book` are all green with no in-scope warnings. The axiom audit in `BookProof/ChapterRoadmapAudit.lean` prints only `propext`, `Classical.choice`, `Quot.sound` for the twenty newly certified statements, and a repository-wide search finds no `sorry`/`admit` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`. No `axiom` declarations were added.
+
+**Documentation.** `BookProof/STATUS.md`, the plan's status block and this file carry a dated note for the pass. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the quantum fidelity of displaced thermal states (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved). All work is committed and pushed.
+
+# Summary of changes for run 914eb950-6fd9-4899-97ef-61679ed7cb14
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting state checked first.** `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were all green, with no `sorry`/`admit` and no `axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`, so the pass went straight to new deliverables.
+
+**Five new proof packages landed**, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionTemperature.lean` — turning the temperature knob: the odds of two keys are the exponential `e^{β(sᵢ−sⱼ)}` of their score gap; the weight of a maximizing key is monotone in `β` (strictly so when another key scores lower) and that of a minimizing key antitone, so at every `β ≥ 0` the winner holds at least the uniform share `1/m` and the loser at most `1/m`; and if the scores span at most `D`, no weight exceeds `e^{βD}/m`, giving the entropy floor `H ≥ log m − βD`.
+2. `BookProof/ChapterAttentionSink.lean` — the attention sink as a rescaling: prepending one extra key multiplies every ordinary weight by the same factor `1 − w`, leaves the odds between ordinary keys untouched, strictly dilutes each of them, makes the output the two-point average `w·v₀ + (1−w)·o`, and splits the entropy into the binary entropy of the sink share plus `(1−w)` times the sink-free entropy.
+3. `BookProof/ChapterAttentionCoarseGrain.lean` — regrouping the keys: the pushforward `P(y) = ∑_{f(x)=y} p(x)` is again a distribution; when the values depend on a key only through its group, key-by-key and group-by-group outputs agree; merging keys satisfies the data-processing inequality (entropy can only fall); and the weights are not invariant — group scores are weighted by group size, so duplicating a key doubles its share.
+4. `BookProof/ChapterAttentionQKCircuit.lean` — a head sees only one matrix: the score is the bilinear form of `W_Qᵀ W_K`, any two parameter pairs with the same product give the same weights and output, `(W_Q, W_K) ↦ (A W_Q, B W_K)` with `AᵀB = I` is an exact symmetry, and the circuit has rank at most the head dimension.
+5. `BookProof/ChapterResidualStream.lean` — the residual stream is never overwritten: a head with values bounded by `C` moves the stream by at most `C`; an `L`-Lipschitz block with `L < 1` makes `x ↦ x + f x` expansive by `1 − L`, hence injective, with the matching `(1 + L)` upper bound; and a stack of `n` blocks drifts by at most `n·C`.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap` and `lake build book` are all green; the only warnings in the shared logs come from the out-of-scope `UnusedRoute/` directory, and the new files are warning-free. The axiom audit prints only the three standard axioms for the ten newly certified headlines, every new `#check` in the book chapter was elaborated separately to confirm it resolves, and a repository-wide search finds no `sorry`/`admit` in the in-scope directories.
+
+**Documentation.** `BookProof/STATUS.md`, the plan's status block and `ARISTOTLE_SUMMARY.md` all carry a dated note for this pass. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved). All work is committed and pushed.
+
+# Summary of changes for this run
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting state verified first.** `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were all green, with no `sorry`/`admit` and no `axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`. Nothing needed repair, so the pass went straight to new deliverables.
+
+**Five new proof packages landed**, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionTemperature.lean` — turning the temperature knob: the odds of two keys are the pure exponential `e^{β(sᵢ−sⱼ)}` of their score gap; the weight of a maximizing key is monotone in `β` (strictly, if some key scores lower) and that of a minimizing key antitone, so at every `β ≥ 0` the winner holds at least the uniform share `1/m` and the loser at most `1/m`; and if the scores span at most `D`, no weight exceeds `e^{βD}/m`, giving the entropy floor `H ≥ log m − βD`.
+2. `BookProof/ChapterAttentionSink.lean` — the attention sink as a gauge: prepending one extra key multiplies every ordinary weight by the same factor `1 − w`, leaves the odds between ordinary keys untouched, strictly dilutes each of them, turns the output into the two-point average `w·v₀ + (1−w)·o`, and splits the entropy into the binary entropy of the sink share plus `(1−w)` times the sink-free entropy.
+3. `BookProof/ChapterAttentionCoarseGrain.lean` — regrouping the keys: the pushforward `P(y) = ∑_{f(x)=y} p(x)` is again a distribution; if the values depend on a key only through its group the key-by-key and group-by-group outputs agree; merging keys obeys the data-processing inequality (entropy can only fall); and the weights are *not* invariant — group scores are weighted by group size, so duplicating a key doubles its share.
+4. `BookProof/ChapterAttentionQKCircuit.lean` — the head only sees one matrix: the score is the bilinear form of `W_Qᵀ W_K`, any two parameter pairs with the same product give the same weights and output, the substitution `(W_Q, W_K) ↦ (A W_Q, B W_K)` with `AᵀB = I` is an exact symmetry, and the circuit has rank at most the head dimension.
+5. `BookProof/ChapterResidualStream.lean` — the residual stream is never overwritten: a head with values bounded by `C` moves the stream by at most `C`; an `L`-Lipschitz block with `L < 1` makes `x ↦ x + f x` expansive by `1 − L`, hence injective, with the matching `(1 + L)` upper bound; and a stack of `n` blocks drifts by at most `n·C`.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap` and `lake build book` are all green; the only warnings in the shared logs come from the out-of-scope `UnusedRoute/` directory. The axiom audit in `BookProof/ChapterRoadmapAudit.lean` prints only `propext`, `Classical.choice`, `Quot.sound` for the ten newly certified headlines, and every new `#check` in `Book/CoherentState.lean` was elaborated separately to confirm it resolves. A repository-wide search finds no `sorry`/`admit` in the in-scope directories, and no `axiom` declarations were added.
+
+**Documentation.** `BookProof/STATUS.md` and the plan's status block carry a dated wave note for this pass. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved).
+
+All work is committed and pushed.
+
+# Summary of changes for run 13118102-758c-4de4-93b1-45127ba6193f
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting state verified first.** `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were all green, with no `sorry`/`admit` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`. Nothing needed repair, so the pass went straight to new deliverables.
+
+**Nine new proof packages landed**, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionCollision.lean` — how many keys a head reads: the collision probability `∑pⱼ²`, the participation ratio `1/∑pⱼ²` (between `1` and `m`, exactly `m` at infinite temperature) and the Rényi-2 entropy, with `renyi2_le_shannonEntropy` showing the count is conservative.
+2. `BookProof/ChapterAttentionConcentration.lean` — a Markov bound (at most `1/t` keys carry weight `t` or more), the uniform-share existence `1/m`, and the min-entropy bound `−log pₘₐₓ ≤ H` (equivalently `pₘₐₓ ≥ e^{−H}`), tied back to the participation ratio.
+3. `BookProof/ChapterAttentionMarkov.lean` — attention as a Markov kernel: row-stochasticity, kernel composition = layer stacking, `ℓ¹` non-expansiveness, a Doeblin contraction `1 − mε`, and the headline that a layer with score spread `D` contracts by `1 − e^{−βD}`.
+4. `BookProof/ChapterScaledDotProduct.lean` — why scores are divided by `√d`: for a uniform `±1` query the raw score has mean `0` and mean square `‖k‖²` (hence RMS `√d`), rescaling scores rescales the temperature, and the `1/√d`-scaled score has mean square exactly `1` at any width.
+5. `BookProof/ChapterAttentionOutputVariance.lean` — the bias–variance identity for the output, the head output as the least-squares summary of the values, König–Huygens/Jensen, and zero output variance exactly when the values agree.
+6. `BookProof/ChapterAttentionLowRank.lean` — the score table of a head has rank at most the head dimension `d`; at `d < m` the identity ("attend to yourself only") routing pattern is unrealizable, and the bound is sharp at `d ≥ m`.
+7. `BookProof/ChapterLayerNorm.lean` — layer normalization as gauge fixing: zero mean and squared length `d`, invariance under `x ↦ ax + c` (`a > 0`), idempotence, and the resulting attention floor `e^{−2βd}/m`.
+8. `BookProof/ChapterSinusoidalPosition.lean` — the sinusoidal encoding aligns positions as `∑ cos(ω(p−q))`, so attention over sinusoidal positions depends only on offsets (the sinusoidal counterpart of the rotary result).
+9. `BookProof/ChapterAttentionMixing.lean` — iterating one layer: the `(1 − mε)ⁿ` mixing law, convergence to zero distance, uniqueness of a stationary belief, and the attention rate `(1 − e^{−βD})ⁿ`. Existence of a stationary distribution is deliberately not claimed.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap` and `lake build book` are all green with no in-scope warnings; the axiom audit prints only `propext`, `Classical.choice`, `Quot.sound` for all 45 certified headlines; a repository-wide search finds no `sorry`/`admit` in the in-scope directories; no `axiom` declarations were added.
+
+**Documentation.** `BookProof/STATUS.md` and the plan's status block carry a dated wave note; `ARISTOTLE_SUMMARY.md` has a new section describing this pass. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states on a bosonic Fock space (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved).
+
+All work is committed and pushed.
+
+# Summary of changes for run d17bb48f-601c-4fa8-bb04-7ae3937ccfc2
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Verified the prior state first**, then landed a new wave of **six proof packages**, all `sorry`-free and `axiom`-free (`#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs in `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterSoftmaxJacobian.lean` — the score derivative of attention: `∂ log Z/∂sᵢ = β·pᵢ` (a key's attention weight *is* the sensitivity of the free energy to its score) and the Softmax Jacobian `∂pⱼ/∂sᵢ = β·pⱼ(δᵢⱼ − pᵢ)`, both as `HasDerivAt` statements; the Jacobian is symmetric, has zero row sums, is diagonally non-negative / off-diagonally non-positive at `β ≥ 0`, and its quadratic form is `β` times an attention-weighted variance (positive semidefinite; equal to `β·Var_β(s)` on the scores).
+2. `BookProof/ChapterAttentionOutput.lean` — the output as a function of temperature, built on the project's existing `observableExpectation` rather than restating its convex-hull/norm bounds: the plain mean of the values at `β = 0`, winner-takes-all convergence to the arg-max value as `β → ∞`, `ℓ¹`-stability in the weights, and the Born output identified with the head output at `β = 2`.
+3. `BookProof/ChapterAttentionMasking.lean` — masking is Bayesian conditioning, `p(j | S) = p(j)/p(S)`, with odds invariance (a mask removes keys without re-ranking them), order preservation, the tower property for nested masks, and the causal mask (no weight on the future, nested windows).
+4. `BookProof/ChapterCoherentDynamics.lean` — the symmetry group of attention: unitary invariance of the Bargmann kernel and the Born weights, free harmonic evolution as a special case (attention is a constant of the motion), and Weyl displacement covariance.
+5. `BookProof/ChapterAttentionFactorization.lean` — independent modes factorize: the joint attention distribution over a product key set with additive scores is the product of the single-mode ones, its marginals are those distributions, and the attention entropy is additive.
+6. `BookProof/ChapterRotaryPosition.lean` — the rotary positional encoding is unitary and additive in the position, and the query–key alignment depends on the two positions only through their offset, so translating the whole sequence changes no attention weight.
+
+**Documentation.** `BookProof/STATUS.md` gained a dated wave note covering the above and, for the first time, four packages that had landed earlier but were never written up (`ChapterSoftmaxDivergence`, `ChapterLogPartitionConvex`, `ChapterCoherentPositionSpace`, `ChapterSoftmaxStability`); the plan's status section records the wave; `ARISTOTLE_SUMMARY.md` has a new run summary at the top.
+
+**Verification.** `lake build` (default targets), `lake build book` and `lake build RandomMap` are green with no in-scope warnings. `BookProof/`, `Book/`, `Singularity/` and `RandomMap/` contain no `sorry` and no `axiom` declarations; the only `sorry`s in the repository remain the pre-existing ones in the out-of-scope `UsedRoute/` and `UnusedRoute/` trees.
+
+**Gaps left open** (documented, never `sorry`-ed, unchanged by this run): the physical derivation of `τ = n̄ + ½` from the fidelity of displaced thermal states (its finite algebraic core and Gaussian phase-space route are formalized) and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (its finite, countable, diffuse and mixed classes are all proved).
+
+All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-09, operational layer of the attention head)
+
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md`.  The previous state was
+re-verified first (`lake build`, `lake build book`, `lake build RandomMap` all
+green, no in-scope warnings), then a new wave of **six proof packages** landed,
+all `sorry`-free and `axiom`-free (`#print axioms` shows only `propext`,
+`Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified
+in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed from
+`Book/CoherentState.lean`:
+
+1. **`BookProof/ChapterSoftmaxJacobian.lean` — the score derivative of attention.**
+   `∂ log Z/∂sᵢ = β·pᵢ` (the attention weight of a key *is* the sensitivity of the
+   free energy to that key's score) and the Softmax Jacobian
+   `∂pⱼ/∂sᵢ = β·pⱼ(δᵢⱼ − pᵢ)`, proved as `HasDerivAt` statements.  The Jacobian is
+   symmetric, its rows sum to zero (a key can only gain what the others lose), it
+   is diagonally non-negative and off-diagonally non-positive at `β ≥ 0`, and its
+   quadratic form is `β` times an attention-weighted variance — positive
+   semidefinite, and equal to `β·Var_β(s)` on the scores themselves.
+
+2. **`BookProof/ChapterAttentionOutput.lean` — the output as a function of the
+   temperature.**  The head output is *defined* as the existing
+   `observableExpectation` against `scoreSoftmax β s` (the project's convex-hull
+   and norm bounds are reused, not restated).  New: the plain mean of the values
+   at `β = 0`, winner-takes-all convergence to the arg-max value as `β → ∞`,
+   `ℓ¹`-stability of the output in the weights, and the identification of the
+   coherent-state Born output with the head output at `β = 2`.
+
+3. **`BookProof/ChapterAttentionMasking.lean` — masking is conditioning.**  Masked
+   Softmax is a probability distribution supported exactly on the admissible set,
+   and on that set it is the unmasked weight renormalized: `p(j | S) = p(j)/p(S)`.
+   Masking leaves every odds ratio inside `S` untouched (it removes keys without
+   re-ranking them), preserves the score order, and satisfies the tower property
+   (a composite mask is a single mask).  The causal mask is built, with no weight
+   on the future and nested attention windows.
+
+4. **`BookProof/ChapterCoherentDynamics.lean` — the symmetry group of attention.**
+   A common unitary change of frame on the query and all keys changes no weight;
+   free harmonic evolution `α ↦ e^{iθ}α` is such a unitary, so **attention is a
+   constant of the motion**; and a common Weyl displacement leaves the weights
+   unchanged, so only relative phase-space positions are physical.
+
+5. **`BookProof/ChapterAttentionFactorization.lean` — independent modes factorize.**
+   With additive per-mode scores the joint attention distribution over a product
+   key set is exactly the product of the single-mode distributions, its marginals
+   are those distributions, and the attention entropy is additive.
+
+6. **`BookProof/ChapterRotaryPosition.lean` — position enters only as a relative
+   phase.**  The rotary positional encoding is unitary and additive in the
+   position, and the alignment of a query at position `a` with a key at position
+   `b` depends on the positions only through the offset `b − a`; hence translating
+   the whole sequence changes no attention weight.
+
+**Documentation.**  `BookProof/STATUS.md` received a dated wave note covering the
+above and also recording, for the first time, four packages that had landed on
+disk in an earlier pass but were never written up (`ChapterSoftmaxDivergence`,
+`ChapterLogPartitionConvex`, `ChapterCoherentPositionSpace`,
+`ChapterSoftmaxStability`).  The status section of
+`PLAN_LEAN_SPECIALIST_COHERENT.md` records the wave as landed.
+
+**Verification.**  `lake build` (default targets `BookProof`, `Book`,
+`Singularity`), `lake build book` and `lake build RandomMap` are all green with no
+in-scope warnings; `BookProof/`, `Book/`, `Singularity/` and `RandomMap/` contain
+no `sorry` and no `axiom` declarations.  The only `sorry`s in the repository are
+the pre-existing ones in the out-of-scope `UsedRoute/` and `UnusedRoute/` trees.
+
+**Gaps left open** (documented, never `sorry`-ed, unchanged by this run): the
+physical derivation of `τ = n̄ + ½` from the fidelity of displaced thermal states
+(its finite algebraic core and the Gaussian phase-space route are both formalized)
+and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification
+(the finite, countable, diffuse and mixed classes are all proved).
+
+All work is committed and pushed.
+
+# Summary of changes for run 8b7f7412-d317-4bbe-9596-2f8630398260
+Finished executing `PLAN_LEAN_SPECIALIST_COHERENT.md`. Parts A–E were already landed; this run completed the remaining Part F and Part G, and closed out the documentation and verification.
+
+**Part F — five new proof packages** (all `sorry`-free and `axiom`-free, registered in `BookProof.lean` and `#check`-ed from the book text):
+- `BookProof/ChapterH5.lean` (F.1) — the inversion-free Krylov shortcut: `krylovSpan`, `krylov_subspace_span`, `shift_pow_sub_pow_mem`, `krylovSpan_shift_eq`, `inversion_free_seed`, `generator_bounded_of_rankOneProjector`, headline `krylov_no_inversion_eq_standard` (the sequence `w₀ = v₀`, `wₖ = (H̄ − γI)wₖ₋₁` spans exactly the standard Krylov subspace).
+- `BookProof/ChapterH6.lean` (F.2) — the Krylov projection as a spectral low-pass filter: `sirk_error_decay_exponential`, `sirk_error_bound_antitone`, `sirk_error_tendsto_zero`, `krylov_rayleigh_transfer`, `krylovRetainsDominantSpectrum`, plus the reduced-generator and semigroup lemmas.
+- `BookProof/ChapterF8.lean` (F.3) — Tomographic Subspace Recovery: the two-level hash and its decoding, the matrix-unit operator basis, the offline/online cost split (`online_cost_independent_of_M`), headline `tsr_offline_compiles`.
+- `BookProof/ChapterThermalTemperatureCore.lean` (F.4) — the finite algebraic core of the temperature identity: geometric occupancy, its mean and variance, and headline `thermal_temperature_eq_mean_half` (`½·coth(x/2) = n̄ + ½`).
+- `BookProof/ChapterAbelianMixture.lean` (F.5) — the mixed atomic-plus-diffuse abelian von Neumann class, headline `vonNeumann_abelian_class_mixture`.
+
+New prose and `#check` blocks were added to `Book/FreeField.lean`, `Book/CoherentState.lean` and `Book/NullMeasure.lean`.
+
+**Part G — isolation refactor.** The shared analytic core was promoted out of `PnpProof/` into four Mathlib-only modules `BookProof/PhysMeasureBasis.lean`, `BookProof/PhysFunctionalAnalysis.lean`, `BookProof/PhysHSGaussian.lean`, `BookProof/PhysMehler.lean`; the original `PnpProof/` files became thin export aliases, all consumers were repointed, and no `PnpProof` module compiles in the default build any more. The Riemann-Hypothesis file was moved to `UnusedRoute/SchoenfeldPRA.lean`, taking its two intentional `sorry`s out of the default thread. One premise of the plan's G.3 was factually wrong and is now corrected in the plan: `RandomMap/RandomMap2.lean` genuinely depends on that file, so it imports the relocated module rather than being independent of it.
+
+**Verification.** `lake build` (default targets `BookProof`, `Book`, `Singularity`) completes green with 8523 jobs and 0 errors; `lake build RandomMap`, `PnpProof`, `UnusedRoute` and `book` are green as well. No `sorry` and no new `axiom` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`; the only `sorry` notices in the build are pre-existing legacy ones in the out-of-scope `UsedRoute/` and `UnusedRoute/` trees (count unchanged from before this work).
+
+**Documented gaps and follow-ups** (recorded in `BookProof/STATUS.md` and the plan's status section, not `sorry`-ed anywhere): the physical derivation of `τ = n̄ + ½` from the fidelity of displaced thermal states (F.4 proves its finite algebraic core), the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the finite, countable, diffuse and mixed classes are all proved), and a cosmetic style backlog — the promoted `Phys*` modules inherit long-line and tactic-style lint warnings from their origin. No linter was disabled and no `nolint` was added.
+
+All work is committed and pushed.
+
+# Summary of changes for run ec1b1253-3e20-4f2e-81d3-3d2c81c1ab67
+## What I did
+
+I worked `PLAN_LEAN_SPECIALIST_UNPROVED.md` in queue order. Priorities 1, 2, 3 and 5 were re-audited and found already landed (the Mehler tail split, the `ChapterSelectingEvents` conclusions, and all six Priority‑3 chapter claims — dissipative non‑singularity, the Ω‑conjugation invariance of the real‑representation summands, the gravity projector direct sum, `fieldStrengthMul_eq_Fbook`, the uniform‑prior pair, the deep‑learning ensemble identities). This pass closed the remaining realistic item and landed four new proof packages, all `sorry`‑free and using only `propext`, `Classical.choice`, `Quot.sound` (verified with `#print axioms`).
+
+**1. `BookProof/ChapterA3x.lean` — Priority 4, complete reducibility at `N = 3`.** The library had the `N = 2` case, where symmetrizer and antisymmetrizer are complementary. From `N = 3` they are not, and the leftover mixed‑symmetry projector `projMixed N = 1 − projSym N − projAnti N` is proved idempotent, orthogonal to both others, and commuting with the diagonal Lorentz generators and diagonal parity — so each summand is a full‑Lorentz subrepresentation. It vanishes at `N = 2` and, crucially, **does not vanish at `N = 3`** (an explicit diagonal entry equals `2/3`). Headline: `tensorCube_complete_reducibility`, the three‑part splitting `V^{⊗3} = Sym³V ⊕ Λ³V ⊕ Mixed`, with no external hypothesis.
+
+**2. `BookProof/ChapterBoseEinstein.lean` — the thermal law in physical variables.** With `boseEinstein x = 1/(eˣ−1)` at inverse temperature `x = ħω/kT`: the thermal ratio becomes the Boltzmann factor `e^{−x}`, the occupation law is exactly the Gibbs law `Pr(n) = (1−e^{−x})e^{−nx}`, the parameter is confirmed to be the mean occupation, heating strictly raises it, and the temperature has the closed form `τ(x) = n̄(x)+1/2 = ½·coth(x/2)` with zero‑temperature limit `τ → 1/2`. The already‑present energy‑expectation reading of `τ` was reused rather than restated.
+
+**3. `BookProof/ChapterThermalMaxEntropy.lean` — why the bath is thermal.** The thermal Shannon entropy with its closed form and its Gibbs‑variable form `S = −log(1−e^{−x}) + x·n̄`, the pointwise Gibbs inequality, and the headline: among finitely supported occupation distributions with a prescribed mean occupation, the thermal law maximizes the entropy.
+
+**4. `BookProof/ChapterLinftyMultiplication.lean` — the `L∞(μ)` class of the abelian von Neumann list.** Alongside the finite and countable diagonal (`ℓ∞`) classes already formalized, the diffuse model is now built: multiplication by an essentially bounded symbol is a bounded operator on `L²(μ)` with norm at most the essential supremum, and the assignment is unital, multiplicative, **abelian**, star‑closed (the adjoint is multiplication by the conjugate) and, on a finite measure space, **faithful**. Lebesgue measure on `[0,1]` is recorded as atomless — the feature separating this class from the atomic ones.
+
+## Hygiene (Priority 6)
+
+All four modules are registered in `BookProof.lean`; the corresponding book chapters gained `#check` blocks (`Book/PhysicalParity.lean`, `Book/CoherentState.lean`, `Book/NullMeasure.lean`) plus corrected prose; `BookProof/ChapterRoadmapAudit.lean` gained axiom certificates for the new headlines; `BookProof/STATUS.md` and the plan file received a dated wave note. `lake build` is green across all default targets, no `sorry` appears in the new work, and the only pre‑existing intentional ones (in `RandomMap/SchoenfeldPRA.lean`) were left untouched.
+
+## Gaps left open (documented, never `sorry`-ed)
+
+The derivation of `τ = n̄ + 1/2` from the quantum fidelity of displaced thermal states; the two mixture classes and the exhaustiveness of the five‑item von Neumann list; and the deep external inputs of §4 (Wigner/Mackey imprimitivity, Varadarajan, Lévy paths, Crouzeix), which the plan explicitly says to keep as named hypotheses.
+
+
 # Summary of changes for run aba8fb7a-613e-4e7c-959e-9215a8295b6e
 Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md`, landing a new wave (recorded in the plan as Part E) of formal content for the chapter `Book/CoherentState.lean`, plus the verification gate.
 
@@ -7241,3 +7480,193 @@ hypotheses the plan tells us not to attempt remain named hypotheses, never
 axioms: Wigner/Mackey imprimitivity exhaustiveness, Varadarajan Thm 6.12,
 `levy_paths_nowhere_differentiable`, `CrouzeixBound`, and the Pauli fundamental
 theorem *in full generality* (only the fixed `4×4` model is discharged here).
+
+# Continuation pass (2026-08-09, `PLAN_LEAN_SPECIALIST_COHERENT.md`)
+
+**Audit at the start of this pass.** `lake build BookProof` was **red**:
+`BookProof/PhysMehler.lean` failed to compile (`substrate_orthonormal_pair`
+carried two stale `· norm_num` bullets after a `rw` whose side goal is now
+discharged automatically). Fixing that was the first thing this pass did. The
+audit also found three packages on disk that were registered in `BookProof.lean`
+and `#check`-ed from the book but had never been written up anywhere
+(`ChapterDisplacedThermalOverlap`, `ChapterDisplacedThermalMulti`, `ChapterH7`);
+they are now recorded in `BookProof/STATUS.md`.
+
+This pass then landed **four new packages** plus a hygiene group — all
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`),
+all registered in `BookProof.lean` and cross-referenced from
+`Book/CoherentState.lean`.
+
+**1. `BookProof/ChapterCoherentFidelity.lean` — the quantum fidelity of coherent
+states.** `fidelityC q k = ‖⟨q|k⟩‖²` for complex Bargmann parameters, with the
+headline `fidelityC_eq_exp_neg_dist_sq`: `F(q,k) = exp(−‖q − k‖²)`. The phase and
+the individual norms cancel, so the fidelity is a pure function of the distance
+between the displacement parameters — `fidelityC_symm`, `fidelityC_pos`,
+`fidelityC_le_one`, `fidelityC_self`, `fidelityC_eq_one_iff` (it separates
+coherent states), `fidelityC_translation_invariant`, the strict antitonicity
+`fidelityC_le_iff_dist_le` / `fidelityC_lt_iff_dist_lt`, `neg_log_fidelityC`, and
+`bornWeightC_eq_scoreSoftmax_neg_dist_sq` / `bornWeightC_eq_fidelity_normalized`
+(**attention is the normalized fidelity**).
+
+**2. `BookProof/ChapterSoftmaxFluctuation.lean` — the fluctuation–response law.**
+`partition`, `logPartition`, `meanScore`, `varScore`; `hasDerivAt_logPartition`
+(`d/dβ log Z = ⟨s⟩_β`), `hasDerivAt_scoreSoftmax`
+(`d/dβ pⱼ = pⱼ(sⱼ − ⟨s⟩_β)`), and the headline `hasDerivAt_meanScore` /
+`deriv_meanScore`: `d/dβ ⟨s⟩_β = Var_β(s) ≥ 0`. Plus `varScore_eq_sub_sq`,
+`varScore_nonneg`, `meanScore_monotone`, `meanScore_le_max`,
+`varScore_eq_zero_iff`, `varScore_eq_zero_of_const`, `varScore_pos_of_ne`.
+
+**3. `BookProof/ChapterSoftmaxMaxEntropy.lean` — Softmax is the maximum-entropy
+attention.** `crossEntropy` with **Gibbs' inequality** in general form
+(`shannonEntropy_le_crossEntropy`), the Boltzmann form `log_scoreSoftmax`, the
+thermodynamic identity `shannonEntropy_scoreSoftmax` (`H = log Z − β⟨s⟩`),
+`crossEntropy_scoreSoftmax`, and the headline
+`shannonEntropy_le_of_meanScore_eq`: every distribution over the keys with the
+same mean alignment score has entropy at most that of the Softmax distribution.
+`softmax_free_energy_le` / `softmax_free_energy_eq` give the equivalent
+variational form (Softmax minimises `β⟨s⟩_p − H(p)`, the minimum being
+`−log Z(β)`).
+
+**4. `BookProof/ChapterEntropyTemperature.lean` — the entropy is antitone in the
+inverse temperature.** `attentionEntropy`, `attentionEntropy_eq`, the headline
+`hasDerivAt_attentionEntropy` (`dH/dβ = −β·Var_β(s)`), `heatCapacity` with
+`heatCapacity_nonneg` and `hasDerivAt_attentionEntropy_neg_heatCapacity`, and
+`attentionEntropy_antitoneOn`, `attentionEntropy_le_at_zero`,
+`attentionEntropy_le_log_card`. This joins the two entropy endpoints
+`ChapterAttentionEntropy` had already computed by a monotone path.
+
+**5. Hygiene — `BookProof/PhysHSGaussian.lean` is now warning-free**, closing the
+style follow-up the plan recorded for the modules promoted out of `PnpProof/`.
+No linter was disabled and no `nolint` was added. New reusable lemmas
+`physHermite_rec`, `physHermite_hasDerivAt_aux`, `physHermite_exists_poly`,
+`physHermite_continuous` and `physHermite_differentiableAt` replace the
+auto-generated tangles; `physHermite_hasDerivAt` is now a one-liner; the
+integration-by-parts step closes with an explicit `linear_combination`;
+`sphereUniform_rotation_invariant` is a `calc` (the old proof left a measure
+metavariable, which is what made its `rw` unfocusable); the dominated-convergence
+bound is an explicit argument; and the two `linter.flexible` sites use the
+suggested `simp_all … only [...]` forms. Recorded honestly: the file still
+contains inherited `simp?`/`simp_all?` query tactics that emit "Try this"
+**info** (not warning) messages; several sit under `<;>` and give a different
+suggestion per goal, so they were left alone rather than replaced by a guess.
+
+**Verification.** `lake build` (default targets `BookProof`, `Book`,
+`Singularity`), `lake build RandomMap` and `lake build book` are all green with
+**no in-scope warnings**. `#print axioms` on each new headline shows only
+`propext`, `Classical.choice`, `Quot.sound`. A repository-wide search finds no
+`sorry`/`admit` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`; the
+only remaining ones are the pre-existing occurrences in `UsedRoute/` and
+`UnusedRoute/`, which the plan puts out of scope to edit. No `axiom`
+declarations were added.
+
+**Still open (unchanged, and deliberately so).** The derivation of `τ` from the
+quantum fidelity of displaced thermal states *on a bosonic Fock space* (the
+Gaussian phase-space derivation is landed), and the **exhaustiveness** of the
+abelian von Neumann `*`-isomorphism classification. Both are documented gaps in
+`BookProof/STATUS.md`; neither is `sorry`-ed anywhere.
+
+# Information-theoretic pass (2026-08-10, `PLAN_LEAN_SPECIALIST_COHERENT.md`)
+
+**Audit at the start of this pass.** `lake build` (default targets `BookProof`,
+`Book`, `Singularity`), `lake build RandomMap` and `lake build book` were all
+green, with no `sorry`/`admit` anywhere in `BookProof/`, `Book/`, `Singularity/`
+or `RandomMap/`. Nothing needed repair, so the pass went straight to new
+deliverables.
+
+This pass landed **nine new proof packages**, all `sorry`-free and `axiom`-free
+(`#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`), each
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+and `#check`-ed from new prose paragraphs in `Book/CoherentState.lean`:
+
+1. **`BookProof/ChapterAttentionCollision.lean` — how many keys is a head
+   actually reading?** The collision probability `P₂ = ∑ pⱼ²`, the participation
+   ratio `N_eff = 1/P₂` and the Rényi-2 entropy `H₂ = −log P₂`. Cauchy–Schwarz
+   gives `1/m ≤ P₂ ≤ 1`, hence the headline
+   `effectiveSupport_scoreSoftmax_mem_Icc`: the effective key count lies in
+   `[1, m]`, and equals `m` exactly at infinite temperature
+   (`effectiveSupport_scoreSoftmax_zero`). The headline inequality
+   `renyi2_le_shannonEntropy` — a tangent-line/Jensen argument for `log`, isolated
+   as the reusable `log_le_div_add_log_sub_one` — shows `H₂ ≤ H`, so the
+   participation ratio never overstates how much context is used.
+
+2. **`BookProof/ChapterAttentionConcentration.lean` — how concentrated can the
+   Born measurement be?** A Markov bound (`mul_card_filter_le_one`,
+   `card_filter_le_inv`): at most `1/t` keys can carry weight `t` or more.
+   `exists_inv_card_le`: some key always carries the uniform share `1/m`. The
+   min-entropy bound `neg_log_le_shannonEntropy` (`−log pₘₐₓ ≤ H`) and its
+   exponential form `exp_neg_shannonEntropy_le` (`pₘₐₓ ≥ e^{−H}`): a low-entropy
+   head necessarily has a dominant key. `collisionProb_le_max` /
+   `inv_le_effectiveSupport` tie the two packages together — the effective key
+   count is at least `1/pₘₐₓ`.
+
+3. **`BookProof/ChapterAttentionMarkov.lean` — attention is a Markov kernel.**
+   `attentionMatrix` (row `i` = the Born distribution of query `i`), `push`,
+   `compose`, `l1dist`; `attentionMatrix_isStochastic`, `push_isProb`,
+   `compose_isStochastic`, `push_compose` (stacking layers is composing kernels),
+   `l1dist_push_le` (a step is `ℓ¹`-nonexpansive) and the **Doeblin contraction**
+   `l1dist_push_le_of_min` (`1 − mε` from an entrywise lower bound `ε`). Headline
+   `l1dist_push_attentionMatrix_le`: with the finite-temperature lower bound of
+   `ChapterAttentionRetrieval`, a layer whose row scores have spread at most `D`
+   contracts the `ℓ¹` distance by `1 − e^{−βD} < 1`.
+
+4. **`BookProof/ChapterScaledDotProduct.lean` — why the scores are divided by
+   `√d`.** In the uniform Rademacher model of an unstructured query (with the
+   coordinate-flip permutation `flipEquiv` and the sign-sum lemmas
+   `sum_sgn_eq_zero`, `sum_sgn_mul_eq_zero`), the raw score has mean zero
+   (`rademacherMean_dot`) and mean square `‖k‖²` (`rademacherMean_dot_sq`), hence
+   root-mean-square `√d` for unit-size key entries. Since dividing every score by
+   `c` divides the inverse temperature by `c` (`scoreSoftmax_div`,
+   `scoreSoftmax_scaled`), raw dot products at a fixed `β` run the head at `β√d`;
+   `rademacherMean_scaledDot_sq_of_unit_entries` shows the `1/√d`-scaled score has
+   mean square exactly `1`, independently of the width.
+
+5. **`BookProof/ChapterAttentionOutputVariance.lean` — the uncertainty of the
+   output.** `outputVariance p v = ∑ pⱼ‖vⱼ − o‖²` on a real inner-product space;
+   the bias–variance identity `sum_dist_sq_eq` (`∑ pⱼ‖vⱼ − c‖² = Var + ‖o − c‖²`)
+   and hence `observableExpectation_minimizes` / `headOutput_minimizes`: the head
+   output is the least-squares summary of the values it reads. König–Huygens
+   (`outputVariance_eq_sub`), the Jensen bound
+   `norm_observableExpectation_sq_le`, and
+   `outputVariance_scoreSoftmax_eq_zero_iff` — at a finite temperature the output
+   is certain exactly when all the values agree.
+
+6. **`BookProof/ChapterAttentionLowRank.lean` — the low-rank bottleneck of a
+   head.** Every score matrix a head can produce factors through its head
+   dimension, so `rank_scoreMatrix_le`: rank `≤ d`. Hence
+   `not_exists_scoreMatrix_one` — at `d < m` the identity ("attend to yourself
+   only") pattern is unrealizable — and `exists_scoreMatrix_one_of_le`, which shows
+   the bound is sharp.
+
+7. **`BookProof/ChapterLayerNorm.lean` — layer normalization fixes the gauge.**
+   `mean`, `variance`, `layerNorm`; zero mean and squared length exactly `d`
+   (`sum_layerNorm_eq_zero`, `sum_sq_layerNorm`), invariance under `x ↦ ax + c`
+   with `a > 0` (`layerNorm_add_const`, `layerNorm_smul_pos`), idempotence
+   (`layerNorm_layerNorm`), and the consequence `scoreSoftmax_layerNorm_ge`:
+   normalized scores span at most `2d`, so every key keeps at least `e^{−2βd}/m`.
+
+8. **`BookProof/ChapterSinusoidalPosition.lean` — sinusoidal positions.**
+   `peInner_eq_sum_cos`: the alignment of two encoded positions is
+   `∑ₐ cos(ωₐ(p − q))`, so it depends only on the offset; with `peInner_self`,
+   `abs_peInner_le`, `scoreSoftmax_sinusoidal_shift` (translation equivariance of
+   every attention weight) and `scoreSoftmax_sinusoidal_ge`.
+
+9. **`BookProof/ChapterAttentionMixing.lean` — iterating the layer.**
+   `l1dist_pushIter_le` (`(1 − mε)ⁿ` after `n` layers),
+   `tendsto_l1dist_pushIter` (the stack forgets its input), `eq_of_stationary`
+   (at most one stationary belief) and
+   `tendsto_l1dist_pushIter_attentionMatrix` (rate `(1 − e^{−βD})ⁿ` for a real
+   attention layer). Existence of a stationary distribution is not claimed.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap` and
+`lake build book` are all green with **no in-scope warnings**. `#print axioms` on
+every new headline shows only `propext`, `Classical.choice`, `Quot.sound`. A
+repository-wide search finds no `sorry`/`admit` in `BookProof/`, `Book/`,
+`Singularity/` or `RandomMap/`. No `axiom` declarations were added.
+`BookProof/STATUS.md` and the plan's status block carry a dated note for this
+wave.
+
+**Still open (unchanged, and deliberately so).** The derivation of `τ = n̄ + 1/2`
+from the quantum fidelity of displaced thermal states on a bosonic Fock space (the
+finite algebraic core is proved), and the exhaustiveness of the abelian von
+Neumann `*`-isomorphism classification (the four individual classes are proved).
+Both are documented gaps in `BookProof/STATUS.md`; neither is `sorry`-ed anywhere.

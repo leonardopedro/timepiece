@@ -243,7 +243,7 @@ zero:
 
 :::paragraph
 This is the measure-theoretic reason the construction below lives on a genuine
-continuum ({ref "classical-limit"}[the rationals are not enough]) rather than on a
+continuum ({ref "epr-complete"}[the rationals are not enough]) rather than on a
 countable set of events.
 :::
 

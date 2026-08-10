@@ -17,7 +17,7 @@ to be merged into `book.tex`.  Deliverables:
 * **U.5**: independent components ⇒ portfolio risk falls like `1/√n`.
 
 U.2 (sphere→Gaussian / Gegenbauer→Hermite) is already `sorry`-free in
-`PnpProof/SphereGaussian.lean`; it is a cross-reference only, no new code here.
+`BookProof/PhysHSGaussian.lean`; it is a cross-reference only, no new code here.
 -/
 
 open MeasureTheory

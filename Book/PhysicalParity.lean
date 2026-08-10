@@ -276,6 +276,31 @@ complement, and an equivariant projection between them.
 ```
 
 :::paragraph
+For the tensor powers of the Dirac spinor space the decomposition is explicit.
+On the tensor *square* the symmetrizer and the antisymmetrizer are already
+complementary, so $`V \otimes V = \operatorname{Sym}^2 V \oplus \Lambda^2 V`. On
+the tensor *cube* they are not: what is left over is the mixed-symmetry summand
+$`\Pi_{\mathrm{mix}} = 1 - \Pi_{\mathrm{sym}} - \Pi_{\mathrm{anti}}`, and it is
+not zero. It is a projector, orthogonal to the other two, and it commutes with
+the diagonal Lorentz generators and with diagonal parity, so
+$`V^{\otimes 3} = \operatorname{Sym}^3 V \oplus \Lambda^3 V \oplus
+\mathrm{Mixed}` is a decomposition into three full-Lorentz subrepresentations —
+the first genuinely three-part instance of complete reducibility here, proved
+with no external input:
+:::
+
+```
+#check @BookProof.ChapterA3p.tensorSquare_complete_reducibility
+#check @BookProof.ChapterA3x.projMixed
+#check @BookProof.ChapterA3x.projMixed_idem
+#check @BookProof.ChapterA3x.projMixed_spinGenDiag_comm
+#check @BookProof.ChapterA3x.projMixed_parityDiag_comm
+#check @BookProof.ChapterA3x.projMixed_two_eq_zero
+#check @BookProof.ChapterA3x.projMixed_three_ne_zero
+#check @BookProof.ChapterA3x.tensorCube_complete_reducibility
+```
+
+:::paragraph
 For the concrete $`4\times 4` Majorana model of the manuscript, Pauli's fundamental
 theorem is itself a finite computation, not an external input: the commutant of the
 four matrices $`i\gamma^\mu` is exactly the set of scalar matrices — the

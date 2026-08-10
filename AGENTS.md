@@ -49,21 +49,24 @@ small patches (both tracked under `patches/`, applied by `apply-verso-patches.sh
    scrolls in place rather than navigating to the output directory's file listing.
 
 Because `.lake/` is gitignored, the patches must be re-applied after any fresh
-clone or `lake update`:
+clone or `lake update`. **Always build the book through the wrapper** — it runs
+the Verso patches, `lake build book`, `lake exe book`, and the mandatory HTML
+post-processing in the right order:
 
 ```bash
-# Apply the tracked Verso patch (idempotent; safe to re-run)
-./patches/apply-verso-patches.sh
-
-# Build and render the single-page HTML
-lake build book && lake exe book
-
-# Post-process: hide TOC by default, remove HTTP-redirect script (file:// fix)
-./patches/postprocess-html.sh
+# One-shot book build (patches + render + postprocess). Idempotent.
+./patches/build-book.sh
 # -> _out/html-single/index.html
 ```
 
-See `BOOK_PROOF_PLAN.md` Priority 4 for the root cause and fix details.
+Do **not** call `lake exe book` alone for a final artifact: the postprocess step
+is what removes the `<base href="./">` tag Verso emits. With a `<base>` present,
+the browser resolves every `#fragment` ToC link against the absolute file://
+location, so a printed PDF gets non-portable bookmarks that open a webbrowser.
+`patches/build-book.sh` asserts the invariant afterwards (no `<base>`, fragment
+links present).
+
+See `BOOK_PROOF_PLAN.md` Priority 4 for the original 26-chapter elaboration fix.
 
 ---
 

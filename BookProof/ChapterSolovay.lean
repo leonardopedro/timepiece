@@ -1,8 +1,8 @@
 import Mathlib
 import Mathlib.Analysis.InnerProductSpace.Completion
 import Mathlib.Topology.UniformSpace.Completion
-import PnpProof.Kopperman
-import PnpProof.SphereGaussian
+import BookProof.PhysMehler
+import BookProof.PhysHSGaussian
 import RandomMap.RandomMap2
 
 /-!
@@ -257,11 +257,11 @@ theorem tensor_language_decidable (N₁ N₂ : ℕ)
 /-- The Mehler prior (`gammaMeasure`) concentrates on the unit sphere: the
     normalized empirical squared norm of the first `k` coordinates converges to `1`
     almost surely (Poincaré–Borel / the strong law).
-    This is `PnpProof.Kopperman.mehler_concentrates_on_sphere`. -/
+    This is `PhysMehler.mehler_concentrates_on_sphere`. -/
 theorem mehler_concentrates_on_unit_sphere :
-    ∀ᵐ ω ∂(PnpProof.Kopperman.MehlerPrior),
-    Filter.Tendsto (fun k => PnpProof.normSq k ω / k) Filter.atTop (nhds 1) := by
-  simpa [PnpProof.Kopperman.MehlerPrior] using PnpProof.Kopperman.mehler_concentrates_on_sphere
+    ∀ᵐ ω ∂(PhysMehler.MehlerPrior),
+    Filter.Tendsto (fun k => PhysHSGaussian.normSq k ω / k) Filter.atTop (nhds 1) := by
+  simpa [PhysMehler.MehlerPrior] using PhysMehler.mehler_concentrates_on_sphere
 
 /-- A transformation is an admissible finite orthogonal symmetry of the
 tail when it is measure-preserving for the selected tail prior.  The repository's
@@ -281,7 +281,7 @@ theorem mehler_invariant_under_finite_orthogonal
 /-- The chosen tail prior is atomless. -/
 theorem tailMeasure_singleton (x : _root_.InnerTail) :
     _root_.tailMeasure {x} = 0 := by
-  simp [tailMeasure, SchoenfeldPRA.rcpPriorOnSubstrate_atomless]
+  simp [tailMeasure, PhysMehler.rcpPriorOnSubstrate_atomless]
 
 /-- The precise admissibility package used for tail priors.  No unsupported
 uniqueness theorem is asserted: uniqueness among all invariant atomless laws
@@ -296,8 +296,8 @@ structure TailPriorAdmissible (μ : Measure _root_.InnerTail) : Prop where
 properties requested by the book: probability, atomlessness, and invariance. -/
 theorem only_mehler_on_tail : TailPriorAdmissible _root_.tailMeasure := by
   refine ⟨?_, ?_, ?_⟩
-  · exact _root_.SchoenfeldPRA.rcpPriorOnSubstrate_isProb
-  · exact _root_.SchoenfeldPRA.rcpPriorOnSubstrate_atomless
+  · exact _root_.PhysMehler.rcpPriorOnSubstrate_isProb
+  · exact _root_.PhysMehler.rcpPriorOnSubstrate_atomless
   · exact fun T hT => hT.map_eq
 
 /-- Heads admit an arbitrary probability law, while the tail theorem records the

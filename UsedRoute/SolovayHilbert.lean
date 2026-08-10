@@ -16,7 +16,7 @@ name, or diagonalize against an infinite tail.
 -/
 
 open MeasureTheory ProbabilityTheory Complex
-open SchoenfeldPRA
+open PhysMehler
 
 noncomputable section
 

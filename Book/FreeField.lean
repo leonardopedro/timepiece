@@ -118,6 +118,89 @@ orthonormal basis (the setting of the countable stick-breaking chain), it is not
 making an extra assumption: positivity of the part measures *forces* the index set
 to be countable.
 
+# Dimensional Reduction: the Krylov Shortcut and the Compiled Sketch
+
+:::paragraph
+The same Gaussian/Fock substrate is what makes the *computational* side of the
+free-field thread tractable. Two reductions do the work. The first is the
+inversion-free Krylov shortcut: the Krylov subspace
+$`\mathrm{Kry}_m(\bar H, v_0) = \mathrm{span}\{v_0, \bar H v_0, \dots, \bar H^{m-1}v_0\}`
+is unchanged when the generator is shifted by a multiple of the identity, because
+the shift only adds lower-order terms. So the sequence $`w_k = (\bar H - \gamma I)w_{k-1}`,
+which never solves a linear system, spans exactly the same subspace as the
+rational construction that would; and pre-conditioning the seed makes the
+resolvent merely lower the polynomial degree. The generator itself is bounded —
+the Mehler projector is rank-one, the number operators diagonal.
+:::
+
+```
+#check @BookProof.ChapterH5.krylovSpan
+#check @BookProof.ChapterH5.krylov_subspace_span
+#check @BookProof.ChapterH5.shift_pow_sub_pow_mem
+#check @BookProof.ChapterH5.krylovSpan_shift_eq
+#check @BookProof.ChapterH5.inversion_free_seed
+#check @BookProof.ChapterH5.generator_bounded_of_rankOneProjector
+#check @BookProof.ChapterH5.krylov_no_inversion_eq_standard
+```
+
+:::paragraph
+The second reduction reads the Krylov projection as a *spectral low-pass filter*.
+The compression $`\bar H_{\text{reduced}} = V^{\mathsf H}\bar H V` has the
+restricted quadratic form, so each of its eigenvalues is a Rayleigh quotient of
+the full generator and can never exceed its norm: the projection keeps
+frequencies, it does not invent them. What it discards costs only the $`e^{-hm}`
+term already carried by the SIRK error bound, which decays to zero as the
+retained dimension grows. And generation is then a *single* matrix exponential
+of an explicitly $`m \times m` object.
+:::
+
+```
+#check @BookProof.ChapterH6.sirk_error_decay_exponential
+#check @BookProof.ChapterH6.sirk_error_bound_antitone
+#check @BookProof.ChapterH6.krylov_rayleigh_transfer
+#check @BookProof.ChapterH6.krylovRetainsDominantSpectrum
+#check @BookProof.ChapterH6.reduce_generator_mul_m
+#check @BookProof.ChapterH6.generation_single_exponential
+```
+
+:::paragraph
+Finally, the offline stage: a two-level sketch hashes raw coordinates into $`k`
+features and places the features on distinct modes of a $`K_2`-mode Fock space,
+producing a genuine single-excitation state from which the features can be read
+back; and all observables of the reduced space are pre-projected into a complete
+basis of $`m^2` matrix units. The corpus size enters only there — the online
+cost carries no such term.
+:::
+
+```
+#check @BookProof.ChapterF8.singleExcitation
+#check @BookProof.ChapterF8.twoLevelHash_total
+#check @BookProof.ChapterF8.featureHash_decodes
+#check @BookProof.ChapterF8.offline_operatorBasis
+#check @BookProof.ChapterF8.online_cost_independent_of_M
+#check @BookProof.ChapterF8.tsr_offline_compiles
+```
+
+:::paragraph
+Two properties make the reduction safe to *run*. First, when the full generator
+is self-adjoint the compression is self-adjoint too, so every eigenvalue of the
+reduced generator is real and is pinned between any bounds satisfied by the
+quadratic form of the full generator: the reduced dynamics can neither go
+complex nor leave the frequency band of the physics it came from. Second, the
+reduced propagator $`e^{-\mathrm{i}t\bar H}` of a Hermitian generator is
+unitary, hence generation conserves the $`\ell^2` mass exactly — the generated
+state is a state, at every step and for every horizon $`t`.
+:::
+
+```
+#check @BookProof.ChapterH7.compress_isSelfAdjoint
+#check @BookProof.ChapterH7.compression_rayleigh_real
+#check @BookProof.ChapterH7.compression_eigenvalue_mem_numericalRange
+#check @BookProof.ChapterH7.reduceGenerator_isHermitian
+#check @BookProof.ChapterH7.generationOperator_mem_unitaryGroup
+#check @BookProof.ChapterH7.generation_preserves_l2
+```
+
 # Summary
 
 The free-field thread replaces the nonexistent infinite-dimensional Lebesgue measure

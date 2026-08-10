@@ -3,7 +3,7 @@ import RandomMap.RandomMap2Walk
 import RandomMap.RandomMap2Moments
 import RandomMap.RandomMap2RH
 import RandomMap.RandomMap2InfiniteWalk
-import RandomMap.RcpRandomMap2Bridge
+import UnusedRoute.RcpRandomMap2Bridge
 
 /-!
 # RandomMap2 Axiom Verification

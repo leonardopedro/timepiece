@@ -181,9 +181,45 @@ self-adjoint subalgebra of $`B(\ell^2(\mathbb{N}))`:
 #check @BookProof.ChapterAbelianDiagonalCountable.vonNeumann_abelian_class_countable
 ```
 
-The remaining three classes ($`L^\infty([0,1])` and the two mixtures) need
-von-Neumann-algebra machinery that is not available in this toolchain, and the
-exhaustiveness of the five-item list remains a documented gap.
+The third class, the diffuse model $`L^\infty(\mu)` acting on $`L^2(\mu)` by
+multiplication, is now proved as well. For an essentially bounded symbol
+$`\varphi` the multiplication operator $`M_\varphi f = \varphi\cdot f` is bounded
+by the essential supremum, and $`\varphi \mapsto M_\varphi` is unital,
+multiplicative, abelian, star-closed (the adjoint of $`M_\varphi` is
+$`M_{\bar\varphi}`) and — on a finite measure space — faithful. Lebesgue measure
+on $`[0,1]` is atomless, which is exactly what distinguishes this class from the
+atomic $`\ell^\infty` models:
+
+```
+#check @BookProof.ChapterLinftyMultiplication.multOp
+#check @BookProof.ChapterLinftyMultiplication.norm_multOp_le
+#check @BookProof.ChapterLinftyMultiplication.multOp_mul
+#check @BookProof.ChapterLinftyMultiplication.multOp_one
+#check @BookProof.ChapterLinftyMultiplication.multOp_comm
+#check @BookProof.ChapterLinftyMultiplication.multOp_inner_adjoint
+#check @BookProof.ChapterLinftyMultiplication.multOp_eq_zero_iff
+#check @BookProof.ChapterLinftyMultiplication.vonNeumann_abelian_class_Linfty
+#check @BookProof.ChapterLinftyMultiplication.unitInterval_atomless
+```
+
+The mixed class — an atomic part alongside a diffuse one — is realized too, by
+the finite measure $`\mathrm{vol}|_{[0,1]} + \delta_2` on the line: it has a
+genuine atom at $`2` and a diffuse part of mass $`1` every point of which is
+null, and its multiplication algebra is again unital, abelian, star-closed and
+faithful:
+
+```
+#check @BookProof.ChapterAbelianMixture.mixtureMeasure
+#check @BookProof.ChapterAbelianMixture.mixtureMeasure_atom
+#check @BookProof.ChapterAbelianMixture.mixtureMeasure_diffuse_point
+#check @BookProof.ChapterAbelianMixture.mixtureMeasure_not_purely_atomic_on_Icc
+#check @BookProof.ChapterAbelianMixture.vonNeumann_abelian_class_mixture
+```
+
+What remains outside this toolchain is the *exhaustiveness* of the list — that
+every abelian von Neumann algebra is $`*`-isomorphic to one of these models —
+which needs von-Neumann-algebra machinery that is not available here; it remains
+a documented gap.
 
 The same statement is packaged, against the manuscript's five-type list, in
 `BookProof.ChapterSelectingEvents`:

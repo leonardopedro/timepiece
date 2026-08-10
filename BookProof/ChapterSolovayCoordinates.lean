@@ -1,5 +1,5 @@
 import Mathlib
-import PnpProof.SphereGaussian
+import BookProof.PhysHSGaussian
 
 /-!
 # Coordinate Gaussian extension of the Solovay tail
@@ -37,11 +37,11 @@ instance gaussianHead_isProbability (k : ℕ) :
 abbrev CoordinateTail := ℕ → ℝ
 
 /-- Its Mehler law: the countable product of standard Gaussians. -/
-abbrev coordinateTailMeasure : Measure CoordinateTail := PnpProof.gammaMeasure
+abbrev coordinateTailMeasure : Measure CoordinateTail := PhysHSGaussian.gammaMeasure
 
 instance coordinateTailMeasure_isProbability :
     IsProbabilityMeasure coordinateTailMeasure := by
-  exact PnpProof.gammaMeasure_isProbability
+  exact PhysHSGaussian.gammaMeasure_isProbability
 
 /-- Restriction to any finite coordinate set has the corresponding finite
 product Gaussian law.  This gives the model its explicit coordinate
@@ -109,7 +109,7 @@ theorem tailSplitEquiv_map (k : ℕ) :
       (gaussianHead k).prod coordinateTailMeasure :=
   by
   dsimp [coordinateTailMeasure, gaussianHead, standardGaussian, tailSplitEquiv,
-      PnpProof.gammaMeasure]
+      PhysHSGaussian.gammaMeasure]
   have h_reindex : Measure.map
       ((MeasurableEquiv.piCongrLeft (fun _ : ℕ => ℝ) (finSumNatEquiv k)).symm)
       (Measure.infinitePi (fun _ : ℕ => gaussianReal 0 1)) =

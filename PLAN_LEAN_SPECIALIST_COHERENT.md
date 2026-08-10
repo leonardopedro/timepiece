@@ -12,9 +12,9 @@ This is an execution plan for an LLM–Lean-4-specialist agent. It has two goals
 Every new theorem must remain `sorry`-free and `axiom`-free (only `propext`,
 `Classical.choice`, `Quot.sound`).
 
-## Status (2026-08-08 — Parts A–E landed; read this before starting)
+## Status (2026-08-10 — Parts A–G, the closing pass, and all subsequent attention waves landed; read this before starting)
 
-Parts A, B, C, D and E are **complete**: the chapter
+Parts A, B, C, D, E and the closing pass are **complete**: the chapter
 builds, all its `#check` blocks elaborate, and the new theorems are `sorry`-free
 and `axiom`-free. Concretely:
 
@@ -38,7 +38,7 @@ and `axiom`-free. Concretely:
   are real theorems now, not `True` placeholders. The full von Neumann
   `*`-isomorphism classification (the remaining four classes and exhaustiveness)
   is a documented gap.
-- **Hygiene.** Only `RandomMap/SchoenfeldPRA.lean:162,176` (intentional) carry
+- **Hygiene.** Only `UnusedRoute/SchoenfeldPRA.lean:163,178` (intentional) carry
   `sorry`; no `axiom` anywhere in `BookProof/`. `lake build BookProof`, `lake build
   book`, `lake exe book` + `./patches/postprocess-html.sh` are all green.
 
@@ -54,7 +54,7 @@ and `axiom`-free. Concretely:
   cleaned, and `RandomMap/RandomMap2InfiniteWalk.lean` was rewritten around the
   scalar-bump lemmas, taking `lake build RandomMap` from a failure with 39 warnings
   to green with none. The only remaining `sorry` notices are the two intentional
-  ones in `RandomMap/SchoenfeldPRA.lean`.
+  ones in `UnusedRoute/SchoenfeldPRA.lean`.
 - **Part E — landed (this wave).** The coherent-state chapter's three remaining
   structural layers are proved and cross-referenced:
   `ChapterCoherentGeometry` (the kernel as a metric readout, the Born weight as a
@@ -67,14 +67,256 @@ and `axiom`-free. Concretely:
   expectation) and `ChapterSoftmaxSharpness` (the flat-versus-sharp dichotomy)
   landed.
 
-**What remains** is the documented mathematical gap list, not a hygiene backlog:
-the physical derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal
-states (Part A.4), and the remaining von Neumann classes and exhaustiveness of the
-`*`-isomorphism classification (Part B.4).  Both are recorded in
-`BookProof/STATUS.md`; neither is `sorry`-ed anywhere.  Parts C and D below are
-kept for the record.  Future waves should continue to target ≥ 4 deliverable
-groups per pass (`PnpProof/`, `UnusedRoute/`, `UsedRoute/` remain out of scope per
-author mandate).
+**Closing pass — done (same day, `PLAN_LEAN_SPECIALIST_UNPROVED.md` in queue
+order).** Four further packages landed, are `#check`-ed in the chapter, and close
+Priority 4 of `PLAN_LEAN_SPECIALIST_UNPROVED.md`:
+`ChapterA3x` (complete reducibility at `N = 3`,
+`tensorCube_complete_reducibility`: `V^{⊗3} = Sym³V ⊕ Λ³V ⊕ Mixed`, with the
+mixed summand non-zero), `ChapterBoseEinstein` (the thermal law is the Gibbs law,
+`τ = ½·coth(x/2)`), `ChapterThermalMaxEntropy` (thermal law maximizes entropy at
+fixed mean occupation) and `ChapterLinftyMultiplication` — the **`L∞(μ)` class of
+the abelian von Neumann list** (`multOp`, `multOp_comm`, `multOp_inner_adjoint`,
+`multOp_mul`, `multOp_one`, `norm_multOp_le`, `unitInterval_atomless`,
+`vonNeumann_abelian_class_Linfty`).
+
+**Part F — landed (2026-08-09).** Five new packages, all `sorry`-free and
+`axiom`-free, registered in `BookProof.lean` and `#check`-ed in the book:
+`ChapterH5` (F.1, the inversion-free Krylov shortcut, headline
+`krylov_no_inversion_eq_standard`), `ChapterH6` (F.2, the Krylov projection as a
+spectral low-pass filter, `krylovRetainsDominantSpectrum` and the SIRK error
+decay), `ChapterF8` (F.3, the TSR offline/online cost split, headline
+`tsr_offline_compiles`), `ChapterThermalTemperatureCore` (F.4, the finite
+algebraic core of the temperature identity, headline
+`thermal_temperature_eq_mean_half`) and `ChapterAbelianMixture` (F.5, the mixed
+atomic-plus-diffuse abelian von Neumann class, headline
+`vonNeumann_abelian_class_mixture`).  Book prose and `#check` blocks were added
+to `Book/FreeField.lean`, `Book/CoherentState.lean` and `Book/NullMeasure.lean`.
+
+**Part G — landed (2026-08-09).** The shared analytic core was promoted out of
+`PnpProof/` into four new Mathlib-only modules `BookProof/PhysMeasureBasis.lean`,
+`BookProof/PhysFunctionalAnalysis.lean`, `BookProof/PhysHSGaussian.lean` and
+`BookProof/PhysMehler.lean`; the original `PnpProof/` files are now thin `export`
+aliases and **no `PnpProof` module compiles in the default build**.
+ `RandomMap/SchoenfeldPRA.lean` was moved to `UnusedRoute/SchoenfeldPRA.lean`
+ (taking its two intentional RH `sorry`s out of the default thread).  A style
+ follow-up remains: the promoted `Phys*` modules inherit long-line and
+ tactic-style lint warnings from their P≠NP origin (no linter was disabled and
+ no `nolint` was added).
+
+ > **Open item (author rule: `UnusedRoute/` may depend on the rest of the
+ > project, never vice versa).**  The isolation is **not yet complete**: the
+ > default-reachable `RandomMap/RandomMap2.lean` still does
+ > `import UnusedRoute.SchoenfeldPRA`, and `RandomMap/RcpRandomMap2Bridge.lean`
+ > is entirely RH-dependent (`RH_PRA → RectangleRH`).  Both violate the rule.
+ > The fix (recorded for the specialist, not yet done):
+ >
+ > - **`RandomMap2.lean` needs only generic content.**  Its only
+ >   `SchoenfeldPRA`-sourced identifiers are `rcpPriorOnSubstrate` and
+ >   `rcpPriorOnSubstrate_isProb` (thin wrappers over
+ >   `BookProof.PhysMehler.exists_atomless_prob_substrate`) plus `Substrate`
+ >   (already shared in `PhysMehler`).  Move those two wrappers into
+ >   `BookProof/PhysMehler.lean` (or define them locally in `RandomMap2`), and
+ >   repoint `RandomMap2`'s import to `BookProof.PhysMehler` — dropping
+ >   `UnusedRoute.SchoenfeldPRA` from the default thread entirely.
+ > - **`RandomMap2.lean` Phase 7 (lines 844–931) is RH content** and must move to
+ >   `UnusedRoute/`: `zeta_no_zeros_right_half_plane'`,
+ >   `riemann_hypothesis_decoupled`, `eta_non_zero_real_axis`.  (Phases 1–6 and
+ >   8+ are the generic decoupled Kopperman–Solovay framework and stay.)
+ > - **`RandomMap/RcpRandomMap2Bridge.lean` is wholly RH** (the `RH_PRA →
+ >   RectangleRH` bridge) and should move to `UnusedRoute/` as well.
+ >
+ > After the split, `grep -rlnE "import UnusedRoute" RandomMap/` returns nothing,
+ > and the default build (`BookProof`, `Book`, `Singularity`, and the
+ > `Book/ChapterSolovay` → `RandomMap2` edge) has no `UnusedRoute` dependency.
+
+**Continuation pass — landed (2026-08-09, later the same day).**  The audit found
+`lake build BookProof` **red** (`BookProof/PhysMehler.lean`: two stale bullets
+after a `rw`); that was repaired first.  Four further packages landed, all
+`sorry`-free/`axiom`-free, registered and `#check`-ed in `Book/CoherentState.lean`:
+`ChapterCoherentFidelity` (the quantum fidelity of coherent states,
+`fidelityC_eq_exp_neg_dist_sq`, attention as the normalized fidelity),
+`ChapterSoftmaxFluctuation` (the fluctuation–response law
+`d/dβ⟨s⟩_β = Var_β(s)`), `ChapterSoftmaxMaxEntropy` (Gibbs' inequality and the
+maximum-entropy characterization of Softmax) and `ChapterEntropyTemperature`
+(`dH/dβ = −β·Var_β(s)`, entropy antitone on `β ≥ 0`).  The **style follow-up
+recorded under Part G is closed**: `BookProof/PhysHSGaussian.lean` is now
+warning-free, with the Hermite derivative/polynomiality lemmas rewritten as
+reusable top-level results; no linter was disabled.  Also recorded in
+`BookProof/STATUS.md` for the first time: the previously undocumented
+`ChapterDisplacedThermalOverlap`, `ChapterDisplacedThermalMulti` and `ChapterH7`.
+
+**Operational-layer pass — landed (2026-08-09, latest).**  Five further packages,
+all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+`ChapterSoftmaxJacobian` (the score derivative of attention: `∂ log Z/∂sᵢ = β·pᵢ`,
+the Jacobian `∂pⱼ/∂sᵢ = β·pⱼ(δᵢⱼ − pᵢ)`, its symmetry, zero row sums and
+positive-semidefinite quadratic form `β·Var`), `ChapterAttentionOutput` (the
+output as a function of the temperature: the mean at `β = 0`, winner-takes-all as
+`β → ∞`, `ℓ¹` stability — building on the existing `observableExpectation` rather
+than restating its convex-hull/norm bounds), `ChapterAttentionMasking` (masking is
+Bayesian conditioning, `p(j | S) = p(j)/p(S)`, with odds invariance, the tower
+property and the causal mask), `ChapterCoherentDynamics` (the symmetry group of
+attention: unitary invariance, free-evolution invariance — attention is a constant
+of the motion — and Weyl displacement covariance) and
+`ChapterAttentionFactorization` (independent modes factorize; the attention
+entropy is additive), plus `ChapterRotaryPosition` (the rotary positional encoding
+is unitary and additive in the position, and the alignment — hence every attention
+weight — depends on the two positions only through their offset).  The same pass documented four packages that had landed on
+disk but were never written up in `BookProof/STATUS.md`
+(`ChapterSoftmaxDivergence`, `ChapterLogPartitionConvex`,
+`ChapterCoherentPositionSpace`, `ChapterSoftmaxStability`).  The two mathematical
+gaps below are unchanged.
+
+**Attention-layer pass — landed (2026-08-10, this wave).**  Four further packages,
+all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+`ChapterAttentionRetrieval` (the head as a *quantitative* associative memory —
+under a score margin `δ` every distractor keeps at most `e^{-βδ}`, the target keeps
+at least `1/(1+(m-1)e^{-βδ})`, and the output is within `2C(m-1)e^{-βδ}` of the
+stored value; plus the converse `p_j ≥ e^{-βD}/m`, so at a finite temperature no key
+is ever ignored, and the coherent-state form with the margin as a squared-distance
+gap), `ChapterAttentionEquivariance` (attention is a set function: permutation
+equivariance of the weights, invariance of the output and of the entropy — the
+discrete half of the symmetry group whose continuous half is
+`ChapterCoherentDynamics`), `ChapterAttentionMixture` (many heads are one mixture:
+the ensemble output is the weighted mean of the head outputs, and by concavity of
+`-x log x` mixing heads never destroys information) and
+`ChapterCrossEntropyGradient` (the learning signal: the cross-entropy loss is the
+surprisal of the observed key, its score derivative is the backpropagation rule
+`β(p_i − δ_iy)`, the gradient sums to zero, and the loss is convex in the
+temperature).
+
+**The Part G.3 isolation item recorded above is now CLOSED.**
+`rcpPriorOnSubstrate` and its two companions were promoted into
+`BookProof/PhysMehler.lean`; `RandomMap/RandomMap2.lean` imports
+`BookProof.PhysMehler` instead of `UnusedRoute.SchoenfeldPRA`; its RH Phase 7 moved
+verbatim to `UnusedRoute/RandomMap2Phase7.lean`; and `RcpRandomMap2Bridge.lean`
+moved to `UnusedRoute/`.  `grep -rn "import UnusedRoute" RandomMap/` is now empty
+and the default build (`BookProof`, `Book`, `Singularity`, including the
+`ChapterSolovay` → `RandomMap2` edge) has no `UnusedRoute` dependency.  Residue,
+recorded in `BookProof/STATUS.md`: the two `#print axioms` audit scripts
+`BookProof/B1_randomMap2_axioms.lean` and `BookProof/randomMap2_axioms.lean` still
+import RH modules; they are in no build target.
+
+**What remains** is a
+documented mathematical gap list that is not a hygiene backlog: the physical
+derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states
+(Part A.4 — Part F.4 proves its finite, algebraic core), and — of the von Neumann
+list — the exhaustiveness of the `*`-isomorphism
+classification (Part B.4; the finite `Iₙ`, countable `ℓ∞(ℕ)`, diffuse `L∞(μ)`
+and mixed atomic-plus-diffuse classes are all landed).  **Part G, the
+isolation refactor, is now closed** (see the "now CLOSED" note above): the
+hyperspherical/Gegenbauer content was promoted out of `PnpProof/`, the RH
+file `RandomMap/SchoenfeldPRA.lean` was moved to `UnusedRoute/`, and the
+default-reachable `RandomMap/RandomMap2.lean` no longer imports
+`UnusedRoute.SchoenfeldPRA` (it imports `BookProof.PhysMehler`), with the wholly
+RH `RandomMap/RcpRandomMap2Bridge.lean` and the RH Phase 7 of `RandomMap2.lean`
+moved to `UnusedRoute/` (`RcpRandomMap2Bridge.lean` /
+`RandomMap2Phase7.lean`).  `grep -rn "import UnusedRoute" RandomMap/` is now
+empty.  The remaining residue is limited to the two `#print axioms` audit
+scripts `BookProof/B1_randomMap2_axioms.lean` and
+`BookProof/randomMap2_axioms.lean`, which still import RH modules but are in no
+build target, and the root `RiemannProof.lean`, which still imports
+`RandomMap.RcpRandomMap2Bridge` (a module that now lives at
+`UnusedRoute.RcpRandomMap2Bridge`); root modules are also not a default build
+target, so repoint that one import when the specialist next touches
+`RiemannProof.lean`.  Both remaining mathematical gaps are recorded
+in `BookProof/STATUS.md`; neither is `sorry`-ed anywhere.  Parts C and D below
+are kept for the record.  Future waves should continue to target ≥ 4 deliverable
+groups per pass (`PnpProof/`, `UnusedRoute/`, `UsedRoute/` remain out of scope to
+*edit*, but their shared content may be promoted as described in Part G).
+
+**Information-theoretic pass — landed (2026-08-10, latest).**  Five further
+packages, all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified
+in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in
+`Book/CoherentState.lean`: `ChapterAttentionCollision` (the participation ratio
+`1/∑pⱼ²` as the effective number of attended keys — between `1` and `m`, exactly
+`m` at `β = 0`, and bounded by `exp H` since the Rényi-2 entropy never exceeds the
+Shannon entropy), `ChapterAttentionConcentration` (a Markov bound: at most `1/t`
+keys can carry weight `t`; some key always carries `1/m`; the min-entropy bound
+`−log pₘₐₓ ≤ H`, so a low-entropy head has a dominant key, whose reciprocal lower
+bounds the participation ratio), `ChapterAttentionMarkov` (attention as a Markov
+kernel: row-stochasticity, kernel composition = layer stacking, `ℓ¹`
+non-expansiveness, the Doeblin contraction `1 − mε`, and the headline
+`l1dist_push_attentionMatrix_le`: a layer with score spread `D` contracts by
+`1 − e^{−βD}`), `ChapterScaledDotProduct` (why the scores are divided by `√d`: for
+a uniform `±1` query the raw score has mean `0` and mean square `‖k‖²`, hence RMS
+`√d`, and rescaling the scores is rescaling the temperature, so the `1/√d` is what
+holds the temperature fixed as the width grows) and
+`ChapterAttentionOutputVariance` (the bias–variance identity for the output, the
+head output as the least-squares summary of the values, König–Huygens/Jensen, and
+zero output variance exactly when the values agree).  The two mathematical gaps
+below are unchanged.  The same pass added four more:
+`ChapterAttentionLowRank` (the score table of a head has rank at most the head
+dimension, so a narrow head cannot realize the identity routing pattern — sharp at
+`d ≥ m`), `ChapterLayerNorm` (layer normalization as gauge fixing: the sphere of
+squared length `d`, invariance under `x ↦ ax + c`, idempotence, and the resulting
+attention floor `e^{−2βd}/m`), `ChapterSinusoidalPosition` (the sinusoidal
+counterpart of the rotary offset property) and `ChapterAttentionMixing` (iterating
+one layer: the `(1 − mε)ⁿ` mixing law, convergence, uniqueness of a stationary
+belief, and the attention rate `(1 − e^{−βD})ⁿ`).
+
+**Control-layer pass — landed (2026-08-10, latest).**  Five further packages, all
+`sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+`ChapterAttentionTemperature` (turning the temperature knob: the odds
+`pᵢ = e^{β(sᵢ−sⱼ)}pⱼ`, the monotonicity of the winner's weight and the antitonicity
+of the loser's, the uniform share `1/m` as the separating value at `β ≥ 0`, and the
+entropy floor `H ≥ log m − βD` for scores of spread `D`), `ChapterAttentionSink`
+(the attention sink is a gauge: one extra key rescales every ordinary weight by
+`1 − w`, preserves all odds, gives the two-point output `w·v₀ + (1−w)·o` and the
+entropy chain rule), `ChapterAttentionCoarseGrain` (regrouping the keys: the
+pushforward of the attention distribution, output invariance when the values depend
+only on the group, the data-processing inequality for the attention entropy, and
+the multiplicity rule that duplicating a key doubles its share),
+`ChapterAttentionQKCircuit` (the head sees only `W_Qᵀ W_K`: the bilinear form, the
+`GL(d)` gauge freedom `(W_Q,W_K) ↦ (AW_Q,BW_K)` with `AᵀB = 1`, and the rank bound
+by the head dimension) and `ChapterResidualStream` (a contractive block never
+overwrites the stream: `x ↦ x + f x` is expansive by `1 − L`, hence injective, with
+the `(1 + L)` companion bound and the `n·C` drift bound for a stack of `n` blocks).
+The two mathematical gaps below are unchanged.
+
+**Soft-maximum / circuit pass — landed (2026-08-10, latest).**  Five further
+packages, all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified
+in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+`ChapterAttentionFreeEnergy` (the free energy is a soft maximum: `β·sⱼ ≤ log Z ≤
+log m + β·max s`, hence `|log Z/β − max s| ≤ log m/β` and `max s − ⟨s⟩_β ≤ log m/β`,
+with both quantities converging to the maximum as `β → ∞` — the gap between the soft
+and the hard maximum is exactly the entropy of the collapse),
+`ChapterAttentionSparse` (top-`k`/windowed attention: the shortlisted head differs
+from the dense head by **exactly** `2(1 − P(S))` in `ℓ¹`, so a shortlist carrying
+`1 − ε` of the mass is `2ε`-accurate and its output is within `2εC`, with a
+`(m − |S|)ε` tail bound and the lossless characterization),
+`ChapterAttentionOVCircuit` (the writing-side counterpart of the QK circuit: the
+attention average commutes with every linear map, so the value and output
+projections act only through `W_O W_V`, with the `GL(d)` gauge freedom
+`(W_O,W_V) ↦ (W_O A, B W_V)`, the rank-`d` bound and the column-space range),
+`ChapterAttentionSaturation` (the learning signal: the row of the Softmax Jacobian
+has total absolute size exactly `2β·pᵢ(1 − pᵢ)`, hence at most `β/2`, and at most
+`2βε` for *every* key once some key carries `1 − ε` — a confident head has a
+vanishing gradient) and `ChapterAttentionPrior` (a logit bias is a Bayesian prior:
+`pⱼ ∝ wⱼe^{βsⱼ}` is definitionally the Bayes posterior with prior `w` and likelihood
+`e^{βs}`, its odds are prior odds × likelihood ratio, a prior is exactly the score
+shift `sⱼ ↦ sⱼ + (log wⱼ)/β`, only the ratios of the weights matter, and at `β = 0`
+the head returns the normalized prior).  The two mathematical gaps below are
+unchanged.
+
+**Decoding / locality pass — landed (2026-08-10, final).**  Four further packages,
+all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+`ChapterAttentionStreaming` (appending a key multiplies every cached weight by one
+common factor `1 − w` and updates the output to `(1 − w)·o_old + w·v_new`, so the KV
+cache of an autoregressive decoder is exact, and a fresh token moves the summary by
+exactly `w·‖v_new − o_old‖`), `ChapterAttentionLocality` (a distance penalty
+`s ↦ s − γ·d` makes a head provably local: weights decay like `e^{−βγd}`, the mass
+beyond distance `R` is at most `m·e^{βΔ}e^{−βγR}`, and the sliding-window head is
+within `2C` times that of the full head), `ChapterAttentionCalibration` (the
+attention entropy is continuous and strictly decreasing in `β ≥ 0` whenever two
+scores differ, so a target entropy level is realized by exactly one temperature —
+the headline `existsUnique_beta_attentionEntropy_eq`) and `ChapterAttentionTopK`
+(the heaviest-first shortlist maximizes the attended mass, hence minimizes both the
+`ℓ¹` error and the output error of sparsification, and at `β > 0` it coincides with
+the highest-scoring shortlist).  The two mathematical gaps below are unchanged.
 
 ## Provenance of the new chapter (read before starting)
 
@@ -126,7 +368,7 @@ consequences:
   cd /home/leo/Projects/timepiece
   lake build BookProof
   lake build book
-  grep -rn "sorry" BookProof/           # expect only RandomMap/SchoenfeldPRA.lean:162,176
+  grep -rn "sorry" BookProof/           # expect empty (the two intentional sorries live in UnusedRoute/SchoenfeldPRA.lean)
   grep -rn "^axiom" BookProof/ PnpProof/ # expect empty
   ```
 - Register new files in `BookProof.lean`. Do **not** edit `lakefile.toml`
@@ -377,6 +619,11 @@ have built `ℓ²(ℕ)`:
 and mixture classes require von-Neumann-algebra machinery absent from Mathlib
 v4.28.0; keep the full five-item classification a documented gap.)
 
+> **Superseded (closing pass, same day):** the diffuse `L∞(μ)` class is now built
+> too — `BookProof/ChapterLinftyMultiplication.lean` (`multOp`,
+> `vonNeumann_abelian_class_Linfty`, `unitInterval_atomless`) — so of the five-item
+> list only the two mixture classes and exhaustiveness remain open. See §Status.
+
 ### C.4 — Maschke consequences for the averaging package `ChapterMaschkeFiniteGroup`
 
 The Maschke package proves existence of an invariant complement; its two structural
@@ -413,11 +660,11 @@ log). Everything else — `BookProof/`, `RandomMap/`, `Singularity/`, `Book/`,
   only by the unregistered scratch files `BookProof/randomMap2_axioms.lean` and
   `BookProof/B1_randomMap2_axioms.lean` (not registered in `BookProof.lean`), so the
   failure is invisible to the default build; it is still a real build failure in
-  scope. `RandomMap/SchoenfeldPRA.lean` imports the excluded `UnusedRoute.RcpEuler`
+  scope. `UnusedRoute/SchoenfeldPRA.lean` imports the excluded `UnusedRoute.RcpEuler`
   / `SchoenfeldMatrix`, so it cannot be built standalone until those are; treat
   `RandomMap2Walk` as the primary fixable target.
 - **Warnings in scope:** ~1422 lines in `BookProof/` plus 2 in
-  `RandomMap/SchoenfeldPRA.lean` (the intentional `sorry`s at 159/168) on a full
+  `UnusedRoute/SchoenfeldPRA.lean` (the intentional `sorry`s at 163/178) on a full
   `lake build`; `lake build RandomMap` additionally surfaces 11 in
   `RandomMap2Walk.lean` and 1 in `RandomMap2Moments.lean`; `lake build book` shows
   1 (the benign `verso: repository … has local changes` notice, no action).
@@ -472,7 +719,7 @@ top, and never change `lakefile.toml` `[leanOptions]`):
 
 **Definition of done:** `lake build` (default targets) shows **no warnings from
 `BookProof/`, `Book/`, `Singularity/`, or the root files** — only the excluded
-directories' warnings may remain, and only `RandomMap/SchoenfeldPRA.lean` keeps its
+directories' warnings may remain, and only `UnusedRoute/SchoenfeldPRA.lean` keeps its
 two intentional `sorry` warnings. `lake build book` stays green.
 
 ### D.3 — Verification gate (do not skip)
@@ -482,7 +729,7 @@ two intentional `sorry` warnings. `lake build book` stays green.
    `PnpProof/`, `UnusedRoute/`, `UsedRoute/` and the two `SchoenfeldPRA` `sorry`
    notices.
 3. `grep -rn "sorry" BookProof/ RandomMap/ Singularity/` shows only
-   `RandomMap/SchoenfeldPRA.lean` (intentional) and any newly documented `EXTERNAL`
+   `UnusedRoute/SchoenfeldPRA.lean` (intentional) and any newly documented `EXTERNAL`
    gaps — never a `sorry` introduced by this pass.
 4. `#print axioms` spot-checks on touched headline theorems: only `propext`,
    `Classical.choice`, `Quot.sound`.
@@ -490,6 +737,225 @@ two intentional `sorry` warnings. `lake build book` stays green.
    reason) in `BookProof/STATUS.md` under a "Known warnings (2026-08-08)" note
    rather than suppressing it.
 6. Register any new `BookProof` file created during fixes in `BookProof.lean`.
+
+---
+
+## Part F — Next wave (2026-08-08): the QFM dimensional-reduction thread and the temperature identity
+
+With Parts A–E and the closing pass done, the highest-value open work is the
+**QFM `Krylov–Hashimoto dimensional reduction` and `Tomographic Subspace
+Recovery`** thread of `FORMALIZATION_ROADMAP.md` (author-named as "very important
+and can be formalized"; the `QFM.tex` §9 and §10 algorithm sections are **not yet
+formalized** — nothing in `BookProof/` covers the inversion-free shortcut, spectral
+low-pass filtering, offline compilation, or the four-phase online generate). This
+is the natural continuation of the landed N14 package (`ChapterF1`–`F7`). Target
+**≥ 4 deliverable groups** per pass.
+
+### F.1 — The inversion-free Krylov shortcut `ChapterH5` (new, roadmap §9.1)
+
+`QFM.tex` §9.1: the standard polynomial Krylov subspace
+`Kry m(H̄, v₀) = span{v₀, H̄v₀, …, H̄^(m−1)v₀}`; the rational construction needs
+`(γI − H̄)y = v` at each step, but by pre-conditioning the seed as
+`v = (γI − H̄)^(m−1) v₀`, applying the resolvent merely *lowers the polynomial
+degree*, recovering the standard Krylov subspace **with no inversion**. `H̄` is
+bounded because the Mehler projector is rank-one and the number operators are
+diagonal.
+
+**Prove** (on a finite-dimensional Hilbert space, reusing `ChapterH1`/`ChapterH4`
+φ-function and `sirkKrylov` machinery):
+- `krylov_subspace_span` — `Kry m(H̄, v₀)` is exactly the span of
+  `{H̄^i v₀ | i < m}` (a `Submodule` equality, `Finset.range`).
+- `inversion_free_seed` — for `v = (γI − H̄)^(m−1) v₀`, the resolvent image
+  `(γI − H̄)⁻¹ v = (γI − H̄)^(m−2) v₀` (the polynomial degree drops by one), so the
+  rational Krylov sequence with uniform shifts `zₖ = γ` coincides with the standard
+  Krylov basis (no inversion).
+- `generator_bounded_of_rankOneProjector` — `H̄` is bounded (a rank-one projector
+  plus diagonal operator), justifying the finite-dimensional reduction.
+- `krylov_no_inversion_eq_standard` — **headline**: the inversion-free sequence
+  `wₖ = (H̄ − γI) wₖ₋₁`, `w₀ = v₀`, spans the full Krylov subspace `Kry m(H̄, v₀)`.
+
+**Definition of done:** the four theorems `sorry`-free/`axiom`-free, registered in
+`BookProof.lean`, and a `#check` block added to `Book/FreeField.lean` (or the QFM
+chapter that will cite them).
+
+### F.2 — Spectral low-pass filtering `ChapterH6` (new, roadmap §9.2)
+
+`QFM.tex` §9.2: the Krylov projection is an *exact spectral low-pass filter* — it
+discards the high-frequency "spikes" and retains the `m` dominant eigenvalues; the
+reduced `m×m` generator has SIRK error decaying like `e^{−hm}`
+(`sirk_error_bound` in `ChapterH4.lean` already carries the exponential factor).
+
+**Prove:**
+- `sirk_error_decay_exponential` — the SIRK error bound `‖e^{−hX_m} − e^{−hH}‖`
+  decays like `e^{−hm}` (reuse `ChapterH4.sirk_error_bound` /
+  `sirk_error_bound_decay`).
+- `krylovRetainsDominantSpectrum` — the reduced generator
+  `H̄_reduced = Vᴴ H̄ V` for `V` the Krylov basis interlaces the dominant eigenvalues
+  (Rayleigh–Ritz; a `spectrel_theorem` / `Matrix` eigen-decomposition argument).
+- `reduce_generator_mul_m` — `H̄_reduced : Matrix (Fin m) (Fin m) ℂ` is explicitly
+  `m×m` (the compression `compress_X_comp_V` in `ChapterH4.lean` is the template).
+- `generation_single_exponential` — generation is a single `O(m²)` matrix
+  exponential `Ψ_{t=1} = e^{−iH̄_reduced} Ψ₀` (an `exp`/`Matrix.exp` identity).
+
+**Definition of done:** four theorems, `sorry`-free/`axiom`-free, registered, and
+`#check`-ed in the citing chapter.
+
+### F.3 — Tomographic Subspace Recovery: offline compilation `ChapterF8` (new, roadmap §10)
+
+`QFM.tex` §10: the two-level hashing `S₁ : ℝ^d → ℝ^k` (raw→feature,
+`k ≪ d`) and `S₂ : ℝ^k → ℂ^(K₂)` (feature→single-excitation Fock state,
+`K₂ > k`), with the online state living in `ℂ^m` after Krylov reduction and all
+raw-coordinate observables pre-projected into an `m²` operator basis.
+
+**Prove** (finite, combinatorial core — no `M` dependence):
+- `featureHash_decodes` / `twoLevelHash_total` — `S₂ ∘ S₁` is a well-defined map
+  into the single-excitation subspace of `ℂ^(K₂)` (a `Finset`/`Card` dimension
+  argument; reuse `ChapterF1` single-boson Fock facts).
+- `offline_operatorBasis` — the `m²` pre-projected operator basis is a spanning set
+  of `Hom(ℂ^m, ℂ^m)` (matrix-basis / `Fin m` `Matrix` fact).
+- `online_cost_independent_of_M` — the four online cost components
+  `O(d·m²) + O(K₂ log k) + O(K₂·m²)` carry **no** `M` term (an arithmetic/`Finset`
+  bound, no matrix machinery).
+- `tsr_offline_compiles` — **headline**: the offline stage produces the sketched
+  single-excitation Fock embedding and the `m²` operator basis, ready for online
+  Krylov generation.
+
+**Definition of done:** four theorems, `sorry`-free/`axiom`-free, registered, and
+`#check`-ed in a citing chapter.
+
+### F.4 — The temperature identity, finite core `ChapterCoherentTemperature` (Part A.4)
+
+The documented A.4 gap. Prove the *finite-core* algebraic identity (not the full
+fidelity computation): for the geometric occupation distribution
+`Pr(n) ∝ (n̄/(n̄+1))^n`,
+- `geometricOccupancy_mean` — `Σₙ n·Pr(n) = n̄`;
+- `geometricOccupancy_variance` — `var = n̄ + n̄²`;
+- `half_integer_floor` — relating the "extra ½" to the Heisenberg floor of a
+  coherent state (reuse `BookProof.ChapterBoseEinstein` / `ChapterBoseEinstein.mean`
+  and `ChapterCoherentOccupation`).
+- `thermal_temperature_eq_mean_half` — **headline**: assemble `τ = n̄ + ½` from the
+  Bose–Einstein closed form `τ(x) = ½·coth(x/2)` (already proved) and the
+  mean-occupation identity.
+
+**Definition of done:** four theorems, `sorry`-free/`axiom`-free, registered, and
+`#check`-ed in `Book/CoherentState.lean` next to the existing
+`ChapterBoseEinstein` / `ChapterThermalMaxEntropy` blocks.
+
+### F.5 — von Neumann mixture classes (documented gap, attempt a provable core)
+
+The two remaining mixture classes of the abelian von Neumann list. The full
+exhaustiveness theorem is out of Mathlib; attempt the provable finite core: a
+finite convex combination of the atomic `ℓ∞(ℕ)` and diffuse `L∞(μ)` classes is
+again an abelian, star-closed algebra on `L²`. If out of reach, record the exact
+obstruction in `BookProof/STATUS.md` and move on — do **not** `sorry` it.
+
+---
+
+## Part G — Isolate `PnpProof/`, `UnusedRoute/`, `UsedRoute/`; promote the shared analytic content
+
+**Author directive (2026-08-08):** the hyperspherical / Gegenbauer / Gaussian
+content currently lives in `PnpProof/`, but it is **general mathematics useful
+elsewhere** (it is the analytic backbone the QFM/Fork thread reuses), and
+`PnpProof/`, `UnusedRoute/`, `UsedRoute/` must be **isolated from the rest of the
+project** — the rest of the project (in particular `BookProof/`, `Book/`,
+`Singularity/`, `RandomMap/`) must not depend on them. Today this is violated:
+five `BookProof/` files import `PnpProof` directly:
+
+| `BookProof/` file | imports `PnpProof` | uses |
+| :--- | :--- | :--- |
+| `ChapterSolovay.lean` | `PnpProof.Kopperman`, `PnpProof.SphereGaussian` | `Kopperman.mehler_concentrates_on_sphere`, `Kopperman.MehlerPrior` |
+| `ChapterG3.lean` | `PnpProof.SphereGaussian` | `gaussianE`, `sphereUniform` (+ probabilities, rotation-invariance) |
+| `ChapterSolovayCoordinates.lean` | `PnpProof.SphereGaussian` | `gammaMeasure`, `gammaMeasure_isProbability` |
+| `ChapterKopperman.lean` | `PnpProof.Kopperman` | (wrapper) |
+| `Substrate.lean` | `PnpProof.Kopperman` | `unitMeasure`, `squareMeasure` |
+
+`RandomMap/SchoenfeldPRA.lean` also imports `PnpProof.Kopperman` (for
+`arith_truth_invariant`, `interpPi02`). The reusable content depends only on
+`PnpProof.Foundations`' `unitMeasure` / `squareMeasure` (and the null/countable
+facts) — i.e. it is **not** P≠NP-specific.
+
+### G.1 — Promote the shared analytic core to `BookProof/` (new `MathCore`-style modules)
+
+Move the reusable content out of `PnpProof/` into `BookProof/` (or a new
+in-scope `MathCore/` directory registered in `lakefile.toml` `defaultTargets`),
+so it is part of the default build and importable by the QFM/Fork thread:
+
+- **`PnpProof/FunctionSpace.lean`** → `PhysFunctionalAnalysis` (or `MathCore/FunctionSpace`):
+  `l2_separable`, `linf_not_separable`, `sqrt_density_memLp`, `sqrt_density_norm`,
+  `polynomial_dense_L2`, `countable_of_separated`, `exists_l2_iso`,
+  `hilbert_classification`, `exists_atomless_sphere_measure`.
+- **`PnpProof/SphereGaussian.lean`** → `PhysHSGaussian` (or `MathCore/SphereGaussian`):
+  `physHermite`, `gegenbauer`, `gegenbauerScaled`, `gegenbauerScaled_tendsto_hermite`,
+  `gaussianE`, `sphereProj`, `sphereUniform`, `weight_tendsto_gaussian`,
+  `sphereUniform_rotation_invariant`, `hermite_sq_integral`, `hermite_normalization`,
+  `gegenbauerScaled_rec/…_bound`, `normalization_tendsto`, `gammaMeasure`,
+  `gaussian_concentration_sphere`, `poincare_borel_ae`.
+- **`PnpProof/Foundations.lean`** (the `unitMeasure` / `squareMeasure` +
+  null/countable/atomless fragment) → `PhysMeasureBasis` (or `MathCore/Foundations`),
+  so the promoted modules have no `PnpProof` dependency at all.
+- The Mehler/`Kopperman` analytic facts used by `BookProof` (`MehlerPrior`,
+  `mehler_concentrates_on_sphere`, `substrate_separable`) move to a
+  `PhysMehler` module (or are kept in the promoted `SphereGaussian`).
+
+**Key rule:** the promoted modules must import **only** `Mathlib` (and each other)
+— **never** `PnpProof`. This is what makes them reusable and `PnpProof` isolatable.
+
+### G.2 — Repoint `BookProof/` and `RandomMap/` imports at the promoted modules
+
+- `ChapterSolovay.lean`, `ChapterG3.lean`, `ChapterSolovayCoordinates.lean`,
+  `ChapterKopperman.lean`, `Substrate.lean`: replace `import PnpProof.*` with the
+  new `BookProof`/`MathCore` module(s), and rewrite the qualified names
+  (`PnpProof.gammaMeasure` → `PhysHSGaussian.gammaMeasure`, etc.).
+- `RandomMap/SchoenfeldPRA.lean` is **moved** to the RH folder (see G.3), so its
+  `import PnpProof.Kopperman` is rewritten as part of that move — repointed at the
+  promoted `PhysMehler` core where it uses the analytic content, with the
+  P≠NP-specific `arith_truth_invariant`/`interpPi02` handled per G.3.
+- **Definition of done:** after the repoint, `grep -rlnE "^import PnpProof"`
+  across `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` returns **nothing**.
+
+### G.3 — Make `PnpProof/`, `UnusedRoute/`, `UsedRoute/` one-way leaves
+
+- `PnpProof/` may import the promoted shared modules (it can *use* the general
+  math), but **nothing outside** `PnpProof/`, `UnusedRoute/`, `UsedRoute/` may
+  import them. Verify `PnpProof/`, `UnusedRoute/`, `UsedRoute/` do **not** import
+  `BookProof` (already true — confirmed) and that the rest of the project no
+  longer imports them.
+
+- **`UnusedRoute.SchoenfeldPRA` is Riemann-Hypothesis work, not P≠NP and not
+  part of the RandomMap default thread.** Its header documents it as "the
+  historical PRA/Schoenfeld spine", and it imports `UnusedRoute.RcpEuler` and
+  `UnusedRoute.SchoenfeldMatrix`. It was moved to the RH folder
+  (`UnusedRoute/`), taking its two intentional RH `sorry`s out of the default
+  thread.  The `Kopperman` `interpPi01`/`interpPi02` arithmetic-truth parts it
+  reuses are the P≠NP-side of `PnpProof`; `SchoenfeldPRA` imports the promoted
+  `BookProof.PhysMehler` analytic core and stays an isolated RH file.
+
+- **Remaining isolation work (author rule: `UnusedRoute/` may depend on the
+  rest of the project, never vice versa).**  The default-reachable
+  `RandomMap/RandomMap2.lean` still does `import UnusedRoute.SchoenfeldPRA`, and
+  `RandomMap/RcpRandomMap2Bridge.lean` is wholly RH-dependent.  Both must be
+  cleaned:
+  - `RandomMap2.lean` uses only `rcpPriorOnSubstrate` /
+    `rcpPriorOnSubstrate_isProb` (thin wrappers over
+    `BookProof.PhysMehler.exists_atomless_prob_substrate`) and `Substrate`
+    (already shared).  Move those two wrappers into `BookProof/PhysMehler.lean`
+    (or define them locally in `RandomMap2`), and repoint `RandomMap2`'s import
+    at `BookProof.PhysMehler` — dropping `UnusedRoute.SchoenfeldPRA`.
+  - `RandomMap2.lean` **Phase 7 (lines 844–931) is RH content** and must move to
+    `UnusedRoute/`: `zeta_no_zeros_right_half_plane'`,
+    `riemann_hypothesis_decoupled`, `eta_non_zero_real_axis`.  (Phases 1–6 and
+    8+ are the generic decoupled Kopperman–Solovay framework and stay.)
+  - `RandomMap/RcpRandomMap2Bridge.lean` (the `RH_PRA → RectangleRH` bridge)
+    is wholly RH and should move to `UnusedRoute/`.
+  - After the split, `grep -rlnE "import UnusedRoute" RandomMap/` returns
+    nothing, and the default build (`BookProof`, `Book`, `Singularity`, and the
+    `Book/ChapterSolovay` → `RandomMap2` edge) has no `UnusedRoute` dependency.
+
+- **Definition of done:** `lake build` (default targets) green; the only
+  cross-directory imports into `PnpProof/`, `UnusedRoute/`, `UsedRoute/` come
+  from `PnpProof/` itself (or are documented, isolated `EXTERNAL`/RH cases);
+  `grep -rlnE "import RandomMap.SchoenfeldPRA"` **and**
+  `grep -rlnE "import UnusedRoute" RandomMap/` both return nothing.
 
 ---
 
@@ -508,7 +974,7 @@ two intentional `sorry` warnings. `lake build book` stays green.
    the von-Neumann `*`-classification item is either proved or explicitly retained as
    a documented gap.
 4. `lake build BookProof` and `lake build book` green; the only `sorry`s in the
-   repository are `RandomMap/SchoenfeldPRA.lean:162,176` (intentional).
+   repository are `UnusedRoute/SchoenfeldPRA.lean:163,178` (intentional).
 5. `#print axioms` spot-checks on every new headline show only `propext`,
    `Classical.choice`, `Quot.sound`.
 6. `BookProof/STATUS.md` updated with a dated wave note, including any recorded
@@ -516,15 +982,15 @@ two intentional `sorry` warnings. `lake build book` stays green.
    provenance note above).
 7. Part D: `lake build` (default targets) green with **no in-scope warnings**
    (`BookProof/`, `Book/`, `Singularity/`, root files; the two intentional
-   `RandomMap/SchoenfeldPRA.lean` `sorry` notices excepted); `lake build RandomMap`
+   `UnusedRoute/SchoenfeldPRA.lean` `sorry` notices excepted); `lake build RandomMap`
    green; `lake build book` green. Excluded directories (`PnpProof/`,
    `UnusedRoute/`, `UsedRoute/`) untouched.
 
 ## Execution guidance
 
-- Work the queue **in order** (Part A before Part B; Parts C and D may proceed in
-  parallel per wave), landing several deliverables per pass (author mandate: target
-  ≥ 4 deliverable groups per pass).
+- Work the queue **in order** (Part A before Part B; Parts C, D, F, G may proceed
+  in parallel per wave), landing several deliverables per pass (author mandate:
+  target ≥ 4 deliverable groups per pass).
 - **Part D scope is strict:** never edit `PnpProof/`, `UnusedRoute/`, `UsedRoute/`
   even when their warnings appear in a shared `lake build` log; only `BookProof/`,
   `RandomMap/`, `Singularity/`, `Book/`, and the root files are in scope.

@@ -5,7 +5,7 @@ import RandomMap.RandomMap2Walk
 import RandomMap.RandomMap2Moments
 import RandomMap.RandomMap2InfiniteWalk
 import RandomMap.RandomMap2Structural
-import RandomMap.RcpRandomMap2Bridge
+import UnusedRoute.RcpRandomMap2Bridge
 
 /-!
 # B1-B7: Axiom Verification for RandomMap2 Files

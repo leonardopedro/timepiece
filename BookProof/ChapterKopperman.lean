@@ -1,17 +1,17 @@
-import PnpProof.Kopperman
+import BookProof.PhysMehler
 
 /-!
 # Kopperman model-theoretic headlines
 
 Readable restatements of the separability and standard-arithmetic invariance
-properties already proved in `PnpProof.Kopperman`.  Full infinitary
+properties already proved in `BookProof.PhysMehler`.  Full infinitary
 `L_{ω₁,ω₁}` completeness and compactness are not asserted: they require a syntax,
 semantics, and proof calculus not present in the repository.
 -/
 
 namespace BookProof.ChapterKopperman
 
-open PnpProof.Kopperman
+open PhysMehler
 
 /-- Every model of the repository's `Formalism` carries a separable Hilbert
 space, directly from the model data. -/

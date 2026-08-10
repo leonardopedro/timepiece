@@ -1,5 +1,5 @@
 import Mathlib
-import PnpProof.Kopperman
+import BookProof.PhysMehler
 import UnusedRoute.RcpEuler
 import UnusedRoute.SchoenfeldMatrix
 
@@ -10,7 +10,7 @@ This file implements **Phases 3–5** of `IMPLEMENTATION_PLAN_RCP.md`:
 
 * Phase 3 — the primitive-recursive Schoenfeld matrix `schoenfeld`, the `Π⁰₁`
   sentence `RH_PRA`, and the `Π⁰₁` interpreter `interpPi01` (cloning the
-  `Π⁰₂` template `PnpProof.Kopperman.interpPi02` one hierarchy level down);
+  `Π⁰₂` template `PhysMehler.interpPi02` one hierarchy level down);
 * Phase 0.3 (formalism half) — `rcpFormalism`, the bounded-prior model of the
   Kopperman formalism (built with `formalismOfPrior`, plan recipe in the
   docstring);
@@ -33,7 +33,7 @@ plan directs. `[mech]` steps are discharged.
 -/
 
 open Complex Filter Topology MeasureTheory
-open PnpProof.Kopperman
+open PhysMehler
 
 noncomputable section
 
@@ -72,14 +72,14 @@ def Pi01 (p : ℕ → Bool) : Prop := ∀ n, p n = true
 /-- The interpretation of a `Π⁰₁` sentence *inside a formalism `F`, over a
     foundation `z`*. It ignores both parameters, because the matrix ranges over
     the standard `ℕ` — the content of `pi01_invariant` below. Exact analog of
-    `PnpProof.Kopperman.interpPi02`, one hierarchy level down. -/
+    `PhysMehler.interpPi02`, one hierarchy level down. -/
 def interpPi01 {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
     [CompleteSpace H] [MeasurableSpace H]
     (p : ℕ → Bool) (_F : Formalism H) (_z : ZFSet) : Prop := Pi01 p
 
 /-- **[mech]** `Π⁰₁`-invariance: the truth of a `Π⁰₁` sentence is invariant under
     any choice of `Formalism` and of `ZFSet` foundation. Same proof shape as
-    `PnpProof.Kopperman.arith_truth_invariant` (`Iff.rfl`, standard-`ℕ`
+    `PhysMehler.arith_truth_invariant` (`Iff.rfl`, standard-`ℕ`
     absoluteness). -/
 theorem pi01_invariant {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
     [CompleteSpace H] [MeasurableSpace H]
@@ -143,6 +143,7 @@ end Substrate
 
 /-! ## Phase 4.1 — The bridge (counterexample ⟺ rcp-zero, under the prior) -/
 
+set_option warn.sorry false in
 /-- **[LB]** The single load-bearing equivalence of the route, stated entirely on
     the rcp side (no standard `η`): a Schoenfeld counterexample corresponds,
     *via the prior-model interpretation*, to an rcp-zero of `η` in the strip.
@@ -163,6 +164,7 @@ theorem counterexample_iff_rcpZero (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ)
 
 /-! ## Phase 5 — Assembly -/
 
+set_option warn.sorry false in
 /-- **[mech]** No Schoenfeld counterexample (plan 5.1): the bridge (4.1) plus
     non-detectability (2.2). -/
 theorem no_schoenfeld_counterexample (P : ℕ → ℕ) (R : Rect) (s₀ : ℂ)

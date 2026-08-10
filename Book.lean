@@ -93,7 +93,7 @@ lake build BookProof
 compiles the entire library of formal proofs. It is `sorry`-free, and every theorem
 cited in this book relies only on Lean's standard `propext`, `Classical.choice`, and
 `Quot.sound`. The only `sorry`s in the repository are the two intentional,
-quarantined ones in `RandomMap/SchoenfeldPRA.lean` (a historical PRA spine this
+quarantined ones in `UnusedRoute/SchoenfeldPRA.lean` (a historical PRA spine this
 edition does not import); the claims they leave open are stated and planned in
 {ref "proof-plans"}[the appendix]. And
 

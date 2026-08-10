@@ -17,7 +17,7 @@ are **not yet proved**. Every new theorem must remain `sorry`-free and
   export PATH="/home/leo/.elan/bin:$PATH"
   cd /home/leo/Projects/timepiece
   lake build BookProof
-  grep -rn "sorry" BookProof/           # expect only RandomMap/SchoenfeldPRA.lean:162,176
+  grep -rn "sorry" BookProof/           # expect only UnusedRoute/SchoenfeldPRA.lean:163,178
   grep -rn "^axiom" BookProof/ PnpProof/ # expect empty
   ```
 - Register new files in `BookProof.lean`. Do **not** edit `lakefile.toml`
@@ -27,6 +27,22 @@ are **not yet proved**. Every new theorem must remain `sorry`-free and
   out of scope by the author.
 
 ## Current state (audit, August 2026)
+
+> **Status refresh (2026-08-08, closing pass on this file):** Priorities 1, 2, 3
+> and 5 were re-audited and are all landed (see the item-by-item notes below and
+> in `BookProof/STATUS.md`).  Priority 4 is now closed as well: the last realistic
+> target on that list, a concrete complete-reducibility witness beyond `N = 2`,
+> is `BookProof/ChapterA3x.lean`
+> (`tensorCube_complete_reducibility`: `V^{⊗3} = Sym³V ⊕ Λ³V ⊕ Mixed`, with the
+> mixed summand proved non-zero).  Three further packages landed in the same
+> pass: `ChapterBoseEinstein` (the thermal law is the Gibbs law; `τ = ½ coth(x/2)`),
+> `ChapterThermalMaxEntropy` (the thermal law maximizes entropy at fixed mean
+> occupation) and `ChapterLinftyMultiplication` (the `L∞(μ)` class of the abelian
+> von Neumann list, as an abelian, star-closed, faithful multiplication algebra on
+> `L²(μ)`).  Remaining documented gaps, unchanged and never `sorry`-ed: the
+> fidelity derivation of `τ = n̄ + 1/2` for displaced thermal states, the two
+> mixture classes and the exhaustiveness of the von Neumann list, and the deep
+> `EXTERNAL` inputs of §4 (Wigner/Mackey, Varadarajan, Lévy paths, Crouzeix).
 
 > **Status refresh (2026-08-08):** most Priority items below are now proved — see
 > `PLAN_LEAN_SPECIALIST_COHERENT.md` §Status. In particular `tailSplitEquiv_map`,
@@ -70,7 +86,7 @@ are **not yet proved**. Every new theorem must remain `sorry`-free and
 
 - **Actual `sorry`s:** the former real gap
   `BookProof/ChapterSolovayCoordinates.lean:85` (`tailSplitEquiv_map`) is now
-  **proved**. The two in `RandomMap/SchoenfeldPRA.lean:162,176` are pre-existing
+  **proved**. The two in `UnusedRoute/SchoenfeldPRA.lean:163,178` are pre-existing
   and intentional — leave them.
 - **`True` placeholders** in `BookProof/ChapterSelectingEvents.lean` — all now
   **replaced by real theorems** (kept here for provenance):
@@ -357,7 +373,7 @@ all prove.
 1. `#print axioms` spot-checks on every new headline (expect only `propext`,
    `Classical.choice`, `Quot.sound`).
 2. `grep -rn "sorry" BookProof/ PnpProof/ Singularity/ RandomMap/` — must show only
-   `RandomMap/SchoenfeldPRA.lean:162,176` (intentional).
+   `UnusedRoute/SchoenfeldPRA.lean:163,178` (intentional).
 3. `grep -rn "^axiom" BookProof/ PnpProof/` — must be empty.
 4. Register every new file in `BookProof.lean`; `lake build BookProof` green.
 5. Add a `#check` block to the corresponding `Book/*.lean` chapter for each new

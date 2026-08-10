@@ -331,6 +331,821 @@ displaced thermal states stays a proof plan:
 #check @BookProof.ChapterCoherentOccupation.coherent_variance_lt_thermal_variance
 ```
 
+:::paragraph
+Parametrized by the physical temperature the same law becomes the textbook one.
+Writing $`x = \hbar\omega/kT` for the dimensionless inverse temperature, the mean
+occupation is the Bose–Einstein function $`\bar n(x) = 1/(e^{x}-1)`, the level
+probabilities are exactly the Boltzmann–Gibbs weights
+$`\Pr(n) = (1-e^{-x})e^{-nx}`, and the chapter's temperature has the closed form
+$`\tau(x) = \bar n(x) + \tfrac12 = \tfrac12\coth(x/2)`, decreasing to the pure
+zero-point value $`\tfrac12` as the mode is cooled:
+:::
+
+```
+#check @BookProof.ChapterBoseEinstein.boseEinstein
+#check @BookProof.ChapterBoseEinstein.thermalRatio_boseEinstein
+#check @BookProof.ChapterBoseEinstein.thermalProb_boseEinstein
+#check @BookProof.ChapterBoseEinstein.boseEinstein_mean
+#check @BookProof.ChapterBoseEinstein.boseEinstein_strictAntiOn
+#check @BookProof.ChapterBoseEinstein.thermalTemperature_boseEinstein
+#check @BookProof.ChapterBoseEinstein.thermalTemperature_boseEinstein_eq_coth
+#check @BookProof.ChapterBoseEinstein.tendsto_thermalTemperature_boseEinstein
+```
+
+:::paragraph
+Why *that* law, and not another distribution with the same mean? Because it is
+the one of maximal Shannon entropy: among occupation distributions with a
+prescribed mean occupation $`\bar n`, the thermal law maximizes
+$`-\sum_n p_n \log p_n`. This is the variational reason the bath is a *thermal*
+bath, and it is proved by the pointwise Gibbs inequality:
+:::
+
+```
+#check @BookProof.ChapterThermalMaxEntropy.thermalEntropy
+#check @BookProof.ChapterThermalMaxEntropy.thermalEntropy_eq
+#check @BookProof.ChapterThermalMaxEntropy.thermalEntropy_boseEinstein
+#check @BookProof.ChapterThermalMaxEntropy.gibbs_pointwise
+#check @BookProof.ChapterThermalMaxEntropy.shannonEntropy_le_thermalEntropy
+```
+
+:::paragraph
+The identity $`\tau = \bar n + \tfrac12` can now be read off the *physical*
+parametrization rather than posited. Writing the occupation law through its
+ratio $`r` instead of its mean, its first two moments are the geometric ones
+($`\bar n = r/(1-r)`, variance $`r/(1-r)^2`), the energy expectation
+$`\sum_n (n+\tfrac12)p_n` never drops below $`\tfrac12` — with equality exactly
+at the vacuum, which is what the extra half measures — and the closed form
+$`\tfrac12\coth(x/2)` *equals* the mean occupation plus that half:
+:::
+
+```
+#check @BookProof.ChapterThermalTemperatureCore.geometricOccupancy
+#check @BookProof.ChapterThermalTemperatureCore.geometricOccupancy_mean
+#check @BookProof.ChapterThermalTemperatureCore.geometricOccupancy_variance
+#check @BookProof.ChapterThermalTemperatureCore.half_integer_floor
+#check @BookProof.ChapterThermalTemperatureCore.thermal_temperature_eq_mean_half
+```
+
+:::paragraph
+The last step is the *physical* one: the temperature must come out of the state
+itself, not out of a fit. Model the bath mode in phase space, where a displaced
+thermal state is the vacuum's zero-point noise (variance $`\tfrac12`) convolved
+with thermal noise of variance $`\bar n` and recentred at the displacement $`a`.
+Convolution adds variances, so the width of the displaced thermal state is
+$`\tau = \bar n + \tfrac12` — the mean occupation plus the zero-point half — and
+it does not depend on where the state sits:
+:::
+
+```
+#check @BookProof.ChapterDisplacedThermalOverlap.displacedThermal
+#check @BookProof.ChapterDisplacedThermalOverlap.thermal_plus_zeroPoint_conv
+#check @BookProof.ChapterDisplacedThermalOverlap.displacedThermal_mean
+#check @BookProof.ChapterDisplacedThermalOverlap.displacedThermal_variance
+```
+
+:::paragraph
+The overlap of two such states is then a Gaussian in the phase-space distance
+alone, $`\exp(-(a-b)^2/4\tau)/\sqrt{4\pi\tau}`: it is strictly positive, and it
+is strictly larger for the nearer of two keys. Normalizing the overlaps of a
+query against a family of keys therefore reproduces the Softmax *exactly*, at
+inverse temperature $`\beta = 1/(4\tau)` — which is maximal at the vacuum and
+falls monotonically as the bath heats up. A hotter bath is a flatter attention.
+:::
+
+```
+#check @BookProof.ChapterDisplacedThermalOverlap.dtOverlap_eq
+#check @BookProof.ChapterDisplacedThermalOverlap.dtOverlap_pos
+#check @BookProof.ChapterDisplacedThermalOverlap.dtOverlap_lt_of_dist_lt
+#check @BookProof.ChapterDisplacedThermalOverlap.inverseTemperature
+#check @BookProof.ChapterDisplacedThermalOverlap.inverseTemperature_zero
+#check @BookProof.ChapterDisplacedThermalOverlap.inverseTemperature_strictAnti
+#check @BookProof.ChapterDisplacedThermalOverlap.dtBorn_eq_softmax
+#check @BookProof.ChapterDisplacedThermalOverlap.dtBorn_temperature_coth
+```
+
+:::paragraph
+Nothing about this is one-dimensional. With $`n` modes the overlap factorizes
+across modes, the exponent becomes the squared Euclidean distance of the
+phase-space vectors, and the Born weights are again a Softmax at the same
+inverse temperature. At zero occupation the bath disappears and the multi-mode
+Born weights coincide — after the usual $`\sqrt2` change between the quadrature
+variable and the dimensionless coherent parameter — with the coherent-state Born
+weights this chapter began with. The thermal picture *contains* the pure one:
+:::
+
+```
+#check @BookProof.ChapterDisplacedThermalMulti.dtOverlapMulti_eq_integral
+#check @BookProof.ChapterDisplacedThermalMulti.dtOverlapMulti_eq
+#check @BookProof.ChapterDisplacedThermalMulti.dtOverlapMulti_pos
+#check @BookProof.ChapterDisplacedThermalMulti.dtBornMulti_eq_softmax
+#check @BookProof.ChapterDisplacedThermalMulti.dtBornMulti_vacuum_eq_bornWeight
+```
+
+:::paragraph
+Two states are compared, in quantum mechanics, by their *fidelity*: the
+probability that a system prepared as $`|q\rangle` is found in $`|k\rangle`. For
+coherent states the fidelity collapses to a single number — the Gaussian of the
+distance between the two displacement parameters. The Bargmann phase cancels, and
+so do the individual norms; the fidelity is symmetric, never exceeds one, equals
+one only for identical parameters, and is unchanged when both states are
+displaced together. Attention is exactly the normalized fidelity:
+:::
+
+```
+#check @BookProof.ChapterCoherentFidelity.fidelityC
+#check @BookProof.ChapterCoherentFidelity.fidelityC_eq_exp_neg_dist_sq
+#check @BookProof.ChapterCoherentFidelity.fidelityC_symm
+#check @BookProof.ChapterCoherentFidelity.fidelityC_eq_one_iff
+#check @BookProof.ChapterCoherentFidelity.fidelityC_translation_invariant
+#check @BookProof.ChapterCoherentFidelity.bornWeightC_eq_fidelity_normalized
+```
+
+:::paragraph
+Once the temperature is a physical parameter one can *differentiate* by it. The
+attention head has a partition function $`Z(\beta) = \sum_j e^{\beta s_j}`, and the
+first derivative of its logarithm is the attention-weighted mean score. The
+second is the variance. That is the fluctuation–response law: sharpening the
+attention raises the mean alignment at a rate equal to the variance of the scores
+under the current attention distribution — and the response is zero exactly when
+all the keys already score alike.
+:::
+
+```
+#check @BookProof.ChapterSoftmaxFluctuation.hasDerivAt_logPartition
+#check @BookProof.ChapterSoftmaxFluctuation.hasDerivAt_scoreSoftmax
+#check @BookProof.ChapterSoftmaxFluctuation.hasDerivAt_meanScore
+#check @BookProof.ChapterSoftmaxFluctuation.varScore_eq_zero_iff
+#check @BookProof.ChapterSoftmaxFluctuation.meanScore_monotone
+```
+
+:::paragraph
+This also answers *why Softmax and not some other normalization*. Among all
+attention distributions with a prescribed mean alignment score, the Softmax
+distribution is the one of largest Shannon entropy — the least committed
+distribution compatible with what the alignment says. Equivalently, it minimises
+the free energy $`\beta\langle s\rangle_p - H(p)`, and the minimum is
+$`-\log Z(\beta)`:
+:::
+
+```
+#check @BookProof.ChapterSoftmaxMaxEntropy.shannonEntropy_le_crossEntropy
+#check @BookProof.ChapterSoftmaxMaxEntropy.shannonEntropy_scoreSoftmax
+#check @BookProof.ChapterSoftmaxMaxEntropy.shannonEntropy_le_of_meanScore_eq
+#check @BookProof.ChapterSoftmaxMaxEntropy.softmax_free_energy_le
+#check @BookProof.ChapterSoftmaxMaxEntropy.softmax_free_energy_eq
+```
+
+:::paragraph
+And the entropy itself now has a law of motion. Differentiating the
+thermodynamic identity $`H(\beta) = \log Z(\beta) - \beta\langle s\rangle_\beta`
+gives $`dH/d\beta = -\beta\,\mathrm{Var}_\beta(s)`, so the attention entropy is
+non-increasing for $`\beta \ge 0`: cooling the head can only destroy entropy. The
+endpoints already computed — $`\log m` at infinite temperature, $`0` in the
+argmax limit — are now joined by a monotone path:
+:::
+
+```
+#check @BookProof.ChapterEntropyTemperature.attentionEntropy_eq
+#check @BookProof.ChapterEntropyTemperature.hasDerivAt_attentionEntropy
+#check @BookProof.ChapterEntropyTemperature.heatCapacity_nonneg
+#check @BookProof.ChapterEntropyTemperature.attentionEntropy_antitoneOn
+#check @BookProof.ChapterEntropyTemperature.attentionEntropy_le_log_card
+```
+
+:::paragraph
+Two temperatures give two attention distributions over the same keys, and the
+natural way to compare them is the relative entropy. It has a closed form: the
+divergence between the heads at inverse temperatures $`\beta` and $`\gamma` is the
+*Bregman divergence of the free energy*,
+$`\mathrm{KL}(p_\beta \| p_\gamma) = \log Z(\gamma) - \log Z(\beta) -
+(\gamma - \beta)\langle s\rangle_\beta`. Since a relative entropy is never
+negative, the free energy lies above each of its tangent lines. The same variance
+that measured the response is also the Fisher information of the family, so the
+statistical curvature of attention and its physical fluctuation are one quantity:
+:::
+
+```
+#check @BookProof.ChapterSoftmaxDivergence.klDiv
+#check @BookProof.ChapterSoftmaxDivergence.klDiv_nonneg
+#check @BookProof.ChapterSoftmaxDivergence.klDiv_scoreSoftmax
+#check @BookProof.ChapterSoftmaxDivergence.logPartition_tangent_le
+#check @BookProof.ChapterSoftmaxDivergence.fisherInformation_eq_varScore
+```
+
+:::paragraph
+Reading the tangent inequality globally: the free energy is a convex function of
+the inverse temperature — strictly convex as soon as two keys score differently —
+and it is the Legendre transform of the entropy, the largest value of
+$`\beta\langle s\rangle_p + H(p)` over all attention distributions:
+:::
+
+```
+#check @BookProof.ChapterLogPartitionConvex.hasDerivAt_deriv_logPartition
+#check @BookProof.ChapterLogPartitionConvex.convexOn_logPartition
+#check @BookProof.ChapterLogPartitionConvex.strictConvexOn_logPartition
+#check @BookProof.ChapterLogPartitionConvex.logPartition_isGreatest
+```
+
+:::paragraph
+Finally, the kernel that started the chapter need not be taken on faith. Writing
+the coherent state centred at $`a` as the position-space wave packet
+$`\psi_a(x) = \pi^{-1/4}e^{-(x-a)^2/2}`, the packet is normalized, and its
+$`L^2(\mathbb{R})` inner product with a second packet is
+$`e^{-(a-b)^2/4}` — a Gaussian in the distance between the centres. Squaring it
+recovers, exactly, the reproducing kernel taken as the definition above, so the
+position-space Born weights of a query packet against a family of key packets are
+Softmax attention over minus the squared distances:
+:::
+
+```
+#check @BookProof.ChapterCoherentPositionSpace.gaussianPacket
+#check @BookProof.ChapterCoherentPositionSpace.gaussianPacket_sq_integral
+#check @BookProof.ChapterCoherentPositionSpace.gaussianPacket_inner
+#check @BookProof.ChapterCoherentPositionSpace.gaussianPacket_inner_sq_eq_coherentOverlap
+#check @BookProof.ChapterCoherentPositionSpace.packetBorn_eq_scoreSoftmax
+```
+
+:::paragraph
+One last property is needed before any of this is usable: the measurement must be
+*stable*. If every alignment score is known only up to an error $`d`, no attention
+weight can move by more than the factor $`e^{2|\beta| d}` — one factor of
+$`|\beta| d` for the key's own score, one for the normalizing free energy — and
+hence by no more than $`e^{2|\beta| d} - 1` in absolute terms. Cooling the head
+(large $`\beta`) is exactly what makes it fragile:
+:::
+
+```
+#check @BookProof.ChapterSoftmaxStability.abs_logPartition_sub_le
+#check @BookProof.ChapterSoftmaxStability.abs_log_scoreSoftmax_sub_le
+#check @BookProof.ChapterSoftmaxStability.scoreSoftmax_le_mul
+#check @BookProof.ChapterSoftmaxStability.abs_scoreSoftmax_sub_le
+```
+
+:::paragraph
+Stability in the scores has an exact differential form. Nudging the alignment
+score of one key moves the free energy at the rate $`\partial \log Z/\partial s_i
+= \beta p_i` — the attention weight of a key *is* the sensitivity of the free
+energy to that key's score — and it moves the weights themselves by the Softmax
+Jacobian $`\partial p_j/\partial s_i = \beta\,p_j(\delta_{ij} - p_i)`. That matrix
+is symmetric (it is a Hessian), each of its rows sums to zero (a key can only
+gain what the others lose), and its quadratic form is $`\beta` times an
+attention-weighted variance — positive semidefinite for $`\beta \ge 0`, and equal
+to $`\beta\,\mathrm{Var}_\beta(s)` on the scores themselves. This is the same
+fluctuation that governed the temperature derivative, seen from the score
+direction:
+:::
+
+```
+#check @BookProof.ChapterSoftmaxJacobian.hasDerivAt_logPartition_score
+#check @BookProof.ChapterSoftmaxJacobian.hasDerivAt_scoreSoftmax_score
+#check @BookProof.ChapterSoftmaxJacobian.softmaxJacobian_symm
+#check @BookProof.ChapterSoftmaxJacobian.softmaxJacobian_row_sum_zero
+#check @BookProof.ChapterSoftmaxJacobian.softmaxJacobian_quadratic_form
+#check @BookProof.ChapterSoftmaxJacobian.softmaxJacobian_quadratic_form_score
+```
+
+:::paragraph
+The head also never attends to everything: a *mask* restricts the sum to an
+admissible set of keys, the causal mask $`\{l \le i\}` being the standard case.
+Masking is not a new ingredient — it is Bayesian conditioning. On the admissible
+set the masked weight is the unmasked weight renormalized by the total unmasked
+weight of that set, $`p(j\mid S) = p(j)/p(S)`; the odds between two admissible
+keys are untouched, so a mask removes keys without re-ranking them; and
+conditioning twice is conditioning once, so a composite mask is a single mask:
+:::
+
+```
+#check @BookProof.ChapterAttentionMasking.maskedSoftmax_sum_one
+#check @BookProof.ChapterAttentionMasking.maskedSoftmax_eq_conditional
+#check @BookProof.ChapterAttentionMasking.maskedSoftmax_odds
+#check @BookProof.ChapterAttentionMasking.maskedSoftmax_restrict
+#check @BookProof.ChapterAttentionMasking.causalSoftmax_eq_zero_of_lt
+```
+
+:::paragraph
+Two independent modes never entangle the measurement. If the alignment score of a
+product key is the sum of its per-mode scores — which is what a product coherent
+state gives — then the joint attention distribution is exactly the product of the
+single-mode ones, its marginals are the single-mode distributions, and the
+attention entropy is additive:
+:::
+
+```
+#check @BookProof.ChapterAttentionFactorization.prodSoftmax_eq_mul
+#check @BookProof.ChapterAttentionFactorization.prodSoftmax_marginal_left
+#check @BookProof.ChapterAttentionFactorization.shannonEntropy_prodSoftmax
+```
+
+:::paragraph
+Finally, the whole construction has a symmetry group, and it is the physical one.
+The Bargmann kernel sees only norms and inner products, so a common unitary change
+of frame on the query and every key changes no weight. Free harmonic evolution
+$`\alpha \mapsto e^{-i\omega t}\alpha` is such a unitary: *attention is a constant
+of the motion*. And a common Weyl displacement of query and keys leaves the
+weights alone as well, so only relative positions in phase space are physical:
+:::
+
+```
+#check @BookProof.ChapterCoherentDynamics.coherentOverlapC_isometry
+#check @BookProof.ChapterCoherentDynamics.bornWeightC_isometry
+#check @BookProof.ChapterCoherentDynamics.bornWeightC_evolution_const
+#check @BookProof.ChapterCoherentDynamics.fidelityC_phaseRotate
+#check @BookProof.ChapterCoherentDynamics.bornWeightC_translation_invariant
+```
+
+:::paragraph
+Position is part of the same story. The rotary encoding rotates the $`i`-th
+complex coordinate of a token by an angle proportional to its position,
+$`q \mapsto (e^{i p \omega_i} q_i)_i`. It is a unitary, it composes additively in
+the position, and — the property that makes it work — the alignment of a query at
+position $`a` with a key at position $`b` depends on the two positions *only*
+through the offset $`b - a`. Absolute position is unobservable; translating the
+whole sequence changes no attention weight:
+:::
+
+```
+#check @BookProof.ChapterRotaryPosition.norm_rotaryEncode
+#check @BookProof.ChapterRotaryPosition.rotaryEncode_add
+#check @BookProof.ChapterRotaryPosition.inner_rotaryEncode
+#check @BookProof.ChapterRotaryPosition.coherentOverlapC_rotaryEncode
+#check @BookProof.ChapterRotaryPosition.bornWeightC_rotaryEncode_shift
+```
+
+:::paragraph
+The winner-takes-all law of the previous sections is a limit, and a memory that
+only works in the limit is no memory. At a *fixed* temperature the same statement
+is quantitative. Suppose the query beats every rival key by a score margin
+$`\delta`. Then each distractor keeps at most $`e^{-\beta\delta}` of the
+attention, the total leakage off the target is at most $`(m-1)e^{-\beta\delta}`,
+the target itself holds at least $`1/(1 + (m-1)e^{-\beta\delta})`, and the head's
+output differs from the stored value by at most $`2C(m-1)e^{-\beta\delta}`. An
+attention head is an associative memory whose recall error decays exponentially in
+$`\beta\delta`:
+:::
+
+```
+#check @BookProof.ChapterAttentionRetrieval.scoreSoftmax_le_exp_neg_margin
+#check @BookProof.ChapterAttentionRetrieval.one_sub_scoreSoftmax_le_of_margin
+#check @BookProof.ChapterAttentionRetrieval.scoreSoftmax_ge_inv_of_margin
+#check @BookProof.ChapterAttentionRetrieval.norm_headOutput_sub_le_of_margin
+#check @BookProof.ChapterAttentionRetrieval.bornWeight_ge_of_dist_margin
+```
+
+:::paragraph
+The converse bound is just as physical: at any finite temperature *nothing is ever
+completely ignored*. If the scores lie within a spread $`D`, every key retains at
+least $`e^{-\beta D}/m` of the attention. Collapse onto a single key is a
+zero-temperature idealization, never an event at finite $`\beta`:
+:::
+
+```
+#check @BookProof.ChapterAttentionRetrieval.scoreSoftmax_ge_of_spread
+```
+
+:::paragraph
+The measurement is also blind to the order of the keys. Relabelling the key/value
+pairs by a permutation relabels the weights the same way and leaves the output,
+and the attention entropy, exactly where they were: a head reads its context as a
+*set* of pairs, not as a list. This is the discrete half of the symmetry group
+whose continuous half — unitary frame changes, free evolution, Weyl displacement —
+appeared above:
+:::
+
+```
+#check @BookProof.ChapterAttentionEquivariance.scoreSoftmax_perm
+#check @BookProof.ChapterAttentionEquivariance.headOutput_perm
+#check @BookProof.ChapterAttentionEquivariance.attentionOutput_perm
+#check @BookProof.ChapterAttentionEquivariance.shannonEntropy_scoreSoftmax_perm
+```
+
+:::paragraph
+A layer runs many heads at once, and a bank of heads is a *mixture* of Born
+measurements. The mixture of attention distributions is again an attention
+distribution; reading the values once against the mixed distribution is the same
+as reading them head by head and averaging, which is what licenses the usual
+"combine the heads" construction; and — by concavity of $`-x\log x` — the entropy
+of the consensus is at least the mean entropy of the heads. Confident heads that
+disagree produce an uncertain layer, never the reverse:
+:::
+
+```
+#check @BookProof.ChapterAttentionMixture.mixture_isProb
+#check @BookProof.ChapterAttentionMixture.observableExpectation_mixture
+#check @BookProof.ChapterAttentionMixture.multiHead_output_eq_mean
+#check @BookProof.ChapterAttentionMixture.le_shannonEntropy_mixture
+```
+
+:::paragraph
+Finally, if attention is the Born rule then *training* it is fitting a Born
+probability to an observed outcome. The criterion is the surprisal of the observed
+key, $`L = \log Z_\beta(s) - \beta s_y = -\log p_\beta(y)` — the free energy minus
+the energy of the realized outcome — which is nonnegative and vanishes exactly
+when the layer already places all of its weight there. Its score derivative is the
+textbook backpropagation rule $`\partial L/\partial s_i = \beta(p_i -
+\delta_{iy})`, obtained here from the free-energy derivative above; the gradient
+sums to zero over the keys, so learning *transfers* attention rather than creating
+it, and the gauge freedom $`s \mapsto s + c` is never excited. In the temperature
+the loss is convex, so temperature fitting has no spurious minima:
+:::
+
+```
+#check @BookProof.ChapterCrossEntropyGradient.crossEntropyLoss_eq_neg_log
+#check @BookProof.ChapterCrossEntropyGradient.crossEntropyLoss_nonneg
+#check @BookProof.ChapterCrossEntropyGradient.hasDerivAt_crossEntropyLoss_score
+#check @BookProof.ChapterCrossEntropyGradient.crossEntropyGradient_sum_zero
+#check @BookProof.ChapterCrossEntropyGradient.convexOn_crossEntropyLoss
+```
+
+:::paragraph
+How many keys is a head actually reading? The Shannon entropy answers in nats; the
+practitioner's answer is a *count*, the participation ratio $`N_{\mathrm{eff}} =
+1/\sum_j p_j^2`, the exponential of the Rényi-2 (collision) entropy. It behaves as a
+count must: it lies between $`1` and the number of keys, it equals the number of
+keys exactly at infinite temperature, and — because the collision entropy never
+exceeds the Shannon entropy — it never overstates how much of the context is being
+used:
+:::
+
+```
+#check @BookProof.ChapterAttentionCollision.effectiveSupport_scoreSoftmax_mem_Icc
+#check @BookProof.ChapterAttentionCollision.effectiveSupport_scoreSoftmax_zero
+#check @BookProof.ChapterAttentionCollision.renyi2_le_shannonEntropy
+```
+
+:::paragraph
+The same counting works from the other side. A Markov bound on the Born
+distribution says that at most $`1/t` keys can carry weight $`t` or more, so only a
+handful of keys can ever matter at once; some key always carries at least the
+uniform share $`1/m`; and the min-entropy bound $`-\log p_{\max} \le H` says that a
+low-entropy head necessarily has a dominant key, $`p_{\max} \ge e^{-H}`, whose
+reciprocal is a lower bound for the participation ratio:
+:::
+
+```
+#check @BookProof.ChapterAttentionConcentration.card_filter_le_inv
+#check @BookProof.ChapterAttentionConcentration.exists_inv_card_le
+#check @BookProof.ChapterAttentionConcentration.neg_log_le_shannonEntropy
+#check @BookProof.ChapterAttentionConcentration.inv_le_effectiveSupport
+```
+
+:::paragraph
+Read row by row, a layer is a *stochastic matrix*: row $`i` is the Born
+distribution of the query at position $`i`. Pushing a belief about position through
+the layer is then a Markov step, stacking layers composes the kernels, and a step
+never increases the $`\ell^1` discrepancy between two beliefs. More: at a finite
+temperature every entry of the kernel is bounded below, and the Doeblin argument
+turns that into a strict contraction — with a score spread $`D` a layer contracts
+by $`1 - e^{-\beta D}`. Deep stacks of attention *forget* their input geometrically
+fast unless the scores are allowed to spread with depth:
+:::
+
+```
+#check @BookProof.ChapterAttentionMarkov.attentionMatrix_isStochastic
+#check @BookProof.ChapterAttentionMarkov.push_compose
+#check @BookProof.ChapterAttentionMarkov.l1dist_push_le
+#check @BookProof.ChapterAttentionMarkov.l1dist_push_attentionMatrix_le
+```
+
+:::paragraph
+Finally, the $`1/\sqrt d` that every implementation writes into the score. Model an
+unstructured query as a uniform sign pattern $`q \in \{\pm 1\}^d`. Against a fixed
+key the raw score $`\langle q,k\rangle` has mean zero and mean square $`\lVert k
+\rVert^2`, so for unit-size entries its root-mean-square is $`\sqrt d`. Dividing
+every score by a constant is exactly dividing the inverse temperature by that
+constant; so feeding *raw* dot products to the Softmax at a fixed $`\beta` is
+running the head at $`\beta\sqrt d`, which freezes onto the arg-max as the width
+grows. The $`1/\sqrt d` is the temperature-preserving normalization — with it the
+score has mean square exactly $`1`, whatever the width:
+:::
+
+```
+#check @BookProof.ChapterScaledDotProduct.rademacherMean_dot
+#check @BookProof.ChapterScaledDotProduct.rademacherMean_dot_sq
+#check @BookProof.ChapterScaledDotProduct.scoreSoftmax_scaled
+#check @BookProof.ChapterScaledDotProduct.rademacherMean_scaledDot_sq_of_unit_entries
+```
+
+:::paragraph
+The output carries a second moment as well as a first. Decomposing the
+attention-weighted mean square of the values about any reference point into the
+variance about the output plus the squared distance to the output — the
+bias–variance identity — shows that the head output is the *least-squares summary*
+of what it is reading: no other vector sits closer to the values in the
+attention-weighted mean-square sense. König–Huygens then gives the Jensen bound
+$`\lVert o\rVert^2 \le \sum_j p_j \lVert v_j\rVert^2`, and — because at a finite
+temperature every weight is strictly positive — the output is *certain* exactly
+when all the values agree:
+:::
+
+```
+#check @BookProof.ChapterAttentionOutputVariance.sum_dist_sq_eq
+#check @BookProof.ChapterAttentionOutputVariance.observableExpectation_minimizes
+#check @BookProof.ChapterAttentionOutputVariance.outputVariance_eq_sub
+#check @BookProof.ChapterAttentionOutputVariance.outputVariance_scoreSoftmax_eq_zero_iff
+```
+
+:::paragraph
+The factorization $`s_{ij} = \langle q_i, k_j\rangle` through a head dimension $`d`
+is itself a hard constraint. The whole $`m\times m` table of alignments a head can
+produce has rank at most $`d`, so when $`d < m` no head can realize the pattern
+"each position attends to itself and to nothing else" — its score matrix is the
+identity, of rank $`m`. A single head is not a general router; the bound is sharp,
+since orthonormal queries and keys realize that pattern as soon as $`d \ge m`:
+:::
+
+```
+#check @BookProof.ChapterAttentionLowRank.rank_scoreMatrix_le
+#check @BookProof.ChapterAttentionLowRank.not_exists_scoreMatrix_one
+#check @BookProof.ChapterAttentionLowRank.exists_scoreMatrix_one_of_le
+```
+
+:::paragraph
+Layer normalization, which every block applies before the head reads, is the gauge
+fixing of this picture: it centres the activations and puts them on the sphere of
+squared length $`d`, it is invariant under the affine reparametrizations $`x \mapsto
+ax + c` with $`a > 0`, and it is idempotent — a projection. Cauchy–Schwarz then caps
+every score of a normalized head by $`d`, so the scores span at most $`2d` and every
+key keeps at least $`e^{-2\beta d}/m` of the attention. Normalization is what keeps
+the temperature of the Born measurement bounded:
+:::
+
+```
+#check @BookProof.ChapterLayerNorm.sum_sq_layerNorm
+#check @BookProof.ChapterLayerNorm.layerNorm_smul_pos
+#check @BookProof.ChapterLayerNorm.layerNorm_layerNorm
+#check @BookProof.ChapterLayerNorm.scoreSoftmax_layerNorm_ge
+```
+
+:::paragraph
+The rotary encoding above is not the only positional scheme with the offset
+property. The original sinusoidal bank has it too: the alignment of two encoded
+positions is $`\sum_a \cos(\omega_a(p-q))`, every encoded position has the same
+squared length, and a global shift of all positions leaves every attention weight
+untouched:
+:::
+
+```
+#check @BookProof.ChapterSinusoidalPosition.peInner_eq_sum_cos
+#check @BookProof.ChapterSinusoidalPosition.peInner_self
+#check @BookProof.ChapterSinusoidalPosition.scoreSoftmax_sinusoidal_shift
+#check @BookProof.ChapterSinusoidalPosition.scoreSoftmax_sinusoidal_ge
+```
+
+:::paragraph
+Iterating the Markov step of a single layer gives the mixing law of a deep stack:
+after $`n` layers two beliefs about position are $`(1-m\varepsilon)^n` times as far
+apart as they began, the distance tends to zero, and there is at most one
+stationary belief. For a genuine attention layer at $`\beta \ge 0` with score spread
+$`D` the rate is $`(1 - e^{-\beta D})^n` — depth alone erases the initial state
+unless the scores are allowed to spread:
+:::
+
+```
+#check @BookProof.ChapterAttentionMixing.l1dist_pushIter_le
+#check @BookProof.ChapterAttentionMixing.tendsto_l1dist_pushIter
+#check @BookProof.ChapterAttentionMixing.eq_of_stationary
+#check @BookProof.ChapterAttentionMixing.tendsto_l1dist_pushIter_attentionMatrix
+```
+
+:::paragraph
+Between the two extreme temperatures there is a monotonicity nobody has to
+compute: the odds of two keys are the pure exponential $`e^{\beta(s_i-s_j)}` of
+their score gap, so cooling the head can only help the best key and only hurt the
+worst one. At any $`\beta \ge 0` the winner already holds at least the uniform
+share $`1/m` and the loser at most $`1/m`, and the gain is strict as soon as some
+other key scores strictly lower. The converse bound closes the picture: if the
+scores span at most $`D`, no weight exceeds $`e^{\beta D}/m` and the entropy of the
+collapse never falls below $`\log m - \beta D` — a head with bounded scores cannot
+be sharp at a finite temperature:
+:::
+
+```
+#check @BookProof.ChapterAttentionTemperature.scoreSoftmax_odds
+#check @BookProof.ChapterAttentionTemperature.scoreSoftmax_monotone_of_isMax
+#check @BookProof.ChapterAttentionTemperature.scoreSoftmax_antitone_of_isMin
+#check @BookProof.ChapterAttentionTemperature.inv_card_le_scoreSoftmax_of_isMax
+#check @BookProof.ChapterAttentionTemperature.log_card_sub_le_shannonEntropy
+```
+
+:::paragraph
+Trained heads reliably park a large share of their attention on one uninformative
+position — the *attention sink*. The Born algebra says this is a gauge, not a
+pathology: prepending one extra key multiplies every original weight by the single
+factor $`1-w`, leaves all the odds between ordinary keys untouched, and turns the
+output into the two-point average $`w\,v_0 + (1-w)\,o` of the sink value and the
+sink-free output. Even the entropy splits cleanly, into the binary entropy of the
+sink share plus $`(1-w)` times the entropy the head would have had:
+:::
+
+```
+#check @BookProof.ChapterAttentionSink.scoreSoftmax_sink_succ
+#check @BookProof.ChapterAttentionSink.scoreSoftmax_sink_odds
+#check @BookProof.ChapterAttentionSink.headOutput_sink
+#check @BookProof.ChapterAttentionSink.shannonEntropy_sink
+```
+
+:::paragraph
+A head does not attend to positions but to what the positions stand for, and the
+right bookkeeping for regrouping the context is the pushforward of the attention
+distribution along a grouping map. If the values depend on a key only through its
+group, the key-by-key output and the group-by-group output agree; and coarse
+graining obeys the data-processing inequality — merging keys can only destroy
+information, never create it. What is *not* invariant is the weight: if the scores
+depend only on the group, each group's share is multiplied by its size, so
+duplicating a key really does double its vote:
+:::
+
+```
+#check @BookProof.ChapterAttentionCoarseGrain.observableExpectation_merge
+#check @BookProof.ChapterAttentionCoarseGrain.headOutput_merge
+#check @BookProof.ChapterAttentionCoarseGrain.shannonEntropy_mergeWeights_le
+#check @BookProof.ChapterAttentionCoarseGrain.mergeWeights_scoreSoftmax_of_fiber_const
+```
+
+:::paragraph
+Finally, the two learned projections of a head are not two objects. The score is
+$`\langle W_Q x, W_K y\rangle = x^{\mathsf T}(W_Q^{\mathsf T}W_K)y`, so the pair
+enters only through the single bilinear form $`W_Q^{\mathsf T}W_K` — the QK
+circuit. Any two parameter pairs with the same circuit give the same weights and
+the same output, and the substitution $`(W_Q,W_K)\mapsto(AW_Q,BW_K)` with
+$`A^{\mathsf T}B = I` is an exact symmetry: a head's parameters are defined only up
+to that $`GL(d)` action. The circuit has rank at most the head dimension, which is
+where the score-table bottleneck comes from:
+:::
+
+```
+#check @BookProof.ChapterAttentionQKCircuit.qkScore_eq_bilinear
+#check @BookProof.ChapterAttentionQKCircuit.qkScore_gauge
+#check @BookProof.ChapterAttentionQKCircuit.scoreSoftmax_qkScore_gauge
+#check @BookProof.ChapterAttentionQKCircuit.rank_qkMatrix_le
+```
+
+:::paragraph
+All of this is written into a stream that the block never replaces: the update is
+$`x \mapsto x + f(x)`. A head whose values are bounded by $`C` moves the stream by at
+most $`C`, and if the block is a contraction the residual map is not merely
+injective but expansive by $`1-L` — the input of a layer can always be recovered
+from its output, so nothing an earlier layer wrote can be overwritten by a later
+one. A stack of $`n` such blocks drifts by at most $`nC`: depth moves the stream
+linearly, not explosively:
+:::
+
+```
+#check @BookProof.ChapterResidualStream.norm_residual_sub_self_le
+#check @BookProof.ChapterResidualStream.norm_sub_residual_ge
+#check @BookProof.ChapterResidualStream.residual_injective
+#check @BookProof.ChapterResidualStream.norm_iterate_residual_sub_le
+```
+
+:::paragraph
+The name *Softmax* is a claim about the free energy, and the claim is quantitative.
+The log-partition function is squeezed between the largest score and that score
+plus $`\log m`, so $`\tfrac1\beta\log Z(\beta)` is the maximum score up to
+$`\log m/\beta`, and the attention-weighted mean score obeys the same bound: at a
+low enough temperature the head reads (almost) the best-matching key, and both
+quantities converge to the maximum as $`\beta\to\infty`. The whole gap between the
+soft maximum and the hard one is the entropy of the collapse:
+:::
+
+```
+#check @BookProof.ChapterAttentionFreeEnergy.le_logPartition
+#check @BookProof.ChapterAttentionFreeEnergy.abs_logPartition_div_sub_le
+#check @BookProof.ChapterAttentionFreeEnergy.sub_meanScore_le
+#check @BookProof.ChapterAttentionFreeEnergy.tendsto_meanScore_atTop
+```
+
+:::paragraph
+No long-context head looks at all of its keys: it keeps a shortlist — a top-$`k`
+set, a sliding window, a block-sparse pattern — and renormalizes over it. Masking
+is Bayesian conditioning, so the price of that shortcut can be computed exactly:
+the sparse head differs from the dense head by $`2(1-P(S))` in $`\ell^1`, where
+$`P(S)` is the attention mass the shortlist would have carried — no more and no
+less. A shortlist that captures all but $`\varepsilon` of the mass is
+$`2\varepsilon`-accurate, its output is within $`2\varepsilon C`, and
+sparsification is lossless exactly when the discarded keys carried nothing:
+:::
+
+```
+#check @BookProof.ChapterAttentionSparse.l1dist_maskedSoftmax_eq
+#check @BookProof.ChapterAttentionSparse.l1dist_maskedSoftmax_le_of_mass
+#check @BookProof.ChapterAttentionSparse.norm_headOutput_masked_sub_le
+#check @BookProof.ChapterAttentionSparse.one_sub_attendedMass_le
+```
+
+:::paragraph
+The gauge argument that collapses the query and key projections into the single QK
+circuit applies verbatim on the writing side. Because the attention average is
+linear, it commutes with every linear map, so the value and output projections act
+only through their product $`W_OW_V` — the OV circuit — with its own $`GL(d)`
+gauge freedom $`(W_O,W_V)\mapsto(W_OA, BW_V)`, $`AB = I`. That product has rank at
+most the head dimension: a head reads through a rank-$`d` bottleneck and writes
+through one too:
+:::
+
+```
+#check @BookProof.ChapterAttentionOVCircuit.mulVec_headOutput
+#check @BookProof.ChapterAttentionOVCircuit.ovOutput_eq_headOutput
+#check @BookProof.ChapterAttentionOVCircuit.ovOutput_gauge
+#check @BookProof.ChapterAttentionOVCircuit.rank_ovMatrix_le
+```
+
+:::paragraph
+The Jacobian of the collapse also measures how teachable the head is. The total
+absolute response of the attention distribution to a nudge of one score is exactly
+$`2\beta p_i(1-p_i)` — never more than $`\beta/2`, and vanishing at both ends of
+the scale. Once some key carries $`1-\varepsilon` of the attention, *every* score
+has total influence at most $`2\beta\varepsilon`: a head that has made up its mind
+is hard to teach, which is the algebraic content of the saturation that attention
+temperature schedules are designed to avoid:
+:::
+
+```
+#check @BookProof.ChapterAttentionSaturation.sum_abs_softmaxJacobian_row
+#check @BookProof.ChapterAttentionSaturation.sum_abs_softmaxJacobian_le_half
+#check @BookProof.ChapterAttentionSaturation.sum_abs_softmaxJacobian_le_of_confident
+```
+
+:::paragraph
+Finally, heads are rarely scored on alignment alone: a learned per-key bias, a
+relative-position bias or a repetition penalty is added to the logits first. Read
+through the Born rule such a bias is not an extra ingredient but the *prior* of the
+update — the biased head is literally the Bayes posterior with prior $`w` and
+likelihood $`e^{\beta s}`, its odds are prior odds times likelihood ratio, and a
+prior is exactly a score shift $`s_j \mapsto s_j + (\log w_j)/\beta`. Only the
+ratios of the prior weights matter, and at infinite temperature the head returns
+the normalized prior: with no evidence, the posterior is the prior:
+:::
+
+```
+#check @BookProof.ChapterAttentionPrior.priorSoftmax_eq_posterior
+#check @BookProof.ChapterAttentionPrior.priorSoftmax_odds
+#check @BookProof.ChapterAttentionPrior.priorSoftmax_eq_scoreSoftmax_bias
+#check @BookProof.ChapterAttentionPrior.priorSoftmax_zero
+```
+
+:::paragraph
+Generation exploits the same algebra. Appending one key/value pair to a head
+multiplies every cached weight by a single factor $`1-w`, so nothing already
+computed has to be revisited, and the new output is the convex interpolation
+$`(1-w)\,o_{\text{old}} + w\,v_{\text{new}}`. The KV cache is therefore not an
+approximation but an identity, and a late token perturbs an established summary
+exactly in proportion to the attention it wins:
+:::
+
+```
+#check @BookProof.ChapterAttentionStreaming.scoreSoftmax_snoc_castSucc
+#check @BookProof.ChapterAttentionStreaming.headOutput_snoc
+#check @BookProof.ChapterAttentionStreaming.norm_headOutput_snoc_sub_le
+#check @BookProof.ChapterAttentionStreaming.scoreSoftmax_snoc_odds
+```
+
+:::paragraph
+Position can also enter as a penalty rather than as an embedding: subtract
+$`\gamma` times the distance from each score. Such a head is provably *local* — the
+weight of a key decays like $`e^{-\beta\gamma d}` in its distance, so the total
+attention beyond distance $`R` is at most $`m\,e^{\beta\Delta}e^{-\beta\gamma R}`,
+and the sliding-window head is within $`2C` times that of the full head. Locality
+is a theorem about the penalty, not an architectural stipulation:
+:::
+
+```
+#check @BookProof.ChapterAttentionLocality.scoreSoftmax_alibi_le
+#check @BookProof.ChapterAttentionLocality.farMass_le
+#check @BookProof.ChapterAttentionLocality.norm_headOutput_window_sub_le
+```
+
+:::paragraph
+And when the shortlist must be chosen, the greedy choice is the right one. Among
+all shortlists of a given size, the one holding the heaviest keys carries the most
+mass, so — the price of sparsification being exactly the discarded mass — it also
+minimizes both the $`\ell^1` error and the output error. At a positive temperature
+the heaviest keys are the highest-scoring ones, so the selection can be made
+before the Softmax is ever evaluated:
+:::
+
+```
+#check @BookProof.ChapterAttentionTopK.attendedMass_le_of_isTop
+#check @BookProof.ChapterAttentionTopK.l1dist_maskedSoftmax_le_of_isTop
+#check @BookProof.ChapterAttentionTopK.isTopWeight_of_isTopScore
+```
+
+:::paragraph
+Finally, the temperature itself is observable. For a head whose scores are not all
+equal the attention entropy is a continuous, strictly decreasing function of the
+inverse temperature, so distinct temperatures give distinct entropies and every
+entropy level between $`H(B)` and the maximal $`\log m` is realized by exactly one
+$`\beta \in [0,B]`. "Run this head at entropy $`h`" is a well-posed instruction:
+:::
+
+```
+#check @BookProof.ChapterAttentionCalibration.attentionEntropy_strictAntiOn
+#check @BookProof.ChapterAttentionCalibration.exists_beta_attentionEntropy_eq
+#check @BookProof.ChapterAttentionCalibration.existsUnique_beta_attentionEntropy_eq
+```
+
+
+
+
 # Informational Superposition and the Unknown Output
 
 :::paragraph
@@ -426,6 +1241,24 @@ distribution and that the attention output is exactly that expectation value.
 ```
 
 :::paragraph
+That expectation value has a temperature, too. Writing `headOutput` for the
+output of the head at inverse temperature $`\beta`, the dial runs between two
+extremes: at $`\beta = 0` the query is ignored and the head returns the plain
+mean of the values, while if one key strictly maximizes the alignment the output
+converges to that single value vector as $`\beta \to \infty` — the soft average
+becomes a hard table lookup. Everything in between stays inside the convex hull of
+the values, and the output is $`\ell^1`-stable in the weights:
+:::
+
+```
+#check @BookProof.ChapterAttentionOutput.headOutput_zero
+#check @BookProof.ChapterAttentionOutput.tendsto_headOutput
+#check @BookProof.ChapterAttentionOutput.headOutput_mem_convexHull
+#check @BookProof.ChapterAttentionOutput.norm_observableExpectation_sub_le
+#check @BookProof.ChapterAttentionOutput.attentionOutput_eq_headOutput
+```
+
+:::paragraph
 The observable itself can be built, not merely its spectral data. `observableOp`
 is the finite-dimensional operator $`\hat V = \sum_j v_j |k_j\rangle\langle k_j|`;
 `observableOp_isHermitian` says it is a genuine observable when the eigenvalues
@@ -494,8 +1327,12 @@ second, the temperature identity $`\tau = \bar n + \tfrac12`, is proved in its
 statistical core (`BookProof.ChapterCoherentTemperature`) and in its
 occupation-statistics reading (`BookProof.ChapterCoherentOccupation`: coherent
 light is Poissonian with variance $`\bar n`, and $`\tau` is the expectation of the
-energy observable $`n + \tfrac12`); its physical derivation from the fidelity of
-displaced thermal states remains a precise proof plan in {ref "proof-plans"}[the
+energy observable $`n + \tfrac12`); the law is further identified with the
+Boltzmann–Gibbs law at inverse temperature $`x = \hbar\omega/kT` and given its
+$`\tfrac12\coth(x/2)` closed form in `BookProof.ChapterBoseEinstein`, and
+characterized variationally — maximal entropy at fixed mean occupation — in
+`BookProof.ChapterThermalMaxEntropy`. Its physical derivation from the fidelity
+of displaced thermal states remains a precise proof plan in {ref "proof-plans"}[the
 appendix]. The two caveats the first draft of this chapter carried have since been
 discharged: the complex Bargmann kernel, with its phase, is formalized in
 `BookProof.ChapterCoherentOverlapComplex`, and the observable is built as an

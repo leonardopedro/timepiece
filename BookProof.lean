@@ -58,6 +58,10 @@ import BookProof.ChapterF1
 import BookProof.ChapterF2
 import BookProof.ChapterA4h
 import BookProof.ChapterA3w
+import BookProof.ChapterA3x
+import BookProof.ChapterBoseEinstein
+import BookProof.ChapterThermalMaxEntropy
+import BookProof.ChapterLinftyMultiplication
 import BookProof.ChapterH1
 import BookProof.ChapterH2
 import BookProof.ChapterF3
@@ -292,3 +296,118 @@ import BookProof.ChapterUnitaryCompleteReducibility
 -- energy bound and the resulting absence of a finite-time singularity.
 import BookProof.ChapterSpectralEnergyBound
 import BookProof.ChapterMaschkeFiniteGroup
+
+-- Wave (2026-08-09, `PLAN_LEAN_SPECIALIST_COHERENT.md` Part F): the finite
+-- algebraic core of the coherent-state temperature identity (F.4) and the mixed
+-- (atomic ⊕ diffuse) class of the abelian von Neumann list (F.5).
+import BookProof.ChapterThermalTemperatureCore
+import BookProof.ChapterAbelianMixture
+
+-- Wave (2026-08-09, Part F.1-F.3): the QFM dimensional-reduction thread — the
+-- inversion-free Krylov shortcut, the Krylov projection as a spectral low-pass
+-- filter, and the offline compilation of Tomographic Subspace Recovery.
+import BookProof.ChapterH5
+import BookProof.ChapterH6
+import BookProof.ChapterF8
+
+-- Wave (2026-08-09, Part G): the shared analytic core, promoted out of
+-- `PnpProof/` so that it depends only on Mathlib.  These modules are already
+-- pulled in transitively; the explicit imports record them as part of the
+-- library's public surface.
+import BookProof.PhysMeasureBasis
+import BookProof.PhysFunctionalAnalysis
+import BookProof.PhysHSGaussian
+import BookProof.PhysMehler
+
+-- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
+-- Gaussian derivation of the attention temperature `τ = n̄ + ½` from the overlap
+-- of displaced thermal states, and the Hermiticity / unitarity layer of the QFM
+-- Krylov reduction.
+import BookProof.ChapterDisplacedThermalOverlap
+import BookProof.ChapterDisplacedThermalMulti
+import BookProof.ChapterH7
+
+-- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
+-- quantum fidelity of coherent states (attention as normalized fidelity) and the
+-- fluctuation–response law of the attention temperature.
+import BookProof.ChapterCoherentFidelity
+import BookProof.ChapterSoftmaxFluctuation
+import BookProof.ChapterSoftmaxMaxEntropy
+import BookProof.ChapterEntropyTemperature
+
+-- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
+-- relative entropy between two attention temperatures, the convexity of the
+-- attention free energy, and the position-space realization of the coherent
+-- overlap as an honest `L²(ℝ)` inner product of Gaussian wave packets.
+import BookProof.ChapterSoftmaxDivergence
+import BookProof.ChapterLogPartitionConvex
+import BookProof.ChapterCoherentPositionSpace
+import BookProof.ChapterSoftmaxStability
+
+-- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
+-- score Jacobian of attention, the value aggregation of the head, attention
+-- masking as Bayesian conditioning, and the symmetry group of the coherent-state
+-- Born weights.
+import BookProof.ChapterSoftmaxJacobian
+import BookProof.ChapterAttentionOutput
+import BookProof.ChapterAttentionMasking
+import BookProof.ChapterCoherentDynamics
+import BookProof.ChapterAttentionFactorization
+import BookProof.ChapterRotaryPosition
+
+-- Wave (2026-08-10, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
+-- quantitative retrieval bounds of an attention head, its permutation
+-- equivariance, multi-head attention as a mixture, and the cross-entropy
+-- learning signal of a Softmax layer.
+import BookProof.ChapterAttentionRetrieval
+import BookProof.ChapterAttentionEquivariance
+import BookProof.ChapterAttentionMixture
+import BookProof.ChapterCrossEntropyGradient
+
+-- Wave (2026-08-10, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): how many
+-- keys a head effectively reads (collision entropy / participation ratio), how
+-- concentrated the Born measurement can be, attention as a Markov kernel with a
+-- Doeblin contraction, and the `1/√d` scaling of the dot-product scores.
+import BookProof.ChapterAttentionCollision
+import BookProof.ChapterAttentionConcentration
+import BookProof.ChapterAttentionMarkov
+import BookProof.ChapterScaledDotProduct
+import BookProof.ChapterAttentionOutputVariance
+
+-- Wave (2026-08-10, information-theoretic pass, part 2): the low-rank bottleneck
+-- of a single head, layer normalization as gauge fixing, the sinusoidal
+-- positional encoding, and the mixing of a deep stack of one attention layer.
+import BookProof.ChapterAttentionLowRank
+import BookProof.ChapterLayerNorm
+import BookProof.ChapterSinusoidalPosition
+import BookProof.ChapterAttentionMixing
+
+-- Wave (2026-08-10, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): turning
+-- the temperature knob (monotonicity of the winner's weight, the entropy floor of
+-- a bounded head), the attention sink as a common rescaling, coarse-graining the
+-- keys (the data-processing inequality for attention), the QK circuit with its
+-- `GL(d)` gauge freedom, and the residual stream (a contractive block never
+-- overwrites it).
+import BookProof.ChapterAttentionTemperature
+import BookProof.ChapterAttentionSink
+import BookProof.ChapterAttentionCoarseGrain
+import BookProof.ChapterAttentionQKCircuit
+import BookProof.ChapterResidualStream
+
+-- Wave: the free energy as a soft maximum (`log Z/β` is the largest score up to
+-- `log m/β`), the exact `ℓ¹` price of sparse/top-k attention, the OV circuit (the
+-- writing-side counterpart of the QK circuit), the vanishing learning signal of a
+-- saturated head, and the identification of a logit bias with a Bayesian prior.
+import BookProof.ChapterAttentionFreeEnergy
+import BookProof.ChapterAttentionSparse
+import BookProof.ChapterAttentionOVCircuit
+import BookProof.ChapterAttentionSaturation
+import BookProof.ChapterAttentionPrior
+
+-- Wave: incremental decoding (the KV cache is an exact convex update), the
+-- locality of a distance-penalized head, the calibration of the temperature by the
+-- attention entropy, and the optimality of the top-`k` shortlist.
+import BookProof.ChapterAttentionStreaming
+import BookProof.ChapterAttentionLocality
+import BookProof.ChapterAttentionCalibration
+import BookProof.ChapterAttentionTopK
