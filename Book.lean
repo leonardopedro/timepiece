@@ -125,12 +125,29 @@ verified layer is asserted without a proof; the open items are quarantined there
 
 {include 0 Book.Introduction}
 
+# A Decidable, Complete Foundation
+%%%
+tag := "part-pa-free"
+%%%
+
+A metamathematical chapter replacing the manuscript's chapters on _P versus NP_ and
+the _Riemann Hypothesis_: the completed Hilbert space is complete and decidable
+because its infinite elements are kept internally unselectable. The second chapter
+builds the Solovay–Kopperman tensor product on this foundation: a finite-dimensional
+factor carrying an arbitrary probability law, tensored with a separable
+infinite-dimensional factor whose law is forced to be the Mehler measure precisely
+because the language cannot distinguish its elements.
+
+{include 0 Book.PaFreeHilbert}
+
+{include 0 Book.SolovayTensor}
+
 # Probability as Coherent Belief
 %%%
 tag := "part-probability"
 %%%
 
-The first part builds the probabilistic foundation on which the rest of the book
+The second part builds the probabilistic foundation on which the rest of the book
 rests. We begin from the most primitive question — _what does it mean for a system
 of degrees of belief to be consistent?_ — and recover the probability axioms as the
 answer (the Dutch-book theorem). We then establish the three working tools used
@@ -250,23 +267,6 @@ An operator-theoretic resolution of the finite-time blow-up of $`x' = x^2`, repl
 the ODE chapter of the manuscript.
 
 {include 0 Book.OdeSingularity}
-
-# A Decidable, Complete Foundation
-%%%
-tag := "part-pa-free"
-%%%
-
-A metamathematical chapter replacing the manuscript's chapters on _P versus NP_ and
-the _Riemann Hypothesis_: the completed Hilbert space is complete and decidable
-because its infinite elements are kept internally unselectable. The second chapter
-builds the Solovay–Kopperman tensor product on this foundation: a finite-dimensional
-factor carrying an arbitrary probability law, tensored with a separable
-infinite-dimensional factor whose law is forced to be the Mehler measure precisely
-because the language cannot distinguish its elements.
-
-{include 0 Book.PaFreeHilbert}
-
-{include 0 Book.SolovayTensor}
 
 # Determinism, Complementarity, and Collapse
 %%%
