@@ -66,7 +66,7 @@ mechanics. In this precise sense, *quantum mechanics is a complete statistical
 theory* as EPR defined completeness.
 
 The structural reason, again, is
-{ref "time-translation-stochastic"}[the stochastic-process theorem]: the EPR setup
+{ref "deterministic-transformations"}[the stochastic-process theorem]: the EPR setup
 assumes a probability distribution for the state of the separated system _between_
 preparation and measurement, but a non-deterministic time-evolution defines no such
 distribution.

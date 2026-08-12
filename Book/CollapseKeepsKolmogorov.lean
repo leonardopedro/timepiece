@@ -118,6 +118,7 @@ wave-functions* — the probability clock, nested. The verified statements (modu
 #check @ChapterEulerGenericDensity.Jgen_sq
 #check @ChapterEulerGenericDensity.density_euler_generic
 #check @ChapterEulerGenericDensity.density_collapse_generic
+#check @ChapterEulerGenericDensity.density_idempotent
 #check @ChapterEulerGenericDensity.conditional_probability_at
 #check @ChapterEulerGenericDensity.product_probability
 ```

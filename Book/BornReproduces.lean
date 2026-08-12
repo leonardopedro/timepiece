@@ -92,9 +92,11 @@ masses sum to exactly one:
 
 Writing $`c_n = \cos^2\theta_n` recovers the Euler-angle form
 $`P(n) = (\prod_{k<n}\sin^2\theta_k)\cos^2\theta_n`, the countable analogue of the
-finite formula:
+finite formula — and `stickProb_euler` identifies each stick-breaking probability
+with a $`\cos^2` of an angle:
 
 ```
+#check @ChapterEulerCountableChain.stickProb_euler
 #check @ChapterEulerCountableChain.euler_tsum_one
 ```
 
@@ -124,6 +126,24 @@ This justifies the book's use of complex (and quaternionic) Hilbert spaces while
 keeping the real Euler-angle parametrization as the underlying construction: passing
 to $`\mathbb{C}` or $`\mathbb{H}` does not change which distributions are
 reachable, only how many real coordinates each outcome hides.
+
+The manuscript's argument that these are the *only* fields worth considering runs
+through the *real Schur's lemma*: if a set of normal operators (the projections
+together with a unitary representation of a symmetry group) leaves no non-trivial
+closed subspace invariant, then the algebra of operators commuting with all of them
+is a *real associative division algebra* — and such an algebra is isomorphic to
+exactly one of the real numbers, the complex numbers, or the quaternions. The field
+over which the wave-function lives is therefore *not* an extra physical postulate:
+it is read off from the commuting algebra of the symmetry representation, and the
+parametrization works uniformly over all three. The verified norm fact underlying
+the complex case is that the norm of a complex wave-function equals the norm of its
+*realification* (a complex Hilbert space is a real one of twice the dimension, with
+the same norm):
+
+```
+#check @ChapterEulerComplexQuat.cbornProb_nonneg
+#check @ChapterEulerComplexQuat.complex_realification_norm
+```
 
 # Average versus Maximal Error
 

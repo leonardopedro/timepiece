@@ -95,7 +95,7 @@ mechanics, with the Stern-Gerlach experiment being one example. The question
 remaining is whether the Euler's formula applies for phase-spaces with more than
 two states — which would imply that the collapse of the wave-function is merely a
 mathematical artifact of the wave-function parametrization. That is the subject of
-{ref "euler-generic"}[the Euler chapters].
+{ref "born-reproduces"}[the Euler chapters].
 
 # Information Erasure by a Unitary
 

@@ -28,14 +28,11 @@ import Book.OdeSingularity
 import Book.PaFreeHilbert
 import Book.DeterministicTransformations
 import Book.CollapseKeepsKolmogorov
-import Book.EulerGeneric
-import Book.TimeTranslationStochastic
 import Book.DoubleSlit
 import Book.BellInequalities
 import Book.EPRComplete
 import Book.ProofPlans
 import Book.SpinStatistics
-import Book.SymmetryRep
 import Book.SolovayTensor
 import Book.ConditionalUnitary
 
@@ -244,7 +241,7 @@ empirical meaning.
 
 {include 0 Book.MeasurementLLN}
 
-# Resolution of the Singularity of an ODE
+# The ODE Singularity
 %%%
 tag := "part-ode"
 %%%
@@ -254,7 +251,7 @@ the ODE chapter of the manuscript.
 
 {include 0 Book.OdeSingularity}
 
-# Completeness without Peano Arithmetic
+# A Decidable, Complete Foundation
 %%%
 tag := "part-pa-free"
 %%%
@@ -282,22 +279,15 @@ unitary representation, taking the one-parameter time-translation group as the
 prototype; characterize deterministic versus non-deterministic symmetry
 transformations and locate the origin of complementarity; show why wave-function
 collapse keeps quantum mechanics an ordinary Kolmogorov probability theory, and how
-this differs from Gleason's theorem; extend the Euler-angle parametrization to
-arbitrary, countable, complex, and quaternionic dimension; prove that time-translation
+this differs from Gleason's theorem; prove that time-translation
 is a stochastic process _if and only if_ it is deterministic; reconstruct a quantum
-trajectory at intermediate times by post-selection; work the double-slit and
-Bell/CHSH experiments; and close with EPR-completeness, relativistic causality, a
-concrete deterministic theory, and the classical limit.
-
-{include 1 Book.SymmetryRep}
+trajectory at intermediate times by post-selection; work the double-slit
+and Bell/CHSH experiments; and close with EPR-completeness, relativistic causality,
+a concrete deterministic theory, and the classical limit.
 
 {include 1 Book.DeterministicTransformations}
 
 {include 1 Book.CollapseKeepsKolmogorov}
-
-{include 1 Book.EulerGeneric}
-
-{include 1 Book.TimeTranslationStochastic}
 
 {include 1 Book.DoubleSlit}
 

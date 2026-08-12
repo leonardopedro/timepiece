@@ -14,7 +14,7 @@ The ensemble interpretation, by itself, does not explain why an electron's
 wave-function appears to *interfere with itself* in Young's double-slit experiment
 — that would seem to require the wave-function to describe an _individual_ system.
 This chapter fills the gap using the result of
-{ref "time-translation-stochastic"}[the previous chapter]: the time-evolution is a
+{ref "deterministic-transformations"}[the previous chapter]: the time-evolution is a
 stochastic process only when it is deterministic.
 
 # The Two Transformations

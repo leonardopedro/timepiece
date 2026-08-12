@@ -246,7 +246,7 @@ operator with a singular-value expansion; and the marginal and conditional
 probabilities are read off its Gram matrix. None of this is a physical postulate — it
 is the structure of probability itself, once we parametrize the simplex by the sphere.
 The unitary time-evolution of
-{ref "symmetry-rep"}[the symmetry chapter] and the collapse of
+{ref "deterministic-transformations"}[the symmetry chapter] and the collapse of
 {ref "collapse-kolmogorov"}[the collapse chapter] are both instances of this single
 parametrization.
 :::
