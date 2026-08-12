@@ -190,6 +190,59 @@ and its fibers are the phase/sign gauge of
 *quotient* of the Gaussian-built sphere by the gauge group, with a canonical
 rotation-invariant measure on top.
 
+# Differentiability in the Fourier-Transformed Space
+
+The manuscript's free-field section is careful about a cost of the parametrization:
+because the uniform prior attributes null measure to *deterministic* functions, one
+*sacrifices point-evaluation* of a classical field, and so "continuity and
+differentiability notions must be redefined for quantum fields". Its justification
+that this is not a problem is that *the smooth wave-functions are dense in the
+Hilbert space* — an approximation statement.
+
+That justification is correct but incomplete. The stronger fact is that, in the
+Fourier-transformed space, the field is already smooth almost everywhere, not merely
+approximable by smooth functions. The momentum constraint of the free-field section
+is $`iD_x = 0` with $`p` the eigenvalue of the derivative operator that the Fourier
+transform diagonalizes: in the Fourier picture, differentiation is multiplication by
+a real frequency, and the (Fourier-transformed) wave-function that defines the
+creation operator is the analytic continuation of that frequency function. Analytic
+functions are smooth everywhere, so the represented field is smooth on the
+transformed space — the null-measure caveat of the manuscript's point-evaluation
+discussion is discharged in the Fourier domain *before* any density argument is
+needed.
+
+The same phenomenon appears in number-theoretic series: the series used in
+Bagchi's universality theorem (and the Dirichlet series it is built from) is
+convergent and analytic on a half-plane, and its analytic continuation is smooth
+almost everywhere in the transformed (frequency) variable. There too the smoothness
+is not an approximation imposed by a choice of prior; it is a property the analytic
+continuation already has. The manuscript's density argument describes what is true
+in the *original* (position) space; the sharper statement is that the *Fourier* or
+frequency representation of the same object is already smooth, so the
+differentiability notions the manuscript says must be "redefined" are in fact
+satisfied pointwise (almost everywhere) on the transformed side.
+
+The density assertion the manuscript relies on is itself verified
+(`polynomial_dense_L2` in `BookProof.PhysFunctionalAnalysis`: polynomials — hence
+smooth functions — are dense in $`L^2` with respect to the uniform
+(unit-interval) measure):
+
+```
+#check @PhysFunctionalAnalysis.polynomial_dense_L2
+```
+
+This is the approximation statement: it says smooth functions are *close* to every
+$`L^2` field. The Fourier-domain observation above is the strictly stronger one: in
+the transformed space the field is already smooth a.e., so no approximation step is
+needed there. Both facts coexist — the former concerns the original space, the
+latter concerns its Fourier representation.
+
+This is consistent with, and sharpens, the rest of the free-field thread: the
+Gaussian-built uniform measure is rotation-invariant, its Fourier transform is the
+same Gaussian (self-dual), and the frequency representation of a field drawn from
+that prior is a smooth, analytically-continuable object rather than a merely
+approximable one.
+
 # A Countability Sanity Check
 
 One last measure-theoretic fact keeps the countable Euler-angle parametrization of
