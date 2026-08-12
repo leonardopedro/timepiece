@@ -6,6 +6,15 @@ import RandomMap.RandomMap2InfiniteWalk
 import UnusedRoute.RcpRandomMap2Bridge
 
 /-!
+**Audit-only module (not in any build target).**  This file is part of the
+`#print axioms` audit trail for the `RandomMap2` development and still imports
+the quarantined Riemann-Hypothesis spine under `UnusedRoute/`.  It is
+deliberately *not* listed in `BookProof.lean` and is not reachable from any
+`lake` target, so the default build stays free of the RH route; keep it as the
+record of the audit rather than deleting it.
+-/
+
+/-!
 # RandomMap2 Axiom Verification
 
 This module verifies that all theorems in the RandomMap2 framework depend only

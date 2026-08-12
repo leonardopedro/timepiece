@@ -1,5 +1,5 @@
 import UsedRoute.SolovayHilbert
-import UsedRoute.RectangleStrategy
+import UsedRoute.Basic
 
 /-!
 # Honest RandomMap2 reduction of the RH zero-free step
@@ -95,18 +95,25 @@ theorem decoupled_integral_and_zeroFree_of_rectangle {N : ℕ}
 /-
 ## Phase 9 bridge (R21): RH via RandomMap2
 
-Bridge theorem connecting the RandomMap2 finite-head framework to the
-historical RH proof. `RectangleRH` (already proved in this module) implies
-the same RH conclusion as `riemann_hypothesis_rect` (already proved in
-`RectangleStrategy.lean`).
+Bridge theorem connecting the RandomMap2 finite-head framework to the RH
+conclusion: the analytic premise `RectangleRH` isolated in this module *is* the
+rectangle form of the Riemann Hypothesis, so it yields that conclusion and
+nothing weaker.
 
-This closes the analytic content gap between Track A's `RandomMap2RH`
-framework and the historical RH proof.
+*Honesty note (2026-08-11).*  This theorem previously discharged its conclusion
+by appealing to the historical `riemann_hypothesis_rect` of
+`UsedRoute/RectangleStrategy.lean`, whose proof still contains `sorry`
+placeholders; `#print axioms` therefore reported `sorryAx` for it, contradicting
+the module's own stated policy of not importing that declaration as an
+established analytic input.  It is now proved from its own hypothesis, so the
+whole module is `sorry`-free (`#print axioms` shows only `propext`,
+`Classical.choice`, `Quot.sound`) and the remaining obstacle stays explicit: the
+premise itself is RH-strength and is *not* proved here.
 -/
 theorem riemann_hypothesis_bridge :
     RectangleRH → (∀ s : ℂ, riemannZeta s = 0 → 0 < s.re → s.re < 1 → s.re = 1 / 2) := by
-  intro _hrect s hs hre_pos hre_lt
-  exact riemann_hypothesis_rect s hs hre_pos hre_lt
+  intro hrect s hs hre_pos hre_lt
+  exact hrect s hs hre_pos hre_lt
 
 /-! ## R25: Generalized Decoupling Theorem
 

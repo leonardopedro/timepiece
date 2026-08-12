@@ -7,7 +7,576 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-## Latest wave (2026-08-10, final continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`) — **incremental decoding, the locality of a distance penalty, entropy calibration of the temperature, and the optimality of top-`k`**
+## Latest wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2 — **the metrizability residue is closed**)
+
+Two new modules (`sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean`, `#check`-ed from
+`Book/NullMeasure.lean`) remove the last standing hypothesis of the exhaustiveness
+theorem — that the compact spectrum of the abelian algebra may be taken metrizable.
+
+**`BookProof/ChapterSeparableSpectrum.lean` — metrizability *is* separability.**
+`eq_of_forall_dense_apply_eq` (a dense family of continuous functions separates the
+points of a compact Hausdorff space, via Urysohn),
+`metrizableSpace_of_separable_continuousMap` (a countable dense family embeds `Y` in
+`ℂ^ℕ`, and a continuous injection out of a compact space is an embedding),
+`separableSpace_continuousMap_of_metrizable` and the equivalence
+`metrizableSpace_iff_separableSpace_continuousMap`.  Via Gelfand duality
+(`separableSpace_continuousMap_characterSpace`, `metrizableSpace_characterSpace`) the
+character space of a **separable** commutative unital C*-algebra is metrizable, so the
+headlines `abelian_multiplication_model_classified_separable` and
+`abelian_algebra_multiplication_model_classified` state the five-type classification
+with separability of the algebra in place of metrizability of the spectrum.
+
+**`BookProof/ChapterSeparableL2Model.lean` — a separably *acting* algebra needs no
+hypothesis at all.**  `exists_countable_dense_continuous`: if `L²(μ)` is separable then
+a countable family `D ⊆ C(Y, ℂ)` is already dense in it.  `coordMap` evaluates that
+family, `y ↦ (f y)_{f ∈ D}`, into the countable power `D → ℂ` — a Polish, hence standard
+Borel, space.  Composition with it is isometric, its range is closed and contains the
+dense family, hence it is a unitary, and it intertwines the multiplication operators:
+HEADLINE `separable_Lp_realizes_standard_type` — a Borel probability measure on a
+compact Hausdorff space with separable `L²` realises one of the five standard types.
+Applied to the cyclic summands of the general model (whose `L²` spaces embed
+isometrically in `H`, `separableSpace_of_linearIsometry`), this gives HEADLINE
+`abelian_multiplication_model_classified_separable_hilbert`: **every abelian algebra of
+operators on a separable complex Hilbert space is a countable direct sum of
+multiplication algebras, each realising one of the five standard types** — no
+metrizability of the spectrum, no separability of the algebra.  The Gelfand form of the
+same statement, for an abstract commutative unital C*-algebra, is
+`abelian_algebra_multiplication_model_classified_separable_hilbert`.  The only case left
+outside the statement is a nonseparably acting algebra.
+
+## Previous wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2 — **exhaustiveness: transport to the line**)
+
+**`BookProof/ChapterStandardBorelClassification.lean`** (new, `sorry`-free /
+`axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean`, `#check`-ed from `Book/NullMeasure.lean`).  The
+list of the previous wave is proved for measures on the line; this module removes
+that restriction with the Borel isomorphism theorem (`PolishSpace.measurableEquivOfNotCountable`).
+
+* `measurePreserving_measurableEquiv`, `measurePreserving_symm`, `transportIsom`,
+  `transportIsom_coeFn`, `transportIsom_surjective`, `transportUnitary`,
+  `memLp_top_comp_equiv`, `transportUnitary_intertwines` — composition with a
+  measurable equivalence is a unitary `L²(e_*μ) ≃ L²(μ)` carrying multiplication by
+  `g` to multiplication by `g ∘ e`;
+* `purelyAtomic_of_countable` — on a countable space every measure is carried by its
+  atoms, so no transport is needed there;
+* `RealizesStandardType` — the property of realising one of the five standard types;
+* HEADLINE `standardBorel_multiplication_model_transport` and
+  `standardBorel_classification_list` — a Borel probability measure on **any**
+  standard Borel space is either purely atomic with multiplication diagonal in the
+  basis of normalised point masses, or unitarily a Borel probability measure on the
+  line falling into exactly one of the five types;
+* HEADLINE `abelian_multiplication_model_classified` — every abelian algebra of
+  operators on a complex Hilbert space, presented as a unital `*`-representation of
+  `C(Y, ℂ)` for a compact **metrizable** `Y`, is a direct sum of multiplication
+  algebras *each of which realises one of the five standard types*.
+
+* HEADLINE `spectral_multiplication_model_classified` — for a **normal operator** the
+  metrizability hypothesis is automatic (its spectrum is a compact subset of `ℂ`), so
+  the classification is unconditional there: every normal operator is a direct sum of
+  multiplication operators each of which realises one of the five standard types.
+
+**Remaining GAP-2 residue (documented, never `sorry`-ed).**  In the general
+representation-theoretic form what is assumed and not proved is that the spectrum may
+be taken metrizable (automatic for a separably acting algebra; the reduction is not
+carried out).
+
+## Previous wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2 — **the reassembly: the classification list**)
+
+Three new modules (all `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean`, `#check`-ed from
+`Book/NullMeasure.lean`) close the reassembly step that the previous waves had left
+open.
+
+**`BookProof/ChapterLpRestrictSplit.lean`** — the Hilbert-space counterpart of the
+atomic/diffuse split of a measure: `restrictEmbed` (extension by zero, a linear
+isometry `L²(μ|A) →ₗᵢ[ℂ] L²(μ)`), `restrictEmbed_coeFn`, `restrictProj`,
+`restrictEmbed_add_restrictEmbed_compl` (`u = 1_A·u + 1_{Aᶜ}·u`),
+`inner_restrictEmbed_eq_zero` (disjoint sets give orthogonal ranges), `splitSet`,
+`splitEmbed`, `orthogonalFamily_splitEmbed`, the headline `isHilbertSum_splitEmbed`
+(`L²(μ)` is the Hilbert sum of `L²(μ|A)` and `L²(μ|Aᶜ)`) and
+`restrictEmbed_intertwines` (the embeddings intertwine the multiplication operators,
+so the splitting splits the *algebra*).
+
+**`BookProof/ChapterLpScaleMeasure.lean`** — total mass is invisible to the
+multiplication algebra: `ae_smul_measure_eq`, `aestronglyMeasurable_smul_measure_iff`,
+`eLpNorm_two_smul_measure`, `memLp_two_smul_measure_iff`,
+`memLp_top_smul_measure_iff`, `transferLp` (+ `_coeFn`, `_add`, `_smul`),
+`scaleConst`, `scaleLin`, `norm_scaleLin`, the unitary `scaleUnitary :
+L²(c·ν) ≃ₗᵢ[ℂ] L²(ν)`, `scaleUnitary_intertwines`, `isProbabilityMeasure_inv_smul`
+and the headline `normalized_multiplication_model` (the multiplication algebra of a
+finite nonzero measure is unitarily that of its normalisation).
+
+**`BookProof/ChapterAbelianClassificationList.lean`** — the list itself:
+`atomSet_restrict_atomSet`, `restrict_atomSet_pure` (the atomic piece really is
+carried by its atoms), `noAtoms_smul`, `normalized`,
+`isProbabilityMeasure_normalized`, `diffuse_finite_multiplication_model` (a nonzero
+finite atomless measure on the line has `L²[0,1]` as its multiplication model, via
+the distribution function of its normalisation), the headline
+`abelian_summand_standard_model` (for a Borel probability measure `μ` on the line:
+`L²(μ)` is the Hilbert sum of the atomic and the diffuse piece, the embeddings
+intertwine multiplication, multiplication is diagonal on the atomic piece in the
+basis of normalised point masses, and the diffuse piece — when nonzero — is unitarily
+`L²[0,1]` with `g ↦ g ∘ F`), and `vonNeumann_abelian_classification_list` (the atoms
+are countable and exactly one of the five standard types occurs: `Iₙ`, `ℓ∞(ℕ)`,
+`L∞[0,1]`, `L∞[0,1] ⊕ Iₙ`, `L∞[0,1] ⊕ ℓ∞(ℕ)`, with an explicit `atoms ≃ ℕ` in the
+infinite cases).
+
+**Remaining GAP-2 obstruction (sharpened; still a documented gap, never a `sorry`).**
+The list is proved for a summand carried by the *line*.  What is not carried out is
+the transport of an arbitrary summand of the general decomposition — a measure on the
+Gelfand spectrum, an abstract compact Hausdorff space — onto the line; that needs the
+Borel isomorphism theorem for standard Borel spaces, which is not available in this
+toolchain's Mathlib.
+
+## Previous wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2 — **the atomic standard type**)
+
+**`BookProof/ChapterAtomicDiagonalModel.lean`** (new, `sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+`#check`-ed from `Book/NullMeasure.lean`).  The other standard type of the
+classification list: `atomIndicator`, `atomVec` (the normalised point mass at an
+atom), `norm_atomVec`, `inner_atomIndicator_of_ne`, `orthonormal_atomVec`,
+`eq_zero_of_inner_atomVec_eq_zero` and `span_atomVec_orthogonal_eq_bot` (nothing is
+orthogonal to all the point masses when the measure is carried by its atoms),
+`atomBasis` (a `HilbertBasis` of `L²(μ)` indexed by the atoms, via
+`HilbertBasis.mkOfOrthogonalEqBot`), `multOp_atomVec`, and the headline
+`atomic_multiplication_model_diagonal` — every multiplication operator is diagonal in
+that basis, scaling the basis vector at `a` by `g a`.
+
+## Previous wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2 — **the diffuse standard type at the operator level**)
+
+**`BookProof/ChapterDiffuseUnitaryModel.lean`** (new, `sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+`#check`-ed from `Book/NullMeasure.lean`).  The measure-level identification of the
+diffuse type is upgraded to the statement the classification list actually makes:
+`measurePreserving_cdf`, `cdfComp` (composition with the distribution function, a
+linear isometry `L²[0,1] → L²(μ)`), `cdfComp_indicatorConstLp`, `measure_cdf_le'`,
+`measure_symmDiff_Iic` (a half line differs from a sublevel set of `F` by a null
+set), `cdfAlgebra` / `isSetAlgebra_cdfAlgebra` / `generateFrom_cdfAlgebra` /
+`measureDense_cdfAlgebra` (the sets that are `F`-preimages modulo null sets form a
+measure-dense set algebra, via `Measure.MeasureDense.of_generateFrom_isSetAlgebra_finite`),
+`indicatorConstLp_mem_cdfRange`, `cdfRange_eq_top` (surjectivity, by `Lp.induction`),
+the unitary `cdfUnitary`, `cdfUnitary_intertwines`, and the headline
+`diffuse_multiplication_model_uniform` — a unitary `L²[0,1] ≃ L²(μ)` carrying
+multiplication by `g` to multiplication by `g ∘ F`.
+
+## Earlier wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the diffuse standard type**)
+
+**`BookProof/ChapterDiffuseCdfModel.lean`** (new, `sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+`#check`-ed from `Book/NullMeasure.lean`).  The diffuse summands of the abelian
+multiplication model are identified with the uniform measure on the unit interval:
+`continuous_cdf_of_noAtoms` (the jump of the distribution function at a point is the
+mass of that point, via `StieltjesFunction.measure_singleton` and
+`Monotone.continuousAt_iff_leftLim_eq_rightLim`), `exists_cdf_eq` (every level in
+`(0, 1)` is attained, by the intermediate value theorem together with
+`tendsto_cdf_atBot` / `tendsto_cdf_atTop`), `measure_cdf_le` (the sublevel set
+`{F ≤ t}` has mass exactly `t`), `volume_Icc_inter_Iic`, and the headline
+`map_cdf_eq_volume_Icc` : `Measure.map (cdf μ) μ = volume.restrict (Set.Icc 0 1)`
+for an atomless Borel probability measure on `ℝ`, proved by comparing the two
+measures on the half lines with `Measure.ext_of_Iic`.
+
+## Earlier wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **classifying the summand measures**)
+
+**`BookProof/ChapterMeasureAtomicDiffuse.lean`** (new, `sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+`#check`-ed from `Book/NullMeasure.lean`).  The measures produced by the abelian
+direct-sum model are sorted into the manuscript's atomic / diffuse / mixed classes:
+`atomSet`, `countable_atomSet` (the atoms of a finite measure are countable, via
+`Measure.countable_meas_pos_of_disjoint_iUnion`), `measurableSet_atomSet`,
+`restrict_atomSet_add_restrict_compl`, `noAtoms_restrict_compl_atomSet` (the diffuse
+part), `restrict_eq_sum_dirac` / `restrict_atomSet_eq_sum_dirac` (the atomic part is
+a countable sum of point masses), the headline
+`exists_atomic_diffuse_decomposition`, and
+`abelian_multiplication_model_atomic_diffuse` — the general abelian model together
+with the atomic ⊕ diffuse split of each summand measure.
+
+**Remaining GAP-2 obstruction (sharpened; still a documented gap, never a `sorry`).**
+Only the final reassembly is left: rewriting the direct sum of the classified
+summands as *exactly one* of the five standard models, with the multiplicity
+bookkeeping that entails.
+
+## Earlier wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the general structure theorem for abelian algebras**, cont.)
+
+**`BookProof/ChapterAbelianDirectSum.lean`** (new, `sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+`#check`-ed from `Book/NullMeasure.lean`).  The cyclic-vector hypothesis is removed
+from the model of an *arbitrary* abelian algebra, by redoing the cyclic
+decomposition, the Hilbert-sum packaging and the assembly for a unital
+`*`-representation `π : C(X, ℂ) →⋆ₐ[ℂ] (H →L[ℂ] H)` instead of for the functional
+calculus of one normal operator:
+
+* `repCyclicSubspace`, `RepInvariant`, `repInvariant_repCyclicSubspace`,
+  `repInvariant_orthogonal`, `repCyclicSubspace_le_orthogonal`,
+  `exists_rep_cyclic_decomposition` (Zorn);
+* `orthogonalFamily_repCyclicSubspace`, `isHilbertSum_repCyclicSubspace`,
+  `repCyclicHilbertEquiv`, `exists_isHilbertSum_repCyclicSubspace`,
+  `starProjection_commutes_rep` / `commute_starProjection_rep`;
+* `repVecTo`, `denseRange_repVecTo`, `repCyclicUnitary`, `repEmbedding`,
+  `range_repEmbedding`, `repEmbedding_intertwines`;
+* HEADLINES `abelian_multiplication_model_general` (every abelian algebra of
+  operators is a direct sum of multiplication algebras — no cyclic vector, no
+  generator, no separability), `abelian_multiplication_model_separable` (countably
+  many summands on a separable space) and the Gelfand form
+  `abelian_algebra_multiplication_model_general`.
+
+**Remaining GAP-2 obstruction (sharpened; still a documented gap, never a `sorry`).**
+The structural half of exhaustiveness is now proved.  What is left is the
+measure-theoretic bookkeeping of the manuscript's five-type list: classifying the
+measures produced by the decomposition as purely atomic, diffuse or mixed, and
+reassembling the summands into exactly one of the five standard models.
+
+## Previous wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **dropping the single generator**)
+
+Two new modules (`sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean`, `#check`-ed from
+`Book/NullMeasure.lean`).  The obstruction recorded by the previous wave was the
+step from a *singly generated* abelian algebra to an arbitrary one.  This wave
+removes the single-generator hypothesis without producing a generator, by running
+the whole model/commutant argument for an arbitrary unital `*`-representation of
+`C(X, ℂ)` instead of for the continuous functional calculus of one normal operator.
+
+**`BookProof/ChapterAbelianCyclicModel.lean`** (new) — the model.  For a unital
+`*`-representation `π : C(X, ℂ) →⋆ₐ[ℂ] (H →L[ℂ] H)` (`X` compact Hausdorff) and a
+vector `ξ`: `repState` (`f ↦ ⟪ξ, π(f)ξ⟫`), `repState_star_mul_self`, `repState_pos`,
+`repState_one`, `repMeasure`, `isProbabilityMeasure_repMeasure`,
+`integral_repMeasure`, `norm_rep_apply` (`‖π(f)ξ‖ = ‖f‖_{L²(μ)}`), and — for a cyclic
+`ξ` — `cyclicRepUnitary : L²(μ) ≃ₗᵢ[ℂ] H` with `cyclicRepUnitary_intertwines`
+(`U M_g = π(g) U` for every continuous symbol `g`).  Headlines:
+`cyclic_representation_multiplication_model` and, through Gelfand duality
+(`gelfandRep`), `abelian_algebra_multiplication_model`: **every representation of a
+commutative unital C\*-algebra with a cyclic unit vector is unitarily the
+representation by multiplication operators on the `L²` space of a Borel probability
+measure on its character space.**  No generator, no separability, and no continuity
+of the representation are assumed.
+
+**`BookProof/ChapterAbelianCyclicCommutant.lean`** (new) — the von Neumann level.
+`conjRep`/`conjRepSymm`, `repSet` (`{π(g)}`), `multModelRep` (the unitary copy of
+`L∞(μ)` in `B(H)`), `commutesWithContMult_conjRepSymm`, and the headlines
+`centralizer_repSet` (the commutant of `{π(g)}` *is* that copy of `L∞(μ)`),
+`centralizer_multModelRep`, `bicommutant_repSet` (hence the von Neumann algebra
+generated by the algebra is the same copy), `commutant_repSet_isCommutative` and
+`abelian_algebra_maximal_abelian_of_cyclic`: **an arbitrary abelian C\*-algebra
+acting with a cyclic vector is maximal abelian, and equals `L∞(μ)` on `L²(μ)`.**
+
+**Remaining GAP-2 obstruction (sharpened; still a documented gap, never a `sorry`).**
+What is left is an abelian algebra acting *without* a cyclic vector: the cyclic
+decomposition on disk is for the algebra generated by a single normal operator, and
+the corresponding decomposition for an arbitrary abelian algebra — together with the
+identification of the resulting measure with one of the manuscript's five standard
+types — is not claimed.
+
+## Previous wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the reduction to the cyclic case, and the general multiplication model**)
+
+Three modules (all new or newly completed, all `sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+`#check`-ed from `Book/NullMeasure.lean`).  The previous waves produced the measure
+model of a state, the unitary multiplication model of a normal operator **with a
+cyclic vector**, and the commutant/bicommutant computation in that same situation.
+This wave removes the cyclic-vector hypothesis.
+
+**`BookProof/ChapterCyclicDecomposition.lean`** — the geometry.  `cyclicSubspace`
+(the closed span of `{f(T)ξ}`), `Invariant`, `invariant_cyclicSubspace`,
+`invariant_orthogonal` (the orthogonal complement of an invariant subspace is
+invariant, because the functional calculus algebra is `*`-closed),
+`cyclicSubspace_le_orthogonal`, `invariant_iSup_cyclicSubspace`, and the headline
+`exists_cyclic_decomposition`: by Zorn's lemma there is a family of unit vectors
+whose cyclic subspaces are pairwise orthogonal and jointly dense.  (This module was
+left with the Zorn step open by the previous pass; the step is now proved, and the
+module registered.)
+
+**`BookProof/ChapterCyclicDirectSum.lean`** (new) — the direct-sum form.
+`orthogonalFamily_cyclicSubspace`, `isHilbertSum_cyclicSubspace`,
+`cyclicHilbertEquiv` and the headline `exists_isHilbertSum_cyclicSubspace`: the
+space *is* the Hilbert sum of the cyclic subspaces.  At operator level,
+`starProjection_commutes_cfcHom` / `commute_starProjection_cfcHom` — the orthogonal
+projection onto an invariant subspace commutes with `f(T)` for every continuous `f`,
+so it lies in the commutant — with `starProjection_cyclicSubspace_commutes`, the
+reusable `starProjection_eq_of_hasSum`, and `hasSum_starProjection_cyclicSubspace`
+(the projections of a vector onto the summands sum back to it).
+
+**`BookProof/ChapterSpectralDirectSum.lean`** (new) — the assembly.  The model of a
+summand is built *inside* the ambient space, so no functional calculus of a
+restricted operator is needed: `cyclicSubspace_eq_closure_range`, `cfcVecTo`,
+`denseRange_cfcVecTo`, and — since `‖f(T)ξ‖ = ‖f‖_{L²(μ_ξ)}` holds with no cyclicity
+hypothesis — `cyclicUnitary : L²(μ_ξ) ≃ₗᵢ[ℂ] cyclicSubspace ξ`.  Read in `H` it is
+`cyclicEmbedding`, with `range_cyclicEmbedding`, `cyclicEmbedding_intertwines_cfc`
+(`V M_g = g(T) V`) and `cyclicEmbedding_intertwines` (`V M_z = T V`).  Glued over a
+maximal orthogonal cyclic family (`orthogonalFamily_cyclicEmbedding`) this gives the
+headline `spectral_multiplication_model_general`: **for every normal operator on a
+complex Hilbert space there are Borel probability measures `μₓ` on its spectrum and
+isometric embeddings `Vₓ : L²(μₓ) → H` exhibiting `H` as the Hilbert sum of the
+`L²(μₓ)`, with `T` acting on each summand as multiplication by the coordinate
+function.**  No cyclic vector and no separability are assumed.  A final section adds
+the classical *separable* form: distinct members of the family are orthogonal unit
+vectors, hence at distance `√2`, so on a separable space only countably many fit
+(`inner_eq_zero_of_orthogonalCyclicFamily`, `one_lt_dist_of_orthogonalCyclicFamily`,
+`countable_orthogonalCyclicFamily`), giving
+`spectral_multiplication_model_separable`: on a separable space every normal operator
+is a **countable** direct sum of multiplication operators.
+
+**Remaining GAP-2 obstruction (sharpened; still a documented gap, never a `sorry`).**
+What is missing is no longer the measure model of an operator, its commutant, or the
+passage from the cyclic case to the general one.  It is the step from a *singly
+generated* abelian algebra to an arbitrary one: producing a single generator (or a
+direct-integral decomposition) for a weakly closed abelian algebra, which the
+separable theory supplies but which Mathlib does not have.
+
+## Previous wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the commutant: the von Neumann level in the cyclic case**)
+
+**`BookProof/ChapterSpectralCommutant.lean`** (new, `sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+`#check`-ed from `Book/NullMeasure.lean`).  The previous two waves produced the
+C*-level model (a state ⇒ a measure ⇒ multiplication operators, and for a single
+normal operator with a cyclic vector a *unitary* identification).  This wave
+computes the **commutant**, which is what turns the C*-statement into the von
+Neumann statement in the same (cyclic) situation:
+
+* `multAlgebra`, `multAlgebra_comm`, `centralizer_multAlgebra`,
+  `bicommutant_multAlgebra` — the multiplication algebra of a finite measure is
+  commutative and equals its own commutant, hence its own **bicommutant**: it is a
+  von Neumann algebra (this is `ChapterLinftyMaximalAbelian.commutant_eq_multOp`
+  read as an equality of sets of operators);
+* `CommutesWithContMult`, `denseRange_toLp`, `contSymbol_mul`,
+  `multOp_norm_le_of_toLp`, `contSymbol_ae_norm_le`, `memLp_top_contSymbol`,
+  `contCommutant_eq_multOp` — **continuous symbols suffice**: on a compact Hausdorff
+  space with a finite regular Borel measure, an operator commuting with
+  multiplication by every *continuous* function is a multiplication operator.  The
+  essential bound on the symbol `ψ = S(1)` comes from truncating `ψ` to
+  `{‖S‖ + ε ≤ |ψ| ≤ m}`, extending the inequality `‖ψ g‖₂ ≤ ‖S‖ ‖g‖₂` from the
+  continuous `g` to all of `L²` by density, and testing it on the indicator of that
+  set;
+* `conjSpectral`, `conjSpectralSymm`, `conjSpectral_mul`, `cfcSet`, `multModel`,
+  `commutesWithContMult_conjSpectralSymm` — the transport of that statement through
+  the spectral unitary of the previous wave;
+* HEADLINES: `centralizer_cfcSet` — the **commutant** of `{f(T) : f ∈ C(σ(T))}` for
+  a normal `T` with a cyclic unit vector is *exactly* the unitary copy of
+  `L∞(μ)` acting by multiplication; `centralizer_multModel` and
+  `bicommutant_cfcSet` — hence the **bicommutant**, i.e. the von Neumann algebra
+  generated by `T`, is that same copy of `L∞(μ)`; and
+  `commutant_cfcSet_isCommutative` — the commutant is abelian, so the algebra is
+  **maximal abelian**.
+
+The remaining GAP-2 obstruction is thereby narrowed once more: for the singly
+generated, cyclic case the von Neumann form of the abelian classification is now
+proved (no general bicommutant theorem needed).  What is still missing is the
+reduction of the general case to the cyclic one — the decomposition of a separable
+Hilbert space into an orthogonal direct sum of cyclic subspaces and the assembly of
+the measure models over it.  Recorded as a gap; nothing is `sorry`-ed.
+
+## Previous wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the spectral theorem in multiplication form**)
+
+**`BookProof/ChapterSpectralMultiplication.lean`** (new, `sorry`-free /
+`axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean`, `#check`-ed from `Book/NullMeasure.lean`).
+The Gelfand model of the previous wave is upgraded, for a *single* operator, from a
+`*`-homomorphism into a **unitary equivalence**:
+
+* `vectorState`, `vectorState_star_mul_self`, `vectorState_pos`, `vectorState_one` —
+  for a normal `T : H →L[ℂ] H` and a unit vector `ξ`, `f ↦ ⟪ξ, f(T)ξ⟫` is a state of
+  `C(σ(T), ℂ)` (positivity is `⟪ξ, (f̄f)(T)ξ⟫ = ‖f(T)ξ‖²`, via the continuous
+  functional calculus `cfcHom`);
+* `spectralMeasure`, `isProbabilityMeasure_spectralMeasure`,
+  `integral_spectralMeasure` — its Riesz measure: a regular Borel probability
+  measure `μ` on the spectrum with `⟪ξ, f(T)ξ⟫ = ∫ f dμ`;
+* `cfcVec`, `norm_cfcHom_apply` — the key isometry `‖f(T)ξ‖ = ‖f‖_{L²(μ)}`;
+* `spectralUnitary`, `spectralUnitary_toLp` — for a **cyclic** `ξ` (the vectors
+  `f(T)ξ` dense) the map `f ↦ f(T)ξ` extends to a unitary
+  `U : L²(μ) ≃ₗᵢ[ℂ] H` (`LinearEquiv.extendOfIsometry`, with density of the
+  continuous functions in `L²` of a regular finite measure on a compact space);
+* `coordFn`, `cfcHom_coordFn`, `mulRep_toLp`, `spectralUnitary_intertwines_cfc`
+  (`U M_g = g(T) U` for *every* continuous symbol, so the whole abelian algebra
+  generated by `T` becomes an algebra of multiplication operators),
+  `spectralUnitary_intertwines` and the
+  HEADLINE `spectral_multiplication_model`: **`U M_z = T U`** — a normal operator
+  with a cyclic unit vector *is* multiplication by `z` on the `L²` space of a
+  probability measure carried by its spectrum.
+
+Together with the previous wave this closes the operator-level form of the passage
+"abstract abelian algebra ⇒ measure model".  Still not claimed: the general von
+Neumann statement (no cyclic vector — one needs the decomposition into cyclic
+subspaces — and the weak closure of the model).
+
+## Earlier wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the Gelfand step: abstract algebra ⇒ measure model**)
+
+One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed from new prose in
+`Book/NullMeasure.lean`.
+
+**`BookProof/ChapterAbelianGelfandModel.lean`.**  The previous waves proved the
+structure theorems for algebras *already given* as operators on a concrete `L²`
+(the atomic condensation, and `L∞(μ)` as its own commutant).  The obstruction
+recorded for GAP-2 was the converse passage — from an **abstract** abelian algebra
+to a **measure model**.  That passage is now formalized at the C*-level, by the
+classical Gelfand–Naimark + Riesz–Markov–Kakutani route:
+
+* `positiveCcMap`, `rieszStateMeasure`, `integral_rieszStateMeasure`,
+  `isProbabilityMeasure_rieszStateMeasure` — on a compact Hausdorff `X`, a positive
+  unital real-linear functional on `C(X, ℝ)` *is* integration against a Borel
+  probability measure (Mathlib's `RealRMK.rieszMeasure`, transported along
+  `C(X, ℝ) ≃ C_c(X, ℝ)`);
+* `toC`, `realPartFunctional`, `sqrtC`, `star_sqrtC_mul`, `psi_nonneg_of_nonneg`,
+  `realPartFunctional_ofReal`, and the complex form
+  `exists_probabilityMeasure_of_state` — a **state** of the C*-algebra `C(X, ℂ)`
+  (positive on the squares `star g * g`, unital) is integration against a Borel
+  probability measure.  Positivity on real functions comes from `f = |√f|²`,
+  reality of the values from `f = f⁺ − f⁻`, and the complex case from
+  `g = Re g + i Im g`;
+* `contMemLpTop`, `mulRep`, `mulRep_one/_mul/_add/_smul/_zero/_star` and the
+  bundled `mulRepHom : C(X, ℂ) →⋆ₐ[ℂ] (L²(μ) →L[ℂ] L²(μ))` — the **multiplication
+  representation**, a unital `*`-homomorphism (`mulRep_star` identifies the adjoint
+  with the conjugate symbol), with `mulRepHom_injective`: it is *faithful* as soon
+  as `μ` charges every nonempty open set;
+* `oneVec`, `oneVec_coeFn`, `norm_oneVec`, `inner_oneVec_mulRep` — the constant
+  function `1` is a unit vector of `L²(μ)` and implements integration against `μ`;
+* `gelfandModel`, `gelfandModel_isometry`, `multiplicationRep`, and the HEADLINE
+  `state_is_vector_state_of_multiplication`: **every state of a commutative unital
+  C*-algebra `A` is the vector state of a representation of `A` by multiplication
+  operators on the `L²` space of a Borel probability measure on the character
+  space** — the abelian Gelfand–Naimark–Segal measure model.
+
+**Remaining obstruction (sharpened, recorded, never `sorry`-ed).**  What is still
+missing for the full five-way exhaustiveness is the *von Neumann*-level statement:
+that a **weakly closed** abelian algebra on a separable `L²` is unitarily
+equivalent to *all* of `L∞(μ)` acting on `L²(μ)`.  Beyond the C*-model above that
+needs the bicommutant theorem and the σ-weak continuity of the model, neither of
+which Mathlib provides.
+
+## Previous wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 diffuse half and §4.2 completeness half)
+
+Two further modules landed, both `sorry`-free / `axiom`-free, both registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed
+from new prose in `Book/NullMeasure.lean` / `Book/SolovayTensor.lean`.
+
+**GAP-2, diffuse half — `BookProof/ChapterLinftyMaximalAbelian.lean`.**  The
+diffuse counterpart of `atomic_abelian_maximal_eq_diagonal`: on a finite measure
+space the `L∞(μ)` multiplication algebra is **its own commutant**, hence maximal
+abelian.  `symbol T` (a strongly measurable representative of `T(1)`, available
+because `1 ∈ L²` for a finite measure), `symbol_mul` (commutation gives
+`T(φ) = φ·ψ` for every bounded `φ`), `symbol_ae_norm_le` (testing on the indicator
+of `{‖ψ‖ ≥ ‖T‖ + ε}` and comparing the two `L²` norms forces that set to be null,
+so `‖ψ‖_∞ ≤ ‖T‖`), `memLp_top_symbol`, `commutant_eq_multOp` (`T = multOp ψ`, via
+`Lp.induction`: the two continuous operators agree on indicators),
+`multOp_algebra_maximal_abelian` and `unitInterval_multOp_maximal_abelian` (the
+diffuse model `L∞[0,1]` on `L²[0,1]`).  **Remaining obstruction (unchanged,
+recorded, not `sorry`-ed):** *exhaustiveness* in the diffuse case — the
+spectral/Gelfand passage from an abstract abelian von Neumann algebra to a measure
+model, for which Mathlib has no `L∞(μ)`-valued spectral theorem.  Both ends of the
+classification list now have their structural theorem: at the atomic end a maximal
+abelian algebra *is* the diagonal `ℓ∞`, at the diffuse end it *is* `L∞` acting by
+multiplication.
+
+**§4.2, completeness half — `BookProof/ChapterTensorCompleteness.lean`.**  The
+scope caveat of `ChapterSolovayHilbertTensor` ("the completeness half is not
+claimed") is now closed for finite measures: `tensorSpan_eq_top` — the closed
+linear span of the pure tensors is all of `L²(μ ⊗ ν)` — with `pureTensors_dense`
+and `exists_tensor_approx` (separation of variables: every `L²` function of two
+variables is an `L²`-limit of finite sums `∑ₖ fₖ(x)gₖ(y)`).  The proof is the
+classical π–λ argument: `indicatorConstLp_prod` (the indicator of a measurable
+rectangle is the pure tensor of the two indicators), `indicator_mem_tensorSpan`
+(`MeasurableSpace.induction_on_inter` against `generateFrom_prod`, with the
+complement step via `indicatorConstLp_diff` and the countable-disjoint-union step
+via `partialUnion_indicator_mem` plus `L²` convergence of the partial unions), and
+`Lp.induction` to pass from indicators to all of `L²`.  Together with
+`inner_tensorLp` this says `L²(μ ⊗ ν)` *is* the Hilbert tensor product of `L²(μ)`
+and `L²(ν)`, a statement made without a Hilbert tensor product being available in
+the library.  The module closes with the product-basis corollary: `tensorOf`,
+`inner_tensorOf`, `norm_tensorOf`, the bilinearity lemmas and the continuous linear
+maps `tensorRight` / `tensorLeft`, then `orthonormal_tensorOf` and
+`tensorFamily_span_eq_top` — the products of two orthonormal bases form an
+orthonormal basis of `L²(μ ⊗ ν)`.
+
+## Previous wave (2026-08-10, `CONSOLIDATED_PLAN.md` §4 and GAP-2) — **the Solovay closers and the purely atomic condensation**
+
+Five further modules landed, all `sorry`-free / `axiom`-free, all registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed
+from new prose in `Book/SolovayTensor.lean` / `Book/NullMeasure.lean`.
+
+**§4.1 — `BookProof/ChapterSolovayTailDimension.lean`.**  The Kopperman tail is
+infinite dimensional: `substrateBasisVector` (the normalized indicators of the
+disjoint intervals `(1/(n+2), 1/(n+1)]`), `substrateBasisVector_orthonormal`,
+`substrate_infinite_dimensional` and the headline `tail_infinite_dimensional`
+(`¬ FiniteDimensional ℝ InnerTail`).  This generalizes
+`PhysMehler.substrate_orthonormal_pair` from two vectors to a countable family.
+
+**§4.2 — `BookProof/ChapterSolovayHilbertTensor.lean`.**  The Hilbert form of the
+tensor identification: `prodProdProdCommEquiv` +
+`measurePreserving_prodProdProdComm` (the four-fold shuffle), `headConcatEquiv`,
+`solovayTensorEquiv` and `solovayTensorEquiv_map` (the product of two state laws is
+carried to the state law of the concatenated head over one Mehler tail),
+`lpCongrOfMeasurePreserving` (a measure-preserving isomorphism induces an `L²`
+unitary) and the headline `solovayTensorUnitary`.  The pure tensors are handled by
+`tensorMemLp`, `tensorLp` and `inner_tensorLp`
+(`⟪ f₁⊗g₁, f₂⊗g₂ ⟫ = ⟪ f₁,f₂ ⟫·⟪ g₁,g₂ ⟫`).  *Scope:* the completeness half (that
+the closed span of pure tensors exhausts `L²` of a product measure) is not claimed;
+Mathlib has no Hilbert-space tensor product to state it against.
+
+**§4.3** was already on disk (`BookProof/ChapterSolovayCrossDim.lean`); no action.
+
+**§4.4/§4.5/§4.6 — `BookProof/ChapterSolovaySeparableExistence.lean`.**
+`joint_prob_has_wavefunction` and `joint_prob_has_wavefunction_prod` (every finite
+joint law is `|Ψ|²`, with the correct marginal);
+`exists_separable_prob_with_arbitrary_finite_law` and its substrate form (the
+Introduction's question: a separable carrier, an arbitrary head law, the Mehler tail
+law, correct finite marginal) together with `coordinateSpace_separable`,
+`innerSpace_separable` and `separable_carrier_tail_infinite_dimensional`; and
+`prod_disintegration` / `coordinateState_disintegration` (the explicit
+`joint = marginal ⊗ₘ kernel` form on a standard Borel second factor).
+
+**GAP-2 — `BookProof/ChapterAbelianAtomicCondensation.lean` (partially closed).**
+The provable condensation asked for by the plan is now proved: `atomProj`,
+`atomProj_idem`, `commutes_atomProj_iff` (an operator commutes with every *minimal*
+projection iff it is diagonal — the atoms alone force diagonality),
+`IsAtomicAbelian`, `atomic_abelian_subset_diagonal`, the headline
+`atomic_abelian_maximal_eq_diagonal` (a purely atomic *maximal* abelian algebra is
+exactly the diagonal algebra, i.e. `*`-isomorphic to `ℓ∞(ℕ)` via the faithful unital
+`*`-map `diagOp`, packaged in `diagonal_starAlgebra_package`), and
+`atomic_measure_index_dichotomy` (a purely atomic index set is `Fin n` or `ℕ` — the
+two purely atomic types, no third).  **Remaining obstruction (recorded, not
+`sorry`-ed):** the *diffuse* half of exhaustiveness — the spectral/Gelfand passage
+from an abstract abelian von Neumann algebra to a measure model, for which Mathlib
+has no `L∞(μ)`-valued spectral theorem.  The measure-theoretic splitting itself is
+available (`ChapterAtomicDecomposition.eq_continuousPart_add_atomicPart`,
+`probability_measure_five_types`).
+
+## Previous wave (2026-08-10, `CONSOLIDATED_PLAN.md` §3 GAP-1) — **the zero-point half of `τ = n̄ + ½` derived from the coherent-state overlap**
+
+**GAP-1 is CLOSED** (proved, not `sorry`-ed, not deferred).
+`BookProof/ChapterCoherentThermalFidelity.lean` removes the last postulate in the
+temperature identity.  Previously `ChapterDisplacedThermalOverlap` obtained
+`τ = n̄ + ½` by convolving the thermal noise (variance `n̄`) with a vacuum noise
+whose variance `½` was *put in by hand*.  The new module derives that half from
+the **fidelity of a displaced thermal state with a coherent state**, computed
+entirely in occupation-number (Fock) coordinates:
+
+* `coherentThermalFidelity nbar lam = ∑ₙ |⟨β|n⟩|²·Pr_th(n)` — the coherent
+  (Poisson) occupation statistics at intensity `λ = ‖β‖²` paired against the
+  thermal (geometric) ones;
+* `coherentThermalFidelity_hasSum` / `coherentThermalFidelity_eq` — the geometric
+  series collapses to `⟨β|ρ_th(n̄)|β⟩ = exp(−λ/(n̄+1))/(n̄+1)`: a Gaussian in the
+  phase-space distance of **width `n̄ + 1`**;
+* `coherentThermalFidelity_vacuum_eq_fidelityC` — at `n̄ = 0` this expression *is*
+  `ChapterCoherentFidelity.fidelityC` (`exp(−‖q−k‖²)`), the Born numerator of the
+  attention weight.  Hence `fidelityC_width`: two coherent states overlap with
+  width `½ + ½`, so the width of a coherent state is exactly `½`
+  (`coherentWidth`, `coherentWidth_eq_thermalTemperature_zero`);
+* `coherentThermalFidelity_width_eq` — widths add: `n̄ + 1 = τ + ½`, the thermal
+  state's own width plus the coherent probe's half;
+* `width_unique` and the headline
+  `thermalTemperature_eq_fidelity_width_sub_coherent_half` — the width of the
+  fidelity determines the temperature (`τ = w − ½`), so `τ` is *read off* the
+  fidelity rather than posited;
+* `dtOverlap_coherentParameter`, `dtOverlap_width_eq_two_tau`,
+  `dtOverlap_vacuum_width` — the same additivity cross-checked against the
+  Gaussian phase-space model: in the dimensionless coherent parameter
+  (`x = √2·α`) the two-thermal overlap has width `τ + τ`, and at `n̄ = 0` it is
+  again the coherent–coherent width `½ + ½`.
+
+The module is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`), registered in `BookProof.lean`, and `#check`-ed from a new prose
+paragraph in `Book/CoherentState.lean`.
+
+## Previous wave (2026-08-10, final continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`) — **incremental decoding, the locality of a distance penalty, entropy calibration of the temperature, and the optimality of top-`k`**
 
 `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build
 RandomMap`, `lake build book` and the `#print axioms` audit in

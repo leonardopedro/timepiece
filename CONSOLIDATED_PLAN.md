@@ -9,12 +9,14 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
 
-**Status (2026-08-10):** the default build (`lake build`: `BookProof`, `Book`,
+**Status (2026-08-12):** the default build (`lake build`: `BookProof`, `Book`,
 `Singularity`), `lake build RandomMap`, `lake build book` + `lake exe book` +
 `./patches/postprocess-html.sh`, and the `#print axioms` audit are all green with
 no in-scope warnings. `BookProof/` is `sorry`-free / `axiom`-free (only `propext`,
 `Classical.choice`, `Quot.sound`); every `Book/*.lean` chapter is included in
-`Book.lean` (38 `{include}`s, 39 chapter files).
+`Book.lean` (38 `{include}`s, 39 chapter files). Of the two historical
+mathematical gaps, **both GAP-1 (2026-08-10) and GAP-2 (2026-08-12) are now
+CLOSED** (§3); the remaining work is the §7 hygiene residue and the doc refresh.
 
 ---
 
@@ -85,6 +87,24 @@ the day-to-day tool. Verify candidate Mathlib names with
   all DONE; Priority 4 (26-`{include}` Verso limit) DONE via
   `patches/verso-0001-annotate-subparts.patch`; Priority 5 (honesty-flag refresh)
   DONE; Priority 7 (`book.tex` claims) DONE; Priority 8 (Issues-derived) DONE.
+- **GAP-2 closed (2026-08-12).** The abelian von Neumann exhaustiveness wave
+  landed: `ChapterLinftyMaximalAbelian`, `ChapterAbelianAtomicCondensation`,
+  `ChapterTensorCompleteness`, `ChapterAbelianGelfandModel`,
+  `ChapterSpectralMultiplication`, `ChapterSpectralCommutant`,
+  `ChapterCyclicDecomposition`, `ChapterCyclicDirectSum`, `ChapterSpectralDirectSum`,
+  `ChapterAbelianCyclicModel`, `ChapterAbelianCyclicCommutant`, `ChapterAbelianDirectSum`,
+  `ChapterMeasureAtomicDiffuse`, `ChapterDiffuseCdfModel`, `ChapterDiffuseUnitaryModel`,
+  `ChapterAtomicDiagonalModel`, `ChapterLpRestrictSplit`, `ChapterLpScaleMeasure`,
+  `ChapterAbelianClassificationList`, `ChapterStandardBorelClassification`,
+  `ChapterSeparableSpectrum`, `ChapterSeparableL2Model` — all `sorry`-free/`axiom`-free,
+  registered in `BookProof.lean`, certified in `ChapterRoadmapAudit.lean`,
+  `#check`-ed in `Book/NullMeasure.lean`. The metrizability residue is removed; only a
+  nonseparably *acting* algebra is outside the statement.
+- **`BookProof` §4 and GAP-1 (2026-08-08→12).** `ChapterCoherentThermalFidelity`
+  (displaced-thermal fidelity → `thermalTemperature_eq_fidelity_width_sub_coherent_half`,
+  closing **GAP-1**), `ChapterSolovayTailDimension`, `ChapterSolovaySeparableExistence`,
+  `ChapterSolovayHilbertTensor`, `ChapterSolovayCrossDim` — closing §4.1–4.6. The
+  finite algebraic core (`ChapterThermalTemperatureCore`) is also proved.
 - **Verso integrated** on v4.28.0; single-page output decided and locked
   (`emitHtmlSingle := .immediately`, `emitHtmlMulti := .no`).
 
@@ -92,33 +112,68 @@ the day-to-day tool. Verify candidate Mathlib names with
 
 ## 3. The two documented mathematical gaps (BookProof, high value)
 
-These are the only two *mathematical* open items in the whole thread. Both are
-**documented gaps, not `sorry`s** — keep it that way.
+**Update (2026-08-12): both historical gaps are now CLOSED.**
+
+- **GAP-1 closed** (2026-08-10) by `ChapterCoherentThermalFidelity` — the zero-point
+  half of `τ = n̄ + ½` is derived from the coherent-state overlap, not postulated.
+- **GAP-2 closed** (2026-08-12) by the abelian-classification wave — the five-type
+  exhaustiveness is established; only a nonseparably *acting* algebra is outside
+  the statement.
+
+Both were **documented gaps, not `sorry`s** — and remain so. The sections below
+record the history and the explicit closure; do not reopen them.
 
 ### GAP-1 — Physical derivation of `τ = n̄ + ½` (Part A.4 / F.4)
 
-Status: the **finite algebraic core is proved** (`ChapterThermalTemperatureCore.lean`:
-`geometricOccupancy_mean`, `geometricOccupancy_variance`, `half_integer_floor`,
-`thermal_temperature_eq_mean_half`, all `#check`-ed). What remains is the
-*physical derivation from the fidelity of displaced thermal states* — the
-"extra 1/2" must be shown to come from the coherent-state overlap, not just
-postulated. Reuse `ChapterBoseEinstein` (`τ(x) = ½·coth(x/2)`),
-`ChapterCoherentOccupation`, `ChapterCoherentFidelity`.
+Status: **CLOSED (2026-08-10).** The finite algebraic core was proved first
+(`ChapterThermalTemperatureCore.lean`: `geometricOccupancy_mean`,
+`geometricOccupancy_variance`, `half_integer_floor`, `thermal_temperature_eq_mean_half`).
+The physical derivation is `ChapterCoherentThermalFidelity.lean`:
 
-Definition of done: a new `BookProof/ChapterCoherentTemperature.lean` (or an
-extension of the core) proving where `n̄ + ½` comes from, `sorry`-free, registered
-in `BookProof.lean`, `#check`-ed in `Book/CoherentState.lean`. If the physics
-cannot be made algebraic, record the exact obstruction in `BookProof/STATUS.md` —
-do **not** `sorry`.
+- `coherentThermalFidelity nbar lam = ∑ₙ |⟨β|n⟩|²·Pr_th(n)` — thermal state vs
+  coherent state in Fock coordinates;
+- `coherentThermalFidelity_eq` — collapses to `exp(−λ/(n̄+1))/(n̄+1)`, a Gaussian of
+  width `n̄ + 1`;
+- `coherentThermalFidelity_vacuum_eq_fidelityC` — at `n̄ = 0` this is the coherent
+  fidelity `exp(−‖q−k‖²)`, fixing the coherent-state width `coherentWidth = ½`
+  (via `fidelityC_width` `½ + ½ = 1`);
+- `coherentThermalFidelity_width_eq` — widths add: `n̄ + 1 = τ + ½`;
+- **headline** `thermalTemperature_eq_fidelity_width_sub_coherent_half` — the width
+  of the fidelity determines the temperature (`τ = w − ½`), so `τ = n̄ + ½` is *read
+  off* the fidelity. The extra half is exactly the coherent-state overlap.
+
+`sorry`-free / `axiom`-free, registered in `BookProof.lean`, `#check`-ed in
+`Book/CoherentState.lean`. Recorded as CLOSED in `BookProof/STATUS.md` (wave
+2026-08-10).
 
 ### GAP-2 — Exhaustiveness of the abelian von Neumann classification (Part B.4 / F.5)
 
-Status: the four concrete classes are **proved** — finite `Iₙ`
-(`ChapterAbelianDiagonal`), countable `ℓ∞(ℕ)` (`ChapterAbelianDiagonalCountable`),
-diffuse `L∞(μ)` (`ChapterLinftyMultiplication`), mixed atomic-plus-diffuse
-(`ChapterAbelianMixture`). What remains is the **exhaustiveness** claim: every
-abelian `*`-algebra on separable `L²` is `*`-iso to one of the five standard
-types (the full von Neumann theorem, out of Mathlib).
+Status: **CLOSED (2026-08-12).** The four concrete classes were proved first —
+finite `Iₙ` (`ChapterAbelianDiagonal`), countable `ℓ∞(ℕ)`
+(`ChapterAbelianDiagonalCountable`), diffuse `L∞(μ)` (`ChapterLinftyMultiplication`),
+mixed atomic-plus-diffuse (`ChapterAbelianMixture`). The exhaustiveness claim —
+every abelian `*`-algebra on separable `L²` is `*`-iso to one of the five standard
+types — is now established (the full von Neumann theorem, out of Mathlib).
+
+**Update (2026-08-12): essentially closed.** The condensation was carried out in
+full: `ChapterLpRestrictSplit` (the `L²` splitting along a measurable set),
+`ChapterLpScaleMeasure` (rescaling the measure is a unitary),
+`ChapterAbelianClassificationList` (the five-type list for a Borel probability
+measure on the line) and `ChapterStandardBorelClassification` (Borel-isomorphism
+transport; every summand of the general abelian model realises one of the five
+standard types, for a compact metrizable spectrum). All `sorry`-free / `axiom`-free.
+
+**Update (2026-08-12, later the same day): the metrizability residue is closed.**
+`ChapterSeparableSpectrum` proves that, for a compact Hausdorff spectrum,
+metrizability of the spectrum is *equivalent* to separability of the algebra of
+continuous functions, and discharges it for every separable commutative unital
+C*-algebra via Gelfand duality.  `ChapterSeparableL2Model` then removes it outright
+in the separably acting case: a separable `L²` is carried, by a countable dense
+family of continuous functions, unitarily onto an `L²` over a standard Borel space,
+so every abelian algebra of operators on a separable complex Hilbert space is a
+countable direct sum of multiplication algebras each realising one of the five
+standard types.  Both modules are `sorry`-free / `axiom`-free.  The only case now
+left outside the statement is a nonseparably *acting* algebra.
 
 Definition of done: attempt the provable condensation — e.g."every abelian,
 star-closed, unital algebra on `L²` whose projections are purely atomic is
@@ -128,36 +183,36 @@ mixture class. If out of reach, record the exact obstruction in
 
 ---
 
-## 4. Open BookProof tasks from the older plans (medium value, isolated)
+## 4. BookProof tasks from the older plans (medium value, isolated)
 
-These are the pieces of `SPECIALIST_PLAN_REMAINING.md` Parts B/D that never
-landed (verified absent from the current tree):
+**Update (2026-08-12): these are now all LANDED** — the copied wave closed every
+item originally listed here. They are kept as a record only; do not redo them.
 
-- **4.1 `tail_infinite_dimensional` (Task B2b).** `¬ FiniteDimensional ℝ InnerTail`
-  for `InnerTail = Substrate = L²[0,1]`: build an infinite orthonormal family
-  (dyadic indicator rectangles, generalizing `substrate_orthonormal_pair`).
-  Unblocks the Hilbert-space tensor identification.
-- **4.2 Hilbert-space tensor identification (Task B2, "heavier" half).**
-  `SolovayHilbertSpace (N₁+N₂) … ≃ₗᵢ[ℂ] (InnerHead N₁ ⊗[ℂ] … ⊗[ℂ] …)` with
-  `innerSpaceTensorEquiv`/`headSumEquiv`/`tailTensorEquiv_map`. The **measure
-  form** exists; the Hilbert form is a corollary/`abbrev`.
+- **4.1 `tail_infinite_dimensional` (Task B2b).** DONE — `ChapterSolovayTailDimension`
+  proves `¬ FiniteDimensional ℝ InnerTail` (infinite orthonormal family).
+- **4.2 Hilbert-space tensor identification (Task B2, "heavier" half).** DONE —
+  `ChapterSolovayHilbertTensor` gives `solovayTensorEquiv` (the Hilbert-space form
+  of the tensor isomorphism, with `solovayTensorEquiv_map` / `solovayTensorUnitary`).
 - **4.3 Cross-dimensional inner product (Task B5 / `BOOK_PROOF_PLAN.md` 6.6).**
-  `enlarge_is_measure_preserving` and `cross_dimensional_inner_well_defined`
-  (Mehler tail split ⇒ padding with Gaussian coordinates is an isometry). Depends
-  on A1/A2 (both proved) and `inner_reduces_to_head`.
-- **4.4 `joint_prob_has_wavefunction` (Task D1).** The `|Ψ|² = p` finite anchored
-  theorem (nonneg `p`, `∑ p = 1` ⇒ `∃ Ψ, ‖Ψ z‖² = p z ∧ ∑ ‖Ψ z‖² = 1`). Small,
-  self-contained. The unitary/Gram–Schmidt/SVD follow-up `p(x,y) = |U(y,x,0)|²`
-  (D1b) is strictly optional.
-- **4.5 `exists_separable_prob_with_arbitrary_finite_law` (Task D3).** The
-  Intro-answering headline: arbitrary law on the finite head × Mehler on the tail,
-  separable, with the correct finite marginal. Depends on B2a/B2b.
-- **4.6 Disintegration via `prod_disintegrate` (Task D2).** `joint = marginal ×`
-  conditional kernel on standard Borel spaces. The `condDistrib` route now lives
-  in `ChapterSelectingEvents`; add the explicit `prod_disintegrate` form if a
-  chapter wants it. Low priority; implement once and reference from both.
+  DONE — `ChapterSolovayCrossDim`: `cross_dim_embedding` (enlarging `N ↦ N + k` is
+  measure-preserving) and the expectation/norm-pairing identities via
+  `inner_reduces_to_head`.
+- **4.4 `joint_prob_has_wavefunction` (Task D1).** DONE —
+  `ChapterSolovaySeparableExistence` proves `joint_prob_has_wavefunction` and the
+  product form `joint_prob_has_wavefunction_prod`.
+- **4.5 `exists_separable_prob_with_arbitrary_finite_law` (Task D3).** DONE —
+  `ChapterSolovaySeparableExistence` proves
+  `exists_separable_prob_with_arbitrary_finite_law` (and the substrate form).
+- **4.6 Disintegration via `prod_disintegrate` (Task D2).** DONE —
+  `ChapterSolovaySeparableExistence` carries the explicit `prod_disintegration`
+  companion (`μ = μ.fst ⊗ₘ κ`) alongside the `condDistrib` route in
+  `ChapterSelectingEvents`.
 
-Priority order within this section: 4.1 → 4.2 → 4.3 → 4.5 → 4.4 → 4.6.
+All of the above are `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from
+`Book/CoherentState.lean`, `Book/NullMeasure.lean` and `Book/SolovayTensor.lean`.
+
+No remaining work item of this section is open.
 
 ---
 
@@ -179,8 +234,8 @@ Priority order within this section: 4.1 → 4.2 → 4.3 → 4.5 → 4.4 → 4.6.
 | 4 | 26-`{include}` limit | **DONE** | Verso patch `verso-0001`; re-apply after fresh clones. |
 | 4 | Multi-line `**bold**` wrapping inline math | **GOTCHA (live rule)** | Keep bold-with-math on one line; re-check on any edit to a `Book/*.lean` chapter. |
 | 5 | Output formats (single-page HTML; TeX/PDF disabled) | **DECIDED** | Single-page HTML is the deliverable. The PDF-bookmark fix in §2 was the PDF concern; do **not** enable `emitTeX` unless author explicitly asks. |
-| 7 | Abstract measure-theoretic layer of `book.tex` §3 | **PARTIALLY RESOLVED** | The finite core + `condDistrib` kernel is done. The genuinely abstract layer (full standard-measure-space classification, commutative-von-Neumann `≅ L∞` as a theorem, disintegration on standard Borel) is **GAP-2** + §4.6. |
-| 7 | Remaining non-deferred gaps (two) | **= GAP-1, GAP-2** | See §3. |
+| 7 | Abstract measure-theoretic layer of `book.tex` §3 | **RESOLVED (2026-08-12)** | The finite core + `condDistrib` kernel was done; the abstract layer (five-type classification, `≅ L∞` commutative-von-Neumann passage, disintegration on standard Borel) is now **CLOSED** by the GAP-2 wave (§3) + §4.6. Only a nonseparably *acting* algebra is outside the statement. |
+| 7 | Remaining non-deferred gaps (two) | **GAP-1 CLOSED (08-10); GAP-2 CLOSED (08-12)** | No mathematical target remains; see §3. |
 
 ---
 
@@ -217,12 +272,11 @@ now-written chapters.
   still `import` RH modules (`UnusedRoute.SchoenfeldPRA`). They are in **no build
   target**, so the default build is clean. Either delete them or add a docstring
   saying they are audit-only. Prefer the docstring (they are the audit trail).
-- Root `RiemannProof.lean` still `import RandomMap.RcpRandomMap2Bridge` (that
-  module now lives at `UnusedRoute.RcpRandomMap2Bridge`). Root modules are not a
-  default build target, so nothing breaks; repoint the import the next time the
-  root file is touched.
-- `patches/build-book.sh` is new and **untracked** — `git add` it with the
-  current session's hardening.
+- Root `RiemannProof.lean` now `import UnusedRoute.RcpRandomMap2Bridge` (repointed
+  in this wave); the §7 "repoint the import" item is **RESOLVED**.
+- `patches/build-book.sh` is tracked; `patches/check-katex.sh` was copied in with
+  this wave and is **untracked** — `git add` it (and re-verify its executable bit,
+  which has been lost before).
 - `SpecialFiles`: keep `Book/Trivial.lean` (unused scaffolding) or delete it;
   it is not `{include}`d.
 
@@ -241,25 +295,29 @@ grep -rn "^axiom" BookProof/ PnpProof/    # empty
 # 4. Isolation audit
 grep -rn "import PnpProof" BookProof/ Book/ Singularity/ RandomMap/
 grep -rn "import UnusedRoute" RandomMap/
-# 5. GAP-1 / GAP-2 statuses recorded in BookProof/STATUS.md (proved or exact obstruction, no sorry)
+# 5. GAP-1 / GAP-2 closures recorded in BookProof/STATUS.md (proved, no sorry)
 ```
 
-The two mathematical gaps (§3) each need a `BookProof/STATUS.md` "Unchanged
-gaps" update in line with the existing convention: *proved*, or *exact
-obstruction recorded, not `sorry`-ed*.
+No mathematical gap (§3) remains; both GAP-1 and GAP-2 are closed and their
+closures are already recorded in `BookProof/STATUS.md` (waves 2026-08-10 and
+2026-08-11/12).
 
 ---
 
 ## 9. Suggested attack order for the next agent
 
-1. **D1 + D2 prose cleanups** (one-liners, no build needed) — closes the only
-   flagged Contention contradictions.
-2. **GAP-1** (`ChapterCoherentTemperature` fidelity derivation) — high value,
-   mostly algebraic.
-3. **§4.1 → 4.2 → 4.3** (`tail_infinite_dimensional` → Hilbert tensor form →
-   cross-dim inner) — one dependency chain, closer the Solovay programme.
-4. **GAP-2** (vonNeumann exhaustiveness; attempt the atomic→`ℓ∞` condensation).
-5. **§4.4 → 4.5 → 4.6** (`joint_prob_has_wavefunction` → separable existence →
-   `prod_disintegrate`) — small, self-contained closers.
-6. **Hygiene §7** and **Issues.md refresh** (§0b count, §1 default-targets, §2
-   deferred-marking) at the end of the pass, then the §8 verification gate.
+**Update (2026-08-12): the plan is now complete.** D1/D2 prose cleanups are done
+(the caveats landed in `Book/Introduction.lean` and `Book/OdeSingularity.lean`),
+**GAP-1 is closed** (2026-08-10, `ChapterCoherentThermalFidelity`), **GAP-2 is
+closed** (2026-08-12, metrizability residue removed by `ChapterSeparableSpectrum` +
+`ChapterSeparableL2Model`), and §4 is fully landed. No mathematical item remains
+open. The only remaining work is hygiene and doc-refresh:
+
+1. **Hygiene §7** — note the two `randomMap2_axioms` audit-only modules; confirm
+   `patches/check-katex.sh` is tracked.
+2. **Issues.md refresh** — the §0b chapter count and §1 default-targets wording
+   were already updated in-flight; re-verify they match the current tree (38
+   `{include}`s, `defaultTargets = ["BookProof", "Book", "Singularity"]`).
+3. Run the **§8 verification gate** (builds, book wrapper, sorry/axiom audit,
+   isolation audit), then re-verify the GAP-1/GAP-2 closures are recorded in
+   `BookProof/STATUS.md` (both already are).

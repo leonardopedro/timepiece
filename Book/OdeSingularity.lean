@@ -57,6 +57,14 @@ This is the same philosophy as the rest of the book: replace a point of the
 probability space by a wave-function, and gain structure (here, global unitary
 evolution) in return.
 
+*Honesty flag.* The manuscript itself concedes that the two problems are not
+resolved equally well: the method solves the first problem (telling a genuine
+singularity from insufficient numerical resolution), but it is *not completely
+satisfactory* for the second one. The degeneracy is removed by selecting the
+continuation that is compatible with analytic continuation, which is the only
+physically viable choice in the manuscript's setting but does not give access to
+the other, unrelated gluings that may be the relevant ones in other contexts.
+
 # Koopman–von Neumann: Classical Mechanics as Quantum Mechanics
 
 Given a sample space $`\Omega = \mathbb{R}` with a probability measure $`\mu`, one

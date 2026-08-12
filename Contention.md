@@ -42,7 +42,12 @@ re-selection organized into parts (`Book.lean`). The mapping below shows which
 - The book's slogan drops the explicit caveat and reads as a claim about probability
   theory itself. The caveat is preserved *in one specific chapter*
   (`Book/DeterministicTransformations.lean:82-94`), so the introduction and that
-  chapter disagree with each other about the correct slogan.
+  chapter disagreed with each other about the correct slogan.
+- **ADDRESSED (August 2026).** `Book/Introduction.lean` now carries a caveat
+  paragraph immediately after the slogan, restating the manuscript's "(not of
+  probability theory)" qualification and cross-referencing
+  `DeterministicTransformations`; the slogan is thereby framed as rhetoric with the
+  caveat attached, and the internal disagreement is gone.
 
 ### D2. ODE chapter overclaims that both blow-up problems are resolved
 - `book.tex:1213-1220` explicitly disavows a full fix: the method "solves the first
@@ -50,8 +55,12 @@ re-selection organized into parts (`Book.lean`). The mapping below shows which
   (degenerate solutions), and "does not allow for such a choice".
 - `Book/OdeSingularity.lean:45-48` says "The manuscript's central claim is that
   *both problems are resolved by admitting a finite amount of uncertainty in the
-  initial condition*." The chapter lists degeneracy as a problem (29-35) but never
-  reports that the manuscript itself concedes the method fails to fully fix it.
+  initial condition*." The chapter listed degeneracy as a problem (29-35) but did
+  not report that the manuscript itself concedes the method fails to fully fix it.
+- **ADDRESSED (August 2026).** `Book/OdeSingularity.lean` now carries an honesty
+  flag reporting the manuscript's own "not completely satisfactory" caveat for the
+  second (degeneracy) problem, in the same style as the chapter's other honesty
+  flags.
 
 ### D3. ODE essential self-adjointness strength reduced
 - `book.tex:1088-1093` asserts analytic essential self-adjointness ("using `H²` as a
@@ -101,6 +110,15 @@ re-selection organized into parts (`Book.lean`). The mapping below shows which
 - Only the sub-claim "a point with null measure is not necessarily special"
   (`book.tex:9174-9180`) survives, formalized in `Book/NullMeasure.lean:16-18, 30-32,
   78-84`. The definition of consciousness and the hallucination thesis are absent.
+- **LARGELY ADDRESSED (August 2026).** A full chapter
+  `Book/ConsciousnessBayesianPrior.lean` now exists and is `{include}`d in
+  `Book.lean`. It carries the manuscript's two surviving mathematical theses
+  faithfully — *no point of null measure is special* (every singleton of the real
+  line is Lebesgue-null, and null sets need not be small: the Cantor set) and *no
+  prior is better for all cases* (for any two distinct finite priors each beats the
+  other on some datum) — together with the prior-dependence of inference. The
+  definition of consciousness as a prior-manipulating Turing machine and the
+  AI-hallucination/misalignment half remain deliberately out of scope.
 
 ### D9. The manuscript's RH claim is discarded, keeping only the metamathematical motivation
 - `book.tex:10665-10673`: RH is true *relative to a prior* — "The hypothesis that the

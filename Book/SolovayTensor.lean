@@ -200,6 +200,19 @@ everything that follows, and it is verified directly:
 ```
 
 :::paragraph
+Separable, but not small: the tail carries a *countable* orthonormal family — the
+normalized indicators of the disjoint intervals $`(1/(n+2),\,1/(n+1)]` — and
+therefore has infinitely many independent directions. The head–tail split is not a
+finite-dimensional artefact:
+:::
+
+```
+#check @BookProof.ChapterSolovayTailDimension.substrateBasisVector_orthonormal
+#check @BookProof.ChapterSolovayTailDimension.substrate_infinite_dimensional
+#check @BookProof.ChapterSolovayTailDimension.tail_infinite_dimensional
+```
+
+:::paragraph
 Thus the tail is infinite-dimensional but *separable*: it possesses a countable
 dense skeleton of computable approximants. This is exactly the property the
 Introduction asked for. The finite head is the part we _know_; the separable infinite
@@ -287,6 +300,94 @@ mere product of sets:
 ```
 
 :::paragraph
+In the coordinate model the tensor identification is available in full. Two Solovay
+systems combine into one — the finite heads concatenate and the two Mehler tails
+interleave — and the combination carries the *product* of the two state laws to the
+state law of the combined system. That measure-preserving isomorphism induces a
+unitary of the corresponding $`L^2` spaces, which is the Hilbert-space form of
+$`H(N_1) \otimes H(N_2) \cong H(N_1+N_2)`:
+:::
+
+```
+#check @BookProof.ChapterSolovayHilbertTensor.solovayTensorEquiv
+#check @BookProof.ChapterSolovayHilbertTensor.solovayTensorEquiv_map
+#check @BookProof.ChapterSolovayHilbertTensor.solovayTensorUnitary
+```
+
+:::paragraph
+And the elementary tensors behave as elementary tensors must: a product
+$`f(x)g(y)` of two square-integrable factors is square-integrable for the product
+law, and the inner product of two such pure tensors is the product of the two
+inner products.
+:::
+
+```
+#check @BookProof.ChapterSolovayHilbertTensor.tensorLp
+#check @BookProof.ChapterSolovayHilbertTensor.inner_tensorLp
+```
+
+:::paragraph
+The completeness half holds too, for any two finite laws: the closed linear span
+of the pure tensors is *all* of $`L^2(\mu \otimes \nu)`. The proof is the classical
+π–λ argument — the indicator of a measurable rectangle $`s \times t` is the pure
+tensor $`1_s \otimes 1_t`; the measurable sets whose indicator lies in the closed
+span contain the rectangles and are stable under complements and countable
+disjoint unions, hence are all of them; and indicators generate $`L^2`. Written as
+an approximation statement, this is *separation of variables*: every
+square-integrable function of two variables is an $`L^2`-limit of finite sums
+$`\sum_k f_k(x)g_k(y)`. Together with the multiplicativity of the inner product on
+pure tensors, it says that $`L^2(\mu \otimes \nu)` *is* the Hilbert tensor product
+of $`L^2(\mu)` and $`L^2(\nu)` — a statement one can make here even though the
+library has no Hilbert tensor product to name:
+:::
+
+```
+#check @BookProof.ChapterTensorCompleteness.pureTensors
+#check @BookProof.ChapterTensorCompleteness.indicator_mem_tensorSpan
+#check @BookProof.ChapterTensorCompleteness.tensorSpan_eq_top
+#check @BookProof.ChapterTensorCompleteness.pureTensors_dense
+#check @BookProof.ChapterTensorCompleteness.exists_tensor_approx
+```
+
+:::paragraph
+The practical corollary is the *product basis*. Writing $`u \otimes v` for the pure
+tensor of two $`L^2` elements, the inner product multiplies and the norm
+multiplies, the operation is bilinear and continuous in each slot; so the products
+$`e_i \otimes f_j` of two orthonormal families are orthonormal, and if both
+families are total then so is the family of products. A basis of the two-factor
+state space is therefore obtained by multiplying a basis of each factor — the
+familiar bookkeeping of a composite quantum system:
+:::
+
+```
+#check @BookProof.ChapterTensorCompleteness.tensorOf
+#check @BookProof.ChapterTensorCompleteness.inner_tensorOf
+#check @BookProof.ChapterTensorCompleteness.norm_tensorOf
+#check @BookProof.ChapterTensorCompleteness.orthonormal_tensorOf
+#check @BookProof.ChapterTensorCompleteness.tensorFamily_span_eq_top
+```
+
+:::paragraph
+Orthonormality and totality can be packaged into a single object. Given a Hilbert
+basis $`(b_i)` of $`L^2(\mu)` and a Hilbert basis $`(c_j)` of $`L^2(\nu)`, the
+products $`b_i \otimes c_j`, indexed by pairs, *are* a Hilbert basis of
+$`L^2(\mu \otimes \nu)`. Its coefficients are the two-variable Fourier
+coefficients $`\langle b_i \otimes c_j, F\rangle`, every square-integrable
+function of two variables is the unconditional sum of its components, and
+Parseval holds in the product form
+$`\sum_{i,j} |\langle b_i \otimes c_j, F\rangle|^2 = \|F\|^2`. This is the
+bookkeeping a composite quantum system actually uses:
+:::
+
+```
+#check @BookProof.ChapterTensorCompleteness.tensorHilbertBasis
+#check @BookProof.ChapterTensorCompleteness.coe_tensorHilbertBasis
+#check @BookProof.ChapterTensorCompleteness.tensorHilbertBasis_repr_apply
+#check @BookProof.ChapterTensorCompleteness.hasSum_tensorHilbertBasis
+#check @BookProof.ChapterTensorCompleteness.hasSum_sq_norm_inner_tensorHilbertBasis
+```
+
+:::paragraph
 The decisive simplification is the *decoupling theorem*: because the cylindrical
 wave-functions depend only on the finite head, and the tail measure is an independent
 probability measure, the $`L^2` inner product over the infinite-dimensional total
@@ -317,6 +418,34 @@ chose:
 ```
 #check @stateMeasure_isProbability
 #check @stateMeasure_finite_marginal
+```
+
+:::paragraph
+Put together, that is precisely the Introduction's question answered: a separable
+probability space, over an infinite-dimensional carrier, on which the law of the
+finite part may be chosen arbitrarily while the infinite part carries the Mehler
+law — in the coordinate model and in the abstract substrate model alike:
+:::
+
+```
+#check @BookProof.ChapterSolovaySeparableExistence.exists_separable_prob_with_arbitrary_finite_law
+#check @BookProof.ChapterSolovaySeparableExistence.exists_separable_prob_with_arbitrary_finite_law_substrate
+#check @BookProof.ChapterSolovaySeparableExistence.separable_carrier_tail_infinite_dimensional
+```
+
+:::paragraph
+On the finite part the wave-function parametrization is always available: any
+finite joint law is the squared modulus of a wave-function, and taking the
+marginal of the Born probabilities gives the marginal of the law. And any joint
+law whose second factor is standard Borel factors as its own marginal composed
+with a Markov kernel — the disintegration used to condition without rewriting
+history:
+:::
+
+```
+#check @BookProof.ChapterSolovaySeparableExistence.joint_prob_has_wavefunction
+#check @BookProof.ChapterSolovaySeparableExistence.joint_prob_has_wavefunction_prod
+#check @BookProof.ChapterSolovaySeparableExistence.prod_disintegration
 ```
 
 :::paragraph

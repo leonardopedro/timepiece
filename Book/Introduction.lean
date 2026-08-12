@@ -253,6 +253,17 @@ simplex by the sphere.*
 :::
 
 :::paragraph
+The slogan is rhetoric, and it should be read with the manuscript's own caveat
+attached: quantum mechanics is a generalization of *classical statistical
+mechanics*, *not* of probability theory itself. The parametrization by a
+wave-function is available for any probability distribution and changes none of
+the Kolmogorov axioms; what quantum mechanics adds is the freedom to act on the
+parametrized distribution *non-deterministically*. That distinction is stated
+precisely in the chapter on deterministic transformations, and again in the
+chapter on collapse and the Kolmogorov axioms.
+:::
+
+:::paragraph
 The unitary time-evolution of quantum mechanics becomes a rotation of the sphere;
 the quantization of energy becomes a statement about periodic rotations; gauge
 symmetry becomes the invisibility of the phase; and the *classical limit* becomes

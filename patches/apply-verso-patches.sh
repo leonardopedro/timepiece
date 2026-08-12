@@ -18,9 +18,16 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSO="$ROOT/.lake/packages/verso"
 
-if [[ ! -d "$VERSO/.git" ]]; then
-  echo "error: $VERSO is not a git checkout. Run 'lake build' (or 'lake update') first." >&2
+if [[ ! -d "$VERSO" ]]; then
+  echo "error: $VERSO does not exist. Run 'lake build' (or 'lake update') first." >&2
   exit 1
+fi
+
+# `git apply` operates on plain files and does not need a repository, so a Verso
+# checkout materialized as a plain directory (a `path` dependency, or an
+# unpacked cache) is fine; only note it.
+if [[ ! -d "$VERSO/.git" ]]; then
+  echo "note: $VERSO is not a git checkout; patching the files directly."
 fi
 
 apply_one () {

@@ -461,6 +461,41 @@ displaced together. Attention is exactly the normalized fidelity:
 ```
 
 :::paragraph
+The fidelity is also what settles the last piece of the temperature. In the
+phase-space model above, the zero-point half was *put in by hand*: it was the
+variance of the vacuum noise the thermal noise was convolved with. It can be
+derived instead, entirely in occupation numbers. Pair the coherent state's Poisson
+occupation statistics against the bath's geometric ones — that sum is the
+fidelity $`\langle\beta|\rho_{\text{th}}(\bar n)|\beta\rangle` of a thermal state
+with a coherent state of intensity $`\lambda = \|\beta\|^2` — and the geometric
+series collapses to
+:::
+
+$$`\langle\beta|\rho_{\text{th}}(\bar n)|\beta\rangle = \frac{e^{-\lambda/(\bar n+1)}}{\bar n+1}.`
+
+:::paragraph
+The width of that Gaussian is $`\bar n + 1`, and the width of an overlap is the
+sum of the widths of the two states that make it. At $`\bar n = 0` the same
+expression *is* the coherent-state fidelity $`e^{-\|q-k\|^2}` this chapter began
+with, so two coherent states overlap with width $`\tfrac12+\tfrac12`: the width of
+a coherent state is exactly $`\tfrac12`. Subtracting it from $`\bar n + 1` leaves
+the width of the thermal state alone, $`\tau = \bar n + \tfrac12`. The extra half
+is the coherent-state overlap, not a postulate — and the Gaussian phase-space
+model agrees, since in the dimensionless coherent parameter the overlap of two
+displaced thermal states has width $`\tau + \tau`:
+:::
+
+```
+#check @BookProof.ChapterCoherentThermalFidelity.coherentThermalFidelity
+#check @BookProof.ChapterCoherentThermalFidelity.coherentThermalFidelity_eq
+#check @BookProof.ChapterCoherentThermalFidelity.coherentThermalFidelity_vacuum_eq_fidelityC
+#check @BookProof.ChapterCoherentThermalFidelity.fidelityC_width
+#check @BookProof.ChapterCoherentThermalFidelity.coherentThermalFidelity_width_eq
+#check @BookProof.ChapterCoherentThermalFidelity.thermalTemperature_eq_fidelity_width_sub_coherent_half
+#check @BookProof.ChapterCoherentThermalFidelity.dtOverlap_coherentParameter
+```
+
+:::paragraph
 Once the temperature is a physical parameter one can *differentiate* by it. The
 attention head has a partition function $`Z(\beta) = \sum_j e^{\beta s_j}`, and the
 first derivative of its logarithm is the attention-weighted mean score. The

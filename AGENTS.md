@@ -66,6 +66,15 @@ location, so a printed PDF gets non-portable bookmarks that open a webbrowser.
 `patches/build-book.sh` asserts the invariant afterwards (no `<base>`, fragment
 links present).
 
+Math in the rendered page is typeset client-side by KaTeX with
+`throwOnError: false`, so an unsupported construct is shown in red instead of
+failing the build. To check it:
+
+```bash
+./patches/check-katex.sh   # after ./patches/build-book.sh
+# -> re-renders every math snippet with throwOnError: true; exits non-zero on any failure
+```
+
 See `BOOK_PROOF_PLAN.md` Priority 4 for the original 26-chapter elaboration fix.
 
 ---

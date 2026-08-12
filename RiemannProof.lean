@@ -15,7 +15,7 @@ import UnusedRoute.RcpRandomMapBridge
 import UsedRoute.SolovayHilbert
 import RandomMap.RandomMap2RH
 import RandomMap.RandomMap2Structural
-import RandomMap.RcpRandomMap2Bridge
+import UnusedRoute.RcpRandomMap2Bridge
 -- `RiemannProof.SchoenfeldPRA` is the historical PRA/Schoenfeld spine. The
 -- 2026-06-22 redesign of `IMPLEMENTATION_PLAN_RCP.md` (step 7) drops it from the
 -- route's spine and quarantines it as unimported (its `sorry`s are not part of

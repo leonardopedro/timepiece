@@ -55,7 +55,9 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   single-page `_out/html-single/index.html` (see §4 for the single-page decision and
   the 30-`{include}` root `#doc`). Prose, KaTeX math, and the Lean statement code
   blocks (`<pre>`) all render.
-- **31 chapters** written: Introduction; Part I (Dutch book, sequential Bayes,
+- **38 chapters** written (39 chapter files under `Book/`, of which 38 are
+  `{include}`d in the root `Book.lean`; `Book/Trivial.lean` is unused scaffolding,
+  kept deliberately): Introduction; Part I (Dutch book, sequential Bayes,
   max-entropy, total variance); Part II (probability clock/Euler, Born reproduces,
   gauge fiber, **conditional probability parametrized by a unitary**, Stern–Gerlach,
   free field, **spin–statistics**); Part III
@@ -66,7 +68,12 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   keeps Kolmogorov, Euler generic, time-translation stochastic, **trajectory
   reconstruction**, double-slit, Bell/CHSH, EPR-complete, classical limit); and the
   proof-plans appendix. The five bolded chapters were added to close the remaining
-  non-deferred `book.tex` gaps (see §2 and §7).
+  non-deferred `book.tex` gaps (see §2 and §7). **Update (August 2026):** the
+  physics chapters formerly listed as *deferred* in §6 have since been written up
+  as well — `GaugeSymmetry`, `RealRepresentations`, `YangMillsQuantization`,
+  `GribovAmbiguity`, `PhysicalParity`, `DiffeomorphismsGravity`,
+  `ConsciousnessBayesianPrior` and `AlignedDeepLearning` — which is what brings the
+  root `#doc` to 38 `{include}`s.
 - **Lean statements are shown as plain (non-elaborated) code blocks.** Verification
   is anchored on `lake build BookProof`. Upgrading to elaborated blocks
   (`public import` + `experimental.module`) and to verso-blueprint are planned
@@ -79,7 +86,12 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   `BookProof/ChapterOdeComplexification.lean`). The PA-free chapter
   separates the **verified** Riesz–Fischer core
   (`completeSpace_iff_summable_norm`) from the **metamathematical** "no PA leak"
-  interpretation.
+  interpretation.  **Update (August 2026):** two further honesty edits
+  landed — `Book/Introduction.lean` now carries the "(not of probability theory)"
+  caveat alongside the slogan, matching `Book/DeterministicTransformations.lean`
+  (Contention D1), and `Book/OdeSingularity.lean` reports the manuscript's own
+  "not completely satisfactory" caveat for the second (degeneracy) blow-up problem
+  (Contention D2).
 
 ---
 
@@ -108,40 +120,52 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   `VersoManual`, so the whole book builds in ~2 minutes (≈173 jobs). Re-introducing
   elaboration (§3.1 of `BOOK_PROOF_PLAN.md`) would make it slower again.
 
-- **[NOTE] `book` is intentionally NOT a default target.** `defaultTargets` is still
-  `["PnpProof", "BookProof"]`, so a bare `lake build` does not build the book and
-  the existing CI behaviour is unchanged. Build the book with `lake build book`.
+- **[UPDATED] Default targets.** `defaultTargets` is now
+  `["BookProof", "Book", "Singularity"]`: a bare `lake build` compiles the proof
+  library, the book's chapter modules and the ODE development, but **not** the
+  `book` executable and **not** `PnpProof` / `RandomMap` (build those explicitly,
+  e.g. `lake build RandomMap`). Render the book with `./patches/build-book.sh`
+  rather than a bare `lake exe book`: the wrapper asserts that the emitted HTML has
+  no `<base>` element and that the fragment links are present.
 
 ## 2. Content and curation
 
-- **[CRITIQUE→PARTIALLY-RESOLVED] This is a curated edition, not a full
+- **[CRITIQUE→RESOLVED (August 2026)] This is a curated edition, not a full
   conversion.** `book.tex` has 17 chapters. Coverage after adding **Part VI
   (Determinism, Complementarity, and Collapse)** — 8 new chapters anchored to
-  existing `BookProof` modules — is mapped in the table below. The remaining
-  uncovered chapters are the field-theory / gravity / representation-theory /
-  applied ones; each has `BookProof` modules but needs a framing decision before it
-  is written up (see §6). They are flagged for discussion rather than silently
-  omitted.
+  existing `BookProof` modules — is mapped in the table below. **Update (August 2026):** the field-theory /
+  gravity / representation-theory / applied chapters that this section previously
+  listed as *deferred pending a framing decision* have now been written up, so the
+  table below is re-marked and §6 is closed. Two chapter names used elsewhere in
+  this file were never separate files: the *classical limit* material lives in
+  `Book/EPRComplete.lean` and the *trajectory reconstruction* material in
+  `Book/DoubleSlit.lean` (both anchored on `ChapterTrajectory`).  The
+  "Part N" labels used in this file predate the current eight-part structure of
+  `Book.lean` (Probability as Coherent Belief; Wave-functions, Euler's Formula and
+  the Born Rule; Relativity, Gauge Theory and Gravity; Consciousness, Deep Learning
+  and the Bayesian Prior; Entropy, Irreversibility and the Arrow of Time; the ODE
+  singularity; Completeness without Peano Arithmetic; Determinism, Complementarity
+  and Collapse) — read them as chapter pointers, not as part numbers.
 
   | `book.tex` chapter | Book coverage |
   | :--- | :--- |
   | Introduction | **Covered** (revised per author; beach example, why-Timepiece, aim, quantization-is-not) |
   | Resolution of the ODE $x'=x^2$ singularity | **Covered** (Part IV, from `ODE.tex`) |
   | Wave-function parametrization of a probability measure | **Covered**: §3 Born/fiber (Part II `BornReproduces`, `BornFiber`); §3 unitary parametrization of conditional probability — joint density = `|U|²`, Gram–Schmidt unitary, Hilbert–Schmidt boundedness, singular-value expansion, and the marginal/regular-conditional converse (Part II `ConditionalUnitary`, **now a chapter**, using `ChapterJointUnitary`, `ChapterKernelBound`, `ChapterB3`/`ChapterB3b`, `ChapterConditional`); §4 collapse-vs-Gleason (Part VI `CollapseKeepsKolmogorov`); §5 free field (Part II `FreeField`); §6 spin-statistics (Part II `SpinStatistics`); §7 symmetries as unitary representations (Part VI `SymmetryRep`); §8–9 conservative/deterministic (Part VI `DeterministicTransformations`); §10–11 ensemble forecasting + classical limit (Part VI `ClassicalLimit`). Only the abstract measure-theoretic layer of §3 (classification of standard measure spaces, commutative-von-Neumann `≅ L∞`, disintegration on a standard Borel space) remains as placeholders in `ChapterSelectingEvents` — see §7. |
-  | Gauge symmetry & dissipative dynamics | **Deferred → §6** (`ChapterBRSTNilpotent`, `ChapterGhostField`, `ChapterFreeFieldConstraint` exist) |
+  | Gauge symmetry & dissipative dynamics | **Covered** (`Book/GaugeSymmetry.lean`; `ChapterBRSTNilpotent`, `ChapterGhostField`, `ChapterFreeFieldConstraint`, `ChapterConservative`) |
   | Reconstructing the classical trajectory | **Covered** in Part VI: symmetries as unitary representations (`SymmetryRep`), time-translation-stochastic-iff-deterministic (`TimeTranslationStochastic`, using `ChapterReconstruct`), deterministic theory (`DeterministicTransformations`), causality + inverse transform (`EPRComplete`), double-slit (`DoubleSlit`), Bell/CHSH (`BellInequalities`), and trajectory reconstruction by post-selection (`TrajectoryReconstruction`, **now a chapter**, using `ChapterTrajectory`) |
   | Wave-function collapse vs Euler's formula | **Covered**: probability clock (Part II), Stern–Gerlach (Part II), Euler $N$-state/countable/complex/quaternionic (Part VI `EulerGeneric`); black-hole-information section not yet a chapter |
-  | Free field parametrization in Classical SFT & Navier–Stokes | **Deferred → §6** (`ChapterNavierStokes`, `ChapterMassGap`, `ChapterQuadraticOrdering`, `ChapterHolomorphic`, `ChapterLocalOperators` exist) |
-  | Real representations, CPT, relativistic position operator | **Deferred → §6** (`ChapterLorentz*`, `ChapterMajorana*`, `ChapterCPT*`, `ChapterLocalization`, `ChapterLittleGroup` exist) |
-  | Quantization due to time-evolution: Yang–Mills & CSFT | **Deferred → §6** (`ChapterYangMills*`, `ChapterFreeEMField` exist) |
-  | Timepiece and the Gribov ambiguity | **Deferred → §6** |
-  | Physical parity transformation & antiparticles | **Deferred → §6** (`ChapterParity*` exist) |
-  | Diffeomorphisms and gravity | **Deferred → §6** (`ChapterGravity*` exist) |
+  | Free field parametrization in Classical SFT & Navier–Stokes | **Covered in the formalized subset** (`Book/FreeField.lean`, `Book/YangMillsQuantization.lean`; `ChapterNavierStokes`, `ChapterMassGap`, `ChapterQuadraticOrdering`, `ChapterHolomorphic`, `ChapterLocalOperators`). The manuscript's existence/uniqueness thesis is deliberately **not** claimed (Contention D5) |
+  | Real representations, CPT, relativistic position operator | **Covered** (`Book/RealRepresentations.lean`; `ChapterLorentz*`, `ChapterMajorana*`, `ChapterCPT*`, `ChapterLocalization`, `ChapterLittleGroup`) |
+  | Quantization due to time-evolution: Yang–Mills & CSFT | **Covered** (`Book/YangMillsQuantization.lean`; `ChapterYangMills*`, `ChapterFreeEMField`, `ChapterGellMann`) |
+  | Timepiece and the Gribov ambiguity | **Covered** (`Book/GribovAmbiguity.lean`) |
+  | Physical parity transformation & antiparticles | **Covered** (`Book/PhysicalParity.lean`; `ChapterParity*`) |
+  | Diffeomorphisms and gravity | **Covered** (`Book/DiffeomorphismsGravity.lean`; `ChapterGravity*`) |
   | Selecting events is not rewriting history (P vs NP) | **Covered** (Part V, from `newproof.md`; `ChapterSelectingEvents`, `ChapterSolovay` exist) |
-  | Consciousness as a Bayesian prior | **Deferred → §6** (`ChapterConsciousnessNullMeasure` used in Part III) |
+  | Consciousness as a Bayesian prior | **Covered** (`Book/ConsciousnessBayesianPrior.lean`; `ChapterConsciousnessNullMeasure`, also used in Part III). The AI-misalignment/Fermi-paradox material stays out of scope |
   | Entropy & irreversible deterministic time-evolution | **Covered** (Part III: `Irreversibility`, `BaryonAsymmetry`) |
-  | Aligned deep learning as random sampling | **Deferred → §6** (`ChapterDeepLearning*` exist) |
-  | Statistical Model Theory & Bayesian priors where RH is true | **Deferred → §6** |
+  | Aligned deep learning as random sampling | **Covered** (`Book/AlignedDeepLearning.lean`; `ChapterDeepLearning*`, `ChapterMAPNull`, `ChapterHierarchicalBayes*`) |
+  | Statistical Model Theory & Bayesian priors where RH is true | **Out of scope by decision** — recorded here only; the handwritten RH claim is dropped (Contention D9) and `PaFreeHilbert` + `SolovayTensor` are the intended replacement |
 
 - **[UNCERTAIN] Sketch proofs were re-derived, not transcribed.** The sketch proofs
   in the chapters were written from the `BookProof` docstrings (`STATUS.md`), the
@@ -185,10 +209,15 @@ building the Verso edition of the book. Items are grouped by theme and tagged
 
 ## 4. Rendering
 
-- **[UNCERTAIN] KaTeX coverage.** Display/inline math is written as `` $`…` `` /
-  `` $$`…` `` and rendered by KaTeX. Most constructs used (sums, fractions,
-  `pmatrix`, `\mathbb`, `\mathrm`) are standard KaTeX, but this has not yet been
-  confirmed against the rendered HTML. Matrices in particular should be spot-checked.
+- **[RESOLVED, 2026-08-11] KaTeX coverage.** Display/inline math is written as
+  `` $`…` `` / `` $$`…` `` and rendered client-side by KaTeX with
+  `throwOnError: false`, so an unsupported construct would be shown in red rather
+  than break the build. It is now checked mechanically:
+  `./patches/check-katex.sh` extracts every `.math.inline` / `.math.display`
+  snippet from `_out/html-single/index.html` and re-renders each one with
+  `throwOnError: true` against the KaTeX build the book ships. Current result:
+  **1488 snippets, 0 failures**, including all 15 `pmatrix` displays (the case
+  that had never been confirmed). Re-run it after `./patches/build-book.sh`.
 
 - **[CRITIQUE] Some `#check` types are very long.** A few headline theorems
   (e.g. the free-field and measure-theoretic ones) have large elaborated types that
@@ -219,12 +248,11 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   produces `_out/html-single/index.html` (single page, all 26 chapters, ~190 anchored
   headings, 0 broken ToC links). It was *not* a count limit and *not* fixed by
   `maxHeartbeats`/`maxRecDepth`/`experimental.module`. See `BOOK_PROOF_PLAN.md`
-  Priority 4.   **Update (July 2026):** the root `#doc` now has **31** `{include}`s
-  after adding `SpinStatistics`, `SolovayTensor`, `SymmetryRep`,
-  `TrajectoryReconstruction`, and `ConditionalUnitary` (§7). Since the fix annotates
-  every sub-part binding (it was never a hard count limit), 31 includes elaborate the
-  same way; a fresh `lake build book && lake exe book` should be run to confirm once
-  the proof-library build lock is free.
+  Priority 4.   **Update (August 2026):** the root `#doc` now has **38**
+  `{include}`s — the chapters of §7 plus the eight formerly deferred physics
+  chapters. Since the fix annotates every sub-part binding (it was never a hard
+  count limit), 38 includes elaborate the same way, and `./patches/build-book.sh`
+  renders them into the single page.
 
 - **[GOTCHA] Multi-line `**bold**` wrapping inline math breaks the root splice.**
   A `**bold**` that spans a line break *and* contains inline math (`` $`…` ``)
@@ -233,12 +261,14 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   Keep any bold that contains math on a single line (or move the math out of the
   bold). Hit in `ClassicalLimit.lean` ("dense in the $`L^2` measure").
 
-## 6. Deferred chapters (need a framing decision before write-up)
+## 6. Formerly deferred chapters — **DONE (framing settled, August 2026)**
 
-These `book.tex` chapters already have `sorry`-free `BookProof` modules, but they
-are physics-heavy and/or their pedagogical framing is a real editorial choice, so
-they are recorded here for discussion rather than written up speculatively. For each
-I list the existing formal anchors.
+Every item in this section has since been written up as a chapter under `Book/`
+and `{include}`d in the root `Book.lean`; the list below is kept as the record of
+the framing questions that were resolved and of the formal anchors each chapter
+uses.  The only item still deliberately *not* a chapter is `book.tex` ch. 17
+(Statistical Model Theory / priors where RH is true), which stays recorded in this
+file only.
 
 - **[NEEDS-INFO] Gauge symmetry & dissipative dynamics (`book.tex` ch. 4).** Anchors:
   `ChapterBRSTNilpotent`, `ChapterGhostField`, `ChapterFreeFieldConstraint`,
@@ -337,13 +367,20 @@ I list the existing formal anchors.
     `PnpProof.Kopperman` (`kopperman_substrate_separable`). Grounded in `book.tex`
     Intro (133–141), §3 (1467–1527), §5–6 (1802–1844).
 
-- **[NOTE] Two open items flagged inside `SolovayTensor`.** The chapter separates what
-  is proved from what is planned, and points the open items at the proof-plans
-  appendix: (i) the **uniqueness** of the Mehler tail law from its finite marginals
-  (`mehler_unique_by_finite_marginals` — the forcing half of "only the Mehler
-  measure"), and (ii) the **measure-preservation** of the coordinate tail-split
-  (`tailSplitEquiv_map`, the one remaining `sorry`). These are Tasks B3 and A1 of
-  `SPECIALIST_PLAN_REMAINING.md`.
+- **[RESOLVED] The two items formerly flagged inside `SolovayTensor`.** Both are now
+  `sorry`-free theorems: the **uniqueness** of the Mehler tail law from its finite
+  marginals (`BookProof.ChapterMehlerUniqueness.mehler_unique_by_finite_marginals`,
+  the forcing half of "only the Mehler measure") and the **measure-preservation** of
+  the coordinate tail-split (`BookProof.ChapterSolovayCoordinates.tailSplitEquiv_map`).
+  *Additions (August 2026):* `ChapterSolovayTailDimension` proves the Kopperman tail is
+  infinite dimensional (`tail_infinite_dimensional`); `ChapterSolovayHilbertTensor`
+  gives the Hilbert form of the identification (`solovayTensorUnitary`,
+  `measurePreserving_solovayTensorEquiv`, and the pure-tensor inner product
+  `inner_tensorLp`), with the completeness half — density of the span of pure tensors —
+  explicitly *not* claimed, Mathlib having no Hilbert-space tensor product to state it
+  against; and `ChapterSolovaySeparableExistence` supplies
+  `joint_prob_has_wavefunction`, `exists_separable_prob_with_arbitrary_finite_law` and
+  `prod_disintegration`.
 
 - **[NEEDS-INFO] `book.tex` §3 abstract measure-theoretic layer.** The
   finite-dimensional algebraic core of §3 is now the `ConditionalUnitary` chapter
@@ -352,13 +389,38 @@ I list the existing formal anchors.
   (Lebesgue / discrete / mixture), the identification of commutative von Neumann
   algebras on a separable Hilbert space with `L∞(X,μ)` (`book.tex` 1426–1442), and
   regular conditional probabilities via disintegration on a standard Borel space
-  (1479–1481). These are formalized only as `True` placeholders in
+  (1479–1481). These were formalized only as `True` placeholders in
   `ChapterSelectingEvents` (`exists_regular_conditional_probability`,
-  `vonNeumann_abelian_classification`, `selecting_events_not_rewriting_history`) and
-  are specialist-plan Task C2. They are measure-theoretic (Mathlib `condExpKernel` /
-  `Measure.disintegrate` / von-Neumann-algebra machinery) rather than new mathematics,
-  and the `ConditionalUnitary` chapter already flags them as the infinite-dimensional
-  extension of its finite-dimensional proofs.
+  `vonNeumann_abelian_classification`, `selecting_events_not_rewriting_history`).
+  **Update (August 2026):** the disintegration half is now a real theorem
+  (`ChapterSolovaySeparableExistence.prod_disintegration` /
+  `coordinateState_disintegration`, on a standard Borel second factor), and the
+  *purely atomic* half of the abelian classification is proved in
+  `ChapterAbelianAtomicCondensation` — `atomic_abelian_maximal_eq_diagonal` (a purely
+  atomic maximal abelian algebra is exactly the diagonal algebra, i.e. `ℓ∞` of its
+  index set) together with `atomic_measure_index_dichotomy` (a purely atomic index set
+  is `Fin n` or `ℕ`). What remains genuinely open is the **diffuse** half: the
+  spectral/Gelfand passage from an abstract abelian von Neumann algebra to an `L∞(μ)`
+  model, for which Mathlib has no spectral theorem to build on. That is recorded as an
+  exact obstruction in `BookProof/STATUS.md` and is *not* `sorry`-ed; the
+  measure-theoretic splitting it would be applied to is available
+  (`ChapterAtomicDecomposition.eq_continuousPart_add_atomicPart`).
+  **Update (12 August 2026) — this item is now closed.**  The diffuse half was
+  carried out: `ChapterLinftyMultiplication` (the `L∞(μ)` multiplication model),
+  `ChapterAbelianGelfandModel` and `ChapterAbelianDirectSum` (every abelian algebra,
+  presented as a unital `*`-representation of `C(X, ℂ)` or of a commutative unital
+  C*-algebra, is a direct sum of multiplication algebras — no cyclic vector, no
+  generator, no separability), `ChapterLpRestrictSplit` / `ChapterLpScaleMeasure` /
+  `ChapterAbelianClassificationList` (the five-type list for a Borel probability
+  measure on the line), `ChapterStandardBorelClassification` (transport to any
+  standard Borel space, and each summand classified), and finally
+  `ChapterSeparableSpectrum` and `ChapterSeparableL2Model`, which remove the
+  metrizability hypothesis: it is *equivalent* to separability of the algebra, it is
+  automatic for a separable commutative unital C*-algebra, and it is unnecessary
+  altogether when the algebra acts on a separable Hilbert space
+  (`abelian_multiplication_model_classified_separable_hilbert`).  All of this is
+  `sorry`-free and `axiom`-free; only a nonseparably *acting* algebra is still
+  outside the statement.
 
 - **[NEEDS-INFO] `book.tex` ch. 6 black-hole information paradox (`book.tex`
   3445–3478).** The Stern–Gerlach half of this section is covered
@@ -367,13 +429,18 @@ I list the existing formal anchors.
   chapter unless the author wants it — the same disposition as the deferred physics
   sections in §6.
 
-- **[NOTE] Remaining `book.tex` content.** After the five chapters above, every
-  non-deferred `book.tex` chapter has a book chapter. The only non-deferred items
-  without a full chapter are: (i) the abstract measure-theoretic layer of §3 (standard
-  measure space classification, commutative-von-Neumann `≅ L∞`, disintegration), whose
-  finite-dimensional core is covered by `ConditionalUnitary` and whose abstract part is
-  specialist Task C2; and (ii) the black-hole-information sub-section of ch. 6, flagged
-  above as a framing decision. The deferred physics chapters (§6: gauge/BRST,
-  Navier–Stokes/mass-gap, Lorentz/CPT/Majorana representations, Yang–Mills/Gribov,
-  parity/antiparticles, gravity, consciousness, deep learning, RH
-  statistical-model-theory) remain intentionally out of scope per the author.
+- **[NOTE] Remaining `book.tex` content (August 2026).** Every `book.tex` chapter
+  except ch. 17 (Statistical Model Theory / priors where RH is true) now has a book
+  chapter — the physics chapters formerly listed in §6 have been written up, so §6 is
+  closed. The remaining open items are content-level, not chapter-level: (i) the
+  *diffuse* half of the abstract measure-theoretic layer of §3 — **closed in August
+  2026**, see the update two items above — and (ii) the black-hole-information
+  sub-section of ch. 6, still a framing decision.
+
+- **[RESOLVED] The `τ = n̄ + ½` zero-point postulate.** The half of the coherent-state
+  temperature relation that used to be postulated is now derived in
+  `BookProof/ChapterCoherentThermalFidelity.lean`: the coherent/thermal fidelity has the
+  closed form `exp(−λ/(n̄+1))/(n̄+1)`, its width in `λ` is `n̄+1`, that width is unique,
+  and the headline `thermalTemperature_eq_fidelity_width_sub_coherent_half` reads the
+  temperature off as (fidelity width) − (coherent width), the coherent width being the
+  `½`. Prose and `#check`s are in `Book/CoherentState.lean`.
