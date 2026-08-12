@@ -126,6 +126,56 @@ measurement, the state is $`(1,0)`. The difference between them is exactly the
 interference cross term — present in the coherent product, erased by the
 intermediate measurement.
 
+# Weak Measurements and the Reconstruction of the Trajectory
+
+The double-slit reconstruction is the book's instance of the *weak measurement*
+idea (the manuscript's "reconstruction of the trajectory", citing Tamir and Cohen
+on weak measurements and weak values). The point is subtle: one cannot directly
+measure the state of a system at an *intermediate* time without disturbing it. But
+one can *post-select* — run the experiment many times, keep only the trials that
+end at a chosen final outcome $`f`, and inspect the conditional distribution of the
+intermediate outcome $`a` given that final state. Because the intermediate
+distribution is recovered *consistently* (summing the post-selected joint law over
+all final outcomes returns the un-post-selected middle law,
+`jointProb_sum_final_eq_midProb`), the reconstructed picture is a genuine
+probability theory, not an artifact.
+
+The weak-value reading sharpens this. For a *pre-selected* state $`\langle i|` and a
+*post-selected* state $`|f\rangle`, the *weak value* of an observable $`A` is the
+ratio
+
+$$`\langle A \rangle_w = \frac{\langle f | A | i \rangle}{\langle f | i \rangle}.`
+
+This is the natural continuation of the post-selected conditional probability of the
+reconstruction above: where the ABL / two-state formula
+(`condProb = jointProb / finalProb`) reconstructs a *probability* distribution for
+the intermediate outcome, the weak value reconstructs the *expectation* of an
+observable under the same pre- and post-selection — and, unlike a strong
+measurement, it does so without collapsing the intermediate state into an
+eigenstate. The trajectory is reconstructed by stitching together such weak
+measurements at finitely many intermediate times, the manuscript's procedure of
+"repeating the experiment in the same conditions."
+
+The *conditional* (post-selected) probability — not the total probability — is what
+one divides by here, and the manuscript notes this may "mimic super-determinism"
+and so evade some assumptions of relevant no-go theorems. The three-instant
+post-selected core (`midProb`, `transProb`, `jointProb`, `finalProb`, `condProb`)
+is formalized in `BookProof.ChapterTrajectory`:
+
+```
+#check @ChapterTrajectory.finalProb_total
+#check @ChapterTrajectory.jointProb_sum_final_eq_midProb
+#check @ChapterTrajectory.condProb_sum
+#check @ChapterTrajectory.dslit_condProb
+```
+
+What is not yet formalized is the weak-value ratio itself: a Lean theorem stating
+that, for a pre-selection $`\langle i|` and a post-selection $`|f\rangle`, the weak
+value $`\langle f|A|i\rangle/\langle f|i\rangle` is well-defined (when
+$`\langle f|i\rangle \neq 0`), and that it reduces to the usual expectation value
+when the post-selection is the pre-selection. This is a proof plan item (see the
+appendix).
+
 # Summary
 
  * The electron's evolution is a product of two non-deterministic transformations, so
@@ -136,3 +186,6 @@ intermediate measurement.
    destructive interference.
  * The coherent product $`H^2` differs from an incoherent, measured sequence; the
    difference is the interference cross term.
+ * Post-selection reconstructs the intermediate distribution consistently (`condProb`
+   / ABL), and the weak value $`\langle f|A|i\rangle/\langle f|i\rangle` extends this
+   to expectations of observables without collapsing the intermediate state.

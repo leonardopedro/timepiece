@@ -214,6 +214,18 @@ certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from
 
 No remaining work item of this section is open.
 
+**Addition (2026-08): weak measurements / weak values (book.tex "Reconstruction of
+the trajectory"; the double-slit chapter's "Weak Measurements" section).** The
+post-selection / ABL core is proved (`ChapterTrajectory`); the weak-value ratio
+itself is not. Medium value, small and self-contained — a natural next target:
+
+- **4.7 `weakValue` (ChapterWeakValue).** On `Fin n → ℂ` with the standard inner
+  product, prove `weakValue i f A = (inner f (A • i)) / inner f i`, its
+  well-definedness when `⟨f|i⟩ ≠ 0` (`weakValue_wellDefined`), the diagonal
+  collapse to the ordinary expectation when `i = f` (`weakValue_diag`), linearity
+  in the observable (`weakValue_linear`), and a double-slit capstone
+  (`dslit_weakValue`) tying it to `ChapterTrajectory`. Priority: after §9 items 1–3.
+
 ---
 
 ## 5. Issues.md — full disposition
@@ -311,13 +323,17 @@ closures are already recorded in `BookProof/STATUS.md` (waves 2026-08-10 and
 **GAP-1 is closed** (2026-08-10, `ChapterCoherentThermalFidelity`), **GAP-2 is
 closed** (2026-08-12, metrizability residue removed by `ChapterSeparableSpectrum` +
 `ChapterSeparableL2Model`), and §4 is fully landed. No mathematical item remains
-open. The only remaining work is hygiene and doc-refresh:
+open. The only remaining work is the medium-value **weak-value task (§4.7)**,
+hygiene, and doc-refresh:
 
-1. **Hygiene §7** — note the two `randomMap2_axioms` audit-only modules; confirm
+1. **§4.7 `weakValue`** (`ChapterWeakValue`) — the weak-value ratio and its
+   well-definedness, diagonal collapse, and linearity (see §4 and the Proof-Plans
+   appendix §D). Small, self-contained, and the natural next mathematical target.
+2. **Hygiene §7** — note the two `randomMap2_axioms` audit-only modules; confirm
    `patches/check-katex.sh` is tracked.
-2. **Issues.md refresh** — the §0b chapter count and §1 default-targets wording
+3. **Issues.md refresh** — the §0b chapter count and §1 default-targets wording
    were already updated in-flight; re-verify they match the current tree (38
    `{include}`s, `defaultTargets = ["BookProof", "Book", "Singularity"]`).
-3. Run the **§8 verification gate** (builds, book wrapper, sorry/axiom audit,
+4. Run the **§8 verification gate** (builds, book wrapper, sorry/axiom audit,
    isolation audit), then re-verify the GAP-1/GAP-2 closures are recorded in
    `BookProof/STATUS.md` (both already are).

@@ -157,3 +157,45 @@ graphs), so it must run on the same toolchain as the code.
 
 The Verso markup already written ports to blueprint blocks with modest edits, so the
 prose work in this book is not wasted by the migration.
+
+# D. Weak Measurements and Weak Values
+
+*Current state.* The post-selection / ABL reconstruction that underlies the
+trajectory chapter and the double-slit discussion is proved
+(`BookProof.ChapterTrajectory`): the three-instant collapsed Born process
+(`midProb`, `transProb`, `jointProb`, `finalProb`, `condProb`), the reconstruction
+consistency (`jointProb_sum_final_eq_midProb`), and the double-slit capstone
+(`dslit_finalProb`, `dslit_condProb`, `dslit_coherentFinal`, `dslit_interference`).
+What is *not* yet formalized is the *weak value* itself.
+
+*What is formalizable.* The weak value of an observable $`A` given a pre-selection
+$`\langle i|` and a post-selection $`|f\rangle`,
+
+$$`\langle A \rangle_w = \frac{\langle f | A | i \rangle}{\langle f | i \rangle},`
+
+is a well-defined complex number whenever $`\langle f | i \rangle \neq 0`. A natural
+formalization (new module, e.g. `BookProof.ChapterWeakValue`) would prove, on a
+finite complex Hilbert space $`\mathrm{Fin}\, n \to \mathbb{C}`:
+
+ * `weakValue i f A = (inner f (A • i)) / inner f i` — the definition, with the
+   claimed values of the inner products well-formed;
+ * `weakValue_wellDefined` — if $`\langle f | i \rangle \neq 0`, the weak value is
+   finite and well-defined;
+ * `weakValue_diag` — when $`i = f` (the post-selection is the pre-selection), the
+   weak value collapses to the ordinary expectation
+   $`\langle A \rangle_w = \langle i | A | i \rangle`;
+ * `weakValue_linear` — linearity of the pre-selection in $`A` (after the
+   post-selection is fixed), the algebraic core of "weak measurements are linear in
+   the observable";
+ * a double-slit capstone `dslit_weakValue` — the weak value of the position
+   observable through the Hadamard evolution, tying the abstract definition to the
+   `ChapterTrajectory` machinery already in place.
+
+*Boundary.* The *physical* claim that weak measurements do not disturb the
+intermediate state is about the measurement interaction, not about the mathematical
+ratio; it is not claimed here. The formal content is the ratio, its well-definedness,
+and its agreement with the ordinary expectation in the diagonal case.
+
+*Where it lives.* `BookProof.ChapterWeakValue`, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from the
+double-slit chapter's "Weak Measurements" section.
