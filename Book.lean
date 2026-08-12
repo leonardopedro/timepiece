@@ -163,6 +163,33 @@ _within-group_ and _between-group_ parts.
 
 {include 0 Book.TotalVariance}
 
+# Determinism, Complementarity, and Collapse
+%%%
+tag := "part-foundations"
+%%%
+
+The third part is the conceptual core of the manuscript's quantum-foundations
+chapters. We begin with the group-theoretic fact that a symmetry group of canonical
+transformations is a unitary representation, taking the one-parameter time-translation
+group as the prototype; characterize deterministic versus non-deterministic symmetry
+transformations and locate the origin of complementarity; show why wave-function
+collapse keeps quantum mechanics an ordinary Kolmogorov probability theory, and how
+this differs from Gleason's theorem; prove that time-translation
+is a stochastic process _if and only if_ it is deterministic; reconstruct a quantum
+trajectory at intermediate times by post-selection; work the double-slit
+and Bell/CHSH experiments; and close with EPR-completeness, relativistic causality,
+a concrete deterministic theory, and the classical limit.
+
+{include 1 Book.DeterministicTransformations}
+
+{include 1 Book.CollapseKeepsKolmogorov}
+
+{include 1 Book.DoubleSlit}
+
+{include 1 Book.BellInequalities}
+
+{include 1 Book.EPRComplete}
+
 # Wave-functions, Euler's Formula, and the Born Rule
 %%%
 tag := "part-born"
@@ -174,10 +201,7 @@ dimensions, the fact that the Born rule reproduces _every_ distribution in any f
 (or countable) dimension, the gauge ambiguity (the invisible phase) of the
 parametrization, the parametrization of any joint or conditional probability by a
 unitary operator (the finite-dimensional core of the book's commutative Wigner
-theorem), information erasure in the Stern–Gerlach experiment, the
-free-field construction of a uniform measure on a sphere out of the Gaussian, and the
-spin–statistics dichotomy that distinguishes bosonic commutation from fermionic
-anticommutation in a finite tensor product of sample spaces.
+theorem), and information erasure in the Stern–Gerlach experiment.
 
 {include 0 Book.ProbabilityClock}
 
@@ -187,13 +211,7 @@ anticommutation in a finite tensor product of sample spaces.
 
 {include 0 Book.ConditionalUnitary}
 
-{include 0 Book.GaugeSymmetry}
-
 {include 0 Book.SternGerlach}
-
-{include 0 Book.FreeField}
-
-{include 0 Book.SpinStatistics}
 
 # Relativity, Gauge Theory, and Gravity
 %%%
@@ -205,7 +223,17 @@ Lorentz group and its real representations, the CPT theorem and the relativistic
 position operator; quantization arising from time-evolution (Yang–Mills, the
 Weyl/CCR relations, the nilpotent BRST charge); the Gribov ambiguity and the
 abelian (electromagnetic) case; the physical parity transformation and
-antiparticles; and the diffeomorphism/`3+1` structure of gravity.
+antiparticles; and the diffeomorphism/`3+1` structure of gravity. We also develop
+the field-theoretic foundations: gauge symmetry and dissipative dynamics, the
+free-field construction of a uniform measure on a sphere out of the Gaussian, and
+the spin–statistics dichotomy that distinguishes bosonic commutation from
+fermionic anticommutation.
+
+{include 0 Book.GaugeSymmetry}
+
+{include 0 Book.FreeField}
+
+{include 0 Book.SpinStatistics}
 
 {include 0 Book.RealRepresentations}
 
@@ -267,33 +295,6 @@ An operator-theoretic resolution of the finite-time blow-up of $`x' = x^2`, repl
 the ODE chapter of the manuscript.
 
 {include 0 Book.OdeSingularity}
-
-# Determinism, Complementarity, and Collapse
-%%%
-tag := "part-foundations"
-%%%
-
-The conceptual core of the manuscript's quantum-foundations chapters. We begin with
-the group-theoretic fact that a symmetry group of canonical transformations is a
-unitary representation, taking the one-parameter time-translation group as the
-prototype; characterize deterministic versus non-deterministic symmetry
-transformations and locate the origin of complementarity; show why wave-function
-collapse keeps quantum mechanics an ordinary Kolmogorov probability theory, and how
-this differs from Gleason's theorem; prove that time-translation
-is a stochastic process _if and only if_ it is deterministic; reconstruct a quantum
-trajectory at intermediate times by post-selection; work the double-slit
-and Bell/CHSH experiments; and close with EPR-completeness, relativistic causality,
-a concrete deterministic theory, and the classical limit.
-
-{include 1 Book.DeterministicTransformations}
-
-{include 1 Book.CollapseKeepsKolmogorov}
-
-{include 1 Book.DoubleSlit}
-
-{include 1 Book.BellInequalities}
-
-{include 1 Book.EPRComplete}
 
 {include 0 Book.ProofPlans}
 
