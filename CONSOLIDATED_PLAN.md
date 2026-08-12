@@ -226,6 +226,17 @@ itself is not. Medium value, small and self-contained — a natural next target:
   in the observable (`weakValue_linear`), and a double-slit capstone
   (`dslit_weakValue`) tying it to `ChapterTrajectory`. Priority: after §9 items 1–3.
 
+- **4.8 `continuityUnitary` (ChapterContinuityUnitary).** Replace the arbitrary
+  Gram–Schmidt completion of `ConditionalUnitary` with the less-arbitrary,
+  dynamics-based unitary: a function (velocity field `v_t(x)` or potential
+  `V(x,z)`) determines a Hermitian generator
+  `H = ½(p·v + v·p)` and hence a unitary `e^{iHt}`; via the tensor–product
+  identification `L²(X)⊗L²(Z) ≅ L²(X×Z)` this works for a conditional probability
+  on continuous inputs without Bochner machinery, and the conditional is recovered
+  by the ordinary Born rule `P(x,B) = ∫_B |Ψ_1(x,z)|² dν(z)`. Prove
+  `continuityHamiltonian_hermitian`, `continuityUnitary_unitary`, `bornRecover`,
+  `tensorIsom`, and the capstone `condProb_of_continuity`. Priority: after §4.7.
+
 ---
 
 ## 5. Issues.md — full disposition
@@ -323,17 +334,21 @@ closures are already recorded in `BookProof/STATUS.md` (waves 2026-08-10 and
 **GAP-1 is closed** (2026-08-10, `ChapterCoherentThermalFidelity`), **GAP-2 is
 closed** (2026-08-12, metrizability residue removed by `ChapterSeparableSpectrum` +
 `ChapterSeparableL2Model`), and §4 is fully landed. No mathematical item remains
-open. The only remaining work is the medium-value **weak-value task (§4.7)**,
-hygiene, and doc-refresh:
+open. The only remaining work is the medium-value **weak-value task (§4.7)** and
+the **dynamics-based-unitary task (§4.8)**, hygiene, and doc-refresh:
 
 1. **§4.7 `weakValue`** (`ChapterWeakValue`) — the weak-value ratio and its
    well-definedness, diagonal collapse, and linearity (see §4 and the Proof-Plans
-   appendix §D). Small, self-contained, and the natural next mathematical target.
-2. **Hygiene §7** — note the two `randomMap2_axioms` audit-only modules; confirm
+   appendix §D). Small, self-contained, and a natural next mathematical target.
+2. **§4.8 `continuityUnitary`** (`ChapterContinuityUnitary`) — the less-arbitrary,
+   dynamics-based unitary (Hermitian continuity generator → unitary → Born-rule
+   recovery of a conditional), replacing the arbitrary Gram–Schmidt completion of
+   `ConditionalUnitary` (see §4 and the Proof-Plans appendix §E).
+3. **Hygiene §7** — note the two `randomMap2_axioms` audit-only modules; confirm
    `patches/check-katex.sh` is tracked.
-3. **Issues.md refresh** — the §0b chapter count and §1 default-targets wording
+4. **Issues.md refresh** — the §0b chapter count and §1 default-targets wording
    were already updated in-flight; re-verify they match the current tree (38
    `{include}`s, `defaultTargets = ["BookProof", "Book", "Singularity"]`).
-4. Run the **§8 verification gate** (builds, book wrapper, sorry/axiom audit,
+5. Run the **§8 verification gate** (builds, book wrapper, sorry/axiom audit,
    isolation audit), then re-verify the GAP-1/GAP-2 closures are recorded in
    `BookProof/STATUS.md` (both already are).

@@ -236,6 +236,84 @@ The finite-dimensional algebraic core proved here is what makes the
 parametrization work, and it is the part the book actually computes.
 :::
 
+# A Less Arbitrary Construction: the Unitary from the Dynamics
+
+:::paragraph
+The construction above builds the unitary $`\mathcal{U}` by completing the
+wave-function $`\Psi = \sqrt p` to an orthonormal basis (Gram–Schmidt). That is
+*correct* but *arbitrary*: the columns after the first are chosen by the completion,
+not fixed by the probability data. The manuscript's own field-theoretic thread
+(QFM.tex) supplies a construction that is *less arbitrary*, because the unitary is
+*pinned down by the dynamics* rather than by a basis choice.
+:::
+
+:::paragraph
+The point is the passage from a *function* to a *unitary*. A velocity field
+$`v_t(x)` — a function on configuration space — determines a Hermitian generator by
+the continuity (Weyl-symmetrized) prescription
+:::
+
+$$`\mathbf{H}_t = \tfrac12\bigl[\hat p\cdot v_t(\hat x) + v_t(\hat x)\cdot\hat p\bigr],`
+
+:::paragraph
+and hence a unitary $`\mathbf{U} = e^{i\mathbf{H}t}`. The unitary is *determined by
+the function* $`v_t`; there is no free choice of extra columns. This is the
+"function ↔ unitary" translation of QFM.tex, and it is the natural replacement for
+the Gram–Schmidt completion: instead of arbitrarily extending a wave-function to a
+unitary, one declares the *transition law* (a conditional probability) and lets the
+dynamics build the unitary.
+:::
+
+# The Generalization: Conditional Probability and a Standard Hilbert Space
+
+:::paragraph
+The same construction generalizes to a *conditional probability* (a regular
+conditional probability / Markov kernel) on continuous inputs, and it does so
+without any Bochner-space machinery. Let $`p(y|x)` be a transition law from $`X` to
+$`Z`, and let $`e_0 \in L^2(Z,\nu)` be a fixed *background* wave-function — for
+concreteness the standard Gaussian state $`e_0(z) = \pi^{-1/4} e^{-z^2/2}`.
+Form the joint space by the canonical tensor–product identification
+:::
+
+$$`L^2(X,\mu) \otimes L^2(Z,\nu) \;\cong\; L^2(X\times Z,\;\mu\times\nu).`
+
+:::paragraph
+Then $`\mathbf{H}` is a *standard* Hermitian operator on the scalar space
+$`L^2(X\times Z)` — for instance a Schrödinger-type Hamiltonian
+:::
+
+$$`\mathbf{H} = -\tfrac12\,\Delta_z + V(x,z),`
+
+:::paragraph
+with $`x` acting as an external coordinate that modifies the potential felt by the
+$`z` variable. Starting from the product wave-function $`\Psi_0(x,z) = f(x)\,e_0(z)`
+and evolving by the unitary gives $`\Psi_1 = e^{i\mathbf{H}}\Psi_0`, and the
+conditional probability is recovered by the *ordinary Born rule*:
+:::
+
+$$`P(x, B) = \int_B \bigl|\Psi_1(x,z)\bigr|^2\, d\nu(z).`
+
+:::paragraph
+This is the key simplification: no operator-valued inner products, no module
+algebra. Any classical stochastic transition (regular conditional probability) is
+simulated by an ordinary quantum system — a standard Hermitian $`\mathbf{H}` on a
+standard $`L^2(X\times Z)`, a fixed background wave-function, and the Born rule.
+The conditional probability ↔ unitary map of this chapter is thereby re-grounded in
+standard quantum mechanics, and the arbitrary Gram–Schmidt completion is replaced
+by a unitary that the dynamics determines.
+:::
+
+:::paragraph
+The shift in viewpoint is the same one that makes the finite core of this chapter
+honest: the Gram–Schmidt and SVD results record what *any* unitary must do with the
+wave-function data; the dynamics-based construction records *which* unitary the
+physics picks. Both are needed — the former is the algebraic backbone, the latter
+the less-arbitrary physical selection. The formalization of the operator
+$`\mathbf{H} = \hat p\cdot v + v\cdot\hat p` and of the Born-rule recovery of $`P(x,B)`
+is a proof-plan item (see the appendix), building on the continuity-Hamiltonian
+thread of the ODE chapter.
+:::
+
 # Why This Matters Here
 
 :::paragraph

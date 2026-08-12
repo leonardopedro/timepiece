@@ -199,3 +199,59 @@ and its agreement with the ordinary expectation in the diagonal case.
 *Where it lives.* `BookProof.ChapterWeakValue`, registered in `BookProof.lean`,
 certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from the
 double-slit chapter's "Weak Measurements" section.
+
+# E. The Dynamics-Based Unitary (from a function / conditional probability)
+
+*Current state.* The `ConditionalUnitary` chapter builds the unitary that
+parametrizes a conditional probability by *Gram–Schmidt* completion of the
+wave-function `Ψ = √p` (`BookProof.ChapterJointUnitary.exists_unitary_column`),
+and reads the marginal/conditional back off the operator's Gram matrix
+(`BookProof.ChapterConditional`). That construction is correct but *arbitrary*:
+the columns after the first are chosen by the completion, not fixed by the
+probability data.
+
+*The less arbitrary alternative.* The manuscript's field-theoretic thread (QFM.tex)
+defines the unitary from the *dynamics* rather than from a basis choice: a function
+(a velocity field `v_t(x)`, or a potential `V(x,z)`) determines a Hermitian
+generator by the continuity (Weyl-symmetrized) prescription
+
+$$`\mathbf{H}_t = \tfrac12\bigl[\hat p\cdot v_t(\hat x) + v_t(\hat x)\cdot\hat p\bigr],`
+
+and hence a unitary $`\mathbf{U} = e^{i\mathbf{H}t}` — pinned down by the function,
+with no free choice of extra columns. For a conditional probability $`p(y|x)` the
+construction needs no Bochner-space machinery: via the tensor–product
+identification $`L^2(X,\mu)\otimes L^2(Z,\nu) \cong L^2(X\times Z,\mu\times\nu)`,
+$`\mathbf{H}` is a standard Hermitian operator on the scalar space
+$`L^2(X\times Z)` (e.g. $`\mathbf{H} = -\tfrac12\Delta_z + V(x,z)`), and the
+conditional is recovered by the ordinary Born rule $`P(x,B) = \int_B
+|\Psi_1(x,z)|^2\,d\nu(z)`.
+
+*What is formalizable.* A new module (e.g. `BookProof.ChapterContinuityUnitary`)
+would prove, on the finite (discretized) model that the rest of `BookProof` uses:
+
+ * `continuityHamiltonian` — the Weyl-symmetrized generator
+   $`\mathbf{H} = \tfrac12(p\,v + v\,p)` for a velocity vector $`v` on a finite
+   lattice, and its Hermiticity (`continuityHamiltonian_hermitian`);
+ * `continuityUnitary` — $`\mathbf{U} = e^{i\mathbf{H}}` is a unitary matrix
+   (`continuityUnitary_unitary`), the "function → unitary" translation;
+ * `bornRecover` — for a product wave-function $`\Psi_0(x,z) = f(x)\,e_0(z)` and
+   $`\Psi_1 = e^{i\mathbf{H}}\Psi_0`, the map $`B \mapsto \int_B
+   |\Psi_1(x,z)|^2\,d\nu(z)` is a genuine probability measure on $`Z` for each
+   $`x` (the Born recovery of the conditional);
+ * `tensorIsom` — the finite index-level statement of the tensor–product
+   identification (the scalar `L²(X×Z)` is the same object); and, as a capstone,
+ * `condProb_of_continuity` — instantiating the recovered $`P(x,B)` as a regular
+   conditional probability, tying the dynamics-based unitary back to the
+   `ChapterConditional`/`ChapterJointUnitary` Gram-matrix reading.
+
+*Boundary.* The analytic integrability of $`\int_B |\Psi_1|^2\,d\nu` and the
+unboundedness of $`-\tfrac12\Delta_z` are handled at the finite/discretized level,
+as throughout `BookProof`; the infinite-dimensional analytic realization is the
+same open layer as the rest of the book. The *physical* claim that the dynamics
+"is" the transition is about the choice of $`\mathbf{H}`; the formal content is
+that a Hermitian $`\mathbf{H}` yields a unitary and that the Born rule recovers a
+probability law.
+
+*Where it lives.* `BookProof.ChapterContinuityUnitary`, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed
+from the `ConditionalUnitary` chapter's "A Less Arbitrary Construction" section.
