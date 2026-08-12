@@ -509,6 +509,77 @@ measure on the high-dimensional sphere:
 ```
 
 :::paragraph
+Mehler's 1866 statement is not a slogan; it is a genuine limit, and it is the
+single most important structural fact of this part. On the surface of a $`k`-sphere
+the rotation-invariant (uniform) area element factorizes into single-coordinate
+weights $`(1-x^2)^{(\alpha-1)/2}` — exactly the *Gegenbauer* weight of order
+$`\alpha`. The uniform hyperspherical measure is therefore the natural *prior*: it
+assigns equal weight to every direction, expressing that we have no information.
+Rescale the coordinate $`x \mapsto \sqrt{2/\alpha}\,x` and let
+$`\alpha \to \infty`. The single-coordinate hyperspherical weight tends to the
+Gaussian weight $`e^{-x^2}`:
+:::
+
+$$
+`\lim_{\alpha\to\infty}\Bigl(1 - \tfrac{x^2}{\alpha}\Bigr)^{\alpha-1/2} = e^{-x^2}.`
+
+:::paragraph
+At the same time the Gegenbauer polynomials $`C_n^{(\alpha/2)}` (orthogonal with
+respect to the uniform measure, and defining the hyperspherical harmonics) become
+the Hermite polynomials $`H_n/n!` (with the physicists' $`H_n` from the recurrence
+$`H_0 = 1, H_1 = 2x, H_{n+2} = 2x H_{n+1} - 2(n+1)H_n`), in the scaled limit
+:::
+
+$$
+`\lim_{\alpha\to\infty}\Bigl(\tfrac{\alpha}{2}\Bigr)^{-n/2}
+  C_n^{(\alpha/2)}\Bigl(\sqrt{\tfrac{2}{\alpha}}\,x\Bigr)
+   = \frac{H_n(x)}{n!}.`
+
+:::paragraph
+And the normalizations converge consistently: the (squared) Gegenbauer
+normalization integral against the hyperspherical weight tends to the Hermite
+normalization integral against the Gaussian weight, $`\int_\mathbb{R}[H_n(x)/n!]^2
+e^{-x^2}dx = \sqrt{\pi}\,2^n/n!`. The verified statements live in
+`BookProof.PhysHSGaussian`:
+:::
+
+```
+#check @PhysHSGaussian.physHermite
+#check @PhysHSGaussian.gegenbauer
+#check @PhysHSGaussian.gegenbauerScaled
+#check @PhysHSGaussian.gegenbauerScaled_tendsto_hermite
+#check @PhysHSGaussian.weight_tendsto_gaussian
+#check @PhysHSGaussian.hermite_normalization
+#check @PhysHSGaussian.normalization_tendsto
+#check @PhysHSGaussian.gaussian_concentration_sphere
+```
+
+:::paragraph
+This is the precise sense in which the uniform (hyperspherical) prior and the
+Gaussian (Fock) vacuum coincide, and in which the orthogonal excitations of the Fock
+space are the images of the hyperspherical harmonics. The dictionary is complete:
+:::
+
+| Finite hypersphere ($`\alpha < \infty`) | Infinite-dimensional limit (Fock) |
+| :--- | :--- |
+| uniform surface measure $`d\sigma` | Gaussian measure $`e^{-x^2}dx` |
+| Gegenbauer weight $`(1-x^2)^{(\alpha-1)/2}` | Gaussian weight $`e^{-x^2}` |
+| Gegenbauer polynomials $`C_n^{(\alpha/2)}` | Hermite polynomials $`H_n/n!` |
+| hyperspherical harmonics | number states $`\ket{n}` |
+| uniform "no-information" prior | Gaussian source qsample $`\Psi_0 = \ket{0}` |
+
+:::paragraph
+So the tail prior that the blind language is forced to adopt is not merely *a*
+rotation-invariant measure: it is the infinite-dimensional *limit* of the family of
+uniform hyperspherical priors, with the Fock number states as the limits of the
+hyperspherical harmonics. This is why the free-field prior of
+{ref "free-field"}[the free-field chapter] is the same object, and why the Gaussian
+source qsample $`\sqrt{p_0}` of a flow model coincides with the Fock vacuum. The
+finite-hypersphere-to-Fock dictionary is the structural backbone of this part and of
+the whole book.
+:::
+
+:::paragraph
 In the coordinate model the forcing is explicit. The language sees only finite
 coordinate sets, and restriction to any finite set has the corresponding finite
 product Gaussian law:
