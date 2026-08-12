@@ -85,6 +85,100 @@ into an informative one ({ref "sequential-bayes"}[non-informativeness is
 coordinate-dependent]). The free-field construction is the finite-dimensional shadow
 of that infinite-dimensional exception.
 
+# Why the Gaussian Is the Uniform Measure on the Infinite Sphere: the Mehler Limit
+
+The claim that the Gaussian is the uniform measure "on an infinite-dimensional
+sphere" is not a slogan; it is a genuine limit, due in spirit to Mehler (1866) and
+made quantitative by López and Temme. On the surface of a $`k`-sphere the
+rotation-invariant (uniform) area element factorizes into single-coordinate weights
+$`(1-x^2)^{(\alpha-1)/2}` — exactly the *Gegenbauer* weight of order $`\alpha`.
+The uniform hyperspherical measure is therefore the natural *prior*: it assigns equal
+weight to every direction, expressing that we have no information. Its orthogonal
+polynomials are the Gegenbauer polynomials $`C_n^{(\alpha/2)}`.
+
+The infinite-dimensional limit is where the identification becomes the Gaussian.
+Rescale the coordinate $`x \mapsto \sqrt{2/\alpha}\,x` and let $`\alpha \to \infty`.
+The single-coordinate hyperspherical weight tends to the Gaussian weight
+$`e^{-x^2}`:
+
+$$
+`\lim_{\alpha\to\infty}\Bigl(1 - \tfrac{x^2}{\alpha}\Bigr)^{\alpha-1/2} = e^{-x^2}.`
+
+The verified statement (module `BookProof.PhysHSGaussian`):
+
+```
+#check @PhysHSGaussian.weight_tendsto_gaussian
+```
+
+At the same time the Gegenbauer polynomials become the Hermite polynomials
+$`H_n/n!` (with the physicists' $`H_n` defined by the recurrence
+$`H_0 = 1, H_1 = 2x, H_{n+2} = 2x H_{n+1} - 2(n+1)H_n`), in the scaled limit
+
+$$
+`\lim_{\alpha\to\infty}\Bigl(\tfrac{\alpha}{2}\Bigr)^{-n/2}
+  C_n^{(\alpha/2)}\Bigl(\sqrt{\tfrac{2}{\alpha}}\,x\Bigr)
+   = \frac{H_n(x)}{n!}.`
+
+The verified statement (module `BookProof.PhysHSGaussian`):
+
+```
+#check @PhysHSGaussian.physHermite
+#check @PhysHSGaussian.gegenbauer
+#check @PhysHSGaussian.gegenbauerScaled
+#check @PhysHSGaussian.gegenbauerScaled_tendsto_hermite
+```
+
+The normalizations converge consistently as well: the (squared) Gegenbauer
+normalization integral against the hyperspherical weight tends to the Hermite
+normalization integral against the Gaussian weight,
+
+$$
+`\int_\mathbb{R}\Bigl[\frac{H_n(x)}{n!}\Bigr]^2 e^{-x^2}\,dx
+   = \frac{\sqrt{\pi}\,2^n}{n!}.`
+
+The verified statements (module `BookProof.PhysHSGaussian`):
+
+```
+#check @PhysHSGaussian.hermite_normalization
+#check @PhysHSGaussian.normalization_tendsto
+```
+
+This is the precise sense in which the uniform (hyperspherical) prior and the
+Gaussian (Fock) vacuum coincide, and in which the orthogonal excitations of the Fock
+space are the images of the hyperspherical harmonics. The dictionary is complete:
+
+| Finite hypersphere ($`\alpha < \infty`) | Infinite-dimensional limit (Fock) |
+| :--- | :--- |
+| uniform surface measure $`d\sigma` | Gaussian measure $`e^{-x^2}dx` |
+| Gegenbauer weight $`(1-x^2)^{(\alpha-1)/2}` | Gaussian weight $`e^{-x^2}` |
+| Gegenbauer polynomials $`C_n^{(\alpha/2)}` | Hermite polynomials $`H_n/n!` |
+| hyperspherical harmonics | number states $`\ket{n}` |
+| uniform "no-information" prior | Gaussian source qsample $`\Psi_0 = \ket{0}` |
+
+That the Gaussian pushes forward to the *uniform* sphere measure, and is itself
+rotation-invariant, is proved in the same module (and is the mechanism used above to
+build the sphere measure in the first place):
+
+```
+#check @PhysHSGaussian.gaussianE_rotation_invariant
+#check @PhysHSGaussian.sphereUniform_rotation_invariant
+```
+
+And the concentration is quantitative: for an almost-every sequence of standard
+Gaussian coordinates, the empirical squared norm $`\sum_{i<k}\omega_i^2` grows like
+$`k`, i.e. the Gaussian sample sits on the sphere of radius $`\sqrt{k}` in the
+limit — the strong-law form of "the Gaussian concentrates on the sphere":
+
+```
+#check @PhysHSGaussian.gaussian_concentration_sphere
+```
+
+So the free-field prior is not merely *a* rotation-invariant measure: it is the
+infinite-dimensional limit of the family of uniform hyperspherical priors, with the
+Fock excitations as the limits of the hyperspherical harmonics. This is what makes
+the Gaussian source qsample $`\sqrt{p_0}` of a flow model coincide with the Fock
+vacuum that the companion algebra manipulates natively.
+
 # Born Pushes the Sphere to the Simplex
 
 Composing the two maps — normalize the Gaussian to the sphere, then apply the Born
