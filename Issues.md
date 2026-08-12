@@ -53,9 +53,9 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   Originals backed up at `lakefile.toml.bak`, `lake-manifest.json.bak`.
 - **The book builds and renders.** `lake build book && lake exe book` produces the
   single-page `_out/html-single/index.html` (see §4 for the single-page decision and
-  the 30-`{include}` root `#doc`). Prose, KaTeX math, and the Lean statement code
+  the 35-`{include}` root `#doc`). Prose, KaTeX math, and the Lean statement code
   blocks (`<pre>`) all render.
-- **38 chapters** written (39 chapter files under `Book/`, of which 38 are
+- **35 chapters** written (36 chapter files under `Book/`, of which 35 are
   `{include}`d in the root `Book.lean`; `Book/Trivial.lean` is unused scaffolding,
   kept deliberately): Introduction; Part I (Dutch book, sequential Bayes,
   max-entropy, total variance); Part II (probability clock/Euler, Born reproduces,
@@ -72,8 +72,8 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   physics chapters formerly listed as *deferred* in §6 have since been written up
   as well — `GaugeSymmetry`, `RealRepresentations`, `YangMillsQuantization`,
   `GribovAmbiguity`, `PhysicalParity`, `DiffeomorphismsGravity`,
-  `ConsciousnessBayesianPrior` and `AlignedDeepLearning` — which is what brings the
-  root `#doc` to 38 `{include}`s.
+  `ConsciousnessBayesianPrior` and `AlignedDeepLearning` — all `{include}`d in the
+  root `Book.lean`, along with the later `CoherentState` chapter.
 - **Lean statements are shown as plain (non-elaborated) code blocks.** Verification
   is anchored on `lake build BookProof`. Upgrading to elaborated blocks
   (`public import` + `experimental.module`) and to verso-blueprint are planned
@@ -248,10 +248,10 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   produces `_out/html-single/index.html` (single page, all 26 chapters, ~190 anchored
   headings, 0 broken ToC links). It was *not* a count limit and *not* fixed by
   `maxHeartbeats`/`maxRecDepth`/`experimental.module`. See `BOOK_PROOF_PLAN.md`
-  Priority 4.   **Update (August 2026):** the root `#doc` now has **38**
-  `{include}`s — the chapters of §7 plus the eight formerly deferred physics
+  Priority 4.   **Update (August 2026):** the root `#doc` now has **35**
+  `{include}`s — the chapters of §7 plus the formerly deferred physics
   chapters. Since the fix annotates every sub-part binding (it was never a hard
-  count limit), 38 includes elaborate the same way, and `./patches/build-book.sh`
+  count limit), 35 includes elaborate the same way, and `./patches/build-book.sh`
   renders them into the single page.
 
 - **[GOTCHA] Multi-line `**bold**` wrapping inline math breaks the root splice.**

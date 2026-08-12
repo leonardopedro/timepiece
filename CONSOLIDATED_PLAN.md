@@ -14,9 +14,14 @@ re-done or re-listed.
 `./patches/postprocess-html.sh`, and the `#print axioms` audit are all green with
 no in-scope warnings. `BookProof/` is `sorry`-free / `axiom`-free (only `propext`,
 `Classical.choice`, `Quot.sound`); every `Book/*.lean` chapter is included in
-`Book.lean` (38 `{include}`s, 39 chapter files). Of the two historical
+`Book.lean` (35 `{include}`s, 36 chapter files; `Book/Trivial.lean` is unused
+scaffolding and is not `{include}`d). Of the two historical
 mathematical gaps, **both GAP-1 (2026-08-10) and GAP-2 (2026-08-12) are now
-CLOSED** (§3); the remaining work is the §7 hygiene residue and the doc refresh.
+CLOSED** (§3); no `BookProof/` module is left unproved and none remains to be
+`#check`-ed from `Book/`. The remaining work is the two medium-value
+formalization targets `weakValue` (§4.7) and `continuityUnitary` (§4.8), and the
+keep-or-delete decision on `Book/Trivial.lean` (§7). The Issues.md doc refresh is
+done (chapter count 35/36 and §1 default-targets wording).
 
 ---
 
@@ -107,6 +112,22 @@ the day-to-day tool. Verify candidate Mathlib names with
   finite algebraic core (`ChapterThermalTemperatureCore`) is also proved.
 - **Verso integrated** on v4.28.0; single-page output decided and locked
   (`emitHtmlSingle := .immediately`, `emitHtmlMulti := .no`).
+- **Book prose coverage of §4.7/§4.8 landed (2026-08-12).** The *prose* halves of
+  the two remaining BookProof targets are already written up and `#check`-ed from
+  the book: the "Weak Measurements / weak values" section of `Book/DoubleSlit.lean`
+  (weak-value ratio, ABL core in `ChapterTrajectory`, see Proof-Plans appendix §D)
+  and the "Less Arbitrary Construction / dynamics-based unitary" sections of
+  `Book/ConditionalUnitary.lean` (continuity Hamiltonian `H = ½(p̂·v + v·p̂)`,
+  tensor-product identification, Born-rule recovery; Proof-Plans appendix §E).
+  What remains open in §4.7/§4.8 is *only* the BookProof module (the formal
+  statements), not the book text.
+- **Display-math fix (2026-08-12).** Five display equations in
+  `Book/FreeField.lean` and `Book/SolovayTensor.lean` wrote `$$` on its own line,
+  which Verso emits as literal text + a plain `<code>` block that KaTeX never
+  touches. Rewritten in the working form (`$$` immediately before the backtick);
+  rebuilt book + `check-katex.sh` (1818 snippets, 0 failures). A remaining
+  `Issues.md` §0b/§4 count (38/39) was refreshed to the actual 35 `{include}`s /
+  36 chapter files.
 
 ---
 
@@ -224,7 +245,10 @@ itself is not. Medium value, small and self-contained — a natural next target:
   well-definedness when `⟨f|i⟩ ≠ 0` (`weakValue_wellDefined`), the diagonal
   collapse to the ordinary expectation when `i = f` (`weakValue_diag`), linearity
   in the observable (`weakValue_linear`), and a double-slit capstone
-  (`dslit_weakValue`) tying it to `ChapterTrajectory`. Priority: after §9 items 1–3.
+  (`dslit_weakValue`) tying it to `ChapterTrajectory`. The book prose ("Weak
+  Measurements" in `Book/DoubleSlit.lean`) is already written and `#check`-ed from
+  `ChapterTrajectory`; only the BookProof module is open. Priority: first (it is
+  the smallest target).
 
 - **4.8 `continuityUnitary` (ChapterContinuityUnitary).** Replace the arbitrary
   Gram–Schmidt completion of `ConditionalUnitary` with the less-arbitrary,
@@ -244,10 +268,10 @@ itself is not. Medium value, small and self-contained — a natural next target:
 | § | Item | Status now | Action required |
 | :-- | :-- | :-- | :-- |
 | 0 | verso-blueprint needs Lean ≥ v4.29.0 (project pinned v4.28.0) | **[BLOCKER]** | **Keep Verso v4.28.0 manual as the deliverable.** Adopt blueprint **only** when a toolchain exists that is *both* blueprint-compatible *and* supported by `aristotle.harmonic.fun` (see `BOOK_PROOF_PLAN.md` §3.2). Do not bump toolchain/Mathlib in this repo meanwhile. |
-| 0b | Current state of this deliverable | **STALE on chapter count** | It says "31 chapters"; the root `#doc` now has **38** `{include}`s, 39 chapter files. Refresh the count and the honesty-flag wording when Issues.md is next touched. |
+| 0b | Current state of this deliverable | **RESOLVED (2026-08-12)** | Issues.md §0b refreshed to the actual tree: 35 `{include}`s / 36 chapter files (`Book/Trivial.lean` unused scaffolding, not `{include}`d). Re-verify only when the chapter set next changes. |
 | 1 | Transitive dependency pins (subverso/MD4Lean/plausible chosen by date) | **LOW RISK, untracked** | Leave pinned; re-derive **only** if a Verso/Mathlib upgrade is ever attempted. Do not upgrade in this repo. |
 | 1 | Full `lake build BookProof` recompile integrity | **RESOLVED** | Re-run once per release cycle; the latest `lake build` is green. |
-| 1 | `book` is intentionally not a default target | **STALE** | `defaultTargets` is now `["BookProof", "Book", "Singularity"]` — update the wording that still says `["PnpProof", "BookProof"]`. |
+| 1 | `book` is intentionally not a default target | **RESOLVED** | `defaultTargets` is now `["BookProof", "Book", "Singularity"]`; `Issues.md` §1 records the `["PnpProof", "BookProof"]` wording as **UPDATED**. Re-verify only if `lakefile.toml` changes. |
 | 2 | Curated-edition coverage table | **STALE** | The "deferred" physics chapters have since been **written up**: `GaugeSymmetry`, `PhysicalParity`, `YangMillsQuantization`, `RealRepresentations`, `DiffeomorphismsGravity`, `AlignedDeepLearning`, `GribovAmbiguity`, `ConsciousnessBayesianPrior` all exist under `Book/` and are **included** in `Book.lean`. The §6 "deferred" list should be re-marked `DONE (framing settled)` or moved to Contention dispositions. |
 | 2 | Sketch proofs re-derived, not transcribed | **OPEN, editorial** | No build action; cross-check any less-standard claim against `book.tex` before publication (see Contention §7). |
 | 3 | `newproof.md` layers (verified core vs philosophical claim) | **RESOLVED** | `Book/PaFreeHilbert.lean` keeps the compartments separate; no action. |
@@ -293,13 +317,13 @@ now-written chapters.
 
 - `BookProof/B1_randomMap2_axioms.lean` and `BookProof/randomMap2_axioms.lean`
   still `import` RH modules (`UnusedRoute.SchoenfeldPRA`). They are in **no build
-  target**, so the default build is clean. Either delete them or add a docstring
-  saying they are audit-only. Prefer the docstring (they are the audit trail).
+  target**, so the default build is clean. **DONE (2026-08-12):** both now carry an
+  explicit "Audit-only module (not in any build target)" docstring and are kept as
+  the audit trail.
 - Root `RiemannProof.lean` now `import UnusedRoute.RcpRandomMap2Bridge` (repointed
   in this wave); the §7 "repoint the import" item is **RESOLVED**.
-- `patches/build-book.sh` is tracked; `patches/check-katex.sh` was copied in with
-  this wave and is **untracked** — `git add` it (and re-verify its executable bit,
-  which has been lost before).
+- `patches/build-book.sh` is tracked; `patches/check-katex.sh` is tracked with the
+  executable bit set (mode `100755`) — the §7 "untracked" item is **RESOLVED**.
 - `SpecialFiles`: keep `Book/Trivial.lean` (unused scaffolding) or delete it;
   it is not `{include}`d.
 
@@ -333,9 +357,10 @@ closures are already recorded in `BookProof/STATUS.md` (waves 2026-08-10 and
 (the caveats landed in `Book/Introduction.lean` and `Book/OdeSingularity.lean`),
 **GAP-1 is closed** (2026-08-10, `ChapterCoherentThermalFidelity`), **GAP-2 is
 closed** (2026-08-12, metrizability residue removed by `ChapterSeparableSpectrum` +
-`ChapterSeparableL2Model`), and §4 is fully landed. No mathematical item remains
-open. The only remaining work is the medium-value **weak-value task (§4.7)** and
-the **dynamics-based-unitary task (§4.8)**, hygiene, and doc-refresh:
+`ChapterSeparableL2Model`), and §4 is fully landed. No `BookProof/` module is left
+unproved and no module remains to be `#check`-ed from `Book/` — the book chapters
+already cite the full proof library. The only open items are the two medium-value
+formalization targets and the cosmetic `Trivial.lean` decision:
 
 1. **§4.7 `weakValue`** (`ChapterWeakValue`) — the weak-value ratio and its
    well-definedness, diagonal collapse, and linearity (see §4 and the Proof-Plans
@@ -344,11 +369,12 @@ the **dynamics-based-unitary task (§4.8)**, hygiene, and doc-refresh:
    dynamics-based unitary (Hermitian continuity generator → unitary → Born-rule
    recovery of a conditional), replacing the arbitrary Gram–Schmidt completion of
    `ConditionalUnitary` (see §4 and the Proof-Plans appendix §E).
-3. **Hygiene §7** — note the two `randomMap2_axioms` audit-only modules; confirm
-   `patches/check-katex.sh` is tracked.
-4. **Issues.md refresh** — the §0b chapter count and §1 default-targets wording
-   were already updated in-flight; re-verify they match the current tree (38
-   `{include}`s, `defaultTargets = ["BookProof", "Book", "Singularity"]`).
+3. **Hygiene §7** — the two `randomMap2_axioms` audit-only docstrings and the
+   `check-katex.sh` tracking are **DONE**; only the keep-or-delete decision on
+   `Book/Trivial.lean` is left.
+4. **Issues.md refresh** — **DONE (2026-08-12):** the §0b chapter count now matches
+   the tree (35 `{include}`s / 36 chapter files) and the §1 default-targets wording
+   is **UPDATED**. Re-verify only when the chapter set next changes.
 5. Run the **§8 verification gate** (builds, book wrapper, sorry/axiom audit,
    isolation audit), then re-verify the GAP-1/GAP-2 closures are recorded in
    `BookProof/STATUS.md` (both already are).
