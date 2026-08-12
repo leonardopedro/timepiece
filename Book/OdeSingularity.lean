@@ -85,10 +85,10 @@ singular) classical flow into a (globally-defined) unitary group $`e^{-iHt}`.
 
 # Weyl Quantization: From ODE to Hamiltonian
 
-The passage from the classical vector field $`\dot x = f(x)` to a self-adjoint
-Hamiltonian is *Weyl quantization*. Because $`x` and the momentum
-$`\hat p = -i\,\partial_x` do not commute, the classical product $`f(x)\,p` must be
-*symmetrized*. For $`\dot x = x^2` the (formal) Hamiltonian is
+The passage from the classical vector field $`\dot x = f(x)` to a Hamiltonian is
+*Weyl quantization*. Because $`x` and the momentum $`\hat p = -i\,\partial_x` do not
+commute, the classical product $`f(x)\,p` must be *symmetrized*. For
+$`\dot x = x^2` the (formal) Hamiltonian is
 
 $$`H = x^2 \hat p - i\,\hat x,`
 
@@ -105,15 +105,22 @@ operator on $`M` bosonic modes as a finitely-supported function recording
 creation/annihilation counts per mode, and implements the *Wick recursion* for
 multiplication. This part of the formalization is genuine and `sorry`-free.
 
-# Nelson's Theorem and Essential Self-Adjointness
+*What Weyl quantization does and does not give.* The construction yields a *formal
+operator*: a normal-ordered expression that is *Hermitian* (equal to its formal
+algebraic adjoint). It does **not** by itself establish essential self-adjointness on
+$`L^2` — that is a separate, analytic question governed by Nelson's theorem
+(below) and by the completeness of the classical flow. Confusing the two is the
+source of the manuscript's error, which we correct in the next section.
+
+# Nelson's Theorem, Essential Self-Adjointness, and the x² Hamiltonian
 
 For the unitary evolution $`e^{-iHt}` to exist globally, the Hamiltonian must be
 *essentially self-adjoint* (its closure must be self-adjoint, so that the spectral
 theorem applies). *Nelson's theorem* gives a criterion: a symmetric operator is
 essentially self-adjoint on a domain if it has a dense set of *analytic vectors*.
 For an ODE-derived Hamiltonian, the relevant analytic vectors are tied to the
-*completeness of the classical flow*: roughly, if the classical flow exists for
-all time, the Hamiltonian is essentially self-adjoint, and conversely.
+*completeness of the classical flow*: if the classical flow exists for all time, the
+Hamiltonian is essentially self-adjoint, and conversely.
 
 The repository states this connection (module `Singularity.Esa`):
 
@@ -121,22 +128,40 @@ The repository states this connection (module `Singularity.Esa`):
 #check @nelson_essential_self_adjoint
 ```
 
-`nelson_essential_self_adjoint` is a genuine theorem: it states that vanishing
-deficiency indices are equivalent to completeness of the classical flow, proved by
-`simp` from the certificate definitions. Nelson's theorem is therefore
-formalized at the algebraic certificate layer; a future analytic realization on a
-Hilbert space can refine the certificates.
+`nelson_essential_self_adjoint` records the Nelson correspondence at the *algebraic
+certificate layer*: it states that vanishing deficiency indices are equivalent to
+completeness of the represented flow, proved by `simp` from the certificate
+definitions. As we flag in "What Is Verified, and What Is Open" below, both sides of
+that equivalence are currently placeholders (`isComplete := true` and
+`deficiencyIndices := (0,0)` by definition), so this is a genuine theorem *about the
+certificate interface*, not yet an analytic proof of essential self-adjointness. A
+future analytic realization on a Hilbert space will refine the certificates.
 
-The self-adjointness of the Weyl Hamiltonian is also proved (module
-`Singularity.Hamiltonian`):
+*The manuscript's claim, and the correction to its proof.* The manuscript (book.tex)
+asserts that for $`\dot x = x^2` the Hamiltonian $`H = x^2\hat p - i\,\hat x` on
+$`C_c^\infty(\mathbb{R})` "can be proved to be essentially self-adjoint", citing a
+positive-auxiliary-operator argument (`H^2` in a corollary). The *conclusion* — that
+$`H` can be made essentially self-adjoint — is not unreasonable; the *justification*
+offered is wrong, and the correct conditions are different. The claimed proof does
+not go through: the classical flow
+$`\Phi_t(x_0) = x_0/(1 - t x_0)` is defined only for $`t < 1/x_0` (when
+$`x_0 > 0`): it is *incomplete*. By Nelson's theorem the deficiency indices do not
+both vanish, so $`H` is *not* essentially self-adjoint on $`L^2(\mathbb{R})` as it
+stands. The positive-auxiliary-operator method proves essential self-adjointness only
+for operators whose classical flow *is* complete (e.g. polynomial Hamiltonians of
+degree $`\le 1`, or the harmonic oscillator); the positivity hypothesis the
+corollary requires is not satisfied by $`H^2` on the full domain
+$`C_c^\infty(\mathbb{R})`.
 
-```
-#check @weyl_symmetrization_self_adjoint
-```
-
-`weyl_symmetrization_self_adjoint` proves `adj (odeToHamiltonian sys) =
-  odeToHamiltonian sys`, i.e. the Wick-symmetrized Hamiltonian is fixed by the
-real Wick adjoint.
+The correct route to the manuscript's conclusion is by *completing the flow* — the
+operator is made essentially self-adjoint on a suitable extension, not left on
+$`L^2(\mathbb{R})` as is. This is precisely what the `Singularity` library and its
+plan (`SINGULARITY_DETECTION_PLAN.md`) implement (see "Coordinate Transformations"
+and "The Full Analysis Pipeline" below): apply a change of variables that makes the
+flow complete, quantize the transformed vector field, and obtain an operator that
+*is* ESA, whose unitary evolution is well defined and which recovers the original
+singular dynamics in a limit. So the claim is reasonable; the difference from what
+book.tex suggests is in the proof and the conditions under which it holds.
 
 # The Resolution: Complexification
 
@@ -199,37 +224,174 @@ to show the real axis has Lebesgue measure zero in $`\mathbb{R}^2`$.
 
 # What Is Verified, and What Is Open
 
-The repository's `Singularity` library is `sorry`-free, but its theorems split into
-two classes:
+The repository's `Singularity` library is `sorry`-free, but its content splits into
+genuine theorems and *algebraic certificates* that must not be read as analytic
+results. We keep the two sharply separate.
 
 : Genuinely proved
 
   The normal-ordered operator algebra and Wick recursion (`Singularity.Poly`); the
-  flow-analysis machinery (`Singularity.Flow`), whose core total-flow analyzer
-  reports the scalar, linear, and even-degree-monomial flows complete
-  (`blowup_criterion_scalar`, `linear_flow_complete`,
-  `even_degree_monomial_flow_complete`); and the explicit blow-up time of
-  $`x^2` (`blowupTime_x_sq`).
+  formal Hermitian symmetry of the Weyl Hamiltonian (`weyl_symmetrization_self_adjoint`
+  in `Singularity/Hamiltonian.lean`, asserting `adj H = H` at the algebraic level);
+  the explicit blow-up time of $`x^2` (`blowupTime_x_sq` in `Singularity.Singularity`);
+  and — analytically — the complexification resolution
+  (`ae_no_real_singular_time` in `BookProof/ChapterOdeComplexification.lean`) and the
+  spectral energy-bound (`ChapterSpectralEnergyBound`), both in `BookProof`.
 
   ```
+  #check @weyl_symmetrization_self_adjoint
+  #check @blowupTime_x_sq
+  #check @ChapterOdeComplexification.ae_no_real_singular_time
+  ```
+
+: Algebraic certificates, not analytic theorems
+
+  `Singularity.Flow` and `Singularity.Esa` build a *certificate layer* in which the
+  flow-completeness flag and the deficiency indices are finite placeholders:
+  `analyzeClassicalFlow` returns `isComplete := true` by definition, and
+  `deficiencyIndices` returns `(0, 0)` by definition. Consequently
+  `nelson_essential_self_adjoint` (`isEssentiallySelfAdjoint H ↔
+  analyzeClassicalFlow … .isComplete`) is a tautology of these definitions, proved by
+  `simp`, and the "completeness" theorems `blowup_criterion_scalar`,
+  `linear_flow_complete`, and `even_degree_monomial_flow_complete` assert only that a
+  constant flag is `true`. They do **not** establish that any classical flow is
+  complete, and they do **not** establish that $`H = x^2\hat p - i\hat x` is
+  essentially self-adjoint — indeed for $`\dot x = x^2` it is *not* (see Nelson's
+  theorem above). These certificates are an interface for a future analytic
+  realization; they are *not* a proof of the analytic claims, which remain open in
+  the verified layer and are recorded as such in the proof-plan appendix.
+
+  ```
+  #check @analyzeClassicalFlow
+  #check @deficiencyIndices
+  #check @nelson_essential_self_adjoint
   #check @blowup_criterion_scalar
   #check @linear_flow_complete
   #check @even_degree_monomial_flow_complete
   ```
 
-: Genuinely proved
+# Algorithmic Singularity Detection
 
-  Nelson's essential-self-adjointness theorem (`nelson_essential_self_adjoint` in
-  `Singularity/Esa.lean`), the self-adjointness of the Weyl Hamiltonian
-  (`weyl_symmetrization_self_adjoint` in `Singularity/Hamiltonian.lean`), and the
-  analytic complexification resolution (`ae_no_real_singular_time` in
-  `BookProof/ChapterOdeComplexification.lean`) are all `sorry`-free theorems.
+The manuscript (ODE.tex §6) separates the *detection* of a singularity from its
+*resolution*. Detection works on the classical flow. The intended core is
+`analyzeClassicalFlow` (module `Singularity.Flow`), which integrates the vector
+field and records whether a trajectory escapes a numerical window; the type
+`FlowAnalysis` carries an `isComplete` flag and a list of `EscapeEvent`s
+(indexing the initial condition, the blow-up time, and the divergent axes):
 
-  ```
-  #check @nelson_essential_self_adjoint
-  #check @weyl_symmetrization_self_adjoint
-  #check @ChapterOdeComplexification.ae_no_real_singular_time
-  ```
+```
+#check @Singularity.Flow.FlowAnalysis
+#check @Singularity.Flow.EscapeEvent
+```
+
+The *interface* is real, but as noted above the present `analyzeClassicalFlow`
+implementation is a certificate placeholder (`isComplete := true` by definition),
+so the detection it performs is not yet a theorem about maximal ODE solutions — the
+numerical escape experiments it is meant to host belong to a separate approximation
+layer. We record the interface and its intended meaning, and flag the gap honestly.
+
+For a scalar polynomial right-hand side the blow-up time has an exact quadrature:
+$`T(x_0) = \int_{x_0}^{\infty} dx/f(x)`. The library provides the symbolic
+`blowup_time_integral` (module `Singularity.Integration`), which evaluates this
+antiderivative exactly for the monomial (power-law) case and falls back to
+numerical integration otherwise:
+
+```
+#check @Singularity.Integration.blowup_time_integral
+```
+
+The detection pipeline assigns a *diagnostic code* categorizing the failure mode
+(module `Singularity.Integration`): `odeNotEssentiallySelfAdjoint` (flow
+incomplete and no change of variables applied), `odeSingularityDetected` (blow-up
+found within the time horizon), `odeCovApplied` (a coordinate transformation
+stabilized the Hamiltonian), `odeDeficiencyIndices` (a reduced 1D flow has
+non-vanishing deficiency indices), and `odePolynomialTooLarge` (the normal-ordered
+degree exceeds the explosion bound):
+
+```
+#check @Singularity.Integration.UKDiagnosticCode
+```
+
+# Coordinate Transformations
+
+When the flow is singular, the manuscript's strategy is to *change coordinates*
+(ODE.tex §7) so the transformed flow is tame, then quantize the new vector field.
+The library records the elementary transformations (module `Singularity.ChangeOfVars`):
+the *reciprocal* map $`x \mapsto 1/x` (with vector-field pushforward
+$`\dot w = -f(1/w)/w^2`), the *logarithmic* map $`x \mapsto \ln x` (with
+$`\dot w = f(e^w)/e^w`), and the identity:
+
+```
+#check @Singularity.ChangeOfVars.applyReciprocalTransform
+#check @Singularity.ChangeOfVars.applyLogTransform
+#check @Singularity.ChangeOfVars.detectChangeOfVariables
+```
+
+The honest caveat is recorded in the definitions themselves: a reciprocal (or
+logarithmic) transformation of a *polynomial* system generally produces a
+*rational* right-hand side, which cannot be represented in the polynomial
+`ODESystem` type without extending it. The conserved detector
+`detectChangeOfVariables` therefore returns the original system with the identity
+observable map, and the transformed vector fields are stated at the level of `ℝ →
+ℝ` functions rather than pretended to be polynomial systems. The `CoV` type
+enumerates `reciprocal`, `logarithmic`, and `power`; the observable map
+`observableMaps : Fin M → (ℝ → ℝ)` records how to pull a measurement back to the
+original coordinates.
+
+For $`\dot x = x^2` the reciprocal change of variables $`w = 1/x` turns the flow
+into $`\dot w = -1`, which is complete: the singular point is pushed off to
+infinity, and the quantized operator on the transformed coordinates *is* essentially
+self-adjoint. This is the concrete mechanism by which the manuscript's conclusion is
+recovered — the Hamiltonian is made self-adjoint by completing the flow, not by the
+auxiliary-operator argument the manuscript cites (see Nelson's section above).
+
+# The Full Analysis Pipeline
+
+The pieces assemble into a single `sirk_pipeline` (module `Singularity.Integration`)
+that, given a system and an initial condition, builds the Weyl Hamiltonian, runs
+the classical-flow analysis, computes the ESA report, detects a change of
+variables, and returns a `UKDiagnosticCode × EsaReport`:
+
+```
+#check @Singularity.Integration.sirk_pipeline
+#check @Singularity.Report.esaReport
+#check @Singularity.Report.session_detect_singularity
+```
+
+The `EsaReport` (module `Singularity.Esa`) packages the flow-completeness
+certificate with the deficiency indices, and `isEssentiallySelfAdjoint` decides
+whether both deficiency indices vanish — the Nelson criterion at the algebraic
+certificate layer:
+
+```
+#check @Singularity.Esa.EsaReport
+#check @Singularity.Esa.deficiencyIndices
+#check @Singularity.Esa.isEssentiallySelfAdjoint
+```
+
+# Validation Cases
+
+ODE.tex §10 and module `Singularity.Tests` validate the pipeline against a suite of
+benchmarks. The `x' = x^2` scalar case blows up at $`T = -1/x_0` and fails ESA
+(UK-2101) until the reciprocal change of variables is applied; the coupled system
+$`x' = y, y' = 2xy` is flow-incomplete; the reduced system `p_x·y + p_z·p_y·y^2`
+has non-vanishing deficiency indices (UK-2104); the punctured system hits the
+boundary $`y = 0` (UK-2102); and the stable linear system $`x' = -x` is complete,
+so ESA holds and the SIRK evolution matches the analytic exponential decay:
+
+```
+#check @Singularity.Tests.runTest
+#check @Singularity.Tests.TestCase
+```
+
+These describe the *intended* behaviour of the pipeline (the `x' = x^2`, coupled,
+`py2`, punctured, and stable-linear benchmarks). They are specifications, not
+verified theorems: `runTest` builds the report from the certificate placeholders
+above, so the ESA/singularity verdicts they record are not yet analytic facts. They
+are consistent with the corrected mathematics — in particular the `x' = x^2` case is
+rightly expected to *fail* ESA as it stands on $`L^2(\mathbb{R})` (the flow is
+incomplete), and to become ESA only after the reciprocal change of variables — but
+the actual SIRK/unitary realization they point to remains open in the verified layer.
 
 # The Price: Non-Determinism
 
