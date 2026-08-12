@@ -101,8 +101,7 @@ Rescale the coordinate $`x \mapsto \sqrt{2/\alpha}\,x` and let $`\alpha \to \inf
 The single-coordinate hyperspherical weight tends to the Gaussian weight
 $`e^{-x^2}`:
 
-$$
-`\lim_{\alpha\to\infty}\Bigl(1 - \tfrac{x^2}{\alpha}\Bigr)^{\alpha-1/2} = e^{-x^2}.`
+$$`\lim_{\alpha\to\infty}\Bigl(1 - \tfrac{x^2}{\alpha}\Bigr)^{\alpha-1/2} = e^{-x^2}.`
 
 The verified statement (module `BookProof.PhysHSGaussian`):
 
@@ -114,8 +113,7 @@ At the same time the Gegenbauer polynomials become the Hermite polynomials
 $`H_n/n!` (with the physicists' $`H_n` defined by the recurrence
 $`H_0 = 1, H_1 = 2x, H_{n+2} = 2x H_{n+1} - 2(n+1)H_n`), in the scaled limit
 
-$$
-`\lim_{\alpha\to\infty}\Bigl(\tfrac{\alpha}{2}\Bigr)^{-n/2}
+$$`\lim_{\alpha\to\infty}\Bigl(\tfrac{\alpha}{2}\Bigr)^{-n/2}
   C_n^{(\alpha/2)}\Bigl(\sqrt{\tfrac{2}{\alpha}}\,x\Bigr)
    = \frac{H_n(x)}{n!}.`
 
@@ -132,8 +130,7 @@ The normalizations converge consistently as well: the (squared) Gegenbauer
 normalization integral against the hyperspherical weight tends to the Hermite
 normalization integral against the Gaussian weight,
 
-$$
-`\int_\mathbb{R}\Bigl[\frac{H_n(x)}{n!}\Bigr]^2 e^{-x^2}\,dx
+$$`\int_\mathbb{R}\Bigl[\frac{H_n(x)}{n!}\Bigr]^2 e^{-x^2}\,dx
    = \frac{\sqrt{\pi}\,2^n}{n!}.`
 
 The verified statements (module `BookProof.PhysHSGaussian`):

@@ -520,8 +520,7 @@ $`\alpha \to \infty`. The single-coordinate hyperspherical weight tends to the
 Gaussian weight $`e^{-x^2}`:
 :::
 
-$$
-`\lim_{\alpha\to\infty}\Bigl(1 - \tfrac{x^2}{\alpha}\Bigr)^{\alpha-1/2} = e^{-x^2}.`
+$$`\lim_{\alpha\to\infty}\Bigl(1 - \tfrac{x^2}{\alpha}\Bigr)^{\alpha-1/2} = e^{-x^2}.`
 
 :::paragraph
 At the same time the Gegenbauer polynomials $`C_n^{(\alpha/2)}` (orthogonal with
@@ -530,8 +529,7 @@ the Hermite polynomials $`H_n/n!` (with the physicists' $`H_n` from the recurren
 $`H_0 = 1, H_1 = 2x, H_{n+2} = 2x H_{n+1} - 2(n+1)H_n`), in the scaled limit
 :::
 
-$$
-`\lim_{\alpha\to\infty}\Bigl(\tfrac{\alpha}{2}\Bigr)^{-n/2}
+$$`\lim_{\alpha\to\infty}\Bigl(\tfrac{\alpha}{2}\Bigr)^{-n/2}
   C_n^{(\alpha/2)}\Bigl(\sqrt{\tfrac{2}{\alpha}}\,x\Bigr)
    = \frac{H_n(x)}{n!}.`
 
