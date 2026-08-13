@@ -95,8 +95,8 @@ flow completeness is the open Clay regularity problem. Therefore:
 
 | Numerical test (unfer) | Lean theorem (this plan) | Meaning |
 | :-- | :-- | :-- |
-| `test_navier_stokes_hermitian` | `nsHamiltonian_hermitian` | H = H†, so `e^{-iHt}` is unitary |
-| `test_navier_stokes_low_degree` | `nsHamiltonian_isPolynomial` (arity ≤ 3) | the "low degree in the fields" hypothesis |
+| `test_navier_stokes_hermitian` | `nsHamiltonian_hermitian` | H = H† (Weyl symmetrization), so `e^{-iHt}` is unitary |
+| `test_navier_stokes_low_degree` | `nsHamiltonian_isPolynomial` (arity ≤ 3) | well-defined polynomial/symmetric operator on the dense domain — symmetry, not self-adjointness |
 | `test_navier_stokes_brst_nilpotent` | `nsBrst_nilpotent` | Ω² = 0 (first-class constraint) |
 | `navier_stokes_flow_complete_and_unitary` | `nsFlow_unitaryGroup` / `nsFlow_noBlowup` | complete flow, no singularity on the truncation |
 | `verify_navier_stokes_divergence_constraint_resolution` | `nsDivergenceConstraint_resolution` | `u_{3,3}=u_{1,1}+u_{2,2}` solves `∂_j u_j = 0` (book.tex §4191-4197) |
@@ -151,6 +151,12 @@ polynomial of **degree ≤ 3** in the ladder operators; state it as: for each
 `i j`, the `(i,j)`-entry is `∑ c · a†_{k₁} a_{k₂} a_{k₃}` with at most 3 factors
 (`∃ terms : Finset ...`, each term a product of ≤ 3 ladder ops). This is the
 formal statement of the "low degree in the fields" hypothesis (`book.tex` §4199).
+**Role: symmetry, not self-adjointness.** Low degree shows `H_N` is a
+well-defined *polynomial* operator (hence symmetric, defined on the dense
+finite-particle domain, no renormalization). It does **not** by itself imply
+self-adjointness — the correct criterion is flow completeness (Nelson), which is
+exactly why Part B works on the *finite matrix* (where self-adjointness holds
+automatically) rather than inferring it from the degree bound.
 
 ### Part B — Complete flow on the truncation (no singularities)
 
