@@ -107,7 +107,7 @@ multiplication. This part of the formalization is genuine and `sorry`-free.
 
 *What Weyl quantization does and does not give.* The construction yields a *formal
 operator*: a normal-ordered expression that is *Hermitian* (equal to its formal
-algebraic adjoint). It does **not** by itself establish essential self-adjointness on
+algebraic adjoint). It does *not* by itself establish essential self-adjointness on
 $`L^2` — that is a separate, analytic question governed by Nelson's theorem
 (below) and by the completeness of the classical flow. Confusing the two is the
 source of the manuscript's error, which we correct in the next section.
@@ -254,8 +254,8 @@ results. We keep the two sharply separate.
   analyzeClassicalFlow … .isComplete`) is a tautology of these definitions, proved by
   `simp`, and the "completeness" theorems `blowup_criterion_scalar`,
   `linear_flow_complete`, and `even_degree_monomial_flow_complete` assert only that a
-  constant flag is `true`. They do **not** establish that any classical flow is
-  complete, and they do **not** establish that $`H = x^2\hat p - i\hat x` is
+  constant flag is `true`. They do *not* establish that any classical flow is
+  complete, and they do *not* establish that $`H = x^2\hat p - i\hat x` is
   essentially self-adjoint — indeed for $`\dot x = x^2` it is *not* (see Nelson's
   theorem above). These certificates are an interface for a future analytic
   realization; they are *not* a proof of the analytic claims, which remain open in

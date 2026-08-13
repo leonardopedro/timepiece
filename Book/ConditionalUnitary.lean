@@ -308,10 +308,198 @@ The shift in viewpoint is the same one that makes the finite core of this chapte
 honest: the Gram–Schmidt and SVD results record what *any* unitary must do with the
 wave-function data; the dynamics-based construction records *which* unitary the
 physics picks. Both are needed — the former is the algebraic backbone, the latter
-the less-arbitrary physical selection. The formalization of the operator
-$`\mathbf{H} = \hat p\cdot v + v\cdot\hat p` and of the Born-rule recovery of $`P(x,B)`
-is a proof-plan item (see the appendix), building on the continuity-Hamiltonian
-thread of the ODE chapter.
+the less-arbitrary physical selection.
+:::
+
+:::paragraph
+The finite (discretized) form of this construction is formalized in
+`BookProof.ChapterContinuityUnitary`, on the cyclic lattice with the
+symmetric-difference momentum $`(\hat p\,\psi)_k = -\tfrac{i}{2}(\psi_{k+1} -
+\psi_{k-1})`:
+:::
+
+```
+#check @BookProof.ChapterContinuityUnitary.continuityHamiltonian
+#check @BookProof.ChapterContinuityUnitary.continuityHamiltonian_hermitian
+#check @BookProof.ChapterContinuityUnitary.momentum_mul_velocityOp_not_hermitian
+#check @BookProof.ChapterContinuityUnitary.continuityUnitary
+#check @BookProof.ChapterContinuityUnitary.continuityUnitary_unitary
+#check @BookProof.ChapterContinuityUnitary.continuityUnitary_add
+```
+
+:::paragraph
+The generator $`\mathbf{H} = \tfrac12(\hat p\,v + v\,\hat p)` is Hermitian, and the
+unsymmetrized product $`\hat p\,v` is *not* — the Weyl symmetrization is exactly
+what makes the generator an observable. The exponential $`\mathbf{U}_t =
+e^{i t \mathbf{H}}` is then unitary and forms a one-parameter group, with no free
+choice of columns anywhere: the function $`v` determines it.
+:::
+
+:::paragraph
+The Born-rule recovery of the conditional probability, and the tensor–product
+identification that keeps everything on the scalar space, are formalized as well:
+:::
+
+```
+#check @BookProof.ChapterContinuityUnitary.bornRecover
+#check @BookProof.ChapterContinuityUnitary.bornRecover_union
+#check @BookProof.ChapterContinuityUnitary.bornRecover_univ
+#check @BookProof.ChapterContinuityUnitary.condProb_of_continuity
+#check @BookProof.ChapterContinuityUnitary.tensorIsom
+#check @BookProof.ChapterContinuityUnitary.bornRecover_product_state
+```
+
+:::paragraph
+`bornRecover` is $`P(x, B) = \sum_{z \in B} |\Psi_t(x,z)|^2`; it is nonnegative,
+finitely additive, and of total mass $`1` (`bornRecover_univ`, a consequence of
+unitarity alone). The capstone `condProb_of_continuity` packages this as a genuine
+probability distribution on the lattice for *every* input $`x` — a Markov kernel
+built from the dynamics rather than from a basis choice. `tensorIsom` is the finite
+index-level identification $`L^2(X)\otimes L^2(Z)\cong L^2(X\times Z)`, and
+`bornRecover_product_state` runs the recovery on a product initial state
+$`\Psi_0(x,z) = f(x)e_0(z)`.
+:::
+
+:::paragraph
+The same construction runs on the *infinite* lattice, with bounded operators on the
+genuine Hilbert space $`\ell^2(\mathbb Z)` in place of matrices
+(`BookProof.ChapterContinuityUnitaryInfinite`). The lattice translations are
+unitaries, the symmetric-difference momentum and a bounded velocity field
+$`v \in \ell^\infty(\mathbb Z)` are bounded self-adjoint operators, the
+Weyl-symmetrized generator is again self-adjoint, and $`\mathbf{U}_t = e^{itH}` is
+the Banach-algebra exponential of $`\ell^2(\mathbb Z)\to\ell^2(\mathbb Z)`:
+:::
+
+```
+#check @BookProof.ChapterContinuityUnitaryInfinite.momentum_isSelfAdjoint
+#check @BookProof.ChapterContinuityUnitaryInfinite.velocityOp_isSelfAdjoint
+#check @BookProof.ChapterContinuityUnitaryInfinite.continuityHamiltonian_isSelfAdjoint
+#check @BookProof.ChapterContinuityUnitaryInfinite.continuityUnitary_unitary
+#check @BookProof.ChapterContinuityUnitaryInfinite.continuityUnitary_add
+#check @BookProof.ChapterContinuityUnitaryInfinite.bornRecover_tsum_univ
+#check @BookProof.ChapterContinuityUnitaryInfinite.condProb_of_continuity_infinite
+```
+
+:::paragraph
+On the infinite lattice the Born recovery is *countably* additive: the total mass
+$`\sum_{z\in\mathbb Z}|\Psi_t(z)|^2 = 1` is Parseval plus unitarity
+(`bornRecover_tsum_univ`), and `condProb_of_continuity_infinite` packages it as a
+probability distribution on $`\mathbb Z` for every input. What stays outside the
+statement is unboundedness — the position and momentum operators of the continuum —
+not infinite-dimensionality.
+:::
+
+:::paragraph
+The discretization can be dropped entirely on the *probabilistic* side. On any
+measure space $`(\alpha,\mu)` and for a state $`\Psi \in L^2(\mu)`, the Born
+prescription $`P(B) = \int_B |\Psi|^2\,d\mu` is defined in
+`BookProof.ChapterBornMeasure` as a *measure*, so countable additivity holds by
+construction; it is a probability measure exactly when $`\Psi` is normalized, and it
+is absolutely continuous with respect to $`\mu`:
+:::
+
+```
+#check @BookProof.ChapterBornMeasure.bornMeasure
+#check @BookProof.ChapterBornMeasure.lintegral_bornDensity
+#check @BookProof.ChapterBornMeasure.isProbabilityMeasure_bornMeasure
+#check @BookProof.ChapterBornMeasure.bornMeasure_absolutelyContinuous
+#check @BookProof.ChapterBornMeasure.condProb_of_bounded_dynamics
+```
+
+:::paragraph
+The capstone `condProb_of_bounded_dynamics` runs the whole construction on the
+continuum: for a bounded self-adjoint generator $`H` on $`L^2(\mu)` and the unitary
+group $`\mathbf{U}_t = e^{itH}`, the evolved state carries a Born law that is a
+countably additive probability measure at every time, and it charges no
+$`\mu`-null set. The integrability that the proof-plan appendix deferred is thus
+settled; what remains open is the *unbounded* generator of the continuum.
+:::
+
+:::paragraph
+That last layer is at least made precise. `BookProof.ChapterUnboundedPosition`
+builds the lattice position operator $`\hat x\,\psi_k = k\,\psi_k` on its natural
+domain $`D = \{\psi\in\ell^2(\mathbb Z) : \hat x\psi\in\ell^2(\mathbb Z)\}` and proves
+that the domain is dense, that the operator is symmetric on it, and that it is
+genuinely unbounded — not the restriction of any bounded operator:
+:::
+
+```
+#check @BookProof.ChapterUnboundedPosition.mulDomain
+#check @BookProof.ChapterUnboundedPosition.mulOp_symmetric
+#check @BookProof.ChapterUnboundedPosition.mulDomain_dense
+#check @BookProof.ChapterUnboundedPosition.position_unbounded
+#check @BookProof.ChapterUnboundedPosition.position_not_boundedOperator
+```
+
+:::paragraph
+That operator is not merely symmetric. Its adjoint domain is *exactly* the natural
+domain and the adjoint acts by the same multiplication, so the lattice position
+operator is a bona fide self-adjoint observable:
+:::
+
+```
+#check @BookProof.ChapterUnboundedPosition.adjointDomain_eq_mulDomain
+#check @BookProof.ChapterUnboundedPosition.adjoint_eq_mulOp
+```
+
+:::paragraph
+And it generates its unitary group. The pointwise phase
+$`(\mathbf{U}_t\psi)_k = e^{itf_k}\psi_k` is a surjective linear isometry of
+$`\ell^2(\mathbb Z)` satisfying $`\mathbf{U}_0 = 1` and
+$`\mathbf{U}_{s+t} = \mathbf{U}_s\mathbf{U}_t`; it is strongly continuous at $`0`
+for *every* state, with no domain hypothesis; and on the natural domain its
+difference quotient converges in $`\ell^2(\mathbb Z)` to $`i\hat x\psi`, which is
+Stone's relation $`\tfrac{d}{dt}\mathbf{U}_t\big|_{t=0} = iA` for an unbounded
+self-adjoint $`A`:
+:::
+
+```
+#check @BookProof.ChapterUnboundedPosition.phaseUnitary
+#check @BookProof.ChapterUnboundedPosition.phaseUnitary_add
+#check @BookProof.ChapterUnboundedPosition.tendsto_phaseUnitary
+#check @BookProof.ChapterUnboundedPosition.tendsto_slope_phaseUnitary
+```
+
+:::paragraph
+None of that is special to the lattice. `BookProof.ChapterUnitaryTransport` proves
+that the whole package is invariant under a unitary change of Hilbert space: for
+any unitary $`W : H \to K` and any densely defined `A` on `D \subseteq H`, the
+transported operator $`WAW^{-1}` on $`W(D)` has a dense domain, is symmetric when
+`A` is, has adjoint domain $`W(\mathrm{dom}\,A^\dagger)` — so *self-adjointness*
+transports — and the transported group $`WU_tW^{-1}` is strongly continuous with
+$`WAW^{-1}` as its generator:
+:::
+
+```
+#check @BookProof.ChapterUnitaryTransport.transport_isSelfAdjointOn
+#check @BookProof.ChapterUnitaryTransport.tendsto_transportUnitary
+#check @BookProof.ChapterUnitaryTransport.tendsto_slope_transportUnitary
+```
+
+:::paragraph
+Combining the two halves: *every* operator unitarily equivalent to a lattice
+multiplication operator — on any complex Hilbert space — is self-adjoint on a dense
+domain and generates a strongly continuous unitary group satisfying Stone's
+relation.
+:::
+
+```
+#check @BookProof.ChapterUnitaryTransport.transported_position_domain_dense
+#check @BookProof.ChapterUnitaryTransport.transported_position_isSelfAdjointOn
+#check @BookProof.ChapterUnitaryTransport.transported_position_group
+#check @BookProof.ChapterUnitaryTransport.tendsto_slope_transported_position
+```
+
+:::paragraph
+So the boundary of the formalized theory is stated inside the theory, and it now
+lies two layers further out than the proof plan first drew it. Bounded generators
+give the unitary group and the Born law outright; the unbounded position
+observable is densely defined, symmetric, self-adjoint, and does generate a
+strongly continuous unitary group with itself as generator; and that conclusion is
+inherited by anything unitarily equivalent to it. What is still missing for a
+general Stone theorem is the *existence* of the diagonalizing unitary — the
+spectral theorem for unbounded self-adjoint operators — which is what a continuum
+Laplacian would need.
 :::
 
 # Why This Matters Here

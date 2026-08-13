@@ -9,6 +9,44 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
 
+**Status (2026-08-13, maintenance + analytic layer pass):** the §8 verification gate
+was re-run and is green (`lake build` over the default targets, `lake build
+RandomMap`, `./patches/build-book.sh`, `./patches/check-katex.sh`, the sorry/axiom
+audit and the isolation audit). No plan item was open; the pass therefore advanced
+the *standing open layer* recorded in §9.3 (the infinite-dimensional analytic
+realization behind §4.8) with three new `sorry`-free / `axiom`-free modules —
+`BookProof/ChapterContinuityUnitaryInfinite.lean` (the dynamics-based unitary as
+bounded operators on `ℓ²(ℤ)`, with countably additive Born recovery),
+`BookProof/ChapterBornMeasure.lean` (`P(B) = ∫_B |Ψ|² dμ` as a genuine probability
+*measure* on an arbitrary measure space, for the evolved state of any bounded
+self-adjoint generator) and `BookProof/ChapterUnboundedPosition.lean` (the lattice
+position operator: densely defined, symmetric, and provably unbounded) — all
+registered in `BookProof.lean`, certified in `ChapterRoadmapAudit.lean` and cited
+from `Book/ConditionalUnitary.lean` and the `Book/ProofPlans.lean` §E boundary. A
+second wave the same day took `ChapterUnboundedPosition` past symmetry: the maximal
+multiplication operator on `ℓ²(ℤ)` is proved **self-adjoint**
+(`adjointDomain_eq_mulDomain`, `adjoint_eq_mulOp` — the adjoint domain is exactly
+the natural domain, and the adjoint acts by the same multiplication), and it
+**generates its unitary group** (`phaseUnitary`, a `LinearIsometryEquiv`, with
+`phaseUnitary_zero`/`phaseUnitary_add` the one-parameter group law,
+`tendsto_phaseUnitary` strong continuity at `0` for every state with no domain
+hypothesis, and `tendsto_slope_phaseUnitary` Stone's relation `dU/dt|₀ = iA` in
+`ℓ²(ℤ)` on the natural domain).  What is still open is that package for unbounded
+operators that are *not* multiplication operators in the ambient basis (the
+continuum Laplacian), i.e. Stone's theorem in full generality.
+The executable bits on
+`patches/*.sh` were restored in git (they had reverted to mode 644, which broke
+`./patches/build-book.sh`).
+
+**Status (2026-08-12, final pass):** the last two formalization targets are now
+closed — `weakValue` (§4.7, `BookProof/ChapterWeakValue.lean`) and
+`continuityUnitary` (§4.8, `BookProof/ChapterContinuityUnitary.lean`) are proved,
+`sorry`-free and `axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean`, and cited from `Book/DoubleSlit.lean` and
+`Book/ConditionalUnitary.lean`; the `Book/ProofPlans.lean` appendix §D/§E now record
+them as PROVED. The keep-or-delete decision on `Book/Trivial.lean` (§7) is settled:
+**keep** (see §7). No plan item remains open.
+
 **Status (2026-08-12):** the default build (`lake build`: `BookProof`, `Book`,
 `Singularity`), `lake build RandomMap`, `lake build book` + `lake exe book` +
 `./patches/postprocess-html.sh`, and the `#print axioms` audit are all green with
@@ -113,14 +151,43 @@ the day-to-day tool. Verify candidate Mathlib names with
 - **Verso integrated** on v4.28.0; single-page output decided and locked
   (`emitHtmlSingle := .immediately`, `emitHtmlMulti := .no`).
 - **Book prose coverage of §4.7/§4.8 landed (2026-08-12).** The *prose* halves of
-  the two remaining BookProof targets are already written up and `#check`-ed from
-  the book: the "Weak Measurements / weak values" section of `Book/DoubleSlit.lean`
-  (weak-value ratio, ABL core in `ChapterTrajectory`, see Proof-Plans appendix §D)
-  and the "Less Arbitrary Construction / dynamics-based unitary" sections of
+  the two BookProof targets are written up and `#check`-ed from the book: the "Weak
+  Measurements / weak values" section of `Book/DoubleSlit.lean` (weak-value ratio,
+  ABL core in `ChapterTrajectory`, see Proof-Plans appendix §D) and the "Less
+  Arbitrary Construction / dynamics-based unitary" sections of
   `Book/ConditionalUnitary.lean` (continuity Hamiltonian `H = ½(p̂·v + v·p̂)`,
   tensor-product identification, Born-rule recovery; Proof-Plans appendix §E).
-  What remains open in §4.7/§4.8 is *only* the BookProof module (the formal
-  statements), not the book text.
+  The BookProof modules are now **DONE** as well (see §4.7/§4.8 and §9): only the
+  unbounded *continuum* generator (Stone's theorem in full generality) is outside
+  the formalized statement.
+- **Weak measurements / weak values proved (2026-08-12).** `ChapterWeakValue`
+  formalizes `⟨A⟩_w = ⟨f|A|i⟩/⟨f|i⟩` on `Fin n → ℂ` (`weakValue_wellDefined`,
+  `weakValue_diag`, `weakValue_linear`, `weakValue_proj_sum`,
+  `jointProb_eq_normSq_weakNumerator`, `condProb_eq_weakNumerator_ratio`,
+  `dslit_weakValue`), closing §4.7. See §4.7 and Proof-Plans appendix §D.
+- **Dynamics-based unitary proved (2026-08-12).** `ChapterContinuityUnitary`
+  builds `H = ½(p·v + v·p)` on the cyclic lattice, the unitary `e^{iHt}`, the
+  Born-rule recovery `bornRecover` and the capstone `condProb_of_continuity`,
+  closing §4.8. See §4.8 and Proof-Plans appendix §E.
+- **Analytic layer wave (2026-08-13).** `ChapterContinuityUnitaryInfinite` runs
+  the dynamics-based construction on `ℓ²(ℤ)` with bounded operators
+  (`momentum_isSelfAdjoint`, `velocityOp_isSelfAdjoint`,
+  `continuityHamiltonian_isSelfAdjoint`, `continuityUnitary_unitary`,
+  `bornRecover_tsum_univ`, `condProb_of_continuity_infinite`);
+  `ChapterBornMeasure` proves `P(B) = ∫_B |Ψ|² dμ` is a probability measure on any
+  measure space (`bornMeasure`, `isProbabilityMeasure_bornMeasure`,
+  `bornMeasure_absolutelyContinuous`, `condProb_of_bounded_dynamics`);
+  `ChapterUnboundedPosition` proves the lattice position operator is densely
+  defined, symmetric and genuinely unbounded, then self-adjoint
+  (`adjointDomain_eq_mulDomain`, `adjoint_eq_mulOp`) and generates its unitary
+  group with Stone's relation (`phaseUnitary`, `tendsto_phaseUnitary`,
+  `tendsto_slope_phaseUnitary`); `ChapterUnitaryTransport` carries the whole
+  package through any unitary change of Hilbert space
+  (`transport_isSelfAdjointOn`, `tendsto_transportUnitary`,
+  `tendsto_slope_transportUnitary`, `transported_position_isSelfAdjointOn`).
+  What remains is the *existence* of a diagonalizing unitary for a general
+  unbounded self-adjoint operator (the spectral theorem behind a continuum
+  Laplacian) — a research target, not a plan item (see §9).
 - **Display-math fix (2026-08-12).** Five display equations in
   `Book/FreeField.lean` and `Book/SolovayTensor.lean` wrote `$$` on its own line,
   which Verso emits as literal text + a plain `<code>` block that KaTeX never
@@ -240,26 +307,43 @@ the trajectory"; the double-slit chapter's "Weak Measurements" section).** The
 post-selection / ABL core is proved (`ChapterTrajectory`); the weak-value ratio
 itself is not. Medium value, small and self-contained — a natural next target:
 
-- **4.7 `weakValue` (ChapterWeakValue).** On `Fin n → ℂ` with the standard inner
-  product, prove `weakValue i f A = (inner f (A • i)) / inner f i`, its
-  well-definedness when `⟨f|i⟩ ≠ 0` (`weakValue_wellDefined`), the diagonal
-  collapse to the ordinary expectation when `i = f` (`weakValue_diag`), linearity
-  in the observable (`weakValue_linear`), and a double-slit capstone
-  (`dslit_weakValue`) tying it to `ChapterTrajectory`. The book prose ("Weak
-  Measurements" in `Book/DoubleSlit.lean`) is already written and `#check`-ed from
-  `ChapterTrajectory`; only the BookProof module is open. Priority: first (it is
-  the smallest target).
+- **4.7 `weakValue` (ChapterWeakValue).** **DONE (2026-08-12).**
+  `BookProof/ChapterWeakValue.lean` defines `ip` (the standard inner product on
+  `Fin n → ℂ`) and `weakValue i f A = ip f (A *ᵥ i) / ip f i`, and proves
+  `weakValue_wellDefined` + `weakValue_unique` (the ratio is the unique solution of
+  `w·⟨f|i⟩ = ⟨f|A|i⟩` when `⟨f|i⟩ ≠ 0`), `weakValue_diag` and
+  `weakValue_diag_isReal`, `weakValue_add`/`weakValue_smul`/`weakValue_linear`,
+  `weakValue_proj`/`weakValue_proj_sum`, the ABL ties
+  `jointProb_eq_normSq_weakNumerator` and `condProb_eq_weakNumerator_ratio`, and the
+  double-slit capstone `dslit_weakValue`. `sorry`-free / `axiom`-free, registered in
+  `BookProof.lean`, certified in `ChapterRoadmapAudit.lean`, cited from
+  `Book/DoubleSlit.lean`.
 
-- **4.8 `continuityUnitary` (ChapterContinuityUnitary).** Replace the arbitrary
-  Gram–Schmidt completion of `ConditionalUnitary` with the less-arbitrary,
-  dynamics-based unitary: a function (velocity field `v_t(x)` or potential
-  `V(x,z)`) determines a Hermitian generator
-  `H = ½(p·v + v·p)` and hence a unitary `e^{iHt}`; via the tensor–product
-  identification `L²(X)⊗L²(Z) ≅ L²(X×Z)` this works for a conditional probability
-  on continuous inputs without Bochner machinery, and the conditional is recovered
-  by the ordinary Born rule `P(x,B) = ∫_B |Ψ_1(x,z)|² dν(z)`. Prove
-  `continuityHamiltonian_hermitian`, `continuityUnitary_unitary`, `bornRecover`,
-  `tensorIsom`, and the capstone `condProb_of_continuity`. Priority: after §4.7.
+- **4.8 `continuityUnitary` (ChapterContinuityUnitary).** **DONE (2026-08-12).**
+  `BookProof/ChapterContinuityUnitary.lean` works on the cyclic lattice `ZMod N`
+  with the symmetric-difference momentum: `continuityHamiltonian v = ½(p·v + v·p)`
+  with `continuityHamiltonian_hermitian` (and
+  `momentum_mul_velocityOp_not_hermitian`, showing the symmetrization is needed),
+  `continuityUnitary v t = exp (i t H)` with `continuityUnitary_unitary`,
+  `continuityUnitary_zero`, `continuityUnitary_add`, the Born recovery
+  `bornRecover` (`_nonneg`, `_empty`, `_union`, `_mono`, `_univ`) and `bornPMF`,
+  the finite tensor identification `tensorIsom`/`tensorIsom_tmul` with
+  `bornRecover_product_state`, and the capstone `condProb_of_continuity`.
+  `sorry`-free / `axiom`-free, registered in `BookProof.lean`, certified in
+  `ChapterRoadmapAudit.lean`, cited from `Book/ConditionalUnitary.lean`. The
+  infinite-dimensional analytic layer is now also proved for the bounded case and
+  for the lattice position operator (§4.9); only the continuum Laplacian's
+  diagonalizing unitary (Stone's theorem in full generality) remains outside.
+
+- **4.9 The analytic layer of §4.8 (2026-08-13, DONE as bounded + lattice).**
+  `ChapterContinuityUnitaryInfinite` (the construction on `ℓ²(ℤ)` with bounded
+  operators), `ChapterBornMeasure` (the Born law as a probability measure on any
+  measure space), `ChapterUnboundedPosition` (the lattice position operator is
+  densely defined, symmetric, unbounded, then self-adjoint and generating its
+  unitary group with Stone's relation) and `ChapterUnitaryTransport` (unitary
+  invariance of the whole package). The open research boundary is the spectral
+  theorem for a general unbounded self-adjoint operator (a continuum Laplacian):
+  the *existence* of the diagonalizing unitary. See §2 and §9.
 
 ---
 
@@ -324,8 +408,11 @@ now-written chapters.
   in this wave); the §7 "repoint the import" item is **RESOLVED**.
 - `patches/build-book.sh` is tracked; `patches/check-katex.sh` is tracked with the
   executable bit set (mode `100755`) — the §7 "untracked" item is **RESOLVED**.
-- `SpecialFiles`: keep `Book/Trivial.lean` (unused scaffolding) or delete it;
-  it is not `{include}`d.
+- `SpecialFiles`: **DECIDED (2026-08-12) — keep `Book/Trivial.lean`.** It is a
+  two-section scaffold used to reproduce the Verso section-count threshold; it is
+  not `{include}`d, costs nothing to build, and is worth retaining as a minimal
+  reproducer should the Verso patches ever need to be re-derived. The file now says
+  so in its own text.
 
 ---
 
@@ -353,28 +440,30 @@ closures are already recorded in `BookProof/STATUS.md` (waves 2026-08-10 and
 
 ## 9. Suggested attack order for the next agent
 
-**Update (2026-08-12): the plan is now complete.** D1/D2 prose cleanups are done
+**Update (2026-08-13): every plan item is closed.** D1/D2 prose cleanups are done
 (the caveats landed in `Book/Introduction.lean` and `Book/OdeSingularity.lean`),
 **GAP-1 is closed** (2026-08-10, `ChapterCoherentThermalFidelity`), **GAP-2 is
 closed** (2026-08-12, metrizability residue removed by `ChapterSeparableSpectrum` +
-`ChapterSeparableL2Model`), and §4 is fully landed. No `BookProof/` module is left
-unproved and no module remains to be `#check`-ed from `Book/` — the book chapters
-already cite the full proof library. The only open items are the two medium-value
-formalization targets and the cosmetic `Trivial.lean` decision:
+`ChapterSeparableL2Model`), §4 is fully landed **including §4.7 `ChapterWeakValue`,
+§4.8 `ChapterContinuityUnitary` and the §4.9 analytic layer** (`Infinite`,
+`BornMeasure`, `UnboundedPosition`, `UnitaryTransport`), and the `Book/Trivial.lean`
+decision (§7) is settled as *keep*. No `BookProof/` module is left unproved and no
+module remains to be `#check`-ed from `Book/`.
 
-1. **§4.7 `weakValue`** (`ChapterWeakValue`) — the weak-value ratio and its
-   well-definedness, diagonal collapse, and linearity (see §4 and the Proof-Plans
-   appendix §D). Small, self-contained, and a natural next mathematical target.
-2. **§4.8 `continuityUnitary`** (`ChapterContinuityUnitary`) — the less-arbitrary,
-   dynamics-based unitary (Hermitian continuity generator → unitary → Born-rule
-   recovery of a conditional), replacing the arbitrary Gram–Schmidt completion of
-   `ConditionalUnitary` (see §4 and the Proof-Plans appendix §E).
-3. **Hygiene §7** — the two `randomMap2_axioms` audit-only docstrings and the
-   `check-katex.sh` tracking are **DONE**; only the keep-or-delete decision on
-   `Book/Trivial.lean` is left.
-4. **Issues.md refresh** — **DONE (2026-08-12):** the §0b chapter count now matches
-   the tree (35 `{include}`s / 36 chapter files) and the §1 default-targets wording
-   is **UPDATED**. Re-verify only when the chapter set next changes.
-5. Run the **§8 verification gate** (builds, book wrapper, sorry/axiom audit,
-   isolation audit), then re-verify the GAP-1/GAP-2 closures are recorded in
-   `BookProof/STATUS.md` (both already are).
+For a future pass, the remaining work is maintenance rather than mathematics:
+
+1. Re-run the **§8 verification gate** (`lake build`, `lake build RandomMap`,
+   `./patches/build-book.sh`, the sorry/axiom audit and the isolation audit) after
+   any change.
+2. Keep `Issues.md` §0b in sync when the chapter set changes.
+3. The infinite-dimensional analytic layer (§4.8's boundary) is largely closed: as of 2026-08-13 the bounded case is formalized on `ℓ²(ℤ)`
+   (`ChapterContinuityUnitaryInfinite`), the Born law is a probability measure on an
+   arbitrary measure space (`ChapterBornMeasure`), and the unbounded boundary is
+   stated, exhibited, and then carried through: the maximal multiplication operator
+   is proved self-adjoint and shown to generate its unitary group
+   (`ChapterUnboundedPosition`: `adjointDomain_eq_mulDomain`, `adjoint_eq_mulOp`,
+   `phaseUnitary`, `phaseUnitary_add`, `tendsto_phaseUnitary`,
+   `tendsto_slope_phaseUnitary`). The research target that remains is the same
+   package for unbounded operators that are *not* multiplication operators in the
+   ambient basis — the continuum Laplacian — i.e. Stone's theorem in full
+   generality; it is a research target, not a plan item.

@@ -137,6 +137,12 @@ import BookProof.ChapterTimeTranslation
 import BookProof.ChapterIrreversible
 import BookProof.ChapterIrreversibleDynamics
 import BookProof.ChapterTrajectory
+import BookProof.ChapterWeakValue
+import BookProof.ChapterContinuityUnitary
+import BookProof.ChapterContinuityUnitaryInfinite
+import BookProof.ChapterBornMeasure
+import BookProof.ChapterUnboundedPosition
+import BookProof.ChapterUnitaryTransport
 import BookProof.ChapterCausality
 import BookProof.ChapterMassGap
 import BookProof.ChapterLocalOperators

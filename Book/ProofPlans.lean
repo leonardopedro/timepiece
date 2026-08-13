@@ -160,36 +160,42 @@ prose work in this book is not wasted by the migration.
 
 # D. Weak Measurements and Weak Values
 
-*Current state.* The post-selection / ABL reconstruction that underlies the
+*Status: PROVED (`BookProof.ChapterWeakValue`).*
+
+*Background.* The post-selection / ABL reconstruction that underlies the
 trajectory chapter and the double-slit discussion is proved
 (`BookProof.ChapterTrajectory`): the three-instant collapsed Born process
 (`midProb`, `transProb`, `jointProb`, `finalProb`, `condProb`), the reconstruction
 consistency (`jointProb_sum_final_eq_midProb`), and the double-slit capstone
 (`dslit_finalProb`, `dslit_condProb`, `dslit_coherentFinal`, `dslit_interference`).
-What is *not* yet formalized is the *weak value* itself.
 
-*What is formalizable.* The weak value of an observable $`A` given a pre-selection
+*What is now proved.* The weak value of an observable $`A` given a pre-selection
 $`\langle i|` and a post-selection $`|f\rangle`,
 
 $$`\langle A \rangle_w = \frac{\langle f | A | i \rangle}{\langle f | i \rangle},`
 
-is a well-defined complex number whenever $`\langle f | i \rangle \neq 0`. A natural
-formalization (new module, e.g. `BookProof.ChapterWeakValue`) would prove, on a
-finite complex Hilbert space $`\mathrm{Fin}\, n \to \mathbb{C}`:
+is formalized on the finite complex Hilbert space $`\mathrm{Fin}\, n \to
+\mathbb{C}` with the standard inner product `ip`:
 
- * `weakValue i f A = (inner f (A • i)) / inner f i` — the definition, with the
-   claimed values of the inner products well-formed;
- * `weakValue_wellDefined` — if $`\langle f | i \rangle \neq 0`, the weak value is
-   finite and well-defined;
- * `weakValue_diag` — when $`i = f` (the post-selection is the pre-selection), the
-   weak value collapses to the ordinary expectation
-   $`\langle A \rangle_w = \langle i | A | i \rangle`;
- * `weakValue_linear` — linearity of the pre-selection in $`A` (after the
-   post-selection is fixed), the algebraic core of "weak measurements are linear in
-   the observable";
- * a double-slit capstone `dslit_weakValue` — the weak value of the position
-   observable through the Hadamard evolution, tying the abstract definition to the
-   `ChapterTrajectory` machinery already in place.
+ * `weakValue i f A = ip f (A *ᵥ i) / ip f i` — the definition;
+ * `weakValue_wellDefined` and `weakValue_unique` — if $`\langle f | i \rangle
+   \neq 0`, the weak value is the *unique* solution of $`w\,\langle f|i\rangle =
+   \langle f|A|i\rangle`;
+ * `weakValue_diag` — when $`i = f` (a unit vector) the weak value collapses to
+   the ordinary expectation $`\langle i | A | i \rangle`, which
+   `weakValue_diag_isReal` shows is real for a Hermitian observable;
+ * `weakValue_add`, `weakValue_smul`, `weakValue_linear` — linearity in the
+   observable, the algebraic core of "weak measurements are linear in $`A`";
+ * `weakValue_proj` and `weakValue_proj_sum` — the weak values of a complete
+   family of projectors sum to $`1`, the counterpart of
+   `ChapterTrajectory.condProb_sum`;
+ * `jointProb_eq_normSq_weakNumerator` and `condProb_eq_weakNumerator_ratio` — the
+   ABL joint law is the squared modulus of the weak-value numerator for the
+   post-selection covector $`b \mapsto \overline{V_{f b}}`, and the post-selected
+   conditional law is its normalization;
+ * `dslit_weakValue` — the double-slit capstone: pre-selecting the both-slits
+   superposition $`H\Psi` and post-selecting $`\Psi = (1,0)`, the two which-slit
+   projectors have weak values $`1` and $`0`.
 
 *Boundary.* The *physical* claim that weak measurements do not disturb the
 intermediate state is about the measurement interaction, not about the mathematical
@@ -202,7 +208,10 @@ double-slit chapter's "Weak Measurements" section.
 
 # E. The Dynamics-Based Unitary (from a function / conditional probability)
 
-*Current state.* The `ConditionalUnitary` chapter builds the unitary that
+*Status: PROVED (`BookProof.ChapterContinuityUnitary`), in the finite
+(discretized) model.*
+
+*Background.* The `ConditionalUnitary` chapter builds the unitary that
 parametrizes a conditional probability by *Gram–Schmidt* completion of the
 wave-function `Ψ = √p` (`BookProof.ChapterJointUnitary.exists_unitary_column`),
 and reads the marginal/conditional back off the operator's Gram matrix
@@ -222,36 +231,84 @@ with no free choice of extra columns. For a conditional probability $`p(y|x)` th
 construction needs no Bochner-space machinery: via the tensor–product
 identification $`L^2(X,\mu)\otimes L^2(Z,\nu) \cong L^2(X\times Z,\mu\times\nu)`,
 $`\mathbf{H}` is a standard Hermitian operator on the scalar space
-$`L^2(X\times Z)` (e.g. $`\mathbf{H} = -\tfrac12\Delta_z + V(x,z)`), and the
-conditional is recovered by the ordinary Born rule $`P(x,B) = \int_B
-|\Psi_1(x,z)|^2\,d\nu(z)`.
+$`L^2(X\times Z)`, and the conditional is recovered by the ordinary Born rule
+$`P(x,B) = \int_B |\Psi_1(x,z)|^2\,d\nu(z)`.
 
-*What is formalizable.* A new module (e.g. `BookProof.ChapterContinuityUnitary`)
-would prove, on the finite (discretized) model that the rest of `BookProof` uses:
+*What is now proved,* on the finite (discretized) model that the rest of
+`BookProof` uses — the cyclic lattice $`\mathbb{Z}/N` with the
+symmetric-difference momentum $`(\hat p\,\psi)_k = -\tfrac{i}{2}(\psi_{k+1} -
+\psi_{k-1})`:
 
  * `continuityHamiltonian` — the Weyl-symmetrized generator
-   $`\mathbf{H} = \tfrac12(p\,v + v\,p)` for a velocity vector $`v` on a finite
-   lattice, and its Hermiticity (`continuityHamiltonian_hermitian`);
- * `continuityUnitary` — $`\mathbf{U} = e^{i\mathbf{H}}` is a unitary matrix
-   (`continuityUnitary_unitary`), the "function → unitary" translation;
- * `bornRecover` — for a product wave-function $`\Psi_0(x,z) = f(x)\,e_0(z)` and
-   $`\Psi_1 = e^{i\mathbf{H}}\Psi_0`, the map $`B \mapsto \int_B
-   |\Psi_1(x,z)|^2\,d\nu(z)` is a genuine probability measure on $`Z` for each
-   $`x` (the Born recovery of the conditional);
- * `tensorIsom` — the finite index-level statement of the tensor–product
-   identification (the scalar `L²(X×Z)` is the same object); and, as a capstone,
- * `condProb_of_continuity` — instantiating the recovered $`P(x,B)` as a regular
-   conditional probability, tying the dynamics-based unitary back to the
-   `ChapterConditional`/`ChapterJointUnitary` Gram-matrix reading.
+   $`\mathbf{H} = \tfrac12(\hat p\,v + v\,\hat p)`, with
+   `continuityHamiltonian_hermitian`; the symmetrization is *necessary*, since
+   `momentum_mul_velocityOp_not_hermitian` exhibits a three-site velocity field
+   for which $`\hat p\,v` is not Hermitian;
+ * `continuityUnitary` — $`\mathbf{U}_t = e^{i t\mathbf{H}}` is unitary
+   (`continuityUnitary_unitary`, from the general `exp_smul_I_unitary`) and a
+   one-parameter group (`continuityUnitary_zero`, `continuityUnitary_add`): the
+   "function → unitary" translation;
+ * `bornRecover` — the map $`B \mapsto \sum_{z\in B} |\Psi_t(z)|^2` is
+   nonnegative (`bornRecover_nonneg`), finitely additive (`bornRecover_union`),
+   monotone (`bornRecover_mono`) and of total mass $`1` (`bornRecover_univ`, from
+   `unitary_preserves_normSq`); `bornPMF` packages it as a distribution;
+ * `tensorIsom` / `tensorIsom_tmul` — the finite index-level statement of the
+   tensor–product identification (the scalar `L²(X×Z)` is the same object), with
+   `bornRecover_product_state` running the recovery on a product wave-function
+   $`\Psi_0(x,z) = f(x)\,e_0(z)`; and, as a capstone,
+ * `condProb_of_continuity` — the recovered $`P(x,B)` is a genuine conditional
+   probability law for every input $`x`, tying the dynamics-based unitary back to
+   the `ChapterConditional`/`ChapterJointUnitary` Gram-matrix reading.
 
-*Boundary.* The analytic integrability of $`\int_B |\Psi_1|^2\,d\nu` and the
-unboundedness of $`-\tfrac12\Delta_z` are handled at the finite/discretized level,
-as throughout `BookProof`; the infinite-dimensional analytic realization is the
-same open layer as the rest of the book. The *physical* claim that the dynamics
+*Boundary (updated).* Two of the three deferred layers are now closed.
+`BookProof.ChapterContinuityUnitaryInfinite` carries the whole construction to the
+*infinite* lattice $`\ell^2(\mathbb Z)`: the translations are unitaries, the
+symmetric-difference momentum and a bounded velocity field
+$`v\in\ell^\infty(\mathbb Z)` are bounded self-adjoint operators
+(`momentum_isSelfAdjoint`, `velocityOp_isSelfAdjoint`), the Weyl-symmetrized
+generator is self-adjoint (`continuityHamiltonian_isSelfAdjoint`), $`e^{itH}` is a
+one-parameter unitary group of the Banach algebra of bounded operators
+(`continuityUnitary_unitary`, `continuityUnitary_add`) and the Born recovery is
+countably additive with total mass $`1` (`bornRecover_tsum_univ`,
+`condProb_of_continuity_infinite`).  `BookProof.ChapterBornMeasure` removes the
+discretization from the probability side: on an arbitrary measure space,
+$`P(B) = \int_B|\Psi|^2\,d\mu` is a *measure* (`bornMeasure`), a probability
+measure for a normalized state (`isProbabilityMeasure_bornMeasure`), absolutely
+continuous with respect to $`\mu` (`bornMeasure_absolutelyContinuous`), and the
+capstone `condProb_of_bounded_dynamics` gives it for the evolved state of any
+bounded self-adjoint generator on $`L^2(\mu)`.  What is still deferred is
+*unboundedness* alone — the continuum $`-\tfrac12\Delta_z`.  Even that layer is now
+stated inside the theory: `BookProof.ChapterUnboundedPosition` builds the lattice
+position operator on its natural domain and proves the domain dense
+(`mulDomain_dense`), the operator symmetric (`mulOp_symmetric`) and genuinely
+unbounded (`position_unbounded`, `position_not_boundedOperator`).  It then carries
+that operator through the two steps the plan had left open: its adjoint domain is
+exactly the natural domain and the adjoint acts by the same multiplication
+(`adjointDomain_eq_mulDomain`, `adjoint_eq_mulOp`), so it is *self-adjoint*; and it
+generates a strongly continuous one-parameter unitary group (`phaseUnitary`,
+`phaseUnitary_add`, `tendsto_phaseUnitary`) of which it is the generator, the
+difference quotient converging in $`\ell^2(\mathbb Z)` on the natural domain
+(`tendsto_slope_phaseUnitary`, Stone's relation $`dU/dt|_0 = iA`).
+`BookProof.ChapterUnitaryTransport` then shows that none of this is special to the
+lattice: for a unitary $`W`, the transported operator $`WAW^{-1}` inherits a dense
+domain, symmetry, self-adjointness (`transport_isSelfAdjointOn`, via
+`transport_adjointDomain`) and the strongly continuous group with Stone's relation
+(`tendsto_transportUnitary`, `tendsto_slope_transportUnitary`) — so every operator
+unitarily equivalent to a lattice multiplication operator, on any complex Hilbert
+space, carries the whole package (`transported_position_isSelfAdjointOn`,
+`tendsto_slope_transported_position`).  What is still missing for a general Stone
+theorem is the *existence* of the diagonalizing unitary — the spectral theorem for
+unbounded self-adjoint operators — which is what the continuum
+$`-\tfrac12\Delta_z` would need. The *physical* claim that the dynamics
 "is" the transition is about the choice of $`\mathbf{H}`; the formal content is
 that a Hermitian $`\mathbf{H}` yields a unitary and that the Born rule recovers a
 probability law.
 
-*Where it lives.* `BookProof.ChapterContinuityUnitary`, registered in
+*Where it lives.* `BookProof.ChapterContinuityUnitary` (finite lattice),
+`BookProof.ChapterContinuityUnitaryInfinite` ($`\ell^2(\mathbb Z)`) and
+`BookProof.ChapterBornMeasure` (the Born law as a measure) and
+`BookProof.ChapterUnboundedPosition` (the self-adjoint unbounded layer and the
+unitary group it generates) and `BookProof.ChapterUnitaryTransport` (unitary
+invariance of that whole package), all registered in
 `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed
 from the `ConditionalUnitary` chapter's "A Less Arbitrary Construction" section.

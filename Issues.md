@@ -216,7 +216,8 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   `./patches/check-katex.sh` extracts every `.math.inline` / `.math.display`
   snippet from `_out/html-single/index.html` and re-renders each one with
   `throwOnError: true` against the KaTeX build the book ships. Current result:
-  **1488 snippets, 0 failures**, including all 15 `pmatrix` displays (the case
+  **1838 snippets, 0 failures** (re-run 12 August 2026 after the weak-value and
+  dynamics-based-unitary sections landed), including all `pmatrix` displays (the case
   that had never been confirmed). Re-run it after `./patches/build-book.sh`.
 
 - **[CRITIQUE] Some `#check` types are very long.** A few headline theorems
@@ -444,3 +445,36 @@ file only.
   and the headline `thermalTemperature_eq_fidelity_width_sub_coherent_half` reads the
   temperature off as (fidelity width) − (coherent width), the coherent width being the
   `½`. Prose and `#check`s are in `Book/CoherentState.lean`.
+
+- **[RESOLVED, 2026-08-12] The last two proof-plan formalization targets.** The
+  appendix items §D (weak measurements / weak values) and §E (the dynamics-based
+  "less arbitrary" unitary) are now proved, not planned:
+  - `BookProof/ChapterWeakValue.lean` — the weak value
+    `⟨A⟩_w = ⟨f|A|i⟩/⟨f|i⟩` on `Fin n → ℂ`: well-definedness and uniqueness off
+    orthogonality, the diagonal collapse to the ordinary expectation (real for a
+    Hermitian observable), linearity in the observable, the projector weak values
+    summing to `1`, the ties to the ABL joint/conditional laws of
+    `ChapterTrajectory`, and the double-slit capstone `dslit_weakValue`. Cited from
+    `Book/DoubleSlit.lean`.
+  - `BookProof/ChapterContinuityUnitary.lean` — the Weyl-symmetrized continuity
+    generator `H = ½(p·v + v·p)` on a finite cyclic lattice (Hermitian, and *not*
+    Hermitian without the symmetrization), the unitary `exp (i t H)` and its
+    one-parameter group law, the Born recovery of a conditional probability
+    (nonnegative, finitely additive, total mass `1`, packaged as a distribution and
+    as the capstone `condProb_of_continuity`), and the finite tensor-product
+    identification `L²(X) ⊗ L²(Z) ≅ L²(X × Z)`. Cited from
+    `Book/ConditionalUnitary.lean`. The infinite-dimensional analytic realization
+    remains the standing open layer, as elsewhere in the book.
+  Both are `sorry`-free / `axiom`-free, registered in `BookProof.lean` and certified
+  in `BookProof/ChapterRoadmapAudit.lean`; `Book/ProofPlans.lean` §D/§E now record
+  them as PROVED.
+
+- **[RESOLVED, 2026-08-12] Executable bits on the `patches/` shell scripts.** The
+  four scripts (`apply-verso-patches.sh`, `build-book.sh`, `check-katex.sh`,
+  `postprocess-html.sh`) are tracked with mode `100755` again, so
+  `./patches/build-book.sh` runs from a fresh clone.
+
+- **[RESOLVED, 2026-08-12] Verso emphasis warnings.** Three `**not**` spans in
+  `Book/OdeSingularity.lean` triggered the Verso markup linter (in Verso, `*` is
+  bold and `**` is bold-inside-bold); they are now single-starred, and the `Book`
+  target builds warning-free.

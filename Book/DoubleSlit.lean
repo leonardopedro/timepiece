@@ -169,12 +169,43 @@ is formalized in `BookProof.ChapterTrajectory`:
 #check @ChapterTrajectory.dslit_condProb
 ```
 
-What is not yet formalized is the weak-value ratio itself: a Lean theorem stating
-that, for a pre-selection $`\langle i|` and a post-selection $`|f\rangle`, the weak
-value $`\langle f|A|i\rangle/\langle f|i\rangle` is well-defined (when
-$`\langle f|i\rangle \neq 0`), and that it reduces to the usual expectation value
-when the post-selection is the pre-selection. This is a proof plan item (see the
-appendix).
+The weak-value ratio itself is formalized in `BookProof.ChapterWeakValue`, on the
+finite complex Hilbert space $`\mathrm{Fin}\,n \to \mathbb{C}` with the standard
+inner product:
+
+```
+#check @ChapterWeakValue.weakValue_wellDefined
+#check @ChapterWeakValue.weakValue_unique
+#check @ChapterWeakValue.weakValue_diag
+#check @ChapterWeakValue.weakValue_diag_isReal
+#check @ChapterWeakValue.weakValue_linear
+#check @ChapterWeakValue.weakValue_proj_sum
+```
+
+`weakValue_wellDefined` (with `weakValue_unique`) says the weak value is the unique
+number $`w` with $`w\,\langle f|i\rangle = \langle f|A|i\rangle`, so the ratio is
+well-defined exactly when the pre- and post-selected states are not orthogonal.
+`weakValue_diag` is the collapse to the ordinary expectation $`\langle i|A|i\rangle`
+when the post-selection is the pre-selection, and `weakValue_diag_isReal` records
+that this expectation is real for a Hermitian observable — the weak value only
+leaves the real line once the post-selection differs from the pre-selection.
+`weakValue_linear` is the linearity in the observable, and `weakValue_proj_sum` is
+the weak-value counterpart of `condProb_sum`: the weak values of a complete family
+of projectors sum to $`1`.
+
+The tie back to the post-selected probabilities is explicit — the ABL joint law is
+the squared modulus of the weak-value numerator for the post-selection covector
+$`b \mapsto \overline{V_{f b}}`, and the conditional law is its normalization:
+
+```
+#check @ChapterWeakValue.jointProb_eq_normSq_weakNumerator
+#check @ChapterWeakValue.condProb_eq_weakNumerator_ratio
+#check @ChapterWeakValue.dslit_weakValue
+```
+
+The last is the double-slit capstone: pre-selecting the both-slits superposition
+$`H\Psi` and post-selecting the definite state $`\Psi = (1,0)`, the two which-slit
+projectors have weak values $`1` and $`0`.
 
 # Summary
 
@@ -188,4 +219,6 @@ appendix).
    difference is the interference cross term.
  * Post-selection reconstructs the intermediate distribution consistently (`condProb`
    / ABL), and the weak value $`\langle f|A|i\rangle/\langle f|i\rangle` extends this
-   to expectations of observables without collapsing the intermediate state.
+   to expectations of observables without collapsing the intermediate state; it is
+   well-defined off orthogonality, linear in the observable, and reduces to the
+   ordinary expectation on the diagonal (`BookProof.ChapterWeakValue`).

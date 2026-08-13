@@ -38,6 +38,12 @@ import BookProof.ChapterMeasureAtomicDiffuse
 import BookProof.ChapterDiffuseCdfModel
 import BookProof.ChapterDiffuseUnitaryModel
 import BookProof.ChapterAtomicDiagonalModel
+import BookProof.ChapterWeakValue
+import BookProof.ChapterContinuityUnitary
+import BookProof.ChapterContinuityUnitaryInfinite
+import BookProof.ChapterBornMeasure
+import BookProof.ChapterUnboundedPosition
+import BookProof.ChapterUnitaryTransport
 import BookProof.ChapterLpRestrictSplit
 import BookProof.ChapterLpScaleMeasure
 import BookProof.ChapterAbelianClassificationList
@@ -393,5 +399,58 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms abelian_multiplication_model_classified_separable_hilbert
 open BookProof.ChapterSeparableL2Model in
 #print axioms abelian_algebra_multiplication_model_classified_separable_hilbert
+
+#print axioms BookProof.ChapterWeakValue.weakValue_wellDefined
+#print axioms BookProof.ChapterWeakValue.weakValue_unique
+#print axioms BookProof.ChapterWeakValue.weakValue_diag
+#print axioms BookProof.ChapterWeakValue.weakValue_diag_isReal
+#print axioms BookProof.ChapterWeakValue.weakValue_linear
+#print axioms BookProof.ChapterWeakValue.weakValue_proj_sum
+#print axioms BookProof.ChapterWeakValue.jointProb_eq_normSq_weakNumerator
+#print axioms BookProof.ChapterWeakValue.condProb_eq_weakNumerator_ratio
+#print axioms BookProof.ChapterWeakValue.dslit_weakValue
+
+#print axioms BookProof.ChapterContinuityUnitary.momentum_hermitian
+#print axioms BookProof.ChapterContinuityUnitary.continuityHamiltonian_hermitian
+#print axioms BookProof.ChapterContinuityUnitary.momentum_mul_velocityOp_not_hermitian
+#print axioms BookProof.ChapterContinuityUnitary.continuityUnitary_unitary
+#print axioms BookProof.ChapterContinuityUnitary.continuityUnitary_add
+#print axioms BookProof.ChapterContinuityUnitary.bornRecover_univ
+#print axioms BookProof.ChapterContinuityUnitary.condProb_of_continuity
+#print axioms BookProof.ChapterContinuityUnitary.tensorIsom_tmul
+#print axioms BookProof.ChapterContinuityUnitary.bornRecover_product_state
+
+#print axioms BookProof.ChapterContinuityUnitaryInfinite.momentum_isSelfAdjoint
+#print axioms BookProof.ChapterContinuityUnitaryInfinite.velocityOp_isSelfAdjoint
+#print axioms BookProof.ChapterContinuityUnitaryInfinite.continuityHamiltonian_isSelfAdjoint
+#print axioms BookProof.ChapterContinuityUnitaryInfinite.continuityUnitary_unitary
+#print axioms BookProof.ChapterContinuityUnitaryInfinite.continuityUnitary_add
+#print axioms BookProof.ChapterContinuityUnitaryInfinite.bornRecover_tsum_univ
+#print axioms BookProof.ChapterContinuityUnitaryInfinite.condProb_of_continuity_infinite
+
+#print axioms BookProof.ChapterBornMeasure.lintegral_bornDensity
+#print axioms BookProof.ChapterBornMeasure.isProbabilityMeasure_bornMeasure
+#print axioms BookProof.ChapterBornMeasure.bornMeasure_absolutelyContinuous
+#print axioms BookProof.ChapterBornMeasure.bornMeasure_iUnion
+#print axioms BookProof.ChapterBornMeasure.condProb_of_bounded_dynamics
+
+#print axioms BookProof.ChapterUnboundedPosition.mulOp_symmetric
+#print axioms BookProof.ChapterUnboundedPosition.mulDomain_dense
+#print axioms BookProof.ChapterUnboundedPosition.position_unbounded
+#print axioms BookProof.ChapterUnboundedPosition.position_not_boundedOperator
+#print axioms BookProof.ChapterUnboundedPosition.adjointDomain_eq_mulDomain
+#print axioms BookProof.ChapterUnboundedPosition.adjoint_eq_mulOp
+#print axioms BookProof.ChapterUnboundedPosition.phaseUnitary_add
+#print axioms BookProof.ChapterUnboundedPosition.tendsto_phaseUnitary
+#print axioms BookProof.ChapterUnboundedPosition.tendsto_slope_phaseUnitary
+
+#print axioms BookProof.ChapterUnitaryTransport.transportDomain_dense
+#print axioms BookProof.ChapterUnitaryTransport.transportOp_symmetric
+#print axioms BookProof.ChapterUnitaryTransport.transport_adjointDomain
+#print axioms BookProof.ChapterUnitaryTransport.transport_isSelfAdjointOn
+#print axioms BookProof.ChapterUnitaryTransport.tendsto_transportUnitary
+#print axioms BookProof.ChapterUnitaryTransport.tendsto_slope_transportUnitary
+#print axioms BookProof.ChapterUnitaryTransport.transported_position_isSelfAdjointOn
+#print axioms BookProof.ChapterUnitaryTransport.tendsto_slope_transported_position
 
 end BookProof.ChapterRoadmapAudit
