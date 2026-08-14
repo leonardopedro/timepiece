@@ -249,7 +249,7 @@ the one missing compatibility lemma.
 
 **E.1 — subspace nesting (already proved).** `krylovSpan_mono`
 (`ChapterH5.lean:64`): `m ≤ n → krylovSpan H v m ≤ krylovSpan H v n`. State the
-tower form: `ns_krylov_tower : ∀ n, krylovSpan H v n ≤ krylovSpan H v (n+1)`.
+tower form: `sirk_krylov_tower : ∀ n, krylovSpan H v n ≤ krylovSpan H v (n+1)`.
 
 **E.2 — the reduced generator of order `n` is the top-left `n×n` block of the
 order-`n+1` reduced generator (NEW — the missing compatibility lemma).** Let
@@ -258,7 +258,7 @@ bases (`Vₙ i = Vₙ₊₁ (Fin.castSucc i)`). For `X : E →ₗ[ℂ] E` and th
 `Bₙ = compress Vₙ X`, `Bₙ₊₁ = compress Vₙ₊₁ X`, prove the block identity
 
 ```
-ns_compression_block : ∀ i j : Fin n,
+sirk_compression_block : ∀ i j : Fin n,
   Bₙ i j = Bₙ₊₁ (Fin.castSucc i) (Fin.castSucc j)
 ```
 
@@ -275,17 +275,17 @@ with `b, c, d` the new row/column blocks.
 `Vₙ (Vₙ† v) = v`),
 
 ```
-ns_band_refinement : Vₙ (Vₙ† (r(Bₙ₊₁) v)) = r(Bₙ) v
+sirk_band_refinement : Vₙ (Vₙ† (r(Bₙ₊₁) v)) = r(Bₙ) v
 ```
 
 and consequently, on the whole space, the order-`n` approximant equals the
 order-`n+1` approximant projected back into `Kry n`:
 
 ```
-ns_approx_projection : ∀ v, Vₙ (Vₙ† (Vₙ₊₁ (r(Bₙ₊₁) (Vₙ₊₁† v)))) = Vₙ (r(Bₙ) (Vₙ† v))
+sirk_approx_projection : ∀ v, Vₙ (Vₙ† (Vₙ₊₁ (r(Bₙ₊₁) (Vₙ₊₁† v)))) = Vₙ (r(Bₙ) (Vₙ† v))
 ```
 
-Proof shape: for polynomials reduce to `ns_compression_block` + induction on the
+Proof shape: for polynomials reduce to `sirk_compression_block` + induction on the
 power (reuse `compress_pow`/`compress_transfer`, H4:104/122); for rational
 functions use the resolvent transfer `compress_inv_transfer` (H4:138). This is
 the exact statement that "the order-`n+1` uncertainty band, restricted to the
@@ -296,7 +296,7 @@ order-`n` data, is the order-`n` band".
 (`ChapterH6.lean:70`), and state the *set-level* band containment:
 
 ```
-ns_band_contained : Set.Icc 0 (sirkBound C Dmin h nv (n+1))
+sirk_band_contained : Set.Icc 0 (sirkBound C Dmin h nv (n+1))
   ⊆ Set.Icc 0 (sirkBound C Dmin h nv n)
 ```
 
@@ -309,7 +309,7 @@ tower: `[0, sirkBound n]` is a nested descending family of bands collapsing to
 single statement over the skeleton:
 
 ```
-ns_nested_orders : ∀ n : ℕ,
+sirk_nested_orders : ∀ n : ℕ,
   krylovSpan H v n ≤ krylovSpan H v (n+1)
   ∧ (Set.Icc 0 (sirkBound C Dmin h nv (n+1)) ⊆ Set.Icc 0 (sirkBound C Dmin h nv n))
 ```
@@ -317,9 +317,9 @@ ns_nested_orders : ∀ n : ℕ,
 **Module and registration.** New file **`BookProof/ChapterH8.lean`**, namespace
 `BookProof.ChapterH8`, imported in `BookProof.lean` right after `ChapterH7`
 (BookProof.lean:334). Cited from `Book/FreeField.lean` (§"Dimensional
-Reduction", after the H6 `#check` block) with `#check`s of `ns_krylov_tower`,
-`ns_band_refinement`, `ns_approx_projection`, `ns_band_contained`,
-`ns_nested_orders`.
+Reduction", after the H6 `#check` block) with `#check`s of `sirk_krylov_tower`,
+`sirk_band_refinement`, `sirk_approx_projection`, `sirk_band_contained`,
+`sirk_nested_orders`.
 
 **Honesty flag (docstring).** The *nesting* (E.1–E.5) is finite-dimensional and
 decidable. What is NOT claimed: the numerical *width* of the band — the actual
@@ -359,14 +359,14 @@ grep -rn "^axiom" BookProof/                                      # empty
 grep -n "ChapterNavierStokesFlow" BookProof.lean                  # import present
 grep -n "ChapterH8" BookProof.lean                                # import present (Part E)
 grep -n "nsFlow_unitary" Book/FreeField.lean Book/YangMillsQuantization.lean  # #check present (if cited)
-grep -n "ns_nested_orders" Book/FreeField.lean                    # #check present (Part E)
+grep -n "sirk_nested_orders" Book/FreeField.lean                    # #check present (Part E)
 # 5. Headline theorems exist and are sorry-free
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsFlow_unitary'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsFlow_noBlowup'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsBrst_nilpotent'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsDivergenceConstraint_resolution'
-lake env lean --stdin <<< '#check BookProof.ChapterH8.ns_nested_orders'
-lake env lean --stdin <<< '#check BookProof.ChapterH8.ns_band_refinement'
+lake env lean --stdin <<< '#check BookProof.ChapterH8.sirk_nested_orders'
+lake env lean --stdin <<< '#check BookProof.ChapterH8.sirk_band_refinement'
 ```
 
 All headline theorems `sorry`-free and `axiom`-free (only `propext`,

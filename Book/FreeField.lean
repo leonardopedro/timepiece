@@ -346,8 +346,8 @@ $`\mathrm{sirkBound}(n)`$ is conditional on Crouzeix's inequality
 ($`\mathrm{sirk\_error\_bound\_decay}`$, `ChapterH4`), which is recorded in
 `BookProof/` as a named hypothesis rather than an axiom. The band-containment
 statement itself — order-($`n`$+1) refines order-$`n`$, iterated — is the
-`ChapterH8` plan item (the projection identity `ns_band_refinement` and the tower
-`ns_nested_orders`).
+`ChapterH8` plan item (the projection identity `sirk_band_refinement` and the tower
+`sirk_nested_orders`).
 :::
 
 :::paragraph
