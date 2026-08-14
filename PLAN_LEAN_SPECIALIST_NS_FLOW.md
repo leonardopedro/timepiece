@@ -89,7 +89,11 @@ flow completeness is the open Clay regularity problem. Therefore:
 - **Do NOT claim** global existence/uniqueness of the NS equations (Contention D5
   in `CONSOLIDATED_PLAN.md` — deliberate scope cut).
 - The finite-truncation results (a)–(c) are the honest, defensible core; the
-  infinite-dimensional extension is recorded as a research target in §7.
+  infinite-dimensional extension is recorded as a research target in §7, with
+  Part B providing the concrete route (the Lagrangian change of variables turns
+  advection into a positive 2nd-order Laplacian, so the ESA question becomes a
+  Kato–Rellich relative-boundedness argument rather than the failed auxiliary-
+  operator argument of `book.tex`).
 
 **How the numerics and the Lean proof line up.**
 
@@ -123,30 +127,135 @@ import BookProof.ChapterNavierStokes
 import BookProof.ChapterGhostField
 import BookProof.ChapterSuperBracket
 import BookProof.ChapterContinuityUnitary
+import BookProof.ChapterF1        -- Part A: Bargmann-Fock fieldPhi/fieldPi/ccr_mv
+import BookProof.ChapterFreeFieldConstraint  -- Part A.4: constraint commutation
 ```
 
 Work items in dependency order.
 
-### Part A — The finite truncation is a finite Hermitian matrix
+### Part A — The field, its derivatives as fields, and the momentum constraint
 
-**A.1** `nsFieldModes : Fin 15` — the 15 field modes
-(`u_k` k=0..2, `u_{k,j}` 3..11, `u_{k,jj}` 12..14). Define the NS interaction
+This part formalizes the book.tex construction that *treats the derivatives of a
+field as fields themselves* (`book.tex` §4151-4173: the `ℝ³³` degrees of freedom
+are `3` space coordinates + `3` fields `u_k` + their derivatives `u_{k,j}`,
+`u_{k,jj}`). The trick is an operator-valued field that is linear in the
+position operator `X`:
+
+```
+φ(X) = φ + φ_i · (X_i − x_i)
+```
+
+where `X` is the position operator of the Fock model and `x_i` is its *eigenvalue*
+defined by the creation/annihilation operators (`X_i` acts as `x_i` on the Fock
+states). Acting on the Fock operators the field **collapses to its point value**:
+
+```
+φ(X) = φ        (on the Fock eigenstates of X)
+```
+
+so the first-order Taylor coefficients `φ_i` *are* the derivative fields
+`u_{k,j}` of the truncation — they are independent canonical degrees of freedom
+with their own conjugate momenta. The **momentum constraint** is then the CCR
+family of `book.tex` §4163-4170, which is exactly what makes each derivative mode
+a field:
+
+```
+[u_j, π^k]          = i·δ^k_j
+[u_{j,k}, π^{mn}]   = i·δ^n_j·δ^m_k
+[u_{i,jk}, π^{lmn}] = i·δ^l_i·δ^m_j·δ^n_k
+```
+
+Everything here is algebraic and finite-dimensional; the Bargmann–Fock machinery
+(`ChapterF1.lean`: `fieldPhi = creat + annih`, `fieldPi`, `field_ccr`, `ccr_mv`)
+already proves the single-mode and multi-mode cases.
+
+**A.1** `positionOp : ℂ[X] →ₗ[ℂ] ℂ[X]` — the position operator of the
+Bargmann–Fock model, `X = (creat + annih) = fieldPhi` (`ChapterF1.lean:98`), and
+its eigenvalue map `x : Fin N → ℂ` with `Xᵢ` acting as `xᵢ` on the Fock
+monomials (the diagonal action on `X^k`).
+
+**A.2** `fieldTaylor (φ φi : …) : …` — the operator-valued field
+`φ(X) = φ + φ_i · (X_i − x_i)`, and the headline
+`field_evaluates_to_value : φ(X) |Fock⟩ = φ |Fock⟩`: acting on the Fock
+eigenstates of `X` the field collapses to its point value. Proof shape:
+on an `X`-eigenstate `(X_i − x_i)|Fock⟩ = 0`, so the first-order correction
+vanishes (`ChapterF1` `bargmann`/monomial computations).
+
+**A.3** `derivativeField_momentum` — the derivative modes are fields with their
+own momenta: the multi-mode CCR `[u_{j,k}, π^{mn}] = i·δ^n_j·δ^m_k`
+(`book.tex:4169`), reusing `ChapterF1.ccr_mv` (`ChapterF1.lean:76`) and
+`field_ccr` (`ChapterF1.lean:107`). This is the formal "derivatives-as-fields"
+statement the truncation of Part C builds on.
+
+**A.4** `momentumConstraint_preserved` — the momentum constraint commutes with
+the dynamics: `[[D, A], H] = −[D, [H, A]]` when `[D, H] = 0`, exactly as in
+`ChapterFreeFieldConstraint.lean` (`constraint_commutation_identity`) — the
+constraint is a first-class invariant, not an emergent one.
+
+### Part B — The volume-preservation constraint (Lagrangian change of variables)
+
+This part records the **Lagrangian (parcel) form** of the incompressibility
+constraint, which is the honest candidate for the complete-flow realization that
+§7 requires. The Eulerian NS operator, transformed to Lagrangian variables
+`x = X(ξ, t)` with parcel velocity = canonical momentum `u_i(X(ξ)) = Ẋ_i(ξ) =
+P_i(ξ)`, becomes a sum of four contributions whose operator *orders* are the key
+structural fact:
+
+| Eulerian term | Lagrangian form | operator order |
+| :-- | :-- | :--: |
+| advection `−u_j ∂_j u_i` | `−½ Δ_X = −½ Σ P_i(ξ)²` (kinetic Laplacian) | 2nd |
+| viscosity `ν Δ_x u_i` | `−ν |∇_ξ P_i|²` (viscous Laplacian) | 2nd |
+| pressure `−∂_i p` | `λ(ξ)·(det(∂X_i/∂ξ_j) − 1) + ghost` | 0th (constraint) |
+| external force `f_i` | `−i·f_i(X(ξ))·(δ/δX_i)` | 1st (drift) |
+
+**B.1** `lagrangian_velocity : u_i(X(ξ)) = P_i(ξ)` — the identification of the
+parcel velocity with the canonical momentum of the trajectory operator.
+
+**B.2** `volume_preservation_constraint : det(∂X_i/∂ξ_j) = 1` — incompressibility
+in parcel space (`∇·u = 0` ⟺ volume preservation), the 0-order BRST constraint
+with `λ(ξ)` the Lagrange multiplier / ghost field (the Lagrangian shadow of
+`book.tex` §4187-4197). This is the finite-determinant, algebraic core.
+
+**B.3** `transformed_hamiltonian_decomposition` — the four-term decomposition of
+the full transformed operator `ĥ_full = −½Δ_X − νΔ_{ξ,X} − i·f(X)·∇_X +
+Ĥ_constraint`, stated with its operator orders (2nd + 2nd + 1st + 0th). The
+advection becoming a *positive* 2nd-order Laplacian is the structural change that
+makes the ESA question tractable: a 2nd-order elliptic operator with a
+relatively-bounded 1st-order drift (Kato–Rellich / Ikebe–Kato), plus a 0-order
+constraint that commutes with the Laplacians.
+
+**B.4** *Honesty flag.* The Kato–Rellich / Ikebe–Kato **ESA conclusion** for the
+*continuum* trajectory-space operator is an analytic theorem (functional
+Laplacian on `C_c^∞(trajectories)`, Sobolev embedding, relative boundedness) —
+record it in the docstring as the §7 research **route**, exactly as the plan
+already fences the continuum claim. What is provable *now* is the finite/
+algebraic part: B.1 (the identification), B.2 (the determinant constraint), B.3
+(the operator-order decomposition as a statement about the four terms), and the
+finite-truncation completeness of Parts C–D. This part is the "w = 1/x"-style
+change of variables for NS that the ODE chapter's resolution pattern
+(`Book/OdeSingularity.lean`) suggests.
+
+### Part C — The finite truncation is a finite Hermitian matrix
+
+**C.1** `nsFieldModes : Fin 15` — the 15 field modes
+(`u_k` k=0..2, `u_{k,j}` 3..11, `u_{k,jj}` 12..14) — the finite shadow of Part A's
+field-with-derivatives construction. Define the NS interaction
 operator on the truncation as a finite matrix `nsInteraction : Matrix (Fin N) (Fin N) ℂ`
 mirroring `continuityHamiltonian` in `ChapterContinuityUnitary.lean`.
 
-**A.2** `nsHamiltonian : Matrix (Fin N) (Fin N) ℂ` — the truncated
+**C.2** `nsHamiltonian : Matrix (Fin N) (Fin N) ℂ` — the truncated
 `H_N = Σ_i (π_i A_i + A_i π_i)` with `A_i = Σ_j u_j u_{i,j} − ν u_{12+i}`,
 following the anti-commutator construction of `navier_stokes_hamiltonian` in
 `nested_fock_algebra/src/models.rs:72`.
 
-**A.3** `nsHamiltonian_hermitian : nsHamiltonianᴴ = nsHamiltonian` —
+**C.3** `nsHamiltonian_hermitian : nsHamiltonianᴴ = nsHamiltonian` —
 prove `π_i` is Hermitian (exactly `momentum_hermitian` in
 `ChapterContinuityUnitary.lean`), `A_i` is Hermitian (each factor `u_j`, `u_{i,j}`
 is a symmetric matrix; `ν ∈ ℝ`), and the anti-commutator of two Hermitian
 matrices is Hermitian. *Hint:* reuse the `Matrix.conjTranspose_apply` + `ext i j`
 + `fin_cases` pattern already used throughout `ChapterNavierStokes.lean`.
 
-**A.4** `nsHamiltonian_isPolynomial` — every entry of `nsHamiltonian` is a
+**C.4** `nsHamiltonian_isPolynomial` — every entry of `nsHamiltonian` is a
 polynomial of **degree ≤ 3** in the ladder operators; state it as: for each
 `i j`, the `(i,j)`-entry is `∑ c · a†_{k₁} a_{k₂} a_{k₃}` with at most 3 factors
 (`∃ terms : Finset ...`, each term a product of ≤ 3 ladder ops). This is the
@@ -155,10 +264,10 @@ formal statement of the "low degree in the fields" hypothesis (`book.tex` §4199
 well-defined *polynomial* operator (hence symmetric, defined on the dense
 finite-particle domain, no renormalization). It does **not** by itself imply
 self-adjointness — the correct criterion is flow completeness (Nelson), which is
-exactly why Part B works on the *finite matrix* (where self-adjointness holds
+exactly why Part D works on the *finite matrix* (where self-adjointness holds
 automatically) rather than inferring it from the degree bound.
 
-### Part B — Complete flow on the truncation (no singularities)
+### Part D — Complete flow on the truncation (no singularities)
 
 Reuse the already-proved finite machinery of `ChapterContinuityUnitary.lean`
 (`exp_smul_I_unitary`, `continuityUnitary_unitary`, `continuityUnitary_add`,
@@ -166,70 +275,73 @@ Reuse the already-proved finite machinery of `ChapterContinuityUnitary.lean`
 package. The truncation matrix is finite, so `Matrix.exp` exists and is a matrix
 unitary.
 
-**B.1** `nsFlowUnitary (t : ℝ) : Matrix (Fin N) (Fin N) ℂ :=
+**D.1** `nsFlowUnitary (t : ℝ) : Matrix (Fin N) (Fin N) ℂ :=
 NormedSpace.exp (((t : ℂ) * Complex.I) • nsHamiltonian)` — matching the
 `continuityUnitary` convention (`ChapterContinuityUnitary.lean:141-143`).
 
-**B.2** `nsFlow_unitary (t) : (nsFlowUnitary t)ᴴ * nsFlowUnitary t = 1` —
+**D.2** `nsFlow_unitary (t) : (nsFlowUnitary t)ᴴ * nsFlowUnitary t = 1` —
 unitarity of each `e^{-itH_N}`; a direct instance of `exp_smul_I_unitary`
 (`ChapterContinuityUnitary.lean:124`) applied to `nsHamiltonian_hermitian`.
 
-**B.3** `nsFlow_group (s t) : nsFlowUnitary (s + t) = nsFlowUnitary s * nsFlowUnitary t` —
+**D.3** `nsFlow_group (s t) : nsFlowUnitary (s + t) = nsFlowUnitary s * nsFlowUnitary t` —
 the one-parameter group law, i.e. the flow is **complete** (defined for every
 real time). Proof shape: `NormedSpace.exp_add`/`Matrix.exp_add_of_commute`
 with `Commute.neg_left`-style commuting factors, exactly as in
 `continuityUnitary_add` (`ChapterContinuityUnitary.lean:154`). The `(i t H)`
 sign convention makes both orderings commute trivially.
 
-**B.4** `nsFlow_zero : nsFlowUnitary 0 = 1` — `NormedSpace.exp_zero`
+**D.4** `nsFlow_zero : nsFlowUnitary 0 = 1` — `NormedSpace.exp_zero`
 (as `continuityUnitary_zero`, `ChapterContinuityUnitary.lean:150`).
 
-**B.5** `nsFlow_norm_preserving (t) (ψ : Fin N → ℂ) :
+**D.5** `nsFlow_norm_preserving (t) (ψ : Fin N → ℂ) :
   ‖nsFlowUnitary t • ψ‖ = ‖ψ‖` — via `unitary_preserves_normSq`
 (already in `ChapterContinuityUnitary.lean:198`).
 
-**B.6** `nsFlow_noBlowup (t) (ψ : Fin N → ℂ) (k : Fin N) :
+**D.6** `nsFlow_noBlowup (t) (ψ : Fin N → ℂ) (k : Fin N) :
   (nsFlowUnitary t • ψ) k ≠ ∞` — trivially true since `ℂ` has no infinity;
   state it as `(nsFlowUnitary t • ψ) k : ℂ` well-typed / finite, i.e. the
   evolved coefficients are finite complex numbers for every finite `t`.
 
-**B.7** `nsFlow_groupOnEvolved (t₁ t₂) : nsFlowUnitary t₁ • (nsFlowUnitary t₂ • ψ) =
+**D.7** `nsFlow_groupOnEvolved (t₁ t₂) : nsFlowUnitary t₁ • (nsFlowUnitary t₂ • ψ) =
   nsFlowUnitary (t₁ + t₂) • ψ` — the complete-flow statement acting on states
   (what the numerical `time_evolve`/`reconstruct` loop realizes).
 
-### Part C — BRST constraint (mostly reuse)
+### Part E — BRST constraint (mostly reuse)
 
-**C.1** `nsBrst_nilpotent : Ω * Ω = 0` where
+**E.1** `nsBrst_nilpotent : Ω * Ω = 0` where
 `Ω = Σ_j (u_{j,j} : Matrix (Fin N) (Fin N) ℂ) * (ghostAnnih j)` is the truncated
 BRST charge. Reuse `brst_charge_nilpotent` (`ChapterGhostField.lean:124`) — the
 nilpotency reduces to the ghost CAR/nilpotency already proved — plus the bosonic
 fields commuting with each other.
 
-**C.2** `nsDivergenceConstraint_resolution :
+**E.2** `nsDivergenceConstraint_resolution :
   (U11 + U22 + U33) with U33 := -(U11 + U22) = 0` — the formal statement of the
   symbolic `VerifySubstitution` test / book.tex §4191-4197: the divergence
   constraint `∂_j u_j = u_{1,1}+u_{2,2}+u_{3,3}` is solved by the replacement
   `u_{3,3} = u_{1,1}+u_{2,2}`. (Statement form: for `u11 u22 u33 : ℝ`,
   `h : u33 = -(u11+u22)`, conclude `u11 + u22 + u33 = 0` — `linarith`.)
 
-**C.3** (optional) `nsBrst_hermitian : Ωᴴ = Ω` — the BRST charge is Hermitian
-(same proof shape as `brst_charge_nilpotent`'s surroundings), tying C.1 to the
+**E.3** (optional) `nsBrst_hermitian : Ωᴴ = Ω` — the BRST charge is Hermitian
+(same proof shape as `brst_charge_nilpotent`'s surroundings), tying E.1 to the
 physical "project on ker Ω" construction of `fock_sirk`'s `brst.rs`.
 
-### Part D — The book.tex correspondence (prose + record)
+### Part F — The book.tex correspondence (prose + record)
 
-**D.1** Module docstring mapping each theorem to its `book.tex` line
-(`chapter at book.tex:3699`, NS section `book.tex:4133-4216`, Hamiltonian
-`book.tex:4184-4189`, constraint `book.tex:4191-4197`, self-adjointness claim
-`book.tex:4199-4208`, existence/uniqueness `book.tex:4210-4216`), and to the
-matching numerical test in unfer. Follow the honesty-flag style of
-`Book/OdeSingularity.lean` and `BookProof/ChapterOdeComplexification.lean`
+**F.1** Module docstring mapping each theorem to its `book.tex` line
+(`chapter at book.tex:3699`, NS section `book.tex:4133-4216`, degrees of freedom /
+derivatives-as-fields `book.tex:4151-4173` (Part A), CCRs `book.tex:4163-4170`
+(Part A.3), Hamiltonian `book.tex:4184-4189`, constraint `book.tex:4191-4197`,
+self-adjointness claim `book.tex:4199-4208`, existence/uniqueness
+`book.tex:4210-4216`), and to the matching numerical test in unfer. Follow the
+honesty-flag style of `Book/OdeSingularity.lean` and
+`BookProof/ChapterOdeComplexification.lean`
 (`ae_no_real_singular_time`).
 
-**D.2** Record in the docstring the exact boundary: the continuum operator's
+**F.2** Record in the docstring the exact boundary: the continuum operator's
 essential self-adjointness and the NS existence/uniqueness claim are **not**
 claimed here; the finite truncation is the honest provable core, and the
-infinite-dimensional extension is the §7 research target.
+infinite-dimensional extension is the §7 research target (whose concrete route is
+Part B's Lagrangian change of variables).
 
 The nesting of the finite SIRK approximation orders (the "n+1 band is contained
 in the n band" statement) is **not** part of this NS-flow plan: it is a property
@@ -267,6 +379,8 @@ grep -rn "^axiom" BookProof/                                      # empty
 grep -n "ChapterNavierStokesFlow" BookProof.lean                  # import present
 grep -n "nsFlow_unitary" Book/FreeField.lean Book/YangMillsQuantization.lean  # #check present (if cited)
 # 5. Headline theorems exist and are sorry-free
+lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.field_evaluates_to_value'
+lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.volume_preservation_constraint'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsFlow_unitary'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsFlow_noBlowup'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsBrst_nilpotent'
@@ -308,6 +422,19 @@ and the honest current record is `BookProof/ChapterUnboundedPosition.lean` +
 `BookProof/ChapterContinuityUnitaryInfinite.lean` (the `ℓ²(ℤ)` bounded layer) plus
 the Stone-theorem-in-full-generality target already recorded in
 `CONSOLIDATED_PLAN.md` §9.
+
+**The candidate route (recorded, not attempted): the Lagrangian change of
+variables of Part B.** The Eulerian→Lagrangian transformation
+(`u_i(X(ξ)) = P_i(ξ)`, `det(∂X_i/∂ξ_j) = 1`) turns the advection term into a
+*positive* 2nd-order functional Laplacian `−½Δ_X`, the viscosity into a 2nd-order
+term `−νΔ_{ξ,X}`, the force into a 1st-order drift `−i f(X)·∇_X`, and the
+pressure into the 0-order volume-preservation constraint. The ESA claim then
+becomes a **Kato–Rellich / Ikebe–Kato** relative-boundedness argument on the
+continuum trajectory space (2nd-order elliptic symbol dominating a relatively-
+bounded 1st-order drift), which is genuinely a functional-analytic theorem, not a
+finite computation. That is why it is a research target, not a plan item — but it
+is now a *named* route (with its operator-order skeleton in Part B), in the same
+spirit as `Singularity/ChangeOfVars.lean`'s reciprocal/logarithmic maps.
 
 Distinct from this research target: the *nesting* of the finite approximation
 orders is **not** a research target — it is decidable, finite-dimensional linear
