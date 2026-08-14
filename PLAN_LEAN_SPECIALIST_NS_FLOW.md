@@ -129,6 +129,8 @@ import BookProof.ChapterSuperBracket
 import BookProof.ChapterContinuityUnitary
 import BookProof.ChapterF1        -- Part A: Bargmann-Fock fieldPhi/fieldPi/ccr_mv
 import BookProof.ChapterFreeFieldConstraint  -- Part A.4: constraint commutation
+import BookProof.ChapterU         -- Part G.1: prodEquiv (Fock of a Fock)
+import BookProof.ChapterF2        -- Part G.3: numberOp/mass_gap comparison operator
 ```
 
 Work items in dependency order.
@@ -348,6 +350,78 @@ in the n band" statement) is **not** part of this NS-flow plan: it is a property
 of the generic Krylov–Hashimoto machinery, not of Navier–Stokes, and it lives in
 `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md` (`BookProof/ChapterH8`).
 
+### Part G — Essential self-adjointness via Faris–Lavine on the Fock-of-Fock
+structure
+
+This part records the ESA **theorem** for the transformed (Lagrangian)
+Navier–Stokes Hamiltonian. It is the formalization of `book.tex` §4199-4208's own
+route — *Faris & Lavine 1974, Corollary 1.1* (`cmpux2f1103859517`, confirmed at
+`book.tex:10953`) — but applied to the Part-B transformed operator rather than to
+the failed auxiliary-operator argument. The structural fact that makes the
+comparison-operator bound plausible is that the second-quantized (Fock-of-Fock)
+form of the transformed operator is **at most quadratic** in the creation and
+annihilation operators of the outer Fock layer.
+
+**G.1 — the Fock-of-Fock structure (reuse).** The Hilbert space of the NS flow is
+a Fock space *over a Fock space*: `Γ(L²(ℝ¹⁵×ℤ₂³)) = Γ(Γ(L²(ℝ¹⁵×ℤ₂³))₀)` in the
+second-quantized picture, and the algebraic identity that makes this concrete is
+`prodEquiv : Sym(M × N) ≅ Sym M ⊗ Sym N` (`ChapterU.lean:125`) — the tensor
+product of two Fock spaces is again a Fock space. State the second-quantized form
+of the transformed operator: `Ĥ = ∫ 𝒟X A†[X] ĥ_full[X] A[X]` with `A[X]`,
+`A†[X]` the outer (trajectory-indexed) ladder operators.
+
+**G.2 — the operator is at-most-quadratic in the outer ladder operators.** The
+four terms of `ĥ_full` (Part B) — kinetic `−½Δ_X`, viscous `−νΔ_{ξ,X}`, force
+drift `−i f(X)·∇_X`, 0-order constraint — act on the *inner* field of one
+trajectory; the outer ladder operators `A`, `A†` enter **at most quadratically**
+(one `A†` times one `A` per term, the book's `∫ a†(…)a` normal form). State and
+prove: `ns_outer_degree_le_two : ∀ term, term is a product of ≤ 2 outer ladder
+operators` — the Fock-of-Fock shadow of Part C.4's low-degree hypothesis, but now
+for the *outer* quantization.
+
+**G.3 — the comparison operator (reuse).** Let `N` be the (number-operator /
+harmonic-oscillator) comparison operator of the outer Fock layer, the second-
+quantized `∫ 𝒟X A†[X] A[X]`. Reuse the existing number-operator lemmas:
+`ChapterF1.numberOp`/`numberOp_monomial`, `ChapterF2.hamiltonian_commutes_numberOp`
+and `mass_gap` (the positivity/gap structure), and `ChapterH7.generation_…` /
+`compress_isSelfAdjoint` for the operator-algebra hygiene.
+
+**G.4 — Faris–Lavine: the ESA theorem, conditional (the headline).** State the
+Faris–Lavine commutator criterion (Faris & Lavine 1974, Corollary 1.1; Reed &
+Simon Vol. II, Theorem X.28 = Sears' theorem for the quadratic-growth case) as a
+**named theorem with citation docstring — never an axiom** (the `EXTERNAL`
+pattern, as with Crouzeix in `ChapterH4`):
+
+```
+ns_esa_of_farisLavine
+  (N : E →ₗ[ℂ] E) (H : E →ₗ[ℂ] E) (c1 c2 : ℝ)
+  (hN : 0 < c1) (hNN : 0 < c2)
+  (hHbound : ∀ ψ, ‖H ψ‖ ≤ c1 * ‖N ψ‖)            -- operator-norm bound (H rel.-bounded by N)
+  (hCommutator : ∀ ψ, ‖⟨ψ, [H, N] ψ⟩‖ ≤ c2 * ⟨ψ, N ψ⟩)  -- form commutator bound
+  : IsEssentiallySelfAdjoint H
+```
+
+with `IsEssentiallySelfAdjoint` defined as in `Singularity/Esa.lean`
+(`isEssentiallySelfAdjoint`, deficiency indices `(0,0)`), and `H := ĥ_full`
+(the transformed single-fluid operator, Part B) and `N` the outer number operator
+(G.3). The two hypotheses `hHbound`, `hCommutator` are the two Faris–Lavine
+inequalities; verifying them for the actual `ĥ_full` is the analytic step
+recorded in G.5. Sears' theorem (Reed & Simon X.28) is the potential-specialized
+form: `−Δ + V` with `V(x) ≥ −c|x|² − d` is ESA — which is exactly the shape of
+the at-most-quadratic bound that G.2's degree-≤-2 structure supports.
+
+**G.5 — honesty flag (the boundary).** The theorem `ns_esa_of_farisLavine` is the
+*framing*; the two analytic inequalities (`hHbound`, `hCommutator`) for the
+continuum `ĥ_full` are **not** proved in this plan — they are named hypotheses
+with the Faris–Lavine/Sears/Reed–Simon citations, exactly as Crouzeix enters
+`ChapterH4` as a named hypothesis. The finite-truncation completeness (Parts C–D)
+remains the honest provable core; the continuum ESA conclusion is the §7 research
+target, now with a *named theorem* (`ns_esa_of_farisLavine`) and a *named route*
+(the Part-B Lagrangian change of variables turning advection into the positive
+2nd-order Laplacian that the quadratic-growth condition needs). Do **not** present
+`ns_esa_of_farisLavine` as a proved theorem; it is a conditional statement with
+named analytic inputs, like `sirk_error_bound_decay`.
+
 ---
 
 ## 4. Style and conventions
@@ -381,6 +455,8 @@ grep -n "nsFlow_unitary" Book/FreeField.lean Book/YangMillsQuantization.lean  # 
 # 5. Headline theorems exist and are sorry-free
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.field_evaluates_to_value'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.volume_preservation_constraint'
+lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.ns_outer_degree_le_two'
+lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.ns_esa_of_farisLavine'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsFlow_unitary'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsFlow_noBlowup'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsBrst_nilpotent'
@@ -424,17 +500,22 @@ the Stone-theorem-in-full-generality target already recorded in
 `CONSOLIDATED_PLAN.md` §9.
 
 **The candidate route (recorded, not attempted): the Lagrangian change of
-variables of Part B.** The Eulerian→Lagrangian transformation
+variables of Part B, and the Faris–Lavine criterion of Part G.** The
+Eulerian→Lagrangian transformation
 (`u_i(X(ξ)) = P_i(ξ)`, `det(∂X_i/∂ξ_j) = 1`) turns the advection term into a
 *positive* 2nd-order functional Laplacian `−½Δ_X`, the viscosity into a 2nd-order
 term `−νΔ_{ξ,X}`, the force into a 1st-order drift `−i f(X)·∇_X`, and the
 pressure into the 0-order volume-preservation constraint. The ESA claim then
-becomes a **Kato–Rellich / Ikebe–Kato** relative-boundedness argument on the
-continuum trajectory space (2nd-order elliptic symbol dominating a relatively-
-bounded 1st-order drift), which is genuinely a functional-analytic theorem, not a
-finite computation. That is why it is a research target, not a plan item — but it
-is now a *named* route (with its operator-order skeleton in Part B), in the same
-spirit as `Singularity/ChangeOfVars.lean`'s reciprocal/logarithmic maps.
+becomes a **Faris–Lavine commutator** argument (Faris & Lavine 1974, Corollary
+1.1; Reed & Simon Vol. II Thm X.28 / Sears) on the continuum trajectory space:
+the Fock-of-Fock form of the transformed operator is at-most-quadratic in the
+outer ladder operators (Part G.2), so with `N` the outer number operator the two
+inequalities `‖Hψ‖ ≤ c₁‖Nψ‖` and `‖⟨ψ,[H,N]ψ⟩‖ ≤ c₂⟨ψ,Nψ⟩` are the right shape
+to verify. This is genuinely a functional-analytic verification, not a finite
+computation — which is why it is a research target, not a plan item — but it is
+now a *named* route (Part B's operator-order skeleton, Part G's theorem
+`ns_esa_of_farisLavine` with named hypotheses), in the same spirit as
+`Singularity/ChangeOfVars.lean`'s reciprocal/logarithmic maps.
 
 Distinct from this research target: the *nesting* of the finite approximation
 orders is **not** a research target — it is decidable, finite-dimensional linear
