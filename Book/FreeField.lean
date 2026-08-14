@@ -308,6 +308,49 @@ of an explicitly $`m \times m` object.
 ```
 
 :::paragraph
+The reductions form a *nested tower of approximation orders*, and this nesting is
+itself a decidable, finite-dimensional statement — the part of the Hashimoto
+convergence guarantee that needs no analytic input. Write $`\mathrm{Kry}_n`$ for
+the order-$`n`$ Krylov subspace $`\mathrm{Kry}_n(\bar H, v_0)`$. Two facts are
+purely algebraic. First, the subspaces nest:
+$`\mathrm{Kry}_n \subseteq \mathrm{Kry}_{n+1}`$
+($`\mathrm{krylovSpan\_mono}`$): the order-$`n`$ basis is the first $`n`$ vectors
+of the order-($`n`+1) basis. Second, the order-$`n`$ reduced generator is the
+top-left $`n \times n`$ block of the order-($`n`+1) reduced generator, because the
+compression is upper-Hessenberg — so the order-$`n`$ approximant is the
+*projection* of the order-($`n`+1) approximant onto $`\mathrm{Kry}_n`$: the finer
+band, restricted to the coarser information, reproduces the coarser band exactly.
+And the error bound is monotone in the same direction: the band
+$`[0, \mathrm{sirkBound}(n+1)]`$ is contained in $`[0, \mathrm{sirkBound}(n)]`$
+($`\mathrm{sirk\_error\_bound\_antitone}`$), and the bands collapse to $`\{0\}`$
+as $`n`$ grows ($`\mathrm{sirk\_error\_decay\_exponential}`$).
+:::
+
+```
+#check @BookProof.ChapterH5.krylovSpan_mono
+#check @BookProof.ChapterH5.krylovSpan_map_le
+#check @BookProof.ChapterH6.sirk_error_bound_antitone
+#check @BookProof.ChapterH6.sirk_error_decay_exponential
+#check @BookProof.ChapterH6.sirk_error_tendsto_zero
+#check @BookProof.ChapterH7.compress_isSelfAdjoint
+#check @BookProof.ChapterH7.compression_eigenvalue_mem_numericalRange
+```
+
+:::paragraph
+The honest boundary: the *nesting* above is finite-dimensional linear algebra over
+the decidable skeleton (Solovay–Mehler–Kopperman: every inner product over the
+infinite substrate collapses to a finite head integral), so it is provable
+without any analytic hypothesis. What the nesting does **not** supply is the
+numerical *width* of the bands: that the true error lies inside
+$`\mathrm{sirkBound}(n)`$ is conditional on Crouzeix's inequality
+($`\mathrm{sirk\_error\_bound\_decay}`$, `ChapterH4`), which is recorded in
+`BookProof/` as a named hypothesis rather than an axiom. The band-containment
+statement itself — order-($`n`$+1) refines order-$`n`$, iterated — is the
+`ChapterH8` plan item (the projection identity `ns_band_refinement` and the tower
+`ns_nested_orders`).
+:::
+
+:::paragraph
 Finally, the offline stage: a two-level sketch hashes raw coordinates into $`k`
 features and places the features on distinct modes of a $`K_2`-mode Fock space,
 producing a genuine single-excitation state from which the features can be read

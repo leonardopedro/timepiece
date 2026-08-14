@@ -231,6 +231,103 @@ essential self-adjointness and the NS existence/uniqueness claim are **not**
 claimed here; the finite truncation is the honest provable core, and the
 infinite-dimensional extension is the §7 research target.
 
+### Part E — ChapterH8: the approximation orders nest (decidable core of the
+Hashimoto convergence)
+
+This is the formal companion to the Book discussion in `Book/FreeField.lean`
+("Dimensional Reduction", the nested-orders paragraph). The claim: **the
+order-`n+1` SIRK approximation refines the order-`n` one — the finer band is
+contained in the coarser band, and the coarser approximant is the projection of
+the finer one onto the order-`n` Krylov subspace.** Unlike Parts B–C (which are
+about the NS Hamiltonian) this part is about the *generic* SIRK machinery already
+formalized in `ChapterH1`–`H7`; it is **fully decidable** in the SMK sense —
+every statement is finite-dimensional linear algebra over the skeleton, no
+Crouzeix, no infinite spectrum, no `EXTERNAL` hypothesis.
+
+The three ingredients are already proved; the task is to assemble them and to add
+the one missing compatibility lemma.
+
+**E.1 — subspace nesting (already proved).** `krylovSpan_mono`
+(`ChapterH5.lean:64`): `m ≤ n → krylovSpan H v m ≤ krylovSpan H v n`. State the
+tower form: `ns_krylov_tower : ∀ n, krylovSpan H v n ≤ krylovSpan H v (n+1)`.
+
+**E.2 — the reduced generator of order `n` is the top-left `n×n` block of the
+order-`n+1` reduced generator (NEW — the missing compatibility lemma).** Let
+`Vₙ : Fin n → E` and `Vₙ₊₁ : Fin (n+1) → E` be the nested orthonormal Krylov
+bases (`Vₙ i = Vₙ₊₁ (Fin.castSucc i)`). For `X : E →ₗ[ℂ] E` and the compressions
+`Bₙ = compress Vₙ X`, `Bₙ₊₁ = compress Vₙ₊₁ X`, prove the block identity
+
+```
+ns_compression_block : ∀ i j : Fin n,
+  Bₙ i j = Bₙ₊₁ (Fin.castSucc i) (Fin.castSucc j)
+```
+
+i.e. the order-`n` reduced matrix is the leading `n×n` submatrix of the
+order-`n+1` one. Proof shape: unfold `compress` (H4:84), expand the inner
+products, use orthonormality of `Vₙ₊₁` and the nesting `Vₙ i = Vₙ₊₁ (castSucc i)`.
+Equivalent matrix form: `reduceGenerator (n+1) (…) X` is `Matrix.fromBlocks Bₙ b c d`
+with `b, c, d` the new row/column blocks.
+
+**E.3 — the projection-refinement theorem (NEW, the headline).** Let
+`Πₙ = Vₙ (Vₙ†)` be the orthogonal projection onto `Kry n`, and let
+`r : ℂ → ℂ` be any rational function of the reduced generator (`r(Bₙ)`,
+`r(Bₙ₊₁)`). Prove the *band containment* identity: for `v ∈ Kry n` (i.e.
+`Vₙ (Vₙ† v) = v`),
+
+```
+ns_band_refinement : Vₙ (Vₙ† (r(Bₙ₊₁) v)) = r(Bₙ) v
+```
+
+and consequently, on the whole space, the order-`n` approximant equals the
+order-`n+1` approximant projected back into `Kry n`:
+
+```
+ns_approx_projection : ∀ v, Vₙ (Vₙ† (Vₙ₊₁ (r(Bₙ₊₁) (Vₙ₊₁† v)))) = Vₙ (r(Bₙ) (Vₙ† v))
+```
+
+Proof shape: for polynomials reduce to `ns_compression_block` + induction on the
+power (reuse `compress_pow`/`compress_transfer`, H4:104/122); for rational
+functions use the resolvent transfer `compress_inv_transfer` (H4:138). This is
+the exact statement that "the order-`n+1` uncertainty band, restricted to the
+order-`n` data, is the order-`n` band".
+
+**E.4 — the monotone band inequality (mostly proved).** Reuse the bound
+`sirkBound C Dmin h nv m` and its antitone law `sirk_error_bound_antitone`
+(`ChapterH6.lean:70`), and state the *set-level* band containment:
+
+```
+ns_band_contained : Set.Icc 0 (sirkBound C Dmin h nv (n+1))
+  ⊆ Set.Icc 0 (sirkBound C Dmin h nv n)
+```
+
+(with `0 ≤ C, Dmin, nv, h`). This is `sirk_error_bound_antitone` restated as a
+set inclusion. Together with `sirk_error_decay_exponential` (H6:57) it closes the
+tower: `[0, sirkBound n]` is a nested descending family of bands collapsing to
+`{0}`.
+
+**E.5 — the tower (the "and so on").** Assemble the whole nested family as a
+single statement over the skeleton:
+
+```
+ns_nested_orders : ∀ n : ℕ,
+  krylovSpan H v n ≤ krylovSpan H v (n+1)
+  ∧ (Set.Icc 0 (sirkBound C Dmin h nv (n+1)) ⊆ Set.Icc 0 (sirkBound C Dmin h nv n))
+```
+
+**Module and registration.** New file **`BookProof/ChapterH8.lean`**, namespace
+`BookProof.ChapterH8`, imported in `BookProof.lean` right after `ChapterH7`
+(BookProof.lean:334). Cited from `Book/FreeField.lean` (§"Dimensional
+Reduction", after the H6 `#check` block) with `#check`s of `ns_krylov_tower`,
+`ns_band_refinement`, `ns_approx_projection`, `ns_band_contained`,
+`ns_nested_orders`.
+
+**Honesty flag (docstring).** The *nesting* (E.1–E.5) is finite-dimensional and
+decidable. What is NOT claimed: the numerical *width* of the band — the actual
+error inequality `‖φ_k(A)v − Vₘ ψ(HₘKₘ⁻¹) Vₘ† v‖ ≤ sirkBound m` is conditional on
+the `EXTERNAL` Crouzeix bound (`sirk_error_bound_decay`, H4:200). The nesting
+holds whether or not Crouzeix is ever proved; only the location of the true value
+inside the nested bands needs it.
+
 ---
 
 ## 4. Style and conventions
@@ -260,12 +357,16 @@ grep -rn "sorry" BookProof/ Singularity/ | grep -v UnusedRoute   # only the 2 in
 grep -rn "^axiom" BookProof/                                      # empty
 # 4. Registration + citation
 grep -n "ChapterNavierStokesFlow" BookProof.lean                  # import present
+grep -n "ChapterH8" BookProof.lean                                # import present (Part E)
 grep -n "nsFlow_unitary" Book/FreeField.lean Book/YangMillsQuantization.lean  # #check present (if cited)
+grep -n "ns_nested_orders" Book/FreeField.lean                    # #check present (Part E)
 # 5. Headline theorems exist and are sorry-free
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsFlow_unitary'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsFlow_noBlowup'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsBrst_nilpotent'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsDivergenceConstraint_resolution'
+lake env lean --stdin <<< '#check BookProof.ChapterH8.ns_nested_orders'
+lake env lean --stdin <<< '#check BookProof.ChapterH8.ns_band_refinement'
 ```
 
 All headline theorems `sorry`-free and `axiom`-free (only `propext`,
@@ -303,3 +404,9 @@ and the honest current record is `BookProof/ChapterUnboundedPosition.lean` +
 `BookProof/ChapterContinuityUnitaryInfinite.lean` (the `ℓ²(ℤ)` bounded layer) plus
 the Stone-theorem-in-full-generality target already recorded in
 `CONSOLIDATED_PLAN.md` §9.
+
+Distinct from this research target: the *nesting* of the finite approximation
+orders (Part E) is **not** a research target — it is decidable, finite-dimensional
+linear algebra, and is a plan item (`ChapterH8`). The Crouzeix-based numerical
+*width* of the nested bands remains an `EXTERNAL` analytic input; the nesting
+itself does not depend on it.
