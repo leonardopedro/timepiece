@@ -194,33 +194,52 @@ the dynamics: `[[D, A], H] = −[D, [H, A]]` when `[D, H] = 0`, exactly as in
 `ChapterFreeFieldConstraint.lean` (`constraint_commutation_identity`) — the
 constraint is a first-class invariant, not an emergent one.
 
-**A.5** *The Eulerian constraint (the analog of Part B's volume preservation).*
+**A.5** *The Eulerian constraints (the analog of Part B's volume preservation).*
 Part B imposes `det(∂X_i/∂ξ_j) = 1` on the *Lagrangian* variables; the
 derivatives-as-fields construction needs its **Eulerian** counterpart — the
 constraints that make `u_{k,j}`, `u_{k,jj}` legitimate *Eulerian* canonical
-variables rather than arbitrary tensors. Three items:
+variables rather than arbitrary tensors. The book distinguishes the two kinds
+(Dirac's first-class / explicit-solution taxonomy, `book.tex` §"Gauge
+transformations, constrained systems and conditioned probability", line
+2222-2323): first-class constraints are *imposed by defining gauge generators*
+("First-class constraints are the generators of a unitary gauge group",
+`book.tex:2286`); constraints with an explicit solution need **no** gauge
+generator ("There is no need to define a gauge symmetry for these constraints,
+because there is an explicit solution", `book.tex:4128`, the holomorphic-fields
+precedent). The three items split exactly along that line:
 
-- `eulerian_divergence_constraint : ∂_j u_j = u_{j,j} = 0` — incompressibility
-  in Eulerian variables, the direct shadow of the Lagrangian
-  `det(∂X_i/∂ξ_j) = 1` (incompressibility ⟺ volume preservation under the
-  change of variables). This is the constraint Part E's BRST charge
-  `Ω = u_{j,j} ⊗ ψ†` enforces (E.1, E.2), and it is exactly the equation the
-  symbolic `VerifySubstitution` test resolves (`u_{3,3} = −(u_{1,1}+u_{2,2})`).
 - `derivativeField_consistency : u_{i,jk} = u_{i,kj}` — the second-derivative
   fields satisfy Clairaut's condition (mixed partials commute), so the
   derivative modes are *integrable*: they come from a genuine field
   `u_i = ∂_j u_{i,j}`. Without it the 18 second-derivative modes are
-  over-counted; with it they reduce to the 6 symmetric `u_{i,jk}`.
+  over-counted; with it they reduce to the 6 symmetric `u_{i,jk}`. This is the
+  **gauge-generator constraint**: the parametrization redundancy of the
+  derivative modes is a first-class constraint, imposed by defining the gauge
+  generators (the book's parametrization/gauge-group view, `book.tex:2279-2286`),
+  exactly as the holomorphic-fields section's `[D_x, u+iv] = 0`.
 - `eulerian_momentum_dual : π^{ij}` — the momentum conjugate to `u_{i,j}`,
   giving the Part-A.3 CCR `[u_{j,k}, π^{mn}] = iδ^n_j δ^m_k` the reading that
   the *derivative* degrees of freedom are canonical variables with their own
   momenta (book.tex §4163-4170). Together with the divergence constraint this
   is the Eulerian side of the change of variables: the Lagrangian `P_i(ξ) =
   Ẋ_i(ξ)` (B.1) becomes the Eulerian derivative modes `u_{i,j} = ∂_j u_i`.
+- `eulerian_divergence_constraint : ∂_j u_j = u_{j,j} = 0` — incompressibility
+  in Eulerian variables, the direct shadow of the Lagrangian
+  `det(∂X_i/∂ξ_j) = 1` (incompressibility ⟺ volume preservation under the
+  change of variables). This needs **no gauge generator**: the constraint has an
+  explicit solution — the `u_{3,3} = −(u_{1,1}+u_{2,2})` substitution — so it is
+  imposed by *initial conditions* that verify it, not by a gauge symmetry
+  (`book.tex:4194-4197`: the divergence constraint "can be easily solved... and
+  there is a wave-function which verifies it"). The BRST charge
+  `Ω = u_{j,j} ⊗ ψ†` (Part E) is then, in book.tex's own words, "used only to
+  allow a more elegant formulation without distinguishing one of the space
+  indices and not to define the theory itself" — it is the elegant packaging of
+  an explicit-solution constraint, not a first-class gauge constraint.
 
-The divergence constraint is algebraic (the `u_{3,3}` substitution) and the
-Clairaut condition is algebraic (symmetry of mixed partials), so A.5 is
-provable now; the BRST enforcement is Part E.
+So the A.5 split mirrors the book's taxonomy: **gauge generators** for the
+derivative-field consistency (Clairaut / integrability, no explicit solution),
+**initial conditions** for the divergence (explicit `u_{3,3}` solution). Both
+are algebraic and provable now; the BRST enforcement is Part E.
 
 ### Part B — The volume-preservation constraint (Lagrangian change of variables)
 
@@ -384,6 +403,16 @@ sign convention makes both orderings commute trivially.
 
 ### Part E — BRST constraint (mostly reuse)
 
+Per the A.5 taxonomy, the divergence constraint is an *explicit-solution*
+constraint: book.tex's own note (`book.tex:4194-4197`) says it "can be easily
+solved (e.g. using the replacement `u_{3,3}=u_{1,1}+u_{2,2}`) and there is a
+wave-function which verifies it, so the BRST formalism is used only to allow a
+more elegant formulation without distinguishing one of the space indices and
+not to define the theory itself." So the BRST charge here is the *elegant
+packaging* of the constraint — it is **not** a first-class gauge generator (the
+derivative-field consistency of A.5 is the one that is). The module docstring
+must record this distinction.
+
 **E.1** `nsBrst_nilpotent : Ω * Ω = 0` where
 `Ω = Σ_j (u_{j,j} : Matrix (Fin N) (Fin N) ℂ) * (ghostAnnih j)` is the truncated
 BRST charge. Reuse `brst_charge_nilpotent` (`ChapterGhostField.lean:124`) — the
@@ -395,11 +424,20 @@ fields commuting with each other.
   symbolic `VerifySubstitution` test / book.tex §4191-4197: the divergence
   constraint `∂_j u_j = u_{1,1}+u_{2,2}+u_{3,3}` is solved by the replacement
   `u_{3,3} = u_{1,1}+u_{2,2}`. (Statement form: for `u11 u22 u33 : ℝ`,
-  `h : u33 = -(u11+u22)`, conclude `u11 + u22 + u33 = 0` — `linarith`.)
+  `h : u33 = -(u11+u22)`, conclude `u11 + u22 + u33 = 0` — `linarith`.) This is
+  the *explicit solution* that makes the constraint initial-condition-imposed
+  (A.5): given any two divergence-independent modes, the third is fixed, so the
+  constrained space is parameterized without any gauge generator.
 
 **E.3** (optional) `nsBrst_hermitian : Ωᴴ = Ω` — the BRST charge is Hermitian
 (same proof shape as `brst_charge_nilpotent`'s surroundings), tying E.1 to the
 physical "project on ker Ω" construction of `fock_sirk`'s `brst.rs`.
+
+**E.4** *Honesty flag.* The module must state that E.1–E.3 formalize the
+*packaging* role only: nilpotency of `Ω` and the `u_{3,3}` resolution, exactly
+as book.tex describes. The constraint itself needs no gauge generator (A.5), so
+nothing in Part E should be read as a first-class-constraint/ghost-counting
+statement about the physical Hilbert space.
 
 ### Part F — The book.tex correspondence (prose + record)
 
@@ -408,8 +446,11 @@ physical "project on ker Ω" construction of `fock_sirk`'s `brst.rs`.
 derivatives-as-fields `book.tex:4151-4173` (Part A), CCRs `book.tex:4163-4170`
 (Part A.3), Hamiltonian `book.tex:4184-4189`, constraint `book.tex:4191-4197`,
 self-adjointness claim `book.tex:4199-4208`, existence/uniqueness
-`book.tex:4210-4216`), and to the matching numerical test in unfer. Follow the
-honesty-flag style of `Book/OdeSingularity.lean` and
+`book.tex:4210-4216`, the gauge-generator taxonomy `book.tex:2286`
+("first-class constraints are the generators of a unitary gauge group"),
+the explicit-solution no-gauge precedent `book.tex:4128`, and the
+BRST-is-elegance-only note `book.tex:4194-4197`), and to the matching numerical
+test in unfer. Follow the honesty-flag style of `Book/OdeSingularity.lean` and
 `BookProof/ChapterOdeComplexification.lean`
 (`ae_no_real_singular_time`).
 
