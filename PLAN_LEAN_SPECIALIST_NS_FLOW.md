@@ -206,17 +206,26 @@ transformations, constrained systems and conditioned probability", line
 `book.tex:2286`); constraints with an explicit solution need **no** gauge
 generator ("There is no need to define a gauge symmetry for these constraints,
 because there is an explicit solution", `book.tex:4128`, the holomorphic-fields
-precedent). The three items split exactly along that line:
+precedent). The constraints split exactly along that line:
 
-- `derivativeField_consistency : u_{i,jk} = u_{i,kj}` — the second-derivative
-  fields satisfy Clairaut's condition (mixed partials commute), so the
-  derivative modes are *integrable*: they come from a genuine field
-  `u_i = ∂_j u_{i,j}`. Without it the 18 second-derivative modes are
-  over-counted; with it they reduce to the 6 symmetric `u_{i,jk}`. This is the
-  **gauge-generator constraint**: the parametrization redundancy of the
-  derivative modes is a first-class constraint, imposed by defining the gauge
-  generators (the book's parametrization/gauge-group view, `book.tex:2279-2286`),
-  exactly as the holomorphic-fields section's `[D_x, u+iv] = 0`.
+- `derivativeField_relates_to_field : u_{i,j} = ∂_j u_i` — the *defining*
+  constraint: the first-derivative modes are the actual partial derivatives of
+  the field `u_i`. This is what makes `u_{k,j}` a derivative field and not an
+  arbitrary tensor — the relation between `u_i` and its first derivatives — and
+  it is a **gauge-generator constraint** (no explicit solution: it pins the
+  first-derivative modes to the field, on the parametrization/gauge-group view
+  `book.tex:2279-2286`, as the holomorphic-fields section's `[D_x, u+iv] = 0`).
+- `derivativeField_second : u_{i,jk} = ∂_k u_{i,j}` — the second-derivative
+  modes are the derivatives of the first-derivative modes (the same relation
+  one level up: `u_{i,jk} = ∂_k ∂_j u_i`).
+- `derivativeField_consistency : u_{i,jk} = u_{i,kj}` — Clairaut's condition,
+  the *consequence* of `derivativeField_second` in the two orders: mixed
+  partials commute, so the derivative modes are integrable and the 18
+  second-derivative modes reduce to the 6 symmetric `u_{i,jk}`. It is listed
+  separately because it is the algebraic identity a truncation actually states;
+  but it is not the primary constraint — the primary one is
+  `u_{i,j} = ∂_j u_i`, which relates each derivative to the field it derives
+  from. All three are gauge-generator constraints.
 - `eulerian_momentum_dual : π^{ij}` — the momentum conjugate to `u_{i,j}`,
   giving the Part-A.3 CCR `[u_{j,k}, π^{mn}] = iδ^n_j δ^m_k` the reading that
   the *derivative* degrees of freedom are canonical variables with their own
@@ -237,9 +246,10 @@ precedent). The three items split exactly along that line:
   an explicit-solution constraint, not a first-class gauge constraint.
 
 So the A.5 split mirrors the book's taxonomy: **gauge generators** for the
-derivative-field consistency (Clairaut / integrability, no explicit solution),
-**initial conditions** for the divergence (explicit `u_{3,3}` solution). Both
-are algebraic and provable now; the BRST enforcement is Part E.
+field-to-derivative relations (`u_{i,j} = ∂_j u_i`, `u_{i,jk} = ∂_k u_{i,j}`,
+and their Clairaut consequence — no explicit solution), **initial conditions**
+for the divergence (explicit `u_{3,3}` solution). Both are algebraic and
+provable now; the BRST enforcement is Part E.
 
 ### Part B — The volume-preservation constraint (Lagrangian change of variables)
 
