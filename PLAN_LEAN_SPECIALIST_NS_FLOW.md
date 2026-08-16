@@ -194,6 +194,34 @@ the dynamics: `[[D, A], H] = −[D, [H, A]]` when `[D, H] = 0`, exactly as in
 `ChapterFreeFieldConstraint.lean` (`constraint_commutation_identity`) — the
 constraint is a first-class invariant, not an emergent one.
 
+**A.5** *The Eulerian constraint (the analog of Part B's volume preservation).*
+Part B imposes `det(∂X_i/∂ξ_j) = 1` on the *Lagrangian* variables; the
+derivatives-as-fields construction needs its **Eulerian** counterpart — the
+constraints that make `u_{k,j}`, `u_{k,jj}` legitimate *Eulerian* canonical
+variables rather than arbitrary tensors. Three items:
+
+- `eulerian_divergence_constraint : ∂_j u_j = u_{j,j} = 0` — incompressibility
+  in Eulerian variables, the direct shadow of the Lagrangian
+  `det(∂X_i/∂ξ_j) = 1` (incompressibility ⟺ volume preservation under the
+  change of variables). This is the constraint Part E's BRST charge
+  `Ω = u_{j,j} ⊗ ψ†` enforces (E.1, E.2), and it is exactly the equation the
+  symbolic `VerifySubstitution` test resolves (`u_{3,3} = −(u_{1,1}+u_{2,2})`).
+- `derivativeField_consistency : u_{i,jk} = u_{i,kj}` — the second-derivative
+  fields satisfy Clairaut's condition (mixed partials commute), so the
+  derivative modes are *integrable*: they come from a genuine field
+  `u_i = ∂_j u_{i,j}`. Without it the 18 second-derivative modes are
+  over-counted; with it they reduce to the 6 symmetric `u_{i,jk}`.
+- `eulerian_momentum_dual : π^{ij}` — the momentum conjugate to `u_{i,j}`,
+  giving the Part-A.3 CCR `[u_{j,k}, π^{mn}] = iδ^n_j δ^m_k` the reading that
+  the *derivative* degrees of freedom are canonical variables with their own
+  momenta (book.tex §4163-4170). Together with the divergence constraint this
+  is the Eulerian side of the change of variables: the Lagrangian `P_i(ξ) =
+  Ẋ_i(ξ)` (B.1) becomes the Eulerian derivative modes `u_{i,j} = ∂_j u_i`.
+
+The divergence constraint is algebraic (the `u_{3,3}` substitution) and the
+Clairaut condition is algebraic (symmetry of mixed partials), so A.5 is
+provable now; the BRST enforcement is Part E.
+
 ### Part B — The volume-preservation constraint (Lagrangian change of variables)
 
 This part records the **Lagrangian (parcel) form** of the incompressibility
@@ -201,7 +229,9 @@ constraint, which is the honest candidate for the complete-flow realization that
 §7 requires. The Eulerian NS operator, transformed to Lagrangian variables
 `x = X(ξ, t)` with parcel velocity = canonical momentum `u_i(X(ξ)) = Ẋ_i(ξ) =
 P_i(ξ)`, becomes a sum of four contributions whose operator *orders* are the key
-structural fact:
+structural fact. The Eulerian constraints that make this change of variables
+coherent are Part A.5's (divergence, Clairaut consistency, derivative momenta);
+Part B supplies the Lagrangian side (volume preservation `det(∂X_i/∂ξ_j) = 1`).
 
 | Eulerian term | Lagrangian form | operator order |
 | :-- | :-- | :--: |
@@ -211,7 +241,10 @@ structural fact:
 | external force `f_i` | `−i·f_i(X(ξ))·(δ/δX_i)` | 1st (drift) |
 
 **B.1** `lagrangian_velocity : u_i(X(ξ)) = P_i(ξ)` — the identification of the
-parcel velocity with the canonical momentum of the trajectory operator.
+parcel velocity with the canonical momentum of the trajectory operator. On the
+Eulerian side this is A.5's `eulerian_momentum_dual` + `derivativeField_consistency`:
+the derivative modes `u_{i,j}` are the Lagrangian momenta pulled back to
+Eulerian variables, subject to the divergence constraint.
 
 **B.2** `volume_preservation_constraint : det(∂X_i/∂ξ_j) = 1` — incompressibility
 in parcel space (`∇·u = 0` ⟺ volume preservation), the 0-order BRST constraint
@@ -541,8 +574,11 @@ and the honest current record is `BookProof/ChapterUnboundedPosition.lean` +
 the Stone-theorem-in-full-generality target already recorded in
 `CONSOLIDATED_PLAN.md` §9.
 
-**The candidate route (recorded, not attempted): the Lagrangian change of
-variables of Part B, and the Faris–Lavine criterion of Part G.** The
+**The candidate routes (recorded, not attempted): two viable paths — the
+Lagrangian (Part B) and the Eulerian (Part A) — each completed by the
+Faris–Lavine criterion of Part G.**
+
+*Path (1): the Lagrangian change of variables of Part B.* The
 Eulerian→Lagrangian transformation
 (`u_i(X(ξ)) = P_i(ξ)`, `det(∂X_i/∂ξ_j) = 1`) turns the four terms of the full
 NS momentum equation into the explicit identities of B.5: advection into the
@@ -560,11 +596,34 @@ Lavine 1974, Corollary 1.1; Reed & Simon Vol. II Thm X.28 / Sears): the
 Fock-of-Fock form of the transformed operator is at-most-quadratic in the outer
 ladder operators (Part G.2), so with `N` the outer number operator the two
 inequalities `‖Hψ‖ ≤ c₁‖Nψ‖` and `‖⟨ψ,[H,N]ψ⟩‖ ≤ c₂⟨ψ,Nψ⟩` are the right shape
-to verify. Both are genuinely functional-analytic verifications, not finite
-computations — which is why they are research targets, not plan items — but the
-route is now *named* in full detail (Part B.5/B.6's operator identities, Part
-G's theorem `ns_esa_of_farisLavine` with named hypotheses), in the same spirit
-as `Singularity/ChangeOfVars.lean`'s reciprocal/logarithmic maps.
+to verify.
+
+*Path (2): the Eulerian variables, staying in the derivatives-as-fields
+picture of Part A.* Here the ESA route does **not** change variables: the
+field-with-derivatives construction of Part A makes `u_{k,j}`, `u_{k,jj}`
+Eulerian canonical variables (A.3 CCRs), the constraints of A.5 (divergence
+`u_{j,j} = 0`, Clairaut consistency, the derivative momenta `π^{ij}`) keep them
+honest, and the *momentum representation* of the fiber — where the comparison
+operator `n = Σᵢπᵢ² + ΣᵢVᵢ² + I` is a multiplication operator — is where the two
+Faris–Lavine inequalities are actually **verifiable in the finite-mode core**
+(that is the wave already proved: `ChapterNavierStokesHermiteFarisLavine`,
+`ChapterNavierStokesFockManyMode`, `ChapterNavierStokesMomentumEsa`, with the
+Ikebe–Kato input `ChapterNavierStokesIkebeKato`). The Eulerian path is the one
+the Aristotle wave took; the *continuum* step it does not complete is the
+passage from the finite-mode core to the genuinely differential (Sobolev)
+realization of the fiber Laplacian — the same boundary as the Lagrangian path's.
+
+The two paths are complementary: the Lagrangian one trades the nasty advection
+`−u_j∂_j u_i` for a positive Laplacian (at the price of the nonlinear
+`det = 1` constraint); the Eulerian one keeps the physical variables (at the
+price of the linearized fiber Hamiltonian of the Hermite realization). Both
+reduce to: a 2nd-order/at-most-quadratic operator plus a comparison-operator
+Faris–Lavine verification, and both are genuinely functional-analytic
+verifications, not finite computations — which is why they are research targets,
+not plan items — but both routes are now *named* in full detail (Part B.5/B.6's
+operator identities, Part A/A.5's Eulerian constraints, Part G's theorem
+`ns_esa_of_farisLavine` with named hypotheses), in the same spirit as
+`Singularity/ChangeOfVars.lean`'s reciprocal/logarithmic maps.
 
 Distinct from this research target: the *nesting* of the finite approximation
 orders is **not** a research target — it is decidable, finite-dimensional linear
