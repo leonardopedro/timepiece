@@ -208,6 +208,22 @@ generator ("There is no need to define a gauge symmetry for these constraints,
 because there is an explicit solution", `book.tex:4128`, the holomorphic-fields
 precedent). The constraints split exactly along that line:
 
+- `u_evaluates_to_value : u_i(X) = u_i` — the Eulerian velocity field gets the
+  *same* operator-valued construction as the generic field of A.2: `u_i(X) =
+  u_i + u_{i,j}·(X_j − x_j)`, linear in the position operator `X` with eigenvalue
+  `x_j` from the creation/annihilation operators, collapsing to its point value
+  `u_i` on the Fock eigenstates of `X`. This is the Eulerian instance of
+  `fieldTaylor`/`field_evaluates_to_value`, with the Taylor coefficient `u_{i,j}`
+  the derivative mode (and `u_{i,jk}` at second order).
+- `eulerian_momentum_constraint : [u_j, π^k] = i·δ^k_j` — the momentum constraint
+  *for the Eulerian variables* (book.tex §4163-4170, the zeroth-order member of
+  the CCR family), together with `[u_{j,k}, π^{mn}] = i·δ^n_j·δ^m_k` and
+  `[u_{i,jk}, π^{lmn}] = i·δ^l_i·δ^m_j·δ^n_k` for the derivative modes. This is
+  the book.tex momentum constraint that the derivatives-as-fields construction
+  exists to make well-defined: each `u_{i,j}`, `u_{i,jk}` is a canonical variable
+  with its own conjugate momentum. (A.3's `derivativeField_momentum` covers the
+  first-derivative member; this item states the full family, including the
+  zeroth-order `[u_j, π^k]` that couples the velocity field itself.)
 - `derivativeField_relates_to_field : u_{i,j} = ∂_j u_i` — the *defining*
   constraint: the first-derivative modes are the actual partial derivatives of
   the field `u_i`. This is what makes `u_{k,j}` a derivative field and not an
