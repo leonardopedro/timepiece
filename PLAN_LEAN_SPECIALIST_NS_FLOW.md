@@ -237,6 +237,47 @@ finite-truncation completeness of Parts C–D. This part is the "w = 1/x"-style
 change of variables for NS that the ODE chapter's resolution pattern
 (`Book/OdeSingularity.lean`) suggests.
 
+**B.5** The four term-by-term identities (the precise functional-operator forms
+of the Eulerian→Lagrangian change of variables, from the full classical NS
+momentum equation `∂_t u_i = −u_j ∂_j u_i + νΔ_x u_i − ∂_i p + f_i`):
+
+| Eulerian term | transformed operator identity | order |
+| :-- | :-- | :--: |
+| advection `∫ πⁱ(−u_j ∂_j u_i)` | `Ĥ_kin = −½ ∫d³ξ δ²/δX_i(ξ)²` | 2nd |
+| viscosity `∫ πⁱ νΔ_x u_i` | `Ĥ_visc = −ν ∫d³ξ \|∇_ξ P_i(ξ)\|²` | 2nd |
+| pressure `∫ πⁱ(−∂_i p)`, `∇·u=0` | `Ĥ_press = ∫d³ξ λ(ξ)(det(∂X_i/∂ξ_j)−1) + Ĥ_ghost` | 0th |
+| external force `∫ πⁱ f_i` | `Ĥ_force = −i ∫d³ξ f_i(X(ξ)) δ/δX_i(ξ)` | 1st |
+
+Here `P_i(ξ) = −i δ/δX_i(ξ)` is the trajectory momentum (so `Ĥ_kin = ½Σ P_i²`
+is the flat positive functional Laplacian `Δ_X`, and `Ĥ_visc = −ν|∇_ξ P_i|²`
+pulls the spatial Laplacian back to the ξ-gradient of the momentum). The
+identities are statements about the *form* of the four terms under the canonical
+change of variables `x = X(ξ,t)`, `u_i(X(ξ)) = Ẋ_i(ξ) = P_i(ξ)`,
+`πⁱ(x) → P_i(ξ)`; the pressure identity is the 0-order BRST constraint with
+`λ(ξ)` the Lagrange multiplier / ghost field projecting onto
+`SDiff(ℝ³)` (volume-preserving diffeomorphisms).
+
+**B.6** The full second-quantized operator (Step 3 of the transformation):
+`Ĥ_NS = ∫ 𝒟X A†[X] ĥ_full[X] A[X]` on the second-level Fock space, where the
+single-fluid operator is
+
+```
+ĥ_full[X] = ∫d³ξ [ −½ δ²/δX_i(ξ)²  − ν |∇_ξ (δ/δX_i(ξ))|²  − i f_i(X(ξ)) δ/δX_i(ξ) ]
+            + Ĥ_constraint
+```
+
+i.e. `ĥ_full = −½Δ_X − νΔ_{ξ,X} − i f(X)·∇_X + Ĥ_constraint` with operator
+orders 2nd + 2nd + 1st + 0th. The ESA structure argument (Step 4) is: the
+operator is dominated by the two 2nd-order functional Laplacians (flat,
+non-negative); the force drift is a 1st-order operator, *infinitesimally small*
+relative to the 2nd-order Laplacians (Sobolev embedding / Kato-smallness); the
+volume-preservation constraint commutes with the Laplacians because
+volume-preserving diffeomorphisms conserve the L² kinetic norm. By Kato–Rellich
+/ Ikebe–Kato this is the continuum ESA statement — recorded in §7 as the
+research route, **not** claimed here (B.4). The algebraic part that *is* a plan
+item: the `∫ a†(…)a` normal form of B.6 with the Fock-of-Fock degree bound of
+Part G.2.
+
 ### Part C — The finite truncation is a finite Hermitian matrix
 
 **C.1** `nsFieldModes : Fin 15` — the 15 field modes
@@ -455,6 +496,7 @@ grep -n "nsFlow_unitary" Book/FreeField.lean Book/YangMillsQuantization.lean  # 
 # 5. Headline theorems exist and are sorry-free
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.field_evaluates_to_value'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.volume_preservation_constraint'
+lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.LagrangianNS.transformed_hamiltonian_decomposition'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.ns_outer_degree_le_two'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.ns_esa_of_farisLavine'
 lake env lean --stdin <<< '#check BookProof.NavierStokesFlow.nsFlow_unitary'
@@ -502,20 +544,27 @@ the Stone-theorem-in-full-generality target already recorded in
 **The candidate route (recorded, not attempted): the Lagrangian change of
 variables of Part B, and the Faris–Lavine criterion of Part G.** The
 Eulerian→Lagrangian transformation
-(`u_i(X(ξ)) = P_i(ξ)`, `det(∂X_i/∂ξ_j) = 1`) turns the advection term into a
-*positive* 2nd-order functional Laplacian `−½Δ_X`, the viscosity into a 2nd-order
-term `−νΔ_{ξ,X}`, the force into a 1st-order drift `−i f(X)·∇_X`, and the
-pressure into the 0-order volume-preservation constraint. The ESA claim then
-becomes a **Faris–Lavine commutator** argument (Faris & Lavine 1974, Corollary
-1.1; Reed & Simon Vol. II Thm X.28 / Sears) on the continuum trajectory space:
-the Fock-of-Fock form of the transformed operator is at-most-quadratic in the
-outer ladder operators (Part G.2), so with `N` the outer number operator the two
+(`u_i(X(ξ)) = P_i(ξ)`, `det(∂X_i/∂ξ_j) = 1`) turns the four terms of the full
+NS momentum equation into the explicit identities of B.5: advection into the
+*positive* 2nd-order functional Laplacian `Ĥ_kin = −½∫δ²/δX_i(ξ)²`, viscosity
+into the 2nd-order `Ĥ_visc = −ν∫|∇_ξ P_i|²`, the force into the 1st-order drift
+`Ĥ_force = −i∫f_i(X) δ/δX_i`, and the pressure into the 0-order volume-preservation
+constraint `λ(ξ)(det(∂X_i/∂ξ_j)−1)` — assembled in B.6 into
+`ĥ_full = −½Δ_X − νΔ_{ξ,X} − i f(X)·∇_X + Ĥ_constraint`. The ESA claim then
+becomes either (a) a **Kato–Rellich / Ikebe–Kato** relative-boundedness argument
+on the continuum trajectory space — 2nd-order elliptic principal symbol
+dominating the Kato-small 1st-order drift (Sobolev embedding), constraint
+commuting with the Laplacians because volume-preserving diffeomorphisms conserve
+the L² kinetic norm — or (b) a **Faris–Lavine commutator** argument (Faris &
+Lavine 1974, Corollary 1.1; Reed & Simon Vol. II Thm X.28 / Sears): the
+Fock-of-Fock form of the transformed operator is at-most-quadratic in the outer
+ladder operators (Part G.2), so with `N` the outer number operator the two
 inequalities `‖Hψ‖ ≤ c₁‖Nψ‖` and `‖⟨ψ,[H,N]ψ⟩‖ ≤ c₂⟨ψ,Nψ⟩` are the right shape
-to verify. This is genuinely a functional-analytic verification, not a finite
-computation — which is why it is a research target, not a plan item — but it is
-now a *named* route (Part B's operator-order skeleton, Part G's theorem
-`ns_esa_of_farisLavine` with named hypotheses), in the same spirit as
-`Singularity/ChangeOfVars.lean`'s reciprocal/logarithmic maps.
+to verify. Both are genuinely functional-analytic verifications, not finite
+computations — which is why they are research targets, not plan items — but the
+route is now *named* in full detail (Part B.5/B.6's operator identities, Part
+G's theorem `ns_esa_of_farisLavine` with named hypotheses), in the same spirit
+as `Singularity/ChangeOfVars.lean`'s reciprocal/logarithmic maps.
 
 Distinct from this research target: the *nesting* of the finite approximation
 orders is **not** a research target — it is decidable, finite-dimensional linear
