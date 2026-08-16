@@ -1,3 +1,331 @@
+# Summary of changes for run 5f49886b-b1fd-46dd-b31c-516244f2e747
+Both Faris–Lavine inequalities are now proved in Lean for the Navier–Stokes Hamiltonian itself — at the one-particle level and, generalized, on Fock space — with no `sorry` and using only the standard axioms (`propext`, `Classical.choice`, `Quot.sound`).
+
+**What is proved**
+
+1. *One-mode (fiber) Hamiltonian* — `BookProof/ChapterNavierStokesHermiteFarisLavine.lean`.
+   The symmetrised transport operator `h = ½(πV + Vπ)` in the oscillator basis, with comparison operator `N`. Proved: symmetry, the relative bound `‖Hx‖² ≤ ½‖Nx‖² + 2κ²‖x‖²`, the form-commutator bound `|⟨x, i[H,N]x⟩| ≤ (2κ+4κ²)⟨x, Nx⟩`, that the commutator form is **not** identically zero, and essential self-adjointness on the finite-configuration core.
+
+2. *Canonical identification* — `BookProof/ChapterNavierStokesHermiteCanonical.lean`.
+   The operators `π`, `u`, `V` are built from creation/annihilation operators; proved `[π, u] = −i` (genuinely non-commuting), `π² + V² + I = N` (the comparison operator really is the sum of the squares of the individual non-commuting pieces), `½(πV + Vπ) = H`, and ESA in the canonical form.
+
+3. *Abstract framework* — `BookProof/ChapterNavierStokesShiftHamiltonian.lean`.
+   A reusable `ShiftData` structure over an arbitrary index set packaging the structural hypotheses (hopping amplitude dominated by ¼ of the symbol plus a constant, constant energy step). Proved once and for all: symmetry, an explicit series formula for the commutator form `2Δ ∑ w(β) Re(x̄_β x_{sβ})`, the relative bound `‖Hx‖² ≤ ½‖Nx‖² + 8K²‖x‖²`, the commutator bound `|⟨x, i[H,N]x⟩| ≤ 2Δ(¼+K)⟨x, Nx⟩` (this is exactly the `2ab ≤ a² + b²` step: the cross terms `π·V` are absorbed by `π² + V²`), and ESA.
+
+4. *Fock-space generalization* — `BookProof/ChapterNavierStokesFockManyMode.lean` and `BookProof/ChapterNavierStokesFockCanonical.lean`.
+   `Ĥ = dΓ(h) = ∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` on occupation-number space, with `N̂ = ∑ᵢ(πᵢ² + Vᵢ²) + I`. Proved: symmetry; the relative bound `‖Ĥx‖² ≤ (d²/2)‖N̂x‖² + 2d(∑κᵢ²)‖x‖²`; additivity of the commutator form over modes; the commutator bound with `c = ∑ᵢ(2κᵢ + 4κᵢ²)`; the canonical identities `[πᵢ, uᵢ] = −i`, `∑ᵢ(πᵢ² + Vᵢ²) + I = N̂`, `∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ) = Ĥ`; and essential self-adjointness of `Ĥ` on the finite-configuration core, in both the abstract and the canonical presentation.
+
+**Completed this session.** The remaining gap was the non-triviality of the Fock-space commutator. It is now closed: `fock_commForm_ne_zero` exhibits the explicit test state `e₀ + e_{2eᵢ₀}` (vacuum plus two quanta in one mode) at which `⟨x, i[Ĥ, N̂]x⟩ = 8√2 κ_{i₀}² > 0` whenever the strain rate in that mode is positive. Supporting lemmas (`testState_coe`, the injectivity and separation facts for the two-quantum shift, and the mode-by-mode vanishing away from `i₀`) are all proved. So the Faris–Lavine criterion is being applied to a genuinely non-vanishing commutator, not a trivial one — which was the substantive point of the request.
+
+The five modules build cleanly with no errors and no linter warnings, are imported into `BookProof.lean`, and contain no `sorry`, `axiom`, or `@[implemented_by]`. All results are recorded in the Properties table. Everything is committed and pushed; `ARISTOTLE_SUMMARY.md` was left untouched.
+
+# Summary of changes for run 27624b8e-51a3-49e9-97e6-a48653ab79b8
+I supplied and proved the pieces that were previously missing from the essential–self-adjointness (ESA) route for the Navier–Stokes Hamiltonian, including the Ikebe–Kato-type input for the one-particle operator in the momentum representation. Three new modules were added (all `sorry`-free, `axiom`-free — only `propext`, `Classical.choice`, `Quot.sound` — and the whole project builds).
+
+**1. `BookProof/ChapterNavierStokesIkebeKato.lean` — the Ikebe–Kato input, proved.**
+For an arbitrary index set, multiplication by a real symbol `c` is taken on its *maximal* domain `maxDom c` in `ℓ²` (all states whose product with the symbol is again square summable), with operator `diagMax c`. Proved there:
+- symmetry, and the quadratic form `⟪x, Nx⟫ = ∑ₖ c(k)|xₖ|²`, hence positivity, and `N ≥ I` for a symbol `≥ 1`;
+- `diagMax_add_one_surjective`: `N + 1` maps the maximal domain **onto** the whole space for a non-negative symbol — the one consequence of self-adjointness of `N` that the Faris–Lavine argument uses;
+- `exists_finiteModes_graph_approx`: the finite-mode states (the momentum-space stand-in for `C_c^∞`) are an **operator core**, i.e. truncations converge in the graph norm of `N`;
+- `diagMax_essentiallySelfAdjointOn` (ESA on the maximal domain) and `ikebeKato_momentum` (ESA already on the finite-mode core);
+- `essentiallySelfAdjointOn_finiteModes_of_farisLavine_bounds`: **any** symmetric Hamiltonian on that domain which is relatively bounded by `N` and whose form commutator with `N` is dominated by `N` is essentially self-adjoint on the finite-mode core. The Faris–Lavine criterion is no longer a named hypothesis here — it is the theorem already proved in the project (`FarisLavine.essentiallySelfAdjointOn_core_of_farisLavine`).
+
+**2. `BookProof/ChapterNavierStokesMomentumEsa.lean` — the Navier–Stokes specialisations.**
+`nsSymbol = ∑ᵢpᵢ² + ∑ᵢqᵢ² + 1 ≥ 1` is the momentum symbol of `n = ∑ᵢπᵢ² + ∑ᵢVᵢ² + I`, and `nsComparison_restrict_eq` identifies the restriction of the maximal-domain operator to the finite-mode core with the existing `ComparisonData.comparison`. Consequences: the fiber comparison operator is self-adjoint on its maximal domain and ESA on the core (`nsComparison_ikebeKato`), and `ns_hamiltonian_essentiallySelfAdjointOn_core` gives ESA of the one-particle Navier–Stokes Hamiltonian from the two Faris–Lavine inequalities alone. In the occupation-number representation the bosonic Fock space over the fiber is `ℓ²` over configurations `ℕ →₀ ℕ` and `N̂ = dΓ(n) + I` is again a multiplication operator, by the total-energy symbol `Σ(α) = ∑ₖ α(k)n(k) + 1` (`fockSymbol`, with `fockSymbol_add` recording additivity of `dΓ` over particles); the same machinery then yields `navierStokes_fock_hamiltonian_essentiallySelfAdjointOn_core` — ESA of the second-quantized Navier–Stokes Hamiltonian on the finite-particle, finite-mode core — and its deficiency-predicate form.
+
+**3. `BookProof/ChapterNavierStokesMomentumPerturbation.lean` — non-vacuity.**
+`H = N + B` with `B` the symmetric rank-two operator built from two maximal-domain states satisfies both Faris–Lavine inequalities, hence is ESA on the core; and for the symbol `c(k) = k+1` this `H` is genuinely unbounded (`pertHam_not_bounded`) with non-vanishing commutator form (`exists_commForm_ne_zero`, value `−2` at an explicit state), so the criterion is not being applied in the commuting or bounded case.
+
+I also recorded, in the older Fock chapter's docstring and in the book chapter `Book/FreeField.lean`, that the earlier rendering of the criterion (relative bound plus commutator bound, with no positivity of `N` and no surjectivity of `N + 1`) is refutable by the project's own limit-circle Jacobi example, and that the new modules are the hypothesis-free replacement.
+
+**What is still assumed.** Only the two Faris–Lavine inequalities for the Hamiltonian itself (the relative bound `‖Hx‖² ≤ a‖Nx‖² + b‖x‖²` and the form-commutator bound `± i[H,N] ≤ cN`); verifying them for a continuum Navier–Stokes generator is not done here. Essential self-adjointness of the continuum Hamiltonian and global existence are not claimed.
+
+# Summary of changes for run cd6ee44b-2e89-4328-a5c5-8b69046ded4d
+The Faris–Lavine commutator criterion is now formalized and **proved** in the project, in the new module `BookProof/ChapterFarisLavine.lean` (namespace `BookProof.FarisLavine`, registered in `BookProof.lean`). It is `sorry`-free and `axiom`-free (`#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`), and the whole project (`lake build`) compiles.
+
+What is in the module, following Faris & Lavine, *Commutators and self-adjointness of Hamiltonian operators*, Commun. Math. Phys. 35 (1974), 39–48:
+
+- **Notions.** `SymmetricOn`, `DeficiencyTrivialAt` (triviality of a deficiency space of the adjoint at a point `z`), `EssentiallySelfAdjointOn` (triviality at both `i` and `−i`), and the two quadratic forms `quadForm N x = ⟪x, Nx⟫` and `commForm H N x = ⟪x, i[H,N]x⟫`, with `commForm_eq` identifying the latter with `−2 Im⟪Hx, Nx⟫`. The paper's two-sided estimate `± i[H,N] ≤ cN` is rendered as `|commForm H N x| ≤ c · quadForm N x`.
+- **Theorem 1** (`essentiallySelfAdjointOn_of_farisLavine`): for `H` Hermitian and `N` positive on a common domain, with `N + 1` mapping the domain onto the space and the commutator bound above, `H` is essentially self-adjoint. The paper's resolvent estimate is isolated as `deficiencyTrivialAt_of_farisLavine`; the passage from the conjugate pair `± d i` (with `2|d| > c`) to `± i` is supplied by `dense_range_of_deficiencyTrivialAt`, `exists_weak_graph_limit` and `deficiencyTrivialAt_of_dense_range`. Hypothesis (i) of the paper, `𝒟(N) ⊆ 𝒟(H)`, is built into the statement by the common domain; density of the domain is not assumed — it follows from surjectivity of `N + 1`.
+- **Corollary 1.1** (`essentiallySelfAdjointOn_core_of_farisLavine`): the core version, with the relative bound `‖Hf‖² ≤ a‖Nf‖² + b‖f‖²` and a graph-approximation hypothesis expressing that the subspace is a core for `N`, via the reusable `essentiallySelfAdjointOn_restrict_of_graph_core`.
+- **A sharpness result** (`not_farisLavine_criterion_of_relative_bound`): the version of the criterion that the project previously carried as a named hypothesis — symmetry on a dense domain plus a relative bound and a commutator bound, with *no* positivity or self-adjointness of `N` — is false. The refutation takes the limit-circle Jacobi operator already in `BookProof/ChapterNavierStokesDeficiency.lean` with `N = H`, which satisfies both inequalities yet is not essentially self-adjoint. So the positivity of `N` and the surjectivity of `N + 1` in the proved theorem are load-bearing.
+- **An unbounded application** (`mulHamiltonian_essentiallySelfAdjoint`): multiplication by an arbitrary real sequence on its maximal domain in `ℓ²(ℕ)` is essentially self-adjoint, obtained from Theorem 1 with `N = |lam|` and `c = 0`; `mulHamiltonian_not_bounded` confirms the operator is genuinely unbounded when its symbol is.
+- **Tie-in to the existing chapters** (`hasZeroDeficiencyOn_of_farisLavine`, with the bridge lemma `essentiallySelfAdjointOn_iff_hasZeroDeficiencyOn`): the conclusion is delivered in the project's own predicate `BookProof.NavierStokesFlow.HasZeroDeficiencyOn`, so the criterion that `ns_esa_of_farisLavine_dense` had to assume is now available as a proved theorem (in its corrected form).
+
+The paper's time-dependent Theorems 2 and 3, and the concrete Schrödinger/Dirac applications (Theorems 4–6), are not formalized here; the abstract criterion and its corollary — the part the project needed — are.
+
+`BookProof/STATUS.md` records this wave; `ARISTOTLE_SUMMARY.md` was left untouched. All work is committed and pushed.
+
+# Summary of changes for run 32da737e-67b3-4106-a20b-695c5b0a5401
+I continued the SIRK-nesting work by adding the **spectral and approximation-theoretic side** of the statement that the Hashimoto SIRK approximation orders nest, in a new module `BookProof/ChapterH9.lean` (registered in `BookProof.lean`, cited from the book prose in `Book/FreeField.lean` §"Dimensional Reduction", and recorded in `BookProof/STATUS.md`).
+
+Previously the project proved that the *approximants* nest (subspace tower, block compatibility of the reduced generators, projection refinement, band containment). What was missing was any statement about the frequencies and the actual approximation quality. The new module proves, for the reduced generators `Bₖ = Vₖ*XVₖ`:
+
+- **The numerical ranges nest**: `W(Bₘ) ⊆ W(Bₙ) ⊆ W(X)` for `m ≤ n` (`numRange_compress_subset`, `numRange_compress_mono`, `numRange_compress_chain`), with the uniform envelope `W(X) ⊆ {|z| ≤ ‖X‖}` and the same containment for the convex hulls.
+- **The operator norms nest**: `‖Bₘ‖ ≤ ‖Bₙ‖ ≤ ‖X‖` (`norm_compress_mono`, `norm_compress_le`).
+- **The Ritz values and whole Ritz spectra nest**: an eigenvalue of a coarse reduced generator is a Rayleigh quotient of every finer one and of `X` (`ritz_mem_numRange`, `ritz_mem_numRange_compress`), so real bounds proved at a fine order bind the coarse Ritz values; in finite dimensions this upgrades to `σ(Bₘ) ⊆ W(Bₙ)` and `σ(B) ⊆ W(X)`.
+- **Positivity and any real spectral window survive compression** at every order.
+- **The hypotheses are realized**: the headline `sirk_numRange_nested_orders` (any nested pair of orthonormal bases) and `sirk_numRange_krylov` (the orthonormal Krylov bases the method actually builds) carry no abstract hypotheses.
+- **The best-approximation error is antitone in the order** (`krylov_bestApprox_antitone`), with the Krylov subspaces shown finite-dimensional so the orthogonal projection exists, and `krylov_bestApprox_tendsto_zero`: for a dense Krylov flag (cyclic seed) the error tends to 0. These are the *unconditional* form of the band nesting — no Crouzeix inequality is used.
+
+Honest boundaries are recorded in the module docstring, the book prose and the status file: convergence of the numerical ranges to `W(X)` is not claimed, convexity of the numerical range (Toeplitz–Hausdorff) is neither used nor claimed, no convergence *rate* is claimed, and Crouzeix's inequality remains a named hypothesis of the earlier chapter rather than an axiom. The write-up also flags the direction that matters: because the numerical ranges grow with the order, a bound of the form `C·sup_{W(B)}|f|` is non-decreasing in the order, so the band decay comes from approximation quality, not from shrinking ranges.
+
+Verification: `lake build` (default targets), the book build wrapper and the KaTeX check (2018 snippets, 0 failures) are all green with no warnings from the new file; every new headline is `sorry`-free and depends only on `propext`, `Classical.choice`, `Quot.sound`; no `axiom` declarations were added. All work is committed and pushed.
+
+# Summary of changes for run 8155a25b-45b2-4dec-9c48-979aaae844e2
+I completed the Fock-space Faris–Lavine thread and integrated it into the book.
+
+**What is proved (all `sorry`-free, only the standard axioms `propext`, `Classical.choice`, `Quot.sound`), in three new modules registered in `BookProof.lean`:**
+
+1. `BookProof/ChapterNavierStokesSecondQuant.lean` — Fock space as the ℓ² direct sum of particle sectors, with the finite-particle domain `fockCore` (`fockCore_dense`, and `fockCore_ne_top`: it is a *proper* dense subspace, so nothing here is a disguised bounded-operator statement), the second quantization `fockOp = dΓ` acting sector by sector, and the lifting theorem `fockOp_hasZeroDeficiencyOn`: if every sector operator has vanishing adjoint deficiency on its own core, so does `dΓ(A)` on the finite-particle domain (your Step 2).
+
+2. `BookProof/ChapterNavierStokesFarisLavineLift.lean` — the one-particle comparison operator `n = ∑ᵢπᵢ² + ∑ᵢVᵢ² + I` (`ComparisonData`, `comparison`), its symmetry, its quadratic form, and `comparison_ge_norm_sq` (`n ≥ I`, unconditional because `V²` is a square). In the momentum representation the operator is essentially self-adjoint on the finite-mode core (`diagComparison_hasZeroDeficiencyOn`) while being genuinely unbounded (`diagComparison_not_bounded`) — this is the fiber-space form of your Step 1.
+
+3. `BookProof/ChapterNavierStokesFockFarisLavine.lean` — the bounds transferred to Fock space: `fockOp_norm_le_of_sectors`, `fockOp_norm_inner_le_of_sectors`, `fockOp_commDom` (the commutator of second quantizations is the second quantization of the sector commutators), the new `fockOp_ge_norm_sq` / `fockComparison_ge_norm_sq` (`N̂ ≥ I` survives second quantization), and the assembled `fockOp_hasZeroDeficiencyOn_of_farisLavine`. A concrete comparison operator `N̂ = dΓ(n) + I` is shown essentially self-adjoint on a proper dense finite-particle domain (`fockComparison_hasZeroDeficiencyOn`, `fockComparison_dense`, `fockComparison_domain_ne_top`).
+
+**Correction to Step 3 of your argument.** The form-commutator bound lifts as you described (with one caveat: it must be stated in modulus, since for symmetric constituents `⟪ψ,[H,N]ψ⟫` is purely imaginary, so its real part carries no information). The *operator* bound does **not** lift by the triangle inequality: the chain uses `∑ₖ‖nₖψ‖ ≤ ‖∑ₖ nₖψ‖`, which is false. This is formalized as `not_forall_norm_sum_le_of_pointwise` — two operator pairs with `‖hₖx‖ ≤ ‖nₖx‖` for every `x`, yet `‖(n₀+n₁)v‖ < ‖(h₀+h₁)v‖`. What does lift is the pairwise-dominated hypothesis (`norm_sum_le_of_pairwise`), and that is the form used in the assembly.
+
+**Scope, stated plainly.** Essential self-adjointness of the *continuum* Navier–Stokes Hamiltonian is not claimed, and global existence is not claimed anywhere. The Faris–Lavine criterion enters as an explicit named hypothesis (never an axiom), and the Ikebe–Kato-type input for the one-particle operator is realized in the momentum representation rather than as a general Schrödinger-operator theorem on `C_c^∞(ℝ³³)`, which would require Sobolev/distribution machinery not present in Mathlib.
+
+**Integration and verification.** Prose plus `#check` blocks for the new headline results were added to `Book/FreeField.lean`, and a new wave entry to `BookProof/STATUS.md`. `lake build` (default targets), `lake build RandomMap`, `lake build Book`, the book HTML build and the KaTeX check all pass (1996 math snippets, 0 failures); a `sorry`/`admit` search over the new files is clean, and axiom checks on the headline theorems show only the standard three. Everything is committed and pushed.
+
+# Summary of changes for run d3d8d247-de13-4ea4-aae7-e163956dabd0
+Continued the Navier–Stokes Hamiltonian essential-self-adjointness (ESA) development after the change of variables to the Lagrangian parcel variables X. All work is in `BookProof/ChapterNavierStokesFockLagrangian.lean` and `BookProof/ChapterNavierStokesFockParcels.lean`; the whole project builds cleanly (8599 jobs, 0 errors), the new material contains no `sorry` and no new axioms (`#print axioms` on every headline theorem reports only `propext`, `Classical.choice`, `Quot.sound`).
+
+State of the argument (previously established, verified again here):
+* the transformed Hamiltonian in the Lagrangian momentum representation is multiplication by the total classical symbol and is essentially self-adjoint for arbitrary measurable symbols;
+* second-quantized over all parcel-number sectors of the continuum Fock space it remains essentially self-adjoint, and for the physical symbols (advection = total kinetic energy) it is genuinely unbounded;
+* the Eulerian Hamiltonian inherits vanishing adjoint deficiency along a supplied unitary change of variables.
+
+New this session:
+* `momFock_core_ne_top` — the ESA domain is a *proper* dense subspace. An explicit `L²` state (`tailState`), supported on an unbounded set of momenta of finite total measure built from the intervals `[k, k+2⁻ᵏ]`, lies in the Fock space but outside the domain; so ESA here is not a bounded-operator statement in disguise.
+* `mulD_eq_zero_of_eigen` and `LagSymbols.hFull_eq_zero_of_eigen` — a multiplication-type Hamiltonian whose total symbol has a null level set at λ has no eigenvector at λ.
+* `volume_sum_level`, `volume_sum_sq_level`, `fockR_total_level` — every level set of the coordinate sum is a proper affine subspace hence Lebesgue-null in each nonempty parcel sector, and consequently every nonzero level set of the total energy is Fock-null.
+* `momFock_no_eigenvector` — no nonzero energy (real or complex) is an eigenvalue: the spectrum is purely continuous above the vacuum.
+* `momFock_vacuum_eigenvector` (with `norm_vacState`) — the no-parcel vacuum is a unit eigenvector of energy zero, so the hypothesis λ ≠ 0 above is sharp.
+
+Documentation: the module docstring of the parcels file and the "Latest wave" section of `BookProof/STATUS.md` were updated to describe the proper-core and spectral results; `ARISTOTLE_SUMMARY.md` was left untouched. The Properties table has been reconciled: all listed properties are marked proved, with the new entries for the proper core, the eigenvector criteria, and the vacuum.
+
+Scope: no claim of global existence (or any other statement about solutions) for Navier–Stokes is made anywhere, and essential self-adjointness of the Eulerian continuum generator remains conditional on being handed the unitary change of variables.
+
+# Summary of changes for run 7cd4538c-60de-4ff5-8acf-7d5c0009abeb
+I continued the essential-self-adjointness (ESA) work for the Navier–Stokes Hamiltonian in the Lagrangian variables `X`, in a two-level Fock (Fock-of-a-Fock) setting. Everything below builds and is `sorry`-free; `#print axioms` on the headline results shows only `propext`, `Classical.choice`, `Quot.sound`. A full `lake build` of the project completes successfully.
+
+**The Fock-of-a-Fock framework** (`BookProof/ChapterNavierStokesFockSpace.lean`)
+- Occupation-number Fock space `FockL2 M` over configurations `Conf M = M →₀ ℕ`, its dense finite-particle domain `FockDom M` (`fockDom_dense`), and a proof that this domain is a *proper* subspace (`fockDom_ne_top`) — so the ESA statements are genuinely about unbounded operators on a proper core.
+- `FockOfFockL2 J K = FockL2 (J × Conf K)`: the Fock space whose one-particle modes are a parcel mode together with an inner Fock occupation state, i.e. two levels of creation/annihilation operators.
+- Ladder operators `annih`/`creat` with the canonical commutation relations `ccr_same` (`[aₘ, a†ₘ] = 1`), `ccr_ne`, and adjointness `creat_adjoint`.
+
+**The Hamiltonian** (`BookProof/ChapterNavierStokesFockEsa.lean`)
+- `dGamma ω` — second quantization `dΓ(ω) = ∑ₘ ωₘ a†ₘaₘ`, with `dGamma_eq_sum_numberOp` making the quadraticity in the ladder operators explicit, `dGamma_hasZeroDeficiencyOn` (ESA for an arbitrary, in particular unbounded, real symbol) and `dGamma_not_bounded`.
+- `dGamma_inner_eq_integral` — the Hamiltonian written as an integral of operators over a continuous domain: `⟪v, dΓ(ω)v⟫ = ∫ w(ξ)⟪v, N(ξ)v⟫ dξ`, with `N(ξ)` the number-density operator.
+- `hTwoLevel_hasZeroDeficiencyOn` — ESA on the Fock space of a Fock space.
+- **`lagrangianFock_hasZeroDeficiencyOn`** — the requested headline: the full transformed Hamiltonian `ĥ_full = ½∑Pᵢ² + ν∑Qᵢ² + ∑fᵢDᵢ + C` in the Lagrangian variables `X`, second-quantized on the Fock-of-a-Fock space, is essentially self-adjoint on the dense finite-particle domain, with no boundedness assumption; `nsFullData_hasZeroDeficiencyOn_of_fockLagrangian` transports this back to the Eulerian operator through a unitary change of variables.
+- A concrete realization over `Ω = ℝ` with Lebesgue measure (interval mode densities, unbounded external field `ξ ↦ ξ²`), including the integral form and unboundedness of the resulting operator.
+
+**The genuinely continuous-spectrum case** (`BookProof/ChapterNavierStokesFockContinuum.lean`, new this session)
+- `boundedEnergyCore` together with **`boundedEnergyCore_dense`** (proved by dominated convergence on the energy tails), and `multOp` — multiplication by a real measurable function on that dense core.
+- **`multOp_hasZeroDeficiencyOn`** — ESA for an arbitrary real measurable symbol; unlike the occupation-number picture this covers operators with purely continuous spectrum and no eigenvectors, and is proved by testing the deficiency identity against truncations of `(g ∓ i)w`.
+- `sectorHamiltonian_hasZeroDeficiencyOn` — the application: on the `n`-parcel sector `L²(ℝⁿ)` of the continuum Fock space over the infinite continuous domain `ℝ`, the Hamiltonian `∫ w(ξ)a†(ξ)a(ξ)dξ`, i.e. multiplication by `∑ₖ w(ξₖ)`, is essentially self-adjoint.
+
+I also registered the new module in `BookProof.lean`, cleaned all linter warnings out of the three Fock modules (the modules now compile warning-free), recorded the wave in `BookProof/STATUS.md`, and updated the Properties table. Scope caveat: global existence for Navier–Stokes is not claimed anywhere.
+
+# Summary of changes for run d40e46ea-4d0a-45cd-b82f-7c7b4d613eac
+Added a new module `BookProof/ChapterNavierStokesLagrangianEsa.lean` (namespace `BookProof.NavierStokesFlow.LagrangianEsa`, registered in `BookProof.lean`) that removes the truncation from the Navier–Stokes Hamiltonian **written in the Lagrangian variables of the plan** — parcel trajectories `X(ξ)` with conjugate momenta `P = Ẋ = u(X)` in place of the Eulerian velocity `u` — and proves its essential self-adjointness. Everything is `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`).
+
+What is proved:
+- `LagrangianFullData` / `LagrangianFullData.hFull`: the untruncated transformed data and the four-term operator `ĥ_full = ½∑Pᵢ² + ν∑Qᵢ² + ∑fᵢDᵢ + C` (advection, viscosity, force drift, volume-preservation constraint) on a dense domain of an arbitrary complex inner-product space — nothing finite-dimensional, nothing bounded.
+- `hFull_isSymmetricDom`: symmetry on the domain, unconditionally. `kinetic_inner`, `kinetic_nonneg`, `viscous_inner`, `viscous_nonneg`: the quadratic forms of the two second-order terms are `½∑‖Pᵢv‖²` and `ν∑‖Qᵢv‖²` — after the change of variables the advection term is positive, which is the structural gain the transformation is made for.
+- Criteria for essential self-adjointness of the transformed operator: from a complete unitary flow, from a bounded realization, from a total family of its own eigenvectors, and the headline `hasZeroDeficiencyOn_of_commonEigenvectors` — a total family of common eigenvectors of the constituents (the Lagrangian momentum representation) with explicit eigenvalue `½∑pᵢ² + ν∑qᵢ² + ∑fᵢdᵢ + c`; no boundedness needed.
+- `hasZeroDeficiencyOn_iff_of_linearIsometryEquiv` and `NSFullData.hasZeroDeficiencyOn_of_lagrangian`: essential self-adjointness is invariant under a unitary change of variables, so proving it *after* passing to the Lagrangian variables gives it for the Eulerian operator it came from.
+- Two untruncated, infinite-dimensional realizations where the conclusion is unconditional: on `ℓ²(ℤ)` with the parcel momenta the symmetric-difference lattice momentum (so `½∑Pᵢ²` is a discrete Laplacian), essentially self-adjoint on the *proper* dense domain of finitely supported modes, with `latticeLag_hFull_ne_zero` certifying non-degeneracy; and on `ℓ²(ℕ)` with diagonal constituents of arbitrary real symbols, essentially self-adjoint while genuinely unbounded (`diagLag_not_bounded`).
+- `exists_lagrangianFullData_not_hasZeroDeficiencyOn`: sharpness — an unbounded first-order drift term alone already destroys the property, so the criteria above cannot be dispensed with; the docstring records that what the counterexample exploits is the absence of any relative-boundedness of the drift with respect to the positive kinetic term.
+
+Scope, stated in the module docstring and the book prose: essential self-adjointness of the *continuum* transformed generator, and with it global existence for Navier–Stokes, is **not** claimed.
+
+Integration and verification: new prose and `#check` blocks in `Book/FreeField.lean`, a new wave entry in `BookProof/STATUS.md`. `lake build` over the default targets completes with no errors and no in-scope warnings; the book pipeline (verso patches → `lake build book` → `lake exe book` → HTML post-processing asserts) runs green and the KaTeX gate reports 1981 math snippets with 0 failures. No `sorry`/`admit` and no `axiom` declarations were added. All work is committed and pushed.
+
+# Summary of changes for run 45767fe8-a984-43e3-8990-94c8637e0e49
+Continued and completed execution of `PLAN_LEAN_SPECIALIST_NS_FLOW.md`.
+
+**State on arrival.** The plan's Parts A–G were already formalized in `BookProof/ChapterNavierStokesFlow.lean` and `BookProof/ChapterNavierStokesCauchy.lean`, and the essential-self-adjointness (ESA) layer in the newer modules `BookProof/ChapterNavierStokesEsa.lean` and `BookProof/ChapterNavierStokesDeficiency.lean`. This session finished the outstanding verification, added one new result, and closed out the book integration.
+
+**What the ESA layer establishes** (all sorry-free, and `#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`):
+- `hasZeroDeficiencyOn_of_completeUnitaryFlow`: a complete norm-preserving flow generated by a symmetric operator forces vanishing adjoint deficiency (Nelson-style orbit argument).
+- `hasZeroDeficiencyOn_of_bounded_symmetric` and `hasZeroDeficiencyOn_of_total_eigenvectors`: two further criteria, the second covering unbounded operators.
+- `continuityHamiltonian_hasZeroDeficiencyOn_finiteModes`: an infinite-dimensional instance on a *proper* dense domain (the finitely supported modes of ℓ²(ℤ)), together with `finiteModes_ne_top` certifying the domain is proper.
+- `nsHamiltonian_hasZeroDeficiencyOn_of_flow`: the truncated Navier–Stokes ESA statement re-derived from completeness of its own unitary flow.
+- `jacobiOp_not_hasZeroDeficiencyOn` / `jacobi_symmetric_dense_not_esa`: an explicit tridiagonal (Jacobi) counterexample showing symmetry on a dense domain does *not* imply essential self-adjointness — so the low-degree/symmetry hypothesis cannot suffice on its own.
+- `diagOp_hasZeroDeficiencyOn`: the positive counterpart, an unbounded diagonal operator that *is* essentially self-adjoint on the very same domain.
+
+**New this session.** `DiagonalEsa.diagOp_not_bounded`: the diagonal ESA example is genuinely unbounded whenever its real symbol is — no constant dominates it on the finite-mode domain. This substantiates in Lean the previously prose-only claim that essential self-adjointness on a proper dense domain is not a boundedness phenomenon. Added the matching prose sentence and `#check` in `Book/FreeField.lean` and a note in `BookProof/STATUS.md`.
+
+**Verification.** Full `lake build`, `lake build RandomMap`, `lake build Book`, and the whole book pipeline (verso patches → `lake build book` → `lake exe book` → HTML postprocess → KaTeX check) all run green; the KaTeX gate reports 1971 math snippets with 0 failures. A repository-wide search finds no `sorry`/`admit` in `BookProof/` or `Singularity/` outside the pre-existing quarantined `UnusedRoute` files, and no `axiom` declarations were added. All work is committed and pushed.
+
+**Not done, and why.** The plan's §6 numerics gate (`cargo test` in a separate Rust workspace and a Cadabra2 symbolic check) lives outside this project and could not be run here. The plan's §7 continuum research target (essential self-adjointness of the untruncated operator, and hence Navier–Stokes global existence) remains explicitly unclaimed, as the plan directs; the Faris–Lavine statement is recorded as a conditional theorem with named analytic hypotheses, not as a proved unconditional result.
+
+# Summary of changes for run 0162efc0-0a40-48d1-b133-5aabe9941af8
+Continued execution of `PLAN_LEAN_SPECIALIST_NS_FLOW.md`, closing the gaps that the earlier pass left open. Everything already in `BookProof/ChapterNavierStokesFlow.lean` was re-verified to build and remain free of `sorry`; three new blocks of work were then added.
+
+**1. The differential half of the plan's §4210–4216 claim ("the solution exists and it is unique") — new module `BookProof/ChapterNavierStokesCauchy.lean`.** The previous pass had the flow only as a one-parameter unitary group. This module adds the evolution equation itself:
+- a generic layer for the flow `e^{tA}` of a finite matrix — `matrixFlow_hasDerivAt`, `matrixFlow_comm`, `matrixFlow_neg_hasDerivAt`, `matrixFlow_mul_neg`, `matrixFlow_vec_hasDerivAt`, `matrixFlow_unique` (uniqueness by the classical argument: `t ↦ e^{−tA} y(t)` has zero derivative, hence is constant) and `matrixFlow_cauchy_existsUnique`;
+- the Navier–Stokes layer: `nsFlow_hasDerivAt`, `nsFlow_continuous`, `nsFlow_solves_schrodinger` (the evolved state is differentiable and solves `ψ̇ = i H_N ψ`), `nsFlow_unique_solution`, and the headline `nsCauchy_existsUnique` — on the truncation the Cauchy problem has **exactly one** global solution, for every initial state and every real time. With the existing `nsFlow_noBlowup` this is the honest finite-dimensional statement of no finite-time singularity;
+- two conservation results: `nsFlow_comm_hamiltonian` and `nsFlow_energy_conserved` (the expectation of `H_N` is time-independent);
+- the Lagrangian (parcel) operator of Part B inherits all of it, since it is Hermitian on the truncation: `LagrangianNS.flowUnitary`, `flowUnitary_unitary`, `flowUnitary_group`, `cauchy_existsUnique`.
+
+**2. Part G made honest and non-vacuous.** The Faris–Lavine criterion previously entered as a universally quantified hypothesis without symmetry; as stated that hypothesis is contradictory, so the conditional theorem was vacuous. This is now recorded and fixed: `farisLavine_without_symmetry_forces_trivial` proves that the un-symmetrized criterion forces the space to be trivial, `ns_esa_of_farisLavine` now carries the symmetry of the operator as the actual criterion does, and `farisLavine_holds_of_everywhereDefined` shows the resulting hypothesis is satisfiable — indeed automatic for everywhere-defined operators. Because of that, the analytic notion is introduced explicitly: `HasZeroDeficiencyOn` (deficiency of the **adjoint** on a dense domain), `restrictToTop`, `hasZeroDeficiencyOn_top_of_symmetric`, the truncation instance `nsHamiltonian_hasZeroDeficiencyOn`, and the dense conditional theorem `ns_esa_of_farisLavine_dense` — still a named hypothesis, never an `axiom`.
+
+**3. Part A non-vacuity.** `field_evaluates_to_value_diagonal` realizes the hypothesis of the field-collapse statement in the position representation (`X_i = diag(x_i)`, coordinate states as eigenstates), so that statement is not about an empty situation.
+
+**Scope is unchanged and stated explicitly** in the module docstrings and the book prose: essential self-adjointness of the untruncated continuum operator, and global existence/uniqueness for Navier–Stokes, are *not* claimed; everything proved is about the finite truncation.
+
+**Integration and verification.** The new module is registered in `BookProof.lean`; the chapter `Book/FreeField.lean` has new prose and `#check` blocks for all new theorems, and `BookProof/STATUS.md` records the wave. `lake build` (default targets) and `lake build RandomMap` complete without errors; the book wrapper `patches/build-book.sh` runs green through render and post-processing asserts, and `patches/check-katex.sh` reports 1949 math snippets with 0 failures. No `sorry`/`admit` and no `axiom` declarations were added, and `#print axioms` on every new result reports only `propext`, `Classical.choice`, `Quot.sound`. The plan's numerics gate (`cargo test` in a separate repository) refers to code that is not part of this project, so it could not be run here. All work is committed and pushed.
+
+# Summary of changes for run 48be96ce-7364-4fad-a289-51678be40b83
+Executed `PLAN_LEAN_SPECIALIST_NS_FLOW.md` ("The Navier–Stokes Hamiltonian Has a Complete Flow"), the only Navier–Stokes plan in the project.
+
+**New module `BookProof/ChapterNavierStokesFlow.lean`** (namespace `BookProof.NavierStokesFlow`, ~630 lines, registered in `BookProof.lean`), covering the plan's Parts A–G:
+
+- **Part A — derivatives as fields.** `fieldTaylor` and `field_evaluates_to_value`: on a position eigenstate the operator-valued field `φ(X) = φ + φᵢ(Xᵢ − xᵢ)` collapses to its point value, so its first-order Taylor coefficients are independent modes. `ccr_field`, `derivativeField_momentum`, `secondDerivativeField_momentum` give the three commutation-relation families; `momentumConstraint_preserved` is the first-class invariance of the constraint.
+- **Part B — Lagrangian change of variables.** `lagrangian_velocity` (parcel velocity = canonical momentum), `volume_preservation_constraint` (unit Jacobian determinant ⇒ every set's volume is preserved), `det_one_add_smul_hasDerivAt` (its infinitesimal form is the divergence-free condition), and the four-term decomposition `LagrangianNS.hFull` with `transformed_hamiltonian_decomposition`, `kinetic_posSemidef`, `viscous_posSemidef` (advection and viscosity are positive second-order operators) and `transformed_hamiltonian_hermitian`.
+- **Parts C–D — the truncation and its complete flow.** `NSTruncation` packages the 15 Hermitian, mutually commuting field modes and 3 Hermitian momenta; `nsHamiltonian` is the Weyl-symmetrized `∑ᵢ(πᵢAᵢ + Aᵢπᵢ)` with `Aᵢ = ∑ⱼ uⱼu_{i,j} − ν u_{i,jj}`. Proved: `nsHamiltonian_hermitian`; `nsHamiltonian_isPolynomial` with `nsWord_length_le_three` (every term is a word of length ≤ 3 in the generators); `nsFlow_zero`, `nsFlow_group`, `nsFlow_unitary`, `nsFlow_groupOnEvolved` (a one-parameter unitary group for every real time — the flow is complete); `nsFlow_norm_preserving` and `nsFlow_noBlowup` (each coefficient of the evolved state stays bounded by the conserved initial mass — no finite-time singularity on the truncation). `nsTruncationOfDiagonal` and `nsHamiltonian_ne_zero_example` show the hypotheses are satisfiable and the operator non-degenerate.
+- **Part E — BRST.** `nsDivergenceConstraint_resolution` (and a matrix form) for the substitution `u_{3,3} = −(u_{1,1}+u_{2,2})`; `nsBrstCharge`, `nsBrst_nilpotent` (Ω² = 0) and `nsBrst_adjoint`.
+- **Part G — deficiency and the Faris–Lavine framing.** `HasZeroDeficiency`, `symmetric_hasZeroDeficiency`, and `nsHamiltonian_hasZeroDeficiency` (the truncated generator is essentially self-adjoint); `nsFockOfFock` (Fock-of-a-Fock structure), `nsSecondQuant` / `ns_outer_degree_le_two` (at most quadratic in the outer ladder operators), the comparison operator `nsNumberOp` with `nsNumberOp_eq_secondQuant` and `nsNumberOp_posSemidef`; and the conditional `ns_esa_of_farisLavine`, which takes the Faris–Lavine criterion and its two inequalities as named hypotheses.
+
+**Honest scoping, as the plan requires:** the module docstring and the new book prose state explicitly that essential self-adjointness of the untruncated continuum operator, and global existence/uniqueness for Navier–Stokes, are *not* claimed; the degree-≤ 3 bound is recorded as a symmetry statement, and the continuum route stays conditional (never an axiom).
+
+**Integration and verification.** A new section "The Navier–Stokes Hamiltonian: a Complete Flow on the Truncation" in `Book/FreeField.lean` cites all headline theorems, and `BookProof/STATUS.md` has a new wave entry. `lake build` (default targets) and `lake build RandomMap` complete with no errors and no in-scope warnings; the book wrapper `patches/build-book.sh` runs green through render and post-processing asserts, and `patches/check-katex.sh` reports 1941 math snippets with 0 failures. The new file contains no `sorry`/`admit`, no `axiom` declarations were added, and `#print axioms` on every new result reports only `propext`, `Classical.choice`, `Quot.sound`. The plan's numerics gate (`cargo test` in a separate Rust repository) refers to code not part of this project, so it could not be run here. All work is committed and pushed.
+
+# Summary of changes for run 42489b38-9eba-49f0-bed4-decab827b55a
+Continued execution of `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md` (the SIRK approximation orders nest) and updated `ARISTOTLE_SUMMARY.md`.
+
+Everything already in place in `BookProof/ChapterH8.lean` (subspace nesting, block compatibility, the power/polynomial/rational refinements, band containment, and the tower at arbitrary orders) was re-verified to build cleanly and remain free of `sorry`. Three gaps were then closed.
+
+1. **Whole-space projection identity for rational functions** (`sirk_approx_projection_rational`, in `BookProof/ChapterH8.lean`). If the coarse Krylov subspace reduces both the numerator generator and the denominator, then for *every* vector the coarse rational approximant is the fine one projected back into the coarse subspace. Supporting results: `compress_adjoint_intertwine` and `compress_adjoint_intertwine_poly` (the transposed intertwinings, which now also carry the proof of the existing polynomial version, removing a duplicated derivation) and `inv_comp_intertwine` (an intertwining relation passes to inverses).
+
+2. **The abstract hypotheses are realized** (new module `BookProof/ChapterH8Bases.lean`). `orthonormalEmbedding` builds the isometric embedding of an orthonormal family and `coordIncl` the coordinate inclusion; `orthonormalEmbedding_adjoint_comp`, `coordIncl_adjoint_comp`, `orthonormalEmbedding_nested` and `orthonormalEmbedding_range` discharge the hypotheses of the refinement theorems, giving the hypothesis-free instances `sirk_band_refinement_of_orthonormal` and `sirk_compression_submatrix_of_orthonormal`.
+
+3. **The nested orthonormal Krylov bases exist.** Gram–Schmidt on the Krylov sequence `k ↦ Hᵏ v` gives a single orthonormal sequence (`krylovOrthonormalSeq`) whose prefixes are orthonormal (`gramSchmidtNormed_orthonormal_prefix`, which needs only prefix linear independence), nested by construction, and span the Krylov subspaces (`krylovOrthonormal_span`, `krylovEmbedding_range`). This yields `sirk_band_refinement_krylov`: the refinement statement for the Krylov flag itself, at orders where the Krylov sequence has not broken down and for a generator leaving both Krylov ranges invariant.
+
+Scope is unchanged and honest: all of this is linear algebra over the finite reduced data; nothing here claims the numerical *width* of the bands, which stays conditional on Crouzeix's inequality as a named hypothesis in `ChapterH4`, never an axiom.
+
+Integration and verification: the new module is registered in `BookProof.lean`; module docstrings, the `#check` list and the "Dimensional Reduction" prose in `Book/FreeField.lean` cite the new theorems; `BookProof/STATUS.md` has a new wave entry, and `ARISTOTLE_SUMMARY.md` records this run. `ChapterH8.lean` was kept under the project's file-size guideline by moving the realization material into the companion module. `lake build` over the default targets completes with no errors and no in-scope warnings (a pre-existing markup warning in `Book/FreeField.lean` was fixed at its source), the book wrapper `patches/build-book.sh` runs green through render and post-processing asserts, and `patches/check-katex.sh` reports 1925 math snippets with 0 failures. All new results are free of `sorry`, no `axiom` declarations were added, and `#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`. The plan's numerics gate (`cargo test -p fock_sirk`) refers to a separate repository not part of this project, so it could not be run here. All work is committed and pushed.
+
+# Summary of changes for the continuation run (`PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`: the rational whole-space refinement and the realization of the nesting hypotheses)
+
+Continued execution of `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`, extending the nested-orders
+chapter `BookProof/ChapterH8.lean` (namespace `BookProof.ChapterH8`).  Everything already in
+place (subspace nesting, block compatibility, the power/polynomial/rational refinements, band
+containment and the tower at arbitrary orders) was re-verified to build cleanly and remain
+`sorry`-free.  Two gaps were then closed.
+
+**1. The whole-space projection identity for rational functions.**  The previous pass had the
+whole-space form only for polynomials.  `sirk_approx_projection_rational` now proves it for the
+rational functions the SIRK step actually evaluates: if the coarse Krylov subspace reduces both
+the numerator generator `X` and the denominator `qX` (its range is invariant under `X∗` and
+`qX∗`), then for *every* vector `v` the coarse approximant `Vₘ p(Bₘ) qBₘ⁻¹ Vₘ∗ v` is exactly the
+fine approximant projected back into the coarse subspace.  Supporting results:
+
+- `compress_adjoint_intertwine` — the transposed intertwining `J∗ ∘ Bₙ = Bₘ ∘ J∗`;
+- `compress_adjoint_intertwine_poly` — its polynomial form (the proof of the existing
+  `sirk_approx_projection_poly` was refactored to use it, removing a duplicated derivation);
+- `inv_comp_intertwine` — an intertwining relation passes to the inverses, from a left inverse
+  on one side and a right inverse on the other.
+
+**2. The nested orthonormal Krylov bases exist.**  In the new companion module
+`BookProof/ChapterH8Bases.lean` (same namespace, registered in `BookProof.lean`), Gram–Schmidt
+applied to the `ℕ`-indexed Krylov sequence `k ↦ Hᵏ v` produces a single orthonormal sequence
+`krylovOrthonormalSeq` whose prefixes are the nested orthonormal Krylov bases:
+
+- `gramSchmidtNormed_orthonormal_prefix` — a prefix of the normalized Gram–Schmidt vectors is
+  orthonormal as soon as the corresponding prefix of the family is linearly independent (no
+  global linear independence needed), with the supporting restriction lemmas `li_Fin_of_le`,
+  `li_Iic_of_li_Fin`, `krylov_li_of_le`;
+- `krylovOrthonormal_orthonormal`, `krylovOrthonormal_nested` (nesting holds by construction) and
+  `krylovOrthonormal_span` — the order-`n` prefix spans `Kry n(H, v)` of `ChapterH5`;
+- `krylovEmbedding` and `krylovEmbedding_range` — the prefix as an isometry whose range is
+  exactly the Krylov subspace;
+- `sirk_band_refinement_krylov` — the refinement theorem for the Krylov flag itself: at orders
+  `m ≤ n` where the Krylov sequence has not broken down, and for a generator leaving both Krylov
+  ranges invariant, the order-`n` approximant agrees with the order-`m` one on the order-`m` data.
+
+**3. The nesting hypotheses are realized (non-vacuity).**  The refinement theorems are stated for
+an abstract pair of isometric embeddings with `Vₘ = Vₙ ∘ J`.  This pass shows those hypotheses are
+met by any nested pair of orthonormal families — in particular by the nested orthonormal Krylov
+bases the SIRK method builds:
+
+- `orthonormalEmbedding` (and its isometry `orthonormalEmbeddingLI`) — the embedding
+  `EuclideanSpace ℂ (Fin m) →L[ℂ] E` sending the `i`-th coordinate vector to the `i`-th member of
+  an orthonormal family, with `orthonormalEmbedding_single` and `orthonormalEmbedding_inner`;
+- `orthonormalEmbedding_adjoint_comp` — the isometry hypothesis `V∗V = 1`;
+- `coordIncl` — the concrete coordinate inclusion along `Fin.castLE`, with `coordIncl_single` and
+  `coordIncl_adjoint_comp` (`J∗J = 1`);
+- `orthonormalEmbedding_nested` — the factorization hypothesis `Vₘ = Vₙ ∘ coordIncl` for nested
+  families (`w i = w' (castLE i)`);
+- `orthonormalEmbedding_range` — the range of the embedding is the span of the family;
+- `sirk_band_refinement_of_orthonormal` and `sirk_compression_submatrix_of_orthonormal` — the
+  resulting statements with no abstract hypotheses left: for nested orthonormal bases the
+  order-`n` polynomial approximant agrees with the order-`m` one on the order-`m` data, and the
+  order-`m` reduced generator is the leading `m × m` submatrix of the order-`n` one.
+
+Scope is unchanged and honest: all of this is finite-dimensional linear algebra.  Nothing here
+claims the numerical *width* of the bands, which stays conditional on Crouzeix's inequality as a
+named hypothesis in `ChapterH4`, never an axiom.
+
+The material of items 2 and 3 lives in `BookProof/ChapterH8Bases.lean`; `ChapterH8.lean` was kept
+under the project's file-size guideline by moving it there.
+
+Integration and verification: the module docstrings, the `#check` list and the "Dimensional
+Reduction" prose in `Book/FreeField.lean` cite the new theorems, and `BookProof/STATUS.md` has a
+new wave entry.  `lake build` (default targets `BookProof`, `Book`, `Singularity`) completes with
+no errors and no in-scope warnings — a pre-existing Verso markup warning in `Book/FreeField.lean`
+(`**not**` where the renderer wants `*not*`) was fixed at its source; `./patches/build-book.sh`
+runs green through render and post-processing asserts, and `./patches/check-katex.sh` reports
+1925 math snippets with 0 KaTeX failures.  The new results are `sorry`-free and `#print axioms`
+reports only `propext`, `Classical.choice`, `Quot.sound`; no `axiom` declarations were added.
+The plan's numerics gate (`cargo test -p fock_sirk`) refers to a separate repository that is not
+part of this project, so it could not be run here.
+
+# Summary of changes for run 2508ee79-0470-429f-9291-f9a5cbc78e19
+Continued execution of `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`, extending the nested-orders chapter `BookProof/ChapterH8.lean` (namespace `BookProof.ChapterH8`) beyond the state it was in.
+
+What was already in place (subspace nesting, the block-compatibility lemma, refinement for powers of the reduced generator, band containment, and the one-step tower) was verified to build cleanly and remain `sorry`-free. On top of that I proved the two pieces the plan's Part 3 calls for but that were not yet covered — refinement for the *polynomial and rational* functions the SIRK step actually evaluates — and the arbitrary-order ("and so on") form of the tower:
+
+- `compress_aeval_comp` / `compress_aeval_transfer` — polynomial transfer: on the range of the isometric Krylov embedding, `p(X) v = V p(B) V∗ v` for every polynomial `p` (linear extension of the existing power transfer).
+- `compress_inv_transfer_apply` / `compress_rational_transfer` — the resolvent (denominator) step in pointwise form, and its combination with the numerator: `p(X) qX⁻¹ v = V p(B) qB⁻¹ V∗ v` when the denominator and its compression are invertible.
+- `sirk_band_refinement_poly` — on the order-`n` data the order-`n+1` approximant equals the order-`n` one for an arbitrary polynomial of the reduced generator.
+- `sirk_band_refinement_rational` — the same for a rational function (numerator polynomial over an invertible denominator with invertible compressions at both orders); both approximants compute the exact value.
+- `sirk_approx_projection_poly` — the whole-space projection identity for arbitrary polynomials, under the same adjoint-invariance ("the subspace reduces the operator") hypothesis as the existing power version; supported by `compress_aeval_comp_intertwine` and `adjoint_aeval`.
+- `sirk_compression_block_le` / `sirk_compression_submatrix_le` — the leading-block identity between any two orders `m ≤ n`, not just one step.
+- `sirk_band_contained_le` and `sirk_nested_orders_le` — band containment and the full tower between any two orders `m ≤ n`.
+
+Scope is unchanged and honest: all of this is finite-dimensional linear algebra; nothing here claims the numerical *width* of the bands, which stays conditional on Crouzeix's inequality as a named hypothesis in `ChapterH4`, never an axiom.
+
+Verification: `lake build` (all default targets, including `BookProof` and `Book`) completes successfully; `lake build book` also succeeds. The new results are `sorry`-free and `#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`. No `axiom` declarations were added. The module docstring, the `#check` list and the "Dimensional Reduction" prose in `Book/FreeField.lean` were updated to cite the new theorems. All work is committed and pushed.
+
+# Summary of changes for run 04833037-be07-41f4-8f12-9ac8070343a4
+Executed `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`: the Hashimoto SIRK approximation orders are now formalized as a nested tower, in the new module `BookProof/ChapterH8.lean` (namespace `BookProof.ChapterH8`).
+
+What is proved (all `sorry`-free, no new axioms — `#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`):
+
+- **(a) Subspace nesting** — `sirk_krylov_tower`: `Kry n ≤ Kry (n+1)`, the tower form of the existing `ChapterH5.krylovSpan_mono`.
+- **(b) Block compatibility (the missing lemma)** — `sirk_compression_block` and `sirk_compression_submatrix`: for nested orthonormal bases (`Vₙ eᵢ = Vₙ₊₁ e_{castSucc i}`) the order-`n` reduced generator is the leading `n × n` submatrix of the order-`n+1` one. Its coordinate-free form is `sirk_compression_block_op`: `compress Vₙ X = J∗ (compress Vₙ₊₁ X) J` for the inclusion `J` with `Vₙ = Vₙ₊₁ ∘ J`.
+- **(c) Projection refinement (headline)** — `sirk_band_refinement`: on the order-`n` data (`Vₙ Vₙ∗ v = v`) the order-`n+1` approximant equals the order-`n` one (both reduce to `Xᵏ v` via `ChapterH4.compress_transfer`); `sirk_band_refinement_proj` states this as "project the finer approximant back into `Kry n`". `sirk_approx_projection` gives the whole-space version. The supporting intertwining results are `compress_comp_intertwine` and `compress_pow_comp_intertwine` (`Bₙ₊₁ ∘ J = J ∘ Bₙ`).
+- **(d) Band nesting** — `sirk_band_contained`: `[0, sirkBound (n+1)] ⊆ [0, sirkBound n]`; `sirk_bands_tendsto_zero` records the collapse of the nested family to `{0}`. `sirk_nested_orders` assembles (a) and (d) for every order `n`.
+
+Two honest scoping points, recorded both in the module docstring and in the book prose:
+- The whole-space projection identity needs the order-`n` subspace to *reduce* the operator (invariance under the operator **and** its adjoint), not merely to be invariant; with invariance alone the leading block controls exactly the coarse data, which is what `sirk_band_refinement` says. The refinement of the approximants likewise assumes invariance of the Krylov ranges.
+- Nothing here claims the numerical *width* of the bands: that the true error lies inside `sirkBound n` remains conditional on Crouzeix's inequality, which stays a named hypothesis of `ChapterH4.sirk_error_bound_decay`, never an axiom.
+
+Integration and verification:
+- Registered the module in `BookProof.lean` (right after the `ChapterH7` import) and added `#check`s for all eight new headline theorems to `Book/FreeField.lean` §"Dimensional Reduction"; the prose paragraph there was updated from "plan item" to the proved statements, including the two provisos.
+- `lake build` (default targets `BookProof`, `Book`, `Singularity`) completes successfully, and the book wrapper `patches/build-book.sh` runs green through render and post-processing asserts. The shell scripts under `patches/` had lost their executable bits in this checkout; they were restored.
+- Audits: no `sorry`/`admit` and no `axiom` in the new module; the repository-wide `sorry` audit over `BookProof/` and `Singularity/` still shows only prose mentions.
+- Added a "Latest wave" entry describing the new module to `BookProof/STATUS.md`.
+
+Not done: the plan's final verification gate `cargo test -p fock_sirk` refers to a separate numerics repository that is not part of this project, so it could not be run here; the Lean side is a pure linear-algebra addition and changes no model.
+
+
 # Summary of changes for the continuation run (2026-08-13b, `CONSOLIDATED_PLAN.md`: the unbounded layer carried through to self-adjointness and its unitary group)
 
 Continued executing `CONSOLIDATED_PLAN.md`.  Every plan item was again already closed, so

@@ -195,6 +195,61 @@ the day-to-day tool. Verify candidate Mathlib names with
   rebuilt book + `check-katex.sh` (1818 snippets, 0 failures). A remaining
   `Issues.md` §0b/§4 count (38/39) was refreshed to the actual 35 `{include}`s /
   36 chapter files.
+- **The Navier–Stokes thread is now proved (2026-08-14→15, the
+  `PLAN_LEAN_SPECIALIST_NS_FLOW.md` wave).** The whole plan landed in 27 new
+  `BookProof/ChapterNavierStokes*.lean` + `ChapterFarisLavine.lean` +
+  `ChapterH8*.lean` + `ChapterH9.lean` modules (registered in `BookProof.lean`),
+  all `sorry`-free / `axiom`-free, `#check`-ed from the book. In dependency
+  order: the **truncation** — `ChapterNavierStokesFlow` (Hermitian
+  `nsHamiltonian`, polynomial of degree ≤ 3, complete unitary flow
+  `nsFlow_unitary`/`nsFlow_noBlowup`, zero deficiency `nsHamiltonian_hasZeroDeficiency`),
+  `ChapterNavierStokesCauchy` (unique global solution `nsCauchy_existsUnique`),
+  the BRST/divergence constraint `nsBrst_nilpotent`/`nsDivergenceConstraint_resolution`,
+  the Lagrangian change of variables (`volume_preservation_constraint`,
+  `transformed_hamiltonian_decomposition` with positive kinetic/viscous terms);
+  then the **analytic layer** — `ChapterNavierStokesEsa` (Nelson's complete-flow
+  criterion `hasZeroDeficiencyOn_of_completeUnitaryFlow`, bounded-symmetric ESA on
+  a proper dense domain), `ChapterNavierStokesDeficiency` (the limit-circle Jacobi
+  counterexample: symmetry alone is not ESA), `ChapterNavierStokesFarisLavineLift`
+  + `ChapterNavierStokesFock*` (second quantization, the comparison operator
+  `n = Σπᵢ² + ΣVᵢ² + I` with `N̂ ≥ I`, the Fock-of-Fock lift where the
+  form-commutator bound lifts but the operator bound does not,
+  `not_forall_norm_sum_le_of_pointwise`), `ChapterNavierStokesIkebeKato`
+  (maximal-domain multiplication operators: `N+1` onto, finite-mode graph cores),
+  `ChapterNavierStokesMomentumEsa` (ESA of the one-particle and Fock-space
+  Navier–Stokes Hamiltonian on the finite-mode core), and
+  `ChapterNavierStokesHermiteFarisLavine`/`ChapterNavierStokesFockFarisLavine`/
+  `ChapterNavierStokesShiftHamiltonian`/`ChapterNavierStokesFockManyMode` (the two
+  Faris–Lavine inequalities **proved** for the Hamiltonian itself — relative bound
+  `‖Hx‖² ≤ ½‖Nx‖² + …` and commutator bound `|⟨x,i[H,N]x⟩| ≤ c⟨x,Nx⟩` — with a
+  genuinely non-vanishing commutator `fock_commForm_ne_zero`).
+- **Faris–Lavine commutator criterion proved (2026-08-15h).**
+  `BookProof/ChapterFarisLavine.lean` proves Theorem 1 and Corollary 1.1 of Faris
+  & Lavine, *Commutators and self-adjointness of Hamiltonian operators*, CMP 35
+  (1974) 39–48 — `essentiallySelfAdjointOn_of_farisLavine`,
+  `essentiallySelfAdjointOn_core_of_farisLavine`, the resolvent-estimate core
+  `deficiencyTrivialAt_of_farisLavine` and the sharpness refutation
+  `not_farisLavine_criterion_of_relative_bound` (relative-bound-only is false,
+  via the limit-circle Jacobi operator). The criterion that
+  `ns_esa_of_farisLavine_dense` carried as a named hypothesis is now a proved
+  theorem, and `hasZeroDeficiencyOn_of_farisLavine` delivers it in the chapter's
+  own predicate.
+- **SIRK nesting completed (2026-08-14→15, `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`
+  + its spectral side).** `ChapterH8` proves the approximant nesting — the
+  subspace tower `sirk_krylov_tower`, block compatibility `sirk_compression_block`,
+  the projection identities `sirk_band_refinement(_poly/_rational)` and
+  `sirk_approx_projection(_poly/_rational)`, with hypothesis-free realizations via
+  orthonormal Krylov bases (`krylovOrthonormal_span`, `sirk_band_refinement_krylov`);
+  `ChapterH8Bases` provides the Gram–Schmidt orthonormal Krylov bases; `ChapterH9`
+  adds the spectral face — the numerical ranges nest
+  `W(Bₘ) ⊆ W(Bₙ) ⊆ W(X)` (`sirk_numRange_nested_orders`, `sirk_numRange_krylov`),
+  the norms nest, Ritz values and Ritz spectra nest
+  (`ritz_mem_numRange(_compress)`), and the *unconditional* best-approximation
+  antitone/tend-to-zero (`krylov_bestApprox_antitone`,
+  `krylov_bestApprox_tendsto_zero`, no Crouzeix constant). Honest boundaries kept:
+  Crouzeix's inequality stays a named hypothesis; no rate; no Toeplitz–Hausdorff
+  convexity; `W(Bₙ)` grows with the order so band decay comes from approximation
+  quality.
 
 ---
 
@@ -383,7 +438,7 @@ both self-contained and already formalized"), and nothing in `Book/` contradicts
 | D2 | ODE chapter claims both blow-up problems resolved; manuscript says the second is "not completely satisfactory" | **OVERCLAIM** | Add one honesty sentence to `Book/OdeSingularity.lean` (near lines 45–48) reporting the manuscript's own caveat, mirroring the honesty-flag style used for the ODE theorems. |
 | D3 | Essential self-adjointness reduced to algebraic certificate layer | **DISCLOSED** | Keep as is; ProofPlans A.1–A.2 already defer the analytic realization. |
 | D4 | "most general formalism" softened to "generalizes statistical mechanics" | **DELIBERATE** | Keep. |
-| D5 | Navier–Stokes existence/uniqueness thesis not carried by any chapter | **DELIBERATE SCOPE** | Keep; `FreeField` does not and should not claim it. Optionally a one-line pointer in `Book/YangMillsQuantization.lean` noting the formalized subset. |
+| D5 | Navier–Stokes existence/uniqueness thesis not carried by any chapter | **PARTIALLY ADDRESSED (2026-08-15)** | Keep the scope discipline — no theorem claims continuum NS existence/uniqueness. But `Book/FreeField.lean` now carries a full "Navier–Stokes Hamiltonian: a Complete Flow on the Truncation" section (complete unitary flow, unique global Cauchy solution, BRST constraint, Lagrangian change of variables, Faris–Lavine route), and `Book/YangMillsQuantization.lean` now has the one-line pointer to that formalized subset. |
 | D6 | Weak holomorphicity weakened to strong pointwise | **DISCLOSED** | Keep; documented in the module; not imported by any chapter. |
 | D7 | Arrow of time reframed from unitarity to dissipation/set theory | **DELIBERATE REFRAME** | Keep; it is the thesis of Chapters III. If the author wants the manuscript's "due to unitarity" framing, that is a prose decision, not a Lean one. |
 | D8 | Consciousness thesis reduced | **NOW LARGELY RESOLVED** | A full `Book/ConsciousnessBayesianPrior.lean` chapter now exists (no-best-prior, prior dependence, null-measure). Verify it expresses "no prior / no point is special" faithfully and re-mark Contention D8 as addressed; the AI-hallucination/misalignment half stays out of scope. |
@@ -440,21 +495,28 @@ closures are already recorded in `BookProof/STATUS.md` (waves 2026-08-10 and
 
 ## 9. Suggested attack order for the next agent
 
-**Update (2026-08-13): every plan item is closed.** D1/D2 prose cleanups are done
-(the caveats landed in `Book/Introduction.lean` and `Book/OdeSingularity.lean`),
-**GAP-1 is closed** (2026-08-10, `ChapterCoherentThermalFidelity`), **GAP-2 is
-closed** (2026-08-12, metrizability residue removed by `ChapterSeparableSpectrum` +
-`ChapterSeparableL2Model`), §4 is fully landed **including §4.7 `ChapterWeakValue`,
-§4.8 `ChapterContinuityUnitary` and the §4.9 analytic layer** (`Infinite`,
-`BornMeasure`, `UnboundedPosition`, `UnitaryTransport`), and the `Book/Trivial.lean`
-decision (§7) is settled as *keep*. No `BookProof/` module is left unproved and no
-module remains to be `#check`-ed from `Book/`.
+**Update (2026-08-15): every plan item is closed, and the Navier–Stokes thread has
+landed.** D1/D2 prose cleanups are done, **GAP-1 is closed** (2026-08-10,
+`ChapterCoherentThermalFidelity`), **GAP-2 is closed** (2026-08-12), §4 is fully
+landed including §4.7/§4.8/§4.9, and the `Book/Trivial.lean` decision (§7) is
+settled as *keep*. On top of that, the 2026-08-14→15 wave proved the whole
+Navier–Stokes thread (`PLAN_LEAN_SPECIALIST_NS_FLOW.md`, 27 modules): the
+truncation has a complete flow and unique global Cauchy solution, the
+Faris–Lavine commutator criterion is **proved** (Theorem 1 + Corollary 1.1,
+`ChapterFarisLavine`), the two Faris–Lavine inequalities are **proved** for the
+Navier–Stokes Hamiltonian itself (Hermite/Fock/shift realizations) with a
+genuinely non-vanishing commutator, and the SIRK nesting plan
+(`PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`) plus its spectral side (`ChapterH9`) are
+proved. No `BookProof/` module is left unproved and no module remains to be
+`#check`-ed from `Book/`.
 
 For a future pass, the remaining work is maintenance rather than mathematics:
 
 1. Re-run the **§8 verification gate** (`lake build`, `lake build RandomMap`,
    `./patches/build-book.sh`, the sorry/axiom audit and the isolation audit) after
-   any change.
+   any change. **Note (2026-08-15): the new wave has NOT yet been compiled in this
+   repo** — the files were integrated by the Aristotle specialist and copied in;
+   the first order of business is to run the gate on them.
 2. Keep `Issues.md` §0b in sync when the chapter set changes.
 3. The infinite-dimensional analytic layer (§4.8's boundary) is largely closed: as of 2026-08-13 the bounded case is formalized on `ℓ²(ℤ)`
    (`ChapterContinuityUnitaryInfinite`), the Born law is a probability measure on an
@@ -467,3 +529,9 @@ For a future pass, the remaining work is maintenance rather than mathematics:
    package for unbounded operators that are *not* multiplication operators in the
    ambient basis — the continuum Laplacian — i.e. Stone's theorem in full
    generality; it is a research target, not a plan item.
+4. The Navier–Stokes research target (also not a plan item): essential
+   self-adjointness of the *continuum* Navier–Stokes generator. The named-hypothesis
+   form (`ns_esa_of_farisLavine_dense`) is now backed by a **proved** Faris–Lavine
+   criterion and **proved** inequalities for the Hamiltonian on the finite-mode
+   core; what remains hypothetical is exactly the two inequalities for a continuum
+   generator. Global existence/uniqueness for Navier–Stokes is not claimed anywhere.

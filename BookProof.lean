@@ -81,6 +81,29 @@ import BookProof.ChapterClassicalLimit
 import BookProof.ChapterJointUnitary
 import BookProof.ChapterHolomorphic
 import BookProof.ChapterNavierStokes
+import BookProof.ChapterNavierStokesFlow
+import BookProof.ChapterNavierStokesCauchy
+import BookProof.ChapterNavierStokesEsa
+import BookProof.ChapterNavierStokesDeficiency
+import BookProof.ChapterFarisLavine
+import BookProof.ChapterNavierStokesFullEsa
+import BookProof.ChapterNavierStokesLagrangianEsa
+import BookProof.ChapterNavierStokesFockSpace
+import BookProof.ChapterNavierStokesFockEsa
+import BookProof.ChapterNavierStokesFockContinuum
+import BookProof.ChapterNavierStokesFockLagrangian
+import BookProof.ChapterNavierStokesFockParcels
+import BookProof.ChapterNavierStokesSecondQuant
+import BookProof.ChapterNavierStokesFarisLavineLift
+import BookProof.ChapterNavierStokesFockFarisLavine
+import BookProof.ChapterNavierStokesIkebeKato
+import BookProof.ChapterNavierStokesMomentumEsa
+import BookProof.ChapterNavierStokesMomentumPerturbation
+import BookProof.ChapterNavierStokesHermiteFarisLavine
+import BookProof.ChapterNavierStokesHermiteCanonical
+import BookProof.ChapterNavierStokesShiftHamiltonian
+import BookProof.ChapterNavierStokesFockManyMode
+import BookProof.ChapterNavierStokesFockCanonical
 import BookProof.ChapterSpinStatistics
 import BookProof.ChapterMajoranaFourier
 import BookProof.ChapterMajoranaProp61
@@ -332,6 +355,18 @@ import BookProof.PhysMehler
 import BookProof.ChapterDisplacedThermalOverlap
 import BookProof.ChapterDisplacedThermalMulti
 import BookProof.ChapterH7
+
+-- Wave (2026-08-14, `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`): the SIRK
+-- approximation orders nest — subspace tower, the block compatibility of the
+-- reduced generators, the projection refinement of the approximants, and the
+-- nested error bands.
+import BookProof.ChapterH8
+import BookProof.ChapterH8Bases
+
+-- Wave (2026-08-15, continuation of `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`): the
+-- spectral side of the nesting — the numerical ranges, operator norms and Ritz
+-- values of the reduced generators nest, `W(Bₘ) ⊆ W(Bₙ) ⊆ W(X)`.
+import BookProof.ChapterH9
 
 -- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
 -- quantum fidelity of coherent states (attention as normalized fidelity) and the

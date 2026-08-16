@@ -334,21 +334,129 @@ as $`n`$ grows ($`\mathrm{sirk\_error\_decay\_exponential}`$).
 #check @BookProof.ChapterH6.sirk_error_tendsto_zero
 #check @BookProof.ChapterH7.compress_isSelfAdjoint
 #check @BookProof.ChapterH7.compression_eigenvalue_mem_numericalRange
+#check @BookProof.ChapterH8.sirk_krylov_tower
+#check @BookProof.ChapterH8.sirk_compression_block
+#check @BookProof.ChapterH8.sirk_compression_submatrix
+#check @BookProof.ChapterH8.sirk_band_refinement
+#check @BookProof.ChapterH8.sirk_band_refinement_proj
+#check @BookProof.ChapterH8.sirk_approx_projection
+#check @BookProof.ChapterH8.sirk_band_refinement_poly
+#check @BookProof.ChapterH8.sirk_band_refinement_rational
+#check @BookProof.ChapterH8.sirk_approx_projection_poly
+#check @BookProof.ChapterH8.sirk_approx_projection_rational
+#check @BookProof.ChapterH8.sirk_band_refinement_of_orthonormal
+#check @BookProof.ChapterH8.sirk_compression_submatrix_of_orthonormal
+#check @BookProof.ChapterH8.krylovOrthonormal_span
+#check @BookProof.ChapterH8.krylovEmbedding_range
+#check @BookProof.ChapterH8.sirk_band_refinement_krylov
+#check @BookProof.ChapterH8.sirk_band_contained
+#check @BookProof.ChapterH8.sirk_band_contained_le
+#check @BookProof.ChapterH8.sirk_compression_submatrix_le
+#check @BookProof.ChapterH8.sirk_nested_orders
+#check @BookProof.ChapterH8.sirk_nested_orders_le
 ```
 
 :::paragraph
 The honest boundary: the *nesting* above is finite-dimensional linear algebra over
 the decidable skeleton (Solovay–Mehler–Kopperman: every inner product over the
 infinite substrate collapses to a finite head integral), so it is provable
-without any analytic hypothesis. What the nesting does **not** supply is the
+without any analytic hypothesis. What the nesting does *not* supply is the
 numerical *width* of the bands: that the true error lies inside
 $`\mathrm{sirkBound}(n)`$ is conditional on Crouzeix's inequality
 ($`\mathrm{sirk\_error\_bound\_decay}`$, `ChapterH4`), which is recorded in
 `BookProof/` as a named hypothesis rather than an axiom. The band-containment
-statement itself — order-($`n`$+1) refines order-$`n`$, iterated — is the
-`ChapterH8` plan item (the projection identity `sirk_band_refinement` and the tower
-`sirk_nested_orders`).
+statement itself — order-($`n`$+1) refines order-$`n`$, iterated — is proved in
+`ChapterH8`: the block identity $`\mathrm{sirk\_compression\_block}`$, the
+projection identities $`\mathrm{sirk\_band\_refinement}`$ and
+$`\mathrm{sirk\_approx\_projection}`$, and the tower
+$`\mathrm{sirk\_nested\_orders}`$ — which holds not only one step at a time but
+between any two orders $`m \le n`$ ($`\mathrm{sirk\_nested\_orders\_le}`$, with
+the leading-block identity $`\mathrm{sirk\_compression\_submatrix\_le}`$). The
+refinement is not restricted to powers of
+the generator: it holds for an arbitrary polynomial of the reduced generator
+($`\mathrm{sirk\_band\_refinement\_poly}`$) and for the rational functions the
+SIRK step actually evaluates — numerator polynomial over an invertible
+denominator whose compression is invertible
+($`\mathrm{sirk\_band\_refinement\_rational}`$), with the whole-space projection
+forms $`\mathrm{sirk\_approx\_projection\_poly}`$ and
+$`\mathrm{sirk\_approx\_projection\_rational}`$. The hypotheses are not vacuous:
+any pair of nested orthonormal Krylov bases realizes them, through the embedding
+of an orthonormal family and the coordinate inclusion along $`\mathrm{castLE}`$,
+which gives the hypothesis-free instances
+$`\mathrm{sirk\_band\_refinement\_of\_orthonormal}`$ and
+$`\mathrm{sirk\_compression\_submatrix\_of\_orthonormal}`$. Those bases exist:
+Gram–Schmidt on the Krylov sequence $`k \mapsto H^k v`$ produces one orthonormal
+sequence whose prefixes are orthonormal, nested by construction and span the
+Krylov subspaces ($`\mathrm{krylovOrthonormal\_span}`$,
+$`\mathrm{krylovEmbedding\_range}`$), which gives the refinement statement for the
+Krylov flag itself ($`\mathrm{sirk\_band\_refinement\_krylov}`$, under the
+hypothesis that the Krylov sequence has not broken down before the finer order).
+Two provisos are recorded
+there. The refinement of the *approximants* needs the order-$`n`$ subspace to be
+invariant under the compressed operator — the block-triangularity that makes the
+leading block a generator in its own right; and the whole-space form of the projection
+identity needs that subspace to *reduce* the operator (invariance under the
+adjoint as well), since without it the leading block controls only the coarse
+data.
 :::
+
+:::paragraph
+The nesting has a spectral face as well: not only do the approximants refine, the
+*frequencies* the reduced generators can see nest. Writing $`W(\cdot)`$ for the
+numerical range — the set of Rayleigh quotients over unit vectors — the reduced
+generators $`B_k = V_k^{*} X V_k`$ satisfy
+$`W(B_m) \subseteq W(B_n) \subseteq W(X)`$ for $`m \le n`$
+($`\mathrm{sirk\_numRange\_nested\_orders}`$, and
+$`\mathrm{sirk\_numRange\_krylov}`$ for the Krylov flag the method actually
+builds), with the matching norm chain $`\|B_m\| \le \|B_n\| \le \|X\|`$ and the
+uniform envelope $`W(X) \subseteq \{|z| \le \|X\|\}`$. Every Ritz value of a
+coarse order is therefore a Rayleigh quotient of every finer order, and of the
+full generator ($`\mathrm{ritz\_mem\_numRange}`$,
+$`\mathrm{ritz\_mem\_numRange\_compress}`$): refining the order can only *add*
+frequencies, and never one the physics does not already have. Since a
+finite-dimensional reduced generator has only eigenvalues in its spectrum, the
+whole Ritz *spectrum* nests the same way
+($`\mathrm{spectrum\_compress\_subset\_numRange\_orthonormal}`$). Positivity and any
+real window $`[a,b]`$ of the quadratic form survive compression at every order
+($`\mathrm{compress\_nonneg}`$, $`\mathrm{compress\_re\_inner\_mem\_Icc}`$). The
+direction matters for honesty: since the numerical ranges *grow* with the order,
+a Crouzeix-type bound $`C \sup_{W(B)}|f|`$ is non-decreasing in the order — the
+band decay of $`\mathrm{sirkBound}`$ comes from the approximation quality, not
+from shrinking numerical ranges. Convexity of the numerical range
+(Toeplitz–Hausdorff) is neither used nor claimed. The approximation quality
+itself does improve, unconditionally: the Krylov subspaces are
+finite-dimensional, so the orthogonal projection onto them exists, and since they
+nest, the best-approximation error is antitone in the order — for $`m \le n`$ the
+order-$`n`$ subspace approximates any target at least as well as the order-$`m`$
+one ($`\mathrm{krylov\_bestApprox\_antitone}`$), and when the Krylov flag is
+dense — a cyclic seed — the error tends to $`0`$
+($`\mathrm{krylov\_bestApprox\_tendsto\_zero}`$). Those statements need no
+Crouzeix constant; what they do *not* give is a rate.
+:::
+
+```
+#check @BookProof.ChapterH9.numRange_compress_subset
+#check @BookProof.ChapterH9.numRange_compress_mono
+#check @BookProof.ChapterH9.numRange_compress_chain
+#check @BookProof.ChapterH9.numRange_subset_closedBall
+#check @BookProof.ChapterH9.convexHull_numRange_compress_mono
+#check @BookProof.ChapterH9.norm_compress_le
+#check @BookProof.ChapterH9.norm_compress_mono
+#check @BookProof.ChapterH9.ritz_mem_numRange
+#check @BookProof.ChapterH9.ritz_mem_numRange_compress
+#check @BookProof.ChapterH9.ritz_re_mem_Icc_of_fine
+#check @BookProof.ChapterH9.compress_nonneg
+#check @BookProof.ChapterH9.compress_re_inner_mem_Icc
+#check @BookProof.ChapterH9.numRange_compress_orthonormal_mono
+#check @BookProof.ChapterH9.spectrum_compress_subset_numRange
+#check @BookProof.ChapterH9.spectrum_compress_subset_numRange_compress
+#check @BookProof.ChapterH9.spectrum_compress_subset_numRange_orthonormal
+#check @BookProof.ChapterH9.sirk_numRange_nested_orders
+#check @BookProof.ChapterH9.sirk_numRange_krylov
+#check @BookProof.ChapterH9.norm_sub_starProjection_antitone
+#check @BookProof.ChapterH9.krylov_bestApprox_antitone
+#check @BookProof.ChapterH9.krylov_bestApprox_tendsto_zero
+```
 
 :::paragraph
 Finally, the offline stage: a two-level sketch hashes raw coordinates into $`k`
@@ -388,6 +496,463 @@ state is a state, at every step and for every horizon $`t`.
 #check @BookProof.ChapterH7.generation_preserves_l2
 ```
 
+# The Navier–Stokes Hamiltonian: a Complete Flow on the Truncation
+
+:::paragraph
+The same free-field parametrization is what the manuscript applies to the
+Navier–Stokes equations: the velocity field, *its derivatives* $`u_{k,j}`,
+$`u_{k,jj}`, and the conjugate momenta $`\pi^i` are all treated as independent
+canonical degrees of freedom, and the Hamiltonian is the Weyl-symmetrized
+$`H = \sum_i (\pi_i A_i + A_i \pi_i)` with
+$`A_i = \sum_j u_j u_{i,j} - \nu\, u_{i,jj}`. That the derivatives may be treated
+as fields is an operator statement: an operator-valued field
+$`\varphi(X) = \varphi + \varphi_i (X_i - x_i)` collapses to its point value on
+the position eigenstates, so the first-order Taylor coefficients are free modes
+with commutation relations of their own.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.fieldTaylor
+#check @BookProof.NavierStokesFlow.field_evaluates_to_value
+#check @BookProof.NavierStokesFlow.field_evaluates_to_value_diagonal
+#check @BookProof.NavierStokesFlow.ccr_field
+#check @BookProof.NavierStokesFlow.derivativeField_momentum
+#check @BookProof.NavierStokesFlow.secondDerivativeField_momentum
+#check @BookProof.NavierStokesFlow.momentumConstraint_preserved
+```
+
+:::paragraph
+On a *finite truncation* — finitely many modes, each a Hermitian matrix, the
+field modes commuting as multiplication operators do — the whole claim is
+provable. The Hamiltonian is Hermitian (the anticommutator of two Hermitian
+factors is Hermitian), it is a polynomial of degree at most three in the
+generators, and therefore $`U(t) = e^{\mathrm{i}tH_N}` is a one-parameter
+unitary group defined for *every* real time: the flow is complete, it preserves
+the $`\ell^2` mass, and every coefficient of the evolved state stays bounded by
+the initial mass — no finite-time singularity on the truncation. The truncated
+generator also has vanishing deficiency, which on a finite-dimensional space is
+exactly essential self-adjointness.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.NSTruncation
+#check @BookProof.NavierStokesFlow.nsHamiltonian
+#check @BookProof.NavierStokesFlow.nsHamiltonian_hermitian
+#check @BookProof.NavierStokesFlow.nsHamiltonian_isPolynomial
+#check @BookProof.NavierStokesFlow.nsWord_length_le_three
+#check @BookProof.NavierStokesFlow.nsHamiltonian_ne_zero_example
+#check @BookProof.NavierStokesFlow.nsFlow_zero
+#check @BookProof.NavierStokesFlow.nsFlow_group
+#check @BookProof.NavierStokesFlow.nsFlow_unitary
+#check @BookProof.NavierStokesFlow.nsFlow_norm_preserving
+#check @BookProof.NavierStokesFlow.nsFlow_noBlowup
+#check @BookProof.NavierStokesFlow.nsFlow_groupOnEvolved
+#check @BookProof.NavierStokesFlow.nsHamiltonian_hasZeroDeficiency
+```
+
+:::paragraph
+Completeness of the flow has a differential counterpart, which is the form in
+which the manuscript states existence and uniqueness. On the truncation the
+curve $`\psi(t) = U(t)\psi` is differentiable and solves
+$`\dot\psi(t) = \mathrm{i}H_N\psi(t)`, and it is the *only* solution: any
+differentiable curve satisfying the same equation with the same initial value
+coincides with it at every time. So the Cauchy problem has exactly one global
+solution, defined for all $`t\in\mathbb{R}` and confined to the sphere of the
+initial mass. The proof of uniqueness is the classical one — the derivative of
+$`t \mapsto U(-t)y(t)` vanishes, so that curve is constant. Along the way the
+energy is conserved too: the expectation of $`H_N` in the evolved state does not
+depend on time.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.nsFlow_hasDerivAt
+#check @BookProof.NavierStokesFlow.nsFlow_solves_schrodinger
+#check @BookProof.NavierStokesFlow.nsFlow_unique_solution
+#check @BookProof.NavierStokesFlow.nsCauchy_existsUnique
+#check @BookProof.NavierStokesFlow.nsFlow_energy_conserved
+#check @BookProof.NavierStokesFlow.nsFlow_continuous
+```
+
+:::paragraph
+The divergence constraint enters à la BRST. Its resolution is the book's own
+substitution $`u_{3,3} = -(u_{1,1} + u_{2,2})`, and the truncated BRST charge
+$`\Omega = u_{j,j}\otimes\psi^\dagger` is nilpotent because the ghost creation
+operator is — the charge itself is not Hermitian, which is why the physical
+space is a cohomology and not an eigenspace. In parcel (Lagrangian) variables
+the constraint becomes volume preservation: a unit Jacobian determinant
+preserves the volume of every set, and its infinitesimal form is exactly
+$`\nabla\cdot u = 0`, since the derivative of $`t \mapsto \det(1 + tA)` at
+$`t = 0` is $`\operatorname{tr} A`. In those variables the advection term is a
+*positive* second-order operator (a sum of squares of the parcel momenta), the
+viscosity likewise, the force a first-order drift and the pressure the 0-order
+constraint.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.nsDivergenceConstraint_resolution
+#check @BookProof.NavierStokesFlow.nsBrstCharge
+#check @BookProof.NavierStokesFlow.nsBrst_nilpotent
+#check @BookProof.NavierStokesFlow.nsBrst_adjoint
+#check @BookProof.NavierStokesFlow.lagrangian_velocity
+#check @BookProof.NavierStokesFlow.volume_preservation_constraint
+#check @BookProof.NavierStokesFlow.det_one_add_smul_hasDerivAt
+#check @BookProof.NavierStokesFlow.LagrangianNS.transformed_hamiltonian_decomposition
+#check @BookProof.NavierStokesFlow.LagrangianNS.kinetic_posSemidef
+#check @BookProof.NavierStokesFlow.LagrangianNS.viscous_posSemidef
+#check @BookProof.NavierStokesFlow.LagrangianNS.transformed_hamiltonian_hermitian
+#check @BookProof.NavierStokesFlow.LagrangianNS.flowUnitary_unitary
+#check @BookProof.NavierStokesFlow.LagrangianNS.flowUnitary_group
+#check @BookProof.NavierStokesFlow.LagrangianNS.cauchy_existsUnique
+```
+
+:::paragraph
+Because that transformed operator is Hermitian on the truncation, everything
+said about the flow of $`H_N` holds for it verbatim: $`e^{\mathrm{i}t\hat h}` is
+a one-parameter unitary group and the corresponding Cauchy problem has exactly
+one global solution. That is the truncated form of the Lagrangian route — the
+continuum statement remains unclaimed.
+:::
+
+:::paragraph
+The honest boundary. Nothing above claims essential self-adjointness of the
+*untruncated continuum* operator, and nothing claims global existence or
+uniqueness for the Navier–Stokes equations. The ODE chapter is the standing
+warning: for $`\dot x = x^2` the Hamiltonian $`x^2\hat p - \mathrm{i}\hat x` is a
+polynomial of degree three whose classical flow is incomplete, so "low degree in
+the fields" cannot by itself give self-adjointness — it gives symmetry. The
+continuum route that remains is the Faris–Lavine commutator criterion applied to
+the Lagrangian-transformed operator, whose second-quantized form on the
+Fock-of-a-Fock space is at most *quadratic* in the outer ladder operators, and
+whose comparison operator is the (positive) outer number operator. That
+criterion is recorded as a named hypothesis, never an axiom, exactly as
+Crouzeix's inequality is in `ChapterH4`; its two analytic inequalities for the
+continuum operator are a research target, not a result.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.nsFockOfFock
+#check @BookProof.NavierStokesFlow.nsSecondQuant
+#check @BookProof.NavierStokesFlow.ns_outer_degree_le_two
+#check @BookProof.NavierStokesFlow.nsNumberOp
+#check @BookProof.NavierStokesFlow.nsNumberOp_eq_secondQuant
+#check @BookProof.NavierStokesFlow.nsNumberOp_posSemidef
+#check @BookProof.NavierStokesFlow.HasZeroDeficiency
+#check @BookProof.NavierStokesFlow.symmetric_hasZeroDeficiency
+#check @BookProof.NavierStokesFlow.ns_esa_of_farisLavine
+```
+
+:::paragraph
+The named hypothesis has to be the *honest* criterion. Stated without the
+symmetry of the operator it is contradictory — $`H = \mathrm{i}\cdot 1` with
+comparison operator the identity satisfies both inequalities while having a full
+deficiency space — so a conditional theorem resting on it would be vacuous. With
+symmetry the criterion is satisfiable, and for operators defined on the whole
+space it is automatic: symmetry alone already forces the deficiency to vanish.
+The analytic content of Faris–Lavine therefore lives entirely in the densely
+defined case, where the deficiency spaces are those of the *adjoint*; that is
+the predicate under which the conditional theorem is restated, and where the
+truncation — whose domain is the whole space — is the only case proved here.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.farisLavine_without_symmetry_forces_trivial
+#check @BookProof.NavierStokesFlow.farisLavine_holds_of_everywhereDefined
+#check @BookProof.NavierStokesFlow.HasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.hasZeroDeficiencyOn_top_of_symmetric
+#check @BookProof.NavierStokesFlow.nsHamiltonian_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.ns_esa_of_farisLavine_dense
+```
+
+:::paragraph
+There is one criterion under which the passage from the truncation to an
+infinite-dimensional operator is not a change of kind: *a complete flow*. If a
+symmetric operator on a dense domain generates a norm-preserving flow that is
+defined for *every* real time and leaves the domain invariant, then the
+deficiency spaces of its adjoint vanish — the operator is essentially
+self-adjoint. The proof is the classical orbit argument: a deficiency vector
+$`w` with $`H^{*}w = \pm\mathrm{i}w` makes the orbit function
+$`g(t) = \langle w, U(t)v\rangle` satisfy $`g' = \pm g`, so $`g(t) = g(0)e^{\pm t}`,
+while unitarity of the flow keeps $`|g|` bounded on the whole line; hence
+$`g(0) = \langle w, v\rangle = 0` for every $`v` in the dense domain, and
+$`w = 0`. Completeness is exactly the hypothesis that a finite-time blow-up
+would destroy, which is why the ODE chapter's $`\dot x = x^{2}` example is the
+standing warning for the continuum case.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.eq_zero_of_hasDerivAt_smul_of_bounded
+#check @BookProof.NavierStokesFlow.hasZeroDeficiencyOn_of_completeUnitaryFlow
+#check @BookProof.NavierStokesFlow.nsHamiltonian_hasZeroDeficiencyOn_of_flow
+```
+
+:::paragraph
+The criterion is applied where its hypotheses are actually available: to the
+truncation, whose flow is complete by construction. Nothing is claimed for the
+untruncated generator, whose flow completeness is the open problem.
+
+A second, genuinely infinite-dimensional case is available on the bounded
+$`\ell^{2}(\mathbb{Z})` layer: a bounded symmetric operator is essentially
+self-adjoint on *every* dense invariant domain, and the Weyl-symmetrized
+continuity generator $`H = \tfrac12(pv + vp)` leaves the domain of finitely
+supported modes invariant. That domain is dense but is *not* the whole space, so
+this is the first instance in the development of vanishing adjoint deficiency on
+a proper dense domain — the setting in which the notion has analytic content.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.hasZeroDeficiencyOn_of_bounded_symmetric
+#check @BookProof.NavierStokesFlow.finiteModes
+#check @BookProof.NavierStokesFlow.finiteModes_dense
+#check @BookProof.NavierStokesFlow.finiteModes_ne_top
+#check @BookProof.NavierStokesFlow.continuityHamiltonian_hasZeroDeficiencyOn_finiteModes
+```
+
+:::paragraph
+Both criteria are needed, because symmetry on a dense domain is by itself never
+enough. On $`\ell^{2}(\mathbb{N})`, with the finitely supported states as domain,
+the tridiagonal operator
+$`(Hf)(0) = a_{0}f(1)`, $`(Hf)(n+1) = a_{n}f(n) + a_{n+1}f(n+2)` with real
+weights $`a_{0} = 2`, $`a_{n+1} = 4a_{n}+2` is symmetric on that dense domain,
+yet the square-summable geometric sequence $`w(n) = (\mathrm{i}/2)^{n}` satisfies
+$`Hw = \mathrm{i}w` coefficientwise and is therefore a deficiency vector of the
+adjoint: essential self-adjointness *fails*. The one computation behind both
+statements is the discrete Green identity — the truncated sum of Wronskian
+increments telescopes to a boundary term, which vanishes for finitely supported
+states.
+
+So the "polynomial of low degree in the fields" hypothesis, which gives symmetry
+on the finite-particle domain, cannot by itself yield essential self-adjointness;
+an analytic input — a complete flow, boundedness, or the Faris–Lavine
+inequalities — is required.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.JacobiDeficiency.jacobi_wronskian
+#check @BookProof.NavierStokesFlow.JacobiDeficiency.jacobiOp_symmetric
+#check @BookProof.NavierStokesFlow.JacobiDeficiency.defState_deficiency
+#check @BookProof.NavierStokesFlow.JacobiDeficiency.jacobiOp_not_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.JacobiDeficiency.jacobi_symmetric_dense_not_esa
+```
+
+:::paragraph
+Unboundedness by itself is not the obstruction either. A symmetric operator that
+carries a *total* family of eigenvectors inside its domain — only the zero
+vector is orthogonal to all of them — is essentially self-adjoint, because
+testing the deficiency identity against an eigenvector `e` with real eigenvalue
+$`\lambda` gives $`(\lambda \mp \mathrm{i})\langle e, w\rangle = 0`. A diagonal
+operator on $`\ell^{2}(\mathbb{N})` with an arbitrary, possibly unbounded, real
+sequence of entries satisfies this on the same finitely supported domain on
+which the tridiagonal example fails. What separates the two is whether the
+domain carries enough eigenvectors. That diagonal operator is genuinely
+unbounded whenever its sequence of entries is: no constant dominates it on the
+finite-mode domain, so essential self-adjointness there is not a boundedness
+phenomenon in disguise.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.hasZeroDeficiencyOn_of_total_eigenvectors
+#check @BookProof.NavierStokesFlow.DiagonalEsa.diagOp
+#check @BookProof.NavierStokesFlow.DiagonalEsa.diagOp_basis
+#check @BookProof.NavierStokesFlow.DiagonalEsa.diagOp_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.DiagonalEsa.diagOp_not_bounded
+```
+
+:::paragraph
+The Lagrangian change of variables is what turns these criteria into a statement
+about the Navier–Stokes generator itself. Writing the flow in parcel
+coordinates — the trajectory operators $`X(\xi)` with conjugate momenta
+$`P(\xi) = \dot X(\xi) = u(X(\xi))` in place of the Eulerian velocity — the
+operator becomes
+$`\hat h_{\mathrm{full}} = \tfrac12\sum_i P_i^{2} + \nu\sum_i Q_i^{2}
++ \sum_i f_i D_i + C`: two second-order terms, a first-order force drift and the
+zeroth-order volume-preservation constraint. Untruncated — all of these are
+(possibly unbounded) operators on a dense domain of an arbitrary complex
+inner-product space — the transformed operator is symmetric, and the quadratic
+forms of its two second-order terms are $`\tfrac12\sum_i\|P_i v\|^{2}` and
+$`\nu\sum_i\|Q_i v\|^{2}`: the advection term, which in Eulerian variables is
+the troublesome $`-u_j\partial_j u_i`, has become *positive*.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.LagrangianEsa.LagrangianFullData
+#check @BookProof.NavierStokesFlow.LagrangianEsa.LagrangianFullData.hFull
+#check @BookProof.NavierStokesFlow.LagrangianEsa.LagrangianFullData.hFull_isSymmetricDom
+#check @BookProof.NavierStokesFlow.LagrangianEsa.LagrangianFullData.kinetic_inner
+#check @BookProof.NavierStokesFlow.LagrangianEsa.LagrangianFullData.kinetic_nonneg
+#check @BookProof.NavierStokesFlow.LagrangianEsa.LagrangianFullData.viscous_nonneg
+```
+
+:::paragraph
+Essential self-adjointness then follows in the transformed variables. A total
+family of common eigenvectors of the constituents — the Lagrangian momentum
+representation — makes the full transformed Hamiltonian essentially
+self-adjoint, with eigenvalue
+$`\tfrac12\sum_i p_i^{2} + \nu\sum_i q_i^{2} + \sum_i f_i d_i + c`; and because
+vanishing adjoint deficiency is invariant under a unitary change of variables,
+what is proved after the change of variables holds for the operator it came
+from. Two untruncated realizations make this unconditional: on
+$`\ell^{2}(\mathbb{Z})`, with the parcel momenta the symmetric-difference
+lattice momentum — so $`\tfrac12\sum_i P_i^{2}` is a discrete Laplacian — the
+transformed Hamiltonian is essentially self-adjoint on the *proper* dense domain
+of finitely supported modes and is not the zero operator; on
+$`\ell^{2}(\mathbb{N})`, with diagonal constituents of arbitrary real symbols,
+it is essentially self-adjoint while being genuinely unbounded. The limits are
+equally explicit: an unbounded first-order drift term alone already destroys the
+property, so no criterion-free statement about the transformed data is
+available, and essential self-adjointness of the *continuum* transformed
+generator — hence global existence for Navier–Stokes — is not claimed here.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.LagrangianEsa.LagrangianFullData.hasZeroDeficiencyOn_of_commonEigenvectors
+#check @BookProof.NavierStokesFlow.LagrangianEsa.hasZeroDeficiencyOn_iff_of_linearIsometryEquiv
+#check @BookProof.NavierStokesFlow.LagrangianEsa.NSFullData.hasZeroDeficiencyOn_of_lagrangian
+#check @BookProof.NavierStokesFlow.LagrangianEsa.latticeLag_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.LagrangianEsa.latticeLag_hFull_ne_zero
+#check @BookProof.NavierStokesFlow.LagrangianEsa.diagLag_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.LagrangianEsa.diagLag_not_bounded
+#check @BookProof.NavierStokesFlow.LagrangianEsa.exists_lagrangianFullData_not_hasZeroDeficiencyOn
+```
+
+:::paragraph
+The last step of the chain is the passage from one particle to the Fock space,
+and it is where the comparison operator of the Faris–Lavine criterion has to be
+rebuilt. Fock space here is the $`\ell^{2}` direct sum of the particle sectors,
+and the finite-particle domain is the span of states supported in finitely many
+sectors with each component in that sector's core. That domain is dense as soon
+as every sector core is, and it is a *proper* subspace of the Fock space, so
+nothing below is a statement about a boundedly extended operator. The second
+quantization $`d\Gamma(A)` acts sector by sector, and vanishing adjoint
+deficiency lifts: if every sector operator has it on its own core, so does
+$`d\Gamma(A)` on the finite-particle domain. Applied to a one-particle
+comparison operator this is the "cage" the criterion needs.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.SecondQuant.fockCore
+#check @BookProof.NavierStokesFlow.SecondQuant.fockCore_dense
+#check @BookProof.NavierStokesFlow.SecondQuant.fockOp
+#check @BookProof.NavierStokesFlow.SecondQuant.fockOp_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.SecondQuant.fockCore_ne_top
+```
+
+:::paragraph
+The one-particle comparison operator is $`n = \sum_i \pi_i^{2} + \sum_i V_i^{2}
++ I`, with the $`\pi_i` the fiber momenta and the $`V_i` the fiber realization
+of the advection field, all symmetric on a common dense domain. Because both
+families enter squared, the quadratic form of $`n` is
+$`\sum_i\|\pi_i v\|^{2} + \sum_i\|V_i v\|^{2} + \|v\|^{2}`, so $`n \ge I` — the
+strict positivity that a comparison operator must have. In the momentum
+representation, where the constituents are diagonal with arbitrary real symbols,
+$`n` is essentially self-adjoint on the finite-mode domain and is genuinely
+unbounded whenever its symbols are; second-quantizing that realization gives a
+Fock-space comparison operator that is essentially self-adjoint on the
+finite-particle domain, and it inherits `N̂ ≥ I` from the sectors.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.FarisLavineLift.ComparisonData
+#check @BookProof.NavierStokesFlow.FarisLavineLift.ComparisonData.comparison
+#check @BookProof.NavierStokesFlow.FarisLavineLift.ComparisonData.comparison_ge_norm_sq
+#check @BookProof.NavierStokesFlow.FarisLavineLift.diagComparison_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.FarisLavineLift.diagComparison_not_bounded
+#check @BookProof.NavierStokesFlow.SecondQuant.fockComparison_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.SecondQuant.fockOp_ge_norm_sq
+#check @BookProof.NavierStokesFlow.SecondQuant.fockComparison_ge_norm_sq
+#check @BookProof.NavierStokesFlow.SecondQuant.fockComparison_domain_ne_top
+```
+
+:::paragraph
+The two Faris–Lavine bounds then have to survive the lift, and here the two
+halves behave differently. The form-commutator bound does lift as expected: the
+commutator of the sums is the sum of the commutators once distinct particles
+commute, and summing $`|\langle v, [h_k, n_k] v\rangle| \le c_2 \langle v, n_k
+v\rangle` over the particles gives the same bound for the totals — stated with a
+modulus on the left, since for symmetric constituents the commutator expectation
+is purely imaginary and its real part carries no information. The operator bound
+does *not* lift by the triangle inequality alone: the informal chain
+$`\|\sum_k h_k v\| \le \sum_k\|h_k v\| \le c_1\sum_k\|n_k v\| \le c_1\|\sum_k n_k
+v\|` uses a last step that is false, and two two-by-two operator pairs with
+$`\|h_k x\| \le \|n_k x\|` for every $`x` but $`\|(n_0+n_1)v\| <
+\|(h_0+h_1)v\|` witness the failure. What does lift is the pairwise-dominated
+form of the hypothesis, and with the two bounds in that shape the Faris–Lavine
+criterion — taken as a named hypothesis, not an axiom — yields vanishing adjoint
+deficiency for the second-quantized Hamiltonian on the finite-particle domain.
+Essential self-adjointness of the *continuum* Navier–Stokes Hamiltonian, and a
+fortiori global existence, is not claimed.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.FarisLavineLift.norm_sum_le_of_pairwise
+#check @BookProof.NavierStokesFlow.FarisLavineLift.not_forall_norm_sum_le_of_pointwise
+#check @BookProof.NavierStokesFlow.FarisLavineLift.norm_inner_commutator_sum_le
+#check @BookProof.NavierStokesFlow.SecondQuant.fockOp_norm_le_of_sectors
+#check @BookProof.NavierStokesFlow.SecondQuant.fockOp_norm_inner_le_of_sectors
+#check @BookProof.NavierStokesFlow.SecondQuant.fockOp_hasZeroDeficiencyOn_of_farisLavine
+```
+
+:::paragraph
+That last statement still carries the criterion as a hypothesis, and in the shape
+it is stated there — a relative bound plus a commutator bound, with no positivity
+of $`N` and no surjectivity of $`N+1` — the criterion is in fact refutable, by the
+limit-circle Jacobi operator. The remedy is to supply exactly the input the
+Faris–Lavine proof uses, and this the momentum representation does provide. Take
+the comparison operator on its *maximal* domain in $`\ell^{2}`: multiplication by
+the symbol $`\sigma`, defined on every state whose product with $`\sigma` is
+again square summable. For a non-negative symbol that operator is symmetric,
+positive, $`N+1` maps the maximal domain onto the whole space because
+$`(\sigma+1)^{-1}` is a contraction, and the finite-mode states — the
+momentum-space stand-in for $`C_c^\infty` — are an operator core, since the
+truncations of a state converge to it in the graph norm. That package is the
+Ikebe–Kato-type input, and it is proved, not assumed: for a non-negative symbol,
+multiplication by $`\sigma` is essentially self-adjoint already on the finite-mode
+core, and self-adjoint on its maximal domain.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.IkebeKato.maxDom
+#check @BookProof.NavierStokesFlow.IkebeKato.diagMax
+#check @BookProof.NavierStokesFlow.IkebeKato.diagMax_quadForm_ge_norm_sq
+#check @BookProof.NavierStokesFlow.IkebeKato.diagMax_add_one_surjective
+#check @BookProof.NavierStokesFlow.IkebeKato.exists_finiteModes_graph_approx
+#check @BookProof.NavierStokesFlow.IkebeKato.diagMax_essentiallySelfAdjointOn
+#check @BookProof.NavierStokesFlow.IkebeKato.ikebeKato_momentum
+```
+
+:::paragraph
+With that input the Faris–Lavine theorem of the criterion chapter applies with no
+hypothesis left over: any symmetric Hamiltonian on the maximal domain which is
+relatively bounded by $`N` and whose form commutator with $`N` is dominated by
+$`N` is essentially self-adjoint on the finite-mode core. Specialised to the
+Navier–Stokes symbol $`\sigma(k)=\sum_i p_i(k)^2+\sum_i q_i(k)^2+1` this is the
+one-particle statement, and the restriction of the maximal-domain operator to the
+core is literally the comparison operator $`n=\sum_i\pi_i^2+\sum_i V_i^2+I` of the
+fiber. In the occupation-number representation the bosonic Fock space over the
+fiber is $`\ell^{2}` over the configurations $`\alpha:\mathbb{N}\to_{f}\mathbb{N}`
+and $`\hat N = d\Gamma(n)+I` is again a multiplication operator, by the total
+energy $`\Sigma(\alpha)=\sum_k \alpha(k)\,n(k)+1`; so the same theorem gives
+essential self-adjointness of the second-quantized Navier–Stokes Hamiltonian on
+the finite-particle, finite-mode core. What remains hypothetical are exactly the
+two Faris–Lavine inequalities for the Hamiltonian itself; they are not vacuous —
+an unbounded Hamiltonian $`N+B` with a rank-two perturbation satisfies both while
+its commutator with $`N` is non-zero. Essential self-adjointness of the
+*continuum* generator, and global existence, are still not claimed.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.IkebeKato.essentiallySelfAdjointOn_finiteModes_of_farisLavine_bounds
+#check @BookProof.NavierStokesFlow.MomentumEsa.nsComparison_restrict_eq
+#check @BookProof.NavierStokesFlow.MomentumEsa.nsComparison_ikebeKato
+#check @BookProof.NavierStokesFlow.MomentumEsa.ns_hamiltonian_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.MomentumEsa.fockSymbol
+#check @BookProof.NavierStokesFlow.MomentumEsa.fockSymbol_add
+#check @BookProof.NavierStokesFlow.MomentumEsa.fockComparison_ikebeKato
+#check @BookProof.NavierStokesFlow.MomentumEsa.navierStokes_fock_hamiltonian_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.MomentumPerturbation.pertHam_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.MomentumPerturbation.pertHam_not_bounded
+#check @BookProof.NavierStokesFlow.MomentumPerturbation.exists_commForm_ne_zero
+```
+
 # Summary
 
 The free-field thread replaces the nonexistent infinite-dimensional Lebesgue measure
@@ -396,3 +961,13 @@ and then applies the Born rule to parametrize the simplex — all the while the 
 fibers keep track of the invisible phase. The two negative results (no Lebesgue
 measure; positive-measure partitions are countable) are not obstacles but the precise
 statements that make the construction both necessary and well-defined.
+
+The same free-field parametrization carries the Navier–Stokes thread: the velocity
+field and its derivatives are independent canonical degrees of freedom, and on a
+finite truncation the Weyl-symmetrized Hamiltonian has a complete, norm-preserving
+flow, a unique global solution to the Cauchy problem, and a nilpotent BRST
+constraint — with the honest boundary drawn at the continuum operator, whose
+essential self-adjointness is exactly where the Faris–Lavine commutator criterion
+(taken as a named hypothesis) sits. The continuum existence/uniqueness claim of
+`book.tex` is not carried by any theorem here; see `Book/YangMillsQuantization.lean`
+for the pointer to this formalized subset.

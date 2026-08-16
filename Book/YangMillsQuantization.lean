@@ -172,3 +172,15 @@ The algebraic core of the manuscript's quantization programme:
  * quantization as arising from time-evolution via the Heisenberg/Weyl relations;
  * the nilpotent BRST charge (and the graded Jacobi identity of the super-bracket) defining the gauge-invariant algebra;
  * the positive-definite Weyl-gauge Hamiltonian.
+
+:::paragraph
+The manuscript's Navier–Stokes existence/uniqueness thesis is deliberately **not**
+carried by any theorem in this book. What *is* formalized is the finite subset of
+the same programme that the free-field thread supports — the truncated
+Navier–Stokes Hamiltonian with a complete, norm-preserving flow and a unique
+global Cauchy solution, the nilpotent BRST divergence constraint, the Lagrangian
+(volume-preservation) change of variables, and the Faris–Lavine commutator
+criterion as the named-hypothesis route to essential self-adjointness. See the
+section "The Navier–Stokes Hamiltonian: a Complete Flow on the Truncation" in
+`Book/FreeField.lean`.
+:::
