@@ -569,6 +569,47 @@ For a future pass, the remaining work is maintenance rather than mathematics:
    criterion and **proved** inequalities for the Hamiltonian on the finite-mode
    core; what remains hypothetical is exactly the two inequalities for a continuum
    generator. Global existence/uniqueness for Navier–Stokes is not claimed anywhere.
+
+### What is missing from `PLAN_LEAN_SPECIALIST_NS_FLOW.md` (record, 2026-08-16)
+
+The plan is **executed** — every headline of Parts A–G is proved and `#check`-ed
+(see the plan's Status table). What is *missing* is exactly the boundary the plan
+itself drew, plus one small item and one correction:
+
+- **The continuum ESA conclusion (the §7 research target, not a plan item).** The
+  two Faris–Lavine inequalities are proved for the Hamiltonian on the
+  *finite-mode core* (Hermite/Fock/momentum realizations). What is *not* proved is
+  the same verification for a genuinely *differential* (Sobolev) realization of
+  the fiber Laplacian — the passage from `ℓ²(ℕ)`/occupation-number to a
+  differential operator on a function space. Both candidate routes are named
+  (§7): the Lagrangian change of variables (Part B, advection → positive 2nd-order
+  Laplacian) and the Eulerian derivatives-as-fields picture (Part A, momentum
+  representation with the multiplication-operator comparison). Neither is a plan
+  item; either would be a research project.
+- **Global existence/uniqueness for NS (Contention D5, deliberate scope cut).**
+  Unclaimed by design; recorded in `CONSOLIDATED_PLAN.md` §6 and the book's
+  honest-boundary prose.
+- **`PLAN_LEAN_SPECIALIST_NS_FLOW.md` A.1 `positionOp`.** No theorem *named*
+  `positionOp` was created; the position operator is realized as
+  `ChapterF1.fieldPhi = creat + annih` (ChapterF1.lean:98), which the plan's A.1
+  explicitly identified with. Cosmetic: a one-line alias or a plan edit would close
+  the name, but nothing mathematical is missing.
+- **The optional E.3 was corrected, not closed.** The plan's optional
+  `nsBrst_hermitian : Ωᴴ = Ω` is **false** when the divergence field is non-zero;
+  the Aristotle wave proved `nsBrst_not_hermitian` and the honest Hermitian
+  packaging `nsBrst_symmetrization_hermitian` (`Ω + Ω†`). The plan's E.3 text
+  should be read as superseded by that correction.
+- **The second-coordinate `y` (GaugeY) is not yet a named plan item.** The
+  `genX`/`genY` construction and the `y = 0` collapse are proved in
+  `ChapterNavierStokesGaugeY.lean` but the plan's Part A.5 prose predates them;
+  folding them in (A.6) keeps plan ↔ proofs in one-to-one correspondence.
+- **Verification gate not yet run in this repo (2026-08-16).** The Aristotle waves
+  were copied in but `lake build`/`./patches/build-book.sh` have not been re-run
+  here; that is the first task for the next specialist.
+
+None of these is a mathematical gap in the provable core; they are the recorded
+boundary, a cosmetic name, a superseded optional item, a prose/plan sync, and a
+build-gate re-run.
 5. Pedagogical polish (small, editorial): the Eulerian/GaugeY prose in
    `Book/FreeField.lean` is in place; a future pass can fold the *second
    coordinate* `y` into the `PLAN_LEAN_SPECIALIST_NS_FLOW.md` Part A.5/A.6 prose as

@@ -11,28 +11,35 @@ Every new theorem must remain `sorry`-free and `axiom`-free.
 
 ## Status
 
-This plan is new. The supporting work is already in place and verified:
+**EXECUTED (2026-08-14→16).** This plan was carried out by the Aristotle
+specialist in three waves; every headline item is `sorry`-free and `axiom`-free,
+and the book and plan are in one-to-one correspondence. What was accomplished,
+part by part (all registered in `BookProof.lean`, all `#check`-ed from
+`Book/FreeField.lean`):
 
-- **Numerics (unfer, gravity-parallel).** `nested_fock_algebra` now asserts the
-  three structural facts the plan builds on, mirroring the existing
-  `test_gravity_hamiltonian_terms` pattern: `test_navier_stokes_hermitian`
-  (H = H† on sample states), `test_navier_stokes_low_degree` (every term ≤ 3
-  ladder operators — the "polynomial of low degree" hypothesis), and
-  `test_navier_stokes_brst_nilpotent` (Ω² = 0). `fock_sirk` asserts
-  `navier_stokes_flow_complete_and_unitary` (h_proj Hermitian; `e^{-iHt}`
-  norm-preserving for a sweep of times; coefficients finite — no blow-up on the
-  truncation). `prob_kernel` verifies the divergence-constraint resolution
-  symbolically in Cadabra2 (`VerifySubstitution` op + the
-  `verify_navier_stokes_divergence_constraint_resolution` test).
-- **Existing Lean assets.** The BRST ghost algebra is already formalized
-  (`BookProof/ChapterNavierStokes.lean`: `ghost_CAR`, `ghostCreate_sq`, ...;
-  `BookProof/ChapterGhostField.lean`: `brst_charge_nilpotent`); the finite
-  unitary group machinery is in `BookProof/ChapterContinuityUnitary.lean`
-  (`momentum_hermitian`, `exp_smul_I_unitary`, `continuityUnitary_unitary`,
-  `unitary_preserves_normSq`); the graded superalgebra unifying CCR/CAR is in
-  `BookProof/ChapterSuperBracket.lean`; the honest ESA/flow certificate layer is
-  in `Singularity/Esa.lean` and `Singularity/Hamiltonian.lean`
-  (`weyl_symmetrization_self_adjoint`, `nelson_essential_self_adjoint`).
+| Plan part | Where it landed | Headline theorems |
+| :-- | :-- | :-- |
+| A.1–A.4 field + momentum | `ChapterNavierStokesFlow.lean` | `fieldTaylor`, `field_evaluates_to_value`, `derivativeField_momentum`, `momentumConstraint_preserved` (A.1's position operator is `ChapterF1.fieldPhi = creat + annih`) |
+| A.5 Eulerian constraints | `ChapterNavierStokesEulerian.lean` | `u_evaluates_to_value`, `eulerian_momentum_constraint`, `eulerian_momentum_dual`, `derivativeField_relates_to_field`, `derivativeField_second`, `derivativeField_consistency`, `eulerian_divergence_constraint`, `cyclicShear_divergence_free` |
+| A.5 gauge generators | `ChapterNavierStokesGaugeY.lean` | `uField`, `genX`, `genY`, `genX_genX_commute`, `genX_genY_commute`, `genY_genY_commute`, `genY_uField`, `genY_uField_perturbed_ne_zero`, `setYZero_uField`, `hamiltonianOp_apply_of_y_zero` |
+| B Lagrangian + volume | `ChapterNavierStokesFlow.lean` | `lagrangian_velocity`, `volume_preservation_constraint`, `transformed_hamiltonian_decomposition`, `det_one_add_smul_hasDerivAt` |
+| C finite truncation | `ChapterNavierStokesFlow.lean` | `nsHamiltonian`, `nsHamiltonian_hermitian`, `nsHamiltonian_isPolynomial`, `nsWord_length_le_three` |
+| D complete flow | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesCauchy.lean` | `nsFlow_unitary`, `nsFlow_group`, `nsFlow_norm_preserving`, `nsFlow_noBlowup`, `nsCauchy_existsUnique`, `nsFlow_energy_conserved` |
+| E BRST constraint | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesEulerian.lean` | `nsBrst_nilpotent`, `nsDivergenceConstraint_resolution`, and the **E.3 correction**: `nsBrst_not_hermitian` (Ω is *not* Hermitian when the divergence is non-zero; the honest Hermitian statement is `nsBrst_symmetrization_hermitian`) |
+| G Faris–Lavine | `ChapterFarisLavine.lean` + `ChapterNavierStokesHermiteFarisLavine.lean`, `FockManyMode.lean`, `MomentumEsa.lean`, `IkebeKato.lean`, `ShiftHamiltonian.lean`, `MomentumPerturbation.lean` | `essentiallySelfAdjointOn_of_farisLavine` (the criterion **proved**, Theorem 1 + Cor. 1.1), `nsH_essentiallySelfAdjointOn_core`, `fockH_essentiallySelfAdjointOn_core`, `ns_hamiltonian_essentiallySelfAdjointOn_core`, `navierStokes_fock_hamiltonian_essentiallySelfAdjointOn_core`, `pertHam_essentiallySelfAdjointOn_core` — both FL inequalities proved for the Hamiltonian itself, with a genuinely non-vanishing commutator `fock_commForm_ne_zero` |
+| ESA criteria + limits | `ChapterNavierStokesEsa.lean`, `ChapterNavierStokesDeficiency.lean`, `ChapterNavierStokesFullEsa.lean`, `ChapterNavierStokesLagrangianEsa.lean`, `ChapterNavierStokesSecondQuant.lean` | `hasZeroDeficiencyOn_of_completeUnitaryFlow`, `hasZeroDeficiencyOn_of_total_eigenvectors`, `jacobi_symmetric_dense_not_esa` (the limit-circle counterexample), `exists_nsFullData_not_hasZeroDeficiencyOn`, `fockOp_hasZeroDeficiencyOn` (the one-particle→Fock lift) |
+
+**Status of the numerics.** `nested_fock_algebra` asserts `test_navier_stokes_hermitian`,
+`test_navier_stokes_low_degree`, `test_navier_stokes_brst_nilpotent`; `fock_sirk`
+asserts `navier_stokes_flow_complete_and_unitary`; `prob_kernel` verifies the
+divergence-constraint resolution symbolically in Cadabra2
+(`verify_navier_stokes_divergence_constraint_resolution`).
+
+**What remains open** is exactly the boundary recorded in §2/§7 and the honesty
+flags: the *continuum* operator's essential self-adjointness (the two Faris–Lavine
+inequalities for a genuinely differential/Sobolev realization of the fiber
+Laplacian, not the finite-mode core) and global existence/uniqueness for NS. The
+Eulerian and Lagrangian routes are both named in §7; neither is a plan item.
 
 ---
 
@@ -267,6 +274,23 @@ and their Clairaut consequence — no explicit solution), **initial conditions**
 for the divergence (explicit `u_{3,3}` solution). Both are algebraic and
 provable now; the BRST enforcement is Part E.
 
+**A.6** *The second coordinate `y` and the two gauge generators (proved
+2026-08-16, `ChapterNavierStokesGaugeY.lean`; add to the prose if the plan is
+re-opened).* The constraint is stated properly only once a second coordinate `y`
+is adjoined to the space coordinate `x`: the field that enters the Hamiltonian is
+the expansion `u_i(y) = u_i + u_{i,j} y_j` (`uField`). Each coordinate then
+carries a gauge generator — for `x` the standard momentum `genX = ∂/∂x_j`; for
+`y` the generator built from the *derivatives of* `u_i`,
+`genY = ∂/∂y_j − u_{i,j} ∂/∂u_i`, which translates `y` while shifting each
+velocity mode by its own first derivative (`genY_shifts_velocity`). Both
+annihilate the field and the NS symbol and commute (abelian, hence first class);
+`u_{i,j}` is the *only* admissible coefficient of `y_j`
+(`genY_uField_perturbed_ne_zero`) — the sharp statement that
+`u_{i,j} = ∂u_i/∂y_j`. In the initial state `y` evaluates to `0`, so the field
+collapses to its point value `u_i` and the Hamiltonian built from `u_i(y)` acts
+as the ordinary Navier–Stokes one (`setYZero_uField`, `setYZero_nsSymbol`,
+`hamiltonianOp_apply_of_y_zero`).
+
 ### Part B — The volume-preservation constraint (Lagrangian change of variables)
 
 This part records the **Lagrangian (parcel) form** of the incompressibility
@@ -455,9 +479,14 @@ fields commuting with each other.
   (A.5): given any two divergence-independent modes, the third is fixed, so the
   constrained space is parameterized without any gauge generator.
 
-**E.3** (optional) `nsBrst_hermitian : Ωᴴ = Ω` — the BRST charge is Hermitian
-(same proof shape as `brst_charge_nilpotent`'s surroundings), tying E.1 to the
-physical "project on ker Ω" construction of `fock_sirk`'s `brst.rs`.
+**E.3** **SUPERSEDED by the executed wave (2026-08-16).** The plan's optional
+`nsBrst_hermitian : Ωᴴ = Ω` is **false** whenever the divergence field is
+non-zero: the wave proved `nsBrst_not_hermitian` (`ChapterNavierStokesEulerian.lean`)
+together with the honest Hermitian packaging
+`nsBrst_symmetrization_hermitian` (`Ω + Ω†` is Hermitian). The physical "project
+on ker Ω" construction of `fock_sirk`'s `brst.rs` is tied to E.1's nilpotency,
+not to hermiticity of `Ω` — `nsBrst_adjoint` (in `ChapterNavierStokesFlow.lean`)
+gives the correct adjoint statement.
 
 **E.4** *Honesty flag.* The module must state that E.1–E.3 formalize the
 *packaging* role only: nilpotency of `Ω` and the `u_{3,3}` resolution, exactly
