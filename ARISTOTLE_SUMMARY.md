@@ -1,3 +1,39 @@
+# Summary of changes for run c517942d-f40b-4570-9abe-c6e7feb4979e
+I added the second coordinate `y` to the Navier–Stokes constraint formalization, in a new sorry-free, axiom-free module `BookProof/ChapterNavierStokesGaugeY.lean` (namespace `BookProof.NavierStokesGaugeY`), registered in `BookProof.lean`, cited from the book prose in `Book/FreeField.lean` and recorded in `BookProof/STATUS.md`.
+
+**Setting.** The canonical variables are now the space coordinate `x_j`, the second coordinate `y_j`, the velocity modes `u_i`, the derivative modes `u_{i,j}` and the second-derivative modes `u_{i,jj}` (`NSVar`), realized as the generators of the polynomial algebra `NSAlg`, with the conjugate momenta acting as partial derivatives (the same realization as the existing Navier–Stokes modules).
+
+**The field in the Hamiltonian.** `uField i = u_i + ∑_j u_{i,j} y_j`, i.e. `u_i(y)`, with `uField_pderiv_y`: `u_{i,j} = ∂u_i(y)/∂y_j`.
+
+**The two gauge generators.**
+* `genX j = ∂/∂x_j` — the standard momentum; `genX_ccr_x` is its canonical commutation relation `[π^j, x_k·] = δ^j_k`.
+* `genY j = ∂/∂y_j − u_{i,j} ∂/∂u_i` — the generator involving the derivatives of `u_i`; `genY_ccr_y` shows it is the momentum conjugate to `y`, and `genY_shifts_velocity` (`[G_j, u_i·] = −u_{i,j}`) shows the accompanying shift of each velocity mode by its own first derivative. Both obey the Leibniz rule (`genY_leibniz`, `genX_leibniz`).
+
+**Proved results.** Both generators annihilate the field (`genY_uField`, `genX_uField`) and the Hamiltonian symbol `A_i = u_j(y) u_{i,j} − ν u_{i,jj}` (`genY_nsSymbol`, `genX_nsSymbol`); the gauge algebra is abelian, hence first class (`genX_genX_commute`, `genX_genY_commute`, `genY_genY_commute`); and `u_{i,j}` is the only admissible coefficient of `y_j` — perturbing it by a non-zero constant destroys the invariance (`genY_uField_perturbed_ne_zero`).
+
+**`y = 0` in the initial state.** Algebraically, evaluating `y := 0` (`setYZero`) collapses the field to its point value (`setYZero_uField`: `u_i(0) = u_i`) and the symbol to the ordinary Navier–Stokes one (`setYZero_nsSymbol`). In operator form, on a state annihilated by the second-coordinate operators the field acts as `u_i` (`uFieldOp_apply_of_y_zero`) and the full Hamiltonian `∑_i (π^i A_i + A_i π^i)` built from `u_i(Y)` acts exactly as the one built from the point values (`hamiltonianOp_apply_of_y_zero`, under the assumption that the modes and momenta commute with the second-coordinate operators, so the `y = 0` subspace is invariant).
+
+**Verification.** `lake build BookProof` and `lake build Book` both complete successfully; the new file contains no `sorry`, and spot checks of the headline theorems report only the standard axioms (`propext`, `Classical.choice`, `Quot.sound`). Everything is committed and pushed. As before, nothing here claims anything about the continuum Navier–Stokes problem; these are the algebraic identities of the constrained finite construction.
+
+# Summary of changes for run d3e09870-489a-462f-914c-909606f0ccb2
+I executed `PLAN_LEAN_SPECIALIST_NS_FLOW.md`.
+
+**Where the plan already stood.** Auditing the project against the plan's "definition of done", every headline item of Parts A.1–A.4, B, C, D, E.1–E.2, F and G was already present and building in `BookProof/ChapterNavierStokesFlow.lean` (and the companion Navier–Stokes modules): the field-with-derivatives construction, the CCR family, the Lagrangian change of variables and volume preservation, the truncated Hermitian Hamiltonian, the complete unitary flow with no blow-up, the BRST nilpotency and divergence resolution, and the Faris–Lavine framing. The two gaps were **Part A.5** (the Eulerian constraints) and the optional **E.3** (hermiticity of the BRST charge).
+
+**What I added** — a new module `BookProof/ChapterNavierStokesEulerian.lean` (registered in `BookProof.lean`, cited from the book prose in `Book/FreeField.lean`, recorded in `BookProof/STATUS.md`), containing:
+
+* `dirDeriv` with `dirDeriv_eq`, `dirDeriv_coord`, `dirDeriv_dirDeriv` — partial derivatives of a field on ℝ³ in directional form, identified with the Fréchet derivative along the coordinate directions;
+* `u_evaluates_to_value` — the Eulerian velocity field `u_i(X) = u_i + u_{i,j}(X_j − x_j)` collapses to its point value on position eigenstates;
+* `eulerian_momentum_constraint` and `eulerian_momentum_dual` — the zeroth-order CCR `[u_j, π^k] = i δ^k_j` and the Kronecker pairing `π^{ij}(u_{k,l})` that makes each derivative mode an independent canonical variable;
+* `derivativeField_relates_to_field` (`u_{i,j} = ∂_j u_i`), `derivativeField_second` (`u_{i,jk} = ∂_k u_{i,j}`), `derivativeField_consistency` (Clairaut: mixed partials commute) — the gauge-generator constraints;
+* `eulerian_divergence_constraint` — incompressibility `∂_j u_j = 0` from the explicit substitution `u_{3,3} = −(u_{1,1}+u_{2,2})`, plus `cyclicShear_divergence_free` showing the constrained space is non-empty (the non-constant field `u_i(x) = x_{i+1}`).
+
+**On the optional item E.3.** The statement "the BRST charge is Hermitian" is false: I proved its negation, `nsBrst_not_hermitian` (whenever the divergence field is non-zero, `Ωᴴ ≠ Ω`, consistent with the already-proved `nsBrst_adjoint`), together with the Hermitian packaging `nsBrst_symmetrization_hermitian` for `Ω + Ω†`.
+
+**Scope kept as the plan requires.** Nothing here claims essential self-adjointness of the continuum Navier–Stokes operator or global existence/uniqueness for Navier–Stokes; the module docstring records that boundary and the gauge-generator vs. explicit-solution taxonomy.
+
+**Verification.** `lake build` (default targets `BookProof`, `Book`, `Singularity`) completes with no errors and no warnings; the Verso book also builds and renders through its patch/render/post-process pipeline (I additionally fixed the one pre-existing markup warning in `Book/YangMillsQuantization.lean`). The new module contains no `sorry`/`admit` and no `axiom`; `#print axioms` on every new theorem shows only `propext`, `Classical.choice`, `Quot.sound`. Generated book HTML under `_out/` is now git-ignored. All results are recorded in the Properties table, and all work is committed and pushed.
+
 # Summary of changes for run 5f49886b-b1fd-46dd-b31c-516244f2e747
 Both Faris–Lavine inequalities are now proved in Lean for the Navier–Stokes Hamiltonian itself — at the one-particle level and, generalized, on Fock space — with no `sorry` and using only the standard axioms (`propext`, `Classical.choice`, `Quot.sound`).
 

@@ -104,6 +104,8 @@ import BookProof.ChapterNavierStokesHermiteCanonical
 import BookProof.ChapterNavierStokesShiftHamiltonian
 import BookProof.ChapterNavierStokesFockManyMode
 import BookProof.ChapterNavierStokesFockCanonical
+import BookProof.ChapterNavierStokesEulerian
+import BookProof.ChapterNavierStokesGaugeY
 import BookProof.ChapterSpinStatistics
 import BookProof.ChapterMajoranaFourier
 import BookProof.ChapterMajoranaProp61

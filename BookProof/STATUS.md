@@ -7,7 +7,73 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-## Latest wave (2026-08-15h, **the Faris–Lavine commutator criterion, proved**)
+## Latest wave (2026-08-16, **the second coordinate `y` and the two gauge generators**)
+
+`BookProof/ChapterNavierStokesGaugeY.lean` (namespace
+`BookProof.NavierStokesGaugeY`, registered in `BookProof.lean`, cited from
+`Book/FreeField.lean`) states the Eulerian constraint with a **second
+coordinate** `y` adjoined to the space coordinate `x`.
+
+* `NSVar`, `NSAlg` — the canonical variables `x_j`, `y_j`, `u_i`, `u_{i,j}`,
+  `u_{i,jj}`, realized as the generators of a polynomial algebra whose conjugate
+  momenta are the partial derivatives `pderiv`.
+* `uField` — the field appearing in the Hamiltonian, `u_i(y) = u_i + u_{i,j} y_j`,
+  with `uField_pderiv_y` (`u_{i,j} = ∂u_i(y)/∂y_j`).
+* `genX` — the gauge generator for `x`: the standard momentum `π^j = ∂/∂x_j`
+  (`genX_ccr_x`).
+* `genY` — the gauge generator for `y`, the one involving the derivatives of
+  `u_i`: `G_j = ∂/∂y_j − u_{i,j} ∂/∂u_i`, with `genY_ccr_y`,
+  `genY_shifts_velocity` and the Leibniz rule `genY_leibniz`.
+* `genY_uField`, `genX_uField` — both generators annihilate the field;
+  `genY_uField_perturbed_ne_zero` — `u_{i,j}` is the only admissible
+  coefficient of `y_j`.
+* `genX_genX_commute`, `genX_genY_commute`, `genY_genY_commute` — the gauge
+  algebra is abelian, hence first class.
+* `nsSymbol`, `genY_nsSymbol`, `genX_nsSymbol` — the Navier–Stokes symbol
+  `A_i = u_j(y) u_{i,j} − ν u_{i,jj}` is gauge invariant.
+* `setYZero`, `setYZero_uField`, `setYZero_nsSymbol` — in the initial state `y`
+  evaluates to `0`: the field collapses to `u_i` and the symbol to the ordinary
+  Navier–Stokes one.
+* `uFieldOp`, `uFieldOp_apply_of_y_zero`, `hamiltonianOp`,
+  `hamiltonianOp_apply_of_y_zero` — the operator form: on a state annihilated by
+  the second-coordinate operators, the Hamiltonian built from `u_i(Y)` acts as
+  the Hamiltonian built from the point values.
+
+## Previous wave (2026-08-16, **the Eulerian constraints of the derivatives-as-fields construction**)
+
+`BookProof/ChapterNavierStokesEulerian.lean` (namespace
+`BookProof.NavierStokesEulerian`, registered in `BookProof.lean`, cited from
+`Book/FreeField.lean`) completes Part A.5 of `PLAN_LEAN_SPECIALIST_NS_FLOW.md`:
+the **Eulerian** counterpart of the Lagrangian constraints already in
+`ChapterNavierStokesFlow.lean`.
+
+* `dirDeriv`, `dirDeriv_eq`, `dirDeriv_coord`, `dirDeriv_dirDeriv` — partial
+  derivatives of a field on `ℝ³` in directional form, identified with the
+  Fréchet derivative in the coordinate directions.
+* `u_evaluates_to_value` — the Eulerian velocity field
+  `u_i(X) = u_i + u_{i,j}(X_j − x_j)` collapses to its point value on the
+  position eigenstates (the Eulerian instance of `field_evaluates_to_value`).
+* `eulerian_momentum_constraint`, `eulerian_momentum_dual` — the zeroth-order
+  CCR `[u_j, π^k] = i δ^k_j` and the Kronecker pairing `π^{ij}(u_{k,l})` making
+  each derivative mode an independent canonical variable (`book.tex` ~4163–4170).
+* `derivativeField_relates_to_field` (`u_{i,j} = ∂_j u_i`),
+  `derivativeField_second` (`u_{i,jk} = ∂_k u_{i,j}`) and
+  `derivativeField_consistency` (Clairaut: mixed partials commute) — the
+  gauge-generator constraints, i.e. the ones with no explicit solution.
+* `eulerian_divergence_constraint` — incompressibility `∂_j u_j = 0` from the
+  book's explicit substitution `u_{3,3} = −(u_{1,1}+u_{2,2})` (`book.tex`
+  ~4194–4197), with `cyclicShear_divergence_free` showing the constrained space
+  is non-empty (the non-constant field `u_i(x) = x_{i+1}`).
+* `nsBrst_not_hermitian` — the optional item E.3 of the plan (`Ωᴴ = Ω`) is
+  **false** whenever the divergence field is non-zero; the honest statements are
+  `nsBrst_adjoint` (already in `ChapterNavierStokesFlow.lean`) and the Hermitian
+  packaging `nsBrst_symmetrization_hermitian`.
+
+Nothing here claims anything about the continuum Navier–Stokes problem.  All
+results are `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`).
+
+## Earlier wave (2026-08-15h, **the Faris–Lavine commutator criterion, proved**)
 
 `BookProof/ChapterFarisLavine.lean` (namespace `BookProof.FarisLavine`,
 registered in `BookProof.lean`) **proves** the abstract theorem of W. G. Faris

@@ -247,9 +247,37 @@ the day-to-day tool. Verify candidate Mathlib names with
   (`ritz_mem_numRange(_compress)`), and the *unconditional* best-approximation
   antitone/tend-to-zero (`krylov_bestApprox_antitone`,
   `krylov_bestApprox_tendsto_zero`, no Crouzeix constant). Honest boundaries kept:
-  Crouzeix's inequality stays a named hypothesis; no rate; no Toeplitz–Hausdorff
-  convexity; `W(Bₙ)` grows with the order so band decay comes from approximation
-  quality.
+Crouzeix's inequality stays a named hypothesis; no rate; no Toeplitz–Hausdorff
+   convexity; `W(Bₙ)` grows with the order so band decay comes from approximation
+   quality.
+- **Eulerian constraints + gauge generators landed (2026-08-16,
+  `PLAN_LEAN_SPECIALIST_NS_FLOW.md` Part A.5 + Part E.3).** Two new modules,
+  `ChapterNavierStokesEulerian.lean` and `ChapterNavierStokesGaugeY.lean`
+  (registered in `BookProof.lean`, cited from `Book/FreeField.lean`), both
+  `sorry`-free / `axiom`-free, completing the Eulerian side of the
+  derivatives-as-fields construction:
+  - `ChapterNavierStokesEulerian` — the Eulerian counterpart of the Lagrangian
+    constraints: the Eulerian field collapse `u_evaluates_to_value`
+    (`u_i(X) = u_i + u_{i,j}(X_j − x_j)` → `u_i` on position eigenstates), the
+    full momentum CCR family `eulerian_momentum_constraint` (`[u_j, π^k] =
+    iδ^k_j` plus the derivative-mode CCRs) and `eulerian_momentum_dual`, the
+    gauge-generator derivative relations `derivativeField_relates_to_field`
+    (`u_{i,j} = ∂_j u_i`), `derivativeField_second`, `derivativeField_consistency`
+    (Clairaut), the initial-condition-imposed `eulerian_divergence_constraint`
+    (`u_{3,3}` substitution) with non-empty witness
+    `cyclicShear_divergence_free` — and the correction to optional E.3:
+    `nsBrst_not_hermitian` (the BRST charge is **not** Hermitian when the
+    divergence is non-zero; the honest Hermitian statement is the symmetrized
+    packaging `nsBrst_symmetrization_hermitian`).
+  - `ChapterNavierStokesGaugeY` — the second-coordinate refinement: the field in
+    the Hamiltonian is `u_i(y) = u_i + u_{i,j}y_j` (`uField`), with two gauge
+    generators — `genX = ∂/∂x_j` (the standard momentum) and
+    `genY = ∂/∂y_j − u_{i,j}∂/∂u_i` (the generator built from the derivatives of
+    `u_i`). Both annihilate the field and the NS symbol, commute (abelian, hence
+    first class), the coefficient `u_{i,j}` is the *only* admissible one
+    (`genY_uField_perturbed_ne_zero`), and at the initial state `y = 0` the field
+    collapses to `u_i` and the Hamiltonian acts as the ordinary NS one
+    (`setYZero_uField`, `hamiltonianOp_apply_of_y_zero`).
 
 ---
 
@@ -495,28 +523,34 @@ closures are already recorded in `BookProof/STATUS.md` (waves 2026-08-10 and
 
 ## 9. Suggested attack order for the next agent
 
-**Update (2026-08-15): every plan item is closed, and the Navier–Stokes thread has
-landed.** D1/D2 prose cleanups are done, **GAP-1 is closed** (2026-08-10,
-`ChapterCoherentThermalFidelity`), **GAP-2 is closed** (2026-08-12), §4 is fully
-landed including §4.7/§4.8/§4.9, and the `Book/Trivial.lean` decision (§7) is
-settled as *keep*. On top of that, the 2026-08-14→15 wave proved the whole
-Navier–Stokes thread (`PLAN_LEAN_SPECIALIST_NS_FLOW.md`, 27 modules): the
-truncation has a complete flow and unique global Cauchy solution, the
-Faris–Lavine commutator criterion is **proved** (Theorem 1 + Corollary 1.1,
-`ChapterFarisLavine`), the two Faris–Lavine inequalities are **proved** for the
-Navier–Stokes Hamiltonian itself (Hermite/Fock/shift realizations) with a
-genuinely non-vanishing commutator, and the SIRK nesting plan
-(`PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`) plus its spectral side (`ChapterH9`) are
-proved. No `BookProof/` module is left unproved and no module remains to be
-`#check`-ed from `Book/`.
+**Update (2026-08-16): every plan item is closed, and the Navier–Stokes thread has
+landed including its Eulerian side.** D1/D2 prose cleanups are done, **GAP-1 is
+closed** (2026-08-10, `ChapterCoherentThermalFidelity`), **GAP-2 is closed**
+(2026-08-12), §4 is fully landed including §4.7/§4.8/§4.9, and the
+`Book/Trivial.lean` decision (§7) is settled as *keep*. On top of that, the
+2026-08-14→16 waves proved the whole Navier–Stokes thread
+(`PLAN_LEAN_SPECIALIST_NS_FLOW.md`, 29 modules): the truncation has a complete
+flow and unique global Cauchy solution, the Faris–Lavine commutator criterion is
+**proved** (Theorem 1 + Corollary 1.1, `ChapterFarisLavine`), the two
+Faris–Lavine inequalities are **proved** for the Navier–Stokes Hamiltonian itself
+(Hermite/Fock/shift realizations) with a genuinely non-vanishing commutator, the
+SIRK nesting plan (`PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`) plus its spectral side
+(`ChapterH9`) are proved, and the **Eulerian side** is now complete:
+`ChapterNavierStokesEulerian` (Part A.5: the Eulerian field collapse, the
+momentum CCR family, the gauge-generator derivative relations, the
+initial-condition divergence constraint, and the E.3 correction — the BRST charge
+is not Hermitian, `nsBrst_not_hermitian`) and `ChapterNavierStokesGaugeY` (the
+second-coordinate refinement with the two gauge generators `genX`, `genY`).
+No `BookProof/` module is left unproved and no module remains to be `#check`-ed
+from `Book/`.
 
 For a future pass, the remaining work is maintenance rather than mathematics:
 
 1. Re-run the **§8 verification gate** (`lake build`, `lake build RandomMap`,
    `./patches/build-book.sh`, the sorry/axiom audit and the isolation audit) after
-   any change. **Note (2026-08-15): the new wave has NOT yet been compiled in this
-   repo** — the files were integrated by the Aristotle specialist and copied in;
-   the first order of business is to run the gate on them.
+   any change. **Note (2026-08-16): the latest wave has NOT yet been compiled in
+   this repo** — the files were integrated by the Aristotle specialist and copied
+   in; the first order of business is to run the gate on them.
 2. Keep `Issues.md` §0b in sync when the chapter set changes.
 3. The infinite-dimensional analytic layer (§4.8's boundary) is largely closed: as of 2026-08-13 the bounded case is formalized on `ℓ²(ℤ)`
    (`ChapterContinuityUnitaryInfinite`), the Born law is a probability measure on an
@@ -535,3 +569,9 @@ For a future pass, the remaining work is maintenance rather than mathematics:
    criterion and **proved** inequalities for the Hamiltonian on the finite-mode
    core; what remains hypothetical is exactly the two inequalities for a continuum
    generator. Global existence/uniqueness for Navier–Stokes is not claimed anywhere.
+5. Pedagogical polish (small, editorial): the Eulerian/GaugeY prose in
+   `Book/FreeField.lean` is in place; a future pass can fold the *second
+   coordinate* `y` into the `PLAN_LEAN_SPECIALIST_NS_FLOW.md` Part A.5/A.6 prose as
+   a named plan item (`genY` as the gauge generator built from the derivatives of
+   `u_i`, and the `y = 0` collapse as the initial-condition statement), so the plan
+   and the proof modules stay in one-to-one correspondence.

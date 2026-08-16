@@ -522,6 +522,72 @@ with commutation relations of their own.
 ```
 
 :::paragraph
+The Eulerian side of that construction carries its own constraints, and the
+manuscript's own taxonomy splits them in two. The relations that *define* the
+derivative modes — $`u_{i,j} = \partial_j u_i` and $`u_{i,jk} = \partial_k
+u_{i,j}` — have no explicit solution, so they are the ones a gauge generator has
+to impose; their consequence is Clairaut's condition $`u_{i,jk} = u_{i,kj}`,
+which makes the second-derivative modes symmetric. The momenta conjugate to the
+derivative modes pair with them by a Kronecker delta, which is what makes each
+derivative an independent canonical variable. Incompressibility
+$`\partial_j u_j = 0`, by contrast, *does* have an explicit solution — the
+substitution $`u_{3,3} = -(u_{1,1}+u_{2,2})` — so it is imposed by initial data
+rather than by a gauge symmetry, and it is satisfied by genuinely non-constant
+fields such as the cyclic shear $`u_i(x) = x_{i+1}`.
+:::
+
+```
+#check @BookProof.NavierStokesEulerian.u_evaluates_to_value
+#check @BookProof.NavierStokesEulerian.eulerian_momentum_constraint
+#check @BookProof.NavierStokesEulerian.eulerian_momentum_dual
+#check @BookProof.NavierStokesEulerian.derivativeField_relates_to_field
+#check @BookProof.NavierStokesEulerian.derivativeField_second
+#check @BookProof.NavierStokesEulerian.derivativeField_consistency
+#check @BookProof.NavierStokesEulerian.eulerian_divergence_constraint
+#check @BookProof.NavierStokesEulerian.cyclicShear_divergence_free
+```
+
+:::paragraph
+The constraint is stated properly only once a *second coordinate* $`y` is
+adjoined to the space coordinate $`x`: the field that enters the Hamiltonian is
+the expansion $`u_i(y) = u_i + u_{i,j} y_j` in that second coordinate. Each
+coordinate then comes with a gauge generator. For $`x` it is the standard
+momentum $`\pi^j = \partial/\partial x_j`; for $`y` it is the generator built
+from the *derivatives of* $`u_i`,
+$`G_j = \partial/\partial y_j - u_{i,j}\,\partial/\partial u_i`, which translates
+the second coordinate while shifting each velocity mode by its own first
+derivative. Both generators annihilate $`u_i(y)` and the Hamiltonian symbol
+$`A_i = u_j(y) u_{i,j} - \nu u_{i,jj}`, and they commute among themselves, so the
+constraints are first class; and the coefficient $`u_{i,j}` is the only one for
+which the invariance holds, which is exactly the content of
+$`u_{i,j} = \partial u_i/\partial y_j`. In the initial state the second
+coordinate evaluates to $`y = 0`, so the field collapses to its point value
+$`u_i` there and the Hamiltonian acts as the ordinary Navier–Stokes one: the
+second coordinate carries the constraint without changing the dynamics of the
+initial data.
+:::
+
+```
+#check @BookProof.NavierStokesGaugeY.uField
+#check @BookProof.NavierStokesGaugeY.genX
+#check @BookProof.NavierStokesGaugeY.genY
+#check @BookProof.NavierStokesGaugeY.uField_pderiv_y
+#check @BookProof.NavierStokesGaugeY.genX_ccr_x
+#check @BookProof.NavierStokesGaugeY.genY_ccr_y
+#check @BookProof.NavierStokesGaugeY.genY_shifts_velocity
+#check @BookProof.NavierStokesGaugeY.genY_uField
+#check @BookProof.NavierStokesGaugeY.genX_uField
+#check @BookProof.NavierStokesGaugeY.genY_uField_perturbed_ne_zero
+#check @BookProof.NavierStokesGaugeY.genY_genY_commute
+#check @BookProof.NavierStokesGaugeY.genX_genY_commute
+#check @BookProof.NavierStokesGaugeY.genY_nsSymbol
+#check @BookProof.NavierStokesGaugeY.setYZero_uField
+#check @BookProof.NavierStokesGaugeY.setYZero_nsSymbol
+#check @BookProof.NavierStokesGaugeY.uFieldOp_apply_of_y_zero
+#check @BookProof.NavierStokesGaugeY.hamiltonianOp_apply_of_y_zero
+```
+
+:::paragraph
 On a *finite truncation* — finitely many modes, each a Hermitian matrix, the
 field modes commuting as multiplication operators do — the whole claim is
 provable. The Hamiltonian is Hermitian (the anticommutator of two Hermitian
@@ -593,6 +659,8 @@ constraint.
 #check @BookProof.NavierStokesFlow.nsBrstCharge
 #check @BookProof.NavierStokesFlow.nsBrst_nilpotent
 #check @BookProof.NavierStokesFlow.nsBrst_adjoint
+#check @BookProof.NavierStokesEulerian.nsBrst_not_hermitian
+#check @BookProof.NavierStokesEulerian.nsBrst_symmetrization_hermitian
 #check @BookProof.NavierStokesFlow.lagrangian_velocity
 #check @BookProof.NavierStokesFlow.volume_preservation_constraint
 #check @BookProof.NavierStokesFlow.det_one_add_smul_hasDerivAt

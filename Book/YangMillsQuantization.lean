@@ -174,7 +174,7 @@ The algebraic core of the manuscript's quantization programme:
  * the positive-definite Weyl-gauge Hamiltonian.
 
 :::paragraph
-The manuscript's Navier–Stokes existence/uniqueness thesis is deliberately **not**
+The manuscript's Navier–Stokes existence/uniqueness thesis is deliberately *not*
 carried by any theorem in this book. What *is* formalized is the finite subset of
 the same programme that the free-field thread supports — the truncated
 Navier–Stokes Hamiltonian with a complete, norm-preserving flow and a unique
