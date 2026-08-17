@@ -715,7 +715,12 @@ H_transformed = ( 1/16 Δ_{S̃} − 1/24 ∂²/∂y² )  +  H_1  −  Ṽ(ẽ, �
 
 The principal part `H₀` is a flat second-order hyperbolic operator; `H_1` is
 first-order, and `Ṽ` a (polynomial) potential built from the densitized tetrads
-and their first derivatives.
+and their first derivatives. The densitized coordinates are special in that the
+field-space metric is *flat* there: the kinetic term has constant coefficients
+`(1/16, −1/24)`, so the Christoffel symbols and curvature vanish and the
+connection ("quantum potential") corrections that a generic point transformation
+would produce drop out — the unitary image is exactly `H₀ + H₁ − Ṽ` (see §10.3
+for the Jacobian half-density that makes the map unitary).
 
 ### 10.2 The ESA theorem: Strichartz
 
@@ -736,19 +741,29 @@ for the elliptic case.
   derivative; the operator-order decomposition of `H_transformed` (2nd + 1st +
   0th); and the positive/flat character of `H₀`. None of this requires the
   continuum analytic theorem.
-- **ESA in the transformed variables does NOT transfer to the original
-  variables.** This is the crucial scope point. The densitized-tetrad map
-  `y = √e`, `ẽ_i^a = √e·e_i^a` is a **nonlinear point transformation of the
-  field configuration space**, not a Hilbert-space unitary; it changes the
-  measure, the domain, and the operator itself. ESA is not invariant under such
-  a map, so `H_transformed` being essentially self-adjoint says **nothing** about
-  the raw `(1/16e)S² − (1/24e)P²` operator in the original tetrad variables.
-  (Contrast: the NS-flow *Lagrangian* change of variables was carried by
-  `hasZeroDeficiencyOn_of_linearIsometryEquiv` — a *unitary* map — so there ESA
-  genuinely transferred Eulerian ⟷ Lagrangian. No such transfer exists here.)
-  The honest statement is exactly what this record says: **ESA is claimed only
-  for the transformed-operator route**, as the manuscript's own
-  singular-to-flat change of variables is understood to be load-bearing.
+- **ESA in the transformed variables transfers to the original variables ONLY
+  when the transformation is made unitary — and it can be.** The crucial scope
+  point is that the raw point map `e ↦ (y, ẽ)` (a nonlinear diffeomorphism of
+  field space) is **not** by itself a Hilbert-space unitary: the pushforward
+  `(Uψ)(ẽ,y) = ψ(e(ẽ,y))` changes the norm because `Dẽ = J·De`. The standard
+  repair is the **Jacobian half-density (metaplectic / van Vleck) factor**:
+  `(Uψ)(ẽ,y) = |J|^{−1/2}·ψ(e(ẽ,y))`, `J = det ∂ẽ/∂e`, which makes `U` a genuine
+  unitary on `L²(Dẽ Dy)`. With that factor and the ordering chosen to respect it
+  (the naive `(1/16e)S² → (1/16)S̃²` holds only for the consistent ordering; a
+  generic point transformation conjugates a flat Laplacian into a Sturm–Liouville
+  operator with a "quantum potential" `Q[y] ~ (∇y/y)²`), the transformed
+  operator is exactly `H₀ + H₁ − Ṽ` with flat principal part. **Then ESA
+  transfers by unitary equivalence**, via the project's own
+  `hasZeroDeficiencyOn_of_linearIsometryEquiv` (`ChapterNavierStokesLagrangianEsa`):
+  vanishing adjoint deficiency is invariant under a unitary `W`, so ESA of the
+  flat `H₀`-dominated operator implies ESA of the physical Hamiltonian. (This is
+  the same mechanism as the NS Eulerian ⟷ Lagrangian transfer — that change was
+  *already* unitary; the densitized one becomes unitary exactly by including the
+  half-density.) Honest caveat: the *gauge/BRST sector* is not covered by this
+  argument alone — a full BRST-reduced transfer needs `U` to map the physical
+  (gauge-invariant) subspace to itself, which the `1/e`-absorption guarantees
+  for the kinetic/conformal part but must be checked for `H₁ − Ṽ` once the full
+  constraint structure is imposed.
 - **What is recorded, not claimed**: the **Strichartz ESA conclusion** for the
   continuum `L²(ℝ⁸⁴)` operator is a named analytic theorem (like Crouzeix in
   `ChapterH4`, or the Faris–Lavine inequalities for the NS continuum). The
