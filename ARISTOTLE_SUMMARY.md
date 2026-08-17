@@ -1,3 +1,144 @@
+# Summary of changes for run 6208feec-584f-4595-8060-715a0507973c
+I adapted the shift-invert theory in `BookProof.HashimotoShiftInvert` to the setting of the attached Hashimoto–Nodera paper: shifts that are **complex with non-zero imaginary part**, and a **different shift at every step** (the rational Krylov / SIRK construction). The new material is in `BookProof/ChapterHashimotoComplexShifts.lean` (same namespace), is `sorry`-free and axiom-free, and the whole project builds (8622 jobs, no errors); each headline result is certified in `BookProof/ChapterRoadmapAudit.lean` to depend only on `propext`, `Classical.choice`, `Quot.sound`. A claim-by-claim map from the paper to the Lean names is in `HASHIMOTO_COMPLEX_SHIFTS.md`.
+
+What is proved:
+
+1. **Non-real shift ⇒ invertibility, with no positivity.** `cshiftMap` is `γI − A`; `norm_cshiftMap_ge` gives `‖(γ − A)x‖ ≥ |Im γ|·‖x‖` for a merely *symmetric* `A`. So the imaginary part of the shift alone bounds the shifted operator below — positivity of the Hamiltonian, which the previous real-shift chapter needed, is no longer used anywhere. `cshiftRange_isClosed`, `cshiftRange_orthogonal_eq_bot` and `cshiftMap_surjective` then make `γI − A` a bijection of the domain onto the whole space for every self-adjoint `A`.
+
+2. **The resolvent `X = (γI − A)⁻¹`.** `IsShiftInvertC` / `exists_isShiftInvertC` produce it as a bounded everywhere-defined operator with `‖X‖ ≤ 1/|Im γ|` (`IsShiftInvertC.opNorm_le`). Its range is the domain of `A` and it determines `A` completely (`dom_eq_range`, `shiftInvertC_determines`, `isShiftInvertC_unique`). At a non-real shift `X` is no longer self-adjoint: `IsShiftInvertC.inner_adjoint` shows its adjoint is the resolvent at the conjugate shift. `isShiftInvertC_neg_of_isShiftInvert` shows the earlier real positive-shift notion is the special case `γ = −c`, so the previous results are subsumed rather than discarded (the old chapter is unchanged, with a pointer added to the new one).
+
+3. **Many different shifts.** `shiftInvertC_resolvent_identity` (`X_j − X_k = (γ_k − γ_j)X_jX_k`), `shiftInvertC_commute` (resolvents at different shifts commute — proved with no side hypotheses), and `shiftInvertC_comp_one_sub`, the SIRK relation `X_j(I − (γ_m − γ_j)X_m) = X_m` of Section 4. The rational Krylov sequence and subspaces `Q_m({X_j}, v)` of Eq. (8) are `rkVec` / `rkSpan`, and `sirkDen_rkVec` is Eq. (11) in cleared-denominator form: `∏_{i<k}(I − (γ_m − γ_i)X_m)` maps the k-th rational Krylov vector `X_{k−1}⋯X_0 v` to `X_m^k v`, i.e. the space built from many shifts is a space of rational functions of the single resolvent `X_m`. `rkCompression_tendsto` gives strong convergence of the compressions along a dense rational Krylov flag.
+
+4. **Headline.** `hashimoto_multishift_selects_friedrichs`: for any positive self-adjoint extension `A` of a symmetric matrix in a complete basis — no boundedness hypothesis anywhere — and any sequence of shifts off the real axis, the resolvents exist, are bounded by `1/|Im γ_j|`, share the domain of `A` as their range, satisfy the resolvent identity, commute, satisfy the SIRK and rational-function identities, have strongly convergent Galerkin truncations, and each determines `A`.
+
+5. **A genuinely unbounded example with non-real shifts.** Complex diagonal operators on `ℓ²(ℕ,ℂ)` are built (`diagCLMC`), and `ell2Resolvent_isShiftInvertC` identifies the resolvent of the number operator `A eₙ = n eₙ` at any non-real `γ` as the explicit diagonal `eₙ ↦ eₙ/(γ − n)`. `hashimoto_multishift_unbounded_example` establishes every clause of the headline for that operator with an arbitrary sequence of non-real shifts, together with the fact that the matrix the algorithm is fed satisfies no bound `‖Hx‖ ≤ C‖x‖`.
+
+Scope: the operator-theoretic content is proved in full generality; the paper's approximation *rates* (Theorems 3.2, 3.3, 4.1, the φ-functions and the Crouzeix constant) are rational-approximation estimates and are not formalized here — this is stated in the module docstring and in `HASHIMOTO_COMPLEX_SHIFTS.md`. All work is committed and pushed, and the Properties table lists the new deliverables as proved.
+
+# Summary of changes for run db4f3f30-0651-499e-b291-7c1a5a2f21f9
+The convergence-to-Friedrichs theory now covers **unbounded** Hamiltonians, exactly via the shift-invert trick, in the new chapter `BookProof/ChapterHashimotoShiftInvert.lean` (namespace `BookProof.HashimotoShiftInvert`). It builds cleanly with no `sorry` and no extra axioms (each headline result is audited in `BookProof/ChapterRoadmapAudit.lean` and reports only `propext, Classical.choice, Quot.sound`); the new chapter is imported from `BookProof.lean`.
+
+What is proved:
+
+1. **Why the effective Hamiltonian is bounded.** `norm_shiftMap_ge`: for a positive Hamiltonian `H`, `‖(H + γ)x‖ ≥ γ‖x‖`. The shifted operator is bounded *below*, however unbounded `H` is, so what the algorithm iterates — `R = (H + γ)⁻¹` — is bounded *above*: `IsShiftInvert.opNorm_le` gives `‖R‖ ≤ 1/γ`.
+
+2. **`R` always exists, with no extra hypothesis.** `shiftMap_injective` and `shiftMap_surjective` show `H + γ` is a bijection for every positive self-adjoint `H` (the range is closed and has trivial orthogonal complement), and `exists_isShiftInvert` produces the bounded everywhere-defined `R`. `R` is also self-adjoint and positive.
+
+3. **Nothing is lost.** `shiftInvert_determines` / `isShiftInvert_unique`: the bounded `R` pins down both the domain and the action of the unbounded operator it came from. Conversely, `invShiftOperator R γ = R⁻¹ − γ` on `range R` reconstructs the operator, and `invShiftOperator_isPositiveSelfAdjointExtension` shows it is a positive self-adjoint (Friedrichs) extension of its restriction — so the bounded object the algorithm converges to corresponds to the correct unbounded Hamiltonian.
+
+4. **The headline theorem.** `hashimoto_shiftInvert_selects_friedrichs`: given *any* positive self-adjoint extension `A` of a finite-mode Hamiltonian matrix — with **no boundedness hypothesis anywhere** — there is `R` with `IsShiftInvert A γ R`, `‖R‖ ≤ 1/γ`, `R` self-adjoint and positive, the Galerkin/Hashimoto truncations of `R` converging strongly to `R`, their resolvents converging to the resolvent of `R`, and `R` determining `A` uniquely. This is the earlier bounded-case result freed of its boundedness assumption.
+
+5. **A genuinely unbounded example, so nothing is vacuous.** In `ℓ²(ℕ, ℂ)` the number operator `A eₙ = n eₙ` on `{x : ∑ (n+1)²|xₙ|² < ∞}` is built (`ell2UnboundedExample`); its shift-invert at `γ = 1` is the bounded diagonal `eₙ ↦ eₙ/(n+1)` with norm `≤ 1`. `ell2ExampleMatrix_unbounded` proves the matrix handed to the algorithm is unbounded (no constant `C` bounds it), and `hashimoto_shiftInvert_unbounded_example` establishes all conclusions of the headline theorem for it.
+
+The Properties table has been updated with these deliverables; all listed properties are marked proved.
+
+# Summary of changes for run 3c4e7fec-c8cf-4e07-b8d3-d68bd7700ff9
+I formalized the argument you gave — that a Galerkin/Rayleigh–Ritz (Hashimoto/Krylov) truncation in a complete Hermite-type basis needs no boundary condition, because the truncation is a minimization of the energy form and its limit is the extension the energy form determines — in a new Lean module `BookProof/ChapterHermiteGalerkinFriedrichs.lean` (namespace `BookProof.HermiteGalerkin`). It is `sorry`-free, adds no axioms (every result depends only on `propext`, `Classical.choice`, `Quot.sound`, certified by new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`), and the full project build plus the book render and KaTeX checks pass.
+
+What is proved, following your three steps:
+
+1. The Rayleigh–Ritz connection, with **no boundedness hypothesis**: `galerkinSpan`/`galerkinCompression` (the subspace and the matrix `PₘAPₘ`), `inner_galerkinCompression` — on the truncation subspace the compressed matrix carries *exactly* the energy form `⟨ψ,Hψ⟩`; `ritzSet`/`ritzInf` with `ritzInf_antitone` (enlarging the subspace lowers the minimum) and `ritzInf_tendsto_domainInf` (the Ritz values converge to the infimum of the energy form over the whole domain). `ritzInf_extension_le` adds that this limit dominates the ground-state energy of *every* positive self-adjoint extension — the extension attaining it being the one whose form is the closure of the form of `H`.
+
+2. Completeness of the basis: `galerkinProj_tendsto` (`Pₘ → I` strongly), `exists_mem_galerkinSpan` (every finite-mode vector already lies in a finite truncation subspace, so the flag exhausts the domain where the matrix elements live), `finiteModeDomain_dense`, and the general `starProjection_tendsto_of_monotone_dense`.
+
+3. The limit: `galerkinCompression_tendsto` (`PₘAPₘ → A` strongly), the resolvent bound `‖(A−z)⁻¹‖ ≤ 1/|Im z|` (`norm_sub_smul_ge`, `isUnit_algebraMap_sub`, `norm_resolvent_apply_le`), **strong resolvent convergence** `resolvent_tendsto_of_strong_tendsto` / `galerkinResolvent_tendsto` — `(PₘAPₘ − z)⁻¹ → (A − z)⁻¹` strongly at every non-real `z` — and `positive_selfadjoint_extension_unique` (via Hellinger–Toeplitz plus density: nothing is left for the algorithm to choose). These combine in the headline `hermiteGalerkin_selects_friedrichs`.
+
+Non-vacuity is checked: `finiteModeRestrict_hypotheses` and `finiteModeRestrict_selects_operator` show the hypotheses hold for the matrix elements of any bounded positive self-adjoint operator and that the algorithm recovers exactly that operator, while `finiteModeDomain_ne_top` shows the finite-mode domain is a genuinely *proper* dense subspace of `ℓ²(ℕ,ℂ)`, so this is not the degenerate everywhere-defined case.
+
+Scope, stated in the module docstring and in the new `HERMITE_GALERKIN_FRIEDRICHS.md` (a claim-by-claim map from your text to the Lean names): step 3 carries an explicit boundedness hypothesis on the operator on its domain, exactly as the project's earlier bounded-regime results do; for a genuinely unbounded, non-essentially-self-adjoint Hamiltonian the identification of the Galerkin limit with the Friedrichs extension is **not** proved here (only steps 1 and 2 are unconditional), and nothing about the indeterminate Stieltjes moment problem, Padé approximants or Nevanlinna-extremal measures is formalized. The Hermite basis enters only through orthonormality and completeness, so the theorems are stated for an arbitrary Hilbert basis indexed by ℕ, with `ell2Basis` as the concrete model.
+
+The module is imported from `BookProof.lean`, cited from the Verso chapter `Book/YangMillsQuantization.lean`, and recorded in `BookProof/STATUS.md`. All work is committed and pushed.
+
+# Summary of changes for run 15aab37f-d2ed-4545-a446-72f66dc8bf05
+Executed `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` (Quantum Yang–Mills, the Friedrichs route) and updated `ARISTOTLE_SUMMARY.md`.
+
+**Re-verification of the existing plan.** Every name listed in the plan's four tables exists in `BookProof/ChapterYangMillsFriedrichs.lean` (with the two cross-references in `BookProof/ChapterWeylHamiltonian.lean` and `BookProof/ChapterH9.lean`); the module rebuilds, contains no `sorry`/`admit`, and its twelve axiom certifications in `BookProof/ChapterRoadmapAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound`. So Parts A (the Weyl-gauge Hamiltonian `H = ½Σπᵢ² + ½ΣBₐ²` on an invariant domain: symmetric, sum-of-squares quadratic form, semi-bounded), B (the form inner product, its Cauchy–Schwarz inequality, closability of the form), C (the Friedrichs theorem as a named hypothesis, satisfiable, applied) and the proved half of D stand as claimed.
+
+**New work — the two places the plan stopped, both now closed under an explicit boundedness hypothesis.** A new module `BookProof/ChapterYangMillsFriedrichsLimit.lean` (`sorry`-free, no new axioms) adds:
+
+*Part C, extension constructed rather than assumed:*
+- `friedrichs_of_bounded` — a densely defined symmetric positive operator whose norm is bounded on its domain has an explicitly constructed positive self-adjoint extension (its continuous extension to the whole space), with all four clauses of `IsPositiveSelfAdjointExtension` proved. On this class the Friedrichs hypothesis that Part C had to name is discharged.
+- `symmetricOn_top_of_dense`, `quadForm_top_nonneg_of_dense` — the density arguments behind it.
+- `friedrichs_bounded_proper_domain_example` — the class is not the degenerate "domain = whole space" one: in ℓ²(ℕ,ℂ) the span of the canonical orthonormal basis is dense and proper (via `not_mem_span_of_repr_ne_zero` and the harmonic ℓ² vector), and the construction applies there.
+
+*Part D.4, previously recorded as a prose conjecture because the Krylov limit operator was not constructed:*
+- `sirkCompression`, `krylov_starProjection_tendsto`, `sirk_compression_tendsto` — for a bounded operator with a cyclic seed the Hashimoto/SIRK compressions `Pₙ A Pₙ` converge to `A` in the strong operator topology;
+- `sirk_limit_unique` — no other bounded operator agrees with the limit on the Krylov flag;
+- `sirk_limit_eq_positive_selfadjoint_extension` and `weyl_friedrichs_bounded` — the combination: in the bounded regime the infinite Hashimoto limit is exactly the constructed positive self-adjoint extension, stated in general and for the Weyl-gauge Yang–Mills Hamiltonian.
+
+**Wiring and verification.** The module is imported from `BookProof.lean`, certified by eleven new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the standard three axioms), and cited from the Verso chapter `Book/YangMillsQuantization.lean`. The plan file gains rows C.5–C.7 and D.5–D.8 with a dated status note (its D.4 row now reads "conjecture in general, proved in the bounded regime"), and `ARISTOTLE_SUMMARY.md` has a new section at the top. The full default build completes successfully (8619 jobs, 0 errors); a search finds no `sorry`/`admit` in the Yang–Mills modules. All work is committed and pushed.
+
+**Scope.** Nothing here claims self-adjointness of the unbounded continuum Yang–Mills operator, a mass gap, or global existence; the Millennium problem stays out of scope. Every new result carries an explicit boundedness hypothesis — that is exactly what makes the extension constructible and the Krylov limit an operator limit — and for unbounded operators the Friedrichs theorem remains a named hypothesis, never an axiom, with D.4 still a conjecture.
+
+# Summary of changes for the continuation run (2026-08-17b, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`: the Friedrichs extension constructed, and the Hashimoto/SIRK limit proved, in the bounded regime)
+Executed `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` (Quantum Yang–Mills, the Friedrichs route) and updated this file.
+
+**Re-verification of the existing Parts A–D.** Every name listed in the plan's four tables exists in `BookProof/ChapterYangMillsFriedrichs.lean` (with the two cross-references in `BookProof/ChapterWeylHamiltonian.lean` and `BookProof/ChapterH9.lean`); the module rebuilds, contains no `sorry`/`admit`, and its twelve `#print axioms` certifications in `BookProof/ChapterRoadmapAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound`. So Part A (the Weyl-gauge Hamiltonian `H = ½Σπᵢ² + ½ΣBₐ²` on an invariant domain, symmetric, with sum-of-squares quadratic form, semi-bounded), Part B (the form inner product, its Cauchy–Schwarz inequality, and `form_closable`), Part C (the Friedrichs theorem as a named hypothesis, satisfiable, applied) and the proved half of Part D stand as claimed.
+
+**New work — the two places the plan stopped, both closed under an explicit boundedness hypothesis.** A new module `BookProof/ChapterYangMillsFriedrichsLimit.lean` (`sorry`-free, `axiom`-free) adds:
+
+*Part C.5–C.7 — the Friedrichs extension built rather than assumed.*
+* `friedrichs_of_bounded` — for a densely defined symmetric positive operator whose norm is bounded on its domain, the positive self-adjoint extension is **constructed**: it is the continuous extension of the operator to the whole space, and all four clauses of `IsPositiveSelfAdjointExtension` (agreement on the domain, symmetry, positivity, the adjoint condition) are proved for it. This discharges, on that class, the hypothesis that Part C had to name.
+* `symmetricOn_top_of_dense`, `quadForm_top_nonneg_of_dense` — the two density arguments behind it: symmetry and form positivity extend from a dense subspace to the whole space for a continuous operator.
+* `friedrichs_bounded_proper_domain_example` — the class is not the degenerate `D = ⊤` one: in `ℓ²(ℕ, ℂ)` the span of the canonical orthonormal basis is dense and *proper*, and the construction applies to it. Properness comes from `not_mem_span_of_repr_ne_zero` (a vector with all basis coefficients non-zero — the harmonic sequence, `memℓp_one_div_succ` — is not a finite linear combination of basis vectors).
+
+*Part D.5–D.8 — the Hashimoto/SIRK limit as an operator limit.* The plan recorded D.4 ("the infinite Hashimoto limit selects the Friedrichs extension") as a conjecture because the limit of the Krylov flag was not constructed. In the bounded regime it now is:
+* `sirkCompression` — the order-`n` compression `Pₙ A Pₙ` along the Krylov flag of a seed;
+* `krylov_starProjection_tendsto` — for a cyclic seed the Krylov projections converge strongly to the identity;
+* `sirk_compression_tendsto` — hence `Pₙ A Pₙ → A` in the strong operator topology;
+* `sirk_limit_unique` — no other bounded operator agrees with the limit on the Krylov flag;
+* `sirk_limit_eq_positive_selfadjoint_extension` — the two halves combined: a bounded symmetric positive `H` on a dense domain has the constructed positive self-adjoint extension `A`, and for any cyclic seed the infinite Hashimoto limit of the compressions of `A` is exactly `A`;
+* `weyl_friedrichs_bounded` — the same statement for the Weyl-gauge Yang–Mills Hamiltonian of Part A.
+
+**Wiring.** The new module is imported from `BookProof.lean`, certified by eleven new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (each reporting only `propext`, `Classical.choice`, `Quot.sound`), and cited from the Verso chapter `Book/YangMillsQuantization.lean` (two new paragraphs and `#check` blocks). `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` gains rows C.5–C.7 and D.5–D.8 and a dated status note; the D.4 row now reads "conjecture in general, proved in the bounded regime".
+
+**Verification.** `lake build BookProof.ChapterRoadmapAudit Book.YangMillsQuantization` completes successfully (8339 jobs, no errors, no warnings from the new file); `rg` finds no `sorry`/`admit` in either Yang–Mills Friedrichs module; no `axiom` declarations were added.
+
+**Scope, unchanged.** Nothing here claims self-adjointness of the *unbounded* continuum Yang–Mills operator on `L²(ℝ⁹⁹ × ℤ₂³¹)`, a mass gap, or global existence; the Millennium problem stays out of scope. Every new result carries an explicit boundedness hypothesis, which is exactly what makes the extension constructible and the Krylov limit an operator limit; for unbounded operators the Friedrichs theorem remains a *named* hypothesis, never an axiom, and D.4 remains a conjecture.
+
+# Summary of changes for run 2326a121-8c01-410a-a1ea-cc8a7b4da721
+Executed `PLAN_LEAN_SPECIALIST_QG_FLOW.md` (the Quantum Gravity "densitized route", Parts A–D) and updated `ARISTOTLE_SUMMARY.md`.
+
+**Re-verification of Parts A–D.** I checked that all 35 headline names of the plan's four tables actually exist in `BookProof/ChapterQuantumGravityDensitized.lean`, rebuilt the module, and re-ran the 20 `#print axioms` certifications that `BookProof/ChapterRoadmapAudit.lean` carries for it. Every one reports only `propext`, `Classical.choice`, `Quot.sound`, and the module contains no `sorry`/`admit`. So Parts A (change of variables and the corrected absorption identity `1/e = 4(∂y/∂e)²`), B (flat, indefinite/hyperbolic principal part and vanishing Christoffel symbols), C (Hermite-basis realization: unbounded, essentially self-adjoint, trivial deficiency at every non-real point) and D.1–D.4 stand as claimed.
+
+**New work — Part D.5: the half-density unitary, constructed rather than assumed.** The plan's honest boundary recorded that the raw point map is not a Hilbert-space unitary and that "the transfer theorem takes that unitary as data". For the conformal factor that gap is now closed, in a new module `BookProof/ChapterQuantumGravityHalfDensity.lean`:
+
+- `qgJacobian`, `qgHalfDensity`, `qgSrcMeasure` — the Jacobian `de/dy = 2y` of the change of variables `e = y²`, the half-density factor `√(2y)`, and the weighted measure `2y dy` on `(0,∞)`; `qgSrcMeasure_density_eq_halfDensity_sq` records that the weight is exactly the square of the half-density factor.
+- `measurePreserving_qgSquare` / `measurePreserving_qgSqrt` — the change of variables pushes `2y dy` forward to Lebesgue measure `de` on `(0,∞)`, and conversely, proved from the one-dimensional change-of-variables formula.
+- `halfDensityUnitary` — the resulting unitary `L²((0,∞), de) ≃ₗᵢ[ℂ] L²((0,∞), 2y dy)`, with the pointwise formulas `halfDensityUnitary_apply` (`(W g)(y) = g(y²)` a.e.), `halfDensityUnitary_symm_apply`, the norm identity `halfDensityUnitary_norm`, and `exists_halfDensity_unitary`.
+- `qg_halfDensity_transfer` — the Part D.4 transfer theorem instantiated at this concrete unitary, so the unitary is no longer a hypothesis of the transfer step.
+
+**Wiring and verification.** The new module is imported from `BookProof.lean`, certified by seven new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), and cited from the chapter `Book/DiffeomorphismsGravity.lean`. `lake build` on the default targets (`BookProof`, `Book`, `Singularity`) completes successfully with 8618 jobs and no errors or in-file warnings; no `sorry`/`admit` and no `axiom` declarations were added.
+
+**Documentation.** `ARISTOTLE_SUMMARY.md` gains a new dated section for this run (appended; nothing earlier was altered), `BookProof/STATUS.md` describes the new module, and `PLAN_LEAN_SPECIALIST_QG_FLOW.md` gains a `D.5` row plus a note.
+
+**Scope, unchanged.** Nothing claims essential self-adjointness of the continuum gravity operator, global existence, or any unitary-evolution result. The Strichartz finite-speed input remains an explicit named hypothesis, shown satisfiable on the discretized realization but not asserted for the continuum; the BRST/gauge sector remains outside the transfer argument; and the constructed unitary covers the conformal factor `e = y²`, not the full tetrad map.
+
+All work is committed and pushed.
+
+# Summary of changes for run e77c5104-3df1-473e-a464-57b5a3667903
+Completed execution of `CONSOLIDATED_PLAN.md`.
+
+**What was outstanding and is now closed.** Every earlier plan item was already landed; the remaining actionable work was the two "suggested next step" items (§10.3 Quantum Gravity, §11.3 Quantum Yang–Mills) plus a full re-run of the §8 verification gate. Both are done.
+
+**New Lean development (both modules `sorry`-free and `axiom`-free; every new result depends only on `propext`, `Classical.choice`, `Quot.sound`):**
+
+- `BookProof/ChapterQuantumGravityDensitized.lean` — the densitized-tetrad change of variables (`densY = √e`, the tetrad `densTetrad` and its determinant/recovery lemmas), the absorption of the singular `1/e` coefficient (`inv_eq_four_mul_deriv_densY_sq`, `kinetic_absorption`, `conformal_absorption`), the flat principal part (`qgSymbol`, `qgSymbol_eq_metric_form`, `qgSymbol_indefinite` showing it is hyperbolic rather than elliptic, and `christoffel_eq_zero_of_const` / `qgMetric_christoffel_zero` showing the point transformation produces no connection corrections), the Hermite-basis realization of the fiber operator (unbounded, essentially self-adjoint on its maximal domain, trivial adjoint deficiency at every non-real point), and the Strichartz finite-speed input carried as an explicit *named hypothesis* (never an axiom), shown satisfiable, together with the unitary transfer step back to the physical variables.
+- `BookProof/ChapterYangMillsFriedrichs.lean` — the densely defined Weyl-gauge Yang–Mills Hamiltonian `H = ½Σπᵢ² + ½ΣBₐ²`, its symmetry, the sum-of-squares quadratic form and its nonnegativity (semi-boundedness), a general theory of the associated form inner product with the form Cauchy–Schwarz inequality and the headline closability theorem `form_closable`, and the Friedrichs extension as a named theorem yielding the conditional conclusion `weyl_friedrichs_extension` (a positive self-adjoint extension), plus the SIRK best-approximation facts.
+
+Honest boundaries are preserved and stated in the sources: nothing is claimed about essential self-adjointness of the continuum gravity operator, about self-adjointness of the continuum Yang–Mills operator, about the mass gap, or about global existence. The §11.2 "infinite Hashimoto limit selects the Friedrichs extension" sentence is deliberately kept as prose-only conjecture (no non-trivial Lean rendering is available without the limit operator).
+
+**Integration and documentation.** Both modules are registered in `BookProof.lean`, certified with `#print axioms` in `BookProof/ChapterRoadmapAudit.lean`, and cited from `Book/DiffeomorphismsGravity.lean` and `Book/YangMillsQuantization.lean`. Two new plan documents (`PLAN_LEAN_SPECIALIST_QG_FLOW.md`, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`) were written in the existing NS-FLOW style; `CONSOLIDATED_PLAN.md` records the closures and the gate result, and `BookProof/STATUS.md` records the wave.
+
+**Verification gate (§8), all green:**
+- `lake build` over the default targets (BookProof + Book + Singularity) — 8617 jobs, no warnings (a stray emphasis-markup warning in the new book prose was fixed).
+- `lake build RandomMap` — successful.
+- `./patches/build-book.sh` — the book renders and both assertions (no `<base>` tag, fragment links present) pass; the new citations appear in the rendered output. `patches/check-katex.sh` reports 2088 math snippets, 0 KaTeX failures. (The shell scripts had lost their executable bits in this checkout; restored.)
+- Sorry/axiom audit: no `sorry` and no `axiom` declarations in `BookProof/`, `PnpProof/`, `Singularity/`, `RandomMap/`. The pre-existing, quarantined `sorry`s in `UsedRoute/` (not a default target) were left untouched.
+- Isolation audit: no `import PnpProof` in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, and no `import UnusedRoute` in `RandomMap/`.
+
+All changes are committed and pushed.
+
 # Summary of changes for run 6ed4b907-e639-4563-ac0b-19e66caaea8e
 Completed execution of `CONSOLIDATED_PLAN.md`.
 
@@ -8760,3 +8901,69 @@ from the quantum fidelity of displaced thermal states on a bosonic Fock space (t
 finite algebraic core is proved), and the exhaustiveness of the abelian von
 Neumann `*`-isomorphism classification (the four individual classes are proved).
 Both are documented gaps in `BookProof/STATUS.md`; neither is `sorry`-ed anywhere.
+
+---
+
+# Summary of changes for the `PLAN_LEAN_SPECIALIST_QG_FLOW.md` run (2026-08-17)
+
+Task: execute `PLAN_LEAN_SPECIALIST_QG_FLOW.md` (the Quantum Gravity densitized
+route, Parts A–D).
+
+**Re-verification of Parts A–D.** All 35 headline names of the plan's four
+tables were checked to exist in `BookProof/ChapterQuantumGravityDensitized.lean`,
+the module was rebuilt, and the 20 `#print axioms` lines that
+`BookProof/ChapterRoadmapAudit.lean` carries for it were re-run: every one
+reports only `propext`, `Classical.choice`, `Quot.sound`. The module contains no
+`sorry`/`admit`. So Parts A, B, C and D.1–D.4 stand as claimed.
+
+**New work: Part D.5 — the half-density unitary, constructed rather than
+assumed.** The plan's honest boundary recorded that "the raw point map
+`e ↦ (y, ẽ)` is not by itself a Hilbert-space unitary; the Jacobian half-density
+factor `|J|^{−1/2}` is what makes D.4 applicable. The transfer theorem takes that
+unitary as data." For the conformal factor that gap is now closed, in the new
+module `BookProof/ChapterQuantumGravityHalfDensity.lean`:
+
+* `qgJacobian`, `qgHalfDensity`, `qgSrcMeasure` — the Jacobian `de/dy = 2y` of
+  the conformal change of variables `e = y²`, the half-density factor `√(2y)`,
+  and the weighted measure `2y dy` on `(0, ∞)`;
+  `qgSrcMeasure_density_eq_halfDensity_sq` and
+  `qgSrcMeasure_eq_withDensity_halfDensity_sq` record that the weight is exactly
+  the square of the half-density factor.
+* `measurePreserving_qgSquare` — the change of variables `y ↦ y²` pushes the
+  weighted measure `2y dy` forward to Lebesgue measure `de` on `(0, ∞)`; proved
+  from the one-dimensional change-of-variables formula
+  (`lintegral_image_eq_lintegral_abs_deriv_mul`). `measurePreserving_qgSqrt` is
+  the converse for `e ↦ √e`.
+* `halfDensityIsom`, `halfDensityIsomInv`, `halfDensityIsom_surjective`,
+  `halfDensityUnitary` — the resulting **unitary**
+  `L²((0,∞), de) ≃ₗᵢ[ℂ] L²((0,∞), 2y dy)`, with the pointwise descriptions
+  `halfDensityUnitary_apply` (`(W g)(y) = g(y²)` a.e.),
+  `halfDensityUnitary_symm_apply` and the norm identity
+  `halfDensityUnitary_norm`; `exists_halfDensity_unitary` is the bare existence
+  statement.
+* `qg_halfDensity_transfer` — the Part D.4 transfer theorem
+  `BookProof.QuantumGravityDensitized.densitized_hasZeroDeficiencyOn_transfer`
+  instantiated **at this concrete unitary**: the unitary is no longer a
+  hypothesis of the transfer step.
+
+**Wiring.** The new module is imported from `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` (seven new `#print axioms` lines, all
+reporting only `propext`, `Classical.choice`, `Quot.sound`), and cited from the
+Verso chapter `Book/DiffeomorphismsGravity.lean` (new paragraph and `#check`
+block, plus a new summary bullet). `PLAN_LEAN_SPECIALIST_QG_FLOW.md` gains a
+`D.5` row and a dated note.
+
+**Verification.** `lake build` (default targets `BookProof`, `Book`,
+`Singularity`) completes successfully, 8618 jobs, with no errors; the only
+in-file warning raised during development (a long line) was fixed. `rg` finds no
+`sorry`/`admit` in either quantum-gravity module. No `axiom` declarations were
+added.
+
+**Scope, unchanged.** Nothing here claims essential self-adjointness of the
+continuum gravity operator on `L²(ℝ⁸⁴ × ℤ₂¹⁹)`, global existence, or any
+unitary-evolution result. The Strichartz finite-speed input remains an explicit
+named hypothesis (`strichartz_esa_of_finiteSpeed`), shown satisfiable on the
+discretized realization but not asserted for the continuum. The BRST/gauge
+sector is still outside the transfer argument, and the half-density unitary
+constructed here is for the conformal factor `e = y²`, not for the full
+`e ↦ (y, ẽ)` map on the whole tetrad.

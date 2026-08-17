@@ -163,6 +163,127 @@ non-negative. This is the fact the manuscript invokes for the mass-gap discussio
 #check @BookProof.WeylHamiltonian.weylHamiltonian_isSelfAdjoint
 ```
 
+# The Weyl-Gauge Quadratic Form and the Friedrichs Route
+
+:::paragraph
+Positivity of the Weyl-gauge Hamiltonian is the hypothesis of the *Friedrichs
+extension theorem*: a densely defined symmetric operator that is bounded below has
+a canonical positive self-adjoint extension. For the unbounded (densely defined)
+version the sum-of-squares structure survives: on a domain left invariant by the
+electric and magnetic field operators, $`H = \tfrac12\sum_i\pi_i^2 +
+\tfrac12\sum_a B_a^2` is symmetric and its quadratic form is
+$`q(x) = \tfrac12\sum_i\|\pi_i x\|^2 + \tfrac12\sum_a\|B_a x\|^2 \ge 0`:
+:::
+
+```
+#check @BookProof.YangMillsFriedrichs.weylOpDom
+#check @BookProof.YangMillsFriedrichs.weylOpDom_symmetricOn
+#check @BookProof.YangMillsFriedrichs.weylOpDom_quadForm
+#check @BookProof.YangMillsFriedrichs.weylOpDom_quadForm_nonneg
+```
+
+:::paragraph
+The analytic heart of the Friedrichs construction is that the form
+$`\langle x,y\rangle_H = \langle x,y\rangle + \langle x, Hy\rangle` is a genuine
+inner product dominating the ambient norm, and that it is *closable*: a sequence
+that is Cauchy in the form norm and tends to $`0` in the ambient space has form
+norm tending to $`0`, so the closed form — and with it the extension — is well
+defined. This is proved here in general and applied to the Weyl-gauge form:
+:::
+
+```
+#check @BookProof.YangMillsFriedrichs.formInner
+#check @BookProof.YangMillsFriedrichs.formNormSq_ge_normSq
+#check @BookProof.YangMillsFriedrichs.re_formInner_sq_le
+#check @BookProof.YangMillsFriedrichs.form_closable
+#check @BookProof.YangMillsFriedrichs.weylForm_closable
+```
+
+:::paragraph
+The Friedrichs theorem itself is carried as a *named hypothesis* (Friedrichs 1934;
+Reed–Simon Thm X.23), never as an axiom, and is shown to be satisfiable; the
+conclusion for the Weyl-gauge Hamiltonian is conditional on it. Nothing is claimed
+about the continuum Yang–Mills operator, and the mass gap remains out of scope.
+The Hashimoto/SIRK order-$`n` approximations supply the proved supporting facts —
+the best-approximation error is antitone in the order and, for a cyclic seed,
+tends to $`0` — while the identification of the limit with the Friedrichs
+extension is recorded as a conjecture, not a theorem:
+:::
+
+```
+#check @BookProof.YangMillsFriedrichs.IsPositiveSelfAdjointExtension
+#check @BookProof.YangMillsFriedrichs.friedrichs_extension_of_semibounded
+#check @BookProof.YangMillsFriedrichs.friedrichs_hypothesis_satisfiable
+#check @BookProof.YangMillsFriedrichs.weyl_friedrichs_extension
+#check @BookProof.YangMillsFriedrichs.weylKrylov_bestApprox_antitone
+#check @BookProof.YangMillsFriedrichs.weylKrylov_bestApprox_tendsto_zero
+```
+
+:::paragraph
+In the *bounded* regime the named hypothesis is no longer needed: the positive
+self-adjoint extension is constructed outright as the continuous extension of the
+operator from its dense domain, and the construction applies to genuinely proper
+dense domains (in $`\ell^2(\mathbb{N})` the span of the canonical basis is dense
+but misses every vector of infinite support):
+:::
+
+```
+#check @BookProof.YangMillsFriedrichsLimit.friedrichs_of_bounded
+#check @BookProof.YangMillsFriedrichsLimit.friedrichs_bounded_proper_domain_example
+```
+
+:::paragraph
+In the same regime the Hashimoto/SIRK limit becomes an operator limit: the
+order-$`n` compressions $`P_n A P_n` converge strongly to $`A` for any cyclic
+seed, and no other bounded operator agrees with the limit on the Krylov flag, so
+the infinite Hashimoto limit recovers exactly the positive self-adjoint extension
+of the Weyl-gauge Hamiltonian. The unbounded continuum case remains open:
+:::
+
+```
+#check @BookProof.YangMillsFriedrichsLimit.sirk_compression_tendsto
+#check @BookProof.YangMillsFriedrichsLimit.sirk_limit_unique
+#check @BookProof.YangMillsFriedrichsLimit.sirk_limit_eq_positive_selfadjoint_extension
+#check @BookProof.YangMillsFriedrichsLimit.weyl_friedrichs_bounded
+```
+
+:::paragraph
+The same analysis can be run in the *Hermite (oscillator) basis* rather than
+along a Krylov flag, and there it takes its classical Rayleigh–Ritz shape.
+Truncating to the span of the first $`m` basis vectors replaces the Hamiltonian
+by its compression $`P_m H P_m`, and on that subspace the compression carries
+exactly the energy form of $`H`; the resulting Ritz values are antitone in $`m`
+and converge to the infimum of the energy form over the whole finite-mode
+domain. Neither statement needs a boundedness hypothesis:
+:::
+
+```
+#check @BookProof.HermiteGalerkin.inner_galerkinCompression
+#check @BookProof.HermiteGalerkin.ritzInf_antitone
+#check @BookProof.HermiteGalerkin.ritzInf_tendsto_domainInf
+#check @BookProof.HermiteGalerkin.ritzInf_extension_le
+#check @BookProof.HermiteGalerkin.exists_mem_galerkinSpan
+#check @BookProof.HermiteGalerkin.galerkinProj_tendsto
+```
+
+:::paragraph
+In the bounded regime the truncations converge in the strong *resolvent* sense —
+$`(P_m A P_m - z)^{-1} \to (A - z)^{-1}` strongly at every non-real $`z` — and the
+positive self-adjoint extension the algorithm converges to is the only one there
+is, so no boundary condition has to be supplied to the algorithm. The finite-mode
+domain is a proper dense subspace, so this is not the degenerate case of an
+operator already defined everywhere. As everywhere above, the unbounded case is
+not claimed:
+:::
+
+```
+#check @BookProof.HermiteGalerkin.resolvent_tendsto_of_strong_tendsto
+#check @BookProof.HermiteGalerkin.galerkinResolvent_tendsto
+#check @BookProof.HermiteGalerkin.positive_selfadjoint_extension_unique
+#check @BookProof.HermiteGalerkin.hermiteGalerkin_selects_friedrichs
+#check @BookProof.HermiteGalerkin.finiteModeDomain_ne_top
+```
+
 # Summary
 
 The algebraic core of the manuscript's quantization programme:
@@ -171,7 +292,8 @@ The algebraic core of the manuscript's quantization programme:
  * the field-strength and Bianchi identities for the covariant derivative;
  * quantization as arising from time-evolution via the Heisenberg/Weyl relations;
  * the nilpotent BRST charge (and the graded Jacobi identity of the super-bracket) defining the gauge-invariant algebra;
- * the positive-definite Weyl-gauge Hamiltonian.
+ * the positive-definite Weyl-gauge Hamiltonian;
+ * the densely-defined Weyl-gauge Hamiltonian, its sum-of-squares quadratic form and the closability of that form — the Friedrichs route to a self-adjoint extension, with the Friedrichs theorem itself carried as a named hypothesis.
 
 :::paragraph
 The manuscript's Navier–Stokes existence/uniqueness thesis is deliberately *not*

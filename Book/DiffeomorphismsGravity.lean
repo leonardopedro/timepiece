@@ -142,6 +142,95 @@ is the remainder. The three pieces are mutually Frobenius-orthogonal:
 #check @BookProof.ChapterGravityIrrep.frob_antisym_trace
 ```
 
+# The Densitized Tetrad Variables and the Flat Principal Part
+
+:::paragraph
+The manuscript's final, 3D gauge-fixed gravity Hamiltonian carries the *singular*
+kinetic terms $`\tfrac{1}{16e}S^{ab}S_{ab} - \tfrac{1}{24e}P^2`, whose
+denominator $`e = \det e_i{}^a` vanishes where the tetrad degenerates. The
+canonical repair is the change of variables to *densitized* tetrads
+$`y = \sqrt e`, $`\tilde e_i{}^a = \sqrt e\, e_i{}^a`. Two facts make this
+load-bearing rather than cosmetic: the singular coefficient is a square of a
+derivative of the new coordinate, $`1/e = 4(\partial y/\partial e)^2`, so it is
+absorbed into the field derivatives; and while $`1/e \to \infty` at a degenerate
+tetrad, the new coordinate $`y = \sqrt e` extends continuously by $`0`:
+:::
+
+```
+#check @BookProof.QuantumGravityDensitized.densY
+#check @BookProof.QuantumGravityDensitized.inv_eq_four_mul_deriv_densY_sq
+#check @BookProof.QuantumGravityDensitized.kinetic_absorption
+#check @BookProof.QuantumGravityDensitized.conformal_absorption
+#check @BookProof.QuantumGravityDensitized.densTetrad
+#check @BookProof.QuantumGravityDensitized.densTetrad_det
+#check @BookProof.QuantumGravityDensitized.densTetrad_recover
+#check @BookProof.QuantumGravityDensitized.tendsto_inv_det_atTop
+#check @BookProof.QuantumGravityDensitized.tendsto_densY_zero
+```
+
+:::paragraph
+In the densitized variables the principal part of the kinetic operator has the
+*constant* coefficients $`(1/16, -1/24)`: the field-space metric is flat, so all
+its Christoffel symbols vanish and the point transformation produces no
+connection ("quantum potential") corrections. The symbol is non-degenerate but
+*indefinite* — the operator is a d'Alembertian (hyperbolic), not an elliptic
+Laplacian, which is why the elliptic Sears route of the Navier–Stokes thread does
+not apply to it:
+:::
+
+```
+#check @BookProof.QuantumGravityDensitized.qgSymbol
+#check @BookProof.QuantumGravityDensitized.qgSymbol_eq_metric_form
+#check @BookProof.QuantumGravityDensitized.qgMetric_det_ne_zero
+#check @BookProof.QuantumGravityDensitized.qgSymbol_indefinite
+#check @BookProof.QuantumGravityDensitized.christoffel_eq_zero_of_const
+#check @BookProof.QuantumGravityDensitized.qgMetric_christoffel_zero
+#check @BookProof.QuantumGravityDensitized.qgFullSymbol_scaling
+```
+
+:::paragraph
+The analytic conclusion for the *continuum* operator is *not* claimed. What is
+proved is the discretized (Hermite-basis) realization, where the fiber operator is
+multiplication by the mode symbol: it is genuinely unbounded, essentially
+self-adjoint on its maximal domain, and its adjoint has trivial deficiency at
+every non-real point — exactly the conclusion Strichartz's finite-speed argument
+is supposed to supply in the continuum. Strichartz's theorem itself enters only as
+an explicit *hypothesis* (never an axiom), and the transfer of essential
+self-adjointness back to the physical variables is the unitary-equivalence step:
+:::
+
+```
+#check @BookProof.QuantumGravityDensitized.qgModeHamiltonian
+#check @BookProof.QuantumGravityDensitized.qgModeHamiltonian_essentiallySelfAdjoint
+#check @BookProof.QuantumGravityDensitized.qgModeHamiltonian_deficiencyTrivialAt
+#check @BookProof.QuantumGravityDensitized.qgModeHamiltonian_not_bounded
+#check @BookProof.QuantumGravityDensitized.strichartz_esa_of_finiteSpeed
+#check @BookProof.QuantumGravityDensitized.strichartz_finiteSpeed_satisfiable
+#check @BookProof.QuantumGravityDensitized.qg_esa_of_farisLavine
+#check @BookProof.QuantumGravityDensitized.densitized_hasZeroDeficiencyOn_transfer
+```
+
+:::paragraph
+The transfer step needs an actual Hilbert-space unitary, and the raw point map
+$`e \mapsto y = \sqrt e` is not one: the Jacobian $`de/dy = 2y` must be carried
+along as the half-density factor $`\sqrt{2y}`. That unitary is *constructed*,
+not assumed: composition with $`y \mapsto y^2` is measure preserving from the
+weighted measure $`2y\,dy` to Lebesgue measure on $`(0,\infty)`, hence a unitary
+$`L^2((0,\infty),de) \simeq L^2((0,\infty), 2y\,dy)`, and the transfer theorem
+specializes to it:
+:::
+
+```
+#check @BookProof.QuantumGravityHalfDensity.qgSrcMeasure_density_eq_halfDensity_sq
+#check @BookProof.QuantumGravityHalfDensity.measurePreserving_qgSquare
+#check @BookProof.QuantumGravityHalfDensity.measurePreserving_qgSqrt
+#check @BookProof.QuantumGravityHalfDensity.halfDensityUnitary
+#check @BookProof.QuantumGravityHalfDensity.halfDensityUnitary_apply
+#check @BookProof.QuantumGravityHalfDensity.halfDensityUnitary_symm_apply
+#check @BookProof.QuantumGravityHalfDensity.exists_halfDensity_unitary
+#check @BookProof.QuantumGravityHalfDensity.qg_halfDensity_transfer
+```
+
 # Summary
 
 The algebraic core of the manuscript's diffeomorphisms/gravity chapter:
@@ -149,4 +238,6 @@ The algebraic core of the manuscript's diffeomorphisms/gravity chapter:
  * the $`3+1` split into a rank-3 spatial projector and a rank-1 temporal projector, with orthogonal, unique spatial/temporal parts;
  * the induced spatial metric as a positive-semidefinite, time-degenerate object with a generalized inverse on the slice;
  * the irreducible $`S + A + \text{trace}` decomposition of the metric field;
- * the compatibility of diffeomorphism constraints with time-evolution.
+ * the compatibility of diffeomorphism constraints with time-evolution;
+ * the densitized change of variables $`y = \sqrt e`, $`\tilde e = \sqrt e\, e`, the absorption of the singular $`1/e`, the flat (hyperbolic) principal part, and the Hermite-basis realization on which essential self-adjointness is proved — with Strichartz's continuum theorem carried as a named hypothesis, never as a claimed result;
+ * the half-density unitary $`L^2((0,\infty),de) \simeq L^2((0,\infty),2y\,dy)` of that change of variables, constructed rather than assumed, at which the unitary-transfer theorem is instantiated.

@@ -5,6 +5,13 @@ Authors: Aristotle
 -/
 import BookProof.ChapterH4
 import BookProof.ChapterNavierStokesGaugeY2
+import BookProof.ChapterQuantumGravityDensitized
+import BookProof.ChapterQuantumGravityHalfDensity
+import BookProof.ChapterYangMillsFriedrichs
+import BookProof.ChapterYangMillsFriedrichsLimit
+import BookProof.ChapterHermiteGalerkinFriedrichs
+import BookProof.ChapterHashimotoShiftInvert
+import BookProof.ChapterHashimotoComplexShifts
 import BookProof.ChapterF4
 import BookProof.ChapterHolomorphic
 import BookProof.ChapterB4
@@ -468,5 +475,120 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.NavierStokesGaugeY2.genY2_nsSymbol2
 #print axioms BookProof.NavierStokesGaugeY2.genX_nsSymbol2
 #print axioms BookProof.NavierStokesGaugeY2.setYZero_nsSymbol2
+
+#print axioms BookProof.QuantumGravityDensitized.inv_eq_four_mul_deriv_densY_sq
+#print axioms BookProof.QuantumGravityDensitized.kinetic_absorption
+#print axioms BookProof.QuantumGravityDensitized.conformal_absorption
+#print axioms BookProof.QuantumGravityDensitized.densTetrad_det
+#print axioms BookProof.QuantumGravityDensitized.densTetrad_recover
+#print axioms BookProof.QuantumGravityDensitized.tendsto_inv_det_atTop
+#print axioms BookProof.QuantumGravityDensitized.tendsto_densY_zero
+#print axioms BookProof.QuantumGravityDensitized.qgSymbol_eq_metric_form
+#print axioms BookProof.QuantumGravityDensitized.qgMetric_det_ne_zero
+#print axioms BookProof.QuantumGravityDensitized.qgSymbol_indefinite
+#print axioms BookProof.QuantumGravityDensitized.christoffel_eq_zero_of_const
+#print axioms BookProof.QuantumGravityDensitized.qgMetric_christoffel_zero
+#print axioms BookProof.QuantumGravityDensitized.qgFullSymbol_scaling
+#print axioms BookProof.QuantumGravityDensitized.qgModeHamiltonian_essentiallySelfAdjoint
+#print axioms BookProof.QuantumGravityDensitized.qgModeHamiltonian_deficiencyTrivialAt
+#print axioms BookProof.QuantumGravityDensitized.qgModeHamiltonian_not_bounded
+#print axioms BookProof.QuantumGravityDensitized.strichartz_esa_of_finiteSpeed
+#print axioms BookProof.QuantumGravityDensitized.strichartz_finiteSpeed_satisfiable
+#print axioms BookProof.QuantumGravityDensitized.qg_esa_of_farisLavine
+#print axioms BookProof.QuantumGravityDensitized.densitized_hasZeroDeficiencyOn_transfer
+
+#print axioms BookProof.QuantumGravityHalfDensity.qgSrcMeasure_density_eq_halfDensity_sq
+#print axioms BookProof.QuantumGravityHalfDensity.measurePreserving_qgSquare
+#print axioms BookProof.QuantumGravityHalfDensity.measurePreserving_qgSqrt
+#print axioms BookProof.QuantumGravityHalfDensity.halfDensityUnitary_apply
+#print axioms BookProof.QuantumGravityHalfDensity.halfDensityUnitary_symm_apply
+#print axioms BookProof.QuantumGravityHalfDensity.exists_halfDensity_unitary
+#print axioms BookProof.QuantumGravityHalfDensity.qg_halfDensity_transfer
+
+#print axioms BookProof.YangMillsFriedrichs.formNormSq_ge_normSq
+#print axioms BookProof.YangMillsFriedrichs.re_formInner_sq_le
+#print axioms BookProof.YangMillsFriedrichs.form_closable
+#print axioms BookProof.YangMillsFriedrichs.weylOpDom_symmetricOn
+#print axioms BookProof.YangMillsFriedrichs.weylOpDom_quadForm
+#print axioms BookProof.YangMillsFriedrichs.weylOpDom_quadForm_nonneg
+#print axioms BookProof.YangMillsFriedrichs.weylForm_closable
+#print axioms BookProof.YangMillsFriedrichs.friedrichs_extension_of_semibounded
+#print axioms BookProof.YangMillsFriedrichs.friedrichs_hypothesis_satisfiable
+#print axioms BookProof.YangMillsFriedrichs.weyl_friedrichs_extension
+#print axioms BookProof.YangMillsFriedrichs.weylKrylov_bestApprox_antitone
+#print axioms BookProof.YangMillsFriedrichs.weylKrylov_bestApprox_tendsto_zero
+
+#print axioms BookProof.YangMillsFriedrichsLimit.symmetricOn_top_of_dense
+#print axioms BookProof.YangMillsFriedrichsLimit.quadForm_top_nonneg_of_dense
+#print axioms BookProof.YangMillsFriedrichsLimit.friedrichs_of_bounded
+#print axioms BookProof.YangMillsFriedrichsLimit.friedrichs_bounded_nontrivial_example
+#print axioms BookProof.YangMillsFriedrichsLimit.not_mem_span_of_repr_ne_zero
+#print axioms BookProof.YangMillsFriedrichsLimit.friedrichs_bounded_proper_domain_example
+#print axioms BookProof.YangMillsFriedrichsLimit.krylov_starProjection_tendsto
+#print axioms BookProof.YangMillsFriedrichsLimit.sirk_compression_tendsto
+#print axioms BookProof.YangMillsFriedrichsLimit.sirk_limit_unique
+#print axioms BookProof.YangMillsFriedrichsLimit.sirk_limit_eq_positive_selfadjoint_extension
+#print axioms BookProof.YangMillsFriedrichsLimit.weyl_friedrichs_bounded
+
+#print axioms BookProof.HermiteGalerkin.starProjection_tendsto_of_monotone_dense
+#print axioms BookProof.HermiteGalerkin.compression_tendsto_of_starProjection_tendsto
+#print axioms BookProof.HermiteGalerkin.exists_mem_galerkinSpan
+#print axioms BookProof.HermiteGalerkin.galerkinProj_tendsto
+#print axioms BookProof.HermiteGalerkin.galerkinCompression_tendsto
+#print axioms BookProof.HermiteGalerkin.inner_galerkinCompression
+#print axioms BookProof.HermiteGalerkin.ritzInf_antitone
+#print axioms BookProof.HermiteGalerkin.ritzInf_tendsto_domainInf
+#print axioms BookProof.HermiteGalerkin.ritzInf_extension_le
+#print axioms BookProof.HermiteGalerkin.norm_sub_smul_ge
+#print axioms BookProof.HermiteGalerkin.norm_resolvent_apply_le
+#print axioms BookProof.HermiteGalerkin.resolvent_tendsto_of_strong_tendsto
+#print axioms BookProof.HermiteGalerkin.isSelfAdjoint_galerkinCompression
+#print axioms BookProof.HermiteGalerkin.galerkinResolvent_tendsto
+#print axioms BookProof.HermiteGalerkin.positive_selfadjoint_extension_unique
+#print axioms BookProof.HermiteGalerkin.hermiteGalerkin_selects_friedrichs
+#print axioms BookProof.HermiteGalerkin.finiteModeRestrict_selects_operator
+#print axioms BookProof.HermiteGalerkin.finiteModeDomain_ne_top
+
+#print axioms BookProof.HashimotoShiftInvert.norm_shiftMap_ge
+#print axioms BookProof.HashimotoShiftInvert.shiftMap_injective
+#print axioms BookProof.HashimotoShiftInvert.closed_of_selfAdjointCriterion
+#print axioms BookProof.HashimotoShiftInvert.shiftRange_isClosed
+#print axioms BookProof.HashimotoShiftInvert.shiftRange_orthogonal_eq_bot
+#print axioms BookProof.HashimotoShiftInvert.shiftMap_surjective
+#print axioms BookProof.HashimotoShiftInvert.exists_isShiftInvert
+#print axioms BookProof.HashimotoShiftInvert.IsShiftInvert.opNorm_le
+#print axioms BookProof.HashimotoShiftInvert.IsShiftInvert.isSelfAdjoint
+#print axioms BookProof.HashimotoShiftInvert.IsShiftInvert.inner_nonneg
+#print axioms BookProof.HashimotoShiftInvert.IsShiftInvert.dom_eq_range
+#print axioms BookProof.HashimotoShiftInvert.shiftInvert_determines
+#print axioms BookProof.HashimotoShiftInvert.isShiftInvert_unique
+#print axioms BookProof.HashimotoShiftInvert.isShiftInvert_invShiftOperator
+#print axioms BookProof.HashimotoShiftInvert.invShiftOperator_isPositiveSelfAdjointExtension
+#print axioms BookProof.HashimotoShiftInvert.galerkinCompression_shiftInvert_tendsto
+#print axioms BookProof.HashimotoShiftInvert.galerkinResolvent_shiftInvert_tendsto
+#print axioms BookProof.HashimotoShiftInvert.hashimoto_shiftInvert_selects_friedrichs
+#print axioms BookProof.HashimotoShiftInvert.ell2ExampleMatrix_unbounded
+#print axioms BookProof.HashimotoShiftInvert.hashimoto_shiftInvert_unbounded_example
+
+#print axioms BookProof.HashimotoShiftInvert.norm_cshiftMap_ge
+#print axioms BookProof.HashimotoShiftInvert.cshiftMap_injective
+#print axioms BookProof.HashimotoShiftInvert.cshiftRange_isClosed
+#print axioms BookProof.HashimotoShiftInvert.cshiftRange_orthogonal_eq_bot
+#print axioms BookProof.HashimotoShiftInvert.cshiftMap_surjective
+#print axioms BookProof.HashimotoShiftInvert.exists_isShiftInvertC
+#print axioms BookProof.HashimotoShiftInvert.IsShiftInvertC.opNorm_le
+#print axioms BookProof.HashimotoShiftInvert.IsShiftInvertC.inner_adjoint
+#print axioms BookProof.HashimotoShiftInvert.IsShiftInvertC.dom_eq_range
+#print axioms BookProof.HashimotoShiftInvert.shiftInvertC_determines
+#print axioms BookProof.HashimotoShiftInvert.isShiftInvertC_unique
+#print axioms BookProof.HashimotoShiftInvert.isShiftInvertC_neg_of_isShiftInvert
+#print axioms BookProof.HashimotoShiftInvert.shiftInvertC_resolvent_identity
+#print axioms BookProof.HashimotoShiftInvert.shiftInvertC_commute
+#print axioms BookProof.HashimotoShiftInvert.shiftInvertC_comp_one_sub
+#print axioms BookProof.HashimotoShiftInvert.sirkDen_rkVec
+#print axioms BookProof.HashimotoShiftInvert.rkCompression_tendsto
+#print axioms BookProof.HashimotoShiftInvert.hashimoto_multishift_selects_friedrichs
+#print axioms BookProof.HashimotoShiftInvert.ell2Resolvent_isShiftInvertC
+#print axioms BookProof.HashimotoShiftInvert.hashimoto_multishift_unbounded_example
 
 end BookProof.ChapterRoadmapAudit

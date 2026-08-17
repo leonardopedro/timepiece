@@ -9,6 +9,60 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
 
+**Status (2026-08-17, QG + QYM plan items executed):** the two "suggested next
+step" plan items of §10.3 and §11.3 are now **closed**.  Both are written up as
+plans in the NS-FLOW style — `PLAN_LEAN_SPECIALIST_QG_FLOW.md` and
+`PLAN_LEAN_SPECIALIST_QYM_FLOW.md` — and executed by two new `sorry`-free /
+`axiom`-free modules, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` and cited from the book:
+
+* `BookProof/ChapterQuantumGravityDensitized.lean` (§10, cited from
+  `Book/DiffeomorphismsGravity.lean`) — Part A the densitized change of variables
+  (`densY`, `densTetrad`, the absorption identity `1/e = 4(∂y/∂e)²`
+  — note the factor `4`, which §10.1's prose omits — the densitized form of the two
+  singular kinetic terms, and `tendsto_inv_det_atTop` vs `tendsto_densY_zero`);
+  Part B the flat principal part (`qgSymbol`, `qgSymbol_eq_metric_form`,
+  `qgMetric_det_ne_zero`, `qgSymbol_indefinite` — hyperbolic, not elliptic — and
+  `christoffel_eq_zero_of_const`, the vanishing of the connection corrections for a
+  constant field-space metric, plus the operator-order decomposition
+  `qgFullSymbol_scaling`); Part C the Hermite-basis realization, where the
+  operator is unbounded, essentially self-adjoint on its maximal domain and has
+  trivial deficiency at *every* non-real `z`
+  (`qgModeHamiltonian_essentiallySelfAdjoint`,
+  `qgModeHamiltonian_deficiencyTrivialAt`, `qgModeHamiltonian_not_bounded`); and
+  Part D Strichartz as a **named hypothesis, never an axiom**
+  (`strichartz_esa_of_finiteSpeed`, shown satisfiable by
+  `strichartz_finiteSpeed_satisfiable`), the Faris–Lavine alternative
+  (`qg_esa_of_farisLavine`) and the half-density transfer step
+  (`densitized_hasZeroDeficiencyOn_transfer`).
+* `BookProof/ChapterYangMillsFriedrichs.lean` (§11, cited from
+  `Book/YangMillsQuantization.lean`) — Part A the densely-defined Weyl-gauge
+  Hamiltonian (`weylOpDom`, `weylOpDom_symmetricOn`, `weylOpDom_quadForm` the sum
+  of squares, `weylOpDom_quadForm_nonneg` semi-boundedness); Part B the quadratic
+  form and its closure (`formInner`, `formNormSq_ge_normSq`, Cauchy–Schwarz
+  `re_formInner_sq_le` and the headline `form_closable`, applied as
+  `weylForm_closable`); Part C the Friedrichs extension as a **named theorem**
+  (`IsPositiveSelfAdjointExtension`, `friedrichs_extension_of_semibounded`,
+  satisfiability `friedrichs_hypothesis_satisfiable`, and the conditional
+  conclusion `weyl_friedrichs_extension`); Part D the proved SIRK supporting facts
+  (`weylKrylov_bestApprox_antitone`, `weylKrylov_bestApprox_tendsto_zero`).  The
+  §11.2 uniqueness sentence ("the infinite Hashimoto limit selects the Friedrichs
+  extension") stays a **conjecture recorded in prose**: it is not written as a Lean
+  statement, because it needs the limit operator of the Krylov flag, which is not
+  constructed.
+
+The honest boundaries of §10.3 and §11.3 are unchanged: nothing is claimed about
+essential self-adjointness of the continuum gravity operator, about
+self-adjointness of the continuum Yang–Mills operator, about the mass gap, or
+about global existence in either theory.
+
+After this wave the full §8 gate was re-run and is green: `lake build` over the
+default targets (no warnings), `lake build RandomMap`, `./patches/build-book.sh`
+(the `<base>`-removal and fragment-link assertions pass, and the new QG/QYM
+citations render), the sorry/axiom audit (`BookProof/`, `PnpProof/`,
+`Singularity/`, `RandomMap/` are `sorry`-free and `axiom`-free) and the isolation
+audit (no `import PnpProof` / `import UnusedRoute` in the in-scope libraries).
+
 **Status (2026-08-17, verification-gate pass + plan item A.7 closed):** the §8
 verification gate was re-run in this repository and is green (`lake build` over the
 default targets, `lake build RandomMap`, the sorry/axiom audit and the isolation
@@ -300,6 +354,37 @@ Crouzeix's inequality stays a named hypothesis; no rate; no Toeplitz–Hausdorff
     (`genY_uField_perturbed_ne_zero`), and at the initial state `y = 0` the field
     collapses to `u_i` and the Hamiltonian acts as the ordinary NS one
     (`setYZero_uField`, `hamiltonianOp_apply_of_y_zero`).
+- **Quantum Gravity + Quantum Yang–Mills plan items executed, plus the
+  Hashimoto/Galerkin–Friedrichs extension (2026-08-17).** The §10.3 / §11.3
+  "suggested next step" items are written up as `PLAN_LEAN_SPECIALIST_QG_FLOW.md`
+  and `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` and executed by new `sorry`-free /
+  `axiom`-free modules (see the leading Status block for the full name-by-name
+  accounting). Three further modules extend the Hashimoto/Galerkin machinery that
+  backs the QYM Friedrichs route:
+  - `ChapterHermiteGalerkinFriedrichs.lean` — a Galerkin/Rayleigh–Ritz truncation
+    in a complete (Hermite) basis converges to the Friedrichs (energy-form)
+    extension; `galerkinCompression`, `ritzInf_antitone`,
+    `ritzInf_tendsto_domainInf`, `galerkinCompression_tendsto`, strong resolvent
+    convergence `galerkinResolvent_tendsto`, `positive_selfadjoint_extension_unique`
+    (Hellinger–Toeplitz + density), headline `hermiteGalerkin_selects_friedrichs`.
+    The bounded case is discharged (`finiteModeRestrict_selects_operator`); the
+    unbounded non-ESA case is not claimed. Doc-map: `HERMITE_GALERKIN_FRIEDRICHS.md`.
+  - `ChapterHashimotoShiftInvert.lean` — the shift-invert trick frees the
+    Galerkin–Friedrichs theory of its boundedness hypothesis: for a positive
+    Hamiltonian `H`, `‖(H+γ)x‖ ≥ γ‖x‖` makes `R = (H+γ)⁻¹` bounded (`‖R‖ ≤ 1/γ`)
+    however unbounded `H` is; `R` determines `H` (`shiftInvert_determines`), and
+    `hashimoto_shiftInvert_selects_friedrichs` reaches unbounded Hamiltonians, with
+    the number operator on `ℓ²(ℕ,ℂ)` as the genuinely unbounded example.
+  - `ChapterHashimotoComplexShifts.lean` — the same theory for the complex, non-real
+    shifts of the Hashimoto–Nodera Shift-invert Rational Krylov method: `|Im γ|`
+    alone bounds `‖(γ−A)x‖` (no positivity), the resolvent `X = (γI−A)⁻¹` has
+    `‖X‖ ≤ 1/|Im γ|`, the resolvent identity and rational-Krylov structure
+    (`shiftInvertC_resolvent_identity`, `shiftInvertC_commute`), and
+    `hashimoto_multishift_selects_friedrichs`. Doc-map: `HASHIMOTO_COMPLEX_SHIFTS.md`.
+  All are registered in `BookProof.lean`, certified in
+  `ChapterRoadmapAudit.lean` (`#print axioms`, only `propext`,
+  `Classical.choice`, `Quot.sound`), and cited from
+  `Book/DiffeomorphismsGravity.lean` and `Book/YangMillsQuantization.lean`.
 
 ---
 
@@ -560,53 +645,52 @@ closures are already recorded in `BookProof/STATUS.md` (waves 2026-08-10 and
 
 ## 9. Suggested attack order for the next agent
 
-**Update (2026-08-16): every plan item is closed, and the Navier–Stokes thread has
-landed including its Eulerian side.** D1/D2 prose cleanups are done, **GAP-1 is
-closed** (2026-08-10, `ChapterCoherentThermalFidelity`), **GAP-2 is closed**
-(2026-08-12), §4 is fully landed including §4.7/§4.8/§4.9, and the
-`Book/Trivial.lean` decision (§7) is settled as *keep*. On top of that, the
-2026-08-14→16 waves proved the whole Navier–Stokes thread
-(`PLAN_LEAN_SPECIALIST_NS_FLOW.md`, 29 modules): the truncation has a complete
-flow and unique global Cauchy solution, the Faris–Lavine commutator criterion is
-**proved** (Theorem 1 + Corollary 1.1, `ChapterFarisLavine`), the two
-Faris–Lavine inequalities are **proved** for the Navier–Stokes Hamiltonian itself
-(Hermite/Fock/shift realizations) with a genuinely non-vanishing commutator, the
-SIRK nesting plan (`PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`) plus its spectral side
-(`ChapterH9`) are proved, and the **Eulerian side** is now complete:
-`ChapterNavierStokesEulerian` (Part A.5: the Eulerian field collapse, the
-momentum CCR family, the gauge-generator derivative relations, the
-initial-condition divergence constraint, and the E.3 correction — the BRST charge
-is not Hermitian, `nsBrst_not_hermitian`) and `ChapterNavierStokesGaugeY` (the
-second-coordinate refinement with the two gauge generators `genX`, `genY`).
-No `BookProof/` module is left unproved and no module remains to be `#check`-ed
-from `Book/`.
+**Update (2026-08-17): the NS thread, the QG route and the QYM route are all
+executed; the remaining work is the recorded research boundaries.** D1/D2 prose
+cleanups are done, **GAP-1** and **GAP-2** are closed, §4 is fully landed, the
+Navier–Stokes thread (`PLAN_LEAN_SPECIALIST_NS_FLOW.md`, 29+ modules) is proved
+including its Eulerian/GaugeY side, the §8 gate is green, and the two further
+plan items are closed:
+* **Quantum Gravity** (`PLAN_LEAN_SPECIALIST_QG_FLOW.md`, executed by
+  `ChapterQuantumGravityDensitized.lean` + `ChapterQuantumGravityHalfDensity.lean`,
+  cited from `Book/DiffeomorphismsGravity.lean`) — the densitized change of
+  variables, the flat hyperbolic principal part, the Hermite-basis ESA (unbounded,
+  trivial deficiency at every non-real `z`), Strichartz as a named hypothesis, and
+  the *constructed* half-density unitary transfer.
+* **Quantum Yang–Mills** (`PLAN_LEAN_SPECIALIST_QYM_FLOW.md`, executed by
+  `ChapterYangMillsFriedrichs.lean` + `ChapterYangMillsFriedrichsLimit.lean`, cited
+  from `Book/YangMillsQuantization.lean`) — the Weyl-gauge sum-of-squares form, its
+  closability, the Friedrichs extension as a named theorem, and the Hashimoto-limit
+  identification proved in the bounded regime. Plus the supporting Hashimoto
+  extension (`ChapterHermiteGalerkinFriedrichs`, `ChapterHashimotoShiftInvert`,
+  `ChapterHashimotoComplexShifts`).
 
-For a future pass, the remaining work is maintenance rather than mathematics:
+For a future pass, the remaining work is the **recorded research boundaries** —
+none of which is a plan item:
 
-1. Re-run the **§8 verification gate** (`lake build`, `lake build RandomMap`,
-   `./patches/build-book.sh`, the sorry/axiom audit and the isolation audit) after
-   any change. **Done (2026-08-17):** the gate was run in this repository on the
-   copied-in waves and on the new `ChapterNavierStokesGaugeY2` module; `lake build`
-   (default targets) and `lake build RandomMap` are green, the sorry/axiom and
-   isolation audits are clean.
+1. Re-run the **§8 verification gate** after any change. **Done (2026-08-17):**
+   the gate is green in this repository on all the copied-in waves (see the
+   leading Status block).
 2. Keep `Issues.md` §0b in sync when the chapter set changes.
-3. The infinite-dimensional analytic layer (§4.8's boundary) is largely closed: as of 2026-08-13 the bounded case is formalized on `ℓ²(ℤ)`
-   (`ChapterContinuityUnitaryInfinite`), the Born law is a probability measure on an
-   arbitrary measure space (`ChapterBornMeasure`), and the unbounded boundary is
-   stated, exhibited, and then carried through: the maximal multiplication operator
-   is proved self-adjoint and shown to generate its unitary group
-   (`ChapterUnboundedPosition`: `adjointDomain_eq_mulDomain`, `adjoint_eq_mulOp`,
-   `phaseUnitary`, `phaseUnitary_add`, `tendsto_phaseUnitary`,
-   `tendsto_slope_phaseUnitary`). The research target that remains is the same
-   package for unbounded operators that are *not* multiplication operators in the
-   ambient basis — the continuum Laplacian — i.e. Stone's theorem in full
-   generality; it is a research target, not a plan item.
-4. The Navier–Stokes research target (also not a plan item): essential
-   self-adjointness of the *continuum* Navier–Stokes generator. The named-hypothesis
-   form (`ns_esa_of_farisLavine_dense`) is now backed by a **proved** Faris–Lavine
-   criterion and **proved** inequalities for the Hamiltonian on the finite-mode
-   core; what remains hypothetical is exactly the two inequalities for a continuum
-   generator. Global existence/uniqueness for Navier–Stokes is not claimed anywhere.
+3. The infinite-dimensional analytic layer (§4.8's boundary): Stone's theorem in
+   full generality for operators that are not multiplication operators — the
+   continuum Laplacian. Research target, not a plan item.
+4. **The NS continuum ESA**: the two Faris–Lavine inequalities for the quadratic
+   symbol `A_i = u_j u_{i,j} − ν u_{i,jj}` in a genuinely differential realization;
+   ESA then gives the complete flow via Stone. Global existence of the *classical*
+   NS equation is a separate, deliberate D5 scope cut.
+5. **QG continuum ESA**: the finite-speed / unique-continuation step for the flat
+   d'Alembertian with polynomial potential (Strichartz), entered as a named
+   hypothesis; plus the gauge/BRST-sector check for the transfer.
+6. **QYM continuum ESA + the Hashimoto-limit identification in the unbounded
+   regime**: the Friedrichs theorem remains a named hypothesis for unbounded
+   operators, and `sirk_limit_eq_friedrichs` (D.4) is proved only under
+   boundedness; the unbounded identification is a research conjecture.
+7. Pedagogical polish (small, editorial): the new plan/doc files
+   (`PLAN_LEAN_SPECIALIST_QG_FLOW.md`, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`,
+   `HASHIMOTO_COMPLEX_SHIFTS.md`, `HERMITE_GALERKIN_FRIEDRICHS.md`) and the Book
+   prose are in place; keep them in one-to-one correspondence with the proof
+   modules on any future edit.
 
 ### What is missing from `PLAN_LEAN_SPECIALIST_NS_FLOW.md` (record, 2026-08-16)
 
@@ -835,7 +919,10 @@ theorem.
   any unitary-evolution result as a *proved Lean theorem*. The book's own
   existence/uniqueness claims for gravity are in the same scope-cut class as
   Contention D5 for NS.
-- **Suggested next step (a plan item, like the NS waves)**: a
+- **Suggested next step (a plan item, like the NS waves) — CLOSED (2026-08-17):**
+  `PLAN_LEAN_SPECIALIST_QG_FLOW.md` now exists and is executed by
+  `BookProof/ChapterQuantumGravityDensitized.lean`.  The original wording of the
+  item follows.  A
   `PLAN_LEAN_SPECIALIST_QG_FLOW.md` in the NS-FLOW style — Part A (the
   densitized change of variables `√e`, `√e·e_i^a` and the `1/e = (∂y/∂e)²`
   identity), Part B (the flat d'Alembertian principal part and the operator
@@ -946,7 +1033,12 @@ spectra nest, and the best-approximation error is antitone in the order
   and mass-gap Millennium problem is deliberately out of scope (the book's own
   "if the Hamiltonian is positive-definite then ... with or without a mass gap"
   is a conditional, not a claim).
-- **Suggested next step (a plan item)**: a `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`
+- **Suggested next step (a plan item) — CLOSED (2026-08-17):**
+  `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` now exists and is executed by
+  `BookProof/ChapterYangMillsFriedrichs.lean` (Part D.4, the identification of the
+  Hashimoto limit with the Friedrichs extension, is deliberately left as a recorded
+  conjecture).  The original wording of the item follows.  A
+  `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`
   in the NS-FLOW style — Part A (the Hermite-basis fiber: `πⁱ_a`, `B_{i a}` as
   concrete oscillator shifts, `H` a sum of squares, `Ω` nilpotent), Part B (the
   quadratic form and its closure), Part C (the Friedrichs extension as a named

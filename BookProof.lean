@@ -107,6 +107,11 @@ import BookProof.ChapterNavierStokesFockCanonical
 import BookProof.ChapterNavierStokesEulerian
 import BookProof.ChapterNavierStokesGaugeY
 import BookProof.ChapterNavierStokesGaugeY2
+import BookProof.ChapterQuantumGravityDensitized
+import BookProof.ChapterQuantumGravityHalfDensity
+import BookProof.ChapterYangMillsFriedrichs
+import BookProof.ChapterYangMillsFriedrichsLimit
+import BookProof.ChapterHermiteGalerkinFriedrichs
 import BookProof.ChapterSpinStatistics
 import BookProof.ChapterMajoranaFourier
 import BookProof.ChapterMajoranaProp61
@@ -590,3 +595,17 @@ import BookProof.ChapterSeparableSpectrum
 -- continuous functions to a standard Borel space, so every summand of an abelian algebra
 -- acting on a separable Hilbert space realises one of the five standard types.
 import BookProof.ChapterSeparableL2Model
+
+-- Wave (2026-08-17, the shift-invert extension of the Hermite/Galerkin
+-- Friedrichs-selection theorem): in the Hashimoto algorithm the operator that is
+-- actually iterated is the shift-inverted resolvent `R = (H + γ)⁻¹`, which is
+-- bounded (`‖R‖ ≤ 1/γ`) for every positive symmetric `H`, however unbounded.  The
+-- bounded Galerkin convergence theory therefore reaches unbounded Hamiltonians,
+-- and `R` determines the self-adjoint extension uniquely.
+import BookProof.ChapterHashimotoShiftInvert
+
+-- The same theory with the shifts the Shift-invert Rational Krylov method really
+-- uses: `γ` complex with non-zero imaginary part (which makes `γ I − A` invertible
+-- for every self-adjoint `A`, with no positivity), and a different shift at every
+-- step, with the rational Krylov structure that follows.
+import BookProof.ChapterHashimotoComplexShifts

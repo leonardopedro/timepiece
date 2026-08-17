@@ -7,7 +7,124 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-## Latest wave (2026-08-17, **the second-order gauge generator `genY2` — plan item A.7**)
+## Latest wave (2026-08-17, **the Hermite-basis Galerkin/Rayleigh–Ritz route to the Friedrichs extension**)
+
+`BookProof/ChapterHermiteGalerkinFriedrichs.lean` (namespace
+`BookProof.HermiteGalerkin`, `sorry`-free / `axiom`-free, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, cited from
+`Book/YangMillsQuantization.lean`) formalizes the claim that a Krylov/Galerkin
+algorithm run in a complete (Hermite) basis needs no boundary condition: the
+truncation is a Rayleigh–Ritz minimization of the energy form, and the limit is
+the extension the energy form determines.
+
+* Step 1 — Rayleigh–Ritz, **no boundedness hypothesis**: `galerkinSpan`,
+  `galerkinCompression`, `inner_galerkinCompression` (on the truncation subspace
+  the compressed matrix carries exactly the energy form), `ritzSet`, `ritzInf`,
+  `ritzInf_antitone`, `ritzInf_nonneg`, `ritzInf_tendsto_domainInf` (the Ritz
+  values decrease to the infimum of the energy form over the whole domain).
+* Step 2 — completeness of the basis: `finiteModeDomain`,
+  `exists_mem_galerkinSpan`, `finiteModeDomain_dense`, `galerkinSpan_iSup_dense`,
+  `starProjection_tendsto_of_monotone_dense`, `galerkinProj_tendsto` (`Pₘ → I`
+  strongly), `compression_tendsto_of_starProjection_tendsto`,
+  `galerkinCompression_tendsto`.
+* Step 3 — the limit, **in the bounded regime only**: `norm_sub_smul_ge`,
+  `isUnit_algebraMap_sub`, `sub_resolvent_apply`, `norm_resolvent_apply_le`,
+  `resolvent_tendsto_of_strong_tendsto` (strong resolvent convergence),
+  `isSelfAdjoint_galerkinCompression`, `galerkinResolvent_tendsto`,
+  `positive_selfadjoint_extension_unique` (Hellinger–Toeplitz + density: there is
+  only one positive self-adjoint extension, so nothing is left to choose), and
+  the headline `hermiteGalerkin_selects_friedrichs`.
+* Non-vacuity: `finiteModeRestrict`, `finiteModeRestrict_hypotheses`,
+  `finiteModeRestrict_selects_operator` (the algorithm recovers the operator
+  itself), `ell2Basis`, `finiteModeDomain_ne_top` (the finite-mode domain is a
+  *proper* dense subspace).
+
+Honest boundary: the unbounded, non-essentially-self-adjoint case is **not**
+claimed — only Steps 1 and 2 are unconditional — and nothing about indeterminate
+Stieltjes moment problems or Nevanlinna-extremal measures is formalized.
+
+## Previous wave (2026-08-17, **QG densitized tetrads + QYM Friedrichs — §10.3 / §11.3**)
+
+Two new modules (`sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean`) execute the two remaining
+"suggested next step" items of `CONSOLIDATED_PLAN.md`; the accompanying plans are
+`PLAN_LEAN_SPECIALIST_QG_FLOW.md` and `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`.
+
+**`BookProof/ChapterQuantumGravityDensitized.lean`** (namespace
+`BookProof.QuantumGravityDensitized`, cited from `Book/DiffeomorphismsGravity.lean`).
+
+* Part A — the densitized change of variables: `densY` (`y = √e`), `densY_sq`,
+  `hasDerivAt_densY`, `deriv_densY`, and the absorption identity
+  `inv_eq_four_mul_deriv_densY_sq` (`1/e = 4 (∂y/∂e)²`; the factor `4` is missing
+  from §10.1's prose and is proved here in the corrected form), the densitized
+  form of the two singular terms (`kinetic_absorption`, `conformal_absorption`),
+  the densitized tetrad (`densTetrad`, `densTetrad_det`, `densTetrad_recover`) and
+  the degeneration statements `tendsto_inv_det_atTop`, `tendsto_densY_zero`.
+* Part B — the flat principal part: `qgSymbol`, `qgSymbol_homogeneous`,
+  `qgMomenta`, `qgMetric`, `qgMetric_det_ne_zero`, `qgSymbol_eq_metric_form`,
+  `qgSymbol_pos` / `qgSymbol_neg` / `qgSymbol_indefinite` (the symbol is
+  hyperbolic, **not** elliptic, which is exactly why the elliptic route used for
+  Navier–Stokes does not apply), `metricDeriv`, `christoffel`,
+  `christoffel_eq_zero_of_const` and `qgMetric_christoffel_zero` (a constant
+  field-space metric is flat, so the point transformation produces no connection
+  corrections), plus `qgFullSymbol`, `qgFullSymbol_scaling`.
+* Part C — the Hermite-basis realization: `qgModeSymbol`, `qgModeHamiltonian`,
+  `mulHamiltonian_mulBasis`, `mulHamiltonian_deficiencyTrivialAt`,
+  `qgModeHamiltonian_essentiallySelfAdjoint`,
+  `qgModeHamiltonian_deficiencyTrivialAt` and `qgModeHamiltonian_not_bounded`:
+  the fiber operator is genuinely unbounded, essentially self-adjoint on its
+  maximal domain, and its adjoint has trivial deficiency at *every* non-real `z`.
+* Part D — `strichartz_esa_of_finiteSpeed`: Strichartz's finite-speed input is a
+  **named hypothesis, never an axiom**, and is shown satisfiable by
+  `strichartz_finiteSpeed_satisfiable`; `qg_esa_of_farisLavine` records the
+  Faris–Lavine alternative and `densitized_hasZeroDeficiencyOn_transfer` the
+  half-density (unitary-equivalence) transfer back to the physical variables.
+
+**`BookProof/ChapterQuantumGravityHalfDensity.lean`** (namespace
+`BookProof.QuantumGravityHalfDensity`, cited from `Book/DiffeomorphismsGravity.lean`)
+— Part D.5, added on a later pass over `PLAN_LEAN_SPECIALIST_QG_FLOW.md`.  It
+**constructs** the half-density unitary that Part D.4 previously had to take as
+data: `qgJacobian` (`de/dy = 2y`), `qgHalfDensity` (`√(2y)`), `qgSrcMeasure`
+(the weighted measure `2y dy` on `(0,∞)`) with
+`qgSrcMeasure_density_eq_halfDensity_sq`; the change of variables is measure
+preserving in both directions (`measurePreserving_qgSquare`,
+`measurePreserving_qgSqrt`), giving the unitary
+`halfDensityUnitary : L²((0,∞), de) ≃ₗᵢ[ℂ] L²((0,∞), 2y dy)` with
+`halfDensityUnitary_apply`, `halfDensityUnitary_symm_apply`,
+`halfDensityUnitary_norm` and `exists_halfDensity_unitary`; and
+`qg_halfDensity_transfer` instantiates the D.4 transfer theorem at it.
+
+**`BookProof/ChapterYangMillsFriedrichs.lean`** (namespace
+`BookProof.YangMillsFriedrichs`, cited from `Book/YangMillsQuantization.lean`).
+
+* Part A — the densely defined Weyl-gauge Hamiltonian `H = ½Σπᵢ² + ½ΣBₐ²`
+  (`weylOpDom`, `weylOp`, `weylOp_apply`, `inner_sq_eq_normSq`,
+  `weylOpDom_symmetricOn`), with `weylOpDom_quadForm` (the quadratic form is the
+  sum of squares `½Σ‖πᵢx‖² + ½Σ‖Bₐx‖²`) and `weylOpDom_quadForm_nonneg`
+  (semi-boundedness).
+* Part B — the form and its closure: `formInner`, `formNormSq`, `formNormSq_eq`,
+  `formInner_conj_symm`, `formNormSq_ge_normSq`, the algebraic identities
+  (`formNormSq_add`, `formNormSq_sub`, `formNormSq_add_smul`), the form
+  Cauchy–Schwarz inequality `re_formInner_sq_le`, `formNormSq_add_le` and the
+  headline `form_closable`, applied as `weylForm_closable`.
+* Part C — `IsPositiveSelfAdjointExtension`,
+  `friedrichs_extension_of_semibounded` (the Friedrichs theorem as a **named
+  hypothesis**, shown satisfiable by `friedrichs_hypothesis_satisfiable`) and the
+  conditional conclusion `weyl_friedrichs_extension`.
+* Part D — the SIRK supporting facts `weylKrylov_bestApprox_antitone`,
+  `weylKrylov_bestApprox_tendsto_zero`.  The §11.2 uniqueness sentence ("the
+  infinite Hashimoto limit selects the Friedrichs extension") stays a
+  **conjecture recorded in prose**: it needs the limit operator of the Krylov
+  flag, which is not constructed, and every naive Lean rendering of it is
+  trivially true.
+
+The honest boundaries are unchanged: nothing is claimed about essential
+self-adjointness of the *continuum* gravity operator, about self-adjointness of
+the *continuum* Yang–Mills operator, about the mass gap, or about global
+existence in either theory.  All new results are `sorry`-free and `axiom`-free
+(only `propext`, `Classical.choice`, `Quot.sound`).
+
+## Previous wave (2026-08-17, **the second-order gauge generator `genY2` — plan item A.7**)
 
 `BookProof/ChapterNavierStokesGaugeY2.lean` (namespace
 `BookProof.NavierStokesGaugeY2`, registered in `BookProof.lean`, certified in
