@@ -783,3 +783,100 @@ recorded in this project's honesty style:
 
 None of these is an `axiom` in `BookProof/`; each enters as a named theorem with
 a citation docstring when a plan requires it.
+
+---
+
+## 11. Quantum Yang–Mills: Friedrichs extension of the 3D gauge-fixed Hamiltonian
+(candidate route, record — not a proved Lean theorem)
+
+The manuscript's 3D gauge-fixed Quantum Yang–Mills Hamiltonian
+(`book.tex` §"Quantization due to time-evolution: Yang-Mills and Classical
+Statistical Field Theory", ~7037–7120, on
+`Γ^s(L²(ℝ⁹⁹×ℤ₂³¹)) ⊗ Γ^a(L²(ℝ⁹⁹×ℤ₂³¹))`, the `ℝ⁹⁹` = 3 coordinates + 24 SU(3)
+gauge fields `A_{k,a}` + their derivatives, `ℤ₂³¹` the 8 ghosts + derivatives
+minus one) is, in the Weyl gauge and **in the Hermite (oscillator) basis**,
+
+```
+H(x) = −½ πⁱ_a πⁱ_a − ½ B_{i a} B_{i a}
+```
+
+with the BRST charge `Ω = ∫ π^k_a ∂_k ψ†_a − π^k_a f_abc A_{k b} ψ†_c
+− (i/2) f_abc ψ†_a ψ†_b ψ_c`. The sign is the convention of the classical
+action; up to that sign the Weyl-gauge Hamiltonian is a **sum of squares of the
+self-adjoint electric- and magnetic-field operators** (`½Σ(πⁱ_a)² + ½Σ(B_{i a})²`),
+i.e. **positive (bounded below by 0)** — already formalized as
+`weylHamiltonian_isPositive` in `BookProof/ChapterWeylHamiltonian.lean`.
+
+### 11.1 The theorem: Friedrichs extension
+
+Because `H` is **symmetric and bounded below** (semi-bounded), the classical
+**Friedrichs extension theorem** applies: a densely defined, symmetric,
+semi-bounded operator on a Hilbert space admits a canonical self-adjoint
+extension — the *Friedrichs extension* — obtained by closing its quadratic form
+and taking the operator of the closure. Key properties:
+
+- it is the self-adjoint extension whose domain is contained in the form domain
+  of the closure, and it is the *largest* (in the sense of the partial order on
+  extensions) self-adjoint extension;
+- it is **canonical**: it depends only on the operator (and its lower bound), not
+  on any choice of auxiliary data — which is exactly the uniqueness the
+  Hashimoto-limit claim below needs;
+- for a *positive* operator (`H ≥ 0`, the Weyl-gauge case) the Friedrichs
+  extension is `√(H*)√(H)`-based and its quadratic form is the closure of the
+  original form.
+
+Reference: M. Reed & B. Simon, *Methods of Modern Mathematical Physics, Vol. I*,
+Thm X.23 (the Friedrichs extension); K. Friedrichs, *Spektraltheorie
+halb-beschränkter Operatoren*, Math. Ann. **109** (1934) 465–487.
+
+### 11.2 The uniqueness claim: the infinite Hashimoto limit selects it
+
+The project's Hashimoto–SIRK machinery (`PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`,
+`BookProof/ChapterH8`/`ChapterH9`) builds the order-`n` Krylov approximations
+`Bₙ = Vₙ* X Vₙ` whose *spectral side nests*:
+`W(Bₘ) ⊆ W(Bₙ) ⊆ W(X)` for `m ≤ n` (`sirk_numRange_nested_orders`), the Ritz
+spectra nest, and the best-approximation error is antitone in the order
+(`krylov_bestApprox_antitone`), tending to `0` for a cyclic seed
+(`krylov_bestApprox_tendsto_zero`). The uniqueness claim to record is:
+
+> **The infinite limit of the Hashimoto algorithm selects the Friedrichs
+> extension** — the self-adjoint extension recovered as the order-`n` Krylov
+> approximations refine is the canonical one, i.e. the Friedrichs extension of
+> §11.1, because the Friedrichs extension is the only self-adjoint extension
+> that is *determined by the quadratic form alone* (no boundary condition at
+> infinity is imposed beyond the form domain), and the nested-orders
+> convergence of the approximants is form-domain-preserving.
+
+### 11.3 Honest boundary
+
+- **What is provable now** (mirroring the NS-FLOW and QG waves): the
+  *algebraic* content — the Weyl-gauge Hamiltonian is a sum of squares
+  (`weylHamiltonian_isPositive`, already proved); the Hermite-basis (oscillator)
+  realization of the fiber, where the comparison/number operator is diagonal and
+  the electric/magnetic fields are concrete shifts; the form
+  `q(x) = ½Σ‖πⁱ_a x‖² + ½Σ‖B_{i a} x‖²` and its positivity; the BRST charge
+  `Ω` and its nilpotency (`nsBrst_nilpotent`-style, via `ChapterGhostField`).
+  None of this requires the continuum analytic theorem.
+- **What is recorded, not claimed**: the **Friedrichs extension** for the
+  continuum `L²(ℝ⁹⁹)` operator, and the **uniqueness by the infinite Hashimoto
+  limit**, are named theorems / named claims (Friedrichs 1934, Reed–Simon
+  X.23), in the same honesty class as Strichartz (§10) and the NS continuum FL
+  inequalities. The Hasimoto-limit-uniqueness sentence in §11.2 is a *conjecture
+  to be proved* (a research item), not a proved statement: the current SIRK
+  results give nesting, monotone approximation error and (for cyclic seeds)
+  tend-to-zero, but the identification of the *limit operator* with the
+  Friedrichs extension is not yet formalized.
+- **Do NOT claim**: self-adjointness of the continuum QYM operator, the mass
+  gap, or global existence as *proved Lean theorems*. The Yang–Mills existence
+  and mass-gap Millennium problem is deliberately out of scope (the book's own
+  "if the Hamiltonian is positive-definite then ... with or without a mass gap"
+  is a conditional, not a claim).
+- **Suggested next step (a plan item)**: a `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`
+  in the NS-FLOW style — Part A (the Hermite-basis fiber: `πⁱ_a`, `B_{i a}` as
+  concrete oscillator shifts, `H` a sum of squares, `Ω` nilpotent), Part B (the
+  quadratic form and its closure), Part C (the Friedrichs extension as a named
+  theorem — never an axiom), Part D (the Hashimoto-limit identification: state
+  `sirk_limit_eq_friedrichs` as the research conjecture, with the proved
+  `sirk_numRange_nested_orders`/`krylov_bestApprox_tendsto_zero` as the
+  supporting nesting facts). Reuse `ChapterWeylHamiltonian`,
+  `ChapterGhostField`, `ChapterSuperBracket` and `ChapterH8`/`ChapterH9`.
