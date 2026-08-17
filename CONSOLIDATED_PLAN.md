@@ -599,17 +599,26 @@ itself drew, plus one small item and one correction:
   the Aristotle wave proved `nsBrst_not_hermitian` and the honest Hermitian
   packaging `nsBrst_symmetrization_hermitian` (`Ω + Ω†`). The plan's E.3 text
   should be read as superseded by that correction.
-- **The second-coordinate `y` (GaugeY) is not yet a named plan item.** The
+- **The second-coordinate `y` (GaugeY) is now a named plan item (A.6), and its
+  second-derivative extension is a genuinely open plan item (A.7).** The
   `genX`/`genY` construction and the `y = 0` collapse are proved in
-  `ChapterNavierStokesGaugeY.lean` but the plan's Part A.5 prose predates them;
-  folding them in (A.6) keeps plan ↔ proofs in one-to-one correspondence.
+  `ChapterNavierStokesGaugeY.lean` and folded into the plan as A.6. The new open
+  item **A.7** (Eulerian variables only): `genY` as proved compensates only the
+  *first*-derivative modes — it annihilates the linear field `u_i(y) = u_i +
+  u_{i,j} y_j`. The extension `genY2 j = ∂/∂y_j − u_{i,j}∂/∂u_i −
+  u_{i,jj}∂/∂u_{i,j}` annihilates the second-order field `u_i(y) = u_i + u_{i,j}
+  y_j + u_{i,jj} y_j²`, i.e. makes the Laplacian modes `u_{i,jj}` legitimate too.
+  This is Eulerian-only: the Lagrangian (parcel) side has no such field
+  expansion. Items: `uField2`, `genY2`, `genY2_uField2`, the sharpness
+  `genY2_perturbed_ne_zero`, Leibniz/abelian checks — reusing GaugeY's `NSVar`
+  (the `uL` Laplacian mode is already there).
 - **Verification gate not yet run in this repo (2026-08-16).** The Aristotle waves
   were copied in but `lake build`/`./patches/build-book.sh` have not been re-run
   here; that is the first task for the next specialist.
 
 None of these is a mathematical gap in the provable core; they are the recorded
-boundary, a cosmetic name, a superseded optional item, a prose/plan sync, and a
-build-gate re-run.
+boundary, a cosmetic name, a superseded optional item, a genuinely new plan item
+(A.7), and a build-gate re-run.
 5. Pedagogical polish (small, editorial): the Eulerian/GaugeY prose in
    `Book/FreeField.lean` is in place; a future pass can fold the *second
    coordinate* `y` into the `PLAN_LEAN_SPECIALIST_NS_FLOW.md` Part A.5/A.6 prose as

@@ -39,7 +39,11 @@ divergence-constraint resolution symbolically in Cadabra2
 flags: the *continuum* operator's essential self-adjointness (the two Faris–Lavine
 inequalities for a genuinely differential/Sobolev realization of the fiber
 Laplacian, not the finite-mode core) and global existence/uniqueness for NS. The
-Eulerian and Lagrangian routes are both named in §7; neither is a plan item.
+Eulerian and Lagrangian routes are both named in §7; neither is a plan item. On
+top of that, one genuinely open plan item is recorded: **A.7**, the
+second-derivative extension `genY2` of the Eulerian gauge generator (Eulerian
+variables only), which compensates the Laplacian modes `u_{i,jj}` in the
+second-order field expansion.
 
 ---
 
@@ -290,6 +294,30 @@ annihilate the field and the NS symbol and commute (abelian, hence first class);
 collapses to its point value `u_i` and the Hamiltonian built from `u_i(y)` acts
 as the ordinary Navier–Stokes one (`setYZero_uField`, `setYZero_nsSymbol`,
 `hamiltonianOp_apply_of_y_zero`).
+
+**A.7** *The second-derivative extension of `genY` (Eulerian variables only;
+NOT yet proved — plan item).* The `genY` proved in A.6 compensates only the
+*first*-derivative modes: it annihilates the linear field
+`u_i(y) = u_i + u_{i,j} y_j`. The Eulerian constraint that makes the
+second-derivative (Laplacian) modes `u_{i,jj}` legitimate too requires the field
+expanded to second order in `y`, `u_i(y) = u_i + u_{i,j} y_j + u_{i,jj} y_j²`,
+and the generator extended by the compensating `∂/∂u_{i,j}` term:
+
+```
+genY2 j = ∂/∂y_j − u_{i,j} ∂/∂u_i − u_{i,jj} ∂/∂u_{i,j}
+```
+
+(verification: `∂/∂y_j` gives `u_{i,j} + u_{i,jj} y_j`, `−u_{i,j}∂/∂u_i` gives
+`−u_{i,j}`, `−u_{i,jj}∂/∂u_{i,j}` gives `−u_{i,jj} y_j` — total `0`, so
+`genY2 j (uField2 i) = 0`). This is **Eulerian-variables only**: the Lagrangian
+(parcel) side has no such field expansion — the transformed operator is built
+from the trajectory momenta `P_i` and the viscous gradients `Q_i = ∇_ξ P_i`
+directly, with no `u_{i,jj}` mode. Items: `uField2` (the second-order field),
+`genY2` (the extended generator), `genY2_uField2` (annihilation), the sharpness
+statement `genY2_perturbed_ne_zero` (the coefficient `u_{i,jj}` of `y_j²` is the
+*only* admissible one), and `genY2_leibniz`/the abelian-commutation checks.
+Reuse `ChapterNavierStokesGaugeY`'s `NSVar` (the `uL : Fin 3 → NSVar` mode is
+already present as the Laplacian mode) and its polynomial-momentum machinery.
 
 ### Part B — The volume-preservation constraint (Lagrangian change of variables)
 
