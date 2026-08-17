@@ -736,6 +736,19 @@ for the elliptic case.
   derivative; the operator-order decomposition of `H_transformed` (2nd + 1st +
   0th); and the positive/flat character of `H₀`. None of this requires the
   continuum analytic theorem.
+- **ESA in the transformed variables does NOT transfer to the original
+  variables.** This is the crucial scope point. The densitized-tetrad map
+  `y = √e`, `ẽ_i^a = √e·e_i^a` is a **nonlinear point transformation of the
+  field configuration space**, not a Hilbert-space unitary; it changes the
+  measure, the domain, and the operator itself. ESA is not invariant under such
+  a map, so `H_transformed` being essentially self-adjoint says **nothing** about
+  the raw `(1/16e)S² − (1/24e)P²` operator in the original tetrad variables.
+  (Contrast: the NS-flow *Lagrangian* change of variables was carried by
+  `hasZeroDeficiencyOn_of_linearIsometryEquiv` — a *unitary* map — so there ESA
+  genuinely transferred Eulerian ⟷ Lagrangian. No such transfer exists here.)
+  The honest statement is exactly what this record says: **ESA is claimed only
+  for the transformed-operator route**, as the manuscript's own
+  singular-to-flat change of variables is understood to be load-bearing.
 - **What is recorded, not claimed**: the **Strichartz ESA conclusion** for the
   continuum `L²(ℝ⁸⁴)` operator is a named analytic theorem (like Crouzeix in
   `ChapterH4`, or the Faris–Lavine inequalities for the NS continuum). The
