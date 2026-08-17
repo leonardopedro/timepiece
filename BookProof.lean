@@ -106,6 +106,7 @@ import BookProof.ChapterNavierStokesFockManyMode
 import BookProof.ChapterNavierStokesFockCanonical
 import BookProof.ChapterNavierStokesEulerian
 import BookProof.ChapterNavierStokesGaugeY
+import BookProof.ChapterNavierStokesGaugeY2
 import BookProof.ChapterSpinStatistics
 import BookProof.ChapterMajoranaFourier
 import BookProof.ChapterMajoranaProp61

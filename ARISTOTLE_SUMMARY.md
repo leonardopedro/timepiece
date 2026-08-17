@@ -1,3 +1,22 @@
+# Summary of changes for run 6ed4b907-e639-4563-ac0b-19e66caaea8e
+Completed execution of `CONSOLIDATED_PLAN.md`.
+
+**§8 verification gate — green.**
+- `lake build` (default targets: BookProof + Book + Singularity): "Build completed successfully (8615 jobs)", 0 errors.
+- `lake build RandomMap`: green. `lake build UsedRoute`: green (0 errors).
+- `./patches/build-book.sh`: OK (no `<base>`; fragment links present). `./patches/check-katex.sh`: 2069 snippets, 0 KaTeX failures.
+- sorry/axiom/isolation audits over `BookProof/ PnpProof/ Singularity/ RandomMap/`: clean.
+
+**Plan item A.7 (second-derivative gauge generator) — closed.** New module `BookProof/ChapterNavierStokesGaugeY2.lean`, sorry-free and axiom-clean (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`). It defines the second-order velocity field `uField2` (u_i + u_{i,j}y_j + ½·u_{i,jj}y_j² — the factor ½ is forced and was missing from the plan's informal version), the derivative field `uDField`, and the generator `genY2`, and proves: `genY2_uField2` (annihilation of the second-order field), `genY2_uDField`, `genX_uField2`, the symbol results `genY2_nsSymbol2`, `genX_nsSymbol2` and `setYZero_nsSymbol2` (collapse to the ordinary Navier–Stokes symbol at y = 0), sharpness (`genY_uField2_ne_zero`, `genY2_uField_ne_zero`, `genY2_uField2_perturbed_ne_zero`), and the algebra structure (`genY2_genY2_commute`, `genX_genY2_commute`, plus the honest non-commutation `genY_genY2_bracket_X_u` / `genY_genY2_not_commute`). Wired into `BookProof.lean`, the `#print axioms` audit block in `BookProof/ChapterRoadmapAudit.lean`, and the book text in `Book/FreeField.lean`.
+
+**Cosmetic item A.1 — closed.** `BookProof/ChapterF1.lean` now provides `positionOp` (alias of `fieldPhi`) with `positionOp_eq_creat_add_annih`.
+
+**Hygiene: `UsedRoute` library build repaired.** `UsedRoute/TwoLimits.lean` had no imports at all and `UsedRoute/SimplifiedStrategy.lean` was missing two; adding them makes `lake build UsedRoute` succeed. I then closed six sorries in `UsedRoute/SimplifiedStrategy.lean` (10 → 4): `σ_P_tendsto`, `corrected_partial_sums_bounded`, `S_smooth_analyticAt`, `f_P_analyticOnNhd`, `eulerProd_analyticOnNhd`, `eulerProd_ne_zero`, and `eulerProd_tendsto` (partial Euler products converge to 1/ζ on Re > 1, via Mathlib's Euler product for ζ). `σ_P_lt_one` was **false as stated** (σ_P 0 = 3/2, σ_P 1 = 1); it is restated with the hypothesis `2 ≤ P` and the reason is documented in a comment above it. Across `UsedRoute/` 26 legacy RH-route declarations still use `sorry` (down from 33); these are the deep RH-equivalent statements. `UsedRoute` is not a default build target and `RandomMap` imports only its sorry-free modules, so this does not affect the gate.
+
+**Docs kept in sync:** `BookProof/STATUS.md`, `CONSOLIDATED_PLAN.md` (gate marked done, A.7 and A.1 closed, new §7 entry recording the UsedRoute repair and residue), and `PLAN_LEAN_SPECIALIST_NS_FLOW.md` (A.7 row marked proved with the ½ correction noted). Executable bits on `patches/*.sh` were restored.
+
+All work is committed and pushed.
+
 # Summary of changes for run c517942d-f40b-4570-9abe-c6e7feb4979e
 I added the second coordinate `y` to the Navier–Stokes constraint formalization, in a new sorry-free, axiom-free module `BookProof/ChapterNavierStokesGaugeY.lean` (namespace `BookProof.NavierStokesGaugeY`), registered in `BookProof.lean`, cited from the book prose in `Book/FreeField.lean` and recorded in `BookProof/STATUS.md`.
 

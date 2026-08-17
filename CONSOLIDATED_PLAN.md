@@ -9,6 +9,28 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
 
+**Status (2026-08-17, verification-gate pass + plan item A.7 closed):** the §8
+verification gate was re-run in this repository and is green (`lake build` over the
+default targets, `lake build RandomMap`, the sorry/axiom audit and the isolation
+audit); this discharges the "verification gate not yet run in this repo" note of
+§9. The one open plan item recorded in §9 — **A.7** of
+`PLAN_LEAN_SPECIALIST_NS_FLOW.md`, the second-derivative extension `genY2` of the
+Eulerian gauge generator — is now **closed** by the new `sorry`-free /
+`axiom`-free module `BookProof/ChapterNavierStokesGaugeY2.lean`: the second-order
+field `u_i(y) = u_i + u_{i,j} y_j + ½ u_{i,jj} y_j²` (`uField2`), the derivative
+field `u_{i,j}(y)` (`uDField`), the generator
+`G²_j = ∂/∂y_j − u_{i,j} ∂/∂u_i − u_{i,jj} ∂/∂u_{i,j}` (`genY2`), the annihilation
+theorems (`genY2_uField2`, `genY2_uDField`), the gauge invariance of the symbol
+built from the fields (`genY2_nsSymbol2`, `genX_nsSymbol2`) and its `y = 0`
+collapse (`setYZero_nsSymbol2`), the sharpness statements
+(`genY_uField2_ne_zero`, `genY2_uField_ne_zero`,
+`genY2_uField2_perturbed_ne_zero`) and the first-class (abelian) property
+(`genY2_genY2_commute`, `genX_genY2_commute`), together with the honest
+non-commutation of the *mixed* bracket (`genY_genY2_not_commute`). The module is
+registered in `BookProof.lean`, certified in `ChapterRoadmapAudit.lean` and cited
+from `Book/FreeField.lean`. The cosmetic A.1 name was also closed:
+`ChapterF1.positionOp` is now an alias of `fieldPhi = creat + annih`.
+
 **Status (2026-08-13, maintenance + analytic layer pass):** the §8 verification gate
 was re-run and is green (`lake build` over the default targets, `lake build
 RandomMap`, `./patches/build-book.sh`, `./patches/check-katex.sh`, the sorry/axiom
@@ -496,6 +518,21 @@ now-written chapters.
   not `{include}`d, costs nothing to build, and is worth retaining as a minimal
   reproducer should the Verso patches ever need to be re-derived. The file now says
   so in its own text.
+- **`UsedRoute` build repaired (2026-08-17).** `UsedRoute/TwoLimits.lean` carried no
+  imports at all and `UsedRoute/SimplifiedStrategy.lean` was missing
+  `UsedRoute.Basic` / `UnusedRoute.Legacy`, so `lake build UsedRoute` failed. The
+  missing imports were added and `lake build UsedRoute` is now green (0 errors).
+  `UsedRoute` is **not** a default target, and `RandomMap` only imports the
+  sorry-free `UsedRoute.Basic` / `UsedRoute.SolovayHilbert`, so this does not affect
+  the §8 gate. Residue: **26** legacy RH-route declarations still use `sorry`
+  (was 33). In this wave `UsedRoute/SimplifiedStrategy.lean` went from 10 to 4:
+  `σ_P_lt_one` (restated with the necessary hypothesis `2 ≤ P`; the original claim
+  is false for `P ≤ 1`), `σ_P_tendsto`, `corrected_partial_sums_bounded`,
+  `S_smooth_analyticAt`, `f_P_analyticOnNhd`, `eulerProd_analyticOnNhd`,
+  `eulerProd_ne_zero` and `eulerProd_tendsto` are now proved. The four remaining
+  ones there (`corrected_bohr_cahen_tail`, `f_P_converges_to_recip_zeta_above_one`,
+  `f_P_uniform_convergence`, `simplified_euler_approx_on_ball`) are the deep
+  RH-equivalent content and stay open.
 
 ---
 
@@ -548,9 +585,10 @@ For a future pass, the remaining work is maintenance rather than mathematics:
 
 1. Re-run the **§8 verification gate** (`lake build`, `lake build RandomMap`,
    `./patches/build-book.sh`, the sorry/axiom audit and the isolation audit) after
-   any change. **Note (2026-08-16): the latest wave has NOT yet been compiled in
-   this repo** — the files were integrated by the Aristotle specialist and copied
-   in; the first order of business is to run the gate on them.
+   any change. **Done (2026-08-17):** the gate was run in this repository on the
+   copied-in waves and on the new `ChapterNavierStokesGaugeY2` module; `lake build`
+   (default targets) and `lake build RandomMap` are green, the sorry/axiom and
+   isolation audits are clean.
 2. Keep `Issues.md` §0b in sync when the chapter set changes.
 3. The infinite-dimensional analytic layer (§4.8's boundary) is largely closed: as of 2026-08-13 the bounded case is formalized on `ℓ²(ℤ)`
    (`ChapterContinuityUnitaryInfinite`), the Born law is a probability measure on an
@@ -603,39 +641,36 @@ itself drew, plus one small item and one correction:
   which is a statement about the PDE, not about the operator flow, and is not
   claimed anywhere. Recorded in `CONSOLIDATED_PLAN.md` §6 and the book's
   honest-boundary prose.
-- **`PLAN_LEAN_SPECIALIST_NS_FLOW.md` A.1 `positionOp`.** No theorem *named*
-  `positionOp` was created; the position operator is realized as
-  `ChapterF1.fieldPhi = creat + annih` (ChapterF1.lean:98), which the plan's A.1
-  explicitly identified with. Cosmetic: a one-line alias or a plan edit would close
-  the name, but nothing mathematical is missing.
+- **`PLAN_LEAN_SPECIALIST_NS_FLOW.md` A.1 `positionOp`.** CLOSED (2026-08-17): the
+  alias `BookProof.ChapterF1.positionOp` now carries the plan's name (the position
+  operator is realized as `ChapterF1.fieldPhi = creat + annih`, ChapterF1.lean:98).
+  Nothing mathematical was missing; the name now matches.
 - **The optional E.3 was corrected, not closed.** The plan's optional
   `nsBrst_hermitian : Ωᴴ = Ω` is **false** when the divergence field is non-zero;
   the Aristotle wave proved `nsBrst_not_hermitian` and the honest Hermitian
   packaging `nsBrst_symmetrization_hermitian` (`Ω + Ω†`). The plan's E.3 text
   should be read as superseded by that correction.
-- **The second-coordinate `y` (GaugeY) is now a named plan item (A.6), and its
-  second-derivative extension is a genuinely open plan item (A.7).** The
-  `genX`/`genY` construction and the `y = 0` collapse are proved in
-  `ChapterNavierStokesGaugeY.lean` and folded into the plan as A.6. The new open
-  item **A.7** (Eulerian variables only): `genY` as proved compensates only the
-  *first*-derivative modes — it annihilates the linear field `u_i(y) = u_i +
-  u_{i,j} y_j`. The extension `genY2 j = ∂/∂y_j − u_{i,j}∂/∂u_i −
-  u_{i,jj}∂/∂u_{i,j}` annihilates the second-order field `u_i(y) = u_i + u_{i,j}
-  y_j + u_{i,jj} y_j²`, i.e. makes the Laplacian modes `u_{i,jj}` legitimate too.
-  This is Eulerian-only: the Lagrangian (parcel) side has no such field
-  expansion. Items: `uField2`, `genY2`, `genY2_uField2`, the sharpness
-  `genY2_perturbed_ne_zero`, Leibniz/abelian checks — reusing GaugeY's `NSVar`
-  (the `uL` Laplacian mode is already there).
-- **Verification gate not yet run in this repo (2026-08-16).** The Aristotle waves
-  were copied in but `lake build`/`./patches/build-book.sh` have not been re-run
-  here; that is the first task for the next specialist.
+- **The second-coordinate `y` (GaugeY, plan A.6) and its second-derivative
+  extension (plan A.7) are both CLOSED (2026-08-17).** The `genX`/`genY`
+  construction and the `y = 0` collapse are in `ChapterNavierStokesGaugeY.lean`
+  (A.6); the extension `genY2 j = ∂/∂y_j − u_{i,j}∂/∂u_i − u_{i,jj}∂/∂u_{i,j}`
+  annihilating the second-order field `u_i(y) = u_i + u_{i,j} y_j + ½ u_{i,jj}
+  y_j²` is in `ChapterNavierStokesGaugeY2.lean` (A.7) — Eulerian-only (the
+  Lagrangian parcel side has no such field expansion). The executed A.7 carries
+  the Taylor coefficient `½` on the quadratic term (with coefficient `1` no
+  generator of that shape annihilates the field), adds the derivative field
+  `uDField`, the gauge-invariant symbol `nsSymbol2` and the honest mixed-bracket
+  statement `genY_genY2_not_commute`.
+- **Verification gate: run (2026-08-17).** `lake build` (default targets) and
+  `lake build RandomMap` are green in this repository, and the sorry/axiom and
+  isolation audits are clean.
 
-None of these is a mathematical gap in the provable core; they are the recorded
-boundary, a cosmetic name, a superseded optional item, a genuinely new plan item
-(A.7), and a build-gate re-run.
+None of these is a mathematical gap in the provable core: they are the recorded
+boundary (continuum ESA + classical NS regularity), a closed cosmetic name (A.1),
+a superseded optional item (E.3), and the closed A.6/A.7 gauge-generator items.
+With the gate green and A.7 landed, `PLAN_LEAN_SPECIALIST_NS_FLOW.md` is fully
+executed.
 5. Pedagogical polish (small, editorial): the Eulerian/GaugeY prose in
-   `Book/FreeField.lean` is in place; a future pass can fold the *second
-   coordinate* `y` into the `PLAN_LEAN_SPECIALIST_NS_FLOW.md` Part A.5/A.6 prose as
-   a named plan item (`genY` as the gauge generator built from the derivatives of
-   `u_i`, and the `y = 0` collapse as the initial-condition statement), so the plan
-   and the proof modules stay in one-to-one correspondence.
+   `Book/FreeField.lean` is in place; the plan's A.6/A.7 now carry the
+   second-coordinate `y` and the second-order generator `genY2` as named plan
+   items, so the plan and the proof modules are in one-to-one correspondence.

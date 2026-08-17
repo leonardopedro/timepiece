@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Aristotle
 -/
 import BookProof.ChapterH4
+import BookProof.ChapterNavierStokesGaugeY2
 import BookProof.ChapterF4
 import BookProof.ChapterHolomorphic
 import BookProof.ChapterB4
@@ -452,5 +453,20 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.ChapterUnitaryTransport.tendsto_slope_transportUnitary
 #print axioms BookProof.ChapterUnitaryTransport.transported_position_isSelfAdjointOn
 #print axioms BookProof.ChapterUnitaryTransport.tendsto_slope_transported_position
+
+#print axioms BookProof.NavierStokesGaugeY2.uField2_pderiv_y
+#print axioms BookProof.NavierStokesGaugeY2.uField2_pderiv_y_twice
+#print axioms BookProof.NavierStokesGaugeY2.genY2_leibniz
+#print axioms BookProof.NavierStokesGaugeY2.genY2_uField2
+#print axioms BookProof.NavierStokesGaugeY2.genY2_uDField
+#print axioms BookProof.NavierStokesGaugeY2.genY_uField2_ne_zero
+#print axioms BookProof.NavierStokesGaugeY2.genY2_uField_ne_zero
+#print axioms BookProof.NavierStokesGaugeY2.genY2_uField2_perturbed_ne_zero
+#print axioms BookProof.NavierStokesGaugeY2.genY2_genY2_commute
+#print axioms BookProof.NavierStokesGaugeY2.genX_genY2_commute
+#print axioms BookProof.NavierStokesGaugeY2.genY_genY2_not_commute
+#print axioms BookProof.NavierStokesGaugeY2.genY2_nsSymbol2
+#print axioms BookProof.NavierStokesGaugeY2.genX_nsSymbol2
+#print axioms BookProof.NavierStokesGaugeY2.setYZero_nsSymbol2
 
 end BookProof.ChapterRoadmapAudit

@@ -588,6 +588,48 @@ initial data.
 ```
 
 :::paragraph
+That generator compensates only the *first* derivatives, so the Laplacian modes
+$`u_{i,jj}` — the ones the viscous term is built from — are still spectators of
+the expansion. Carrying the Taylor expansion in the second coordinate one order
+further repairs this. The field is
+$`u_i(y) = u_i + u_{i,j} y_j + \tfrac12 u_{i,jj} y_j^2`, its $`y`-derivative is
+the *derivative field* $`u_{i,j}(y) = u_{i,j} + u_{i,jj} y_j`, and the gauge
+generator becomes
+$`G^2_j = \partial/\partial y_j - u_{i,j}\,\partial/\partial u_i
+- u_{i,jj}\,\partial/\partial u_{i,j}`: it shifts the velocity modes by their
+first derivatives *and* the first-derivative modes by the Laplacian modes.
+$`G^2_j` annihilates both fields, hence the symbol
+$`A_i(y) = u_j(y)u_{i,j}(y) - \nu u_{i,jj}` built from them, and the
+second-order generators still commute with each other and with the momenta, so
+the constraints remain first class. The two orders are genuinely different: the
+first-order generator leaves $`u_{i,jj}\,y_j` behind on the second-order field,
+the second-order generator does not annihilate the first-order field, and the
+Taylor coefficient $`\tfrac12` is the only one that works. On the initial state
+$`y = 0` the second-order symbol collapses, once more, to the ordinary
+Navier–Stokes symbol $`u_j u_{i,j} - \nu u_{i,jj}`.
+:::
+
+```
+#check @BookProof.NavierStokesGaugeY2.uField2
+#check @BookProof.NavierStokesGaugeY2.uDField
+#check @BookProof.NavierStokesGaugeY2.genY2
+#check @BookProof.NavierStokesGaugeY2.uField2_pderiv_y
+#check @BookProof.NavierStokesGaugeY2.uField2_pderiv_y_twice
+#check @BookProof.NavierStokesGaugeY2.genY2_leibniz
+#check @BookProof.NavierStokesGaugeY2.genY2_uField2
+#check @BookProof.NavierStokesGaugeY2.genY2_uDField
+#check @BookProof.NavierStokesGaugeY2.genY_uField2_ne_zero
+#check @BookProof.NavierStokesGaugeY2.genY2_uField_ne_zero
+#check @BookProof.NavierStokesGaugeY2.genY2_uField2_perturbed_ne_zero
+#check @BookProof.NavierStokesGaugeY2.genY2_genY2_commute
+#check @BookProof.NavierStokesGaugeY2.genX_genY2_commute
+#check @BookProof.NavierStokesGaugeY2.genY_genY2_not_commute
+#check @BookProof.NavierStokesGaugeY2.genY2_nsSymbol2
+#check @BookProof.NavierStokesGaugeY2.genX_nsSymbol2
+#check @BookProof.NavierStokesGaugeY2.setYZero_nsSymbol2
+```
+
+:::paragraph
 On a *finite truncation* — finitely many modes, each a Hermitian matrix, the
 field modes commuting as multiplication operators do — the whole claim is
 provable. The Hamiltonian is Hermitian (the anticommutator of two Hermitian

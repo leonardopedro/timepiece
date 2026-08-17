@@ -7,6 +7,46 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Latest wave (2026-08-17, **the second-order gauge generator `genY2` — plan item A.7**)
+
+`BookProof/ChapterNavierStokesGaugeY2.lean` (namespace
+`BookProof.NavierStokesGaugeY2`, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean`, cited from `Book/FreeField.lean`) closes
+the last open item of `PLAN_LEAN_SPECIALIST_NS_FLOW.md` (**A.7**): the
+second-derivative extension of the Eulerian gauge generator, which makes the
+Laplacian modes `u_{i,jj}` legitimate degrees of freedom of the expansion in the
+second coordinate.
+
+* `uField2` — the second-order field `u_i(y) = u_i + u_{i,j} y_j + ½ u_{i,jj} y_j²`
+  (the Taylor coefficient `½` is forced; the plan's informal form omitted it),
+  and `uDField` — the derivative field `u_{i,j}(y) = u_{i,j} + u_{i,jj} y_j`.
+* `uField2_pderiv_y` (`u_{i,j}(y) = ∂u_i(y)/∂y_j`) and `uField2_pderiv_y_twice`
+  (`u_{i,jj} = ∂²u_i(y)/∂y_j²`).
+* `genY2` — the generator `G²_j = ∂/∂y_j − u_{i,j} ∂/∂u_i − u_{i,jj} ∂/∂u_{i,j}`,
+  a derivation (`genY2_leibniz`) with the explicit action on the canonical
+  variables (`genY2_X_y`, `genY2_X_u`, `genY2_X_uD`, `genY2_X_uL`).
+* `genY2_uField2`, `genY2_uDField`, `genX_uField2` — the headline gauge
+  invariance of both fields.
+* `nsSymbol2` and `genY2_nsSymbol2`, `genX_nsSymbol2` — the NS symbol built from
+  the fields, `A_i(y) = ∑_j u_j(y) u_{i,j}(y) − ν u_{i,jj}`, is gauge invariant;
+  `setYZero_nsSymbol2` — on the initial state `y = 0` it is the ordinary NS
+  symbol `u_j u_{i,j} − ν u_{i,jj}`.
+* Sharpness: `genY_uField2_ne_zero` (the first-order generator does not
+  annihilate the second-order field), `genY2_uField_ne_zero` (and conversely),
+  `genY2_uField2_perturbed_ne_zero` (the Taylor coefficient is the only
+  admissible one).
+* `genY2_genY2_commute`, `genX_genY2_commute` — the second-order gauge algebra
+  is abelian, hence first class; and, honestly, `genY_genY2_bracket_X_u` /
+  `genY_genY2_not_commute` — the *mixed* bracket of the first- and second-order
+  generators is not zero.
+
+`ChapterF1.positionOp` was added as the plan's A.1 name for the Bargmann–Fock
+position operator `fieldPhi = creat + annih` (a reducible alias, with
+`positionOp_eq_creat_add_annih`).
+
+All new results are `sorry`-free and `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`).
+
 ## Latest wave (2026-08-16, **the second coordinate `y` and the two gauge generators**)
 
 `BookProof/ChapterNavierStokesGaugeY.lean` (namespace

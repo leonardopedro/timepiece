@@ -19,9 +19,10 @@ part by part (all registered in `BookProof.lean`, all `#check`-ed from
 
 | Plan part | Where it landed | Headline theorems |
 | :-- | :-- | :-- |
-| A.1–A.4 field + momentum | `ChapterNavierStokesFlow.lean` | `fieldTaylor`, `field_evaluates_to_value`, `derivativeField_momentum`, `momentumConstraint_preserved` (A.1's position operator is `ChapterF1.fieldPhi = creat + annih`) |
+| A.1–A.4 field + momentum | `ChapterNavierStokesFlow.lean` | `fieldTaylor`, `field_evaluates_to_value`, `derivativeField_momentum`, `momentumConstraint_preserved` (A.1's position operator is `ChapterF1.fieldPhi = creat + annih`, now also available under the plan's name as `ChapterF1.positionOp`) |
 | A.5 Eulerian constraints | `ChapterNavierStokesEulerian.lean` | `u_evaluates_to_value`, `eulerian_momentum_constraint`, `eulerian_momentum_dual`, `derivativeField_relates_to_field`, `derivativeField_second`, `derivativeField_consistency`, `eulerian_divergence_constraint`, `cyclicShear_divergence_free` |
 | A.5 gauge generators | `ChapterNavierStokesGaugeY.lean` | `uField`, `genX`, `genY`, `genX_genX_commute`, `genX_genY_commute`, `genY_genY_commute`, `genY_uField`, `genY_uField_perturbed_ne_zero`, `setYZero_uField`, `hamiltonianOp_apply_of_y_zero` |
+| A.6/A.7 second-order gauge generator | `ChapterNavierStokesGaugeY2.lean` | `uField2`, `uDField`, `genY2`, `uField2_pderiv_y`, `uField2_pderiv_y_twice`, `genY2_leibniz`, `genY2_uField2`, `genY2_uDField`, `genY2_nsSymbol2`, `genX_nsSymbol2`, `setYZero_nsSymbol2`, `genY_uField2_ne_zero`, `genY2_uField_ne_zero`, `genY2_uField2_perturbed_ne_zero`, `genY2_genY2_commute`, `genX_genY2_commute`, `genY_genY2_not_commute` |
 | B Lagrangian + volume | `ChapterNavierStokesFlow.lean` | `lagrangian_velocity`, `volume_preservation_constraint`, `transformed_hamiltonian_decomposition`, `det_one_add_smul_hasDerivAt` |
 | C finite truncation | `ChapterNavierStokesFlow.lean` | `nsHamiltonian`, `nsHamiltonian_hermitian`, `nsHamiltonian_isPolynomial`, `nsWord_length_le_three` |
 | D complete flow | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesCauchy.lean` | `nsFlow_unitary`, `nsFlow_group`, `nsFlow_norm_preserving`, `nsFlow_noBlowup`, `nsCauchy_existsUnique`, `nsFlow_energy_conserved` |
@@ -46,10 +47,11 @@ step that remains is the FL *estimate* — the relative bound
 `A_i` — once the Part-A constraints make the field variables legitimate. That is
 a concrete calculation in the proved framework, not a research project needing
 new analytic ideas. The Eulerian and Lagrangian routes are both named in §7. On
-top of that, one genuinely open plan item is recorded: **A.7**, the
-second-derivative extension `genY2` of the Eulerian gauge generator (Eulerian
-variables only), which compensates the Laplacian modes `u_{i,jj}` in the
-second-order field expansion.
+On top of that, the last open plan item **A.7** — the second-derivative
+extension `genY2` of the Eulerian gauge generator (Eulerian variables only),
+compensating the Laplacian modes `u_{i,jj}` in the second-order field expansion —
+is now **executed** (2026-08-17, `ChapterNavierStokesGaugeY2.lean`), `sorry`-free
+and `axiom`-free.
 
 ---
 
@@ -314,7 +316,7 @@ as the ordinary Navier–Stokes one (`setYZero_uField`, `setYZero_nsSymbol`,
 `hamiltonianOp_apply_of_y_zero`).
 
 **A.7** *The second-derivative extension of `genY` (Eulerian variables only;
-NOT yet proved — plan item).* The `genY` proved in A.6 compensates only the
+**proved 2026-08-17**, `ChapterNavierStokesGaugeY2.lean`).* The `genY` proved in A.6 compensates only the
 *first*-derivative modes: it annihilates the linear field
 `u_i(y) = u_i + u_{i,j} y_j`. The Eulerian constraint that makes the
 second-derivative (Laplacian) modes `u_{i,jj}` legitimate too requires the field
@@ -332,10 +334,27 @@ genY2 j = ∂/∂y_j − u_{i,j} ∂/∂u_i − u_{i,jj} ∂/∂u_{i,j}
 from the trajectory momenta `P_i` and the viscous gradients `Q_i = ∇_ξ P_i`
 directly, with no `u_{i,jj}` mode. Items: `uField2` (the second-order field),
 `genY2` (the extended generator), `genY2_uField2` (annihilation), the sharpness
-statement `genY2_perturbed_ne_zero` (the coefficient `u_{i,jj}` of `y_j²` is the
+statement `genY2_uField2_perturbed_ne_zero` (the coefficient of `y_j²` is the
 *only* admissible one), and `genY2_leibniz`/the abelian-commutation checks.
 Reuse `ChapterNavierStokesGaugeY`'s `NSVar` (the `uL : Fin 3 → NSVar` mode is
 already present as the Laplacian mode) and its polynomial-momentum machinery.
+
+*As executed (2026-08-17).* One correction to the sketch above: the quadratic
+term carries the Taylor coefficient `½`, i.e. the field is
+`uField2 i = u_i + u_{i,j} y_j + ½ u_{i,jj} y_j²`; with the coefficient `1` no
+generator of the stated shape annihilates it (the `∂/∂y_j` and the compensating
+`∂/∂u_{i,j}` terms then differ by a factor `2`).  Beyond the listed items the
+module also proves that the *derivative field*
+`uDField i j = u_{i,j} + u_{i,jj} y_j` is `∂ u_i(y)/∂ y_j`
+(`uField2_pderiv_y`), that `u_{i,jj} = ∂² u_i(y)/∂ y_j²`
+(`uField2_pderiv_y_twice`), that the symbol built from the fields
+`nsSymbol2 ν i = ∑_j u_j(y) u_{i,j}(y) − ν u_{i,jj}` is gauge invariant
+(`genY2_nsSymbol2`, `genX_nsSymbol2`) and collapses on `y = 0` to the ordinary
+NS symbol (`setYZero_nsSymbol2`), and — honestly — that the mixed bracket
+`⁅genY j, genY2 j⁆` is **not** zero (`genY_genY2_not_commute`): the first- and
+second-order generators are truncations of the same gauge transformation at
+different orders, and only the second-order one is a symmetry of the
+second-order field.
 
 ### Part B — The volume-preservation constraint (Lagrangian change of variables)
 

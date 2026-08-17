@@ -100,6 +100,13 @@ noncomputable def fieldPhi : ℂ[X] →ₗ[ℂ] ℂ[X] := creat + annih
 /-- The conjugate momentum `π := i·(a† − a)`. -/
 noncomputable def fieldPi : ℂ[X] →ₗ[ℂ] ℂ[X] := Complex.I • (creat - annih)
 
+/-- **A.1 of `PLAN_LEAN_SPECIALIST_NS_FLOW.md` (name alias).** The position
+operator of the Bargmann–Fock model is the Hermitian field `φ = a† + a`; the
+Navier–Stokes plan refers to it as `positionOp`. -/
+noncomputable abbrev positionOp : ℂ[X] →ₗ[ℂ] ℂ[X] := fieldPhi
+
+theorem positionOp_eq_creat_add_annih : positionOp = creat + annih := rfl
+
 /--
 **F1.2**: the field commutator `[φ, π] = 2i·1`.
 Expanding, `[φ, π] = 2i·(a a† − a† a) = 2i·1` by `ccr`.

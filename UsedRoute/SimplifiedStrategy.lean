@@ -1,4 +1,6 @@
 import Mathlib
+import UsedRoute.Basic
+import UnusedRoute.Legacy
 
 /-!
 # Simplified Strategy: P-Regularization via Corrected Euler Products
@@ -77,11 +79,23 @@ noncomputable def σ_P (P : ℕ) : ℝ := 1 / 2 + 1 / (P + 1 : ℝ)
 lemma σ_P_pos (P : ℕ) : σ_P P > 1 / 2 := by
   unfold σ_P; linarith [div_pos one_pos (by positivity : (P : ℝ) + 1 > 0)]
 
-lemma σ_P_lt_one (P : ℕ) : σ_P P < 1 := by
-  unfold σ_P; sorry
+/- The original statement `lemma σ_P_lt_one (P : ℕ) : σ_P P < 1` is **false** for
+`P ≤ 1`: `σ_P 0 = 3/2` and `σ_P 1 = 1`.  The corrected statement below adds the
+hypothesis `2 ≤ P`, which is exactly what makes `1/(P+1) < 1/2`. -/
+lemma σ_P_lt_one (P : ℕ) (hP : 2 ≤ P) : σ_P P < 1 := by
+  have h3 : (3 : ℝ) ≤ (P : ℝ) + 1 := by
+    have : (2 : ℝ) ≤ (P : ℝ) := by exact_mod_cast hP
+    linarith
+  have hle : 1 / ((P : ℝ) + 1) ≤ 1 / 3 := by
+    apply one_div_le_one_div_of_le <;> linarith
+  unfold σ_P; linarith
 
 lemma σ_P_tendsto : Tendsto σ_P atTop (𝓝 (1 / 2)) := by
-  sorry
+  have h : Tendsto (fun n : ℕ => 1 / ((n : ℝ) + 1)) atTop (𝓝 0) :=
+    tendsto_one_div_add_atTop_nhds_zero_nat
+  have h2 := (tendsto_const_nhds (x := (1 / 2 : ℝ)) (f := atTop (α := ℕ))).add h
+  rw [add_zero] at h2
+  exact h2
 
 /-- Q_P: the cutoff for the corrected series. -/
 noncomputable def Q_P (P : ℕ) : ℕ := P ^ P + 1
@@ -126,11 +140,32 @@ The bound M_P depends only on P (not on any ε or ω), because:
 /-- The partial sums of the corrected series at σ_P are bounded by M_P.
     M_P is the maximum of the partial sums at σ_P, which is finite since
     the series stabilizes after Q_P + 1 terms. -/
-lemma corrected_partial_sums_bounded (P : ℕ) (hP : 2 ≤ P) :
+lemma corrected_partial_sums_bounded (P : ℕ) :
     ∃ M_P : ℝ, 0 ≤ M_P ∧ ∀ N : ℕ, ‖S_corrected N P (σ_P P : ℂ)‖ ≤ M_P := by
-  -- The series has finitely many nonzero terms (at most Q_P + 1 terms)
-  -- so the set of partial sums is finite, hence bounded.
-  sorry
+  -- The partial sums are truncations of one finite sum, plus a fixed correction
+  -- term, so the sum of the term norms up to `Q_P` bounds all of them.
+  -- (The original statement carried a hypothesis `2 ≤ P`; it is not needed.)
+  set s : ℂ := (σ_P P : ℂ) with hs
+  set g : ℕ → ℂ := fun n =>
+    if (∀ p : ℕ, p.Prime → p ∣ n → p ≤ P) then (μ n : ℂ) / (n : ℂ) ^ s else 0 with hg
+  refine ⟨(∑ n ∈ Icc 1 (Q_P P), ‖g n‖) + ‖c_P P / ((Q_P P + 1 : ℕ) : ℂ) ^ s‖, by positivity,
+    fun N => ?_⟩
+  have hsum : ‖S_smooth (min N (Q_P P)) P s‖ ≤ ∑ n ∈ Icc 1 (Q_P P), ‖g n‖ := by
+    calc ‖S_smooth (min N (Q_P P)) P s‖
+        ≤ ∑ n ∈ Icc 1 (min N (Q_P P)), ‖g n‖ := by
+          simpa [S_smooth, hg] using norm_sum_le (Icc 1 (min N (Q_P P))) g
+      _ ≤ ∑ n ∈ Icc 1 (Q_P P), ‖g n‖ :=
+          Finset.sum_le_sum_of_subset_of_nonneg
+            (Finset.Icc_subset_Icc_right (min_le_right _ _)) (fun i _ _ => norm_nonneg _)
+  have htail : ‖(if N > Q_P P then c_P P / ((Q_P P + 1 : ℕ) : ℂ) ^ s else 0)‖
+      ≤ ‖c_P P / ((Q_P P + 1 : ℕ) : ℂ) ^ s‖ := by
+    split_ifs with h
+    · exact le_rfl
+    · simpa using norm_nonneg (c_P P / ((Q_P P + 1 : ℕ) : ℂ) ^ s)
+  calc ‖S_corrected N P s‖
+      ≤ ‖S_smooth (min N (Q_P P)) P s‖
+        + ‖(if N > Q_P P then c_P P / ((Q_P P + 1 : ℕ) : ℂ) ^ s else 0)‖ := norm_add_le _ _
+    _ ≤ _ := add_le_add hsum htail
 
 /-!
 ## Section 5: The Corrected Series as a Bohr-Cahen Source
@@ -161,9 +196,45 @@ The limit function f_P(s) is defined for all s (it's a finite sum plus correctio
 noncomputable def f_P (P : ℕ) (s : ℂ) : ℂ :=
   S_smooth (Q_P P) P s + c_P P / ((Q_P P + 1 : ℕ) : ℂ) ^ s
 
+/-- For `a ≠ 0` the map `z ↦ a ^ z` is analytic: it is `exp (log a * z)`. -/
+lemma analyticAt_const_cpow {a : ℂ} (ha : a ≠ 0) (s : ℂ) :
+    AnalyticAt ℂ (fun z : ℂ => a ^ z) s := by
+  have hfun : (fun z : ℂ => a ^ z) = fun z : ℂ => Complex.exp (Complex.log a * z) := by
+    funext z; rw [Complex.cpow_def_of_ne_zero ha]
+  rw [hfun]
+  exact analyticAt_cexp.comp (analyticAt_const.mul analyticAt_id)
+
+lemma cpow_ne_zero_of_base_ne_zero {a : ℂ} (ha : a ≠ 0) (s : ℂ) : a ^ s ≠ 0 := by
+  rw [Complex.cpow_def_of_ne_zero ha]; exact Complex.exp_ne_zero _
+
+/-- The truncated P-smooth Dirichlet series is entire. -/
+lemma S_smooth_analyticAt (N P : ℕ) (s : ℂ) : AnalyticAt ℂ (S_smooth N P) s := by
+  have hEq : (fun z : ℂ => S_smooth N P z)
+      = ∑ n ∈ Icc 1 N, (fun z : ℂ =>
+          if (∀ p : ℕ, p.Prime → p ∣ n → p ≤ P) then (μ n : ℂ) / (n : ℂ) ^ z else 0) := by
+    funext z; rw [Finset.sum_apply]; rfl
+  rw [show S_smooth N P = fun z : ℂ => S_smooth N P z from rfl, hEq]
+  refine Finset.analyticAt_sum _ (fun n hn => ?_)
+  have hn1 : 1 ≤ n := (Finset.mem_Icc.mp hn).1
+  have hne : ((n : ℂ)) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+  by_cases h : (∀ p : ℕ, p.Prime → p ∣ n → p ≤ P)
+  · rw [show (fun z : ℂ => if (∀ p : ℕ, p.Prime → p ∣ n → p ≤ P)
+        then (μ n : ℂ) / (n : ℂ) ^ z else 0)
+      = fun z : ℂ => (μ n : ℂ) / (n : ℂ) ^ z from by funext z; rw [if_pos h]]
+    exact analyticAt_const.div (analyticAt_const_cpow hne s)
+      (cpow_ne_zero_of_base_ne_zero hne s)
+  · rw [show (fun z : ℂ => if (∀ p : ℕ, p.Prime → p ∣ n → p ≤ P)
+        then (μ n : ℂ) / (n : ℂ) ^ z else 0) = fun _ : ℂ => (0 : ℂ) from by
+      funext z; rw [if_neg h]]
+    exact analyticAt_const
+
 /-- f_P is a finite Dirichlet series, hence entire (holomorphic everywhere). -/
 lemma f_P_analyticOnNhd (P : ℕ) : AnalyticOnNhd ℂ (f_P P) Set.univ := by
-  sorry
+  intro s _
+  have hne : ((Q_P P + 1 : ℕ) : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+  exact (S_smooth_analyticAt _ _ s).add
+    (analyticAt_const.div (analyticAt_const_cpow hne s)
+      (cpow_ne_zero_of_base_ne_zero hne s))
 
 /-- f_P is holomorphic on any ball. -/
 lemma f_P_analyticOnNhd_ball (P : ℕ) (c : ℂ) (r : ℝ) :
@@ -237,16 +308,61 @@ lemma eulerProd_ne_zero (P : ℕ) (s : ℂ) (hs : s.re > 1 / 2) :
   apply Finset.prod_ne_zero_iff.mpr
   intro p hp
   rw [Finset.mem_filter] at hp
-  sorry
+  have hp2 : 2 ≤ p := (Finset.mem_Icc.mp hp.1).1
+  have hp1 : (1:ℝ) < (p:ℝ) := by exact_mod_cast (by omega : 1 < p)
+  have hp0 : (0:ℝ) < (p:ℝ) := lt_trans one_pos hp1
+  have hnorm : ‖(1 : ℂ) / (p : ℂ) ^ s‖ < 1 := by
+    rw [norm_div, norm_one]
+    have h1 : ‖(p : ℂ) ^ s‖ = (p:ℝ) ^ s.re := by
+      have hcast : ((p:ℂ)) = ((p:ℝ) : ℂ) := by push_cast; ring
+      rw [hcast, Complex.norm_cpow_eq_rpow_re_of_pos hp0]
+    rw [h1, div_lt_one (Real.rpow_pos_of_pos hp0 _)]
+    calc (1:ℝ) = (p:ℝ) ^ (0:ℝ) := (Real.rpow_zero _).symm
+    _ < (p:ℝ) ^ s.re := (Real.rpow_lt_rpow_left_iff hp1).mpr (by linarith)
+  intro h
+  have hone : (1 : ℂ) / (p:ℂ) ^ s = 1 := by
+    have h2 := sub_eq_zero.mp h
+    linear_combination -h2
+  rw [hone, norm_one] at hnorm
+  exact lt_irrefl _ hnorm
 
 /-- The partial Euler product is holomorphic (entire). -/
 lemma eulerProd_analyticOnNhd (P : ℕ) : AnalyticOnNhd ℂ (eulerProd P) Set.univ := by
-  sorry
+  intro s _
+  have hEq : (fun z : ℂ => eulerProd P z)
+      = ∏ p ∈ (Icc 2 P).filter Nat.Prime, (fun z : ℂ => 1 - 1 / (p : ℂ) ^ z) := by
+    funext z; rw [Finset.prod_apply]; rfl
+  rw [show eulerProd P = fun z : ℂ => eulerProd P z from rfl, hEq]
+  refine Finset.analyticAt_prod _ (fun p hp => ?_)
+  rw [Finset.mem_filter] at hp
+  have hp2 : 2 ≤ p := (Finset.mem_Icc.mp hp.1).1
+  have hne : ((p : ℂ)) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+  exact analyticAt_const.sub
+    (analyticAt_const.div (analyticAt_const_cpow hne s)
+      (cpow_ne_zero_of_base_ne_zero hne s))
 
 /-- The partial Euler products converge to 1/ζ on {Re > 1}. -/
 lemma eulerProd_tendsto (s : ℂ) (hs : s.re > 1) :
     Tendsto (fun P => eulerProd P s) atTop (𝓝 (1 / riemannZeta s)) := by
-  sorry
+  unfold eulerProd
+  have hz : riemannZeta s ≠ 0 := riemannZeta_ne_zero_of_one_le_re (le_of_lt hs)
+  have hset : ∀ P : ℕ, (Icc 2 P).filter Nat.Prime = Nat.primesBelow (P + 1) := by
+    intro P
+    ext p
+    simp only [Nat.primesBelow, Finset.mem_filter, Finset.mem_Icc, Finset.mem_range]
+    constructor
+    · rintro ⟨⟨_, h2⟩, hp⟩; exact ⟨by omega, hp⟩
+    · rintro ⟨h1, hp⟩; exact ⟨⟨hp.two_le, by omega⟩, hp⟩
+  have hcomp : Tendsto
+      (fun P : ℕ => ∏ p ∈ Nat.primesBelow (P + 1), (1 - (p : ℂ) ^ (-s))⁻¹) atTop
+      (𝓝 (riemannZeta s)) :=
+    (riemannZeta_eulerProduct hs).comp (Filter.tendsto_add_atTop_nat 1)
+  have hinv := hcomp.inv₀ hz
+  rw [show (1 / riemannZeta s) = (riemannZeta s)⁻¹ from one_div _]
+  refine hinv.congr (fun P => ?_)
+  rw [← Finset.prod_inv_distrib, hset P]
+  refine Finset.prod_congr rfl (fun p _ => ?_)
+  rw [inv_inv, Complex.cpow_neg, one_div]
 
 /-- **Main result (simplified strategy)**:
     The partial Euler products, combined with the M_P / Bohr-Cahen uniform
