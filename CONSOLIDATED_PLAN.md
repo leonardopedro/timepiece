@@ -577,15 +577,18 @@ The plan is **executed** — every headline of Parts A–G is proved and `#check
 itself drew, plus one small item and one correction:
 
 - **The continuum ESA conclusion (the §7 research target, not a plan item).** The
-  two Faris–Lavine inequalities are proved for the Hamiltonian on the
-  *finite-mode core* (Hermite/Fock/momentum realizations). What is *not* proved is
-  the same verification for a genuinely *differential* (Sobolev) realization of
-  the fiber Laplacian — the passage from `ℓ²(ℕ)`/occupation-number to a
-  differential operator on a function space. Both candidate routes are named
-  (§7): the Lagrangian change of variables (Part B, advection → positive 2nd-order
-  Laplacian) and the Eulerian derivatives-as-fields picture (Part A, momentum
-  representation with the multiplication-operator comparison). Neither is a plan
-  item; either would be a research project.
+  two Faris–Lavine inequalities are proved for the fiber Hamiltonian with
+  `V = κu` **linear** in the field (on `L²(du)`, `π = −i∂/∂u` — a genuine
+  differential operator; `ℓ²(ℕ)` is just its Hermite basis), and for the Fock /
+  momentum realizations. What is *not* proved is the two inequalities for the
+  **quadratic** NS symbol `A_i = u_j u_{i,j} − ν u_{i,jj}`. Both candidate routes
+  are named (§7): the Lagrangian change of variables (Part B, advection →
+  positive 2nd-order Laplacian) and the Eulerian derivatives-as-fields picture
+  (Part A, momentum representation with the multiplication-operator comparison).
+  The residual is a concrete FL *estimate* for that quadratic `A_i` (a relative
+  bound + form-commutator bound) in the already-proved framework — not a
+  "Sobolev/differential realization" gap, and not a research project needing new
+  analytic machinery.
 - **Global existence/uniqueness for NS (Contention D5, deliberate scope cut).**
   Unclaimed by design; recorded in `CONSOLIDATED_PLAN.md` §6 and the book's
   honest-boundary prose.

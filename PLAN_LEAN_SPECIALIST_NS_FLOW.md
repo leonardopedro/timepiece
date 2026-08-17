@@ -36,10 +36,16 @@ divergence-constraint resolution symbolically in Cadabra2
 (`verify_navier_stokes_divergence_constraint_resolution`).
 
 **What remains open** is exactly the boundary recorded in §2/§7 and the honesty
-flags: the *continuum* operator's essential self-adjointness (the two Faris–Lavine
-inequalities for a genuinely differential/Sobolev realization of the fiber
-Laplacian, not the finite-mode core) and global existence/uniqueness for NS. The
-Eulerian and Lagrangian routes are both named in §7; neither is a plan item. On
+flags: the *continuum* operator's essential self-adjointness and global
+existence/uniqueness for NS. On the FL route the residual is now narrow and
+concrete, not a "Sobolev/differential realization": the proved fiber is
+`h = ½(πV + Vπ)` with `V = κu` **linear** in the field (on `L²(du)`, `π = −i∂/∂u`),
+while the NS `A_i = u_j u_{i,j} − ν u_{i,jj}` is **quadratic** in the fields. The
+step that remains is the FL *estimate* — the relative bound
+`‖A_iψ‖² ≤ a‖N̂ψ‖² + b‖ψ‖²` and the form-commutator bound for that quadratic
+`A_i` — once the Part-A constraints make the field variables legitimate. That is
+a concrete calculation in the proved framework, not a research project needing
+new analytic ideas. The Eulerian and Lagrangian routes are both named in §7. On
 top of that, one genuinely open plan item is recorded: **A.7**, the
 second-derivative extension `genY2` of the Eulerian gauge generator (Eulerian
 variables only), which compensates the Laplacian modes `u_{i,jj}` in the
@@ -733,20 +739,27 @@ Faris–Lavine inequalities are actually **verifiable in the finite-mode core**
 (that is the wave already proved: `ChapterNavierStokesHermiteFarisLavine`,
 `ChapterNavierStokesFockManyMode`, `ChapterNavierStokesMomentumEsa`, with the
 Ikebe–Kato input `ChapterNavierStokesIkebeKato`). The Eulerian path is the one
-the Aristotle wave took; the *continuum* step it does not complete is the
-passage from the finite-mode core to the genuinely differential (Sobolev)
-realization of the fiber Laplacian — the same boundary as the Lagrangian path's.
+the Aristotle wave took. The proved fiber is on `L²(du)` with `π = −i∂/∂u` — a
+genuine differential operator — but with `V = κu` **linear** in the field; the
+residual step is the FL *estimate* for the actual **quadratic** NS symbol
+`A_i = u_j u_{i,j} − ν u_{i,jj}`, which is a concrete calculation in the proved
+framework (the relative bound and form-commutator bound for that polynomial),
+not a "Sobolev realization" gap.
 
 The two paths are complementary: the Lagrangian one trades the nasty advection
 `−u_j∂_j u_i` for a positive Laplacian (at the price of the nonlinear
 `det = 1` constraint); the Eulerian one keeps the physical variables (at the
 price of the linearized fiber Hamiltonian of the Hermite realization). Both
 reduce to: a 2nd-order/at-most-quadratic operator plus a comparison-operator
-Faris–Lavine verification, and both are genuinely functional-analytic
-verifications, not finite computations — which is why they are research targets,
-not plan items — but both routes are now *named* in full detail (Part B.5/B.6's
-operator identities, Part A/A.5's Eulerian constraints, Part G's theorem
-`ns_esa_of_farisLavine` with named hypotheses), in the same spirit as
+Faris–Lavine verification. The residual on each route is the FL *estimate* for
+the actual NS symbol — the relative bound and the form-commutator bound — which
+is a concrete calculation in the already-proved framework (criterion + Ikebe–
+Kato + comparison operator all in place), closer to a plan item than to a
+research project needing new analytic machinery; the global-existence step
+beyond ESA remains the honest research boundary. Both routes are *named* in full
+detail (Part B.5/B.6's operator identities, Part A/A.5's Eulerian constraints,
+Part G's theorem `ns_esa_of_farisLavine` with named hypotheses), in the same
+spirit as
 `Singularity/ChangeOfVars.lean`'s reciprocal/logarithmic maps.
 
 Distinct from this research target: the *nesting* of the finite approximation
