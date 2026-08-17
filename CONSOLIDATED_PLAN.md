@@ -733,6 +733,66 @@ propagate at finite speed in field space. This is the hyperbolic analogue of
 Sears' theorem (Reed & Simon Vol. II, Thm X.28) that Part G of the NS plan uses
 for the elliptic case.
 
+### 10.2a A proof outline for the Strichartz ESA (plan item)
+
+This subsection records a *concrete proof outline* a Lean–specialist could
+execute, in the project's honesty style. The target is the continuum operator
+`H = H₀ + V` on `D = C_c^∞(ℝ^N)`, with `H₀` the flat d'Alembertian (principal
+part `diag(1/16, −1/24)`) and `V` a smooth polynomial potential. The theorem to
+prove (as a named theorem with citation, **never an axiom**, exactly like
+Crouzeix in `ChapterH4`):
+
+```
+strichartz_esa
+  (H₀ : (C_c^∞(ℝ^N)) →ₗ[ℂ] L²(ℝ^N))   -- the flat d'Alembertian, symmetric on D
+  (V : ℝ^N → ℂ) (hV : smooth polynomial)
+  : EssentiallySelfAdjointOn C_c^∞(ℝ^N) (H₀ + V)
+```
+
+**The proof route — via the deficiency/range machinery already in
+`BookProof/ChapterFarisLavine` and `BookProof/ChapterNavierStokesEsa`.** The
+project already proves the *abstract* spine of the argument; the Strichartz input
+is exactly the one analytic hypothesis that feeds it:
+
+1. **Symmetry on `D`.** `H₀` is formally self-adjoint on `C_c^∞` (integration by
+   parts on the flat d'Alembertian), `V` is real-valued, so
+   `H = H₀ + V` is symmetric on `D`. This is `SymmetricOn` in
+   `ChapterFarisLavine`/`ChapterNavierStokesFullEsa`.
+2. **The resolvent/range argument (the part the project already has).** ESA of a
+   symmetric operator is equivalent to the two ranges
+   `(H − i·1)(D)` and `(H + i·1)(D)` being *dense* — the
+   `deficiencyTrivialAt_of_dense_range` / `essentiallySelfAdjointOn_of_farisLavine`
+   machinery of `ChapterFarisLavine` (Thm 1: with `N` a positive comparison
+   operator, `N+1` onto, and the commutator bound, ESA follows). The remaining
+   work is to *verify the two Faris–Lavine hypotheses* for the specific
+   `H₀ + V` with comparison operator `N = H₀² + 1` (the book.tex auxiliary-operator
+   choice) — or to bypass them via finite-speed propagation.
+3. **The Strichartz input: finite-speed propagation.** The genuinely new analytic
+   content, and the one thing Mathlib does not yet contain: solutions of the
+   hyperbolic equation `(∂_t² − Δ_x)φ = 0` propagate at finite speed, so a
+   deficiency vector `w` of `H*` (satisfying `H*w = ±i w`) has *empty* domain of
+   dependence: by finite speed it would have to propagate out of any compact set,
+   contradicting square-integrability. Formally: for a flat d'Alembertian with a
+   smooth polynomial potential, `ker(H* − z) = 0` for `Im z ≠ 0` — a **unique
+   continuation / finite-speed** statement. This is the named input, recorded with
+   its citation (Strichartz 1973; the hyperbolic analogue of the elliptic
+   Kato–Rellich/Sears argument).
+4. **Conclusion.** With `ker(H* ± i) = 0` (both deficiency indices `(0,0)`),
+   `H` is essentially self-adjoint on `D` — matching the project's
+   `EssentiallySelfAdjointOn` predicate and, through
+   `hasZeroDeficiencyOn_of_farisLavine` / the deficiency-predicate bridge, the
+   `HasZeroDeficiencyOn` form the QG/NS chapters use.
+
+**Honest flag.** Steps 1, 2 and 4 are provable in the existing framework. Step 3
+is the analytic core — *finite-speed propagation / unique continuation for the
+flat d'Alembertian with a polynomial potential* — and it is the part recorded as
+a named hypothesis (with citation), exactly as `ns_esa_of_farisLavine` and
+Crouzeix are named rather than assumed. A specialist who formalizes step 3 (e.g.
+the standard energy-estimate + finite-speed argument for the wave equation, or
+Mathlib's `Laplacian`/`MemElap` machinery extended to the wave operator) would
+turn the whole outline into a proof; until then it is a plan item, not a claimed
+theorem.
+
 ### 10.3 Honest boundary (same as the NS-FLOW wave)
 
 - **What is provable now** is the *algebraic* content, mirroring the NS plan:
