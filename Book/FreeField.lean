@@ -683,9 +683,16 @@ continuum statement remains unclaimed.
 
 :::paragraph
 The honest boundary. Nothing above claims essential self-adjointness of the
-*untruncated continuum* operator, and nothing claims global existence or
-uniqueness for the Navier–Stokes equations. The ODE chapter is the standing
-warning: for $`\dot x = x^2` the Hamiltonian $`x^2\hat p - \mathrm{i}\hat x` is a
+*untruncated continuum* operator — and with it, nothing claims global
+existence/uniqueness for the *classical* Navier–Stokes equations (the Clay
+regularity problem, deliberately out of scope). The distinction matters: once
+ESA *is* proved, global existence of the operator flow follows automatically
+(Stone's theorem: a self-adjoint operator generates a complete unitary group for
+every real time) — that is exactly what `book.tex` §4210-4216 means by "the
+solution ... exists and it is unique", and the truncation already proves it as
+`nsCauchy_existsUnique`. The open step is ESA itself for the continuum operator,
+not a separate global-existence claim. The ODE chapter is the standing warning:
+for $`\dot x = x^2` the Hamiltonian $`x^2\hat p - \mathrm{i}\hat x` is a
 polynomial of degree three whose classical flow is incomplete, so "low degree in
 the fields" cannot by itself give self-adjointness — it gives symmetry. The
 continuum route that remains is the Faris–Lavine commutator criterion applied to
@@ -868,7 +875,9 @@ it is essentially self-adjoint while being genuinely unbounded. The limits are
 equally explicit: an unbounded first-order drift term alone already destroys the
 property, so no criterion-free statement about the transformed data is
 available, and essential self-adjointness of the *continuum* transformed
-generator — hence global existence for Navier–Stokes — is not claimed here.
+generator — the operator-flow global existence would follow from ESA by Stone's
+theorem, but the classical global existence for Navier–Stokes would not — is not
+claimed here.
 :::
 
 ```
@@ -946,8 +955,10 @@ $`\|h_k x\| \le \|n_k x\|` for every $`x` but $`\|(n_0+n_1)v\| <
 form of the hypothesis, and with the two bounds in that shape the Faris–Lavine
 criterion — taken as a named hypothesis, not an axiom — yields vanishing adjoint
 deficiency for the second-quantized Hamiltonian on the finite-particle domain.
-Essential self-adjointness of the *continuum* Navier–Stokes Hamiltonian, and a
-fortiori global existence, is not claimed.
+Essential self-adjointness of the *continuum* Navier–Stokes Hamiltonian is not
+claimed; the operator-flow global existence would follow from it by Stone's
+theorem, while classical global existence is a separate, deliberately out-of-
+scope statement.
 :::
 
 ```
@@ -1036,6 +1047,8 @@ finite truncation the Weyl-symmetrized Hamiltonian has a complete, norm-preservi
 flow, a unique global solution to the Cauchy problem, and a nilpotent BRST
 constraint — with the honest boundary drawn at the continuum operator, whose
 essential self-adjointness is exactly where the Faris–Lavine commutator criterion
-(taken as a named hypothesis) sits. The continuum existence/uniqueness claim of
-`book.tex` is not carried by any theorem here; see `Book/YangMillsQuantization.lean`
-for the pointer to this formalized subset.
+(taken as a named hypothesis) sits. The *classical* existence/uniqueness claim of
+`book.tex` (the Clay regularity problem) is not carried by any theorem here — the
+operator-flow global existence would follow from ESA by Stone's theorem, but the
+ESA of the continuum operator is itself the open step; see
+`Book/YangMillsQuantization.lean` for the pointer to this formalized subset.

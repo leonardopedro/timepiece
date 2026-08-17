@@ -98,19 +98,31 @@ auxiliary operator `H²` (Corollary 1.1 of `cmpux2f1103859517`). The project's o
 ODE chapter demonstrates that **the same style of argument fails** for `ẋ = x²`:
 there the polynomial `H = x²p̂ − i x̂` has degree 3 yet the flow `x₀/(1−tx₀)` is
 incomplete, so `H` is *not* essentially self-adjoint on `L²(ℝ)` — the deficiency
-argument requires the flow to be complete, and for NS the continuum/infinite-mode
-flow completeness is the open Clay regularity problem. Therefore:
+argument requires the flow to be complete. Therefore:
 
-- **Do NOT claim** essential self-adjointness of the *untruncated* continuum
-  operator `H = ∫ a†(πⁱ(u_j u_{i,j} − ν u_{i,jj}) + h.c.)a`.
-- **Do NOT claim** global existence/uniqueness of the NS equations (Contention D5
-  in `CONSOLIDATED_PLAN.md` — deliberate scope cut).
-- The finite-truncation results (a)–(c) are the honest, defensible core; the
-  infinite-dimensional extension is recorded as a research target in §7, with
-  Part B providing the concrete route (the Lagrangian change of variables turns
-  advection into a positive 2nd-order Laplacian, so the ESA question becomes a
-  Kato–Rellich relative-boundedness argument rather than the failed auxiliary-
-  operator argument of `book.tex`).
+- **ESA is the key theorem; global existence of the flow is its corollary.**
+  Once essential self-adjointness of the operator is proved — in the Hermite
+  basis, where the comparison operator `N = π² + V² + I` is diagonal and the
+  Hamiltonian `H = ½(πV + Vπ)` is a concrete shift on the oscillator basis —
+  Stone's theorem applies: the closure generates a strongly continuous
+  one-parameter unitary group `e^{-itH}` defined for **every** real `t`. That
+  complete unitary flow **is** global existence of the operator evolution
+  (no finite-time blow-up of the evolved state), which is exactly what `book.tex`
+  §4210-4216 means by "the solution ... exists and it is unique" — the
+  truncation already proves it as `nsCauchy_existsUnique`, and in the
+  infinite-dimensional Hermite/Fock realizations it is a *corollary of the
+  proved ESA*, not a separate research target.
+- **The genuinely open boundary is the *classical* Navier–Stokes PDE
+  (Contention D5, deliberate scope cut).** Completeness of the Hilbert-space
+  unitary flow does **not** by itself settle the Clay regularity problem — global
+  smooth existence/uniqueness of the classical NS solution is a statement about
+  the PDE, not about the operator flow, and it is **not** claimed anywhere in this
+  project. The classical-flow completeness (the `ẋ = x²` lesson) is exactly the
+  ingredient that neither the degree bound nor the algebraic constraints supply.
+  The residual operator-theoretic step is then the FL *estimate* for the actual
+  quadratic NS symbol (see §7): once that lands, Stone's theorem delivers the
+  complete flow for the continuum operator, with the classical PDE regularity
+  remaining the separate, deliberate D5 scope cut.
 
 **How the numerics and the Lean proof line up.**
 
@@ -692,17 +704,23 @@ nix develop --command cargo test -p prob_kernel --lib symbolic
 
 The infinite-dimensional extension — essential self-adjointness of the continuum
 operator `H = ∫ a†(πⁱ(u_j u_{i,j} − ν u_{i,jj}) + h.c.)a` on
-`Γ^s(L²(ℝ¹⁵×ℤ₂³)) ⊗ Γ^a(L²(ℝ¹⁵×ℤ₂³))`, and hence global existence/uniqueness of
-the NS equations — is **not** a plan item. The ODE chapter's `x' = x²` example is
-the standing warning that a low-degree polynomial Hamiltonian need *not* be
-essentially self-adjoint when the classical flow is incomplete; the book.tex
-auxiliary-operator argument is exactly the one that project's ODE chapter corrects.
-Any future attempt must first construct a genuinely complete classical-flow /
-analytic realization, on the pattern of the ODE chapter's `w = 1/x` resolution —
-and the honest current record is `BookProof/ChapterUnboundedPosition.lean` +
-`BookProof/ChapterContinuityUnitaryInfinite.lean` (the `ℓ²(ℤ)` bounded layer) plus
-the Stone-theorem-in-full-generality target already recorded in
-`CONSOLIDATED_PLAN.md` §9.
+`Γ^s(L²(ℝ¹⁵×ℤ₂³)) ⊗ Γ^a(L²(ℝ¹⁵×ℤ₂³))` — is **not** a plan item. Note that
+"and hence global existence/uniqueness" is *not* an additional claim here: once
+ESA is proved, Stone's theorem gives the complete unitary flow (global existence
+of the operator evolution) automatically — see §2. What genuinely remains open is
+the **ESA of the continuum operator itself** (the FL estimate for the quadratic
+symbol) and, as a separate deliberate scope cut, the *classical* NS PDE regularity
+(Contention D5). The ODE chapter's `x' = x²` example is the standing warning that
+a low-degree polynomial Hamiltonian need *not* be essentially self-adjoint when
+the classical flow is incomplete; the book.tex auxiliary-operator argument is
+exactly the one that project's ODE chapter corrects. Any future attempt must
+first construct a genuinely complete classical-flow / analytic realization, on
+the pattern of the ODE chapter's `w = 1/x` resolution — and the honest current
+record is `BookProof/ChapterUnboundedPosition.lean` +
+`BookProof/ChapterContinuityUnitaryInfinite.lean` (the `ℓ²(ℤ)` bounded layer, where
+Stone's relation is discharged for multiplication operators) plus the
+Stone-theorem-in-full-generality target already recorded in `CONSOLIDATED_PLAN.md`
+§9.
 
 **The candidate routes (recorded, not attempted): two viable paths — the
 Lagrangian (Part B) and the Eulerian (Part A) — each completed by the

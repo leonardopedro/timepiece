@@ -589,8 +589,19 @@ itself drew, plus one small item and one correction:
   bound + form-commutator bound) in the already-proved framework — not a
   "Sobolev/differential realization" gap, and not a research project needing new
   analytic machinery.
-- **Global existence/uniqueness for NS (Contention D5, deliberate scope cut).**
-  Unclaimed by design; recorded in `CONSOLIDATED_PLAN.md` §6 and the book's
+- **Global existence of the flow is a corollary of ESA, not a separate gap.** Once
+  ESA is proved (in the Hermite basis, where `N = π² + V² + I` is diagonal and
+  `H = ½(πV + Vπ)` is a concrete shift), Stone's theorem gives the complete
+  unitary group `e^{-itH}` for every real `t` — global existence of the operator
+  evolution, no finite-time blow-up. This is what `book.tex` §4210-4216's "the
+  solution ... exists and it is unique" means; the truncation already proves it as
+  `nsCauchy_existsUnique`. It is **not** an additional theorem to chase beyond
+  ESA.
+- **The genuinely open scope cut is the *classical* NS PDE (Contention D5).**
+  Completeness of the Hilbert-space unitary flow does not by itself settle the
+  Clay regularity problem (global smooth solutions of the classical NS equation),
+  which is a statement about the PDE, not about the operator flow, and is not
+  claimed anywhere. Recorded in `CONSOLIDATED_PLAN.md` §6 and the book's
   honest-boundary prose.
 - **`PLAN_LEAN_SPECIALIST_NS_FLOW.md` A.1 `positionOp`.** No theorem *named*
   `positionOp` was created; the position operator is realized as
