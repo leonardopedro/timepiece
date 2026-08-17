@@ -674,3 +674,99 @@ executed.
    `Book/FreeField.lean` is in place; the plan's A.6/A.7 now carry the
    second-coordinate `y` and the second-order generator `genY2` as named plan
    items, so the plan and the proof modules are in one-to-one correspondence.
+
+---
+
+## 10. Quantum Gravity: the ESA of the 3D gauge-fixed Hamiltonian (candidate
+route, record — not a proved Lean theorem)
+
+The manuscript's *final, 3D gauge-fixed* gravity Hamiltonian
+(`book.tex` §"Classical Hamiltonian" / §"Quantum Hamiltonian", ~8138–8310, on
+`Γ^s(L²(ℝ⁸⁴×ℤ₂¹⁹)) ⊗ Γ^a(L²(ℝ⁸⁴×ℤ₂¹⁹))`, the `ℝ⁸⁴` = 4 coordinates + 16 tetrads
+`e_μ^a` + their derivatives, `ℤ₂¹⁹` the diffeomorphism ghosts) contains the
+**singular** kinetic terms
+
+```
+H = (1/16e) S^{ab} S_ab − (1/24e) P² + …
+```
+
+whose `1/e` denominator (with `e = det(e_i^a)`) diverges as the tetrad
+determinant vanishes. This record states the *candidate route* the manuscript's
+own analytic-layer pattern (the NS-FLOW wave) suggests, following the same
+honesty discipline: **named theorems, never claimed Lean results.**
+
+### 10.1 The change of variables: densitized tetrads
+
+Perform the canonical change of variables to **densitized tetrad variables**
+
+```
+y   = √e            (= (det e_i^a)^{1/2})
+ẽ_i^a = √e · e_i^a
+```
+
+Under this change the `1/e` factors of the singular kinetic terms are absorbed
+into the field derivatives, and the transformed kinetic operator becomes a
+**flat d'Alembertian (wave operator)** in field space:
+
+```
+H_transformed = ( 1/16 Δ_{S̃} − 1/24 ∂²/∂y² )  +  H_1  −  Ṽ(ẽ, ∂ẽ)
+                └─────── flat hyperbolic H₀ ───────┘
+```
+
+The principal part `H₀` is a flat second-order hyperbolic operator; `H_1` is
+first-order, and `Ṽ` a (polynomial) potential built from the densitized tetrads
+and their first derivatives.
+
+### 10.2 The ESA theorem: Strichartz
+
+The ESA claim for `H_transformed` rests on **Strichartz's theorem** (R. S.
+Strichartz, *Essential self-adjointness of powers of generators of hyperbolic
+equations*, J. Funct. Anal. **13** (1973) 82–93): a second-order differential
+operator whose principal part is a **flat d'Alembertian on `L²(ℝ^N)`** with a
+(smooth, polynomial) potential is essentially self-adjoint, because waves
+propagate at finite speed in field space. This is the hyperbolic analogue of
+Sears' theorem (Reed & Simon Vol. II, Thm X.28) that Part G of the NS plan uses
+for the elliptic case.
+
+### 10.3 Honest boundary (same as the NS-FLOW wave)
+
+- **What is provable now** is the *algebraic* content, mirroring the NS plan:
+  the change of variables itself, `y = √e`, `ẽ_i^a = √e·e_i^a`; the identity
+  that `1/e = (∂y/∂e)²` absorbs the singular denominator into a field
+  derivative; the operator-order decomposition of `H_transformed` (2nd + 1st +
+  0th); and the positive/flat character of `H₀`. None of this requires the
+  continuum analytic theorem.
+- **What is recorded, not claimed**: the **Strichartz ESA conclusion** for the
+  continuum `L²(ℝ⁸⁴)` operator is a named analytic theorem (like Crouzeix in
+  `ChapterH4`, or the Faris–Lavine inequalities for the NS continuum). The
+  project's ODE chapter's `ẋ = x²` warning applies here too: the *singular*
+  `1/e` form shows that the *raw* tetrad operator is not even well-defined as an
+  operator on a fixed domain, so the change of variables is load-bearing, not
+  cosmetic.
+- **Do NOT claim**: ESA of the continuum gravity operator, global existence, or
+  any unitary-evolution result as a *proved Lean theorem*. The book's own
+  existence/uniqueness claims for gravity are in the same scope-cut class as
+  Contention D5 for NS.
+- **Suggested next step (a plan item, like the NS waves)**: a
+  `PLAN_LEAN_SPECIALIST_QG_FLOW.md` in the NS-FLOW style — Part A (the
+  densitized change of variables `√e`, `√e·e_i^a` and the `1/e = (∂y/∂e)²`
+  identity), Part B (the flat d'Alembertian principal part and the operator
+  decomposition), Part C (the finite truncation on `Fin N` modes with its
+  complete unitary flow), Part D (Strichartz/Sears as a named hypothesis, never
+  an axiom, exactly as `ns_esa_of_farisLavine` is named in the NS plan). Reuse
+  the `Singularity/ChangeOfVars.lean` reciprocal/logarithmic-map pattern and the
+  `DiffeomorphismsGravity` book chapter.
+
+### 10.4 The three-theorem toolbox (record)
+
+The manuscript's analytic-layer conclusions draw on three named theorems, all
+recorded in this project's honesty style:
+
+| Theorem | Reference | Use in this manuscript |
+| :-- | :-- | :-- |
+| Strichartz | Strichartz, J. Funct. Anal. 13 (1973) 82–93 | flat d'Alembertian principal part ⟹ ESA (hyperbolic kinetic term, incl. the gravity `H₀`) |
+| Sears / Reed–Simon X.28 | Sears, Canad. J. Math. 3 (1951); Reed & Simon Vol. II Thm X.28 | `−Δ + V` with `V ≥ −c|x|² − d` ⟹ ESA (elliptic/quadratic-growth case, NS Part G) |
+| Faris–Lavine | Faris & Lavine, CMP 35 (1974) 39–48, Cor. 1.1 | comparison-operator commutator criterion (proved in `ChapterFarisLavine`, NS Part G) |
+
+None of these is an `axiom` in `BookProof/`; each enters as a named theorem with
+a citation docstring when a plan requires it.
