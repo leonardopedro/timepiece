@@ -192,4 +192,50 @@ of `H₁`, then feed the proved `friedrichs_extension_exists` +
     Friedrichs hypothesis) — reconcile the sign before feeding the operator to
     the machinery (same style of sign correction already recorded for `□` in
     `CONSOLIDATED_PLAN.md` §9.5).
-  If (b) is executed later, add it as a Part F item here.
+
+## Part F — the field-space realization on the Hermite core (option (b))
+
+**Status (2026-08-18): NOT EXECUTED — this is the next target for the
+Lean-specialist.**  Executes option (b) as a construction task (the Part E
+refinement above): build the book's one-particle operator `H₁` as a concretely
+defined operator on the product Hermite core of `L²(ℝ⁹⁹)` and instantiate the
+already-proved Friedrichs + Hashimoto theorems with it.  The resulting module
+(general position) is a new file `BookProof/ChapterYangMillsHermite.lean` with
+namespace `BookProof.YangMillsHermite`, reusing the existing 1D Hermite
+machinery (`BookProof/ChapterHermiteFunctions.lean`, `ChapterStrichartzHermiteQG.lean`)
+and the abstract theorems (`ChapterYangMillsFriedrichs.lean`,
+`ChapterYangMillsFriedrichsLimit.lean`, `ChapterFriedrichsExtension.lean`,
+`ChapterHashimotoShiftInvert.lean`).  After the module builds, register it in
+`BookProof.lean`, certify it with `#print axioms` in
+`BookProof/ChapterRoadmapAudit.lean`, and cite it from
+`Book/YangMillsQuantization.lean`; then update this status row and
+`CONSOLIDATED_PLAN.md` §11.3/§11.4.
+
+### Part F scope (suggested item rows; adjust names to what actually builds)
+
+| Item | Suggested Lean name | Status |
+| :-- | :-- | :--: |
+| F.1 the product Hermite basis of `L²(ℝ⁹⁹)` from the 1D `hermiteBasis` (tensor of the 1D ladder machinery) | `hermite99Basis`, `hermite99Core`, `hermite99Core_dense` | TODO |
+| F.2 coordinate multiplication by `A_{k,a}` as an operator on the core, with the ladder action (maps each basis vector to a finite combination) | `multCoord_op`, `multCoord_ladder` | TODO |
+| F.3 the functional derivative `π = −i δ/δA` as an operator on the core, symmetric | `funcDeriv_op`, `funcDeriv_symmetric` | TODO |
+| F.4 the magnetic field `B_{i a} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` as an operator on the core, with the `ε`/`f_{abc}` tensor contraction | `magField_op`, `magField_ladder` | TODO |
+| F.5 the Weyl ordering of the `πA` cross-terms inside `B²` (`[A_{j,a}, π^k_b] = iδ^k_j δ_{ab}`, book.tex:7060-7061; the `½(πA + Aπ)` convention of `H_N`) | `weylOrder_symm` | TODO |
+| F.6 `H₁ = ½Σππ + ½ΣBB` (sign reconciled with book.tex:7077 to the positive sum-of-squares) well-defined on the core | `h1_op`, `h1_apply` | TODO |
+| F.7 `H₁` symmetric on the core | `h1_symmetricOn` | TODO |
+| F.8 `H₁` positive (bounded below by 0), the Friedrichs hypothesis | `h1_quadForm_nonneg` | TODO |
+| F.9 **instantiation**: `H₁` satisfies the hypothesis of `friedrichs_extension_exists` → the Weyl-gauge field-space Hamiltonian has a positive self-adjoint extension | `ym_hermite_friedrichs_extension` | TODO |
+| F.10 **instantiation**: the shift-invert Hashimoto/SIRK limit selects it → `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs` applied | `ym_hermite_hashimoto_selects` | TODO |
+| F.11 (optional, if smooth) the second-quantized `H` on finite-occupation states over the core | `h_secondQuantized_wellDefined` | TODO |
+
+### Part F verification expectations
+
+- The module is `sorry`-free and `axiom`-free; `#print axioms` on F.9–F.10 shows
+  only `propext`, `Classical.choice`, `Quot.sound`.
+- The `ε`/`f_{abc}` contraction is `Fin 3`-indexed finite sums (no Sobolev /
+  distribution machinery needed — the base `ℝ⁹⁹` is finite-dimensional).
+- The two caveats from Part E are **settled in the module, not assumed**:
+  the Weyl ordering of the `πA` terms (F.5) and the sign reconciliation of
+  book.tex:7077 (F.6).  If either blocks the build, stop and record it here
+  rather than weakening the theorem.
+- Do **not** claim the mass gap or global existence — out of scope by the
+  author's decision.
