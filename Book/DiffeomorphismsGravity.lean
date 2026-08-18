@@ -211,6 +211,62 @@ self-adjointness back to the physical variables is the unitary-equivalence step:
 ```
 
 :::paragraph
+In the continuum the two *commuting* halves of a wave operator with a potential
+are now settled with unbounded coefficients, on the Schwartz core of
+$`L^2(\mathbb R^{1+n})`. Multiplication by an arbitrary real potential of
+temperate growth — every polynomial, unbounded and with no assumption of
+boundedness from below — is essentially self-adjoint; dually, every real
+*symbol* of temperate growth gives an essentially self-adjoint Fourier
+multiplier, which contains all constant-coefficient operators with real symbol,
+of any order. For the mixture $`\Box + W` itself, the operator is symmetric on
+that core for every real potential of temperate growth, and essentially
+self-adjoint for each spatial truncation of the potential:
+:::
+
+```
+#check @BookProof.StrichartzWave.potentialOp_essentiallySelfAdjoint
+#check @BookProof.StrichartzWave.polynomialPotential_essentiallySelfAdjoint
+#check @BookProof.StrichartzWave.multiplierOp_essentiallySelfAdjoint
+#check @BookProof.StrichartzWave.constCoeffOp_eq_multiplierOp
+#check @BookProof.StrichartzWave.polyharmonic_multiplier_essentiallySelfAdjoint
+#check @BookProof.StrichartzWave.wave_add_potentialOp_symmetric
+#check @BookProof.StrichartzWave.wave_add_truncatedPotential_essentiallySelfAdjoint
+```
+
+:::paragraph
+The remaining step — removing the truncation — is *not* claimed, and it is not a
+formality: with the convention $`\Box = -\partial_t^2 + \Delta_x` used here, a
+Fourier transform in time turns $`\Box + W` into the fibres
+$`4\pi^2\tau^2 - (-\Delta_x - W)`, so a potential bounded *below* makes the fibre
+Schrödinger operator unbounded below — the limit-circle regime, where essential
+self-adjointness genuinely fails. The sign under which the localization argument
+can close is the opposite one, $`W` bounded above by a quadratic here (equivalently
+bounded below for the physics signature $`\Box = \partial_t^2 - \Delta_x`).
+:::
+
+:::paragraph
+The genuinely *non-commuting* case — a differential kinetic term together with an
+unbounded polynomial potential — is settled in the elliptic normalization, where
+the potential is bounded below and an explicit joint eigenbasis exists. The
+harmonic oscillator $`H = -d^2/dx^2 + x^2/4` is essentially self-adjoint on the
+Hermite core of $`L^2(\mathbb R)`, and it is genuinely unbounded there. What makes
+this a statement about the differential operator rather than about a diagonal
+matrix is the identification: the diagonal operator with eigenvalues $`n + \tfrac12`
+sends the $`n`-th Hermite basis vector to the $`L^2` class of
+$`x \mapsto -\psi_n''(x) + (x^2/4)\,\psi_n(x)`.
+:::
+
+```
+#check @BookProof.HarmonicOscillator.hermiteC_oscillator
+#check @BookProof.HarmonicOscillator.harmonicOscOp
+#check @BookProof.HarmonicOscillator.harmonicOscOp_apply_eq_differential
+#check @BookProof.HarmonicOscillator.harmonicOsc_symmetric
+#check @BookProof.HarmonicOscillator.harmonicOsc_essentiallySelfAdjoint
+#check @BookProof.HarmonicOscillator.harmonicOsc_not_bounded
+```
+
+
+:::paragraph
 The transfer step needs an actual Hilbert-space unitary, and the raw point map
 $`e \mapsto y = \sqrt e` is not one: the Jacobian $`de/dy = 2y` must be carried
 along as the half-density factor $`\sqrt{2y}`. That unitary is *constructed*,

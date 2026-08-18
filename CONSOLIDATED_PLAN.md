@@ -9,6 +9,46 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
 
+**Status (2026-08-18c, the non-commuting mixed case):**
+`BookProof/ChapterHarmonicOscillatorEsa.lean` (`sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`)
+closes the gap left by the wave below — a differential kinetic term plus a
+non-commuting unbounded polynomial potential — in the elliptic normalization:
+the harmonic oscillator `-d²/dx² + x²/4` is essentially self-adjoint on the
+Hermite core of `L²(ℝ)` (`harmonicOsc_essentiallySelfAdjoint`), is symmetric there
+(`harmonicOsc_symmetric`) and is genuinely unbounded (`harmonicOsc_not_bounded`).
+The substance is `harmonicOscOp_apply_eq_differential`, identifying the diagonal
+operator with eigenvalues `n + ½` with the differential expression
+`x ↦ -ψ''(x) + (x²/4) ψ(x)` on the Hermite basis (Mathlib's `deriv`), on top of
+`hermiteC_oscillator`.  The hyperbolic mixture, with the sign correction recorded
+below, remains the open boundary.  Details: `STRICHARTZ_WAVE_ESA.md`.
+
+**Status (2026-08-18b, §9.5 unbounded-potential item executed as far as it is
+true):** `BookProof/ChapterWaveUnboundedPotential.lean` (`sorry`-free /
+`axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean`) carries out steps (a) and (b) of the
+localization plan of §9.5 and closes both *commuting* halves of the problem with
+unbounded coefficients: an arbitrary real potential of temperate growth — every
+polynomial, unbounded and with no semiboundedness assumption — is essentially
+self-adjoint on the Schwartz core (`potentialOp_essentiallySelfAdjoint`,
+`polynomialPotential_essentiallySelfAdjoint`), and dually every real *symbol* of
+temperate growth gives an essentially self-adjoint Fourier multiplier
+(`multiplierOp_essentiallySelfAdjoint`, with `constCoeffOp_eq_multiplierOp`
+showing this generalizes the quadratic-symbol theorem of
+`ChapterStrichartzWave`).  For the mixture, `□ + W` is proved to be a well-defined
+symmetric operator on the Schwartz core for every real `W` of temperate growth
+(`wave_add_potentialOp_symmetric`), and essentially self-adjoint for every
+truncation `W_R` of it (`wave_add_truncatedPotential_essentiallySelfAdjoint`).
+Step (c) is **not** taken, and the plan item's hypothesis needs a **sign
+correction**: with this project's convention `□ = -∂_t² + Δ_x`, a potential
+bounded *below* makes the time-Fourier fibre `-Δ_x - W` unbounded below (for
+`W = x⁴` the limit-circle operator `-d²/dx² - x⁴`, deficiency indices `(2,2)` — a
+classical fact quoted from the literature, not formalized here), so essential
+self-adjointness genuinely fails; the closable hypothesis is `W` bounded
+*above* by a quadratic here, equivalently `W` bounded below in the
+opposite-signature convention `□ = ∂_t² - Δ_x` of the physics literature.  Details:
+`STRICHARTZ_WAVE_ESA.md`; the wave is cited from `Book/DiffeomorphismsGravity.lean`.
+
 **Status (2026-08-18, §11.4 closed):** the two plan items of §11.4 (the unbounded
 Friedrichs existence theorem and the continuum-realization decision) are executed
 by `BookProof/ChapterFriedrichsExtension.lean`; see §9 item 6 and the update at
@@ -594,7 +634,7 @@ itself is not. Medium value, small and self-contained — a natural next target:
 | 2 | Curated-edition coverage table | **STALE** | The "deferred" physics chapters have since been **written up**: `GaugeSymmetry`, `PhysicalParity`, `YangMillsQuantization`, `RealRepresentations`, `DiffeomorphismsGravity`, `AlignedDeepLearning`, `GribovAmbiguity`, `ConsciousnessBayesianPrior` all exist under `Book/` and are **included** in `Book.lean`. The §6 "deferred" list should be re-marked `DONE (framing settled)` or moved to Contention dispositions. |
 | 2 | Sketch proofs re-derived, not transcribed | **OPEN, editorial** | No build action; cross-check any less-standard claim against `book.tex` before publication (see Contention §7). |
 | 3 | `newproof.md` layers (verified core vs philosophical claim) | **RESOLVED** | `Book/PaFreeHilbert.lean` keeps the compartments separate; no action. |
-| 4 | KaTeX coverage | **OPEN, spot-check** | Spot-check matrix/`pmatrix` rendering in `_out/html-single/index.html` once; matrices were never confirmed. |
+| 4 | KaTeX coverage | **RESOLVED (2026-08-18b)** | `./patches/build-book.sh` followed by `./patches/check-katex.sh` re-renders every math snippet of the built page with `throwOnError: true`: **2129 snippets, 0 failures**, matrices included. Re-run the two scripts after any chapter edit. |
 | 4 | Long `#check` types | **MOSTLY RESOLVED** | Readable prose paraphrases exist for the worst offenders; restate any remaining unwieldy `#check` as a clean `example` when a chapter is next edited. |
 | 4 | Single-page, menu-free HTML decision | **DONE** | Locked in `BookMain.lean`. |
 | 4 | 26-`{include}` limit | **DONE** | Verso patch `verso-0001`; re-apply after fresh clones. |
@@ -715,7 +755,24 @@ none of which is a plan item:
 
 1. Re-run the **§8 verification gate** after any change. **Done (2026-08-17):**
    the gate is green in this repository on all the copied-in waves (see the
-   leading Status block).
+   leading Status block).  **Re-run 2026-08-18c and green:** `lake build`
+   (8630 jobs), `lake build RandomMap` (8039 jobs) and `lake build UsedRoute` all
+   complete with no errors; no `sorry` and no `axiom` declaration in `BookProof/`,
+   `PnpProof/`, `Singularity/`, `RandomMap/` (only prose mentions); the isolation
+   greps are empty; `./patches/build-book.sh` re-renders the book with its asserts
+   holding and `./patches/check-katex.sh` reports 2135 snippets, 0 failures.  The
+   quarantined legacy RH route still carries 28 `sorry`ed declarations in
+   `UsedRoute/` / `UnusedRoute/` (neither is a default target).
+   **Re-run 2026-08-18b and green:** `lake build`
+   (BookProof + Book + Singularity) and `lake build RandomMap` complete with no
+   errors; no `sorry` and no `axiom` declaration in `BookProof/`, `PnpProof/`,
+   `Singularity/`, `RandomMap/` (the only `sorry`s left in the tree are the
+   quarantined legacy RH-route ones in `UsedRoute/`/`UnusedRoute/`, which are in
+   no default target); the isolation greps are empty; `./patches/build-book.sh`
+   renders `_out/html-single/index.html` and its assertions (no `<base>`,
+   fragment links present) hold; `./patches/check-katex.sh` reports 2129 math
+   snippets, 0 failures.  Note: the `patches/*.sh` scripts had lost their
+   executable bit in this snapshot and it has been restored.
 2. Keep `Issues.md` §0b in sync when the chapter set changes.
 3. The infinite-dimensional analytic layer (§4.8's boundary): Stone's theorem in
    full generality for operators that are not multiplication operators — the
@@ -749,6 +806,34 @@ none of which is a plan item:
    form-locality) argument, with the boundedness-below of `V` making the gluing
    uniform. This is a plan item (the cut-off lemma is already proved); the
    remaining boundary is the gauge/BRST-sector transfer check.
+   **Update (2026-08-18b): executed as far as it is true.**
+   `BookProof/ChapterWaveUnboundedPotential.lean` proves (a)+(b) — for every
+   radius `R` a truncation `W_R` of temperate growth agreeing with `W` on the ball
+   of radius `R` with `□ + W_R` essentially self-adjoint
+   (`wave_add_truncatedPotential_essentiallySelfAdjoint`) — plus the two commuting
+   halves with unbounded coefficients: an arbitrary real potential of temperate
+   growth is essentially self-adjoint on the Schwartz core
+   (`potentialOp_essentiallySelfAdjoint`) and so is every real-symbol Fourier
+   multiplier of temperate growth (`multiplierOp_essentiallySelfAdjoint`, which
+   contains `constCoeffOp_essentiallySelfAdjoint` via
+   `constCoeffOp_eq_multiplierOp`).  Step (c) is **not** taken: with the convention
+   `□ = -∂_t² + Δ_x` used in this project, a potential bounded *below* makes the
+   time-Fourier fibre `-Δ_x - W` unbounded below — for `W = x⁴` this is the
+   limit-circle operator `-d²/dx² - x⁴` with deficiency indices `(2,2)`, a
+   classical fact quoted from the literature and not formalized here — so the
+   claim as worded is false for this signature.  The correct hypothesis is `W`
+   bounded *above* by a quadratic here (equivalently bounded below for
+   `□ = ∂_t² - Δ_x`), which is the Sears / Faris–Lavine class; proving that case
+   needs the fibrewise (direct-integral) argument and remains the open boundary.
+   **Update (2026-08-18c): the non-commuting mixed case is closed in the elliptic
+   normalization.**  `BookProof/ChapterHarmonicOscillatorEsa.lean` proves that the
+   harmonic oscillator `-d²/dx² + x²/4` — a differential kinetic term plus an
+   unbounded polynomial potential that does not commute with it — is essentially
+   self-adjoint on the Hermite core of `L²(ℝ)`
+   (`harmonicOsc_essentiallySelfAdjoint`), with the differential identification
+   `harmonicOscOp_apply_eq_differential` and unboundedness
+   `harmonicOsc_not_bounded`.  This is the sign-correct (potential bounded below)
+   case; the hyperbolic direct-integral argument is still open.
 6. **QYM unbounded continuum — CLOSED (2026-08-18).** Both plan items of §11.4
    are executed by `BookProof/ChapterFriedrichsExtension.lean` (`sorry`-free /
    `axiom`-free, registered in `BookProof.lean`, certified in

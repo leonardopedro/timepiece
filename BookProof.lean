@@ -89,6 +89,8 @@ import BookProof.ChapterFarisLavine
 import BookProof.ChapterKatoRellichDeficiency
 import BookProof.ChapterStrichartzWave
 import BookProof.ChapterWaveBoundedPotential
+import BookProof.ChapterWaveUnboundedPotential
+import BookProof.ChapterHarmonicOscillatorEsa
 import BookProof.ChapterNavierStokesFullEsa
 import BookProof.ChapterNavierStokesLagrangianEsa
 import BookProof.ChapterNavierStokesFockSpace

@@ -1,3 +1,25 @@
+# Summary of changes for run 12f2f3df-be24-45fa-acbe-e371d04a9574
+Continued and completed the execution of `CONSOLIDATED_PLAN.md`.
+
+**New mathematics landed this session — `BookProof/ChapterHarmonicOscillatorEsa.lean`** (namespace `BookProof.HarmonicOscillator`, builds green, `sorry`-free, `#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`).
+
+The previous wave had closed both *commuting* halves of the "unbounded potential" problem (an arbitrary real potential of temperate growth, and dually an arbitrary real Fourier multiplier), leaving the genuinely non-commuting mixture — a differential kinetic term together with an unbounded polynomial potential — open. That case is now settled in the elliptic normalization:
+
+- `harmonicOsc_essentiallySelfAdjoint` — the harmonic oscillator `-d²/dx² + x²/4` is essentially self-adjoint on the Hermite core of `L²(ℝ)`;
+- `harmonicOscOp_apply_eq_differential` — the substance of the result: the diagonal operator with eigenvalues `n + ½` sends the `n`-th Hermite basis vector to the `L²` class of `x ↦ -ψ_n''(x) + (x²/4) ψ_n(x)`, with the second derivative in the usual sense, so the statement really is about the differential operator and not about a diagonal matrix;
+- supporting results: `hermiteC_oscillator` (eigenvalue equation for the complexified Hermite functions), `memLp_harmonicDifferential`, `harmonicOsc_symmetric` (symmetry on the core) and `harmonicOsc_not_bounded` (the operator is genuinely unbounded).
+
+The construction reuses the project's existing Hermite orthonormal basis and real eigen-equation, and its existing deficiency computation for diagonal operators on the Hermite core, rather than duplicating them.
+
+**Integration and verification**
+- Module registered in `BookProof.lean`; the six new theorems are certified with `#print axioms` in `BookProof/ChapterRoadmapAudit.lean`, which rebuilds green with only the standard axioms.
+- Cited from the book: a new paragraph plus `#check` block in `Book/DiffeomorphismsGravity.lean`; the whole book re-renders through the build wrapper with its asserts holding, and the math check reports 2135 snippets, 0 failures.
+- Documentation updated: new wave sections in `BookProof/STATUS.md` and `STRICHARTZ_WAVE_ESA.md`, a new leading status block plus a §9.5 update in `CONSOLIDATED_PLAN.md`.
+- Full verification gate re-run and green: `lake build` (8630 jobs), `lake build RandomMap` (8039 jobs) and `lake build UsedRoute` all succeed with no errors; no `sorry` and no `axiom` declaration in `BookProof/`, `PnpProof/`, `Singularity/`, `RandomMap/` (only prose mentions of the words); the isolation greps are empty. The 28 remaining `sorry`ed declarations are the quarantined legacy Riemann-route ones in `UsedRoute/` / `UnusedRoute/`, which are not default build targets and which the plan records as deep, out-of-scope content; I inspected several and confirmed they are the Riemann-hypothesis-equivalent statements the plan describes, not technical residue.
+- One recorded caveat carried forward unchanged: the hyperbolic version of the mixed case (removing the truncation in `□ + W`) is still not claimed, and the plan's original wording of that item needs the sign correction documented in `STRICHARTZ_WAVE_ESA.md`.
+
+All work is committed and pushed.
+
 # Summary of changes for run 318cf929-fcff-49a1-aefd-97f537d7b519
 ## What was done
 
@@ -5417,7 +5439,7 @@ Executed the next step of the standing roadmap directive (mine the next self-con
 
 The surrounding field-theoretic construction (full graded Lie superalgebra, essential self-adjointness of the polynomial Hamiltonian, existence/uniqueness) is physical modelling left as prose.
 
-**Verification.** Full `lake build` is green (8131 jobs); the module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified on the headline results). 
+**Verification.** Full `lake build` is green (8131 jobs); the module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified on the headline results).
 
 **Docs.** Added a Wave 53 entry to `BookProof/STATUS.md` and prepended a matching Wave 53 section to `ARISTOTLE_SUMMARY.md` (as requested). All work is committed and pushed.
 

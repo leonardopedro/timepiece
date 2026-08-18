@@ -7,6 +7,62 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Latest wave (2026-08-18c, **the non-commuting mixed case**)
+
+`BookProof/ChapterHarmonicOscillatorEsa.lean` (namespace
+`BookProof.HarmonicOscillator`, `sorry`-free / `axiom`-free, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`) closes the
+case that the previous wave left open — a differential kinetic term together with
+a non-commuting *unbounded polynomial* potential:
+
+> the harmonic oscillator `-d²/dx² + x²/4` is essentially self-adjoint on the
+> Hermite core of `L²(ℝ)` (`harmonicOsc_essentiallySelfAdjoint`),
+
+together with `harmonicOsc_symmetric` (symmetry on the core) and
+`harmonicOsc_not_bounded` (the operator is genuinely unbounded).  The content is
+the *identification* `harmonicOscOp_apply_eq_differential`: the diagonal operator
+with eigenvalues `n + ½` sends the `n`-th Hermite basis vector to the `L²` class of
+`x ↦ -ψ_n''(x) + (x²/4) ψ_n(x)`, computed with Mathlib's `deriv`; the eigenvalue
+equation for the complexified Hermite functions is `hermiteC_oscillator`.  The
+Hermite basis and the real eigen-equation come from
+`BookProof/ChapterHermiteFunctions.lean`, the deficiency computation for diagonal
+operators from `BookProof/ChapterStrichartzHermiteQG.lean`.
+
+This is the elliptic (Sears / Faris–Lavine) normalization, in which the potential
+is bounded below; the hyperbolic mixture still needs the fibrewise argument
+recorded in `CONSOLIDATED_PLAN.md` §9.5.
+
+## Previous wave (2026-08-18b, **unbounded potentials and general real symbols**)
+
+`BookProof/ChapterWaveUnboundedPotential.lean` (namespace
+`BookProof.StrichartzWave`, `sorry`-free / `axiom`-free, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`) extends the
+Strichartz-type essential self-adjointness results beyond bounded potentials:
+
+* `potentialOp W` — multiplication by a real potential of temperate growth (every
+  polynomial: unbounded, no semiboundedness assumed) — is symmetric
+  (`potentialOp_symmetric`) and **essentially self-adjoint** on the Schwartz core
+  (`potentialOp_essentiallySelfAdjoint`), by the position-space twin of the
+  Fourier-multiplier argument; `polynomialPotential_essentiallySelfAdjoint` is the
+  example `W x = ‖x‖^{2k}`;
+* dually, `multiplierOp m` — the Fourier multiplier with an arbitrary real symbol
+  of temperate growth — is essentially self-adjoint
+  (`multiplierOp_essentiallySelfAdjoint`), which contains the quadratic-symbol
+  theorem `constCoeffOp_essentiallySelfAdjoint` via `constCoeffOp_eq_multiplierOp`
+  and covers, for instance, the polyharmonic operators
+  (`polyharmonic_multiplier_essentiallySelfAdjoint`);
+* for the mixture, `□ + W` is a well-defined symmetric operator on the Schwartz
+  core for every real `W` of temperate growth (`wave_add_potentialOp_symmetric`),
+  is essentially self-adjoint whenever `W` is essentially bounded
+  (`wave_add_boundedPotentialOp_essentiallySelfAdjoint`, using
+  `opL2_potentialOp_eq_mulL2`), and is essentially self-adjoint for every
+  truncation of `W` (`wave_add_truncatedPotential_essentiallySelfAdjoint`) — steps
+  (a)+(b) of `CONSOLIDATED_PLAN.md` §9.5.
+
+Step (c) (the limit `R → ∞`) is **not** claimed, and the plan item's hypothesis
+needs a sign correction; see `STRICHARTZ_WAVE_ESA.md` for the limit-circle
+counterexample (quoted from the literature, not formalized) that shows why.
+
 ## Latest wave (2026-08-18, **the Friedrichs extension theorem, with no boundedness hypothesis**)
 
 `BookProof/ChapterFriedrichsExtension.lean` (namespace

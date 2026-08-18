@@ -13,6 +13,8 @@ import BookProof.ChapterHermiteGalerkinFriedrichs
 import BookProof.ChapterHashimotoShiftInvert
 import BookProof.ChapterHashimotoComplexShifts
 import BookProof.ChapterFriedrichsExtension
+import BookProof.ChapterWaveUnboundedPotential
+import BookProof.ChapterHarmonicOscillatorEsa
 import BookProof.ChapterF4
 import BookProof.ChapterHolomorphic
 import BookProof.ChapterB4
@@ -608,5 +610,26 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.FriedrichsExtension.friedrichs_hashimoto_selects
 #print axioms BookProof.FriedrichsExtension.weyl_hashimoto_selects_friedrichs
 #print axioms BookProof.FriedrichsExtension.unbounded_friedrichs_example
+
+#print axioms BookProof.StrichartzWave.potentialOp_symmetric
+#print axioms BookProof.StrichartzWave.potentialOp_deficiencyTrivial
+#print axioms BookProof.StrichartzWave.potentialOp_essentiallySelfAdjoint
+#print axioms BookProof.StrichartzWave.polynomialPotential_essentiallySelfAdjoint
+#print axioms BookProof.StrichartzWave.wave_add_potentialOp_symmetric
+#print axioms BookProof.StrichartzWave.multiplierOp_symmetric
+#print axioms BookProof.StrichartzWave.multiplierOp_deficiencyTrivial
+#print axioms BookProof.StrichartzWave.multiplierOp_essentiallySelfAdjoint
+#print axioms BookProof.StrichartzWave.constCoeffOp_eq_multiplierOp
+#print axioms BookProof.StrichartzWave.polyharmonic_multiplier_essentiallySelfAdjoint
+#print axioms BookProof.StrichartzWave.opL2_potentialOp_eq_mulL2
+#print axioms BookProof.StrichartzWave.wave_add_boundedPotentialOp_essentiallySelfAdjoint
+#print axioms BookProof.StrichartzWave.wave_add_truncatedPotential_essentiallySelfAdjoint
+
+#print axioms BookProof.HarmonicOscillator.hermiteC_oscillator
+#print axioms BookProof.HarmonicOscillator.harmonicOscOp_hermiteLp
+#print axioms BookProof.HarmonicOscillator.harmonicOscOp_apply_eq_differential
+#print axioms BookProof.HarmonicOscillator.harmonicOsc_symmetric
+#print axioms BookProof.HarmonicOscillator.harmonicOsc_essentiallySelfAdjoint
+#print axioms BookProof.HarmonicOscillator.harmonicOsc_not_bounded
 
 end BookProof.ChapterRoadmapAudit
