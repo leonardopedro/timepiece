@@ -26,7 +26,7 @@ part by part (all registered in `BookProof.lean`, all `#check`-ed from
 | B Lagrangian + volume | `ChapterNavierStokesFlow.lean` | `lagrangian_velocity`, `volume_preservation_constraint`, `transformed_hamiltonian_decomposition`, `det_one_add_smul_hasDerivAt` |
 | C finite truncation | `ChapterNavierStokesFlow.lean` | `nsHamiltonian`, `nsHamiltonian_hermitian`, `nsHamiltonian_isPolynomial`, `nsWord_length_le_three` |
 | D complete flow | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesCauchy.lean` | `nsFlow_unitary`, `nsFlow_group`, `nsFlow_norm_preserving`, `nsFlow_noBlowup`, `nsCauchy_existsUnique`, `nsFlow_energy_conserved` |
-| E BRST constraint | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesEulerian.lean` | `nsBrst_nilpotent`, `nsDivergenceConstraint_resolution`, and the **E.3 correction**: `nsBrst_not_hermitian` (Ω is *not* Hermitian when the divergence is non-zero; the honest Hermitian statement is `nsBrst_symmetrization_hermitian`) |
+| E BRST constraint | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesEulerian.lean` | `nsBrst_nilpotent`, `nsDivergenceConstraint_resolution`, and the **E.3 correction**: `nsBrst_not_hermitian` (Ω is *not* Hermitian when the divergence is non-zero; the honest Hermitian statement is `nsBrst_symmetrization_hermitian`). **E.5 (the derivative-field BRST charge) is ON HOLD — not part of the executed state.** |
 | G Faris–Lavine | `ChapterFarisLavine.lean` + `ChapterNavierStokesHermiteFarisLavine.lean`, `FockManyMode.lean`, `MomentumEsa.lean`, `IkebeKato.lean`, `ShiftHamiltonian.lean`, `MomentumPerturbation.lean` | `essentiallySelfAdjointOn_of_farisLavine` (the criterion **proved**, Theorem 1 + Cor. 1.1), `nsH_essentiallySelfAdjointOn_core`, `fockH_essentiallySelfAdjointOn_core`, `ns_hamiltonian_essentiallySelfAdjointOn_core`, `navierStokes_fock_hamiltonian_essentiallySelfAdjointOn_core`, `pertHam_essentiallySelfAdjointOn_core` — both FL inequalities proved for the Hamiltonian itself, with a genuinely non-vanishing commutator `fock_commForm_ne_zero` |
 | ESA criteria + limits | `ChapterNavierStokesEsa.lean`, `ChapterNavierStokesDeficiency.lean`, `ChapterNavierStokesFullEsa.lean`, `ChapterNavierStokesLagrangianEsa.lean`, `ChapterNavierStokesSecondQuant.lean` | `hasZeroDeficiencyOn_of_completeUnitaryFlow`, `hasZeroDeficiencyOn_of_total_eigenvectors`, `jacobi_symmetric_dense_not_esa` (the limit-circle counterexample), `exists_nsFullData_not_hasZeroDeficiencyOn`, `fockOp_hasZeroDeficiencyOn` (the one-particle→Fock lift) |
 
@@ -563,9 +563,10 @@ explicit solution), so its BRST charge `Ω_deriv` (E.5) is a genuine
 gauge-enforcing construction — the ghost is load-bearing there, unlike in
 E.1–E.3.
 
-**E.5** *The BRST charge of the derivative-field constraint, in the Yang–Mills
-form (the gauge constraint that defines `u_{i,j}` as the derivative of the
-field).* In A.5 the relation `u_{i,j} = ∂_j u_i`
+**E.5** **ON HOLD (2026-08-18, do not execute for now).** *The BRST charge of
+the derivative-field constraint, in the Yang–Mills form (the gauge constraint
+that defines `u_{i,j}` as the derivative of the field).* In A.5 the relation
+`u_{i,j} = ∂_j u_i`
 (`derivativeField_relates_to_field`) is the **gauge-generator** constraint —
 first-class, no explicit solution — as opposed to the divergence `u_{j,j} = 0`,
 imposed by initial conditions. Its BRST charge must be **analogous to the
@@ -654,6 +655,15 @@ the derivative-field constraint is the `D_j u_i = 0` "connection" analogue
 (load-bearing BRST), exactly as `Ω = u_{j,j}ψ†` vs `Ω_YM = π D ψ† + ghost³`.
 Eulerian-only: the Lagrangian parcel side has no such field-derivative
 constraint.
+
+**On-hold note (2026-08-18).** E.5 is **deferred**: it is a genuine plan item
+(not yet proved, not yet in any `BookProof/` module) and is deliberately **not**
+part of the current execution wave. The item is kept in full detail so it can be
+executed later without re-derivation. E.1–E.4 are unaffected — they are already
+proved and remain part of the done state. If a future pass wants to pick E.5 up,
+the two open sub-decisions recorded above (the Weyl ordering of `π^{ij}u_{i,j}`,
+and the nilpotency route (i) full Yang–Mills vs (ii) standard first-class form)
+must be settled first.
 
 ### Part F — The book.tex correspondence (prose + record)
 
