@@ -735,11 +735,20 @@ none of which is a plan item:
    builds the genuine Hermite core of `L²(ℝ)` (`ChapterHermiteFunctions`:
    `hermiteBasis`, completeness) and proves the 3D gauge-fixed mode Hamiltonian
    `qg3D_essentiallySelfAdjoint_on_hermiteCore` (unbounded, trivial deficiency at
-   every non-real `z`). What remains: the *unbounded* potential class
-   (`‖∇V x‖ ≤ c‖x‖ + d`, the genuine variable-coefficient energy argument — the
-   `exists_smooth_cutoff` lemma is in place as its first ingredient) and the
-   gauge/BRST-sector check for the transfer. Plan-to-Lean map:
-   `STRICHARTZ_WAVE_ESA.md`.
+   every non-real `z`). Plan-to-Lean map: `STRICHARTZ_WAVE_ESA.md`.
+   **Next target (the author's claim, 2026-08-18): the potential is polynomial
+   and bounded below ⟹ `□ + V` is ESA.** The bounded-below-polynomial case is the
+   genuine Strichartz step: a polynomial is unbounded, so the *bounded* `V`
+   results do not apply, but it is bounded on every compact set, which is exactly
+   what the finite-speed/localized energy argument needs (boundedness below is
+   the global growth control that keeps the local estimates uniform). The plan:
+   (a) localize with the proved `exists_smooth_cutoff` — on each ball of radius
+   `R` the truncated `V_R` is essentially bounded; (b) apply the proved
+   `wave_add_potential_essentiallySelfAdjoint` to `□ + V_R` — ESA per truncation;
+   (c) pass ESA to `□ + V` in the limit `R → ∞` by the finite-speed/energy (or
+   form-locality) argument, with the boundedness-below of `V` making the gluing
+   uniform. This is a plan item (the cut-off lemma is already proved); the
+   remaining boundary is the gauge/BRST-sector transfer check.
 6. **QYM unbounded continuum — CLOSED (2026-08-18).** Both plan items of §11.4
    are executed by `BookProof/ChapterFriedrichsExtension.lean` (`sorry`-free /
    `axiom`-free, registered in `BookProof.lean`, certified in
@@ -940,14 +949,29 @@ is exactly the one analytic hypothesis that feeds it:
    `HasZeroDeficiencyOn` form the QG/NS chapters use.
 
 **Honest flag.** Steps 1, 2 and 4 are provable in the existing framework. Step 3
-is the analytic core — *finite-speed propagation / unique continuation for the
-flat d'Alembertian with a polynomial potential* — and it is the part recorded as
-a named hypothesis (with citation), exactly as `ns_esa_of_farisLavine` and
-Crouzeix are named rather than assumed. A specialist who formalizes step 3 (e.g.
-the standard energy-estimate + finite-speed argument for the wave equation, or
-Mathlib's `Laplacian`/`MemElap` machinery extended to the wave operator) would
-turn the whole outline into a proof; until then it is a plan item, not a claimed
-theorem.
+ is the analytic core — *finite-speed propagation / unique continuation for the
+ flat d'Alembertian with a polynomial potential* — and it is the part recorded as
+ a named hypothesis (with citation), exactly as `ns_esa_of_farisLavine` and
+ Crouzeix are named rather than assumed. A specialist who formalizes step 3 (e.g.
+ the standard energy-estimate + finite-speed argument for the wave equation, or
+ Mathlib's `Laplacian`/`MemElap` machinery extended to the wave operator) would
+ turn the whole outline into a proof; until then it is a plan item, not a claimed
+ theorem.
+
+**Update (2026-08-18): step 3 is now *half-proved* and its precise residual is
+the bounded-below-polynomial case.** `BookProof/ChapterStrichartzWave.lean`
+proved the *free* wave operator `□ + κ` is ESA on the Schwartz core (Fourier
+multiplier), `ChapterKatoRellichDeficiency.lean` proved bounded perturbations
+preserve ESA, and `ChapterWaveBoundedPotential.lean` reached `□ + V` for
+*essentially bounded* `V`. The author's claim — **`V` polynomial and bounded
+below ⟹ `□ + V` ESA** — is the exact remaining content of step 3: a polynomial
+is unbounded (so the bounded-`V` results do not apply) but bounded on every
+compact set (so the finite-speed/localized energy argument applies, with
+boundedness below the uniform growth control). Plan: (a) truncate `V` to
+essentially bounded `V_R` on balls using the proved `exists_smooth_cutoff`;
+(b) apply the proved `wave_add_potential_essentiallySelfAdjoint` to `□ + V_R`;
+(c) pass ESA to `□ + V` by `R → ∞` via the finite-speed/energy (or form-locality)
+argument. See §9 item 5.
 
 ### 10.3 Honest boundary (same as the NS-FLOW wave)
 
