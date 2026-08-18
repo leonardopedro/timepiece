@@ -166,3 +166,30 @@ Option (b) is **not** taken, and remains the recorded boundary shared with the
 Navier–Stokes and quantum-gravity threads: it needs Mathlib's Sobolev /
 differential-operator machinery, and nothing in the book's claims depends on it.
 The mass gap stays out of scope by the author's decision.
+
+**Refinement (2026-08-18): (b) is a construction task, not a research boundary.**
+The book's base `ℝ⁹⁹` is finite-dimensional (3 coordinates + 24 fields `A_{k,a}`
++ 72 derivatives `∂_j A_{k,a}`, book.tex:7045-7048), so `L²(ℝ⁹⁹)` carries the
+product Hermite basis built from the 1D `hermiteBasis`
+(`BookProof/ChapterHermiteFunctions.lean`, dense by `hermiteCore_dense`).  The
+one-particle Hamiltonian `H₁ = ½Σπⁱ_aπⁱ_a + ½ΣB_{i a}B_{i a}` is a finite-degree
+polynomial-coefficient differential operator: coordinate multiplication by
+`A_{k,a}` and the derivative `∂_j` act on Hermite functions as ladder operators,
+so `H₁` is well-defined and symmetric on the Hermite core, and the
+second-quantized `H` on the finite-occupation states over it — the same pattern
+already proved in 1D by `harmonicOscOp_apply_eq_differential`.  So (b) is a
+well-scoped **construction task**: build the product Hermite core of `L²(ℝ⁹⁹)`,
+define `A`, `π = −iδ/δA`, `B` on it, prove core-invariance/symmetry/positivity
+of `H₁`, then feed the proved `friedrichs_extension_exists` +
+`friedrichs_hashimoto_selects`.  Two caveats to settle first:
+  - **ordering:** the `πA` cross-terms inside `B²` do not commute
+    (`[A_{j,a}, π^k_b] = iδ^k_j δ_{ab}`, book.tex:7060-7061) — the product needs
+    Weyl ordering (`½(πA + Aπ)`), the *same* subtlety as the NS Hamiltonian
+    `H_N = Σ(π_i A_i + A_i π_i)` and the E.5 BRST charge of
+    `PLAN_LEAN_SPECIALIST_NS_FLOW.md`;
+  - **sign:** book.tex:7077 writes `H(x) = −½ππ − ½BB`, while the plan uses the
+    positive sum-of-squares `H = ½Σπ² + ½ΣB²` (bounded below by 0, the
+    Friedrichs hypothesis) — reconcile the sign before feeding the operator to
+    the machinery (same style of sign correction already recorded for `□` in
+    `CONSOLIDATED_PLAN.md` §9.5).
+  If (b) is executed later, add it as a Part F item here.

@@ -52,7 +52,11 @@ opposite-signature convention `□ = ∂_t² - Δ_x` of the physics literature. 
 **Status (2026-08-18, §11.4 closed):** the two plan items of §11.4 (the unbounded
 Friedrichs existence theorem and the continuum-realization decision) are executed
 by `BookProof/ChapterFriedrichsExtension.lean`; see §9 item 6 and the update at
-the end of §11.4.
+the end of §11.4.  The field-space realization is *well-defined on the Hermite
+core* (finite-dimensional base `ℝ⁹⁹`, ladder structure of `A`/`∂`), so that
+realization is a construction task — Weyl ordering of the `πA` cross-terms and
+the sign of book.tex:7077 being the two caveats — not a research boundary; see
+the closing updates of §11.3/§11.4.
 
 **Status (2026-08-17, QG + QYM plan items executed):** the two "suggested next
 step" plan items of §10.3 and §11.3 are now **closed**.  Both are written up as
@@ -98,8 +102,9 @@ plans in the NS-FLOW style — `PLAN_LEAN_SPECIALIST_QG_FLOW.md` and
 
 The honest boundaries of §10.3 and §11.3 are unchanged: nothing is claimed about
 essential self-adjointness of the continuum gravity operator, about
-self-adjointness of the continuum Yang–Mills operator, about the mass gap, or
-about global existence in either theory.
+self-adjointness of the continuum Yang–Mills operator (which is, however,
+*well-defined on the Hermite core* — see the 2026-08-18 refinement in
+§11.3/§11.4), about the mass gap, or about global existence in either theory.
 
 After this wave the full §8 gate was re-run and is green: `lake build` over the
 default targets (no warnings), `lake build RandomMap`, `./patches/build-book.sh`
@@ -850,8 +855,17 @@ none of which is a plan item:
    is `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs`, with
    `unbounded_friedrichs_example` showing it is not vacuous. What remains is
    only the recorded boundary: the field-space *differential* realization of
-   `B_{i a}` (option (b), needing Sobolev machinery) and the mass gap, both
-   deliberately out of scope.
+   `B_{i a}` (option (b)) and the mass gap, both deliberately out of scope.
+   **Refinement (2026-08-18):** option (b) is *not* a research boundary — the
+   book's base `ℝ⁹⁹` is finite-dimensional and `H₁ = ½Σππ + ½ΣBB` is a
+   finite-degree polynomial-coefficient differential operator, so the operator
+   is **well-defined and symmetric on the product Hermite core** of `L²(ℝ⁹⁹)`
+   (the `A`/`∂` ladder structure; same pattern as
+   `harmonicOscOp_apply_eq_differential`).  It is a construction task: build
+   `A`, `π = −iδ/δA`, `B` on that core and prove core-invariance/symmetry/
+   positivity, with the Weyl ordering of the non-commuting `πA` cross-terms and
+   the sign of book.tex:7077 as the two caveats.  See the §11.3/§11.4 closing
+   updates.
 7. Pedagogical polish (small, editorial): the new plan/doc files
    (`PLAN_LEAN_SPECIALIST_QG_FLOW.md`, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`,
    `HASHIMOTO_COMPLEX_SHIFTS.md`, `HERMITE_GALERKIN_FRIEDRICHS.md`) and the Book
@@ -1209,6 +1223,18 @@ spectra nest, and the best-approximation error is antitone in the order
   results give nesting, monotone approximation error and (for cyclic seeds)
   tend-to-zero, but the identification of the *limit operator* with the
   Friedrichs extension is not yet formalized.
+- **Refinement (2026-08-18): the continuum operator is well-defined on the
+  Hermite core, so the remaining boundary is a construction task, not a gap.**
+  The base `ℝ⁹⁹` is finite-dimensional (3 + 24 + 72 coordinates, book.tex:
+  7045-7048), `H₁ = ½Σππ + ½ΣBB` is a finite-degree polynomial-coefficient
+  differential operator, and `A`, `∂` act on the product Hermite basis as ladder
+  operators — so `H₁` is well-defined and symmetric on the Hermite core (same
+  pattern as `harmonicOscOp_apply_eq_differential` in 1D).  What is not yet
+  built is the *Lean construction* of that operator on the product Hermite core
+  of `L²(ℝ⁹⁹)`, plus the proofs of core-invariance/symmetry/positivity; the two
+  delicate points are the Weyl ordering of the non-commuting `πA` cross-terms in
+  `B²` and the sign reconciliation of book.tex:7077 with the positive
+  sum-of-squares form.  See the closing update of §11.4.
 - **Do NOT claim**: self-adjointness of the continuum QYM operator, the mass
   gap, or global existence as *proved Lean theorems*. The Yang–Mills existence
   and mass-gap Millennium problem is deliberately out of scope (the book's own
@@ -1263,19 +1289,19 @@ done for unbounded operators, with no boundedness hypothesis anywhere.
    hypothesis). This is the same kind of content as the QG finite-speed step:
    a genuine but bounded task, recorded in the honesty framework as a plan item.
 2. **The continuum realization is a definitional choice, not a gap.** The
-   theorems live on an abstract Hilbert space `F` with a `HilbertBasis ℕ ℂ F`,
-   and the concrete models are `ℓ²(ℕ,ℂ)` (occupation/Hermite-basis
-   representations); the field-space differential realization on
-   `L²(ℝ⁹⁹×ℤ₂³¹)` with the magnetic-field operator
-   `B_{i a} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` is not built. **Two
-   defensible choices:** either (a) accept the occupation-number/Hermite
-   realization as *the* definition of the quantum theory (then `ℓ²(ℕ,ℂ)` *is*
-   the continuum in the Fock sense, and only item 1 remains), or (b) realize
-   `B_{i a}` concretely as a field-space differential operator (needing
-   Mathlib's Sobolev/differential-operator machinery, the same boundary as the
-   NS and QG continuum). **Plan item:** state the choice in
-   `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`; if (b), add the concrete realization as a
-   Part-E-style item.
+    theorems live on an abstract Hilbert space `F` with a `HilbertBasis ℕ ℂ F`,
+    and the concrete models are `ℓ²(ℕ,ℂ)` (occupation/Hermite-basis
+    representations); the field-space differential realization on
+    `L²(ℝ⁹⁹×ℤ₂³¹)` with the magnetic-field operator
+    `B_{i a} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` is not built. **Two
+    defensible choices:** either (a) accept the occupation-number/Hermite
+    realization as *the* definition of the quantum theory (then `ℓ²(ℕ,ℂ)` *is*
+    the continuum in the Fock sense, and only item 1 remains), or (b) realize
+    `B_{i a}` concretely as a field-space differential operator (needing
+    Mathlib's Sobolev/differential-operator machinery, the same boundary as the
+    NS and QG continuum). **Plan item:** state the choice in
+    `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`; if (b), add the concrete realization as a
+    Part-E-style item.
 
 With items 1 and 2 settled, the full claim — *the unbounded continuum Weyl-gauge
 Hamiltonian has a Friedrichs extension, and the infinite Hashimoto/SIRK limit
@@ -1297,3 +1323,41 @@ of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`; the field-space differential realization
 threads. The combined unbounded statement is `friedrichs_hashimoto_selects` and
 `weyl_hashimoto_selects_friedrichs`, and `unbounded_friedrichs_example` exhibits
 it on the genuinely unbounded `A eₙ = n eₙ` on `ℓ²(ℕ, ℂ)`.
+
+**Update (2026-08-18, the Hermite-core well-definedness refinement):** the
+conclusion of the previous update is *not* that the field-space realization (b)
+is out of reach — it is well-defined on the Hermite core, which turns the
+remaining boundary into a concrete construction task rather than a research gap.
+The book's base is **finite-dimensional**: `ℝ⁹⁹` = 3 coordinates + 24 gauge
+fields `A_{k,a}` + 72 derivatives `∂_j A_{k,a}` (book.tex:7045-7048), so
+`L²(ℝ⁹⁹)` carries the explicit product Hermite basis built from the 1D
+`hermiteBasis` of `BookProof/ChapterHermiteFunctions.lean` (dense, via
+`hermiteCore_dense`).  The one-particle Hamiltonian
+`H₁ = ½Σπⁱ_aπⁱ_a + ½ΣB_{i a}B_{i a}` with
+`B_{i a} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` is a **finite-degree
+polynomial-coefficient differential operator**: coordinate multiplication by
+`A_{k,a}` and the derivative `∂_j` act on Hermite functions as ladder operators,
+so `H₁` maps each Hermite basis vector to a *finite* Hermite combination — hence
+it is well-defined and symmetric on the Hermite core, and the second-quantized
+`H` is well-defined on the finite-occupation states over it.  This is the same
+pattern the repo already proves in 1D:
+`harmonicOscOp_apply_eq_differential` identifies the diagonal operator `n + ½`
+with the differential expression `x ↦ -ψₙ''(x) + (x²/4)ψₙ(x)` on the Hermite
+basis (`BookProof/ChapterHarmonicOscillatorEsa.lean`).  So option (b) is a
+well-scoped **construction task**: build the product Hermite core of `L²(ℝ⁹⁹)`,
+define `A`, `π = −iδ/δA`, `B` on it, prove core-invariance, symmetry and
+positivity of `H₁`, then feed the proved `friedrichs_extension_exists` +
+`friedrichs_hashimoto_selects`.  Two genuine caveats to settle before executing:
+  - **ordering:** the `πA` cross-terms inside `B²` do not commute
+    (`[A_{j,a}, π^k_b] = iδ^k_j δ_{ab}`, book.tex:7060-7061) — the product needs
+    Weyl ordering (`½(πA + Aπ)`), the *same* subtlety as the NS Hamiltonian
+    `H_N = Σ(π_i A_i + A_i π_i)` and the E.5 BRST charge of
+    `PLAN_LEAN_SPECIALIST_NS_FLOW.md`;
+  - **sign:** book.tex:7077 writes `H(x) = −½ππ − ½BB`, while the plan and the
+    formalized theorems use the positive sum-of-squares `H = ½Σπ² + ½ΣB²`
+    (bounded below by 0, the Friedrichs hypothesis) — the book's literal sign
+    must be reconciled before the operator is fed to the machinery (same style
+    of sign correction already recorded for `□` in §9.5).
+  With ordering and sign fixed, this Hermite-core construction is the remaining
+  link between the abstract theorem and the book's operator.  The mass gap stays
+  out of scope by the author's decision.
