@@ -601,14 +601,40 @@ holds, as the abelian limit of the Yang–Mills computation). Items:
 - `derivBrstCharge := Σ_{i,j} π^{ij}·(∂_j η†_i − u_{i,j}·η†_i)` — the
   Yang–Mills-shaped charge: momentum × ghost's covariant derivative. This is the
   *generator* form (analogous to `Ω_YM`), not the naive `C ⊗ η†` product;
-- `derivBrst_nilpotent : Ω_deriv * Ω_deriv = 0` — nilpotency in the abelian
-  limit. Proof shape: expand `π^{ij} (∂_j η†_i − u_{i,j} η†_i)`; the bosonic
-  `π^{ij}`, `u_{i,j}` commute, the `∂_j` parts pair by the ghost CAR
-  `η†_i η†_k + η†_k η†_i = 0`, and the `u_{i,j} η†_i` connection term squares to
-  zero via `η†_i² = 0` (per-component `psiDag_sq`) — the Yang–Mills nilpotency
-  computation with `f_abc = 0`. Use `brst_charge_nilpotent` +
-  `brst_charge_nilpotent_ghost` of `ChapterGhostField`, one ghost per field
-  component;
+- **The commutation relations (the ordering that makes the charge well-defined).
+  The field `u_i` commutes with the derivative-mode momentum: `[u_i, π^{jk}] = 0`
+  (they are not conjugate — `π^{ij}` is the conjugate of the *derivative* mode
+  `u_{i,j}`, `[u_{i,j}, π^{kl}] = iδ^k_i δ^l_j` by `derivativeField_momentum`).
+  Therefore the charge pairs `π^{ij}` with *its own conjugate* `u_{i,j}` in the
+  connection term, exactly as Yang–Mills pairs `π^k_a` with `A_{k a}` — and those
+  do **not** commute. The product `π^{ij} u_{i,j}` must be Weyl-ordered
+  (`½(π^{ij}u_{i,j} + u_{i,j}π^{ij})`, the same anticommutator convention as the
+  NS Hamiltonian `H_N = Σ(π_i A_i + A_i π_i)`), and this ordering is part of the
+  definition of `derivBrstCharge`, not a simplification.
+- `derivBrst_nilpotent : Ω_deriv * Ω_deriv = 0` — nilpotency, **with the
+  non-commutation of `π^{ij}` and `u_{i,j}` handled honestly**. The earlier claim
+  that "the bosonic `π^{ij}`, `u_{i,j}` commute" is **wrong** — they are
+  conjugate (`[u_{i,j}, π^{kl}] = iδ^k_i δ^l_j`). Two defensible routes:
+  - *(i) the honest Yang–Mills computation.* The `ghost³` self-interaction term
+    `−(i/2) f η†η†η` is *not* automatically zero here: it is exactly what
+    cancels the `[π^{ij}, u_{i,j}] = −i` c-number contributions to `Ω²`, as in
+    Yang–Mills. The abelian statement `f = 0` is a *theorem to prove* (the
+    constraint algebra `[C_{ij}, C_{kl}] = 0` of the first-class constraints is
+    abelian), not an assumption; with the Weyl ordering and the ghost CAR the
+    computation is the Yang–Mills one with `f_abc = 0`, and `η†_i² = 0`
+    (per-component `psiDag_sq`). This is the correct proof shape — use
+    `brst_charge_nilpotent` + the ghost CAR, but *not* a claim that `π` and `u`
+    commute.
+  - *(ii) the standard first-class-constraint form (fallback, cleaner).* The
+    textbook BRST charge of an *abelian* set of first-class constraints
+    `{C_{ij} = 0}` is simply `Ω = Σ_{i,j} η†_{ij} C_{ij}` (one ghost per
+    constraint, no `π`, no connection), and nilpotency follows from the abelian
+    constraint algebra `[C_{ij}, C_{kl}] = 0` alone — provable with
+    `brst_charge_nilpotent` directly. This avoids the ordering entirely and is
+    the honest, minimal, provable statement. If route (ii) is taken, record in
+    the docstring that the Yang–Mills-shaped `π D η†` form of E.5 is the
+    *connection* refinement whose nilpotency requires the ghost³-cancellation
+    argument of route (i).
 - `derivBrst_adjoint : Ω_derivᴴ = Σ π^{ij}(∂_j η_i − u_{i,j} η_i)` — the charge
   is not Hermitian (ghost creation factors), so the physical space is the
   cohomology, mirroring `nsBrst_adjoint` and the Yang–Mills `Ω`;
