@@ -555,9 +555,56 @@ gives the correct adjoint statement.
 
 **E.4** *Honesty flag.* The module must state that E.1–E.3 formalize the
 *packaging* role only: nilpotency of `Ω` and the `u_{3,3}` resolution, exactly
-as book.tex describes. The constraint itself needs no gauge generator (A.5), so
-nothing in Part E should be read as a first-class-constraint/ghost-counting
-statement about the physical Hilbert space.
+as book.tex describes. The divergence constraint itself needs no gauge generator
+(A.5), so E.1–E.3 should **not** be read as a first-class-constraint/
+ghost-counting statement about the physical Hilbert space. **The contrast is
+E.5**: the derivative-field constraint `u_{i,j} = ∂_j u_i` *is* first-class (no
+explicit solution), so its BRST charge `Ω_deriv` (E.5) is a genuine
+gauge-enforcing construction — the ghost is load-bearing there, unlike in
+E.1–E.3.
+
+**E.5** *The BRST charge of the derivative-field constraint (the gauge
+constraint that defines `u_{i,j}` as the derivative of the field).* In A.5 the
+relation `u_{i,j} = ∂_j u_i` (`derivativeField_relates_to_field`) is the
+**gauge-generator** constraint — first-class, no explicit solution — as opposed
+to the divergence `u_{j,j} = 0`, which is imposed by initial conditions. The
+divergence got its BRST charge `Ω = u_{j,j} ⊗ ψ†` (E.1). The derivative-field
+constraint gets its own, with **one ghost per derivative mode**:
+
+```
+Ω_deriv = Σ_{i,j} (u_{i,j} − ∂_j u_i) ⊗ η†_{ij}
+```
+
+where `η_{ij}` are ghost annihilation operators (one per `(i,j)`, a `Fin 2`
+Grassmann factor each) and `η†_{ij}` their creation operators. The BRST charge
+enforces the constraint on the cohomology: `ker Ω_deriv / im Ω_deriv` is the
+space where `u_{i,j} = ∂_j u_i` holds. Items, mirroring E.1–E.3 exactly:
+
+- `derivFieldConstraint (i j) := u_{i,j} − ∂_j u_i` — the constraint operator,
+  the *difference* form of `derivativeField_relates_to_field` (the same
+  `dirDeriv` of `ChapterNavierStokesEulerian`);
+- `derivBrstCharge := Σ_{i,j} derivFieldConstraint (i,j) ⊗ η†_{ij}` on the
+  tensor product of the bosonic state space with the ghost factors;
+- `derivBrst_nilpotent : Ω_deriv * Ω_deriv = 0` — nilpotency. Proof shape:
+  each term is `C_{ij} ⊗ η†_{ij}` with the *bosonic* `C_{ij}` commuting and
+  `η†_{ij}² = 0` (per-mode `psiDag_sq`), and the cross terms `C_{ij}C_{kl} ⊗
+  η†_{ij}η†_{kl}` vanish by the ghost CAR `η†_{ij}η†_{kl} + η†_{kl}η†_{ij} = 0`
+  for `(i,j) ≠ (k,l)` — exactly the `brst_charge_nilpotent` lemma of
+  `ChapterGhostField`, upgraded to one ghost per mode;
+- `derivBrst_adjoint : Ω_derivᴴ = Σ C_{ij} ⊗ η_{ij}` — the charge is not
+  Hermitian (ghost creation factors), so the physical space is the cohomology,
+  mirroring `nsBrst_adjoint`;
+- `derivBrst_kernel_relates_field` — the honest statement of what the
+  cohomology computes: a state in `ker Ω_deriv` (with the ghost structure
+  fixed) satisfies `u_{i,j} = ∂_j u_i` componentwise — the BRST form of
+  `derivativeField_relates_to_field`.
+
+This is the *first-class* BRST constraint, in contrast with the divergence's
+explicit-solution packaging (E.4): here the ghost is load-bearing, because the
+constraint has no explicit solution. The `Ω_deriv` construction is the BRST
+shadow of the A.6/A.7 gauge generators (`genY`, `genY2`) — those are the
+generators, `Ω_deriv` is their ghost-enforced BRST charge. Eulerian-only: the
+Lagrangian parcel side has no such field-derivative constraint.
 
 ### Part F — The book.tex correspondence (prose + record)
 
