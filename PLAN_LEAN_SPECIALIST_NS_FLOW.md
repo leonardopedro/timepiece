@@ -563,48 +563,71 @@ explicit solution), so its BRST charge `Ω_deriv` (E.5) is a genuine
 gauge-enforcing construction — the ghost is load-bearing there, unlike in
 E.1–E.3.
 
-**E.5** *The BRST charge of the derivative-field constraint (the gauge
-constraint that defines `u_{i,j}` as the derivative of the field).* In A.5 the
-relation `u_{i,j} = ∂_j u_i` (`derivativeField_relates_to_field`) is the
-**gauge-generator** constraint — first-class, no explicit solution — as opposed
-to the divergence `u_{j,j} = 0`, which is imposed by initial conditions. The
-divergence got its BRST charge `Ω = u_{j,j} ⊗ ψ†` (E.1). The derivative-field
-constraint gets its own, with **one ghost per derivative mode**:
+**E.5** *The BRST charge of the derivative-field constraint, in the Yang–Mills
+form (the gauge constraint that defines `u_{i,j}` as the derivative of the
+field).* In A.5 the relation `u_{i,j} = ∂_j u_i`
+(`derivativeField_relates_to_field`) is the **gauge-generator** constraint —
+first-class, no explicit solution — as opposed to the divergence `u_{j,j} = 0`,
+imposed by initial conditions. Its BRST charge must be **analogous to the
+Yang–Mills gauge constraints** (`book.tex:7084`), not to the divergence's
+packaging `Ω = u_{j,j}⊗ψ†`. The Yang–Mills charge is built from the momentum
+contracted with the ghost's **covariant derivative**:
 
 ```
-Ω_deriv = Σ_{i,j} (u_{i,j} − ∂_j u_i) ⊗ η†_{ij}
+Ω_YM = π^k_a ∂_k ψ†_a − π^k_a f_abc A_{k b} ψ†_c − (i/2) f_abc ψ†_a ψ†_b ψ_c
 ```
 
-where `η_{ij}` are ghost annihilation operators (one per `(i,j)`, a `Fin 2`
-Grassmann factor each) and `η†_{ij}` their creation operators. The BRST charge
-enforces the constraint on the cohomology: `ker Ω_deriv / im Ω_deriv` is the
-space where `u_{i,j} = ∂_j u_i` holds. Items, mirroring E.1–E.3 exactly:
+i.e. `π^k_a (D_k ψ†)_a + ghost³`, where `(D_k ψ†)_a = ∂_k ψ†_a − f_abc A_{k b} ψ†_c`
+is the ghost transforming under the connection `A`, and the ghost self-interaction
+`−(i/2) f_abc ψ†ψ†ψ` is what makes `Ω² = 0` when the structure constants are
+non-zero. The derivative-field constraint is the *abelian connection* analogue:
+`u_{i,j}` is the connection making the field `u_i` covariantly constant,
+`D_j u_i = ∂_j u_i − u_{i,j} = 0`. Its BRST charge therefore has the same
+three-part Yang–Mills shape, with the derivative-mode momentum `π^{ij}` playing
+the role of `π^k_a` and one ghost `η_i` per field component:
 
-- `derivFieldConstraint (i j) := u_{i,j} − ∂_j u_i` — the constraint operator,
-  the *difference* form of `derivativeField_relates_to_field` (the same
-  `dirDeriv` of `ChapterNavierStokesEulerian`);
-- `derivBrstCharge := Σ_{i,j} derivFieldConstraint (i,j) ⊗ η†_{ij}` on the
-  tensor product of the bosonic state space with the ghost factors;
-- `derivBrst_nilpotent : Ω_deriv * Ω_deriv = 0` — nilpotency. Proof shape:
-  each term is `C_{ij} ⊗ η†_{ij}` with the *bosonic* `C_{ij}` commuting and
-  `η†_{ij}² = 0` (per-mode `psiDag_sq`), and the cross terms `C_{ij}C_{kl} ⊗
-  η†_{ij}η†_{kl}` vanish by the ghost CAR `η†_{ij}η†_{kl} + η†_{kl}η†_{ij} = 0`
-  for `(i,j) ≠ (k,l)` — exactly the `brst_charge_nilpotent` lemma of
-  `ChapterGhostField`, upgraded to one ghost per mode;
-- `derivBrst_adjoint : Ω_derivᴴ = Σ C_{ij} ⊗ η_{ij}` — the charge is not
-  Hermitian (ghost creation factors), so the physical space is the cohomology,
-  mirroring `nsBrst_adjoint`;
-- `derivBrst_kernel_relates_field` — the honest statement of what the
-  cohomology computes: a state in `ker Ω_deriv` (with the ghost structure
-  fixed) satisfies `u_{i,j} = ∂_j u_i` componentwise — the BRST form of
+```
+Ω_deriv = π^{ij} ∂_j η†_i − π^{ij} u_{i,j} η†_i
+```
+
+(the `ghost³` term is absent because the constraint algebra is *abelian* —
+`[u_{i,j}, u_{k,l}] = 0` — so the structure constants vanish; nilpotency still
+holds, as the abelian limit of the Yang–Mills computation). Items:
+
+- `derivConstraintConnection (i j) := u_{i,j} − ∂_j u_i` — the constraint as the
+  covariant-constancy condition `D_j u_i = 0` (`D_j := ∂_j − u_{i,j}·`), the
+  connection form of `derivativeField_relates_to_field` (same `dirDeriv` of
+  `ChapterNavierStokesEulerian`);
+- `derivBrstCharge := Σ_{i,j} π^{ij}·(∂_j η†_i − u_{i,j}·η†_i)` — the
+  Yang–Mills-shaped charge: momentum × ghost's covariant derivative. This is the
+  *generator* form (analogous to `Ω_YM`), not the naive `C ⊗ η†` product;
+- `derivBrst_nilpotent : Ω_deriv * Ω_deriv = 0` — nilpotency in the abelian
+  limit. Proof shape: expand `π^{ij} (∂_j η†_i − u_{i,j} η†_i)`; the bosonic
+  `π^{ij}`, `u_{i,j}` commute, the `∂_j` parts pair by the ghost CAR
+  `η†_i η†_k + η†_k η†_i = 0`, and the `u_{i,j} η†_i` connection term squares to
+  zero via `η†_i² = 0` (per-component `psiDag_sq`) — the Yang–Mills nilpotency
+  computation with `f_abc = 0`. Use `brst_charge_nilpotent` +
+  `brst_charge_nilpotent_ghost` of `ChapterGhostField`, one ghost per field
+  component;
+- `derivBrst_adjoint : Ω_derivᴴ = Σ π^{ij}(∂_j η_i − u_{i,j} η_i)` — the charge
+  is not Hermitian (ghost creation factors), so the physical space is the
+  cohomology, mirroring `nsBrst_adjoint` and the Yang–Mills `Ω`;
+- `derivBrst_kernel_relates_field` — the honest statement of what the cohomology
+  computes: a state in `ker Ω_deriv` (ghost structure fixed) satisfies
+  `u_{i,j} = ∂_j u_i` componentwise — the BRST form of
   `derivativeField_relates_to_field`.
 
 This is the *first-class* BRST constraint, in contrast with the divergence's
 explicit-solution packaging (E.4): here the ghost is load-bearing, because the
 constraint has no explicit solution. The `Ω_deriv` construction is the BRST
 shadow of the A.6/A.7 gauge generators (`genY`, `genY2`) — those are the
-generators, `Ω_deriv` is their ghost-enforced BRST charge. Eulerian-only: the
-Lagrangian parcel side has no such field-derivative constraint.
+generators, `Ω_deriv` is their ghost-enforced BRST charge in the Yang–Mills
+form. The structural parallel to record in the docstring: **the divergence
+constraint is the `u_{j,j}` "abelian Gauss law" analogue (packaging BRST), while
+the derivative-field constraint is the `D_j u_i = 0` "connection" analogue
+(load-bearing BRST), exactly as `Ω = u_{j,j}ψ†` vs `Ω_YM = π D ψ† + ghost³`.
+Eulerian-only: the Lagrangian parcel side has no such field-derivative
+constraint.
 
 ### Part F — The book.tex correspondence (prose + record)
 
