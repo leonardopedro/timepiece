@@ -682,10 +682,16 @@ none of which is a plan item:
 5. **QG continuum ESA**: the finite-speed / unique-continuation step for the flat
    d'Alembertian with polynomial potential (Strichartz), entered as a named
    hypothesis; plus the gauge/BRST-sector check for the transfer.
-6. **QYM continuum ESA + the Hashimoto-limit identification in the unbounded
-   regime**: the Friedrichs theorem remains a named hypothesis for unbounded
-   operators, and `sirk_limit_eq_friedrichs` (D.4) is proved only under
-   boundedness; the unbounded identification is a research conjecture.
+6. **QYM unbounded continuum — now two concrete plan items, not a research
+   conjecture (see §11.4)**: (1) discharge the unbounded Friedrichs hypothesis
+   (prove the positive self-adjoint extension exists for the Weyl operator, the
+   unbounded form-closure analogue of `friedrichs_of_bounded`); (2) decide the
+   continuum realization (occupation-number/Hermite as the definition, or a
+   concrete field-space `B_{i a}`). The convergence/selection half is already
+   proved for unbounded operators via shift-invert
+   (`hashimoto_shiftInvert_selects_friedrichs`). The unbounded
+   `sirk_limit_eq_friedrichs` identification then follows from the proved
+   machinery.
 7. Pedagogical polish (small, editorial): the new plan/doc files
    (`PLAN_LEAN_SPECIALIST_QG_FLOW.md`, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`,
    `HASHIMOTO_COMPLEX_SHIFTS.md`, `HERMITE_GALERKIN_FRIEDRICHS.md`) and the Book
@@ -1047,3 +1053,56 @@ spectra nest, and the best-approximation error is antitone in the order
   `sirk_numRange_nested_orders`/`krylov_bestApprox_tendsto_zero` as the
   supporting nesting facts). Reuse `ChapterWeylHamiltonian`,
   `ChapterGhostField`, `ChapterSuperBracket` and `ChapterH8`/`ChapterH9`.
+
+### 11.4 The unbounded continuum case: precise status and the two plan items
+(record, 2026-08-17)
+
+The executed wave proves **more** than §11.3's "What is recorded, not claimed"
+records, and it is worth being precise about what is and is not in hand, so a
+future specialist knows exactly what to attack.
+
+**What the unbounded case already has (proved, no boundedness):**
+`hashimoto_shiftInvert_selects_friedrichs`
+(`BookProof/ChapterHashimotoShiftInvert.lean`) reaches *unbounded* Hamiltonians:
+for any positive self-adjoint extension `A` of an unbounded symmetric positive
+`H`, the shift-inverted operator `R = (A + γ)⁻¹` exists, is **bounded**
+(`‖R‖ ≤ 1/γ`), and the whole bounded Galerkin theory applies to `R` — strong
+convergence of the truncations, strong resolvent convergence at every non-real
+`z`, and `R` uniquely determines `A`. So the *convergence/selection* half is
+done for unbounded operators, with no boundedness hypothesis anywhere.
+
+**The two things that prevent a full claim (both plan-sized, not research):**
+
+1. **The extension `A` is input, not constructed.** The headline takes
+   `A : Dom →ₗ[ℂ] F` with `hA : IsPositiveSelfAdjointExtension H A` as a
+   *hypothesis*: it proves the algorithm converges to whichever extension it is
+   given (and that the limit is unique). It does **not** prove that the unbounded
+   `H` *has* such an extension — that existence is the Friedrichs theorem, which
+   for unbounded operators is still the named hypothesis
+   `friedrichs_extension_of_semibounded`, discharged by construction only in the
+   bounded regime (`friedrichs_of_bounded`). **Plan item:** prove the existence
+   of the positive self-adjoint extension for the specific Weyl-gauge operator —
+   an analytic form-closure theorem (the domain of the closed form of
+   `½Σ‖πⁱx‖² + ½Σ‖Bₐx‖²` on the actual domain, i.e. the unbounded analogue of
+   `weylForm_closable` feeding `friedrichs_of_bounded` without the boundedness
+   hypothesis). This is the same kind of content as the QG finite-speed step:
+   a genuine but bounded task, recorded in the honesty framework as a plan item.
+2. **The continuum realization is a definitional choice, not a gap.** The
+   theorems live on an abstract Hilbert space `F` with a `HilbertBasis ℕ ℂ F`,
+   and the concrete models are `ℓ²(ℕ,ℂ)` (occupation/Hermite-basis
+   representations); the field-space differential realization on
+   `L²(ℝ⁹⁹×ℤ₂³¹)` with the magnetic-field operator
+   `B_{i a} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` is not built. **Two
+   defensible choices:** either (a) accept the occupation-number/Hermite
+   realization as *the* definition of the quantum theory (then `ℓ²(ℕ,ℂ)` *is*
+   the continuum in the Fock sense, and only item 1 remains), or (b) realize
+   `B_{i a}` concretely as a field-space differential operator (needing
+   Mathlib's Sobolev/differential-operator machinery, the same boundary as the
+   NS and QG continuum). **Plan item:** state the choice in
+   `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`; if (b), add the concrete realization as a
+   Part-E-style item.
+
+With items 1 and 2 settled, the full claim — *the unbounded continuum Weyl-gauge
+Hamiltonian has a Friedrichs extension, and the infinite Hashimoto/SIRK limit
+selects exactly it* — becomes a theorem of the proved machinery. The mass gap is
+out of scope by the author's decision.
