@@ -8,6 +8,7 @@ import UsedRoute.GaussianEuler
 import UsedRoute.Helpers
 import UsedRoute.MultiplicityOne
 import UsedRoute.RectangleStrategy
+import UsedRoute.RectangleWinding
 import UsedRoute.ShiftedEta
 import UsedRoute.SimplifiedStrategy
 import UsedRoute.SolovayHilbert

@@ -1,3 +1,47 @@
+# Summary of changes for run 318cf929-fcff-49a1-aefd-97f537d7b519
+## What was done
+
+The Hermite work is now complete and sorry-free, and it has been extended to the "core" itself and to the gauge-fixed quantum-gravity Hamiltonian. Two chapters, both imported from `BookProof.lean`; the whole library builds.
+
+### `BookProof/ChapterHermiteFunctions.lean` — the Hermite orthonormal basis of L²(ℝ)
+The three remaining gaps (Fourier uniqueness) were closed, so the chapter is now entirely proved:
+- `hermiteR`, `derivative_hermiteR`, `hermiteR_ode` — the probabilists' Hermite polynomials and their ODE.
+- Integrability of polynomials against `e^{-x²/2}`, `e^{-x²/4}`, and integration by parts on ℝ (`gint_ibp`).
+- `hermiteInner_eq` — orthogonality: `∫ Hₘ Hₙ e^{-x²/2} = δₘₙ · n! · √(2π)`.
+- `orthonormal_hermiteLp` — the normalized Hermite functions `ψₙ(x) = Hₙ(x) e^{-x²/4}/√(n!√(2π))` are orthonormal in L².
+- `integral_fourier_mul_comm` (the multiplication formula `∫ (𝓕f) g = ∫ f (𝓕g)`), `ae_eq_zero_of_fourier_eq_zero`, `fourier_gaussH_mul_eq_zero`, `ae_eq_zero_of_moments` — the Fourier route to completeness; the exponential series of `e^{iax}e^{-x²/4}u` is dominated by `e^{|a||x|}e^{-x²/4}|u|`.
+- `hermiteLp_span_dense` and `hermiteBasis` — completeness: the Hermite functions form a Hilbert basis of L²(ℝ).
+- `hermiteFun_oscillator` — `−ψₙ'' + (x²/4)ψₙ = (n + ½)ψₙ`.
+
+### `BookProof/ChapterStrichartzHermiteQG.lean` — the Hermite core and the Hamiltonians
+- `hermiteCore` — the **Hermite core**: finite linear combinations of Hermite functions (polynomials times the Gaussian), with `hermiteCore_dense`.
+- `hermiteDiagOp` / `hermiteCoreOp lam` — the operator diagonal in the Hermite basis with arbitrary real symbol `lam`, on its maximal domain and on the core, with `H ψₙ = lam n · ψₙ`.
+- `hermiteCoreOp_symmetric`; `hermiteCoreOp_deficiencyTrivialAt` (the Strichartz-type "trivial deficiency at every non-real z" input, proved); `hermiteCoreOp_essentiallySelfAdjoint` — essential self-adjointness on the core; `hermiteCoreOp_not_bounded` — unbounded whenever the symbol is, so the statement is not a bounded-operator triviality.
+- `oscillator_essentiallySelfAdjoint_on_hermiteCore` — the harmonic oscillator `−d²/dx² + x²/4` on the core, tied to the pointwise eigenvalue equation.
+- `qg3DModeSymbol`, `qg3DHermiteHamiltonian` and `qg3D_essentiallySelfAdjoint_on_hermiteCore` — the **3D gauge-fixed quantum-gravity mode Hamiltonian**, whose symbol is the densitized hyperbolic form `(1/16)Σ_{a<3} ξ_a² − (1/24) ξ_y²` from the earlier gravity chapter plus a real potential, is essentially self-adjoint on the Hermite core; `qg3D_not_bounded` records that it is unbounded. `qgMode_essentiallySelfAdjoint_on_hermiteCore` gives the same for the earlier one-mode symbol, now realized on L²(ℝ) rather than abstractly on ℓ²(ℕ).
+
+### Verification
+Both chapters build with no `sorry`, no `axiom`, and no linter warnings; the main theorems depend only on `propext`, `Classical.choice`, `Quot.sound`. The full default target `BookProof` builds successfully with the new imports. A summary of the new material is in `HERMITE_CORE_STRICHARTZ.md`; `ARISTOTLE_SUMMARY.md` was left untouched. All work is committed and pushed.
+
+
+# Summary of changes for run 09a53d98-ff41-46b3-8e8d-1243c2efd0b8
+I executed the plan for a Strichartz-type essential self-adjointness (ESA) theorem for hyperbolic wave operators. Three new Lean files were added, all `sorry`-free and axiom-free (only `propext`, `Classical.choice`, `Quot.sound`), all wired into `BookProof.lean`; the whole `BookProof` library builds (8425 jobs, no errors).
+
+**Phase 1 — framework.** The requested von Neumann deficiency-index setup already existed in the project (`BookProof/ChapterFarisLavine.lean`: `SymmetricOn`, `DeficiencyTrivialAt`, `EssentiallySelfAdjointOn` for a linear map out of a domain submodule), so it was reused rather than duplicated.
+
+**Phase 2 — the operator** (`BookProof/ChapterStrichartzWave.lean`). `SpaceTime n = EuclideanSpace ℝ (Fin (1+n))` (index 0 = time); `waveOp n κ` is `□ + κ = -∂_t² + Δ_x + κ`, a special case of the general constant-coefficient operator `constCoeffOp c w κ = ∑ᵢ cᵢ ∂²_{wᵢ} + κ`. The domain is the Schwartz core `schwartzDomain`, transported into L² by `opL2`. `fourier_constCoeffOp_apply` shows the Fourier transform turns the operator into multiplication by its real symbol.
+
+**Phase 3 — cut-offs and the energy step.** `exists_smooth_cutoff` gives, for each radius R, a smooth compactly supported cut-off equal to 1 on the ball of radius R, valued in [0,1], vanishing outside radius R+1, with bounded gradient. For constant-coefficient operators the energy/light-cone estimates are replaced by an exact Fourier computation: Plancherel plus the realness of the symbol give symmetry, and dividing test functions by `symbol − z̄` kills the deficiency equation.
+
+**Phase 4 — the theorems.**
+- `wave_essentiallySelfAdjoint`: `□ + κ` (real constant κ) is essentially self-adjoint on the Schwartz core of L²(ℝ^{1+n}); both deficiency spaces vanish.
+- `constCoeffOp_essentiallySelfAdjoint`: the same for every constant-coefficient operator with real symbol (so also for the Laplacian).
+- `wave_symmetric`: symmetry of the wave operator on that core.
+- `BookProof.KatoRellich.essentiallySelfAdjointOn_add_bounded` (`BookProof/ChapterKatoRellichDeficiency.lean`): a bounded symmetric perturbation preserves ESA — proved from scratch in the deficiency formulation by an explicit Neumann series over finite sums of domain vectors, so no operator closure or spectral theory is needed.
+- `wave_add_potential_essentiallySelfAdjoint` (`BookProof/ChapterWaveBoundedPotential.lean`): `□ + V` is essentially self-adjoint on the Schwartz core for every real-valued, essentially bounded potential V, the potential acting through the multiplication operator `mulL2` (bounded by Hölder).
+
+**Scope note.** The core used is the Schwartz space rather than `C_c^∞`, since it is the Fourier-invariant core the proof needs. The plan's unbounded potential class (‖∇V x‖ ≤ c‖x‖ + d) is *not* proved: the results cover essentially bounded real potentials and, exactly, all constant-coefficient operators with real symbol. A phase-by-phase map from the plan to the Lean names, including this limitation, is in `STRICHARTZ_WAVE_ESA.md`.
+
 # Summary of changes for run 6208feec-584f-4595-8060-715a0507973c
 I adapted the shift-invert theory in `BookProof.HashimotoShiftInvert` to the setting of the attached Hashimoto–Nodera paper: shifts that are **complex with non-zero imaginary part**, and a **different shift at every step** (the rational Krylov / SIRK construction). The new material is in `BookProof/ChapterHashimotoComplexShifts.lean` (same namespace), is `sorry`-free and axiom-free, and the whole project builds (8622 jobs, no errors); each headline result is certified in `BookProof/ChapterRoadmapAudit.lean` to depend only on `propext`, `Classical.choice`, `Quot.sound`. A claim-by-claim map from the paper to the Lean names is in `HASHIMOTO_COMPLEX_SHIFTS.md`.
 

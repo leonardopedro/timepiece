@@ -12,6 +12,7 @@ import BookProof.ChapterYangMillsFriedrichsLimit
 import BookProof.ChapterHermiteGalerkinFriedrichs
 import BookProof.ChapterHashimotoShiftInvert
 import BookProof.ChapterHashimotoComplexShifts
+import BookProof.ChapterFriedrichsExtension
 import BookProof.ChapterF4
 import BookProof.ChapterHolomorphic
 import BookProof.ChapterB4
@@ -590,5 +591,22 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.HashimotoShiftInvert.hashimoto_multishift_selects_friedrichs
 #print axioms BookProof.HashimotoShiftInvert.ell2Resolvent_isShiftInvertC
 #print axioms BookProof.HashimotoShiftInvert.hashimoto_multishift_unbounded_example
+
+#print axioms BookProof.FriedrichsExtension.FormDom.norm_toAmbient_le
+#print axioms BookProof.FriedrichsExtension.FormDom.formExt_coe
+#print axioms BookProof.FriedrichsExtension.FormDom.inner_coe_eq
+#print axioms BookProof.FriedrichsExtension.FormDom.formExt_injective
+#print axioms BookProof.FriedrichsExtension.FormDom.formRiesz_spec
+#print axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_isSelfAdjoint
+#print axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_pos
+#print axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_injective
+#print axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_shift
+#print axioms BookProof.FriedrichsExtension.friedrichs_extension_exists
+#print axioms BookProof.FriedrichsExtension.friedrichs_hypothesis_holds
+#print axioms BookProof.FriedrichsExtension.weyl_friedrichs_extension_unconditional
+#print axioms BookProof.FriedrichsExtension.friedrichs_extension_of_semibounded_below
+#print axioms BookProof.FriedrichsExtension.friedrichs_hashimoto_selects
+#print axioms BookProof.FriedrichsExtension.weyl_hashimoto_selects_friedrichs
+#print axioms BookProof.FriedrichsExtension.unbounded_friedrichs_example
 
 end BookProof.ChapterRoadmapAudit

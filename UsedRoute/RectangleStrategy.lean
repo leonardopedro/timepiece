@@ -2,6 +2,7 @@ import Mathlib
 import UsedRoute.Basic
 import UsedRoute.EtaConvergence
 import UsedRoute.EtaConvergenceExtended
+import UsedRoute.RectangleWinding
 
 /-!
 # Two-Rectangle Strategy for the Riemann Hypothesis
@@ -91,6 +92,10 @@ The file has sorry statements for the deep analytic content:
 
 ### Resolved Sorries
 
+- `rect_integral_inv_sub_eq`: **PROVED** (winding number of a rectangle,
+  `∮_R (z-w)⁻¹ = 2πi` for `w` in the open interior) by explicit computation of the
+  four edge integrals via the primitives `½·log (t²+c²) ∓ i·arctan (t/c)`; see
+  `UsedRoute/RectangleWinding.lean`.
 - `etaEulerApprox_tendstoUniformlyOn_rect`: **PROVED** using the Dirichlet
   series decomposition (Section 7b). The Euler product convergence is
   decomposed into a finite Dirichlet part (uniformly convergent for
@@ -945,12 +950,52 @@ The proof decomposes into:
 /-- The boundary integral of (z - w)⁻¹ around a rectangle containing w
     equals 2πi. This is the special case f = 1 of the Cauchy integral formula.
 
-    This can be derived from Mathlib's `DiffContOnCl.circleIntegral_sub_inv_smul`
-    via contour deformation, or proved directly by explicit computation of
-    the four edge integrals. -/
+    It is proved by explicit computation of the four edge integrals: each edge has
+    the elementary primitive `½·log (t² + c²) ∓ i·arctan (t/c)`
+    (`RectangleWinding.integral_horizontalEdge`, `…_verticalEdge`); the logarithmic
+    parts cancel in pairs and the arctangents add up to the total turning `2π`
+    (`RectangleWinding.arctan_rectangle_winding`). -/
 lemma rect_integral_inv_sub_eq (R : Rect) (w : ℂ) (hw : w ∈ R.openInt) :
     R.boundaryIntegral (fun z => (z - w)⁻¹) = 2 * ↑Real.pi * I := by
-  sorry
+  obtain ⟨h1, h2, h3, h4⟩ := hw
+  set A := R.x_lo - w.re with hAdef
+  set B := R.x_hi - w.re with hBdef
+  set C := R.y_lo - w.im with hCdef
+  set D := R.y_hi - w.im with hDdef
+  have hA : A < 0 := by rw [hAdef]; linarith
+  have hB : 0 < B := by rw [hBdef]; linarith
+  have hC : C < 0 := by rw [hCdef]; linarith
+  have hD : 0 < D := by rw [hDdef]; linarith
+  unfold Rect.boundaryIntegral
+  rw [RectangleWinding.integral_horizontalEdge_shift,
+    RectangleWinding.integral_horizontalEdge_shift,
+    RectangleWinding.integral_verticalEdge_shift,
+    RectangleWinding.integral_verticalEdge_shift]
+  rw [RectangleWinding.integral_horizontalEdge _ _ _ hC.ne,
+    RectangleWinding.integral_horizontalEdge _ _ _ hD.ne',
+    RectangleWinding.integral_verticalEdge _ _ _ hB.ne',
+    RectangleWinding.integral_verticalEdge _ _ _ hA.ne]
+  have hlog : (Real.log (B ^ 2 + C ^ 2) - Real.log (A ^ 2 + C ^ 2))
+      - (Real.log (B ^ 2 + D ^ 2) - Real.log (A ^ 2 + D ^ 2))
+      + (Real.log (D ^ 2 + B ^ 2) - Real.log (C ^ 2 + B ^ 2))
+      - (Real.log (D ^ 2 + A ^ 2) - Real.log (C ^ 2 + A ^ 2)) = 0 := by
+    rw [show D ^ 2 + B ^ 2 = B ^ 2 + D ^ 2 by ring,
+      show C ^ 2 + B ^ 2 = B ^ 2 + C ^ 2 by ring,
+      show D ^ 2 + A ^ 2 = A ^ 2 + D ^ 2 by ring,
+      show C ^ 2 + A ^ 2 = A ^ 2 + C ^ 2 by ring]
+    ring
+  have harc := RectangleWinding.arctan_rectangle_winding A B C D hA hB hC hD
+  have hlogC : ((Real.log (B ^ 2 + C ^ 2) : ℂ) - (Real.log (A ^ 2 + C ^ 2) : ℂ))
+      - ((Real.log (B ^ 2 + D ^ 2) : ℂ) - (Real.log (A ^ 2 + D ^ 2) : ℂ))
+      + ((Real.log (D ^ 2 + B ^ 2) : ℂ) - (Real.log (C ^ 2 + B ^ 2) : ℂ))
+      - ((Real.log (D ^ 2 + A ^ 2) : ℂ) - (Real.log (C ^ 2 + A ^ 2) : ℂ)) = 0 := by
+    exact_mod_cast congrArg (fun r : ℝ => (r : ℂ)) hlog
+  have harcC : (-((Real.arctan (B / C) : ℂ) - (Real.arctan (A / C) : ℂ))
+      + ((Real.arctan (B / D) : ℂ) - (Real.arctan (A / D) : ℂ))
+      + ((Real.arctan (D / B) : ℂ) - (Real.arctan (C / B) : ℂ))
+      - ((Real.arctan (D / A) : ℂ) - (Real.arctan (C / A) : ℂ))) = 2 * (Real.pi : ℂ) := by
+    exact_mod_cast congrArg (fun r : ℝ => (r : ℂ)) harc
+  linear_combination (1 / 2 : ℂ) * hlogC + I * harcC
 
 /-
 **Cauchy Integral Formula for rectangles** (general case).

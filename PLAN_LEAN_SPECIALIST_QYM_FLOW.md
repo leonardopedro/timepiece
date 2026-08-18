@@ -5,6 +5,14 @@ step"), in the style of `PLAN_LEAN_SPECIALIST_NS_FLOW.md`: Part A the Weyl-gauge
 fiber, Part B the quadratic form and its closure, Part C the Friedrichs extension
 as a **named theorem, never an axiom**, Part D the Hashimoto/SIRK limit.
 
+**Status (2026-08-18, third pass): Part C is now discharged *without any
+boundedness hypothesis*, and the two plan items of `CONSOLIDATED_PLAN.md` §11.4
+are closed.**  `BookProof/ChapterFriedrichsExtension.lean` (namespace
+`BookProof.FriedrichsExtension`, `sorry`-free / `axiom`-free) proves the
+Friedrichs extension theorem itself — see the new rows C.8–C.12 and D.9–D.11 —
+and settles the realization question in favour of the occupation-number (Hermite)
+picture.
+
 **Status (2026-08-17, second pass): Parts A–C executed; Part C is now also
 *discharged by construction* in the bounded regime, and Part D.4 is proved there
 rather than left as prose.  See the new rows C.5–C.7 and D.5–D.8 below, in
@@ -72,12 +80,20 @@ not be well defined.
 | C.5 the Friedrichs hypothesis **discharged by construction** for bounded operators on a dense domain | `friedrichs_of_bounded` | PROVED |
 | C.6 symmetry and positivity pass from a dense domain to the whole space | `symmetricOn_top_of_dense`, `quadForm_top_nonneg_of_dense` | PROVED |
 | C.7 the construction applies to a genuinely **proper** dense domain (in `ℓ²(ℕ,ℂ)`) | `friedrichs_bounded_proper_domain_example`, `not_mem_span_of_repr_ne_zero` | PROVED |
+| C.8 the domain with the form inner product is an inner product space, and the form norm dominates the ambient norm | `PosSymOp`, `FormDom`, `FormDom.instCore`, `FormDom.norm_toAmbient_le` | PROVED |
+| C.9 the form completion embeds into the ambient space (closability, no ghost vectors) | `FormDom.formExt`, `FormDom.inner_coe_eq`, `FormDom.formExt_injective` | PROVED |
+| C.10 the resolvent `(H+1)⁻¹` by Riesz representation: bounded, injective, positive, self-adjoint, and inverse to `x ↦ x + Hx` | `FormDom.friedrichsResolvent`, `_isSelfAdjoint`, `_pos`, `_injective`, `_shift` | PROVED |
+| C.11 **the Friedrichs theorem, no boundedness hypothesis**; C.2's named hypothesis discharged | `friedrichs_extension_exists`, `friedrichs_hypothesis_holds` | PROVED |
+| C.12 the Weyl-gauge conclusion, unconditional | `weyl_friedrichs_extension_unconditional` | PROVED |
 
-C.5–C.7 live in `BookProof/ChapterYangMillsFriedrichsLimit.lean`.  They do not
-remove the named hypothesis of C.2 for *unbounded* operators — that remains the
-honest boundary — but they show it is not an empty assumption: on the bounded
+C.5–C.7 live in `BookProof/ChapterYangMillsFriedrichsLimit.lean`: on the bounded
 class the extension is built, not assumed, and the domain may be a proper dense
-subspace.
+subspace.  C.8–C.12 (`BookProof/ChapterFriedrichsExtension.lean`) go further and
+**remove the named hypothesis of C.2 outright**: the classical form-completion
+construction is carried out in Lean (form inner product → completion → Riesz
+representation → `A = S⁻¹ − 1`), so every densely defined symmetric positive
+operator — bounded or not — has a positive self-adjoint extension.  C.2–C.4 are
+kept as the historical conditional statements they were.
 
 References for C.2: K. Friedrichs, *Spektraltheorie halbbeschränkter Operatoren*,
 Math. Ann. **109** (1934) 465–487; M. Reed & B. Simon, *Methods of Modern
@@ -95,11 +111,19 @@ Mathematical Physics*, Thm X.23.  It is a hypothesis, never an `axiom`.
 | D.6 the SIRK compressions `Pₙ A Pₙ` of a bounded operator converge strongly to `A` | `sirkCompression`, `sirk_compression_tendsto` | PROVED |
 | D.7 the limit is unique: no other bounded operator agrees with it on the Krylov flag | `sirk_limit_unique` | PROVED |
 | D.8 **D.4 in the bounded regime**: the Hashimoto limit *is* the positive self-adjoint extension | `sirk_limit_eq_positive_selfadjoint_extension`, `weyl_friedrichs_bounded` | PROVED |
+| D.9 the shift-invert selection theorem with the extension **constructed**, not assumed (unbounded) | `friedrichs_hashimoto_selects` | PROVED |
+| D.10 the same for the Weyl-gauge Hamiltonian in the occupation-number realization | `weyl_hashimoto_selects_friedrichs` | PROVED |
+| D.11 non-vacuity: a genuinely unbounded operator (`A eₙ = n eₙ` on `ℓ²(ℕ,ℂ)`) | `unbounded_friedrichs_example` | PROVED |
 
 D.5–D.8 (also in `BookProof/ChapterYangMillsFriedrichsLimit.lean`) construct the
 missing limit operator under a boundedness hypothesis and identify it with the
-extension of C.5, so D.4 is a theorem there.  The unbounded continuum case is
-still open.
+extension of C.5, so D.4 is a theorem there.  D.9–D.11
+(`BookProof/ChapterFriedrichsExtension.lean`) remove the last hypothesis on the
+*unbounded* side: the shift-invert route of
+`BookProof/ChapterHashimotoShiftInvert.lean` already converged to whichever
+positive self-adjoint extension it was handed, and C.11 now hands it one.  What
+is still not formalized in the unbounded case is the *strong-limit* rendering of
+D.4 along a Krylov flag (as opposed to the shift-invert/resolvent rendering).
 
 On D.4: the identification of the limit operator requires the limit of the Krylov
 flag as an operator, which is not constructed here (it *is* constructed in the
@@ -119,3 +143,26 @@ recorded in prose in the module docstring rather than written as a theorem.
   same honesty class as Strichartz (§10) and the continuum Faris–Lavine
   inequalities of the Navier–Stokes thread.
 * D.4 is a research item, not a plan deliverable.
+
+## Part E — the continuum realization (the definitional choice of §11.4.2)
+
+`CONSOLIDATED_PLAN.md` §11.4 item 2 asked for a decision between
+
+* **(a)** accepting the occupation-number/Hermite realization as *the* definition
+  of the quantum theory — the fields act on the finite-mode domain of a complete
+  orthonormal basis of the Fock space, i.e. `ℓ²(ℕ, ℂ)` *is* the continuum in the
+  Fock sense; and
+* **(b)** realizing `B_{i a} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` as a
+  field-space differential operator on `L²(ℝ⁹⁹ × ℤ₂³¹)`.
+
+**Decision (2026-08-18): (a).**  Every theorem of Parts A–D is stated for an
+abstract complex Hilbert space with a `HilbertBasis ℕ ℂ F` and the finite-mode
+domain of that basis, which is exactly the occupation-number realization; the
+concrete model `ℓ²(ℕ, ℂ)` instantiates it (`unbounded_friedrichs_example`).  With
+(a) the theory is complete as stated: existence of the extension (C.11) and its
+selection by the Hashimoto/SIRK limit (D.9, D.10), with no boundedness anywhere.
+
+Option (b) is **not** taken, and remains the recorded boundary shared with the
+Navier–Stokes and quantum-gravity threads: it needs Mathlib's Sobolev /
+differential-operator machinery, and nothing in the book's claims depends on it.
+The mass gap stays out of scope by the author's decision.

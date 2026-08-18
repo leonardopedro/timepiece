@@ -216,9 +216,13 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   `./patches/check-katex.sh` extracts every `.math.inline` / `.math.display`
   snippet from `_out/html-single/index.html` and re-renders each one with
   `throwOnError: true` against the KaTeX build the book ships. Current result:
-  **1838 snippets, 0 failures** (re-run 12 August 2026 after the weak-value and
-  dynamics-based-unitary sections landed), including all `pmatrix` displays (the case
-  that had never been confirmed). Re-run it after `./patches/build-book.sh`.
+  **2120 snippets, 0 failures** (re-run 18 August 2026 after the unbounded
+  Friedrichs section landed; previously 1838 on 12 August 2026), including all
+  `pmatrix`/`bmatrix` displays (the case that had never been confirmed). Re-run it
+  after `./patches/build-book.sh`.  Note (18 August 2026): the `patches/*.sh`
+  scripts had lost their executable bit in this snapshot and it has been restored
+  (`git update-index --chmod=+x`), since `./patches/build-book.sh` is the only
+  supported book build path.
 
 - **[CRITIQUE] Some `#check` types are very long.** A few headline theorems
   (e.g. the free-field and measure-theoretic ones) have large elaborated types that

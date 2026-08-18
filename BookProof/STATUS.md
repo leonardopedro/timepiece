@@ -7,7 +7,40 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-## Latest wave (2026-08-17, **the Hermite-basis Galerkin/Rayleigh–Ritz route to the Friedrichs extension**)
+## Latest wave (2026-08-18, **the Friedrichs extension theorem, with no boundedness hypothesis**)
+
+`BookProof/ChapterFriedrichsExtension.lean` (namespace
+`BookProof.FriedrichsExtension`, `sorry`-free / `axiom`-free, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, cited from
+`Book/YangMillsQuantization.lean`) closes the two plan items of
+`CONSOLIDATED_PLAN.md` §11.4.  Until this wave the Friedrichs theorem was either
+a *named hypothesis* (`YangMillsFriedrichs.friedrichs_extension_of_semibounded`)
+or discharged only for *bounded* operators (`friedrichs_of_bounded`).  It is now
+proved outright:
+
+* the form inner product on the domain, `⟪x,y⟫₁ = ⟪x,y⟫ + ⟪x,Hy⟫`: `PosSymOp`,
+  `FormDom`, `FormDom.instCore`/`instIPS` (symmetry ⟹ Hermitian, positivity ⟹
+  positive definite), `FormDom.norm_toAmbient_le` (`‖x‖ ≤ ‖x‖₁`);
+* the form completion `FormSpace` and its embedding into the ambient space:
+  `FormDom.formExt`, `FormDom.inner_coe_eq` (the key identity
+  `⟪x,k⟫₁ = ⟪x + Hx, ι k⟫`, closability in disguise) and
+  `FormDom.formExt_injective` — the completion adds no ghost vectors;
+* Riesz representation of the resolvent: `FormDom.friedrichsResolvent`
+  (`= (H+1)⁻¹`, bounded by 1), `_isSelfAdjoint`, `_pos`, `_injective` and
+  `_shift` (`S (x + Hx) = x`);
+* the headline `friedrichs_extension_exists`: **every densely defined symmetric
+  positive operator on a complex Hilbert space has a positive self-adjoint
+  extension**, obtained as `A = S⁻¹ − 1` through the project's own
+  `HashimotoShiftInvert.invShiftOperator`; hence
+  `friedrichs_hypothesis_holds` (the named hypothesis is a theorem) and
+  `weyl_friedrichs_extension_unconditional` (the Weyl-gauge Yang–Mills
+  Hamiltonian, no boundedness);
+* the unbounded selection statement `friedrichs_hashimoto_selects` and
+  `weyl_hashimoto_selects_friedrichs` (existence *and* Hashimoto/SIRK selection,
+  in the occupation-number/Hermite realization — the decision of §11.4 item 2),
+  with `unbounded_friedrichs_example` showing non-vacuity on `A eₙ = n eₙ`.
+
+## Wave (2026-08-17, **the Hermite-basis Galerkin/Rayleigh–Ritz route to the Friedrichs extension**)
 
 `BookProof/ChapterHermiteGalerkinFriedrichs.lean` (namespace
 `BookProof.HermiteGalerkin`, `sorry`-free / `axiom`-free, registered in

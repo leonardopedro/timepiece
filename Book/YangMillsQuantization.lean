@@ -200,9 +200,12 @@ defined. This is proved here in general and applied to the Weyl-gauge form:
 ```
 
 :::paragraph
-The Friedrichs theorem itself is carried as a *named hypothesis* (Friedrichs 1934;
-Reed–Simon Thm X.23), never as an axiom, and is shown to be satisfiable; the
-conclusion for the Weyl-gauge Hamiltonian is conditional on it. Nothing is claimed
+The Friedrichs theorem itself was first carried as a *named hypothesis*
+(Friedrichs 1934; Reed–Simon Thm X.23), never as an axiom, and shown to be
+satisfiable; the conclusion for the Weyl-gauge Hamiltonian was conditional on it.
+That hypothesis is now *discharged outright* — see the section "The Friedrichs
+Extension Without a Boundedness Hypothesis" below — so the statements in this
+block are the conditional forms that the unconditional theorem supersedes. Nothing is claimed
 about the continuum Yang–Mills operator, and the mass gap remains out of scope.
 The Hashimoto/SIRK order-$`n` approximations supply the proved supporting facts —
 the best-approximation error is antitone in the order and, for a cyclic seed,
@@ -284,6 +287,72 @@ not claimed:
 #check @BookProof.HermiteGalerkin.finiteModeDomain_ne_top
 ```
 
+# The Friedrichs Extension Without a Boundedness Hypothesis
+
+:::paragraph
+The two constructions above build the positive self-adjoint extension only in the
+*bounded* regime. The general theorem needs no boundedness at all, and it is
+proved here. The domain is retyped with the form inner product
+$`\langle x,y\rangle_1 = \langle x,y\rangle + \langle x, Hy\rangle`; symmetry makes
+it Hermitian and positivity makes it positive definite, so the domain becomes an
+inner product space whose completion is a Hilbert space. Its inclusion into the
+ambient space is norm-decreasing, so it extends continuously, and the key identity
+$`\langle x, k\rangle_1 = \langle x + Hx, \iota k\rangle` — closability of the form
+in disguise — shows that extension is *injective*: the form completion adds no
+ghost vectors.
+:::
+
+```
+#check @BookProof.FriedrichsExtension.PosSymOp
+#check @BookProof.FriedrichsExtension.FormDom.norm_toAmbient_le
+#check @BookProof.FriedrichsExtension.FormDom.inner_coe_eq
+#check @BookProof.FriedrichsExtension.FormDom.formExt_injective
+```
+
+:::paragraph
+Riesz representation in the form space then produces the resolvent
+$`S = (H+1)^{-1}` as a bounded, injective, positive, self-adjoint operator of norm
+at most one which sends $`x + Hx` back to $`x`, and the project's own
+shift-invert converse turns $`S` into the extension $`A = S^{-1} - 1`. The result
+is the Friedrichs extension theorem as a *theorem*: every densely defined,
+symmetric, positive operator on a complex Hilbert space has a positive
+self-adjoint extension — in particular the Weyl-gauge Yang–Mills Hamiltonian, with
+no boundedness of the electric or magnetic field operators assumed:
+:::
+
+```
+#check @BookProof.FriedrichsExtension.FormDom.friedrichsResolvent
+#check @BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_shift
+#check @BookProof.FriedrichsExtension.friedrichs_extension_exists
+#check @BookProof.FriedrichsExtension.friedrichs_hypothesis_holds
+#check @BookProof.FriedrichsExtension.weyl_friedrichs_extension_unconditional
+#check @BookProof.FriedrichsExtension.friedrichs_extension_of_semibounded_below
+```
+
+:::paragraph
+The last statement is the classical form of the theorem: symmetry plus a lower
+bound $`\langle x, Hx\rangle \ge -c\|x\|^2` — positivity is not needed — gives a
+self-adjoint extension with the same lower bound, by the shift $`H \mapsto H + c`.
+:::
+
+:::paragraph
+Combining the construction with the shift-invert theory closes the loop for the
+unbounded case: in the occupation-number (Hermite) realization the extension
+*exists*, its shift-invert $`R = (A+\gamma)^{-1}` is bounded and self-adjoint, the
+Galerkin truncations of $`R` converge to it strongly and in the resolvent sense,
+and $`R` determines $`A` — so the infinite Hashimoto/SIRK limit selects exactly
+the constructed extension. The construction is not vacuous: it applies to the
+genuinely unbounded diagonal operator $`A e_n = n e_n` on $`\ell^2(\mathbb{N})`.
+What stays outside is the field-space *differential* realization of the magnetic
+operator $`B_{ia}` and, as always, the mass gap:
+:::
+
+```
+#check @BookProof.FriedrichsExtension.friedrichs_hashimoto_selects
+#check @BookProof.FriedrichsExtension.weyl_hashimoto_selects_friedrichs
+#check @BookProof.FriedrichsExtension.unbounded_friedrichs_example
+```
+
 # Summary
 
 The algebraic core of the manuscript's quantization programme:
@@ -293,7 +362,8 @@ The algebraic core of the manuscript's quantization programme:
  * quantization as arising from time-evolution via the Heisenberg/Weyl relations;
  * the nilpotent BRST charge (and the graded Jacobi identity of the super-bracket) defining the gauge-invariant algebra;
  * the positive-definite Weyl-gauge Hamiltonian;
- * the densely-defined Weyl-gauge Hamiltonian, its sum-of-squares quadratic form and the closability of that form — the Friedrichs route to a self-adjoint extension, with the Friedrichs theorem itself carried as a named hypothesis.
+ * the densely-defined Weyl-gauge Hamiltonian, its sum-of-squares quadratic form and the closability of that form — the Friedrichs route to a self-adjoint extension;
+ * the Friedrichs extension theorem itself, proved with no boundedness hypothesis, and the resulting unbounded statement: the Weyl-gauge Hamiltonian has a positive self-adjoint extension and the infinite Hashimoto/SIRK limit selects exactly that extension.
 
 :::paragraph
 The manuscript's Navier–Stokes existence/uniqueness thesis is deliberately *not*

@@ -86,6 +86,9 @@ import BookProof.ChapterNavierStokesCauchy
 import BookProof.ChapterNavierStokesEsa
 import BookProof.ChapterNavierStokesDeficiency
 import BookProof.ChapterFarisLavine
+import BookProof.ChapterKatoRellichDeficiency
+import BookProof.ChapterStrichartzWave
+import BookProof.ChapterWaveBoundedPotential
 import BookProof.ChapterNavierStokesFullEsa
 import BookProof.ChapterNavierStokesLagrangianEsa
 import BookProof.ChapterNavierStokesFockSpace
@@ -112,6 +115,8 @@ import BookProof.ChapterQuantumGravityHalfDensity
 import BookProof.ChapterYangMillsFriedrichs
 import BookProof.ChapterYangMillsFriedrichsLimit
 import BookProof.ChapterHermiteGalerkinFriedrichs
+import BookProof.ChapterHermiteFunctions
+import BookProof.ChapterStrichartzHermiteQG
 import BookProof.ChapterSpinStatistics
 import BookProof.ChapterMajoranaFourier
 import BookProof.ChapterMajoranaProp61
@@ -609,3 +614,13 @@ import BookProof.ChapterHashimotoShiftInvert
 -- for every self-adjoint `A`, with no positivity), and a different shift at every
 -- step, with the rational Krylov structure that follows.
 import BookProof.ChapterHashimotoComplexShifts
+
+-- Wave (2026-08-18, `CONSOLIDATED_PLAN.md` §11.4 items 1 and 2): the Friedrichs
+-- extension theorem itself, **with no boundedness hypothesis** — the form inner
+-- product on the domain, its completion, the Riesz representation of the
+-- resolvent `(H + 1)⁻¹` and the extension `S⁻¹ − 1`.  This discharges the named
+-- Friedrichs hypothesis of `ChapterYangMillsFriedrichs` outright, gives the
+-- Weyl-gauge Hamiltonian a Friedrichs extension in the unbounded case, and
+-- combines with the shift-invert theory so that the Hashimoto/SIRK limit selects
+-- the *constructed* extension in the occupation-number (Hermite) realization.
+import BookProof.ChapterFriedrichsExtension

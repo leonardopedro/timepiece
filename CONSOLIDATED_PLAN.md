@@ -9,6 +9,11 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
 
+**Status (2026-08-18, §11.4 closed):** the two plan items of §11.4 (the unbounded
+Friedrichs existence theorem and the continuum-realization decision) are executed
+by `BookProof/ChapterFriedrichsExtension.lean`; see §9 item 6 and the update at
+the end of §11.4.
+
 **Status (2026-08-17, QG + QYM plan items executed):** the two "suggested next
 step" plan items of §10.3 and §11.3 are now **closed**.  Both are written up as
 plans in the NS-FLOW style — `PLAN_LEAN_SPECIALIST_QG_FLOW.md` and
@@ -385,6 +390,46 @@ Crouzeix's inequality stays a named hypothesis; no rate; no Toeplitz–Hausdorff
   `ChapterRoadmapAudit.lean` (`#print axioms`, only `propext`,
   `Classical.choice`, `Quot.sound`), and cited from
   `Book/DiffeomorphismsGravity.lean` and `Book/YangMillsQuantization.lean`.
+- **Strichartz wave-operator ESA + Hermite core + unbounded Friedrichs (2026-08-18,
+  the "wave" of §11.4 items 1–2 and the QG Strichartz step).** Seven new modules,
+  all `sorry`-free / `axiom`-free, registered in `BookProof.lean` and certified in
+  `ChapterRoadmapAudit.lean`:
+  - `ChapterStrichartzWave` — `□ = −∂_t² + Δ_x` plus a real constant is essentially
+    self-adjoint on the Schwartz core of `L²(ℝ^{1+n})`; all constant-coefficient
+    real-symbol operators too (`constCoeffOp_essentiallySelfAdjoint`), by the
+    Fourier/multiplier argument (Plancherel + real symbol), with the smooth cut-off
+    lemma `exists_smooth_cutoff` as the first ingredient of the general energy
+    argument.
+  - `ChapterKatoRellichDeficiency` — bounded symmetric perturbations preserve ESA,
+    from scratch in the deficiency formulation (explicit Neumann series, no
+    closure/spectral theory): `essentiallySelfAdjointOn_add_bounded`.
+  - `ChapterWaveBoundedPotential` — `□ + V` is ESA on the Schwartz core for every
+    essentially bounded real `V`.
+  - `ChapterHermiteFunctions` — the genuine Hermite orthonormal basis of `L²(ℝ)`
+    (`hermiteBasis`, completeness via Fourier uniqueness, `hermiteFun_oscillator`).
+  - `ChapterStrichartzHermiteQG` — the Hermite core (finite combinations of Hermite
+    functions, dense), diagonal operators on it with real symbol (ESA on the core,
+    trivial deficiency at every non-real `z`, unbounded), the harmonic oscillator,
+    and the 3D gauge-fixed QG mode Hamiltonian
+    `qg3D_essentiallySelfAdjoint_on_hermiteCore` (now realized on `L²(ℝ)`, not
+    abstractly on `ℓ²(ℕ)`).
+  - `ChapterFriedrichsExtension` — the **Friedrichs extension theorem with no
+    boundedness hypothesis** (`friedrichs_extension_exists`): the form inner
+    product, its completion `FormSpace`, injectivity of the extension
+    (`formExt_injective`, the closability step), Riesz representation of
+    `(H+1)⁻¹`, and `A = S⁻¹ − 1`. `friedrichs_hypothesis_holds` retires the named
+    hypothesis of `friedrichs_extension_of_semibounded`;
+    `weyl_friedrichs_extension_unconditional` gives the Weyl-gauge conclusion;
+    `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs` combine it
+    with shift-invert (the Hashimoto/SIRK limit selects the constructed extension,
+    unbounded), and `unbounded_friedrichs_example` (A eₙ = n·eₙ) shows it is not
+    vacuous. **This closes §11.4 items 1 and 2** (item 2 settled in favour of the
+    occupation-number/Hermite realization, Part E of
+    `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`). Doc-maps: `STRICHARTZ_WAVE_ESA.md`,
+    `HERMITE_CORE_STRICHARTZ.md`.
+  - `UsedRoute` wave: `RectangleWinding` (the Cauchy-integral/rect winding-number
+    core), `GaussianEuler` (+147, re-powering the rectangle strategy with Gaussian
+    Euler products) and `RectangleStrategy` (+49); registered in `UsedRoute.lean`.
 
 ---
 
@@ -679,19 +724,40 @@ none of which is a plan item:
    symbol `A_i = u_j u_{i,j} − ν u_{i,jj}` in a genuinely differential realization;
    ESA then gives the complete flow via Stone. Global existence of the *classical*
    NS equation is a separate, deliberate D5 scope cut.
-5. **QG continuum ESA**: the finite-speed / unique-continuation step for the flat
-   d'Alembertian with polynomial potential (Strichartz), entered as a named
-   hypothesis; plus the gauge/BRST-sector check for the transfer.
-6. **QYM unbounded continuum — now two concrete plan items, not a research
-   conjecture (see §11.4)**: (1) discharge the unbounded Friedrichs hypothesis
-   (prove the positive self-adjoint extension exists for the Weyl operator, the
-   unbounded form-closure analogue of `friedrichs_of_bounded`); (2) decide the
-   continuum realization (occupation-number/Hermite as the definition, or a
-   concrete field-space `B_{i a}`). The convergence/selection half is already
-   proved for unbounded operators via shift-invert
-   (`hashimoto_shiftInvert_selects_friedrichs`). The unbounded
-   `sirk_limit_eq_friedrichs` identification then follows from the proved
-   machinery.
+5. **QG continuum ESA — materially advanced (2026-08-18).** The wave-operator
+   ESA that was "entered as a named hypothesis" is now **proved**:
+   `BookProof/ChapterStrichartzWave.lean` proves `□ + κ` (real constant) and all
+   constant-coefficient real-symbol operators are essentially self-adjoint on the
+   Schwartz core of `L²(ℝ^{1+n})` (via the Fourier/multiplier argument),
+   `ChapterKatoRellichDeficiency.lean` proves the bounded-perturbation
+   Kato–Rellich theorem, and `ChapterWaveBoundedPotential.lean` gives `□ + V` for
+   essentially bounded real `V`. On the gravity side, `ChapterStrichartzHermiteQG`
+   builds the genuine Hermite core of `L²(ℝ)` (`ChapterHermiteFunctions`:
+   `hermiteBasis`, completeness) and proves the 3D gauge-fixed mode Hamiltonian
+   `qg3D_essentiallySelfAdjoint_on_hermiteCore` (unbounded, trivial deficiency at
+   every non-real `z`). What remains: the *unbounded* potential class
+   (`‖∇V x‖ ≤ c‖x‖ + d`, the genuine variable-coefficient energy argument — the
+   `exists_smooth_cutoff` lemma is in place as its first ingredient) and the
+   gauge/BRST-sector check for the transfer. Plan-to-Lean map:
+   `STRICHARTZ_WAVE_ESA.md`.
+6. **QYM unbounded continuum — CLOSED (2026-08-18).** Both plan items of §11.4
+   are executed by `BookProof/ChapterFriedrichsExtension.lean` (`sorry`-free /
+   `axiom`-free, registered in `BookProof.lean`, certified in
+   `ChapterRoadmapAudit.lean`, cited from `Book/YangMillsQuantization.lean`):
+   item (1) is `friedrichs_extension_exists` — the Friedrichs extension theorem
+   proved with **no boundedness hypothesis**, via the form inner product, its
+   completion, Riesz representation of `(H+1)⁻¹` and `A = S⁻¹ − 1` — with
+   `friedrichs_hypothesis_holds` discharging the named hypothesis of
+   `friedrichs_extension_of_semibounded` and
+   `weyl_friedrichs_extension_unconditional` giving the Weyl-gauge conclusion;
+   item (2) is settled in favour of the occupation-number/Hermite realization
+   (Part E of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`), and the combined statement —
+   the extension exists *and* the Hashimoto/SIRK limit selects it, unbounded —
+   is `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs`, with
+   `unbounded_friedrichs_example` showing it is not vacuous. What remains is
+   only the recorded boundary: the field-space *differential* realization of
+   `B_{i a}` (option (b), needing Sobolev machinery) and the mass gap, both
+   deliberately out of scope.
 7. Pedagogical polish (small, editorial): the new plan/doc files
    (`PLAN_LEAN_SPECIALIST_QG_FLOW.md`, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`,
    `HASHIMOTO_COMPLEX_SHIFTS.md`, `HERMITE_GALERKIN_FRIEDRICHS.md`) and the Book
@@ -1106,3 +1172,19 @@ With items 1 and 2 settled, the full claim — *the unbounded continuum Weyl-gau
 Hamiltonian has a Friedrichs extension, and the infinite Hashimoto/SIRK limit
 selects exactly it* — becomes a theorem of the proved machinery. The mass gap is
 out of scope by the author's decision.
+
+**Update (2026-08-18): both items are CLOSED; the claim above is now a proved
+theorem.** `BookProof/ChapterFriedrichsExtension.lean` proves the Friedrichs
+extension theorem itself with no boundedness hypothesis —
+`friedrichs_extension_exists` (form inner product → `FormDom`/`FormSpace`
+completion → `formExt_injective`, the closability step → Riesz representation
+`friedrichsResolvent` = `(H+1)⁻¹` → `A = S⁻¹ − 1` through the module's own
+`invShiftOperator`) — so item 1 is discharged in full generality, not just for
+the Weyl operator (`weyl_friedrichs_extension_unconditional`), and
+`friedrichs_hypothesis_holds` retires the named hypothesis. Item 2 is decided in
+favour of **(a)**, the occupation-number/Hermite realization, recorded as Part E
+of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`; the field-space differential realization
+(b) is not built and stays the recorded boundary shared with the NS and QG
+threads. The combined unbounded statement is `friedrichs_hashimoto_selects` and
+`weyl_hashimoto_selects_friedrichs`, and `unbounded_friedrichs_example` exhibits
+it on the genuinely unbounded `A eₙ = n eₙ` on `ℓ²(ℕ, ℂ)`.
