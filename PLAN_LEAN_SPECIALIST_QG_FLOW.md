@@ -175,6 +175,60 @@ sign/regime question as D.6.  A unitary change cannot alter the ESA status
 (spectrum invariance), so this route makes ESA *provable* on the dense core but
 does not by itself settle the non-diagonal continuum.
 
+### D.6c Three proposed "completion routes" — honest evaluation (2026-08-19)
+
+A reviewer proposes three ways to complete the flow of the 3D gauge-fixed QG
+Hamiltonian.  Each mixes sound mathematics with claims that must be flagged
+before any is recorded as a route for the Lean-specialist.
+
+**Route 1 — "energy limit" (Krylov/energy truncation).**  The book genuinely
+makes this argument (book.tex:1135-1148): restrict to eigenfunctions with
+spectrum up to a maximum absolute value, so time-evolution cannot diverge; this
+is physically motivated by limited energy and matches the Krylov/Hashimoto
+shift-invert machinery the repo formalizes.  **But the stated justification
+"every bounded symmetric operator is automatically ESA" is a category
+conflation.**  A bounded symmetric operator on the *whole* space is self-adjoint
+(true), but that is about the *truncation*, not the full operator: projecting
+onto an energy/Krylov subspace gives a finite-rank operator which is trivially
+ESA, yet this does **not** prove the full Hamiltonian is ESA — it is an
+approximation scheme.  The repo's Krylov/Hashimoto results give rigorous
+convergence of the truncations, but convergence of truncations is not ESA of the
+limit unless the limit is shown to be self-adjoint.  **Sound as a computational
+strategy; does not by itself settle ESA.**
+
+**Route 2 — reflective boundary condition (von Neumann extension).**  von
+Neumann's theorem — a real symmetric operator has equal deficiency indices
+`(n,n)` and hence admits self-adjoint extensions — is **true and standard**, and
+the repo has the `IsPositiveSelfAdjointExtension` / deficiency machinery.  But:
+(a) a self-adjoint extension is a *choice* from an infinite family, and the
+"quantum bounce" is a physical interpretation, not forced by the operator;
+(b) imposing a reflective BC at `e = ∞` somewhat *contradicts* the densitized
+route already formalized (whose whole point was to remove the singular boundary,
+not to impose boundary conditions).  **Mathematically valid; physically a choice
+and against the densitized philosophy.**
+
+**Route 3 — York-time deparametrization (square-root Hamiltonian).**  The most
+substantive and the only one that connects to a *proved* repo theorem.  Solving
+the constraint `(1/16e)𝒮² − (1/24e)𝒫² − eV(e) = 0` for `𝒫` and using it as time
+(York time) gives a square-root Hamiltonian `H_true = √((3/2)𝒮² − 24e²V(e))`.
+If it is bounded below, the **proved** `friedrichs_extension_of_semibounded_below`
+(`BookProof/ChapterFriedrichsExtension.lean:468`) gives a self-adjoint extension
+with the same lower bound.  **Two claims must be verified, not assumed:** (a) the
+radicand `(3/2)𝒮² − 24e²V(e)` must be a *positive* operator (or shifted to be
+positive) before the functional-calculus square root is real — if `V(e)` is the
+`−e³` runaway the radicand can go negative; (b) the square root must be taken as
+a positive operator (functional calculus on the shifted radicand), so
+`H_true` being "strictly positive" is not automatic.  **The most promising route
+if (a)+(b) are verified; otherwise it rests on the same unproved sign question
+as D.6.**
+
+**Cross-cutting flag (same as D.6 item 3):** the premise "the 3D Hamiltonian is
+*not* essentially self-adjoint because of the `−e³` runaway and the `−𝒫²`
+indefinite kinetic term" is **asserted, not proved** — like the earlier
+`−x⁴` deficiency `(2,2)` claim, it is a classical fact that is not yet a Lean
+theorem.  Any of these routes that starts from that premise needs the premise
+first verified.
+
 | Item | Lean name | Status |
 | :-- | :-- | :--: |
 | D.1 the deduction step: finite-speed / unique continuation ⟹ ESA | `strichartz_esa_of_finiteSpeed` | PROVED (hypothesis named) |
