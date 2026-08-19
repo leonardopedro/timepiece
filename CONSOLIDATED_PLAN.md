@@ -86,8 +86,13 @@ plans in the NS-FLOW style — `PLAN_LEAN_SPECIALIST_QG_FLOW.md` and
   Part D Strichartz as a **named hypothesis, never an axiom**
   (`strichartz_esa_of_finiteSpeed`, shown satisfiable by
   `strichartz_finiteSpeed_satisfiable`), the Faris–Lavine alternative
-  (`qg_esa_of_farisLavine`) and the half-density transfer step
-  (`densitized_hasZeroDeficiencyOn_transfer`).
+   (`qg_esa_of_farisLavine`) and the half-density transfer step
+   (`densitized_hasZeroDeficiencyOn_transfer`).  **2026-08-19:** the book's full
+   quantum Hilbert space and its 3D gauge-fixed operator are the next targets,
+   written up as Part E (second quantization on the graded Fock space
+   `Γˢ⊗Γᵃ`, fermionic CAR half) and Part F (concrete densitized/Weyl-ordered
+   field-space Hamiltonian + BRST charge `G`) of
+   `PLAN_LEAN_SPECIALIST_QG_FLOW.md`.
 * `BookProof/ChapterYangMillsFriedrichs.lean` (§11, cited from
   `Book/YangMillsQuantization.lean`) — Part A the densely-defined Weyl-gauge
   Hamiltonian (`weylOpDom`, `weylOpDom_symmetricOn`, `weylOpDom_quadForm` the sum
@@ -1136,8 +1141,20 @@ argument. See §9 item 5.
   decomposition), Part C (the finite truncation on `Fin N` modes with its
   complete unitary flow), Part D (Strichartz/Sears as a named hypothesis, never
   an axiom, exactly as `ns_esa_of_farisLavine` is named in the NS plan). Reuse
-  the `Singularity/ChangeOfVars.lean` reciprocal/logarithmic-map pattern and the
-  `DiffeomorphismsGravity` book chapter.
+   the `Singularity/ChangeOfVars.lean` reciprocal/logarithmic-map pattern and the
+   `DiffeomorphismsGravity` book chapter.
+- **Next targets (2026-08-19): the book's full quantum Hilbert space and its
+  gauge-fixed 3D operator.**  Parts A–D formalize the *one-particle densitized
+  operator's* ESA.  To match the book's own definition (book.tex:8247–8320)
+  there remain (a) the second quantization on the graded Fock space
+  `Γˢ(L²(ℝ⁸⁴×ℤ₂¹⁹)) ⊗ Γᵃ(L²(ℝ⁸⁴×ℤ₂¹⁹))` with the `ℤ₂`-graded superalgebra and
+  the fermionic CAR half — the gravity analogue of
+  `BookProof/ChapterFockSecondQuantization.lean`; and (b) the concrete 3D
+  gauge-fixed field-space Hamiltonian (densitized, Weyl-ordered, positive
+  sum-of-squares) plus the BRST charge `G` with the ghosts on `ℤ₂¹⁹`.  These are
+  written up as **Part E and Part F of `PLAN_LEAN_SPECIALIST_QG_FLOW.md`** for
+  the Lean-specialist.  The mass gap and global existence remain out of scope by
+  the author's decision.
 
 ### 10.4 The three-theorem toolbox (record)
 

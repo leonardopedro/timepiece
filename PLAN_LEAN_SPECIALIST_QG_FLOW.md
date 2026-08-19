@@ -11,6 +11,17 @@ realization with its analytic conclusions, Part D the continuum theorem as a
 the module is registered in `BookProof.lean`, certified in
 `BookProof/ChapterRoadmapAudit.lean` (`#print axioms`, only `propext`,
 `Classical.choice`, `Quot.sound`) and cited from `Book/DiffeomorphismsGravity.lean`.
+`ChapterStrichartzHermiteQG.lean` and `ChapterQuantumGravityHalfDensity.lean`
+carry the Hermite-core realization and the constructed half-density unitary.
+
+**Status (2026-08-19): Parts A–D done; Parts E–F (the Fock/second-quantized and
+gauge-fixed 3D Hamiltonian, and the BRST charge of book.tex:8246-8320) are the
+remaining formalization targets.**  Parts A–D cover the *one-particle densitized
+operator's* essential self-adjointness.  They do **not** yet cover the book's
+quantum Hilbert space `Γˢ(L²(ℝ⁸⁴×ℤ₂¹⁹)) ⊗ Γᵃ(L²(ℝ⁸⁴×ℤ₂¹⁹))`, the graded
+CCR/CAR superalgebra, the concrete 3D gauge-fixed field-space Hamiltonian, or
+the BRST charge — see Part E and Part F below, which are the next targets for
+the Lean-specialist.
 
 ## The setting
 
@@ -89,17 +100,86 @@ generators of hyperbolic equations*, J. Funct. Anal. **13** (1973) 82–93.  It 
 hypothesis of the theorem, not an `axiom`, exactly as `ns_esa_of_farisLavine` is
 in the Navier–Stokes plan.
 
-## Honest boundary (unchanged from `CONSOLIDATED_PLAN.md` §10.3)
+## Part E — the second quantization on the graded Fock space (book.tex:8247–8290)
+
+The book's quantum Hilbert space (empty spacetime) is
+`Γˢ(L²(ℝ⁸⁴ × ℤ₂¹⁹)) ⊗ Γᵃ(L²(ℝ⁸⁴ × ℤ₂¹⁹))`: the tensor product of the symmetric
+(bosonic) and antisymmetric (fermionic) Fock spaces, giving a
+`ℤ₂`-graded Lie superalgebra of creation/annihilation operators.  `ℝ⁸⁴` = 4
+coordinates + 16 tetrad fields `e_μ^a` + 64 spacetime-derivatives
+`∂_μ e_ν^a`; `ℤ₂¹⁹` = 4 diffeomorphism ghosts `ψ_μ` + 16 ghost-derivatives
+`∂_μ ψ_ν` − 1 (the tensor product of two Fock spaces introduces an extra `ℤ₂`).
+
+This part mirrors exactly the Yang–Mills thread's
+`BookProof/ChapterFockSecondQuantization.lean` (Part F.11), reusing its
+occupation-number machinery; the new content is the **`ℤ₂`-grading and the
+fermionic (CAR) half**.  The suggested module is
+`BookProof/ChapterQuantumGravityFock.lean`, namespace
+`BookProof.QuantumGravityFock`.
+
+| Item | Suggested Lean name | Status |
+| :-- | :-- | :--: |
+| E.1 the configuration space `Conf = ℕ →₀ ℕ` over the `84`-mode (one-particle) basis, and its finite-occupation domain `ℓ²(Conf)` | `qgConf`, `qgFockAlg`, `lpFiniteModes qgConf` (reuse `FockSecondQuantization`) | TODO |
+| E.2 the bosonic ladder operators `a_j, a_j†` with `[a_j, a_j†] = 1` (reuse `ccr_annA_creA`) | `annA`, `creA`, `ccr_annA_creA` | DONE (reuse) |
+| E.3 the **fermionic (CAR)** ladder operators `ψ_j, ψ_j†` with `{ψ_j, ψ_j†} = 1` and `{ψ_j, ψ_k} = 0` on the antisymmetric sector | `fermAnn`, `fermCre`, `car_fermAnn_fermCre`, `car_fermAnn_fermAnn` | TODO |
+| E.4 the `ℤ₂`-grading: total fermionic number parity; bosonic ops grade 0, fermionic ops grade 1; the superalgebra `[x, y} = xy − (−1)^{|x||y|}yx` | `totalFermParity`, `grade`, `superBracket` | TODO |
+| E.5 the second quantization `dΓ(A)` of a one-particle operator, symmetric/positive ⇒ Friedrichs (reuse `dGamma`, `dGamma_friedrichs_extension`, `secondQuantization_friedrichs`) | `qgDGamma`, `qgSecondQuantization_friedrichs` | DONE (reuse) |
+| E.6 the finite-mode-domain identification so the Hashimoto/SIRK shift-invert machinery applies to the second-quantized operator (reuse `finiteModeDomain_fockBasisN`, `dGamma_hashimoto_selects`) | `qgFock_hashimoto_selects` | DONE (reuse) |
+
+**Verification expectation:** E.1–E.6 are `sorry`-free and `axiom`-free; the
+`#print axioms` audit shows only `propext`, `Classical.choice`, `Quot.sound`.
+The fermionic sector (E.3, E.4) is the genuinely new content; the bosonic side
+(E.1, E.2, E.5, E.6) is a direct reuse of the YM Fock module.  Do **not** claim
+the mass gap or global existence.
+
+## Part F — the concrete 3D gauge-fixed field-space Hamiltonian and the BRST charge
+
+Parts A–D formalize the *densitized principal part* and its essential
+self-adjointness, and Part E second-quantizes it.  What remains, to match the
+book's own definition, is the **full 3D gauge-fixed Hamiltonian as a concrete
+field-space operator** on that Fock space, and the **BRST charge** `G`
+(diffeomorphism + local Lorentz + global-translation constraints,
+book.tex:8198–8245).  The suggested module is
+`BookProof/ChapterQuantumGravity3DGauge.lean`, namespace
+`BookProof.QuantumGravity3DGauge`, reusing `ChapterYangMillsHermite.lean` (the
+product-Hermite-core operators) and `ChapterFockSecondQuantization.lean`.
+
+| Item | Suggested Lean name | Status |
+| :-- | :-- | :--: |
+| F.1 the 3D Hamiltonian density `ℋ = (1/16e)𝒮² − (1/24e)𝒫² + (1/2)𝒮E + (1/3)𝒫Eₐᵃ − e(𝒯-terms)` (book.tex:8177, 8188) stated as a formal expression with the `e = det e_i^a` degeneracy | `qg3DHamiltonianDensity` | TODO |
+| F.2 the densitized form: the `1/e`-singular kinetic part replaced by the A.3/A.4 absorption (`1/e = 4(∂y/∂e)²`), giving a polynomial-coefficient operator on the product Hermite core of `L²(ℝ⁸⁴)` — the gravity analogue of `ymHamiltonian` | `qg3DdensitizedHamiltonian`, `qg3D_apply` | TODO |
+| F.3 the coordinate/momentum operators on the core with the gravity CCR `[e_μ^a, π^ν_b] = iδ^ν_μ δ^a_b` and `[e_ν^a_,μ, π^{αβ}_b] = iδ^α_μ δ^β_ν δ^a_b` (book.tex:8267–8268) | `qgMulOp`, `qgMomOp`, `qgCCR` | TODO |
+| F.4 the Weyl ordering of the non-commuting `πe` cross-terms (the same subtlety as YM's `weylProd`), and the sign reconciliation with the positive sum-of-squares form | `qgWeylProd`, `qgWeylProd_polySym` | TODO |
+| F.5 symmetry and positivity of the densitized Hamiltonian on the core (Friedrichs hypothesis) | `qg3D_symmetricOn`, `qg3D_quadForm_nonneg` | TODO |
+| F.6 the BRST charge `G = ∫ (p e c∂e − p e ∂c + π v c∂v − π v ∂c + i∂β c^α c^β b_α)` (book.tex:8215) with ghosts on `ℤ₂¹⁹`; nilpotency `G² = 0` on the physical subspace — the gravity analogue of the Yang–Mills BRST charge | `qgBRST`, `qgBRST_nilpotent` | TODO |
+| F.7 the fermionic ghost CCR/CAR `{ψ_a, ψ†_b} = δ_ab`, `{ψ_{aμ}, ψ†_{bν}} = δ_ab δ_μν` (book.tex:8269–8270) | `qgGhostCar` | TODO |
+| F.8 the instantiation of the Friedrichs + Hashimoto theorems on the concrete 3D operator (reuse `friedrichs_extension_exists`, `friedrichs_hashimoto_selects`) | `qg3D_friedrichs_extension`, `qg3D_hashimoto_selects` | TODO |
+
+**Verification expectation:** F.1–F.8 are `sorry`-free and `axiom`-free;
+`#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`.  The
+Weyl ordering (F.4) and sign (F.4) are **settled in the module, not assumed**,
+exactly as in the YM `ChapterYangMillsHermite.lean`.  If any item blocks the
+build, stop and record it here rather than weakening the theorem.  Do **not**
+claim the mass gap or global existence.
+
+## Honest boundary (updated 2026-08-19; unchanged at its core from `CONSOLIDATED_PLAN.md` §10.3)
 
 * **Not claimed:** essential self-adjointness of the continuum gravity operator on
   `L²(ℝ⁸⁴ × ℤ₂¹⁹)`, global existence, or any unitary-evolution result for it.
+  (Parts E–F give the second-quantized operator and the concrete 3D gauge-fixed
+  operator **on the Hermite/Fock core**, and their Friedrichs/Hashimoto
+  selection, when executed; they do **not** touch the continuum `L²(ℝ⁸⁴×ℤ₂¹⁹)`
+  ESA, which remains a named-hypothesis/out-of-scope boundary as in Parts A–D.)
 * The continuum conclusion needs the finite-speed propagation statement for the
   flat d'Alembertian with a polynomial potential; that is the analytic core, and
   it enters only as the explicit hypothesis of D.1.
 * The **gauge/BRST sector** is not covered by the transfer argument alone: a full
   BRST-reduced transfer needs the unitary to preserve the physical subspace, which
   the `1/e`-absorption gives for the kinetic/conformal part but which must be
-  checked for `H₁ − Ṽ` under the full constraint structure.
+  checked for `H₁ − Ṽ` under the full constraint structure.  Part F.6 states the
+  BRST charge and its nilpotency as a construction on the Fock core; the
+  *physical-subspace reduction* of the full continuum operator remains a
+  recorded boundary.
 * The raw point map `e ↦ (y, ẽ)` is not by itself a Hilbert-space unitary; the
   Jacobian half-density factor `|J|^{−1/2}` is what makes D.4 applicable.  The
   transfer theorem takes that unitary as data.
