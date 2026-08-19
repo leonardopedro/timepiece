@@ -248,12 +248,18 @@ with `a(v)² = ⟪v,v⟫·1` and the `reverse` involution.  **Honest caveats:** 
 factorization `H = Q²` gives positivity (`σ(H) ⊆ [0,∞)`) but **ESA of the
 first-order `Q` is the analytic burden** — not automatic, and with the potential
 `−Ṽ` it is the same class of question as a Dirac operator with a potential;
-(b) the field space is `ℝ⁸⁴`, so the Clifford algebra is `Cl(83,1)` (dimension
-`2⁸⁴`) — the repo's `γ⁵` is the 4×4 spacetime Dirac one, and the QG version
-needs the high-dimensional Clifford representation (a substantial but mechanical
-construction, for which the abstract `CliffordAlgebra Q` is the right vehicle);
-(c) the `γ⁵` anticommutation is the crux and is proved only in dimension 4 so
-far.  **The most promising algebraic route to *positivity* of the densitized QG
+(b) the *field-space* Clifford structure over `ℝ⁸⁴` (if the factorization is
+taken literally over the 84 field coordinates) is `Cl(83,1)`, dimension `2⁸⁴` —
+a substantial but mechanical construction, for which the abstract
+`CliffordAlgebra Q` is the right vehicle.  **Important clarification: we do
+*not* want a `γ⁵` in dimension 84.**  The `γ⁵` of the Dirac square-root route is
+the **physical 4-dimensional chirality matrix** of the 3+1 spacetime theory —
+exactly the `mgamma5` already proved in `ChapterA3.lean` (`(iγ⁵)² = −1`,
+`{iγ⁵, iγ^μ} = 0`).  The book's gravity is a 3+1 theory, so the physical `γ⁵`
+is dimension 4 and is already in the repo; the 84-dimensional object would only
+arise if one tried to factor the operator *directly over all 84 field
+coordinates*, which is a separate (and not necessarily wanted) construction.
+**The most promising algebraic route to *positivity* of the densitized QG
 operator, and buildable on already-proved `γ⁵`/Clifford content.**
 
 | Item | Lean name | Status |
