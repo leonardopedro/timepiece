@@ -7,7 +7,44 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-## Latest wave (2026-08-18c, **the non-commuting mixed case**)
+## Latest wave (2026-08-18d, **the field-space Yang–Mills Hamiltonian**)
+
+`PLAN_LEAN_SPECIALIST_QYM_FLOW.md` Part F is executed by two new modules, both
+`sorry`-free / `axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/YangMillsQuantization.lean`.
+
+`BookProof/ChapterHermiteProductCore.lean` (namespace
+`BookProof.HermiteProductCore`) builds the **Gauss–polynomial (product Hermite)
+core** of `L²(ℝᵈ)`: `pgMap : ℂ[X₀,…,X_{d−1}] →ₗ[ℂ] L²(ℝᵈ)`, `p ↦ p·e^{-‖x‖²/4}`,
+is injective (`pgMap_injective`); its range `polyGaussCore` is **dense**
+(`polyGaussCore_dense`, the `d`-dimensional Fourier/moment argument) and is
+exactly the span of the product Hermite functions `∏ᵢ He_{αᵢ}(xᵢ)·e^{-‖x‖²/4}`
+(`polyGaussCore_eq_hermiteSpan`, from the three-term recurrence
+`X·He_n = He_{n+1} + n·He_{n-1}`); Gaussian integration by parts holds
+(`gaussInt_pderiv`); and Gram–Schmidt on the enumerated monomials produces an
+orthonormal basis `coreBasis` whose **finite-mode domain is the core**
+(`span_range_coreBasis`).
+
+`BookProof/ChapterYangMillsHermite.lean` (namespace
+`BookProof.YangMillsHermite`) puts the fields on that core.  Operators are
+defined at the polynomial level and transported through the injection
+(`CoreRep`): multiplication by a coordinate (`mulOp`, symmetric exactly when the
+polynomial has real coefficients), the momentum `π_j = −i ∂_j` (`momOp`,
+symmetric by `gaussInt_pderiv`), and the magnetic field
+`B_{ia} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` as multiplication by the
+real polynomial `magPoly` in the `99 = 3 + 24 + 72` coordinates.  The canonical
+commutation relation `[A_j, π_j] = i` is `commutator_coord_mom`, and the Weyl
+ordering it forces is `weylProd` with `weylProd_polySym`.  The Hamiltonian
+`ymHamiltonian = ½Σπ² + ½ΣB²` — the *positive* sum-of-squares sign — is
+symmetric (`ymHamiltonian_symmetricOn`) with a sum-of-squares quadratic form
+(`ymHamiltonian_quadForm`, `ymHamiltonian_quadForm_nonneg`), so
+`ym_hermite_friedrichs_extension` gives it a positive self-adjoint (Friedrichs)
+extension and `ym_hermite_hashimoto_selects` shows the Hashimoto/SIRK
+shift-invert limit selects exactly that extension.  Nothing about the mass gap
+or global existence is claimed.
+
+## Previous wave (2026-08-18c, **the non-commuting mixed case**)
 
 `BookProof/ChapterHarmonicOscillatorEsa.lean` (namespace
 `BookProof.HarmonicOscillator`, `sorry`-free / `axiom`-free, registered in

@@ -49,14 +49,18 @@ self-adjointness genuinely fails; the closable hypothesis is `W` bounded
 opposite-signature convention `□ = ∂_t² - Δ_x` of the physics literature.  Details:
 `STRICHARTZ_WAVE_ESA.md`; the wave is cited from `Book/DiffeomorphismsGravity.lean`.
 
-**Status (2026-08-18, §11.4 closed):** the two plan items of §11.4 (the unbounded
-Friedrichs existence theorem and the continuum-realization decision) are executed
-by `BookProof/ChapterFriedrichsExtension.lean`; see §9 item 6 and the update at
-the end of §11.4.  The field-space realization is *well-defined on the Hermite
-core* (finite-dimensional base `ℝ⁹⁹`, ladder structure of `A`/`∂`), so that
-realization is a construction task — Weyl ordering of the `πA` cross-terms and
-the sign of book.tex:7077 being the two caveats — not a research boundary; see
-the closing updates of §11.3/§11.4.
+**Status (2026-08-19, §11.4 + Part F closed):** the two plan items of §11.4 (the
+unbounded Friedrichs existence theorem and the continuum-realization decision)
+are executed by `BookProof/ChapterFriedrichsExtension.lean`; see §9 item 6 and
+the update at the end of §11.4.  The field-space realization is now **executed,
+not just well-defined**: `BookProof/ChapterHermiteProductCore.lean` and
+`BookProof/ChapterYangMillsHermite.lean` build the product Hermite (Gauss–
+polynomial) core of `L²(ℝ⁹⁹)` and define the coordinate/momentum/magnetic-field
+operators, the Weyl ordering (`[A_j, π_j] = i`) and the positive sum-of-squares
+Hamiltonian on it, instantiating the Friedrichs + Hashimoto theorems; the
+second quantization on the finite-occupation states is executed in
+`BookProof/ChapterFockSecondQuantization.lean`.  See the closing updates of
+§11.3/§11.4 and `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` Part F.
 
 **Status (2026-08-17, QG + QYM plan items executed):** the two "suggested next
 step" plan items of §10.3 and §11.3 are now **closed**.  Both are written up as
@@ -853,19 +857,27 @@ none of which is a plan item:
    (Part E of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`), and the combined statement —
    the extension exists *and* the Hashimoto/SIRK limit selects it, unbounded —
    is `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs`, with
-   `unbounded_friedrichs_example` showing it is not vacuous. What remains is
-   only the recorded boundary: the field-space *differential* realization of
-   `B_{i a}` (option (b)) and the mass gap, both deliberately out of scope.
-   **Refinement (2026-08-18):** option (b) is *not* a research boundary — the
-   book's base `ℝ⁹⁹` is finite-dimensional and `H₁ = ½Σππ + ½ΣBB` is a
-   finite-degree polynomial-coefficient differential operator, so the operator
-   is **well-defined and symmetric on the product Hermite core** of `L²(ℝ⁹⁹)`
-   (the `A`/`∂` ladder structure; same pattern as
-   `harmonicOscOp_apply_eq_differential`).  It is a construction task: build
-   `A`, `π = −iδ/δA`, `B` on that core and prove core-invariance/symmetry/
-   positivity, with the Weyl ordering of the non-commuting `πA` cross-terms and
-   the sign of book.tex:7077 as the two caveats.  See the §11.3/§11.4 closing
-   updates.
+    `unbounded_friedrichs_example` showing it is not vacuous. What remains is
+    only the recorded boundary: the mass gap, deliberately out of scope.
+    **Refinement (2026-08-18):** option (b) is *not* a research boundary — the
+    book's base `ℝ⁹⁹` is finite-dimensional and `H₁ = ½Σππ + ½ΣBB` is a
+    finite-degree polynomial-coefficient differential operator, so the operator
+    is **well-defined and symmetric on the product Hermite core** of `L²(ℝ⁹⁹)`
+    (the `A`/`∂` ladder structure; same pattern as
+    `harmonicOscOp_apply_eq_differential`).  It is a construction task: build
+    `A`, `π = −iδ/δA`, `B` on that core and prove core-invariance/symmetry/
+    positivity, with the Weyl ordering of the non-commuting `πA` cross-terms and
+    the sign of book.tex:7077 as the two caveats.  See the §11.3/§11.4 closing
+    updates.  **Executed (2026-08-18/19):** the construction task is done —
+    `BookProof/ChapterHermiteProductCore.lean` (Gauss–polynomial core of
+    `L²(ℝ⁹⁹)`, dense orthonormal basis whose finite-mode domain is the core)
+    and `BookProof/ChapterYangMillsHermite.lean` (coordinate/momentum/
+    magnetic-field operators, `[A_j, π_j] = i`, Weyl ordering `weylProd`, positive
+    sum-of-squares `ymHamiltonian`, symmetry/positivity, instantiating the
+    Friedrichs + Hashimoto theorems), plus the second quantization on
+    finite-occupation states in `BookProof/ChapterFockSecondQuantization.lean`.
+    Both caveats (Weyl ordering, sign) are settled *inside* the modules; only the
+    mass gap remains out of scope.
 7. Pedagogical polish (small, editorial): the new plan/doc files
    (`PLAN_LEAN_SPECIALIST_QG_FLOW.md`, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`,
    `HASHIMOTO_COMPLEX_SHIFTS.md`, `HERMITE_GALERKIN_FRIEDRICHS.md`) and the Book
@@ -1234,7 +1246,19 @@ spectra nest, and the best-approximation error is antitone in the order
   of `L²(ℝ⁹⁹)`, plus the proofs of core-invariance/symmetry/positivity; the two
   delicate points are the Weyl ordering of the non-commuting `πA` cross-terms in
   `B²` and the sign reconciliation of book.tex:7077 with the positive
-  sum-of-squares form.  See the closing update of §11.4.
+  sum-of-squares form.  See the closing update of §11.4.  **(2026-08-18: this
+  construction task is now executed — `BookProof/ChapterHermiteProductCore.lean`
+  and `BookProof/ChapterYangMillsHermite.lean`; both caveats are settled inside
+  the modules.)**  **(2026-08-19: the remaining Part F.11 row — the *second
+  quantization* of that one-particle Hamiltonian on the finite-occupation states
+  over the core — is executed too, in
+  `BookProof/ChapterFockSecondQuantization.lean`: the occupation-number Fock
+  space `ℓ²(ℕ →₀ ℕ)`, the ladder operators with `[a_j, a_j†] = 1`,
+  `dΓ(A) = Σ ⟪e_j, A e_k⟫ a_j† a_k`, its symmetry, positivity and Friedrichs
+  extension, ending in `ym_fock_friedrichs_extension`, together with the
+  Hashimoto/SIRK selection of that extension (`ym_fock_hashimoto_selects`).
+  Still **not** claimed:
+  the mass gap or global existence.)**
 - **Do NOT claim**: self-adjointness of the continuum QYM operator, the mass
   gap, or global existence as *proved Lean theorems*. The Yang–Mills existence
   and mass-gap Millennium problem is deliberately out of scope (the book's own
@@ -1358,6 +1382,32 @@ positivity of `H₁`, then feed the proved `friedrichs_extension_exists` +
     (bounded below by 0, the Friedrichs hypothesis) — the book's literal sign
     must be reconciled before the operator is fed to the machinery (same style
     of sign correction already recorded for `□` in §9.5).
+
+**Update (2026-08-18, the field-space realization (b) is EXECUTED).**  The
+construction task above is done, `sorry`-free and `axiom`-free, in two new
+modules.  `BookProof/ChapterHermiteProductCore.lean` builds the Gauss–polynomial
+(product Hermite) core of `L²(ℝᵈ)`: `pgMap : ℂ[X₀,…,X_{d−1}] →ₗ[ℂ] L²(ℝᵈ)`,
+`p ↦ p·e^{-‖x‖²/4}`, is injective (`pgMap_injective`), its range
+`polyGaussCore` is dense (`polyGaussCore_dense`, by the `d`-dimensional
+Fourier/moment argument), Gaussian integration by parts holds
+(`gaussInt_pderiv`), and Gram–Schmidt on the enumerated monomials gives an
+orthonormal basis `coreBasis` whose finite-mode domain *is* the core
+(`span_range_coreBasis`).  `BookProof/ChapterYangMillsHermite.lean` defines the
+operators at the polynomial level and transports them through the injection
+(`CoreRep`): multiplication by a coordinate (`mulOp`, symmetric for real
+coefficients), the momentum `π_j = −i ∂_j` (`momOp`, symmetric by
+`gaussInt_pderiv`), the magnetic field
+`B_{ia} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` as multiplication by the
+real polynomial `magPoly` over the `99 = 3 + 24 + 72` coordinates, the Weyl
+ordering `weylProd` with `weylProd_polySym`, and the commutation relation
+`commutator_coord_mom` (`[A_j, π_j] = i`) that forces it.  The Hamiltonian
+`ymHamiltonian = ½Σπ² + ½ΣB²` — the positive sign, the caveat above settled — is
+symmetric (`ymHamiltonian_symmetricOn`) with sum-of-squares quadratic form
+(`ymHamiltonian_quadForm`, `ymHamiltonian_quadForm_nonneg`), so
+`ym_hermite_friedrichs_extension` instantiates `friedrichs_extension_exists` and
+`ym_hermite_hashimoto_selects` instantiates
+`weyl_hashimoto_selects_friedrichs`.  Nothing about the mass gap or global
+existence is claimed.
   With ordering and sign fixed, this Hermite-core construction is the remaining
   link between the abstract theorem and the book's operator.  The mass gap stays
   out of scope by the author's decision.

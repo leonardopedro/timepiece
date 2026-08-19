@@ -626,3 +626,21 @@ import BookProof.ChapterHashimotoComplexShifts
 -- combines with the shift-invert theory so that the Hashimoto/SIRK limit selects
 -- the *constructed* extension in the occupation-number (Hermite) realization.
 import BookProof.ChapterFriedrichsExtension
+
+-- Wave (2026-08-18, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` Part F): the *field-space*
+-- realization of the gauge-fixed Yang–Mills Hamiltonian.  The Gauss–polynomial
+-- (product Hermite) core `p(x) e^{-‖x‖²/4}` of `L²(ℝᵈ)` is built and shown dense,
+-- an orthonormal basis adapted to it is produced, and the fields act on it as
+-- genuine multiplication and differentiation operators: coordinates `A_{j,a}`,
+-- momenta `π = −i ∂/∂A` (symmetric by Gaussian integration by parts), the
+-- magnetic field `B_{ia} = ε_{ijk}(∂_j A_{k,a} + f_{abc} A_{j,b} A_{k,c})`, and the
+-- Weyl ordering `½(PQ + QP)` demanded by `[A, π] = i`.  The resulting
+-- `H₁ = ½Σπ² + ½ΣB²` is symmetric and positive on the core, so the Friedrichs
+-- extension theorem and the Hashimoto/SIRK selection theorem apply to it.
+import BookProof.ChapterHermiteProductCore
+import BookProof.ChapterYangMillsHermite
+-- Part F.11: the *second quantization* of that one-particle Hamiltonian on the
+-- finite-occupation states over the core: the Fock space `ℓ²(ℕ →₀ ℕ)`, the
+-- ladder operators with `[a_j, a_j†] = 1`, `dΓ(A) = Σ ⟪e_j, A e_k⟫ a_j† a_k`, its
+-- symmetry and positivity, and its Friedrichs extension.
+import BookProof.ChapterFockSecondQuantization

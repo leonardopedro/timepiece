@@ -195,10 +195,18 @@ of `H₁`, then feed the proved `friedrichs_extension_exists` +
 
 ## Part F — the field-space realization on the Hermite core (option (b))
 
-**Status (2026-08-18): NOT EXECUTED — this is the next target for the
-Lean-specialist.**  Executes option (b) as a construction task (the Part E
-refinement above): build the book's one-particle operator `H₁` as a concretely
-defined operator on the product Hermite core of `L²(ℝ⁹⁹)` and instantiate the
+**Status (2026-08-18): EXECUTED.**  The two modules
+`BookProof/ChapterHermiteProductCore.lean` (namespace
+`BookProof.HermiteProductCore`) and `BookProof/ChapterYangMillsHermite.lean`
+(namespace `BookProof.YangMillsHermite`) are `sorry`-free and `axiom`-free, are
+imported by `BookProof.lean`, certified by `#print axioms` in
+`BookProof/ChapterRoadmapAudit.lean`, and cited from
+`Book/YangMillsQuantization.lean`.  Both caveats are settled *in the modules*:
+the Weyl ordering is `weylProd` with `weylProd_polySym` (and the commutation
+relation it answers to is `commutator_coord_mom`), and the sign is fixed to the
+positive sum of squares in `ymHamiltonian`.  Original plan text follows.  Executes
+option (b) as a construction task (the Part E refinement above): build the book's
+one-particle operator `H₁` as a concretely defined operator on the product Hermite
 already-proved Friedrichs + Hashimoto theorems with it.  The resulting module
 (general position) is a new file `BookProof/ChapterYangMillsHermite.lean` with
 namespace `BookProof.YangMillsHermite`, reusing the existing 1D Hermite
@@ -215,17 +223,48 @@ and the abstract theorems (`ChapterYangMillsFriedrichs.lean`,
 
 | Item | Suggested Lean name | Status |
 | :-- | :-- | :--: |
-| F.1 the product Hermite basis of `L²(ℝ⁹⁹)` from the 1D `hermiteBasis` (tensor of the 1D ladder machinery) | `hermite99Basis`, `hermite99Core`, `hermite99Core_dense` | TODO |
-| F.2 coordinate multiplication by `A_{k,a}` as an operator on the core, with the ladder action (maps each basis vector to a finite combination) | `multCoord_op`, `multCoord_ladder` | TODO |
-| F.3 the functional derivative `π = −i δ/δA` as an operator on the core, symmetric | `funcDeriv_op`, `funcDeriv_symmetric` | TODO |
-| F.4 the magnetic field `B_{i a} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` as an operator on the core, with the `ε`/`f_{abc}` tensor contraction | `magField_op`, `magField_ladder` | TODO |
-| F.5 the Weyl ordering of the `πA` cross-terms inside `B²` (`[A_{j,a}, π^k_b] = iδ^k_j δ_{ab}`, book.tex:7060-7061; the `½(πA + Aπ)` convention of `H_N`) | `weylOrder_symm` | TODO |
-| F.6 `H₁ = ½Σππ + ½ΣBB` (sign reconciled with book.tex:7077 to the positive sum-of-squares) well-defined on the core | `h1_op`, `h1_apply` | TODO |
-| F.7 `H₁` symmetric on the core | `h1_symmetricOn` | TODO |
-| F.8 `H₁` positive (bounded below by 0), the Friedrichs hypothesis | `h1_quadForm_nonneg` | TODO |
-| F.9 **instantiation**: `H₁` satisfies the hypothesis of `friedrichs_extension_exists` → the Weyl-gauge field-space Hamiltonian has a positive self-adjoint extension | `ym_hermite_friedrichs_extension` | TODO |
-| F.10 **instantiation**: the shift-invert Hashimoto/SIRK limit selects it → `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs` applied | `ym_hermite_hashimoto_selects` | TODO |
-| F.11 (optional, if smooth) the second-quantized `H` on finite-occupation states over the core | `h_secondQuantized_wellDefined` | TODO |
+| F.1 the product Hermite basis of `L²(ℝ⁹⁹)` from the 1D `hermiteBasis` (tensor of the 1D ladder machinery) | `polyGaussCore`, `polyGaussCore_dense`, `hermiteMv`, `polyGaussCore_eq_hermiteSpan`, `coreBasis`, `span_range_coreBasis` | DONE |
+| F.2 coordinate multiplication by `A_{k,a}` as an operator on the core, with the ladder action (maps each basis vector to a finite combination) | `mulOp`, `mulOp_polySym`, `CoreRep.op` | DONE |
+| F.3 the functional derivative `π = −i δ/δA` as an operator on the core, symmetric | `derOp`, `momOp`, `momOp_polySym` | DONE |
+| F.4 the magnetic field `B_{i a} = ε_{ijk}(∂_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})` as an operator on the core, with the `ε`/`f_{abc}` tensor contraction | `levi`, `magPoly`, `realCoeff_magPoly`, `magOps` | DONE |
+| F.5 the Weyl ordering of the `πA` cross-terms inside `B²` (`[A_{j,a}, π^k_b] = iδ^k_j δ_{ab}`, book.tex:7060-7061; the `½(πA + Aπ)` convention of `H_N`) | `weylProd`, `weylProd_polySym`, `commutator_coord_mom` | DONE |
+| F.6 `H₁ = ½Σππ + ½ΣBB` (sign reconciled with book.tex:7077 to the positive sum-of-squares) well-defined on the core | `ymHamiltonian`, `ymHamiltonian_apply` | DONE |
+| F.7 `H₁` symmetric on the core | `ymHamiltonian_symmetricOn` | DONE |
+| F.8 `H₁` positive (bounded below by 0), the Friedrichs hypothesis | `ymHamiltonian_quadForm`, `ymHamiltonian_quadForm_nonneg` | DONE |
+| F.9 **instantiation**: `H₁` satisfies the hypothesis of `friedrichs_extension_exists` → the Weyl-gauge field-space Hamiltonian has a positive self-adjoint extension | `ym_hermite_friedrichs_extension` | DONE |
+| F.10 **instantiation**: the shift-invert Hashimoto/SIRK limit selects it → `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs` applied | `ym_hermite_hashimoto_selects` | DONE |
+| F.11 the second-quantized `H` on finite-occupation states over the core | `Conf`, `annA`, `creA`, `ccr_annA_creA`, `inner_creA_left`, `dGamma`, `dGamma_one_particle`, `dGammaOp_symmetricOn`, `dGammaOp_quadForm_nonneg`, `dGamma_friedrichs_extension`, `secondQuantization_friedrichs`, `ym_fock_friedrichs_extension`, `finiteModeDomain_fockBasisN`, `dGamma_hashimoto_selects`, `secondQuantization_hashimoto_selects`, `ym_fock_hashimoto_selects` | DONE |
+
+**Status (2026-08-19): F.11 EXECUTED.**  `BookProof/ChapterFockSecondQuantization.lean`
+(namespace `BookProof.FockSecondQuantization`) is `sorry`-free and `axiom`-free,
+imported by `BookProof.lean`, certified by `#print axioms` in
+`BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/YangMillsQuantization.lean`.  It builds the occupation-number Fock space
+`ℓ²(Conf)` over the one-particle core, `Conf = ℕ →₀ ℕ`, with its dense
+finite-occupation domain `lpFiniteModes Conf`; the ladder operators `annA j`,
+`creA j` with the canonical commutation relation `[a_j, a_j†] = 1`
+(`ccr_annA_creA`) and the adjoint pairing `⟪a_j† u, v⟫ = ⟪u, a_j v⟫`
+(`inner_creA_left`); the second quantization
+`dΓ(A) = Σ_{j,k} ⟪e_j, A e_k⟫ a_j† a_k` of a one-particle operator given by its
+column-finite matrix (`dGamma`, `dGamma_eq_sum`), which on the one-particle
+sector *is* the one-particle operator (`dGamma_one_particle`); symmetry and
+positivity of `dΓ(A)` from Hermiticity and positive semidefiniteness of that
+matrix (`dGammaOp_symmetricOn`, `dGammaOp_quadForm_nonneg`), hence its
+Friedrichs extension (`dGamma_friedrichs_extension`); the matrix of an arbitrary
+symmetric positive one-particle operator on the finite-mode domain of a Hilbert
+basis (`opCol`, `isHermCol_opCol`, `isPosCol_opCol`) and the resulting general
+statement `secondQuantization_friedrichs`; and finally the instantiation by the
+field-space Yang–Mills `H₁ = ½Σπ² + ½ΣB²` of Part F,
+`ym_fock_friedrichs_extension`.  A closing section identifies the finite-mode
+domain of the configuration Hilbert basis with the finite-occupation domain
+(`fockConfBasis`, `fockBasisN`, `finiteModeDomain_fockBasisN`), so the F.10
+Hashimoto/SIRK machinery applies verbatim to the second-quantized operator:
+`dGamma_hashimoto_selects`, `secondQuantization_hashimoto_selects` and
+`ym_fock_hashimoto_selects` state that for every shift `γ > 0` the shift-inverted
+operator `R = (A + γ)⁻¹` is bounded by `γ⁻¹` and self-adjoint, its Galerkin
+truncations converge strongly and in the resolvent sense, and `R` determines the
+Friedrichs extension `A` uniquely.  As everywhere in this plan, no mass gap and
+no global existence statement is claimed.
 
 ### Part F verification expectations
 

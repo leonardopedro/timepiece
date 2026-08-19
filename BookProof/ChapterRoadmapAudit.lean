@@ -13,6 +13,9 @@ import BookProof.ChapterHermiteGalerkinFriedrichs
 import BookProof.ChapterHashimotoShiftInvert
 import BookProof.ChapterHashimotoComplexShifts
 import BookProof.ChapterFriedrichsExtension
+import BookProof.ChapterHermiteProductCore
+import BookProof.ChapterYangMillsHermite
+import BookProof.ChapterFockSecondQuantization
 import BookProof.ChapterWaveUnboundedPotential
 import BookProof.ChapterHarmonicOscillatorEsa
 import BookProof.ChapterF4
@@ -631,5 +634,36 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.HarmonicOscillator.harmonicOsc_symmetric
 #print axioms BookProof.HarmonicOscillator.harmonicOsc_essentiallySelfAdjoint
 #print axioms BookProof.HarmonicOscillator.harmonicOsc_not_bounded
+
+-- `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` Part F: the field-space (Gauss–polynomial /
+-- product Hermite) realization of the Weyl-gauge Yang–Mills Hamiltonian.
+#print axioms BookProof.HermiteProductCore.pgMap_injective
+#print axioms BookProof.HermiteProductCore.polyGaussCore_dense
+#print axioms BookProof.HermiteProductCore.gaussInt_pderiv
+#print axioms BookProof.HermiteProductCore.span_range_coreBasis
+#print axioms BookProof.HermiteProductCore.polyGaussCore_eq_hermiteSpan
+#print axioms BookProof.YangMillsHermite.momOp_polySym
+#print axioms BookProof.YangMillsHermite.commutator_coord_mom
+#print axioms BookProof.YangMillsHermite.weylProd_polySym
+#print axioms BookProof.YangMillsHermite.realCoeff_magPoly
+#print axioms BookProof.YangMillsHermite.ymHamiltonian_symmetricOn
+#print axioms BookProof.YangMillsHermite.ymHamiltonian_quadForm_nonneg
+#print axioms BookProof.YangMillsHermite.ym_hermite_friedrichs_extension
+#print axioms BookProof.YangMillsHermite.ym_hermite_hashimoto_selects
+
+-- `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` Part F.11: the second quantization of the
+-- field-space Yang–Mills Hamiltonian on the finite-occupation states over the core.
+#print axioms BookProof.FockSecondQuantization.ccr_annA_creA
+#print axioms BookProof.FockSecondQuantization.inner_creA_left
+#print axioms BookProof.FockSecondQuantization.dGamma_one_particle
+#print axioms BookProof.FockSecondQuantization.dGammaOp_symmetricOn
+#print axioms BookProof.FockSecondQuantization.dGammaOp_quadForm_nonneg
+#print axioms BookProof.FockSecondQuantization.dGamma_friedrichs_extension
+#print axioms BookProof.FockSecondQuantization.secondQuantization_friedrichs
+#print axioms BookProof.FockSecondQuantization.ym_fock_friedrichs_extension
+#print axioms BookProof.FockSecondQuantization.finiteModeDomain_fockBasisN
+#print axioms BookProof.FockSecondQuantization.dGamma_hashimoto_selects
+#print axioms BookProof.FockSecondQuantization.secondQuantization_hashimoto_selects
+#print axioms BookProof.FockSecondQuantization.ym_fock_hashimoto_selects
 
 end BookProof.ChapterRoadmapAudit

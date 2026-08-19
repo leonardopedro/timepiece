@@ -343,8 +343,7 @@ Galerkin truncations of $`R` converge to it strongly and in the resolvent sense,
 and $`R` determines $`A` — so the infinite Hashimoto/SIRK limit selects exactly
 the constructed extension. The construction is not vacuous: it applies to the
 genuinely unbounded diagonal operator $`A e_n = n e_n` on $`\ell^2(\mathbb{N})`.
-What stays outside is the field-space *differential* realization of the magnetic
-operator $`B_{ia}` and, as always, the mass gap:
+What stays outside is, as always, the mass gap:
 :::
 
 ```
@@ -352,6 +351,106 @@ operator $`B_{ia}` and, as always, the mass gap:
 #check @BookProof.FriedrichsExtension.weyl_hashimoto_selects_friedrichs
 #check @BookProof.FriedrichsExtension.unbounded_friedrichs_example
 ```
+
+# The Field-Space Realization on the Product Hermite Core
+
+:::paragraph
+The statements above are formulated for abstract electric and magnetic operators
+on the finite-mode domain of an orthonormal basis. The field-space realization
+makes them concrete on $`L^2(\mathbb{R}^{99})`, the configuration space with
+$`99 = 3 + 24 + 72` coordinates: three spatial coordinates, the $`24 = 3\times 8`
+gauge fields $`A_{j,a}` and the $`72 = 3\times3\times8` independent derivative
+coordinates $`\partial_j A_{k,a}`. The core is the span of the *product Hermite
+functions* — equivalently, of all $`p(x)\,e^{-\|x\|^2/4}` with $`p` a polynomial,
+since the products $`\prod_i He_{\alpha_i}(x_i)` of probabilists' Hermite
+polynomials span the whole polynomial ring. The map
+$`p \mapsto p\,e^{-\|x\|^2/4}` is injective, the core is dense, and Gram–Schmidt
+turns the enumerated monomials into an orthonormal basis whose finite-mode domain
+is exactly the core:
+:::
+
+```
+#check @BookProof.HermiteProductCore.pgMap_injective
+#check @BookProof.HermiteProductCore.polyGaussCore_dense
+#check @BookProof.HermiteProductCore.gaussInt_pderiv
+#check @BookProof.HermiteProductCore.hermiteMv
+#check @BookProof.HermiteProductCore.polyGaussCore_eq_hermiteSpan
+#check @BookProof.HermiteProductCore.coreBasis
+#check @BookProof.HermiteProductCore.span_range_coreBasis
+```
+
+:::paragraph
+On that core the fields act as genuine operators: multiplication by the
+coordinate $`A_{j,a}`, the momentum $`\pi = -i\,\partial/\partial A` (symmetric
+by Gaussian integration by parts), and the magnetic field
+$`B_{ia} = \varepsilon_{ijk}(\partial_j A_{k,a} + f_{abc}A_{j,b}A_{k,c})`, which
+is multiplication by a polynomial with *real* coefficients and hence symmetric.
+The coordinate and momentum operators do not commute — $`[A_j, \pi_j] = i` — so
+products of them are Weyl ordered as $`\tfrac12(PQ+QP)`, and the Weyl-ordered
+product of two symmetric operators is symmetric:
+:::
+
+```
+#check @BookProof.YangMillsHermite.mulOp_polySym
+#check @BookProof.YangMillsHermite.momOp_polySym
+#check @BookProof.YangMillsHermite.commutator_coord_mom
+#check @BookProof.YangMillsHermite.weylProd_polySym
+#check @BookProof.YangMillsHermite.magPoly
+#check @BookProof.YangMillsHermite.realCoeff_magPoly
+```
+
+:::paragraph
+The Hamiltonian is taken in the *positive* sum-of-squares convention
+$`H_1 = \tfrac12\sum \pi^2 + \tfrac12\sum B^2` (the manuscript writes
+$`-\tfrac12\pi\pi - \tfrac12 BB`; the positive sign is the one bounded below, to
+which the Friedrichs machinery applies). It is well defined, symmetric and
+positive on the core, its quadratic form is a sum of squares, and therefore the
+Friedrichs extension theorem and the Hashimoto/SIRK selection theorem apply to
+the concrete field-space operator:
+:::
+
+```
+#check @BookProof.YangMillsHermite.ymHamiltonian
+#check @BookProof.YangMillsHermite.ymHamiltonian_quadForm
+#check @BookProof.YangMillsHermite.ymHamiltonian_symmetricOn
+#check @BookProof.YangMillsHermite.ymHamiltonian_quadForm_nonneg
+#check @BookProof.YangMillsHermite.ym_hermite_friedrichs_extension
+#check @BookProof.YangMillsHermite.ym_hermite_hashimoto_selects
+```
+
+:::paragraph
+Finally the one-particle Hamiltonian is *second quantized* on the
+finite-occupation states over the core. The Fock space is $`\ell^2` over the
+configurations $`\mathbb{N} \to_0 \mathbb{N}` (occupation numbers, finitely many
+modes excited); the ladder operators satisfy $`[a_j, a_j^\dagger] = 1` and the
+adjoint pairing $`\langle a_j^\dagger u, v\rangle = \langle u, a_j v\rangle`,
+and $`d\Gamma(A) = \sum_{j,k} \langle e_j, A e_k\rangle a_j^\dagger a_k`
+restricts on the one-particle sector to $`A` itself. Hermiticity and positivity
+of the one-particle matrix make $`d\Gamma(A)` symmetric and positive on the
+dense finite-occupation domain, so it too has a positive self-adjoint
+(Friedrichs) extension — in particular for the field-space Yang–Mills
+$`H_1 = \tfrac12\sum \pi^2 + \tfrac12\sum B^2`:
+:::
+
+```
+#check @BookProof.FockSecondQuantization.ccr_annA_creA
+#check @BookProof.FockSecondQuantization.inner_creA_left
+#check @BookProof.FockSecondQuantization.dGamma
+#check @BookProof.FockSecondQuantization.dGamma_one_particle
+#check @BookProof.FockSecondQuantization.dGammaOp_symmetricOn
+#check @BookProof.FockSecondQuantization.dGammaOp_quadForm_nonneg
+#check @BookProof.FockSecondQuantization.secondQuantization_friedrichs
+#check @BookProof.FockSecondQuantization.ym_fock_friedrichs_extension
+#check @BookProof.FockSecondQuantization.finiteModeDomain_fockBasisN
+#check @BookProof.FockSecondQuantization.dGamma_hashimoto_selects
+#check @BookProof.FockSecondQuantization.secondQuantization_hashimoto_selects
+#check @BookProof.FockSecondQuantization.ym_fock_hashimoto_selects
+```
+
+:::paragraph
+No mass gap and no global existence statement is claimed anywhere in this
+section.
+:::
 
 # Summary
 
@@ -363,7 +462,12 @@ The algebraic core of the manuscript's quantization programme:
  * the nilpotent BRST charge (and the graded Jacobi identity of the super-bracket) defining the gauge-invariant algebra;
  * the positive-definite Weyl-gauge Hamiltonian;
  * the densely-defined Weyl-gauge Hamiltonian, its sum-of-squares quadratic form and the closability of that form — the Friedrichs route to a self-adjoint extension;
- * the Friedrichs extension theorem itself, proved with no boundedness hypothesis, and the resulting unbounded statement: the Weyl-gauge Hamiltonian has a positive self-adjoint extension and the infinite Hashimoto/SIRK limit selects exactly that extension.
+ * the Friedrichs extension theorem itself, proved with no boundedness hypothesis, and the resulting unbounded statement: the Weyl-gauge Hamiltonian has a positive self-adjoint extension and the infinite Hashimoto/SIRK limit selects exactly that extension;
+ * the field-space realization of that Hamiltonian on the dense product Hermite
+   core of $`L^2(\mathbb{R}^{99})`, with the coordinate, momentum and
+   magnetic-field operators defined concretely, the canonical commutation
+   relation and the Weyl ordering it forces, and the Friedrichs/Hashimoto
+   theorems instantiated by it.
 
 :::paragraph
 The manuscript's Navier–Stokes existence/uniqueness thesis is deliberately *not*

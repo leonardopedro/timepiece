@@ -1,3 +1,50 @@
+# Summary of changes for run b1049c3f-072b-483e-8a8d-70dddbc8562a
+I picked up the plan at its last open item and finished it.
+
+**What was completed this session — the selection theorem for the second-quantized Hamiltonian (Part F.11).**
+
+`BookProof/ChapterFockSecondQuantization.lean` already contained the occupation-number Fock space over the one-particle core (`Conf = ℕ →₀ ℕ`, `Fock = ℓ²(Conf)`), the ladder operators with the canonical commutation relation `[a_j, a_j†] = 1`, the second quantization `dΓ(A) = Σ_{j,k} ⟪e_j, A e_k⟫ a_j† a_k`, its symmetry and positivity on the dense finite-occupation domain, and the resulting Friedrichs extension, ending in `ym_fock_friedrichs_extension`. I added the missing final layer:
+
+- `fockConfBasis`, `fockBasisN` — the canonical orthonormal basis of the Fock space, indexed by the configurations and re-indexed by `ℕ`;
+- `finiteModeDomain_fockBasisN` — the key identification: the finite-mode domain of that basis *is* the finite-occupation domain `lpFiniteModes Conf`, so the Galerkin/shift-invert machinery of the earlier parts applies verbatim;
+- `dGammaOpB`, `dGammaOpB_symmetricOn`, `dGammaOpB_quadForm_nonneg` — the second-quantized operator on that domain, symmetric and positive;
+- `dGamma_hashimoto_selects` and `secondQuantization_hashimoto_selects` — for a Hermitian, positive semidefinite, column-finite one-particle matrix (respectively, for an arbitrary symmetric positive one-particle operator on the finite-mode domain of a Hilbert basis) and every shift `γ > 0`: `dΓ(A)` has a positive self-adjoint (Friedrichs) extension `A'`, the shift-inverted operator `R = (A' + γ)⁻¹` satisfies `‖R‖ ≤ γ⁻¹` and is self-adjoint, its Galerkin truncations converge strongly and in the resolvent sense, and `R` determines `A'` uniquely;
+- `ym_fock_hashimoto_selects` — the same conclusion for the second quantization of the concrete field-space Yang–Mills Hamiltonian `H₁ = ½Σπ² + ½ΣB²` on the Gauss–polynomial (product Hermite) core of `L²(ℝ⁹⁹)`;
+- `fockEnum` — a concrete enumeration of the configurations, so the statements are not vacuous.
+
+**Verification.** The module is `sorry`-free and `axiom`-free; `#print axioms` on each new theorem reports only `propext`, `Classical.choice`, `Quot.sound`. The new results are certified by `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` and cited by `#check` in `Book/YangMillsQuantization.lean`; both build. The whole project builds with no errors. I also cleaned up two stale `simp` lint warnings in the module.
+
+**Documentation.** The F.11 row and status paragraph of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` and the corresponding note in `CONSOLIDATED_PLAN.md` were updated to record the selection theorem. With this, every row of the plan's status tables is marked done; `ARISTOTLE_SUMMARY.md` was left untouched.
+
+**Scope.** As throughout this development, no mass gap and no global existence statement is claimed — the Yang–Mills existence and mass-gap problem remains deliberately out of scope. What is proved is the operator-theoretic construction: a symmetric, positive Hamiltonian on a dense core, its Friedrichs extension, and the Hashimoto/SIRK shift-invert limit that selects that extension.
+
+All work is committed and pushed.
+
+# Summary of changes for the Part F run
+
+Executed Part F of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`: the **field-space
+realization of the gauge-fixed Yang–Mills Hamiltonian** on the product Hermite
+core of `L²(ℝ⁹⁹)`.  Two new modules, both `sorry`-free and `axiom`-free:
+
+- `BookProof/ChapterHermiteProductCore.lean` — the Gauss–polynomial (product
+  Hermite) core of `L²(ℝᵈ)`: injectivity of `p ↦ p·e^{-‖x‖²/4}`, density of the
+  core, its identification with the span of the product Hermite functions,
+  Gaussian integration by parts, and an orthonormal basis whose finite-mode
+  domain is exactly the core.
+- `BookProof/ChapterYangMillsHermite.lean` — the coordinate, momentum and
+  magnetic-field operators on that core, the canonical commutation relation
+  `[A_j, π_j] = i` and the Weyl ordering `½(PQ+QP)` it forces, the Hamiltonian
+  `H₁ = ½Σπ² + ½ΣB²` in the positive sum-of-squares convention (symmetric,
+  positive), and the instantiation of the already-proved Friedrichs extension
+  and Hashimoto/SIRK selection theorems by it.
+
+Both modules are imported by `BookProof.lean`, certified with `#print axioms` in
+`BookProof/ChapterRoadmapAudit.lean` (only `propext`, `Classical.choice`,
+`Quot.sound`), and cited from `Book/YangMillsQuantization.lean`.  The Part F
+status rows in `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` and the §11.3/§11.4 records in
+`CONSOLIDATED_PLAN.md` are updated.  `lake build` (all default targets) is green.
+No mass gap and no global existence claim is made.
+
 # Summary of changes for run 12f2f3df-be24-45fa-acbe-e371d04a9574
 Continued and completed the execution of `CONSOLIDATED_PLAN.md`.
 
