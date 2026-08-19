@@ -23,6 +23,13 @@ CCR/CAR superalgebra, the concrete 3D gauge-fixed field-space Hamiltonian, or
 the BRST charge — see Part E and Part F below, which are the next targets for
 the Lean-specialist.
 
+**Status (2026-08-20): the Dirac/`γ⁵` square-root work (Route 4, D.6c) is
+ON HOLD per the user.**  The immediate next target is now **Part G — Method B:
+the abstract BRST doublets and Gauge-Fixing Fermion** (a self-contained
+algebraic formalization; no analysis/Hilbert spaces), which builds the bi-graded
+multiplication and graded Leibniz rule that the concrete F.6 BRST charge will
+need.
+
 ## The setting
 
 The manuscript's final, 3D gauge-fixed gravity Hamiltonian
@@ -229,7 +236,9 @@ indefinite kinetic term" is **asserted, not proved** — like the earlier
 theorem.  Any of these routes that starts from that premise needs the premise
 first verified.
 
-**Route 4 — the Dirac/`γ⁵` square root (added 2026-08-19).**  Dirac's original
+**Route 4 — the Dirac/`γ⁵` square root (added 2026-08-19; **ON HOLD** 2026-08-20
+per user, superseded as the immediate target by Part G / Method B below).**
+Dirac's original
 trick: factor a second-order operator into a first-order one via gamma matrices,
 `H = Q²` with `Q` a Clifford-graded first-order operator.  **Crucially, the
 indefinite case needs `γ⁵` (the chirality/volume element):** the densitized QG
@@ -410,6 +419,72 @@ Weyl ordering (F.4) and sign (F.4) are **settled in the module, not assumed**,
 exactly as in the YM `ChapterYangMillsHermite.lean`.  If any item blocks the
 build, stop and record it here rather than weakening the theorem.  Do **not**
 claim the mass gap or global existence.
+
+## Part G — Method B: BRST doublets and the Gauge-Fixing Fermion (added 2026-08-20)
+
+**What this is and why it is the immediate next target.**  The user directed that
+the Dirac/`γ⁵` square-root work (Route 4) be put **on hold** and that this
+gauge-fixing plan be adapted instead.  Method B formalizes, in isolation, the
+BRST mechanism by which the field `v` and the ghosts **decouple from the
+physical cohomology**: they form **BRST doublets (contractible pairs)** `(v,c)`
+and `(c̄,B)`, so their BRST cohomology is rigorously zero.  This is a
+self-contained *algebraic* target — no analysis, no Hilbert spaces — and it is
+the correct *first* BRST milestone because it introduces the two ingredients the
+rest of the BRST program (F.6) needs: a **bi-graded multiplication** and the
+**Gauge-Fixing Fermion** `Ψ`.  Suggested module
+`BookProof/ChapterGaugeFixing.lean`, namespace `BookProof.GaugeFixing`.
+
+**The fields** (in bidegree (Form Degree, Ghost Number), all in the field space
+of the 3D gauge-fixed theory):
+1. `φ ∈ (0,0)` — physical scalar;
+2. `v ∈ (1,0)` — gauge field to be eliminated;
+3. `c ∈ (1,1)` — vector ghost;
+4. `c̄ ∈ (1,-1)` — vector anti-ghost;
+5. `B ∈ (1,0)` — Nakanishi–Lautrup auxiliary field.
+
+**The BRST action (contractible algebra):** `s v = c`, `s c̄ = B`, `s φ = 0`.
+Because `s` maps the first member of each doublet to the second *invertibly*
+(`v ↦ c` shifts ghost number +1; `c̄ ↦ B` cancels it), the cohomology in these
+directions is trivial — this is the formal content of "decoupling".
+
+**What is genuinely new here (per the plan):**  Parts A–F use only *linear*
+operators.  Method B requires generating a Lagrangian term `ℒ_gf = s(Ψ)`, so it
+needs a **bi-graded multiplication** `mul : F d1 → F d2 → F (addDeg d1 d2)` and
+the **graded Leibniz rule** — `s` is an odd derivation, so passing over `c̄`
+(ghost number −1) picks up a minus sign:
+`s (c̄ X) = (s c̄) X − c̄ (s X)`.  **This specific rule is encoded directly as an
+axiom** (not a general `(-1)^n` grading typeclass), so the LLM does not struggle
+with general graded typeclasses.
+
+| Item | Suggested Lean name | Status |
+| :-- | :-- | :--: |
+| G.1 the bidegree `BiDegree := ℤ × ℤ` and `addDeg` helper | `BiDegree`, `addDeg` | TODO |
+| G.2 the abstract structure `GaugeFixingSystem F` with `add/sub/mul/zero`, operators `d` (exterior derivative, `(p,g) → (p+1,g)`) and `s` (BRST, `(p,g) → (p,g+1)`), and the operator axioms (`d_zero`, `sub_zero`, `s_nilpotent`, `s_sub`, `sd_commute`) | `GaugeFixingSystem` | TODO |
+| G.3 the five fields with their bidegrees and the BRST transformation axioms (`def_s_v : s v = c`, `def_s_phi : s φ = zero`, `def_s_c_bar : s c̄ = B`) plus the specific graded Leibniz axiom `s_mul_c_bar` | `phi`, `v`, `c`, `c_bar`, `B`, `def_s_v`, `def_s_phi`, `def_s_c_bar`, `s_mul_c_bar` | TODO |
+| G.4 the ghost is BRST-closed — nilpotency consistency `s c = 0` (from `s² = 0` + `s v = c`) | `s_c_eq_zero` | TODO |
+| G.5 the auxiliary field is BRST-closed — `s B = 0` (from `s² = 0` + `s c̄ = B`) | `s_B_eq_zero` | TODO |
+| G.6 the Gauge-Fixing Fermion `Ψ = c̄ · (v − dφ)`, bidegree `(2,-1)` | `Psi` | TODO |
+| G.7 **the culminating theorem**: `s(Ψ) = B·(v − dφ) − c̄·c` — BRST exactness strictly generates the Lagrange-multiplier constraint (sets `v = dφ`) and a trivial ghost mass term | `L_gf_evaluation` | TODO |
+| G.8 the BRST-invariance of the Lagrangian: `s(s(Ψ)) = 0` (from nilpotency) | `L_gf_invariant` | TODO |
+| G.9 (optional extension) the "path-integral" evaluation map `int : F (2,0) → ℝ` with `int (s X) = 0` (Stokes/BRST invariance of the vacuum), proving `ℒ_gf` has zero impact on physical observables | `int`, `int_of_s` | TODO |
+
+**Physical reading of G.7 (to record in the module docstring):** the term
+`B · (v − dφ)` is precisely what enforces the Dirac delta `δ(v − dφ)` in the path
+integral, and `− c̄ · c` is a ghost term with no momentum dependence — the ghosts
+vanish from the physics.  This is the formal statement that `v` and the ghosts
+decouple.
+
+**Graded-Leibniz honesty note:** `s_mul_c_bar` is an **axiom** by design (the
+plan instructs encoding the specific `(−1)^{−1} = −1` Leibniz rule directly
+rather than a general graded typeclass).  This is a structural/definitional axiom
+of the *system* (like `s_nilpotent`), consistent with this project's discipline —
+it is a definitional axiom of the `GaugeFixingSystem` structure, **not** a claim
+about the continuum physics, so it does not conflict with the rule that continuum
+existence claims are named hypotheses rather than axioms.
+
+**Relationship to F.6:** G.1–G.9 build the abstract BRST *algebra*; F.6 is the
+concrete gravity BRST charge `G` on the Fock core.  Part G is the prerequisite
+algebraic skeleton; F.6 remains the concrete realization.
 
 ## Honest boundary (updated 2026-08-19; unchanged at its core from `CONSOLIDATED_PLAN.md` §10.3)
 
