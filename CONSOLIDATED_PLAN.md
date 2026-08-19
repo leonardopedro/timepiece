@@ -838,8 +838,21 @@ none of which is a plan item:
    claim as worded is false for this signature.  The correct hypothesis is `W`
    bounded *above* by a quadratic here (equivalently bounded below for
    `□ = ∂_t² - Δ_x`), which is the Sears / Faris–Lavine class; proving that case
-   needs the fibrewise (direct-integral) argument and remains the open boundary.
-   **Update (2026-08-18c): the non-commuting mixed case is closed in the elliptic
+    needs the fibrewise (direct-integral) argument and remains the open boundary.
+    **Clarification (2026-08-19, the sign question):** the sign is *not* an
+    artifact removable by convention, initial conditions, or the overall sign of
+    `□` — essential self-adjointness is invariant under negation (`S` ESA ⟺ `−S`
+    ESA), and the relevant sign is the *inner* one of `W` relative to the spatial
+    `Δ_x` in the time-Fourier fibre, which is fixed by the operator.  The
+    `(2,2)` claim for `-d²/dx² - x⁴` is a classical fact quoted from the
+    literature, *not* formalized here (only a discrete limit-circle Jacobi
+    counterexample is proved, `ChapterNavierStokesDeficiency.lean`).  The
+    genuine open question is the sign of `Ṽ` in `H₀ + H₁ - Ṽ` after the
+    densitizing/half-density unitary from the book's 3D gauge-fixed `ℋ`; the
+    densitized mode symbol is `+V` and the book's `-e(𝒯-terms)` is `≤ 0` (good
+    sign for `□ = -∂_t² + Δ_x`), but neither indicator is proved — see
+    `PLAN_LEAN_SPECIALIST_QG_FLOW.md` Part D.6.
+    **Update (2026-08-18c): the non-commuting mixed case is closed in the elliptic
    normalization.**  `BookProof/ChapterHarmonicOscillatorEsa.lean` proves that the
    harmonic oscillator `-d²/dx² + x²/4` — a differential kinetic term plus an
    unbounded polynomial potential that does not commute with it — is essentially

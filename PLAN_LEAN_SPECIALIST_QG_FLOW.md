@@ -103,6 +103,43 @@ the QG operator `H₀ + H₁ − Ṽ` is in the proved or the failing sign regim
 is therefore the analytic core that decides the boundary — see the honest
 boundary below.
 
+### D.6 The sign question, stated precisely (2026-08-19)
+
+A reviewer asks whether the sign warning above is a genuine obstruction or
+could be an artifact — e.g. removable by a sign convention, by initial
+conditions, or by the unitary change of variables from the book's 3D
+gauge-fixed Hamiltonian.  The answer, verified against the module and the plan:
+
+1. **The overall sign of `□` is *not* the issue.**  `□ = −∂_t² + Δ_x` and
+   `∂_t² − Δ_x` differ by an overall factor `−1`, and essential self-adjointness
+   is invariant under negation (a deficiency space of `S* ± i` maps bijectively
+   onto one of `(−S)* ± i`, so `S` ESA ⟺ `−S` ESA).  Flipping the sign of the
+   whole operator therefore never changes the answer, and no "initial
+   conditions" reparameterization can rescue the bounded-below case.
+2. **The relevant sign is the *inner* sign of `W` relative to the spatial
+   `Δ_x`.**  It is fixed by the operator `□ + V` and by the time-Fourier
+   unitary: the fibre is `4π²τ² + Δ_x + V`, so a bounded-*below* `V` gives the
+   limit-circle fibre `Δ_x + V` (unbounded below).  This sign is structural, not
+   a free choice.
+3. **The `(2,2)` deficiency claim is unproved prose.**  "`−d²/dx² − x⁴` has
+   deficiency indices `(2,2)`" is stated in the module docstrings and in
+   `CONSOLIDATED_PLAN.md` §9.5, which explicitly calls it "a classical fact
+   quoted from the literature and **not formalized here**."  The repo proves a
+   *discrete* limit-circle Jacobi counterexample
+   (`BookProof/ChapterNavierStokesDeficiency.lean`), but not the continuum
+   `−x⁴` case.  So the warning is mathematically sound (it is a standard
+   classical fact) but it is not a Lean theorem.
+4. **The genuine open question is the sign of `Ṽ` after the unitary.**  Whether
+   `H₀ + H₁ − Ṽ` is in the proved or the failing regime depends on how `Ṽ`
+   enters once the book's 3D gauge-fixed `ℋ` (book.tex:8188) is passed through
+   the densitizing + half-density unitary.  Two indicators point to the *good*
+   regime but neither is proved: the densitized mode symbol is `+V`
+   (`qgModeSymbol = (1/16)a² − (1/24)b² + V`, so `V` bounded below enters as
+   `+V`), and the book's `−e(𝒯-terms)` is `≤ 0` for a positive-definite
+   quadratic form in `𝒯` (so `−Ṽ ≤ 0`, bounded above — the good sign for
+   `□ = −∂_t² + Δ_x`).  Tracking this sign through the unitary is a concrete,
+   well-scoped task, not a research gap.
+
 | Item | Lean name | Status |
 | :-- | :-- | :--: |
 | D.1 the deduction step: finite-speed / unique continuation ⟹ ESA | `strichartz_esa_of_finiteSpeed` | PROVED (hypothesis named) |
@@ -218,8 +255,11 @@ claim the mass gap or global existence.
   has deficiency `(2,2)`); the localization argument closes only under the
   opposite sign (module docstring of `ChapterWaveUnboundedPotential.lean`).
   Whether the QG `Ṽ` lies in the proved or the failing regime is the analytic
-  core that decides the boundary (cf. step (c) of `CONSOLIDATED_PLAN.md` §9.5).
-  The QG
+  core that decides the boundary (cf. step (c) of `CONSOLIDATED_PLAN.md` §9.5);
+  the sign question is analyzed in detail in Part D.6, where it is established
+  that the sign is structural (not removable by convention or initial
+  conditions) and that the genuine open task is tracking the sign of `Ṽ` through
+  the densitizing/half-density unitary.  The QG
   module's `strichartz_esa_of_finiteSpeed` still states the deduction with the
   deficiency-triviality hypothesis explicit; it is satisfiable in the mode case
   (`strichartz_finiteSpeed_satisfiable`) and the flat-part conclusion is
