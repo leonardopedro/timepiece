@@ -26,7 +26,7 @@ part by part (all registered in `BookProof.lean`, all `#check`-ed from
 | B Lagrangian + volume | `ChapterNavierStokesFlow.lean` | `lagrangian_velocity`, `volume_preservation_constraint`, `transformed_hamiltonian_decomposition`, `det_one_add_smul_hasDerivAt` |
 | C finite truncation | `ChapterNavierStokesFlow.lean` | `nsHamiltonian`, `nsHamiltonian_hermitian`, `nsHamiltonian_isPolynomial`, `nsWord_length_le_three` |
 | D complete flow | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesCauchy.lean` | `nsFlow_unitary`, `nsFlow_group`, `nsFlow_norm_preserving`, `nsFlow_noBlowup`, `nsCauchy_existsUnique`, `nsFlow_energy_conserved` |
-| E BRST constraint | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesEulerian.lean` | `nsBrst_nilpotent`, `nsDivergenceConstraint_resolution`, and the **E.3 correction**: `nsBrst_not_hermitian` (Ω is *not* Hermitian when the divergence is non-zero; the honest Hermitian statement is `nsBrst_symmetrization_hermitian`). **E.5 (the derivative-field BRST charge) is ON HOLD — not part of the executed state.** |
+| E BRST constraint | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesEulerian.lean` | `nsBrst_nilpotent`, `nsDivergenceConstraint_resolution`, and the **E.3 correction**: `nsBrst_not_hermitian` (Ω is *not* Hermitian when the divergence is non-zero; the honest Hermitian statement is `nsBrst_symmetrization_hermitian`). **E.5 (the derivative-field BRST charge) is ON HOLD — not part of the executed state.** **E.6 (added 2026-08-20): Method B — the abstract BRST-doublet / Gauge-Fixing-Fermion skeleton (executable, self-contained algebraic target).** |
 | G Faris–Lavine | `ChapterFarisLavine.lean` + `ChapterNavierStokesHermiteFarisLavine.lean`, `FockManyMode.lean`, `MomentumEsa.lean`, `IkebeKato.lean`, `ShiftHamiltonian.lean`, `MomentumPerturbation.lean` | `essentiallySelfAdjointOn_of_farisLavine` (the criterion **proved**, Theorem 1 + Cor. 1.1), `nsH_essentiallySelfAdjointOn_core`, `fockH_essentiallySelfAdjointOn_core`, `ns_hamiltonian_essentiallySelfAdjointOn_core`, `navierStokes_fock_hamiltonian_essentiallySelfAdjointOn_core`, `pertHam_essentiallySelfAdjointOn_core` — both FL inequalities proved for the Hamiltonian itself, with a genuinely non-vanishing commutator `fock_commForm_ne_zero` |
 | ESA criteria + limits | `ChapterNavierStokesEsa.lean`, `ChapterNavierStokesDeficiency.lean`, `ChapterNavierStokesFullEsa.lean`, `ChapterNavierStokesLagrangianEsa.lean`, `ChapterNavierStokesSecondQuant.lean` | `hasZeroDeficiencyOn_of_completeUnitaryFlow`, `hasZeroDeficiencyOn_of_total_eigenvectors`, `jacobi_symmetric_dense_not_esa` (the limit-circle counterexample), `exists_nsFullData_not_hasZeroDeficiencyOn`, `fockOp_hasZeroDeficiencyOn` (the one-particle→Fock lift) |
 
@@ -664,6 +664,51 @@ proved and remain part of the done state. If a future pass wants to pick E.5 up,
 the two open sub-decisions recorded above (the Weyl ordering of `π^{ij}u_{i,j}`,
 and the nilpotency route (i) full Yang–Mills vs (ii) standard first-class form)
 must be settled first.
+
+**E.6 — Method B: BRST doublets and the Gauge-Fixing Fermion (added 2026-08-20).**
+This is the *abstract algebraic skeleton* of the gauge-fixing machinery that the
+ghost/multiplication structure of E.5 (and the Yang–Mills charge) relies on.  It
+is **executable now** (self-contained, no analysis/Hilbert spaces) and is the
+right *first* BRST milestone because it introduces the two ingredients the later
+concrete charges need: a **bi-graded multiplication** and the **Gauge-Fixing
+Fermion** `Ψ`.  Suggested module `BookProof/ChapterGaugeFixing.lean`, namespace
+`BookProof.GaugeFixing`.
+
+The mechanism: the field `v` and the ghosts form **BRST doublets (contractible
+pairs)** `(v,c)` and `(c̄,B)`, so their BRST cohomology is rigorously zero — the
+formal content of "decoupling".  Fields in bidegree (Form Degree, Ghost Number):
+`φ ∈ (0,0)` (physical scalar), `v ∈ (1,0)` (gauge field to be eliminated),
+`c ∈ (1,1)` (ghost), `c̄ ∈ (1,-1)` (anti-ghost), `B ∈ (1,0)` (Nakanishi–Lautrup
+auxiliary field).  BRST action: `s v = c`, `s c̄ = B`, `s φ = 0`.
+
+| Item | Suggested Lean name | Status |
+| :-- | :-- | :--: |
+| E.6.1 the bidegree `BiDegree := ℤ × ℤ` and `addDeg` | `BiDegree`, `addDeg` | TODO |
+| E.6.2 the structure `GaugeFixingSystem F` with `add/sub/mul/zero`, operators `d` (`(p,g) → (p+1,g)`) and `s` (`(p,g) → (p,g+1)`), and axioms `d_zero`, `sub_zero`, `s_nilpotent`, `s_sub`, `sd_commute` | `GaugeFixingSystem` | TODO |
+| E.6.3 the five fields and BRST axioms `def_s_v : s v = c`, `def_s_phi : s φ = zero`, `def_s_c_bar : s c̄ = B`, plus the **specific graded Leibniz axiom** `s_mul_c_bar` | `phi`, `v`, `c`, `c_bar`, `B`, `def_s_v`, `def_s_phi`, `def_s_c_bar`, `s_mul_c_bar` | TODO |
+| E.6.4 the ghost is BRST-closed: `s c = 0` (nilpotency consistency) | `s_c_eq_zero` | TODO |
+| E.6.5 the auxiliary field is BRST-closed: `s B = 0` | `s_B_eq_zero` | TODO |
+| E.6.6 the Gauge-Fixing Fermion `Ψ = c̄ · (v − dφ)`, bidegree `(2,-1)` | `Psi` | TODO |
+| E.6.7 **the culminating theorem**: `s(Ψ) = B·(v − dφ) − c̄·c` — BRST exactness strictly generates the Lagrange-multiplier constraint (sets `v = dφ`) and a trivial ghost mass term | `L_gf_evaluation` | TODO |
+| E.6.8 BRST-invariance of the Lagrangian: `s(s(Ψ)) = 0` (nilpotency) | `L_gf_invariant` | TODO |
+| E.6.9 (optional) a "path-integral" evaluation map `int : F (2,0) → ℝ` with `int (s X) = 0` (Stokes/BRST invariance of the vacuum), proving `ℒ_gf` has zero impact on physical observables | `int`, `int_of_s` | TODO |
+
+**Graded Leibniz rule (the key new axiom).**  Unlike the linear operators of
+E.1–E.5, Method B needs a product, so `s` acts as an *odd derivation*: passing
+over `c̄` (ghost number −1) picks up a minus sign, `s (c̄ X) = (s c̄) X − c̄ (s X)`.
+This specific rule is encoded directly as the axiom `s_mul_c_bar` (not a general
+`(-1)^n` grading typeclass), so the LLM never struggles with general graded
+typeclasses.  **Honesty note:** like `s_nilpotent`, `s_mul_c_bar` is a
+*definitional axiom of the `GaugeFixingSystem` structure* — it is not a claim
+about continuum physics, so it does not conflict with the discipline that
+continuum existence claims are named hypotheses, not axioms.
+
+**Physical reading of E.6.7 (for the docstring):** `B·(v − dφ)` enforces the
+Dirac delta `δ(v − dφ)` in the path integral, and `− c̄·c` is a ghost term with
+no momentum dependence — the ghosts vanish from the physics.  This is the formal
+statement that `v` and the ghosts decouple.  E.6 underpins the concrete charges:
+it is the abstract skeleton of which E.5's ghost/`ghost³`/multiplication and the
+YM-shaped `π D ψ†` charge are concrete realizations.
 
 ### Part F — The book.tex correspondence (prose + record)
 
