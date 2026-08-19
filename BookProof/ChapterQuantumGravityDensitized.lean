@@ -412,8 +412,14 @@ equations*, J. Funct. Anal. **13** (1973) 82–93 provides for a flat
 d'Alembertian with a smooth polynomial potential — gives essential
 self-adjointness.
 
-The analytic input is a **hypothesis**, never an `axiom`: nothing here asserts
-it for the continuum gravity operator.  It is satisfiable, see
+The flat d'Alembertian conclusion is now **proved** in
+`BookProof.ChapterStrichartzWave` (`wave_essentiallySelfAdjoint`: `□ + κ` on the
+Schwartz core of `L²(ℝ^{1+n})`, plus `□ + W` for bounded/truncated `W`).  The
+present statement keeps the deficiency-triviality premise explicit to make the
+deduction transparent; the *full-potential* step (ESA of `H₀ + H₁ − Ṽ` for the
+polynomial `Ṽ`) is the remaining research boundary.  The analytic input is a
+**hypothesis**, never an `axiom`: nothing here asserts it for the continuum
+gravity operator.  It is satisfiable, see
 `strichartz_finiteSpeed_satisfiable`. -/
 theorem strichartz_esa_of_finiteSpeed {D : Submodule ℂ F} (H : D →ₗ[ℂ] F)
     (finiteSpeed : ∀ z : ℂ, z.im ≠ 0 → DeficiencyTrivialAt D H z) :

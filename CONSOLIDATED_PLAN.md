@@ -1120,9 +1120,13 @@ argument. See §9 item 5.
   (gauge-invariant) subspace to itself, which the `1/e`-absorption guarantees
   for the kinetic/conformal part but must be checked for `H₁ − Ṽ` once the full
   constraint structure is imposed.
-- **What is recorded, not claimed**: the **Strichartz ESA conclusion** for the
-  continuum `L²(ℝ⁸⁴)` operator is a named analytic theorem (like Crouzeix in
-  `ChapterH4`, or the Faris–Lavine inequalities for the NS continuum). The
+- **What is recorded, not claimed**: the **Strichartz ESA of the flat
+  d'Alembertian** is now *proved* in `BookProof/ChapterStrichartzWave.lean`
+  (`wave_essentiallySelfAdjoint`, plus `□ + W` for bounded/truncated `W`).
+  What is *not* claimed is the **full-potential** continuum conclusion — ESA of
+  `H₀ + H₁ − Ṽ` for the polynomial `Ṽ` on `L²(ℝ⁸⁴)` (the `R → ∞` limit, step (c)
+  of §9.5) — that remains a recorded research boundary (see also
+  `PLAN_LEAN_SPECIALIST_QG_FLOW.md` Part D, updated 2026-08-19). The
   project's ODE chapter's `ẋ = x²` warning applies here too: the *singular*
   `1/e` form shows that the *raw* tetrad operator is not even well-defined as an
   operator on a fixed domain, so the change of variables is load-bearing, not
@@ -1163,12 +1167,14 @@ recorded in this project's honesty style:
 
 | Theorem | Reference | Use in this manuscript |
 | :-- | :-- | :-- |
-| Strichartz | Strichartz, J. Funct. Anal. 13 (1973) 82–93 | flat d'Alembertian principal part ⟹ ESA (hyperbolic kinetic term, incl. the gravity `H₀`) |
+| Strichartz | Strichartz, J. Funct. Anal. 13 (1973) 82–93 | flat d'Alembertian principal part ⟹ ESA (hyperbolic kinetic term, incl. the gravity `H₀`). **Proved** in `ChapterStrichartzWave.lean` (`wave_essentiallySelfAdjoint`); the full-potential `H₀ + H₁ − Ṽ` step remains a boundary (2026-08-19) |
 | Sears / Reed–Simon X.28 | Sears, Canad. J. Math. 3 (1951); Reed & Simon Vol. II Thm X.28 | `−Δ + V` with `V ≥ −c|x|² − d` ⟹ ESA (elliptic/quadratic-growth case, NS Part G) |
 | Faris–Lavine | Faris & Lavine, CMP 35 (1974) 39–48, Cor. 1.1 | comparison-operator commutator criterion (proved in `ChapterFarisLavine`, NS Part G) |
 
 None of these is an `axiom` in `BookProof/`; each enters as a named theorem with
-a citation docstring when a plan requires it.
+a citation docstring when a plan requires it.  Of the three, the Strichartz (flat
+d'Alembertian) and Faris–Lavine ESA theorems are now **proved** in-repo; the
+Sears/Reed–Simon one is used only as a named route for the NS elliptic case.
 
 ---
 

@@ -75,11 +75,28 @@ In the oscillator basis the fiber operator is multiplication by the mode symbol
 | C.3 trivial deficiency at **every** non-real `z` — the conclusion Strichartz supplies in the continuum | `mulHamiltonian_deficiencyTrivialAt`, `qgModeHamiltonian_deficiencyTrivialAt` | PROVED |
 | C.4 the realization is genuinely unbounded | `qgModeHamiltonian_not_bounded` | PROVED |
 
-## Part D — Strichartz as a named hypothesis
+## Part D — Strichartz, now proved, and the remaining potential-perturbation step
+
+**2026-08-19 update:** the Strichartz theorem for the flat d'Alembertian is now
+**formalized, not merely named**.  `BookProof/ChapterStrichartzWave.lean`
+(ns `BookProof.StrichartzWave`, `sorry`-free / `axiom`-free) proves the ESA of
+`□ + κ = −∂_t² + Δ_x + κ` on the Schwartz core of `L²(ℝ^{1+n})`
+(`wave_essentiallySelfAdjoint`), and extends to real potentials of temperate
+growth: bounded (`wave_add_boundedPotentialOp_essentiallySelfAdjoint`),
+truncated (`wave_add_truncatedPotential_essentiallySelfAdjoint`), and the pure
+potential/multiplier operators (`potentialOp_essentiallySelfAdjoint`,
+`multiplierOp_essentiallySelfAdjoint`, incl. polyharmonic).  The QG part D.1
+row below therefore no longer describes an *unproved* continuum hypothesis for
+the flat principal part: it is discharged by the proved wave theorem.  What
+remains is the **polynomial-potential perturbation step** — ESA of
+`H₀ + H₁ − Ṽ` for the full `Ṽ` (the `R → ∞` limit of the truncated
+`wave_add_truncatedPotential` result), recorded as the boundary below.
 
 | Item | Lean name | Status |
 | :-- | :-- | :--: |
 | D.1 the deduction step: finite-speed / unique continuation ⟹ ESA | `strichartz_esa_of_finiteSpeed` | PROVED (hypothesis named) |
+| D.1a the flat d'Alembertian `□ + κ` is essentially self-adjoint — the Strichartz theorem itself, **proved** | `BookProof.StrichartzWave.wave_essentiallySelfAdjoint`, `constCoeffOp_essentiallySelfAdjoint` | PROVED |
+| D.1b ESA of `□ + W` for `W` bounded / truncated — the potential-perturbation steps (a)+(b) | `wave_add_boundedPotentialOp_essentiallySelfAdjoint`, `wave_add_truncatedPotential_essentiallySelfAdjoint` | PROVED |
 | D.2 the hypothesis is satisfiable (Part C satisfies it) | `strichartz_finiteSpeed_satisfiable` | PROVED |
 | D.3 the alternative route through the proved Faris–Lavine criterion | `qg_esa_of_farisLavine` | PROVED (hypotheses named) |
 | D.4 transfer along the half-density unitary: ESA of the flat operator ⟹ ESA of the physical one | `densitized_hasZeroDeficiencyOn_transfer` | PROVED |
@@ -95,10 +112,15 @@ unitary `L²((0,∞), de) ≃ L²((0,∞), 2y dy)`, and D.4 is instantiated at i
 `axiom`-free.  It removes the last bullet of the honest boundary below ("the
 transfer theorem takes that unitary as data") for the conformal factor.
 
-Reference for D.1: R. S. Strichartz, *Essential self-adjointness of powers of
-generators of hyperbolic equations*, J. Funct. Anal. **13** (1973) 82–93.  It is a
-hypothesis of the theorem, not an `axiom`, exactly as `ns_esa_of_farisLavine` is
-in the Navier–Stokes plan.
+Reference for the Strichartz step: R. S. Strichartz, *Essential self-adjointness
+of powers of generators of hyperbolic equations*, J. Funct. Anal. **13** (1973)
+82–93.  The flat d'Alembertian conclusion of that theorem is now **proved** in
+`BookProof/ChapterStrichartzWave.lean` (`wave_essentiallySelfAdjoint`), so it is
+no longer an unproved hypothesis for the flat principal part; the QG module's
+`strichartz_esa_of_finiteSpeed` retains the deficiency-triviality premise only to
+make the deduction transparent (never an `axiom`, exactly as
+`ns_esa_of_farisLavine` is in the Navier–Stokes plan).  The remaining continuum
+gap is the full-potential step, recorded in the honest boundary below.
 
 ## Part E — the second quantization on the graded Fock space (book.tex:8247–8290)
 
@@ -170,9 +192,18 @@ claim the mass gap or global existence.
   operator **on the Hermite/Fock core**, and their Friedrichs/Hashimoto
   selection, when executed; they do **not** touch the continuum `L²(ℝ⁸⁴×ℤ₂¹⁹)`
   ESA, which remains a named-hypothesis/out-of-scope boundary as in Parts A–D.)
-* The continuum conclusion needs the finite-speed propagation statement for the
-  flat d'Alembertian with a polynomial potential; that is the analytic core, and
-  it enters only as the explicit hypothesis of D.1.
+* The continuum conclusion needs the ESA of the flat d'Alembertian **with the
+  full polynomial potential** `Ṽ`.  The Strichartz theorem itself (the flat
+  d'Alembertian `□ + κ`) is now **proved** (`wave_essentiallySelfAdjoint`), and
+  ESA is proved for `□ + W` with `W` bounded and with `W` truncated
+  (`wave_add_boundedPotentialOp_essentiallySelfAdjoint`,
+  `wave_add_truncatedPotential_essentiallySelfAdjoint`).  What remains is the
+  **`R → ∞` limit** — ESA of `H₀ + H₁ − Ṽ` for the full `Ṽ` — which is the
+  recorded research boundary (step (c) of `CONSOLIDATED_PLAN.md` §9.5).  The QG
+  module's `strichartz_esa_of_finiteSpeed` still states the deduction with the
+  deficiency-triviality hypothesis explicit; it is satisfiable in the mode case
+  (`strichartz_finiteSpeed_satisfiable`) and the flat-part conclusion is
+  discharged by the proved wave theorem.
 * The **gauge/BRST sector** is not covered by the transfer argument alone: a full
   BRST-reduced transfer needs the unitary to preserve the physical subspace, which
   the `1/e`-absorption gives for the kinetic/conformal part but which must be
