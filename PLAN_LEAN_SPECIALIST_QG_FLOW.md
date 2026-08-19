@@ -154,15 +154,26 @@ is literally the repo's `ẋ = x²` warning and the point of Nelson's criterion.
 For QG the densitization `e ↦ y = √e` (with its half-density, a genuine unitary,
 D.5) is the analogue of `y = 1/x`: it removes the singular `1/e` at the
 degenerate boundary `e = 0` (`tendsto_densY_zero`).  **How completion becomes
-obvious:** on the Hermite core / finite truncations (Part F) the densitized
-operator is finite-dimensional, its flow is a matrix exponential and hence
-trivially complete, so Nelson applies *per truncation* exactly as NS does via
-`nsFlowEuclidean` (`nsHamiltonian_hasZeroDeficiencyOn_of_flow`,
-`ChapterNavierStokesEsa.lean:449`).  The continuum limit — whether the full
-operator's flow is complete — remains the open boundary, which is the same
+obvious:** the densitized operator on the Hermite core is a **diagonal
+(multiplication) operator** `M_λ` with eigenvalues
+`λ_k = (1/16)a_k² − (1/24)b_k² + V_k` — **unbounded**, and it remains unbounded
+when restricted to the Hermite core, which is **dense** (`hermiteCore_dense`,
+`BookProof/ChapterStrichartzHermiteQG.lean:85`; density of the domain does not
+bound the operator).  For a diagonal operator the flow is
+`U(t) = diag(e^{iλ_k t})`, which is complete **even though `λ_k → ∞`**: each
+factor has modulus `1`, so the flow is norm-preserving and defined for all real
+`t`, and it maps the dense core/domain into itself.  So Nelson's
+`hasZeroDeficiencyOn_of_completeUnitaryFlow` applies **directly to the unbounded
+diagonal operator on the dense core** — completeness comes from *diagonality*,
+not from finite-dimensionality or boundedness.  This is the cleanest possible
+case (a diagonal unbounded operator is always ESA), and it is the same
+conclusion as `qgModeHamiltonian_essentiallySelfAdjoint`, reached by the
+complete-flow route instead of the deficiency/Faris–Lavine one.  The continuum
+limit — where the operator is *not* diagonal (the full `H₀ + H₁ − Ṽ` with the
+Weyl-ordered `πe` cross-terms) — is the genuinely open boundary, the same
 sign/regime question as D.6.  A unitary change cannot alter the ESA status
-(spectrum invariance), so this route makes ESA *provable* on the core but does
-not by itself settle the continuum.
+(spectrum invariance), so this route makes ESA *provable* on the dense core but
+does not by itself settle the non-diagonal continuum.
 
 | Item | Lean name | Status |
 | :-- | :-- | :--: |
@@ -173,7 +184,7 @@ not by itself settle the continuum.
 | D.3 the alternative route through the proved Faris–Lavine criterion | `qg_esa_of_farisLavine` | PROVED (hypotheses named) |
 | D.4 transfer along the half-density unitary: ESA of the flat operator ⟹ ESA of the physical one | `densitized_hasZeroDeficiencyOn_transfer` | PROVED |
 | D.5 the half-density unitary itself, **constructed** rather than assumed | `measurePreserving_qgSquare`, `measurePreserving_qgSqrt`, `halfDensityUnitary`, `qg_halfDensity_transfer` | PROVED |
-| D.7 **the complete-flow route** (Nelson): exhibit the complete unitary flow of the densitized operator on the Hermite core and apply `hasZeroDeficiencyOn_of_completeUnitaryFlow` (mirroring `nsHamiltonian_hasZeroDeficiencyOn_of_flow`) — the QG analogue of `y = 1/x`, where completion becomes explicit | `qgFlow_core`, `qgFlow_core_norm`, `qgFlow_core_zero`, `qgFlow_core_hasDerivAt`, `qg3D_esa_of_flow` | TODO |
+| D.7 **the complete-flow route** (Nelson): the densitized operator on the dense Hermite core is a *diagonal* (multiplication) operator, still unbounded (`hermiteCore_dense`); exhibit its flow `U(t) = diag(e^{iλ_k t})` (complete even though `λ_k → ∞`) and apply `hasZeroDeficiencyOn_of_completeUnitaryFlow` — the QG analogue of `y = 1/x`, where completion becomes explicit | `qgFlow_core`, `qgFlow_core_norm`, `qgFlow_core_zero`, `qgFlow_core_hasDerivAt`, `qg3D_esa_of_flow` | TODO |
 
 **D.5 (added 2026-08-17).**  The conformal part of the change of variables,
 `e = y²`, is measure preserving from the Jacobian-weighted measure `2y dy` on
