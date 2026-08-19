@@ -420,7 +420,8 @@ and `□ + W` for bounded/truncated `W`.  The present statement keeps the
 deficiency-triviality premise explicit to make the deduction transparent; the
 full `□ + W` for the *untruncated* bounded-below `W` is **sign-sensitive** (a
 bounded-below `W` drives the fibre `−Δ_x − W` into the limit-circle regime where
-ESA can fail) and is the remaining research boundary.  The analytic input is a
+ESA **fails**, e.g. `−d²/dx² − x⁴` has deficiency `(2,2)`) and is the remaining
+research boundary.  The analytic input is a
 **hypothesis**, never an `axiom`: nothing here asserts it for the continuum
 gravity operator.  It is satisfiable, see
 `strichartz_finiteSpeed_satisfiable`. -/

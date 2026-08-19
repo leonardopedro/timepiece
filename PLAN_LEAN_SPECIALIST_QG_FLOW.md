@@ -96,10 +96,10 @@ theorem.  The genuinely remaining question is not "is the bounded-below
 polynomial potential ESA?" — that is proved — but the **sign-sensitive `□ + W`
 case** for the *untruncated* `W`: under this project's sign convention
 (`□ = −∂_t² + Δ_x`) a bounded-*below* `W` puts the fibre Schrödinger operator
-`−Δ_x − W` in the limit-circle regime where ESA can fail (`−d²/dx² − x⁴` has
+`−Δ_x − W` in the limit-circle regime where ESA **fails** (`−d²/dx² − x⁴` has
 deficiency `(2,2)`); the localization argument closes only under the opposite
 sign (see the module docstring of `ChapterWaveUnboundedPotential.lean`).  Whether
-the QG operator `H₀ + H₁ − Ṽ` falls in the proved or the obstructed sign regime
+the QG operator `H₀ + H₁ − Ṽ` is in the proved or the failing sign regime
 is therefore the analytic core that decides the boundary — see the honest
 boundary below.
 
@@ -214,11 +214,12 @@ claim the mass gap or global existence.
   (`polynomialPotential_essentiallySelfAdjoint`).  What is *not* a formal limit:
   the **sign-sensitive `□ + W`** for the untruncated `W` — under this project's
   sign convention (`□ = −∂_t² + Δ_x`) a bounded-*below* `W` drives the fibre
-  `−Δ_x − W` into the limit-circle regime where ESA can fail (`−d²/dx² − x⁴`
-  has deficiency `(2,2)`); the localization argument closes under the opposite
-  sign (module docstring of `ChapterWaveUnboundedPotential.lean`).  Whether the
-  QG `Ṽ` lies in the proved or the obstructed regime is the analytic core that
-  decides the boundary (cf. step (c) of `CONSOLIDATED_PLAN.md` §9.5).  The QG
+  `−Δ_x − W` into the limit-circle regime where ESA **fails** (`−d²/dx² − x⁴`
+  has deficiency `(2,2)`); the localization argument closes only under the
+  opposite sign (module docstring of `ChapterWaveUnboundedPotential.lean`).
+  Whether the QG `Ṽ` lies in the proved or the failing regime is the analytic
+  core that decides the boundary (cf. step (c) of `CONSOLIDATED_PLAN.md` §9.5).
+  The QG
   module's `strichartz_esa_of_finiteSpeed` still states the deduction with the
   deficiency-triviality hypothesis explicit; it is satisfiable in the mode case
   (`strichartz_finiteSpeed_satisfiable`) and the flat-part conclusion is

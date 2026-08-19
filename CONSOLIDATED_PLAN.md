@@ -1129,10 +1129,10 @@ argument. See §9 item 5.
   for the untruncated polynomial `Ṽ` on `L²(ℝ⁸⁴)`.  This is **not** a mere
   `R → ∞` limit: under this project's sign convention (`□ = −∂_t² + Δ_x`) a
   bounded-*below* `W` puts the fibre `−Δ_x − W` in the limit-circle regime where
-  ESA can fail (`−d²/dx² − x⁴` has deficiency `(2,2)`); the localization closes
+  ESA **fails** (`−d²/dx² − x⁴` has deficiency `(2,2)`); the localization closes
   only under the opposite sign (module docstring of
   `ChapterWaveUnboundedPotential.lean`).  Whether the QG `Ṽ` lies in the proved
-  or the obstructed regime is the analytic core that decides the boundary (cf.
+  or the failing regime is the analytic core that decides the boundary (cf.
   step (c) of §9.5; see also `PLAN_LEAN_SPECIALIST_QG_FLOW.md` Part D, updated
   2026-08-19).  The project's ODE chapter's `ẋ = x²` warning applies here too:
   the *singular* `1/e` form shows that the *raw* tetrad operator is not even
