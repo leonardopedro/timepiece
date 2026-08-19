@@ -225,20 +225,61 @@ fermionic (CAR) half**.  The suggested module is
 `BookProof/ChapterQuantumGravityFock.lean`, namespace
 `BookProof.QuantumGravityFock`.
 
+**Key point (2026-08-19): the *general* second-quantization ESA theorem — which
+QG needs, because its one-particle operator is indefinite/unbounded below — is
+already formalized.**  `BookProof/ChapterNavierStokesFockEsa.lean` (sorry-free /
+axiom-free, registered in `BookProof.lean`, currently **not** in the
+`ChapterRoadmapAudit.lean` audit and **not** cited from `Book/`) proves
+`dGamma_hasZeroDeficiencyOn` — ESA of the second quantization `dΓ(ω)` for an
+*arbitrary real* (in particular unbounded) one-particle symbol `ω`, with **no
+positivity/boundedness-below assumption** — and the two-level (Fock-of-Fock)
+`hTwoLevel_hasZeroDeficiencyOn`, plus `lagrangianFock_hasZeroDeficiencyOn`
+("unconditionally") and `lagrangianFock_not_bounded`.
+
+**The precise mechanism (the user's observation, confirmed):** after acting on
+the first-level Fock basis — the Hermite polynomials, `hermiteBasis` of
+`L²(ℝ⁸⁴)` — the QG Hamiltonian becomes a **multiplication (diagonal) operator
+on the second-level Fock basis**.  In the repo this is exactly `dΓ(ω)`:
+`dGamma (ω) = lpDiag (confEnergy ω)`, with `confEnergy ω n = Σₘ nₘ ωₘ` and
+`dΓ(ω)(fockBasis n) = (confEnergy ω n) • fockBasis n`
+(`ChapterNavierStokesFockEsa.lean:99,102`).  A diagonal operator is ESA on its
+maximal domain for **any** real symbol — `lpDiag_hasZeroDeficiencyOn`
+(`ChapterNavierStokesFockSpace.lean:216`, via the total-eigenvectors criterion
+`hasZeroDeficiencyOn_of_total_eigenvectors`) — so `dΓ(ω)` is ESA regardless of
+the sign/unboundedness of `ω`.  Hence for the **diagonal (mode/Hermite)
+realization** of QG the full Hamiltonian is ESA at the Fock level,
+unconditionally.
+
+So the *Fock level* of the QG Hamiltonian is ESA automatically from the
+one-particle ESA, regardless of the sign/boundedness of the one-particle symbol
+— exactly the other LLM's Claim B, already in the repo.  This is the
+"Fock-space of a Fock-space" content the book's
+`Γˢ(L²(ℝ⁸⁴×ℤ₂¹⁹)) ⊗ Γᵃ(...)` realizes.  The QG-specific work in Part E is
+therefore: (i) the `ℤ₂`-grading / fermionic CAR half, and (ii) registering +
+citing the existing general Fock/Fock-of-Fock ESA theorems in the audit and the
+book.  The genuinely open boundary remains the *one-particle continuum* ESA
+where the one-particle operator is **not diagonal** — the full Weyl-ordered
+`H₀ + H₁ − Ṽ` with the `πe` cross-terms — not the diagonal mode/Fock level.
+
 | Item | Suggested Lean name | Status |
 | :-- | :-- | :--: |
 | E.1 the configuration space `Conf = ℕ →₀ ℕ` over the `84`-mode (one-particle) basis, and its finite-occupation domain `ℓ²(Conf)` | `qgConf`, `qgFockAlg`, `lpFiniteModes qgConf` (reuse `FockSecondQuantization`) | TODO |
 | E.2 the bosonic ladder operators `a_j, a_j†` with `[a_j, a_j†] = 1` (reuse `ccr_annA_creA`) | `annA`, `creA`, `ccr_annA_creA` | DONE (reuse) |
 | E.3 the **fermionic (CAR)** ladder operators `ψ_j, ψ_j†` with `{ψ_j, ψ_j†} = 1` and `{ψ_j, ψ_k} = 0` on the antisymmetric sector | `fermAnn`, `fermCre`, `car_fermAnn_fermCre`, `car_fermAnn_fermAnn` | TODO |
 | E.4 the `ℤ₂`-grading: total fermionic number parity; bosonic ops grade 0, fermionic ops grade 1; the superalgebra `[x, y} = xy − (−1)^{|x||y|}yx` | `totalFermParity`, `grade`, `superBracket` | TODO |
-| E.5 the second quantization `dΓ(A)` of a one-particle operator, symmetric/positive ⇒ Friedrichs (reuse `dGamma`, `dGamma_friedrichs_extension`, `secondQuantization_friedrichs`) | `qgDGamma`, `qgSecondQuantization_friedrichs` | DONE (reuse) |
+| E.5 the second quantization `dΓ(A)` of a one-particle operator.  **General ESA (no positivity needed) is already proved** — reuse `dGamma_hasZeroDeficiencyOn` (`ChapterNavierStokesFockEsa.lean:127`, arbitrary real symbol); the positive ⇒ Friedrichs version (`dGamma_friedrichs_extension`, `secondQuantization_friedrichs`) is also available | `qgDGamma`, `qgDGamma_esa` (via `dGamma_hasZeroDeficiencyOn`), `qgSecondQuantization_friedrichs` | DONE (reuse) |
+| E.5b the **two-level (Fock-of-Fock)** ESA — already proved via `hTwoLevel_hasZeroDeficiencyOn` (`ChapterNavierStokesFockEsa.lean:339`, no boundedness at either level); QG just instantiates it with its own one-parcel/external symbols | `qgTwoLevel_esa` (via `hTwoLevel_hasZeroDeficiencyOn`) | DONE (reuse) |
+| E.7 **register + cite** the existing general Fock/Fock-of-Fock ESA theorems (`dGamma_hasZeroDeficiencyOn`, `hTwoLevel_hasZeroDeficiencyOn`, `lagrangianFock_hasZeroDeficiencyOn`) in `ChapterRoadmapAudit.lean` (`#print axioms`) and from `Book/` — currently missing | audit entries + `#check` citations | TODO |
 | E.6 the finite-mode-domain identification so the Hashimoto/SIRK shift-invert machinery applies to the second-quantized operator (reuse `finiteModeDomain_fockBasisN`, `dGamma_hashimoto_selects`) | `qgFock_hashimoto_selects` | DONE (reuse) |
 
 **Verification expectation:** E.1–E.6 are `sorry`-free and `axiom`-free; the
 `#print axioms` audit shows only `propext`, `Classical.choice`, `Quot.sound`.
 The fermionic sector (E.3, E.4) is the genuinely new content; the bosonic side
-(E.1, E.2, E.5, E.6) is a direct reuse of the YM Fock module.  Do **not** claim
-the mass gap or global existence.
+(E.1, E.2, E.5, E.5b) is a direct reuse of the YM Fock module and the general
+Fock-of-Fock ESA theorem (`ChapterNavierStokesFockEsa.lean`).  E.7 — adding the
+missing `#print axioms` audit entries and `Book/` citations for the existing
+general Fock/Fock-of-Fock ESA theorems — is part of the registration duty.  Do
+**not** claim the mass gap or global existence.
 
 ## Part F — the concrete 3D gauge-fixed field-space Hamiltonian and the BRST charge
 
