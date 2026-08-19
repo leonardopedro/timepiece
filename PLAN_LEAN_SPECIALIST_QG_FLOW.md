@@ -85,12 +85,23 @@ In the oscillator basis the fiber operator is multiplication by the mode symbol
 growth: bounded (`wave_add_boundedPotentialOp_essentiallySelfAdjoint`),
 truncated (`wave_add_truncatedPotential_essentiallySelfAdjoint`), and the pure
 potential/multiplier operators (`potentialOp_essentiallySelfAdjoint`,
-`multiplierOp_essentiallySelfAdjoint`, incl. polyharmonic).  The QG part D.1
-row below therefore no longer describes an *unproved* continuum hypothesis for
-the flat principal part: it is discharged by the proved wave theorem.  What
-remains is the **polynomial-potential perturbation step** — ESA of
-`H₀ + H₁ − Ṽ` for the full `Ṽ` (the `R → ∞` limit of the truncated
-`wave_add_truncatedPotential` result), recorded as the boundary below.
+`multiplierOp_essentiallySelfAdjoint`, incl. polyharmonic).  In particular the
+**bounded-below polynomial potential** is already covered: the pure potential
+`W x = ‖x‖^(2k)` — unbounded, bounded below — is essentially self-adjoint on the
+Schwartz core (`polynomialPotential_essentiallySelfAdjoint`).
+
+So the QG part D.1 row below no longer describes an *unproved* continuum
+hypothesis for the flat principal part: it is discharged by the proved wave
+theorem.  The genuinely remaining question is not "is the bounded-below
+polynomial potential ESA?" — that is proved — but the **sign-sensitive `□ + W`
+case** for the *untruncated* `W`: under this project's sign convention
+(`□ = −∂_t² + Δ_x`) a bounded-*below* `W` puts the fibre Schrödinger operator
+`−Δ_x − W` in the limit-circle regime where ESA can fail (`−d²/dx² − x⁴` has
+deficiency `(2,2)`); the localization argument closes only under the opposite
+sign (see the module docstring of `ChapterWaveUnboundedPotential.lean`).  Whether
+the QG operator `H₀ + H₁ − Ṽ` falls in the proved or the obstructed sign regime
+is therefore the analytic core that decides the boundary — see the honest
+boundary below.
 
 | Item | Lean name | Status |
 | :-- | :-- | :--: |
@@ -119,8 +130,10 @@ of powers of generators of hyperbolic equations*, J. Funct. Anal. **13** (1973)
 no longer an unproved hypothesis for the flat principal part; the QG module's
 `strichartz_esa_of_finiteSpeed` retains the deficiency-triviality premise only to
 make the deduction transparent (never an `axiom`, exactly as
-`ns_esa_of_farisLavine` is in the Navier–Stokes plan).  The remaining continuum
-gap is the full-potential step, recorded in the honest boundary below.
+`ns_esa_of_farisLavine` is in the Navier–Stokes plan).  The **bounded-below
+polynomial potential** is likewise proved (`polynomialPotential_essentiallySelfAdjoint`);
+the remaining continuum question is the sign-sensitive untruncated `□ + W` case,
+recorded in the honest boundary below.
 
 ## Part E — the second quantization on the graded Fock space (book.tex:8247–8290)
 
@@ -192,14 +205,20 @@ claim the mass gap or global existence.
   operator **on the Hermite/Fock core**, and their Friedrichs/Hashimoto
   selection, when executed; they do **not** touch the continuum `L²(ℝ⁸⁴×ℤ₂¹⁹)`
   ESA, which remains a named-hypothesis/out-of-scope boundary as in Parts A–D.)
-* The continuum conclusion needs the ESA of the flat d'Alembertian **with the
-  full polynomial potential** `Ṽ`.  The Strichartz theorem itself (the flat
-  d'Alembertian `□ + κ`) is now **proved** (`wave_essentiallySelfAdjoint`), and
-  ESA is proved for `□ + W` with `W` bounded and with `W` truncated
-  (`wave_add_boundedPotentialOp_essentiallySelfAdjoint`,
-  `wave_add_truncatedPotential_essentiallySelfAdjoint`).  What remains is the
-  **`R → ∞` limit** — ESA of `H₀ + H₁ − Ṽ` for the full `Ṽ` — which is the
-  recorded research boundary (step (c) of `CONSOLIDATED_PLAN.md` §9.5).  The QG
+* The continuum conclusion needs the ESA of `H₀ + H₁ − Ṽ` for the full
+  polynomial potential `Ṽ`.  What is **already proved** (2026-08-19): the flat
+  d'Alembertian `□ + κ` (`wave_essentiallySelfAdjoint`); `□ + W` for `W`
+  bounded and truncated (`wave_add_boundedPotentialOp_essentiallySelfAdjoint`,
+  `wave_add_truncatedPotential_essentiallySelfAdjoint`); and the **bounded-below
+  polynomial potential** `W x = ‖x‖^(2k)` as a pure potential
+  (`polynomialPotential_essentiallySelfAdjoint`).  What is *not* a formal limit:
+  the **sign-sensitive `□ + W`** for the untruncated `W` — under this project's
+  sign convention (`□ = −∂_t² + Δ_x`) a bounded-*below* `W` drives the fibre
+  `−Δ_x − W` into the limit-circle regime where ESA can fail (`−d²/dx² − x⁴`
+  has deficiency `(2,2)`); the localization argument closes under the opposite
+  sign (module docstring of `ChapterWaveUnboundedPotential.lean`).  Whether the
+  QG `Ṽ` lies in the proved or the obstructed regime is the analytic core that
+  decides the boundary (cf. step (c) of `CONSOLIDATED_PLAN.md` §9.5).  The QG
   module's `strichartz_esa_of_finiteSpeed` still states the deduction with the
   deficiency-triviality hypothesis explicit; it is satisfiable in the mode case
   (`strichartz_finiteSpeed_satisfiable`) and the flat-part conclusion is

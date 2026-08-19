@@ -1122,15 +1122,22 @@ argument. See §9 item 5.
   constraint structure is imposed.
 - **What is recorded, not claimed**: the **Strichartz ESA of the flat
   d'Alembertian** is now *proved* in `BookProof/ChapterStrichartzWave.lean`
-  (`wave_essentiallySelfAdjoint`, plus `□ + W` for bounded/truncated `W`).
-  What is *not* claimed is the **full-potential** continuum conclusion — ESA of
-  `H₀ + H₁ − Ṽ` for the polynomial `Ṽ` on `L²(ℝ⁸⁴)` (the `R → ∞` limit, step (c)
-  of §9.5) — that remains a recorded research boundary (see also
-  `PLAN_LEAN_SPECIALIST_QG_FLOW.md` Part D, updated 2026-08-19). The
-  project's ODE chapter's `ẋ = x²` warning applies here too: the *singular*
-  `1/e` form shows that the *raw* tetrad operator is not even well-defined as an
-  operator on a fixed domain, so the change of variables is load-bearing, not
-  cosmetic.
+  (`wave_essentiallySelfAdjoint`, plus `□ + W` for bounded/truncated `W`), and
+  the **bounded-below polynomial potential** `W x = ‖x‖^(2k)` is proved as a
+  pure potential (`polynomialPotential_essentiallySelfAdjoint`).  What is *not*
+  claimed is the **full-potential** continuum conclusion — ESA of `H₀ + H₁ − Ṽ`
+  for the untruncated polynomial `Ṽ` on `L²(ℝ⁸⁴)`.  This is **not** a mere
+  `R → ∞` limit: under this project's sign convention (`□ = −∂_t² + Δ_x`) a
+  bounded-*below* `W` puts the fibre `−Δ_x − W` in the limit-circle regime where
+  ESA can fail (`−d²/dx² − x⁴` has deficiency `(2,2)`); the localization closes
+  only under the opposite sign (module docstring of
+  `ChapterWaveUnboundedPotential.lean`).  Whether the QG `Ṽ` lies in the proved
+  or the obstructed regime is the analytic core that decides the boundary (cf.
+  step (c) of §9.5; see also `PLAN_LEAN_SPECIALIST_QG_FLOW.md` Part D, updated
+  2026-08-19).  The project's ODE chapter's `ẋ = x²` warning applies here too:
+  the *singular* `1/e` form shows that the *raw* tetrad operator is not even
+  well-defined as an operator on a fixed domain, so the change of variables is
+  load-bearing, not cosmetic.
 - **Do NOT claim**: ESA of the continuum gravity operator, global existence, or
   any unitary-evolution result as a *proved Lean theorem*. The book's own
   existence/uniqueness claims for gravity are in the same scope-cut class as

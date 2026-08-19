@@ -414,10 +414,13 @@ self-adjointness.
 
 The flat d'Alembertian conclusion is now **proved** in
 `BookProof.ChapterStrichartzWave` (`wave_essentiallySelfAdjoint`: `□ + κ` on the
-Schwartz core of `L²(ℝ^{1+n})`, plus `□ + W` for bounded/truncated `W`).  The
-present statement keeps the deficiency-triviality premise explicit to make the
-deduction transparent; the *full-potential* step (ESA of `H₀ + H₁ − Ṽ` for the
-polynomial `Ṽ`) is the remaining research boundary.  The analytic input is a
+Schwartz core of `L²(ℝ^{1+n})`), as is the **bounded-below polynomial potential**
+`W x = ‖x‖^(2k)` as a pure potential (`polynomialPotential_essentiallySelfAdjoint`),
+and `□ + W` for bounded/truncated `W`.  The present statement keeps the
+deficiency-triviality premise explicit to make the deduction transparent; the
+full `□ + W` for the *untruncated* bounded-below `W` is **sign-sensitive** (a
+bounded-below `W` drives the fibre `−Δ_x − W` into the limit-circle regime where
+ESA can fail) and is the remaining research boundary.  The analytic input is a
 **hypothesis**, never an `axiom`: nothing here asserts it for the continuum
 gravity operator.  It is satisfiable, see
 `strichartz_finiteSpeed_satisfiable`. -/
