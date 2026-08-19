@@ -229,6 +229,33 @@ indefinite kinetic term" is **asserted, not proved** — like the earlier
 theorem.  Any of these routes that starts from that premise needs the premise
 first verified.
 
+**Route 4 — the Dirac/`γ⁵` square root (added 2026-08-19).**  Dirac's original
+trick: factor a second-order operator into a first-order one via gamma matrices,
+`H = Q²` with `Q` a Clifford-graded first-order operator.  **Crucially, the
+indefinite case needs `γ⁵` (the chirality/volume element):** the densitized QG
+Hamiltonian is indefinite (the conformal/`−𝒫²` direction is negative), and only
+the `γ⁵`-type element — which anticommutes with the generators and squares to
+`±1` — encodes that negative direction, so `H = Q²` can be factored with a
+positive `H`.  This directly resolves the `−𝒫²` indefinite-sign problem that
+Route 3's functional-calculus square root could not (that needed a *positive*
+radicand).  **The `γ⁵`/Clifford/Dirac-matrix machinery is already proved in the
+repo:** `BookProof/ChapterA3.lean` has `mgamma5` (`iγ⁵`), `mgamma5_sq`
+(`(iγ⁵)² = −1`), `mgamma5_anticomm` (`{iγ⁵, iγ^μ} = 0`), `mgamma5_eq_prod`,
+`mgamma_clifford` / `dgamma_clifford` for the indefinite metric
+`η = diag(1,−1,−1,−1)`, and `mgamma_unitary`; `BookProof/ChapterMajoranaClifford.lean`
+formalizes the abstract Clifford algebra `C(V)` via Mathlib's `CliffordAlgebra Q`
+with `a(v)² = ⟪v,v⟫·1` and the `reverse` involution.  **Honest caveats:** (a) the
+factorization `H = Q²` gives positivity (`σ(H) ⊆ [0,∞)`) but **ESA of the
+first-order `Q` is the analytic burden** — not automatic, and with the potential
+`−Ṽ` it is the same class of question as a Dirac operator with a potential;
+(b) the field space is `ℝ⁸⁴`, so the Clifford algebra is `Cl(83,1)` (dimension
+`2⁸⁴`) — the repo's `γ⁵` is the 4×4 spacetime Dirac one, and the QG version
+needs the high-dimensional Clifford representation (a substantial but mechanical
+construction, for which the abstract `CliffordAlgebra Q` is the right vehicle);
+(c) the `γ⁵` anticommutation is the crux and is proved only in dimension 4 so
+far.  **The most promising algebraic route to *positivity* of the densitized QG
+operator, and buildable on already-proved `γ⁵`/Clifford content.**
+
 | Item | Lean name | Status |
 | :-- | :-- | :--: |
 | D.1 the deduction step: finite-speed / unique continuation ⟹ ESA | `strichartz_esa_of_finiteSpeed` | PROVED (hypothesis named) |
