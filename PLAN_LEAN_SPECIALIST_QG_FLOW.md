@@ -236,30 +236,43 @@ positivity/boundedness-below assumption** — and the two-level (Fock-of-Fock)
 `hTwoLevel_hasZeroDeficiencyOn`, plus `lagrangianFock_hasZeroDeficiencyOn`
 ("unconditionally") and `lagrangianFock_not_bounded`.
 
-**The precise mechanism (the user's observation, confirmed):** after acting on
-the first-level Fock basis — the Hermite polynomials, `hermiteBasis` of
-`L²(ℝ⁸⁴)` — the QG Hamiltonian becomes a **multiplication (diagonal) operator
-on the second-level Fock basis**.  In the repo this is exactly `dΓ(ω)`:
-`dGamma (ω) = lpDiag (confEnergy ω)`, with `confEnergy ω n = Σₘ nₘ ωₘ` and
-`dΓ(ω)(fockBasis n) = (confEnergy ω n) • fockBasis n`
-(`ChapterNavierStokesFockEsa.lean:99,102`).  A diagonal operator is ESA on its
-maximal domain for **any** real symbol — `lpDiag_hasZeroDeficiencyOn`
-(`ChapterNavierStokesFockSpace.lean:216`, via the total-eigenvectors criterion
-`hasZeroDeficiencyOn_of_total_eigenvectors`) — so `dΓ(ω)` is ESA regardless of
-the sign/unboundedness of `ω`.  Hence for the **diagonal (mode/Hermite)
-realization** of QG the full Hamiltonian is ESA at the Fock level,
-unconditionally.
+**The precise mechanism — and the subtle point about "multiplication operator."**
+After acting on the first-level Fock basis (the Hermite polynomials,
+`hermiteBasis` of `L²(ℝ⁸⁴)`), the QG Hamiltonian is its **second quantization**
+`dΓ(h̃)` on the second-level Fock space.  Two cases, and a subtlety:
 
-So the *Fock level* of the QG Hamiltonian is ESA automatically from the
-one-particle ESA, regardless of the sign/boundedness of the one-particle symbol
-— exactly the other LLM's Claim B, already in the repo.  This is the
-"Fock-space of a Fock-space" content the book's
-`Γˢ(L²(ℝ⁸⁴×ℤ₂¹⁹)) ⊗ Γᵃ(...)` realizes.  The QG-specific work in Part E is
+* **If `h̃` is diagonal** in the Hermite basis, then `dΓ(h̃) = lpDiag(confEnergy ω)`
+  is a *coefficientwise multiplication operator* on the second-level Fock basis
+  (`dΓ(ω)(fockBasis n) = (confEnergy ω n) • fockBasis n`,
+  `ChapterNavierStokesFockEsa.lean:99,102`), and is ESA via the
+  total-eigenvectors criterion (`lpDiag_hasZeroDeficiencyOn`,
+  `ChapterNavierStokesFockSpace.lean:216`) — no boundedness/positivity needed.
+* **If `h̃` is non-diagonal**, then `dΓ(h̃)` is **NOT** a coefficientwise
+  multiplication operator on the Fock basis — the off-diagonal matrix elements
+  produce hopping terms `a_j† a_k` (`j ≠ k`) that couple different occupation
+  configurations, so the Fock basis is not an eigenbasis.  Being "an operator on
+  a Hilbert space" does not by itself give ESA.  **But the general
+  second-quantization theorem still gives it:** `fockOp_hasZeroDeficiencyOn`
+  (`BookProof/ChapterNavierStokesSecondQuant.lean:275`) states that if each
+  one-particle sector `A m` is ESA, then `fockOp A = dΓ(A)` is ESA — with `A`
+  arbitrary (not diagonal, not positive, not bounded).  So the Fock level is ESA
+  **whenever the one-particle `h̃` is ESA**, diagonal or not.
+
+So the Fock level of the QG Hamiltonian is ESA automatically from the
+one-particle ESA — regardless of the sign/boundedness of the one-particle
+symbol, and regardless of diagonality — exactly the other LLM's Claim B, already
+in the repo (diagonal case `dGamma_hasZeroDeficiencyOn`; general case
+`fockOp_hasZeroDeficiencyOn`).  This is the "Fock-space of a Fock-space" content
+the book's `Γˢ(L²(ℝ⁸⁴×ℤ₂¹⁹)) ⊗ Γᵃ(...)` realizes.  The QG-specific work in Part
+E is
 therefore: (i) the `ℤ₂`-grading / fermionic CAR half, and (ii) registering +
 citing the existing general Fock/Fock-of-Fock ESA theorems in the audit and the
-book.  The genuinely open boundary remains the *one-particle continuum* ESA
-where the one-particle operator is **not diagonal** — the full Weyl-ordered
-`H₀ + H₁ − Ṽ` with the `πe` cross-terms — not the diagonal mode/Fock level.
+book.  The genuinely open boundary is therefore **not the Fock level** (which is
+ESA by the general theorem once the one-particle operator is ESA) but the
+*one-particle continuum* ESA of `h̃` itself — the full Weyl-ordered
+`H₀ + H₁ − Ṽ` with the `πe` cross-terms — which `fockOp_hasZeroDeficiencyOn`
+takes as its hypothesis.  The diagonal mode realization (Part C) supplies that
+hypothesis; the non-diagonal continuum is the D.6 sign/regime question.
 
 | Item | Suggested Lean name | Status |
 | :-- | :-- | :--: |
