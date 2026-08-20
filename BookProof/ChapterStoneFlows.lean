@@ -54,8 +54,13 @@ open BookProof.HermiteGalerkin
 
 /-! ## The Eulerian Navier–Stokes flow -/
 
-open BookProof.NavierStokesFlow BookProof.NavierStokesFlow.IkebeKato
-open BookProof.NavierStokesFlow.ThreeComponent BookProof.NavierStokesFlow.NSHashimoto
+open BookProof.NavierStokesFlow
+open BookProof.NavierStokesFlow.IkebeKato
+open BookProof.NavierStokesFlow.LagrangianEsa
+open BookProof.NavierStokesFlow.LagrangianKatoRellich
+open BookProof.NavierStokesFlow.LpNat
+open BookProof.NavierStokesFlow.ThreeComponent
+open BookProof.NavierStokesFlow.NSHashimoto
 
 /-- **The Navier–Stokes fiber generator generates a complete unitary flow.**
 The coupled three-component Hamiltonian is essentially self-adjoint on the
@@ -104,7 +109,7 @@ theorem ym_fock_stone_flow (e : ℕ ≃ (Fin 99 →₀ ℕ)) (fabc : Fin 8 → F
     ∃ (Dom : Submodule ℂ Fock) (A : Dom →ₗ[ℂ] Fock) (T : UnboundedSelfAdjoint Fock)
       (U : ℝ → (Fock →L[ℂ] Fock)),
       IsPositiveSelfAdjointExtension (dGammaOp (ymFockCol e fabc)) A ∧
-        T.domain = Dom ∧ T.op = A ∧ IsStoneFlow T U := by
+        T.domain = Dom ∧ HEq T.op A ∧ IsStoneFlow T U := by
   obtain ⟨Dom, A, hA⟩ := ym_fock_friedrichs_extension e fabc
   obtain ⟨T, U, hdom, hop, hflow⟩ :=
     exists_stone_flow_of_positive (Hc := dGammaOp (ymFockCol e fabc))

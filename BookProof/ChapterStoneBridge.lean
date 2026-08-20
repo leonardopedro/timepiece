@@ -99,7 +99,7 @@ equation `d/dt (U t x) = -i T (U t x)` on the domain of `T` (in particular the
 orbit of a domain vector stays in the domain). -/
 def IsStoneFlow (T : UnboundedSelfAdjoint F) (U : ℝ → (F →L[ℂ] F)) : Prop :=
   U 0 = 1 ∧ (∀ s t, U (s + t) = U s * U t) ∧ (∀ t x, ‖U t x‖ = ‖x‖) ∧
-    ∀ (x : F) (hx : x ∈ T.domain) (t : ℝ), ∃ h : U t x ∈ T.domain,
+    ∀ (x : F) (_hx : x ∈ T.domain) (t : ℝ), ∃ h : U t x ∈ T.domain,
       HasDerivAt (fun s : ℝ => U s x) ((-Complex.I) • T.op ⟨U t x, h⟩) t
 
 variable [CompleteSpace F]
@@ -121,8 +121,8 @@ theorem exists_stone_flow_of_selfAdjointExtension {D Dom : Submodule ℂ F} {Hc 
     {A : Dom →ₗ[ℂ] F} (hdense : Dense ((D : Submodule ℂ F) : Set F))
     (h : IsSelfAdjointExtension Hc A) :
     ∃ (T : UnboundedSelfAdjoint F) (U : ℝ → (F →L[ℂ] F)),
-      T.domain = Dom ∧ T.op = A ∧ IsStoneFlow T U :=
-  ⟨unboundedSelfAdjointOf hdense h, _, rfl, rfl,
+      T.domain = Dom ∧ HEq T.op A ∧ IsStoneFlow T U :=
+  ⟨unboundedSelfAdjointOf hdense h, _, rfl, HEq.rfl,
     isStoneFlow_stoneU (unboundedSelfAdjointOf hdense h)⟩
 
 /-- **The bridge, positive (Friedrichs) entry point.** -/
@@ -130,7 +130,7 @@ theorem exists_stone_flow_of_positive {D Dom : Submodule ℂ F} {Hc : D →ₗ[�
     {A : Dom →ₗ[ℂ] F} (hdense : Dense ((D : Submodule ℂ F) : Set F))
     (h : IsPositiveSelfAdjointExtension Hc A) :
     ∃ (T : UnboundedSelfAdjoint F) (U : ℝ → (F →L[ℂ] F)),
-      T.domain = Dom ∧ T.op = A ∧ IsStoneFlow T U :=
+      T.domain = Dom ∧ HEq T.op A ∧ IsStoneFlow T U :=
   exists_stone_flow_of_selfAdjointExtension hdense (isSelfAdjointExtension_of_positive h)
 
 /-- **The bridge, essential-self-adjointness entry point.**  An essentially
