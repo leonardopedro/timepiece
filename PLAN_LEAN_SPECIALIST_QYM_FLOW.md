@@ -5,6 +5,17 @@ step"), in the style of `PLAN_LEAN_SPECIALIST_NS_FLOW.md`: Part A the Weyl-gauge
 fiber, Part B the quadratic form and its closure, Part C the Friedrichs extension
 as a **named theorem, never an axiom**, Part D the Hashimoto/SIRK limit.
 
+**Status (2026-08-20f): the *abstract* Stone theorem is proved (2026-08-20e,
+`ChapterStoneResolvent`–`ChapterStoneSeparable`), but the continuous flow is
+**not yet instantiated for QYM**.**  `stoneGroup`/`stoneEquiv` apply to a bundled
+`UnboundedSelfAdjoint` structure; the QYM thread only produces
+`IsPositiveSelfAdjointExtension` operators (`A : Dom →ₗ[ℂ] Fock`).  The bridge —
+repackaging the selected Friedrichs extension as `UnboundedSelfAdjoint`
+(`IsSelfAdjointExtension` already holds, so a wrapper lemma suffices) and then
+applying `stoneGroup` to obtain `e^{-itA}` — is not built, and no module imports
+`ChapterStone*` except `Book/FreeField.lean` (prose).  This is the recorded
+instantiation step for the next specialist.
+
 **Status (2026-08-18, third pass): Part C is now discharged *without any
 boundedness hypothesis*, and the two plan items of `CONSOLIDATED_PLAN.md` §11.4
 are closed.**  `BookProof/ChapterFriedrichsExtension.lean` (namespace
@@ -114,6 +125,7 @@ Mathematical Physics*, Thm X.23.  It is a hypothesis, never an `axiom`.
 | D.9 the shift-invert selection theorem with the extension **constructed**, not assumed (unbounded) | `friedrichs_hashimoto_selects` | PROVED |
 | D.10 the same for the Weyl-gauge Hamiltonian in the occupation-number realization | `weyl_hashimoto_selects_friedrichs` | PROVED |
 | D.11 non-vacuity: a genuinely unbounded operator (`A eₙ = n eₙ` on `ℓ²(ℕ,ℂ)`) | `unbounded_friedrichs_example` | PROVED |
+| D.12 **the continuous flow `e^{-itA}` for the QYM Hamiltonian** — the abstract Stone theorem (2026-08-20e) applied to the extension of C.11 | `stoneGroup` + `UnboundedSelfAdjoint` bridge | **PENDING** — bridge not built |
 
 D.5–D.8 (also in `BookProof/ChapterYangMillsFriedrichsLimit.lean`) construct the
 missing limit operator under a boundedness hypothesis and identify it with the
@@ -143,6 +155,10 @@ recorded in prose in the module docstring rather than written as a theorem.
   same honesty class as Strichartz (§10) and the continuum Faris–Lavine
   inequalities of the Navier–Stokes thread.
 * D.4 is a research item, not a plan deliverable.
+* D.12 is a *mechanical* bridge (wrap `IsSelfAdjointExtension` as
+  `UnboundedSelfAdjoint`, apply `stoneGroup`) and is now the only step separating
+  the proved abstract Stone theorem from the QYM flow `e^{-itA}`; it is a plan
+  item, not a research target.
 
 ## Part E — the continuum realization (the definitional choice of §11.4.2)
 

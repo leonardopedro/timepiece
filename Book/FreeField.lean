@@ -716,8 +716,116 @@ constraint.
 ```
 
 :::paragraph
+The gauge-fixing machinery behind such charges has an abstract skeleton worth
+isolating on its own. Grade the fields by (form degree, ghost number): the
+physical scalar $`\varphi` in $`(0,0)`, the gauge field $`v` in $`(1,0)`, the
+ghost $`c` in $`(1,1)`, the anti-ghost $`\bar c` in $`(1,-1)` and the
+Nakanishi–Lautrup field $`B` in $`(1,0)`. The BRST operator $`s` raises the
+ghost number and is nilpotent, and $`s v = c`, $`s\bar c = B`,
+$`s\varphi = 0` make $`(v,c)` and $`(\bar c, B)` *contractible pairs*, which is
+the formal content of "the gauge field and the ghosts decouple". Since a product
+is now involved, $`s` acts as an odd derivation, picking up a sign across the
+anti-ghost. The Gauge-Fixing Fermion $`\Psi = \bar c\,(v - d\varphi)`, of
+bidegree $`(2,-1)`, then has BRST variation
+$`s\Psi = B\,(v - d\varphi) - \bar c\,c`: BRST exactness *generates* the
+Lagrange multiplier that enforces $`v = d\varphi` together with a ghost term
+carrying no momentum. Nilpotency gives $`s(s\Psi) = 0`, so the gauge-fixing
+Lagrangian is BRST-invariant, and under any evaluation that annihilates exact
+terms it contributes nothing to observables. The axioms are not vacuous: an
+explicit $`2\times 2` matrix model realizes them with non-zero ghost, auxiliary
+field, Fermion and Lagrangian.
+:::
+
+```
+#check @BookProof.GaugeFixing.GaugeFixingSystem
+#check @BookProof.GaugeFixing.Psi
+#check @BookProof.GaugeFixing.s_c_eq_zero
+#check @BookProof.GaugeFixing.s_B_eq_zero
+#check @BookProof.GaugeFixing.s_gaugeField
+#check @BookProof.GaugeFixing.L_gf_evaluation
+#check @BookProof.GaugeFixing.L_gf_invariant
+#check @BookProof.GaugeFixing.int_L_gf_eq_zero
+#check @BookProof.GaugeFixing.matrixModel
+#check @BookProof.GaugeFixing.matrixModel_s_Psi_ne_zero
+```
+
+:::paragraph
+Three ways to relate a field to its derivatives. The relation "$`v` is the
+spatial derivative of $`\varphi`" can be imposed in (at least) three distinct
+ways, and the difference between them is exactly the difference between a
+*physical constraint* and a *gauge-fixing condition* — the choice the skeleton
+above has to make. The three are:
+
+* Method A — the topological (gauge-invariant) constraint. One introduces a
+  symmetry that shifts both fields at once, $`\delta\varphi = \varepsilon`$ and
+  $`\delta v = d\varepsilon`$, so that the combination $`v - d\varphi`$ is
+  *gauge-invariant* ($`\delta(v-d\varphi) = 0`$) and hence a candidate physical
+  observable.  Promoting the parameter to a ghost, $`s\varphi = c`$,
+  $`s v = dc`$, $`s c = 0`$ is nilpotent, and the constraint is BRST-closed
+  but not BRST-exact: it sits in the BRST cohomology.  That is the correct
+  structure when $`v = d\varphi`$ is a genuinely topological relation — a
+  Bogomol'nyi equation, a field-strength relation $`F = dA`$ — a piece of physics
+  one wants to keep.  It is the wrong structure for the Navier–Stokes thread,
+  where the derivative modes are redundant canonical coordinates one wants to
+  eliminate, not promote to observables.
+
+* Method B — the gauge-fixing condition (the one chosen here). Here $`v`$
+  starts as an arbitrary unconstrained field with its own shift symmetry,
+  $`\delta v = \varepsilon`$, $`\delta\varphi = 0`$, and the relation
+  $`v = d\varphi`$ is a condition one imposes by gauge fixing.  The Gauge-Fixing
+  Fermion $`\Psi = \bar c\,(v - d\varphi)`$ is chosen so that its BRST variation
+  $`s\Psi = B(v-d\varphi) - \bar c\,c`$ is a BRST-exact term: the Lagrange
+  multiplier $`B`$ enforces $`v = d\varphi`$ as a delta function in the path
+  integral, and the ghost term carries no derivatives, so the ghosts decouple.
+  Being BRST-exact, the whole term integrates to zero against any evaluation
+  functional that annihilates exact terms (`int_L_gf_eq_zero`) — it contributes
+  nothing to physical observables, which is precisely what makes it a pure gauge
+  fixing rather than new physics.  This is the method formalized in
+  `BookProof/ChapterGaugeFixing.lean`.
+
+* A complex gauge field (a flat-connection reading of the same content). One
+  might instead replace the derivative $`\partial_\mu u`$ in the Hamiltonian by
+  $`A_\mu u`$ for a complex gauge field $`A_\mu`$ (a complexified vector
+  potential), fix the magnetic field to zero as an initial condition, and impose
+  covariant constancy $`D_\mu u = \partial_\mu u + A_\mu u = 0`$ to fix the field
+  derivatives.  This is geometrically elegant — the derivative field becomes the
+  connection coefficient of a flat line bundle — but it carries no new content:
+  wherever $`u \neq 0`$ the constraint forces $`A_\mu = -\partial_\mu\log u`$, a
+  pure gauge with curvature automatically zero, so $`A`$ is the derivative field
+  in disguise and the "magnetic field is zero" is the flatness consistency, not a
+  dynamical condition.  It also costs the structure the proofs here depend on: a
+  gauge field is not a constant of the motion (it is coupled to $`u`$ through the
+  covariant constraint), so the block decomposition over the derivative spectrum
+  that drives the ESA chain collapses; and a complex coefficient breaks the real
+  Hermitian form of the Navier–Stokes Hamiltonian, re-opening the symmetrization
+  question.  It is kept here only as a geometric interpretation of what the
+  formalized gauge fixing does, not as an alternative implementation.
+:::
+
+:::paragraph
+Why Method B is chosen.  The task in the Navier–Stokes thread is to *remove*
+the derivative coordinates, not to make them physical: the Eulerian
+derivatives-as-fields construction promotes $`u_{i,j}`$ and $`u_{i,jj}`$ to
+independent canonical coordinates purely so the Hamiltonian carries momenta only
+for the velocity modes — which is what makes the derivative field a constant of
+the motion and the block decomposition possible.  Method B is the instrument that
+completes that construction: it eliminates the redundant coordinates by a
+BRST-exact gauge fixing whose ghosts decouple and whose Lagrange multiplier
+enforces the constraint as a strict delta function, leaving the physical
+cohomology untouched.  Method A would invert the logic (it would make
+$`v - d\varphi`$ a physical observable), and the flat-connection reading, while
+insightful, is the same logic repackaged at the cost of a new gauge redundancy and
+a complexified Hermitian structure.  Method B is also the formalization-friendly
+choice: one graded Leibniz rule, no analysis, a purely algebraic skeleton
+(plan item E.6, `BookProof/ChapterGaugeFixing.lean`), and it is the gauge fixing
+the A.6/A.7 `genY`/`genY2` generators perform when they tie the derivative fields
+to the velocity field — the step on which the Hashimoto shift-invert selection for
+the Navier–Stokes Hamiltonian (§9 item 8 of `CONSOLIDATED_PLAN.md`) is to be built.
+:::
+
+:::paragraph
 Because that transformed operator is Hermitian on the truncation, everything
-said about the flow of $`H_N` holds for it verbatim: $`e^{\mathrm{i}t\hat h}` is
+said about the flow of $`H_N` holds for it verbatim: $`e^{\mathrm{i}t\hat h}`$ is
 a one-parameter unitary group and the corresponding Cauchy problem has exactly
 one global solution. That is the truncated form of the Lagrangian route — the
 continuum statement remains unclaimed.
@@ -728,12 +836,13 @@ The honest boundary. Nothing above claims essential self-adjointness of the
 *untruncated continuum* operator — and with it, nothing claims global
 existence/uniqueness for the *classical* Navier–Stokes equations (the Clay
 regularity problem, deliberately out of scope). The distinction matters: once
-ESA *is* proved, global existence of the operator flow follows automatically
-(Stone's theorem: a self-adjoint operator generates a complete unitary group for
-every real time) — that is exactly what `book.tex` §4210-4216 means by "the
-solution ... exists and it is unique", and the truncation already proves it as
-`nsCauchy_existsUnique`. The open step is ESA itself for the continuum operator,
-not a separate global-existence claim. The ODE chapter is the standing warning:
+ESA *is* proved, global existence of the operator flow follows automatically —
+Stone's theorem (a self-adjoint operator generates a complete unitary group for
+every real time) is itself proved in this project (2026-08-20e,
+`ChapterStoneResolvent`–`ChapterStoneSeparable`) — and that is exactly what
+`book.tex` §4210-4216 means by "the solution ... exists and it is unique", and
+the truncation already proves it as `nsCauchy_existsUnique`. The open step is
+ESA itself for the continuum operator, not a separate global-existence claim. The ODE chapter is the standing warning:
 for $`\dot x = x^2` the Hamiltonian $`x^2\hat p - \mathrm{i}\hat x` is a
 polynomial of degree three whose classical flow is incomplete, so "low degree in
 the fields" cannot by itself give self-adjointness — it gives symmetry. The
@@ -917,9 +1026,9 @@ it is essentially self-adjoint while being genuinely unbounded. The limits are
 equally explicit: an unbounded first-order drift term alone already destroys the
 property, so no criterion-free statement about the transformed data is
 available, and essential self-adjointness of the *continuum* transformed
-generator — the operator-flow global existence would follow from ESA by Stone's
-theorem, but the classical global existence for Navier–Stokes would not — is not
-claimed here.
+generator — the operator-flow global existence would follow from ESA by the
+Stone theorem of 2026-08-20e, but the classical global existence for
+Navier–Stokes would not — is not claimed here.
 :::
 
 ```
@@ -998,9 +1107,9 @@ form of the hypothesis, and with the two bounds in that shape the Faris–Lavine
 criterion — taken as a named hypothesis, not an axiom — yields vanishing adjoint
 deficiency for the second-quantized Hamiltonian on the finite-particle domain.
 Essential self-adjointness of the *continuum* Navier–Stokes Hamiltonian is not
-claimed; the operator-flow global existence would follow from it by Stone's
-theorem, while classical global existence is a separate, deliberately out-of-
-scope statement.
+claimed; the operator-flow global existence would follow from it by the Stone
+theorem of 2026-08-20e, while classical global existence is a separate,
+deliberately out-of-scope statement.
 :::
 
 ```
@@ -1074,6 +1183,344 @@ its commutator with $`N` is non-zero. Essential self-adjointness of the
 #check @BookProof.NavierStokesFlow.MomentumPerturbation.exists_commForm_ne_zero
 ```
 
+:::paragraph
+The quadratic Navier–Stokes symbol is a *direct sum* of linear ones. The
+Hamiltonian carries momenta only for the velocity modes, so the derivative modes
+$`u_{i,j}` commute with it: they are constants of the motion. Diagonalising the
+derivative field splits the Hilbert space as
+$`\ell^{2}(\mathbb{N}\times J)` — the Hermite levels of the velocity fiber times
+the spectrum $`J` of the derivative field — and in the block $`j` the bilinear
+symbol $`A = u_{,1}\,u` becomes the *linear* advection field
+$`V(u)=\kappa_j u`, whose fiber Hamiltonian is exactly the one for which the two
+Faris–Lavine inequalities are proved. The strain rates $`\kappa_j` range over
+that spectrum and are in general unbounded, so no single pair of Faris–Lavine
+constants can serve the whole operator; the deficiency problem, however,
+decomposes over the blocks, because a deficiency vector restricts to one in each
+block. Hence the bilinear (quadratic-symbol) Navier–Stokes Hamiltonian is
+symmetric and essentially self-adjoint on the finite-mode core for an arbitrary
+family of strain rates, and it is genuinely unbounded whenever they are. The
+viscous term and the cross terms add a constant to the fiber field — an affine
+$`V(u)=\kappa_j u + c_j`, a $`\pm 1` shift on top of the $`\pm 2` shift.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.BilinearEsa.bilH
+#check @BookProof.NavierStokesFlow.BilinearEsa.bilFun_embFun
+#check @BookProof.NavierStokesFlow.BilinearEsa.hasSum_inner_blocks
+#check @BookProof.NavierStokesFlow.BilinearEsa.blockVec_bilH
+#check @BookProof.NavierStokesFlow.BilinearEsa.bilH_symmetricOn
+#check @BookProof.NavierStokesFlow.BilinearEsa.deficiencyTrivialAt_bilH
+#check @BookProof.NavierStokesFlow.BilinearEsa.bilH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.BilinearEsa.bilH_ne_zero
+#check @BookProof.NavierStokesFlow.BilinearEsa.bilH_domain_dense
+#check @BookProof.NavierStokesFlow.BilinearEsa.bilH_not_bounded
+```
+
+:::paragraph
+That last shift is supplied by summing two hopping operators against one
+comparison operator. The Faris–Lavine hypotheses used here — symmetry, a
+relative bound $`\|Hx\|^{2}\le a\|Nx\|^{2}+b\|x\|^{2}` with no smallness
+required of $`a`, and a commutator bound
+$`|\langle x, i[H,N]x\rangle|\le c\,\langle x, Nx\rangle` — are all stable under
+sums, because $`\|(H_1+H_2)x\|^{2}\le 2\|H_1x\|^{2}+2\|H_2x\|^{2}` and the
+commutator form is additive in $`H`. Taking the number operator
+$`N=\mu(2n+1)+1` with $`\mu=\kappa+c+1` as the common comparison operator, the
+$`\pm 2` hopping $`(\kappa/2)\sqrt{(n+1)(n+2)}` of $`\kappa\,\tfrac12(\pi u+u\pi)`
+and the $`\pm 1` hopping $`(c/\sqrt 2)\sqrt{n+1}` of $`c\,\pi` are both dominated
+by it, so the affine fiber Hamiltonian is symmetric and essentially self-adjoint
+on the finite-mode core, and both hoppings are genuinely present. Running the
+block decomposition again with the affine fiber Hamiltonian in place of the
+linear one covers the viscous term and the cross terms. Assumed throughout:
+$`\kappa_j\ge 0` and $`c_j\ge 0`, the latter only because a hopping amplitude is
+required to be non-negative. Only one velocity component is carried, and nothing
+here claims global regularity for the classical Navier–Stokes equation.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.AffineFiber.PairShift
+#check @BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH
+#check @BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_relative_bound
+#check @BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_commForm_bound
+#check @BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.AffineFiber.affH
+#check @BookProof.NavierStokesFlow.AffineFiber.affH_symmetricOn
+#check @BookProof.NavierStokesFlow.AffineFiber.affH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.AffineFiber.affH_coord_succ
+#check @BookProof.NavierStokesFlow.AffineFiber.affH_coord_succ_succ
+#check @BookProof.NavierStokesFlow.AffineFiber.affH_not_bounded
+#check @BookProof.NavierStokesFlow.AffineBlock.affBlockH
+#check @BookProof.NavierStokesFlow.AffineBlock.blockVec_affBlockH
+#check @BookProof.NavierStokesFlow.AffineBlock.affBlockH_symmetricOn
+#check @BookProof.NavierStokesFlow.AffineBlock.affBlockH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.AffineBlock.affBlockH_not_bounded
+```
+
+:::paragraph
+Both restrictions just recorded are artefacts of the bookkeeping, and both are
+now removed. The sign condition goes first: essential self-adjointness is a
+*unitary invariant*, so if a unitary $`U` of the ambient space preserves the core
+and intertwines $`H` with $`H'`, one is essentially self-adjoint exactly when the
+other is. The sign-flip $`(Ux)_n=(-1)^n x_n` is such a unitary; it reverses the
+sign of a $`\pm 1` hopping and preserves a $`\pm 2` hopping, so it conjugates the
+affine fiber Hamiltonian with constant $`c` into the one with constant $`|c|`.
+Hence the fiber and the block Hamiltonians are essentially self-adjoint for a
+fiber constant of *arbitrary sign*.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.SignFlip.flipU
+#check @BookProof.NavierStokesFlow.SignFlip.essentiallySelfAdjointOn_of_intertwine
+#check @BookProof.NavierStokesFlow.SignFlip.shiftH_flip
+#check @BookProof.NavierStokesFlow.SignFlip.saffH
+#check @BookProof.NavierStokesFlow.SignFlip.saffH_symmetricOn
+#check @BookProof.NavierStokesFlow.SignFlip.saffH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.SignFlip.sblockH_essentiallySelfAdjointOn_core
+```
+
+:::paragraph
+The one-component restriction goes next. At one fiber the velocity is the vector
+$`u=(u_1,u_2,u_3)`, the Hermite basis is indexed by $`\beta\in\mathbb{N}^3`, and
+the fiber fields are the affine $`V_i(u)=\sum_k A_{ik}u_k+c_i` for an *arbitrary*
+real $`3\times 3` matrix $`A` — the velocity gradient at the fiber, with no
+symmetry, positivity or sign assumption — and an arbitrary real vector $`c`. The
+Weyl ordering $`H=\sum_i\tfrac12(\pi_iV_i+V_i\pi_i)` becomes twenty-four hopping
+terms: a $`\pm 2` hopping per component, a $`\pm 1` hopping per fiber constant,
+and, for each pair of distinct components, a double-raising *strain* hopping of
+amplitude $`\tfrac12(A_{ik}+A_{ki})\sqrt{(\beta_i+1)(\beta_k+1)}` and a
+number-conserving *vorticity* hopping of amplitude
+$`\tfrac12(A_{ik}-A_{ki})\sqrt{(\beta_i+1)\beta_k}`. The vorticity amplitude
+increases in one coordinate and decreases in the other, so it is not monotone
+along its shift, and the strain rates and the constants have arbitrary signs.
+The instrument that copes with all of this is a hopping term whose amplitude is
+an arbitrary real function dominated by $`\tfrac14\sigma+K`: the estimates never
+need the amplitude itself, only a majorant that is non-negative, monotone along
+the shift and dominated by the comparison symbol. A finite family of such terms
+sharing one comparison symbol again sums to an operator that is symmetric and
+essentially self-adjoint on the finite-mode core. Applied to the twenty-four
+terms above with $`N=\mu(2|\beta|+3)+1`, this gives the coupled three-component
+fiber Hamiltonian, essentially self-adjoint on the finite-mode core of
+$`\ell^2(\mathbb{N}^3)` for every real $`A` and every real $`c`; the strain and
+vorticity matrix entries are computed, so the coupling is genuinely there, and
+the operator is unbounded. Everything is stated in the Hermite (sequence-space)
+realization of the fiber; the differential realization on
+$`L^2(du_1du_2du_3)` is not built, and nothing here claims global regularity for
+the classical Navier–Stokes equation.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.SignedShift.SignedHop
+#check @BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_relative_bound
+#check @BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_commForm_bound
+#check @BookProof.NavierStokesFlow.SignedShift.listH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.SignedShift.gaffH
+#check @BookProof.NavierStokesFlow.SignedShift.gaffH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.ThreeComponent.velH
+#check @BookProof.NavierStokesFlow.ThreeComponent.velH_symmetricOn
+#check @BookProof.NavierStokesFlow.ThreeComponent.velH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.ThreeComponent.velH_coord_pair
+#check @BookProof.NavierStokesFlow.ThreeComponent.velH_coord_rot
+#check @BookProof.NavierStokesFlow.ThreeComponent.velH_not_bounded
+```
+
+:::paragraph
+The sequence-space chain ends with an operator, not just a predicate. Essential
+self-adjointness is usually stated as vanishing adjoint deficiency, but what it
+*selects* is the closure of the graph: the operator `clExt T` on the closed
+domain `clDom T` whose graph is the topological closure of `opGraph T`. The
+passage is explicit here — `clExt_extends` (it agrees with `T` on the original
+domain), `clExt_symmetricOn` (the closure is symmetric), and the adjoint
+criterion `clExt_selfAdjointCriterion`: whenever the deficiency spaces of the
+adjoint vanish, `clExt T` is self-adjoint, i.e. the adjoint domain is the
+closed domain and the adjoint operator is the closed operator. With that, the
+deficiency form of essential self-adjointness used throughout this development
+is converted into the classical objects: `exists_isSelfAdjointExtension_of_esa`
+gives a self-adjoint extension of a densely defined symmetric operator with
+trivial deficiency (no positivity, boundedness or semiboundedness anywhere),
+and `isSelfAdjointExtension_unique_of_esa` proves it is the *only* one — von
+Neumann's theorem that deficiency indices `(0,0)` admit exactly one
+self-adjoint extension. For a positive extension the two notions coincide:
+`positiveExtension_eq_closure_of_esa` is the statement that for an essentially
+self-adjoint operator the Friedrichs extension *is* the closure.
+:::
+
+```
+#check @BookProof.EsaClosure.opGraph
+#check @BookProof.EsaClosure.clGraph
+#check @BookProof.EsaClosure.clDom
+#check @BookProof.EsaClosure.clFun
+#check @BookProof.EsaClosure.clExt
+#check @BookProof.EsaClosure.clExt_extends
+#check @BookProof.EsaClosure.clExt_symmetricOn
+#check @BookProof.EsaClosure.clExt_selfAdjointCriterion
+#check @BookProof.EsaClosure.exists_isSelfAdjointExtension_of_esa
+#check @BookProof.EsaClosure.isSelfAdjointExtension_unique_of_esa
+#check @BookProof.EsaClosure.positiveExtension_eq_closure_of_esa
+```
+
+:::paragraph
+A Cayley-transform section takes the selected operator one step further: symmetry
+of `A` makes `A ± i` equinormal (`norm_add_I_eq_norm_sub_I`), so
+`exists_cayley_unitary` builds the unitary `U = (A - i)(A + i)⁻¹` with
+`U(Ax + ix) = Ax - ix`, and `exists_selfAdjointExtension_and_cayley_of_esa` turns
+an essentially self-adjoint core into both the self-adjoint operator and that
+unitary. This is the passage from generator to unitary that the older prose
+recorded as an alternative to Stone's theorem; with the Stone theorem proved in
+full (2026-08-20e) the unitary *group* `e^{-itA}` now follows directly, and the
+Cayley transform is the one-parameter step that makes the correspondence
+explicit.
+:::
+
+```
+#check @BookProof.EsaClosure.norm_add_I_eq_norm_sub_I
+#check @BookProof.EsaClosure.exists_cayley_unitary
+#check @BookProof.EsaClosure.exists_selfAdjointExtension_and_cayley_of_esa
+```
+
+:::paragraph
+The Hashimoto/SIRK selection for the Navier–Stokes generator is the abstract
+statement applied. On the finite-mode core of `ℓ²(Vel)` the coupled
+three-component fiber Hamiltonian is symmetric, densely defined and essentially
+self-adjoint (`velCore`, `velCore_symmetricOn`, `velCore_dense`, `velCore_esa`),
+so `ns_selfAdjoint_extension` gives its unique self-adjoint extension and
+`ns_hashimoto_selects` the selection: for an arbitrary sequence of non-real
+shifts the SIRK resolvents exist, are bounded by `1/|Im γ_j|`, share the domain
+of the generator, satisfy the resolvent identity, commute, satisfy the
+Hashimoto–Nodera rational-Krylov relation, have strongly convergent Galerkin
+truncations, and each determines the generator completely. Unlike the
+Yang–Mills instantiation this route uses no positivity: the Navier–Stokes
+Hamiltonian is not semibounded, and the non-real shift is what makes the
+resolvent exist.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.NSHashimoto.velCore
+#check @BookProof.NavierStokesFlow.NSHashimoto.velCore_symmetricOn
+#check @BookProof.NavierStokesFlow.NSHashimoto.velCore_dense
+#check @BookProof.NavierStokesFlow.NSHashimoto.velCore_esa
+#check @BookProof.NavierStokesFlow.NSHashimoto.ns_selfAdjoint_extension
+#check @BookProof.NavierStokesFlow.NSHashimoto.ns_selfAdjoint_extension_unique
+#check @BookProof.NavierStokesFlow.NSHashimoto.ns_hashimoto_selects
+#check @BookProof.NavierStokesFlow.NSHashimoto.ns_shiftInvert_selects
+```
+
+:::paragraph
+The Lagrangian route gets the same package, independently of the Eulerian one.
+The Kato–Rellich theorem is proved for a *relatively bounded* — possibly
+unbounded — symmetric perturbation: `essentiallySelfAdjointOn_add_relBounded`
+shows `‖Bx‖ ≤ a‖Hx‖ + b‖x‖` with `a < 1` on the common domain preserves
+essential self-adjointness, by an explicit Neumann iteration at a large
+non-real shift, with no closure and no spectral theorem. Applied to the
+transformed Hamiltonian, the positivity gain of the Lagrangian variables *is*
+the relative bound: `norm_P_le` interpolates the first-order drift against the
+second-order Laplacian by the Ikebe–Kato square-root bound, so
+`hFull_hasZeroDeficiencyOn_of_drive_eq_P` gives essential self-adjointness of
+the full transformed operator from the positive second-order part alone, and
+`hasZeroDeficiencyOn_of_lagrangian_katoRellich` transports it back to the
+Eulerian operator. On top of it the Hashimoto/SIRK selection is proved on the
+Lagrangian side — `lagrangian_selfAdjoint_extension`, `..._unique`,
+`lagrangian_hashimoto_selects` — independently of the Eulerian item 8, on the
+abstract diagonal instance `diagKR` over `ℓ²(ℕ)`.
+:::
+
+```
+#check @BookProof.KatoRellich.essentiallySelfAdjointOn_add_relBounded
+#check @BookProof.NavierStokesFlow.LagrangianKatoRellich.norm_P_le
+#check @BookProof.NavierStokesFlow.LagrangianKatoRellich.hFull_hasZeroDeficiencyOn_of_drive_eq_P
+#check @BookProof.NavierStokesFlow.LagrangianKatoRellich.hasZeroDeficiencyOn_of_lagrangian_katoRellich
+#check @BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_selfAdjoint_extension
+#check @BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_selfAdjoint_extension_unique
+#check @BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_hashimoto_selects
+#check @BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_shiftInvert_selects
+#check @BookProof.NavierStokesFlow.LagrangianKatoRellich.diagKR
+```
+
+:::paragraph
+Stone's theorem — the abstract theorem that turns essential self-adjointness into
+a *complete* flow — is itself proved in this project (2026-08-20e). The forward
+half, `ChapterStoneResolvent`–`ChapterStoneGenerator`, constructs the one-
+parameter unitary group of an arbitrary self-adjoint operator on a Hilbert space:
+the resolvent exists and is invertible (`shift_bijective`), is contractive and
+commutes with the operator (`resCLM`, `norm_resCLM_apply_le`, `inner_res`,
+`res_comm`), the Yosida approximants converge to the group in the strong
+operator topology (`yosida_tendsto`), each approximant is a unitary
+(`approxU_mem_unitary`), the limit `stoneU t` is a strongly continuous unitary
+group (`stoneU`, `continuous_stoneU_apply`), it maps the domain into itself and
+its derivative at zero recovers the original operator (`stoneU_mem_domain`,
+`hasDerivAt_stoneU_zero`), so the abstract Stone generator `stoneGroup.gen`
+coincides with the operator we started with (`gen_stoneGroup_eq`). The group
+`e^{-itA}` is thus defined for *every* real `t` — this is the "complete
+operator-flow" half of the `book.tex` §4210-4216 claim, now a theorem rather
+than a named result.
+:::
+
+```
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.shift_bijective
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.resCLM
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.norm_resCLM_apply_le
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.inner_res
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.res_comm
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.yosida_tendsto
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.approxU_mem_unitary
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.stoneU
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.continuous_stoneU_apply
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.stoneU_mem_domain
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.hasDerivAt_stoneU_zero
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.stoneGroup
+#check @BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint.gen_stoneGroup_eq
+```
+
+:::paragraph
+The converse half, `ChapterStoneMeasurable`–`ChapterStoneConverse`, recovers the
+infinitesimal generator from any weakly measurable one-parameter unitary group:
+the generator domain `genDomain` is the set of vectors for which the derivative
+at zero exists, `genOp` is that derivative, and the main theorem `gen_stoneU_eq`
+says every weakly measurable group is the exponential of its generator. The
+technical engine is the separability of `H`: on a separable space the generator
+domain is dense (`dense_avgSpan` via averaging over a countable dense family),
+the averages converge uniformly on it (`norm_apply_avgVec_sub_le`), and the
+averaged vectors are continuous in `t` (`continuous_apply`). Combined, the two
+halves give the bijection `stone_bijection` of `ChapterStoneTheorem` between
+self-adjoint operators and weakly measurable unitary groups — Stone's theorem in
+full.
+:::
+
+```
+#check @BookProof.ChapterStoneMeasurable.WeakMeasurableUnitaryGroup.genDomain
+#check @BookProof.ChapterStoneMeasurable.WeakMeasurableUnitaryGroup.genOp
+#check @BookProof.ChapterStoneMeasurable.WeakMeasurableUnitaryGroup.gen
+#check @BookProof.ChapterStoneMeasurable.WeakMeasurableUnitaryGroup.norm_apply_avgVec_sub_le
+#check @BookProof.ChapterStoneMeasurable.WeakMeasurableUnitaryGroup.dense_avgSpan
+#check @BookProof.ChapterStoneMeasurable.WeakMeasurableUnitaryGroup.continuous_apply
+#check @BookProof.ChapterStoneMeasurable.WeakMeasurableUnitaryGroup.gen_stoneU_eq
+#check @BookProof.ChapterStoneTheorem.stone_bijection
+```
+
+:::paragraph
+The capstone `ChapterStoneSeparable` packages the full statement: on a separable
+Hilbert space there exists a unique one-parameter unitary group with a given
+self-adjoint generator, and conversely every weakly measurable group has a unique
+self-adjoint generator — `stone_exists_unique_group`,
+`stone_exists_unique_generator`, `stoneEquiv`. The file ends with a nontrivial
+*instantiated* example on `ℓ²(ℤ)` (which is separable, `separableSpace_L2Z`):
+the momentum operator `mulSA` given by `f ↦ (i n f(n))` is a genuinely
+self-adjoint (not merely essentially self-adjoint) unbounded operator
+(`mulSA`, `mulSA_position_unbounded`), and its Stone group is the unitary shift
+group of the lattice (`stoneU_mulSA`) — the same group structure that carries
+the momentum generators of the gauged fibers. This is the concrete realization
+of the `book.tex` "self-adjoint ⇒ complete flow" assertion, independent of the
+Navier–Stokes truncation.
+:::
+
+```
+#check @BookProof.ChapterStoneSeparable.stone_exists_unique_group
+#check @BookProof.ChapterStoneSeparable.stone_exists_unique_generator
+#check @BookProof.ChapterStoneSeparable.stoneEquiv
+#check @BookProof.ChapterStoneSeparable.separableSpace_L2Z
+#check @BookProof.ChapterStoneSeparable.mulSA
+#check @BookProof.ChapterStoneSeparable.mulSA_position_unbounded
+#check @BookProof.ChapterStoneSeparable.stoneU_mulSA
+```
+
 # Summary
 
 The free-field thread replaces the nonexistent infinite-dimensional Lebesgue measure
@@ -1087,10 +1534,36 @@ The same free-field parametrization carries the Navier–Stokes thread: the velo
 field and its derivatives are independent canonical degrees of freedom, and on a
 finite truncation the Weyl-symmetrized Hamiltonian has a complete, norm-preserving
 flow, a unique global solution to the Cauchy problem, and a nilpotent BRST
-constraint — with the honest boundary drawn at the continuum operator, whose
-essential self-adjointness is exactly where the Faris–Lavine commutator criterion
-(taken as a named hypothesis) sits. The *classical* existence/uniqueness claim of
-`book.tex` (the Clay regularity problem) is not carried by any theorem here — the
-operator-flow global existence would follow from ESA by Stone's theorem, but the
-ESA of the continuum operator is itself the open step; see
+constraint. Beyond the truncation, the essential self-adjointness of the generator
+is now proved across an entire chain of abstract models in the Hermite
+(sequence-space) representation: the bilinear quadratic-symbol Hamiltonian on
+`ℓ²(ℕ × J)` (`BilinearEsa.bilH_essentiallySelfAdjointOn_core`), its affine
+extension covering the viscous and cross terms (`AffineFiber.affH` /
+`AffineBlock.affBlockH`), the sign-flip unitary that drops the `c ≥ 0` hypothesis
+(`SignFlip.saffH` / `sblockH`), and finally all three coupled velocity components
+with an arbitrary real velocity gradient (`SignedShift.gaffH`,
+`ThreeComponent.velH`). The instrument throughout is the Faris–Lavine commutator
+criterion, now itself proved (Theorem 1 + Cor. 1.1) rather than named. The
+selected operators are made explicit by the graph-closure machinery of
+`EsaClosure` (`clExt`, `IsSelfAdjointExtension`,
+`exists_isSelfAdjointExtension_of_esa`, `isSelfAdjointExtension_unique_of_esa`,
+`positiveExtension_eq_closure_of_esa`, and the Cayley-transform unitary), and the
+selection is then *instantiated* on the Navier–Stokes side twice: by the
+Hashimoto/SIRK resolvent route on the Eulerian fiber (`NSHashimoto.velCore`,
+`ns_hashimoto_selects` — no positivity needed) and by the Kato–Rellich relative
+bound on the Lagrangian side (`norm_P_le`,
+`hFull_hasZeroDeficiencyOn_of_drive_eq_P`,
+`lagrangian_hashimoto_selects`). The honest
+boundary drawn at the end of that chain is the genuinely differential realization
+of these operators on `L²(du)` (the abstract models give the operator by its
+matrix in the Hermite basis only), and the *classical* existence/uniqueness claim
+of `book.tex` (the Clay regularity problem) is not carried by any theorem here —
+the operator-flow global existence would follow from the differential ESA by the
+Stone theorem of 2026-08-20e, but that ESA is itself the open step; see
 `Book/YangMillsQuantization.lean` for the pointer to this formalized subset.
+Stone's theorem itself — the missing bridge from ESA to a complete flow — is now
+proved in full (`stone_bijection` between self-adjoint operators and weakly
+measurable unitary groups, `stoneEquiv` on separable spaces, instantiated on
+`ℓ²(ℤ)` by the momentum operator `mulSA`), so the *only* remaining step for a
+flow on the continuum is the differential ESA, and the truncation already carries
+the complete flow (`nsCauchy_existsUnique`).

@@ -7,6 +7,197 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
+## Latest wave (2026-08-20d, **essential self-adjointness selects a unique
+operator, and the Navier–Stokes Hashimoto/SIRK selection**)
+
+Two further modules, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/FreeField.lean`, close `CONSOLIDATED_PLAN.md` §9 item 8 (the NS Hashimoto
+shift-invert selection theorem).
+
+`BookProof/ChapterEsaClosure.lean` (namespace `BookProof.EsaClosure`) turns the
+deficiency-space form of essential self-adjointness used throughout this
+development into the operator it selects.  The graph `opGraph`, its closure
+`clGraph`, the domain `clDom` and the closed operator `clExt` are built
+explicitly; `clGraph_inner` and `clGraph_inner_pair` carry symmetry to the
+closure, `clGraph_snd_eq_zero_of_fst_eq_zero` is closability, `clRange_isClosed`
+and `clRange_orthogonal_eq_bot` give surjectivity of `i − clExt`, and
+`clExt_selfAdjointCriterion` proves the adjoint criterion.  Headlines:
+`exists_isSelfAdjointExtension_of_esa` (**existence** — a densely defined
+symmetric operator with trivial deficiency has a self-adjoint extension, its
+closure; no positivity, boundedness or semiboundedness),
+`selfAdjointExtension_eq_adjoint` and `isSelfAdjointExtension_unique_of_esa`
+(**uniqueness** — von Neumann: deficiency indices `(0,0)` give exactly one
+self-adjoint extension), `positiveExtension_eq_closure_of_esa` (for an
+essentially self-adjoint operator the Friedrichs extension *is* that closure),
+and `hashimoto_multishift_selects_esa`, the positivity-free version of
+`BookProof.HashimotoShiftInvert.hashimoto_multishift_selects_friedrichs`.
+`IsSelfAdjointExtension` is the positivity-free companion of
+`IsPositiveSelfAdjointExtension`.  A Cayley-transform section takes the selected
+operator one step further: `norm_add_I_eq_norm_sub_I` (symmetry makes `A ± i`
+equinormal), `exists_cayley_unitary` (`U = (A − i)(A + i)⁻¹` is a surjective
+linear isometry of the whole space with `U(Ax + ix) = Ax − ix`) and
+`exists_selfAdjointExtension_and_cayley_of_esa` (an essentially self-adjoint
+core produces both the self-adjoint operator and that unitary).  This is the
+passage from generator to unitary that avoids Stone's theorem; the unitary
+*group* `e^{-itA}` stays a recorded research boundary.
+
+`BookProof/ChapterNavierStokesHashimoto.lean` (namespace
+`BookProof.NavierStokesFlow.NSHashimoto`) instantiates all of it for the
+Navier–Stokes fiber generator `velCore`, the coupled three-component
+Hamiltonian of `ChapterNavierStokesThreeComponent` restricted to the finite-mode
+core: `ns_selfAdjoint_extension` (it has a self-adjoint extension),
+`ns_selfAdjoint_extension_unique` (only one), `ns_shiftInvert_selects` (the
+single-shift resolvent form) and `ns_hashimoto_selects` (**the headline** — for
+an arbitrary sequence of non-real shifts the SIRK resolvents exist, are bounded
+by `1/|Im γ_j|`, share the domain of the generator, satisfy the resolvent
+identity, commute, satisfy the Hashimoto–Nodera rational-Krylov relation, have
+strongly convergent Galerkin truncations, and each determines the generator
+completely), with `exists_velHilbertBasis` and `exists_velEnum` for
+non-vacuity.  Unlike the Yang–Mills instantiation this route uses **no
+positivity**: the Navier–Stokes Hamiltonian is not semibounded, and the
+non-real shift is what makes the resolvent exist.  Honest boundary unchanged
+(Contention D5): the setting is the abstract sequence space `ℓ²(Vel)` with the
+Hermite matrix of the fiber Hamiltonian, and nothing claims global regularity
+for the classical Navier–Stokes equation.
+
+## Wave 2026-08-20c (**arbitrary signs, and the three coupled velocity
+components**)
+
+Three further modules, all `sorry`-free / `axiom`-free, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean` and cited
+from `Book/FreeField.lean`, remove the two boundaries recorded in the wave
+below: the sign condition `c ≥ 0` on the fiber constant, and the restriction to
+one velocity component.
+
+`BookProof/ChapterNavierStokesSignFlip.lean` (namespace
+`BookProof.NavierStokesFlow.SignFlip`) formalizes the sign-flip unitary.
+`essentiallySelfAdjointOn_of_intertwine` (and its deficiency-space and symmetry
+companions) records that essential self-adjointness on a core is a *unitary
+invariant*: a unitary `U` of the ambient space that preserves the core and
+intertwines `T` with `T'` transports the property.  `flipU` is the sign flip
+`(Ux)_β = (−1)^{p β} x_β` as a `LinearIsometryEquiv`; `shiftH_flip` is the
+conjugation rule (a hopping Hamiltonian is conjugated into the one whose
+amplitude has the opposite sign when the parity jumps along the shift).
+Consequently `saffH`, the affine fiber Hamiltonian for an **arbitrary real**
+constant `c`, is symmetric (`saffH_symmetricOn`) and essentially self-adjoint on
+the finite-mode core (`saffH_essentiallySelfAdjointOn_core`) for every `κ ≥ 0`
+and every real `c`, with the `±1` hopping still genuinely present
+(`saffH_coord_succ`, `saffH_ne_zero_of_shear`); the block assembly is rerun in
+`sblockH_essentiallySelfAdjointOn_core` for a family `c : J → ℝ` of arbitrary
+signs.
+
+`BookProof/ChapterNavierStokesSignedShift.lean` (namespace
+`BookProof.NavierStokesFlow.SignedShift`) drops both remaining bookkeeping
+restrictions on a hopping term at once.  A `SignedHop` carries an injective
+shift, an **arbitrary real** amplitude `w` with `|w| ≤ ¼σ + K` (neither
+non-negative nor monotone along the shift) and a constant non-negative increment
+of the symbol.  The estimates run against the majorant `¼σ + K`, giving
+`hopH_symmetricOn`, `hopH_relative_bound`, `hopH_commForm_bound` and
+`hopH_essentiallySelfAdjointOn_core`; `listH` sums a finite family sharing one
+comparison symbol, with `listH_symmetricOn` and the instrument
+`listH_essentiallySelfAdjointOn_core`.  Instantiated with the two hoppings of
+the affine fiber field, this gives `gaffH` and
+`gaffH_essentiallySelfAdjointOn_core`: the one-component affine fiber
+Hamiltonian `½(π V + V π)` for `V(u) = κ u + c` is essentially self-adjoint on
+the finite-mode core with **no sign hypothesis at all** on `κ` and `c`.
+
+`BookProof/ChapterNavierStokesThreeComponent.lean` (namespace
+`BookProof.NavierStokesFlow.ThreeComponent`) carries **all three velocity
+components**.  The Hermite index is `Vel = Fin 3 → ℕ`, the fiber fields are the
+affine `V_i(u) = ∑_k A_{ik} u_k + c_i` with `A` an arbitrary real `3 × 3` matrix
+(no symmetry, positivity or sign assumption) and `c` an arbitrary real vector,
+and `H = ∑_i ½(π_i V_i + V_i π_i)` becomes twenty-four hopping terms against the
+comparison symbol `N = μ(2|β| + 3) + 1`: the diagonal `±2` hoppings, the `±1`
+hoppings of the constants, the double-raising *strain* hoppings of amplitude
+`½(A_{ik}+A_{ki})√((β_i+1)(β_k+1))` and the number-conserving *vorticity*
+hoppings of amplitude `½(A_{ik}−A_{ki})√((β_i+1)β_k)` — the last of these has an
+amplitude that is not monotone along its shift, which is exactly what the signed
+instrument above was built for.  The results are `velH`, `velH_symmetricOn` and
+the headline `velH_essentiallySelfAdjointOn_core`, together with the matrix
+entries `velH_coord_pair`, `velH_coord_rot`, `velH_coord_shear`,
+`velH_coord_diag` (the strain and vorticity couplings of two distinct components
+really are present), the non-vanishing statements
+`velH_ne_zero_of_strain` / `velH_ne_zero_of_vorticity`, unboundedness
+`velH_not_bounded` and density of the core `velH_domain_dense`.
+
+Honest boundary: everything is stated on the abstract sequence space `ℓ²(Vel)`
+with the operator given by its matrix in the Hermite basis of the fiber; the
+differential realization on `L²(du₁du₂du₃)` is not built, and nothing is claimed
+about the classical Navier–Stokes regularity problem.
+
+## Wave (2026-08-20b, **the viscous and cross terms: affine fiber fields**)
+
+Two further modules, both `sorry`-free / `axiom`-free, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean` and cited
+from `Book/FreeField.lean`, remove the boundary recorded in the wave below (the
+`±1` shift produced by the viscous term and the cross terms).
+
+`BookProof/ChapterNavierStokesAffineFiberEsa.lean` (namespace
+`BookProof.NavierStokesFlow.AffineFiber`) treats **one fiber** with the affine
+advection field `V(u) = κ u + c`.  The instrument is that the Faris–Lavine
+hypotheses are stable under sums: `‖(H₁+H₂)x‖² ≤ 2‖H₁x‖² + 2‖H₂x‖²`, and the
+commutator form is additive in `H` (`commForm_add`), while the relative bound
+carries no smallness requirement.  `PairShift` packages two shifts against one
+comparison symbol; `PairShift.pairH` is their sum, with
+`pairH_symmetricOn`, `pairH_relative_bound` (`a = 2`, `b = 32K²`),
+`pairH_commForm_bound` and `pairH_essentiallySelfAdjointOn_core`.  Instantiated
+with the number operator `μ(2n+1)+1`, `μ = κ + c + 1`, the `±2`-hopping
+`(κ/2)√((n+1)(n+2))` of `κ·½(πu+uπ)` and the `±1`-hopping `(c/√2)√(n+1)` of
+`c·π` are both dominated by it, giving `affH`, `affH_symmetricOn` and the
+headline `affH_essentiallySelfAdjointOn_core`.  Both hoppings are shown to be
+genuinely present (`affH_coord_succ`, `affH_coord_succ_succ`,
+`affH_ne_zero_of_pos_shear`) and the operator is unbounded
+(`affH_not_bounded`).
+
+`BookProof/ChapterNavierStokesAffineBlockEsa.lean` (namespace
+`BookProof.NavierStokesFlow.AffineBlock`) runs the block decomposition of the
+wave below again, with the affine fiber Hamiltonian in place of the linear one:
+`affBlockH` on the finite-mode core of `ℓ²(ℕ × J)`, the block identification
+`affFun_embFun` / `blockVec_affBlockH`, symmetry `affBlockH_symmetricOn`, the
+block reduction `deficiencyTrivialAt_affBlockH`, the headline
+`affBlockH_essentiallySelfAdjointOn_core` and `affBlockH_not_bounded`.
+
+Honest boundary: `c_j ≥ 0` is assumed, only because a hopping amplitude is
+required to be non-negative (the sign-flip unitary `x_n ↦ (−1)ⁿ x_n` that would
+remove it is not formalized).  Only one velocity component is carried.  Nothing
+is claimed about the classical Navier–Stokes regularity problem.
+
+## Wave (2026-08-20, **the bilinear Navier–Stokes generator is ESA**)
+
+`BookProof/ChapterNavierStokesBilinearEsa.lean` (namespace
+`BookProof.NavierStokesFlow.BilinearEsa`) is `sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`
+and cited from `Book/FreeField.lean`.  It closes, for the bilinear advection
+term, the residual recorded in `CONSOLIDATED_PLAN.md` §9 — the Faris–Lavine step
+for the *quadratic* Navier–Stokes symbol `A_i = ∑_j u_j u_{i,j} − ν u_{i,jj}`.
+
+The mechanism is a **block decomposition**, not a global Faris–Lavine estimate.
+In the Eulerian derivatives-as-fields picture the Hamiltonian carries momenta
+only for the velocity modes, so the derivative modes commute with it and are
+constants of the motion; diagonalising the derivative field splits the space as
+`ℓ²(ℕ × J)` (Hermite levels of the velocity fiber × the spectrum `J` of the
+derivative field), and in the block `j` the bilinear symbol `A = u_{,1}·u`
+becomes the *linear* field `V(u) = κ_j u` — exactly the fiber Hamiltonian
+`nsH (κ j)` of `ChapterNavierStokesHermiteFarisLavine`.  The strain rates `κ_j`
+range over that spectrum and are in general unbounded, so no single pair of
+Faris–Lavine constants can serve; the deficiency problem, however, does
+decompose.
+
+Contents: `bilH` (the operator on the finite-mode core, arbitrary
+`κ : J → ℝ`, `0 ≤ κ`), the block identification `bilFun_embFun` /
+`blockVec_bilH` / `blockVec_bilH_apply`, the fiberwise inner product
+`hasSum_inner_blocks`, symmetry `bilH_symmetricOn`, the block reduction
+`deficiencyTrivialAt_bilH`, the headline
+`bilH_essentiallySelfAdjointOn_core`, and the non-vacuity/unboundedness facts
+`bilH_ne_zero`, `bilH_not_bounded`.
+
+Honest boundary (stated in the module): the viscous term `−ν u_{i,jj}` and the
+cross terms `u_j u_{i,j}` with `j ≠ i` add a constant to the fiber field — an
+affine `V(u) = κ_j u + c_j`, i.e. a `±1` shift on top of the `±2` shift.  That
+boundary is removed by the wave above.  Nothing is claimed about the classical
+Navier–Stokes regularity problem.
+
 ## Latest wave (2026-08-18d, **the field-space Yang–Mills Hamiltonian**)
 
 `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` Part F is executed by two new modules, both

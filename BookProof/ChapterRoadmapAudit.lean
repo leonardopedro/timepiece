@@ -5,6 +5,16 @@ Authors: Aristotle
 -/
 import BookProof.ChapterH4
 import BookProof.ChapterNavierStokesGaugeY2
+import BookProof.ChapterNavierStokesBilinearEsa
+import BookProof.ChapterNavierStokesAffineFiberEsa
+import BookProof.ChapterNavierStokesAffineBlockEsa
+import BookProof.ChapterNavierStokesSignFlip
+import BookProof.ChapterNavierStokesSignedShift
+import BookProof.ChapterNavierStokesThreeComponent
+import BookProof.ChapterEsaClosure
+import BookProof.ChapterNavierStokesHashimoto
+import BookProof.ChapterNavierStokesLagrangianKatoRellich
+import BookProof.ChapterGaugeFixing
 import BookProof.ChapterQuantumGravityDensitized
 import BookProof.ChapterQuantumGravityHalfDensity
 import BookProof.ChapterYangMillsFriedrichs
@@ -482,6 +492,100 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.NavierStokesGaugeY2.genX_nsSymbol2
 #print axioms BookProof.NavierStokesGaugeY2.setYZero_nsSymbol2
 
+#print axioms BookProof.NavierStokesFlow.BilinearEsa.bilFun_embFun
+#print axioms BookProof.NavierStokesFlow.BilinearEsa.hasSum_inner_blocks
+#print axioms BookProof.NavierStokesFlow.BilinearEsa.blockVec_bilH
+#print axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.BilinearEsa.deficiencyTrivialAt_bilH
+#print axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_ne_zero
+#print axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_domain_dense
+#print axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_not_bounded
+
+#print axioms BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_relative_bound
+#print axioms BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_commForm_bound
+#print axioms BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.AffineFiber.affH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.AffineFiber.affH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.AffineFiber.affH_coord_succ
+#print axioms BookProof.NavierStokesFlow.AffineFiber.affH_coord_succ_succ
+#print axioms BookProof.NavierStokesFlow.AffineFiber.affH_ne_zero_of_pos_shear
+#print axioms BookProof.NavierStokesFlow.AffineFiber.affH_not_bounded
+#print axioms BookProof.NavierStokesFlow.AffineFiber.affH_domain_dense
+
+#print axioms BookProof.NavierStokesFlow.AffineBlock.affFun_embFun
+#print axioms BookProof.NavierStokesFlow.AffineBlock.blockVec_affBlockH
+#print axioms BookProof.NavierStokesFlow.AffineBlock.affBlockH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.AffineBlock.deficiencyTrivialAt_affBlockH
+#print axioms BookProof.NavierStokesFlow.AffineBlock.affBlockH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.AffineBlock.affBlockH_domain_dense
+#print axioms BookProof.NavierStokesFlow.AffineBlock.affBlockH_not_bounded
+
+#print axioms BookProof.NavierStokesFlow.SignFlip.essentiallySelfAdjointOn_of_intertwine
+#print axioms BookProof.NavierStokesFlow.SignFlip.shiftH_flip
+#print axioms BookProof.NavierStokesFlow.SignFlip.saffH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.SignFlip.saffH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.SignFlip.saffH_ne_zero_of_shear
+#print axioms BookProof.NavierStokesFlow.SignFlip.sblockH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.SignFlip.sblockH_domain_dense
+
+#print axioms BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_relative_bound
+#print axioms BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_commForm_bound
+#print axioms BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.SignedShift.listH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.SignedShift.listH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.SignedShift.gaffH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.SignedShift.gaffH_essentiallySelfAdjointOn_core
+
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_coord_pair
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_coord_rot
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_coord_shear
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_coord_diag
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_ne_zero_of_strain
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_ne_zero_of_vorticity
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_not_bounded
+#print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_domain_dense
+
+-- `CONSOLIDATED_PLAN.md` §9 item 8: essential self-adjointness selects a unique
+-- self-adjoint operator (the closure), and the Hashimoto/SIRK shift-invert limit
+-- computes with it -- instantiated for the Navier-Stokes fiber generator.
+#print axioms BookProof.EsaClosure.clGraph_inner
+#print axioms BookProof.EsaClosure.clExt_symmetricOn
+#print axioms BookProof.EsaClosure.clExt_extends
+#print axioms BookProof.EsaClosure.clExt_selfAdjointCriterion
+#print axioms BookProof.EsaClosure.exists_isSelfAdjointExtension_of_esa
+#print axioms BookProof.EsaClosure.selfAdjointExtension_eq_adjoint
+#print axioms BookProof.EsaClosure.isSelfAdjointExtension_unique_of_esa
+#print axioms BookProof.EsaClosure.positiveExtension_eq_closure_of_esa
+#print axioms BookProof.EsaClosure.norm_add_I_eq_norm_sub_I
+#print axioms BookProof.EsaClosure.exists_cayley_unitary
+#print axioms BookProof.EsaClosure.exists_selfAdjointExtension_and_cayley_of_esa
+#print axioms BookProof.EsaClosure.hashimoto_multishift_selects_esa
+#print axioms BookProof.NavierStokesFlow.NSHashimoto.velCore_symmetricOn
+#print axioms BookProof.NavierStokesFlow.NSHashimoto.velCore_esa
+#print axioms BookProof.NavierStokesFlow.NSHashimoto.ns_selfAdjoint_extension
+#print axioms BookProof.NavierStokesFlow.NSHashimoto.ns_selfAdjoint_extension_unique
+#print axioms BookProof.NavierStokesFlow.NSHashimoto.ns_hashimoto_selects
+#print axioms BookProof.NavierStokesFlow.NSHashimoto.ns_shiftInvert_selects
+#print axioms BookProof.NavierStokesFlow.NSHashimoto.exists_velHilbertBasis
+
+#print axioms BookProof.GaugeFixing.s_c_eq_zero
+#print axioms BookProof.GaugeFixing.s_B_eq_zero
+#print axioms BookProof.GaugeFixing.s_gaugeField
+#print axioms BookProof.GaugeFixing.L_gf_evaluation
+#print axioms BookProof.GaugeFixing.L_gf_invariant
+#print axioms BookProof.GaugeFixing.int_L_gf_eq_zero
+#print axioms BookProof.GaugeFixing.int_L_gf_evaluated
+#print axioms BookProof.GaugeFixing.matrixModel_c_ne_zero
+#print axioms BookProof.GaugeFixing.matrixModel_B_ne_zero
+#print axioms BookProof.GaugeFixing.matrixModel_Psi_ne_zero
+#print axioms BookProof.GaugeFixing.matrixModel_s_Psi_ne_zero
+#print axioms BookProof.GaugeFixing.matrixModelIntegral_ne_zero
+
 #print axioms BookProof.QuantumGravityDensitized.inv_eq_four_mul_deriv_densY_sq
 #print axioms BookProof.QuantumGravityDensitized.kinetic_absorption
 #print axioms BookProof.QuantumGravityDensitized.conformal_absorption
@@ -665,5 +769,36 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.FockSecondQuantization.dGamma_hashimoto_selects
 #print axioms BookProof.FockSecondQuantization.secondQuantization_hashimoto_selects
 #print axioms BookProof.FockSecondQuantization.ym_fock_hashimoto_selects
+
+-- `CONSOLIDATED_PLAN.md` §9 item 9: the Lagrangian (parcel) route.  Kato–Rellich
+-- control of the first-order drift by the positive second-order part obtained
+-- from the change of variables, and the Hashimoto/SIRK selection on the
+-- Lagrangian side.
+#print axioms BookProof.KatoRellich.norm_le_of_relBound
+#print axioms BookProof.KatoRellich.dense_range_add_relBounded
+#print axioms BookProof.KatoRellich.essentiallySelfAdjointOn_add_relBounded
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.norm_P_sq_le
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.norm_P_le
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.lowOrder_relBound
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.hFull_essentiallySelfAdjointOn
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.hFull_hasZeroDeficiencyOn
+#print axioms
+  BookProof.NavierStokesFlow.LagrangianKatoRellich.hasZeroDeficiencyOn_of_lagrangian_katoRellich
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_selfAdjoint_extension
+#print axioms
+  BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_selfAdjoint_extension_unique
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_hashimoto_selects
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_shiftInvert_selects
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.diagKR_drift_not_bounded
+#print axioms
+  BookProof.NavierStokesFlow.LagrangianKatoRellich.diagKR_hFull_essentiallySelfAdjointOn
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.diagKR_hashimoto_selects
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.norm_sum_P_le
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.drift_dominated_of_drive_eq_P
+#print axioms
+  BookProof.NavierStokesFlow.LagrangianKatoRellich.hFull_hasZeroDeficiencyOn_of_drive_eq_P
+#print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.jacobiLag_secondOrder_eq_zero
+#print axioms
+  BookProof.NavierStokesFlow.LagrangianKatoRellich.jacobiLag_drift_not_relativelyBounded
 
 end BookProof.ChapterRoadmapAudit

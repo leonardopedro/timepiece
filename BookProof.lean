@@ -87,12 +87,14 @@ import BookProof.ChapterNavierStokesEsa
 import BookProof.ChapterNavierStokesDeficiency
 import BookProof.ChapterFarisLavine
 import BookProof.ChapterKatoRellichDeficiency
+import BookProof.ChapterKatoRellichRelative
 import BookProof.ChapterStrichartzWave
 import BookProof.ChapterWaveBoundedPotential
 import BookProof.ChapterWaveUnboundedPotential
 import BookProof.ChapterHarmonicOscillatorEsa
 import BookProof.ChapterNavierStokesFullEsa
 import BookProof.ChapterNavierStokesLagrangianEsa
+import BookProof.ChapterNavierStokesLagrangianKatoRellich
 import BookProof.ChapterNavierStokesFockSpace
 import BookProof.ChapterNavierStokesFockEsa
 import BookProof.ChapterNavierStokesFockContinuum
@@ -105,6 +107,24 @@ import BookProof.ChapterNavierStokesIkebeKato
 import BookProof.ChapterNavierStokesMomentumEsa
 import BookProof.ChapterNavierStokesMomentumPerturbation
 import BookProof.ChapterNavierStokesHermiteFarisLavine
+import BookProof.ChapterNavierStokesBilinearEsa
+import BookProof.ChapterNavierStokesAffineFiberEsa
+import BookProof.ChapterNavierStokesAffineBlockEsa
+-- The sign-flip unitary `x_n ↦ (−1)ⁿ x_n`: essential self-adjointness is a
+-- unitary invariant, so the affine fiber and block Hamiltonians are essentially
+-- self-adjoint for a fiber constant of *arbitrary* sign, not only `c ≥ 0`.
+import BookProof.ChapterNavierStokesSignFlip
+-- Hopping Hamiltonians with signed, non-monotone amplitudes, and the finite
+-- family instrument built from them.
+import BookProof.ChapterNavierStokesSignedShift
+-- The three coupled velocity components at one fiber: `H = ∑ᵢ ½(πᵢ Vᵢ + Vᵢ πᵢ)`
+-- with `Vᵢ(u) = ∑ₖ A_{ik} uₖ + cᵢ` for an arbitrary real matrix `A` and vector `c`.
+import BookProof.ChapterNavierStokesThreeComponent
+-- Essential self-adjointness selects a unique self-adjoint operator: the closure
+-- of the graph, its uniqueness, and the positivity-free Hashimoto/SIRK selection.
+import BookProof.ChapterEsaClosure
+-- The Hashimoto/SIRK shift-invert limit selects the Navier-Stokes generator.
+import BookProof.ChapterNavierStokesHashimoto
 import BookProof.ChapterNavierStokesHermiteCanonical
 import BookProof.ChapterNavierStokesShiftHamiltonian
 import BookProof.ChapterNavierStokesFockManyMode
@@ -112,6 +132,7 @@ import BookProof.ChapterNavierStokesFockCanonical
 import BookProof.ChapterNavierStokesEulerian
 import BookProof.ChapterNavierStokesGaugeY
 import BookProof.ChapterNavierStokesGaugeY2
+import BookProof.ChapterGaugeFixing
 import BookProof.ChapterQuantumGravityDensitized
 import BookProof.ChapterQuantumGravityHalfDensity
 import BookProof.ChapterYangMillsFriedrichs
@@ -644,3 +665,11 @@ import BookProof.ChapterYangMillsHermite
 -- ladder operators with `[a_j, a_j†] = 1`, `dΓ(A) = Σ ⟪e_j, A e_k⟫ a_j† a_k`, its
 -- symmetry and positivity, and its Friedrichs extension.
 import BookProof.ChapterFockSecondQuantization
+
+-- The general Stone theorem on a separable Hilbert space (`ChapterStoneResolvent`
+-- through `ChapterStoneSeparable`): an unbounded self-adjoint operator `A` generates a
+-- weakly measurable one-parameter unitary group `e^{-itA}`, every weakly measurable
+-- one-parameter unitary group on a separable Hilbert space arises this way from its
+-- self-adjoint infinitesimal generator, and the two constructions are mutually inverse.
+import BookProof.ChapterStoneTheorem
+import BookProof.ChapterStoneSeparable
