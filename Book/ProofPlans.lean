@@ -296,9 +296,22 @@ domain, symmetry, self-adjointness (`transport_isSelfAdjointOn`, via
 (`tendsto_transportUnitary`, `tendsto_slope_transportUnitary`) — so every operator
 unitarily equivalent to a lattice multiplication operator, on any complex Hilbert
 space, carries the whole package (`transported_position_isSelfAdjointOn`,
-`tendsto_slope_transported_position`).  What is still missing for a general Stone
-theorem is the *existence* of the diagonalizing unitary — the spectral theorem for
-unbounded self-adjoint operators — which is what the continuum
+`tendsto_slope_transported_position`).  And the general Stone theorem is now part
+of the theory rather than the recorded gap: `BookProof.ChapterStoneResolvent`
+through `BookProof.ChapterStoneSeparable` build the resolvent of a self-adjoint
+operator, obtain the weakly measurable unitary group `e^{-itA}` (`stoneU`,
+`stoneU_mem_domain`, `hasDerivAt_stoneU`, the group law `stoneU_add`), and
+prove the bijection between self-adjoint generators and one-parameter groups
+(`stone_bijection`, `stoneEquiv`), with a concrete `ℓ²(ℤ)` instance
+(`stoneU_mulSA`).  `BookProof.ChapterStoneBridge` then packages a *selected*
+self-adjoint extension into the bundled structure Stone's theorem consumes and
+presents the whole package as `IsStoneFlow` (`U 0 = 1`, the group law, isometry,
+Schrödinger equation on the domain), with `isStoneFlow_stoneU` showing the
+abstractly constructed group is such a flow and
+`exists_stone_flow_of_selfAdjointExtension` / `of_positive` / `of_esa` as the
+entry points.  The one half of Stone's theorem that genuinely remains open is the
+*spectral* half — the existence of a diagonalizing unitary (the spectral theorem
+for unbounded self-adjoint operators) — which is what the continuum
 $`-\tfrac12\Delta_z` would need. The *physical* claim that the dynamics
 "is" the transition is about the choice of $`\mathbf{H}`; the formal content is
 that a Hermitian $`\mathbf{H}` yields a unitary and that the Born rule recovers a
@@ -309,6 +322,10 @@ probability law.
 `BookProof.ChapterBornMeasure` (the Born law as a measure) and
 `BookProof.ChapterUnboundedPosition` (the self-adjoint unbounded layer and the
 unitary group it generates) and `BookProof.ChapterUnitaryTransport` (unitary
-invariance of that whole package), all registered in
+invariance of that whole package) and `BookProof.ChapterStoneResolvent` /
+`ChapterStoneSeparable` (the general Stone theorem and its concrete
+$`\ell^2(\mathbb Z)` instance) and `BookProof.ChapterStoneBridge` /
+`ChapterStoneFlows` (the packaged `IsStoneFlow` and the concrete flows for the
+Eulerian NS, Lagrangian NS and QYM Hamiltonians), all registered in
 `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed
 from the `ConditionalUnitary` chapter's "A Less Arbitrary Construction" section.

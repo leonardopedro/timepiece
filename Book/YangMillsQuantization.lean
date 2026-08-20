@@ -448,6 +448,26 @@ $`H_1 = \tfrac12\sum \pi^2 + \tfrac12\sum B^2`:
 ```
 
 :::paragraph
+Each of these positive self-adjoint extensions now yields a *complete unitary
+flow*. `BookProof.ChapterStoneBridge` packages the passage from a selected
+self-adjoint extension to the one-parameter group Stone's theorem guarantees as
+the `IsStoneFlow` structure ($`U 0 = 1`, the group law, isometry of each $`U t`,
+and the Schrödinger equation on the domain), and
+`BookProof.ChapterStoneFlows` applies it to the concrete Fock Hamiltonian: the
+second-quantized Yang–Mills generator $`d\Gamma(\tfrac12\sum\pi^2 +
+\tfrac12\sum B^2)` on the finite-occupation domain over the product Hermite core
+has the complete unitary flow `ym_fock_stone_flow` — global in $`t`, unitary,
+and agreeing with the Schrödinger evolution on the domain. This is the precise
+formal content of the manuscript's "wave-function evolution" of the gauge field
+configuration: the Fock representation is unitary, hence probability-conserving,
+at every instant.
+:::
+
+```
+#check @BookProof.StoneFlows.ym_fock_stone_flow
+```
+
+:::paragraph
 No mass gap and no global existence statement is claimed anywhere in this
 section.
 :::
@@ -463,11 +483,14 @@ The algebraic core of the manuscript's quantization programme:
  * the positive-definite Weyl-gauge Hamiltonian;
  * the densely-defined Weyl-gauge Hamiltonian, its sum-of-squares quadratic form and the closability of that form — the Friedrichs route to a self-adjoint extension;
  * the Friedrichs extension theorem itself, proved with no boundedness hypothesis, and the resulting unbounded statement: the Weyl-gauge Hamiltonian has a positive self-adjoint extension and the infinite Hashimoto/SIRK limit selects exactly that extension;
- * the field-space realization of that Hamiltonian on the dense product Hermite
+*  the field-space realization of that Hamiltonian on the dense product Hermite
    core of $`L^2(\mathbb{R}^{99})`, with the coordinate, momentum and
    magnetic-field operators defined concretely, the canonical commutation
    relation and the Weyl ordering it forces, and the Friedrichs/Hashimoto
-   theorems instantiated by it.
+   theorems instantiated by it;
+ *  the second-quantized Fock form of the same Hamiltonian and its complete
+   unitary flow `ym_fock_stone_flow` — the Stone bridge turning each positive
+   self-adjoint extension into a global, norm-preserving Schrödinger evolution.
 
 :::paragraph
 The manuscript's Navier–Stokes existence/uniqueness thesis is deliberately *not*

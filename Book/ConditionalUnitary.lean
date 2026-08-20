@@ -496,11 +496,33 @@ lies two layers further out than the proof plan first drew it. Bounded generator
 give the unitary group and the Born law outright; the unbounded position
 observable is densely defined, symmetric, self-adjoint, and does generate a
 strongly continuous unitary group with itself as generator; and that conclusion is
-inherited by anything unitarily equivalent to it. What is still missing for a
-general Stone theorem is the *existence* of the diagonalizing unitary — the
-spectral theorem for unbounded self-adjoint operators — which is what a continuum
-Laplacian would need.
+inherited by anything unitarily equivalent to it. And the general Stone theorem
+is itself proved in this development — not the spectral-theoretic diagonalization,
+which still requires hypotheses on the spectrum, but the *existence* half: an
+arbitrary unbounded self-adjoint operator on a (complete, separable) Hilbert space
+generates a weakly measurable one-parameter unitary group `e^{-itA}` satisfying
+the Schrödinger equation on its domain, and conversely every such group arises
+from its self-adjoint generator (`ChapterStoneResolvent` through
+`ChapterStoneSeparable`: `stoneU`, `stoneU_mem_domain`, `hasDerivAt_stoneU`,
+`stone_bijection`, `stoneEquiv`, and the concrete `ℓ²(ℤ)` instance `stoneU_mulSA`).
+The bridge from a *selected* self-adjoint extension to the flow is then packaged
+by `ChapterStoneBridge` (`unboundedSelfAdjointOf`, `IsStoneFlow`,
+`isStoneFlow_stoneU`, `exists_stone_flow_of_selfAdjointExtension` /
+`of_positive` / `of_esa`), so the passage "essentially self-adjoint on a core ⇒
+complete unitary flow" is a theorem rather than a promise. What a continuum
+Laplacian would still need is the *spectral theorem* — the existence of the
+diagonalizing unitary — which remains the recorded open step.
 :::
+
+```
+#check @BookProof.ChapterStoneSeparable.stoneEquiv
+#check @BookProof.ChapterStoneSeparable.stoneU_mulSA
+#check @BookProof.StoneBridge.unboundedSelfAdjointOf
+#check @BookProof.StoneBridge.IsStoneFlow
+#check @BookProof.StoneBridge.isStoneFlow_stoneU
+#check @BookProof.StoneBridge.exists_stone_flow_of_esa
+#check @BookProof.StoneFlows.ym_fock_stone_flow
+```
 
 # Why This Matters Here
 

@@ -83,6 +83,16 @@ $$`U(t) = e^{-iHt}.`
 So the program is: turn the ODE into a Hamiltonian $`H`, and the (possibly
 singular) classical flow into a (globally-defined) unitary group $`e^{-iHt}`.
 
+In this repository Stone's theorem is not invoked as a black box but proved:
+`BookProof.ChapterStoneResolvent` through `BookProof.ChapterStoneSeparable`
+construct the unitary group `e^{-itA}` from a self-adjoint generator `A`
+(`stoneU`, `stoneU_add`, `hasDerivAt_stoneU`) and prove the converse bijection
+(`stone_bijection`, `stoneEquiv`), while `BookProof.ChapterStoneBridge` packages
+the outcome as `IsStoneFlow` and `BookProof.ChapterStoneFlows` applies it to the
+concrete Navier–Stokes and QYM Hamiltonians (`ns_stone_flow`,
+`lagrangian_stone_flow`, `ym_fock_stone_flow`).  The direction used here — from a
+unitary group back to its Hamiltonian — is exactly `stone_bijection`.
+
 # Weyl Quantization: From ODE to Hamiltonian
 
 The passage from the classical vector field $`\dot x = f(x)` to a Hamiltonian is
