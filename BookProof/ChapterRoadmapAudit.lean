@@ -11,9 +11,11 @@ import BookProof.ChapterNavierStokesAffineBlockEsa
 import BookProof.ChapterNavierStokesSignFlip
 import BookProof.ChapterNavierStokesSignedShift
 import BookProof.ChapterNavierStokesThreeComponent
+import BookProof.ChapterNavierStokesCanonicalVector
 import BookProof.ChapterEsaClosure
 import BookProof.ChapterNavierStokesHashimoto
 import BookProof.ChapterNavierStokesLagrangianKatoRellich
+import BookProof.ChapterStoneFlows
 import BookProof.ChapterGaugeFixing
 import BookProof.ChapterQuantumGravityDensitized
 import BookProof.ChapterQuantumGravityHalfDensity
@@ -550,6 +552,18 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_not_bounded
 #print axioms BookProof.NavierStokesFlow.ThreeComponent.velH_domain_dense
 
+-- `CONSOLIDATED_PLAN.md` §9 item 4: the canonical (ladder / differential) realization
+-- of the full quadratic Navier-Stokes symbol at one fiber.
+#print axioms BookProof.NavierStokesFlow.CanonicalVector.comm_ann_cre
+#print axioms BookProof.NavierStokesFlow.CanonicalVector.comm_mom_pos
+#print axioms BookProof.NavierStokesFlow.CanonicalVector.comm_mom_pos_of_ne
+#print axioms BookProof.NavierStokesFlow.CanonicalVector.canFun_eq_ladFun
+#print axioms BookProof.NavierStokesFlow.CanonicalVector.canH_eq_velH
+#print axioms BookProof.NavierStokesFlow.CanonicalVector.canH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.CanonicalVector.canH_not_bounded
+#print axioms BookProof.NavierStokesFlow.CanonicalVector.canH_domain_dense
+#print axioms BookProof.NavierStokesFlow.CanonicalVector.nsQuadraticH_essentiallySelfAdjointOn_core
+
 -- `CONSOLIDATED_PLAN.md` §9 item 8: essential self-adjointness selects a unique
 -- self-adjoint operator (the closure), and the Hashimoto/SIRK shift-invert limit
 -- computes with it -- instantiated for the Navier-Stokes fiber generator.
@@ -800,5 +814,20 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.NavierStokesFlow.LagrangianKatoRellich.jacobiLag_secondOrder_eq_zero
 #print axioms
   BookProof.NavierStokesFlow.LagrangianKatoRellich.jacobiLag_drift_not_relativelyBounded
+
+-- from the Stone bridge and the concrete flows (2026-08-20i): the packaging of a
+-- selected self-adjoint extension into the bundled UnboundedSelfAdjoint
+-- structure, and the complete unitary flows of the Eulerian NS, Lagrangian NS
+-- and QYM Hamiltonians.
+#print axioms BookProof.StoneBridge.dense_domain_of_isSelfAdjointExtension
+#print axioms BookProof.StoneBridge.isSelfAdjointOn_of_isSelfAdjointExtension
+#print axioms BookProof.StoneBridge.isStoneFlow_stoneU
+#print axioms BookProof.StoneBridge.exists_stone_flow_of_selfAdjointExtension
+#print axioms BookProof.StoneBridge.exists_stone_flow_of_positive
+#print axioms BookProof.StoneBridge.exists_stone_flow_of_esa
+#print axioms BookProof.StoneFlows.ns_stone_flow
+#print axioms BookProof.StoneFlows.lagrangian_stone_flow
+#print axioms BookProof.StoneFlows.diagKR_stone_flow
+#print axioms BookProof.StoneFlows.ym_fock_stone_flow
 
 end BookProof.ChapterRoadmapAudit

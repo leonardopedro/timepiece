@@ -1301,10 +1301,10 @@ terms above with $`N=\mu(2|\beta|+3)+1`, this gives the coupled three-component
 fiber Hamiltonian, essentially self-adjoint on the finite-mode core of
 $`\ell^2(\mathbb{N}^3)` for every real $`A` and every real $`c`; the strain and
 vorticity matrix entries are computed, so the coupling is genuinely there, and
-the operator is unbounded. Everything is stated in the Hermite (sequence-space)
-realization of the fiber; the differential realization on
-$`L^2(du_1du_2du_3)` is not built, and nothing here claims global regularity for
-the classical Navier–Stokes equation.
+the operator is unbounded. The statement is proved in the Hermite
+(sequence-space) realization of the fiber; the next paragraph reads the same
+operator back in canonical form. Nothing here claims global regularity for the
+classical Navier–Stokes equation.
 :::
 
 ```
@@ -1320,6 +1320,52 @@ the classical Navier–Stokes equation.
 #check @BookProof.NavierStokesFlow.ThreeComponent.velH_coord_pair
 #check @BookProof.NavierStokesFlow.ThreeComponent.velH_coord_rot
 #check @BookProof.NavierStokesFlow.ThreeComponent.velH_not_bounded
+```
+
+:::paragraph
+The hopping description is a matrix, and a matrix is not obviously a
+Hamiltonian. What closes the gap is to build the canonical pairs *inside* the
+sequence space and check that the matrix is the Weyl-ordered expression one
+started from. On the finite-mode core of $`\ell^2(\mathbb{N}^3)` the three
+ladder pairs are the coordinate shifts
+$`(a_iX)(\beta)=\sqrt{\beta_i+1}\,X(\beta+e_i)` and
+$`(a_i^\dagger X)(\beta)=\sqrt{\beta_i}\,X(\beta-e_i)`; they satisfy the full
+canonical commutation relations, $`[a_i,a_k]=[a_i^\dagger,a_k^\dagger]=0` and
+$`[a_i,a_k^\dagger]=\delta_{ik}`, and the resulting
+$`u_i=(a_i+a_i^\dagger)/\sqrt2`, $`\pi_i=i(a_i^\dagger-a_i)/\sqrt2` are three
+commuting canonical pairs with $`[\pi_i,u_k]=-i\delta_{ik}`. Writing
+$`H_{\mathrm{can}}=\sum_i\tfrac12(\pi_iV_i+V_i\pi_i)` with
+$`V_i(u)=\sum_kA_{ik}u_k+c_i` literally in those operators and expanding by the
+commutation relations produces, term by term, exactly the twenty-four hopping
+amplitudes of the previous paragraph: the two $`\sqrt2`'s of a Weyl-ordered
+product combine into the $`\tfrac14` of the Hermite amplitudes, the double
+raisings give the strain, the number-conserving terms the vorticity. So
+$`H_{\mathrm{can}}=H` as operators on the core, and the essential
+self-adjointness proved for the matrix is essential self-adjointness of the
+canonically written quadratic symbol. Spelling the coefficients out the way the
+Navier–Stokes symbol supplies them — linear part the velocity gradient,
+constant part $`-\nu` times the velocity Laplacian at the fiber — gives the
+statement in its intended form: for every viscosity, every velocity gradient and
+every velocity Laplacian, the quantized full quadratic Navier–Stokes symbol
+$`\sum_i\tfrac12(\pi_iA_i+A_i\pi_i)`,
+$`A_i(u)=\sum_ju_{i,j}u_j-\nu u_{i,jj}`, is essentially self-adjoint on the
+Hermite core of the three velocity components. What is still not built is the
+unitary transport of this picture to $`L^2(du_1du_2du_3)`, where $`u_i` would be
+multiplication and $`\pi_i` differentiation; the canonical pairs here are
+abstract, characterized by their commutation relations rather than by that
+realization.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.CanonicalVector.comm_ann_cre
+#check @BookProof.NavierStokesFlow.CanonicalVector.comm_mom_pos
+#check @BookProof.NavierStokesFlow.CanonicalVector.comm_mom_pos_of_ne
+#check @BookProof.NavierStokesFlow.CanonicalVector.canH
+#check @BookProof.NavierStokesFlow.CanonicalVector.canH_eq_velH
+#check @BookProof.NavierStokesFlow.CanonicalVector.canH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.CanonicalVector.canH_not_bounded
+#check @BookProof.NavierStokesFlow.CanonicalVector.nsQuadraticH
+#check @BookProof.NavierStokesFlow.CanonicalVector.nsQuadraticH_essentiallySelfAdjointOn_core
 ```
 
 :::paragraph
@@ -1521,6 +1567,60 @@ Navier–Stokes truncation.
 #check @BookProof.ChapterStoneSeparable.stoneU_mulSA
 ```
 
+:::paragraph
+The bridge from the selection predicates to the flow is now a single packaging
+step, `ChapterStoneBridge`.  The essential-self-adjointness / Hashimoto-selection
+threads produce `IsSelfAdjointExtension` / `IsPositiveSelfAdjointExtension`
+operators on a dense domain, while Stone's theorem consumes the bundled
+`UnboundedSelfAdjoint` structure; `dense_domain_of_isSelfAdjointExtension` and
+`isSelfAdjointOn_of_isSelfAdjointExtension` pull the two missing conjuncts out of
+the predicate, and `unboundedSelfAdjointOf` assembles the bundle.  The complete
+unitary group is packaged as `IsStoneFlow` (`U 0 = 1`, the group law, isometry of
+each `U t`, and the Schrödinger equation on the domain), `isStoneFlow_stoneU`
+shows the abstractly constructed group is such a flow, and
+`exists_stone_flow_of_selfAdjointExtension` / `of_positive` / `of_esa` are the
+three entry points — from a selected self-adjoint extension, from a positive
+(Friedrichs) one, and directly from essential self-adjointness of a symmetric
+core.
+:::
+
+```
+#check @BookProof.StoneBridge.dense_domain_of_isSelfAdjointExtension
+#check @BookProof.StoneBridge.isSelfAdjointOn_of_isSelfAdjointExtension
+#check @BookProof.StoneBridge.unboundedSelfAdjointOf
+#check @BookProof.StoneBridge.IsStoneFlow
+#check @BookProof.StoneBridge.isStoneFlow_stoneU
+#check @BookProof.StoneBridge.exists_stone_flow_of_selfAdjointExtension
+#check @BookProof.StoneBridge.exists_stone_flow_of_positive
+#check @BookProof.StoneBridge.exists_stone_flow_of_esa
+```
+
+:::paragraph
+`ChapterStoneFlows` runs that bridge on the three concrete Hamiltonians of this
+development, so each of them — not a hypothetical example — generates a complete
+unitary flow.  `ns_stone_flow` gives the flow of the coupled three-component
+Eulerian fiber generator `velCore A c` on `ℓ²(Vel)` (the unique self-adjoint
+extension, the closure; no positivity is used, so there is no Friedrichs label).
+`lagrangian_stone_flow` gives the flow of the transformed (parcel) Hamiltonian
+`ĥ_full = ½∑Pᵢ² + ν∑Qᵢ² + ∑fᵢDᵢ + C` from essential self-adjointness of its core,
+and `diagKR_stone_flow` instantiates it on the genuinely unbounded `ℓ²(ℕ)`
+instance — the hypothesis discharged by the Kato–Rellich relative bound.  On the
+gauge side, `ym_fock_stone_flow` gives the flow of the second-quantized Yang–Mills
+Hamiltonian `dΓ(½Σπ² + ½ΣB²)` on the Fock space over the Gauss core of
+`L²(ℝ⁹⁹)`, where the extension *is* positive (Friedrichs).  This is step (c) of
+`CONSOLIDATED_PLAN.md` §9 item 11 — the complete operator flow for all three —
+and the honest boundaries are unchanged: the flow is that of the selected
+extension in the abstract realization, and nothing is claimed about the classical
+Navier–Stokes regularity problem.
+:::
+
+```
+#check @BookProof.StoneFlows.ns_stone_flow
+#check @BookProof.StoneFlows.lagrangian_stone_flow
+#check @BookProof.StoneFlows.diagKR_stone_flow
+#check @BookProof.StoneFlows.ym_fock_stone_flow
+```
+
 # Summary
 
 The free-field thread replaces the nonexistent infinite-dimensional Lebesgue measure
@@ -1544,6 +1644,13 @@ extension covering the viscous and cross terms (`AffineFiber.affH` /
 with an arbitrary real velocity gradient (`SignedShift.gaffH`,
 `ThreeComponent.velH`). The instrument throughout is the Faris–Lavine commutator
 criterion, now itself proved (Theorem 1 + Cor. 1.1) rather than named. The
+canonical reading of that same fiber is supplied by
+`CanonicalVector` (`comm_ann_cre`, `comm_mom_pos`), which builds the ladder
+pairs *inside* the sequence space and proves `canH_eq_velH` — the matrix
+$`H` of the previous paragraph is the Weyl-ordered expression
+$`\sum_i\tfrac12(\pi_iV_i+V_i\pi_i)` — so `canH_essentiallySelfAdjointOn_core`
+and, with the Navier–Stokes coefficients, `nsQuadraticH_essentiallySelfAdjointOn_core`
+are the same statement in canonical form. The
 selected operators are made explicit by the graph-closure machinery of
 `EsaClosure` (`clExt`, `IsSelfAdjointExtension`,
 `exists_isSelfAdjointExtension_of_esa`, `isSelfAdjointExtension_unique_of_esa`,
@@ -1564,6 +1671,12 @@ Stone theorem of 2026-08-20e, but that ESA is itself the open step; see
 Stone's theorem itself — the missing bridge from ESA to a complete flow — is now
 proved in full (`stone_bijection` between self-adjoint operators and weakly
 measurable unitary groups, `stoneEquiv` on separable spaces, instantiated on
-`ℓ²(ℤ)` by the momentum operator `mulSA`), so the *only* remaining step for a
-flow on the continuum is the differential ESA, and the truncation already carries
-the complete flow (`nsCauchy_existsUnique`).
+`ℓ²(ℤ)` by the momentum operator `mulSA`), and the bridge is then *run*: the
+packaging step `StoneBridge` (`unboundedSelfAdjointOf`, `IsStoneFlow`,
+`exists_stone_flow_of_selfAdjointExtension` / `of_positive` / `of_esa`) turns a
+selected extension into the bundled structure Stone consumes, and `StoneFlows`
+instantiates the complete unitary flow for the Eulerian NS (`ns_stone_flow`), the
+Lagrangian NS (`lagrangian_stone_flow`, `diagKR_stone_flow`) and the QYM
+(`ym_fock_stone_flow`).  The *only* remaining step for a flow on the continuum is
+the differential ESA, and the truncation already carries the complete flow
+(`nsCauchy_existsUnique`).

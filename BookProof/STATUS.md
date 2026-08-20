@@ -7,7 +7,113 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-## Latest wave (2026-08-20d, **essential self-adjointness selects a unique
+## Latest wave (2026-08-20h, **the canonical realization of the full
+Navier–Stokes quadratic symbol, and the Lagrangian/Eulerian rigor-parity
+record**)
+
+One further module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/FreeField.lean`, advances `CONSOLIDATED_PLAN.md` §9 item 4 (the
+differential/canonical realization of the full NS quadratic symbol).
+
+`BookProof/ChapterNavierStokesCanonicalVector.lean` (namespace
+`BookProof.NavierStokesFlow.CanonicalVector`) builds the canonical pairs
+*inside* the Hermite sequence space of the three velocity components and shows
+that the hopping matrix of `ChapterNavierStokesThreeComponent` **is** the
+Weyl-ordered expression it was meant to be.  On the finite-mode core of
+`ℓ²(Fin 3 → ℕ)` the three ladder pairs `ann i`, `cre i` are the coordinate shifts
+`(a_i X)(β) = √(β_i+1) X(β+e_i)`, `(a_i† X)(β) = √β_i X(β−e_i)`; the full CCR is
+proved (`ann_comm`, `cre_comm`, `comm_ann_cre_of_ne`, `comm_ann_cre`), and the
+resulting `pos i = (a_i + a_i†)/√2`, `mom i = i(a_i† − a_i)/√2` are three
+commuting canonical pairs (`comm_mom_pos`: `[π_i, u_i] = −i`;
+`comm_mom_pos_of_ne`).  Writing `canH = ∑_i ½(π_i V_i + V_i π_i)` with
+`V_i(u) = ∑_k A_{ik} u_k + c_i` literally in those operators and expanding by the
+commutation relations gives, hop by hop (`diagHop_hFun`, `pairHop_hFun`,
+`rotHop_hFun`, `shearHop_hFun`, then `canFun_eq_ladFun`), exactly the twenty-four
+Hermite hopping amplitudes: `canH_eq_velH`.  Consequences:
+`canH_essentiallySelfAdjointOn_core` (the canonically written full quadratic
+symbol is essentially self-adjoint on the Hermite core, for arbitrary real `A`
+and `c`), `canH_not_bounded`, `canH_domain_dense`, and — with the coefficients
+spelled out the way the Navier–Stokes symbol supplies them, linear part the
+velocity gradient and constant part `−ν` times the velocity Laplacian at the
+fiber — `nsQuadraticH` and
+`nsQuadraticH_essentiallySelfAdjointOn_core`.
+
+Honest boundary: the canonical pairs here are abstract, characterized by their
+commutation relations inside the sequence space.  The unitary transport of the
+picture to `L²(du₁du₂du₃)`, where `u_i` is multiplication and `π_i`
+differentiation, is not built, and nothing is claimed about the classical
+Navier–Stokes regularity problem.
+
+**Rigor-parity record (Lagrangian variables vs. Eulerian variables).**  The
+Eulerian strand now has four realization layers: sequence-space ESA
+(`velCore_esa`, `velH_essentiallySelfAdjointOn_core`), the canonical/ladder
+reading of the full symbol (`canH_eq_velH`, `canH_essentiallySelfAdjointOn_core`,
+`nsQuadraticH_essentiallySelfAdjointOn_core`), the Hermite/differential
+realization of the fiber generator on `L²(du)` (`ChapterNavierStokesHermiteCanonical`),
+and the Hashimoto/SIRK selection (`ns_hashimoto_selects`).  The Lagrangian
+strand is at parity on ESA (`hFull_hasZeroDeficiencyOn_of_drive_eq_P`),
+selection (`lagrangian_hashimoto_selects`), the concrete `ℓ²(ℕ)` instance
+`diagKR`, the Fock-of-Fock trajectory-space realization
+(`fockLagrangian_hasZeroDeficiencyOn`, `hTwoLevel_hasZeroDeficiencyOn`) and —
+with the 2026-08-20i Stone-flow wave — the complete flow.  What it lacks is the
+canonical/ladder and Hermite/differential realization of its second-order part
+`T` on the trajectory-space `L²` (the analogue of
+`CanonicalVector`/`HermiteCanonical`); that gap is recorded as the open parity
+item in `CONSOLIDATED_PLAN.md` §9 items 9 and 11.
+
+## Wave (2026-08-20i, **the Stone bridge and the concrete flows: the complete
+unitary flow for the Eulerian NS, Lagrangian NS and QYM Hamiltonians**)
+
+Two further modules, `sorry`-free / `axiom`-free, registered in `BookProof.lean`
+and cited from `Book/FreeField.lean`, close `CONSOLIDATED_PLAN.md` §9 item 11
+(the explicit Stone link to the QYM/NS flows).
+
+`BookProof/ChapterStoneBridge.lean` (namespace `BookProof.StoneBridge`) is the
+packaging step between the selection predicates and the bundled structure that
+Stone's theorem consumes.  The essential-self-adjointness / Hashimoto-selection
+threads produce `IsSelfAdjointExtension` / `IsPositiveSelfAdjointExtension`
+operators on a dense domain; `dense_domain_of_isSelfAdjointExtension` and
+`isSelfAdjointOn_of_isSelfAdjointExtension` pull the two remaining conjuncts out
+of the predicate, and `unboundedSelfAdjointOf` assembles the bundle
+(`unboundedSelfAdjointOf_domain` / `unboundedSelfAdjointOf_op`).  The complete
+unitary group is packaged as `IsStoneFlow` (`U 0 = 1`, the group law, isometry
+of each `U t`, and the Schrödinger equation `d/dt (U t x) = -i A (U t x)` on the
+domain); `isStoneFlow_stoneU` shows the abstractly constructed Stone group is
+such a flow; and `exists_stone_flow_of_selfAdjointExtension` / `of_positive` /
+`of_esa` are the three entry points — from a selected self-adjoint extension,
+from a positive (Friedrichs) one, and directly from essential self-adjointness
+of a symmetric core.
+
+`BookProof/ChapterStoneFlows.lean` (namespace `BookProof.StoneFlows`) runs that
+bridge on the three concrete Hamiltonians, so each — not a hypothetical example —
+generates a complete unitary flow:
+
+* `ns_stone_flow` — the **Eulerian Navier–Stokes fiber generator** `velCore A c`
+  on `ℓ²(Vel)`, `Vel = Fin 3 → ℕ`, for arbitrary real velocity-gradient matrix
+  `A` and constant vector `c`.  The generator is the unique self-adjoint
+  extension (the closure); no positivity is used, so there is no Friedrichs label
+  (`IsSelfAdjointExtension (velCore A c) T.op ∧ IsStoneFlow T U`, from
+  `velCore_dense`, `velCore_symmetricOn`, `velCore_esa`).
+* `lagrangian_stone_flow` — the **Lagrangian (parcel) transformed Hamiltonian**
+  `ĥ_full = ½∑Pᵢ² + ν∑Qᵢ² + ∑fᵢDᵢ + C`, from
+  `EssentiallySelfAdjointOn L.D (lagrangianCore L)` (which
+  `hFull_essentiallySelfAdjointOn` supplies from the positivity of the second-
+  order part alone); and `diagKR_stone_flow`, the concrete `ℓ²(ℕ)` instance with
+  a genuinely unbounded drift (`diagKR_drift_not_bounded`), where the hypothesis
+  is discharged by Kato–Rellich (`diagKR_hFull_essentiallySelfAdjointOn`).
+* `ym_fock_stone_flow` — the **second-quantized Yang–Mills Hamiltonian**
+  `dΓ(½Σπ² + ½ΣB²)` on the Fock space over the Gauss–polynomial core of
+  `L²(ℝ⁹⁹)` (via `ym_fock_friedrichs_extension` and
+  `exists_stone_flow_of_positive`): here the extension *is* positive, so the
+  flow is that of the Friedrichs extension.
+
+Honest boundaries unchanged: nothing claims global regularity of the classical
+Navier–Stokes PDE (Contention D5) or a Yang–Mills mass gap; the Navier–Stokes
+setting is the abstract sequence-space realization of the fiber Hamiltonian, not
+the differential operator on `L²(du₁du₂du₃)`.
+
+## Wave (2026-08-20d, **essential self-adjointness selects a unique
 operator, and the Navier–Stokes Hashimoto/SIRK selection**)
 
 Two further modules, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,

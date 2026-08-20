@@ -61,9 +61,12 @@ neither positivity nor monotonicity.
 ## Honest boundary
 
 The setting is the abstract sequence space `ℓ²(Vel)` with the operator given by
-its matrix in the Hermite basis of the fiber; the differential realization on
-`L²(du₁du₂du₃)` is not built here, and nothing here claims global regularity for
-the classical Navier–Stokes equation.
+its matrix in the Hermite basis of the fiber.  The canonical reading of that
+matrix — the ladder pairs, the canonical commutation relations, and the identity
+`∑_i ½(π_i V_i + V_i π_i) = velH A c` — is supplied by
+`BookProof.ChapterNavierStokesCanonicalVector`; the unitary transport of that
+picture to `L²(du₁du₂du₃)` is not built here, and nothing here claims global
+regularity for the classical Navier–Stokes equation.
 -/
 
 open scoped ENNReal

@@ -120,6 +120,10 @@ import BookProof.ChapterNavierStokesSignedShift
 -- The three coupled velocity components at one fiber: `H = ∑ᵢ ½(πᵢ Vᵢ + Vᵢ πᵢ)`
 -- with `Vᵢ(u) = ∑ₖ A_{ik} uₖ + cᵢ` for an arbitrary real matrix `A` and vector `c`.
 import BookProof.ChapterNavierStokesThreeComponent
+-- The same fiber Hamiltonian written canonically: ladder operators on the three-mode
+-- Hermite core, the canonical pairs `uᵢ = (aᵢ + aᵢ†)/√2`, `πᵢ = i(aᵢ† - aᵢ)/√2` with the
+-- full CCR, and the identification `∑ᵢ ½(πᵢ Vᵢ + Vᵢ πᵢ) = velH A c`.
+import BookProof.ChapterNavierStokesCanonicalVector
 -- Essential self-adjointness selects a unique self-adjoint operator: the closure
 -- of the graph, its uniqueness, and the positivity-free Hashimoto/SIRK selection.
 import BookProof.ChapterEsaClosure
@@ -673,3 +677,13 @@ import BookProof.ChapterFockSecondQuantization
 -- self-adjoint infinitesimal generator, and the two constructions are mutually inverse.
 import BookProof.ChapterStoneTheorem
 import BookProof.ChapterStoneSeparable
+
+-- The Stone bridge and the concrete flows: `ChapterStoneBridge` packages a
+-- selected self-adjoint extension (`IsSelfAdjointExtension` /
+-- `IsPositiveSelfAdjointExtension`) into the bundled `UnboundedSelfAdjoint`
+-- structure that Stone's theorem consumes, and `ChapterStoneFlows` instantiates
+-- the complete unitary flow for the Eulerian NS (`ns_stone_flow`), Lagrangian NS
+-- (`lagrangian_stone_flow`, `diagKR_stone_flow`) and QYM (`ym_fock_stone_flow`)
+-- Hamiltonians.
+import BookProof.ChapterStoneBridge
+import BookProof.ChapterStoneFlows
