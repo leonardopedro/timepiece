@@ -1,0 +1,33 @@
+from folder /home/leo/Downloads/de76e6ea-a314-4f95-babe-7c05669945e3-aristotle/output-final_aristotle copy the files ARISTOTLE_SUMMARY.md
++59
+BookProof.lean
++14
+CONSOLIDATED_PLAN.md
++64
+PLAN_LEAN_SPECIALIST_NS_FLOW.md
++27 -10
+FreeField.lean
++173
+ChapterGaugeFixing.lean
++389
+ChapterNavierStokesAffineBlockEsa.lean
++323
+ChapterNavierStokesAffineFiberEsa.lean
++609
+ChapterNavierStokesBilinearEsa.lean
++427
+ChapterNavierStokesSignedShift.lean
++709
+ChapterNavierStokesSignFlip.lean
++574
+ChapterNavierStokesThreeComponent.lean
++742
+ChapterRoadmapAudit.lean
++78
+STATUS.md
++137
+ .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.
+ 
+ add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically efficient) discussed in:  ../timepiece/CONSOLIDATED_PLAN.md
+ 
+ 
