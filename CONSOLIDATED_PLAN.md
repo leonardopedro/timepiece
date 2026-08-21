@@ -9,6 +9,81 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
 
+**Status (2026-08-21, consolidated: all named §9 plan items are closed; the
+remaining work is the recorded research boundaries).** This snapshot closes the
+last realization-layer gaps of the Navier–Stokes thread and reaches *parity of
+realization* across the Eulerian and Lagrangian variable pictures:
+
+* **§9 item 4 (NS differential realization) — CLOSED (2026-08-20k).** The full
+  quadratic symbol `A_i = u_j u_{i,j} − ν u_{i,jj}` is essentially self-adjoint on
+  the Hermite core of `L²(du₁du₂du₃)` (`ChapterHermiteProductBasis.lean` +
+  `ChapterNavierStokesDifferentialL2.lean`: `velUnitary ≃ L²(ℝ³)`, `momOp = −i∂/∂uᵢ`,
+  `[πᵢ,u_k] = −iδ_{ik}`, `nsDiffH_essentiallySelfAdjointOn_core`,
+  `nsQuadraticDiffH_essentiallySelfAdjointOn_core`).
+* **§9 item 11 (Lagrangian/Eulerian parity) — CLOSED (2026-08-20j).** The
+  canonical/ladder realization of the Lagrangian second-order part on the
+  trajectory-space Hermite basis (`ChapterNavierStokesLagrangianCanonical.lean`:
+  `lagQ`/`lagP`, `comm_lagP_lagQ`, `T = ½ΣPᵢ² + νΣQᵢ² = ω(N+3/2)`,
+  `lagCan_esa`, `lagCan_stone_flow`).
+* **§9 items 8/9 and the general Stone theorem — CLOSED (2026-08-20d/20e/20i).**
+  The ESA-closure + Hashimoto/SIRK selection, the Lagrangian Kato–Rellich route,
+  and the complete unitary flows via `ChapterStoneResolvent`–`ChapterStoneSeparable`
+  + `ChapterStoneBridge`/`ChapterStoneFlows`.
+* **GAP-1 / GAP-2 — CLOSED.** The §4 hygiene items are landed; the two documented
+  gaps are closed in `BookProof/STATUS.md`.
+
+**What is now NOT a plan item** (recorded boundaries / closed items, each with
+its own entry below).  Closed: the *continuum Laplacian* ESA and the *fibrewise*
+ESA of the continuum Navier–Stokes operator.  Genuinely open (scope cuts /
+research targets): the *classical* Navier–Stokes regularity question (Contention
+D5), the QG / NS mass gaps (author's decision), and — the single genuinely open
+analytic step — the **QG continuum ESA with an unbounded potential**:
+* **NS fibrewise / continuum ESA (closed).** `ChapterNavierStokesFockContinuum`
+  proves essential self-adjointness in the genuinely continuum situation: the
+  one-parcel operator is multiplication by a real field `w` on the parcel domain,
+  so it has **continuous spectrum** and no eigenvectors.  `multOp_hasZeroDeficiencyOn`
+  is the headline — multiplication by an arbitrary real measurable function is
+  essentially self-adjoint on the bounded-energy core — and
+  `sectorHamiltonian_hasZeroDeficiencyOn` applies it to the second-quantized
+  `ĥ = ∫ w(ξ)a†(ξ)a(ξ)dξ` on the `n`-parcel sector `L²(Ωⁿ)`.  The NS continuum
+  fibrewise step is therefore done.
+* **QG continuum ESA with an unbounded potential (OPEN).** The QG Hamiltonian's
+  fibrewise / continuum ESA is **not** closed, because the potential is
+  unbounded.  `ChapterWaveUnboundedPotential` proves the *position-space half*
+  (`potentialOp_essentiallySelfAdjoint` for temperate-growth potentials,
+  `multiplierOp_essentiallySelfAdjoint`, and the truncations
+  `wave_add_truncatedPotential_essentiallySelfAdjoint`), and the sign-correct
+  `-d²/dx² + x²/4` oscillator is `ChapterHarmonicOscillatorEsa`; but the
+  *hyperbolic fibrewise / direct-integral* step that would pass ESA to the full
+  `□ + V` with `V` bounded above by a quadratic (the `-d²/dx² − x⁴` sign record,
+  §9.5, the Faris–Lavine class) remains **unproved**.  This is the one genuinely
+  open analytic research target.
+* **Stone's theorem applied to the continuum Laplacian (closed).** The concrete
+  ESA step is `constCoeffOp_essentiallySelfAdjoint`
+  (`BookProof/ChapterStrichartzWave.lean`), whose real quadratic symbol covers the
+  continuum Laplacian (`c = (1,…,1)`), and the general
+  `polyharmonic_multiplier_essentiallySelfAdjoint` / `multiplierOp_essentiallySelfAdjoint`.
+  ESA on the Schwartz core gives the complete unitary flow by the general Stone
+  theorem (`ChapterStoneResolvent`–`ChapterStoneSeparable`).
+
+**What the Lean 4 specialist must do next** (in order, see the consolidated list
+at the end of §9):
+
+1. **Re-run the §8 verification gate** for the 2026-08-20…20k waves — the gate was
+   verified green through 2026-08-18c, but has **not** been re-run in this
+   repository snapshot for the newer Navier–Stokes, Stone, Gauge-Fixing, QG/QYM
+   and realization modules.  First action: `lake build`, `lake build RandomMap`,
+   `./patches/build-book.sh`, `./patches/check-katex.sh`, and the sorry/axiom and
+   isolation audits.
+2. **Close the QG unbounded-potential ESA (the one genuinely open analytic step).**
+   The NS fibrewise / continuum ESA is done (`ChapterNavierStokesFockContinuum`),
+   but the QG continuum ESA with an unbounded potential — the hyperbolic
+   fibrewise / direct-integral step for `□ + V` with `V` bounded above by a
+   quadratic (§9.5, the Faris–Lavine class) — remains unproved.
+3. **Keep the Book ↔ BookProof one-to-one correspondence** on any edit (the
+   `#check` blocks in `Book/` must stay in sync with the module names in
+   `BookProof/`).
+
 **Status (2026-08-20k, the differential realization of the full Navier–Stokes
 quadratic symbol on `L²(du₁du₂du₃)`):** the last named plan item, §9 item 4, is
 now closed by two `sorry`-free / `axiom`-free modules, registered in
@@ -1283,14 +1358,16 @@ none of which is a plan item:
    fragment links present) hold; `./patches/check-katex.sh` reports 2129 math
    snippets, 0 failures.  Note: the `patches/*.sh` scripts had lost their
    executable bit in this snapshot and it has been restored.
-**Next specialist: re-run for the 2026-08-20/20b/20c/20d/20e/20h/20i waves.** The
+**Next specialist: re-run for the 2026-08-20…20k waves.** The
     Navier–Stokes modules (`BilinearEsa`, `AffineFiber`/`AffineBlock`,
     `SignFlip`, `SignedShift`, `ThreeComponent`, `EsaClosure`,
     `NavierStokesHashimoto`, `KatoRellichRelative`,
     `NavierStokesLagrangianKatoRellich`, `NavierStokesCanonicalVector`),
     `ChapterGaugeFixing.lean`, the
     Stone-theorem modules (`ChapterStoneResolvent` through `ChapterStoneSeparable`),
-    and the bridge/flows modules (`ChapterStoneBridge`, `ChapterStoneFlows`)
+    the bridge/flows modules (`ChapterStoneBridge`, `ChapterStoneFlows`), and the
+    realization wave (`ChapterHermiteProductBasis`,
+    `ChapterNavierStokesDifferentialL2`, `ChapterNavierStokesLagrangianCanonical`)
     were verified green in the producing workspace, but the §8 gate has **not**
     been re-run in this repository snapshot; the first action of the next
     Lean 4 specialist is `lake build`, `lake build RandomMap`, the book wrapper
@@ -1894,6 +1971,54 @@ executed.
    `Book/FreeField.lean` is in place; the plan's A.6/A.7 now carry the
    second-coordinate `y` and the second-order generator `genY2` as named plan
    items, so the plan and the proof modules are in one-to-one correspondence.
+
+### Consolidated next steps for the Lean 4 specialist (2026-08-21)
+
+All *named* §9 plan items are now closed; nothing below is a plan item. These are
+the concrete actions that would most improve the project, in order of value.
+Status of the previously-listed analytic boundaries (see the leading Status
+block): the **NS fibrewise / continuum ESA** is closed
+(`ChapterNavierStokesFockContinuum.multOp_hasZeroDeficiencyOn`,
+`sectorHamiltonian_hasZeroDeficiencyOn`), and the **Stone→continuum Laplacian**
+step is closed (`BookProof/ChapterStrichartzWave.constCoeffOp_essentiallySelfAdjoint`
+covers the Laplacian symbol; ESA then yields the complete flow by the general
+Stone theorem).  The **QG continuum ESA with an unbounded potential** remains
+**open** — this is the one genuinely open analytic step.  What remains is:
+
+1. **Re-run the §8 verification gate (highest priority).** The gate was last
+   verified green at 2026-08-18c; the 2026-08-20…20k waves (all the Navier–Stokes
+   modules, `ChapterGaugeFixing`, the Stone-theorem and bridge/flows modules, and
+   the `ChapterHermiteProductBasis` / `ChapterNavierStokesDifferentialL2` /
+   `ChapterNavierStokesLagrangianCanonical` realization wave) were verified only
+   in the producing workspace, **not** in this repository snapshot.  First
+   actions, in order: `lake build`, `lake build RandomMap`, `lake build UsedRoute`,
+   `./patches/build-book.sh`, `./patches/check-katex.sh`, then the sorry/axiom
+   audit (only the quarantined legacy RH route under `UsedRoute/`/`UnusedRoute/`
+   may carry `sorry`s) and the isolation greps.  Record the results in the §8 gate
+   note and in `BookProof/STATUS.md`.
+
+2. **Close the QG unbounded-potential ESA (the one genuinely open analytic step).**
+   The hyperbolic fibrewise / direct-integral step that would pass ESA to the full
+   `□ + V` with `V` bounded above by a quadratic (§9.5, the Faris–Lavine class;
+   the `-d²/dx² − x⁴` sign record) is **not** proved — `ChapterWaveUnboundedPotential`
+   supplies the position-space half (`potentialOp_essentiallySelfAdjoint`,
+   `wave_add_truncatedPotential_essentiallySelfAdjoint`) and
+   `ChapterHarmonicOscillatorEsa` the sign-correct oscillator, but the fibrewise
+   gluing for QG remains open.  This is the distinction from the NS case, where
+   the fibrewise step is done.
+
+3. **Keep the Book ↔ BookProof correspondence exact.** The `#check` blocks in
+   `Book/` (in particular `Book/FreeField.lean`, now the single point of pedagogy
+   for the NS/QG/QYM/realization waves) must stay in one-to-one sync with the
+   module and theorem names in `BookProof/`.  Any new BookProof theorem cited in
+   the Book must be registered in `BookProof.lean` and `#print axioms`-certified
+   in `BookProof/ChapterRoadmapAudit.lean`.
+
+4. **Optional hardening.** If a further wave is desired, the highest-leverage
+   targets are the recorded scope cuts that are genuinely the author's to make:
+   the classical NS regularity question (Contention D5) and the QG / NS mass gaps.
+   Do not re-open GAP-1 / GAP-2 or any closed §9 item without a concrete new
+   mathematical question.
 
 ---
 
