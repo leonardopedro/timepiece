@@ -12,10 +12,13 @@ import BookProof.ChapterNavierStokesSignFlip
 import BookProof.ChapterNavierStokesSignedShift
 import BookProof.ChapterNavierStokesThreeComponent
 import BookProof.ChapterNavierStokesCanonicalVector
+import BookProof.ChapterHermiteProductBasis
+import BookProof.ChapterNavierStokesDifferentialL2
 import BookProof.ChapterEsaClosure
 import BookProof.ChapterNavierStokesHashimoto
 import BookProof.ChapterNavierStokesLagrangianKatoRellich
 import BookProof.ChapterStoneFlows
+import BookProof.ChapterNavierStokesLagrangianCanonical
 import BookProof.ChapterGaugeFixing
 import BookProof.ChapterQuantumGravityDensitized
 import BookProof.ChapterQuantumGravityHalfDensity
@@ -564,6 +567,27 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.NavierStokesFlow.CanonicalVector.canH_domain_dense
 #print axioms BookProof.NavierStokesFlow.CanonicalVector.nsQuadraticH_essentiallySelfAdjointOn_core
 
+-- `CONSOLIDATED_PLAN.md` §9 item 4, differential realization: the product Hermite
+-- orthonormal basis of `L²(ℝᵈ)` and the transport of the canonical picture to
+-- `L²(du₁du₂du₃)`, where `πᵢ` is a genuine derivative and `uᵢ` a genuine
+-- multiplication operator.
+#print axioms BookProof.HermiteProductBasis.orthonormal_hermiteMvLp
+#print axioms BookProof.HermiteProductBasis.span_hermiteMvLp
+#print axioms BookProof.HermiteProductBasis.crePoly_hermiteMvLp
+#print axioms BookProof.HermiteProductBasis.annPoly_hermiteMvLp
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.hasDerivAt_pgFun_sec
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.posOp_apply_eq_mul
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.momOp_apply_eq_differential
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.comm_momOp_posOp
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.intertwine_ann
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.intertwine_cre
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.intertwined_canH
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.nsDiffH_essentiallySelfAdjointOn_core
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.nsDiffH_not_bounded
+#print axioms BookProof.NavierStokesFlow.DifferentialL2.nsDiffH_domain_dense
+#print axioms
+  BookProof.NavierStokesFlow.DifferentialL2.nsQuadraticDiffH_essentiallySelfAdjointOn_core
+
 -- `CONSOLIDATED_PLAN.md` §9 item 8: essential self-adjointness selects a unique
 -- self-adjoint operator (the closure), and the Hashimoto/SIRK shift-invert limit
 -- computes with it -- instantiated for the Navier-Stokes fiber generator.
@@ -829,5 +853,22 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.StoneFlows.lagrangian_stone_flow
 #print axioms BookProof.StoneFlows.diagKR_stone_flow
 #print axioms BookProof.StoneFlows.ym_fock_stone_flow
+
+-- `CONSOLIDATED_PLAN.md` §9 item 11 ("the Lagrangian / Eulerian parity closure"):
+-- the canonical (ladder) realization of the Lagrangian second-order part on the
+-- trajectory-space Hermite basis, its essential self-adjointness, the essential
+-- self-adjointness of the full transformed Hamiltonian and its complete flow.
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.inner_ann_cre
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.posSq_add_momSq
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.comm_lagP_lagQ
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.comm_lagP_lagQ_of_ne
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.half_lagPSq_add_nu_lagQSq
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_secondOrder_eq
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagT_coreState
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagT_hasZeroDeficiencyOn
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagT_not_bounded
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_esa
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_hFull_hasZeroDeficiencyOn
+#print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_stone_flow
 
 end BookProof.ChapterRoadmapAudit

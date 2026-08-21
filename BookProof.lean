@@ -124,6 +124,15 @@ import BookProof.ChapterNavierStokesThreeComponent
 -- Hermite core, the canonical pairs `uᵢ = (aᵢ + aᵢ†)/√2`, `πᵢ = i(aᵢ† - aᵢ)/√2` with the
 -- full CCR, and the identification `∑ᵢ ½(πᵢ Vᵢ + Vᵢ πᵢ) = velH A c`.
 import BookProof.ChapterNavierStokesCanonicalVector
+-- The product Hermite orthonormal basis of `L²(ℝᵈ)`: the normalized Gauss-polynomial
+-- functions `ψ_α`, their orthonormality and completeness, and the ladder relations
+-- `a†ψ_α = √(α_i+1)ψ_{α+e}`, `aψ_α = √α_i ψ_{α−e}` at the level of polynomials.
+import BookProof.ChapterHermiteProductBasis
+-- The differential realization of the same fiber Hamiltonian on `L²(du₁du₂du₃)`:
+-- `πᵢ = −i ∂/∂uᵢ` as a genuine derivative, `uᵢ` as a genuine multiplication operator,
+-- the unitary transport from the three-mode sequence space, and essential
+-- self-adjointness of `∑ᵢ ½(πᵢ Vᵢ + Vᵢ πᵢ)` on the Hermite core of `L²(ℝ³)`.
+import BookProof.ChapterNavierStokesDifferentialL2
 -- Essential self-adjointness selects a unique self-adjoint operator: the closure
 -- of the graph, its uniqueness, and the positivity-free Hashimoto/SIRK selection.
 import BookProof.ChapterEsaClosure
@@ -687,3 +696,10 @@ import BookProof.ChapterStoneSeparable
 -- Hamiltonians.
 import BookProof.ChapterStoneBridge
 import BookProof.ChapterStoneFlows
+
+-- The canonical (ladder) realization of the Lagrangian Navier-Stokes Hamiltonian:
+-- the parcel momenta and viscous gradients as the non-commuting canonical pairs of
+-- the trajectory-space Hermite basis, the identity `½∑Pᵢ² + ν∑Qᵢ² = ω(N + 3/2)`,
+-- essential self-adjointness of the full transformed Hamiltonian on that core, and
+-- the complete unitary flow it generates.
+import BookProof.ChapterNavierStokesLagrangianCanonical

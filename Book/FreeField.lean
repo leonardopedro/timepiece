@@ -1349,11 +1349,9 @@ statement in its intended form: for every viscosity, every velocity gradient and
 every velocity Laplacian, the quantized full quadratic Navier–Stokes symbol
 $`\sum_i\tfrac12(\pi_iA_i+A_i\pi_i)`,
 $`A_i(u)=\sum_ju_{i,j}u_j-\nu u_{i,jj}`, is essentially self-adjoint on the
-Hermite core of the three velocity components. What is still not built is the
-unitary transport of this picture to $`L^2(du_1du_2du_3)`, where $`u_i` would be
-multiplication and $`\pi_i` differentiation; the canonical pairs here are
-abstract, characterized by their commutation relations rather than by that
-realization.
+Hermite core of the three velocity components. The canonical pairs used here are
+abstract, characterized by their commutation relations; the next paragraph
+transports them to the concrete realization on $`L^2(du_1du_2du_3)`.
 :::
 
 ```
@@ -1366,6 +1364,43 @@ realization.
 #check @BookProof.NavierStokesFlow.CanonicalVector.canH_not_bounded
 #check @BookProof.NavierStokesFlow.CanonicalVector.nsQuadraticH
 #check @BookProof.NavierStokesFlow.CanonicalVector.nsQuadraticH_essentiallySelfAdjointOn_core
+```
+
+:::paragraph
+The abstract picture is now carried to the concrete one. The product Hermite
+functions $`\psi_\alpha(u)=\prod_iHe_{\alpha_i}(u_i)e^{-\|u\|^2/4}/\|\cdot\|`,
+indexed by the three-mode multi-indices, are an orthonormal basis of
+$`L^2(du_1du_2du_3)` (`hermiteMvBasis`, `velBasis`), so the sequence space of the
+previous paragraph *is* $`L^2(\mathbb R^3)` under the unitary `velUnitary`. On the
+Gauss–polynomial core of that space the two physical operators are honest: `posOp`
+is multiplication by the coordinate $`u_i` and `momOp` is $`-i\partial/\partial u_i`
+— `momOp_apply_eq_differential` states that its value at $`p(u)e^{-\|u\|^2/4}` is,
+pointwise, $`-i` times Mathlib's `deriv` of that function along the $`i`-th
+coordinate — and they satisfy the canonical commutation relation
+$`[\pi_i,u_k]=-i\delta_{ik}` (`comm_momOp_posOp`). The unitary carries the
+finite-mode core onto the Gauss–polynomial core and the ladder operators onto the
+differential ones (`intertwine_ann`, `intertwine_cre`), hence the canonical
+Hamiltonian onto the differentially written one (`intertwined_canH`). The
+conclusion is the statement in its intended realization: for every real velocity
+gradient and every constant part, the Weyl-ordered
+$`\sum_i\tfrac12(\pi_iV_i+V_i\pi_i)` with $`\pi_i=-i\partial/\partial u_i` and
+$`V_i` multiplication by $`\sum_kA_{ik}u_k+c_i` is essentially self-adjoint on the
+Hermite core of $`L^2(du_1du_2du_3)`, the operator is unbounded there, and the
+domain is dense. Nothing here claims global regularity of the classical
+Navier–Stokes PDE: the theorem is about the Hilbert-space operator at one
+Eulerian fiber, where the derivative fields are independent canonical coordinates.
+:::
+
+```
+#check @BookProof.HermiteProductBasis.hermiteMvBasis
+#check @BookProof.NavierStokesFlow.DifferentialL2.momOp_apply_eq_differential
+#check @BookProof.NavierStokesFlow.DifferentialL2.comm_momOp_posOp
+#check @BookProof.NavierStokesFlow.DifferentialL2.velUnitary
+#check @BookProof.NavierStokesFlow.DifferentialL2.intertwined_canH
+#check @BookProof.NavierStokesFlow.DifferentialL2.nsDiffH
+#check @BookProof.NavierStokesFlow.DifferentialL2.nsDiffH_essentiallySelfAdjointOn_core
+#check @BookProof.NavierStokesFlow.DifferentialL2.nsDiffH_not_bounded
+#check @BookProof.NavierStokesFlow.DifferentialL2.nsQuadraticDiffH_essentiallySelfAdjointOn_core
 ```
 
 :::paragraph
@@ -1478,6 +1513,41 @@ abstract diagonal instance `diagKR` over `ℓ²(ℕ)`.
 #check @BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_hashimoto_selects
 #check @BookProof.NavierStokesFlow.LagrangianKatoRellich.lagrangian_shiftInvert_selects
 #check @BookProof.NavierStokesFlow.LagrangianKatoRellich.diagKR
+```
+
+:::paragraph
+The Lagrangian route is now realized at the same level as the Eulerian one. In
+`ChapterNavierStokesLagrangianCanonical` the parcel momenta and the viscous
+gradients are built as the canonical pairs of the trajectory-space Hermite
+basis `ℓ²(Fin 3 → ℕ)`: with `ω = √(2ν)` the operators `Qᵢ = ω^{-1/2}(aᵢ + aᵢ†)/√2`
+and `Pᵢ = ω^{1/2}·i(aᵢ† − aᵢ)/√2` obey the canonical commutation relations
+(`comm_lagP_lagQ`, `comm_lagP_lagQ_of_ne`), so — unlike in the diagonal
+instance `diagKR` — they genuinely fail to commute, and they are symmetric
+because the ladder operators are mutually adjoint (`inner_ann_cre`). The
+choice of frequency is exactly the one that diagonalizes the positive
+second-order part: `posSq_add_momSq` is the oscillator identity `uᵢ² + πᵢ² = 2Nᵢ + 1`
+and `lagCan_secondOrder_eq` reads the Lagrangian second-order part as the number
+operator, `½∑Pᵢ² + ν∑Qᵢ² = ω(N + 3/2)`. Its eigenvectors are the Hermite states
+(`lagT_coreState`), a total family, so it is essentially self-adjoint on the
+Hermite core (`lagT_hasZeroDeficiencyOn`) while being unbounded
+(`lagT_not_bounded`); Kato–Rellich then gives essential self-adjointness of the
+*full* transformed Hamiltonian there (`lagCan_esa`), and Stone's theorem the
+complete unitary flow (`lagCan_stone_flow`). Nothing here claims global
+regularity of the classical Navier–Stokes equation.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.inner_ann_cre
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.posSq_add_momSq
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.comm_lagP_lagQ
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.comm_lagP_lagQ_of_ne
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.lagCanData
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_secondOrder_eq
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.lagT_coreState
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.lagT_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.lagT_not_bounded
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_esa
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_stone_flow
 ```
 
 :::paragraph

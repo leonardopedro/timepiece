@@ -1,3 +1,55 @@
+# Summary of changes for the continuation run (2026-08-20k, `CONSOLIDATED_PLAN.md` §9 item 4: the differential realization of the full Navier–Stokes quadratic symbol on `L²(du₁du₂du₃)`)
+
+The last named open plan item is now closed. All work is committed and pushed, and the §8 verification gate is green.
+
+**1. New proof module — the product Hermite basis of `L²(ℝᵈ)`.**
+`BookProof/ChapterHermiteProductBasis.lean` (namespace `BookProof.HermiteProductBasis`):
+- the normalized Gauss–polynomial functions `hermiteMvLp`, their orthonormality `orthonormal_hermiteMvLp` (Fubini reduction to the one-dimensional `hermiteInner_eq`) and `span_hermiteMvLp` (their span is the Gauss–polynomial core `polyGaussCore`), giving the Hilbert basis `hermiteMvBasis`;
+- the partial derivative of a product Hermite polynomial, `pderiv_hermiteMv` (`∂ᵢHe_α = αᵢHe_{α−eᵢ}`), and the polynomial ladder operators `annPoly`, `crePoly` with `crePoly_hermiteMv`;
+- the ladder actions on the orthonormal basis: `crePoly_hermiteMvLp` (`a†ψ_α = √(αᵢ+1)ψ_{α+eᵢ}`) and `annPoly_hermiteMvLp` (`aψ_α = √αᵢ ψ_{α−eᵢ}`).
+
+**2. New proof module — the differential realization and the unitary transport.**
+`BookProof/ChapterNavierStokesDifferentialL2.lean` (namespace `BookProof.NavierStokesFlow.DifferentialL2`):
+- `hasDerivAt_pgFun_sec` differentiates `p(u)e^{−‖u‖²/4}` along one coordinate; on the Gauss–polynomial core, `posOp i` is multiplication by `uᵢ` (`posOp_apply_eq_mul`) and `momOp i` is `πᵢ = −i ∂/∂uᵢ` — `momOp_apply_eq_differential` says its value at `p(u)e^{−‖u‖²/4}` is pointwise `−i` times Mathlib's `deriv` along the `i`-th coordinate — with the canonical commutation relation `comm_momOp_posOp` (`[πᵢ, u_k] = −i δ_{ik}`);
+- `velBasis` is the product Hermite Hilbert basis of `L²(ℝ³)` indexed by the three-mode multi-indices `Vel = Fin 3 → ℕ`, and `velUnitary : ℓ²(Vel) ≃ₗᵢ L²(ℝ³)` the resulting unitary; it maps the finite-mode core into the Gauss–polynomial core (`velUnitary_mem_core`, `embedCore`);
+- the intertwining: `intertwine_ann`, `intertwine_cre` for the ladder operators (via `ann_coreState`, `cre_coreState` and the span lemma `span_coreState`), then `intertwined_pos`, `intertwined_mom` for the canonical pairs and `intertwined_canH` for the Hamiltonian;
+- the conclusions: `nsDiffH_essentiallySelfAdjointOn_core` — for every real velocity gradient `A` and every real constant part `c`, the Weyl-ordered `∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` with `πᵢ = −i ∂/∂uᵢ` and `Vᵢ` multiplication by `∑ₖ A_{ik}uₖ + cᵢ` is essentially self-adjoint on the Hermite core of `L²(du₁du₂du₃)` — and `nsQuadraticDiffH_essentiallySelfAdjointOn_core` with the coefficients spelled out as `(ν, u_{i,j}, u_{i,jj})`. Non-vacuity: `nsDiffH_not_bounded` (unbounded) and `nsDiffH_domain_dense` (dense domain).
+
+Both modules are `sorry`-free; `#print axioms` on their headlines reports only `propext`, `Classical.choice`, `Quot.sound`. They are imported from `BookProof.lean`, certified by fifteen `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, and cited with a new prose paragraph and `#check` block in `Book/FreeField.lean` (the paragraph that recorded the transport as "not built" is rewritten accordingly), all of which appear in the rendered book.
+
+Honest boundary, unchanged: nothing here claims global regularity of the classical Navier–Stokes PDE (Contention D5). The theorem is about the Hilbert-space operator at one Eulerian fiber, where the derivative fields `u_{i,j}`, `u_{i,jj}` are independent canonical coordinates.
+
+**3. §8 verification gate re-run — green.**
+- `lake build` (default targets BookProof + Book + Singularity): 8659 jobs, 0 errors; `lake build RandomMap`: 8039 jobs, 0 errors.
+- `./patches/build-book.sh`: the book renders and its invariants hold (no `<base>` tag, fragment ToC links present); `./patches/check-katex.sh`: 2300 snippets extracted, 0 KaTeX failures.
+- Sorry/axiom audit: no code `sorry` and no `axiom` declarations in `BookProof/`, `PnpProof/`, `Singularity/`, `RandomMap/` (all matches are prose); the only remaining sorries are the quarantined legacy RH route files, which are not default targets. Isolation greps (`import PnpProof`, `import UnusedRoute`) are clean.
+
+**4. Documentation updated.** `CONSOLIDATED_PLAN.md` gains a leading `**Status (2026-08-20k, …)**` block and §9 item 4 is marked closed for the differential realization (only the Lagrangian trajectory-space `L²` differential realization remains from that item); `BookProof/STATUS.md` gains a "Latest wave (2026-08-20k)" section.
+
+# Summary of changes for run a2cf1c9c-a843-4c3e-8a14-48118a06e7e8
+Both items designated in `CONSOLIDATED_PLAN.md` §9 for the next Lean specialist are done, and all work is committed and pushed.
+
+**1. New proof module — the Lagrangian / Eulerian parity closure (§9 item 11's "next step").**
+`BookProof/ChapterNavierStokesLagrangianCanonical.lean` (namespace `BookProof.NavierStokesFlow.LagrangianCanonical`) builds the canonical/ladder realization of the Lagrangian Navier–Stokes second-order part on the trajectory-space Hermite basis, mirroring the Eulerian `ChapterNavierStokesCanonicalVector` / `ChapterNavierStokesHermiteCanonical`:
+- the ladder operators are mutually adjoint on the finite-mode core (`inner_ann_cre`, `inner_cre_ann`), so position and momentum are symmetric (`pos_isSymmetricDom`, `mom_isSymmetricDom`) and `posSq_add_momSq` gives `uᵢ² + πᵢ² = 2Nᵢ + 1`;
+- rescaling by `omega nu = √(2ν)` yields the canonical pair `lagQ`, `lagP` with the CCR `comm_lagP_lagQ` (`[Pᵢ,Qᵢ] = −i`) and `comm_lagP_lagQ_of_ne`;
+- `half_lagPSq_add_nu_lagQSq` (`½Pᵢ² + νQᵢ² = ω(Nᵢ+½)`) and `lagCan_secondOrder_eq` identify the second-order part of the bundled data `lagCanData` with `T = ½∑Pᵢ² + ν∑Qᵢ² = ω(N + 3/2)`;
+- `lagT_hasZeroDeficiencyOn` / `lagCan_secondOrder_hasZeroDeficiencyOn`, then `lagCan_esa` (essential self-adjointness of the full Lagrangian generator on the Hermite core, drift handled by the existing Kato–Rellich route) and `lagCan_stone_flow` (the complete unitary group `e^{-itT}` through the Stone bridge). `lagT_not_bounded` records that the operator is genuinely unbounded, so nothing is a bounded-operator artefact.
+
+The module is `sorry`-free; `#print axioms` on its headlines (including `lagCan_stone_flow`) reports only `propext`, `Classical.choice`, `Quot.sound`. It is imported from `BookProof.lean`, certified by twelve `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, and cited with prose and a `#check` block from `Book/FreeField.lean` (both appear in the rendered book).
+
+Honest boundary, unchanged: nothing here claims global regularity of the classical Navier–Stokes PDE, and the *differential* realization of the full NS quadratic symbol on `L²(du₁du₂du₃)` (§9 item 4) remains a recorded open boundary — as do the hyperbolic direct-integral/Faris–Lavine sign case for QG and the harmonic-oscillator application of Stone.
+
+**2. §8 verification gate re-run — green.**
+- `lake build` (default targets BookProof + Book + Singularity): completed successfully, 8657 jobs, 0 errors; `lake build RandomMap` and `lake build UsedRoute` also complete (only the expected legacy warnings).
+- `./patches/build-book.sh`: book renders and its invariants hold (no `<base>` tag, fragment ToC links present). The scripts under `patches/` had lost their executable bit; that is restored and recorded in git.
+- `./patches/check-katex.sh`: 2288 math snippets extracted, 0 KaTeX failures.
+- Sorry/axiom audit: no code `sorry` and no `axiom` declarations in `BookProof/`, `PnpProof/`, `Singularity/`, `RandomMap/`, `Book/` (all matches are prose). The only remaining sorries are in the quarantined legacy RH route under `UsedRoute/`/`UnusedRoute/`, which are not default targets, as the plan expects. Isolation greps (`import PnpProof`, `import UnusedRoute`) are clean.
+
+**3. Documentation updated.** `CONSOLIDATED_PLAN.md` gains a leading `**Status (2026-08-20j, …)**` block, marks §9 item 11's parity next-step as EXECUTED (original wording retained), supersedes the §9 item 9 rigor-parity record, and records the gate re-run; `BookProof/STATUS.md` gains a "Latest wave (2026-08-20j)" section and its parity paragraph is updated.
+
+The Properties table lists the new definition `lagCanData` and four proved properties (`comm_lagP_lagQ`, `lagCan_secondOrder_eq`, `lagCan_esa`, `lagCan_stone_flow`).
+
 # Summary of changes for run e6da42cd-798e-4401-8dd5-9a238f2a59a9
 The general Stone theorem for separable Hilbert spaces is now formalized and proved in Lean, `sorry`-free, and wired into the project's default build.
 

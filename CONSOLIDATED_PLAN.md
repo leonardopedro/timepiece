@@ -9,6 +9,87 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
 
+**Status (2026-08-20k, the differential realization of the full Navier–Stokes
+quadratic symbol on `L²(du₁du₂du₃)`):** the last named plan item, §9 item 4, is
+now closed by two `sorry`-free / `axiom`-free modules, registered in
+`BookProof.lean`, `#print axioms`-certified in `BookProof/ChapterRoadmapAudit.lean`
+and cited from `Book/FreeField.lean`:
+
+* **`BookProof/ChapterHermiteProductBasis.lean`** (namespace
+  `BookProof.HermiteProductBasis`) builds the product Hermite orthonormal basis of
+  `L²(ℝᵈ)`: the normalized Gauss–polynomial functions `hermiteMvLp`, their
+  orthonormality (`orthonormal_hermiteMvLp`, by Fubini from the 1-D
+  `hermiteInner_eq`), the identification of their span with the Gauss–polynomial
+  core (`span_hermiteMvLp`), the Hilbert basis `hermiteMvBasis`, the partial
+  derivative `pderiv_hermiteMv` (`∂ᵢHe_α = αᵢHe_{α−eᵢ}`) and the ladder actions
+  `crePoly_hermiteMvLp` (`a†ψ_α = √(αᵢ+1)ψ_{α+eᵢ}`) and `annPoly_hermiteMvLp`
+  (`aψ_α = √αᵢ ψ_{α−eᵢ}`).
+* **`BookProof/ChapterNavierStokesDifferentialL2.lean`** (namespace
+  `BookProof.NavierStokesFlow.DifferentialL2`) is the differential realization
+  itself.  `posOp i` is multiplication by the coordinate `uᵢ`
+  (`posOp_apply_eq_mul`) and `momOp i` is `πᵢ = −i ∂/∂uᵢ`: the analytic lemma
+  `hasDerivAt_pgFun_sec` differentiates `p(u)e^{−‖u‖²/4}` along one coordinate, and
+  `momOp_apply_eq_differential` states that the value of `momOp i` at that function
+  is pointwise `−i` times Mathlib's `deriv` along the `i`-th coordinate.
+  `comm_momOp_posOp` is the CCR `[πᵢ, u_k] = −i δ_{ik}` for these genuinely
+  differential operators.  The transport is `velUnitary : ℓ²(Vel) ≃ₗᵢ L²(ℝ³)`,
+  the Hilbert-basis isomorphism given by the product Hermite functions indexed by
+  the three-mode multi-indices (`velBasis`); it carries the finite-mode core onto
+  the Gauss–polynomial core (`velUnitary_mem_core`, `embedCore`) and the abstract
+  ladder operators onto the differential ones (`intertwine_ann`, `intertwine_cre`),
+  hence the canonical pairs (`intertwined_pos`, `intertwined_mom`) and the
+  canonical Hamiltonian onto the differentially written one (`intertwined_canH`).
+* **The conclusions.** `nsDiffH_essentiallySelfAdjointOn_core`: for every real
+  velocity gradient `A` and every real constant part `c`, the Weyl-ordered
+  `∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` with `πᵢ = −i ∂/∂uᵢ` and `Vᵢ` multiplication by
+  `∑ₖ A_{ik}uₖ + cᵢ` is essentially self-adjoint on the Hermite core of
+  `L²(du₁du₂du₃)`.  `nsQuadraticDiffH_essentiallySelfAdjointOn_core` spells the
+  coefficients out as the Navier–Stokes ones (`ν`, `u_{i,j}`, `u_{i,jj}`).
+  Non-vacuity: `nsDiffH_not_bounded` (the operator is unbounded) and
+  `nsDiffH_domain_dense` (the domain is dense).
+
+Honest boundaries unchanged: nothing here claims global regularity of the
+*classical* Navier–Stokes PDE (Contention D5, the deliberate scope cut); the
+theorem is about the Hilbert-space operator at one Eulerian fiber, where the
+derivative fields `u_{i,j}`, `u_{i,jj}` are independent canonical coordinates.
+
+**Status (2026-08-20j, the Lagrangian / Eulerian parity closure: the
+canonical/ladder realization of the Lagrangian second-order part on the
+trajectory-space Hermite basis):** the 2026-08-20h next-step item (§9 item 11)
+is now closed by one further `sorry`-free / `axiom`-free module,
+`BookProof/ChapterNavierStokesLagrangianCanonical.lean` (namespace
+`BookProof.NavierStokesFlow.LagrangianCanonical`), registered in `BookProof.lean`,
+`#print axioms`-certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/FreeField.lean`:
+
+* **Canonical pairs on the trajectory space.** The ladder operators of the
+  Hermite basis of the trajectory space are mutually adjoint on the finite-mode
+  core (`inner_ann_cre`, `inner_cre_ann`), so the position and momentum
+  operators are symmetric (`pos_isSymmetricDom`, `mom_isSymmetricDom`) and
+  `posSq_add_momSq` is the number-operator identity `uᵢ² + πᵢ² = 2Nᵢ + 1`.
+  Rescaling by `omega nu = √(2ν)` gives the Lagrangian canonical pair
+  `lagQ`, `lagP` with the CCR `comm_lagP_lagQ` (`[Pᵢ, Qᵢ] = −i`) and
+  `comm_lagP_lagQ_of_ne` (commuting for `i ≠ k`).
+* **The identity.** `half_lagPSq_add_nu_lagQSq` is the componentwise
+  `½Pᵢ² + νQᵢ² = ω(Nᵢ + ½)`, and `lagCan_secondOrder_eq` identifies the
+  second-order part of the bundled data `lagCanData` with `lagT nu`, i.e.
+  `T = ½ΣPᵢ² + νΣQᵢ² = ω(N + 3/2)` — the Lagrangian analogue of
+  `canH_eq_velH` in `ChapterNavierStokesCanonicalVector`.
+* **ESA and the flow.** `lagT_hasZeroDeficiencyOn` /
+  `lagCan_secondOrder_hasZeroDeficiencyOn` give zero deficiency on the Hermite
+  core, `lagCan_esa` the essential self-adjointness of the full Lagrangian
+  generator (the drift discharged by the Kato–Rellich route already in place),
+  and `lagCan_stone_flow` the complete unitary group `e^{-itT}` via the
+  2026-08-20i Stone bridge.  Non-vacuity: `lagT_not_bounded` shows the operator
+  is genuinely unbounded, so nothing here is a bounded-operator artefact.
+
+With this the Lagrangian variables version of NS has the canonical/ladder
+reading that the Eulerian version already had; the rigor-parity gap recorded at
+2026-08-20h is closed at the realization layer.  Honest boundaries unchanged:
+nothing here claims global regularity of the *classical* Navier–Stokes PDE
+(Contention D5), and the *differential* realization of the full NS quadratic
+symbol on `L²(du₁du₂du₃)` (§9 item 4) remains a recorded research boundary.
+
 **Status (2026-08-20i, the Stone bridge and the concrete flows: the complete
 unitary flow for the Eulerian NS, Lagrangian NS and QYM Hamiltonians):** the
 2026-08-20f bridge item (§9 item 11) is now closed by two further `sorry`-free /
@@ -1242,11 +1323,21 @@ none of which is a plan item:
      Weyl-ordered expression `canH = ∑_i ½(π_i V_i + V_i π_i)` written in the
      three ladder pairs equals the hopping matrix (`canH_eq_velH`) and is
      essentially self-adjoint on the Hermite core (`canH_essentiallySelfAdjointOn_core`,
-     `nsQuadraticH_essentiallySelfAdjointOn_core`).  What remains is the unitary
-     transport of that canonical picture to `L²(du₁du₂du₃)` — the genuine
+     `nsQuadraticH_essentiallySelfAdjointOn_core`).  **Closed (2026-08-20k):** the
+     unitary transport of that canonical picture to `L²(du₁du₂du₃)` — the genuine
      differential realization of the *full* quadratic symbol
      `A_i = u_j u_{i,j} − ν u_{i,jj}` (the coupled three-component and viscous
-     terms beyond the linear fiber) — and
+     terms beyond the linear fiber) — is now built by
+     `BookProof/ChapterHermiteProductBasis.lean` and
+     `BookProof/ChapterNavierStokesDifferentialL2.lean`: `velUnitary` is the
+     product-Hermite unitary `ℓ²(Vel) ≃ L²(ℝ³)`, `momOp` is `−i ∂/∂uᵢ` as a genuine
+     derivative (`momOp_apply_eq_differential`) with `[πᵢ, u_k] = −i δ_{ik}`
+     (`comm_momOp_posOp`), the transport intertwines the two pictures
+     (`intertwined_canH`), and
+     `nsDiffH_essentiallySelfAdjointOn_core` /
+     `nsQuadraticDiffH_essentiallySelfAdjointOn_core` are the ESA of the
+     differentially written symbol on the Hermite core of `L²(du₁du₂du₃)`.
+     What remains from this item is only
      the Lagrangian second-order part on its trajectory-space `L²`.  ESA then
      gives the complete flow via Stone. Global existence of the *classical* NS
      equation is a separate, deliberate D5 scope cut.
@@ -1581,7 +1672,14 @@ selection is therefore guaranteed by ESA itself, as step (b) of the plan
       `ChapterNavierStokesHermiteCanonical`), the Lagrangian second-order part
       `T` is realized concretely only on the abstract `ℓ²(ℕ)` diagonal instance
       `diagKR`; its canonical/ladder and Hermite/differential realization on the
-      trajectory-space `L²` is **not** built.  This is the single realization
+      trajectory-space `L²` is **not** built.  **Superseded (2026-08-20j):** the
+      canonical/ladder realization on the trajectory-space Hermite basis is now
+      built by `BookProof/ChapterNavierStokesLagrangianCanonical.lean`
+      (`lagQ`/`lagP`, `comm_lagP_lagQ`, `lagCan_secondOrder_eq`, `lagCan_esa`,
+      `lagCan_stone_flow`), so this gap is closed; what remains open is the
+      *differential* realization of the full quadratic symbol on `L²(du)`,
+      §9 item 4.  The 2026-08-20h record, kept for the history, read: this is
+      the single realization
       layer on which the Lagrangian variables version of NS is *behind* the
       Eulerian version (the ESA, the Hashimoto selection, the Fock-of-Fock
       lifting and — with 2026-08-20i — the Stone flows are at parity); it is
@@ -1668,7 +1766,9 @@ selection is therefore guaranteed by ESA itself, as step (b) of the plan
     `L²(du)` remains a recorded boundary).
 
     **Next step for a specialist (plan item, 2026-08-20h): the Lagrangian /
-    Eulerian parity closure.**  The Eulerian variables version of NS now has a
+    Eulerian parity closure — EXECUTED (2026-08-20j) by
+    `BookProof/ChapterNavierStokesLagrangianCanonical.lean`; see the leading
+    Status block for the headlines.  Original wording retained below.**  The Eulerian variables version of NS now has a
     canonical/ladder reading of the full quadratic symbol
     (`ChapterNavierStokesCanonicalVector`) and a Hermite/differential
     realization of the fiber generator on `L²(du)`
@@ -1770,6 +1870,20 @@ itself drew, plus one small item and one correction:
   unitary flow for Eulerian NS (`ns_stone_flow`), Lagrangian NS
   (`lagrangian_stone_flow`, `diagKR_stone_flow`) and QYM (`ym_fock_stone_flow`),
   closing §9 item 11's step (c).
+- **The Lagrangian canonical/ladder realization is carried (2026-08-20j).**
+  `ChapterNavierStokesLagrangianCanonical.lean` proves the trajectory-space
+  canonical pair (`lagQ`, `lagP`), the CCR (`comm_lagP_lagQ`), the identity
+  `T = ½ΣPᵢ² + νΣQᵢ² = ω(N + 3/2)` (`lagCan_secondOrder_eq`), ESA on the Hermite
+  core (`lagCan_esa`) and the resulting flow (`lagCan_stone_flow`), closing the
+  Lagrangian/Eulerian parity item; the differential realization on `L²(du)`
+  remains the recorded boundary.
+- **Verification gate: re-run (2026-08-20j).** `lake build` (default targets
+  BookProof + Book + Singularity, 8657 jobs) and `lake build RandomMap` /
+  `lake build UsedRoute` complete; `./patches/build-book.sh` renders the book and
+  its invariants hold (no `<base>`, fragment links present); `./patches/check-katex.sh`
+  reports 2288 math snippets, 0 KaTeX failures; the sorry/axiom and isolation
+  audits are clean (the only remaining `sorry`s are the quarantined legacy RH
+  route under `UsedRoute/`/`UnusedRoute/`, which are not default targets).
 
 None of these is a mathematical gap in the provable core: they are the recorded
 boundary (continuum ESA + classical NS regularity), a closed cosmetic name (A.1),

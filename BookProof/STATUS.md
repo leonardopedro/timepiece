@@ -7,7 +7,74 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-## Latest wave (2026-08-20h, **the canonical realization of the full
+## Latest wave (2026-08-20k, **the differential realization of the full
+Navier–Stokes quadratic symbol on `L²(du₁du₂du₃)`**)
+
+Two further modules, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/FreeField.lean`, close `CONSOLIDATED_PLAN.md` §9 item 4.
+
+`BookProof/ChapterHermiteProductBasis.lean` (namespace
+`BookProof.HermiteProductBasis`) builds the **product Hermite orthonormal basis of
+`L²(ℝᵈ)`**: the normalized Gauss–polynomial functions `hermiteMvLp`, their
+orthonormality (`orthonormal_hermiteMvLp`, by Fubini from the one-dimensional
+`hermiteInner_eq`), `span_hermiteMvLp` (their span is the Gauss–polynomial core),
+the Hilbert basis `hermiteMvBasis`, the partial derivative `pderiv_hermiteMv`
+(`∂ᵢHe_α = αᵢHe_{α−eᵢ}`) and the ladder actions `crePoly_hermiteMvLp`
+(`a†ψ_α = √(αᵢ+1)ψ_{α+eᵢ}`), `annPoly_hermiteMvLp` (`aψ_α = √αᵢ ψ_{α−eᵢ}`).
+
+`BookProof/ChapterNavierStokesDifferentialL2.lean` (namespace
+`BookProof.NavierStokesFlow.DifferentialL2`) is the **differential realization**.
+On the Gauss–polynomial core of `L²(ℝᵈ)`, `posOp i` is multiplication by the
+coordinate `uᵢ` (`posOp_apply_eq_mul`) and `momOp i` is `πᵢ = −i ∂/∂uᵢ`: the
+analytic lemma `hasDerivAt_pgFun_sec` differentiates `p(u)e^{−‖u‖²/4}` along one
+coordinate and `momOp_apply_eq_differential` states that the value of `momOp i`
+at that function is pointwise `−i` times Mathlib's `deriv` along the `i`-th
+coordinate; `comm_momOp_posOp` is the canonical commutation relation
+`[πᵢ, u_k] = −i δ_{ik}` for these genuinely differential operators.  The unitary
+`velUnitary : ℓ²(Vel) ≃ₗᵢ L²(ℝ³)` (from the Hermite basis `velBasis` indexed by the
+three-mode multi-indices) carries the finite-mode core onto the Gauss–polynomial
+core (`velUnitary_mem_core`, `embedCore`) and the abstract ladder operators onto
+the differential ones (`intertwine_ann`, `intertwine_cre`), hence the canonical
+pairs (`intertwined_pos`, `intertwined_mom`) and the canonical Hamiltonian onto
+the differentially written one (`intertwined_canH`).  Conclusions:
+`nsDiffH_essentiallySelfAdjointOn_core` — for every real velocity gradient and
+every real constant part, `∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` with `πᵢ = −i ∂/∂uᵢ` and `Vᵢ`
+multiplication by `∑ₖ A_{ik}uₖ + cᵢ` is essentially self-adjoint on the Hermite
+core of `L²(du₁du₂du₃)` — and `nsQuadraticDiffH_essentiallySelfAdjointOn_core`
+with the coefficients read as `(ν, u_{i,j}, u_{i,jj})`.  Non-vacuity:
+`nsDiffH_not_bounded` and `nsDiffH_domain_dense`.  Nothing here claims global
+regularity of the classical Navier–Stokes PDE: the theorem is about the
+Hilbert-space operator at one Eulerian fiber.
+
+## Wave (2026-08-20j, **the Lagrangian / Eulerian parity closure: the
+canonical/ladder realization of the Lagrangian second-order part**)
+
+One further module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/FreeField.lean`, closes the parity item recorded in
+`CONSOLIDATED_PLAN.md` §9 items 9 and 11.
+
+`BookProof/ChapterNavierStokesLagrangianCanonical.lean` (namespace
+`BookProof.NavierStokesFlow.LagrangianCanonical`) builds, on the trajectory-space
+Hermite basis, the Lagrangian analogue of `ChapterNavierStokesCanonicalVector`.
+The ladder operators are mutually adjoint on the finite-mode core
+(`inner_ann_cre`, `inner_cre_ann`), so `pos i`, `mom i` are symmetric
+(`pos_isSymmetricDom`, `mom_isSymmetricDom`) and `posSq_add_momSq` is the number
+identity `uᵢ² + πᵢ² = 2Nᵢ + 1`.  Rescaling by `omega nu = √(2ν)` gives the
+canonical pair `lagQ`, `lagP` with the CCR `comm_lagP_lagQ` (`[Pᵢ, Qᵢ] = −i`) and
+`comm_lagP_lagQ_of_ne`, and `half_lagPSq_add_nu_lagQSq` is
+`½Pᵢ² + νQᵢ² = ω(Nᵢ + ½)`.  Summing, `lagCan_secondOrder_eq` identifies the
+second-order part of the bundled `lagCanData` with `lagT nu`, i.e.
+`T = ½ΣPᵢ² + νΣQᵢ² = ω(N + 3/2)`.  From the eigenbasis:
+`lagT_hasZeroDeficiencyOn` and `lagCan_secondOrder_hasZeroDeficiencyOn`, then
+`lagCan_esa` (essential self-adjointness of the full Lagrangian generator, drift
+discharged by Kato–Rellich) and `lagCan_stone_flow` (the complete unitary group
+`e^{-itT}` through the 2026-08-20i Stone bridge).  `lagT_not_bounded` records
+that the operator is genuinely unbounded.  Nothing here claims global regularity
+of the classical Navier–Stokes PDE.
+
+## Wave (2026-08-20h, **the canonical realization of the full
 Navier–Stokes quadratic symbol, and the Lagrangian/Eulerian rigor-parity
 record**)
 
@@ -56,11 +123,14 @@ strand is at parity on ESA (`hFull_hasZeroDeficiencyOn_of_drive_eq_P`),
 selection (`lagrangian_hashimoto_selects`), the concrete `ℓ²(ℕ)` instance
 `diagKR`, the Fock-of-Fock trajectory-space realization
 (`fockLagrangian_hasZeroDeficiencyOn`, `hTwoLevel_hasZeroDeficiencyOn`) and —
-with the 2026-08-20i Stone-flow wave — the complete flow.  What it lacks is the
-canonical/ladder and Hermite/differential realization of its second-order part
-`T` on the trajectory-space `L²` (the analogue of
-`CanonicalVector`/`HermiteCanonical`); that gap is recorded as the open parity
-item in `CONSOLIDATED_PLAN.md` §9 items 9 and 11.
+with the 2026-08-20i Stone-flow wave — the complete flow.  What it lacked at the
+time of this record was the canonical/ladder and Hermite/differential
+realization of its second-order part `T` on the trajectory-space `L²` (the
+analogue of `CanonicalVector`/`HermiteCanonical`); **the canonical/ladder half of
+that gap is closed by the 2026-08-20j wave above**
+(`ChapterNavierStokesLagrangianCanonical`), leaving only the differential
+realization of the full quadratic symbol on `L²(du)`
+(`CONSOLIDATED_PLAN.md` §9 item 4).
 
 ## Wave (2026-08-20i, **the Stone bridge and the concrete flows: the complete
 unitary flow for the Eulerian NS, Lagrangian NS and QYM Hamiltonians**)
