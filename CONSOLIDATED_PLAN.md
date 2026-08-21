@@ -66,21 +66,37 @@ analytic step — the **QG continuum ESA with an unbounded potential**:
   ESA on the Schwartz core gives the complete unitary flow by the general Stone
   theorem (`ChapterStoneResolvent`–`ChapterStoneSeparable`).
 
-**What the Lean 4 specialist must do next** (in order, see the consolidated list
-at the end of §9):
+**Work available for the Lean 4 specialist.** All *named* plan items are closed;
+the backlog below is the recorded research boundaries and editorial residue.  It
+is prioritized (the full, detailed write-up is the consolidated section at the
+end of §9; each item points to the module / plan section where it is recorded):
 
 1. **Re-run the §8 verification gate** for the 2026-08-20…20k waves — the gate was
    verified green through 2026-08-18c, but has **not** been re-run in this
    repository snapshot for the newer Navier–Stokes, Stone, Gauge-Fixing, QG/QYM
    and realization modules.  First action: `lake build`, `lake build RandomMap`,
    `./patches/build-book.sh`, `./patches/check-katex.sh`, and the sorry/axiom and
-   isolation audits.
-2. **Close the QG unbounded-potential ESA (the one genuinely open analytic step).**
-   The NS fibrewise / continuum ESA is done (`ChapterNavierStokesFockContinuum`),
-   but the QG continuum ESA with an unbounded potential — the hyperbolic
-   fibrewise / direct-integral step for `□ + V` with `V` bounded above by a
-   quadratic (§9.5, the Faris–Lavine class) — remains unproved.
-3. **Keep the Book ↔ BookProof one-to-one correspondence** on any edit (the
+   isolation audits.  Record the results in the §8 gate note and in
+   `BookProof/STATUS.md`.
+2. **Close the QG continuum ESA with an unbounded potential** (research target) —
+   the hyperbolic fibrewise / direct-integral step for `□ + V` with `V` bounded
+   above by a quadratic (§9.5, the Faris–Lavine class; the `-d²/dx² − x⁴` sign
+   record).  The NS fibrewise / continuum ESA is done
+   (`ChapterNavierStokesFockContinuum`), but the QG potential case is not.
+3. **Prove the spectral theorem for unbounded self-adjoint operators** (research
+   target) — the *existence* of the diagonalizing unitary.  `ChapterUnitaryTransport`
+   and `ChapterSpectralMultiplication` carry the reduction *given* such a unitary;
+   the existence step itself is the open layer (see §9 item 3 and
+   `ChapterUnitaryTransport` module docstring).
+4. **Formalize the NS sign-flip unitary** `x_n ↦ (−1)ⁿ x_n` to drop the `c_j ≥ 0`
+   restriction in the affine-block ESA (`ChapterNavierStokesAffineBlockEsa`, §9
+   item 4 boundary).
+5. **Editorial / prose residue** (small, one-line edits): Contention **D1**
+   (intro-slogan internal tension) and **D2** (ODE overclaim honesty sentence);
+   re-mark the curated-edition coverage table (Issues §5 item 2, the "deferred"
+   physics-chapters list); restate remaining long `#check` types as clean
+   `example`s.
+6. **Keep the Book ↔ BookProof one-to-one correspondence** on any edit (the
    `#check` blocks in `Book/` must stay in sync with the module names in
    `BookProof/`).
 
@@ -1983,42 +1999,107 @@ block): the **NS fibrewise / continuum ESA** is closed
 step is closed (`BookProof/ChapterStrichartzWave.constCoeffOp_essentiallySelfAdjoint`
 covers the Laplacian symbol; ESA then yields the complete flow by the general
 Stone theorem).  The **QG continuum ESA with an unbounded potential** remains
-**open** — this is the one genuinely open analytic step.  What remains is:
+**open** — this is the one genuinely open analytic step.  The full open backlog,
+in priority order, is:
 
-1. **Re-run the §8 verification gate (highest priority).** The gate was last
-   verified green at 2026-08-18c; the 2026-08-20…20k waves (all the Navier–Stokes
-   modules, `ChapterGaugeFixing`, the Stone-theorem and bridge/flows modules, and
-   the `ChapterHermiteProductBasis` / `ChapterNavierStokesDifferentialL2` /
-   `ChapterNavierStokesLagrangianCanonical` realization wave) were verified only
-   in the producing workspace, **not** in this repository snapshot.  First
-   actions, in order: `lake build`, `lake build RandomMap`, `lake build UsedRoute`,
-   `./patches/build-book.sh`, `./patches/check-katex.sh`, then the sorry/axiom
-   audit (only the quarantined legacy RH route under `UsedRoute/`/`UnusedRoute/`
-   may carry `sorry`s) and the isolation greps.  Record the results in the §8 gate
-   note and in `BookProof/STATUS.md`.
+#### A. Substantial mathematics (research targets — new Lean theorems)
 
-2. **Close the QG unbounded-potential ESA (the one genuinely open analytic step).**
-   The hyperbolic fibrewise / direct-integral step that would pass ESA to the full
-   `□ + V` with `V` bounded above by a quadratic (§9.5, the Faris–Lavine class;
-   the `-d²/dx² − x⁴` sign record) is **not** proved — `ChapterWaveUnboundedPotential`
-   supplies the position-space half (`potentialOp_essentiallySelfAdjoint`,
-   `wave_add_truncatedPotential_essentiallySelfAdjoint`) and
-   `ChapterHarmonicOscillatorEsa` the sign-correct oscillator, but the fibrewise
-   gluing for QG remains open.  This is the distinction from the NS case, where
-   the fibrewise step is done.
+These are the highest-value, genuinely-open items.  Each is a real theorem to
+prove, not a hygiene task, and each is already scoped by the named hypotheses and
+the `sorry`-free machinery already in place.
 
-3. **Keep the Book ↔ BookProof correspondence exact.** The `#check` blocks in
-   `Book/` (in particular `Book/FreeField.lean`, now the single point of pedagogy
-   for the NS/QG/QYM/realization waves) must stay in one-to-one sync with the
-   module and theorem names in `BookProof/`.  Any new BookProof theorem cited in
-   the Book must be registered in `BookProof.lean` and `#print axioms`-certified
-   in `BookProof/ChapterRoadmapAudit.lean`.
+**A1. QG continuum ESA with an unbounded potential (the hyperbolic fibrewise /
+direct-integral step).**  The step that would pass ESA to the full `□ + V` with
+`V` bounded above by a quadratic (§9.5, the Faris–Lavine class; the
+`-d²/dx² − x⁴` sign record) is **not** proved.  `ChapterWaveUnboundedPotential`
+supplies the position-space half (`potentialOp_essentiallySelfAdjoint` for
+temperate-growth potentials, `multiplierOp_essentiallySelfAdjoint`,
+`wave_add_truncatedPotential_essentiallySelfAdjoint`) and
+`ChapterHarmonicOscillatorEsa` the sign-correct `-d²/dx² + x²/4` oscillator; what
+is missing is the fibrewise / direct-integral gluing.  This is the distinction
+from the NS case, where the fibrewise step is done.  Start: read §9.5 and
+`STRICHARTZ_WAVE_ESA.md`; the target is a `□ + V_esa`-style theorem for the
+unbounded-below-by-a-quadratic (Faris–Lavine) class, using the already-proved
+cut-off lemma and the finite-speed/localized-energy argument.
 
-4. **Optional hardening.** If a further wave is desired, the highest-leverage
-   targets are the recorded scope cuts that are genuinely the author's to make:
-   the classical NS regularity question (Contention D5) and the QG / NS mass gaps.
-   Do not re-open GAP-1 / GAP-2 or any closed §9 item without a concrete new
-   mathematical question.
+**A2. Spectral theorem for unbounded self-adjoint operators (the diagonalizing
+unitary).**  `ChapterUnitaryTransport` carries self-adjointness, the unitary
+group and Stone's relation through any *given* unitary change of Hilbert space,
+and `ChapterSpectralMultiplication` gives the spectral theorem in
+multiplication-operator form for a *cyclic* vector; but the *existence* of the
+diagonalizing unitary for a general unbounded self-adjoint operator is still
+missing (recorded in the `ChapterUnitaryTransport` module docstring and §9 item
+3).  This is the step "behind a continuum Laplacian" and is the natural
+completion of the general Stone theorem
+(`ChapterStoneResolvent`–`ChapterStoneSeparable`).  Substantial, self-contained
+project.
+
+**A3. NS sign-flip unitary (drop the `c_j ≥ 0` restriction).**  In the affine-block
+ESA the hopping amplitude is assumed non-negative (`ChapterNavierStokesAffineBlockEsa`,
+§9 item 4 boundary); the sign-flip unitary `x_n ↦ (−1)ⁿ x_n` that would remove
+the restriction is recorded but **not formalized**.  This is a small, concrete,
+bounded theorem in the already-proved framework (mirror the `SignFlip`
+`essentiallySelfAdjointOn_of_intertwine` pattern).
+
+**A4. NS quadratic-symbol FL estimate as an actual differential operator.**  The
+two Faris–Lavine inequalities for the quadratic symbol
+`A_i = u_j u_{i,j} − ν u_{i,jj}` as a differential operator on `L²(du)` (§9 item
+4 residual, lines above) are a concrete FL *estimate* (relative bound +
+form-commutator bound) in the already-proved framework — not a research project
+needing new analytic machinery.  Note: the 2026-08-20k differential realization
+(`ChapterNavierStokesDifferentialL2.nsQuadraticDiffH_essentiallySelfAdjointOn_core`)
+already establishes ESA of the differentially-written symbol by a different
+(basis) route; this item is the alternative FL-estimate proof that would unify
+the abstract and differential pictures and is the plan's original §7 route.
+
+#### B. Verification — the §8 gate (highest priority, no new mathematics)
+
+**B1. Re-run the §8 verification gate.**  The gate was last verified green at
+2026-08-18c; the 2026-08-20…20k waves (all the Navier–Stokes modules,
+`ChapterGaugeFixing`, the Stone-theorem and bridge/flows modules, and the
+`ChapterHermiteProductBasis` / `ChapterNavierStokesDifferentialL2` /
+`ChapterNavierStokesLagrangianCanonical` realization wave) were verified only in
+the producing workspace, **not** in this repository snapshot.  First actions, in
+order: `lake build`, `lake build RandomMap`, `lake build UsedRoute`,
+`./patches/build-book.sh`, `./patches/check-katex.sh`, then the sorry/axiom audit
+(only the quarantined legacy RH route under `UsedRoute/`/`UnusedRoute/` may carry
+`sorry`s) and the isolation greps.  Record the results in the §8 gate note and in
+`BookProof/STATUS.md`.
+
+#### C. Editorial / prose residue (small, one-line edits, no new mathematics)
+
+**C1. Contention D1** — resolve the intro-slogan internal tension
+(`Book/Introduction.lean` vs `Book/DeterministicTransformations`): either add the
+"(not of probability theory)" caveat to the Introduction or frame it as rhetoric
+with a cross-referencing footnote.  One-line edit; flag to author.
+
+**C2. Contention D2** — add one honesty sentence to `Book/OdeSingularity.lean`
+(near lines 45–48) reporting the manuscript's own caveat on the second blow-up
+problem, mirroring the honesty-flag style used for the ODE theorems.
+
+**C3. Curated-edition coverage table** — re-mark the "deferred" physics chapters
+(`GaugeSymmetry`, `PhysicalParity`, `YangMillsQuantization`, `RealRepresentations`,
+`DiffeomorphismsGravity`, `AlignedDeepLearning`, `GribovAmbiguity`,
+`ConsciousnessBayesianPrior`) as `DONE (framing settled)` in the Issues §5
+disposition (item 2) now that they exist under `Book/` and are `{include}`d in
+`Book.lean`.
+
+**C4. Long `#check` types** — restate any remaining unwieldy `#check` as a clean
+`example` (with a readable prose paraphrase) when a chapter is next edited.
+
+#### E. On-going discipline (applies to every edit)
+
+**E1. Keep the Book ↔ BookProof correspondence exact.**  The `#check` blocks in
+`Book/` (in particular `Book/FreeField.lean`, now the single point of pedagogy
+for the NS/QG/QYM/realization waves) must stay in one-to-one sync with the module
+and theorem names in `BookProof/`.  Any new BookProof theorem cited in the Book
+must be registered in `BookProof.lean` and `#print axioms`-certified in
+`BookProof/ChapterRoadmapAudit.lean`.
+
+**E2. Do not re-open closed items.**  Do not re-open GAP-1 / GAP-2 or any closed
+§9 item without a concrete new mathematical question.  The classical NS
+regularity question (Contention D5) and the QG / NS mass gaps remain the author's
+explicit scope cuts and are out of scope unless the author changes that decision.
 
 ---
 
