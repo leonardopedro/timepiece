@@ -7,7 +7,644 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-## Latest wave (2026-08-20k, **the differential realization of the full
+## Latest wave (2026-08-22h, **from one particle to the nested Fock space**)
+
+One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` (21 new `#print axioms` lines, all reporting only
+`propext`, `Classical.choice`, `Quot.sound`) and cited from
+`Book/DiffeomorphismsGravity.lean`.
+
+1. `BookProof/ChapterScalaronFockEsa.lean` (namespace `BookProof.ScalaronFock`) — the
+   continuum step of plan item **A5** in its finite-particle form, obtained by linking two
+   already-proved strands: the one-particle scalaron theorems of `ChapterScalaronCoreEsa`
+   and the orthogonal direct-sum gluing of `ChapterDirectSumEsa`.
+   * *Generic instrument.* For an arbitrary family `E : ℕ → Type*` of finite-dimensional
+     sectors and arbitrary **smooth** potentials `W n : E n → ℝ`, the algebraic direct sum
+     `nestedCore` of the compactly supported smooth sector cores is dense in
+     `⊕ₙ L²(Eₙ)` (`nestedCore_dense`) and the sector-wise multiplication operator is
+     symmetric (`fockSmoothPotential_symmetric`), has trivial deficiency at every non-real
+     point (`fockSmoothPotential_deficiencyTrivialAt`), is essentially self-adjoint
+     (`fockSmoothPotential_esa`) and generates the unitary group
+     (`fockSmoothPotential_stone_flow`).
+   * *The many-body scalaron potential.*  On `qgSector n = ℝ^(n×2)` — each quantum carrying
+     a conformal mode and a scalaron — `qgManyPotential` is smooth
+     (`contDiff_qgManyPotential`), bounded below by `−n·M⁴/(16α)` (`qgManyPotential_ge`),
+     essentially self-adjoint on the sector core (`qgManyPotential_esa`), and at `n = 1`
+     equal to the one-particle potential (`qgManyPotential_one`).
+   * *The Fock statements.*  `qgScalaronFockHamiltonian`, `qgFockCore_dense`,
+     `qgScalaronFock_symmetric`, `qgScalaronFock_deficiencyTrivialAt`,
+     `qgScalaronFock_esa`, `qgScalaronFock_stone_flow`; and in the mode (Hermite)
+     realisation `qgScalaronModeFock_esa`, `qgScalaronModeFock_stone_flow`,
+     `qgScalaronModeFock_potential_ge`.
+   * *Honest boundary.*  The direct sum is orthogonal: particle number is preserved.
+     Sector-changing interactions and the unlocalized `□ + V` continuum gluing are
+     untouched.
+
+## Latest wave (2026-08-22g, **the scalaron sector: essential self-adjointness with an exponentially growing potential**)
+
+One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` and cited from `Book/DiffeomorphismsGravity.lean`.
+
+1. `BookProof/ChapterScalaronCoreEsa.lean` (namespace `BookProof.ScalaronEsa`) — the step
+   `CONSOLIDATED_PLAN.md` §10.5 (plan item **A5**) left open for the *scalaron* sector: the
+   Einstein-frame potential grows exponentially as `φ → −∞`, and
+   `starobinskyV_not_hasTemperateGrowth` proves it is genuinely outside the temperate class
+   covered by `ChapterWaveUnboundedPotential.potentialOp_essentiallySelfAdjoint`.  The
+   restriction turns out to be an artefact of the *core*: `ccDomain` is the compactly
+   supported smooth core of `L²(E)`, dense by `ccDomain_dense`, and on it multiplication by
+   an **arbitrary smooth** real potential is symmetric (`smoothPotential_symmetric`) with
+   trivial deficiency at every non-real point (`smoothPotential_deficiencyTrivial`), hence
+   essentially self-adjoint (`smoothPotential_essentiallySelfAdjoint`) — no growth, no
+   boundedness, no semiboundedness hypothesis.  Consequences for the `R + αR²` theory:
+   `starobinskyV_essentiallySelfAdjoint`; the full gauge-fixed potential
+   `scalaronFullPotential` (regularized conformal parabola plus scalaron) is essentially
+   self-adjoint (`scalaronFullPotential_essentiallySelfAdjoint`) and bounded below by
+   `−M⁴/(16α)` (`scalaronFullPotential_ge`); `□ + V` is a well-defined symmetric operator on
+   the same dense core (`wave_add_smoothPotential_symmetric`,
+   `wave_add_scalaron_symmetric`); and every spatial localization of it is essentially
+   self-adjoint on the Schwartz core
+   (`wave_add_smoothTruncatedPotential_essentiallySelfAdjoint`,
+   `wave_add_scalaronTruncated_esa`) — the truncation theorem of
+   `ChapterWaveUnboundedPotential` with the temperate-growth hypothesis removed.  At the
+   mode level `qgScalaronModeHamiltonian` is the gauge-fixed `R + αR²` Hamiltonian
+   *including* the scalaron potential: `qgScalaronMode_potential_ge` (uniform lower bound
+   `−M⁴/(16α)`, the scalaron term being a square), `qgScalaronMode_symmetric`,
+   `qgScalaronMode_esa`, `qgScalaronMode_deficiencyTrivialAt` and `qgScalaron_stone_flow`
+   (the complete unitary group).  Honest boundary unchanged from §10.3/§10.5: the continuum
+   `L²(ℝ⁸⁴)` essential self-adjointness of the *unlocalized* sum `□ + V` still needs the
+   Strichartz finite-speed / gluing input; what this wave settles is that the exponential
+   wall is not what stands in the way.
+
+## Latest wave (2026-08-22f, **the `R + αR²` (Starobinsky) potentials and the flow of the regularized conformal mode**)
+
+One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` and cited from `Book/DiffeomorphismsGravity.lean`.
+
+1. `BookProof/ChapterStarobinskyPotential.lean` (namespace `BookProof.Starobinsky`) — the
+   mathematics of `CONSOLIDATED_PLAN.md` §10.5 (plan item **A5**), steps 1 and, at the mode
+   level, 3/4.  `fR_eq_scalarTensor` is the exact identity
+   `f(R) = (M²/2)ψR − U(ψ)` with `ψ = 1 + 4αR/M²` and `U(ψ) = (M⁴/16α)(ψ−1)²`: the
+   `R + αR²` extension is a second-order scalar–tensor theory, hence ghost-free.  The
+   Einstein-frame scalaron potential `starobinskyV M α φ = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²`
+   is a square, so `starobinskyV_nonneg` (the strongest form of the sign condition) and
+   `starobinskyV_zero` (the Minkowski vacuum) are immediate, while
+   `starobinskyV_tendsto_plateau` gives the inflationary plateau `M⁴/(16α)` as `φ → +∞`
+   and `starobinskyV_tendsto_atBot_atTop` the exponential wall as `φ → −∞`.  For the
+   conformal mode, `confV_completed_square` writes
+   `V₃(R_c) = α(R_c − M²/(4α))² − M⁴/(16α)`, so `confV_ge` / `confV_bddBelow` bound it
+   below by `−M⁴/(16α)` when `α > 0`, whereas `confV_zero_alpha_tendsto_atBot` shows the
+   `α = 0` (pure general relativity) potential tends to `−∞`: the `αR²` term is exactly
+   what regularizes the wrong-sign conformal direction.  At the operator level
+   `qgR2ModeHamiltonian` is the densitized mode Hamiltonian with this potential;
+   `qgR2Mode_potential_ge` is the same lower bound uniformly in the mode,
+   `mulSymbolDomain_dense` shows the maximal multiplication domain is dense (it contains
+   the finitely supported states), `qgR2Mode_symmetric` / `qgR2Mode_esa` /
+   `qgR2Mode_deficiencyTrivialAt` give symmetry, essential self-adjointness and trivial
+   deficiency at every non-real point, and `qgR2_stone_flow` runs the Stone bridge to a
+   complete unitary group `e^{−itH}` solving the Schrödinger equation on the domain.
+   Honest boundary unchanged from §10.3/§10.5: this is the *mode* (Hermite-basis)
+   realization, where the fiber operator is a multiplication operator; the continuum
+   `L²(ℝ⁸⁴)` statement still needs the Strichartz finite-speed / direct-integral input, the
+   gauge/BRST sector is outside the statement, and no mass gap or global existence is
+   claimed.
+
+## Latest wave (2026-08-22e, **the differential Navier–Stokes Hashimoto/SIRK selection, and the general-hop Carleman module registered**)
+
+Two modules, both `sorry`-free / `axiom`-free, registered in `BookProof.lean` and
+certified in `BookProof/ChapterRoadmapAudit.lean`.
+
+1. `BookProof/ChapterNavierStokesDiffHashimoto.lean` (namespace
+   `BookProof.NavierStokesFlow.DiffHashimoto`) — plan item **A6**.  The Hashimoto/SIRK
+   shift-invert selection theorem was proved for the *abstract sequence-space*
+   Navier–Stokes fiber generator (`ChapterNavierStokesHashimoto.ns_hashimoto_selects`
+   on `ℓ²(Vel)`); the *differential* realization on the Gauss–polynomial core of
+   `L²(du₁du₂du₃)` (`ChapterNavierStokesDifferentialL2.nsDiffH`, written with
+   `πᵢ = −i ∂/∂uᵢ` and `uᵢ` a genuine multiplication operator) was essentially
+   self-adjoint but carried no selection theorem.  The missing ingredient was
+   *symmetry* of the differential operator on its own core: `nsDiffPoly` writes the
+   Weyl-ordered Hamiltonian `∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` as a polynomial-level operator,
+   `nsDiffPoly_polySym` proves it Gauss symmetric (the Weyl ordering of the
+   non-commuting `πV` cross terms is exactly what makes it so), `nsDiffH_eq_coreOp`
+   identifies its transport with `nsDiffH`, and `nsDiffH_symmetricOn` is the symmetry
+   on the Hermite core.  With the essential self-adjointness already proved,
+   `nsDiffH_selfAdjoint_extension` / `nsDiffH_selfAdjoint_extension_unique` give the
+   closure as the unique self-adjoint extension (no positivity — the Navier–Stokes
+   Hamiltonian is not semibounded), and the headline
+   `nsDiffH_hashimoto_selects` instantiates
+   `EsaClosure.hashimoto_multishift_selects_esa`: for an arbitrary sequence of
+   non-real shifts the resolvents exist, are bounded by `1/|Im γⱼ|`, share the domain
+   of the generator, satisfy the resolvent identity, commute, satisfy the
+   Hashimoto–Nodera rational-Krylov relation, have strongly convergent Galerkin
+   truncations, and each determines the generator completely.
+   `nsDiffH_shiftInvert_selects` is the single-shift form,
+   `nsQuadraticDiffH_hashimoto_selects` the `(ν, u_{i,j}, u_{i,jj})` reading, and
+   `exists_l2dHilbertBasisNat` / `exists_hermiteEnum` the non-vacuity (the enumerated
+   product Hermite functions are an `ℕ`-indexed Hilbert basis of `L²(ℝ³)`).  Cited
+   from `Book/FreeField.lean`.  Honest boundary unchanged (Contention D5): this is an
+   operator statement at one Eulerian fiber, not classical Navier–Stokes regularity.
+
+2. `BookProof/ChapterCarlemanGeneralHop.lean` (namespace
+   `BookProof.CarlemanGeneralHop`) was a complete but **unregistered** leaf module; it
+   is now imported by `BookProof.lean`, certified in `ChapterRoadmapAudit.lean`
+   (`hshift_hshift`, `sum_ltG`, `sum_hop_im`, `flux_bound_gen`, `flux_identityH`,
+   `ladderH_eq_zero`), and repaired for the Mathlib revision pinned here (an `abs_sub`
+   implicit-argument name, two `Finset.mem_coe` coercions and one sum-splitting
+   rewrite).  It runs the Carleman flux argument for a hop of the completely general
+   shape `α ↦ α + p − m`, so the non-monotone mode-exchange hop `α ↦ α ± (eᵢ − eⱼ)` of
+   a quadratic Hamiltonian coupling two distinct modes is covered: the imaginary part
+   of the flux is carried by an outgoing (`obd`) and an incoming (`ibd`) boundary
+   layer, both controlled by Bessel multiplicity bounds, and `∑ 1/(N+1) = ∞` forces a
+   square-summable solution to vanish.
+
+## Latest wave (2026-08-22d, **fibrewise essential self-adjointness glues: the orthogonal direct sum, and the continuum Fock space**)
+
+One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean` and
+certified in `BookProof/ChapterRoadmapAudit.lean`.
+
+1. `BookProof/ChapterDirectSumEsa.lean` (namespace `BookProof.DirectSumEsa`).
+   Essential self-adjointness is a statement about two deficiency spaces, and a
+   deficiency space of an orthogonal direct sum is the direct sum of the fibre
+   deficiency spaces.  `dsCore` is the algebraic direct sum `⊕ᵃˡᵍ Dᵢ` of a family of
+   fibre cores inside the Hilbert direct sum `ℓ²(i, Gᵢ)` and `dsOp` the direct sum
+   `⊕ᵢ Hᵢ` of the fibre operators; `dsOp_single` computes it on a single-fibre state,
+   `dsOp_symmetricOn` is fibrewise symmetry, and `dsOp_deficiencyTrivialAt` is the
+   gluing step — testing the deficiency identity against single-fibre states shows
+   every coordinate of a deficiency vector is a fibre deficiency vector.  Headline
+   `dsOp_essentiallySelfAdjointOn`: if every fibre operator is essentially
+   self-adjoint on its core, so is the direct sum on the algebraic direct sum of the
+   cores.  No relative bound, no comparison operator, no commutator estimate.
+   `dsOpD`, `dsOpD_hasZeroDeficiencyOn` and `dsOpD_isSymmetricDom` give the same for
+   domain-preserving fibre operators in the `HasZeroDeficiencyOn` formulation of the
+   Navier–Stokes chapters, and `dsCore_dense` shows the glued core is dense as soon as
+   every fibre core is.  The payoff is the continuum parcel picture: on the *whole*
+   Fock space `⊕ₙ L²(ℝⁿ)`, `fockH_hasZeroDeficiencyOn` gives essential self-adjointness
+   of the second-quantized Hamiltonian `ĥ = ∫ w(ξ)a†(ξ)a(ξ)dξ` — multiplication by the
+   total energy `∑ₖ w(ξₖ)` on the `n`-parcel sector — for an arbitrary measurable
+   field `w`, with `fockCore_dense` and `fockH_isSymmetricDom`.
+   `ChapterNavierStokesFockContinuum` had proved this one sector at a time.
+   `essentiallySelfAdjointOn_of_hasZeroDeficiencyOn` converts the domain-preserving
+   formulation into the ambient-space one, so the Stone bridge applies: `dsOpD_stone_flow`
+   turns dense fibre cores with symmetric fibre operators of vanishing deficiency into a
+   self-adjoint extension of the glued operator plus the unitary group it generates, and
+   `fockH_stone_flow` is the resulting complete flow `e^{−itĥ}` on the whole continuum
+   Fock space.
+   Honest boundary: the fibres must be mutually orthogonal and invariant, so this is
+   the discrete form of a direct-integral gluing and not a decomposition theorem;
+   nothing here claims global regularity of the classical Navier–Stokes equation.
+
+## Latest wave (2026-08-22c, **the quadratic Hamiltonian at infinitely many modes: the boson Fock space**)
+
+Two new modules, both `sorry`-free / `axiom`-free, registered in `BookProof.lean` and
+certified in `BookProof/ChapterRoadmapAudit.lean`.  They lift the finite-dimensional
+quadratic result of the previous wave to an arbitrary mode set.
+
+1. `BookProof/ChapterOperatorSeriesEsa.lean` (namespace `BookProof.OperatorSeries`).
+   The two Faris–Lavine inequalities relative to a positive comparison operator `N` —
+   the relative bound `‖Hx‖ ≤ A‖Nx‖` and the commutator-form bound
+   `|⟪x, i[H, N]x⟫| ≤ B⟪x, Nx⟫` — are additive, which `commForm_eq_neg_two_im` makes
+   transparent by exhibiting the commutator form as `−2 Im⟪Hx, Nx⟫`.  `seriesOp` sums
+   a family of operators on the maximal domain of a symbol whose relative bounds are
+   summable, and `seriesOp_symmetricOn`, `seriesOp_norm_le`, `seriesOp_commForm_le`
+   carry the three properties to the sum with the summed constants.  The instrument is
+   `essentiallySelfAdjointOn_finiteModes_of_series`.
+2. `BookProof/ChapterFockQuadraticEsa.lean` (namespace `BookProof.FockQuadratic`).
+   The boson Fock space `ℓ²(ι →₀ ℕ)` over an arbitrary mode set `ι`, with comparison
+   symbol `σ(α) = ω(α) + |α| + 1` (`sig`) — free energy (`wsum`) plus occupation number
+   (`deg`) plus one.  `fall`, `amp`, `tgt` are the falling factorial of a multi-index,
+   the ladder amplitude of the monomial `a^{†P}a^{Q}` and the configuration it hops to;
+   `amp_symm` is the Hermitian symmetry of the amplitude, and `amp_le_sig` /
+   `amp_le_sig_tgt` the two-sided bound `amp ≤ 2σ` at both ends of the hop.  `hopOp`
+   realizes the monomial (`hopOp_norm_le`, `hopOp_pairing`), `pairOp` the Hermitian
+   combination `g a^{†P}a^{Q} + conj(g) a^{†Q}a^{P}` with the substantive estimate
+   `pairOp_commForm_le`, and `freeOp` the free part, which commutes with `N`
+   (`freeOp_commForm`).  Headline `fockH_essentiallySelfAdjointOn_core`: for an
+   arbitrary mode set, an arbitrary non-negative and possibly unbounded dispersion `ω`
+   and an arbitrary family of quadratic interaction terms subject only to
+   `∑ₖ ‖gₖ‖(ω(Pₖ) + ω(Qₖ) + 2) < ∞`, the Hamiltonian
+   `H = ∑ᵢ ωᵢ aᵢ†aᵢ + ∑ₖ (gₖ a^{†Pₖ}a^{Qₖ} + conj(gₖ) a^{†Qₖ}a^{Pₖ})` is essentially
+   self-adjoint on the finite-particle core.  `bogoliubov_essentiallySelfAdjointOn_core`
+   is the pair-creation specialization.
+
+## Latest wave (2026-08-22b, **the general real quadratic Hamiltonian: distinct modes coupled**)
+
+Two new modules, both `sorry`-free / `axiom`-free, registered in `BookProof.lean` and
+certified in `BookProof/ChapterRoadmapAudit.lean`.  They remove the last restriction
+of the previous wave — that every quadratic term be *mode-diagonal*.
+
+1. `BookProof/ChapterCarlemanSimplex.lean` (namespace `BookProof.CarlemanSimplex`).
+   The Carleman flux argument rerun on the **simplex** shells `{α : |α| ≤ N}`, where
+   `|α| = ∑ᵢ αᵢ` (`deg`).  This grading by total degree is the one adapted to a
+   general quadratic ladder.  In the ladder variables a product of two of `x, π`
+   splits into pair creation `α ↦ α + eᵢ + eⱼ`, pair annihilation `α ↦ α − eᵢ − eⱼ`
+   and mode exchange `α ↦ α − eⱼ + eᵢ` (`pvec`, `shiftm`).  The first two shift `|α|`
+   by exactly `±2`, so they leak only through a shell of thickness two
+   (`sBd_multiplicity`, `shifted_sBd_multiplicity`, `flux_bound_on`); the exchange
+   hops preserve `|α|` and carry **zero** flux, because their amplitude matrix is
+   Hermitian and the shell sum is therefore real (`sum_mterm_conj`, `sum_mterm_im`).
+   The flux identity is `flux_identityQ`, and the divergence used is
+   `∑ 1/(N+2) = ∞` (`not_summable_inv_natCast_add_two`).  Headline
+   `ladderQ_eq_zero`: a square-summable family satisfying the general quadratic
+   ladder recursion `LadderRecQ` at a non-real point vanishes identically.
+2. `BookProof/ChapterFullQuadraticEsa.lean` (namespace `BookProof.FullQuadratic`).
+   `lop_lop_hermiteMv_gen` and `weyl_hermiteMv_gen` give the two-index ladder
+   algebra, uniform in `i` and `j` (the diagonal `i = j` differs only by an extra
+   constant).  `fqQuadPoly`, `fqPoly`, `fqOp` assemble the Hamiltonian out of
+   Weyl-ordered products of the canonical pair, hence symmetric on the core
+   (`fqOp_symmetric`); `fqQuadPoly_hermiteMv` / `fqOp_hermiteCore` give its ladder
+   form — real diagonal `fqSymbol`, pair amplitude `fqAmp = Qᵢⱼ − Pᵢⱼ/4 + i Sᵢⱼ/2`,
+   Hermitian exchange matrix `fqExch` (`fqExch_hermitian`), and one-step amplitude
+   `bᵢ + i b'ᵢ/2`.  Headline `fqOp_essentiallySelfAdjoint`: for *arbitrary* real
+   matrices `P, Q, S` and *arbitrary* real vectors `b, b'` the operator
+   `H = ∑_{i,j} (Pᵢⱼπᵢπⱼ + Qᵢⱼxᵢxⱼ + Sᵢⱼ·½(xᵢπⱼ + πⱼxᵢ)) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` — every
+   real quadratic-plus-linear Hamiltonian in `d` degrees of freedom, distinct modes
+   coupled arbitrarily, no ellipticity, no definiteness, no non-degeneracy, no
+   classical equilibrium — is essentially self-adjoint on the plain Gauss–polynomial
+   core, with a complete unitary flow (`fqOp_stone_flow`); in particular the purely
+   off-diagonal cross term (`crossTerm_essentiallySelfAdjoint`,
+   `crossTerm_stone_flow`), and — for an *antisymmetric* exchange matrix, where
+   `∑_{i,j} Sᵢⱼ·½(xᵢπⱼ + πⱼxᵢ) = ∑_{i<j} Sᵢⱼ(xᵢπⱼ − xⱼπᵢ)` — the **angular-momentum
+   generators** `xₖπ_l − x_lπₖ` (`rotMat`, `fqQuadPoly_rotMat`,
+   `angularMomentum_essentiallySelfAdjoint`, `angularMomentum_stone_flow`), the compact
+   counterparts of the dilation generator.
+
+Not claimed: the QG **continuum** ESA statement with a general Faris–Lavine
+potential (plan item A1), and the alternative Faris–Lavine-estimate route for the
+Navier–Stokes quadratic symbol (plan item A4).
+
+## Previous wave (2026-08-22a, **Carleman on the Hermite lattice: the general quadratic-plus-first-order Hamiltonian**)
+
+Three new modules, all `sorry`-free / `axiom`-free, registered in `BookProof.lean`
+and certified in `BookProof/ChapterRoadmapAudit.lean`.  They replace the
+relative-bound and completed-square routes by a **flux (Carleman) argument** run on
+cubes of multi-indices of the product Hermite basis.
+
+1. `BookProof/ChapterHermiteCarlemanEsa.lean` (namespace `BookProof.HermiteCarleman`).
+   `ladder_eq_zero`: a square-summable family on the multi-index lattice satisfying
+   the nearest-neighbour recursion with a **real** diagonal and constant ladder
+   amplitudes, at a point off the real axis, vanishes.  The imaginary part of the
+   recursion summed over the cube `{α : ∀ i, αᵢ ≤ N}` telescopes to the flux through
+   the boundary faces (`flux_identity`), which is at most `√(N+1)` times the `ℓ²`-mass
+   of those faces (`flux_bound`); the faces are disjoint, so that mass is summable,
+   while `∑ 1/√(N+1) = ∞`.  Headline `mixOp_essentiallySelfAdjoint`: for *arbitrary*
+   real weights `c` (any signs, zeros allowed) and *arbitrary* real `b, b'`, the
+   operator `∑ᵢ cᵢ(πᵢ² + xᵢ²/4) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially self-adjoint on
+   the **plain** Gauss–polynomial core — no ellipticity, no sign condition, no
+   classical equilibrium, no change of core — with a complete unitary flow
+   (`mixOp_stone_flow`) and the Minkowski corollary
+   (`wave_indefiniteQuadratic_firstOrder_essentiallySelfAdjoint`).
+2. `BookProof/ChapterCarlemanTwoStep.lean` (namespace `BookProof.CarlemanTwoStep`).
+   The same argument for hops of step **one or two** with amplitudes `O(N)`
+   (`ladder2_eq_zero`).  The abstract cancellation is isolated in `sum_cube_hop_im`,
+   the flux identity is `flux_identity2` and the bound is `flux_boundG`; faces of
+   thickness two are no longer disjoint, so Bessel's inequality is used with a
+   multiplicity bound (`sum_range_of_multiplicity`, `faceK_multiplicity`,
+   `shiftedK_multiplicity`), and the divergence used is `∑ 1/(N+1) = ∞`.
+3. `BookProof/ChapterModeQuadraticEsa.lean` (namespace `BookProof.ModeQuadratic`).
+   The one-mode real quadratic forms are three-dimensional — `πᵢ²`, `xᵢ²` and the
+   squeezing generator `½(xᵢπᵢ + πᵢxᵢ)` — and the two non-harmonic directions move an
+   excitation number by two.  `lop`, `lop_lop_hermiteMv` give the two-step ladder
+   algebra, `mqQuadPoly_hermiteMv` / `mqOp_hermiteCore` the ladder form of the
+   Hamiltonian (real diagonal `∑ᵢ(qᵢ + pᵢ/4)(2αᵢ+1)`, two-step amplitude
+   `qᵢ − pᵢ/4 + i sᵢ/2`), and symmetry comes from the Weyl ordering `weylProd` of the
+   canonical pair (`mqOp_symmetric`).  Headline `mqOp_essentiallySelfAdjoint`: for
+   *arbitrary* real `p, q, s, b, b'` the operator
+   `∑ᵢ (pᵢπᵢ² + qᵢxᵢ² + sᵢ·½(xᵢπᵢ + πᵢxᵢ)) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially
+   self-adjoint on the plain Gauss–polynomial core, with a complete unitary flow
+   (`mqOp_stone_flow`); in particular the generator of dilations
+   (`dilation_essentiallySelfAdjoint`, `dilation_stone_flow`).
+
+Not claimed *at that point*: quadratic terms coupling *distinct* modes
+off-diagonally — settled by the 2026-08-22b wave above.
+
+## Previous wave (2026-08-21i, **the quadrature `∑ᵢ(bᵢxᵢ + b'ᵢπᵢ)` on the Hermite core**)
+
+One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean` and
+certified in `BookProof/ChapterRoadmapAudit.lean`.
+
+`BookProof/ChapterQuadratureEsa.lean` (namespace `BookProof.QuadratureEsa`) settles
+the last open case of the first-order strand on the **Gauss–polynomial (product
+Hermite) core**: for *arbitrary* real coefficients `b, b'` the quadrature
+`B = ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` (`foOp b b'`, symmetric by
+`HermiteRelative.foOp_symmetric`) is essentially self-adjoint there
+(`foOp_essentiallySelfAdjoint`), and therefore generates a complete unitary flow
+(`foOp_stone_flow`).  `ChapterMixedLinearEsa` had proved the same operator
+essentially self-adjoint on the **Schwartz** core by a quadratic gauge; the
+Gauss–polynomial core is the one the whole quadratic family of
+`ChapterHermiteRelativeBound` / `ChapterShiftedQuadratic*` lives on, and the two
+routes used there both fail for this operator: it has no `L²` eigenvector and it is
+not constant-coefficient.
+
+The proof has three parts.
+
+1. **A moment lemma with no `L²` hypothesis** (`fourier_eq_zero_of_moments`,
+   `ae_eq_zero_of_moments'`): a measurable `v` with all exponentially weighted
+   absolute moments finite and all polynomial moments zero vanishes a.e.  This
+   strengthens `HermiteProductCore.ae_eq_zero_of_moments`, which needs `v` to be a
+   Gaussian times an `L²` function — a shape the deficiency vector
+   `e^{-‖x‖²/4}(ℓ − z)w` of a multiplication operator does not have.
+2. **The purely positional quadrature** (`foOp_pos_deficiencyTrivialAt`,
+   `foOp_pos_essentiallySelfAdjoint`): multiplication by the real linear function
+   `x ↦ ∑ᵢ bᵢxᵢ` is essentially self-adjoint on the core, by part 1.
+3. **The metaplectic rotation, realized as a phase** (`phasePow`, `phaseFamily`,
+   `phaseBasis`, `phaseU`, `phaseCore`).  Multiplying the `α`-th product Hermite
+   function by `ζ^α`, `|ζᵢ| = 1`, gives another Hilbert basis, hence a unitary of
+   `L²(ℝᵈ)` which preserves the core.  In the ladder form of the canonical pair
+   (`posL_hermiteCore`, `momL_hermiteCore`, `foOp_hermiteCore`) the quadrature raises
+   the `i`-th excitation number with amplitude `wᵢ = bᵢ + ib'ᵢ/2` and lowers it with
+   `conj wᵢ`; the polar decomposition `wᵢ = |wᵢ|ζᵢ` therefore makes the phase unitary
+   carry the positional quadrature `∑ᵢ|wᵢ|xᵢ` onto `∑ᵢ(bᵢxᵢ + b'ᵢπᵢ)`
+   (`phaseU_foOp_hermiteCore`), and essential self-adjointness transfers along it by
+   `NavierStokesFlow.SignFlip.essentiallySelfAdjointOn_of_intertwine`.
+
+A reusable by-product is `linearMap_ext_of_span`: two linear maps out of a submodule
+spanned by a family agree as soon as they agree on that family.
+
+**Still open** in this strand: the combination of a quadratic `H_A` with a
+first-order term in a direction with no classical equilibrium (the recorded route is
+the ℓ²-side instrument
+`NavierStokesIkebeKato.essentiallySelfAdjointOn_finiteModes_of_farisLavine_bounds`).
+
+## Latest wave (2026-08-21h, **the spectral theorem for an unbounded self-adjoint operator**)
+
+One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/ConditionalUnitary.lean`.
+
+`BookProof/ChapterUnboundedSpectralModel.lean` (namespace
+`BookProof.UnboundedSpectralModel`) closes the long-recorded open step behind
+`ChapterUnitaryTransport`: the **existence of the diagonalizing unitary** for a
+general unbounded self-adjoint operator.  The route is the classical resolvent
+(Cayley) one.  For a densely defined self-adjoint `A` — the `UnboundedSelfAdjoint`
+bundle of `ChapterStoneResolvent` — the resolvent `R = (A − i)⁻¹` is a *bounded*
+operator (`resOp`, `op_resOp`) which is injective (`resOp_injective`), has range
+exactly `dom A` (`exists_resOp_eq`), has adjoint the resolvent at the conjugate
+point (`adjoint_resCLM`) and commutes with it, hence is **normal**
+(`isStarNormal_resOp`).  So the bounded multiplication model of
+`ChapterSpectralMultiplication` / `ChapterSpectralDirectSum` applies to `R`, and
+`A = R⁻¹ + i` is read back off it (`model_mem`, `model_apply`).
+
+That the model is a model of a *self-adjoint* operator is then extracted from the
+quadratic form: symmetry of `A` gives `⟪u, zu⟫ − ⟪zu, u⟫ = 2i⟪zu, zu⟫`
+(`model_symmetry_relation`), i.e. the multiplication operator by the Cayley symbol
+`Im z − |z|²` has vanishing quadratic form, hence vanishes
+(`mulRep_cayleyFn_eq_zero`); by the faithfulness criterion of
+`ChapterLinftyMultiplication` the representing measure is therefore carried by the
+Cayley circle `|z|² = Im z` (`model_ae_circle`).  An indicator-function argument
+shows it gives no mass to `z = 0` (`model_ae_ne_zero`), since `R` is injective.
+Consequently the multiplier `1/z + i` agrees almost everywhere with the **real**
+function `Re z/|z|²` (`cayley_real_multiplier`, `model_ae_real_multiplier`).
+
+Headline theorems: `unbounded_multiplication_model_cyclic` (resolvent with a cyclic
+unit vector: unitary equivalence with multiplication on a single `L²(μ)`, the domain
+being exactly the image of the multiplication-by-`z` range),
+`unbounded_multiplication_model_general` (**every** densely defined self-adjoint
+operator on a complex Hilbert space — no cyclic vector, no separability — is
+multiplication by a real function on a Hilbert sum of `L²(μₓ)` spaces), and
+`unbounded_multiplication_model_separable` (countably many summands on a separable
+space).
+
+## Latest wave (2026-08-21g, **singular quadratic forms, explicit dynamics, and
+first-order operators**)
+
+Two new modules, both `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/DiffeomorphismsGravity.lean`.
+
+`BookProof/ChapterStoneEigenflow.lean` (namespace `BookProof.StoneEigenflow`) makes the
+dynamics of the whole quadratic family explicit.  A self-adjoint extension keeps the
+eigenvectors of the core operator (`isSelfAdjointExtension_eigenvector`), and *any*
+Stone flow of a self-adjoint `T` acts on an eigenvector by a phase:
+`T ψ = λψ`, `λ` real, implies `U t ψ = e^{−iλt} ψ`
+(`stoneFlow_apply_eigenvector`, `stoneFlow_apply_core_eigenvector`).  No spectral
+theorem is used: `φ(t) = ⟪ψ, U t ψ⟫` solves `φ' = −iλφ` by the Schrödinger equation and
+symmetry, so `φ(t) = e^{−iλt}‖ψ‖²`, which for an isometry is the equality case of
+Cauchy–Schwarz.  `exists_diagonal_stone_flow` packages this: a densely defined,
+symmetric, essentially self-adjoint core operator with a family of eigenvectors
+generates a flow that is diagonal on that family.
+
+`BookProof/ChapterShiftedQuadraticDegenerate.lean` (namespace
+`BookProof.ShiftedQuadraticDegenerate`) removes the **invertibility** hypothesis of
+`ChapterShiftedQuadraticMatrixEsa`.  Completing the square only needs a *solution* of
+the classical equilibrium equations `A a = −2b`, `A k = −b'/2`, and for a symmetric `A`
+solvability is exactly orthogonality to the kernel: `equilibrium_orthogonal_to_kernel`
+(necessity), `exists_equilibrium` (sufficiency, from the spectral theorem for real
+symmetric matrices, inverting `A` on the non-degenerate eigendirections) and
+`exists_equilibrium_iff`.  Consequently, for **every** real symmetric `A` — invertible
+or singular, of arbitrary signature — with a classical equilibrium, the operator
+`H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is symmetric (`shiftedHMatOp_symmetric_of_equilibrium`) and
+essentially self-adjoint (`shiftedHMatOp_essentiallySelfAdjoint_of_equilibrium`) on the
+translated, modulated core, with the intrinsic form
+`exists_shiftedHMat_esa_of_kernel_orthogonal` (dense core, symmetry, ESA and a complete
+unitary flow, under `b, b' ⊥ ker A`) and the concrete degenerate diagonal instance
+`diagonal_degenerate_essentiallySelfAdjoint` (weights allowed to vanish, first-order
+coefficients vanishing in those directions) — exactly the case excluded by
+`ShiftedQuadratic.shiftedHOp_essentiallySelfAdjoint`, which needs `cᵢ ≠ 0`.  Feeding the
+Hermite eigenbasis into the module above gives the flow in closed form:
+`exists_shiftedHMat_diagonal_flow` and `exists_shiftedH_diagonal_flow`,
+`U t ψ_α = e^{−iE_αt} ψ_α` with `E_α = ∑ᵢ cᵢ(αᵢ + ½) + const`.
+
+`BookProof/ChapterFourierMultiplierEsa.lean` (namespace `BookProof.FourierMultiplierEsa`)
+extracts the Plancherel argument of `ChapterStrichartzWave` as a reusable instrument —
+any Fourier multiplier with a **real, smooth** symbol is symmetric
+(`symmetricOn_of_real_symbol`) and essentially self-adjoint
+(`essentiallySelfAdjointOn_of_real_symbol`) on the Schwartz core of `L²(V)` — and applies
+it to the *first-order* operators the second-order family could not reach: the momentum
+family `∑ᵢ cᵢ πᵢ`, `πᵢ = −i∂_{wᵢ}` (`fourier_firstOrderOp_apply`,
+`firstOrderOp_essentiallySelfAdjoint`, `momentumOp_essentiallySelfAdjoint`) and the full
+constant-coefficient operator `∑ᵢ cᵢ∂_{wᵢ}² + ∑ᵢ aᵢ(−i∂_{wᵢ}) + κ`
+(`mixedOp_essentiallySelfAdjoint`).  This covers the kernel directions of the quadratic
+family in the case where only the momentum coefficient survives.
+
+**Honest boundary:** orthogonality of `b, b'` to `ker A` is necessary, not technical —
+in a kernel direction the Hamiltonian degenerates to the first-order operator
+`bᵢxᵢ + b'ᵢπᵢ`, which has no `L²` eigenvector and is not diagonal in any Hermite-type
+basis.  The mixed kernel-direction operator `bᵢxᵢ + b'ᵢπᵢ` with *both* coefficients
+non-zero is covered by neither route (the Hermite route has no eigenvector, the Fourier
+route no constant-coefficient form).  A general Faris–Lavine potential remains open.
+
+## Wave (2026-08-21f, **the indefinite inhomogeneous quadratic Hamiltonian with cross
+terms**)
+
+`BookProof/ChapterShiftedQuadraticMatrixEsa.lean` (namespace
+`BookProof.ShiftedQuadraticMatrix`): for every real symmetric **invertible** `A` of
+arbitrary signature and arbitrary real `b, b'`, `H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is symmetric
+(`shiftedHMatOp_symmetric`) and essentially self-adjoint
+(`shiftedHMatOp_essentiallySelfAdjoint`) on the translated, modulated core with
+`a = −2A⁻¹b`, `k = −A⁻¹b'/2`, is genuinely unbounded (`shiftedHMatOp_not_bounded`) and
+generates a complete unitary flow (`shiftedHMatOp_stone_flow`); the corollary
+`wave_rotated_linear_essentiallySelfAdjoint` is the rotated Minkowski quadratic with a
+constant external field and boost.  Completing the square in matrix form
+(`shiftedHMatPoly_eq_quadPolyMat`) combines the orthogonal diagonalization of
+`ChapterQuadraticRotationEsa` with the phase-space translation of
+`ChapterShiftedQuadraticEsa`; the translated, modulated, *rotated* Hermite functions
+(`orthonormal_hermiteTRLp`, `span_hermiteTRLp`, `hermiteTRLp_total`) are the eigenbasis.
+
+## Wave (2026-08-21e, **the indefinite inhomogeneous quadratic Hamiltonian —
+completing the square on a translated, modulated core**)
+
+`BookProof/ChapterShiftedHermiteCore.lean` (namespace `BookProof.ShiftedHermiteCore`)
+and `BookProof/ChapterShiftedQuadraticEsa.lean` (namespace
+`BookProof.ShiftedQuadratic`), both `sorry`-free / `axiom`-free, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/DiffeomorphismsGravity.lean`, remove the **sign condition** that the wave below
+could not drop.
+
+For diagonal weights `cᵢ ≠ 0` of **arbitrary sign** — so the signature may be
+hyperbolic — and arbitrary real `b, b'`, the operator
+`H = ∑ᵢ (cᵢ(πᵢ² + xᵢ²/4) + bᵢxᵢ + b'ᵢπᵢ)` is symmetric (`shiftedHOp_symmetric`) and
+essentially self-adjoint (`shiftedHOp_essentiallySelfAdjoint`) on a dense core
+(`shiftedCore_dense`), is genuinely unbounded (`shiftedHOp_not_bounded`), generates a
+complete unitary Schrödinger flow (`shiftedHOp_stone_flow`), and *is* the differential
+expression `∑ᵢ (cᵢ(−∂ᵢ²f + xᵢ²f/4) + bᵢxᵢf + b'ᵢ(−i∂ᵢf))` pointwise
+(`shiftedHPoly_apply_eq_differential`, with Mathlib's `deriv` along the coordinate
+lines).  With the Minkowski weights `(1, −1, …, −1)` this is
+`wave_indefiniteQuadratic_linear_essentiallySelfAdjoint`: `□ + V`,
+`V(t,x) = (t² − ‖x‖²)/4`, plus an arbitrary constant external field and an arbitrary
+constant boost.
+
+The route is **not** a relative bound.  Completing the square in position and in
+momentum at once (`shiftedHPoly_term`, `shiftedHPoly_eq_quadPoly`) rewrites `H` as the
+*same* `H_c` plus a real constant, in the frame recentred at the classical equilibrium
+`aᵢ = −2bᵢ/cᵢ` and boosted to the classical momentum `kᵢ = −b'ᵢ/(2cᵢ)`.  Translation
+and modulation are unitary substitutions of `L²(ℝᵈ)`, so the translated, modulated
+Gauss–polynomial functions `p(x−a)e^{−‖x−a‖²/4}e^{i⟨k,x⟩}` are again a dense core
+(`polyGaussCoreT_dense`) carrying an orthonormal, total Hermite family
+(`orthonormal_hermiteTLp`, `hermiteTLp_total`), on which `H` acts diagonally with the
+real eigenvalues `∑ᵢ cᵢ(αᵢ + ½) + ∑ᵢ(−b'ᵢ²/(4cᵢ) − bᵢ²/cᵢ)` (`shiftedHOp_hermiteTLp`);
+the reusable diagonal instruments `symmetricOn_of_diagonal` and
+`deficiencyTrivialAt_of_diagonal` then finish.  No domination and no sign condition is
+used — only `cᵢ ≠ 0`, which the completion of the square needs.  **Still open:** the
+indefinite case *with cross terms* (a general indefinite symmetric `A` plus a
+first-order term).
+
+## Wave (2026-08-21d, **the general inhomogeneous elliptic quadratic
+Hamiltonian**)
+
+`BookProof/ChapterQuadraticRotationPerturbed.lean` (namespace
+`BookProof.QuadraticRotationPerturbed`), `sorry`-free / `axiom`-free, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/DiffeomorphismsGravity.lean`, combines the two waves below.  For a **positive
+definite** real symmetric matrix `A` and arbitrary real vectors `b, b'`, the operator
+`H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` — a general elliptic quadratic form *with cross terms*, plus a
+general unbounded first-order term that does not commute with it — is symmetric
+(`quadOpMat_add_firstOrder_symmetric`, which needs only symmetry of `A`) and essentially
+self-adjoint (`quadOpMat_add_firstOrder_essentiallySelfAdjoint`) on the Gauss–polynomial
+core; with `b' = 0` this is an anisotropic harmonic oscillator with cross terms in a
+constant external field
+(`anisotropicOsc_add_linearPotential_essentiallySelfAdjoint`).
+
+The eigenbasis argument alone no longer applies, since the perturbation is not diagonal
+in the rotated Hermite basis.  Instead the rotated Hermite functions are upgraded to a
+Hilbert basis (`rotHermiteBasis`), which turns the orthogonal substitution into an
+honest **unitary** `rotU` of `L²(ℝᵈ)`; on the core it *is* the polynomial substitution
+(`rotU_pgLp`), so it preserves the core (`rotU_mem_core`), carries `H_c` onto
+`H_{O diag(c) Oᵀ}` and carries the first-order symbol with coefficients `b, b'` onto the
+one with `Ob, Ob'` (`rotPoly_foPoly`, `rotVec_transpose`, `rotU_intertwine`).  Essential
+self-adjointness is a unitary invariant, so the Kato–Rellich theorem of
+`ChapterHermiteRelativeBound` transfers.  Positive definiteness enters exactly once
+(`exists_lower_bound_eigenvalues`) and is **not** removable by this route: in the
+indefinite case the symbol vanishes on infinitely many multi-indices.  The unperturbed
+indefinite case remains covered by `quadOpMat_essentiallySelfAdjoint`.
+
+## Wave (2026-08-21c, **general non-diagonal quadratic Hamiltonians of arbitrary
+signature**)
+
+`BookProof/ChapterQuadraticRotationEsa.lean` (namespace `BookProof.QuadraticRotation`),
+`sorry`-free / `axiom`-free, registered and certified in the same three places, removes
+the diagonality restriction of the wave below.  For **every** real symmetric matrix `A`
+the operator `H_A = ∑_{k,l} A_{kl}(π_k π_l + x_k x_l/4)`, `π_k = −i∂/∂x_k` — no sign
+condition, so the signature may be elliptic, hyperbolic or degenerate — is symmetric
+(`quadOpMat_symmetric`) and essentially self-adjoint
+(`quadOpMat_essentiallySelfAdjoint`) on the Gauss–polynomial core, and is genuinely
+unbounded whenever `A ≠ 0` (`quadOpMat_not_bounded`).  The route is the orthogonal
+substitution `rotPoly O` on polynomial coordinates together with rotation invariance of
+the Gaussian weight: the canonical pair transforms contravariantly with the same matrix
+(`rotPoly_mulXPoly`, `rotPoly_momPoly`), so `H_c` is carried onto `H_{O diag(c) Oᵀ}`
+(`quadPolyMat_rotPoly`), the rotated product Hermite functions are an orthonormal family
+of joint eigenvectors spanning the core (`orthonormal_rotHermiteLp`,
+`span_rotHermiteLp`, `quadOpMat_rotHermiteLp`), and the spectral theorem for real
+symmetric matrices supplies `O` and `c` (`exists_rotConj`,
+`exists_rotConj_eigenvalues`).  With the rotated Minkowski form this is the wave
+operator with the indefinite quadratic potential in rotated coordinates, where neither
+the kinetic form nor the potential is diagonal
+(`wave_rotated_essentiallySelfAdjoint`).
+
+## Wave (2026-08-21b, **unbounded first-order perturbations of the diagonal
+quadratic Hamiltonian**)
+
+`BookProof/ChapterHermiteRelativeBound.lean` (namespace `BookProof.HermiteRelative`),
+`sorry`-free / `axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` and cited from `Book/DiffeomorphismsGravity.lean`,
+widens the wave below beyond *bounded* perturbations.  For strictly positive weights
+`cᵢ ≥ c₀ > 0` the position and momentum operators are symmetric on the Hermite core
+(`posL_symmetric`, `momL_symmetric`) and satisfy the form identity
+`⟪u, (πᵢ² + xᵢ²/4)u⟫ = ‖πᵢu‖² + ‖xᵢu‖²/4` (`re_inner_oscL_eq`); with the symbol
+comparison `c₀(αᵢ + ½) ≤ ∑ⱼ cⱼ(αⱼ + ½)` (`re_inner_oscL_le_quadOp`) this gives
+`‖xᵢu‖ ≤ ε‖H_c u‖ + (2/(c₀ε))‖u‖` for every `ε > 0` (`norm_posL_le`, `norm_momL_le`).
+The Kato–Rellich theorem in its relative form then yields
+`quadOp_add_firstOrder_essentiallySelfAdjoint`: `H_c + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially
+self-adjoint on the same core for arbitrary real coefficients, and in particular the
+**Stark-shifted oscillator** `−Δ + ‖x‖²/4 + ⟨b, x⟩`
+(`harmonicOsc_add_linearPotential_essentiallySelfAdjoint`, with
+`foOp_linear_apply_eq_mul` identifying the perturbation as multiplication by the
+unbounded function `x ↦ ⟨b, x⟩`).  Strict positivity of the weights is used and is not
+removable by this argument.
+
+## Latest wave (2026-08-21, **the hyperbolic operator with an indefinite quadratic
+potential**)
+
+One further module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/DiffeomorphismsGravity.lean`, settles the diagonal-quadratic case of the
+non-commuting *hyperbolic* mixture recorded as open in `STRICHARTZ_WAVE_ESA.md`
+and as backlog item A1 of `CONSOLIDATED_PLAN.md` §9.5.
+
+`BookProof/ChapterHyperbolicQuadraticEsa.lean` (namespace
+`BookProof.HyperbolicQuadratic`) proves: for an arbitrary real weight vector
+`c : Fin d → ℝ` — **no sign condition**, so the signature may be hyperbolic — the
+operator
+
+`H_c = ∑ᵢ cᵢ(−∂ᵢ² + xᵢ²/4)`
+
+is symmetric (`quadOp_symmetric`) and **essentially self-adjoint**
+(`quadOp_essentiallySelfAdjoint`) on the Gauss–polynomial (product Hermite) core
+`polyGaussCore` of `L²(ℝᵈ)`, which is dense (`polyGaussCore_dense_L2`), and is
+genuinely unbounded as soon as one weight is non-zero (`quadOp_not_bounded`).
+The operator is written in the canonical pair `momPoly i = −i∂ᵢ`,
+`mulXPoly i = xᵢ·` of `ChapterNavierStokesDifferentialL2`; `oscPoly_apply` and
+`oscPoly_hermiteMv` identify one coordinate factor with the number operator
+`aᵢ†aᵢ + ½`, so that `H_c ψ_α = (∑ᵢ cᵢ(αᵢ + ½)) ψ_α` (`quadOp_hermiteMvLp`), and
+`quadPoly_apply_eq_differential` is the pointwise identification with the
+differential expression, using Mathlib's `deriv` twice along each coordinate line
+(`deriv_pgFun_sec`, `deriv2_pgFun_sec`).  Taking the Minkowski weights
+`c = (1, −1, …, −1)` (`minkowskiCoeff`) gives, in the convention
+`□ = −∂_t² + Δ_x` of `ChapterStrichartzWave`,
+
+`□ + V`,  `V(t,x) = (t² − ‖x‖²)/4`
+
+— an unbounded potential, indefinite, not commuting with `□`, and bounded above
+by the quadratic `(t² + ‖x‖²)/4`, which is the Faris–Lavine sign
+(`wave_indefiniteQuadratic_essentiallySelfAdjoint`,
+`minkowski_apply_eq_differential`).  Two reusable instruments are proved on the
+way: `symmetricOn_of_diagonal` and `deficiencyTrivialAt_of_diagonal` — an
+operator diagonal with a *real* symbol on an orthonormal family spanning its
+domain is symmetric, and has vanishing deficiency spaces at non-real points as
+soon as that family is total.
+
+The Kato–Rellich theorem of `ChapterKatoRellichDeficiency` widens the class by a
+bounded term: `quadOp_add_boundedPotential_essentiallySelfAdjoint` and
+`quadOp_add_realBoundedPotential_essentiallySelfAdjoint` keep essential
+self-adjointness on the same core after adding any real, essentially bounded
+potential, so the potential may be any *diagonal quadratic plus bounded* real
+function.
+
+Honest boundary: the potential is quadratic and diagonal in the coordinates; a
+general Faris–Lavine potential bounded above by a quadratic is still **not**
+covered (the proof uses the joint eigenbasis, which exists only for the diagonal
+quadratic family), and nothing is claimed for the opposite sign (the
+`−d²/dx² − x⁴` class, with non-zero deficiency indices).
+
+## Wave (2026-08-20k, **the differential realization of the full
 Navier–Stokes quadratic symbol on `L²(du₁du₂du₃)`**)
 
 Two further modules, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,

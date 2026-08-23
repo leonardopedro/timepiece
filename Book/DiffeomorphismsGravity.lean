@@ -210,6 +210,69 @@ self-adjointness back to the physical variables is the unitary-equivalence step:
 #check @BookProof.QuantumGravityDensitized.densitized_hasZeroDeficiencyOn_transfer
 ```
 
+# The Starobinsky Potentials and the Flow of the Regularized Conformal Mode
+
+:::paragraph
+The conformal mode is the notorious wrong-sign direction of pure general
+relativity: its potential is the *linear* $`-\tfrac{M^2}{2}R_c`, unbounded below.
+Adding the curvature-squared term of the Starobinsky action
+$`f(R) = \tfrac{M^2}{2}R + \alpha R^2` changes this qualitatively. First, the
+extension is ghost-free: with $`\psi = 1 + 4\alpha R/M^2` and
+$`U(\psi) = \tfrac{M^4}{16\alpha}(\psi-1)^2` one has the exact identity
+$`f(R) = \tfrac{M^2}{2}\psi R - U(\psi)`, so the theory is an ordinary
+second-order scalar–tensor theory. Second, in the Einstein frame the scalaron
+potential $`V(\varphi) = \tfrac{M^4}{16\alpha}\bigl(1 -
+e^{-\sqrt{2/3}\,\varphi/M}\bigr)^2` is manifestly a square: non-negative, zero at
+the Minkowski vacuum, with the inflationary plateau $`M^4/(16\alpha)` as
+$`\varphi \to +\infty` and an exponential wall as $`\varphi \to -\infty`:
+:::
+
+```
+#check @BookProof.Starobinsky.fR_eq_scalarTensor
+#check @BookProof.Starobinsky.starobinskyV
+#check @BookProof.Starobinsky.starobinskyV_nonneg
+#check @BookProof.Starobinsky.starobinskyV_zero
+#check @BookProof.Starobinsky.starobinskyV_tendsto_plateau
+#check @BookProof.Starobinsky.starobinskyV_tendsto_atBot_atTop
+```
+
+:::paragraph
+Third — and this is the point for the conformal mode — completing the square in
+$`V_3(R_c) = -\tfrac{M^2}{2}R_c + \alpha R_c^2` gives
+$`\alpha\bigl(R_c - \tfrac{M^2}{4\alpha}\bigr)^2 - \tfrac{M^4}{16\alpha}`, so for
+$`\alpha > 0` the potential is bounded below by $`-M^4/(16\alpha)`, while at
+$`\alpha = 0` it tends to $`-\infty`. That contrast is exactly what the $`\alpha
+R^2` term buys:
+:::
+
+```
+#check @BookProof.Starobinsky.confV
+#check @BookProof.Starobinsky.confV_completed_square
+#check @BookProof.Starobinsky.confV_ge
+#check @BookProof.Starobinsky.confV_bddBelow
+#check @BookProof.Starobinsky.confV_zero_alpha_tendsto_atBot
+```
+
+:::paragraph
+At the level of the operator the same bound is uniform in the mode, so the
+Hermite-basis realization of the gauge-fixed $`R + \alpha R^2` Hamiltonian is a
+multiplication operator with a potential bounded below. It is symmetric and
+essentially self-adjoint on its maximal domain, which is dense because it contains
+the finitely supported states; the Stone bridge then converts that into the
+complete unitary group $`e^{-itH}`. As elsewhere in this thread, the continuum
+statement and the gauge/BRST sector remain outside the claim:
+:::
+
+```
+#check @BookProof.Starobinsky.qgR2ModeHamiltonian
+#check @BookProof.Starobinsky.qgR2Mode_potential_ge
+#check @BookProof.Starobinsky.mulSymbolDomain_dense
+#check @BookProof.Starobinsky.qgR2Mode_symmetric
+#check @BookProof.Starobinsky.qgR2Mode_esa
+#check @BookProof.Starobinsky.qgR2Mode_deficiencyTrivialAt
+#check @BookProof.Starobinsky.qgR2_stone_flow
+```
+
 :::paragraph
 In the continuum the two *commuting* halves of a wave operator with a potential
 are now settled with unbounded coefficients, on the Schwartz core of
@@ -244,6 +307,122 @@ can close is the opposite one, $`W` bounded above by a quadratic here (equivalen
 bounded below for the physics signature $`\Box = \partial_t^2 - \Delta_x`).
 :::
 
+# The Scalaron Wall and the Compactly Supported Core
+
+:::paragraph
+The Einstein-frame scalaron potential is the one place where the temperate-growth
+hypothesis of the multiplication theorem above is genuinely violated: $`V(\varphi)`
+grows like $`e^{-2\sqrt{2/3}\,\varphi/M}` as $`\varphi \to -\infty`, and it is
+*proved* here not to be of temperate growth. The hypothesis is nevertheless an
+artefact of the core, not of the mathematics: temperate growth is what keeps the
+Schwartz space invariant under multiplication, and on the smaller — still dense —
+core of smooth compactly supported functions no growth condition is needed at all.
+On that core multiplication by *any* smooth real potential is symmetric with
+trivial deficiency at every non-real point, hence essentially self-adjoint, with
+no boundedness and no semiboundedness assumption:
+:::
+
+```
+#check @BookProof.ScalaronEsa.ccDomain
+#check @BookProof.ScalaronEsa.ccDomain_dense
+#check @BookProof.ScalaronEsa.smoothPotential_symmetric
+#check @BookProof.ScalaronEsa.smoothPotential_deficiencyTrivial
+#check @BookProof.ScalaronEsa.smoothPotential_essentiallySelfAdjoint
+#check @BookProof.ScalaronEsa.starobinskyV_not_hasTemperateGrowth
+#check @BookProof.ScalaronEsa.starobinskyV_essentiallySelfAdjoint
+```
+
+:::paragraph
+The full gauge-fixed $`R + \alpha R^2` potential — the regularized conformal
+parabola $`V_3(R_c)` together with the scalaron potential $`V(\varphi)` — is then
+essentially self-adjoint on that dense core as well, and it carries the lower
+bound $`-M^4/(16\alpha)`: the scalaron term is a square, so it can only help. The
+d'Alembertian with such a potential is a well-defined symmetric operator on the
+same dense core, and each of its spatial localizations is essentially
+self-adjoint on the Schwartz core — the truncation theorem now with smoothness as
+its only hypothesis on the potential, the exponential wall included:
+:::
+
+```
+#check @BookProof.ScalaronEsa.scalaronFullPotential
+#check @BookProof.ScalaronEsa.scalaronFullPotential_ge
+#check @BookProof.ScalaronEsa.scalaronFullPotential_essentiallySelfAdjoint
+#check @BookProof.ScalaronEsa.wave_add_scalaron_symmetric
+#check @BookProof.ScalaronEsa.wave_add_smoothTruncatedPotential_essentiallySelfAdjoint
+#check @BookProof.ScalaronEsa.wave_add_scalaronTruncated_esa
+#check @BookProof.ScalaronEsa.wave_add_smoothPotential_esa_of_finiteSpeed
+#check @BookProof.ScalaronEsa.wave_add_scalaron_esa_of_finiteSpeed
+```
+
+:::paragraph
+Removing the truncation is, as before, the one step that is not claimed: what
+remains is the finite-speed / unique-continuation input, kept explicit as a named
+hypothesis in the two statements above, never as an axiom. The point of this
+section is that the *potential* side of the question is closed — an exponentially
+growing but bounded-below potential is no worse than a polynomial one once the
+Hamiltonian is taken on the compactly supported core.
+:::
+
+:::paragraph
+At the mode level nothing is left conditional: the gauge-fixed $`R + \alpha R^2`
+Hamiltonian *including* the scalaron potential is multiplication by
+$`\tfrac1{16}a_k^2 - \tfrac1{24}b_k^2 + V_3(R_{c,k}) + V(\varphi_k)`, essentially
+self-adjoint on its dense maximal domain with the uniform lower bound
+$`-M^4/(16\alpha)` on the potential, and Stone's theorem turns it into the complete
+unitary group. The honest boundary is unchanged: the continuum statement for the
+unlocalized sum still needs the finite-speed gluing, and the gauge/BRST sector
+stays outside the claim.
+:::
+
+```
+#check @BookProof.ScalaronEsa.qgScalaronModeHamiltonian
+#check @BookProof.ScalaronEsa.qgScalaronMode_potential_ge
+#check @BookProof.ScalaronEsa.qgScalaronMode_symmetric
+#check @BookProof.ScalaronEsa.qgScalaronMode_esa
+#check @BookProof.ScalaronEsa.qgScalaron_stone_flow
+```
+
+:::paragraph
+One particle is not the physical statement: the state space of the quantised theory
+is a *nested Fock space* $`\bigoplus_n L^2(E_n)`, whose $`n`-th sector carries the
+configuration space of $`n` quanta and whose Hamiltonian acts sector by sector, the
+$`n`-particle potential being the sum of the one-particle potentials of the
+individual quanta. Essential self-adjointness passes from the sectors to the whole
+by the orthogonal direct-sum instrument: a deficiency vector of $`\bigoplus_n H_n`,
+tested against a state living in one sector, satisfies exactly the sector deficiency
+identity, so all of its coordinates vanish. Nothing about the exponential wall of the
+scalaron survives this step, because nothing about growth was used in the sectors.
+:::
+
+:::paragraph
+Concretely, on the sector $`E_n = \mathbb R^{n\times 2}` — each quantum carrying a
+conformal mode $`R_c` and a scalaron $`\varphi` — the many-body gauge-fixed potential
+$`\sum_{j<n}\bigl(V_3(R_{c,j}) + V(\varphi_j)\bigr)` is smooth, bounded below by
+$`-n\,M^4/(16\alpha)`, and at $`n = 1` it *is* the one-particle potential of the
+previous section. The resulting operator on $`\bigoplus_n L^2(\mathbb R^{n\times 2})`
+is densely defined, symmetric, has trivial deficiency at every non-real point, is
+essentially self-adjoint, and Stone's theorem turns it into the global unitary group
+$`e^{-itH}` on the whole finite-particle Fock space. The same holds in the mode
+(Hermite) realisation of the gravity chapters. The gluing is over an orthogonal direct
+sum, i.e. the Hamiltonian preserves particle number — exactly the finite-particle
+situation; an interaction changing the sector is not part of the claim.
+:::
+
+```
+#check @BookProof.ScalaronFock.nestedCore
+#check @BookProof.ScalaronFock.nestedCore_dense
+#check @BookProof.ScalaronFock.fockSmoothPotential_esa
+#check @BookProof.ScalaronFock.fockSmoothPotential_stone_flow
+#check @BookProof.ScalaronFock.qgManyPotential
+#check @BookProof.ScalaronFock.qgManyPotential_one
+#check @BookProof.ScalaronFock.qgManyPotential_ge
+#check @BookProof.ScalaronFock.qgScalaronFockHamiltonian
+#check @BookProof.ScalaronFock.qgScalaronFock_esa
+#check @BookProof.ScalaronFock.qgScalaronFock_stone_flow
+#check @BookProof.ScalaronFock.qgScalaronModeFock_esa
+#check @BookProof.ScalaronFock.qgScalaronModeFock_stone_flow
+```
+
 :::paragraph
 The genuinely *non-commuting* case — a differential kinetic term together with an
 unbounded polynomial potential — is settled in the elliptic normalization, where
@@ -263,6 +442,457 @@ $`x \mapsto -\psi_n''(x) + (x^2/4)\,\psi_n(x)`.
 #check @BookProof.HarmonicOscillator.harmonicOsc_symmetric
 #check @BookProof.HarmonicOscillator.harmonicOsc_essentiallySelfAdjoint
 #check @BookProof.HarmonicOscillator.harmonicOsc_not_bounded
+```
+
+:::paragraph
+The same joint eigenbasis settles the *hyperbolic* mixture, for the quadratic
+potentials that are diagonal in the coordinates. For an arbitrary real weight
+vector $`c`, with no sign condition, the operator
+$`H_c = \sum_i c_i(-\partial_i^2 + x_i^2/4)` is symmetric and essentially
+self-adjoint on the Gauss–polynomial (product Hermite) core of
+$`L^2(\mathbb R^d)`, acting on the product Hermite function $`\psi_\alpha` by the
+real symbol $`\sum_i c_i(\alpha_i + \tfrac12)`; the operator is genuinely
+unbounded as soon as one weight is non-zero, and the identification with the
+differential expression is proved pointwise, with Mathlib's derivative taken
+twice along each coordinate line. Taking the Minkowski weights
+$`c = (1, -1, \dots, -1)` gives, in the convention $`\Box = -\partial_t^2 + \Delta_x`
+used here, the operator $`\Box + V` with the indefinite quadratic potential
+$`V(t,x) = (t^2 - \lVert x\rVert^2)/4` — unbounded above and below, not commuting
+with $`\Box`, and bounded above by a quadratic, which is exactly the sign
+discussed above. A general potential bounded above by a quadratic is still not
+covered: the argument uses the joint eigenbasis, which exists only for the
+diagonal quadratic family. The Kato–Rellich theorem does widen the class by a
+bounded term, so the potential may be any diagonal quadratic plus a real,
+essentially bounded function.
+:::
+
+```
+#check @BookProof.HyperbolicQuadratic.oscPoly_hermiteMv
+#check @BookProof.HyperbolicQuadratic.quadOp_hermiteMvLp
+#check @BookProof.HyperbolicQuadratic.quadOp_symmetric
+#check @BookProof.HyperbolicQuadratic.quadOp_essentiallySelfAdjoint
+#check @BookProof.HyperbolicQuadratic.quadOp_not_bounded
+#check @BookProof.HyperbolicQuadratic.quadPoly_apply_eq_differential
+#check @BookProof.HyperbolicQuadratic.wave_indefiniteQuadratic_essentiallySelfAdjoint
+#check @BookProof.HyperbolicQuadratic.minkowski_apply_eq_differential
+#check @BookProof.HyperbolicQuadratic.quadOp_add_realBoundedPotential_essentiallySelfAdjoint
+```
+
+:::paragraph
+The bounded widening is not the end of the story. When the weights are strictly
+positive, $`c_i \ge c_0 > 0`, the quadratic Hamiltonian *dominates* each
+coordinate pair: the form identity
+$`\langle u, (\pi_i^2 + x_i^2/4)u\rangle = \lVert \pi_i u\rVert^2 + \lVert x_i u\rVert^2/4`
+together with the symbol inequality $`c_0(\alpha_i + \tfrac12) \le \sum_j c_j(\alpha_j + \tfrac12)`
+gives $`\lVert x_i u\rVert \le \varepsilon\lVert H_c u\rVert + (2/(c_0\varepsilon))\lVert u\rVert`
+for every $`\varepsilon > 0`, and the same bound for the momentum. The relative
+bound is therefore arbitrarily small, so the Kato–Rellich theorem applies to any
+first-order perturbation $`B = \sum_i (b_i x_i + b_i' \pi_i)` with real
+coefficients: $`H_c + B` is essentially self-adjoint on the same Hermite core.
+The perturbation here is genuinely unbounded — with $`b' = 0` it is
+multiplication by the linear function $`x \mapsto \langle b, x\rangle`, so the
+corollary is the Stark-shifted harmonic oscillator
+$`-\Delta + \lVert x\rVert^2/4 + \langle b, x\rangle`, an oscillator in a constant
+external field. The positivity of the weights is used, and cannot be dropped by
+this argument: in the hyperbolic case the symbol vanishes on infinitely many
+multi-indices, so $`H_c` does not dominate the number operator. The same
+eigenbasis also exhibits the diagonalizing unitary explicitly: in the coordinates
+of the product Hermite basis, $`H_c` *is* multiplication by the real symbol
+$`\sum_i c_i(\alpha_i + \tfrac12)` on $`\ell^2`.
+:::
+
+```
+#check @BookProof.HermiteRelative.re_inner_oscL_eq
+#check @BookProof.HermiteRelative.norm_posL_le
+#check @BookProof.HermiteRelative.norm_momL_le
+#check @BookProof.HermiteRelative.quadOp_add_firstOrder_essentiallySelfAdjoint
+#check @BookProof.HermiteRelative.hermiteMvBasis_repr_quadOp
+#check @BookProof.HermiteRelative.foOp_linear_apply_eq_mul
+#check @BookProof.HermiteRelative.harmonicOsc_add_linearPotential_essentiallySelfAdjoint
+```
+
+:::paragraph
+The positivity of the weights is a limitation of the *Kato–Rellich argument*, not
+of the theorem, and it can be removed outright by changing the core instead of
+estimating the perturbation. For weights $`c_i \ne 0` of arbitrary sign and
+arbitrary real $`b, b'`, complete the square in position and in momentum at once:
+$`c_i(\pi_i^2 + x_i^2/4) + b_i x_i + b_i' \pi_i = c_i\big((\pi_i + \tfrac{b_i'}{2c_i})^2 + \tfrac14 (x_i + \tfrac{2 b_i}{c_i})^2\big) - \tfrac{(b_i')^2}{4 c_i} - \tfrac{b_i^2}{c_i}`.
+The right-hand side is the *same* diagonal quadratic Hamiltonian $`H_c`, plus a
+real constant, written in the frame recentred at the classical equilibrium
+$`a_i = -2b_i/c_i` and boosted to the classical momentum $`k_i = -b_i'/(2c_i)`.
+Translating by $`a` and modulating by $`e^{i\langle k, x\rangle}` are unitary
+substitutions of $`L^2(\mathbb{R}^d)`, so the translated, modulated
+Gauss–polynomial functions $`p(x-a)\,e^{-\lVert x-a\rVert^2/4}\,e^{i\langle k, x\rangle}`
+again form a dense core carrying an orthonormal Hermite family, and on it the
+full operator is diagonal with eigenvalues
+$`\sum_i c_i(\alpha_i + \tfrac12) + \sum_i(-\tfrac{(b_i')^2}{4c_i} - \tfrac{b_i^2}{c_i})`.
+A real diagonal action on a total orthonormal family is symmetric with trivial
+deficiency, so no domination and no sign condition on $`c` is needed: only
+$`c_i \ne 0`. Taking the Minkowski weights $`(1, -1, \ldots, -1)` gives the wave
+operator with the indefinite quadratic potential *plus* an arbitrary constant
+external field and an arbitrary constant boost, essentially self-adjoint on a
+dense core — the case the relative-bound route above could not reach.
+:::
+
+```
+#check @BookProof.ShiftedHermiteCore.polyGaussCoreT_dense
+#check @BookProof.ShiftedHermiteCore.orthonormal_hermiteTLp
+#check @BookProof.ShiftedHermiteCore.hermiteTLp_total
+#check @BookProof.ShiftedQuadratic.shiftedHPoly_eq_quadPoly
+#check @BookProof.ShiftedQuadratic.shiftedHOp_hermiteTLp
+#check @BookProof.ShiftedQuadratic.shiftedHOp_symmetric
+#check @BookProof.ShiftedQuadratic.shiftedHOp_essentiallySelfAdjoint
+#check @BookProof.ShiftedQuadratic.shiftedHOp_not_bounded
+#check @BookProof.ShiftedQuadratic.shiftedHPoly_apply_eq_differential
+#check @BookProof.ShiftedQuadratic.wave_indefiniteQuadratic_linear_essentiallySelfAdjoint
+```
+
+:::paragraph
+Diagonality in the coordinates is not a real restriction either, as long as the
+kinetic form and the potential share the same matrix. Let $`A` be *any* real
+symmetric $`d \times d` matrix and consider
+$`H_A = \sum_{k,l} A_{kl}\,(\pi_k \pi_l + x_k x_l/4)` with $`\pi_k = -i\,\partial/\partial x_k`:
+the kinetic part is the second-order operator $`-\sum_{k,l} A_{kl}\,\partial_k \partial_l`
+and the potential is the quadratic form $`\tfrac14 \sum_{k,l} A_{kl}\,x_k x_l`, with no
+sign condition on $`A`, so the signature may be elliptic, hyperbolic or degenerate.
+Then $`H_A` is symmetric and essentially self-adjoint on the same Gauss–polynomial
+core. The proof is a change of coordinates: the Gaussian weight
+$`e^{-\lVert x\rVert^2/4}` is rotation invariant, so composing with an orthogonal
+matrix $`O` is a unitary of $`L^2(\mathbb R^d)` that maps the core onto itself and
+acts on the polynomial coordinates as an algebra automorphism. Both members of the
+canonical pair transform contravariantly with the *same* matrix, so the substitution
+carries the diagonal Hamiltonian $`H_c` onto $`H_{O\,\mathrm{diag}(c)\,O^{\mathsf T}}`;
+the spectral theorem for real symmetric matrices supplies $`O` and $`c` with
+$`A = O\,\mathrm{diag}(c)\,O^{\mathsf T}`, and the rotated product Hermite functions are
+an orthonormal family of joint eigenvectors of $`H_A` spanning the core. Taking for
+$`A` the rotated Minkowski form gives the wave operator with the indefinite quadratic
+potential in rotated coordinates, where neither the kinetic form nor the potential is
+diagonal. The operator is genuinely unbounded whenever $`A \neq 0`. The honest
+boundary is unchanged: the potential is still a quadratic *matched* to the kinetic
+form, and a general Faris–Lavine potential is not covered.
+:::
+
+```
+#check @BookProof.QuadraticRotation.rotPoly_momPoly
+#check @BookProof.QuadraticRotation.quadPolyMat_rotPoly
+#check @BookProof.QuadraticRotation.quadPolyMat_diagonal
+#check @BookProof.QuadraticRotation.orthonormal_rotHermiteLp
+#check @BookProof.QuadraticRotation.span_rotHermiteLp
+#check @BookProof.QuadraticRotation.exists_rotConj
+#check @BookProof.QuadraticRotation.quadOpMat_symmetric
+#check @BookProof.QuadraticRotation.quadOpMat_essentiallySelfAdjoint
+#check @BookProof.QuadraticRotation.wave_rotated_essentiallySelfAdjoint
+#check @BookProof.QuadraticRotation.quadOpMat_not_bounded
+```
+
+:::paragraph
+The two widenings combine. Let $`A` be a *positive definite* real symmetric matrix
+and let $`b, b'` be arbitrary real vectors: then the inhomogeneous operator
+$`H_A + \sum_i (b_i x_i + b'_i \pi_i)` — a general elliptic quadratic form with cross
+terms, plus a general unbounded first-order term that does not commute with it — is
+symmetric and essentially self-adjoint on the same Gauss–polynomial core. Taking
+$`b' = 0` this is an anisotropic harmonic oscillator with cross terms in a constant
+external field. The eigenbasis argument alone no longer suffices, because the
+first-order term is not diagonal in the rotated Hermite basis; instead the rotated
+Hermite functions are upgraded to a Hilbert basis, which turns the orthogonal
+substitution into an honest unitary of $`L^2(\mathbb R^d)`. On the core that unitary
+*is* the polynomial substitution, so it preserves the core, carries $`H_c` onto
+$`H_{O\,\mathrm{diag}(c)\,O^{\mathsf T}}` and carries the first-order symbol with
+coefficients $`b, b'` onto the one with $`Ob, Ob'`. Essential self-adjointness is a
+unitary invariant, so the Kato–Rellich theorem for the diagonal case transfers.
+Positive definiteness is used exactly once, to bound the eigenvalues of $`A` below by
+a positive constant — which is what the relative bound needs, and which genuinely
+fails in the indefinite case.
+:::
+
+```
+#check @BookProof.QuadraticRotationPerturbed.rotU_pgLp
+#check @BookProof.QuadraticRotationPerturbed.rotPoly_foPoly
+#check @BookProof.QuadraticRotationPerturbed.rotU_intertwine
+#check @BookProof.QuadraticRotationPerturbed.exists_lower_bound_eigenvalues
+#check @BookProof.QuadraticRotationPerturbed.quadOpMat_add_firstOrder_symmetric
+#check @BookProof.QuadraticRotationPerturbed.quadOpMat_add_firstOrder_essentiallySelfAdjoint
+#check @BookProof.QuadraticRotationPerturbed.anisotropicOsc_add_linearPotential_essentiallySelfAdjoint
+```
+
+:::paragraph
+Positive definiteness can be removed as well, by combining the two mechanisms: the
+orthogonal substitution that diagonalizes the quadratic form, and the phase-space
+translation that completes the square. For a real symmetric matrix $`A` and arbitrary
+real $`b, b'`, put the classical equilibrium equations $`A a = -2b` and $`A k = -b'/2`.
+Whenever they have a solution, in the frame recentred at $`a` and boosted to $`k` the
+first-order term disappears and the Hamiltonian becomes $`H_A` plus a real constant, so
+the translated, modulated, rotated Hermite functions are an orthonormal total family of
+eigenvectors and the operator
+$`H_A + \sum_i (b_i x_i + b'_i \pi_i)` is symmetric and essentially self-adjoint on the
+translated, modulated core, with no sign condition on $`A`. An invertible $`A` always
+admits a solution, $`a = -2A^{-1}b` and $`k = -A^{-1}b'/2`; for a *singular* $`A` the
+equations are solvable exactly when $`b` and $`b'` are orthogonal to the kernel of $`A`,
+and that criterion is proved in both directions. The residual case is honest and
+irreducible: in a kernel direction with $`b_i \neq 0` the Hamiltonian degenerates to the
+first-order operator $`b_i x_i + b_i' \pi_i`, which has no eigenvector in $`L^2`.
+:::
+
+```
+#check @BookProof.ShiftedQuadraticMatrix.shiftedHMatPoly_eq_quadPolyMat
+#check @BookProof.ShiftedQuadraticMatrix.hermiteTRLp_total
+#check @BookProof.ShiftedQuadraticMatrix.shiftedHMatOp_hermiteTRLp
+#check @BookProof.ShiftedQuadraticMatrix.shiftedHMatOp_essentiallySelfAdjoint
+#check @BookProof.ShiftedQuadraticMatrix.wave_rotated_linear_essentiallySelfAdjoint
+#check @BookProof.ShiftedQuadraticDegenerate.equilibrium_orthogonal_to_kernel
+#check @BookProof.ShiftedQuadraticDegenerate.exists_equilibrium
+#check @BookProof.ShiftedQuadraticDegenerate.exists_equilibrium_iff
+#check @BookProof.ShiftedQuadraticDegenerate.shiftedHMatOp_essentiallySelfAdjoint_of_equilibrium
+#check @BookProof.ShiftedQuadraticDegenerate.exists_shiftedHMat_esa_of_kernel_orthogonal
+#check @BookProof.ShiftedQuadraticDegenerate.diagonal_degenerate_essentiallySelfAdjoint
+```
+
+:::paragraph
+Essential self-adjointness on a dense core buys the *existence* of the unitary group by
+Stone's theorem, but on an eigenvector the dynamics can be written down. If $`T` is
+self-adjoint, $`U` is any unitary flow solving $`d/dt\,(U_t x) = -i\,T U_t x` on the
+domain of $`T`, and $`T\psi = \lambda\psi` with $`\lambda` real, then
+$`U_t \psi = e^{-i\lambda t}\psi` for every $`t`. No spectral theorem is needed: the
+scalar function $`\varphi(t) = \langle \psi, U_t\psi\rangle` satisfies
+$`\varphi' = -i\lambda\varphi` by the Schrödinger equation and the symmetry of $`T`, so
+$`\varphi(t) = e^{-i\lambda t}\lVert\psi\rVert^2`, and since $`U_t` is isometric this is
+the equality case of the Cauchy–Schwarz inequality. Applied to the quadratic family, the
+flow generated by $`H_A + \sum_i (b_i x_i + b'_i \pi_i)` acts on the Hermite eigenbasis
+of its core by the phase $`e^{-iE_\alpha t}` with
+$`E_\alpha = \sum_i c_i(\alpha_i + \tfrac12) + \mathrm{const}`: the Schrödinger equation
+for these Hamiltonians is solved in closed form on a total family of initial data.
+:::
+
+```
+#check @BookProof.StoneEigenflow.isSelfAdjointExtension_eigenvector
+#check @BookProof.StoneEigenflow.stoneFlow_apply_eigenvector
+#check @BookProof.StoneEigenflow.exists_diagonal_stone_flow
+#check @BookProof.ShiftedQuadraticDegenerate.exists_shiftedHMat_diagonal_flow
+#check @BookProof.ShiftedQuadraticDegenerate.exists_shiftedH_diagonal_flow
+```
+
+:::paragraph
+The kernel directions left open above are first-order operators, and those are reached by
+the other route in this development — the Fourier multiplier argument. The Plancherel
+proof used for the wave operator never looks at the shape of the operator: it uses only
+that the Fourier transform turns it into multiplication by a *real, smooth* symbol, and
+that suffices for symmetry and for the vanishing of both deficiency spaces. Stated that
+way it is an instrument, and it applies verbatim to the momentum family
+$`\sum_i c_i \pi_{w_i}`, $`\pi_w = -i\,\partial_w`, whose symbol
+$`\sum_i 2\pi c_i \langle \xi, w_i\rangle` is real and smooth, and to the full
+constant-coefficient operator
+$`\sum_i c_i \partial_{w_i}^2 + \sum_i a_i (-i\,\partial_{w_i}) + \kappa` — second order,
+plus an unbounded first-order term, plus a constant — on the Schwartz core of
+$`L^2(V)`.
+:::
+
+```
+#check @BookProof.FourierMultiplierEsa.symmetricOn_of_real_symbol
+#check @BookProof.FourierMultiplierEsa.essentiallySelfAdjointOn_of_real_symbol
+#check @BookProof.FourierMultiplierEsa.fourier_firstOrderOp_apply
+#check @BookProof.FourierMultiplierEsa.firstOrderOp_essentiallySelfAdjoint
+#check @BookProof.FourierMultiplierEsa.momentumOp_essentiallySelfAdjoint
+#check @BookProof.FourierMultiplierEsa.mixedOp_essentiallySelfAdjoint
+```
+
+:::paragraph
+One case is reached by neither route: a kernel direction carrying a linear potential *and*
+a momentum term at once, $`\langle x, b\rangle - i\,\partial_m` with both coefficients
+non-zero. It has no $`L^2` eigenvector, so the Hermite eigenbasis cannot see it, and it is
+not constant-coefficient, so the Fourier multiplier is not available. A *gauge* settles it.
+The unimodular factor $`e^{i\theta}` with the quadratic phase
+$`\theta(x) = -\langle x,b\rangle\langle x,m\rangle/\lVert m\rVert^2 + \langle b,m\rangle\langle x,m\rangle^2/(2\lVert m\rVert^4)`,
+whose derivative along $`m` is exactly $`-\langle x, b\rangle`, intertwines the mixed
+operator with the pure momentum operator: $`(\langle \cdot,b\rangle - i\partial_m)(e^{i\theta}\varphi) = e^{i\theta}(-i\partial_m\varphi)`.
+Multiplication by $`e^{i\theta}` keeps a compactly supported test function compactly
+supported, and compactly supported test functions already detect the deficiency spaces of
+the momentum operator — a cut-off plus dominated convergence argument. So the mixed
+first-order operator is symmetric and essentially self-adjoint on the Schwartz core of
+$`L^2(V)` for arbitrary $`b, m`, and with it the whole first-order residue of the
+quadratic family.
+:::
+
+```
+#check @BookProof.MixedLinearEsa.posOp_essentiallySelfAdjoint
+#check @BookProof.MixedLinearEsa.momentum_test_compactSupport_extend
+#check @BookProof.MixedLinearEsa.mixedLinearOp_gauge
+#check @BookProof.MixedLinearEsa.mixedLinearOp_symmetric
+#check @BookProof.MixedLinearEsa.mixedLinearOp_essentiallySelfAdjoint
+```
+
+:::paragraph
+That settles the mixed first-order operator on the *Schwartz* core. The core on which the
+whole quadratic family lives is a different one — the Gauss–polynomial (product Hermite)
+core — and the same operator can be settled there too, by the metaplectic rotation. Write
+the quadrature as $`\sum_i (b_i x_i + b'_i \pi_i)` and give each direction the complex
+amplitude $`w_i = b_i + i b'_i/2`: on the product Hermite basis the quadrature raises the
+$`i`-th excitation number with coefficient $`w_i` and lowers it with $`\overline{w_i}`.
+Multiplying $`\psi_\alpha` by $`\zeta^\alpha` with $`\zeta_i = w_i/\lvert w_i\rvert`
+unimodular is a unitary of $`L^2(\mathbb R^d)` — the phase-rotated Hermite functions are
+again a Hilbert basis — it preserves the core, and by the polar decomposition
+$`w_i = \lvert w_i\rvert\zeta_i` it carries the purely positional quadrature
+$`\sum_i \lvert w_i\rvert x_i` onto the general one. So it is enough to treat
+multiplication by a real linear function, and that is done by a moment lemma that needs no
+$`L^2` hypothesis: a function all of whose exponentially weighted moments are finite and
+all of whose polynomial moments vanish is zero almost everywhere. The quadrature is
+therefore essentially self-adjoint on the Gauss–polynomial core, for arbitrary real
+$`b, b'`, and generates a complete unitary flow.
+:::
+
+```
+#check @BookProof.QuadratureEsa.ae_eq_zero_of_moments'
+#check @BookProof.QuadratureEsa.foOp_pos_essentiallySelfAdjoint
+#check @BookProof.QuadratureEsa.foOp_hermiteCore
+#check @BookProof.QuadratureEsa.phaseU_foOp_hermiteCore
+#check @BookProof.QuadratureEsa.foOp_essentiallySelfAdjoint
+#check @BookProof.QuadratureEsa.foOp_stone_flow
+```
+
+:::paragraph
+The two pieces — the diagonal quadratic part and the first-order part — can also be
+handled *together*, and then every restriction disappears at once. On the product Hermite
+basis the operator
+$`H = \sum_i c_i(\pi_i^2 + x_i^2/4) + \sum_i (b_i x_i + b'_i \pi_i)` is a
+nearest-neighbour matrix: the quadratic part is diagonal with the *real* symbol
+$`\sum_i c_i(\alpha_i + 1/2)`, and the first-order part moves a single excitation number
+by one, with amplitude of size $`O(\sqrt{\alpha_i})`. A deficiency vector at a non-real
+point $`z` is therefore a square-summable solution of a nearest-neighbour recursion on the
+lattice of multi-indices, and such a solution must vanish — this is Carleman's classical
+argument, run on cubes $`\{\alpha : \alpha_i \le N\}` instead of intervals. Summing the
+recursion against the conjugate coefficients over a cube, the interior contributions occur
+in conjugate pairs and the real diagonal contributes nothing to the imaginary part, so
+$`\lvert \operatorname{Im} z\rvert` times the mass inside the cube equals the *flux*
+through the boundary faces, which is at most $`\sqrt{N+1}` times the mass carried by
+those faces. Distinct faces are disjoint, so the total face mass is finite, while
+$`\sum_N 1/\sqrt{N+1}` diverges: the mass inside the cube cannot stay bounded away from
+zero. Hence, for *arbitrary* real weights $`c` — any signs, zeros allowed — and
+*arbitrary* real $`b, b'`, the operator $`H` is essentially self-adjoint on the plain
+Gauss–polynomial core and generates a complete unitary flow. No ellipticity, no sign
+condition, no classical equilibrium and no change of core is needed; with the Minkowski
+weights this is the wave operator with the indefinite quadratic potential, a constant
+external field and a constant boost.
+:::
+
+```
+#check @BookProof.HermiteCarleman.flux_identity
+#check @BookProof.HermiteCarleman.flux_bound
+#check @BookProof.HermiteCarleman.ladder_eq_zero
+#check @BookProof.HermiteCarleman.mixOp_hermiteCore
+#check @BookProof.HermiteCarleman.mixOp_essentiallySelfAdjoint
+#check @BookProof.HermiteCarleman.mixOp_stone_flow
+#check @BookProof.HermiteCarleman.wave_indefiniteQuadratic_firstOrder_essentiallySelfAdjoint
+```
+
+:::paragraph
+One restriction is still hidden in that statement: the quadratic part is the
+*harmonic* one, a multiple of $`\pi_i^2 + x_i^2/4` in each mode, which is precisely
+what is diagonal on the Hermite basis. The one-mode real quadratic forms are
+three-dimensional — spanned by $`\pi_i^2`, $`x_i^2` and the squeezing generator
+$`\tfrac12(x_i\pi_i + \pi_i x_i)` — and only a line inside that space is diagonal.
+The two off-diagonal directions raise and lower an excitation number by *two*, with
+amplitudes $`\sqrt{(\alpha_i+1)(\alpha_i+2)}` and $`\sqrt{\alpha_i(\alpha_i-1)}` of size
+$`O(\alpha_i)`. The same flux argument still applies, because the boundary layer only
+has to be made two thick and the growth rate only rises from $`\sqrt N` to $`N`, and
+$`\sum_N 1/N` still diverges. What changes is bookkeeping: faces of thickness two are
+no longer disjoint, so Bessel's inequality is used with a multiplicity bound — each
+multi-index lies in at most two of them. The conclusion is that for *arbitrary* real
+$`p, q, s, b, b'` the operator
+$`H = \sum_i (p_i\pi_i^2 + q_ix_i^2 + s_i\tfrac12(x_i\pi_i + \pi_ix_i)) + \sum_i (b_ix_i + b'_i\pi_i)`
+is essentially self-adjoint on the plain Gauss–polynomial core: elliptic, hyperbolic or
+parabolic in each mode, with any signs and with degenerate modes allowed. Taking
+$`s = 1` and everything else zero, the generator of dilations
+$`\tfrac12\sum_i(x_i\pi_i + \pi_ix_i)`, the purely hyperbolic member of the family, is
+essentially self-adjoint on that core and generates a complete unitary flow.
+:::
+
+```
+#check @BookProof.CarlemanTwoStep.flux_identity2
+#check @BookProof.CarlemanTwoStep.ladder2_eq_zero
+#check @BookProof.ModeQuadratic.mqOp_hermiteCore
+#check @BookProof.ModeQuadratic.mqOp_essentiallySelfAdjoint
+#check @BookProof.ModeQuadratic.mqOp_stone_flow
+#check @BookProof.ModeQuadratic.dilation_essentiallySelfAdjoint
+#check @BookProof.ModeQuadratic.dilation_stone_flow
+```
+
+:::paragraph
+That still leaves one restriction: every term was *mode-diagonal*, so the modes never
+talked to each other. A general real quadratic Hamiltonian also carries the cross terms
+$`\pi_i\pi_j`, $`x_ix_j` and $`\tfrac12(x_i\pi_j + \pi_jx_i)` with $`i \neq j`, and those
+move two different excitation numbers at once. The cube grading is the wrong one for
+them; the right one is the *simplex* grading by total degree
+$`|\alpha| = \sum_i \alpha_i`. In the ladder variables a product of two of $`x, \pi`
+splits into three kinds of hop: pair creation $`\alpha \mapsto \alpha + e_i + e_j`,
+pair annihilation $`\alpha \mapsto \alpha - e_i - e_j`, and mode exchange
+$`\alpha \mapsto \alpha - e_j + e_i`. Only the first two change $`|\alpha|`, and they
+change it by exactly $`\pm 2`, so they leak through a shell of thickness two. The
+exchange hops preserve $`|\alpha|` entirely, and their contribution to the flux is not
+merely bounded but *identically zero*: their amplitude matrix is Hermitian, so the sum
+over a shell is real and its imaginary part cancels pairwise. The Carleman divergence
+$`\sum_N 1/(N+2) = \infty` then finishes the argument unchanged. The conclusion is that
+for *arbitrary* real matrices $`P, Q, S` and vectors $`b, b'` the operator
+$`H = \sum_{i,j} (P_{ij}\pi_i\pi_j + Q_{ij}x_ix_j + S_{ij}\tfrac12(x_i\pi_j + \pi_jx_i)) + \sum_i (b_ix_i + b'_i\pi_i)`
+— every real quadratic-plus-linear Hamiltonian in $`d` degrees of freedom, with no
+ellipticity, no definiteness, no non-degeneracy and no classical equilibrium — is
+essentially self-adjoint on the plain Gauss–polynomial core and generates a complete
+unitary flow. In particular so does the purely off-diagonal cross term
+$`\tfrac12(x_i\pi_j + \pi_jx_i) + \tfrac12(x_j\pi_i + \pi_ix_j)`. Taking $`S`
+*antisymmetric* — where the diagonal vanishes and $`x_i` commutes with $`\pi_j` for
+$`i \neq j`, so that $`\sum_{i,j} S_{ij}\tfrac12(x_i\pi_j + \pi_jx_i) = \sum_{i<j} S_{ij}(x_i\pi_j - x_j\pi_i)`
+— the family contains the *angular-momentum* generators $`x_k\pi_l - x_l\pi_k`, the
+compact counterparts of the dilation generator above; they are essentially self-adjoint
+on the same core and generate complete unitary rotation flows.
+:::
+
+```
+#check @BookProof.CarlemanSimplex.sum_mterm_im
+#check @BookProof.CarlemanSimplex.flux_identityQ
+#check @BookProof.CarlemanSimplex.ladderQ_eq_zero
+#check @BookProof.FullQuadratic.fqOp_hermiteCore
+#check @BookProof.FullQuadratic.fqOp_essentiallySelfAdjoint
+#check @BookProof.FullQuadratic.fqOp_stone_flow
+#check @BookProof.FullQuadratic.crossTerm_essentiallySelfAdjoint
+#check @BookProof.FullQuadratic.crossTerm_stone_flow
+#check @BookProof.FullQuadratic.fqQuadPoly_rotMat
+#check @BookProof.FullQuadratic.angularMomentum_essentiallySelfAdjoint
+#check @BookProof.FullQuadratic.angularMomentum_stone_flow
+```
+
+:::paragraph
+All of that is still a *finite* number of degrees of freedom. A field has infinitely
+many, and the natural home for them is the boson Fock space: the $`\ell^2` space of
+occupation-number configurations $`\alpha : \iota \to_0 \mathbb{N}` over an arbitrary
+mode set $`\iota`. The comparison operator that runs the Faris–Lavine argument there is
+the free Hamiltonian plus the number operator plus one, whose symbol is
+$`\sigma(\alpha) = \omega(\alpha) + |\alpha| + 1`, and the point of the choice is that a
+quadratic monomial $`a^{\dagger P}a^{Q}` with $`|P| + |Q| \le 2` has ladder amplitude at
+most $`2\sigma` at *both* ends of the hop $`\alpha \mapsto \alpha - P + Q`. That two-sided
+bound gives the relative bound directly, and an arithmetic–geometric-mean step gives the
+commutator bound, because the two halves of a Hermitian interaction term recombine so
+that only the *difference* $`\sigma(\alpha) - \sigma(\alpha - P + Q)` survives in the
+imaginary part — and that difference is at most $`\omega(P) + \omega(Q) + 2`, whatever
+$`\alpha` is. Both Faris–Lavine constants are additive and survive an infinite sum of
+terms as soon as they are summable. The conclusion is that for an arbitrary mode set, an
+arbitrary non-negative and possibly *unbounded* dispersion $`\omega`, and an arbitrary
+family of quadratic interaction terms subject only to the weighted absolute summability
+$`\sum_k \|g_k\|(\omega(P_k) + \omega(Q_k) + 2) < \infty`, the second-quantized
+Hamiltonian
+$`H = \sum_i \omega_i a_i^\dagger a_i + \sum_k (g_k a^{\dagger P_k}a^{Q_k} + \overline{g_k} a^{\dagger Q_k}a^{P_k})`
+is essentially self-adjoint on the finite-particle core of the Fock space. Bogoliubov
+pair creation $`g\,a_m^\dagger a_n^\dagger + \overline{g}\,a_n a_m` is the special case
+$`P = e_m + e_n`, $`Q = 0`.
+:::
+
+```
+#check @BookProof.OperatorSeries.commForm_eq_neg_two_im
+#check @BookProof.OperatorSeries.seriesOp_commForm_le
+#check @BookProof.OperatorSeries.essentiallySelfAdjointOn_finiteModes_of_series
+#check @BookProof.FockQuadratic.amp_symm
+#check @BookProof.FockQuadratic.hopOp_pairing
+#check @BookProof.FockQuadratic.pairOp_commForm_le
+#check @BookProof.FockQuadratic.freeOp_commForm
+#check @BookProof.FockQuadratic.fockH_essentiallySelfAdjointOn_core
+#check @BookProof.FockQuadratic.bogoliubov_essentiallySelfAdjointOn_core
 ```
 
 

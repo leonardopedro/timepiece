@@ -1,33 +1,127 @@
-from folder /home/leo/Downloads/de76e6ea-a314-4f95-babe-7c05669945e3-aristotle/output-final_aristotle copy the files ARISTOTLE_SUMMARY.md
-+59
+Update the project in ../timepiece/ : from folder /home/leo/Downloads/825526b1-bc9c-40c3-9e73-9affc5d235dc-aristotle/output-final_aristotle copy the files ARISTOTLE_SUMMARY.md
++53
 BookProof.lean
-+14
++34
 CONSOLIDATED_PLAN.md
-+64
-PLAN_LEAN_SPECIALIST_NS_FLOW.md
-+27 -10
++124 -4
+DiffeomorphismsGravity.lean
++179
 FreeField.lean
-+173
-ChapterGaugeFixing.lean
-+389
-ChapterNavierStokesAffineBlockEsa.lean
-+323
-ChapterNavierStokesAffineFiberEsa.lean
-+609
-ChapterNavierStokesBilinearEsa.lean
-+427
-ChapterNavierStokesSignedShift.lean
-+709
-ChapterNavierStokesSignFlip.lean
-+574
-ChapterNavierStokesThreeComponent.lean
-+742
++28
+ChapterCarlemanGeneralHop.lean
++6 -15
+ChapterNavierStokesDiffHashimoto.lean
++266
 ChapterRoadmapAudit.lean
-+78
++120
+ChapterScalaronCoreEsa.lean
++591
+ChapterScalaronFockEsa.lean
++304
+ChapterStarobinskyPotential.lean
++255
 STATUS.md
-+137
++149
  .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.
  
  add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically efficient) discussed in:  ../timepiece/CONSOLIDATED_PLAN.md
  
+ are you using the QG Hamiltonian derived in the cadabra module (starting from the Action with R²), in the numerical calculations? Do these calculations involve the Hashimoto alǵorithm (in analogy with the calculation for QYM and NS in this project)
  
+ I am not sure if the gauge fixing related with the variables representing the field derivatives in space is working well numerically. Please test that these variables really represent the field derivatives in space, in the Navier-Stokes context. Until you can guarantee that it works.
+ 
+ 
+This project includes the folders ../unfer/ , ../australVM/ , ../velysterm/ . In folder ../why3/ is a project (GPL license, attention with copyright issues) that produces OCaml code from a math language (WhyML) and with math guarantees about the properties of the code. Since the compiler for AustralVM is written in OCaml, I want to find a way of using the probability kernel of this project to produce WhyML code (or calling the probability kernel from WhyML) that will compile to an OCaml module that extends the AustralVM compiler, guaranteeing certain properties of the AustralVM code. This establishes a cycle, where the AustralVM plugin system is used to extend the compiler of AustralVM itself (through WhyML).
+
+This project includes the folders ../unfer/ , ../australVM/ , ../velysterm/ . In folder ../why3/ is a project (GPL license, attention with copyright issues) that produces OCaml code from a math language (WhyML) and with math guarantees about the properties of the code. Since the compiler for AustralVM is written in OCaml, I want to find a way of using the probability kernel of this project to produce WhyML code (or calling the probability kernel from WhyML) that will compile to an OCaml module that extends the AustralVM compiler, guaranteeing certain properties of the AustralVM code. This establishes a cycle, where the AustralVM plugin system is used to extend the compiler of AustralVM itself (through WhyML).
+Note that in ../mirage-skeleton are examples of using mirage to convert OCaml programs to unikernels. Please define the compiler (and its extensions defined by Why3) of AustralVM  as plugins of  AustralVM itself. In this way it becomes a unified application/VM
+
+
+
+What changed: from testing the gauge condition to testing the physics it leaves behind
+
+The gauge condition  ⟨g_m⟩ = 2(m+1)⟨u_{m+1}⟩  is verified by construction — the physical initial wave-function sets it, and  [H, C_m] = 0  (the derivative-content modes carry no momenta) makes it an exact constant of the motion. So the tests no longer ask "does the condition hold?" but: while it holds, are the remaining numerical observables consistent and calculable?
+
+ fock_sirk/tests/ns_derivative_variable_fixing.rs  — with the full Euler fiber  H = K₀ + {π₀, u·g}  (normal-ordered kinetic + the promoted form of  u·∂_x u ), 1D then 2D:
+1. Consistency of the physical observables (both under the bare and the BRST-projected SIRK flow):
+- Composite identity at t=0:  ⟨u₀g₀⟩ = 2⟨u₀u₁⟩  (promoted variable = actual derivative operator) and pointwise  ⟨g(x)⟩ = ∂ₓ⟨u(x)⟩ .
+- Gradient content frozen; energy  ⟨H⟩  conserved by the unitary solver (0.5 to machine precision); bare and gauge-fixed flows give identical  ⟨u₀⟩, ⟨u₁⟩, ⟨H⟩, ‖ψ‖ .
+- Ehrenfest equation of motion holds numerically:  d⟨u₀⟩/dt = 2⟨π₀⟩ + 4⟨u₀g₀⟩ , which in the physical subspace is exactly the classical Euler advection  8⟨u₀⟩⟨u₁⟩  (2D:  8⟨u₀⟩(⟨u₁⟩+⟨u₂⟩) ) — the velocity is advected by its own spatial derivative.
+2. The one genuinely numerical statement, characterized honestly: the truncated restarted-Krylov solver preserves the gauge condition only to solver accuracy — and the tests measure that it's a controlled artifact: per-step drift 2.8e-3 (2D, dt=0.05) shrinks quadratically in dt to 5.7e-5 (dt=0.025), i.e. the exact condition is recovered as dt→0, exactly as  [H,C_m]=0  guarantees. Energy and norm stay exact throughout.
+3. Unphysical data (g₀ ≠ 2u₁): detected ( ⟨C₀⟩ ≠ 0 ), makes the observable inconsistent ( 4⟨u₀g₀⟩ ≠ 8⟨u₀u₁⟩  — the dynamics disagrees with the field-only value), carries Ω-content, and is conserved (no self-fixing) — gauge fixing is genuinely required.
+
+Results: 3/3 new tests (11.8s), existing  ns_validation  7/7,  nested_fock_algebra  unit test 1/1, no warnings. AGENTS.md S35 updated to this framing.
+→ Same check for QG scalaron
+Verify the QG Starobinsky scalaron's physical observables the same way — with its spatial-gradient variables gauge-fixed by construction, check energy conservation, Ehrenfest, and drift convergence under the SIRK flow
+→ Extend to higher Hermite modes
+Show the same consistency with the full multi-level fiber (u_2, u_3 Hermite modes) so the advection u·∂_x u carries a genuine polynomial profile, not just a constant gradient
+→ Run full fock_sirk suite
+Re-run the complete fock_sirk suite (qg, qed, qcd, ns) to confirm the reframed test integrates cleanly with all other validations
+
+All done. Two threads completed:
+
+1. WhyML cycle — verified end-to-end with real Why3
+
+The pinned  authorize_gate.mlw  had a Why3 1.8 bug:  Mem.mem  is a logical predicate and Why3 1.8 rejects it in program code. Fixed in both the emitter ( prob_kernel/src/whyml.rs ) and the pinned  .mlw :
+- Added a program-level recursive  mem  function (postcondition links it to the predicate) +  use list.Length  for the variant → 5 proof obligations, all  Valid  under alt-ergo 2.6.3 (mem'vc, subset_reflexive, subset_transitive, authorize'vc, gate_verdict'vc).
+- Stock  ocaml64  extraction emits Zarith  Z.t ; wrote a custom driver  unfer_ocaml.drv  mapping Why3  int  → native OCaml  int  (no zarith dependency in the compiler plugin). Re-pinned  authorize_gate.ml  to the true extraction output.
+- Full cycle verified: kernel-emitted  .mlw  is byte-identical to the pinned one (modulo comments) →  why3 prove  → 5 Valid →  why3 extract  → matches the pinned  .ml  body exactly.  WhymlOp::Prove  through  WHY3_CLI  returns  verified: true .
+- Docs ( docs/WHYML_CYCLE.md ), tests, and FFI test updated.
+
+2. QG scalaron derivative-variable tests ( qg_starobinsky_derivative_variable.rs )
+
+-  ..._physical_observables_1d  — with  ⟨g₀⟩ = 2⟨φ₁⟩  by construction ( [H,C₀]=0 ): energy conserved to machine precision, bare = BRST-projected flow, Ehrenfest  d⟨φ₀⟩/dt = m⟨π₀⟩ , and the SIRK trajectory reproduces the massive Klein–Gordon oscillation  ⟨φ₀(t)⟩ = cos(mt)  (the R² scalar mode at its mass, time-domain form of the massive dispersion); gauge drift shrinks quadratically in dt.
+-  ..._higher_hermite_modes  — full fiber  φ₁, φ₂, φ₃  with  g₀=2φ₁, g₁=4φ₂, g₂=6φ₃ : the derivative profile  ⟨g(x)⟩ = Σ⟨g_m⟩H_m(x) = ∂_x⟨φ(x)⟩  is a genuine polynomial at every x, promoted composites  ⟨φ_m g_m⟩ = 2(m+1)⟨φ_m φ_{m+1}⟩  match field-only values, products of field derivatives ( ½Σg_m² ) carried in H.
+-  ..._unphysical_data_inconsistent  — QG analogue of the NS test.
+
+NS extension ( ns_derivative_variable_fixing.rs ): new  ns_derivative_variable_higher_hermite_modes  — the advection  u·∂_x u  now carries a genuine polynomial profile (multi-level fiber  u₁,u₂,u₃  +  g₀,g₁,g₂ , dedicated  fiber_multi / brst_multi  builders).
+
+On your question about the unphysical-data claim: no fix needed — it is mathematically correct and now verified numerically. With  ⟨g₀⟩=1  while the physical value is  2⟨u₁⟩=2/3 :  ⟨C₀⟩=1/3≠0  detected,  4⟨u₀g₀⟩=4·1·1=4  vs  8⟨u₀u₁⟩=8·⅓≈2.67  genuinely inconsistent (the dynamics disagrees with the field-only value), Ω-content ≠ 0, and  [H,C₀]=0  makes the bare flow conserve the violation (no self-fixing). Your understanding was correct.
+
+Full suite: qg_validation (12), qg_starobinsky_validation (4), qg_starobinsky_derivative_variable (3), qed_validation (5), qcd_validation (11), ns_numerical_validation (7), ns_derivative_variable_fixing (4) — all pass. Doc-sync green; whyml + nested_fock_algebra unit tests pass. AGENTS.md updated for both features.
+
+1) Azuro uses a novel Liquidity Tree (vAMM). It utilizes a singleton concentrated liquidity pool, meaning anyone can deposit USDC into a master pool, and the protocol mathematically prices the odds of various events without needing a direct buyer for every seller.
+2) NegRisk CTF Adapter, which allows for mutually-exclusive conditional markets (e.g., triggering if a proof is discovered in 2027 vs 2028 vs 2029) without fragmenting liquidity
+
+Focus now on many tests of numerical predictions of the nested_Fock-SIRK model and algorithms about Quantum Electrodynamics (which allows comparison with very  precise experimental measurements and perturbative calculations) 
+
+
+Plan: still missing from the previous prompts
+
+1. Attribution carbon credits (unfer repo) — implementation ~80% done, verification pending
+- ✅ Done: protocol types ( AttributionItem/Offer/State/OpKind/Report  +  ConsensusTransaction::AttributionOp ), UK-7501..7511 codes, the deterministic  unfer_consensus::attribution  ledger (RegisterItem / OfferAttribution / Approve / Revoke / IssueBadge,  credit_id / badge_id  commitments,  root() ), and full wiring (lib.rs, signing.rs, idempotency.rs, node.rs). It compiles —  unfer_consensus  built cleanly as a dependency of velysterm's  kernel_client .
+- ❌ Still missing: the  unfer_taler::attribution  settlement service (Author A's fee escrow → Author B payout on approval, deterministic Open Badges 3.0 assertion + Ed25519 proof, public + per-view anonymous badges), the test suites (ledger invariants, escrow/payout conservation, badge determinism, anonymous-viewer badge, multi-node replay convergence), docs ( ATTRIBUTION.md , AGENTS.md checklist entry), and  cargo test  for the touched unfer crates.
+
+2. Numerical SIRK tests (unfer repo) — not resumed yet
+- ✅ The fast  cdb_hamiltonian_match  fixes pass; the heavy CAS-photon solve is still  #[ignore] d.
+- ❌ Still to do: run the ignored/heavy tests ( cargo test -- --ignored ), finish the QED/QYM/NS/QG Hamiltonian↔Cadabra2-equivalence coverage, and re-run the validation suites (qed/qcd/qg/ns).
+
+3. velysterm ↔ upstream velyst — DONE this session (vendored crates synced to  voxell-tech/velyst  main: bevy 0.19 + vello 0.9,  typst_element  removed, gilrs/libudev avoided via feature surgery; all 319 tests pass). Uncommitted, on  gitbutler/workspace .
+
+4. australVM — context only (no change requested; the AGENTS.md S36b test-discipline note stands).
+
+────────────────────────────────────────────────────────────────────────────────
+
+Timepiece update (done, not compiled — left for the Lean4-specialist)
+
+Copied the 12 files from  output-final_aristotle  (byte-verified):  ARISTOTLE_SUMMARY.md ,  BookProof.lean ,  CONSOLIDATED_PLAN.md ,  BookProof/STATUS.md ,  Book/DiffeomorphismsGravity.lean ,  Book/FreeField.lean , and the six  BookProof/Chapter*.lean  files (StarobinskyPotential, ScalaronCoreEsa, ScalaronFockEsa, NavierStokesDiffHashimoto, RoadmapAudit, CarlemanGeneralHop).
+
+Book/ — three new pedagogical chapters following the existing  #check @BookProof.…  convention, with statement names verified against the sources:
+-  Book/Starobinsky.lean  — the scalaron: ghost-free scalar–tensor form, the square potential, conformal-mode regularization, continuum ESA, Fock-space statement (cites  BookProof.Starobinsky ,  .ScalaronEsa ,  .ScalaronFock ).
+-  Book/NavierStokesHashimoto.lean  — the shift-invert selection theorem for the differential NS generator (cites  BookProof.NavierStokesFlow.nsDiffH_* ).
+-  Book/CarlemanFlux.lean  — the general-hop flux criterion (cites  BookProof.CarlemanGeneralHop ).
+- Wired into  Book.lean ; tags unique; no stray markdown.
+
+CONSOLIDATED_PLAN.md — new leading status block (2026-08-23): A5 now closed at the mode, continuum-core and Fock levels (ScalaronCoreEsa removes the temperate-growth restriction; ScalaronFockEsa glues to the nested Fock space), the Book gains the three chapters, and the §8 gate was not run by instruction. Plus an UPDATE in the specialist next-steps section: re-run the §8 gate on the merged state (incl. the three new Book chapters'  #check  citations), close A1/A4, and audit whether the A5-step-2 residue is subsumed by the proved core ESA.
+
+
+Continue. When you finish what is still missing from the previous prompts, improve the translation between the austral/australVM language and a unique normal form that goes through DeltaNets until it reduces these and replaces them (whenever possible, when there are no unknown variables for example) with symbolic expressions involving numerical calculations (like ADD two integers with 64 bits, for example). This translation was already started in this project, please improve it and finish it, if possible. Ideally, this would work together with the OCAML/Why3/AustralVM cycle in some way I don't know how exactly, you can choose some way.
+When you finish all this, please improve the pedagogy of the contents of ../timepiece/Book/ (staying faithful to the Lean4 proofs in timepiece/ and the contents of timepiece/book.tex and other documents in timepiece/ when they are related to Book/ contents). And then finish the numerical tests about physics (NG, QG,QYM, QED) you started and I asked you to pause.
+
+freebuff --continue 2026-08-22T20-53-40.518Z
+freebuff --continue 2026-08-22T20-53-40.518Z
+freebuff --continue 2026-08-22T20-53-40.518Z
+
+
+Pause what you are doing. Please do a deep, complete review while improving deeply the pedagogy of the contents of ../timepiece/Book/ (staying faithful to the Lean4 proofs in timepiece/ and the contents of timepiece/book.tex and other documents in timepiece/ when they are related to Book/ contents). And then finish the numerical tests about physics (NG, QG,QYM, QED) you started and I asked you to pause.
+

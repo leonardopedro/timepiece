@@ -10,6 +10,7 @@ import BookProof.ChapterNavierStokesAffineFiberEsa
 import BookProof.ChapterNavierStokesAffineBlockEsa
 import BookProof.ChapterNavierStokesSignFlip
 import BookProof.ChapterNavierStokesSignedShift
+import BookProof.ChapterDirectSumEsa
 import BookProof.ChapterNavierStokesThreeComponent
 import BookProof.ChapterNavierStokesCanonicalVector
 import BookProof.ChapterHermiteProductBasis
@@ -18,6 +19,31 @@ import BookProof.ChapterEsaClosure
 import BookProof.ChapterNavierStokesHashimoto
 import BookProof.ChapterNavierStokesLagrangianKatoRellich
 import BookProof.ChapterStoneFlows
+import BookProof.ChapterHyperbolicQuadraticEsa
+import BookProof.ChapterHermiteRelativeBound
+import BookProof.ChapterQuadraticRotationEsa
+import BookProof.ChapterQuadraticRotationPerturbed
+import BookProof.ChapterShiftedHermiteCore
+import BookProof.ChapterShiftedQuadraticEsa
+import BookProof.ChapterShiftedQuadraticMatrixEsa
+import BookProof.ChapterStoneEigenflow
+import BookProof.ChapterShiftedQuadraticDegenerate
+import BookProof.ChapterFourierMultiplierEsa
+import BookProof.ChapterMixedLinearEsa
+import BookProof.ChapterQuadratureEsa
+import BookProof.ChapterHermiteCarlemanEsa
+import BookProof.ChapterCarlemanTwoStep
+import BookProof.ChapterCarlemanGeneralHop
+import BookProof.ChapterNavierStokesDiffHashimoto
+import BookProof.ChapterStarobinskyPotential
+import BookProof.ChapterScalaronCoreEsa
+import BookProof.ChapterScalaronFockEsa
+import BookProof.ChapterModeQuadraticEsa
+import BookProof.ChapterCarlemanSimplex
+import BookProof.ChapterFullQuadraticEsa
+import BookProof.ChapterOperatorSeriesEsa
+import BookProof.ChapterFockQuadraticEsa
+import BookProof.ChapterUnboundedSpectralModel
 import BookProof.ChapterNavierStokesLagrangianCanonical
 import BookProof.ChapterGaugeFixing
 import BookProof.ChapterQuantumGravityDensitized
@@ -870,5 +896,456 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_esa
 #print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_hFull_hasZeroDeficiencyOn
 #print axioms BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_stone_flow
+
+-- Backlog item A1 (`CONSOLIDATED_PLAN.md` §9.5, `STRICHARTZ_WAVE_ESA.md`): the
+-- hyperbolic operator with an indefinite quadratic potential.  `H_c = ∑ᵢ cᵢ(−∂ᵢ² + xᵢ²/4)`
+-- is symmetric and essentially self-adjoint on the Hermite core of `L²(ℝᵈ)` for every
+-- real weight vector `c`, and for the Minkowski weights it is `□ + V` with
+-- `V(t,x) = (t² − ‖x‖²)/4`.
+#print axioms BookProof.HyperbolicQuadratic.symmetricOn_of_diagonal
+#print axioms BookProof.HyperbolicQuadratic.deficiencyTrivialAt_of_diagonal
+#print axioms BookProof.HyperbolicQuadratic.oscPoly_hermiteMv
+#print axioms BookProof.HyperbolicQuadratic.quadOp_hermiteMvLp
+#print axioms BookProof.HyperbolicQuadratic.quadOp_symmetric
+#print axioms BookProof.HyperbolicQuadratic.quadOp_essentiallySelfAdjoint
+#print axioms BookProof.HyperbolicQuadratic.quadOp_not_bounded
+#print axioms BookProof.HyperbolicQuadratic.quadPoly_apply_eq_differential
+#print axioms BookProof.HyperbolicQuadratic.wave_indefiniteQuadratic_essentiallySelfAdjoint
+#print axioms BookProof.HyperbolicQuadratic.minkowski_apply_eq_differential
+#print axioms BookProof.HyperbolicQuadratic.quadOp_add_boundedPotential_essentiallySelfAdjoint
+#print axioms BookProof.HyperbolicQuadratic.quadOp_add_realBoundedPotential_essentiallySelfAdjoint
+#print axioms BookProof.HermiteRelative.posL_symmetric
+#print axioms BookProof.HermiteRelative.momL_symmetric
+#print axioms BookProof.HermiteRelative.re_inner_oscL_eq
+#print axioms BookProof.HermiteRelative.norm_posL_le
+#print axioms BookProof.HermiteRelative.norm_momL_le
+#print axioms BookProof.HermiteRelative.quadOp_add_firstOrder_essentiallySelfAdjoint
+#print axioms BookProof.HermiteRelative.hermiteMvBasis_repr_quadOp
+#print axioms BookProof.HermiteRelative.foOp_linear_apply_eq_mul
+#print axioms BookProof.HermiteRelative.harmonicOsc_add_linearPotential_essentiallySelfAdjoint
+
+-- Backlog item A1, continued: the *general* (non-diagonal) quadratic Hamiltonian.  For
+-- every real symmetric matrix `A`, `H_A = ∑_{k,l} A_{kl}(π_k π_l + x_k x_l/4)` is
+-- symmetric and essentially self-adjoint on the same Hermite core, by the orthogonal
+-- change of coordinates that diagonalizes `A`.
+#print axioms BookProof.QuadraticRotation.pderiv_rotPoly
+#print axioms BookProof.QuadraticRotation.rotPoly_mulXPoly
+#print axioms BookProof.QuadraticRotation.rotPoly_momPoly
+#print axioms BookProof.QuadraticRotation.quadPolyMat_rotPoly
+#print axioms BookProof.QuadraticRotation.quadPolyMat_diagonal
+#print axioms BookProof.QuadraticRotation.gaussInt_rotPoly
+#print axioms BookProof.QuadraticRotation.inner_pgLp_rotPoly
+#print axioms BookProof.QuadraticRotation.orthonormal_rotHermiteLp
+#print axioms BookProof.QuadraticRotation.span_rotHermiteLp
+#print axioms BookProof.QuadraticRotation.quadOpMat_rotHermiteLp
+#print axioms BookProof.QuadraticRotation.exists_rotConj
+#print axioms BookProof.QuadraticRotation.quadOpMat_symmetric
+#print axioms BookProof.QuadraticRotation.quadOpMat_essentiallySelfAdjoint
+#print axioms BookProof.QuadraticRotation.wave_rotated_essentiallySelfAdjoint
+#print axioms BookProof.QuadraticRotation.quadOpMat_not_bounded
+#print axioms BookProof.QuadraticRotationPerturbed.rotHermiteBasis_apply
+#print axioms BookProof.QuadraticRotationPerturbed.rotU_hermiteMvLp
+#print axioms BookProof.QuadraticRotationPerturbed.rotU_pgLp
+#print axioms BookProof.QuadraticRotationPerturbed.rotPoly_foPoly
+#print axioms BookProof.QuadraticRotationPerturbed.rotVec_transpose
+#print axioms BookProof.QuadraticRotationPerturbed.rotU_intertwine
+#print axioms BookProof.QuadraticRotationPerturbed.exists_lower_bound_eigenvalues
+#print axioms BookProof.QuadraticRotationPerturbed.quadOpMat_add_firstOrder_symmetric
+#print axioms BookProof.QuadraticRotationPerturbed.quadOpMat_add_firstOrder_essentiallySelfAdjoint
+#print axioms
+  BookProof.QuadraticRotationPerturbed.anisotropicOsc_add_linearPotential_essentiallySelfAdjoint
+
+-- `ChapterShiftedHermiteCore`: the translated, modulated Gauss–polynomial core
+-- `D_{a,k} = { p(x − a) e^{−‖x − a‖²/4} e^{i⟨k, x⟩} }` of `L²(ℝᵈ)`.  Translation and
+-- modulation are unitary substitutions, so the core is dense, the recentred Hermite
+-- family is orthonormal and total in it, and the canonical pair acts on polynomials by
+-- `mulXTPoly = mulXPoly i + aᵢ`, `momTPoly = momPoly i + kᵢ`.
+#print axioms BookProof.ShiftedHermiteCore.norm_phaseFun
+#print axioms BookProof.ShiftedHermiteCore.conj_mul_phaseFun
+#print axioms BookProof.ShiftedHermiteCore.memLp_pgFunT
+#print axioms BookProof.ShiftedHermiteCore.inner_pgLpT
+#print axioms BookProof.ShiftedHermiteCore.pgMapT_injective
+#print axioms BookProof.ShiftedHermiteCore.polyGaussCoreT_dense
+#print axioms BookProof.ShiftedHermiteCore.orthonormal_hermiteTLp
+#print axioms BookProof.ShiftedHermiteCore.span_hermiteTLp
+#print axioms BookProof.ShiftedHermiteCore.hermiteTLp_total
+#print axioms BookProof.ShiftedHermiteCore.coreOpT_coe
+#print axioms BookProof.ShiftedHermiteCore.hasDerivAt_pgFunT_sec
+#print axioms BookProof.ShiftedHermiteCore.pgFunT_mulXTPoly
+#print axioms BookProof.ShiftedHermiteCore.pgFunT_momTPoly
+-- `ChapterShiftedQuadraticEsa`: the indefinite inhomogeneous quadratic Hamiltonian
+-- `H = ∑ᵢ (cᵢ(πᵢ² + xᵢ²/4) + bᵢ xᵢ + b'ᵢ πᵢ)` with weights `cᵢ ≠ 0` of arbitrary sign.
+-- Completing the square in both position and momentum makes `H` diagonal in the
+-- Hermite basis recentred at `aᵢ = −2bᵢ/cᵢ` and boosted to `kᵢ = −b'ᵢ/(2cᵢ)`, hence
+-- symmetric and essentially self-adjoint there, with the pointwise identification of
+-- the differential expression; the Minkowski weights give `□ + V` plus an arbitrary
+-- constant external field and boost.
+#print axioms BookProof.ShiftedQuadratic.shiftedHPoly_term
+#print axioms BookProof.ShiftedQuadratic.shiftedHPoly_eq_quadPoly
+#print axioms BookProof.ShiftedQuadratic.shiftedHOp_hermiteTLp
+#print axioms BookProof.ShiftedQuadratic.shiftedHOp_symmetric
+#print axioms BookProof.ShiftedQuadratic.shiftedHOp_deficiencyTrivialAt
+#print axioms BookProof.ShiftedQuadratic.shiftedHOp_essentiallySelfAdjoint
+#print axioms BookProof.ShiftedQuadratic.shiftedCore_dense
+#print axioms BookProof.ShiftedQuadratic.shiftedHOp_stone_flow
+#print axioms BookProof.ShiftedQuadratic.shiftedHOp_not_bounded
+#print axioms BookProof.ShiftedQuadratic.pgFunT_momTPoly_sq
+#print axioms BookProof.ShiftedQuadratic.shiftedHPoly_apply_eq_differential
+#print axioms BookProof.ShiftedQuadratic.shiftedHOp_coe_eq_pgLpT
+#print axioms
+  BookProof.ShiftedQuadratic.wave_indefiniteQuadratic_linear_essentiallySelfAdjoint
+
+-- `ChapterShiftedQuadraticMatrixEsa`: the indefinite inhomogeneous quadratic Hamiltonian
+-- **with cross terms**.  For every real symmetric *invertible* matrix `A` of arbitrary
+-- signature and arbitrary real `b, b'`, `H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is symmetric and
+-- essentially self-adjoint on the translated, modulated core with `a = −2A⁻¹b` and
+-- `k = −A⁻¹b'/2`: completing the square in matrix form leaves `H_A` plus a constant, and
+-- `H_A` is diagonal on the *rotated* Hermite polynomials, so the translated, modulated,
+-- rotated Hermite functions are an orthonormal total family of eigenvectors.
+#print axioms BookProof.ShiftedQuadraticMatrix.quadTermT_apply
+#print axioms BookProof.ShiftedQuadraticMatrix.quadPolyMatT_apply_expand
+#print axioms BookProof.ShiftedQuadraticMatrix.foTPoly_apply_expand
+#print axioms BookProof.ShiftedQuadraticMatrix.shiftedHMatPoly_eq_quadPolyMat
+#print axioms BookProof.ShiftedQuadraticMatrix.orthonormal_hermiteTRLp
+#print axioms BookProof.ShiftedQuadraticMatrix.span_hermiteTRLp
+#print axioms BookProof.ShiftedQuadraticMatrix.hermiteTRLp_total
+#print axioms BookProof.ShiftedQuadraticMatrix.shiftedHMatOp_hermiteTRLp
+#print axioms BookProof.ShiftedQuadraticMatrix.mulVec_matShiftVec
+#print axioms BookProof.ShiftedQuadraticMatrix.mulVec_matBoostVec
+#print axioms BookProof.ShiftedQuadraticMatrix.shiftedHMatOp_symmetric
+#print axioms BookProof.ShiftedQuadraticMatrix.shiftedHMatOp_essentiallySelfAdjoint
+#print axioms BookProof.ShiftedQuadraticMatrix.shiftedHMatOp_not_bounded
+#print axioms BookProof.ShiftedQuadraticMatrix.shiftedHMatCore_dense
+#print axioms BookProof.ShiftedQuadraticMatrix.shiftedHMatOp_stone_flow
+#print axioms BookProof.ShiftedQuadraticMatrix.rotConj_det
+#print axioms BookProof.ShiftedQuadraticMatrix.wave_rotated_linear_essentiallySelfAdjoint
+
+-- `ChapterStoneEigenflow`: explicit dynamics.  A self-adjoint extension keeps the
+-- eigenvectors of the core operator, and *any* Stone flow of a self-adjoint operator acts
+-- on an eigenvector by the phase `e^{−iλt}`; consequently a symmetric, essentially
+-- self-adjoint core operator with a family of eigenvectors generates a flow which is
+-- diagonal on that family.
+#print axioms BookProof.StoneEigenflow.isSelfAdjointExtension_eigenvector
+#print axioms BookProof.StoneEigenflow.stoneFlow_apply_eigenvector
+#print axioms BookProof.StoneEigenflow.stoneFlow_apply_core_eigenvector
+#print axioms BookProof.StoneEigenflow.exists_diagonal_stone_flow
+
+-- `ChapterShiftedQuadraticDegenerate`: the singular case.  The classical equilibrium
+-- equation `A a = w` is solvable exactly when `w ⊥ ker A`, and under that condition the
+-- inhomogeneous quadratic Hamiltonian of an *arbitrary* real symmetric `A` — invertible
+-- or singular, of arbitrary signature — is symmetric and essentially self-adjoint on the
+-- translated, modulated core, generates a complete unitary flow, and that flow acts on
+-- the Hermite eigenbasis by an explicit phase.
+#print axioms BookProof.ShiftedQuadraticDegenerate.equilibrium_orthogonal_to_kernel
+#print axioms BookProof.ShiftedQuadraticDegenerate.exists_equilibrium
+#print axioms BookProof.ShiftedQuadraticDegenerate.exists_equilibrium_iff
+#print axioms BookProof.ShiftedQuadraticDegenerate.shiftedHMatOp_symmetric_of_equilibrium
+#print axioms
+  BookProof.ShiftedQuadraticDegenerate.shiftedHMatOp_essentiallySelfAdjoint_of_equilibrium
+#print axioms BookProof.ShiftedQuadraticDegenerate.exists_shiftedHMat_esa_of_kernel_orthogonal
+#print axioms BookProof.ShiftedQuadraticDegenerate.diagonal_degenerate_essentiallySelfAdjoint
+#print axioms BookProof.ShiftedQuadraticDegenerate.exists_shiftedHMat_diagonal_flow
+#print axioms BookProof.ShiftedQuadraticDegenerate.exists_shiftedH_diagonal_flow
+
+-- `ChapterFourierMultiplierEsa`: the Plancherel argument as an instrument.  Any Fourier
+-- multiplier with a real, smooth symbol is symmetric and essentially self-adjoint on the
+-- Schwartz core of `L²(V)`; in particular the momentum family `∑ᵢ cᵢ(−i∂_{wᵢ})` and the
+-- full constant-coefficient operator `∑ᵢ cᵢ∂_{wᵢ}² + ∑ᵢ aᵢ(−i∂_{wᵢ}) + κ` are.
+#print axioms BookProof.FourierMultiplierEsa.symmetricOn_of_real_symbol
+#print axioms BookProof.FourierMultiplierEsa.deficiencyTrivialAt_of_real_symbol
+#print axioms BookProof.FourierMultiplierEsa.essentiallySelfAdjointOn_of_real_symbol
+#print axioms BookProof.FourierMultiplierEsa.fourier_firstOrderOp_apply
+#print axioms BookProof.FourierMultiplierEsa.firstOrderOp_symmetric
+#print axioms BookProof.FourierMultiplierEsa.firstOrderOp_essentiallySelfAdjoint
+#print axioms BookProof.FourierMultiplierEsa.momentumOp_essentiallySelfAdjoint
+#print axioms BookProof.FourierMultiplierEsa.mixedOp_symmetric
+#print axioms BookProof.FourierMultiplierEsa.mixedOp_essentiallySelfAdjoint
+
+-- `ChapterMixedLinearEsa`: the mixed first-order operator `⟪x, b⟫ − i ∂_m`.  The position
+-- operator is essentially self-adjoint by a compactly supported division argument, compactly
+-- supported test functions detect the deficiency spaces of the momentum operator (a cut-off
+-- plus dominated convergence argument), and the quadratic gauge `e^{iθ}`,
+-- `θ(x) = −⟪x,b⟫⟪x,m⟫/‖m‖² + ⟪b,m⟫⟪x,m⟫²/(2‖m‖⁴)`, intertwines the two.
+#print axioms BookProof.MixedLinearEsa.posOp_symmetric
+#print axioms BookProof.MixedLinearEsa.posOp_essentiallySelfAdjoint
+#print axioms BookProof.MixedLinearEsa.momentum_test_compactSupport_extend
+#print axioms BookProof.MixedLinearEsa.momentumOp_eq_zero_of_compactSupport_test
+#print axioms BookProof.MixedLinearEsa.mixedLinearOp_gauge
+#print axioms BookProof.MixedLinearEsa.mixedLinearOp_symmetric
+#print axioms BookProof.MixedLinearEsa.mixedLinearOp_essentiallySelfAdjoint
+#print axioms BookProof.MixedLinearEsa.polyPotential_add_momentum_essentiallySelfAdjoint
+
+-- `ChapterUnboundedSpectralModel`: the spectral theorem in multiplication form for an
+-- *unbounded* self-adjoint operator.  The resolvent `R = (A − i)⁻¹` is a bounded normal
+-- operator, injective, with range exactly the domain of `A`; the bounded multiplication
+-- model of `ChapterSpectralDirectSum` therefore applies to `R`, the representing measure
+-- is carried by the Cayley circle `|z|² = Im z` and gives no mass to `z = 0`, and `A` is
+-- multiplication by the real function `Re z/|z|²`.
+#print axioms BookProof.UnboundedSpectralModel.resOp_injective
+#print axioms BookProof.UnboundedSpectralModel.exists_resOp_eq
+#print axioms BookProof.UnboundedSpectralModel.adjoint_resCLM
+#print axioms BookProof.UnboundedSpectralModel.isStarNormal_resOp
+#print axioms BookProof.UnboundedSpectralModel.model_apply
+#print axioms BookProof.UnboundedSpectralModel.model_ae_circle
+#print axioms BookProof.UnboundedSpectralModel.model_ae_ne_zero
+#print axioms BookProof.UnboundedSpectralModel.model_ae_real_multiplier
+#print axioms BookProof.UnboundedSpectralModel.unbounded_multiplication_model_cyclic
+#print axioms BookProof.UnboundedSpectralModel.unbounded_multiplication_model_general
+#print axioms BookProof.UnboundedSpectralModel.unbounded_multiplication_model_separable
+
+-- `ChapterQuadratureEsa`: the quadrature `∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` on the Gauss–polynomial
+-- (product Hermite) core.  A moment lemma with no `L²` hypothesis makes the deficiency
+-- equation of the purely positional quadrature solvable on that core; the diagonal phase
+-- unitary `ψ_α ↦ ζ^α ψ_α` of the product Hermite basis is the metaplectic rotation, and it
+-- carries the positional quadrature `∑ᵢ|wᵢ|xᵢ` onto the general one, `wᵢ = bᵢ + ib'ᵢ/2`.
+#print axioms BookProof.QuadratureEsa.ae_eq_zero_of_moments'
+#print axioms BookProof.QuadratureEsa.foOp_pos_essentiallySelfAdjoint
+#print axioms BookProof.QuadratureEsa.phaseU_hermiteMvLp
+#print axioms BookProof.QuadratureEsa.foOp_hermiteCore
+#print axioms BookProof.QuadratureEsa.phaseU_foOp_hermiteCore
+#print axioms BookProof.QuadratureEsa.foOp_essentiallySelfAdjoint
+#print axioms BookProof.QuadratureEsa.foOp_stone_flow
+
+-- `ChapterHermiteCarlemanEsa`: the Carleman criterion on the multi-index lattice of the
+-- product Hermite basis, and the inhomogeneous diagonal quadratic Hamiltonian with an
+-- arbitrary first-order term on the plain Gauss–polynomial core.  The imaginary part of
+-- the coefficient recursion, summed over a cube of multi-indices, telescopes to the flux
+-- through the boundary faces (`flux_identity`), which is at most `√(N+1)` times the
+-- `ℓ²`-mass of those faces (`flux_bound`); the faces are disjoint, so that mass is
+-- summable, while `∑ 1/√(N+1)` diverges.
+#print axioms BookProof.HermiteCarleman.flux_identity
+#print axioms BookProof.HermiteCarleman.flux_bound
+#print axioms BookProof.HermiteCarleman.ladder_eq_zero
+#print axioms BookProof.HermiteCarleman.mixOp_hermiteCore
+#print axioms BookProof.HermiteCarleman.mixOp_symmetric
+#print axioms BookProof.HermiteCarleman.mixOp_deficiencyTrivialAt
+#print axioms BookProof.HermiteCarleman.mixOp_essentiallySelfAdjoint
+#print axioms BookProof.HermiteCarleman.mixOp_stone_flow
+#print axioms BookProof.HermiteCarleman.wave_indefiniteQuadratic_firstOrder_essentiallySelfAdjoint
+
+-- `ChapterCarlemanTwoStep`: the same flux argument for a recursion whose hops move a
+-- single excitation number by one **or two**, with amplitudes `O(N)`.  Faces of thickness
+-- two are no longer disjoint, so Bessel's inequality is used with a multiplicity bound
+-- (`sum_range_of_multiplicity`, `faceK_multiplicity`), and the divergence is
+-- `∑ 1/(N+1) = ∞`.
+#print axioms BookProof.CarlemanTwoStep.sum_cube_hop_im
+#print axioms BookProof.CarlemanTwoStep.flux_identity2
+#print axioms BookProof.CarlemanTwoStep.flux_boundG
+#print axioms BookProof.CarlemanTwoStep.sum_range_of_multiplicity
+#print axioms BookProof.CarlemanTwoStep.ladder2_eq_zero
+
+-- `ChapterModeQuadraticEsa`: the general **mode-diagonal** real quadratic Hamiltonian
+-- `∑ᵢ (pᵢπᵢ² + qᵢxᵢ² + sᵢ·½(xᵢπᵢ + πᵢxᵢ)) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)`, for arbitrary real
+-- coefficients, is essentially self-adjoint on the plain Gauss–polynomial core, and
+-- generates a complete unitary flow.  In particular the generator of dilations does.
+#print axioms BookProof.ModeQuadratic.lop_lop_hermiteMv
+#print axioms BookProof.ModeQuadratic.mqQuadPoly_hermiteMv
+#print axioms BookProof.ModeQuadratic.mqOp_hermiteCore
+#print axioms BookProof.ModeQuadratic.mqOp_symmetric
+#print axioms BookProof.ModeQuadratic.mqOp_deficiencyTrivialAt
+#print axioms BookProof.ModeQuadratic.mqOp_essentiallySelfAdjoint
+#print axioms BookProof.ModeQuadratic.mqOp_stone_flow
+#print axioms BookProof.ModeQuadratic.dilation_essentiallySelfAdjoint
+#print axioms BookProof.ModeQuadratic.dilation_stone_flow
+
+-- `ChapterCarlemanSimplex`: the Carleman flux argument rerun on the **simplex** shells
+-- `{α : |α| ≤ N}` of the multi-index lattice.  This grading by total degree is the one
+-- adapted to a general quadratic ladder: the degree-preserving mode-exchange hops
+-- `α ↦ α − eⱼ + eᵢ` carry no flux at all when their amplitude matrix is Hermitian
+-- (`sum_mterm_im`), while the degree-changing pair hops `α ↦ α ± (eᵢ + eⱼ)` leak only
+-- through a boundary shell of thickness two, of controlled multiplicity.
+#print axioms BookProof.CarlemanSimplex.sum_simplex_hop_im
+#print axioms BookProof.CarlemanSimplex.sum_mterm_im
+#print axioms BookProof.CarlemanSimplex.flux_identityQ
+#print axioms BookProof.CarlemanSimplex.flux_bound_on
+#print axioms BookProof.CarlemanSimplex.sBd_multiplicity
+#print axioms BookProof.CarlemanSimplex.ladderQ_eq_zero
+
+-- `ChapterFullQuadraticEsa`: the **general** real quadratic-plus-linear Hamiltonian
+-- `∑_{i,j} (Pᵢⱼπᵢπⱼ + Qᵢⱼxᵢxⱼ + Sᵢⱼ·½(xᵢπⱼ + πⱼxᵢ)) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)`, for arbitrary
+-- real matrices `P, Q, S` and vectors `b, b'` — distinct modes coupled arbitrarily — is
+-- essentially self-adjoint on the plain Gauss–polynomial core and generates a complete
+-- unitary flow.  In particular the purely off-diagonal cross term does.
+#print axioms BookProof.FullQuadratic.lop_lop_hermiteMv_gen
+#print axioms BookProof.FullQuadratic.weyl_hermiteMv_gen
+#print axioms BookProof.FullQuadratic.fqExch_hermitian
+#print axioms BookProof.FullQuadratic.fqQuadPoly_hermiteMv
+#print axioms BookProof.FullQuadratic.fqOp_hermiteCore
+#print axioms BookProof.FullQuadratic.fqOp_symmetric
+#print axioms BookProof.FullQuadratic.fqOp_deficiencyTrivialAt
+#print axioms BookProof.FullQuadratic.fqOp_essentiallySelfAdjoint
+#print axioms BookProof.FullQuadratic.fqOp_stone_flow
+#print axioms BookProof.FullQuadratic.crossTerm_essentiallySelfAdjoint
+#print axioms BookProof.FullQuadratic.crossTerm_stone_flow
+#print axioms BookProof.FullQuadratic.fqQuadPoly_rotMat
+#print axioms BookProof.FullQuadratic.angularMomentum_essentiallySelfAdjoint
+#print axioms BookProof.FullQuadratic.angularMomentum_stone_flow
+
+
+-- `ChapterOperatorSeriesEsa`: the Faris–Lavine bounds — a relative bound `‖Hx‖ ≤ A‖Nx‖`
+-- and a commutator-form bound `|⟪x, i[H, N]x⟫| ≤ B⟪x, Nx⟫` — are additive, and survive an
+-- **infinite sum** of operators as soon as the two families of constants are summable.
+#print axioms BookProof.OperatorSeries.commForm_eq_neg_two_im
+#print axioms BookProof.OperatorSeries.seriesOp_symmetricOn
+#print axioms BookProof.OperatorSeries.seriesOp_norm_le
+#print axioms BookProof.OperatorSeries.seriesOp_commForm_le
+#print axioms BookProof.OperatorSeries.essentiallySelfAdjointOn_finiteModes_of_bounds
+#print axioms BookProof.OperatorSeries.essentiallySelfAdjointOn_finiteModes_of_series
+
+-- `ChapterFockQuadraticEsa`: the general quadratic boson Hamiltonian with **infinitely
+-- many modes**.  On the Fock space `ℓ²(ι →₀ ℕ)` of occupation-number configurations, with
+-- an arbitrary mode set `ι`, an arbitrary non-negative and possibly unbounded dispersion
+-- `ω`, and an arbitrary family of quadratic monomials `a^{†Pₖ}a^{Qₖ}` (`|Pₖ| + |Qₖ| ≤ 2`)
+-- with couplings `gₖ` subject only to `∑ₖ ‖gₖ‖(ω(Pₖ) + ω(Qₖ) + 2) < ∞`, the Hamiltonian
+-- is essentially self-adjoint on the finite-particle core.  Bogoliubov pair creation is
+-- the special case `Pₖ = eₘₖ + eₙₖ`, `Qₖ = 0`.
+#print axioms BookProof.FockQuadratic.amp_symm
+#print axioms BookProof.FockQuadratic.hopOp_norm_le
+#print axioms BookProof.FockQuadratic.hopOp_pairing
+#print axioms BookProof.FockQuadratic.pairOp_symmetricOn
+#print axioms BookProof.FockQuadratic.pairOp_norm_le
+#print axioms BookProof.FockQuadratic.pairOp_commForm_le
+#print axioms BookProof.FockQuadratic.freeOp_symmetricOn
+#print axioms BookProof.FockQuadratic.freeOp_commForm
+#print axioms BookProof.FockQuadratic.fockH_essentiallySelfAdjointOn_core
+#print axioms BookProof.FockQuadratic.bogoliubov_essentiallySelfAdjointOn_core
+
+-- `ChapterDirectSumEsa`: essential self-adjointness **glues along an orthogonal direct
+-- sum**.  Testing the deficiency identity against single-fibre states shows that every
+-- coordinate of a deficiency vector of `⊕ᵢ Hᵢ` is a deficiency vector of the fibre
+-- operator `Hᵢ`, so fibrewise triviality gives triviality; the glued core is dense as soon
+-- as every fibre core is.  Applied to the parcel sectors of the continuum Navier–Stokes
+-- Fock space `⊕ₙ L²(ℝⁿ)`, this gives the second-quantized Hamiltonian
+-- `ĥ = ∫ w(ξ)a†(ξ)a(ξ)dξ` on the Fock space itself, for an arbitrary measurable field `w`,
+-- and — through the Stone bridge — its complete unitary flow `e^{−itĥ}`.
+#print axioms BookProof.DirectSumEsa.dsOp_single
+#print axioms BookProof.DirectSumEsa.dsOp_symmetricOn
+#print axioms BookProof.DirectSumEsa.dsOp_deficiencyTrivialAt
+#print axioms BookProof.DirectSumEsa.dsOp_essentiallySelfAdjointOn
+#print axioms BookProof.DirectSumEsa.dsOpD_hasZeroDeficiencyOn
+#print axioms BookProof.DirectSumEsa.dsOpD_isSymmetricDom
+#print axioms BookProof.DirectSumEsa.dsCore_dense
+#print axioms BookProof.DirectSumEsa.fockCore_dense
+#print axioms BookProof.DirectSumEsa.fockH_isSymmetricDom
+#print axioms BookProof.DirectSumEsa.fockH_hasZeroDeficiencyOn
+#print axioms BookProof.DirectSumEsa.essentiallySelfAdjointOn_of_hasZeroDeficiencyOn
+#print axioms BookProof.DirectSumEsa.dsOpD_stone_flow
+#print axioms BookProof.DirectSumEsa.fockH_essentiallySelfAdjointOn
+#print axioms BookProof.DirectSumEsa.fockH_stone_flow
+
+-- `ChapterCarlemanGeneralHop`: the Carleman flux argument for a hop of the completely
+-- general shape `α ↦ α + p − m`, the one a quadratic Hamiltonian coupling two *distinct*
+-- modes produces (`α ↦ α ± (eᵢ + eⱼ)` and the non-monotone `α ↦ α ± (eᵢ − eⱼ)`).  The
+-- imaginary part of the flux is carried by two boundary layers, the outgoing `A \ B` and the
+-- incoming `B \ A`; both have bounded multiplicity, so Bessel's inequality controls them and
+-- the divergence `∑ 1/(N+1) = ∞` again forces a square-summable solution to vanish.
+#print axioms BookProof.CarlemanGeneralHop.hshift_hshift
+#print axioms BookProof.CarlemanGeneralHop.sum_ltG
+#print axioms BookProof.CarlemanGeneralHop.sum_hop_im
+#print axioms BookProof.CarlemanGeneralHop.flux_bound_gen
+#print axioms BookProof.CarlemanGeneralHop.flux_identityH
+#print axioms BookProof.CarlemanGeneralHop.ladderH_eq_zero
+
+-- `ChapterNavierStokesDiffHashimoto`: the Hashimoto/SIRK selection theorem on the
+-- *differential* realization of the Navier–Stokes fiber generator.  The Weyl-ordered
+-- polynomial operator `∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` is Gauss symmetric, so the differential operator is
+-- symmetric on the Gauss–polynomial core of `L²(du₁du₂du₃)`; with the essential
+-- self-adjointness of `ChapterNavierStokesDifferentialL2` its closure is the unique
+-- self-adjoint extension, and for an arbitrary sequence of non-real shifts the SIRK
+-- resolvents exist, are bounded by `1/|Im γⱼ|`, share the domain of the generator, satisfy
+-- the resolvent identity and the Hashimoto–Nodera relation, have strongly convergent
+-- Galerkin truncations, and each determines the generator completely.
+#print axioms BookProof.NavierStokesFlow.DiffHashimoto.nsDiffPoly_polySym
+#print axioms BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_eq_coreOp
+#print axioms BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_symmetricOn
+#print axioms BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_selfAdjoint_extension
+#print axioms BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_selfAdjoint_extension_unique
+#print axioms BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_hashimoto_selects
+#print axioms BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_shiftInvert_selects
+#print axioms BookProof.NavierStokesFlow.DiffHashimoto.nsQuadraticDiffH_hashimoto_selects
+#print axioms BookProof.NavierStokesFlow.DiffHashimoto.exists_l2dHilbertBasisNat
+
+-- `ChapterStarobinskyPotential`: the `R + αR²` potentials and the flow of the regularized
+-- conformal mode.  `f(R) = (M²/2)ψR − U(ψ)` is the ghost-free scalar–tensor form; the
+-- Einstein-frame scalaron potential is a square, hence non-negative, vanishing at the
+-- Minkowski vacuum, with the inflationary plateau `M⁴/(16α)` at `φ → +∞` and an exponential
+-- wall at `φ → −∞`; completing the square shows the conformal-mode potential is bounded below
+-- by `−M⁴/(16α)` precisely when `α > 0` (and unbounded below at `α = 0`, which is pure
+-- general relativity).  At the mode level the resulting Hamiltonian is symmetric and
+-- essentially self-adjoint on a dense maximal domain, so the Stone bridge gives it a complete
+-- unitary flow.
+#print axioms BookProof.Starobinsky.fR_eq_scalarTensor
+#print axioms BookProof.Starobinsky.starobinskyV_nonneg
+#print axioms BookProof.Starobinsky.starobinskyV_zero
+#print axioms BookProof.Starobinsky.starobinskyV_tendsto_plateau
+#print axioms BookProof.Starobinsky.starobinskyV_tendsto_atBot_atTop
+#print axioms BookProof.Starobinsky.confV_completed_square
+#print axioms BookProof.Starobinsky.confV_ge
+#print axioms BookProof.Starobinsky.confV_bddBelow
+#print axioms BookProof.Starobinsky.confV_zero_alpha_tendsto_atBot
+#print axioms BookProof.Starobinsky.mulSymbolDomain_dense
+#print axioms BookProof.Starobinsky.qgR2Mode_potential_ge
+#print axioms BookProof.Starobinsky.qgR2Mode_esa
+#print axioms BookProof.Starobinsky.qgR2Mode_deficiencyTrivialAt
+#print axioms BookProof.Starobinsky.qgR2_stone_flow
+
+-- `ChapterScalaronCoreEsa`: the scalaron sector with its exponential wall.  The compactly
+-- supported smooth core of `L²` is dense (`ccDomain_dense`), and on it multiplication by an
+-- *arbitrary smooth* real potential is symmetric with trivial deficiency at every non-real
+-- point, hence essentially self-adjoint — no temperate growth, no boundedness and no
+-- semiboundedness hypothesis.  The Einstein-frame scalaron potential is smooth but provably
+-- *not* of temperate growth, so this is exactly the generality it needs; the full gauge-fixed
+-- `R + αR²` potential (conformal parabola plus scalaron) is likewise essentially self-adjoint
+-- and bounded below by `−M⁴/(16α)`.  `□ + V` is a symmetric operator on that dense core and
+-- each of its localizations is essentially self-adjoint on the Schwartz core.  At the mode
+-- level the Hamiltonian including the scalaron potential is essentially self-adjoint on its
+-- dense maximal domain and carries a complete unitary flow.
+#print axioms BookProof.ScalaronEsa.ccDomain_dense
+#print axioms BookProof.ScalaronEsa.smoothPotential_symmetric
+#print axioms BookProof.ScalaronEsa.smoothPotential_deficiencyTrivial
+#print axioms BookProof.ScalaronEsa.smoothPotential_essentiallySelfAdjoint
+#print axioms BookProof.ScalaronEsa.contDiff_starobinskyV
+#print axioms BookProof.ScalaronEsa.starobinskyV_not_hasTemperateGrowth
+#print axioms BookProof.ScalaronEsa.starobinskyV_essentiallySelfAdjoint
+#print axioms BookProof.ScalaronEsa.scalaronFullPotential_ge
+#print axioms BookProof.ScalaronEsa.scalaronFullPotential_essentiallySelfAdjoint
+#print axioms BookProof.ScalaronEsa.wave_add_scalaron_symmetric
+#print axioms BookProof.ScalaronEsa.wave_add_smoothTruncatedPotential_essentiallySelfAdjoint
+#print axioms BookProof.ScalaronEsa.wave_add_scalaronTruncated_esa
+#print axioms BookProof.ScalaronEsa.wave_add_smoothPotential_esa_of_finiteSpeed
+#print axioms BookProof.ScalaronEsa.wave_add_scalaron_esa_of_finiteSpeed
+#print axioms BookProof.ScalaronEsa.qgScalaronMode_potential_ge
+#print axioms BookProof.ScalaronEsa.qgScalaronMode_esa
+#print axioms BookProof.ScalaronEsa.qgScalaron_stone_flow
+
+-- `ChapterScalaronFockEsa`: from one particle to the **nested Fock space**.  The sector cores
+-- glue to a dense core of `⊕ₙ L²(Eₙ)`; the sector-wise multiplication operator by an arbitrary
+-- family of smooth potentials is symmetric, has trivial deficiency at every non-real point,
+-- is essentially self-adjoint and generates the unitary group.  Applied to the gauge-fixed
+-- `R + αR²` many-body potential `∑ⱼ (V₃(R_c ⱼ) + V(φ ⱼ))` — smooth, bounded below by
+-- `−n·M⁴/(16α)`, and at `n = 1` the one-particle potential of `ChapterScalaronCoreEsa` — this
+-- gives essential self-adjointness and the unitary group `e^{−itH}` of the scalaron
+-- Hamiltonian on the whole finite-particle Fock space, and likewise in the mode realisation.
+#print axioms BookProof.ScalaronFock.nestedCore_dense
+#print axioms BookProof.ScalaronFock.fockSmoothPotential_symmetric
+#print axioms BookProof.ScalaronFock.fockSmoothPotential_deficiencyTrivialAt
+#print axioms BookProof.ScalaronFock.fockSmoothPotential_esa
+#print axioms BookProof.ScalaronFock.fockSmoothPotential_stone_flow
+#print axioms BookProof.ScalaronFock.qgManyPotential_apply
+#print axioms BookProof.ScalaronFock.qgManyPotential_one
+#print axioms BookProof.ScalaronFock.contDiff_qgManyPotential
+#print axioms BookProof.ScalaronFock.qgManyPotential_ge
+#print axioms BookProof.ScalaronFock.qgManyPotential_esa
+#print axioms BookProof.ScalaronFock.qgFockCore_dense
+#print axioms BookProof.ScalaronFock.qgScalaronFock_symmetric
+#print axioms BookProof.ScalaronFock.qgScalaronFock_deficiencyTrivialAt
+#print axioms BookProof.ScalaronFock.qgScalaronFock_esa
+#print axioms BookProof.ScalaronFock.qgScalaronFock_stone_flow
+#print axioms BookProof.ScalaronFock.modeFockCore_dense
+#print axioms BookProof.ScalaronFock.qgScalaronModeFock_symmetric
+#print axioms BookProof.ScalaronFock.qgScalaronModeFock_deficiencyTrivialAt
+#print axioms BookProof.ScalaronFock.qgScalaronModeFock_esa
+#print axioms BookProof.ScalaronFock.qgScalaronModeFock_stone_flow
+#print axioms BookProof.ScalaronFock.qgScalaronModeFock_potential_ge
 
 end BookProof.ChapterRoadmapAudit

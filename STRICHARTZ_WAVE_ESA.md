@@ -144,3 +144,163 @@ theorem about `-d²/dx² + x²/4` rather than about a diagonal matrix.
 This is the sign-correct case flagged above: it is the elliptic normalization,
 where the potential is bounded below.  The hyperbolic mixture still needs the
 fibrewise argument recorded in `CONSOLIDATED_PLAN.md` §9.5.
+
+## Wave 2026-08-21 — the hyperbolic mixture with an indefinite quadratic potential
+
+`BookProof/ChapterHyperbolicQuadraticEsa.lean` (`sorry`-free / `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+cited from `Book/DiffeomorphismsGravity.lean`) takes the "hyperbolic mixture" left
+open by the wave above, in the case where the potential is quadratic and diagonal
+in the coordinates — the case in which a joint eigenbasis exists.
+
+| Statement | Lean |
+| --- | --- |
+| `−∂ᵢ² + xᵢ²/4` in the canonical pair `πᵢ = −i∂ᵢ`, `xᵢ·`, and its Hermite eigenvalue `αᵢ + ½` | `oscPoly`, `oscPoly_apply`, `oscPoly_hermiteMv` |
+| `H_c = ∑ᵢ cᵢ(−∂ᵢ² + xᵢ²/4)` on the Gauss–polynomial (Hermite) core of `L²(ℝᵈ)`, and its diagonal action | `quadOp`, `quadSymbol`, `quadOp_hermiteMvLp` |
+| symmetry, and **essential self-adjointness for every real `c`** (no sign condition) | `quadOp_symmetric`, `quadOp_essentiallySelfAdjoint` |
+| the operator is genuinely unbounded; the core is dense | `quadOp_not_bounded`, `polyGaussCore_dense_L2` |
+| the pointwise identification with the differential expression (Mathlib's `deriv`, twice, along each coordinate line) | `deriv_pgFun_sec`, `deriv2_pgFun_sec`, `quadPoly_apply_eq_differential` |
+| **the Minkowski case**: `□ + V`, `V(t,x) = (t² − ‖x‖²)/4`, with `□ = −∂_t² + Δ_x` | `minkowskiCoeff`, `wave_indefiniteQuadratic_essentiallySelfAdjoint`, `minkowski_apply_eq_differential` |
+| a bounded real potential may be added (Kato–Rellich): *diagonal quadratic plus bounded* | `quadOp_add_boundedPotential_essentiallySelfAdjoint`, `quadOp_add_realBoundedPotential_essentiallySelfAdjoint` |
+| reusable instruments: a diagonal operator with a real symbol on an orthonormal spanning family | `symmetricOn_of_diagonal`, `deficiencyTrivialAt_of_diagonal` |
+
+This is the sign-correct hyperbolic case flagged in the sign warning above: the
+potential `V(t,x) = (t² − ‖x‖²)/4` is bounded above by the quadratic
+`(t² + ‖x‖²)/4`, is unbounded above and below, and does not commute with `□`.
+
+### What is still not covered
+
+A *general* potential bounded above by a quadratic.  The proof here is by the
+joint eigenbasis, which exists only for the diagonal quadratic family
+`∑ᵢ cᵢxᵢ²/4`; the fibrewise / direct-integral argument for a general
+Faris–Lavine potential remains open.  Nothing is claimed for the opposite sign.
+
+## Unbounded (relatively bounded) perturbations, 2026-08-21b
+
+`BookProof/ChapterHermiteRelativeBound.lean` (namespace `BookProof.HermiteRelative`,
+`sorry`-free / `axiom`-free, registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean`, cited from `Book/DiffeomorphismsGravity.lean`)
+widens the potential class of the diagonal quadratic Hamiltonian beyond bounded
+perturbations, in the **elliptic** case `cᵢ ≥ c₀ > 0`.
+
+| Statement | Lean |
+| --- | --- |
+| the position `xᵢ`, momentum `πᵢ` and one-coordinate oscillator `πᵢ² + xᵢ²/4` as operators from the Hermite core into `L²` | `posL`, `momL`, `oscL` |
+| both are symmetric on the core (Gaussian integration by parts, via `YangMillsHermite.PolySym`) | `posL_symmetric`, `momL_symmetric`, `symmetricOn_of_polySym` |
+| the form identity `⟪u, (πᵢ² + xᵢ²/4)u⟫ = ‖πᵢu‖² + ‖xᵢu‖²/4` | `re_inner_oscL_eq` |
+| the symbol comparison `c₀(αᵢ + ½) ≤ ∑ⱼ cⱼ(αⱼ + ½)`, as a comparison of quadratic forms | `re_inner_oscL_le_quadOp`, `re_inner_diagonal_le` |
+| `xᵢ` and `πᵢ` are `H_c`-bounded with **arbitrarily small** relative bound | `norm_posL_le`, `norm_momL_le` |
+| **`H_c + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially self-adjoint** (Kato–Rellich, relative form) | `foOp`, `foOp_symmetric`, `quadOp_add_firstOrder_essentiallySelfAdjoint` |
+| the product Hermite basis is a **diagonalizing unitary**: `H_c` becomes multiplication by its symbol on `ℓ²` | `hermiteMvBasis_repr_quadOp` |
+| the corollary: the **Stark-shifted oscillator** `−Δ + ‖x‖²/4 + ⟨b, x⟩`, the perturbation being multiplication by the unbounded function `x ↦ ⟨b, x⟩` | `foOp_linear_apply_eq_mul`, `harmonicOsc_add_linearPotential_essentiallySelfAdjoint` |
+
+### What is still not covered
+
+The strict positivity `cᵢ ≥ c₀ > 0` is used and is not removable by this
+argument: in the hyperbolic case the symbol `∑ⱼ cⱼ(αⱼ + ½)` vanishes on an
+infinite set of multi-indices, so `H_c` does not dominate the number operator and
+no relative bound of this kind can hold.  The general Faris–Lavine potential
+(bounded above by a quadratic) therefore remains open.
+
+## Non-diagonal quadratic forms of arbitrary signature, 2026-08-21c
+
+`BookProof/ChapterQuadraticRotationEsa.lean` (namespace
+`BookProof.QuadraticRotation`, `sorry`-free / `axiom`-free, registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, cited from
+`Book/DiffeomorphismsGravity.lean`) removes the *diagonality* restriction: the
+quadratic form need no longer be diagonal in the coordinates.
+
+| Statement | Lean |
+| --- | --- |
+| the orthogonal substitution `Xᵢ ↦ ∑ⱼ Oⱼᵢ Xⱼ` on polynomial coordinates, and its chain rule | `rotPoly`, `pderiv_rotPoly`, `rotPoly_surjective` |
+| the canonical pair transforms contravariantly with the **same** matrix | `rotPoly_mulXPoly`, `rotPoly_momPoly` |
+| `H_A = ∑_{k,l} A_{kl}(π_k π_l + x_k x_l/4)`, and the conjugation identity `H_c ↦ H_{O diag(c) Oᵀ}` | `quadPolyMat`, `rotConj`, `quadPolyMat_rotPoly`, `quadPolyMat_diagonal` |
+| rotation invariance of the Gaussian weight: the substitution is unitary on the core | `rotIso`, `integral_comp_rotIso`, `gaussInt_rotPoly`, `inner_pgLp_rotPoly` |
+| the rotated product Hermite functions: orthonormal, spanning the core, joint eigenvectors of `H_A` | `rotHermiteLp`, `orthonormal_rotHermiteLp`, `span_rotHermiteLp`, `quadOpMat_rotHermiteLp` |
+| **symmetry and essential self-adjointness for every real symmetric `A`** (arbitrary signature) | `quadOpMat_symmetric`, `quadOpMat_essentiallySelfAdjoint` |
+| the spectral theorem for real symmetric matrices supplies `O` and `c` | `exists_rotConj`, `exists_rotConj_eigenvalues` |
+| the operator is genuinely unbounded whenever `A ≠ 0` | `quadOpMat_not_bounded` |
+| the **rotated wave operator**: `□ + V` in rotated coordinates, neither part diagonal | `wave_rotated_essentiallySelfAdjoint` |
+
+## The general inhomogeneous elliptic quadratic Hamiltonian, 2026-08-21d
+
+`BookProof/ChapterQuadraticRotationPerturbed.lean` (namespace
+`BookProof.QuadraticRotationPerturbed`, `sorry`-free / `axiom`-free, registered and
+certified in the same three places) combines the previous two waves.
+
+| Statement | Lean |
+| --- | --- |
+| the rotated Hermite functions as a **Hilbert basis**, and the rotation **unitary** of `L²(ℝᵈ)` | `rotHermiteBasis`, `rotU`, `rotU_hermiteMvLp` |
+| on the core the unitary *is* the polynomial substitution, so it preserves the core | `rotU_pgLp`, `rotU_mem_core` |
+| the first-order symbol transforms with the same matrix: `b, b' ↦ Ob, Ob'` | `rotVec`, `rotPoly_foPoly`, `rotVec_transpose` |
+| the intertwining relation on the core | `rotU_intertwine` |
+| positive definiteness gives a uniform positive lower bound on the eigenvalues | `exists_lower_bound_eigenvalues` |
+| **`H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is symmetric and essentially self-adjoint** for positive definite `A` | `quadOpMat_add_firstOrder_symmetric`, `quadOpMat_add_firstOrder_essentiallySelfAdjoint` |
+| the corollary: an **anisotropic oscillator with cross terms in a constant field** | `anisotropicOsc_add_linearPotential_essentiallySelfAdjoint` |
+
+### What is still not covered
+
+Positive definiteness of `A` is used exactly once, and for the same reason as in
+the wave above: in the indefinite case the symbol vanishes on infinitely many
+multi-indices, so no relative bound for the first-order term holds.  The
+unperturbed indefinite case is covered (`quadOpMat_essentiallySelfAdjoint`).  A
+general Faris–Lavine potential is still not covered by any of these waves.
+
+## Singular quadratic forms and explicit dynamics, 2026-08-21g
+
+Two new modules, both `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and cited from
+`Book/DiffeomorphismsGravity.lean`.
+
+`BookProof/ChapterShiftedQuadraticDegenerate.lean` (namespace
+`BookProof.ShiftedQuadraticDegenerate`) drops the invertibility hypothesis of the
+matrix wave: completing the square needs only a *solution* of the classical
+equilibrium equations, and for symmetric `A` that is exactly orthogonality to the
+kernel.
+
+| Statement | Lean |
+| --- | --- |
+| solvability of `A a = w` implies `w ⊥ ker A` | `equilibrium_orthogonal_to_kernel` |
+| conversely, `w ⊥ ker A` implies solvability | `exists_equilibrium` |
+| the criterion, both directions | `exists_equilibrium_iff` |
+| **`H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is symmetric and essentially self-adjoint** for *every* real symmetric `A` with a classical equilibrium | `shiftedHMatOp_symmetric_of_equilibrium`, `shiftedHMatOp_essentiallySelfAdjoint_of_equilibrium` |
+| the intrinsic form: `b, b' ⊥ ker A` gives a dense core, symmetry, ESA and a complete unitary flow | `exists_shiftedHMat_esa_of_kernel_orthogonal` |
+| the concrete degenerate diagonal case (weights allowed to vanish) | `diagonal_degenerate_essentiallySelfAdjoint` |
+
+`BookProof/ChapterStoneEigenflow.lean` (namespace `BookProof.StoneEigenflow`) makes
+the dynamics explicit on the eigenbasis.
+
+| Statement | Lean |
+| --- | --- |
+| a self-adjoint extension keeps the eigenvectors of the core operator | `isSelfAdjointExtension_eigenvector` |
+| **any Stone flow acts on an eigenvector by the phase `e^{−iλt}`** | `stoneFlow_apply_eigenvector`, `stoneFlow_apply_core_eigenvector` |
+| a symmetric ESA core operator with eigenvectors generates a diagonal flow | `exists_diagonal_stone_flow` |
+| the quadratic family: `U t ψ_α = e^{−iE_αt} ψ_α`, `E_α = ∑ᵢ cᵢ(αᵢ + ½) + const` | `ShiftedQuadraticDegenerate.exists_shiftedHMat_diagonal_flow`, `exists_shiftedH_diagonal_flow` |
+
+### What is still not covered
+
+Orthogonality of `b, b'` to `ker A` is necessary, not technical: in a kernel
+direction the Hamiltonian degenerates to the first-order operator `bᵢxᵢ + b'ᵢπᵢ`,
+which has no `L²` eigenvector, so no Hermite-type eigenbasis argument reaches it.
+A general Faris–Lavine potential is still not covered by any of these waves.
+
+## Fourier multipliers with a real symbol, 2026-08-21g
+
+`BookProof/ChapterFourierMultiplierEsa.lean` (namespace `BookProof.FourierMultiplierEsa`)
+turns the Plancherel proof of Phase 3 into a reusable instrument and applies it to
+first-order operators.
+
+| Statement | Lean |
+| --- | --- |
+| a Fourier multiplier with a real, smooth symbol is symmetric on the Schwartz core | `symmetricOn_of_real_symbol` |
+| ... and has vanishing deficiency spaces, hence is **essentially self-adjoint** | `deficiencyTrivialAt_of_real_symbol`, `essentiallySelfAdjointOn_of_real_symbol` |
+| the momentum operator `π_w = −i∂_w` is the multiplier with symbol `2π⟪ξ,w⟫` | `momentumOp`, `fourier_momentumOp_apply` |
+| **`∑ᵢ cᵢ π_{wᵢ}` is essentially self-adjoint** on the Schwartz core | `firstOrderOp_essentiallySelfAdjoint`, `momentumOp_essentiallySelfAdjoint` |
+| second order + first order + constant, `∑ᵢ cᵢ∂_{wᵢ}² + ∑ᵢ aᵢ(−i∂_{wᵢ}) + κ` | `mixedOp_essentiallySelfAdjoint` |
+
+### What is still not covered
+
+An operator mixing a *linear potential* with a momentum term, `⟨b,x⟩ + ⟨b',π⟩` with both
+`b, b' ≠ 0`, is not a constant-coefficient Fourier multiplier, and has no `L²`
+eigenvector, so neither this route nor the Hermite-eigenbasis route of the quadratic
+family covers it.

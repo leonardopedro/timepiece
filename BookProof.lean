@@ -703,3 +703,180 @@ import BookProof.ChapterStoneFlows
 -- essential self-adjointness of the full transformed Hamiltonian on that core, and
 -- the complete unitary flow it generates.
 import BookProof.ChapterNavierStokesLagrangianCanonical
+
+-- Wave 2026-08-21 (backlog item A1, the hyperbolic mixed case): the non-commuting
+-- mixture `□ + V` with an *indefinite quadratic* potential.  For an arbitrary real
+-- weight vector `c` (no sign condition, so the signature may be hyperbolic) the
+-- operator `H_c = ∑ᵢ cᵢ(−∂ᵢ² + xᵢ²/4)` is symmetric and essentially self-adjoint on
+-- the Gauss–polynomial (product Hermite) core of `L²(ℝᵈ)`, with the pointwise
+-- identification of the differential expression; the Minkowski weights
+-- `(1, −1, …, −1)` give `□ + V`, `V(t,x) = (t² − ‖x‖²)/4`, in the convention
+-- `□ = −∂_t² + Δ_x` of `ChapterStrichartzWave`.
+import BookProof.ChapterHyperbolicQuadraticEsa
+-- Relatively bounded (unbounded) perturbations of the diagonal quadratic
+-- Hamiltonian: for strictly positive weights `cᵢ ≥ c₀ > 0` the position and
+-- momentum operators are `H_c`-bounded with arbitrarily small relative bound, so
+-- `H_c` plus any first-order term `∑ᵢ (bᵢ xᵢ + b'ᵢ πᵢ)` — in particular the
+-- Stark-shifted oscillator `−Δ + ‖x‖²/4 + ⟨b, x⟩` — is essentially self-adjoint
+-- on the same Hermite core.
+import BookProof.ChapterHermiteRelativeBound
+-- General (non-diagonal) quadratic Hamiltonians of arbitrary signature: for every
+-- real symmetric matrix `A`, the operator `H_A = ∑_{k,l} A_{kl}(π_k π_l + x_k x_l/4)`
+-- with `π_k = −i∂/∂x_k` is symmetric and essentially self-adjoint on the
+-- Gauss–polynomial (product Hermite) core of `L²(ℝᵈ)`.  The route is the orthogonal
+-- change of coordinates that diagonalizes `A`, which acts on the core as a unitary
+-- substitution and carries the diagonal Hamiltonian onto `H_A`.
+import BookProof.ChapterQuadraticRotationEsa
+-- The general *inhomogeneous* elliptic quadratic Hamiltonian: for a positive definite
+-- real symmetric matrix `A` and arbitrary real vectors `b, b'`, the operator
+-- `H_A + ∑ᵢ (bᵢ xᵢ + b'ᵢ πᵢ)` — a general elliptic quadratic form with cross terms
+-- plus a general unbounded first-order term — is symmetric and essentially
+-- self-adjoint on the same Gauss–polynomial core.  The rotated Hermite functions are
+-- upgraded to a Hilbert basis, which turns the orthogonal substitution into an honest
+-- unitary `rotU` of `L²(ℝᵈ)`; essential self-adjointness is a unitary invariant, so the
+-- Kato–Rellich theorem of `ChapterHermiteRelativeBound` transfers.
+import BookProof.ChapterQuadraticRotationPerturbed
+-- The translated, modulated Gauss–polynomial core of `L²(ℝᵈ)`: the functions
+-- `p(x − a) e^{−‖x − a‖²/4} e^{i⟨k, x⟩}` for `p` a complex polynomial.  Translating by
+-- `a` and modulating by `k` is a unitary substitution of `L²`, so this core is dense and
+-- carries an orthonormal Hermite family; it is the frame adapted to a classical
+-- equilibrium at position `a` with momentum `k`.
+import BookProof.ChapterShiftedHermiteCore
+-- The *indefinite* inhomogeneous quadratic Hamiltonian: for weights `cᵢ ≠ 0` of
+-- arbitrary sign and arbitrary real `b, b'`, the operator
+-- `H = ∑ᵢ (cᵢ(πᵢ² + xᵢ²/4) + bᵢ xᵢ + b'ᵢ πᵢ)` is symmetric and essentially self-adjoint
+-- on the translated, modulated core with `aᵢ = −2bᵢ/cᵢ`, `kᵢ = −b'ᵢ/(2cᵢ)`.  Completing
+-- the square replaces the Kato–Rellich argument of `ChapterHermiteRelativeBound`, which
+-- needs a definite `c`; the Minkowski weights give `□ + V + ⟨b, x⟩ + ⟨b', π⟩`.
+import BookProof.ChapterShiftedQuadraticEsa
+-- The *indefinite* inhomogeneous quadratic Hamiltonian **with cross terms**: for every
+-- real symmetric *invertible* matrix `A` of arbitrary signature and arbitrary real
+-- `b, b'`, the operator `H_A + ∑ᵢ (bᵢ xᵢ + b'ᵢ πᵢ)` is symmetric and essentially
+-- self-adjoint on the translated, modulated core with `a = −2A⁻¹b`, `k = −A⁻¹b'/2`.
+-- Completing the square in matrix form combines the orthogonal diagonalization of
+-- `ChapterQuadraticRotationEsa` with the phase-space translation of
+-- `ChapterShiftedQuadraticEsa`, and removes the positive definiteness that the
+-- Kato–Rellich route of `ChapterQuadraticRotationPerturbed` needs.
+import BookProof.ChapterShiftedQuadraticMatrixEsa
+-- The Stone flow acts on eigenvectors by a phase: `U t ψ = e^{−iλt} ψ` whenever
+-- `T ψ = λψ`, so the abstract existence of the unitary group of a Hamiltonian with an
+-- eigenbasis becomes an explicit solution of the Schrödinger equation.
+import BookProof.ChapterStoneEigenflow
+-- The inhomogeneous quadratic Hamiltonian with a *singular* quadratic form: for every
+-- real symmetric `A` (invertible or not) whose classical equilibrium equations
+-- `A a = −2b`, `A k = −b'/2` are solvable — equivalently, `b, b' ⊥ ker A` — the operator
+-- `H_A + ∑ᵢ (bᵢ xᵢ + b'ᵢ πᵢ)` is symmetric and essentially self-adjoint on the
+-- translated, modulated core, and its flow acts on the Hermite eigenbasis by a phase.
+import BookProof.ChapterShiftedQuadraticDegenerate
+-- Fourier multipliers with a real symbol: the Plancherel argument of
+-- `ChapterStrichartzWave` extracted as a reusable instrument, and applied to the
+-- *first-order* operators it did not cover — the momentum family `∑ᵢ cᵢ(−i∂_{wᵢ})` and
+-- the full `∑ᵢ cᵢ∂_{wᵢ}² + ∑ᵢ aᵢ(−i∂_{wᵢ}) + κ` — on the Schwartz core of `L²(V)`.
+import BookProof.ChapterFourierMultiplierEsa
+-- The mixed first-order operator `⟪x, b⟫ − i ∂_m`: a linear potential *and* a momentum
+-- term in the same direction, the one residual case of the quadratic family that neither
+-- the Hermite eigenbasis (no `L²` eigenvector) nor the Fourier multiplier route (not
+-- constant-coefficient) can reach.  The quadratic gauge `e^{iθ}` with `∂_m θ = −⟪x, b⟫`
+-- intertwines it with the pure momentum operator, giving symmetry and essential
+-- self-adjointness on the Schwartz core of `L²(V)` for arbitrary `b, m`.
+import BookProof.ChapterMixedLinearEsa
+-- The same quadrature `∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` on the **Gauss–polynomial (product Hermite)
+-- core** — the core the whole quadratic family lives on.  A moment lemma without an `L²`
+-- hypothesis settles the purely positional case, and the metaplectic rotation, which on
+-- that core is the diagonal phase `ψ_α ↦ ζ^α ψ_α`, rotates it onto the general one, for
+-- arbitrary real `b, b'`.
+import BookProof.ChapterQuadratureEsa
+-- A Carleman criterion on the product Hermite basis: a square-summable family satisfying
+-- the nearest-neighbour recursion with a real diagonal and constant ladder amplitudes at a
+-- non-real point vanishes (the flux through the boundary faces of a multi-index cube grows
+-- like `√N`, and `∑ 1/√N = ∞`).  Consequence: for *arbitrary* real weights `c` and
+-- *arbitrary* real `b, b'`, `∑ᵢ cᵢ(πᵢ² + xᵢ²/4) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially
+-- self-adjoint on the plain Gauss–polynomial core — no ellipticity, no sign condition, no
+-- classical equilibrium, no change of core.
+import BookProof.ChapterHermiteCarlemanEsa
+-- The same flux argument for a **two-step** recursion: hops `α ↦ α ± eᵢ` and
+-- `α ↦ α ± 2eᵢ`, with amplitudes `O(N)` on a boundary face of thickness two.  Disjointness
+-- of the faces is replaced by a multiplicity bound, and the Carleman divergence used is
+-- `∑ 1/(N+1) = ∞`.
+import BookProof.ChapterCarlemanTwoStep
+-- Consequence of the two-step criterion: for *arbitrary* real `p, q, s, b, b'`, the general
+-- **mode-diagonal** quadratic Hamiltonian
+-- `∑ᵢ (pᵢπᵢ² + qᵢxᵢ² + sᵢ·½(xᵢπᵢ + πᵢxᵢ)) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially self-adjoint
+-- on the plain Gauss–polynomial core.  Elliptic, hyperbolic or parabolic in each mode, any
+-- signs, degenerate modes allowed; in particular the generator of dilations
+-- `½∑ᵢ(xᵢπᵢ + πᵢxᵢ)`.
+import BookProof.ChapterModeQuadraticEsa
+-- The Carleman flux argument rerun on the **simplex** shells `{α : |α| ≤ N}`, the grading
+-- by total degree adapted to a general quadratic ladder.  Degree-preserving mode-exchange
+-- hops `α ↦ α − eⱼ + eᵢ` carry zero flux when their amplitude matrix is Hermitian;
+-- degree-changing pair hops `α ↦ α ± (eᵢ + eⱼ)` leak only through a boundary shell of
+-- thickness two.  The Carleman divergence used is again `∑ 1/(N+2) = ∞`.
+import BookProof.ChapterCarlemanSimplex
+-- Consequence of the simplex criterion: the **general** real quadratic-plus-linear
+-- Hamiltonian `∑_{i,j} (Pᵢⱼπᵢπⱼ + Qᵢⱼxᵢxⱼ + Sᵢⱼ·½(xᵢπⱼ + πⱼxᵢ)) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)`, for
+-- arbitrary real matrices `P, Q, S` and vectors `b, b'`, is essentially self-adjoint on the
+-- plain Gauss–polynomial core.  Distinct modes may now be coupled arbitrarily — no
+-- ellipticity, no definiteness, no non-degeneracy, no classical equilibrium.
+import BookProof.ChapterFullQuadraticEsa
+-- The spectral theorem in multiplication form for an **unbounded** self-adjoint operator:
+-- the missing existence step behind `ChapterUnitaryTransport`.  The resolvent
+-- `R = (A − i)⁻¹` is bounded, injective, normal, with range exactly the domain of `A`, so
+-- the bounded multiplication model applies to it; the measure is carried by the Cayley
+-- circle `|z|² = Im z` and gives no mass to `z = 0`, so `A` is multiplication by the real
+-- function `Re z/|z|²` on a Hilbert sum of `L²(μ)` spaces.
+import BookProof.ChapterUnboundedSpectralModel
+-- The Faris–Lavine bounds for an **infinite sum** of operators: a summable family of
+-- symmetric operators on the maximal domain of a comparison symbol, each relatively
+-- bounded by the comparison operator and each with commutator form dominated by it, sums
+-- to an operator essentially self-adjoint on the finite-mode core.
+import BookProof.ChapterOperatorSeriesEsa
+-- The general quadratic Hamiltonian of a boson field with **infinitely many modes**:
+-- `H = ∑ᵢ ωᵢ aᵢ†aᵢ + ∑ₖ (gₖ a^{†Pₖ}a^{Qₖ} + conj(gₖ) a^{†Qₖ}a^{Pₖ})` on the Fock space
+-- `ℓ²(ι →₀ ℕ)`, with an arbitrary mode set, an arbitrary non-negative (possibly unbounded)
+-- dispersion `ω`, and an arbitrary family of quadratic interaction terms subject only to
+-- `∑ₖ ‖gₖ‖(ω(Pₖ) + ω(Qₖ) + 2) < ∞`, is essentially self-adjoint on the finite-particle
+-- core.  Bogoliubov pair creation is the special case `Pₖ = eₘ + eₙ`, `Qₖ = 0`.
+import BookProof.ChapterFockQuadraticEsa
+-- Fibrewise essential self-adjointness **glues**: a deficiency space of an orthogonal
+-- direct sum is the direct sum of the fibre deficiency spaces, so if every fibre operator
+-- is essentially self-adjoint on its core then `⊕ᵢ Hᵢ` is essentially self-adjoint on the
+-- algebraic direct sum of the cores — no relative bound, no comparison operator, no
+-- commutator estimate.  Applied to the *whole* continuum Fock space `⊕ₙ L²(ℝⁿ)` of the
+-- parcel picture, this upgrades the one-sector statement of
+-- `ChapterNavierStokesFockContinuum` to the second-quantized Hamiltonian
+-- `ĥ = ∫ w(ξ)a†(ξ)a(ξ)dξ` itself, for an arbitrary measurable field `w`.
+import BookProof.ChapterDirectSumEsa
+-- A Carleman (flux) criterion for **general lattice hops** `α ↦ α + p − m`, including the
+-- non-monotone mode-exchange hop `α ↦ α ± (eᵢ − eⱼ)` produced by a quadratic Hamiltonian
+-- coupling two distinct modes.  The flux through the boundary of a multi-index cube now has
+-- two layers — outgoing (`obd`) and incoming (`ibd`) — and both are controlled by Bessel
+-- multiplicity bounds, so a square-summable solution of a general-hop recursion with a real
+-- diagonal and amplitudes `O(N)` at a non-real point vanishes (`ladderH_eq_zero`).
+import BookProof.ChapterCarlemanGeneralHop
+-- The Hashimoto/SIRK shift-invert selection for the **differential** Navier–Stokes fiber
+-- generator: the operator written with `πᵢ = −i ∂/∂uᵢ` and `uᵢ` a genuine multiplication
+-- operator on the Hermite core of `L²(du₁du₂du₃)` is symmetric there (Gauss symmetry of the
+-- Weyl-ordered polynomial operator), so its closure is the unique self-adjoint extension and
+-- the rational-Krylov shift-invert data of the algorithm determine it completely.  This
+-- brings the differential realization to parity with the abstract sequence-space layer.
+import BookProof.ChapterNavierStokesDiffHashimoto
+-- The `f(R) = (M²/2)R + αR²` (Starobinsky) potentials: the ghost-free scalar–tensor form of
+-- the action, the Einstein-frame scalaron potential with its non-negativity, plateau and
+-- exponential wall, and the completed square that makes the conformal-mode potential bounded
+-- below — together with the resulting `R + αR²` mode Hamiltonian, its essential
+-- self-adjointness on a dense maximal domain and the unitary flow Stone's theorem gives it.
+import BookProof.ChapterStarobinskyPotential
+-- The scalaron sector with its exponential wall: multiplication by an *arbitrary smooth*
+-- real potential — no temperate growth, no boundedness, no semiboundedness — is essentially
+-- self-adjoint on the dense compactly supported smooth core of L², the Starobinsky potential
+-- being a case in point (it is proved not to be of temperate growth); every localization of
+-- `□ + V` is essentially self-adjoint on the Schwartz core; and the `R + αR²` mode
+-- Hamiltonian including the scalaron potential is essentially self-adjoint, bounded below by
+-- `−M⁴/(16α)`, with a complete unitary flow.
+import BookProof.ChapterScalaronCoreEsa
+-- From one particle to the nested Fock space: the sector-wise scalaron Hamiltonian
+-- `⊕ₙ ∑ⱼ (V₃(R_c ⱼ) + V(φ ⱼ))` on `⊕ₙ L²(ℝ^(n×2))` is densely defined, symmetric,
+-- essentially self-adjoint and generates the unitary group — the one-particle theorem of
+-- `ChapterScalaronCoreEsa` glued over the finite-particle sectors by the direct-sum
+-- instrument of `ChapterDirectSumEsa`; likewise in the mode (Hermite) realisation.
+import BookProof.ChapterScalaronFockEsa

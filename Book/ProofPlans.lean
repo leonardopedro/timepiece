@@ -309,10 +309,15 @@ presents the whole package as `IsStoneFlow` (`U 0 = 1`, the group law, isometry,
 Schrödinger equation on the domain), with `isStoneFlow_stoneU` showing the
 abstractly constructed group is such a flow and
 `exists_stone_flow_of_selfAdjointExtension` / `of_positive` / `of_esa` as the
-entry points.  The one half of Stone's theorem that genuinely remains open is the
-*spectral* half — the existence of a diagonalizing unitary (the spectral theorem
-for unbounded self-adjoint operators) — which is what the continuum
-$`-\tfrac12\Delta_z` would need. The *physical* claim that the dynamics
+entry points.  The spectral half of Stone's theorem — the existence of the
+diagonalizing unitary (the spectral theorem for unbounded self-adjoint operators),
+the last layer the continuum $`-\tfrac12\Delta_z` would need — is now closed too:
+`BookProof.ChapterUnboundedSpectralModel` (wave 2026-08-21h) proves, by the
+classical resolvent (Cayley) route, that *every* densely defined self-adjoint
+operator on a complex Hilbert space is multiplication by a real function on a
+Hilbert sum of $`L^2(\mu_x)` spaces, with no cyclic vector and no separability
+assumed (`unbounded_multiplication_model_cyclic` / `_general` / `_separable`).
+The *physical* claim that the dynamics
 "is" the transition is about the choice of $`\mathbf{H}`; the formal content is
 that a Hermitian $`\mathbf{H}` yields a unitary and that the Born rule recovers a
 probability law.
@@ -326,6 +331,7 @@ invariance of that whole package) and `BookProof.ChapterStoneResolvent` /
 `ChapterStoneSeparable` (the general Stone theorem and its concrete
 $`\ell^2(\mathbb Z)` instance) and `BookProof.ChapterStoneBridge` /
 `ChapterStoneFlows` (the packaged `IsStoneFlow` and the concrete flows for the
-Eulerian NS, Lagrangian NS and QYM Hamiltonians), all registered in
+Eulerian NS, Lagrangian NS and QYM Hamiltonians) and `BookProof.ChapterUnboundedSpectralModel`
+(the diagonalizing unitary, via the resolvent route), all registered in
 `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed
 from the `ConditionalUnitary` chapter's "A Less Arbitrary Construction" section.

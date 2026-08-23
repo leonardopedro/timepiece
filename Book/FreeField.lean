@@ -1485,6 +1485,34 @@ resolvent exist.
 ```
 
 :::paragraph
+The same selection now holds for the *differential* realization, the picture in
+which the operator is written with `π_i = -i ∂/∂u_i` and `u_i` as a genuine
+multiplication operator on the Hermite core of `L²(du₁du₂du₃)`. Gaussian
+integration by parts makes the Weyl-ordered expression `∑_i ½(π_i V_i + V_i π_i)`
+symmetric there (`nsDiffH_symmetricOn`, through the Gauss symmetry
+`nsDiffPoly_polySym` of its polynomial form), so with the essential
+self-adjointness already proved the closure is the unique self-adjoint operator
+the core determines (`nsDiffH_selfAdjoint_extension`,
+`nsDiffH_selfAdjoint_extension_unique`) and `nsDiffH_hashimoto_selects` is the
+selection statement for it: for an arbitrary sequence of non-real shifts the
+resolvents exist, are bounded, share the domain of the generator, satisfy the
+resolvent identity and the Hashimoto–Nodera relation, have strongly convergent
+Galerkin truncations, and each determines the generator completely. The
+enumerated product Hermite functions supply the Hilbert basis the Galerkin
+truncations are taken in (`exists_l2dHilbertBasisNat`).
+:::
+
+```
+#check @BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_symmetricOn
+#check @BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_selfAdjoint_extension
+#check @BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_selfAdjoint_extension_unique
+#check @BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_hashimoto_selects
+#check @BookProof.NavierStokesFlow.DiffHashimoto.nsDiffH_shiftInvert_selects
+#check @BookProof.NavierStokesFlow.DiffHashimoto.nsQuadraticDiffH_hashimoto_selects
+#check @BookProof.NavierStokesFlow.DiffHashimoto.exists_l2dHilbertBasisNat
+```
+
+:::paragraph
 The Lagrangian route gets the same package, independently of the Eulerian one.
 The Kato–Rellich theorem is proved for a *relatively bounded* — possibly
 unbounded — symmetric perturbation: `essentiallySelfAdjointOn_add_relBounded`
@@ -1689,6 +1717,46 @@ Navier–Stokes regularity problem.
 #check @BookProof.StoneFlows.lagrangian_stone_flow
 #check @BookProof.StoneFlows.diagKR_stone_flow
 #check @BookProof.StoneFlows.ym_fock_stone_flow
+```
+
+:::paragraph
+Essential self-adjointness glues along an orthogonal direct sum, and
+`ChapterDirectSumEsa` isolates that step once and for all.  A deficiency vector of
+`⊕ᵢ Hᵢ` may be tested against a state living in a single fibre, and the identity it
+then satisfies is exactly the fibre deficiency identity, so each of its coordinates
+vanishes: `dsOp_deficiencyTrivialAt`, hence `dsOp_essentiallySelfAdjointOn`.  No
+relative bound, no comparison operator and no commutator estimate are involved — the
+hypothesis is only that every fibre operator is essentially self-adjoint on its own
+core — and `dsCore_dense` adds that the algebraic direct sum of the fibre cores is
+dense as soon as every fibre core is.  The payoff is the continuum parcel picture:
+`ChapterNavierStokesFockContinuum` proved essential self-adjointness of the
+second-quantized Hamiltonian one sector at a time (on `L²(ℝⁿ)` it is multiplication by
+the total energy `∑ₖ w(ξₖ)`, an operator with in general purely continuous spectrum and
+no eigenvectors), and `fockH_hasZeroDeficiencyOn` is the same statement on the *whole*
+Fock space `⊕ₙ L²(ℝⁿ)` — for an arbitrary measurable field `w`, with `fockCore_dense`
+and `fockH_isSymmetricDom` supplying dense definition and symmetry.  Feeding that into
+the Stone bridge closes the circle: `dsOpD_stone_flow` turns a family of dense fibre
+cores carrying symmetric fibre operators of vanishing deficiency into a self-adjoint
+extension of the glued operator together with the unitary group it generates, and
+`fockH_stone_flow` is that statement for the continuum Fock Hamiltonian — the complete
+flow `e^{−itĥ}` solving the Schrödinger equation on the domain.  The
+honest boundary is that the fibres must be mutually orthogonal and invariant: this is
+the discrete form of a direct-integral gluing, not a decomposition theorem.
+:::
+
+```
+#check @BookProof.DirectSumEsa.dsCore
+#check @BookProof.DirectSumEsa.dsOp
+#check @BookProof.DirectSumEsa.dsOp_deficiencyTrivialAt
+#check @BookProof.DirectSumEsa.dsOp_essentiallySelfAdjointOn
+#check @BookProof.DirectSumEsa.dsOpD_hasZeroDeficiencyOn
+#check @BookProof.DirectSumEsa.dsCore_dense
+#check @BookProof.DirectSumEsa.fockCore_dense
+#check @BookProof.DirectSumEsa.fockH_isSymmetricDom
+#check @BookProof.DirectSumEsa.fockH_hasZeroDeficiencyOn
+#check @BookProof.DirectSumEsa.dsOpD_stone_flow
+#check @BookProof.DirectSumEsa.fockH_essentiallySelfAdjointOn
+#check @BookProof.DirectSumEsa.fockH_stone_flow
 ```
 
 # Summary

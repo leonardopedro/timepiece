@@ -497,8 +497,7 @@ give the unitary group and the Born law outright; the unbounded position
 observable is densely defined, symmetric, self-adjoint, and does generate a
 strongly continuous unitary group with itself as generator; and that conclusion is
 inherited by anything unitarily equivalent to it. And the general Stone theorem
-is itself proved in this development — not the spectral-theoretic diagonalization,
-which still requires hypotheses on the spectrum, but the *existence* half: an
+is itself proved in this development — the *existence* half first: an
 arbitrary unbounded self-adjoint operator on a (complete, separable) Hilbert space
 generates a weakly measurable one-parameter unitary group `e^{-itA}` satisfying
 the Schrödinger equation on its domain, and conversely every such group arises
@@ -511,7 +510,8 @@ by `ChapterStoneBridge` (`unboundedSelfAdjointOf`, `IsStoneFlow`,
 `of_positive` / `of_esa`), so the passage "essentially self-adjoint on a core ⇒
 complete unitary flow" is a theorem rather than a promise. What a continuum
 Laplacian would still need is the *spectral theorem* — the existence of the
-diagonalizing unitary — which remains the recorded open step.
+diagonalizing unitary — and that step is now supplied as well; see the paragraph
+below.
 :::
 
 ```
@@ -522,6 +522,36 @@ diagonalizing unitary — which remains the recorded open step.
 #check @BookProof.StoneBridge.isStoneFlow_stoneU
 #check @BookProof.StoneBridge.exists_stone_flow_of_esa
 #check @BookProof.StoneFlows.ym_fock_stone_flow
+```
+
+:::paragraph
+The diagonalizing unitary itself is constructed in
+`BookProof.ChapterUnboundedSpectralModel` by the classical resolvent (Cayley)
+route. For a densely defined self-adjoint $`A` the resolvent $`R = (A - i)^{-1}` is
+a *bounded* operator: it is injective, its range is exactly $`\mathrm{dom}\,A`, its
+adjoint is the resolvent at the conjugate point, and resolvents commute — so $`R`
+is normal and the bounded multiplication model of `ChapterSpectralDirectSum`
+applies to it. Reading $`A = R^{-1} + i` back through that model, the representing
+measure gives no mass to $`z = 0` and is carried by the Cayley circle
+$`|z|^2 = \operatorname{Im} z` — the image of the real line under
+$`t \mapsto 1/(t-i)` — so the multiplier $`1/z + i` coincides almost everywhere
+with the *real* function $`\operatorname{Re} z/|z|^2`. The conclusion: *every*
+densely defined self-adjoint operator on a complex Hilbert space is multiplication
+by a real function on a Hilbert sum of $`L^2(\mu_x)` spaces, with no cyclic vector
+and no separability assumed; on a separable space the family of summands is
+countable.
+:::
+
+```
+#check @BookProof.UnboundedSpectralModel.resOp_injective
+#check @BookProof.UnboundedSpectralModel.exists_resOp_eq
+#check @BookProof.UnboundedSpectralModel.isStarNormal_resOp
+#check @BookProof.UnboundedSpectralModel.model_apply
+#check @BookProof.UnboundedSpectralModel.model_ae_circle
+#check @BookProof.UnboundedSpectralModel.model_ae_real_multiplier
+#check @BookProof.UnboundedSpectralModel.unbounded_multiplication_model_cyclic
+#check @BookProof.UnboundedSpectralModel.unbounded_multiplication_model_general
+#check @BookProof.UnboundedSpectralModel.unbounded_multiplication_model_separable
 ```
 
 # Why This Matters Here

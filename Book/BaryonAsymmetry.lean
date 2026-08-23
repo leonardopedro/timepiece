@@ -78,3 +78,34 @@ mathematics does not by itself explain the _origin_ of the asymmetry (that is th
 role of CP violation); it explains why a small asymmetry, once present, becomes the
 dominant, observable matter content — the expansion of the Universe does the
 amplifying.
+
+# The Same Scaling Is Checked in the Numerical Validation
+
+The power laws above are not an isolated curiosity of this chapter: they are the
+same Friedmann–Robertson–Walker content that the companion numerical validation
+checks against published cosmology. For a flat FLRW universe the two scalars that
+appear throughout the gravity thread — the Ricci scalar
+$`R = 6(\dot H + H^2)` and the TEGR torsion scalar $`T = -6H^2` — are built
+from the same $`H = \dot a/a` and $`\dot H` that enter the continuity equation
+$`a\,\rho'(a) + 3(1+w)\rho(a) = 0` derived above (with matter, $`w=0`,
+giving $`\rho \propto a^{-3}`). The numerical suite verifies both scalars, that
+they give the same Friedmann equation $`3H^2 = 8\pi G\rho` (the
+TEGR–GR equivalence, $`eR = e\cdot T + \text{divergence}`), and that their sum
+reproduces the divergence term — the same $`R + T = 6\dot H` identity that makes
+$`R = 6(\dot H + H^2)` and $`T = -6H^2` consistent. So the amplification
+computed here and the equivalence checked there rest on the same FLRW scalars; the
+cosmological content of the manuscript is verified both symbolically (this
+chapter) and numerically (the companion solver work).
+
+# A Caution: Amplification Is Not Explanation of the Origin
+
+It is worth keeping the two claims separate. What is proved here — and what the
+manuscript's argument needs — is that *if* a small asymmetry exists, the
+expansion amplifies it proportionally to $`a`. That is a clean, verified
+statement about FRW kinematics. What is *not* supplied by this chapter is the
+origin of the asymmetry itself: the manuscript turns to CP violation in the
+Standard Model for that, and notes that the Standard Model's CP asymmetry may be
+too small to match observation unless the age of the Universe is larger than
+standard cosmology provides — an inconsistency the manuscript reads as a problem
+for the cosmology model rather than for the Standard Model. The verified content
+stops at the amplification; the origin story is physics beyond it.
