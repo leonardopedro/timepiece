@@ -14,9 +14,10 @@ usable inside a Lean4 proof.*
 > *code implementation* (the probability kernel: `fock_sirk::forward_sirk` and
 > `prob_kernel::Session`) with respect to those proofs, including the Lean4
 > parts, through the existing nanoda export/verification cycle (S29/S31), and
-> (5) adds the **Aeneas** route (Rust→Lean 4 functional translation) that
-> formalizes the pure numeric core of the kernel itself, with Creusot→Why3 as
-> the project-native alternative (§5.3).
+> (5) adds the **Aeneas** route (Rust→Lean 4 functional translation) as the
+> **first attempt** at formalizing the pure numeric core of the kernel itself,
+> with an explicit fallback ladder (Verus → Creusot/Why3 → hand-written
+> Lean 4) in case Aeneas is not enough (§5.3).
 >
 > **Honesty box (read first).** The sketch proves a *rigorous, machine-checked
 > lower bound on the spectral gap of the truncated/lattice QCD Hamiltonian* —
@@ -301,7 +302,9 @@ through **Aeneas** (Ho–Protzenko–Fromherz, ICFP 2022; the Rust→Lean 4
 functional-translation toolchain used for Microsoft's SymCrypt): it translates
 the actual Rust implementation into a pure functional Lean 4 model, so
 functional-correctness theorems are proved about the code *as written*, not
-about a paraphrase.
+about a paraphrase. **Aeneas is the first attempt** (its output lands directly
+in Lean 4 next to `BookProof/`); the fallback ladder at the end of this
+subsection applies if it turns out not to be enough.
 
 **What Aeneas verifies here** (the pure numeric core of the probability
 kernel):
@@ -352,6 +355,45 @@ proves the *operator theory* (selection, convergence, positivity); nanoda
 re-checks the exports; T6 assembles the gap. No component trusts the f64
 arithmetic; the trusted core remains the directed-rounding interval layer.
 
+**Fallback ladder (if Aeneas is not enough).** Aeneas is the **first
+attempt** because it is the only route whose output lands directly in Lean 4
+next to `BookProof/`. It becomes the wrong tool when any of these hold:
+
+1. the core cannot be expressed in its functional subset (dense `nalgebra`
+   calls, interior mutability, non-trivial lifetimes) — the pure core of
+   §5.3 is designed to avoid this, but if keeping the production path and the
+   verified core in sync becomes the trust problem, the translation adds risk
+   rather than removing it;
+2. the generated Lean 4 model drifts from the actual code (Charon extraction
+   gaps, toolchain churn), so the proof is about a look-alike;
+3. the manual Lean 4 proof effort against the generated model exceeds the
+   cost of writing the T1–T6 theorems by hand — Aeneas's value is precisely
+   to avoid re-typing the algorithm into Lean, and the core is only a few
+   hundred lines of pure folds and sums, so the saving may be marginal.
+
+Once Aeneas is ruled out, in order of preference:
+
+- **Fallback 1 — Verus.** The most mature deductive verifier: proves the same
+  algorithm with the least manual effort (`vstd` covers the arithmetic;
+  SMT automation). Cost: the proof lives in Verus, not Lean 4 — the final
+  mass-gap statement would be a Verus theorem plus a bridging note.
+- **Fallback 2 — Creusot → Why3.** Same core, discharged by Why3 provers
+  (alt-ergo/Z3). Cost: not Lean 4 either; but Why3 runs standalone easily and
+  this project already pins Why3 1.8.2 + alt-ergo 2.6.3 (S36), so the
+  environment is proven.
+- **Fallback 3 — hand-written Lean 4 (the §5.2 baseline).** Always available:
+  the T1–T6 theorems + the certificate emitter, with the algorithm re-typed
+  by hand into Lean. This is the floor the plan already specifies; Aeneas
+  only improves on it if the translation is faithful.
+- **Complement (not a substitute) — Kani.** Run on the real f64 paths for
+  overflow/panic/UB whatever the deductive route.
+
+**Hybrid (most likely outcome).** The split that survives every choice is:
+Aeneas (or Verus) on the pure algorithmic core; hand-written Lean 4 for the
+dense-eigendecomposition trust boundary (the T3 backward-error statement) and
+the rounding enclosures (T1, T2, T4, T5); T6 assembles the gap. The fallback
+ladder only decides which tool produces the algorithm leg.
+
 ### 5.4 The end-to-end workflow
 
 1. Kernel runs the even/odd solves; emits `Certificate` records.
@@ -380,8 +422,10 @@ arithmetic; the trusted core remains the directed-rounding interval layer.
 | T6 certified-gap theorem | **new** (assembles §3.2) |
 | Certificate emitter in the kernel | **new** (promote the test support to a library surface) |
 | nanoda re-verification of the exported proofs | implemented (S29/S31 pipeline) |
-| Rust-code formalization of the pure numeric core (Aeneas → Lean 4) | **new** (toolchain exists; the core is a few hundred lines in the supported subset) |
-| Why3-native alternative (Creusot → the running S36 cycle) | **new** (option; reuses Why3 1.8.2 + alt-ergo + `unfer_ocaml.drv` extraction) |
+| Rust-code formalization of the pure numeric core — **Aeneas first** (§5.3) | **new** — primary route; fallbacks: Verus → Creusot/Why3 → hand-written Lean 4 |
+| Fallback 1: Verus (most mature deductive verifier) | **new** (option; proofs live in Verus, not Lean 4) |
+| Fallback 2: Creusot → Why3 | **new** (option; reuses the pinned Why3 1.8.2 + alt-ergo + `unfer_ocaml.drv` extraction) |
+| Fallback 3: hand-written Lean 4 (the §5.2 baseline) | **new** (the floor; always available) |
 | Kani property checks on the f64 paths (overflow/panic/UB) | **new** (cheap; no proofs) |
 | Continuum gap-preserving passage | **open** (§6; out of scope per `CONSOLIDATED_PLAN.md`) |
 
@@ -436,11 +480,13 @@ assumptions at the infinite-precision limit.
    (nanoda), mirroring the S31 confluence pipeline.
 5. Separately scope the continuum leg (§6): gap-preserving norm-resolvent
    convergence of the lattice truncation family.
-6. Extract the pure numeric core (forward sequence, Gram assembly, whitening,
-   residual, certificate emitter) into the Aeneas-supported Rust subset;
-   generate the Lean 4 model; prove the projection identity and the residual
-   formula against it; export and re-verify with nanoda.
-7. (Alternative) Run Creusot on the same core; discharge the Why3 goals with
+6. **Try Aeneas first** on the pure numeric core (forward sequence, Gram
+   assembly, whitening, residual, certificate emitter): extract to the
+   Aeneas-supported Rust subset, generate the Lean 4 model, prove the
+   projection identity and the residual formula against it, export and
+   re-verify with nanoda. If the subset/toolchain blocks it, walk the
+   fallback ladder of §5.3 (Verus → Creusot/Why3 → hand-written Lean 4).
+7. (Fallback 2) Run Creusot on the same core; discharge the Why3 goals with
    the existing Why3/alt-ergo; extract via `unfer_ocaml.drv` into the
    australVM gate.
 8. Run Kani on the f64 paths for overflow/panic/UB property checks, as a
