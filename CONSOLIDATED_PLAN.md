@@ -517,6 +517,11 @@ densitized change of variables; §8 gate re-run green).**
 **Remaining research boundary: A1 (the QG continuum ESA with a general Faris–Lavine
 potential — equivalently the Strichartz finite-speed / hyperbolic direct-integral
 gluing), which is also the standing residue of the A5 continuum assembly.**
+*Update (2026-08-24, user clarification): for the physical QG potential of the
+`R²` action this is moot — in densitized variables the potential is bounded below
+and well-defined on the Hermite core, so no ESA for an unbounded-below-and-above
+potential is needed; the semibounded (Friedrichs) realization suffices and is done.
+A1 now concerns only the abstract general Faris–Lavine class.*
 
 **Status (2026-08-23b — A4 CLOSED: the two Faris–Lavine inequalities for the
 *differential* Navier–Stokes symbol; §8 gate re-run green).**
@@ -700,7 +705,16 @@ registered (flagged below):
   but not itself a quadratic.  The diagonal-quadratic, rotated, shifted, singular,
   mode-diagonal, fully coupled and infinitely-many-mode cases are all closed; the
   fibrewise / direct-integral step that would pass ESA to the general such `V` is
-  not, and the new `ChapterDirectSumEsa` gluing is orthogonal only.
+  not, and the new `ChapterDirectSumEsa` gluing is orthogonal only.  **Update
+  (2026-08-24, user clarification):** this open target is not needed for the
+  physical QG potential of the `R²` action.  In *densitized* variables that
+  potential is **bounded below** (conformal-mode parabola `≥ −M⁴/(16α)`, scalaron
+  `V(φ) ≥ 0`) and is **well-defined on the Hermite core** — for the inner
+  Fock-space's one-particle sector and for the one-particle state in the outer
+  Fock-space — so **no ESA for an unbounded-below-and-above potential** is
+  required; the semibounded (Friedrichs) realization that the physical case needs
+  is already done (`qgOneParticleSector_friedrichs`,
+  `ChapterQgHermiteFriedrichs`).
 * **A4 — CLOSED (2026-08-23b).**  The alternative Faris–Lavine-estimate route for
   the Navier–Stokes quadratic symbol as an actual differential operator is proved in
   `BookProof/ChapterNavierStokesDiffFarisLavine.lean`
@@ -821,6 +835,17 @@ analytic step — the **QG continuum ESA with an unbounded potential**:
   `H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` for positive definite `A`.  What is still open is the
   general Faris–Lavine potential (the joint eigenbasis used here exists only for the
   quadratic family), and that is the remaining open analytic research target.
+  **Update (2026-08-24, user clarification):** the open general Faris–Lavine
+  target is **not needed for the physical QG potential of the `R²` action**.  In
+  *densitized* variables that potential is **bounded below** (conformal-mode
+  parabola `≥ −M⁴/(16α)`, scalaron `V(φ) ≥ 0`) and is **well-defined on the
+  Hermite core** — for the inner Fock-space's one-particle sector and for the
+  one-particle state in the outer Fock-space — so **no ESA for an
+  unbounded-below-and-above potential** is required.  The semibounded (Friedrichs)
+  realization that the physical case needs is already done
+  (`qgOneParticleSector_friedrichs`, `ChapterQgHermiteFriedrichs`); A1 therefore
+  reduces to the *abstract* question of the general Faris–Lavine class, decoupled
+  from the QG potential itself.
 * **Stone's theorem applied to the continuum Laplacian (closed).** The concrete
   ESA step is `constCoeffOp_essentiallySelfAdjoint`
   (`BookProof/ChapterStrichartzWave.lean`), whose real quadratic symbol covers the
@@ -853,7 +878,15 @@ end of §9; each item points to the module / plan section where it is recorded):
    record).  The NS fibrewise / continuum ESA is done
    (`ChapterNavierStokesFockContinuum`), and the **diagonal-quadratic** case of the
    QG mixture is now done too (`ChapterHyperbolicQuadraticEsa`, 2026-08-21); what
-   remains is the general potential bounded above by a quadratic.
+   remains is the general potential bounded above by a quadratic.  **Update
+   (2026-08-24, user clarification):** for the physical QG potential of the `R²`
+   action this target is moot — in *densitized* variables that potential is
+   **bounded below** (the conformal-mode parabola is `≥ −M⁴/(16α)`) and is
+   **well-defined on the Hermite core** for the inner Fock-space's one-particle
+   sector and for the one-particle state in the outer Fock-space, so no ESA for an
+   *unbounded-below-and-above* potential is needed.  What the physical case needs
+   is only the semibounded (Friedrichs) realization, which is already done
+   (`qgOneParticleSector_friedrichs`, `ChapterQgHermiteFriedrichs`).
 3. **Prove the spectral theorem for unbounded self-adjoint operators** (research
    target) — the *existence* of the diagonalizing unitary.  `ChapterUnitaryTransport`
    and `ChapterSpectralMultiplication` carry the reduction *given* such a unitary;
