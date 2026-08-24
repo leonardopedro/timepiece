@@ -9,6 +9,34 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
 
+**Status (2026-08-24 — the Aristotle SIRK / QG Hermite / Friedrichs / Fermion-Fock
+wave merged into this repository; §8 gate NOT re-run here (not compiled, by
+instruction).**
+
+The parallel Aristotle lineage was merged in as commit `590d1e0` (2026-08-24):
+26 new `BookProof` modules (Fermion/Fock second quantization, the `ℤ₂`-graded
+Fock and its Hashimoto/SIRK selection, Krylov shift-span, the differential
+Faris–Lavine NS estimate, the QG Hermite core / Friedrichs / oscillator ESA, the
+scalaron densitized transfer, and the SIRK reliability chain) plus
+`Book/SirkReliability.lean`, with `Book.lean`, `BookProof.lean`,
+`CONSOLIDATED_PLAN.md`, `ARISTOTLE_SUMMARY.md`, `Issues.md` and six `Book/`
+chapters merged (both-lineages content combined).  **All merged `BookProof`
+modules are `sorry`-free and `axiom`-free** (verified in this repository: the only
+Lean `sorry`s are the 43 quarantined ones under `UsedRoute/`/`UnusedRoute/`); every
+new module is registered in `BookProof.lean` and the `Book/` `#check` citations
+resolve against the copied namespaces.
+
+* **§8 gate — NOT re-run in this repository.**  The merge was made **without
+  compiling** (per instruction, the build is left to the Lean 4 specialist).  The
+  claims in the 2026-08-24a…d blocks below ("gate re-run green") were verified in
+  the *producing* workspace, **not** in this repository snapshot.  The specialist
+  must `lake build`, `lake build RandomMap`, `lake build UsedRoute`,
+  `./patches/build-book.sh`, `./patches/check-katex.sh`, then re-run the
+  sorry/axiom and isolation audits, and confirm the four new Book chapters
+  (`Starobinsky`, `NavierStokesHashimoto`, `CarlemanFlux`, `SirkReliability`)
+  build and their `#check` citations resolve.  See item 1 of "Work available for
+  the Lean 4 specialist" below.
+
 **Status (2026-08-24d — §12 Gap 4c closed on its remaining, existence side: the Gram
 whitening the solver performs is an orthonormalization of the retained Krylov subspace,
 and one exists).**
@@ -806,11 +834,19 @@ the backlog below is the recorded research boundaries and editorial residue.  It
 is prioritized (the full, detailed write-up is the consolidated section at the
 end of §9; each item points to the module / plan section where it is recorded):
 
-1. **Re-run the §8 verification gate** — **DONE (2026-08-21)**: all targets build,
-   the book renders through `./patches/build-book.sh` with its asserts, KaTeX is
-   clean (2300 snippets, 0 failures), and the sorry/axiom and isolation audits
-   pass.  See item B1 at the end of §9 for the recorded results.  Re-run once per
-   release cycle.
+1. **Re-run the §8 verification gate for the merged Aristotle wave — OUTSTANDING in
+   this repository (highest priority).**  The gate was verified green in the
+   *producing* workspaces (last recorded 2026-08-21, and per-wave re-runs through
+   2026-08-24d in the source), and the historical all-targets record stands; but
+   the Aristotle SIRK / QG Hermite / Friedrichs / Fermion-Fock wave (26 new
+   `BookProof` modules + 4 new Book chapters) was merged into this repository
+   **without compiling**.  The specialist must, in order: `lake build`, `lake
+   build RandomMap`, `lake build UsedRoute`, `./patches/build-book.sh`,
+   `./patches/check-katex.sh` (book + KaTeX asserts), then the sorry/axiom audit
+   (expect only the 43 quarantined `UsedRoute/`/`UnusedRoute/` sorries) and the
+   isolation greps, and confirm the new modules build and the four new Book
+   chapters' `#check` citations resolve.  See item B1 at the end of §9 and the
+   leading 2026-08-24 merge status block.
 2. **Close the QG continuum ESA with an unbounded potential** (research target) —
    the hyperbolic fibrewise / direct-integral step for `□ + V` with `V` bounded
    above by a quadratic (§9.5, the Faris–Lavine class; the `-d²/dx² − x⁴` sign
@@ -3465,9 +3501,11 @@ and could not be run; the mode is restored.
 2026-08-18c; the 2026-08-20…20k waves (all the Navier–Stokes modules,
 `ChapterGaugeFixing`, the Stone-theorem and bridge/flows modules, and the
 `ChapterHermiteProductBasis` / `ChapterNavierStokesDifferentialL2` /
-`ChapterNavierStokesLagrangianCanonical` realization wave) were verified only in
-the producing workspace, **not** in this repository snapshot.  First actions, in
-order: `lake build`, `lake build RandomMap`, `lake build UsedRoute`,
+`ChapterNavierStokesLagrangianCanonical` realization wave) **and** the Aristotle
+2026-08-24 SIRK / QG Hermite / Friedrichs / Fermion-Fock wave (26 new modules +
+4 new Book chapters) were verified only in the producing workspace, **not** in
+this repository snapshot (the merge into this repo was made without compiling).
+First actions, in order: `lake build`, `lake build RandomMap`, `lake build UsedRoute`,
 `./patches/build-book.sh`, `./patches/check-katex.sh`, then the sorry/axiom audit
 (only the quarantined legacy RH route under `UsedRoute/`/`UnusedRoute/` may carry
 `sorry`s) and the isolation greps.  Record the results in the §8 gate note and in
