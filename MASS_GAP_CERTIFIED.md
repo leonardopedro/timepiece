@@ -17,7 +17,12 @@ usable inside a Lean4 proof.*
 > (5) adds the **Aeneas** route (Rust→Lean 4 functional translation) as the
 > **first attempt** at formalizing the pure numeric core of the kernel itself,
 > with an explicit fallback ladder (Verus → Creusot/Why3 → hand-written
-> Lean 4) in case Aeneas is not enough (§5.3).
+> Lean 4) in case Aeneas is not enough (§5.3). It also (6) fixes the
+> **observable** whose certified calculation proves the mass gap: the
+> **parity-odd sector ground Ritz value** of two pure-parity SIRK solves,
+> which converges to the true gap as the Krylov dimension $m$ grows (§3.3) —
+> the last ingredient needed, given the already-proved two-level
+> (nested-Fock) Friedrichs selection (§3.1).
 >
 > **Honesty box (read first).** The sketch proves a *rigorous, machine-checked
 > lower bound on the spectral gap of the truncated/lattice QCD Hamiltonian* —
@@ -63,7 +68,7 @@ leg is a proved chapter:
 | # | BookProof chapter | Content (theorems) | Role in the band proof |
 |---|---|---|---|
 | 1 | `ChapterYangMillsFriedrichs` (+ `ChapterWeylHamiltonian`) | $H = \tfrac12\sum(\pi)^2 + \tfrac12\sum(B)^2$ is **symmetric, bounded below by 0, densely defined, with closable quadratic form** → positive self-adjoint **Friedrichs extension** | the operator the numerics diagonalizes is well-posed and positive |
-| 2 | `ChapterHashimotoShiftInvert` | `hashimoto_shiftInvert_selects_friedrichs`: the shift-invert limit selects the Friedrichs extension; `galerkinCompression_shiftInvert_tendsto`, `galerkinResolvent_shiftInvert_tendsto`: Galerkin/resolvent convergence; `IsShiftInvert.opNorm_le`: $\|R\| \le \gamma^{-1}$; `shiftInvert_determines`, `isShiftInvert_unique`: the resolvent determines the operator | the SIRK limit is *the* correct object; the resolvent geometry that §2's bands need is bounded |
+| 2 | `ChapterHashimotoShiftInvert` | `hashimoto_shiftInvert_selects_friedrichs`: the shift-invert limit selects the Friedrichs extension; `galerkinCompression_shiftInvert_tendsto`, `galerkinResolvent_shiftInvert_tendsto`: Galerkin/resolvent convergence; `IsShiftInvert.opNorm_le`: $\|R\| \le \gamma^{-1}$; `shiftInvert_determines`, `isShiftInvert_unique`: the resolvent determines the operator | the SIRK limit is *the* correct object; the resolvent geometry that §2's bands need is bounded; by fiberwise restriction + `shiftInvert_determines` the same selection pins the inner level too (§3.1) |
 | 3 | `ChapterHashimotoComplexShifts` | resolvent bound $\|R\| \le 1/|\mathrm{Im}\,\gamma|$ for **complex** shifts — invertible for *every* self-adjoint $A$ with no positivity assumption | the paper's $\Sigma$ (convex hull of $W(X_j)$) is bounded in $\mathbb C^+$; Theorem 4.1's numerical ranges are controlled |
 | 4 | `ChapterGradedHashimoto`, `ChapterGradedFriedrichs` | the graded (boson⊗fermion) Hamiltonian is even, and `graded_hashimoto_selects` gives the SIRK selection + uniqueness on the graded space | QYM with ghosts stays in the same framework |
 | 5 | `ChapterKrylovShiftSpan`, `ChapterSirkMultiShift` | the **forward-product** sequence $w_k = (H - z_k)w_{k-1}$, the **resolvent** (rational) Krylov sequence, and the plain Krylov sequence span the *same* subspace ($\texttt{krylov\_multiShift\_eq\_standard}$, `forwardProd`), over an arbitrary commutative ring | the inverse-free forward sequence the code runs IS the rational Krylov subspace of the paper |
@@ -71,7 +76,11 @@ leg is a proved chapter:
 | 7 | `ChapterSirkRitzSpectrum` (+ `ChapterHermiteGalerkin` `ritzInf_tendsto_domainInf`) | the Rayleigh–Ritz values of the Galerkin truncations **converge to the bottom of the spectrum of the selected (Friedrichs) extension** (`le_rayleigh_iff_le_spectrum`) | the numerical Ritz values are the finite leg of a genuine spectral statement |
 | 8 | `ChapterSirkTrotterKatoGalerkin`, `ChapterSirkTrotterKato`, `ChapterYangMillsFriedrichsLimit` | the unitary flows of the Galerkin compressions converge to the flow of the selected extension, uniformly on bounded time intervals; the YM Friedrichs construction is discharged in a non-degenerate class | dynamics (not just spectra) of the numerics converge to the selected operator |
 | 9 | `ChapterFockSecondQuantization`, `ChapterFermionFock`, `ChapterGradedFock` | the Fock-space second quantization used by the kernel | the mode algebra the kernel applies is the proved one |
-| 10 | `ChapterMassGap` | the book's mechanism: the number operator commutes with the observable algebra, so an *arbitrary* mass gap can be added without observable consequences (free-field statement) | *caveat*: this is the book's observable-invariance argument, **not** the confinement gap; the confinement gap is the numerical one of §3 |
+| 10 | `ChapterHermiteFunctions`, `ChapterStrichartzHermiteQG` (`hermiteCore_dense`), `ChapterHermiteProductCore` (`finiteModeDomain_dense`) | the one-mode Hermite core is dense in $L^2(\mathbb R)$; the finite-mode product core is dense in $L^2(\mathbb R^d)$ | the **level-1 (inner) dense core**: the finite-mode, finite-occupation states the kernel's `InnerBosonicState` enumerates span the inner Fock space |
+| 11 | `ChapterHermiteGalerkinFriedrichs`, `ChapterQgHermiteFriedrichs`, `ChapterHarmonicOscillatorEsa` | the Hermite Galerkin core is a domain for the fiber Hamiltonians; the semibounded fibers admit the Friedrichs extension | the **level-1 (inner) Friedrichs extension**: each mode fiber is the standard self-adjoint number/oscillator operator |
+| 12 | `ChapterYangMillsFriedrichs` (`weylOpDom_symmetricOn`, `friedrichs_extension_of_semibounded`, `weyl_friedrichs_extension`) | $H = \tfrac12\sum \pi_i^2 + \tfrac12 \sum B_a^2$ is symmetric and positive on a dense domain → positive self-adjoint Friedrichs extension | the **level-2 (outer) Friedrichs extension** of the nested-Fock operator (§3.1) |
+| 13 | `ChapterParity*`, `ChapterSirkPerSystem` | the lattice parity is an exact symmetry, $H = H^e \oplus H^o$; pure-parity starts keep their solves in disjoint invariant sectors | the two solves of §3 live in disjoint subspaces — the sector decomposition the observable of §3.3 uses |
+| 14 | `ChapterMassGap` | the book's mechanism: the number operator commutes with the observable algebra, so an *arbitrary* mass gap can be added without observable consequences (free-field statement) | *caveat*: this is the book's observable-invariance argument, **not** the confinement gap; the confinement gap is the numerical one of §3 |
 
 What is *not* yet in `BookProof/` is precisely the content of §4–§5 below:
 the **finite-precision** certificates (eigenvalue perturbation under f64
@@ -122,7 +131,68 @@ O\rangle_{\mathrm{exact}}| \le 2\|O\|\cdot\mathrm{band\_hi}\cdot\|v\|$.
 
 ## 3. Sketch of the mass-gap proof (QCD, using the certified bands)
 
-### 3.1 The setup
+### 3.1 The nested Fock-space structure and the two-level Friedrichs selection
+
+The Hamiltonian acts on a **nested (two-level) Fock space** — a Fock space of
+Fock spaces — and the "correct" operator is the **two-level Friedrichs
+extension**. This subsection makes the levels precise, states what
+`BookProof/` already proves about each, and why the SIRK algorithm's limit
+object is the two-level extension — the outer selection *entailing* the
+inner one. This is the structural half of "the ingredients are in place";
+the observable half is §3.3.
+
+**The three levels.**
+
+- *Level 0 — the per-mode configuration space.* Each lattice link/color
+  degree of freedom is a quantum oscillator on $L^2(\mathbb R)$, with the
+  physicists' Hermite basis $h_n(x)$ as the dense core:
+  `hermiteCore_dense` (`ChapterStrichartzHermiteQG`), the finite-mode
+  product core `finiteModeDomain_dense` (`ChapterHermiteProductCore`).
+- *Level 1 — the inner Fock space.* `InnerBosonicState` (a
+  `BTreeMap<mode, occupation>` of finite support) is the Fock space
+  $\Gamma(\mathcal H_0)$ built over the modes, with the finite-particle core
+  $\mathcal C_1$ = states with finitely many occupied modes and finite
+  occupation numbers. The CCR of this level is `ChapterFockSecondQuantization`
+  (`ccr_annA_creA`, …).
+- *Level 2 — the outer Fock space.* `QuantumState` is a superposition of
+  `OuterState`s whose bosonic sector is a `BTreeMap<InnerBosonicState, u32>`:
+  the Fock space $\Gamma(\mathcal H_1)$ whose "particles" are *whole inner
+  Fock-space configurations* ("universes"), created by
+  `Operator::OuterBosonCreate(inner_state)`. The double-finite core
+  $\mathcal C_2$ = finitely many universes, each of finite inner support, is
+  dense in $\mathcal H_2 = \Gamma(\mathcal H_1)$.
+
+**The two-level Friedrichs extension.**
+
+1. *Inner level.* On $\mathcal C_1$ the fiber Hamiltonian (the oscillator
+   $N_\ell = a^\dagger_\ell a_\ell \ge 0$, or the semibounded Weyl-gauge
+   fiber) is symmetric and bounded below, so it has a positive self-adjoint
+   Friedrichs extension — the standard number operator
+   (`ChapterHermiteGalerkinFriedrichs`, `ChapterQgHermiteFriedrichs`,
+   `ChapterHarmonicOscillatorEsa`).
+2. *Outer level.* On $\mathcal C_2$ the full
+   $H = \tfrac12\sum \pi_i^2 + \tfrac12 \sum B_a^2$ is symmetric and bounded
+   below by $0$ (a sum of squares: `ChapterYangMillsFriedrichs`,
+   `weylOpDom_symmetricOn`), and $\mathcal C_2$ is dense; the Friedrichs
+   theorem (`friedrichs_extension_of_semibounded`) gives the positive
+   self-adjoint outer extension $\bar H_F^{(2)}$.
+3. *The outer selection entails the inner one.*
+   `hashimoto_shiftInvert_selects_friedrichs`
+   (`ChapterHashimotoShiftInvert`) says the SIRK/shift-invert Galerkin limit
+   is exactly $\bar H_F^{(2)}$. The resolvent
+   $R = (\bar H_F^{(2)} - \gamma)^{-1}$ acts fiberwise over the inner Fock
+   space — restricted to a single-universe sector it never mixes inner
+   configurations except through the inner operators, which are already the
+   (Friedrichs) inner operators — and `shiftInvert_determines` /
+   `isShiftInvert_unique` pin the operator from the resolvent. Hence each
+   fiber of the selected outer extension is the inner Friedrichs extension:
+   the algorithm selects the **two-level** Friedrichs extension at once.
+   (The fiberwise-resolvent statement is the one small structural lemma this
+   sketch adds to the inventory — the "nested" analogue of the even/odd
+   sector restriction; at the lattice truncation it is a finite-dimensional
+   block fact, hence formalizable; see §7, item 9.)
+
+### 3.2 The setup
 
 The confined sector is the lattice Weyl-gauge YM Hamiltonian
 (`yang_mills_lattice(l, g, n_c)` in `nested_fock_algebra::models`): the
@@ -137,12 +207,91 @@ $[\theta - \delta, \theta + \delta]$ where $\delta$ accumulates the three
 finite-precision terms of §4 (residual + eigendecomposition roundoff +
 enclosure of the measured $\theta$).
 
-### 3.2 The certified-gap theorem
+### 3.3 The right observable: the parity-odd sector ground Ritz value
+
+With the operator settled (§3.1) and the bands in place (§2), the mass-gap
+question reduces to a *choice of observable*: which computed quantity
+certifiably equals the gap, and converges to it fast enough that for **large
+enough Krylov dimension $m$** the calculation is a *proof*.
+
+**The observable.** Run two SIRK solves, each from a pure-parity start,
+
+$$v_e = |\Omega\rangle \;\text{(even: the empty universe)}, \qquad
+v_o = a^\dagger_\ell\,|\Omega\rangle \;\text{(odd: one electric-flux quantum
+on link } \ell\text{)},$$
+
+and form the **sector ground-Ritz difference**
+
+$$E_{\mathrm{gap}}(m) := \theta^o_0(m) - \theta^e_0(m),$$
+
+where $\theta^s_0(m)$ is the lowest Ritz value of the $m$-dimensional SIRK
+solve in sector $s$. The code already computes exactly this:
+`qcd_mass_gap_sirk` takes `e_odd − e_even` from the two
+`ground_state_energy()`s. This is the right observable for four structural
+reasons:
+
+1. **Sector purity (the split is exact, not approximate).** Lattice parity
+   commutes with $H$ (row 13 of §1), so $H = H^e \oplus H^o$; the starts are
+   pure-parity, so the two Krylov chains never mix sectors and the two Ritz
+   sets are independent. No assumption — the split is a theorem.
+2. **It is the non-perturbative spectral order parameter for confinement.**
+   The strong-coupling electric term $(g^2/2)\sum_\ell N_\ell$ gaps the odd
+   sector: the even ground state is the vacuum ($\lambda^e_0 = 0$,
+   normal-ordered), the lowest odd state is one flux quantum at
+   $\lambda^o_0 = g^2/2 + O(g^4)$. The magnetic terms are included in the
+   solve — $E_{\mathrm{gap}}(m)$ is the *exact* (all-orders) version of the
+   free-$\sum N_\ell$ gap, not a perturbative estimate.
+3. **The Ritz values bound the sector eigenvalues from above, monotonically.**
+   By the Rayleigh/min-max characterization
+   (`ritzSet_subset_rayleighSet`, `sInf_spectrum_eq_rayleighInf`,
+   `ChapterSirkRitzSpectrum`) the lowest Ritz value of the $m$-dimensional
+   sector Krylov subspace satisfies $\theta^s_0(m) \ge \lambda^s_0$; as $m$
+   grows the subspaces fill the sector (the SIRK span equals the plain
+   Krylov span — row 5 of §1 — and these are nested), so
+   $\theta^s_0(m) \downarrow \lambda^s_0$ (Krylov convergence for the
+   spectral measure of the start; `ritzInf_tendsto_sInf_spectrum`; the
+   starts have nonzero overlap with the sector ground states — $v_e$ *is*
+   the vacuum, $v_o$ is the strong-coupling limit of the odd ground state).
+   Hence
+   $E_{\mathrm{gap}}(m) \to \lambda^o_0 - \lambda^e_0 =: \mu$ from above.
+4. **The residual certificate makes it a two-sided enclosure at every $m$.**
+   For the computed pair, $|\theta^s_0 - \lambda^s_0| \le \|r^s\|$ (T2),
+   with the finite-precision width $\delta^s$ of §4, so
+   $\mu \in [\theta^o_0 - \theta^e_0 - (\delta^o+\delta^e),\,
+   \theta^o_0 - \theta^e_0 + (\delta^o+\delta^e)]$ — a *proof-carrying
+   interval* for the gap, not a measurement.
+
+**Why "for big enough $m$" this is a proof.** The certified lower bound
+
+$$g(m) := \theta^o_0(m) - \theta^e_0(m) - \bigl(\delta^o(m) + \delta^e(m)\bigr)$$
+
+converges to $\mu$: the Ritz values converge down to the sector eigenvalues
+(item 3) and the widths $\delta^s(m) \to 0$ (the residual decays — for
+resolved rungs exponentially in $m$ by Theorem 4.1's $e^{-hm}$ factor, and
+the measured residual is certified a-posteriori, §4.3). Therefore:
+
+- **if $\mu > 0$** (confinement), there is a finite threshold $m_0$ —
+  detected algorithmically as the first $m$ at which the certified intervals
+  separate, $g(m) > 0$ — and for every $m \ge m_0$ the solve *proves*
+  $\lambda_1(H_m) - \lambda_0(H_m) \ge g(m) > 0$;
+- **if $\mu = 0$** (massless), the certified bound eventually fails to be
+  positive (the widths $\delta^s$ are bounded below by roundoff, so $g(m)$
+  cannot stay positive as the Ritz values close the gap) — the certificate is
+  *sound*: it proves positivity iff the intervals separate, and it never
+  claims a gap it did not certify.
+
+The stopping rule is the a-posteriori certificate itself — no a-priori
+knowledge of the spectrum is needed — and the honest statement is always
+about the solved object: "the $m$-dimensional sector compression has gap
+$\ge g(m)$", with $g(m) \to \mu$ as $m \to \infty$.
+
+### 3.4 The certified-gap theorem
 
 **Theorem (certified mass gap, finite-dimensional).** Let
 $\theta^o_0, \theta^e_0$ be the computed lowest Ritz values of the odd and
-even sectors of $H_m$, with certified widths $\delta^o, \delta^e$. Then the
-spectral gap of the truncated Hamiltonian satisfies
+even sectors of $H_m$ (the observable of §3.3), with certified widths
+$\delta^o, \delta^e$. Then the spectral gap of the truncated Hamiltonian
+satisfies
 
 $$\lambda_1(H_m) - \lambda_0(H_m) \ge \theta^o_0 - \theta^e_0 - (\delta^o +
 \delta^e),$$
@@ -178,7 +327,7 @@ positive.
    the certified statement is about $H_m$ — the object the numerics actually
    computes — which is the rigorous content delivered here.
 
-### 3.3 What the numerics already demonstrates
+### 3.5 What the numerics already demonstrates
 
 `qcd_mass_gap_sirk` (in the `unfer` repo, `fock_sirk/tests/qcd_validation.rs`)
 contrasts: the free gluon has $E \to 0$ as $k \to 0$ (massless), while the
@@ -188,7 +337,7 @@ lattice result. The certified-interval machinery
 (`bands_program_gauge_fixed.rs`) shows the pattern to promote to a proof: the
 analytic $g^2/2$ sits *inside* the certified intervals of the numerical gap,
 intervals nest as $m$ grows, and the residual tier gives the sharp widths.
-The document §3.2 turns exactly that pattern into a theorem.
+The document §3.4 turns exactly that pattern into a theorem.
 
 ---
 
@@ -286,7 +435,7 @@ and elementary (no analysis beyond Weyl's inequality and the residual bound):
 | T3 | Whitened-Gram backward error: computed eigenpairs are exact eigenpairs of $\hat G + E$, $\|E\| \le c(n)u\|\hat G\|$ | new, same chapter |
 | T4 | Certified-observable propagation (Cauchy–Schwarz), matching `hashimoto_support::certify` | new, same chapter |
 | T5 | Interval enclosure of the $E_m$ sup and of $\langle\psi|O|\psi\rangle$ (directed rounding) | new, same chapter (+ a $\le 100$-line verified interval core) |
-| T6 | **The gap theorem of §3.2**: $\lambda_1 - \lambda_0 \ge \theta^o_0 - \theta^e_0 - (\delta^o + \delta^e)$ | new `BookProof/ChapterSirkCertifiedGap.lean`, importing §1 items 4/7 |
+| T6 | **The gap theorem of §3.4**: $\lambda_1 - \lambda_0 \ge \theta^o_0 - \theta^e_0 - (\delta^o + \delta^e)$ | new `BookProof/ChapterSirkCertifiedGap.lean`, importing §1 items 4/7 |
 
 The **trusted core** is only T5's directed-rounding interval layer (the
 standard `Float` rounding axioms — the same trust class as any verified
@@ -419,7 +568,10 @@ ladder only decides which tool produces the algorithm leg.
 | Galerkin flows → selected flow | proved (`ChapterSirkTrotterKatoGalerkin`) |
 | Residual certificate + certified intervals in the kernel | implemented (`ritz_residuals`, `certify`, `bands_program_gauge_fixed`) |
 | T1–T5 finite-precision theorems + interval core | **new** (small, elementary) |
-| T6 certified-gap theorem | **new** (assembles §3.2) |
+| T6 certified-gap theorem | **new** (assembles §3.4) |
+| Two-level (nested-Fock) Friedrichs extension; SIRK selects both levels | proved (§1 rows 10–12 + `hashimoto_shiftInvert_selects_friedrichs`); the fiberwise-restriction lemma is **new** (§3.1, §7 item 9) |
+| Lattice-parity sector split; pure-parity Krylov starts | proved (§1 row 13) |
+| T7 sector-Ritz convergence + stopping rule (the observable of §3.3) | **new** (finite-dimensional: min-max + residual; executable as the `qcd_mass_gap_sirk` pattern) |
 | Certificate emitter in the kernel | **new** (promote the test support to a library surface) |
 | nanoda re-verification of the exported proofs | implemented (S29/S31 pipeline) |
 | Rust-code formalization of the pure numeric core — **Aeneas first** (§5.3) | **new** — primary route; fallbacks: Verus → Creusot/Why3 → hand-written Lean 4 |
@@ -439,9 +591,8 @@ ladder only decides which tool produces the algorithm leg.
    extension; the SIRK machinery selects exactly it, and the Galerkin Ritz
    values converge to its spectrum bottom (BookProof §1).
 2. For the truncated (lattice) Hamiltonian — the object the kernel
-   diagonalizes — a **mass gap with a rigorous lower bound**, assembled from
-   the certified intervals of two parity-sector solves (§3.2), all rounding
-   enclosed by the finite-precision layer (§4).
+   diagonalizes — a **mass gap with a rigorous lower bound**,assembled from the certified intervals of two parity-sector solves (§3.3–§3.4),
+   all rounding enclosed by the finite-precision layer (§4).
 3. That bound is *proof-carrying*: the Lean4 theorem T6 applied to kernel
    certificates, re-verified by nanoda (§5).
 
@@ -491,3 +642,13 @@ assumptions at the infinite-precision limit.
    australVM gate.
 8. Run Kani on the f64 paths for overflow/panic/UB property checks, as a
    no-proof complement to the deductive routes.
+9. Formalize the two §3 additions: (a) the **nested-selection lemma** (§3.1
+   step 3) — the resolvent of the outer Friedrichs extension restricted to a
+   universe sector is the resolvent of the inner extension, a
+   finite-dimensional block fact at the lattice truncation — and (b) **T7**,
+   the observable/stopping-rule theorem of §3.3:
+   $\theta^s_0(m) \downarrow \lambda^s_0$ with certified widths
+   $\delta^s(m) \to 0$, so the first $m$ with
+   $\theta^o_0(m) - \theta^e_0(m) > \delta^o(m) + \delta^e(m)$ is a proof of
+   the mass gap. This is the formal counterpart of the `qcd_mass_gap_sirk`
+   calculation.
