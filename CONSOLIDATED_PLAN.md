@@ -896,7 +896,13 @@ end of §9; each item points to the module / plan section where it is recorded):
    *original* — non-R² — QG action had a genuine sign defect: its conformal-mode
    potential is bounded below but with the *wrong* sign, so it is provably **not**
    ESA; the `R²` term removes that defect, and the `R²` theory is the object of
-   record.)
+   record.)  **Scope (2026-08-24, user clarification):** the QG target proper is
+   **ESA, or a canonical self-adjoint extension in some sense, of the FULL 3D
+   gauge-fixed Hamiltonian** — kinetic **+** potential **+** ghosts **+**
+   gauge-fixing, in densitized variables if needed — not a self-adjoint extension
+   of the potential alone.  The bounded-below / Friedrichs results above are
+   scaffolding; the combined operator (incl. the ghost/BRST sector) is what must
+   be shown self-adjoint (§10.5 step 3, §10.6).
 3. **Prove the spectral theorem for unbounded self-adjoint operators** (research
    target) — the *existence* of the diagonalizing unitary.  `ChapterUnitaryTransport`
    and `ChapterSpectralMultiplication` carry the reduction *given* such a unitary;
@@ -3874,6 +3880,21 @@ pure GR lacks.  The cdb derives, with every check resolving identically:
   with the reduced physical form `H_final = ½π² + ½(∂φ)² + V(φ)` on the scalar
   sector.
 
+**Scope (2026-08-24, user clarification) — what the QG target actually is.**
+The object of record is **ESA, or a canonical self-adjoint extension in some
+sense, of the FULL 3D gauge-fixed Hamiltonian** — kinetic **+** potential **+**
+ghosts **+** gauge-fixing — eventually in densitized variables if needed.  A
+self-adjoint extension of the *potential by itself* is **not** the relevant
+target.  In particular the potential-only statements that exist today
+(`qgScalaronFock_esa`, the scalaron `−Δ + V(φ)` one-variable sub-target, the
+bounded-below potential results) are scaffolding, not the goal: they establish
+that the potential is well-behaved, but the theorem that matters is the one on
+the combined operator (kinetic + potential + ghosts + gauge-fixing) as a whole.
+The plan items below are read in that light: step 3 ("ESA of the full
+Hamiltonian") is the core target, and the ghost / BRST / gauge-fixing sector
+(§10.6.2 items, Part F) must enter the combined statement, not be left to a
+separate potential-only result.
+
 **Plan item — the formalization (for the Lean 4 specialist):**
 
 1. **The potential bounds (the “correct bound” for ESA).**  Formalize the two
@@ -3950,6 +3971,12 @@ for this `V`, or the Sears argument as the named alternative; the flow isthe sca
 (Gauss–polynomial) core, and the remaining QG gaps
 
 #### 10.6.1 The missing statement (the focus of this subsection)
+
+**Scope reminder (2026-08-24, user clarification):** the target is the **full**
+gauge-fixed Hamiltonian — kinetic + potential + ghosts + gauge-fixing — as a
+single self-adjoint object (ESA or a canonical extension), not a self-adjoint
+extension of the potential alone.  The potential-only statements cited below are
+the scaffolding toward that combined target, never the goal themselves.
 
 **The one-particle continuum ESA of the full gauge-fixed `R + αR²` Hamiltonian
 on the dense Hermite (Gauss–polynomial) core is not proved.**  What exists is
