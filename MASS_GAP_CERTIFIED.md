@@ -10,15 +10,20 @@ usable inside a Lean4 proof.*
 > sketches a proof of a **mass gap in QCD** that uses the *numerically
 > certified* bands produced by the `fock_sirk` kernel, (3) generalizes the
 > bands — which in `Hashimoto.md` are stated in **infinite numerical
-> precision** — to **finite precision**, and (4) proposes how to certify the
+> precision** — to **finite precision**, (4) proposes how to certify the
 > *code implementation* (the probability kernel: `fock_sirk::forward_sirk` and
 > `prob_kernel::Session`) with respect to those proofs, including the Lean4
-> parts, through the existing nanoda export/verification cycle (S29/S31).
+> parts, through the existing nanoda export/verification cycle (S29/S31), and
+> (5) adds the **Aeneas** route (Rust→Lean 4 functional translation) that
+> formalizes the pure numeric core of the kernel itself, with Creusot→Why3 as
+> the project-native alternative (§5.3).
 >
 > **Honesty box (read first).** The sketch proves a *rigorous, machine-checked
 > lower bound on the spectral gap of the truncated/lattice QCD Hamiltonian* —
 > the object the numerics actually diagonalizes — with all constants explicit
-> and all rounding enclosed. It does **not** claim the continuum Millennium
+> and all rounding enclosed. The Aeneas route (§5.3) verifies the algorithm's
+> pure core; the f64 rounding is enclosed by the finite-precision layer
+> (§4), never trusted. It does **not** claim the continuum Millennium
 > mass gap: the missing leg (norm-resolvent convergence of the specific
 > lattice truncation to the continuum operator *preserving the gap*, or an
 > a-priori continuum lower bound) is identified explicitly in §6, consistent
@@ -288,7 +293,66 @@ floating-point library); everything else is a-posteriori certificates, so the
 trust surface stays minimal. The kernel's f64 values are never trusted: the
 proof consumes only `Certificate` enclosures and residuals.
 
-### 5.3 The end-to-end workflow
+### 5.3 Formalizing the Rust code itself: Aeneas (Rust → Lean 4), and the Why3-native alternative
+
+The certificate architecture of §5.2 keeps the f64 code untrusted and proves
+*around* it. The stronger route — formalizing the code itself — is available
+through **Aeneas** (Ho–Protzenko–Fromherz, ICFP 2022; the Rust→Lean 4
+functional-translation toolchain used for Microsoft's SymCrypt): it translates
+the actual Rust implementation into a pure functional Lean 4 model, so
+functional-correctness theorems are proved about the code *as written*, not
+about a paraphrase.
+
+**What Aeneas verifies here** (the pure numeric core of the probability
+kernel):
+
+- the forward sequence $w_k = (H - z_k I)w_{k-1}$ as a fold over the operator
+  terms, and the **projection identity** $H_{jk} = G_{j,k+1} + z_k G_{j,k}$
+  as a theorem about the generated model (the algebraic half is
+  `BookProof/ChapterSirkMultiShift`; Aeneas supplies the code half);
+- the Gram assembly $G_{ij} = \langle w_i, w_j\rangle$ (inner-product
+  accumulation over `Vec<f64>`);
+- the whitening transform $T$ with $T^*\hat G\,T = I$ (the existence half is
+  `ChapterSirkGramWhitening`; Aeneas proves the code computes it);
+- the residual certificate: the computed $\|r\| = |\tau_m c_{m-1}|$ — the
+  one-out-of-basis-component statement of `ForwardSirkResult::ritz_residuals`
+  — as a functional-correctness theorem;
+- the certificate emitter arithmetic (value, residual, lo, hi) of §5.2.
+
+**Constraints (honest).** Aeneas targets the functional subset of Rust — no
+interior mutability, no `unsafe`, no raw pointers, and external dense-algebra
+crates like `nalgebra` do not translate. The Aeneas target is therefore the
+**pure numeric core re-implemented in the supported subset** (the standard
+"verification core" pattern — the same pattern SymCrypt uses), kept in sync
+with the production path by the existing suites; the dense eigendecomposition
+remains a trusted LAPACK-style call whose backward error is exactly the T3
+bound. The f64 values are still never trusted: Aeneas proves the *algorithm*;
+the *rounding* is enclosed by T1–T5, exactly as before.
+
+**Why this fits the project.** The Aeneas-generated Lean 4 code lives in the
+same `BookProof/` tree, and the exported proofs go through the existing nanoda
+re-verification (`prob_kernel::verify::verify_export`, S29/S31) — the code's
+correctness theorems get the same independent-checker treatment as the
+confluence proof.
+
+**Project-native alternative: Creusot → the running Why3 cycle.** Creusot
+translates Rust to **Why3**, plugging directly into the already-running S36
+cycle (`prob_kernel::whyml`: Why3 1.8.2 + alt-ergo 2.6.3, verified extraction
+to OCaml via `unfer_ocaml.drv`, the australVM gate). The Why3 goals for the
+same pure core can be discharged by the existing provers, and the extraction
+driver already maps Why3 `int` to OCaml `int`. Aeneas (Lean 4 — connects to
+`BookProof` + nanoda) and Creusot (Why3 — connects to the existing S36
+pipeline) are complementary; a cheap third complement is **Kani** (AWS model
+checker) for bounded property checks (overflow/panic/UB) on the actual f64
+paths, which need no proofs.
+
+**Division of labor (final).** Aeneas/Creusot prove the *code* (algorithm-level
+functional correctness); T1–T5 prove the *rounding* (enclosures); BookProof
+proves the *operator theory* (selection, convergence, positivity); nanoda
+re-checks the exports; T6 assembles the gap. No component trusts the f64
+arithmetic; the trusted core remains the directed-rounding interval layer.
+
+### 5.4 The end-to-end workflow
 
 1. Kernel runs the even/odd solves; emits `Certificate` records.
 2. A small emitter serializes the certificates as the data for T6's
@@ -302,7 +366,7 @@ proof consumes only `Certificate` enclosures and residuals.
    statement to the selected Friedrichs extension; the open continuum leg is
    §6.
 
-### 5.4 Gap analysis (what exists / what is new)
+### 5.5 Gap analysis (what exists / what is new)
 
 | Item | Status |
 |---|---|
@@ -316,6 +380,9 @@ proof consumes only `Certificate` enclosures and residuals.
 | T6 certified-gap theorem | **new** (assembles §3.2) |
 | Certificate emitter in the kernel | **new** (promote the test support to a library surface) |
 | nanoda re-verification of the exported proofs | implemented (S29/S31 pipeline) |
+| Rust-code formalization of the pure numeric core (Aeneas → Lean 4) | **new** (toolchain exists; the core is a few hundred lines in the supported subset) |
+| Why3-native alternative (Creusot → the running S36 cycle) | **new** (option; reuses Why3 1.8.2 + alt-ergo + `unfer_ocaml.drv` extraction) |
+| Kani property checks on the f64 paths (overflow/panic/UB) | **new** (cheap; no proofs) |
 | Continuum gap-preserving passage | **open** (§6; out of scope per `CONSOLIDATED_PLAN.md`) |
 
 ---
@@ -369,3 +436,12 @@ assumptions at the infinite-precision limit.
    (nanoda), mirroring the S31 confluence pipeline.
 5. Separately scope the continuum leg (§6): gap-preserving norm-resolvent
    convergence of the lattice truncation family.
+6. Extract the pure numeric core (forward sequence, Gram assembly, whitening,
+   residual, certificate emitter) into the Aeneas-supported Rust subset;
+   generate the Lean 4 model; prove the projection identity and the residual
+   formula against it; export and re-verify with nanoda.
+7. (Alternative) Run Creusot on the same core; discharge the Why3 goals with
+   the existing Why3/alt-ergo; extract via `unfer_ocaml.drv` into the
+   australVM gate.
+8. Run Kani on the f64 paths for overflow/panic/UB property checks, as a
+   no-proof complement to the deductive routes.
