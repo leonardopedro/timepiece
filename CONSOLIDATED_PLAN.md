@@ -521,7 +521,9 @@ gluing), which is also the standing residue of the A5 continuum assembly.**
 `R²` action this is moot — in densitized variables the potential is bounded below
 and well-defined on the Hermite core, so no ESA for an unbounded-below-and-above
 potential is needed; the semibounded (Friedrichs) realization suffices and is done.
-A1 now concerns only the abstract general Faris–Lavine class.*
+The *original* — non-R² — action had the sign defect (bounded below but wrong
+sign, provably not ESA) that the `R²` term removes.  A1 now concerns only the
+abstract general Faris–Lavine class.*
 
 **Status (2026-08-23b — A4 CLOSED: the two Faris–Lavine inequalities for the
 *differential* Navier–Stokes symbol; §8 gate re-run green).**
@@ -714,7 +716,11 @@ registered (flagged below):
   Fock-space — so **no ESA for an unbounded-below-and-above potential** is
   required; the semibounded (Friedrichs) realization that the physical case needs
   is already done (`qgOneParticleSector_friedrichs`,
-  `ChapterQgHermiteFriedrichs`).
+  `ChapterQgHermiteFriedrichs`).  (By contrast, the *original* — non-R² — QG
+  action had a genuine defect: its conformal-mode potential is bounded below but
+  with the *wrong* sign, so ESA fails and is in fact provably **not** ESA; that is
+  precisely the defect the `R²` term removes.  The `R²` theory is the object of
+  record.)
 * **A4 — CLOSED (2026-08-23b).**  The alternative Faris–Lavine-estimate route for
   the Navier–Stokes quadratic symbol as an actual differential operator is proved in
   `BookProof/ChapterNavierStokesDiffFarisLavine.lean`
@@ -886,7 +892,11 @@ end of §9; each item points to the module / plan section where it is recorded):
    sector and for the one-particle state in the outer Fock-space, so no ESA for an
    *unbounded-below-and-above* potential is needed.  What the physical case needs
    is only the semibounded (Friedrichs) realization, which is already done
-   (`qgOneParticleSector_friedrichs`, `ChapterQgHermiteFriedrichs`).
+   (`qgOneParticleSector_friedrichs`, `ChapterQgHermiteFriedrichs`).  (The
+   *original* — non-R² — QG action had a genuine sign defect: its conformal-mode
+   potential is bounded below but with the *wrong* sign, so it is provably **not**
+   ESA; the `R²` term removes that defect, and the `R²` theory is the object of
+   record.)
 3. **Prove the spectral theorem for unbounded self-adjoint operators** (research
    target) — the *existence* of the diagonalizing unitary.  `ChapterUnitaryTransport`
    and `ChapterSpectralMultiplication` carry the reduction *given* such a unitary;
@@ -3844,6 +3854,19 @@ pure GR lacks.  The cdb derives, with every check resolving identically:
   `V3(R_c) = −(M²/2)R_c + αR_c² = α(R_c − M²/(4α))² − M⁴/(16α) ≥ −M⁴/(16α)`
   (the linear `−(M²/2)R_c` term — whose negative conformal-mode gradient energy
   made pure GR unbounded below — is regularized by the positive `αR_c²`);
+* **why the R² action is the one to use (the original action's sign defect).**
+  For the *original* QG action — not involving R² — the conformal-mode potential
+  is **bounded below but with the wrong sign**: with the project's convention
+  `□ = −∂_t² + Δ_x`, a potential bounded *below* makes the time-Fourier fibre
+  `−Δ_x − W` unbounded below, so **essential self-adjointness genuinely fails**
+  (for `W = x⁴` the limit-circle operator `−d²/dx² − x⁴`, deficiency indices
+  `(2,2)` — provably *not* ESA; see `STRICHARTZ_WAVE_ESA.md` and the §9 item
+  sign-correction note).  The **R + αR² action removes this defect**: the
+  completed-square `V3(R_c) ≥ −M⁴/(16α)` is bounded below with the *correct* sign
+  and is well-defined on the Hermite core, so the semibounded (Friedrichs)
+  realization — and not a failed ESA — is the right statement for the physical
+  QG potential.  This is why the R² theory, not the original action, is the
+  object of record.
 * the **3D gauge-fixed Hamiltonian** (synchronous gauge, NS-style fixing of the
   spatial derivative variables, Legendre transform, Hamiltonian constraint
   solved):
