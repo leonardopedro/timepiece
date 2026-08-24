@@ -25,7 +25,7 @@ the operator the Krylov iteration is actually computing.
 :::paragraph
 For the Navier–Stokes fiber generator the selection was proved in the abstract
 sequence-space realization: the Hermite matrix `velCore` on $`\\ell^2(Vel)` with
-$`Vel = \\operatorname{Fin} 3 \\to \\mathbb N`$. The differential realization —
+$`Vel = \\operatorname{Fin} 3 \\to \\mathbb N`$. The *differential* realization —
 the same Hamiltonian written with $`\\pi_i = -i\\,\\partial/\\partial u_i` and $`u_i`
 a genuine multiplication operator on the Gauss–polynomial (product Hermite) core
 of $`L^2(du_1 du_2 du_3)` — was known to be essentially self-adjoint but carried

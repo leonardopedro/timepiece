@@ -448,6 +448,94 @@ $`H_1 = \tfrac12\sum \pi^2 + \tfrac12\sum B^2`:
 ```
 
 :::paragraph
+The manuscript's Hilbert space is not the symmetric Fock space alone but the
+*graded* tensor product $`\Gamma^s \otimes \Gamma^a` of a symmetric (bosonic)
+and an antisymmetric (fermionic, ghost) factor, on which the creation and
+annihilation operators form a graded Lie superalgebra. The antisymmetric factor
+is built in `BookProof.FermionFock`: a fermionic configuration *is* its finite
+set of occupied modes (so the Pauli principle is part of the type), the
+Jordan–Wigner sign $`(-1)^{\#\{i \in S : i < j\}}` gives the creation and
+annihilation operators, and they satisfy all four canonical *anti*commutation
+relations, are formal adjoints of each other, and second quantize exactly as in
+the bosonic case — with the same Friedrichs extension and Hashimoto/SIRK
+selection theorems. The abstract ghost relations `GhostCAR` assumed by the BRST
+chapter are realized by these operators, so the nilpotency $`Q^2 = 0` holds for
+a concrete operator algebra:
+:::
+
+```
+#check @BookProof.FermionFock.car_annF_creF_self
+#check @BookProof.FermionFock.creF_creF_self
+#check @BookProof.FermionFock.car_annF_annF
+#check @BookProof.FermionFock.car_annF_creF_of_ne
+#check @BookProof.FermionFock.inner_creF_left
+#check @BookProof.FermionFock.dGammaF_one_particle
+#check @BookProof.FermionFock.dGammaF_friedrichs_extension
+#check @BookProof.FermionFock.secondQuantizationF_friedrichs
+#check @BookProof.FermionFock.dGammaF_hashimoto_selects
+#check @BookProof.FermionFock.parityF_involutive
+#check @BookProof.FermionFock.ghostCAR_creF_annF
+#check @BookProof.FermionFock.brst_charge_nilpotent_fermiFock
+```
+
+:::paragraph
+Putting the two factors together, `BookProof.GradedFock` realizes the graded
+Fock space as $`\ell^2` over the pairs (bosonic configuration, fermionic
+occupied set), lifts the operators of either factor to it — operators on
+different factors commute — and proves the manuscript's *single unified graded
+relation*: with the Koszul sign $`\varepsilon(p,q) = (-1)^{pq}` of the
+super-bracket, $`⟦a(p,j), a^\dagger(q,k)⟧ = \delta_{pq}\delta_{jk}`, which is
+the bosonic *commutator* CCR when both operators are even, the fermionic
+*anticommutator* CAR when both are odd, and $`0` across the two sectors. The
+fermion-number parity $`(-1)^{N_f}` is the $`\mathbb{Z}_2` grading operator: an
+involution that commutes with the bosonic operators, anticommutes with the
+fermionic ones, and splits the graded Fock space into its even and odd parts:
+:::
+
+```
+#check @BookProof.GradedFock.liftFst_liftSnd_comm
+#check @BookProof.GradedFock.super_canonical
+#check @BookProof.GradedFock.super_canonical_cre
+#check @BookProof.GradedFock.super_canonical_ann
+#check @BookProof.GradedFock.gradeOp_involutive
+#check @BookProof.GradedFock.gradeOp_bcre
+#check @BookProof.GradedFock.gradeOp_fcre
+#check @BookProof.GradedFock.even_add_odd
+#check @BookProof.GradedFock.gradeOp_evenPart
+#check @BookProof.GradedFock.gradeOp_oddPart
+```
+
+:::paragraph
+The analytic half of that construction lives on the graded space itself, not
+factorwise. `BookProof.GradedFriedrichs` shows that the total graded Hamiltonian
+$`d\Gamma^s(A) \otimes 1 + 1 \otimes d\Gamma^a(B)` is densely defined, symmetric
+and positive on $`\ell^2(\mathrm{Conf} \times \mathrm{FConf})` and therefore has
+a positive self-adjoint (Friedrichs) extension, and
+`BookProof.GradedHashimoto` adds the two structural facts the two factors
+already had: the Hamiltonian is an *even* operator — it commutes with the
+$`\mathbb{Z}_2` grading $`(-1)^{N_f}` and so preserves the even and the odd
+subspace — and the Hashimoto/SIRK shift-invert limit selects exactly its
+Friedrichs extension, with the Galerkin truncations converging strongly and in
+the resolvent sense. The total number operator $`N_b \otimes 1 + 1 \otimes N_f`
+is a concrete instance, so neither statement is vacuous.
+:::
+
+```
+#check @BookProof.GradedFriedrichs.gradedHamiltonian_friedrichs_extension
+#check @BookProof.GradedFriedrichs.gradedSecondQuantization_friedrichs
+#check @BookProof.GradedFriedrichs.gradedNumber_one_particle
+#check @BookProof.GradedHashimoto.gradedHamiltonianAlg_otimes
+#check @BookProof.GradedHashimoto.gradeOp_gradedHamiltonianAlg
+#check @BookProof.GradedHashimoto.gradedHamiltonianAlg_evenPart
+#check @BookProof.GradedHashimoto.gradedHamiltonianAlg_oddPart
+#check @BookProof.GradedHashimoto.graded_hashimoto_selects
+#check @BookProof.GradedHashimoto.gradedSecondQuantization_hashimoto_selects
+#check @BookProof.GradedHashimoto.gradedNumber_hashimoto_selects
+#check @BookProof.GradedHashimoto.graded_stone_flow
+#check @BookProof.GradedHashimoto.gradedNumber_stone_flow
+```
+
+:::paragraph
 Each of these positive self-adjoint extensions now yields a *complete unitary
 flow*. `BookProof.ChapterStoneBridge` packages the passage from a selected
 self-adjoint extension to the one-parameter group Stone's theorem guarantees as
@@ -488,6 +576,11 @@ The algebraic core of the manuscript's quantization programme:
    magnetic-field operators defined concretely, the canonical commutation
    relation and the Weyl ordering it forces, and the Friedrichs/Hashimoto
    theorems instantiated by it;
+ *  the fermionic (CAR) factor $`\Gamma^a` with its own Friedrichs and
+   Hashimoto theorems, the concrete realization of the BRST ghost relations, and
+   the graded Fock space $`\Gamma^s \otimes \Gamma^a` on which one Koszul-signed
+   formula (`super_canonical`) yields the bosonic CCR, the fermionic CAR and the
+   vanishing mixed brackets at once, together with the $`\mathbb{Z}_2` grading;
  *  the second-quantized Fock form of the same Hamiltonian and its complete
    unitary flow `ym_fock_stone_flow` — the Stone bridge turning each positive
    self-adjoint extension into a global, norm-preserving Schrödinger evolution.

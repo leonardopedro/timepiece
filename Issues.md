@@ -74,6 +74,13 @@ building the Verso edition of the book. Items are grouped by theme and tagged
   `GribovAmbiguity`, `PhysicalParity`, `DiffeomorphismsGravity`,
   `ConsciousnessBayesianPrior` and `AlignedDeepLearning` — all `{include}`d in the
   root `Book.lean`, along with the later `CoherentState` chapter.
+  **Update (2026-08-23d):** the count is now **39 `{include}`s / 40 chapter files**
+  under `Book/` (`Book/Trivial.lean` still unused scaffolding).  Four chapters that
+  had been imported but not `{include}`d — `Starobinsky`, `NavierStokesHashimoto`,
+  `CarlemanFlux` — are now included, together with the new `SirkReliability`
+  chapter (the end-to-end reliability of the shift-invert rational Krylov scheme).
+  `./patches/build-book.sh` and `./patches/check-katex.sh` were re-run: 2652 math
+  snippets, 0 KaTeX failures.
 - **Lean statements are shown as plain (non-elaborated) code blocks.** Verification
   is anchored on `lake build BookProof`. Upgrading to elaborated blocks
   (`public import` + `experimental.module`) and to verso-blueprint are planned

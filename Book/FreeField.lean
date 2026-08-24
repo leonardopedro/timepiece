@@ -1404,6 +1404,45 @@ Eulerian fiber, where the derivative fields are independent canonical coordinate
 ```
 
 :::paragraph
+That realization inherited its essential self-adjointness by transport: the
+estimate was proved in the sequence picture and carried across `velUnitary`. The
+Faris–Lavine argument can instead be run in $`L^2(du_1du_2du_3)` itself, against a
+comparison operator that is also a differential operator. Take the harmonic
+oscillator $`N_\mu=2\mu\sum_i(\pi_i^2+u_i^2/4)+1` (`nsDiffN`). The identity that
+makes the two pictures one is `oscOp_eq_number`: on the Gauss–polynomial core,
+$`\pi_i^2+u_i^2/4=a_i^\dagger a_i+\tfrac12`, which is the polynomial identity
+`oscPoly_eq` obtained from the Leibniz rule $`\partial_i(u_ip)=p+u_i\partial_ip`.
+So $`N_\mu` is the transport of multiplication by the comparison symbol
+$`\mu(2|\beta|+3)+1` (`intertwined_nsDiffN`), and `embedCore_surjective` says the
+Gauss–polynomial core *is* the transported finite-mode core. With that, the two
+Faris–Lavine inequalities hold for the differential operator itself: the relative
+bound $`\|Hf\|^2\le a\|Nf\|^2+b\|f\|^2` (`nsDiffH_relative_bound`) and the
+form-commutator bound $`|\langle f,i[H,N]f\rangle|\le c\langle f,Nf\rangle`
+(`nsDiffH_commForm_bound`), with $`\langle f,Nf\rangle\ge\|f\|^2`
+(`nsDiffN_quadForm_ge_norm_sq`). Carried to the maximal domain of $`N` inside
+$`L^2(\mathbb R^3)` (`diffMaxH_relative_bound`, `diffMaxH_commForm_bound`,
+`diffMaxN_add_one_surjective`, `diffMaxN_core_approx`, `diffMaxH_restrict`), the
+Faris–Lavine criterion then yields `nsDiffH_esa_of_farisLavine` — the same
+conclusion as above, but obtained from an estimate on the differential operator
+rather than from a transported theorem.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.nsDiffN
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.oscPoly_eq
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.oscOp_eq_number
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.intertwined_nsDiffN
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.embedCore_surjective
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.nsDiffN_quadForm_ge_norm_sq
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.nsDiffH_relative_bound
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.nsDiffH_commForm_bound
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.diffMaxH_relative_bound
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.diffMaxH_commForm_bound
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.diffMaxH_restrict
+#check @BookProof.NavierStokesFlow.DiffFarisLavine.nsDiffH_esa_of_farisLavine
+```
+
+:::paragraph
 The sequence-space chain ends with an operator, not just a predicate. Essential
 self-adjointness is usually stated as vanishing adjoint deficiency, but what it
 *selects* is the closure of the graph: the operator `clExt T` on the closed

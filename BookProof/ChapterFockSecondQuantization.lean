@@ -222,6 +222,71 @@ theorem ccr_annA_creA (j : ℕ) (u : FockAlg) : annA j (creA j u) - creA j (annA
     rw [h0]
     norm_num
 
+/-- Adding a quantum in one mode and removing one from a *different* mode are
+independent operations. -/
+theorem up_dn_comm {j k : ℕ} (h : j ≠ k) (α : Conf) : dn k (up j α) = up j (dn k α) := by
+  refine Finsupp.ext fun i => ?_
+  by_cases hik : i = k
+  · subst hik
+    rw [dn_self, up_of_ne _ h.symm, up_of_ne _ h.symm, dn_self]
+  · by_cases hij : i = j
+    · subst hij
+      rw [dn_of_ne _ hik, up_self, up_self, dn_of_ne _ hik]
+    · rw [dn_of_ne _ hik, up_of_ne _ hij, up_of_ne _ hij, dn_of_ne _ hik]
+
+/-- Removals in two modes commute. -/
+theorem dn_dn_comm (j k : ℕ) (α : Conf) : dn k (dn j α) = dn j (dn k α) := by
+  rcases eq_or_ne j k with rfl | h
+  · rfl
+  refine Finsupp.ext fun i => ?_
+  by_cases hik : i = k
+  · subst hik
+    rw [dn_self, dn_of_ne _ h.symm, dn_of_ne _ h.symm, dn_self]
+  · by_cases hij : i = j
+    · subst hij
+      rw [dn_of_ne _ hik, dn_self, dn_self, dn_of_ne _ hik]
+    · rw [dn_of_ne _ hik, dn_of_ne _ hij, dn_of_ne _ hij, dn_of_ne _ hik]
+
+/-- Additions in two modes commute. -/
+theorem up_up_comm (j k : ℕ) (α : Conf) : up k (up j α) = up j (up k α) := by
+  rcases eq_or_ne j k with rfl | h
+  · rfl
+  refine Finsupp.ext fun i => ?_
+  by_cases hik : i = k
+  · subst hik
+    rw [up_self, up_of_ne _ h.symm, up_of_ne _ h.symm, up_self]
+  · by_cases hij : i = j
+    · subst hij
+      rw [up_of_ne _ hik, up_self, up_self, up_of_ne _ hik]
+    · rw [up_of_ne _ hik, up_of_ne _ hij, up_of_ne _ hij, up_of_ne _ hik]
+
+/-- **The off-diagonal canonical commutation relation** `[a_j, a_k†] = 0` for
+`j ≠ k`. -/
+theorem ccr_annA_creA_of_ne {j k : ℕ} (h : j ≠ k) (u : FockAlg) :
+    annA j (creA k u) = creA k (annA j u) := by
+  refine Finsupp.ext fun α => ?_
+  rw [annA_apply, creA_apply, creA_apply, annA_apply, up_of_ne _ h.symm, dn_of_ne _ h,
+    up_dn_comm h]
+  ring
+
+/-- **The canonical commutation relation** `[a_j, a_k] = 0`. -/
+theorem ccr_annA_annA (j k : ℕ) (u : FockAlg) : annA j (annA k u) = annA k (annA j u) := by
+  refine Finsupp.ext fun α => ?_
+  rcases eq_or_ne j k with rfl | h
+  · rfl
+  rw [annA_apply, annA_apply, annA_apply, annA_apply, up_of_ne _ h.symm, up_of_ne _ h,
+    up_up_comm]
+  ring
+
+/-- **The canonical commutation relation** `[a_j†, a_k†] = 0`. -/
+theorem ccr_creA_creA (j k : ℕ) (u : FockAlg) : creA j (creA k u) = creA k (creA j u) := by
+  refine Finsupp.ext fun α => ?_
+  rcases eq_or_ne j k with rfl | h
+  · rfl
+  rw [creA_apply, creA_apply, creA_apply, creA_apply, dn_of_ne _ h.symm, dn_of_ne _ h,
+    dn_dn_comm]
+  ring
+
 theorem support_annA (j : ℕ) (u : FockAlg) : (annA j u).support ⊆ u.support.image (dn j) := by
   intro α hα
   have hα' := Finsupp.mem_support_iff.mp hα

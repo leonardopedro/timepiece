@@ -17,14 +17,14 @@ basis $`\\alpha \\in \\mathbb N^d`$ and show that the recursion it generates has
 bounded flux across every finite box — the probability current crossing the
 boundary of a large box must stay controlled as the box grows. The classical
 criterion covers hops that move a *single* excitation number, by one or by two,
-which is what every mode-diagonal quadratic Hamiltonian produces.
+which is what every *mode-diagonal* quadratic Hamiltonian produces.
 :::
 
 :::paragraph
 A quadratic Hamiltonian that couples two *distinct* modes — $`x_i x_j`$,
 $`\\pi_i \\pi_j`$, $`x_i \\pi_j`$ with $`i \\neq j`$ — produces the hops
 $`\\alpha \\mapsto \\alpha \\pm (e_i + e_j)`$ and $`\\alpha \\mapsto \\alpha \\pm (e_i - e_j)`$.
-The second kind is not monotone: the shift raises one coordinate while
+The second kind is *not monotone*: the shift raises one coordinate while
 lowering another. The general flux criterion must handle that. The module
 `BookProof/ChapterCarlemanGeneralHop.lean` (namespace `BookProof.CarlemanGeneralHop`)
 runs the argument for a hop of the completely general shape

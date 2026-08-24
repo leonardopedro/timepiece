@@ -18,6 +18,7 @@ import Book.DiffeomorphismsGravity
 import Book.Starobinsky
 import Book.NavierStokesHashimoto
 import Book.CarlemanFlux
+import Book.SirkReliability
 import Book.ConsciousnessBayesianPrior
 import Book.AlignedDeepLearning
 import Book.CoherentState
@@ -313,6 +314,14 @@ instance of the tensor products of sample spaces).
 {include 0 Book.PhysicalParity}
 
 {include 0 Book.DiffeomorphismsGravity}
+
+{include 0 Book.Starobinsky}
+
+{include 0 Book.NavierStokesHashimoto}
+
+{include 0 Book.CarlemanFlux}
+
+{include 0 Book.SirkReliability}
 
 # Consciousness, Deep Learning, and the Bayesian Prior
 %%%

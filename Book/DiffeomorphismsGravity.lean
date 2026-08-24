@@ -917,6 +917,44 @@ specializes to it:
 #check @BookProof.QuantumGravityHalfDensity.qg_halfDensity_transfer
 ```
 
+:::paragraph
+That unitary can now be used for what it was built for. The conformal-mode
+potential $`V_3(R_c) = -\tfrac{M^2}{2}R_c + \alpha R_c^2` becomes, in the
+densitized coordinate, $`y \mapsto V_3(y^2)`, and the bound survives the change of
+variables: it is still bounded below by $`-M^4/(16\alpha)`
+(`densConfV_ge`) — while at $`\alpha = 0` the densitized potential still runs off
+to $`-\infty` (`densConfV_zero_alpha_tendsto_atBot`), so it is the $`\alpha R^2`
+term, not the densitization, that buys the bound. On the bounded-energy cores of
+$`L^2((0,\infty),de)` and $`L^2((0,\infty),2y\,dy)` the two multiplication
+Hamiltonians are carried onto one another by the half-density unitary
+(`halfDensityUnitary_mem_densConfCore`,
+`halfDensityUnitary_densConfCore_surjective`, `halfDensityUnitary_intertwines`),
+so vanishing adjoint deficiency of the densitized operator *transfers* to the
+physical one (`physConf_hasZeroDeficiencyOn_transfer`) instead of being re-proved,
+and both sides carry a unitary flow. Finally the bound is not merely pointwise:
+the quadratic form of a multiplication operator is the integral of its multiplier
+against $`|f|^2` (`multOp_quadForm_eq`), so a pointwise lower bound on the
+potential *is* semiboundedness of the operator
+(`multOp_quadForm_ge`, `densConfOp_quadForm_ge`). What is still missing for the
+full continuum statement is the finite-speed / direct-integral gluing, not the
+potential.
+:::
+
+```
+#check @BookProof.ScalaronDensitized.densConfV
+#check @BookProof.ScalaronDensitized.densConfV_comp_densY
+#check @BookProof.ScalaronDensitized.densConfV_ge
+#check @BookProof.ScalaronDensitized.densConfV_zero_alpha_tendsto_atBot
+#check @BookProof.ScalaronDensitized.halfDensityUnitary_mem_densConfCore
+#check @BookProof.ScalaronDensitized.halfDensityUnitary_densConfCore_surjective
+#check @BookProof.ScalaronDensitized.halfDensityUnitary_intertwines
+#check @BookProof.ScalaronDensitized.physConf_hasZeroDeficiencyOn_transfer
+#check @BookProof.ScalaronDensitized.multOp_quadForm_eq
+#check @BookProof.ScalaronDensitized.multOp_quadForm_ge
+#check @BookProof.ScalaronDensitized.densConfOp_quadForm_ge
+#check @BookProof.ScalaronDensitized.physConf_stone_flow
+```
+
 # Summary
 
 The algebraic core of the manuscript's diffeomorphisms/gravity chapter:

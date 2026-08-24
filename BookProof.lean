@@ -880,3 +880,141 @@ import BookProof.ChapterScalaronCoreEsa
 -- `ChapterScalaronCoreEsa` glued over the finite-particle sectors by the direct-sum
 -- instrument of `ChapterDirectSumEsa`; likewise in the mode (Hermite) realisation.
 import BookProof.ChapterScalaronFockEsa
+-- Part F.11: the *second quantization* of that one-particle Hamiltonian on the
+-- finite-occupation states over the core: the Fock space `ℓ²(ℕ →₀ ℕ)`, the
+-- ladder operators with `[a_j, a_j†] = 1`, `dΓ(A) = Σ ⟪e_j, A e_k⟫ a_j† a_k`, its
+-- symmetry and positivity, and its Friedrichs extension.
+import BookProof.ChapterFockSecondQuantization
+import BookProof.ChapterFermionFock
+import BookProof.ChapterGradedFock
+import BookProof.ChapterGradedFriedrichs
+import BookProof.ChapterGradedHashimoto
+import BookProof.ChapterKrylovShiftSpan
+-- The two Faris–Lavine inequalities for the Navier–Stokes quadratic symbol written as an
+-- actual *differential* operator on `L²(du₁du₂du₃)`: the comparison operator is the
+-- differential harmonic oscillator `2μ ∑ᵢ (πᵢ² + uᵢ²/4) + 1`, identified with the transported
+-- number operator by the polynomial identity `πᵢ² + uᵢ²/4 = aᵢ†aᵢ + ½`; the relative bound
+-- `‖Hf‖² ≤ a‖Nf‖² + b‖f‖²` and the form-commutator bound `|⟪f, i[H,N]f⟫| ≤ c⟪f, Nf⟫` hold on
+-- the Gauss–polynomial core and on the maximal domain, yielding essential self-adjointness of
+-- the differential symbol by the Faris–Lavine criterion applied in `L²(ℝ³)` itself.
+import BookProof.ChapterNavierStokesDiffFarisLavine
+-- Step 2 of the scalaron strand: the conformal-mode potential after the *densitized* change
+-- of variables `e = y²`.  The transformed potential `V₃(y²)` is still bounded below by
+-- `−M⁴/(16α)` (and at `α = 0` still unbounded, so the bound comes from `αR²`, not from the
+-- densitization); the half-density unitary of `ChapterQuantumGravityHalfDensity` carries the
+-- bounded-energy core of `L²((0,∞), de)` onto that of `L²((0,∞), 2y dy)` and intertwines the
+-- two multiplication Hamiltonians, so essential self-adjointness transfers along it; and a
+-- pointwise lower bound on a multiplier is semiboundedness of the multiplication operator.
+import BookProof.ChapterScalaronDensitizedTransfer
+-- The end-to-end SIRK/Hashimoto reliability assembly (plan §12, Gap 1): the pointwise
+-- Crouzeix core `sirk_error_bound_at` weakens the compression-transfer hypothesis to the
+-- single Krylov seed, which is where the rational transfer of `ChapterH8` is available; with
+-- that, `sirk_end_to_end` carries **no** transfer hypothesis and produces the eq.-(12) bound
+-- `‖flow v − V ψ(B) V∗ v‖ ≤ 2C e^{−hm} Dmin ‖v‖` from the isometry, the Krylov invariance of
+-- the range and the invertibility of the rational denominator.  One convex Crouzeix domain
+-- serves both bounds (`crouzeix_domain_transfer`), the reduced flows converge to the exact
+-- one and — for time-independent constants — uniformly in time; the reconstruction step
+-- `V ∘ V∗` is the orthogonal projection onto the retained subspace.
+import BookProof.ChapterSirkEndToEnd
+-- The multi-shift forward-sequence span identity (plan §12, Gap 4b): the forward sequence
+-- `w₀ = v₀`, `wₖ₊₁ = (H − zₖ I) wₖ` of an arbitrary shift schedule spans exactly the standard
+-- Krylov subspace, so the choice of shifts changes the basis but never the compressed space.
+-- The general principle is the triangular criterion `triangularSpan_eq_krylovSpan`.
+import BookProof.ChapterSirkMultiShift
+-- The restart cycle of the SIRK numerics and its accumulated error (plan §12, Gap 4a): two
+-- contractive propagators differing by `ε` in the strong sense differ by at most `n·ε` after
+-- `n` restart cycles, so restarting multiplies the `e^{−hm}` per-cycle guarantee by the cycle
+-- count and nothing worse.
+import BookProof.ChapterSirkRestart
+-- Whitening independence of the reduced operator (plan §12, Gap 4c): two isometric embeddings
+-- with the same range induce the same orthogonal projection, are related by a unitary change
+-- of whitening, give unitarily conjugate compressions, and produce literally the same
+-- reconstructed SIRK operator `P X P` on the ambient space.
+import BookProof.ChapterSirkWhitening
+-- The Gram whitening the numerics actually performs: the synthesis map of the raw Krylov
+-- vectors, its Gram operator/matrix, and the fact that a whitening `T∗GT = 1` is an
+-- isometric embedding of the retained subspace — so the whitening-independence theorems
+-- above apply to it, and such a whitening exists (plan §12, Gap 4c, existence half).
+import BookProof.ChapterSirkGramWhitening
+-- The Crouzeix domain of the shift-invert (plan §12, Gap 2, the abstract half): the operator
+-- the algorithm iterates is the resolvent, so its numerical range — and that of every Krylov
+-- compression of it — is fixed by the shift alone.  Positive generator at a real shift `γ > 0`:
+-- the real segment `[0, γ⁻¹]`.  Indefinite generator at a non-real shift: the disc of radius
+-- `|Im γ|⁻¹`.  Hence the SIRK constants `C`, `Dmin` may be measured uniformly in the reduction
+-- order `m`.
+import BookProof.ChapterSirkSpectralGeometry
+-- The same, per physical system (plan §12, Gap 2, the concrete half): the Crouzeix domain of
+-- QYM (Friedrichs route, a segment), of NS Eulerian in both the sequence-space and the
+-- differential realization, of NS Lagrangian (abstract and the concrete Kato–Rellich model)
+-- and of the gauge-fixed `R + αR²` quantum-gravity mode Hamiltonian, whose shift-invert
+-- (`qgR2_shiftInvert_selects`) is constructed here for the first time from the ESA-selected
+-- extension.
+import BookProof.ChapterSirkPerSystem
+-- The rank-truncated Gram case (plan §12, Gap 4c, the remaining half): truncating the whitened
+-- basis is a further compression of the reduced operator, and the transfer identity it breaks is
+-- restored up to the discarded part of the seed, so the end-to-end bound survives with one
+-- additive term `‖r(X)‖ · ‖v − P v‖`.
+import BookProof.ChapterSirkTruncation
+-- The unitary-group transfer for bounded generators (plan §12, Gap 3, the bounded half): the
+-- exponential is Lipschitz on balls of a Banach algebra, `‖exp a − exp b‖ ≤ ‖a − b‖ e^{M}`, so
+-- the propagators of two bounded generators differ by at most `|t| ‖a − b‖ e^{|t| M}` — uniformly
+-- on every compact time interval.
+import BookProof.ChapterSirkGroupTransfer
+
+-- `ChapterSirkTrotterKato`: the **unbounded** half of plan §12 Gap 3 — the Trotter–Kato
+-- theorem for the unbounded self-adjoint operators of `ChapterStoneResolvent`: strong
+-- convergence of the resolvents `(Aₙ − i)⁻¹ → (A − i)⁻¹` implies strong convergence of the
+-- unitary flows `e^{−itAₙ} → e^{−itA}`, uniformly for `t` in a bounded interval.
+import BookProof.ChapterSirkTrotterKato
+
+-- `ChapterSirkTrotterKatoGalerkin`: the Galerkin instance of the transfer — the unitary
+-- flows of the Rayleigh–Ritz compressions converge to the flow of the selected generator,
+-- uniformly on bounded time intervals (in the regime where the operator is bounded on its
+-- domain, as in `ChapterHermiteGalerkinFriedrichs`).
+import BookProof.ChapterSirkTrotterKatoGalerkin
+
+-- `ChapterSirkLagrangianCanonical`: the two Lagrangian realizations of plan §12 Gap 2 that
+-- had essential self-adjointness but no Hashimoto/SIRK companion — the canonical
+-- (non-commuting ladder) realization and the Fock/momentum (continuum symbols)
+-- realization — get their shift-invert selection, Crouzeix domain and Stone flow.
+import BookProof.ChapterSirkLagrangianCanonical
+
+-- `ChapterSirkRitzSpectrum`: the spectral reading of the Rayleigh–Ritz limit (plan §12
+-- Gap 2, QYM).  The bottom of the spectrum of a bounded self-adjoint operator is the
+-- bottom of its numerical range (`sInf_spectrum_eq_rayleighInf`), so the Ritz values of
+-- the Hermite/Galerkin truncations converge to the bottom of the spectrum of the operator
+-- the algorithm selects.
+import BookProof.ChapterSirkRitzSpectrum
+
+-- `ChapterSirkDiffusiveDecay`: the laminar decay rate (plan §12 Gap 2, NS Lagrangian).
+-- A coercive generator has `‖e^{−tA} v‖ ≤ e^{−μt} ‖v‖`, and the SIRK compression of a
+-- coercive generator is coercive with the same constant, so the reduced model reproduces
+-- the decay rate exactly.
+import BookProof.ChapterSirkDiffusiveDecay
+
+-- `ChapterQgHermiteCore`: the QG one-particle Hamiltonian is well defined on the
+-- Gauss–polynomial (Hermite) core (plan §10.6.1, target 1).  The Gaussian tail dominates
+-- every exponential, so multiplication by the exponentially growing scalaron potential —
+-- and by the full potential of the reduced `(R_c, φ)` sector — maps the core into `L²`,
+-- and the core is invariant under the kinetic term.
+import BookProof.ChapterQgHermiteCore
+
+-- `ChapterQgHermiteFriedrichs`: the QG one-particle Hamiltonian `−Δ + W` on the
+-- Gauss–polynomial (Hermite) core is symmetric, bounded below by the lower bound of its
+-- potential, and therefore has a canonical semibounded self-adjoint (Friedrichs)
+-- realization (plan §10.6.1, towards target 4 — existence and canonical choice of the
+-- realization, *not* essential self-adjointness).
+import BookProof.ChapterQgHermiteFriedrichs
+
+-- `ChapterQgHermiteOscillatorEsa`: **essential** self-adjointness on the Gauss–polynomial
+-- (Hermite) core for the harmonic (conformal-mode) potential, in every dimension, via a
+-- general eigenbasis criterion; plus its Stone flow and its stability under bounded
+-- perturbations (plan §10.6.1, target 4 for the parabolic potential).
+import BookProof.ChapterQgHermiteOscillatorEsa
+
+-- `ChapterFriedrichsCanonical`: the Friedrichs extension is *canonical* — packaged as a
+-- named operator (`friedrichsOp` on `friedrichsDomain`), it is a positive self-adjoint
+-- extension, it dominates every symmetric extension whose domain lies in the form domain
+-- (`friedrichs_canonical`), and it is therefore the unique self-adjoint extension with that
+-- property (`friedrichs_unique_selfAdjoint`); with the QG scalaron instance.
+import BookProof.ChapterFriedrichsCanonical
