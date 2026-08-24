@@ -125,3 +125,23 @@ freebuff --continue 2026-08-22T20-53-40.518Z
 
 Pause what you are doing. Please do a deep, complete review while improving deeply the pedagogy of the contents of ../timepiece/Book/ (staying faithful to the Lean4 proofs in timepiece/ and the contents of timepiece/book.tex and other documents in timepiece/ when they are related to Book/ contents). And then finish the numerical tests about physics (NG, QG,QYM, QED) you started and I asked you to pause.
 
+
+"Loops": none exist and none were added — the forward sequence remains a strict single-pass product ∏(H−zₖI)v₀. The restarts in evolve_restarted are outer time-stepping (dt slicing for dynamics), not iteration inside the spectral algorithm.
+Renormalization: here you've caught a real deviation. The canonical Hashimoto model stores the raw products w_k, letting the generalized pencil H_raw c = λGc absorb non-normality through the Gram matrix. My per-step rescaling altered the stored representatives. It's mathematically exact (same span, Rayleigh–Ritz invariant — not physics renormalization, no approximation), but it is not the canonical algorithm, and this project's principle is that the implementation should be the theoretical model.
+Note the existing guards (prune, BRST mid-sequence projection, truncate_top_k) are documented approximations already deviating from the idealized sequence — but those were your accepted engineering choices; mine wasn't yours. The right resolution is to make the scaling opt-in, with the canonical forward products as the default:
+
+Delivered and pushed (7caf9cc): gauge_fixed_program_validation.rs — 10 SIRK tests confined strictly to the four program sectors' 3D gauge-fixed Hamiltonians.
+QG (R² action) — 4 tests
+Test	Physics
+Quartic scalaron PT vs SIRK	λ:x⁴:/4 gives ΔEₙ=(3λ/2)n(n−1); vacuum rule exact to all orders; parity superselection (:x⁴: has Δn even → even/odd ladders need separate starts); E₂ carries the genuine +0.0997 O(λ²) shift; large-λ departs from PT
+Scalaron band	ω(k)=√(k²+m²) resolved from ONE window: k→0 gap = m, group velocity k/ω subluminal rising to 1 (phase velocity >c — causal statement is group)
+Densitized kinetic	unitary flow through the INDEFINITE hyperbolic spectrum, norm+energy conserved
+TEGR 𝒮-kinetic	rank-saturates ~6, bounded-below band, positive gaps
+QYM — 3
+Residual Gauss generator is P=π₀+π₁ (equal A-shift keeps B invariant — not a number difference): H,P=0 probes, ⟨P⟩ exact + Var conserved to 1e-3 rel through flow · spectra even in g at finite coupling (A₁→−A¹) · g≠0 keeps Hermitian real finite band while bare ½:π²: is indefinite (positivity via constraint projection only).
+QED — 1 · NS — 2
+Four-mode band fully resolved from one window with same/cross-mode two-quanta additivity · full-e-fold laminar decay from a single nondimensionalized m=14 window (raw-SI stiffness would demand restarts) · advective fiber conserves unitarity + ⟨H⟩.
+The suite also encodes three framework gotchas now written into AGENTS.md S40: universes merge under scale_and_add, eigenstate starts collapse Krylov rank, and truncated kinetics are indefinite. All 25 fock_sirk suites + prob_kernel green.
+▣  Build · Ox Alpha Free (Unlimited) · 18m 38s
+Update the tutorial about the new physics tests. Then do more, many more numerical tests within physics problems (always NG, QYM, QED or QG (from action including R^2) 3D gauge-fixed Hamiltinians, numerics using Hashimoto/SIRK already used in this project ), work on that for a long, long time and Update the tutorial about the new physics tests. Do not stop until you completed 
+
