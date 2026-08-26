@@ -1,27 +1,85 @@
-Update the project in ../timepiece/ : from folder /home/leo/Downloads/825526b1-bc9c-40c3-9e73-9affc5d235dc-aristotle/output-final_aristotle copy the files ARISTOTLE_SUMMARY.md
-+53
+Update this folder : from folder /home/leo/Downloads/18fc3f83-7414-4f75-8fbb-c2c2846afbda-aristotle/output-final_aristotle merge the files: ARISTOTLE_SUMMARY.md
++520
+Book.lean
++9
 BookProof.lean
-+34
++133
 CONSOLIDATED_PLAN.md
-+124 -4
++551 -12
+Issues.md
++7
+CarlemanFlux.lean
++2 -2
 DiffeomorphismsGravity.lean
-+179
++38
 FreeField.lean
-+28
-ChapterCarlemanGeneralHop.lean
-+6 -15
-ChapterNavierStokesDiffHashimoto.lean
-+266
++39
+NavierStokesHashimoto.lean
++1 -1
+SirkReliability.lean
++376
+Starobinsky.lean
++263 -3
+YangMillsQuantization.lean
++93
+
+And copy the files:
+ChapterFermionFock.lean
++1063
+ChapterFockSecondQuantization.lean
++65
+ChapterFriedrichsCanonical.lean
++556
+ChapterGradedFock.lean
++475
+ChapterGradedFriedrichs.lean
++499
+ChapterGradedHashimoto.lean
++272
+ChapterKrylovShiftSpan.lean
++570
+ChapterNavierStokesDiffFarisLavine.lean
++676
+ChapterQgHermiteCore.lean
++680
+ChapterQgHermiteFriedrichs.lean
++610
+ChapterQgHermiteOscillatorEsa.lean
++405
 ChapterRoadmapAudit.lean
-+120
-ChapterScalaronCoreEsa.lean
-+591
-ChapterScalaronFockEsa.lean
-+304
-ChapterStarobinskyPotential.lean
-+255
++455
+ChapterScalaronDensitizedTransfer.lean
++367
+ChapterSirkDiffusiveDecay.lean
++228
+ChapterSirkEndToEnd.lean
++296
+ChapterSirkGramWhitening.lean
++553
+ChapterSirkGroupTransfer.lean
++187
+ChapterSirkLagrangianCanonical.lean
++189
+ChapterSirkMultiShift.lean
++173
+ChapterSirkPerSystem.lean
++209
+ChapterSirkRestart.lean
++161
+ChapterSirkRitzSpectrum.lean
++354
+ChapterSirkSpectralGeometry.lean
++250
+ChapterSirkTrotterKato.lean
++471
+ChapterSirkTrotterKatoGalerkin.lean
++153
+ChapterSirkTruncation.lean
++196
+ChapterSirkWhitening.lean
++211
 STATUS.md
-+149
++612 -1
  .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.
  
  add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically efficient) discussed in:  ../timepiece/CONSOLIDATED_PLAN.md
@@ -144,4 +202,34 @@ Four-mode band fully resolved from one window with same/cross-mode two-quanta ad
 The suite also encodes three framework gotchas now written into AGENTS.md S40: universes merge under scale_and_add, eigenstate starts collapse Krylov rank, and truncated kinetics are indefinite. All 25 fock_sirk suites + prob_kernel green.
 ▣  Build · Ox Alpha Free (Unlimited) · 18m 38s
 Update the tutorial about the new physics tests. Then do more, many more numerical tests within physics problems (always NG, QYM, QED or QG (from action including R^2) 3D gauge-fixed Hamiltinians, numerics using Hashimoto/SIRK already used in this project ), work on that for a long, long time and Update the tutorial about the new physics tests. Do not stop until you completed 
+
+
+In ../timepiece/BookProof  are enough proofs to prove in QYM that the uncertainty bands from the Hashimoto algorithm are correct. Please create a document which makes a sketch of a proof of the Mass Gap in QCD using these numerical proved uncertainty bands. Note that these uncertainty bands in Hashimoto.md assume an infinite numerical precision, so the proof of these uncertainty bands must be generalized to finite numerical precision somehow. The goal then is to certify/formalize the correctness of the code implementation of the probability kernel with respect to those proofs, so that the numerical calculation for the Mass Gap can be used in a proof (that also includes Lean4 parts)
+
+
+
+Short answer, grounded in the current landscape (2026): for a one-off proof, the ranking by maturity is:
+
+┌───────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────┬─────────────────────┐
+│ Tool              │ Maturity                                                                                         │ What it gives you                                           │ Output              │
+├───────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────┼─────────────────────┤
+│ Verus (Microsoft) │ Most mature deductive verifier — largest supported subset of safe Rust, best SMT automation,     │ Full functional-correctness proofs (pre/postconditions,     │ Proofs live in      │
+│                   │ mature tooling (IDE, vstd spec/lemma library), used on real systems code                         │ loop invariants) with the least manual effort               │ Verus (not Lean 4)  │
+│ Kani (AWS)        │ Most production-mature tool overall — runs on real code, no subset constraints                   │ Property checking: no panics/overflow/UB, simple invariants │ Verification        │
+│                   │                                                                                                  │ — not mathematical proofs                                   │ results, not        │
+│                   │                                                                                                  │                                                             │ theorems            │
+│ Creusot           │ Mature, actively developed (POPL 2026 tutorial); Rust→Why3                                       │ Deductive proofs discharged by Why3 provers (alt-ergo, Z3)  │ Why3 goals          │
+│ Aeneas            │ Research-grade but production-used (SymCrypt Rust port)                                          │ The only Rust→Lean 4 route; functional translation of a     │ Lean 4 code +       │
+│                   │                                                                                                  │ pure Rust subset                                            │ proofs              │
+│ Prusti            │ Older, less active than Verus/Creusot                                                            │ Deductive proofs via Viper                                  │ Viper/SMT           │
+│ RefinedRust /     │ Newer, type-system-based                                                                         │ Coq proofs                                                  │ Coq                 │
+│ rocq-of-rust      │                                                                                                  │                                                             │                     │
+└───────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────┴─────────────────────────────────────────────────────────────┴─────────────────────┘
+
+So, for your one-off:
+- If the final proof must be machine-checked in Lean 4 (e.g., to sit next to BookProof/nanoda): Aeneas is the only option — but you pay its functional-subset tax (no  nalgebra , no interior mutability) and then do the real proof work in Lean against the generated model.
+- If you just want the most mature tool with the least friction for a standalone proof of the algorithm: Verus. It's the acknowledged maturity leader (the RefinedRust paper itself says Verus "is more mature and supports a larger subset of safe Rust"), its  vstd  library already covers the arithmetic/vector lemmas your core needs (forward sequence, Gram sums, the residual formula $|r|=|\tau_m c_{m-1}|$), and SMT automation means far less manual proof text than a Lean/F*/Coq route.
+- Kani is the mature pragmatic option if you only want a sanity guarantee (no panic/overflow on the real f64 paths) — but it cannot prove the analytic statements, so it's a complement, not the proof vehicle.
+
+One caveat that applies to all of them, worth stating before you invest: none of these prove IEEE-754 rounding semantics at scale, and none handle the dense eigendecomposition out of the box. The standard one-off split remains: the tool proves the algorithm on mathematical reals (which is where "most mature" matters), and the rounding/band part is a short separate argument — the §4 backward-error + interval-enclosure reasoning, which is a few pages by hand or in Lean, not something any Rust verifier will do for you. So: Verus for the algorithm leg, a short handwritten/Lean argument for the rounding leg is the lowest-total-effort one-off combination.
 
