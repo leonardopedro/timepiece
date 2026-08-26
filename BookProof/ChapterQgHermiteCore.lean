@@ -47,7 +47,8 @@ scalaron one (`memLp_scalaronHamiltonian_gaussPoly`).
 `integral_hamiltonian_symm` conclude that `−d²/dx² + W` is **symmetric** on the core for
 every continuous exp-bounded `W` (`integral_scalaronHamiltonian_symm` for the scalaron).
 This is the symmetric-operator half of the essential-self-adjointness question; the
-deficiency half is not proved here.
+deficiency half is not proved here (for the potential term alone it is proved, for
+exponentially growing potentials too, in `BookProof.ChapterScalaronHermiteEsa`).
 
 **7. Arbitrary dimension.**  `ExpBounded` is stated for any normed space, and
 `memLp_mul_pgFun_of_expBounded` transports item 3 to the project's product Gauss–polynomial

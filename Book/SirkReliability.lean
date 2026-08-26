@@ -163,6 +163,34 @@ untouched, and $`\delta = 0` returns the lossless case.
 #check @BookProof.ChapterSirkGramWhitening.sirk_end_to_end_truncated_gram
 ```
 
+:::paragraph
+That leaves the question of where $`\delta` comes from, since it is not what the
+code measures: the code diagonalizes the Gram matrix and discards the eigenpairs
+whose eigenvalue falls below a tolerance. The two are related by a single
+estimate. The synthesized eigenvectors $`W u_k` are orthogonal with squared norms
+the eigenvalues $`\lambda_k`, so expanding a state along the eigenbasis and
+dropping the discarded directions costs $`\bigl(\sum_{k\ \text{discarded}}
+|c_k|^2\lambda_k\bigr)^{1/2} \le \sqrt{\mathrm{tol}}\,\lVert c\rVert`. Since the
+projection $`VV^*x` is the closest point of the retained subspace to $`x`, every
+raw Krylov vector is within $`\sqrt{\mathrm{tol}}` of it: the geometric parameter
+obeys $`\delta \le \sqrt{\mathrm{tol}}`, and the end-to-end bound can be stated
+in the numerical cutoff alone. The eigendecomposition it assumes always exists —
+the Gram operator is self-adjoint — and the embedding the solver builds from the
+retained eigenpairs, $`V = WU_R\Lambda_R^{-1/2}`, is an isometric embedding of
+the retained subspace, so the estimate applies to the object the code produces
+rather than to an abstract substitute.
+:::
+
+```
+#check @BookProof.ChapterSirkGramCutoff.exists_gramEigen
+#check @BookProof.ChapterSirkGramCutoff.norm_sub_proj_le_of_mem_range
+#check @BookProof.ChapterSirkGramCutoff.dist_synthesis_retained_le
+#check @BookProof.ChapterSirkGramCutoff.defect_le_sqrt_cutoff
+#check @BookProof.ChapterSirkGramCutoff.sirk_end_to_end_truncated_cutoff
+#check @BookProof.ChapterSirkGramCutoff.retainedEmbedding_isometry
+#check @BookProof.ChapterSirkGramCutoff.defect_le_sqrt_cutoff_retained
+```
+
 # Leakage Out of the Physical Subspace
 
 :::paragraph
@@ -176,6 +204,72 @@ $`\lVert \Omega \rVert \, n \varepsilon \lVert v \rVert`.
 ```
 #check @BookProof.ChapterSirkRestart.brst_leakage_zero_of_exact
 #check @BookProof.ChapterSirkRestart.brst_leakage_bound
+```
+
+:::paragraph
+That estimate takes the per-cycle distance between the exact and the truncated
+propagator as given. One level down, at the generators the algorithm truncates, the
+distance is not an assumption but a consequence, and the leakage rate becomes an
+explicit block of the Hamiltonian. For a bounded self-adjoint generator the flow
+$`e^{-itH}` is unitary and commutes with the charge, so the exact dynamics keeps the
+charge content of a state constant. Comparing the exact flow with the truncated one
+along the path $`s \mapsto e^{-i(t-s)H} e^{-isB} v` gives a derivative equal to
+$`e^{-i(t-s)H} \bigl(i(H - B)\bigr) e^{-isB} v`, whose norm — both groups being unitary —
+is just $`\lVert (H-B) e^{-isB} v \rVert`. Integrating is the whole estimate.
+:::
+
+:::paragraph
+What makes the constant sharp rather than crude is that the truncated flow keeps a
+retained state inside the retained subspace, so the defect $`H - PHP` is only ever
+applied to states in the range of $`P`, where it equals the discarded off-diagonal
+block $`(1-P)HP`. The leakage of a physical, retained state after time $`t` is
+therefore at most $`\lVert \Omega \rVert \, \lVert (1-P)HP \rVert \, \lVert v \rVert \, t`:
+it is controlled by exactly the part of the Hamiltonian the truncation throws away, and
+vanishes with it. Restarting with a fresh truncation each cycle accumulates the bound
+linearly in the number of cycles.
+:::
+
+```
+#check @BookProof.BrstLeakage.norm_omega_flow_eq
+#check @BookProof.BrstLeakage.hasDerivAt_duhamel
+#check @BookProof.BrstLeakage.norm_flow_sub_flow_apply_le
+#check @BookProof.BrstLeakage.leakage_le
+#check @BookProof.BrstLeakage.flow_truncGen_mem
+#check @BookProof.BrstLeakage.truncation_leakage_le_of_physical
+#check @BookProof.BrstLeakage.leakage_iterate_le
+#check @BookProof.BrstLeakage.brst_leakage_bound_of_generator
+```
+
+:::paragraph
+The field-theoretic Hamiltonian is not bounded, and the estimate does not need it to
+be. Let $`T` be an unbounded self-adjoint operator with the unitary group $`e^{-itT}`
+that Stone's theorem produces, and let the retained subspace be finite-dimensional and
+inside the domain of $`T` — the finite-$`m` situation of the algorithm. Then the
+compression $`PTP` is a bounded self-adjoint operator, its flow keeps a retained state
+retained, and the same comparison path can be differentiated: the group is only
+strongly continuous, so the product rule is replaced by the observation that an
+isometric, strongly continuous family applied to a curve vanishing at the base point is
+differentiable with the expected derivative. What comes out is the same pair of bounds
+with the same constant: the flow error
+$`\lVert e^{-itPTP} v - e^{-itT} v \rVert \le \lVert (1-P)TP \rVert \lVert v \rVert t`
+and the leakage
+$`\lVert \Omega e^{-itPTP} v \rVert \le \lVert \Omega v \rVert + \lVert \Omega \rVert
+\lVert (1-P)TP \rVert \lVert v \rVert t`, for an observable commuting with the exact
+group. Unboundedness of the Hamiltonian costs nothing; what is used is that the
+discarded block acts on the retained subspace alone. Restarting with a fresh retained
+subspace each cycle again accumulates the bound linearly in the number of cycles.
+:::
+
+```
+#check @BookProof.BrstUnboundedLeakage.hasDerivAt_isometry_apply
+#check @BookProof.BrstUnboundedLeakage.hasDerivAt_duhamel_stone
+#check @BookProof.BrstUnboundedLeakage.norm_flow_sub_stoneU_le
+#check @BookProof.BrstUnboundedLeakage.truncGen_isSelfAdjoint
+#check @BookProof.BrstUnboundedLeakage.flow_truncGen_mem
+#check @BookProof.BrstUnboundedLeakage.norm_flow_truncGen_sub_stoneU_le
+#check @BookProof.BrstUnboundedLeakage.truncation_leakage_le
+#check @BookProof.BrstUnboundedLeakage.truncation_leakage_le_of_physical
+#check @BookProof.BrstUnboundedLeakage.restart_leakage_le
 ```
 
 # Which Region the Constants Are Measured On

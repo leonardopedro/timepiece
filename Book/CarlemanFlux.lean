@@ -117,3 +117,97 @@ self-adjointness statements on which the Hashimoto selection theorem
 (`Book/NavierStokesHashimoto.lean`) and, through it, the SIRK numerical
 validation rest.
 :::
+
+# Beyond Finite Range: Unbounded Hops
+
+:::paragraph
+Every criterion above shares one hypothesis: the hop range is *finite*. A term
+$`x_i x_j`$ moves an occupation number by one or two, a general
+$`\\alpha \\mapsto \\alpha + p - m`$ moves it by the fixed multi-index $`p - m`$, and
+in each case a row of the matrix has finitely many non-zero entries. That is not
+an accident of the proofs — it is what makes the boundary layer of a box a
+*finite* set, so that the flux is a finite sum. An operator whose every row is
+supported on all of $`\\mathbb N`$ has no such boundary layer, and the whole
+bookkeeping has to be redone with tails instead of layers.
+:::
+
+:::paragraph
+The module `BookProof/ChapterCarlemanUnboundedHop.lean` (namespace
+`BookProof.CarlemanUnboundedHop`) carries this out. Fix a Hermitian kernel
+$`a_{nk}`$ on $`\\mathbb N`$ and a square-summable $`u`$ solving
+$`\\sum_k a_{nk} u_k = z u_n`$ at a non-real $`z`$. The flux across the cut at
+$`N`$ is the double sum over pairs $`n \\le N < k`$, and the flux identity says
+that $`\\operatorname{Im} z \\sum_{n \\le N} |u_n|^2`$ equals its imaginary part —
+the diagonal, and indeed the whole Hermitian interior, cancels. So the diagonal
+of the kernel is completely unconstrained: only the off-diagonal decay matters.
+:::
+
+```
+#check @BookProof.CarlemanUnboundedHop.flux_identity
+#check @BookProof.CarlemanUnboundedHop.eq_zero_of_flux_small
+#check @BookProof.CarlemanUnboundedHop.two_norm_flux_le
+#check @BookProof.CarlemanUnboundedHop.ladder_eq_zero_of_carleman
+```
+
+:::paragraph
+The decay hypothesis is a *hop profile*: a non-negative $`\\theta`$ with
+$`|a_{nk}| \\le A_n \\, \\theta(k - n)`$ for $`n < k`$, whose tail sums
+$`\\Theta_j = \\sum_{i > j} \\theta(i)`$ are finite. The bound `two_norm_flux_le`
+then estimates twice the flux at the cut $`N`$ by $`A_N`$ times a *cut mass* —
+the tails $`\\Theta`$ weighting how much of the $`\\ell^2`$ mass sits near the cut
+— and `summable_cutMass` shows that the cut masses are summable, which is where
+the finite first moment $`\\sum_j \\Theta_j < \\infty`$ of the profile is used.
+Summability means the cut masses cannot stay large; combined with
+$`\\sum_N 1 / A_N = \\infty`$ — *Carleman's condition* — there is a cut at which
+$`A_N`$ times the cut mass is as small as we please, and `flux_identity` forces
+$`u = 0`$. That is `ladder_eq_zero_of_carleman`.
+:::
+
+```
+#check @BookProof.CarlemanUnboundedHop.kernelOp
+#check @BookProof.CarlemanUnboundedHop.kernelOp_symmetric
+#check @BookProof.CarlemanUnboundedHop.kernelOp_deficiencyTrivialAt
+#check @BookProof.CarlemanUnboundedHop.kernelOp_essentiallySelfAdjoint
+#check @BookProof.CarlemanUnboundedHop.kernelOp_stone_flow
+```
+
+:::paragraph
+Transporting this to an operator statement needs one more hypothesis, that each
+column of the kernel is itself in $`\\ell^2`$, so that the kernel maps the
+finitely supported states into $`\\ell^2(\\mathbb N)`$. With that, `kernelOp` is a
+symmetric operator on the finite-mode core, `kernelOp_deficiencyTrivialAt` says
+both deficiency spaces are trivial at every non-real point — a deficiency vector
+solves exactly the recursion the flux criterion kills —
+`kernelOp_essentiallySelfAdjoint` concludes essential self-adjointness through
+the Faris–Lavine interface used everywhere else in this development, and
+`kernelOp_stone_flow` produces the unitary group.
+:::
+
+```
+#check @BookProof.CarlemanUnboundedHop.geoHop
+#check @BookProof.CarlemanUnboundedHop.geoHop_essentiallySelfAdjoint
+#check @BookProof.CarlemanUnboundedHop.geoHop_stone_flow
+```
+
+:::paragraph
+The last three lines exhibit an operator the finite-hop criteria genuinely
+cannot reach: an *arbitrary* real diagonal $`b_n`$ — no growth restriction at all
+— together with off-diagonal entries
+$`a_{nk} = (1 + \\min(n,k)) \\, \\rho^{|n-k|}`$ for $`0 \\le \\rho < 1`$. Every row has
+infinitely many non-zero entries, so no finite-range theorem applies; the
+amplitude envelope is $`A_n = 1 + n`$, which satisfies Carleman's condition
+because $`\\sum_n 1/(1+n)`$ diverges, and the profile $`\\theta(r) = \\rho^r`$ has
+geometric tails, hence a finite first moment. The operator is therefore
+essentially self-adjoint on the finite-mode core and generates a Stone flow.
+:::
+
+:::paragraph
+The honest boundary is worth recording. Carleman's condition is a condition on
+the *growth* of the amplitudes: $`\\sum 1/A_N = \\infty`$ allows $`A_N`$ to grow
+linearly, or like $`N \\log N`$, but not exponentially. The exponential wall of
+the scalaron potential in the Hermite basis produces amplitudes of order
+$`e^{c\\sqrt N}`$, for which the series converges and the criterion is silent.
+The unbounded-hop extension removes the *range* restriction, not the *growth*
+restriction; the exponential-wall case remains open and is treated by different
+means elsewhere in this development.
+:::

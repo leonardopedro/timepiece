@@ -955,6 +955,237 @@ potential.
 #check @BookProof.ScalaronDensitized.physConf_stone_flow
 ```
 
+# The Gauge-Fixed Field-Space Hamiltonian and its BRST Charge
+
+:::paragraph
+The densitized change of variables above is local in one conformal mode. The
+manuscript's actual object is the whole gauge-fixed field space: a
+$`84 = 4 + 16 + 64` dimensional block of tetrad, tetrad-derivative and
+second-derivative coordinates, carrying the Gauss-weighted polynomial core of
+$`L^2(\mathbb{R}^{84})`. On that core the coordinates $`x_j` and momenta
+$`\pi_k = -i\partial_k` satisfy the canonical commutation relations
+$`[x_j,\pi_k] = i\delta_{jk}` (`qgCCR`, `qgCCR_tetrad`), the Weyl-ordered
+products $`\tfrac12(ST + TS)` of Gauss-symmetric operators are again Gauss
+symmetric, and the densitization of the previous section reappears as the
+absorption of the singular $`1/e` (`qg3DDensity_densitized`). The gauge-fixed
+Hamiltonian `qg3DHamiltonian` is symmetric on the core (`qg3D_symmetricOn`) and
+its quadratic form is the signed sum of squares of the constituent operators
+(`qg3D_quadForm`). Its signature is genuinely indefinite — the kinetic and the
+conformal coefficient have opposite signs (`qgKappa_indefinite`) — so no
+semiboundedness, and hence no Friedrichs extension, is claimed for the full
+operator; what is proved is that the *elliptic* truncation, in which the
+conformal sign is flipped, is nonnegative and does have a Friedrichs extension
+selected by the Hashimoto criterion (`qg3DElliptic_friedrichs_extension`,
+`qg3DElliptic_hashimoto_selects`).
+:::
+
+```
+#check @BookProof.QuantumGravity3DGauge.qg3DDensity_densitized
+#check @BookProof.QuantumGravity3DGauge.qgCCR
+#check @BookProof.QuantumGravity3DGauge.qgCCR_tetrad
+#check @BookProof.QuantumGravity3DGauge.qgKappa_indefinite
+#check @BookProof.QuantumGravity3DGauge.qg3DHamiltonian
+#check @BookProof.QuantumGravity3DGauge.qg3D_symmetricOn
+#check @BookProof.QuantumGravity3DGauge.qg3D_quadForm
+#check @BookProof.QuantumGravity3DGauge.qg3DElliptic_friedrichs_extension
+#check @BookProof.QuantumGravity3DGauge.qg3DElliptic_hashimoto_selects
+```
+
+:::paragraph
+The constraints of that field space are dressed with ghosts into the BRST charge
+$`\Omega = \sum_a G_a\chi_a - \tfrac12\sum_{a,b,e} f_{abe}\chi_a\chi_b\beta_e`.
+Nilpotency is proved in full: the square of the constraint part is half the
+ghost-contracted constraint algebra (`glin_sq`), the cross terms produce exactly
+the opposite quantity (`glin_mul_Q_add_Q_mul_glin`) — which is what fixes the
+coefficient $`-\tfrac12` — and the cubic ghost term squares to zero by the Jacobi
+identity, so $`\Omega^2 = 0` (`brst_full_nilpotent`); for commuting constraints
+the cubic term is unnecessary (`brst_abelian_nilpotent`). The ghosts themselves
+are not assumed: the $`19` diffeomorphism ghosts are realized on the
+$`\mathbb{Z}_2^{19}` occupation space $`\Lambda(\mathbb{C}^{19})` with creation
+the exterior product and annihilation the contraction, and the canonical
+anticommutation relations are proved (`ghost_car`). Constraints and ghosts live
+together on the graded space $`\mathbb{C}[x_0,\dots,x_{83}]\otimes
+\Lambda(\mathbb{C}^{19})`, where they commute (`bosOp_ghostOp_comm`,
+`qgGhostCar`). The constraints are the first-order generators $`x_j\partial_k` of
+linear changes of the field coordinates; these close into the matrix Lie algebra
+(`elemGen_bracket`, `linGen_bracket`), so any matrix family that closes with real
+structure constants obeying Jacobi yields a nilpotent charge
+(`qgBRST_nilpotent`). The statement is not vacuous: the affine algebra
+$`[H,E] = E`, whose two generators demonstrably fail to commute
+(`affMat_non_abelian`), gives a concrete non-abelian nilpotent BRST charge
+(`affBRST_nilpotent`).
+:::
+
+```
+#check @BookProof.QuantumGravityBrstCharge.glin_sq
+#check @BookProof.QuantumGravityBrstCharge.glin_mul_Q_add_Q_mul_glin
+#check @BookProof.QuantumGravityBrstCharge.brst_full_nilpotent
+#check @BookProof.QuantumGravityBrstCharge.brst_abelian_nilpotent
+#check @BookProof.QuantumGravityBrstCharge.ghost_car
+#check @BookProof.QuantumGravityBrstCharge.bosOp_ghostOp_comm
+#check @BookProof.QuantumGravityBrstCharge.qgGhostCar
+#check @BookProof.QuantumGravityBrstCharge.elemGen_bracket
+#check @BookProof.QuantumGravityBrstCharge.linGen_bracket
+#check @BookProof.QuantumGravityBrstCharge.qgBRST
+#check @BookProof.QuantumGravityBrstCharge.qgBRST_nilpotent
+#check @BookProof.QuantumGravityBrstCharge.qgBRST_abelian_nilpotent
+#check @BookProof.QuantumGravityBrstCharge.affMat_non_abelian
+#check @BookProof.QuantumGravityBrstCharge.affMat_close
+#check @BookProof.QuantumGravityBrstCharge.affF_jacobi
+#check @BookProof.QuantumGravityBrstCharge.affBRST_nilpotent
+```
+
+# The Graded Fock Space: Bosons, Ghosts and the Second Quantization
+
+:::paragraph
+The manuscript's quantum Hilbert space for empty spacetime is the tensor product
+of a symmetric and an antisymmetric Fock space,
+$`\Gamma^s(L^2(\mathbb{R}^{84}\times\mathbb{Z}_2^{19}))\otimes
+\Gamma^a(L^2(\mathbb{R}^{84}\times\mathbb{Z}_2^{19}))`, whose creation and
+annihilation operators form a $`\mathbb{Z}_2`-graded superalgebra. The bosonic
+half is the occupation-number Fock space already built for Yang–Mills; what is
+added here is the fermionic (ghost) half and the grading. A ghost configuration
+is the finite set of occupied ghost modes — the Pauli principle is built into the
+representation — and the ladder operators carry the Jordan–Wigner sign
+$`(-1)^{\#\{i\in\alpha\,:\,i<j\}}`. Their canonical anticommutation relations are
+proved, not postulated: $`\{\psi_j,\psi_j^\dagger\} = 1`
+(`car_fermAnn_fermCre`), $`\{\psi_j,\psi_k^\dagger\} = 0` for $`j\neq k`
+(`car_fermAnn_fermCre_of_ne`), and $`\{\psi_j,\psi_k\} =
+\{\psi_j^\dagger,\psi_k^\dagger\} = 0` (`car_fermAnn_fermAnn`,
+`car_fermCre_fermCre`), whence $`\psi_j^2 = (\psi_j^\dagger)^2 = 0`. That
+$`\psi_j^\dagger` deserves its name is also proved: it is the adjoint of
+$`\psi_j` on $`\ell^2` of the ghost configurations (`inner_fermCre_left`).
+:::
+
+:::paragraph
+The grading is the parity operator $`\Gamma = (-1)^F`, an involution
+(`fermGrade_involutive`) for which both ladder operators are odd
+(`fermGrade_fermAnn`, `fermGrade_fermCre`); with the graded bracket
+$`[x,y\} = xy - (-1)^{|x||y|}yx` the anticommutation relations become the
+superbracket identity $`[\psi_j,\psi_j^\dagger\} = 1`
+(`superBracket_fermAnn_fermCre`). On the graded state space bosonic and ghost
+operators supercommute (`bosOp_ghostOp_comm`, `superBracket_bosOp_ghostOp`), the
+bosonic canonical commutation relation and the ghost anticommutation relation
+both hold (`qgCCR`, `qgGhostCar`, and for the $`19` diffeomorphism ghosts
+`qgGhostCar_book`), the bosonic operators are even and the ghost operators odd
+(`bosOp_even`, `ghostOp_odd_ann`, `ghostOp_odd_cre`).
+:::
+
+:::paragraph
+Finally the dynamics. The joint occupation states of bosons and ghosts carry the
+second-quantized Hamiltonian whose symbol is the total boson energy plus the
+total ghost energy. It is essentially self-adjoint on the finite-occupation
+domain (`qgGradedFock_esa`) — with no positivity and no boundedness assumption,
+which matters because the gauge-fixed gravity symbol is indefinite — and
+therefore generates the unitary group $`e^{-itH}` on the graded Fock space
+(`qgGradedFock_stone_flow`); `qgGradedFock_not_bounded` records that the operator
+is genuinely unbounded. The general theorems this instantiates are also registered
+here: the second quantization of an arbitrary real one-particle symbol
+(`qgDGamma_esa`), the two-level Fock-of-Fock Hamiltonian (`qgTwoLevel_esa`), and
+the Hashimoto/SIRK shift-invert selection of the Friedrichs extension over the
+Gauss–polynomial core of $`L^2(\mathbb{R}^{84})` (`qgFock_hashimoto_selects`).
+The Fock level is therefore *not* where the open question lies: it is essentially
+self-adjoint as soon as the one-particle operator is. No mass gap and no global
+existence is claimed.
+:::
+
+```
+#check @BookProof.QuantumGravityFock.car_fermAnn_fermCre
+#check @BookProof.QuantumGravityFock.car_fermAnn_fermCre_of_ne
+#check @BookProof.QuantumGravityFock.car_fermAnn_fermAnn
+#check @BookProof.QuantumGravityFock.car_fermCre_fermCre
+#check @BookProof.QuantumGravityFock.fermAnn_comp_self
+#check @BookProof.QuantumGravityFock.fermCre_comp_self
+#check @BookProof.QuantumGravityFock.inner_fermCre_left
+#check @BookProof.QuantumGravityFock.fermGrade_involutive
+#check @BookProof.QuantumGravityFock.fermGrade_fermAnn
+#check @BookProof.QuantumGravityFock.fermGrade_fermCre
+#check @BookProof.QuantumGravityFock.superBracket_fermAnn_fermCre
+#check @BookProof.QuantumGravityFock.superBracket_bosOp_ghostOp
+#check @BookProof.QuantumGravityFock.bosOp_ghostOp_comm
+#check @BookProof.QuantumGravityFock.qgCCR
+#check @BookProof.QuantumGravityFock.qgGhostCar
+#check @BookProof.QuantumGravityFock.qgGhostCar_book
+#check @BookProof.QuantumGravityFock.bosOp_even
+#check @BookProof.QuantumGravityFock.ghostOp_odd_ann
+#check @BookProof.QuantumGravityFock.ghostOp_odd_cre
+#check @BookProof.QuantumGravityFock.qgGradedFock_esa
+#check @BookProof.QuantumGravityFock.qgGradedFock_stone_flow
+#check @BookProof.QuantumGravityFock.qgGradedFock_not_bounded
+#check @BookProof.QuantumGravityFock.qgDGamma_esa
+#check @BookProof.QuantumGravityFock.qgTwoLevel_esa
+#check @BookProof.QuantumGravityFock.qgFock_hashimoto_selects
+```
+
+# The BRST Charge on the Completed Space and the Reduced Transfer
+
+:::paragraph
+The BRST charge of the field-space section lives on an algebraic (finite-mode)
+graded space, and the reduced-transfer theorem needs something else: a *bounded*
+nilpotent charge on a *complete* Hilbert space, because the physical states are
+$`\ker\Omega`, the pure-gauge states are $`\overline{\operatorname{ran}\Omega}`,
+and closures only make sense once the space is complete. The join is made here on
+$`\ell^2` of the joint boson/ghost occupations — the completion of the graded Fock
+space of the previous section. The technical ingredient is a weighted-shift
+calculus: if a weight has modulus at most one and the reindexing it accompanies is
+injective on the weight's support, then $`f \mapsto (i \mapsto w_i f(e(i)))` is a
+bounded operator of norm at most one on $`\ell^2` (`wshift_norm_le`); this is what
+makes the ghost ladder bounded after completion, and it is proved, not assumed.
+:::
+
+:::paragraph
+The dressed ghost creation operators $`C_a\Psi_a^\dagger` — a Jordan–Wigner ghost
+creation times a constraint symbol diagonal in the boson occupations and bounded by
+one — square to zero (`brstTerm_comp_self`) and anticommute
+(`brstTerm_anticomm`). Their sum over the $`19` diffeomorphism ghosts is the BRST
+charge $`\Omega`, which is bounded, *nilpotent* (`qgBrstCharge_nilpotent`) and
+nonzero (`qgBrstCharge_ne_zero`), so the cohomology is not a statement about the
+zero operator. Multiplication by the phase $`e^{-itE(n)}` of the boson energy is an
+explicit unitary group (`qgPhase_zero`, `qgPhase_group`, `qgPhase_isometry`) that
+acts on an occupation basis vector exactly as the second-quantized evolution of the
+previous section with vanishing ghost energy (`qgPhase_single`), and it commutes
+with $`\Omega` (`qgPhase_comm_brst`).
+:::
+
+:::paragraph
+Consequently the evolution maps physical states to physical states — the caveat the
+manuscript raises about the half-density unitary — (`qgPhase_mem_physicalStates`),
+maps gauge states to gauge states (`qgPhase_mem_exactStates`), and descends to the
+BRST cohomology of the completed space as a one-parameter group of automorphisms
+(`qgBrstTransfer_zero`, `qgBrstTransfer_comp`, `qgBrstTransfer_bijective`) which
+preserves the BRST quotient norm (`qgBrstTransfer_infDist`). The honest boundary:
+the constraint symbols are diagonal and bounded rather than the unbounded generators
+of the full constraint algebra, and the commuting Hamiltonian carries no ghost
+energy. That last point is not a stylistic restriction but a theorem: if a ghost
+energy is nonzero, the evolution it generates does *not* commute with the charge
+(`qgPhaseFull_not_comm_brst`), so it does not descend to the cohomology. The
+obstruction is proved, not hidden.
+:::
+
+```
+#check @BookProof.QgBrstCompleted.wshift_norm_le
+#check @BookProof.QgBrstCompleted.wshift_norm_eq
+#check @BookProof.QgBrstCompleted.brstTerm_norm_le
+#check @BookProof.QgBrstCompleted.brstTerm_comp_self
+#check @BookProof.QgBrstCompleted.brstTerm_anticomm
+#check @BookProof.QgBrstCompleted.qgBrstCharge_nilpotent
+#check @BookProof.QgBrstCompleted.qgBrstCharge_ne_zero
+#check @BookProof.QgBrstCompleted.qgPhase_zero
+#check @BookProof.QgBrstCompleted.qgPhase_group
+#check @BookProof.QgBrstCompleted.qgPhase_isometry
+#check @BookProof.QgBrstCompleted.qgPhase_single
+#check @BookProof.QgBrstCompleted.qgPhase_comm_brst
+#check @BookProof.QgBrstCompleted.qgPhaseFull_isometry
+#check @BookProof.QgBrstCompleted.qgPhaseFull_not_comm_brst
+#check @BookProof.QgBrstCompleted.qgExact_le_physical
+#check @BookProof.QgBrstCompleted.qgPhase_mem_physicalStates
+#check @BookProof.QgBrstCompleted.qgPhase_mem_exactStates
+#check @BookProof.QgBrstCompleted.qgBrstTransfer_zero
+#check @BookProof.QgBrstCompleted.qgBrstTransfer_comp
+#check @BookProof.QgBrstCompleted.qgBrstTransfer_bijective
+#check @BookProof.QgBrstCompleted.qgBrstTransfer_infDist
+```
+
 # Summary
 
 The algebraic core of the manuscript's diffeomorphisms/gravity chapter:
@@ -965,3 +1196,7 @@ The algebraic core of the manuscript's diffeomorphisms/gravity chapter:
  * the compatibility of diffeomorphism constraints with time-evolution;
  * the densitized change of variables $`y = \sqrt e`, $`\tilde e = \sqrt e\, e`, the absorption of the singular $`1/e`, the flat (hyperbolic) principal part, and the Hermite-basis realization on which essential self-adjointness is proved — with Strichartz's continuum theorem carried as a named hypothesis, never as a claimed result;
  * the half-density unitary $`L^2((0,\infty),de) \simeq L^2((0,\infty),2y\,dy)` of that change of variables, constructed rather than assumed, at which the unitary-transfer theorem is instantiated.
+ * the gauge-fixed $`84`-dimensional field-space Hamiltonian on the Gauss–polynomial core of $`L^2(\mathbb{R}^{84})`, its canonical commutation relations, its symmetry and quadratic form, and the Friedrichs extension of its elliptic truncation — with the indefinite physical signature recorded rather than hidden;
+ * the BRST charge of that field space: the $`\mathbb{Z}_2^{19}` ghost sector with its canonical anticommutation relations, the graded field space on which bosons and ghosts commute, the $`\mathfrak{gl}(84)` constraint generators, the nilpotency $`\Omega^2 = 0`, and a concrete non-abelian instance witnessing that the construction is not vacuous.
+ * the graded Fock space $`\Gamma^s \otimes \Gamma^a` of bosons and $`\mathbb{Z}_2^{19}` ghosts: the fermionic canonical anticommutation relations with their Jordan–Wigner signs, the adjointness of creation and annihilation, the $`\mathbb{Z}_2` grading and superbracket, and the essential self-adjointness — with its unitary group — of the second-quantized Hamiltonian on the finite-occupation domain, with no positivity assumption.
+ * the bounded, nonzero, nilpotent BRST charge on the *completed* graded space $`\ell^2` of joint boson/ghost occupations, an explicit commuting unitary group, and the resulting reduced transfer: the evolution preserves the physical states and descends to the BRST cohomology as a norm-preserving one-parameter group of automorphisms.

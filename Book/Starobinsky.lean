@@ -28,7 +28,9 @@ equivalence, the Einstein-frame scalaron potential and its shape, the
 regularization of the conformal mode, essential self-adjointness of the
 gauge-fixed Hamiltonian on a continuum core (exponential wall included), and the
 quantization to the nested Fock space. The modules are `BookProof/ChapterStarobinskyPotential.lean`,
-`BookProof/ChapterScalaronCoreEsa.lean` and `BookProof/ChapterScalaronFockEsa.lean`
+`BookProof/ChapterScalaronCoreEsa.lean`, `BookProof/ChapterScalaronFockEsa.lean` and —
+for the exponential wall of the *sum* $`-d^2/d\varphi^2 + V` —
+`BookProof/ChapterWeakSecondDerivative.lean` with `BookProof/ChapterScalaronWallEsa.lean`
 (plan item *A5* of `CONSOLIDATED_PLAN.md`), all registered in `BookProof.lean`
 and certified axiom-free in `BookProof/ChapterRoadmapAudit.lean`.
 :::
@@ -218,8 +220,172 @@ self-adjointness question; the deficiency half is not proved here.
 :::paragraph
 This is the well-definedness half of the Hermite-core programme. It fixes the
 domain in the basis the algorithm uses; it does *not* by itself give essential
-self-adjointness on that core, which remains open, as does the hyperbolic
-(Strichartz / direct-integral) residue for the conformal-mode kinetic term.
+self-adjointness on that core. For the *potential term* the next section closes
+that gap even for the exponential wall; for the full operator $`-\Delta + V` it
+remains open, as does the hyperbolic (Strichartz / direct-integral) residue for the
+conformal-mode kinetic term.
+:::
+
+# The Exponential Wall Is Not an Obstruction on the Hermite Core
+
+:::paragraph
+Multiplication by the scalaron potential is *essentially* self-adjoint on the
+Gauss–polynomial core — no temperate growth, no boundedness, no semiboundedness
+hypothesis. The obstruction one expects is that a deficiency vector $`w` at a
+non-real $`z` gives the function $`u = (W - z)w`, which is *not* square
+integrable when $`W` grows exponentially, so the usual moment argument (vanishing
+of all $`\int p\,e^{-\|x\|^2/4}u`) cannot be quoted. What replaces square
+integrability is *Gaussian exponential decay*: $`e^{c\|x\|}e^{-\|x\|^2/4}u` is
+integrable for *every* $`c`, because $`|u| \le C e^{c\|x\|}|w|` with
+$`w \in L^2` and the Gaussian beats every exponential. That is all the Fourier
+argument ever used: the transform of $`e^{-\|x\|^2/4}u` is an everywhere
+convergent power series in the moments, hence identically zero, hence $`u = 0`
+almost everywhere; and $`W - z` never vanishes because $`W` is real. So $`w = 0`,
+both deficiency spaces are trivial, and the core is a genuine core.
+:::
+
+```
+#check @BookProof.ScalaronHermiteEsa.gaussExpDecay_potential_sub
+#check @BookProof.ScalaronHermiteEsa.ae_eq_zero_of_moments_of_gaussExpDecay
+#check @BookProof.ScalaronHermiteEsa.potCore_deficiencyTrivialAt
+#check @BookProof.ScalaronHermiteEsa.potCore_essentiallySelfAdjoint
+#check @BookProof.ScalaronHermiteEsa.scalaronPot_essentiallySelfAdjoint
+#check @BookProof.ScalaronHermiteEsa.scalaronSector_essentiallySelfAdjoint
+#check @BookProof.ScalaronHermiteEsa.scalaronPot_stone_flow
+#check @BookProof.ScalaronHermiteEsa.scalaronSector_stone_flow
+```
+
+:::paragraph
+The statement holds in every dimension for every continuous exponentially bounded
+real potential, so both the one-variable scalaron potential and the full reduced
+sector potential $`V_3(R_c) + V(\varphi)` are covered, and the essential
+self-adjointness — rather than a choice of extension — is what produces the
+self-adjoint realization and its unitary group. What is *not* claimed is the sum
+$`-\Delta + V` on the Hermite core with the exponential potential; there the
+Friedrichs realization of the next section is still what is available.
+:::
+
+# Why Kato–Rellich Cannot Be Used for the Sum
+
+:::paragraph
+The natural first attempt at $`-\Delta + V` on the Hermite core is Kato–Rellich:
+show that $`V` is relatively bounded with respect to the kinetic term with
+relative bound less than one. For the exponential wall that attempt cannot
+succeed, and the reason is quantitative. Test the two sides against the monomial
+core family $`\psi_N(x) = x^N e^{-x^2/4}`. The reference operators map this family
+into itself by polynomial maps of fixed degree increment,
+$`(-d^2/dx^2 + x^2/4)\psi_N = ((N + \tfrac12)x^N - N(N-1)x^{N-2})e^{-x^2/4}`, and
+the monomial moment recursion turns that into $`\|H_0\psi_N\| \le (N^2+1)\|\psi_N\|`
+and $`\|\psi_N''\| \le (N^2+1)\|\psi_N\|`: cubic growth at worst. The wall, by
+contrast, is an exponentially tilted Gaussian moment; keeping the eighth-order term
+of the tilt gives $`\int e^{-2sx}x^{2N}e^{-x^2/2} \ge (2s^8/315)M_{2N+8}` and
+$`M_{2N+8} = (2N+7)(2N+5)(2N+3)(2N+1)M_{2N}`, so the quadratic form of $`V` along
+the family grows like $`N^4`. A quartic cannot be dominated by a cubic, and the
+conclusion is not merely that the relative bound fails to be small — no pair of
+constants $`(a,b)` works at all, for the kinetic term and for the conformal-mode
+oscillator alike.
+:::
+
+```
+#check @BookProof.HermiteExpWall.quadForm_scalaron_ge
+#check @BookProof.HermiteExpWall.l2_scalaron_ge
+#check @BookProof.HermiteExpWall.l2_kin_le
+#check @BookProof.HermiteExpWall.l2_osc_le
+#check @BookProof.HermiteExpWall.not_relatively_bounded_of_cubic
+#check @BookProof.HermiteExpWall.scalaronV_not_kinetic_relativelyBounded
+#check @BookProof.HermiteExpWall.scalaronV_not_oscillator_relativelyBounded
+```
+
+:::paragraph
+This is a genuine obstruction rather than a gap in the bookkeeping, and it explains
+the shape of the two preceding sections: the oscillator chapter can only absorb
+*bounded* perturbations by Kato–Rellich, and the exponential case had to be handled
+by the Fourier/moment route instead. For the sum $`-\Delta + V` with the exponential
+wall what remains is the Friedrichs realization.
+:::
+
+# What Kato–Rellich *Can* Reach: Quadratically Dominated Potentials
+
+:::paragraph
+The obstruction of the previous section is about the exponential wall specifically,
+not about the method, and it is worth recording exactly how far the method does
+reach. The reference operator to perturb is not the bare kinetic term but the
+harmonic Hamiltonian $`H_0 = -\Delta + W` with $`W(x) = \|x\|^2/4`, the one for
+which the Gauss–polynomial core is already a core. Against *that* operator the
+harmonic potential itself is relatively bounded, with relative constant exactly one:
+$`\|W\psi\|^2 \le \|H_0\psi\|^2 + \tfrac{d}{2}\|\psi\|^2` for every $`\psi` in the
+core. The proof is the anticommutator identity $`\{-\Delta, W\} = -\Delta W +
+2\sum_j(-\partial_j)W\partial_j`, which on the core is a finite algebraic
+computation with the twisted derivative $`D_j` and Gaussian integration by parts:
+since $`W \ge 0` and $`\Delta W = d/2`, the cross term
+$`2\operatorname{Re}\langle -\Delta\psi, W\psi\rangle` is bounded below by
+$`-\tfrac{d}{2}\|\psi\|^2`, and expanding $`\|H_0\psi\|^2` gives the bound.
+:::
+
+:::paragraph
+Kato–Rellich then absorbs any continuous potential $`V` dominated pointwise by
+$`a\|x\|^2/4 + b` with $`a < 1`: the Gauss–polynomial core stays a core for
+$`-\Delta + \|x\|^2/4 + V`, and $`V` is allowed to be unbounded. In growth form the
+criterion reads: a continuous potential $`U` with
+$`|U(x) - \|x\|^2/4| \le A\|x\|^2 + C\|x\| + B` and $`4A < 1` — the linear and
+constant coefficients arbitrary — is essentially self-adjoint on the core. Two
+corollaries are worth naming: every perturbation of at most linear growth is
+admissible, and the scaled oscillator $`-\Delta + \lambda\|x\|^2/4` is essentially
+self-adjoint on the *fixed*, width-one Gauss core for every $`\lambda \in (0,2)`.
+:::
+
+```
+#check @BookProof.HermiteQuadraticEsa.gaussInt_anticommutator
+#check @BookProof.HermiteQuadraticEsa.norm_sq_harmPoly_mul_le
+#check @BookProof.HermiteQuadraticEsa.norm_harmPoly_mul_le
+#check @BookProof.HermiteQuadraticEsa.harmonic_add_subquadratic_essentiallySelfAdjoint
+#check @BookProof.HermiteQuadraticEsa.harmonic_add_subquadratic_stone_flow
+#check @BookProof.HermiteQuadraticEsa.quadraticGrowth_essentiallySelfAdjoint
+#check @BookProof.HermiteQuadraticEsa.harmonic_add_linearGrowth_essentiallySelfAdjoint
+#check @BookProof.HermiteQuadraticEsa.scaledHarmonic_essentiallySelfAdjoint
+```
+
+:::paragraph
+The instance this chapter was after is the regularized conformal mode itself. The
+potential $`V_3(R_c) = -\tfrac{M^2}{2}R_c + \alpha R_c^2` differs from $`R_c^2/4` by
+$`(\alpha - \tfrac14)R_c^2 - \tfrac{M^2}{2}R_c`, so the criterion applies as soon as
+$`|\alpha - \tfrac14| < \tfrac14`, that is for $`0 < \alpha < \tfrac12`, with the
+mass term absorbed for free at any $`M`. The conclusion is unconditional — no
+finite-speed and no unique-continuation hypothesis — and it yields the unitary group
+directly, without a choice of extension.
+:::
+
+```
+#check @BookProof.HermiteQuadraticEsa.confW
+#check @BookProof.HermiteQuadraticEsa.confV_essentiallySelfAdjoint
+#check @BookProof.HermiteQuadraticEsa.confV_stone_flow
+```
+
+:::paragraph
+The two-variable reduced sector is reached the same way. Its potential is
+$`V_3(R_c) + V(\varphi)`, and while the exponential wall $`V(\varphi)` is out of
+reach, its harmonic approximation at the minimum is not: $`V` vanishes to second
+order at $`\varphi = 0` with $`V(\varphi)/\varphi^2 \to M^2/(24\alpha)`, so the
+quadratic sector potential is $`V_3(R_c) + \mu\varphi^2`. Both variables now have to
+sit inside the window of the core, which is $`0 < \alpha < \tfrac12` for the
+conformal mode and $`0 < \mu < \tfrac12` for the scalaron mass; at the physically
+natural $`\mu = M^2/(24\alpha)` the second condition reads $`M^2 < 12\alpha`.
+:::
+
+```
+#check @BookProof.HermiteQuadraticEsa.sectorQuadW
+#check @BookProof.HermiteQuadraticEsa.sectorQuad_essentiallySelfAdjoint
+#check @BookProof.HermiteQuadraticEsa.sectorQuad_stone_flow
+#check @BookProof.HermiteQuadraticEsa.tendsto_starobinskyV_div_sq
+#check @BookProof.HermiteQuadraticEsa.sectorHarmonicApprox_essentiallySelfAdjoint
+```
+
+:::paragraph
+The window $`a < 1` is the honest edge of the method rather than an artifact: the
+relative bound of $`W` against $`H_0` is exactly one, so a strictly larger relative
+bound cannot be absorbed. On a Gauss core of a different width the same argument
+relocates the window in $`\alpha`; what no width reaches is the exponential wall,
+by the refutation of the previous section.
 :::
 
 # The Friedrichs Realization on the Hermite Core
@@ -408,4 +574,208 @@ among the extensions whose domain lies in the form domain.
 
 ```
 #check @BookProof.FriedrichsCanonical.unbounded_friedrichs_canonical_example
+```
+
+# The Compactly Supported Core
+
+:::paragraph
+The Gauss–polynomial core is convenient but not canonical. The core a physicist
+actually writes down is $`C_c^\infty(\mathbb{R}^d)`, the smooth functions of compact
+support: it is where test wave packets live, it is stable under localization, and it
+is the building block of the finite-particle Fock core. Essential self-adjointness on
+it is the stronger statement, because a smaller core means fewer test vectors are
+available to kill a deficiency vector — and it implies the same conclusion on every
+larger core, the Gauss core included.
+:::
+
+:::paragraph
+Neither core sits inside the other: a Gauss polynomial $`p(x)e^{-\|x\|^2/4}` is never
+compactly supported, and a bump function is never a Gauss polynomial. So the transfer
+cannot be a restriction argument. What replaces it is approximation in the graph norm:
+if every vector of $`D_1` is approximated, together with its image under the operator,
+by vectors of $`D_2`, then a deficiency vector for the operator on $`D_2` is one for
+the operator on $`D_1`, and triviality of the deficiency spaces passes from $`D_1` to
+$`D_2` even though the domains are unrelated.
+:::
+
+```
+#check @BookProof.QgOneParticleCc.deficiencyTrivialAt_of_graphApprox
+#check @BookProof.QgOneParticleCc.essentiallySelfAdjointOn_of_graphApprox
+#check @BookProof.QgOneParticleCc.ccHam
+#check @BookProof.QgOneParticleCc.ccHam_symmetricOn
+```
+
+:::paragraph
+The analytic input is a cut-off estimate. With $`\chi` a fixed bump equal to one on the
+unit ball and $`\chi_R(x) = \chi(x/R)`, the Leibniz rule gives
+$$`(-\Delta + W)(\chi_R\psi) - (-\Delta + W)\psi
+ = (\chi_R - 1)(-\Delta\psi + W\psi) - 2\sum_j \partial_j\chi_R\,\partial_j\psi
+   - (\Delta\chi_R)\psi.`
+Each of the three terms is $`o(1)` in $`L^2`: the first by dominated convergence, since
+$`\chi_R - 1` vanishes on the ball of radius $`R` and is bounded; the second and third
+because the scaling gives $`|\partial\chi_R| \le C/R` and $`|\Delta\chi_R| \le C/R^2`
+while $`\partial_j\psi` and $`\psi` are square integrable. Hence every Gauss-core vector
+is a graph-norm limit of compactly supported smooth ones, and essential self-adjointness
+descends.
+:::
+
+```
+#check @BookProof.QgOneParticleCc.exists_cut_derivative_bounds
+#check @BookProof.QgOneParticleCc.exists_cc_graph_approx
+#check @BookProof.QgOneParticleCc.ccHam_essentiallySelfAdjoint_of_core
+```
+
+:::paragraph
+The payoff is the one-particle theorem in the form the applications want: for every
+smooth $`V` with $`|V| \le a\|x\|^2/4 + b` and $`a < 1`, the gauge-fixed Hamiltonian
+$`-\Delta + \|x\|^2/4 + V` is essentially self-adjoint on $`C_c^\infty(\mathbb{R}^d)`,
+and Stone's theorem then supplies the unitary group. The conformal mode in one variable
+and the reduced two-variable sector $`(R_c,\varphi)` of $`R + \alpha R^2` are instances,
+under the same $`0 < \alpha < 1/2` window that made the parabola subquadratic.
+:::
+
+```
+#check @BookProof.QgOneParticleCc.qgOneParticleCc_esa
+#check @BookProof.QgOneParticleCc.qgOneParticleCc_stone_flow
+#check @BookProof.QgOneParticleCc.confVCc_esa
+#check @BookProof.QgOneParticleCc.sectorQuadCc_esa
+```
+
+:::paragraph
+Second quantization is then free. The $`n`-particle potential
+$`\sum_k (\|x_k\|^2/4 + V(x_k))` on $`(\mathbb{R}^d)^n \cong \mathbb{R}^{nd}` obeys the
+same quadratic bound with the same $`a` and $`n` times the constant, so each sector
+Hamiltonian is essentially self-adjoint on its own compactly supported smooth core; the
+direct-sum criterion assembles the sectors into the finite-particle Fock space, whose
+core is the algebraic direct sum of the one-particle cores. The second-quantized
+$`R + \alpha R^2` Hamiltonian is essentially self-adjoint there, with a unitary
+time evolution.
+:::
+
+```
+#check @BookProof.QgOneParticleCc.qgNParticleCc_esa
+#check @BookProof.QgOneParticleCc.qgFock
+#check @BookProof.QgOneParticleCc.qgFockCore
+#check @BookProof.QgOneParticleCc.qgFockHam
+#check @BookProof.QgOneParticleCc.qgFockCc_esa
+#check @BookProof.QgOneParticleCc.qgFockCc_stone_flow
+```
+
+:::paragraph
+The boundary is the same one as on the Gauss core, and is stated rather than hidden: the
+potential class transported here is the quadratic one. The exponentially growing scalaron
+wall $`e^{\beta\varphi}` is not covered — on the Gauss core it is refuted outright, because
+the wall does not even map that core into $`L^2`. Localizing the core does not repair that;
+it only strengthens the conclusion within the class where the conclusion holds. The wall is
+reached instead by the entirely different argument of the next section.
+:::
+
+# The Exponential Wall, Closed by Convexity
+
+:::paragraph
+The transfer of the previous section moves a *quadratic-class* theorem, so it leaves the
+wall itself untouched, and every perturbative route to the wall is refuted: it is not a
+relatively bounded perturbation of $`-\Delta` or of $`-\Delta + x^2/4` on the Gauss core
+with any pair of constants, and the Carleman flux criterion fails because the Hermite
+amplitudes grow like $`e^{c\sqrt{N}}`, so $`\sum 1/A` converges. What closes the wall is
+not a perturbation argument at all, but the classical convexity argument for a
+*non-negative* potential — and the Starobinsky potential is non-negative, being a square.
+:::
+
+:::paragraph
+The argument runs on the compactly supported smooth core of $`L^2(\mathbb{R})`, the
+scalaron direction alone. A deficiency vector $`u` at $`z = \pm i` satisfies
+$`u'' = (V - z)u` in the sense of distributions. That is an $`L^2` statement about an
+equation between distributions, so the first step is regularity: du Bois-Reymond's lemma
+in its second-order form says that a locally integrable function orthogonal to the second
+derivative of every test function is almost everywhere affine, and iterating it against
+the double antiderivative of the right-hand side identifies $`u`, almost everywhere, with
+a genuine twice differentiable solution $`W` of $`W'' = (V - z)W`.
+:::
+
+```
+#check @BookProof.WeakSecondDeriv.ae_eq_affine_of_integral_deriv2_smul_eq_zero
+#check @BookProof.WeakSecondDeriv.exists_ae_eq_doubleAntideriv_add_affine
+#check @BookProof.WeakSecondDeriv.exists_deriv2_of_weak_eq
+```
+
+:::paragraph
+With a classical solution in hand the geometry takes over. Since $`\operatorname{Re} z = 0`,
+$$`(|W|^2)'' = 2\operatorname{Re}(\bar W W'') + 2|W'|^2 = 2\bigl(V|W|^2 + |W'|^2\bigr) \ge 0,`
+so $`|W|^2` is convex. It is also non-negative and — because $`u \in L^2` — integrable.
+A convex function on the whole line satisfies $`F(a-s) + F(a+s) \ge 2F(a)`; integrating
+over $`s \in [0,R]` bounds $`2F(a)R` by the total integral for *every* $`R`, which forces
+$`F \equiv 0`. Hence $`u = 0`: both deficiency spaces are trivial, and the operator is
+essentially self-adjoint. No growth hypothesis on $`V` is used anywhere.
+:::
+
+```
+#check @BookProof.ScalaronWallEsa.eq_zero_of_convexOn_nonneg_integrable
+#check @BookProof.ScalaronWallEsa.ode_solution_eq_zero
+#check @BookProof.ScalaronWallEsa.wallHam
+#check @BookProof.ScalaronWallEsa.wallHam_symmetricOn
+#check @BookProof.ScalaronWallEsa.wallHam_essentiallySelfAdjoint
+```
+
+:::paragraph
+Applied to the scalaron this says: $`-d^2/d\varphi^2 + V(\varphi)` with the exponentially
+growing Einstein-frame wall is essentially self-adjoint on $`C_c^\infty(\mathbb{R})`, and
+Stone's theorem turns the unique self-adjoint extension into the unitary group
+$`e^{-itH}` solving the Schrödinger equation globally in time. The honest boundary that
+remains is dimensional rather than about growth: the statement is one-dimensional and the
+hypothesis is $`V \ge 0`.
+:::
+
+```
+#check @BookProof.ScalaronWallEsa.starobinskyWall_esa
+#check @BookProof.ScalaronWallEsa.starobinskyWall_stone_flow
+```
+
+# Bounded Below, Not Just Non-Negative
+
+:::paragraph
+The convexity argument just given needs the potential to be non-negative. That
+hypothesis is a restriction on the *argument*, not on the physics, and
+`BookProof/ChapterWallEsaBddBelow.lean` removes it with the cheapest possible
+move: a constant shift. Multiplication by a real constant `c` is a bounded
+symmetric operator (`constOp`, `constOp_symmetric`), and shifting the potential by
+`c` shifts the whole operator by exactly that constant (`wallHam_add_const`);
+adding a bounded symmetric perturbation preserves essential self-adjointness —
+this is Kato–Rellich with relative bound zero
+(`BookProof.KatoRellich.essentiallySelfAdjointOn_add_bounded`) — so `-d²/dx² + V`
+is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)` for
+*every* smooth potential `V` that is merely bounded below, still with no growth
+restriction above (`wallHam_essentiallySelfAdjoint_of_bddBelow`), and Stone's
+theorem turns the unique extension into the unitary group
+(`wallHam_stone_flow_of_bddBelow`).
+:::
+
+```
+#check @BookProof.WallEsaBddBelow.constOp
+#check @BookProof.WallEsaBddBelow.constOp_symmetric
+#check @BookProof.WallEsaBddBelow.wallHam_add_const
+#check @BookProof.KatoRellich.essentiallySelfAdjointOn_add_bounded
+#check @BookProof.WallEsaBddBelow.wallHam_essentiallySelfAdjoint_of_bddBelow
+#check @BookProof.WallEsaBddBelow.wallHam_stone_flow_of_bddBelow
+```
+
+:::paragraph
+Two instances put the shift to work. `scalaronPlus_esa` is the scalaron wall plus
+an arbitrary smooth, bounded-below addition — and the conformal-mode parabola,
+bounded below by `-M⁴/(16α)`, is exactly such an addition, so the full
+one-variable gauge-fixed operator `-d²/dφ² + V(φ) + V₃(R_c)` is essentially
+self-adjoint on the compactly supported smooth core. `oscillatorPlus_esa` is the
+harmonic oscillator `-d²/dx² + x²/4 + V` with `V` merely bounded below: *no*
+relative bound between `V` and the oscillator is required — which is precisely
+what fails for the exponential wall on the Gauss–polynomial core, where the wall
+is not a relatively bounded perturbation of the oscillator with any pair of
+constants (the `HermiteExpWall` refutation above). The two routes are
+complementary rather than redundant: the Hermite route reaches the quadratically
+dominated class on the Gauss core, and the wall route reaches every
+bounded-below potential on the compactly supported core.
+:::
+
+```
+#check @BookProof.WallEsaBddBelow.scalaronPlus_esa
+#check @BookProof.WallEsaBddBelow.oscillatorPlus_esa
 ```

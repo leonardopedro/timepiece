@@ -372,14 +372,26 @@ hypothesis; the non-diagonal continuum is the D.6 sign/regime question.
 
 | Item | Suggested Lean name | Status |
 | :-- | :-- | :--: |
-| E.1 the configuration space `Conf = ℕ →₀ ℕ` over the `84`-mode (one-particle) basis, and its finite-occupation domain `ℓ²(Conf)` | `qgConf`, `qgFockAlg`, `lpFiniteModes qgConf` (reuse `FockSecondQuantization`) | TODO |
+| E.1 the configuration space `Conf = ℕ →₀ ℕ` over the `84`-mode (one-particle) basis, and its finite-occupation domain `ℓ²(Conf)` | `BoseConf`, `BoseAlg`, `GradedIdx`, `lpFiniteModes GradedIdx` (reuse `FockSecondQuantization`) | **DONE** (2026-08-26b) |
 | E.2 the bosonic ladder operators `a_j, a_j†` with `[a_j, a_j†] = 1` (reuse `ccr_annA_creA`) | `annA`, `creA`, `ccr_annA_creA` | DONE (reuse) |
-| E.3 the **fermionic (CAR)** ladder operators `ψ_j, ψ_j†` with `{ψ_j, ψ_j†} = 1` and `{ψ_j, ψ_k} = 0` on the antisymmetric sector | `fermAnn`, `fermCre`, `car_fermAnn_fermCre`, `car_fermAnn_fermAnn` | TODO |
-| E.4 the `ℤ₂`-grading: total fermionic number parity; bosonic ops grade 0, fermionic ops grade 1; the superalgebra `[x, y} = xy − (−1)^{|x||y|}yx` | `totalFermParity`, `grade`, `superBracket` | TODO |
+| E.3 the **fermionic (CAR)** ladder operators `ψ_j, ψ_j†` with `{ψ_j, ψ_j†} = 1` and `{ψ_j, ψ_k} = 0` on the antisymmetric sector | `fermAnn`, `fermCre`, `car_fermAnn_fermCre`, `car_fermAnn_fermCre_of_ne`, `car_fermAnn_fermAnn`, `car_fermCre_fermCre`, `inner_fermCre_left` | **DONE** (2026-08-26b) |
+| E.4 the `ℤ₂`-grading: total fermionic number parity; bosonic ops grade 0, fermionic ops grade 1; the superalgebra `[x, y} = xy − (−1)^{|x||y|}yx` | `fermGrade`, `qgGrade`, `superBracket`, `bosOp_even`, `ghostOp_odd_ann`, `ghostOp_odd_cre` | **DONE** (2026-08-26b) |
 | E.5 the second quantization `dΓ(A)` of a one-particle operator.  **General ESA (no positivity needed) is already proved** — reuse `dGamma_hasZeroDeficiencyOn` (`ChapterNavierStokesFockEsa.lean:127`, arbitrary real symbol); the positive ⇒ Friedrichs version (`dGamma_friedrichs_extension`, `secondQuantization_friedrichs`) is also available | `qgDGamma`, `qgDGamma_esa` (via `dGamma_hasZeroDeficiencyOn`), `qgSecondQuantization_friedrichs` | DONE (reuse) |
 | E.5b the **two-level (Fock-of-Fock)** ESA — already proved via `hTwoLevel_hasZeroDeficiencyOn` (`ChapterNavierStokesFockEsa.lean:339`, no boundedness at either level); QG just instantiates it with its own one-parcel/external symbols | `qgTwoLevel_esa` (via `hTwoLevel_hasZeroDeficiencyOn`) | DONE (reuse) |
-| E.7 **register + cite** the existing general Fock/Fock-of-Fock ESA theorems (`dGamma_hasZeroDeficiencyOn`, `hTwoLevel_hasZeroDeficiencyOn`, `lagrangianFock_hasZeroDeficiencyOn`) in `ChapterRoadmapAudit.lean` (`#print axioms`) and from `Book/` — currently missing | audit entries + `#check` citations | TODO |
+| E.7 **register + cite** the existing general Fock/Fock-of-Fock ESA theorems (`dGamma_hasZeroDeficiencyOn`, `hTwoLevel_hasZeroDeficiencyOn`, `lagrangianFock_hasZeroDeficiencyOn`) in `ChapterRoadmapAudit.lean` (`#print axioms`) and from `Book/` — currently missing | audit entries + `#check` citations | **DONE** (2026-08-26b) |
 | E.6 the finite-mode-domain identification so the Hashimoto/SIRK shift-invert machinery applies to the second-quantized operator (reuse `finiteModeDomain_fockBasisN`, `dGamma_hashimoto_selects`) | `qgFock_hashimoto_selects` | DONE (reuse) |
+
+**Executed 2026-08-26b.**  `BookProof/ChapterQuantumGravityFock.lean` (namespace
+`BookProof.QuantumGravityFock`) is `sorry`-free and `axiom`-free.  E.1/E.2 reuse the
+bosonic Fock module (`qgCCR_bose`); E.3 is the Jordan–Wigner construction with the four CAR
+theorems, the Pauli identities `fermAnn_comp_self` / `fermCre_comp_self` and the adjoint
+pairing `inner_fermCre_left`; E.4 is `fermGrade` (an involution, with both ladder operators
+odd), `superBracket` and the graded state space `QGGraded` with `bosOp_ghostOp_comm`,
+`qgCCR`, `qgGhostCar` and `qgGhostCar_book` for the `19` book ghosts; E.5/E.5b/E.6 are
+registered as `qgDGamma_esa`, `qgTwoLevel_esa`, `qgFock_hashimoto_selects`, and the joint
+boson+ghost Hamiltonian `qgGradedHam` gets its own **`qgGradedFock_esa`** and
+**`qgGradedFock_stone_flow`** (no positivity, no boundedness); E.7 is the 29 `#print axioms`
+lines in `ChapterRoadmapAudit.lean` and the new `Book/DiffeomorphismsGravity.lean` section.
 
 **Verification expectation:** E.1–E.6 are `sorry`-free and `axiom`-free; the
 `#print axioms` audit shows only `propext`, `Classical.choice`, `Quot.sound`.
@@ -404,14 +416,56 @@ product-Hermite-core operators) and `ChapterFockSecondQuantization.lean`.
 
 | Item | Suggested Lean name | Status |
 | :-- | :-- | :--: |
-| F.1 the 3D Hamiltonian density `ℋ = (1/16e)𝒮² − (1/24e)𝒫² + (1/2)𝒮E + (1/3)𝒫Eₐᵃ − e(𝒯-terms)` (book.tex:8177, 8188) stated as a formal expression with the `e = det e_i^a` degeneracy | `qg3DHamiltonianDensity` | TODO |
-| F.2 the densitized form: the `1/e`-singular kinetic part replaced by the A.3/A.4 absorption (`1/e = 4(∂y/∂e)²`), giving a polynomial-coefficient operator on the product Hermite core of `L²(ℝ⁸⁴)` — the gravity analogue of `ymHamiltonian` | `qg3DdensitizedHamiltonian`, `qg3D_apply` | TODO |
-| F.3 the coordinate/momentum operators on the core with the gravity CCR `[e_μ^a, π^ν_b] = iδ^ν_μ δ^a_b` and `[e_ν^a_,μ, π^{αβ}_b] = iδ^α_μ δ^β_ν δ^a_b` (book.tex:8267–8268) | `qgMulOp`, `qgMomOp`, `qgCCR` | TODO |
-| F.4 the Weyl ordering of the non-commuting `πe` cross-terms (the same subtlety as YM's `weylProd`), and the sign reconciliation with the positive sum-of-squares form | `qgWeylProd`, `qgWeylProd_polySym` | TODO |
-| F.5 symmetry and positivity of the densitized Hamiltonian on the core (Friedrichs hypothesis) | `qg3D_symmetricOn`, `qg3D_quadForm_nonneg` | TODO |
-| F.6 the BRST charge `G = ∫ (p e c∂e − p e ∂c + π v c∂v − π v ∂c + i∂β c^α c^β b_α)` (book.tex:8215) with ghosts on `ℤ₂¹⁹`; nilpotency `G² = 0` on the physical subspace — the gravity analogue of the Yang–Mills BRST charge | `qgBRST`, `qgBRST_nilpotent` | TODO |
-| F.7 the fermionic ghost CCR/CAR `{ψ_a, ψ†_b} = δ_ab`, `{ψ_{aμ}, ψ†_{bν}} = δ_ab δ_μν` (book.tex:8269–8270) | `qgGhostCar` | TODO |
-| F.8 the instantiation of the Friedrichs + Hashimoto theorems on the concrete 3D operator (reuse `friedrichs_extension_exists`, `friedrichs_hashimoto_selects`) | `qg3D_friedrichs_extension`, `qg3D_hashimoto_selects` | TODO |
+| F.1 the 3D Hamiltonian density `ℋ = (1/16e)𝒮² − (1/24e)𝒫² + (1/2)𝒮E + (1/3)𝒫Eₐᵃ − e(𝒯-terms)` (book.tex:8177, 8188) stated as a formal expression with the `e = det e_i^a` degeneracy | `qg3DHamiltonianDensity` | **DONE** (2026-08-25h) |
+| F.2 the densitized form: the `1/e`-singular kinetic part replaced by the A.3/A.4 absorption (`1/e = 4(∂y/∂e)²`), giving a polynomial-coefficient operator on the product Hermite core of `L²(ℝ⁸⁴)` — the gravity analogue of `ymHamiltonian` | `qg3DdensitizedHamiltonian`, `qg3D_apply` | **DONE** (2026-08-25h) |
+| F.3 the coordinate/momentum operators on the core with the gravity CCR `[e_μ^a, π^ν_b] = iδ^ν_μ δ^a_b` and `[e_ν^a_,μ, π^{αβ}_b] = iδ^α_μ δ^β_ν δ^a_b` (book.tex:8267–8268) | `qgMulOp`, `qgMomOp`, `qgCCR` | **DONE** (2026-08-25h) |
+| F.4 the Weyl ordering of the non-commuting `πe` cross-terms (the same subtlety as YM's `weylProd`), and the sign reconciliation with the positive sum-of-squares form | `qgWeylProd`, `qgWeylProd_polySym` | **DONE** (2026-08-25h) |
+| F.5 symmetry and positivity of the densitized Hamiltonian on the core (Friedrichs hypothesis) | `qg3D_symmetricOn`, `qg3D_quadForm_nonneg` | **DONE** (2026-08-25h) |
+| F.6 the BRST charge `G = ∫ (p e c∂e − p e ∂c + π v c∂v − π v ∂c + i∂β c^α c^β b_α)` (book.tex:8215) with ghosts on `ℤ₂¹⁹`; nilpotency `G² = 0` on the physical subspace — the gravity analogue of the Yang–Mills BRST charge | `qgBRST`, `qgBRST_nilpotent` | **DONE** (2026-08-25h) |
+| F.7 the fermionic ghost CCR/CAR `{ψ_a, ψ†_b} = δ_ab`, `{ψ_{aμ}, ψ†_{bν}} = δ_ab δ_μν` (book.tex:8269–8270) | `qgGhostCar` | **DONE** (2026-08-25h) |
+| F.8 the instantiation of the Friedrichs + Hashimoto theorems on the concrete 3D operator (reuse `friedrichs_extension_exists`, `friedrichs_hashimoto_selects`) | `qg3D_friedrichs_extension`, `qg3D_hashimoto_selects` | **DONE** (2026-08-25h) |
+| F.9 a **bounded** nilpotent BRST charge on the *completed* graded Hilbert space (so that the reduced-transfer theorems, which need a bounded charge on a complete space, apply), together with a commuting unitary group and the induced transfer on BRST cohomology | `qgBrstCharge`, `qgBrstCharge_nilpotent`, `qgPhase`, `qgBrstTransfer` | **DONE** (2026-08-26c) |
+
+**Executed 2026-08-26c (F.9).**  `BookProof/ChapterQgBrstCompleted.lean` is `sorry`-free and
+`axiom`-free.  It adds a bounded weighted-shift calculus on `ℓ²` (`tsum_sq_weighted_le`,
+`wshift`, `wshift_norm_le`, `wshift_norm_eq`), the dressed ghost creation operators
+`brstTerm` on the completed graded space `ℓ²(GradedIdx)` with `brstTerm_comp_self` and
+`brstTerm_anticomm`, the bounded nilpotent charge `qgBrstCharge` (`qgBrstCharge_nilpotent`,
+`qgBrstCharge_ne_zero`), the commuting unitary group `qgPhase` (`qgPhase_zero`,
+`qgPhase_group`, `qgPhase_isometry`, `qgPhase_comm_brst`, `qgPhase_single`), and the join
+with `ChapterBrstReducedTransfer`: `qgExact_le_physical`, `qgPhase_mem_physicalStates`,
+`qgPhase_mem_exactStates`, `qgBrstTransfer_zero`, `qgBrstTransfer_comp`,
+`qgBrstTransfer_bijective`, `qgBrstTransfer_infDist`.  Deviation, recorded in the docstring:
+the constraint symbols are boson-diagonal and bounded by one rather than the unbounded
+generators of the full constraint algebra, and the commuting Hamiltonian carries no ghost
+energy — and that restriction is proved necessary by `qgPhaseFull_not_comm_brst`: for a
+nonzero ghost energy the full-symbol evolution does not commute with the charge, so it does
+not descend to the cohomology.
+
+**Executed 2026-08-25h.**  `BookProof/ChapterQuantumGravity3DGauge.lean` (F.1–F.5, F.8)
+and `BookProof/ChapterQuantumGravityBrstCharge.lean` (F.6, F.7) are `sorry`-free and
+`axiom`-free.  Realized names (the table's suggestions, lightly renamed): F.1
+`qg3DDensity` / `qg3DDensity_singular` / `qg3DDensity_densitized`; F.2 `qg3DHamiltonian`,
+`qg3D_apply`; F.3 `qgCoord`, `qgMom`, `qgCCR`, `qgCCR_tetrad`; F.4 `qgWeylProd`,
+`qgWeylProd_polySym`, `qgWeylProd_coord_mom_polySym`; F.5 `qg3D_symmetricOn`,
+`qg3D_quadForm`; F.6 `qgBRST`, `qgBRST_nilpotent`, `brst_full_nilpotent`; F.7 `ghost_car`,
+`qgGhostCar`; F.8 `qg3DElliptic_friedrichs_extension`, `qg3DElliptic_hashimoto_selects`.
+Two deviations from the table, both recorded in the module docstrings:
+
+* F.5 — **`qg3D_quadForm_nonneg` is NOT proved and is not provable as stated.**  The
+  physical coefficients `qgKappa` have opposite signs (`qgKappa_indefinite`: `+1/16` for
+  the kinetic block, `−1/24` for the conformal block), so the quadratic form of
+  `qg3DHamiltonian` is a genuinely *indefinite* signed sum of squares
+  (`qg3D_quadForm`) and the operator is not semibounded.  What is proved is symmetry on
+  the core (`qg3D_symmetricOn`) plus nonnegativity, the Friedrichs extension and the
+  Hashimoto selection for the **elliptic truncation** `qg3DEllipticHamiltonian`
+  (`qg3DElliptic_quadForm_nonneg`, `qg3DElliptic_friedrichs_extension`,
+  `qg3DElliptic_hashimoto_selects`), which is F.8 on the operator to which it applies.
+* F.6 — the charge is built on the algebraic graded core `ℂ[x₀,…,x₈₃] ⊗ Λ(ℂ¹⁹)` rather
+  than on the completed `L²(ℝ⁸⁴ × ℤ₂¹⁹)`, and nilpotency is proved *given* that the
+  constraint family closes with real structure constants obeying Jacobi.  A concrete
+  non-abelian family (`affMat`, the affine algebra `[H, E] = E`) is exhibited so the
+  theorem is not vacuous.
 
 **Verification expectation:** F.1–F.8 are `sorry`-free and `axiom`-free;
 `#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`.  The

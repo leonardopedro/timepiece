@@ -41,7 +41,10 @@ temperate-growth theorems cannot reach — and the reduced two-variable sector
 **Honest boundary.**  This is the *existence and canonical choice* of a
 self-adjoint realization, not the *uniqueness* of one: essential
 self-adjointness on the core (§10.6.1 target 4) is not proved here, and no
-statement of this module asserts it.
+statement of this module asserts it.  It is proved elsewhere for the two cases
+now available — the harmonic potential (`BookProof.ChapterQgHermiteOscillatorEsa`)
+and the potential term alone, exponential growth included
+(`BookProof.ChapterScalaronHermiteEsa`).
 -/
 
 namespace BookProof.QgHermiteFriedrichs

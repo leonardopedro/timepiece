@@ -191,6 +191,70 @@ literally": the physical content lives in the gauge-invariant (cohomological)
 algebra, not in the individual wave-function.
 :::
 
+# The Reduced Dynamics on BRST Cohomology
+
+:::paragraph
+Nilpotency makes the cohomology well defined; it does not yet say that the
+*dynamics* respects it. That is a separate requirement, and it is the one the
+manuscript's transfer operator has to meet: the evolution must map the physical
+(BRST-closed) subspace to itself, and it must not mix physical states with
+pure-gauge (BRST-exact) ones, so that it descends to the quotient. Writing
+$`\mathrm{ker}\,\Omega` for the closed states and $`\overline{\mathrm{ran}\,\Omega}`
+for the exact ones — the closure is what makes the quotient a topological object —
+the BRST cohomology is $`\mathrm{ker}\,\Omega/\overline{\mathrm{ran}\,\Omega}`:
+:::
+
+```
+#check @BookProof.BrstReducedTransfer.physicalStates
+#check @BookProof.BrstReducedTransfer.exactStates
+#check @BookProof.BrstReducedTransfer.exactStates_le_physicalStates
+#check @BookProof.BrstReducedTransfer.Cohomology
+```
+
+:::paragraph
+Any bounded operator commuting with $`\Omega` preserves both subspaces — for the
+exact states this needs a continuity argument, since the range is only dense in its
+closure — and therefore induces a linear map on the cohomology. Applied to a
+one-parameter family this gives the *reduced transfer*: a one-parameter group of
+linear automorphisms of the BRST cohomology, which moreover preserves the quotient
+(BRST) norm when the family is isometric.
+:::
+
+```
+#check @BookProof.BrstReducedTransfer.physicalStates_invariant
+#check @BookProof.BrstReducedTransfer.exactStates_invariant
+#check @BookProof.BrstReducedTransfer.reducedMap
+#check @BookProof.BrstReducedTransfer.transfer
+#check @BookProof.BrstReducedTransfer.transfer_comp
+#check @BookProof.BrstReducedTransfer.transfer_bijective
+#check @BookProof.BrstReducedTransfer.infDist_exactStates_eq
+```
+
+:::paragraph
+The case of interest is the unitary group $`e^{-itT}` of an unbounded self-adjoint
+Hamiltonian commuting with the BRST charge — the half-density evolution of the
+quantization chapters. It maps the physical subspace to itself, it moves two states
+that differ by a gauge vector to two states that still differ by a gauge vector, and
+the induced group on cohomology is norm-preserving:
+:::
+
+```
+#check @BookProof.BrstReducedTransfer.stoneU_mem_physicalStates
+#check @BookProof.BrstReducedTransfer.stoneU_sub_mem_exactStates
+#check @BookProof.BrstReducedTransfer.stoneTransfer
+#check @BookProof.BrstReducedTransfer.stoneTransfer_comp
+#check @BookProof.BrstReducedTransfer.stoneTransfer_bijective
+#check @BookProof.BrstReducedTransfer.infDist_exactStates_stoneU_eq
+```
+
+:::paragraph
+What is *not* claimed here is a construction of the concrete gauge-fixed field-space
+Hamiltonian and its ghost-sector BRST charge; the reduction statement above is what
+such a construction has to feed. Nor does the exactness of the reduced dynamics say
+anything about the *truncated* dynamics, which does leak out of the physical subspace
+— that leakage is bounded separately in the reliability chapter.
+:::
+
 # The Abelian Case: No Gribov Ambiguity
 
 :::paragraph

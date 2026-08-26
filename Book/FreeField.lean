@@ -1679,6 +1679,85 @@ full.
 ```
 
 :::paragraph
+Both halves of Stone's theorem take the self-adjoint operator as given. The
+*Cayley transform* (2026-08-24g, `ChapterCayleyTransform`,
+`ChapterCayleyInverse`) is the classical device that removes the unboundedness
+from the discussion altogether: for a densely defined self-adjoint `A` the map
+`V = (A − i)(A + i)⁻¹` — assembled here from the resolvents above — is a
+*unitary* (`norm_cayleyMap`, `cayleyMap_surjective`, `cayley`) characterised by
+`V(A + i)ψ = (A − i)ψ` (`cayley_shift`); `1` is not an eigenvalue of `V`
+(`cayley_apply_ne_self`, `one_sub_cayley_injective`), the range of `1 − V` is
+exactly the domain of `A` (`range_one_sub_cayley`) and is therefore dense
+(`denseRange_one_sub_cayley`), and `A` is recovered as `i(1 + V)(1 − V)⁻¹`
+(`op_eq_cayley`, `coe_eq_cayley`). The correspondence is exact in both
+directions: the basic criterion `isSelfAdjointOn_of_surjective` (symmetric with
+`A ± i` onto implies self-adjoint) shows that the inverse Cayley transform
+`i(1 + V)(1 − V)⁻¹` of *any* unitary `V` with `1 − V` injective is self-adjoint
+on `ran(1 − V)` (`invCayleyOp_isSelfAdjointOn`, packaged as `ofUnitary`), and
+the two constructions undo one another (`cayley_ofUnitary`,
+`invCayleyDomain_cayley`, `invCayleyOp_cayley`). The unbounded layer is thus
+faithfully encoded by a bounded object — the standard route by which the
+spectral theorem for unbounded self-adjoint operators is reduced to the bounded
+(normal) case treated in `ChapterSpectralMultiplication`.
+:::
+
+```
+#check @BookProof.ChapterCayleyTransform.norm_cayleyMap
+#check @BookProof.ChapterCayleyTransform.cayleyMap_surjective
+#check @BookProof.ChapterCayleyTransform.cayley
+#check @BookProof.ChapterCayleyTransform.cayley_shift
+#check @BookProof.ChapterCayleyTransform.sub_cayley_shift
+#check @BookProof.ChapterCayleyTransform.add_cayley_shift
+#check @BookProof.ChapterCayleyTransform.one_sub_cayley_injective
+#check @BookProof.ChapterCayleyTransform.cayley_apply_ne_self
+#check @BookProof.ChapterCayleyTransform.range_one_sub_cayley
+#check @BookProof.ChapterCayleyTransform.denseRange_one_sub_cayley
+#check @BookProof.ChapterCayleyTransform.op_eq_cayley
+#check @BookProof.ChapterCayleyTransform.coe_eq_cayley
+#check @BookProof.ChapterCayleyInverse.isSelfAdjointOn_of_surjective
+#check @BookProof.ChapterCayleyInverse.invCayleyOp_symmetric
+#check @BookProof.ChapterCayleyInverse.invCayleyOp_isSelfAdjointOn
+#check @BookProof.ChapterCayleyInverse.ofUnitary
+#check @BookProof.ChapterCayleyInverse.cayley_ofUnitary
+#check @BookProof.ChapterCayleyInverse.invCayleyDomain_cayley
+#check @BookProof.ChapterCayleyInverse.invCayleyOp_cayley
+```
+
+:::paragraph
+Composing that correspondence with the bounded spectral theorem gives a
+multiplication model for the *unbounded* operator itself
+(`ChapterCayleySpectralModel`). The step that makes the composition elementary is
+that the resolvent is a *continuous* function of the Cayley transform:
+`(A + i)⁻¹ = (2i)⁻¹(1 − V)` and `(A − i)⁻¹ = (2i)⁻¹(V⁻¹ − 1)`
+(`res_neg_one_eq_cayley`, `res_one_eq_cayley`), and `V` is a bounded *normal*
+operator (`cayleyCLM`, `isStarNormal_cayleyCLM`), so the continuous functional
+calculus applies to the two symbols `g(z) = (1 − z)/(2i)` and `h(z) = (1 + z)/2`
+with `g(V) = (A + i)⁻¹` and `h(V)y = A(A + i)⁻¹y` (`cfcHom_resSymbol`,
+`cfcHom_opSymbol`). Feeding them through the model of
+`ChapterSpectralMultiplication` yields
+`unbounded_spectral_multiplication_model`: if the Cayley transform has a cyclic
+unit vector, there are a Borel probability measure `μ` on its spectrum and a
+unitary `U : L²(μ) ≃ H` such that *every* vector of `D(A)` is `U(g·u)` and
+`A U(g·u) = U(h·u)` — that is, `A` is multiplication by
+`h/g = i(1 + z)/(1 − z)`. Only the reduction to a *single* cyclic subspace is
+still missing from the general unbounded spectral theorem.
+:::
+
+```
+#check @BookProof.ChapterCayleySpectralModel.res_neg_one_eq_cayley
+#check @BookProof.ChapterCayleySpectralModel.res_one_eq_cayley
+#check @BookProof.ChapterCayleySpectralModel.cayleyCLM
+#check @BookProof.ChapterCayleySpectralModel.isStarNormal_cayleyCLM
+#check @BookProof.ChapterCayleySpectralModel.resSymbol
+#check @BookProof.ChapterCayleySpectralModel.opSymbol
+#check @BookProof.ChapterCayleySpectralModel.cfcHom_resSymbol
+#check @BookProof.ChapterCayleySpectralModel.cfcHom_opSymbol
+#check @BookProof.ChapterCayleySpectralModel.spectralUnitary_resSymbol
+#check @BookProof.ChapterCayleySpectralModel.spectralUnitary_opSymbol
+#check @BookProof.ChapterCayleySpectralModel.unbounded_spectral_multiplication_model
+```
+
+:::paragraph
 The capstone `ChapterStoneSeparable` packages the full statement: on a separable
 Hilbert space there exists a unique one-parameter unitary group with a given
 self-adjoint generator, and conversely every weakly measurable group has a unique
@@ -1796,6 +1875,45 @@ the discrete form of a direct-integral gluing, not a decomposition theorem.
 #check @BookProof.DirectSumEsa.dsOpD_stone_flow
 #check @BookProof.DirectSumEsa.fockH_essentiallySelfAdjointOn
 #check @BookProof.DirectSumEsa.fockH_stone_flow
+```
+
+:::paragraph
+Carleman's criterion supplies the last realization of the *full* Navier–Stokes
+Hamiltonian in which the momentum genuinely fails to commute with the field modes.
+On the half-line lattice `ℓ²(ℕ)` the momentum is the symmetric-difference operator
+and the fifteen field modes are multiplication by arbitrary — in particular unbounded
+— real sequences; `weyl_momOp_diagOp` computes the Weyl-symmetrized product
+`½(π A + A π)` and finds a tridiagonal (Jacobi) operator whose off-diagonal coupling
+is `c_n = −(i/2)(α_n + α_{n+1})` for the Navier–Stokes symbol `α`, so
+`halfLineFullData_hamiltonian` identifies the whole Hamiltonian as one Jacobi matrix.
+The analytic input is `tridiag_hasZeroDeficiencyOn_of_carleman`: the classical
+Wronskian argument — `tridiag_wronskian` for the discrete Green identity,
+`wron_eq_sum` for its telescoping, `sum_normSq_le` for the resulting inequality —
+shows that a deficiency vector would force `∑ 1/|c_n|` to converge, so divergence of
+that sum gives essential self-adjointness.  Hence
+`halfLineFull_hasZeroDeficiencyOn`, and, for a linearly growing viscous mode,
+`linearFull_hasZeroDeficiencyOn` together with `linearFull_not_bounded`: an
+unbounded, non-commuting, essentially self-adjoint full Navier–Stokes Hamiltonian.
+The dichotomy is the lattice form of the ODE chapter's `ẋ = x²` warning — Carleman's
+sum diverges for subquadratic growth and can converge for faster growth, where
+`ChapterNavierStokesDeficiency` already exhibits a Jacobi operator that is *not*
+essentially self-adjoint.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.Carleman.tridiagOp
+#check @BookProof.NavierStokesFlow.Carleman.tridiagOp_isSymmetricDom
+#check @BookProof.NavierStokesFlow.Carleman.tridiag_wronskian
+#check @BookProof.NavierStokesFlow.Carleman.wron_eq_sum
+#check @BookProof.NavierStokesFlow.Carleman.sum_normSq_le
+#check @BookProof.NavierStokesFlow.Carleman.tridiag_hasZeroDeficiencyOn_of_carleman
+#check @BookProof.NavierStokesFlow.Carleman.momOp
+#check @BookProof.NavierStokesFlow.Carleman.weyl_momOp_diagOp
+#check @BookProof.NavierStokesFlow.Carleman.halfLineFullData
+#check @BookProof.NavierStokesFlow.Carleman.halfLineFullData_hamiltonian
+#check @BookProof.NavierStokesFlow.Carleman.halfLineFull_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.Carleman.linearFull_hasZeroDeficiencyOn
+#check @BookProof.NavierStokesFlow.Carleman.linearFull_not_bounded
 ```
 
 # Summary

@@ -936,6 +936,13 @@ import BookProof.ChapterSirkWhitening
 -- isometric embedding of the retained subspace — so the whitening-independence theorems
 -- above apply to it, and such a whitening exists (plan §12, Gap 4c, existence half).
 import BookProof.ChapterSirkGramWhitening
+-- The numerical Gram cutoff: with an eigendecomposition of the Gram operator and every
+-- discarded eigenvalue at most `tol`, every raw Krylov vector lies within `√tol` of the
+-- retained subspace, so the geometric truncation parameter `δ` of the module above is
+-- bounded by the quantity the code thresholds; and the inverse-square-root embedding
+-- `V = W U_R Λ_R^{-1/2}` the solver builds is an isometric embedding of that subspace
+-- (plan §12, Gap 4c, the recorded residue).
+import BookProof.ChapterSirkGramCutoff
 -- The Crouzeix domain of the shift-invert (plan §12, Gap 2, the abstract half): the operator
 -- the algorithm iterates is the resolvent, so its numerical range — and that of every Krylov
 -- compression of it — is fixed by the shift alone.  Positive generator at a real shift `γ > 0`:
@@ -1012,9 +1019,213 @@ import BookProof.ChapterQgHermiteFriedrichs
 -- perturbations (plan §10.6.1, target 4 for the parabolic potential).
 import BookProof.ChapterQgHermiteOscillatorEsa
 
+-- `ChapterScalaronHermiteEsa`: **essential** self-adjointness on the Gauss–polynomial
+-- (Hermite) core for an *exponentially growing* potential — the Starobinsky scalaron
+-- potential and the full `V₃(R_c) + V(φ)` sector potential.  The moment/Fourier uniqueness
+-- argument is generalized from square-integrable data to data of Gaussian exponential
+-- decay, which is what `(W − z)w` satisfies when `W` is unbounded (plan §10.6.1, target 4
+-- for the scalaron potential term).
+import BookProof.ChapterScalaronHermiteEsa
+
+-- `ChapterHermiteExpWall`: the negative half of plan §10.6.1, target 2 (which the plan
+-- itself flags as "needs restating").  The Kato–Rellich route to essential self-adjointness
+-- of `−Δ + V` on the Hermite core is *not available*: along the monomial core family
+-- `ψ_N = x^N e^{−x²/4}` the exponential wall grows like `N⁴` while the kinetic term and the
+-- conformal-mode oscillator grow only cubically, so the scalaron potential is not
+-- relatively bounded with respect to either — not with a small relative bound, and not
+-- with any pair of constants.
+import BookProof.ChapterHermiteExpWall
+
+-- `ChapterHermiteQuadraticEsa`: the *positive* counterpart of `ChapterHermiteExpWall`, and
+-- the unbounded-perturbation half of plan §10.6.1, target 4.  The harmonic potential
+-- `‖x‖²/4` is relatively bounded with respect to `−Δ + ‖x‖²/4` with relative constant `1`
+-- (`norm_sq_harmPoly_mul_le`, proved from the Gaussian anticommutator identity), hence every
+-- continuous potential dominated by `a‖x‖²/4 + b` with `a < 1` — unbounded perturbations
+-- included — leaves the Gauss–polynomial (Hermite) core a core
+-- (`harmonic_add_subquadratic_essentiallySelfAdjoint`), with growth-form and scaled-oscillator
+-- corollaries and the conformal-mode instance `confV_essentiallySelfAdjoint` for `0 < α < 1/2`.
+import BookProof.ChapterHermiteQuadraticEsa
+
 -- `ChapterFriedrichsCanonical`: the Friedrichs extension is *canonical* — packaged as a
 -- named operator (`friedrichsOp` on `friedrichsDomain`), it is a positive self-adjoint
 -- extension, it dominates every symmetric extension whose domain lies in the form domain
 -- (`friedrichs_canonical`), and it is therefore the unique self-adjoint extension with that
 -- property (`friedrichs_unique_selfAdjoint`); with the QG scalaron instance.
 import BookProof.ChapterFriedrichsCanonical
+
+-- Wave (2026-08-24, gate re-run): four modules that existed in the tree but were in no
+-- build target — registered here so `lake build` verifies them.
+--
+-- `ChapterNavierStokesCarleman`: Carleman's criterion for a tridiagonal (Jacobi) operator
+-- on `ℓ²(ℕ)` (`∑ 1/|c_n| = ∞ ⇒ essential self-adjointness`, by the telescoping Wronskian),
+-- and its Navier–Stokes instance: the half-line realization of the **full** Hamiltonian —
+-- symmetric-difference momentum, multiplication modes, hence genuinely non-commuting —
+-- is essentially self-adjoint whenever the Navier–Stokes symbol satisfies Carleman's
+-- growth condition, with a concrete unbounded (linearly growing) instance.
+import BookProof.ChapterNavierStokesCarleman
+
+-- `ChapterSoftmaxTemperatureMonotone`, `ChapterAttentionResponse`,
+-- `ChapterAttentionCapacity`: the attention-layer monotone sharpening law, the
+-- vector-valued fluctuation–response law of the head output, and the memory capacity of a
+-- head storing `m` separated key–value pairs.
+import BookProof.ChapterSoftmaxTemperatureMonotone
+import BookProof.ChapterAttentionResponse
+import BookProof.ChapterAttentionCapacity
+
+-- Wave (2026-08-24g, plan §9 backlog item 3, the reduction of the unbounded layer to a
+-- bounded one).
+--
+-- `ChapterCayleyTransform`: the **Cayley transform** `V = (A − i)(A + i)⁻¹` of a densely
+-- defined self-adjoint operator, built from the resolvents of `ChapterStoneResolvent`: it
+-- is unitary, satisfies `V(A + i)ψ = (A − i)ψ`, `1` is not an eigenvalue of `V`,
+-- `ran(1 − V) = D(A)` is dense, and `A = i(1 + V)(1 − V)⁻¹`.
+import BookProof.ChapterCayleyTransform
+
+-- `ChapterCayleyInverse`: the converse — the basic criterion "symmetric with `A ± i` onto
+-- ⇒ self-adjoint", and the inverse Cayley transform of a unitary `V` with `1 − V`
+-- injective, which is self-adjoint on `ran(1 − V)`; the two constructions are mutually
+-- inverse, so the unbounded layer is faithfully encoded by a bounded (unitary) object.
+import BookProof.ChapterCayleyInverse
+
+-- `ChapterCayleySpectralModel`: composing the two previous modules with the bounded
+-- spectral theorem of `ChapterSpectralMultiplication` — the resolvent `(A + i)⁻¹` is the
+-- *continuous* function `(1 − z)/(2i)` of the Cayley transform, so an unbounded
+-- self-adjoint operator whose Cayley transform has a cyclic vector is multiplication by
+-- `i(1 + z)/(1 − z)` on `L²(μ)`, stated through the bounded symbol pair `(g, h)`.
+import BookProof.ChapterCayleySpectralModel
+
+-- Wave (2026-08-25d, plan §12.2 Gap 5 — the physical-subspace (BRST) leakage of the
+-- truncated dynamics, quantified at the level of the generators).
+--
+-- `ChapterBrstTruncationLeakage`: for bounded self-adjoint generators the unitary flow
+-- `e^{-itH}` carries a commuting BRST charge along, so the exact dynamics leaks nothing; a
+-- Duhamel estimate then bounds the leakage of the *truncated* flow `e^{-itPHP}` by
+-- `‖Ω‖ ‖(1 − P)HP‖ ‖x‖ t` — the rate is the block of the Hamiltonian the truncation
+-- discards — with a restart version accumulating linearly in the number of cycles and a
+-- bridge that discharges the `ε` hypothesis of `ChapterSirkRestart.brst_leakage_bound`.
+import BookProof.ChapterBrstTruncationLeakage
+
+-- Wave (2026-08-25e, plan §10.6.1 target 3 — the Carleman flux extension to
+-- **unbounded-hop** (infinite-range) Hermitian kernels).
+--
+-- `ChapterCarlemanUnboundedHop`: the earlier flux modules (`ChapterHermiteCarlemanEsa`,
+-- `ChapterCarlemanTwoStep`, `ChapterCarlemanGeneralHop`) all assume a *finite* hop range.
+-- Here the cut flux of a Hermitian kernel `a n k` on `ℕ` is bounded by an amplitude
+-- envelope `A N` times a "cut mass" weighted by the tails `Θ` of a hop profile `θ`, so a
+-- square-summable solution of `∑ₖ a n k u k = z u n` at a non-real `z` vanishes whenever
+-- `θ` has finite first moment and `∑ 1/A = ∞` (Carleman's condition) — the diagonal is
+-- unconstrained.  Transported to `ℓ²(ℕ)` this gives triviality of both deficiency spaces,
+-- essential self-adjointness on the finite-mode core and a Stone flow, and the module ends
+-- with a genuinely infinite-range instance: arbitrary real diagonal with off-diagonal
+-- entries `(1 + min n k) ρ^{|n−k|}`, `0 ≤ ρ < 1`, every row of which has infinitely many
+-- non-zero entries.
+import BookProof.ChapterCarlemanUnboundedHop
+
+-- Wave (2026-08-25f, plan §12.2 Gap 5 — the BRST leakage for an **unbounded** Hamiltonian).
+--
+-- `ChapterBrstUnboundedLeakage`: the previous leakage module assumes a bounded generator.
+-- Here the exact generator is an arbitrary unbounded self-adjoint operator `T` with its
+-- Stone group `e^{-itT}`, and the truncated generator is the compression `P T P` to a
+-- finite-dimensional retained subspace of the domain — the finite-`m` object the solver
+-- integrates.  A Duhamel estimate against the strongly continuous group gives the flow
+-- error `‖e^{-itPTP}x − e^{-itT}x‖ ≤ ‖(1 − P)TP‖ ‖x‖ t` and the leakage bound
+-- `‖Ω(e^{-itPTP}x)‖ ≤ ‖Ωx‖ + ‖Ω‖ ‖(1 − P)TP‖ ‖x‖ t` for an observable commuting with the
+-- exact group: both are controlled by the discarded off-diagonal block alone.
+import BookProof.ChapterBrstUnboundedLeakage
+
+-- Wave (2026-08-25g, plan §10.6.2 item 4 — the BRST-*reduced transfer*).
+--
+-- `ChapterBrstReducedTransfer`: the evolution must map the physical subspace to itself and
+-- descend to BRST cohomology `ker Ω / closure (range Ω)` (the §10.3 caveat).  For a bounded
+-- nilpotent BRST charge `Ω` and any family commuting with it, the closed and the exact
+-- states are invariant (the latter by a continuity argument), so the family induces a map
+-- on cohomology; for a one-parameter isometric group this reduced transfer is a group of
+-- linear automorphisms preserving the quotient (BRST) norm.  Instantiated at the Stone
+-- group `e^{-itT}` of an unbounded self-adjoint Hamiltonian commuting with `Ω`.
+import BookProof.ChapterBrstReducedTransfer
+
+-- Wave (2026-08-25h, plan §10.6.2 item 4 / QG Part F — the concrete 3D gauge-fixed
+-- *gravity* Hamiltonian and its BRST charge).
+--
+-- `ChapterQuantumGravity3DGauge`: the gauge-fixed 3D gravity Hamiltonian written on the
+-- Gauss–polynomial core of `L²(ℝ⁸⁴)` (`84 = 4 + 16 + 64` densitized-tetrad coordinates),
+-- with the Weyl-ordered coordinate/momentum products, the canonical commutation relations
+-- `[x_j, π_k] = i δ_{jk}`, symmetry of the Hamiltonian on the core and the Friedrichs
+-- extension of its elliptic (positive-signature) truncation.  The physical signature is
+-- indefinite, so no Friedrichs claim is made for the full operator.
+import BookProof.ChapterQuantumGravity3DGauge
+
+-- `ChapterQuantumGravityBrstCharge`: the BRST charge of that field space.  The abstract
+-- theorem `brst_full_nilpotent` gives `Ω² = 0` for `Ω = Σ_a G_a χ_a − ½ Σ f_{abe} χ_a χ_b β_e`
+-- whenever the constraints close into a Lie algebra with real structure constants obeying
+-- the Jacobi identity.  It is instantiated on `ℂ[x₀,…,x₈₃] ⊗ Λ(ℂ¹⁹)` — the polynomial core
+-- tensored with the `ℤ₂¹⁹` ghost occupation space — with the `gl(84)` constraint generators
+-- `x_j ∂_k`, and specialized to a concrete non-abelian family (`aff(1)`), so the
+-- construction is not vacuous.
+import BookProof.ChapterQuantumGravityBrstCharge
+
+-- Wave (2026-08-26, plan §10.6.1 / §10.6.2 item 2 — the `R + αR²` Hamiltonian on the
+-- *compactly supported smooth* core).
+--
+-- `ChapterQgOneParticleCcEsa`: essential self-adjointness of `−Δ + ‖x‖²/4 + V` on the core
+-- `C_c^∞(ℝᵈ)` of `L²(ℝᵈ)`, for every smooth `V` dominated by `a‖x‖²/4 + b` with `a < 1`.
+-- The Gauss–polynomial (Hermite) core statement of `ChapterHermiteQuadraticEsa` is
+-- transported down to the smaller compactly supported core by a graph-norm cut-off
+-- argument (`deficiencyTrivialAt_of_graphApprox`, `exists_cc_graph_approx`), which is what
+-- the applications and the second quantisation use: the conformal mode (`confVCc_esa`), the
+-- reduced `(R_c, φ)` sector (`sectorQuadCc_esa`), the `n`-particle sector
+-- (`qgNParticleCc_esa`) and the finite-particle Fock space (`qgFockCc_esa`), each with its
+-- Stone flow.  The exponentially growing scalaron wall is not covered — only the quadratic
+-- potential class that the Hermite core provides.
+import BookProof.ChapterQgOneParticleCcEsa
+
+-- Wave (2026-08-26b, plan §10.6.2 item 3 / QG Part E — the graded Fock space).
+--
+-- `ChapterQuantumGravityFock`: the book's graded quantum-gravity Fock space
+-- `Γˢ(L²(ℝ⁸⁴×ℤ₂¹⁹)) ⊗ Γᵃ(L²(ℝ⁸⁴×ℤ₂¹⁹))`.  The bosonic half is reused from
+-- `ChapterFockSecondQuantization`; the new content is the fermionic (ghost) half and the
+-- `ℤ₂` grading: the Jordan–Wigner sign, the ladder operators `fermAnn`/`fermCre` with the
+-- canonical anticommutation relations (`car_fermAnn_fermCre`, `car_fermAnn_fermCre_of_ne`,
+-- `car_fermAnn_fermAnn`, `car_fermCre_fermCre`) and the adjoint pairing
+-- (`inner_fermCre_left`), the parity operator `fermGrade` with the oddness of the ladder
+-- operators, the graded bracket `superBracket`, the graded state space `QGGraded` with
+-- `qgCCR` / `qgGhostCar`, and the graded Fock Hamiltonian `qgGradedHam` — essentially
+-- self-adjoint (`qgGradedFock_esa`) with its unitary group (`qgGradedFock_stone_flow`) and
+-- no positivity or boundedness assumption on the boson or ghost energies.
+import BookProof.ChapterQuantumGravityFock
+
+-- Wave (2026-08-26c, plan §10.6.2 item 4 — the last join): a **bounded** nilpotent BRST
+-- charge on the *completed* graded Hilbert space `ℓ²(GradedIdx)`, so that the reduced
+-- transfer of `ChapterBrstReducedTransfer` (which needs a bounded charge on a complete
+-- space) applies to a concrete gravity object.
+--
+-- `ChapterQgBrstCompleted`: a bounded weighted-shift calculus on `ℓ²` (`wshift`), the
+-- dressed ghost creation operators `brstTerm` with `brstTerm_comp_self` /
+-- `brstTerm_anticomm`, the charge `qgBrstCharge` with `qgBrstCharge_nilpotent` and
+-- `qgBrstCharge_ne_zero`, the commuting unitary group `qgPhase` (`qgPhase_zero`,
+-- `qgPhase_group`, `qgPhase_isometry`, `qgPhase_comm_brst`, `qgPhase_single`) and the
+-- reduced transfer `qgBrstTransfer` with `qgPhase_mem_physicalStates`,
+-- `qgBrstTransfer_comp`, `qgBrstTransfer_bijective` and `qgBrstTransfer_infDist`.
+import BookProof.ChapterQgBrstCompleted
+
+-- Wave (2026-08-26d, plan §10.6.1 / §10.6.2 item 2 — the exponential scalaron wall).
+--
+-- `ChapterWeakSecondDerivative`: a self-contained one-dimensional distributional regularity
+-- toolkit — the du Bois-Reymond lemmas (`ae_eq_const_of_integral_deriv_smul_eq_zero`,
+-- `ae_eq_affine_of_integral_deriv2_smul_eq_zero`), integration by parts against the
+-- primitive of a merely locally integrable function
+-- (`integral_deriv_mul_indefiniteIntegral`) and the regularity theorems
+-- `exists_ae_eq_doubleAntideriv_add_affine` / `exists_deriv2_of_weak_eq`: an `L¹_loc` weak
+-- solution of `u'' = c·u` with continuous `c` agrees a.e. with a genuine `C²` solution.
+--
+-- `ChapterScalaronWallEsa`: with that regularity in hand, the *non-perturbative* route to
+-- the Starobinsky wall.  `−d²/dx² + V` is essentially self-adjoint on the compactly
+-- supported smooth core of `L²(ℝ)` for **every** smooth `V ≥ 0`
+-- (`wallHam_essentiallySelfAdjoint`), with no growth hypothesis: a deficiency vector solves
+-- `W'' = (V ∓ i)W`, so `|W|²` is convex, non-negative and integrable, hence zero
+-- (`eq_zero_of_convexOn_nonneg_integrable`, `ode_solution_eq_zero`).  This covers the
+-- exponentially growing scalaron potential (`starobinskyWall_esa`,
+-- `starobinskyWall_stone_flow`), which no perturbative comparison with the harmonic core
+-- can reach (`ChapterHermiteExpWall`).
+import BookProof.ChapterWeakSecondDerivative
+import BookProof.ChapterScalaronWallEsa

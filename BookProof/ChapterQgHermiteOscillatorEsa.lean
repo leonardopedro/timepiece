@@ -45,9 +45,11 @@ bounded real `B`, since multiplication by `B` is symmetric on the core with
 `‖Bψ‖ ≤ M‖ψ‖` (`potCore_symmetricOn`, `norm_potLp_le`) — relative bound `0`.
 
 **Honest boundary.**  The potential here is a parabola plus a bounded function, not the
-exponentially growing scalaron potential: §10.6.1 target 4 for
-`V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` is *not* proved here and remains open, as does
-target 2 (which needs restating) and target 3.
+exponentially growing scalaron potential.  For the *potential term* alone the exponential
+case is settled in `BookProof.ChapterScalaronHermiteEsa`
+(`potCore_essentiallySelfAdjoint`, `scalaronPot_essentiallySelfAdjoint`); §10.6.1 target 4
+for the *sum* `−Δ + V` with `V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` is *not* proved here and
+remains open, as does target 2 (which needs restating) and target 3.
 -/
 
 namespace BookProof.QgHermiteOscillator

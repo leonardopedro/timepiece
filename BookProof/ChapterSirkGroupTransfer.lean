@@ -32,8 +32,10 @@ This is the **bounded** half of §12.2 Gap 3.  Nothing here proves Trotter–Kat
 the unbounded case — strong *resolvent* convergence of the selected extensions
 implying strong convergence of their unitary groups — needs the spectral calculus
 of unbounded self-adjoint operators and remains open.  The rate proved here
-degrades exponentially in `|t| M`; for self-adjoint generators the sharp rate is
-`|t| ‖A − B‖`, which is not claimed.
+degrades exponentially in `|t| M`, as it must for arbitrary bounded generators; for
+*self-adjoint* generators the sharp rate `|t| ‖A − B‖` is proved in
+`BookProof.ChapterBrstTruncationLeakage` (`BrstLeakage.norm_flow_sub_flow_le`), by a
+Duhamel argument that uses unitarity of the two groups.
 
 Everything is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
 `Quot.sound`).

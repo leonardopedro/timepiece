@@ -1,85 +1,76 @@
-Update this folder : from folder /home/leo/Downloads/18fc3f83-7414-4f75-8fbb-c2c2846afbda-aristotle/output-final_aristotle merge the files: ARISTOTLE_SUMMARY.md
-+520
-Book.lean
-+9
+Update this folder : from folder /home/leo/Downloads/8a024761-e269-4292-ace3-1a128aae3aaf-aristotle(1)/output-final_aristotle copy the files:
+ARISTOTLE_SUMMARY.md
++390
 BookProof.lean
-+133
-CONSOLIDATED_PLAN.md
-+551 -12
-Issues.md
-+7
-CarlemanFlux.lean
-+2 -2
-DiffeomorphismsGravity.lean
-+38
-FreeField.lean
-+39
-NavierStokesHashimoto.lean
-+1 -1
-SirkReliability.lean
-+376
-Starobinsky.lean
-+263 -3
-YangMillsQuantization.lean
-+93
-
-And copy the files:
-ChapterFermionFock.lean
-+1063
-ChapterFockSecondQuantization.lean
-+65
-ChapterFriedrichsCanonical.lean
-+556
-ChapterGradedFock.lean
-+475
-ChapterGradedFriedrichs.lean
-+499
-ChapterGradedHashimoto.lean
-+272
-ChapterKrylovShiftSpan.lean
-+570
-ChapterNavierStokesDiffFarisLavine.lean
-+676
-ChapterQgHermiteCore.lean
-+680
-ChapterQgHermiteFriedrichs.lean
-+610
-ChapterQgHermiteOscillatorEsa.lean
-+405
-ChapterRoadmapAudit.lean
-+455
-ChapterScalaronDensitizedTransfer.lean
-+367
-ChapterSirkDiffusiveDecay.lean
-+228
-ChapterSirkEndToEnd.lean
-+296
-ChapterSirkGramWhitening.lean
-+553
-ChapterSirkGroupTransfer.lean
-+187
-ChapterSirkLagrangianCanonical.lean
-+189
-ChapterSirkMultiShift.lean
-+173
-ChapterSirkPerSystem.lean
-+209
-ChapterSirkRestart.lean
-+161
-ChapterSirkRitzSpectrum.lean
-+354
-ChapterSirkSpectralGeometry.lean
-+250
-ChapterSirkTrotterKato.lean
-+471
-ChapterSirkTrotterKatoGalerkin.lean
-+153
-ChapterSirkTruncation.lean
-+196
-ChapterSirkWhitening.lean
 +211
+CONSOLIDATED_PLAN.md
++970 -29
+PLAN_LEAN_SPECIALIST_QG_FLOW.md
++66 -12
+CarlemanFlux.lean
++94
+DiffeomorphismsGravity.lean
++236 -1
+FreeField.lean
++118
+GaugeSymmetry.lean
++64
+SirkReliability.lean
++94
+Starobinsky.lean
++324 -3
+ChapterBrstReducedTransfer.lean
++265
+ChapterBrstTruncationLeakage.lean
++489
+ChapterBrstUnboundedLeakage.lean
++517
+ChapterCarlemanUnboundedHop.lean
++723
+ChapterCayleyInverse.lean
++244
+ChapterCayleySpectralModel.lean
++207
+ChapterCayleyTransform.lean
++168
+ChapterHermiteExpWall.lean
++678
+ChapterHermiteQuadraticEsa.lean
++685
+ChapterNavierStokesCarleman.lean
++248 -29
+ChapterQgBrstCompleted.lean
++544
+ChapterQgHermiteCore.lean
++2 -1
+ChapterQgHermiteFriedrichs.lean
++4 -1
+ChapterQgHermiteOscillatorEsa.lean
++5 -3
+ChapterQgOneParticleCcEsa.lean
++1143
+ChapterQuantumGravity3DGauge.lean
++565
+ChapterQuantumGravityBrstCharge.lean
++700
+ChapterQuantumGravityFock.lean
++864
+ChapterRoadmapAudit.lean
++370 -1
+ChapterScalaronHermiteEsa.lean
++466
+ChapterScalaronWallEsa.lean
++343
+ChapterSirkGramCutoff.lean
++431
+ChapterSirkGroupTransfer.lean
++4 -2
+ChapterWallEsaBddBelow.lean
++146
+ChapterWeakSecondDerivative.lean
++569
 STATUS.md
-+612 -1
++426 -1
  .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.
  
  add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically efficient) discussed in:  ../timepiece/CONSOLIDATED_PLAN.md
