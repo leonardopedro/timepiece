@@ -8,6 +8,13 @@ open Verso.Genre.Manual.InlineLean
 tag := "baryon-asymmetry"
 %%%
 
+# Orientation and Status
+
+The formal result in this chapter is the FRW scaling calculation: matter and
+radiation densities obey the stated power laws and their ratio grows linearly with
+the scale factor. The origin and observed magnitude of the baryon asymmetry are
+physical model questions, not consequences of this calculation alone.
+
 # A Small Asymmetry, Amplified
 
 In its chapter on entropy and irreversible time-evolution, the manuscript turns to

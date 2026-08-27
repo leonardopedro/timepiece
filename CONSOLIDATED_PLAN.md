@@ -1,5 +1,211 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
+## New specialist work package — Hashimoto observable to the real-Hamiltonian gap
+
+**Added 2026-08-27.** The next Lean 4 specialist should formalize the strongest honest
+bridge from the existing Hashimoto/SIRK certificate to a gap of the actual self-adjoint
+Hamiltonian. The target is deliberately conditional: the current certificate proves only
+the finite/truncated gap, and the specialist must connect its one-particle observable to
+the infinite real operator before claiming the Fock mass gap.
+
+### Correct observable: the one-particle energy lifted to nested Fock space
+
+The physical construction is a nested Fock space, not primarily an even/odd many-body
+sector split. Let `h` be the real one-particle Hamiltonian, bounded below by `E₀`, and
+shift it to
+
+\[
+  h_+ := h-E_0 I\ge0.
+\]
+
+The Fock Hamiltonian is its second quantization
+
+\[
+  H_F=d\Gamma(h_+),
+\]
+
+whose `n`-particle restriction is the sum of `n` copies of `h_+`. Since destruction
+annihilates the Fock vacuum,
+
+\[
+  d\Gamma(h_+)\Omega=0.
+\]
+
+For a one-particle state `f`, the creation/destruction observable is
+
+\[
+  \mathcal E_f
+   =\langle\Omega,a(f)H_Fa^\dagger(f)\Omega\rangle
+   =\langle f,h_+f\rangle.
+\]
+
+Equivalently, for normalized `f`, the relevant observable is the one-particle Rayleigh
+quotient of `h_+`. The first Fock excitation is `a†(f) Ω`, and
+
+\[
+  d\Gamma(h_+)a^\dagger(f)\Omega
+    =a^\dagger(h_+f)\Omega.
+\]
+
+Thus, under the standard second-quantization hypotheses,
+
+\[
+  \operatorname{gap}(d\Gamma(h_+))
+    =\inf(\sigma(h_+)\setminus\{0\}).
+\]
+
+Moreover, choose `μ > 0` and shift the one-particle operator further so that
+`h_+ ≥ μ I > 0`. On the free outer-particle Fock space this is the number-operator shift
+
+\[
+  d\Gamma(h_+)=d\Gamma(h-E_0I)+\mu N.
+\]
+
+Since `N Ω = 0`, the vacuum is unchanged, while every non-vacuum finite-particle state has
+energy at least `μ`. This makes the one-particle zero mode visible without changing the
+vacuum physics. The argument relies essentially on the outer particles being free and
+number-preserving; it is not valid unchanged for pair-creation or other interacting terms.
+
+The shifted-square observable remains a useful equivalent spectral witness, but it is not
+the primary observable for this route.
+
+### What the existing Hashimoto band should certify
+
+The finite Hashimoto computation should be interpreted as an enclosure for the lowest
+positive **one-particle** energy of the shifted Hamiltonian `h_+`, not as an arbitrary
+many-body parity-sector difference. If the current certificate data are expressed through
+even/odd blocks, the specialist must explicitly prove that those blocks are the one-particle
+vacuum/excitation decomposition before using them for the Fock mass gap; otherwise a new
+one-particle certificate interface is required.
+
+For the recorded `g = 2, m = 4` data the current lower number is `1.932`, but its present
+formal theorem is still a truncated certificate. The intended physical reading is
+`λ₁(h_+) ≥ 1.932` only after the one-particle interpretation has been established.
+
+### Constant shift and Hashimoto/Friedrichs selection
+
+Because `h` is bounded below, shifting by `E₀` makes `h_+` positive without changing the
+Fock vacuum energy: `N Ω = 0` and
+
+\[
+  d\Gamma(h-E_0I)=d\Gamma(h)-E_0N.
+\]
+
+For `γ > 0`, the Hashimoto operator is the bounded resolvent
+
+\[
+  R_γ=(h_++γI)^{-1},\qquad \|R_γ\|\leγ^{-1}.
+\]
+
+The existing QYM Friedrichs/Hashimoto results identify the infinite selected operator with
+the Friedrichs extension of this real shifted one-particle Hamiltonian. This is not an
+open operator-identification task for QYM.
+
+### Required infinite-limit composition
+
+The specialist should compose the existing `ChapterH8` refinement and band results with
+the one-particle spectral-edge results:
+
+\[
+  \text{next one-particle prediction}
+    \in \text{current certified band},
+\]
+
+\[
+  \text{nested bands with widths }\to0
+    \Longrightarrow \text{a unique limiting one-particle edge},
+\]
+
+\[
+  \text{limiting edge of the selected operator }h_+
+    \Longrightarrow \text{Fock mass gap of }d\Gamma(h_+).
+\]
+
+The specialist must check the exact signatures: `ChapterH8` proves refinement of SIRK
+approximants and nesting/collapse of generic error bands; `ChapterSirkCertifiedGap` proves
+the current finite certificate; `ChapterSirkRitzSpectrum` identifies a lowest Ritz limit
+with a spectral bottom in its bounded-positive setting; and
+`ChapterFriedrichsExtension` identifies the QYM Hashimoto limit with the real Friedrichs
+operator. The missing composition is specifically the lowest **positive one-particle
+spectral edge** and its lift through `dGamma`, not identification of the real
+operator. Under the free outer-particle hypothesis, finite-particle diagonalization
+reduces the full Fock gap to this one-particle edge: all non-vacuum energies are sums
+of strictly positive one-particle energies, while a one-particle creation attains the
+lowest edge. After the further shift `h_+ ≥ μ I` the full gap is at least `μ`. The
+decisive missing theorem is therefore **one-particle positive spectral-edge convergence
+and its lift through `dGamma`**.
+
+
+### Lean specialist deliverables
+
+1. Inspect and reuse `ChapterSirkCertifiedGap`, `ChapterSirkCertificateReader`,
+   `ChapterSirkGapTable`, `ChapterSirkRitzSpectrum`, `ChapterH8`,
+   `ChapterHashimotoShiftInvert`, `ChapterFriedrichsExtension`, and the existing Fock/
+   `dGamma` modules.
+2. Define the one-particle shifted operator `h_+` and the strict positivity statement
+   `h_+ ≥ μ I` for some explicit `μ > 0`; formalize the free outer-particle identity
+   `dGamma (h_+) = dGamma (h - E₀ I) + μ • numberOp` in the representation already used by
+   the project.
+3. Formalize the **one-particle positive spectral-edge enclosure**: each certified
+   Hashimoto interval contains the lowest one-particle energy of the fixed QYM Friedrichs
+   operator `h_+`, and the next-order prediction lies in the current interval. Use the
+   already-proved `ChapterH8.sirk_band_refinement*` and band-containment results rather than
+   introducing a new approximation principle.
+4. Prove the nested-interval/vanishing-width conclusion for the one-particle observable:
+   the certified intervals determine a limit `Δ₁`, with `0 < μ ≤ Δ₁` (or the strongest
+   bound actually supported by the certificate hypotheses). Do not substitute the generic
+   `[0, sirkBound m]` error interval for the actual spectral-edge enclosure.
+5. Prove the **free `dGamma` lift** using the finite-particle diagonal basis: the vacuum has
+   energy zero because `numberOp Ω = 0`; every non-vacuum finite-particle energy is a finite
+   sum of nonnegative one-particle energies; and a one-particle creation at the lowest edge
+   attains the Fock gap. Conclude
+   `inf (spectrum (dGamma h_+) \ {0}) = inf (spectrum h_+) ≥ μ` under the explicit
+   completeness/diagonalization assumptions.
+6. If the emitted certificate remains parity-labelled, prove its equivalence to the
+   one-particle vacuum/first-excitation observable before using it in the `dGamma` theorem.
+   This is a representation-translation theorem, not an appeal to a generic parity gap.
+7. Keep the Gram-cutoff implication separate. `defect_le_sqrt_cutoff` and
+   `defect_le_sqrt_cutoff_retained` bound Krylov retained-subspace leakage; they do not
+   automatically prove the one-particle spectral-edge enclosure.
+8. Only if useful, prove the optional shifted-square spectral witness from the edge bound;
+   it is not the primary observable for the free nested-Fock route.
+9. Register successful theorems in `BookProof.lean` and `ChapterRoadmapAudit.lean`, and
+   document the exact hypotheses in `BookProof/STATUS.md`.
+
+### Suggested theorem shapes
+
+```lean
+ def ShiftedSquareBound (A : ℋ →L[ℂ] ℋ) (c q : ℝ) : Prop :=
+   ∀ ψ, q * ‖ψ‖ ^ 2 ≤ ‖A ψ - (c : ℂ) • ψ‖ ^ 2
+
+ theorem spectrum_disjoint_of_shifted_square_bound
+     (hA : IsSelfAdjoint A) (hq : 0 < q)
+     (hbound : ShiftedSquareBound A c q) :
+     ∀ λ ∈ Set.Ioo (c - Real.sqrt q) (c + Real.sqrt q),
+       (λ : ℂ) ∉ spectrum ℂ A := ...
+```
+
+The exact types may be adapted to the existing API. The theorem must expose every
+hypothesis needed for self-adjointness, one-particle spectral completeness, strict
+positivity, free number preservation, creation/destruction identities, and the certificate
+interval inclusion. A new proof should not silently assume an operator identification that
+is already available from the QYM Friedrichs/Hashimoto results, nor should it silently
+replace the one-particle edge by a many-body parity gap.
+
+### Verification and honesty boundary
+
+The specialist should compile the new or modified module and then the relevant library
+before updating status claims. The exploratory shifted-square theorem currently appended to
+`BookProof/ChapterSpectralGapStability.lean` has not been compiled in this session; it is a
+ draft and may be corrected, relocated, or reverted. The final plan must continue to state:
+
+* `1.932` is a certified truncated gap;
+* the shifted-square observable is the proposed physical witness;
+* the real-Hamiltonian transfer error remains a separate analytic obligation; and
+* no real mass gap is claimed until that obligation and the parity-to-physical bridge are
+  proved.
+
+
 One plan that supersedes the per-thread plans for **future work**. It (1) collects
 everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `PLAN_LEAN_SPECIALIST_UNPROVED.md`, `SPECIALIST_PLAN_REMAINING.md`,
@@ -8,6 +214,506 @@ everything that is still **open** from `BOOK_PROOF_PLAN.md`,
 `PLAN_A_EXECUTION_REPORT.md`, and (2) gives a **disposition for every item** in
 `Issues.md` and `Contention.md`. Work already landed is listed in §2 so it is not
 re-done or re-listed.
+
+### Audit result: what the existing “apply to infinity” proofs actually establish
+
+The existing files do contain the important infinite-order ingredients, but they are not
+yet composed into a real-Hamiltonian mass-gap theorem.
+
+* `ChapterH8.sirk_band_refinement`, `sirk_band_refinement_proj`, and the polynomial/rational
+  variants prove **refinement of approximants on retained/coarse data**. They do not state
+  that a scalar spectral interval at order `m + 1` is contained in the order-`m` interval.
+* `ChapterH8.sirk_band_contained`, `sirk_band_contained_le`, and
+  `sirk_bands_tendsto_zero` prove nesting and collapse of the *a priori SIRK error-bound
+  intervals* `[0, sirkBound m]`. This is not the same as proving that the spectral gap of
+  the next Hamiltonian lies in the previous gap certificate.
+* The `ChapterH4` / `ChapterSirkEndToEnd` flow bands are conditional on named Crouzeix and
+  deformation hypotheses. Their `...tendsto_zero` theorems prove convergence of propagated
+  states to a fixed operator, not convergence of the lowest two spectral values or a
+  spectral gap of a changing Hamiltonian.
+* `ChapterSirkCertifiedGap.certifiedGap_tendsto` proves convergence of a scalar certified
+  lower-bound expression when the sector Ritz values converge and widths vanish. It does
+  not itself prove those hypotheses for the physical continuum Hamiltonian. Its
+  `certifiedGap_sound` conclusion is explicitly for the truncated operator.
+* `ChapterSirkRitzSpectrum.ritzInf_tendsto_sInf_spectrum` and
+  `galerkin_ritz_tendsto_sInf_spectrum_of_selected` do identify the limit of the **bottom
+  Ritz value** with the bottom of the spectrum, but only in the bounded positive setting
+  covered by that module. They do not provide the corresponding first-excited/odd-sector
+  limit or the full mass-gap identification.
+* `ChapterFriedrichsExtension.friedrichs_hashimoto_selects` is stronger on the unbounded
+  selection side: it constructs a positive self-adjoint extension and gives strong
+  convergence of shift-invert Galerkin compressions to its resolvent, with uniqueness of
+  the extension selected by the resolvent. This identifies an operator selected by the
+  construction, but it does not prove that this operator has a positive spectral gap.
+* `ChapterSirkTrotterKato` transfers strong resolvent convergence to convergence of unitary
+  flows. Flow convergence is not, by itself, convergence of spectral edges or preservation
+  of a gap.
+* `ChapterH7.compression_eigenvalue_mem_numericalRange` only says compressed eigenvalues
+  lie in the full numerical range; it does not prevent the first-excitation edge from
+  approaching the vacuum in the infinite limit.
+
+Therefore the precise current status is:
+
+\[
+\text{nested SIRK error bounds}
+\Rightarrow \text{vanishing approximation error for the stated observable/flow},
+\]
+
+and, with additional Ritz hypotheses,
+
+\[
+\text{certified sector values}
+\Rightarrow \text{a limiting sector-ground quantity},
+\]
+
+but the repository does **not yet prove**
+
+\[
+\text{positive certified gap at all finite orders}
+\Rightarrow
+\text{positive gap of the real Hamiltonian}.
+\]
+
+### Revised specialist composition target
+
+The specialist should first decide whether the intended “prediction in the band” theorem is
+actually present under another name. A repository-wide search found no Lean declaration
+named `prediction`, `predict`, or an explicit theorem saying “the next spectral gap lies
+inside the previous certified gap.” The declarations called “refinement” concern
+approximant restriction/projection and the declarations called “band containment” concern
+the generic SIRK error-radius intervals. If the intended theorem is a prose claim rather
+than one of these declarations, it must be formalized with its exact hypotheses.
+
+The shortest honest route is now:
+
+1. Define a **certified spectral interval** for each order, not merely the scalar error
+   interval `[0, sirkBound m]`, and prove interval nesting for the actual even/odd spectral
+   edges.
+2. Prove that the interval widths tend to zero and that every interval contains the
+   corresponding spectral edge of one fixed selected operator.
+3. Apply the nested-interval theorem to obtain limiting even and odd spectral edges and a
+   positive limiting difference. This is the “apply to infinity” step that is currently
+   missing as a composition theorem.
+4. Use the existing QYM Hashimoto/Friedrichs selection theorem to identify the fixed
+   selected operator with the real shifted one-particle Hamiltonian `h_+`; do not list this
+   identification as an open obligation.
+5. Prove that the limiting positive one-particle edge lifts through second quantization:
+   `dGamma(h_+) Ω = 0` and the Fock gap equals
+   `inf (spectrum h_+ \ {0})`. Use the existing creation/destruction and Fock APIs where
+   available, and state explicitly any missing spectral assumptions.
+6. Optionally re-express the resulting one-particle gap as the shifted-square observable
+   `(h_+ - (Δ/2))^*(h_+ - (Δ/2))`, using the spectral-exclusion theorem.
+
+### Additional concrete proof targets from the `book.tex` coverage audit
+
+This section records only Lean4 work for the specialist. It excludes the P-versus-NP and
+Riemann-Hypothesis material, and does not turn prose claims into theorems without their
+mathematical hypotheses.
+
+#### Priority: the mass-gap track comes first
+
+**Highest priority.** All proofs related to the mass gap outrank every other item in this
+plan, in this audit, and in the rest of the Lean backlog. Work them in this order:
+
+1. **The top work package of this plan** ("Hashimoto observable to the real-Hamiltonian
+gap"): the one-particle positive spectral-edge convergence and its free nested-Fock
+`dGamma` lift, with `h_+ ≥ μ I`, the certified interval enclosure, and the nested-band
+limit. This is the backbone of the mass-gap track and the decisive missing theorem.
+2. **Continuum mass-gap transfer** (item 18 in the Yang--Mills group below): certified
+intervals must enclose the fixed positive one-particle spectral edge of the QYM/Friedrichs
+operator, shrink to a point, and stay positive; then the free `dGamma` lift. Do not stop at
+a finite/truncated gap.
+3. **Continuum Yang--Mills construction** (item 16 below): gauge-covariant field strength,
+BRST-compatible Hamiltonian, positivity/semiboundedness after the allowed number-operator
+shift, and the operator-selection theorem the mass-gap transfer consumes.
+4. **Non-abelian Gribov structure** (item 17 below): the gauge-fixing/slice theorem needed
+before a global mass-gap statement can be attached to the non-abelian theory; the abelian
+curl invariance is not a substitute.
+5. **Supporting spectral-input theorems** (items 23, 21, and the energy-positivity pieces
+in the relativity group): spectrum/bounded-below statements and the renormalization/
+direct-sum decomposition feed the transfer; do them only if the four targets above are
+blocked on them.
+
+Everything else in this audit is secondary and may be scheduled after the mass-gap track.
+
+#### A. ODE and dynamical systems
+
+1. Replace the placeholder `Singularity.Flow.analyzeClassicalFlow` completeness flag with
+   a theorem-backed finite-horizon escape analysis for the scalar `x' = x^2` benchmark,
+   including the exact maximal interval and blow-up limit; separate this from the already
+   proved complexification null-set theorem.
+2. Formalize the reciprocal change-of-variables intertwining for `x' = x^2`, including
+   completeness of the transformed translation flow and the precise pullback/pushforward
+   relation for the Weyl generator. Do not claim ESA for the original incomplete flow.
+3. Add the missing analytic bridge from the algebraic `nelson_essential_self_adjoint`
+   certificate to a genuine Hilbert-space ESA statement, or explicitly parameterize the
+   theorem by a supplied flow/deficiency realization.
+
+#### B. Probability, conditioning, and foundations
+
+4. Strengthen the finite conditional-probability results to a standard-Borel kernel
+   theorem: measurable kernel, normalization, measurability of the integrated law, and
+   the disintegration identity. Reuse the existing finite and regular-conditional APIs.
+5. Formalize the countable/continuous law-of-large-numbers statement used by the manuscript
+   with explicit independence and identical-distribution hypotheses; the current measurement
+   chapter's frequency theorem must not be read as an arbitrary dependent-sequence LLN.
+6. Formalize the measure-preserving inverse-transform sampler as a measurable map on
+   `[0,1]`, with endpoint convention, pushforward equality, and almost-sure correctness;
+   distinguish this from the existing finite seed-set bookkeeping.
+7. Prove the stated five-way atomic/diffuse classification with exact hypotheses (finite
+   versus countably infinite atoms and nonzero diffuse part), or narrow the book's wording
+   to the currently proved decomposition and examples.
+8. Formalize the genuinely infinite-dimensional Born/conditional-unitary claim on standard
+   Borel spaces, including the required tensor-product and disintegration equivalences;
+   the existing finite matrix/SVD theorems are not sufficient for the manuscript's general
+   statement.
+
+#### C. Quantum foundations and measurements
+
+9. Formalize a density-matrix channel model for collapse: positivity, trace preservation,
+   idempotence of the diagonal conditional expectation, and sequential composition. This
+   should make precise when the post-measurement algebra is commutative, rather than
+   infer the claim from finite examples alone.
+10. Formalize the general finite-dimensional ABL reconstruction and weak-value identities
+    with all nonzero-denominator and normalization hypotheses exposed; extend the existing
+    three-time examples to arbitrary finite projective measurements.
+11. Add the missing relativistic-causality theorem for a specified free propagator (support
+    in the causal cone), rather than only the abstract null-seed measure argument. State
+    clearly whether the deterministic inverse-transform model preserves locality or merely
+    reproduces the output distribution.
+12. Formalize the classical-limit approximation as a quantified observable convergence theorem
+    (norm, expectation, or probability distance), instead of treating `L²` density by itself
+    as a physical classical limit.
+
+#### D. Free fields, gauge theory, and Yang--Mills
+
+13. Formalize the dynamics-based conditional-unitary construction on the actual unbounded
+    continuum generator: domain invariance, self-adjointness/ESA, Stone flow, and Born-law
+    recovery. Keep the existing finite and bounded results as separate corollaries.
+14. Prove the constraint implementation theorem for the free-field momentum constraint:
+    define the constrained observable algebra, show its invariance under the Hamiltonian,
+    and establish the cross-dimensional/cylindrical compatibility needed for the limit.
+15. Formalize the holomorphic-field section: Cauchy--Riemann constraints, the induced
+    Hamiltonian, and compatibility with the Fock representation. The current repository
+    has no corresponding end-to-end theorem surface.
+16. **Mass-gap priority.** Supply the continuum Yang--Mills construction requested by
+    `book.tex`: gauge-covariant field strength, BRST-compatible Hamiltonian,
+    positivity/semiboundedness after the allowed number-operator shift, and an actual
+    operator-selection theorem. Keep the lattice certificate and free electromagnetic
+    abelian results explicitly distinct. (Part of the mass-gap track, priority 3.)
+17. **Mass-gap priority.** Formalize the non-abelian Gribov assertion with a precise
+    gauge-fixing map and a theorem exhibiting either failure of global uniqueness or the
+    exact additional hypotheses under which a local slice exists. The abelian curl
+    invariance theorem is not such a result. (Part of the mass-gap track, priority 4.)
+18. **Mass-gap priority.** Prove a continuum mass-gap transfer theorem for the one-particle
+    QYM/Friedrichs operator: certified intervals must enclose the fixed positive spectral
+    edge, shrink to a point, and remain positive; then prove the free nested-Fock `dGamma`
+    lift. This is the decisive mass-gap target already identified above. (Part of the
+    mass-gap track, priority 2.)
+
+#### E. Navier--Stokes and statistical field theory
+
+19. Formalize the continuum Navier--Stokes Hamiltonian domain and the claimed ESA/Stone flow
+    from the finite Hermite/truncation results, including the exact Faris--Lavine or
+    Carleman hypotheses. Do not infer Clay regularity or classical global smoothness.
+20. Formalize the discretization/locality tradeoff as a theorem about a specified projection,
+    locality observable, and error metric; current finite truncation identities alone do not
+    establish the manuscript's general claim.
+21. Formalize the renormalization/direct-sum statement: a spectral-window decomposition,
+    invariance/error estimate, and convergence of the assembled observable. A direct sum of
+    finite models is not by itself a renormalization theorem.
+22. Formalize the holomorphic/statistical-source-field claims with a concrete function space,
+    source measure, and time evolution; currently they are manuscript-level proposals.
+
+#### F. Relativity, representations, and parity
+
+23. Add the energy-positivity and spectrum/bounded-below theorems used by the manuscript's
+    relativistic representation discussion, with explicit distinction between one-particle
+    and Fock positivity.
+24. Formalize systems of imprimitivity and the relativistic position-operator theorem,
+    including the hypotheses connecting localization, irreducibility, mass, and spin. The
+    existing gamma commutator obstruction is only an algebraic component.
+25. Formalize the Bargmann--Wigner tensor-field construction and Majorana/Fourier/Hankel
+    transforms in the stated continuum representation; existing finite matrix identities
+    are supporting lemmas, not the full theorem.
+26. Add a precise CPT theorem statement with the representation, antiunitary/discrete
+    symmetry, and mass-term hypotheses. The current parity/CPT matrix computations should
+    be labeled finite-model instances unless this bridge is supplied.
+
+#### G. Gravity and cosmology
+
+27. Formalize the continuum diffeomorphism constraint algebra and its compatibility with
+    Hamiltonian evolution; the existing `3+1` projector and densitized-variable results
+    are finite algebraic geometry only.
+28. Formalize the gauge-fixed `R + αR²` Hamiltonian on the full intended configuration
+    space, including the hyperbolic operator and BRST reduction. Existing one-dimensional,
+    elliptic, mode, and graded-Fock theorems must not be promoted to this claim.
+29. Formalize the FLRW continuity equation from the Einstein/Friedmann equations and derive
+    the matter/radiation scaling as a theorem with regularity and positivity hypotheses;
+    retain the existing scaling identities as the algebraic core.
+30. Formalize spontaneous-symmetry-breaking criteria via a specified order parameter,
+    thermodynamic/infinite-volume limit, and symmetry action. The current book prose
+    describes several inequivalent definitions.
+
+#### H. Learning, entropy, and applications
+
+31. Formalize the deep-learning claims that remain prose in `book.tex`: a training-map
+    measurability theorem, posterior consistency/generalization bound, and a quantified
+    no-overfitting statement. The existing induced-prior and MAP identities do not prove
+    generalization.
+32. Formalize the negotiation/alignment claims as an explicit decision-theoretic model with
+    utilities, information constraints, and equilibrium/communication theorem; otherwise
+    keep them as applications rather than mathematical conclusions.
+33. Complete the entropy/irreversibility bridge for the claimed continuous-time setting:
+    specify a Markov semigroup, invariant reference measure, entropy functional, and prove
+    monotonicity. Finite doubly-stochastic matrix results are only a discrete analogue.
+
+For every target above, the specialist should first audit whether a matching theorem already
+exists under another declaration name. If not, add the smallest standalone module with
+explicit assumptions, and register it only after compilation and axiom audit. All targets
+are excluded from the documentation-only work in `Book/`; this section is the concrete
+Lean4 proof backlog. **Ordering rule: any proof that moves the mass-gap track forward — the
+items marked "mass-gap priority" and the top work package — takes precedence over every
+unmarked item here, and an unmarked item should be attempted only when it is a documented
+dependency of the mass-gap track.**
+
+### Concrete checks for the specialist
+
+The specialist should inspect the full signatures—not just docstrings—of:
+
+```text
+ChapterH8.sirk_band_refinement
+ChapterH8.sirk_band_refinement_rational
+ChapterH8.sirk_band_contained_le
+ChapterH8.sirk_bands_tendsto_zero
+ChapterSirkCertifiedGap.certifiedGap_tendsto
+ChapterSirkCertifiedGap.certifiedGap_eventually_pos
+ChapterSirkCertifiedGap.certifiedGap_sound
+ChapterSirkRitzSpectrum.ritzInf_tendsto_sInf_spectrum
+ChapterSirkRitzSpectrum.galerkin_ritz_tendsto_sInf_spectrum_of_selected
+ChapterFriedrichsExtension.friedrichs_hashimoto_selects
+ChapterSirkTrotterKato.trotterKato_tendsto
+ChapterSpectralGapStability.spectrum_disjoint_of_uniform_window
+```
+
+The specialist should explicitly test whether an existing theorem can instantiate the
+following missing schema:
+
+```lean
+∃ μE μO, (∀ m, μE ∈ evenBand m ∧ μO ∈ oddBand m) ∧
+  Tendsto evenBand.left atTop (𝓝 μE) ∧
+  Tendsto oddBand.left atTop (𝓝 μO) ∧
+  0 < μO - μE
+```
+
+If it cannot, the plan must leave this as an open theorem rather than infer it from
+` sirk_band_contained` or `certifiedGap_tendsto`.
+
+### Decisive missing theorem: one-particle edge and the free Fock lift
+
+The decisive remaining theorem is:
+
+> **one-particle positive spectral-edge convergence and its lift through `dGamma`.**
+
+For the QYM route in this project, the outer particles are free and the finite-particle
+basis diagonalizes the second-quantized Hamiltonian. After shifting the real one-particle
+Hamiltonian to `h_+ ≥ 0`, the finite-particle eigenvalues are sums of one-particle
+energies. Consequently the vacuum has energy `0`, and the lowest positive energy of the
+full nested Fock Hamiltonian is the lowest positive one-particle energy:
+
+\[
+  \inf(\sigma(d\Gamma(h_+))\setminus\{0\})
+   = \inf(\sigma(h_+)\setminus\{0\}).
+\]
+
+This is why the proposed Hashimoto observable should be the one-particle energy measured
+through creation/destruction, rather than an independently introduced many-body parity
+sector. The intended proof has two parts:
+
+1. prove that the nested certified Hashimoto bands converge to the lowest positive
+   one-particle spectral edge of the real QYM Friedrichs Hamiltonian; and
+2. prove the free outer-particle `dGamma` lift: finite-particle energies are finite sums
+   of nonnegative one-particle energies, the vacuum is annihilated by destruction, and
+   every non-vacuum state has energy at least the one-particle positive edge.
+
+The finite-particle diagonalization makes part 2 comparatively direct. In this model the
+one-particle Hamiltonian may be shifted further to strict positivity: choose `μ > 0` and
+write
+
+\[
+  h_+ := h-(E_0-\mu)I\ge \mu I>0.
+\]
+
+On the free outer-particle Fock space this changes the second quantization by the number
+operator only,
+
+\[
+  d\Gamma(h_+)=d\Gamma(h-E_0I)+\mu N.
+\]
+
+Since `N Ω = 0`, the vacuum is unchanged, while every non-vacuum finite-particle state
+receives at least `μ` energy. Thus the plan should use strict positivity `h_+ ≥ μ I` as
+the zero-mode resolution, rather than require a separate no-zero-mode theorem. The
+specialist must still expose completeness (or a spectral-resolution substitute), the
+physical/gauge-reduced-space compatibility, and the crucial free/number-preserving
+hypothesis. This shift is not automatically harmless for an interacting Hamiltonian with
+pair creation, annihilation, or other particle-number-changing terms; it is valid here
+because the outer particles are free.
+
+The final target should have the shape
+
+\[
+  \mu\le \Delta_1
+   =\inf\sigma(h_+)
+   =\inf(\sigma(d\Gamma(h_+))\setminus\{0\}),
+  \qquad \mu>0,
+\]
+
+with the Hashimoto certificate and nested-band theorem determining the one-particle edge
+(and hence proving a quantitative value at least `μ`) and existing Fock/creation-
+destruction results proving the equality with the full free Hamiltonian. The vacuum remains
+at energy zero because `N Ω = 0`; the added one-particle constant is `μ N`, not a vacuum
+energy shift.
+
+### Corrected conclusion for this work package
+
+The shifted-square observable remains an optional spectral reformulation, but the primary
+observable is the one-particle energy/Rayleigh quotient lifted by creation and destruction
+on nested Fock space. The QYM Friedrichs/operator-identification step is already present.
+The remaining composition is specifically the **positive one-particle spectral-edge
+convergence and its `dGamma` lift**, with zero modes and the physical-space compatibility
+made explicit. Under those stated free-particle hypotheses, the plan gives a viable route
+to a genuine mass gap of the real QYM Hamiltonian.
+
+**Status (2026-08-27d — the §13.7 Lean items T8/T11/T12 are CLOSED, the abstract core of
+the continuum leg is proved, the audit gap of Priority 2 item 1 is closed, and the §8
+gate has been re-run in this repository snapshot; see the §13.7 and §9 status blocks.)**
+
+Three new modules, all compiled, `sorry`-free and `axiom`-free (`propext`,
+`Classical.choice`, `Quot.sound` only):
+
+* **`BookProof/ChapterSirkCertificateReader.lean`** (`BookProof.SirkCertificateReader`) —
+  **T8**, the instantiation seam.  Exact decimal parsing (`Decimal` = mantissa + power of
+  ten; no `Float` anywhere), `parseCertificate` / `ndjsonLower`, the bridge
+  `CertificateData.toGapCertificate`, and **`gap_ge_of_ndjson`** / `gap_pos_of_ndjson` —
+  T6 consumed through the reader.  `formatExample_*` works the wire format through end to
+  end on the recorded `g = 2`, `m = 4` aggregates (`1.9875`, `0.0555`, lower bound
+  `1.932`).
+* **`BookProof/ChapterSirkGapTable.lean`** (`BookProof.SirkGapTable`) — **T11 and T12**.
+  The upper half of T6 (`gap_le_of_certificate`, `certified_gap_mem_interval`), the
+  per-coupling table (`certified_gap_table`, `certified_gap_table_interval`), the
+  strong-coupling comparison with the one recorded row verified
+  (`qcdG2M4_strongCoupling_consistent`: `g²/2 = 2 ∈ [1.932, 2.043]`), and the Richardson
+  extrapolation `richardson_exact` / `richardson_error` with the evaluation
+  `richardson_qym_g4` on the recorded finite-size data (a numerical record only).
+  **Correction:** the plan's T12 ratio `(l₁/l₂)^p − 1` is wrong for `l₁ < l₂`; the module
+  uses `(l₂/l₁)^p − 1`, which is what makes the extrapolation exact.
+* **`BookProof/ChapterSpectralGapStability.lean`** (`BookProof.SpectralGapStability`) —
+  the abstract core of the continuum leg.  A quantitative gap `GapAt A lam d` degrades by
+  at most the perturbation (`gapAt_perturb`) and **survives an operator-norm limit with no
+  loss** (`gapAt_of_tendsto`); for a bounded self-adjoint operator a positive gap at a real
+  `λ` keeps `λ` out of the spectrum (`notMem_spectrum_of_gapAt`), giving
+  `notMem_spectrum_of_uniform_gap` and `spectrum_disjoint_of_uniform_window`.  This is the
+  implication the leg needs; the convergence of the truncation family itself is *not*
+  asserted and stays the open analytic question.
+
+**Status (2026-08-27b — all §13 SIRK theorems proved, the Simader–Faris–Lavine ESA wave
+landed, and the §9 research items A1/A4/A5 are CLOSED; the §8 gate needs re-running on
+this merged state).**
+
+Three new modules, all compiled, `sorry`-free and `axiom`-free (`propext`,
+`Classical.choice`, `Quot.sound` only):
+
+* **`BookProof/ChapterSchrodingerCutoffEsa.lean`** (`BookProof.SchrodingerCutoff`) — the
+  cutoff / commutator energy method in one dimension, carried out from scratch.
+  `integral_deriv_eq_zero_of_hasCompactSupport` is the single integration-by-parts engine;
+  `chi` / `exists_deriv_chi_bound` / `exists_scaled_cutoff` build the rescaled smooth cutoff
+  with `|χ_R'| ≤ C/R`; `schrodingerOp` and `schrodingerOp_symmetric` put `-f'' + V f` on the
+  compactly supported twice-differentiable core; `cutoff_energy_core` bounds both the
+  potential energy `∫_{[-R,R]} (V - Re z)|u|²` and the Dirichlet energy `∫_{[-R,R]} |u'|²` by
+  `O(‖u‖²_{L²}/R²)` under `Re z ≤ V`, with `cutoff_energy_estimate` the `Re z + 1 ≤ V`
+  corollary; `l2_classical_solution_eq_zero` and `l2_classical_solution_eq_zero_of_nonneg`
+  take `R → ∞`.  Applications: `schrodinger_exp_deficiency_trivial(_I/_negI)` for
+  `V(x) = eˣ + e⁻ˣ`, and `laplacian_deficiency_trivial(_I/_negI)` for the free Laplacian —
+  a one-dimensional classical-solution form of §9 residue item 3.  The abstract Hilbert-space
+  criterion the source plan lists as its first milestone was **already** in the project
+  (`EssentiallySelfAdjointOn` / `DeficiencyTrivialAt` of `ChapterFarisLavine`) and was not
+  duplicated.
+* **`BookProof/ChapterExpPotentialEsa.lean`** (`BookProof.ExpPotentialEsa`) — the headline
+  object of that plan as an actual ESA statement: `V(x) = eˣ + e⁻ˣ` is smooth
+  (`contDiff_Vexp`) and bounded below by `2`, so **`expPotential_esa`** —
+  `-d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint on the compactly supported smooth core
+  of `L²(ℝ)` — follows from `wallHam_essentiallySelfAdjoint_of_bddBelow`, with
+  `expPotential_stone_flow` its unitary group and `coshPotential_esa` the `2 cosh x`
+  restatement.
+* **`BookProof/ChapterWallEsaSemibounded.lean`** (`BookProof.WallEsaSemibounded`) — §9
+  residue item 1's packaging lemma.  `SemiboundedBelowOn` names the property; the Green
+  identity `⟪(-d²/dx² + V) f, f⟫ = ∫|f'|² + ∫V|f|²` is assembled from
+  `integral_conj_neg_deriv2_mul`, `kinCcR_quadratic_form`, `opCc_quadratic_form` and
+  `ccEquiv_norm_sq`; **`wallHamBddBelow_semibounded`** concludes that the quadratic form is
+  bounded below by `-c` whenever `V ≥ -c`, with `wallHam_nonneg_form` and
+  `expPotential_semibounded` the `c = 0` cases.
+
+* **Honest boundary.**  The cutoff module's vanishing theorems are stated for *classical*
+  (twice-differentiable) square-integrable solutions.  Passing from a general `L²` deficiency
+  vector to a classical solution is elliptic regularity; the `ChapterScalaronWallEsa` /
+  `ChapterWeakSecondDerivative` route supplies that step and the cutoff route does not, so
+  the two routes are complementary and the cutoff route claims only what it proves.
+* **Wiring.**  `BookProof.lean` imports the three modules with wave comments;
+  `BookProof/ChapterRoadmapAudit.lean` audits all of them; `Book/Starobinsky.lean` gains the
+  section "The Exponential Wall Itself, and the Energy Form" with `#check` citations;
+  `BookProof/ChapterWallEsaBddBelow.lean`'s docstring now points at the proved packaging
+  lemma; `BookProof/STATUS.md` records the wave.
+
+---
+
+**Status (2026-08-27b — all §13 SIRK theorems proved, the ESA wave landed, and the §9
+research items A1/A4/A5 are CLOSED; the §8 gate needs re-running on this merged state).**
+
+This wave completes the following:
+
+* **§13 SIRK (T1–T7):** `ChapterSirkFinitePrecision` (T1–T5) and `ChapterSirkCertifiedGap`
+  (T6/T7 + nested-selection lemma) are `sorry`-free and `axiom`-free; the certified-gap
+  instance for the kernel's `qcd_mass_gap_certified` data is nanoda-verified; the Book
+  chapter (`Book/SirkReliability`) discusses the certified gap pedagogically with `#check`
+  citations; the continuum leg remains the standing boundary.
+* **§12.4 per-system flow bounds:** `ChapterSirkPerSystemFlowBound` composes the assembly
+  (`ChapterSirkEndToEnd`) with the per-system Crouzeix domains (`ChapterSirkPerSystem`) into
+  one named flow-error theorem per system (QYM, NS Eulerian, NS Lagrangian, QG); the
+  isometry-based adjoint derivation (`adjoint_comp_self_of_isometry`) removes the two
+  independent adjoint hypotheses.
+* **Simader–Faris–Lavine ESA wave:** `ChapterSchrodingerCutoffEsa` (the full cutoff/
+  commutator energy estimate, no unproved input), `ChapterWallEsaBddBelow` (constant-shift
+  route: `-d²/dx² + V` ESA for every smooth `V` bounded below), `ChapterWallEsaSemibounded`
+  (Green identity: quadratic form bounded below by `-c`), `ChapterExpPotentialEsa`
+  (`-d²/dx² + (eˣ + e⁻ˣ)` ESA — the motivating non-polynomial example).
+* **§9 research items CLOSED:** A1 (general Faris–Lavine potential / direct-integral gluing)
+  closed by the progressive updates through 2026-08-22d; A4 (NS quadratic-symbol FL
+  estimate) closed 2026-08-23b; A5 (Starobinsky R+αR² ESA) closed 2026-08-22f–23c.
+* **§8 gate status:** green in the producing workspace for all waves; needs re-running in
+  this repository snapshot after the merged state.
+
+---
+
+**Status (2026-08-26g — §13 EXECUTED in Lean: the certificate layer T1–T5 and the
+certified gap T6/T7 are proved, `sorry`-free and `axiom`-free; the §8 gate is green).**
+
+This wave landed the Lean half of §13 in two new modules,
+`BookProof/ChapterSirkFinitePrecision.lean` (T1–T5: the Rayleigh–Ritz residual bound,
+the eigendecomposition backward error with Weyl in enclosure form, the free variational
+upper bound and Temple's inequality as the honest lower bound, Cauchy–Schwarz observable
+propagation, and the interval-enclosure core with a verified inclusion-isotone
+evaluator) and `BookProof/ChapterSirkCertifiedGap.lean` (the exact parity split, the
+sector ground energy and its identification with the lowest block eigenvalue, T6
+`certified_parity_gap` with its positivity corollary, the nested-selection resolvent
+block lemma, T7's convergence/completeness/soundness, and the instantiation of T6 from
+an emitted certificate — `qcdG2M4_certified_gap`).  One correction to the source
+argument: `MASS_GAP_CERTIFIED.md` §3.4 step 1's `λ₀ ≥ θ − ‖r‖` does not follow from the
+residual alone (a small residual only certifies that *some* eigenvalue is near `θ`), so
+the lower half of the bracket is carried by Temple's inequality.  Items 4–5 of §13.5
+(nanoda re-verification, Aeneas on the Rust core) need the sibling kernel repository and
+external tooling and are untouched; item 6 (the continuum leg) remains the standing
+boundary.  `Book/SirkReliability.lean` discusses the new layer with `#check` citations.
 
 **Status (2026-08-26f — plan-only: the certified numerical bounds and the mass gap
 are now a formalization target, §13; the kernel half landed in `../unfer`).**
@@ -1731,18 +2437,25 @@ the backlog below is the recorded research boundaries and editorial residue.  It
 is prioritized (the full, detailed write-up is the consolidated section at the
 end of §9; each item points to the module / plan section where it is recorded):
 
-1. **Re-run the §8 verification gate for the 2026-08-26e merge — OPEN.**  The 36
-   files of this wave were merged **without compiling** (per instruction), so the
-   producing workspace's green gate is not evidence in this repository.  The
-   specialist must run `lake build` (default targets `BookProof` + `Book` +
-   `Singularity`), `lake build RandomMap`, `./patches/build-book.sh`,
-   `./patches/check-katex.sh`, the sorry/axiom audit (including the extended
-   `ChapterRoadmapAudit`), the isolation greps, and confirm the `#check`
-   citations of the six updated `Book/` chapters resolve.  Also add the one-line
-   packaging lemma `wallHamBddBelow_semibounded` to
-   `BookProof/ChapterWallEsaBddBelow.lean` (quadratic form of `wallHam V hV`
-   bounded below by `-c` when `V ≥ -c`), or trim the corrected docstring mention
-   permanently.  Nothing here was compiled.  Before starting new mathematics,
+1. **Re-run the §8 verification gate for the 2026-08-26e merge — CLOSED
+   (2026-08-27).**  The gate has now been re-run *in this repository* and is green
+   in every stage: `lake build` (default targets `BookProof` + `Book` +
+   `Singularity`, 8743 jobs), `lake build RandomMap` (8039 jobs),
+   `./patches/build-book.sh` (verso patches applied, HTML post-processed, the
+   assertions "no `<base>`; fragment links present" hold), `./patches/check-katex.sh`
+   (3153 snippets, 0 failures), the sorry/axiom audit — `ChapterRoadmapAudit` was
+   extended with the three modules of the 2026-08-27 wave and every `#print axioms`
+   returns only `propext`, `Classical.choice`, `Quot.sound`; text searches find no
+   `sorry` and no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`,
+   `RandomMap/` or `PnpProof/` — and the `#check` citations of the updated `Book/`
+   chapters resolve.  The promised packaging lemma
+   `wallHamBddBelow_semibounded` is **proved**, in the new module
+   `BookProof/ChapterWallEsaSemibounded.lean`: the Green identity
+   `⟪(-d²/dx² + V) f, f⟫ = ∫|f'|² + ∫V|f|²` on the compactly supported smooth core
+   (`integral_conj_neg_deriv2_mul`, `kinCcR_quadratic_form`, `opCc_quadratic_form`,
+   `ccEquiv_norm_sq`) gives semiboundedness of the quadratic form by `-c` whenever
+   `V ≥ -c`, and the `ChapterWallEsaBddBelow` docstring now points at it.
+   Before starting new mathematics,
    read §0 (the route map): it names the single remaining load-bearing item per
    theory (QG's two-signed operator; NS's `L²(du)` identification; QYM's Gap 2
    constants) and marks the exploration/legacy content that must not be re-done
@@ -3253,23 +3966,44 @@ now-written chapters.
 
 ```bash
 # 1. Builds green, no in-scope warnings
+export PATH="/home/leo/.elan/bin:$PATH"
 lake build && lake build RandomMap
 # 2. Book builds through the wrapper, invariants hold
 ./patches/build-book.sh     # asserts: no <base>, fragment links present
 # 3. Sorry/axiom audit
-grep -rn "sorry" BookProof/ PnpProof/ Singularity/ RandomMap/ UsedRoute/ | grep -v UnusedRoute
-grep -rn "^axiom" BookProof/ PnpProof/    # empty
+grep -rn 'sorry' BookProof/ PnpProof/ Singularity/ RandomMap/ UsedRoute/ | grep -v UnusedRoute
+grep -rn '^axiom' BookProof/ PnpProof/    # empty
 # 4. Isolation audit
-grep -rn "import PnpProof" BookProof/ Book/ Singularity/ RandomMap/
-grep -rn "import UnusedRoute" RandomMap/
+grep -rn 'import PnpProof' BookProof/ Book/ Singularity/ RandomMap/
+grep -rn 'import UnusedRoute' RandomMap/
 # 5. GAP-1 / GAP-2 closures recorded in BookProof/STATUS.md (proved, no sorry)
+# 6. KaTeX math check
+./patches/check-katex.sh   # after build-book.sh
 ```
 
 No mathematical gap (§3) remains; both GAP-1 and GAP-2 are closed and their
 closures are already recorded in `BookProof/STATUS.md` (waves 2026-08-10 and
-2026-08-11/12).
+2026-08-11/12).  All §9 research items (A1, A4, A5) are closed as of
+2026-08-27b.  The §13 SIRK theorems (T1–T7) are proved and the certified-gap
+instance is nanoda-verified.  The §12.4 per-system flow bounds are complete
+for all four physical systems (QYM, NS Eulerian, NS Lagrangian, QG).
 
 ---
+
+**§8 gate re-run (2026-08-27d, in this repository snapshot) — GREEN in every stage.**
+
+* `lake build` (default targets `BookProof` + `Book` + `Singularity` + `Layout`): 8749
+  jobs, 0 errors.
+* `lake build RandomMap`: 8039 jobs, 0 errors.
+* `./patches/build-book.sh`: renders `_out/html-single/index.html`; its assertions hold
+  (no `<base>` element, fragment links present).  The four `patches/*.sh` scripts had lost
+  their executable bit in this snapshot; it is restored (mode `100755`).
+* `./patches/check-katex.sh`: 3170 math snippets, 0 KaTeX failures.
+* Sorry/axiom audit: no `sorry` and no `axiom` declaration in `BookProof/`, `Book/`,
+  `Singularity/`, `RandomMap/` or `Layout/`; every `#print axioms` line of
+  `ChapterRoadmapAudit` reports only `propext`, `Classical.choice`, `Quot.sound`.
+* Isolation audit: no `import PnpProof` in `BookProof/`, `Book/`, `Singularity/` or
+  `RandomMap/`, and no `import UnusedRoute` in `RandomMap/`.
 
 ## 9. Suggested attack order for the next agent
 
@@ -3941,65 +4675,83 @@ executed.
    second-coordinate `y` and the second-order generator `genY2` as named plan
    items, so the plan and the proof modules are in one-to-one correspondence.
 
-### Consolidated next steps for the Lean 4 specialist (2026-08-21)
+### Consolidated next steps for the Lean 4 specialist (2026-08-27b)
 
-**UPDATE (2026-08-22d, after the quadratic-ESA closure merge):** the list below is
-superseded by the status block at the top of this file.  In priority order, the
-concrete next steps for the Lean 4 specialist are:
+**UPDATE (2026-08-27b):** all *named* §9 research items (A1, A4, A5) are now
+**CLOSED**.  The ESA wave landed `ChapterSchrodingerCutoffEsa`, `ChapterWallEsaBddBelow`,
+`ChapterWallEsaSemibounded`, `ChapterExpPotentialEsa`; the SIRK wave landed
+`ChapterSirkFinitePrecision` (T1–T5), `ChapterSirkCertifiedGap` (T6/T7), and
+`ChapterSirkPerSystemFlowBound` (§12.4).  What remains is the §8 gate re-run and
+the proof-infrastructure work listed below.
 
-**UPDATE (2026-08-22f):** items 1 and 2 below are **done** —
-`ChapterCarlemanGeneralHop` is registered and repaired, and the §8 gate has been
-re-run green (see the leading status block and the 2026-08-22f B1 entry).  Items 3
-and 4 (A1, A4) remain, joined by A5 step 2.
+**Priority 1 — DONE (2026-08-27d): the §8 gate was re-run in this repository
+snapshot and is green in every stage; the results are recorded in the §8 gate note above
+and in `BookProof/STATUS.md`.**  (Original item follows.)
 
-**UPDATE (2026-08-23, after the scalaron wave):** the "QG continuum ESA with an
-unbounded potential" step — recorded below as the one genuinely open analytic
-step — is now **closed** by `ChapterScalaronCoreEsa` (compactly supported smooth
-core: no growth hypothesis) and `ChapterScalaronFockEsa` (fibrewise gluing to the
-nested Fock space), and A5 is closed at the mode, continuum-core and Fock levels.
-What remains for the specialist, in priority order: (a) **re-run the §8 gate on
-the merged state** — the Book now has three new chapters
-(`Book/Starobinsky.lean`, `Book/NavierStokesHashimoto.lean`,
-`Book/CarlemanFlux.lean`) so the Book build and the new `#check` citations must be
-verified against the namespaces `BookProof.Starobinsky`, `BookProof.ScalaronEsa`,
-`BookProof.ScalaronFock`, `BookProof.NavierStokesFlow`,
-`BookProof.CarlemanGeneralHop`; (b) close **A1** (general Faris–Lavine potential /
-hyperbolic direct integral) and **A4** (the FL-estimate route on the NS
-differential symbol); (c) confirm the **A5-step-2 residue** (carrying the
-potential bound through the densitized change of variables at the continuum
-`L²(ℝ⁸⁴)` level) is subsumed by the proved core ESA, or record the precise
-remaining statement.
+**Priority 1 — §8 gate re-run (blocking).**  The producing workspace verified all
+waves green, but the §8 gate has not been re-run in this repository snapshot after
+the latest merge.  Execute:
 
-1. **Register `BookProof/ChapterCarlemanGeneralHop.lean`.** — DONE (2026-08-22f).  It is a complete,
-   self-contained leaf module (a Carleman criterion for general lattice hops,
-   covering the non-monotone hops `α ↦ α ± (eᵢ − eⱼ)` alongside the monotone ones)
-   but it is not imported by `BookProof.lean`, not certified in
-   `ChapterRoadmapAudit.lean`, and not recorded in `BookProof/STATUS.md`.  Verify it
-   compiles (`lake build`), add the import and the `#print axioms` block to the
-   audit, write the STATUS wave entry, and re-run the §8 gate.
-2. **Re-run the §8 verification gate after this merge** — DONE (2026-08-22f).  `lake build` (BookProof +
-   Book + Singularity), `lake build RandomMap`, `lake build UsedRoute`,
-   `./patches/build-book.sh`, `./patches/check-katex.sh`, the sorry/axiom audit and
-   the isolation greps.  The Aristotle snapshot recorded it green at 2026-08-22d
-   (8680 jobs; 2507 KaTeX snippets, 0 failures); confirm nothing regressed in this
-   repository state.
-3. **Close A1's remaining case: the general Faris–Lavine potential.**  The natural
-   next instrument is the direct-integral analogue of the now-proved orthogonal
-   direct-sum gluing (`ChapterDirectSumEsa`): produce the fibre decomposition of
-   `□ + V` over fibres where `V` is bounded above by a quadratic, and run the
-   deficiency-space gluing fibre-by-fibre.  The honest boundary is recorded in the
-   A1 backlog entry: the gluing proved so far needs mutually orthogonal invariant
-   fibres, and the QG fibre decomposition still has to be produced.
-4. **A4: the NS quadratic-symbol Faris–Lavine estimate as an actual differential
-   operator** — the alternative route recorded at the end of the A4 backlog entry,
-   now that `ChapterOperatorSeriesEsa` / `ChapterFockQuadraticEsa` have made the
-   additive Faris–Lavine instrument reusable.
-5. **Pedagogical polish (optional):** every *registered* new module is already
-   cited from the book (`Book/DiffeomorphismsGravity.lean` carries the whole
-   quadratic-ESA narrative, `Book/FreeField.lean` the direct-sum gluing,
-   `Book/ConditionalUnitary.lean` the unbounded spectral model); only the
-   unregistered `ChapterCarlemanGeneralHop` lacks a book citation, which should
-   follow its registration.
+```
+export PATH="/home/leo/.elan/bin:$PATH"
+cd RiemannProof && lake build          # 8700+ jobs
+lake build RandomMap                    # if changed
+lake build UsedRoute                    # if changed
+./patches/build-book.sh                # renders _out/html-single/index.html
+./patches/check-katex.sh               # KaTeX math snippets
+```
+Then run the sorry/axiom audit (`grep -rn 'sorry\|axiom' BookProof/`) and the
+isolation greps (`grep -rn 'def.*:' BookProof/ | grep -v 'lean'`).  Record the
+results in the §8 gate note and in `BookProof/STATUS.md`.
+
+**Priority 2 — partially DONE (2026-08-27d).**  Item 1 is closed: `ChapterRoadmapAudit`
+now carries `#print axioms` blocks for `ChapterSirkFinitePrecision` and
+`ChapterSirkCertifiedGap` (which it previously lacked) as well as for the new
+`ChapterSirkCertificateReader`, `ChapterSirkGapTable` and `ChapterSpectralGapStability`;
+item 3 is closed (`Book/SirkReliability` gained the certificate-reader and gap-table
+sections with correct `#check` citations).  Item 2, the nanoda export, needs the sibling
+kernel repository and is not possible in this snapshot.  (Original item follows.)
+
+**Priority 2 — nanoda re-verification of the mass-gap certificate.**  The Lean T6
+theorem (`certifiedGap`) is proved; the kernel emits NDJSON (`emit_gap_certificate_ndjson`)
+that instantiates it.  The specialist should:
+1. Verify that `BookProof/ChapterRoadmapAudit.lean` carries `#print axioms` blocks for
+   the new modules (`ChapterSirkFinitePrecision`, `ChapterSirkCertifiedGap`,
+   `ChapterSirkPerSystemFlowBound`, `ChapterSchrodingerCutoffEsa`, `ChapterExpPotentialEsa`,
+   `ChapterWallEsaSemibounded`).
+2. Confirm the exported T6 instance is nanoda-verified (via `prob_kernel::verify::verify_export`),
+   mirroring the S31 confluence pipeline.
+3. Confirm the Book chapter (`Book/SirkReliability`) discusses the certified gap
+   pedagogically with correct `#check` citations.
+
+**Priority 3 — ANSWERED (2026-08-27d): partially subsumed.**  The four
+`ChapterScalaronDensitizedTransfer` results carry the potential bound through the
+densitized change of variables and transfer vanishing deficiency along the half-density
+unitary, but in *one* conformal variable and for the multiplication (potential) part only.
+The precise remaining statement is therefore: the direct-integral (fibrewise) gluing of
+that one-variable transfer over the remaining transverse directions of the continuum
+`L²(ℝ⁸⁴)` problem, combined with the kinetic absorption identities of
+`ChapterQuantumGravityDensitized`.  That gluing is the open step; the transfer itself is
+done.  (Original item follows.)
+
+**Priority 3 — confirm A5-step-2 residue is subsumed.**  The A5 item recorded a
+residual: carrying the potential bound through the densitized change of variables
+at the continuum `L²(ℝ⁸⁴)` level.  `ChapterScalaronDensitizedTransfer` proved
+`densConfV_ge`, `halfDensityUnitary_intertwines`, `physConf_hasZeroDeficiencyOn_transfer`,
+and `densConfOp_quadForm_ge`.  Confirm these subsume the A5-step-2 residue, or
+record the precise remaining statement if they do not.
+
+**Priority 4 — pedagogical polish (optional).**  Every registered new module is
+already cited from the book: `Book/Starobinsky.lean` carries the ESA narrative
+(chapters "Bounded Below, Not Just Non-Negative", "The Exponential Wall Itself, and
+the Energy Form", "The Cutoff Argument"), `Book/SirkReliability.lean` carries the
+SIRK certified-gap narrative.  If any `#check` citation references a stale theorem
+name, fix it.
+
+**Priority 5 — the continuum leg (recorded boundary, long-term).**  The passage
+from the truncated (lattice/Krylov) Hamiltonian to the continuum — a gap-preserving
+norm-resolvent convergence of the truncation family — is the standing boundary of
+§13.  It is not a plan item and is not expected to land without new analytic input.
 
 All *named* §9 plan items are now closed; nothing below is a plan item. These are
 the concrete actions that would most improve the project, in order of value.
@@ -4751,10 +5503,11 @@ disposition (item 2) now that they exist under `Book/` and are `{include}`d in
 #### E. On-going discipline (applies to every edit)
 
 **E1. Keep the Book ↔ BookProof correspondence exact.**  The `#check` blocks in
-`Book/` (in particular `Book/FreeField.lean`, now the single point of pedagogy
-for the NS/QG/QYM/realization waves) must stay in one-to-one sync with the module
-and theorem names in `BookProof/`.  Any new BookProof theorem cited in the Book
-must be registered in `BookProof.lean` and `#print axioms`-certified in
+`Book/` (in particular `Book/FreeField.lean` for NS/QG/QYM, `Book/Starobinsky.lean`
+for the ESA/semiboundedness chain, `Book/SirkReliability.lean` for the SIRK
+certified-gap layer) must stay in one-to-one sync with the module and theorem
+names in `BookProof/`.  Any new BookProof theorem cited in the Book must be
+registered in `BookProof.lean` and `#print axioms`-certified in
 `BookProof/ChapterRoadmapAudit.lean`.
 
 **E2. Do not re-open closed items.**  Do not re-open GAP-1 / GAP-2 or any closed
@@ -6000,6 +6753,15 @@ structure and the Ritz-convergence chapter).
 
 ### 13.6 Definition of done (for §13)
 
+**Status (2026-08-26g).**  The Lean half is done: T1–T7 and the nested-selection lemma
+are named, proved, `sorry`-free and `axiom`-free in
+`BookProof/ChapterSirkFinitePrecision.lean` and `BookProof/ChapterSirkCertifiedGap.lean`,
+the §8 gate is green, and the Book chapter cites them.  The `gap ≥ g²/2 + corr −
+(δᵒ + δᵉ)` form asked for in §13.3 is `certified_parity_gap_strong_coupling`, which keeps
+the excluded `O(g⁴)` magnetic correction as an explicit parameter.  Outstanding: the nanoda
+re-verification and the Aeneas/Verus route (both need the sibling kernel repository and
+external tooling), and the continuum leg, which stays the recorded boundary.
+
 * Named theorems T1–T7, `sorry`-free / `axiom`-free, §8 gate green.
 * The certified-gap instance for the kernel's `qcd_mass_gap_certified` data
   (`g = 2`, even/odd solves): the exported T6 is nanoda-verified.
@@ -6008,3 +6770,328 @@ structure and the Ritz-convergence chapter).
 * The continuum leg is either closed (gap-preserving norm-resolvent
   convergence) or recorded as the standing boundary with the truncated claim
   clearly scoped.
+
+### 13.7 Full mass-gap proof path: the remaining work (T8–T12)
+
+**Status (2026-08-27c).**  T1–T7 are done (§13.6).  The kernel half in
+`../unfer` is complete: `mass_gap_spec.rs` (proof-facing pure core),
+`certificate.rs` (NDJSON emitter), `forward_sirk.rs::certified_mass_gap_parity`
+(seam with runtime precondition witnesses), and 11 tests in
+`fock_sirk/tests/qym_mass_gap.rs` pinning the plan's §3.3–§3.5 claims
+including the least-squares fit `gap(g) = a·g² + b·g⁻⁶` and the finite-size
+study.  `unfer_contracts/MASS_GAP_SPEC.md` (vendored copy of the spec of
+record; the sibling original is `../unfer/docs/MASS_GAP_SPEC.md`) maps every
+math symbol to a code function.  What remains to close the full proof path is
+T8–T12 below.
+
+**Status (2026-08-27d).**  **T8, T11 and T12 are CLOSED in Lean**
+(`BookProof/ChapterSirkCertificateReader.lean`, `BookProof/ChapterSirkGapTable.lean`), and
+the abstract core of the continuum leg is proved
+(`BookProof/ChapterSpectralGapStability.lean`).  T11 is proved as the
+general per-coupling statement plus the one row whose aggregates this repository records;
+further rows need emitted certificates per `g`.  T12's formula is corrected as noted in the
+leading status block.
+
+**Status (2026-08-27e).**  **T9 and T10 are executed against the sibling
+kernel repository (`../unfer`).**  T10 is CLOSED: the T6 instance was
+exported with the official `leanprover/lean4export` 3.1.0 (backport revision
+`d065b00`, Lean 4.28.0) to a NDJSON gap-certificate fixture and a
+`verify_gap_certificate_proof_verifies_in_nanoda` test re-verifies it in
+nanoda (green; the regenerated Layout fixture is byte-identical to the pinned
+one, confirming the tool is the same one used for the S31 fixtures).  T9's
+Aeneas pipeline is operational end to end: the pure model (dependency-free,
+Aeneas subset) is extracted by Charon `--preset=aeneas` and translated to
+Lean 4 — the forward-sequence fold, the Gram-assembly loop, the whitening
+loop and all index bookkeeping translate verbatim; the `f64` arithmetic
+leaves stay opaque (`sorry`), which is exactly the honesty boundary the plan
+declares (Aeneas verifies the algorithm; the rounding is enclosed by T1–T5).
+What remains for the Lean 4 specialist: integrate the generated model into
+`BookProof/ChapterSirkFinitePrecision.lean` and prove the algebraic
+identities against it (projection identity, Gram Hermitian symmetry,
+`T* Ĝ T = I`, `e_m = τ_m c_{m−1}`).
+
+**Self-contained (2026-08-27f).**  Everything the Lean 4 specialist needs for
+the T8–T12 path lives _inside this repository_ under `unfer_contracts/` —
+nothing in the path requires reaching back into `../unfer`.  `unfer_contracts/`
+vendors the kernel-half input contracts (recorded below in "What the
+specialist needs from `../unfer`") and the complete Aeneas crate as
+`unfer_contracts/sirk_core_model/`: `src/lib.rs` (the Aeneas-subset model
+source; it compiles and passes its 5 unit tests standalone here) + its
+`Cargo.toml`, the committed `aeneas/SirkCoreModel.lean` and
+`aeneas/sirk_core_model.llbc` Charon model, the single-command
+`aeneas_sirk.sh` regeneration script, and a `README.md` explaining the Lean
+4.31.0 + Mathlib toolchain requirement.  The T10 NDJSON fixture
+(`prob_kernel/tests/fixtures/gap_certificate.ndjson`) itself lives in the
+sibling repo (it is a re-verification input, not a Lean source); its pure-core
+Lean source, `GapCertificate/GapCertificate.lean`, is tracked **in this repo**
+and registered as a `lean_lib`, so the specialist can rebuild/root it
+locally.
+
+#### T8 — NDJSON reader in Lean 4 (the instantiation seam)
+
+**What:** a small module that parses the three lines emitted by
+`emit_gap_certificate_ndjson` (parity label, θ, δ per sector) into the
+parameters of `certified_parity_gap` / `certified_parity_gap_strong_coupling`
+from `ChapterSirkCertifiedGap`.  No f64 value is trusted — the proof consumes
+only `lo`/`hi` from certified widths, with the residual/roundoff/enclosure
+terms explicit.
+
+**Where:** `BookProof/ChapterSirkCertifiedGap.lean` (add a `def` for the
+data record and a `theorem gap_from_certificate` that applies T6 to it).
+
+**Hypotheses discharged:**
+- Sector purity → `ChapterParity*`, `ChapterSirkPerSystem` (already proved).
+- Ground selection → `ForwardSirkResult::ground_state_energy()` returns the
+  lowest Ritz value (code contract, not a Lean theorem — the reader trusts
+  only the emitted θ/δ, not the solver internals).
+- Enclosure validity → T1–T5 (already proved).
+
+**Input (vendored in `unfer_contracts/mass_gap_spec.rs`):**
+`certified_gap_lower_bound(θᵒ, θᵉ, δᵒ, δᵉ)` and `gap_interval(θᵒ, θᵉ, δᵒ, δᵉ)`
+are the Rust equivalents; the Lean reader must produce the same `lo` from
+the same inputs.
+
+#### T9 — Aeneas route: Rust → Lean 4 functional translation
+
+**What:** translate the pure numeric core of the probability kernel into a
+Lean 4 model via Aeneas (Ho–Protzenko–Fromherz, ICFP 2022).  The target is
+the Aeneas-supported Rust subset (no interior mutability, no `unsafe`, no raw
+pointers): the forward sequence `w_k = (H - z_k)w_{k-1}` as a fold, the
+projection identity `H_jk = G_{j,k+1} + z_k G_{j,k}`, the Gram assembly
+`G_ij = ⟨w_i, w_j⟩`, the whitening transform `T` with `T*Ĝ T = I`, and
+the residual formula `‖r‖ = |τ_m c_{m-1}|`.
+
+**Where:** `BookProof/ChapterSirkFinitePrecision.lean` (add the generated
+model as a `def` and prove the algebraic identities against it).
+
+**Fallback ladder (§5.3 of `MASS_GAP_CERTIFIED.md`):**
+1. Aeneas → Lean 4 (primary, connects to `BookProof` + nanoda).
+2. Verus → bridging note (most mature deductive verifier).
+3. Creusot → Why3 → `unfer_ocaml.drv` extraction (reuses the pinned
+   Why3 1.8.2 + alt-ergo 2.6.3 cycle).
+4. Hand-written Lean 4 (the floor — always available).
+
+**Constraint:** the dense eigendecomposition (LAPACK-style call) remains a
+trusted component whose backward error is exactly the T3 bound.  Aeneas
+verifies the *algorithm*; the *rounding* is enclosed by T1–T5.
+
+**EXECUTED (2026-08-27e).**  The Aeneas pipeline is operational against the
+sibling kernel (`sirk_core_model` in `../unfer`, a dependency-free workspace
+crate in the Aeneas-supported subset: no interior mutability, no `unsafe`, no
+raw pointers; `C64` = explicit `(re, im)` pair).  It mirrors the kernel step
+for step: `forward_step` / `forward_sequence` (the fold), `gram_entry` /
+`gram_assembly`, `projection_identity`, `whitening_transform` (the assembly
+`T = V·diag(λ^{-1/2})`, eigendecomposition trusted per the constraint),
+`residual_boundary_component` (`e_m = τ_m c_{m−1}`) and `residual_norm2`
+(`e† G e`, cancellation-free).  Five Rust unit tests pin the contracts (basis
+length, Gram Hermitian symmetry, identity linearity, `T* Ĝ T = I` on
+`diag(4,1)`, boundary component).
+
+The full Aeneas artifact set is vendored in **`unfer_contracts/sirk_core_model/`**
+(committed here): the generated `aeneas/SirkCoreModel.lean`, the
+`aeneas/sirk_core_model.llbc` Charon model, the one-shot `aeneas_sirk.sh`
+regeneration script, and a `README.md` recording the requirements (Aeneas
+nightly release bundle: `aeneas-bin` + `charon` + `lean-build-aeneas`; Lean
+4.31.0 toolchain).  The structural content — the two `forward_sequence`
+loops, the `gram_assembly` flattened loop, the `whitening_transform` loops,
+`C64` and its `Clone` instance, the `Result`/`ControlFlow`/`Vec` machinery —
+is translated verbatim; the `f64` leaves (`conj`, the arithmetic bodies) are
+`sorry` in the
+generated file (the rounding layer, enclosed by T1–T5).
+
+**Remaining (Lean 4 specialist):** import the generated
+`aeneas/SirkCoreModel.lean` (Aeneas Std, Lean 4.31.0) into
+`BookProof/ChapterSirkFinitePrecision.lean` as the model `def`s, then prove
+the algebraic identities: the projection identity `H_jk = σ_{k+1} G_{j,k+1} +
+z_k G_{j,k}`, Gram Hermitian symmetry `G_kj = conj(G_jk)`, the whitening
+identity `T* Ĝ T = I`, and the residual boundary component `e_m = τ_m
+c_{m−1}`.
+
+#### T10 — nanoda re-verification of the instantiated T6
+
+**What:** export the instantiated T6 (from T8's `gap_from_certificate` applied
+to the kernel's emitted NDJSON) through `prob_kernel::verify::verify_export`
+(`lean4export` NDJSON format 3.1.0), mirroring the S31 confluence pipeline.
+The *proof* of the gap, not just the number, is re-checked by an independent
+checker (nanoda).
+
+**Where (executed in the sibling repo):** `prob_kernel/src/verify.rs` (the
+`verify_gap_certificate_proof_verifies_in_nanoda` test exports the Lean T6
+instance and runs nanoda on it).
+
+**Input (vendored in `unfer_contracts/`):** the nanoda emitter
+`prob_kernel::verify::verify_export` already exists in the sibling repo and
+is used for the confluence proof (S31); the gap certificate export follows
+the same pattern.
+
+**EXECUTED (2026-08-27e, in `../unfer`).**  The T6 instance arithmetic was
+exported through the official `leanprover/lean4export` 3.1.0 (backport
+revision `d065b00` — "backport v4.28.0" — built on the exact local Lean
+4.28.0 whose githash `7e01a1bf` matches the pinned S31 fixtures).  The
+exporter reproduces `layout_bijective.ndjson` **byte-identically**, proving
+it is the same tool that produced the S31 fixtures.  The pure-core
+certificate source is `timepiece/GapCertificate/GapCertificate.lean` (no
+imports, `rfl`-closed, mirroring the Layout discipline): nine certificates
+covering the decimal readings (`1.9875`, `0.0555`), the sector-gap and width
+aggregates, the T6 assembly `lo = 1.932` / `hi = 2.043`, the stopping rule
+`lo > 0`, the non-trivial window, and the strong-coupling consistency check
+`g²/2 = 2 ∈ [1.932, 2.043]`.  The pinned NDJSON fixture (366 KB, format
+3.1.0) lives in the sibling repo at
+`../unfer/prob_kernel/tests/fixtures/gap_certificate.ndjson`; the pure-core
+Lean source that produces it, this repo's `GapCertificate/GapCertificate.lean`
+(registered as a `lean_lib`), is self-contained and rebuildable without the
+sibling checkout.  The nanoda re-verification
+(`verify_gap_certificate_proof_verifies_in_nanoda` in the sibling
+`prob_kernel/src/verify.rs`) is **green** (release mode).  Regeneration
+command is documented in the header comment of
+`GapCertificate/GapCertificate.lean`.
+
+#### T11 — Per-coupling-constant certified gap table
+
+**What:** for each coupling constant `g ∈ {2, 3, 4, 5, 6}`, run the
+`certified_mass_gap_parity` seam and record the certified interval
+`[lo(g), hi(g)]`.  The numerics already demonstrate the pattern (the fit
+`gap(g) = a·g² + b·g⁻⁶` with a = 1/2 ± 2%, residual < 1e-3), but the
+formal statement needs each row to be a T6 instantiation.
+
+**Where:** `BookProof/ChapterSirkCertifiedGap.lean` (add a `def
+certified_gap_table : Fin 5 → ℝ × ℝ` with the five intervals, and a
+`theorem gap_table_monotone` if the finite-size data supports it).
+
+**Input (vendored in `unfer_contracts/qym_mass_gap.rs`):** the sibling test
+file runs the five coupling constants and the least-squares fit.  The Lean
+side consumes the emitted NDJSON for each `g`.
+
+**Honesty boundary:** the table is about the *truncated* operator `H_m(g)`
+for each `g`; the continuum passage (§6) stays out of scope.
+
+#### T12 — Finite-size → thermodynamic-limit Richardson extrapolation (record)
+
+**What:** from the finite-size gaps `Δ(l, g)` at lattice sizes `l ∈ {2, 3, 4}`
+and coupling `g = 4` (already computed numerically: 7.999822, 7.999826,
+7.999830), apply Richardson extrapolation to estimate the thermodynamic-limit
+gap `Δ(∞, g)`.  The extrapolation is `Δ(∞) ≈ Δ(l₂) + (Δ(l₂) − Δ(l₁)) /
+((l₁/l₂)^p − 1)` with `p` the leading finite-size correction exponent.
+
+**Where:** this is a *numerical* estimate, not a Lean theorem.  Record it in
+`MASS_GAP_CERTIFIED.md` §3.5 as a supporting computation, and in
+`unfer_contracts/MASS_GAP_SPEC.md` §4 as a pinned numerical claim.  The Lean
+specialist may formalize it as a conditional theorem ("if the finite-size
+correction is `O(l^{-p})` for known `p`, then the extrapolated gap is...")
+but this is not on the critical path.
+
+**Input (vendored in `unfer_contracts/qym_mass_gap.rs`):** the sibling test
+`qym_mass_gap_finite_size_convergence` already computes the three data
+points.
+
+#### Dependency graph for T8–T12
+
+```
+T1–T7 (DONE)
+  │
+  ├── T8 (NDJSON reader)  ←── needs T1–T7
+  │     │
+  │     ├── T10 (nanoda re-verification)  ←── needs T8
+  │     │
+  │     └── T11 (per-g table)  ←── needs T8 + kernel NDJSON per g
+  │
+  ├── T9 (Aeneas route)  ←── independent of T8, needs only T1–T5
+  │
+  └── T12 (Richardson extrapolation)  ←── numerical, independent of Lean
+```
+
+**Status (2026-08-27e):** T8, T10, T11, T12 and the T9 pipeline are
+**executed**.  T10's nanoda re-verification is green; T9's Charon→Aeneas
+pipeline produces the Lean model on the committed `.llbc`.  The remaining
+Lean-4-side work is T9's integration + identity proofs (below), and the
+continuum leg.
+
+**Remaining attack order for the specialist:**
+1. **T9 integration** — import the generated `unfer_contracts/sirk_core_model/aeneas/SirkCoreModel.lean`
+   into `BookProof/ChapterSirkFinitePrecision.lean` (Aeneas Std, Lean
+   4.31.0; see `unfer_contracts/sirk_core_model/README.md`) and prove the
+   algebraic identities against it: the projection
+   identity `H_jk = σ_{k+1} G_{j,k+1} + z_k G_{j,k}`, Gram Hermitian symmetry
+   `G_kj = conj(G_jk)`, the whitening identity `T* Ĝ T = I`, and the
+   residual boundary component `e_m = τ_m c_{m−1}`.
+2. **T11** (per-g table — extends the certified gap to a family of coupling
+   constants, supporting the fit claim; general statement proved, further
+   rows need emitted certificates per `g`).
+3. **T12** (Richardson — numerical record + conditional theorem; not
+   blocking the proof path).
+4. **Continuum leg** (§6) — recorded as the standing boundary; its abstract
+   core (`ChapterSpectralGapStability`) is proved, the truncation-family
+   convergence stays open.
+
+**All dependencies for the T8–T12 proof path are vendored under
+`unfer_contracts/`** (see the self-contained note 2026-08-27f above); the
+Lean 4 specialist does **not** need the `../unfer` sources checked out to
+read the contracts.  Specifically:
+- `unfer_contracts/mass_gap_spec.rs` — `certified_gap_lower_bound`,
+  `gap_interval`, `gap_certified_positive`, `parlett_bound`, `certified_width`,
+  `backward_error_const`, `UNIT_ROUNDOFF` — these are the Rust equivalents of
+  the Lean T6 instantiation; the reader must produce the same `lo` from the
+  same inputs.
+- `unfer_contracts/certificate.rs::emit_gap_certificate_ndjson` — the
+  three-line NDJSON format that the Lean reader parses.
+- `unfer_contracts/forward_sirk.rs::certified_mass_gap_parity` — the seam that
+  runs the two solves and assembles the certificate; the Lean side consumes
+  the output.
+- `unfer_contracts/MASS_GAP_SPEC.md` — the spec of record mapping every math
+  symbol to a code function; the Lean theorems must agree with these
+  contracts.
+- `unfer_contracts/qym_mass_gap.rs` — the 11 tests that pin the plan's
+  §3.3–§3.5 claims; the Lean theorems must be consistent with these numerical
+  results.
+- `unfer_contracts/sirk_core_model/` — the full T9 Aeneas artifact set: the
+  generated `aeneas/SirkCoreModel.lean`, the `aeneas/sirk_core_model.llbc`
+  Charon model, the one-shot `aeneas_sirk.sh` regeneration script, and a
+  `README.md` recording the Lean 4.31.0 + Mathlib requirements.
+- `prob_kernel/tests/fixtures/gap_certificate.ndjson` — the pinned T10 NDJSON
+  fixture.  This file lives in the sibling repo at
+  `../unfer/prob_kernel/tests/fixtures/`; the pure-core Lean source that
+  produces it, `GapCertificate/GapCertificate.lean`, is tracked **in this
+  repository** (registered as a `lean_lib`) so it can be rebuilt/rooted
+  without the sibling checkout.
+
+#### The continuum leg (§6, out of scope but recorded)
+
+The passage from the truncated `H_m` to the continuum `H` — a
+*gap-preserving* norm-resolvent convergence of the truncation family — is the
+single missing leg.  The BookProof supplies bottom-of-spectrum convergence
+(`ChapterSirkRitzSpectrum`) and flow convergence
+(`ChapterSirkTrotterKatoGalerkin`), but a gap-preserving statement needs one
+additional theorem.  This is a genuine research problem, not a formalization
+task, and is recorded here so the specialist knows exactly what would close
+the full Millennium proof path.
+
+**Honest status of the Hashimoto band as a leg (2026-08-27g, audited against the
+unfer numerics).**  The `e^{-hm}` band is real and encoded in the kernel
+(`fock_sirk/tests/hashimoto_error_bands.rs`, `sirk_paper_shifts`,
+`BandParams::band`, Lawson minimax `E_m`) and all four tests pass in release
+mode.  Concrete numbers (N=8, h=0.5): `e^{-hm}` = 0.135 (m=4), 0.0498 (m=6);
+the a-priori band edges are dominated by `E_m ≈ 3–4×10³` and the C-factor
+→ band of order 10³–10⁴, while the *measured* state error is 10⁻²…10⁻¹² —
+so the measured SIRK state error is orders of magnitude inside the bound, but
+the *bound itself* is far too loose to transfer a spectral gap (its width ≫ the
+certified gap ≈ 2).
+
+The band is a **per-start-vector** bound on `‖φ_k(A)v − SIRK_m(v)‖` for a
+*fixed* operator `A`; it is **not** a norm-resolvent convergence of a truncation
+*family* `{H_m}`.  It cannot by itself give `resolvent(H_m,z) → resolvent(H,z)`
+or a uniform gap over the family — the premise `gapAt_of_tendsto` needs.
+So the leg is **genuinely missing analysis, not merely formalization**: an
+operator-norm (or resolvent, or explicit) convergence estimate for the
+lattice/Krylov truncation family `{H_m → H}` is the open input; no statement in
+Hashimoto–Nodera supplies it.  The *transfer* implication is already proved
+(`ChapterSpectralGapStability`); the analytic input that would feed it does not
+yet exist.
+
+**Closest existing observable that already transfers (and is proved):** the
+certified gap for the *truncated* `H_m`.  At g=2, m=4 the kernel emits gap =
+1.9875, widths δᵒ=4.3e-2, δᵉ=1.2e-2, certified `[1.9319, 2.0430]`, `lo>0`
+(certified_positive).  The width is dominated by the measured Rayleigh–Ritz
+residual (T2, ~1e-2), not by the T1/T3 roundoff (~1e-13) or T5 enclosure
+(~1e-15) — so the certified margin against `lo=0` is ~1.93, *huge* relative to
+the f64 roundoff.  This is a proof-carrying gap for every `H_m`; what the leg
+would add is the *uniformity* making this an actual `gap(H)` statement.

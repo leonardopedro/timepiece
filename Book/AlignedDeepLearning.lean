@@ -8,6 +8,14 @@ open Verso.Genre.Manual.InlineLean
 tag := "aligned-deep-learning"
 %%%
 
+# Orientation and Status
+
+This chapter documents the finite Bayesian content of the manuscript's learning
+proposal. Induced priors, posterior identities, and MAP algebra are formalized;
+claims about generalization, overfitting, alignment, and real training systems need
+separate statistical or empirical hypotheses and are listed as specialist proof
+targets only when they have a precise mathematical formulation.
+
 # The Question
 
 :::paragraph

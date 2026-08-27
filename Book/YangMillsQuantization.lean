@@ -150,6 +150,14 @@ algebraic skeleton of the fermionic ghost structure:
 # The Weyl-Gauge Hamiltonian Is Positive
 
 :::paragraph
+For the mass-gap route, distinguish the real one-particle Hamiltonian from its finite
+certificate and from the outer-particle Fock lift. The positivity below is the input for
+shifting the one-particle operator and applying the Friedrichs/Hashimoto construction;
+it is not, by itself, a statement that a finite numerical gap has already transferred to
+the full Hamiltonian.
+:::
+
+:::paragraph
 In the Weyl gauge the Yang–Mills Hamiltonian density is
 $`H_W = \tfrac12\sum_i \pi_i^2 + \tfrac12\sum_a B_a^2` — a sum of squares of
 self-adjoint operators — hence a *positive* operator: every expectation value is
@@ -164,6 +172,16 @@ non-negative. This is the fact the manuscript invokes for the mass-gap discussio
 ```
 
 # The Weyl-Gauge Quadratic Form and the Friedrichs Route
+
+:::paragraph
+Because the one-particle Hamiltonian is bounded below, choose an energy origin so that
+`h₊ ≥ μ I` for some `μ > 0`. For free outer particles this changes the Fock Hamiltonian
+by `μ N`, not by a vacuum constant: `N Ω = 0`, while every non-vacuum finite-particle
+energy is a sum of strictly positive one-particle energies. Thus the physical observable
+for the remaining mass-gap theorem is the lowest positive one-particle energy, measured
+through the creation/destruction sandwich and then lifted by `dGamma`.
+:::
+
 
 :::paragraph
 Positivity of the Weyl-gauge Hamiltonian is the hypothesis of the *Friedrichs

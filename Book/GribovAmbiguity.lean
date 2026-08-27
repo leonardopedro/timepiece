@@ -8,6 +8,13 @@ open Verso.Genre.Manual.InlineLean
 tag := "gribov-ambiguity"
 %%%
 
+# Orientation and Status
+
+The manuscript ranges from the abelian free-field example to a proposed non-abelian
+field theory. This chapter keeps those levels separate: the abelian gauge-invariance
+and number-shift identities are verified, whereas a global non-abelian gauge-fixing
+and a continuum Yang--Mills mass-gap theorem are not yet formalized.
+
 # The Question
 
 :::paragraph

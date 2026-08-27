@@ -11,6 +11,14 @@ tag := "sirk-reliability"
 # What the Numerics Compute
 
 :::paragraph
+This chapter keeps the three operator levels distinct: the one-particle Hamiltonian, its
+finite Krylov/Galerkin truncations, and the nested Fock lift. The current certificate
+formalizes the finite/truncated level. The remaining Lean target is the lowest positive
+one-particle spectral edge and its lift through the free, number-preserving `dGamma`
+Hamiltonian.
+:::
+
+:::paragraph
 The solver evolves a state by projecting the generator onto a Krylov subspace,
 exponentiating the resulting $`m \times m` matrix, and lifting the answer back.
 Written out, the approximation is
@@ -319,6 +327,41 @@ selects, since no positivity is available to supply one.
 #check @BookProof.ChapterSirkPerSystem.qgR2_sirk_crouzeix_domain
 ```
 
+# One Named Bound Per System
+
+:::paragraph
+Fixing the region is not yet a reliability statement about a particular
+Hamiltonian: the assembly and the geometry still have to be composed. Doing so
+gives one named theorem per system, in which the selected extension, its
+shift-invert, the region on which the constants are measured, the Krylov transfer
+identity and the reconstruction projection are all discharged from results the
+development already proves. What is left as an input is exactly what should be:
+the two deformation estimates on the fixed region, and the spectral consistency
+that identifies the propagator with the calculus of the shift-invert. The
+reduction data of a single order $`m` — the rational approximant, its
+denominators and the reduced propagator — are bundled, which also lets a whole
+family over $`m` be quantified at once; the family form is what gives the
+convergence of the reduced flows as the retained subspace grows. Two small
+observations remove clutter along the way: an isometric embedding automatically
+satisfies $`V^{*}V = 1` and has a contractive adjoint, so neither needs to be
+assumed.
+:::
+
+```
+#check @BookProof.ChapterSirkPerSystemFlowBound.adjoint_comp_self_of_isometry
+#check @BookProof.ChapterSirkPerSystemFlowBound.norm_adjoint_apply_le_of_isometry
+#check @BookProof.ChapterSirkPerSystemFlowBound.sirk_scheme_bound
+#check @BookProof.ChapterSirkPerSystemFlowBound.sirk_scheme_tendsto
+#check @BookProof.ChapterSirkPerSystemFlowBound.ym_sirk_flow_error_bound
+#check @BookProof.ChapterSirkPerSystemFlowBound.ym_sirk_flow_error_tendsto_zero
+#check @BookProof.ChapterSirkPerSystemFlowBound.ns_sirk_flow_error_bound
+#check @BookProof.ChapterSirkPerSystemFlowBound.nsDiff_sirk_flow_error_bound
+#check @BookProof.ChapterSirkPerSystemFlowBound.lagrangian_sirk_flow_error_bound
+#check @BookProof.ChapterSirkPerSystemFlowBound.diagKR_sirk_flow_error_bound
+#check @BookProof.ChapterSirkPerSystemFlowBound.qgR2_sirk_flow_error_bound
+#check @BookProof.ChapterSirkPerSystemFlowBound.qgR2_sirk_flow_error_tendsto_zero
+```
+
 # From the Reduced Generator to the Flow
 
 :::paragraph
@@ -457,14 +500,236 @@ reduction.
 #check @BookProof.ChapterSirkDiffusiveDecay.norm_heatFlow_compress_apply_le
 ```
 
+# From Exact Arithmetic To Certified Enclosures
+
+:::paragraph
+Everything above is stated in exact arithmetic, while the solver runs in binary64.
+The gap is closed not by trusting the floating-point numbers but by proving *around*
+them. Three theorems do the work. The residual bound is a-posteriori: for any vector
+whatsoever — in particular the computed one — and any real value $`\theta`, some
+eigenvalue of the *exact* compression lies within $`\lVert H\psi - \theta\psi\rVert`
+of $`\theta`. The backward-error model of a symmetric eigensolver says the computed
+eigenpairs are exact eigenpairs of a nearby operator, and Weyl's inequality — in the
+enclosure form, which is all a certificate needs — transports its eigenvalues back.
+The remaining term is an interval evaluation with outward rounding, whose soundness is
+a handful of order facts about endpoints.
+:::
+
+```
+#check @BookProof.SirkFinitePrecision.exists_eigenvalue_dist_le_residual
+#check @BookProof.SirkFinitePrecision.exists_eigenvalue_dist_le_residual_unit
+#check @BookProof.SirkFinitePrecision.backward_error_weyl
+#check @BookProof.SirkFinitePrecision.backward_error_weyl_symm
+#check @BookProof.SirkFinitePrecision.observable_propagation
+#check @BookProof.SirkFinitePrecision.observable_propagation_band
+#check @BookProof.SirkFinitePrecision.CertInterval.mem_mul
+#check @BookProof.SirkFinitePrecision.CertInterval.mem_widen
+#check @BookProof.SirkFinitePrecision.CertInterval.dist_le_width
+```
+
+# Which Half Of The Bracket Is Free
+
+:::paragraph
+The variational principle gives the upper half of the bracket for nothing: a Rayleigh
+quotient of a unit vector is never below the lowest eigenvalue. The lower half is not
+free, and it is worth being precise about why. A small residual certifies that *some*
+eigenvalue is close to the computed value; it does not certify that the *lowest* one
+is. Temple's inequality supplies the missing lower bound from the same computed data
+plus one separation constant: if every eigenvalue is either the lowest or at least
+$`\beta`, and the computed quotient sits below $`\beta`, then the lowest eigenvalue
+is at least $`\theta - (\lVert H\psi\rVert^2 - \theta^2)/(\beta - \theta)`.
+:::
+
+```
+#check @BookProof.SirkFinitePrecision.ground_le_rayleigh
+#check @BookProof.SirkFinitePrecision.temple_lower_bound
+#check @BookProof.SirkFinitePrecision.ground_ge_of_no_eigenvalue_below
+```
+
+# The Certified Gap Of The Truncated Hamiltonian
+
+:::paragraph
+The current emitted certificate is expressed through invariant even/odd blocks of the
+finite truncated operator. For the nested-Fock interpretation, the physical observable
+is instead the lowest positive one-particle energy after a constant shift. The parity
+certificate can be used for that observable only after the specialist proves the
+one-particle vacuum/first-excitation identification. Until then, `1.932` is a rigorous
+truncated value, not a real-Hamiltonian Fock gap.
+:::
+
+:::paragraph
+For the intended free outer-particle model, choose `μ > 0` so the shifted one-particle
+Hamiltonian satisfies `h₊ ≥ μ I`. Then `dGamma h₊` has vacuum energy zero because the
+number operator annihilates the vacuum, while every non-vacuum finite-particle energy is
+a sum of one-particle energies and is at least `μ`. A one-particle creation attains the
+lowest edge once the infinite one-particle band limit is proved.
+:::
+
+:::paragraph
+The same bound can be read against the analytic strong-coupling expectation. Writing
+the measured sector Ritz difference as $`g^2/2` plus a correction — the magnetic term
+that the strong-coupling expansion excludes — the certified statement becomes
+$`\text{gap} \ge g^2/2 + \text{corr} - (\delta^o + \delta^e)`. The correction is carried
+explicitly as a parameter rather than absorbed into the widths, so nothing about the
+excluded term is quietly assumed.
+:::
+
+```
+#check @BookProof.SirkCertifiedGap.paritySector_invariant
+#check @BookProof.SirkCertifiedGap.sectorRestrict_isSymmetric
+#check @BookProof.SirkCertifiedGap.sectorGround_eq_inf_eigenvalues
+#check @BookProof.SirkCertifiedGap.sectorGround_ge_temple
+#check @BookProof.SirkCertifiedGap.certified_parity_gap
+#check @BookProof.SirkCertifiedGap.certified_parity_gap_pos
+#check @BookProof.SirkCertifiedGap.certified_parity_gap_strong_coupling
+#check @BookProof.SirkCertifiedGap.rayleigh_odd_ge_of_certified
+#check @BookProof.SirkCertifiedGap.resolvent_commutes_parity
+```
+
+# When A Computation Is A Proof
+
+:::paragraph
+The stopping rule is the certificate itself. `ChapterH8` proves that the next SIRK
+prediction refines the current approximation and that the generic error bands nest and
+shrink. The remaining specialist composition is to show that the corresponding bands
+enclose the lowest positive edge of one fixed QYM one-particle Friedrichs operator.
+Then a positive limiting edge lifts to the real free nested-Fock Hamiltonian through
+`dGamma`; a positive value at only one finite order still certifies only the truncated
+operator.
+:::
+
+```
+#check @BookProof.SirkCertifiedGap.certifiedGap_tendsto
+#check @BookProof.SirkCertifiedGap.certifiedGap_eventually_pos
+#check @BookProof.SirkCertifiedGap.certifiedGap_sound
+#check @BookProof.SirkCertifiedGap.gap_ge_of_certificate
+#check @BookProof.SirkCertifiedGap.qcdG2M4_certified_gap
+```
+
+# From The Emitted Certificate To The Theorem
+
+:::paragraph
+A certificate is only useful if it can be *read*. The solver writes one flat JSON
+object per line: a parity label, the sector Ritz value and the assembled width. The
+reader parses those lines into the parameters of the gap theorem, and it does so
+without ever producing a floating-point number: a decimal literal is stored exactly,
+as a mantissa together with a power of ten, so that the value the proof consumes is a
+rational and not a rounded approximation. A line that is missing a field, or whose
+number is not a decimal, or which asserts a negative width, fails to parse rather than
+being defaulted.
+:::
+
+:::paragraph
+What the reader then proves is the gap theorem with the parsed numbers substituted in:
+given the two enclosures the certificate asserts, the certified difference
+$`\theta^o - \theta^e - (\delta^o + \delta^e)`$ is a lower bound for the parity gap of
+the truncated Hamiltonian. Worked through on the recorded run — measured gap $`1.9875`,
+assembled width $`0.0555` — the emitted text alone yields a certified gap of at least
+$`1.932`, in particular a strictly positive one.
+:::
+
+```
+#check @BookProof.SirkCertificateReader.parseDec_example
+#check @BookProof.SirkCertificateReader.parseDec_reject
+#check @BookProof.SirkCertificateReader.gap_ge_of_ndjson
+#check @BookProof.SirkCertificateReader.gap_pos_of_ndjson
+#check @BookProof.SirkCertificateReader.formatExample_lower
+#check @BookProof.SirkCertificateReader.formatExample_certified_gap
+```
+
+# A Table Of Couplings, And The Finite-Size Limit
+
+:::paragraph
+One certificate certifies one operator. Adding the two reverse enclosures turns the
+one-sided bound into a genuine enclosure of the gap, and the same statement can then be
+made a row at a time: for each coupling constant, a measured difference and an
+assembled width, and a proof that the gap of *that* truncated Hamiltonian lies in *that*
+window. The analytic strong-coupling value $`g^2/2` is compared against the window
+rather than assumed: at $`g = 2` the prediction is $`2`, and the certified window of the
+recorded run is $`[1.932, 2.043]`, which contains it.
+:::
+
+:::paragraph
+The finite-size study asks a different question — what the gap tends to as the lattice
+grows. If the finite-size correction is a pure power $`C \, l^{-p}`, the Richardson
+combination of two lattice sizes returns the limit exactly, and if the two values are
+known only to within $`\varepsilon`$, the extrapolant is off by at most
+$`\varepsilon (1 + 2/X)`, where $`X` is the extrapolation denominator. That is a
+theorem. The number obtained by feeding the recorded lattice data into it is not: it is
+a numerical estimate, and the passage to the thermodynamic limit is not claimed.
+:::
+
+```
+#check @BookProof.SirkGapTable.certified_gap_mem_interval
+#check @BookProof.SirkGapTable.certified_gap_table
+#check @BookProof.SirkGapTable.certified_gap_table_interval
+#check @BookProof.SirkGapTable.qcdG2M4_strongCoupling_consistent
+#check @BookProof.SirkGapTable.richardson_exact
+#check @BookProof.SirkGapTable.richardson_error
+```
+
+# What Would Close The One-Particle Limit
+
+:::paragraph
+Everything certified above is about the truncated operator. For QYM, the
+Friedrichs/Hashimoto results already identify the selected operator with the real
+one-particle Hamiltonian. The remaining step is the one-particle positive spectral-edge
+convergence and its lift through the free number-preserving `dGamma` construction.
+The strict shift `h₊ ≥ μ I` contributes `μ N`, leaves the vacuum unchanged, and makes
+all non-vacuum finite-particle energies positive.
+:::
+
+:::paragraph
+The optional shifted-square witness gives a spectral reformulation, but the primary
+observable is the one-particle energy measured through creation and destruction.
+:::
+
+:::paragraph
+What the continuum claim needs is that the gap is not destroyed in the limit, and that implication — as opposed to
+the convergence itself — can be proved. Say an operator has a *quantitative gap* $`d` at
+a point $`\lambda` when no vector is moved by less than $`d\|x\|`: for a bounded
+self-adjoint operator that is exactly the statement that $`\lambda` is at distance at
+least $`d` from the spectrum. Such a gap degrades by at most the size of a perturbation,
+and it therefore survives an operator-norm limit with no loss at all. So a family of
+approximants with a *uniform* gap on an interval forces the limit to have no spectrum in
+that interval.
+:::
+
+:::paragraph
+That is the shape of the missing leg, and it makes the remaining question precise: what
+is open is not whether a uniform gap passes to the limit — it does — but whether the
+truncation family converges in the sense required. Nothing here asserts that it does.
+:::
+
+```
+#check @BookProof.SpectralGapStability.gapAt_perturb
+#check @BookProof.SpectralGapStability.gapAt_of_tendsto
+#check @BookProof.SpectralGapStability.notMem_spectrum_of_gapAt
+#check @BookProof.SpectralGapStability.spectrum_disjoint_of_uniform_window
+```
+
 # The Honest Boundary
 
 :::paragraph
-Crouzeix's inequality and the deferred deformation of the error bound are named
+For QYM, the selected Hashimoto operator is already identified in the formal development
+with the real Friedrichs Hamiltonian. The remaining mass-gap target is narrower: prove
+that the certified nested bands converge to the lowest positive one-particle edge, then
+use the free number-preserving `dGamma` lift. The finite certificate and generic SIRK
+error bands must not be described as a completed continuum mass-gap proof.
+:::
+
+:::paragraph
+The QYM operator-identification step is already proved: the Hashimoto limit selects the
+real Friedrichs Hamiltonian. The remaining gap is the explicit one-particle positive-edge
+certificate/limit and its free `dGamma` lift. Crouzeix's inequality and the deferred
 hypotheses with citations, not theorems of this development. What is fixed per
 system is the region on which the deformation is measured, not a numerical value
 for it. Strong resolvent convergence is the hypothesis of the Trotter–Kato
 statement, supplied per system by the selection theorems, not proved there.
-Nothing is said about floating-point arithmetic: the statements are about the
-exact algorithm that the finite-precision computation approximates.
+Finite precision is no longer outside the statements, but the certified claims are
+about the *truncated* operator: the gap theorem is a theorem about the finite
+compression the solver diagonalises, and the numbers of a particular run enter as
+data, with the theorem conditional on the enclosures the certificate asserts. The
+passage to the continuum — a gap-preserving norm-resolvent convergence of the
+truncation family — is not proved here and is assumed nowhere.
 :::

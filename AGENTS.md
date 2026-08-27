@@ -14,6 +14,14 @@ formalization project.
 - **`/RiemannProof/RiemannProof/Basic.lean`**: The main development file.
   All definitions, axioms, lemmas, and theorems reside here.
 - **`/RiemannProof/RiemannProof.lean`**: Entry point exposing the library.
+- **`/Layout/Layout.lean`** (GPU_FEDERATION_PLAN T2.1): pure-core-Lean
+  certificates for the GPU federation — `StateDictionary` layout bijectivity
+  and the `2x + 4y ≡ 0 (mod 32)` bank-conflict / swizzle-impossibility
+  theorem. Zero imports (kernel `rfl` only), registered as the `Layout` lake
+  target (`lake build Layout`), exported via official lean4export 3.1.0 on
+  the pinned 4.28.0 toolchain to
+  `unfer/prob_kernel/tests/fixtures/layout_bijective.ndjson`, where nanoda
+  re-verifies it (`layout_proof_verifies_in_nanoda`).
 
 ---
 

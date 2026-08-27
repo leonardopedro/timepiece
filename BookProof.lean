@@ -1229,3 +1229,116 @@ import BookProof.ChapterQgBrstCompleted
 -- can reach (`ChapterHermiteExpWall`).
 import BookProof.ChapterWeakSecondDerivative
 import BookProof.ChapterScalaronWallEsa
+
+-- Wave (2026-08-26g, plan §13 — the certified numerical bounds and the mass gap).
+--
+-- `ChapterSirkFinitePrecision`: the finite-precision certificate layer (T1–T5).  The
+-- Rayleigh–Ritz residual bound `exists_eigenvalue_dist_le_residual` (Parlett: the
+-- *computed* vector against the *exact* operator), the eigendecomposition backward
+-- error with Weyl in enclosure form (`backward_error_weyl`,
+-- `backward_error_weyl_symm`), the unconditional Ritz upper bound
+-- `ground_le_rayleigh` and its honest lower-bound counterpart `temple_lower_bound`
+-- (Temple's inequality — the informal `λ₀ ≥ θ − ‖r‖` is not valid on its own), the
+-- Cauchy–Schwarz observable propagation `observable_propagation(_band)` and the
+-- interval-enclosure core `CertInterval` with its arithmetic soundness theorems.
+--
+-- `ChapterSirkCertifiedGap`: the certified mass gap of the *truncated* Hamiltonian
+-- (T6, T7).  The parity split as an exact symmetry (`paritySector`,
+-- `paritySector_invariant`, `sectorRestrict_isSymmetric`), the sector ground energy
+-- `sectorGround` with its spectral identification `sectorGround_eq_inf_eigenvalues`,
+-- Temple inside a sector (`sectorGround_ge_temple`), the certified-gap theorem
+-- `certified_parity_gap` with `certified_parity_gap_pos`, the nested-selection block
+-- lemma `resolvent_commutes_parity` / `resolvent_mapsTo_paritySector`, the stopping
+-- rule `certifiedGap_tendsto` / `certifiedGap_eventually_pos` / `certifiedGap_sound`,
+-- and the instantiation from an emitted certificate (`GapCertificate`,
+-- `qcdG2M4_certified_gap`).  The continuum (gap-preserving norm-resolvent) leg stays
+-- the recorded boundary: every statement is about the finite-dimensional truncation.
+import BookProof.ChapterSirkFinitePrecision
+import BookProof.ChapterSirkCertifiedGap
+
+-- Wave (2026-08-27, plan §12.4 — the per-system end-to-end SIRK bound).
+--
+-- `ChapterSirkPerSystemFlowBound`: the composition of `ChapterSirkEndToEnd` (the assembly,
+-- Gap 1) with `ChapterSirkPerSystem` (the Crouzeix domain of each physical shift-invert,
+-- Gap 2) into one named flow-error theorem per system — `ym_sirk_flow_error_bound` (QYM,
+-- the Friedrichs route, `Σ = [0, γ⁻¹]`), `ns_sirk_flow_error_bound` and
+-- `nsDiff_sirk_flow_error_bound` (NS Eulerian, sequence space and differential),
+-- `lagrangian_sirk_flow_error_bound` / `diagKR_sirk_flow_error_bound` (NS Lagrangian) and
+-- `qgR2_sirk_flow_error_bound` (QG) — plus the `m → ∞` convergence corollaries
+-- `ym_sirk_flow_error_tendsto_zero` / `qgR2_sirk_flow_error_tendsto_zero`.  The order-`m`
+-- data is bundled as `RationalScheme` / `IsSirkScheme` (non-vacuous:
+-- `isSirkScheme_trivial`), and the two adjoint side conditions the earlier statements
+-- carried are now derived from isometry alone (`adjoint_comp_self_of_isometry`,
+-- `norm_adjoint_apply_le_of_isometry`).  Crouzeix's inequality and the `e^{−hm}`
+-- deformation remain named hypotheses (fields `cxX`, `cxB`), never axioms.
+import BookProof.ChapterSirkPerSystemFlowBound
+
+-- Wave (2026-08-27, attached plan: essential self-adjointness of `-Δ + V` for a fast-growing,
+-- non-polynomial potential by the Simader–Faris–Lavine cutoff/commutator energy method).
+--
+-- `ChapterSchrodingerCutoffEsa`: the one-dimensional cutoff argument, carried out with no
+-- unproved input.  It supplies the plan's Milestone 2 (the operator `-f'' + V f` on the
+-- compactly supported twice-differentiable core, and its symmetry `schrodingerOp_symmetric`),
+-- Milestone 3 (the rescaled smooth cutoff with `|χ_R'| ≤ C/R`, `exists_scaled_cutoff`),
+-- Milestone 4 (`cutoff_energy_estimate`: `∫_{[-R,R]} |u|² ≤ (2C²/R²)‖u‖²_{L²}` for a
+-- square-integrable classical solution of `-u'' + V u = z u` with `Re z + 1 ≤ V`) and
+-- Milestone 5 (`l2_classical_solution_eq_zero`: the limit `R → ∞`).  Milestone 1, the abstract
+-- Hilbert-space criterion, is already in the project as `EssentiallySelfAdjointOn` /
+-- `DeficiencyTrivialAt` of `BookProof.ChapterFarisLavine`, so it is not duplicated here.
+-- The application is `schrodinger_exp_deficiency_trivial` for `V(x) = eˣ + e⁻ˣ`.
+import BookProof.ChapterSchrodingerCutoffEsa
+
+-- Also from that wave: the plan's headline object as an actual essential-self-adjointness
+-- statement.  `ChapterExpPotentialEsa` verifies that `V(x) = eˣ + e⁻ˣ` is smooth and bounded
+-- below and reads off `expPotential_esa` — `-d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint
+-- on the compactly supported smooth core of `L²(ℝ)` — together with its unitary flow
+-- `expPotential_stone_flow` and the `cosh` restatement `coshPotential_esa`, from the
+-- no-growth-restriction theorem `wallHam_essentiallySelfAdjoint_of_bddBelow` already in the
+-- project.
+import BookProof.ChapterExpPotentialEsa
+
+-- And the packaging lemma §9 item 1 of `CONSOLIDATED_PLAN.md` asked for.
+-- `ChapterWallEsaSemibounded` supplies the Green identity on the compactly supported smooth
+-- core (`⟪(-d²/dx² + V) f, f⟫ = ∫ |f'|² + ∫ V |f|²`, one integration by parts) and reads off
+-- `wallHamBddBelow_semibounded`: if `V ≥ -c` then the quadratic form of `wallHam V hV` is
+-- bounded below by `-c`.  This is the semiboundedness the Hashimoto/SIRK shift-invert schemes
+-- work with, promised by the `ChapterWallEsaBddBelow` docstring and previously absent.
+import BookProof.ChapterWallEsaSemibounded
+
+-- Wave (2026-08-27d, plan §13.7 — the instantiation seam and the table around T6).
+--
+-- `ChapterSirkCertificateReader` (T8): the reader that was missing between the kernel's
+-- certificate emitter and the Lean T6 theorem.  Decimal literals are parsed *exactly*
+-- (`Decimal`, `parseDec`: a mantissa and a power of ten, so `-0.4231` is `-4231/10^4`) —
+-- no `Float` appears anywhere — and `parseCertificate` turns emitted NDJSON into the two
+-- sector records, from which `ndjsonLower` reads the certified lower bound
+-- `θᵒ − θᵉ − (δᵒ + δᵉ)`.  `gap_ge_of_ndjson` / `gap_pos_of_ndjson` are T6 consumed through
+-- the reader: conditional on the enclosures the certificate asserts, and about the
+-- truncated operator only.  `formatExample_parse` / `formatExample_lower` /
+-- `formatExample_certified_gap` work the wire format through end to end on the recorded
+-- `g = 2`, `m = 4` aggregates (measured gap 1.9875, width 0.0555, lower bound 1.932).
+import BookProof.ChapterSirkCertificateReader
+
+-- `ChapterSirkGapTable` (T11, T12): the table around T6 and the finite-size extrapolation.
+-- `gap_le_of_certificate` adds the upper half of T6, so with the reverse enclosures a
+-- certificate *encloses* the gap (`certified_gap_mem_interval`); `certified_gap_table` and
+-- `certified_gap_table_interval` state that per coupling constant, and
+-- `qcdG2M4_strongCoupling_consistent` checks the one recorded row against the analytic
+-- strong-coupling value (`g²/2 = 2` does lie in the certified window `[1.932, 2.043]`).
+-- `richardson`, `richardson_exact` and `richardson_error` are the conditional
+-- Richardson-extrapolation theorem the plan asks for (with the plan's ratio corrected to
+-- `(l₂/l₁)^p − 1`); the evaluation `richardson_qym_g4` on the recorded finite-size data is
+-- a numerical record, not a claim about the thermodynamic limit.
+import BookProof.ChapterSirkGapTable
+
+-- `ChapterSpectralGapStability` (plan §13.7, the continuum leg — its abstract core).  The
+-- quantitative gap `GapAt A lam d` (`d‖x‖ ≤ ‖Ax − λx‖`) degrades by at most the
+-- perturbation (`gapAt_perturb`) and survives an operator-norm limit with no loss at all
+-- (`gapAt_of_tendsto`); for a bounded self-adjoint operator a positive quantitative gap at a
+-- real `λ` keeps `λ` out of the spectrum (`notMem_spectrum_of_gapAt`, proved from
+-- injectivity, closed range and symmetry).  Together:
+-- `notMem_spectrum_of_uniform_gap` and `spectrum_disjoint_of_uniform_window` — a uniform gap
+-- of the approximants is inherited by the limit.  This is the implication the continuum leg
+-- needs; whether the truncation family converges in the required sense is the open analytic
+-- question and is asserted nowhere.
+import BookProof.ChapterSpectralGapStability

@@ -3,6 +3,9 @@ Copyright (c) 2026. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Aristotle
 -/
+import BookProof.ChapterSchrodingerCutoffEsa
+import BookProof.ChapterWallEsaSemibounded
+import BookProof.ChapterExpPotentialEsa
 import BookProof.ChapterH4
 import BookProof.ChapterSirkEndToEnd
 import BookProof.ChapterSirkMultiShift
@@ -10,6 +13,12 @@ import BookProof.ChapterSirkRestart
 import BookProof.ChapterSirkWhitening
 import BookProof.ChapterSirkSpectralGeometry
 import BookProof.ChapterSirkPerSystem
+import BookProof.ChapterSirkPerSystemFlowBound
+import BookProof.ChapterSirkFinitePrecision
+import BookProof.ChapterSirkCertifiedGap
+import BookProof.ChapterSirkCertificateReader
+import BookProof.ChapterSirkGapTable
+import BookProof.ChapterSpectralGapStability
 import BookProof.ChapterSirkTruncation
 import BookProof.ChapterSirkGroupTransfer
 import BookProof.ChapterSirkTrotterKato
@@ -2171,5 +2180,137 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.ScalaronWallEsa.wallHam_essentiallySelfAdjoint
 #print axioms BookProof.ScalaronWallEsa.starobinskyWall_esa
 #print axioms BookProof.ScalaronWallEsa.starobinskyWall_stone_flow
+
+-- `ChapterSirkPerSystemFlowBound` (plan §12.4): the per-system end-to-end flow bound —
+-- the assembly of `ChapterSirkEndToEnd` evaluated on the Crouzeix domain that
+-- `ChapterSirkPerSystem` fixes for each physical shift-invert, with the two adjoint side
+-- conditions derived from isometry alone and the order-`m` data bundled.  Crouzeix's
+-- inequality and the `e^{−hm}` deformation stay named hypotheses (fields `cxX`, `cxB`).
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.adjoint_comp_self_of_isometry
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.norm_adjoint_apply_le_of_isometry
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.sirk_scheme_bound
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.sirk_scheme_tendsto
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.isSirkScheme_trivial
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.ym_sirk_flow_error_bound
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.ym_sirk_flow_error_tendsto_zero
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.ns_sirk_flow_error_bound
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.nsDiff_sirk_flow_error_bound
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.lagrangian_sirk_flow_error_bound
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.diagKR_sirk_flow_error_bound
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.qgR2_sirk_flow_error_bound
+#print axioms BookProof.ChapterSirkPerSystemFlowBound.qgR2_sirk_flow_error_tendsto_zero
+
+-- `ChapterSchrodingerCutoffEsa` (the Simader–Faris–Lavine cutoff / commutator energy
+-- method in one dimension): the smooth rescaled cutoff with `|χ_R'| ≤ C/R`, the operator
+-- `-f'' + V f` on the compactly supported twice-differentiable core and its symmetry, the
+-- cutoff energy estimate in both its core and its `Re z + 1 ≤ V` forms, the `R → ∞` limit,
+-- and the applications to `V(x) = eˣ + e⁻ˣ` and to the free Laplacian.
+#print axioms BookProof.SchrodingerCutoff.integral_deriv_eq_zero_of_hasCompactSupport
+#print axioms BookProof.SchrodingerCutoff.exists_scaled_cutoff
+#print axioms BookProof.SchrodingerCutoff.schrodingerOp_symmetric
+#print axioms BookProof.SchrodingerCutoff.cutoff_energy_core
+#print axioms BookProof.SchrodingerCutoff.cutoff_energy_estimate
+#print axioms BookProof.SchrodingerCutoff.l2_classical_solution_eq_zero
+#print axioms BookProof.SchrodingerCutoff.l2_classical_solution_eq_zero_of_nonneg
+#print axioms BookProof.SchrodingerCutoff.laplacian_deficiency_trivial
+#print axioms BookProof.SchrodingerCutoff.laplacian_deficiency_trivial_I
+#print axioms BookProof.SchrodingerCutoff.laplacian_deficiency_trivial_negI
+#print axioms BookProof.SchrodingerCutoff.schrodinger_exp_deficiency_trivial
+#print axioms BookProof.SchrodingerCutoff.schrodinger_exp_deficiency_trivial_I
+#print axioms BookProof.SchrodingerCutoff.schrodinger_exp_deficiency_trivial_negI
+
+-- `ChapterWallEsaSemibounded` (plan §9 item 1, the packaging lemma): the Green identity on
+-- the compactly supported smooth core, and the semiboundedness of the quadratic form of
+-- `−d²/dx² + V` when `V` is bounded below.
+#print axioms BookProof.WallEsaSemibounded.integral_conj_neg_deriv2_mul
+#print axioms BookProof.WallEsaSemibounded.kinCcR_quadratic_form
+#print axioms BookProof.WallEsaSemibounded.opCc_quadratic_form
+#print axioms BookProof.WallEsaSemibounded.ccEquiv_norm_sq
+#print axioms BookProof.WallEsaSemibounded.wallHamBddBelow_semibounded
+#print axioms BookProof.WallEsaSemibounded.wallHam_nonneg_form
+
+-- `ChapterExpPotentialEsa`: essential self-adjointness of `−d²/dx² + (eˣ + e⁻ˣ)` on the
+-- compactly supported smooth core, its unitary flow, the `cosh` restatement, and the
+-- non-negativity of its quadratic form.
+#print axioms BookProof.ExpPotentialEsa.expPotential_esa
+#print axioms BookProof.ExpPotentialEsa.expPotential_stone_flow
+#print axioms BookProof.ExpPotentialEsa.coshPotential_esa
+#print axioms BookProof.ExpPotentialEsa.expPotential_semibounded
+
+-- `ChapterSirkFinitePrecision` (plan §13.3, T1–T5): the finite-precision certificate
+-- layer — the a-posteriori Rayleigh–Ritz residual bound, the eigendecomposition backward
+-- error with Weyl, Temple's inequality, the observable propagation and the verified
+-- interval core.
+#print axioms BookProof.SirkFinitePrecision.exists_eigenvalue_dist_le_residual
+#print axioms BookProof.SirkFinitePrecision.backward_error_weyl
+#print axioms BookProof.SirkFinitePrecision.backward_error_weyl_symm
+#print axioms BookProof.SirkFinitePrecision.ground_le_rayleigh
+#print axioms BookProof.SirkFinitePrecision.temple_lower_bound
+#print axioms BookProof.SirkFinitePrecision.ground_ge_of_no_eigenvalue_below
+#print axioms BookProof.SirkFinitePrecision.observable_propagation
+#print axioms BookProof.SirkFinitePrecision.observable_propagation_band
+#print axioms BookProof.SirkFinitePrecision.CertInterval.mem_mul
+#print axioms BookProof.SirkFinitePrecision.CertInterval.mem_widen
+#print axioms BookProof.SirkFinitePrecision.CertInterval.mem_ofRounded
+#print axioms BookProof.SirkFinitePrecision.CertInterval.dist_le_width
+#print axioms BookProof.SirkFinitePrecision.CertInterval.mem_evalHorner
+#print axioms BookProof.SirkFinitePrecision.CertInterval.abs_polyEval_le_of_mem
+
+-- `ChapterSirkCertifiedGap` (plan §13.3, T6/T7 and the nested-selection lemma): the exact
+-- parity split, the sector ground energy, the certified-gap theorem and the stopping rule,
+-- all about the *truncated* Hamiltonian.
+#print axioms BookProof.SirkCertifiedGap.paritySector_invariant
+#print axioms BookProof.SirkCertifiedGap.sectorRestrict_isSymmetric
+#print axioms BookProof.SirkCertifiedGap.sectorGround_le_rayleigh
+#print axioms BookProof.SirkCertifiedGap.sectorGround_eq_inf_eigenvalues
+#print axioms BookProof.SirkCertifiedGap.sectorGround_ge_temple
+#print axioms BookProof.SirkCertifiedGap.certified_parity_gap
+#print axioms BookProof.SirkCertifiedGap.certified_parity_gap_pos
+#print axioms BookProof.SirkCertifiedGap.certified_parity_gap_strong_coupling
+#print axioms BookProof.SirkCertifiedGap.rayleigh_odd_ge_of_certified
+#print axioms BookProof.SirkCertifiedGap.resolvent_commutes_parity
+#print axioms BookProof.SirkCertifiedGap.resolvent_mapsTo_paritySector
+#print axioms BookProof.SirkCertifiedGap.certifiedGap_tendsto
+#print axioms BookProof.SirkCertifiedGap.certifiedGap_eventually_pos
+#print axioms BookProof.SirkCertifiedGap.certifiedGap_sound
+#print axioms BookProof.SirkCertifiedGap.gap_ge_of_certificate
+#print axioms BookProof.SirkCertifiedGap.qcdG2M4_certified_gap
+
+-- `ChapterSirkCertificateReader` (plan §13.7, T8): the instantiation seam — exact decimal
+-- parsing of the emitted NDJSON certificate and T6 consumed through it.
+#print axioms BookProof.SirkCertificateReader.parseDec_example
+#print axioms BookProof.SirkCertificateReader.parseDec_reject
+#print axioms BookProof.SirkCertificateReader.toGapCertificate_lower
+#print axioms BookProof.SirkCertificateReader.gap_ge_of_ndjson
+#print axioms BookProof.SirkCertificateReader.gap_pos_of_ndjson
+#print axioms BookProof.SirkCertificateReader.formatExample_parse
+#print axioms BookProof.SirkCertificateReader.formatExample_lower
+#print axioms BookProof.SirkCertificateReader.formatExample_certified_gap
+
+-- `ChapterSirkGapTable` (plan §13.7, T11/T12): the two-sided certified enclosure, the
+-- per-coupling table with its strong-coupling consistency check, and the Richardson
+-- extrapolation with its error propagation.
+#print axioms BookProof.SirkGapTable.gap_le_of_certificate
+#print axioms BookProof.SirkGapTable.certified_gap_mem_interval
+#print axioms BookProof.SirkGapTable.certified_gap_table
+#print axioms BookProof.SirkGapTable.certified_gap_table_interval
+#print axioms BookProof.SirkGapTable.strongCoupling_lt
+#print axioms BookProof.SirkGapTable.strongCoupling_mem_of_certificate
+#print axioms BookProof.SirkGapTable.qcdG2M4Row_lo
+#print axioms BookProof.SirkGapTable.qcdG2M4_strongCoupling_consistent
+#print axioms BookProof.SirkGapTable.richardson_exact
+#print axioms BookProof.SirkGapTable.richardson_error
+#print axioms BookProof.SirkGapTable.richardson_qym_g4
+
+-- `ChapterSpectralGapStability` (plan §13.7, the abstract core of the continuum leg): a
+-- quantitative spectral gap degrades by at most the perturbation, survives an
+-- operator-norm limit, and keeps the point out of the spectrum of a bounded self-adjoint
+-- operator.
+#print axioms BookProof.SpectralGapStability.gapAt_perturb
+#print axioms BookProof.SpectralGapStability.gapAt_of_tendsto
+#print axioms BookProof.SpectralGapStability.notMem_spectrum_of_gapAt
+#print axioms BookProof.SpectralGapStability.exists_gapAt_of_notMem_spectrum
+#print axioms BookProof.SpectralGapStability.notMem_spectrum_of_uniform_gap
+#print axioms BookProof.SpectralGapStability.spectrum_disjoint_of_uniform_window
 
 end BookProof.ChapterRoadmapAudit

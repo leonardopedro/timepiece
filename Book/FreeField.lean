@@ -8,6 +8,26 @@ open Verso.Genre.Manual.InlineLean
 tag := "free-field"
 %%%
 
+# Orientation: From the Manuscript to the Formal Development
+
+:::paragraph
+This chapter follows the free-field thread of `book.tex`, but the formal development
+has two distinct layers. The probability and Gaussian constructions describe the
+infinite-dimensional parametrization; the later Hamiltonian/SIRK material describes
+finite truncations and their limits. A theorem citation below certifies only the exact
+statement of its `BookProof` declaration. In particular, the QYM certificate currently
+certifies a truncated value; the remaining specialist target is the lowest positive
+one-particle edge and its lift through the free nested-Fock `dGamma` Hamiltonian.
+:::
+
+| Object | Formal status |
+| :--- | :--- |
+| Gaussian/Mehler and Born parametrization | proved model theorems |
+| finite Krylov/SIRK approximation | proved/conditional error theorems |
+| emitted QYM certificate | proved truncated enclosure |
+| QYM Friedrichs/Hashimoto-selected operator | proved construction/selection |
+| real Fock mass gap | remaining one-particle-edge plus `dGamma` composition |
+
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure
 
 The finite-dimensional Born parametrization puts a uniform-looking measure on the

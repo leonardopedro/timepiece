@@ -7,7 +7,187 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-## Latest wave (2026-08-26e, **every smooth bounded-below `V`: `−d²/dx² + V` is essentially self-adjoint**)
+**§8 gate, re-run in this snapshot (2026-08-27d) — green.**  `lake build` (default
+targets, 8749 jobs) and `lake build RandomMap` (8039 jobs) succeed with no errors;
+`./patches/build-book.sh` renders the single-page book with its assertions holding (no
+`<base>`, fragment links present) and `./patches/check-katex.sh` reports 3170 snippets and
+0 KaTeX failures; no `sorry` and no `axiom` declaration occurs in `BookProof/`, `Book/`,
+`Singularity/`, `RandomMap/` or `Layout/`, and every audited theorem depends only on
+`propext`, `Classical.choice`, `Quot.sound`.  The `patches/*.sh` scripts had lost their
+executable bit in this snapshot; it has been restored.
+
+## Latest wave (2026-08-27d, **the certificate reader (T8), the per-coupling gap table (T11) and Richardson extrapolation (T12)**)
+
+Three new modules, all `sorry`-free and `axiom`-free, closing the concrete Lean items of
+`CONSOLIDATED_PLAN.md` §13.7 and proving the abstract core of its continuum leg:
+
+* `BookProof/ChapterSirkCertificateReader.lean` (namespace `BookProof.SirkCertificateReader`)
+  — **T8, the instantiation seam** between the kernel's certificate emitter and the T6 gap
+  theorem.  Decimal literals are parsed *exactly* (`Decimal` = mantissa + power of ten;
+  `parseDec`, with `parseDec_example` / `parseDec_neg_example` / `parseDec_int_example` and
+  the rejection check `parseDec_reject`), so no `Float` occurs anywhere in the module;
+  `fieldChars` / `parseSectorLine` / `parseCertificate` read the emitted NDJSON into the two
+  sector records, and `ndjsonLower` reads off the certified lower bound
+  `θᵒ − θᵉ − (δᵒ + δᵉ)` as an exact rational.  `CertificateData.toGapCertificate` bridges to
+  the T6 structure (refusing a negative assembled width) with `toGapCertificate_lower`, and
+  **`gap_ge_of_ndjson`** / **`gap_pos_of_ndjson`** are T6 consumed through the reader:
+  conditional on the two enclosures the certificate asserts, and about the *truncated*
+  operator.  `formatExampleNdjson` with `formatExample_parse`, `formatExample_lower` and
+  `formatExample_certified_gap` work the wire format through end to end on the recorded
+  `g = 2`, `m = 4` aggregates (measured gap `1.9875`, width `0.0555`, certified `1.932`).
+  Only those two aggregates are transcribed data; the per-sector split in the example line
+  pair illustrates the format and is labelled as such.
+* `BookProof/ChapterSirkGapTable.lean` (namespace `BookProof.SirkGapTable`) — **T11 and
+  T12**.  `gap_le_of_certificate` supplies the upper half of T6, so with the reverse
+  enclosures a certificate *encloses* the gap (`certified_gap_mem_interval`);
+  `CouplingCertificate` with **`certified_gap_table`** and `certified_gap_table_interval`
+  states that one row per coupling constant; `strongCoupling`, `strongCoupling_lt` and
+  `strongCoupling_mem_of_certificate` add the analytic `g²/2` comparison, and
+  **`qcdG2M4_strongCoupling_consistent`** checks the one recorded row — the prediction
+  `g²/2 = 2` does lie in the certified window `[1.932, 2.043]`.  For T12,
+  **`richardson_exact`** proves the extrapolation is exact for a pure `C·l^{-p}`
+  finite-size correction and `richardson_error` propagates a data uncertainty `ε` to
+  `ε(1 + 2/X)`; `richardson_qym_g4` evaluates it on the recorded `g = 4` lattice data as a
+  numerical record only.
+
+* `BookProof/ChapterSpectralGapStability.lean` (namespace `BookProof.SpectralGapStability`)
+  — the abstract core of the continuum leg.  `GapAt A lam d` (`d‖x‖ ≤ ‖Ax − λx‖`) is the
+  quantitative spectral gap; `gapAt_perturb` degrades it by at most the perturbation and
+  **`gapAt_of_tendsto`** shows it survives an operator-norm limit with no loss at all.
+  `notMem_spectrum_of_gapAt` turns a positive gap at a real `λ` into `λ ∉ spectrum` for a
+  bounded self-adjoint operator (injectivity and closed range from the bound, dense range
+  from symmetry), giving `notMem_spectrum_of_uniform_gap` and
+  **`spectrum_disjoint_of_uniform_window`**: approximants with a uniform gap on an interval
+  force the limit to have no spectrum there.  *Honest boundary:* this is the implication
+  the continuum leg needs; whether the truncation family converges in the required sense is
+  the open analytic question and is asserted nowhere.
+
+**A correction to the plan's formula.**  §13.7 T12 writes the extrapolant with
+`(l₁/l₂)^p − 1`; with `l₁ < l₂` that adds the finite-size tail instead of cancelling it.
+The module uses `(l₂/l₁)^p − 1`, which is what makes `richardson_exact` true, and says so.
+
+**Audit gap closed.**  `BookProof/ChapterRoadmapAudit.lean` previously carried no
+`#print axioms` block for `ChapterSirkFinitePrecision` or `ChapterSirkCertifiedGap`
+(the plan's Priority 2 item 1); both are now audited, together with the two new modules.
+
+**A5-step-2 residue (the plan's Priority 3), recorded precisely.**
+`ChapterScalaronDensitizedTransfer` carries the potential bound through the densitized
+change of variables and transfers vanishing deficiency along the half-density unitary, in
+*one* conformal variable.  It therefore subsumes the residue for the potential half only:
+what is still not stated anywhere is the direct-integral (fibrewise) gluing of that
+one-variable transfer over the remaining transverse directions of the continuum
+`L²(ℝ⁸⁴)` problem, together with the kinetic absorption identities of
+`ChapterQuantumGravityDensitized`.  That gluing, not the transfer, is the open step.
+
+## Latest wave (2026-08-27, **the cutoff/commutator ESA method, the exponential potential, and the energy-form packaging lemma**)
+
+Three new modules, all `sorry`-free and `axiom`-free:
+
+* `BookProof/ChapterSchrodingerCutoffEsa.lean` (namespace `BookProof.SchrodingerCutoff`) —
+  the Simader–Faris–Lavine cutoff / commutator energy method in one dimension, built from
+  nothing but a compact-support integration-by-parts lemma
+  (`integral_deriv_eq_zero_of_hasCompactSupport`).  It supplies the concrete smooth cutoff
+  `chi` with `exists_deriv_chi_bound` and the rescaled family `exists_scaled_cutoff`
+  (`|χ_R'| ≤ C/R`); the operator `-f'' + V f` on the compactly supported twice-differentiable
+  core with `schrodingerOp_symmetric`; `cutoff_energy_core`, which bounds both
+  `∫_{[-R,R]} (V - Re z)|u|²` and `∫_{[-R,R]} |u'|²` by `O(‖u‖²_{L²}/R²)` when `Re z ≤ V`, and
+  its corollary `cutoff_energy_estimate`; the `R → ∞` vanishing theorems
+  `l2_classical_solution_eq_zero` and `l2_classical_solution_eq_zero_of_nonneg`; and the
+  applications `schrodinger_exp_deficiency_trivial(_I/_negI)` for `V(x) = eˣ + e⁻ˣ` and
+  `laplacian_deficiency_trivial(_I/_negI)` for the free Laplacian.
+* `BookProof/ChapterExpPotentialEsa.lean` (namespace `BookProof.ExpPotentialEsa`) —
+  **`expPotential_esa`**: `-d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint on the compactly
+  supported smooth core of `L²(ℝ)`, read off from
+  `wallHam_essentiallySelfAdjoint_of_bddBelow` once `contDiff_Vexp` and `2 ≤ Vexp` are in
+  hand; with `expPotential_stone_flow`, `coshPotential_esa` and `expPotential_semibounded`.
+* `BookProof/ChapterWallEsaSemibounded.lean` (namespace `BookProof.WallEsaSemibounded`) —
+  the packaging lemma the previous wave promised and did not supply.  `SemiboundedBelowOn`
+  names the property, `integral_conj_neg_deriv2_mul` is the Green identity
+  `∫ conj(-f'') f = ∫ |f'|²` for a compactly supported `C²` function, and
+  `kinCcR_quadratic_form` / `opCc_quadratic_form` / `ccEquiv_norm_sq` turn the `L²` pairing
+  into ordinary integrals, giving **`wallHamBddBelow_semibounded`**: the quadratic form of
+  `wallHam V hV` is bounded below by `-c` whenever `V ≥ -c` (`wallHam_nonneg_form` for
+  `c = 0`).
+
+* **Honest boundary.**  The cutoff module's vanishing theorems speak about *classical*
+  (twice-differentiable) square-integrable solutions.  The step from a general `L²`
+  deficiency vector to a classical solution is elliptic regularity, which the
+  `ChapterScalaronWallEsa` / `ChapterWeakSecondDerivative` route supplies and the cutoff
+  route does not; the two are complementary.
+
+* **Gate.**  Full `lake build` (8743 jobs), `lake build RandomMap` (8039 jobs),
+  `./patches/build-book.sh` and `./patches/check-katex.sh` (3153 snippets, 0 failures) all
+  green; `ChapterRoadmapAudit` extended with all three modules.
+
+## Latest wave (2026-08-26g, **the finite-precision certificate layer and the certified gap of the truncated Hamiltonian**)
+
+`BookProof/ChapterSirkFinitePrecision.lean` (namespace `BookProof.SirkFinitePrecision`) and
+`BookProof/ChapterSirkCertifiedGap.lean` (namespace `BookProof.SirkCertifiedGap`), both
+`sorry`-free and `axiom`-free, execute §13 of `CONSOLIDATED_PLAN.md` (T1–T7 plus the
+nested-selection lemma): the Lean side of `MASS_GAP_CERTIFIED.md` §3–§5.
+
+* **T2 (residual, Layer 3).**  `exists_eigenvalue_dist_le_residual` — for *any* nonzero
+  vector and *any* real `θ`, some eigenvalue of the exact operator lies within
+  `‖H x − θ x‖ / ‖x‖` of `θ`.  The vector may be the computed one; no infinite-precision
+  hypothesis enters.  The proof is the spectral expansion in the eigenbasis
+  (`repr_apply_of_symmetric`, `norm_sq_eq_sum_repr`, `rayleigh_eq_sum_eigenvalues`,
+  `norm_apply_sq_eq_sum_eigenvalues`).
+* **T1/T3 (backward error + Weyl, Layer 1).**  `backward_error_weyl` /
+  `backward_error_weyl_symm` — under the LAPACK model `‖H x − S x‖ ≤ ε‖x‖`
+  (`ε = c(n)·u·‖Ĝ‖`) the two spectra are within `ε` of each other.  Weyl is proved in the
+  enclosure (Hausdorff) form, which is what a certificate consumes.
+* **The bracket.**  `ground_le_rayleigh` is the free (variational) upper half.  The lower
+  half is *not* free: a small residual only certifies that *some* eigenvalue is near `θ`,
+  so the informal `λ₀ ≥ θ − ‖r‖` of `MASS_GAP_CERTIFIED.md` §3.4 step 1 is replaced by
+  **Temple's inequality** `temple_lower_bound` (and by the a-posteriori
+  `ground_ge_of_no_eigenvalue_below`).  This is a correction to the source argument, not a
+  weakening of the result: T6 consumes the Temple bound.
+* **T4 (observables).**  `observable_propagation` / `observable_propagation_band` —
+  `|⟨O⟩_u − ⟨O⟩_w| ≤ ‖O‖(‖u‖+‖w‖)‖u−w‖`, and the `2‖O‖·R·band` form.
+* **T5 (the interval core, Layer 2).**  `CertInterval` with `add`/`neg`/`sub`/`mul`/`widen`
+  and their soundness theorems, the outward-rounding model `mem_ofRounded`, the certified
+  half-width `dist_le_width`, and a *verified interval evaluator*: `evalHorner` with
+  `mem_evalHorner` (inclusion isotonicity) and `abs_polyEval_le_of_mem` — a certified
+  supremum over a box from one interval evaluation, replacing the code's grid maximum
+  (which is only a lower bound for the sup).
+* **The parity split is exact.**  `paritySector`, `paritySector_invariant`,
+  `sectorRestrict`, `sectorRestrict_isSymmetric`: each parity eigenspace is an invariant
+  subspace and the block is symmetric, so two pure-parity solves probe independent blocks.
+  `sectorGround` (the infimum of the Rayleigh quotient over the unit vectors of a sector)
+  is identified with the lowest eigenvalue of the block
+  (`sectorGround_eq_inf_eigenvalues`), and Temple transfers into a sector
+  (`sectorGround_ge_temple`).
+* **T6 (the certified-gap theorem).**  `certified_parity_gap`:
+  `λᵒ₀ − λᵉ₀ ≥ θᵒ₀ − θᵉ₀ − (δᵒ + δᵉ)`, with `certified_parity_gap_pos` (a proof-carrying
+  *positive* gap once the certified intervals separate), `certified_parity_gap_of_data`
+  and `rayleigh_odd_ge_of_certified`.  `certified_parity_gap_strong_coupling` writes the
+  same bound against the analytic strong-coupling value `g²/2`, keeping the excluded
+  `O(g⁴)` magnetic correction explicit rather than absorbed into the widths.
+* **The nested-selection lemma.**  `resolvent_commutes_parity` /
+  `resolvent_mapsTo_paritySector`: a two-sided inverse of `H − z` commutes with the parity,
+  so the resolvent respects the blocks.
+* **T7 (the stopping rule).**  `certifiedGap_tendsto` (the certified lower bound converges
+  to the true sector gap), `certifiedGap_eventually_pos` (completeness) and
+  `certifiedGap_sound` (soundness: a positive certified value at a single `m` *proves* a
+  positive gap, and nothing is claimed when it is not positive).  `GapCertificate` with
+  `gap_ge_of_certificate` / `gap_pos_of_certificate` instantiates T6 from emitted
+  certificate data; `qcdG2M4_certified_gap` records the `g = 2`, `m = 4` run (measured
+  sector gap `1.9875`, assembled width `0.0555`, certified lower bound `1.932`) — the two
+  numbers are *data* transcribed from the emitted certificate, and the theorem is
+  conditional on the enclosures the certificate asserts.
+* **Honest boundary (unchanged, `CONSOLIDATED_PLAN.md` §13.1).**  Every statement is about
+  the finite-dimensional truncation `H_m` — the object the solver diagonalises.  The
+  continuum claim needs a gap-preserving norm-resolvent convergence of the truncation
+  family; that leg is neither proved nor assumed.
+
+`Book/SirkReliability.lean` gains four sections discussing the layer pedagogically with
+`#check` citations, and its "Honest Boundary" paragraph is corrected: finite precision is
+no longer outside the statements, but the certified claims are about the truncated
+operator.  The §8 gate was re-run for this wave: `lake build` (BookProof + Book +
+Singularity) and `lake build RandomMap` green, the book wrapper green (no `<base>`,
+fragment links present), no `sorry` and no `axiom` in `BookProof/`.
+
+## Wave (2026-08-26e, **every smooth bounded-below `V`: `−d²/dx² + V` is essentially self-adjoint**)
 
 `BookProof/ChapterWallEsaBddBelow.lean` (namespace `BookProof.WallEsaBddBelow`, `sorry`-free
 and `axiom`-free) removes the last boundary of the 2026-08-26d wave: that wave's hypothesis

@@ -3,7 +3,10 @@ version = "0.1.0"
 keywords = ["math"]
 # `PnpProof` is not included in this repository snapshot, so it cannot be a
 # default build target.  Keep the complete proof and book targets buildable.
-defaultTargets = ["BookProof", "Book", "Singularity"]
+# `Layout` (GPU_FEDERATION_PLAN T2.1) is pure-core Lean: the StateDictionary
+# layout-bijectivity and bank-conflict swizzle-impossibility certificates,
+# exported via lean4export and re-verified by nanoda in unfer (S29/S31).
+defaultTargets = ["BookProof", "Book", "Singularity", "Layout"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -63,6 +66,12 @@ name = "Singularity"
 
 [[lean_lib]]
 name = "Book"
+
+[[lean_lib]]
+name = "Layout"
+
+[[lean_lib]]
+name = "GapCertificate"
 
 [[lean_exe]]
 name = "book"

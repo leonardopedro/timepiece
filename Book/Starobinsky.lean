@@ -779,3 +779,72 @@ bounded-below potential on the compactly supported core.
 #check @BookProof.WallEsaBddBelow.scalaronPlus_esa
 #check @BookProof.WallEsaBddBelow.oscillatorPlus_esa
 ```
+
+# The Exponential Wall Itself, and the Energy Form
+
+:::paragraph
+The clause "every smooth potential bounded below" contains the motivating example
+of the whole discussion, so it is worth writing it down as its own theorem. The
+potential $`V(x) = e^{x} + e^{-x} = 2\cosh x` is smooth and bounded below by `2`,
+so `-d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint on the compactly supported
+smooth core of $`L^2(\mathbb{R})` (`expPotential_esa`), with unitary group
+$`e^{-itH}` (`expPotential_stone_flow`); `coshPotential_esa` below is the same
+statement written with `cosh`. This potential grows faster than any polynomial,
+so no relative-boundedness (Kato–Rellich) criterion reaches it.
+:::
+
+```
+#check @BookProof.ExpPotentialEsa.contDiff_Vexp
+#check @BookProof.ExpPotentialEsa.expPotential_esa
+#check @BookProof.ExpPotentialEsa.expPotential_stone_flow
+#check @BookProof.ExpPotentialEsa.coshPotential_esa
+```
+
+:::paragraph
+The shift-invert schemes need one more thing from the operator: that its
+*quadratic form* be bounded below, not merely that the operator be essentially
+self-adjoint. On the compactly supported smooth core this is one integration by
+parts. The Green identity
+$`\langle (-d^2/dx^2 + V) f, f\rangle = \int |f'|^2 + \int V|f|^2`
+splits the pairing into a Dirichlet term (`kinCcR_quadratic_form`) and a potential
+term (`opCc_quadratic_form`); the first is non-negative and the second is at least
+$`-c\|f\|^2` when $`V \geq -c`, which is `wallHamBddBelow_semibounded`. For the
+exponential wall the constant is `0` (`expPotential_semibounded`).
+:::
+
+```
+#check @BookProof.WallEsaSemibounded.SemiboundedBelowOn
+#check @BookProof.WallEsaSemibounded.integral_conj_neg_deriv2_mul
+#check @BookProof.WallEsaSemibounded.kinCcR_quadratic_form
+#check @BookProof.WallEsaSemibounded.opCc_quadratic_form
+#check @BookProof.WallEsaSemibounded.wallHamBddBelow_semibounded
+#check @BookProof.ExpPotentialEsa.expPotential_semibounded
+```
+
+:::paragraph
+There is also a second, entirely elementary route to the same physics, which does
+not go through the convexity argument or the constant shift at all:
+`BookProof/ChapterSchrodingerCutoffEsa.lean` runs the Simader–Faris–Lavine
+cutoff/commutator energy estimate directly. Testing $`-u'' + Vu = zu` against
+$`\chi_R^2 \bar u` and integrating by parts once gives
+$`\int_{[-R,R]} (V - \operatorname{Re} z)|u|^2 \leq (2C^2/R^2)\|u\|^2_{L^2}`
+together with the companion Dirichlet bound (`cutoff_energy_core`), where `C`
+bounds $`|\chi'|`; letting $`R \to \infty` forces `u = 0`
+(`l2_classical_solution_eq_zero`). Applied to $`z = \pm i` this says that
+$`-d^2/dx^2 + (e^x + e^{-x})` has no nonzero square-integrable *classical*
+solution of $`Hu = \pm i u`. Setting $`V = 0` gives the same statement for the
+free Laplacian (`laplacian_deficiency_trivial`). The honest boundary of this
+second route is that it speaks about classical (twice-differentiable) solutions:
+passing from a general $`L^2` deficiency vector to a classical solution is
+elliptic regularity, which the first route supplies and this one does not.
+:::
+
+```
+#check @BookProof.SchrodingerCutoff.exists_scaled_cutoff
+#check @BookProof.SchrodingerCutoff.schrodingerOp_symmetric
+#check @BookProof.SchrodingerCutoff.cutoff_energy_core
+#check @BookProof.SchrodingerCutoff.cutoff_energy_estimate
+#check @BookProof.SchrodingerCutoff.l2_classical_solution_eq_zero
+#check @BookProof.SchrodingerCutoff.schrodinger_exp_deficiency_trivial_I
+#check @BookProof.SchrodingerCutoff.laplacian_deficiency_trivial
+```

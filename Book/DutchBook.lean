@@ -9,6 +9,12 @@ open Verso.Genre.Manual.InlineLean
 tag := "dutch-book"
 %%%
 
+# Orientation and Status
+
+The Dutch-book result is a finite sample-space theorem. It establishes the precise
+coherence/probability equivalence used by the manuscript, while continuous-space
+and decision-theoretic extensions require separate measure and utility hypotheses.
+
 # The Question
 
 :::paragraph

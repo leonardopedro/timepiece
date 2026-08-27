@@ -1,3 +1,117 @@
+# Summary of changes for run b2342286-fc55-44bf-81ca-d47878dc5c62
+All remaining items of `CONSOLIDATED_PLAN.md` are now closed, and the full verification gate re-runs green.
+
+**Lean work finished this session**
+
+- `BookProof/ChapterSpectralGapStability.lean` — completed the abstract core of the continuum leg. Beyond the perturbation/limit lemmas (`GapAt`, `gapAt_perturb`, `gapAt_of_tendsto`, `notMem_spectrum_of_gapAt`, `notMem_spectrum_of_uniform_gap`, `spectrum_disjoint_of_uniform_window`), the converse `exists_gapAt_of_notMem_spectrum` is now proved: a point off the spectrum of a bounded operator always carries a quantitative gap. The module's proofs were also cleaned up so the file builds completely warning-free.
+- `BookProof/ChapterRoadmapAudit.lean` — the new converse is added to the `#print axioms` audit block, alongside the reader, gap-table and stability results already recorded there.
+
+**Verification gate (all re-run after the final edits)**
+
+- `lake build`: 8749 jobs, **0 errors and 0 module warnings**.
+- Book build: succeeds, and the structural assertions pass (no `<base>` element, fragment links present).
+- KaTeX check: 3170 extracted math snippets, **0 failures**.
+- No `sorry` and no `axiom` declarations anywhere in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `Layout/` (the only textual matches are prose in docstrings).
+- Every headline result of the three modules added for the plan's §13.7 Lean items reports axioms `[propext, Classical.choice, Quot.sound]` only.
+
+**Deliverables recorded in the Properties table** (all four properties now marked proved, with the reader definition listed alongside them):
+
+- `gap_ge_of_ndjson` — a lower bound read off an emitted NDJSON gap certificate, parsed as exact decimals with no floating-point value trusted, bounds the parity gap of the truncated Hamiltonian.
+- `certified_gap_table` — every row of a per-coupling certificate table certifies a gap lower bound for its own truncated Hamiltonian.
+- `richardson_exact` — Richardson extrapolation is exact under a pure power law (with the plan's ratio corrected to `(l₂/l₁)^p − 1`, which is what makes it exact for `l₁ < l₂`; the correction is documented in the module).
+- `spectrum_disjoint_of_uniform_window` — a uniform quantitative gap survives an operator-norm limit and keeps the window free of spectrum. The honest boundary is stated in the module: convergence of the truncation family itself is not asserted anywhere.
+
+Two plan items remain genuinely out of reach in this snapshot and are recorded as such rather than claimed: the Aeneas item and the nanoda export item both need a sibling repository and external tooling that are not present here.
+
+Everything is committed and pushed; the working tree is clean and `HEAD` matches the remote.
+
+# Summary of changes for run 9c1d904f-c151-482c-8c80-8d77bbde25a8
+I executed the attached plan (essential self-adjointness of `H = -Δ + V` for a fast-growing, non-polynomial potential by the Simader–Faris–Lavine cutoff / commutator energy method) and then continued `CONSOLIDATED_PLAN.md`, closing the one concrete Lean item its backlog still listed. Everything compiles, contains no `sorry`, and every headline theorem depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**Checked first for existing coverage.** The plan's first milestone — an abstract Hilbert-space essential-self-adjointness criterion — was already present as `EssentiallySelfAdjointOn` / `DeficiencyTrivialAt` in `BookProof/ChapterFarisLavine.lean`, so it was reused, not rebuilt. And `BookProof/ChapterWallEsaBddBelow.lean` already proved essential self-adjointness of `-d²/dx² + V` for *every* smooth `V` bounded below, with no growth restriction — the exponential potential is a special case, and the new work says so explicitly rather than duplicating the argument.
+
+**Three new modules.**
+
+- `BookProof/ChapterSchrodingerCutoffEsa.lean` — the cutoff method itself in one dimension, from a single integration-by-parts lemma. It supplies the operator `-f'' + V f` on the compactly supported twice-differentiable core with its symmetry (Milestone 2), the rescaled smooth cutoff with `|χ_R'| ≤ C/R` (Milestone 3), `cutoff_energy_core` — which under the weak hypothesis `Re z ≤ V` bounds *both* `∫_{[-R,R]} (V - Re z)|u|²` and `∫_{[-R,R]} |u'|²` by `O(‖u‖²_{L²}/R²)` — with `cutoff_energy_estimate` its `Re z + 1 ≤ V` corollary (Milestone 4), and the `R → ∞` vanishing theorems `l2_classical_solution_eq_zero` and `l2_classical_solution_eq_zero_of_nonneg` (Milestone 5). Applications: the classical deficiency spaces of `-d²/dx² + (eˣ + e⁻ˣ)` at `±i` are trivial, and the same for the free Laplacian (`laplacian_deficiency_trivial`).
+- `BookProof/ChapterExpPotentialEsa.lean` — the plan's headline object as an actual theorem: `expPotential_esa` states that `-d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)`, with `expPotential_stone_flow` (the unitary group), `coshPotential_esa` (the `2 cosh x` restatement) and `expPotential_semibounded`.
+- `BookProof/ChapterWallEsaSemibounded.lean` — the packaging lemma the consolidated plan's residue list asked for and which an earlier docstring promised but did not supply. The Green identity `⟪(-d²/dx² + V) f, f⟫ = ∫|f'|² + ∫V|f|²` on the compactly supported smooth core yields `wallHamBddBelow_semibounded`: the quadratic form of that operator is bounded below by `-c` whenever `V ≥ -c`.
+
+**Integration and verification.** All three modules are imported from `BookProof.lean` and audited in `BookProof/ChapterRoadmapAudit.lean`; `Book/Starobinsky.lean` gains a new section with `#check` citations. The full verification gate was re-run and is green in every stage: `lake build` on the default targets (8743 jobs), `lake build RandomMap` (8039 jobs), the book render (its assertions hold), the KaTeX check (3153 snippets, 0 failures), and the sorry/axiom audit (no `sorry`, no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` or `PnpProof/`).
+
+**Documentation.** `ARISTOTLE_SUMMARY.md` gains a new section at the top describing this wave (its existing content is untouched); `CONSOLIDATED_PLAN.md` gains a status block and its residue item 1 is marked CLOSED; `BookProof/STATUS.md` records the wave.
+
+**Honest boundary, stated in the modules and the docs.** The cutoff route's vanishing theorems are about *classical* (twice-differentiable) square-integrable solutions. Passing from a general `L²` deficiency vector to a classical solution is elliptic regularity, which the existing route in the project supplies and the cutoff route does not — so the two are complementary, and nothing beyond what is proved is claimed.
+
+# Summary of changes for run 2026-08-27 (attached cutoff plan + continued `CONSOLIDATED_PLAN.md`)
+
+I executed the attached plan — essential self-adjointness of `H = -Δ + V` for a fast-growing, non-polynomial potential (the motivating example `V(x) = eˣ + e⁻ˣ`) by the **Simader–Faris–Lavine cutoff / commutator energy method** — and then continued `CONSOLIDATED_PLAN.md`, closing the one concrete Lean item its §9 backlog still listed. Everything below compiles, is `sorry`-free, and every headline theorem depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+### What was already in the project (checked first, not duplicated)
+
+The attached plan's **Milestone 1** — an abstract Hilbert-space essential-self-adjointness criterion — was already present as `EssentiallySelfAdjointOn` / `DeficiencyTrivialAt` in `BookProof/ChapterFarisLavine.lean`, so it was reused rather than rebuilt. More significantly, `BookProof/ChapterWallEsaBddBelow.lean` already proved `wallHam_essentiallySelfAdjoint_of_bddBelow`: `-d²/dx² + V` is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)` for **every** smooth `V` bounded below, with no growth restriction. The exponential potential is a special case of that, and the new work says so explicitly.
+
+### New modules
+
+**`BookProof/ChapterSchrodingerCutoffEsa.lean`** (namespace `BookProof.SchrodingerCutoff`) — the cutoff method itself, in one dimension, with no unproved input.
+- `integral_deriv_eq_zero_of_hasCompactSupport` — the single integration-by-parts engine (`∫_ℝ g' = 0` for a compactly supported `C¹` Banach-valued `g`).
+- **Milestone 3**: the concrete cutoff `chi` from Mathlib's `ContDiffBump`, its properties, `exists_deriv_chi_bound`, and the rescaled family `exists_scaled_cutoff` (`|χ_R'| ≤ C/R`).
+- **Milestone 2**: `schrodingerOp` (`H f = -f'' + V f`) on the compactly supported twice-differentiable core, with `schrodingerOp_symmetric` for arbitrary continuous real `V`.
+- **Milestone 4**: `cutoff_energy_core` — under the weak hypothesis `Re z ≤ V` it bounds *both* `∫_{[-R,R]} (V - Re z)|u|²` and `∫_{[-R,R]} |u'|²` by `O(‖u‖²_{L²}/R²)`; `cutoff_energy_estimate` is the `Re z + 1 ≤ V` corollary the plan asks for.
+- **Milestone 5**: `l2_classical_solution_eq_zero` (limit `R → ∞`), plus `l2_classical_solution_eq_zero_of_nonneg`, which runs the limit on the Dirichlet term instead — `u' ≡ 0`, so `u` is constant, and a constant in `L²(ℝ)` is zero.
+- Applications: `Vexp`, `two_le_Vexp`, `schrodinger_exp_deficiency_trivial` / `..._I` / `..._negI` for `V(x) = eˣ + e⁻ˣ`; and `laplacian_deficiency_trivial` / `..._I` / `..._negI` for the free Laplacian, which is a one-dimensional classical-solution form of §9 residue item 3 of the consolidated plan.
+
+**`BookProof/ChapterExpPotentialEsa.lean`** (namespace `BookProof.ExpPotentialEsa`) — the plan's headline object as an actual essential-self-adjointness theorem. `contDiff_Vexp` verifies smoothness, `two_le_Vexp` boundedness below, and **`expPotential_esa`** states that `-d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)`; `expPotential_stone_flow` gives the unitary group `e^{-itH}`, `coshPotential_esa` the `2 cosh x` restatement, `expPotential_semibounded` the non-negativity of its quadratic form.
+
+**`BookProof/ChapterWallEsaSemibounded.lean`** (namespace `BookProof.WallEsaSemibounded`) — the packaging lemma `CONSOLIDATED_PLAN.md` §9 item 1 listed as outstanding, and which the `ChapterWallEsaBddBelow` docstring promised but did not supply. `SemiboundedBelowOn` names "the quadratic form of `T` on the core `D` is bounded below by `-c`"; `integral_conj_neg_deriv2_mul` is the Green identity `∫ conj(-f'') f = ∫ |f'|²` for a compactly supported `C²` function; `kinCcR_quadratic_form`, `opCc_quadratic_form` and `ccEquiv_norm_sq` turn the `L²` pairing into ordinary integrals; and **`wallHamBddBelow_semibounded`** concludes that the quadratic form of `wallHam V hV` is bounded below by `-c` whenever `V ≥ -c`, with `wallHam_nonneg_form` the `c = 0` case. The `ChapterWallEsaBddBelow` docstring now points at it.
+
+### Integration and verification
+
+- `BookProof.lean` imports all three modules with wave comments; `BookProof/ChapterRoadmapAudit.lean` audits every new headline theorem with `#print axioms`.
+- `Book/Starobinsky.lean` gains the section "The Exponential Wall Itself, and the Energy Form" with `#check` citations for all three modules.
+- `BookProof/STATUS.md` records the wave; `CONSOLIDATED_PLAN.md` gains a status block and its §9 item 1 is marked **CLOSED**.
+- The §8 gate was re-run in this repository and is green in every stage: `lake build` (default targets `BookProof` + `Book` + `Singularity`, 8743 jobs), `lake build RandomMap` (8039 jobs), `./patches/build-book.sh` (assertions "no `<base>`; fragment links present" hold), `./patches/check-katex.sh` (3153 snippets, 0 failures), and the sorry/axiom audit — no `sorry` and no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` or `PnpProof/`.
+
+### Honest boundary
+
+The cutoff module's vanishing theorems are stated for **classical** (twice-differentiable) square-integrable solutions. Passing from a general `L²` deficiency vector to a classical solution is elliptic regularity, which is not in Mathlib; the existing `ChapterScalaronWallEsa` / `ChapterWeakSecondDerivative` route supplies that step, and the cutoff route does not and does not claim it. The two routes are therefore complementary: the cutoff route is elementary and quantitative, the existing route is the one that yields the full operator-theoretic ESA statement.
+
+All work is committed and pushed.
+
+# Summary of changes for run 340674a4-f85c-4204-9083-210eda4e6ae2
+## Execution of `CONSOLIDATED_PLAN.md` §13 — complete
+
+The actionable Lean-specialist section of the plan (§13: the finite-precision certificate layer T1–T5, and the certified mass gap T6/T7 plus the nested-selection lemma) is now formalized, proved, and integrated. Everything is `sorry`-free and `axiom`-free, and the §8 gate has been re-run green.
+
+### New modules
+
+**`BookProof/ChapterSirkFinitePrecision.lean`** (namespace `BookProof.SirkFinitePrecision`)
+- **T2** `exists_eigenvalue_dist_le_residual` — the a-posteriori Rayleigh–Ritz residual bound: for any nonzero vector and any real θ, some eigenvalue of the exact operator lies within `‖Hx − θx‖/‖x‖` of θ. Proved from a spectral expansion in the eigenbasis (`repr_apply_of_symmetric`, `norm_sq_eq_sum_repr`, `rayleigh_eq_sum_eigenvalues`, `norm_apply_sq_eq_sum_eigenvalues`).
+- **T1/T3** `backward_error_weyl` / `backward_error_weyl_symm` — under the backward-error model `‖Hx − Sx‖ ≤ ε‖x‖`, the two spectra are within ε of each other, in the enclosure (Hausdorff) form a certificate consumes.
+- **T4** `observable_propagation` / `observable_propagation_band` — `|⟨O⟩_u − ⟨O⟩_w| ≤ ‖O‖(‖u‖+‖w‖)‖u−w‖`.
+- **T5** the interval core: `CertInterval` with `add`/`neg`/`sub`/`mul`/`widen` and soundness theorems, the outward-rounding model `mem_ofRounded`, `dist_le_width`, and a verified interval evaluator (`evalHorner`, `mem_evalHorner`, `abs_polyEval_le_of_mem`) giving a certified supremum over a box from one interval evaluation.
+- Temple's inequality `temple_lower_bound`, plus `ground_le_rayleigh` and `ground_ge_of_no_eigenvalue_below`.
+
+**`BookProof/ChapterSirkCertifiedGap.lean`** (namespace `BookProof.SirkCertifiedGap`)
+- The parity split is exact: `paritySector`, `paritySector_invariant`, `sectorRestrict`, `sectorRestrict_isSymmetric`; the sector ground energy `sectorGround` with `sectorGround_le_rayleigh`, `le_sectorGround`, `sectorGround_eq_inf_eigenvalues` and `sectorGround_ge_temple`.
+- **T6** `certified_parity_gap`: `λᵒ₀ − λᵉ₀ ≥ θᵒ − θᵉ − (δᵒ + δᵉ)`, with `certified_parity_gap_pos`, `certified_parity_gap_of_data`, `rayleigh_odd_ge_of_certified`, and `certified_parity_gap_strong_coupling` — the `gap ≥ g²/2 + corr − (δᵒ + δᵉ)` form the plan asks for, keeping the excluded `O(g⁴)` magnetic correction as an explicit parameter rather than absorbing it into the widths.
+- **The nested-selection lemma** `resolvent_commutes_parity` / `resolvent_mapsTo_paritySector`.
+- **T7** the stopping rule: `certifiedGap`, `certifiedGap_tendsto` (convergence to the true sector gap), `certifiedGap_eventually_pos` (completeness) and `certifiedGap_sound` (soundness — a positive certified value at a single dimension *proves* a positive gap, and nothing is claimed otherwise).
+- The certificate layer `GapCertificate` / `gap_ge_of_certificate` / `gap_pos_of_certificate`, instantiated at the `g = 2`, `m = 4` data (`qcdG2M4_certified_gap`: measured gap 1.9875, assembled width 0.0555, certified lower bound 1.932 > 0). The two numbers are transcribed data; the theorem is what follows from them together with the enclosures.
+
+### A correction to the source argument
+The informal step `λ₀ ≥ θ − ‖r‖` is **not valid**: a small residual only certifies that *some* eigenvalue is near θ, not the lowest one. It is replaced by Temple's inequality (`temple_lower_bound`, `sectorGround_ge_temple`) together with the a-posteriori `ground_ge_of_no_eigenvalue_below`. T6 consumes the Temple bound, so the result is not weakened. The correction is documented in the module docstrings, `BookProof/STATUS.md` and the plan's §13.6 status block.
+
+### Integration and verification
+- `Book/SirkReliability.lean` gains sections discussing the layer with `#check` citations, and its "Honest Boundary" paragraph is corrected: finite precision is no longer outside the statements, but the certified claims are about the *truncated* operator.
+- `BookProof.lean` imports the new modules; `BookProof/STATUS.md` records the wave and `CONSOLIDATED_PLAN.md` §13.6 carries a status block.
+- Gate re-run: full `lake build` (BookProof + Book + Singularity, 8738 jobs) and `lake build RandomMap` succeed with no errors; the book wrapper renders (verso patches applied, `lake build book`, `lake exe book`, HTML post-processing) with its assertions passing — no `<base>` element, fragment links present, the new certified-gap sections rendered. `#print axioms` on every headline theorem returns only `propext`, `Classical.choice`, `Quot.sound`; text searches confirm no `sorry` and no `axiom` declarations anywhere in `BookProof/`.
+
+### Recorded boundaries (not closed here)
+- The **continuum** Millennium claim needs a gap-preserving norm-resolvent convergence of the truncation family. Every statement above is about the finite-dimensional truncation; the continuum leg is neither proved nor assumed, and remains the plan's standing boundary.
+- §13.5 items 4–5 (independent re-checking of the exported theorem, and the Rust→Lean translation route for the numeric core) require the sibling kernel repository and external tooling that are not part of this project, so they could not be carried out.
+
+All work is committed and pushed.
+
 # Summary of changes for run d8da8fc8-dec6-4668-96f4-aea931fa1a03
 I continued the plan execution and completed the next wave: the last open piece of §10.6.1 / §10.6.2 item 2 — essential self-adjointness of the Schrödinger operator with the **exponentially growing Starobinsky scalaron wall**.
 

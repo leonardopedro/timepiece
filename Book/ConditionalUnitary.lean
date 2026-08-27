@@ -8,6 +8,15 @@ open Verso.Genre.Manual.InlineLean
 tag := "conditional-unitary"
 %%%
 
+# Orientation and Status
+
+This chapter separates two levels that are easy to conflate. The finite-dimensional
+Gram--Schmidt/SVD construction is proved and is the main formal result here. The
+manuscript's statement for arbitrary standard measure spaces requires additional
+measurability, tensor-product, and disintegration infrastructure; the cited finite
+results should therefore be read as a verified core, not as that full infinite-
+dimensional theorem.
+
 # The Question
 
 :::paragraph

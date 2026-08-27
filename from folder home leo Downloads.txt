@@ -1,76 +1,22 @@
-Update this folder : from folder /home/leo/Downloads/8a024761-e269-4292-ace3-1a128aae3aaf-aristotle(1)/output-final_aristotle copy the files:
+Update this folder : from folder /home/leo/Downloads/a989266f-149a-4bd3-ad32-5a2e9823d462-aristotle/tp_aristotle copy the files:
 ARISTOTLE_SUMMARY.md
-+390
++27
 BookProof.lean
-+211
++38
 CONSOLIDATED_PLAN.md
-+970 -29
-PLAN_LEAN_SPECIALIST_QG_FLOW.md
-+66 -12
-CarlemanFlux.lean
-+94
-DiffeomorphismsGravity.lean
-+236 -1
-FreeField.lean
-+118
-GaugeSymmetry.lean
-+64
++79
 SirkReliability.lean
-+94
-Starobinsky.lean
-+324 -3
-ChapterBrstReducedTransfer.lean
-+265
-ChapterBrstTruncationLeakage.lean
-+489
-ChapterBrstUnboundedLeakage.lean
-+517
-ChapterCarlemanUnboundedHop.lean
-+723
-ChapterCayleyInverse.lean
-+244
-ChapterCayleySpectralModel.lean
-+207
-ChapterCayleyTransform.lean
-+168
-ChapterHermiteExpWall.lean
-+678
-ChapterHermiteQuadraticEsa.lean
-+685
-ChapterNavierStokesCarleman.lean
-+248 -29
-ChapterQgBrstCompleted.lean
-+544
-ChapterQgHermiteCore.lean
-+2 -1
-ChapterQgHermiteFriedrichs.lean
-+4 -1
-ChapterQgHermiteOscillatorEsa.lean
-+5 -3
-ChapterQgOneParticleCcEsa.lean
-+1143
-ChapterQuantumGravity3DGauge.lean
-+565
-ChapterQuantumGravityBrstCharge.lean
-+700
-ChapterQuantumGravityFock.lean
-+864
++89
 ChapterRoadmapAudit.lean
-+370 -1
-ChapterScalaronHermiteEsa.lean
-+466
-ChapterScalaronWallEsa.lean
++81
+ChapterSirkCertificateReader.lean
 +343
-ChapterSirkGramCutoff.lean
-+431
-ChapterSirkGroupTransfer.lean
-+4 -2
-ChapterWallEsaBddBelow.lean
-+146
-ChapterWeakSecondDerivative.lean
-+569
+ChapterSirkGapTable.lean
++312
+ChapterSpectralGapStability.lean
++219
 STATUS.md
-+426 -1
++72
  .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.
  
  add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically efficient) discussed in:  ../timepiece/CONSOLIDATED_PLAN.md
@@ -192,7 +138,7 @@ QED — 1 · NS — 2
 Four-mode band fully resolved from one window with same/cross-mode two-quanta additivity · full-e-fold laminar decay from a single nondimensionalized m=14 window (raw-SI stiffness would demand restarts) · advective fiber conserves unitarity + ⟨H⟩.
 The suite also encodes three framework gotchas now written into AGENTS.md S40: universes merge under scale_and_add, eigenstate starts collapse Krylov rank, and truncated kinetics are indefinite. All 25 fock_sirk suites + prob_kernel green.
 ▣  Build · Ox Alpha Free (Unlimited) · 18m 38s
-Update the tutorial about the new physics tests. Then do more, many more numerical tests within physics problems (always NG, QYM, QED or QG (from action including R^2) 3D gauge-fixed Hamiltinians, numerics using Hashimoto/SIRK already used in this project ), work on that for a long, long time and Update the tutorial about the new physics tests. Do not stop until you completed 
+Continue what you were doing until you finish (all items, except running the full suite of tests skip that). Then update ../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md about the new physics tests. Then do more, many more numerical tests within physics problems (always NG, QYM, QED or QG (from action including R^2) 3D gauge-fixed Hamiltinians, numerics using Hashimoto/SIRK already used in this project ), then update ../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md and then more tests and so on, in a cycle without stopping. Do not stop working. 
 
 
 In ../timepiece/BookProof  are enough proofs to prove in QYM that the uncertainty bands from the Hashimoto algorithm are correct. Please create a document which makes a sketch of a proof of the Mass Gap in QCD using these numerical proved uncertainty bands. Note that these uncertainty bands in Hashimoto.md assume an infinite numerical precision, so the proof of these uncertainty bands must be generalized to finite numerical precision somehow. The goal then is to certify/formalize the correctness of the code implementation of the probability kernel with respect to those proofs, so that the numerical calculation for the Mass Gap can be used in a proof (that also includes Lean4 parts)
@@ -224,3 +170,8 @@ So, for your one-off:
 
 One caveat that applies to all of them, worth stating before you invest: none of these prove IEEE-754 rounding semantics at scale, and none handle the dense eigendecomposition out of the box. The standard one-off split remains: the tool proves the algorithm on mathematical reals (which is where "most mature" matters), and the rounding/band part is a short separate argument — the §4 backward-error + interval-enclosure reasoning, which is a few pages by hand or in Lean, not something any Rust verifier will do for you. So: Verus for the algorithm leg, a short handwritten/Lean argument for the rounding leg is the lowest-total-effort one-off combination.
 
+
+In QG, you say "one load-bearing item — a canonical self-adjoint extension of the full two-signed (hyperbolic) 84-dim operator". I think there are enough proofs that apply to that 84-dim operator, since it involves a bounded below potential that the Strichartz finite-speed route already proved the full Hamiltonian ESA in the dense core of smooth functions with compact support
+
+
+Do the suggested follow ups. Do many more numerical tests about physics (NG, QG,QYM including the mass gap formalization with plan in ../timepiece but without changing this folder, QED) in ../unfer/ . Then review, improve and update the existing documentation about the numerical physics tests (but do not change the folder ../timepiece). Then do more numerical tests to support more improvements to the documentation if needed, in a cycle without stoping.
