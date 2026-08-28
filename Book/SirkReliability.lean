@@ -11,11 +11,18 @@ tag := "sirk-reliability"
 # What the Numerics Compute
 
 :::paragraph
+For QYM, QED, QG, and NS, the Hamiltonian presented to the full nested-Fock
+numerics is always the outer enclosure of the sector's inner one-particle
+Hamiltonian: `H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ)`. Creation is on the left and outer
+annihilation on the right. Inner pair terms remain in `h`; only an allowed
+scalar shift of `h` may be made for positivity. Therefore the full Hamiltonian
+annihilates the outer vacuum exactly.
+:::
+
+:::paragraph
 This chapter keeps the three operator levels distinct: the one-particle Hamiltonian, its
 finite Krylov/Galerkin truncations, and the nested Fock lift. The current certificate
-formalizes the finite/truncated level. The remaining Lean target is the lowest positive
-one-particle spectral edge and its lift through the free, number-preserving `dGamma`
-Hamiltonian.
+formalizes the finite/truncated level. The new proof layer now supplies a conditional version of that target. `ChapterRitzCertificate.lean` derives finite Temple bands; `ChapterBandEnclosure.lean` and `ChapterSpectralGapStability.lean` describe enclosure and limit stability; `ChapterFockOneParticleGap.lean` identifies the one-particle edge; and `ChapterFockNumberPreservingGap.lean` lifts it through the free, number-preserving `dGamma` Hamiltonian. The concrete QYM instantiation and its analytic convergence hypotheses remain specialist work. The same distinction applies to QED, QG, and NS: the final full-theory operator is always the outer creation-left/annihilation-right enclosure of the sector's inner one-particle Hamiltonian.
 :::
 
 :::paragraph
@@ -34,6 +41,16 @@ The ingredients were proved separately: the $`\varphi`$-function calculus, the
 compression transfer, the rational-transfer identity, and the exponential decay
 of the error bound in the reduction order. What was missing was a theorem that
 *composes* them. `BookProof/ChapterSirkEndToEnd.lean` is that composition.
+:::
+
+# New Proof Layer: What a Ritz Certificate Can and Cannot Say
+
+:::paragraph
+`ChapterRitzCertificate.lean` proves the finite statement used by the numerical pipeline: a normalized trial vector has a computable Rayleigh quotient and residual, and—provided the next spectral region is separated—Temple's inequality places the relevant eigenvalue in a certified interval. `ChapterTempleSeparationNecessary.lean` supplies the essential warning: without separation, even perfect Rayleigh data can coexist with an arbitrarily lower unseen eigenvalue. Thus the separation condition is a real certificate input, not a cosmetic technicality.
+:::
+
+:::paragraph
+For the physical lift, `ChapterFockNumberPreservingGap.lean` proves that a positive one-particle gap produces the corresponding free Fock gap on vacuum-orthogonal finite-particle states. `ChapterFockInteractionStability.lean` replaces exact number preservation by a quantitative bounded/form-bounded interaction estimate, while `ChapterFockFieldPerturbation.lean` develops the field-form estimates needed to instantiate that result. These theorems deliberately stop short of claiming the unbounded interacting QYM case.
 :::
 
 # Why the Transfer Identity Has To Be Pointwise
@@ -558,9 +575,10 @@ truncated value, not a real-Hamiltonian Fock gap.
 :::
 
 :::paragraph
-For the intended free outer-particle model, choose `μ > 0` so the shifted one-particle
-Hamiltonian satisfies `h₊ ≥ μ I`. Then `dGamma h₊` has vacuum energy zero because the
-number operator annihilates the vacuum, while every non-vacuum finite-particle energy is
+For the intended outer-enclosed model, choose `μ > 0` so the shifted one-particle
+Hamiltonian satisfies `h₊ ≥ μ I`. Then the full Hamiltonian
+`H = Σᵢⱼ (h₊)ᵢⱼ C†ᵢ Aⱼ` has vacuum energy zero because the outer annihilator kills
+it, while every non-vacuum finite-particle energy is
 a sum of one-particle energies and is at least `μ`. A one-particle creation attains the
 lowest edge once the infinite one-particle band limit is proved.
 :::

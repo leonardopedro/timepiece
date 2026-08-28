@@ -26,9 +26,13 @@ one-particle edge and its lift through the free nested-Fock `dGamma` Hamiltonian
 | finite Krylov/SIRK approximation | proved/conditional error theorems |
 | emitted QYM certificate | proved truncated enclosure |
 | QYM Friedrichs/Hashimoto-selected operator | proved construction/selection |
-| real Fock mass gap | remaining one-particle-edge plus `dGamma` composition |
+| real Fock mass gap | conditional one-particle-edge, enclosure, and outer-`dGamma` composition; concrete continuum instantiation remains open |
 
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure
+
+:::paragraph
+The new gap modules make the operator-level boundary explicit. `BookProof/ChapterFockOneParticleGap.lean` proves the positive one-particle edge statement under its spectral hypotheses; `ChapterFriedrichsFormGap.lean` packages the corresponding closed-form/Friedrichs route; and `ChapterBandEnclosure.lean` shows how nested finite bands can provide the remaining enclosure input. These are conditional analytic bridges, not a claim that numerical data alone proves the continuum gap.
+:::
 
 The finite-dimensional Born parametrization puts a uniform-looking measure on the
 sphere and pushes it to the simplex. To pass to *field theory* — infinitely many
@@ -106,6 +110,10 @@ coordinate-dependent]). The free-field construction is the finite-dimensional sh
 of that infinite-dimensional exception.
 
 # Why the Gaussian Is the Uniform Measure on the Infinite Sphere: the Mehler Limit
+
+:::paragraph
+This probabilistic construction is also the domain in which the later Fock proofs operate. The new `ChapterFockFieldPerturbation.lean` module controls field perturbations at the quadratic-form level, while `ChapterFockInteractionStability.lean` records the quantitative loss of a gap under a bounded or relatively form-bounded interaction. The latter deliberately does not claim control of arbitrary unbounded physical interactions; that remains a specialist task.
+:::
 
 The claim that the Gaussian is the uniform measure "on an infinite-dimensional
 sphere" is not a slogan; it is a genuine limit, due in spirit to Mehler (1866) and

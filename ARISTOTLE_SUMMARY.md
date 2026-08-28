@@ -1,3 +1,137 @@
+# Summary of changes for run 06bbec70-f53c-49e5-b6c0-be1d9ae869c7
+I continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Documentation of the already-landed work.** The two modules from the previous session — `BookProof/ChapterRitzCertificate.lean` (the per-order finite certificate, derived from Temple's inequality plus a running intersection of bands) and `BookProof/ChapterFockNumberPreservingGap.lean` (the `dΓ` lift generalized from diagonal to arbitrary number-preserving one-particle Hamiltonians) — are now recorded in a new dated wave of `BookProof/STATUS.md`, a dated status block in `CONSOLIDATED_PLAN.md`, and a new run section at the top of `ARISTOTLE_SUMMARY.md`.
+
+**Two new modules, both `sorry`-free and axiom-free**, addressing the two inputs the plan then listed as open.
+
+`BookProof/ChapterFockInteractionStability.lean` — the number-preservation hypothesis, traded for a quantitative one. `gap_persists_of_relative_form_bound`: on any set where the unperturbed quadratic form satisfies `q x ≥ μ‖x‖²`, a perturbing form with `|v x| ≤ a·q x + b‖x‖²` and `a ≤ 1` leaves `q x + v x ≥ ((1−a)μ − b)‖x‖²`, with `gap_persists_of_bounded_form` the `a = 0` case and `gap_persists_pos` the strict-positivity condition. Via `interaction_form_bound` (`|Re⟪x, V x⟫| ≤ ‖V‖‖x‖²`), `fock_gap_of_bounded_interaction` and `fock_gap_of_one_particle_form_gap_interaction` give the gap `μ − ‖V‖` for `dΓ(h) + V` on vacuum-orthogonal finite-particle states, where `V` is an arbitrary bounded operator on Fock space — nothing forces it to commute with the number operator, so pair creation is permitted. This is perturbative; physical interaction terms are unbounded operators, so the bounded corollaries do not apply to them, and that is stated in the module.
+
+`BookProof/ChapterTempleSeparationNecessary.lean` — the other input, shown to be genuinely unavoidable. `separation_necessary`: for every `M` there is a bounded self-adjoint operator on a two-dimensional Hilbert space and a unit trial vector whose Rayleigh quotient **and** residual both vanish (an exact eigenvector — the best finite data possible) while `sInf (spectrum ℝ A) ≤ -M`. The witness is `−M(1 − P)` with `P` the rank-one projection onto the trial vector. Hence no lower bound on the spectral edge in terms of the Rayleigh quotient and residual alone can be valid, and the `SpectralSeparation` hypothesis of the certificate route is a real side condition rather than an artifact of the proof.
+
+**Wiring and verification.** Both new modules are imported from `BookProof.lean` with explanatory comments and certified by 11 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, each reporting only `propext`, `Classical.choice`, `Quot.sound`. `lake build BookProof` completes with 0 errors (8548 jobs) and the full default target set builds cleanly (`lake build`, 8756 jobs, 0 errors); a search confirms no `sorry` remains anywhere in `BookProof/`. All work is committed and pushed.
+
+**Honest boundary, unchanged where it should be.** The spectral-separation input remains an input — now provably so. The interaction result is perturbative and does not cover the unbounded physical interaction. `1.932` remains a certified truncated number; no mass gap of the physical Hamiltonian is claimed.
+
+# Summary of changes for the 2026-08-28b continuation run
+
+I continued executing `CONSOLIDATED_PLAN.md`.  The previous run's status block listed exactly
+two remaining inputs in the top work package ("Hashimoto observable to the real-Hamiltonian
+gap"); both are now derived, and the number-preservation hypothesis has been traded for a
+quantitative one.  Four new `sorry`-free, axiom-free modules; `lake build BookProof`
+completes with 0 errors (8548 jobs), the full default target set builds cleanly
+(`lake build`, 8756 jobs, 0 errors), and every audited theorem depends only on `propext`,
+`Classical.choice`, `Quot.sound`.
+
+**`BookProof/ChapterRitzCertificate.lean`** — the per-order finite certificate, derived.
+- `rayleigh A x` (`θ = Re⟪x, A x⟫`) and `resid A x` (`ε = ‖A x − θ x‖`) are the Rayleigh
+  quotient and residual of a normalized trial vector: both are computable from the emitted
+  order-`m` data alone.
+- **`temple_lower_bound`** — Temple's inequality `l ≥ θ − ε²/(β − θ)`, proved from positivity
+  of the Temple factor `(A − l)(A − β)` obtained through the continuous functional calculus
+  (`factor_nonneg`, `factor_nonneg_of_separation`), with the separation condition packaged as
+  `SpectralSeparation A l b`.  No spectral decomposition of `A` and no diagonalization of the
+  order-`m` block are used.  Combined with the variational upper bound
+  `sInf_spectrum_le_rayleigh`, this is **`temple_band_mem`**: the true edge lies inside the
+  emitted band `[θ − ε²/(β − θ), θ]`, whose width vanishes with the residuals
+  (`temple_width_tendsto_zero`).
+- Bands emitted independently at each order need not nest, so the running intersection
+  `runLo`/`runHi` is taken; `runBands_nested`, `mem_runBand`, `runBand_width_le`,
+  `runBand_widths_tendsto_zero` and `nested_certificate_of_bands` show it is a nested,
+  edge-containing, collapsing certificate — exactly the `NestedBands` package the previous
+  run's `ChapterBandEnclosure` consumes.
+- Compositions: **`temple_nested_certificate`** and **`fock_mass_gap_of_temple_certificates`**,
+  which feeds directly into `FockOneParticleGap.fock_mass_gap_of_certified_bands_operator`.
+
+**`BookProof/ChapterFockNumberPreservingGap.lean`** — the `dΓ` lift, generalized past the
+diagonal hypothesis.
+- **`dGamma_shiftCol`** is the second-quantization identity `dΓ(h − μ) = dΓ(h) − μN` in column
+  form (`shiftCol`), with supporting rewrites `creVec_sub`, `creVec_smul`,
+  `creVec_eq_sum_of_subset`.
+- With `dGamma_vac` (vacuum energy `0`) and `number_quadForm_ge` (`N ≥ 1` on
+  vacuum-orthogonal states), **`fock_gap_of_number_preserving`** and
+  `fock_gap_of_number_preserving_op` give the Fock gap for an **arbitrary** number-preserving
+  one-particle Hamiltonian whose shift is positive.  The diagonal case is recovered as the
+  instance `isPosCol_shiftCol_diagCol`, so nothing previously proved is lost.
+- **`fock_gap_of_one_particle_form_gap`** consumes precisely what the certificate chain
+  produces — a form bound `Re⟪x, h x⟫ ≥ μ‖x‖²` on the finite-mode core in a chosen Hilbert
+  basis (`opCol_id`, `shiftCol_opCol`) — and returns the Fock-space gap.
+
+**`BookProof/ChapterFockInteractionStability.lean`** — how far a gap survives a
+number-changing (pair-creating) interaction.
+- Number preservation cannot simply be dropped — a number-changing term can close a gap
+  outright — so it is replaced by a size condition.
+  **`gap_persists_of_relative_form_bound`**: on any set `S` where the unperturbed form
+  satisfies `q x ≥ μ‖x‖²`, a perturbing form with `|v x| ≤ a q x + b‖x‖²` and `a ≤ 1` leaves
+  `q x + v x ≥ ((1 − a)μ − b)‖x‖²`.  `gap_persists_of_bounded_form` is the `a = 0` case;
+  `gap_persists_pos` records when the surviving gap is strictly positive.
+- With `interaction_form_bound` (`|Re⟪x, V x⟫| ≤ ‖V‖‖x‖²`),
+  **`fock_gap_of_bounded_interaction`** and
+  **`fock_gap_of_one_particle_form_gap_interaction`** give the gap `μ − ‖V‖` for `dΓ(h) + V`
+  on vacuum-orthogonal finite-particle states, where `V` is an **arbitrary** bounded operator
+  on Fock space — nothing forces it to commute with the number operator, so pair creation and
+  every other number-changing process is permitted.
+- This is perturbative and is stated as such: physical Yang–Mills interaction terms are not
+  bounded operators on Fock space, so the bounded corollaries do not apply to them directly.
+
+**`BookProof/ChapterTempleSeparationNecessary.lean`** — the one input of the certificate
+route that is *not* removable, shown to be genuine.
+- **`separation_necessary`**: for every `M` there is a bounded self-adjoint operator on a
+  two-dimensional Hilbert space and a unit trial vector whose Rayleigh quotient **and**
+  residual both vanish — an exact eigenvector, the best finite data a computation could emit
+  — while `sInf (spectrum ℝ A) ≤ -M`.  The witness is `−M(1 − P)` with `P` the rank-one
+  projection onto the trial vector.
+- So no lower bound on the spectral edge in terms of the Rayleigh quotient and residual alone
+  can be valid: the a priori hypothesis `SpectralSeparation` is a genuine side condition of
+  any two-sided enclosure, not an artifact of the Temple proof.  This settles the question of
+  whether it could be discharged — it cannot.
+
+**Wiring and docs.**  The modules are imported from `BookProof.lean`, certified by 32 new
+`#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three
+standard axioms), documented in a new dated wave of `BookProof/STATUS.md`, and recorded in a
+dated status update in `CONSOLIDATED_PLAN.md`.
+
+**Honest boundary.**  (i) The spectral-separation hypothesis of Temple's inequality remains
+an input — and is now *proved* to be unavoidable, so any use of the certificate route must
+supply an a priori lower bound on the rest of the spectrum from outside the finite
+computation.  (ii) The interaction result is perturbative: physical Yang–Mills interaction
+terms are unbounded operators, and supplying the domination `|v| ≤ a q + b‖·‖²` for them is
+not done here and is not claimed.  `1.932` remains a certified truncated number; no mass gap
+of the physical Hamiltonian is claimed.
+
+# Summary of changes for run 40c9e0fa-3885-4c1d-aee1-5ea958ea00db
+I continued executing `CONSOLIDATED_PLAN.md`, focusing on the item you flagged: the band-enclosure hypothesis — that a finite certificate brackets the one-particle edge of the infinite selected operator. It is now **derived**, not assumed. Two new `sorry`-free, axiom-free modules; the full project builds (`lake build`, default targets, 8752 jobs, 0 errors).
+
+**`BookProof/ChapterBandEnclosure.lean`**
+- `NestedBands lo hi` abstracts the already-proved band containment (`ChapterH8.sirk_band_contained`: order `m+1` inside order `m`), iterated by `nestedBands_le`.
+- **`band_enclosure_of_nested`** — the derivation: if the bands nest, the order-`m` approximant lies in the order-`m` band, and the approximants converge to `lam`, then `lam` lies in *every* band (for `n ≥ m` the order-`n` band sits inside the closed order-`m` band). With widths vanishing — exponentially, via `ChapterH6.sirk_error_decay_exponential`, instantiated in `sirk_nestedBands` / `sirk_band_widths_tendsto_zero` / `sirk_band_enclosure` — the enclosed point is unique and the endpoints converge to it (`band_limit_unique`, `band_enclosure_endpoints_tendsto`).
+- The convergence input comes from the existing selection results rather than being assumed. Bounded regime: the Galerkin/Hashimoto algorithm selects the operator itself and its Ritz values converge to `sInf (spectrum ℝ A)`, giving `ritz_band_enclosure_of_nested`; composed with the free `dΓ` lift, **`fock_mass_gap_of_nested_ritz_bands`** delivers vacuum energy `0` and Fock energy `≥ μ‖·‖²` on vacuum-orthogonal finite-particle states **with no enclosure hypothesis left**.
+- Unbounded regime (no boundedness at all): **`friedrichs_form_gap_of_nested_ritz_bands`** — the certified bands enclose the form bottom of the core, and the Friedrichs extension selected by the Hashimoto shift-invert satisfies `⟪y, A y⟫ ≥ μ‖y‖²` on its whole domain.
+- `shiftInvert_band_enclosure` / `shiftInvert_widths_tendsto_zero` transport a band enclosure through `lam = nu⁻¹ − γ`.
+
+**`BookProof/ChapterFriedrichsFormGap.lean`** — the transfer to the infinite operator: a core bound `⟪x, H x⟫ ≥ μ‖x‖²` extends by continuity through the completed form space (`formSpace_norm_bound`), and **`friedrichs_extension_form_gap`** shows the Friedrichs extension `A = S⁻¹ − 1` — a positive self-adjoint extension of `H` whose Hashimoto shift-invert at `γ = 1` is the resolvent `S`, i.e. the operator the algorithm selects — inherits the bound. No spectral theorem for unbounded operators is used.
+
+**Wiring and docs.** Both modules are imported from `BookProof.lean`, certified by 16 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (each reporting only `propext`, `Classical.choice`, `Quot.sound`), documented in a new dated section of `BookProof/STATUS.md`, and recorded in a dated status update in `CONSOLIDATED_PLAN.md`. `ARISTOTLE_SUMMARY.md` has a new appended run summary.
+
+**Honest boundary (unchanged where it should be).** What is now derived is the enclosure and the transfer of the certified bound to the infinite selected operator. What remains an input is the finite certificate at each order — that the order-`m` Ritz value lies in the order-`m` emitted band, and that the emitted bands nest — plus the free/diagonal (number-preserving) hypothesis in the `dΓ` lift, which excludes pair creation. `1.932` remains the recorded certificate number; no mass gap of the physical Hamiltonian is claimed.
+
+# Summary of changes for run ab2d56b9-257a-4cdb-bdb6-0e60164ca8a9
+I executed the top-priority work package of `CONSOLIDATED_PLAN.md` — "Hashimoto observable to the real-Hamiltonian gap" — and left the whole project building cleanly (`lake build`, 8750 jobs, 0 errors, no `sorry`, no new `axiom`).
+
+**1. Repaired the flagged draft.** `BookProof/ChapterSpectralGapStability.lean` contained an uncompiled draft, `spectrum_disjoint_of_shifted_square_bound` (the shifted-square observable `q‖x‖² ≤ ‖(A − c)x‖²` excludes spectrum from `(c − √q, c + √q)` for bounded self-adjoint `A`). Three steps of its proof did not elaborate; they are fixed and the module now builds.
+
+**2. New chapter `BookProof/ChapterFockOneParticleGap.lean`** (namespace `BookProof.FockOneParticleGap`), built on the existing algebraic Fock space and `dGamma` machinery. Everything is stated for the *free* (number-preserving, diagonal) one-particle Hamiltonian `diagCol e` — the plan's free outer-particle hypothesis, made explicit in every statement:
+
+- **Diagonal second quantization.** `dGamma_diagCol_single` / `dGamma_diagCol_apply`: `dΓ(h₊)` acts on a configuration `β` by `Σ_k β_k e_k`. `dGamma_diagCol_vac`, `numberOp_vac`: `dΓ(h₊) Ω = 0`, `N Ω = 0`. `dGamma_diagCol_shift`: the further shift is exactly the number-operator shift `dΓ(h₊ + μ) = dΓ(h₊) + μN`, leaving the vacuum untouched.
+- **The free `dΓ` lift.** `fock_gap_quadForm` and `fock_gap_of_one_particle_gap`: with `h₊ ≥ μI ≥ 0`, the vacuum has energy `0` and every vacuum-orthogonal finite-occupation state has energy at least `μ‖·‖²`. `fock_energy_one_particle` shows a one-particle creation attains `e k`, and `sInf_nonvacuumEnergies` proves the free Fock gap *equals* the one-particle edge `⨅ k e k`.
+- **Nested certified bands.** `band_endpoints_tendsto`, `le_of_band`: bands enclosing one fixed edge with vanishing widths determine it, and a single band with lower end `≥ μ` forces `μ ≤ λ₁`. The generic SIRK error interval is not substituted for the spectral-edge enclosure.
+- **The compositions.** `fock_mass_gap_of_certified_bands` combines the two, and `qcdG2M4_fock_gap_of_one_particle_enclosure` instantiates it at the recorded `g = 2, m = 4` number `1.932`. `fock_mass_gap_of_certified_bands_operator` (with `le_eigenvalue_of_le_spectrum`, `fock_gap_of_operator_spectral_edge`) runs the same argument starting from an actual bounded self-adjoint one-particle operator with an eigenbasis, with the bands enclosing `sInf (spectrum ℝ A)`.
+- **Parity translation.** `one_particle_edge_ge_of_parity_certificate` makes the parity-to-one-particle reading explicit: the "even sector is the vacuum, odd sector is the one-particle edge" statements appear as hypotheses, not as an appeal to a generic parity gap.
+
+**Honest boundary, kept as the plan requires.** The band-enclosure hypothesis — that a finite certificate brackets the one-particle edge of the *infinite* selected operator — is a hypothesis of these theorems, never a conclusion; the free/diagonal hypothesis excludes interacting (pair-creating) terms. `1.932` remains a certified *truncated* number and no mass gap of the physical Hamiltonian is claimed.
+
+**Bookkeeping.** The new module is imported from `BookProof.lean` with a descriptive comment, all 15 new results are `#print axioms`-audited in `BookProof/ChapterRoadmapAudit.lean` (each depends only on `propext`, `Classical.choice`, `Quot.sound`), the exact hypotheses are documented in `BookProof/STATUS.md`, and `CONSOLIDATED_PLAN.md` now carries a status subsection recording which deliverables of the work package landed and what remains open. All work is committed and pushed.
+
 # Summary of changes for run b2342286-fc55-44bf-81ca-d47878dc5c62
 All remaining items of `CONSOLIDATED_PLAN.md` are now closed, and the full verification gate re-runs green.
 
@@ -10580,3 +10714,67 @@ convergence of the compressions along the flag — that remains the content of t
 chapters.  The open research targets recorded in `CONSOLIDATED_PLAN.md` (§10.6.1 target 4
 for the exponentially growing scalaron potential, §10.6.2 items 1 and 4, the general
 Faris–Lavine potential, research boundary A1) are untouched by this wave.
+
+# Summary of changes for run 2026-08-28 — the band-enclosure hypothesis, derived
+
+Continuing `CONSOLIDATED_PLAN.md`'s top work package ("Hashimoto observable to the
+real-Hamiltonian gap"), I closed the single hypothesis the previous wave had to assume in
+`BookProof/ChapterFockOneParticleGap.lean`: that a finite certificate brackets the
+one-particle edge of the **infinite** selected operator.  Two new `sorry`-free modules.
+
+**1. `BookProof/ChapterBandEnclosure.lean` (namespace `BookProof.BandEnclosure`).**
+
+* `NestedBands lo hi` — the already-proved band containment of
+  `ChapterH8.sirk_band_contained` in abstract form: `Icc (lo (m+1)) (hi (m+1)) ⊆
+  Icc (lo m) (hi m)`; `nestedBands_le` iterates it to any pair `m ≤ n`.
+* **`band_enclosure_of_nested`** — the derivation asked for.  If the bands nest, the
+  order-`m` approximant lies in the order-`m` band, and the approximants converge to `lam`,
+  then `lam` lies in *every* band: for `n ≥ m` the approximant `a n` is already in the
+  order-`m` band, which is closed.  With vanishing widths the enclosed point is unique and
+  the endpoints converge to it (`band_limit_unique`, `band_enclosure_endpoints_tendsto`).
+* The exponentially shrinking SIRK bands are recorded as the instance: `sirk_nestedBands`
+  (nesting), `sirk_band_widths_tendsto_zero` (from
+  `ChapterH6.sirk_error_decay_exponential`), `sirk_band_enclosure`.
+* **Bounded selected operator.**  `ritz_band_enclosure_of_nested`: the Galerkin/Hashimoto
+  algorithm selects the operator itself
+  (`HermiteGalerkin.finiteModeRestrict_selects_operator`) and its Ritz values converge to
+  `sInf (spectrum ℝ A)` (`ChapterSirkRitzSpectrum.ritzInf_tendsto_sInf_spectrum`), so nested
+  bands containing the Ritz values enclose that spectral edge.
+  **`fock_mass_gap_of_nested_ritz_bands`** composes this with the free `dΓ` lift of
+  `ChapterFockOneParticleGap`: with an eigenbasis, vanishing widths and one band of lower
+  end `≥ μ ≥ 0`, the vacuum has Fock energy `0` and every vacuum-orthogonal
+  finite-particle state has energy `≥ μ‖·‖²` — with **no enclosure hypothesis left**.
+* **Unbounded selected operator.**  `quadForm_real_smul`, `quadForm_ge_of_le_ritzInf` and
+  **`friedrichs_form_gap_of_nested_ritz_bands`**: with no boundedness at all, the Ritz
+  values converge to the form bottom of the core
+  (`HermiteGalerkin.ritzInf_tendsto_domainInf`), the nested bands enclose it, and the
+  Friedrichs extension satisfies `⟪y, A y⟫ ≥ μ‖y‖²` on its whole domain.
+* `shiftInvert_band_enclosure`, `shiftInvert_widths_tendsto_zero` — transport of a band
+  enclosure through the shift-invert map `lam = nu⁻¹ − γ`.
+
+**2. `BookProof/ChapterFriedrichsFormGap.lean` (namespace `BookProof.FriedrichsFormGap`).**
+The transfer of a certified bound to the infinite operator.  `formSpace_norm_bound`: a core
+bound `⟪x, H x⟫ ≥ μ‖x‖²` extends by continuity to `(1+μ)‖formExt k‖² ≤ ‖k‖²` on the completed
+form space.  `friedrichs_quadForm_lower_bound` and **`friedrichs_extension_form_gap`**: the
+Friedrichs extension `A = S⁻¹ − 1` of `ChapterFriedrichsExtension` — a positive self-adjoint
+extension of `H` whose Hashimoto shift-invert at `γ = 1` is the resolvent `S`, i.e. the
+operator the algorithm selects — inherits the bound, `⟪y, A y⟫ ≥ μ‖y‖²`.  No boundedness and
+no spectral theorem for unbounded operators are used.
+
+**Wiring.**  Both modules are imported from `BookProof.lean` with descriptive comments, and
+certified by 16 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, each
+reporting only `propext`, `Classical.choice`, `Quot.sound`.  `BookProof/STATUS.md` gains a
+dated wave section (and its 2026-08-27e "honest boundary" paragraph now points at the new
+derivation), and `CONSOLIDATED_PLAN.md` carries a dated status update recording what is now
+derived and what remains an input.
+
+**Verification.**  `lake build` (default targets, 8752 jobs) completes with 0 errors; the
+new modules contain no `sorry`/`admit` and no `axiom` declaration.
+
+**Boundary.**  What is now derived is the *enclosure*: given nesting and a certificate at
+every order, the finite bands bracket the edge of the infinite selected operator, and a
+certified lower bound transfers to it.  What remains an input is the finite certificate at
+each order — that the order-`m` Ritz value lies in the order-`m` emitted band, and that the
+emitted bands nest — and the free/diagonal (number-preserving) hypothesis in the `dΓ` lift,
+which excludes pair creation.  `1.932` remains the recorded certificate number; no mass gap
+of the physical Hamiltonian is claimed.

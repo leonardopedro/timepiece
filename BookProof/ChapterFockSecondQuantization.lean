@@ -923,8 +923,12 @@ section YangMills
 open BookProof.YangMillsHermite BookProof.HermiteProductCore
 open Filter Topology
 
-/-- The one-particle Yang–Mills Hamiltonian `H₁ = ½Σπ² + ½ΣB²` as an
-endomorphism of the Gauss–polynomial core, realized as the finite-mode domain of
+/-- The inner one-particle Yang–Mills Hamiltonian `H₁ = ½Σπ² + ½ΣB²` as an
+endomorphism of the Gauss–polynomial core. The full final nested-Fock
+Hamiltonian is its outer creation-left/annihilation-right enclosure; inner
+pair terms are retained in `H₁`, and the outer annihilator kills the outer
+vacuum. -/
+/-- The operator is realized as the finite-mode domain of
 the orthonormal basis `coreBasis e` of `L²(ℝ⁹⁹)`. -/
 def ymOnePart (e : ℕ ≃ (Fin 99 →₀ ℕ)) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
     finiteModeDomain (coreBasis e) →ₗ[ℂ] finiteModeDomain (coreBasis e) :=

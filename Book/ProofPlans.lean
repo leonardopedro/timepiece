@@ -9,11 +9,41 @@ tag := "proof-plans"
 number := false
 %%%
 
-This appendix collects the precise statements that are *mathematically relevant to
-the book but not yet proved* in the repository, together with a plan for proving
-them in Lean 4. It is addressed to an LLM Lean specialist (e.g. Aristotle). A more
-detailed, machine-oriented version lives in `BOOK_PROOF_PLAN.md` at the repository
-root.
+This appendix collects the precise statements that are mathematically relevant to
+the book, separating proved results, conditional bridges, and genuinely open
+instantiation work. The newest proof wave adds finite Ritz certificates, Temple
+separation, band enclosure, one-particle/Fock gap lifts, Friedrichs-form gaps,
+and perturbative interaction stability. It is addressed to an LLM Lean specialist
+(e.g. Aristotle). A more detailed, machine-oriented version lives in
+`CONSOLIDATED_PLAN.md` at the repository root.
+
+# The New Spectral-Gap Proof Layer
+
+The following modules are now part of the proof architecture:
+
+* `ChapterRitzCertificate.lean`: derives a finite spectral interval from a
+  Rayleigh quotient, residual, and explicit Temple separation hypothesis.
+* `ChapterTempleSeparationNecessary.lean`: proves that separation is necessary;
+  Rayleigh quotient and residual alone cannot bound the spectral edge.
+* `ChapterBandEnclosure.lean`: packages compatible nested finite bands and their
+  intersection/enclosure consequences.
+* `ChapterFockOneParticleGap.lean`: states the positive one-particle edge and
+  its conditional consequences.
+* `ChapterFriedrichsFormGap.lean`: packages the semibounded quadratic-form and
+  Friedrichs-extension route.
+* `ChapterFockNumberPreservingGap.lean`: lifts a one-particle gap through
+  number-preserving second quantization.
+* `ChapterFockFieldPerturbation.lean` and
+  `ChapterFockInteractionStability.lean`: control bounded or relatively
+  form-bounded perturbations, with the unbounded physical interaction explicitly
+  left as a specialist obligation.
+* `ChapterSpectralGapStability.lean`: proves stability under suitable operator
+  limits and perturbations.
+
+The claim is now conditional but mathematically honest: the finite SIRK
+certificate can feed this chain only after its separation and enclosure inputs
+are supplied, and the continuum QYM result still requires a concrete
+convergence theorem.
 
 Every plan targets the project's pinned toolchain (*Lean v4.28.0, Mathlib
 v4.28.0*), so that the work stays compatible with the existing `sorry`-free

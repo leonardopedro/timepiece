@@ -46,6 +46,14 @@ Mathlib names are in the N13/N14 queue entries below. Both follow §0 S7 (the
 `../unfer` Mehler/Kopperman formalism) and reuse the on-disk Fock layer
 (N12/`ChapterF1`) and Mehler chain (`PnpProof/SphereGaussian.lean`).
 **Self-containment (important): the Lean specialist needs NO `../unfer` access.**
+
+For the mass-gap track, all non-Lean numerical inputs are vendored in
+`unfer_contracts/`: the current QYM/SIRK certificate sources and tests,
+`MASS_GAP_SPEC.md`, the Aeneas pure-core crate and generated artifacts, and
+the certificate fixture. Regeneration instructions are in
+`unfer_contracts/MASS_GAP_REGENERATION.md`. The sibling `../unfer` tree is
+only the upstream implementation mirror; no proof task should depend on an
+unavailable sibling path.
 The source docs are now in-tree at `RiemannProof/Hashimoto.md` and
 `RiemannProof/QFM.tex`; the N13/N14 entries restate all the mathematics inline;
 and every remaining `../unfer/...` crate path in this document is a **docstring

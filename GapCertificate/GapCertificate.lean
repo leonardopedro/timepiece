@@ -3,7 +3,11 @@ GapCertificate (T10): the instantiated T6 arithmetic, as closed certificates.
 
 This file formalizes the *arithmetic instance* of the certified-gap theorem
 (`MASS_GAP_CERTIFIED.md` §3.4, `BookProof/ChapterSirkCertifiedGap` T6) on the
-recorded `g = 2`, `m = 4` `yang_mills_lattice` run.  The two numbers that are
+historical `g = 2`, `m = 4` run of the lattice-era cross-benchmark
+(`yang_mills_lattice` — retained only as a fixture; the mass-gap object of
+record is the 3D gauge-fixed nested-Fock QYM Hamiltonian
+`qcd_ym_hamiltonian(g)`, whose reflection-sector certificates instantiate the
+same abstract T6 verbatim).  The two numbers that are
 data — transcribed from the emitted certificate of `MASS_GAP_CERTIFIED.md` —
 are the measured sector gap `θᵒ − θᵉ = 1.9875` and the assembled width
 `δᵒ + δᵉ = 0.0555`.  The T6 assembly

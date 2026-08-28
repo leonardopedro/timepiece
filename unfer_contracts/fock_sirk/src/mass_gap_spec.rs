@@ -26,9 +26,12 @@
 //!
 //! Preconditions of the theorem (each documented where it is enforced):
 //!
-//! 1. **Sector purity**: lattice parity is an exact symmetry of `H_m`
-//!    (ChapterParity), the starts are pure-parity, so the two Krylov chains
-//!    are disjoint and the Ritz sets are independent ([`parities_disjoint`]).
+//! 1. **Sector purity**: for the gauge-fixed QYM Hamiltonian the sector
+//!    symmetry is the exact reflection `R: (A₀,A₁) → (−A₁,−A₀)` (exact for
+//!    all `g`); the starts are pure-sector, so the two Krylov chains are
+//!    disjoint and the Ritz sets are independent ([`parities_disjoint`]).
+//!    Occupation parity and lattice Hamiltonians are comparison-only and are
+//!    not inputs to this mass-gap contract.
 //! 2. **Ground selection**: `θˢ₀` is the *lowest* Ritz value of sector `s`
 //!    (the solve returns the sorted spectrum).
 //! 3. **Enclosure**: `δˢ` is a genuine upper bound of `|θˢ − λˢ|` — the
@@ -115,20 +118,22 @@ pub fn gap_certified_positive(lo: f64) -> bool {
     lo > 0.0
 }
 
-/// Parity disjointness precondition (ChapterParity / §3.3 item 1): lattice
-/// parity is an exact symmetry of `H_m`, so pure-parity Krylov starts keep
-/// the chains in disjoint invariant sectors. The runtime witness is the
-/// maximal mutual overlap of the retained chain vectors — it must vanish to
-/// solver precision for the two solves to be independent.
+/// Reflection-sector disjointness precondition (ChapterParity / §3.3 item 1):
+/// the gauge-fixed QYM reflection is an exact symmetry of `H_m`, so pure-R
+/// Krylov starts remain in disjoint invariant sectors. Lattice occupation
+/// parity is not part of this contract. The runtime witness is the maximal
+/// mutual overlap of retained chain vectors.
 pub fn parities_disjoint(max_chain_overlap: f64, tol: f64) -> bool {
     debug_assert!(max_chain_overlap >= 0.0 && tol >= 0.0, "overlap inputs");
     max_chain_overlap < tol
 }
 
-/// Vacuum-sector sanity: the even ground is the normal-ordered vacuum, so
-/// the even-sector ground Ritz value must be `O(1/g⁶)`-small at strong
-/// coupling (the magnetic shift of the vacuum is second order). This is a
-/// precondition *witness* for identifying `θᵉ₀` with the vacuum energy 0.
+/// Legacy comparison-model vacuum sanity. This predicate is retained only
+/// for generic callers and historical cross-benchmarks; it is not a
+/// precondition of the gauge-fixed nested-Fock QYM mass-gap contract. For the
+/// actual theory, the one-particle Hamiltonian is shifted if needed for
+/// positivity and then enclosed by outer creation on the left and outer
+/// annihilation on the right, so the outer vacuum is the exact ground.
 pub fn even_sector_is_vacuum(even_ground: f64, tol: f64) -> bool {
     even_ground.abs() < tol
 }

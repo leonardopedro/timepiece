@@ -1,22 +1,34 @@
-Update this folder : from folder /home/leo/Downloads/a989266f-149a-4bd3-ad32-5a2e9823d462-aristotle/tp_aristotle copy the files:
+Update this folder : from folder /home/leo/Downloads/6b04443c-e546-43bf-8b7e-e100f0dd9246-aristotle(1)/output-final_aristotle copy the files:
 ARISTOTLE_SUMMARY.md
-+27
++198
 BookProof.lean
-+38
++117
 CONSOLIDATED_PLAN.md
-+79
-SirkReliability.lean
-+89
++183
+ChapterBandEnclosure.lean
++367
+ChapterFockFieldPerturbation.lean
++278
+ChapterFockInteractionStability.lean
++174
+ChapterFockNumberPreservingGap.lean
++294
+ChapterFockOneParticleGap.lean
++529
+ChapterFriedrichsFormGap.lean
++127
+ChapterRitzCertificate.lean
++365
 ChapterRoadmapAudit.lean
-+81
-ChapterSirkCertificateReader.lean
-+343
-ChapterSirkGapTable.lean
-+312
++101
 ChapterSpectralGapStability.lean
-+219
++9 -8
+ChapterTempleSeparationNecessary.lean
++135
 STATUS.md
-+72
++213
+package-overrides.json
++32
  .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.
  
  add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically efficient) discussed in:  ../timepiece/CONSOLIDATED_PLAN.md
@@ -174,4 +186,65 @@ One caveat that applies to all of them, worth stating before you invest: none of
 In QG, you say "one load-bearing item — a canonical self-adjoint extension of the full two-signed (hyperbolic) 84-dim operator". I think there are enough proofs that apply to that 84-dim operator, since it involves a bounded below potential that the Strichartz finite-speed route already proved the full Hamiltonian ESA in the dense core of smooth functions with compact support
 
 
-Do the suggested follow ups. Do many more numerical tests about physics (NG, QG,QYM including the mass gap formalization with plan in ../timepiece but without changing this folder, QED) in ../unfer/ . Then review, improve and update the existing documentation about the numerical physics tests (but do not change the folder ../timepiece). Then do more numerical tests to support more improvements to the documentation if needed, in a cycle without stoping.
+Do the suggested follow ups. Do many more numerical tests about physics (NG, QG,QYM, QED) in ../unfer/ . Then review, improve and update the existing documentation about the numerical physics tests (but do not change the folder ../timepiece). Then do more numerical tests to support more improvements to the documentation if needed, in a cycle without stoping.
+
+
+In ../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md it is stated "| `yang_mills_lattice` | full SU(3) lattice | mass gap $\approx g^2/2$ (Millennium positivity) |" but lattice is not the QYM Hamiltonian derived from the Cadabra module in this project and numerically tested using SIRK-Hashimoto. Lattice can only be use for comparison purposes with the model/algorithm of this project, not about Millennium positivity implication for this model/algorithm
+
+All followups are complete, anchored to the Cadabra-derived 3D gauge-fixed Hamiltonians and solved exclusively with SIRK–Hashimoto (release mode, per the project's fast-anchor convention). 41 tests across 8 suites pass.
+
+F1 — Driven QED gauge-fixed sector statistics ( qed_blockade_statistics.rs , + qed_kerr_cavity_driven  builder):
+- The static-charge sector of the abelian  H_final = ½π² + ½B²  ( yang_mills_hamiltonian.cdb ) is exactly a coherent (Poissonian) ground: Fano factor = 1 to 1e-4, ⟨N⟩ = Var(N) = (g/ω)² — extracted from the SIRK ground eigenvector ( h_proj  eigendecomposition +  reconstruct ).
+- With the Kerr nonlinearity: sub-Poissonian, antibunched (Fano < 1, g⁽²⁾(0) < 1), monotonically stronger with χ; returns to Poissonian as χ → 0.
+
+F2 — HOM coincidence curve + abelian two-mode sector:
+-  qed_hong_ou_mandel.rs : full P₁₁(θ) = cos²θ curve over 7 angles (the beamsplitter hopping is the N-conserving cross-coupling of B² = (A₀−A₁)²).
+-  qed_abelian_reduction.rs :  qcd_ym_hamiltonian(0)  verified as the exact quadratic boson form, with the photon-pair matrix element ⟨vac|H|1,1⟩ = −1 (vacuum squeezing from B²); SIRK resolves the two-photon sector negative and converging down to the analytic continuum floor −2 (−1.547, −1.618 at m = 10, 12).
+
+F3 — TEGR graviton polarization ( qg_tegr_helicity.rs , from  qg_gauge_fixed_hamiltonian.cdb ): the two 𝒮-polarizations are exactly degenerate (identical spectra — the graviton's two helicities at one frequency); the kinetic is (1/16)(P² − ½) with spectrum [−1/32, ∞), sharpening the loose §5.17 "bounded below" band to the exact edge; the pair terms populate both polarizations while the flow conserves norm + energy.
+
+Reworks to the Cadabra Hamiltonians:  sirk_displaced_oscillator_exact_shift  now runs on  qed_static_charge_interaction  (same E_n = kn − g²/k physics on the actual gauge-fixed sector); the Kerr suite asserts χ=0 ≡  qed_free_photon .
+
+Gotchas encoded in the tests (documented in AGENTS.md): nalgebra's  symmetric_eigen  does not sort eigenvalues; the raw frame's Gram wall makes wide-window solves garbage ( unit_norm_steps: true  required); the restarted flow explodes components on the 4-mode |1,1⟩ start (unitary check done within one solve).
+
+Note that the Ground state is always the outer-Fock vacuum because the one-particle Hamiltonian can be added a constant to make it positive (for QYM) and it is enclosed in creation (on the left) and annihilation (on the right) operators
+
+Please fill the documentation in ../test/ (a gitbook.com website/subdomain) with contents inspired by book.tex (except P vs. NP and Riemann Hipothesis chapters) , Book/ , Bookproof/ and ../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , it should cover everything and be faithful to the original contents, but also form a self-consistent and pedagogical whole. Specially the proofs in BookProof/ are mentioned in Book/ with some context but the proofs themselves deserve more explanation (at least the most relevant ones) about what is the claim, its meaning within the context, a sketch of the proof and dependencies on other proofs or assumptions.
+
+
+I regenerated and checked the non-Lean portions that can be handled here.
+
+Completed:
+- Ran the corrected QYM mass-gap suite:
+-  qym_mass_gap : 10 passed
+-  qcd_mass_gap_certified : 3 passed
+- Confirmed the current results use the gauge-fixed nested-Fock Hamiltonian and SIRK–Hashimoto:
+-  g = 1 : truncated gaps  0.091073  and  0.091161 
+-  g = 2 : truncated gaps  0.850114  and  1.243647 
+- certificates currently produce wide but valid enclosures:
+-  g = 1 :  [-8.009312, 6.866393] 
+-  g = 2 :  [-27.703393, 23.141146] 
+- Attempted Aeneas regeneration from the current Rust source.
+
+Aeneas currently fails on the existing pure-core model, with seven translation errors involving:
+-  f64  constants and operations,
+- unary floating-point negation,
+-  gram_entry ,
+-  projection_identity ,
+-  whitening_transform ,
+-  residual_boundary_component ,
+-  residual_norm2 .
+
+The failed Aeneas run generated partial temporary  Lib.lean / lib.llbc  files; I removed those and restored the prior committed generated artifacts so no partial output remains.
+
+Important consequence:
+- The numerical certificates were regenerated/validated by the Rust tests.
+- The Aeneas Lean artifact was not successfully regenerated.
+- Nanoda was not rerun because there is no valid new Lean export to verify, and the existing nanoda fixture still represents the previous certificate/model.
+- I did not modify Lean proofs or run Lean compilation.
+
+The next non-Lean repair needed is to make the Aeneas core translatable, likely by isolating unsupported  f64  arithmetic behind explicit opaque helper functions while retaining the structural fold/Gram/whitening/residual algorithm for generated Lean. Then the generated Lean output can be exported and nanoda can be rerun against a newly emitted certificate.
+
+You do yourself everything about the mass gap formalization that does not involve you writting Lean4 code (generating Lean4 code automatically from Rust code you do it)
+
+Also make sure that ../timepiece is self-contained with respect to the mass gap formalization from the point of view of the work that the LLM-Lean4-specialist must do, because this LLM will only have access to ../timepiece, so some content in ../unfer/ needs to be copied to ../timepiece 

@@ -1,14 +1,86 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
+## State update — 2026-08-28 Aristotle proof wave
+
+The latest specialist output has been copied into `BookProof/` and wired through
+`BookProof.lean`. The new modules are:
+
+* `ChapterRitzCertificate.lean`: finite Rayleigh/residual bands via Temple's
+  inequality, with explicit spectral separation;
+* `ChapterTempleSeparationNecessary.lean`: a counterexample showing separation
+  cannot be inferred from Rayleigh data and residual alone;
+* `ChapterBandEnclosure.lean`: compatible nested finite-band enclosures;
+* `ChapterFockOneParticleGap.lean`: the conditional positive one-particle edge;
+* `ChapterFriedrichsFormGap.lean`: semibounded quadratic forms and Friedrichs
+  extensions;
+* `ChapterFockNumberPreservingGap.lean`: the arbitrary number-preserving
+  `dGamma` lift;
+* `ChapterFockFieldPerturbation.lean` and
+  `ChapterFockInteractionStability.lean`: bounded/relatively form-bounded field
+  perturbations and quantitative gap degradation;
+* `ChapterSpectralGapStability.lean`: perturbation and operator-limit stability;
+* `ChapterRoadmapAudit.lean`: dependency/axiom audit for the new wave.
+
+The proof state is stronger than the previous finite-certificate-only state, but
+still deliberately conditional. Every physical sector must use the same final-
+Hamiltonian construction: QYM's gauge-fixed `h`, QED's photon `h`, QG's
+scalaron/graviton/TEGR/densitized `h`, and NS's Eulerian-fiber `h` are all inner
+one-particle inputs to the outer enclosure—not standalone inner Hamiltonians
+when making a full-theory ground-state claim. The certified SIRK result remains a statement
+about a finite truncation. The outer nested-Fock ground-state doctrine remains uniform across QYM, QED,
+QG, and NS: use the corresponding real one-particle Hamiltonian (with only an
+allowed scalar shift to make it positive), then form the final Hamiltonian
+`H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ)` with creation on the left and outer annihilation on
+the right. Inner pair terms remain part of `h`; they are not removed by an
+additional normal-ordering operation. The outer vacuum is exactly annihilated. Inner pair-squeezed states do not
+replace that outer vacuum.
+
+## Next specialist package — instantiate the abstract gap chain
+
+The next Lean4-specialist should not re-prove the abstract modules. Instead,
+instantiate them for the concrete 3D gauge-fixed QYM Hamiltonian and discharge
+their hypotheses in this order:
+
+1. define the common one-particle Hilbert space, dense core, symmetric operator,
+   and semibounded quadratic form for the gauge-fixed `H_final`;
+2. identify the Friedrichs extension and prove that the scalar shift used by the
+   numerical model preserves the one-particle operator's intended dynamics;
+3. connect the finite Hermite/Galerkin matrices to the same operator, including
+   the required strong or norm-resolvent convergence;
+4. formalize the SIRK emitted-data interface with the Temple separation and band
+   enclosure hypotheses, rather than treating a displayed Ritz value as a lower
+   bound;
+5. prove that the one-particle edge lifts to the outer nested-Fock Hamiltonian
+   through `dGamma`, with `H Ω = 0` and the positive non-vacuum gap;
+6. treat the physical unbounded interaction using the field perturbation/form
+   bounds. The bounded-interaction theorem is only a template and must not be
+   applied without a proved relative form estimate;
+7. add `#print axioms` coverage and preserve the project's no-`sorry`,
+   no-unjustified-axiom policy.
+
+Verification is intentionally delegated to the Lean4 specialist as requested:
+run the pinned toolchain's targeted builds, then the full build, and finally the
+book/Katex gates. This update itself has not compiled Lean or run those gates.
+
 ## New specialist work package — Hashimoto observable to the real-Hamiltonian gap
 
 **Added 2026-08-27.** The next Lean 4 specialist should formalize the strongest honest
 bridge from the existing Hashimoto/SIRK certificate to a gap of the actual self-adjoint
 Hamiltonian. The target is deliberately conditional: the current certificate proves only
-the finite/truncated gap, and the specialist must connect its one-particle observable to
-the infinite real operator before claiming the Fock mass gap.
+the finite/truncated one-particle gap, and the specialist must connect its observable to
+the infinite real one-particle operator and then to the outer-enclosed final Hamiltonian
+before claiming the Fock mass gap.
 
-### Correct observable: the one-particle energy lifted to nested Fock space
+### Correct observable and final Hamiltonian: the one-particle energy lifted to nested Fock space
+
+This correction applies to every physical sector, not only QYM. For QYM use the
+3D gauge-fixed one-particle operator; for QED use the photon one-particle
+operator; for QG use the scalaron/graviton/TEGR/densitized one-particle
+operator; and for NS use the Eulerian-fiber one-particle operator. In every case
+the full final Hamiltonian is the outer enclosure
+`H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ)`. Inner pair terms remain in `h`. Do not interpret an
+inner vacuum expectation or an inner squeezed eigenvector as the full-theory
+ground state.
 
 The physical construction is a nested Fock space, not primarily an even/odd many-body
 sector split. Let `h` be the real one-particle Hamiltonian, bounded below by `E₀`, and
@@ -190,7 +262,242 @@ hypothesis needed for self-adjointness, one-particle spectral completeness, stri
 positivity, free number preservation, creation/destruction identities, and the certificate
 interval inclusion. A new proof should not silently assume an operator identification that
 is already available from the QYM Friedrichs/Hashimoto results, nor should it silently
-replace the one-particle edge by a many-body parity gap.
+replace the one-particle edge by a many-body parity gap. Parity-sector calculations may be
+diagnostic, but they do not change the final outer-enclosure construction or the fact that
+the outer vacuum is the ground after the allowed one-particle shift. Parity-sector calculations may be diagnostic, but they do not change the final outer-enclosure construction or the fact that the outer vacuum is the ground after the allowed one-particle shift.
+
+### Status update (2026-08-27e) — what of this work package has landed
+
+`BookProof/ChapterFockOneParticleGap.lean` (namespace `BookProof.FockOneParticleGap`,
+`sorry`-free, audited in `ChapterRoadmapAudit.lean`, documented in `BookProof/STATUS.md`)
+now carries the deliverables that are provable without new analysis, all for the **free**
+(number-preserving, diagonal) one-particle Hamiltonian `diagCol e` — the plan's free
+outer-particle hypothesis, stated explicitly in every theorem:
+
+* deliverable 2 — the diagonal one-particle operator, `dGamma_diagCol_single` /
+  `dGamma_diagCol_apply`, and the free number-operator shift `dGamma_diagCol_shift`
+  (`dΓ(h₊ + μ) = dΓ(h₊) + μN`, with `N Ω = 0` so the vacuum is untouched);
+* deliverable 4 — `band_endpoints_tendsto` and `le_of_band`: nested certified intervals
+  with vanishing widths that all enclose the lowest positive one-particle energy of one
+  fixed operator determine it, and a single interval with lower end `≥ μ` forces
+  `μ ≤ λ₁`.  The generic `[0, sirkBound m]` interval is *not* substituted for the
+  spectral-edge enclosure: the enclosure is a hypothesis;
+* deliverable 5 — the free `dGamma` lift: `dGamma_diagCol_vac` (`dΓ(h₊) Ω = 0`),
+  `fock_gap_quadForm` / `fock_gap_of_one_particle_gap` (every vacuum-orthogonal
+  finite-particle state has energy `≥ μ‖·‖²`), `fock_energy_one_particle` (a one-particle
+  creation attains `e k`) and `sInf_nonvacuumEnergies` (the free Fock gap *equals* the
+  one-particle edge `⨅ k e k`);
+* deliverable 6 — `one_particle_edge_ge_of_parity_certificate`: when certificate data are
+  parity-labelled, the translation to the one-particle observable must be proved explicitly;
+  do not assume that an arbitrary many-body even sector is the outer vacuum. For the final
+  outer-enclosed Hamiltonian, the vacuum statement comes from the rightmost outer
+  annihilator, while parity is only an auxiliary sector label. The odd-sector-is-one-particle
+  identification is valid only under the stated model hypotheses.
+  explicit hypotheses;
+* deliverables 3 and the composition — `fock_mass_gap_of_certified_bands` and its
+  instance `qcdG2M4_fock_gap_of_one_particle_enclosure` at the recorded `1.932`;
+* deliverable 8 — the shifted-square witness
+  `SpectralGapStability.spectrum_disjoint_of_shifted_square_bound`, which did **not**
+  compile as drafted, has been repaired and now builds.
+
+**Still open (as of 2026-08-27e).**  The band-enclosure hypothesis itself — that a finite
+certificate brackets the lowest positive one-particle energy of the infinite selected
+operator — is assumed, not derived; and the free/diagonal hypothesis excludes interacting
+(pair-creating) terms.  No real mass gap is claimed.
+
+### Status update (2026-08-28) — the band-enclosure hypothesis is now derived
+
+`BookProof/ChapterBandEnclosure.lean` (namespace `BookProof.BandEnclosure`) and
+`BookProof/ChapterFriedrichsFormGap.lean` (namespace `BookProof.FriedrichsFormGap`), both
+`sorry`-free, audited in `ChapterRoadmapAudit.lean` and documented in `BookProof/STATUS.md`,
+close the hypothesis flagged above, exactly along the route this plan prescribes:
+
+* `NestedBands` abstracts the already-proved band containment `ChapterH8.sirk_band_contained`
+  (order `m+1` inside order `m`), iterated in `nestedBands_le`;
+* **`band_enclosure_of_nested`** — the derivation: if the bands nest, the order-`m`
+  approximant lies in the order-`m` band, and the approximants converge to `lam`, then `lam`
+  lies in *every* band (for `n ≥ m` the order-`n` band is inside the closed order-`m` band).
+  With widths vanishing — exponentially, by `ChapterH6.sirk_error_decay_exponential`, whose
+  instance is `sirk_band_widths_tendsto_zero` / `sirk_band_enclosure` — the enclosed point is
+  unique and the endpoints converge to it (`band_limit_unique`,
+  `band_enclosure_endpoints_tendsto`);
+* the convergence input is supplied by the Hashimoto/Friedrichs selection results, not
+  assumed: in the bounded regime `HermiteGalerkin.finiteModeRestrict_selects_operator` says
+  the algorithm selects the operator itself and
+  `ChapterSirkRitzSpectrum.ritzInf_tendsto_sInf_spectrum` sends the Ritz values to
+  `sInf (spectrum ℝ A)` — giving **`ritz_band_enclosure_of_nested`** and, composed with the
+  free `dΓ` lift, **`fock_mass_gap_of_nested_ritz_bands`**, which carries *no* enclosure
+  hypothesis;
+* with **no boundedness at all**, `HermiteGalerkin.ritzInf_tendsto_domainInf` sends the Ritz
+  values to the form bottom of the core, and `FriedrichsFormGap.friedrichs_extension_form_gap`
+  proves that the Friedrichs extension — the operator the Hashimoto shift-invert selects —
+  inherits a core form bound `⟪x, H x⟫ ≥ μ‖x‖²`, by extending it through the completed form
+  space (`formSpace_norm_bound`).  The composition is
+  **`friedrichs_form_gap_of_nested_ritz_bands`**: nested certified bands containing the Ritz
+  values enclose the form bottom, and a band with lower end `≥ μ` gives
+  `⟪y, A y⟫ ≥ μ‖y‖²` on the whole domain of the infinite selected operator;
+* `shiftInvert_band_enclosure` / `shiftInvert_widths_tendsto_zero` transport a band
+  enclosure through the shift-invert map `lam = nu⁻¹ − γ`.
+
+**What remains open after this update.**  The finite certificate at each order — that the
+order-`m` Ritz value lies in the order-`m` emitted band, and that the emitted bands nest —
+is an input. The final Hamiltonian is not obtained by deleting inner pair terms: the complete
+inner one-particle `h` is enclosed by outer creation on the left and outer annihilation on
+the right. The outer-vacuum statement is structural; positivity of `h` after the allowed
+shift and convergence of its edge remain the substantive analytic inputs. `1.932` remains
+the recorded certificate number; no continuum mass gap is claimed.
+
+### Status update (2026-08-28b) — the per-order certificate is derived, and the `dΓ` lift no longer needs a diagonal one-particle Hamiltonian
+
+**Interpretation correction for all sectors.** The theorems in this work package
+are one-particle and abstract-Fock theorems. They must be instantiated with the
+same final-Hamiltonian architecture used by the numerical project: for QYM,
+QED, QG, and NS, take the complete inner one-particle Hamiltonian `h` (including
+any inner pair terms), apply only an allowed scalar shift if positivity is
+needed, and form the outer enclosure
+`H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ)`. The proof obligation is therefore not to remove
+inner pair terms or to reinterpret an inner squeezed eigenvector as a full ground.
+It is to prove positivity of `h` after the shift and then prove the outer-vacuum
+and non-vacuum-sector consequences of the enclosure.
+
+
+Two further modules, both `sorry`-free, audited in `ChapterRoadmapAudit.lean` and documented
+in `BookProof/STATUS.md`, remove the two inputs the previous update listed as open.
+
+**`BookProof/ChapterRitzCertificate.lean`** (namespace `BookProof.RitzCertificate`) — the
+finite certificate at each order, derived rather than assumed.
+
+* `rayleigh A x` and `resid A x` are the Rayleigh quotient `θ = Re⟪x, A x⟫` and the residual
+  `ε = ‖A x − θ x‖` of a normalized trial vector — both computable from the emitted order-`m`
+  data alone.
+* `SpectralSeparation A l b` records the one genuine side condition of any two-sided
+  enclosure: `l ≤ b` and every spectral point is either `l` itself or `≥ b`.
+* **`temple_lower_bound`** is Temple's inequality, `l ≥ θ − ε²/(β − θ)`, proved from
+  positivity of the Temple factor `(A − l)(A − β)` via the continuous functional calculus
+  (`factor_nonneg`, `factor_nonneg_of_separation`) — no spectral decomposition of `A` and no
+  diagonalization of the order-`m` block.  With `sInf_spectrum_le_rayleigh` (the variational
+  upper bound `l ≤ θ`) this gives **`temple_band_mem`**: the true edge lies in the *emitted*
+  band `[θ − ε²/(β − θ), θ]`, computed from the order-`m` trial vector.
+  `temple_width_tendsto_zero` sends the width to `0` as the residuals do.
+* Bands emitted independently at each order need not nest, so the running intersection
+  `runLo`/`runHi` (`Finset.sup'`/`inf'` over `range (m+1)`) is taken; `runBands_nested` shows
+  it satisfies `NestedBands`, `mem_runBand` that it still contains the edge,
+  `runBand_width_le` and `runBand_widths_tendsto_zero` that it is no wider than each single
+  band and still collapses.  `nested_certificate_of_bands` packages this into exactly the
+  hypothesis `BandEnclosure` consumes.
+* Compositions: **`temple_nested_certificate`** (from trial vectors with vanishing residuals
+  and a spectral separation, a nested collapsing certificate for `sInf (spectrum ℝ A)`), and
+  **`fock_mass_gap_of_temple_certificates`**, which feeds it straight into
+  `FockOneParticleGap.fock_mass_gap_of_certified_bands_operator`.
+
+**`BookProof/ChapterFockNumberPreservingGap.lean`** (namespace
+`BookProof.FockNumberPreservingGap`) — the `dΓ` lift without the diagonal hypothesis.
+
+* `shiftCol col mu` subtracts `mu` from the one-particle Hamiltonian in column form, and
+  **`dGamma_shiftCol`** is the second-quantization identity `dΓ(h − μ) = dΓ(h) − μ N`
+  (supporting rewrites `creVec_sub`, `creVec_smul`, `creVec_eq_sum_of_subset`).
+* With `dGamma_vac` (the vacuum has energy `0`) and `number_quadForm_ge` (`N ≥ 1` on
+  vacuum-orthogonal states), **`fock_gap_of_number_preserving`** and
+  `fock_gap_of_number_preserving_op` give the Fock gap for an **arbitrary** number-preserving
+  one-particle Hamiltonian whose shift is positive — the diagonal case is recovered as the
+  instance `isPosCol_shiftCol_diagCol`, so nothing is lost.
+* **`fock_gap_of_one_particle_form_gap`** consumes precisely what the certificate chain
+  produces — a form bound `Re⟪x, h x⟫ ≥ μ‖x‖²` on the finite-mode core, in a chosen Hilbert
+  basis (`opCol_id`, `shiftCol_opCol`) — and returns the Fock-space gap.**What remains open after this update.**  Two things, both stated honestly in the modules.
+First, the spectral-separation input `hsep` of Temple's inequality: a two-sided enclosure of
+the bottom eigenvalue cannot be obtained from a trial vector alone, and some *a priori* lower
+bound `β` on the rest of the spectrum must be supplied — this is a genuine side condition,
+not an artifact of the formalization.  Second, the concrete sector implementations and the unbounded physical interaction must
+be connected to the abstract form theorems. Inner pair terms are allowed inside the
+one-particle `h`; the outer final Hamiltonian remains number-preserving because it is an
+outer creation/annihilation sandwich. `1.932` remains a certified truncated number; no
+continuum mass gap of the physical Hamiltonian is claimed.
+
+### Status update (2026-08-28c) — number preservation traded for a quantitative condition
+
+`BookProof/ChapterFockInteractionStability.lean` (namespace
+`BookProof.FockInteractionStability`, `sorry`-free, audited in `ChapterRoadmapAudit.lean`,
+documented in `BookProof/STATUS.md`) addresses the last hypothesis of the update above.
+
+Number preservation cannot simply be deleted — a number-changing term can close a gap
+outright — so what is proved is the quantitative replacement:
+
+* **`gap_persists_of_relative_form_bound`** — on any set `S` where the unperturbed form has
+  `q x ≥ μ‖x‖²`, a perturbing form obeying `|v x| ≤ a q x + b‖x‖²` with `a ≤ 1` leaves
+  `q x + v x ≥ ((1 − a)μ − b)‖x‖²`.  No symmetry, boundedness or number preservation of the
+  perturbation is used.  `gap_persists_of_bounded_form` is the `a = 0` case;
+  `gap_persists_pos` records when the surviving gap is strictly positive.
+* `interaction_form_bound` — `|Re⟪x, V x⟫| ≤ ‖V‖‖x‖²` for a bounded operator.
+* **`fock_gap_of_bounded_interaction`** — with the one-particle gap `h − μ ≥ 0` and an
+  **arbitrary** bounded operator `V` on Fock space with `‖V‖ ≤ δ`, every vacuum-orthogonal
+  finite-particle state has `dΓ(h) + V` energy at least `(μ − δ)‖u‖²`.  `V` is not required
+  to commute with the number operator, so pair creation and every other number-changing
+  process is permitted.
+* **`fock_gap_of_one_particle_form_gap_interaction`** — the same conclusion fed directly by
+  the certificate chain's output, a one-particle form gap on the finite-mode core.
+
+**What remains open after this update.**  The result is perturbative and is stated as such:
+physically relevant Yang–Mills interaction terms are *not* bounded operators on Fock space,
+so the bounded corollaries do not apply to them directly.  The relatively-form-bounded
+version is the shape in which a claim for an unbounded interaction could be made, but
+supplying the domination `|v| ≤ a q + b‖·‖²` for the physical interaction is not done here
+and is not claimed.  The spectral-separation input `hsep` of Temple's inequality also
+remains, as an unavoidable side condition of any two-sided enclosure.  `1.932` remains a
+certified truncated number; no mass gap of the physical Hamiltonian is claimed.
+
+### Status update (2026-08-28d) — the spectral-separation input is provably unavoidable
+
+`BookProof/ChapterTempleSeparationNecessary.lean` (namespace
+`BookProof.TempleSeparationNecessary`, `sorry`-free, audited in `ChapterRoadmapAudit.lean`,
+documented in `BookProof/STATUS.md`) settles the status of the remaining input of the
+certificate route, by showing it is not removable.
+
+**`separation_necessary`** — for every `M` there is a bounded self-adjoint operator on a
+two-dimensional Hilbert space and a unit trial vector with `rayleigh A x = 0` *and*
+`resid A x = 0` — an exact eigenvector, the best finite data a computation could emit — while
+`sInf (spectrum ℝ A) ≤ -M`.  The witness is `witness M x = −M(1 − P)`, `P` the rank-one
+projection onto the trial vector; the supporting facts are `isSelfAdjoint_witness`,
+`rayleigh_witness`, `resid_witness`, `neg_mem_spectrum_witness` and `bddBelow_spectrum`.
+
+Consequently no lower bound on the spectral edge in terms of the Rayleigh quotient and the
+residual alone can be valid, and the hypothesis `RitzCertificate.SpectralSeparation` is a
+genuine side condition rather than an artifact of the Temple proof.  This closes the question
+of whether that hypothesis could be discharged: it cannot, and any use of the certificate
+route must supply an a priori lower bound `β` on the rest of the spectrum from outside the
+finite computation.
+
+### Regeneration gate after Rust Hamiltonian changes
+
+The Rust numerical implementation and its mass-gap tests have been corrected to
+use the full outer-enclosed one-particle Hamiltonian architecture. Consequently,
+all previously emitted mass-gap evidence is stale until regenerated. The old
+NDJSON fixture, Lean instantiation, nanoda verification result, and Aeneas
+artifacts must not be cited as certificates for the corrected Hamiltonian.
+
+The Lean4 specialist must perform this sequence before updating any green/status
+claim. All required non-Lean inputs are now vendored in `unfer_contracts/`, so
+this work can be performed from `timepiece` alone; `../unfer` is not a required
+source dependency. See `unfer_contracts/MASS_GAP_REGENERATION.md`.
+
+1. Run the corrected QYM/QED/QG/NS numerical suites and emit fresh
+   SIRK–Hashimoto certificates from the actual Hamiltonian constructors.
+2. Record the constructor/version, coupling, truncation, Krylov order, shifts,
+   outer-enclosure convention, and certificate hash alongside each NDJSON
+   artifact.
+3. Regenerate the Aeneas model from the current pure SIRK core; do not reuse a
+   generated `.llbc` or Lean file from an earlier Rust source revision.
+4. Re-export the new Lean certificate instantiation and rerun nanoda
+   verification. A successful check of the old fixture does not validate the
+   new Hamiltonian.
+5. Update `BookProof/STATUS.md`, `MASS_GAP_CERTIFIED.md`, the numerical guide,
+   and this plan only with values and theorem claims supported by the new
+   artifacts. Until then, mark the mass-gap certificate as **pending
+   regeneration**.
+
+The regeneration is an evidence refresh, not a proof that the continuum mass
+ gap follows. The corrected construction still requires the one-particle
+ positivity/edge theorem and the outer `dΓ` lift; numerical data alone cannot
+ supply those analytic hypotheses.
 
 ### Verification and honesty boundary
 
@@ -7025,7 +7332,7 @@ continuum leg.
 
 **All dependencies for the T8–T12 proof path are vendored under
 `unfer_contracts/`** (see the self-contained note 2026-08-27f above); the
-Lean 4 specialist does **not** need the `../unfer` sources checked out to
+Lean 4 specialist does **not** need the the sibling `../unfer` sources checked out to
 read the contracts.  Specifically:
 - `unfer_contracts/mass_gap_spec.rs` — `certified_gap_lower_bound`,
   `gap_interval`, `gap_certified_positive`, `parlett_bound`, `certified_width`,

@@ -7,8 +7,17 @@ import BookProof.ChapterSirkFinitePrecision
 `CONSOLIDATED_PLAN.md` §13.3 (T6, T7 and the nested-selection lemma),
 `MASS_GAP_CERTIFIED.md` §3.3/§3.4.  With the finite-precision layer of
 `ChapterSirkFinitePrecision` in place, this chapter proves the certified-gap theorem
-for the **truncated** (lattice/Krylov) Hamiltonian `H_m` — the object the kernel
+for the **truncated** (Krylov/Galerkin) Hamiltonian `H_m` — the object the kernel
 diagonalises — together with the stopping rule that makes a computation a proof.
+
+**Object of record (no lattice).**  The Hamiltonian of the mass-gap formalization
+is the 3D **gauge-fixed nested-Fock QYM Hamiltonian** `qcd_ym_hamiltonian(g)`
+(`H_final = ½π² + ½B²`), all numerics running the SIRK–Hashimoto algorithm.  The
+abstract theorem below is stated for *any* symmetric involution commuting with `H`
+— on the gauge-fixed Hamiltonian of record that involution is the reflection
+`R : (A₀, A₁) → (−A₁, −A₀)`, an exact `Z₂` for all `g` (verified numerically to
+`1e-16`); the occupation parity of the lattice-era fixture is not a symmetry at
+`g > 0` and is retained only as a historical instance.
 
 **Honesty boundary (fixed in `CONSOLIDATED_PLAN.md` §13.1).**  Every statement here
 is about the finite-dimensional operator.  The continuum Millennium claim needs a
@@ -17,8 +26,8 @@ proved here and is not assumed anywhere.
 
 ## The structure of the argument
 
-The lattice parity `P` is an exact symmetry: it is a symmetric involution commuting
-with `H`, so the space splits into the two parity sectors `paritySector P (±1)`, each
+The sector involution `P` is an exact symmetry: it is a symmetric involution commuting
+with `H` (for the gauge-fixed QYM Hamiltonian of record: the reflection `R`), so the space splits into the two sector eigenspaces `paritySector P (±1)`, each
 `H`-invariant.  The observable of §3.3 is the difference of the two *sector ground
 energies* — the infimum of the Rayleigh quotient over unit vectors of a sector,
 `sectorGround`.  The certificate delivers, for each sector, a computed Ritz value `θˢ`
@@ -69,7 +78,8 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [FiniteDim
 
 /-! ## 1. The parity sectors: the split is exact -/
 
-/-- The `s`-eigenspace of the parity operator `P` (`s = ±1` for a lattice parity). -/
+/-- The `s`-eigenspace of the sector involution `P` (`s = ±1`; on the gauge-fixed
+QYM Hamiltonian of record, `P` is the reflection `R: (A₀,A₁) → (−A₁,−A₀)`). -/
 def paritySector (P : E →ₗ[ℂ] E) (s : ℝ) : Submodule ℂ E where
   carrier := {x | P x = (s : ℂ) • x}
   add_mem' := by
@@ -316,7 +326,8 @@ theorem rayleigh_odd_ge_of_certified {T P : E →ₗ[ℂ] E} {thetaE thetaO delt
 
 omit [FiniteDimensional ℂ E] in
 /-- **The nested-selection (block) lemma.**  A two-sided inverse of `T − z` commutes
-with any operator commuting with `T` — in particular with the lattice parity.  This is
+with any operator commuting with `T` — in particular with the sector involution
+(the reflection `R` on the gauge-fixed QYM Hamiltonian of record).  This is
 the finite-dimensional block fact behind the two-level (nested Fock) Friedrichs
 selection: the resolvent of the outer operator restricted to a sector *is* the
 resolvent of the restriction. -/
@@ -433,7 +444,10 @@ theorem gap_pos_of_certificate {T P : E →ₗ[ℂ] E} (c : GapCertificate)
   have h := gap_ge_of_certificate (T := T) (P := P) c hgap hwidth hEven hOdd
   linarith
 
-/-- The certificate emitted by the kernel for the `g = 2`, `m = 4` `yang_mills_lattice`
+/-- The certificate emitted by the kernel for the `g = 2`, `m = 4` run of the
+lattice-era cross-benchmark (`yang_mills_lattice`) — retained as a historical
+fixture; the object of record for the mass gap is the gauge-fixed QYM
+Hamiltonian's reflection-sector certificate (`docs/MASS_GAP_SPEC.md`).
 run (`MASS_GAP_CERTIFIED.md`, `CONSOLIDATED_PLAN.md` §13.2): measured sector gap
 `1.9875`, assembled width `δᵒ + δᵉ = 0.0555`.  These two numbers are *data* transcribed
 from the emitted NDJSON; Lean checks only what follows from them. -/
@@ -452,7 +466,7 @@ theorem qcdG2M4_lower_pos : 0 < qcdG2M4.lower := by
 
 omit [FiniteDimensional ℂ E] in
 /-- **The instantiated certified mass gap for the truncated operator.**  Given the two
-enclosures the `g = 2`, `m = 4` certificate asserts, the truncated lattice Hamiltonian
+enclosures the `g = 2`, `m = 4` certificate asserts, the truncated Hamiltonian
 has a strictly positive parity gap, of size at least `1.932`. -/
 theorem qcdG2M4_certified_gap {T P : E →ₗ[ℂ] E} {thetaE thetaO deltaE deltaO : ℝ}
     (hgap : thetaO - thetaE = 1.9875) (hwidth : deltaO + deltaE = 0.0555)

@@ -150,6 +150,10 @@ algebraic skeleton of the fermionic ghost structure:
 # The Weyl-Gauge Hamiltonian Is Positive
 
 :::paragraph
+The new gap-proof layer makes the logical order precise. `ChapterRitzCertificate.lean` turns a finite Ritz value and residual into a spectral band using Temple's inequality, but only with a separation hypothesis. `ChapterTempleSeparationNecessary.lean` proves that this hypothesis cannot be removed: Rayleigh data and residuals alone do not control an unseen lower eigenvalue. `ChapterBandEnclosure.lean` and `ChapterFockOneParticleGap.lean` then state the conditional bridge from compatible finite bands to the one-particle edge.
+:::
+
+:::paragraph
 For the mass-gap route, distinguish the real one-particle Hamiltonian from its finite
 certificate and from the outer-particle Fock lift. The positivity below is the input for
 shifting the one-particle operator and applying the Friedrichs/Hashimoto construction;
@@ -172,6 +176,10 @@ non-negative. This is the fact the manuscript invokes for the mass-gap discussio
 ```
 
 # The Weyl-Gauge Quadratic Form and the Friedrichs Route
+
+:::paragraph
+`BookProof/ChapterFriedrichsFormGap.lean` supplies the form-theoretic part of this route. The claim is that a semibounded symmetric quadratic form determines a positive Friedrichs extension and that the finite form restrictions preserve the variational information needed for a gap. The proof uses closability, form-domain inclusion, and the variational characterization; it does not identify a continuum gap without a separate convergence theorem.
+:::
 
 :::paragraph
 Because the one-particle Hamiltonian is bounded below, choose an energy origin so that
@@ -373,6 +381,10 @@ What stays outside is, as always, the mass gap:
 # The Field-Space Realization on the Product Hermite Core
 
 :::paragraph
+The perturbative boundary is now explicit in `ChapterFockFieldPerturbation.lean` and `ChapterFockInteractionStability.lean`. The first develops the field-level form estimates needed to compare a reference Fock Hamiltonian with a perturbation. The second proves that a relative form bound degrades a positive edge by a controlled amount, and gives the bounded-interaction corollary. Pair creation is allowed by the abstract bounded theorem, but the physical unbounded interaction still needs its own form estimate.
+:::
+
+:::paragraph
 The statements above are formulated for abstract electric and magnetic operators
 on the finite-mode domain of an orthonormal basis. The field-space realization
 makes them concrete on $`L^2(\mathbb{R}^{99})`, the configuration space with
@@ -437,12 +449,15 @@ the concrete field-space operator:
 ```
 
 :::paragraph
-Finally the one-particle Hamiltonian is *second quantized* on the
-finite-occupation states over the core. The Fock space is $`\ell^2` over the
+Finally the one-particle Hamiltonian is *enclosed and second quantized* on the
+outer finite-occupation states over the inner core. This is the final-Hamiltonian
+convention for QYM, QED, QG, and NS: retain the complete inner `h` (including
+inner pair terms), and write the outer operator with creation on the left and
+annihilation on the right. The Fock space is $`\ell^2` over the
 configurations $`\mathbb{N} \to_0 \mathbb{N}` (occupation numbers, finitely many
 modes excited); the ladder operators satisfy $`[a_j, a_j^\dagger] = 1` and the
 adjoint pairing $`\langle a_j^\dagger u, v\rangle = \langle u, a_j v\rangle`,
-and $`d\Gamma(A) = \sum_{j,k} \langle e_j, A e_k\rangle a_j^\dagger a_k`
+and $`d\Gamma(A) = \sum_{j,k} \langle e_j, A e_k\rangle C_j^\dagger A_k`
 restricts on the one-particle sector to $`A` itself. Hermiticity and positivity
 of the one-particle matrix make $`d\Gamma(A)` symmetric and positive on the
 dense finite-occupation domain, so it too has a positive self-adjoint
@@ -574,11 +589,19 @@ at every instant.
 ```
 
 :::paragraph
-No mass gap and no global existence statement is claimed anywhere in this
-section.
+No continuum mass gap and no global existence statement is claimed anywhere in this
+section. The full nested-Fock ground-state statement is structural: once the
+sector one-particle operator is shifted positive and enclosed as
+$`H=\\sum_{i,j}h_{ij}C_i^\\dagger A_j`, the outer vacuum is exactly the ground;
+what remains analytic is the identification and convergence of the positive
+one-particle edge.
 :::
 
 # Summary
+
+:::paragraph
+The complete proof architecture is therefore: establish the one-particle edge under explicit spectral or Friedrichs hypotheses; enclose finite SIRK/Ritz data with Temple separation; prove stability of the finite bands; lift the positive one-particle operator with `dGamma`; and, only then, address unbounded interactions by form methods. `ChapterFockNumberPreservingGap.lean` proves the free number-preserving lift for arbitrary one-particle Hamiltonians, while `ChapterFockInteractionStability.lean` gives the quantitative bounded/form-bounded extension. `ChapterSpectralGapStability.lean` handles operator-norm perturbation and limits. `ChapterRoadmapAudit.lean` records the audited dependencies. The remaining Lean4-specialist work is to instantiate these abstractions for the concrete 3D gauge-fixed QYM operator and prove the required convergence and separation hypotheses.
+:::
 
 The algebraic core of the manuscript's quantization programme:
 

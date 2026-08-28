@@ -24,30 +24,55 @@ usable inside a Lean4 proof.*
 > the last ingredient needed, given the already-proved two-level
 > (nested-Fock) Friedrichs selection (§3.1).
 >
-> **Honesty box (read first).** The sketch proves a *rigorous, machine-checked
-> lower bound on the spectral gap of the truncated/lattice QCD Hamiltonian* —
-> the object the numerics actually diagonalizes — with all constants explicit
-> and all rounding enclosed. The Aeneas route (§5.3) verifies the algorithm's
-> pure core; the f64 rounding is enclosed by the finite-precision layer
-> (§4), never trusted. It does **not** claim the continuum Millennium
-> mass gap: the missing leg (norm-resolvent convergence of the specific
-> lattice truncation to the continuum operator *preserving the gap*, or an
-> a-priori continuum lower bound) is identified explicitly in §6, consistent
-> with `CONSOLIDATED_PLAN.md`'s standing decision that the continuum mass gap
-> stays out of scope. The value of the present document is that it makes the
-> finite-dimensional leg of such a proof **fully rigorous and fully
-> formalizable**, and says exactly which theorem is needed for the passage.
+> **Certification freshness warning.** The Rust Hamiltonian/tests have since
+been corrected to represent the full outer-enclosed one-particle Hamiltonian.
+Therefore previously emitted NDJSON, Aeneas-generated Lean, and nanoda results
+must be treated as stale until regenerated from the current sources. No old
+certificate value may be cited for the corrected model.
+
+**Honesty box (read first).** The sketch proves a *rigorous, machine-checked
+> lower bound on the spectral gap of the truncated **3D gauge-fixed nested-Fock**
+> QCD Hamiltonian* — the object the numerics actually diagonalizes — with all
+> constants explicit and all rounding enclosed. The Aeneas route (§5.3)
+> verifies the algorithm's pure core; the f64 rounding is enclosed by the
+> finite-precision layer (§4), never trusted. It does **not** claim the
+> continuum Millennium mass gap: the missing leg (gap-preserving convergence
+> of the nested-Fock truncation family — inner-occupation depth and outer
+> cutoff — to the continuum operator, or an a-priori continuum lower bound)
+> is identified explicitly in §6, consistent with `CONSOLIDATED_PLAN.md`'s
+> standing decision that the continuum mass gap stays out of scope. The value
+> of the present document is that it makes the finite-dimensional leg of such
+> a proof **fully rigorous and fully formalizable**, and says exactly which
+> theorem is needed for the passage.
+>
+> **No lattice.** The formalization object is and remains the **Cadabra-derived
+> 3D gauge-fixed QYM Hamiltonian in the nested Fock space** —
+> `qcd_ym_hamiltonian(g)` (`docs/yang_mills_hamiltonian.cdb`:
+> `H_final = ½π² + ½B²`, `B = (A₀−A₁) + (g/2)A₀A₁`), all numerical
+> approximations running the project's **SIRK–Hashimoto** algorithm
+> (`solve_forward_sirk_with_opts`). Any lattice builder is **not** part of
+> this formalization; if retained in tests it is only an independent
+> cross-benchmark for the SIRK machinery. Its values are not statements about
+> the gauge-fixed nested-Fock QYM model, and the mass-gap argument uses no
+> lattice parameter or lattice limit.
 
 ---
 
 ## 0. Notation and the objects of record
 
-- $H$ — the Weyl-gauge gauge-fixed Yang–Mills Hamiltonian,
-  $H = \tfrac12 \sum_{i,a} (\pi^i_a)^2 + \tfrac12 \sum_{i,a} (B_{ia})^2$, with
-  $B_{ia} = \varepsilon_{ijk}(\partial_j A_k^a + \tfrac12 g f_{abc} A_j^b A_k^c)$.
-  On the lattice truncation the electric term is $(g^2/2)\sum_{\ell} N_\ell$ —
-  the term that gaps the spectrum (this is the object of
-  `qcd_mass_gap_sirk` in the `unfer` repo).
+- $H$ — the **3D gauge-fixed nested-Fock QYM Hamiltonian of record**:
+  `qcd_ym_hamiltonian(g)`, the CAS-compiled (hence normal-ordered)
+  realization of the Cadabra-derived `H_final = ½π² + ½B²` with
+  $B = (A_0 - A_1) + \tfrac{g}{2} A_0 A_1$ a genuine function of the field
+  operators (`docs/yang_mills_hamiltonian.cdb`). Every numerical
+  approximation in the chain is a **SIRK–Hashimoto** solve
+  (`solve_forward_sirk_with_opts`) or an exact finite window checked against
+  one. (The ground-state doctrine: the one-particle Hamiltonian $h$ enters
+  the nested theory enclosed in outer creation (left) / annihilation (right)
+  operators, with at most a constant added to make its spectrum positive —
+  so the ground state of the nested theory is always the outer-Fock vacuum;
+  the sector observable below is a *difference* of grounds and is invariant
+  under that constant.)
 - $H_m$ — the Galerkin/Rayleigh–Ritz truncation of $H$ on the $m$-dimensional
   SIRK Krylov sector (in the code: the whitened projection `h_proj`).
 - $\lambda_0(H_m) \le \lambda_1(H_m) \le \dots$ — eigenvalues of $H_m$.
@@ -79,7 +104,7 @@ leg is a proved chapter:
 | 10 | `ChapterHermiteFunctions`, `ChapterStrichartzHermiteQG` (`hermiteCore_dense`), `ChapterHermiteProductCore` (`finiteModeDomain_dense`) | the one-mode Hermite core is dense in $L^2(\mathbb R)$; the finite-mode product core is dense in $L^2(\mathbb R^d)$ | the **level-1 (inner) dense core**: the finite-mode, finite-occupation states the kernel's `InnerBosonicState` enumerates span the inner Fock space |
 | 11 | `ChapterHermiteGalerkinFriedrichs`, `ChapterQgHermiteFriedrichs`, `ChapterHarmonicOscillatorEsa` | the Hermite Galerkin core is a domain for the fiber Hamiltonians; the semibounded fibers admit the Friedrichs extension | the **level-1 (inner) Friedrichs extension**: each mode fiber is the standard self-adjoint number/oscillator operator |
 | 12 | `ChapterYangMillsFriedrichs` (`weylOpDom_symmetricOn`, `friedrichs_extension_of_semibounded`, `weyl_friedrichs_extension`) | $H = \tfrac12\sum \pi_i^2 + \tfrac12 \sum B_a^2$ is symmetric and positive on a dense domain → positive self-adjoint Friedrichs extension | the **level-2 (outer) Friedrichs extension** of the nested-Fock operator (§3.1) |
-| 13 | `ChapterParity*`, `ChapterSirkPerSystem` | the lattice parity is an exact symmetry, $H = H^e \oplus H^o$; pure-parity starts keep their solves in disjoint invariant sectors | the two solves of §3 live in disjoint subspaces — the sector decomposition the observable of §3.3 uses |
+| 13 | `ChapterParity*`, `ChapterSirkPerSystem` | the sector symmetry is an exact $\mathbb{Z}_2$, $H = H^{e} \oplus H^{o}$; pure-sector starts keep their solves in disjoint invariant sectors | the two solves of §3 live in disjoint subspaces — the sector decomposition the observable of §3.3 uses. **On the gauge-fixed H the symmetry is the reflection $R: (A_0,A_1) \to (-A_1,-A_0)$** — an exact $\mathbb{Z}_2$ for *all* $g$ (verified to $10^{-16}$ in `qym_mass_gap.rs`); the occupation parity is *not* a symmetry at $g > 0$ (the non-abelian 3-operator terms), so the reflection — not any parity inherited from a lattice — is the sector split of record |
 | 14 | `ChapterMassGap` | the book's mechanism: the number operator commutes with the observable algebra, so an *arbitrary* mass gap can be added without observable consequences (free-field statement) | *caveat*: this is the book's observable-invariance argument, **not** the confinement gap; the confinement gap is the numerical one of §3 |
 
 What is *not* yet in `BookProof/` is precisely the content of §4–§5 below:
@@ -143,8 +168,10 @@ the observable half is §3.3.
 
 **The three levels.**
 
-- *Level 0 — the per-mode configuration space.* Each lattice link/color
-  degree of freedom is a quantum oscillator on $L^2(\mathbb R)$, with the
+- *Level 0 — the per-mode configuration space.* Each field/momentum mode of
+  the gauge-fixed Hamiltonian (the two field modes $A_0, A_1$ and the two
+  momentum modes carrying $:\!\tfrac12\pi^2\!:$) is a quantum oscillator on
+  $L^2(\mathbb R)$, with the
   physicists' Hermite basis $h_n(x)$ as the dense core:
   `hermiteCore_dense` (`ChapterStrichartzHermiteQG`), the finite-mode
   product core `finiteModeDomain_dense` (`ChapterHermiteProductCore`).
@@ -189,19 +216,25 @@ the observable half is §3.3.
    the algorithm selects the **two-level** Friedrichs extension at once.
    (The fiberwise-resolvent statement is the one small structural lemma this
    sketch adds to the inventory — the "nested" analogue of the even/odd
-   sector restriction; at the lattice truncation it is a finite-dimensional
-   block fact, hence formalizable; see §7, item 9.)
+   sector restriction; at the finite nested-Fock truncation it is a
+   finite-dimensional block fact, hence formalizable; see §7, item 9.)
 
 ### 3.2 The setup
 
-The confined sector is the lattice Weyl-gauge YM Hamiltonian
-(`yang_mills_lattice(l, g, n_c)` in `nested_fock_algebra::models`): the
-electric term $(g^2/2)\sum_\ell N_\ell$ plus magnetic plaquette terms. The
-lattice parity splits the Fock sectors into even/odd; the strong-coupling
-statement is that the even→odd gap $\approx g^2/2$.
+The confined sector is the **3D gauge-fixed nested-Fock QYM Hamiltonian**
+(`qcd_ym_hamiltonian(g)`, §0 — the Cadabra-derived `H_final = ½π² + ½B²`):
+the magnetic part $\tfrac12 B^2$ with $B$ a genuine function of the field
+operators (a quartic at $g \neq 0$), plus the normal-ordered kinetic
+$: \!\tfrac12\pi^2\!:$ per momentum mode. The **reflection symmetry**
+$R: (A_0, A_1) \to (-A_1, -A_0)$ splits the Fock sectors into R-even/R-odd
+(an exact $\mathbb{Z}_2$ for all $g$); the measured statement is that the
+R-even → R-odd gap $E_1 - E_0 \approx 0.091$ at $g = 1$ — positive, stable
+across truncations ($0.0911$ at $N \le 6$, $0.0912$ at $N \le 8$), and
+growing with the coupling ($0.0305$ at $g=0.5$, $1.2436$ at $g=2$), while
+the abelian limit $g = 0$ is gapless (the $(X_0 - X_1)$ zero-mode continuum).
 
-The kernel runs two SIRK solves — even-parity start $v_e$, odd-parity start
-$v_o$ — and returns Ritz values $\theta^e_0 \le \theta^e_1 \le \dots$ and
+The kernel runs two SIRK solves — R-even start $v_e$, R-odd start $v_o$ —
+and returns Ritz values $\theta^e_0 \le \theta^e_1 \le \dots$ and
 $\theta^o_0 \le \dots$ with, for each, the certified interval
 $[\theta - \delta, \theta + \delta]$ where $\delta$ accumulates the three
 finite-precision terms of §4 (residual + eigendecomposition roundoff +
@@ -216,9 +249,9 @@ enough Krylov dimension $m$** the calculation is a *proof*.
 
 **The observable.** Run two SIRK solves, each from a pure-parity start,
 
-$$v_e = |\Omega\rangle \;\text{(even: the empty universe)}, \qquad
-v_o = a^\dagger_\ell\,|\Omega\rangle \;\text{(odd: one electric-flux quantum
-on link } \ell\text{)},$$
+$$v_e = |\Omega\rangle \;\text{(R-even: the empty universe)}, \qquad
+v_o = a^\dagger |\Omega\rangle \;\text{(R-odd: one quantum in an}
+\;R\text{-odd superposition of field modes)},$$
 
 and form the **sector ground-Ritz difference**
 
@@ -230,17 +263,26 @@ solve in sector $s$. The code already computes exactly this:
 `ground_state_energy()`s. This is the right observable for four structural
 reasons:
 
-1. **Sector purity (the split is exact, not approximate).** Lattice parity
-   commutes with $H$ (row 13 of §1), so $H = H^e \oplus H^o$; the starts are
-   pure-parity, so the two Krylov chains never mix sectors and the two Ritz
-   sets are independent. No assumption — the split is a theorem.
+1. **Sector purity (the split is exact, not approximate).** The reflection
+   $R$ commutes with the gauge-fixed $H$ (row 13 of §1; verified to
+   $10^{-16}$ at every coupling), so $H = H^e \oplus H^o$; the starts are
+   pure-R, so the two Krylov chains never mix sectors and the two Ritz
+   sets are independent. No assumption — the split is a theorem. (The
+   occupation parity used in the lattice era is *not* available here: it is
+   not a symmetry at $g > 0$.)
 2. **It is the non-perturbative spectral order parameter for confinement.**
-   The strong-coupling electric term $(g^2/2)\sum_\ell N_\ell$ gaps the odd
-   sector: the even ground state is the vacuum ($\lambda^e_0 = 0$,
-   normal-ordered), the lowest odd state is one flux quantum at
-   $\lambda^o_0 = g^2/2 + O(g^4)$. The magnetic terms are included in the
-   solve — $E_{\mathrm{gap}}(m)$ is the *exact* (all-orders) version of the
-   free-$\sum N_\ell$ gap, not a perturbative estimate.
+   The interacting magnetic term $\tfrac12 B(A)^2$ — with the pair
+   (two-quantum) channel of $B^2$ coupling the vacuum sector to the
+   two-quantum sector — makes the R-even/R-odd split the diagnostic: the
+   low spectrum *alternates* reflection parity, the R-even ground is the
+   vacuum sector's ground, and the first excitation (R-odd) sits at a
+   strictly positive energy at $g > 0$: $E_1 - E_0 = 0.091$ at $g = 1$,
+   stable across truncations and growing with $g$. The full interacting
+   Hamiltonian is in the solve — $E_{\mathrm{gap}}(m)$ is the *exact*
+   (all-orders) truncated gap, not a perturbative estimate. (In the abelian
+   limit $g = 0$ the gap shrinks with truncation depth toward the
+   $(X_0-X_1)$ zero-mode continuum and the sector grounds coincide — the
+   order parameter vanishes, as it must for a massless photon.)
 3. **The Ritz values bound the sector eigenvalues from above, monotonically.**
    By the Rayleigh/min-max characterization
    (`ritzSet_subset_rayleighSet`, `sInf_spectrum_eq_rayleighInf`,
@@ -251,7 +293,8 @@ reasons:
    $\theta^s_0(m) \downarrow \lambda^s_0$ (Krylov convergence for the
    spectral measure of the start; `ritzInf_tendsto_sInf_spectrum`; the
    starts have nonzero overlap with the sector ground states — $v_e$ *is*
-   the vacuum, $v_o$ is the strong-coupling limit of the odd ground state).
+   the R-even vacuum-sector start, $v_o$ the R-odd one-quantum
+   superposition, the strong-coupling direction of the first excitation).
    Hence
    $E_{\mathrm{gap}}(m) \to \lambda^o_0 - \lambda^e_0 =: \mu$ from above.
 4. **The residual certificate makes it a two-sided enclosure at every $m$.**
@@ -296,9 +339,11 @@ satisfies
 $$\lambda_1(H_m) - \lambda_0(H_m) \ge \theta^o_0 - \theta^e_0 - (\delta^o +
 \delta^e),$$
 
-and in particular $H_m$ has a mass gap $\ge g^2/2 - (\delta^o + \delta^e) +
-(\text{known } O(g^4)$ magnetic correction$)$ provided the right-hand side is
-positive.
+and in particular $H_m$ has a mass gap $\ge \theta^o_0 - \theta^e_0 -
+(\delta^o + \delta^e) > 0$ whenever the certified interval separates — the
+measured content being the coupling-growing truncated gap $E_1 - E_0
+\approx 0.091$ at $g = 1$ (stable across truncations), with the abelian
+$g = 0$ limit honestly gapless.
 
 *Proof sketch (each step is a proved or §5-listed theorem).*
 
@@ -308,10 +353,10 @@ positive.
    the exact operator applied to the computed vector) gives
    $\lambda_0(H_m) \le \theta^e_0 + \delta^e$ and
    $\lambda_1(H_m) \ge \theta^o_0 - \delta^o$ once the odd sector is shown not
-   to mix into the even ground eigenspace (lattice parity is an exact
+   to mix into the even ground eigenspace (the reflection is an exact
    symmetry of $H_m$; §1 item 4/9 + the sector structure).
-2. *The parity split is exact.* The lattice Hamiltonian commutes with the
-   parity operator; the Krylov starts are pure-parity; hence the two solves
+2. *The sector split is exact.* The gauge-fixed Hamiltonian commutes with
+   the reflection $R$; the Krylov starts are pure-R; hence the two solves
    live in disjoint invariant subspaces and the two Ritz sets are independent
    lower/upper bounds for the two lowest eigenvalues of the two sectors
    (interlacing for the compression $H_m$ of $H$ on each sector).
@@ -331,13 +376,17 @@ positive.
 
 `qcd_mass_gap_sirk` (in the `unfer` repo, `fock_sirk/tests/qcd_validation.rs`)
 contrasts: the free gluon has $E \to 0$ as $k \to 0$ (massless), while the
-lattice solve at $g = 2$ gives a gap $= E_{\mathrm{odd}} - E_{\mathrm{even}}
-\in (g^2/6,\ 3g^2/2)$, positive and $\approx g^2/2$ — the strong-coupling
-lattice result. The certified-interval machinery
-(`bands_program_gauge_fixed.rs`) shows the pattern to promote to a proof: the
-analytic $g^2/2$ sits *inside* the certified intervals of the numerical gap,
-intervals nest as $m$ grows, and the residual tier gives the sharp widths.
-The document §3.4 turns exactly that pattern into a theorem.
+**gauge-fixed nested-Fock solve** at $g = 1$ gives a gap $E_1 - E_0 = 0.091$
+— positive, stable across truncations ($0.0911$ at $N \le 6$, $0.0912$ at
+$N \le 8$), and growing with the coupling. The certified-interval machinery
+(`bands_program_gauge_fixed.rs`, `qym_mass_gap.rs`) shows the pattern to
+promote to a proof: the exact truncated gap sits *inside* the certified
+intervals of the two sector solves (the enclosure statement — the deep
+pair-squeezing of the one-particle levels honestly widens the residuals, so
+the certified content is the *enclosure*, not the lattice era's strict
+`lo > 0` stopping rule), intervals nest as $m$ grows, and the residual tier
+gives the sharp widths. The document §3.4 turns exactly that pattern into a
+theorem.
 
 ---
 
@@ -543,9 +592,7 @@ dense-eigendecomposition trust boundary (the T3 backward-error statement) and
 the rounding enclosures (T1, T2, T4, T5); T6 assembles the gap. The fallback
 ladder only decides which tool produces the algorithm leg.
 
-### 5.4 The end-to-end workflow
-
-1. Kernel runs the even/odd solves; emits `Certificate` records.
+### 5.4 The end-to-end workflow 1. Kernel runs the R-even/R-odd sector solves; emits `Certificate` records.
 2. A small emitter serializes the certificates as the data for T6's
    instantiation (parity labels, $\theta$, $\delta$).
 3. `ChapterSirkCertifiedGap` applied to the data yields
@@ -569,8 +616,7 @@ ladder only decides which tool produces the algorithm leg.
 | Residual certificate + certified intervals in the kernel | implemented (`ritz_residuals`, `certify`, `bands_program_gauge_fixed`) |
 | T1–T5 finite-precision theorems + interval core | **new** (small, elementary) |
 | T6 certified-gap theorem | **new** (assembles §3.4) |
-| Two-level (nested-Fock) Friedrichs extension; SIRK selects both levels | proved (§1 rows 10–12 + `hashimoto_shiftInvert_selects_friedrichs`); the fiberwise-restriction lemma is **new** (§3.1, §7 item 9) |
-| Lattice-parity sector split; pure-parity Krylov starts | proved (§1 row 13) |
+| Two-level (nested-Fock) Friedrichs extension; SIRK selects both levels | proved (§1 rows 10–12 + `hashimoto_shiftInvert_selects_friedrichs`); the fiberwise-restriction lemma is **new** (§3.1, §7 item 9) | | Reflection-$\mathbb{Z}_2$ sector split; pure-R Krylov starts | proved (§1 row 13; R verified at $10^{-16}$ on the gauge-fixed H) |
 | T7 sector-Ritz convergence + stopping rule (the observable of §3.3) | **new** (finite-dimensional: min-max + residual; executable as the `qcd_mass_gap_sirk` pattern) |
 | Certificate emitter in the kernel | **new** (promote the test support to a library surface) |
 | nanoda re-verification of the exported proofs | implemented (S29/S31 pipeline) |
@@ -589,15 +635,13 @@ ladder only decides which tool produces the algorithm leg.
 
 1. The QYM gauge-fixed Hamiltonian has a positive self-adjoint (Friedrichs)
    extension; the SIRK machinery selects exactly it, and the Galerkin Ritz
-   values converge to its spectrum bottom (BookProof §1).
-2. For the truncated (lattice) Hamiltonian — the object the kernel
+   values converge to its spectrum bottom (BookProof §1). 2. For the truncated (nested-Fock) Hamiltonian — the object the kernel
    diagonalizes — a **mass gap with a rigorous lower bound**,assembled from the certified intervals of two parity-sector solves (§3.3–§3.4),
    all rounding enclosed by the finite-precision layer (§4).
 3. That bound is *proof-carrying*: the Lean4 theorem T6 applied to kernel
    certificates, re-verified by nanoda (§5).
 
-**Not proved, and why.** The *continuum* Millennium mass gap requires the
-spectral gap of the lattice truncations to converge to (or be bounded below
+**Not proved, and why.** The *continuum* Millennium mass gap requires the spectral gap of the nested-Fock truncations (inner-occupation depth, outer cutoff) to converge to (or be bounded below
 by a positive limit of) the gap of the continuum operator. The BookProof
 supplies bottom-of-spectrum convergence (item 7) and flow convergence (item
 8), but a **gap-preserving norm-resolvent convergence** of this specific
@@ -619,6 +663,19 @@ assumptions at the infinite-precision limit.
 
 ## 7. Suggested next steps (for a Lean4 specialist)
 
+### 7.0 Mandatory regeneration before proof claims
+
+1. Run the corrected QYM/QED/QG/NS numerical suites and emit fresh
+   SIRK–Hashimoto NDJSON certificates from the actual outer-enclosed
+   Hamiltonians.
+2. Regenerate the Aeneas `.llbc` and Lean model from the current pure Rust
+   core; old generated artifacts are not evidence for the corrected code.
+3. Re-export the Lean certificate instantiation and rerun nanoda verification.
+4. Record hashes and model metadata, then update all status tables and prose.
+5. Keep the continuum mass-gap claim open even if the regenerated finite
+   certificate verifies successfully.
+
+
 1. Formalize T1–T5 in `BookProof/ChapterSirkFinitePrecision.lean` (Weyl,
    residual bound, backward error, Cauchy–Schwarz propagation, interval
    enclosure). All are finite-dimensional; expect a few hundred lines each.
@@ -628,9 +685,8 @@ assumptions at the infinite-precision limit.
    library surface returning `Certificate { value, residual, lo, hi }` per
    Ritz value, with the §4 terms explicit.
 4. Wire the exported T6 instance through `prob_kernel::verify::verify_export`
-   (nanoda), mirroring the S31 confluence pipeline.
-5. Separately scope the continuum leg (§6): gap-preserving norm-resolvent
-   convergence of the lattice truncation family.
+   (nanoda), mirroring the S31 confluence pipeline. 5. Separately scope the continuum leg (§6): gap-preserving norm-resolvent
+    convergence of the nested-Fock truncation family.
 6. **Try Aeneas first** on the pure numeric core (forward sequence, Gram
    assembly, whitening, residual, certificate emitter): extract to the
    Aeneas-supported Rust subset, generate the Lean 4 model, prove the
@@ -645,7 +701,7 @@ assumptions at the infinite-precision limit.
 9. Formalize the two §3 additions: (a) the **nested-selection lemma** (§3.1
    step 3) — the resolvent of the outer Friedrichs extension restricted to a
    universe sector is the resolvent of the inner extension, a
-   finite-dimensional block fact at the lattice truncation — and (b) **T7**,
+   finite-dimensional block fact at the nested-Fock truncation — and (b) **T7**,
    the observable/stopping-rule theorem of §3.3:
    $\theta^s_0(m) \downarrow \lambda^s_0$ with certified widths
    $\delta^s(m) \to 0$, so the first $m$ with

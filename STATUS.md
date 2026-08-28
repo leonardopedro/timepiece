@@ -45,7 +45,7 @@ wave left open.
 * `BookProof/ChapterFockNumberPreservingGap.lean` (namespace
   `BookProof.FockNumberPreservingGap`).
 
-  The  `dΓ` lift no longer needs the one-particle Hamiltonian to be diagonal. The resulting full final Hamiltonian is always the one-particle operator enclosed by outer creation on the left and outer annihilation on the right; this convention applies to QYM, QED, QG, and NS, and makes the outer vacuum exact.  `shiftCol col mu`
+  The `dΓ` lift no longer needs the one-particle Hamiltonian to be diagonal.  `shiftCol col mu`
   subtracts `mu` in column form and **`dGamma_shiftCol`** is the second-quantization identity
   `dΓ(h − μ) = dΓ(h) − μ N` (with `creVec_sub`, `creVec_smul`, `creVec_eq_sum_of_subset`).
   With `dGamma_vac` and `number_quadForm_ge` (`N ≥ 1` off the vacuum),
@@ -149,7 +149,7 @@ brackets the one-particle edge of the **infinite** selected operator.
   operator, and the certified bound transfers to it.  What remains an input is the finite
   certificate itself at each order — that the order-`m` Ritz value lies in the order-`m`
   band — together with the nesting of the emitted bands; and the free/diagonal hypothesis
-  still excludes pair-creating terms in the `dΓ` lift. Inner pair terms belong to the one-particle operator; they are not discarded, and outer enclosure remains the mechanism that annihilates the outer vacuum.  `1.932` remains the recorded
+  still excludes pair-creating terms in the `dΓ` lift.  `1.932` remains the recorded
   certificate number; no mass gap of the physical Hamiltonian is claimed.
 
 ## Latest wave (2026-08-27e, **the one-particle edge and its free `dGamma` lift**)

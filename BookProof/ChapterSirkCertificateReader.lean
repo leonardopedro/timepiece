@@ -281,8 +281,10 @@ end Operator
 
 /-! ## 4. The wire format worked through
 
-The two numbers that are *data* — transcribed from the recorded `g = 2`, `m = 4`
-`yang_mills_lattice` run of `MASS_GAP_CERTIFIED.md` — are the measured sector gap
+The two numbers that are *data* — transcribed from the historical `g = 2`, `m = 4`
+run of the lattice-era cross-benchmark recorded in `MASS_GAP_CERTIFIED.md` (the
+mass-gap object of record is the 3D gauge-fixed nested-Fock QYM Hamiltonian;
+the abstract T6 consumes certificates from either identically) — are the measured sector gap
 `θᵒ − θᵉ = 1.9875` and the assembled width `δᵒ + δᵉ = 0.0555`.  The record keeps only
 those two aggregates, so the *split* of each aggregate between the two sectors in the
 example line pair below is an illustration of the wire format, not transcribed data;
@@ -322,7 +324,7 @@ theorem formatExample_lower_pos : (0 : ℚ) < 1932 / 1000 := by norm_num
 
 /-- **The seam, end to end.**  From the emitted text alone — parsed exactly, no
 floating-point value trusted — and the two enclosures the certificate asserts, the
-truncated lattice Hamiltonian has a parity gap of at least `1.932`, in particular a
+truncated Hamiltonian has a sector gap of at least `1.932`, in particular a
 strictly positive one. -/
 theorem formatExample_certified_gap {E : Type*} [NormedAddCommGroup E]
     [InnerProductSpace ℂ E] {T P : E →ₗ[ℂ] E}

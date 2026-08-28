@@ -1,19 +1,17 @@
 # sirk_core_model — the Aeneas seam for the SIRK numeric core (mass-gap plan T9)
 
+## Regeneration status
+
+This model and its generated `.llbc`/Lean artifacts must be regenerated after
+any change affecting the numerical Hamiltonian, outer-enclosure construction,
+solver, or certificate seam. Existing generated outputs do not certify a later
+Rust revision. After regeneration, re-export the Lean certificate and rerun
+nanoda before claiming certification for the corrected model.
+
 Pure, dependency-free Rust model of the SIRK **shift-invert rational Krylov**
 numeric core, written in the Aeneas-supported Rust subset so that Charon +
 Aeneas translate it mechanically into Lean 4.  This is the **T9** deliverable
-of `CONSOLIDATED_PLAN.md` §13.7 (this repository) and `MASS_GAP_CERTIFIED.md`
-§5.3.
-
-This is the vendored copy for the Lean 4 specialist — it lives at
-`unfer_contracts/sirk_core_model/` so the proof path is fully self-contained
-in this repo.  It carries the complete crate: `src/lib.rs` (the Aeneas-subset
-model source, standalone — it compiles and passes its 5 unit tests here from
-its own `Cargo.toml`), `aeneas_sirk.sh` (regeneration), the committed outputs
-under `aeneas/`, and this README.  The mirror of this crate also lives in the
-sibling kernel repo (`../unfer/sirk_core_model`); regenerate there or here
-one-and-the-same way.
+of `../timepiece/CONSOLIDATED_PLAN.md` §13.7 and `MASS_GAP_CERTIFIED.md` §5.3.
 
 ## What the model covers
 
@@ -52,7 +50,7 @@ Those leaves are the rounding layer, which `BookProof/ChapterSirkFinitePrecision
 Regenerate with:
 
 ```bash
-./aeneas_sirk.sh
+./scripts/aeneas_sirk.sh
 ```
 
 This needs the Aeneas **nightly release bundle** (`aeneas-linux-x86_64.tar.gz`),

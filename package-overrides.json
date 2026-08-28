@@ -1,0 +1,32 @@
+{
+  "packages": [
+    {
+      "configFile": "lakefile.lean",
+      "dir": ".lake/packages/MD4Lean",
+      "inherited": false,
+      "manifestFile": "lake-manifest.json",
+      "name": "MD4Lean",
+      "scope": "",
+      "type": "path"
+    },
+    {
+      "configFile": "lakefile.lean",
+      "dir": ".lake/packages/subverso",
+      "inherited": false,
+      "manifestFile": "lake-manifest.json",
+      "name": "subverso",
+      "scope": "",
+      "type": "path"
+    },
+    {
+      "configFile": "lakefile.lean",
+      "dir": ".lake/packages/verso",
+      "inherited": false,
+      "manifestFile": "lake-manifest.json",
+      "name": "verso",
+      "scope": "",
+      "type": "path"
+    }
+  ],
+  "schemaVersion": "1.1.0"
+}

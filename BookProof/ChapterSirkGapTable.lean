@@ -116,8 +116,9 @@ section Table
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 
 /-- **T11 — the certified gap table.**  Given, for each of finitely many couplings, a
-truncated Hamiltonian with its lattice parity, a certificate row and the two enclosures
-that row asserts, *every* row certifies a lower bound for the parity gap of its own
+truncated Hamiltonian with its sector involution `P` (on the gauge-fixed QYM
+Hamiltonian of record: the reflection `R`), a certificate row and the two enclosures
+that row asserts, *every* row certifies a lower bound for the sector gap of its own
 operator. -/
 theorem certified_gap_table {n : ℕ} (row : Fin n → CouplingCertificate)
     (T P : Fin n → E →ₗ[ℂ] E) (thetaE thetaO deltaE deltaO : Fin n → ℝ)
@@ -185,8 +186,10 @@ theorem strongCoupling_mem_of_certificate {E : Type*} [NormedAddCommGroup E]
     linarith
   exact ⟨hlo, hcons.1⟩
 
-/-- The one row the repository records: the `g = 2`, `m = 4` `yang_mills_lattice` run,
-measured sector gap `1.9875`, assembled width `0.0555` (the same two transcribed numbers
+/-- The one row the repository records: the `g = 2`, `m = 4` run of the lattice-era
+cross-benchmark (historical fixture; the mass-gap object of record is the gauge-fixed
+QYM Hamiltonian `qcd_ym_hamiltonian(g)`, whose reflection-sector certificates fill the
+same row type), measured sector gap `1.9875`, assembled width `0.0555` (the same two transcribed numbers
 as `SirkCertifiedGap.qcdG2M4`). -/
 def qcdG2M4Row : CouplingCertificate where
   g := 2
@@ -282,8 +285,9 @@ theorem richardson_error {D C l1 l2 p d1 d2 eps : ℝ}
 
 /-! ### The recorded finite-size data
 
-The three numbers below are transcribed numerical data (the `g = 4` finite-size study at
-lattice sizes `l = 2, 3, 4`).  The theorem is the *evaluation* of the extrapolant on
+The three numbers below are transcribed numerical data (the `g = 4` finite-size study of
+the lattice-era cross-benchmark at sizes `l = 2, 3, 4` — a solver-level record only,
+*not* part of the gauge-fixed formalization chain).  The theorem is the *evaluation* of the extrapolant on
 them for `p = 2`; it is a numerical record, not a certified bound on the
 thermodynamic-limit gap. -/
 
