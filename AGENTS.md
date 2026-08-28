@@ -112,6 +112,66 @@ See `BOOK_PROOF_PLAN.md` Priority 4 for the original 26-chapter elaboration fix.
 
 ---
 
+## Mass-Gap Formalization (self-contained in `unfer_contracts/`)
+
+The non-Lean mass-gap inputs are vendored in `unfer_contracts/` so the Lean4
+specialist needs no access to `../unfer`. See `unfer_contracts/MASS_GAP_REGENERATION.md`.
+
+### Object of record
+
+The physical object is the 3D gauge-fixed QYM one-particle Hamiltonian `h`
+(including inner pair terms). The final nested-Fock Hamiltonian is:
+
+```text
+H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ)
+```
+
+The outer annihilation operator kills the outer vacuum, so the full theory has
+exact outer-vacuum ground. Inner squeezed states are one-particle diagnostics.
+Lattice code and occupation parity are comparison-only.
+
+### Vendored files
+
+| Path | Contents |
+| :--- | :--- |
+| `unfer_contracts/MASS_GAP_SPEC.md` | Proof-facing contract and code→math map |
+| `unfer_contracts/MASS_GAP_REGENERATION.md` | Self-contained regeneration instructions |
+| `unfer_contracts/fock_sirk/src/` | Certificate, SIRK seam, pure spec |
+| `unfer_contracts/fock_sirk/tests/` | QYM and certificate regression tests |
+| `unfer_contracts/sirk_core_model/` | Aeneas pure SIRK core + generated Lean |
+| `unfer_contracts/prob_kernel/tests/fixtures/gap_certificate.ndjson` | Prior fixture (historical) |
+
+### Certification workflow
+
+After any Hamiltonian/solver/certificate change:
+
+1. Run `qym_mass_gap` and `qcd_mass_gap_certified` tests (in `../unfer`).
+2. Emit fresh SIRK–Hashimoto NDJSON.
+3. Run `sirk_core_model/scripts/aeneas_sirk.sh` to regenerate Aeneas output.
+4. Export the Lean certificate instantiation.
+5. Rerun nanoda via `prob_kernel::verify::verify_export`.
+6. Update fixtures and status only after successful verification.
+
+### Aeneas behavior
+
+Aeneas produces 7 expected errors (f64 arithmetic) and generates `sorry`
+for the affected function bodies (`conj`, `gram_entry`, `projection_identity`,
+`whitening_transform`, `residual_boundary_component`, `residual_norm2`,
+`forward_step`). This is the documented honesty boundary: Aeneas verifies the
+algorithm structure; `f64` rounding is enclosed by the T1–T5 theorems.
+
+### Numeric validation suites
+
+| Suite | What it tests |
+| :--- | :--- |
+| `qym_mass_gap` | Gauge-fixed H_final: nested-Fock structure, reflection Z2, gap positivity/稳定性, abelian gapless limit, squeezed ground, certified enclosure |
+| `qcd_mass_gap_certified` | Certified intervals enclose exact truncated gaps, NDJSON emitter output |
+| `outer_vacuum_ground_validation` | Outer-vacuum annihilation, Hermiticity, Ritz monotonicity, Rayleigh–Ritz window |
+| `sirk_hamiltonian_drive` | SIRK solver: residual decay, gap estimation, abelian/gauge-fixed contrast |
+| `qym_lattice_validation` | Comparison-model lattice benchmarks (not the formalization object) |
+
+---
+
 ## Priority Attack Order for Next Agent
 
 Work through the remaining items in this order (each unlocks the next):
