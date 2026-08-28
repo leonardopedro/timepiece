@@ -16,6 +16,50 @@ targets, 8749 jobs) and `lake build RandomMap` (8039 jobs) succeed with no error
 `propext`, `Classical.choice`, `Quot.sound`.  The `patches/*.sh` scripts had lost their
 executable bit in this snapshot; it has been restored.
 
+## Latest wave (2026-08-28f, **the unbounded-perturbation ladder: degree two works, degree three provably cannot**)
+
+Two new modules, both `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`), audited by `#print axioms` in `ChapterRoadmapAudit.lean`.
+
+* `BookProof/ChapterFockPairPerturbation.lean` (namespace `BookProof.FockPairPerturbation`)
+  carries the unbounded-perturbation package one degree up, from the linear coupling
+  `Φ(f) = a†(f) + a(f)` of `ChapterFockFieldPerturbation` to the quadratic, pair-creating
+  coupling `P(f,g) = a†(f)a†(g) + a(g)a(f)`.  `annVec_creVec` is the vector canonical
+  commutation relation `a(g)a†(g) = a†(g)a(g) + ‖g‖²`; `norm_creVec_sq` the exact identity
+  `‖a†(g)u‖² = ‖a(g)u‖² + ‖g‖²‖u‖²` and `norm_creVec_le` the `(N+1)^{1/2}` estimate a
+  quadratic term needs.  `pairVec_relative_form_bound` dominates the pair form by the free
+  form with no additive remainder on vacuum-orthogonal states, and
+  `fock_gap_of_pair_perturbation` leaves the gap `(μ − 2√2‖f‖‖g‖)‖u‖²`, strictly positive
+  when `2√2‖f‖‖g‖ < μ`.  `fock_gap_of_one_particle_form_gap_pair` and
+  `ym_fock_gap_of_pair_perturbation` feed this from the certificate chain and from the
+  concrete gauge-fixed Yang–Mills datum; `pairVec_vac` and `pairVec_unbounded` record that
+  the term genuinely changes the particle number and genuinely is unbounded.
+
+* `BookProof/ChapterFockCubicUnbounded.lean` (namespace `BookProof.FockCubicUnbounded`)
+  shows the ladder stops there.  For the single-mode cubic term
+  `cubeA k = (a_k†)³ + (a_k)³` the two-term trial states `trial k n c = |n⟩ + c|n+3⟩` have
+  exactly computable norm (`trial_norm_sq`, `1 + c²`), number form (`trial_numberQuad`,
+  `n + (n+3)c²`) and cubic form (`trial_cubic_form`, `2c√((n+1)(n+2)(n+3))`).  The cubic
+  form grows like `n^{3/2}` and the number form only like `n`, so
+  **`cubic_no_relative_form_bound`**: for every pair of constants `a, b` some
+  vacuum-orthogonal finite-particle state has `a·⟪u,Nu⟫ + b‖u‖² < Re⟪u, C_k u⟫`.  The
+  hypothesis of `ChapterFockInteractionStability.gap_persists_of_relative_form_bound` is
+  thus unattainable at degree three, and **`fock_gap_fails_for_cubic`** draws the
+  consequence: `dΓ(N) + lam·C_k` is unbounded below on the vacuum-orthogonal sector for
+  every coupling strength `lam > 0`, so smallness of the coupling does not help.  The
+  complementary `trial_cubic_quartic_bounded_below` keeps this from being over-read: adding
+  the normal-ordered quartic term `quartA k = (a_k†)²(a_k)²` (diagonal with eigenvalue
+  `m(m − 1)`) restores the uniform lower bound `-(lam⁴/4 + 2lam²)‖u‖²` along the *same*
+  family, so the divergence is a property of a bare cubic term.
+
+**Honest boundary, unchanged.**  All positive gap statements remain conditional on the
+one-particle form gap, which is not proved.  `cubeA` is a single-mode cubic term, not the
+full Yang–Mills cubic vertex, and the cubic-plus-quartic lower bound is proved along the
+trial family only, not for general states; the negative result is about *this*
+form-domination route, not about the physical theory.  `1.932` is still a certified truncated number, and no mass gap of the physical
+Yang–Mills Hamiltonian is claimed.
+
+
 ## Latest wave (2026-08-28b, **the per-order certificate, derived; the `dΓ` lift, generalized**)
 
 Two new modules, both `sorry`-free and `axiom`-free, removing the two inputs the previous
@@ -479,6 +523,17 @@ amplitudes grow like `e^{c√N}`.  The route taken here is not perturbative at a
 * **Honest boundary.**  The statement is one-dimensional (the scalaron direction `φ`) and
   the hypothesis is `V ≥ 0` — which the Starobinsky potential satisfies, being a square.
   Nothing here changes the multi-dimensional or hyperbolic boundaries recorded below.
+* **What it means for the final Hamiltonian.**  This is precisely the analytic input that
+  makes the FULL-exponential QG enclosure well-defined: the final Hamiltonian is the
+  one-particle operator enclosed in creation (left) / annihilation (right) outer ladders,
+  `H = Σᵢⱼ hᵢⱼ C†(eᵢ)A(eⱼ)`, and the doctrine allows the whole Einstein-frame
+  exponential `V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` to live inside the one-particle
+  operator `h_ψ = ½π² + V(φ̂)` — no 3-/4-particle vertices at the outer level.  The
+  numerical realization `qg_starobinsky_vielbein_hamiltonian_full` (`../unfer`) uses
+  exactly this `h_ψ` (truncated Hermite basis), and `starobinskyWall_esa` proves the
+  infinite-dimensional one-particle operator it approximates is essentially self-adjoint,
+  so the enclosure's gap is the positive Schrödinger ground energy `E₀ > 0` of
+  `½π² + V(φ̂)` — the honest one-particle edge the Fock-gap chain lifts (`ChapterFock*`).
 
 ## Wave (2026-08-26, **the `R + αR²` Hamiltonian on the compactly supported smooth core, and the finite-particle Fock lift**)
 

@@ -50,8 +50,18 @@ of the error bound in the reduction order. What was missing was a theorem that
 :::
 
 :::paragraph
-For the physical lift, `ChapterFockNumberPreservingGap.lean` proves that a positive one-particle gap produces the corresponding free Fock gap on vacuum-orthogonal finite-particle states. `ChapterFockInteractionStability.lean` replaces exact number preservation by a quantitative bounded/form-bounded interaction estimate, while `ChapterFockFieldPerturbation.lean` develops the field-form estimates needed to instantiate that result. These theorems deliberately stop short of claiming the unbounded interacting QYM case.
+For the physical lift, `ChapterFockNumberPreservingGap.lean` proves that a positive one-particle gap produces the corresponding free Fock gap on vacuum-orthogonal finite-particle states. `ChapterFockInteractionStability.lean` replaces exact number preservation by a quantitative bounded/form-bounded interaction estimate. The unbounded-perturbation ladder is now closed at degrees one and two: `ChapterFockFieldPerturbation.lean` (now `sorry`-free) proves the gap survives the *linear*, number-changing coupling $`\Phi(f) = a^\dagger(f) + a(f)` with the explicit smallness condition `2‖f‖ < μ`, and `ChapterFockPairPerturbation.lean` extends it to the *quadratic*, pair-creating coupling $`P(f,g) = a^\dagger(f)a^\dagger(g) + a(g)a(f)` with `2√2‖f‖‖g‖ < μ`. `ChapterFockCubicUnbounded.lean` shows the route stops at degree two — a bare cubic term has no relative form bound, so `dΓ(N) + λC` is unbounded below for every coupling strength. Finally, `ChapterYangMillsFockGapChain.lean` instantiates the whole chain for the concrete gauge-fixed QYM one-particle operator: `dΓ(H₁)Ω = 0` is proved unconditionally, and a one-particle *form* gap lifts to the nested-Fock mass gap — everything conditional on that form gap, which is the single analytic input the certificate is designed to supply.
 :::
+
+```
+#check @BookProof.FockFieldPerturbation.fock_gap_of_field_perturbation
+#check @BookProof.FockPairPerturbation.fock_gap_of_pair_perturbation
+#check @BookProof.FockCubicUnbounded.cubic_no_relative_form_bound
+#check @BookProof.FockCubicUnbounded.fock_gap_fails_for_cubic
+#check @BookProof.YangMillsFockGapChain.ym_fock_vacuum_annihilated
+#check @BookProof.YangMillsFockGapChain.ym_fock_gap_of_one_particle_form_gap
+#check @BookProof.YangMillsFockGapChain.ym_fock_gap_of_nested_ritz_bands
+```
 
 # Why the Transfer Identity Has To Be Pointwise
 

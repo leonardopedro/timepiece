@@ -210,16 +210,42 @@ theorem abs_re_inner_fieldVec_le (f : ℕ →₀ ℂ) (u : FockAlg) :
 /-! ## 4. The relative form bound -/
 
 /-- The elementary Young inequality behind the relative bound. -/
-theorem two_mul_sqrt_le {c n N t : ℝ} (hc : 0 ≤ c) (hn : 0 ≤ n) (hN : 0 ≤ N) (ht : 0 < t) :
+theorem two_mul_sqrt_le {c n N t : ℝ} (hN : 0 ≤ N) (ht : 0 < t) :
     2 * c * Real.sqrt N * n ≤ t * N + c ^ 2 / t * n ^ 2 := by
-  sorry
+  have key : ∀ s : ℝ, 2 * c * s * n ≤ t * s ^ 2 + c ^ 2 / t * n ^ 2 := by
+    intro s
+    rw [← sub_nonneg]
+    have hid : t * s ^ 2 + c ^ 2 / t * n ^ 2 - 2 * c * s * n
+        = (t * s - c * n) ^ 2 / t := by
+      field_simp
+      ring
+    rw [hid]
+    positivity
+  have h := key (Real.sqrt N)
+  rwa [Real.sq_sqrt hN] at h
 
 /-- The one-particle gap `h − μ ≥ 0` bounds the number form by the free energy:
 `μ⟪u, N u⟫ ≤ Re⟪u, dΓ(h) u⟫`. -/
-theorem number_le_dGamma_quadForm {col : ℕ → (ℕ →₀ ℂ)} {mu : ℝ} (hmu : 0 ≤ mu)
+theorem number_le_dGamma_quadForm {col : ℕ → (ℕ →₀ ℂ)} {mu : ℝ}
     (hgap : IsPosCol (shiftCol col mu)) (u : FockAlg) :
     mu * numberQuad u ≤ (inner ℂ (toLp u) (toLp (dGamma col u)) : ℂ).re := by
-  sorry
+  have hsplit : (inner ℂ (toLp u) (toLp (dGamma col u)) : ℂ)
+      = inner ℂ (toLp u) (toLp (dGamma (shiftCol col mu) u))
+        + ((mu : ℝ) : ℂ) * inner ℂ (toLp u) (toLp (dGamma numberCol u)) := by
+    have hcol : dGamma col u
+        = dGamma (shiftCol col mu) u + ((mu : ℝ) : ℂ) • dGamma numberCol u := by
+      rw [dGamma_shiftCol, sub_add_cancel]
+    have hadd : ∀ a b : FockAlg, toLp (a + b) = toLp a + toLp b := fun a b =>
+      map_add toLpL a b
+    have hsmul : ∀ (c : ℂ) (a : FockAlg), toLp (c • a) = c • toLp a := fun c a =>
+      map_smul toLpL c a
+    rw [hcol, hadd, hsmul, inner_add_right, inner_smul_right]
+  rw [hsplit, Complex.add_re, Complex.re_ofReal_mul]
+  have h1 : 0 ≤ (inner ℂ (toLp u) (toLp (dGamma (shiftCol col mu) u)) : ℂ).re :=
+    inner_dGamma_nonneg hgap u
+  have h2 : numberQuad u = (inner ℂ (toLp u) (toLp (dGamma numberCol u)) : ℂ).re := rfl
+  rw [h2]
+  linarith
 
 /-- **The domination the plan asks for.**  With a one-particle gap `h ≥ μ > 0`, the field
 form is relatively bounded by the free form: for every `t > 0`,
@@ -231,7 +257,15 @@ theorem fieldVec_relative_form_bound {col : ℕ → (ℕ →₀ ℂ)} {mu t : �
     |(inner ℂ (toLp u) (toLp (fieldVec f u)) : ℂ).re|
       ≤ t / mu * (inner ℂ (toLp u) (toLp (dGamma col u)) : ℂ).re
         + l2norm f ^ 2 / t * ‖toLp u‖ ^ 2 := by
-  sorry
+  have h1 := abs_re_inner_fieldVec_le f u
+  have h2 := two_mul_sqrt_le (c := l2norm f) (n := ‖toLp u‖) (N := numberQuad u) (t := t)
+    (numberQuad_nonneg u) ht
+  have h3 := number_le_dGamma_quadForm hgap u
+  have h4 : t * numberQuad u
+      ≤ t / mu * (inner ℂ (toLp u) (toLp (dGamma col u)) : ℂ).re := by
+    rw [div_mul_eq_mul_div, le_div_iff₀ hmu]
+    nlinarith [ht.le]
+  linarith
 
 /-! ## 5. The gap under the unbounded perturbation -/
 
@@ -244,7 +278,25 @@ theorem fock_gap_of_field_perturbation {col : ℕ → (ℕ →₀ ℂ)} {mu : �
     (mu - 2 * l2norm f) * ‖toLp u‖ ^ 2
       ≤ (inner ℂ (toLp u) (toLp (dGamma col u)) : ℂ).re
         + (inner ℂ (toLp u) (toLp (fieldVec f u)) : ℂ).re := by
-  sorry
+  have hc : 0 ≤ l2norm f := l2norm_nonneg f
+  have hn : 0 ≤ ‖toLp u‖ := norm_nonneg _
+  have hNq : 0 ≤ numberQuad u := numberQuad_nonneg u
+  have hD := number_le_dGamma_quadForm hgap u
+  have hnum : ‖toLp u‖ ^ 2 ≤ numberQuad u := number_quadForm_ge h0
+  have hPhi := (abs_le.mp (abs_re_inner_fieldVec_le f u)).1
+  have hs : Real.sqrt (numberQuad u) ^ 2 = numberQuad u := Real.sq_sqrt hNq
+  have hs0 : 0 ≤ Real.sqrt (numberQuad u) := Real.sqrt_nonneg _
+  have hsn : ‖toLp u‖ ≤ Real.sqrt (numberQuad u) := by nlinarith
+  have hkey : (mu - 2 * l2norm f) * ‖toLp u‖ ^ 2
+      ≤ mu * numberQuad u - 2 * l2norm f * Real.sqrt (numberQuad u) * ‖toLp u‖ := by
+    have hfac : 0 ≤ (Real.sqrt (numberQuad u) - ‖toLp u‖) *
+        (mu * (Real.sqrt (numberQuad u) + ‖toLp u‖) - 2 * l2norm f * ‖toLp u‖) := by
+      have h1 : 0 ≤ Real.sqrt (numberQuad u) - ‖toLp u‖ := by linarith
+      have h2 : 0 ≤ mu * (Real.sqrt (numberQuad u) + ‖toLp u‖) - 2 * l2norm f * ‖toLp u‖ := by
+        nlinarith
+      exact mul_nonneg h1 h2
+    nlinarith
+  linarith
 
 /-- The surviving gap is strictly positive exactly when the coupling is quantitatively
 smaller than half the one-particle gap. -/
@@ -265,13 +317,89 @@ theorem fock_gap_of_field_perturbation_pos {col : ℕ → (ℕ →₀ ℂ)} {mu 
 number. -/
 theorem fieldVec_vac (k : ℕ) :
     fieldVec (Finsupp.single k 1) vac = Finsupp.single (Finsupp.single k 1) (1 : ℂ) := by
-  sorry
+  classical
+  have hup : up k (0 : Conf) = Finsupp.single k 1 := by
+    refine Finsupp.ext fun i => ?_
+    rcases eq_or_ne i k with h | h
+    · subst h; simp [up]
+    · rw [up_of_ne _ h]
+      simp [h]
+  have hsupp : (Finsupp.single k (1 : ℂ)).support = {k} :=
+    Finsupp.support_single_ne_zero k one_ne_zero
+  rw [fieldVec_apply, creVec_apply, annVec_apply, hsupp]
+  simp [vac, hup]
 
 /-- **`Φ(f)` is not a bounded operator.**  For the coupling `f = e_k` the `n`-quantum states
 are unit vectors whose images have norm `√(2n+1)`. -/
 theorem fieldVec_unbounded (k : ℕ) (C : ℝ) :
     ∃ u : FockAlg, ‖toLp u‖ = 1 ∧ C ≤ ‖toLp (fieldVec (Finsupp.single k 1) u)‖ := by
-  sorry
+  classical
+  obtain ⟨n, hn⟩ := exists_nat_gt (C ^ 2)
+  set al : Conf := Finsupp.single k n with hal
+  set u : FockAlg := Finsupp.single al 1 with hu
+  have halk : al k = n := by simp [hal]
+  have husupp : u.support = {al} := Finsupp.support_single_ne_zero al one_ne_zero
+  have hval : u al = 1 := by simp [hu]
+  have hu1 : ‖toLp u‖ = 1 := by
+    have h : ‖toLp u‖ ^ 2 = 1 := by
+      rw [norm_toLp_sq, husupp, Finset.sum_singleton, hval]
+      simp
+    have hx : (0 : ℝ) ≤ ‖toLp u‖ := norm_nonneg _
+    have hfac : (‖toLp u‖ - 1) * (‖toLp u‖ + 1) = 0 := by nlinarith
+    rcases mul_eq_zero.mp hfac with h1 | h2
+    · linarith
+    · linarith
+  refine ⟨u, hu1, ?_⟩
+  set v : FockAlg := fieldVec (Finsupp.single k (1 : ℂ)) u with hv
+  have hsupp : (Finsupp.single k (1 : ℂ)).support = {k} :=
+    Finsupp.support_single_ne_zero k one_ne_zero
+  have hvsplit : v = creA k u + annA k u := by
+    rw [hv, fieldVec_apply, creVec_apply, annVec_apply, hsupp]
+    simp
+  have hupk : (up k al) k = n + 1 := by rw [up_self, halk]
+  have hne : up k (up k al) ≠ al := by
+    intro hcontra
+    have := congrArg (fun β : Conf => β k) hcontra
+    simp only [up_self, halk] at this
+    omega
+  have hcoord : v (up k al) = ((Real.sqrt ((n : ℝ) + 1) : ℝ) : ℂ) := by
+    rw [hvsplit, Finsupp.add_apply, creA_apply, annA_apply, dn_up, hupk]
+    have h2 : u (up k (up k al)) = 0 := by
+      simp [hu, Ne.symm hne]
+    rw [hval, h2, mul_zero, add_zero, mul_one]
+    push_cast
+    ring_nf
+  have hcoordne : v (up k al) ≠ 0 := by
+    rw [hcoord]
+    have : (0 : ℝ) < Real.sqrt ((n : ℝ) + 1) := Real.sqrt_pos.mpr (by positivity)
+    simpa using ne_of_gt this
+  have hmem : up k al ∈ v.support := Finsupp.mem_support_iff.mpr hcoordne
+  have hge : (n : ℝ) + 1 ≤ ‖toLp v‖ ^ 2 := by
+    rw [norm_toLp_sq]
+    have hterm : ‖v (up k al)‖ ^ 2 = (n : ℝ) + 1 := by
+      rw [hcoord]
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _),
+        Real.sq_sqrt (by positivity)]
+    calc (n : ℝ) + 1 = ‖v (up k al)‖ ^ 2 := hterm.symm
+      _ ≤ ∑ β ∈ v.support, ‖v β‖ ^ 2 :=
+          Finset.single_le_sum (f := fun β => ‖v β‖ ^ 2) (fun _ _ => sq_nonneg _) hmem
+  have hvn : (0 : ℝ) ≤ ‖toLp v‖ := norm_nonneg _
+  nlinarith [sq_nonneg C]
+
+/-! ## 7. Axiom audit -/
+
+section Audit
+
+#print axioms norm_annVec_le
+#print axioms abs_re_inner_fieldVec_le
+#print axioms number_le_dGamma_quadForm
+#print axioms fieldVec_relative_form_bound
+#print axioms fock_gap_of_field_perturbation
+#print axioms fock_gap_of_field_perturbation_pos
+#print axioms fieldVec_vac
+#print axioms fieldVec_unbounded
+
+end Audit
 
 end BookProof.FockFieldPerturbation
 

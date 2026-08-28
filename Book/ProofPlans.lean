@@ -33,17 +33,31 @@ The following modules are now part of the proof architecture:
   Friedrichs-extension route.
 * `ChapterFockNumberPreservingGap.lean`: lifts a one-particle gap through
   number-preserving second quantization.
-* `ChapterFockFieldPerturbation.lean` and
+* `ChapterFockFieldPerturbation.lean` (now `sorry`-free) and
   `ChapterFockInteractionStability.lean`: control bounded or relatively
-  form-bounded perturbations, with the unbounded physical interaction explicitly
-  left as a specialist obligation.
+  form-bounded perturbations, with the unbounded physical interaction
+  explicitly left as a specialist obligation — until the new ladder closed it:
+* `ChapterFockPairPerturbation.lean`: the quadratic, pair-creating unbounded
+  coupling `P(f,g) = a†(f)a†(g) + a(g)a(f)` keeps the gap
+  `(μ − 2√2‖f‖‖g‖)‖u‖²` under the smallness condition `2√2‖f‖‖g‖ < μ`.
+* `ChapterFockCubicUnbounded.lean`: the boundary of the route — a bare cubic
+  term `(a†)³ + a³` admits **no** relative form bound, so `dΓ(N) + λC` is
+  unbounded below at every coupling strength; adding the normal-ordered
+  quartic `(a†)²a²` restores a lower bound along the same trial family.
+* `ChapterYangMillsFockGapChain.lean`: instantiates the abstract chain for the
+  concrete gauge-fixed QYM one-particle operator `H₁ = ½Σπ² + ½ΣB²` —
+  `dΓ(H₁)Ω = 0` unconditionally, the `dΓ` lift of a one-particle *form* gap to
+  the nested-Fock mass gap (with the Friedrichs extension), the linear field
+  perturbation, and the certified-band route through `BandEnclosure` — all
+  conditional on the one-particle form gap.
 * `ChapterSpectralGapStability.lean`: proves stability under suitable operator
   limits and perturbations.
 
 The claim is now conditional but mathematically honest: the finite SIRK
 certificate can feed this chain only after its separation and enclosure inputs
-are supplied, and the continuum QYM result still requires a concrete
-convergence theorem.
+are supplied (the one-particle *form* gap is the single outstanding analytic
+input), and the continuum QYM result still requires a concrete convergence
+theorem.
 
 Every plan targets the project's pinned toolchain (*Lean v4.28.0, Mathlib
 v4.28.0*), so that the work stays compatible with the existing `sorry`-free

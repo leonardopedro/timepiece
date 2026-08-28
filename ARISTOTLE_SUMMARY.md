@@ -1,3 +1,113 @@
+# Summary of changes for run 4e7fb02d-a7d0-4745-996b-9c7d6cfbe7f2
+I continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Build state.** The project's default Lean targets (`BookProof`, `Book`, `Singularity`, `Layout`) build end to end: `lake build` completes successfully with 8760 jobs and 0 errors, and no `sorry` occurs anywhere in the Lean sources of those targets. Every newly added public result is audited by `#print axioms` and depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**1. Degree two of the unbounded-perturbation ladder** — `BookProof/ChapterFockPairPerturbation.lean` (finished, verified and wired in this session). It moves the package of `ChapterFockFieldPerturbation` from the linear coupling `Φ(f) = a†(f) + a(f)` (particle number changes by one) to the quadratic pair-creating coupling `P(f,g) = a†(f)a†(g) + a(g)a(f)` (changes by two): the vector canonical commutation relation `annVec_creVec`, the exact identity `norm_creVec_sq` (`‖a†(g)u‖² = ‖a(g)u‖² + ‖g‖²‖u‖²`) and the `(N+1)^{1/2}` estimate `norm_creVec_le`; `pairVec_relative_form_bound`, which dominates the pair form by the free form with no additive remainder on vacuum-orthogonal states; `fock_gap_of_pair_perturbation` with the surviving gap `(μ − 2√2‖f‖‖g‖)‖u‖²`; the certificate-chain and gauge-fixed Yang–Mills instances `fock_gap_of_one_particle_form_gap_pair` and `ym_fock_gap_of_pair_perturbation`; and `pairVec_vac`, `pairVec_unbounded` recording that the term really is number-changing and really is unbounded.
+
+**2. New module `BookProof/ChapterFockCubicUnbounded.lean` — the route provably stops at degree two.** Earlier status notes all recorded the same boundary ("cubic and quartic terms are not covered") without settling whether it was removable. For the single-mode cubic term `cubeA k = (a_k†)³ + (a_k)³`, the two-term trial states `trial k n c = |n⟩ + c|n+3⟩` have exactly computed norm (`1 + c²`), number form (`n + (n+3)c²`) and cubic form (`2c√((n+1)(n+2)(n+3))`). Since the cubic form grows like `n^{3/2}` and the number form only like `n`:
+- `cubic_no_relative_form_bound`: for *every* pair of constants `a, b` there is a vacuum-orthogonal finite-particle state with `a·⟪u,Nu⟫ + b‖u‖² < Re⟪u, C_k u⟫`, so the relative-form-bound hypothesis used at degrees one and two can never be met at degree three;
+- `fock_gap_fails_for_cubic`: consequently, for the free Fock Hamiltonian `dΓ(N)` and *any* coupling strength `lam > 0`, the form `dΓ(N) + lam·C_k` is unbounded below on the vacuum-orthogonal sector — smallness of the coupling does not help.
+
+A complementary section prevents over-reading this: `quartA k = (a_k†)²(a_k)²` is the normal-ordered quartic term (diagonal with eigenvalue `m(m−1)`), and `trial_cubic_quartic_bounded_below` proves that on the same family of states `dΓ(N) + lam·C_k + Q_k` satisfies the uniform lower bound `−(lam⁴/4 + 2lam²)‖u‖²`. The divergence is therefore a property of a *bare* cubic term.
+
+**3. Wiring and documentation.** Both modules are imported from `BookProof.lean` with explanatory comment blocks and are covered by the default build; `BookProof/ChapterRoadmapAudit.lean` imports them and carries `#print axioms` lines for all of their public results. Two new status sections were added to `CONSOLIDATED_PLAN.md` (2026-08-28e and 2026-08-28f), a new wave section to `BookProof/STATUS.md`, and a new run section was prepended to `ARISTOTLE_SUMMARY.md` without altering its earlier content.
+
+**Honest boundary, unchanged.** All positive gap statements remain conditional on the one-particle form gap, which is a hypothesis and not proved. `cubeA` is a single-mode cubic term, not the full Yang–Mills cubic vertex, and the cubic-plus-quartic lower bound is proved along the explicit trial family, not for arbitrary states. `1.932` remains a certified truncated number, and no mass gap of the physical Yang–Mills Hamiltonian is claimed.
+
+All work is committed and pushed.
+
+# Summary of changes for this run
+
+I continued executing `CONSOLIDATED_PLAN.md`.  The project's default Lean targets
+(`BookProof`, `Book`, `Singularity`, `Layout`) build end to end with no errors and no
+remaining `sorry` (`lake build` — 8760 jobs, 0 errors), and every newly added theorem is
+audited by `#print axioms` to depend only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**1. `BookProof/ChapterFockPairPerturbation.lean` — the perturbation ladder at degree two.**
+This module (namespace `BookProof.FockPairPerturbation`) carries the unbounded-perturbation
+package of `ChapterFockFieldPerturbation` up one degree: from the *linear* coupling
+`Φ(f) = a†(f) + a(f)`, which changes the particle number by one, to the *quadratic*,
+pair-creating coupling `P(f,g) = a†(f)a†(g) + a(g)a(f)`, which changes it by two.
+- `annVec_creVec` — the vector canonical commutation relation `a(g)a†(g) = a†(g)a(g) + ‖g‖²`;
+- `norm_creVec_sq` — the exact identity `‖a†(g)u‖² = ‖a(g)u‖² + ‖g‖²‖u‖²`, and
+  `norm_creVec_le` the `(N+1)^{1/2}` estimate a quadratic term needs;
+- `pairVec_relative_form_bound` — `|Re⟪u, P u⟫| ≤ (2√2‖f‖‖g‖/μ)·Re⟪u, dΓ(h)u⟫` on
+  vacuum-orthogonal states, i.e. domination by the free form with **no** additive remainder;
+- `fock_gap_of_pair_perturbation` (and `..._pos`) — the surviving gap
+  `(μ − 2√2‖f‖‖g‖)‖u‖²`, strictly positive under `2√2‖f‖‖g‖ < μ`;
+- `fock_gap_of_one_particle_form_gap_pair`, `ym_fock_gap_of_pair_perturbation` — the same
+  conclusion fed from the certificate chain and from the concrete gauge-fixed Yang–Mills
+  datum;
+- `pairVec_vac`, `pairVec_unbounded` — witnesses that the term genuinely changes the
+  particle number and genuinely is unbounded, so this is not a corollary of the bounded
+  theory.
+
+**2. `BookProof/ChapterFockCubicUnbounded.lean` — and the ladder provably stops there.**
+Every earlier status update recorded the same boundary ("cubic and quartic terms are not
+covered"); this new module (namespace `BookProof.FockCubicUnbounded`) shows that this is a
+fact about the method, not a gap in the write-up.  For the single-mode cubic term
+`cubeA k = (a_k†)³ + (a_k)³` the two-term trial states `trial k n c = |n⟩ + c|n+3⟩` have
+exactly computable norm (`trial_norm_sq`, `1 + c²`), number form (`trial_numberQuad`,
+`n + (n+3)c²`) and cubic form (`trial_cubic_form`, `2c√((n+1)(n+2)(n+3))`).  Since the
+cubic form grows like `n^{3/2}` and the number form only like `n`:
+- **`cubic_no_relative_form_bound`** — for *every* pair of constants `a, b` there is a
+  vacuum-orthogonal finite-particle state with `a·⟪u,Nu⟫ + b‖u‖² < Re⟪u, C_k u⟫`.  The
+  relative form bound that degrees one and two satisfy — the hypothesis of
+  `ChapterFockInteractionStability.gap_persists_of_relative_form_bound` — is therefore
+  unattainable at degree three, however the constants are chosen;
+- **`fock_gap_fails_for_cubic`** — the consequence: for the free Fock Hamiltonian `dΓ(N)`
+  and *any* coupling strength `lam > 0`, the form `dΓ(N) + lam·C_k` is unbounded below on
+  the vacuum-orthogonal sector.  Smallness of the coupling does not help, in sharp contrast
+  with degrees one and two.
+
+A final section keeps this from being over-read.  `quartA k = (a_k†)²(a_k)²` is the
+normal-ordered quartic term, diagonal with eigenvalue `m(m − 1)` (`quartA_single_confAt`,
+`trial_quartic_form`), and **`trial_cubic_quartic_bounded_below`** shows that on the *same*
+family of states, `dΓ(N) + lam·C_k + Q_k` obeys the lower bound `-(lam⁴/4 + 2lam²)‖u‖²`,
+uniformly in `n` and `c`.  The divergence is thus a property of a *bare* cubic term.
+
+**3. Wiring and documentation.**  Both modules are imported from `BookProof.lean` with an
+explanatory comment block, and are covered by the default build; `BookProof/ChapterRoadmapAudit.lean`
+imports them and carries `#print axioms` lines for all of their public results.  New status
+sections were added to `CONSOLIDATED_PLAN.md` (2026-08-28e and 2026-08-28f) and a new wave
+section to `BookProof/STATUS.md`.
+
+**Honest boundary, unchanged.**  All positive gap statements remain **conditional on the
+one-particle form gap**, which is not proved.  `cubeA` is a single-mode cubic term, not the
+full Yang–Mills cubic vertex, and the cubic-plus-quartic lower bound is proved along the
+explicit trial family, not for arbitrary states.  `1.932` remains a certified truncated
+number, and no mass gap of the physical Yang–Mills Hamiltonian is claimed.
+
+---
+
+# Summary of changes for run 2e425980-dd1a-408f-af76-4f4604d3d5ca
+I executed `CONSOLIDATED_PLAN.md`. The project's default Lean targets (`BookProof`, `Book`, `Singularity`, `Layout`) now build end to end with no errors and no remaining `sorry`.
+
+**1. Fixed a build-breaking syntax error.** `BookProof/ChapterFockSecondQuantization.lean` carried two consecutive doc comments immediately before `ymOnePart`, which made the module — and therefore the whole `BookProof` target — fail to elaborate. The two doc comments are merged into one.
+
+**2. Closed the six remaining `sorry`s** in `BookProof/ChapterFockFieldPerturbation.lean`, the plan's "unbounded number-changing perturbation" chapter. These were the only genuine `sorry`s anywhere in the default build. Proved:
+- `two_mul_sqrt_le` — the Young inequality behind the relative bound;
+- `number_le_dGamma_quadForm` — `μ⟪u, N u⟫ ≤ Re⟪u, dΓ(h) u⟫` from the one-particle gap `h − μ ≥ 0` (the hypothesis `0 ≤ μ` turned out to be unnecessary and was dropped);
+- `fieldVec_relative_form_bound` — the domination the plan asked for, `|Re⟪u, Φ(f)u⟫| ≤ (t/μ)Re⟪u, dΓ(h)u⟫ + (‖f‖²/t)‖u‖²` for every `t > 0`;
+- `fock_gap_of_field_perturbation` — the surviving gap `(μ − 2‖f‖)‖u‖²` on vacuum-orthogonal finite-particle states;
+- `fieldVec_vac` and `fieldVec_unbounded` — the witnesses that `Φ(f)` is neither number-preserving nor bounded, so the result is not a corollary of the bounded theory.
+
+The module was also unreachable from `BookProof.lean`; it is now imported there and covered by the default build, and it carries its own `#print axioms` audit (only `propext`, `Classical.choice`, `Quot.sound`).
+
+**3. Instantiated the abstract gap chain for gauge-fixed QYM**, the plan's "next specialist package", in the new module `BookProof/ChapterYangMillsFockGapChain.lean`. It reuses the project's existing concrete one-particle datum rather than re-proving the abstract modules, and adds:
+- `isPosCol_shiftCol_opCol_of_form_gap` — one-particle *form* gap ⟹ the matrix condition `h − μ ≥ 0`;
+- `ym_fock_vacuum_annihilated` — unconditionally, the outer vacuum is an exact zero-energy eigenstate of `dΓ(H₁)`;
+- `ym_fock_gap_of_one_particle_form_gap`, `ym_fock_mass_gap_of_one_particle_form_gap` — the `dΓ` lift and the strictly positive non-vacuum gap, the latter together with the positive self-adjoint (Friedrichs) extension of `dΓ(H₁)`;
+- `ym_fock_gap_of_field_perturbation` — the same under the unbounded, number-changing field coupling `Φ(f)` with `2‖f‖ < μ`;
+- `ym_fock_gap_of_nested_ritz_bands` — the certified-band route, which consumes the nested-band / Galerkin-Ritz data through the existing band-enclosure theorem instead of reading a displayed Ritz value as a lower bound.
+
+Every theorem in the new module was checked with `#print axioms` and depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**Honest boundary (unchanged, and stated in the module and the plan).** All conclusions of the new module are *conditional* on a one-particle form gap `⟪x, H₁ x⟫ ≥ μ‖x‖²` on the Gauss–polynomial core, or on the certificate data that would supply it. That input is not proved: the SIRK/Hashimoto certificate remains a statement about a finite truncation and `1.932` remains a certified truncated number. The field perturbation covered is linear in the field; the cubic and quartic Yang–Mills interaction terms are not covered. No mass gap of the physical Yang–Mills Hamiltonian is claimed.
+
+`CONSOLIDATED_PLAN.md` has a new leading status section recording exactly this, including that the build was actually run.
+
 # Summary of changes for run 06bbec70-f53c-49e5-b6c0-be1d9ae869c7
 I continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
 

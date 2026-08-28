@@ -26,7 +26,9 @@ one-particle edge and its lift through the free nested-Fock `dGamma` Hamiltonian
 | finite Krylov/SIRK approximation | proved/conditional error theorems |
 | emitted QYM certificate | proved truncated enclosure |
 | QYM Friedrichs/Hashimoto-selected operator | proved construction/selection |
-| real Fock mass gap | conditional one-particle-edge, enclosure, and outer-`dGamma` composition; concrete continuum instantiation remains open |
+| one-particle gap, lifted to Fock space | proved for the concrete gauge-fixed QYM one-particle operator, conditional on its one-particle *form* gap (`ChapterYangMillsFockGapChain`) |
+| unbounded field perturbations of the gap | proved for the linear coupling `Φ(f)` (`ChapterFockFieldPerturbation`, `sorry`-free) and for the quadratic pair coupling `P(f,g)` (`ChapterFockPairPerturbation`); proved *impossible* for a bare cubic term (`ChapterFockCubicUnbounded`) |
+| real Fock mass gap of the continuum operator | still conditional on the one-particle form gap (the certificate supplies a truncated bound); no continuum claim |
 
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure
 
@@ -112,7 +114,7 @@ of that infinite-dimensional exception.
 # Why the Gaussian Is the Uniform Measure on the Infinite Sphere: the Mehler Limit
 
 :::paragraph
-This probabilistic construction is also the domain in which the later Fock proofs operate. The new `ChapterFockFieldPerturbation.lean` module controls field perturbations at the quadratic-form level, while `ChapterFockInteractionStability.lean` records the quantitative loss of a gap under a bounded or relatively form-bounded interaction. The latter deliberately does not claim control of arbitrary unbounded physical interactions; that remains a specialist task.
+This probabilistic construction is also the domain in which the later Fock proofs operate. The unbounded-perturbation ladder is now complete at degrees one and two. `ChapterFockFieldPerturbation.lean` is `sorry`-free and controls the *linear* field coupling $`\Phi(f) = a^\dagger(f) + a(f)` — genuinely unbounded and number-changing — leaving the gap `(μ − 2‖f‖)‖u‖²` on vacuum-orthogonal states. `ChapterFockPairPerturbation.lean` carries the same package to the *quadratic*, pair-creating coupling $`P(f,g) = a^\dagger(f)a^\dagger(g) + a(g)a(f)` (particle number changes by two), leaving the gap `(μ − 2√2‖f‖‖g‖)‖u‖²` under the smallness condition `2√2‖f‖‖g‖ < μ`. And `ChapterFockCubicUnbounded.lean` proves that the route *stops* there: a bare cubic term has no relative form bound at all, so `dΓ(N) + λC` is unbounded below at every coupling strength — the divergence is cured only by the (bounded-below) quartic term. `ChapterFockInteractionStability.lean` records the quantitative loss of a gap under a bounded or relatively form-bounded interaction, and `ChapterYangMillsFockGapChain.lean` instantiates the whole chain for the concrete gauge-fixed QYM one-particle operator, conditionally on its one-particle form gap.
 :::
 
 The claim that the Gaussian is the uniform measure "on an infinite-dimensional

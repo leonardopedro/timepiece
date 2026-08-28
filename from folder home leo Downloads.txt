@@ -1,35 +1,27 @@
-Update this folder : from folder /home/leo/Downloads/6b04443c-e546-43bf-8b7e-e100f0dd9246-aristotle(1)/output-final_aristotle copy the files:
+Update this folder : from folder /home/leo/Downloads/509fcc9c-d5dc-4838-8539-5802c85ca2ba-aristotle/output-final_aristotle copy the files:
 ARISTOTLE_SUMMARY.md
-+198
++110
 BookProof.lean
-+117
-CONSOLIDATED_PLAN.md
-+183
-ChapterBandEnclosure.lean
-+367
++68
 ChapterFockFieldPerturbation.lean
-+278
-ChapterFockInteractionStability.lean
-+174
-ChapterFockNumberPreservingGap.lean
-+294
-ChapterFockOneParticleGap.lean
-+529
-ChapterFriedrichsFormGap.lean
-+127
-ChapterRitzCertificate.lean
-+365
++136 -8
+CONSOLIDATED_PLAN.md
++120
+ChapterFockCubicUnbounded.lean
++477
+ChapterFockFieldPerturbation.lean
++136 -8
+ChapterFockPairPerturbation.lean
++492
+ChapterFockSecondQuantization.lean
++1 -2
 ChapterRoadmapAudit.lean
-+101
-ChapterSpectralGapStability.lean
-+9 -8
-ChapterTempleSeparationNecessary.lean
-+135
++47
+ChapterYangMillsFockGapChain.lean
++249
 STATUS.md
-+213
-package-overrides.json
-+32
- .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.
++44
+ .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.  Ensure also  that @CONSOLIDATED_PLAN.md and @BookProof/ and @Book/ and @../test/ and @../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , use the correct QYM, QED, QG (R^2 version with vielbein) and NS final Hamiltonian which is the one-particle Hamiltonian enclosed in creation (on the left) and annihilation (on the right) operators, and consider all implications of this fact (for example in the plan for new proofs, or in explaining what was achieved or interpreting the existing proofs in BookProof/ )
  
  add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically efficient) discussed in:  ../timepiece/CONSOLIDATED_PLAN.md
  
@@ -248,3 +240,8 @@ The next non-Lean repair needed is to make the Aeneas core translatable, likely 
 You do yourself everything about the mass gap formalization that does not involve you writting Lean4 code (generating Lean4 code automatically from Rust code you do it)
 
 Also make sure that ../timepiece is self-contained with respect to the mass gap formalization from the point of view of the work that the LLM-Lean4-specialist must do, because this LLM will only have access to ../timepiece, so some content in ../unfer/ needs to be copied to ../timepiece 
+
+heavy tests should run in release (and numerically optimized as much as possible) mode for Rust.
+
+freebuff --continue 2026-08-22T20-53-40.518Z
+freebuff --continue 2026-08-28T00-49-36.310Z

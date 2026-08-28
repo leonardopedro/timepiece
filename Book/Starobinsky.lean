@@ -23,6 +23,38 @@ meets at the level of the spatial metric.
 :::
 
 :::paragraph
+The 3D gauge fixing of the Cadabra2 derivation is done entirely in **metric
+variables** — no vielbein is needed here. The steps are the synchronous gauge
+$`N = 1, N^i = 0`; the $`3+1` split $`R = R_3 + (K^2 - K_{ij}K^{ij})`; the
+conformal decomposition of the spatial metric
+$`R_c = \Omega^{-4}\bar R_c - 8\Omega^{-5}\bar\nabla^2\Omega`; the
+Navier–Stokes-style fixing of the spatial derivative variables
+($`(\partial_i\varphi)(\partial^i\varphi) \to \text{grad}^2`); and the
+Hamiltonian constraint solved for the conformal-mode curvature $`R_c`. The
+vielbein is only *required* for the teleparallel (torsion) formulation — the
+torsion scalar $`T` and the Weitzenböck connection are built from the vielbein
+and its local Lorentz freedom must be gauge-fixed, which is the TEGR module's
+job. Starobinsky is $`f(R)`, a function of the *Ricci scalar* — a metric
+object — so the ADM split and the conformal-mode stabilization are
+self-contained in the metric.
+:::
+
+:::paragraph
+Since the base theory is teleparallel-equivalent to GR
+($`eR = e\cdot T + \text{divergence}`, the TEGR identity verified in
+`Book/BaryonAsymmetry.lean`), this construction *could* equally be carried out
+in the vielbein variables of the TEGR module, with the *same* teleparallel
+restrictions on the frame (Weitzenböck connection: metric-compatible,
+curvature-free, torsion-carrying). Writing $`R = T + B` with the boundary term
+$`B = 2\nabla_\mu T^\mu`, the $`R^2` action would read $`\int e\, f(T+B)` — a
+functional of the torsion scalar *and* its boundary term. It is therefore
+**not** a pure $`f(T)` (teleparallel) action: $`f(T+B) \neq f(T)` generically,
+and pure $`f(T)` gravity is a different theory. Everything below depends only
+on $`R = T + B`, so the scalar–tensor reduction, the conformal-mode parabola,
+and $`H_{\rm final}` are unchanged by the choice of variables.
+:::
+
+:::paragraph
 The verified content here is the full chain: the classical scalar–tensor
 equivalence, the Einstein-frame scalaron potential and its shape, the
 regularization of the conformal mode, essential self-adjointness of the
@@ -150,6 +182,29 @@ Hamiltonian is a well-defined self-adjoint operator whose unitary flow is the
 quantized dynamics — the formal counterpart of the Fock realization
 $`\sum_i m \, N_i` with $`m^2 = M^2/(12\alpha)` used in the numerical
 validation of the model.
+:::
+
+:::paragraph
+**The final Hamiltonian is the one-particle Hamiltonian enclosed in creation
+(on the left) and annihilation (on the right) operators on the nested Fock
+space** — the same doctrine as QYM, QED, and NS: $`H = \sum_{ij} h_{ij}
+C^\dagger(e_i) A(e_j)` with $`h = h_{\rm TEGR} \oplus (m)` for the vielbein
+(teleparallel) form, i.e. $`H = \sum_i :(1/16)\mathcal S_i^2: + m\,N_\psi`.
+The nested Fock space has two levels: the outer Fock space (whose ladders are
+the $`C^\dagger/A`$ of the enclosure) and the inner one-particle Hilbert space
+on which $`h`$ acts. The outer Hamiltonian is a *quadratic (free-particle-like)
+form in the outer ladders for any* $`h`$ — so the FULL Einstein-frame scalaron
+potential $`V(\varphi) = \frac{M^4}{16\alpha}(1-e^{-\sqrt{2/3}\,\varphi/M})^2`$,
+*exponential included*, may live inside $`h`$ (in the one-particle matrix
+elements $`\langle e_i, h\, e_j\rangle`$), with **no** 3-/4-particle vertices at
+the outer level. That is the realization `qg_starobinsky_vielbein_
+hamiltonian_full` in `../unfer` (the truncated-Hermite enclosure of
+$`h = \tfrac12\pi^2 + V(\hat\varphi)`$, whose one-particle spectrum is exactly
+the Schrödinger spectrum proved essentially self-adjoint above,
+`starobinskyWall_esa`); the quadratic $`m\,N_\psi`$ realization is its
+small-field limit. Either way $`\langle 0|H|0\rangle = 0`$ and the outer vacuum
+is the exact ground — the R² content never creates higher vertices at the outer
+level.
 :::
 
 # The Hermite Core: Where the Hamiltonian Is Defined

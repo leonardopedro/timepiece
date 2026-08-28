@@ -22,3 +22,5 @@ repomix-output.xml
 lib.llbc
 # Rust build artifacts
 unfer_contracts/**/target/
+
+Ottinger.md

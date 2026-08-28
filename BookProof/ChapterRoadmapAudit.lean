@@ -25,6 +25,8 @@ import BookProof.ChapterRitzCertificate
 import BookProof.ChapterFockNumberPreservingGap
 import BookProof.ChapterFockInteractionStability
 import BookProof.ChapterTempleSeparationNecessary
+import BookProof.ChapterFockPairPerturbation
+import BookProof.ChapterFockCubicUnbounded
 import BookProof.ChapterFriedrichsFormGap
 import BookProof.ChapterSirkTruncation
 import BookProof.ChapterSirkGroupTransfer
@@ -2413,5 +2415,50 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.TempleSeparationNecessary.resid_witness
 #print axioms BookProof.TempleSeparationNecessary.neg_mem_spectrum_witness
 #print axioms BookProof.TempleSeparationNecessary.separation_necessary
+
+-- `ChapterFockPairPerturbation` (plan, top work package): the next degree of perturbation —
+-- the quadratic, pair-creating field term `P(f,g) = a†(f)a†(g) + a(g)a(f)`.  The canonical
+-- commutation relation gives the exact identity `‖a†(g)u‖² = ‖a(g)u‖² + ‖g‖²‖u‖²`, hence the
+-- `(N+1)^{1/2}` estimate a quadratic term needs; the pair form is then dominated by the free
+-- form with *no* additive remainder on the vacuum-orthogonal sector, and the gap `μ` degrades
+-- only to `μ − 2√2‖f‖‖g‖`.  `pairVec_vac` and `pairVec_unbounded` record that the term really
+-- changes the particle number by two and really is unbounded.  Cubic and quartic Yang–Mills
+-- terms remain outside this chapter.
+#print axioms BookProof.FockPairPerturbation.annVec_creVec
+#print axioms BookProof.FockPairPerturbation.norm_creVec_sq
+#print axioms BookProof.FockPairPerturbation.norm_creVec_le
+#print axioms BookProof.FockPairPerturbation.abs_re_inner_pairVec_le
+#print axioms BookProof.FockPairPerturbation.pairVec_relative_form_bound
+#print axioms BookProof.FockPairPerturbation.fock_gap_of_pair_perturbation
+#print axioms BookProof.FockPairPerturbation.fock_gap_of_pair_perturbation_pos
+#print axioms BookProof.FockPairPerturbation.fock_gap_of_one_particle_form_gap_pair
+#print axioms BookProof.FockPairPerturbation.pairVec_vac
+#print axioms BookProof.FockPairPerturbation.pairVec_unbounded
+#print axioms BookProof.FockPairPerturbation.ym_fock_gap_of_pair_perturbation
+
+-- `ChapterFockCubicUnbounded` (plan, top work package): the boundary of the
+-- form-domination route.  Degrees one and two are covered by
+-- `ChapterFockFieldPerturbation` and `ChapterFockPairPerturbation`; degree three is not,
+-- and this chapter proves that it *cannot* be.  On the explicit two-term trial states
+-- `|n⟩ + c|n+3⟩` the number form, the norm and the cubic form are computed exactly, and the
+-- cubic form grows like `n^{3/2}` while the number form grows only like `n`.  Hence no
+-- relative form bound `a·⟪u,Nu⟫ + b‖u‖²` can dominate the cubic form
+-- (`cubic_no_relative_form_bound`), and `dΓ(N) + lam·C_k` is unbounded below on the
+-- vacuum-orthogonal sector at every coupling strength `lam > 0`
+-- (`fock_gap_fails_for_cubic`).  The complementary `trial_cubic_quartic_bounded_below`
+-- shows that adding the normal-ordered quartic term `Q_k = (a_k†)²(a_k)²` restores a lower
+-- bound `-(lam⁴/4 + 2lam²)‖u‖²` along that same family, so the divergence is a property of
+-- a *bare* cubic term.  `cubeA` is a single-mode cubic term, not the physical Yang–Mills
+-- cubic vertex, and no mass gap of the physical Hamiltonian is claimed.
+#print axioms BookProof.FockCubicUnbounded.confNumber_confAt
+#print axioms BookProof.FockCubicUnbounded.cubeA_coord
+#print axioms BookProof.FockCubicUnbounded.trial_norm_sq
+#print axioms BookProof.FockCubicUnbounded.trial_numberQuad
+#print axioms BookProof.FockCubicUnbounded.trial_cubic_form
+#print axioms BookProof.FockCubicUnbounded.cubic_no_relative_form_bound
+#print axioms BookProof.FockCubicUnbounded.fock_gap_fails_for_cubic
+#print axioms BookProof.FockCubicUnbounded.quartA_single_confAt
+#print axioms BookProof.FockCubicUnbounded.trial_quartic_form
+#print axioms BookProof.FockCubicUnbounded.trial_cubic_quartic_bounded_below
 
 end BookProof.ChapterRoadmapAudit

@@ -1459,3 +1459,71 @@ import BookProof.ChapterFockInteractionStability
 -- a priori hypothesis `RitzCertificate.SpectralSeparation` is a genuine side condition rather
 -- than an artifact of the proof.
 import BookProof.ChapterTempleSeparationNecessary
+
+-- `ChapterFockFieldPerturbation` (CONSOLIDATED_PLAN.md, top work package).  **A genuinely
+-- unbounded, genuinely number-changing perturbation.**  `ChapterFockInteractionStability`
+-- leaves the relatively-form-bounded statement without a supplied domination; this chapter
+-- supplies one for the field operator `Φ(f) = a†(f) + a(f)`.  `norm_annVec_le` is the
+-- `N^{1/2}` estimate `‖a(f) u‖ ≤ ‖f‖⟪u, N u⟫^{1/2}`, `abs_re_inner_fieldVec_le` the form
+-- estimate, `fieldVec_relative_form_bound` the domination
+-- `|Re⟪u, Φ(f) u⟫| ≤ (t/μ)Re⟪u, dΓ(h) u⟫ + (‖f‖²/t)‖u‖²`, and
+-- `fock_gap_of_field_perturbation` the resulting gap `(μ − 2‖f‖)‖u‖²` on vacuum-orthogonal
+-- states.  `fieldVec_vac` and `fieldVec_unbounded` record that `Φ(f)` neither preserves the
+-- particle number nor is bounded, so this is not a corollary of the bounded theory.  The
+-- perturbation is linear in the field; cubic and quartic Yang–Mills terms are not covered,
+-- and no mass gap of the physical Hamiltonian is claimed.
+import BookProof.ChapterFockFieldPerturbation
+
+-- `ChapterYangMillsFockGapChain` (CONSOLIDATED_PLAN.md, "Next specialist package —
+-- instantiate the abstract gap chain").  **The abstract chain, instantiated for the concrete
+-- gauge-fixed Yang–Mills one-particle Hamiltonian.**  `isPosCol_shiftCol_opCol_of_form_gap`
+-- turns a one-particle *form* gap on the finite-mode core into the matrix condition
+-- `h − μ ≥ 0`; `ym_fock_vacuum_annihilated` records unconditionally that the outer vacuum is
+-- an exact zero-energy eigenstate of `dΓ(H₁)`; `ym_fock_gap_of_one_particle_form_gap` and
+-- `ym_fock_mass_gap_of_one_particle_form_gap` lift a one-particle form gap for
+-- `ymHamiltonian (coreRepBasis e) fabc` to the final nested-Fock Hamiltonian, the latter
+-- together with the positive self-adjoint (Friedrichs) extension of
+-- `ChapterFockSecondQuantization.ym_fock_friedrichs_extension`; and
+-- `ym_fock_gap_of_field_perturbation` adds the unbounded number-changing field coupling of
+-- `ChapterFockFieldPerturbation`.  `ym_fock_gap_of_nested_ritz_bands` feeds the certified
+-- band data in through `BandEnclosure.friedrichs_form_gap_of_nested_ritz_bands`, so that no
+-- displayed Ritz value is read as a lower bound.  Everything is **conditional on the one-particle form
+-- gap**, which is not proved: the SIRK/Hashimoto certificate remains a finite-truncation
+-- statement and no mass gap of the physical Yang–Mills Hamiltonian is claimed.
+import BookProof.ChapterYangMillsFockGapChain
+
+-- `ChapterFockPairPerturbation` (CONSOLIDATED_PLAN.md, top work package).  **The next degree:
+-- a quadratic, pair-creating unbounded perturbation.**  `ChapterFockFieldPerturbation` covers
+-- the linear coupling `Φ(f)`, which changes the particle number by one; this chapter covers
+-- `P(f,g) = a†(f)a†(g) + a(g)a(f)`, which changes it by two.  `annVec_creVec` is the vector
+-- canonical commutation relation `a(g)a†(g) = a†(g)a(g) + ‖g‖²`, `norm_creVec_sq` the exact
+-- identity `‖a†(g)u‖² = ‖a(g)u‖² + ‖g‖²‖u‖²` and `norm_creVec_le` the `(N+1)^{1/2}` estimate
+-- that a quadratic term needs.  `pairVec_relative_form_bound` dominates the pair form by the
+-- free form with no additive remainder on vacuum-orthogonal states, and
+-- `fock_gap_of_pair_perturbation` leaves the gap `(μ − 2√2‖f‖‖g‖)‖u‖²`;
+-- `fock_gap_of_one_particle_form_gap_pair` and `ym_fock_gap_of_pair_perturbation` feed it from
+-- the certificate chain and from the concrete gauge-fixed Yang–Mills datum.  `pairVec_vac` and
+-- `pairVec_unbounded` record that the term is genuinely number-changing and genuinely
+-- unbounded.  Cubic and quartic Yang–Mills interaction terms are still not covered, and no
+-- mass gap of the physical Hamiltonian is claimed.
+import BookProof.ChapterFockPairPerturbation
+
+-- `ChapterFockCubicUnbounded` (CONSOLIDATED_PLAN.md, top work package).  **Where the
+-- form-domination route stops.**  `ChapterFockFieldPerturbation` and
+-- `ChapterFockPairPerturbation` keep a gap through a linear and a quadratic unbounded
+-- coupling by dominating the perturbing form by the free form.  This chapter shows that the
+-- boundary at degree two is real and not an artefact of the write-up: for the single-mode
+-- cubic term `cubeA k = (a_k†)³ + (a_k)³`, `cubic_no_relative_form_bound` produces, for
+-- *every* pair of constants `a, b`, a vacuum-orthogonal finite-particle state violating
+-- `a·⟪u,Nu⟫ + b‖u‖² ≥ Re⟪u, C_k u⟫`, so the relative-form-bound hypothesis of
+-- `ChapterFockInteractionStability.gap_persists_of_relative_form_bound` is unattainable at
+-- degree three; and `fock_gap_fails_for_cubic` shows the consequence, that `dΓ(N) + lam·C_k`
+-- is unbounded below on the vacuum-orthogonal sector for every `lam > 0`.  The witnesses are
+-- the explicit two-term states `|n⟩ + c|n+3⟩`, whose number form, norm and cubic form are
+-- computed exactly (`trial_numberQuad`, `trial_norm_sq`, `trial_cubic_form`).  `cubeA` is a
+-- single-mode term, not the full Yang–Mills cubic vertex, and a physical cubic term comes
+-- with a quartic term bounded below: `trial_cubic_quartic_bounded_below` makes that precise
+-- along the same family, showing that adding `quartA k = (a_k†)²(a_k)²` restores the lower
+-- bound `-(lam⁴/4 + 2lam²)‖u‖²`.  What is proved is that *this route* cannot reach degree
+-- three, not that no gap exists.  No mass gap of the physical Hamiltonian is claimed.
+import BookProof.ChapterFockCubicUnbounded
