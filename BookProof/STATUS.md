@@ -16,6 +16,139 @@ targets, 8749 jobs) and `lake build RandomMap` (8039 jobs) succeed with no error
 `propext`, `Classical.choice`, `Quot.sound`.  The `patches/*.sh` scripts had lost their
 executable bit in this snapshot; it has been restored.
 
+## Latest wave (2026-08-29d, **the abelian one-particle form gap is false**)
+
+Three new modules, all `sorry`-free and audited to `propext`, `Classical.choice`,
+`Quot.sound` in `ChapterRoadmapAudit.lean`; verified with
+`lake build BookProof.ChapterRoadmapAudit` (8338 jobs, 0 errors).
+
+This wave closes the last open item of the plan's 2026-08-28j next-steps list — item 1, the
+one-particle form gap for gauge-fixed QYM on the Gauss-polynomial core — **negatively, in
+the abelian case**.
+
+* **`BookProof/ChapterGaussCoordCombo.lean`** (`BookProof.GaussCoordCombo`) — the
+  one-coordinate Hermite calculus on the Gauss-polynomial core.
+  `gaussInt_hermiteFactor_mul` is the relative orthogonality statement: the Gaussian
+  integral of `He_m(x_i)He_n(x_i)R` vanishes for `m ≠ n` whenever `R` does not involve
+  `x_i`.  `coordCombo i c p K = Σ_{k≤K} c_k He_{2k+p}(x_i)` is the finite combination whose
+  exact Gaussian square norm `gaussInt_coordCombo_sq` computes as `Σ_{k≤K} c_k²(2k+p)!`,
+  and `gaussInt_prod_coordFactor` multiplies such one-coordinate factors across a finite
+  set of coordinates.
+
+* **`BookProof/ChapterSqueezedGaussStates.lean`** (`BookProof.SqueezedGaussStates`) — the
+  truncated squeezed states.  `squeezeState i v M = Σ_{m≤M}(vᵐ/m!)He_{2m}(x_i)` is a
+  rescaled Gaussian cut off at order `M`, so it lies in the polynomial core;
+  `op_squeezeState` computes `(αx_i + γ∂_i)` on it in closed form as an odd Hermite
+  combination with interior coefficients `κ·a_k`, `κ = α(1+2v)+2γv`, plus a boundary term.
+  `Usum_identity` is the exact recursion
+  `(1−4v²)Σ_{m≤M}(2m+1)A_m = Σ_{m≤M}A_m − 4v²(2M+1)A_M` for `A_m = (vᵐ/m!)²(2m)!`, and
+  `coordComboSum_opCoef_le` turns it into the ratio bound
+  `κ²/(1−4v²) + α²(2M+1)(4v²)^M`.  Hence **`exists_position_small`** (`α,γ = 1,0`,
+  `v → −½`) and **`exists_momentum_small`** (`α,γ = −½,1`, `v → ½`): both the position
+  quotient `‖x_iQ‖²/‖Q‖²` and the momentum quotient `‖(−x_i/2 + ∂_i)Q‖²/‖Q‖²` can be made
+  arbitrarily small on the core.  No asymptotics are needed — every step is an algebraic
+  identity plus a geometric-series estimate.
+
+* **`BookProof/ChapterYangMillsAbelianNoGap.lean`** (`BookProof.YangMillsAbelianNoGap`) —
+  the answer.  `norm_op_bigP_le` transports the one-coordinate bounds to the 99-variable
+  product state `bigP`, `magPoly_abelian` records that at `fabc = 0` the magnetic
+  polynomial is `Σ_{jk} ε_{ijk}X_{idxD j k a}`, linear in the momentum-free derivative
+  coordinates, and `idxA_lt`/`idxD_ge` separate the two coordinate blocks.  Assembling 24
+  momentum and 24 magnetic bounds gives **`exists_core_state_small_energy`**: for every
+  `ε > 0` a nonzero core state of energy at most `ε‖x‖²`, whence
+  **`ym_abelian_no_one_particle_form_gap`**: for every `μ > 0` the hypothesis that
+  `ChapterYangMillsFockGapChain` consumes fails.  This is a statement about `fabc = 0`
+  only.  What it *does* say about the general case is that no proof of the hypothesis can
+  be uniform in the structure constants: it must use the quartic `f_{abc}AA` term.  The
+  non-abelian case remains open, and no mass gap of a physical Yang-Mills Hamiltonian is
+  claimed anywhere in this library.
+
+## Previous wave (2026-08-29c, **QG vielbein reassembly, QED, and the Navier–Stokes fiber**)
+
+Three new modules, all `sorry`-free and audited to `propext`, `Classical.choice`,
+`Quot.sound` in `ChapterRoadmapAudit.lean`; verified with
+`lake build BookProof.ChapterRoadmapAudit` (8335 jobs, 0 errors).
+
+* **`BookProof/ChapterVielbeinFiberFock.lean`** (`BookProof.VielbeinFock`) — plan item
+  4(a): the explicit fibrewise reassembly of the vielbein/TEGR model.  Each quantum carries
+  `d` harmonic shear fibers with frequencies `ω` and one Starobinsky scalaron fiber, giving
+  the `n`-particle potential `∑ⱼ (∑ᵢ ½ωᵢ²yᵢ(j)² + V(φ(j)))` on `ℝ^(n×(d+1))`.
+  `vielbeinFock_esa` (essential self-adjointness on the nested Fock space),
+  `vielbeinFock_stone_flow`, `vielbeinFock_symmetric`,
+  `vielbeinFock_deficiencyTrivialAt` and the uniform lower bound
+  `vielbeinManyPotential_nonneg` follow as thin glue over `fockSmoothPotential_esa`;
+  `vielbeinManyPotential_scalaron_fiber` identifies the scalaron fiber with the formalized
+  `starobinskyV`.
+
+* **`BookProof/ChapterQedFockGapChain.lean`** (`BookProof.QedFockGapChain`) — plan item 2:
+  the QED instantiation of the diagonal gap chain, with the masslessness stated honestly.
+  `photon_fock_positivity` is `diag_fock_gap` at `m = 0` (vacuum annihilated, energy
+  non-negative, **no gap**), and `photon_no_one_particle_gap` *proves* the obstruction: for
+  an infrared-accumulating momentum assignment and every `m > 0` the one-particle form gap
+  fails, so no instantiation of the chain can give the photon a mass gap.  A gapped
+  statement needs a regulator (`irPhoton_fock_mass_gap`, gap `μ`) or a massive dispersion
+  (`proca_fock_mass_gap`, gap `m`).  The general ingredients are
+  `diagOnePart_quadForm_basis` (the diagonal form on a single mode is that mode's energy)
+  and `diagOnePart_no_form_gap`.
+
+* **`BookProof/ChapterNavierStokesFiberGap.lean`** (`BookProof.NavierStokesFlow.FiberGap`) —
+  plan item 3, scoped to what the Eulerian fiber can certify.  The fiber Hamiltonian
+  `canH A c = ∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` is first order: `ladFun_coreState_self` shows every
+  raising/lowering family moves the multi-index and the two surviving `i = k` families carry
+  `coefPair A i i = coefRot A i i = 0`, so `nsFiber_quadForm_coreState` gives a vanishing
+  quadratic form at every Hermite basis state and **`nsFiber_no_form_gap`** rules out a
+  one-particle form gap at any positive level — the constant/diagonal chains cannot be
+  instantiated for this fiber.  What the fiber does carry is
+  **`nsComparison_friedrichs_gap`**: the Faris–Lavine comparison operator `nsDiffN μ` on the
+  Gauss–polynomial core of `L²(ℝ³)` has a positive self-adjoint (Friedrichs) extension,
+  selected by the Hashimoto shift-invert at `γ = 1`, with `⟪y, N y⟫ ≥ ‖y‖²` on its whole
+  domain.  The gap is a statement about the control operator, not about the Navier–Stokes
+  Hamiltonian, and nothing about classical Navier–Stokes regularity is claimed.
+
+## Previous wave (2026-08-29, **the strict one-particle edge of the Starobinsky fiber**)
+
+`BookProof/ChapterScalaronEdge.lean` (namespace `BookProof.ScalaronEdge`) is now
+`sorry`-free: it executes item 4 of the plan's top work package, the strict one-particle
+edge `⟪h_ψ ψ, ψ⟫ ≥ E₀‖ψ‖²` for the full-exponential scalaron fiber
+`h_ψ = −d²/dφ² + starobinskyV(φ̂)` on the compactly supported smooth core of `L²(ℝ)`.
+
+* **Shelf constant corrected.**  The module previously declared
+  `edgeShelf = M⁴/(4α)`, which is *above* the plateau `M⁴/(16α)` that
+  `starobinskyV_tendsto_plateau` proves; at such a threshold the sublevel set `{V < c}`
+  contains a right half-line and the boundedness claim is false.  The working threshold is
+  now `edgeShelf = M⁴/(32α)`, strictly below the plateau.
+
+* `starobinskyV_lt_shelf_bounded` — for `0 < c < edgeShelf` the classically allowed region
+  `{φ | V(φ) < c}` lies in `[−A, B]` with the explicit positive endpoints
+  `A = log(1 + √(c/K))/a`, `B = −log(1 − √(c/K))/a`, `K = M⁴/(16α)`, `a = √(2/3)/M`.  The
+  hypothesis `0 < M` had to be added: at `M = 0` the potential vanishes identically and the
+  statement is false.
+
+* `edge_sup_sq_le` — the one-dimensional sup bound `‖f(x)‖² ≤ δ∫|f|² + δ⁻¹∫|f'|²` for every
+  compactly supported `C²` function and every `δ > 0`, by integrating `d/dt‖f‖²` from a
+  point to the left of the support; `edge_energy_bound` turns it into the confinement
+  estimate `∫|f'|² + ∫V|f|² ≥ min(1/(4(A+B)²), c/2)·∫|f|²` whenever `V ≥ 0` everywhere and
+  `V ≥ c` outside `[−A, B]`.  No Poincaré/Wirtinger input is needed.
+
+* **`starobinskyEdge_form_gap` / `starobinskyEdge_quadForm`** — the strict edge with the
+  explicit `E₀ = min(1/(4(A+B)²), c/2) > 0`, in the `quadForm` shape and in the `L²`
+  pairing shape.
+
+* **`scalaronEdge_friedrichs_gap`** — the edge off the core: since the fiber Hamiltonian is
+  densely defined, symmetric and (by the edge) positive, `friedrichs_extension_form_gap`
+  gives a positive self-adjoint extension which is the operator the Hashimoto shift-invert
+  scheme selects at `γ = 1` and which satisfies `⟪y, A y⟫ ≥ E₀‖y‖²` on its whole domain.
+
+* **Honest boundary.**  The number-preserving `dΓ` lift of
+  `ChapterFockNumberPreservingGap` is *not* instantiated for this fiber: it consumes a
+  one-particle operator that is an endomorphism of the finite-mode domain of a Hilbert
+  basis, and `−d²/dφ² + V` leaves no finite-mode subspace of the compactly supported core
+  invariant.  The Friedrichs transfer is the honest off-core statement here.  `E₀` is the
+  constructive (non-sharp) confinement constant; the numerically observed `E₀ ≈ 0.689` at
+  `α = 1/12` is a sharper statement that is *not* claimed.  That this fiber operator is the
+  scalaron sector's one-particle input of the enclosure doctrine remains a modelling
+  statement, and no mass gap of any physical Yang–Mills or gravity Hamiltonian is claimed.
+
 ## Latest wave (2026-08-28i, **the gap chain, instantiated unconditionally for the scalaron sector**)
 
 One new module, `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,

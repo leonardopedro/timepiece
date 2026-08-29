@@ -48,6 +48,13 @@ import BookProof.ChapterHermiteQuadraticEsa
 import BookProof.ChapterQgOneParticleCcEsa
 import BookProof.ChapterWeakSecondDerivative
 import BookProof.ChapterScalaronWallEsa
+import BookProof.ChapterScalaronEdge
+import BookProof.ChapterVielbeinFiberFock
+import BookProof.ChapterQedFockGapChain
+import BookProof.ChapterNavierStokesFiberGap
+import BookProof.ChapterGaussCoordCombo
+import BookProof.ChapterSqueezedGaussStates
+import BookProof.ChapterYangMillsAbelianNoGap
 import BookProof.ChapterQuantumGravityFock
 import BookProof.ChapterQgBrstCompleted
 import BookProof.ChapterBrstTruncationLeakage
@@ -2527,5 +2534,85 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.FockDiagonalGapChain.diag_fock_cubic_quartic_bounded_below
 #print axioms BookProof.FockDiagonalGapChain.freeDispersion_ge
 #print axioms BookProof.FockDiagonalGapChain.freeField_fock_mass_gap
+
+-- `ChapterScalaronEdge` (plan §state 29, item 4): the strict one-particle edge of the
+-- Starobinsky fiber.  The plateau of `V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` is `M⁴/(16α)`,
+-- so for `0 < c < edgeShelf = M⁴/(32α)` the classically allowed region is the explicit
+-- bounded window `[−A, B]`; the one-dimensional sup bound `‖f(x)‖² ≤ δ‖f‖² + δ⁻¹‖f'‖²`
+-- then confines the core and yields the strict form gap `E₀ = min(1/(4(A+B)²), c/2) > 0`,
+-- which `scalaronEdge_friedrichs_gap` transfers to the Friedrichs extension.
+#print axioms BookProof.ScalaronEdge.starobinskyEdgeHam_symmetricOn
+#print axioms BookProof.ScalaronEdge.starobinskyV_lt_shelf_bounded
+#print axioms BookProof.ScalaronEdge.edge_normSq_hasDerivAt
+#print axioms BookProof.ScalaronEdge.edge_re_mul_le
+#print axioms BookProof.ScalaronEdge.edge_sup_sq_le
+#print axioms BookProof.ScalaronEdge.edge_energy_bound
+#print axioms BookProof.ScalaronEdge.starobinskyEdge_inner_eq
+#print axioms BookProof.ScalaronEdge.starobinskyEdge_quadForm_eq
+#print axioms BookProof.ScalaronEdge.starobinskyEdge_form_gap
+#print axioms BookProof.ScalaronEdge.starobinskyEdge_quadForm
+#print axioms BookProof.ScalaronEdge.scalaronEdge_friedrichs_gap
+
+-- `ChapterVielbeinFiberFock` (plan §state 28j next steps, item 4(a)): the explicit
+-- fibrewise reassembly of the vielbein/TEGR model — `d` harmonic shear fibers plus one
+-- Starobinsky scalaron fiber per quantum — on the nested Fock space `⊕ₙ L²(ℝ^(n×(d+1)))`,
+-- as thin glue over the generic instrument `fockSmoothPotential_esa`.
+#print axioms BookProof.VielbeinFock.inner_vielbeinDir
+#print axioms BookProof.VielbeinFock.vielbeinManyPotential_apply
+#print axioms BookProof.VielbeinFock.vielbeinManyPotential_scalaron_fiber
+#print axioms BookProof.VielbeinFock.contDiff_vielbeinManyPotential
+#print axioms BookProof.VielbeinFock.vielbeinManyPotential_nonneg
+#print axioms BookProof.VielbeinFock.vielbeinManyPotential_esa
+#print axioms BookProof.VielbeinFock.vielbeinFockCore_dense
+#print axioms BookProof.VielbeinFock.vielbeinFock_symmetric
+#print axioms BookProof.VielbeinFock.vielbeinFock_deficiencyTrivialAt
+#print axioms BookProof.VielbeinFock.vielbeinFock_esa
+#print axioms BookProof.VielbeinFock.vielbeinFock_stone_flow
+#print axioms BookProof.VielbeinFock.vielbeinFock_potential_ge
+
+-- `ChapterQedFockGapChain` (plan §state 28j next steps, item 2): the QED instantiation of
+-- the diagonal gap chain.  The free photon energy `ω_k = |p_k|` gives positivity at `m = 0`
+-- and no gap — `photon_no_one_particle_gap` proves the obstruction for an
+-- infrared-accumulating momentum assignment — while an infrared regulator `μ > 0` or a
+-- massive (Proca) dispersion restores the nested-Fock mass gap.
+#print axioms BookProof.QedFockGapChain.diagOnePart_quadForm_basis
+#print axioms BookProof.QedFockGapChain.diagOnePart_no_form_gap
+#print axioms BookProof.QedFockGapChain.photonDispersion_nonneg
+#print axioms BookProof.QedFockGapChain.photon_fock_positivity
+#print axioms BookProof.QedFockGapChain.photon_no_one_particle_gap
+#print axioms BookProof.QedFockGapChain.irPhotonDispersion_ge
+#print axioms BookProof.QedFockGapChain.irPhoton_fock_mass_gap
+#print axioms BookProof.QedFockGapChain.proca_fock_mass_gap
+
+-- `ChapterNavierStokesFiberGap` (plan §state 28j next steps, item 3): what the
+-- Navier–Stokes Eulerian fiber can certify.  The fiber Hamiltonian is first order, so its
+-- quadratic form vanishes at every Hermite basis state and it has no one-particle form gap
+-- (`nsFiber_no_form_gap`); the Faris–Lavine comparison operator does carry a Friedrichs
+-- form gap (`nsComparison_friedrichs_gap`).
+#print axioms BookProof.NavierStokesFlow.FiberGap.cFun_coreState_self
+#print axioms BookProof.NavierStokesFlow.FiberGap.aFun_coreState_self
+#print axioms BookProof.NavierStokesFlow.FiberGap.ladFun_coreState_self
+#print axioms BookProof.NavierStokesFlow.FiberGap.canH_coreState_self
+#print axioms BookProof.NavierStokesFlow.FiberGap.nsFiber_quadForm_coreState
+#print axioms BookProof.NavierStokesFlow.FiberGap.norm_coreState
+#print axioms BookProof.NavierStokesFlow.FiberGap.nsFiber_no_form_gap
+#print axioms BookProof.NavierStokesFlow.FiberGap.nsComparison_friedrichs_gap
+
+-- `ChapterGaussCoordCombo`, `ChapterSqueezedGaussStates` and `ChapterYangMillsAbelianNoGap`
+-- (plan §state 28j next steps, item 1): the one-coordinate Hermite calculus on the
+-- Gauss-polynomial core, the truncated squeezed states built from it, and the resulting
+-- negative answer for the abelian one-particle form gap.
+#print axioms BookProof.GaussCoordCombo.gaussInt_hermiteFactor_mul
+#print axioms BookProof.GaussCoordCombo.gaussInt_coordCombo_sq
+#print axioms BookProof.GaussCoordCombo.gaussInt_prod_coordFactor
+#print axioms BookProof.SqueezedGaussStates.op_squeezeState
+#print axioms BookProof.SqueezedGaussStates.Usum_identity
+#print axioms BookProof.SqueezedGaussStates.coordComboSum_opCoef_le
+#print axioms BookProof.SqueezedGaussStates.exists_position_small
+#print axioms BookProof.SqueezedGaussStates.exists_momentum_small
+#print axioms BookProof.YangMillsAbelianNoGap.magPoly_abelian
+#print axioms BookProof.YangMillsAbelianNoGap.norm_op_bigP_le
+#print axioms BookProof.YangMillsAbelianNoGap.exists_core_state_small_energy
+#print axioms BookProof.YangMillsAbelianNoGap.ym_abelian_no_one_particle_form_gap
 
 end BookProof.ChapterRoadmapAudit

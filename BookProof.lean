@@ -309,6 +309,9 @@ import BookProof.ChapterRieszFischer
 import BookProof.ChapterPaFreeCompletion
 import BookProof.ChapterDefinabilityFragment
 import BookProof.ChapterScalaronEdge
+import BookProof.ChapterVielbeinFiberFock
+import BookProof.ChapterQedFockGapChain
+import BookProof.ChapterNavierStokesFiberGap
 
 import BookProof.ChapterFiniteArithmeticPrior
 import BookProof.ChapterCountableDefinability
@@ -1583,3 +1586,33 @@ import BookProof.ChapterScalaronFockGapChain
 -- and no gap; that a physical sector is diagonal in the mode basis is a modelling input, not
 -- a theorem here.
 import BookProof.ChapterFockDiagonalGapChain
+
+-- `ChapterGaussCoordCombo` (plan §state 28j next steps, item 1): the one-coordinate Hermite
+-- calculus on the Gauss–polynomial core.  `gaussInt_hermiteFactor_mul` is the relative
+-- orthogonality statement — the Gaussian integral of `He_m(x_i)He_n(x_i)R` vanishes when
+-- `m ≠ n` and `R` does not involve `x_i` — and `coordCombo i c p K` is the finite Hermite
+-- combination `Σ_{k≤K} c_k He_{2k+p}(x_i)` whose Gaussian square norm `gaussInt_coordCombo_sq`
+-- computes.  `gaussInt_prod_coordFactor` multiplies such one-coordinate factors across a
+-- finite set of coordinates.
+import BookProof.ChapterGaussCoordCombo
+
+-- `ChapterSqueezedGaussStates` (plan §state 28j next steps, item 1): truncated squeezed
+-- states.  `squeezeState i v M` is the truncated Hermite expansion `Σ_{m≤M} (vᵐ/m!) He_{2m}(x_i)`
+-- of a rescaled Gaussian, `op_squeezeState` computes `(αx_i + γ∂_i)` on it in closed form, and
+-- `coordComboSum_opCoef_le` bounds the resulting Gaussian square norm by
+-- `κ²/(1−4v²) + α²(2M+1)(4v²)^M` with `κ = α(1+2v) + 2γv`.  Hence `exists_position_small` and
+-- `exists_momentum_small`: the position quotient `‖x_i Q‖²/‖Q‖²` and the momentum quotient
+-- `‖(−x_i/2 + ∂_i)Q‖²/‖Q‖²` can both be made arbitrarily small on the core.
+import BookProof.ChapterSqueezedGaussStates
+
+-- `ChapterYangMillsAbelianNoGap` (plan §state 28j next steps, item 1): **the one-particle form
+-- gap hypothesis of `ChapterYangMillsFockGapChain` is false in the abelian case.**  For
+-- vanishing structure constants the gauge-fixed Yang–Mills quadratic form is
+-- `½Σ‖π_m x‖² + ½Σ‖B_m x‖²` with momenta acting only on the 24 field coordinates and the
+-- magnetic term linear in the momentum-free derivative coordinates; widening in the former and
+-- narrowing in the latter drives the Rayleigh quotient to zero.  `exists_core_state_small_energy`
+-- produces, for every `ε > 0`, a nonzero core state of energy at most `ε‖x‖²`, and
+-- `ym_abelian_no_one_particle_form_gap` concludes that no `μ > 0` works.  This is a negative
+-- result about `fabc = 0` only; it says nothing about the non-abelian case beyond the fact that
+-- no proof of the hypothesis can be uniform in the structure constants.
+import BookProof.ChapterYangMillsAbelianNoGap

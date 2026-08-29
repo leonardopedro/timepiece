@@ -1,5 +1,126 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
+## State update — 2026-08-29d: item 1 answered — the abelian one-particle form gap is **false**
+
+Executed and **compiled** (`lake build BookProof.ChapterRoadmapAudit`: 0 errors, no `sorry`;
+every new public result audited to `propext`, `Classical.choice`, `Quot.sound`).
+
+The last open item of the 2026-08-28j next-steps list was item **1**, the one-particle form
+gap `⟪x, H₁x⟫ ≥ μ‖x‖²` for gauge-fixed QYM on the Gauss–polynomial core, which
+`ChapterYangMillsFockGapChain` consumes as a hypothesis.  This wave settles it **in the
+abelian case, negatively**, and builds the Hermite machinery that the analysis needs.
+
+1. **The abelian answer.**  `BookProof/ChapterYangMillsAbelianNoGap.lean`
+   (`BookProof.YangMillsAbelianNoGap`): for vanishing structure constants
+   (`fabc = 0`) the hypothesis is false at every level.
+   `exists_core_state_small_energy` produces, for every `ε > 0`, a nonzero core state with
+   `quadForm (ymHamiltonian (coreRepBasis e) 0) x ≤ ε‖x‖²`, and
+   `ym_abelian_no_one_particle_form_gap` concludes `¬ ∀ x, μ‖x‖² ≤ quadForm … x` for every
+   `μ > 0`.  The mechanism is structural and visible in `ymHamiltonian_quadForm`
+   `= ½Σ_{m<24}‖π_m x‖² + ½Σ_{m<24}‖B_m x‖²`: the momenta `π_m = −i∂/∂A` act only in the 24
+   field coordinates, while at `fabc = 0` the magnetic term `B_{ia} = Σ_{jk} ε_{ijk}X_{idxD j k a}`
+   (`magPoly_abelian`) is *linear in the momentum-free derivative coordinates*.  Widening the
+   state in the field coordinates makes the momentum terms small; narrowing it in the
+   derivative coordinates makes the magnetic terms small; nothing couples the two, so the
+   Rayleigh quotient goes to `0`.
+2. **The machinery.**  `BookProof/ChapterGaussCoordCombo.lean` (`BookProof.GaussCoordCombo`)
+   is the one-coordinate Hermite calculus on the core: relative orthogonality
+   (`gaussInt_hermiteFactor_mul`), the finite combinations `coordCombo i c p K` with their
+   exact Gaussian square norms (`gaussInt_coordCombo_sq`), and the product rule across
+   coordinates (`gaussInt_prod_coordFactor`).
+   `BookProof/ChapterSqueezedGaussStates.lean` (`BookProof.SqueezedGaussStates`) builds the
+   truncated squeezed states `squeezeState i v M = Σ_{m≤M}(vᵐ/m!)He_{2m}(x_i)`, computes
+   `(αx_i + γ∂_i)` on them exactly (`op_squeezeState`) and bounds the resulting norm by
+   `κ²/(1−4v²) + α²(2M+1)(4v²)^M`, `κ = α(1+2v)+2γv` (`coordComboSum_opCoef_le`, via the
+   exact recursion `Usum_identity`).  Since `κ → 0` as `v → −½` for `(α,γ) = (1,0)` and as
+   `v → ½` for `(α,γ) = (−½,1)`, both the position and the momentum quotient can be made
+   arbitrarily small: `exists_position_small`, `exists_momentum_small`.  These are
+   *finite-truncation, no-asymptotics* statements — everything is an algebraic identity plus
+   a geometric-series bound.
+3. **What is still open.**  The **non-abelian** case, `fabc ≠ 0`.  The negative result shows
+   that no proof of the gap hypothesis can be uniform in the structure constants: any proof
+   must use the quartic `f_{abc}AA` term of `magPoly`, which restores a confining potential
+   in the field coordinates.  Establishing (or refuting) the gap there — a Simon-type
+   discreteness argument for the `f_{abc}AA` potential — remains the conditional frontier of
+   the gap programme; `ChapterYangMillsFockGapChain` continues to carry it as an explicit
+   hypothesis.  All earlier honest boundaries are unchanged: `1.932` remains a certified
+   truncated number, and no mass gap of a physical Yang–Mills or gravity Hamiltonian is
+   claimed.
+
+## State update — 2026-08-29c: next steps 4(a), 2 and 3 landed (verified build)
+
+Executed and **compiled** (`lake build BookProof.ChapterRoadmapAudit`: 8335 jobs, 0 errors,
+no `sorry`; every new public result audited to `propext`, `Classical.choice`, `Quot.sound`).
+
+1. **Item 4(a) — the vielbein/TEGR fibrewise reassembly** is done:
+   `BookProof/ChapterVielbeinFiberFock.lean` (`BookProof.VielbeinFock`) names the fiber list
+   (`d` harmonic shear fibers with frequencies `ω` plus one Starobinsky scalaron fiber per
+   quantum), builds the `n`-particle potential `∑ⱼ (∑ᵢ ½ωᵢ²yᵢ(j)² + V(φ(j)))` on
+   `ℝ^(n×(d+1))`, and runs the generic instrument: `vielbeinFock_esa`,
+   `vielbeinFock_stone_flow`, symmetry, trivial deficiency, and the uniform lower bound `0`.
+   `vielbeinManyPotential_scalaron_fiber` identifies the scalaron fiber with the formalized
+   `starobinskyV`.
+2. **Item 2 — QED** is done: `BookProof/ChapterQedFockGapChain.lean`.  The free photon
+   instantiation gives positivity and **no gap** (`photon_fock_positivity`, `m = 0`), and
+   the obstruction is *proved*, not merely asserted: `photon_no_one_particle_gap` shows the
+   one-particle form gap fails for every `m > 0` when the momenta accumulate at zero.
+   Gapped statements are attached to the regulated (`irPhoton_fock_mass_gap`) and massive
+   (`proca_fock_mass_gap`) one-particle energies, and labelled as such.
+3. **Item 3 — NS** is done, scoped: `BookProof/ChapterNavierStokesFiberGap.lean`.  The
+   Eulerian fiber Hamiltonian's quadratic form vanishes at every Hermite basis state
+   (`nsFiber_quadForm_coreState`, via the ladder normal form and
+   `coefPair A i i = coefRot A i i = 0`), so `nsFiber_no_form_gap`: no one-particle form gap
+   at any positive level, and the constant/diagonal chains do not apply to this fiber.  What
+   the fiber certifies is `nsComparison_friedrichs_gap`: the Faris–Lavine comparison
+   operator `nsDiffN μ` has a positive self-adjoint (Friedrichs) extension — the one the
+   Hashimoto shift-invert selects at `γ = 1` — with `⟪y, N y⟫ ≥ ‖y‖²` on its whole domain.
+4. **Still open:** item **1**, the one-particle form gap for gauge-fixed QYM on the
+   Gauss–polynomial core — the only conditional frontier of the gap programme.  The honest
+   boundaries of the earlier waves are unchanged: `1.932` remains a certified truncated
+   number, and no mass gap of a physical Yang–Mills or gravity Hamiltonian is claimed.
+
+
+## State update — 2026-08-29b: `ChapterScalaronEdge` compiled, the strict one-particle edge is a theorem
+
+The work order of the 2026-08-29 recovery wave (below) has been executed and **compiled**
+(`lake build BookProof.ChapterScalaronEdge`, then `lake build BookProof.ChapterRoadmapAudit`:
+0 errors, no `sorry`, only `propext`, `Classical.choice`, `Quot.sound`).
+
+1. **`edgeShelf` fixed** to `M⁴/(32α)`, strictly below the proved plateau `M⁴/(16α)`
+   (`starobinskyV_tendsto_plateau`); the module header now states the plateau correctly.
+2. **`starobinskyV_lt_shelf_bounded` proved**, constructively, with the closed-form
+   endpoints `A = log(1 + s)/a`, `B = −log(1 − s)/a`, `s = √(c/K)`, `K = M⁴/(16α)`,
+   `a = √(2/3)/M`.  The hypothesis `0 < M` had to be added (at `M = 0` the potential is
+   identically `0` and the sublevel set is all of `ℝ`).
+3. **The constants were re-derived from the decomposition that the proof actually uses**, as
+   the work order permitted: `edgeKinConst A B = 1/(4(A+B)²)` and `edgeMassConst c = c/2`,
+   combined as `E₀ = min` (not `max`).
+4. **No Poincaré/Wirtinger input was needed.**  Step 4 of the work order is replaced by the
+   elementary one-dimensional sup bound `edge_sup_sq_le`:
+   `‖f(x)‖² ≤ δ∫|f|² + δ⁻¹∫|f'|²` for compactly supported `C²` `f` and any `δ > 0`,
+   obtained by integrating `d/dt‖f‖²` from a point left of the support and absorbing with
+   `2|z||w| ≤ δ|z|² + δ⁻¹|w|²`.  With `δ = 1/(2(A+B))` it gives
+   `∫_{[−A,B]}|f|² ≤ ½∫|f|² + 2(A+B)²∫|f'|²`, and outside the window `V ≥ c` bounds the
+   remainder, whence `edge_energy_bound`.
+5. **`starobinskyEdge_form_gap` / `starobinskyEdge_quadForm`** — the strict edge on the core,
+   assembled from `kinCcR_quadratic_form`, `opCc_quadratic_form` and `ccEquiv_norm_sq` of
+   `ChapterWallEsaSemibounded` (which already supply the Green identity, so no new
+   integration by parts was required).
+6. **The `dΓ` lift was replaced by the Friedrichs transfer.**  `fock_gap_of_one_particle_form_gap`
+   consumes an endomorphism of `finiteModeDomain b = span (range b)` for a Hilbert basis `b`;
+   `−d²/dφ² + V` preserves no such span (its Friedrichs extension has continuous spectrum
+   above the plateau, so no orthonormal eigenbasis exists), so that instrument does not
+   apply to this fiber.  What does apply is `friedrichs_extension_form_gap`:
+   `scalaronEdge_friedrichs_gap` gives the positive self-adjoint extension selected by the
+   Hashimoto shift-invert at `γ = 1`, carrying the *same* strict bound
+   `⟪y, A y⟫ ≥ E₀‖y‖²` on its whole domain.
+7. **Gates.**  `#print axioms` for every new public result is in `ChapterRoadmapAudit.lean`;
+   `BookProof/STATUS.md` has the wave entry.  No `Book/` prose was touched.
+
+The honest boundary of the recovery wave stands unchanged, with one addition: the
+number-preserving Fock lift is *not* claimed for this fiber (item 6 above).
+
+
 ## State update — 2026-08-29 recovery wave: `ChapterScalaronEdge` restored — WORK ORDER for the Lean4-specialist
 
 (Executes the specialist side of the 2026-08-28j next-steps **item 4**: the strict
@@ -1012,6 +1133,12 @@ proof modules — all required non-Lean inputs are vendored there, so the
 specialist works from `timepiece` alone and never reads `../unfer`. The
 planner runs the steps below in `../unfer` and re-vendors the results. See
 `unfer_contracts/MASS_GAP_REGENERATION.md` for the division of labour.
+**Status 2026-08-29:** the current bundle passes the executable gates —
+`gap_certificate_proof_verifies_in_nanoda` (and the other 11 `verify::`
+tests) are green against the vendored fixture, and the vendored
+`sirk_core_model/aeneas_sirk.sh` regenerates the Aeneas model end-to-end
+(exit 0). The specialist inherits these green artifacts; no Rust execution is
+required from them.
 
 1. Run the corrected QYM/QED/QG/NS numerical suites and emit fresh
    SIRK–Hashimoto certificates from the actual Hamiltonian constructors.
@@ -1027,13 +1154,6 @@ planner runs the steps below in `../unfer` and re-vendors the results. See
    and this plan only with values and theorem claims supported by the new
    artifacts. Until then, mark the mass-gap certificate as **pending
    regeneration**.
-
-**Status 2026-08-29:** the current bundle passes the executable gates —
-`gap_certificate_proof_verifies_in_nanoda` (and the other 11 `verify::`
-tests) are green against the vendored fixture, and the vendored
-`sirk_core_model/aeneas_sirk.sh` regenerates the Aeneas model end-to-end
-(exit 0). The specialist inherits these green artifacts; no Rust execution is
-required from them.
 
 The regeneration is an evidence refresh, not a proof that the continuum mass
  gap follows. The corrected construction still requires the one-particle
@@ -1558,14 +1678,12 @@ block lemma, T7's convergence/completeness/soundness, and the instantiation of T
 an emitted certificate — `qcdG2M4_certified_gap`).  One correction to the source
 argument: `MASS_GAP_CERTIFIED.md` §3.4 step 1's `λ₀ ≥ θ − ‖r‖` does not follow from the
 residual alone (a small residual only certifies that *some* eigenvalue is near `θ`), so
-the lower half of the bracket is carried by Temple's inequality.  Items 4–5 of §13.5
-(nanoda re-verification, Aeneas on the Rust core) are the **planner's** executable steps
-(they involve Rust; the specialist has no Rust compiler): as of 2026-08-29 the nanoda
-re-verification is **green** (`gap_certificate_proof_verifies_in_nanoda` + the other 11
-`verify::` tests pass against the vendored fixture) and the Aeneas model regenerates
-from the vendored bundle alone (exit 0); item 6 (the continuum leg) remains the
-standing boundary.  `Book/SirkReliability.lean` discusses the new layer with `#check`
-citations.
+the lower half of the bracket is carried by Temple's inequality.  Items 4–5 of §13.5 (nanoda re-verification, Aeneas on the Rust core) are the **planner's**
+executable steps (they involve Rust; the specialist has no Rust compiler): as of 2026-08-29
+the nanoda re-verification is **green** (`gap_certificate_proof_verifies_in_nanoda` + the
+other 11 `verify::` tests pass against the vendored fixture) and the Aeneas model regenerates
+from the vendored bundle alone (exit 0); item 6 (the continuum leg) remains the standing
+boundary.  `Book/SirkReliability.lean` discusses the new layer with `#check` citations.
 
 **Status (2026-08-26f — plan-only: the certified numerical bounds and the mass gap
 are now a formalization target, §13; the kernel half landed in `../unfer`).**
@@ -5564,8 +5682,7 @@ item 3 is closed (`Book/SirkReliability` gained the certificate-reader and gap-t
 sections with correct `#check` citations).  Item 2, the nanoda export, is now
 **DONE (2026-08-29, planner-run)**: `cargo test -p prob_kernel --lib verify::`
 passes all 12 tests, including `gap_certificate_proof_verifies_in_nanoda`
-against the vendored fixture — the export re-verifies in nanoda.  (Original
-item follows.)
+against the vendored fixture — the export re-verifies in nanoda.  (Original item follows.)
 
 **Priority 2 — nanoda re-verification of the mass-gap certificate.**  The Lean T6
 theorem (`certifiedGap`) is proved; the kernel emits NDJSON (`emit_gap_certificate_ndjson`)
@@ -7613,12 +7730,11 @@ are named, proved, `sorry`-free and `axiom`-free in
 `BookProof/ChapterSirkFinitePrecision.lean` and `BookProof/ChapterSirkCertifiedGap.lean`,
 the §8 gate is green, and the Book chapter cites them.  The `gap ≥ g²/2 + corr −
 (δᵒ + δᵉ)` form asked for in §13.3 is `certified_parity_gap_strong_coupling`, which keeps
-the excluded `O(g⁴)` magnetic correction as an explicit parameter.  Outstanding:
-the nanoda re-verification and the Aeneas/Verus route are the **planner's** executable
-steps — as of 2026-08-29 both are **green** (nanoda: `gap_certificate_proof_verifies_in_nanoda`
-passes against the vendored fixture; Aeneas: the vendored `aeneas_sirk.sh` regenerates
-the model end-to-end, exit 0) — and the continuum leg, which stays the recorded
-boundary.
+the excluded `O(g⁴)` magnetic correction as an explicit parameter.  Outstanding: the nanoda
+re-verification and the Aeneas/Verus route are the **planner's** executable steps — as of
+2026-08-29 both are **green** (nanoda: `gap_certificate_proof_verifies_in_nanoda` passes
+against the vendored fixture; Aeneas: the vendored `aeneas_sirk.sh` regenerates the model
+end-to-end, exit 0) — and the continuum leg, which stays the recorded boundary.
 
 * Named theorems T1–T7, `sorry`-free / `axiom`-free, §8 gate green.
 * The certified-gap instance for the kernel's `qcd_mass_gap_certified` data
@@ -7773,13 +7889,9 @@ to the kernel's emitted NDJSON) through `prob_kernel::verify::verify_export`
 The *proof* of the gap, not just the number, is re-checked by an independent
 checker (nanoda).
 
-**Where (planner-run, sibling repo):** `prob_kernel/src/verify.rs` (the
-`gap_certificate_proof_verifies_in_nanoda` test reads the vendored
-`unfer_contracts/prob_kernel/tests/fixtures/gap_certificate.ndjson` and runs
-nanoda on it).  **Status 2026-08-29: green** — all 12 `verify::` tests pass,
-including this one, against the fixture byte-identical to the vendored copy.
-The specialist never runs this; they consume the verified export and the
-generated `SirkCoreModel.lean` from the bundle.
+**Where (executed in the sibling repo):** `prob_kernel/src/verify.rs` (the
+`verify_gap_certificate_proof_verifies_in_nanoda` test exports the Lean T6
+instance and runs nanoda on it).
 
 **Input (vendored in `unfer_contracts/`):** the nanoda emitter
 `prob_kernel::verify::verify_export` already exists in the sibling repo and
