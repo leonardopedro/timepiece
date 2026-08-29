@@ -51,17 +51,19 @@ the proof tree or the book render.** ≥ 20 minutes of value: a CI job running
 `lake build` (cache get → build BookProof+Layout) + `build-book.sh` +
 `check-katex.sh` on push/PR. **Non-Lean, I can write it.**
 
-### F2 — A `nested_fock_algebra` unit test hangs the local/CI suite. (HIGH)
+### F2 — A `nested_fock_algebra` unit test hangs the local/CI suite. (FIXED)
 `test_qcd_ym_hamiltonian_outer_fock_vacuum_zero_and_hermitian`
 (`unfer/nested_fock_algebra/src/unit_tests.rs:1408`) builds `qcd_ym_hamiltonian(0.5)`
 — the **quartic** non-abelian B² term — then does a 16×16 basis apply matrix
-spot-check. In a debug build this takes >> 2 min (probably the quartic
-`expand()` cost the AGENTS.md warns about). It is **not** `#[ignore]`d, so
-`cargo test --workspace` blocks CI's `test` job. Fix options:
-(a) gate it behind the existing `run_heavy_tests.sh`/`#[ignore]` convention,
-or (b) shave the spot-check basis from 16 → 4 states / use `--release`. **A
-concrete work order for the unfer maintainer** (not me to silently rebalance
-a physics property test).
+spot-check. In a debug build this takes >> 2 min; in release it finishes in
+**0.01 s** — a pure debug-vs-release numeric-performance cliff, not a logic
+failure. Fixed 2026-08-29: the test is now `#[ignore]`d (reason string points
+at `scripts/run_heavy_tests.sh`), a release-mode heavy suite for
+`nested_fock_algebra` (`cargo test --release --lib -- --ignored`) was added to
+`run_heavy_tests.sh`, and a numerically-optimized workspace release profile
+(`lto = "thin"`, `codegen-units = 1`) was added to `unfer/Cargo.toml`. Verified:
+default `cargo test -p nested_fock_algebra` = 75 pass + 1 ignored in 16 s;
+release `--ignored` run = 1 pass in 0.01 s; release build 6 s incremental.
 
 ### F3 — `unfer_contracts` vendored bundle is consistent with live `unfer`. (OK, keep it that way)
 - `prob_kernel/tests/fixtures/gap_certificate.ndjson` is **byte-identical**
@@ -126,8 +128,9 @@ write it.**
      `CONSOLIDATED_PLAN.md` (recovery-wave header), `BookProof/STATUS.md`.
    - Keep in the commit message the honesty-boundary note and the specialist
      work order pointer.
-4. **P4 — Write the work orders** (queued, not code):
-   - `unfer`: gate the hanging QYM test (F2) behind `run_heavy_tests.sh`.
+4. **P4 — Work orders** (queued; F2 done 2026-08-29):
+   - `unfer`: ✅ F2 done — heavy QYM test gated behind `run_heavy_tests.sh`
+     (release mode) + numeric release profile (commit 2fa3eb8).
    - `unfer`: regenerate `sirk_core_model/aeneas` after core settles (F4).
    - `australVM`: pin opam/dune toolchain + document `arctic` dep (F3/F6).
    - Standardise `rust-toolchain` across the Rust repos (F6).
@@ -138,6 +141,11 @@ write it.**
 - Cross-repo *writes* to `unfer`/`australVM`/`velysterm`/`dynamic-arctic` are
   **forbidden** by their own `PLAN_*_parallel.md` ownership rules; I only read
   them and emit work orders / consistency checks.
+- **Exception (2026-08-29, user-directed):** the F2 fix — `#[ignore]` on the
+  heavy QYM test, the `run_heavy_tests.sh` release-mode suite, and the
+  `unfer/Cargo.toml` release profile — was executed directly in `unfer` at the
+  user's explicit instruction ("heavy tests should run in release … mode for
+  Rust").
 
 ---
 
@@ -147,7 +155,7 @@ write it.**
 |---|---|---|
 | timepiece | `lake build BookProof` + book | ✅ |
 | dynamic-arctic | `cargo test` / `cargo build` | ✅ 19 pass, zero warnings |
-| unfer | `cargo test -p unfer_protocol -p nested_fock_algebra` | ⚠️ completes except F2 hang |
+| unfer | `cargo test -p unfer_protocol -p nested_fock_algebra` | ✅ 75 pass + 1 ignored in 16 s (F2 fixed); release `--ignored` 0.01 s |
 | australVM | `dune build` | ⛔ toolchain absent (noted) |
 | velysterm | CI file present | (not rebuilt locally) |
 | unfer_contracts | `cmp` gap_certificate | ✅ identical |
