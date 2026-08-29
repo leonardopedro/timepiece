@@ -292,9 +292,10 @@ unitary `L²((0,∞), de) ≃ L²((0,∞), 2y dy)`, and D.4 is instantiated at i
 `axiom`-free.  It removes the last bullet of the honest boundary below ("the
 transfer theorem takes that unitary as data") for the conformal factor.
 
-Reference for the Strichartz step: R. S. Strichartz, *Essential self-adjointness
-of powers of generators of hyperbolic equations*, J. Funct. Anal. **13** (1973)
-82–93.  The flat d'Alembertian conclusion of that theorem is now **proved** in
+Reference for the finite-speed step: P. R. Chernoff, *Essential self-adjointness
+of powers of generators of hyperbolic equations*, J. Funct. Anal. **12** (1973)
+401–414 (the project's earlier "Strichartz, 13 82–93" was a misattribution).
+The flat d'Alembertian conclusion of that theorem is now **proved** in
 `BookProof/ChapterStrichartzWave.lean` (`wave_essentiallySelfAdjoint`), so it is
 no longer an unproved hypothesis for the flat principal part; the QG module's
 `strichartz_esa_of_finiteSpeed` retains the deficiency-triviality premise only to

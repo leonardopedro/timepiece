@@ -76,9 +76,10 @@ symbol `λ_k = (1/16)a_k² − (1/24)b_k² + V_k`, and for that realization
 **Part D — Strichartz as a *named hypothesis*, never an axiom.**
 
 * `strichartz_esa_of_finiteSpeed` — the deduction step: the finite-speed /
-  unique-continuation input `ker(H* − z) = 0` for `Im z ≠ 0` (R. S. Strichartz,
+  unique-continuation input `ker(H* − z) = 0` for `Im z ≠ 0` (P. R. Chernoff,
   *Essential self-adjointness of powers of generators of hyperbolic equations*,
-  J. Funct. Anal. **13** (1973) 82–93) yields essential self-adjointness;
+  J. Funct. Anal. **12** (1973) 401–414; the earlier "Strichartz, 13 82–93"
+  was a misattribution) yields essential self-adjointness;
 * `strichartz_finiteSpeed_satisfiable` — the hypothesis is **not vacuous**: the
   discretized realization of Part C satisfies it;
 * `qg_esa_of_farisLavine` — the alternative route, through the *proved*
@@ -407,8 +408,8 @@ variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
 /-- **The Strichartz step, as a named hypothesis.**  For a symmetric operator on
 a domain `D`, the *finite-speed / unique-continuation* input — the deficiency
 space of the adjoint is trivial at every non-real `z`, which is what R. S.
-Strichartz, *Essential self-adjointness of powers of generators of hyperbolic
-equations*, J. Funct. Anal. **13** (1973) 82–93 provides for a flat
+Chernoff, *Essential self-adjointness of powers of generators of hyperbolic
+equations*, J. Funct. Anal. **12** (1973) 401–414 provides for a flat
 d'Alembertian with a smooth polynomial potential — gives essential
 self-adjointness.
 

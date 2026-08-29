@@ -48,23 +48,49 @@ factor `|J|^{−1/2}` it becomes one. Tasks:
    the flat densitized operator transfers to the physical one.
 3. Gate: `#print axioms` to `propext`/`Classical.choice`/`Quot.sound`.
 
-**QG-2 — discharge the Strichartz hypothesis. Status: a named hypothesis,
-never an axiom.** `ChapterQuantumGravityDensitized` records the ESA of the
-flat densitized operator `□ + V` (`qgSymbol = (1/16)Σξ² − (1/24)ξ_y²`) as
-conditional on the finite-speed / deficiency-triviality premise
-(`strichartz_esa_of_finiteSpeed`, satisfiability shown by
-`strichartz_finiteSpeed_satisfiable`); `ChapterScalaronCoreEsa` records the
-same for `□ + V(φ)` on the `C_c^∞` core of `L²(SpaceTime n)`
-(`wave_add_scalaron_esa_of_finiteSpeed`). This is Strichartz 1973 — a proved
-theorem of mathematics whose *Lean* formalization is absent, in the same
-honesty class as Crouzeix's inequality. Task: formalize the finite-speed /
-unique-continuation lemma for `□ + V` with `V` **smooth and bounded below**
-on the `C_c^∞` core (the class the energy argument uses; not the polynomial
-class), turning the conditional one-particle ESA into an unconditional
-theorem. The core is `C_c^∞`, NOT the Hermite core (the exponential wall is
-refuted there — `ChapterHermiteExpWall`). If Mathlib lacks the propagation
-estimate, state the lemma as the single remaining named hypothesis with full
-citation (no `axiom`, no `sorry`), exactly as the current modules do.
+**QG-2 — discharge the finite-speed / unique-continuation premise. Status:
+a named hypothesis in the `C_c^∞` continuum, PROVED on the Hermite core and
+for constant/bounded/polynomial potentials.** Correcting the citation: the
+supporting theorem is **P. R. Chernoff, *Essential self-adjointness of
+powers of generators of hyperbolic equations*, J. Funct. Anal. 12 (1973)
+401–414** (the project's "Strichartz 1973, J. Funct. Anal. 13 82–93" is a
+misattribution: Strichartz's 1973 JFA paper is *Harmonic analysis on
+hyperboloids*, 12, 341–383). Chernoff's finite-propagation-speed argument
+gives ESA of hyperbolic generators; the Lean formalization is what is
+absent. **What is already proved in Lean** (the specialist must NOT
+re-prove these):
+
+1. `ChapterStrichartzWave.wave_essentiallySelfAdjoint` — the constant-
+   coefficient case, fully proved by the Fourier-multiplier / Plancherel
+   route (`□ + κ` on the Schwartz core of `L²(ℝ^{1+n})`).
+2. `ChapterWaveBoundedPotential.wave_add_potentialOp_essentiallySelfAdjoint`
+   — `□ + V` for **essentially bounded** real `V` (bounded theorem).
+3. `ChapterWaveUnboundedPotential.potentialOp_essentiallySelfAdjoint` and
+   `polynomialPotential_essentiallySelfAdjoint` — the *potential alone*
+   (any temperate-growth `W`, in particular every polynomial) is ESA on the
+   Schwartz core, plus `wave_add_potentialOp_symmetric` and the localization
+   steps (a)+(b) (`wave_add_truncatedPotential_essentiallySelfAdjoint`).
+4. `ChapterStrichartzHermiteQG.hermiteCoreOp_deficiencyTrivialAt` — the
+   **finite-speed input itself, proved on the Hermite core**: a diagonal
+   operator with real symbol has trivial deficiency at every non-real `z`,
+   hence `hermiteCoreOp_essentiallySelfAdjoint` and the 3D gauge-fixed QG
+   instance `qg3D_essentiallySelfAdjoint_on_hermiteCore`. So the premise is
+   NOT an axiom anywhere; it is a theorem on the Hermite (mode) core and a
+   named hypothesis only for the `C_c^∞` continuum `□ + V`.
+
+**The single remaining Lean task** is the `C_c^∞` continuum statement:
+`□ + V` ESA for `V` smooth on the `C_c^∞` core of `L²(ℝ^{1+n})`. **Sign
+warning (from `ChapterWaveUnboundedPotential`'s own analysis, lines 48–56):**
+with this project's convention `□ = −∂²_t + Δ_x`, a potential bounded
+*below* makes the time-Fourier fiber `−Δ_x − W` unbounded below — the
+limit-circle regime where ESA fails (`−d²/dx² − x⁴` has deficiency (2,2)).
+The localization argument closes for `W` bounded *above* (equivalently `W`
+bounded below for the physics-signature `□ = ∂²_t − Δ_x`). The specialist
+must first fix the sign class in scope (bounded-above, or the opposite-
+signature convention) and state the lemma in exactly that class; if Mathlib
+lacks the propagation estimate, keep it as the single named hypothesis with
+the corrected Chernoff citation (no `axiom`, no `sorry`), as the modules do
+today.
 
 **QG-3 — the reassembled Hamiltonian, all features present. Status:
 potential half proved; kinetic half + single-object statement open.**
@@ -6682,14 +6708,16 @@ for the Jacobian half-density that makes the map unitary).
 
 ### 10.2 The ESA theorem: Strichartz
 
-The ESA claim for `H_transformed` rests on **Strichartz's theorem** (R. S.
-Strichartz, *Essential self-adjointness of powers of generators of hyperbolic
-equations*, J. Funct. Anal. **13** (1973) 82–93): a second-order differential
-operator whose principal part is a **flat d'Alembertian on `L²(ℝ^N)`** with a
-(smooth, polynomial) potential is essentially self-adjoint, because waves
-propagate at finite speed in field space. This is the hyperbolic analogue of
-Sears' theorem (Reed & Simon Vol. II, Thm X.28) that Part G of the NS plan uses
-for the elliptic case.
+The ESA claim for `H_transformed` rests on **Chernoff's theorem** (P. R.
+Chernoff, *Essential self-adjointness of powers of generators of hyperbolic
+equations*, J. Funct. Anal. **12** (1973) 401–414 — the project's earlier
+"Strichartz, J. Funct. Anal. 13 82–93" was a misattribution; Strichartz's
+1973 JFA paper is *Harmonic analysis on hyperboloids*, 12, 341–383): a
+second-order differential operator whose principal part is a **flat
+d'Alembertian on `L²(ℝ^N)`** with a (smooth, polynomial) potential is
+essentially self-adjoint, because waves propagate at finite speed in field
+space. This is the hyperbolic analogue of Sears' theorem (Reed & Simon Vol.
+II, Thm X.28) that Part G of the NS plan uses for the elliptic case.
 
 ### 10.2a A proof outline for the Strichartz ESA (plan item)
 
@@ -6733,8 +6761,8 @@ is exactly the one analytic hypothesis that feeds it:
    contradicting square-integrability. Formally: for a flat d'Alembertian with a
    smooth polynomial potential, `ker(H* − z) = 0` for `Im z ≠ 0` — a **unique
    continuation / finite-speed** statement. This is the named input, recorded with
-   its citation (Strichartz 1973; the hyperbolic analogue of the elliptic
-   Kato–Rellich/Sears argument).
+   its citation (Chernoff 1973, J. Funct. Anal. 12 401–414 — the hyperbolic
+   analogue of the elliptic Kato–Rellich/Sears argument).
 4. **Conclusion.** With `ker(H* ± i) = 0` (both deficiency indices `(0,0)`),
    `H` is essentially self-adjoint on `D` — matching the project's
    `EssentiallySelfAdjointOn` predicate and, through
@@ -6867,7 +6895,7 @@ recorded in this project's honesty style:
 
 | Theorem | Reference | Use in this manuscript |
 | :-- | :-- | :-- |
-| Strichartz | Strichartz, J. Funct. Anal. 13 (1973) 82–93 | flat d'Alembertian principal part ⟹ ESA (hyperbolic kinetic term, incl. the gravity `H₀`). **Proved** in `ChapterStrichartzWave.lean` (`wave_essentiallySelfAdjoint`); the full-potential `H₀ + H₁ − Ṽ` step remains a boundary (2026-08-19) |
+| finite-speed ESA | Chernoff, J. Funct. Anal. 12 (1973) 401–414 (corrected from the earlier "Strichartz 13 82–93") | flat d'Alembertian principal part ⟹ ESA (hyperbolic kinetic term, incl. the gravity `H₀`). **Proved** in `ChapterStrichartzWave.lean` (`wave_essentiallySelfAdjoint`); the full-potential `H₀ + H₁ − Ṽ` step remains a boundary (2026-08-19) |
 | Sears / Reed–Simon X.28 | Sears, Canad. J. Math. 3 (1951); Reed & Simon Vol. II Thm X.28 | `−Δ + V` with `V ≥ −c|x|² − d` ⟹ ESA (elliptic/quadratic-growth case, NS Part G) |
 | Faris–Lavine | Faris & Lavine, CMP 35 (1974) 39–48, Cor. 1.1 | comparison-operator commutator criterion (proved in `ChapterFarisLavine`, NS Part G) |
 
