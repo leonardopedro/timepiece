@@ -37,7 +37,16 @@ set -euo pipefail
 
 AENEAS_ROOT="${AENEAS_ROOT:-$HOME/Projects/.toolchain/aeneas-bin}"
 RUSTC_NIGHTLY="${RUSTC_NIGHTLY:-nightly-2026-08-18}"
-HERE="$(cd "$(dirname "$0")/.." && pwd)"
+# Resolve to the crate root (the dir containing src/lib.rs), robust to both
+# invocation layouts: this bundle's `sirk_core_model/aeneas_sirk.sh` (dirname
+# = bundle root) and the live repo's `sirk_core_model/scripts/aeneas_sirk.sh`
+# (dirname = scripts/, parent = crate root).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+if [ -f "$SCRIPT_DIR/src/lib.rs" ]; then
+  HERE="$SCRIPT_DIR"
+else
+  HERE="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
 cd "$HERE"
 
 if [ ! -x "$AENEAS_ROOT/aeneas" ]; then

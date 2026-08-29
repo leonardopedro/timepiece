@@ -25,31 +25,63 @@ occupation-parity certificates are not inputs to this formalization.
 
 - `MASS_GAP_SPEC.md`: proof-facing contract and code-to-mathematics map.
 - `fock_sirk/src/`: current certificate, SIRK seam, and pure specification
-  sources.
-- `fock_sirk/tests/`: current QYM and certificate regression tests.
+  sources (reference text — the specialist never compiles Rust).
+- `fock_sirk/tests/`: current QYM and certificate regression tests
+  (reference text — run by the planner in `../unfer`, never by the
+  specialist).
 - `sirk_core_model/`: Aeneas-supported pure SIRK core, regeneration script,
-  and committed generated artifacts.
-- `prob_kernel/tests/fixtures/gap_certificate.ndjson`: prior certificate
-  fixture, retained as input data only until regenerated after source changes.
+  and committed generated artifacts.  The vendored `aeneas_sirk.sh` is a
+  working standalone copy (regenerates end-to-end, exit 0) for the planner;
+  the specialist consumes only the generated `aeneas/SirkCoreModel.lean`.
+- `docs/*.cdb`: the Cadabra2 derivation notebooks (`yang_mills_hamiltonian`,
+  `qg_starobinsky_hamiltonian`, `qg_starobinsky_vielbein_hamiltonian`).
+  **Reference text only — never run.**  The specialist has no Cadabra2; the
+  operative algebra is stated inline in `MASS_GAP_SPEC.md`.
+- `prob_kernel/tests/fixtures/gap_certificate.ndjson`: the `lean4export`
+  fixture, **nanoda-verified by the planner** (2026-08-29: all 12 `verify::`
+  tests green).  Retained as input data until regenerated after source
+  changes.
 
-## Required regeneration gate
+## Division of labour (who does what)
 
-After any Rust Hamiltonian, outer-enclosure, solver, or certificate change:
+**The Lean4 specialist needs no Rust compiler and never reads `../unfer`.**
+Every executable step that involves Rust — running the numerical suites,
+emitting fresh NDJSON, running nanoda, regenerating the Aeneas model — is the
+**planner's job**, done in `../unfer` and re-vendored here. The specialist's
+surface is exactly: this bundle (spec + fixtures + generated Lean model) plus
+the Lean proof modules, verified by `lake env lean` on the touched module
+and `#print axioms`.
 
-1. Run the current QYM certificate tests and emit fresh NDJSON.
+## Regeneration gate (planner — after any Rust change)
+
+After a Rust Hamiltonian, outer-enclosure, solver, or certificate change in
+`../unfer`, the planner must:
+
+1. Run the corrected QYM/QED/QG/NS numerical suites in `../unfer` and emit
+   fresh NDJSON.
 2. Record source revision, Hamiltonian constructor, coupling, truncation,
    Krylov order, shifts, and a cryptographic hash of the emitted data.
-3. Run `sirk_core_model/aeneas_sirk.sh` from this bundle and inspect that the
-   generated Lean model is complete rather than partial.
-4. Export the Lean theorem instantiation using the generated certificate data.
-5. Run nanoda through the local `prob_kernel::verify::verify_export` workflow.
-6. Replace the fixture and update `STATUS.md` only after both Aeneas and
-   nanoda succeed.
+3. Re-run `../unfer/sirk_core_model/scripts/aeneas_sirk.sh` (the vendored
+   `sirk_core_model/aeneas_sirk.sh` is a working standalone copy of the same
+   script) and inspect that the generated Lean model is complete rather than
+   partial.
+4. Re-export the Lean theorem instantiation using the generated certificate
+   data.
+5. Run nanoda through `prob_kernel::verify::verify_export` (the
+   `gap_certificate_proof_verifies_in_nanoda` test) on the emitted export.
+6. Replace the vendored fixture and generated artifacts, and update
+   `STATUS.md`, only after both Aeneas and nanoda succeed.
 
 The old fixture is not evidence for a corrected implementation. A successful
 finite certificate still does not prove the continuum mass gap; the
 one-particle positivity/edge theorem and its outer `dΓ` lift remain separate
 formal obligations.
+
+**Status 2026-08-29:** gate steps 3 and 5 are green on the current bundle —
+`cargo test -p prob_kernel --lib verify::` passes all 12 tests including
+`gap_certificate_proof_verifies_in_nanoda`, and the vendored
+`sirk_core_model/aeneas_sirk.sh` runs end-to-end (exit 0, 7 expected f64
+errors, `SirkCoreModel.lean` byte-identical to committed).
 
 ## Regeneration log
 

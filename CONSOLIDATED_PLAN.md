@@ -1005,10 +1005,13 @@ all previously emitted mass-gap evidence is stale until regenerated. The old
 NDJSON fixture, Lean instantiation, nanoda verification result, and Aeneas
 artifacts must not be cited as certificates for the corrected Hamiltonian.
 
-The Lean4 specialist must perform this sequence before updating any green/status
-claim. All required non-Lean inputs are now vendored in `unfer_contracts/`, so
-this work can be performed from `timepiece` alone; `../unfer` is not a required
-source dependency. See `unfer_contracts/MASS_GAP_REGENERATION.md`.
+This sequence is the **planner's** job, not the Lean4 specialist's: every step
+involves Rust, which the specialist does not have a compiler for. The
+specialist's surface is the vendored bundle (`unfer_contracts/`) plus the Lean
+proof modules — all required non-Lean inputs are vendored there, so the
+specialist works from `timepiece` alone and never reads `../unfer`. The
+planner runs the steps below in `../unfer` and re-vendors the results. See
+`unfer_contracts/MASS_GAP_REGENERATION.md` for the division of labour.
 
 1. Run the corrected QYM/QED/QG/NS numerical suites and emit fresh
    SIRK–Hashimoto certificates from the actual Hamiltonian constructors.
@@ -1024,6 +1027,13 @@ source dependency. See `unfer_contracts/MASS_GAP_REGENERATION.md`.
    and this plan only with values and theorem claims supported by the new
    artifacts. Until then, mark the mass-gap certificate as **pending
    regeneration**.
+
+**Status 2026-08-29:** the current bundle passes the executable gates —
+`gap_certificate_proof_verifies_in_nanoda` (and the other 11 `verify::`
+tests) are green against the vendored fixture, and the vendored
+`sirk_core_model/aeneas_sirk.sh` regenerates the Aeneas model end-to-end
+(exit 0). The specialist inherits these green artifacts; no Rust execution is
+required from them.
 
 The regeneration is an evidence refresh, not a proof that the continuum mass
  gap follows. The corrected construction still requires the one-particle
@@ -1549,9 +1559,13 @@ an emitted certificate — `qcdG2M4_certified_gap`).  One correction to the sour
 argument: `MASS_GAP_CERTIFIED.md` §3.4 step 1's `λ₀ ≥ θ − ‖r‖` does not follow from the
 residual alone (a small residual only certifies that *some* eigenvalue is near `θ`), so
 the lower half of the bracket is carried by Temple's inequality.  Items 4–5 of §13.5
-(nanoda re-verification, Aeneas on the Rust core) need the sibling kernel repository and
-external tooling and are untouched; item 6 (the continuum leg) remains the standing
-boundary.  `Book/SirkReliability.lean` discusses the new layer with `#check` citations.
+(nanoda re-verification, Aeneas on the Rust core) are the **planner's** executable steps
+(they involve Rust; the specialist has no Rust compiler): as of 2026-08-29 the nanoda
+re-verification is **green** (`gap_certificate_proof_verifies_in_nanoda` + the other 11
+`verify::` tests pass against the vendored fixture) and the Aeneas model regenerates
+from the vendored bundle alone (exit 0); item 6 (the continuum leg) remains the
+standing boundary.  `Book/SirkReliability.lean` discusses the new layer with `#check`
+citations.
 
 **Status (2026-08-26f — plan-only: the certified numerical bounds and the mass gap
 are now a formalization target, §13; the kernel half landed in `../unfer`).**
@@ -5547,8 +5561,11 @@ now carries `#print axioms` blocks for `ChapterSirkFinitePrecision` and
 `ChapterSirkCertifiedGap` (which it previously lacked) as well as for the new
 `ChapterSirkCertificateReader`, `ChapterSirkGapTable` and `ChapterSpectralGapStability`;
 item 3 is closed (`Book/SirkReliability` gained the certificate-reader and gap-table
-sections with correct `#check` citations).  Item 2, the nanoda export, needs the sibling
-kernel repository and is not possible in this snapshot.  (Original item follows.)
+sections with correct `#check` citations).  Item 2, the nanoda export, is now
+**DONE (2026-08-29, planner-run)**: `cargo test -p prob_kernel --lib verify::`
+passes all 12 tests, including `gap_certificate_proof_verifies_in_nanoda`
+against the vendored fixture — the export re-verifies in nanoda.  (Original
+item follows.)
 
 **Priority 2 — nanoda re-verification of the mass-gap certificate.**  The Lean T6
 theorem (`certifiedGap`) is proved; the kernel emits NDJSON (`emit_gap_certificate_ndjson`)
@@ -7596,9 +7613,12 @@ are named, proved, `sorry`-free and `axiom`-free in
 `BookProof/ChapterSirkFinitePrecision.lean` and `BookProof/ChapterSirkCertifiedGap.lean`,
 the §8 gate is green, and the Book chapter cites them.  The `gap ≥ g²/2 + corr −
 (δᵒ + δᵉ)` form asked for in §13.3 is `certified_parity_gap_strong_coupling`, which keeps
-the excluded `O(g⁴)` magnetic correction as an explicit parameter.  Outstanding: the nanoda
-re-verification and the Aeneas/Verus route (both need the sibling kernel repository and
-external tooling), and the continuum leg, which stays the recorded boundary.
+the excluded `O(g⁴)` magnetic correction as an explicit parameter.  Outstanding:
+the nanoda re-verification and the Aeneas/Verus route are the **planner's** executable
+steps — as of 2026-08-29 both are **green** (nanoda: `gap_certificate_proof_verifies_in_nanoda`
+passes against the vendored fixture; Aeneas: the vendored `aeneas_sirk.sh` regenerates
+the model end-to-end, exit 0) — and the continuum leg, which stays the recorded
+boundary.
 
 * Named theorems T1–T7, `sorry`-free / `axiom`-free, §8 gate green.
 * The certified-gap instance for the kernel's `qcd_mass_gap_certified` data
@@ -7753,9 +7773,13 @@ to the kernel's emitted NDJSON) through `prob_kernel::verify::verify_export`
 The *proof* of the gap, not just the number, is re-checked by an independent
 checker (nanoda).
 
-**Where (executed in the sibling repo):** `prob_kernel/src/verify.rs` (the
-`verify_gap_certificate_proof_verifies_in_nanoda` test exports the Lean T6
-instance and runs nanoda on it).
+**Where (planner-run, sibling repo):** `prob_kernel/src/verify.rs` (the
+`gap_certificate_proof_verifies_in_nanoda` test reads the vendored
+`unfer_contracts/prob_kernel/tests/fixtures/gap_certificate.ndjson` and runs
+nanoda on it).  **Status 2026-08-29: green** — all 12 `verify::` tests pass,
+including this one, against the fixture byte-identical to the vendored copy.
+The specialist never runs this; they consume the verified export and the
+generated `SirkCoreModel.lean` from the bundle.
 
 **Input (vendored in `unfer_contracts/`):** the nanoda emitter
 `prob_kernel::verify::verify_export` already exists in the sibling repo and

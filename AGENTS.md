@@ -144,7 +144,8 @@ Lattice code and occupation parity are comparison-only.
 | `unfer_contracts/fock_sirk/src/` | Certificate, SIRK seam, pure spec |
 | `unfer_contracts/fock_sirk/tests/` | QYM and certificate regression tests |
 | `unfer_contracts/sirk_core_model/` | Aeneas pure SIRK core + generated Lean |
-| `unfer_contracts/prob_kernel/tests/fixtures/gap_certificate.ndjson` | Prior fixture (historical) |
+| `unfer_contracts/docs/*.cdb` | Cadabra2 derivation text — **reference only, never run** (no Cadabra2 for the specialist) |
+| `unfer_contracts/prob_kernel/tests/fixtures/gap_certificate.ndjson` | Lean4export fixture, nanoda-verified (planner-run) |
 
 ### Certification workflow
 

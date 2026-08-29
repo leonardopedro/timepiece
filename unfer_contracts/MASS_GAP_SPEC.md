@@ -11,8 +11,18 @@ out of scope here (LLM-Lean4-specialist).*
 **Hamiltonian of record: the 3D gauge-fixed QYM Hamiltonian, not the lattice.**
 The mass-gap observable lives on `qcd_ym_hamiltonian(g)` — the nested-Fock
 realization of the Cadabra-derived `H_final = ½π² + ½B²` with
-`B = (A₀ − A₁) + ½g·A₀A₁` (`docs/yang_mills_hamiltonian.cdb`). All numerical
+`B = (A₀ − A₁) + ½g·A₀A₁` (`unfer_contracts/docs/yang_mills_hamiltonian.cdb`,
+vendored here; the Cadabra2 derivation, not Rust). All numerical
 approximations are SIRK–Hashimoto solves (`solve_forward_sirk_with_opts`).
+
+> **The `.cdb` files are reference text only — never run them.** They are
+> Cadabra2 notebook derivations vendored so the specialist can *read* the
+> algebra (the derivation of `H_final = ½π² + ½B²` and the `B` definition).
+> The specialist has no Cadabra2 and must not execute them; the operative
+> content (the final Hamiltonian and its `B` field) is stated inline in this
+> spec and in `docs/qg_starobinsky_hamiltonian.cdb` / `docs/qg_starobinsky_vielbein_hamiltonian.cdb`
+> for the QG fibers. Treat the `.cdb` bytes as un-runnable algebra, exactly
+> like a `.tex` source.
 The sector symmetry is the exact `Z₂` **reflection** `R: (A₀, A₁) → (−A₁, −A₀)`
 (occupation parity is *not* a symmetry at `g > 0`, where `B²` carries
 3-operator products): the R-even sector contains the vacuum start, the R-odd
