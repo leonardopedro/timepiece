@@ -278,6 +278,77 @@ feed the existing `BandEnclosure` route. The TEGR kinetic sector is not
 covered by the constant-model chain, and no Yang–Mills claim is made.
 :::
 
+# The Strict Edge, Proved: the Full-Exponential Fiber and the Fibrewise Reassembly
+
+:::paragraph
+The "single remaining input" above has since been supplied. `BookProof/ChapterScalaronEdge.lean`
+(namespace `BookProof.ScalaronEdge`) proves the strict one-particle edge
+$`\langle\psi, h_\psi\,\psi\rangle \ge E_0\|\psi\|^2` for the *full*
+exponential scalaron fiber — no Taylor expansion, the wall used as-is. The
+route is entirely elementary: `starobinskyV_lt_shelf_bounded` shows the
+sublevel set $`\{V < c\}` is the bounded interval with the closed-form
+endpoints $`A = \ln(1+\sqrt{c/K})/a` and $`B = -\ln(1-\sqrt{c/K})/a`,
+$`K = M^4/(16\alpha)`, $`a = \sqrt{2/3}/M`; the one-dimensional sup bound
+$`\|f(x)\|^2 \le \delta\int|f|^2 + \delta^{-1}\int|f'|^2`
+(`edge_sup_sq_le`, obtained by integrating $`d/dt\|f\|^2` and absorbing with
+$`2|z||w| \le \delta|z|^2 + \delta^{-1}|w|^2`) replaces any Poincaré/Wirtinger
+input; and `starobinskyEdge_form_gap` assembles the constants
+$`E_0 = \min(E_{\rm kin}, E_{\rm mass})` into the strict bound on the
+compactly supported smooth core. Because the fiber's Friedrichs extension has
+continuous spectrum above the plateau (no orthonormal eigenbasis exists), the
+number-preserving $`d\Gamma` lift does not apply to this fiber; what does is
+the Friedrichs transfer `friedrichs_extension_form_gap` —
+`scalaronEdge_friedrichs_gap` carries the *same* strict bound to the positive
+self-adjoint extension selected by the Hashimoto shift-invert at $`\gamma = 1`.
+:::
+
+```
+#check @BookProof.ScalaronEdge.starobinskyV_lt_shelf_bounded
+#check @BookProof.ScalaronEdge.edge_sup_sq_le
+#check @BookProof.ScalaronEdge.edge_energy_bound
+#check @BookProof.ScalaronEdge.starobinskyEdge_form_gap
+#check @BookProof.ScalaronEdge.starobinskyEdge_friedrichs_gap
+```
+
+:::paragraph
+With each fiber's one-particle input in place, the *fibrewise reassembly* is
+now a theorem. `BookProof/ChapterVielbeinFiberFock.lean` (namespace
+`BookProof.VielbeinFock`) names the fiber list of the vielbein/TEGR sector —
+$`d` harmonic shear fibers with frequencies $`\omega_i` plus one Starobinsky
+scalaron fiber per quantum — builds the $`n`-particle potential
+$`\sum_j \left(\sum_i \tfrac12\omega_i^2 y_i(j)^2 + V(\varphi(j))\right)` on
+$`\mathbb R^{n\times(d+1)}`, and runs the generic instrument:
+`vielbeinFock_esa` (essential self-adjointness on the dense smooth core),
+`vielbeinFock_stone_flow` (the unitary group), symmetry, trivial deficiency,
+and the uniform lower bound `vielbeinFock_potential_ge`. The scalaron fiber is
+identified with the formalized potential by
+`vielbeinManyPotential_scalaron_fiber` — the reassembled object is the
+full-exponential `starobinskyV` fiber, not a small-field substitute.
+:::
+
+```
+#check @BookProof.VielbeinFock.vielbeinManyPotential_scalaron_fiber
+#check @BookProof.VielbeinFock.vielbeinFock_symmetric
+#check @BookProof.VielbeinFock.vielbeinFock_esa
+#check @BookProof.VielbeinFock.vielbeinFock_stone_flow
+#check @BookProof.VielbeinFock.vielbeinFock_potential_ge
+```
+
+:::paragraph
+Reading the pair honestly: the reassembly certifies that the *fibrewise
+direct sum* is a well-defined self-adjoint Hamiltonian with a unitary flow and
+a uniform lower bound, and the edge theorem certifies that the scalaron fiber
+contributes a strict $`E_0 > 0`$. What the reassembly does *not* do is claim a
+mass gap for the reassembled operator itself — the shear fibers are harmonic
+($`\omega_i`$-confined, so they carry their own per-mode gaps) but the
+scalaron fiber's continuum above the plateau is real, and the strict edge is a
+statement about the one-particle form on the core, not about the spectrum of
+the reassembled Hamiltonian. The honest boundary stated in the plan's 29b/29c
+updates remains: the number-preserving Fock lift is not claimed for this
+fiber; `1.932` remains a certified truncated number; no mass gap of a physical
+gravity (or Yang–Mills) Hamiltonian is claimed.
+:::
+
 # The Hermite Core: Where the Hamiltonian Is Defined
 
 :::paragraph

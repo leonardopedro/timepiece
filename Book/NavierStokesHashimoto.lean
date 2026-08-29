@@ -196,3 +196,54 @@ what guarantees that the whole edifice (Ehrenfest identities, gauge-fixed
 derivative variables, energy conservation) is a computation about the
 Navier–Stokes generator in $`L^2` rather than about some discretization artifact.
 :::
+
+# What the Eulerian Fiber Can Certify: the Absence of a Form Gap, and the Comparison Operator
+
+:::paragraph
+The shift-invert selection theorems above identify *which operator* the Krylov
+iteration computes. A separate question — the one the gap programme asks of
+every sector — is whether that operator has a positive spectral gap above its
+ground state. For the Navier–Stokes Eulerian fiber the answer is *negative and
+provable*: `BookProof/ChapterNavierStokesFiberGap.lean` (namespace
+`BookProof.NavierStokesFlow`) shows that the fiber Hamiltonian has **no
+one-particle form gap at any positive level**, and explains why none of the gap
+instruments that other sectors enjoy applies here.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.nsFiber_quadForm_coreState
+#check @BookProof.NavierStokesFlow.nsFiber_no_form_gap
+#check @BookProof.NavierStokesFlow.nsComparison_friedrichs_gap
+```
+
+:::paragraph
+The mechanism is elementary and structural. The Eulerian fiber Hamiltonian on
+the Hermite core is a sum of symmetrized products of the ladder pairs — the
+velocity creation and annihilation operators — and its quadratic form vanishes
+on *every* Hermite basis state (`nsFiber_quadForm_coreState`, via the ladder
+normal form and the vanishing of the diagonal coefficients
+$`c_{\mathrm{Fun}}(A,i,i) = c_{\mathrm{Rot}}(A,i,i) = 0`). A form that vanishes
+on the basis vectors of a dense core cannot bound any positive multiple of the
+norm from below: `nsFiber_no_form_gap` rules out
+$`\mu\|x\|^2 \le \langle x, H_{\rm fiber} x\rangle` for every $`\mu > 0`.
+Physically this is the expected structure — the strain and vorticity hoppings
+are off-diagonal and sign-indefinite, so there is no confining potential in the
+fiber variables to push the Rayleigh quotient away from zero.
+:::
+
+:::paragraph
+Consequences: the *constant* and *diagonal* gap chains
+(`ChapterScalaronFockGapChain`, `ChapterFockDiagonalGapChain` — the instruments
+that make the scalaron and free massive sectors unconditional) do **not** apply
+to this fiber. What the fiber *can* certify is a weaker but still
+self-adjointness-relevant statement: `nsComparison_friedrichs_gap` shows that
+the Faris–Lavine comparison operator $`N_\mu` has a positive self-adjoint
+(Friedrichs) extension — the one the Hashimoto shift-invert selects at
+$`\gamma = 1` — with the bound $`\langle y, N y\rangle \ge \|y\|^2` on its
+whole domain. That is exactly the regularity the SIRK implementation needs to
+run at all: the comparison operator is well defined, positive, and
+self-adjoint even though the fiber itself carries no spectral gap. The honest
+summary: the Eulerian fiber certifies *positivity and self-adjointness of the
+comparison problem*, and certifies the *absence* of a one-particle form gap —
+neither a mass gap nor a continuum-gap claim is made for this sector.
+:::

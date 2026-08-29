@@ -28,13 +28,53 @@ one-particle edge and its lift through the free nested-Fock `dGamma` Hamiltonian
 | QYM Friedrichs/Hashimoto-selected operator | proved construction/selection |
 | one-particle gap, lifted to Fock space | proved for the concrete gauge-fixed QYM one-particle operator, conditional on its one-particle *form* gap (`ChapterYangMillsFockGapChain`) |
 | unbounded field perturbations of the gap | proved for the linear coupling `Φ(f)` (`ChapterFockFieldPerturbation`, `sorry`-free) and for the quadratic pair coupling `P(f,g)` (`ChapterFockPairPerturbation`); proved *impossible* for a bare cubic term (`ChapterFockCubicUnbounded`); the cubic–quartic pair is bounded below on all finite states (`ChapterFockCubicQuarticStability`) |
-| gap for sectors with constant or diagonal one-particle energy | proved unconditionally: the R² scalaron at `m = 1/√(12α)` (`ChapterScalaronFockGapChain`) and any diagonal dispersion `ω_k = √(p_k² + m²)` (`ChapterFockDiagonalGapChain`) — no certificate, no form-gap hypothesis |
+| gap for sectors with constant or diagonal one-particle energy | proved unconditionally: the R² scalaron at `m = 1/√(12α)` (`ChapterScalaronFockGapChain`), any diagonal dispersion `ω_k = √(p_k² + m²)` (`ChapterFockDiagonalGapChain`), and the full-exponential scalaron fiber's strict edge (`ChapterScalaronEdge`) — no certificate, no form-gap hypothesis |
+| QED photon sector | proved: positivity with **no gap** for the massless photon (`ChapterQedFockGapChain`), the no-gap obstruction proved for every `m > 0` under infrared momenta accumulating at zero, and gapped statements attached only to the regulated/massive instantiations (`irPhoton_fock_mass_gap`, `proca_fock_mass_gap`) |
 | real Fock mass gap of the continuum operator | still conditional on the one-particle form gap (the certificate supplies a truncated bound); no continuum claim |
 
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure
 
 :::paragraph
 The new gap modules make the operator-level boundary explicit. `BookProof/ChapterFockOneParticleGap.lean` proves the positive one-particle edge statement under its spectral hypotheses; `ChapterFriedrichsFormGap.lean` packages the corresponding closed-form/Friedrichs route; and `ChapterBandEnclosure.lean` shows how nested finite bands can provide the remaining enclosure input. These are conditional analytic bridges, not a claim that numerical data alone proves the continuum gap.
+:::
+
+# QED: What Masslessness Costs, Formally
+
+:::paragraph
+The QED sector is the cleanest illustration of why a *gap* is a separate,
+stronger statement than *positivity*. `BookProof/ChapterQedFockGapChain.lean`
+(namespace `BookProof.QedFockGapChain`) runs the diagonal gap chain
+(`ChapterFockDiagonalGapChain` — the instrument for one-particle energies
+$`e_k \mapsto \omega_k e_k`) on the photon dispersion. For the massless photon
+$`\omega_k = |p_k|` the sector is positive (`photon_fock_positivity`) but
+**gapless**; the obstruction is proved, not asserted:
+`photon_no_one_particle_gap` shows the one-particle form gap fails for *every*
+$`m > 0` whenever the momenta accumulate at zero (the infrared). The
+mechanism is exactly the diagonal-chain boundary: the form gap needs a
+uniform positive lower bound $`\omega_k \ge m` across the modes, and the
+massless dispersion violates it precisely at the infrared modes — a
+statement that survives any relabelling of the momentum sequence.
+:::
+
+```
+#check @BookProof.QedFockGapChain.photon_fock_positivity
+#check @BookProof.QedFockGapChain.photon_no_one_particle_gap
+#check @BookProof.QedFockGapChain.irPhoton_fock_mass_gap
+#check @BookProof.QedFockGapChain.proca_fock_mass_gap
+```
+
+:::paragraph
+Where a gap *is* claimed for QED, it is claimed honestly — attached to the
+regulated or massive instantiation, not to the free photon. The infrared-
+regulated dispersion (a mass cutoff $`\mu > 0` away from zero) recovers
+$`\omega_k \ge \mu` and therefore the Fock mass gap `irPhoton_fock_mass_gap`;
+the Proca (massive photon) dispersion $`\omega_k = \sqrt{p_k^2 + m^2}`$
+gives `proca_fock_mass_gap`. Both are labelled exactly as what they are:
+gapped statements for *regulated/massive* QED, with the masslessness of the
+physical photon kept as the explicit reason the free sector has no gap. This
+is the same honesty discipline as the rest of the programme: the gap chain
+attaches to the one-particle energy that the model actually specifies, and
+every gapped claim names its sector.
 :::
 
 The finite-dimensional Born parametrization puts a uniform-looking measure on the
