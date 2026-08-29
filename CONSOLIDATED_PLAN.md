@@ -1,5 +1,84 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
+## State update — 2026-08-29f: work order — ESA of the full QG one-particle
+## operator: separable (1D + partial-Fourier) specialization of the Chernoff route
+
+**This section supersedes QG-2's generic `□ + V` statement for the QG
+operator.** The full densitized QG one-particle operator is **separable**:
+the scalaron potential depends on the `y`-coordinate only, so the
+Chernoff / finite-propagation-speed input (the premise QG-2 keeps as a named
+hypothesis) specializes to a **1D semibounded lemma + a partial-Fourier
+deficiency argument** — no Carleman estimates, no n-D unique continuation.
+The object (from 29e, the single vielbein/TEGR Starobinsky Hamiltonian, in
+densitized form):
+
+```text
+L = (1/16) Δ_x − (1/24) d²/dy² + V(y)   on L²(ℝ⁴),  x ∈ ℝ³, y ∈ ℝ
+```
+
+`V` = the full exponential `K(1−e^{−aφ})²`: `C^∞`, `≥ 0`, wall at `−∞`,
+plateau `K` at `+∞`. **Sign analysis (safe class confirmed):** the `y`-part
+`(1/24)(−d²/dy²)` is positive-semidefinite and `V ≥ 0`, so the fiber in `y`
+is semibounded — the safe class (contrast the failure case `−d²/dx² − x⁴`,
+deficiency (2,2), which has the *negative* coefficient and a negative
+potential). The `x`-part `(1/16)Δ_x` is negative-semidefinite, unbounded
+below — the *only* source of non-semiboundedness — and it is
+constant-coefficient (elliptic, Fourier-diagonal). Tasks, in order:
+
+**QG-ESA-A — the 1D core lemma (the single new analytic input).** Prove:
+for `c > 0`, `V ∈ C^∞(ℝ)` bounded below (in particular the full exponential)
+and any real constant `c₀`, the operator `−c·d²/dy² + V(y) + c₀` has **no
+`L²` distributional solution** of `(−c·d²/dy² + V + c₀ − z)u = 0` for
+`Im z ≠ 0`. This is Reed–Simon Thm X.28 in 1D (`V` locally `L¹` bounded
+below ⟹ `−d²/dx² + V` ESA on `C_c^∞`): both ends are limit-point (bounded
+below ⟹ limit-point at each end; the wall supplies it at `−∞`). Proof route:
+the two independent ODE solutions have constant Wronskian; two `L²` solutions
+would force the Wronskian to vanish via the integrated identity with boundary
+terms controlled by the `L²` norms — contradiction. Distributional solutions
+are `C^∞` by the elementary 1D bootstrap (C^∞ coefficients), so the `L²`
+condition applies verbatim. **No Carleman, no unique continuation.**
+
+**QG-ESA-B — partial-Fourier deficiency argument (mechanical; reuses the
+proved Plancherel route of `ChapterStrichartzWave`).** Let `u ∈ L²(ℝ⁴)` be
+an `L²` distributional solution of `(L − z)u = 0`, `Im z ≠ 0`. The
+`x`-Fourier transform `û(ξ, ·) ∈ L²(ℝ_y)` for a.e. ξ and is an `L²`
+distributional solution of the fiber equation
+`(−(1/24)d²/dy² + V + (1/16)|ξ|² − z)w = 0`; by QG-ESA-A with the real shift
+`c₀ = −(1/16)|ξ|²`, `û(ξ, ·) = 0` for a.e. ξ, hence `u = 0`. Together with
+symmetry of `L` on `C_c^∞(ℝ⁴)` this gives `ker((L|_C_c^∞)* − z) = 0` at every
+non-real `z` — **ESA of the full densitized QG one-particle operator on
+`C_c^∞`**, the honest replacement of the generic Chernoff hypothesis for the
+separable case. (State it on the core the wave module's machinery supports;
+`C_c^∞` ⊂ Schwartz is dense.)
+
+**QG-ESA-C — the reassembled single object.** With QG-ESA-B + the shear
+fibers (harmonic; genuine Hermite diagonal; ESA already proved) +
+ScalaronEdge (edge `E₀` on the fiber): assemble `h = h_TEGR ⊕ h_ψ` as ESA of
+the direct sum on the algebraic tensor core (composition of commuting ESA
+pieces — functional analysis; if the tensor-core lemma is heavy, fall back to
+the per-sector statement `H|_N = Σᵢⱼ hᵢⱼ` on the N-particle sector). Carry
+the explicit edge `λ₁(h) ≥ min(ω_i, E₀) > 0` — the one-particle gap the
+mass-gap chain and the enclosed `H = Σᵢⱼ hᵢⱼ C†(eᵢ)A(eⱼ)` consume (Fock
+ESA/positivity follows per sector from the one-particle statement + the exact
+outer vacuum).
+
+**QG-ESA-D — the "something analogous" fallback (sufficient for the physics
+chains).** If QG-ESA-B's partial-Fourier framework proves too heavy this
+cycle: the chains consume only the form-gap / canonical-extension statements
+(`BandEnclosure.friedrichs_form_gap_of_nested_ritz_bands`, ScalaronEdge's
+Friedrichs transfer). Keep QG-ESA-A (mandatory — it makes `h_ψ` a genuine
+self-adjoint operator carrying the edge `E₀`), and keep the single named
+hypothesis for the indefinite full `L`, now scoped to the separable statement
+(QG-ESA-A + composition) instead of generic Carleman. Never `axiom`/`sorry`.
+
+**Division of labour.** QG-ESA-A..D are Lean4 (specialist). Planner's
+non-Lean part (already scheduled): confirm the exact X.28 statement and the
+Weyl limit-point criteria for the docstrings; check Mathlib inventory for 1D
+Sturm–Liouville / deficiency machinery and the partial-Fourier
+(Fubini / measurable-section) lemmas the wave module already uses; keep the
+sign-convention note (safe class = bounded-below `V` with the *positive*
+`−d²/dy²` coefficient — consistent with QG-2's warning).
+
 ## State update — 2026-08-29e: work order — complete QG (R² + vielbein + full
 ## exponential + densitized) and the QYM mass gap via certified SIRK bands
 
@@ -90,7 +169,11 @@ must first fix the sign class in scope (bounded-above, or the opposite-
 signature convention) and state the lemma in exactly that class; if Mathlib
 lacks the propagation estimate, keep it as the single named hypothesis with
 the corrected Chernoff citation (no `axiom`, no `sorry`), as the modules do
-today.
+today. **For the QG operator the specialist must follow the separable
+specialization of state update 29f (1D lemma QG-ESA-A + partial-Fourier
+QG-ESA-B) instead of the generic statement above** — the generic n-D
+Carleman / unique-continuation route is not needed for `V` depending on one
+coordinate only.
 
 **QG-3 — the reassembled Hamiltonian, all features present. Status:
 potential half proved; kinetic half + single-object statement open.**
