@@ -51,19 +51,28 @@ the proof tree or the book render.** ≥ 20 minutes of value: a CI job running
 `lake build` (cache get → build BookProof+Layout) + `build-book.sh` +
 `check-katex.sh` on push/PR. **Non-Lean, I can write it.**
 
-### F2 — A `nested_fock_algebra` unit test hangs the local/CI suite. (FIXED)
+### F2 — The QYM quartic test is NOT slow in release — only debug. (FIXED)
 `test_qcd_ym_hamiltonian_outer_fock_vacuum_zero_and_hermitian`
 (`unfer/nested_fock_algebra/src/unit_tests.rs:1408`) builds `qcd_ym_hamiltonian(0.5)`
 — the **quartic** non-abelian B² term — then does a 16×16 basis apply matrix
-spot-check. In a debug build this takes >> 2 min; in release it finishes in
-**0.01 s** — a pure debug-vs-release numeric-performance cliff, not a logic
-failure. Fixed 2026-08-29: the test is now `#[ignore]`d (reason string points
-at `scripts/run_heavy_tests.sh`), a release-mode heavy suite for
-`nested_fock_algebra` (`cargo test --release --lib -- --ignored`) was added to
-`run_heavy_tests.sh`, and a numerically-optimized workspace release profile
-(`lto = "thin"`, `codegen-units = 1`) was added to `unfer/Cargo.toml`. Verified:
-default `cargo test -p nested_fock_algebra` = 75 pass + 1 ignored in 16 s;
-release `--ignored` run = 1 pass in 0.01 s; release build 6 s incremental.
+spot-check. **Stated in release terms (the mode heavy tests run in): the test
+takes 0.01 s in release.** The "hang" was a debug-only artifact of the unoptimized
+quartic expansion. The real defect was upstream: CI ran `cargo test --workspace`
+**in debug**, which forced this test *and* the 49-file `fock_sirk` physics suite
+into debug mode (e.g. `qym_mass_gap`: >120 s debug vs 23.8 s release), and the
+release-mode physics anchor/heavy runners were not wired into CI at all.
+Fixed 2026-08-29:
+- `unfer/Cargo.toml`: numerically-optimized workspace release profile
+  (`lto = "thin"`, `codegen-units = 1`).
+- `nested_fock_algebra/src/unit_tests.rs`: the QYM test is `#[ignore]`d with a
+  reason pointing at `scripts/run_heavy_tests.sh`, and that script now runs it
+  in release (`cargo test --release --lib -- --ignored`).
+- `.github/workflows/ci.yml`: the workspace `test` job now runs
+  `cargo test --workspace --release` (heavy tests in release, per policy) and
+  additionally runs the ignored heavy unit tests in release
+  (`cargo test -p nested_fock_algebra --release --lib -- --ignored`).
+Verified: release `--ignored` run = 1 pass in 0.01 s; release workspace
+incremental build 6 s.
 
 ### F3 — `unfer_contracts` vendored bundle is consistent with live `unfer`. (OK, keep it that way)
 - `prob_kernel/tests/fixtures/gap_certificate.ndjson` is **byte-identical**
@@ -112,6 +121,9 @@ write it.**
 ## 3. Improvement PLAN (workstreams, executed + queued)
 
 ### Execute now (I can do these without writing Lean4)
+0. **P0 — unfer CI runs heavy tests in release** (F2, 2026-08-29, user-directed):
+   `test` job now `cargo test --workspace --release` + `nested_fock_algebra
+   --release --lib -- --ignored`; commits 2fa3eb8, 0524a2d.
 1. **P1 — Add `timepiece/.github/workflows/ci.yml`** (F1).
    - `lake build` of default targets (`BookProof`, `Layout`, `Singularity`)
      with `lake exe cache get` for Mathlib.
@@ -155,7 +167,8 @@ write it.**
 |---|---|---|
 | timepiece | `lake build BookProof` + book | ✅ |
 | dynamic-arctic | `cargo test` / `cargo build` | ✅ 19 pass, zero warnings |
-| unfer | `cargo test -p unfer_protocol -p nested_fock_algebra` | ✅ 75 pass + 1 ignored in 16 s (F2 fixed); release `--ignored` 0.01 s |
+| unfer | `cargo test -p unfer_protocol -p nested_fock_algebra` | ✅ 75 pass + 1 ignored in 16 s; release `--ignored` 0.01 s |
+| unfer | `cargo test --release` physics suites | ✅ qcd_mass_gap_certified 3 pass 9 s; outer_vacuum 6 pass 0.11 s; qym_mass_gap 10 pass 23.8 s |
 | australVM | `dune build` | ⛔ toolchain absent (noted) |
 | velysterm | CI file present | (not rebuilt locally) |
 | unfer_contracts | `cmp` gap_certificate | ✅ identical |
