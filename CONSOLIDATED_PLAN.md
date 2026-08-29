@@ -1,83 +1,104 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
-## State update — 2026-08-29f: work order — ESA of the full QG one-particle
-## operator: separable (1D + partial-Fourier) specialization of the Chernoff route
+## State update — 2026-08-29f (v2, corrected): ESA of the QG one-particle
+## operator — what is already proved, and the conformal-factor sign analysis
 
-**This section supersedes QG-2's generic `□ + V` statement for the QG
-operator.** The full densitized QG one-particle operator is **separable**:
-the scalaron potential depends on the `y`-coordinate only, so the
-Chernoff / finite-propagation-speed input (the premise QG-2 keeps as a named
-hypothesis) specializes to a **1D semibounded lemma + a partial-Fourier
-deficiency argument** — no Carleman estimates, no n-D unique continuation.
-The object (from 29e, the single vielbein/TEGR Starobinsky Hamiltonian, in
-densitized form):
+**Correction notice (v2).** The first draft of 29f (a) proposed re-proving a
+1D lemma that is **already proved** in the tree, and (b) mis-attributed the
+sign of the densitized kinetic directions, which changes the conclusion for
+the full d'Alembertian. The corrected picture: the 1D positive-kinetic ESA
+done (`wallHam_essentiallySelfAdjoint`), the localization machinery done
+(`wave_add_smoothTruncatedPotential_essentiallySelfAdjoint`, no growth
+hypothesis), and the only open item is the finite-speed / deficiency input
+for the continuum `□ + V` — whose truth **depends on the kinetic sign of the
+direction carrying the scalaron potential** (the conformal-factor analysis
+below decides it).
 
-```text
-L = (1/16) Δ_x − (1/24) d²/dy² + V(y)   on L²(ℝ⁴),  x ∈ ℝ³, y ∈ ℝ
-```
+**Coordinates.** On the one-particle configuration space `L²(ℝ⁴)` of the
+densitized 3D gauge-fixed theory: `x = (x₁,x₂,x₃)` are the three **shear**
+directions; `y` is the densitized **tetrad-determinant / conformal**
+direction `y = √e` — the direction carrying the scalaron potential `V(y)`
+(the identification made by the vielbein reassembly). Densitized kinetic
+(cdb `H0 = (1/16)Δ_S̃ − (1/24)d²/dy²`, principal symbol
+`qgSymbol = (1/16)|ξ|² − (1/24)η²`): the `x`-part `−(1/16)Δ_x ≥ 0` is
+positive-kinetic (a `−∂²`-type direction), the `y`-part `(1/24)∂²_y ≤ 0` is
+**negative-kinetic** (a `Δ`-type direction). The scalar (conformal) direction
+therefore carries the **wrong-sign kinetic** — the conformal-factor problem
+of canonical quantum gravity, which is why the densitized d'Alembertian is
+the non-trivial "Strichartz/finite-speed ESA input".
 
-`V` = the full exponential `K(1−e^{−aφ})²`: `C^∞`, `≥ 0`, wall at `−∞`,
-plateau `K` at `+∞`. **Sign analysis (safe class confirmed):** the `y`-part
-`(1/24)(−d²/dy²)` is positive-semidefinite and `V ≥ 0`, so the fiber in `y`
-is semibounded — the safe class (contrast the failure case `−d²/dx² − x⁴`,
-deficiency (2,2), which has the *negative* coefficient and a negative
-potential). The `x`-part `(1/16)Δ_x` is negative-semidefinite, unbounded
-below — the *only* source of non-semiboundedness — and it is
-constant-coefficient (elliptic, Fourier-diagonal). Tasks, in order:
+**Already proved in the tree (the specialist must NOT re-prove):**
 
-**QG-ESA-A — the 1D core lemma (the single new analytic input).** Prove:
-for `c > 0`, `V ∈ C^∞(ℝ)` bounded below (in particular the full exponential)
-and any real constant `c₀`, the operator `−c·d²/dy² + V(y) + c₀` has **no
-`L²` distributional solution** of `(−c·d²/dy² + V + c₀ − z)u = 0` for
-`Im z ≠ 0`. This is Reed–Simon Thm X.28 in 1D (`V` locally `L¹` bounded
-below ⟹ `−d²/dx² + V` ESA on `C_c^∞`): both ends are limit-point (bounded
-below ⟹ limit-point at each end; the wall supplies it at `−∞`). Proof route:
-the two independent ODE solutions have constant Wronskian; two `L²` solutions
-would force the Wronskian to vanish via the integrated identity with boundary
-terms controlled by the `L²` norms — contradiction. Distributional solutions
-are `C^∞` by the elementary 1D bootstrap (C^∞ coefficients), so the `L²`
-condition applies verbatim. **No Carleman, no unique continuation.**
+1. `ChapterScalaronWallEsa.wallHam_essentiallySelfAdjoint` — the 1D
+   positive-kinetic lemma, for **every smooth non-negative `V`, no growth
+   hypothesis** (the exponential wall included): `−d²/dx² + V` is ESA on the
+   `C_c^∞` core of `L²(ℝ)` — exactly the X.28-type input the v1 draft
+   proposed as "QG-ESA-A, the single new analytic input". Not new: proved via
+   `ode_solution_eq_zero` (an `L²` solution of `W'' = (V−z)W`, `V ≥ 0`,
+   `Re z = 0`, vanishes) + `wallHam_deficiencyTrivialAt`.
+2. `starobinskyWall_esa` — the scalaron fiber `−d²/dφ² + V(φ)` (full
+   exponential wall) ESA on `C_c^∞`; `starobinskyWall_stone_flow` — the
+   unitary flow.
+3. `ChapterScalaronCoreEsa.starobinskyV_essentiallySelfAdjoint`,
+   `scalaronFullPotential_essentiallySelfAdjoint` — the potentials alone
+   (conformal-mode parabola + scalaron) ESA on `C_c^∞` (plan item A5).
+4. `wave_add_smoothTruncatedPotential_essentiallySelfAdjoint` (and
+   `wave_add_scalaronTruncated_esa`) — the **localization step with no
+   growth hypothesis**: for every radius `R` the truncated `□ + W_R` is ESA
+   on the Schwartz core (smooth cutoff + the bounded-potential theorem).
+5. `wave_add_smoothPotential_symmetric` / `wave_add_scalaron_symmetric` —
+   `□ + V(φ)` (scalaron read along any spacetime direction) is symmetric on
+   the `C_c^∞` core.
 
-**QG-ESA-B — partial-Fourier deficiency argument (mechanical; reuses the
-proved Plancherel route of `ChapterStrichartzWave`).** Let `u ∈ L²(ℝ⁴)` be
-an `L²` distributional solution of `(L − z)u = 0`, `Im z ≠ 0`. The
-`x`-Fourier transform `û(ξ, ·) ∈ L²(ℝ_y)` for a.e. ξ and is an `L²`
-distributional solution of the fiber equation
-`(−(1/24)d²/dy² + V + (1/16)|ξ|² − z)w = 0`; by QG-ESA-A with the real shift
-`c₀ = −(1/16)|ξ|²`, `û(ξ, ·) = 0` for a.e. ξ, hence `u = 0`. Together with
-symmetry of `L` on `C_c^∞(ℝ⁴)` this gives `ker((L|_C_c^∞)* − z) = 0` at every
-non-real `z` — **ESA of the full densitized QG one-particle operator on
-`C_c^∞`**, the honest replacement of the generic Chernoff hypothesis for the
-separable case. (State it on the core the wave module's machinery supports;
-`C_c^∞` ⊂ Schwartz is dense.)
+**The single remaining Lean task — with the sign analysis that decides it.**
+`wave_add_smoothPotential_esa_of_finiteSpeed` is the honest
+named-hypothesis theorem: ESA of `□ + V` on `C_c^∞` given trivial adjoint
+deficiency at every non-real `z` (the finite-speed / unique-continuation
+premise). Whether that premise is provable or **false** depends on the
+kinetic sign of the direction carrying `V`:
 
-**QG-ESA-C — the reassembled single object.** With QG-ESA-B + the shear
-fibers (harmonic; genuine Hermite diagonal; ESA already proved) +
-ScalaronEdge (edge `E₀` on the fiber): assemble `h = h_TEGR ⊕ h_ψ` as ESA of
-the direct sum on the algebraic tensor core (composition of commuting ESA
-pieces — functional analysis; if the tensor-core lemma is heavy, fall back to
-the per-sector statement `H|_N = Σᵢⱼ hᵢⱼ` on the N-particle sector). Carry
-the explicit edge `λ₁(h) ≥ min(ω_i, E₀) > 0` — the one-particle gap the
-mass-gap chain and the enclosed `H = Σᵢⱼ hᵢⱼ C†(eᵢ)A(eⱼ)` consume (Fock
-ESA/positivity follows per sector from the one-particle statement + the exact
-outer vacuum).
+* **Case A — `V` on a positive-kinetic direction** (the reassembly fiber
+  `−d²/dφ² + V(φ)`): the premise is **provable** from already-proved pieces
+  by the partial-Fourier deficiency argument: the fiber is the
+  positive-kinetic operator `−c·d²/dy² + V(y) + c₀`, ESA by (1) — no
+  Carleman, no n-D unique continuation; only mechanical composition
+  (Fourier/Plancherel route of `ChapterStrichartzWave` + Fubini) remains.
+* **Case B — `V` on a negative-kinetic direction** (the densitized
+  `y = √e` conformal direction of `H0`): the premise is **FALSE** — the
+  conformal-factor problem. The y-fiber `(1/24)∂²_y + V(y) + c₀` has
+  **deficiency (1,1)**: at the wall the ODE
+  `(1/24)u'' + (V + c₀ − z)u = 0` is Bessel-type (`u'' ≈ −24K e^{−2ay}u`),
+  both independent solutions `L²` near `−∞` (limit-circle), exactly one near
+  `+∞` (plateau bounded, limit-point) — a 1-dimensional `L²` solution space
+  per fiber, an `L²(ℝ³)`-family overall: **infinite deficiency, NOT ESA**.
+  (Cross-check via the sign flip: `−F = (1/24)(−∂²_y) − V` is the module's
+  known failure class — positive kinetic with potential `−V → −∞` — like
+  `−d²/dx² − x⁴`, deficiency (2,2) per the QG-2 sign warning.) The
+  Hermite-core diagonal model is sign-agnostic and masked this. The
+  specialist's honest tasks: prove the fiber deficiency (1,1) — the 1D
+  limit-circle computation (two-`L²`-solutions ⟹ Wronskian-vanishes
+  argument now *confirms* the deficiency) — and record the resolution: the
+  conformal mode is eliminated by the Hamiltonian constraint; the physical
+  one-particle operator is the **positive reassembly**, whose ESA is proved
+  (1)–(3). **Do NOT force ESA of the densitized d'Alembertian with `V` on
+  the y-direction — it is false.**
 
-**QG-ESA-D — the "something analogous" fallback (sufficient for the physics
-chains).** If QG-ESA-B's partial-Fourier framework proves too heavy this
-cycle: the chains consume only the form-gap / canonical-extension statements
-(`BandEnclosure.friedrichs_form_gap_of_nested_ritz_bands`, ScalaronEdge's
-Friedrichs transfer). Keep QG-ESA-A (mandatory — it makes `h_ψ` a genuine
-self-adjoint operator carrying the edge `E₀`), and keep the single named
-hypothesis for the indefinite full `L`, now scoped to the separable statement
-(QG-ESA-A + composition) instead of generic Carleman. Never `axiom`/`sorry`.
+**QG-ESA-C — the reassembly (the physics target, mostly done).**
+`h = h_TEGR ⊕ h_ψ` with the positive fibers: shear oscillators (genuine
+Hermite diagonal, ESA) ⊕ `−d²/dφ² + V(φ)` (ESA by (1)/(2)). The remaining
+specialist work is the single-object composition: ESA of the direct sum on
+the algebraic tensor core + the explicit edge `λ₁(h) ≥ min(ω_i, E₀) > 0`
+(ScalaronEdge) — the one-particle gap the enclosed
+`H = Σᵢⱼ hᵢⱼ C†(eᵢ)A(eⱼ)` and the mass-gap chain consume (Fock
+ESA/positivity follows per sector from the one-particle statement + the
+exact outer vacuum). The densitized y-direction's wrong sign is exactly why
+the reassembly (not the densitized d'Alembertian) is the object of record.
 
-**Division of labour.** QG-ESA-A..D are Lean4 (specialist). Planner's
-non-Lean part (already scheduled): confirm the exact X.28 statement and the
-Weyl limit-point criteria for the docstrings; check Mathlib inventory for 1D
-Sturm–Liouville / deficiency machinery and the partial-Fourier
-(Fubini / measurable-section) lemmas the wave module already uses; keep the
-sign-convention note (safe class = bounded-below `V` with the *positive*
-`−d²/dy²` coefficient — consistent with QG-2's warning).
+**Division of labour.** The remaining items (Case A composition, Case B
+deficiency computation, QG-ESA-C composition) are Lean4 (specialist). The
+planner's non-Lean part: reconcile the cdb's operator expression of `H0`
+with `qgSymbol`'s sign and record the convention in the cdb spec; the v1
+draft's sign attribution is corrected above.
 
 ## State update — 2026-08-29e: work order — complete QG (R² + vielbein + full
 ## exponential + densitized) and the QYM mass gap via certified SIRK bands
@@ -169,11 +190,15 @@ must first fix the sign class in scope (bounded-above, or the opposite-
 signature convention) and state the lemma in exactly that class; if Mathlib
 lacks the propagation estimate, keep it as the single named hypothesis with
 the corrected Chernoff citation (no `axiom`, no `sorry`), as the modules do
-today. **For the QG operator the specialist must follow the separable
-specialization of state update 29f (1D lemma QG-ESA-A + partial-Fourier
-QG-ESA-B) instead of the generic statement above** — the generic n-D
-Carleman / unique-continuation route is not needed for `V` depending on one
-coordinate only.
+today. **For the QG operator the specialist must follow the corrected
+separable analysis of state update 29f (v2)**: the 1D positive-kinetic
+lemma and the localization are ALREADY proved (`wallHam_essentiallySelfAdjoint`,
+`wave_add_smoothTruncatedPotential_essentiallySelfAdjoint`); the only open
+item is the deficiency input for the continuum `□ + V`, which is provable in
+Case A (positive-kinetic direction, via proved pieces) and **false** in Case
+B (the densitized conformal direction — deficiency (1,1), the conformal-
+factor problem). The generic n-D Carleman / unique-continuation route is
+not needed.
 
 **QG-3 — the reassembled Hamiltonian, all features present. Status:
 potential half proved; kinetic half + single-object statement open.**
