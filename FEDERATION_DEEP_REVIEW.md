@@ -110,10 +110,20 @@ protocol, velysterm kernel_client, australVM cranelift bridge w/ test-stubs).
 `velysterm`'s deliberate `cargo +nightly fmt` job is unaffected (nightly only
 for rustfmt).
 
-### F7 — `test/` GitBook has no automated sync with `timepiece` Book. (LOW/MEDIUM)
-`test/` mirrors the prose of the Book/proofs/numerics by hand. A drift in one
-is not caught by the other. A light check (markdown presence/perfunctory
-term census) could flag gross drift. Optional.
+### F7 — `test/` GitBook has no automated sync with `timepiece` Book. (DONE)
+`test/` mirrors the prose of the Book/proofs/numerics by hand. Implemented
+2026-08-29: `timepiece/scripts/check-gitbook-drift` (wired into
+`scripts/verify-invariants` as H1.5) extracts every backtick-quoted identifier
+cited by `test/proofs|book|unfer` and asserts it resolves in the timepiece
+Lean tree (token, `*.lean` file, or `BookProof.X` module), and checks `.rs`
+suite names in `test/numerics` against `unfer/fock_sirk/tests`. The first run
+found 11 genuinely stale citations — e.g. `BookProof.ChapterEuler` (file split
+into `ChapterEuler*` variants), `classical_series_converges_at_s0` (the whole
+`RiemannProof/` dir was deleted — AGENTS.md was stale and is now corrected),
+`wallHam_stone_flow` (renamed `wallHam_stone_flow_of_bddBelow`), and the
+`RandomMap.lean` theorem names cited by `unfer/randommap.md` (file is now a
+5-line aggregator). The GitBook pages themselves are owned by the `test/`
+repo — fixing the stale prose is a work order there, not a write from here.
 
 ### F8 — `verify-invariants` + `coverage_gate` scripts exist in `unfer/scripts` but not wired for `timepiece`. (LOW)
 `unfer/scripts` already has `verify-invariants`, `smoke_gate`,

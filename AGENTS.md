@@ -10,10 +10,14 @@ formalization project.
 
 - **`/PLAN.md`**: Tracks implemented theorems vs. remaining axioms/loopholes.
   **Read this first** to identify the next development target.
-- **`/RiemannProof/`**: The Lean 4 project root.
-- **`/RiemannProof/RiemannProof/Basic.lean`**: The main development file.
-  All definitions, axioms, lemmas, and theorems reside here.
-- **`/RiemannProof/RiemannProof.lean`**: Entry point exposing the library.
+- **`/` (repo root)**: The Lean 4 project root. The library entry point is
+  `RiemannProof.lean` (root-level aggregator; imports the `UsedRoute.*`,
+  `UnusedRoute.*`, `RandomMap.*` modules). The former `RiemannProof/`
+  directory layout was consolidated: definitions and theorems now live in
+  the area modules — `BookProof/` (the formalization chapters), `RandomMap/`
+  (RH/random-map chain), `UsedRoute/` + `UnusedRoute/` (proof routes),
+  `PnpProof/` — verified via `lake build BookProof` (see the Formalization
+  State table below).
 - **`/Layout/Layout.lean`** (GPU_FEDERATION_PLAN T2.1): pure-core-Lean
   certificates for the GPU federation — `StateDictionary` layout bijectivity
   and the `2x + 4y ≡ 0 (mod 32)` bank-conflict / swizzle-impossibility
@@ -34,8 +38,9 @@ Lean 4 relies on the `lake` build system. Because the Lean version manager
 # Add elan to path
 export PATH="/home/leo/.elan/bin:$PATH"
 
-# Move to Lean project root
-cd RiemannProof
+# The lake project root is the repo root (lakefile.toml + lean-toolchain
+# live here; there is no RiemannProof/ subdirectory).
+# cd RiemannProof   # NOT a directory — lake root is the repo root
 
 # Fetch precompiled Mathlib binaries (crucial to avoid compiling mathlib from scratch)
 lake exe cache get

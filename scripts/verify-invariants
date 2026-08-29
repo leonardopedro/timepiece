@@ -65,7 +65,17 @@ else
     gap "unfer sibling absent; vendored-fixture byte-equality not checked"
 fi
 
-# --- H1.5 Proof targets build ---
+# --- H1.5 GitBook drift (F7): every identifier cited by the ../test pages
+# must resolve in the timepiece Lean tree / unfer test suites. Skippable when
+# ../test is absent.
+if [[ -d "$repo_root/../test" ]]; then
+    check "gitbook drift: cited identifiers resolve (scripts/check-gitbook-drift)" \
+        bash "$repo_root/scripts/check-gitbook-drift"
+else
+    gap "../test GitBook absent; drift check skipped"
+fi
+
+# --- H1.6 Proof targets build ---
 # This is the expensive gate (mathlib). Skip via TIMEPIECE_SKIP_LAKE=1 for the
 # fast invariant pass.
 if [[ "${TIMEPIECE_SKIP_LAKE:-0}" != "1" ]]; then
