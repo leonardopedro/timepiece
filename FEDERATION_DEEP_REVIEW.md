@@ -96,12 +96,19 @@ buildable subset** (the two book pages + status/docs), leaving the Lean-edge
 work orders documented-but-uncommitted if so desired. I will stage the
 verifiably-green docs/book changes.
 
-### F6 — Toolchain fragmentation across the Rust federation. (MEDIUM)
-`unfer`, `dynamic-arctic` use a system `cargo`; `australVM` needs opam/dune
-(not installed here), `vellusterm` uses nightly for `fmt`. No shared
-toolchain file or `rust-toolchain` pin across repos → CI drift risk. Could
-standardise on an `edition = "2021"` pin + `rustc` version in each `Cargo.toml`
-or a root `rust-toolchain.toml`. Low-effort, cross-cutting.
+### F6 — Toolchain fragmentation across the Rust federation. (FIXED)
+`unfer`, `dynamic-arctic` used a system `cargo`; `australVM` needs opam/dune;
+`velysterm` uses nightly only for `fmt`. No shared toolchain pin → CI drift
+risk. Fixed 2026-08-29: `rust-toolchain.toml` pinned to **1.97.1** (the
+compiler the whole tree already builds with) in all four Rust repos —
+`unfer/`, `australVM/safestos/cranelift/`, `velysterm/`, `dynamic-arctic/`.
+rustup honors the file for every `cargo` invocation (directory override), so
+CI and local builds use exactly this compiler regardless of the runner's
+default stable. Verified: `rustup show active-toolchain` reports the override
+in each repo, and `cargo check` passes under the pin (dynamic-arctic, unfer
+protocol, velysterm kernel_client, australVM cranelift bridge w/ test-stubs).
+`velysterm`'s deliberate `cargo +nightly fmt` job is unaffected (nightly only
+for rustfmt).
 
 ### F7 — `test/` GitBook has no automated sync with `timepiece` Book. (LOW/MEDIUM)
 `test/` mirrors the prose of the Book/proofs/numerics by hand. A drift in one
@@ -145,7 +152,10 @@ write it.**
      (release mode) + numeric release profile (commit 2fa3eb8).
    - `unfer`: regenerate `sirk_core_model/aeneas` after core settles (F4).
    - `australVM`: pin opam/dune toolchain + document `arctic` dep (F3/F6).
-   - Standardise `rust-toolchain` across the Rust repos (F6).
+   - ✅ F6 done 2026-08-29 — `rust-toolchain.toml` pinned to 1.97.1 in
+     unfer, australVM/safestos/cranelift, velysterm, dynamic-arctic
+     (commits: unfer 4cd3c4d, australVM 1b6ccb5e, velysterm 8fccd50,
+     dynamic-arctic ca11f49).
 
 ### Explicitly NOT in scope here (per instructions)
 - **Lean4 proof code** → `CONSOLIDATED_PLAN.md` specialist work orders.
