@@ -1,5 +1,151 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
+## State update — 2026-08-29e: work order — complete QG (R² + vielbein + full
+## exponential + densitized) and the QYM mass gap via certified SIRK bands
+
+This is a **work order for the Lean4-specialist**, written after the copy wave
+(29b/c/d) and the Book-prose wave. The single QG object is the 3D gauge-fixed
+**vielbein/TEGR Starobinsky Hamiltonian** of
+`unfer_contracts/docs/qg_starobinsky_vielbein_hamiltonian.cdb` (derivation of
+record):
+
+```text
+H = (1/16e) S^{ab} S_{ab} − (1/24e) P² + … + U(ψ)
+```
+
+from the scalar-tensor (Jordan) action `S = ∫ (M²/2)ψ·eR − U(ψ)e`, `ψ =
+1 + 4αR/M²`, `U(ψ) = (M⁴/16α)(ψ−1)²`, final Hamiltonian
+`H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ)` (one-particle `h` enclosed in creation-left /
+annihilation-right on the nested Fock space), `h = h_TEGR ⊕ h_ψ`,
+`h_ψ = ½π² + V(φ̂)` with the **full exponential** `V(φ) = K(1−e^{−aφ})²`
+(`K = M⁴/(16α)`, `a = √(2/3)/M`), and the **densitized** change of variables
+`y = √e`, `ẽ = √e·e` flattening the kinetic principal part to
+`(1/16)Δ_S̃ − (1/24)d²/dy²`. All four features belong to this ONE object; the
+specialist must prove what remains about it, in this order.
+
+### QG work order (specialist; no Rust, no Cadabra2, no `../unfer` reads)
+
+**QG-1 — the densitized change of variables is a Hilbert-space unitary.
+Status: NOT yet proved for the full field space; proved only for the 1D
+scalaron fiber.** The transfer theorem
+`densitized_hasZeroDeficiencyOn_transfer` is proved *given* a
+`LinearIsometryEquiv W`, and the 1D half-density unitary
+`W : L²((0,∞), de) ≃ₗᵢ[ℂ] L²((0,∞), 2y dy)`, `(W g)(y) = g(y²)` is a real
+unitary in `ChapterScalaronDensitizedTransfer` (`halfDensityUnitary_*`). The
+raw point map `e ↦ (y, ẽ)` is *not* unitary; with the Jacobian half-density
+factor `|J|^{−1/2}` it becomes one. Tasks:
+
+1. Build the explicit multi-dimensional half-density unitary for the full
+   field space `L²((0,∞)^{84} × ℤ₂^{19})` (tetrad determinant coordinate
+   `y = √e` + the `19` shear directions; see Part A of
+   `ChapterQuantumGravityDensitized` and the 1D template in
+   `ChapterScalaronDensitizedTransfer`). Prove it is a
+   `LinearIsometryEquiv` (isometric + surjective) — `unitᵢ_*`
+   (`unitᵢ_isometry`, `unitᵢ_surjective`, or the `≃ₗᵢ` form).
+2. Prove it intertwines the physical and densitized core operators
+   (multi-coordinate analogue of `halfDensityUnitary_intertwines`), so that
+   `densitized_hasZeroDeficiencyOn_transfer` applies verbatim and the ESA of
+   the flat densitized operator transfers to the physical one.
+3. Gate: `#print axioms` to `propext`/`Classical.choice`/`Quot.sound`.
+
+**QG-2 — discharge the Strichartz hypothesis. Status: a named hypothesis,
+never an axiom.** `ChapterQuantumGravityDensitized` records the ESA of the
+flat densitized operator `□ + V` (`qgSymbol = (1/16)Σξ² − (1/24)ξ_y²`) as
+conditional on the finite-speed / deficiency-triviality premise
+(`strichartz_esa_of_finiteSpeed`, satisfiability shown by
+`strichartz_finiteSpeed_satisfiable`); `ChapterScalaronCoreEsa` records the
+same for `□ + V(φ)` on the `C_c^∞` core of `L²(SpaceTime n)`
+(`wave_add_scalaron_esa_of_finiteSpeed`). This is Strichartz 1973 — a proved
+theorem of mathematics whose *Lean* formalization is absent, in the same
+honesty class as Crouzeix's inequality. Task: formalize the finite-speed /
+unique-continuation lemma for `□ + V` with `V` **smooth and bounded below**
+on the `C_c^∞` core (the class the energy argument uses; not the polynomial
+class), turning the conditional one-particle ESA into an unconditional
+theorem. The core is `C_c^∞`, NOT the Hermite core (the exponential wall is
+refuted there — `ChapterHermiteExpWall`). If Mathlib lacks the propagation
+estimate, state the lemma as the single remaining named hypothesis with full
+citation (no `axiom`, no `sorry`), exactly as the current modules do.
+
+**QG-3 — the reassembled Hamiltonian, all features present. Status:
+potential half proved; kinetic half + single-object statement open.**
+`ChapterVielbeinFiberFock` proves the reassembly of the *potential* half
+(`vielbeinManyPotential`, `vielbeinFock_esa/stone_flow`, uniform lower
+bound) and identifies the scalaron fiber with `starobinskyV`;
+`ChapterScalaronEdge` proves the strict edge `E₀ > 0` for the scalaron
+fiber with kinetic term included. Tasks:
+
+1. State and prove the single-object theorem: the *complete* `h = h_TEGR ⊕
+   h_ψ` with the densitized kinetic principal part (QG-1) + full-exponential
+   `h_ψ` (ScalaronEdge) is essentially self-adjoint on its core, with the
+   explicit `E₀` edge — closing the gap between the per-fiber theorems and
+   one named object. The shear fibers' frequencies `ω_i` are a modelling
+   input (as the module declares); the kinetic identification with the
+   TEGR `S^{ab}S_{ab}` content beyond the flat principal part stays the
+   declared boundary unless the specialist derives it.
+2. **Honest boundary, restated for the specialist:** the TEGR
+   kinetic/gravity sector itself remains out of scope; no mass gap of a
+   physical gravity Hamiltonian is claimed; `1.932` remains a certified
+   truncated number.
+
+### QYM mass gap via certified SIRK bands (specialist + planner split)
+
+**QYM-1 — feed certified band data through the proved chain. Status: chain
+proved, band data is planner-run.** `ChapterYangMillsFockGapChain` is
+`sorry`-free; the abelian no-gap result (29d) proves no proof can be uniform
+in `fabc`; the non-abelian one-particle form gap remains the single open
+hypothesis. The route the specialist must complete is the **certified-band**
+one: consume the rigorous error bands of the SIRK approximation through
+`BandEnclosure.friedrichs_form_gap_of_nested_ritz_bands` into
+`ym_fock_gap_of_nested_ritz_bands` — never reading a displayed Ritz value as
+a lower bound. The specialist's tasks:
+
+1. Prove that the certified bands the kernel emits are *nested compatible*
+   enclosures in the sense `BandEnclosure` requires (same operator, mesh
+   refinement) — a Lean statement over the band interface
+   (`ChapterSirkCertificateReader` / `ChapterBandEnclosure`), not over f64
+   outputs.
+2. Prove the finite/truncated one-particle gap certified by the bands lifts
+   to the infinite one-particle operator and then (via `dGamma`) to the
+   outer-enclosed final Hamiltonian — the current certificate proves only
+   the truncated gap; the bridge is the specialist's analytic input.
+3. Keep the honest boundary: `λ₁(H₁|core) > 0` (strict positivity, not just
+   non-negativity) is the mathematical claim to establish or to leave as the
+   single named hypothesis.
+
+**QYM-2 — planner-executed (NOT the specialist): the `../unfer` executable
+gate.** The following are the planner's job and are already green or will be
+run by the planner; the specialist consumes only the vendored artifacts in
+`unfer_contracts/` and never runs Rust/Cadabra2/nanoda:
+
+1. Aeneas regeneration of `SirkCoreModel.lean` from the live core (green,
+   byte-identical Lean; llbc nondeterminism is charon key-ordering, not a
+   source change).
+2. The certified-band / error-band emission: run the corrected QYM/QED/QG/NS
+   suites in `../unfer` (release), emit fresh SIRK–Hashimoto certificates
+   from the actual Hamiltonian constructors, record constructor/version /
+   coupling/truncation/Krylov-order/shifts/enclosure-convention/hash, and
+   re-vendor the NDJSON fixtures into `unfer_contracts/`.
+3. nanoda re-verification of the exported Lean certificate instantiation
+   (green: all 12 `prob_kernel verify::` tests, incl.
+   `gap_certificate_proof_verifies_in_nanoda`).
+4. If Cadabra2 output is needed for the .cdb derivations (the notebooks are
+   input-only; the final forms are stated inline in the spec), the planner
+   runs Cadabra2 via the `../unfer` flake and vendors the extracted results;
+   the specialist never runs it.
+
+If the certified bands cannot yet be made nested-compatible, the specialist
+must NOT degrade the chain: leave the one-particle form gap as the explicit
+named hypothesis (as `ChapterYangMillsFockGapChain` does today) and report
+what band property would discharge it.
+
+### Division of labour (restated)
+
+| Step | Owner | Where |
+| :--- | :--- | :--- |
+| QG-1/2/3, QYM-1 Lean theorems | Lean4-specialist | `timepiece/BookProof/` |
+| Aeneas regen, suite emission, nanoda, Cadabra2 | planner | `../unfer` + re-vendor |
+| Compile + gates | Lean4-specialist | `lake build BookProof` (delegated) |
+
 ## State update — 2026-08-29d: item 1 answered — the abelian one-particle form gap is **false**
 
 Executed and **compiled** (`lake build BookProof.ChapterRoadmapAudit`: 0 errors, no `sorry`;
