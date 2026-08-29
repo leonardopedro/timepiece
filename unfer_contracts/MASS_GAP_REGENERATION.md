@@ -68,6 +68,13 @@ formal obligations.
   regenerated; byte-identical to the vendored copies (the vendored bundle
   was already current — the *live* repo's committed artifacts were stale,
   carrying line numbers from an older `src/lib.rs`).
+- **Charon `.llbc` output is byte-nondeterministic between runs**: two runs
+  from the same `src/lib.rs` produce the same declaration sets (25 funs, 7
+  types, 5 traits, 6 impls, 3 globals, 46 item names) but a different
+  serialized `ordered_decls` key ordering, so the `.llbc` bytes differ run
+  to run. This is expected; the generated `SirkCoreModel.lean` (the artifact
+  the Lean specialist consumes) is byte-identical across runs. Do not treat
+  a differing `.llbc` byte layout as a source change.
 - Cleanup: the stale crate-root `Lib.lean`/`lib.llbc` duplicates (tracked
   since `e0dfb3d`, superseded by the `aeneas/` normalization) were removed
   by the script's own `mv`; README documents only the `aeneas/` outputs.
