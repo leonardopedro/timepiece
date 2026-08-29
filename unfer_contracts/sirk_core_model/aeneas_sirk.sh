@@ -52,14 +52,20 @@ RUSTC_BOOTSTRAP=1 "$AENEAS_ROOT/charon" rustc --preset=aeneas \
   -- src/lib.rs --edition 2021 --crate-type lib
 
 echo "== aeneas: aeneas/sirk_core_model.llbc -> aeneas/SirkCoreModel.lean =="
+# Aeneas exits non-zero on the 7 expected f64-arithmetic errors (the honesty
+# boundary: the affected bodies are emitted as `sorry`). Under `set -e` that
+# would abort the script before the rename steps below, so the exit status is
+# captured and only a run that produced no output at all is fatal.
+# Note: the output-directory flag is `-dest` (there is no `-o`); the emitted
+# module file is `Lib.lean` (module name from the crate), normalised below.
+rm -f aeneas/Lib.lean
 "$AENEAS_ROOT/aeneas" -backend lean -namespace sirk_core_model \
-  -o aeneas lib.llbc 2>/dev/null || \
-"$AENEAS_ROOT/aeneas" -backend lean -namespace sirk_core_model lib.llbc
-
-# Aeneas emits `Lib.lean` (module name from the crate); normalise the name.
-if [ -f Lib.lean ]; then
-  mv Lib.lean aeneas/SirkCoreModel.lean
+    -dest aeneas/ lib.llbc || true
+if [ ! -f aeneas/Lib.lean ]; then
+  echo "error: aeneas produced no output (expected aeneas/Lib.lean)" >&2
+  exit 1
 fi
+mv aeneas/Lib.lean aeneas/SirkCoreModel.lean
 mv lib.llbc aeneas/sirk_core_model.llbc
 
 echo "== regenerated =="

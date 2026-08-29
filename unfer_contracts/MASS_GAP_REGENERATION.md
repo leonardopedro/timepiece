@@ -50,3 +50,24 @@ The old fixture is not evidence for a corrected implementation. A successful
 finite certificate still does not prove the continuum mass gap; the
 one-particle positivity/edge theorem and its outer `dΓ` lift remain separate
 formal obligations.
+
+## Regeneration log
+
+### 2026-08-29 — Aeneas model re-run (source rev `1767a52` in `../unfer`)
+
+- Ran `sirk_core_model/aeneas_sirk.sh` against the live `../unfer` core
+  (`unfer/sirk_core_model/scripts/aeneas_sirk.sh`). Charon extracted the
+  pure core to `.llbc`; Aeneas emitted the partial Lean model (7 expected
+  f64-arithmetic errors, `sorry` bodies — the documented honesty boundary).
+- **Script bug fixed in both copies** (`aeneas_sirk.sh`): Aeneas exits
+  non-zero on the expected errors, which under `set -e` aborted the script
+  *before* the rename steps — the `aeneas/` outputs were never refreshed.
+  The fix captures the exit status and only treats a run that produces no
+  `Lib.lean` at all as fatal.
+- Result: `aeneas/SirkCoreModel.lean` and `aeneas/sirk_core_model.llbc`
+  regenerated; byte-identical to the vendored copies (the vendored bundle
+  was already current — the *live* repo's committed artifacts were stale,
+  carrying line numbers from an older `src/lib.rs`).
+- Cleanup: the stale crate-root `Lib.lean`/`lib.llbc` duplicates (tracked
+  since `e0dfb3d`, superseded by the `aeneas/` normalization) were removed
+  by the script's own `mv`; README documents only the `aeneas/` outputs.
