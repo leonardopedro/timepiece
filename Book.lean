@@ -19,6 +19,8 @@ import Book.Starobinsky
 import Book.NavierStokesHashimoto
 import Book.CarlemanFlux
 import Book.SirkReliability
+import Book.Numerics
+import Book.NsNumerics
 import Book.ConsciousnessBayesianPrior
 import Book.AlignedDeepLearning
 import Book.CoherentState
@@ -322,6 +324,10 @@ instance of the tensor products of sample spaces).
 {include 0 Book.CarlemanFlux}
 
 {include 0 Book.SirkReliability}
+
+{include 0 Book.Numerics}
+
+{include 0 Book.NsNumerics}
 
 # Consciousness, Deep Learning, and the Bayesian Prior
 %%%

@@ -1,3 +1,63 @@
+# Summary of changes for this run
+
+I continued executing `CONSOLIDATED_PLAN.md`, working through the top work package
+("Next steps for the Lean4-specialist").
+
+**Build state.** `lake build BookProof` completes with 0 errors, 0 warnings and 8554 jobs
+on the pinned toolchain; no `sorry` and no `axiom` declaration is added, and every new
+public result is audited by `#print axioms` to depend only on `propext`,
+`Classical.choice`, `Quot.sound`.
+
+**1. Next step 2 — `BookProof/ChapterFockCubicQuarticStability.lean`** (namespace
+`BookProof.FockCubicQuarticStability`) generalises
+`FockCubicUnbounded.trial_cubic_quartic_bounded_below` from its two-term trial family to
+*arbitrary* finite states.  The interaction forms are turned into norms — `quart_form_eq`
+(`Re⟪u, Q_k u⟫ = ‖a_k²u‖²`), `cubic_form_eq` (`Re⟪u, C_k u⟫ = 2Re⟪a_k²u, a_k†u⟫`) — and
+combined with the single-mode canonical commutation relation `norm_creA_sq`
+(`‖a_k†v‖² = ‖a_k v‖² + ‖v‖²`) and the Cauchy–Schwarz estimate `sq_norm_annA_le_mul`
+(`‖a_k u‖² ≤ ‖u‖‖a_k†a_k u‖`).  Results: `mode_cubic_quartic_bounded_below`
+(`mu‖a_k u‖² + lam·Re⟪u,C_k u⟫ + Re⟪u,Q_k u⟫ ≥ -(2lam² + (2lam² + ½ − mu)²/2)‖u‖²`, no
+hypotheses on the parameters and no vacuum-orthogonality), its number-form corollary
+`numberForm_cubic_quartic_bounded_below`, the `mu = 1` case
+`trial_cubic_quartic_bounded_below_general`, the multi-mode sums
+`multiMode_cubic_quartic_bounded_below` and `dGamma_multiMode_cubic_quartic_bounded_below`
+(one copy of the free form pays for every mode of a finite set, the constant growing
+linearly in its cardinality), and the one-particle-gap version
+`dGamma_cubic_quartic_bounded_below`.
+
+**2. Next step 3 — `BookProof/ChapterScalaronFockGapChain.lean`** (namespace
+`BookProof.ScalaronFockGapChain`) instantiates the abstract gap chain for the `R²`
+(scalaron) sector.  For the constant one-particle operator `constOnePart b m = m·1` the
+one-particle form gap is an *identity* (`constOnePart_quadForm`), which discharges the
+hypothesis the gauge-fixed Yang–Mills instantiation has to carry.  Hence `const_fock_gap`
+(`dΓ(m·1)Ω = 0` and `Re⟪u, dΓ(m·1)u⟫ ≥ m‖u‖²` on vacuum-orthogonal finite states),
+`const_isPosCol_shiftCol`, `const_fock_mass_gap` (a positive self-adjoint Friedrichs
+extension together with strict positivity of the non-vacuum energy, for `m > 0`),
+`const_fock_gap_of_field_perturbation` (the gap `m − 2‖f‖` survives the unbounded,
+number-changing coupling `Φ(f)` when `2‖f‖ < m`) and
+`const_fock_cubic_quartic_bounded_below`.  With `scalaronMass α = 1/√(12α)` and
+`scalaronOnePart` these are instantiated on the Hermite basis of `L²(ℝ)` as
+`scalaron_fock_mass_gap`, `scalaron_fock_gap_of_field_perturbation` and
+`scalaron_fock_cubic_quartic_bounded_below`.
+
+**3. Wiring, hygiene and documentation.** Both modules are imported from `BookProof.lean`
+with explanatory comment blocks and from `BookProof/ChapterRoadmapAudit.lean` with
+`#print axioms` lines for all of their public results.  The remaining `BookProof` linter
+warnings (over-long lines and unused `simp` arguments) were fixed at their source, so the
+target now builds warning-free.  New wave sections were added to `BookProof/STATUS.md` and
+to the status block at the top of `CONSOLIDATED_PLAN.md`.
+
+**Honest boundary.** The cubic/quartic results are *semiboundedness*, not a gap: the
+constant is negative, and `C_k`, `Q_k` are single-mode terms, not the full Yang–Mills
+vertices.  In the scalaron chapter what is unconditional is the *lift*: that the `R²`
+sector's one-particle energy is the constant `1/√(12α)` is a modelling statement of the
+plan's enclosure doctrine, not proved here, and the TEGR kinetic sector is not covered.
+The gauge-fixed Yang–Mills chain remains conditional on its one-particle form gap (next
+step 1 of the plan, still open), `1.932` remains a certified truncated number, and no mass
+gap of the physical Yang–Mills Hamiltonian is claimed.
+
+All work is committed and pushed.
+
 # Summary of changes for run 4e7fb02d-a7d0-4745-996b-9c7d6cfbe7f2
 I continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
 

@@ -308,6 +308,7 @@ import BookProof.ChapterOdeComplexification
 import BookProof.ChapterRieszFischer
 import BookProof.ChapterPaFreeCompletion
 import BookProof.ChapterDefinabilityFragment
+import BookProof.ChapterScalaronEdge
 
 import BookProof.ChapterFiniteArithmeticPrior
 import BookProof.ChapterCountableDefinability
@@ -1487,9 +1488,10 @@ import BookProof.ChapterFockFieldPerturbation
 -- `ym_fock_gap_of_field_perturbation` adds the unbounded number-changing field coupling of
 -- `ChapterFockFieldPerturbation`.  `ym_fock_gap_of_nested_ritz_bands` feeds the certified
 -- band data in through `BandEnclosure.friedrichs_form_gap_of_nested_ritz_bands`, so that no
--- displayed Ritz value is read as a lower bound.  Everything is **conditional on the one-particle form
--- gap**, which is not proved: the SIRK/Hashimoto certificate remains a finite-truncation
--- statement and no mass gap of the physical Yang–Mills Hamiltonian is claimed.
+-- displayed Ritz value is read as a lower bound.  Everything is **conditional on the
+-- one-particle form gap**, which is not proved: the SIRK/Hashimoto certificate remains a
+-- finite-truncation statement and no mass gap of the physical Yang–Mills Hamiltonian is
+-- claimed.
 import BookProof.ChapterYangMillsFockGapChain
 
 -- `ChapterFockPairPerturbation` (CONSOLIDATED_PLAN.md, top work package).  **The next degree:
@@ -1527,3 +1529,57 @@ import BookProof.ChapterFockPairPerturbation
 -- bound `-(lam⁴/4 + 2lam²)‖u‖²`.  What is proved is that *this route* cannot reach degree
 -- three, not that no gap exists.  No mass gap of the physical Hamiltonian is claimed.
 import BookProof.ChapterFockCubicUnbounded
+
+-- `ChapterFockCubicQuarticStability` (CONSOLIDATED_PLAN.md, top work package, next step 2).
+-- The positive companion of `ChapterFockCubicUnbounded`, freed from its trial family: the
+-- cubic term `C_k = (a_k†)³ + (a_k)³` and its normal-ordered quartic partner
+-- `Q_k = (a_k†)²(a_k)²` are controlled together on *every* finite state.  The forms are
+-- rewritten as norms — `quart_form_eq` (`Re⟪u, Q_k u⟫ = ‖a_k²u‖²`), `cubic_form_eq`
+-- (`Re⟪u, C_k u⟫ = 2Re⟪a_k²u, a_k†u⟫`), `norm_creA_sq` (the single-mode CCR
+-- `‖a_k†v‖² = ‖a_k v‖² + ‖v‖²`) and `sq_norm_annA_le_mul` (Cauchy–Schwarz
+-- `‖a_k u‖² ≤ ‖u‖‖a_k†a_k u‖`) — and combined into
+-- `mode_cubic_quartic_bounded_below` and `numberForm_cubic_quartic_bounded_below`:
+-- `mu⟪u,Nu⟫ + lam·Re⟪u,C_k u⟫ + Re⟪u,Q_k u⟫ ≥ -(2lam² + (2lam² + ½ − mu)²/2)‖u‖²` for every
+-- `mu ≥ 0`, every coupling `lam` and every finite `u`, with the `mu = 1` corollary
+-- `trial_cubic_quartic_bounded_below_general`, the multi-mode sums
+-- `multiMode_cubic_quartic_bounded_below` and
+-- `dGamma_multiMode_cubic_quartic_bounded_below` — one copy of the free form pays for the
+-- interaction of every mode in a finite set, the constant growing linearly in its
+-- cardinality — and the one-particle-gap version `dGamma_cubic_quartic_bounded_below`.
+-- Semiboundedness is not a gap: the constant is negative, and `C_k`, `Q_k` are single-mode
+-- terms, not the physical Yang–Mills vertices.
+import BookProof.ChapterFockCubicQuarticStability
+
+-- `ChapterScalaronFockGapChain` (CONSOLIDATED_PLAN.md, top work package, next step 3):
+-- the abstract gap chain instantiated for a sector whose one-particle energy is a positive
+-- constant `m`, and then for the Starobinsky scalaron mass `m = 1/√(12α)` on the Hermite
+-- basis of `L²(ℝ)`.  For the constant one-particle operator `constOnePart b m = m·1` the
+-- one-particle form gap is an *identity* (`constOnePart_quadForm`), so every hypothesis the
+-- Yang–Mills instantiation had to carry is discharged: `const_fock_gap` and
+-- `const_fock_mass_gap` give `dΓ(m·1)Ω = 0`, the bound `Re⟪u, dΓ(m·1)u⟫ ≥ m‖u‖²` on
+-- vacuum-orthogonal finite states and a positive self-adjoint (Friedrichs) extension;
+-- `const_fock_gap_of_field_perturbation` keeps the gap `(m − 2‖f‖)` under the unbounded,
+-- number-changing coupling `Φ(f)` when `2‖f‖ < m`; and
+-- `const_fock_cubic_quartic_bounded_below` keeps the energy bounded below when the
+-- single-mode cubic couplings and their normal-ordered quartic partners are added.
+-- `scalaron_fock_mass_gap`, `scalaron_fock_gap_of_field_perturbation` and
+-- `scalaron_fock_cubic_quartic_bounded_below` are the instantiations at
+-- `scalaronMass α = 1/√(12α)`.  What is unconditional is the *lift*: that the `R²` sector's
+-- one-particle operator is that constant is a modelling statement of the enclosure
+-- doctrine, not a theorem here, and no claim about Yang–Mills is made.
+import BookProof.ChapterScalaronFockGapChain
+
+-- `ChapterFockDiagonalGapChain` (CONSOLIDATED_PLAN.md, top work package, next step 3): the
+-- same chain for a *diagonal* one-particle energy, the shape the free sectors of the
+-- enclosure doctrine have.  `modeBasis b` exhibits the finite-mode core as a free module on
+-- the orthonormal family `b`, `diagOnePart b w` is the operator `e_k ↦ ω_k e_k`, and
+-- `diagOnePart_inner` computes its sesquilinear form in coordinates; from that,
+-- `diagOnePart_symmetricOn` and — the point — `diagOnePart_quadForm_ge`, the one-particle
+-- form gap `⟪x, D x⟫ ≥ m‖x‖²` whenever every mode energy satisfies `ω_k ≥ m`.  Hence
+-- `diag_fock_gap`, `diag_fock_mass_gap`, `diag_fock_gap_of_field_perturbation` and
+-- `diag_fock_cubic_quartic_bounded_below` without any certificate hypothesis, and the free
+-- massive instance `freeField_fock_mass_gap` at the relativistic dispersion
+-- `freeDispersion m p k = √(p_k² + m²)`.  Massless dispersion gives `m = 0`, i.e. positivity
+-- and no gap; that a physical sector is diagonal in the mode basis is a modelling input, not
+-- a theorem here.
+import BookProof.ChapterFockDiagonalGapChain

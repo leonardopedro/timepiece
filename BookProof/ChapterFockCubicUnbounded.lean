@@ -351,9 +351,9 @@ theorem quartA_single_confAt (k m : ℕ) (z : ℂ) :
   | (m + 2) =>
       have e1 : m + 2 - 1 = m + 1 := by omega
       have e2 : m + 1 - 1 = m := by omega
-      simp only [quartA, LinearMap.comp_apply, annA_single, map_smul, creA_single,
-        confAt_self, dn_confAt, up_confAt, e1, e2, smul_smul, Finsupp.smul_single,
-        smul_eq_mul, mul_one]
+      simp only [quartA, LinearMap.comp_apply, annA_single, creA_single,
+        confAt_self, dn_confAt, up_confAt, e1, e2, Finsupp.smul_single,
+        smul_eq_mul]
       congr 1
       have hs1 : Real.sqrt ((m : ℝ) + 1) * Real.sqrt ((m : ℝ) + 1) = (m : ℝ) + 1 :=
         Real.mul_self_sqrt (by positivity)
@@ -392,7 +392,7 @@ theorem trial_quartic_form (k n : ℕ) (c : ℝ) :
   have hval_n3 : quartA k (trial k n c) (confAt k (n + 3))
       = ((((n : ℝ) + 3) * ((n : ℝ) + 2) : ℝ) : ℂ) * ((c : ℝ) : ℂ) := by
     rw [hq]
-    simp only [Finsupp.add_apply, Finsupp.single_apply, if_neg hne, if_pos rfl]
+    simp only [Finsupp.add_apply, Finsupp.single_apply, if_neg hne]
     push_cast
     ring
   have hinner := inner_toLp_of_subset (trial_support_subset k n c) (quartA k (trial k n c))

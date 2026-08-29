@@ -27,7 +27,8 @@ one-particle edge and its lift through the free nested-Fock `dGamma` Hamiltonian
 | emitted QYM certificate | proved truncated enclosure |
 | QYM Friedrichs/Hashimoto-selected operator | proved construction/selection |
 | one-particle gap, lifted to Fock space | proved for the concrete gauge-fixed QYM one-particle operator, conditional on its one-particle *form* gap (`ChapterYangMillsFockGapChain`) |
-| unbounded field perturbations of the gap | proved for the linear coupling `Φ(f)` (`ChapterFockFieldPerturbation`, `sorry`-free) and for the quadratic pair coupling `P(f,g)` (`ChapterFockPairPerturbation`); proved *impossible* for a bare cubic term (`ChapterFockCubicUnbounded`) |
+| unbounded field perturbations of the gap | proved for the linear coupling `Φ(f)` (`ChapterFockFieldPerturbation`, `sorry`-free) and for the quadratic pair coupling `P(f,g)` (`ChapterFockPairPerturbation`); proved *impossible* for a bare cubic term (`ChapterFockCubicUnbounded`); the cubic–quartic pair is bounded below on all finite states (`ChapterFockCubicQuarticStability`) |
+| gap for sectors with constant or diagonal one-particle energy | proved unconditionally: the R² scalaron at `m = 1/√(12α)` (`ChapterScalaronFockGapChain`) and any diagonal dispersion `ω_k = √(p_k² + m²)` (`ChapterFockDiagonalGapChain`) — no certificate, no form-gap hypothesis |
 | real Fock mass gap of the continuum operator | still conditional on the one-particle form gap (the certificate supplies a truncated bound); no continuum claim |
 
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure

@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# H1 verify-invariants gate (timepiece).
+#
+# Turns the AGENTS.md maintenance checklist into machine-checkable invariants.
+# Each gate checks an OWNED RELATIONSHIP (the repo's own proof targets, book
+# build, and its vendored unfer_contracts bundle), never a sibling repo's live
+# health. Output lists every executed item; exit code is non-zero if any gate
+# FAILS. Explained gaps print [gap] (known, documented non-enforcement) and do
+# not fail the gate.
+#
+# Usage:  bash scripts/verify-invariants        (from repo root)
+set -u
+FAILED=0
+PASSED=0
+GAPS=0
+
+check() {
+    local name="$1"
+    shift
+    if "$@"; then
+        echo "[pass] $name"
+        PASSED=$((PASSED + 1))
+    else
+        echo "[FAIL] $name"
+        FAILED=$((FAILED + 1))
+    fi
+}
+
+gap() {
+    echo "[gap]  $1"
+    GAPS=$((GAPS + 1))
+}
+
+repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+export PATH="$HOME/.elan/bin:$PATH"
+
+# --- H1.1 Default targets are the documented proof + book + core-cert set ---
+# lakefile.toml must declare BookProof, Book, Singularity, Layout as the
+# default targets (Layout = GPU_FEDERATION pure-core certificates).
+check "lakefile: defaultTargets = BookProof/Book/Singularity/Layout" \
+    grep -q 'defaultTargets = .*BookProof.*Book.*Singularity.*Layout' \
+    "$repo_root/lakefile.toml"
+
+# --- H1.2 The two Verso patches that make the 26-chapter manual elaborate are tracked ---
+check "verso patch 0001 present (annotate-subparts)" \
+    test -f "$repo_root/patches/verso-0001-annotate-subparts.patch"
+check "verso patch 0002 present (toc-fragment-links)" \
+    test -f "$repo_root/patches/verso-0002-toc-fragment-links.patch"
+
+# --- H1.3 The lean toolchain is pinned ---
+check "lean-toolchain pinned to 4.28.0" \
+    grep -q 'leanprover/lean4:v4.28.0' "$repo_root/lean-toolchain"
+
+# --- H1.4 Vendored mass-gap certificate is byte-identical to live unfer ---
+# unfer_contracts is the self-contained bundle for the Lean4 specialist. The
+# fixture MUST match ../unfer/prob_kernel/tests/fixtures so the lean layer and
+# the numerical layer certify the same object. Skippable (gap) when ../unfer
+# is absent (e.g. a pristine clone of timepiece alone).
+if [[ -f "$repo_root/../unfer/prob_kernel/tests/fixtures/gap_certificate.ndjson" ]]; then
+    check "vendored gap_certificate.ndjson == ../unfer (byte-identical)" \
+        cmp -s \
+        "$repo_root/unfer_contracts/prob_kernel/tests/fixtures/gap_certificate.ndjson" \
+        "$repo_root/../unfer/prob_kernel/tests/fixtures/gap_certificate.ndjson"
+else
+    gap "unfer sibling absent; vendored-fixture byte-equality not checked"
+fi
+
+# --- H1.5 Proof targets build ---
+# This is the expensive gate (mathlib). Skip via TIMEPIECE_SKIP_LAKE=1 for the
+# fast invariant pass.
+if [[ "${TIMEPIECE_SKIP_LAKE:-0}" != "1" ]]; then
+    check "lake build BookProof Singularity Layout" \
+        bash -lc "cd '$repo_root' && lake build BookProof Singularity Layout"
+else
+    gap "TIMEPIECE_SKIP_LAKE=1 set; lake build gate skipped"
+fi
+
+echo
+echo "verify-invariants: $PASSED passed, $FAILED failed, $GAPS gap(s)"
+if [[ "$FAILED" -gt 0 ]]; then
+    exit 1
+fi
+exit 0

@@ -41,7 +41,7 @@ The following modules are now part of the proof architecture:
   coupling `P(f,g) = a†(f)a†(g) + a(g)a(f)` keeps the gap
   `(μ − 2√2‖f‖‖g‖)‖u‖²` under the smallness condition `2√2‖f‖‖g‖ < μ`.
 * `ChapterFockCubicUnbounded.lean`: the boundary of the route — a bare cubic
-  term `(a†)³ + a³` admits **no** relative form bound, so `dΓ(N) + λC` is
+  term `(a†)³ + a³` admits no relative form bound, so `dΓ(N) + λC` is
   unbounded below at every coupling strength; adding the normal-ordered
   quartic `(a†)²a²` restores a lower bound along the same trial family.
 * `ChapterYangMillsFockGapChain.lean`: instantiates the abstract chain for the
@@ -50,6 +50,49 @@ The following modules are now part of the proof architecture:
   the nested-Fock mass gap (with the Friedrichs extension), the linear field
   perturbation, and the certified-band route through `BandEnclosure` — all
   conditional on the one-particle form gap.
+* `ChapterFockCubicQuarticStability.lean`: the positive companion of
+  `ChapterFockCubicUnbounded` — the cubic term `C_k = (a†)³ + (a_k)³` together
+  with its normal-ordered quartic partner `Q_k = (a†)²(a_k)²` is bounded below
+  on all finite states (no trial family, no vacuum-orthogonality):
+  the forms are rewritten as norms (`quart_form_eq`, `cubic_form_eq`), combined
+  with the single-mode canonical commutation relation (`norm_creA_sq`) and a
+  Cauchy–Schwarz estimate (`sq_norm_annA_le_mul`) that forces a large mode
+  occupation to carry a large quartic form, giving the uniform bound
+  `−(2λ² + (2λ² + ½ − μ)²/2)‖u‖²`, its multi-mode sums (one copy of the free
+  form pays for every mode of a finite set) and the one-particle-gap version.
+  Semiboundedness, not a gap — the constant is negative.
+* `ChapterScalaronFockGapChain.lean`: the same chain run for the R² (scalaron)
+  sector — the cleanest instantiation. For the constant one-particle operator
+  `m·1` the form gap is an *identity*, so every chain conclusion becomes a
+  theorem with no certificate and no hypothesis: `const_fock_gap` (`dΓ(m·1)Ω = 0`
+  and the `m‖u‖²` bound), `const_fock_mass_gap` (positive self-adjoint
+  Friedrichs extension, strict positivity of the non-vacuum energy), the
+  surviving gap `(m − 2‖f‖)‖u‖²` under the linear field coupling, and
+  semiboundedness with the cubic/quartic pair — instantiated at the Starobinsky
+  scalaron mass `scalaronMass α = 1/√(12α)` on the Hermite basis of `L²(ℝ)`.
+  What is unconditional is the *lift*; that the sector's one-particle energy is
+  this constant is the modelling statement of the enclosure doctrine. For the
+  full-exponential realization `h_ψ = ½π² + V(φ̂)` (the vielbein/TEGR model,
+  exponential as-is) the proved layer transfers fiber by fiber — the scalaron
+  fiber via the wall class (`starobinskyWall_esa`: smooth non-negative
+  potential, no growth restriction, on the compactly supported smooth core;
+  kinetic normalization `½π²` is the same class after the unitary rescaling
+  `φ = √2·x`; `wallHamBddBelow_semibounded` for the form; Gauss-core transport
+  via `ChapterQgOneParticleCcEsa`), the TEGR shear fibers via the
+  constant/diagonal one-particle chains, and the fibrewise direct-sum
+  instrument (`ChapterDirectSumEsa`, `fockSmoothPotential_esa`) reassembles
+  the nested Fock space — with the caveat that the Fock-level QG theorems
+  (`qgScalaronFock_esa`, the densitized route) formalize the *metric-route*
+  3+1 gauge fixing, not the vielbein/TEGR one. Only the strict edge `E₀ > 0`
+  remains, an elementary confinement estimate (the superlevel set `{V < c}`
+  is a bounded interval for `0 < c < M⁴/(16α)`), after which the same `dΓ`
+  lift applies verbatim at `μ = E₀`.
+* `ChapterFockDiagonalGapChain.lean`: the same chain for a *diagonal*
+  one-particle energy `e_k ↦ ω_k e_k` — the shape the free sectors have. Here
+  the form gap is *proved* from `ω_k ≥ m` (`diagOnePart_quadForm_ge`), so the
+  chain is again hypothesis-free, with the free massive instance
+  `freeField_fock_mass_gap` at the relativistic dispersion `√(p² + m²)`
+  (massless dispersion gives `m = 0`: positivity, no gap).
 * `ChapterSpectralGapStability.lean`: proves stability under suitable operator
   limits and perturbations.
 
@@ -57,7 +100,10 @@ The claim is now conditional but mathematically honest: the finite SIRK
 certificate can feed this chain only after its separation and enclosure inputs
 are supplied (the one-particle *form* gap is the single outstanding analytic
 input), and the continuum QYM result still requires a concrete convergence
-theorem.
+theorem. For the sectors whose one-particle energy is a positive constant or a
+diagonal dispersion — the scalaron of the R² theory being the flagship example
+— the chain is now *unconditional*: no certificate, no Ritz data, no form-gap
+hypothesis. The QYM instantiation remains the conditional frontier.
 
 Every plan targets the project's pinned toolchain (*Lean v4.28.0, Mathlib
 v4.28.0*), so that the work stays compatible with the existing `sorry`-free

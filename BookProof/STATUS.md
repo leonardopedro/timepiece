@@ -16,7 +16,87 @@ targets, 8749 jobs) and `lake build RandomMap` (8039 jobs) succeed with no error
 `propext`, `Classical.choice`, `Quot.sound`.  The `patches/*.sh` scripts had lost their
 executable bit in this snapshot; it has been restored.
 
-## Latest wave (2026-08-28f, **the unbounded-perturbation ladder: degree two works, degree three provably cannot**)
+## Latest wave (2026-08-28i, **the gap chain, instantiated unconditionally for the scalaron sector**)
+
+One new module, `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`), audited by `#print axioms` in `ChapterRoadmapAudit.lean` and imported from
+`BookProof.lean`.  It executes next step 3 of the plan's top work package: run the abstract
+gap chain for another sector, the `R²` (scalaron) case being the cleanest instantiation.
+
+* `BookProof/ChapterScalaronFockGapChain.lean` (namespace
+  `BookProof.ScalaronFockGapChain`) introduces the constant one-particle operator
+  `constOnePart b m = m·1` on the finite-mode core.  For it the one-particle form gap that
+  `ChapterYangMillsFockGapChain` had to carry as a hypothesis is an **identity**
+  (`constOnePart_quadForm`: the form is exactly `m‖x‖²`), and `constOnePart_symmetricOn`
+  supplies the symmetry the Friedrichs machinery needs.
+
+* Consequently every conclusion of the chain becomes a theorem: `const_fock_gap`
+  (`dΓ(m·1)Ω = 0` and `Re⟪u, dΓ(m·1)u⟫ ≥ m‖u‖²` on vacuum-orthogonal finite states, for
+  `m ≥ 0`), `const_isPosCol_shiftCol` (the matrix gap condition the perturbation theorems
+  consume), `const_fock_mass_gap` (for `m > 0`, the same together with a positive
+  self-adjoint Friedrichs extension of `dΓ(m·1)` and strict positivity of the non-vacuum
+  energy), `const_fock_gap_of_field_perturbation` (the gap `m − 2‖f‖` survives the
+  unbounded, number-changing coupling `Φ(f)` when `2‖f‖ < m`) and
+  `const_fock_cubic_quartic_bounded_below` (the energy stays bounded below when the
+  single-mode cubic couplings and their normal-ordered quartic partners of the previous
+  wave are added over a finite set of modes).
+
+* `scalaronMass α = 1/√(12α)` (with `scalaronMass_pos`) and `scalaronOnePart` instantiate
+  all of this on the Hermite basis of `L²(ℝ)`, giving `scalaron_fock_mass_gap`,
+  `scalaron_fock_gap_of_field_perturbation` and
+  `scalaron_fock_cubic_quartic_bounded_below`.
+
+* **Honest boundary.**  What is unconditional here is the *lift*.  That the `R²` sector's
+  one-particle energy is the constant `1/√(12α)` is a modelling statement of the plan's
+  enclosure doctrine, not something proved here; the TEGR kinetic sector is not covered.
+  A provenance precision: the Fock-level QG ESA theorems (`ChapterScalaronFockEsa`) and
+  the densitized route (`ChapterQuantumGravityDensitized`,
+  `ChapterScalaronDensitizedTransfer`) formalize the **metric-route** 3+1 gauge fixing
+  (conformal mode `V₃(R_c)` + scalaron, `docs/qg_starobinsky_hamiltonian.cdb`), **not**
+  the vielbein/TEGR Hamiltonian of `docs/qg_starobinsky_vielbein_hamiltonian.cdb` used
+  by the numerical model — for that one the wall/Strichartz layer transfers fiber by
+  fiber (scalaron fiber: same `starobinskyV`, kinetic `½π²` in the wall class after the
+  rescaling `φ = √2·x`; TEGR shear fibers: constant per-mode energy), but the fibrewise
+  reassembly instance and the strict edge `E₀ > 0` are still to be written in Lean (see
+  the plan's refreshed next-steps item 4).
+  The cubic/quartic conclusion remains semiboundedness with a negative constant, and the
+  cubic and quartic terms are single-mode.  No mass gap of the physical Yang–Mills
+  Hamiltonian is claimed, and the gauge-fixed Yang–Mills chain stays conditional on its
+  one-particle form gap.
+
+## Previous wave (2026-08-28h, **the cubic vertex is stabilised by its quartic partner, on all states**)
+
+One new module, `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`), audited by `#print axioms` in `ChapterRoadmapAudit.lean` and imported from
+`BookProof.lean`.  It executes next step 2 of the plan's top work package: generalise
+`FockCubicUnbounded.trial_cubic_quartic_bounded_below` away from its two-term trial family.
+
+* `BookProof/ChapterFockCubicQuarticStability.lean` (namespace
+  `BookProof.FockCubicQuarticStability`) rewrites the two interaction forms as norms —
+  `quart_form_eq` (`Re⟪u, Q_k u⟫ = ‖a_k²u‖²`, so the normal-ordered quartic term is a
+  positive operator) and `cubic_form_eq` (`Re⟪u, C_k u⟫ = 2Re⟪a_k²u, a_k†u⟫`) — adds the
+  single-mode canonical commutation relation `norm_creA_sq`
+  (`‖a_k†v‖² = ‖a_k v‖² + ‖v‖²`) and the Cauchy–Schwarz estimate `sq_norm_annA_le_mul`
+  (`‖a_k u‖² ≤ ‖u‖‖a_k†a_k u‖`), which is what forces a state with a large mode occupation
+  to carry a large quartic form.
+
+* The resulting bounds hold for **arbitrary** finite states, with no vacuum-orthogonality
+  and no trial family: `mode_cubic_quartic_bounded_below`
+  (`mu‖a_k u‖² + lam·Re⟪u, C_k u⟫ + Re⟪u, Q_k u⟫ ≥ -(2lam² + (2lam² + ½ − mu)²/2)‖u‖²`),
+  its number-form corollary `numberForm_cubic_quartic_bounded_below`, the `mu = 1` case
+  `trial_cubic_quartic_bounded_below_general` (`-(2lam⁴ + lam² + ⅛)‖u‖²`), the multi-mode
+  sums `multiMode_cubic_quartic_bounded_below` and
+  `dGamma_multiMode_cubic_quartic_bounded_below` — one copy of the free form pays for the
+  interaction of every mode in a finite set `S`, the constant growing linearly in `|S|` —
+  and the one-particle-gap version `dGamma_cubic_quartic_bounded_below`.
+
+* **Honest boundary.**  This is semiboundedness, not a gap: the constant is negative, so
+  what is excluded is the `-∞` of `FockCubicUnbounded.fock_gap_fails_for_cubic`, not a
+  non-vacuum spectrum touching zero.  `C_k` and `Q_k` are single-mode terms, not the full
+  Yang–Mills cubic and quartic vertices, and every positive gap statement in this
+  development remains conditional on the one-particle form gap.
+
+## Earlier wave (2026-08-28f, **the unbounded-perturbation ladder: degree two works, degree three provably cannot**)
 
 Two new modules, both `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
 `Quot.sound`), audited by `#print axioms` in `ChapterRoadmapAudit.lean`.

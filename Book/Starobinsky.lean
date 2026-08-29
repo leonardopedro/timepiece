@@ -23,8 +23,8 @@ meets at the level of the spatial metric.
 :::
 
 :::paragraph
-The 3D gauge fixing of the Cadabra2 derivation is done entirely in **metric
-variables** — no vielbein is needed here. The steps are the synchronous gauge
+The 3D gauge fixing of the Cadabra2 derivation is done entirely in metric
+variables — no vielbein is needed here. The steps are the synchronous gauge
 $`N = 1, N^i = 0`; the $`3+1` split $`R = R_3 + (K^2 - K_{ij}K^{ij})`; the
 conformal decomposition of the spatial metric
 $`R_c = \Omega^{-4}\bar R_c - 8\Omega^{-5}\bar\nabla^2\Omega`; the
@@ -48,7 +48,7 @@ restrictions on the frame (Weitzenböck connection: metric-compatible,
 curvature-free, torsion-carrying). Writing $`R = T + B` with the boundary term
 $`B = 2\nabla_\mu T^\mu`, the $`R^2` action would read $`\int e\, f(T+B)` — a
 functional of the torsion scalar *and* its boundary term. It is therefore
-**not** a pure $`f(T)` (teleparallel) action: $`f(T+B) \neq f(T)` generically,
+not a pure $`f(T)` (teleparallel) action: $`f(T+B) \neq f(T)` generically,
 and pure $`f(T)` gravity is a different theory. Everything below depends only
 on $`R = T + B`, so the scalar–tensor reduction, the conformal-mode parabola,
 and $`H_{\rm final}` are unchanged by the choice of variables.
@@ -185,26 +185,97 @@ validation of the model.
 :::
 
 :::paragraph
-**The final Hamiltonian is the one-particle Hamiltonian enclosed in creation
+The final Hamiltonian is the one-particle Hamiltonian enclosed in creation
 (on the left) and annihilation (on the right) operators on the nested Fock
-space** — the same doctrine as QYM, QED, and NS: $`H = \sum_{ij} h_{ij}
+space — the same doctrine as QYM, QED, and NS: $`H = \sum_{ij} h_{ij}
 C^\dagger(e_i) A(e_j)` with $`h = h_{\rm TEGR} \oplus (m)` for the vielbein
 (teleparallel) form, i.e. $`H = \sum_i :(1/16)\mathcal S_i^2: + m\,N_\psi`.
 The nested Fock space has two levels: the outer Fock space (whose ladders are
-the $`C^\dagger/A`$ of the enclosure) and the inner one-particle Hilbert space
-on which $`h`$ acts. The outer Hamiltonian is a *quadratic (free-particle-like)
-form in the outer ladders for any* $`h`$ — so the FULL Einstein-frame scalaron
-potential $`V(\varphi) = \frac{M^4}{16\alpha}(1-e^{-\sqrt{2/3}\,\varphi/M})^2`$,
-*exponential included*, may live inside $`h`$ (in the one-particle matrix
-elements $`\langle e_i, h\, e_j\rangle`$), with **no** 3-/4-particle vertices at
+the $`C^\dagger/A` of the enclosure) and the inner one-particle Hilbert space
+on which $`h` acts. The outer Hamiltonian is a *quadratic (free-particle-like)
+form in the outer ladders for any* $`h` — so the FULL Einstein-frame scalaron
+potential $`V(\varphi) = \frac{M^4}{16\alpha}(1-e^{-\sqrt{2/3}\,\varphi/M})^2`,
+*exponential included*, may live inside $`h` (in the one-particle matrix
+elements $`\langle e_i, h\, e_j\rangle`), with no 3-/4-particle vertices at
 the outer level. That is the realization `qg_starobinsky_vielbein_
 hamiltonian_full` in `../unfer` (the truncated-Hermite enclosure of
-$`h = \tfrac12\pi^2 + V(\hat\varphi)`$, whose one-particle spectrum is exactly
+$`h = \tfrac12\pi^2 + V(\hat\varphi)`, whose one-particle spectrum is exactly
 the Schrödinger spectrum proved essentially self-adjoint above,
-`starobinskyWall_esa`); the quadratic $`m\,N_\psi`$ realization is its
-small-field limit. Either way $`\langle 0|H|0\rangle = 0`$ and the outer vacuum
+`starobinskyWall_esa`); the quadratic $`m\,N_\psi` realization is its
+small-field limit. Either way $`\langle 0|H|0\rangle = 0` and the outer vacuum
 is the exact ground — the R² content never creates higher vertices at the outer
 level.
+:::
+
+:::paragraph
+The scalaron sector's outer-Fock gap is now a theorem, not a hypothesis.
+`BookProof/ChapterScalaronFockGapChain.lean` runs the abstract gap chain (the
+one instantiated conditionally for gauge-fixed QYM in
+`ChapterYangMillsFockGapChain`) for the sector whose one-particle operator is
+the *positive constant* $`m = 1/\sqrt{12\alpha}` — precisely the
+$`m\,N_\psi` realization above. For the constant operator the one-particle
+form gap that the Yang–Mills chain must assume is an identity
+(`constOnePart_quadForm`: the form is exactly $`m\|x\|^2`), so every
+conclusion follows unconditionally: `const_fock_gap` proves
+$`d\Gamma(m \cdot 1)\Omega = 0` and the bound $`\mathrm{Re}\langle u, d\Gamma(m \cdot 1) u\rangle \ge m\|u\|^2`
+on vacuum-orthogonal finite states, `const_fock_mass_gap` adds the positive
+self-adjoint (Friedrichs) extension with strictly positive non-vacuum energy,
+`const_fock_gap_of_field_perturbation` keeps the surviving gap
+$`(m - 2\|f\|)\|u\|^2` under the unbounded, number-changing coupling
+$`\Phi(f)` whenever $`2\|f\| < m`, and — via the companion module
+`ChapterFockCubicQuarticStability`, which stabilizes the bare cubic term of
+`ChapterFockCubicUnbounded` by its normal-ordered quartic partner on all
+finite states (not just the trial family) —
+`const_fock_cubic_quartic_bounded_below` keeps the energy bounded below when
+cubic/quartic mode couplings
+are added. The scalaron instantiations are `scalaron_fock_mass_gap` and its
+two siblings at `scalaronMass α = 1/\sqrt{12\alpha}`.
+:::
+
+:::paragraph
+The honest boundary is the modelling input, and it is worth stating plainly
+because it is exactly where the two realizations above meet. What the chain
+takes as given is that the sector's one-particle energy is the constant
+$`1/\sqrt{12\alpha}` — true for the quadratic $`m\,N_\psi` realization by
+definition. For the full-exponential realization
+$`h_\psi = \tfrac12\pi^2 + V(\hat\varphi)` — the exponential used as-is, no
+Taylor expansion — a precision is owed about *which* formalized Hamiltonian
+the proved QG theorems address, and what transfers. The wall theory
+(`starobinskyWall_esa` in `ChapterScalaronWallEsa`: every smooth
+non-negative potential, no growth restriction, on the compactly supported
+smooth core, plus `wallHamBddBelow_semibounded` for the form) is stated for
+$`-d^2/dx^2 + W`; the model's kinetic normalization is
+$`\tfrac12\pi^2 = -\tfrac12\,d^2/d\varphi^2`, the same class after the
+unitary rescaling $`\varphi = \sqrt2\,x` — so the scalaron *fiber*'s
+essential self-adjointness, Stone flow and lower bound carry over with the
+potential needing no caveat at all (the model's $`V` is exactly the
+formalized `starobinskyV`). Separately, `ChapterScalaronFockEsa`
+(`qgScalaronFock_esa`, `qgScalaronFock_stone_flow`) and the densitized
+route (`ChapterQuantumGravityDensitized`, `ChapterScalaronDensitizedTransfer`)
+formalize the **metric-route** 3+1 gauge fixing — conformal mode
+$`V_3(R_c)` plus the scalaron on the densitized conformal variables — that
+is, the previous module `docs/qg_starobinsky_hamiltonian.cdb`, **not** the
+vielbein/TEGR Hamiltonian derived above. For the vielbein/TEGR Hamiltonian
+(`docs/qg_starobinsky_vielbein_hamiltonian.cdb`) the proved layer applies
+fiber by fiber: the scalaron fiber via the wall class (same $`V`, rescaled
+kinetic), the TEGR shear fibers via the constant/diagonal one-particle
+chains (per-mode energy a positive constant), and the fibrewise
+direct-sum instrument (`ChapterDirectSumEsa`, the generic
+`fockSmoothPotential_esa`) reassembles the nested Fock space once each
+fiber's essential self-adjointness is in place. What the metric-route
+theorems do *not* provide is a statement about the TEGR gravity sector
+itself. With the fibers covered, the single remaining input for a *strict*
+gap is the positivity of the one-particle edge: an explicit $`E_0 > 0`
+with $`\langle\psi, h_\psi\,\psi\rangle \ge E_0\|\psi\|^2`
+(numerically $`E_0 \approx 0.689` at $`\alpha = 1/12` in `../unfer`,
+`qg_starobinsky_vielbein_hamiltonian_full`). That is an elementary
+confinement estimate, not an existence problem: for any $`0 < c <
+M^4/(16\alpha)` the superlevel set $`\{V < c\}` is a bounded interval
+(exponential wall on one side, potential shelf $`M^4/(16\alpha)` on the
+other), the kinetic energy inside it and the outside cost $`c` bound the
+form away from zero — or the certified Ritz bands of the numerical model
+feed the existing `BandEnclosure` route. The TEGR kinetic sector is not
+covered by the constant-model chain, and no Yang–Mills claim is made.
 :::
 
 # The Hermite Core: Where the Hamiltonian Is Defined

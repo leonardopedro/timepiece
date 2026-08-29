@@ -3,6 +3,7 @@ Hashimoto.md
 kopperman.tex
 Solovay.tex
 lopez99.md
+Ottinger.md
 repomix-output.xml
 
 # Verso build output (rendered HTML; regenerate with `lake exe book`)
@@ -22,5 +23,3 @@ repomix-output.xml
 lib.llbc
 # Rust build artifacts
 unfer_contracts/**/target/
-
-Ottinger.md

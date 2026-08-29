@@ -27,6 +27,9 @@ import BookProof.ChapterFockInteractionStability
 import BookProof.ChapterTempleSeparationNecessary
 import BookProof.ChapterFockPairPerturbation
 import BookProof.ChapterFockCubicUnbounded
+import BookProof.ChapterFockCubicQuarticStability
+import BookProof.ChapterScalaronFockGapChain
+import BookProof.ChapterFockDiagonalGapChain
 import BookProof.ChapterFriedrichsFormGap
 import BookProof.ChapterSirkTruncation
 import BookProof.ChapterSirkGroupTransfer
@@ -2460,5 +2463,69 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.FockCubicUnbounded.quartA_single_confAt
 #print axioms BookProof.FockCubicUnbounded.trial_quartic_form
 #print axioms BookProof.FockCubicUnbounded.trial_cubic_quartic_bounded_below
+
+-- `ChapterFockCubicQuarticStability` (plan, top work package, next step 2): the same
+-- cubic/quartic pair, now on *arbitrary* finite states rather than the two-term trial
+-- family.  `quart_form_eq` and `cubic_form_eq` turn the two interaction forms into the
+-- norms `‖a_k²u‖²` and `2Re⟪a_k²u, a_k†u⟫`, `norm_creA_sq` is the single-mode canonical
+-- commutation relation and `sq_norm_annA_le_mul` the Cauchy–Schwarz bound that forces a
+-- large mode occupation to carry a large quartic form.  Together they give
+-- `mode_cubic_quartic_bounded_below` and `numberForm_cubic_quartic_bounded_below`, the
+-- uniform lower bound `-(2lam² + (2lam² + ½ − mu)²/2)‖u‖²` for `mu⟪u,Nu⟫ + lam·C_k + Q_k`,
+-- its `mu = 1` corollary, the multi-mode sums
+-- `multiMode_cubic_quartic_bounded_below` / `dGamma_multiMode_cubic_quartic_bounded_below`
+-- (one copy of the free form pays for every mode of a finite set, the constant growing
+-- linearly in its cardinality) and the one-particle-gap version
+-- `dGamma_cubic_quartic_bounded_below`.  This is semiboundedness, not a gap.
+#print axioms BookProof.FockCubicQuarticStability.quart_form_eq
+#print axioms BookProof.FockCubicQuarticStability.cubic_form_eq
+#print axioms BookProof.FockCubicQuarticStability.norm_creA_sq
+#print axioms BookProof.FockCubicQuarticStability.sq_norm_annA_le_mul
+#print axioms BookProof.FockCubicQuarticStability.mode_cubic_quartic_bounded_below
+#print axioms BookProof.FockCubicQuarticStability.numberForm_cubic_quartic_bounded_below
+#print axioms BookProof.FockCubicQuarticStability.multiMode_cubic_quartic_bounded_below
+#print axioms BookProof.FockCubicQuarticStability.trial_cubic_quartic_bounded_below_general
+#print axioms BookProof.FockCubicQuarticStability.dGamma_cubic_quartic_bounded_below
+#print axioms BookProof.FockCubicQuarticStability.dGamma_multiMode_cubic_quartic_bounded_below
+
+-- `ChapterScalaronFockGapChain` (plan, top work package, next step 3): the abstract gap
+-- chain instantiated for a sector with constant one-particle energy `m`, and then at the
+-- Starobinsky scalaron mass `scalaronMass α = 1/√(12α)` on the Hermite basis of `L²(ℝ)`.
+-- `constOnePart_quadForm` makes the one-particle form gap an identity, so
+-- `const_fock_gap`, `const_fock_mass_gap`, `const_fock_gap_of_field_perturbation` and
+-- `const_fock_cubic_quartic_bounded_below` — and their scalaron instances — need no
+-- certificate, no Ritz data and no form-gap hypothesis.  Unconditional here is the *lift*:
+-- that the `R²` sector's one-particle operator is this constant is a modelling statement,
+-- and nothing about Yang–Mills is claimed.
+#print axioms BookProof.ScalaronFockGapChain.constOnePart_quadForm
+#print axioms BookProof.ScalaronFockGapChain.constOnePart_symmetricOn
+#print axioms BookProof.ScalaronFockGapChain.const_fock_gap
+#print axioms BookProof.ScalaronFockGapChain.const_isPosCol_shiftCol
+#print axioms BookProof.ScalaronFockGapChain.const_fock_mass_gap
+#print axioms BookProof.ScalaronFockGapChain.const_fock_gap_of_field_perturbation
+#print axioms BookProof.ScalaronFockGapChain.const_fock_cubic_quartic_bounded_below
+#print axioms BookProof.ScalaronFockGapChain.scalaronMass_pos
+#print axioms BookProof.ScalaronFockGapChain.scalaron_fock_mass_gap
+#print axioms BookProof.ScalaronFockGapChain.scalaron_fock_gap_of_field_perturbation
+#print axioms BookProof.ScalaronFockGapChain.scalaron_fock_cubic_quartic_bounded_below
+
+-- `ChapterFockDiagonalGapChain` (plan, top work package, next step 3): the chain for a
+-- *diagonal* one-particle energy `e_k ↦ ω_k e_k`, the shape of the free sectors.
+-- `diagOnePart_quadForm_ge` *proves* the one-particle form gap from `ω_k ≥ m`, so
+-- `diag_fock_gap`, `diag_fock_mass_gap`, `diag_fock_gap_of_field_perturbation` and
+-- `diag_fock_cubic_quartic_bounded_below` carry no certificate hypothesis;
+-- `freeField_fock_mass_gap` is the free massive instance at the relativistic dispersion
+-- `√(p² + m²)`.  Massless dispersion gives `m = 0`: positivity, no gap.
+#print axioms BookProof.FockDiagonalGapChain.diagOnePart_inner
+#print axioms BookProof.FockDiagonalGapChain.norm_sq_eq_sum
+#print axioms BookProof.FockDiagonalGapChain.diagOnePart_symmetricOn
+#print axioms BookProof.FockDiagonalGapChain.diagOnePart_quadForm_ge
+#print axioms BookProof.FockDiagonalGapChain.diag_fock_gap
+#print axioms BookProof.FockDiagonalGapChain.diag_isPosCol_shiftCol
+#print axioms BookProof.FockDiagonalGapChain.diag_fock_mass_gap
+#print axioms BookProof.FockDiagonalGapChain.diag_fock_gap_of_field_perturbation
+#print axioms BookProof.FockDiagonalGapChain.diag_fock_cubic_quartic_bounded_below
+#print axioms BookProof.FockDiagonalGapChain.freeDispersion_ge
+#print axioms BookProof.FockDiagonalGapChain.freeField_fock_mass_gap
 
 end BookProof.ChapterRoadmapAudit

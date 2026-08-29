@@ -1,26 +1,26 @@
-Update this folder : from folder /home/leo/Downloads/509fcc9c-d5dc-4838-8539-5802c85ca2ba-aristotle/output-final_aristotle copy the files:
+Update this folder : from folder /home/leo/Downloads/4312d57e-47bc-4713-9126-bc80ae4119d2-aristotle/tp_aristotle copy the files:
 ARISTOTLE_SUMMARY.md
-+110
++60
 BookProof.lean
-+68
-ChapterFockFieldPerturbation.lean
-+136 -8
++58
 CONSOLIDATED_PLAN.md
-+120
++66
+ChapterFockCubicQuarticStability.lean
++335
 ChapterFockCubicUnbounded.lean
-+477
-ChapterFockFieldPerturbation.lean
-+136 -8
-ChapterFockPairPerturbation.lean
-+492
-ChapterFockSecondQuantization.lean
-+1 -2
++4 -4
+ChapterFockDiagonalGapChain.lean
++337
 ChapterRoadmapAudit.lean
-+47
-ChapterYangMillsFockGapChain.lean
-+249
++67
+ChapterScalaronFockGapChain.lean
++252
+ChapterSirkCertifiedGap.lean
++2 -1
+ChapterSirkGapTable.lean
++4 -2
 STATUS.md
-+44
++71 -1
  .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.  Ensure also  that @CONSOLIDATED_PLAN.md and @BookProof/ and @Book/ and @../test/ and @../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , use the correct QYM, QED, QG (R^2 version with vielbein) and NS final Hamiltonian which is the one-particle Hamiltonian enclosed in creation (on the left) and annihilation (on the right) operators, and consider all implications of this fact (for example in the plan for new proofs, or in explaining what was achieved or interpreting the existing proofs in BookProof/ )
  
  add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically efficient) discussed in:  ../timepiece/CONSOLIDATED_PLAN.md
@@ -245,3 +245,95 @@ heavy tests should run in release (and numerically optimized as much as possible
 
 freebuff --continue 2026-08-22T20-53-40.518Z
 freebuff --continue 2026-08-28T00-49-36.310Z
+
+What do you mean that  "QG is actually ahead of QYM (whose chain is still conditional on the form gap)."? I thought QYM is already fully formalized (only the mass gap is still not formalized), what is missing?
+
+
+Please fill the documentation in ../test/ (a gitbook.com website/subdomain) with contents (with the same level of detail and overall size as the sources that inspire it) inspired by book.tex (except P vs. NP and Riemann Hipothesis chapters) , Book/ , Bookproof/ and ../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , it should cover everything and be faithful to the original contents, but also form a self-consistent and pedagogical whole. Specially the proofs in BookProof/ are mentioned in Book/ with some context but the proofs themselves deserve more explanation (at least the most relevant ones) about what is the claim, its meaning within the context, a sketch of the proof and dependencies on other proofs or assumptions. 
+
+Here's what was corrected across the documentation:
+
+The provenance gap, now stated plainly. The Lean QG Fock-level theorems ( qgScalaronFock_esa ,  qgScalaronFock_stone_flow  in  ChapterScalaronFockEsa , plus the densitized route  ChapterQuantumGravityDensitized  /  ChapterScalaronDensitizedTransfer ) formalize the metric-route 3+1 gauge fixing — conformal mode  V₃(R_c)  + scalaron on the densitized 3+1 variables, i.e. the previous module  docs/qg_starobinsky_haminition.cdb . The numerical/Cadabra realization discussed in that section is the vielbein/TEGR route ( docs/qg_starobinsky_vielbein_hamiltonian.cdb ): TEGR shear modes  :𝒮²ᵢ/16:  for gravity + the scalaron fiber  ½π² + V(φ̂)  with the full exponential. These are different 3D gauge fixings; my earlier phrasing ("already proved, with no new input", "the outer vacuum is the exact ground of the full-exponential model with no new proof") wrongly attributed the metric-route theorems to the vielbein model.
+
+What transfers and what doesn't:
+- Transfers fiber-by-fiber: the scalaron fiber's potential is exactly the formalized  starobinskyV  (its kinetic  ½π²  is the wall class after the unitary rescaling  φ = √2·x ), so  starobinskyWall_esa  +  wallHamBddBelow_semibounded  + the Gauss-core transport give the fiber's ESA and lower bound with no new analytic input; TEGR shear fibers have constant per-mode positive energy (const/diag one-particle chains); the fibrewise direct-sum instrument ( ChapterDirectSumE Lean , generic  fockSmoothPotential_esa ) reassembles the nested Fock space.
+- Does not transfer: any statement about the TEGR gravity sector itself from the metric-route theorems; and the fibrewise reassembly instance + strict edge  E₀ > 0  remain open Lean tasks.
+
+Files touched:  Book/Starobinsky. Verso -marker and math-delimiter hygiene maintained (51 open/close pairs, 0 stray  `$  closers;  git diff --check  clean outside your notes file). Three other spots carried the same overstatement and were refreshed in place: the 28i-wave provenance note and next-steps item 4 in  CONSOLIDATED_PLAN.md , and the 28i honest-boundary in  BookProof/STATUS.md , plus the matching paragraph in  Book/ProofPlans.lean .
+
+The honest boundary is now: the lift is unconditional, the fiber-by-fiber transfer is stated, the TEGR gravity sector is out of scope of the metric-route theorems, and the strict edge  E₀ > 0  is the remaining elementary confinement estimate (bounded superlevel set for  0 < c < M⁴/(16α) ), with the  dΓ  lift applying verbatim at  μ = E₀  once it is proved.
+
+
+
+
+My "ahead" remark was an overstatement — and you're essentially right. It only ever existed in my chat summary (verified: the phrase appears in no document), and it came from the same turn where I wrongly attributed the metric-route theorems to the vielbein model. Here is the precise picture, verified against the theorem signatures:
+
+What "conditional on the form gap" concretely means for QYM
+
+Everything structural about QYM is proved. The gap-chain theorems in  ChapterYangMillsFockGapChain.lean  are genuine theorems — but each carries one hypothesis:
+
+// lean
+theorem ym_fock_mass_gap_of_one_particle_form_gap {mu : ℝ} (hmu : 0 < mu)
+    (hgap : ∀ x : finiteModeDomain (coreBasis e),
+      mu * ‖(x : L2d 99)‖ ^ 2 ≤ quadForm (ymHamiltonian (coreRepBasis e) fabc) x) : ...
+
+That  hgap  —  ⟪x, H₁x⟫ ≥ μ‖x‖²  with explicit  μ > 0  for the concrete gauge-fixed one-particle Hamiltonian  H₁ = ½Σπ² + ½ΣB²  on the Gauss–polynomial core of  L²(ℝ⁹⁹)  — is the single unproved input. Your statement is correct, with one sharpening: what's missing is not the mass gap itself but its one-particle seed. Once  hgap  is supplied (or genuinely nested certified bands are fed through  ym_fock_gap_of_nested_ritz_bands ), the Fock-level mass gap, the Friedrichs extension, the perturbation stability — all already proved — fire automatically. Even the numerics→theorem bridge ( RitzCertificate  +  BandEnclosure  + Temple separation) is built; what nobody has proved is the analytic fact itself. The certified truncated numbers (≈0.091 at g=1) cannot be read as that hypothesis.
+
+Where "ahead" came from, and why it was backwards
+
+The only defensible kernel: in the 28i wave, QG's scalaron sector in its constant realization ( m·N_ψ ) got an unconditional nested-Fock mass gap ( scalaron_fock_mass_gap ) — because for the constant operator the form gap is an identity, so there is no hypothesis to discharge. QYM has no unconditional Fock-level mass gap, because its form gap is a real open spectral fact.
+
+But in every other sense QYM is the more complete formalization:
+
+┌───────────────────────────────────────┬───────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                       │ QYM (gauge-fixed)         │ QG (vielbein, full exponential)                                                                                                      │
+├───────────────────────────────────────┼───────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ concrete one-particle operator        │ ✅ H₁ on the 99-dim Gauss │ ✅ scalaron fiber ½π² + V(φ̂) (but Fock-level theorems formalize the metric-route Hamiltonian, not this one)                          │
+│ formalized                            │ core                      │                                                                                                                                      │
+│ vacuum annihilation dΓ(h)Ω = 0        │ ✅ unconditional          │ ✅ (by enclosure form)                                                                                                               │
+│ dΓ lift / Friedrichs / perturbation   │ ✅ proved, waits on μ     │ ✅ proved (ScalaronFockGapChain), fires at μ = E₀                                                                                    │
+│ chain                                 │                           │                                                                                                                                      │
+│ missing input                         │ one: the form gap μ > 0   │ the strict edge E₀ > 0 — same species as QYM's μ — plus the fibrewise reassembly instance for the vielbein model, plus the TEGR      │
+│                                       │                           │ shear-sector form question                                                                                                           │
+│ unconditional Fock-level mass gap     │ ❌                        │ ✅ only for the constant (small-field) scalaron realization                                                                          │
+└───────────────────────────────────────┴───────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+So for the full-exponential vielbein model, QG has more outstanding Lean work than QYM, not less — QYM's remaining task is exactly one hypothesis, while QG's is that same kind of hypothesis (the confinement estimate  E₀ > 0 , elementary in structure but not yet written) plus the glue that transfers the fiber-level results to the vielbein Hamiltonian. "Ahead" was the wrong word, and the documents never say it — they state exactly the correct relationship: QYM's form gap is "the single outstanding analytic input of the whole gap programme."
+
+
+You said: "That  hgap  —  ⟪x, H₁x⟫ ≥ μ‖x‖²  with explicit  μ > 0  for the concrete gauge-fixed one-particle Hamiltonian  H₁ = ½Σπ² + ½ΣB²  on the Gauss–polynomial core of  L²(ℝ⁹⁹)  — is the single unproved input." But we can always add a constant to the concrete gauge-fixed one-particle Hamiltonian  H₁ = ½Σπ² + ½ΣB²  on the Gauss–polynomial core of  L²(ℝ⁹⁹), to ensure that the hgap is satisfied without changing the physics (unless adding the constant to H_1 changes the constant \mu) . 
+
+Verdict: no shift shortcut exists. Three independent reasons, now recorded in both next-steps lists:
+1. Second quantization kills it.  dΓ(H₁ + cI)Ω = 0  for every  c  — the vacuum annihilator convention keeps the Fock vacuum at energy 0 regardless of the shift. Whatever conditional statement  ChapterYangMillsFockGapChain  proves for  ymHamiltonian , it proves with the same gap bound for  ymHamiltonian + c , so no  c  improves it. For your proposal (certify c = −1 via truncated Ritz, then ship  ymHamiltonian  as "the mass-gapped theory"): the truncated floor of  H₁ − I  is  (floor of H₁) − 1 , so it certifies exactly the same truncated floor value as  H₁  itself does — no new information — and even if it worked, the difference  dΓ(H₁ − I) − (dΓ(H₁) − I) = 0  is trivially self-adjoint and positive; the untruncated operator  dΓ(H₁) − I  is not a well-defined positive object and is not the Yang–Mills Hamiltonian.
+2. Truncated windows shift exactly. On  Core_N = span{finite Fock tuples} ,  dΓ(H₁ + cI)|_{Core_N}  =  dΓ(H₁)|_{Core_N} + c·(number operator) , and the lowest Ritz value of a window (as defined in the plan) shifts by exactly  c  —  μ_N + c ≥ μ_N(c) ≥ μ_N + c  for  c > 0 . The proposed trick works on the window only because it changes the observable:  ⟨φ_N, (dΓ(H₁) + cN)φ_N⟩  is a different quantity from  ⟨φ_N, dΓ(H₁)φ_N⟩ .
+
+
+What is actually open (now stated as the frontier in both lists): the plan's proved fact is non-negativity —  ⟪x, ymHamiltonian x⟫ ≥ 0  (F.8,  ymHamiltonian_quadForm_nonneg ). The gap needs strict positivity:  λ₁(H₁|core) > 0 , i.e. the quadratic form does not vanish on any nonzero vector of the Gauss–polynomial core. Routes on record: prove it directly (spectral/Friedrichs), or feed certified band data through  ym_fock_gap_of_nested_ritz_bands  — never reading a displayed Ritz value as a lower bound.
+
+You said: "3. It would change the physics if it worked. The two-point function of the interacting theory has large-time decay  e^{−(λ₁+c)T}  (Källén–Lehmann spectral representation: the one-particle floor is the first exponent). A "gapped" theory with a shiftable floor is a different theory; shifting the observable to a different one ( +cN ) is not evidence about the original one." But we are dealing with a nested Fock-space and the outer Hamiltonian is like a free-particle Hamiltonian (one-particle Hamiltonian surronded by an outer-creation operator on the left and an outer-annihillation operator on the right). And in the inner Fock-space space a two point function has a very different meaning than in mainstream Quantum Theory, moreover the constant added to the one-particle Hamiltonian would cancel in such a two point function
+
+freebuff --continue 2026-08-29T02-41-53.513Z
+/home/leo/.local/bin/vibe --agent lean --continue
+
+
+This project includes the folders ../unfer/ , ../australVM/ , ../velysterm/ , ../timepiece , ../dynamic-arctic , ../test/ . Do a deep , full review of the project as a whole and create a detailed plan to improve this project (except writting direct Lean4 code, leave that to the LLM-Lean4-specialist). Then execute the plan . Do not stop.
+
+Short answer: No — the open problem is quarantined at exactly one seam, and it touches neither the Hamiltonian definition nor the Friedrichs/Hashimoto selection.
+
+I verified the actual code this session ( ChapterYangMillsFockGapChain.lean ,  ChapterFockSecondQuantization.lean ,  ChapterBandEnclosure.lean ,  ChapterFockNumberPreservingGap.lean ):
+
+1. The 3D gauge-fixed Hamiltonian definition — unaffected.
+ H₁ = ½Σπ² + ½ΣB²  on the Gauss–polynomial core of  L²(ℝ⁹⁹)  is a concrete, proved datum:  ym_quadForm_eq  (by  rfl ),  ymHamiltonian_symmetricOn ,  ymHamiltonian_quadForm_nonneg  are all unconditional. The open problem is only whether the form bottom is strictly positive ( λ₁ > 0  vs the proved  ≥ 0 ).
+
+2. The Friedrichs extension and Hashimoto selection — unaffected.
+-  ym_fock_friedrichs_extension  (ChapterFockSecondQuantization:960): proves a positive self-adjoint (Friedrichs) extension of  dΓ(H₁)  exists — explicitly stating "No mass gap is claimed." Existence of the extension does not require the gap.
+-  ym_fock_hashimoto_selects  (ChapterFockSecondQuantization:~975): for every shift  γ > 0 , the shift-invert  R = (A+γ)⁻¹  is bounded by  γ⁻¹ , self-adjoint, with strongly convergent Galerkin truncations, and determines  A  uniquely. Again, no gap needed — selection theory only needs symmetry + nonnegativity.
+
+3. What actually depends on the gap: the lower bound on the ground/excited-state energies.
+The gap appears only as the hypothesis  ⟪x, H₁x⟫ ≥ μ‖x‖²  inside:
+-  ym_fock_mass_gap_of_one_particle_form_gap  (line 163) — needs  μ > 0 ;
+-  ym_fock_gap_of_nested_ritz_bands  (line 213) — takes  μ ≥ 0 , but the conclusion is only as strong as the band lower end  lo m₀ .
+
+Both are conditional theorems: their conclusions are as strong as the hypothesis you feed them. If the hypothesis is false (μ = 0), they don't break — they just prove a weaker statement (energy ≥ 0), which is still true and still useful (e.g., for the outer-vacuum-ground doctrine).
+
+Conclusion: the mass-gap open problem does not destabilize the formalization. The architecture is layered exactly so that an unproved analytic input ( μ > 0 ) is a hypothesis at the boundary, while everything below it (definition, symmetry, nonnegativity, second quantization, Friedrichs existence, Hashimoto selection, the  dΓ  lift machinery) is proved and reusable. The honest-boundary note in the chapter header says precisely this, and  1.932  remains a certified truncated number, not a continuum mass gap.

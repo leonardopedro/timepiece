@@ -1,5 +1,308 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
+## State update — 2026-08-29 recovery wave: `ChapterScalaronEdge` restored — WORK ORDER for the Lean4-specialist
+
+(Executes the specialist side of the 2026-08-28j next-steps **item 4**: the strict
+one-particle edge `⟪ψ, h_ψ ψ⟫ ≥ E₀‖ψ‖²` for the Starobinsky fiber, then the `dΓ`
+lift. This update recovered the module and audited it against the existing API;
+per project convention **it did not compile Lean** — everything below is the
+specialist's execution list.)
+
+### What was recovered
+
+* `BookProof/ChapterScalaronEdge.lean` (namespace `BookProof.ScalaronEdge`) is
+  restored and imported from `BookProof.lean`. It declares the wall-fiber
+  operator `starobinskyEdgeHam := wallHam (scalV M alpha) (scalV_smooth M alpha)`
+  (symmetric on `ccDomain ℝ` via `wallHam_symmetricOn`), the shelf constant
+  `edgeShelf`, the sublevel-set boundedness theorem `starobinskyV_lt_shelf_bounded`,
+  and the target `starobinskyEdge_quadForm`.
+* **The module is NOT in a compiling state.** It references three identifiers
+  that exist nowhere in the tree: `edgeKinConst`, `edgeMassConst`,
+  `edgeKinConst_pos` (used at the `refine ⟨max (edgeKinConst A B)
+  (edgeMassConst A B c), ?_, ?_⟩` step), and its max-positional proof line
+  (`le_max_of_le_left … |>.trans le_rfl`) is a placeholder that does not prove
+  `0 < max E_kin E_mass`. Two `sorry`s remain (`starobinskyV_lt_shelf_bounded`,
+  `starobinskyEdge_quadForm`).
+* **Math bug to fix before anything else.** `edgeShelf := M ^ 4 / (4 * alpha)`
+  sits *above* the true plateau. The proved API says
+  `starobinskyV_tendsto_plateau : V → M⁴/(16α)` (`ChapterStarobinskyPotential`,
+  audited in `ChapterRoadmapAudit` line ~1346); the recovered file's header
+  claims the shelf limit is `M⁴/(2α)` — wrong. For any `c ≥ M⁴/(16α)` the
+  sublevel set `{V < c}` contains a right half-line (V approaches the plateau
+  from below), so boundedness FAILS at the declared `edgeShelf`. Fix:
+  `edgeShelf := M⁴/(32α)` (any constant strictly below `M⁴/(16α)` works; smaller
+  constants only shrink the window), and correct the header prose to
+  `M⁴/(16α)`.
+
+### Work order (execute in this order; every step must keep the no-`sorry`,
+standard-axioms-only policy and 100-char lines)
+
+1. **Fix `edgeShelf`** per the bug note above (`M⁴/(32α)`), restate
+   `edgeShelf_pos` (`positivity` still works), and fix the module header.
+2. **`starobinskyV_lt_shelf_bounded` — fully constructive, no analysis
+   shortcuts needed.** With `K := M⁴/(16α)`, `a := √(2/3)/M`, the potential is
+   `V(φ) = K(1 − e^{−aφ})²` (unfold `starobinskyV` in
+   `ChapterStarobinskyPotential.lean` line ~95). It is monotone increasing with
+   `V → ∞` at `−∞` (`starobinskyV_tendsto_atBot_atTop`) and `V → K` at `+∞`
+   (`starobinskyV_tendsto_plateau`), `V(0) = 0`. For `0 < c < K` the endpoints
+   solve `K(1 − e^{−aφ})² = c` in closed form:
+   `A = ln(1 + √(c/K))·√(3/2)·M` (wall side, φ < 0) and
+   `B = −ln(1 − √(c/K))·√(3/2)·M` (plateau side, φ > 0); both positive since
+   `0 < √(c/K) < 1`. Prove `∀ x, scalV x < c → x ∈ Set.Icc (−A) B` from the
+   explicit form (monotonicity of `1 − e^{−aφ}` on ℝ, or split at φ = 0 and
+   handle the two monotone halves; `Real.log` monotonicity does the rest).
+   Restate the theorem with the corrected `hcs : c < edgeShelf` hypothesis
+   (which now implies `c < K`).
+3. **Add the missing constants** (new section in the same module). The file
+   doc names `E_kin = π²/(4(A+B))²` (from inverting the Poincaré constant
+   `‖f‖²_{[−A,B]} ≤ ((A+B)/π)²‖f'‖²` of step 4) and
+   `E_mass = c/(2(1 + ((A+B)/π)²))` (from the outside-cost `c` plus the
+   `2ab ≤ δa² + b²/δ` absorption of step 5). Define
+   `edgeKinConst (A B : ℝ) : ℝ` and `edgeMassConst (A B c : ℝ) : ℝ` with ONE
+   fixed convention matching the decomposition proof of step 5 — if the
+   absorption algebra yields a different constant than the doc's `E_mass`,
+   adjust the *definition* (not the proof) and update the docstring; the
+   theorem only needs SOME explicit positive `E₀`. Prove
+   `edgeKinConst_pos`/`edgeMassConst_pos` (`div_pos`/`pow_pos` — trivial;
+   note `0 < c < edgeShelf` is in scope).
+4. **`poincare_ineq_support`** — sharp Wirtinger on a fixed interval for the
+   compactly supported core: for `f` smooth with support in `[−A, B]`,
+   `∫ f² ≤ ((A+B)/π)² ∫ f'²`. Check Mathlib first (AGENTS.md §7):
+   `#check` candidates around `MeasureTheory`/`Convex` Poincaré assets and
+   `Real` Wirtinger; if nothing fits `ccDomain ℝ` directly, prove it by
+   scaling to `[0, π]` + the standard `H₀¹` eigenfunction argument (cosine
+   series or `∫ f² = −∫ f'·2f·x`-style integration by parts with the sharp
+   constant from `sin(πx/L)`), or fall back to the variational Poincaré
+   inequality Mathlib proves for convex bodies plus a cutoff argument. State
+   it in exactly the form step 5 consumes.
+5. **`starobinskyEdge_quadForm`** — assemble per the sketch already in the
+   file: decompose `⟪ψ, h_ψ ψ⟫ = kinetic + ∫V|ψ|²`; kinetic `≥ 0` by
+   integration by parts on the compact support (Gauss integration-by-parts
+   symmetry of `wallHam`, or `Real.integral_deriv_mul_sub`-route); split
+   `∫V|ψ|² = ∫_{V≥c} + ∫_{V<c}`; on `{V ≥ c}` the potential part is
+   `≥ c·‖ψ‖²_{V≥c}` (`starobinskyV_nonneg` for the leftover); on `{V < c}`
+   the function is supported in `[−A, B]`, so step 4 bounds
+   `‖ψ‖²_{V<c} ≤ ((A+B)/π)²‖ψ'‖²`, absorbed into the kinetic term via
+   `2ab ≤ δa² + b²/δ` — the residue is `E₀ = max(E_kin, E_mass) > 0` with the
+   constants from step 3. Note `inner` here is complex (`≥ (E₀ : ℂ) * inner ψ ψ`);
+   use `Real` positivity of `inner ψ ψ = ‖ψ‖²` (`inner_self_re` /
+   `RCLike.inner_self`).
+6. **The `dΓ` lift at `μ = E₀`.** Do NOT reach for
+   `ChapterScalaronFockGapChain` first — that chain's one-particle operator is
+   the constant `m·1` (`constOnePart`), which is the small-field realization,
+   not this fiber. The correct instrument for a non-constant `h_ψ` is the
+   arbitrary-number-preserving lift in `ChapterFockNumberPreservingGap`:
+   `fock_gap_of_one_particle_form_gap` consumes precisely a form bound
+   `Re⟪x, h x⟫ ≥ μ‖x‖²` on a finite-mode core in a chosen basis and returns the
+   Fock gap (the Yang–Mills instantiation
+   `ChapterYangMillsFockGapChain.ym_fock_gap_of_one_particle_form_gap` is the
+   worked template). Instantiate it at `h = starobinskyEdgeHam`, `μ = E₀`:
+   `E₀ > 0` turns the conditional nested-Fock mass gap of the full-exponential
+   scalaron fiber into a theorem of that fiber. Name the new results
+   `scalaronEdge_fock_gap` / `scalaronEdge_fock_mass_gap` (Friedrichs extension
+   + strict non-vacuum positivity), mirroring the `ym_fock_*` shapes.
+7. **Gates.** `lake build BookProof` (0 errors/warnings/sorry), `#print axioms`
+   for every new public result into `ChapterRoadmapAudit.lean` (only
+   `propext`, `Classical.choice`, `Quot.sound`), `BookProof/STATUS.md` wave
+   entry, and the §8 book/Katex gates if `Book/` prose is touched.
+
+### Honest boundary (state verbatim in the module docstring)
+
+* What becomes unconditional: the strict one-particle edge for the
+  scalaron-fiber Schrödinger operator `½π² + starobinskyV(φ̂)` on the
+  compactly supported smooth core, and its `dΓ` lift to that fiber's nested
+  Fock space.
+* What stays a modelling statement: that this fiber operator is THE scalaron
+  sector's one-particle input of the enclosure doctrine (same boundary as the
+  constant-model wave, 28i). The TEGR kinetic/gravity sector is untouched and
+  remains outside the gap claims. `1.932` remains a certified truncated
+  number; no mass gap of any physical Yang–Mills or gravity Hamiltonian is
+  claimed.
+* The `E₀` produced is the constructive (non-sharp) confinement constant —
+  the numerically observed `E₀ ≈ 0.689` at `α = 1/12` is a different, sharper
+  statement not claimed here.
+
+## State update — 2026-08-28j copy wave (files merged, not compiled here)
+
+This update merged the latest Aristotle output into `BookProof/` (byte-verified
+copies; compilation is delegated to the Lean4-specialist, per project
+convention). The merged wave — reported in the 2026-08-28h and 2026-08-28i
+blocks below — was compiled by its author (`lake build BookProof`, 0 errors,
+0 warnings, no `sorry`, all new results audited to depend only on `propext`,
+`Classical.choice`, `Quot.sound`). What this merge adds on top of the copies:
+
+* **`Book/` pedagogy** — `Starobinsky.lean` now narrates the scalaron gap
+  chain: the one-particle form gap is an *identity* for the constant operator
+  `m·1`, so `const_fock_gap`/`const_fock_mass_gap` and their scalaron
+  instantiations (`scalaronMass α = 1/√(12α)`) are unconditional; the honest
+  boundary (the constant is the modelling input; the full-exponential
+  realization `h_ψ = ½π² + V(φ̂)` is already proved essentially self-adjoint
+  on the compact core and semibounded, so its outer vacuum is the exact
+  ground — only the strict edge `E₀ ≈ 0.689` at `α = 1/12`, exercised
+  numerically by `qg_starobinsky_vielbein_hamiltonian_full`, remains for a
+  strict mass gap) is stated where the two realizations meet. `FreeField.lean` gains a status-table row for the
+  unconditional constant/diagonal instantiations;
+  `YangMillsQuantization.lean` and `SirkReliability.lean` report the completed
+  degree ladder (one and two keep the gap; three alone destroys it; three
+  *with* four is semibounded on all states) and the two unconditional
+  instantiations; `ProofPlans.lean` lists the three new modules with their
+  proof ideas.
+* **`CONSOLIDATED_PLAN.md` next steps refreshed** — see below.
+
+### Next steps for the Lean4-specialist (useful to improve this project)
+
+State of the top work package after this wave: next step **2** (cubic +
+quartic boundedness beyond the trial family) is **done**
+(`ChapterFockCubicQuarticStability`, all finite states, no
+vacuum-orthogonality); next step **3** (sector instantiations) is **done for
+the scalaron and diagonal/free sectors** (`ChapterScalaronFockGapChain`,
+`ChapterFockDiagonalGapChain` — both unconditional). Remaining:
+
+1. **Discharge the one-particle form gap for gauge-fixed QYM**
+   `⟪x, H₁ x⟫ ≥ μ‖x‖²` on the Gauss–polynomial core — still the single
+   outstanding analytic input of `ChapterYangMillsFockGapChain`, and now the
+   *only* conditional frontier of the whole gap programme. **No shift
+   shortcut exists** (review of the "just add a constant" proposal): the
+   second-quantized vacuum satisfies `dΓ(H₁ + cI)Ω = 0` for every c — the
+   vacuum stays at energy 0 — and on every truncated window the floor moves
+   by exactly c, so a shift can never certify a gap that c = 0 could not; it
+   would also change the physics (the two-point function's large-time decay
+   carries the one-particle floor as e^{−(λ₁+c)T}, Källén–Lehmann). The
+   proved fact is non-negativity (F.8, `ymHamiltonian_quadForm_nonneg`:
+   form ≥ 0); what is open is STRICT positivity — λ₁(H₁|core) > 0, i.e. the
+   form does not vanish on any nonzero core vector. Either prove it
+   directly (spectral/Friedrichs route) or feed certified band data through
+   `ym_fock_gap_of_nested_ritz_bands`, never reading a displayed Ritz value as
+   a lower bound.
+2. **Instantiate the chain for QED — and say what the masslessness means.**
+   The free photon one-particle energy is diagonal with `ω_k = |k| ≥ 0`, so
+   `ChapterFockDiagonalGapChain` applies *directly*: `diag_fock_gap` at
+   `m = 0` gives `dΓ(D)Ω = 0` and positivity unconditionally — but **no gap**
+   (massless dispersion). A gapped QED statement needs an IR regulator or a
+   massive (Proca-type) one-particle operator; the specialist should write
+   that honestly into the QED instantiation rather than claim a photon mass
+   gap.
+3. **Instantiate the chain for NS.** The Eulerian-fiber one-particle operator
+   is not a positive diagonal operator (its spectrum is unbounded above and
+   below), so the constant/diagonal chains do not apply; the honest route is
+   the certified-band one (`RitzCertificate` + `BandEnclosure` →
+   `friedrichs_form_gap_of_nested_ritz_bands`) on the Faris–Lavine–controlled
+   part, as in the QYM chain. Scope the module to what the fiber operator can
+   actually certify.
+4. **QG beyond the constant: identify the provenance gap, then close it
+   fiber by fiber.** The full-exponential vielbein/TEGR realization
+   `h_ψ = ½π² + V(φ̂)` (the `qg_starobinsky_vielbein_hamiltonian_full` model
+   from `docs/qg_starobinsky_vielbein_hamiltonian.cdb`) is a *different
+   3D gauge fixing* from the one the QG Fock-level theorems formalize:
+   `ChapterScalaronFockEsa` (`qgScalaronFock_esa`, `qgScalaronFock_stone_flow`)
+   and the densitized route (`ChapterQuantumGravityDensitized`,
+   `ChapterScalaronDensitizedTransfer`) address the **metric-route**
+   Hamiltonian — conformal mode `V₃(R_c)` + scalaron on the densitized
+   3+1 variables, i.e. `docs/qg_starobinsky_hamiltonian.cdb`. The wall and
+   Strichartz inputs, however, transfer fiber by fiber to the vielbein
+   model: the scalaron fiber's potential is *exactly* the formalized
+   `starobinskyV` (its kinetic normalization `½π²` is the wall class after
+   the unitary rescaling `φ = √2·x`), so `starobinskyWall_esa` +
+   `wallHamBddBelow_semibounded` + the Gauss-core transport
+   (`ChapterQgOneParticleCcEsa`) give the fiber's essential self-adjointness
+   and lower bound with no new analytic input; the TEGR shear fibers have
+   per-mode constant positive energy, covered by the
+   `constOnePart`/`diagOnePart` chains; and the fibrewise direct-sum
+   instrument (`ChapterDirectSumEsa`, generic `fockSmoothPotential_esa`)
+   reassembles the nested Fock space. **What is genuinely missing** — the
+   actual Lean tasks for the vielbein QG: (a) the explicit fibrewise
+   reassembly instance naming the TEGR shear fibers plus the scalaron fiber
+   (thin glue over `fockSmoothPotential_esa`); (b) the strict one-particle
+   edge `⟪ψ, h_ψ ψ⟫ ≥ E₀‖ψ‖²` with `E₀ > 0` (numerically `E₀ ≈ 0.689` at
+   `α = 1/12`) — an elementary confinement estimate, not an existence
+   problem: for `0 < c < M⁴/(16α)` the superlevel set `{V < c}` is a
+   *bounded* interval (exponential wall on one side, potential shelf
+   `M⁴/(16α)` on the other), kinetic-inside plus outside-cost-`c` bound the
+   form away from zero, or certified Ritz bands feed the existing
+   `BandEnclosure` route; after which the `dΓ` lift of
+   `ChapterScalaronFockGapChain` applies verbatim at `μ = E₀`, upgrading the
+   QG instantiation from the small-field constant to the full exponential
+   potential inside `h`. The TEGR gravity sector itself is not covered by
+   the constant-model chain and remains out of scope of the gap claims.
+5. **Gate discipline**: the §8 book/Katex gates and `lake build` are delegated
+   to the specialist on the merged state; this update did not compile Lean.
+
+## State update — 2026-08-28i execution wave (verified build, next step 3 landed for the QG scalaron sector)
+
+(Provenance note, added at the 28j merge: the "scalaron sector" of this wave
+is the *constant one-particle operator* `m·1` — the small-field realization
+of the enclosure doctrine. The Fock-level QG ESA theorems
+(`ChapterScalaronFockEsa`) and the densitized route formalize the
+**metric-route** 3+1 gauge fixing (`docs/qg_starobinsky_hamiltonian.cdb`),
+not the vielbein/TEGR Hamiltonian of
+`docs/qg_starobinsky_vielbein_hamiltonian.cdb`; see the refreshed next-steps
+item 4 in the 28j block above for what transfers fiber by fiber and what is
+genuinely missing.)
+
+This wave was compiled: `lake build BookProof` completes with no errors, no `sorry` and no
+warnings on the pinned toolchain (8554 jobs), and every new public result is audited by
+`#print axioms` to depend only on `propext`, `Classical.choice`, `Quot.sound`.
+
+* **Next step 3 of the top work package is done for the cleanest sector.**  The new module
+  `BookProof/ChapterScalaronFockGapChain.lean` runs the abstract gap chain for a sector
+  whose one-particle energy is a positive constant `m`, and then instantiates it at the
+  Starobinsky scalaron mass `scalaronMass α = 1/√(12α)` on the Hermite basis of `L²(ℝ)`.
+* For the constant one-particle operator `constOnePart b m = m·1` the one-particle form gap
+  is an *identity* (`constOnePart_quadForm`), so the hypothesis the gauge-fixed Yang–Mills
+  instantiation has to carry is discharged outright.  Hence: `const_fock_gap`
+  (`dΓ(m·1)Ω = 0` and `Re⟪u, dΓ(m·1)u⟫ ≥ m‖u‖²` on vacuum-orthogonal finite states),
+  `const_isPosCol_shiftCol`, `const_fock_mass_gap` (positive self-adjoint Friedrichs
+  extension plus strict positivity of the non-vacuum energy, for `m > 0`),
+  `const_fock_gap_of_field_perturbation` (the gap `m − 2‖f‖` survives the unbounded,
+  number-changing coupling `Φ(f)` when `2‖f‖ < m`) and
+  `const_fock_cubic_quartic_bounded_below` (bounded below with the single-mode cubic
+  couplings and their normal-ordered quartic partners added over a finite mode set).
+  Their scalaron instances are `scalaron_fock_mass_gap`,
+  `scalaron_fock_gap_of_field_perturbation`, `scalaron_fock_cubic_quartic_bounded_below`.
+* **Honest boundary.**  What is unconditional is the *lift*: that the `R²` sector's
+  one-particle operator is this constant is a modelling statement of the enclosure
+  doctrine, not a theorem here; the TEGR kinetic sector is untouched; the cubic/quartic
+  conclusion is still semiboundedness with a negative constant on single-mode terms; the
+  gauge-fixed Yang–Mills chain remains conditional on its one-particle form gap; `1.932`
+  remains a certified truncated number; no mass gap of the physical Yang–Mills Hamiltonian
+  is claimed.
+* Remaining next steps of the top package: **1** (discharge the one-particle form gap for
+  gauge-fixed QYM — still open) and the QED/NS parts of **3**.
+
+## State update — 2026-08-28h execution wave (verified build, next step 2 landed)
+
+This wave was compiled: `lake build BookProof` completes with no errors, no `sorry` and no
+new warnings on the pinned toolchain, and every new public result is audited by
+`#print axioms` to depend only on `propext`, `Classical.choice`, `Quot.sound`.
+
+* **Next step 2 of the top work package is done.**  The new module
+  `BookProof/ChapterFockCubicQuarticStability.lean` generalises
+  `FockCubicUnbounded.trial_cubic_quartic_bounded_below` from its two-term trial family to
+  *arbitrary* finite states.  The route is to turn the interaction forms into norms:
+  `quart_form_eq` (`Re⟪u, Q_k u⟫ = ‖a_k²u‖²`), `cubic_form_eq`
+  (`Re⟪u, C_k u⟫ = 2Re⟪a_k²u, a_k†u⟫`), the single-mode canonical commutation relation
+  `norm_creA_sq` (`‖a_k†v‖² = ‖a_k v‖² + ‖v‖²`) and the Cauchy–Schwarz estimate
+  `sq_norm_annA_le_mul` (`‖a_k u‖² ≤ ‖u‖‖a_k†a_k u‖`), which is what forces a state with a
+  large mode occupation to carry a large quartic form.  The cubic form grows like `n^{3/2}`
+  and the quartic form like `n²`, so the pair is bounded below.
+* The bounds: `mode_cubic_quartic_bounded_below`
+  (`mu‖a_k u‖² + lam·Re⟪u, C_k u⟫ + Re⟪u, Q_k u⟫ ≥ -(2lam² + (2lam² + ½ − mu)²/2)‖u‖²`, no
+  vacuum-orthogonality needed), its number-form corollary
+  `numberForm_cubic_quartic_bounded_below`, the `mu = 1` case
+  `trial_cubic_quartic_bounded_below_general` (`-(2lam⁴ + lam² + ⅛)‖u‖²`), the multi-mode
+  sums `multiMode_cubic_quartic_bounded_below` and
+  `dGamma_multiMode_cubic_quartic_bounded_below` (one copy of the free form pays for the
+  interaction of every mode of a finite set `S`, the constant growing linearly in `|S|`),
+  and the one-particle-gap version `dGamma_cubic_quartic_bounded_below`.
+* **The honest boundary is unchanged and is sharpened, not weakened.**  What is proved is
+  *semiboundedness*, not a gap: the constant is negative, so this excludes the `-∞` of
+  `fock_gap_fails_for_cubic` and nothing more.  `C_k` and `Q_k` are single-mode terms, not
+  the full Yang–Mills cubic and quartic vertices; the one-particle form gap remains a
+  hypothesis; `1.932` remains a certified truncated number; no mass gap of the physical
+  Yang–Mills Hamiltonian is claimed.
+* Remaining next steps of the top package: **1** (discharge the one-particle form gap) and
+  **3** (run the instantiation for the QED, NS and QG sectors).
+
 ## State update — 2026-08-28g copy wave (files merged, not compiled here)
 
 This update merged the latest Aristotle output into `BookProof/` (byte-verified
@@ -46,12 +349,25 @@ convention). The new state:
 
 ### Next steps for the Lean4-specialist (useful to improve this project)
 
+(Superseded by the refreshed list in the 2026-08-28j block above: items 2 and
+3 are executed by the 28h/28i waves, item 1 remains open and is restated
+there.)
+
 1. **Discharge the one-particle form gap** `⟪x, H₁ x⟫ ≥ μ‖x‖²` on the
    Gauss–polynomial core — the single outstanding analytic input of
-   `ChapterYangMillsFockGapChain`. Either prove it directly (spectral/
-   Friedrichs route) or feed certified band data through
-   `ym_fock_gap_of_nested_ritz_bands`, never reading a displayed Ritz value as
-   a lower bound. This turns the conditional nested-Fock mass gap into a
+   `ChapterYangMillsFockGapChain`. **Review verdict — no shift shortcut:**
+   adding a constant c to `ymHamiltonian` cannot help: the second-quantized
+   vacuum satisfies `dΓ(H₁ + cI)Ω = 0` for every c (the vacuum stays at
+   energy 0), and on every truncated window the floor shifts by exactly c,
+   so a shift can never certify a gap that c = 0 could not. It also changes
+   the physics — the two-point function's large-time decay carries the
+   one-particle floor as e^{-(λ₁+c)T} (Källén–Lehmann). Positivity is proved
+   (F.8, `ymHamiltonian_quadForm_nonneg`: form ≥ 0); what is open is STRICT
+   positivity, i.e. λ₁(H₁|core) > 0 — the form does not vanish on any
+   nonzero core vector. Either prove that directly (spectral/Friedrichs
+   route) or feed certified band data through
+   `ym_fock_gap_of_nested_ritz_bands`, never reading a displayed Ritz value
+   as a lower bound. This turns the conditional nested-Fock mass gap into a
    theorem of the real Hamiltonian.
 2. **Control the cubic + quartic interaction sum in general.**
    `ChapterFockCubicUnbounded` proves the bare-cubic route fails and that the

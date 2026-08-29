@@ -27,7 +27,8 @@ proved here and is not assumed anywhere.
 ## The structure of the argument
 
 The sector involution `P` is an exact symmetry: it is a symmetric involution commuting
-with `H` (for the gauge-fixed QYM Hamiltonian of record: the reflection `R`), so the space splits into the two sector eigenspaces `paritySector P (±1)`, each
+with `H` (for the gauge-fixed QYM Hamiltonian of record: the reflection `R`), so the space
+splits into the two sector eigenspaces `paritySector P (±1)`, each
 `H`-invariant.  The observable of §3.3 is the difference of the two *sector ground
 energies* — the infimum of the Rayleigh quotient over unit vectors of a sector,
 `sectorGround`.  The certificate delivers, for each sector, a computed Ritz value `θˢ`
