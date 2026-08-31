@@ -841,6 +841,15 @@ import BookProof.ChapterOperatorSeriesEsa
 -- `∑ₖ ‖gₖ‖(ω(Pₖ) + ω(Qₖ) + 2) < ∞`, is essentially self-adjoint on the finite-particle
 -- core.  Bogoliubov pair creation is the special case `Pₖ = eₘ + eₙ`, `Qₖ = 0`.
 import BookProof.ChapterFockQuadraticEsa
+-- Sums of one-particle Hamiltonians in **differing bases** (plan QG-3.2-exec): a coupling
+-- built from one-particle Hermitian operators conserves the particle number, so its
+-- commutator form against the *diagonal* comparison operator `N = dΓ(ω) + 𝒩 + 1` vanishes
+-- identically.  Faris–Lavine then applies with commutator constant `0`, and the weighted
+-- gate of `ChapterFockQuadraticEsa` degrades to the unweighted `∑ₖ ‖gₖ‖ < ∞`: a family of
+-- one-particle operators, each diagonal in **its own** basis and none in the working
+-- alphabet, is essentially self-adjoint on the finite-particle core.  Includes the nested
+-- Fock-space instantiation and the non-commutativity witness.
+import BookProof.ChapterFockDifferingBasesEsa
 -- Fibrewise essential self-adjointness **glues**: a deficiency space of an orthogonal
 -- direct sum is the direct sum of the fibre deficiency spaces, so if every fibre operator
 -- is essentially self-adjoint on its core then `⊕ᵢ Hᵢ` is essentially self-adjoint on the
@@ -996,6 +1005,12 @@ import BookProof.ChapterSirkLagrangianCanonical
 -- the Hermite/Galerkin truncations converge to the bottom of the spectrum of the operator
 -- the algorithm selects.
 import BookProof.ChapterSirkRitzSpectrum
+
+-- `ChapterSirkRitzMinMax`: the higher Rayleigh–Ritz levels and the Ritz gap (plan §12
+-- Gap 2, QYM).  The Courant–Fischer min–max levels of a bounded operator, the levels
+-- computed inside a Galerkin truncation, and the convergence of the latter to the former
+-- — hence convergence of the computed gap to the min–max gap.
+import BookProof.ChapterSirkRitzMinMax
 
 -- `ChapterSirkDiffusiveDecay`: the laminar decay rate (plan §12 Gap 2, NS Lagrangian).
 -- A coercive generator has `‖e^{−tA} v‖ ≤ e^{−μt} ‖v‖`, and the SIRK compression of a
@@ -1158,6 +1173,30 @@ import BookProof.ChapterBrstReducedTransfer
 -- extension of its elliptic (positive-signature) truncation.  The physical signature is
 -- indefinite, so no Friedrichs claim is made for the full operator.
 import BookProof.ChapterQuantumGravity3DGauge
+import BookProof.ChapterQgPhysicalSectorIdentity
+-- `ChapterQgCouplingDGammaSum` (plan QG-3.2-exec (i)): the coupling sum in differing
+-- bases — second quantization is additive in the one-particle datum, so the lifted
+-- coupling is a single `dΓ`, with an unconditional Friedrichs extension and essential
+-- self-adjointness on the finite-occupation core whenever the *total* one-particle
+-- operator is diagonal in the working basis.
+import BookProof.ChapterQgCouplingDGammaSum
+-- `ChapterConformalSignFlip` (plan QG-2 / 29f Case B): the sign bookkeeping of the
+-- densitized conformal direction — `H ↦ −H` reflects the spectral parameter, essential
+-- self-adjointness is invariant under it, and a real shift only translates the parameter.
+-- So the wrong-sign-kinetic fiber `−K + V` is ESA iff the positive-kinetic `K − V` is.
+import BookProof.ChapterConformalSignFlip
+-- `ChapterDirectSumEdge` (plan QG-3.4, derived case): the edge of an orthogonal direct
+-- sum.  On the algebraic direct sum of the fibre cores both the squared norm and the
+-- energy are finite sums over the support, so fibre form bounds `⟪u, Hᵢu⟫ ≥ νᵢ‖u‖²` glue:
+-- any common lower bound `ν ≤ νᵢ` is an edge of `⊕ᵢHᵢ`, strict when `ν > 0`.
+import BookProof.ChapterDirectSumEdge
+-- `ChapterQgMultiHalfDensity` (plan QG-1): the multi-dimensional half-density unitary.
+-- The densitized change of variables `(y, ξ) ↦ (y², ξ)` — the conformal coordinate
+-- squared, all other field directions untouched — is measure preserving from `(2y dy) ⊗ μ`
+-- to `de ⊗ μ`, hence a Hilbert-space unitary of the corresponding `L²` spaces; it carries
+-- the bounded-energy cores onto each other, intertwines the physical and densitized
+-- multiplication operators, and so runs the Part D.4 transfer on the field space.
+import BookProof.ChapterQgMultiHalfDensity
 
 -- `ChapterQuantumGravityBrstCharge`: the BRST charge of that field space.  The abstract
 -- theorem `brst_full_nilpotent` gives `Ω² = 0` for `Ω = Σ_a G_a χ_a − ½ Σ f_{abe} χ_a χ_b β_e`
@@ -1616,3 +1655,162 @@ import BookProof.ChapterSqueezedGaussStates
 -- result about `fabc = 0` only; it says nothing about the non-abelian case beyond the fact that
 -- no proof of the hypothesis can be uniform in the structure constants.
 import BookProof.ChapterYangMillsAbelianNoGap
+
+-- `ChapterQgDerivativeRealization` (plan QG-3.2-exec (ii)): the concrete 84-dimensional
+-- derivative-variable fixing `E = ∂e` on the coordinate algebra of
+-- `ChapterQuantumGravity3DGauge`.  A tetrad field polynomial in the spacetime coordinates
+-- together with the 64 promoted derivative fields determines a point `configPoint` of the
+-- coordinate space (`configPoint_idxX/idxE/idxDE`, and `idx_cases`: the three index families
+-- exhaust `Fin 84`).  `gaugeFieldPoly = E − ∂e` is the concrete `v − dφ`; its zero locus
+-- `Fixed` is realized (`jetDeriv_fixed`), is not automatic (`exists_not_fixed`), and on it the
+-- coordinate point is the 1-jet of the tetrad field (`configPoint_eq_jetPoint_of_fixed`).
+-- Hence the torsion coordinate polynomial evaluates to the actual antisymmetrized derivative
+-- (`eval_torsionPoly_jetPoint`), the tetrad–torsion cross coupling reduces to field values
+-- (`eval_crossCouplingPoly_jetPoint`, non-vacuously by `couplingValue_ne_zero`), and *every*
+-- coupling polynomial is determined by the tetrad field alone (`eval_eq_of_fixed_of_comp_eq` —
+-- no new independent modes).  Section 4 builds the gauge-fixing system with the honest
+-- exterior derivative `∂_μ`, in which `gaugeField = 0 ↔ E = ∂e`
+-- (`qgFixing_gaugeField_eq_zero_iff`), and runs the abstract theorems of
+-- `ChapterQgPhysicalSectorIdentity` with that hypothesis discharged.
+import BookProof.ChapterQgDerivativeRealization
+
+-- `ChapterSirkBandLedger` (plan QYM-1 task 1): the emitted certified bands are *nested
+-- compatible* enclosures in the sense `ChapterBandEnclosure` requires.  A `BandRecord` carries
+-- an operator tag, a mesh order and two exact decimal endpoints (no `Float` anywhere);
+-- `parseLedger` reads the NDJSON band stream with the exact-decimal parser of
+-- `ChapterSirkCertificateReader`; `ledgerLo`/`ledgerHi` adapt a finite ledger to the band
+-- functions `ℕ → ℝ` the chain consumes.  `LedgerWf` is the decidable compatibility check —
+-- same operator tag throughout, orders `0, 1, 2, …`, lower ends nondecreasing and upper ends
+-- nonincreasing, every band an enclosure — and `nestedBands_of_wf` is the theorem.  Composing:
+-- `ritz_band_enclosure_of_ledger` (every ledger band encloses the spectral edge of the selected
+-- bounded operator) and `friedrichs_form_gap_of_ledger` (a certified form gap of the Friedrichs
+-- extension, with no vanishing-width hypothesis, which is why a *finite* ledger suffices).
+-- `ledger_width_tendsto_zero_iff` records what a finite ledger cannot certify: band collapse.
+import BookProof.ChapterSirkBandLedger
+
+-- `ChapterTruncationGapLift` (plan QYM-1 task 2): the bridge from a *certified truncated* gap
+-- to the *infinite* one-particle operator, and on to the outer-enclosed final Hamiltonian.
+-- `tailSpan b m` is the span of the basis vectors the order-`m` truncation never sees; it is
+-- orthogonal to `galerkinSpan b m` (`inner_eq_zero_of_mem_galerkin_tail`) and together they
+-- exhaust the finite-mode core (`galerkinSpan_sup_tailSpan`), so every core vector splits
+-- as `v = x + w` with `‖v‖² = ‖x‖² + ‖w‖²`.  Two statements result.  The cheap one,
+-- `gap_of_uniform_truncated_gap`: a gap holding at *every* order with the same `μ` gives the
+-- core form gap with no analytic input.  The real one, `gap_of_level_gap_and_tail`: a gap
+-- certified at a *single* order `m`, plus tail coercivity `⟪w, H w⟫ ≥ μ‖w‖²` on `tailSpan b m`
+-- and a coupling bound `|Re⟪x, H w⟫| ≤ ε‖x‖‖w‖` across the split, gives the core form gap
+-- `μ − ε` (`quadForm_add_of_symmetricOn` is the exact block identity behind it, so the
+-- coupling term is not an error one may drop).  `quadForm_ge_of_le_ritzInf_on` converts a Ritz
+-- bound on a truncation subspace into a form bound there, and
+-- `ym_fock_gap_of_truncated_gap_and_tail`, `ym_fock_mass_gap_of_truncated_gap_and_tail` and
+-- `ym_fock_gap_of_band_and_tail` compose the lift with the gauge-fixed Yang–Mills `dΓ` chain.
+-- Honest boundary: tail coercivity and the coupling bound are *hypotheses* — the named
+-- analytic input of QYM-1 task 3 — and are not proved for the Yang–Mills operator here.
+import BookProof.ChapterTruncationGapLift
+
+-- `ChapterSchurGershgorinGap` (plan QYM-1 task 3): the two analytic inputs of the lift, proved
+-- from *matrix-element data*.  `entry b H i j = ⟪bᵢ, H bⱼ⟫` is the number a certificate records.
+-- Gershgorin: if on an index set the diagonal entries are at least `dᵢ` and the off-diagonal
+-- absolute row sums at most `rᵢ`, then the energy form is at least `inf (dᵢ − rᵢ)` times the norm
+-- squared on the span of those modes (`quadForm_sum_ge`, `quadForm_ge_of_gershgorin_on`,
+-- `quadForm_ge_of_gershgorin`); with the index set `{i | m ≤ i}` this is exactly the tail
+-- coercivity the lift assumes (`tail_coercive_of_gershgorin`).  Schur: if every row sum and
+-- every column sum of the off-diagonal block `{i < m} × {m ≤ j}` is at most `ε`, then
+-- `|⟪x, H w⟫| ≤ ε‖x‖‖w‖` across the split (`abs_inner_block_le`, `coupling_bound_of_schur`) —
+-- the coupling bound the lift assumes.  Composing with `gap_of_level_gap_and_tail` gives
+-- `gap_of_level_gap_and_matrix_bounds` and the strict positivity `strict_pos_of_matrix_bounds`
+-- (`λ₁(H₁|core) ≥ μ − ε > 0`), and `ym_fock_gap_of_truncated_gap_and_matrix_bounds` /
+-- `ym_fock_mass_gap_of_truncated_gap_and_matrix_bounds` run them through the gauge-fixed
+-- Yang–Mills `dΓ` chain.  Honest boundary: what is proved is the *implication*; whether the
+-- Yang–Mills entries satisfy the inequalities is a computation on the entries, not settled here.
+import BookProof.ChapterSchurGershgorinGap
+
+-- `ChapterWallDeficiencyObstruction` (plan QG-2, "Case B"): the converse of the ODE step of
+-- `ChapterScalaronWallEsa`.  Double integration by parts against a compactly supported weight
+-- (`integral_conj_deriv2_mul`) shows that a square-integrable classical solution of
+-- `W'' = (V − z)W` (`IsL2Ode`) satisfies the deficiency identity `⟪Hv, W⟫ = z⟪v, W⟫` for every
+-- `v` in the compactly supported smooth core (`inner_eq_of_ode`); hence a nonzero solution
+-- obstructs triviality of the deficiency space (`not_deficiencyTrivialAt_of_l2_solution`) and,
+-- with the regularity direction already proved, one gets the two-way Weyl characterisation
+-- `deficiencyTrivialAt_iff_no_l2_solution` — the deficiency space *is* the space of `L²`
+-- classical solutions, for every smooth real `V` and every `z`.  Consequences:
+-- `isL2Ode_conj` (conjugation exchanges the two indices for real `V`),
+-- `not_essentiallySelfAdjointOn_of_l2_solution` (one nonzero solution at `i` refutes ESA), and
+-- `no_l2_solution_of_nonneg` (consistency with the `V ≥ 0` theorem).  The criterion is shown
+-- non-vacuous by a worked instance: the Gaussian ground state of `V(x) = x² − 1`
+-- (`gaussianState_isL2Ode`, `not_deficiencyTrivialAt_harmonicShifted_zero`).
+import BookProof.ChapterWallDeficiencyObstruction
+
+-- `ChapterLimitCircleExample` (plan QG-2 sign warning, Case B): the previous module's criterion
+-- applied to an *explicit* potential.  Starting from the solution rather than the potential,
+-- `W = e^{p+iq}` with `q'(x) = -(1+x²)/2` and `p(x) = arctan x - ½ log(1+x²)` makes the imaginary
+-- part of `W''/W` identically `-1`, so `W` solves `W'' = (V - i)W` for the smooth real potential
+-- `lcV x = (2x²-4x)/(1+x²)² - (1+x²)²/4` (asymptotically `-x⁴/4`, the classical limit-circle
+-- profile), and `‖W x‖² = e^{2 arctan x}/(1+x²) ≤ e^π/(1+x²)` is integrable.  Hence
+-- `lcSol_isL2Ode`, `lcV_not_deficiencyTrivialAt_I`, **`lcV_not_essentiallySelfAdjoint`** and
+-- `exists_smooth_potential_not_essentiallySelfAdjoint`: essential self-adjointness on the
+-- compactly supported smooth core genuinely fails for a smooth real potential, so the
+-- non-negativity hypothesis of `wallHam_essentiallySelfAdjoint` is not removable.
+import BookProof.ChapterLimitCircleExample
+
+-- `ChapterConformalFiberDeficiency` (plan QG-2, Case B — the conformal fiber): the same
+-- criterion applied to a potential of the *conformal-fiber profile*.  The wrong-sign
+-- densitized conformal direction carries the non-negative Starobinsky exponential wall; after
+-- the rescaling `-24·((1/24)d²/dy² + U + 1/32) = -d²/dy² + V` the potential
+-- `V = -24(U + 1/32)` is unbounded below exponentially at `-∞` and constant at `+∞`.  Running
+-- the ODE backwards with the exponential phase `q'(y) = 1 + e^{-y}` forces
+-- `p(y) = -log cosh(y/2)`, so `W = e^{p+iq}` solves `W'' = (cfV - i)W` with
+-- `‖W y‖² = 1/cosh²(y/2) ≤ 4/(1+y²)` integrable, where
+-- `cfV y = 1/4 - 1/(2 cosh²(y/2)) - (1+e^{-y})²`.  Hence `cfSol_isL2Ode`,
+-- `cfV_not_deficiencyTrivialAt_I`/`_negI`, **`cfV_not_essentiallySelfAdjoint`**, and the wall
+-- form `cfWall_nonneg`, `cfWall_tendsto_atBot`, `cfWall_tendsto_atTop`, `cfV_eq_wall`,
+-- packaged as `exists_wall_potential_wrongSign_not_essentiallySelfAdjoint`: a non-negative
+-- exponential wall does *not* restore essential self-adjointness once the kinetic term carries
+-- the conformal (wrong) sign.
+import BookProof.ChapterConformalFiberDeficiency
+
+-- `ChapterBddBelowWallEsa` (plan QG-2, Case A — the one-dimensional input): the sharp
+-- companion of the two counterexamples above.  `ode_solution_eq_zero_of_bddBelow` replaces the
+-- convexity argument of `ChapterScalaronWallEsa` (which needs `V ≥ 0`) by a cutoff energy
+-- estimate: with `ζ_r(x) = g(x/r)` a rescaled bump, the compactly supported function
+-- `ζ_r²·conj(W)·W'` integrates its derivative to zero, whose real part bounds the cutoff
+-- kinetic energy `∫ζ_r²|W'|² ≤ 4M²‖W‖² + 2K‖W‖²` uniformly in `r` (this is the only place the
+-- lower bound `V ≥ -K` is used), and whose imaginary part then gives
+-- `|Im z|·∫ζ_r²|W|² ≤ (C + M²‖W‖²)/r → 0`, forcing `W = 0`.  Hence
+-- `wallHam_deficiencyTrivialAt_of_bddBelow` and
+-- **`wallHam_essentiallySelfAdjoint_of_bddBelow`**: `-d²/dx² + V` is essentially self-adjoint
+-- on the compactly supported smooth core of `L²(ℝ)` for every smooth `V` bounded below, with
+-- no growth and no sign hypothesis.  Together with `ChapterLimitCircleExample` and
+-- `ChapterConformalFiberDeficiency` this makes the dichotomy sharp in the direction that
+-- matters for the plan: a wall bounded below always closes the deficiency spaces, and once the
+-- kinetic sign is wrong the wall is unbounded below and the conclusion genuinely fails.
+import BookProof.ChapterBddBelowWallEsa
+
+-- `ChapterBddBelowFiberSumEsa` (plan QG-2, Case A — the composed operator): the companion
+-- of `ChapterBddBelowWallEsa`.  Each fibre `−d²/dx_i² + V_i` (with `V_i` smooth and bounded
+-- below, each with its own constant) is glued into one operator on the orthogonal direct sum
+-- `ℓ²(i : ι, L²(ℝ))`, `H = ⊕ᵢ (−d²/dxᵢ² + Vᵢ)`.  The gluing instrument is
+-- `DirectSumEsa.dsOp_essentiallySelfAdjointOn` (a deficiency space of an orthogonal direct sum
+-- is the direct sum of the fibre deficiency spaces), so no relative bound, comparison operator
+-- or commutator estimate is needed: **`fiberSumHam_essentiallySelfAdjoint_of_bddBelow`**, the
+-- unitary flow `fiberSumHam_stone_flow`, and under a *uniform* fibre lower bound the form bound
+-- `fiberSumHam_semibounded`.  The physical instance of QG-3.3's derived fibre list is
+-- `qgFiberSum_esa` (d shear directions with harmonic walls plus one scalaron direction with the
+-- Starobinsky wall) and `qgFiberSum_nonneg_form`.  Honest boundary: the decomposition is an
+-- orthogonal direct sum of one-dimensional fibres, not a tensor product — nothing here claims
+-- `−Δ + V` on `L²(ℝᵈ)` — and the wrong-sign conformal direction is Case B, where the
+-- conclusion is false (`ChapterConformalFiberDeficiency`).
+import BookProof.ChapterBddBelowFiberSumEsa
+
+-- `ChapterHalfLineLimitCircle` (plan QG-2 / 29f Case B — the endpoint): the *free* half-line
+-- kinetic operator `−d²/dy²` on the compactly supported smooth core of `L²((0,∞))` is **not**
+-- essentially self-adjoint.  The densitized conformal direction lives on the half line
+-- `y = √e ∈ (0,∞)` (the degenerate-tetrad endpoint `e = 0`), and this module exhibits its
+-- purest failure mechanism: `deficiencyFun y = exp(−λy)` with `λ² = −i` is square integrable
+-- on `(0,∞)` and satisfies the adjoint deficiency identity `⟪−v'', w⟫ = i⟪v, w⟫` for every test
+-- `v`, so **`hlKin_not_deficiencyTrivialAt_I`** and **`hlKin_not_essentiallySelfAdjointOn`**;
+-- by the sign-flip theorem of `ChapterConformalSignFlip` also
+-- `hlKin_neg_not_essentiallySelfAdjointOn` (the wrong-sign `+d²/dy²` the densitized direction
+-- carries).  `hlCore_ne_bot` shows the core is not vacuous.  Honest boundary: what is proved is
+-- the endpoint (limit-circle) mechanism for the *free* kinetic, not a potential `V(y)`, and not
+-- a statement about the multi-dimensional densitized operator.
+import BookProof.ChapterHalfLineLimitCircle

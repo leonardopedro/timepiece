@@ -29,7 +29,7 @@ one-particle edge and its lift through the free nested-Fock `dGamma` Hamiltonian
 | one-particle gap, lifted to Fock space | proved for the concrete gauge-fixed QYM one-particle operator, conditional on its one-particle *form* gap (`ChapterYangMillsFockGapChain`) |
 | unbounded field perturbations of the gap | proved for the linear coupling `Φ(f)` (`ChapterFockFieldPerturbation`, `sorry`-free) and for the quadratic pair coupling `P(f,g)` (`ChapterFockPairPerturbation`); proved *impossible* for a bare cubic term (`ChapterFockCubicUnbounded`); the cubic–quartic pair is bounded below on all finite states (`ChapterFockCubicQuarticStability`) |
 | gap for sectors with constant or diagonal one-particle energy | proved unconditionally: the R² scalaron at `m = 1/√(12α)` (`ChapterScalaronFockGapChain`), any diagonal dispersion `ω_k = √(p_k² + m²)` (`ChapterFockDiagonalGapChain`), and the full-exponential scalaron fiber's strict edge (`ChapterScalaronEdge`) — no certificate, no form-gap hypothesis |
-| QED photon sector | proved: positivity with **no gap** for the massless photon (`ChapterQedFockGapChain`), the no-gap obstruction proved for every `m > 0` under infrared momenta accumulating at zero, and gapped statements attached only to the regulated/massive instantiations (`irPhoton_fock_mass_gap`, `proca_fock_mass_gap`) |
+| QED photon sector | proved: positivity with *no gap* for the massless photon (`ChapterQedFockGapChain`), the no-gap obstruction proved for every `m > 0` under infrared momenta accumulating at zero, and gapped statements attached only to the regulated/massive instantiations (`irPhoton_fock_mass_gap`, `proca_fock_mass_gap`) |
 | real Fock mass gap of the continuum operator | still conditional on the one-particle form gap (the certificate supplies a truncated bound); no continuum claim |
 
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure
@@ -37,6 +37,39 @@ one-particle edge and its lift through the free nested-Fock `dGamma` Hamiltonian
 :::paragraph
 The new gap modules make the operator-level boundary explicit. `BookProof/ChapterFockOneParticleGap.lean` proves the positive one-particle edge statement under its spectral hypotheses; `ChapterFriedrichsFormGap.lean` packages the corresponding closed-form/Friedrichs route; and `ChapterBandEnclosure.lean` shows how nested finite bands can provide the remaining enclosure input. These are conditional analytic bridges, not a claim that numerical data alone proves the continuum gap.
 :::
+
+:::paragraph
+Two of those bridges have since been made *theorems about recorded data*,
+which is what a certificate can actually supply. In the final object of the
+programme — the nested-Fock Hamiltonian
+$`H = \sum_{i,j} h_{ij}\,C^\dagger(e_i)A(e_j)` built from the gauge-fixed
+one-particle operator $`h` — the gap of $`\sum_i h_{ii}\,C^\dagger(e_i)A(e_i)`
+of the *free* n-particle sector is what `ChapterFockDiagonalGapChain` and its
+instantiation for the massless photon certify. The newly landed QYM-1 wave
+closes the same gap for the genuinely coupled gauge-fixed Yang–Mills
+one-particle operator. `BookProof/ChapterTruncationGapLift.lean` splits each
+finite-mode core vector $`v = x + w` into its order-$`m` Galerkin part and its
+tail, and proves that a gap certified on the truncation lifts to the core once
+the tail is coercive and the coupling across the split is bounded
+(`gap_of_level_gap_and_tail`, `gap_of_uniform_truncated_gap`), and further via
+$`d\Gamma` to the outer-enclosed $`H$ (the `ym_fock_*` compositions).
+`BookProof/ChapterSchurGershgorinGap.lean` then proves those two analytic
+inputs *from the matrix elements* the certificate records: diagonal dominance
+on the tail gives coercivity (`tail_coercive_of_gershgorin`) and a Schur test
+on the coupling block gives the cross bound (`coupling_bound_of_schur`),
+composed into the strict positivity $`\lambda_1(H_1|\mathrm{core}) > 0` of QYM-1
+task 3 (`strict_pos_of_matrix_bounds`) — the single remaining hypothesis of the
+gap chain is now a family of checkable inequalities on the recorded entries,
+not an unanalysed spectral assumption.
+:::
+
+```
+#check @BookProof.TruncationGapLift.gap_of_uniform_truncated_gap
+#check @BookProof.TruncationGapLift.gap_of_level_gap_and_tail
+#check @BookProof.SchurGershgorin.tail_coercive_of_gershgorin
+#check @BookProof.SchurGershgorin.coupling_bound_of_schur
+#check @BookProof.SchurGershgorin.strict_pos_of_matrix_bounds
+```
 
 # QED: What Masslessness Costs, Formally
 
@@ -47,7 +80,7 @@ stronger statement than *positivity*. `BookProof/ChapterQedFockGapChain.lean`
 (`ChapterFockDiagonalGapChain` — the instrument for one-particle energies
 $`e_k \mapsto \omega_k e_k`) on the photon dispersion. For the massless photon
 $`\omega_k = |p_k|` the sector is positive (`photon_fock_positivity`) but
-**gapless**; the obstruction is proved, not asserted:
+*gapless*; the obstruction is proved, not asserted:
 `photon_no_one_particle_gap` shows the one-particle form gap fails for *every*
 $`m > 0` whenever the momenta accumulate at zero (the infrared). The
 mechanism is exactly the diagonal-chain boundary: the form gap needs a

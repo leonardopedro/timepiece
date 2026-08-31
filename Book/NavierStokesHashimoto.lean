@@ -205,8 +205,8 @@ iteration computes. A separate question — the one the gap programme asks of
 every sector — is whether that operator has a positive spectral gap above its
 ground state. For the Navier–Stokes Eulerian fiber the answer is *negative and
 provable*: `BookProof/ChapterNavierStokesFiberGap.lean` (namespace
-`BookProof.NavierStokesFlow`) shows that the fiber Hamiltonian has **no
-one-particle form gap at any positive level**, and explains why none of the gap
+`BookProof.NavierStokesFlow`) shows that the fiber Hamiltonian has *no
+one-particle form gap at any positive level*, and explains why none of the gap
 instruments that other sectors enjoy applies here.
 :::
 
@@ -234,7 +234,7 @@ fiber variables to push the Rayleigh quotient away from zero.
 :::paragraph
 Consequences: the *constant* and *diagonal* gap chains
 (`ChapterScalaronFockGapChain`, `ChapterFockDiagonalGapChain` — the instruments
-that make the scalaron and free massive sectors unconditional) do **not** apply
+that make the scalaron and free massive sectors unconditional) do *not* apply
 to this fiber. What the fiber *can* certify is a weaker but still
 self-adjointness-relevant statement: `nsComparison_friedrichs_gap` shows that
 the Faris–Lavine comparison operator $`N_\mu` has a positive self-adjoint

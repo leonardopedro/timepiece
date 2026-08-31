@@ -508,6 +508,35 @@ of the spectrum of the selected extension.
 #check @BookProof.ChapterSirkRitzSpectrum.galerkin_ritz_tendsto_sInf_spectrum_of_selected
 ```
 
+# What the Computed Gap Converges To
+
+:::paragraph
+A gap is a difference of two levels, and there is no second Rayleigh quotient: the
+right object above the ground level is the Courant–Fischer min–max level
+$`\Lambda_k(T) = \inf\{\sup_{x \in S, \lVert x\rVert = 1} \operatorname{Re}\langle x, Tx\rangle : \dim S = k+1\}`,
+and the level the solver computes is the same infimum restricted to the subspaces of
+the retained Galerkin space. Restricting can only raise the infimum, so the computed
+levels are always upper bounds; conversely any $`(k+1)`-dimensional subspace can be
+pushed by the Galerkin projection into a large enough retained space, and — because the
+projection moves its unit vectors by an arbitrarily small amount once the projections
+converge uniformly on it — at an arbitrarily small cost in the Rayleigh supremum. The
+two bounds together give convergence of the computed levels to the min–max levels, so
+the computed gap $`\Lambda_1(m) - \Lambda_0(m)` converges to $`\Lambda_1 - \Lambda_0`
+and a positive min–max gap is eventually seen by the truncations. The ladder starts
+where the previous section stopped: level zero is the bottom of the numerical range,
+hence the bottom of the spectrum. Nothing here asserts that a level with $`k \ge 1` is
+an eigenvalue — that is true only below the essential spectrum.
+:::
+
+```
+#check @BookProof.RitzMinMax.minmaxLevel_le_minmaxLevelIn
+#check @BookProof.RitzMinMax.minmaxLevel_zero_eq_sInf_spectrum
+#check @BookProof.RitzMinMax.exists_galerkin_approx_subspace
+#check @BookProof.RitzMinMax.galerkin_minmaxLevel_tendsto
+#check @BookProof.RitzMinMax.galerkin_gap_tendsto
+#check @BookProof.RitzMinMax.galerkin_gap_eventually_pos
+```
+
 # The Laminar Decay Rate
 
 :::paragraph

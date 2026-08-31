@@ -23,30 +23,51 @@ meets at the level of the spatial metric.
 :::
 
 :::paragraph
-The 3D gauge fixing of the Cadabra2 derivation is done entirely in metric
-variables — no vielbein is needed here. The steps are the synchronous gauge
-$`N = 1, N^i = 0`; the $`3+1` split $`R = R_3 + (K^2 - K_{ij}K^{ij})`; the
-conformal decomposition of the spatial metric
-$`R_c = \Omega^{-4}\bar R_c - 8\Omega^{-5}\bar\nabla^2\Omega`; the
-Navier–Stokes-style fixing of the spatial derivative variables
-($`(\partial_i\varphi)(\partial^i\varphi) \to \text{grad}^2`); and the
-Hamiltonian constraint solved for the conformal-mode curvature $`R_c`. The
-vielbein is only *required* for the teleparallel (torsion) formulation — the
-torsion scalar $`T` and the Weitzenböck connection are built from the vielbein
-and its local Lorentz freedom must be gauge-fixed, which is the TEGR module's
-job. Starobinsky is $`f(R)`, a function of the *Ricci scalar* — a metric
-object — so the ADM split and the conformal-mode stabilization are
-self-contained in the metric.
+The gauge fixing is carried out in the *vielbein* (frame) variables of the
+TEGR / teleparallel module — the derivation of record — not in metric
+variables. The reduction to three dimensions is the time-gauge choice
+$`v^\mu = \delta^\mu_0` for the globally-defined time-like vector of the
+teleparallel frame, after which the `4`-dimensional Hamiltonian formalism
+collapses to a `3`-dimensional one whose first-order (BRST) constraint
+algebra of diffeomorphisms / local Lorentz transformations / global
+translations is *different from the ADM one* — in particular there is **no**
+scalar Hamiltonian constraint solved for the conformal-mode curvature
+$`R_c`. The conformal-mode stabilization comes instead from the $`\alpha
+R^2` term itself: with $`\psi = 1 + 4\alpha R/M^2` the Hamiltonian carries
+$`U(\psi)e = \tfrac{M^4}{16\alpha}(\psi-1)^2 e \ge 0`, i.e. the potential is
+manifestly bounded below for $`\alpha > 0`, and it is this (together with the
+Weyl 3D gauge-fixing of the frame's local Lorentz / conformal freedom — the
+frame's time component $`A_0^j` fixed via the gauge-fixing fermion
+$`\{G, i\, b_j A_0^j\}` in the base TEGR module's BRST cell, the gravity
+analogue of the Yang–Mills Weyl gauge $`A_0 = 0` — the TEGR module's job)
+that regularizes the would-be wrong-sign conformal
+direction. The completed-square identity
+$`V_3(R_c) \ge -M^4/(16\alpha)` below records the same stabilization at the
+level of the spatial potential.
 :::
 
 :::paragraph
-Since the base theory is teleparallel-equivalent to GR
+A *metric-route* derivation — synchronous gauge $`N = 1, N^i = 0`; the
+$`3+1` split $`R = R_3 + (K^2 - K_{ij}K^{ij})`; the conformal decomposition
+$`R_c = \Omega^{-4}\bar R_c - 8\Omega^{-5}\bar\nabla^2\Omega`; the
+Navier–Stokes-style fixing of the spatial derivative variables
+($`(\partial_i\varphi)(\partial^i\varphi) \to \text{grad}^2`); and the
+Hamiltonian constraint solved for $`R_c` — exists as an alternative and is
+what the densitized modules formalize, but it is **not** the object of
+record. Starobinsky is $`f(R)`, a function of the *Ricci scalar* — a metric
+object — so that route is self-contained in the metric; the vielbein is only
+*required* for the teleparallel (torsion) formulation, where the torsion
+scalar $`T` and the Weitzenböck connection are built from the frame.
+:::
+
+:::paragraph
+Because the base theory is teleparallel-equivalent to GR
 ($`eR = e\cdot T + \text{divergence}`, the TEGR identity verified in
-`Book/BaryonAsymmetry.lean`), this construction *could* equally be carried out
-in the vielbein variables of the TEGR module, with the *same* teleparallel
-restrictions on the frame (Weitzenböck connection: metric-compatible,
+`Book/BaryonAsymmetry.lean`), the vielbein/TEGR realization of record is
+faithful to the metric one — the *same* teleparallel restrictions on the
+frame apply (Weitzenböck connection: metric-compatible,
 curvature-free, torsion-carrying). Writing $`R = T + B` with the boundary term
-$`B = 2\nabla_\mu T^\mu`, the $`R^2` action would read $`\int e\, f(T+B)` — a
+$`B = 2\nabla_\mu T^\mu`, the $`R^2` action reads $`\int e\, f(T+B)` — a
 functional of the torsion scalar *and* its boundary term. It is therefore
 not a pure $`f(T)` (teleparallel) action: $`f(T+B) \neq f(T)` generically,
 and pure $`f(T)` gravity is a different theory. Everything below depends only
@@ -113,6 +134,25 @@ exactly the conformal-mode instability. The completed-square identity exhibits t
 regularization, and the mode-level operator inherits it uniformly: the gravity
 fibre symbol $`(1/16)a_k^2 - (1/24)b_k^2 + V_k` with the Starobinsky potential
 $`V_k = V_3(R_c k)` is essentially self-adjoint on its maximal domain.
+:::
+
+:::paragraph
+An asymmetry worth stating before it bites: the *failure* and the *cure*
+depend on $`\alpha` in opposite directions. The wrong-sign conformal kinetic
+$`(1/24)\partial_y^2 \le 0` is a property of the base general-relativity
+kinetic itself — it is present in `book.tex 8190` derived from the
+standard Einstein–Hilbert action at $`\alpha = 0` — so the densitized
+d'Alembertian's lack of essential self-adjointness holds for **both** plain
+GR and Starobinsky. What $`\alpha` buys is the *cure*: the bounded-below
+potential $`V(\varphi) \ge 0` (or the conformal-mode completed square
+$`V_3 \ge -M^4/(16\alpha)`) is exactly what turns the positive-kinetic
+reassembly into an essentially self-adjoint, bounded-below operator, and
+that exists **only** for $`\alpha > 0` — at $`\alpha = 0` the conformal
+mode's potential is the linear $`-(M^2/2)R_c`, unbounded below. So
+the statement "the densitized operator is not ESA" is
+$`\alpha`-independent true, while "the physical reassembly is ESA" is
+$`\alpha`-dependent true ($`\alpha > 0` only); plain GR fails on both
+counts.
 :::
 
 ```
@@ -252,9 +292,9 @@ potential needing no caveat at all (the model's $`V` is exactly the
 formalized `starobinskyV`). Separately, `ChapterScalaronFockEsa`
 (`qgScalaronFock_esa`, `qgScalaronFock_stone_flow`) and the densitized
 route (`ChapterQuantumGravityDensitized`, `ChapterScalaronDensitizedTransfer`)
-formalize the **metric-route** 3+1 gauge fixing — conformal mode
+formalize the *metric-route* 3+1 gauge fixing — conformal mode
 $`V_3(R_c)` plus the scalaron on the densitized conformal variables — that
-is, the previous module `docs/qg_starobinsky_hamiltonian.cdb`, **not** the
+is, the previous module `docs/qg_starobinsky_hamiltonian.cdb`, *not* the
 vielbein/TEGR Hamiltonian derived above. For the vielbein/TEGR Hamiltonian
 (`docs/qg_starobinsky_vielbein_hamiltonian.cdb`) the proved layer applies
 fiber by fiber: the scalaron fiber via the wall class (same $`V`, rescaled
@@ -348,6 +388,192 @@ updates remains: the number-preserving Fock lift is not claimed for this
 fiber; `1.932` remains a certified truncated number; no mass gap of a physical
 gravity (or Yang–Mills) Hamiltonian is claimed.
 :::
+
+:::paragraph
+The *dimensional scope* deserves to be stated as bluntly as the mass-gap
+boundary, because it is where a reader most easily over-reads the proofs. The
+one-particle operator $`h` of the model is a single operator on the
+one-particle Hilbert space that *already carries the kinetic* (and the
+derivative-type content) for all of its degrees of freedom — it is not
+a potential half in need of a kinetic added later. Concretely the scalaron
+fiber is the genuine second-order differential operator
+$`h_\psi = \tfrac12\pi^2 + V(\hat\varphi) = -\tfrac12\,d^2/d\varphi^2 +
+V(\varphi)` on $`L^2(\mathbb R)`, and this is exactly the operator proved
+essentially self-adjoint with a strict edge:
+`starobinskyWall_esa` (ESA on the compactly supported smooth core, full
+exponential wall) and `starobinskyEdge_quadForm` /
+`starobinskyEdge_friedrichs_gap` (the strict $`E_0 > 0`). The "1D" labels
+mean only that the *scalaron slice* of the one-particle space is one
+coordinate per quantum; the reassembly assembles these kinetic-inclusive
+fibers (harmonic shear oscillators $`h_{\omega_i}` plus $`h_\psi`), and the
+outer Fock operator is then simply $`h` between ladder operators,
+$`H = \sum_{ij} h_{ij}\, C^\dagger(e_i)\, A(e_j)` — no kinetic is
+introduced anywhere outside $`h`. What `vielbeinFock_esa` proves —
+unconditionally — is the *potential* (multiplication) form of the
+reassembly, $`fockSmoothPotentialOp` acting as multiplication by
+$`\sum_j\bigl(\sum_i \tfrac12\omega_i^2 y_i(j)^2 + V(\varphi(j))\bigr)` on
+the $`n`-particle sector $`L^2(\mathbb R^{n\times(d+1)})`; that specific
+theorem is the potential half and is *not itself* the kinetic-inclusive
+$`h`, which is why the single-object ESA/edge of the assembled
+$`h = \oplus_i h_{\omega_i} \oplus h_\psi` (kinetic included, via the
+direct-sum instrument of `ChapterDirectSumEsa`) is the remaining statement,
+called the plan's QG-3, with the shear frequencies $`\omega_i` as modelling
+input. So the honest reading is: each fiber's ESA/edge, kinetic included, is
+unconditional (`starobinskyWall_esa`, `starobinskyEdge`, the Hermite
+oscillator fibers); the potential-half Fock reassembly is unconditional
+(`vielbeinFock_esa`); and the single kinetic-inclusive object $`h`, assembled
+fiber by fiber, is QG-3. In particular, none of these theorems is an
+essential-self-adjointness statement for the densitized 3D d'Alembertian
+`H₀ = (1/16)Δ_Ŝ − (1/24)d²/dy²` of the densitized route — that operator's
+wrong-sign conformal direction is the (unclaimed, and in fact false) Case B
+of the earlier sign analysis.
+:::
+
+:::paragraph
+One further boundary must be stated without hedging, because it is the one a
+reader would most naturally miss: the **object of record is the full 3D
+gauge-fixed operator**, `qg3DHamiltonian` of
+`BookProof/ChapterQuantumGravity3DGauge` (F.5) — the `book.tex 8190` form
+with the Weyl-ordered cross terms
+$`\tfrac12 S\cdot E + \tfrac13 P\cdot E - e(\cdots)` **included** (symmetry
+on the core: `qg3D_symmetricOn`). The fibrewise model
+$`h = \oplus_i h_{\omega_i} \oplus h_\psi` described above is a *derived
+consequence*, not the Hamiltonian: it may be used as a theorem only after the
+couplings are proved to be identities on the physical (BRST-closed) sector —
+the plan's QG-3.2(a), the formal version of the conformal-mode elimination.
+Until then it is a comparison object, never the solved operator: the numerics
+must solve the **full** operator, cross terms included, with certified bands
+stated for *that* operator. This has landed in `../unfer`:
+`qg3d_full_hamiltonian` realizes the full operator, `qg3d_full_operator_sirk`
+solves it as-is (indefinite band — the wrong-sign conformal kinetic is
+present, so no bounded-below claim), and the certified bands are pinned in
+`fock_sirk/tests/fixtures/qg3d_full_bands.ndjson`. The scalar-fiber builders
+(`qg_starobinsky_vielbein_hamiltonian(_full)`) remain comparison models
+only, and their certified numbers (e.g. $`E_0 \approx 0.689`) are fiber-model
+enclosures. No perturbative drop of the couplings as "higher order" is
+admissible: the Hashimoto–SIRK/Krylov approximation solves the operator
+as-is.
+:::
+
+# The Wall Dichotomy That Decides Essential Self-Adjointness
+
+:::paragraph
+Every statement in this chapter about the one-dimensional fibre $`-d^2/dx^2 + V`
+on the compactly supported smooth core of $`L^2(\mathbb R)` has rested, until
+recently, on the sign of $`V` — but the convexity route is special to
+$`V \ge 0`, and the question of what happens when $`V` dips below zero was an
+unresolved gap. The freshly landed `BookProof` wave closes that gap on both
+sides, so the *hypothesis that decides* essential self-adjointness on the line
+is now a theorem: **boundedness below is enough, and unboundedness below is
+genuinely fatal.** Together the two directions turn the signanalysis of
+`CONSOLIDATED_PLAN.md`'s QG-2 into a sharp dichotomy.
+:::
+
+:::paragraph
+The positive half was landed first, in the direction of the physics the scalaron
+needs. For $`V \ge 0` the convexity argument above is clean, but the
+Starobinsky reassembly also meets potentials that are merely bounded below
+(e.g. the conformal-mode parabola $`-M^4/(16\alpha) \le V \le 0`); the
+constant-shift route (`WallEsaBddBelow`) already handled that. Newly landed,
+`BookProof/ChapterBddBelowWallEsa.lean` replaces the convexity argument by a
+**cutoff energy estimate** that needs no convexity at all and no growth
+hypothesis: with $`\zeta_r(x) = g(x/r)` a rescaled bump, the real part of the
+integrated identity bounds the cutoff kinetic energy
+$`\int\zeta_r^2|W'|^2 \le 4M^2\lVert W\rVert^2 + 2K\lVert W\rVert^2`
+(the only place $`V \ge -K` is used) and the imaginary part forces
+$`W \equiv 0` — so `-d^2/dx^2 + V` is essentially self-adjoint for **every**
+smooth $`V` bounded below
+(`wallHam_essentiallySelfAdjoint_of_bddBelow`). The same wave glues an
+arbitrary family of such fibres into one operator on the orthogonal direct sum
+$`\ell^2(i:\iota,\,L^2(\mathbb R))`,
+$`H = \oplus_i(-d^2/dx_i^2 + V_i)`
+(`BookProof/ChapterBddBelowFiberSumEsa.lean`: `fiberSumHam_
+essentiallySelfAdjoint_of_bddBelow`, the unitary flow, and the form bound
+`fiberSumHam_semibounded`), so the composed multi-shear/scalaron object inherits
+the fibre property with no relative bound and no comparison operator.
+:::
+
+```
+#check @BookProof.BddBelowWallEsa.ode_solution_eq_zero_of_bddBelow
+#check @BookProof.BddBelowWallEsa.wallHam_essentiallySelfAdjoint_of_bddBelow
+#check @BookProof.BddBelowFiberSumEsa.fiberSumHam_essentiallySelfAdjoint_of_bddBelow
+#check @BookProof.BddBelowFiberSumEsa.fiberSumHam_stone_flow
+#check @BookProof.BddBelowFiberSumEsa.fiberSumHam_semibounded
+#check @BookProof.BddBelowFiberSumEsa.qgFiberSum_esa
+```
+
+:::paragraph
+The negative half makes the dichotomy genuinely sharp rather than merely
+stated, by proving the converse class cannot be rescued. The deficiency space
+of $`-d^2/dx^2 + V` is exactly its space of square-integrable *classical*
+solutions of $`W'' = (V-z)W` (`BookProof/ChapterWallDeficiencyObstruction.lean`,
+`deficiencyTrivialAt_iff_no_l2_solution`), so failing essential
+self-adjointness is equivalent to exhibiting one such $`W`. The wave exhibits
+several, each with a physical profile. An explicit smooth potential
+asymptotically $`-x^4/4` puts the operator in the Weyl limit-circle regime in
+both deficiency spaces (`BookProof/ChapterLimitCircleExample.lean`,
+`lcV_not_essentiallySelfAdjoint`). The wrong-sign *conformal* fiber of the
+densitized route — kinetic `(1/24)∂²_y` with a **non-negative** `R^2`
+(Starobinsky) exponential wall — is a particular instance of this and is
+*not* rescued by the wall (`BookProof/ChapterConformalFiberDeficiency.lean`:
+`cfV_not_essentiallySelfAdjoint`, packaged as
+`exists_wall_potential_wrongSign_not_essentiallySelfAdjoint`); the sign
+bookkeeping that makes this precise is `BookProof/ChapterConformalSignFlip.lean`
+(`wrongSignKinetic_esa_iff`). And the *free* half-line kinetic operator — the
+purest form of the densitized-conformal endpoint `y = 0` (degenerate tetrad) —
+where the densitized fibre lives, is itself not essentially self-adjoint
+(`BookProof/ChapterHalfLineLimitCircle.lean`,
+`hlKin_not_essentiallySelfAdjointOn`, and by the sign-flip theorem also
+`hlKin_neg_not_essentiallySelfAdjointOn`). None of these computes the
+deficiency indices of the physical densitized operator; together they say that
+the wrong-sign conformal direction is *structurally* unstable to essential
+self-adjointness, which is exactly the honest boundary the signanalysis records.
+:::
+
+```
+#check @BookProof.WallDeficiencyObstruction.deficiencyTrivialAt_iff_no_l2_solution
+#check @BookProof.LimitCircleExample.lcV_not_essentiallySelfAdjoint
+#check @BookProof.ConformalFiberDeficiency.cfV_not_essentiallySelfAdjoint
+#check @BookProof.ConformalSignFlip.wrongSignKinetic_esa_iff
+#check @BookProof.HalfLineLimitCircle.hlKin_not_essentiallySelfAdjointOn
+#check @BookProof.HalfLineLimitCircle.hlKin_neg_not_essentiallySelfAdjointOn
+```
+
+:::paragraph
+A last set of newly landed results belongs to the *operator* authority of the
+claim rather than its analytic core, and is worth naming here because each one
+removes a gate the plan had left open. `BookProof/ChapterFockDifferingBasesEsa.lean`
+proves that a sum of one-particle Hermitian operators, *each presented in its
+own eigenbasis* with no common alphabet, is essentially self-adjoint on the
+finite-particle core once the coupling amplitudes are `ℓ^1` in the working
+basis (`spectralFamily_essentiallySelfAdjointOn_core`): a one-particle-built
+Hamiltonian conserves the particle number, so its commutator against the
+diagonal comparison operator `N = dΓ(ω) + 𝒩 + 1` vanishes *identically* and
+Faris–Lavine runs with constant `0`. Together with its companion
+`BookProof/ChapterQgCouplingDGammaSum.lean` (the coupling sum is a *single*
+`dΓ`, `dGamma_finsetSum_col`) this removes the common-alphabet summability
+gate the differing-bases design worried about. `BookProof/ChapterQgMultiHalfDensity.lean`
+lands the multi-dimensional half-density unitary
+(`multiHalfDensityUnitary : L^2((0,∞)\times X, de\otimes\mu) \simeq_{\ell i}
+L^2((0,∞)\times X, 2y\,dy\otimes\mu)`), so the densitized change of
+variables is a Hilbert-space unitary for the full field space, and
+executes the concrete `E = ∂e` derivative-variable fixing on the 84-dimensional
+tetrad coordinate algebra (`BookProof/ChapterQgDerivativeRealization.lean`,
+`eval_eq_of_fixed_of_comp_eq`) and the constraint-surface reduction that
+makes the cross couplings identities on the physical sector
+(`BookProof/ChapterQgPhysicalSectorIdentity.lean`,
+`lagrange_term_zero_of_fixing`). Each is unconditional and `sorry`-free; each
+carries its honest boundary in its own docstring.
+:::
+
+```
+#check @BookProof.FockDifferingBases.spectralFamily_essentiallySelfAdjointOn_core
+#check @BookProof.FockDifferingBases.sumOfTwo_essentiallySelfAdjointOn_core
+#check @BookProof.QgCouplingDGammaSum.dGamma_finsetSum_col
+#check @BookProof.QgMultiHalfDensity.multiHalfDensityUnitary
+#check @BookProof.QgDerivativeRealization.eval_eq_of_fixed_of_comp_eq
+#check @BookProof.QgPhysicalSectorIdentity.lagrange_term_zero_of_fixing
+```
 
 # The Hermite Core: Where the Hamiltonian Is Defined
 

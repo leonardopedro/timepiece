@@ -16,6 +16,92 @@ targets, 8749 jobs) and `lake build RandomMap` (8039 jobs) succeed with no error
 `propext`, `Classical.choice`, `Quot.sound`.  The `patches/*.sh` scripts had lost their
 executable bit in this snapshot; it has been restored.
 
+## Latest wave (2026-08-30d, **the multi-dimensional half-density unitary**)
+
+New module `BookProof/ChapterQgMultiHalfDensity.lean` (namespace
+`BookProof.QgMultiHalfDensity`) executes plan item **QG-1** beyond its previous
+one-fibre restriction.  A general construction (`mpUnitary`) turns any pair of
+mutually a.e.-inverse measure-preserving maps into a unitary of the `L²` spaces,
+shows it carries bounded-energy cores onto each other
+(`mpUnitary_mem_boundedEnergyCore`, `mpUnitary_boundedEnergyCore_surjective`),
+intertwines the multiplication operators (`mpUnitary_intertwines_multOp`) and
+hence runs the deficiency transfer (`mpUnitary_hasZeroDeficiencyOn_transfer`).
+Applied to `(y, ξ) ↦ (y², ξ)` — the conformal coordinate densitized, every
+other field direction untouched — this gives
+`multiHalfDensityUnitary : L²((0,∞) × X, de ⊗ μ) ≃ₗᵢ[ℂ] L²((0,∞) × X, 2y dy ⊗ μ)`
+for any s-finite `μ`, its intertwining property, and the field-space transfer
+(`multi_hasZeroDeficiencyOn_transfer`, `multi_physical_hasZeroDeficiencyOn`).
+
+Honest boundary: only the multiplication (potential) part is intertwined here —
+that is what the transfer theorem consumes — and no claim is made about the
+continuum kinetic operator.
+
+## Previous wave (2026-08-30c, **the edge of an orthogonal direct sum**)
+
+New module `BookProof/ChapterDirectSumEdge.lean` (namespace
+`BookProof.DirectSumEdge`) executes the **derived half of plan item QG-3.4**:
+fibre edges glue to their infimum.  On the algebraic direct sum `dsCore` of the
+fibre cores, both the squared norm and the energy of a state are *finite* sums
+over its support (`inner_dsCore_eq_sum`, `norm_sq_dsCore_eq_sum`,
+`inner_dsOp_eq_sum`), so the quadratic form of `dsOp H` is the sum of the fibre
+quadratic forms (`quadForm_dsOp_eq_sum`) and no summability side condition
+arises.  Consequently:
+
+* `dsOp_edge_of_fibre_edges` — a uniform fibre bound `⟪u, Hᵢu⟫ ≥ ν‖u‖²` gives
+  `⟪x, (⊕ᵢHᵢ)x⟫ ≥ ν‖x‖²` on the glued core;
+* `dsOp_edge_of_fibre_edges_le` — the form the plan uses: fibre edges `νᵢ` and
+  any common lower bound `ν ≤ νᵢ` (for a finite family, the minimum, e.g.
+  `min(ω₁/2, …, ω_d/2, E₀)`);
+* `dsOp_edge_pos` — a positive such `ν` is a strict edge: the form is `> 0` on
+  every non-zero state of the core.
+
+Honest boundary: this converts fibre edges into an edge of the glued operator
+and says nothing about the fibre edges themselves, nor about whether the
+operator of record decomposes as such a direct sum (that is QG-3.2(a)); a
+strict edge on a core is a one-particle form bound, not a spectral gap.
+
+## Previous wave (2026-08-30b, **the conformal-direction sign flip**)
+
+`BookProof/ChapterConformalSignFlip.lean` (namespace
+`BookProof.ConformalSignFlip`), `sorry`-free and `axiom`-free, makes the sign
+bookkeeping of plan item QG-2 / 29f Case B rigorous:
+`deficiencyTrivialAt_neg` (the flip `H ↦ −H` reflects the spectral parameter),
+`essentiallySelfAdjointOn_neg_iff` (essential self-adjointness is invariant
+under the flip), `wrongSignKinetic_esa_iff` (`−K + V` is ESA iff `K − V` is),
+`deficiencyTrivialAt_add_real` (a real shift only translates the parameter),
+and `symmetricOn_neg` / `symmetricOn_add_real`.  This decides the *reduction*,
+not the remaining analytic (limit-circle) question.
+
+## Latest wave (2026-08-30, **QG-3.2-exec (i): the coupling sum in differing bases**)
+
+`BookProof/ChapterQgCouplingDGammaSum.lean` (namespace
+`BookProof.QgCouplingDGammaSum`), `sorry`-free and `axiom`-free, executes the
+operator track of `DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md`.
+
+* `dGammaOp_finsetSum_col_eq` — second quantization is additive in the
+  one-particle datum: `Σ_ℓ dΓ(h_ℓ) = dΓ(Σ_ℓ h_ℓ)` on the finite-occupation
+  core.  The lifted coupling is therefore a *single* `dΓ`, and the naive
+  common-alphabet weighted-`ℓ¹` gate on cross-basis matrix elements is never
+  needed.
+* `isHermCol_finsetSum`, `isPosCol_finsetSum`, `coupling_friedrichs`,
+  `coupling_sum_friedrichs` — Hermiticity and positivity pass to the sum, so
+  the coupling has a positive self-adjoint (Friedrichs) extension
+  unconditionally.
+* `comparisonCol`, `comparison_friedrichs`, `coupling_quadForm_le`,
+  `coupling_quadForm_le_comparison` — the Faris–Lavine comparison operator
+  `N = Σ_ℓ dΓ(h_ℓ) + 𝒩` and the relative form bound (each summand's form is
+  dominated by `N`'s); `commForm_finsetSum` — additivity of the commutator
+  form.
+* `dGammaOp_diagCol_eq`, `numberOp_essentiallySelfAdjoint`,
+  `coupling_esa_dGamma` — over a basis diagonalizing the *total* one-particle
+  operator, `dΓ` is multiplication by the occupation energy
+  `Σ_k lam k · α k` on `ℓ²(Conf)`, so the coupling (and the number operator)
+  is essentially self-adjoint on the finite-occupation core.
+
+Honest boundary: diagonalizability of the *total* one-particle operator is a
+hypothesis of the ESA statement (only the Friedrichs half is unconditional);
+nothing is assumed about the individual summands or their relative bases.
+
 ## Latest wave (2026-08-28b, **the per-order certificate, derived; the `dΓ` lift, generalized**)
 
 Two new modules, both `sorry`-free and `axiom`-free, removing the two inputs the previous

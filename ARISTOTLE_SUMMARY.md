@@ -1,3 +1,527 @@
+# Summary of changes for run b7c9aded-7b04-40e8-b22c-8f77a4222142
+Continued executing `CONSOLIDATED_PLAN.md`, taking up the QG-3.2 operator half exactly along the lines you described: nested Fock spaces, Hamiltonians built from one-particle Hamiltonians that conserve the (outer) particle number, and the observation that this makes a positive **diagonal** comparison operator satisfy the Faris–Lavine criteria for the sum, including for many coupling terms.
+
+**New module `BookProof/ChapterFockDifferingBasesEsa.lean`** (namespace `BookProof.FockDifferingBases`), `sorry`-free and `axiom`-free, imported from `BookProof.lean` and audited in `BookProof/ChapterRoadmapAudit.lean`.
+
+What is proved:
+- `Balanced ω P Q` (`ω(P)+|P| = ω(Q)+|Q|`) says a quadratic hop leaves the comparison symbol `σ(α)=ω(α)+|α|+1` unchanged (`sig_tgt_eq_of_balanced`). **`pairOp_commForm_eq_zero`**: a balanced Hermitian monomial has *identically vanishing* commutator form against the diagonal comparison operator `N = dΓ(ω)+𝒩+1` — the two matrix elements of the Hermitian pair are complex conjugates, so the pair has a real matrix element. Number-conserving exchange terms `a_p†a_q` with `ω p = ω q` (all of them with no free dispersion) are balanced.
+- **`balancedH_essentiallySelfAdjointOn_core`** / **`exchangeH_essentiallySelfAdjointOn_core`**: the free dispersion plus an arbitrary family of such couplings is symmetric, relatively bounded by `N` (`balancedH_norm_le`), commutes with `N` exactly (`balancedH_commForm_eq_zero`), hence is essentially self-adjoint on the finite-particle core, with Faris–Lavine commutator constant `0`. Because the constant is `0`, the weighted summability gate of the existing quadratic-Fock chapter (`∑ₖ‖gₖ‖(ω(Pₖ)+ω(Qₖ)+2)<∞`) degrades to the unweighted `∑ₖ‖gₖ‖<∞`, however large the dispersion.
+- **`spectralFamily_essentiallySelfAdjointOn_core`** (differing bases): a family of one-particle Hermitian operators, each presented in *its own* eigenbasis with no common eigenbasis and no relation between the different bases, gives an essentially self-adjoint Hamiltonian on the finite-particle core as soon as `∑ₖ|λₖ|·‖vₖ‖₁² < ∞` (`specEntry`, `specAmp`, `summable_specAmp`). The finite case (`spectralFamily_finite_…`) and the literal two-operator case (**`sumOfTwo_essentiallySelfAdjointOn_core`**) carry no gate at all.
+- Non-vacuity: `specEntry_ne_zero` (the summands are genuinely non-diagonal in the working alphabet) and `specEntry_not_commute` (two rank-one one-particle operators diagonal in different bases genuinely fail to commute), so the vanishing commutator form is not the trivial commuting case.
+- `nestedFock_essentiallySelfAdjointOn_core`: the same statement when the one-particle space is itself a Fock space — a nested Fock space with an outer-number-conserving Hamiltonian and the outer number operator as comparison operator.
+
+Honest boundary (recorded in the module docstring and in the plan/status notes): the comparison operator is diagonal and the commutator constant is `0`, but the coupling family must still satisfy the *unweighted* `ℓ¹` summability of its amplitudes in the working alphabet — that is what makes the monomial series converge on the maximal domain and supplies the relative bound. No claim is made for an arbitrary bounded non-`ℓ¹` one-particle operator, no spectrum is computed, and the identification with the algebraic `dΓ` of the second-quantization chapter (a different model of the same Fock space) is not carried out.
+
+Verification: `lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings (8577 jobs); no `sorry`/`admit` and no new `axiom` in the new file; every public result is audited with `#print axioms` and depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+Documentation: a dated state update was prepended to `CONSOLIDATED_PLAN.md`, a new latest-wave section added to `BookProof/STATUS.md`, and a new section prepended to `ARISTOTLE_SUMMARY.md` (earlier content untouched). Still open in the plan: QG-2's Case A composition into the full multi-dimensional operator, and items QG-3.2(b), QG-3.3, QG-3.4. All work is committed and pushed.
+
+# Summary of changes — QG-3.2 operator half: sums of one-particle Hamiltonians in
+# **differing bases**, via Faris–Lavine with a positive *diagonal* `N`
+
+Continued execution of `CONSOLIDATED_PLAN.md`, taking up the route described in
+`DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md` and the observation that a Hamiltonian built
+from one-particle Hamiltonians conserves the (outer) particle number.
+
+**New module `BookProof/ChapterFockDifferingBasesEsa.lean`** (namespace
+`BookProof.FockDifferingBases`), `sorry`-free and `axiom`-free, imported from
+`BookProof.lean` and audited in `BookProof/ChapterRoadmapAudit.lean`.
+
+The point of the wave: when two (or many) Hermitian one-particle Hamiltonians are each
+diagonal only in *their own* basis, their second quantizations are non-diagonal and do not
+commute — but the operator that has to be compared against in Faris–Lavine is not one of
+them, it is the comparison operator `N`.  Since every term is built from one-particle
+operators, every term conserves the particle number, so the commutator with the *diagonal*
+`N = dΓ(ω) + 𝒩 + 1` is **exactly zero**, and Nelson's commutator theorem applies with
+constant `c = 0`.
+
+* **Balanced hops.**  `Balanced ω P Q : ω(P) + |P| = ω(Q) + |Q|` says the monomial
+  `a^{†P}a^{Q}` leaves the comparison symbol `σ(α) = ω(α) + |α| + 1` unchanged
+  (`sig_tgt_eq_of_balanced`).  **`pairOp_commForm_eq_zero`**: for a balanced hop the
+  Hermitian combination `g a^{†P}a^{Q} + conj(g) a^{†Q}a^{P}` has *identically vanishing*
+  commutator form — the two matrix elements of the pair are complex conjugates of one
+  another, so the combination has a real matrix element.  Exchange terms `a_p†a_q` with
+  `ω p = ω q` (all of them when the dispersion is absent) are balanced (`balanced_xIdx`).
+* **The summability gate degrades.**  `ChapterFockQuadraticEsa` proves essential
+  self-adjointness of a general quadratic Fock Hamiltonian under the *weighted*
+  `∑ₖ ‖gₖ‖(ω(Pₖ) + ω(Qₖ) + 2) < ∞`, the weights coming from its commutator constant.  With
+  the constant `0` the weights disappear: **`balancedH_essentiallySelfAdjointOn_core`** and
+  **`exchangeH_essentiallySelfAdjointOn_core`** need only the unweighted `∑ₖ ‖gₖ‖ < ∞`,
+  however large the free dispersion.  Supporting results: `balancedH_symmetricOn`,
+  `balancedH_norm_le` (the relative bound), `balancedH_commForm_eq_zero`,
+  `exchangeH_commForm_eq_zero`.
+* **Differing bases.**  `specEntry` gives the working-alphabet matrix of a one-particle
+  operator `λ|v⟩⟨v|` presented in its own basis, `specAmp` assembles a whole family of them
+  and `summable_specAmp` proves the gate from data attached to each operator separately.
+  **`spectralFamily_essentiallySelfAdjointOn_core`** — the headline — needs no common
+  eigenbasis and no relation whatsoever between the bases of different summands:
+  `∑_k |λ_k|·‖v_k‖₁² < ∞` suffices.  `spectralFamily_finite_essentiallySelfAdjointOn_core`
+  (finitely many spectral components) and **`sumOfTwo_essentiallySelfAdjointOn_core`** (the
+  literal two-operator case) carry no gate at all.
+* **Non-vacuity.**  `specEntry_ne_zero` (the summands are genuinely non-diagonal in the
+  working alphabet) and `specEntry_not_commute` (two rank-one one-particle operators
+  diagonal in different bases genuinely fail to commute), so the vanishing of the
+  commutator form is not the trivial statement that the summands commute with each other.
+* **Nested Fock spaces.**  The mode set is arbitrary, so it may itself be the configuration
+  set of an inner Fock space: `nestedFock_essentiallySelfAdjointOn_core` states the result
+  for a Hamiltonian on a Fock space over a Fock space, conserving the outer particle
+  number, with the outer number operator as comparison operator.
+
+**Honest boundary.**  The comparison operator is diagonal and the commutator constant is
+`0`; what the coupling family must still satisfy is the *unweighted* `ℓ¹` summability of
+its amplitudes in the working alphabet — this is what makes the series of monomials
+converge on the maximal domain and yields the relative bound.  Nothing here claims
+essential self-adjointness of `dΓ(h)` for an arbitrary bounded, non-`ℓ¹` one-particle `h`,
+and nothing computes a spectrum.  The operators are the monomial series of
+`ChapterFockQuadraticEsa` on `ℓ²(ι →₀ ℕ)`; the identification with the algebraic `dΓ` of
+`ChapterFockSecondQuantization` (a different model of the same Fock space) is not carried
+out.
+
+**Verification.**  `lake build BookProof BookProof.ChapterRoadmapAudit` completes with no
+errors and no warnings; a search finds no `sorry`/`admit` in the new file and no new
+`axiom`; every public result of the module is audited by `#print axioms` and depends only
+on `propext`, `Classical.choice`, `Quot.sound`.  Dated notes were added to
+`CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`; earlier sections of this file are left
+untouched.
+
+**Still open in the plan:** QG-2's Case A composition into the full multi-dimensional
+operator, and plan items QG-3.2(b), QG-3.3 and QG-3.4.
+
+---
+
+# Summary of changes for run 9d177de4-23a0-48ef-8d43-8fb0533009c1
+Continued execution of `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**What landed this session — QG-2 Case A's one-dimensional input.**
+
+New module `BookProof/ChapterBddBelowWallEsa.lean` (namespace `BookProof.BddBelowWallEsa`), `sorry`-free and axiom-free:
+
+> `−d²/dx² + V` is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)` for **every smooth real potential `V` bounded below** — no growth hypothesis and no sign hypothesis.
+
+This closes the gap between the two sides of the project's existing dichotomy: `BookProof/ChapterScalaronWallEsa.lean` needed `V ≥ 0` (its proof is a convexity argument that breaks the instant `V` dips below `0`), while `ChapterLimitCircleExample` and `ChapterConformalFiberDeficiency` show the conclusion is genuinely false for potentials unbounded below. The hypothesis that actually decides the matter is boundedness below.
+
+The proof replaces convexity by a cutoff energy estimate. For a classical `L²` solution of `W'' = (V − z)W` with `Re z = 0`, `Im z ≠ 0`, `V ≥ −K`, and `ζ_r(x) = g(x/r)` a rescaled bump (`|ζ_r'| ≤ M/r`), the compactly supported `ζ_r²·conj(W)·W'` integrates its derivative to zero. Its real part, with a pointwise Young inequality, bounds the cutoff kinetic energy `∫ζ_r²|W'|² ≤ 4M²‖W‖² + 2K‖W‖²` uniformly in `r ≥ 1` (the only place the lower bound is used); its imaginary part then gives `|Im z|·∫ζ_r²|W|² ≤ (C + M²‖W‖²)/r → 0`, and since `∫_{[−r,r]}|W|² ≤ ∫ζ_r²|W|²`, letting `r → ∞` forces `W ≡ 0`.
+
+Results proved: `ode_solution_eq_zero_of_bddBelow` (the ODE step), `wallHam_deficiencyTrivialAt_of_bddBelow`, `wallHam_essentiallySelfAdjoint_of_bddBelow`, its `BddBelow (Set.range V)` form `wallHam_essentiallySelfAdjoint_of_bddBelow'`, and `wallHam_essentiallySelfAdjoint_of_nonneg` (the non-negative case recovered as the corollary `K = 0`). The module also contributes reusable cutoff infrastructure (`bumpG`, `bumpM`, `zeta`, `zeta'`, their compact-support and derivative-bound lemmas) and the weighted integration-by-parts derivative lemmas (`hasDerivAt_wronsk`, `wronsk_deriv_re`/`_im`, `hasDerivAt_reWeighted`/`_imWeighted`).
+
+Only sufficiency is claimed: boundedness below implies essential self-adjointness on this core; the converse is false in general and is asserted nowhere.
+
+**Verification.** `lake build BookProof BookProof.ChapterRoadmapAudit` completes successfully (8576 jobs) with no errors and no warnings; a search for `sorry`/`admit` over the Lean sources finds only prose mentions in docstrings; every new public result is audited by `#print axioms` in `BookProof/ChapterRoadmapAudit.lean` and depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` and `BookProof/ChapterRoadmapAudit.lean`, each with an explanatory comment block and `#print axioms` lines. A dated state update was prepended to `CONSOLIDATED_PLAN.md`, a new latest-wave section added to `BookProof/STATUS.md`, and a new section prepended to `ARISTOTLE_SUMMARY.md` (earlier sections left untouched). All work is committed and pushed.
+
+**Still open in the plan:** QG-2's Case A composition into the full multi-dimensional operator, and plan items QG-3.2(b), QG-3.3 and QG-3.4.
+
+
+# Summary of changes — QG-2 Case A: `-d^2/dx^2 + V` is essentially self-adjoint for every
+# smooth potential **bounded below**
+
+Continued execution of `CONSOLIDATED_PLAN.md`.  This wave lands the one-dimensional input of
+QG-2's Case A and makes the sign dichotomy of the previous waves sharp.
+
+**New module `BookProof/ChapterBddBelowWallEsa.lean`** (namespace `BookProof.BddBelowWallEsa`),
+`sorry`-free and `axiom`-free, imported from `BookProof.lean` and audited in
+`BookProof/ChapterRoadmapAudit.lean`.
+
+`BookProof/ChapterScalaronWallEsa.lean` proves essential self-adjointness of `-d^2/dx^2 + V`
+on the compactly supported smooth core of `L^2(R)` for smooth `V >= 0`, via convexity of
+`|W|^2`; the convexity breaks as soon as `V` dips below `0`.  The counterexample modules
+`ChapterLimitCircleExample` and `ChapterConformalFiberDeficiency` show the conclusion is
+genuinely false for potentials unbounded below.  This wave closes the gap: **boundedness
+below is enough**, with no growth condition and no sign condition.
+
+* **The argument (a cutoff energy estimate).**  Let `W` be a classical `L^2` solution of
+  `W'' = (V - z)W` with `Re z = 0`, `Im z != 0`, `V >= -K`, and let `zeta_r(x) = g(x/r)` for a
+  fixed bump `g` equal to `1` on `[-1,1]` and supported in `[-2,2]`, so `|zeta_r'| <= M/r`.
+  The function `zeta_r^2 * conj(W) * W'` is `C^1` with compact support, so the integral of its
+  derivative vanishes.
+  * *Real part*: `int zeta_r^2 |W'|^2 + int zeta_r^2 V |W|^2 = -2 int zeta_r zeta_r' Re(conj(W)W')`,
+    and the pointwise Young inequality
+    `2|zeta_r zeta_r'||W||W'| <= (1/2) zeta_r^2 |W'|^2 + 2 zeta_r'^2 |W|^2` yields the uniform
+    bound `int zeta_r^2 |W'|^2 <= 4M^2 ||W||^2 + 2K ||W||^2 =: C` for all `r >= 1`.  This is
+    the only place the lower bound on `V` is used.
+  * *Imaginary part*: `|Im z| int zeta_r^2 |W|^2 = |2 int zeta_r zeta_r' Im(conj(W)W')|
+    <= (1/r) int zeta_r^2 |W'|^2 + r int zeta_r'^2 |W|^2 <= (C + M^2 ||W||^2)/r`.
+  Taking `r = n+1 -> infinity` and using `int_{[-r,r]} |W|^2 <= int zeta_r^2 |W|^2` forces
+  `||W||^2 = 0`, hence `W = 0` everywhere by continuity.
+* **What is proved.**
+  * `ode_solution_eq_zero_of_bddBelow` — the ODE step above;
+  * `wallHam_deficiencyTrivialAt_of_bddBelow` — trivial deficiency space at every purely
+    imaginary `z != 0`;
+  * **`wallHam_essentiallySelfAdjoint_of_bddBelow`** — `-d^2/dx^2 + V` is essentially
+    self-adjoint on the compactly supported smooth core of `L^2(R)` for every smooth `V`
+    bounded below;
+  * `wallHam_essentiallySelfAdjoint_of_bddBelow'` — the same with the hypothesis phrased as
+    `BddBelow (Set.range V)`;
+  * `wallHam_essentiallySelfAdjoint_of_nonneg` — the non-negative case recovered as the
+    corollary `K = 0`;
+  * reusable cutoff infrastructure (`bumpG`, `bumpM`, `abs_bumpG'_le`, `zeta`, `zeta'`,
+    `zeta_one`, `hasCompactSupport_zeta`, `hasCompactSupport_zeta'`,
+    `hasCompactSupport_zeta_sq`, `hasCompactSupport_zeta'_sq`, `abs_zeta'_le`) and the
+    weighted integration-by-parts derivative lemmas (`hasDerivAt_wronsk`, `wronsk_deriv_re`,
+    `wronsk_deriv_im`, `hasDerivAt_reWeighted`, `hasDerivAt_imWeighted`).
+* **Scope.**  Only sufficiency is claimed: boundedness below implies essential self-adjointness
+  on this core; the converse is false in general and is not asserted anywhere.
+
+Documentation updated: a dated state update prepended to `CONSOLIDATED_PLAN.md`, a new latest
+wave section in `BookProof/STATUS.md`, and the import comment blocks in `BookProof.lean` and
+`BookProof/ChapterRoadmapAudit.lean` (with `#print axioms` lines for every public result).
+
+---
+
+# Summary of changes — QG-2 Case B, the conformal fiber: a non-negative exponential wall
+# does **not** restore essential self-adjointness at the wrong kinetic sign
+
+Continued execution of `CONSOLIDATED_PLAN.md`.  This wave lands the conformal-fiber form of
+QG-2's Case B.
+
+**New module `BookProof/ChapterConformalFiberDeficiency.lean`** (namespace
+`BookProof.ConformalFiberDeficiency`), `sorry`-free and `axiom`-free.
+
+The previous wave produced *an* explicit smooth real potential that is not essentially
+self-adjoint (asymptotically `-x^4/4`).  Case B, though, is about a specific geometry: the
+densitized conformal direction carries the **wrong-sign** kinetic term `(1/24) d^2/dy^2`
+together with the **non-negative** Starobinsky exponential wall, and the open question is
+whether the wall rescues essential self-adjointness there.  It does not.
+
+* **The rescaling.**  `-24*((1/24) d^2/dy^2 + U + 1/32) = -d^2/dy^2 + V` with
+  `V = -24(U + 1/32)`, so the wrong-sign fiber with a non-negative wall is, up to a positive
+  factor and the overall sign, a standard Schrodinger operator whose potential is unbounded
+  below exponentially at `-infinity` and constant at `+infinity`.
+* **The construction.**  Running the ODE backwards again: for `W = e^{p+iq}`, `W` solves
+  `W'' = (V - i)W` with `V = p'' + p'^2 - q'^2` real exactly when `q'' + 2p'q' = -1`.  The
+  *exponential* phase `q'(y) = 1 + e^{-y}` forces `p'(y) = -(1/2) tanh(y/2)`, i.e.
+  `p(y) = -log cosh(y/2)`, and `|W(y)|^2 = 1/cosh^2(y/2) <= 4/(1+y^2)` is integrable.
+* **The potential.**  `cfV y = 1/4 - 1/(2 cosh^2(y/2)) - (1 + e^{-y})^2`: smooth
+  (`contDiff_cfV`), `<= 1/4 - e^{-2y}` everywhere (`cfV_le`), tending to `-infinity` at
+  `-infinity` (`cfV_tendsto_atBot`) and to `-3/4` at `+infinity` (`cfV_tendsto_atTop`) — the
+  limit-circle / limit-point profile Case B describes.
+* **The wall form.**  `cfWall = -cfV/24 - 1/32` is a genuine non-negative wall:
+  `cfWall_nonneg`, `cfWall_ge_exp` (`>= e^{-y}/12`), `cfWall_tendsto_atBot` (exponential wall),
+  `cfWall_tendsto_atTop` (plateau `0`), and `cfV_eq_wall` (`cfV = -24(cfWall + 1/32)`).
+* **The theorems.**  `cfSol_isL2Ode`, `cfSol_ne_zero`, `cfV_not_deficiencyTrivialAt_I`,
+  `cfV_not_deficiencyTrivialAt_negI` (both deficiency indices, via the previous module's
+  `deficiencyTrivialAt_conj_iff`), **`cfV_not_essentiallySelfAdjoint`**, and the packaged
+  **`exists_wall_potential_wrongSign_not_essentiallySelfAdjoint`**.
+
+**Honest boundary.**  What is settled is the shape claim: with the conformal direction's wrong
+sign, a non-negative exponential wall with a plateau does not make the operator essentially
+self-adjoint on the compactly supported smooth core — the kinetic sign, not the wall, decides.
+The deficiency indices of the manuscript's densitized conformal operator itself (whose wall is
+the specific Starobinsky `K(1 - e^{-a phi})^2`) are **not** computed, and no claim is made
+about the full quantum-gravity operator; the link to the wrong-sign fiber is recorded at the
+level of the potential (`cfV_eq_wall`), the operator in the Lean statements always being the
+standard `wallHam`, `-d^2/dy^2 + V`.  QG-2's Case A composition and plan items
+QG-3.2(b)/3.3/3.4 remain open.
+
+**Wiring and verification.**  Imported from `BookProof.lean` with an explanatory comment block
+and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines; every public result
+reports only `propext`, `Classical.choice`, `Quot.sound`.
+`lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings,
+and a search finds no `sorry`/`admit` in the new file and no new `axiom`.  Dated notes were
+added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`.
+
+---
+
+# Summary of changes for run 24d65fbe-4156-490b-bdbc-31a846b43e25
+Continued executing `CONSOLIDATED_PLAN.md`, landing the QG-2 "Case B" item in two waves, and updated `ARISTOTLE_SUMMARY.md` (prepended a new section, leaving prior content untouched), `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`.
+
+**Wave 1 — the deficiency space of `−d²/dx² + V` *is* its space of `L²` classical solutions.**
+New module `BookProof/ChapterWallDeficiencyObstruction.lean`. The project already had one half of the classical Weyl alternative (every deficiency vector is a.e. a classical solution of `W'' = (V − z)W`). This wave proves the converse and closes the loop:
+- `integral_conj_deriv2_mul` — double integration by parts against a compactly supported `C²` weight, `∫ conj(φ'')·W = ∫ conj(φ)·W''`, with no boundary terms (obtained by differentiating the Wronskian-type combination `conj(φ)·W' − conj(φ')·W`, which has compact support).
+- `IsL2Ode` / `inner_eq_of_ode` — a square-integrable classical solution satisfies the deficiency identity `⟪Hv, W⟫ = z⟪v, W⟫` for every `v` in the compactly supported smooth core.
+- `not_deficiencyTrivialAt_of_l2_solution` and **`deficiencyTrivialAt_iff_no_l2_solution`** — the two-way characterisation, for every smooth real `V` and every `z`.
+- `isL2Ode_conj`, `deficiencyTrivialAt_conj_iff` (for real `V` the two deficiency spaces stand or fall together), `not_essentiallySelfAdjointOn_of_l2_solution`, `no_l2_solution_of_nonneg`, and a worked instance (`gaussianState_isL2Ode`, `not_deficiencyTrivialAt_harmonicShifted_zero`) confirming the criterion is not vacuous.
+
+**Wave 2 — an explicit smooth real potential that is *not* essentially self-adjoint.**
+New module `BookProof/ChapterLimitCircleExample.lean`. The plan's sign warning (that the wrong-sign direction is limit-circle and essential self-adjointness fails) was an informal appeal to `−d²/dx² − x⁴`, which has no closed-form solution. Running the problem backwards — writing `W = e^{p+iq}` and choosing `q'(x) = −(1+x²)/2`, which forces `p(x) = arctan x − ½log(1+x²)` — makes the imaginary part of `W''/W` identically `−1`, so `W` solves `W'' = (V − i)W` for the smooth real potential `lcV x = (2x²−4x)/(1+x²)² − (1+x²)²/4` (asymptotically `−x⁴/4`), and `‖W x‖² = e^{2·arctan x}/(1+x²) ≤ e^π/(1+x²)` is integrable. Results: `lcSol_isL2Ode`, `lcV_not_deficiencyTrivialAt_I`, `lcV_not_deficiencyTrivialAt_negI` (both deficiency spaces nontrivial), **`lcV_not_essentiallySelfAdjoint`**, and `exists_smooth_potential_not_essentiallySelfAdjoint`. This makes the sign warning a theorem: the non-negativity hypothesis of the existing essential self-adjointness result for `−d²/dx² + V` is not removable.
+
+**Honest boundary.** What is settled is the general characterisation and the concrete counterexample; the deficiency indices of the densitized conformal operator itself are not computed, and no claim is made about the full quantum-gravity operator. The plan's remaining items (QG-2's Case A composition, QG-3.2(b)/3.3/3.4) stay open and are recorded as such.
+
+**Verification.** Both modules are `sorry`-free and `axiom`-free, imported from `BookProof.lean` with explanatory comment blocks and audited in `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines; every public result reports only `propext`, `Classical.choice`, `Quot.sound`. `lake build BookProof BookProof.ChapterRoadmapAudit` completes with 0 errors and 0 warnings (8574 jobs), and a search finds no `sorry`/`admit` in the new files. All work is committed and pushed.
+
+# Summary of changes — QG-2 Case B, part 2 (an explicit non-essentially-self-adjoint
+# Schrödinger operator)
+
+Second wave of this run.  Having reduced "the deficiency space is nontrivial" to "exhibit one
+square-integrable classical solution", this wave *exhibits* one, for an explicit smooth real
+potential.
+
+**New module `BookProof/ChapterLimitCircleExample.lean`** (namespace
+`BookProof.LimitCircleExample`), `sorry`-free and `axiom`-free.
+
+`CONSOLIDATED_PLAN.md`'s QG-2 sign warning says the wrong-sign direction is limit-circle and
+essential self-adjointness fails there — but that was an informal appeal to the classical
+`−d²/dx² − x⁴` example, which has no closed-form solution.  The module constructs a
+computable substitute by running the problem backwards.
+
+* **The construction.**  For `W = e^{p+iq}` with `p, q` real,
+  `W''/W = (p'' + p'² − q'²) + i(q'' + 2p'q')`.  So `W` solves `W'' = (V − i)W` for the *real*
+  potential `V = p'' + p'² − q'²` precisely when `q'' + 2p'q' = −1`, and `W` is square
+  integrable precisely when `e^{2p}` is — the phase `q` does not affect the modulus.  Taking
+  `q'(x) = −(1+x²)/2` forces `p'(x) = (1−x)/(1+x²)`, i.e. `p(x) = arctan x − ½ log(1+x²)`,
+  and then `‖W(x)‖² = e^{2 arctan x}/(1+x²) ≤ e^{π}/(1+x²)` is integrable.
+* **The potential** is `lcV x = (2x² − 4x)/(1+x²)² − (1+x²)²/4`: smooth (`contDiff_lcV`),
+  real, and asymptotically `−x⁴/4` — the limit-circle profile, obtained constructively.
+* **The results.**  `lcSol_isL2Ode` (the explicit solution at `z = i`), `lcSol_ne_zero`,
+  `lcV_not_deficiencyTrivialAt_I` and `lcV_not_deficiencyTrivialAt_negI` — *both* deficiency
+  spaces are nontrivial, via `deficiencyTrivialAt_conj_iff` (added to the previous module: for
+  a real potential, conjugation is an antiunitary bijection between the solution spaces at `z`
+  and at `conj z`) — **`lcV_not_essentiallySelfAdjoint`** and
+  `exists_smooth_potential_not_essentiallySelfAdjoint`.
+
+**What this settles.**  The non-negativity hypothesis of `wallHam_essentiallySelfAdjoint` is
+not removable: for smooth real potentials on the line it is the sign, not the growth, that
+decides essential self-adjointness on the compactly supported smooth core.  That is exactly
+the QG-2 sign warning, now a theorem.  It does **not** compute the deficiency indices of the
+densitized conformal operator itself, and makes no claim about the full QG operator; QG-2's
+Case A composition and plan items QG-3.2(b)/3.3/3.4 remain open.
+
+**Wiring and verification.**  Imported from `BookProof.lean` with an explanatory comment block
+and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines; all four public
+results report only `propext`, `Classical.choice`, `Quot.sound`.
+`lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings
+(8574 jobs), and `rg` finds no `sorry`/`admit` in the new file and no new `axiom`.
+
+---
+
+# Summary of changes — QG-2 "Case B" (the deficiency space of `−d²/dx² + V`)
+
+Continued execution of `CONSOLIDATED_PLAN.md`.  This run lands the QG-2 "Case B" reduction:
+the deficiency space of the one-dimensional Schrödinger operator on the compactly supported
+smooth core **is** its space of square-integrable classical ODE solutions.
+
+**New module `BookProof/ChapterWallDeficiencyObstruction.lean`** (namespace
+`BookProof.WallDeficiencyObstruction`), `sorry`-free and `axiom`-free.
+
+`BookProof/ChapterScalaronWallEsa.lean` had proved one direction of the classical Weyl
+alternative — every deficiency vector of `−d²/dx² + V` at `z` is almost everywhere a genuine
+`C²` solution of `W'' = (V − z)W`, and for `V ≥ 0` with `Re z = 0` such a solution vanishes,
+whence essential self-adjointness.  The converse was missing, and it is what QG-2's Case B
+needs: to *fail* essential self-adjointness one must exhibit a square-integrable solution.
+
+* **Double integration by parts.**  `integral_conj_deriv2_mul`: for a compactly supported
+  twice-differentiable weight `φ` and a twice-differentiable `W` with continuous second
+  derivative, `∫ conj(φ'')·W = ∫ conj(φ)·W''`, no boundary terms.  The proof differentiates
+  the Wronskian-type combination `conj(φ)·W' − conj(φ')·W`, which is continuous with compact
+  support, and integrates its derivative to zero.
+* **Solution ⇒ deficiency vector.**  `IsL2Ode V z W` names "square-integrable classical
+  solution of `W'' = (V − z)W`"; `inner_eq_of_ode` shows that such a `W` satisfies
+  `⟪(−d²/dx² + V)v, W⟫ = z⟪v, W⟫` for every `v` in the core, and
+  `not_deficiencyTrivialAt_of_l2_solution` concludes that a nonzero solution obstructs
+  triviality of the deficiency space at `z`.
+* **The characterisation.**  `deficiencyTrivialAt_iff_no_l2_solution`: for every smooth real
+  `V` and every `z` — no positivity, no growth condition, `z` arbitrary — the deficiency
+  space at `z` is trivial if and only if the ODE has no nonzero `L²` solution.
+* **Consequences.**  `isL2Ode_conj` (for real `V`, conjugation carries solutions at `z` to
+  solutions at `conj z`), `not_essentiallySelfAdjointOn_of_l2_solution` (one nonzero solution
+  at `i` already refutes essential self-adjointness) and `no_l2_solution_of_nonneg` (the
+  consistency check against the `V ≥ 0` theorem).
+* **Non-vacuity.**  `gaussianState_isL2Ode` and `not_deficiencyTrivialAt_harmonicShifted_zero`
+  work an explicit instance: for `V(x) = x² − 1` the Gaussian `e^{−x²/2}` is a square-
+  integrable classical solution at `z = 0`, so the deficiency space there is nontrivial.
+  Since `z = 0` is real this records an eigenvalue rather than a failure of self-adjointness,
+  but it shows the hypotheses of the obstruction theorem are satisfiable.
+
+**Honest boundary.**  No `L²` solution at a non-real `z` is exhibited for any conformal-
+direction potential, so the plan's Case B deficiency-(1,1) claim is *reduced* to a one-line
+ODE statement in both directions, not settled.  QG-2's Case A composition and plan items
+QG-3.2(b)/3.3/3.4 remain open.
+
+**Wiring and verification.**  The module is imported from `BookProof.lean` with an explanatory
+comment block and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines for all
+nine public results; every one reports only `propext`, `Classical.choice`, `Quot.sound`.
+`lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings
+(8573 jobs), and `rg` finds no `sorry`/`admit` in the new file and no new `axiom`.  Dated
+notes were added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`.
+
+---
+
+# Summary of changes — QYM-1 task 3 (matrix-element criteria for the one-particle gap)
+
+Continued execution of `CONSOLIDATED_PLAN.md`.  This run lands QYM-1 **task 3**: "`λ₁(H₁|core) > 0`
+(strict positivity, not just non-negativity) is the mathematical claim to establish or to leave as
+the single named hypothesis."
+
+**New module `BookProof/ChapterSchurGershgorinGap.lean`** (namespace `BookProof.SchurGershgorin`),
+`sorry`-free and `axiom`-free.
+
+The previous wave (`ChapterTruncationGapLift`) reduced the core form gap of the infinite
+one-particle operator to a certified truncated gap plus two analytic inputs — tail coercivity and a
+coupling bound — which it left as hypotheses.  Both are now **proved from matrix-element data**, the
+numbers `aᵢⱼ = ⟪bᵢ, H bⱼ⟫` a certificate records:
+
+* **Gershgorin (diagonal dominance ⇒ coercivity).**  `quadForm_sum_ge` — on a finite combination,
+  each mode contributes at least its diagonal entry minus its off-diagonal absolute row sum; the
+  proof is the exact energy expansion plus `2‖cᵢ‖‖cⱼ‖ ≤ ‖cᵢ‖² + ‖cⱼ‖²` and the index swap
+  `sum_off_diag_comm`, where the Hermitian symmetry of the entries (`entry_conj`,
+  `norm_entry_symm`) is used.  `quadForm_ge_of_gershgorin_on` transfers this to the span of an
+  arbitrary index set, `quadForm_ge_of_gershgorin` to the whole finite-mode core, and
+  `tail_coercive_of_gershgorin` to `tailSpan b m` — the tail coercivity the lift assumes.
+* **Schur test ⇒ coupling bound.**  `abs_inner_block_le` — if every row sum and every column sum of
+  the off-diagonal block `{i < m} × {m ≤ j}` is at most `ε`, then `|⟪x, H w⟫| ≤ ε‖x‖‖w‖`, by the
+  weighted AM–GM with the optimal weight `t = ‖w‖/‖x‖`; `coupling_bound_of_schur` is the real-part
+  form the lift consumes.
+* **Composition.**  `gap_of_level_gap_and_matrix_bounds` — certified order-`m` gap plus the two
+  matrix-element criteria give the core form gap `μ − ε`; `strict_pos_of_matrix_bounds` — for
+  `ε < μ` the one-particle energy is strictly positive on every nonzero core vector, which is
+  task 3's claim in the form the chain consumes.  `ym_fock_gap_of_truncated_gap_and_matrix_bounds`
+  and `ym_fock_mass_gap_of_truncated_gap_and_matrix_bounds` run the same data through the
+  gauge-fixed Yang–Mills `dΓ` chain.
+* Supporting calculus: `bvec`, `entry`, `exists_repr_of_mem_span_image`, `norm_sq_sum`,
+  `inner_sum_apply_sum`, `quadForm_sum`.
+
+**Wiring and verification.**  The module is imported from `BookProof.lean` with an explanatory
+comment block and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines for all
+seventeen public results; every one reports only `propext`, `Classical.choice`, `Quot.sound`.
+`lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings
+(8572 jobs), and `rg` finds no `sorry`/`admit` in the new file and no new `axiom`.  Dated notes were
+added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`.
+
+**Honest boundary.**  What is proved is the implication.  Whether the gauge-fixed Yang–Mills matrix
+elements satisfy diagonal dominance on the tail and the Schur bound on the coupling block is not
+decided here — but it is now a computation on finite recorded data of the kind the certificate
+already reports, rather than an assumption about the spectrum.  No mass gap of a physical
+Yang–Mills Hamiltonian is claimed.  Plan items QG-2 and QG-3.2(b)/3.3/3.4 remain open.
+
+# Summary of changes for run f9525e8a-9f9a-4ae7-bc61-c1497a072d12
+Continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Completed and verified this session**
+
+1. **Finished and recorded the previous wave.** The two modules from the earlier checkpoint — `BookProof/ChapterQgDerivativeRealization.lean` (plan item QG-3.2-exec (ii), the concrete 84-dimensional derivative-variable realization fixing `E = ∂e`) and `BookProof/ChapterSirkBandLedger.lean` (QYM-1 task 1, emitted bands are nested-compatible enclosures) — were confirmed to build cleanly as part of the full default build, and the accompanying notes were added to `CONSOLIDATED_PLAN.md`, `BookProof/STATUS.md` and a new section at the top of `ARISTOTLE_SUMMARY.md`.
+
+2. **New: QYM-1 task 2 — `BookProof/ChapterTruncationGapLift.lean`** (namespace `BookProof.TruncationGapLift`), the bridge from a *certified truncated* gap to the *infinite* one-particle operator and on to the second-quantized Hamiltonian. `tailSpan b m` (the span of the basis vectors the order-`m` truncation never sees) is proved orthogonal to `galerkinSpan b m` and, together with it, to exhaust the finite-mode core, so each core vector splits as `v = x + w` with `‖v‖² = ‖x‖² + ‖w‖²`. On that split:
+   * `gap_of_uniform_truncated_gap` — a gap holding at *every* order with the same constant gives the core form gap outright, with no analytic input;
+   * `gap_of_level_gap_and_tail` — a gap certified at a *single* order, plus tail coercivity `⟪w,Hw⟫ ≥ μ‖w‖²` and a coupling bound `|Re⟪x,Hw⟫| ≤ ε‖x‖‖w‖`, gives the core form gap `μ − ε`; `quadForm_add_of_symmetricOn` is the exact block identity behind it, and `gap_of_level_gap_and_tail_decoupled` is the `ε = 0` case;
+   * `quadForm_ge_of_le_ritzInf_on` and `gap_of_le_ritzInf_and_tail` restate the input in the Ritz form a certificate delivers;
+   * `ym_fock_gap_of_truncated_gap_and_tail`, `ym_fock_mass_gap_of_truncated_gap_and_tail` and `ym_fock_gap_of_band_and_tail` compose the lift with the gauge-fixed Yang–Mills chain, the last starting from a certified band so no displayed Ritz value is ever read as a lower bound.
+
+   Honest boundary, stated in the module and the notes: tail coercivity and the coupling bound are **hypotheses**, not conclusions — the named analytic input of QYM-1 task 3 — and are not proved for the Yang–Mills one-particle operator; no mass gap of a physical Yang–Mills Hamiltonian is claimed.
+
+**Verification.** The new module contains no `sorry`/`admit` and adds no axioms; it is imported from `BookProof.lean` with an explanatory comment block and audited in `BookProof/ChapterRoadmapAudit.lean`, where all thirteen public results report only `propext`, `Classical.choice`, `Quot.sound`. `lake build BookProof BookProof.ChapterRoadmapAudit` and the full default build (8781 jobs) both complete with zero errors and no new warnings.
+
+**Documentation.** Dated sections describing the new wave were prepended to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`, and a new run section was prepended to `ARISTOTLE_SUMMARY.md` (its existing content left untouched).
+
+Plan items still open: QYM-1 task 3 (strict positivity `λ₁(H₁|core) > 0`, which the plan permits leaving as the single named hypothesis — it now has an explicit sufficient condition attached), QG-2, and QG-3.2(b)/3.3/3.4.
+
+# Summary of changes — QYM-1 task 2 (truncated → infinite gap lift)
+
+Continued execution of `CONSOLIDATED_PLAN.md` with QYM-1 **task 2**: "prove the
+finite/truncated one-particle gap certified by the bands lifts to the infinite one-particle
+operator and then (via `dGamma`) to the outer-enclosed final Hamiltonian".
+
+**New module `BookProof/ChapterTruncationGapLift.lean`** (namespace
+`BookProof.TruncationGapLift`), `sorry`-free and `axiom`-free.
+
+* **The split.**  `tailSpan b m` is the span of the basis vectors the order-`m` truncation
+  never sees.  It is orthogonal to `galerkinSpan b m`
+  (`inner_eq_zero_of_mem_galerkin_tail`) and together they exhaust the finite-mode core
+  (`galerkinSpan_sup_tailSpan`), so every core vector splits as `v = x + w` with
+  `‖v‖² = ‖x‖² + ‖w‖²` (`exists_galerkin_tail_decomp`, `norm_add_sq_of_galerkin_tail`).
+* **The cheap half.**  `gap_of_uniform_truncated_gap` — a gap holding at *every* order with
+  the same `μ` gives the core form gap with no analytic input at all, because every core
+  vector already lies in some Galerkin subspace.
+* **The real half.**  `gap_of_level_gap_and_tail` — a gap certified at a *single* order
+  `m`, plus tail coercivity `⟪w, H w⟫ ≥ μ‖w‖²` on `tailSpan b m` and a coupling bound
+  `|Re⟪x, H w⟫| ≤ ε‖x‖‖w‖` across the split, gives the core form gap `μ − ε`.  The estimate
+  is `2‖x‖‖w‖ ≤ ‖x‖² + ‖w‖²` applied to the *identity* `quadForm_add_of_symmetricOn`, so
+  the coupling term is not an error term one may drop; `gap_of_level_gap_and_tail_decoupled`
+  is the `ε = 0` case.
+* **In the certificate's shape.**  `quadForm_ge_of_le_ritzInf_on` converts a Ritz bound on a
+  truncation subspace into a form bound there, and `gap_of_le_ritzInf_and_tail` is the lift
+  with the Ritz bound as input.
+* **Composed with the Yang–Mills chain.**  `ym_fock_gap_of_truncated_gap_and_tail`,
+  `ym_fock_mass_gap_of_truncated_gap_and_tail` and `ym_fock_gap_of_band_and_tail` feed the
+  lift into the gauge-fixed `dΓ` chain; the last starts from a certified band with lower end
+  at least `μ`, so no displayed Ritz value is ever read as a lower bound.
+
+**Wiring and verification.**  The module is imported from `BookProof.lean` with an
+explanatory comment block and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms`
+lines for all thirteen public results — every one reports only `propext`,
+`Classical.choice`, `Quot.sound`.  `lake build BookProof BookProof.ChapterRoadmapAudit`
+completes with no errors and no warnings (8571 jobs); `rg` finds no `sorry`/`admit` in the
+new file.  Dated notes were added to `BookProof/STATUS.md` and to the leading status block
+of `CONSOLIDATED_PLAN.md`.
+
+**Boundary.**  Tail coercivity and the coupling bound are hypotheses, not conclusions —
+they are the named analytic input of QYM-1 task 3 — and are not proved for the gauge-fixed
+Yang–Mills one-particle operator.  `λ₁(H₁|core) > 0` remains the single open hypothesis of
+the chain, now with an explicit sufficient condition attached.  No mass gap of the physical
+Yang–Mills Hamiltonian is claimed.
+
+# Summary of changes for the current run
+
+Continued execution of `CONSOLIDATED_PLAN.md`, landing two further plan items as new
+`sorry`-free, `axiom`-free modules on the pinned toolchain.
+
+**1. QG-3.2-exec (ii) — `BookProof/ChapterQgDerivativeRealization.lean`** (namespace
+`BookProof.QgDerivativeRealization`).  A concrete 84-dimensional derivative-variable
+realization in which the derivative slots are actually *fixed* to be the derivatives of
+the tetrad, `E = ∂e`, rather than left as free jet coordinates.  `TetradConfig` and
+`DerivFields` package the variables; `configPoint` (with the projection lemmas
+`configPoint_idxX`, `configPoint_idxE`, `configPoint_idxDE` and the exhaustiveness lemma
+`idx_cases`) builds the evaluation point, and `jetPoint` builds the free-jet point.  The
+predicate `Fixed` says the derivative slots agree with the jet derivatives; `fixed_iff`,
+`jetDeriv_fixed`, `exists_not_fixed` and `configPoint_eq_jetPoint_of_fixed` characterise
+it and show it is a genuine restriction.  On the constraint surface the torsion and
+cross-coupling polynomials evaluate as expected (`eval_torsionPoly_jetPoint`,
+`eval_crossCouplingPoly_jetPoint`, `couplingValue_ne_zero`), and
+`eval_eq_of_fixed_of_comp_eq` records the "no new independent modes" statement: on fixed
+points the value of any polynomial is determined by the tetrad data alone.  The chapter
+closes with the gauge-fixing system over the polynomial ring (`qgFixingSystem`,
+`qgSystemOf`) and its properties `qgFixing_gaugeField_eq_zero_iff`,
+`qgFixing_lagrange_term_zero`, `qgFixing_L_gf_constraint_surface` and
+`qgFixing_B_ne_zero`.
+
+**2. QYM-1 task 1 — `BookProof/ChapterSirkBandLedger.lean`** (namespace
+`BookProof.SirkBandLedger`).  The emitted SIRK bands are proved to be *nested compatible
+enclosures*.  A decimal comparison `Decimal.leB` with its correctness lemma `leB_iff`
+supports the record type `BandRecord` and the parsers `parseBandLine` / `parseLedger`
+for the NDJSON ledger format.  Accessors `recAt`, `loQ`, `hiQ`, `ledgerLo`, `ledgerHi`
+expose the rational endpoints; the decidable well-formedness predicate `ledgerWfB` (with
+`LedgerWf`) is unfolded by `ledgerWf_sameOp`, `ledgerWf_order`, `ledgerWf_step` and
+`ledgerWf_enclosing`.  From these follow `loQ_monotone`, `hiQ_antitone` and the headline
+`nestedBands_of_wf` (every later band is contained in every earlier one), together with
+`ledgerLo_le_ledgerHi`, `ledger_width_eventually_const` and
+`ledger_width_tendsto_zero_iff`.  The bridge back to the spectral chapters is
+`ritz_band_enclosure_of_ledger` and `friedrichs_form_gap_of_ledger(_lo_zero)`: a
+well-formed ledger whose final band has positive lower endpoint yields a form gap for the
+Friedrichs extension.  A worked example ledger (`formatExampleLedgerNdjson`) is parsed and
+checked by `decide`/`rfl` in `formatExampleLedger_parse`, `_wf`, `_nested` and `_lo_zero`.
+
+**Wiring and verification.**  Both modules are imported from `BookProof.lean` with
+explanatory comment blocks, and from `BookProof/ChapterRoadmapAudit.lean` with `#print
+axioms` lines for every public result — all report only `propext`, `Classical.choice`,
+`Quot.sound`.  `lake build BookProof BookProof.ChapterRoadmapAudit` completes with no
+errors (8570 jobs) and the full default build (`BookProof`, `Book`, `Singularity`,
+`Layout`) completes with no errors; `rg` finds no `sorry`/`admit` in either new file.
+Dated notes were added to `BookProof/STATUS.md` and to the leading status block of
+`CONSOLIDATED_PLAN.md`.
+
+**Boundaries.**  The derivative-realization chapter is a finite-dimensional polynomial
+model: it fixes the derivative variables and shows the constraint surface behaves as
+intended, but it is not the continuum essential-self-adjointness statement of QG-3.2(b).
+The ledger chapter proves that a well-formed ledger *is* a nested family of enclosures and
+what it implies downstream; it does not certify that any particular numerical run produces
+a well-formed ledger beyond the worked example checked by `decide`.  Plan items QYM-1
+tasks 2–3, QG-2, and QG-3.2(b)/3.3/3.4 remain open.
+
+# Summary of changes for run 43ac8dac-7f27-4464-a0fb-01325c48f169
+Continued execution of `CONSOLIDATED_PLAN.md` §12.2 **Gap 2 (QYM)** — the *gap* half of "the Ritz/gap values converge to the spectrum of the selected extension as `m → ∞`". The earlier wave settled the lowest Ritz value; since there is no second Rayleigh quotient, the second level is supplied here by the Courant–Fischer min–max levels.
+
+**New module `BookProof/ChapterSirkRitzMinMax.lean`** (namespace `BookProof.RitzMinMax`, 530 lines), built from the code supplied in the request, with every `sorry` discharged — the file is `sorry`-free and `axiom`-free, and compiles with no warnings.
+
+* **Rayleigh quotients on a subspace** — `rayleighVal`, `rayleighSetOn`, `rayleighSup`, with `abs_rayleighVal_le`, `rayleighSup_le_norm`, `neg_norm_le_rayleighSup`, `rayleighVal_le_rayleighSup`, `rayleighSup_mono`, plus the two estimates the rest of the chapter runs on: the scaling law `rayleighVal_smul` and the Lipschitz bound `rayleighVal_sub_le`.
+* **The levels** — `minmaxLevel T k` (infimum of the Rayleigh supremum over `(k+1)`-dimensional subspaces) and `minmaxLevelIn T W k` (the same infimum inside the retained subspace `W`), with `minmaxLevel_le_minmaxLevelIn` (a computed Ritz level is always an upper bound for the true level) and `minmaxLevel_mono`.
+* **The bottom rung** — `minmaxLevel_zero_eq_rayleighInf` and `minmaxLevel_zero_eq_sInf_spectrum`: level zero is the bottom of the numerical range, hence, for a bounded self-adjoint operator, `sInf (spectrum ℝ T)`; the ladder starts exactly where the previous chapter stopped.
+* **The approximation engine** — `finrank_galerkinSpan`, `exists_uniform_proj_bound` (the Galerkin projections converge uniformly on a finite-dimensional subspace) and `exists_galerkin_approx_subspace` (any `(k+1)`-dimensional subspace can be pushed into a large enough Galerkin subspace, keeping its dimension, at an arbitrarily small cost in Rayleigh supremum).
+* **Headlines** — `galerkin_minmaxLevel_tendsto` (the Galerkin min–max levels converge to `minmaxLevel T k` for every `k`), `galerkin_gap_tendsto` (the computed gap `Λ₁(m) − Λ₀(m)` converges to `minmaxLevel T 1 − minmaxLevel T 0`) and `galerkin_gap_eventually_pos`.
+
+**Wiring and verification.** The module is imported from `BookProof.lean`; twelve new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound` for every public result; a new section "What the Computed Gap Converges To" in the book chapter `Book/SirkReliability.lean` states the argument in prose with a `#check` block. `lake build` (default targets, 8778 jobs), `lake build BookProof.ChapterRoadmapAudit` (8344 jobs) and `lake build Book` complete with no errors and no new warnings; `rg` finds no `sorry`/`admit` in the new module and no `axiom` was added. The rendered book was regenerated with its assertions holding and the KaTeX check reports 3363 math snippets, 0 failures. Dated notes were added to `BookProof/STATUS.md`, the leading status block of `CONSOLIDATED_PLAN.md`, and a new section appended to `ARISTOTLE_SUMMARY.md`.
+
+**Boundary (recorded in the module and the notes).** The operator is bounded throughout; the min–max levels are spectral quantities only below the essential spectrum, so nothing claims that `minmaxLevel T k` is an eigenvalue for `k ≥ 1` (the `k = 0` identification with `sInf (spectrum ℝ T)` is proved). Convergence is to the min–max gap, not to a difference of eigenvalues of a physical Hamiltonian. All work is committed and pushed.
+
 # Summary of changes for this run
 
 I continued executing `CONSOLIDATED_PLAN.md`, working through the top work package
@@ -10948,3 +11472,73 @@ each order — that the order-`m` Ritz value lies in the order-`m` emitted band,
 emitted bands nest — and the free/diagonal (number-preserving) hypothesis in the `dΓ` lift,
 which excludes pair creation.  `1.932` remains the recorded certificate number; no mass gap
 of the physical Hamiltonian is claimed.
+
+# Summary of changes for run 2026-08-30e — the Ritz *gap*: the Courant–Fischer min–max levels
+
+Continuing `CONSOLIDATED_PLAN.md` §12.2 **Gap 2, QYM** ("the statement that the Ritz/gap
+values converge to the spectrum of the selected extension as `m → ∞`").  The previous
+wave (`BookProof/ChapterSirkRitzSpectrum.lean`) settled the *lowest* Ritz value: it
+converges to `sInf (spectrum ℝ A)`.  A *gap* statement needs a second level, and there is
+no second Rayleigh quotient — the correct object is the Courant–Fischer min–max level.
+One new module, `sorry`-free and `axiom`-free.
+
+**`BookProof/ChapterSirkRitzMinMax.lean` (namespace `BookProof.RitzMinMax`).**
+
+1. **Rayleigh quotients on a subspace.**  `rayleighVal T x = Re⟪x, Tx⟫`, `rayleighSetOn`
+   (its values on the unit sphere of a subspace) and `rayleighSup`, with
+   `abs_rayleighVal_le`, `rayleighSup_le_norm`, `neg_norm_le_rayleighSup`,
+   `rayleighVal_le_rayleighSup`, `rayleighSup_mono`, the scaling law `rayleighVal_smul`,
+   the Lipschitz estimate `rayleighVal_sub_le`, and `rayleighSup_span_singleton` (on a
+   line every unit vector has the same Rayleigh quotient).
+2. **The levels.**  `minmaxSet` / `minmaxLevel T k = sInf {rayleighSup T S : dim S = k+1}`
+   — the `k`-th Courant–Fischer level — and `minmaxSetIn` / `minmaxLevelIn T W k`, the
+   same infimum taken only over the subspaces of a retained space `W`: the level the
+   solver produces from the truncation to `W`.  `minmaxSet_bddBelow`,
+   `minmaxSetIn_bddBelow`, `minmaxSetIn_subset`, and **`minmaxLevel_le_minmaxLevelIn`**
+   — the variational principle in the direction the algorithm can certify: a computed
+   Ritz level is always an **upper** bound for the true level.  `minmaxLevel_mono` (via
+   `exists_le_finrank_eq`: a finite-dimensional subspace contains subspaces of every
+   smaller dimension) shows the levels increase with `k`.
+3. **The bottom rung.**  `minmaxSet_zero_eq_rayleighSet`,
+   `minmaxLevel_zero_eq_rayleighInf` and **`minmaxLevel_zero_eq_sInf_spectrum`**: level
+   zero is the bottom of the numerical range, hence — for a bounded self-adjoint
+   operator, through `ChapterSirkRitzSpectrum.sInf_spectrum_eq_rayleighInf` — the bottom
+   of the spectrum.  The ladder starts exactly where the previous wave stopped.
+4. **The approximation engine.**  `finrank_galerkinSpan` (the order-`m` Galerkin space
+   of a Hilbert basis has dimension `m`), `exists_uniform_proj_bound` (on a
+   finite-dimensional subspace the Galerkin projections converge **uniformly**: expand
+   in an orthonormal basis of the subspace and use that each basis vector is caught by a
+   large enough truncation), and **`exists_galerkin_approx_subspace`** — every
+   `(k+1)`-dimensional subspace `S` can be pushed by the projection into a large enough
+   Galerkin space, keeping its dimension (the projection is injective on `S` once the
+   error is `< 1`) and raising its Rayleigh supremum by at most `ε` (each unit vector of
+   the image is within `4δ` of a unit vector of `S`, and the Rayleigh quotient is
+   Lipschitz).
+5. **Headlines.**  `minmaxSetIn_galerkin_nonempty` / `minmaxSet_nonempty` (the levels are
+   defined: the Galerkin spaces themselves supply subspaces of every dimension),
+   **`galerkin_minmaxLevel_tendsto`** — for every `k` the Galerkin min–max levels
+   converge to `minmaxLevel T k`, by the two bounds of items 2 and 4 —
+   **`galerkin_gap_tendsto`** — the computed gap `Λ₁(m) − Λ₀(m)` converges to
+   `minmaxLevel T 1 − minmaxLevel T 0` — and **`galerkin_gap_eventually_pos`**: a
+   positive min–max gap is eventually seen by the truncations.
+
+**Wiring.**  The module is imported from `BookProof.lean` with a descriptive comment,
+certified by 12 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (each
+reporting only `propext`, `Classical.choice`, `Quot.sound`), and cited from the Verso
+chapter `Book/SirkReliability.lean` (new section "What the Computed Gap Converges To"
+with a `#check` block).  `BookProof/STATUS.md` and the leading status block of
+`CONSOLIDATED_PLAN.md` carry a dated note for the wave.
+
+**Verification.**  `lake build BookProof.ChapterSirkRitzMinMax`,
+`lake build BookProof.ChapterRoadmapAudit` (8344 jobs) and `lake build Book` (196 jobs)
+complete with no errors and no new warnings; the audit lines report only `propext`,
+`Classical.choice`, `Quot.sound` for all twelve public results.  `rg` finds no
+`sorry`/`admit` in the new module, and no `axiom` declaration was added.
+
+**Honest boundary.**  The operator is **bounded** throughout — the unbounded case is
+reached through the resolvent, not directly.  The min–max levels are spectral quantities
+only below the essential spectrum: nothing here claims that `minmaxLevel T k` is an
+eigenvalue for `k ≥ 1` (for `k = 0` the identification with `sInf (spectrum ℝ T)` *is*
+proved).  Convergence of the computed gap is to the **min–max** gap, not to a difference
+of eigenvalues of a physical Hamiltonian; the open research targets recorded in
+`CONSOLIDATED_PLAN.md` are untouched by this wave.

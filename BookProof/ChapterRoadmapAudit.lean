@@ -37,6 +37,7 @@ import BookProof.ChapterSirkTrotterKato
 import BookProof.ChapterSirkTrotterKatoGalerkin
 import BookProof.ChapterSirkLagrangianCanonical
 import BookProof.ChapterSirkRitzSpectrum
+import BookProof.ChapterSirkRitzMinMax
 import BookProof.ChapterSirkDiffusiveDecay
 import BookProof.ChapterQgHermiteCore
 import BookProof.ChapterFriedrichsCanonical
@@ -54,6 +55,11 @@ import BookProof.ChapterQedFockGapChain
 import BookProof.ChapterNavierStokesFiberGap
 import BookProof.ChapterGaussCoordCombo
 import BookProof.ChapterSqueezedGaussStates
+import BookProof.ChapterQgPhysicalSectorIdentity
+import BookProof.ChapterQgCouplingDGammaSum
+import BookProof.ChapterConformalSignFlip
+import BookProof.ChapterDirectSumEdge
+import BookProof.ChapterQgMultiHalfDensity
 import BookProof.ChapterYangMillsAbelianNoGap
 import BookProof.ChapterQuantumGravityFock
 import BookProof.ChapterQgBrstCompleted
@@ -108,6 +114,7 @@ import BookProof.ChapterCarlemanSimplex
 import BookProof.ChapterFullQuadraticEsa
 import BookProof.ChapterOperatorSeriesEsa
 import BookProof.ChapterFockQuadraticEsa
+import BookProof.ChapterFockDifferingBasesEsa
 import BookProof.ChapterUnboundedSpectralModel
 import BookProof.ChapterNavierStokesLagrangianCanonical
 import BookProof.ChapterGaugeFixing
@@ -209,6 +216,14 @@ import BookProof.ChapterAttentionTopK
 import BookProof.ChapterCayleyTransform
 import BookProof.ChapterCayleyInverse
 import BookProof.ChapterCayleySpectralModel
+import BookProof.ChapterQgDerivativeRealization
+import BookProof.ChapterSirkBandLedger
+import BookProof.ChapterTruncationGapLift
+import BookProof.ChapterSchurGershgorinGap
+import BookProof.ChapterWallDeficiencyObstruction
+import BookProof.ChapterLimitCircleExample
+import BookProof.ChapterConformalFiberDeficiency
+import BookProof.ChapterBddBelowWallEsa
 
 /-!
 # Roadmap headline certificate
@@ -724,6 +739,14 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.GaugeFixing.matrixModel_Psi_ne_zero
 #print axioms BookProof.GaugeFixing.matrixModel_s_Psi_ne_zero
 #print axioms BookProof.GaugeFixing.matrixModelIntegral_ne_zero
+
+-- QG-3.2(a), the operator (nested-Fock / Faris–Lavine) half: the lifted quadratic
+-- coupling (a sum of different one-particle Hamiltonians between creation and
+-- annihilation operators on the outer Fock space) is essentially self-adjoint on
+-- the finite-mode core for every weighted-ℓ¹-summable amplitude family.
+#print axioms BookProof.QgPhysicalSectorIdentity.coupling_essentiallySelfAdjointOn_core
+#print axioms BookProof.QgPhysicalSectorIdentity.deg_pair_le_two
+#print axioms BookProof.QgPhysicalSectorIdentity.coupling_weighted_summable
 
 #print axioms BookProof.QuantumGravityDensitized.inv_eq_four_mul_deriv_densY_sq
 #print axioms BookProof.QuantumGravityDensitized.kinetic_absorption
@@ -2614,5 +2637,274 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.YangMillsAbelianNoGap.norm_op_bigP_le
 #print axioms BookProof.YangMillsAbelianNoGap.exists_core_state_small_energy
 #print axioms BookProof.YangMillsAbelianNoGap.ym_abelian_no_one_particle_form_gap
+
+-- `ChapterQgPhysicalSectorIdentity` (plan QG-3.2(a) attempt): the NS
+-- derivative-variable fixing mechanism — the v-coupling vanishes on the
+-- constraint surface `v = dφ`, the gauge-fixing Lagrangian reduces to the
+-- ghost term, the promoted variable is a BRST doublet, and the fixing
+-- integrates to zero on physical observables.  The concrete QG identity
+-- (the 64 `idxDE` coordinates realizing the actual tetrad derivatives) stays
+-- a named hypothesis with citation, never an axiom.
+#print axioms BookProof.QgPhysicalSectorIdentity.s_gaugeField_eq_c
+#print axioms BookProof.QgPhysicalSectorIdentity.lagrange_term_zero_of_fixing
+#print axioms BookProof.QgPhysicalSectorIdentity.L_gf_constraint_surface
+#print axioms BookProof.QgPhysicalSectorIdentity.int_L_gf_eq_zero_physical
+
+-- `ChapterQgCouplingDGammaSum` (plan QG-3.2-exec (i), the operator track): the
+-- lifted coupling `H_coup = Σ_ℓ dΓ(h_ℓ)` with the `h_ℓ` diagonalizable each in
+-- its own basis.  Second quantization is additive in the one-particle datum, so
+-- the coupling is a single `dΓ` — the common-alphabet weighted-`ℓ¹` gate is not
+-- needed.  Hermiticity and positivity pass to the sum, so the Friedrichs
+-- extension is unconditional; the relative form bound and the additivity of the
+-- commutator form are proved; and the coupling is essentially self-adjoint on
+-- the finite-occupation core whenever the *total* one-particle operator is
+-- diagonal in the working basis with non-negative eigenvalues.
+#print axioms BookProof.QgCouplingDGammaSum.dGammaOp_finsetSum_col_eq
+#print axioms BookProof.QgCouplingDGammaSum.coupling_friedrichs
+#print axioms BookProof.QgCouplingDGammaSum.coupling_quadForm_le
+#print axioms BookProof.QgCouplingDGammaSum.commForm_finsetSum
+#print axioms BookProof.QgCouplingDGammaSum.dGammaOp_diagCol_eq
+#print axioms BookProof.QgCouplingDGammaSum.coupling_esa_dGamma
+#print axioms BookProof.QgCouplingDGammaSum.coupling_sum_friedrichs
+#print axioms BookProof.QgCouplingDGammaSum.comparison_friedrichs
+#print axioms BookProof.QgCouplingDGammaSum.coupling_quadForm_le_comparison
+#print axioms BookProof.QgCouplingDGammaSum.numberOp_essentiallySelfAdjoint
+
+-- `ChapterConformalSignFlip` (plan QG-2 / 29f Case B): the sign bookkeeping of
+-- the densitized conformal direction.  `H ↦ −H` reflects the spectral
+-- parameter, so essential self-adjointness is invariant under the global sign
+-- flip and the wrong-sign-kinetic fiber `−K + V` is ESA iff the
+-- positive-kinetic `K − V` is; a real shift only translates the deficiency
+-- parameter.  This makes the plan's Case-B reduction rigorous; it does not
+-- decide the remaining analytic (limit-circle) question.
+#print axioms BookProof.ConformalSignFlip.deficiencyTrivialAt_neg
+#print axioms BookProof.ConformalSignFlip.essentiallySelfAdjointOn_neg_iff
+#print axioms BookProof.ConformalSignFlip.wrongSignKinetic_esa_iff
+#print axioms BookProof.ConformalSignFlip.deficiencyTrivialAt_add_real
+#print axioms BookProof.ConformalSignFlip.symmetricOn_neg
+#print axioms BookProof.ConformalSignFlip.symmetricOn_add_real
+
+-- `ChapterDirectSumEdge` (plan QG-3.4, derived case): fibre edges glue to their
+-- infimum.  On the algebraic direct sum of the fibre cores the squared norm and
+-- the energy are finite sums over the support, so a common lower bound `ν` of
+-- the fibre form bounds is an edge of the glued operator — strict when `ν > 0`.
+-- This is only the derived half of QG-3.4: it says nothing about the fibre
+-- edges themselves, and a strict edge on a core is not a spectral gap.
+#print axioms BookProof.DirectSumEdge.norm_sq_dsCore_eq_sum
+#print axioms BookProof.DirectSumEdge.quadForm_dsOp_eq_sum
+#print axioms BookProof.DirectSumEdge.dsOp_edge_of_fibre_edges
+#print axioms BookProof.DirectSumEdge.dsOp_edge_of_fibre_edges_le
+#print axioms BookProof.DirectSumEdge.dsOp_edge_pos
+
+-- `ChapterQgMultiHalfDensity` (plan QG-1): the multi-dimensional half-density
+-- unitary of the densitized change of variables, and the transfer it enables.
+-- General: a pair of mutually a.e.-inverse measure-preserving maps induces a
+-- unitary of the `L²` spaces which carries bounded-energy cores onto each other
+-- and intertwines the multiplication operators.  Concrete: `(y, ξ) ↦ (y², ξ)` on
+-- the field space, i.e. the conformal coordinate densitized and every other
+-- direction untouched.
+#print axioms BookProof.QgMultiHalfDensity.mpUnitary_apply
+#print axioms BookProof.QgMultiHalfDensity.mpUnitary_boundedEnergyCore_surjective
+#print axioms BookProof.QgMultiHalfDensity.mpUnitary_intertwines_multOp
+#print axioms BookProof.QgMultiHalfDensity.mpUnitary_hasZeroDeficiencyOn_transfer
+#print axioms BookProof.QgMultiHalfDensity.measurePreserving_qgProdSquare
+#print axioms BookProof.QgMultiHalfDensity.multiHalfDensityUnitary_apply
+#print axioms BookProof.QgMultiHalfDensity.multiHalfDensityUnitary_intertwines_multOp
+#print axioms BookProof.QgMultiHalfDensity.multi_hasZeroDeficiencyOn_transfer
+#print axioms BookProof.QgMultiHalfDensity.multi_physical_hasZeroDeficiencyOn
+#print axioms BookProof.QgMultiHalfDensity.exists_field_halfDensity_unitary
+
+-- `ChapterSirkRitzMinMax` (plan §12 Gap 2, QYM): the higher Rayleigh–Ritz levels
+-- and the Ritz gap.  The Courant–Fischer min–max levels of a bounded operator,
+-- the levels computed inside a Galerkin truncation, the variational principle in
+-- the direction the algorithm certifies, the identification of level zero with
+-- the bottom of the spectrum, and the convergence of the truncated levels — hence
+-- of the computed gap — to the min–max levels.  Nothing here claims that a level
+-- with `k ≥ 1` is an eigenvalue.
+#print axioms BookProof.RitzMinMax.rayleighSup_le_norm
+#print axioms BookProof.RitzMinMax.rayleighSup_mono
+#print axioms BookProof.RitzMinMax.minmaxLevel_le_minmaxLevelIn
+#print axioms BookProof.RitzMinMax.minmaxLevel_mono
+#print axioms BookProof.RitzMinMax.minmaxLevel_zero_eq_rayleighInf
+#print axioms BookProof.RitzMinMax.minmaxLevel_zero_eq_sInf_spectrum
+#print axioms BookProof.RitzMinMax.finrank_galerkinSpan
+#print axioms BookProof.RitzMinMax.exists_uniform_proj_bound
+#print axioms BookProof.RitzMinMax.exists_galerkin_approx_subspace
+#print axioms BookProof.RitzMinMax.galerkin_minmaxLevel_tendsto
+#print axioms BookProof.RitzMinMax.galerkin_gap_tendsto
+#print axioms BookProof.RitzMinMax.galerkin_gap_eventually_pos
+
+-- `ChapterQgDerivativeRealization` (plan QG-3.2-exec (ii)): the concrete 84-dimensional
+-- derivative-variable fixing `E = ∂e`.  The 1-jet realization of the coordinate space, the
+-- concrete gauge field `v − dφ` and its zero locus, the reduction of the tetrad–torsion cross
+-- coupling to field values on that locus, and the concrete gauge-fixing system (with the honest
+-- exterior derivative) through which the abstract theorems of `ChapterQgPhysicalSectorIdentity`
+-- run with their hypothesis discharged.
+#print axioms BookProof.QgDerivativeRealization.configPoint_idxDE
+#print axioms BookProof.QgDerivativeRealization.idx_cases
+#print axioms BookProof.QgDerivativeRealization.jetDeriv_fixed
+#print axioms BookProof.QgDerivativeRealization.fixed_iff
+#print axioms BookProof.QgDerivativeRealization.exists_not_fixed
+#print axioms BookProof.QgDerivativeRealization.configPoint_eq_jetPoint_of_fixed
+#print axioms BookProof.QgDerivativeRealization.eval_torsionPoly_jetPoint
+#print axioms BookProof.QgDerivativeRealization.eval_crossCouplingPoly_jetPoint
+#print axioms BookProof.QgDerivativeRealization.eval_eq_of_fixed_of_comp_eq
+#print axioms BookProof.QgDerivativeRealization.crossCoupling_eq_of_fixed
+#print axioms BookProof.QgDerivativeRealization.couplingValue_ne_zero
+#print axioms BookProof.QgDerivativeRealization.qgFixing_gaugeField
+#print axioms BookProof.QgDerivativeRealization.qgFixing_gaugeField_eq_zero_iff
+#print axioms BookProof.QgDerivativeRealization.qgFixing_gaugeField_ne_zero_of_not_fixed
+#print axioms BookProof.QgDerivativeRealization.qgFixing_B_ne_zero
+#print axioms BookProof.QgDerivativeRealization.qgSystemOf_gaugeField_eq_zero
+#print axioms BookProof.QgDerivativeRealization.qgFixing_lagrange_term_zero
+#print axioms BookProof.QgDerivativeRealization.qgFixing_L_gf_constraint_surface
+
+-- `ChapterSirkBandLedger` (plan QYM-1 task 1): the emitted bands are nested-compatible
+-- enclosures.  The exact-decimal band ledger and its reader, the decidable compatibility
+-- check (same operator, orders in sequence, mesh refinement, each band an enclosure), the
+-- nesting theorem, what a finite ledger cannot certify (width collapse), and the two
+-- compositions with `ChapterBandEnclosure`.
+#print axioms BookProof.SirkBandLedger.Decimal.leB_iff
+#print axioms BookProof.SirkBandLedger.ledgerWf_sameOp
+#print axioms BookProof.SirkBandLedger.ledgerWf_order
+#print axioms BookProof.SirkBandLedger.ledgerWf_step
+#print axioms BookProof.SirkBandLedger.loQ_monotone
+#print axioms BookProof.SirkBandLedger.hiQ_antitone
+#print axioms BookProof.SirkBandLedger.nestedBands_of_wf
+#print axioms BookProof.SirkBandLedger.ledgerLo_le_ledgerHi
+#print axioms BookProof.SirkBandLedger.ledger_width_eventually_const
+#print axioms BookProof.SirkBandLedger.ledger_width_tendsto_zero_iff
+#print axioms BookProof.SirkBandLedger.ritz_band_enclosure_of_ledger
+#print axioms BookProof.SirkBandLedger.friedrichs_form_gap_of_ledger
+#print axioms BookProof.SirkBandLedger.friedrichs_form_gap_of_ledger_lo_zero
+#print axioms BookProof.SirkBandLedger.formatExampleLedger_parse
+#print axioms BookProof.SirkBandLedger.formatExampleLedger_wf
+#print axioms BookProof.SirkBandLedger.formatExampleLedger_nested
+
+-- `ChapterTruncationGapLift` (plan QYM-1 task 2): the truncated → infinite lift.
+#print axioms BookProof.TruncationGapLift.galerkinSpan_sup_tailSpan
+#print axioms BookProof.TruncationGapLift.inner_eq_zero_of_mem_galerkin_tail
+#print axioms BookProof.TruncationGapLift.norm_add_sq_of_galerkin_tail
+#print axioms BookProof.TruncationGapLift.exists_galerkin_tail_decomp
+#print axioms BookProof.TruncationGapLift.quadForm_add_of_symmetricOn
+#print axioms BookProof.TruncationGapLift.gap_of_uniform_truncated_gap
+#print axioms BookProof.TruncationGapLift.gap_of_level_gap_and_tail
+#print axioms BookProof.TruncationGapLift.gap_of_level_gap_and_tail_decoupled
+#print axioms BookProof.TruncationGapLift.quadForm_ge_of_le_ritzInf_on
+#print axioms BookProof.TruncationGapLift.gap_of_le_ritzInf_and_tail
+#print axioms BookProof.TruncationGapLift.ym_fock_gap_of_truncated_gap_and_tail
+#print axioms BookProof.TruncationGapLift.ym_fock_mass_gap_of_truncated_gap_and_tail
+#print axioms BookProof.TruncationGapLift.ym_fock_gap_of_band_and_tail
+
+-- `ChapterSchurGershgorinGap` (plan QYM-1 task 3): the tail and coupling inputs of the lift,
+-- proved from the recorded matrix elements (Gershgorin dominance and the Schur test).
+#print axioms BookProof.SchurGershgorin.entry_conj
+#print axioms BookProof.SchurGershgorin.norm_entry_symm
+#print axioms BookProof.SchurGershgorin.exists_repr_of_mem_span_image
+#print axioms BookProof.SchurGershgorin.norm_sq_sum
+#print axioms BookProof.SchurGershgorin.inner_sum_apply_sum
+#print axioms BookProof.SchurGershgorin.quadForm_sum
+#print axioms BookProof.SchurGershgorin.sum_off_diag_comm
+#print axioms BookProof.SchurGershgorin.quadForm_sum_ge
+#print axioms BookProof.SchurGershgorin.quadForm_ge_of_gershgorin_on
+#print axioms BookProof.SchurGershgorin.quadForm_ge_of_gershgorin
+#print axioms BookProof.SchurGershgorin.tail_coercive_of_gershgorin
+#print axioms BookProof.SchurGershgorin.abs_inner_block_le
+#print axioms BookProof.SchurGershgorin.coupling_bound_of_schur
+#print axioms BookProof.SchurGershgorin.gap_of_level_gap_and_matrix_bounds
+#print axioms BookProof.SchurGershgorin.strict_pos_of_matrix_bounds
+#print axioms BookProof.SchurGershgorin.ym_fock_gap_of_truncated_gap_and_matrix_bounds
+#print axioms BookProof.SchurGershgorin.ym_fock_mass_gap_of_truncated_gap_and_matrix_bounds
+
+-- `ChapterWallDeficiencyObstruction` (plan QG-2, "Case B"): the deficiency space of
+-- `−d²/dx² + V` on the compactly supported smooth core *is* its space of `L²` classical
+-- solutions, in both directions, with a worked non-vacuous instance.
+#print axioms BookProof.WallDeficiencyObstruction.integral_conj_deriv2_mul
+#print axioms BookProof.WallDeficiencyObstruction.inner_eq_of_ode
+#print axioms BookProof.WallDeficiencyObstruction.not_deficiencyTrivialAt_of_l2_solution
+#print axioms BookProof.WallDeficiencyObstruction.deficiencyTrivialAt_iff_no_l2_solution
+#print axioms BookProof.WallDeficiencyObstruction.isL2Ode_conj
+#print axioms BookProof.WallDeficiencyObstruction.deficiencyTrivialAt_conj_iff
+#print axioms BookProof.WallDeficiencyObstruction.not_essentiallySelfAdjointOn_of_l2_solution
+#print axioms BookProof.WallDeficiencyObstruction.no_l2_solution_of_nonneg
+#print axioms BookProof.WallDeficiencyObstruction.gaussianState_isL2Ode
+#print axioms BookProof.WallDeficiencyObstruction.not_deficiencyTrivialAt_harmonicShifted_zero
+
+-- `ChapterLimitCircleExample` (plan QG-2 sign warning, Case B): an explicit smooth real
+-- potential, with an explicit square-integrable solution at `z = i`, for which essential
+-- self-adjointness on the compactly supported smooth core fails.
+#print axioms BookProof.LimitCircleExample.lcSol_isL2Ode
+#print axioms BookProof.LimitCircleExample.lcV_not_deficiencyTrivialAt_I
+#print axioms BookProof.LimitCircleExample.lcV_not_deficiencyTrivialAt_negI
+#print axioms BookProof.LimitCircleExample.lcV_not_essentiallySelfAdjoint
+#print axioms BookProof.LimitCircleExample.exists_smooth_potential_not_essentiallySelfAdjoint
+
+-- `ChapterConformalFiberDeficiency` (plan QG-2, Case B — the conformal fiber): an explicit
+-- non-negative exponential wall whose wrong-sign (conformal) fiber, in rescaled standard
+-- form, has a square-integrable classical solution at `z = i`, so essential self-adjointness
+-- on the compactly supported smooth core fails.
+#print axioms BookProof.ConformalFiberDeficiency.cfSol_isL2Ode
+#print axioms BookProof.ConformalFiberDeficiency.cfV_not_deficiencyTrivialAt_I
+#print axioms BookProof.ConformalFiberDeficiency.cfV_not_deficiencyTrivialAt_negI
+#print axioms BookProof.ConformalFiberDeficiency.cfV_not_essentiallySelfAdjoint
+#print axioms BookProof.ConformalFiberDeficiency.cfV_tendsto_atBot
+#print axioms BookProof.ConformalFiberDeficiency.cfV_tendsto_atTop
+#print axioms BookProof.ConformalFiberDeficiency.cfWall_nonneg
+#print axioms BookProof.ConformalFiberDeficiency.cfWall_tendsto_atBot
+#print axioms BookProof.ConformalFiberDeficiency.cfWall_tendsto_atTop
+#print axioms
+  BookProof.ConformalFiberDeficiency.exists_wall_potential_wrongSign_not_essentiallySelfAdjoint
+
+-- `ChapterBddBelowWallEsa` (plan QG-2, Case A — the one-dimensional input): `-d²/dx² + V` is
+-- essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)` for every smooth
+-- potential `V` bounded below, proved by a cutoff energy estimate rather than convexity.
+#print axioms BookProof.BddBelowWallEsa.ode_solution_eq_zero_of_bddBelow
+#print axioms BookProof.BddBelowWallEsa.wallHam_deficiencyTrivialAt_of_bddBelow
+#print axioms BookProof.BddBelowWallEsa.wallHam_essentiallySelfAdjoint_of_bddBelow
+#print axioms BookProof.BddBelowWallEsa.wallHam_essentiallySelfAdjoint_of_bddBelow'
+#print axioms BookProof.BddBelowWallEsa.wallHam_essentiallySelfAdjoint_of_nonneg
+
+-- `ChapterBddBelowFiberSumEsa` (plan QG-2, Case A — the composed operator): the orthogonal
+-- direct sum `⊕ᵢ (−d²/dxᵢ² + Vᵢ)` of bounded-below fibres is essentially self-adjoint on the
+-- glued core, generates a unitary flow, and (under a uniform lower bound) has a form bound.
+#print axioms BookProof.BddBelowFiberSumEsa.fiberCore_dense
+#print axioms BookProof.BddBelowFiberSumEsa.fiberSumHam_essentiallySelfAdjoint_of_bddBelow
+#print axioms BookProof.BddBelowFiberSumEsa.fiberSumHam_essentiallySelfAdjoint_of_bddBelow'
+#print axioms BookProof.BddBelowFiberSumEsa.fiberSumHam_essentiallySelfAdjoint_of_nonneg
+#print axioms BookProof.BddBelowFiberSumEsa.fiberSumHam_stone_flow
+#print axioms BookProof.BddBelowFiberSumEsa.dsOp_semibounded
+#print axioms BookProof.BddBelowFiberSumEsa.fiberSumHam_semibounded
+#print axioms BookProof.BddBelowFiberSumEsa.fiberSumHam_nonneg_form
+#print axioms BookProof.BddBelowFiberSumEsa.qgFiberSum_esa
+#print axioms BookProof.BddBelowFiberSumEsa.qgFiberSum_nonneg_form
+
+-- `ChapterHalfLineLimitCircle` (plan QG-2 / 29f Case B — the endpoint): the free half-line
+-- kinetic operator is not essentially self-adjoint, and neither is its sign flip.
+#print axioms BookProof.HalfLineLimitCircle.hlKin_not_deficiencyTrivialAt_I
+#print axioms BookProof.HalfLineLimitCircle.hlKin_not_essentiallySelfAdjointOn
+#print axioms BookProof.HalfLineLimitCircle.hlKin_neg_not_essentiallySelfAdjointOn
+#print axioms BookProof.HalfLineLimitCircle.hlCore_ne_bot
+
+-- `ChapterFockDifferingBasesEsa` (plan QG-3.2-exec): a Hamiltonian built from one-particle
+-- Hermitian operators conserves the particle number, hence its commutator form against the
+-- diagonal comparison operator `N = dΓ(ω) + 𝒩 + 1` vanishes identically; Faris–Lavine then
+-- gives essential self-adjointness on the finite-particle core under the unweighted gate
+-- `∑ₖ ‖gₖ‖ < ∞`, for summands each diagonal in its own basis and mutually non-commuting.
+#print axioms BookProof.FockDifferingBases.sig_tgt_eq_of_balanced
+#print axioms BookProof.FockDifferingBases.pairOp_commForm_eq_zero
+#print axioms BookProof.FockDifferingBases.balanced_xIdx
+#print axioms BookProof.FockDifferingBases.balancedH_symmetricOn
+#print axioms BookProof.FockDifferingBases.balancedH_norm_le
+#print axioms BookProof.FockDifferingBases.balancedH_commForm_eq_zero
+#print axioms BookProof.FockDifferingBases.balancedH_essentiallySelfAdjointOn_core
+#print axioms BookProof.FockDifferingBases.exchangeH_commForm_eq_zero
+#print axioms BookProof.FockDifferingBases.exchangeH_essentiallySelfAdjointOn_core
+#print axioms BookProof.FockDifferingBases.summable_specAmp
+#print axioms BookProof.FockDifferingBases.spectralFamily_essentiallySelfAdjointOn_core
+#print axioms BookProof.FockDifferingBases.spectralFamily_finite_essentiallySelfAdjointOn_core
+#print axioms BookProof.FockDifferingBases.sumOfTwo_essentiallySelfAdjointOn_core
+#print axioms BookProof.FockDifferingBases.specEntry_ne_zero
+#print axioms BookProof.FockDifferingBases.specEntry_not_commute
+#print axioms BookProof.FockDifferingBases.nestedFock_essentiallySelfAdjointOn_core
 
 end BookProof.ChapterRoadmapAudit
