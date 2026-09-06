@@ -537,6 +537,127 @@ an eigenvalue — that is true only below the essential spectrum.
 #check @BookProof.RitzMinMax.galerkin_gap_eventually_pos
 ```
 
+# The Levels Are Spectral Values
+
+:::paragraph
+The previous section left the levels above the ground level unidentified: they were the
+limits of what the solver computes, but nothing said they were quantities of the operator's
+spectrum. They are. If a level $`\Lambda_k(T)` were outside the spectrum then, the spectrum
+being closed, some $`\varepsilon > 0` would separate it: every spectral point would lie
+below $`\Lambda_k - \varepsilon` or above $`\Lambda_k + \varepsilon`. The continuous cutoff
+that is $`1` below the gap and $`0` above it is then $`\{0,1\}`-valued on the spectrum, so
+the functional calculus turns it into an orthogonal projection $`P` with $`T \le
+\Lambda_k - \varepsilon` on the range of $`P` and $`T \ge \Lambda_k + \varepsilon` on its
+kernel. Either the range of $`P` holds a $`(k+1)`-dimensional subspace — a competitor whose
+Rayleigh supremum is at most $`\Lambda_k - \varepsilon`, so the infimum is smaller than
+itself — or it does not, and then $`P` kills a unit vector of *every* $`(k+1)`-dimensional
+subspace, so every competitor has Rayleigh supremum at least $`\Lambda_k + \varepsilon`.
+Both are impossible, so the level is a spectral point. Consequently the limit of the
+computed Galerkin levels is a value of the spectrum and the computed gap converges to the
+difference of two spectral values. What is still not claimed is that a level is an
+*eigenvalue*: below the essential spectrum it is, at or above it the level is only a point
+of the spectrum.
+:::
+
+```
+#check @BookProof.MinMaxSpectrum.rayleighVal_le_of_cutoff_fixed
+#check @BookProof.MinMaxSpectrum.le_rayleighVal_of_cutoff_zero
+#check @BookProof.MinMaxSpectrum.minmaxLevel_mem_spectrum
+#check @BookProof.MinMaxSpectrum.sInf_spectrum_mem_spectrum
+#check @BookProof.MinMaxSpectrum.galerkin_minmaxLevel_tendsto_spectrum
+#check @BookProof.MinMaxSpectrum.galerkin_gap_tendsto_spectrum_sub
+```
+
+# The Gap Is a Gap of the Spectrum, and the Ground Level Is an Eigenvalue
+
+:::paragraph
+A gap between the two lowest levels says more than that its endpoints are spectral values:
+the whole open interval between them misses the spectrum. Suppose a spectral point
+$`\lambda` sat strictly between $`\Lambda_0` and $`\Lambda_1`. Around the bottom of the
+spectrum and around $`\lambda` choose two continuous symbols with disjoint supports — a
+cutoff and a trapezoid — inside the interval. Each has a non-zero functional calculus,
+because a continuous function that does not vanish at a spectral point cannot be sent to
+the zero operator; the vectors they produce are orthogonal, stay orthogonal after $`T` is
+applied, and each carries a Rayleigh quotient below $`\lambda + \varepsilon`. The plane
+they span is therefore a two-dimensional competitor whose Rayleigh supremum is below
+$`\Lambda_1` — which contradicts the definition of $`\Lambda_1` as the infimum over such
+planes.
+:::
+
+:::paragraph
+With the gap in the spectrum in hand the ground level is not merely a spectral value but a
+genuine eigenvalue. The cutoff at the middle of the gap is now $`\{0,1\}`-valued on the
+spectrum, so it produces an orthogonal projection $`P`, non-zero because the ground level
+is in the spectrum. Its fixed vectors carry Rayleigh quotients below the gap, so they
+cannot span a plane — that plane would again be a competitor below $`\Lambda_1` — and they
+therefore form a line. The line is preserved by $`T`, because the functional calculus
+commutes with the operator, so its generator is an eigenvector; self-adjointness makes the
+eigenvalue real, the eigenvalue is a spectral point below the gap, and the gap in the
+spectrum forces it to be $`\Lambda_0` exactly.
+:::
+
+```
+#check @BookProof.MinMaxSpectrum.notMem_spectrum_of_mem_minmaxGap
+#check @BookProof.MinMaxSpectrum.spectrum_inter_minmaxGap_eq_empty
+#check @BookProof.MinMaxSpectrum.exists_eigenvector_of_minmaxGap
+```
+
+# How Far the Levels Move When the Operator Moves
+
+:::paragraph
+A solver never holds the exact operator: it holds a model of it, with a truncated
+coupling, a rounded matrix or a regularized potential. The min–max levels are stable
+under that substitution. On the unit sphere the Rayleigh quotients of $`T` and $`T'`
+differ by at most $`\lVert T - T'\rVert`, so the same bound passes to the supremum over
+any subspace, to the infimum over the subspaces of a given dimension, and to the Ritz
+levels computed inside a fixed truncation: every level is $`1`-Lipschitz in the operator
+norm, and the gap $`\Lambda_1 - \Lambda_0` is $`2`-Lipschitz. A gap therefore survives a
+perturbation of less than half its size, and a Ritz level computed for the model operator
+inside a retained space is an upper bound for the exact level up to the modelling error.
+A real shift $`T + c` — the shift a shift-invert scheme applies — moves every level by
+$`c` and leaves the gap where it was. What is *not* claimed is the converse direction: a
+positive computed gap of a truncation is not by itself a positive gap of the exact
+operator, since the computed levels are only upper bounds.
+:::
+
+```
+#check @BookProof.RitzPerturbation.abs_minmaxLevel_sub_le_dist
+#check @BookProof.RitzPerturbation.abs_minmaxLevelIn_sub_le_dist
+#check @BookProof.RitzPerturbation.minmaxLevel_le_minmaxLevelIn_add
+#check @BookProof.RitzPerturbation.minmaxLevel_shiftOp
+#check @BookProof.RitzPerturbation.minmaxGap_shiftOp
+#check @BookProof.RitzPerturbation.minmaxGap_pos_of_dist_lt
+#check @BookProof.RitzPerturbation.galerkin_model_gap_tendsto
+#check @BookProof.RitzPerturbation.abs_sInf_spectrum_sub_le_dist
+```
+
+# No Time Discretization: One Shift, One Finite Time
+
+:::paragraph
+The scheme is not a time-marching one. At a single finite time $`t` the propagator
+$`e^{-itH}` is approximated by one rational function of the shift-invert resolvent
+$`(H - i\ell)^{-1}`, so no step size, number of steps or operator splitting enters the
+statement; and since only the resolvent is ever applied, and
+$`\lVert (H - i\ell)^{-1}\rVert \le 1/\lvert\ell\rvert` for every self-adjoint $`H`,
+the Hamiltonian need not be bounded. The choice of shift is immaterial as well: by the
+first resolvent identity, strong convergence of the shift-invert operators at one nonzero
+shift already implies it at every nonzero shift (the sign flip uses normality of the
+resolvent, proved from the adjoint relation and the commutation of resolvents), and
+Trotter–Kato then gives convergence of the propagators at every single finite time. The
+quantum-gravity instances are stated in exactly that form.
+:::
+
+```
+#check @BookProof.SirkSingleTime.res_sub_res
+#check @BookProof.SirkSingleTime.norm_res_neg
+#check @BookProof.SirkSingleTime.strongResAt_of_ne_zero
+#check @BookProof.SirkSingleTime.singleTime_flow_tendsto_of_strongResAt
+#check @BookProof.SirkSingleTime.isShiftInvertC_neg_resCLM_shift
+#check @BookProof.SirkSingleTime.sirk_single_time_shiftInvert_bound
+#check @BookProof.SirkSingleTime.qgOuterFock_singleTime_shiftInvert_convergence
+#check @BookProof.SirkSingleTime.starobinsky_qgContinuum_singleTime_shiftInvert_convergence
+```
+
 # The Laminar Decay Rate
 
 :::paragraph
@@ -769,6 +890,72 @@ truncation family converges in the sense required. Nothing here asserts that it 
 #check @BookProof.SpectralGapStability.gapAt_of_tendsto
 #check @BookProof.SpectralGapStability.notMem_spectrum_of_gapAt
 #check @BookProof.SpectralGapStability.spectrum_disjoint_of_uniform_window
+```
+
+# The Ladder of the Unbounded Operator, Through the Resolvent
+
+:::paragraph
+Everything above is about a *bounded* operator, and the Hamiltonians the project cares
+about are not bounded. The bridge is the resolvent $`R = (T+1)^{-1}` of a non-negative
+self-adjoint relation $`T`: it is bounded, self-adjoint and non-negative, so the whole
+min–max apparatus applies to it — but read from the top, since $`\lambda \mapsto
+1/(1+\lambda)` reverses the order. The link between the two ladders is pointwise. Writing
+a graph pair $`(y, z)` of $`T` as $`y = Rx` with $`x = y + z`, Cauchy–Schwarz for the
+non-negative form $`(u,v) \mapsto \operatorname{Re}\langle u, Rv\rangle` at the pair
+$`(x, Rx)` gives $`\lVert y\rVert^4 \le (\lVert y\rVert^2 + \operatorname{Re}\langle y,
+z\rangle)\operatorname{Re}\langle y, Ry\rangle`: on a unit vector of the domain the
+Rayleigh quotient of $`T` is at least $`1/\operatorname{Re}\langle y, Ry\rangle - 1`. It
+is the operator form of the convexity of $`\lambda \mapsto 1/(1+\lambda)`, and it uses no
+spectral theory at all.
+:::
+
+:::paragraph
+Taking suprema over a competitor subspace and infima over the competitors of a given
+dimension turns the pointwise inequality into the ladder inequality $`1/\nu_k - 1 \le
+\Lambda_k(T)`, where $`\nu_k` is the $`k`-th level of $`R` counted from the top. At the
+bottom rung the inequality is an equality: a near-maximiser $`x` of the resolvent's
+Rayleigh quotient has $`\lVert Rx\rVert \ge \operatorname{Re}\langle x, Rx\rangle`, so the
+line through $`Rx` is a competitor whose value tends to $`1/\nu_0 - 1`. The lowest min–max
+level of the unbounded $`T` is therefore exactly $`1/\sup\operatorname{spec}(R) - 1`, and a
+gap between the two top levels of the resolvent is a gap of $`T`, quantitatively
+$`\Lambda_1(T) - \Lambda_0(T) \ge 1/\nu_1 - 1/\nu_0`.
+:::
+
+:::paragraph
+The reverse inequality for $`k \ge 1` needs spectral projections of $`R`, and the functional
+calculus supplies them. Let $`q` be the continuous symbol that vanishes below $`c-\delta` and
+is $`1` above $`c`. On the range of $`q(R)` the operator inequality $`(c-\delta)R \le R^2`
+holds, and on its kernel the Rayleigh quotient of $`R` is at most $`c` — both by order
+preservation of the calculus. Either the range of $`q(R)` holds a $`(k+1)`-dimensional
+subspace $`S_0`, and then $`R S_0` is a competitor inside the domain of $`T` whose Rayleigh
+supremum is at most $`1/(c-\delta) - 1`; or it does not, and then $`q(R)` kills a unit vector
+of every $`(k+1)`-dimensional subspace, so every competitor for the resolvent has infimum at
+most $`c`, contradicting $`c < \nu_k`. Hence the comparison of the two ladders is an
+**equality at every rung**, $`\Lambda_k(T) = 1/\nu_k - 1`, and the gap of $`T`'s ladder is
+exactly $`1/\nu_1 - 1/\nu_0`. The rung must exist and $`\nu_k` must be positive; at $`k=0`
+both hold automatically.
+:::
+
+:::paragraph
+Because the solver diagonalises finite compressions of the resolvent, the same transfer
+carries the Galerkin theorem: the ladder from the top is the ladder of $`-R` from the
+bottom, so the computed Ritz levels of $`R` converge to $`\nu_k` and are lower bounds for
+it, and $`1/(\text{computed level}) - 1` is a rigorous upper bound for the ground level of
+the unbounded operator. As in the bounded case the reverse direction is not certified: a
+computed gap is not by itself a gap of the exact operator.
+:::
+
+```
+#check @BookProof.ResolventLadder.normSq_sq_le_rayleigh_graph
+#check @BookProof.ResolventLadder.resolvent_ladder_lower
+#check @BookProof.ResolventLadder.graphMinmaxLevel_zero_eq
+#check @BookProof.ResolventLadder.graphMinmaxLevel_zero_eq_sSup_spectrum
+#check @BookProof.ResolventLadder.graphMinmax_gap_lower
+#check @BookProof.ResolventLadder.graphMinmax_gap_pos
+#check @BookProof.ResolventLadder.galerkin_maxminLevel_tendsto
+#check @BookProof.ResolventLadder.graphMinmaxLevel_zero_le_of_computed
+#check @BookProof.ResolventLadderEq.graphMinmaxLevel_eq
+#check @BookProof.ResolventLadderEq.graphMinmax_gap_eq
 ```
 
 # The Honest Boundary

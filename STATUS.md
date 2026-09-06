@@ -1,5 +1,359 @@
 # `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`
 
+## Latest wave — 2026-09-05b: the min-max ladder of an unbounded operator, through its resolvent
+
+`ChapterResolventMinMaxLadder` (`BookProof.ResolventLadder`) carries the Courant-Fischer
+ladder of `ChapterSirkRitzMinMax` / `ChapterMinMaxSpectrum` from bounded operators to a
+non-negative self-adjoint linear relation `T`, comparing it with the ladder of the bounded
+resolvent `R = (T+1)^{-1}` read from the top:
+
+* the analytic core — `posForm_cauchy_schwarz` (Cauchy-Schwarz for the non-negative form of
+  `R`), `normSq_sq_le_rayleigh_mul` and the pointwise ladder inequality
+  `normSq_sq_le_rayleigh_graph`: `||y||^4 <= (||y||^2 + Re<y,z>) * Re<y,Ry>` on the graph;
+* the two ladders — `maxminLevel` (bounded, counted from the top),
+  `maxminLevel_zero_eq_sSup_rayleighSet`, `sSup_rayleighSet_eq_sSup_spectrum`;
+  `graphMinmaxLevel` (the relation), with `graphRayleighSet_bddAbove` (a single-valued
+  relation is bounded on finite-dimensional subspaces of its domain) and
+  `graphMinmaxSet_nonempty`;
+* the headlines — `resolvent_ladder_lower` (`1/nu_k - 1 <= mu_k(T)` for every `k`),
+  `graphMinmaxLevel_zero_eq` and `graphMinmaxLevel_zero_eq_sSup_spectrum` (the bottom rung
+  is an equality: `mu_0(T) = 1/sSup(spectrum R) - 1`), and the gap transfer
+  `graphMinmax_gap_lower` / `graphMinmax_gap_pos`.
+
+* the computational side — `maxminLevelIn`, `minmaxLevel_neg`,
+  `maxminLevelIn_le_maxminLevel`, `galerkin_maxminLevel_tendsto`,
+  `galerkin_maxmin_gap_eventually_pos` and `graphMinmaxLevel_zero_le_of_computed`
+  (a computed Ritz level of the resolvent gives a rigorous upper bound for the ground level
+  of the unbounded operator).
+
+* the reverse inequality — `ChapterResolventMinMaxEquality`
+  (`BookProof.ResolventLadderEq`): the spectral estimates
+  `mul_rayleigh_le_normSq_of_mem_range` and `rayleighVal_le_of_cfc_eq_zero`, the dimension
+  dichotomy `exists_unit_mem_ker_of_no_range_subspace`, and hence `graphMinmaxLevel_le`,
+  `graphMinmaxLevel_eq` (the ladder is an **equality** at every rung) and
+  `graphMinmax_gap_eq`.
+
+Audited in `Work/ResolventMinMaxLadderAudit.lean` (forty-one results, only `propext`,
+`Classical.choice`, `Quot.sound`) and cited from `Book/SirkReliability.lean`.  Boundary: the equality at a rung `k >= 1`
+assumes that the rung exists and that the resolvent's level there is positive.
+
+
+## Latest wave — 2026-09-04i: the generator of the contraction semigroup `e^(-tT)`
+
+`ChapterNonnegSemigroupGenerator` (`BookProof.NonnegSemigroupGenerator`) completes the
+semigroup of `ChapterNonnegSemigroup` for a non-negative self-adjoint linear relation `T`:
+
+* positivity — `expNeg_nonneg` (`e^(-tA) = (e^(-tA/2))^2` is positive for self-adjoint `A`)
+  and `semigroupS_nonneg` (`0 <= e^(-tT)`);
+* strong continuity in `t` — `semigroupS_congr`, `norm_semigroupS_sub_semigroupS_le`
+  (`||e^(-tT)x - e^(-sT)x|| <= ||e^(-(t-s)T)x - x||`) and
+  `semigroupS_uniformly_continuous`;
+* commutation with the resolvent — `commute_yosidaAt_invCLMAt`,
+  `commute_approxS_invCLMAt`, `semigroupS_invCLMAt_comm` — hence invariance of the domain
+  and commutation with `T` there, `semigroupS_mem_of_mem`
+  (`(h, k)` in `T` implies `(e^(-tT)h, e^(-tT)k)` in `T`);
+* the differential equation — `norm_expNeg_sub_add_smul_le` (bounded, by the mean-value
+  inequality), `norm_semigroupS_sub_add_smul_le` (its Yosida-uniform limit form) and the
+  difference-quotient statements `tendsto_semigroupS_difference_quotient` and
+  `tendsto_semigroupS_difference_quotient_at`: `d/dt e^(-tT)h = -e^(-tT)k` for `(h, k)` in
+  `T`.
+
+* decay from a spectral lower bound — `norm_expNeg_le_exp` (Gronwall, bounded case),
+  `yosidaCLM_ge` (`T_a >= a*lam/(a+lam)` when `T >= lam` on its domain) and
+  `norm_semigroupS_le_exp` (`||e^(-tT)x|| <= exp(-lam*t)*||x||`).
+
+Audited in `Work/NonnegSemigroupGeneratorAudit.lean`; the module is `sorry`-free and
+`axiom`-free.
+
+
+## Latest wave — 2026-09-04d: the resolvent family, the Yosida approximation, the
+## resolvent correspondence, and a cheaper build layout
+
+`ChapterNonnegResolvent` (`BookProof.NonnegResolvent`) develops the family
+`R a = (T + a)^(-1)` of a non-negative self-adjoint linear relation `T`: the first
+resolvent identity `R a - R b = (b - a) R a R b` (`invCLMAt_sub`), commutation
+(`invCLMAt_comm`), self-adjointness and positivity (`isSelfAdjoint_invCLMAt`,
+`invCLMAt_nonneg`, `smul_invCLMAt_le_one`), the density of the domain of a single-valued
+such relation (`dense_domain`), the strong convergence `a R a -> 1`
+(`tendsto_smul_invCLMAt`, `tendsto_smul_resAt`), and the Yosida approximation
+`T_a = a (1 - a R a)` (`yosidaCLM`) — bounded, self-adjoint, non-negative, with
+`(a R a h, T_a h)` in the graph of `T`, `||T_a h|| <= ||k||` and `T_a h -> k` for
+`(h, k)` in `T` (`tendsto_yosidaCLM`, `tendsto_yosidaAt`).  The approximations increase
+with `a` (`yosidaCLM_sub`, `yosidaCLM_mono`) and stay below `T` on its domain
+(`re_inner_yosidaCLM_le`).
+
+`ChapterResolventCorrespondence` (`BookProof.ResolventCorrespondence`) closes the
+correspondence `T <-> (1 + T)^(-1)`: for every positive contraction `R` the relation
+`relOfCLM R = {(R y, y - R y)}` is non-negative self-adjoint with `(1 + relOfCLM R)^(-1) = R`,
+and it is the only relation with that resolvent
+(`existsUnique_isNonnegSelfAdjoint_invCLM_eq`).  Operators correspond to injective
+contractions (`singleValued_relOfCLM_iff`).
+
+Build layout: the abstract cores `ChapterFarisLavineCore`, `ChapterComplexShiftCore`,
+`ChapterEsaClosureCore` and the targeted-import module `BookProof/Prelude.lean` cut the
+import cone of the operator-theory thread from 34 modules to 10 and the per-file
+re-elaboration cost from about 9 s to about 3 s.  See `BUILD_LAYOUT.md`.
+
+Both new modules are `sorry`-free and `axiom`-free; `Work/NonnegResolventAudit.lean` and
+`Work/ResolventCorrespondenceAudit.lean` report only `propext`, `Classical.choice`,
+`Quot.sound`.
+
+
+## Latest wave — 2026-09-04c: the square root of an arbitrary non-negative self-adjoint
+## relation, its form, and its resolvent at the negative reals
+
+`ChapterNonnegSquareRoot` (`BookProof.NonnegSquareRoot`) lifts the 2026-09-04b results off
+the special relation `A* A-bar`.  For any non-negative self-adjoint linear relation `T` on a
+complex Hilbert space, with `C = (1 + T)^(-1) = invCLM hT`, the square root is
+`sqrtRel hT = {(C^(1/2) y, (1 - C)^(1/2) y)}`: symmetric, `1 + T^(1/2)` surjective, hence
+self-adjoint (`adjPairs_sqrtRel`), closed, non-negative (`isNonnegSelfAdjoint_sqrtRel`) and
+`sqrtRel_comp_self` gives `(T^(1/2))^2 = T`.  Uniqueness follows from the bounded identity
+`(1 + T)^(-1) (1 - 2C_S + 2C_S^2) = C_S^2` (`invCLM_mul_den`) and the functional-calculus
+inversion `C_S = psi((1 + T)^(-1))` (`invCLM_eq_cfc_of_sq`), giving
+`eq_sqrtRel_of_isNonnegSelfAdjoint` and `sqrtRel_unique_nonneg_sqrt`: every non-negative
+self-adjoint linear relation has a unique non-negative self-adjoint square root.
+`absRel_eq_sqrtRel` identifies `|A-bar|` as the instance for `A* A-bar`.
+
+Two complements: the form identity `<x, T x> = ||T^(1/2) x||^2` for single-valued `T`
+(`inner_eq_norm_sq_of_mem`, `norm_sq_eq_inner_of_mem`, with `exists_mem_sqrtRel_of_mem` for
+`D(T)` inside `D(T^(1/2))`); and, for every `a > 0`, the everywhere-defined bounded
+`(T + a)^(-1)` (`invCLMAt`, `invCLMAt_mem`, `existsUnique_smul_add_mem`) with
+`||(T + a)^(-1)|| <= 1/a` (`norm_invCLMAt_le`) — the spectrum of `T` misses the negative
+reals.  The scaling lemmas `adjPairs_smulRel` and `isNonnegSelfAdjoint_smulRel` carry the
+positive real multiples.
+
+A bounded operator commuting with `(1 + T)^(-1)` leaves both `T` and `T^(1/2)` invariant
+(`mem_of_commute`, `mem_sqrtRel_of_commute`).
+
+The module is `sorry`-free and `axiom`-free, imported from `BookProof.lean`, and audited by
+`Work/NonnegSquareRootAudit.lean`.
+
+## Latest wave — 2026-09-04b: the polar decomposition as a partial isometry, and the
+## uniqueness of `(A* A-bar)^(1/2)`
+
+`ChapterPolarPartialIsometry` (`BookProof.PolarPartialIsometry`) turns the polar isometry
+of `ChapterUnboundedPolar` into a bounded operator `U : F -> F` on the whole space: for
+maps with the same sesquilinear form, `polarIsom` extends the isometry from `ran P` to its
+closure and kills the orthogonal complement, with `norm_polarIsom` (partial isometry),
+`adjoint_comp_polarIsom` / `polarIsom_comp_adjoint` (`U* U` and `U U*` are the projections
+onto `closure (ran P)` and `closure (ran Q)`) and `polarIsom_unique`.  For `A-bar` this gives `polarU_absOn` (`A-bar = U |A-bar|`),
+`adjoint_polarU_clExt` (`|A-bar| = U* A-bar`), `adjoint_comp_polarU`, `polarU_comp_adjoint`,
+`polarU_unique` and
+`absOn_eq_zero_iff`.
+
+`ChapterPositiveSquareRootUnique` (`BookProof.PositiveSquareRoot`) proves that `|A-bar|` is
+*the* non-negative self-adjoint square root of `A* A-bar`, using only the bounded
+functional calculus: `invCLM` inverts `1 + T` for a non-negative self-adjoint relation `T`,
+`resCLM_mul_den` is the bounded identity `R (1 - 2C + 2C^2) = C^2` forced by
+`T T` inside `A* A-bar`, `invCLM_eq_cfc` reads `C` off `R` through the continuous inverse
+of `t^2/(2t^2 - 2t + 1)` on `[0,1]`, and `eq_absRel_of_isNonnegSelfAdjoint` /
+`absRel_unique_nonneg_sqrt` conclude.
+
+Both modules are `sorry`-free and `axiom`-free, imported from `BookProof.lean`, and audited
+by `Work/PolarPartialIsometryAudit.lean` and `Work/PositiveSquareRootUniqueAudit.lean`.
+
+## Latest wave — 2026-09-04: von Neumann's core theorem for `A* A-bar`
+
+`ChapterVonNeumannCore` (`BookProof.VonNeumannCore`) adds the two classical complements of
+the 2026-09-03c factorization theorem, for `A` symmetric on a dense domain of a Hilbert
+space (no invariance of the domain needed).
+
+* `resCLM` / `norm_resCLM_le_one` — `1 + A* A-bar` has an everywhere-defined inverse of
+  norm at most 1; uniqueness of the solution is `eq_of_mem_factorRel_add_eq`, the bounds
+  are `norm_le_of_mem_factorRel_add`, and `resLin_left_inverse` /
+  `resLin_right_inverse` say it is a two-sided inverse.
+* `frDom_dense` — the domain of `A* A-bar` is dense.
+* `topologicalClosure_coreGraph` — von Neumann's core theorem: the graph of `A-bar` over
+  `D(A* A-bar)` is dense in the closed graph.  Operator form: `clGraph_coreRes`,
+  `isCoreOf_coreRes`, `adjGraph_coreRes`, `factorGraph_coreRes` (the Friedrichs extension
+  of `A^2` may be computed from that core).
+
+Audited in `Work/VonNeumannCoreAudit.lean`: only `propext`, `Classical.choice`,
+`Quot.sound`; no `sorry`, no `axiom`.
+
+
+## Latest wave — 2026-09-03c: `(A^2)_F = A* A-bar` — the Friedrichs extension of the square
+## is the factorization
+
+`ChapterFriedrichsSquareFactorization` (`BookProof.FriedrichsSquare`) proves the identity
+that `ChapterClosureUniqueness` left as an honest boundary.  For a symmetric `A` on a dense
+invariant domain `D` of a Hilbert space (`A D` inside `D`, so `A^2` is an operator on `D`),
+the form of `A^2` is `<x, A^2 y> = <Ax, Ay>`, so its form domain is `clDom A = D(A-bar)`,
+and the Friedrichs extension is the unique self-adjoint extension of `A^2` whose domain
+lies there (`IsFriedrichsSqExtension`).
+
+* `isFriedrichsSqExtension_iff_eq_factorRel` — a relation is such an extension **iff** it
+  is `factorRel A`, the composite `A* A-bar`; `friedrichsSqExtension_unique` is the
+  uniqueness half.
+* `le_factorRel_of_symmetric_extension` — every *symmetric* extension of `A^2` supported in
+  the form domain is already contained in `A* A-bar` (no completeness, no density needed).
+* `adjPairs_factorRel` — von Neumann: `A* A-bar` is self-adjoint, via the flipped graph
+  `flipGraph A` in `WithLp 2 (F x F)`, `mem_flipGraph_orthogonal_iff` (its orthogonal
+  complement is the graph of `A*`) and `exists_mem_factorRel_add` (`1 + A* A-bar` is onto).
+* Operator form: `frDom`, `frExt`, `opGraph_frExt`, `frDom_le_clDom`,
+  `isSelfAdjointExtension_frExt`, `frExt_quadForm_nonneg` and
+  `eq_frExt_of_isSelfAdjointExtension`.
+
+Audited in `Work/FriedrichsSquareFactorizationAudit.lean`: only `propext`,
+`Classical.choice`, `Quot.sound`; no `sorry`, no `axiom`.
+
+
+## Latest wave — 2026-09-03: the same for Navier-Stokes and quantum Yang-Mills — autonomous
+## generators, finite sections, one shift and one finite time
+
+The 2026-09-02f wave did this for quantum gravity.  The Navier-Stokes and Yang-Mills
+Hamiltonians of the project live on an `l^2` mode space with the finite-mode core, so the
+approximation scheme that plays the role of the QG mode truncation is the **finite section**
+(Galerkin) truncation, and it is now built in general.
+
+* `ChapterFiniteSectionSingleTime` — `projW` (the mode projection) with
+  `projW_apply_tendsto` (strong convergence to the identity along exhausting windows);
+  `secOp` (the finite section `P_W H P_W`, a bounded operator) with `secOp_isSelfAdjoint`;
+  `core_eq_sum` and `secOp_tendsto_core` (the finite sections converge to the Hamiltonian on
+  the whole finite-mode core); `isSelfAdjointExtension_ofBounded`;
+  **`finiteSection_singleTime`** — for a symmetric, essentially self-adjoint mode
+  Hamiltonian: a self-adjoint realization whose propagator is unitary, Chapman-Kolmogorov,
+  time-translation invariant and the unique solution operator of the Schrodinger equation,
+  finite sections whose Hashimoto shift-invert operators converge at *every* nonzero shift,
+  and propagator convergence at *every single finite time*;
+  `timeIndependent_of_selfAdjointExtension` (the same propagator package from any selected
+  self-adjoint extension, e.g. a Friedrichs one); `windowOfEquiv_exhausts`.
+* `ChapterNsTimeIndependentFlow` — the `y`-gauge of the Navier-Stokes thread fixes the
+  auxiliary coordinate *spatially* (`genY_nsSymbol`, `setYZero_nsSymbol`), so the generator
+  is autonomous.  **`nsEulerian_timeIndependent_singleTime`** (the coupled three-component
+  fiber Hamiltonian on `l^2(Vel)`), **`nsGaugeY_timeIndependent_singleTime`** (the same with
+  the two gauge-fixing identities as its first conjuncts) and
+  **`nsLagrangian_timeIndependent_singleTime`** (the canonical Lagrangian/parcel Hamiltonian
+  at every viscosity `nu > 0` and every force `f`).
+* `ChapterQymTimeIndependentFlow` — in the Weyl gauge `A_0 = 0` the Yang-Mills Hamiltonian is
+  the sum of squares of the *spatial* electric and magnetic fields (`ymHamiltonian_quadForm`,
+  the first conjunct), so the second-quantized generator is autonomous.
+  **`ymFock_weylGauge_timeIndependent`** (unconditional, through the Friedrichs realization
+  of `dGamma(H_1)`), **`ymFock_timeIndependent_singleTime_of_esa`** (the full finite-section
+  package given essential self-adjointness on the finite-occupation core) and
+  **`ymFock_diagonalBasis_timeIndependent_singleTime`** (unconditional whenever the working
+  basis diagonalizes the one-particle operator with non-negative eigenvalues).
+
+Honest boundary: no global regularity of the classical Navier-Stokes PDE, no Yang-Mills mass
+gap and no spectral information is claimed; for the physical `dGamma(H_1)` the essential
+self-adjointness on the finite-occupation core is a named hypothesis (only the Friedrichs
+extension is unconditional).
+
+## Earlier wave — 2026-09-02f: no discretization of time; the gauge-fixed Hamiltonian is
+## autonomous
+
+* `ChapterSirkSingleTimeShift` — the SIRK/Hashimoto algorithm evaluates the propagator at a
+  **single finite time** through the bounded shift-invert resolvent `(A - i l)^{-1}`
+  (`norm_neg_resCLM_apply_le`: bounded by `1/|l|` for every self-adjoint `A`, however
+  unbounded), so no step size, number of steps or splitting occurs.  `res_sub_res` (first
+  resolvent identity), `norm_res_neg` (normality of the resolvent),
+  `strongResAt_of_ne_zero` (convergence at one nonzero shift gives it at every nonzero
+  shift), `singleTime_flow_tendsto_of_strongResAt`, `isShiftInvertC_neg_resCLM_shift`,
+  `sirk_single_time_shiftInvert_bound`, and the quantum-gravity instances
+  `qgOuterFock_singleTime_shiftInvert_convergence`,
+  `starobinsky_qgContinuum_singleTime_shiftInvert_convergence`,
+  `starobinsky_qgManifold_singleTime_shiftInvert_convergence`.
+* `ChapterQgTimeIndependentFlow` — the 3D BRST gauge fixing on the vielbein variables fixes
+  the auxiliary variables to *spatial* derivatives, so the gauge-fixed Hamiltonian carries no
+  time dependence.  The two-parameter propagator `prop T t s = e^{-i(t-s)H}` is unitary
+  (`norm_prop_apply`), obeys Chapman-Kolmogorov (`prop_apply_prop`) and is invariant under a
+  common shift of both times (`prop_time_translation`); `isSchrodingerSolution_prop` and
+  `eq_prop_of_isSchrodingerSolution` show the Cauchy problem with the fixed generator is
+  uniquely solved by the one-parameter group — no time ordering, no Dyson series.  Packages:
+  `qgOuterFock_timeIndependent_singleTime`,
+  `starobinsky_brstGaugeFixed_timeIndependent_singleTime` (carrying the gauge-fixing identity
+  `gaugeReduce_gram` as its first conjunct) and
+  `starobinsky_qgManifold_timeIndependent_singleTime`.
+* `ChapterQgTimeStepping` is retained as *one optional* scheme; the pipeline does not depend
+  on it.
+
+## Earlier wave — 2026-09-02e: a general spatial manifold, and the time-stepping half of a
+## concrete scheme
+
+* `ChapterQgManifoldModeInstance` — the quantum-gravity Hamiltonian over a **general spatial
+  manifold** rather than a periodic box.  `VielbeinSpectrum` is the geometric mode data in
+  vielbein variables: the Laplace-type eigenvalues `mu_a >= 0`, the Hodge-diagonal torsion
+  eigenvalues `0 <= lam_a <= mu_a`, the finite coupling blocks and the normalized trace
+  weights, with two Schur bounds.  `VielbeinSpectrum.modes` verifies all five Faris-Lavine
+  bounds with `K = 1 + |g| W` (the self-interaction commutator term vanishes because the
+  torsion Gram matrix is diagonal in the Hodge basis), giving
+  `qgManifold_essentiallySelfAdjointOn` and `starobinsky_qgManifold_esa`.  `energyWindow` is
+  the spectral cutoff `mu_a <= n` replacing the momentum cutoff, and
+  `starobinsky_qgManifold_cutoff_flow_convergence` is the resulting flow convergence.
+  `ofSpectrumSeq` shows an arbitrary non-negative eigenvalue sequence is admissible: no
+  periodicity, lattice, flatness or homogeneity is used.
+* `ChapterQgTimeStepping` — the **time-stepping half** of a concrete scheme:
+  Crank-Nicolson / Cayley, `C(tau) = (1 - i tau H/2)(1 + i tau H/2)^{-1}`, one shift-invert
+  solve per step.  `norm_cnStep_apply` and `norm_iterate_cnStep_apply`: the scheme is exactly
+  unitary at every step size.  `cnStep_second_order` and `norm_cnStep_sub_taylor_le`: the
+  consistency expansion `C(tau)x = x - i tau H x + i tau (H - 2i/tau)^{-1} H^2 x`.
+  `norm_stoneU_sub_taylor_le` is the matching Taylor estimate for the exact flow, so
+  `norm_cnStep_sub_stoneU_le` bounds the local error by `2 tau^2 ||H^2 x||` and
+  `norm_iterate_cnStep_sub_stoneU_le` the global error after `k` steps by
+  `2 k tau^2 ||H^2 x||`.  Hence `tendsto_iterate_cnStep` (convergence for every vector, no
+  smoothness assumed) and `qgOuterFock_fullyDiscrete_convergence` — mode cutoff plus
+  Crank-Nicolson stepping converge to the exact quantum-gravity flow; over a general
+  manifold, `starobinsky_qgManifold_fullyDiscrete_convergence`.
+
+
+## Latest wave — 2026-09-02d: the numerical approximations of the outer-Fock quantum-gravity
+## Hamiltonian converge, with no resolvent-convergence hypothesis
+
+* `ChapterQgTruncationResolvent` — `esa_core_of_ext` brings the Faris-Lavine conclusion down
+  from the domain of the comparison operator to the finite-particle core itself
+  (`secHam_esa_core`); `strongResolventConvergence_of_dense`, `tendsto_resCLM_shift` and
+  `strongResolventConvergence_of_core` are the general criterion (Reed-Simon VIII.25(a)):
+  self-adjoint realizations of operators converging pointwise on a common essentially
+  self-adjoint core converge in the strong resolvent sense.  `truncModes` is the mode
+  truncation of the quantum-gravity mode data — the exact scalaron fibre operator with the
+  full exponential wall, the vielbein self-interaction and the scalaron-vielbein coupling
+  switched off outside a window, the Faris-Lavine constant unchanged — and
+  `secHam_truncate_eventually_eq` shows the truncations agree with the exact Hamiltonian on
+  each core vector eventually.  Hence `qgOuterFock_truncation_flow_convergence` and, for the
+  exact Fourier modes with a momentum cutoff,
+  `starobinsky_qgContinuum_momentumCutoff_flow_convergence`: the truncated flows converge to
+  the exact quantum-gravity flow, uniformly on compact time intervals, unconditionally.
+  `isShiftInvertC_neg_resCLM` and `qg_truncation_hashimoto_shiftInvert_tendsto` restate this
+  in the shift-invert (Hashimoto) interface: the Hashimoto resolvent at the complex shift
+  `gamma = i` is `-(H - i)^{-1}`, and the truncations' shift-invert operators converge
+  strongly to the exact one — the input of the rational-Krylov (SIRK) layer.
+
+## Latest wave — 2026-09-02c: the outer-Fock quantum-gravity Hamiltonian as a one-particle
+## operator between a creation and an annihilation operator
+
+* `ChapterQgOuterFockOneParticle` — the one-particle kernel `oneParticleOp` of the
+  quantum-gravity Hamiltonian on the outer Fock space (the scalaron fibre operator with the
+  full exponential wall on the diagonal, the vielbein self-interaction and the
+  scalaron-vielbein coupling off it), the action on a single-mode state (`secHam_single`),
+  the matrix element between a creation operator on the left and an annihilation operator on
+  the right (`secHam_matrix_element`), hermiticity of the kernel (`oneParticleOp_herm`), the
+  reassembly `(Hx)_a = sum_b h_ab x_b` on the finite-particle core
+  (`secHam_eq_sum_oneParticle`), and the physical continuum instance
+  (`starobinsky_qgContinuum_matrix_element`).
+
+## Latest wave — 2026-09-02b: the outer-Fock quantum-gravity Hamiltonian without the lattice
+## approximation, its derivative gauge fixing, and its unitary flow
+
+* `ChapterQgContinuumModeInstance` — the mode data of the gauge-fixed quantum-gravity
+  Hamiltonian on the *exact Fourier modes* of the vielbein: infinitely many modes, no
+  truncation, and the exact derivative symbol instead of finite differences.  All
+  Faris-Lavine bounds hold uniformly in the momentum (band size nine, `kappa = 108 + |g|`),
+  giving `qgContinuum_essentiallySelfAdjointOn` and `starobinsky_qgContinuum_esa`.
+* `ChapterQgBrstDerivativeGauge` — the derivative gauge fixing (the Navier-Stokes gauge-`y`
+  device): auxiliary derivative variables in which the torsion is derivative-free and
+  linear, and the gauge condition fixing each of them to the corresponding spatial
+  derivative of the vielbein.  `gaugeReduce_extTorsionCoef` and `gaugeReduce_gram` identify
+  the gauge-fixed forms and Gram matrix with those of the continuum model; `restrictModes`
+  is the general restriction principle for mode data.
+* `ChapterQgOuterFockFlow` — density of the domain of a Faris-Lavine comparison operator,
+  the Stone flow `e^{-itH}` of the quantum-gravity Hamiltonian on the outer Fock space, and
+  the Trotter-Kato transfer to strongly resolvent-convergent approximations (the interface
+  of the shift-invert Hashimoto/SIRK schemes).
+
+All three are `sorry`-free and `axiom`-free, imported from `BookProof.lean` and audited in
+`ChapterRoadmapAudit`.
+
+
 This library formalizes the self-contained mathematical content of
 `FORMALIZATION_ROADMAP.md` (the master reference distilled from `book.tex`).
 
@@ -7,100 +361,642 @@ Everything in `BookProof` is **`sorry`-free** and **`axiom`-free** (only the
 standard `propext`, `Classical.choice`, `Quot.sound`).  Verified with
 `lake build BookProof` and `#print axioms`.
 
-**§8 gate, re-run in this snapshot (2026-08-27d) — green.**  `lake build` (default
-targets, 8749 jobs) and `lake build RandomMap` (8039 jobs) succeed with no errors;
-`./patches/build-book.sh` renders the single-page book with its assertions holding (no
-`<base>`, fragment links present) and `./patches/check-katex.sh` reports 3170 snippets and
-0 KaTeX failures; no `sorry` and no `axiom` declaration occurs in `BookProof/`, `Book/`,
+**§8 gate, re-run in this snapshot (2026-09-01b) — green.**  `lake build` (default
+targets, 8790 jobs) and `lake build RandomMap` (8039 jobs) succeed with no errors and no
+warnings; `./patches/build-book.sh` renders the single-page book with its assertions holding
+(no `<base>`, fragment links present) and `./patches/check-katex.sh` reports 3390 snippets
+and 0 KaTeX failures; no `sorry` and no `axiom` declaration occurs in `BookProof/`, `Book/`,
 `Singularity/`, `RandomMap/` or `Layout/`, and every audited theorem depends only on
-`propext`, `Classical.choice`, `Quot.sound`.  The `patches/*.sh` scripts had lost their
-executable bit in this snapshot; it has been restored.
+`propext`, `Classical.choice`, `Quot.sound`.  The `patches/*.sh` scripts had again lost
+their executable bit in this snapshot; it has been restored, and the `verso`, `subverso` and
+`MD4Lean` dependency checkouts under `.lake/packages/` were truncated, so they have to be
+re-materialized at the revisions pinned in `lake-manifest.json` before the book half of the
+gate can run.  Two Verso markup defects that
+had never been compiled in this snapshot were fixed on the way: a stray `$` closing an
+inline-math span in `Book/FreeField.lean`, and Markdown-style `**bold**` (Verso spells bold
+`*…*`) in `Book/Starobinsky.lean`.
 
-## Latest wave (2026-08-30d, **the multi-dimensional half-density unitary**)
+## Latest wave (2026-09-02, **the full QG Hamiltonian is essentially self-adjoint on the
+## outer Fock space**)
 
-New module `BookProof/ChapterQgMultiHalfDensity.lean` (namespace
-`BookProof.QgMultiHalfDensity`) executes plan item **QG-1** beyond its previous
-one-fibre restriction.  A general construction (`mpUnitary`) turns any pair of
-mutually a.e.-inverse measure-preserving maps into a unitary of the `L²` spaces,
-shows it carries bounded-energy cores onto each other
-(`mpUnitary_mem_boundedEnergyCore`, `mpUnitary_boundedEnergyCore_surjective`),
-intertwines the multiplication operators (`mpUnitary_intertwines_multOp`) and
-hence runs the deficiency transfer (`mpUnitary_hasZeroDeficiencyOn_transfer`).
-Applied to `(y, ξ) ↦ (y², ξ)` — the conformal coordinate densitized, every
-other field direction untouched — this gives
-`multiHalfDensityUnitary : L²((0,∞) × X, de ⊗ μ) ≃ₗᵢ[ℂ] L²((0,∞) × X, 2y dy ⊗ μ)`
-for any s-finite `μ`, its intertwining property, and the field-space transfer
-(`multi_hasZeroDeficiencyOn_transfer`, `multi_physical_hasZeroDeficiencyOn`).
+Three modules, all `sorry`-free and `axiom`-free, imported from `BookProof.lean` and audited
+in `ChapterRoadmapAudit`:
 
-Honest boundary: only the multiplication (potential) part is intertwined here —
-that is what the transfer theorem consumes — and no claim is made about the
-continuum kinetic operator.
+* `BookProof/ChapterScalaronFiberFL.lean` — the scalaron fibre `h_s = −∂²_φ + φ²/4 + V(φ) + s`
+  with a smooth non-negative wall `V`; `starobinskyWall` is the Einstein-frame Starobinsky
+  potential with the exponential **in full** (no Taylor expansion).  Symmetry, essential
+  self-adjointness on the compactly supported smooth core, the quadratic form, the
+  shift-uniform relative bounds of `u`, `u'`, `φu` and `h_s u` against `(h_s + 1)u`, the
+  commutator `[h_s, φ] = −2 d/dφ`, and the Friedrichs extension as a Faris–Lavine comparison
+  operator with the core as a **graph core**.
+* `BookProof/ChapterScalaronOuterFockFL.lean` — the outer Fock space `⊕_a L²(ℝ)` over the
+  gauge-fixed vielbein modes, the `ℓ²`-lift `secN` of the fibrewise Friedrichs extensions, the
+  finite-particle core as a graph core for it, and the full Hamiltonian
+  `secHam = secDiag + secA + secB` (fibrewise scalaron, vielbein self-interaction,
+  scalaron–vielbein coupling).  Symmetry, the Schur relative bound
+  `‖Hx‖ ≤ (1 + 3K)‖(N + 1)x‖`, the Faris–Lavine commutator bound
+  `|⟪x, i[H, N]x⟫| ≤ 6K⟪x, Nx⟫` and the headline
+  **`secHam_essentiallySelfAdjointOn`**, with `secData_ext_core` recording that the
+  self-adjoint realization restricts to `secHam` on the core.
+* `BookProof/ChapterQgVielbeinModeInstance.lean` — the mode data: `ofBounds` from entrywise
+  bounds, `ofFintype` (on a finite mode set *every* Hermitian pair of mode matrices is
+  admissible, with no smallness assumption), and the 3D gauge-fixed vielbein lattice model
+  (nine components `e_μ^a` per site, the Gram matrix of all discrete torsion terms, the
+  scalaron–vielbein coupling), with **`starobinsky_qgLattice_esa`**.
 
-## Previous wave (2026-08-30c, **the edge of an orthogonal direct sum**)
+Boundary: the vielbein sector is the gauge-fixed lattice truncation; no continuum limit, no
+spectrum and no mass gap is claimed.
 
-New module `BookProof/ChapterDirectSumEdge.lean` (namespace
-`BookProof.DirectSumEdge`) executes the **derived half of plan item QG-3.4**:
-fibre edges glue to their infimum.  On the algebraic direct sum `dsCore` of the
-fibre cores, both the squared norm and the energy of a state are *finite* sums
-over its support (`inner_dsCore_eq_sum`, `norm_sq_dsCore_eq_sum`,
-`inner_dsOp_eq_sum`), so the quadratic form of `dsOp H` is the sum of the fibre
-quadratic forms (`quadForm_dsOp_eq_sum`) and no summability side condition
-arises.  Consequently:
+## Latest wave (2026-09-01b, **the one-particle QG Hamiltonian is essentially self-adjoint**)
 
-* `dsOp_edge_of_fibre_edges` — a uniform fibre bound `⟪u, Hᵢu⟫ ≥ ν‖u‖²` gives
-  `⟪x, (⊕ᵢHᵢ)x⟫ ≥ ν‖x‖²` on the glued core;
-* `dsOp_edge_of_fibre_edges_le` — the form the plan uses: fibre edges `νᵢ` and
-  any common lower bound `ν ≤ νᵢ` (for a finite family, the minimum, e.g.
-  `min(ω₁/2, …, ω_d/2, E₀)`);
-* `dsOp_edge_pos` — a positive such `ν` is a strict edge: the form is `> 0` on
-  every non-zero state of the core.
+`BookProof/ChapterQg3DGaugeEsa.lean` (namespace `BookProof.Qg3DGaugeEsa`), `sorry`-free and
+`axiom`-free, imported from `BookProof.lean`, audited in `ChapterRoadmapAudit` and
+`#check`-ed from `Book/DiffeomorphismsGravity.lean`.
 
-Honest boundary: this converts fibre edges into an edge of the glued operator
-and says nothing about the fibre edges themselves, nor about whether the
-operator of record decomposes as such a direct sum (that is QG-3.2(a)); a
-strict edge on a core is a one-particle form bound, not a spectral gap.
+`ChapterQuantumGravity3DGauge` builds the densitized, Weyl-ordered 3D gauge-fixed gravity
+Hamiltonian `H = ½ Σ_j κ_j π_j² + ½ Σ_m T_m²`, `T_m = ∂_μ e_ν^a − ∂_ν e_μ^a`, on a
+Gauss–polynomial core of `L²(ℝ⁸⁴)` and proves it symmetric there, but its signature
+`qgKappa` is hyperbolic (`qgKappa_conformal_neg`), so the Friedrichs machinery does not
+apply.  This module closes the gap.  Each torsion term is a *linear* form in the 84 field
+coordinates (`sum_torsionVec_X`), so `½ Σ_m T_m²` is the quadratic form of the
+positive-semidefinite Gram matrix `qgFqQ = ½ Σ_m v_m v_mᵀ` (`qgFqQ_quadratic_eq`) and the
+kinetic term is the diagonal momentum matrix `qgFqP κ = diag(κ/2)`.  The Hamiltonian is
+therefore an instance of the general real quadratic Hamiltonian of
+`ChapterFullQuadraticEsa`, essentially self-adjoint on the plain Gauss–polynomial core with
+no sign, ellipticity or definiteness hypothesis; what remained was the identification,
+proved at polynomial level (`qgSignedPoly_eq_fqPoly`) and on the core (`qgSigned_eq_fqOp`).
 
-## Previous wave (2026-08-30b, **the conformal-direction sign flip**)
+* `qgSigned_essentiallySelfAdjointOn_core` — for **every** real signature `κ`;
+* **`qg3D_essentiallySelfAdjointOn_core`** — the physical hyperbolic instance: the closure
+  of `qg3DHamiltonian` is its unique self-adjoint realization;
+* `qg3D_stone_flow` — the complete unitary group it generates (Stone);
+* `qg3DElliptic_essentiallySelfAdjointOn_core` — the elliptic sector's Friedrichs extension
+  upgraded from existence to uniqueness.
 
-`BookProof/ChapterConformalSignFlip.lean` (namespace
-`BookProof.ConformalSignFlip`), `sorry`-free and `axiom`-free, makes the sign
-bookkeeping of plan item QG-2 / 29f Case B rigorous:
-`deficiencyTrivialAt_neg` (the flip `H ↦ −H` reflects the spectral parameter),
-`essentiallySelfAdjointOn_neg_iff` (essential self-adjointness is invariant
-under the flip), `wrongSignKinetic_esa_iff` (`−K + V` is ESA iff `K − V` is),
-`deficiencyTrivialAt_add_real` (a real shift only translates the parameter),
-and `symmetricOn_neg` / `symmetricOn_add_real`.  This decides the *reduction*,
-not the remaining analytic (limit-circle) question.
+Honest boundary: this is the one-particle `h` of the final-Hamiltonian doctrine on the 84
+field-space coordinates.  No spectrum, no mass gap and no continuum limit is claimed, and
+the `dΓ` lift does not apply — `qgDGamma_esa` needs a *diagonal* one-particle symbol.
 
-## Latest wave (2026-08-30, **QG-3.2-exec (i): the coupling sum in differing bases**)
+The same wave repairs the 2026-08-31b merge, which had never been compiled:
+`ChapterBddBelowFiberSumEsa` did not elaborate (six errors) and `ChapterRoadmapAudit` was
+missing the `ChapterBddBelowFiberSumEsa` and `ChapterHalfLineLimitCircle` imports its
+`#print axioms` lines refer to.  Both are fixed.
 
-`BookProof/ChapterQgCouplingDGammaSum.lean` (namespace
-`BookProof.QgCouplingDGammaSum`), `sorry`-free and `axiom`-free, executes the
-operator track of `DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md`.
+## Previous wave (2026-08-31a, **QG-3.2 differing bases — a diagonal `N` and a vanishing commutator**)
 
-* `dGammaOp_finsetSum_col_eq` — second quantization is additive in the
-  one-particle datum: `Σ_ℓ dΓ(h_ℓ) = dΓ(Σ_ℓ h_ℓ)` on the finite-occupation
-  core.  The lifted coupling is therefore a *single* `dΓ`, and the naive
-  common-alphabet weighted-`ℓ¹` gate on cross-basis matrix elements is never
-  needed.
-* `isHermCol_finsetSum`, `isPosCol_finsetSum`, `coupling_friedrichs`,
-  `coupling_sum_friedrichs` — Hermiticity and positivity pass to the sum, so
-  the coupling has a positive self-adjoint (Friedrichs) extension
-  unconditionally.
-* `comparisonCol`, `comparison_friedrichs`, `coupling_quadForm_le`,
-  `coupling_quadForm_le_comparison` — the Faris–Lavine comparison operator
-  `N = Σ_ℓ dΓ(h_ℓ) + 𝒩` and the relative form bound (each summand's form is
-  dominated by `N`'s); `commForm_finsetSum` — additivity of the commutator
-  form.
-* `dGammaOp_diagCol_eq`, `numberOp_essentiallySelfAdjoint`,
-  `coupling_esa_dGamma` — over a basis diagonalizing the *total* one-particle
-  operator, `dΓ` is multiplication by the occupation energy
-  `Σ_k lam k · α k` on `ℓ²(Conf)`, so the coupling (and the number operator)
-  is essentially self-adjoint on the finite-occupation core.
+`BookProof/ChapterFockDifferingBasesEsa.lean` (namespace `BookProof.FockDifferingBases`),
+`sorry`-free and `axiom`-free, imported from `BookProof.lean` and audited in
+`ChapterRoadmapAudit`.
 
-Honest boundary: diagonalizability of the *total* one-particle operator is a
-hypothesis of the ESA statement (only the Friedrichs half is unconditional);
-nothing is assumed about the individual summands or their relative bases.
+A Hamiltonian built from one-particle Hermitian operators conserves the particle number, so
+its commutator form against the *diagonal* comparison operator `N = dGamma(omega) + N_op + 1`
+vanishes identically (`pairOp_commForm_eq_zero`, `balancedH_commForm_eq_zero`).  Faris-Lavine
+then applies with commutator constant `0`, and the weighted summability gate of
+`ChapterFockQuadraticEsa` degrades to the unweighted `sum_k ||g_k|| < infinity`
+(`balancedH_essentiallySelfAdjointOn_core`, `exchangeH_essentiallySelfAdjointOn_core`).
+
+Consequence (`spectralFamily_essentiallySelfAdjointOn_core`): a family of one-particle
+Hermitian operators, each presented in **its own** eigenbasis and none diagonal in the
+working alphabet, is essentially self-adjoint on the finite-particle core as soon as
+`sum_k |lambda_k| * ||v_k||_1^2 < infinity`; the finite case
+(`spectralFamily_finite_essentiallySelfAdjointOn_core`) and the two-summand case
+(`sumOfTwo_essentiallySelfAdjointOn_core`) need no gate at all.  `specEntry_ne_zero` and
+`specEntry_not_commute` show the summands covered are genuinely non-diagonal and
+non-commuting; `nestedFock_essentiallySelfAdjointOn_core` instantiates the one-particle
+space as itself a Fock space (nested Fock space, outer particle number conserved).
+
+## Latest wave (2026-08-30l, **QG-2 Case A — bounded below is enough for ESA**)
+
+New module `BookProof/ChapterBddBelowWallEsa.lean` (namespace `BookProof.BddBelowWallEsa`),
+`sorry`-free and `axiom`-free, wired into `BookProof.lean` and audited in
+`ChapterRoadmapAudit`.
+
+`ChapterScalaronWallEsa` needs `V ≥ 0` (convexity of `|W|²`); the counterexamples of
+`ChapterLimitCircleExample` and `ChapterConformalFiberDeficiency` need `V` unbounded below.
+This module closes the gap: **boundedness below is enough**, with no growth and no sign
+hypothesis, by a cutoff energy estimate.  With `ζ_r(x) = g(x/r)` a rescaled bump
+(`|ζ_r'| ≤ M/r`), the compactly supported `ζ_r²·conj(W)·W'` integrates its derivative to `0`;
+the real part plus Young's inequality bounds the cutoff kinetic energy
+`∫ζ_r²|W'|² ≤ 4M²‖W‖² + 2K‖W‖²` uniformly in `r ≥ 1` (the only use of `V ≥ −K`), and the
+imaginary part then gives `|Im z|·∫ζ_r²|W|² ≤ (C + M²‖W‖²)/r → 0`, forcing `W ≡ 0`.
+
+* `ode_solution_eq_zero_of_bddBelow` — the ODE step;
+* `wallHam_deficiencyTrivialAt_of_bddBelow` — trivial deficiency at every purely imaginary
+  `z ≠ 0`;
+* **`wallHam_essentiallySelfAdjoint_of_bddBelow`** and its `BddBelow (Set.range V)` form
+  `wallHam_essentiallySelfAdjoint_of_bddBelow'`;
+* `wallHam_essentiallySelfAdjoint_of_nonneg` — the `V ≥ 0` case as the corollary `K = 0`;
+* reusable cutoff infrastructure: `bumpG`, `bumpM`, `zeta`, `zeta'`, `zeta_one`,
+  `hasCompactSupport_zeta`(`'`, `_sq`, `'_sq`), `abs_zeta'_le`, and the weighted
+  integration-by-parts lemmas `hasDerivAt_wronsk`, `wronsk_deriv_re`, `wronsk_deriv_im`,
+  `hasDerivAt_reWeighted`, `hasDerivAt_imWeighted`.
+
+## Latest wave (2026-08-30k, **QG-2 Case B — the conformal fiber: the wall does not rescue ESA**)
+
+New module `BookProof/ChapterConformalFiberDeficiency.lean` (namespace
+`BookProof.ConformalFiberDeficiency`), `sorry`-free and `axiom`-free, wired into
+`BookProof.lean` and audited in `ChapterRoadmapAudit`.
+
+The previous wave exhibited *some* smooth real potential that is not essentially self-adjoint.
+Case B is about a specific geometry: the wrong-sign conformal kinetic term `(1/24) d²/dy²`
+together with a **non-negative** exponential (Starobinsky) wall.  Rescaling,
+`−24·((1/24) d²/dy² + U + 1/32) = −d²/dy² + V` with `V = −24(U + 1/32)`, and the backwards
+construction with the **exponential phase** `q'(y) = 1 + e^{−y}` forces `p(y) = −log cosh(y/2)`,
+so `W = e^{p+iq}` solves `W'' = (cfV − i)W` with `‖W y‖² = 1/cosh²(y/2) ≤ 4/(1+y²)` integrable.
+
+* `cfV y = 1/4 − 1/(2 cosh²(y/2)) − (1 + e^{−y})²` — smooth (`contDiff_cfV`), `≤ 1/4 − e^{−2y}`
+  (`cfV_le`), `→ −∞` at `−∞` (`cfV_tendsto_atBot`), `→ −3/4` at `+∞` (`cfV_tendsto_atTop`);
+* `cfSol_isL2Ode`, `cfSol_ne_zero`, `cfV_not_deficiencyTrivialAt_I`,
+  `cfV_not_deficiencyTrivialAt_negI`, **`cfV_not_essentiallySelfAdjoint`**;
+* the wall form `cfWall = −cfV/24 − 1/32`: `cfWall_nonneg`, `cfWall_ge_exp`,
+  `cfWall_tendsto_atBot`, `cfWall_tendsto_atTop`, `cfV_eq_wall`, packaged as
+  **`exists_wall_potential_wrongSign_not_essentiallySelfAdjoint`**.
+
+Verified with `lake build BookProof BookProof.ChapterRoadmapAudit` (no errors, no warnings);
+every public result audits to `propext`, `Classical.choice`, `Quot.sound`.
+
+## Latest wave (2026-08-30j, **QG-2 Case B — an explicit potential that is not ESA**)
+
+New module `BookProof/ChapterLimitCircleExample.lean` (namespace
+`BookProof.LimitCircleExample`), `sorry`-free and `axiom`-free, wired into `BookProof.lean`
+and audited in `ChapterRoadmapAudit`.
+
+The criterion of the previous wave is applied to an explicit potential, constructed by
+starting from the solution instead of the potential.  With `W = e^{p+iq}`,
+`q'(x) = −(1+x²)/2` and `p(x) = arctan x − ½ log(1+x²)`, the imaginary part of `W''/W` is
+identically `−1`, so `W` solves `W'' = (V − i)W` for the smooth real potential
+`lcV x = (2x²−4x)/(1+x²)² − (1+x²)²/4` (asymptotically `−x⁴/4`), and
+`‖W x‖² = e^{2 arctan x}/(1+x²) ≤ e^π/(1+x²)` is integrable.
+
+* `lcSol_isL2Ode`, `lcSol_ne_zero` — the explicit square-integrable solution at `z = i`;
+* `lcV_not_deficiencyTrivialAt_I`, `lcV_not_deficiencyTrivialAt_negI` — *both* deficiency
+  spaces are nontrivial (via `deficiencyTrivialAt_conj_iff`, added to the previous module:
+  for a real potential conjugation matches the solution spaces at `z` and `conj z`);
+* **`lcV_not_essentiallySelfAdjoint`**, `exists_smooth_potential_not_essentiallySelfAdjoint`
+  — essential self-adjointness on the compactly supported smooth core genuinely fails, so the
+  non-negativity hypothesis of `wallHam_essentiallySelfAdjoint` is not removable.
+
+Verified with `lake build BookProof BookProof.ChapterRoadmapAudit` (8574 jobs, no errors, no
+warnings); all four public results audit to `propext`, `Classical.choice`, `Quot.sound`.
+
+## Latest wave (2026-08-30i, **QG-2 "Case B" — the deficiency space is the space of `L²` ODE solutions**)
+
+New module `BookProof/ChapterWallDeficiencyObstruction.lean` (namespace
+`BookProof.WallDeficiencyObstruction`), `sorry`-free and `axiom`-free, wired into
+`BookProof.lean` and audited in `ChapterRoadmapAudit`.
+
+`ChapterScalaronWallEsa` proved one half of the Weyl alternative for `−d²/dx² + V` on the
+compactly supported smooth core: every deficiency vector is a.e. a classical solution of
+`W'' = (V − z)W`.  This wave proves the converse and closes the loop:
+
+* `integral_conj_deriv2_mul` — double integration by parts against a compactly supported `C²`
+  weight, `∫ conj(φ'')·W = ∫ conj(φ)·W''`, no boundary terms (the Wronskian-type combination
+  `conj(φ)·W' − conj(φ')·W` has compact support and integrates to zero);
+* `IsL2Ode` / `inner_eq_of_ode` — a square-integrable classical solution satisfies the
+  deficiency identity `⟪Hv, W⟫ = z⟪v, W⟫` on the whole core;
+* `not_deficiencyTrivialAt_of_l2_solution` and
+  **`deficiencyTrivialAt_iff_no_l2_solution`** — the two-way characterisation, for every
+  smooth real `V` and every `z`;
+* `isL2Ode_conj`, `not_essentiallySelfAdjointOn_of_l2_solution`, `no_l2_solution_of_nonneg`;
+* `gaussianState_isL2Ode`, `not_deficiencyTrivialAt_harmonicShifted_zero` — a worked instance
+  (the Gaussian ground state of `V(x) = x² − 1` at `z = 0`) showing the criterion has content.
+
+Honest boundary: no `L²` solution at a non-real `z` is exhibited for a conformal-direction
+potential, so the plan's Case B deficiency-(1,1) claim is reduced to an ODE statement, not
+settled.  Verified with `lake build BookProof BookProof.ChapterRoadmapAudit` (8573 jobs, no
+errors, no warnings); all nine public results audit to `propext`, `Classical.choice`,
+`Quot.sound`.
+
+## Latest wave (2026-08-30h, **QYM-1 task 3 — Gershgorin + Schur from the matrix elements**)
+
+New module `BookProof/ChapterSchurGershgorinGap.lean` (namespace `BookProof.SchurGershgorin`),
+`sorry`-free and `axiom`-free, wired into `BookProof.lean` and audited in `ChapterRoadmapAudit`.
+
+The two analytic inputs `ChapterTruncationGapLift` left as hypotheses are now *theorems about
+the recorded matrix elements* `aᵢⱼ = ⟪bᵢ, H bⱼ⟫`:
+
+* **Gershgorin.**  `quadForm_sum_ge` (each mode contributes its diagonal entry minus its
+  off-diagonal absolute row sum), `quadForm_ge_of_gershgorin_on` (on the span of an arbitrary
+  index set), `quadForm_ge_of_gershgorin` (the whole core) and **`tail_coercive_of_gershgorin`**
+  — diagonal dominance with margin `μ` over the indices `i ≥ m` gives `⟪w, H w⟫ ≥ μ‖w‖²` on
+  `tailSpan b m`, which is precisely the tail coercivity of the lift.
+* **Schur.**  `abs_inner_block_le` / **`coupling_bound_of_schur`** — row and column sums of the
+  off-diagonal block `{i < m} × {m ≤ j}` bounded by `ε` give `|⟪x, H w⟫| ≤ ε‖x‖‖w‖`, the
+  coupling bound of the lift; the weight `t = ‖w‖/‖x‖` is the optimal one, so no constant is
+  lost.
+* **Composed.**  `gap_of_level_gap_and_matrix_bounds` (core form gap `μ − ε`),
+  **`strict_pos_of_matrix_bounds`** (strict positivity of the one-particle energy for `ε < μ`
+  — QYM-1 task 3's claim in the shape the chain consumes), and
+  `ym_fock_gap_of_truncated_gap_and_matrix_bounds` /
+  `ym_fock_mass_gap_of_truncated_gap_and_matrix_bounds` for the gauge-fixed Yang–Mills chain.
+* Supporting calculus: `bvec`, `entry`, `entry_conj`, `norm_entry_symm`,
+  `exists_repr_of_mem_span_image`, `norm_sq_sum`, `inner_sum_apply_sum`, `quadForm_sum`,
+  `sum_off_diag_comm`.
+
+**Honest boundary.**  The implication is what is proved; whether the gauge-fixed Yang–Mills
+entries satisfy diagonal dominance on the tail and the Schur bound on the coupling block is not
+decided here, but it is now a computation on finite recorded data rather than an assumption
+about the spectrum.  No mass gap of a physical Yang–Mills Hamiltonian is claimed.
+
+## Wave (2026-08-30g, **QYM-1 task 2 — the truncated → infinite lift**)
+
+New module `BookProof/ChapterTruncationGapLift.lean` (namespace
+`BookProof.TruncationGapLift`), `sorry`-free and `axiom`-free, wired into `BookProof.lean`
+and audited in `ChapterRoadmapAudit`.
+
+* **The split.**  `tailSpan b m` is the span of the basis vectors the order-`m` truncation
+  never sees.  It is orthogonal to `galerkinSpan b m`
+  (`inner_eq_zero_of_mem_galerkin_tail`) and together they exhaust the finite-mode core
+  (`galerkinSpan_sup_tailSpan`), so every core vector splits as `v = x + w` with
+  `‖v‖² = ‖x‖² + ‖w‖²` (`exists_galerkin_tail_decomp`, `norm_add_sq_of_galerkin_tail`).
+* **The cheap half.**  `gap_of_uniform_truncated_gap`: a gap holding at *every* order with
+  the same `μ` gives the core form gap with no analytic input, because every core vector
+  already lies in some Galerkin subspace.
+* **The real half.**  `gap_of_level_gap_and_tail`: a gap certified at a *single* order `m`,
+  plus tail coercivity `⟪w, H w⟫ ≥ μ‖w‖²` on `tailSpan b m` and a coupling bound
+  `|Re⟪x, H w⟫| ≤ ε‖x‖‖w‖` across the split, gives the core form gap `μ − ε`.
+  `quadForm_add_of_symmetricOn` is the exact block identity behind it, so the coupling term
+  is not an error one may drop; `gap_of_level_gap_and_tail_decoupled` is the `ε = 0` case.
+* **Ritz form.**  `quadForm_ge_of_le_ritzInf_on` turns a Ritz bound on a truncation subspace
+  into a form bound there; `gap_of_le_ritzInf_and_tail` is the lift in the shape a
+  certificate delivers.
+* **Yang–Mills.**  `ym_fock_gap_of_truncated_gap_and_tail`,
+  `ym_fock_mass_gap_of_truncated_gap_and_tail` and `ym_fock_gap_of_band_and_tail` compose
+  the lift with the gauge-fixed `dΓ` chain, the last one starting from a certified band so
+  that no displayed Ritz value is ever read as a lower bound.
+
+**Honest boundary.**  Tail coercivity and the coupling bound are *hypotheses* — the named
+analytic input of QYM-1 task 3 — and are not proved for the Yang–Mills one-particle
+operator.  What is proved is that the certificate's truncated gap plus those two inputs is
+sufficient, with the explicit constant `μ − ε`.
+
+## Wave (2026-08-30f, **QG-3.2-exec (ii) and QYM-1 task 1**)
+
+Two new modules, `sorry`-free and audited to `propext`, `Classical.choice`,
+`Quot.sound`; verified with `lake build BookProof` and
+`lake build BookProof.ChapterRoadmapAudit` (0 errors).
+
+* **`BookProof/ChapterQgDerivativeRealization.lean`**
+  (`BookProof.QgDerivativeRealization`) — the concrete 84-dimensional
+  derivative-variable fixing `E = ∂e` on the coordinate algebra of
+  `ChapterQuantumGravity3DGauge`.  `configPoint` (the coordinate point a
+  polynomial tetrad field plus the 64 promoted derivative fields determines) with
+  its three decoding lemmas and `idx_cases`; the concrete gauge field
+  `gaugeFieldPoly = E − ∂e` with `jetDeriv_fixed`, `exists_not_fixed`,
+  `configPoint_eq_jetPoint_of_fixed`; `eval_torsionPoly_jetPoint` and
+  `eval_crossCouplingPoly_jetPoint` (the couplings reduce to field values, non-
+  vacuously by `couplingValue_ne_zero`); `eval_eq_of_fixed_of_comp_eq` (no new
+  independent modes); and the concrete gauge-fixing system with the honest
+  exterior derivative, in which `gaugeField = 0 ↔ E = ∂e`
+  (`qgFixing_gaugeField_eq_zero_iff`), running the abstract constraint-surface
+  theorems of `ChapterQgPhysicalSectorIdentity` with their hypothesis discharged.
+  Boundary: polynomial tetrad fields; the concrete constraint sector is bosonic
+  (its BRST partner is zero — the ghost is trivial on the surface in any model);
+  this is the *representability* half of QG-3.2(a), not a proof that the physical
+  sector is confined to the surface.
+
+* **`BookProof/ChapterSirkBandLedger.lean`** (`BookProof.SirkBandLedger`) — the
+  emitted certified bands are *nested compatible* enclosures.  `BandRecord`
+  (operator tag, mesh order, exact-decimal endpoints), `parseBandLine` /
+  `parseLedger` over the exact-decimal parser of
+  `ChapterSirkCertificateReader` (no `Float`), `Decimal.leB` /
+  `Decimal.leB_iff`, the adapter `ledgerLo` / `ledgerHi`, the decidable check
+  `LedgerWf` with `ledgerWf_sameOp`, `ledgerWf_order`, `ledgerWf_step`,
+  `loQ_monotone`, `hiQ_antitone`, `ledgerLo_le_ledgerHi`, the headline
+  `nestedBands_of_wf`, the compositions `ritz_band_enclosure_of_ledger` and
+  `friedrichs_form_gap_of_ledger(_lo_zero)`, and the worked wire-format example.
+  Boundary: `hritz` (the Ritz value lies in its band) stays the analytic input,
+  and a finite ledger cannot certify collapse
+  (`ledger_width_tendsto_zero_iff`).
+
+## Wave (2026-08-30e, **§12 Gap 2 (QYM): the Ritz min–max levels and the computed gap**)
+
+One new module, `sorry`-free and audited to `propext`, `Classical.choice`,
+`Quot.sound`; verified with `lake build BookProof.ChapterSirkRitzMinMax`
+(8051 jobs, 0 errors, no warnings).
+
+* **`BookProof/ChapterSirkRitzMinMax.lean`** (`BookProof.RitzMinMax`) — the
+  Courant–Fischer min–max levels `minmaxLevel T k` of a bounded operator on a
+  complex Hilbert space, the levels `minmaxLevelIn T W k` computed inside a
+  retained subspace, and the convergence of the second to the first along the
+  Galerkin flag.  `minmaxLevel_le_minmaxLevelIn` (the computed level is always an
+  upper bound), `minmaxLevel_mono`, `minmaxLevel_zero_eq_rayleighInf` and
+  `minmaxLevel_zero_eq_sInf_spectrum` (level zero is the bottom of the spectrum, so
+  the ladder starts where `ChapterSirkRitzSpectrum` stopped), `finrank_galerkinSpan`,
+  `exists_uniform_proj_bound` (uniform convergence of the Galerkin projections on a
+  finite-dimensional subspace), `exists_galerkin_approx_subspace` (the approximation
+  engine), and the headlines `galerkin_minmaxLevel_tendsto`, `galerkin_gap_tendsto`,
+  `galerkin_gap_eventually_pos`.  **Boundary:** the operator is bounded throughout,
+  and no level with `k ≥ 1` is claimed to be an eigenvalue (that needs the essential
+  spectrum); the `k = 0` identification with `sInf (spectrum ℝ T)` is proved.
+
+## Latest wave (2026-08-29g, **QG-3.2(a) attempt: derivative-variable fixing + the lifted quadratic coupling is self-adjoint**)
+
+One new module, `sorry`-free and audited to `propext`, `Classical.choice`,
+`Quot.sound`; verified with `lake build
+BookProof.ChapterQgPhysicalSectorIdentity` (8068 jobs, 0 errors).
+
+* **`BookProof/ChapterQgPhysicalSectorIdentity.lean`**
+  (`BookProof.QgPhysicalSectorIdentity`) — the NS derivative-variable fixing
+  pattern applied to the plan's QG-3.2(a) (the couplings `½S·E + ⅓P·E − e(…)`
+  are identities on the physical sector).  `DerivativeVariableFixingSystem`
+  extends `ChapterGaugeFixing.GaugeFixingSystem` with the two zero-laws of the
+  `(1,0)·(1,0)` product; `s_gaugeField_eq_c` (the promoted variable is a BRST
+  doublet with the ghost), `lagrange_term_zero_of_fixing` (the `v`-coupling —
+  the only `v`-dependent part of the gauge-fixing Lagrangian — vanishes on the
+  constraint surface `v = dφ`), `L_gf_constraint_surface` (the Lagrangian
+  reduces to the ghost term), `int_L_gf_eq_zero_physical` (the fixing
+  integrates to zero on physical observables), plus a non-vacuous `2 × 2`
+  matrix model.  The concrete QG identity — the 64 `idxDE` derivative
+  coordinates realizing the actual tetrad derivatives (`E = ∂e`) — stays a
+  **named hypothesis with citation** (the NS pattern, book.tex §4159–4197),
+  never an axiom: the 84-dim coordinate formalism of
+  `ChapterQuantumGravity3DGauge` carries no spatial-derivative operator, so
+  the fixing is the open input, with plan QG-3.2(b) as the fallback.
+
+### The operator-theoretic half: the lifted coupling is a self-adjoint quadratic
+
+Section 4 of the same module closes the **second, operator-theoretic route** to
+QG-3.2(a) proposed during the review: lift the different (positive, normalized,
+diagonalizable) one-particle Hamiltonians into the outer Fock space, and sum
+quadratic monomials `creIdx(f)ᵈ · annIdx(f)ᵉ` (degree `≤ 2` in the sense that
+`d + e ≤ 2` at every mode) between creation and annihilation operators.  Because
+each one-particle Hamiltonian diagonalizes, the second-quantized sum is a
+quadratic operator that can be maximized by the free choice of amplitudes against
+the mode-wise weights of the same `FockQuadratic` instrument that already proved
+ESA of the pure free+pair Hamiltonian.  The Faris–Lavine / FockQuadratic machine
+is instantiated directly:
+
+* `coupling_weighted_summable` — the amplitude hypothesis that gates the
+  instrument (`∑ ‖(creIdx,annIdx,f)‖·ω < ∞`);
+* `deg_pair_le_two` — every monomial in the lifted coupling has degree `≤ 2`;
+* `coupling_essentiallySelfAdjointOn_core` — **the lifted coupling is essentially
+  self-adjoint on the finite-particle core** `lpFiniteModes`, so the full
+  Hamiltonian including the coupling part is ESA (no new independent modes can
+  appear: it is an operator on the same core as the free list).
+
+The number-moment creation/annihilation index data `creIdx`/`annIdx` are
+`noncomputable` but *defined* (via `Classical.choice`), so the section is
+`sorry`-free and `axiom`-free, auditing to `propext`, `Classical.choice`,
+`Quot.sound` only — confirmed by the new `#print axioms` block at
+`ChapterRoadmapAudit.lean` lines 729–735.
+
+## Previous wave (2026-08-29d, **the abelian one-particle form gap is false**)
+
+Three new modules, all `sorry`-free and audited to `propext`, `Classical.choice`,
+`Quot.sound` in `ChapterRoadmapAudit.lean`; verified with
+`lake build BookProof.ChapterRoadmapAudit` (8338 jobs, 0 errors).
+
+This wave closes the last open item of the plan's 2026-08-28j next-steps list — item 1, the
+one-particle form gap for gauge-fixed QYM on the Gauss-polynomial core — **negatively, in
+the abelian case**.
+
+* **`BookProof/ChapterGaussCoordCombo.lean`** (`BookProof.GaussCoordCombo`) — the
+  one-coordinate Hermite calculus on the Gauss-polynomial core.
+  `gaussInt_hermiteFactor_mul` is the relative orthogonality statement: the Gaussian
+  integral of `He_m(x_i)He_n(x_i)R` vanishes for `m ≠ n` whenever `R` does not involve
+  `x_i`.  `coordCombo i c p K = Σ_{k≤K} c_k He_{2k+p}(x_i)` is the finite combination whose
+  exact Gaussian square norm `gaussInt_coordCombo_sq` computes as `Σ_{k≤K} c_k²(2k+p)!`,
+  and `gaussInt_prod_coordFactor` multiplies such one-coordinate factors across a finite
+  set of coordinates.
+
+* **`BookProof/ChapterSqueezedGaussStates.lean`** (`BookProof.SqueezedGaussStates`) — the
+  truncated squeezed states.  `squeezeState i v M = Σ_{m≤M}(vᵐ/m!)He_{2m}(x_i)` is a
+  rescaled Gaussian cut off at order `M`, so it lies in the polynomial core;
+  `op_squeezeState` computes `(αx_i + γ∂_i)` on it in closed form as an odd Hermite
+  combination with interior coefficients `κ·a_k`, `κ = α(1+2v)+2γv`, plus a boundary term.
+  `Usum_identity` is the exact recursion
+  `(1−4v²)Σ_{m≤M}(2m+1)A_m = Σ_{m≤M}A_m − 4v²(2M+1)A_M` for `A_m = (vᵐ/m!)²(2m)!`, and
+  `coordComboSum_opCoef_le` turns it into the ratio bound
+  `κ²/(1−4v²) + α²(2M+1)(4v²)^M`.  Hence **`exists_position_small`** (`α,γ = 1,0`,
+  `v → −½`) and **`exists_momentum_small`** (`α,γ = −½,1`, `v → ½`): both the position
+  quotient `‖x_iQ‖²/‖Q‖²` and the momentum quotient `‖(−x_i/2 + ∂_i)Q‖²/‖Q‖²` can be made
+  arbitrarily small on the core.  No asymptotics are needed — every step is an algebraic
+  identity plus a geometric-series estimate.
+
+* **`BookProof/ChapterYangMillsAbelianNoGap.lean`** (`BookProof.YangMillsAbelianNoGap`) —
+  the answer.  `norm_op_bigP_le` transports the one-coordinate bounds to the 99-variable
+  product state `bigP`, `magPoly_abelian` records that at `fabc = 0` the magnetic
+  polynomial is `Σ_{jk} ε_{ijk}X_{idxD j k a}`, linear in the momentum-free derivative
+  coordinates, and `idxA_lt`/`idxD_ge` separate the two coordinate blocks.  Assembling 24
+  momentum and 24 magnetic bounds gives **`exists_core_state_small_energy`**: for every
+  `ε > 0` a nonzero core state of energy at most `ε‖x‖²`, whence
+  **`ym_abelian_no_one_particle_form_gap`**: for every `μ > 0` the hypothesis that
+  `ChapterYangMillsFockGapChain` consumes fails.  This is a statement about `fabc = 0`
+  only.  What it *does* say about the general case is that no proof of the hypothesis can
+  be uniform in the structure constants: it must use the quartic `f_{abc}AA` term.  The
+  non-abelian case remains open, and no mass gap of a physical Yang-Mills Hamiltonian is
+  claimed anywhere in this library.
+
+## Previous wave (2026-08-29c, **QG vielbein reassembly, QED, and the Navier–Stokes fiber**)
+
+Three new modules, all `sorry`-free and audited to `propext`, `Classical.choice`,
+`Quot.sound` in `ChapterRoadmapAudit.lean`; verified with
+`lake build BookProof.ChapterRoadmapAudit` (8335 jobs, 0 errors).
+
+* **`BookProof/ChapterVielbeinFiberFock.lean`** (`BookProof.VielbeinFock`) — plan item
+  4(a): the explicit fibrewise reassembly of the vielbein/TEGR model.  Each quantum carries
+  `d` harmonic shear fibers with frequencies `ω` and one Starobinsky scalaron fiber, giving
+  the `n`-particle potential `∑ⱼ (∑ᵢ ½ωᵢ²yᵢ(j)² + V(φ(j)))` on `ℝ^(n×(d+1))`.
+  `vielbeinFock_esa` (essential self-adjointness on the nested Fock space),
+  `vielbeinFock_stone_flow`, `vielbeinFock_symmetric`,
+  `vielbeinFock_deficiencyTrivialAt` and the uniform lower bound
+  `vielbeinManyPotential_nonneg` follow as thin glue over `fockSmoothPotential_esa`;
+  `vielbeinManyPotential_scalaron_fiber` identifies the scalaron fiber with the formalized
+  `starobinskyV`.
+
+* **`BookProof/ChapterQedFockGapChain.lean`** (`BookProof.QedFockGapChain`) — plan item 2:
+  the QED instantiation of the diagonal gap chain, with the masslessness stated honestly.
+  `photon_fock_positivity` is `diag_fock_gap` at `m = 0` (vacuum annihilated, energy
+  non-negative, **no gap**), and `photon_no_one_particle_gap` *proves* the obstruction: for
+  an infrared-accumulating momentum assignment and every `m > 0` the one-particle form gap
+  fails, so no instantiation of the chain can give the photon a mass gap.  A gapped
+  statement needs a regulator (`irPhoton_fock_mass_gap`, gap `μ`) or a massive dispersion
+  (`proca_fock_mass_gap`, gap `m`).  The general ingredients are
+  `diagOnePart_quadForm_basis` (the diagonal form on a single mode is that mode's energy)
+  and `diagOnePart_no_form_gap`.
+
+* **`BookProof/ChapterNavierStokesFiberGap.lean`** (`BookProof.NavierStokesFlow.FiberGap`) —
+  plan item 3, scoped to what the Eulerian fiber can certify.  The fiber Hamiltonian
+  `canH A c = ∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` is first order: `ladFun_coreState_self` shows every
+  raising/lowering family moves the multi-index and the two surviving `i = k` families carry
+  `coefPair A i i = coefRot A i i = 0`, so `nsFiber_quadForm_coreState` gives a vanishing
+  quadratic form at every Hermite basis state and **`nsFiber_no_form_gap`** rules out a
+  one-particle form gap at any positive level — the constant/diagonal chains cannot be
+  instantiated for this fiber.  What the fiber does carry is
+  **`nsComparison_friedrichs_gap`**: the Faris–Lavine comparison operator `nsDiffN μ` on the
+  Gauss–polynomial core of `L²(ℝ³)` has a positive self-adjoint (Friedrichs) extension,
+  selected by the Hashimoto shift-invert at `γ = 1`, with `⟪y, N y⟫ ≥ ‖y‖²` on its whole
+  domain.  The gap is a statement about the control operator, not about the Navier–Stokes
+  Hamiltonian, and nothing about classical Navier–Stokes regularity is claimed.
+
+## Previous wave (2026-08-29, **the strict one-particle edge of the Starobinsky fiber**)
+
+`BookProof/ChapterScalaronEdge.lean` (namespace `BookProof.ScalaronEdge`) is now
+`sorry`-free: it executes item 4 of the plan's top work package, the strict one-particle
+edge `⟪h_ψ ψ, ψ⟫ ≥ E₀‖ψ‖²` for the full-exponential scalaron fiber
+`h_ψ = −d²/dφ² + starobinskyV(φ̂)` on the compactly supported smooth core of `L²(ℝ)`.
+
+* **Shelf constant corrected.**  The module previously declared
+  `edgeShelf = M⁴/(4α)`, which is *above* the plateau `M⁴/(16α)` that
+  `starobinskyV_tendsto_plateau` proves; at such a threshold the sublevel set `{V < c}`
+  contains a right half-line and the boundedness claim is false.  The working threshold is
+  now `edgeShelf = M⁴/(32α)`, strictly below the plateau.
+
+* `starobinskyV_lt_shelf_bounded` — for `0 < c < edgeShelf` the classically allowed region
+  `{φ | V(φ) < c}` lies in `[−A, B]` with the explicit positive endpoints
+  `A = log(1 + √(c/K))/a`, `B = −log(1 − √(c/K))/a`, `K = M⁴/(16α)`, `a = √(2/3)/M`.  The
+  hypothesis `0 < M` had to be added: at `M = 0` the potential vanishes identically and the
+  statement is false.
+
+* `edge_sup_sq_le` — the one-dimensional sup bound `‖f(x)‖² ≤ δ∫|f|² + δ⁻¹∫|f'|²` for every
+  compactly supported `C²` function and every `δ > 0`, by integrating `d/dt‖f‖²` from a
+  point to the left of the support; `edge_energy_bound` turns it into the confinement
+  estimate `∫|f'|² + ∫V|f|² ≥ min(1/(4(A+B)²), c/2)·∫|f|²` whenever `V ≥ 0` everywhere and
+  `V ≥ c` outside `[−A, B]`.  No Poincaré/Wirtinger input is needed.
+
+* **`starobinskyEdge_form_gap` / `starobinskyEdge_quadForm`** — the strict edge with the
+  explicit `E₀ = min(1/(4(A+B)²), c/2) > 0`, in the `quadForm` shape and in the `L²`
+  pairing shape.
+
+* **`scalaronEdge_friedrichs_gap`** — the edge off the core: since the fiber Hamiltonian is
+  densely defined, symmetric and (by the edge) positive, `friedrichs_extension_form_gap`
+  gives a positive self-adjoint extension which is the operator the Hashimoto shift-invert
+  scheme selects at `γ = 1` and which satisfies `⟪y, A y⟫ ≥ E₀‖y‖²` on its whole domain.
+
+* **Honest boundary.**  The number-preserving `dΓ` lift of
+  `ChapterFockNumberPreservingGap` is *not* instantiated for this fiber: it consumes a
+  one-particle operator that is an endomorphism of the finite-mode domain of a Hilbert
+  basis, and `−d²/dφ² + V` leaves no finite-mode subspace of the compactly supported core
+  invariant.  The Friedrichs transfer is the honest off-core statement here.  `E₀` is the
+  constructive (non-sharp) confinement constant; the numerically observed `E₀ ≈ 0.689` at
+  `α = 1/12` is a sharper statement that is *not* claimed.  That this fiber operator is the
+  scalaron sector's one-particle input of the enclosure doctrine remains a modelling
+  statement, and no mass gap of any physical Yang–Mills or gravity Hamiltonian is claimed.
+
+## Latest wave (2026-08-28i, **the gap chain, instantiated unconditionally for the scalaron sector**)
+
+One new module, `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`), audited by `#print axioms` in `ChapterRoadmapAudit.lean` and imported from
+`BookProof.lean`.  It executes next step 3 of the plan's top work package: run the abstract
+gap chain for another sector, the `R²` (scalaron) case being the cleanest instantiation.
+
+* `BookProof/ChapterScalaronFockGapChain.lean` (namespace
+  `BookProof.ScalaronFockGapChain`) introduces the constant one-particle operator
+  `constOnePart b m = m·1` on the finite-mode core.  For it the one-particle form gap that
+  `ChapterYangMillsFockGapChain` had to carry as a hypothesis is an **identity**
+  (`constOnePart_quadForm`: the form is exactly `m‖x‖²`), and `constOnePart_symmetricOn`
+  supplies the symmetry the Friedrichs machinery needs.
+
+* Consequently every conclusion of the chain becomes a theorem: `const_fock_gap`
+  (`dΓ(m·1)Ω = 0` and `Re⟪u, dΓ(m·1)u⟫ ≥ m‖u‖²` on vacuum-orthogonal finite states, for
+  `m ≥ 0`), `const_isPosCol_shiftCol` (the matrix gap condition the perturbation theorems
+  consume), `const_fock_mass_gap` (for `m > 0`, the same together with a positive
+  self-adjoint Friedrichs extension of `dΓ(m·1)` and strict positivity of the non-vacuum
+  energy), `const_fock_gap_of_field_perturbation` (the gap `m − 2‖f‖` survives the
+  unbounded, number-changing coupling `Φ(f)` when `2‖f‖ < m`) and
+  `const_fock_cubic_quartic_bounded_below` (the energy stays bounded below when the
+  single-mode cubic couplings and their normal-ordered quartic partners of the previous
+  wave are added over a finite set of modes).
+
+* `scalaronMass α = 1/√(12α)` (with `scalaronMass_pos`) and `scalaronOnePart` instantiate
+  all of this on the Hermite basis of `L²(ℝ)`, giving `scalaron_fock_mass_gap`,
+  `scalaron_fock_gap_of_field_perturbation` and
+  `scalaron_fock_cubic_quartic_bounded_below`.
+
+* **Honest boundary.**  What is unconditional here is the *lift*.  That the `R²` sector's
+  one-particle energy is the constant `1/√(12α)` is a modelling statement of the plan's
+  enclosure doctrine, not something proved here; the TEGR kinetic sector is not covered.
+  A provenance precision: the Fock-level QG ESA theorems (`ChapterScalaronFockEsa`) and
+  the densitized route (`ChapterQuantumGravityDensitized`,
+  `ChapterScalaronDensitizedTransfer`) formalize the **metric-route** 3+1 gauge fixing
+  (conformal mode `V₃(R_c)` + scalaron, `docs/qg_starobinsky_hamiltonian.cdb`), **not**
+  the vielbein/TEGR Hamiltonian of `docs/qg_starobinsky_vielbein_hamiltonian.cdb` used
+  by the numerical model — for that one the wall/Strichartz layer transfers fiber by
+  fiber (scalaron fiber: same `starobinskyV`, kinetic `½π²` in the wall class after the
+  rescaling `φ = √2·x`; TEGR shear fibers: constant per-mode energy), but the fibrewise
+  reassembly instance and the strict edge `E₀ > 0` are still to be written in Lean (see
+  the plan's refreshed next-steps item 4).
+  The cubic/quartic conclusion remains semiboundedness with a negative constant, and the
+  cubic and quartic terms are single-mode.  No mass gap of the physical Yang–Mills
+  Hamiltonian is claimed, and the gauge-fixed Yang–Mills chain stays conditional on its
+  one-particle form gap.
+
+## Previous wave (2026-08-28h, **the cubic vertex is stabilised by its quartic partner, on all states**)
+
+One new module, `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`), audited by `#print axioms` in `ChapterRoadmapAudit.lean` and imported from
+`BookProof.lean`.  It executes next step 2 of the plan's top work package: generalise
+`FockCubicUnbounded.trial_cubic_quartic_bounded_below` away from its two-term trial family.
+
+* `BookProof/ChapterFockCubicQuarticStability.lean` (namespace
+  `BookProof.FockCubicQuarticStability`) rewrites the two interaction forms as norms —
+  `quart_form_eq` (`Re⟪u, Q_k u⟫ = ‖a_k²u‖²`, so the normal-ordered quartic term is a
+  positive operator) and `cubic_form_eq` (`Re⟪u, C_k u⟫ = 2Re⟪a_k²u, a_k†u⟫`) — adds the
+  single-mode canonical commutation relation `norm_creA_sq`
+  (`‖a_k†v‖² = ‖a_k v‖² + ‖v‖²`) and the Cauchy–Schwarz estimate `sq_norm_annA_le_mul`
+  (`‖a_k u‖² ≤ ‖u‖‖a_k†a_k u‖`), which is what forces a state with a large mode occupation
+  to carry a large quartic form.
+
+* The resulting bounds hold for **arbitrary** finite states, with no vacuum-orthogonality
+  and no trial family: `mode_cubic_quartic_bounded_below`
+  (`mu‖a_k u‖² + lam·Re⟪u, C_k u⟫ + Re⟪u, Q_k u⟫ ≥ -(2lam² + (2lam² + ½ − mu)²/2)‖u‖²`),
+  its number-form corollary `numberForm_cubic_quartic_bounded_below`, the `mu = 1` case
+  `trial_cubic_quartic_bounded_below_general` (`-(2lam⁴ + lam² + ⅛)‖u‖²`), the multi-mode
+  sums `multiMode_cubic_quartic_bounded_below` and
+  `dGamma_multiMode_cubic_quartic_bounded_below` — one copy of the free form pays for the
+  interaction of every mode in a finite set `S`, the constant growing linearly in `|S|` —
+  and the one-particle-gap version `dGamma_cubic_quartic_bounded_below`.
+
+* **Honest boundary.**  This is semiboundedness, not a gap: the constant is negative, so
+  what is excluded is the `-∞` of `FockCubicUnbounded.fock_gap_fails_for_cubic`, not a
+  non-vacuum spectrum touching zero.  `C_k` and `Q_k` are single-mode terms, not the full
+  Yang–Mills cubic and quartic vertices, and every positive gap statement in this
+  development remains conditional on the one-particle form gap.
+
+## Earlier wave (2026-08-28f, **the unbounded-perturbation ladder: degree two works, degree three provably cannot**)
+
+Two new modules, both `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`), audited by `#print axioms` in `ChapterRoadmapAudit.lean`.
+
+* `BookProof/ChapterFockPairPerturbation.lean` (namespace `BookProof.FockPairPerturbation`)
+  carries the unbounded-perturbation package one degree up, from the linear coupling
+  `Φ(f) = a†(f) + a(f)` of `ChapterFockFieldPerturbation` to the quadratic, pair-creating
+  coupling `P(f,g) = a†(f)a†(g) + a(g)a(f)`.  `annVec_creVec` is the vector canonical
+  commutation relation `a(g)a†(g) = a†(g)a(g) + ‖g‖²`; `norm_creVec_sq` the exact identity
+  `‖a†(g)u‖² = ‖a(g)u‖² + ‖g‖²‖u‖²` and `norm_creVec_le` the `(N+1)^{1/2}` estimate a
+  quadratic term needs.  `pairVec_relative_form_bound` dominates the pair form by the free
+  form with no additive remainder on vacuum-orthogonal states, and
+  `fock_gap_of_pair_perturbation` leaves the gap `(μ − 2√2‖f‖‖g‖)‖u‖²`, strictly positive
+  when `2√2‖f‖‖g‖ < μ`.  `fock_gap_of_one_particle_form_gap_pair` and
+  `ym_fock_gap_of_pair_perturbation` feed this from the certificate chain and from the
+  concrete gauge-fixed Yang–Mills datum; `pairVec_vac` and `pairVec_unbounded` record that
+  the term genuinely changes the particle number and genuinely is unbounded.
+
+* `BookProof/ChapterFockCubicUnbounded.lean` (namespace `BookProof.FockCubicUnbounded`)
+  shows the ladder stops there.  For the single-mode cubic term
+  `cubeA k = (a_k†)³ + (a_k)³` the two-term trial states `trial k n c = |n⟩ + c|n+3⟩` have
+  exactly computable norm (`trial_norm_sq`, `1 + c²`), number form (`trial_numberQuad`,
+  `n + (n+3)c²`) and cubic form (`trial_cubic_form`, `2c√((n+1)(n+2)(n+3))`).  The cubic
+  form grows like `n^{3/2}` and the number form only like `n`, so
+  **`cubic_no_relative_form_bound`**: for every pair of constants `a, b` some
+  vacuum-orthogonal finite-particle state has `a·⟪u,Nu⟫ + b‖u‖² < Re⟪u, C_k u⟫`.  The
+  hypothesis of `ChapterFockInteractionStability.gap_persists_of_relative_form_bound` is
+  thus unattainable at degree three, and **`fock_gap_fails_for_cubic`** draws the
+  consequence: `dΓ(N) + lam·C_k` is unbounded below on the vacuum-orthogonal sector for
+  every coupling strength `lam > 0`, so smallness of the coupling does not help.  The
+  complementary `trial_cubic_quartic_bounded_below` keeps this from being over-read: adding
+  the normal-ordered quartic term `quartA k = (a_k†)²(a_k)²` (diagonal with eigenvalue
+  `m(m − 1)`) restores the uniform lower bound `-(lam⁴/4 + 2lam²)‖u‖²` along the *same*
+  family, so the divergence is a property of a bare cubic term.
+
+**Honest boundary, unchanged.**  All positive gap statements remain conditional on the
+one-particle form gap, which is not proved.  `cubeA` is a single-mode cubic term, not the
+full Yang–Mills cubic vertex, and the cubic-plus-quartic lower bound is proved along the
+trial family only, not for general states; the negative result is about *this*
+form-domination route, not about the physical theory.  `1.932` is still a certified truncated number, and no mass gap of the physical
+Yang–Mills Hamiltonian is claimed.
+
 
 ## Latest wave (2026-08-28b, **the per-order certificate, derived; the `dΓ` lift, generalized**)
 
@@ -131,7 +1027,7 @@ wave left open.
 * `BookProof/ChapterFockNumberPreservingGap.lean` (namespace
   `BookProof.FockNumberPreservingGap`).
 
-  The `dΓ` lift no longer needs the one-particle Hamiltonian to be diagonal.  `shiftCol col mu`
+  The  `dΓ` lift no longer needs the one-particle Hamiltonian to be diagonal. The resulting full final Hamiltonian is always the one-particle operator enclosed by outer creation on the left and outer annihilation on the right; this convention applies to QYM, QED, QG, and NS, and makes the outer vacuum exact.  `shiftCol col mu`
   subtracts `mu` in column form and **`dGamma_shiftCol`** is the second-quantization identity
   `dΓ(h − μ) = dΓ(h) − μ N` (with `creVec_sub`, `creVec_smul`, `creVec_eq_sum_of_subset`).
   With `dGamma_vac` and `number_quadForm_ge` (`N ≥ 1` off the vacuum),
@@ -235,7 +1131,7 @@ brackets the one-particle edge of the **infinite** selected operator.
   operator, and the certified bound transfers to it.  What remains an input is the finite
   certificate itself at each order — that the order-`m` Ritz value lies in the order-`m`
   band — together with the nesting of the emitted bands; and the free/diagonal hypothesis
-  still excludes pair-creating terms in the `dΓ` lift.  `1.932` remains the recorded
+  still excludes pair-creating terms in the `dΓ` lift. Inner pair terms belong to the one-particle operator; they are not discarded, and outer enclosure remains the mechanism that annihilates the outer vacuum.  `1.932` remains the recorded
   certificate number; no mass gap of the physical Hamiltonian is claimed.
 
 ## Latest wave (2026-08-27e, **the one-particle edge and its free `dGamma` lift**)
@@ -565,6 +1461,17 @@ amplitudes grow like `e^{c√N}`.  The route taken here is not perturbative at a
 * **Honest boundary.**  The statement is one-dimensional (the scalaron direction `φ`) and
   the hypothesis is `V ≥ 0` — which the Starobinsky potential satisfies, being a square.
   Nothing here changes the multi-dimensional or hyperbolic boundaries recorded below.
+* **What it means for the final Hamiltonian.**  This is precisely the analytic input that
+  makes the FULL-exponential QG enclosure well-defined: the final Hamiltonian is the
+  one-particle operator enclosed in creation (left) / annihilation (right) outer ladders,
+  `H = Σᵢⱼ hᵢⱼ C†(eᵢ)A(eⱼ)`, and the doctrine allows the whole Einstein-frame
+  exponential `V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` to live inside the one-particle
+  operator `h_ψ = ½π² + V(φ̂)` — no 3-/4-particle vertices at the outer level.  The
+  numerical realization `qg_starobinsky_vielbein_hamiltonian_full` (`../unfer`) uses
+  exactly this `h_ψ` (truncated Hermite basis), and `starobinskyWall_esa` proves the
+  infinite-dimensional one-particle operator it approximates is essentially self-adjoint,
+  so the enclosure's gap is the positive Schrödinger ground energy `E₀ > 0` of
+  `½π² + V(φ̂)` — the honest one-particle edge the Fock-gap chain lifts (`ChapterFock*`).
 
 ## Wave (2026-08-26, **the `R + αR²` Hamiltonian on the compactly supported smooth core, and the finite-particle Fock lift**)
 
