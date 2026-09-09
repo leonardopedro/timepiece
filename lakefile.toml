@@ -73,6 +73,21 @@ name = "Layout"
 [[lean_lib]]
 name = "GapCertificate"
 
+# Compatibility aggregator for the Riemann-route modules (`RiemannProof.*`).
+[[lean_lib]]
+name = "RiemannProof"
+
+# `#print axioms` audit scripts.  Never a default target: they are re-run on
+# demand and would otherwise force a full rebuild of everything they audit.
+[[lean_lib]]
+name = "Audits"
+
+# Scratch/working library for new developments.  A module placed in `Work/`
+# compiles only its own import cone, so a new proof that needs one chapter
+# costs one chapter, not the whole book.  Not a default target.
+[[lean_lib]]
+name = "Work"
+
 [[lean_exe]]
 name = "book"
 root = "BookMain"

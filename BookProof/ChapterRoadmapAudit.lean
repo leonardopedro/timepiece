@@ -38,6 +38,7 @@ import BookProof.ChapterSirkTrotterKatoGalerkin
 import BookProof.ChapterSirkLagrangianCanonical
 import BookProof.ChapterSirkRitzSpectrum
 import BookProof.ChapterSirkRitzMinMax
+import BookProof.ChapterSirkRitzPerturbation
 import BookProof.ChapterSirkDiffusiveDecay
 import BookProof.ChapterQgHermiteCore
 import BookProof.ChapterFriedrichsCanonical
@@ -68,6 +69,7 @@ import BookProof.ChapterCarlemanUnboundedHop
 import BookProof.ChapterBrstUnboundedLeakage
 import BookProof.ChapterBrstReducedTransfer
 import BookProof.ChapterQuantumGravity3DGauge
+import BookProof.ChapterQg3DGaugeEsa
 import BookProof.ChapterQuantumGravityBrstCharge
 import BookProof.ChapterNavierStokesGaugeY2
 import BookProof.ChapterNavierStokesBilinearEsa
@@ -224,6 +226,34 @@ import BookProof.ChapterWallDeficiencyObstruction
 import BookProof.ChapterLimitCircleExample
 import BookProof.ChapterConformalFiberDeficiency
 import BookProof.ChapterBddBelowWallEsa
+import BookProof.ChapterBddBelowFiberSumEsa
+import BookProof.ChapterHalfLineLimitCircle
+import BookProof.ChapterQgOuterFockEsa
+import BookProof.ChapterQgOuterFockFarisLavine
+import BookProof.ChapterQgOuterFockEllipticFL
+import BookProof.ChapterHermiteLadderShift
+import BookProof.ChapterGaussCoreQuadBounds
+import BookProof.ChapterSqSumFarisLavine
+import BookProof.ChapterQgOuterFockCoreFL
+import BookProof.ChapterQgOuterFockFullFL
+import BookProof.ChapterQgOuterFockInteractionFL
+import BookProof.ChapterScalaronFiberFL
+import BookProof.ChapterScalaronOuterFockFL
+import BookProof.ChapterQgVielbeinModeInstance
+import BookProof.ChapterQgContinuumModeInstance
+import BookProof.ChapterQgBrstDerivativeGauge
+import BookProof.ChapterQgOuterFockFlow
+import BookProof.ChapterQgOuterFockOneParticle
+import BookProof.ChapterQgTruncationResolvent
+import BookProof.ChapterQgTimeStepping
+import BookProof.ChapterSirkSingleTimeShift
+import BookProof.ChapterQgManifoldModeInstance
+import BookProof.ChapterQgTimeIndependentFlow
+import BookProof.ChapterFiniteSectionSingleTime
+import BookProof.ChapterNsTimeIndependentFlow
+import BookProof.ChapterQymTimeIndependentFlow
+import BookProof.ChapterSqSumOuterFamily
+import BookProof.ChapterNsOuterFockFarisLavine
 
 /-!
 # Roadmap headline certificate
@@ -2100,6 +2130,17 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.QuantumGravity3DGauge.qg3D_quadForm
 #print axioms BookProof.QuantumGravity3DGauge.qg3DElliptic_friedrichs_extension
 #print axioms BookProof.QuantumGravity3DGauge.qg3DElliptic_hashimoto_selects
+-- `ChapterQg3DGaugeEsa` (plan §10.2b): the same field-space Hamiltonian is quadratic in
+-- the canonical pair, hence essentially self-adjoint on the Gauss–polynomial core for every
+-- real signature — the physical hyperbolic one included — with its Stone flow.
+#print axioms BookProof.Qg3DGaugeEsa.sum_torsionVec_X
+#print axioms BookProof.Qg3DGaugeEsa.qgFqQ_quadratic_eq
+#print axioms BookProof.Qg3DGaugeEsa.qgSignedPoly_eq_fqPoly
+#print axioms BookProof.Qg3DGaugeEsa.qgSigned_eq_fqOp
+#print axioms BookProof.Qg3DGaugeEsa.qgSigned_essentiallySelfAdjointOn_core
+#print axioms BookProof.Qg3DGaugeEsa.qg3D_essentiallySelfAdjointOn_core
+#print axioms BookProof.Qg3DGaugeEsa.qg3D_stone_flow
+#print axioms BookProof.Qg3DGaugeEsa.qg3DElliptic_essentiallySelfAdjointOn_core
 #print axioms BookProof.QuantumGravityBrstCharge.glin_sq
 #print axioms BookProof.QuantumGravityBrstCharge.glin_mul_Q_add_Q_mul_glin
 #print axioms BookProof.QuantumGravityBrstCharge.brst_full_nilpotent
@@ -2734,6 +2775,32 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.RitzMinMax.galerkin_gap_tendsto
 #print axioms BookProof.RitzMinMax.galerkin_gap_eventually_pos
 
+-- `ChapterSirkRitzPerturbation` (plan §12 Gap 2, §13): the stability of the min–max
+-- levels.  The Rayleigh quotients, the numerical-range suprema, the Courant–Fischer
+-- levels and the Ritz levels of a truncation are all 1-Lipschitz in the operator norm;
+-- the gap is 2-Lipschitz and survives a perturbation of less than half its size; a real
+-- shift shifts the levels and leaves the gap invariant; and the Galerkin gaps of a model
+-- operator converge to a limit within `2ε` of the true gap.
+#print axioms BookProof.RitzPerturbation.abs_rayleighVal_sub_le_dist
+#print axioms BookProof.RitzPerturbation.abs_rayleighSup_sub_le_dist
+#print axioms BookProof.RitzPerturbation.abs_minmaxLevel_sub_le_dist
+#print axioms BookProof.RitzPerturbation.abs_minmaxLevelIn_sub_le_dist
+#print axioms BookProof.RitzPerturbation.minmaxLevel_le_minmaxLevelIn_add
+#print axioms BookProof.RitzPerturbation.minmaxLevel_mono_form
+#print axioms BookProof.RitzPerturbation.minmaxLevel_le_norm
+#print axioms BookProof.RitzPerturbation.neg_norm_le_minmaxLevel
+#print axioms BookProof.RitzPerturbation.minmaxLevel_shiftOp
+#print axioms BookProof.RitzPerturbation.minmaxGap_shiftOp
+#print axioms BookProof.RitzPerturbation.minmaxGap_nonneg
+#print axioms BookProof.RitzPerturbation.abs_minmaxGap_sub_le
+#print axioms BookProof.RitzPerturbation.minmaxGap_ge_of_dist_le
+#print axioms BookProof.RitzPerturbation.minmaxGap_pos_of_dist_lt
+#print axioms BookProof.RitzPerturbation.minmaxLevel_tendsto_of_tendsto
+#print axioms BookProof.RitzPerturbation.minmaxGap_tendsto_of_tendsto
+#print axioms BookProof.RitzPerturbation.galerkin_model_gap_tendsto
+#print axioms BookProof.RitzPerturbation.galerkin_model_gap_eventually_pos
+#print axioms BookProof.RitzPerturbation.abs_sInf_spectrum_sub_le_dist
+
 -- `ChapterQgDerivativeRealization` (plan QG-3.2-exec (ii)): the concrete 84-dimensional
 -- derivative-variable fixing `E = ∂e`.  The 1-jet realization of the coordinate space, the
 -- concrete gauge field `v − dφ` and its zero locus, the reduction of the tetrad–torsion cross
@@ -2906,5 +2973,291 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.FockDifferingBases.specEntry_ne_zero
 #print axioms BookProof.FockDifferingBases.specEntry_not_commute
 #print axioms BookProof.FockDifferingBases.nestedFock_essentiallySelfAdjointOn_core
+
+-- `ChapterQgOuterFockEsa` (plan QG outer Fock): the gauge-fixed gravity Hamiltonian on the
+-- outer Fock space `𝔉 = ⊕ₙ L²(ℝ^{84n})` is essentially self-adjoint on the finite-particle
+-- core, sector by sector via the general quadratic (Carleman) theorem and the direct-sum
+-- gluing instrument.
+#print axioms BookProof.QgOuterFock.sqSumOp_essentiallySelfAdjointOn
+#print axioms BookProof.QgOuterFock.qgSectorPoly_eq_sum_particles
+#print axioms BookProof.QgOuterFock.qgSectorHam_essentiallySelfAdjointOn
+#print axioms BookProof.QgOuterFock.qgOuterCore_dense
+#print axioms BookProof.QgOuterFock.qgOuterFock_esa
+#print axioms BookProof.QgOuterFock.qgOuterHam_stone_flow
+#print axioms BookProof.QgOuterFock.qgOuterN_quadForm_nonneg
+#print axioms BookProof.QgOuterFock.qgOuterN_esa
+
+-- `ChapterQgOuterFockFarisLavine` (plan QG outer Fock, Faris–Lavine route): comparison
+-- operators, the Friedrichs extension as one, its lift to an `ℓ²`-direct sum, and Faris–Lavine
+-- on the direct sum under uniform fibre data.
+#print axioms BookProof.QgOuterFockFL.Comparison.selfAdjoint
+#print axioms BookProof.QgOuterFockFL.Comparison.essentiallySelfAdjointOn
+#print axioms BookProof.QgOuterFockFL.friedrichsComparison_extends
+#print axioms BookProof.QgOuterFockFL.dsCompOp_surj
+#print axioms BookProof.QgOuterFockFL.dsFibOp_hasSum_commForm
+#print axioms BookProof.QgOuterFockFL.dsFibOp_commForm_le
+#print axioms BookProof.QgOuterFockFL.dsFibOp_essentiallySelfAdjointOn
+#print axioms BookProof.QgOuterFockFL.qgOuterFriedN_surj
+#print axioms BookProof.QgOuterFockFL.qgOuterFriedN_isPositiveSelfAdjointExtension
+#print axioms BookProof.QgOuterFockFL.qgOuterFriedN_esa
+#print axioms BookProof.QgOuterFockFL.qgOuterFock_esa_farisLavine
+
+-- `ChapterQgOuterFockEllipticFL` (plan QG outer Fock, Faris–Lavine route, unconditional case):
+-- positivity of the sum-of-squares Hamiltonian for a nonnegative signature, the general
+-- Friedrichs lift to an `ℓ²`-direct sum, and the elliptic gravity Hamiltonian on the outer
+-- Fock space.
+#print axioms BookProof.QgOuterFockElliptic.quadForm_sumSquares_nonneg
+#print axioms BookProof.QgOuterFockElliptic.sqSumOp_quadForm_nonneg
+#print axioms BookProof.QgOuterFockElliptic.dsCore_le_dsFriedDom
+#print axioms BookProof.QgOuterFockElliptic.dsFriedComparison_isPositiveSelfAdjointExtension
+#print axioms BookProof.QgOuterFockElliptic.dsFriedComparison_esa
+#print axioms BookProof.QgOuterFockElliptic.sectorHam_quadForm_nonneg
+#print axioms BookProof.QgOuterFockElliptic.outerHam_qgKappa
+#print axioms BookProof.QgOuterFockElliptic.outer_esa_farisLavine
+#print axioms BookProof.QgOuterFockElliptic.outer_isPositiveSelfAdjointExtension
+#print axioms BookProof.QgOuterFockElliptic.qgOuterEllipticFock_esa_farisLavine
+
+-- `ChapterHermiteLadderShift` (plan QG outer Fock, Faris–Lavine route): weighted shifts of an
+-- orthonormal family, and the abstract relative bound against a diagonal comparison operator.
+#print axioms BookProof.HermiteLadder.norm_sum_shift_sq
+#print axioms BookProof.HermiteLadder.apply_sum_of_shift
+#print axioms BookProof.HermiteLadder.norm_shift_le_of_diagonal
+
+-- `ChapterGaussCoreQuadBounds` (plan QG outer Fock, Faris–Lavine route): the Gaussian-integral
+-- estimates on the Gauss–polynomial core, with constants independent of the dimension.
+#print axioms BookProof.GaussCoreQuadBounds.coreD_X_comm
+#print axioms BookProof.GaussCoreQuadBounds.quadForm_harm_eq
+#print axioms BookProof.GaussCoreQuadBounds.quadForm_harm_nonneg
+#print axioms BookProof.GaussCoreQuadBounds.norm_sq_le_quadForm_harm
+#print axioms BookProof.GaussCoreQuadBounds.norm_weighted_kin_le
+#print axioms BookProof.GaussCoreQuadBounds.norm_mul_le_of_pointwise
+
+-- `ChapterSqSumFarisLavine` (plan QG outer Fock, Faris–Lavine route): the two Faris–Lavine
+-- inequalities for `½ Σ_j κ_j π_j² + ½ Σ_r L_r²`, with dimension-free constants.
+#print axioms BookProof.SqSumFarisLavine.schur_bound
+#print axioms BookProof.SqSumFarisLavine.potFun_le_of_schur
+#print axioms BookProof.SqSumFarisLavine.sum_gradFun_sq_le_of_schur
+#print axioms BookProof.SqSumFarisLavine.commPoly_eq
+#print axioms BookProof.SqSumFarisLavine.commForm_sqSumOp_le
+#print axioms BookProof.SqSumFarisLavine.norm_sqSumOp_le
+
+-- `ChapterQgOuterFockCoreFL` (plan QG outer Fock, Faris–Lavine route): the extension of a
+-- relatively bounded symmetric operator from a graph core to the whole comparison domain.
+#print axioms BookProof.QgOuterFockCoreFL.shiftOp_injective
+#print axioms BookProof.QgOuterFockCoreFL.CoreData.coreRange_dense
+#print axioms BookProof.QgOuterFockCoreFL.CoreData.ext_core
+#print axioms BookProof.QgOuterFockCoreFL.CoreData.ext_norm_le
+#print axioms BookProof.QgOuterFockCoreFL.CoreData.ext_symmetricOn
+#print axioms BookProof.QgOuterFockCoreFL.CoreData.ext_commForm_le
+#print axioms BookProof.QgOuterFockCoreFL.CoreData.ext_essentiallySelfAdjointOn
+
+-- `ChapterQgOuterFockFullFL` (plan QG outer Fock, Faris–Lavine route, **unconditional, physical
+-- hyperbolic signature**): the sector data of `qgOuterFock_esa_farisLavine` discharged, and the
+-- full gauge-fixed 3D quantum-gravity Hamiltonian essentially self-adjoint on the domain of the
+-- lifted Friedrichs extension of the positive one-particle operator.
+#print axioms BookProof.QgOuterFockFullFL.isGraphCore_of_eigenbasis
+#print axioms BookProof.QgOuterFockFullFL.harmFried_isGraphCore
+#print axioms BookProof.QgOuterFockFullFL.qgTorsionVecN_row_le
+#print axioms BookProof.QgOuterFockFullFL.qgTorsionVecN_col_le
+#print axioms BookProof.QgOuterFockFullFL.qgSectorHam_norm_le
+#print axioms BookProof.QgOuterFockFullFL.qgSectorHam_commForm_le
+#print axioms BookProof.QgOuterFockFullFL.qgSectorExt_symmetricOn
+#print axioms BookProof.QgOuterFockFullFL.qgSectorExt_commForm_le
+#print axioms BookProof.QgOuterFockFullFL.qgOuterFock_esa_farisLavine_full
+
+-- `ChapterQgOuterFockInteractionFL` (plan QG outer Fock, Faris–Lavine route, **interacting**):
+-- uniform families of sector Hamiltonians whose linear forms may mix the coordinates of
+-- different particles, and the gauge-fixed 3D gravity Hamiltonian with nearest-neighbour torsion
+-- couplings, essentially self-adjoint on the outer Fock space by Faris–Lavine.
+#print axioms BookProof.QgOuterFockInteractionFL.QgFamily.secHam_norm_le
+#print axioms BookProof.QgOuterFockInteractionFL.QgFamily.secHam_commForm_le
+#print axioms BookProof.QgOuterFockInteractionFL.QgFamily.secExt_commForm_le
+#print axioms BookProof.QgOuterFockInteractionFL.QgFamily.outerHam_esa
+#print axioms BookProof.QgOuterFockInteractionFL.QgFamily.esa_farisLavine
+#print axioms BookProof.QgOuterFockInteractionFL.qgIntVec_row_le
+#print axioms BookProof.QgOuterFockInteractionFL.qgIntVec_col_le
+#print axioms BookProof.QgOuterFockInteractionFL.qgCoupling_spans_two_particles
+#print axioms BookProof.QgOuterFockInteractionFL.qgInt_coupling_nontrivial
+#print axioms BookProof.QgOuterFockInteractionFL.qgInteracting_esa_core
+#print axioms BookProof.QgOuterFockInteractionFL.qgInteracting_esa_farisLavine
+
+-- `ChapterScalaronFiberFL` (the scalaron fibre with the full exponential wall): essential
+-- self-adjointness of `−∂²_φ + φ²/4 + V(φ) + s` on the compactly supported smooth core, its
+-- quadratic form, the shift-uniform relative bounds, and the Friedrichs extension as a
+-- Faris–Lavine comparison operator with the core as a graph core.
+#print axioms BookProof.ScalaronFiberFL.WallPot.ham_esa
+#print axioms BookProof.ScalaronFiberFL.ham_quadForm
+#print axioms BookProof.ScalaronFiberFL.norm_sq_le_quadForm
+#print axioms BookProof.ScalaronFiberFL.ham_x_comm
+#print axioms BookProof.ScalaronFiberFL.WallPot.isGraphCore_core
+
+-- `ChapterScalaronOuterFockFL` (the full quantum-gravity Hamiltonian on the outer Fock space):
+-- symmetry, the Schur relative bound, the Faris–Lavine commutator bound and essential
+-- self-adjointness on the domain of the lifted Friedrichs extension `N`.
+#print axioms BookProof.ScalaronOuterFockFL.secN_isGraphCore
+#print axioms BookProof.ScalaronOuterFockFL.secHam_rel
+#print axioms BookProof.ScalaronOuterFockFL.secHam_symmetricOn
+#print axioms BookProof.ScalaronOuterFockFL.imA_le
+#print axioms BookProof.ScalaronOuterFockFL.imB_le
+#print axioms BookProof.ScalaronOuterFockFL.secHam_commForm_le
+#print axioms BookProof.ScalaronOuterFockFL.secData_ext_core
+#print axioms BookProof.ScalaronOuterFockFL.secHam_essentiallySelfAdjointOn
+
+-- `ChapterQgVielbeinModeInstance` (the concrete 3D gauge-fixed vielbein lattice mode data).
+#print axioms BookProof.QgVielbeinModeInstance.ofBounds
+#print axioms BookProof.QgVielbeinModeInstance.ofFintype
+#print axioms BookProof.QgVielbeinModeInstance.torsionGram_herm
+#print axioms BookProof.QgVielbeinModeInstance.qgLattice_essentiallySelfAdjointOn
+#print axioms BookProof.QgVielbeinModeInstance.qgLattice_ext_core
+#print axioms BookProof.QgVielbeinModeInstance.starobinsky_qgLattice_esa
+
+-- `ChapterQgContinuumModeInstance` (the non-lattice mode data: infinitely many exact Fourier
+-- modes, exact derivative symbols).
+#print axioms BookProof.QgContinuumModeInstance.contTorsionGram_herm
+#print axioms BookProof.QgContinuumModeInstance.norm_contTorsionGram_le
+#print axioms BookProof.QgContinuumModeInstance.contTorsionGram_ne_zero
+#print axioms BookProof.QgContinuumModeInstance.qgContinuum_essentiallySelfAdjointOn
+#print axioms BookProof.QgContinuumModeInstance.qgContinuum_ext_core
+#print axioms BookProof.QgContinuumModeInstance.starobinsky_qgContinuum_esa
+
+-- `ChapterQgBrstDerivativeGauge` (BRST gauge fixing of an auxiliary variable to a spatial
+-- derivative, and the restriction principle for the mode data).
+#print axioms BookProof.QgBrstDerivativeGauge.restrict_essentiallySelfAdjointOn
+#print axioms BookProof.QgBrstDerivativeGauge.gaugeReduce_extTorsionCoef
+#print axioms BookProof.QgBrstDerivativeGauge.gaugeReduce_gram
+#print axioms BookProof.QgBrstDerivativeGauge.brstGaugeFixed_esa
+#print axioms BookProof.QgBrstDerivativeGauge.starobinsky_brstGaugeFixed_esa
+#print axioms BookProof.QgBrstDerivativeGauge.gaugeFixedSubset_esa
+
+-- `ChapterQgOuterFockFlow` (the unitary dynamics and its numerical transfer).
+#print axioms BookProof.QgOuterFockFlow.comparison_dom_dense
+#print axioms BookProof.QgOuterFockFlow.qgOuterFock_stone_flow
+#print axioms BookProof.QgOuterFockFlow.starobinsky_qgContinuum_stone_flow
+#print axioms BookProof.QgOuterFockFlow.qgOuterFock_numerical_flow_convergence
+#print axioms BookProof.QgOuterFockFlow.starobinsky_qgContinuum_numerical_flow_convergence
+
+-- `ChapterQgOuterFockOneParticle` (the outer Hamiltonian as a one-particle operator between a
+-- creation and an annihilation operator).
+#print axioms BookProof.QgOuterFockOneParticle.secHam_single
+#print axioms BookProof.QgOuterFockOneParticle.secHam_matrix_element
+#print axioms BookProof.QgOuterFockOneParticle.oneParticleOp_herm
+#print axioms BookProof.QgOuterFockOneParticle.secHam_eq_sum_oneParticle
+#print axioms BookProof.QgOuterFockOneParticle.starobinsky_qgContinuum_matrix_element
+
+-- `ChapterQgTruncationResolvent` (strong resolvent convergence of the mode truncations, and
+-- the resulting unconditional convergence of the numerical flows).
+#print axioms BookProof.QgTruncationResolvent.esa_core_of_ext
+#print axioms BookProof.QgTruncationResolvent.strongResolventConvergence_of_core
+#print axioms BookProof.QgTruncationResolvent.secHam_esa_core
+#print axioms BookProof.QgTruncationResolvent.secHam_truncate_eventually_eq
+#print axioms BookProof.QgTruncationResolvent.qgOuterFock_truncation_flow_convergence
+#print axioms
+  BookProof.QgTruncationResolvent.starobinsky_qgContinuum_momentumCutoff_flow_convergence
+#print axioms BookProof.QgTruncationResolvent.isShiftInvertC_neg_resCLM
+#print axioms BookProof.QgTruncationResolvent.qg_truncation_hashimoto_shiftInvert_tendsto
+
+-- `ChapterQgTimeStepping` (the time half of a concrete scheme: the Crank–Nicolson/Cayley
+-- step, its unitarity, its consistency and the convergence of the fully discrete evolution).
+#print axioms BookProof.QgTimeStepping.norm_cnStep_apply
+#print axioms BookProof.QgTimeStepping.cnStep_second_order
+#print axioms BookProof.QgTimeStepping.norm_cnStep_sub_stoneU_le
+#print axioms BookProof.QgTimeStepping.norm_iterate_cnStep_sub_stoneU_le
+#print axioms BookProof.QgTimeStepping.tendsto_iterate_cnStep
+#print axioms BookProof.QgTimeStepping.qgOuterFock_fullyDiscrete_convergence
+
+-- `ChapterSirkSingleTimeShift` (no time discretization is needed: one shift, one finite
+-- time).  The resolvent identity, normality of the resolvent, shift-independence of strong
+-- resolvent convergence, the single-finite-time flow convergence, the Hashimoto shift-invert
+-- operator at an arbitrary complex shift, the SIRK bound at one finite time, and the
+-- quantum-gravity instances.
+#print axioms BookProof.SirkSingleTime.res_sub_res
+#print axioms BookProof.SirkSingleTime.norm_res_neg
+#print axioms BookProof.SirkSingleTime.strongResAt_of_abs_sub_lt
+#print axioms BookProof.SirkSingleTime.strongResAt_neg
+#print axioms BookProof.SirkSingleTime.strongResAt_of_ne_zero
+#print axioms BookProof.SirkSingleTime.strongResolventConvergence_of_strongResAt
+#print axioms BookProof.SirkSingleTime.singleTime_flow_tendsto_of_strongResAt
+#print axioms BookProof.SirkSingleTime.isShiftInvertC_neg_resCLM_shift
+#print axioms BookProof.SirkSingleTime.norm_neg_resCLM_apply_le
+#print axioms BookProof.SirkSingleTime.sirk_single_time_shiftInvert_bound
+#print axioms BookProof.SirkSingleTime.qgOuterFock_singleTime_shiftInvert_convergence
+#print axioms
+  BookProof.SirkSingleTime.starobinsky_qgContinuum_singleTime_shiftInvert_convergence
+
+-- `ChapterQgManifoldModeInstance` (the same quantum-gravity Hamiltonian over a general
+-- spatial manifold rather than a periodic box).
+#print axioms BookProof.QgManifoldModeInstance.qgManifold_essentiallySelfAdjointOn
+#print axioms BookProof.QgManifoldModeInstance.starobinsky_qgManifold_esa
+#print axioms
+  BookProof.QgManifoldModeInstance.starobinsky_qgManifold_cutoff_flow_convergence
+#print axioms
+  BookProof.QgManifoldModeInstance.starobinsky_qgManifold_fullyDiscrete_convergence
+
+-- `ChapterQgTimeIndependentFlow` (the gauge-fixed Hamiltonian carries no time dependence,
+-- so the propagator is a one-parameter group evaluated at a single finite time): the
+-- two-parameter propagator, its Chapman–Kolmogorov law and time-translation invariance,
+-- uniqueness of the solution of the Schrödinger equation with the fixed generator, and the
+-- quantum-gravity instances (3D BRST gauge-fixed continuum model, general manifold).
+#print axioms BookProof.QgTimeIndependent.prop_apply_prop
+#print axioms BookProof.QgTimeIndependent.prop_time_translation
+#print axioms BookProof.QgTimeIndependent.isSchrodingerSolution_prop
+#print axioms BookProof.QgTimeIndependent.eq_prop_of_isSchrodingerSolution
+#print axioms BookProof.QgTimeIndependent.qgOuterFock_timeIndependent_singleTime
+#print axioms
+  BookProof.QgTimeIndependent.starobinsky_brstGaugeFixed_timeIndependent_singleTime
+#print axioms
+  BookProof.QgTimeIndependent.starobinsky_qgManifold_timeIndependent_singleTime
+
+-- `ChapterFiniteSectionSingleTime` (the finite-section/Galerkin scheme on an `ℓ²` mode
+-- space): the mode projections, the bounded self-adjoint finite section, its convergence to
+-- the Hamiltonian on the core, the single-shift/single-finite-time package, and the
+-- propagator of a selected self-adjoint extension.
+#print axioms BookProof.FiniteSectionSingleTime.projW_apply_tendsto
+#print axioms BookProof.FiniteSectionSingleTime.secOp_isSelfAdjoint
+#print axioms BookProof.FiniteSectionSingleTime.secOp_tendsto_core
+#print axioms BookProof.FiniteSectionSingleTime.isSelfAdjointExtension_ofBounded
+#print axioms BookProof.FiniteSectionSingleTime.finiteSection_singleTime
+#print axioms BookProof.FiniteSectionSingleTime.timeIndependent_of_selfAdjointExtension
+#print axioms BookProof.FiniteSectionSingleTime.windowOfEquiv_exhausts
+
+-- `ChapterNsTimeIndependentFlow` (the `y`-gauge-fixed Navier–Stokes Hamiltonian is
+-- autonomous, and one finite time suffices): the Eulerian fiber Hamiltonian, the same with
+-- the gauge-fixing identities as first conjuncts, and the canonical Lagrangian Hamiltonian.
+#print axioms BookProof.NsTimeIndependent.nsEulerian_timeIndependent_singleTime
+#print axioms BookProof.NsTimeIndependent.nsGaugeY_timeIndependent_singleTime
+#print axioms BookProof.NsTimeIndependent.nsLagrangian_timeIndependent_singleTime
+
+-- `ChapterQymTimeIndependentFlow` (the Weyl-gauge quantum Yang–Mills Hamiltonian is
+-- autonomous, and one finite time suffices): the Friedrichs realization with its
+-- time-translation-invariant propagator, the finite-section package under essential
+-- self-adjointness, and its unconditional diagonal-basis instance.
+#print axioms BookProof.QymTimeIndependent.ymFock_weylGauge_timeIndependent
+#print axioms BookProof.QymTimeIndependent.ymFock_timeIndependent_singleTime_of_esa
+#print axioms
+  BookProof.QymTimeIndependent.ymFock_diagonalBasis_timeIndependent_singleTime
+
+-- `ChapterSqSumOuterFamily` (the outer-Fock Faris–Lavine instrument at an arbitrary fibre
+-- dimension): the finite-particle core inside the domain of the lifted comparison operator,
+-- and the Faris–Lavine headline for a uniform kinetic-plus-squares family.
+#print axioms BookProof.SqSumOuterFamily.outerCore_le_friedDom
+#print axioms BookProof.SqSumOuterFamily.outerFriedN_esa
+#print axioms BookProof.SqSumOuterFamily.SqFamily.esa_farisLavine
+
+-- `ChapterNsOuterFockFarisLavine` (the gauge-fixed Navier–Stokes Hamiltonian on the outer
+-- Fock space, by Faris–Lavine): the Schur data uniform in the parcel number, the genuinely
+-- inter-parcel coupling of the derivative gauge-fixing forms, essential self-adjointness on
+-- the finite-particle core, and the headline on the domain of the lifted Friedrichs
+-- extension of `N₁ = −Δ + ‖x‖²/4`.
+#print axioms BookProof.NsOuterFock.nsVec_row_le
+#print axioms BookProof.NsOuterFock.nsVec_col_le
+#print axioms BookProof.NsOuterFock.linForm_nsConstraint
+#print axioms BookProof.NsOuterFock.linForm_nsTie
+#print axioms BookProof.NsOuterFock.linForm_nsLap
+#print axioms BookProof.NsOuterFock.linForm_nsGaugeY
+#print axioms BookProof.NsOuterFock.nsVec_coupling
+#print axioms BookProof.NsOuterFock.ns_interaction_nontrivial
+#print axioms BookProof.NsOuterFock.nsOuterHam_symmetricOn
+#print axioms BookProof.NsOuterFock.nsOuterHam_esa_core
+#print axioms BookProof.NsOuterFock.nsOuterFock_esa_farisLavine
 
 end BookProof.ChapterRoadmapAudit

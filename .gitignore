@@ -1,3 +1,4 @@
+/prove2me_workspace
 /.lake
 Hashimoto.md
 kopperman.tex
@@ -23,3 +24,6 @@ repomix-output.xml
 lib.llbc
 # Rust build artifacts
 unfer_contracts/**/target/
+
+# scratch backups
+Book.lean.bak

@@ -30,7 +30,7 @@ $`v^\mu = \delta^\mu_0` for the globally-defined time-like vector of the
 teleparallel frame, after which the `4`-dimensional Hamiltonian formalism
 collapses to a `3`-dimensional one whose first-order (BRST) constraint
 algebra of diffeomorphisms / local Lorentz transformations / global
-translations is *different from the ADM one* — in particular there is **no**
+translations is *different from the ADM one* — in particular there is *no*
 scalar Hamiltonian constraint solved for the conformal-mode curvature
 $`R_c`. The conformal-mode stabilization comes instead from the $`\alpha
 R^2` term itself: with $`\psi = 1 + 4\alpha R/M^2` the Hamiltonian carries
@@ -53,7 +53,7 @@ $`R_c = \Omega^{-4}\bar R_c - 8\Omega^{-5}\bar\nabla^2\Omega`; the
 Navier–Stokes-style fixing of the spatial derivative variables
 ($`(\partial_i\varphi)(\partial^i\varphi) \to \text{grad}^2`); and the
 Hamiltonian constraint solved for $`R_c` — exists as an alternative and is
-what the densitized modules formalize, but it is **not** the object of
+what the densitized modules formalize, but it is *not* the object of
 record. Starobinsky is $`f(R)`, a function of the *Ricci scalar* — a metric
 object — so that route is self-contained in the metric; the vielbein is only
 *required* for the teleparallel (torsion) formulation, where the torsion
@@ -142,12 +142,12 @@ depend on $`\alpha` in opposite directions. The wrong-sign conformal kinetic
 $`(1/24)\partial_y^2 \le 0` is a property of the base general-relativity
 kinetic itself — it is present in `book.tex 8190` derived from the
 standard Einstein–Hilbert action at $`\alpha = 0` — so the densitized
-d'Alembertian's lack of essential self-adjointness holds for **both** plain
+d'Alembertian's lack of essential self-adjointness holds for *both* plain
 GR and Starobinsky. What $`\alpha` buys is the *cure*: the bounded-below
 potential $`V(\varphi) \ge 0` (or the conformal-mode completed square
 $`V_3 \ge -M^4/(16\alpha)`) is exactly what turns the positive-kinetic
 reassembly into an essentially self-adjoint, bounded-below operator, and
-that exists **only** for $`\alpha > 0` — at $`\alpha = 0` the conformal
+that exists *only* for $`\alpha > 0` — at $`\alpha = 0` the conformal
 mode's potential is the linear $`-(M^2/2)R_c`, unbounded below. So
 the statement "the densitized operator is not ESA" is
 $`\alpha`-independent true, while "the physical reassembly is ESA" is
@@ -431,18 +431,18 @@ of the earlier sign analysis.
 
 :::paragraph
 One further boundary must be stated without hedging, because it is the one a
-reader would most naturally miss: the **object of record is the full 3D
-gauge-fixed operator**, `qg3DHamiltonian` of
+reader would most naturally miss: the *object of record is the full 3D
+gauge-fixed operator*, `qg3DHamiltonian` of
 `BookProof/ChapterQuantumGravity3DGauge` (F.5) — the `book.tex 8190` form
 with the Weyl-ordered cross terms
-$`\tfrac12 S\cdot E + \tfrac13 P\cdot E - e(\cdots)` **included** (symmetry
+$`\tfrac12 S\cdot E + \tfrac13 P\cdot E - e(\cdots)` *included* (symmetry
 on the core: `qg3D_symmetricOn`). The fibrewise model
 $`h = \oplus_i h_{\omega_i} \oplus h_\psi` described above is a *derived
 consequence*, not the Hamiltonian: it may be used as a theorem only after the
 couplings are proved to be identities on the physical (BRST-closed) sector —
 the plan's QG-3.2(a), the formal version of the conformal-mode elimination.
 Until then it is a comparison object, never the solved operator: the numerics
-must solve the **full** operator, cross terms included, with certified bands
+must solve the *full* operator, cross terms included, with certified bands
 stated for *that* operator. This has landed in `../unfer`:
 `qg3d_full_hamiltonian` realizes the full operator, `qg3d_full_operator_sirk`
 solves it as-is (indefinite band — the wrong-sign conformal kinetic is
@@ -464,8 +464,8 @@ recently, on the sign of $`V` — but the convexity route is special to
 $`V \ge 0`, and the question of what happens when $`V` dips below zero was an
 unresolved gap. The freshly landed `BookProof` wave closes that gap on both
 sides, so the *hypothesis that decides* essential self-adjointness on the line
-is now a theorem: **boundedness below is enough, and unboundedness below is
-genuinely fatal.** Together the two directions turn the signanalysis of
+is now a theorem: *boundedness below is enough, and unboundedness below is
+genuinely fatal.* Together the two directions turn the signanalysis of
 `CONSOLIDATED_PLAN.md`'s QG-2 into a sharp dichotomy.
 :::
 
@@ -476,12 +476,12 @@ Starobinsky reassembly also meets potentials that are merely bounded below
 (e.g. the conformal-mode parabola $`-M^4/(16\alpha) \le V \le 0`); the
 constant-shift route (`WallEsaBddBelow`) already handled that. Newly landed,
 `BookProof/ChapterBddBelowWallEsa.lean` replaces the convexity argument by a
-**cutoff energy estimate** that needs no convexity at all and no growth
+*cutoff energy estimate* that needs no convexity at all and no growth
 hypothesis: with $`\zeta_r(x) = g(x/r)` a rescaled bump, the real part of the
 integrated identity bounds the cutoff kinetic energy
 $`\int\zeta_r^2|W'|^2 \le 4M^2\lVert W\rVert^2 + 2K\lVert W\rVert^2`
 (the only place $`V \ge -K` is used) and the imaginary part forces
-$`W \equiv 0` — so `-d^2/dx^2 + V` is essentially self-adjoint for **every**
+$`W \equiv 0` — so `-d^2/dx^2 + V` is essentially self-adjoint for *every*
 smooth $`V` bounded below
 (`wallHam_essentiallySelfAdjoint_of_bddBelow`). The same wave glues an
 arbitrary family of such fibres into one operator on the orthogonal direct sum
@@ -513,7 +513,7 @@ several, each with a physical profile. An explicit smooth potential
 asymptotically $`-x^4/4` puts the operator in the Weyl limit-circle regime in
 both deficiency spaces (`BookProof/ChapterLimitCircleExample.lean`,
 `lcV_not_essentiallySelfAdjoint`). The wrong-sign *conformal* fiber of the
-densitized route — kinetic `(1/24)∂²_y` with a **non-negative** `R^2`
+densitized route — kinetic `(1/24)∂²_y` with a *non-negative* `R^2`
 (Starobinsky) exponential wall — is a particular instance of this and is
 *not* rescued by the wall (`BookProof/ChapterConformalFiberDeficiency.lean`:
 `cfV_not_essentiallySelfAdjoint`, packaged as

@@ -992,6 +992,35 @@ selected by the Hashimoto criterion (`qg3DElliptic_friedrichs_extension`,
 ```
 
 :::paragraph
+Indefiniteness blocks the *Friedrichs* route, but not self-adjointness itself.
+The gauge-fixed Hamiltonian is quadratic in the canonical pair: its kinetic term
+is a signed sum of squares of the momenta and its torsion potential is a sum of
+squares of the torsion linear forms
+$`T_m = \partial_\mu e_\nu{}^a - \partial_\nu e_\mu{}^a`
+(`sum_torsionVec_X`, `qgFqQ_quadratic_eq`). It is therefore an
+instance of the general real quadratic Hamiltonian whose essential
+self-adjointness on the Gauss-polynomial core was proved earlier
+(`qgSigned_eq_fqOp`), and the conclusion follows for *every* real signature
+(`qgSigned_essentiallySelfAdjointOn_core`), the physical hyperbolic one included
+(`qg3D_essentiallySelfAdjointOn_core`). So the closure of `qg3DHamiltonian` is
+its unique self-adjoint realization and it generates a complete unitary flow
+(`qg3D_stone_flow`); the elliptic sector's Friedrichs extension is thereby
+upgraded from existence to uniqueness
+(`qg3DElliptic_essentiallySelfAdjointOn_core`). No spectrum, no mass gap and no
+continuum limit is claimed.
+:::
+
+```
+#check @BookProof.Qg3DGaugeEsa.sum_torsionVec_X
+#check @BookProof.Qg3DGaugeEsa.qgFqQ_quadratic_eq
+#check @BookProof.Qg3DGaugeEsa.qgSigned_eq_fqOp
+#check @BookProof.Qg3DGaugeEsa.qgSigned_essentiallySelfAdjointOn_core
+#check @BookProof.Qg3DGaugeEsa.qg3D_essentiallySelfAdjointOn_core
+#check @BookProof.Qg3DGaugeEsa.qg3D_stone_flow
+#check @BookProof.Qg3DGaugeEsa.qg3DElliptic_essentiallySelfAdjointOn_core
+```
+
+:::paragraph
 The constraints of that field space are dressed with ghosts into the BRST charge
 $`\Omega = \sum_a G_a\chi_a - \tfrac12\sum_{a,b,e} f_{abe}\chi_a\chi_b\beta_e`.
 Nilpotency is proved in full: the square of the constraint part is half the

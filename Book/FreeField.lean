@@ -52,12 +52,12 @@ finite-mode core vector $`v = x + w` into its order-$`m` Galerkin part and its
 tail, and proves that a gap certified on the truncation lifts to the core once
 the tail is coercive and the coupling across the split is bounded
 (`gap_of_level_gap_and_tail`, `gap_of_uniform_truncated_gap`), and further via
-$`d\Gamma` to the outer-enclosed $`H$ (the `ym_fock_*` compositions).
+the d\Gamma operator applied to the outer-enclosed $`H`$ (the `ym_fock_*` compositions).
 `BookProof/ChapterSchurGershgorinGap.lean` then proves those two analytic
 inputs *from the matrix elements* the certificate records: diagonal dominance
 on the tail gives coercivity (`tail_coercive_of_gershgorin`) and a Schur test
 on the coupling block gives the cross bound (`coupling_bound_of_schur`),
-composed into the strict positivity $`\lambda_1(H_1|\mathrm{core}) > 0` of QYM-1
+composed into the strict positivity λ₁(H₁ | core) > 0 of QYM-1
 task 3 (`strict_pos_of_matrix_bounds`) — the single remaining hypothesis of the
 gap chain is now a family of checkable inequalities on the recorded entries,
 not an unanalysed spectral assumption.

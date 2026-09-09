@@ -78,8 +78,9 @@ def fiberSumHam (V : ι → ℝ → ℝ) (hV : ∀ i, ContDiff ℝ ((⊤ : ℕ�
 theorem fiberSumHam_single [DecidableEq ι] (V : ι → ℝ → ℝ)
     (hV : ∀ i, ContDiff ℝ ((⊤ : ℕ∞) : WithTop ℕ∞) (V i)) (i : ι) (u : ccDomain ℝ) :
     fiberSumHam V hV ⟨lp.single 2 i (u : Lp ℂ 2 (volume : Measure ℝ)),
-        single_mem_dsCore i u⟩ = lp.single 2 i (wallHam (V i) (hV i) u) :=
-  dsOp_single _ i u
+        single_mem_dsCore (D := fun _ : ι => ccDomain ℝ) i u⟩
+      = lp.single 2 i (wallHam (V i) (hV i) u) :=
+  dsOp_single (D := fun _ : ι => ccDomain ℝ) (fun i => wallHam (V i) (hV i)) i u
 
 theorem fiberSumHam_symmetricOn (V : ι → ℝ → ℝ)
     (hV : ∀ i, ContDiff ℝ ((⊤ : ℕ∞) : WithTop ℕ∞) (V i)) :
@@ -158,8 +159,9 @@ theorem dsOp_semibounded {G : ι → Type*} [∀ i, NormedAddCommGroup (G i)]
       refine tsum_eq_sum fun i hi => ?_
       simp [hzero i hi]
     have h2 := congrArg Complex.re h1
-    rw [inner_self_eq_norm_sq (𝕜 := ℂ)] at h2
-    rw [h2, Complex.re_sum]
+    have h3 : (inner ℂ x x : ℂ).re = ‖x‖ ^ 2 := inner_self_eq_norm_sq (𝕜 := ℂ) x
+    rw [h3, Complex.re_sum] at h2
+    rw [h2]
     exact Finset.sum_congr rfl fun i _ => inner_self_eq_norm_sq (𝕜 := ℂ) _
   have hfib : ∀ i ∈ S, -c * ‖(x : ∀ i, G i) i‖ ^ 2
       ≤ (inner ℂ (H i ⟨(x : ∀ i, G i) i, v.2.2 i⟩) ((x : ∀ i, G i) i) : ℂ).re := by
@@ -187,20 +189,20 @@ theorem fiberSumHam_nonneg_form (V : ι → ℝ → ℝ)
 /-- The fibre list of QG-3.3's derived reduction: `d` shear directions carrying the harmonic
 walls `ωᵢ² xᵢ²`, and one scalaron direction carrying the Starobinsky wall. -/
 def qgFiberV (M alpha : ℝ) {d : ℕ} (omega : Fin d → ℝ) : Option (Fin d) → ℝ → ℝ
-  | none => fun phi => starobinskyV M alpha phi
+  | none => fun phi => BookProof.Starobinsky.starobinskyV M alpha phi
   | some i => fun x => omega i ^ 2 * x ^ 2
 
 theorem contDiff_qgFiberV (M alpha : ℝ) {d : ℕ} (omega : Fin d → ℝ) (i : Option (Fin d)) :
     ContDiff ℝ ((⊤ : ℕ∞) : WithTop ℕ∞) (qgFiberV M alpha omega i) := by
   cases i with
-  | none => exact contDiff_starobinskyV M alpha
+  | none => exact BookProof.ScalaronEsa.contDiff_starobinskyV M alpha
   | some i => exact contDiff_const.mul (contDiff_id.pow 2)
 
 theorem qgFiberV_nonneg {M alpha : ℝ} (halpha : 0 < alpha) {d : ℕ} (omega : Fin d → ℝ)
     (i : Option (Fin d)) (x : ℝ) : 0 ≤ qgFiberV M alpha omega i x := by
   cases i with
   | none => exact BookProof.Starobinsky.starobinskyV_nonneg halpha x
-  | some i => positivity
+  | some i => exact mul_nonneg (sq_nonneg _) (sq_nonneg _)
 
 /-- **The composed QG fibre model is essentially self-adjoint.**  Every fibre carries the
 positive kinetic term `−d²/dxᵢ²` and a non-negative wall, so QG-2 Case A applies fibrewise
