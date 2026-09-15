@@ -734,6 +734,48 @@ Navier–Stokes symbol $`u_j u_{i,j} - \nu u_{i,jj}`.
 ```
 
 :::paragraph
+Both families of generators are abelian, which is the situation BRST was made
+for: one ghost $`\chi_j` per generator, carried on $`\Lambda(\mathbb{C}^3)`
+(`nsGhost_car`), no cubic ghost term, and the charge
+$`\Omega = \sum_j G_j\chi_j` (`nsDerivBrstCharge`), which squares to zero
+(`nsDerivBrstCharge_nilpotent`) without being the zero operator
+(`nsDerivBrstCharge_ne_zero`), so the statements below are not vacuous. The
+Hamiltonian must be built from the momentum conjugate to the *field*, not from
+$`\partial/\partial x_i`: with $`\pi^i = \partial/\partial u_i` the momentum
+fails to commute with the symbol $`A_i = u_j(y)u_{i,j} - \nu u_{i,jj}`
+(`genU_nsSymbol`), so the symmetrised ordering $`\pi^iA_i + A_i\pi^i` carries
+real content and differs from the superseded version
+(`nsHamAlg_ne_nsHamAlgX`) — already on the constant state. The charge is odd and
+the Hamiltonian even, so the compatibility of the gauge fixing with the
+dynamics is the *commutator* $`[\Omega,H] = 0`, and it holds
+(`nsDerivBrstCharge_comm_hamiltonian`): the Hamiltonian maps BRST-closed states
+to BRST-closed states and BRST-exact states to BRST-exact states
+(`nsHamiltonian_mapsTo_ker`, `nsHamiltonian_mapsTo_range`), hence descends to
+the cohomology (`nsBrstCohomologyMap`). The order of the generator genuinely
+matters — the first-order generator is not a symmetry of the second-order field
+(`genY_uField2_ne_zero`) — so the second-order charge is a separate statement,
+proved separately (`nsDerivBrstCharge2_comm_hamiltonian2`).
+:::
+
+```
+#check @BookProof.NsBrstDerivativeGauge.nsGaugeConstraint
+#check @BookProof.NsBrstDerivativeGauge.nsGhost_car
+#check @BookProof.NsBrstDerivativeGauge.nsDerivBrstCharge
+#check @BookProof.NsBrstDerivativeGauge.nsDerivBrstCharge_nilpotent
+#check @BookProof.NsBrstDerivativeGauge.nsDerivBrstCharge_ne_zero
+#check @BookProof.NsBrstDerivativeGauge.nsGaugeConstraint_comm
+#check @BookProof.NsBrstDerivativeGauge.genU_ccr_u
+#check @BookProof.NsBrstDerivativeGauge.genU_nsSymbol
+#check @BookProof.NsBrstDerivativeGauge.nsHamAlg_ne_nsHamAlgX
+#check @BookProof.NsBrstDerivativeGauge.nsDerivBrstCharge_comm_hamiltonian
+#check @BookProof.NsBrstDerivativeGauge.nsDerivBrstCharge2_comm_hamiltonian2
+#check @BookProof.NsBrstDerivativeGauge.nsHamiltonian_mapsTo_ker
+#check @BookProof.NsBrstDerivativeGauge.nsHamiltonian_mapsTo_range
+#check @BookProof.NsBrstDerivativeGauge.nsBrstCohomologyMap
+#check @BookProof.NavierStokesGaugeY2.genY_uField2_ne_zero
+```
+
+:::paragraph
 On a *finite truncation* — finitely many modes, each a Hermitian matrix, the
 field modes commuting as multiplication operators do — the whole claim is
 provable. The Hamiltonian is Hermitian (the anticommutator of two Hermitian

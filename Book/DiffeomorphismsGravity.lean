@@ -1064,6 +1064,66 @@ $`[H,E] = E`, whose two generators demonstrably fail to commute
 #check @BookProof.QuantumGravityBrstCharge.affBRST_nilpotent
 ```
 
+# Fixing the Derivative Variables: the Torsion Becomes Linear
+
+:::paragraph
+The constraints above are already algebraic in the field coordinates — the
+$`x_j\partial_k` that close into a matrix Lie algebra. The gauge fixing of the
+*derivative* variables is the other half of the manuscript's construction, and
+it is the same device the Navier–Stokes chapters use for
+$`u_{i,j} = \partial_j u_i`: adjoin the derivative as an independent canonical
+variable, and let the gauge condition set it back equal to the derivative of the
+field. For gravity the extended variables are the vielbein modes
+$`e_\nu{}^i(k)` (`CMode`) together with one auxiliary derivative mode
+$`D_{\mu\nu}{}^i(k)` for every spatial derivative of every vielbein component;
+the two families together are `EMode`, and the derivative part alone is `DMode`.
+The gain is immediate: in these variables the torsion is *linear in the
+auxiliaries alone*, $`T_{\mu\nu}{}^i = D_{\mu\nu}{}^i - D_{\nu\mu}{}^i`, with no
+derivative appearing anywhere (`extTorsionCoef`). The auxiliary modes are not
+decoration: `extTorsionCoef_ne_zero` shows their coefficients are genuinely
+present. The whole derivative content sits in the gauge condition
+$`D_{\mu\nu}{}^i(k) = \mathrm{i}k_\mu e_\nu{}^i(k)` — exactly the statement that
+an auxiliary variable is fixed to a spatial derivative of a field — and it is
+abelian, hence first class, hence gauge-able. `gaugeReduce` performs that
+substitution on linear forms, and two identities say that nothing is lost: the
+gauge-fixed extended torsion form is *exactly* the physical torsion
+$`k_\mu e_\nu{}^i - k_\nu e_\mu{}^i` of the continuum model
+(`gaugeReduce_extTorsionCoef`), and hence the gauge-fixed Gram matrix of all
+extended torsion terms is exactly the vielbein self-interaction of that model
+(`gaugeReduce_gram`, `contTorsionGram`). Consequently the gauge-fixed
+quantum-gravity Hamiltonian *is* the continuum Hamiltonian and is essentially
+self-adjoint on the outer Fock space (`brstGaugeFixed_esa`), the Starobinsky
+instance included (`starobinsky_brstGaugeFixed_esa`).
+:::
+
+:::paragraph
+A gauge condition does more than rewrite the torsion: it *deletes modes*. That
+the physical Hamiltonian is still essentially self-adjoint on what survives
+therefore needs its own argument, and the general principle supplies it —
+admissible mode data restricted to *any* subset of the modes is again admissible
+(`restrictModes`). Every Faris–Lavine bound survives with the same constant
+$`K`, because each sum involved is a sum of non-negative terms over a smaller
+index set (`restrict_essentiallySelfAdjointOn`). Applied to a set of modes that
+survive a gauge condition, this is the statement that gauge fixing cannot
+destroy essential self-adjointness (`gaugeFixedSubset_esa`).
+:::
+
+```
+#check @BookProof.QgBrstDerivativeGauge.DMode
+#check @BookProof.QgBrstDerivativeGauge.EMode
+#check @BookProof.QgBrstDerivativeGauge.extTorsionCoef
+#check @BookProof.QgBrstDerivativeGauge.extTorsionCoef_ne_zero
+#check @BookProof.QgBrstDerivativeGauge.gaugeReduce
+#check @BookProof.QgBrstDerivativeGauge.gaugeReduce_extTorsionCoef
+#check @BookProof.QgBrstDerivativeGauge.gaugeReduce_gram
+#check @BookProof.QgContinuumModeInstance.contTorsionGram
+#check @BookProof.QgBrstDerivativeGauge.brstGaugeFixed_esa
+#check @BookProof.QgBrstDerivativeGauge.starobinsky_brstGaugeFixed_esa
+#check @BookProof.QgBrstDerivativeGauge.restrictModes
+#check @BookProof.QgBrstDerivativeGauge.restrict_essentiallySelfAdjointOn
+#check @BookProof.QgBrstDerivativeGauge.gaugeFixedSubset_esa
+```
+
 # The Graded Fock Space: Bosons, Ghosts and the Second Quantization
 
 :::paragraph

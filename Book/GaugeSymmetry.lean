@@ -95,6 +95,34 @@ principle be implemented without giving the constrained space null measure. The
 verified finite-dimensional content is the conditional-probability core above.
 :::
 
+:::paragraph
+A device used twice in this book puts that picture to work on a constraint that
+is a *spatial derivative* rather than an algebraic relation. The relations that
+define the derivative modes of a field — $`u_{i,j} = \partial_j u_i` for
+Navier–Stokes, the derivatives of the vielbein for gravity — have no explicit
+solution, so they are the ones a gauge generator has to impose. The manoeuvre is
+to adjoin each derivative as an *independent canonical variable* and let the
+gauge condition set it back equal to the derivative of the field. What is bought
+is that the constraint becomes algebraic and abelian, hence first class, so the
+BRST machinery of the following sections applies, whereas the differential
+relation it replaces generates no finitely generated gauge algebra. The
+Navier–Stokes instantiation is the generator
+$`G_j = \partial/\partial y_j - u_{i,j}\,\partial/\partial u_i`
+(`BookProof.NavierStokesGaugeY.genY`), which translates a second coordinate
+$`y` while shifting each velocity mode by its own first derivative; the
+gravitational one adjoins one derivative mode per spatial derivative of every
+vielbein component, and in those variables the torsion becomes linear in the
+auxiliaries with no derivative left
+(`BookProof.QgBrstDerivativeGauge.extTorsionCoef`). The BRST completion of each
+is `BookProof.NsBrstDerivativeGauge` in the free-field chapter and
+`BookProof.QgBrstDerivativeGauge`, with its substitution operator `gaugeReduce`,
+in the diffeomorphism chapter. Both chapters keep this gauge fixing separate from
+the algebraic constraints above precisely because the derivative variable, not
+the field, is what the gauge condition acts on: the field $`u_i(y)` is invariant
+under $`G_j` (`BookProof.NavierStokesGaugeY.genY_uField`), and it is the
+derivative mode that moves.
+:::
+
 # Constraints That Commute with the Hamiltonian Are Conserved
 
 :::paragraph
