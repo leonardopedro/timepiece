@@ -212,6 +212,49 @@ that conditional, $`\rho_{ii} = \sum_k \|U_{ik}\|^2 d_k`:
 #check @BookProof.DensitySpectral.density_marginal_conditional
 ```
 
+# A Concrete Parametrization: the Pauli–Grover Rotation
+
+:::paragraph
+The abstract theorem of this chapter — every conditional probability measure is
+parametrized by a unitary operator — has a concrete finite-dimensional instance: the
+Pauli–Grover rotation of `QFM.tex` (*Alternate Hamiltonian: the Pauli--Grover
+construction*). For each training pair `(i, f_i)` the generator acts as a Pauli-X
+rotation in the two-dimensional subspace `{ |i,0⟩, |i,f_i⟩ }` of input `i`'s output
+space. At the ideal coupling `a = 1` it is the exact swap, so evolving `|0⟩` for time
+`τ = π/2` yields `|f⟩` up to an unobservable global phase. The readout probability
+$`p(f|i) = |\langle i,f|\,e^{-iH_{\mathrm{PG}}\pi/2}\,|i,0\rangle|^2 = 1` is therefore
+a *deterministic* regular conditional probability — a perfect classifier on the
+training pair.
+:::
+
+:::paragraph
+The finite case $`X = Y = \mathrm{Fin}\,2` is formalized in
+`BookProof.ChapterPauliGrover`. The swap `pauliX` is a unitary, so it is a valid
+instance of the parametrization above; its column `0` is the delta on output `1`, so
+the joint concentrates on `(0,1)`, the marginal at input `0` is `1`, and the regular
+conditional probability $`p(f|0)` is `1`:
+:::
+
+```
+#check @BookProof.ChapterPauliGrover.pauliX_unitary
+#check @BookProof.ChapterPauliGrover.pauliX_rotates
+#check @BookProof.ChapterPauliGrover.pauliX_parametrizes_delta
+#check @BookProof.ChapterPauliGrover.pauliGrover_cond_one
+#check @exists_unitary_joint
+#check @pCond
+#check @pJoint_eq_cond_mul_marg
+```
+
+:::paragraph
+Two parts of the construction are book prose rather than formalized statements: the
+imperfect rotation `a < 1`, whose generator retains a small `|0⟩` component and which
+the config field `pauli_grover_a` tunes (default `1.0`); and the two global
+ingredients — the sum of the per-input generators over the training set, together with
+a $`\sqrt{N}`-weighted vacuum projector on the unseen inputs, and the Krylov starting
+vector $`v_0` that the SIRK iteration needs. The chapter formalizes the ideal `a = 1`
+swap, which is the case `QFM.tex` reports as achieving 100% training accuracy.
+:::
+
 # What Is Verified and What Is Infinite-Dimensional
 
 :::paragraph

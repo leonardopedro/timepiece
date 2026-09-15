@@ -10,7 +10,8 @@ Source: the Pauli–Grover construction of `QFM.tex`
 unitary parametrization of a regular conditional probability (`book.tex` §3 *"Any
 conditional probability measure in a standard measure space is parametrized by a
 unitary operator"*, formalized abstractly in `ChapterJointUnitary` and
-`ChapterConditional`).
+`ChapterConditional`).  The section is `sec:pauli-grover` of `QFM.tex`, and §11 of
+the book quotes it (`Book/ConditionalUnitary.lean`).
 
 The Pauli–Grover Hamiltonian acts, for each training pair `(i, fᵢ)`, as a Pauli-X
 rotation in the two-dimensional subspace `{ |i,0⟩, |i,fᵢ⟩ }`. In the ideal case
@@ -77,7 +78,7 @@ theorem pauliX_rotates : pauliX 1 0 = 1 ∧ pauliX 0 0 = 0 := by
 concentrated on output `1`: the swap parametrizes a deterministic output. -/
 theorem pauliX_parametrizes_delta (y : Fin 2) :
     ‖pauliX y 0‖ ^ 2 = (if y = 1 then 1 else 0 : ℝ) := by
-  fin_cases y <;> simp [pauliX] <;> norm_num
+  fin_cases y <;> simp [pauliX]
 
 /-- The joint probability `p(0, f) = |pauliX(f, 0)|²` concentrates on the training
 pair `(0, 1)`. -/
