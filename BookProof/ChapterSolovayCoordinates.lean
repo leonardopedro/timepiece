@@ -1,5 +1,5 @@
 import Mathlib
-import PnpProof.SphereGaussian
+import BookProof.PhysHSGaussian
 
 /-!
 # Coordinate Gaussian extension of the Solovay tail
@@ -37,11 +37,11 @@ instance gaussianHead_isProbability (k : ℕ) :
 abbrev CoordinateTail := ℕ → ℝ
 
 /-- Its Mehler law: the countable product of standard Gaussians. -/
-abbrev coordinateTailMeasure : Measure CoordinateTail := PnpProof.gammaMeasure
+abbrev coordinateTailMeasure : Measure CoordinateTail := PhysHSGaussian.gammaMeasure
 
 instance coordinateTailMeasure_isProbability :
     IsProbabilityMeasure coordinateTailMeasure := by
-  exact PnpProof.gammaMeasure_isProbability
+  exact PhysHSGaussian.gammaMeasure_isProbability
 
 /-- Restriction to any finite coordinate set has the corresponding finite
 product Gaussian law.  This gives the model its explicit coordinate
@@ -50,6 +50,53 @@ theorem finiteCoordinateMarginal (I : Finset ℕ) :
     Measure.map I.restrict coordinateTailMeasure =
       Measure.pi (fun _ : I => standardGaussian) := by
   exact Measure.infinitePi_map_restrict (fun _ : ℕ => standardGaussian)
+
+/-- Pushing an infinite product measure indexed by a sum type forward along the
+canonical `(Π i : ι ⊕ ι', X i) ≃ (Π i : ι, X (.inl i)) × (Π j : ι', X (.inr j))`
+splitting: the image is the product of the two factor product measures.  Stated
+here in the direction of the inverse equivalence, where the characterization of
+`Measure.infinitePi` by its values on measurable boxes applies directly. -/
+theorem infinitePi_map_sumPiEquivProdPi_symm {ι ι' : Type*} {X : ι ⊕ ι' → Type*}
+    [∀ i, MeasurableSpace (X i)] (mu : ∀ i, Measure (X i))
+    [∀ i, IsProbabilityMeasure (mu i)] :
+    Measure.map (MeasurableEquiv.sumPiEquivProdPi X).symm
+      ((Measure.infinitePi fun i : ι => mu (Sum.inl i)).prod
+        (Measure.infinitePi fun j : ι' => mu (Sum.inr j))) = Measure.infinitePi mu := by
+  refine Measure.eq_infinitePi _ fun s t ht => ?_
+  rw [Measure.map_apply (MeasurableEquiv.measurable _)
+    (MeasurableSet.pi s.countable_toSet fun _ _ => ht _)]
+  have hpre : ⇑(MeasurableEquiv.sumPiEquivProdPi X).symm ⁻¹' ((s : Set (ι ⊕ ι')).pi t)
+      = ((s.toLeft : Set ι).pi fun i => t (Sum.inl i)) ×ˢ
+        ((s.toRight : Set ι').pi fun j => t (Sum.inr j)) := by
+    ext ⟨a, b⟩
+    constructor
+    · intro h
+      refine ⟨fun i hi => ?_, fun j hj => ?_⟩
+      · simpa using h (Sum.inl i) (by simpa using hi)
+      · simpa using h (Sum.inr j) (by simpa using hj)
+    · rintro ⟨h1, h2⟩ i hi
+      cases i with
+      | inl i => simpa using h1 i (by simpa using hi)
+      | inr j => simpa using h2 j (by simpa using hi)
+  rw [hpre, Measure.prod_prod,
+    Measure.infinitePi_pi (μ := fun i : ι => mu (Sum.inl i)) (s := s.toLeft)
+      (t := fun i => t (Sum.inl i)) (fun i _ => ht _),
+    Measure.infinitePi_pi (μ := fun j : ι' => mu (Sum.inr j)) (s := s.toRight)
+      (t := fun j => t (Sum.inr j)) (fun j _ => ht _),
+    Finset.prod_sum_eq_prod_toLeft_mul_prod_toRight s (fun i => mu i (t i))]
+
+/-- Forward form of `infinitePi_map_sumPiEquivProdPi_symm` when the left index
+type is finite: the infinite product over `ι ⊕ ι'` splits as the finite product
+measure on the `ι`-block times the infinite product measure on the `ι'`-block. -/
+theorem infinitePi_map_sumPiEquivProdPi {ι ι' : Type*} [Fintype ι] {X : ι ⊕ ι' → Type*}
+    [∀ i, MeasurableSpace (X i)] (mu : ∀ i, Measure (X i))
+    [∀ i, IsProbabilityMeasure (mu i)] :
+    Measure.map (MeasurableEquiv.sumPiEquivProdPi X) (Measure.infinitePi mu)
+      = (Measure.pi fun i : ι => mu (Sum.inl i)).prod
+        (Measure.infinitePi fun j : ι' => mu (Sum.inr j)) := by
+  rw [← Measure.infinitePi_eq_pi]
+  exact (MeasurableEquiv.map_apply_eq_iff_map_symm_apply_eq _).2
+    (infinitePi_map_sumPiEquivProdPi_symm mu).symm
 
 /-- Split the first `k` coordinates from an infinite sequence. -/
 def tailSplitEquiv (k : ℕ) : CoordinateTail ≃ᵐ (Fin k → ℝ) × CoordinateTail :=
@@ -61,7 +108,8 @@ theorem tailSplitEquiv_map (k : ℕ) :
     Measure.map (tailSplitEquiv k) coordinateTailMeasure =
       (gaussianHead k).prod coordinateTailMeasure :=
   by
-  dsimp [coordinateTailMeasure, gaussianHead, standardGaussian, tailSplitEquiv, PnpProof.gammaMeasure]
+  dsimp [coordinateTailMeasure, gaussianHead, standardGaussian, tailSplitEquiv,
+      PhysHSGaussian.gammaMeasure]
   have h_reindex : Measure.map
       ((MeasurableEquiv.piCongrLeft (fun _ : ℕ => ℝ) (finSumNatEquiv k)).symm)
       (Measure.infinitePi (fun _ : ℕ => gaussianReal 0 1)) =
@@ -81,8 +129,7 @@ theorem tailSplitEquiv_map (k : ℕ) :
       (Measure.infinitePi (fun _ : Fin k ⊕ ℕ => gaussianReal 0 1)) =
       (Measure.pi (fun _ : Fin k => gaussianReal 0 1)).prod
       (Measure.infinitePi (fun _ : ℕ => gaussianReal 0 1)) := by
-    -- This follows from the fact that infinitePi on a sum type splits as product
-    sorry
+    exact infinitePi_map_sumPiEquivProdPi (fun _ : Fin k ⊕ ℕ => gaussianReal 0 1)
   calc
     Measure.map
       ((MeasurableEquiv.piCongrLeft (fun _ : ℕ => ℝ) (finSumNatEquiv k)).symm.trans
@@ -207,11 +254,13 @@ theorem enlargeEquiv_map (N k : ℕ) (headDist : Measure (Fin N → ℝ))
   -- Define the intermediate equivalences
   let e1 : (Fin N → ℝ) × CoordinateTail ≃ᵐ (Fin N → ℝ) × ((Fin k → ℝ) × CoordinateTail) :=
     (MeasurableEquiv.refl (Fin N → ℝ)).prodCongr (tailSplitEquiv k)
-  let e2 : (Fin N → ℝ) × ((Fin k → ℝ) × CoordinateTail) ≃ᵐ ((Fin N → ℝ) × (Fin k → ℝ)) × CoordinateTail :=
+  let e2 : (Fin N → ℝ) × ((Fin k → ℝ) × CoordinateTail) ≃ᵐ ((Fin N → ℝ) × (Fin k → ℝ)) ×
+      CoordinateTail :=
     MeasurableEquiv.prodAssoc.symm
   let e3 : ((Fin N → ℝ) × (Fin k → ℝ)) × CoordinateTail ≃ᵐ (Fin (N + k) → ℝ) × CoordinateTail :=
     ((MeasurableEquiv.piCongrLeft (fun x => ℝ) finSumFinEquiv).symm.trans
-      (MeasurableEquiv.sumPiEquivProdPi fun x => ℝ)).symm.prodCongr (MeasurableEquiv.refl CoordinateTail)
+      (MeasurableEquiv.sumPiEquivProdPi fun x => ℝ)).symm.prodCongr (MeasurableEquiv.refl
+          CoordinateTail)
   let e23 := e2.trans e3
   let e123 := e1.trans e23
   -- The enlargeEquiv is e1.trans (e2.trans e3)
@@ -235,20 +284,25 @@ theorem enlargeEquiv_map (N k : ℕ) (headDist : Measure (Fin N → ℝ))
   have h_trans : ⇑(e1.trans e23) = ⇑e23 ∘ ⇑e1 := rfl
   rw [h_trans, ← Measure.map_map (MeasurableEquiv.measurable e23) (MeasurableEquiv.measurable e1)]
   simp only [e1]
-  have h_map_eq : Measure.map (⇑((MeasurableEquiv.refl (Fin N → ℝ)).prodCongr (tailSplitEquiv k))) (headDist.prod coordinateTailMeasure) = headDist.prod (Measure.map (tailSplitEquiv k) coordinateTailMeasure) := by
-    simp +unfoldPartialApp [MeasurableEquiv.prodCongr]
-    rw [show Prod.map id (⇑(tailSplitEquiv k)) = (fun p : (Fin N → ℝ) × CoordinateTail => (p.1, tailSplitEquiv k p.2)) from rfl]
-    rw [show (fun p : (Fin N → ℝ) × CoordinateTail => (p.1, tailSplitEquiv k p.2)) = Prod.map (id : (Fin N → ℝ) → (Fin N → ℝ)) (tailSplitEquiv k) from rfl]
+  have h_map_eq : Measure.map (⇑((MeasurableEquiv.refl (Fin N → ℝ)).prodCongr (tailSplitEquiv k)))
+      (headDist.prod coordinateTailMeasure) = headDist.prod (Measure.map (tailSplitEquiv k)
+          coordinateTailMeasure) := by
+    simp? +unfoldPartialApp [MeasurableEquiv.prodCongr]
+    rw [show Prod.map id (⇑(tailSplitEquiv k)) = (fun p : (Fin N → ℝ) × CoordinateTail => (p.1,
+        tailSplitEquiv k p.2)) from rfl]
+    rw [show (fun p : (Fin N → ℝ) × CoordinateTail => (p.1, tailSplitEquiv k p.2)) = Prod.map (id :
+        (Fin N → ℝ) → (Fin N → ℝ)) (tailSplitEquiv k) from rfl]
     ext s hs
     rw [Measure.map_apply (by measurability : Measurable _) hs]
-    rw [Measure.prod_apply (by measurability : MeasurableSet (Prod.map id (tailSplitEquiv k) ⁻¹' s))]
+    rw [Measure.prod_apply (by measurability : MeasurableSet (Prod.map id (tailSplitEquiv k) ⁻¹'
+                               s))]
     rw [Measure.prod_apply hs]
     apply congr_arg
     funext x
     rw [Measure.map_apply (MeasurableEquiv.measurable _) (by measurability : MeasurableSet _)]
     apply congr_arg
     funext y
-    simp [Set.mem_preimage, Set.preimage]
+    simp [Set.preimage]
   rw [h_map_eq, h_tailSplit]
   unfold enlargedHeadMeasure
   -- Goal: Measure.map e23 (headDist.prod ((gaussianHead k).prod coordinateTailMeasure)) = 
@@ -261,13 +315,15 @@ theorem enlargeEquiv_map (N k : ℕ) (headDist : Measure (Fin N → ℝ))
   rw [Measure.map_map (MeasurableEquiv.measurable _) (MeasurableEquiv.measurable e2)]
   -- The composition (e3.prodCongr refl) ∘ e2 = ((e3'.prodCongr refl) ∘ e2)
   -- We need to simplify: (e3'.prodCongr refl) ∘ e2
-  -- e2 reassociates,    so (e3'.prodCongr refl) ∘ e2 = (e3' ∘ fst₂) ⊗ refl ∘ snd₂ where fst₂,    snd₂ are projections through e2
+  -- e2 reassociates, so (e3'.prodCongr refl) ∘ e2 = (e3' ∘ fst₂) ⊗ refl ∘ snd₂ where fst₂, snd₂ are
+  -- projections through e2
   -- Actually, let's just use simp to simplify the composition
   simp only [Function.comp_def]
   -- The function is: fun (a, (b, c)) => (e3' (a, b), c)
   -- This is equivalent to Prod.map e3' id composed with e2
   have h_fun : (fun x => (((MeasurableEquiv.piCongrLeft (fun x => ℝ) finSumFinEquiv).symm.trans 
-      (MeasurableEquiv.sumPiEquivProdPi fun x => ℝ)).symm.prodCongr (MeasurableEquiv.refl CoordinateTail)) (e2 x)) 
+      (MeasurableEquiv.sumPiEquivProdPi fun x => ℝ)).symm.prodCongr (MeasurableEquiv.refl
+          CoordinateTail)) (e2 x)) 
       = Prod.map (((MeasurableEquiv.piCongrLeft (fun x => ℝ) finSumFinEquiv).symm.trans 
       (MeasurableEquiv.sumPiEquivProdPi fun x => ℝ)).symm) id ∘ e2 := rfl
   rw [h_fun]
@@ -280,8 +336,10 @@ theorem enlargeEquiv_map (N k : ℕ) (headDist : Measure (Fin N → ℝ))
   let e3' : (Fin N → ℝ) × (Fin k → ℝ) ≃ᵐ (Fin (N + k) → ℝ) :=
     ((MeasurableEquiv.piCongrLeft (fun x => ℝ) (finSumFinEquiv (m := N) (n := k))).symm.trans
       (MeasurableEquiv.sumPiEquivProdPi fun x => ℝ)).symm
-  have h1 : (Measure.map (Prod.map e3' id) (Measure.map e2 (headDist.prod ((gaussianHead k).prod coordinateTailMeasure)))) s =
-      (Measure.map e2 (headDist.prod ((gaussianHead k).prod coordinateTailMeasure))) (Prod.map e3' id ⁻¹' s) := by
+  have h1 : (Measure.map (Prod.map e3' id) (Measure.map e2 (headDist.prod ((gaussianHead k).prod
+      coordinateTailMeasure)))) s =
+      (Measure.map e2 (headDist.prod ((gaussianHead k).prod coordinateTailMeasure))) (Prod.map e3'
+          id ⁻¹' s) := by
     apply Measure.map_apply
     · measurability
     · measurability
@@ -303,42 +361,51 @@ theorem enlargeEquiv_map (N k : ℕ) (headDist : Measure (Fin N → ℝ))
     simp [Set.mem_preimage, Prod.map, e2]; rfl
   rw [h_preimage]
   -- Use Measure.prod_apply on LHS
-  have h_meas : MeasurableSet {p : (Fin N → ℝ) × (Fin k → ℝ) × CoordinateTail | (e3' (p.1, p.2.1), p.2.2) ∈ s} := by
-    have : Measurable (fun p : (Fin N → ℝ) × (Fin k → ℝ) × CoordinateTail => (e3' (p.1, p.2.1), p.2.2)) := by
+  have h_meas : MeasurableSet {p : (Fin N → ℝ) × (Fin k → ℝ) × CoordinateTail | (e3' (p.1, p.2.1),
+      p.2.2) ∈ s} := by
+    have : Measurable (fun p : (Fin N → ℝ) × (Fin k → ℝ) × CoordinateTail => (e3' (p.1, p.2.1),
+        p.2.2)) := by
       measurability
     exact this hs
   rw [Measure.prod_apply h_meas]
   -- Simplify the inner set: Prod.mk x ⁻¹' {p | (e3' (p.1, p.2.1), p.2.2) ∈ s}
   -- = {(b, c) | (e3' (x, b), c) ∈ s}
-  have h_inner : ∀ x : Fin N → ℝ,    Prod.mk x ⁻¹' {p : (Fin N → ℝ) × (Fin k → ℝ) × CoordinateTail | (e3' (p.1, p.2.1), p.2.2) ∈ s} = 
+  have h_inner : ∀ x : Fin N → ℝ,    Prod.mk x ⁻¹' {p : (Fin N → ℝ) × (Fin k → ℝ) × CoordinateTail |
+      (e3' (p.1, p.2.1), p.2.2) ∈ s} = 
       {(b, c) : (Fin k → ℝ) × CoordinateTail | (e3' (x, b), c) ∈ s} := by
     intro x
     ext ⟨b, c⟩
-    simp [Set.mem_preimage]
+    simp []
   simp_rw [h_inner]
   -- Apply Measure.prod_apply to inner measure
-  have h_inner_meas : ∀ x : Fin N → ℝ,    MeasurableSet {(b, c) : (Fin k → ℝ) × CoordinateTail | (e3' (x, b), c) ∈ s} := by
+  have h_inner_meas : ∀ x : Fin N → ℝ,    MeasurableSet {(b, c) : (Fin k → ℝ) × CoordinateTail |
+      (e3' (x, b), c) ∈ s} := by
     intro x
     have : Measurable (fun p : (Fin k → ℝ) × CoordinateTail => (e3' (x, p.1), p.2)) := by
       measurability
     exact this hs
   -- Rewrite using Measure.prod_apply inside the integral
-  have h_lhs_eq : ∀ x : Fin N → ℝ,    ((gaussianHead k).prod coordinateTailMeasure) {(b, c) | (e3' (x, b), c) ∈ s} =
+  have h_lhs_eq : ∀ x : Fin N → ℝ,    ((gaussianHead k).prod coordinateTailMeasure) {(b, c) | (e3'
+      (x, b), c) ∈ s} =
       ∫⁻ (b : Fin k → ℝ), coordinateTailMeasure {c | (e3' (x, b), c) ∈ s} ∂gaussianHead k := by
     intro x
     exact Measure.prod_apply (h_inner_meas x)
   simp_rw [h_lhs_eq]
   -- The goal should now be to show LHS = RHS after the previous rewrites
   -- Define the function we're integrating
-  let f : (Fin N → ℝ) → (Fin k → ℝ) → ℝ≥0∞ := fun x b => coordinateTailMeasure {c | (e3' (x, b), c) ∈ s}
+  let f : (Fin N → ℝ) → (Fin k → ℝ) → ℝ≥0∞ := fun x b => coordinateTailMeasure {c | (e3' (x, b), c)
+      ∈ s}
   -- Measurability of the section measure
   have hg : Measurable (fun x => coordinateTailMeasure {x_1 | (x, x_1) ∈ s}) := 
     measurable_measure_prodMk_left hs
   -- Show measurability of f
-  have h_f_meas : AEMeasurable (fun p : (Fin N → ℝ) × (Fin k → ℝ) => f p.1 p.2) (headDist.prod (gaussianHead k)) := by
-    have heq : (fun p : (Fin N → ℝ) × (Fin k → ℝ) => f p.1 p.2) = (fun x => coordinateTailMeasure {x_1 | (x, x_1) ∈ s}) ∘ e3' := rfl
+  have h_f_meas : AEMeasurable (fun p : (Fin N → ℝ) × (Fin k → ℝ) => f p.1 p.2) (headDist.prod
+      (gaussianHead k)) := by
+    have heq : (fun p : (Fin N → ℝ) × (Fin k → ℝ) => f p.1 p.2) = (fun x => coordinateTailMeasure
+        {x_1 | (x, x_1) ∈ s}) ∘ e3' := rfl
     rw [heq]
-    exact AEMeasurable.comp_aemeasurable (Measurable.aemeasurable hg) (MeasurableEquiv.measurable e3').aemeasurable
+    exact AEMeasurable.comp_aemeasurable (Measurable.aemeasurable hg) (MeasurableEquiv.measurable
+        e3').aemeasurable
   -- Apply Fubini's theorem to LHS: ∫⁻ x, ∫⁻ b, f(x,b) ∂ν ∂μ = ∫⁻ p, f(p.1, p.2) ∂(μ.prod ν)
   have h_fubini : ∫⁻ (x : Fin N → ℝ), ∫⁻ (b : Fin k → ℝ), f x b ∂(gaussianHead k) ∂headDist = 
       ∫⁻ (p : (Fin N → ℝ) × (Fin k → ℝ)), f p.1 p.2 ∂(headDist.prod (gaussianHead k)) := by

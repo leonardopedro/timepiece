@@ -124,6 +124,24 @@ The pointwise Gibbs bound that drives the proof is itself verified:
 #check @ChapterMaxEntropy.negMulLog_sub_le
 ```
 
+# A Fixed Mean Instead of a Fixed Count — The Thermal Law
+
+:::paragraph
+The uniform distribution maximizes entropy among distributions on a *fixed number
+of outcomes*. The same principle, applied with a *fixed mean value* rather than a
+fixed count, selects the thermal law: among finitely supported occupation
+distributions with a prescribed mean occupation, the Gibbs law is the unique
+maximizer of the Shannon entropy. This variational characterization of the thermal
+state is proved in `BookProof.ChapterThermalMaxEntropy`:
+:::
+
+```
+#check @BookProof.ChapterThermalMaxEntropy.thermalEntropy
+#check @BookProof.ChapterThermalMaxEntropy.thermalEntropy_eq
+#check @BookProof.ChapterThermalMaxEntropy.gibbs_pointwise
+#check @BookProof.ChapterThermalMaxEntropy.shannonEntropy_le_thermalEntropy
+```
+
 # Two Roads, One Prior — Both Within a Parametrization
 
 :::paragraph

@@ -185,4 +185,28 @@ theorem dissipative_nonsingular_Icc {a b : ℝ} (h : a < b) :
   simp only [ENNReal.ofReal_pos]
   linarith
 
+/-- **Dissipation, general form.**  The dissipative map halves the Lebesgue
+measure of an *arbitrary* set, not just of an interval. -/
+theorem dissipative_volume_image (A : Set ℝ) :
+    volume (dissipative '' A) = volume A / 2 := by
+  open Pointwise in
+  have h : dissipative '' A = (2⁻¹ : ℝ) • A := by
+    ext y
+    constructor
+    · rintro ⟨x, hx, rfl⟩
+      exact ⟨x, hx, by simp [dissipative, smul_eq_mul]; ring⟩
+    · rintro ⟨x, hx, rfl⟩
+      exact ⟨x, hx, by simp [dissipative, smul_eq_mul]; ring⟩
+  rw [h, Measure.addHaar_smul]
+  simp only [Module.finrank_self, pow_one, abs_inv, Nat.abs_ofNat, Nat.ofNat_pos,
+    ENNReal.ofReal_inv_of_pos, ENNReal.ofReal_ofNat]
+  rw [ENNReal.div_eq_inv_mul]
+
+/-- **Non-singularity, general form.**  The dissipative map sends every set of
+positive Lebesgue measure to a set of positive Lebesgue measure. -/
+theorem dissipative_nonsingular {A : Set ℝ} (h : 0 < volume A) :
+    0 < volume (dissipative '' A) := by
+  rw [dissipative_volume_image]
+  simp [ENNReal.div_pos_iff, h.ne']
+
 end BookProof.IrreversibleDynamics

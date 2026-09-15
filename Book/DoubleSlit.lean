@@ -14,7 +14,7 @@ The ensemble interpretation, by itself, does not explain why an electron's
 wave-function appears to *interfere with itself* in Young's double-slit experiment
 — that would seem to require the wave-function to describe an _individual_ system.
 This chapter fills the gap using the result of
-{ref "time-translation-stochastic"}[the previous chapter]: the time-evolution is a
+{ref "deterministic-transformations"}[the previous chapter]: the time-evolution is a
 stochastic process only when it is deterministic.
 
 # The Two Transformations
@@ -126,6 +126,87 @@ measurement, the state is $`(1,0)`. The difference between them is exactly the
 interference cross term — present in the coherent product, erased by the
 intermediate measurement.
 
+# Weak Measurements and the Reconstruction of the Trajectory
+
+The double-slit reconstruction is the book's instance of the *weak measurement*
+idea (the manuscript's "reconstruction of the trajectory", citing Tamir and Cohen
+on weak measurements and weak values). The point is subtle: one cannot directly
+measure the state of a system at an *intermediate* time without disturbing it. But
+one can *post-select* — run the experiment many times, keep only the trials that
+end at a chosen final outcome $`f`, and inspect the conditional distribution of the
+intermediate outcome $`a` given that final state. Because the intermediate
+distribution is recovered *consistently* (summing the post-selected joint law over
+all final outcomes returns the un-post-selected middle law,
+`jointProb_sum_final_eq_midProb`), the reconstructed picture is a genuine
+probability theory, not an artifact.
+
+The weak-value reading sharpens this. For a *pre-selected* state $`\langle i|` and a
+*post-selected* state $`|f\rangle`, the *weak value* of an observable $`A` is the
+ratio
+
+$$`\langle A \rangle_w = \frac{\langle f | A | i \rangle}{\langle f | i \rangle}.`
+
+This is the natural continuation of the post-selected conditional probability of the
+reconstruction above: where the ABL / two-state formula
+(`condProb = jointProb / finalProb`) reconstructs a *probability* distribution for
+the intermediate outcome, the weak value reconstructs the *expectation* of an
+observable under the same pre- and post-selection — and, unlike a strong
+measurement, it does so without collapsing the intermediate state into an
+eigenstate. The trajectory is reconstructed by stitching together such weak
+measurements at finitely many intermediate times, the manuscript's procedure of
+"repeating the experiment in the same conditions."
+
+The *conditional* (post-selected) probability — not the total probability — is what
+one divides by here, and the manuscript notes this may "mimic super-determinism"
+and so evade some assumptions of relevant no-go theorems. The three-instant
+post-selected core (`midProb`, `transProb`, `jointProb`, `finalProb`, `condProb`)
+is formalized in `BookProof.ChapterTrajectory`:
+
+```
+#check @ChapterTrajectory.finalProb_total
+#check @ChapterTrajectory.jointProb_sum_final_eq_midProb
+#check @ChapterTrajectory.condProb_sum
+#check @ChapterTrajectory.dslit_condProb
+```
+
+The weak-value ratio itself is formalized in `BookProof.ChapterWeakValue`, on the
+finite complex Hilbert space $`\mathrm{Fin}\,n \to \mathbb{C}` with the standard
+inner product:
+
+```
+#check @ChapterWeakValue.weakValue_wellDefined
+#check @ChapterWeakValue.weakValue_unique
+#check @ChapterWeakValue.weakValue_diag
+#check @ChapterWeakValue.weakValue_diag_isReal
+#check @ChapterWeakValue.weakValue_linear
+#check @ChapterWeakValue.weakValue_proj_sum
+```
+
+`weakValue_wellDefined` (with `weakValue_unique`) says the weak value is the unique
+number $`w` with $`w\,\langle f|i\rangle = \langle f|A|i\rangle`, so the ratio is
+well-defined exactly when the pre- and post-selected states are not orthogonal.
+`weakValue_diag` is the collapse to the ordinary expectation $`\langle i|A|i\rangle`
+when the post-selection is the pre-selection, and `weakValue_diag_isReal` records
+that this expectation is real for a Hermitian observable — the weak value only
+leaves the real line once the post-selection differs from the pre-selection.
+`weakValue_linear` is the linearity in the observable, and `weakValue_proj_sum` is
+the weak-value counterpart of `condProb_sum`: the weak values of a complete family
+of projectors sum to $`1`.
+
+The tie back to the post-selected probabilities is explicit — the ABL joint law is
+the squared modulus of the weak-value numerator for the post-selection covector
+$`b \mapsto \overline{V_{f b}}`, and the conditional law is its normalization:
+
+```
+#check @ChapterWeakValue.jointProb_eq_normSq_weakNumerator
+#check @ChapterWeakValue.condProb_eq_weakNumerator_ratio
+#check @ChapterWeakValue.dslit_weakValue
+```
+
+The last is the double-slit capstone: pre-selecting the both-slits superposition
+$`H\Psi` and post-selecting the definite state $`\Psi = (1,0)`, the two which-slit
+projectors have weak values $`1` and $`0`.
+
 # Summary
 
  * The electron's evolution is a product of two non-deterministic transformations, so
@@ -136,3 +217,8 @@ intermediate measurement.
    destructive interference.
  * The coherent product $`H^2` differs from an incoherent, measured sequence; the
    difference is the interference cross term.
+ * Post-selection reconstructs the intermediate distribution consistently (`condProb`
+   / ABL), and the weak value $`\langle f|A|i\rangle/\langle f|i\rangle` extends this
+   to expectations of observables without collapsing the intermediate state; it is
+   well-defined off orthogonality, linear in the observable, and reduces to the
+   ordinary expectation on the diagonal (`BookProof.ChapterWeakValue`).

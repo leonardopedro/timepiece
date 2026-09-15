@@ -70,7 +70,7 @@ set_option maxRecDepth 10000 in
 /-- **Dimension of `Λ⁴V`.**  The antisymmetric-fourth-power projector has rank `1`. -/
 theorem trace_projAnti_four : Matrix.trace (projAnti 4) = 1 := by
   unfold projAnti;
-  simp [signC, trace_permMat];
+  simp only [signC, trace_smul, trace_sum, trace_permMat, smul_eq_mul];
   rw [ inv_mul_eq_div, div_eq_iff ] <;> norm_cast
 
 /-- **Dimension of the mixed-symmetry piece at `N = 4`.**  Its projector has

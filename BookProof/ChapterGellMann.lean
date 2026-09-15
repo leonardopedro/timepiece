@@ -55,7 +55,7 @@ theorem gellMann_isHermitian (a : Fin 8) : (gellMann a).IsHermitian := by
 `su(3)` (Hermitian and traceless). -/
 theorem gellMann_trace_zero (a : Fin 8) : (gellMann a).trace = 0 := by
   fin_cases a <;>
-    simp [gellMann, Matrix.trace, Matrix.diag, Fin.sum_univ_three, Matrix.smul_apply] <;>
+    simp [gellMann, Matrix.trace, Matrix.diag, Fin.sum_univ_three, Matrix.smul_apply] ;
     ring
 
 /-- **Trace-orthonormality of the Gell-Mann basis:** `tr(λ^a λ^b) = 2 δ_{ab}`.  The `a = b = 8`
@@ -66,7 +66,7 @@ theorem gellMann_trace_orthonormal (a b : Fin 8) :
   fin_cases a <;> fin_cases b <;>
     simp [gellMann, Matrix.trace, Matrix.diag, Matrix.mul_apply, Fin.sum_univ_three,
       Complex.ext_iff] <;>
-    norm_num [Complex.ext_iff] <;>
+    norm_num [Complex.ext_iff] ;
     nlinarith [h3, Real.sqrt_nonneg 3]
 
 /-- The `SU(3)` generators in the physics normalization, `T_a = ½ λ^a`. -/

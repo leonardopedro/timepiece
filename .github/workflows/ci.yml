@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  # Match the local checkout convention: the project is a Lean 4 book + proof tree
+  # on the pinned 4.28.0 toolchain. Mathlib precompiled binaries are fetched to
+  # avoid compiling mathlib from scratch.
+  LEAN_VERSION: "4.28.0"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lean proof + certificate targets. These are pure-core & mathlib targets:
+  #   - BookProof : the formalization (E_sum, RH, mass-gap chain, PME, ...)
+  #   - Layout    : pure-core-Learn certificates for the GPU federation
+  #   - Singularity : the ODE-singularity / ESA target
+  # The Verso book is built in a separate job below (it takes longer and needs
+  # the two tracked patches + postprocessing).
+  # ---------------------------------------------------------------------------
+  lean-proofs:
+    name: lake build (BookProof + Layout + Singularity)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install elan (pinned 4.28.0)
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          # non-interactive; default toolchain from lean-toolchain
+          bash /tmp/elan-init.sh -y >/dev/null
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: elan toolchain
+        run: |
+          export PATH="$HOME/.elan/bin:$PATH"
+          elan toolchain install "${LEAN_VERSION}"
+
+      - name: fetch mathlib cache
+        run: |
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake exe cache get || lake exe cache get
+
+      - name: build default proof targets
+        run: |
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake build BookProof Singularity Layout
+
+  # ---------------------------------------------------------------------------
+  # Verso book (single-page HTML) + KaTeX check. Wrapper applies the two tracked
+  # Verso patches, renders, and post-processes (removes <base>), then verifies
+  # every math snippet with throwOnError: true.
+  # ---------------------------------------------------------------------------
+  book:
+    name: build + verify book (build-book.sh + check-katex.sh)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install elan (pinned 4.28.0)
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          bash /tmp/elan-init.sh -y >/dev/null
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: elan toolchain
+        run: |
+          export PATH="$HOME/.elan/bin:$PATH"
+          elan toolchain install "${LEAN_VERSION}"
+
+      - name: fetch mathlib cache
+        run: |
+          export PATH="$HOME/.elan/bin:$PATH"
+          lake exe cache get || lake exe cache get
+
+      - name: build + postprocess the book (patches + render + <base> removal)
+        run: |
+          export PATH="$HOME/.elan/bin:$PATH"
+          ./patches/build-book.sh
+
+      - name: verify every math snippet with throwOnError: true
+        run: |
+          export PATH="$HOME/.elan/bin:$PATH"
+          ./patches/check-katex.sh

@@ -2,3 +2,6 @@ import UnusedRoute.Legacy
 import UnusedRoute.RcpEuler
 import UnusedRoute.RcpRandomMapBridge
 import UnusedRoute.SchoenfeldMatrix
+import UnusedRoute.SchoenfeldPRA
+import UnusedRoute.RandomMap2Phase7
+import UnusedRoute.RcpRandomMap2Bridge

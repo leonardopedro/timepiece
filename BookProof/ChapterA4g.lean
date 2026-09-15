@@ -88,7 +88,7 @@ theorem SEtwo_one_mem : (1 : Matrix (Fin 2) (Fin 2) ℂ) ∈ SEtwo :=
 respects composition. -/
 theorem SEtwo_mul_mem {S T : Matrix (Fin 2) (Fin 2) ℂ}
     (hS : S ∈ SEtwo) (hT : T ∈ SEtwo) : S * T ∈ SEtwo := by
-  simp_all +decide [SEtwo, Matrix.mul_apply]
+  simp_all [SEtwo, Matrix.mul_apply]
 
 /-! ## The translation factor `T_a(p⃗) = e^{i p⃗·a⃗}` -/
 
@@ -151,6 +151,6 @@ little-group action preserves the positive-energy constraint subspace. -/
 theorem rotGen_projPos_comm (i j : Fin 3) :
     rotGen i j * projPos = projPos * rotGen i j := by
   unfold projPos
-  simp +decide [mul_sub, sub_mul, mul_one, one_mul, rotGen_enSign_comm]
+  simp [mul_sub, sub_mul, mul_one, one_mul, rotGen_enSign_comm]
 
 end BookProof.ChapterA4g

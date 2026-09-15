@@ -119,8 +119,8 @@ Together with the complex conjugation (`conj_diracHamOp`) this is the PT invaria
 theorem pt_diracHamOp (k : Fin 3 → ℝ) (m1 m2 : ℝ) :
     diracHamOp k m1 m2 * dgamma5 = -(dgamma5 * diracHamOp (fun j => -(k j)) m1 m2) := by
   unfold diracHamOp;
-  simp +decide [ mul_add, add_mul, Finset.mul_sum _ _ _, Finset.sum_mul ];
-  simp +decide only [Kin_dgamma5_comm, eq_neg_of_add_eq_zero_left MassA_dgamma5_anticomm,
+  simp [ mul_add, add_mul, Finset.mul_sum _ _ _, Finset.sum_mul ];
+  simp only [Kin_dgamma5_comm, eq_neg_of_add_eq_zero_left MassA_dgamma5_anticomm,
       eq_neg_of_add_eq_zero_left MassB_dgamma5_anticomm];
   module
 
@@ -152,10 +152,12 @@ explicit `i` on the kinetic term, i.e. it flips the momentum:
 theorem conj_diracHamOp (k : Fin 3 → ℝ) (m1 m2 : ℝ) :
     (diracHamOp k m1 m2).map (starRingEnd ℂ) = diracHamOp (fun j => -(k j)) m1 m2 := by
   unfold diracHamOp;
-  simp +decide [ Matrix.map_add, Matrix.map_smul ];
+  simp only [Complex.coe_smul, map_add, implies_true, Matrix.map_add, Complex.real_smul, map_mul,
+      Complex.conj_ofReal, Matrix.map_smul, Complex.ofReal_neg, neg_smul, Finset.sum_neg_distrib,
+          smul_neg];
   rw [ MassA_map_conj, MassB_map_conj ];
-  ext i j ; simp +decide [ Complex.ext_iff ];
-  simp +decide [ Matrix.sum_apply, Kin_eq_cast ]
+  ext i j ; simp [ Complex.ext_iff ];
+  simp [ Matrix.sum_apply, Kin_eq_cast ]
 
 /-! ### Headline: the Dirac mass Hamiltonian is PT (CPT) invariant -/
 

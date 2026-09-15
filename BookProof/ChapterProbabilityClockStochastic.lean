@@ -81,8 +81,8 @@ noncomputable def Mab (a b : ℝ) : Matrix (Fin 2) (Fin 2) ℝ :=
 vector. -/
 theorem Mab_isColumnStochastic (a b : ℝ) : IsColumnStochastic (Mab a b) := by
   refine ⟨?_, ?_⟩
-  · intro i j
-    fin_cases i <;> fin_cases j <;> simp [Mab] <;> positivity
+  · intro i j; fin_cases i <;> fin_cases j <;> simp only [Mab, Fin.zero_eta, Fin.isValue, of_apply,
+      cons_val', cons_val_zero, cons_val_fin_one, Fin.mk_one, cons_val_one] <;> positivity
   · intro j; fin_cases j <;>
       simp [Mab, Fin.sum_univ_two, Real.cos_sq_add_sin_sq]
 
@@ -100,7 +100,7 @@ theorem IsColumnStochastic.mulVec_isProbabilityVector
     exact Finset.sum_nonneg (fun j _ => mul_nonneg (hnn i j) (hvnn j))
   · have hc0 := hcol 0
     have hc1 := hcol 1
-    simp [Fin.sum_univ_two] at hc0 hc1
+    simp only [Fin.sum_univ_two] at hc0 hc1
     have hv2 : v 0 + v 1 = 1 := by simpa [Fin.sum_univ_two] using hvsum
     simp only [Matrix.mulVec, dotProduct, Fin.sum_univ_two]
     linear_combination v 0 * hc0 + v 1 * hc1 + hv2

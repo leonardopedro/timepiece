@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterG
-import PnpProof.SphereGaussian
+import BookProof.PhysHSGaussian
 
 /-!
 # Chapter G III — commutative von Neumann algebra, Mehler = uniform measure,
@@ -20,7 +20,7 @@ Sections:
 * **G.19** the Mehler prior = the uniform measure of a high-dimensional sphere
   (`book.tex` 2488, 3845). It is a probability measure, invariant under the
   orthogonal (gauge) group, and concentrated on the sphere of radius `√k`.
-  Reuses the sorry-free Mehler formalism of `PnpProof.SphereGaussian`.
+  Reuses the sorry-free Mehler formalism of `BookProof.PhysHSGaussian`.
 * **G.20** the incomplete unconstrained gauge-fixing: the remnant gauge symmetry
   is a *faithful* (hence non-trivial) representation, and a non-trivial gauge
   transformation of a *free* remnant action modifies every point of the spectrum
@@ -93,27 +93,27 @@ theorem integral_eventProj [MeasurableSpace X] (μ : Measure X)
 
 `book.tex` 2488, 3845: the prior is the "uniform measure of an infinite-
 dimensional sphere". We reuse the sorry-free Mehler formalism of
-`PnpProof.SphereGaussian`: `sphereUniform k` is a probability measure, invariant
+`BookProof.PhysHSGaussian`: `sphereUniform k` is a probability measure, invariant
 under every orthogonal (gauge) transformation, and concentrated on the sphere of
 radius `√k`. -/
 
 /-- The Mehler/uniform sphere prior is a probability measure. -/
 theorem mehler_uniform_isProbability (k : ℕ) :
-    IsProbabilityMeasure (PnpProof.sphereUniform k) :=
-  PnpProof.sphereUniform_isProbability k
+    IsProbabilityMeasure (PhysHSGaussian.sphereUniform k) :=
+  PhysHSGaussian.sphereUniform_isProbability k
 
 /-- HEADLINE: the Mehler/uniform sphere prior is invariant under the orthogonal
 (gauge) group — the constant "Haar" measure on the sphere (`book.tex` 2371). -/
 theorem mehler_uniform_gauge_invariant (k : ℕ)
     (L : EuclideanSpace ℝ (Fin k) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin k)) :
-    (PnpProof.sphereUniform k).map L = PnpProof.sphereUniform k :=
-  PnpProof.sphereUniform_rotation_invariant k L
+    (PhysHSGaussian.sphereUniform k).map L = PhysHSGaussian.sphereUniform k :=
+  PhysHSGaussian.sphereUniform_rotation_invariant k L
 
 /-- The Mehler/uniform prior concentrates on the sphere of radius `√k`
 (Poincaré–Borel; `book.tex` 3845). -/
 theorem mehler_uniform_concentrates (k : ℕ) (hk : 0 < k) :
-    PnpProof.sphereUniform k {x | ‖x‖ = Real.sqrt k} = 1 :=
-  PnpProof.sphereUniform_sphere k hk
+    PhysHSGaussian.sphereUniform k {x | ‖x‖ = Real.sqrt k} = 1 :=
+  PhysHSGaussian.sphereUniform_sphere k hk
 
 /-! ## G.20 — Incomplete unconstrained gauge-fixing: faithful remnant symmetry
 
@@ -203,16 +203,16 @@ orthogonal gauge group. -/
 /-- The free-field QFT vacuum: the standard Gaussian on the `k`-dimensional
 field-configuration space (`book.tex` 2488). -/
 noncomputable def qftVacuum (k : ℕ) : Measure (EuclideanSpace ℝ (Fin k)) :=
-  PnpProof.gaussianE k
+  PhysHSGaussian.gaussianE k
 
 /-- The QFT vacuum is a probability measure. -/
 theorem qftVacuum_isProbability (k : ℕ) : IsProbabilityMeasure (qftVacuum k) :=
-  PnpProof.gaussianE_isProbability k
+  PhysHSGaussian.gaussianE_isProbability k
 
 /-- HEADLINE: the QFT vacuum is invariant under the orthogonal gauge group. -/
 theorem qftVacuum_gauge_invariant (k : ℕ)
     (L : EuclideanSpace ℝ (Fin k) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin k)) :
     (qftVacuum k).map L = qftVacuum k :=
-  PnpProof.gaussianE_rotation_invariant k L
+  PhysHSGaussian.gaussianE_rotation_invariant k L
 
 end BookProof.ChapterG3

@@ -30,14 +30,18 @@ theorem computable_bool_countable : {f : ℕ → Bool | Computable f}.Countable 
   · convert computable_countable;
   · convert h.preimage _;
     rotate_left;
-    exact fun f n => if f n = Bool.true then 1 else 0;
-    · exact fun f g hfg => funext fun n => by have := congr_fun hfg n;      by_cases hn : f n = true <;> by_cases hn' : g n = true <;> simpa [ hn, hn' ] using this;
+    focus (exact fun f n => if f n = Bool.true then 1 else 0);
+    · refine fun f g hfg => funext fun n => ?_
+      have hn := congr_fun hfg n
+      cases hf : f n <;> cases hg : g n <;> simp [hf, hg] at hn ⊢
     · ext;
       constructor <;> intro h;
       · convert Computable.cond h ( Computable.const 1 ) ( Computable.const 0 ) using 1;
         grind;
       · convert Computable.of_eq _ _;
-        exact fun n => Nat.recOn ( ‹ℕ → Bool› n |> fun x => if x = Bool.true then 1 else 0 ) Bool.false fun _ _ => Bool.true;
+        focus
+          (exact fun n => Nat.recOn ( ‹ℕ → Bool› n |> fun x => if x = Bool.true then 1 else 0 )
+            Bool.false fun _ _ => Bool.true);
         · convert Computable.nat_casesOn _ _ _;
           · exact h;
           · exact Computable.const Bool.false;

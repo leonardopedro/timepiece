@@ -8,6 +8,14 @@ open Verso.Genre.Manual.InlineLean
 tag := "probability-clock"
 %%%
 
+# Orientation and Status
+
+This chapter develops the two-state model that the manuscript uses as its smallest
+example of wave-function parametrization. The finite matrix identities below are
+fully formalized; the interpretive claims about collapse and the physical meaning of
+quantum mechanics remain explanatory, not additional Lean theorems. Later chapters
+reuse this clock as a two-dimensional building block.
+
 # A Two-State System
 
 The smallest non-trivial probability space has two outcomes. A distribution on it is

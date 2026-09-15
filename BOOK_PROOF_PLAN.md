@@ -17,7 +17,7 @@ in every file; only `propext`, `Classical.choice`, `Quot.sound` are used).
 - `BookProof/` and `PnpProof/`: no `axiom` lines remain (the two `axiom : True` in
   `ChapterSelectingEvents.lean` were converted to `def`s in July 2026).
 - `Singularity/` and `RandomMap/`: no `axiom` lines.
-- Only acceptable `sorry`s: `RandomMap/SchoenfeldPRA.lean:162,176` (pre-existing,
+- Only acceptable `sorry`s: `UnusedRoute/SchoenfeldPRA.lean:163,178` (pre-existing,
   documented as intentional).
 
 **Target environment (do not change without coordination):**
@@ -377,7 +377,7 @@ is out of reach, state the provable core precisely and record the gap in `Issues
 - Formalize: a finite truncation of arithmetic (operations bounded by a finite
   parameter `B`) together with a Bayesian prior on the unknown results beyond `B`.
   Anchors: `ChapterFiniteBayesHierarchy`, `ChapterNoBestPrior`, `ChapterPriorOdds`,
-  `RandomMap/SchoenfeldPRA.lean`.
+  `UnusedRoute/SchoenfeldPRA.lean`.
 
 ### 7.6 Density matrix = diagonal rotated by a unitary (marginal × conditional)
 - `book.tex` ≈ 1796–1800: the density matrix is "a diagonal operator rotated by a

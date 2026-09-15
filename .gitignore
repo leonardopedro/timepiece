@@ -1,9 +1,29 @@
+/prove2me_workspace
 /.lake
 Hashimoto.md
 kopperman.tex
 Solovay.tex
 lopez99.md
+Ottinger.md
 repomix-output.xml
 
 # Verso build output (rendered HTML; regenerate with `lake exe book`)
 /_out
+
+# Backup of the lake packages cache (regenerate with `lake update`)
+/.lake_bk
+
+# Lean build artifacts (regenerate with `lake build`)
+*.olean
+*.ilean
+*.c
+*.c.tmp
+
+# Aeneas/Charon intermediates at the model crate root (the committed
+# `.llbc`/`.lean` under unfer_contracts/ are tracked explicitly)
+lib.llbc
+# Rust build artifacts
+unfer_contracts/**/target/
+
+# scratch backups
+Book.lean.bak

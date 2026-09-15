@@ -68,7 +68,8 @@ Entries of the measurement operator: `(U P_a U†) k l = U k a · conj(U l a)`.
 theorem measOp_apply (U : Matrix (Fin n) (Fin n) ℂ) (a : Fin n) (k l : Fin n) :
     measOp U a k l = U k a * (starRingEnd ℂ) (U l a) := by
   unfold measOp;
-  simp +decide [ Matrix.mul_apply, proj ];
+  simp only [proj, mul_apply, of_apply, mul_ite, mul_one, mul_zero, conjTranspose_apply,
+      RCLike.star_def];
   rw [ Finset.sum_eq_single a ] <;> aesop
 
 /-
@@ -81,7 +82,7 @@ theorem trace_rho_measOp (U : Matrix (Fin n) (Fin n) ℂ) (a : Fin n) (Ψ : Fin 
         (∑ b : Fin n, (starRingEnd ℂ) (Ψ b) * U b a) := by
   -- Expand the trace of the product.
   simp [Matrix.trace, Matrix.mul_apply, rho, measOp_apply];
-  simp +decide only [mul_comm, mul_left_comm, Finset.mul_sum _ _ _]
+  simp only [mul_comm, mul_left_comm, Finset.mul_sum _ _ _]
 
 /-
 The "collapsed" Born probability is the trace of `diag(ρ) · M_a`; expanded it
@@ -91,7 +92,8 @@ theorem trace_diagPart_measOp (U : Matrix (Fin n) (Fin n) ℂ) (a : Fin n) (Ψ :
     (diagPart (rho Ψ) * measOp U a).trace =
       ∑ k : Fin n,
         (starRingEnd ℂ) (U k a) * Ψ k * (starRingEnd ℂ) (Ψ k) * U k a := by
-  unfold diagPart; simp +decide [ Matrix.trace, Matrix.mul_apply, rho, measOp_apply ] ;
+  unfold diagPart; simp only [trace, rho, of_apply, diag_apply, mul_apply, measOp_apply, ite_mul,
+      zero_mul, sum_ite_eq, mem_univ, ↓reduceIte] ;
   exact Finset.sum_congr rfl fun _ _ => by ring;
 
 /-- **Key identity.** The difference between the full and the collapsed Born

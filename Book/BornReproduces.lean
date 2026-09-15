@@ -92,9 +92,11 @@ masses sum to exactly one:
 
 Writing $`c_n = \cos^2\theta_n` recovers the Euler-angle form
 $`P(n) = (\prod_{k<n}\sin^2\theta_k)\cos^2\theta_n`, the countable analogue of the
-finite formula:
+finite formula — and `stickProb_euler` identifies each stick-breaking probability
+with a $`\cos^2` of an angle:
 
 ```
+#check @ChapterEulerCountableChain.stickProb_euler
 #check @ChapterEulerCountableChain.euler_tsum_one
 ```
 
@@ -124,3 +126,53 @@ This justifies the book's use of complex (and quaternionic) Hilbert spaces while
 keeping the real Euler-angle parametrization as the underlying construction: passing
 to $`\mathbb{C}` or $`\mathbb{H}` does not change which distributions are
 reachable, only how many real coordinates each outcome hides.
+
+The manuscript's argument that these are the *only* fields worth considering runs
+through the *real Schur's lemma*: if a set of normal operators (the projections
+together with a unitary representation of a symmetry group) leaves no non-trivial
+closed subspace invariant, then the algebra of operators commuting with all of them
+is a *real associative division algebra* — and such an algebra is isomorphic to
+exactly one of the real numbers, the complex numbers, or the quaternions. The field
+over which the wave-function lives is therefore *not* an extra physical postulate:
+it is read off from the commuting algebra of the symmetry representation, and the
+parametrization works uniformly over all three. The verified norm fact underlying
+the complex case is that the norm of a complex wave-function equals the norm of its
+*realification* (a complex Hilbert space is a real one of twice the dimension, with
+the same norm):
+
+```
+#check @ChapterEulerComplexQuat.cbornProb_nonneg
+#check @ChapterEulerComplexQuat.complex_realification_norm
+```
+
+# Average versus Maximal Error
+
+The parametrization has a pleasant analytic consequence that the manuscript
+relies on when comparing models. When a probability density $`\rho` is written as
+the square of a wave-function, $`\rho = \psi^2` with $`\psi = \sqrt{\rho}`, the
+wave-function is automatically *normalized* whenever the density is: its squared
+$`L^2` norm is the total mass of $`\rho`, namely $`1`:
+
+```
+#check @BookProof.ChapterErrorNorms.wavefunction_l2_norm_sq_eq_integral
+#check @BookProof.ChapterErrorNorms.wavefunction_lintegral_sq_eq_one
+```
+
+:::paragraph
+The manuscript contrasts two ways of measuring the error of a model: the *average*
+error (the $`L^2` norm of the wave-function) and the *maximal* error (the
+$`L^\infty` essential supremum). On a probability space the average error is always
+dominated by the maximal error — the two live in different $`L^p` spaces and the
+order of the $`L^p` norms on a probability space is $`\|f\|_2 \le \|f\|_\infty`:
+:::
+
+```
+#check @BookProof.ChapterErrorNorms.l2_le_linfty_of_finite
+#check @BookProof.ChapterErrorNorms.l2_le_of_ae_bound
+```
+
+:::paragraph
+So bounding the pointwise (maximal) error automatically bounds the average error,
+and the wave-function normalization is not an additional constraint but a direct
+consequence of the density's being a probability density.
+:::

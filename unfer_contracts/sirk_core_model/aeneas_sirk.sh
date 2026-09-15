@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Regenerate the Aeneas Lean 4 model of the SIRK numeric core (T9).
+#
+# Pipeline (see CONSOLIDATED_PLAN.md §13.7 T9 and MASS_GAP_CERTIFIED.md §5.3):
+#   1. Charon extracts the pure Rust model (Aeneas-supported subset) to .llbc.
+#   2. Aeneas translates the .llbc to Lean 4 (backend = lean).
+#
+# Toolchain: the Aeneas nightly release bundle carries matching Charon +
+# Aeneas binaries and the Lean backend library (Lean 4.31.0).
+#
+#   AENEAS_ROOT   path to an extracted aeneas release bundle (default:
+#                 $HOME/Projects/.toolchain/aeneas-bin)
+#   RUSTC_NIGHTLY the pinned Charon nightly toolchain (default:
+#                 nightly-2026-08-18, from the bundle's rust-toolchain)
+#
+# Outputs:
+#   aeneas/sirk_core_model.llbc   the Charon intermediate representation
+#   aeneas/SirkCoreModel.lean     the generated Lean 4 model
+#
+# Scope: this script verifies the pure SIRK–Hashimoto numerical core only.
+# It does not define a lattice Hamiltonian or establish the QYM mass gap.
+# The physical input is the gauge-fixed nested-Fock one-particle Hamiltonian;
+# its outer creation-left/annihilation-right enclosure is handled by the
+# surrounding formalization.
+#
+# Honesty boundary: the *algorithmic* content (the forward-sequence fold, the
+# Gram-assembly and whitening loops, the index bookkeeping, the shapes of the
+# projection identity and residual formula) is translated verbatim; the `f64`
+# arithmetic leaves stay opaque (`sorry`) — the rounding layer, enclosed by
+# T1–T5 of MASS_GAP_CERTIFIED.md. Aeneas verifies the algorithm; the rounding
+# is enclosed by the finite-precision theorems. The algebraic identities
+# (projection identity, Gram Hermitian symmetry, T* Ĝ T = I, e_m = τ_m c_{m-1})
+# are proved against this model by the Lean 4 specialist in
+# BookProof/ChapterSirkFinitePrecision.lean.
+
+set -euo pipefail
+
+AENEAS_ROOT="${AENEAS_ROOT:-$HOME/Projects/.toolchain/aeneas-bin}"
+RUSTC_NIGHTLY="${RUSTC_NIGHTLY:-nightly-2026-08-18}"
+# Resolve to the crate root (the dir containing src/lib.rs), robust to both
+# invocation layouts: this bundle's `sirk_core_model/aeneas_sirk.sh` (dirname
+# = bundle root) and the live repo's `sirk_core_model/scripts/aeneas_sirk.sh`
+# (dirname = scripts/, parent = crate root).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+if [ -f "$SCRIPT_DIR/src/lib.rs" ]; then
+  HERE="$SCRIPT_DIR"
+else
+  HERE="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+cd "$HERE"
+
+if [ ! -x "$AENEAS_ROOT/aeneas" ]; then
+  echo "error: Aeneas binary not found at $AENEAS_ROOT/aeneas" >&2
+  echo "  download the release bundle from" >&2
+  echo "  https://github.com/AeneasVerif/aeneas/releases (aeneas-linux-x86_64.tar.gz)" >&2
+  exit 1
+fi
+
+echo "== charon: src/lib.rs -> aeneas/sirk_core_model.llbc =="
+RUSTC_BOOTSTRAP=1 "$AENEAS_ROOT/charon" rustc --preset=aeneas \
+  -- src/lib.rs --edition 2021 --crate-type lib
+
+echo "== aeneas: aeneas/sirk_core_model.llbc -> aeneas/SirkCoreModel.lean =="
+# Aeneas exits non-zero on the 7 expected f64-arithmetic errors (the honesty
+# boundary: the affected bodies are emitted as `sorry`). Under `set -e` that
+# would abort the script before the rename steps below, so the exit status is
+# captured and only a run that produced no output at all is fatal.
+# Note: the output-directory flag is `-dest` (there is no `-o`); the emitted
+# module file is `Lib.lean` (module name from the crate), normalised below.
+rm -f aeneas/Lib.lean
+"$AENEAS_ROOT/aeneas" -backend lean -namespace sirk_core_model \
+    -dest aeneas/ lib.llbc || true
+if [ ! -f aeneas/Lib.lean ]; then
+  echo "error: aeneas produced no output (expected aeneas/Lib.lean)" >&2
+  exit 1
+fi
+mv aeneas/Lib.lean aeneas/SirkCoreModel.lean
+mv lib.llbc aeneas/sirk_core_model.llbc
+
+echo "== regenerated =="
+ls -la aeneas/sirk_core_model.llbc aeneas/SirkCoreModel.lean

@@ -67,6 +67,75 @@ probabilities to a non-commutative algebra. *The collapse is what prevents this.
 It keeps quantum mechanics a Kolmogorov probability theory: every actual measurement
 sees a single commutative (diagonal) algebra.
 
+# The Collapse Is a Recursion of Two-Dimensional Maps
+
+The collapse that makes the ensemble diagonal has a description in wave-function
+coordinates that is worth making explicit, because it links the abstract argument
+above to the concrete two-dimensional maps of the manuscript. In
+{ref "probability-clock"}[the probability clock] the collapse of a two-state
+wave-function $`\Psi(t) = (\cos t, \sin t)` is exactly the map that takes the
+rank-one projector
+
+$$`\rho(t) = \Psi(t)\Psi(t)^\top = \tfrac12\,\mathbf 1 + Z\,(\cos 2t\,\mathbf 1 + \sin 2t\, J)`
+
+to its diagonal by setting to zero the term proportional to $`J` — the imaginary
+unit of the plane, $`J^2 = -\mathbf 1`. This is "taking the real part" of the
+"complex number" $`\cos(2t) + J\sin(2t)`. The verified statements (module
+`BookProof.ChapterEulerDensityMatrix`):
+
+```
+#check @ChapterEulerDensityMatrix.density_euler
+#check @ChapterEulerDensityMatrix.density_collapse
+#check @ChapterEulerDensityMatrix.Jdens_sq
+```
+
+The manuscript lifts this from two states to $`n` and to a countable partition by
+constructing the wave-function *recursively* from two-dimensional angles — *Euler
+angles* $`v_k = \cos\theta_k\, l_k + \sin\theta_k\, v_{k+1}`. The recursion step
+is formalized by `eulerVec`; the expanded density matrix is given by
+`outer_eulerVec`. At each level the same two-dimensional identity holds, with a
+generator $`J_k` in the plane spanned by $`\{l_k, v_{k+1}\}`:
+
+$$`v_k v_k^\dagger = \tfrac12\,\mathbf 1 + \tfrac12\,\big(l_k l_k^\dagger - v_{k+1} v_{k+1}^\dagger\big)\,(\cos 2\theta_k + J_k\sin 2\theta_k).`
+
+Collapse at level $`k` deletes the $`J_k`-proportional term, leaving the diagonal
+operator whose entries are the *conditional* probabilities
+$`P(k \mid k \text{ or above}) = \cos^2(\theta_k)`. Iterating over all levels gives
+a probability on a single commutative algebra:
+
+$$`P(n) = P((n \text{ or above}))\, P(n \mid n \text{ or above})
+  = \Big(\prod_{k=1}^{n-1} P\big((k{+}1 \text{ or above})\mid (k \text{ or above})\big)\Big)
+     P(n \mid n \text{ or above}).`
+
+This is the manuscript's statement that *the collapse of the wave-function for a
+generic phase space is a recursion of collapses of two-dimensional real
+wave-functions* — the probability clock, nested. The verified statements (module
+`BookProof.ChapterEulerGenericDensity`):
+
+```
+#check @ChapterEulerGenericDensity.eulerVec
+#check @ChapterEulerGenericDensity.outer_eulerVec
+#check @ChapterEulerGenericDensity.Jgen_sq
+#check @ChapterEulerGenericDensity.density_euler_generic
+#check @ChapterEulerGenericDensity.density_collapse_generic
+#check @ChapterEulerGenericDensity.density_idempotent
+#check @ChapterEulerGenericDensity.conditional_probability_at
+#check @ChapterEulerGenericDensity.product_probability
+```
+
+Here $`J_k^2 = -\mathbf 1`, so each recursion step is again the two-dimensional
+map of {ref "probability-clock"}[the probability clock]. This doubly confirms the
+message of the previous sections. First, the collapse seen ensemble by ensemble
+($`E_U(O) = 0` for null-diagonal $`O`) is the same operation as this level-by-level
+deletion of the $`J_k`-coherence. Second, and more important, what a measurement
+observes is only the sequence of *conditional* probabilities — a family of real
+numbers in $`[0,1]` — that is, an ordinary commutative algebra. Every
+non-commutativity lives in the invisible phases $`J_k` that the collapse discards,
+exactly as in {ref "probability-clock"}[the probability clock]. The recursion
+shows that no dimensional escape from this conclusion exists: quantum mechanics is
+Kolmogorov at every level, and the "non-commutative" structure is the same
+two-dimensional bookkeeping of the parametrization at each stage.
+
 # Contrast with Gleason's Theorem
 
 This result resembles Gleason's theorem but differs from it in exactly the place
@@ -118,9 +187,12 @@ collapse is neglected.
    state.
  * Therefore quantum mechanics is *not* a non-commutative generalization of
    probability theory; the collapse keeps it Kolmogorov.
-  * The wave-function parametrizes *commuting* projections (pure states); Gleason's
-    density matrix parametrizes *non-commuting* projections (mixed states). The two
-    differ exactly where the collapse is or is not used.
+ * In wave-function coordinates the same collapse is a *recursion of collapses of
+   two-dimensional real wave-functions* — the probability clock nested — deleting
+   the $`J_k`-coherence at every level.
+ * The wave-function parametrizes *commuting* projections (pure states); Gleason's
+   density matrix parametrizes *non-commuting* projections (mixed states). The two
+   differ exactly where the collapse is or is not used.
 
 In the manuscript's phrasing, quantum mechanics is "a generalization of classical
 statistical mechanics (but not of probability theory)." The non-commutativity and the

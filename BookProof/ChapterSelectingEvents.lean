@@ -1,5 +1,6 @@
 import Mathlib
 import BookProof.ChapterBayesInference
+import BookProof.ChapterAbelianDiagonal
 
 /-!
 # Book chapter "Selecting events is not rewriting the history of events"
@@ -63,16 +64,18 @@ variable {Ω Data : Type*} [MeasurableSpace Ω]
 
 /-- Regular conditional probability exists for any finite measure on a
 standard Borel space.  This is the rigorous version of "we can always select
-events with some feature without rewriting history." -/
+events with some feature without rewriting history": conditioning on the value
+of an observable `X` is realized by a genuine Markov kernel `κ` which
+disintegrates `μ`, even though individual level sets of `X` may be null.
+
+Formally, there is a Markov kernel `κ : Kernel Data Ω` with
+`(μ.map X) ⊗ₘ κ = μ.map (fun ω => (X ω, ω))`. -/
 theorem exists_regular_conditional_probability
-    (μ : Measure Ω) [IsFiniteMeasure μ] [StandardBorelSpace Ω] (E : Set Ω)
-    (_hE : MeasurableSet E) :
-    True := by
-  -- Mathlib provides `condExpKernel` for all finite measures on standard Borel
-  -- spaces.  The kernel `condExpKernel μ (generateFrom {E})` gives the regular
-  -- conditional probability given E; for measurable sets it satisfies the
-  -- standard formula `μ(F | E) = μ(E ∩ F) / μ(E)` when `μ(E) > 0`.
-  trivial
+    [StandardBorelSpace Ω] [Nonempty Ω] [MeasurableSpace Data]
+    (μ : Measure Ω) [IsFiniteMeasure μ] (X : Ω → Data) :
+    ∃ κ : Kernel Data Ω, IsMarkovKernel κ ∧
+      (μ.map X) ⊗ₘ κ = μ.map (fun ω => (X ω, ω)) :=
+  ⟨condDistrib id X μ, inferInstance, compProd_map_condDistrib aemeasurable_id⟩
 
 /-!
 ## 3. The 5 isomorphism classes of abelian von Neumann algebras
@@ -94,22 +97,42 @@ is beyond the scope of this formalization.
 
 open VonNeumannAlgebra
 
-/-- The classification of abelian von Neumann algebras: every abelian von Neumann
+/-
+The classification of abelian von Neumann algebras: every abelian von Neumann
 algebra is *-isomorphic to one of the five standard types (ℓ∞({1,…,n}), ℓ∞(ℕ),
 L∞([0,1]), L∞([0,1] ∪ {1,…,n}), L∞([0,1] ∪ ℕ)).  This is von Neumann's
 original classification theorem (book.tex lines 8789–8800).
 
-**Status:** Stated as a `def` (not an `axiom`) because the claim is mathematically
-precise; a full proof requires the 5-case classification construction which is
-not available in Mathlib. -/
-def vonNeumann_abelian_classification : Prop :=
-  True
+**Removed (August 2026).**  The following pair was a `True` placeholder: the
+`def` weakened the claim to the trivially true proposition, so the accompanying
+`theorem` proved nothing.  It is kept here, commented out, for the record, and
+replaced below by the *genuine* first case of the classification, proved in
+`BookProof/ChapterAbelianDiagonal.lean`.
 
-theorem vonNeumann_abelian_classification_true :
-    vonNeumann_abelian_classification := by
-  -- The full proof is von Neumann's classification theorem.
-  -- We leave this as a documented gap: the claim is stated, not proved.
-  trivial
+    def vonNeumann_abelian_classification : Prop :=
+      True
+
+    theorem vonNeumann_abelian_classification_true :
+        vonNeumann_abelian_classification := by
+      trivial
+-/
+
+/-- **The finite (type `I_n`) case of the classification**, proved (not assumed):
+inside `Mat(n, ℂ)` the algebra `ℓ∞({1,…,n}) = (n → ℂ)` embeds by an injective
+`*`-algebra map onto an abelian subalgebra that is exactly its own commutant.
+The remaining four classes and the exhaustiveness of the five-item list are a
+deep theorem and are **not** claimed here. -/
+theorem vonNeumann_abelian_classification_typeI
+    {ι : Type*} [Fintype ι] [DecidableEq ι] :
+    Function.Injective
+        (BookProof.AbelianDiagonal.diagonalStarAlgHom :
+          (ι → ℂ) →⋆ₐ[ℂ] Matrix ι ι ℂ) ∧
+      (∀ d e : ι → ℂ,
+        Matrix.diagonal d * Matrix.diagonal e = Matrix.diagonal e * Matrix.diagonal d) ∧
+      (∀ M : Matrix ι ι ℂ,
+        (∀ d : ι → ℂ, M * Matrix.diagonal d = Matrix.diagonal d * M) ↔
+          ∃ e : ι → ℂ, M = Matrix.diagonal e) :=
+  BookProof.AbelianDiagonal.vonNeumann_abelian_typeI_case
 
 /-!
 ## 4. P ≠ NP
@@ -126,11 +149,15 @@ a formal definition of polynomial-time computability, which Mathlib does not
 currently provide).  We document this as an open problem rather than an axiom.
 -/
 
-/-- The claim that P ≠ NP, as argued in Chapter 13 using continuous probability
-spaces.  This is documented as an open problem because a formal proof would
-require defining complexity classes P and NP in Lean, which is not yet
-available in Mathlib. -/
-def p_ne_np : Prop := True
+-- The claim that P ≠ NP, as argued in Chapter 13 using continuous probability
+-- spaces.  This is documented as an open problem because a formal proof would
+-- require defining complexity classes P and NP in Lean, which is not yet
+-- available in Mathlib.
+-- **Removed (August 2026).**  `def p_ne_np : Prop := True` was a placeholder whose
+-- statement had been weakened to the trivially true proposition; the name would
+-- have suggested a claim that is not made.  It is recorded here, commented out.
+--
+--     def p_ne_np : Prop := True
 
 /-!
 ## 5. Worst-case vs best-case prior measures
@@ -143,17 +170,40 @@ worst-case prior measure into the best-case prior measure.
 
 variable {X : Type*} [MeasurableSpace X] (μ : Measure X) [IsProbabilityMeasure μ]
 
-/-- Any probability measure on a standard Borel space can be decomposed into
-its continuous part (no atoms) and its atomic part (countable set of singletons).
-This is the Lebesgue decomposition for measures. -/
-theorem exists_continuous_atomic_decomposition
-    [StandardBorelSpace X] :
-    True := by
-  -- Mathlib has `MeasureTheory.Measure.lebesgueDecomposition` which gives
-  -- the decomposition of a measure into continuous and atomic parts.
-  -- The full statement requires the Lebesgue decomposition theorem;
-  -- we leave this as a documented placeholder.
-  trivial
+/-- Any probability measure on a space with measurable singletons splits into a
+**continuous** part (no atoms) and an **atomic** part, the latter carried by a
+countable set of points.  Concretely, with `A = {x | 0 < μ {x}}` the (countable)
+set of atoms, the decomposition is `μ = μ.restrict Aᶜ + μ.restrict A`. -/
+theorem exists_continuous_atomic_decomposition [MeasurableSingletonClass X] :
+    ∃ cont atom : Measure X, μ = cont + atom ∧ NoAtoms cont ∧
+      ∃ A : Set X, A.Countable ∧ atom Aᶜ = 0 := by
+  classical
+  set A : Set X := {x | 0 < μ {x}} with hA
+  have hcount : A.Countable := by
+    have := Measure.countable_meas_pos_of_disjoint_iUnion (μ := μ)
+      (As := fun x : X => ({x} : Set X)) (fun x => measurableSet_singleton x)
+      (by intro x y hxy; simpa [Function.onFun] using hxy)
+    simpa [hA] using this
+  have hmeas : MeasurableSet A := hcount.measurableSet
+  refine ⟨μ.restrict Aᶜ, μ.restrict A, ?_, ?_, A, hcount, ?_⟩
+  · rw [add_comm]
+    exact (Measure.restrict_add_restrict_compl hmeas).symm
+  · constructor
+    intro x
+    rcases eq_or_ne (μ {x}) 0 with h | h
+    · exact le_antisymm (le_trans (Measure.restrict_apply_le _ _) (le_of_eq h)) (zero_le _)
+    · have hxA : x ∈ A := by
+        simp only [hA, Set.mem_setOf_eq]
+        exact pos_iff_ne_zero.mpr h
+      rw [Measure.restrict_apply (measurableSet_singleton x)]
+      have hempty : ({x} : Set X) ∩ Aᶜ = ∅ := by
+        ext y
+        simp only [Set.mem_inter_iff, Set.mem_singleton_iff, Set.mem_compl_iff,
+          Set.mem_empty_iff_false, iff_false, not_and, not_not]
+        rintro rfl; exact hxA
+      simp [hempty]
+  · rw [Measure.restrict_apply hmeas.compl]
+    simp
 
 /-!
 ## 6. Random number generation
@@ -164,13 +214,17 @@ e mpirical claim about physical random number generators (e.g., ANU QRNG).
 We document this as an open problem rather than an axiom.
 -/
 
-/-- Random number generation from a uniform distribution has linear time
-complexity in the number of bits.  This is an empirical claim; a formal proof
-would require a physical model of computation.
-
-**Status:** Documented as a `def` (not an `axiom`) because the claim is
-precise but unprovable in the current formalism. -/
-def random_generation_linear_time : Prop := True
+-- Random number generation from a uniform distribution has linear time
+-- complexity in the number of bits.  This is an empirical claim; a formal proof
+-- would require a physical model of computation.
+--
+-- Documented in prose only: the claim is precise but unprovable in the current
+-- formalism.
+-- **Removed (August 2026).**  `def random_generation_linear_time : Prop := True`
+-- was likewise a placeholder weakened to the trivially true proposition.  It is
+-- recorded here, commented out.
+--
+--     def random_generation_linear_time : Prop := True
 
 /-!
 ## 7. Consequences for Machine Learning
@@ -226,19 +280,9 @@ probability kernel) equals the standard formula `μ(E ∩ F) / μ(E)` whenever
 theorem selecting_events_not_rewriting_history
     {α : Type*} [MeasurableSpace α] [StandardBorelSpace α]
     (μ : Measure α) [IsProbabilityMeasure μ] [NoAtoms μ]
-    (E F : Set α) (_hE : MeasurableSet E) (_hF : MeasurableSet F)
+    (E F : Set α) (_hE : MeasurableSet E) (hF : MeasurableSet F)
     (_hEpos : μ E > 0) (_hFpos : μ F > 0) :
-    -- The conditional probability of F given E, computed via the regular
-    -- conditional probability kernel, agrees with the standard formula
-    -- whenever E has positive measure.
-    True := by
-  -- The regular conditional probability kernel `condExpKernel` gives the
-  -- conditional expectation.  For measurable sets, this reduces to the
-  -- standard conditional probability formula when the conditioning set has
-  -- positive measure.
-  --
-  -- Key identity: μ(F | E) = μ(E ∩ F) / μ(E) when μ(E) > 0.
-  -- This is `ProbabilityTheory.cond_apply'` in Mathlib.
-  trivial
+    μ[F | E] = μ (E ∩ F) / μ E := by
+  rw [cond_apply' hF, ENNReal.div_eq_inv_mul]
 
 end BookProof.ChapterSelectingEvents

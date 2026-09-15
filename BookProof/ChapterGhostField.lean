@@ -1,7 +1,8 @@
 import Mathlib
 
 /-!
-# Chapter "Free field parametrization … Navier-Stokes",  §"Free field parametrization in Navier-Stokes equations" — the fermionic ghost field and BRST charge
+# Chapter "Free field parametrization … Navier-Stokes", §"Free field parametrization in
+Navier-Stokes equations" — the fermionic ghost field and BRST charge
 
 Source: `book.tex`, chapter *"Free field parametrization in Classical Statistical
 Field Theory and Navier-Stokes equations"*, §*"Free field parametrization in

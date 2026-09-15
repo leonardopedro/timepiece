@@ -1,4 +1,5 @@
 import Mathlib
+import BookProof.ChapterPaFreeCompletion
 
 /-!
 # Definability / Conservativity Fragment
@@ -11,9 +12,18 @@ The full metamathematical claim "the completion is a conservative extension"
 is documented here but NOT formalized as a Lean theorem. The formal content
 is the `Finsupp.finite_support` lemma: in the finitely-supported fragment,
 every denotable vector is finitely supported.
+
+**Update (August 2026).**  The former `True` placeholder
+`conservativity_documentation` has been replaced by the genuine mathematical
+core of the claim, `completion_conservative_over_core`: the image of the
+term-denotable fragment inside `ℓ²(ℕ)` is *exactly* the set of
+finitely-supported vectors, it is dense, and it is a proper subset.  What
+remains metamathematical (and is not claimed as a Lean theorem) is only the
+proof-theoretic reading of that fact.
 -/
 
 open Finset
+open BookProof.ChapterRieszFischer
 
 /-- In the finitely-supported fragment, every vector is finitely supported.
     This is the core definability result: there are no "infinite" vectors
@@ -34,18 +44,18 @@ theorem non_finitely_supported_not_term_denotable (v : ℕ → ℝ)
   rw [← hw]
   exact Finsupp.finite_support w
 
-/-- The formal statement: the completion does not make more vectors definable
-    than were already definable in the finite-support fragment.
+/-- **The mathematical core of conservativity.**  Inside the completion
+`ℓ²(ℕ)`, the image of the term-denotable fragment `ℕ →₀ ℝ` is *exactly* the set
+of finitely-supported vectors; that set is dense; and it is a proper subset.
 
-    This is a tautology in the formalism: the completion only adds limit points
-    of Cauchy sequences, and a limit point cannot be term-denotable
-    (term-denotable vectors have finite support, but limit points in an
-    infinite-dimensional space typically do not).
+So the completion adds no term-denotable vector beyond those already present
+(every new element has infinite support, hence is not term-denotable), while
+still being the closure of the fragment.
 
-    **This is NOT a theorem in Lean.** It is a metamathematical observation
-    documented here for completeness. -/
-theorem conservativity_documentation : True := by
-  -- The full conservativity claim requires external justification
-  -- (e.g., forcing arguments in set theory)
-  -- We document it here but do not attempt to prove it in Lean
-  trivial
+This replaces the earlier `True` placeholder.  The remaining, purely
+proof-theoretic reading of the statement ("the completion is a conservative
+extension of the base theory") is *not* claimed here. -/
+theorem completion_conservative_over_core :
+    Set.range ofCore = FinSupport ∧ Dense (Set.range ofCore) ∧
+      Set.range ofCore ≠ (Set.univ : Set Ell2) :=
+  ⟨range_ofCore, denseCore_dense, denseCore_proper⟩

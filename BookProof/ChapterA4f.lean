@@ -87,7 +87,8 @@ theorem zeroMomentum_symbol (m₁ m₂ : ℝ) :
       = (-(m₁ ^ 2 + m₂ ^ 2)) • (1 : Matrix (Fin 4) (Fin 4) ℝ) := by
         -- Apply the energySymbolR_sq theorem with p being the zero function.
         have := energySymbolR_sq (fun _ => 0) m₁ m₂;
-        simp at this;
+        simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero,
+          zero_sub] at this;
         exact this ▸ by ring;
 
 /-! ## Exclusion 3 — no infinite (continuous) spin
@@ -106,14 +107,14 @@ noncomputable def boostZ (l : ℂ) : Matrix (Fin 2) (Fin 2) ℂ := !![l, 0; 0, l
 `det (boostZ l) = 1` for `l ≠ 0`.
 -/
 theorem boostZ_det {l : ℂ} (hl : l ≠ 0) : (boostZ l).det = 1 := by
-  unfold boostZ; simp +decide [ hl, Matrix.det_fin_two ] ;
+  unfold boostZ; simp [ hl, Matrix.det_fin_two ] ;
 
 /-
 `boostZ l · boostZ l⁻¹ = 1` for `l ≠ 0` (so `boostZ l⁻¹` is the inverse of
 `boostZ l`).
 -/
 theorem boostZ_mul_inv {l : ℂ} (hl : l ≠ 0) : boostZ l * boostZ l⁻¹ = 1 := by
-  ext i j ; fin_cases i <;> fin_cases j <;> simp +decide [ *, boostZ ]
+  ext i j ; fin_cases i <;> fin_cases j <;> simp [ *, boostZ ]
 
 /-
 Conjugation by the `z`-boost **fixes the `SO(2)` rotation angle** `a = T 0 0`
@@ -121,8 +122,11 @@ of an `SE(2)` element.
 -/
 theorem boostZ_preserves_angle {l : ℂ} (hl : l ≠ 0) (T : Matrix (Fin 2) (Fin 2) ℂ) :
     (boostZ l * T * boostZ l⁻¹) 0 0 = T 0 0 := by
-      unfold boostZ; simp +decide [ Matrix.mul_apply ] ;
-      simp +decide [ Matrix.vecMul ];
+      unfold boostZ; simp only [cons_mul, Nat.succ_eq_add_one, Nat.reduceAdd, empty_mul,
+          Equiv.symm_apply_apply, inv_inv, Fin.isValue, mul_apply, of_apply, cons_val',
+              cons_val_fin_one, cons_val_zero, Fin.sum_univ_two, cons_val_one, mul_zero, add_zero] ;
+      simp only [vecMul, Fin.isValue, cons_dotProduct, head_val', tail_val', zero_mul,
+          dotProduct_of_isEmpty, add_zero];
       exact mul_div_cancel_left₀ _ hl
 
 /-
@@ -131,7 +135,7 @@ theorem boostZ_preserves_angle {l : ℂ} (hl : l ≠ 0) (T : Matrix (Fin 2) (Fin
 -/
 theorem boostZ_scales_translation (l : ℂ) (T : Matrix (Fin 2) (Fin 2) ℂ) :
     (boostZ l * T * boostZ l⁻¹) 1 0 = (l⁻¹) ^ 2 * T 1 0 := by
-      simp +decide [ Matrix.mul_apply, pow_two, mul_assoc ];
+      simp only [Fin.isValue, mul_apply, Fin.sum_univ_two, pow_two, mul_assoc];
       unfold boostZ; norm_num; ring;
 
 /-
@@ -142,12 +146,15 @@ stabiliser of the null axis).
 theorem boostZ_conj_mem {l : ℂ} (hl : l ≠ 0) {T : Matrix (Fin 2) (Fin 2) ℂ}
     (hT : T ∈ SEtwo) : boostZ l * T * boostZ l⁻¹ ∈ SEtwo := by
       refine ⟨ ?_, ?_, ?_ ⟩;
-      · simp_all +decide [ Matrix.det_fin_two, boostZ ];
-        simp_all +decide [ Matrix.vecMul, Matrix.mul_apply, Fin.sum_univ_succ, SEtwo ];
-        simp_all +decide [ vecHead, vecTail, Matrix.det_fin_two ];
+      · simp_all [ Matrix.det_fin_two, boostZ ];
+        simp_all [ Matrix.vecMul, Matrix.mul_apply, Fin.sum_univ_succ, SEtwo ];
+        simp_all [ vecHead, vecTail, Matrix.det_fin_two ];
         grind;
-      · simp_all +decide [ Fin.sum_univ_succ, Matrix.mul_apply ];
-        simp_all +decide [ boostZ ];
+      · simp_all only [ne_eq, Fin.isValue, mul_apply, Fin.sum_univ_succ, Finset.univ_unique,
+          Fin.default_eq_zero, Finset.sum_singleton, Fin.succ_zero_eq_one];
+        simp_all only [boostZ, Fin.isValue, of_apply, cons_val', cons_val_zero, cons_val_fin_one,
+            cons_val_one, zero_mul, add_zero, inv_inv, mul_zero, zero_add, mul_eq_zero, false_or,
+                or_false];
         exact hT.2.1;
       · rw [ boostZ_preserves_angle hl ] ; exact hT.2.2
 

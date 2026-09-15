@@ -67,7 +67,7 @@ instance instIsProbabilityMeasure_stdGaussian (n : ℕ) :
   constructor;
   unfold stdGaussian;
   rw [ Measure.map_apply ];
-  · simp +decide ;
+  · simp ;
   · fun_prop;
   · exact MeasurableSet.univ
 
@@ -78,7 +78,8 @@ characteristic function. -/
 theorem charFun_stdGaussian (t : EuclideanSpace ℝ (Fin n)) :
     charFun (stdGaussian n) t = Complex.exp (-(‖t‖ ^ 2 : ℝ) / 2) := by
   convert MeasureTheory.charFun_pi t using 1;
-  · rw [ Finset.prod_congr rfl fun _ _ => ProbabilityTheory.charFun_gaussianReal _ ] ;    norm_num [ Complex.exp_neg, neg_div ];
+  · rw [ Finset.prod_congr rfl fun _ _ => ProbabilityTheory.charFun_gaussianReal _ ] ;    norm_num [
+      Complex.exp_neg, neg_div ];
     rw [ ← Complex.exp_sum ] ; norm_cast ; norm_num [ EuclideanSpace.norm_eq ] ; ring;
     rw [ Real.sq_sqrt <| Finset.sum_nonneg fun _ _ => sq_nonneg _, ← Finset.sum_mul ];
   · infer_instance
@@ -97,7 +98,7 @@ theorem stdGaussian_map_linearIsometryEquiv
   convert charFun_stdGaussian ( L.symm t ) using 1;
   · convert MeasureTheory.integral_map _ _ using 3;
     · convert MeasureTheory.integral_congr_ae _ using 3;
-      filter_upwards [ ] with x using by rw [ ← L.inner_map_map ] ; simp +decide  ;
+      filter_upwards [ ] with x using by rw [ ← L.inner_map_map ] ; simp  ;
     · exact L.continuous.aemeasurable;
     · fun_prop;
   · convert charFun_stdGaussian t using 1 ; norm_num [ L.norm_map ]

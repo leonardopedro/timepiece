@@ -102,7 +102,7 @@ theorem Zgen_sq : Zgen ^ 2 = 0 := by
 theorem comm_scaled (a b : ℝ) :
     (a • Xgen) * (b • Ygen) - (b • Ygen) * (a • Xgen) = (a * b) • Zgen := by
   unfold Xgen Ygen Zgen; ext i j; fin_cases i <;> fin_cases j <;>
-    simp  <;> ring
+    simp
 
 /-- The Heisenberg **group law**
 `H(a,b,c)·H(a',b',c') = H(a+a', b+b', c+c'+a·b')`.  This is the exponentiated
@@ -140,7 +140,7 @@ theorem exp_Ngen (a b c : ℝ) :
   · rw [Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_one, Ngen_sq]
     unfold Ngen Zgen Heis
     ext i j; fin_cases i <;> fin_cases j <;>
-      simp [Matrix.add_apply, pow_succ] <;> ring
+      simp [Matrix.add_apply, pow_succ] ; ring
   · intro k hk
     simp only [Finset.mem_range, not_lt] at hk
     have : (Ngen a b c) ^ k = 0 := by

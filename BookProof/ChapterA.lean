@@ -62,12 +62,11 @@ subsystem is a subsystem.
 -/
 theorem orthogonal_isSubsystem (M : System 𝔽 V) (hM : IsNormal M)
     {W : Submodule 𝔽 V} (hW : IsSubsystem M W) : IsSubsystem M Wᗮ := by
-  refine' ⟨ _, _ ⟩;
+  refine ⟨ ?_, ?_ ⟩;
   · exact Submodule.isClosed_orthogonal W
-  · intro m hm w hw;
-    intro v hv; have := hM m hm; simp_all +decide [ Submodule.mem_orthogonal' ] ;
+  · intro m hm w hw v hv; have := hM m hm; simp_all only [Submodule.mem_orthogonal'] ;
     rw [ ← ContinuousLinearMap.adjoint_inner_left ];
-    rw [ ← inner_conj_symm, hw _ ( hW.2 _ this _ hv ) ] ; simp +decide
+    rw [ ← inner_conj_symm, hw _ ( hW.2 _ this _ hv ) ] ; simp
 
 /-
 **Lemma 27.** A **Schur** normal system is irreducible.  Here the Schur
@@ -84,7 +83,9 @@ theorem schur_normal_irreducible (M : System 𝔽 V) (hM : IsNormal M)
   have hW_orthogonal : IsClosed (Wᗮ : Set V) ∧ ∀ m ∈ M.ops, ∀ w ∈ Wᗮ, m w ∈ Wᗮ := by
     convert orthogonal_isSubsystem M hM ⟨ hW_subsystem, hW_closed ⟩ using 1;
   obtain ⟨c, hc⟩ := hSchur (W.starProjection) (by
-  intro m hm;    ext v; simp +decide  ;  have h_decomp : m v = m (W.starProjection v) + m (v - W.starProjection v) := by
+  intro m hm;    ext v; simp only [ContinuousLinearMap.coe_mul, Function.comp_apply]  ;  have
+      h_decomp : m v = m (W.starProjection v) + m (v -
+      W.starProjection v) := by
     rw [ ← map_add, add_sub_cancel ];
   have h_comm : W.starProjection (m (v - W.starProjection v)) = 0 := by
     have h_comm : m (v - W.starProjection v) ∈ Wᗮ := by
@@ -94,14 +95,14 @@ theorem schur_normal_irreducible (M : System 𝔽 V) (hM : IsNormal M)
   exact Submodule.starProjection_eq_self_iff.mpr ( hW_closed m hm _ ( Submodule.coe_mem _ ) )) (by
   grind +suggestions);
   by_cases hc0 : c = 0;
-  · simp_all +decide [ Submodule.eq_bot_iff ];
+  · simp_all only [zero_smul, Submodule.eq_bot_iff];
     left;
-    intro x hx;      replace hc := congr_arg ( fun f => f x ) hc;      simp_all +decide  ;
+    intro x hx;      replace hc := congr_arg ( fun f => f x ) hc;      simp_all  ;
     rw [ Submodule.starProjection_eq_self_iff.mpr hx ] at hc ; aesop;
   · have hW_top : ∀ v : V, v ∈ W := by
       intro v
       have hv : v = (c⁻¹ • W.starProjection) v := by
-        simp +decide [ hc, hc0 ];
+        simp [ hc, hc0 ];
       exact hv.symm ▸ Submodule.smul_mem _ _ ( Submodule.coe_mem _ );
     exact Or.inr ( eq_top_iff.mpr fun v _ => hW_top v )
 

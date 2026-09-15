@@ -2,7 +2,8 @@ import Mathlib
 import BookProof.ChapterYangMillsFieldStrength
 
 /-!
-# Chapter "Timepiece and the Gribov ambiguity",  §"Free electromagnetic field: an exact example" — the abelian reduction of the field strength
+# Chapter "Timepiece and the Gribov ambiguity", §"Free electromagnetic field: an exact example" —
+the abelian reduction of the field strength
 
 Source: `book.tex`, chapter *"Timepiece and the Gribov ambiguity"*,
 §*"Free electromagnetic field: an exact example"* (line ~7413):

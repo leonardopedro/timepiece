@@ -38,7 +38,7 @@ Evidence under a deterministic prior is just the likelihood at its support.
 theorem evidence_dirac (a : Hyp) (L : Hyp → Data → ℝ) (d : Data) :
     BookProof.ChapterBayesInference.evidence (diracPrior a) L d = L a d := by
   unfold ChapterBayesInference.evidence
-  simp +decide [diracPrior]
+  simp [diracPrior]
 
 /-
 Positive-likelihood Bayesian updating preserves a deterministic prior.
@@ -48,7 +48,7 @@ theorem posterior_dirac (a : Hyp) (L : Hyp → Data → ℝ) (d : Data)
     BookProof.ChapterBayesInference.posterior (diracPrior a) L d x =
       diracPrior a x := by
   unfold ChapterBayesInference.posterior diracPrior
-  split_ifs <;> simp_all +decide [ChapterBayesInference.evidence]
+  split_ifs <;> simp_all [ChapterBayesInference.evidence]
   linarith
 
 /-

@@ -74,7 +74,7 @@ maximum $`4`, at exactly $`2\sqrt 2`.
 
 The standard reading is that the Bell violation rules out *local hidden-variable*
 theories. The manuscript offers a more specific reading, tied to
-{ref "time-translation-stochastic"}[the stochastic-process theorem]: the Bell
+{ref "deterministic-transformations"}[the stochastic-process theorem]: the Bell
 assumptions implicitly treat the time-evolution as a *stochastic process* — a
 probability distribution at each time, glued by conditionals. But that theorem shows
 the time-evolution is a stochastic process *if and only if it is deterministic*.

@@ -114,7 +114,7 @@ def excited (n : ℕ) : Finset (Fin (n + 2)) := Finset.univ.filter (· ≠ 0)
 The excited-state set is nonempty (index `1` is excited).
 -/
 theorem excited_nonempty : (excited n).Nonempty := by
-  exact ⟨ 1, by simp +decide [ excited ] ⟩
+  exact ⟨ 1, by simp [ excited ] ⟩
 
 /-- The mass gap of a diagonal spectrum: the least excited-state energy. -/
 noncomputable def massGap (E : Fin (n + 2) → ℝ) : ℝ :=
@@ -143,25 +143,13 @@ to any value.
 -/
 theorem massGap_shifted_gapless (lam : ℝ) :
     massGap (shiftedSpectrum (fun _ : Fin (n + 2) => (0 : ℝ)) lam) = lam := by
-  unfold massGap
-  have h_image_eq : (excited n).image
-    (shiftedSpectrum (fun _ : Fin (n + 2) => (0 : ℝ)) lam) = {lam} := by
-    ext x
-    constructor
-    · rintro ⟨i, hi, rfl⟩
-      have hi' : i ≠ 0 := (Finset.mem_filter.mp hi).2
-      have : shiftedSpectrum (fun _ : Fin (n + 2) => (0 : ℝ)) lam i = lam := by
-        unfold shiftedSpectrum numberOp
-        simp [hi']
-      simp [this]
-    · intro hx
-      simp at hx
-      subst hx
-      refine ⟨⟨1, by omega⟩, ?_, ?_⟩
-      · apply Finset.mem_filter.mpr
-        exact ⟨Finset.mem_univ _, by decide⟩
-      · unfold shiftedSpectrum numberOp
-        simp
-  simp [h_image_eq]
+  refine le_antisymm ?_ ?_;
+  · refine Finset.min'_le _ _ ?_;
+    simp only [excited, ne_eq, Finset.mem_image, Finset.mem_filter, Finset.mem_univ, true_and,
+        shiftedSpectrum, zero_add];
+    exact ⟨ 1, by simp, by simp [ numberOp ] ⟩;
+  · refine Finset.le_min' _ _ _ ?_ ; simp only [Finset.mem_image, shiftedSpectrum, numberOp,
+      mul_ite, mul_zero, mul_one, zero_add, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂];
+    exact fun a ha => by rw [ if_neg ( Finset.mem_filter.mp ha |>.2 ) ] ;
 
 end BookProof.MassGap

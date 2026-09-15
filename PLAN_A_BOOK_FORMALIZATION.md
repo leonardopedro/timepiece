@@ -159,7 +159,7 @@ Add:
 - Formalize: a finite truncation of arithmetic (operations bounded by a finite
   parameter `B`) together with a Bayesian prior on the unknown results beyond `B`.
 
-**Anchors:** `ChapterFiniteBayesHierarchy`, `ChapterNoBestPrior`, `ChapterPriorOdds`, `RandomMap/SchoenfeldPRA.lean`.
+**Anchors:** `ChapterFiniteBayesHierarchy`, `ChapterNoBestPrior`, `ChapterPriorOdds`, `UnusedRoute/SchoenfeldPRA.lean`.
 
 ### 7.6 Density matrix = diagonal rotated by a unitary
 

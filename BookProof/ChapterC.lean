@@ -24,13 +24,13 @@ namespace BookProof.ChapterC
 The number of invertible discrete maps `Fin n → Fin n` is `n!`.
 -/
 theorem card_invertible (n : ℕ) : Fintype.card (Equiv.Perm (Fin n)) = n ! := by
-  simp +decide [ Fintype.card_perm ]
+  simp [ Fintype.card_perm ]
 
 /-
 The number of all discrete maps `Fin n → Fin n` is `nⁿ`.
 -/
 theorem card_all (n : ℕ) : Fintype.card (Fin n → Fin n) = n ^ n := by
-  simp +decide [ Fintype.card_pi ]
+  simp [ Fintype.card_pi ]
 
 /-
 The probability that a uniformly random discrete map is invertible is `n!/nⁿ`.
@@ -47,12 +47,14 @@ theorem invertible_ratio_isEquivalent :
     (fun n : ℕ => (n ! : ℝ) / (n : ℝ) ^ n)
       ~[atTop] (fun n : ℕ => Real.sqrt (2 * Real.pi * n) * Real.exp (-(n : ℝ))) := by
   have := @Stirling.factorial_isEquivalent_stirling;
-  have := this.div ( show ( fun n : ℕ => ( n : ℝ ) ^ n ) ~[atTop] ( fun n : ℕ => ( n : ℝ ) ^ n ) from by rfl );
+  have := this.div ( show ( fun n : ℕ => ( n : ℝ ) ^ n ) ~[atTop] ( fun n : ℕ => ( n : ℝ ) ^ n )
+      from by rfl );
   refine this.congr' ?_ ?_;
   · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn;
     norm_num [ div_pow, Real.exp_neg, mul_assoc, mul_comm, mul_left_comm, hn.ne' ];
     rw [ div_eq_iff ( by positivity ) ] ; ring;
-  · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn ;    norm_num [ Real.exp_neg, div_pow, mul_pow, mul_assoc, mul_comm, mul_left_comm, hn.ne' ];
+  · filter_upwards [ Filter.eventually_gt_atTop 0 ] with n hn ;    norm_num [ Real.exp_neg, div_pow,
+      mul_pow, mul_assoc, mul_comm, mul_left_comm, hn.ne' ];
     rw [ div_eq_iff ( by positivity ) ] ; ring
 
 /-

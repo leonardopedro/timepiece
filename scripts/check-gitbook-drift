@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# F7 — GitBook drift check: flag identifiers cited by the test/ GitBook pages
+# that no longer exist in the source-of-truth trees.
+#
+# Two drift surfaces (the GitBook mirrors the project in prose):
+#   1. LEAN surface: backtick-quoted identifiers in test/proofs|book|unfer
+#      must resolve in the timepiece Lean tree (word token, *.lean file, or
+#      BookProof.X module). A renamed/removed theorem shows up here as a MISS.
+#   2. RUST surface: `.rs` suite names cited in test/numerics must resolve in
+#      unfer/fock_sirk/tests (the physics validation suites).
+#
+# Usage:  bash scripts/check-gitbook-drift   (from repo root; ../test and
+#         ../unfer are read as siblings, like scripts/verify-invariants).
+# Exit 0 = no drift; 1 = at least one stale citation.
+set -u
+
+repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+GITBOOK="$repo_root/../test"
+UNFER_TESTS="$repo_root/../unfer/fock_sirk/tests"
+
+if [[ ! -d "$GITBOOK" ]]; then
+    echo "[gap]  ../test GitBook not present — drift check skipped"
+    exit 0
+fi
+
+FAILED=0
+PASSED=0
+
+echo "=== Lean-surface citations (test/proofs, test/book, test/unfer) ==="
+# Collect every backtick-quoted token that looks like an identifier
+# (contains '_' or '.' and is not a filename with a foreign extension).
+python3 - "$repo_root" "$GITBOOK" "$UNFER_TESTS" <<'PYEOF'
+import re, sys, glob, os
+
+repo_root, gitbook, unfer_tests = sys.argv[1:4]
+
+lean_files = [
+    f for f in glob.glob(os.path.join(repo_root, "**", "*.lean"), recursive=True)
+    if "/.lake" not in f and "/.lake_bk" not in f and "/node_modules" not in f
+]
+lean_tokens = set()
+for f in lean_files:
+    txt = open(f, encoding="utf-8", errors="replace").read()
+    lean_tokens.update(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", txt))
+lean_basenames = {os.path.basename(f) for f in lean_files}
+
+EXTERNAL_EXT = (".rs", ".bin", ".lp", ".json", ".loro", ".md", ".tex", ".toml")
+# mathlib / ecosystem names that legitimately live outside this tree
+EXTERNAL_HEADS = ("Finset", "Quot", "Metric", "NormedAddCommGroup", "Classical",
+                  "Mathlib", "Complex", "Real", "Nat", "Int", "Fin", "green_tsetlin")
+
+def resolves(token):
+    if token.endswith(".lean"):
+        return token in lean_basenames
+    if token.endswith(EXTERNAL_EXT):
+        return True  # foreign artifact (rust suite, gitbook page, ...)
+    if "." in token:
+        head, tail = token.rsplit(".", 1)
+        if head in ("BookProof", "Book", "RiemannProof", "PnpProof", "RandomMap") \
+                or head.startswith("Chapter"):
+            # module-qualified: the tail must be a token in the Lean tree
+            return tail in lean_tokens
+        if head in EXTERNAL_HEADS:
+            return True
+        return tail in lean_tokens  # generic qualified name
+    return token in lean_tokens
+
+pat = re.compile(r"`([A-Za-z_][A-Za-z0-9_.]*)`")
+misses = []
+for f in sorted(glob.glob(os.path.join(gitbook, "proofs", "*.md"))
+                + glob.glob(os.path.join(gitbook, "book", "*.md"))
+                + glob.glob(os.path.join(gitbook, "unfer", "*.md"))):
+    txt = open(f, encoding="utf-8", errors="replace").read()
+    for m in pat.finditer(txt):
+        t = m.group(1)
+        if ("_" in t or "." in t) and not resolves(t):
+            misses.append((t, os.path.relpath(f, gitbook)))
+
+seen = set()
+for t, f in sorted(misses):
+    if (t, f) in seen:
+        continue
+    seen.add((t, f))
+    print(f"  [MISS lean] {t:<55s} {f}")
+
+if not misses:
+    print("  [ok] all cited Lean identifiers resolve in the tree")
+sys.exit(1 if misses else 0)
+PYEOF
+PY_RC=$?
+if [[ "$PY_RC" -ne 0 ]]; then
+    FAILED=$((FAILED + 1))
+fi
+
+echo
+echo "=== Rust-surface citations (test/numerics → unfer/fock_sirk/tests) ==="
+if [[ -d "$UNFER_TESTS" ]]; then
+    RUST_MISS=0
+    RUST_OK=0
+    for f in "$GITBOOK"/numerics/*.md; do
+        for id in $(grep -oE '`[A-Za-z0-9_]+\.rs`' "$f" 2>/dev/null | tr -d '`' | sort -u); do
+            if [[ -f "$UNFER_TESTS/$id" ]]; then
+                RUST_OK=$((RUST_OK + 1))
+            else
+                echo "  [MISS rust] $id ($(basename "$f"))"
+                RUST_MISS=$((RUST_MISS + 1))
+            fi
+        done
+    done
+    if [[ "$RUST_MISS" -eq 0 ]]; then
+        echo "  [ok] all $RUST_OK cited .rs suites resolve in unfer/fock_sirk/tests"
+    else
+        FAILED=$((FAILED + RUST_MISS))
+    fi
+else
+    echo "  [gap] ../unfer/fock_sirk/tests not present — Rust surface skipped"
+fi
+
+echo
+echo "check-gitbook-drift: $([ "$FAILED" -eq 0 ] && echo "no drift found" || echo "$FAILED drift item(s)")"
+exit "$FAILED"

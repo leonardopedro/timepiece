@@ -84,20 +84,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
 # 4. Add CSS to hide TOC on desktop by default, show on toggle
 css_inject = """
-<!-- verso-postprocess-css -->
-<style>
-/* Hide TOC on desktop by default; show when hamburger is toggled */
-@media screen and (min-width: 701px) {
-  .with-toc > main { padding-left: 0; }
-  #toc { display: none; }
-  body:has(#toggle-toc:checked) #toc { display: flex; }
-  body:has(#toggle-toc:checked) .with-toc > main { padding-left: var(--verso-toc-width); }
-  body:has(#toggle-toc:checked) .toc-backdrop {
-    display: block; position: fixed; inset: 0; background-color: #aaa8; z-index: 9;
+ <!-- verso-postprocess-css -->
+ <style>
+ /* Hide TOC on desktop by default; show when hamburger is toggled */
+ @media screen and (min-width: 701px) {
+   .with-toc > main { padding-left: 0; }
+   #toc { display: none; }
+   body:has(#toggle-toc:checked) #toc { display: flex; }
+   body:has(#toggle-toc:checked) .with-toc > main { padding-left: var(--verso-toc-width); }
+   body:has(#toggle-toc:checked) .toc-backdrop {
+     display: block; position: fixed; inset: 0; background-color: #aaa8; z-index: 9;
+   }
+ }
+  /* Full-page-wide content: remove the 47rem content cap. The single custom
+     property --verso-content-max-width constrains .content-wrapper,
+     main section, .header-title and .prev-next-buttons; setting it to `none`
+     makes the whole page span the viewport width. */
+  :root { --verso-content-max-width: none; }
+  /* Printing: the fixed ToC would otherwise render as a left column on every
+     printed page, main keeps a padding-left that reserves its width, and the
+     fixed header would repeat the running "Timepiece" title on every page.
+     Hide all three and zero the reserved padding. */
+  @media print {
+    #toc, .toc-backdrop, #toggle-toc-click, .header-logo-wrapper,
+    header {
+      display: none !important;
+    }
+    .with-toc > main { padding-left: 0 !important; }
+    .with-toc { margin-top: 0 !important; }
+    body { margin-top: 0 !important; }
   }
-}
-</style>
-"""
+  /* Highlight the Mehler dictionary section (the structural backbone of the book):
+     a soft callout box around the section that states the uniform-sphere-to-Fock
+     dictionary in the first part. */
+ section:has(h3[id$="Only-the-Mehler-Measure-on-the-Infinite-Part"]) {
+   background: #f6f3ff;
+   border: 1px solid #d9d2f0;
+   border-radius: 8px;
+   padding: 0 1.2em 0.8em 1.2em;
+   margin: 1.2em 0;
+ }
+ section:has(h3[id$="Only-the-Mehler-Measure-on-the-Infinite-Part"]) h3 {
+   color: #4b3a8f;
+ }
+ </style>
+ """
 
 # Inject CSS before </head> and JS before </body> (idempotent: skip if already present)
 if "verso-postprocess-css" not in html:

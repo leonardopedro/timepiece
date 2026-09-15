@@ -42,4 +42,38 @@ theorem certainExtension_known {B : ℕ} (A : BoundedArithmetic B) :
     (certainExtension A).known = A := by
   rfl
 
+/-- The **truncated multiplication table** below the bound `B`: the exact product
+whenever it still fits below `B`, and the largest representable value `B - 1`
+otherwise.  This is the finite computation the book proposes to carry out
+exactly, with everything beyond the truncation handled by a prior. -/
+def truncMul (B : ℕ) [NeZero B] : BoundedArithmetic B where
+  result a b :=
+    if h : (a : ℕ) * (b : ℕ) < B then ⟨(a : ℕ) * (b : ℕ), h⟩
+    else ⟨B - 1, Nat.sub_lt (Nat.pos_of_neZero B) Nat.one_pos⟩
+
+/-- **Consistency of the truncation with exact arithmetic.**  On the range where
+the exact product is representable, the finite table returns exactly the product
+of the two integers. -/
+theorem truncMul_eq_mul {B : ℕ} [NeZero B] (a b : Fin B) (h : (a : ℕ) * (b : ℕ) < B) :
+    (((truncMul B).result a b : Fin B) : ℕ) = (a : ℕ) * (b : ℕ) := by
+  simp [truncMul, h]
+
+/-- Outside the representable range the table saturates at the largest value. -/
+theorem truncMul_saturates {B : ℕ} [NeZero B] (a b : Fin B)
+    (h : ¬ (a : ℕ) * (b : ℕ) < B) :
+    (((truncMul B).result a b : Fin B) : ℕ) = B - 1 := by
+  simp [truncMul, h]
+
+/-- The truncated multiplication table, extended by a Bayesian prior over the
+unknown results, is a genuine probability model: the known part is the exact
+table on `[0, B)` and the unknown part is a normalized distribution. -/
+theorem truncMul_extension_consistent {B : ℕ} [NeZero B] {H : Type*} [Fintype H]
+    (E : BayesianArithmeticExtension B H) (hE : E.known = truncMul B)
+    (a b : Fin B) (h : (a : ℕ) * (b : ℕ) < B) :
+    ((E.known.result a b : Fin B) : ℕ) = (a : ℕ) * (b : ℕ) ∧
+      (∀ x, 0 ≤ E.prior x) ∧ ∑ x, E.prior x = 1 := by
+  refine ⟨?_, E.prior_nonneg, E.prior_sum_one⟩
+  rw [hE]
+  exact truncMul_eq_mul a b h
+
 end BookProof.ChapterFiniteArithmeticPrior

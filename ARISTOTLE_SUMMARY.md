@@ -1,3 +1,4937 @@
+# Summary of changes for run e63d8ddf-dcff-41d5-9af6-ce1d8622cbe6
+## Review
+
+I re-read the whole development against every item you listed and wrote the result to a new note, **`REVIEW_AND_PLAN_20260907.md`**. It has four parts:
+
+* **Part I — audit**, item by item, naming the declaration that carries each statement and saying whether it is unconditional, conditional (and on what), or absent: QYM (one-particle Hamiltonian with the full cubic magnetic field and the derivative coordinates as independent coordinates, Friedrichs construction, abelian uniqueness, Fock lift, the gap chain, the QED/photon statements), NS (Eulerian with its sharp negative, Lagrangian, momentum/differential, outer-Fock parcels), QG (`R²` action, full exponential potential with no Taylor expansion, vielbein and jet variables, BRST gauge fixing and ghosts including on the derivative coordinates, one-particle and outer-Fock self-adjointness, the resolvent min–max ladder), the outer-Fock layer with the Faris–Lavine `N` and the Friedrichs extension of `N`, and the SIRK–Hashimoto band layer.
+* **Part II — the gap list** `G1`–`G6`, each with a feasibility judgement.
+* **Part III — the plan** `W1`–`W4`, with acceptance criteria, plus an execution record.
+* **Part IV — the honesty boundary**: what is deliberately not attempted, and why.
+
+## Execution — four new modules, all building and `sorry`-free
+
+* **`BookProof/ChapterHermiteBandCalculusHigher.lean`** — the graded band calculus of the product Hermite basis, extended from quadratic symbols to **arbitrary order**: the growth family `√(n+1)^m`, the general composition law (radii and orders add, with an explicit constant), the predicates `IsBandR r m` / `IsBandDeg m` with their closure properties, and the fact that multiplication by an arbitrary polynomial is a band operator of its total degree.
+* **`BookProof/ChapterYangMillsBandBounds.lean`** — applied to the **full non-abelian** 3D gauge-fixed Yang–Mills Hamiltonian (arbitrary real structure constants, `B²` quartic): it is a band operator of radius 4 and order 4, hence its Hermite matrix has at most `M` non-zero entries per column, an entry vanishes unless the total degrees differ by at most 4, and every entry is bounded by `C(deg+1)²`. This is the finite, checkable data the existing Gershgorin/Schur certificate criteria consume.
+* **`BookProof/ChapterYangMillsGhostSector.lean`** — the Faddeev–Popov **ghost sector** of the gauge-fixed Yang–Mills Hamiltonian (previously present only as BRST algebra and on the gravity side): the gauge sector tensored with a finite ghost Fock space, with symmetry, ghost-number conservation and decoupling of the ghost vacuum for every family of structure constants, and, in the abelian (QED) case, essential self-adjointness of the total gauge+ghost Hamiltonian, its unitary flow, and stability under any bounded symmetric gauge–ghost coupling.
+* **`BookProof/ChapterQedAbelianConsolidation.lean`** — the abelian/QED thread in one index module, including the two negative results (no one-particle form gap; no photon gap in the infrared-accumulating case).
+
+All four are imported from `BookProof.lean`; `lake build BookProof` completes, and the new audit script `Work/YangMillsBandGhostAudit.lean` reports only `propext`, `Classical.choice`, `Quot.sound` for every new result. No `sorry` occurs in any of them.
+
+## What remains open, and is stated as such
+
+Essential self-adjointness of the **quartic** (non-abelian) one-particle Yang–Mills operator is not attempted: it is Kato's theorem for `−Δ + V`, `V ≥ 0`, and the three instruments in the development (the Carleman-flux criterion, the weighted Schur gate, and Faris–Lavine with a comparison operator diagonal in the degree) each stop at quadratic symbols, as the review explains. Also still open, unchanged: the numerical certificate entries, the continuum leg, the unbounded Friedrichs-selection conjecture, and the recorded QG items. **No mass gap is claimed anywhere**, and the abelian instance of the gap chain is proved vacuous.
+
+`ARISTOTLE_SUMMARY.md` and `CONSOLIDATED_PLAN.md` have been updated with matching entries at the top, and everything is committed and pushed.
+
+# Summary of changes — 2026-09-07 wave (full review, plan, and its execution)
+
+## The review and the plan
+
+I re-read the whole development against every item of the request — QYM (mass gap and the
+abelian/QED version), NS (Eulerian and Lagrangian variables), QG (`R²` action, the full
+exponential potential with no Taylor expansion, vielbein variables), all 3D gauge-fixed
+Hamiltonians with their interaction couplings, ghosts and gauge fixing (including the
+coordinates that represent spatial derivatives of the fields), the outer-Fock versions with
+the Faris–Lavine comparison operator `N` and the Friedrichs extension of `N`, and the
+rigorous approximation bands of the SIRK–Hashimoto layer — and wrote the result to
+**`REVIEW_AND_PLAN_20260907.md`**: an item-by-item audit naming the declaration that carries
+each statement and saying whether it is unconditional, conditional (on what), or absent; a
+gap list `G1`–`G6` with a feasibility judgement for each; the plan `W1`–`W4` executed in this
+wave; and the honesty boundary of what is deliberately not attempted.
+`CONSOLIDATED_PLAN.md` carries the matching state entry at the top.
+
+The audit found the four threads in the state recorded in `REVIEW_THREADS_20260906.md`, and
+three real gaps that were *within reach*: no matrix-element data for the physical
+(non-abelian) Yang–Mills Hamiltonian, no Faddeev–Popov ghost sector on the Yang–Mills side
+(the BRST/ghost algebra and the gravity BRST Hamiltonians existed, the Yang–Mills one did
+not), and no single place indexing the abelian/QED thread.  All three are now closed.
+
+## What was executed (four new modules, `lake build BookProof` completes)
+
+* **`BookProof/ChapterHermiteBandCalculusHigher.lean` — the band calculus of arbitrary
+  order.**  The growth family `gpow m n = √(n+1)^m`, the widening lemmas, and the general
+  composition law `Band.compGen` (radii and orders add, with the explicit constant
+  `M₁C₁C₂√(r₁+1)^{m₂}`); the predicates `IsBandR r m` / `IsBandDeg m` closed under sums,
+  scalar multiples, finite sums and composition; and `isBandDeg_mulOp` — multiplication by
+  an arbitrary polynomial is a band operator of its total degree.
+* **`BookProof/ChapterYangMillsBandBounds.lean` — the Hermite matrix of the full
+  non-abelian gauge-fixed Yang–Mills Hamiltonian.**  `isBandR4_ymPoly` (radius `4`, order
+  `4`) and the headline `ym_hermCol_band_bounds`: every column of the matrix has at most `M`
+  non-zero entries, an entry vanishes unless the total degrees differ by at most `4`, and
+  every entry is bounded by `C(deg+1)²`.  This is the certificate data the Gershgorin/Schur
+  criteria consume — it makes the enumeration of a certificate over a degree window
+  complete.  No self-adjointness for `f_abc ≠ 0` and no mass gap is claimed.
+* **`BookProof/ChapterYangMillsGhostSector.lean` — the Faddeev–Popov ghost sector.**  The
+  total space is the orthogonal direct sum over ghost configurations of copies of
+  `L²(ℝ⁹⁹)`, the total Hamiltonian `⨁_S (H₁ + E(S))`.  Symmetry, ghost-number conservation
+  and the decoupling of the ghost vacuum hold for every family of structure constants; in
+  the abelian (QED) case the total gauge + ghost Hamiltonian is essentially self-adjoint,
+  generates a unitary group, and stays so under any bounded symmetric gauge–ghost coupling.
+* **`BookProof/ChapterQedAbelianConsolidation.lean` — the abelian/QED index.**  One module
+  re-exporting the abelian thread, including the two negative results: no one-particle form
+  gap, and no photon gap in the infrared-accumulating case.
+
+All four are imported from `BookProof.lean` and audited by `Work/YangMillsBandGhostAudit.lean`
+(`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`).  No file in the
+wave contains `sorry`.
+
+## What stays open (unchanged, and stated as such)
+
+Essential self-adjointness of the **quartic** (`f_abc ≠ 0`) one-particle Yang–Mills operator
+— it is Kato's theorem, needing distributional machinery absent from Mathlib, and the three
+instruments in the development (Carleman flux, weighted Schur, Faris–Lavine with a
+degree-diagonal comparison operator) all provably stop at quadratic symbols; the numerical
+certificate entries; the continuum leg; the unbounded Friedrichs-selection conjecture; the
+recorded QG items (QG-2 Case A in the multi-dimensional setting, QG-3.2(b), the spectral half
+of QG-3.4).  **No mass gap is claimed anywhere**, and the abelian instance of the gap chain is
+proved vacuous.
+
+---
+
+# Summary of changes for run c12d8024-fbc9-445b-970b-d302c664f4c8
+## Review first
+
+I re-read the whole development against the items you listed and recorded the result in a new note, **`REVIEW_THREADS_20260906.md`**, naming the actual declarations for each item:
+
+* **QYM** — the 3D gauge-fixed Hamiltonian `H₁ = ½Σπ² + ½ΣB²` with the *full* cubic magnetic polynomial (so `B²` quartic) and the derivative coordinates `∂_jA_{k,a}` carried as independent coordinates; symmetry, positivity, form closability and the Friedrichs construction are unconditional; uniqueness of the realization is proved for `f_abc = 0`; the Fock lift, the single-time package and the certified-gap chain (Gershgorin tail + Schur coupling + certificate reader) are in place, with **no mass gap claimed**.
+* **NS** — both Eulerian and Lagrangian variables, five realizations indexed by one consolidation chapter, including the sharp negative that rules out a purely structural Eulerian ESA proof, the unconditional Fock-of-Fock result, and the interacting outer-Fock parcel Hamiltonian with its derivative-gauge, Laplacian-gauge and `y`-gauge terms plus its single-time package.
+* **QG** — `R²`/Starobinsky action in scalar–tensor form, the **full exponential potential with no Taylor truncation**, vielbein and jet (derivative) variables, BRST gauge fixing and ghosts including the gauge fixing of the derivative coordinates, one-particle and outer-Fock ESA (hyperbolic signature unconditional), the interacting torsion couplings, the time-independent single-time packages, and the resolvent min–max ladder.
+* **Outer Fock / Faris–Lavine `N` / Friedrichs**, and the **SIRK–Hashimoto** band layer (nested-compatible enclosures, certified gap tables, Ritz levels only in the certified direction).
+
+For each entry the review says whether the statement is unconditional or conditional, and on what.
+
+## Then execution — the gap the plan itself named
+
+The plan recorded as the honest remaining gap of the Yang–Mills thread: *`dΓ` of an **unbounded** one-particle operator*. That is now closed for quadratic symbols. Five new chapters, all `sorry`-free and axiom-free (47 audited results report only `propext`, `Classical.choice`, `Quot.sound`), imported from `BookProof.lean`; `lake build BookProof` completes:
+
+* `BookProof/ChapterHermiteBandCalculus.lean` — a graded band calculus for the product Hermite basis: ladder operators are first-order band operators, a product of two is second order, hence any real quadratic Hamiltonian has a degree-banded matrix with entries growing like `deg+1`.
+* `BookProof/ChapterGradedBandSchurEsa.lean` — a graded band matrix passes all three weighted Schur gates with the symbol `w = deg+1`.
+* `BookProof/ChapterQuadraticFockEsa.lean` — the seam (matrix element = band coefficient) and the headline: `dΓ(H₁)` of a general real quadratic one-particle Hamiltonian on `L²(ℝᵈ)` is essentially self-adjoint on the finite-occupation core.
+* `BookProof/ChapterYangMillsAbelianFockEsa.lean` — the Yang–Mills instance: essential self-adjointness of `dΓ(H₁)` for the abelian gauge-fixed Hamiltonian with **no diagonalizing-basis hypothesis**, so the single-time package (self-adjoint realizations, time-translation invariance, uniqueness of the Schrödinger solution, convergence of the shift-invert operators and propagators of the finite sections) is unconditional there, and the positive (Friedrichs) extension *is* the closure.
+* `BookProof/ChapterSqSumFockEsa.lean` — the same for the shared gravity/Navier–Stokes sum-of-squares family `½Σκ_jπ_j² + ½Σ_rL_r²`, with signed kinetic coefficients, so the hyperbolic signature is covered.
+
+**Boundary (stated in the chapters and the plan):** this is a calculus of *quadratic* symbols. For `g ≠ 0` the magnetic field is cubic and `B²` quartic, so none of it applies; a scaling computation recorded in the plan shows the weighted-gate route caps at quadratic symbols, so that item needs a different instrument. No mass gap, spectrum or continuum limit is claimed anywhere in this wave, and the scalaron's exponential wall keeps its Faris–Lavine statement of record.
+
+`CONSOLIDATED_PLAN.md` has a new dated state-update section with the revised next steps, and `ARISTOTLE_SUMMARY.md` is updated. One environmental note recorded there: `BookProof`, `Singularity` and `Layout` build here, but the Verso `Book` target cannot, because the `verso` package checkout in this environment is missing its `Verso/` sources — unrelated to this work; no `Book/` source was touched. All work is committed and pushed.
+
+# Summary of changes for the 2026-09-06 run (review + execution)
+
+Continued executing `CONSOLIDATED_PLAN.md`, starting — as asked — with a **full review** of
+what the development already achieves in the four threads, and then taking the item the plan
+itself names as the honest remaining gap of the Yang–Mills thread.
+
+## The review
+
+`REVIEW_THREADS_20260906.md` (new) is a map of the state of the development, with the
+declaration names, covering: the 3D gauge-fixed quantum Yang–Mills Hamiltonian with its full
+interaction terms and the independent derivative coordinates; Navier–Stokes in both Eulerian
+and Lagrangian variables (five realizations, indexed by `ChapterNavierStokesEsaConsolidation`,
+with the sharp negative for the Eulerian one); quantum gravity from the `R²` action in
+vielbein variables with the **full exponential** potential (no Taylor truncation), its BRST
+gauge fixing and ghosts, including the gauge fixing of the coordinates that represent spatial
+derivatives of the fields; the outer-Fock versions of these Hamiltonians with the
+Faris–Lavine comparison operator `N` (and its Friedrichs extension in the elliptic case); and
+the SIRK–Hashimoto layer of rigorous approximation bands.  For each item the review records
+whether the statement is unconditional or conditional, and on what.
+
+## The new mathematics — `dΓ` of an **unbounded** one-particle operator
+
+The plan's 2026-09-05a boundary recorded that the weighted Schur gate
+(`ChapterFockWeightedSchurEsa`) needs *weights*, and that supplying them for a Hamiltonian
+given by a differential expression rather than by its matrix was open.  Five new modules
+(all `sorry`-free, `axiom`-free — 45 audited results in `Work/QuadraticFockEsaAudit.lean`
+report only `propext`, `Classical.choice`, `Quot.sound`; `lake build BookProof` completes):
+
+* **`BookProof/ChapterHermiteBandCalculus.lean`** — a graded band calculus for the product
+  Hermite basis: the ladder operators are first-order band operators, a product of two of
+  them is second order (`Band.comp`, whose analytic content is
+  `√(deg α+1)·√(deg γ+1) ≤ 2(deg α+1)`), and therefore the general real quadratic
+  Hamiltonian `fqPoly P Q S b b'` has a matrix that is band-limited in the degree, has
+  boundedly many entries per column, and grows like `deg + 1` (**`isBand2_fqPoly`**).
+* **`BookProof/ChapterGradedBandSchurEsa.lean`** — a graded band matrix passes all three
+  weighted Schur gates with the symbol `w = deg + 1`, `K = C·M`, `B = C·M·D·(D+2)`
+  (**`dGamma_essentiallySelfAdjointOn_core_gradedBand`**).
+* **`BookProof/ChapterQuadraticFockEsa.lean`** — the seam: the matrix element in the
+  `ℕ`-indexed product Hermite basis *is* the band coefficient (`hermCol_eq_coef`), so
+  **`dGamma_fqPoly_essentiallySelfAdjointOn_core`**: the second quantization of a real
+  quadratic one-particle Hamiltonian on `L²(ℝᵈ)` — an unbounded one-particle operator — is
+  essentially self-adjoint on the finite-occupation core.
+* **`BookProof/ChapterYangMillsAbelianFockEsa.lean`** — the Yang–Mills instance:
+  **`dGamma_ymAbelian_essentiallySelfAdjointOn_core`** discharges the hypothesis of
+  `ymFock_timeIndependent_singleTime_of_esa` in the abelian case (no diagonalizing basis, no
+  `ℓ¹` summability of the matrix elements), so the single-time package
+  **`ymAbelianFock_timeIndependent_singleTime`** is unconditional there.
+* **`BookProof/ChapterSqSumFockEsa.lean`** — the gravity/Navier–Stokes instance: the same
+  for the shared sum-of-squares family `½Σκ_jπ_j² + ½Σ_rL_r²`, with **signed** kinetic
+  coefficients, so the hyperbolic signature is covered
+  (`dGamma_sqSum_essentiallySelfAdjointOn_core`, `dGamma_sqSum_stone_flow`).
+
+## Boundary
+
+The calculus is a calculus of **quadratic** symbols.  For Yang–Mills with `g ≠ 0` the
+magnetic field is cubic and `B²` quartic, so none of this applies; no mass gap, no spectral
+information and no continuum limit is claimed anywhere in this wave.  The scalaron's
+exponential wall is likewise not a quadratic symbol — the Faris–Lavine route remains the
+statement of record for it.  `CONSOLIDATED_PLAN.md` records the wave and the revised next
+steps.
+
+`lake build BookProof`, `Singularity` and `Layout` complete.  The Verso `Book` target does
+not build in this environment: the `verso` package checkout is missing its `Verso/` sources.
+That is unrelated to this wave — no `Book/` source was touched.
+
+---
+
+# Summary of changes for run d2cfd6b8-1205-47fc-bde8-50a26bb366d5
+Continued executing `CONSOLIDATED_PLAN.md`, taking the next step the plan itself names for the QG thread — "the min–max ladder through the resolvent for the continuum spectral claim" — and completing it. Two new modules, both `sorry`-free and with no new axioms, plus updates to `ARISTOTLE_SUMMARY.md`.
+
+**`BookProof/ChapterResolventMinMaxLadder.lean`** — the Courant–Fischer ladder of an **unbounded** non-negative self-adjoint linear relation `T`, compared with the ladder of its bounded resolvent `R = (T+1)⁻¹` read from the top.
+* Analytic core, with no spectral theory: Cauchy–Schwarz for the non-negative form `(u,v) ↦ Re⟪u,Rv⟫` gives `‖Rx‖⁴ ≤ Re⟪x,Rx⟫·Re⟪Rx,R(Rx)⟫`, hence the pointwise ladder inequality `‖y‖⁴ ≤ (‖y‖² + Re⟪y,z⟫)·Re⟪y,Ry⟫` on the graph of `T` — the operator form of the convexity of `λ ↦ 1/(1+λ)`.
+* The two ladders: `maxminLevel` (bounded operator, counted from the top) and `graphMinmaxLevel` (the relation, over finite-dimensional subspaces of its domain), with the supporting facts that make these suprema/infima genuine numbers (a single-valued relation is bounded on every finite-dimensional subspace of its domain; the resolvent supplies subspaces of every dimension inside the domain).
+* Headlines: `resolvent_ladder_lower` (`1/ν_k − 1 ≤ μ_k(T)` for every `k`), `graphMinmaxLevel_zero_eq` / `graphMinmaxLevel_zero_eq_sSup_spectrum` (the bottom rung is exactly `1/sSup(spectrum R) − 1`), and gap transfer `graphMinmax_gap_lower` / `graphMinmax_gap_pos`.
+* The computational side: the ladder from the top is the ladder of `−R` from the bottom, so the Galerkin levels of the resolvent converge to it (`galerkin_maxminLevel_tendsto`), a computed Ritz level is a lower bound for the true level, and therefore `1/(computed level) − 1` is a rigorous **upper** bound for the ground level of `T` (`graphMinmaxLevel_zero_le_of_computed`).
+
+**`BookProof/ChapterResolventMinMaxEquality.lean`** — the reverse inequality, which removes the boundary the first module recorded. Using the functional calculus (a continuous step symbol `q`, the estimates `(c−δ)R ≤ R²` on the range of `q(R)` and `R ≤ c` on its kernel, and a dimension dichotomy), the comparison becomes an **equality at every rung**: `graphMinmaxLevel_eq` (`μ_k(T) = 1/ν_k − 1`) and `graphMinmax_gap_eq` (the gap of `T`'s ladder is exactly `1/ν₁ − 1/ν₀`), assuming the rung exists and the resolvent's level there is positive — both automatic at `k = 0`.
+
+**Wiring and verification.** Both chapters are imported from `BookProof.lean` with descriptive comments, audited by `Work/ResolventMinMaxLadderAudit.lean` (41 `#print axioms` lines, each reporting only `propext`, `Classical.choice`, `Quot.sound`), and cited from the Verso chapter `Book/SirkReliability.lean` in a new section. `lake build BookProof Singularity Layout` completes (8650 jobs) with no errors and no warnings from the new modules; a search finds no `sorry`/`admit` in them and no `axiom` was added. Dated entries were added to `CONSOLIDATED_PLAN.md`, `STATUS.md` and `ARISTOTLE_SUMMARY.md`.
+
+**Honest boundaries.** Nothing here produces a spectral gap for any particular Hamiltonian: it converts a gap of the resolvent's numerical ladder into a gap of the unbounded operator's, and only the variational direction is certified computationally (a computed level bounds the ground level from above, not from below). The relation is assumed single-valued. Separately, the Verso book target could not be rebuilt in this working copy because its `verso` package checkout is missing its sources — unrelated to this work — so the new prose section (plain prose plus a literal `#check` block, as elsewhere in that chapter) was not re-elaborated here. The plan's other open items (second quantization of an *unbounded* one-particle operator, the QYM quartic case `g ≠ 0`, analyticity in `t` of `e^{−tT}`, the unbounded functional calculus) remain open.
+
+# Summary of changes for run 19c382fe-9d79-414f-a6df-e7ea731c6fcd
+Continued executing `CONSOLIDATED_PLAN.md`, taking its **revised next step 1**: the plan recorded that the existing Fock chapter (`BookProof/ChapterFockDifferingBasesEsa.lean`) covers a second-quantized Hamiltonian only under the unweighted `ℓ¹` gate `∑ₖ ‖gₖ‖ < ∞` on the matrix elements, and named the missing instrument — a second-quantization bound `‖dΓ(A)u‖ ≤ K‖𝒩u‖` proved by a Schur test in the configuration basis, with the commutator against the number operator vanishing because `dΓ(A)` conserves the particle number. That instrument is now built and proved.
+
+**Two new modules, both `sorry`-free and with no new axioms.**
+
+`BookProof/ChapterCoreBoundsEsa.lean` — Faris–Lavine bounds checked on the finite-mode core alone. The project's existing essential-self-adjointness criteria require an operator on the maximal domain of the comparison symbol, whereas second-quantized Hamiltonians are natural on the algebraic span of the basis states. The module builds the truncation net (`trunc`, `tendsto_trunc`, `tendsto_diag_trunc`), extends a core operator with a relative bound to the maximal domain by continuity (`coreExt`, `coreExt_core`), shows the extension inherits symmetry, the relative bound and the commutator bound, and concludes with the reusable instrument `essentiallySelfAdjointOn_finiteModes_of_core_bounds` (and its vanishing-commutator form).
+
+`BookProof/ChapterFockSchurEsa.lean` — the Schur gate for `dΓ`, in the algebraic Fock model of the existing second-quantization chapter:
+- particle number and sectors, with `dGamma_inSector`: `dΓ(A)` preserves every particle-number sector;
+- the identity `∑ₖ ‖a_k u‖² = ⟪u, 𝒩u⟫` and the elementary finite Schur test;
+- `norm_dGamma_le_of_sector` (`‖dΓ(A)u‖ ≤ K·n·‖u‖` on the `n`-particle sector) and, by orthogonality of the sectors, the number bound `norm_dGamma_le` (`‖dΓ(A)u‖ ≤ K‖𝒩u‖`);
+- the headline `dGamma_essentiallySelfAdjointOn_core`: for a Hermitian, column-finite one-particle matrix with Schur bound `∑_j |A_{jk}| ≤ K`, `dΓ(A)` is essentially self-adjoint on the finite-occupation core — no diagonalizing basis, and the entries need not be summable;
+- the consequences `dGamma_stone_flow` (unique self-adjoint realization and its complete unitary group) and `dGamma_positiveExtension_eq_closure` (for a positive matrix the Friedrichs extension *is* the closure);
+- a non-vacuity witness: the nearest-neighbour hopping matrix passes the gate with `K = 2` while `hopCol_not_summable` shows its entries are not summable, so the new statement lies strictly outside the earlier `ℓ¹` gate.
+
+**Verification.** Both chapters are imported from `BookProof.lean` with descriptive comments, and audited by the new `Work/FockSchurEsaAudit.lean` (30 `#print axioms` lines, each reporting only `propext`, `Classical.choice`, `Quot.sound`). The full `BookProof` library builds successfully, as do the two chapters and the audit, with no errors, no warnings and no `sorry`.
+
+**Honest boundary (recorded in the documents).** The Schur bound forces the one-particle operator to be bounded and the matrix must be column-finite; this generalizes the earlier `ℓ¹` gate in the number-conserving direction but does not close the Yang–Mills item, whose one-particle Hamiltonian is unbounded in the product Hermite basis. That item (`dΓ` of an unbounded one-particle operator), the `g ≠ 0` quartic case, and the quantum-gravity min–max ladder remain open.
+
+`CONSOLIDATED_PLAN.md` has a new dated state-update section at the top describing this wave and the remaining next steps, and `ARISTOTLE_SUMMARY.md` has a matching new entry. All work is committed and pushed.
+
+# Summary of changes for run 2026-09-05a
+Continued executing `CONSOLIDATED_PLAN.md`, taking **revised next step 1** (the QYM `dΓ` item): the 2026-09-04g review recorded that `ChapterFockDifferingBasesEsa` covers a second-quantized Hamiltonian only under the *unweighted `ℓ¹` gate* `∑ₖ ‖gₖ‖ < ∞` on the matrix elements, and named the missing instrument — "a second-quantization bound `‖dΓ(h)u‖ ≤ K‖(𝒩+1)u‖` by a Schur test in the configuration basis, with the commutator against `𝒩` vanishing because `dΓ(h)` conserves the particle number". That instrument is now built and proved, in two new modules, both `sorry`-free and `axiom`-free.
+
+**New module `BookProof/ChapterCoreBoundsEsa.lean`** (namespace `BookProof.CoreBounds`) — Faris–Lavine bounds checked **on the finite-mode core alone**. The existing criteria (`essentiallySelfAdjointOn_finiteModes_of_farisLavine_bounds`, `essentiallySelfAdjointOn_finiteModes_of_bounds`) ask for an operator on the *maximal domain* of the comparison symbol, whereas second-quantized Hamiltonians are naturally given on the algebraic span of the basis states.
+
+* `trunc`, `trunc_coe`, `tendsto_trunc`, `tendsto_diag_trunc` — the truncation net of a state of the maximal domain, converging both in norm and in the graph norm.
+* `CoreRelBound`, `cauchySeq_coreExt`, `coreExt`, `tendsto_coreExt`, `coreExt_core` — the extension of a core operator with a relative bound to the maximal domain, by continuity along the truncations; it *is* the given operator on the core.
+* `norm_coreExt_le`, `coreExt_symmetricOn`, `coreExt_commForm_le` — the extension inherits the relative bound, the symmetry and the commutator bound.
+* **`essentiallySelfAdjointOn_finiteModes_of_core_bounds`** and its vanishing-commutator specialization **`..._comm`** — the instrument: a symmetric operator on the finite-mode core with `‖Hu‖ ≤ A‖Nu‖` and `|⟪u, i[H,N]u⟫| ≤ B⟪u,Nu⟫`, *both checked on the core only*, is essentially self-adjoint on that core.
+
+**New module `BookProof/ChapterFockSchurEsa.lean`** (namespace `BookProof.FockSchur`) — the **Schur gate** for `dΓ`, in the algebraic Fock model of `ChapterFockSecondQuantization` (`Conf = ℕ →₀ ℕ`, `dGamma col`, `dGammaOp col`).
+
+1. **Particle number and sectors** — `ndeg`, `numSym` (`σ(α) = |α| + 1`), `InSector`; `ndeg_up`, `ndeg_dn`, `annA_inSector`, `creA_inSector`, `creVec_inSector` and **`dGamma_inSector`**: second quantization conserves the particle number exactly.
+2. **Norm identities** — `normSq_toLp_of_subset`, `inner_toLp_eq_zero_of_ne_sector` (sectors are orthogonal), `normSq_annA` (`‖a_k u‖² = ∑_α α_k |u_α|²`) and **`sum_normSq_annA`** (`∑ₖ ‖a_k u‖² = ⟪u, 𝒩u⟫`), the identity behind the number bound.
+3. **The Schur test** — `SchurBound col K` (`∀ k, ∑_j |A_{jk}| ≤ K`), `sum_norm_col_le` and the elementary finite **`schur_test`**: `∑_{k,j} |A_{kj}| x_k y_j ≤ K‖x‖₂‖y‖₂`.
+4. **The number bound** — **`norm_dGamma_le_of_sector`**: on the `n`-particle sector `‖dΓ(A)u‖ ≤ K n ‖u‖` (duality against `dΓ(A)u` itself, the Schur test, and `∑ₖ‖a_k u‖² = n‖u‖²); `sectorPart`, `sum_sectorPart`, `normSq_sum_of_sectors` and hence **`norm_dGamma_le`**: `‖dΓ(A)u‖² ≤ K²∑_α |α|²|u_α|²`, i.e. `‖dΓ(A)u‖ ≤ K‖𝒩u‖` on the whole core.
+5. **Essential self-adjointness** — `numWeight`, `diagMax_numSym_eq`, **`dGammaOp_coreRelBound`** (the relative bound against `𝒩+1`), **`dGammaOp_commForm_zero`** (the commutator form vanishes, sector by sector) and the headline **`dGamma_essentiallySelfAdjointOn_core`**: for a Hermitian, column-finite one-particle matrix with a Schur bound, `dΓ(A)` is essentially self-adjoint on the finite-occupation core — **no diagonalizing basis and no summability of the entries**.
+6. **Non-vacuity** — `hopCol`, `hopCol_apply`, `isHermCol_hopCol`, `schurBound_hopCol` (`K = 2`), **`hopCol_not_summable`** and **`hop_essentiallySelfAdjointOn_core`**: the nearest-neighbour hopping matrix passes the Schur gate while its entries are *not* summable, so the new statement is strictly outside the `ℓ¹` gate of `ChapterFockDifferingBasesEsa`.
+
+7. **The realization and its dynamics** — **`dGamma_stone_flow`** (the unique self-adjoint realization and the complete unitary group it generates, via `StoneBridge.exists_stone_flow_of_esa`), **`dGamma_positiveExtension_eq_closure`** (for a positive matrix the Friedrichs extension *is* the closure: nothing to select) and `hop_stone_flow`.
+
+**Wiring and verification.** Both chapters are imported from `BookProof.lean` with descriptive comments and audited by the new `Work/FockSchurEsaAudit.lean` (30 `#print axioms` lines, each reporting only `propext`, `Classical.choice`, `Quot.sound`). `lake build BookProof.ChapterCoreBoundsEsa`, `lake build BookProof.ChapterFockSchurEsa` and `lake build Work.FockSchurEsaAudit` complete with no errors, no warnings and no `sorry`.
+
+**Honest boundary.** The one-particle matrix must be Hermitian, **column-finite** (so that `dΓ(A)` maps the finite-occupation core into itself) and Schur-bounded — which forces the one-particle operator to be *bounded*. This is a strict generalization of the `ℓ¹` gate in the number-conserving direction, but it does **not** close the QYM item: the one-particle Yang–Mills Hamiltonian in the product Hermite basis is unbounded (its pair-creation/annihilation amplitudes grow with `|α|`), so for it the number operator is not a comparison operator. Next steps 1 (QYM `dΓ` for an *unbounded* one-particle operator — Nelson's analytic-vector theorem or a weighted Schur gate), 2 (QYM `g ≠ 0`) and 4 (the QG min–max ladder through the resolvent) remain open, as do analyticity in `t` of `e^{-tT}` and the unbounded functional calculus on the operator thread.
+
+# Summary of changes for run bb76a476-396b-4cb6-8787-151c1e80cfd2
+Continued executing `CONSOLIDATED_PLAN.md`, taking the operator thread's open item: the previous wave built the contraction semigroup `e^{-tT}` of a non-negative self-adjoint linear relation and left three things explicitly unproved — positivity, the generator identity, and the decay rate a spectral lower bound should give. All three are now theorems.
+
+**New module `BookProof/ChapterNonnegSemigroupGenerator.lean`** (namespace `BookProof.NonnegSemigroupGenerator`), sixteen public results, no `sorry`, no `admit`, no new `axiom`:
+
+1. **Positivity** — `expNeg_nonneg` (`e^{-tA} = (e^{-tA/2})²` is a positive operator for every self-adjoint bounded `A`) and `semigroupS_nonneg` (`0 ≤ e^{-tT}`, by passing the bounded case through the Yosida limit).
+2. **Strong continuity in the time variable** — `semigroupS_congr`, `norm_semigroupS_sub_semigroupS_le` (`‖e^{-tT}x − e^{-sT}x‖ ≤ ‖e^{-(t−s)T}x − x‖`) and `semigroupS_uniformly_continuous`: `t ↦ e^{-tT}x` is uniformly continuous on `[0, ∞)` for every vector, with a modulus independent of the base point.
+3. **Commutation with the resolvent and invariance of the domain** — `commute_yosidaAt_invCLMAt`, `commute_approxS_invCLMAt`, `semigroupS_invCLMAt_comm`, and hence `semigroupS_mem_of_mem`: `(h, k) ∈ T ⟹ (e^{-tT}h, e^{-tT}k) ∈ T`.
+4. **The generator** — the bounded mean-value estimate `norm_expNeg_sub_add_smul_le`, its Yosida-uniform limit form `norm_semigroupS_sub_add_smul_le` (`‖e^{-tT}h − h + t·k‖ ≤ t(2ε + t‖k''‖)`), and the resulting difference-quotient statements `tendsto_semigroupS_difference_quotient` (`t⁻¹(e^{-tT}h − h) → −k` as `t ↓ 0`) and `tendsto_semigroupS_difference_quotient_at` (`u⁻¹(e^{-(t+u)T}h − e^{-tT}h) → −e^{-tT}k` at every `t ≥ 0`): `T` generates its own semigroup.
+5. **Decay from a spectral lower bound** — `norm_expNeg_le_exp` (Gronwall in the bounded case), `yosidaCLM_ge` (the Yosida approximation inherits the bound in the sharp form `T_a ≥ aλ/(a+λ)`), and `norm_semigroupS_le_exp`: `‖e^{-tT}x‖ ≤ e^{-λt}‖x‖` whenever `Re⟪h, k⟫ ≥ λ‖h‖²` on the graph of `T`.
+
+**Wiring and verification.** The chapter is imported from `BookProof.lean` with a descriptive comment and audited by the new `Work/NonnegSemigroupGeneratorAudit.lean` (sixteen `#print axioms` lines, each reporting only `propext`, `Classical.choice`, `Quot.sound`). `lake build BookProof.ChapterNonnegSemigroupGenerator` and `lake build Work.NonnegSemigroupGeneratorAudit` complete with no errors and no warnings, and a full `lake build` rebuilds the whole `BookProof` library (including its roadmap audit), `Singularity` and `Layout` without failures. The separate book-rendering target could not be rebuilt here because the documentation tooling's sources are absent from this snapshot; that is independent of the changes in this wave, which touch no book source file.
+
+**Documentation.** `CONSOLIDATED_PLAN.md` and `STATUS.md` carry a dated entry for the wave, and a new section at the top of `ARISTOTLE_SUMMARY.md` records what landed, how it was verified, and the honest boundary.
+
+**Honest boundary.** All statements are one-sided (`t ≥ 0`, `u ↓ 0`) and in ε–δ form, because the semigroup carries the proof `0 ≤ t` as an argument. The decay theorem *assumes* the spectral lower bound on the graph of `T`; it produces no gap for any Hamiltonian of the project. Analyticity in `t`, the unbounded functional calculus and the unbounded Friedrichs-selection conjecture remain open, as do the plan's other next steps (Yang–Mills `dΓ` essential self-adjointness without a diagonalizing basis, the non-abelian `g ≠ 0` case, and the quantum-gravity min–max ladder through the resolvent).
+
+All work is committed and pushed.
+
+# Summary of changes for the 2026-09-04i execution wave (`CONSOLIDATED_PLAN.md`)
+
+## What was asked
+
+Continue executing `CONSOLIDATED_PLAN.md`.  The previous wave built the contraction
+semigroup `e^{-tT}` of a non-negative self-adjoint linear relation and recorded, as its
+honest boundary, three things it had *not* attempted: positivity `0 ≤ e^{-tT}`, the
+generator identity `d/dt e^{-tT}h = −k` on the domain, and the decay rate a spectral lower
+bound should give.  This wave proves all three.
+
+## What landed — `BookProof/ChapterNonnegSemigroupGenerator.lean`, `sorry`-free and `axiom`-free
+
+One new module (namespace `BookProof.NonnegSemigroupGenerator`), sixteen public results,
+imported from `BookProof.lean` and audited by `Work/NonnegSemigroupGeneratorAudit.lean`
+(sixteen `#print axioms` lines, each reporting only `propext`, `Classical.choice`,
+`Quot.sound`).
+
+1. **Positivity.**  `expNeg_nonneg` — for *every* self-adjoint bounded `A` and every real
+   `t`, `e^{-tA} = (e^{-tA/2})²` is a positive operator — and **`semigroupS_nonneg`**:
+   `0 ≤ e^{-tT}`, by passing `⟪e^{-tT_n}x, x⟫ ≥ 0` to the Yosida limit.
+2. **Strong continuity in `t`.**  `semigroupS_congr` (the semigroup depends on the value of
+   the time, not on the proof of `0 ≤ t` that indexes it), `norm_semigroupS_sub_semigroupS_le`
+   (`‖e^{-tT}x − e^{-sT}x‖ ≤ ‖e^{-(t−s)T}x − x‖`, from the semigroup law and the contraction
+   bound) and **`semigroupS_uniformly_continuous`**: `t ↦ e^{-tT}x` is uniformly continuous
+   on `[0, ∞)`, with a modulus independent of the base point.
+3. **Commutation with the resolvent, invariance of the domain.**
+   `commute_yosidaAt_invCLMAt` and `commute_approxS_invCLMAt` (the Yosida approximations, and
+   hence their exponentials, commute with every resolvent `R b = (T + b)⁻¹`),
+   **`semigroupS_invCLMAt_comm`** in the limit, and therefore **`semigroupS_mem_of_mem`**:
+   `(h, k) ∈ T ⟹ (e^{-tT}h, e^{-tT}k) ∈ T`.  The semigroup leaves the domain of `T`
+   invariant and commutes with `T` there.
+4. **The generator.**  `norm_expNeg_sub_add_smul_le` — the bounded estimate, by the
+   mean-value inequality along `s ↦ e^{-sA}h − h + s·k`, whose derivative
+   `e^{-sA}(k − Ah) + (k − e^{-sA}k)` is bounded by `‖k − Ah‖ + M` once the orbit of `k`
+   moves by at most `M` on `[0, t]`.  **`norm_semigroupS_sub_add_smul_le`** — its limit form
+   `‖e^{-tT}h − h + t·k‖ ≤ t(2ε + t‖k''‖)`, the point being that the modulus is uniform in
+   the Yosida index because `‖T_n k'‖ ≤ ‖k''‖`.  Hence
+   **`tendsto_semigroupS_difference_quotient`** (`t⁻¹(e^{-tT}h − h) → −k` as `t ↓ 0`) and,
+   with item 3, **`tendsto_semigroupS_difference_quotient_at`**
+   (`u⁻¹(e^{-(t+u)T}h − e^{-tT}h) → −e^{-tT}k` at every `t ≥ 0`): `T` generates its own
+   semigroup.
+5. **Decay from a spectral lower bound.**  `norm_expNeg_le_exp` — the bounded case by
+   Gronwall on `s ↦ e^{2μs}‖e^{-sA}x‖²`.  **`yosidaCLM_ge`** — the Yosida approximation
+   inherits a lower bound in the sharp form `T_a ≥ aλ/(a + λ)`: with `y = aR_a h`,
+   `z = T_a h`, `(y, z) ∈ T` and `ah = ay + z`, the claim reduces to
+   `Re⟪y, z⟫(a − λ) + ‖z‖² − λa‖y‖² ≥ 0`, which follows from `Re⟪y, z⟫ ≥ λ‖y‖²` when
+   `a ≥ λ` and from `(‖z‖ − λ‖y‖)(‖z‖ + a‖y‖) ≥ 0` when `a ≤ λ`.  Since
+   `aλ/(a + λ) = λ − λ²/(a + λ) → λ`, the limit is **`norm_semigroupS_le_exp`**:
+   `‖e^{-tT}x‖ ≤ e^{-λt}‖x‖` whenever `Re⟪h, k⟫ ≥ λ‖h‖²` on the graph of `T`.
+
+**Wiring.**  Imported from `BookProof.lean` with a descriptive comment; `CONSOLIDATED_PLAN.md`
+and `STATUS.md` carry a dated entry for the wave.
+
+**Verification.**  `lake build BookProof.ChapterNonnegSemigroupGenerator` and
+`lake build Work.NonnegSemigroupGeneratorAudit` complete with no errors and no warnings;
+`rg` finds no `sorry` or `admit` in the new module and no `axiom` declaration was added; the
+audit reports only `propext`, `Classical.choice`, `Quot.sound` for all sixteen results.
+
+**Honest boundary.**  Everything is one-sided (`t ≥ 0`, `u ↓ 0`) and stated in ε–δ form,
+because `semigroupS` carries the proof `0 ≤ t` as an argument.  The decay theorem *assumes*
+the spectral lower bound on the graph of `T`; it produces no gap for any Hamiltonian of the
+project.  Not attempted here: analyticity in `t`, the unbounded functional calculus, and the
+unbounded Friedrichs-selection conjecture (Part D.4) that would use it; the other open next
+steps of the plan (QYM `dΓ` essential self-adjointness without a diagonalizing basis, QYM
+`g ≠ 0`, the QG min–max ladder through the resolvent) are untouched.
+
+# Summary of changes for the 2026-09-04h execution wave (`CONSOLIDATED_PLAN.md`)
+
+## What was asked
+
+Execute `CONSOLIDATED_PLAN.md`, continuing the previous wave.  Four of the seven next steps
+of the 2026-09-04f review had already landed; this session took the operator thread,
+next step 6.
+
+## What landed — `BookProof/ChapterNonnegSemigroup.lean`, `sorry`-free and `axiom`-free
+
+The **contraction semigroup `e^{-tT}`** of a non-negative self-adjoint linear relation,
+built by the same Yosida route the book already uses for the unitary group `e^{-itT}`.
+
+* Bounded layer: `expNeg A t = e^{-tA}` with the semigroup law, self-adjointness and the
+  differential equation; the **contraction bound** `‖e^{-tA}x‖ ≤ ‖x‖` for `A ≥ 0`, `t ≥ 0`
+  (`norm_expNeg_le`), from `d/dt‖e^{-tA}x‖² = −2 Re⟪A e^{-tA}x, e^{-tA}x⟫ ≤ 0`; and the
+  **Cauchy estimate** `‖e^{-tA}x − e^{-tB}x‖ ≤ t‖Ax − Bx‖` for commuting non-negative
+  `A, B` (`norm_expNeg_sub_expNeg_le`), by differentiating `s ↦ e^{-sA}e^{-(t-s)B}x`.
+  The plan had recorded exactly this estimate as the missing analytic step.
+* Limit layer: `approxS`, `cauchySeq_of_dense_of_contraction`, `approxS_cauchy`, and the
+  limit `semigroupS hT hsv ht = e^{-tT}` with `tendsto_semigroupS`,
+  `norm_semigroupS_apply_le` (contraction), `isSelfAdjoint_semigroupS`, `semigroupS_zero`,
+  **`semigroupS_add`** (the semigroup law), `norm_semigroupS_sub_approxS_le` (rate on the
+  domain), `norm_semigroupS_sub_self_le_of_mem` and **`tendsto_semigroupS_zero`** (strong
+  continuity at `0`).
+
+The chapter is imported from `BookProof.lean` with an explanatory comment, and its results
+are added to the axiom audit `Work/PlanExecution20260904gAudit.lean` (all report only
+`propext`, `Classical.choice`, `Quot.sound`).  A new "State update — 2026-09-04h" wave at
+the head of `CONSOLIDATED_PLAN.md` records what landed and what remains open (next steps 3
+and 7, and the parts of step 6 beyond the semigroup: operator positivity of `e^{-tT}`,
+analyticity, the generator identity, and the unbounded functional calculus).
+
+---
+
+# Summary of changes for the 2026-09-04g execution wave (`CONSOLIDATED_PLAN.md`)
+
+## What was asked
+
+Execute `CONSOLIDATED_PLAN.md`.  Its head is the 2026-09-04f review, whose "next steps for
+the LLM-Lean4-specialist" list seven items in priority order (QYM 1–3, NS 4–5, operator
+thread 6, QG 7).
+
+## What landed — four of the seven, all `sorry`-free and `axiom`-free
+
+1. **QYM next step 1 — `BookProof/ChapterYangMillsAbelianEsa.lean`.**  For `f_abc = 0` the
+   magnetic field is a linear form, so `H₁ = ½Σπ² + ½ΣB²` is a real quadratic Hamiltonian:
+   `ymAbelian_eq_fqOp` identifies it with `fqOp ymFqP ymFqQ 0 0 0` and
+   `ymAbelian_essentiallySelfAdjointOn_core` gives essential self-adjointness on the
+   Gauss–polynomial core of `L²(ℝ⁹⁹)`.  Two corollaries settle the selection question in
+   the abelian case: `ymAbelian_positiveExtension_eq_closure` (the Friedrichs extension *is*
+   the closure) and `ymAbelian_hashimoto_selects` (the SIRK shift-invert algorithm selects
+   that same realization), plus `ymAbelian_stone_flow`.  The reusable step is `gramWeyl_eq`:
+   the Weyl-ordered quadratic form of a Gram matrix is a sum of squares.
+2. **QYM next step 2 — `BookProof/ChapterYangMillsCertificateSeam.lean`.**  The
+   certificate→theorem seam: a wire-format record of exact decimals (truncation order,
+   certified level gap `μ`, Schur coupling bound `ε`, two uniform Gershgorin tail numbers)
+   is parsed exactly, its arithmetic side conditions are discharged on exact rationals, and
+   — with the enclosure hypotheses the certificate asserts for the matrix elements — the
+   nested-Fock Yang–Mills conclusions follow with the explicit constant `μ − ε`
+   (`ym_fock_gap_of_matrix_certificate`, `ym_fock_mass_gap_of_matrix_certificate`), worked
+   through end to end on the recorded `g = 2, m = 4` band.  No displayed Ritz value is read
+   as a lower bound and no `Float` occurs.
+3. **NS next step 1 — `BookProof/ChapterSqSumOuterSingleTime.lean` and
+   `BookProof/ChapterNsOuterFockSingleTime.lean`.**  The particle-number truncation
+   `SqFamily.trunc` / `SqFamily.truncHam` of a uniform kinetic-plus-squares family is again
+   such a family, is essentially self-adjoint on the same finite-particle core, and is
+   *eventually exact* on every finite-particle state; with the Reed–Simon VIII.25(a)
+   criterion this gives `outerFamily_timeIndependent_singleTime` for **every** outer-Fock
+   family, instantiated at Navier–Stokes as `nsOuterFock_timeIndependent_singleTime`
+   (unconditional) and `nsOuterFock_farisLavine_timeIndependent_singleTime`.
+4. **NS next step 2 — `BookProof/ChapterNavierStokesEsaConsolidation.lean`.**  The index of
+   the six Navier–Stokes realizations, the change-of-variables transfers and the single-time
+   packages, under uniform names in one namespace.
+
+## Verification
+
+`lake build BookProof` completes successfully (8628 jobs) with the four new chapters
+imported from `BookProof.lean`.  `Work/PlanExecution20260904gAudit.lean` reports only
+`propext`, `Classical.choice`, `Quot.sound` for all nineteen audited results, and none of
+the new files contains `sorry`, `admit` or `axiom`.  The `Book` (Verso) target does not
+build in this snapshot — the `verso` package's own sources are incomplete here — which is
+independent of these changes; `BookProof`, `Singularity` and `Layout` are unaffected.
+
+## What did not land, and why
+
+* **QYM next step 3 (dΓ ESA without a diagonalizing basis).**  The route the review
+  suggested does not close it: `ChapterFockDifferingBasesEsa` needs *balanced* hops and the
+  unweighted gate `∑ₖ‖gₖ‖ < ∞`, while the abelian one-particle Yang–Mills matrix in the
+  product Hermite basis is neither (its pair-creation/annihilation hops change the degree by
+  `±2` with amplitudes growing in `|α|`).  What is needed instead is a second-quantization
+  bound `‖dΓ(h)u‖ ≤ K‖(𝒩+1)u‖` by a Schur test in the configuration basis — the commutator
+  against `𝒩` vanishes because `dΓ(h)` conserves the particle number — or Nelson's
+  analytic-vector theorem for `dΓ`.  Recorded in the plan as the honest remaining gap.
+* **Operator thread (step 6) and the QG min–max ladder (step 7)** are untouched; the plan
+  now records the precise missing analytic step for the semigroup (`the Cauchy estimate
+  ‖e^{−tT_a}x − e^{−tT_b}x‖ ≤ t‖T_a x − T_b x‖`).
+
+`CONSOLIDATED_PLAN.md` carries the 2026-09-04g wave with the same content and the revised
+next steps.
+
+
+# Summary of changes for run ec44fb6b-b93d-49e2-984c-15584c524e0c
+## 1. The three chapters were already in the build — checked, not broken
+
+`BookProof/ChapterVonNeumannCore.lean` (spelled with two `n`s), `BookProof/ChapterUnboundedPolar.lean` and `BookProof/ChapterNonnegSquareRoot.lean` all exist, are imported directly from `BookProof.lean`, and compile with no errors and no warnings. I also checked the whole import graph: **all 588 modules in `BookProof/` are reachable from the library root**, so nothing was excluded. What was real is the *cost*: on a fresh checkout the first build of those chapters had to compile a 34-module cone — which is what the reorganization below fixes.
+
+## 2. Reorganization: a new file in `BookProof/` is now cheap
+
+Two measured causes, both fixed (recipe documented in `BUILD_LAYOUT.md`):
+
+* **The abstract theory was reachable only through the physics chapters.** The unbounded-operator thread reached the graph/closure theory through `ChapterEsaClosure`, whose cone contains the Navier–Stokes, Yang–Mills, Hermite–Galerkin and Hashimoto chapters. The abstract prefixes were split into three new modules — `ChapterFarisLavineCore`, `ChapterComplexShiftCore`, `ChapterEsaClosureCore` — which the old chapters import and re-export, so **no declaration name or namespace changed** and no other file had to move.
+* **Every chapter opened with `import Mathlib`** (≈8000 build jobs per file). The new `BookProof/Prelude.lean` collects just the Mathlib theory these chapters use (≈3200 jobs), and the ten modules of the thread now import it.
+
+Measured: cone of the thread's tip **10 modules instead of 34**; cold build of the thread **≈90 s instead of ≈4 min**; re-elaborating the tip after an edit **3 s instead of 9 s**. `Work/SplitSanityCheck.lean` is a regression guard that imports the split chapters together and checks every moved name still resolves.
+
+## 3. Plan continued: two new chapters, `sorry`-free and `axiom`-free
+
+**`BookProof/ChapterNonnegResolvent.lean` — the resolvent family and the Yosida approximation.** For a non-negative self-adjoint linear relation `T` and `R a = (T + a)⁻¹`: the first resolvent identity `R a − R b = (b − a) R a R b` and commutation; self-adjointness and positivity of `R a`, with `a R a` a positive contraction; `a R a h − h = −R a k` on the domain, density of the domain of a single-valued such relation, hence **`a R a → 1` strongly**; and the **Yosida approximation** `T_a = a(1 − a R a)` — bounded, self-adjoint, non-negative, with `(a R a h, T_a h)` in the graph of `T`, `‖T_a h‖ ≤ ‖k‖` and **`T_a h → k`** for `(h,k) ∈ T`. The approximations **increase with `a`** (via `T_b − T_a = (b − a)(1 − a R a)(1 − b R b)`) and stay below `T` on its domain.
+
+**`BookProof/ChapterResolventCorrespondence.lean` — the resolvent correspondence.** `T ↦ (1 + T)⁻¹` is a **bijection** from the non-negative self-adjoint linear relations onto the positive contractions: for `0 ≤ R ≤ 1`, `relOfCLM R = {(R y, y − R y)}` is non-negative self-adjoint (non-negativity from `R(1 − R) = (R^{1/2}(1−R)^{1/2})²`, which exhibits the quadratic form as a square), the two constructions are mutually inverse, and every positive contraction is the resolvent of exactly one such relation. Operators correspond to the injective positive contractions.
+
+## Verification
+
+Both new chapters, the three new core modules and the rebuilt chapters touched by the split (`ChapterFarisLavine`, `ChapterHashimotoShiftInvert`, `ChapterHashimotoComplexShifts`, `ChapterEsaClosure`, and the whole operator-theory chain) build with no errors and no warnings; neither new chapter contains `sorry`, `admit` or `axiom`; the new audit scripts `Work/NonnegResolventAudit.lean` and `Work/ResolventCorrespondenceAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound` for every public result. As requested, no full default `lake build` was run in this session — that remains the one check outstanding if you want the entire 588-chapter library re-verified after the split.
+
+`CONSOLIDATED_PLAN.md`, `STATUS.md`, `BUILD_LAYOUT.md` and `ARISTOTLE_SUMMARY.md` all carry entries for the wave, and both chapters are imported from `BookProof.lean`. Everything is committed and pushed.
+
+**Honest boundary:** these are abstract operator-theoretic theorems; nothing is claimed about the project's physical Hamiltonians beyond what follows once their hypotheses are checked. The semigroup `e^{−tT}` — the natural next step from the Yosida approximation — and a functional calculus for unbounded self-adjoint operators remain unformalized.
+
+
+# Summary of changes for run 2026-09-04d
+
+## What was asked
+
+1. `ChapterVonNeumannCore.lean`, `ChapterUnboundedPolar.lean` and
+   `ChapterNonnegSquareRoot.lean` looked uncompiled or excluded — fix that.
+2. Reorganize the project so that building **new** files in `BookProof/` is much cheaper.
+3. Continue `CONSOLIDATED_PLAN.md`, and update this file.
+
+## 1. The three chapters were already in the build — verified, not repaired
+
+All three files exist (`ChapterVonNeumannCore.lean`, spelled with two `n`s), are imported
+from `BookProof.lean` (directly, not only transitively), and compile:
+`lake build BookProof.ChapterNonnegSquareRoot`, whose cone contains the other two,
+finished with no errors and no warnings. A reachability check of the import graph found
+that **all 588 modules** in `BookProof/` are reachable from the library root, so nothing
+was excluded. What *was* true is that a fresh checkout has an empty build cache, so the
+first build of those chapters had to compile a 34-module cone — which is exactly the cost
+that item 2 attacks.
+
+## 2. Build reorganization: a new chapter now costs seconds, not minutes
+
+Two independent causes were measured and fixed.
+
+* **The abstract theory was reachable only through the physics chapters.**  The
+  unbounded-operator thread (`ChapterClosureUniqueness` → … → the current tip) reached the
+  graph/closure theory through `ChapterEsaClosure`, whose cone contains the Navier–Stokes,
+  Yang–Mills, Hermite–Galerkin and Hashimoto chapters: **34 modules** had to be built
+  before a new operator-theory chapter could be compiled.  The abstract prefixes were
+  split out into three new modules — `BookProof/ChapterFarisLavineCore.lean`
+  (`SymmetricOn`, `EssentiallySelfAdjointOn`, `quadForm`, `commForm`, the Faris–Lavine
+  criterion), `BookProof/ChapterComplexShiftCore.lean` (`closed_of_selfAdjointCriterion`,
+  `cshiftMap`, `cshiftRange` and the non-real shift bounds) and
+  `BookProof/ChapterEsaClosureCore.lean` (`opGraph`, `clGraph`, `clDom`, `clExt`, the
+  self-adjointness criterion, the Cayley transform).  The old chapters import and
+  re-export them, so **no declaration name or namespace changed** and nothing downstream
+  had to be touched; the two remaining physics-dependent results
+  (`isSelfAdjointExtension_of_positive`, `positiveExtension_eq_closure_of_esa`) moved to
+  `ChapterEsaClosure`, and two uses of a project lemma about dense subspaces were replaced
+  by Mathlib's `Dense.eq_zero_of_inner_left`/`_right`.
+* **Every chapter opened with `import Mathlib`** — about 8000 build jobs in the import
+  cone of each file.  `BookProof/Prelude.lean` collects the Mathlib theory these chapters
+  actually use (tactics, inner product spaces and adjoints, positive operators, the
+  continuous functional calculus and its order theory, real powers and square roots) in
+  about 3200 jobs, and the ten modules of the thread now import it instead.
+
+Measured effect: the import cone of the tip of the thread is **10 modules instead of 34**,
+a cold build of the whole thread takes about **90 s instead of about 4 minutes**, and
+re-elaborating the tip after an edit takes **3 s instead of 9 s**.  The recipe for new
+chapters is documented in `BUILD_LAYOUT.md`.
+
+## 3. Two new chapters, both `sorry`-free and `axiom`-free
+
+**`BookProof/ChapterNonnegResolvent.lean` (`BookProof.NonnegResolvent`) — the resolvent
+family and the Yosida approximation.**  For a non-negative self-adjoint linear relation
+`T` on a complex Hilbert space and `R a = (T + a)⁻¹` (`a > 0`):
+
+* the first resolvent identity `R a − R b = (b − a) R a R b` (`invCLMAt_sub`) and the
+  commutation `R a R b = R b R a` (`invCLMAt_comm`);
+* `R a` is self-adjoint and non-negative, and `a R a` is a positive contraction
+  (`isSelfAdjoint_invCLMAt`, `invCLMAt_nonneg`, `norm_smul_invCLMAt_le`,
+  `smul_invCLMAt_le_one`);
+* on the domain `a R a h − h = − R a k` for `(h, k) ∈ T`, so `‖a R a h − h‖ ≤ ‖k‖ / a`;
+  the domain of a single-valued such relation is dense (`dense_domain`), whence
+  **`a R a → 1` strongly** (`tendsto_smul_invCLMAt`, `tendsto_smul_resAt`);
+* the **Yosida approximation** `T_a = a (1 − a R a)` (`yosidaCLM`) is bounded,
+  self-adjoint and non-negative, `(a R a h, T_a h)` lies in the graph of `T`, and on the
+  domain `T_a h = a R a k`, so `‖T_a h‖ ≤ ‖k‖` and **`T_a h → k`** (`tendsto_yosidaCLM`,
+  `tendsto_yosidaAt`): bounded operators approximating `T` pointwise on its domain;
+  they increase with `a` — `T_b − T_a = (b − a)(1 − a R a)(1 − b R b)` (`yosidaCLM_sub`)
+  is a non-negative multiple of a product of commuting non-negative operators
+  (`yosidaCLM_mono`) — and stay below `T` on its domain (`re_inner_yosidaCLM_le`).
+
+**`BookProof/ChapterResolventCorrespondence.lean` (`BookProof.ResolventCorrespondence`) —
+the resolvent correspondence.**  `T ↦ (1 + T)⁻¹` is a **bijection** from the non-negative
+self-adjoint linear relations onto the positive contractions.  For `0 ≤ R ≤ 1` the
+relation `relOfCLM R = {(R y, y − R y)}` (formally `R⁻¹ − 1`) is symmetric, `1 + relOfCLM R`
+is surjective, hence it is self-adjoint (`adjPairs_relOfCLM`), and it is non-negative
+because `R (1 − R) = (R^{1/2}(1−R)^{1/2})²` (`mul_one_sub_eq_midOp_sq`) exhibits its
+quadratic form as `‖R^{1/2}(1−R)^{1/2} y‖²` (`inner_relOfCLM`).  The two constructions are
+mutually inverse (`invCLM_relOfCLM`, `relOfCLM_invCLM`), and
+**`existsUnique_isNonnegSelfAdjoint_invCLM_eq`** states the bijection: every positive
+contraction is the resolvent of exactly one non-negative self-adjoint relation.  Under the
+correspondence, operators are the *injective* positive contractions
+(`singleValued_relOfCLM_iff`) and the domain of `T` is the range of `R`.
+
+## Verification
+
+`lake build BookProof.ChapterNonnegResolvent`,
+`lake build BookProof.ChapterResolventCorrespondence`, and rebuilds of every chapter
+touched by the reorganization (`ChapterFarisLavine`, `ChapterHashimotoShiftInvert`,
+`ChapterHashimotoComplexShifts`, `ChapterEsaClosure`, and the whole operator-theory chain)
+complete with no errors and no warnings.  The new audit scripts
+`Work/NonnegResolventAudit.lean` and `Work/ResolventCorrespondenceAudit.lean` report only
+`propext`, `Classical.choice`, `Quot.sound` for every public result, and neither new
+module contains `sorry`, `admit` or `axiom`.  A full default `lake build` was not run in
+this session, at the user's request.
+
+`CONSOLIDATED_PLAN.md`, `STATUS.md` and `BUILD_LAYOUT.md` carry entries for the wave, and
+both chapters are imported from `BookProof.lean`.
+
+## Honest boundary
+
+These are abstract operator-theoretic theorems; nothing is claimed about the project's
+physical Hamiltonians beyond what follows once their hypotheses are checked.  The
+semigroup `e^{−tT}` — the natural next step from the Yosida approximation — and a
+functional calculus for unbounded self-adjoint operators remain unformalized here.
+
+# Summary of changes for run e43ab1cf-a2ad-4447-9a61-6c54a9062682
+I continued `CONSOLIDATED_PLAN.md` along its most recent thread — the operator-theoretic development around `A* Ā` — and lifted the last wave's results off that special case, in one new chapter that is `sorry`-free and `axiom`-free.
+
+**New module `BookProof/ChapterNonnegSquareRoot.lean` (namespace `BookProof.NonnegSquareRoot`).** Setting: `T` is a non-negative self-adjoint linear relation on a complex Hilbert space, and `C = (1 + T)⁻¹` is the everywhere-defined positive contraction inverting `1 + T` (from the previous chapter).
+
+* **Construction.** `sqrtRel hT = {(C^{1/2} y, (1 − C)^{1/2} y) : y}` — formally `(C⁻¹ − 1)^{1/2} = T^{1/2}` — built with the *bounded* continuous functional calculus only. It is symmetric, `1 + T^{1/2}` is surjective, hence it is self-adjoint (`adjPairs_sqrtRel`), closed and non-negative (`isNonnegSelfAdjoint_sqrtRel`), and `sqrtRel_comp_self` is `(T^{1/2})² = T`.
+* **Uniqueness.** For a second non-negative self-adjoint `S` with `S S ⊆ T`, the bounded identity `(1 + T)⁻¹ (1 − 2C_S + 2C_S²) = C_S²` (`invCLM_mul_den`) says `(1 + T)⁻¹ = g(C_S)` for `g t = t²/(2t² − 2t + 1)` on the spectrum, inverted there by `ψ r = √r/(√r + √(1−r))`, so `C_S = ψ((1 + T)⁻¹)` depends only on `T` and `S = T^{1/2}` (`eq_sqrtRel_of_isNonnegSelfAdjoint`). `sqrtRel_unique_nonneg_sqrt` packages existence, the square and uniqueness: **every non-negative self-adjoint linear relation has a unique non-negative self-adjoint square root**. `absRel_eq_sqrtRel` identifies the earlier `|Ā|` as the instance belonging to `A* Ā`, and single-valuedness is inherited (the square root of an operator is an operator).
+* **The form of `T`.** `D(T) ⊆ D(T^{1/2})`, and for single-valued `T`, `⟪x, T x⟫ = ‖T^{1/2} x‖²` (`inner_eq_norm_sq_of_mem`, `norm_sq_eq_inner_of_mem`).
+* **Commutation.** A bounded operator commuting with `(1 + T)⁻¹` leaves both `T` and `T^{1/2}` invariant.
+* **The resolvent at every negative real.** Positive real multiples `c T` are again non-negative self-adjoint (`adjPairs_smulRel`, `isNonnegSelfAdjoint_smulRel`), which yields, for every `a > 0`, an everywhere-defined bounded `(T + a)⁻¹` solving `a x + T x = h` uniquely (`existsUnique_smul_add_mem`) with `‖(T + a)⁻¹ h‖ ≤ ‖h‖ / a`: the spectrum of `T` misses the negative reals.
+
+**Verification.** `lake build BookProof.ChapterNonnegSquareRoot` and the full default `lake build` (8825 jobs) complete with no errors, and the new module emits no warnings and contains no `sorry`, `admit` or `axiom`. The new audit script `Work/NonnegSquareRootAudit.lean` reports only `propext`, `Classical.choice`, `Quot.sound` for every public result. The chapter is imported from `BookProof.lean` with a descriptive comment.
+
+**Documentation.** `ARISTOTLE_SUMMARY.md` (new dated section at the top, earlier content untouched), `CONSOLIDATED_PLAN.md` and `STATUS.md` all carry entries for the wave. All work is committed and pushed.
+
+**Honest boundary (recorded in the docs).** These are the abstract operator-theoretic theorems; nothing is claimed about the project's physical Hamiltonians beyond what follows once their hypotheses are checked. Everything is still driven by the bounded (continuous) functional calculus of the resolvent; a general functional calculus for unbounded self-adjoint operators, and the spectral theorem behind it, remain unformalized here, as does the continuum leg recorded elsewhere in the plan.
+
+# Summary of changes for run 2026-09-04c
+## The square root of an *arbitrary* non-negative self-adjoint linear relation
+
+The previous wave proved that `|Ā|` is *the* non-negative self-adjoint square root of
+`A* Ā`.  Both that construction and its uniqueness were tied to the particular relation
+`A* Ā`.  This run removes the restriction, in one new chapter, `sorry`-free and
+`axiom`-free.
+
+**New module: `BookProof/ChapterNonnegSquareRoot.lean` (namespace
+`BookProof.NonnegSquareRoot`).**  Setting: `T` is a non-negative self-adjoint linear
+relation on a complex Hilbert space `F` (`IsNonnegSelfAdjoint`, from the previous
+chapter), and `C = (1 + T)⁻¹ = invCLM hT` is the everywhere-defined positive contraction
+that inverts `1 + T`.
+
+* **The construction.**  `sqrtRel hT = {(C^{1/2} y, (1 − C)^{1/2} y) : y}` — formally
+  `(1 − C)^{1/2} C^{−1/2} = (C⁻¹ − 1)^{1/2} = T^{1/2}`, built with the *bounded*
+  continuous functional calculus only.  It is symmetric (`sqrtRel_le_adjPairs`),
+  `1 + T^{1/2}` is surjective (`exists_mem_sqrtRel_add`), hence it is self-adjoint
+  (**`adjPairs_sqrtRel`**), closed (`sqrtRel_isClosed`) and non-negative
+  (`sqrtRel_quadForm_nonneg`, `isNonnegSelfAdjoint_sqrtRel`); **`sqrtRel_comp_self`** is
+  `(T^{1/2})² = T`.
+* **Uniqueness.**  For a second non-negative self-adjoint `S` with `S S ⊆ T`, the pair
+  `(C_S C_S h, h − 2 C_S h + C_S C_S h)` lies in `S S`, which forces the bounded identity
+  **`(1 + T)⁻¹ (1 − 2C_S + 2C_S²) = C_S²`** (`invCLM_mul_den`).  On
+  `spectrum C_S ⊆ [0,1]` this reads `(1 + T)⁻¹ = g(C_S)` with
+  `g t = t²/(2t² − 2t + 1)`, inverted there by the continuous
+  `ψ r = √r/(√r + √(1−r))`, so `C_S = ψ((1 + T)⁻¹)` (`invCLM_eq_cfc_of_sq`) depends only
+  on `T`, and **`eq_sqrtRel_of_isNonnegSelfAdjoint`** gives `S = T^{1/2}`.
+  **`sqrtRel_unique_nonneg_sqrt`** packages existence, the square and uniqueness:
+  *every non-negative self-adjoint linear relation has a unique non-negative self-adjoint
+  square root*.  `absRel_eq_sqrtRel` identifies the earlier `|Ā|` as the instance
+  belonging to `A* Ā` (non-negative and self-adjoint by `isNonnegSelfAdjoint_factorRel`),
+  and single-valuedness is inherited (`invCLM_injective`,
+  `sqrtRel_snd_eq_zero_of_fst_eq_zero`): the square root of an operator is an operator.
+* **The form of `T`.**  `D(T) ⊆ D(T^{1/2})` (`exists_mem_sqrtRel_of_mem`) and, for
+  single-valued `T`, **`⟪x, T x⟫ = ‖T^{1/2} x‖²`** (`inner_eq_norm_sq_of_mem`, and
+  `norm_sq_eq_inner_of_mem` in real form).
+* **Commutation.**  A bounded operator commuting with `(1 + T)⁻¹` leaves both `T`
+  and `T^{1/2}` invariant (`mem_of_commute`, **`mem_sqrtRel_of_commute`**).
+* **The resolvent at every negative real.**  A positive real multiple `c T` of a
+  non-negative self-adjoint relation is again one (`smulRel`, `smulSnd`,
+  **`adjPairs_smulRel`** — the adjoint of `c T` is `c T*` for real `c ≠ 0` —
+  and `isNonnegSelfAdjoint_smulRel`).  Applying the resolvent to `a⁻¹ T` yields, for every
+  `a > 0`, the everywhere-defined bounded **`(T + a)⁻¹ = invCLMAt hT ha`** solving
+  `a x + T x = h` (`invCLMAt_mem`) uniquely (`invCLMAt_eq_of_mem`,
+  **`existsUnique_smul_add_mem`**), with **`‖(T + a)⁻¹ h‖ ≤ ‖h‖ / a`**
+  (`norm_invCLMAt_le`): the spectrum of `T` misses the negative reals.
+
+**Verification.**  `lake build BookProof.ChapterNonnegSquareRoot` and the full default
+`lake build` complete with no errors, and the new module emits no warnings and contains no
+`sorry`, `admit` or `axiom`.  The new audit script `Work/NonnegSquareRootAudit.lean`
+reports only `propext`, `Classical.choice`, `Quot.sound` for every public result.  The
+chapter is imported from `BookProof.lean` with a descriptive comment; `CONSOLIDATED_PLAN.md`
+and `STATUS.md` carry dated entries for the wave.
+
+**Honest boundary.**  These are the abstract operator-theoretic theorems; nothing is
+claimed about the project's physical Hamiltonians beyond what follows once their hypotheses
+are checked.  The functional calculus used throughout is the bounded (continuous) one for
+the resolvent; a general functional calculus for unbounded self-adjoint operators, and the
+spectral theorem behind it, are still not formalized here.
+
+
+# Summary of changes for run 9a270306-f474-41c7-8932-b1772094d245
+I continued `CONSOLIDATED_PLAN.md` along its most recent thread — the operator `A* Ā` attached to a symmetric operator `A` on a dense domain of a complex Hilbert space — and closed the boundary that the plan had recorded there: the unbounded polar decomposition and the positive square root. Two new chapters were added, both `sorry`-free and `axiom`-free, and `ARISTOTLE_SUMMARY.md`, `CONSOLIDATED_PLAN.md` and `STATUS.md` were updated with dated entries for the wave.
+
+**`BookProof/ChapterPolarPartialIsometry.lean` — the polar decomposition as a genuine partial isometry.** The existing chapter only produced the polar isometry as an existence statement on the (not necessarily closed) range of `|Ā|`. Abstractly, for two linear maps `P`, `Q` on a common domain with the same sesquilinear form (`P* P = Q* Q`), the isometry `P x ↦ Q x` is now extended by density to `closure (ran P)` and composed with the orthogonal projection onto it, giving a bounded operator `polarIsom P Q : F →L[ℂ] F` with: `U (P x) = Q x`; `‖U z‖ = ‖p z‖` (so `U` is a partial isometry with initial space `closure (ran P)`); `U` kills the orthogonal complement; `U* U = p` and `U U* = q`, the projections onto the initial and final spaces; `U* (Q x) = P x`; and uniqueness of `U` from those properties. Applied to `(|Ā|, Ā)` this yields `Ā = U |Ā|`, `|Ā| = U* Ā`, the two projection identities, the uniqueness of the partial isometry, and the fact that `Ā` and `|Ā|` have the same kernel.
+
+**`BookProof/ChapterPositiveSquareRootUnique.lean` — `|Ā|` is *the* non-negative square root of `A* Ā`.** Classically this uniqueness is read off the spectral theorem for unbounded self-adjoint operators; here it is obtained from the bounded continuous functional calculus alone. For a non-negative self-adjoint linear relation `T`, `1 + T` is shown injective with closed and dense range, hence bijective, and its inverse `C` is an everywhere-defined positive contraction from which `T` is recovered. If in addition `T T ⊆ A* Ā`, then the resolvent `R = (1 + A* Ā)⁻¹` satisfies the bounded identity `R (1 − 2C + 2C²) = C²`; on `spectrum C ⊆ [0,1]` this reads `R = g(C)` with `g t = t²/(2t² − 2t + 1)`, which is inverted there by the continuous `ψ r = √r/(√r + √(1−r))`, so `C = ψ(R)` is determined by `A` alone. Consequently every such `T` equals `|Ā|` (`eq_absRel_of_isNonnegSelfAdjoint`), and existence, `|Ā|² = A* Ā`, and uniqueness are packaged in `absRel_unique_nonneg_sqrt`. No density of the domain or symmetry of `A` is needed for the uniqueness statement.
+
+**Verification.** The full default `lake build` (8824 jobs) completes with no errors; the two new modules emit no warnings and contain no `sorry`, `admit` or `axiom`. New audit scripts `Work/PolarPartialIsometryAudit.lean` and `Work/PositiveSquareRootUniqueAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound` for every public result. Both chapters are imported from `BookProof.lean`. All work is committed and pushed.
+
+**Remaining boundary (recorded in the docs).** These are the abstract operator-theoretic theorems; nothing is claimed about the project's physical Hamiltonians beyond what follows once their hypotheses are checked, and a general functional calculus for unbounded self-adjoint operators (and the spectral theorem behind it) is still not formalized here.
+
+# Summary of changes for run 2026-09-04b
+## The polar decomposition as a genuine partial isometry, and uniqueness of `(A* Ā)^{1/2}`
+
+The previous entry recorded the unbounded polar decomposition as the standing boundary of the `A* Ā` thread. `BookProof/ChapterUnboundedPolar.lean` (`BookProof.UnboundedPolar`) had since constructed `|Ā|` from the *bounded* functional calculus of the resolvent `R = (1 + A* Ā)⁻¹` — `absRel A = {(R^{1/2}y, (1−R)^{1/2}y)}`, self-adjoint and non-negative, with `|Ā|² = A* Ā`, `D(|Ā|) = D(Ā)`, `‖ |Ā| x ‖ = ‖Āx‖`, and the polar isometry as an existence statement on `ran |Ā|`. This run adds the two halves that were still missing, in two new chapters, both `sorry`-free and `axiom`-free.
+
+**New module: `BookProof/ChapterPolarPartialIsometry.lean` (namespace `BookProof.PolarPartialIsometry`).** The isometry of the polar decomposition becomes a bounded operator on the whole space.
+
+* Abstractly, for `P Q : Dom →ₗ[ℂ] F` with the same sesquilinear form (`⟪Px, Py⟫ = ⟪Qx, Qy⟫`, i.e. `P* P = Q* Q`): the isometry `P x ↦ Q x` on `ran P` is extended by density to `initSpace P = closure (ran P)` and composed with the orthogonal projection onto that closure, giving **`polarIsom P Q : F →L[ℂ] F`**.
+* `polarIsom_apply_range` (`U (P x) = Q x`), **`norm_polarIsom`** (`‖U z‖ = ‖p z‖` for the projection `p` onto `closure (ran P)` — so `U` is a *partial isometry* with that initial space), `polarIsom_eq_zero_of_mem_orthogonal`, `inner_polarIsom`, **`adjoint_comp_polarIsom`** (`U* U = p`), `polarIsom_mem_initSpace` and `polarIsom_comp_adjoint` (`U` maps into the final space `closure (ran Q)`, and `U U*` is the projection onto it), `adjoint_polarIsom_apply` (`U* (Q x) = P x`), and **`polarIsom_unique`** — those properties determine `U`.
+* Applied to `(|Ā|, Ā)` on the common domain `D(Ā) = D(|Ā|)`: **`polarU_absOn`** is the polar decomposition `Ā = U |Ā|`, **`adjoint_polarU_clExt`** is `|Ā| = U* Ā`, **`adjoint_comp_polarU`** and **`polarU_comp_adjoint`** identify `U* U` and `U U*` with the projections onto `closure (ran |Ā|)` and `closure (ran Ā)`, **`polarU_unique`** is the classical uniqueness of the partial isometry, and `absOn_eq_zero_iff` records that `Ā` and `|Ā|` have the same kernel.
+
+**New module: `BookProof/ChapterPositiveSquareRootUnique.lean` (namespace `BookProof.PositiveSquareRoot`).** `|Ā|` is *the* non-negative self-adjoint square root of `A* Ā` — uniqueness, which classically is read off the spectral theorem for unbounded operators, is obtained here from the **bounded** continuous functional calculus alone.
+
+* `IsNonnegSelfAdjoint T` — a linear relation with `T* = T` and `⟪x, Tx⟫ ≥ 0`. For such a `T`, `1 + T` is injective (`eq_of_add_eq`) with closed (`isClosed_rangeSum`) and dense (`rangeSum_orthogonal_eq_bot`) range, hence bijective (`exists_add_eq`); the inverse is the everywhere-defined positive contraction **`invCLM T`** (`isSelfAdjoint_invCLM`, `invCLM_nonneg`, `invCLM_le_one`), and `T` is recovered from it (`rel_eq_of_invCLM_eq`).
+* **The bounded identity.** If `T T ⊆ A* Ā`, then with `C = invCLM T`, `x = C h` and `u = C x`, the pair `(u, h − 2x + u)` lies in `T T ⊆ A* Ā` and its coordinates add up to `h − 2x + 2u`, so the resolvent `R = (1 + A* Ā)⁻¹` satisfies `R (1 − 2C + 2C²) = C²` (**`resCLM_mul_den`**).
+* **The functional calculus step.** Since `spectrum C ⊆ [0,1]` and `2t² − 2t + 1 = t² + (1−t)² > 0`, the identity says `R = g(C)` with `g t = t²/(2t² − 2t + 1)` (`eq_cfc_gFun`, using `isUnit_den`), and `g` is inverted on `[0,1]` by the continuous `ψ r = √r/(√r + √(1−r))` (`psi_gFun`). Composition gives **`C = ψ(R)`** (`eq_cfc_psiFun`, `invCLM_eq_cfc`): the inverse of `1 + T` is determined by `A` alone.
+* **Conclusion.** **`eq_absRel_of_isNonnegSelfAdjoint`** — every non-negative self-adjoint relation whose square is contained in `A* Ā` equals `|Ā|` — and **`absRel_unique_nonneg_sqrt`**, which packages existence, `|Ā|² = A* Ā`, and uniqueness. No density of `D` and no symmetry of `A` is needed for the uniqueness statement.
+
+**Verification.** `lake build BookProof.ChapterPolarPartialIsometry`, `lake build BookProof.ChapterPositiveSquareRootUnique` and the full default `lake build` (8824 jobs) complete with no errors, and the two new modules emit no warnings and contain no `sorry`, `admit` or `axiom`. The audit scripts `Work/PolarPartialIsometryAudit.lean` and `Work/PositiveSquareRootUniqueAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound` for every public result.
+
+**Wiring and documentation.** Both chapters are imported from `BookProof.lean` with descriptive comments; `CONSOLIDATED_PLAN.md` and `STATUS.md` carry dated entries for the wave.
+
+**Honest boundary.** These are the abstract operator-theoretic theorems; nothing is claimed about the project's physical Hamiltonians beyond what follows once their hypotheses are checked. The functional calculus used throughout is the bounded (continuous) one applied to the resolvent; a functional calculus for unbounded self-adjoint operators, and the spectral theorem behind it, are still not formalized here.
+
+
+# Summary of changes for run 2026-09-04
+## von Neumann's core theorem for `A* Ā`, and the bounded inverse of `1 + A* Ā`
+
+The previous wave proved `(A²)_F = A* Ā` and, along the way, that `1 + A* Ā` is *surjective*. This run adds the two classical complements of that theorem, in one new chapter, `sorry`-free and `axiom`-free.
+
+**New module: `BookProof/ChapterVonNeumannCore.lean` (namespace `BookProof.VonNeumannCore`).**
+
+Setting: `A` is symmetric on a dense domain `D` of a complex Hilbert space. Unlike the previous chapter, **no invariance of the domain is needed** — `A²` never appears; only the closure `Ā`, the adjoint `A*` and their composite do.
+
+* **The bounded inverse `(1 + A* Ā)⁻¹`.** The solution of `x + A* Ā x = h` is unique (`eq_of_mem_factorRel_add_eq`): pairing the equation with `x` gives `⟪x, h⟫ = ‖x‖² + ‖Āx‖²`, which also yields `‖x‖ ≤ ‖h‖` and `‖Āx‖ ≤ ‖h‖` (`norm_le_of_mem_factorRel_add`). So `h ↦ x` is an everywhere-defined linear map `resLin A`, bounded by 1 — the continuous operator **`resCLM A`**, **`norm_resCLM_le_one`** — and a two-sided inverse of `1 + A* Ā` (`resLin_left_inverse`, `resLin_right_inverse`).
+* **`D(A* Ā)` is dense** (**`frDom_dense`**), so the Friedrichs extension of `A²` is densely defined.
+* **The core theorem** (**`topologicalClosure_coreGraph`**): the part of the closed graph lying over `D(A* Ā)` is dense in the whole closed graph. The proof is von Neumann's, carried out in the Hilbert direct sum `F ⊕₂ F`, where the graph inner product is the ambient one: an element `(x, w)` of the closed graph orthogonal to the graph over `D(A* Ā)` satisfies `⟪a + z, x⟫ = 0` for every `(a, z) ∈ A* Ā` — the adjoint pair turns the second summand of the graph inner product into `⟪z, x⟫` — and surjectivity of `1 + A* Ā` makes `a + z` run over the whole space, so `x = 0`, and then `w = 0` by closability (`eq_zero_of_mem_clLp_of_orthogonal`). An orthogonal-projection argument turns this into density (`clLp_le_topologicalClosure_coreLp`), and the homeomorphism `F ⊕₂ F ≅ F × F` transports the statement back.
+* **Operator form.** `coreRes A` is `Ā` restricted to `D(A* Ā)`; `opGraph_coreRes`, **`clGraph_coreRes`** (it has the same closure as `A`), **`isCoreOf_coreRes`** (it is a core of the closure), `adjGraph_coreRes`, and **`factorGraph_coreRes`** — the Friedrichs extension of `A²` may be computed from the core `D(A* Ā)` itself.
+
+**Verification.** `lake build BookProof.ChapterVonNeumannCore` and the full default `lake build BookProof` complete with no errors; the new module emits no warnings and contains no `sorry`, `admit` or `axiom`. The new audit script `Work/VonNeumannCoreAudit.lean` reports only `propext`, `Classical.choice`, `Quot.sound` for all 23 public results.
+
+**Wiring and documentation.** The chapter is imported from `BookProof.lean` with a descriptive comment; `CONSOLIDATED_PLAN.md` and `STATUS.md` carry dated entries for the wave.
+
+**Honest boundary.** The results are the abstract ones; nothing is claimed about the project's physical Hamiltonians beyond what follows once their hypotheses are checked. The unbounded polar decomposition `|Ā| = (A* Ā)^{1/2}` is still not proved (the bounded case is `ClosureUniqueness.positive_sqrt_unique`); it needs a functional calculus for unbounded self-adjoint operators.
+
+
+# Summary of changes for run 0c7436fa-6b5a-4263-bdd9-7bde9c854175
+## `(A²)_F = A* Ā` — proved
+
+The previous wave built the composite `A* Ā` as a linear relation and proved that everything entering it is unique, but recorded that the identity `(A²)_F = A* Ā` itself — the Friedrichs extension of `A²` *is* the composite — was not proved. That identity is now proved, in one new chapter, `sorry`-free and `axiom`-free.
+
+**New module: `BookProof/ChapterFriedrichsSquareFactorization.lean` (namespace `BookProof.FriedrichsSquare`).**
+
+Setting: `A` is symmetric on a domain `D` of a Hilbert space with `A D ⊆ D`, so `A²` is symmetric and non-negative on `D`. Its form is `⟪x, A²y⟫ = ⟪Ax, Ay⟫`, so its form domain is the domain `clDom A = D(Ā)` of the closure, and the Friedrichs extension is characterized as the unique self-adjoint extension of `A²` whose domain lies in the form domain (`IsFriedrichsSqExtension`: extends `A²`, domain inside `clDom A`, self-adjoint).
+
+* **`isFriedrichsSqExtension_iff_eq_factorRel`** — the headline: a linear relation is a self-adjoint extension of `A²` supported in the form domain **iff** it is `factorRel A`, the relation `A* Ā`. Existence, uniqueness and the identity in one statement; `friedrichsSqExtension_unique` is the uniqueness half on its own.
+* **`le_factorRel_of_symmetric_extension`** — the easy half, in a stronger form: every *symmetric* extension of `A²` whose domain lies in the form domain is already contained in `A* Ā` (no completeness, density or self-adjointness used).
+* **`adjPairs_factorRel`** — von Neumann's theorem: `A* Ā` is self-adjoint. Proved inside the Hilbert direct sum `F ⊕₂ F`: the flipped closed graph `{(−Āx, x)}` is closed (`flipGraph_isClosed`), its orthogonal complement is exactly the graph of the adjoint (`mem_flipGraph_orthogonal_iff`), so splitting `(0, h)` along the resulting decomposition solves `x + A*Āx = h` (`exists_mem_factorRel_add`, surjectivity of `1 + A* Ā`), which upgrades symmetry to self-adjointness.
+* **Operator form.** With a dense domain the relation is single-valued (`factorRel_snd_eq_zero_of_fst_eq_zero`), hence the operator `frExt A` on `frDom A ≤ clDom A` with `opGraph_frExt`; it is a self-adjoint extension of `A²` (`isSelfAdjointExtension_frExt`) with non-negative quadratic form `⟪x, frExt x⟫ = ‖Āx‖² ≥ 0` (`frExt_quadForm_nonneg`), and **`eq_frExt_of_isSelfAdjointExtension`**: every self-adjoint extension of `A²` whose domain lies in the form domain has the domain and the values of `frExt A`.
+
+Combined with the earlier core-independence result, the Friedrichs extension of `A²` may therefore be computed from any core of `Ā`.
+
+**Verification.** `lake build BookProof.ChapterFriedrichsSquareFactorization` and the full default `lake build BookProof` (8608 jobs) complete with no errors; the new module emits no warnings and contains no `sorry`, `admit` or `axiom`. The new audit script `Work/FriedrichsSquareFactorizationAudit.lean` reports only `propext`, `Classical.choice`, `Quot.sound` for all 19 public results.
+
+**Wiring and documentation.** The chapter is imported from `BookProof.lean` with a descriptive comment; `CONSOLIDATED_PLAN.md` and `STATUS.md` carry dated entries for the wave, and `ARISTOTLE_SUMMARY.md` has a new appended section describing it (earlier content untouched).
+
+**Honest boundary.** `A` is required to leave its domain invariant, which is what makes `A²` an operator on `D`; the Friedrichs extension is identified through its standard characterization rather than through a separate construction of the form completion. The theorem is general — nothing is claimed here about the project's physical Hamiltonians beyond what follows once their hypotheses are checked.
+
+
+# Summary of changes for run c9e360ca-cfa7-471c-bb28-4caf76a4e5bb
+## 1. Reorganized the project so it builds — cheaply
+
+The Lean sources had been delivered as ~685 files in one flat directory, while every
+`import` referred to a nested module path (`BookProof.ChapterX`, `Book.Y`,
+`Singularity.Z`, …), so no target could be built at all. Every file is now at the path
+matching its module name (`BookProof/`, `Book/`, `Singularity/`, `UsedRoute/`,
+`UnusedRoute/`, `RandomMap/`, `PnpProof/`, `RiemannProof/`), and three libraries were
+added in `lakefile.toml`:
+
+* `RiemannProof` — thin re-exports for the handful of historical import paths that
+  duplicate modules living elsewhere;
+* `Audits` — the `#print axioms` / `#check` scripts, which previously belonged to no
+  library and were never compiled;
+* `Work` — an empty-rooted scratch library, deliberately **not** a default target.
+
+A missing `Singularity.lean` library root was written, and two stale files were repaired
+so that everything compiles: `Singularity/Integration.lean` (two ill-typed definitions
+commented out, each with a note explaining exactly what is wrong — nothing was deleted)
+and the audit scripts (wrong namespace prefixes fixed; three `#check`s of names that no
+longer exist commented out with a note).
+
+**Verified builds:** `BookProof` (8607 jobs), `Book`, `Singularity`, `Layout`,
+`GapCertificate`, `RandomMap`, `UsedRoute`, `UnusedRoute`, `RiemannProof`, `PnpProof`
+and every `Audits` module complete with no errors.
+
+**Minimal compilation for new work:** `BUILD_LAYOUT.md` documents the workflow — put a
+new file in `Work/<Name>.lean` importing only the specific chapters it needs and build
+`Work.<Name>`; Lake then compiles exactly that import cone instead of the whole book
+(e.g. re-checking the new chapter takes about a minute once its cone is built, versus
+hours for `lake build BookProof`). The same file records why audits belong in `Work/` or
+`Audits/` rather than inside the chapter graph.
+
+## 2. Formalized the closure/factorization uniqueness questions
+
+New chapter `BookProof/ChapterClosureUniqueness.lean`, built on the existing graph-closure
+construction, `sorry`-free and `axiom`-free (all eighteen public results audited in
+`Work/ClosureUniquenessAudit.lean`: only `propext`, `Classical.choice`, `Quot.sound`):
+
+* **Closure unique — yes.** `IsClosedExtension`, `IsClosureOf` (minimal closed extension),
+  minimality of the graph closure, `clExt_isClosureOf` (existence), and `closure_unique`:
+  any two closures have the same domain and the same values.
+* **Closure ≠ self-adjoint extension.** `not_isSelfAdjointExtension_clExt_of_deficiency`:
+  a non-zero deficiency vector at `i` makes the (still unique) closure non-self-adjoint.
+* **The adjoint sees only the closure.** `adjGraph_eq_adjPairs_clGraph` (`T* = (T̄)*`), and
+  core-independence of closure, domain and adjoint.
+* **Factorization (a) and (b).** `compGraph_eq_of_isClosureOf` — every realization of the
+  closure yields the same composite `A*Ā`; `factorGraph_eq_of_isCoreOf_pair` — two dense
+  cores of one closed operator yield the same composite. Also `mem_factorGraph_sqOp`,
+  `factorGraph_symmetric`, `factorGraph_quadForm(_nonneg)`: `A*Ā` extends `A²`, is
+  symmetric, and has quadratic form `‖Āx‖² ≥ 0`.
+* **Factorization (c).** `exists_linearIsometry_of_inner_eq` — `B*B = C*C` gives a linear
+  isometry of `ran B` onto `ran C` with `C = UB`; `eqOn_topologicalClosure_range_of_eqOn_range`
+  — continuous intertwiners agree on the whole initial space `closure(ran B)`; and
+  `positive_sqrt_unique` — a positive self-adjoint square root is unique (bounded case).
+* **Faris–Lavine application.** `farisLavine_closure_isSelfAdjoint_unique`: under the
+  Faris–Lavine hypotheses the closure is the unique self-adjoint realization;
+  `farisLavine_clGraph_eq_of_cores`: verifying the criterion on either of two cores gives
+  the same closure and adjoint.
+
+Honest boundary, stated in the module docstring and in the new plan entry: the identity
+`(A²)_F = A*Ā` itself is not proved — what is proved is the uniqueness of the objects
+entering it plus the fact that `A*Ā` is a positive symmetric extension of `A²` — and
+strict uniqueness of the positive factor is proved for bounded operators.
+
+The chapter is imported from `BookProof.lean`, and `CONSOLIDATED_PLAN.md` carries a dated
+state entry describing the wave and the new layout. All work is committed.
+
+# Summary of changes for run d4efbefa-4ac0-432f-a4c2-d378718816e6
+Continued `CONSOLIDATED_PLAN.md` by doing for **Navier–Stokes** and **quantum Yang–Mills** what the previous run did for quantum gravity: the gauge-fixed Hamiltonian is a single, fixed (autonomous) self-adjoint generator, and the shift-invert algorithm evaluates its propagator at one finite time — no time discretization, no time ordering, no Dyson series.
+
+Three new modules, all `sorry`-free, `axiom`-free, imported from `BookProof.lean` and `#print axioms`-audited in `BookProof/ChapterRoadmapAudit.lean` (every new headline depends only on `propext`, `Classical.choice`, `Quot.sound`). The full default build completes with no errors (8814 jobs).
+
+1. `BookProof/ChapterFiniteSectionSingleTime.lean` — the approximation scheme these two Hamiltonians need, playing the role the mode truncation plays for quantum gravity. Both live on an ℓ² mode space with the finite-mode core, so the scheme is the **finite section** (Galerkin) truncation: the mode projection and its strong convergence to the identity along exhausting windows (`projW_apply_tendsto`); the finite section `P_W H P_W` as a *bounded* self-adjoint operator (`secOp`, `secOp_isSelfAdjoint`); its convergence to the exact Hamiltonian on the whole core (`core_eq_sum`, `secOp_tendsto_core`); and the package **`finiteSection_singleTime`** — a self-adjoint realization whose propagator `U(t,s) = e^{−i(t−s)H}` is unitary, obeys Chapman–Kolmogorov, is time-translation invariant and *uniquely* solves the Schrödinger equation, finite sections whose Hashimoto shift-invert operators converge at **every** nonzero shift, and propagator convergence at **every single finite time**. Also `timeIndependent_of_selfAdjointExtension` (the propagator half from any selected extension, e.g. a Friedrichs one) and `windowOfEquiv_exhausts` (admissible windows exist on every countable mode set).
+
+2. `BookProof/ChapterNsTimeIndependentFlow.lean` — the `y`-gauge fixes the auxiliary coordinate *spatially*, so the generator carries no time dependence. **`nsEulerian_timeIndependent_singleTime`** (coupled three-component Eulerian fiber Hamiltonian on ℓ²(Vel), arbitrary velocity-gradient matrix and constant vector), **`nsGaugeY_timeIndependent_singleTime`** (the same with the two gauge-fixing identities as its first conjuncts — the analogue of the gauge identity carried by the quantum-gravity package) and **`nsLagrangian_timeIndependent_singleTime`** (the canonical Lagrangian/parcel Hamiltonian `½ΣP² + νΣQ² + Σf·P`, every ν > 0 and every force f).
+
+3. `BookProof/ChapterQymTimeIndependentFlow.lean` — in the Weyl gauge `A₀ = 0` the Hamiltonian is the sum of squares of the *spatial* electric and magnetic fields. **`ymFock_weylGauge_timeIndependent`** (unconditional: that sum-of-squares identity plus the Friedrichs realization of `dΓ(H₁)` with its time-translation-invariant, uniquely-solving propagator), **`ymFock_timeIndependent_singleTime_of_esa`** (the full finite-section package given essential self-adjointness on the finite-occupation core) and **`ymFock_diagonalBasis_timeIndependent_singleTime`** (the same unconditionally whenever the working basis diagonalizes the one-particle operator with non-negative eigenvalues).
+
+Documentation: dated sections added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`; the Properties table lists the new results.
+
+Honest boundary, recorded in the module docstrings and in the plan: nothing claims global regularity of the classical Navier–Stokes PDE or a Yang–Mills mass gap, and no spectral information is claimed; the Navier–Stokes setting is the sequence-space (Hermite/occupation-number) realization of the fiber Hamiltonian; and for the physical `dΓ(H₁)` essential self-adjointness on the finite-occupation core remains a named hypothesis — only the Friedrichs extension is unconditional there.
+
+# Summary of changes for run 81c9dcf7-aa39-49dc-8709-e99bcd29fcc3
+The assumption that a discretization of time is required has been removed, and the time-independence of the gauge-fixed Hamiltonian is now a theorem rather than a remark.
+
+**What is in place now (all verified in one green build, `sorry`-free, standard axioms only).**
+
+1. *One shift, one finite time* — `BookProof/ChapterSirkSingleTimeShift.lean`. The shift-invert (SIRK/Hashimoto) algorithm evaluates the propagator at a single finite time through the **bounded** resolvent `(A − iℓ)⁻¹`, whose norm is `≤ 1/|ℓ|` for every self-adjoint `A`, however unbounded — so no step size, number of steps or splitting appears, and no boundedness of the Hamiltonian is used. Includes the first resolvent identity, normality of the resolvent, the fact that strong convergence of the shift-invert operators at *one* nonzero shift already gives it at *every* nonzero shift (the choice of shift is immaterial), the resulting propagator convergence at every single finite time, the end-to-end SIRK error bound at one finite time, and the quantum-gravity instances (momentum cutoff, and the general-manifold spectral cutoff). This module is now verified end-to-end and recorded in the plan and status files, and its results are marked proved in the Properties table.
+
+2. *A Hamiltonian with no time dependence* — new module `BookProof/ChapterQgTimeIndependentFlow.lean`. Because the 3D BRST gauge fixing on the vielbein variables fixes the auxiliary variables to **spatial** derivatives of the vielbein, the gauge-fixed quantum Hamiltonian is a single fixed self-adjoint operator. Proved there:
+   * the two-parameter propagator `U(t,s) = e^{−i(t−s)H}`: unitary, Chapman–Kolmogorov (`U(t,s)U(s,r) = U(t,r)`), and **time-translation invariant** (`U(t+h,s+h) = U(t,s)`) — the two times enter only through their difference;
+   * existence and **uniqueness** of the solution of the Schrödinger equation with that one fixed generator (`eq_prop_of_isSchrodingerSolution`): every curve in the domain with `y′ = −iHy` satisfies `y t = e^{−i(t−s)H} y s`, so no time ordering and no Dyson series occurs;
+   * the packages `qgOuterFock_timeIndependent_singleTime`, `starobinsky_brstGaugeFixed_timeIndependent_singleTime` (the physical continuum model — exact Fourier modes, exact torsion Gram matrix, scalaron–vielbein coupling at arbitrary coupling, full exponential Einstein-frame Starobinsky wall; the statement carries the gauge-fixing identity `gaugeReduce_gram` as its first conjunct) and `starobinsky_qgManifold_timeIndependent_singleTime` (general spatial manifold): an autonomous self-adjoint generator, its time-translation-invariant propagator, and truncations converging both in the shift-invert sense at every nonzero shift and in the propagator sense at every single finite time.
+
+The Crank–Nicolson time-stepping module is retained only as a self-contained analysis of one *optional* scheme; the pipeline no longer depends on it, and its docstring, `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md` now say so. The new module is imported from `BookProof.lean` and `#print axioms`-audited in `BookProof/ChapterRoadmapAudit.lean`; the full build (8601 jobs) completes with no errors, and every new headline depends only on `propext`, `Classical.choice`, `Quot.sound`. All work is committed.
+
+Honest boundary, unchanged otherwise: no spectral information, mass gap or continuum limit is claimed, and the Riemannian geometry producing the mode data on a given manifold is an input rather than being formalized.
+
+# Summary of changes for run 67875227-757f-4a3e-9264-6f67d13e122f
+Both limitations recorded in the previous run's honest boundary are now removed, in two new `sorry`-free, `axiom`-free modules.
+
+**1. A general spatial manifold instead of a periodic box** — `BookProof/ChapterQgManifoldModeInstance.lean`.
+
+In the vielbein variables the gravitational field is a global orthonormal coframe, i.e. a triple of one-forms on the spatial slice, and the Faris–Lavine analysis only needs two things: the spectrum of the Laplace-type operator that gives the mode energies, and the fact that the torsion self-interaction `½ Σ ‖d e^i‖²` is diagonal in a mode basis adapted to the Hodge decomposition (`δd` vanishes on the closed part and equals the Hodge eigenvalue on the co-closed part), with `λ_a ≤ μ_a`. `VielbeinSpectrum` packages exactly that input — arbitrary non-negative eigenvalues `μ_a`, the diagonal torsion eigenvalues `0 ≤ λ_a ≤ μ_a`, the finite coupling blocks and normalized trace weights, with two Schur bounds — and `VielbeinSpectrum.modes` discharges all five Faris–Lavine bounds with constant `K = 1 + |g|·W` (the self-interaction commutator term is exactly zero, since the torsion Gram matrix is diagonal). Consequences: `starobinsky_qgManifold_esa` (essential self-adjointness of the gauge-fixed Hamiltonian with the full exponential Einstein-frame Starobinsky wall and arbitrary coupling constant), the spectral cutoff `energyWindow` (`μ_a ≤ n`, replacing the momentum cutoff), and `starobinsky_qgManifold_cutoff_flow_convergence`. No periodicity, lattice, flatness, homogeneity or bound on eigenvalue multiplicities is used; `ofSpectrumSeq` shows an arbitrary non-negative eigenvalue sequence is admissible.
+
+**2. The time-stepping half of a concrete scheme** — `BookProof/ChapterQgTimeStepping.lean`.
+
+The scheme analysed is Crank–Nicolson (Cayley / implicit midpoint), `C(τ) = (1 − iτH/2)(1 + iτH/2)⁻¹`, i.e. one shift-invert solve per step, identified with `−(H + i·2/τ)(H − i·2/τ)⁻¹`. Proved: it is exactly unitary at every step size (`norm_cnStep_apply`, `norm_iterate_cnStep_apply`); it is consistent, `C(τ)x = x − iτHx + iτ(H − 2i/τ)⁻¹H²x`, giving the local error `‖C(τ)x − e^{−iτH}x‖ ≤ 2τ²‖H²x‖` on the domain of `H²` (`cnStep_second_order`, `norm_stoneU_sub_taylor_le`, `norm_cnStep_sub_stoneU_le`); the telescoped global error `‖C(τ)^k x − e^{−ikτH}x‖ ≤ 2kτ²‖H²x‖`; and hence `tendsto_iterate_cnStep`, convergence to `e^{−itH}v` for every vector with no smoothness assumption. Combining with the mode cutoff gives the fully discrete statements `qgOuterFock_fullyDiscrete_convergence` and, over a general manifold, `starobinsky_qgManifold_fullyDiscrete_convergence`.
+
+Verification: the full default `lake build` (8809 jobs) completes with no errors; the new modules are imported from `BookProof.lean` and `#print axioms`-audited in `BookProof/ChapterRoadmapAudit.lean`, where every new headline depends only on `propext`, `Classical.choice`, `Quot.sound`; no `sorry` and no `axiom` declaration occurs in them. Dated sections were added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`, the older module docstrings now cross-reference the general-manifold and time-stepping modules, and the Properties table lists the new results.
+
+Remaining honest boundary, now smaller: the Riemannian geometry that produces the mode data on a given manifold (a global orthonormal frame, the Hodge decomposition of the one-form modes) is the input of `VielbeinSpectrum` rather than being formalized; in the fully discrete theorem the number of time steps is chosen per cutoff, so no uniform step-size rule is claimed; and no spectral information, mass gap or continuum limit is claimed.
+
+# Summary of changes for run 059df25b-4649-4bae-864a-3d763c4d888e
+Continued the plan on the quantum-gravity Hamiltonian you specified — the scalaron in vielbein variables with the **full exponential** Einstein-frame Starobinsky wall (no Taylor expansion), 3D gauge-fixed with the derivative (BRST) gauge condition, no lattice approximation, on the outer Fock space, including all interaction and coupling terms.
+
+The Faris–Lavine essential self-adjointness of that Hamiltonian on the outer Fock space (comparison operator = the fibrewise lift of the Friedrichs extension of the positive one-particle operator) was already in place and is re-verified here. What was still conditional was the numerical half: convergence of the approximations was stated *given* strong resolvent convergence. This session removes that hypothesis.
+
+New module `BookProof/ChapterQgTruncationResolvent.lean` (all `sorry`-free, no new axioms):
+
+* `esa_core_of_ext` / `secHam_esa_core` — the Faris–Lavine conclusion, proved on the domain of the comparison operator `N`, descends to the **finite-particle core** itself: the core approximates `𝒟(N)` in the graph norm and the Hamiltonian is relatively bounded, so the deficiency equation passes to the limit.
+* `strongResolventConvergence_of_dense`, `tendsto_resCLM_shift`, `strongResolventConvergence_of_core` — the general criterion: self-adjoint realizations of operators converging pointwise on a common essentially self-adjoint core converge in the strong resolvent sense (via `(Sₙ−i)⁻¹(H−i)x − x = (Sₙ−i)⁻¹(H−Hₙ)x`, contractivity of the resolvents and density of `(H−i)D`).
+* `truncModes` — the mode truncation: the vielbein energies, the bands and the entire scalaron fibre operator (kinetic term, harmonic term, full exponential wall) are kept exactly; the torsion self-interaction and the scalaron–vielbein coupling are switched off outside a window of modes. Switching entries off cannot increase a Schur sum, so the Faris–Lavine constant is unchanged and each truncation is essentially self-adjoint by the same theorem. `secHam_truncate_eq_of_band` / `secHam_truncate_eventually_eq` show the truncations agree with the exact Hamiltonian on every core vector eventually.
+* `qgOuterFock_truncation_flow_convergence` — hence, **with no resolvent-convergence hypothesis**, the truncated flows converge to the exact quantum-gravity flow, uniformly on every compact time interval and at each fixed time. `starobinsky_qgContinuum_momentumCutoff_flow_convergence` is the physical instance: the exact Fourier modes of the vielbein with the momentum cutoff `|k|² ≤ n`, the exact torsion Gram matrix, arbitrary coupling constant, full exponential wall. Since the BRST derivative gauge fixing identifies the gauge-fixed Hamiltonian with exactly this continuum Hamiltonian, the statement applies to the gauge-fixed model verbatim.
+* `isShiftInvertC_neg_resCLM`, `qg_truncation_hashimoto_shiftInvert_tendsto` — the same result phrased in the project's shift-invert (Hashimoto) interface: the Hashimoto resolvent of a self-adjoint realization at the complex shift `γ = i` is `−(H−i)⁻¹`, and the truncations' shift-invert operators converge strongly to the exact one, which is precisely the input the rational-Krylov (SIRK) layer consumes.
+
+Verification: `lake build` (default targets, 8807 jobs) completes with no errors; `lake build BookProof.ChapterRoadmapAudit` is green and every new headline is `#print axioms`-audited there, depending only on `propext`, `Classical.choice`, `Quot.sound`; no `sorry` and no `axiom` declaration occurs in the new module. The module is imported from `BookProof.lean`, dated sections were added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`, and the Properties table lists the new results.
+
+Honest boundary, recorded in the module docstring and in the plan: the discretization analysed is the mode cutoff (the spatial manifold is a periodic box, so momenta run over ℤ³); the time-stepping half of a concrete scheme is not analysed, and no spectral information, mass gap or continuum limit of the box size is claimed.
+
+# Summary of changes for run 5d516880-07e1-4291-9334-368ef9e15853
+Continued the plan and completed the outer-Fock quantum-gravity programme you asked for. The whole project now builds green (8596 jobs, no errors), and every new result is `sorry`-free and depends only on the standard axioms `propext`, `Classical.choice`, `Quot.sound` (checked by `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, which is part of the verified build).
+
+What was already in place from the earlier stage of this work, and is confirmed verified:
+
+- `BookProof/ChapterScalaronFiberFL.lean`, `BookProof/ChapterScalaronOuterFockFL.lean` — the Faris–Lavine proof of essential self-adjointness of the full gauge-fixed Hamiltonian on the outer Fock space `ℓ²(modes ; L²(ℝ_φ))`, with the comparison operator obtained by lifting the Friedrichs extension of the positive one-particle operator `N_a = −∂²_φ + φ²/4 + V(φ) + σ_a` fibrewise; `V` is the Einstein-frame Starobinsky wall with the exponential in full (no Taylor expansion).
+- `BookProof/ChapterQgContinuumModeInstance.lean` — the same Hamiltonian with **no lattice approximation**: infinitely many exact Fourier modes of the vielbein, the exact derivative symbol `∂_μ ↦ i k_μ`, the exact torsion Gram matrix as vielbein self-interaction and the scalaron–vielbein coupling at arbitrary coupling constant. Headline: `starobinsky_qgContinuum_esa`.
+- `BookProof/ChapterQgBrstDerivativeGauge.lean` — the BRST derivative gauge fixing (the same device as the Navier–Stokes gauge-`y` construction in this project): auxiliary variables in which the torsion is derivative-free and linear, the gauge condition fixing each of them to the corresponding spatial derivative of the vielbein, and the identities `gaugeReduce_extTorsionCoef` / `gaugeReduce_gram` showing the gauge-fixed forms and Gram matrix are exactly those of the continuum model; plus the restriction principle `restrict_essentiallySelfAdjointOn`.
+- `BookProof/ChapterQgOuterFockFlow.lean` — the unitary flow `e^{-itH}` (`qgOuterFock_stone_flow`) and the numerical transfer `qgOuterFock_numerical_flow_convergence`: any family of self-adjoint approximations converging in the strong resolvent sense — the interface satisfied by the project's shift-invert Hashimoto/SIRK machinery — has flows converging to the exact flow, uniformly on compact time intervals.
+
+New in this session, `BookProof/ChapterQgOuterFockOneParticle.lean`, which makes the "Fock space of a Fock space" structure explicit: the one-particle kernel `oneParticleOp` (`h_{ab} = δ_{ab}(−∂²_φ + φ²/4 + V(φ) + σ_b) + A_{ab}·1 + B_{ab}·φ`), the action on a single-mode state (`secHam_single`), the matrix element between a creation operator on the left and an annihilation operator on the right, `⟪a†_a v, H a†_b u⟫ = ⟪v, h_{ab} u⟫` (`secHam_matrix_element`), hermiticity of the kernel (`oneParticleOp_herm`), the reassembly `(Hx)_a = Σ_b h_{ab} x_b` on the finite-particle core (`secHam_eq_sum_oneParticle`), and the same identity for the physical continuum instance (`starobinsky_qgContinuum_matrix_element`). The module is imported from `BookProof.lean` and audited; `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md` carry a new dated section describing it, and the Properties table is reconciled.
+
+Honest boundary, unchanged: the spatial manifold is a periodic box, so wave numbers run over ℤ³; no continuum limit of the box size is taken, no spectral information or mass gap is claimed, and strong resolvent convergence of any *particular* discretization is a hypothesis of the transfer theorem rather than a claim about a specific scheme.
+
+# Summary of changes for run b47d7347-96c9-4e04-8948-8c9698a3c530
+Completed the outer-Fock essential self-adjointness (ESA) programme for the quantum-gravity Hamiltonian you specified — the scalaron in vielbein variables with the **full exponential** Starobinsky potential (no Taylor expansion), 3D gauge-fixed, including all interaction and coupling terms — via the Faris–Lavine strategy, lifting the Friedrichs extension of the positive one-particle operator to the outer Fock space.
+
+What was finished this session (all `sorry`-free, only the standard axioms `propext`, `Classical.choice`, `Quot.sound`):
+
+1. `BookProof/ChapterScalaronOuterFockFL.lean`
+   - `imB_le` (the scalaron–vielbein coupling's contribution to the commutator) completed and verified.
+   - `quadForm_secDiag_eq`, `quadForm_secDiag_nonneg`, and the assembled Faris–Lavine commutator bound `secHam_commForm_le`: `|⟪x, i[H, N]x⟫| ≤ 6K·⟪x, Nx⟫`. The diagonal fibre term is real and drops out; the vielbein self-interaction contributes ≤ ½K and the coupling ≤ 9/4 K times the quadratic form (the coupling is the delicate one — `[h_s, φ] = −2∂_φ` does not vanish, and the derivative it produces is absorbed by the quadratic form uniformly in the wall).
+   - `secData`, the Faris–Lavine core-data package (comparison operator = ℓ²-lift of the fibrewise Friedrichs extensions, graph core = finite-particle core, relative constant `1 + 3K`), `secData_ext_core`, and the headline **`secHam_essentiallySelfAdjointOn`**: the Hamiltonian, extended from the finite-particle core to the whole domain of the lifted operator `N`, is essentially self-adjoint there and restricts to the Hamiltonian on the core.
+
+2. New module `BookProof/ChapterQgVielbeinModeInstance.lean`, so the theorem is not conditional on an unmet hypothesis:
+   - `ofBounds` — mode data from elementary entrywise bounds (`‖A a b‖ ≤ κ·min(σ_a,σ_b)`, `‖B a b‖ ≤ κ`, band energy spread `≤ κ`, band size `≤ deg`), with `K = deg·κ·(1+κ)`.
+   - `ofFintype` — on a finite mode set (the gauge-fixed lattice truncation) *every* Hermitian pair of mode matrices is admissible: no smallness, band or decay assumption.
+   - The concrete 3D gauge-fixed vielbein lattice model: nine components `e_μ^a` per site of a periodic 3D lattice, `torsionGram` (the Gram matrix of all discrete torsion terms `∂_μ e_ν^a − ∂_ν e_μ^a`, i.e. the complete vielbein self-interaction) and `scalaronCoupling g`, giving `qgLattice_essentiallySelfAdjointOn`, `qgLattice_ext_core` and **`starobinsky_qgLattice_esa`** with the full exponential Starobinsky wall and arbitrary coupling constant.
+
+3. Project chores: the three scalaron modules are imported from `BookProof.lean` with descriptive notes, audited by `#print axioms` in `BookProof/ChapterRoadmapAudit.lean` (audit build green, all new results depend only on the standard axioms); all linter warnings in the new modules fixed at their source; dated sections added to `CONSOLIDATED_PLAN.md`, `BookProof/STATUS.md`, and a new section prepended to `ARISTOTLE_SUMMARY.md` (which itself was left otherwise untouched). The full default `lake build` (8802 jobs) completes with no errors. The Properties table was updated: the outer-Fock ESA, the fibre ESA, the Starobinsky wall, the mode-data structure, the Hamiltonian and the lattice instance are registered, and two previously open entries were verified and marked proved. Everything is committed and pushed.
+
+Honest boundary, recorded in the module docstrings and in the plan: the vielbein sector is treated as a mode index set carrying Hermitian banded mode matrices, i.e. the gauge-fixed lattice truncation. No continuum limit, no spectral information and no mass gap is claimed.
+
+# Summary of changes — the full quantum-gravity Hamiltonian (scalaron in vielbein variables,
+# full exponential wall) is essentially self-adjoint on the outer Fock space
+
+Continued execution of `CONSOLIDATED_PLAN.md`, completing the Faris–Lavine outer-Fock
+programme for the scalaron in vielbein variables with the **full exponential** Starobinsky
+potential (no Taylor expansion), in the 3D gauge-fixed formulation and including all
+interaction and coupling terms.
+
+Three modules, all `sorry`-free and `axiom`-free, imported from `BookProof.lean` and audited
+in `BookProof/ChapterRoadmapAudit.lean`:
+
+* `BookProof/ChapterScalaronFiberFL.lean` (`BookProof.ScalaronFiberFL`) — the fibre operator
+  `h_s = −∂²_φ + φ²/4 + V(φ) + s`: symmetry, essential self-adjointness on the compactly
+  supported smooth core, the quadratic form, the relative bounds of `u`, `u'`, `φu` and
+  `h_s u` against `(h_s + 1)u` with constants independent of `s`, the commutator
+  `[h_s, φ] = −2 d/dφ`, and the Friedrichs extension packaged as a Faris–Lavine comparison
+  operator whose graph core is that same core.
+* `BookProof/ChapterScalaronOuterFockFL.lean` (`BookProof.ScalaronOuterFockFL`) — the outer
+  Fock space `⊕_a L²(ℝ)` over the gauge-fixed vielbein modes.  The positive one-particle
+  operator's Friedrichs extension is lifted fibrewise to a comparison operator `secN`, the
+  finite-particle core is proved to be a graph core for it (`secN_isGraphCore`), and the
+  full Hamiltonian `secHam = secDiag + secA + secB` is shown symmetric
+  (`secHam_symmetricOn`), relatively bounded `‖Hx‖ ≤ (1 + 3K)‖(N + 1)x‖` (`secHam_rel`, a
+  Schur test on the bands) and to satisfy the Faris–Lavine commutator bound
+  `|⟪x, i[H, N]x⟫| ≤ 6K⟪x, Nx⟫` (`imA_le`, `imB_le`, `secHam_commForm_le`).  The headline is
+  **`secHam_essentiallySelfAdjointOn`**; `secData_ext_core` records that the self-adjoint
+  realization restricts to `secHam` on the core.
+* `BookProof/ChapterQgVielbeinModeInstance.lean` (`BookProof.QgVielbeinModeInstance`) — the
+  mode data, so the theorem is not conditional on an unmet hypothesis: `ofBounds` from
+  entrywise bounds with `K = deg·κ·(1 + κ)`; `ofFintype`, which shows that on a finite mode
+  set every Hermitian pair of mode matrices is admissible with no smallness assumption; and
+  the concrete 3D gauge-fixed vielbein lattice model — nine components `e_μ^a` per site, the
+  Gram matrix of all discrete torsion terms `∂_μ e_ν^a − ∂_ν e_μ^a`, and the
+  scalaron–vielbein coupling — giving `qgLattice_essentiallySelfAdjointOn`,
+  `qgLattice_ext_core` and **`starobinsky_qgLattice_esa`**.
+
+Verification: `lake build BookProof.ChapterRoadmapAudit` completes with no errors, every
+audited theorem (the new ones included) depends only on `propext`, `Classical.choice`,
+`Quot.sound`, and no `sorry` or `axiom` declaration occurs in the new modules.  Dated
+sections were added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`.
+
+Honest boundary: the vielbein sector is treated as a mode index set carrying Hermitian
+banded mode matrices, i.e. the gauge-fixed lattice truncation.  No continuum limit, no
+spectrum and no mass gap is claimed.
+
+# Summary of changes for run 2d6b055f-453f-47ee-a7e6-8fc4ceaf40a2
+Continued executing `CONSOLIDATED_PLAN.md`, closing its two open frontier items: the re-verification the previous merge wave asked for, and the quantum-gravity essential-self-adjointness item recorded as the strategy of record (§10.2b).
+
+**New result — the one-particle QG Hamiltonian is essentially self-adjoint.**
+New module `BookProof/ChapterQg3DGaugeEsa.lean` (namespace `BookProof.Qg3DGaugeEsa`), `sorry`-free and `axiom`-free, imported from `BookProof.lean`, audited in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed from `Book/DiffeomorphismsGravity.lean`.
+
+`ChapterQuantumGravity3DGauge` builds the densitized, Weyl-ordered 3D gauge-fixed gravity Hamiltonian `H = ½ Σ_j κ_j π_j² + ½ Σ_m T_m²` with `T_m = ∂_μ e_ν^a − ∂_ν e_μ^a` on a Gauss–polynomial core of `L²(ℝ⁸⁴)` and proves it symmetric there, but stops short of self-adjointness: the signature is hyperbolic, so the Friedrichs machinery (which needs a semibounded form) does not apply. The route taken is shorter than the Faris–Lavine comparison operator the plan anticipated: each torsion term is a *linear* form in the 84 field coordinates (`sum_torsionVec_X`), so `½ Σ_m T_m²` is the quadratic form of the positive-semidefinite Gram matrix `qgFqQ = ½ Σ_m v_m v_mᵀ` (`qgFqQ_quadratic_eq`) while the kinetic term is the diagonal momentum matrix `qgFqP κ = diag(κ/2)`. The Hamiltonian is therefore an instance of the general real quadratic Hamiltonian of `ChapterFullQuadraticEsa`, whose essential self-adjointness on the plain Gauss–polynomial core was already available with no sign, ellipticity or definiteness hypothesis. The identification is proved at polynomial level (`qgSignedPoly_eq_fqPoly`) and on the core (`qgSigned_eq_fqOp`), giving:
+
+* `qgSigned_essentiallySelfAdjointOn_core` — for **every** real signature κ;
+* `qg3D_essentiallySelfAdjointOn_core` — the physical hyperbolic instance: the closure of `qg3DHamiltonian` is its unique self-adjoint realization;
+* `qg3D_stone_flow` — the complete unitary group it generates (Stone);
+* `qg3DElliptic_essentiallySelfAdjointOn_core` — the elliptic sector's Friedrichs extension upgraded from existence to uniqueness.
+
+Honest boundary, recorded in the module docstring: this is the one-particle operator on the 84 field-space coordinates. No spectrum, no mass gap and no continuum limit is claimed, and the Fock lift does not apply (it needs a *diagonal* one-particle symbol, which this operator does not supply).
+
+**Build repairs.** The previously merged wave had never been compiled and was not green. Fixed: six elaboration errors in `BookProof/ChapterBddBelowFiberSumEsa.lean`; two missing imports in `BookProof/ChapterRoadmapAudit.lean` that its axiom-audit lines refer to; a stray `$` closing an inline-math span in `Book/FreeField.lean`; Markdown-style `**bold**` in `Book/Starobinsky.lean` (the book's markup spells bold `*…*`); and the `patches/*.sh` executable bits, which had again been lost.
+
+**Verification performed in this session.** `lake build` (default targets, 8790 jobs) and `lake build RandomMap` (8039 jobs) both completed with no errors and no warnings; `./patches/build-book.sh` rendered the single-page book with its assertions holding and `./patches/check-katex.sh` reported 3390 math snippets with 0 KaTeX failures; no `sorry` and no `axiom` declaration occurs in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` or `Layout/`; every audited theorem, the four new headline results included, depends only on `propext`, `Classical.choice`, `Quot.sound`. Note that the `verso`, `subverso` and `MD4Lean` dependency checkouts under `.lake/packages/` arrived truncated in this snapshot and had to be re-materialized at the revisions pinned in `lake-manifest.json` before the book half of the gate could run; this is recorded in the status notes.
+
+**Documentation.** A dated state update was prepended to `CONSOLIDATED_PLAN.md`, a new latest-wave section added to `BookProof/STATUS.md` and `STATUS.md` with their gate paragraphs refreshed, a new section prepended to `ARISTOTLE_SUMMARY.md`, and a paragraph plus `#check` block added to `Book/DiffeomorphismsGravity.lean`. Generated book output under `_out/` is now gitignored rather than tracked.
+
+Still open in the plan and not claimed here: the multi-dimensional composition of QG-2 Case A, items QG-3.2(b), QG-3.3 and the spectral half of QG-3.4, and the one-particle form gap of the gauge-fixed Yang–Mills operator. All work is committed and pushed.
+
+# Summary of changes — §10.2b discharged: the one-particle quantum-gravity Hamiltonian is
+# essentially self-adjoint on the Gauss–polynomial core of `L²(ℝ⁸⁴)`
+
+Continued execution of `CONSOLIDATED_PLAN.md`, taking up its two open frontier items: the
+re-verification the 2026-08-31b merge wave asked for, and the QG essential-self-adjointness
+programme recorded as the strategy of record in §10.2b.
+
+**New module `BookProof/ChapterQg3DGaugeEsa.lean`** (namespace `BookProof.Qg3DGaugeEsa`),
+`sorry`-free and `axiom`-free, imported from `BookProof.lean`, audited in
+`BookProof/ChapterRoadmapAudit.lean` and `#check`-ed from `Book/DiffeomorphismsGravity.lean`.
+
+`ChapterQuantumGravity3DGauge` builds the densitized, Weyl-ordered 3D gauge-fixed gravity
+Hamiltonian `H = ½ Σ_j κ_j π_j² + ½ Σ_m T_m²`, `T_m = ∂_μ e_ν^a − ∂_ν e_μ^a`, on a
+Gauss–polynomial core of `L²(ℝ⁸⁴)` and proves it symmetric there, but stops short of
+self-adjointness: the signature `qgKappa` is hyperbolic (`qgKappa_conformal_neg`), so the
+Friedrichs machinery, which needs a semibounded form, does not apply.  The route that closes
+it turned out to be shorter than the Faris–Lavine comparison operator §10.2b anticipated.
+Each torsion term is a *linear* form in the 84 field coordinates (`sum_torsionVec_X`), so
+`½ Σ_m T_m²` is the quadratic form of the positive-semidefinite Gram matrix
+`qgFqQ = ½ Σ_m v_m v_mᵀ` (`qgFqQ_quadratic_eq`), and the kinetic term is the diagonal
+momentum matrix `qgFqP κ = diag(κ/2)`.  The whole Hamiltonian is therefore an instance of the
+general real quadratic Hamiltonian of `ChapterFullQuadraticEsa`, already known to be
+essentially self-adjoint on the plain Gauss–polynomial core by the Carleman-flux criterion on
+the simplex shells, with no sign, ellipticity or definiteness hypothesis.  What remained was
+the identification, and it is proved at polynomial level (`qgSignedPoly_eq_fqPoly`) and on the
+core of `L²(ℝ⁸⁴)` (`qgSigned_eq_fqOp`).
+
+What is proved:
+
+- **`qgSigned_essentiallySelfAdjointOn_core`** — for *every* real signature `κ` the operator
+  `½ Σ_j κ_j π_j² + ½ Σ_m T_m²` is essentially self-adjoint on the Gauss–polynomial core.
+- **`qg3D_essentiallySelfAdjointOn_core`** — the physical, hyperbolic instance: the closure of
+  `qg3DHamiltonian` is its unique self-adjoint realization.
+- **`qg3D_stone_flow`** — the complete unitary group it generates (Stone).
+- **`qg3DElliptic_essentiallySelfAdjointOn_core`** — the elliptic sector's Friedrichs
+  extension upgraded from existence to uniqueness.
+
+Honest boundary (recorded in the module docstring and in the plan/status notes): this is the
+one-particle `h` of the final-Hamiltonian doctrine, realized on the 84 field-space
+coordinates.  No spectrum, no mass gap and no continuum limit is claimed, and the `dΓ` lift
+does not apply to it — `qgDGamma_esa` needs a *diagonal* one-particle symbol `ω : ℕ → ℝ`,
+which this operator does not supply.  The §10.2a Strichartz route remains the record for the
+continuum gluing.
+
+**Build repairs.**  The 2026-08-31b wave had been merged without ever running `lake`, and it
+was not green.  `BookProof/ChapterBddBelowFiberSumEsa.lean` failed to elaborate (six errors)
+and `BookProof/ChapterRoadmapAudit.lean` was missing the `ChapterBddBelowFiberSumEsa` and
+`ChapterHalfLineLimitCircle` imports that its `#print axioms` lines refer to.  In the book
+layer, `Book/FreeField.lean` had a stray `$` closing an inline-math span and
+`Book/Starobinsky.lean` used Markdown-style `**bold**` (Verso spells bold `*…*`).  All are
+fixed, and `patches/*.sh` had again lost their executable bit, which is restored.  The
+`verso`, `subverso` and `MD4Lean` dependency checkouts under `.lake/packages/` were also
+truncated in this snapshot, so they have to be re-materialized at the revisions pinned in
+`lake-manifest.json` before the book half of the gate can run.
+
+Verification: `lake build` (default targets, 8790 jobs) and `lake build RandomMap`
+(8039 jobs) complete with no errors and no warnings; `./patches/build-book.sh` renders the
+single-page book with its assertions holding and `./patches/check-katex.sh` reports 3390
+snippets and 0 KaTeX failures; no `sorry` and no `axiom` declaration occurs in `BookProof/`,
+`Book/`, `Singularity/`, `RandomMap/` or `Layout/`; every audited theorem, the new ones
+included, depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+Documentation: a dated state update was prepended to `CONSOLIDATED_PLAN.md`, a new
+latest-wave section added to `BookProof/STATUS.md` and `STATUS.md` with their §8 gate
+paragraphs refreshed, and a paragraph plus `#check` block added to
+`Book/DiffeomorphismsGravity.lean`.  Still open in the plan: QG-2's Case A composition into
+the genuinely multi-dimensional operator, QG-3.2(b), QG-3.3 and the spectral half of QG-3.4,
+and the one-particle form gap of the gauge-fixed QYM operator.
+
+# Summary of changes for run b7c9aded-7b04-40e8-b22c-8f77a4222142
+Continued executing `CONSOLIDATED_PLAN.md`, taking up the QG-3.2 operator half exactly along the lines you described: nested Fock spaces, Hamiltonians built from one-particle Hamiltonians that conserve the (outer) particle number, and the observation that this makes a positive **diagonal** comparison operator satisfy the Faris–Lavine criteria for the sum, including for many coupling terms.
+
+**New module `BookProof/ChapterFockDifferingBasesEsa.lean`** (namespace `BookProof.FockDifferingBases`), `sorry`-free and `axiom`-free, imported from `BookProof.lean` and audited in `BookProof/ChapterRoadmapAudit.lean`.
+
+What is proved:
+- `Balanced ω P Q` (`ω(P)+|P| = ω(Q)+|Q|`) says a quadratic hop leaves the comparison symbol `σ(α)=ω(α)+|α|+1` unchanged (`sig_tgt_eq_of_balanced`). **`pairOp_commForm_eq_zero`**: a balanced Hermitian monomial has *identically vanishing* commutator form against the diagonal comparison operator `N = dΓ(ω)+𝒩+1` — the two matrix elements of the Hermitian pair are complex conjugates, so the pair has a real matrix element. Number-conserving exchange terms `a_p†a_q` with `ω p = ω q` (all of them with no free dispersion) are balanced.
+- **`balancedH_essentiallySelfAdjointOn_core`** / **`exchangeH_essentiallySelfAdjointOn_core`**: the free dispersion plus an arbitrary family of such couplings is symmetric, relatively bounded by `N` (`balancedH_norm_le`), commutes with `N` exactly (`balancedH_commForm_eq_zero`), hence is essentially self-adjoint on the finite-particle core, with Faris–Lavine commutator constant `0`. Because the constant is `0`, the weighted summability gate of the existing quadratic-Fock chapter (`∑ₖ‖gₖ‖(ω(Pₖ)+ω(Qₖ)+2)<∞`) degrades to the unweighted `∑ₖ‖gₖ‖<∞`, however large the dispersion.
+- **`spectralFamily_essentiallySelfAdjointOn_core`** (differing bases): a family of one-particle Hermitian operators, each presented in *its own* eigenbasis with no common eigenbasis and no relation between the different bases, gives an essentially self-adjoint Hamiltonian on the finite-particle core as soon as `∑ₖ|λₖ|·‖vₖ‖₁² < ∞` (`specEntry`, `specAmp`, `summable_specAmp`). The finite case (`spectralFamily_finite_…`) and the literal two-operator case (**`sumOfTwo_essentiallySelfAdjointOn_core`**) carry no gate at all.
+- Non-vacuity: `specEntry_ne_zero` (the summands are genuinely non-diagonal in the working alphabet) and `specEntry_not_commute` (two rank-one one-particle operators diagonal in different bases genuinely fail to commute), so the vanishing commutator form is not the trivial commuting case.
+- `nestedFock_essentiallySelfAdjointOn_core`: the same statement when the one-particle space is itself a Fock space — a nested Fock space with an outer-number-conserving Hamiltonian and the outer number operator as comparison operator.
+
+Honest boundary (recorded in the module docstring and in the plan/status notes): the comparison operator is diagonal and the commutator constant is `0`, but the coupling family must still satisfy the *unweighted* `ℓ¹` summability of its amplitudes in the working alphabet — that is what makes the monomial series converge on the maximal domain and supplies the relative bound. No claim is made for an arbitrary bounded non-`ℓ¹` one-particle operator, no spectrum is computed, and the identification with the algebraic `dΓ` of the second-quantization chapter (a different model of the same Fock space) is not carried out.
+
+Verification: `lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings (8577 jobs); no `sorry`/`admit` and no new `axiom` in the new file; every public result is audited with `#print axioms` and depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+Documentation: a dated state update was prepended to `CONSOLIDATED_PLAN.md`, a new latest-wave section added to `BookProof/STATUS.md`, and a new section prepended to `ARISTOTLE_SUMMARY.md` (earlier content untouched). Still open in the plan: QG-2's Case A composition into the full multi-dimensional operator, and items QG-3.2(b), QG-3.3, QG-3.4. All work is committed and pushed.
+
+# Summary of changes — QG-3.2 operator half: sums of one-particle Hamiltonians in
+# **differing bases**, via Faris–Lavine with a positive *diagonal* `N`
+
+Continued execution of `CONSOLIDATED_PLAN.md`, taking up the route described in
+`DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md` and the observation that a Hamiltonian built
+from one-particle Hamiltonians conserves the (outer) particle number.
+
+**New module `BookProof/ChapterFockDifferingBasesEsa.lean`** (namespace
+`BookProof.FockDifferingBases`), `sorry`-free and `axiom`-free, imported from
+`BookProof.lean` and audited in `BookProof/ChapterRoadmapAudit.lean`.
+
+The point of the wave: when two (or many) Hermitian one-particle Hamiltonians are each
+diagonal only in *their own* basis, their second quantizations are non-diagonal and do not
+commute — but the operator that has to be compared against in Faris–Lavine is not one of
+them, it is the comparison operator `N`.  Since every term is built from one-particle
+operators, every term conserves the particle number, so the commutator with the *diagonal*
+`N = dΓ(ω) + 𝒩 + 1` is **exactly zero**, and Nelson's commutator theorem applies with
+constant `c = 0`.
+
+* **Balanced hops.**  `Balanced ω P Q : ω(P) + |P| = ω(Q) + |Q|` says the monomial
+  `a^{†P}a^{Q}` leaves the comparison symbol `σ(α) = ω(α) + |α| + 1` unchanged
+  (`sig_tgt_eq_of_balanced`).  **`pairOp_commForm_eq_zero`**: for a balanced hop the
+  Hermitian combination `g a^{†P}a^{Q} + conj(g) a^{†Q}a^{P}` has *identically vanishing*
+  commutator form — the two matrix elements of the pair are complex conjugates of one
+  another, so the combination has a real matrix element.  Exchange terms `a_p†a_q` with
+  `ω p = ω q` (all of them when the dispersion is absent) are balanced (`balanced_xIdx`).
+* **The summability gate degrades.**  `ChapterFockQuadraticEsa` proves essential
+  self-adjointness of a general quadratic Fock Hamiltonian under the *weighted*
+  `∑ₖ ‖gₖ‖(ω(Pₖ) + ω(Qₖ) + 2) < ∞`, the weights coming from its commutator constant.  With
+  the constant `0` the weights disappear: **`balancedH_essentiallySelfAdjointOn_core`** and
+  **`exchangeH_essentiallySelfAdjointOn_core`** need only the unweighted `∑ₖ ‖gₖ‖ < ∞`,
+  however large the free dispersion.  Supporting results: `balancedH_symmetricOn`,
+  `balancedH_norm_le` (the relative bound), `balancedH_commForm_eq_zero`,
+  `exchangeH_commForm_eq_zero`.
+* **Differing bases.**  `specEntry` gives the working-alphabet matrix of a one-particle
+  operator `λ|v⟩⟨v|` presented in its own basis, `specAmp` assembles a whole family of them
+  and `summable_specAmp` proves the gate from data attached to each operator separately.
+  **`spectralFamily_essentiallySelfAdjointOn_core`** — the headline — needs no common
+  eigenbasis and no relation whatsoever between the bases of different summands:
+  `∑_k |λ_k|·‖v_k‖₁² < ∞` suffices.  `spectralFamily_finite_essentiallySelfAdjointOn_core`
+  (finitely many spectral components) and **`sumOfTwo_essentiallySelfAdjointOn_core`** (the
+  literal two-operator case) carry no gate at all.
+* **Non-vacuity.**  `specEntry_ne_zero` (the summands are genuinely non-diagonal in the
+  working alphabet) and `specEntry_not_commute` (two rank-one one-particle operators
+  diagonal in different bases genuinely fail to commute), so the vanishing of the
+  commutator form is not the trivial statement that the summands commute with each other.
+* **Nested Fock spaces.**  The mode set is arbitrary, so it may itself be the configuration
+  set of an inner Fock space: `nestedFock_essentiallySelfAdjointOn_core` states the result
+  for a Hamiltonian on a Fock space over a Fock space, conserving the outer particle
+  number, with the outer number operator as comparison operator.
+
+**Honest boundary.**  The comparison operator is diagonal and the commutator constant is
+`0`; what the coupling family must still satisfy is the *unweighted* `ℓ¹` summability of
+its amplitudes in the working alphabet — this is what makes the series of monomials
+converge on the maximal domain and yields the relative bound.  Nothing here claims
+essential self-adjointness of `dΓ(h)` for an arbitrary bounded, non-`ℓ¹` one-particle `h`,
+and nothing computes a spectrum.  The operators are the monomial series of
+`ChapterFockQuadraticEsa` on `ℓ²(ι →₀ ℕ)`; the identification with the algebraic `dΓ` of
+`ChapterFockSecondQuantization` (a different model of the same Fock space) is not carried
+out.
+
+**Verification.**  `lake build BookProof BookProof.ChapterRoadmapAudit` completes with no
+errors and no warnings; a search finds no `sorry`/`admit` in the new file and no new
+`axiom`; every public result of the module is audited by `#print axioms` and depends only
+on `propext`, `Classical.choice`, `Quot.sound`.  Dated notes were added to
+`CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`; earlier sections of this file are left
+untouched.
+
+**Still open in the plan:** QG-2's Case A composition into the full multi-dimensional
+operator, and plan items QG-3.2(b), QG-3.3 and QG-3.4.
+
+---
+
+# Summary of changes for run 9d177de4-23a0-48ef-8d43-8fb0533009c1
+Continued execution of `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**What landed this session — QG-2 Case A's one-dimensional input.**
+
+New module `BookProof/ChapterBddBelowWallEsa.lean` (namespace `BookProof.BddBelowWallEsa`), `sorry`-free and axiom-free:
+
+> `−d²/dx² + V` is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)` for **every smooth real potential `V` bounded below** — no growth hypothesis and no sign hypothesis.
+
+This closes the gap between the two sides of the project's existing dichotomy: `BookProof/ChapterScalaronWallEsa.lean` needed `V ≥ 0` (its proof is a convexity argument that breaks the instant `V` dips below `0`), while `ChapterLimitCircleExample` and `ChapterConformalFiberDeficiency` show the conclusion is genuinely false for potentials unbounded below. The hypothesis that actually decides the matter is boundedness below.
+
+The proof replaces convexity by a cutoff energy estimate. For a classical `L²` solution of `W'' = (V − z)W` with `Re z = 0`, `Im z ≠ 0`, `V ≥ −K`, and `ζ_r(x) = g(x/r)` a rescaled bump (`|ζ_r'| ≤ M/r`), the compactly supported `ζ_r²·conj(W)·W'` integrates its derivative to zero. Its real part, with a pointwise Young inequality, bounds the cutoff kinetic energy `∫ζ_r²|W'|² ≤ 4M²‖W‖² + 2K‖W‖²` uniformly in `r ≥ 1` (the only place the lower bound is used); its imaginary part then gives `|Im z|·∫ζ_r²|W|² ≤ (C + M²‖W‖²)/r → 0`, and since `∫_{[−r,r]}|W|² ≤ ∫ζ_r²|W|²`, letting `r → ∞` forces `W ≡ 0`.
+
+Results proved: `ode_solution_eq_zero_of_bddBelow` (the ODE step), `wallHam_deficiencyTrivialAt_of_bddBelow`, `wallHam_essentiallySelfAdjoint_of_bddBelow`, its `BddBelow (Set.range V)` form `wallHam_essentiallySelfAdjoint_of_bddBelow'`, and `wallHam_essentiallySelfAdjoint_of_nonneg` (the non-negative case recovered as the corollary `K = 0`). The module also contributes reusable cutoff infrastructure (`bumpG`, `bumpM`, `zeta`, `zeta'`, their compact-support and derivative-bound lemmas) and the weighted integration-by-parts derivative lemmas (`hasDerivAt_wronsk`, `wronsk_deriv_re`/`_im`, `hasDerivAt_reWeighted`/`_imWeighted`).
+
+Only sufficiency is claimed: boundedness below implies essential self-adjointness on this core; the converse is false in general and is asserted nowhere.
+
+**Verification.** `lake build BookProof BookProof.ChapterRoadmapAudit` completes successfully (8576 jobs) with no errors and no warnings; a search for `sorry`/`admit` over the Lean sources finds only prose mentions in docstrings; every new public result is audited by `#print axioms` in `BookProof/ChapterRoadmapAudit.lean` and depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` and `BookProof/ChapterRoadmapAudit.lean`, each with an explanatory comment block and `#print axioms` lines. A dated state update was prepended to `CONSOLIDATED_PLAN.md`, a new latest-wave section added to `BookProof/STATUS.md`, and a new section prepended to `ARISTOTLE_SUMMARY.md` (earlier sections left untouched). All work is committed and pushed.
+
+**Still open in the plan:** QG-2's Case A composition into the full multi-dimensional operator, and plan items QG-3.2(b), QG-3.3 and QG-3.4.
+
+
+# Summary of changes — QG-2 Case A: `-d^2/dx^2 + V` is essentially self-adjoint for every
+# smooth potential **bounded below**
+
+Continued execution of `CONSOLIDATED_PLAN.md`.  This wave lands the one-dimensional input of
+QG-2's Case A and makes the sign dichotomy of the previous waves sharp.
+
+**New module `BookProof/ChapterBddBelowWallEsa.lean`** (namespace `BookProof.BddBelowWallEsa`),
+`sorry`-free and `axiom`-free, imported from `BookProof.lean` and audited in
+`BookProof/ChapterRoadmapAudit.lean`.
+
+`BookProof/ChapterScalaronWallEsa.lean` proves essential self-adjointness of `-d^2/dx^2 + V`
+on the compactly supported smooth core of `L^2(R)` for smooth `V >= 0`, via convexity of
+`|W|^2`; the convexity breaks as soon as `V` dips below `0`.  The counterexample modules
+`ChapterLimitCircleExample` and `ChapterConformalFiberDeficiency` show the conclusion is
+genuinely false for potentials unbounded below.  This wave closes the gap: **boundedness
+below is enough**, with no growth condition and no sign condition.
+
+* **The argument (a cutoff energy estimate).**  Let `W` be a classical `L^2` solution of
+  `W'' = (V - z)W` with `Re z = 0`, `Im z != 0`, `V >= -K`, and let `zeta_r(x) = g(x/r)` for a
+  fixed bump `g` equal to `1` on `[-1,1]` and supported in `[-2,2]`, so `|zeta_r'| <= M/r`.
+  The function `zeta_r^2 * conj(W) * W'` is `C^1` with compact support, so the integral of its
+  derivative vanishes.
+  * *Real part*: `int zeta_r^2 |W'|^2 + int zeta_r^2 V |W|^2 = -2 int zeta_r zeta_r' Re(conj(W)W')`,
+    and the pointwise Young inequality
+    `2|zeta_r zeta_r'||W||W'| <= (1/2) zeta_r^2 |W'|^2 + 2 zeta_r'^2 |W|^2` yields the uniform
+    bound `int zeta_r^2 |W'|^2 <= 4M^2 ||W||^2 + 2K ||W||^2 =: C` for all `r >= 1`.  This is
+    the only place the lower bound on `V` is used.
+  * *Imaginary part*: `|Im z| int zeta_r^2 |W|^2 = |2 int zeta_r zeta_r' Im(conj(W)W')|
+    <= (1/r) int zeta_r^2 |W'|^2 + r int zeta_r'^2 |W|^2 <= (C + M^2 ||W||^2)/r`.
+  Taking `r = n+1 -> infinity` and using `int_{[-r,r]} |W|^2 <= int zeta_r^2 |W|^2` forces
+  `||W||^2 = 0`, hence `W = 0` everywhere by continuity.
+* **What is proved.**
+  * `ode_solution_eq_zero_of_bddBelow` — the ODE step above;
+  * `wallHam_deficiencyTrivialAt_of_bddBelow` — trivial deficiency space at every purely
+    imaginary `z != 0`;
+  * **`wallHam_essentiallySelfAdjoint_of_bddBelow`** — `-d^2/dx^2 + V` is essentially
+    self-adjoint on the compactly supported smooth core of `L^2(R)` for every smooth `V`
+    bounded below;
+  * `wallHam_essentiallySelfAdjoint_of_bddBelow'` — the same with the hypothesis phrased as
+    `BddBelow (Set.range V)`;
+  * `wallHam_essentiallySelfAdjoint_of_nonneg` — the non-negative case recovered as the
+    corollary `K = 0`;
+  * reusable cutoff infrastructure (`bumpG`, `bumpM`, `abs_bumpG'_le`, `zeta`, `zeta'`,
+    `zeta_one`, `hasCompactSupport_zeta`, `hasCompactSupport_zeta'`,
+    `hasCompactSupport_zeta_sq`, `hasCompactSupport_zeta'_sq`, `abs_zeta'_le`) and the
+    weighted integration-by-parts derivative lemmas (`hasDerivAt_wronsk`, `wronsk_deriv_re`,
+    `wronsk_deriv_im`, `hasDerivAt_reWeighted`, `hasDerivAt_imWeighted`).
+* **Scope.**  Only sufficiency is claimed: boundedness below implies essential self-adjointness
+  on this core; the converse is false in general and is not asserted anywhere.
+
+Documentation updated: a dated state update prepended to `CONSOLIDATED_PLAN.md`, a new latest
+wave section in `BookProof/STATUS.md`, and the import comment blocks in `BookProof.lean` and
+`BookProof/ChapterRoadmapAudit.lean` (with `#print axioms` lines for every public result).
+
+---
+
+# Summary of changes — QG-2 Case B, the conformal fiber: a non-negative exponential wall
+# does **not** restore essential self-adjointness at the wrong kinetic sign
+
+Continued execution of `CONSOLIDATED_PLAN.md`.  This wave lands the conformal-fiber form of
+QG-2's Case B.
+
+**New module `BookProof/ChapterConformalFiberDeficiency.lean`** (namespace
+`BookProof.ConformalFiberDeficiency`), `sorry`-free and `axiom`-free.
+
+The previous wave produced *an* explicit smooth real potential that is not essentially
+self-adjoint (asymptotically `-x^4/4`).  Case B, though, is about a specific geometry: the
+densitized conformal direction carries the **wrong-sign** kinetic term `(1/24) d^2/dy^2`
+together with the **non-negative** Starobinsky exponential wall, and the open question is
+whether the wall rescues essential self-adjointness there.  It does not.
+
+* **The rescaling.**  `-24*((1/24) d^2/dy^2 + U + 1/32) = -d^2/dy^2 + V` with
+  `V = -24(U + 1/32)`, so the wrong-sign fiber with a non-negative wall is, up to a positive
+  factor and the overall sign, a standard Schrodinger operator whose potential is unbounded
+  below exponentially at `-infinity` and constant at `+infinity`.
+* **The construction.**  Running the ODE backwards again: for `W = e^{p+iq}`, `W` solves
+  `W'' = (V - i)W` with `V = p'' + p'^2 - q'^2` real exactly when `q'' + 2p'q' = -1`.  The
+  *exponential* phase `q'(y) = 1 + e^{-y}` forces `p'(y) = -(1/2) tanh(y/2)`, i.e.
+  `p(y) = -log cosh(y/2)`, and `|W(y)|^2 = 1/cosh^2(y/2) <= 4/(1+y^2)` is integrable.
+* **The potential.**  `cfV y = 1/4 - 1/(2 cosh^2(y/2)) - (1 + e^{-y})^2`: smooth
+  (`contDiff_cfV`), `<= 1/4 - e^{-2y}` everywhere (`cfV_le`), tending to `-infinity` at
+  `-infinity` (`cfV_tendsto_atBot`) and to `-3/4` at `+infinity` (`cfV_tendsto_atTop`) — the
+  limit-circle / limit-point profile Case B describes.
+* **The wall form.**  `cfWall = -cfV/24 - 1/32` is a genuine non-negative wall:
+  `cfWall_nonneg`, `cfWall_ge_exp` (`>= e^{-y}/12`), `cfWall_tendsto_atBot` (exponential wall),
+  `cfWall_tendsto_atTop` (plateau `0`), and `cfV_eq_wall` (`cfV = -24(cfWall + 1/32)`).
+* **The theorems.**  `cfSol_isL2Ode`, `cfSol_ne_zero`, `cfV_not_deficiencyTrivialAt_I`,
+  `cfV_not_deficiencyTrivialAt_negI` (both deficiency indices, via the previous module's
+  `deficiencyTrivialAt_conj_iff`), **`cfV_not_essentiallySelfAdjoint`**, and the packaged
+  **`exists_wall_potential_wrongSign_not_essentiallySelfAdjoint`**.
+
+**Honest boundary.**  What is settled is the shape claim: with the conformal direction's wrong
+sign, a non-negative exponential wall with a plateau does not make the operator essentially
+self-adjoint on the compactly supported smooth core — the kinetic sign, not the wall, decides.
+The deficiency indices of the manuscript's densitized conformal operator itself (whose wall is
+the specific Starobinsky `K(1 - e^{-a phi})^2`) are **not** computed, and no claim is made
+about the full quantum-gravity operator; the link to the wrong-sign fiber is recorded at the
+level of the potential (`cfV_eq_wall`), the operator in the Lean statements always being the
+standard `wallHam`, `-d^2/dy^2 + V`.  QG-2's Case A composition and plan items
+QG-3.2(b)/3.3/3.4 remain open.
+
+**Wiring and verification.**  Imported from `BookProof.lean` with an explanatory comment block
+and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines; every public result
+reports only `propext`, `Classical.choice`, `Quot.sound`.
+`lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings,
+and a search finds no `sorry`/`admit` in the new file and no new `axiom`.  Dated notes were
+added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`.
+
+---
+
+# Summary of changes for run 24d65fbe-4156-490b-bdbc-31a846b43e25
+Continued executing `CONSOLIDATED_PLAN.md`, landing the QG-2 "Case B" item in two waves, and updated `ARISTOTLE_SUMMARY.md` (prepended a new section, leaving prior content untouched), `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`.
+
+**Wave 1 — the deficiency space of `−d²/dx² + V` *is* its space of `L²` classical solutions.**
+New module `BookProof/ChapterWallDeficiencyObstruction.lean`. The project already had one half of the classical Weyl alternative (every deficiency vector is a.e. a classical solution of `W'' = (V − z)W`). This wave proves the converse and closes the loop:
+- `integral_conj_deriv2_mul` — double integration by parts against a compactly supported `C²` weight, `∫ conj(φ'')·W = ∫ conj(φ)·W''`, with no boundary terms (obtained by differentiating the Wronskian-type combination `conj(φ)·W' − conj(φ')·W`, which has compact support).
+- `IsL2Ode` / `inner_eq_of_ode` — a square-integrable classical solution satisfies the deficiency identity `⟪Hv, W⟫ = z⟪v, W⟫` for every `v` in the compactly supported smooth core.
+- `not_deficiencyTrivialAt_of_l2_solution` and **`deficiencyTrivialAt_iff_no_l2_solution`** — the two-way characterisation, for every smooth real `V` and every `z`.
+- `isL2Ode_conj`, `deficiencyTrivialAt_conj_iff` (for real `V` the two deficiency spaces stand or fall together), `not_essentiallySelfAdjointOn_of_l2_solution`, `no_l2_solution_of_nonneg`, and a worked instance (`gaussianState_isL2Ode`, `not_deficiencyTrivialAt_harmonicShifted_zero`) confirming the criterion is not vacuous.
+
+**Wave 2 — an explicit smooth real potential that is *not* essentially self-adjoint.**
+New module `BookProof/ChapterLimitCircleExample.lean`. The plan's sign warning (that the wrong-sign direction is limit-circle and essential self-adjointness fails) was an informal appeal to `−d²/dx² − x⁴`, which has no closed-form solution. Running the problem backwards — writing `W = e^{p+iq}` and choosing `q'(x) = −(1+x²)/2`, which forces `p(x) = arctan x − ½log(1+x²)` — makes the imaginary part of `W''/W` identically `−1`, so `W` solves `W'' = (V − i)W` for the smooth real potential `lcV x = (2x²−4x)/(1+x²)² − (1+x²)²/4` (asymptotically `−x⁴/4`), and `‖W x‖² = e^{2·arctan x}/(1+x²) ≤ e^π/(1+x²)` is integrable. Results: `lcSol_isL2Ode`, `lcV_not_deficiencyTrivialAt_I`, `lcV_not_deficiencyTrivialAt_negI` (both deficiency spaces nontrivial), **`lcV_not_essentiallySelfAdjoint`**, and `exists_smooth_potential_not_essentiallySelfAdjoint`. This makes the sign warning a theorem: the non-negativity hypothesis of the existing essential self-adjointness result for `−d²/dx² + V` is not removable.
+
+**Honest boundary.** What is settled is the general characterisation and the concrete counterexample; the deficiency indices of the densitized conformal operator itself are not computed, and no claim is made about the full quantum-gravity operator. The plan's remaining items (QG-2's Case A composition, QG-3.2(b)/3.3/3.4) stay open and are recorded as such.
+
+**Verification.** Both modules are `sorry`-free and `axiom`-free, imported from `BookProof.lean` with explanatory comment blocks and audited in `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines; every public result reports only `propext`, `Classical.choice`, `Quot.sound`. `lake build BookProof BookProof.ChapterRoadmapAudit` completes with 0 errors and 0 warnings (8574 jobs), and a search finds no `sorry`/`admit` in the new files. All work is committed and pushed.
+
+# Summary of changes — QG-2 Case B, part 2 (an explicit non-essentially-self-adjoint
+# Schrödinger operator)
+
+Second wave of this run.  Having reduced "the deficiency space is nontrivial" to "exhibit one
+square-integrable classical solution", this wave *exhibits* one, for an explicit smooth real
+potential.
+
+**New module `BookProof/ChapterLimitCircleExample.lean`** (namespace
+`BookProof.LimitCircleExample`), `sorry`-free and `axiom`-free.
+
+`CONSOLIDATED_PLAN.md`'s QG-2 sign warning says the wrong-sign direction is limit-circle and
+essential self-adjointness fails there — but that was an informal appeal to the classical
+`−d²/dx² − x⁴` example, which has no closed-form solution.  The module constructs a
+computable substitute by running the problem backwards.
+
+* **The construction.**  For `W = e^{p+iq}` with `p, q` real,
+  `W''/W = (p'' + p'² − q'²) + i(q'' + 2p'q')`.  So `W` solves `W'' = (V − i)W` for the *real*
+  potential `V = p'' + p'² − q'²` precisely when `q'' + 2p'q' = −1`, and `W` is square
+  integrable precisely when `e^{2p}` is — the phase `q` does not affect the modulus.  Taking
+  `q'(x) = −(1+x²)/2` forces `p'(x) = (1−x)/(1+x²)`, i.e. `p(x) = arctan x − ½ log(1+x²)`,
+  and then `‖W(x)‖² = e^{2 arctan x}/(1+x²) ≤ e^{π}/(1+x²)` is integrable.
+* **The potential** is `lcV x = (2x² − 4x)/(1+x²)² − (1+x²)²/4`: smooth (`contDiff_lcV`),
+  real, and asymptotically `−x⁴/4` — the limit-circle profile, obtained constructively.
+* **The results.**  `lcSol_isL2Ode` (the explicit solution at `z = i`), `lcSol_ne_zero`,
+  `lcV_not_deficiencyTrivialAt_I` and `lcV_not_deficiencyTrivialAt_negI` — *both* deficiency
+  spaces are nontrivial, via `deficiencyTrivialAt_conj_iff` (added to the previous module: for
+  a real potential, conjugation is an antiunitary bijection between the solution spaces at `z`
+  and at `conj z`) — **`lcV_not_essentiallySelfAdjoint`** and
+  `exists_smooth_potential_not_essentiallySelfAdjoint`.
+
+**What this settles.**  The non-negativity hypothesis of `wallHam_essentiallySelfAdjoint` is
+not removable: for smooth real potentials on the line it is the sign, not the growth, that
+decides essential self-adjointness on the compactly supported smooth core.  That is exactly
+the QG-2 sign warning, now a theorem.  It does **not** compute the deficiency indices of the
+densitized conformal operator itself, and makes no claim about the full QG operator; QG-2's
+Case A composition and plan items QG-3.2(b)/3.3/3.4 remain open.
+
+**Wiring and verification.**  Imported from `BookProof.lean` with an explanatory comment block
+and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines; all four public
+results report only `propext`, `Classical.choice`, `Quot.sound`.
+`lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings
+(8574 jobs), and `rg` finds no `sorry`/`admit` in the new file and no new `axiom`.
+
+---
+
+# Summary of changes — QG-2 "Case B" (the deficiency space of `−d²/dx² + V`)
+
+Continued execution of `CONSOLIDATED_PLAN.md`.  This run lands the QG-2 "Case B" reduction:
+the deficiency space of the one-dimensional Schrödinger operator on the compactly supported
+smooth core **is** its space of square-integrable classical ODE solutions.
+
+**New module `BookProof/ChapterWallDeficiencyObstruction.lean`** (namespace
+`BookProof.WallDeficiencyObstruction`), `sorry`-free and `axiom`-free.
+
+`BookProof/ChapterScalaronWallEsa.lean` had proved one direction of the classical Weyl
+alternative — every deficiency vector of `−d²/dx² + V` at `z` is almost everywhere a genuine
+`C²` solution of `W'' = (V − z)W`, and for `V ≥ 0` with `Re z = 0` such a solution vanishes,
+whence essential self-adjointness.  The converse was missing, and it is what QG-2's Case B
+needs: to *fail* essential self-adjointness one must exhibit a square-integrable solution.
+
+* **Double integration by parts.**  `integral_conj_deriv2_mul`: for a compactly supported
+  twice-differentiable weight `φ` and a twice-differentiable `W` with continuous second
+  derivative, `∫ conj(φ'')·W = ∫ conj(φ)·W''`, no boundary terms.  The proof differentiates
+  the Wronskian-type combination `conj(φ)·W' − conj(φ')·W`, which is continuous with compact
+  support, and integrates its derivative to zero.
+* **Solution ⇒ deficiency vector.**  `IsL2Ode V z W` names "square-integrable classical
+  solution of `W'' = (V − z)W`"; `inner_eq_of_ode` shows that such a `W` satisfies
+  `⟪(−d²/dx² + V)v, W⟫ = z⟪v, W⟫` for every `v` in the core, and
+  `not_deficiencyTrivialAt_of_l2_solution` concludes that a nonzero solution obstructs
+  triviality of the deficiency space at `z`.
+* **The characterisation.**  `deficiencyTrivialAt_iff_no_l2_solution`: for every smooth real
+  `V` and every `z` — no positivity, no growth condition, `z` arbitrary — the deficiency
+  space at `z` is trivial if and only if the ODE has no nonzero `L²` solution.
+* **Consequences.**  `isL2Ode_conj` (for real `V`, conjugation carries solutions at `z` to
+  solutions at `conj z`), `not_essentiallySelfAdjointOn_of_l2_solution` (one nonzero solution
+  at `i` already refutes essential self-adjointness) and `no_l2_solution_of_nonneg` (the
+  consistency check against the `V ≥ 0` theorem).
+* **Non-vacuity.**  `gaussianState_isL2Ode` and `not_deficiencyTrivialAt_harmonicShifted_zero`
+  work an explicit instance: for `V(x) = x² − 1` the Gaussian `e^{−x²/2}` is a square-
+  integrable classical solution at `z = 0`, so the deficiency space there is nontrivial.
+  Since `z = 0` is real this records an eigenvalue rather than a failure of self-adjointness,
+  but it shows the hypotheses of the obstruction theorem are satisfiable.
+
+**Honest boundary.**  No `L²` solution at a non-real `z` is exhibited for any conformal-
+direction potential, so the plan's Case B deficiency-(1,1) claim is *reduced* to a one-line
+ODE statement in both directions, not settled.  QG-2's Case A composition and plan items
+QG-3.2(b)/3.3/3.4 remain open.
+
+**Wiring and verification.**  The module is imported from `BookProof.lean` with an explanatory
+comment block and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines for all
+nine public results; every one reports only `propext`, `Classical.choice`, `Quot.sound`.
+`lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings
+(8573 jobs), and `rg` finds no `sorry`/`admit` in the new file and no new `axiom`.  Dated
+notes were added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`.
+
+---
+
+# Summary of changes — QYM-1 task 3 (matrix-element criteria for the one-particle gap)
+
+Continued execution of `CONSOLIDATED_PLAN.md`.  This run lands QYM-1 **task 3**: "`λ₁(H₁|core) > 0`
+(strict positivity, not just non-negativity) is the mathematical claim to establish or to leave as
+the single named hypothesis."
+
+**New module `BookProof/ChapterSchurGershgorinGap.lean`** (namespace `BookProof.SchurGershgorin`),
+`sorry`-free and `axiom`-free.
+
+The previous wave (`ChapterTruncationGapLift`) reduced the core form gap of the infinite
+one-particle operator to a certified truncated gap plus two analytic inputs — tail coercivity and a
+coupling bound — which it left as hypotheses.  Both are now **proved from matrix-element data**, the
+numbers `aᵢⱼ = ⟪bᵢ, H bⱼ⟫` a certificate records:
+
+* **Gershgorin (diagonal dominance ⇒ coercivity).**  `quadForm_sum_ge` — on a finite combination,
+  each mode contributes at least its diagonal entry minus its off-diagonal absolute row sum; the
+  proof is the exact energy expansion plus `2‖cᵢ‖‖cⱼ‖ ≤ ‖cᵢ‖² + ‖cⱼ‖²` and the index swap
+  `sum_off_diag_comm`, where the Hermitian symmetry of the entries (`entry_conj`,
+  `norm_entry_symm`) is used.  `quadForm_ge_of_gershgorin_on` transfers this to the span of an
+  arbitrary index set, `quadForm_ge_of_gershgorin` to the whole finite-mode core, and
+  `tail_coercive_of_gershgorin` to `tailSpan b m` — the tail coercivity the lift assumes.
+* **Schur test ⇒ coupling bound.**  `abs_inner_block_le` — if every row sum and every column sum of
+  the off-diagonal block `{i < m} × {m ≤ j}` is at most `ε`, then `|⟪x, H w⟫| ≤ ε‖x‖‖w‖`, by the
+  weighted AM–GM with the optimal weight `t = ‖w‖/‖x‖`; `coupling_bound_of_schur` is the real-part
+  form the lift consumes.
+* **Composition.**  `gap_of_level_gap_and_matrix_bounds` — certified order-`m` gap plus the two
+  matrix-element criteria give the core form gap `μ − ε`; `strict_pos_of_matrix_bounds` — for
+  `ε < μ` the one-particle energy is strictly positive on every nonzero core vector, which is
+  task 3's claim in the form the chain consumes.  `ym_fock_gap_of_truncated_gap_and_matrix_bounds`
+  and `ym_fock_mass_gap_of_truncated_gap_and_matrix_bounds` run the same data through the
+  gauge-fixed Yang–Mills `dΓ` chain.
+* Supporting calculus: `bvec`, `entry`, `exists_repr_of_mem_span_image`, `norm_sq_sum`,
+  `inner_sum_apply_sum`, `quadForm_sum`.
+
+**Wiring and verification.**  The module is imported from `BookProof.lean` with an explanatory
+comment block and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms` lines for all
+seventeen public results; every one reports only `propext`, `Classical.choice`, `Quot.sound`.
+`lake build BookProof BookProof.ChapterRoadmapAudit` completes with no errors and no warnings
+(8572 jobs), and `rg` finds no `sorry`/`admit` in the new file and no new `axiom`.  Dated notes were
+added to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`.
+
+**Honest boundary.**  What is proved is the implication.  Whether the gauge-fixed Yang–Mills matrix
+elements satisfy diagonal dominance on the tail and the Schur bound on the coupling block is not
+decided here — but it is now a computation on finite recorded data of the kind the certificate
+already reports, rather than an assumption about the spectrum.  No mass gap of a physical
+Yang–Mills Hamiltonian is claimed.  Plan items QG-2 and QG-3.2(b)/3.3/3.4 remain open.
+
+# Summary of changes for run f9525e8a-9f9a-4ae7-bc61-c1497a072d12
+Continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Completed and verified this session**
+
+1. **Finished and recorded the previous wave.** The two modules from the earlier checkpoint — `BookProof/ChapterQgDerivativeRealization.lean` (plan item QG-3.2-exec (ii), the concrete 84-dimensional derivative-variable realization fixing `E = ∂e`) and `BookProof/ChapterSirkBandLedger.lean` (QYM-1 task 1, emitted bands are nested-compatible enclosures) — were confirmed to build cleanly as part of the full default build, and the accompanying notes were added to `CONSOLIDATED_PLAN.md`, `BookProof/STATUS.md` and a new section at the top of `ARISTOTLE_SUMMARY.md`.
+
+2. **New: QYM-1 task 2 — `BookProof/ChapterTruncationGapLift.lean`** (namespace `BookProof.TruncationGapLift`), the bridge from a *certified truncated* gap to the *infinite* one-particle operator and on to the second-quantized Hamiltonian. `tailSpan b m` (the span of the basis vectors the order-`m` truncation never sees) is proved orthogonal to `galerkinSpan b m` and, together with it, to exhaust the finite-mode core, so each core vector splits as `v = x + w` with `‖v‖² = ‖x‖² + ‖w‖²`. On that split:
+   * `gap_of_uniform_truncated_gap` — a gap holding at *every* order with the same constant gives the core form gap outright, with no analytic input;
+   * `gap_of_level_gap_and_tail` — a gap certified at a *single* order, plus tail coercivity `⟪w,Hw⟫ ≥ μ‖w‖²` and a coupling bound `|Re⟪x,Hw⟫| ≤ ε‖x‖‖w‖`, gives the core form gap `μ − ε`; `quadForm_add_of_symmetricOn` is the exact block identity behind it, and `gap_of_level_gap_and_tail_decoupled` is the `ε = 0` case;
+   * `quadForm_ge_of_le_ritzInf_on` and `gap_of_le_ritzInf_and_tail` restate the input in the Ritz form a certificate delivers;
+   * `ym_fock_gap_of_truncated_gap_and_tail`, `ym_fock_mass_gap_of_truncated_gap_and_tail` and `ym_fock_gap_of_band_and_tail` compose the lift with the gauge-fixed Yang–Mills chain, the last starting from a certified band so no displayed Ritz value is ever read as a lower bound.
+
+   Honest boundary, stated in the module and the notes: tail coercivity and the coupling bound are **hypotheses**, not conclusions — the named analytic input of QYM-1 task 3 — and are not proved for the Yang–Mills one-particle operator; no mass gap of a physical Yang–Mills Hamiltonian is claimed.
+
+**Verification.** The new module contains no `sorry`/`admit` and adds no axioms; it is imported from `BookProof.lean` with an explanatory comment block and audited in `BookProof/ChapterRoadmapAudit.lean`, where all thirteen public results report only `propext`, `Classical.choice`, `Quot.sound`. `lake build BookProof BookProof.ChapterRoadmapAudit` and the full default build (8781 jobs) both complete with zero errors and no new warnings.
+
+**Documentation.** Dated sections describing the new wave were prepended to `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md`, and a new run section was prepended to `ARISTOTLE_SUMMARY.md` (its existing content left untouched).
+
+Plan items still open: QYM-1 task 3 (strict positivity `λ₁(H₁|core) > 0`, which the plan permits leaving as the single named hypothesis — it now has an explicit sufficient condition attached), QG-2, and QG-3.2(b)/3.3/3.4.
+
+# Summary of changes — QYM-1 task 2 (truncated → infinite gap lift)
+
+Continued execution of `CONSOLIDATED_PLAN.md` with QYM-1 **task 2**: "prove the
+finite/truncated one-particle gap certified by the bands lifts to the infinite one-particle
+operator and then (via `dGamma`) to the outer-enclosed final Hamiltonian".
+
+**New module `BookProof/ChapterTruncationGapLift.lean`** (namespace
+`BookProof.TruncationGapLift`), `sorry`-free and `axiom`-free.
+
+* **The split.**  `tailSpan b m` is the span of the basis vectors the order-`m` truncation
+  never sees.  It is orthogonal to `galerkinSpan b m`
+  (`inner_eq_zero_of_mem_galerkin_tail`) and together they exhaust the finite-mode core
+  (`galerkinSpan_sup_tailSpan`), so every core vector splits as `v = x + w` with
+  `‖v‖² = ‖x‖² + ‖w‖²` (`exists_galerkin_tail_decomp`, `norm_add_sq_of_galerkin_tail`).
+* **The cheap half.**  `gap_of_uniform_truncated_gap` — a gap holding at *every* order with
+  the same `μ` gives the core form gap with no analytic input at all, because every core
+  vector already lies in some Galerkin subspace.
+* **The real half.**  `gap_of_level_gap_and_tail` — a gap certified at a *single* order
+  `m`, plus tail coercivity `⟪w, H w⟫ ≥ μ‖w‖²` on `tailSpan b m` and a coupling bound
+  `|Re⟪x, H w⟫| ≤ ε‖x‖‖w‖` across the split, gives the core form gap `μ − ε`.  The estimate
+  is `2‖x‖‖w‖ ≤ ‖x‖² + ‖w‖²` applied to the *identity* `quadForm_add_of_symmetricOn`, so
+  the coupling term is not an error term one may drop; `gap_of_level_gap_and_tail_decoupled`
+  is the `ε = 0` case.
+* **In the certificate's shape.**  `quadForm_ge_of_le_ritzInf_on` converts a Ritz bound on a
+  truncation subspace into a form bound there, and `gap_of_le_ritzInf_and_tail` is the lift
+  with the Ritz bound as input.
+* **Composed with the Yang–Mills chain.**  `ym_fock_gap_of_truncated_gap_and_tail`,
+  `ym_fock_mass_gap_of_truncated_gap_and_tail` and `ym_fock_gap_of_band_and_tail` feed the
+  lift into the gauge-fixed `dΓ` chain; the last starts from a certified band with lower end
+  at least `μ`, so no displayed Ritz value is ever read as a lower bound.
+
+**Wiring and verification.**  The module is imported from `BookProof.lean` with an
+explanatory comment block and from `BookProof/ChapterRoadmapAudit.lean` with `#print axioms`
+lines for all thirteen public results — every one reports only `propext`,
+`Classical.choice`, `Quot.sound`.  `lake build BookProof BookProof.ChapterRoadmapAudit`
+completes with no errors and no warnings (8571 jobs); `rg` finds no `sorry`/`admit` in the
+new file.  Dated notes were added to `BookProof/STATUS.md` and to the leading status block
+of `CONSOLIDATED_PLAN.md`.
+
+**Boundary.**  Tail coercivity and the coupling bound are hypotheses, not conclusions —
+they are the named analytic input of QYM-1 task 3 — and are not proved for the gauge-fixed
+Yang–Mills one-particle operator.  `λ₁(H₁|core) > 0` remains the single open hypothesis of
+the chain, now with an explicit sufficient condition attached.  No mass gap of the physical
+Yang–Mills Hamiltonian is claimed.
+
+# Summary of changes for the current run
+
+Continued execution of `CONSOLIDATED_PLAN.md`, landing two further plan items as new
+`sorry`-free, `axiom`-free modules on the pinned toolchain.
+
+**1. QG-3.2-exec (ii) — `BookProof/ChapterQgDerivativeRealization.lean`** (namespace
+`BookProof.QgDerivativeRealization`).  A concrete 84-dimensional derivative-variable
+realization in which the derivative slots are actually *fixed* to be the derivatives of
+the tetrad, `E = ∂e`, rather than left as free jet coordinates.  `TetradConfig` and
+`DerivFields` package the variables; `configPoint` (with the projection lemmas
+`configPoint_idxX`, `configPoint_idxE`, `configPoint_idxDE` and the exhaustiveness lemma
+`idx_cases`) builds the evaluation point, and `jetPoint` builds the free-jet point.  The
+predicate `Fixed` says the derivative slots agree with the jet derivatives; `fixed_iff`,
+`jetDeriv_fixed`, `exists_not_fixed` and `configPoint_eq_jetPoint_of_fixed` characterise
+it and show it is a genuine restriction.  On the constraint surface the torsion and
+cross-coupling polynomials evaluate as expected (`eval_torsionPoly_jetPoint`,
+`eval_crossCouplingPoly_jetPoint`, `couplingValue_ne_zero`), and
+`eval_eq_of_fixed_of_comp_eq` records the "no new independent modes" statement: on fixed
+points the value of any polynomial is determined by the tetrad data alone.  The chapter
+closes with the gauge-fixing system over the polynomial ring (`qgFixingSystem`,
+`qgSystemOf`) and its properties `qgFixing_gaugeField_eq_zero_iff`,
+`qgFixing_lagrange_term_zero`, `qgFixing_L_gf_constraint_surface` and
+`qgFixing_B_ne_zero`.
+
+**2. QYM-1 task 1 — `BookProof/ChapterSirkBandLedger.lean`** (namespace
+`BookProof.SirkBandLedger`).  The emitted SIRK bands are proved to be *nested compatible
+enclosures*.  A decimal comparison `Decimal.leB` with its correctness lemma `leB_iff`
+supports the record type `BandRecord` and the parsers `parseBandLine` / `parseLedger`
+for the NDJSON ledger format.  Accessors `recAt`, `loQ`, `hiQ`, `ledgerLo`, `ledgerHi`
+expose the rational endpoints; the decidable well-formedness predicate `ledgerWfB` (with
+`LedgerWf`) is unfolded by `ledgerWf_sameOp`, `ledgerWf_order`, `ledgerWf_step` and
+`ledgerWf_enclosing`.  From these follow `loQ_monotone`, `hiQ_antitone` and the headline
+`nestedBands_of_wf` (every later band is contained in every earlier one), together with
+`ledgerLo_le_ledgerHi`, `ledger_width_eventually_const` and
+`ledger_width_tendsto_zero_iff`.  The bridge back to the spectral chapters is
+`ritz_band_enclosure_of_ledger` and `friedrichs_form_gap_of_ledger(_lo_zero)`: a
+well-formed ledger whose final band has positive lower endpoint yields a form gap for the
+Friedrichs extension.  A worked example ledger (`formatExampleLedgerNdjson`) is parsed and
+checked by `decide`/`rfl` in `formatExampleLedger_parse`, `_wf`, `_nested` and `_lo_zero`.
+
+**Wiring and verification.**  Both modules are imported from `BookProof.lean` with
+explanatory comment blocks, and from `BookProof/ChapterRoadmapAudit.lean` with `#print
+axioms` lines for every public result — all report only `propext`, `Classical.choice`,
+`Quot.sound`.  `lake build BookProof BookProof.ChapterRoadmapAudit` completes with no
+errors (8570 jobs) and the full default build (`BookProof`, `Book`, `Singularity`,
+`Layout`) completes with no errors; `rg` finds no `sorry`/`admit` in either new file.
+Dated notes were added to `BookProof/STATUS.md` and to the leading status block of
+`CONSOLIDATED_PLAN.md`.
+
+**Boundaries.**  The derivative-realization chapter is a finite-dimensional polynomial
+model: it fixes the derivative variables and shows the constraint surface behaves as
+intended, but it is not the continuum essential-self-adjointness statement of QG-3.2(b).
+The ledger chapter proves that a well-formed ledger *is* a nested family of enclosures and
+what it implies downstream; it does not certify that any particular numerical run produces
+a well-formed ledger beyond the worked example checked by `decide`.  Plan items QYM-1
+tasks 2–3, QG-2, and QG-3.2(b)/3.3/3.4 remain open.
+
+# Summary of changes for run 43ac8dac-7f27-4464-a0fb-01325c48f169
+Continued execution of `CONSOLIDATED_PLAN.md` §12.2 **Gap 2 (QYM)** — the *gap* half of "the Ritz/gap values converge to the spectrum of the selected extension as `m → ∞`". The earlier wave settled the lowest Ritz value; since there is no second Rayleigh quotient, the second level is supplied here by the Courant–Fischer min–max levels.
+
+**New module `BookProof/ChapterSirkRitzMinMax.lean`** (namespace `BookProof.RitzMinMax`, 530 lines), built from the code supplied in the request, with every `sorry` discharged — the file is `sorry`-free and `axiom`-free, and compiles with no warnings.
+
+* **Rayleigh quotients on a subspace** — `rayleighVal`, `rayleighSetOn`, `rayleighSup`, with `abs_rayleighVal_le`, `rayleighSup_le_norm`, `neg_norm_le_rayleighSup`, `rayleighVal_le_rayleighSup`, `rayleighSup_mono`, plus the two estimates the rest of the chapter runs on: the scaling law `rayleighVal_smul` and the Lipschitz bound `rayleighVal_sub_le`.
+* **The levels** — `minmaxLevel T k` (infimum of the Rayleigh supremum over `(k+1)`-dimensional subspaces) and `minmaxLevelIn T W k` (the same infimum inside the retained subspace `W`), with `minmaxLevel_le_minmaxLevelIn` (a computed Ritz level is always an upper bound for the true level) and `minmaxLevel_mono`.
+* **The bottom rung** — `minmaxLevel_zero_eq_rayleighInf` and `minmaxLevel_zero_eq_sInf_spectrum`: level zero is the bottom of the numerical range, hence, for a bounded self-adjoint operator, `sInf (spectrum ℝ T)`; the ladder starts exactly where the previous chapter stopped.
+* **The approximation engine** — `finrank_galerkinSpan`, `exists_uniform_proj_bound` (the Galerkin projections converge uniformly on a finite-dimensional subspace) and `exists_galerkin_approx_subspace` (any `(k+1)`-dimensional subspace can be pushed into a large enough Galerkin subspace, keeping its dimension, at an arbitrarily small cost in Rayleigh supremum).
+* **Headlines** — `galerkin_minmaxLevel_tendsto` (the Galerkin min–max levels converge to `minmaxLevel T k` for every `k`), `galerkin_gap_tendsto` (the computed gap `Λ₁(m) − Λ₀(m)` converges to `minmaxLevel T 1 − minmaxLevel T 0`) and `galerkin_gap_eventually_pos`.
+
+**Wiring and verification.** The module is imported from `BookProof.lean`; twelve new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound` for every public result; a new section "What the Computed Gap Converges To" in the book chapter `Book/SirkReliability.lean` states the argument in prose with a `#check` block. `lake build` (default targets, 8778 jobs), `lake build BookProof.ChapterRoadmapAudit` (8344 jobs) and `lake build Book` complete with no errors and no new warnings; `rg` finds no `sorry`/`admit` in the new module and no `axiom` was added. The rendered book was regenerated with its assertions holding and the KaTeX check reports 3363 math snippets, 0 failures. Dated notes were added to `BookProof/STATUS.md`, the leading status block of `CONSOLIDATED_PLAN.md`, and a new section appended to `ARISTOTLE_SUMMARY.md`.
+
+**Boundary (recorded in the module and the notes).** The operator is bounded throughout; the min–max levels are spectral quantities only below the essential spectrum, so nothing claims that `minmaxLevel T k` is an eigenvalue for `k ≥ 1` (the `k = 0` identification with `sInf (spectrum ℝ T)` is proved). Convergence is to the min–max gap, not to a difference of eigenvalues of a physical Hamiltonian. All work is committed and pushed.
+
+# Summary of changes for this run
+
+I continued executing `CONSOLIDATED_PLAN.md`, working through the top work package
+("Next steps for the Lean4-specialist").
+
+**Build state.** `lake build BookProof` completes with 0 errors, 0 warnings and 8554 jobs
+on the pinned toolchain; no `sorry` and no `axiom` declaration is added, and every new
+public result is audited by `#print axioms` to depend only on `propext`,
+`Classical.choice`, `Quot.sound`.
+
+**1. Next step 2 — `BookProof/ChapterFockCubicQuarticStability.lean`** (namespace
+`BookProof.FockCubicQuarticStability`) generalises
+`FockCubicUnbounded.trial_cubic_quartic_bounded_below` from its two-term trial family to
+*arbitrary* finite states.  The interaction forms are turned into norms — `quart_form_eq`
+(`Re⟪u, Q_k u⟫ = ‖a_k²u‖²`), `cubic_form_eq` (`Re⟪u, C_k u⟫ = 2Re⟪a_k²u, a_k†u⟫`) — and
+combined with the single-mode canonical commutation relation `norm_creA_sq`
+(`‖a_k†v‖² = ‖a_k v‖² + ‖v‖²`) and the Cauchy–Schwarz estimate `sq_norm_annA_le_mul`
+(`‖a_k u‖² ≤ ‖u‖‖a_k†a_k u‖`).  Results: `mode_cubic_quartic_bounded_below`
+(`mu‖a_k u‖² + lam·Re⟪u,C_k u⟫ + Re⟪u,Q_k u⟫ ≥ -(2lam² + (2lam² + ½ − mu)²/2)‖u‖²`, no
+hypotheses on the parameters and no vacuum-orthogonality), its number-form corollary
+`numberForm_cubic_quartic_bounded_below`, the `mu = 1` case
+`trial_cubic_quartic_bounded_below_general`, the multi-mode sums
+`multiMode_cubic_quartic_bounded_below` and `dGamma_multiMode_cubic_quartic_bounded_below`
+(one copy of the free form pays for every mode of a finite set, the constant growing
+linearly in its cardinality), and the one-particle-gap version
+`dGamma_cubic_quartic_bounded_below`.
+
+**2. Next step 3 — `BookProof/ChapterScalaronFockGapChain.lean`** (namespace
+`BookProof.ScalaronFockGapChain`) instantiates the abstract gap chain for the `R²`
+(scalaron) sector.  For the constant one-particle operator `constOnePart b m = m·1` the
+one-particle form gap is an *identity* (`constOnePart_quadForm`), which discharges the
+hypothesis the gauge-fixed Yang–Mills instantiation has to carry.  Hence `const_fock_gap`
+(`dΓ(m·1)Ω = 0` and `Re⟪u, dΓ(m·1)u⟫ ≥ m‖u‖²` on vacuum-orthogonal finite states),
+`const_isPosCol_shiftCol`, `const_fock_mass_gap` (a positive self-adjoint Friedrichs
+extension together with strict positivity of the non-vacuum energy, for `m > 0`),
+`const_fock_gap_of_field_perturbation` (the gap `m − 2‖f‖` survives the unbounded,
+number-changing coupling `Φ(f)` when `2‖f‖ < m`) and
+`const_fock_cubic_quartic_bounded_below`.  With `scalaronMass α = 1/√(12α)` and
+`scalaronOnePart` these are instantiated on the Hermite basis of `L²(ℝ)` as
+`scalaron_fock_mass_gap`, `scalaron_fock_gap_of_field_perturbation` and
+`scalaron_fock_cubic_quartic_bounded_below`.
+
+**3. Wiring, hygiene and documentation.** Both modules are imported from `BookProof.lean`
+with explanatory comment blocks and from `BookProof/ChapterRoadmapAudit.lean` with
+`#print axioms` lines for all of their public results.  The remaining `BookProof` linter
+warnings (over-long lines and unused `simp` arguments) were fixed at their source, so the
+target now builds warning-free.  New wave sections were added to `BookProof/STATUS.md` and
+to the status block at the top of `CONSOLIDATED_PLAN.md`.
+
+**Honest boundary.** The cubic/quartic results are *semiboundedness*, not a gap: the
+constant is negative, and `C_k`, `Q_k` are single-mode terms, not the full Yang–Mills
+vertices.  In the scalaron chapter what is unconditional is the *lift*: that the `R²`
+sector's one-particle energy is the constant `1/√(12α)` is a modelling statement of the
+plan's enclosure doctrine, not proved here, and the TEGR kinetic sector is not covered.
+The gauge-fixed Yang–Mills chain remains conditional on its one-particle form gap (next
+step 1 of the plan, still open), `1.932` remains a certified truncated number, and no mass
+gap of the physical Yang–Mills Hamiltonian is claimed.
+
+All work is committed and pushed.
+
+# Summary of changes for run 4e7fb02d-a7d0-4745-996b-9c7d6cfbe7f2
+I continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Build state.** The project's default Lean targets (`BookProof`, `Book`, `Singularity`, `Layout`) build end to end: `lake build` completes successfully with 8760 jobs and 0 errors, and no `sorry` occurs anywhere in the Lean sources of those targets. Every newly added public result is audited by `#print axioms` and depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**1. Degree two of the unbounded-perturbation ladder** — `BookProof/ChapterFockPairPerturbation.lean` (finished, verified and wired in this session). It moves the package of `ChapterFockFieldPerturbation` from the linear coupling `Φ(f) = a†(f) + a(f)` (particle number changes by one) to the quadratic pair-creating coupling `P(f,g) = a†(f)a†(g) + a(g)a(f)` (changes by two): the vector canonical commutation relation `annVec_creVec`, the exact identity `norm_creVec_sq` (`‖a†(g)u‖² = ‖a(g)u‖² + ‖g‖²‖u‖²`) and the `(N+1)^{1/2}` estimate `norm_creVec_le`; `pairVec_relative_form_bound`, which dominates the pair form by the free form with no additive remainder on vacuum-orthogonal states; `fock_gap_of_pair_perturbation` with the surviving gap `(μ − 2√2‖f‖‖g‖)‖u‖²`; the certificate-chain and gauge-fixed Yang–Mills instances `fock_gap_of_one_particle_form_gap_pair` and `ym_fock_gap_of_pair_perturbation`; and `pairVec_vac`, `pairVec_unbounded` recording that the term really is number-changing and really is unbounded.
+
+**2. New module `BookProof/ChapterFockCubicUnbounded.lean` — the route provably stops at degree two.** Earlier status notes all recorded the same boundary ("cubic and quartic terms are not covered") without settling whether it was removable. For the single-mode cubic term `cubeA k = (a_k†)³ + (a_k)³`, the two-term trial states `trial k n c = |n⟩ + c|n+3⟩` have exactly computed norm (`1 + c²`), number form (`n + (n+3)c²`) and cubic form (`2c√((n+1)(n+2)(n+3))`). Since the cubic form grows like `n^{3/2}` and the number form only like `n`:
+- `cubic_no_relative_form_bound`: for *every* pair of constants `a, b` there is a vacuum-orthogonal finite-particle state with `a·⟪u,Nu⟫ + b‖u‖² < Re⟪u, C_k u⟫`, so the relative-form-bound hypothesis used at degrees one and two can never be met at degree three;
+- `fock_gap_fails_for_cubic`: consequently, for the free Fock Hamiltonian `dΓ(N)` and *any* coupling strength `lam > 0`, the form `dΓ(N) + lam·C_k` is unbounded below on the vacuum-orthogonal sector — smallness of the coupling does not help.
+
+A complementary section prevents over-reading this: `quartA k = (a_k†)²(a_k)²` is the normal-ordered quartic term (diagonal with eigenvalue `m(m−1)`), and `trial_cubic_quartic_bounded_below` proves that on the same family of states `dΓ(N) + lam·C_k + Q_k` satisfies the uniform lower bound `−(lam⁴/4 + 2lam²)‖u‖²`. The divergence is therefore a property of a *bare* cubic term.
+
+**3. Wiring and documentation.** Both modules are imported from `BookProof.lean` with explanatory comment blocks and are covered by the default build; `BookProof/ChapterRoadmapAudit.lean` imports them and carries `#print axioms` lines for all of their public results. Two new status sections were added to `CONSOLIDATED_PLAN.md` (2026-08-28e and 2026-08-28f), a new wave section to `BookProof/STATUS.md`, and a new run section was prepended to `ARISTOTLE_SUMMARY.md` without altering its earlier content.
+
+**Honest boundary, unchanged.** All positive gap statements remain conditional on the one-particle form gap, which is a hypothesis and not proved. `cubeA` is a single-mode cubic term, not the full Yang–Mills cubic vertex, and the cubic-plus-quartic lower bound is proved along the explicit trial family, not for arbitrary states. `1.932` remains a certified truncated number, and no mass gap of the physical Yang–Mills Hamiltonian is claimed.
+
+All work is committed and pushed.
+
+# Summary of changes for this run
+
+I continued executing `CONSOLIDATED_PLAN.md`.  The project's default Lean targets
+(`BookProof`, `Book`, `Singularity`, `Layout`) build end to end with no errors and no
+remaining `sorry` (`lake build` — 8760 jobs, 0 errors), and every newly added theorem is
+audited by `#print axioms` to depend only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**1. `BookProof/ChapterFockPairPerturbation.lean` — the perturbation ladder at degree two.**
+This module (namespace `BookProof.FockPairPerturbation`) carries the unbounded-perturbation
+package of `ChapterFockFieldPerturbation` up one degree: from the *linear* coupling
+`Φ(f) = a†(f) + a(f)`, which changes the particle number by one, to the *quadratic*,
+pair-creating coupling `P(f,g) = a†(f)a†(g) + a(g)a(f)`, which changes it by two.
+- `annVec_creVec` — the vector canonical commutation relation `a(g)a†(g) = a†(g)a(g) + ‖g‖²`;
+- `norm_creVec_sq` — the exact identity `‖a†(g)u‖² = ‖a(g)u‖² + ‖g‖²‖u‖²`, and
+  `norm_creVec_le` the `(N+1)^{1/2}` estimate a quadratic term needs;
+- `pairVec_relative_form_bound` — `|Re⟪u, P u⟫| ≤ (2√2‖f‖‖g‖/μ)·Re⟪u, dΓ(h)u⟫` on
+  vacuum-orthogonal states, i.e. domination by the free form with **no** additive remainder;
+- `fock_gap_of_pair_perturbation` (and `..._pos`) — the surviving gap
+  `(μ − 2√2‖f‖‖g‖)‖u‖²`, strictly positive under `2√2‖f‖‖g‖ < μ`;
+- `fock_gap_of_one_particle_form_gap_pair`, `ym_fock_gap_of_pair_perturbation` — the same
+  conclusion fed from the certificate chain and from the concrete gauge-fixed Yang–Mills
+  datum;
+- `pairVec_vac`, `pairVec_unbounded` — witnesses that the term genuinely changes the
+  particle number and genuinely is unbounded, so this is not a corollary of the bounded
+  theory.
+
+**2. `BookProof/ChapterFockCubicUnbounded.lean` — and the ladder provably stops there.**
+Every earlier status update recorded the same boundary ("cubic and quartic terms are not
+covered"); this new module (namespace `BookProof.FockCubicUnbounded`) shows that this is a
+fact about the method, not a gap in the write-up.  For the single-mode cubic term
+`cubeA k = (a_k†)³ + (a_k)³` the two-term trial states `trial k n c = |n⟩ + c|n+3⟩` have
+exactly computable norm (`trial_norm_sq`, `1 + c²`), number form (`trial_numberQuad`,
+`n + (n+3)c²`) and cubic form (`trial_cubic_form`, `2c√((n+1)(n+2)(n+3))`).  Since the
+cubic form grows like `n^{3/2}` and the number form only like `n`:
+- **`cubic_no_relative_form_bound`** — for *every* pair of constants `a, b` there is a
+  vacuum-orthogonal finite-particle state with `a·⟪u,Nu⟫ + b‖u‖² < Re⟪u, C_k u⟫`.  The
+  relative form bound that degrees one and two satisfy — the hypothesis of
+  `ChapterFockInteractionStability.gap_persists_of_relative_form_bound` — is therefore
+  unattainable at degree three, however the constants are chosen;
+- **`fock_gap_fails_for_cubic`** — the consequence: for the free Fock Hamiltonian `dΓ(N)`
+  and *any* coupling strength `lam > 0`, the form `dΓ(N) + lam·C_k` is unbounded below on
+  the vacuum-orthogonal sector.  Smallness of the coupling does not help, in sharp contrast
+  with degrees one and two.
+
+A final section keeps this from being over-read.  `quartA k = (a_k†)²(a_k)²` is the
+normal-ordered quartic term, diagonal with eigenvalue `m(m − 1)` (`quartA_single_confAt`,
+`trial_quartic_form`), and **`trial_cubic_quartic_bounded_below`** shows that on the *same*
+family of states, `dΓ(N) + lam·C_k + Q_k` obeys the lower bound `-(lam⁴/4 + 2lam²)‖u‖²`,
+uniformly in `n` and `c`.  The divergence is thus a property of a *bare* cubic term.
+
+**3. Wiring and documentation.**  Both modules are imported from `BookProof.lean` with an
+explanatory comment block, and are covered by the default build; `BookProof/ChapterRoadmapAudit.lean`
+imports them and carries `#print axioms` lines for all of their public results.  New status
+sections were added to `CONSOLIDATED_PLAN.md` (2026-08-28e and 2026-08-28f) and a new wave
+section to `BookProof/STATUS.md`.
+
+**Honest boundary, unchanged.**  All positive gap statements remain **conditional on the
+one-particle form gap**, which is not proved.  `cubeA` is a single-mode cubic term, not the
+full Yang–Mills cubic vertex, and the cubic-plus-quartic lower bound is proved along the
+explicit trial family, not for arbitrary states.  `1.932` remains a certified truncated
+number, and no mass gap of the physical Yang–Mills Hamiltonian is claimed.
+
+---
+
+# Summary of changes for run 2e425980-dd1a-408f-af76-4f4604d3d5ca
+I executed `CONSOLIDATED_PLAN.md`. The project's default Lean targets (`BookProof`, `Book`, `Singularity`, `Layout`) now build end to end with no errors and no remaining `sorry`.
+
+**1. Fixed a build-breaking syntax error.** `BookProof/ChapterFockSecondQuantization.lean` carried two consecutive doc comments immediately before `ymOnePart`, which made the module — and therefore the whole `BookProof` target — fail to elaborate. The two doc comments are merged into one.
+
+**2. Closed the six remaining `sorry`s** in `BookProof/ChapterFockFieldPerturbation.lean`, the plan's "unbounded number-changing perturbation" chapter. These were the only genuine `sorry`s anywhere in the default build. Proved:
+- `two_mul_sqrt_le` — the Young inequality behind the relative bound;
+- `number_le_dGamma_quadForm` — `μ⟪u, N u⟫ ≤ Re⟪u, dΓ(h) u⟫` from the one-particle gap `h − μ ≥ 0` (the hypothesis `0 ≤ μ` turned out to be unnecessary and was dropped);
+- `fieldVec_relative_form_bound` — the domination the plan asked for, `|Re⟪u, Φ(f)u⟫| ≤ (t/μ)Re⟪u, dΓ(h)u⟫ + (‖f‖²/t)‖u‖²` for every `t > 0`;
+- `fock_gap_of_field_perturbation` — the surviving gap `(μ − 2‖f‖)‖u‖²` on vacuum-orthogonal finite-particle states;
+- `fieldVec_vac` and `fieldVec_unbounded` — the witnesses that `Φ(f)` is neither number-preserving nor bounded, so the result is not a corollary of the bounded theory.
+
+The module was also unreachable from `BookProof.lean`; it is now imported there and covered by the default build, and it carries its own `#print axioms` audit (only `propext`, `Classical.choice`, `Quot.sound`).
+
+**3. Instantiated the abstract gap chain for gauge-fixed QYM**, the plan's "next specialist package", in the new module `BookProof/ChapterYangMillsFockGapChain.lean`. It reuses the project's existing concrete one-particle datum rather than re-proving the abstract modules, and adds:
+- `isPosCol_shiftCol_opCol_of_form_gap` — one-particle *form* gap ⟹ the matrix condition `h − μ ≥ 0`;
+- `ym_fock_vacuum_annihilated` — unconditionally, the outer vacuum is an exact zero-energy eigenstate of `dΓ(H₁)`;
+- `ym_fock_gap_of_one_particle_form_gap`, `ym_fock_mass_gap_of_one_particle_form_gap` — the `dΓ` lift and the strictly positive non-vacuum gap, the latter together with the positive self-adjoint (Friedrichs) extension of `dΓ(H₁)`;
+- `ym_fock_gap_of_field_perturbation` — the same under the unbounded, number-changing field coupling `Φ(f)` with `2‖f‖ < μ`;
+- `ym_fock_gap_of_nested_ritz_bands` — the certified-band route, which consumes the nested-band / Galerkin-Ritz data through the existing band-enclosure theorem instead of reading a displayed Ritz value as a lower bound.
+
+Every theorem in the new module was checked with `#print axioms` and depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**Honest boundary (unchanged, and stated in the module and the plan).** All conclusions of the new module are *conditional* on a one-particle form gap `⟪x, H₁ x⟫ ≥ μ‖x‖²` on the Gauss–polynomial core, or on the certificate data that would supply it. That input is not proved: the SIRK/Hashimoto certificate remains a statement about a finite truncation and `1.932` remains a certified truncated number. The field perturbation covered is linear in the field; the cubic and quartic Yang–Mills interaction terms are not covered. No mass gap of the physical Yang–Mills Hamiltonian is claimed.
+
+`CONSOLIDATED_PLAN.md` has a new leading status section recording exactly this, including that the build was actually run.
+
+# Summary of changes for run 06bbec70-f53c-49e5-b6c0-be1d9ae869c7
+I continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Documentation of the already-landed work.** The two modules from the previous session — `BookProof/ChapterRitzCertificate.lean` (the per-order finite certificate, derived from Temple's inequality plus a running intersection of bands) and `BookProof/ChapterFockNumberPreservingGap.lean` (the `dΓ` lift generalized from diagonal to arbitrary number-preserving one-particle Hamiltonians) — are now recorded in a new dated wave of `BookProof/STATUS.md`, a dated status block in `CONSOLIDATED_PLAN.md`, and a new run section at the top of `ARISTOTLE_SUMMARY.md`.
+
+**Two new modules, both `sorry`-free and axiom-free**, addressing the two inputs the plan then listed as open.
+
+`BookProof/ChapterFockInteractionStability.lean` — the number-preservation hypothesis, traded for a quantitative one. `gap_persists_of_relative_form_bound`: on any set where the unperturbed quadratic form satisfies `q x ≥ μ‖x‖²`, a perturbing form with `|v x| ≤ a·q x + b‖x‖²` and `a ≤ 1` leaves `q x + v x ≥ ((1−a)μ − b)‖x‖²`, with `gap_persists_of_bounded_form` the `a = 0` case and `gap_persists_pos` the strict-positivity condition. Via `interaction_form_bound` (`|Re⟪x, V x⟫| ≤ ‖V‖‖x‖²`), `fock_gap_of_bounded_interaction` and `fock_gap_of_one_particle_form_gap_interaction` give the gap `μ − ‖V‖` for `dΓ(h) + V` on vacuum-orthogonal finite-particle states, where `V` is an arbitrary bounded operator on Fock space — nothing forces it to commute with the number operator, so pair creation is permitted. This is perturbative; physical interaction terms are unbounded operators, so the bounded corollaries do not apply to them, and that is stated in the module.
+
+`BookProof/ChapterTempleSeparationNecessary.lean` — the other input, shown to be genuinely unavoidable. `separation_necessary`: for every `M` there is a bounded self-adjoint operator on a two-dimensional Hilbert space and a unit trial vector whose Rayleigh quotient **and** residual both vanish (an exact eigenvector — the best finite data possible) while `sInf (spectrum ℝ A) ≤ -M`. The witness is `−M(1 − P)` with `P` the rank-one projection onto the trial vector. Hence no lower bound on the spectral edge in terms of the Rayleigh quotient and residual alone can be valid, and the `SpectralSeparation` hypothesis of the certificate route is a real side condition rather than an artifact of the proof.
+
+**Wiring and verification.** Both new modules are imported from `BookProof.lean` with explanatory comments and certified by 11 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, each reporting only `propext`, `Classical.choice`, `Quot.sound`. `lake build BookProof` completes with 0 errors (8548 jobs) and the full default target set builds cleanly (`lake build`, 8756 jobs, 0 errors); a search confirms no `sorry` remains anywhere in `BookProof/`. All work is committed and pushed.
+
+**Honest boundary, unchanged where it should be.** The spectral-separation input remains an input — now provably so. The interaction result is perturbative and does not cover the unbounded physical interaction. `1.932` remains a certified truncated number; no mass gap of the physical Hamiltonian is claimed.
+
+# Summary of changes for the 2026-08-28b continuation run
+
+I continued executing `CONSOLIDATED_PLAN.md`.  The previous run's status block listed exactly
+two remaining inputs in the top work package ("Hashimoto observable to the real-Hamiltonian
+gap"); both are now derived, and the number-preservation hypothesis has been traded for a
+quantitative one.  Four new `sorry`-free, axiom-free modules; `lake build BookProof`
+completes with 0 errors (8548 jobs), the full default target set builds cleanly
+(`lake build`, 8756 jobs, 0 errors), and every audited theorem depends only on `propext`,
+`Classical.choice`, `Quot.sound`.
+
+**`BookProof/ChapterRitzCertificate.lean`** — the per-order finite certificate, derived.
+- `rayleigh A x` (`θ = Re⟪x, A x⟫`) and `resid A x` (`ε = ‖A x − θ x‖`) are the Rayleigh
+  quotient and residual of a normalized trial vector: both are computable from the emitted
+  order-`m` data alone.
+- **`temple_lower_bound`** — Temple's inequality `l ≥ θ − ε²/(β − θ)`, proved from positivity
+  of the Temple factor `(A − l)(A − β)` obtained through the continuous functional calculus
+  (`factor_nonneg`, `factor_nonneg_of_separation`), with the separation condition packaged as
+  `SpectralSeparation A l b`.  No spectral decomposition of `A` and no diagonalization of the
+  order-`m` block are used.  Combined with the variational upper bound
+  `sInf_spectrum_le_rayleigh`, this is **`temple_band_mem`**: the true edge lies inside the
+  emitted band `[θ − ε²/(β − θ), θ]`, whose width vanishes with the residuals
+  (`temple_width_tendsto_zero`).
+- Bands emitted independently at each order need not nest, so the running intersection
+  `runLo`/`runHi` is taken; `runBands_nested`, `mem_runBand`, `runBand_width_le`,
+  `runBand_widths_tendsto_zero` and `nested_certificate_of_bands` show it is a nested,
+  edge-containing, collapsing certificate — exactly the `NestedBands` package the previous
+  run's `ChapterBandEnclosure` consumes.
+- Compositions: **`temple_nested_certificate`** and **`fock_mass_gap_of_temple_certificates`**,
+  which feeds directly into `FockOneParticleGap.fock_mass_gap_of_certified_bands_operator`.
+
+**`BookProof/ChapterFockNumberPreservingGap.lean`** — the `dΓ` lift, generalized past the
+diagonal hypothesis.
+- **`dGamma_shiftCol`** is the second-quantization identity `dΓ(h − μ) = dΓ(h) − μN` in column
+  form (`shiftCol`), with supporting rewrites `creVec_sub`, `creVec_smul`,
+  `creVec_eq_sum_of_subset`.
+- With `dGamma_vac` (vacuum energy `0`) and `number_quadForm_ge` (`N ≥ 1` on
+  vacuum-orthogonal states), **`fock_gap_of_number_preserving`** and
+  `fock_gap_of_number_preserving_op` give the Fock gap for an **arbitrary** number-preserving
+  one-particle Hamiltonian whose shift is positive.  The diagonal case is recovered as the
+  instance `isPosCol_shiftCol_diagCol`, so nothing previously proved is lost.
+- **`fock_gap_of_one_particle_form_gap`** consumes precisely what the certificate chain
+  produces — a form bound `Re⟪x, h x⟫ ≥ μ‖x‖²` on the finite-mode core in a chosen Hilbert
+  basis (`opCol_id`, `shiftCol_opCol`) — and returns the Fock-space gap.
+
+**`BookProof/ChapterFockInteractionStability.lean`** — how far a gap survives a
+number-changing (pair-creating) interaction.
+- Number preservation cannot simply be dropped — a number-changing term can close a gap
+  outright — so it is replaced by a size condition.
+  **`gap_persists_of_relative_form_bound`**: on any set `S` where the unperturbed form
+  satisfies `q x ≥ μ‖x‖²`, a perturbing form with `|v x| ≤ a q x + b‖x‖²` and `a ≤ 1` leaves
+  `q x + v x ≥ ((1 − a)μ − b)‖x‖²`.  `gap_persists_of_bounded_form` is the `a = 0` case;
+  `gap_persists_pos` records when the surviving gap is strictly positive.
+- With `interaction_form_bound` (`|Re⟪x, V x⟫| ≤ ‖V‖‖x‖²`),
+  **`fock_gap_of_bounded_interaction`** and
+  **`fock_gap_of_one_particle_form_gap_interaction`** give the gap `μ − ‖V‖` for `dΓ(h) + V`
+  on vacuum-orthogonal finite-particle states, where `V` is an **arbitrary** bounded operator
+  on Fock space — nothing forces it to commute with the number operator, so pair creation and
+  every other number-changing process is permitted.
+- This is perturbative and is stated as such: physical Yang–Mills interaction terms are not
+  bounded operators on Fock space, so the bounded corollaries do not apply to them directly.
+
+**`BookProof/ChapterTempleSeparationNecessary.lean`** — the one input of the certificate
+route that is *not* removable, shown to be genuine.
+- **`separation_necessary`**: for every `M` there is a bounded self-adjoint operator on a
+  two-dimensional Hilbert space and a unit trial vector whose Rayleigh quotient **and**
+  residual both vanish — an exact eigenvector, the best finite data a computation could emit
+  — while `sInf (spectrum ℝ A) ≤ -M`.  The witness is `−M(1 − P)` with `P` the rank-one
+  projection onto the trial vector.
+- So no lower bound on the spectral edge in terms of the Rayleigh quotient and residual alone
+  can be valid: the a priori hypothesis `SpectralSeparation` is a genuine side condition of
+  any two-sided enclosure, not an artifact of the Temple proof.  This settles the question of
+  whether it could be discharged — it cannot.
+
+**Wiring and docs.**  The modules are imported from `BookProof.lean`, certified by 32 new
+`#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three
+standard axioms), documented in a new dated wave of `BookProof/STATUS.md`, and recorded in a
+dated status update in `CONSOLIDATED_PLAN.md`.
+
+**Honest boundary.**  (i) The spectral-separation hypothesis of Temple's inequality remains
+an input — and is now *proved* to be unavoidable, so any use of the certificate route must
+supply an a priori lower bound on the rest of the spectrum from outside the finite
+computation.  (ii) The interaction result is perturbative: physical Yang–Mills interaction
+terms are unbounded operators, and supplying the domination `|v| ≤ a q + b‖·‖²` for them is
+not done here and is not claimed.  `1.932` remains a certified truncated number; no mass gap
+of the physical Hamiltonian is claimed.
+
+# Summary of changes for run 40c9e0fa-3885-4c1d-aee1-5ea958ea00db
+I continued executing `CONSOLIDATED_PLAN.md`, focusing on the item you flagged: the band-enclosure hypothesis — that a finite certificate brackets the one-particle edge of the infinite selected operator. It is now **derived**, not assumed. Two new `sorry`-free, axiom-free modules; the full project builds (`lake build`, default targets, 8752 jobs, 0 errors).
+
+**`BookProof/ChapterBandEnclosure.lean`**
+- `NestedBands lo hi` abstracts the already-proved band containment (`ChapterH8.sirk_band_contained`: order `m+1` inside order `m`), iterated by `nestedBands_le`.
+- **`band_enclosure_of_nested`** — the derivation: if the bands nest, the order-`m` approximant lies in the order-`m` band, and the approximants converge to `lam`, then `lam` lies in *every* band (for `n ≥ m` the order-`n` band sits inside the closed order-`m` band). With widths vanishing — exponentially, via `ChapterH6.sirk_error_decay_exponential`, instantiated in `sirk_nestedBands` / `sirk_band_widths_tendsto_zero` / `sirk_band_enclosure` — the enclosed point is unique and the endpoints converge to it (`band_limit_unique`, `band_enclosure_endpoints_tendsto`).
+- The convergence input comes from the existing selection results rather than being assumed. Bounded regime: the Galerkin/Hashimoto algorithm selects the operator itself and its Ritz values converge to `sInf (spectrum ℝ A)`, giving `ritz_band_enclosure_of_nested`; composed with the free `dΓ` lift, **`fock_mass_gap_of_nested_ritz_bands`** delivers vacuum energy `0` and Fock energy `≥ μ‖·‖²` on vacuum-orthogonal finite-particle states **with no enclosure hypothesis left**.
+- Unbounded regime (no boundedness at all): **`friedrichs_form_gap_of_nested_ritz_bands`** — the certified bands enclose the form bottom of the core, and the Friedrichs extension selected by the Hashimoto shift-invert satisfies `⟪y, A y⟫ ≥ μ‖y‖²` on its whole domain.
+- `shiftInvert_band_enclosure` / `shiftInvert_widths_tendsto_zero` transport a band enclosure through `lam = nu⁻¹ − γ`.
+
+**`BookProof/ChapterFriedrichsFormGap.lean`** — the transfer to the infinite operator: a core bound `⟪x, H x⟫ ≥ μ‖x‖²` extends by continuity through the completed form space (`formSpace_norm_bound`), and **`friedrichs_extension_form_gap`** shows the Friedrichs extension `A = S⁻¹ − 1` — a positive self-adjoint extension of `H` whose Hashimoto shift-invert at `γ = 1` is the resolvent `S`, i.e. the operator the algorithm selects — inherits the bound. No spectral theorem for unbounded operators is used.
+
+**Wiring and docs.** Both modules are imported from `BookProof.lean`, certified by 16 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (each reporting only `propext`, `Classical.choice`, `Quot.sound`), documented in a new dated section of `BookProof/STATUS.md`, and recorded in a dated status update in `CONSOLIDATED_PLAN.md`. `ARISTOTLE_SUMMARY.md` has a new appended run summary.
+
+**Honest boundary (unchanged where it should be).** What is now derived is the enclosure and the transfer of the certified bound to the infinite selected operator. What remains an input is the finite certificate at each order — that the order-`m` Ritz value lies in the order-`m` emitted band, and that the emitted bands nest — plus the free/diagonal (number-preserving) hypothesis in the `dΓ` lift, which excludes pair creation. `1.932` remains the recorded certificate number; no mass gap of the physical Hamiltonian is claimed.
+
+# Summary of changes for run ab2d56b9-257a-4cdb-bdb6-0e60164ca8a9
+I executed the top-priority work package of `CONSOLIDATED_PLAN.md` — "Hashimoto observable to the real-Hamiltonian gap" — and left the whole project building cleanly (`lake build`, 8750 jobs, 0 errors, no `sorry`, no new `axiom`).
+
+**1. Repaired the flagged draft.** `BookProof/ChapterSpectralGapStability.lean` contained an uncompiled draft, `spectrum_disjoint_of_shifted_square_bound` (the shifted-square observable `q‖x‖² ≤ ‖(A − c)x‖²` excludes spectrum from `(c − √q, c + √q)` for bounded self-adjoint `A`). Three steps of its proof did not elaborate; they are fixed and the module now builds.
+
+**2. New chapter `BookProof/ChapterFockOneParticleGap.lean`** (namespace `BookProof.FockOneParticleGap`), built on the existing algebraic Fock space and `dGamma` machinery. Everything is stated for the *free* (number-preserving, diagonal) one-particle Hamiltonian `diagCol e` — the plan's free outer-particle hypothesis, made explicit in every statement:
+
+- **Diagonal second quantization.** `dGamma_diagCol_single` / `dGamma_diagCol_apply`: `dΓ(h₊)` acts on a configuration `β` by `Σ_k β_k e_k`. `dGamma_diagCol_vac`, `numberOp_vac`: `dΓ(h₊) Ω = 0`, `N Ω = 0`. `dGamma_diagCol_shift`: the further shift is exactly the number-operator shift `dΓ(h₊ + μ) = dΓ(h₊) + μN`, leaving the vacuum untouched.
+- **The free `dΓ` lift.** `fock_gap_quadForm` and `fock_gap_of_one_particle_gap`: with `h₊ ≥ μI ≥ 0`, the vacuum has energy `0` and every vacuum-orthogonal finite-occupation state has energy at least `μ‖·‖²`. `fock_energy_one_particle` shows a one-particle creation attains `e k`, and `sInf_nonvacuumEnergies` proves the free Fock gap *equals* the one-particle edge `⨅ k e k`.
+- **Nested certified bands.** `band_endpoints_tendsto`, `le_of_band`: bands enclosing one fixed edge with vanishing widths determine it, and a single band with lower end `≥ μ` forces `μ ≤ λ₁`. The generic SIRK error interval is not substituted for the spectral-edge enclosure.
+- **The compositions.** `fock_mass_gap_of_certified_bands` combines the two, and `qcdG2M4_fock_gap_of_one_particle_enclosure` instantiates it at the recorded `g = 2, m = 4` number `1.932`. `fock_mass_gap_of_certified_bands_operator` (with `le_eigenvalue_of_le_spectrum`, `fock_gap_of_operator_spectral_edge`) runs the same argument starting from an actual bounded self-adjoint one-particle operator with an eigenbasis, with the bands enclosing `sInf (spectrum ℝ A)`.
+- **Parity translation.** `one_particle_edge_ge_of_parity_certificate` makes the parity-to-one-particle reading explicit: the "even sector is the vacuum, odd sector is the one-particle edge" statements appear as hypotheses, not as an appeal to a generic parity gap.
+
+**Honest boundary, kept as the plan requires.** The band-enclosure hypothesis — that a finite certificate brackets the one-particle edge of the *infinite* selected operator — is a hypothesis of these theorems, never a conclusion; the free/diagonal hypothesis excludes interacting (pair-creating) terms. `1.932` remains a certified *truncated* number and no mass gap of the physical Hamiltonian is claimed.
+
+**Bookkeeping.** The new module is imported from `BookProof.lean` with a descriptive comment, all 15 new results are `#print axioms`-audited in `BookProof/ChapterRoadmapAudit.lean` (each depends only on `propext`, `Classical.choice`, `Quot.sound`), the exact hypotheses are documented in `BookProof/STATUS.md`, and `CONSOLIDATED_PLAN.md` now carries a status subsection recording which deliverables of the work package landed and what remains open. All work is committed and pushed.
+
+# Summary of changes for run b2342286-fc55-44bf-81ca-d47878dc5c62
+All remaining items of `CONSOLIDATED_PLAN.md` are now closed, and the full verification gate re-runs green.
+
+**Lean work finished this session**
+
+- `BookProof/ChapterSpectralGapStability.lean` — completed the abstract core of the continuum leg. Beyond the perturbation/limit lemmas (`GapAt`, `gapAt_perturb`, `gapAt_of_tendsto`, `notMem_spectrum_of_gapAt`, `notMem_spectrum_of_uniform_gap`, `spectrum_disjoint_of_uniform_window`), the converse `exists_gapAt_of_notMem_spectrum` is now proved: a point off the spectrum of a bounded operator always carries a quantitative gap. The module's proofs were also cleaned up so the file builds completely warning-free.
+- `BookProof/ChapterRoadmapAudit.lean` — the new converse is added to the `#print axioms` audit block, alongside the reader, gap-table and stability results already recorded there.
+
+**Verification gate (all re-run after the final edits)**
+
+- `lake build`: 8749 jobs, **0 errors and 0 module warnings**.
+- Book build: succeeds, and the structural assertions pass (no `<base>` element, fragment links present).
+- KaTeX check: 3170 extracted math snippets, **0 failures**.
+- No `sorry` and no `axiom` declarations anywhere in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `Layout/` (the only textual matches are prose in docstrings).
+- Every headline result of the three modules added for the plan's §13.7 Lean items reports axioms `[propext, Classical.choice, Quot.sound]` only.
+
+**Deliverables recorded in the Properties table** (all four properties now marked proved, with the reader definition listed alongside them):
+
+- `gap_ge_of_ndjson` — a lower bound read off an emitted NDJSON gap certificate, parsed as exact decimals with no floating-point value trusted, bounds the parity gap of the truncated Hamiltonian.
+- `certified_gap_table` — every row of a per-coupling certificate table certifies a gap lower bound for its own truncated Hamiltonian.
+- `richardson_exact` — Richardson extrapolation is exact under a pure power law (with the plan's ratio corrected to `(l₂/l₁)^p − 1`, which is what makes it exact for `l₁ < l₂`; the correction is documented in the module).
+- `spectrum_disjoint_of_uniform_window` — a uniform quantitative gap survives an operator-norm limit and keeps the window free of spectrum. The honest boundary is stated in the module: convergence of the truncation family itself is not asserted anywhere.
+
+Two plan items remain genuinely out of reach in this snapshot and are recorded as such rather than claimed: the Aeneas item and the nanoda export item both need a sibling repository and external tooling that are not present here.
+
+Everything is committed and pushed; the working tree is clean and `HEAD` matches the remote.
+
+# Summary of changes for run 9c1d904f-c151-482c-8c80-8d77bbde25a8
+I executed the attached plan (essential self-adjointness of `H = -Δ + V` for a fast-growing, non-polynomial potential by the Simader–Faris–Lavine cutoff / commutator energy method) and then continued `CONSOLIDATED_PLAN.md`, closing the one concrete Lean item its backlog still listed. Everything compiles, contains no `sorry`, and every headline theorem depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+**Checked first for existing coverage.** The plan's first milestone — an abstract Hilbert-space essential-self-adjointness criterion — was already present as `EssentiallySelfAdjointOn` / `DeficiencyTrivialAt` in `BookProof/ChapterFarisLavine.lean`, so it was reused, not rebuilt. And `BookProof/ChapterWallEsaBddBelow.lean` already proved essential self-adjointness of `-d²/dx² + V` for *every* smooth `V` bounded below, with no growth restriction — the exponential potential is a special case, and the new work says so explicitly rather than duplicating the argument.
+
+**Three new modules.**
+
+- `BookProof/ChapterSchrodingerCutoffEsa.lean` — the cutoff method itself in one dimension, from a single integration-by-parts lemma. It supplies the operator `-f'' + V f` on the compactly supported twice-differentiable core with its symmetry (Milestone 2), the rescaled smooth cutoff with `|χ_R'| ≤ C/R` (Milestone 3), `cutoff_energy_core` — which under the weak hypothesis `Re z ≤ V` bounds *both* `∫_{[-R,R]} (V - Re z)|u|²` and `∫_{[-R,R]} |u'|²` by `O(‖u‖²_{L²}/R²)` — with `cutoff_energy_estimate` its `Re z + 1 ≤ V` corollary (Milestone 4), and the `R → ∞` vanishing theorems `l2_classical_solution_eq_zero` and `l2_classical_solution_eq_zero_of_nonneg` (Milestone 5). Applications: the classical deficiency spaces of `-d²/dx² + (eˣ + e⁻ˣ)` at `±i` are trivial, and the same for the free Laplacian (`laplacian_deficiency_trivial`).
+- `BookProof/ChapterExpPotentialEsa.lean` — the plan's headline object as an actual theorem: `expPotential_esa` states that `-d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)`, with `expPotential_stone_flow` (the unitary group), `coshPotential_esa` (the `2 cosh x` restatement) and `expPotential_semibounded`.
+- `BookProof/ChapterWallEsaSemibounded.lean` — the packaging lemma the consolidated plan's residue list asked for and which an earlier docstring promised but did not supply. The Green identity `⟪(-d²/dx² + V) f, f⟫ = ∫|f'|² + ∫V|f|²` on the compactly supported smooth core yields `wallHamBddBelow_semibounded`: the quadratic form of that operator is bounded below by `-c` whenever `V ≥ -c`.
+
+**Integration and verification.** All three modules are imported from `BookProof.lean` and audited in `BookProof/ChapterRoadmapAudit.lean`; `Book/Starobinsky.lean` gains a new section with `#check` citations. The full verification gate was re-run and is green in every stage: `lake build` on the default targets (8743 jobs), `lake build RandomMap` (8039 jobs), the book render (its assertions hold), the KaTeX check (3153 snippets, 0 failures), and the sorry/axiom audit (no `sorry`, no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` or `PnpProof/`).
+
+**Documentation.** `ARISTOTLE_SUMMARY.md` gains a new section at the top describing this wave (its existing content is untouched); `CONSOLIDATED_PLAN.md` gains a status block and its residue item 1 is marked CLOSED; `BookProof/STATUS.md` records the wave.
+
+**Honest boundary, stated in the modules and the docs.** The cutoff route's vanishing theorems are about *classical* (twice-differentiable) square-integrable solutions. Passing from a general `L²` deficiency vector to a classical solution is elliptic regularity, which the existing route in the project supplies and the cutoff route does not — so the two are complementary, and nothing beyond what is proved is claimed.
+
+# Summary of changes for run 2026-08-27 (attached cutoff plan + continued `CONSOLIDATED_PLAN.md`)
+
+I executed the attached plan — essential self-adjointness of `H = -Δ + V` for a fast-growing, non-polynomial potential (the motivating example `V(x) = eˣ + e⁻ˣ`) by the **Simader–Faris–Lavine cutoff / commutator energy method** — and then continued `CONSOLIDATED_PLAN.md`, closing the one concrete Lean item its §9 backlog still listed. Everything below compiles, is `sorry`-free, and every headline theorem depends only on `propext`, `Classical.choice`, `Quot.sound`.
+
+### What was already in the project (checked first, not duplicated)
+
+The attached plan's **Milestone 1** — an abstract Hilbert-space essential-self-adjointness criterion — was already present as `EssentiallySelfAdjointOn` / `DeficiencyTrivialAt` in `BookProof/ChapterFarisLavine.lean`, so it was reused rather than rebuilt. More significantly, `BookProof/ChapterWallEsaBddBelow.lean` already proved `wallHam_essentiallySelfAdjoint_of_bddBelow`: `-d²/dx² + V` is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)` for **every** smooth `V` bounded below, with no growth restriction. The exponential potential is a special case of that, and the new work says so explicitly.
+
+### New modules
+
+**`BookProof/ChapterSchrodingerCutoffEsa.lean`** (namespace `BookProof.SchrodingerCutoff`) — the cutoff method itself, in one dimension, with no unproved input.
+- `integral_deriv_eq_zero_of_hasCompactSupport` — the single integration-by-parts engine (`∫_ℝ g' = 0` for a compactly supported `C¹` Banach-valued `g`).
+- **Milestone 3**: the concrete cutoff `chi` from Mathlib's `ContDiffBump`, its properties, `exists_deriv_chi_bound`, and the rescaled family `exists_scaled_cutoff` (`|χ_R'| ≤ C/R`).
+- **Milestone 2**: `schrodingerOp` (`H f = -f'' + V f`) on the compactly supported twice-differentiable core, with `schrodingerOp_symmetric` for arbitrary continuous real `V`.
+- **Milestone 4**: `cutoff_energy_core` — under the weak hypothesis `Re z ≤ V` it bounds *both* `∫_{[-R,R]} (V - Re z)|u|²` and `∫_{[-R,R]} |u'|²` by `O(‖u‖²_{L²}/R²)`; `cutoff_energy_estimate` is the `Re z + 1 ≤ V` corollary the plan asks for.
+- **Milestone 5**: `l2_classical_solution_eq_zero` (limit `R → ∞`), plus `l2_classical_solution_eq_zero_of_nonneg`, which runs the limit on the Dirichlet term instead — `u' ≡ 0`, so `u` is constant, and a constant in `L²(ℝ)` is zero.
+- Applications: `Vexp`, `two_le_Vexp`, `schrodinger_exp_deficiency_trivial` / `..._I` / `..._negI` for `V(x) = eˣ + e⁻ˣ`; and `laplacian_deficiency_trivial` / `..._I` / `..._negI` for the free Laplacian, which is a one-dimensional classical-solution form of §9 residue item 3 of the consolidated plan.
+
+**`BookProof/ChapterExpPotentialEsa.lean`** (namespace `BookProof.ExpPotentialEsa`) — the plan's headline object as an actual essential-self-adjointness theorem. `contDiff_Vexp` verifies smoothness, `two_le_Vexp` boundedness below, and **`expPotential_esa`** states that `-d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)`; `expPotential_stone_flow` gives the unitary group `e^{-itH}`, `coshPotential_esa` the `2 cosh x` restatement, `expPotential_semibounded` the non-negativity of its quadratic form.
+
+**`BookProof/ChapterWallEsaSemibounded.lean`** (namespace `BookProof.WallEsaSemibounded`) — the packaging lemma `CONSOLIDATED_PLAN.md` §9 item 1 listed as outstanding, and which the `ChapterWallEsaBddBelow` docstring promised but did not supply. `SemiboundedBelowOn` names "the quadratic form of `T` on the core `D` is bounded below by `-c`"; `integral_conj_neg_deriv2_mul` is the Green identity `∫ conj(-f'') f = ∫ |f'|²` for a compactly supported `C²` function; `kinCcR_quadratic_form`, `opCc_quadratic_form` and `ccEquiv_norm_sq` turn the `L²` pairing into ordinary integrals; and **`wallHamBddBelow_semibounded`** concludes that the quadratic form of `wallHam V hV` is bounded below by `-c` whenever `V ≥ -c`, with `wallHam_nonneg_form` the `c = 0` case. The `ChapterWallEsaBddBelow` docstring now points at it.
+
+### Integration and verification
+
+- `BookProof.lean` imports all three modules with wave comments; `BookProof/ChapterRoadmapAudit.lean` audits every new headline theorem with `#print axioms`.
+- `Book/Starobinsky.lean` gains the section "The Exponential Wall Itself, and the Energy Form" with `#check` citations for all three modules.
+- `BookProof/STATUS.md` records the wave; `CONSOLIDATED_PLAN.md` gains a status block and its §9 item 1 is marked **CLOSED**.
+- The §8 gate was re-run in this repository and is green in every stage: `lake build` (default targets `BookProof` + `Book` + `Singularity`, 8743 jobs), `lake build RandomMap` (8039 jobs), `./patches/build-book.sh` (assertions "no `<base>`; fragment links present" hold), `./patches/check-katex.sh` (3153 snippets, 0 failures), and the sorry/axiom audit — no `sorry` and no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` or `PnpProof/`.
+
+### Honest boundary
+
+The cutoff module's vanishing theorems are stated for **classical** (twice-differentiable) square-integrable solutions. Passing from a general `L²` deficiency vector to a classical solution is elliptic regularity, which is not in Mathlib; the existing `ChapterScalaronWallEsa` / `ChapterWeakSecondDerivative` route supplies that step, and the cutoff route does not and does not claim it. The two routes are therefore complementary: the cutoff route is elementary and quantitative, the existing route is the one that yields the full operator-theoretic ESA statement.
+
+All work is committed and pushed.
+
+# Summary of changes for run 340674a4-f85c-4204-9083-210eda4e6ae2
+## Execution of `CONSOLIDATED_PLAN.md` §13 — complete
+
+The actionable Lean-specialist section of the plan (§13: the finite-precision certificate layer T1–T5, and the certified mass gap T6/T7 plus the nested-selection lemma) is now formalized, proved, and integrated. Everything is `sorry`-free and `axiom`-free, and the §8 gate has been re-run green.
+
+### New modules
+
+**`BookProof/ChapterSirkFinitePrecision.lean`** (namespace `BookProof.SirkFinitePrecision`)
+- **T2** `exists_eigenvalue_dist_le_residual` — the a-posteriori Rayleigh–Ritz residual bound: for any nonzero vector and any real θ, some eigenvalue of the exact operator lies within `‖Hx − θx‖/‖x‖` of θ. Proved from a spectral expansion in the eigenbasis (`repr_apply_of_symmetric`, `norm_sq_eq_sum_repr`, `rayleigh_eq_sum_eigenvalues`, `norm_apply_sq_eq_sum_eigenvalues`).
+- **T1/T3** `backward_error_weyl` / `backward_error_weyl_symm` — under the backward-error model `‖Hx − Sx‖ ≤ ε‖x‖`, the two spectra are within ε of each other, in the enclosure (Hausdorff) form a certificate consumes.
+- **T4** `observable_propagation` / `observable_propagation_band` — `|⟨O⟩_u − ⟨O⟩_w| ≤ ‖O‖(‖u‖+‖w‖)‖u−w‖`.
+- **T5** the interval core: `CertInterval` with `add`/`neg`/`sub`/`mul`/`widen` and soundness theorems, the outward-rounding model `mem_ofRounded`, `dist_le_width`, and a verified interval evaluator (`evalHorner`, `mem_evalHorner`, `abs_polyEval_le_of_mem`) giving a certified supremum over a box from one interval evaluation.
+- Temple's inequality `temple_lower_bound`, plus `ground_le_rayleigh` and `ground_ge_of_no_eigenvalue_below`.
+
+**`BookProof/ChapterSirkCertifiedGap.lean`** (namespace `BookProof.SirkCertifiedGap`)
+- The parity split is exact: `paritySector`, `paritySector_invariant`, `sectorRestrict`, `sectorRestrict_isSymmetric`; the sector ground energy `sectorGround` with `sectorGround_le_rayleigh`, `le_sectorGround`, `sectorGround_eq_inf_eigenvalues` and `sectorGround_ge_temple`.
+- **T6** `certified_parity_gap`: `λᵒ₀ − λᵉ₀ ≥ θᵒ − θᵉ − (δᵒ + δᵉ)`, with `certified_parity_gap_pos`, `certified_parity_gap_of_data`, `rayleigh_odd_ge_of_certified`, and `certified_parity_gap_strong_coupling` — the `gap ≥ g²/2 + corr − (δᵒ + δᵉ)` form the plan asks for, keeping the excluded `O(g⁴)` magnetic correction as an explicit parameter rather than absorbing it into the widths.
+- **The nested-selection lemma** `resolvent_commutes_parity` / `resolvent_mapsTo_paritySector`.
+- **T7** the stopping rule: `certifiedGap`, `certifiedGap_tendsto` (convergence to the true sector gap), `certifiedGap_eventually_pos` (completeness) and `certifiedGap_sound` (soundness — a positive certified value at a single dimension *proves* a positive gap, and nothing is claimed otherwise).
+- The certificate layer `GapCertificate` / `gap_ge_of_certificate` / `gap_pos_of_certificate`, instantiated at the `g = 2`, `m = 4` data (`qcdG2M4_certified_gap`: measured gap 1.9875, assembled width 0.0555, certified lower bound 1.932 > 0). The two numbers are transcribed data; the theorem is what follows from them together with the enclosures.
+
+### A correction to the source argument
+The informal step `λ₀ ≥ θ − ‖r‖` is **not valid**: a small residual only certifies that *some* eigenvalue is near θ, not the lowest one. It is replaced by Temple's inequality (`temple_lower_bound`, `sectorGround_ge_temple`) together with the a-posteriori `ground_ge_of_no_eigenvalue_below`. T6 consumes the Temple bound, so the result is not weakened. The correction is documented in the module docstrings, `BookProof/STATUS.md` and the plan's §13.6 status block.
+
+### Integration and verification
+- `Book/SirkReliability.lean` gains sections discussing the layer with `#check` citations, and its "Honest Boundary" paragraph is corrected: finite precision is no longer outside the statements, but the certified claims are about the *truncated* operator.
+- `BookProof.lean` imports the new modules; `BookProof/STATUS.md` records the wave and `CONSOLIDATED_PLAN.md` §13.6 carries a status block.
+- Gate re-run: full `lake build` (BookProof + Book + Singularity, 8738 jobs) and `lake build RandomMap` succeed with no errors; the book wrapper renders (verso patches applied, `lake build book`, `lake exe book`, HTML post-processing) with its assertions passing — no `<base>` element, fragment links present, the new certified-gap sections rendered. `#print axioms` on every headline theorem returns only `propext`, `Classical.choice`, `Quot.sound`; text searches confirm no `sorry` and no `axiom` declarations anywhere in `BookProof/`.
+
+### Recorded boundaries (not closed here)
+- The **continuum** Millennium claim needs a gap-preserving norm-resolvent convergence of the truncation family. Every statement above is about the finite-dimensional truncation; the continuum leg is neither proved nor assumed, and remains the plan's standing boundary.
+- §13.5 items 4–5 (independent re-checking of the exported theorem, and the Rust→Lean translation route for the numeric core) require the sibling kernel repository and external tooling that are not part of this project, so they could not be carried out.
+
+All work is committed and pushed.
+
+# Summary of changes for run d8da8fc8-dec6-4668-96f4-aea931fa1a03
+I continued the plan execution and completed the next wave: the last open piece of §10.6.1 / §10.6.2 item 2 — essential self-adjointness of the Schrödinger operator with the **exponentially growing Starobinsky scalaron wall**.
+
+**New modules (both `sorry`-free; every new theorem certified to depend only on `propext`, `Classical.choice`, `Quot.sound`):**
+
+1. `BookProof/ChapterWeakSecondDerivative.lean` (namespace `BookProof.WeakSecondDeriv`) — a self-contained one-dimensional distributional regularity toolkit: test-function calculus and `exists_antideriv`; the du Bois-Reymond lemmas (`ae_eq_const_of_integral_deriv_smul_eq_zero`, `ae_eq_affine_of_integral_deriv2_smul_eq_zero`); integration by parts against the primitive of a merely locally integrable function (`integral_deriv_mul_indefiniteIntegral`, which needs absolute-continuity calculus since such a primitive is differentiable only almost everywhere); and the regularity theorems `exists_ae_eq_doubleAntideriv_add_affine` (real) and `exists_deriv2_of_weak_eq` (complex) — a locally integrable weak solution of `u'' = c·u` with continuous `c` agrees almost everywhere with a genuinely twice differentiable solution.
+
+2. `BookProof/ChapterScalaronWallEsa.lean` (namespace `BookProof.ScalaronWallEsa`) — the non-perturbative argument. `eq_zero_of_convexOn_nonneg_integrable`: a non-negative integrable convex function on ℝ is zero. `ode_solution_eq_zero`: for `V ≥ 0` and purely imaginary `z`, a solution of `W'' = (V − z)W` with `|W|² ∈ L¹` vanishes, because `(|W|²)'' = 2(V|W|² + |W'|²) ≥ 0`. `wallHam` is `−d²/dx² + V` on the compactly supported smooth core of `L²(ℝ)` (`wallHam_symmetricOn`), `wallHam_weak_eq` converts the deficiency equation into distributional form, and **`wallHam_essentiallySelfAdjoint`** gives essential self-adjointness for *every* smooth `V ≥ 0` with no growth hypothesis. The scalaron instances are **`starobinskyWall_esa`** and **`starobinskyWall_stone_flow`** (the unitary group `e^{−itH}`).
+
+This reaches a case that the earlier perturbative routes provably cannot: relative boundedness on the Gauss/Hermite core is refuted in `BookProof/ChapterHermiteExpWall.lean`, and the Carleman flux criterion fails there because `∑ 1/A` converges. The honest boundary is recorded in the module docstring, the book chapter and the plan: the statement is one-dimensional (the scalaron direction) and assumes `V ≥ 0`, which the Starobinsky potential satisfies since it is a square.
+
+**Wiring and verification.** Both modules are imported in `BookProof.lean` with a wave comment; `BookProof/ChapterRoadmapAudit.lean` gained 15 `#print axioms` lines (all reporting only the three standard axioms); `Book/Starobinsky.lean` gained a new section "The Exponential Wall, Closed by Convexity" with `#check`s of the new results, and its earlier "not covered" paragraph now points forward to it; `BookProof/STATUS.md` and `CONSOLIDATED_PLAN.md` have a new dated wave entry, and §10.6.1 target 4 is updated in place. A full `lake build` of all default targets (8736 jobs, including the Verso book) completes successfully with no errors and no style warnings from the new files. All work is committed and pushed.
+
+# Summary of changes for run 2ba7fe0c-7bdb-4f66-8e71-e60100782652
+Continued executing `CONSOLIDATED_PLAN.md`, closing the last outstanding join of §10.6.2 item 4 (the BRST sector of the quantum-gravity chapter).
+
+**New module `BookProof/ChapterQgBrstCompleted.lean`** (~540 lines, no `sorry`, no new axioms — every result depends only on `propext`, `Classical.choice`, `Quot.sound`):
+
+- **A bounded weighted-shift calculus on ℓ².** `tsum_sq_weighted_le` proves that pulling a square-summable family back along a reindexing that is injective on the support of a weight of modulus ≤ 1 stays square-summable with no larger sum; `wshift` packages this as a continuous linear map of norm ≤ 1 (`wshift_norm_le`), with `wshift_norm_eq` giving isometry for a unimodular weight.
+- **The ghost ladder after completion.** On `ℓ²` of the joint boson/ghost occupations — the completion of the graded Fock space built in the previous wave — the dressed ghost creation operators `brstTerm` satisfy `brstTerm_comp_self` ((Ψ†)² = 0) and `brstTerm_anticomm` (Ψ†_aΨ†_b + Ψ†_bΨ†_a = 0).
+- **The bounded nilpotent BRST charge** `qgBrstCharge`, the sum over the 19 diffeomorphism ghosts: `qgBrstCharge_nilpotent` (Ω² = 0) and `qgBrstCharge_ne_zero` (it is not the zero operator, so the cohomology statements are not vacuous).
+- **A commuting unitary group** `qgPhase` with `qgPhase_zero`, `qgPhase_group`, `qgPhase_isometry`, `qgPhase_comm_brst`, and `qgPhase_single`, which identifies it on the occupation basis as the second-quantized evolution with vanishing ghost energy.
+- **The join with the reduced-transfer theory**: `qgExact_le_physical`, `qgPhase_mem_physicalStates` (the evolution preserves the physical/BRST-closed subspace), `qgPhase_mem_exactStates`, and the reduced transfer `qgBrstTransfer` with `qgBrstTransfer_zero`, `qgBrstTransfer_comp`, `qgBrstTransfer_bijective` and `qgBrstTransfer_infDist` (the BRST quotient norm is preserved).
+- **The ghost-energy obstruction is proved, not assumed**: `qgPhaseFull_not_comm_brst` shows that if a ghost energy is nonzero, the evolution it generates fails to commute with the charge, so the restriction to a ghost-energy-free Hamiltonian in the statements above is a necessity rather than a convenience.
+
+Honest boundary, recorded in the module docstring and in the plan: the constraint symbols are diagonal in the boson occupations and bounded by one rather than the unbounded generators of the full constraint algebra, and essential self-adjointness of the full indefinite gauge-fixed Hamiltonian remains open.
+
+**Wiring and documentation.** The module is imported by `BookProof.lean` with a wave comment; `BookProof/ChapterRoadmapAudit.lean` gained 23 `#print axioms` lines (all reporting only the three standard axioms); `Book/DiffeomorphismsGravity.lean` gained the section "The BRST Charge on the Completed Space and the Reduced Transfer" with its citations and a summary bullet; `CONSOLIDATED_PLAN.md` (new status block, item 4 updated) and `PLAN_LEAN_SPECIALIST_QG_FLOW.md` (new Part F row F.9 plus an execution note) were updated without removing prior content. The doc edits left over from the previous session were also committed, and the executable bit was restored on the `patches/*.sh` scripts (they previously failed to run from within `build-book.sh`).
+
+**Verification:** `lake build`, `lake build RandomMap`, the single-page book build and the KaTeX check all pass (3098 math snippets, 0 failures); `lake build Book` is warning-free; a search confirms no `sorry` in the new module. All work is committed and pushed.
+
+# Summary of changes for the 2026-08-26 wave (QG R + αR² ESA on the compactly supported smooth core)
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, closing **§10.6.1 / §10.6.2 item 2 for the compactly supported smooth core** — the user's clarification that for the QG `R + αR²` one-particle Hilbert space the dense core `C_c^∞` is what ESA (and hence the finite-particle Fock lift) should be proved on — and updated `ARISTOTLE_SUMMARY.md` (new entry prepended; prior entries untouched).
+
+**What was open.** The project already proved essential self-adjointness of the gauge-fixed one-particle Hamiltonian `−Δ + ‖x‖²/4 + V` on the **Gauss–polynomial (Hermite) core** (`BookProof/ChapterHermiteQuadraticEsa.lean`), and §10.6.3's "definition of done" named that core. The physically relevant core is the smaller one of smooth compactly supported functions: ESA there is strictly stronger (fewer test vectors are available to kill a deficiency vector), it implies the statement on every larger core, and it is the building block of the finite-particle Fock core.
+
+**New module `BookProof/ChapterQgOneParticleCcEsa.lean`** (namespace `BookProof.QgOneParticleCc`), 1143 lines, sorry-free and axiom-free (`propext`, `Classical.choice`, `Quot.sound` only):
+
+- **The abstract transfer step.** `deficiencyTrivialAt_of_graphApprox` and `essentiallySelfAdjointOn_of_graphApprox`: if every vector of `D₁` is approximated, *together with its image*, by vectors of `D₂` in the graph norm, then triviality of the deficiency spaces passes from `D₁` to `D₂`. Neither domain need contain the other — which is exactly the situation here, since a Gauss polynomial is never compactly supported and a bump function is never a Gauss polynomial, so the existing restriction lemma `FarisLavine.essentiallySelfAdjointOn_restrict_of_graph_core` does not apply.
+- **The operator.** `kinDir`, `kinOp` (`= −Δ` on Schwartz space), `kinCc`, and `ccHam W hW := kinCc d + opCc W hW` — the Hamiltonian `−Δ + W` on the compactly supported smooth core `ccDomain (Vd d)` — with `kinCc_symmetricOn` and `ccHam_symmetricOn`.
+- **Pointwise Laplacian calculus.** `dcoord`, `lapC`, `lapC_mul` (the Leibniz rule for `Δ(uv)`), `secondDeriv_apply_eq`, `kinOp_apply_eq`, and the smoothness/derivative computations for the Gauss–polynomial functions (`contDiff_pgFun`, `dcoord_pgFun`, `lapC_pgFun`).
+- **The cut-off.** `bump`, `cut d R x = χ(x/R)`, `contDiff_cut`, `hasCompactSupport_cut`, `cut_eq_one`, and **`exists_cut_derivative_bounds`**: constants with `|∂χ_R| ≤ C/R` and `|Δχ_R| ≤ C/R²`.
+- **The analytic estimate.** With `(−Δ + W)(χ_R ψ) − (−Δ + W)ψ = (χ_R − 1)(−Δψ + Wψ) − 2∑ⱼ ∂ⱼχ_R ∂ⱼψ − (Δχ_R)ψ` (`cut_error_eq`), an `L²` majorant independent of `R` (`majorant`, `memLp_majorant`), the vanishing of the error inside the ball (`cutErr_eq_zero`, `lapC_cut_eq_zero`) and the tail estimates (`tendsto_tailNorm`, `norm_cutErr_le`, `norm_cutFun_sub_le`) give **`exists_cc_graph_approx`**: every Gauss-core vector is a graph-norm limit of compactly supported smooth ones.
+- **The results.** **`ccHam_essentiallySelfAdjoint_of_core`** is the transfer theorem, and **`qgOneParticleCc_esa`** its payoff: for every smooth `V` with `|V| ≤ a‖x‖²/4 + b` and `a < 1`, the gauge-fixed Hamiltonian `−Δ + ‖x‖²/4 + V` is essentially self-adjoint on `C_c^∞(ℝᵈ)`, with **`qgOneParticleCc_stone_flow`** giving the unitary group. `confVCc_esa`/`confVCc_stone_flow` (`d = 1`, conformal mode) and `sectorQuadCc_esa`/`sectorQuadCc_stone_flow` (`d = 2`, reduced `(R_c, φ)` sector) are the `R + αR²` instances, in the same `0 < α < 1/2` window that makes the conformal-mode parabola subquadratic.
+- **The Fock lift.** `partLM`, `nParticleW`, `sum_harmW_partLM` and `abs_nParticleW_le` show the `n`-particle potential `∑ₖ (‖x_k‖²/4 + V(x_k))` on `(ℝᵈ)ⁿ ≅ ℝ^{nd}` satisfies the same quadratic bound with the same `a`, giving **`qgNParticleCc_esa`**. `qgFock` (the ℓ²-direct sum of the sectors), `qgFockCore` (the algebraic direct sum of the compactly supported smooth sector cores, dense by `qgFockCore_dense`), `qgFockHam` and `qgFockHam_symmetricOn` then yield **`qgFockCc_esa`** and **`qgFockCc_stone_flow`**: the second-quantised `R + αR²` Hamiltonian is essentially self-adjoint on the finite-particle Fock core built from the one-particle `C_c^∞` core, with a unitary time evolution.
+
+**Honest boundary (recorded in the module docstring, the book chapter and the plan).** The potential class transported is the quadratic one of `ChapterHermiteQuadraticEsa` — the harmonic conformal-mode parabola plus a strictly subquadratic smooth perturbation. The exponentially growing scalaron wall `e^{βφ}` is **not** covered; on the Gauss core it is refuted outright in `ChapterHermiteExpWall`, because the wall does not map that core into `L²`. Localizing the core strengthens the conclusion only within the class where the conclusion holds.
+
+**Wiring and verification.** `BookProof.lean` imports the new module with a wave comment; `BookProof/ChapterRoadmapAudit.lean` gains 15 `#print axioms` lines for `BookProof.QgOneParticleCc.*`, all reporting only the three standard axioms; `Book/Starobinsky.lean` gains the section "The Compactly Supported Core" with five prose paragraphs and the matching `#check`s; `CONSOLIDATED_PLAN.md` gains a dated 2026-08-26 status block, marks §10.6.2 item 2 closed for the quadratic class in place, and records the update in §10.6.3; `BookProof/STATUS.md` gains a matching wave section. The §8 gate is green: the full `lake build` and `lake build RandomMap` pass, with no `sorry`, no `axiom`, no `set_option maxHeartbeats` and no new warnings.
+
+# Summary of changes for run a73e2f29-f806-4ddc-bce2-77208b37d722
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, closing the **field-space half of §10.6.2 item 4** — the concrete 3D gauge-fixed *gravity* Hamiltonian and its ghost-sector BRST charge, i.e. items **F.1–F.8 of Part F** of `PLAN_LEAN_SPECIALIST_QG_FLOW.md` — and updated `ARISTOTLE_SUMMARY.md` (new entry prepended; prior entries untouched).
+
+**Two new modules, both `sorry`-free and axiom-free** (`propext`, `Classical.choice`, `Quot.sound` only):
+
+`BookProof/ChapterQuantumGravity3DGauge.lean` (F.1–F.5, F.8) — the field space of `84 = 4 + 16 + 64` densitized-tetrad coordinates on the Gauss–polynomial core of `L²(ℝ⁸⁴)`; the `1/e` degeneracy and its absorption (`qg3DDensity_densitized`); the commutation of the polynomial derivations (`pderiv_comm_poly`, `derOp_comm`), which Mathlib does not provide; the canonical commutation relations `[x_j, π_k] = i δ_jk` (`qgCCR`, `qgCCR_tetrad`); the Weyl ordering of the non-commuting cross terms, proved symmetric rather than assumed; and the gauge-fixed Hamiltonian `qg3DHamiltonian` with `qg3D_symmetricOn` and `qg3D_quadForm`. The plan's "positive sum of squares" turned out **not** to be attainable as stated: the physical coefficients are `+1/16` and `−1/24` (`qgKappa_indefinite`), so the form is genuinely two-signed and no Friedrichs claim is made for the full operator; the elliptic truncation is nonnegative and does carry F.8 (`qg3DElliptic_friedrichs_extension`, `qg3DElliptic_hashimoto_selects`). This deviation is recorded in the module docstring and in both plan files.
+
+`BookProof/ChapterQuantumGravityBrstCharge.lean` (F.6, F.7) — the abstract charge `Ω = Σ_a G_a χ_a − ½ Σ f_abe χ_a χ_b β_e` in any ring that is an ℝ-algebra: `glin_sq` computes the square of the constraint part, `glin_mul_Q_add_Q_mul_glin` shows the cross terms cancel it exactly (the step that fixes the coefficient `−½`), giving `brst_full_nilpotent` (`Ω² = 0`) and `brst_abelian_nilpotent`. The 19 ghosts are realized on `Λ(ℂ¹⁹)` with `ghost_car` proving the canonical anticommutation relations; the graded field space `ℂ[x₀,…,x₈₃] ⊗ Λ(ℂ¹⁹)` carries commuting bosonic and ghost operators (`bosOp_ghostOp_comm`, `qgGhostCar`); the constraints `x_j ∂_k` close into the matrix Lie algebra (`elemGen_bracket`, `linGen_bracket`), yielding `qgBRST_nilpotent`. A concrete non-abelian family — the affine algebra `[H, E] = E`, with `affMat_non_abelian` recording that the generators really fail to commute — gives `affBRST_nilpotent`, so the theorem is not vacuous.
+
+**Honest boundary (recorded in the modules and the plans).** Everything lives on the algebraic core tensored with the finite ghost sector: no bounded extension of the charge to the completed `L²(ℝ⁸⁴ × ℤ₂¹⁹)`, no essential self-adjointness of the full indefinite Hamiltonian, no mass gap and no global-existence claim. Joining the charge to the previously proved reduced-transfer theorem, which needs a bounded charge on the completed space, is what remains of item 4.
+
+**Wiring and verification.** Both modules are imported from `BookProof.lean` with a wave comment; `BookProof/ChapterRoadmapAudit.lean` gains 22 `#print axioms` lines, all reporting only the three standard axioms; `Book/DiffeomorphismsGravity.lean` gains the section "The Gauge-Fixed Field-Space Hamiltonian and its BRST Charge" with the matching `#check`s and two summary bullets; `BookProof/STATUS.md`, `CONSOLIDATED_PLAN.md` (new dated status block plus an in-place update of §10.6.2 item 4) and `PLAN_LEAN_SPECIALIST_QG_FLOW.md` (F.1–F.8 marked done, with the deviations spelled out) are updated. The §8 gate is green: `lake build` (8731 jobs), `lake build RandomMap`, `patches/build-book.sh` and `patches/check-katex.sh` (3032 math snippets, 0 failures) all pass, with no `sorry` and no new warnings. The shell scripts under `patches/` had lost their executable bit, which made `patches/build-book.sh` abort on its first line; that bit is restored. All work is committed and pushed.
+
+# Summary of changes for run 35754420-c3bf-4c9b-b19d-5691da7e9b9d
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, closing the **field-space** half of **§10.6.2 item 4** — the concrete 3D gauge-fixed *gravity* Hamiltonian and its ghost-sector BRST charge, i.e. **Part F (items F.1–F.8) of `PLAN_LEAN_SPECIALIST_QG_FLOW.md`** — and updated this file.
+
+**What was open.** The previous wave closed the *reduced transfer* half of item 4 for an abstract bounded nilpotent charge and recorded that "the concrete 3D gauge-fixed field-space Hamiltonian and its ghost-sector BRST charge on `ℤ₂¹⁹` are *not* constructed". This wave constructs them.
+
+**New module `BookProof/ChapterQuantumGravity3DGauge.lean`** (namespace `BookProof.QuantumGravity3DGauge`), sorry-free and axiom-free (`propext`, `Classical.choice`, `Quot.sound` only) — F.1–F.5, F.8:
+
+- **The field space.** `84 = 4 + 16 + 64` coordinates (spacetime, tetrad, tetrad-derivative) of the Gauss–polynomial core of `L²(ℝ⁸⁴)`, with `idxX`/`idxE`/`idxDE` and their injectivity and pairwise disjointness. `qg3DDensity`, `qg3DDensity_singular`, `qg3DDensity_densitized` carry over the `1/e` degeneracy and its absorption.
+- **The algebra on the core.** `pderiv_comm_poly` and `derOp_comm` supply the commutation of the polynomial derivations that Mathlib does not have; `qgCoord`, `qgMom`, **`qgCCR`**, `qgCCR_tetrad` are the canonical commutation relations `[x_j, π_k] = i δ_{jk}`; `qgWeylProd`, `qgWeylProd_polySym`, `qgWeylProd_coord_mom_polySym` settle the Weyl ordering of the non-commuting cross terms — proved symmetric, not assumed.
+- **The Hamiltonian.** `signedOp` is the signed sum of squares, `qg3DHamiltonian` the gauge-fixed operator, with `qg3D_apply`, **`qg3D_symmetricOn`** and **`qg3D_quadForm`**.
+- **The honest boundary of F.5.** The physical coefficients are `+1/16` and `−1/24` (**`qgKappa_indefinite`**), so the form is genuinely two-signed and the operator is *not* semibounded: the plan's "positive sum of squares" is not attainable as stated and **no Friedrichs claim is made for the full operator**. The elliptic truncation `qg3DEllipticHamiltonian` is nonnegative and does carry F.8: **`qg3DElliptic_friedrichs_extension`** and **`qg3DElliptic_hashimoto_selects`**.
+
+**New module `BookProof/ChapterQuantumGravityBrstCharge.lean`** (namespace `BookProof.QuantumGravityBrstCharge`), sorry-free and axiom-free — F.6, F.7:
+
+- **The abstract charge.** In any ring that is an `ℝ`-algebra, for `Ω = Σ_a G_a χ_a − ½ Σ_{a,b,e} f_{abe} χ_a χ_b β_e`: `glin_sq` computes the square of the constraint part as half the ghost-contracted constraint algebra, `glin_mul_Q_add_Q_mul_glin` shows the cross terms produce exactly the opposite quantity — the cancellation that *fixes* the coefficient `−½` — and with the project's existing cubic-square theorem this gives **`brst_full_nilpotent`**: `Ω² = 0`. `brst_abelian_nilpotent` is the commuting case, which needs no Jacobi identity.
+- **The ghost sector on `ℤ₂¹⁹` (F.7).** `ghostSpace = Λ(ℂ¹⁹)` with `ghostCre` the exterior multiplication and `ghostAnn` the contraction; **`ghost_car`** proves `{ψ_a, ψ†_b} = δ_{ab}`, `{ψ_a, ψ_b} = 0`, `{ψ†_a, ψ†_b} = 0`.
+- **The graded field space (F.6).** `QGState = ℂ[x₀,…,x₈₃] ⊗ Λ(ℂ¹⁹)` with `bosOp`, `ghostOp`, **`bosOp_ghostOp_comm`** and **`qgGhostCar`**.
+- **The constraints.** `elemGen j k = x_j ∂_k` and `linGen M = Σ M_{jk} x_j ∂_k`; **`elemGen_bracket`** and **`linGen_bracket`** (`[linGen A, linGen B] = linGen (AB − BA)`) prove they close into the matrix Lie algebra. Hence **`qgBRST_nilpotent`** and `qgBRST_abelian_nilpotent`.
+- **Non-vacuity.** `affMat`/`affF` realize the non-abelian affine algebra `[H, E] = E`; `affMat_non_abelian` shows the two generators genuinely fail to commute, `affMat_close`/`affF_antisymm`/`affF_jacobi` discharge the hypotheses, and **`affBRST_nilpotent`** is the resulting concrete non-abelian nilpotent charge.
+
+**Honest boundary.** Everything lives on the algebraic Gauss–polynomial core tensored with the finite ghost sector: no bounded extension of the charge to the completed `L²(ℝ⁸⁴ × ℤ₂¹⁹)`, no essential self-adjointness of the full indefinite Hamiltonian, and no mass gap or global-existence claim. Joining the charge to the reduced-transfer theorem of the previous wave — which needs a *bounded* charge on the completed space — is the part of item 4 that remains open, and is recorded as such.
+
+**Wiring and verification.** `BookProof.lean` imports both modules with a wave comment; `BookProof/ChapterRoadmapAudit.lean` records 22 new `#print axioms` lines, all reporting only the three standard axioms; `Book/DiffeomorphismsGravity.lean` gains the section "The Gauge-Fixed Field-Space Hamiltonian and its BRST Charge" with the corresponding `#check`s and two new summary bullets; `CONSOLIDATED_PLAN.md` gains the 2026-08-25h status block and §10.6.2 item 4 is updated in place; `PLAN_LEAN_SPECIALIST_QG_FLOW.md` marks F.1–F.8 done and records the two deviations; `BookProof/STATUS.md` gains a matching wave section. The §8 gate is green: `lake build` (8731 jobs), `lake build RandomMap`, `patches/build-book.sh` and `patches/check-katex.sh` (3032 snippets, 0 failures) all pass, with no `sorry` and no new warnings. The shell scripts under `patches/` had lost their executable bit, which made `patches/build-book.sh` fail on its first line; that bit is restored.
+
+---
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, closing the **BRST-reduced transfer** half of **§10.6.2 item 4** — the requirement of §10.3 that the half-density unitary map the physical subspace to itself and descend to BRST cohomology — and updated this file.
+
+**What was open.** The project already proves the BRST charge nilpotent (`ChapterBRSTNilpotent`, `ChapterGhostField`, `ChapterFermionFock`), which makes the cohomology well defined, and bounds the leakage of the *truncated* dynamics (§12.2 Gap 5). What was missing is the statement that the *exact* dynamics respects the cohomology at all.
+
+**New module `BookProof/ChapterBrstReducedTransfer.lean`** (namespace `BookProof.BrstReducedTransfer`), sorry-free and axiom-free (`propext`, `Classical.choice`, `Quot.sound` only):
+
+- `physicalStates Ω = ker Ω` (BRST-closed states), `exactStates Ω = closure (range Ω)` (pure-gauge states; the closure is what makes the quotient a topological object), `exactStates_le_physicalStates` from nilpotency, and `Cohomology Ω = physicalStates Ω ⧸ exactStates Ω`.
+- `physicalStates_invariant` / `exactStates_invariant` — a bounded operator commuting with `Ω` preserves both subspaces; the second needs a continuity argument, since the range is only dense in its closure. Hence `reducedMap`, the induced ℂ-linear map on cohomology.
+- **`transfer`** with `transfer_zero`, **`transfer_comp`** (`transfer s ∘ transfer t = transfer (s+t)`) and **`transfer_bijective`**: a one-parameter family commuting with `Ω` induces a one-parameter group of linear automorphisms of the BRST cohomology. **`infDist_exactStates_eq`** adds that an isometric family preserves the distance to the exact states — the quotient (BRST) norm of the class — so the reduced transfer is norm-preserving, not merely well defined.
+- **The Stone instance.** `stoneU_mem_physicalStates` (the §10.3 caveat itself), `stoneU_sub_mem_exactStates` (gauge invariance), `stoneTransfer`, `stoneTransfer_comp`, `stoneTransfer_bijective`, `infDist_exactStates_stoneU_eq`: the unitary group `e^{-itT}` of an unbounded self-adjoint Hamiltonian commuting with `Ω` descends to a one-parameter group of norm-preserving automorphisms of the BRST cohomology.
+
+**Honest boundary.** `Ω` is a bounded nilpotent charge assumed to commute with the group (the unbounded form of `[H, Ω] = 0`). The concrete 3D gauge-fixed field-space Hamiltonian and its ghost-sector BRST charge on `ℤ₂¹⁹`, the other half of item 4, are **not** constructed here; this module supplies the reduction statement such a construction must feed. The truncated dynamics does leak, and that is bounded separately (§12.2 Gap 5).
+
+**Wiring and verification.** `BookProof.lean` imports the new module with a wave comment; `BookProof/ChapterRoadmapAudit.lean` records twelve new `#print axioms` lines, all reporting only the three standard axioms; `Book/GaugeSymmetry.lean` gains the section "The Reduced Dynamics on BRST Cohomology" with the corresponding `#check`s; `CONSOLIDATED_PLAN.md` gains the 2026-08-25g status block and §10.6.2 item 4 is marked partially closed in place; `BookProof/STATUS.md` gains a matching wave section. `lake build BookProof` (including the audit chapter) and `lake build Book` are green with no `sorry` and no new warnings.
+
+---
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, closing the **unbounded** half of **§12.2 Gap 5** — the physical-subspace (BRST) leakage of the truncated dynamics — and updated this file.
+
+**What was open.** The Gap-5 wave of 2026-08-25d (`BookProof/ChapterBrstTruncationLeakage.lean`) bounds the leakage of the truncated flow by the discarded block of the Hamiltonian, but only for **bounded** generators; its own honest boundary records "the unbounded field-theoretic Hamiltonian is what remains".
+
+**New module `BookProof/ChapterBrstUnboundedLeakage.lean`** (namespace `BookProof.BrstUnboundedLeakage`), sorry-free and axiom-free (`propext`, `Classical.choice`, `Quot.sound` only). The exact generator is now an arbitrary unbounded self-adjoint operator `T` (the bundled `UnboundedSelfAdjoint` of `BookProof.ChapterStoneResolvent`) with the unitary group `T.stoneU t = e^{-itT}` that the project's Stone theorem produces:
+
+- `hasDerivAt_isometry_apply` — the step that replaces the product rule when the group is only *strongly* continuous: an isometric, strongly continuous family `U h` applied to a curve `f` with `f 0 = 0`, differentiable at `0`, is differentiable at `0` with derivative `f'`.
+- `hasDerivAt_duhamel_stone` — the Duhamel derivative of `u ↦ e^{-i(t-u)T} e^{-iuB} x` along an orbit of the bounded generator `B` that stays in the domain of `T`; only the defect `T − B` along that orbit enters.
+- **`norm_flow_sub_stoneU_le`** — `‖e^{-itB}x − e^{-itT}x‖ ≤ K t` whenever `‖T y − B y‖ ≤ K` along the truncated orbit. No boundedness, no relative bound, no analytic vectors: unitarity of both groups keeps the rate linear in `t`.
+- `norm_omega_stoneU_eq` (the exact dynamics does not leak) and **`leakage_le`** / `leakage_le_of_physical` — `‖Ω(e^{-itB}x)‖ ≤ ‖Ωx‖ + ‖Ω‖ K t` for a bounded observable `Ω` commuting with the exact group.
+- **The finite-`m` truncation.** For a finite-dimensional retained subspace `V` inside the domain with orthogonal projection `P`, the compression `truncGen = P T P` is a *bounded* self-adjoint operator (`truncGen_isSelfAdjoint`; finite-dimensionality is what makes `T P` bounded), its flow keeps a retained state retained (`flow_truncGen_mem`, by ODE uniqueness), and the defect along the orbit is exactly the discarded block `(1 − P) T P` (`defect_eq_truncDefect`). Hence **`norm_flow_truncGen_sub_stoneU_le`** — `‖e^{-itPTP}x − e^{-itT}x‖ ≤ ‖(1−P)TP‖‖x‖t`, the finite-`m` flow error for an unbounded Hamiltonian — and **`truncation_leakage_le`** / `truncation_leakage_le_of_physical` — `‖Ω(e^{-itPTP}x)‖ ≤ ‖Ωx‖ + ‖Ω‖‖(1−P)TP‖‖x‖t`.
+
+- **Restarts.** `restartGen` is the sequence of compressions of the restarted cycle (a fresh retained subspace `Vᵢ` each cycle), `norm_restartIter` records that the restarted iteration is norm-preserving, and **`restart_leakage_le`** accumulates the bound over `n` cycles of length `τ`: `‖Ω(leakageIter (restartGen …) τ x n)‖ ≤ ‖Ωx‖ + n‖Ω‖D‖x‖τ` whenever every discarded block satisfies `‖(1 − Pᵢ)TPᵢ‖ ≤ D` and the restarted state is retained in the new subspace at each restart — which is what re-seeding the Krylov cycle provides.
+
+**Honest boundary.** `Ω` is bounded and assumed to commute with the *group* `e^{-itT}` (the correct unbounded form of "commutes with `H`"); nilpotency `Ω² = 0` is not needed. The bounds are stated for `t ≥ 0` — reflecting an unbounded generator would mean rebuilding its group, unlike the bounded case, where negative times are already covered. The retained subspace is finite-dimensional, which is the situation of the algorithm. Nothing about floating-point arithmetic (§12.2 Gap 6) is claimed.
+
+**Wiring and verification.** `BookProof.lean` imports the new module with a wave comment; `BookProof/ChapterRoadmapAudit.lean` records the `#print axioms` lines (all clean); `Book/SirkReliability.lean` gains a paragraph on the unbounded case in "Leakage Out of the Physical Subspace" with the corresponding `#check`s; `CONSOLIDATED_PLAN.md` gains the 2026-08-25f status block and its §12.2 Gap-5 entry is updated. `lake build` (BookProof, including the audit chapter) and `lake build Book` are green, with no `sorry` and no new warnings.
+
+---
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, closing **§10.6.1 target 3** — the Carleman flux criterion for **unbounded (infinite-range) hops** — and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** Every flux (Carleman) criterion already in the project (`ChapterHermiteCarlemanEsa`, `ChapterCarlemanTwoStep`, `ChapterCarlemanGeneralHop`) assumes a *finite* hop range. That is what makes the boundary of a box a finite set, so that the flux is a finite sum. Target 3 asks for a flux statement that does not need this.
+
+**New module `BookProof/ChapterCarlemanUnboundedHop.lean`** (namespace `BookProof.CarlemanUnboundedHop`), sorry-free and axiom-free, redoes the argument with tails in place of boundary layers:
+
+- `flux_identity` — for a Hermitian kernel `a n k` on `ℕ` and a square-summable `u` solving `∑ₖ a n k u k = z u n`, `z.im * ∑_{n ≤ N} ‖u n‖² = (flux a u N).im`. The whole Hermitian interior, diagonal included, cancels, so the diagonal is completely unconstrained; `eq_zero_of_flux_small` turns one small cut into `u = 0`.
+- `two_norm_flux_le` — with a hop profile `θ ≥ 0`, `|a n k| ≤ A n · θ (k − n)` for `n < k`, and tails `Θ j = ∑_{i > j} θ i`, twice the flux at the cut `N` is at most `A N * cutMass u Θ N`; `summable_cutMass` shows these cut masses are summable when the profile has finite first moment.
+- `ladder_eq_zero_of_carleman` — the headline criterion: with `A > 0` nondecreasing and `∑ 1/A = ∞` (Carleman's condition), `u = 0` at every non-real `z`, whatever the diagonal and however long the hops.
+- `kernelOp`, `kernelOp_symmetric`, `ladderRec_of_deficiency`, `kernelOp_deficiencyTrivialAt`, `kernelOp_essentiallySelfAdjoint`, `kernelOp_stone_flow` — transported to `ℓ²(ℕ)` (adding square-summability of each column): symmetry on the finite-mode core, triviality of both deficiency spaces, essential self-adjointness through the project's Faris–Lavine interface, and the unitary group.
+- `geoHop`, `geoHop_essentiallySelfAdjoint`, `geoHop_stone_flow` — a genuinely infinite-range instance: *arbitrary* real diagonal `b n` (no growth restriction) with off-diagonal entries `(1 + min n k) · ρ^{|n−k|}`, `0 ≤ ρ < 1`. Every row has infinitely many non-zero entries, so no finite-hop theorem in the project applies.
+
+**Honest boundary.** Carleman's condition constrains the *growth* of the amplitudes, not their range: `∑ 1/A = ∞` allows `A N ~ N` or `N log N`, but not exponential growth. The scalaron exponential wall has Hermite amplitudes of order `e^{c√N}`, so the criterion is silent there; that case, and target 2 (already refuted in its relative-boundedness form by `ChapterHermiteExpWall`), remain open. This is stated in the module, the plan, `BookProof/STATUS.md` and the book chapter.
+
+**Wiring and documentation.** Imported from `BookProof.lean` with an explanatory comment and from `BookProof/ChapterRoadmapAudit.lean`, where 16 new `#print axioms` lines all report only `propext`, `Classical.choice`, `Quot.sound`. The Verso chapter `Book/CarlemanFlux.lean` gained a section "Beyond Finite Range: Unbounded Hops" with four `#check` blocks. `CONSOLIDATED_PLAN.md` gained a dated status block at the top and §10.6.1 target 3 is marked partially closed in place with its original text preserved; `BookProof/STATUS.md` gained a matching wave section; a new entry was prepended to `ARISTOTLE_SUMMARY.md` with earlier entries untouched.
+
+**Verification (plan §8 gate, re-run).** `lake build` over the default targets completes with no errors (8727 jobs) and `lake build RandomMap` is green (8039 jobs); `patches/build-book.sh` re-renders the single-page HTML with its assertions holding ("no `<base>`; fragment links present") and `patches/check-katex.sh` reports 2999 math snippets with 0 failures; greps confirm no `sorry`/`admit` in the new module and no new `axiom` declarations, and the isolation greps are clean. Two style-linter warnings raised by the new code (a `show` that changed the goal, an unexplained heartbeat bump) were fixed at their root rather than suppressed. All work is committed and pushed.
+
+# Summary of changes for run 2026-08-25e (CONSOLIDATED_PLAN §10.6.1 target 3 — the Carleman flux criterion for unbounded (infinite-range) hops)
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** §10.6.1 target 3 asks for "a new flux statement" because every flux (Carleman) criterion in the project — `ChapterHermiteCarlemanEsa`, `ChapterCarlemanTwoStep`, `ChapterCarlemanGeneralHop` — assumes a *finite* hop range. That is not incidental: finite range is what makes the boundary of a box a finite set, so that the flux is a finite sum and the incoming/outgoing layer bookkeeping closes. An operator whose every row is supported on all of `ℕ` has no such boundary layer.
+
+**New module `BookProof/ChapterCarlemanUnboundedHop.lean`** (namespace `BookProof.CarlemanUnboundedHop`), sorry-free and axiom-free, redoes the argument with tails in place of layers:
+
+- **The flux identity.** For a Hermitian kernel `a n k` on `ℕ` and a square-summable `u` solving `∑ₖ a n k u k = z u n`, **`flux_identity`** gives `z.im * ∑_{n ≤ N} ‖u n‖² = (flux a u N).im`, where `flux` is the double sum over pairs `n ≤ N < k`. The whole Hermitian interior — diagonal included — cancels, so the diagonal of the kernel is completely unconstrained and only the off-diagonal decay enters. `eq_zero_of_flux_small` turns one sufficiently small cut into `u = 0`.
+- **The flux bound.** With a hop profile `θ ≥ 0` satisfying `|a n k| ≤ A n · θ (k − n)` for `n < k`, and tails `Θ j = ∑_{i > j} θ i`, **`two_norm_flux_le`** bounds `2‖flux a u N‖` by `A N * cutMass u Θ N`, the cut mass being the `Θ`-weighted `ℓ²` mass straddling the cut. **`summable_cutMass`** shows the cut masses are summable when the profile has finite first moment `∑ⱼ Θ j < ∞`.
+- **Carleman's condition.** **`ladder_eq_zero_of_carleman`**: if in addition `A > 0` is nondecreasing with `∑ 1/A = ∞`, then `u = 0` at every non-real `z`. Summability of the cut masses against divergence of `∑ 1/A` produces a cut where `A N ·` cut mass is arbitrarily small (`exists_mul_lt_of_not_summable_inv`), and the flux identity finishes it.
+- **On `ℓ²(ℕ)`.** Adding square-summability of each column (`IsL2Kernel`), the kernel maps the finitely supported states into `ℓ²(ℕ)` (`memℓp_kernelFun`) and `kernelOp` is symmetric on the finite-mode core (**`kernelOp_symmetric`**). A deficiency vector solves exactly the recursion above (`ladderRec_of_deficiency`), so **`kernelOp_deficiencyTrivialAt`** gives triviality of both deficiency spaces at every non-real point, **`kernelOp_essentiallySelfAdjoint`** concludes essential self-adjointness through the Faris–Lavine interface used elsewhere in the project, and **`kernelOp_stone_flow`** produces the unitary group.
+- **A genuinely infinite-range instance.** `geoHop b rho` has an *arbitrary* real diagonal `b n` — no growth restriction at all — and off-diagonal entries `(1 + min n k) · rho^{|n−k|}` with `0 ≤ rho < 1`. Every row has infinitely many non-zero entries, so no finite-hop theorem in the project applies; the criterion applies with `A n = 1 + n` (Carleman, since `∑ 1/(1+n)` diverges) and `θ r = rho^r` (geometric tails, finite first moment), giving **`geoHop_essentiallySelfAdjoint`** and **`geoHop_stone_flow`**.
+
+**Honest boundary.** Carleman's condition constrains the *growth* of the amplitudes, not their range: `∑ 1/A = ∞` permits `A N ~ N` or `N log N`, but not exponential growth. The scalaron exponential wall has Hermite amplitudes of order `e^{c√N}`, for which the series converges and the criterion is silent. So target 3 is closed for infinite-range hops in general, while the exponential-wall case it was originally aimed at remains open — as does target 2, which `ChapterHermiteExpWall` already refuted in its relative-boundedness form.
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` with an explanatory comment and from `BookProof/ChapterRoadmapAudit.lean`, where 16 new `#print axioms` lines report only `propext`, `Classical.choice`, `Quot.sound`. The Verso chapter `Book/CarlemanFlux.lean` gained a section "Beyond Finite Range: Unbounded Hops" with four `#check` blocks and an honest-boundary paragraph. `CONSOLIDATED_PLAN.md` gained a dated status block at the top and §10.6.1 target 3 is marked partially closed in place with its original text preserved; `BookProof/STATUS.md` gained a matching wave section; this entry was prepended to `ARISTOTLE_SUMMARY.md` with earlier entries untouched.
+
+**Verification (§8 gate, re-run in this wave).** `lake build` over the default targets completes with no errors (8727 jobs) and `lake build RandomMap` is green (8039 jobs); the book wrapper re-renders the single-page HTML with its assertions holding ("no `<base>`; fragment links present"), and the KaTeX check reports 2999 math snippets with 0 failures. `grep` confirms no `sorry`/`admit` in the new module and no new `axiom` declarations, and the isolation greps are clean. Two style-linter warnings raised by the new code (a `show` that changes the goal, an unexplained `maxHeartbeats` bump) were fixed at their root rather than suppressed. All work is committed and pushed.
+
+# Summary of changes for run f72d16e4-de5c-4ab0-a2f4-b6fc5293a8fe
+Continued executing `CONSOLIDATED_PLAN.md` with a new wave and updated `ARISTOTLE_SUMMARY.md`.
+
+**What this wave closes — §12.2 Gap 5 (BRST leakage of the truncated dynamics), for bounded generators.** The plan records that the truncated dynamics the solver integrates does not preserve the physical subspace and that no formal bound on the leakage in terms of the truncation exists. What the project had (`ChapterSirkRestart.brst_leakage_bound`) was a propagator-level statement bounding the leakage of `n` cycles by `‖Ω‖ n ε ‖v‖`, with the per-cycle closeness `ε` taken as a hypothesis, so nothing tied the leakage to the truncation. The new work operates one level down, at the generators, and produces that constant.
+
+**New module `BookProof/ChapterBrstTruncationLeakage.lean`** (namespace `BookProof.BrstLeakage`), sorry-free and axiom-free:
+- `flow A t = exp(t·(−iA))` is unitary for bounded self-adjoint `A`; a commuting charge is carried along, so exact dynamics does not leak (`norm_omega_flow_eq`) and `ker Ω` is invariant.
+- `hasDerivAt_duhamel` / `norm_flow_sub_flow_apply_le`: differentiating `s ↦ e^{−i(t−s)A}e^{−isB}x` and applying the mean-value inequality gives `‖e^{−itB}x − e^{−itA}x‖ ≤ K t` when the defect is bounded by `K` along the `B`-orbit.
+- `norm_flow_sub_flow_le`: the sharp operator-norm transfer rate `‖e^{−itA} − e^{−itB}‖ ≤ ‖A−B‖ t` for self-adjoint bounded generators — the rate `ChapterSirkGroupTransfer` records as not claimed there; its honest-boundary paragraph now points at the new result.
+- `leakage_le` and, with the sharp constant, `truncation_leakage_le`: `‖Ω(e^{−itPHP}x)‖ ≤ ‖Ωx‖ + ‖Ω‖‖(1−P)HP‖‖x‖t` for a retained state, because the truncated flow keeps a retained state retained (`flow_truncGen_mem`, by ODE uniqueness) — the leakage rate is exactly the block of the Hamiltonian the truncation discards, and vanishes with it.
+- `leakage_iterate_le`: restarts with a fresh truncation each cycle accumulate the bound linearly in the cycle count; `brst_leakage_bound_of_generator` discharges the `ε` hypothesis of the earlier propagator-level bound.
+- `norm_flow_sub_flow_apply_le_abs`, `leakage_le_abs`, `truncation_leakage_le_abs`: the same bounds at every real time, with `|t|`.
+
+**Honest boundary.** The generators are bounded (the finite-`m` reduced problem and bounded models); the unbounded field-theoretic Hamiltonian would need the strong-resolvent form. Nilpotency `Ω² = 0` is not needed and is not assumed. No floating-point claim.
+
+**Wiring and documentation.** Imported from `BookProof.lean` with an explanatory comment; 24 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, all reporting only `propext`, `Classical.choice`, `Quot.sound`; two new paragraphs and a `#check` block in the "Leakage Out of the Physical Subspace" section of `Book/SirkReliability.lean`. `CONSOLIDATED_PLAN.md` gained a dated status block and Gap 5 is marked closed-for-bounded-generators in place with its original text preserved; `BookProof/STATUS.md` gained a matching section; a new entry was prepended to `ARISTOTLE_SUMMARY.md` with earlier entries untouched. While looking for work, §12.2 Gap 4b was found already closed by `BookProof/ChapterSirkMultiShift.lean` (the plan text listing it as missing is stale); this is noted in the summary.
+
+**Verification (plan §8 gate).** `lake build` over the default targets completes with no errors (8726 jobs); `lake build RandomMap` is green (8039 jobs); the book wrapper re-renders the single-page HTML with its assertions holding ("no `<base>`; fragment links present") and the KaTeX check reports 2963 math snippets with 0 failures; greps confirm no `sorry`/`admit` in the new module and no new `axiom` declarations, and the isolation greps are clean. The four helper scripts in `patches/` were made executable again (the mode bit had not been recorded in git). All work is committed and pushed.
+
+# Summary of changes for run 2026-08-25d (CONSOLIDATED_PLAN §12.2 Gap 5 — the physical-subspace (BRST) leakage of the truncated dynamics, quantified at the level of the generators)
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** §12.2 Gap 5 asks for "a formal bound on the leakage `‖Ωψ(t)‖` in terms of the truncation": the truncated dynamics the SIRK/Hashimoto solver integrates does not preserve the physical subspace, which is why the solver rides a BRST projector along. What existed was `ChapterSirkRestart.brst_leakage_bound`, a *propagator-level* statement bounding the leakage of `n` cycles of a truncated propagator `S` by `‖Ω‖ n ε ‖v‖` — with the per-cycle closeness `ε` of `S` to the exact propagator taken as a hypothesis, so nothing tied the leakage to the truncation itself. `ChapterBRSTNilpotent` supplied only the algebraic side (`Ω² = 0`, `[H, Ω] = 0`).
+
+**New module `BookProof/ChapterBrstTruncationLeakage.lean`** (namespace `BookProof.BrstLeakage`), sorry-free and axiom-free, works one level down — at the generators the algorithm truncates — and *produces* the constant:
+
+- **The flow.** `flow A t = exp(t • (−iA))` is unitary for bounded self-adjoint `A` (`flow_mem_unitary`, `norm_unitary_apply`, `norm_flow_apply`).
+- **Exact dynamics does not leak.** A charge commuting with the generator is carried along (`omega_flow_apply`), so `‖Ω(flow H t x)‖ = ‖Ω x‖` (**`norm_omega_flow_eq`**) and the physical subspace `ker Ω` is invariant (`flow_mem_ker_omega`). All of the leakage therefore comes from the truncation.
+- **The Duhamel estimate.** **`norm_flow_sub_flow_apply_le`**: if `‖(A − B)(flow B s x)‖ ≤ K` for `s ∈ [0, t]` then `‖flow B t x − flow A t x‖ ≤ K t`; the proof differentiates `s ↦ flow A (t − s) (flow B s x)` (**`hasDerivAt_duhamel`**) and applies the mean-value inequality, unitarity of both groups being what keeps the derivative bound at `K`.
+- **The sharp transfer rate.** **`norm_flow_sub_flow_le`**: `‖e^{−itA} − e^{−itB}‖ ≤ ‖A − B‖ t` in operator norm for self-adjoint bounded generators — the rate `ChapterSirkGroupTransfer` records as not claimed there (its telescoping estimate carries an extra `e^{|t|M}`, which it needs, being valid for arbitrary bounded generators); that module's honest-boundary paragraph now points here.
+- **The leakage bound.** **`leakage_le`**: `‖Ω(flow B t x)‖ ≤ ‖Ω x‖ + ‖Ω‖ K t`, with `leakage_le_of_physical` for a physical initial state.
+- **The truncation instance, with the sharp constant.** The flow of `P H P` keeps a retained state inside the retained subspace (**`flow_truncGen_mem`**, proved by ODE uniqueness rather than a series manipulation), so the defect is only ever applied inside `ran P`, where `H − PHP` equals the discarded off-diagonal block `(1 − P)HP`: **`truncation_leakage_le`**, `‖Ω(flow (PHP) t x)‖ ≤ ‖Ω x‖ + ‖Ω‖ ‖(1 − P)HP‖ ‖x‖ t` for `P x = x`, and `truncation_leakage_le_of_physical`. The leakage is controlled by exactly the part of the Hamiltonian the truncation throws away, and vanishes with it.
+- **Both time directions.** `norm_flow_sub_flow_apply_le_abs`, `leakage_le_abs` and `truncation_leakage_le_abs` are the same bounds with `t` replaced by `|t|`, valid at every real time when the defect is bounded along the whole orbit.
+- **Restarts (§12.2 Gap 4a).** `leakageIter` is the restarted state after `n` cycles of length `τ` with a *fresh* truncation each cycle, and **`leakage_iterate_le`** accumulates the bound linearly: `‖Ω ψₙ‖ ≤ ‖Ω x‖ + n ‖Ω‖ K τ ‖x‖` whenever `‖H − B i‖ ≤ K`.
+- **The bridge.** `norm_flow_sub_flow_le_cycle` discharges the `hstep` hypothesis of the older propagator-level bound with `ε = ‖H − B‖ τ`, and **`brst_leakage_bound_of_generator`** is the resulting instance of `ChapterSirkRestart.brst_leakage_bound`.
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` with an explanatory comment and from `BookProof/ChapterRoadmapAudit.lean`, where 24 new `#print axioms` lines report only `propext`, `Classical.choice`, `Quot.sound`. Two new paragraphs and a `#check` block were added to the existing "Leakage Out of the Physical Subspace" section of the Verso chapter `Book/SirkReliability.lean`; the honest-boundary paragraph of `BookProof/ChapterSirkGroupTransfer.lean` now points at the sharp rate. `CONSOLIDATED_PLAN.md` gained a dated status block and §12.2 Gap 5 is marked closed-for-bounded-generators in place with its original text preserved; `BookProof/STATUS.md` gained a matching wave section; this entry was prepended to `ARISTOTLE_SUMMARY.md` with earlier entries untouched. The four helper scripts in `patches/` were made executable again (the mode bit was not recorded in git before).
+
+**Verification (§8 gate, re-run in this wave).** `lake build` over the default targets completes with no errors; `lake build RandomMap` is green (8039 jobs); the book wrapper re-renders the single-page HTML with its assertions holding ("no `<base>`; fragment links present") and the KaTeX check reports 2963 math snippets with 0 failures; `rg`/`grep` confirm no `sorry`/`admit` in the new module and no new `axiom` declarations, and the isolation greps are clean. All work is committed and pushed.
+
+**Boundary.** The generators here are *bounded* — the finite-`m` reduced problem and bounded models — not the unbounded field-theoretic Hamiltonian, for which the same estimate needs the strong-resolvent form of `ChapterSirkTrotterKato`. Nilpotency `Ω² = 0` is not needed for the leakage bound and is therefore not assumed: `Ω` is any bounded operator commuting with `H`. No floating-point analysis is claimed (§12.2 Gap 6). §10.6.1 target 3 and the exponential-wall part of target 4, research boundary **A1**, QG gaps 3–4 and §12 Gaps 1–3 are unchanged. (While looking for work, §12.2 Gap 4b — the multi-shift forward-sequence span identity — was found already closed by `BookProof/ChapterSirkMultiShift.lean`; the plan text listing it as missing is stale.)
+
+# Summary of changes for run 268d90f1-c315-4a10-b371-cc1e3e607e72
+Continued executing `CONSOLIDATED_PLAN.md` with a new wave and updated `ARISTOTLE_SUMMARY.md`.
+
+**What this wave closes.** The previous wave had shown, negatively, that the exponential scalaron wall is *not* a relatively bounded perturbation on the Gauss–polynomial (Hermite) core. This wave supplies the positive counterpart and the unbounded half of plan §10.6.1 target 4: the *sum* `−Δ + V` is essentially self-adjoint on that core for every continuous potential of quadratic type.
+
+**Module `BookProof/ChapterHermiteQuadraticEsa.lean`** (namespace `BookProof.HermiteQuadraticEsa`), sorry-free and axiom-free:
+- `gaussInt_anticommutator`, `two_re_inner_kin_harm_ge`, `norm_sq_harmPoly_mul_le`, `norm_harmPoly_mul_le` — the harmonic potential `W = ‖x‖²/4` is relatively bounded with respect to `H₀ = −Δ + W` with relative constant exactly `1`: `‖Wψ‖² ≤ ‖H₀ψ‖² + (d/2)‖ψ‖²`, proved from the anticommutator identity `{−Δ, W} = −ΔW + 2∑ⱼ(−∂ⱼ)W∂ⱼ` by Gaussian integration by parts on the core.
+- `harmonic_add_subquadratic_essentiallySelfAdjoint` (+ Stone flow) — for continuous `V` with `|V(x)| ≤ a‖x‖²/4 + b` and `a < 1`, the Gauss–polynomial core is a core for `−Δ + ‖x‖²/4 + V` in every dimension; `V` may be unbounded.
+- `quadraticGrowth_essentiallySelfAdjoint` (growth form, `4A < 1` with arbitrary linear and constant coefficients), `harmonic_add_linearGrowth_essentiallySelfAdjoint`, `scaledHarmonic_essentiallySelfAdjoint` (`−Δ + λ‖x‖²/4` for `λ ∈ (0,2)`).
+- `confV_essentiallySelfAdjoint` / `confV_stone_flow` — the regularized conformal-mode Hamiltonian `−Δ + V₃`, `V₃(R_c) = −(M²/2)R_c + αR_c²`, on `L²(ℝ)` for `0 < α < 1/2`, unconditionally (no finite-speed or unique-continuation hypothesis).
+- `sectorQuad_essentiallySelfAdjoint` / `sectorQuad_stone_flow` — the two-variable reduced `(R_c, φ)` sector with the wall replaced by a quadratic term, `V₃(R_c) + μφ²` on `L²(ℝ²)`, for `0 < α < 1/2`, `0 < μ < 1/2`; `tendsto_starobinskyV_div_sq` proves the scalaron potential is quadratic at its minimum (`V(φ)/φ² → M²/(24α)`), and `sectorHarmonicApprox_essentiallySelfAdjoint` is the sector statement at that value of `μ`, valid when `M² < 12α`.
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` with an explanatory comment and from `BookProof/ChapterRoadmapAudit.lean`, where 18 new `#print axioms` lines report only `propext`, `Classical.choice`, `Quot.sound`. A new section, "What Kato–Rellich *Can* Reach: Quadratically Dominated Potentials", was added to the Verso chapter `Book/Starobinsky.lean`. `CONSOLIDATED_PLAN.md` gained a dated status block and §10.6.1 target 4 is marked partially closed in place with its original text preserved; `BookProof/STATUS.md` gained a matching wave section; a new dated entry was prepended to `ARISTOTLE_SUMMARY.md` with earlier entries untouched.
+
+**Verification.** `lake build` completes with 8725 jobs and no errors; `lake build RandomMap` is green (8039 jobs); the book wrapper re-renders the single-page HTML with its assertions holding and the KaTeX check reports 2954 math snippets with 0 failures; searches confirm no `sorry`/`admit` in the new module and no new `axiom` declarations. All work is committed and pushed.
+
+**Boundary.** The relative bound of `W` against `H₀` is exactly `1`, so the window `a < 1` is the edge of this method, not an artifact; the `α < 1/2` of the conformal-mode instance is that window transported through `|α − 1/4| < 1/4`, and a Gauss core of a different width — not built here — would relocate it. The exponential scalaron wall itself remains out of reach on this core (as the previous wave showed it must), and there the Friedrichs realization remains what is available. §10.6.1 target 3, the exponential-wall part of target 4, research boundary A1 and the remaining QG gaps are unchanged.
+
+# Summary of changes for run 2026-08-25c (CONSOLIDATED_PLAN §10.6.1 target 4 — the sum `−Δ + V` on the Gauss–polynomial (Hermite) core for potentials of quadratic type)
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** The previous wave closed §10.6.1 target 2 in the negative: the exponential scalaron wall is *not* a relatively bounded perturbation on the Gauss–polynomial core, neither of `−Δ` nor of `−Δ + x²/4`. That refutation left the obvious question unanswered — how far the relative-boundedness route *does* reach on this core. What existed for the sum `−Δ + V` was the harmonic Hamiltonian itself, plus *bounded* perturbations of it by Kato–Rellich (`ChapterQgHermiteOscillatorEsa`); unbounded perturbations were open, and `ChapterHermiteRelativeBound` recorded "the general Faris–Lavine potential (bounded above by a quadratic)" as missing.
+
+**New module `BookProof/ChapterHermiteQuadraticEsa.lean`** (namespace `BookProof.HermiteQuadraticEsa`), sorry-free and axiom-free:
+
+- **The analytic input.** The harmonic potential `W = ‖x‖²/4` is relatively bounded with respect to `H₀ = −Δ + W` with relative constant exactly `1`: **`norm_sq_harmPoly_mul_le`**, `‖Wψ‖² ≤ ‖H₀ψ‖² + (d/2)‖ψ‖²`, in Kato–Rellich form `norm_harmPoly_mul_le`. The proof is the anticommutator identity `{−Δ, W} = −ΔW + 2∑ⱼ(−∂ⱼ)W∂ⱼ` (**`gaussInt_anticommutator`**), which on the core is a finite algebraic computation with the twisted derivative `coreD j = ∂ⱼ − xⱼ/2` and Gaussian integration by parts; `W ≥ 0` and `ΔW = d/2` give `2 Re⟪−Δψ, Wψ⟫ ≥ −(d/2)‖ψ‖²` (`two_re_inner_kin_harm_ge`).
+- **The headline.** **`harmonic_add_subquadratic_essentiallySelfAdjoint`**: for continuous `V` with `|V(x)| ≤ a‖x‖²/4 + b` and `a < 1`, the Gauss–polynomial core is a core for `−Δ + ‖x‖²/4 + V` in every dimension — the perturbation may be unbounded — with `harmonic_add_subquadratic_stone_flow` for the self-adjoint realization and its unitary group.
+- **Corollaries.** **`quadraticGrowth_essentiallySelfAdjoint`** (growth form: `|U(x) − ‖x‖²/4| ≤ A‖x‖² + C‖x‖ + B` with `4A < 1`, the linear and constant coefficients arbitrary), `harmonic_add_linearGrowth_essentiallySelfAdjoint`, and `scaledHarmonic_essentiallySelfAdjoint` (`−Δ + λ‖x‖²/4` on the fixed, width-one core for every `λ ∈ (0,2)`).
+- **The conformal-mode instance.** **`confV_essentiallySelfAdjoint`** / **`confV_stone_flow`**: the regularized conformal-mode Hamiltonian `−Δ + V₃`, `V₃(R_c) = −(M²/2)R_c + αR_c²`, is essentially self-adjoint on the Gauss core of `L²(ℝ)` for `0 < α < 1/2`, unconditionally — no finite-speed and no unique-continuation hypothesis — with the mass term absorbed for free at any `M`.
+- **The two-variable reduced sector.** **`sectorQuad_essentiallySelfAdjoint`** / `sectorQuad_stone_flow`: the `(R_c, φ)` sector potential with the scalaron wall replaced by a quadratic term, `V₃(R_c) + μφ²` on `L²(ℝ²)`, for `0 < α < 1/2` and `0 < μ < 1/2`. The physically natural `μ` is fixed by **`tendsto_starobinskyV_div_sq`**, which proves that the scalaron potential is quadratic at its minimum, `V(φ)/φ² → M²/(24α)`; at that value the criterion reads `M² < 12α` (**`sectorHarmonicApprox_essentiallySelfAdjoint`**).
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` with an explanatory comment and from `BookProof/ChapterRoadmapAudit.lean`, where 18 new `#print axioms` lines certify that every result depends only on `propext`, `Classical.choice`, `Quot.sound`. A new section, "What Kato–Rellich *Can* Reach: Quadratically Dominated Potentials", with two `#check` blocks, was added to the Verso chapter `Book/Starobinsky.lean` between the refutation section and the Friedrichs section. `CONSOLIDATED_PLAN.md` gained a dated status block, and §10.6.1 target 4 is now marked *partially closed* in place with its original text preserved; `BookProof/STATUS.md` gained a matching dated wave section; this entry was prepended to `ARISTOTLE_SUMMARY.md` with earlier entries untouched.
+
+**Verification (§8 gate, re-run in this wave).** `lake build` over the default targets completes with no errors; `lake build RandomMap` is green (8039 jobs); the book wrapper re-renders the single-page HTML with its assertions holding ("no `<base>`; fragment links present"), and the KaTeX check reports 2954 math snippets with 0 failures; `rg` confirms no `sorry`/`admit` in the new module and no new `axiom` declarations. All work is committed and pushed.
+
+**Boundary.** The relative bound of `W` against `H₀` is exactly `1`, so the window `a < 1` is the edge of the method rather than an artifact; the `α < 1/2` of the conformal-mode instance is that window transported through `|α − 1/4| < 1/4`, and a Gauss core of a different width — which this module does not build — would relocate it. Nothing here reaches the exponential scalaron wall, and by the previous wave nothing on this core can; there the Friedrichs realization remains what is available. §10.6.1 target 3 (flux/Carleman for unbounded-hop potentials), the exponential-wall part of target 4, research boundary **A1**, and the remaining QG gaps are unchanged.
+
+# Summary of changes for run fcf5c12c-6797-4c15-a279-23d67bdf63f6
+Continued executing `CONSOLIDATED_PLAN.md` with a new wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**Wave: §10.6.1 target 2 — restated and refuted.** The plan asks to show that the Starobinsky scalaron potential `V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` is `(−Δ)`-bounded with arbitrarily small relative bound on the Gauss–polynomial (Hermite) core, so that Kato–Rellich would give essential self-adjointness of `−Δ + V` there; the plan itself flags the target as needing restatement. The restatement is negative and is now proved.
+
+**New module `BookProof/ChapterHermiteExpWall.lean`** (namespace `BookProof.HermiteExpWall`), sorry-free and axiom-free:
+- `quadForm_scalaron_ge` / `l2_scalaron_ge` — along the monomial core family `ψ_N(x) = x^N e^{−x²/4}` the wall dominates a quartic: `⟪ψ_N, Vψ_N⟫ ≥ c₀(K N⁴ − 1)‖ψ_N‖²` and `‖Vψ_N‖ ≥ c₀(K N⁴ − 1)‖ψ_N‖`, obtained from an exponentially tilted Gaussian moment bound (`gaussMoment_tilt_ge`) and the moment recursion `M_{2N+8} = (2N+7)(2N+5)(2N+3)(2N+1)M_{2N}` (`gaussMoment_shift_eight`).
+- `neg_deriv2_psi`, `osc_psi`, `l2_kin_le`, `l2_osc_le` — the reference operators act on the family by polynomial maps of fixed degree increment, giving `‖−ψ_N''‖ ≤ (N²+1)‖ψ_N‖` and `‖(−Δ + x²/4)ψ_N‖ ≤ (N²+1)‖ψ_N‖`.
+- `not_relatively_bounded_of_cubic` — the abstract contradiction between a quartic lower bound and a cubic upper bound — and its two headline instances **`scalaronV_not_kinetic_relativelyBounded`** and **`scalaronV_not_oscillator_relativelyBounded`**: there are *no* constants `a, b` with `‖Vψ‖ ≤ a‖ψ''‖ + b‖ψ‖`, respectively `‖Vψ‖ ≤ a‖(−Δ + x²/4)ψ‖ + b‖ψ‖`, for all Gauss polynomials `ψ`. Not merely "no small relative bound" — no relative bound at all, against the free kinetic term and against the conformal-mode oscillator alike.
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` and from `BookProof/ChapterRoadmapAudit.lean`, where 11 new `#print axioms` lines report only `propext`, `Classical.choice`, `Quot.sound`. A new section "Why Kato–Rellich Cannot Be Used for the Sum", with a `#check` block, was added to the Verso chapter `Book/Starobinsky.lean`. In `CONSOLIDATED_PLAN.md` a dated status block was prepended, target 2 is marked closed-as-refuted with its original wording preserved, and the §10.6.1 bullet asserting a small relative bound is struck through with a pointer to the disproof (no plan text deleted). `BookProof/STATUS.md` gained a matching dated wave section, and a new dated section was prepended to `ARISTOTLE_SUMMARY.md` with earlier entries untouched.
+
+**Verification (§8 gate, re-run).** `lake build` completes with 8724 jobs and no errors; `lake build RandomMap` is green (8039 jobs); `patches/build-book.sh` re-renders the single-page HTML with its assertions holding; `patches/check-katex.sh` reports 2913 math snippets with 0 failures; searches confirm no `sorry`/`admit` in the new module and no new `axiom` declarations, and the isolation greps are clean. All work is committed and pushed.
+
+**Boundary.** This is a negative result: it rules out the Kato–Rellich route but does not by itself decide essential self-adjointness of `−Δ + V` on the Hermite core. §10.6.1 targets 3 (flux/Carleman) and 4 (the sum, for the exponentially growing potential), the §10.6.2 QG items, and research boundary A1 remain open.
+
+# Summary of changes for run 2026-08-25b (CONSOLIDATED_PLAN §10.6.1 target 2 — the exponential wall is *not* a relatively bounded perturbation on the Gauss–polynomial (Hermite) core)
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** §10.6.1 target 2 asks the Lean specialist to prove that "`V(φ)` is `(−Δ)`-bounded with arbitrarily small relative bound on the Gauss core", so that the Kato–Rellich / Faris–Lavine machinery of `ChapterHermiteRelativeBound` / `ChapterFarisLavine` would deliver essential self-adjointness of `−Δ + V` on that core. The plan itself flags this target as one that "needs restating", and the body of §10.6.1 lists the small relative bound as one of the reasons the Hermite core is the right domain. The restatement turns out to be negative.
+
+**New module `BookProof/ChapterHermiteExpWall.lean`** (namespace `BookProof.HermiteExpWall`), sorry-free and axiom-free:
+
+- **The wall dominates a quartic.** Along the monomial core family `ψ_N(x) = x^N e^{−x²/4}` the quadratic form of the scalaron potential is an exponentially tilted Gaussian moment. `gaussMoment_tilt_ge` keeps the eighth-order term of the tilt (`e^t ≥ t⁸/8!`, after symmetrizing the odd part away) to get `∫ e^{−2sx}x^{2N}e^{−x²/2} ≥ (s⁸/315)M_{2N+8}`; with `gaussMoment_shift_eight` (`M_{2N+8} = (2N+7)(2N+5)(2N+3)(2N+1)M_{2N}`) and the elementary bound `2u ≤ u²/2 + 2` this gives **`quadForm_scalaron_ge`**: `⟪ψ_N, Vψ_N⟫ ≥ c₀(K N⁴ − 1)‖ψ_N‖²` with `c₀ = M⁴/16α` and `K = 8s⁸/315`, `s = √(2/3)/M`. Cauchy–Schwarz turns it into **`l2_scalaron_ge`**: `‖Vψ_N‖ ≥ c₀(K N⁴ − 1)‖ψ_N‖`.
+- **The reference operators grow only cubically.** The Gauss–polynomial core is invariant under differentiation, and on the monomial family the reference operators act by polynomial maps of fixed degree increment (`gaussPolyDeriv_two_monomial`, `neg_deriv2_psi`, `osc_psi`). Expanding the resulting Gaussian integrals into moments and dropping the negative cross terms (`gint_oscQ_le`, `gint_kinQ_le`) yields **`l2_kin_le`**: `‖−ψ_N''‖ ≤ (N²+1)‖ψ_N‖`, and **`l2_osc_le`**: `‖(−Δ + x²/4)ψ_N‖ ≤ (N²+1)‖ψ_N‖`.
+- **The obstruction.** **`not_relatively_bounded_of_cubic`** is the abstract form: no operator whose norm along the family grows at most cubically can dominate the wall. Its two instances are the headline results — **`scalaronV_not_kinetic_relativelyBounded`**: there are *no* constants `a, b` with `‖Vψ‖ ≤ a‖ψ''‖ + b‖ψ‖` for all Gauss polynomials `ψ`; and **`scalaronV_not_oscillator_relativelyBounded`**: there are none with `‖Vψ‖ ≤ a‖(−Δ + x²/4)ψ‖ + b‖ψ‖` either. Not "no small relative bound" — no relative bound at all, against the free kinetic term and against the conformal-mode oscillator whose Hermite functions define the core.
+
+**Why this matters for the rest of the development.** It is a genuine obstruction rather than a gap in the bookkeeping, and it explains the shape of the neighbouring modules: `ChapterQgHermiteOscillatorEsa` can absorb only *bounded* perturbations of the oscillator by Kato–Rellich, and the exponentially growing potential of `ChapterScalaronHermiteEsa` had to be handled by a Fourier/moment argument instead. For the sum `−Δ + V` on the Hermite core the canonical Friedrichs realization remains what is available.
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` and from `BookProof/ChapterRoadmapAudit.lean`, where 11 new `#print axioms` lines certify that each result depends only on `propext`, `Classical.choice`, `Quot.sound`. A new section, "Why Kato–Rellich Cannot Be Used for the Sum", with a `#check` block, was added to the Verso chapter `Book/Starobinsky.lean` between the Hermite-core ESA section and the Friedrichs section. In `CONSOLIDATED_PLAN.md`, a dated status block was prepended, target 2 is marked *closed as refuted* with its original text preserved below the note, and the §10.6.1 bullet claiming the potential is a small relatively bounded perturbation is struck through with a pointer to the disproof (no plan text was deleted). `BookProof/STATUS.md` gained a matching dated wave section, and this section was prepended to `ARISTOTLE_SUMMARY.md` (earlier entries untouched).
+
+**Verification (§8 gate, re-run in this wave).** `lake build` over the default targets completes with 8724 jobs and no errors; `lake build RandomMap` is green (8039 jobs); the book wrapper re-renders the single-page HTML with its assertions holding ("no `<base>`; fragment links present"), and the KaTeX check reports 2913 math snippets with 0 failures; the sorry/axiom greps show no `sorry`, `admit` or `axiom` declaration in the new module (only prose occurrences of the word elsewhere), and the isolation greps are clean. All work is committed and pushed.
+
+**Boundary.** What is proved is a *negative* result: the non-existence of a relative bound. It does not by itself decide essential self-adjointness of `−Δ + V` on the Hermite core — it only rules out the Kato–Rellich route to it. §10.6.1 targets 3 (the flux/Carleman route) and 4 (the sum, for the exponentially growing potential), the §10.6.2 QG items, and research boundary **A1** are unchanged and remain open.
+
+# Summary of changes for run e07a85b6-9bad-4564-9727-317718816751
+Continued executing `CONSOLIDATED_PLAN.md` with a new wave and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** Plan §10.6.1 target 4 asks for *essential* self-adjointness — not merely a canonical Friedrichs extension — on the Gauss–polynomial (Hermite) core `p(x)e^{−‖x‖²/4}`, the basis the SIRK numerics work in. The project had this for the conformal-mode parabola and (via Kato–Rellich) parabola-plus-bounded, and had the exponentially growing Starobinsky potential handled only on the much smaller compactly supported smooth core. The Hermite core with an exponentially growing potential was flagged open in three module docstrings, because the standard argument breaks: a deficiency vector `w` at a non-real `z` gives `u = (W − z)w`, which is not square integrable when `W` grows exponentially, so the project's Gaussian-moment uniqueness lemma (hypothesis `MemLp u 2`) does not apply.
+
+**New module `BookProof/ChapterScalaronHermiteEsa.lean`** (namespace `BookProof.ScalaronHermiteEsa`), sorry-free and axiom-free:
+- `GaussExpDecay` — `e^{c‖x‖}e^{−‖x‖²/4}u` integrable for every `c` — with `gaussExpDecay_of_memLp_mul`, `gaussExpDecay_mul_lp`, `gaussExpDecay_lp` and `gaussExpDecay_potential_sub`, which establish it for `(W − z)w`;
+- `integrable_pgFun_mul_of_gaussExpDecay`, `fourier_gaussD_mul_eq_zero_of_gaussExpDecay`, `ae_eq_zero_of_moments_of_gaussExpDecay` — Gaussian-moment uniqueness on ℝᵈ without square integrability;
+- `moments_of_monomial_moments`, `moments_of_deficiency`, `potCore_deficiencyTrivialAt`, **`potCore_essentiallySelfAdjoint`** — multiplication by *any* continuous exponentially bounded real potential on ℝᵈ is essentially self-adjoint on the Gauss–polynomial core (no temperate growth, no boundedness, no semiboundedness);
+- **`scalaronPot_essentiallySelfAdjoint`** for `V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` on `L²(ℝ)`, **`scalaronSector_essentiallySelfAdjoint`** for the reduced sector potential `V₃(R_c) + V(φ)` on `L²(ℝ²)`, and `potCore_stone_flow` / `scalaronPot_stone_flow` / `scalaronSector_stone_flow`, which yield the self-adjoint realization and its unitary group from essential self-adjointness rather than from a choice of extension.
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` and from `BookProof/ChapterRoadmapAudit.lean`, where 13 new `#print axioms` lines certify that every result depends only on `propext`, `Classical.choice`, `Quot.sound`. A new section with a `#check` block was added to the Verso chapter `Book/Starobinsky.lean`; the three docstrings that flagged the case as open now point at the new result and state exactly what is still missing; `CONSOLIDATED_PLAN.md` and `BookProof/STATUS.md` gained matching dated status sections; a new entry was prepended to `ARISTOTLE_SUMMARY.md` (earlier entries untouched). A Trotter–Kato module drafted earlier in this session was deleted after it turned out to duplicate the existing `BookProof/ChapterSirkTrotterKato.lean`. The four helper scripts in `patches/` were made executable, since `patches/build-book.sh` invokes them by path.
+
+**Verification.** `lake build` completes with 8723 jobs and no errors; `lake build RandomMap` is green; the book wrapper re-renders the single-page HTML with its assertions holding and the KaTeX check reports 2901 math snippets with 0 failures; `rg` confirms no `sorry`/`admit` in the new module and no new `axiom` declarations. All work is committed and pushed.
+
+**Boundary.** What is proved is essential self-adjointness of the *potential term* on the Hermite core, exponential growth included. The sum `−Δ + V` on that core with the exponentially growing scalaron potential is not claimed — the canonical Friedrichs realization remains what is available there — and §10.6.1 targets 2 (which needs restating) and 3, together with research boundary A1, are unchanged.
+
+# Summary of changes for run 2026-08-25 (CONSOLIDATED_PLAN §10.6.1 target 4 — the exponentially growing scalaron potential is essentially self-adjoint on the Gauss–polynomial (Hermite) core)
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** §10.6.1 target 4 asks for *essential* self-adjointness — not merely a canonical (Friedrichs) extension — on the Gauss–polynomial core `p(x)e^{−‖x‖²/4}`, the basis the SIRK numerics actually work in. The project had it for the conformal-mode parabola `‖x‖²/4` and, by Kato–Rellich, for parabola-plus-bounded (`ChapterQgHermiteOscillatorEsa`), and it had the exponentially growing Starobinsky potential handled on the much smaller compactly supported smooth core (`ChapterScalaronCoreEsa`). The Hermite core with an exponentially growing potential was flagged open in three module docstrings, because the standard argument breaks: a deficiency vector `w` at a non-real `z` produces `u = (W − z)w`, which is **not** square integrable when `W` grows exponentially, so the project's Gaussian-moment uniqueness lemma (`HermiteProductCore.ae_eq_zero_of_moments`, hypothesis `MemLp u 2`) does not apply.
+
+**New module `BookProof/ChapterScalaronHermiteEsa.lean`** (namespace `BookProof.ScalaronHermiteEsa`), sorry-free and axiom-free, closes the potential-term half of that target in every dimension:
+
+- **The growth class.** `GaussExpDecay u` — `e^{c‖x‖}e^{−‖x‖²/4}u` is integrable for *every* real `c` — is exactly what the Fourier argument ever used, and is strictly weaker than square integrability in the direction that matters (`u` may grow exponentially). `gaussExpDecay_of_memLp_mul`, `gaussExpDecay_mul_lp`, `gaussExpDecay_lp` and **`gaussExpDecay_potential_sub`** establish it for `(W − z)w`, from `|W| ≤ C e^{c‖x‖}`, `w ∈ L²` and the fact that the Gaussian beats every exponential.
+- **The generalized moment lemma.** `integrable_pgFun_mul_of_gaussExpDecay`, `fourier_gaussD_mul_eq_zero_of_gaussExpDecay` and **`ae_eq_zero_of_moments_of_gaussExpDecay`**: vanishing of all Gaussian moments `∫ p(x)e^{−‖x‖²/4}u(x) dx` forces `u = 0` a.e. under `GaussExpDecay` alone. The Fourier transform of `e^{−‖x‖²/4}u` is an everywhere convergent power series in the moments, hence identically zero.
+- **The headline statement.** `moments_of_monomial_moments`, `moments_of_deficiency`, `potCore_deficiencyTrivialAt` and **`potCore_essentiallySelfAdjoint`**: multiplication by *any* continuous, exponentially bounded real potential on `ℝᵈ` is essentially self-adjoint on `polyGaussCore` — no temperate growth, no boundedness, no semiboundedness hypothesis.
+- **The scalaron instances.** `scalaronPot`, `continuous_scalaronPot`, `expBounded_scalaronPot` and **`scalaronPot_essentiallySelfAdjoint`** for `V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` on `L²(ℝ)`; **`scalaronSector_essentiallySelfAdjoint`** for the full reduced sector potential `V₃(R_c) + V(φ)` on `L²(ℝ²)`; `potCore_stone_flow`, `scalaronPot_stone_flow` and `scalaronSector_stone_flow`, which read off the self-adjoint realization together with the unitary group it generates *from essential self-adjointness* rather than from a choice of extension.
+
+**Wiring and documentation.** The module is imported from `BookProof.lean` and from `BookProof/ChapterRoadmapAudit.lean`, where 13 new `#print axioms` lines certify that each result depends only on `propext`, `Classical.choice`, `Quot.sound`. A new section with a `#check` block was added to the Verso chapter `Book/Starobinsky.lean` after the Hermite-core material; the three docstrings that flagged the case as open (`ChapterQgHermiteCore`, `ChapterQgHermiteFriedrichs`, `ChapterQgHermiteOscillatorEsa`) now point at the new result and state precisely what is still missing; `BookProof/STATUS.md` and the leading status block of `CONSOLIDATED_PLAN.md` gained matching 2026-08-25 sections; this section was prepended to `ARISTOTLE_SUMMARY.md` (earlier entries untouched). The four helper scripts in `patches/` were made executable, since `patches/build-book.sh` invokes them by path and the executable bit had been lost.
+
+**A duplicate removed.** A Trotter–Kato module drafted earlier in this session duplicated `BookProof/ChapterSirkTrotterKato.lean`, which already closes §12.2 Gap 3; it was deleted rather than kept.
+
+**Verification (re-run in this wave).** `lake build` over the default targets completes with 8723 jobs and no errors; `lake build RandomMap` is green; the book wrapper re-renders the single-page HTML with its assertions holding, and the KaTeX check reports 2901 math snippets with 0 failures; no `sorry`/`admit` in the new module and no new `axiom` declarations. All work is committed and pushed.
+
+**Boundary.** What is proved is essential self-adjointness of the *potential term* on the Hermite core, exponential growth included. The *sum* `−Δ + V` on that core with the exponentially growing scalaron potential is **not** claimed — there the canonical Friedrichs realization of `ChapterQgHermiteFriedrichs` / `ChapterFriedrichsCanonical` remains what is available — and §10.6.1 targets 2 (which needs restating) and 3, together with research boundary A1, are unchanged.
+
+# Summary of changes for run 2026-08-24g (CONSOLIDATED_PLAN backlog item 3 — the Cayley transform: the unbounded self-adjoint layer encoded by a unitary)
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** The plan's backlog item 3 is the spectral theorem for *unbounded* self-adjoint operators — specifically the existence of the diagonalizing unitary. The project already had the reduction *given* such a unitary (`ChapterUnitaryTransport`), the bounded case with a cyclic vector (`ChapterSpectralMultiplication`), and the full Stone theorem with its resolvents (`ChapterStoneResolvent`–`ChapterStoneTheorem`), but nothing that converts an unbounded self-adjoint operator into a bounded object in the first place. That classical step — the Cayley transform — was absent from the project and from the Mathlib snapshot it builds against.
+
+**New module `BookProof/ChapterCayleyTransform.lean`** (namespace `BookProof.ChapterCayleyTransform`), sorry-free and axiom-free, builds it on top of the existing resolvents:
+
+- `norm_shift_one_eq_norm_shift_neg_one` — `‖(A − i)ψ‖ = ‖(A + i)ψ‖` (both are `‖Aψ‖² + ‖ψ‖²`), so the map `(A + i)ψ ↦ (A − i)ψ` is well defined and isometric: `cayleyMap`, `norm_cayleyMap`, `cayleyMap_surjective` and hence **`cayley`**, the Cayley transform `V = (A − i)(A + i)⁻¹` as a **unitary** of the Hilbert space;
+- `cayley_shift` — the defining relation `V(A + i)ψ = (A − i)ψ`; `sub_cayley_shift` and `add_cayley_shift` — `(1 − V)(A + i)ψ = 2iψ` and `(1 + V)(A + i)ψ = 2Aψ`;
+- `one_sub_cayley_injective` and `cayley_apply_ne_self` (`1` is not an eigenvalue of `V`), **`range_one_sub_cayley`** (`ran(1 − V)` is exactly the domain of `A`) and `denseRange_one_sub_cayley`;
+- **`op_eq_cayley`** and **`coe_eq_cayley`** — the reconstruction `A = i(1 + V)(1 − V)⁻¹` in pointwise form.
+
+**New module `BookProof/ChapterCayleyInverse.lean`** (namespace `BookProof.ChapterCayleyInverse`), sorry-free and axiom-free, is the converse and closes the correspondence:
+
+- **`isSelfAdjointOn_of_surjective`** — the *basic criterion* for self-adjointness of an unbounded operator: symmetric with `A + i` and `A − i` both onto implies self-adjoint, with no density and no closedness hypothesis. The project had no such criterion before;
+- the inverse Cayley transform of a unitary `V` with `1 − V` injective: `invCayleyDomain` (`ran(1 − V)`), `invCayleyOp` (`i(1 + V)(1 − V)⁻¹`), `invCayleyOp_symmetric`, `invCayleyOp_add_i` / `invCayleyOp_sub_i` (`(A + i)(1 − V)y = 2iy`, `(A − i)(1 − V)y = 2iVy`, so both shifts are onto) and **`invCayleyOp_isSelfAdjointOn`**, packaged as the bundle `ofUnitary`;
+- the round trips **`cayley_ofUnitary`**, **`invCayleyDomain_cayley`** and **`invCayleyOp_cayley`** — the two constructions undo one another, so self-adjoint operators are faithfully encoded by unitaries with `1` not an eigenvalue and `ran(1 − V)` dense.
+
+**Wiring and documentation.** Both modules are imported from `BookProof.lean` and from `BookProof/ChapterRoadmapAudit.lean`, where 21 new `#print axioms` lines certify that each result depends only on `propext`, `Classical.choice`, `Quot.sound`; a new paragraph with a `#check` block was added to the Verso chapter `Book/FreeField.lean` after the Stone-theorem material, keeping the Book ↔ BookProof correspondence intact; `BookProof/STATUS.md` and the leading status block of `CONSOLIDATED_PLAN.md` gained matching 2026-08-24g sections; this section was prepended to `ARISTOTLE_SUMMARY.md` (earlier entries untouched).
+
+**Two stale backlog entries corrected.** Item 4 (the Navier–Stokes sign-flip unitary `x_n ↦ (−1)ⁿ x_n`) is in fact already delivered by `BookProof/ChapterNavierStokesSignFlip.lean` (`flipU`, `essentiallySelfAdjointOn_of_intertwine`, `sblockH_essentiallySelfAdjointOn_core`) and `BookProof/ChapterNavierStokesSignedShift.lean`, and is now recorded as closed; item 3 is now recorded as advanced rather than untouched.
+
+**Verification (re-run in this wave).** `lake build` over the default targets completes with 8721 jobs, no errors and no warnings; `lake build RandomMap` is green; the book wrapper re-renders the single-page HTML with its assertions holding, and the KaTeX check reports 2884 math snippets with 0 failures; no `sorry`/`admit` in the new modules and no new `axiom` declarations. All work is committed and pushed.
+
+**Boundary.** This wave does **not** prove the spectral theorem for unbounded self-adjoint operators. What it delivers is the reduction of that problem to a bounded one: the remaining step is to transport the multiplication model of `ChapterSpectralMultiplication` (bounded normal operator with a cyclic vector) through the Cayley correspondence and to remove the cyclic-vector restriction. The plan's other open research targets (the full 3D gauge-fixed quantum-gravity Hamiltonian with ghosts/BRST, the general Faris–Lavine class, and the floating-point half of §12.2) are unchanged.
+
+# Summary of changes for run 2026-08-24f (CONSOLIDATED_PLAN §12.2 Gap 4c — the recorded residue: the numerical Gram-eigenvalue cutoff bounds the truncation defect)
+
+Continued executing `CONSOLIDATED_PLAN.md` with a further wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** `BookProof/ChapterSirkGramWhitening.lean` quantifies the rank truncation of the SIRK/Hashimoto solver through a *geometric* parameter `δ`: if every raw (rational) Krylov vector sits within `δ` of the retained subspace, a reduced state loses at most `δ √m ‖c‖`. But `δ` is not what the code measures — the code diagonalizes the Gram matrix `G_{ij} = ⟪w_i, w_j⟫` and discards the eigenpairs whose eigenvalue falls below a numerical cutoff. The plan recorded the missing link between the two as the residue of §12.2 Gap 4c.
+
+**New module `BookProof/ChapterSirkGramCutoff.lean`** (namespace `BookProof.ChapterSirkGramCutoff`), sorry-free and axiom-free, supplies it:
+
+- `IsGramEigen` and `exists_gramEigen` — the eigendecomposition the numerical Hermitian solver returns always exists (the Gram operator is self-adjoint), together with `inner_synthesis_gramEigen` (the synthesized eigenvectors `W u_k` are pairwise orthogonal with squared norms the eigenvalues), `gramEigen_nonneg` and the Pythagoras lemma `norm_sq_sum_orthogonal`;
+- `norm_sub_proj_le_of_mem_range` — for an isometric embedding `V` (`V∗V = 1`), the point `V V∗ x` is the closest point of `range V` to `x`, which is what turns "some point of the retained subspace is close to `x`" into a bound on the defect the SIRK estimates are stated with;
+- **`dist_synthesis_retained_le`** — if every discarded eigenvalue is at most `tol`, every state assembled from the raw Krylov vectors is within `√tol ‖c‖` of the retained subspace; **`defect_le_sqrt_cutoff`** — hence every raw vector is within `√tol` of it, i.e. `δ ≤ √tol`; **`sirk_end_to_end_truncated_cutoff`** — the end-to-end SIRK bound with the additive truncation term `‖r(X)‖ √tol √m ‖c‖`, expressed in the numerical cutoff alone;
+- `retainedVec` / `retainedEmbedding` — the inverse-square-root embedding `V = W U_R Λ_R^{−1/2}` the solver builds from the retained eigenpairs — with `retainedVec_orthonormal`, `synthesis_isometry_of_orthonormal`, **`retainedEmbedding_isometry`** (`V∗V = 1`), `range_retainedEmbedding`, `mem_range_retainedEmbedding` and `defect_le_sqrt_cutoff_retained`, so the estimate applies to the object the code actually produces rather than to an abstract stand-in.
+
+**Wiring and documentation.** Imported from `BookProof.lean`; 17 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, each reporting only `propext`, `Classical.choice`, `Quot.sound`; a new paragraph with a `#check` block in the Verso chapter `Book/SirkReliability.lean`; dated entries in `BookProof/STATUS.md` and in the leading status block of `CONSOLIDATED_PLAN.md`, whose §12.2 Gap 4c item now records the residue as closed; this section at the top of `ARISTOTLE_SUMMARY.md` (earlier entries untouched).
+
+**Verification (re-run in this wave).** `lake build` over the default targets completes with 8719 jobs, no errors and no warnings; `lake build RandomMap` (8039 jobs) is green; the book wrapper re-renders the single-page HTML with its assertions holding and the KaTeX check reports no failures; no `sorry`/`admit` in the new module and no new `axiom` declarations. All work is committed and pushed.
+
+**Boundary.** `tol` here bounds the *exact* discarded Gram eigenvalues; nothing is claimed about how the computed (floating-point) eigenvalues relate to them — that is plan §12.2 Gap 6, which remains recorded as out of scope, as do the plan's open research targets (the full 3D gauge-fixed quantum-gravity Hamiltonian including ghosts/BRST, and the general Faris–Lavine class).
+
+# Summary of changes for run c43013ef-25f2-4f28-957f-84f93c204d68
+Executed `CONSOLIDATED_PLAN.md`. Its one outstanding item — re-running the §8 verification gate in this repository, which had received the last merge wave without ever being compiled — is now closed, and the problem the gate uncovered has been fixed.
+
+**§8 gate: green at every stage (measured here).**
+- `lake build` (default targets `BookProof` + `Book` + `Singularity`): **8718 jobs, 0 errors, 0 in-scope warnings**.
+- `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049), `lake build UnusedRoute` (8048): green.
+- `patches/build-book.sh`: green, its assertions hold (no `<base>`, fragment links present). `patches/check-katex.sh`: **2875 math snippets, 0 KaTeX failures**.
+- Sorry/axiom audit: **no `sorry` and no `axiom` declaration** in `BookProof/`, `PnpProof/`, `Singularity/`, `RandomMap/` (prose mentions only). All **1171** `#print axioms` certificates report only `propext`, `Classical.choice`, `Quot.sound` — no `sorryAx`. The quarantined legacy RH route under `UsedRoute/`/`UnusedRoute/` carries 46 compiler-reported `sorry` declarations plus 2 warning-silenced ones (the plan's "43" figure was stale); neither library is a default target. The isolation greps are empty.
+- Incidental repairs: restored the lost executable bit on `patches/*.sh`, added `_out/` to `.gitignore`, and fixed the single line-length warning in `BookProof/ChapterRoadmapAudit.lean`.
+
+**What the gate turned up.** Four `BookProof/` modules existed in the tree but were imported by nothing and so were in **no build target**, meaning they had never been verified: `ChapterAttentionCapacity`, `ChapterAttentionResponse`, `ChapterSoftmaxTemperatureMonotone` (these three compiled once targeted) and `ChapterNavierStokesCarleman`, which **did not compile** (10 error sites from library drift, an abandoned final proof, and three headline theorems promised in its docstring but absent).
+
+**`BookProof/ChapterNavierStokesCarleman.lean` repaired and completed** — now sorry-free, axiom-free, warning-free, in namespace `BookProof.NavierStokesFlow.Carleman`:
+- `tridiag_hasZeroDeficiencyOn_of_carleman` — Carleman's criterion for a tridiagonal (Jacobi) operator on ℓ²(ℕ): if ∑ 1/|cₙ| diverges the operator has zero deficiency on the finite-mode core (telescoping Wronskian estimate).
+- The half-line realization of the **full** Navier–Stokes Hamiltonian: `momOp`, `weyl_momOp_diagOp`, `halfLineFullData`, `halfLineFullData_advection`, `halfLineFullData_hamiltonian` (the Hamiltonian is exactly a Jacobi matrix with couplings −(i/2)(αₙ + αₙ₊₁)), and the headline `halfLineFull_hasZeroDeficiencyOn`.
+- A concrete unbounded instance: `linearFull_hasZeroDeficiencyOn` together with `linearFull_not_bounded` (and `tridiagOp_not_bounded`) — essentially self-adjoint and genuinely unbounded.
+
+All four modules are now imported by `BookProof.lean` and audited with `#print axioms` in `BookProof/ChapterRoadmapAudit.lean`; the Carleman results are cited from `Book/FreeField.lean`, keeping the Book ↔ BookProof correspondence intact. Note that nothing here claims global regularity of the classical Navier–Stokes equation — the statements concern the Hilbert-space operator of this lattice realization.
+
+**Records updated:** `CONSOLIDATED_PLAN.md` gained a leading 2026-08-24e status block, a new B1 gate entry, and the backlog/§9 items marked closed (the superseded block is retained and labelled, not deleted); `BookProof/STATUS.md` gained a matching wave section.
+
+**Remaining plan content is the recorded research boundaries, not plan items,** and was deliberately not attempted: the full 3D gauge-fixed quantum-gravity Hamiltonian including ghosts/BRST, and the spectral theorem for general unbounded self-adjoint operators (the bounded, cyclic-vector case is already done in `BookProof/ChapterSpectralMultiplication.lean`). Both are large open research projects rather than gaps in the delivered formalization.
+
+All work is committed and pushed; the working tree is clean.
+
+# Summary of changes for run c0337ccc-cb19-4fdb-9b74-0ac6bb8fab26
+Continued executing `CONSOLIDATED_PLAN.md` with one further wave, targeting §12 Gap 4c (the Gram whitening the SIRK/Hashimoto solver performs), and updated `ARISTOTLE_SUMMARY.md`.
+
+**What was open.** `BookProof/ChapterSirkWhitening.lean` already proved that the reduced operator depends only on the retained Krylov subspace, not on the orthonormalization chosen for it — but every statement there is conditional on being *handed* an isometric embedding `V∗V = 1` with the prescribed range. The solver is handed nothing: it forms the Gram matrix `G_ij = ⟪w_i, w_j⟫` of the raw (rational) Krylov vectors, diagonalizes it, and whitens with a factor `T` satisfying `T∗GT = 1`.
+
+**New module `BookProof/ChapterSirkGramWhitening.lean`** (namespace `BookProof.ChapterSirkGramWhitening`), sorry-free and axiom-free, builds exactly those objects and proves they meet the hypotheses:
+
+- `synthesis w` (`c ↦ ∑ i, c i • w i`) with `range_synthesis` (its range is the retained subspace), `synthesis_adjoint_eq`, `synthesis_injective_of_linearIndependent`;
+- `gramOp w = (synthesis w)∗(synthesis w)` with `gramOp_apply` (it acts by the Gram matrix), `gramOp_isSelfAdjoint`, `gramOp_nonneg`, plus the matrix layer `gramMatrix`, `gramMatrix_conjTranspose`, `gramOp_eq_toEuclideanCLM`, `IsWhiteningMatrix` (`Mᴴ G M = 1`) and `isWhitening_of_matrix`;
+- `whitened_adjoint_comp_self` — **a whitening is an isometric embedding** — with `norm_whitened_apply` and `range_whitened` (its range is the retained subspace once `T` is onto);
+- `exists_isWhitening` — **such a bijective `T` exists** for linearly independent raw vectors, so the whitening-independence hypotheses are never vacuous; `exists_isometry_range_eq_span` — in general an orthonormalization exists with reduced dimension equal to the rank, the exact lossless form of the code's rank truncation; `isWhitening_one_of_orthonormal` as a non-vacuity check;
+- `sirkApprox_gram_whitening_eq`, `compress_gram_whitening_conj` — two whitenings give literally the same reconstructed operator and unitarily conjugate reduced generators;
+- the quantified truncation: `norm_defect_synthesis_le` (if every raw vector sits within δ of the retained subspace, a reduced state loses at most δ·√m·‖c‖) and `sirk_end_to_end_truncated_gram`, which puts that term in place of the abstract defect in the existing end-to-end truncated bound (δ = 0 recovers the lossless case).
+
+**Wiring and docs.** Imported from `BookProof.lean`; 25 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, all reporting only `propext`, `Classical.choice`, `Quot.sound`; two new sections with `#check` blocks in the book chapter `Book/SirkReliability.lean`; dated entries in `BookProof/STATUS.md`, in the leading status block of `CONSOLIDATED_PLAN.md` (whose §12 Gap 4c item now records what is closed and what remains), and a new wave section at the top of `ARISTOTLE_SUMMARY.md` with earlier entries untouched.
+
+**Verification.** `lake build` over the default targets (8714 jobs) and `lake build RandomMap` (8039 jobs) complete with no errors and no warnings in the new module; the book build script re-renders the single-page HTML with its assertions holding, and the KaTeX check reports 2797 snippets with 0 failures; no `sorry`/`admit` in the new module and no new `axiom` declarations; the isolation audit is unchanged. All work is committed and pushed, and the Properties table lists this wave's deliverables.
+
+**Boundary.** Existence is of *some* whitening (the specific inverse-square-root factor the code computes is one of them). The near-degenerate case is quantified only through the geometric parameter δ: the relation between δ and the discarded Gram eigenvalues at the numerical cutoff, and the floating-point analysis (plan §12 Gap 6), remain open, as do the plan's recorded research targets.
+
+# Summary of changes for run 2026-08-24d (CONSOLIDATED_PLAN §12 Gap 4c — the Gram whitening the SIRK solver performs: it is an orthonormalization, and one exists)
+
+Continued execution of `CONSOLIDATED_PLAN.md` with a further wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**New module: `BookProof/ChapterSirkGramWhitening.lean`** (namespace `BookProof.ChapterSirkGramWhitening`), `sorry`-free and axiom-free. `BookProof/ChapterSirkWhitening.lean` already showed that the SIRK reduction depends only on the retained Krylov subspace and not on the orthonormalization chosen for it — but every statement there is conditional on being *handed* an isometric embedding `V∗V = 1` with the prescribed range. The solver is handed nothing: it forms the Gram matrix `G_{ij} = ⟪w_i, w_j⟫` of the raw (rational) Krylov vectors, diagonalizes it and whitens with a factor `T` satisfying `T∗ G T = 1`. This wave builds those objects and proves they meet the hypotheses.
+
+- `synthesis w` (`c ↦ ∑ i, c i • w i`) with `range_synthesis` (its range is the retained subspace), `synthesis_adjoint_eq` (the adjoint is the analysis map `x ↦ (⟪w i, x⟫)ᵢ`) and `synthesis_injective_of_linearIndependent`.
+- `gramOp w = (synthesis w)∗(synthesis w)` with `gramOp_apply` (it acts by the Gram matrix), `inner_gramOp`, `gramOp_isSelfAdjoint`, `gramOp_nonneg`; the matrix layer `gramMatrix`, `gramMatrix_conjTranspose` (Hermitian — the input the numerical eigendecomposition assumes), `gramOp_eq_toEuclideanCLM`, `IsWhiteningMatrix` (`Mᴴ G M = 1`) and `isWhitening_of_matrix`.
+- **`whitened_adjoint_comp_self`** — a whitening *is* an isometric embedding, with `norm_whitened_apply`, `range_whitened_le` and `range_whitened` (its range is the retained subspace once `T` is onto).
+- **`exists_isWhitening`** — such a bijective `T` exists whenever the raw vectors are linearly independent (built from an orthonormal basis of the retained subspace as `T = (V∗ ∘ synthesis)⁻¹`), so the whitening-independence hypotheses are never vacuous; **`exists_isometry_range_eq_span`** — in general an orthonormalization exists with reduced dimension equal to the *rank*, the exact, lossless form of the code's rank truncation of a degenerate Gram matrix; `exists_whitened_isometry_onto_span` combines the two, and `isWhitening_one_of_orthonormal` is the non-vacuity check.
+- `sirkApprox_gram_whitening_eq` and `compress_gram_whitening_conj` — two Gram whitenings of the same raw vectors give literally the same reconstructed SIRK operator and unitarily conjugate reduced generators (hence the same Ritz values).
+- **The quantified truncation:** `sum_norm_coord_le` (Cauchy–Schwarz in coordinates), `norm_defect_synthesis_le` — if every raw vector sits within `δ` of the retained subspace, a reduced state loses at most `δ √m ‖c‖` — and `sirk_end_to_end_truncated_gram`, which puts that term in place of the abstract defect in `ChapterSirkTruncation.sirk_end_to_end_truncated` (with `δ = 0` recovering the lossless bound).
+
+**Wiring and documentation.** Imported from `BookProof.lean`; 25 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, each reporting only `propext`, `Classical.choice`, `Quot.sound`; two new paragraphs with `#check` blocks in the Verso chapter `Book/SirkReliability.lean`; dated notes in `BookProof/STATUS.md` and in the leading status block of `CONSOLIDATED_PLAN.md`, whose §12 Gap 4c entry now records what is closed and what remains; a new appended wave section at the top of `ARISTOTLE_SUMMARY.md` (earlier entries untouched).
+
+**Verification (all re-run in this wave).** `lake build` over the default targets (8714 jobs) and `lake build RandomMap` complete with no errors and no warnings in the new module; `patches/build-book.sh` re-renders the single-page HTML with its assertions holding (no `<base>`, fragment links present) and `patches/check-katex.sh` reports no KaTeX failures; searches find no `sorry`/`admit` in the new module and no new `axiom` declarations, and the isolation audit is unchanged. All work is committed and pushed.
+
+**Boundary.** Existence is of *some* whitening — the specific inverse-square-root factor the code computes is one of them. The near-degenerate case is quantified only through the geometric parameter `δ`; the relation between `δ` and the discarded Gram eigenvalues at the numerical cutoff, and the floating-point analysis (plan §12 Gap 6), remain open, as do the research targets recorded in the plan (the exponentially growing scalaron potential's essential self-adjointness, §10.6.2 items 1 and 4, research boundary A1).
+
+# Summary of changes for run bb03f8a8-8896-44e4-8948-b42b1cf97ceb
+Continued execution of `CONSOLIDATED_PLAN.md` with a further wave, and updated `ARISTOTLE_SUMMARY.md`.
+
+**New module: `BookProof/ChapterKrylovShiftSpan.lean`** (namespace `BookProof.KrylovShiftSpan`), sorry-free and axiom-free. It settles, over an arbitrary module over an arbitrary commutative ring (no topology, no self-adjointness, an arbitrary schedule of possibly repeated shifts), the relation between the three subspaces the shift-invert rational Krylov (SIRK/Hashimoto) scheme moves between:
+
+- `forwardSpan_eq_krylovSpan` — the shifted forward products (H − z_{j−1})⋯(H − z₀)v span exactly span{v, Hv, …, Hᵏv} at every level, hence `forwardSpan_eq_forwardSpan` (the span does not depend on the shifts). This is the operator-product form of the vector-level result already present in `BookProof/ChapterSirkMultiShift.lean`, which the resolvent statement needs.
+- `tailProd_peel_right`, `tailProd_eq_forwardProd_rev`, `tailSpan_eq_krylovSpan` — the tail products (H − z_{k−1})⋯(H − z_j) are the forward products of the reversed schedule, so they span the Krylov space too.
+- `resolventSpan_eq_map_krylovSpan` (headline) — with each X i a two-sided inverse of H − z i, span{v, X₀v, X₁X₀v, …, X_{k−1}⋯X₀v} = (X_{k−1}⋯X₀) '' span{v, Hv, …, Hᵏv}. This complements `ChapterHashimotoComplexShifts.sirkDen_rkVec`, which describes the same space as rational functions of a single resolvent.
+- `resProd_mul_forwardProd` / `forwardProd_mul_resProd` and `krylovSpan_eq_map_resolventSpan` (the identity read backwards); `resVec` / `resolventSpan_eq_span_resVec` (the span written with the vectors the solver computes); and `resolventSpan_of_perm` — reordering the first k shifts changes the intermediate flag but not the subspace reached.
+
+**Wiring and documentation.** Imported from `BookProof.lean`; 16 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, each reporting only `propext`, `Classical.choice`, `Quot.sound` (several only `propext`, `Quot.sound`); a new paragraph and `#check` block in the Verso chapter `Book/SirkReliability.lean`; dated notes added to `BookProof/STATUS.md` and the leading status block of `CONSOLIDATED_PLAN.md`, whose §12 Gap 4b entry now records the resolvent half; a new appended wave section in `ARISTOTLE_SUMMARY.md` (the file was otherwise left untouched).
+
+**Verification (all re-run in this wave).** `lake build` over the default targets (8713 jobs) and `lake build RandomMap` (8039 jobs) complete with no errors and no new warnings; `patches/build-book.sh` re-renders the single-page HTML with its assertions holding, and `patches/check-katex.sh` reports 2783 math snippets with 0 KaTeX failures; searches find no `sorry`/`admit` in the new module and no new `axiom` declarations. All work is committed and pushed.
+
+**Boundary.** Everything in the new module is algebraic: invertibility of H − z i is a hypothesis, not derived from spectral theory, and nothing is claimed about convergence of the compressions along the flag. The open research targets recorded in the plan (the exponentially growing scalaron potential's essential self-adjointness, §10.6.2 items 1 and 4, the general Faris–Lavine potential, research boundary A1) remain open and untouched by this wave.
+
+# Summary of changes for run 1119d862-8559-4cb9-ae58-c0757603fcc9
+I continued executing `CONSOLIDATED_PLAN.md` and, as asked, addressed the Friedrichs canonical self-adjoint extension theorem.
+
+**What was already there, and what was missing.** The project already proved the *existence* half of the Friedrichs theorem in `BookProof/ChapterFriedrichsExtension.lean` (`friedrichs_extension_exists`: every densely defined positive symmetric operator on a complex Hilbert space has a positive self-adjoint extension, built as `S⁻¹ − 1` from the form resolvent `S = (H+1)⁻¹`, with no boundedness hypothesis). What was missing — and what makes it a statement about *the* canonical realization rather than about *some* realization — is the characterization. That is what this wave proves.
+
+**New module `BookProof/ChapterFriedrichsCanonical.lean`** (namespace `BookProof.FriedrichsCanonical`), `sorry`-free and with no new axioms:
+
+- **The construction as named objects**: `formDomain P` (the form domain `Q(H)`, the image of the completion of `dom H` in the form norm `‖x‖₁² = ‖x‖² + ⟪x, Hx⟫`), `friedrichsDomain P`, `friedrichsOp P hdense`, together with `dom_le_formDomain`, `friedrichsDomain_le_formDomain` and `friedrichsOp_isPositiveSelfAdjointExtension` (the existence statement, now for the explicit operator).
+- **Canonicity** (`friedrichs_canonical`): every symmetric extension of `H` whose domain sits inside `Q(H)` is a restriction of the Friedrichs operator.
+- **Uniqueness** (`friedrichs_unique_selfAdjoint`): hence the Friedrichs extension is *the* unique self-adjoint extension of `H` with domain inside the form domain — domain and action alike.
+- **The classical semibounded form**: `shiftedPosSymOp`, `semiboundedFriedrichsOp`, `semiboundedFriedrichsOp_isSemiboundedSelfAdjointExtension` (a symmetric operator bounded below by `−c` has a *constructed* self-adjoint extension with the same lower bound) and `semibounded_friedrichs_unique`.
+- **Quantum-gravity instances (plan §10.6.1)**: on the Gauss–polynomial (Hermite) core of `L²(ℝ)`, the scalaron Hamiltonian `−Δ + V(φ)` has exactly one positive self-adjoint realization whose domain stays inside the form domain (`qgOneParticleHermite_friedrichs_canonical`, `..._unique`); the same for the reduced `(R_c, φ)` sector with the lower bound its potential supplies (`qgOneParticleSector_friedrichs_canonical`, `..._unique`).
+- **Non-vacuity**: `unbounded_friedrichs_canonical_example` runs the whole package on the genuinely unbounded diagonal operator `A eₙ = n eₙ` on the finite-mode domain of `ℓ²(ℕ, ℂ)`.
+
+**Honest boundary (stated in the module, the book and the plan).** Uniqueness within the energy-form class is weaker than essential self-adjointness: an operator that is not essentially self-adjoint still has other self-adjoint extensions, whose domains must leave `Q(H)`. Nothing here claims ESA for the exponentially growing scalaron potential; that half of §10.6.1 target 4 remains open (closed only for the parabolic potential and its bounded perturbations), as do target 2 (needs restating) and target 3.
+
+**Integration and verification.** The module is imported from `BookProof.lean`, certified by 16 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only `propext`, `Classical.choice`, `Quot.sound`), recorded in `BookProof/STATUS.md`, and written up in a new section of `Book/Starobinsky.lean` ("In What Sense the Realization Is Canonical"). `CONSOLIDATED_PLAN.md` gained a dated status block and `ARISTOTLE_SUMMARY.md` a new wave entry at the top, leaving the earlier entries untouched. Gate re-run green: `lake build` 8708 jobs / 0 errors, `lake build RandomMap` 8039 jobs, no `sorry` and no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`, the book renders (`patches/build-book.sh`, assertions hold) and `patches/check-katex.sh` reports 2760 snippets with 0 failures. All work is committed and pushed, and the Properties table lists this wave's deliverables.
+
+# Summary of changes for run 2026-08-23j (CONSOLIDATED_PLAN — the Friedrichs canonical self-adjoint extension theorem: existence was already proved, this wave proves canonicity/uniqueness)
+
+I continued executing `CONSOLIDATED_PLAN.md`.  The project already proved the *existence*
+half of the Friedrichs theorem (`BookProof/ChapterFriedrichsExtension.lean`,
+`friedrichs_extension_exists`: a densely defined positive symmetric operator on a complex
+Hilbert space has a positive self-adjoint extension, constructed as `S⁻¹ − 1` for the form
+resolvent `S = (H+1)⁻¹`).  What was missing — and what makes the theorem a statement about
+*the* canonical realization rather than about *some* realization — is the characterization.
+This wave proves it.  Everything added is `sorry`-free and `axiom`-free (only `propext`,
+`Classical.choice`, `Quot.sound`), committed and pushed.
+
+**One new module, `BookProof/ChapterFriedrichsCanonical.lean`** (namespace
+`BookProof.FriedrichsCanonical`).
+
+* **The construction, as named objects instead of an existential.**  `formDomain P` — the
+  image in the ambient space of the completion of `dom H` in the form norm
+  `‖x‖₁² = ‖x‖² + ⟪x, Hx⟫`, i.e. the *form domain* `Q(H)` — with `dom_le_formDomain` and
+  `friedrichsDomain_le_formDomain`; `friedrichsDomain P` (the range of the form resolvent)
+  and `friedrichsOp P hdense = S⁻¹ − 1`, for which
+  `friedrichsOp_isPositiveSelfAdjointExtension` restates the existence theorem.
+* **Canonicity — `friedrichs_canonical`.**  Every *symmetric* extension `A'` of `H` whose
+  domain is contained in `Q(H)` is a restriction of the Friedrichs operator.  Proof: for
+  `x ∈ dom A'` put `u = A'x + x`; both `x` and `Su` lie in `Q(H)`, so their difference is
+  `formExt k`; pairing `k` with a domain vector `v` in the form inner product equals
+  `⟪v + Hv, x − Su⟫`, which symmetry of `A'` turns into `⟪v, u⟫` on one side and
+  self-adjointness of `S` with `S(v + Hv) = v` turns into `⟪v, u⟫` on the other; the
+  domain is dense in the form completion, so `k = 0` and `x = Su`.
+* **Uniqueness — `friedrichs_unique_selfAdjoint`.**  Hence the Friedrichs extension is the
+  **unique** self-adjoint extension of `H` whose domain lies inside the form domain: the
+  domains coincide and the operators agree pointwise (the reverse inclusion uses the
+  self-adjointness criterion of the competing extension).  This is the classical
+  characterization of the Friedrichs extension (Reed–Simon Vol. II, Thm X.23).
+* **The classical, merely semibounded statement.**  `shiftedPosSymOp` makes `H + c`
+  positive when `⟪x, Hx⟫ ≥ −c‖x‖²`; `isSemibounded_of_isPositive_shift` and
+  `isPositive_shift_of_isSemibounded` transport extensions across the shift, giving
+  `semiboundedFriedrichsOp`, its correctness
+  (`semiboundedFriedrichsOp_isSemiboundedSelfAdjointExtension` — a symmetric operator
+  bounded below by `−c` has a *constructed* self-adjoint extension with the same bound)
+  and `semibounded_friedrichs_unique`.
+* **The quantum-gravity instances (plan §10.6.1).**
+  `qgOneParticleHermite_friedrichs_canonical` / `qgOneParticleHermite_friedrichs_unique`:
+  on the Gauss–polynomial (Hermite) core of `L²(ℝ)` the scalaron Hamiltonian `−Δ + V(φ)`
+  has one and only one positive self-adjoint realization whose domain stays inside the
+  form domain.  `qgOneParticleSector_friedrichs_canonical` /
+  `qgOneParticleSector_friedrichs_unique`: the same for the reduced `(R_c, φ)` sector,
+  with the lower bound its potential supplies.
+
+* **Not vacuous.**  `unbounded_friedrichs_canonical_example` runs the whole package on a
+  genuinely unbounded operator — the diagonal `A eₙ = n eₙ` on the finite-mode domain of
+  `ℓ²(ℕ, ℂ)`.
+
+**Honest boundary.**  Uniqueness *within the energy-form class* is weaker than essential
+self-adjointness: an operator that is not essentially self-adjoint still has other
+self-adjoint extensions, and each of them must leave `Q(H)`.  Nothing here claims ESA for
+the exponentially growing scalaron potential — that half of §10.6.1 target 4 is closed only
+for the parabolic potential and its bounded perturbations
+(`ChapterQgHermiteOscillatorEsa`).  Target 2 still needs restating, target 3 (flux/Carleman)
+is untouched, and the standing research boundary **A1** is unchanged.
+
+**Integration and verification.**  The module is imported from `BookProof.lean`, certified
+by 16 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only
+the three standard axioms), recorded in `BookProof/STATUS.md`, and cited from a new section
+of `Book/Starobinsky.lean` ("In What Sense the Realization Is Canonical").
+`CONSOLIDATED_PLAN.md` gained a dated status block.  Gate re-run green: `lake build`
+8708 jobs / 0 errors, `lake build RandomMap` 8039 jobs, no `sorry` and no `axiom`
+declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`, the book
+renders (`patches/build-book.sh`, assertions hold) and `patches/check-katex.sh` reports
+2760 snippets with 0 failures.
+
+# Summary of changes for run dd451941-ed5a-45ee-8b75-f61748c0b4ae
+I continued executing `CONSOLIDATED_PLAN.md` (§10.6.1, the quantum-gravity Hermite-core programme) and updated `ARISTOTLE_SUMMARY.md` with a new dated wave entry, leaving the earlier entries untouched.
+
+**Two new Lean modules, both `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`).**
+
+1. `BookProof/ChapterQgHermiteFriedrichs.lean` — the operator structure on the Gauss–polynomial (Hermite) core of `L²(ℝᵈ)`, whose *domain* was fixed by the previous wave.
+   - Differentiating `p(x)e^{−‖x‖²/4}` in a coordinate multiplies the polynomial by the twisted derivative `Dⱼp = ∂ⱼp − (xⱼ/2)p` (`hasDerivAt_pgFun_coord`), so `kinPoly` really is `−Δ` on the core and `hamCore` is `−Δ + W` for any continuous potential of exponential growth class.
+   - Gaussian integration by parts (`gaussInt_coreD`) gives symmetry (`hamCore_symmetricOn`) and `Re⟪ψ, −Δψ⟫ = ∑ⱼ‖Dⱼψ‖² ≥ 0`, hence the semibound `hamCore_quadForm_ge` (`W ≥ c ⟹ c‖ψ‖² ≤ Re⟪ψ, Hψ⟫`).
+   - With density of the core this feeds the project's Friedrichs statements (which are named hypotheses, never axioms): `hermiteCore_friedrichs_extension`, plus the instances `qgOneParticleHermite_friedrichs` (scalaron on `L²(ℝ)`, a positive extension) and `qgOneParticleSector_friedrichs` (reduced `(R_c, φ)` sector, semibounded by `−M⁴/(16α)`).
+
+2. `BookProof/ChapterQgHermiteOscillatorEsa.lean` — **essential** self-adjointness for the harmonic (conformal-mode) potential.
+   - A general criterion proved from scratch: an operator whose domain contains an orthonormal Hilbert basis of eigenvectors with real eigenvalues has trivial deficiency at every non-real point (`essentiallySelfAdjointOn_of_eigenbasis`).
+   - The eigenbasis for `−Δ + ‖x‖²/4`: on polynomials `−Dⱼ² + xⱼ²/4 = a†ⱼaⱼ + ½` and `a†ᵢaᵢHe_α = αᵢHe_α`, so the product Hermite functions satisfy `Hψ_α = (|α| + d/2)ψ_α`.
+   - Conclusion `harmonicCore_essentiallySelfAdjoint`: `−Δ + ‖x‖²/4` is essentially self-adjoint on the Gauss–polynomial core of `L²(ℝᵈ)`, unconditionally, in every dimension, with `harmonicCore_stone_flow` the unitary group it generates. A Kato–Rellich step extends this to `−Δ + ‖x‖²/4 + B` for every continuous *bounded* real `B`.
+
+**Honest boundary (stated in all write-ups).** For the exponentially growing scalaron potential what is proved is existence plus a canonical (Friedrichs) choice of a semibounded self-adjoint realization — not essential self-adjointness. The ESA half of §10.6.1 target 4 is closed only for the parabolic potential and its bounded perturbations. Target 2 still needs restating, target 3 (flux/Carleman) is untouched, and the standing research boundary A1 is unchanged.
+
+**Integration and verification.** Both modules are imported from `BookProof.lean`, certified by 25 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), recorded in `BookProof/STATUS.md`, and cited from two new sections of `Book/Starobinsky.lean`. `CONSOLIDATED_PLAN.md` gained a dated status block and `ARISTOTLE_SUMMARY.md` a new wave entry. Gate re-run green: `lake build` 8707 jobs / 0 errors, `lake build RandomMap` 8039 jobs, no `sorry` and no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`, the book renders (`patches/build-book.sh`, assertions hold) and `patches/check-katex.sh` reports 2723 snippets with 0 failures. Everything is committed and pushed; the Properties table lists this wave's deliverables.
+
+# Summary of changes for run 2026-08-23i (CONSOLIDATED_PLAN §10.6.1 — the canonical realization of the QG one-particle Hamiltonian on the Hermite core, and essential self-adjointness for the parabolic potential)
+
+I continued executing `CONSOLIDATED_PLAN.md`.  The previous wave fixed the *domain* (target
+1: the Hamiltonian maps the Gauss–polynomial core into `L²`).  This wave puts the operator
+on that domain and answers, for one potential completely, the question target 4 asks:
+*which* self-adjoint operator the core defines.  Everything added is `sorry`-free and
+`axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), committed and pushed.
+
+**Two new modules.**
+
+1. `BookProof/ChapterQgHermiteFriedrichs.lean` (namespace `BookProof.QgHermiteFriedrichs`)
+   — *symmetry, semiboundedness, and the Friedrichs realization*.
+   * The kinetic term is realized algebraically: differentiating `p(x)e^{−‖x‖²/4}` in a
+     coordinate multiplies the polynomial by the **twisted derivative**
+     `coreD j p = ∂ⱼp − (xⱼ/2)p` (`hasDerivAt_pgFun_coord` proves this is the actual
+     coordinate derivative), so `kinPoly p = −∑ⱼ coreD j (coreD j p)` is `−Δ` on the core,
+     and `hamCore` is `−Δ + W` for every continuous potential of exponential growth class.
+   * **Gaussian integration by parts** `gaussInt_coreD` (`∫(Dⱼa)b = −∫a(Dⱼb)` against the
+     Gaussian weight) gives `hamCore_symmetricOn` and the identity
+     `Re⟪ψ, −Δψ⟫ = ∑ⱼ‖Dⱼψ‖² ≥ 0` (`re_gaussInt_kinPoly_self`), hence the semibound
+     `hamCore_quadForm_ge`: `W ≥ c` implies `c‖ψ‖² ≤ Re⟪ψ, Hψ⟫` on the core.
+   * With `polyGaussCore_dense` this is the exact input of the project's Friedrichs
+     statements (named hypotheses, never axioms): `hermiteCore_friedrichs_extension`,
+     `hermiteCore_friedrichs_extension_of_nonneg`, and the two quantum-gravity instances
+     `qgOneParticleHermite_friedrichs` (the scalaron on `L²(ℝ)` — a *positive* extension,
+     since `V ≥ 0` for `α > 0`) and `qgOneParticleSector_friedrichs` (the reduced
+     `(R_c, φ)` sector, semibounded by `−M⁴/(16α)`).
+
+2. `BookProof/ChapterQgHermiteOscillatorEsa.lean` (namespace
+   `BookProof.QgHermiteOscillator`) — *essential* self-adjointness for the harmonic
+   (conformal-mode) potential.
+   * A general criterion, proved from scratch: `essentiallySelfAdjointOn_of_eigenbasis` —
+     an operator whose domain contains an orthonormal Hilbert basis of eigenvectors with
+     real eigenvalues has trivial deficiency at every non-real point.
+   * The eigenbasis for `−Δ + ‖x‖²/4`: on polynomials `−Dⱼ² + xⱼ²/4 = a†ⱼaⱼ + ½`
+     (`coreD_sq_add_harm`, `kinPoly_add_harmPoly`) and `a†ᵢaᵢHe_α = αᵢHe_α`
+     (`crePoly_annPoly_hermiteMv`), so the product Hermite functions of the project's
+     `ChapterHermiteProductBasis` satisfy `Hψ_α = (|α| + d/2)ψ_α`
+     (`harmCore_hermiteMvLp`).
+   * Conclusion `harmonicCore_essentiallySelfAdjoint`: **`−Δ + ‖x‖²/4` is essentially
+     self-adjoint on the Gauss–polynomial core of `L²(ℝᵈ)`, in every dimension,
+     unconditionally**, with `harmonicCore_stone_flow` the Stone flow target 4 also asks
+     for.  A Kato–Rellich step (`potCore_symmetricOn`, `norm_potLp_le`,
+     `hamCore_add_potential`) extends it to `−Δ + ‖x‖²/4 + B` for every continuous bounded
+     real `B` (`harmonic_add_bounded_essentiallySelfAdjoint`).
+
+**Integration.**  Both modules are imported from `BookProof.lean`, certified by 25 new
+`#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three
+standard axioms), recorded in `BookProof/STATUS.md`, and cited from two new sections of
+`Book/Starobinsky.lean` ("The Friedrichs Realization on the Hermite Core" and "When the
+Core Is a Core: Essential Self-Adjointness for the Parabolic Potential").
+`CONSOLIDATED_PLAN.md` gained a dated status block.
+
+**Honest boundary.**  For the *exponentially growing* scalaron potential what is proved is
+existence plus a canonical (Friedrichs) choice of a semibounded self-adjoint realization —
+**not** essential self-adjointness; the ESA half of §10.6.1 target 4 is closed only for the
+parabolic potential and its bounded perturbations, which do not include `V(φ)`.  Target 2
+still needs restating and target 3 (the flux/Carleman route) is untouched.  The standing
+research boundary is unchanged: **A1**, the continuum ESA for `□ + V` on `L²(ℝ⁸⁴)`.
+
+**Verification gate.**  `lake build` 8707 jobs / 0 errors, `lake build RandomMap` 8039
+jobs, no `sorry` and no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`,
+`RandomMap/` or `PnpProof/`, the new `#print axioms` lines report only the three standard
+axioms, and the book renders with `./patches/build-book.sh` (assertions hold) and
+`./patches/check-katex.sh` (2723 snippets, 0 failures).
+
+# Summary of changes for run 2026-08-23h (CONSOLIDATED_PLAN §10.6.1 target 1 — the Gauss–polynomial (Hermite) core is a domain for the QG one-particle Hamiltonian)
+
+I continued executing `CONSOLIDATED_PLAN.md`.  With §12 closed except for the items that are
+inputs by design, I moved to §10.6.1, the quantum-gravity Hermite-core programme, and closed
+its **target 1**: *well-definedness of the gauge-fixed `R + αR²` one-particle Hamiltonian on
+the Gauss–polynomial core* — the basis the SIRK numerics actually work in.  Everything added
+is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`),
+committed and pushed.
+
+**One new module, `BookProof/ChapterQgHermiteCore.lean`** (namespace
+`BookProof.QgHermiteCore`).
+
+* **The Gaussian tail dominates every exponential**, as the formal inequality the plan asks
+  for: `exp_abs_le_const_mul_exp_sq` — `e^{c|x|} ≤ e^{2c²} e^{x²/8}` for *every* real `c`
+  and `x` (no sign hypothesis: the difference is `(|x| − 4c)²/8`).  Against the core weight
+  this is `exp_abs_mul_gaussH_le` (`e^{c|x|}e^{−x²/4} ≤ e^{2c²}e^{−x²/8}`) and, at infinity,
+  `tendsto_exp_abs_mul_gaussH_atTop`.
+* **The exponential growth class.**  `ExpBounded f` (`|f x| ≤ C e^{c‖x‖}`) is stated for an
+  arbitrary normed space and is closed under sums, scalar multiples and products
+  (`ExpBounded.add`, `.const_mul`, `.mul`) and under composition with a coordinate of `ℝᵈ`
+  (`ExpBounded.comp_coord`).  It contains every polynomial (`expBounded_poly`) and — the
+  point — the **scalaron potential** `V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²`
+  (`expBounded_starobinskyV`), which the project has already shown is *not* of temperate
+  growth.
+* **Multiplication by such a potential maps the core into `L²`.**  With
+  `memLp_gaussPoly` (the core sits in `L²`, reusing the project's Hermite machinery) and the
+  majorant `|p(x)|e^{−x²/8}`, `memLp_mul_gaussPoly_of_expBounded` gives `W·ψ ∈ L²` for every
+  continuous exp-bounded `W`, with `memLp_starobinskyV_mul_gaussPoly` and
+  `memLp_scalaronFull1D_mul_gaussPoly` (parabola plus scalaron) as the instances.
+* **The core is invariant under the kinetic term.**  `hasDerivAt_gaussPoly` computes
+  `(p e^{−x²/4})' = (p' − xp/2) e^{−x²/4}`, so `deriv_gaussPoly` and `deriv2_gaussPoly` stay
+  in the core and `memLp_hamiltonian_gaussPoly` concludes: **`Hψ = −ψ'' + Wψ` lands in `L²`
+  for every core element**, with `memLp_scalaronHamiltonian_gaussPoly` the scalaron
+  instance.  This is exactly the domain question §10.3 flags for the raw operator, answered
+  in this basis.
+* **Every dimension.**  `exists_exp_bound_mvPolyEval` (a polynomial in the coordinates is
+  dominated by an exponential of the norm) and `memLp_mul_pgFun_of_expBounded` transport the
+  multiplication statement to the project's existing product Gauss–polynomial core `pgFun`
+  of `L²(ℝᵈ)`, and `memLp_scalaronSectorPotential_mul_pgFun` is the named instance for the
+  **reduced two-variable sector** `(R_c, φ)` with the potential `V₃(R_c) + V(φ)`.
+
+**Integration.**  The module is imported from `BookProof.lean`, certified by 16 new
+`#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three
+standard axioms), recorded in `BookProof/STATUS.md`, and cited from a new section of
+`Book/Starobinsky.lean` ("The Hermite Core: Where the Hamiltonian Is Defined").
+`CONSOLIDATED_PLAN.md` gained a dated status block.
+
+**Honest boundary.**  This is the *well-definedness* half only.  §10.6.1 **target 2** (the
+exponential potential as an infinitesimally `−Δ`-bounded perturbation on the core) is
+recorded in the new plan block as needing restatement: an inequality of relative-bound form
+holding on a dense core extends to a genuine relative bound, which fails for an
+exponentially growing potential in one dimension, so it should not be formalized as
+literally written.  Targets 3 (flux/Carleman) and 4 (the closing unconditional ESA on the
+core) are untouched, and the standing research boundary is unchanged: **A1**, the continuum
+ESA for `□ + V` on `L²(ℝ⁸⁴)`.
+
+**Verification gate.**  `lake build` and `lake build RandomMap` clean, no `sorry` and no
+`axiom` declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` or `PnpProof/`,
+the new `#print axioms` lines report only the three standard axioms, and the book renders
+with `./patches/build-book.sh` and `./patches/check-katex.sh` reporting no failures.
+
+# Summary of changes for run 2026-08-23g (CONSOLIDATED_PLAN §12 Gap 2 — what the Ritz values converge to, and the laminar decay rate)
+I continued executing `CONSOLIDATED_PLAN.md` (§12, the SIRK/Hashimoto reliability chain) and recorded the wave here. Everything added is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), committed and pushed.
+
+**Two new modules**, closing the two *measurement-side* items that §12 Gap 2 still listed.
+
+1. `BookProof/ChapterSirkRitzSpectrum.lean` — **the Ritz values converge to the bottom of the spectrum of the selected extension** (Gap 2, QYM: "missing … the statement that the Ritz/gap values converge to the spectrum of the Friedrichs extension as `m → ∞`"). `le_rayleigh_iff_le_spectrum` is the numerical characterisation of a spectral lower bound for a bounded self-adjoint operator — `c‖x‖² ≤ Re⟪x, Tx⟫` for every `x` iff `c ≤ μ` for every `μ ∈ spectrum ℝ T` — proved from the C*-algebra fact that a self-adjoint element is nonnegative iff its spectrum is, applied to the shift `T − c`. `spectrum_real_nonempty` and `spectrum_real_bddBelow` make `sInf (spectrum ℝ T)` meaningful, `sInf_spectrum_eq_rayleighInf` identifies it with the bottom of the numerical range, `ritzInf_finiteModeDomain_eq_rayleighInf` transports that to the finite-mode (Hermite) domain by density plus continuity of the Rayleigh quotient, and `ritzInf_tendsto_sInf_spectrum` / `galerkin_ritz_tendsto_sInf_spectrum_of_selected` are the assembled statements.
+
+2. `BookProof/ChapterSirkDiffusiveDecay.lean` — **the laminar (diffusive) decay rate, and its survival under the reduction** (Gap 2, NS Lagrangian: "the diffusive decay statement (the laminar `νk²` decay rate the numerics measure)"). `heatFlow A t = exp(−t • A)` solves `u′ = −A u` (`hasDerivAt_heatFlow_apply`) with the energy identity `hasDerivAt_heatFlow_normSq`; for a coercive generator (`IsCoercive A μ`, non-degenerate by `isCoercive_add_algebraMap`) a Grönwall weighting gives `norm_heatFlow_apply_le`: `‖e^{−tA} v‖ ≤ e^{−μt}‖v‖` for `t ≥ 0`, and `norm_heatFlow_le` in operator norm. `isCoercive_compress` shows the SIRK compression along an isometry keeps the *same* constant, so `norm_heatFlow_compress_apply_le` gives the reduced model the same decay bound at every reduction order. Identifying `μ` with `νk²` for a particular discretisation, and the value of `ν`, remain inputs rather than theorems.
+
+**Integration.** Both modules are imported from `BookProof.lean`, certified by 14 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), recorded in `BookProof/STATUS.md`, and cited from two new sections of `Book/SirkReliability.lean` ("What the Ritz Values Converge To", "The Laminar Decay Rate"). `CONSOLIDATED_PLAN.md` gained a dated status block.
+
+**Verification gate, re-run green.** `lake build` **8704 jobs**, 0 errors; `lake build RandomMap` **8039 jobs**; the new `#print axioms` lines all report only `propext`, `Classical.choice`, `Quot.sound`; no `sorry` and no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` or `PnpProof/` (only prose mentions); the isolation greps are unchanged; `./patches/build-book.sh` renders the book with its assertions holding (no `<base>`, fragment links present) and `./patches/check-katex.sh` reports **2678 snippets, 0 failures**. The executable bits on `patches/*.sh` had reverted to mode 644 (which breaks the wrapper) and were restored.
+
+**Still open in §12** (unchanged): the numerical values of `C` and `Dmin` — Crouzeix's inequality and the `e^{−hm}` deformation stay named hypotheses with citations, never axioms — and Gap 6 (finite precision, out of scope by design). The standing research boundary is unchanged: **A1**, the continuum ESA for `□ + V` on `L²(ℝ⁸⁴)`.
+
+# Summary of changes for run 6b5b05ef-2887-4b17-b736-4f3c8e11cc57
+I continued executing `CONSOLIDATED_PLAN.md` (§12, the SIRK/Hashimoto reliability chain) and recorded the wave in `ARISTOTLE_SUMMARY.md`. Everything added is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), committed and pushed.
+
+**Three new modules.**
+
+1. `BookProof/ChapterSirkTrotterKato.lean` — closes the remaining (unbounded) half of §12 Gap 3. For the project's own unbounded self-adjoint operators, strong convergence of the resolvents `(Aₙ − i)⁻¹ y → (A − i)⁻¹ y` (`StrongResolventConvergence`) implies strong convergence of the unitary flows `e^{−itAₙ}v → e^{−itA}v`, uniformly for `t` in a bounded interval: `trotterKato_uniform_on_interval`, `trotterKato_tendsto`, `trotterKato_tendstoUniformlyOn`. The proof is the Duhamel/commutator argument, written out through `resolvent_commutator_eq`, a weak product rule for the flow, `hasDerivAt_duhamel`, a mean-value bound, then a density step and a compactness step.
+
+2. `BookProof/ChapterSirkTrotterKatoGalerkin.lean` — the Galerkin instance: `ofBounded`, `resCLM_ofBounded`, `strongResolventConvergence_ofBounded`, and `galerkin_flow_transfer` / `galerkin_flow_tendsto`, showing the flows of the Rayleigh–Ritz compressions converge to the flow of the selected generator on bounded time intervals.
+
+3. `BookProof/ChapterSirkLagrangianCanonical.lean` — closes the two §12 Gap 2 Lagrangian realizations that had essential self-adjointness but no shift-invert companion: the canonical (non-commuting ladder) realization and the Fock/momentum (continuum symbols) realization. Both get their multi-shift selection, single-shift resolvent with `‖X‖ ≤ |Im γ|⁻¹`, and Crouzeix disc of that radius for the generator and every order-`m` compression; the continuum realization also gets its Stone flow.
+
+**Integration.** All three are imported from `BookProof.lean`, certified by 25 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), recorded in `BookProof/STATUS.md`, and cited from `Book/SirkReliability.lean` (two new sections). `CONSOLIDATED_PLAN.md` gained a dated status block; a new wave entry was prepended to `ARISTOTLE_SUMMARY.md`.
+
+**Verification gate, re-run green.** `lake build` (8702 jobs, 0 errors), `lake build RandomMap` (8039 jobs), `./patches/build-book.sh` (no `<base>`, fragment links present), `./patches/check-katex.sh` (2668 math snippets, 0 failures); no `sorry` and no `axiom` declaration in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` or `PnpProof/` (the pre-existing quarantined `UnusedRoute` legacy `sorry`s are unchanged and in no default target). The `patches/*.sh` executable bits had been lost in this snapshot and were restored.
+
+**Honest boundary, unchanged.** Crouzeix's inequality and the `e^{−hm}` deformation remain named hypotheses with citations, never axioms; strong resolvent convergence is the hypothesis of the Trotter–Kato statement, supplied per system by the selection theorems. Still open in §12: the numerical values of `C` and `Dmin`, and Gap 6 (finite precision, out of scope for an exact-arithmetic formalization). The standing research boundary is unchanged: A1, the continuum essential self-adjointness for `□ + V` on `L²(ℝ⁸⁴)`.
+
+# Summary of changes for run 2026-08-23f (CONSOLIDATED_PLAN §12 — Trotter–Kato, and the last two Lagrangian realizations)
+
+I continued `CONSOLIDATED_PLAN.md`. The previous wave had left three things open in §12: the **Trotter/Kato half of Gap 3**, the two **NS Lagrangian realizations of Gap 2** that had essential self-adjointness but no Hashimoto/SIRK companion, and Gap 6 (finite precision, out of scope by design). This wave closes the first two. Everything below is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), committed and pushed; the §8 gate was re-run green.
+
+**1. `BookProof/ChapterSirkTrotterKato.lean` — §12 Gap 3, the unbounded half.** The project already had the *bounded* transfer (`ChapterSirkGroupTransfer`: two bounded generators' propagators differ by at most `|t| ‖a − b‖ e^{|t|M}`), but the generators the selection theory produces are unbounded, and for them the right statement is Trotter–Kato: strong convergence of the resolvents implies strong convergence of the unitary groups, locally uniformly in time. The chapter proves exactly that, on the project's own `ChapterStoneResolvent.UnboundedSelfAdjoint` machinery. `StrongResolventConvergence T S` is the hypothesis `(Aₙ − i)⁻¹ y → (A − i)⁻¹ y` for every `y`; `trotterKato_uniform_on_interval` is the conclusion `‖e^{−itAₙ}v − e^{−itA}v‖ ≤ ε` eventually, uniformly for `|t| ≤ T₀`, with `trotterKato_tendsto` and `trotterKato_tendstoUniformlyOn` its pointwise and `TendstoUniformlyOn` packagings. The proof is the Duhamel/commutator argument written out: `resolvent_commutator_eq` is the algebraic identity `Aₛ Rₛ − Rₛ A = (R − Rₛ)(A − i)` that makes the difference of the two flows an integral of resolvent differences; `hasDerivAt_stoneU_const_sub_apply` is the weak product rule (proved from `hasDerivAt_iff_isLittleO`, since the flow is only strongly differentiable on the domain); `hasDerivAt_duhamel` differentiates the interpolating family and `norm_res_stoneU_sub_stoneU_res_le` turns that into a bound by the mean-value inequality. Two soft steps finish it: `exists_res_domain_approx` extends the estimate from the resolvent range to a dense set and hence to all of `H`, and `tendsto_uniformly_on_isCompact_of_tendsto` upgrades pointwise-in-`t` convergence of an equicontinuous family to uniform convergence on the compact interval.
+
+**2. `BookProof/ChapterSirkTrotterKatoGalerkin.lean` — the Galerkin instance.** The hypothesis of Trotter–Kato is what Rayleigh–Ritz supplies, in the regime where the generator is bounded on its domain: `ofBounded` presents a bounded self-adjoint operator as an `UnboundedSelfAdjoint` with domain `⊤`, `resCLM_ofBounded` identifies its resolvent with `−(A − i)⁻¹`, `strongResolventConvergence_ofBounded` derives the resolvent hypothesis from strong convergence of the operators, and `galerkin_flow_transfer` / `galerkin_flow_tendsto` conclude that the flows of the Galerkin compressions converge to the flow of the selected generator, uniformly on every bounded time interval. That is the last link of the reliability chain: what the algorithm propagates converges to what the selected extension propagates.
+
+**3. `BookProof/ChapterSirkLagrangianCanonical.lean` — §12 Gap 2, the two remaining Lagrangian realizations.** The Crouzeix-domain instantiation of the previous wave stopped at the Kato–Rellich instance, whose constituents commute. Two further realizations of the same Lagrangian data were left without a selection theorem: the **canonical** one, in which the parcel momenta and the viscous gradients are genuinely non-commuting canonical pairs of the trajectory-space Hermite basis, and the **Fock/momentum** one, in which the constituents are multiplication operators by arbitrary measurable symbols, so the spectrum is in general purely continuous and there is no eigenvector at all. Both are essentially self-adjoint on their core — for the continuum one this needed the `EssentiallySelfAdjointOn` phrasing, `fockLag_esa` — so the abstract Lagrangian selection theory applies verbatim: `lagCan_hashimoto_selects` / `fockLag_hashimoto_selects` (the multi-shift data determine one self-adjoint operator), `lagCan_shiftInvert_selects` / `fockLag_shiftInvert_selects` (the single-shift form, `‖X‖ ≤ |Im γ|⁻¹`), `lagCan_sirk_crouzeix_domain` / `fockLag_sirk_crouzeix_domain` (the disc of that radius, for the generator and for every order-`m` compression) and `fockLag_stone_flow` (the continuum realization's unitary flow).
+
+**Integration and verification.** The three modules are imported from `BookProof.lean` with explanatory comments, certified by 25 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), recorded in `BookProof/STATUS.md`, and cited from `Book/SirkReliability.lean`, which gains two sections ("From the Reduced Generator to the Flow", "The Two Remaining Lagrangian Realizations"). `CONSOLIDATED_PLAN.md` gained a dated status block. The §8 gate was re-run green: `lake build` (8702 jobs, 0 errors), `lake build RandomMap` (8039 jobs), `./patches/build-book.sh` (no `<base>`, fragment links present) and `./patches/check-katex.sh` (2668 math snippets, 0 KaTeX failures); the `sorry` and `axiom` greps are clean for `BookProof/`, `Book/`, `Singularity/`, `RandomMap/` and `PnpProof/` (the documented legacy `UnusedRoute` `sorry`s are unchanged and in no default target). The `patches/*.sh` executable bits had again been lost in this snapshot and were restored.
+
+**Honest boundary, unchanged.** Crouzeix's inequality and the `e^{−hm}` deformation of the error bound remain **named hypotheses with citations**, never axioms; strong resolvent convergence is the *hypothesis* of the Trotter–Kato statement, supplied per system by the selection theorems, not proved there. Nothing here claims global regularity of Navier–Stokes, a mass gap, or anything about floating-point arithmetic. Still open in §12: the numerical values of `C` and `Dmin`, and Gap 6 (finite precision — out of scope for an exact-arithmetic formalization, and recorded as such). The standing research boundary is still **A1**, the continuum ESA for `□ + V` on `L²(ℝ⁸⁴)`.
+
+# Summary of changes for run 2026-08-23 (CONSOLIDATED_PLAN §12 — the SIRK/Hashimoto reliability chain)
+
+I continued `CONSOLIDATED_PLAN.md`. Its §1–§11 items were already closed, with **A1** (the continuum ESA for `□ + V` on `L²(ℝ⁸⁴)` — the Strichartz finite-speed / hyperbolic direct-integral gluing) left as the standing research boundary, so I attacked §12, "the full reliability of the SIRK/Hashimoto numerics", following the attack order §12.3 prescribes. **Gaps 1, 2, 4a, 4b, 4c and 5 are now closed, together with the bound half of Gap 3.** Everything below is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), committed and pushed; the §8 gate was re-run green.
+
+**1. `BookProof/ChapterSirkEndToEnd.lean` — §12 Gap 1, the assembly.** The four stages of the pipeline existed as separate modules but nothing composed them into a flow-approximation statement. The enabling observation is that the rational transfer `r(X)v = V r(B) V∗v` of `ChapterH8.compress_rational_transfer` is only available **on the range of `V`**, while `ChapterH4.sirk_error_bound` demanded it as an operator identity — yet its proof uses it at the Krylov seed only. `sirk_error_bound_at` is that weakening, and with it **`sirk_end_to_end` carries no transfer hypothesis at all**: it is discharged from the isometry `V∗V = 1`, the Krylov invariance of the range and the invertibility of the rational denominator, and the conclusion is the eq.-(12) bound `‖flow v − V ψ(B) V∗ v‖ ≤ 2C e^{−hm} Dmin ‖v‖` in the explicit form of `ChapterH6.sirkBound`. `crouzeix_domain_transfer` justifies the step the informal argument takes silently — one convex domain `Σ ⊇ W(X)` serves both operator-norm estimates, because `convexHull (W(V∗XV)) ⊆ Σ`. `sirk_flow_error_tendsto_zero` and `sirk_flow_error_uniform_in_time` are the convergence conclusions (the latter is the **bound half of Gap 3**), `sirkReconstruction_isIdempotent`/`_isSelfAdjoint` identify the reconstruction `V ∘ V∗` with the orthogonal projection onto the retained subspace (**Gap 4a**), and `sirk_end_to_end_satisfiable` shows the hypothesis set is simultaneously satisfiable with a nonzero generator.
+
+**2. `BookProof/ChapterSirkMultiShift.lean` — §12 Gap 4b.** `krylov_multiShift_eq_standard`: the forward sequence `w₀ = v₀`, `wₖ₊₁ = (H − zₖ I) wₖ` of an *arbitrary* schedule of complex shifts spans exactly the standard Krylov subspace; hence `krylov_multiShift_span_eq_of_shifts` — the schedule changes the basis, never the space that is compressed. The general principle is isolated as `triangularSpan_eq_krylovSpan`, and `multiShiftSeq_const` identifies `ChapterH5`'s single-shift sequence as the constant-schedule instance.
+
+**3. `BookProof/ChapterSirkRestart.lean` — §12 Gaps 4a and 5.** `restart_error_accumulation`: two contractive propagators differing by `ε` in the strong sense differ by at most `n·ε` after `n` restart cycles, with no commutation used — so restarting multiplies the per-cycle `e^{−hm}` guarantee by the cycle count and nothing worse (`restart_error_accumulation_sirk`, `restart_error_tendsto_zero`). The same telescoping closes **Gap 5**: `brst_leakage_zero_of_exact` (a propagator commuting with the BRST charge keeps a physical state physical) and `brst_leakage_bound` (`‖Ω Sⁿ v‖ ≤ ‖Ω‖ · n · ε · ‖v‖`) bound the leakage of the *truncated* dynamics out of the physical subspace by the truncation error.
+
+**4. `BookProof/ChapterSirkWhitening.lean` — §12 Gap 4c (non-degenerate case).** Whitening independence, coordinate-free: `rangeProj_eq_of_range_eq` (same range ⟹ same orthogonal projection), `whiteningEquiv` with `whiteningEquiv_isometry`/`whiteningEquiv_left_inverse` (the change of whitening is unitary), `compress_conj_whitening` (the reduced operators are unitarily conjugate, hence share spectrum, numerical range and Ritz values) and `sirkApprox_eq_of_range_eq` (the reconstructed operator is literally the same, `P X P`). The rank-truncated (near-singular Gram) quantitative case is **not** covered.
+
+**5. `BookProof/ChapterSirkSpectralGeometry.lean` — §12 Gap 2, the abstract half.** The constants `C` and `Dmin` are meaningful only relative to the set `Σ` on which `‖ψ − r‖_{∞,Σ}` is measured, and that set is decided by the operator the algorithm actually iterates — not the (unbounded) Hamiltonian but its shift-invert. Two regimes cover the project: for a **positive** generator at a real shift `γ > 0`, the shift-invert `R = (A + γ)⁻¹` is self-adjoint with `‖R‖ ≤ γ⁻¹` and nonnegative Rayleigh quotients, so `numRange_subset_realSegment_of_shiftInvert` places `W(R)` inside the **real segment** `[0, γ⁻¹]` — a degenerate convex set, the sharpest possible domain — and `crouzeix_domain_shiftInvert` inherits it for every compression; for an **indefinite** generator at a non-real shift, `‖X‖ ≤ |Im γ|⁻¹` gives the **disc** of that radius (`numRange_subset_closedBall_of_shiftInvertC`, `crouzeix_domain_shiftInvertC`). `sirk_end_to_end_crouzeix_domain` restates the end-to-end bound with the domain as the hypothesis — the compression side of the Crouzeix condition is discharged inside the proof — with the ready-made instances `sirk_end_to_end_shiftInvert` and `sirk_end_to_end_shiftInvertC`. In every case `Σ` depends on the **shift alone**: not on the reduction order `m`, not on the seed.
+
+**6. `BookProof/ChapterSirkPerSystem.lean` — §12 Gap 2, per system.** The domain, instantiated for every Hamiltonian whose selection theorem the project proves: `ym_sirk_crouzeix_domain` (QYM, the Friedrichs route, the segment `[0, γ⁻¹]`), `ns_sirk_crouzeix_domain` and `nsDiff_sirk_crouzeix_domain` (NS Eulerian, sequence space and differential), `lagrangian_sirk_crouzeix_domain` with the concrete Kato–Rellich instance `diagKR_sirk_crouzeix_domain` (NS Lagrangian), and `qgR2_sirk_crouzeix_domain` (QG) — the indefinite families all on the disc of radius `|Im γ|⁻¹`, which is the formal counterpart of the numerics' sensitivity to how far the shift is taken from the real axis in the two-signed case. The QG case needed a resolvent that did not exist: **`qgR2_shiftInvert_selects`** constructs it at every non-real shift from the ESA-selected extension of the gauge-fixed `R + αR²` mode Hamiltonian, with `‖X‖ ≤ |Im γ|⁻¹`, using no positivity — which the two-signed fiber symbol `(1/16)a² − (1/24)b²` forbids.
+
+**Integration and verification.** All six modules are imported from `BookProof.lean` with explanatory comments, certified by 52 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), recorded in `BookProof/STATUS.md`, and presented in a new pedagogical Verso chapter `Book/SirkReliability.lean`, which is imported **and** `{include}`d in `Book.lean`; I also added the missing `{include}`s for three chapters that had been imported but never included (`Book/Starobinsky.lean`, `Book/NavierStokesHashimoto.lean`, `Book/CarlemanFlux.lean`), so the root `#doc` now carries 39 `{include}`s over 40 chapter files (`Issues.md` §0b updated). `CONSOLIDATED_PLAN.md` gained two dated status blocks. The §8 gate was re-run green: `lake build` (8697 jobs, 0 errors), `lake build RandomMap` (8039), `lake build UsedRoute` (8049), `./patches/build-book.sh` (no `<base>`, fragment links present) and `./patches/check-katex.sh` (2659 math snippets, 0 KaTeX failures); the `sorry` / `axiom` / isolation greps are clean for `BookProof/`, `Book/`, `PnpProof/`, `Singularity/` and `RandomMap/` (the documented `UsedRoute`/`UnusedRoute` legacy `sorry`s are unchanged and in no default target). The `patches/*.sh` executable bits had again been lost in this snapshot and were restored.
+
+**Honest boundary, unchanged.** Crouzeix's inequality and the `e^{−hm}` deformation of the error bound remain **named hypotheses with citations**, never axioms; what this wave fixes is the region on which their sup-norm is measured, not a numerical value for it. Still open in §12: the Trotter/Kato half of Gap 3 (strong-resolvent convergence to locally-uniform convergence of the unitary groups), the rank-truncated half of Gap 4c, and Gap 6 (finite precision — out of scope for an exact-arithmetic formalization, and recorded as such). No mass gap, no global existence, and nothing about floating-point arithmetic is claimed anywhere. The standing research boundary is still **A1**.
+
+# Summary of changes for run 8220d26a-8c17-452a-81c3-8ae94a133a50
+I continued `CONSOLIDATED_PLAN.md` and closed its two remaining actionable items — **A4** and **A5 step 2** — leaving **A1** (the Strichartz finite-speed / hyperbolic direct-integral gluing) as the single open research boundary. Everything is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), committed and pushed.
+
+**1. `BookProof/ChapterNavierStokesDiffFarisLavine.lean` (plan item A4)** — the two Faris–Lavine inequalities for the Navier–Stokes quadratic symbol *as an actual differential operator* on `L²(du₁du₂du₃)`, against a differential comparison operator `nsDiffN μ = 2μ ∑ᵢ (πᵢ² + uᵢ²/4) + 1`.
+- The algebraic bridge is `oscOp_eq_number`: on the Gauss–polynomial core, `πᵢ² + uᵢ²/4 = aᵢ†aᵢ + ½`, proved as the polynomial identity `oscPoly_eq` from the Leibniz rule; `embedCore_surjective` shows that core *is* the transported finite-mode core.
+- `nsDiffH_relative_bound` (`‖Hf‖² ≤ a‖Nf‖² + b‖f‖²`) and `nsDiffH_commForm_bound` (`|⟪f, i[H,N]f⟫| ≤ c⟪f, Nf⟫`) hold for the differential operator, together with `nsDiffN_symmetricOn` and `nsDiffN_quadForm_ge_norm_sq`.
+- The maximal-domain layer (`diffMaxDom`, `diffMaxN`, `diffMaxH`, …, `diffMaxH_restrict`) feeds the Faris–Lavine criterion in `L²(ℝ³)` itself, giving `nsDiffH_esa_of_farisLavine` — the alternative route to the previously proved essential self-adjointness, which had been obtained by transporting the sequence-space theorem instead of the estimates.
+- Boundary kept explicit: this is the Hilbert-space operator at one Eulerian fiber; nothing is claimed about global regularity of the classical Navier–Stokes equation.
+
+**2. `BookProof/ChapterScalaronDensitizedTransfer.lean` (plan item A5, step 2)** — the `R + αR²` conformal-mode potential carried through the densitized change of variables `e = y²`, in the continuum realisation.
+- `densConfV M α y = V₃(y²)` is the pullback of the potential along `y = √e`; the bound survives (`densConfV_ge`: `−M⁴/(16α) ≤ densConfV M α y`), and `densConfV_zero_alpha_tendsto_atBot` shows that at `α = 0` the densitized potential still tends to `−∞`, so the bound is bought by the `αR²` term and not by the densitization.
+- The constructed half-density unitary `L²((0,∞), de) ≃ L²((0,∞), 2y dy)` carries the bounded-energy core of one space onto the other and intertwines the two multiplication Hamiltonians, so vanishing adjoint deficiency *transfers* to the physical side (`physConf_hasZeroDeficiencyOn_transfer`), with unitary flows on both sides.
+- At the operator level, `multOp_quadForm_eq` / `multOp_quadForm_ge` turn a pointwise lower bound on a multiplier into semiboundedness of the multiplication operator, giving `densConfOp_quadForm_ge` and `physConfOp_quadForm_ge` (`⟪f, H f⟫ ≥ −M⁴/(16α)·‖f‖²`).
+- Boundary kept explicit: this is the potential half in the one conformal variable; the full continuum statement still needs the Strichartz finite-speed / direct-integral input (the A1 residue), and the gauge/BRST sector is outside the statement.
+
+**Integration and verification.** Both modules are imported from `BookProof.lean`, certified by 19 and 22 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), recorded in `BookProof/STATUS.md`, and cited with `#check` blocks from `Book/FreeField.lean` and `Book/DiffeomorphismsGravity.lean`. `CONSOLIDATED_PLAN.md` now marks A4 and A5 step 2 CLOSED, and `ARISTOTLE_SUMMARY.md` has a new run entry. The plan's §8 gate was re-run green: `lake build` (8690 jobs), `lake build RandomMap`, `lake build UsedRoute`, `./patches/build-book.sh`, and `./patches/check-katex.sh` (2569 math snippets, 0 KaTeX failures), with clean `sorry` / `axiom` / isolation greps for `BookProof/`, `PnpProof/`, `Singularity/` and `RandomMap/` (the documented `sorry`s in the `UsedRoute` strategy files are unchanged from the state I received). The `patches/*.sh` executable bit had again been lost in this snapshot and was restored.
+
+# Summary of changes for run 2026-08-23 (A4 and A5 step 2)
+
+I continued `CONSOLIDATED_PLAN.md` and closed its two remaining actionable items, **A4** and **A5 step 2**, leaving **A1** (the Strichartz finite-speed / hyperbolic direct-integral gluing) as the single open research boundary. Everything below is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), committed and pushed; the §8 gate was re-run green.
+
+**1. `BookProof/ChapterNavierStokesDiffFarisLavine.lean` (namespace `BookProof.NavierStokesFlow.DiffFarisLavine`) — plan item A4.** The two Faris–Lavine inequalities for the Navier–Stokes quadratic symbol **as an actual differential operator** on `L²(du₁du₂du₃)`, against a *differential* comparison operator.
+
+* *The comparison operator.* `nsDiffN μ = 2μ ∑ᵢ (πᵢ² + uᵢ²/4) + 1` is an honest second-order operator. The algebraic bridge to the occupation-number picture is `oscOp_eq_number`: on the Gauss–polynomial core, `πᵢ² + uᵢ²/4 = aᵢ†aᵢ + ½`, proved as the polynomial identity `oscPoly_eq` from the Leibniz rule `∂ᵢ(uᵢp) = p + uᵢ∂ᵢp`. Hence `intertwined_nsDiffN` / `velNcore_eq_diagMax`, and `embedCore_surjective` shows the Gauss–polynomial core *is* the transported finite-mode core.
+* *The inequalities.* `nsDiffH_relative_bound` (`‖Hf‖² ≤ a‖Nf‖² + b‖f‖²`) and `nsDiffH_commForm_bound` (`|⟪f, i[H,N]f⟫| ≤ c⟪f, Nf⟫`) on the Hermite core, with `nsDiffN_symmetricOn` and `nsDiffN_quadForm_ge_norm_sq`.
+* *The maximal-domain layer and the payoff.* `diffMaxDom`, `diffMaxN`, `diffMaxH` carry the pair to the maximal domain of the comparison operator inside `L²(ℝ³)` (`diffMaxH_symmetricOn`, `diffMaxN_quadForm_nonneg`, `diffMaxN_add_one_surjective`, `diffMaxN_core_approx`, `diffMaxH_relative_bound`, `diffMaxH_commForm_bound`, `diffMaxH_restrict`), and the Faris–Lavine criterion then gives **`nsDiffH_esa_of_farisLavine`** — essential self-adjointness proved *in `L²(ℝ³)` itself*, the alternative route to `ChapterNavierStokesDifferentialL2.nsDiffH_essentiallySelfAdjointOn_core`, which transported essential self-adjointness instead of the estimates.
+* *Honest boundary:* the estimates are the transported sequence-space ones; the new mathematics is the identification `πᵢ² + uᵢ²/4 = aᵢ†aᵢ + ½` and the surjectivity of the core embedding. Nothing here claims global regularity of the classical Navier–Stokes equation (Contention D5).
+
+**2. `BookProof/ChapterScalaronDensitizedTransfer.lean` (namespace `BookProof.ScalaronDensitized`) — plan item A5, step 2.** The conformal-mode potential carried through the densitized change of variables `e = y²`, in the continuum realisation.
+
+* *The potential.* `densConfV M α y = V₃(y²)` is the pullback of the conformal-mode potential along `y = √e` (`densConfV_comp_densY`). **The bound survives:** `densConfV_ge` / `densConfV_bddBelow` give `−M⁴/(16α) ≤ densConfV M α y` uniformly, and `densConfV_zero_alpha_tendsto_atBot` records that at `α = 0` the densitized potential still tends to `−∞` — the bound is bought by the `αR²` term, not by the densitization.
+* *The transfer.* On the bounded-energy cores of `L²((0,∞), de)` and `L²((0,∞), 2y dy)`, the constructed half-density unitary carries one core onto the other and intertwines the two multiplication Hamiltonians (`halfDensityUnitary_mem_densConfCore`, `halfDensityUnitary_densConfCore_surjective`, `halfDensityUnitary_intertwines`), so `qg_halfDensity_transfer` turns `densConf_hasZeroDeficiencyOn` into **`physConf_hasZeroDeficiencyOn_transfer`**: the physical statement is obtained by transfer, not re-proved. Both sides carry a unitary flow (`densConf_stone_flow`, `physConf_stone_flow`).
+* *The bound at the operator level.* `multOp_quadForm_eq` computes the quadratic form of a multiplication operator as `∫ g·|f|²` (with `integral_norm_sq_eq_norm_sq`), and `multOp_quadForm_ge` turns a pointwise lower bound on the multiplier into semiboundedness of the operator; `densConfOp_quadForm_ge` and `physConfOp_quadForm_ge` are the `R + αR²` instances, `⟪f, H f⟫ ≥ −M⁴/(16α)·‖f‖²`.
+* *Honest boundary:* this is the potential half in the one conformal variable. Assembling it with the kinetic absorption identities of `ChapterQuantumGravityDensitized` into the full continuum operator still needs the Strichartz finite-speed / direct-integral input — the standing residue of A1 — and the gauge/BRST sector is outside the statement; no mass gap and no global existence is claimed.
+
+**Integration and verification.** Both modules are imported from `BookProof.lean`, certified by 19 and 22 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only `propext`, `Classical.choice`, `Quot.sound`), recorded in `BookProof/STATUS.md`, and cited with `#check` blocks from `Book/FreeField.lean` and `Book/DiffeomorphismsGravity.lean` respectively; `CONSOLIDATED_PLAN.md` now marks A4 and A5 step 2 CLOSED. The §8 gate was re-run green: `lake build` (8690 jobs), `lake build RandomMap` (8039), `lake build UsedRoute` (8049), `./patches/build-book.sh` and `./patches/check-katex.sh` (2569 math snippets, 0 KaTeX failures); the `sorry` / `axiom` / isolation greps are clean for `BookProof/`, `PnpProof/`, `Singularity/` and `RandomMap/` (the `UsedRoute` strategy files' documented `sorry`s are unchanged from the state I received). The `patches/*.sh` executable bit had again been lost in this snapshot and was restored.
+
+# Summary of changes for run 0daf6e55-21fc-4d6d-9840-c8c8f1f1d245
+I continued `CONSOLIDATED_PLAN.md` on the point you raised: the one-particle ESA result for the QG Hamiltonian with the Starobinsky scalaron potential is now linked to the nested Fock space, so the statement holds on the finite-particle (continuum) state space. Everything is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), committed and pushed.
+
+**New module `BookProof/ChapterScalaronFockEsa.lean` (namespace `BookProof.ScalaronFock`).** It is exactly the linkage you described — no new analytic input, only the composition of two already-proved strands: the one-particle theorems on the dense compactly supported smooth core (`BookProof.ScalaronEsa`) and the orthogonal direct-sum gluing instrument (`BookProof.DirectSumEsa`).
+
+1. *The generic instrument.* For an arbitrary family `E : ℕ → Type*` of finite-dimensional sectors and arbitrary **smooth** `n`-particle potentials — no growth, no boundedness, no semiboundedness — the algebraic direct sum `nestedCore` of the sector cores is dense in `⊕ₙ L²(Eₙ)` (`nestedCore_dense`), and the sector-wise multiplication operator is symmetric (`fockSmoothPotential_symmetric`), has trivial deficiency at every non-real point (`fockSmoothPotential_deficiencyTrivialAt`), is essentially self-adjoint (`fockSmoothPotential_esa`) and generates the complete unitary group (`fockSmoothPotential_stone_flow`).
+
+2. *The many-body `R + αR²` potential.* On the `n`-particle sector `qgSector n = ℝ^(n×2)` — each quantum carrying a conformal mode `R_c` and a scalaron `φ` — `qgManyPotential = ∑ⱼ (V₃(R_c ⱼ) + V(φ ⱼ))` is smooth (`contDiff_qgManyPotential`), bounded below by `−n·M⁴/(16α)` (`qgManyPotential_ge`), essentially self-adjoint on the sector core (`qgManyPotential_esa`), and at `n = 1` it *is* the one-particle potential of the previous wave (`qgManyPotential_one`) — the explicit link between the two levels.
+
+3. *The Fock statements.* `qgScalaronFockHamiltonian` is the second-quantised gauge-fixed `R + αR²` Hamiltonian including the scalaron sector on `⊕ₙ L²(ℝ^(n×2))`: `qgFockCore_dense`, `qgScalaronFock_symmetric`, `qgScalaronFock_deficiencyTrivialAt`, `qgScalaronFock_esa`, and `qgScalaronFock_stone_flow`, the complete unitary group `e^{−itH}` on the whole finite-particle Fock space.
+
+4. *The mode (Hermite) realisation* used throughout the gravity chapters, where the one-particle result was `qgScalaronMode_esa`: `modeFockCore_dense`, `qgScalaronModeFock_symmetric`, `qgScalaronModeFock_deficiencyTrivialAt`, `qgScalaronModeFock_esa`, `qgScalaronModeFock_stone_flow`, `qgScalaronModeFock_potential_ge`.
+
+*Honest boundary, recorded in the module docstring and the plan:* the gluing is over an **orthogonal** direct sum, i.e. the Hamiltonian preserves particle number — precisely the finite-particle (nested Fock) situation; a sector-changing interaction is not part of the claim, and the unlocalized `□ + V` continuum gluing (finite speed / unique continuation) is unchanged from where the previous wave left it.
+
+**Integration and verification.** The module is imported from `BookProof.lean`, certified by 21 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all clean), written up as a new section with a `#check` block in `Book/DiffeomorphismsGravity.lean`, and recorded in `BookProof/STATUS.md` and in a new A5 update block in `CONSOLIDATED_PLAN.md`. The §8 gate was re-run green: `lake build` (8257 jobs), `lake build RandomMap`, `lake build UsedRoute`, `./patches/build-book.sh` and `./patches/check-katex.sh` (2549 math snippets, 0 KaTeX failures); a repository-wide search confirms no `sorry` and no `axiom` declaration outside comments in the in-scope libraries (the quarantined legacy route is unchanged). The `patches/*.sh` executable bit had again been lost in this snapshot and was restored.
+
+# Summary of changes for run 50bb89a7-6876-4e57-9268-b8ad9cfbc76b
+I continued `CONSOLIDATED_PLAN.md` on the point you raised: the exponential wall of the Starobinsky scalaron potential. Everything below is `sorry`-free, `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), committed and pushed.
+
+**New module `BookProof/ChapterScalaronCoreEsa.lean` (namespace `BookProof.ScalaronEsa`).**
+
+1. *The obstruction is real, and it is only about the core.* `starobinskyV_not_hasTemperateGrowth` proves the Einstein-frame potential `V(φ) = (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` is genuinely **not** of temperate growth (an exponential-vs-polynomial argument), so the existing multiplication theorem on the Schwartz core does not apply to it. Temperate growth was only ever needed to keep the Schwartz core invariant.
+
+2. *The dense core, and the general theorem.* `ccDomain` is the compactly supported smooth core of `L²(E)`, dense (`ccDomain_dense`), and on it multiplication by an **arbitrary smooth real potential** is symmetric (`smoothPotential_symmetric`) with trivial adjoint deficiency at every non-real point (`smoothPotential_deficiencyTrivial`), hence essentially self-adjoint (`smoothPotential_essentiallySelfAdjoint`) — with no growth, no boundedness and no semiboundedness hypothesis. This is exactly your point made precise: once the Hamiltonian is defined on a dense core, the exponential growth costs nothing.
+
+3. *The `R + αR²` potentials.* `starobinskyV_essentiallySelfAdjoint`; the full gauge-fixed potential (regularized conformal parabola plus scalaron) is essentially self-adjoint (`scalaronFullPotential_essentiallySelfAdjoint`) and bounded below by `−M⁴/(16α)` (`scalaronFullPotential_ge`) — the scalaron term being a square only helps.
+
+4. *The d'Alembertian.* `□ + V` is a well-defined symmetric operator on that dense core (`wave_add_smoothPotential_symmetric`, `wave_add_scalaron_symmetric`), and the localization theorem now holds with **smoothness as the only hypothesis** on the potential, temperate growth removed (`wave_add_smoothTruncatedPotential_essentiallySelfAdjoint`, `wave_add_scalaronTruncated_esa`). The remaining continuum step is stated in the project's existing style as an explicit named hypothesis, never an axiom: `wave_add_smoothPotential_esa_of_finiteSpeed` / `wave_add_scalaron_esa_of_finiteSpeed` derive essential self-adjointness from the finite-speed / unique-continuation input. I have not asserted that input for the unlocalized continuum operator; that residual is the gluing, not the potential.
+
+5. *The QG Hamiltonian with the scalaron sector.* At the mode (Hermite-basis) realization used throughout the gravity chapters, `qgScalaronModeHamiltonian` is the gauge-fixed `R + αR²` Hamiltonian **including** the scalaron potential: `qgScalaronMode_potential_ge` (uniform lower bound `−M⁴/(16α)`), `qgScalaronMode_symmetric`, `qgScalaronMode_esa`, `qgScalaronMode_deficiencyTrivialAt`, and `qgScalaron_stone_flow`, the complete unitary group `e^{−itH}` on the dense maximal domain.
+
+**Integration and verification.** The module is imported from `BookProof.lean`, certified with `#print axioms` in `BookProof/ChapterRoadmapAudit.lean` (all fifteen new entries clean), documented in `BookProof/STATUS.md`, noted against plan item A5 in `CONSOLIDATED_PLAN.md`, and written up in a new section of `Book/DiffeomorphismsGravity.lean`. The §8 gate was re-run green: `lake build` (8684 jobs), `lake build RandomMap` (8039), `lake build UsedRoute` (8049), `./patches/build-book.sh`, and `./patches/check-katex.sh` (2536 snippets, 0 failures); a repository-wide search confirms no `sorry` outside the previously quarantined legacy route.
+
+# Summary of changes for run 0a3a3683-8a6d-4d0b-93de-2e37aac545d2
+I executed the actionable items of `CONSOLIDATED_PLAN.md` and re-ran its §8 verification gate. Everything is committed and pushed; the working tree is clean.
+
+**1. `BookProof/ChapterCarlemanGeneralHop.lean` — registered and repaired (the plan's flagged first task).**
+The module was a complete but unregistered leaf. I repaired it for the Mathlib revision pinned by this project (an `abs_sub` implicit-argument name, two `Finset.mem_coe` coercions, one sum-splitting rewrite), imported it from `BookProof.lean`, certified it in `BookProof/ChapterRoadmapAudit.lean` (`hshift_hshift`, `sum_ltG`, `sum_hop_im`, `flux_bound_gen`, `flux_identityH`, `ladderH_eq_zero`), and recorded it in `BookProof/STATUS.md`.
+
+**2. Plan item A6 — closed.**
+New module `BookProof/ChapterNavierStokesDiffHashimoto.lean` proves `nsDiffH_hashimoto_selects` on the *differential* Navier–Stokes fiber realization on L²(du₁du₂du₃). The missing ingredient was symmetry of the differential operator on its own Gauss–polynomial core: `nsDiffPoly` writes the Weyl-ordered ∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ) at the polynomial level, `nsDiffPoly_polySym` proves it Gauss symmetric, `nsDiffH_eq_coreOp` identifies its transport with `nsDiffH`, and `nsDiffH_symmetricOn` is the resulting core symmetry. Combined with the already-proved essential self-adjointness this gives the closure as the unique self-adjoint extension and then the full shift-invert/SIRK selection statement (resolvent bounds 1/|Im γ|, shared domain, resolvent identity, commutation, the Hashimoto–Nodera rational-Krylov relation, strongly convergent Galerkin truncations, and uniqueness), plus `nsDiffH_shiftInvert_selects`, `nsQuadraticDiffH_hashimoto_selects` and non-vacuity lemmas. Cited from `Book/FreeField.lean`. The statement is about the Hilbert-space operator at one Eulerian fiber — no claim about classical Navier–Stokes regularity.
+
+**3. Plan item A5 (Starobinsky R + αR²) — steps 1 and, at the mode level, 3/4 landed.**
+New module `BookProof/ChapterStarobinskyPotential.lean`: the ghost-free scalar–tensor identity f(R) = (M²/2)ψR − U(ψ); the Einstein-frame scalaron potential with its non-negativity, Minkowski vacuum, plateau M⁴/(16α) as φ → +∞ and exponential wall as φ → −∞; the completed square V₃(R_c) = α(R_c − M²/(4α))² − M⁴/(16α), hence the lower bound −M⁴/(16α) for α > 0, contrasted with the α = 0 (pure general relativity) case which tends to −∞; and at the operator level the mode Hamiltonian with this potential, its uniform lower bound, density of its maximal domain, symmetry, essential self-adjointness, trivial deficiency at every non-real point, and `qgR2_stone_flow` (the complete unitary group). Cited from `Book/DiffeomorphismsGravity.lean`. A5 step 2 — carrying the bound through the densitized change of variables in the continuum L²(ℝ⁸⁴) setting — remains open, with the same Strichartz/direct-integral residue as A1; this is recorded honestly in the plan, in `STATUS.md` and in the module docstring.
+
+**4. §8 verification gate — re-run green.**
+`lake build` 8683 jobs (BookProof + Book + Singularity), `lake build RandomMap` 8039 jobs, `lake build UsedRoute` 8049 jobs, all 0 errors. All 825 `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound`; no `sorryAx`. No `sorry` and no `axiom` declaration outside comments under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/` (the quarantined legacy `UnusedRoute/` sorries are unchanged). I restored the `patches/*.sh` executable bit and ran `./patches/build-book.sh` (base-tag/fragment-link asserts passing) and `./patches/check-katex.sh` (2526 snippets, 0 KaTeX failures).
+
+**5. Plan bookkeeping.** `CONSOLIDATED_PLAN.md` now carries a 2026-08-22f status block, marks A6 closed and the `ChapterCarlemanGeneralHop` flag resolved, annotates A5 with what landed and what remains, updates the specialist next-steps list, and adds the new B1 gate entry. `BookProof/STATUS.md` has the corresponding wave entry. I also stopped tracking the generated book output under `_out/`.
+
+Remaining open research boundaries, unchanged and explicitly not plan items: A1 (general Faris–Lavine potential / hyperbolic direct integral), A4 (the alternative Faris–Lavine-estimate route on the Navier–Stokes differential symbol), and A5 step 2.
+
+# Summary of changes for run 9a161022-cea0-4275-b4a9-722e58f1d514
+Continued executing `CONSOLIDATED_PLAN.md` and prepended a new dated entry to `ARISTOTLE_SUMMARY.md`. All work is committed and pushed, and the project's §8 verification gate is green.
+
+**Mathematics added this run (all in `BookProof/ChapterDirectSumEsa.lean`, namespace `BookProof.DirectSumEsa`, sorry-free; `#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`):**
+
+- Completed the module's second wave, translating between the two formulations of a vanishing deficiency for a domain-preserving operator: `essentiallySelfAdjointOn_of_hasZeroDeficiencyOn` (converse of the already-present `hasZeroDeficiencyOn_of_essentiallySelfAdjointOn`).
+- `dsOpD_stone_flow` — a general reusable instrument: if every fibre core is dense and every fibre operator is symmetric with vanishing deficiency, the glued direct-sum operator on `ℓ²(i, Gᵢ)` admits a self-adjoint extension and generates a complete unitary group.
+- `fockH_essentiallySelfAdjointOn` and `fockH_stone_flow` — the specialization to the continuum parcel picture: for an arbitrary measurable (possibly unbounded) energy field `w`, the second-quantized Hamiltonian `ĥ = ∫ w(ξ)a†(ξ)a(ξ)dξ` on the whole Fock space `⊕ₙ L²(ℝⁿ)` is essentially self-adjoint on the direct sum of the bounded-energy cores and generates the complete unitary group `e^{−itĥ}` solving the Schrödinger equation there.
+
+**Integration, following the project's conventions:** new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), an extended prose paragraph and `#check` block in `Book/FreeField.lean`, a wave entry in `BookProof/STATUS.md`, an A1 update block and a new B1 gate note in `CONSOLIDATED_PLAN.md`, and the new run entry at the top of `ARISTOTLE_SUMMARY.md` (no existing content removed).
+
+**Verification gate re-run and green:** `lake build` (8680 jobs: BookProof + Book + Singularity), `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049 jobs), `./patches/build-book.sh` (its `<base>`/fragment-link asserts pass) and `./patches/check-katex.sh` (2507 math snippets, 0 KaTeX failures) all succeed, with no errors or in-scope warnings. Audits: no `sorry` and no `axiom` declaration outside docstrings/comments under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`; the only `sorry`s in the repository remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`.
+
+**Still open, recorded honestly in the plan:** the QG *continuum* essential-self-adjointness statement with a general Faris–Lavine potential (item A1 — the gluing half is now closed in its orthogonal-direct-sum form, but producing a fibre decomposition for `□ + V` is untouched), and the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol (item A4).
+
+# Summary of changes for the continuation run (2026-08-22d — fibrewise essential self-adjointness glues: the orthogonal direct sum, the continuum Fock Hamiltonian and its unitary flow)
+
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the full build, the book render and the KaTeX check are green.
+
+**1. New mathematics — the gluing step of the direct-integral argument, in its orthogonal-direct-sum form.** One new `sorry`-free module, `BookProof/ChapterDirectSumEsa.lean` (namespace `BookProof.DirectSumEsa`), with every `#print axioms` reporting only `propext`, `Classical.choice`, `Quot.sound`.
+
+- `dsCore` is the algebraic direct sum `⊕ᵃˡᵍ Dᵢ` of a family of fibre cores inside the Hilbert direct sum `ℓ²(i, Gᵢ)`, and `dsOp` the direct sum `⊕ᵢ Hᵢ` of the fibre operators on it. `dsOp_single` computes the operator on a single-fibre state, `dsOp_symmetricOn` is fibrewise symmetry, and `dsOp_deficiencyTrivialAt` is the gluing step: a deficiency vector of `⊕ᵢ Hᵢ`, tested against a state living in one fibre, satisfies exactly the fibre deficiency identity, so each of its coordinates vanishes. Headline `dsOp_essentiallySelfAdjointOn`: if every fibre operator is essentially self-adjoint on its core, the direct sum is essentially self-adjoint on the algebraic direct sum of the cores — no relative bound, no comparison operator, no commutator estimate.
+- `dsOpD`, `dsOpD_hasZeroDeficiencyOn`, `dsOpD_isSymmetricDom` are the same for *domain-preserving* fibre operators, in the `HasZeroDeficiencyOn` formulation used by the Navier–Stokes chapters; `hasZeroDeficiencyOn_of_essentiallySelfAdjointOn` and `essentiallySelfAdjointOn_of_hasZeroDeficiencyOn` are the two translations between the formulations. `dsCore_dense` shows the glued core is dense as soon as every fibre core is.
+- `dsOpD_stone_flow` composes the gluing with the Stone bridge: dense fibre cores carrying symmetric fibre operators of vanishing deficiency yield a self-adjoint extension of the glued operator together with the complete unitary group it generates.
+- The payoff is the continuum parcel picture. On the *whole* Fock space `⊕ₙ L²(ℝⁿ)`, `fockH_hasZeroDeficiencyOn` gives essential self-adjointness of the second-quantized Hamiltonian `ĥ = ∫ w(ξ)a†(ξ)a(ξ)dξ` — multiplication by the total energy `∑ₖ w(ξₖ)` on the `n`-parcel sector — for an **arbitrary measurable** field `w`, unbounded allowed, so the sector operators have in general purely continuous spectrum and no eigenvectors; `fockCore_dense` and `fockH_isSymmetricDom` supply density and symmetry, and `fockH_stone_flow` the resulting complete unitary group `e^{−itĥ}` on the continuum Fock space. `ChapterNavierStokesFockContinuum` had proved the deficiency statement one parcel sector at a time.
+
+**2. Honest boundaries.** The decomposition is an *orthogonal* direct sum: the fibres must be mutually orthogonal and invariant, so this is the discrete form of a direct-integral gluing and not a decomposition theorem — nothing here produces a fibre decomposition for a given operator. Nothing here claims global regularity of the classical Navier–Stokes equation. Still open, recorded in the plan: the QG **continuum** ESA statement with a general Faris–Lavine potential (plan item A1) and the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol (plan item A4).
+
+**3. Registration and documentation.** The module is imported from `BookProof.lean` with an explanatory comment block; thirteen `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` certify the new results; `Book/FreeField.lean` gains a prose paragraph explaining the single-fibre test, the density of the glued core and the resulting flow, plus a `#check` block of twelve names; the wave is recorded in `BookProof/STATUS.md`, in `CONSOLIDATED_PLAN.md` (an A1 update block and a new B1 gate note) and in this entry.
+
+**4. Verification gate (plan item B1) — re-run and green in this snapshot**: `lake build` (**8680 jobs**: `BookProof` + `Book` + `Singularity`), `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049 jobs), `./patches/build-book.sh` (its `<base>`/fragment-link asserts pass) and `./patches/check-katex.sh` (**2507 math snippets, 0 KaTeX failures**) all succeed, with no in-scope warnings. Audits: no `sorry` and no `axiom` declaration outside docstrings/comments under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`; the only `sorry`s in the repository remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`. Hygiene repair: the `patches/*.sh` executable bit had again been lost in this snapshot and is restored and committed.
+
+# Summary of changes for run 365f2efe-87e5-4115-b09a-d6922ce241e3
+Continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`. All work is committed and pushed, and the full verification gate is green.
+
+**New mathematics — the general quadratic boson Hamiltonian at infinitely many modes.** Two new `sorry`-free modules lift the (already closed) finite-dimensional quadratic strand to an arbitrary mode set:
+
+- `BookProof/ChapterOperatorSeriesEsa.lean` (namespace `BookProof.OperatorSeries`). The two Faris–Lavine (Nelson commutator) inequalities relative to a positive comparison operator `N` — the relative bound `‖Hx‖ ≤ A‖Nx‖` and the commutator-form bound `|⟪x, i[H,N]x⟫| ≤ B⟪x, Nx⟫` — are additive, which `commForm_eq_neg_two_im` makes transparent by exhibiting the commutator form as `−2 Im⟪Hx, Nx⟫`. `seriesOp` sums a family of operators whose relative bounds are summable, and `seriesOp_symmetricOn` / `seriesOp_norm_le` / `seriesOp_commForm_le` carry the three properties to the sum with the summed constants. The payoff `essentiallySelfAdjointOn_finiteModes_of_series` is a reusable instrument.
+- `BookProof/ChapterFockQuadraticEsa.lean` (namespace `BookProof.FockQuadratic`). On the boson Fock space `ℓ²(ι →₀ ℕ)` over an arbitrary mode set, with comparison symbol `σ(α) = ω(α) + |α| + 1` (free energy + number operator + 1). Key steps: the ladder amplitude `amp` of a monomial `a^{†P}a^{Q}` satisfies `amp ≤ 2σ` at *both* ends of the hop when `|P| + |Q| ≤ 2` (`amp_le_sig`, `amp_le_sig_tgt`); `hopOp_pairing` is the adjoint relation, proved by reindexing along the hop bijection; `pairOp_commForm_le` is the substantive estimate, where the two halves of a Hermitian interaction term recombine so that only the difference `σ(α) − σ(α − P + Q) ≤ ω(P) + ω(Q) + 2` survives in the imaginary part, with an AM–GM step absorbing the amplitude; the free part commutes with `N` (`freeOp_commForm = 0`). Headline `fockH_essentiallySelfAdjointOn_core`: for an arbitrary mode set, an arbitrary non-negative and possibly unbounded dispersion `ω`, and an arbitrary family of quadratic interaction terms subject only to `∑ₖ ‖gₖ‖(ω(Pₖ) + ω(Qₖ) + 2) < ∞`, the Hamiltonian `H = ∑ᵢ ωᵢ aᵢ†aᵢ + ∑ₖ (gₖ a^{†Pₖ}a^{Qₖ} + conj(gₖ) a^{†Qₖ}a^{Pₖ})` is essentially self-adjoint on the finite-particle core. `bogoliubov_essentiallySelfAdjointOn_core` is the pair-creation specialization.
+
+**Integration, per the project's conventions.** Both modules are imported from `BookProof.lean` with explanatory comment blocks; sixteen new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` certify the new results (every one reports only `propext`, `Classical.choice`, `Quot.sound`); `Book/DiffeomorphismsGravity.lean` gains a prose paragraph and a `#check` block of nine names; the wave is recorded in `BookProof/STATUS.md`, in `CONSOLIDATED_PLAN.md` (a new A1 update block and a new B1 gate note) and as a new dated entry at the top of `ARISTOTLE_SUMMARY.md`.
+
+**Verification gate (plan item B1), re-run and green:** `lake build` (8679 jobs: BookProof + Book + Singularity), `lake build RandomMap` (8039), `lake build UsedRoute` (8049), `./patches/build-book.sh` (368 jobs, its `<base>`/fragment-link asserts passing) and `./patches/check-katex.sh` (2507 math snippets, 0 KaTeX failures) all succeed, with no warnings in the new files. Audits: no `sorry` and no `axiom` declaration outside docstrings/comments under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`; the only `sorry`s in the repository remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`. The `patches/*.sh` executable bit had again been lost in this snapshot and was restored and committed.
+
+**Still open, recorded honestly in the plan:** the QG *continuum* ESA statement with a general Faris–Lavine potential (plan item A1, the fibrewise / direct-integral gluing), and the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol (plan item A4).
+
+# Summary of changes for the continuation run (2026-08-22c — the quadratic Hamiltonian at infinitely many modes: the boson Fock space)
+
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the full build, the book render and the KaTeX check are green.
+
+**1. New mathematics — Faris–Lavine for an infinite sum of operators, and the general quadratic boson Hamiltonian on Fock space.** Two new `BookProof` modules, both `sorry`-free with `#print axioms` reporting only `propext`, `Classical.choice`, `Quot.sound`, both imported from `BookProof.lean` and certified in `BookProof/ChapterRoadmapAudit.lean`. They lift the finite-dimensional quadratic strand — closed in the previous wave — to an *arbitrary* mode set.
+
+- `BookProof/ChapterOperatorSeriesEsa.lean` (namespace `BookProof.OperatorSeries`). The two Faris–Lavine (Nelson commutator) inequalities relative to a positive comparison operator `N` — the relative bound `‖Hx‖ ≤ A‖Nx‖` and the commutator-form bound `|⟪x, i[H, N]x⟫| ≤ B⟪x, Nx⟫` — are *additive*, and `commForm_eq_neg_two_im` makes that transparent by exhibiting the commutator form as `−2 Im⟪Hx, Nx⟫`, so passing to an infinite sum becomes an exchange of a sum with an imaginary part. `seriesOp` defines `∑' k, T k` for a family of operators on the maximal domain of a symbol whose relative bounds `a k` are summable; `seriesOp_symmetricOn`, `seriesOp_norm_le` and `seriesOp_commForm_le` carry symmetry and the two bounds to the sum with constants `∑' a k` and `∑' b k`. The payoff `essentiallySelfAdjointOn_finiteModes_of_series` is a reusable instrument: a summable family of symmetric operators, each relatively bounded by `N` and each with commutator form dominated by `N`, sums to an operator essentially self-adjoint on the finite-mode core.
+- `BookProof/ChapterFockQuadraticEsa.lean` (namespace `BookProof.FockQuadratic`). The Hilbert space is the boson Fock space `ℓ²(ι →₀ ℕ)` of occupation-number configurations over an **arbitrary** mode set `ι`. The comparison symbol is `σ(α) = ω(α) + |α| + 1` (`sig`): the free energy (`wsum`) plus the total occupation number (`deg`) plus one, i.e. free Hamiltonian + number operator + 1. `fall` and `amp` are the falling factorial of a multi-index and the ladder amplitude of the monomial `a^{†P}a^{Q}`, `tgt P Q α = α − P + Q` the configuration it hops to; `amp_symm` is the Hermitian symmetry of the amplitude under `(P, Q) ↦ (Q, P)`, and `amp_le_sig` / `amp_le_sig_tgt` the two-sided bound `amp ≤ 2σ` at **both** ends of the hop, which is exactly what `|P| + |Q| ≤ 2` buys. `hopOp` realizes the monomial on the maximal domain of `σ`, with the relative bound `hopOp_norm_le` and the adjoint relation `hopOp_pairing` (`⟪a^{†P}a^{Q}x, y⟫ = ⟪x, a^{†Q}a^{P}y⟫`, proved by reindexing the coefficient sum along the hop bijection `hopEquiv`). `pairOp` is the Hermitian combination `g a^{†P}a^{Q} + conj(g) a^{†Q}a^{P}`, and `pairOp_commForm_le` is the substantive estimate: the two halves of the pairing recombine so that only the *difference* `σ(α) − σ(α − P + Q)` survives in the imaginary part, that difference is at most `ω(P) + ω(Q) + 2` uniformly in `α`, and an arithmetic–geometric-mean step (`amp_mul_le`) absorbs the amplitude, giving `|commForm(pairOp)| ≤ 4‖g‖(ω(P) + ω(Q) + 2)·quadForm N`. The free part `freeOp` is symmetric, dominated by `N`, and *commutes* with it (`freeOp_commForm = 0`). Headline `fockH_essentiallySelfAdjointOn_core`: for an arbitrary mode set, an arbitrary non-negative and possibly **unbounded** dispersion `ω`, and an arbitrary family of quadratic monomials with couplings `g` subject only to the weighted absolute summability `∑ₖ ‖gₖ‖(ω(Pₖ) + ω(Qₖ) + 2) < ∞`, the second-quantized Hamiltonian `H = ∑ᵢ ωᵢ aᵢ†aᵢ + ∑ₖ (gₖ a^{†Pₖ}a^{Qₖ} + conj(gₖ) a^{†Qₖ}a^{Pₖ})` is essentially self-adjoint on the finite-particle core of the Fock space. `bogoliubov_essentiallySelfAdjointOn_core` is the pair-creation (Bogoliubov) specialization `Pₖ = e_{mₖ} + e_{nₖ}`, `Qₖ = 0`, whose hypothesis reads `∑ₖ ‖gₖ‖(ω_{mₖ} + ω_{nₖ} + 2) < ∞`.
+
+**2. Honest boundaries.** The interaction terms are quadratic (`|Pₖ| + |Qₖ| ≤ 2`) and the summability hypothesis is genuinely used; nothing here claims anything about non-quadratic field interactions. What remains open, recorded in the plan: the QG **continuum** ESA with a general Faris–Lavine potential (plan item A1, the fibrewise / direct-integral gluing) and the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol (plan item A4).
+
+**3. Registration and documentation.** Both modules are imported in `BookProof.lean` with explanatory comment blocks, axiom-certified by sixteen new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), and cited in `Book/DiffeomorphismsGravity.lean` — one new prose paragraph explaining the comparison operator, the two-sided amplitude bound and the cancellation behind the commutator estimate, plus a `#check` block of nine names. The wave is recorded in `BookProof/STATUS.md`, in `CONSOLIDATED_PLAN.md` (a new A1 update block and a new B1 gate note) and in this entry.
+
+**4. Verification gate (plan item B1) — re-run and green in this snapshot**: `lake build` (**8679 jobs**: `BookProof` + `Book` + `Singularity`), `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049 jobs), `./patches/build-book.sh` (368 jobs; its `<base>`/fragment-link asserts pass) and `./patches/check-katex.sh` (**2507 math snippets, 0 KaTeX failures**) all succeed, with no in-scope warnings. Audits: no `sorry` and no `axiom` declaration outside docstrings/comments under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`; the only `sorry`s in the repository remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`. Hygiene repair: the `patches/*.sh` executable bit had again been lost in this snapshot and is restored and committed.
+
+# Summary of changes for run 53825323-95c7-45da-b2e2-0f9e09485ca9
+Continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`. Everything is committed and pushed; the full verification gate is green.
+
+**New mathematics — the general real quadratic Hamiltonian, with distinct modes coupled.** This closes the item that the previous run recorded as still open (quadratic terms coupling *distinct* modes: `xᵢxⱼ`, `πᵢπⱼ`, `xᵢπⱼ` with `i ≠ j`). Two new `BookProof` modules, both `sorry`-free, with `#print axioms` reporting only `propext`, `Classical.choice`, `Quot.sound`:
+
+- `BookProof/ChapterCarlemanSimplex.lean` (namespace `BookProof.CarlemanSimplex`) — the Carleman flux argument rerun on the **simplex** shells `{α : |α| ≤ N}` graded by total degree `|α| = ∑ᵢ αᵢ`, rather than on cubes. In the ladder variables a product of two of `x, π` splits into pair creation `α ↦ α + eᵢ + eⱼ`, pair annihilation `α ↦ α − eᵢ − eⱼ` and mode exchange `α ↦ α − eⱼ + eᵢ`. Only the first two change `|α|`, and by exactly `±2`, so they leak through a shell of thickness two of controlled multiplicity; the exchange hops preserve `|α|` and carry *zero* flux, because their amplitude matrix is Hermitian and the shell sum is therefore real. Headline `ladderQ_eq_zero`: a square-summable family satisfying the general quadratic ladder recursion at a point off the real axis vanishes identically.
+- `BookProof/ChapterFullQuadraticEsa.lean` (namespace `BookProof.FullQuadratic`) — the two-index ladder algebra (`lop_lop_hermiteMv_gen`, `weyl_hermiteMv_gen`), the Hamiltonian assembled from Weyl-ordered products of the canonical pair (hence symmetric, `fqOp_symmetric`), and its ladder form (`fqOp_hermiteCore`). Headline `fqOp_essentiallySelfAdjoint`: for **arbitrary** real matrices `P, Q, S` and **arbitrary** real vectors `b, b'`, the operator `H = ∑_{i,j}(Pᵢⱼπᵢπⱼ + Qᵢⱼxᵢxⱼ + Sᵢⱼ·½(xᵢπⱼ + πⱼxᵢ)) + ∑ᵢ(bᵢxᵢ + b'ᵢπᵢ)` is essentially self-adjoint on the plain Gauss–polynomial (product Hermite) core of `L²(ℝᵈ)` and generates a complete unitary flow (`fqOp_stone_flow`) — no ellipticity, no definiteness, no non-degeneracy, no classical equilibrium and no change of core. Corollaries: the purely off-diagonal cross term (`crossTerm_essentiallySelfAdjoint`, `crossTerm_stone_flow`) and, for an antisymmetric exchange matrix, the **angular-momentum generators** `xₖπ_l − x_lπₖ` — identified as such by the proved identity `fqQuadPoly_rotMat` — which are essentially self-adjoint with complete rotation flows (`angularMomentum_essentiallySelfAdjoint`, `angularMomentum_stone_flow`).
+
+**Integration, per the project's conventions.** Both modules are imported from `BookProof.lean` with explanatory comment blocks; twenty new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` certify the new results (all reporting only the three standard axioms); `Book/DiffeomorphismsGravity.lean` gains a prose paragraph explaining why the simplex grading is the right one and why the exchange hops are flux-free, plus a `#check` block of eleven names; the wave is recorded in `BookProof/STATUS.md`, in `CONSOLIDATED_PLAN.md` (a new A1 update block and a new B1 gate note) and as a new dated entry at the top of `ARISTOTLE_SUMMARY.md`.
+
+**Verification gate (plan item B1), re-run and green:** `lake build` (8677 jobs), `lake build RandomMap` (8039), `lake build UsedRoute` (8049), `./patches/build-book.sh` (368 jobs; its `<base>`/fragment-link asserts pass) and `./patches/check-katex.sh` (2490 math snippets, 0 KaTeX failures) all succeed with no in-scope warnings. Audits: no `sorry` and no `axiom` declaration outside docstrings/comments under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`; the only `sorry`s in the repository remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`. The `patches/*.sh` executable bit had again been lost in this snapshot and was restored and committed.
+
+**Still open, recorded honestly in the plan and the status file:** the QG *continuum* ESA statement with a general Faris–Lavine potential (plan item A1, the fibrewise / direct-integral gluing), and the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol (plan item A4).
+
+# Summary of changes for the continuation run (2026-08-22b — the general real quadratic Hamiltonian: distinct modes coupled)
+
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the full build, the book render and the KaTeX check are green.
+
+**1. New mathematics — the Carleman flux argument on simplex shells, and the general quadratic Hamiltonian.** Two new `BookProof` modules, both `sorry`-free with `#print axioms` reporting only `propext`, `Classical.choice`, `Quot.sound`, both imported from `BookProof.lean` and certified in `BookProof/ChapterRoadmapAudit.lean`. They remove the last restriction of the previous wave — that every quadratic term be *mode-diagonal*.
+
+- `BookProof/ChapterCarlemanSimplex.lean` (namespace `BookProof.CarlemanSimplex`). Cross terms `xᵢxⱼ`, `πᵢπⱼ`, `xᵢπⱼ` with `i ≠ j` move two different excitation numbers at once, and the cube grading used previously is the wrong one for them. The right one is the **simplex** grading by total degree `|α| = ∑ᵢ αᵢ` (`deg`), with shells `{α : |α| ≤ N}` (`simplexF`, interior `sInn`, boundary `sBd`). In the ladder variables a product of two of `x, π` splits into pair creation `α ↦ α + eᵢ + eⱼ`, pair annihilation `α ↦ α − eᵢ − eⱼ` and mode exchange `α ↦ α − eⱼ + eᵢ` (`pvec`, `shiftm`). Only the first two change `|α|`, and by exactly `±2`, so they leak through a shell of thickness two whose multiplicity is controlled (`sBd_multiplicity`, `shifted_sBd_multiplicity`, `sBd_mass_le`, `shifted_sBd_mass_le`, `flux_bound_on`). The exchange hops preserve `|α|` and carry **zero** flux: their amplitude matrix is Hermitian, so the shell sum is its own conjugate and its imaginary part cancels pairwise (`sum_mterm_conj`, `sum_mterm_im`). The flux identity is `flux_identityQ`, the abstract cancellation for a degree-changing hop is `sum_simplex_hop_im`, and the Carleman divergence used is `∑ 1/(N+2) = ∞` (`not_summable_inv_natCast_add_two`). Headline `ladderQ_eq_zero`: a square-summable family on the multi-index lattice satisfying the general quadratic ladder recursion `LadderRecQ` — real diagonal, constant one-step and pair amplitudes, Hermitian exchange matrix — at a point off the real axis vanishes identically.
+- `BookProof/ChapterFullQuadraticEsa.lean` (namespace `BookProof.FullQuadratic`). `lop_lop_hermiteMv_gen` and `weyl_hermiteMv_gen` carry the two-index ladder algebra uniformly in `i` and `j` (the diagonal `i = j` differs only by an extra constant). `fqQuadPoly`, `fqPoly` and `fqOp` assemble the Hamiltonian out of Weyl-ordered products of the (symmetric) canonical pair, so symmetry on the core is automatic (`fqOp_symmetric`), and `fqQuadPoly_hermiteMv` / `fqOp_hermiteCore` put it in ladder form: real diagonal `fqSymbol`, pair amplitude `fqAmp = Qᵢⱼ − Pᵢⱼ/4 + i Sᵢⱼ/2`, Hermitian exchange matrix `fqExch` (`fqExch_hermitian`) and one-step amplitude `bᵢ + i b'ᵢ/2`. Headline (`fqOp_essentiallySelfAdjoint`, via `fqOp_deficiencyTrivialAt` and the simplex criterion): for **arbitrary** real matrices `P, Q, S` and **arbitrary** real vectors `b, b'`, the operator `H = ∑_{i,j} (Pᵢⱼπᵢπⱼ + Qᵢⱼxᵢxⱼ + Sᵢⱼ·½(xᵢπⱼ + πⱼxᵢ)) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` — every real quadratic-plus-linear Hamiltonian in `d` degrees of freedom, with distinct modes coupled arbitrarily, no ellipticity, no definiteness, no non-degeneracy and no classical equilibrium — is essentially self-adjoint on the plain Gauss–polynomial (product Hermite) core of `L²(ℝᵈ)` and generates a complete unitary flow (`fqOp_stone_flow`). In particular so does the purely off-diagonal cross term `½(xᵢπⱼ + πⱼxᵢ) + ½(xⱼπᵢ + πᵢxⱼ)` (`crossTerm_essentiallySelfAdjoint`, `crossTerm_stone_flow`). Taking the exchange matrix **antisymmetric** — where the diagonal vanishes and `xᵢ` commutes with `πⱼ` for `i ≠ j`, so that `∑_{i,j} Sᵢⱼ·½(xᵢπⱼ + πⱼxᵢ) = ∑_{i<j} Sᵢⱼ(xᵢπⱼ − xⱼπᵢ)` — the family contains the **angular-momentum generators** `xₖπ_l − x_lπₖ`; this is proved as an identity (`rotMat`, `fqQuadPoly_rotMat`), so the rotation generators are essentially self-adjoint on the same core with complete unitary flows (`angularMomentum_essentiallySelfAdjoint`, `angularMomentum_stone_flow`) — the compact counterparts of the dilation generator of the previous wave.
+
+**2. Honest boundaries.** This closes the finite-dimensional quadratic strand entirely, including the item recorded as still open at the end of the previous run. What is *not* closed, recorded in the plan: the QG **continuum** ESA with a general Faris–Lavine potential (plan item A1, the fibrewise / direct-integral gluing), and the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol (plan item A4).
+
+**3. Registration and documentation.** The two modules are imported in `BookProof.lean` with explanatory comment blocks, axiom-certified by twenty new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), and cited in `Book/DiffeomorphismsGravity.lean` — one new prose paragraph explaining why the simplex grading is the right one and why the exchange hops are flux-free, plus a `#check` block of eleven names. The wave is recorded in `BookProof/STATUS.md`, in `CONSOLIDATED_PLAN.md` (a new A1 update block and a new B1 gate note) and in this entry.
+
+**4. Verification gate (plan item B1) — re-run and green in this snapshot**: `lake build` (**8677 jobs**: `BookProof` + `Book` + `Singularity`), `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049 jobs), `./patches/build-book.sh` (368 jobs; its `<base>`/fragment-link asserts pass) and `./patches/check-katex.sh` (**2490 math snippets, 0 KaTeX failures**) all succeed, with no in-scope warnings. Audits: no `sorry` and no `axiom` declaration outside docstrings/comments under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`; the only `sorry`s in the repository remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`. Hygiene repair: the `patches/*.sh` executable bit had again been lost in this snapshot and is restored and committed.
+
+# Summary of changes for the continuation run (2026-08-22 — Carleman on the Hermite lattice: the general quadratic-plus-first-order Hamiltonian)
+
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the full build, the book render and the KaTeX check are green.
+
+**1. New mathematics — a flux (Carleman) criterion on the multi-index lattice, and what it closes.** Three new `BookProof` modules, all `sorry`-free with `#print axioms` reporting only `propext`, `Classical.choice`, `Quot.sound`, all imported from `BookProof.lean` and certified in `BookProof/ChapterRoadmapAudit.lean`.
+
+- `BookProof/ChapterHermiteCarlemanEsa.lean` (namespace `BookProof.HermiteCarleman`). The instrument is `ladder_eq_zero`: a square-summable family `u` on the lattice of multi-indices satisfying the nearest-neighbour recursion `lam α u_α + ∑ᵢ(conj(wᵢ)√(αᵢ+1) u_{α+eᵢ} + wᵢ√αᵢ u_{α−eᵢ}) = z u_α`, with a **real** diagonal `lam` and constant amplitudes, at a point `z` off the real axis, vanishes. This is Carleman's classical Wronskian/flux argument, run on cubes `{α : ∀i, αᵢ ≤ N}` instead of intervals: summing the recursion against the conjugate coefficients over a cube, the interior contributions occur in conjugate pairs and the real diagonal contributes nothing to the imaginary part, so `|Im z|` times the mass inside the cube equals the flux through the boundary faces (`flux_identity`), which is at most `√(N+1)` times the mass carried by those faces (`flux_bound`); distinct faces are disjoint, so the total face mass is finite, while `∑ 1/√(N+1)` diverges. Headline (`mixOp_essentiallySelfAdjoint`): for **arbitrary** real weights `c` — any signs, zeros allowed — and **arbitrary** real `b, b'`, the operator `∑ᵢ cᵢ(πᵢ² + xᵢ²/4) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially self-adjoint on the **plain** Gauss–polynomial (product Hermite) core of `L²(ℝᵈ)`, hence generates a complete unitary flow (`mixOp_stone_flow`), with the Minkowski corollary `wave_indefiniteQuadratic_firstOrder_essentiallySelfAdjoint` (`□ + V` with the indefinite quadratic potential, plus a constant external field and a constant boost). No ellipticity, no sign condition, **no classical equilibrium** and no change of core: this closes the case recorded as still open at the end of the previous run, and on that core it subsumes the elliptic relative-bound result and the shifted-core results.
+- `BookProof/ChapterCarlemanTwoStep.lean` (namespace `BookProof.CarlemanTwoStep`). The same flux argument for a **two-step** recursion — hops `α ↦ α ± eᵢ` *and* `α ↦ α ± 2eᵢ`, with amplitudes `O(N)`. The abstract cancellation is isolated once (`sum_cube_hop_im`: for one Hermitian hop family of step `k`, only the `k`-thick boundary face contributes to the imaginary part), giving `flux_identity2` and `flux_boundG`. Faces of thickness two are **not** disjoint, so disjointness is replaced by a multiplicity bound: `sum_range_of_multiplicity` (Bessel's inequality when each index lies in at most `m` of the sets) together with `faceK_multiplicity` and `shiftedK_multiplicity` (at most `k`). The Carleman divergence used is `∑ 1/(N+1) = ∞`. Criterion: `ladder2_eq_zero`.
+- `BookProof/ChapterModeQuadraticEsa.lean` (namespace `BookProof.ModeQuadratic`). The harmonic form `πᵢ² + xᵢ²/4` is only a line inside the three-dimensional space of one-mode real quadratic forms, spanned by `πᵢ²`, `xᵢ²` and the squeezing generator `½(xᵢπᵢ + πᵢxᵢ)`; the two non-harmonic directions contain `aᵢ†²` and `aᵢ²`, which move an excitation number by two with amplitude `O(αᵢ)`. Since both `xᵢ` and `πᵢ` are of the shape `aᵢ† + t aᵢ` up to a scalar, one lemma (`lop_lop_hermiteMv`) carries the whole two-step ladder algebra, and `mqQuadPoly_hermiteMv` / `mqOp_hermiteCore` give the ladder form of the Hamiltonian: real diagonal `∑ᵢ(qᵢ + pᵢ/4)(2αᵢ+1)`, two-step amplitude `qᵢ − pᵢ/4 + i sᵢ/2`, one-step amplitude `bᵢ + i b'ᵢ/2`. The operator is assembled from Weyl-ordered products `weylProd` of the canonical pair, so symmetry on the core is automatic (`mqOp_symmetric`). Headline (`mqOp_essentiallySelfAdjoint`): for **arbitrary** real `p, q, s, b, b'` the general **mode-diagonal** quadratic Hamiltonian `∑ᵢ (pᵢπᵢ² + qᵢxᵢ² + sᵢ·½(xᵢπᵢ + πᵢxᵢ)) + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially self-adjoint on the plain Gauss–polynomial core and generates a complete unitary flow (`mqOp_stone_flow`) — elliptic, hyperbolic or parabolic in each mode, any signs, degenerate modes allowed, with an arbitrary constant force and boost on top. In particular the **generator of dilations** `½∑ᵢ(xᵢπᵢ + πᵢxᵢ)` is essentially self-adjoint there (`dilation_essentiallySelfAdjoint`, `dilation_stone_flow`).
+
+**2. Honest boundaries.** What is *not* closed, recorded in the plan: quadratic terms which couple **distinct** modes off-diagonally (`xᵢxⱼ`, `πᵢπⱼ`, `xᵢπⱼ` with `i ≠ j`) — the flux argument should extend, but the hop bookkeeping is no longer one-dimensional; the QG continuum ESA with a general Faris–Lavine potential (plan item A1, the fibrewise / direct-integral gluing); and the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol (plan item A4).
+
+**3. Registration and documentation.** The three modules are imported in `BookProof.lean` with explanatory comment blocks, axiom-certified by fourteen new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), and cited in `Book/DiffeomorphismsGravity.lean` — two new prose paragraphs (the Carleman/flux argument, and its two-step extension with the mode-diagonal corollary) plus two `#check` blocks. The wave is recorded in `BookProof/STATUS.md`, in `CONSOLIDATED_PLAN.md` (a new A1 update block and a new B1 gate note) and in this entry.
+
+**4. Verification gate (plan item B1) — re-run and green in this snapshot**: `lake build` (8675 jobs: `BookProof` + `Book` + `Singularity`), `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049 jobs), `./patches/build-book.sh` (368 jobs; its `<base>`/fragment-link asserts pass) and `./patches/check-katex.sh` (**2466 math snippets, 0 KaTeX failures**) all succeed. Audits: no `sorry` and no `axiom` declaration outside docstrings/comments under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`; the only `sorry`s in the repository remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`. Hygiene repair: the `patches/*.sh` executable bit had again been lost in this snapshot and is restored and committed.
+
+# Summary of changes for run d7f5335d-ba30-405d-8255-8e944695b342
+Continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`. All work is committed and pushed; the verification gate is green.
+
+**New mathematics — a new module `BookProof/ChapterQuadratureEsa.lean` (namespace `BookProof.QuadratureEsa`), `sorry`-free, with `#print axioms` reporting only `propext`, `Classical.choice`, `Quot.sound`.**
+
+It closes the last open case of the first-order strand on the Gauss–polynomial (product Hermite) core — the core the whole quadratic family of the development lives on. For *arbitrary* real coefficients `b, b'` the quadrature `∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially self-adjoint there (`foOp_essentiallySelfAdjoint`) and hence generates a complete unitary flow (`foOp_stone_flow`). The same operator had previously been settled only on the Schwartz core, by a quadratic gauge; on this core neither of the two routes used elsewhere in the development applies (the operator has no `L²` eigenvector and is not constant-coefficient).
+
+Three ingredients:
+- `fourier_eq_zero_of_moments`, `ae_eq_zero_of_moments'` — a moment lemma with **no `L²` hypothesis**: a measurable function whose exponentially weighted absolute moments are all finite and whose polynomial moments all vanish is zero a.e. This is what makes the deficiency equation of a *multiplication* operator solvable on this core.
+- `foOp_pos_deficiencyTrivialAt`, `foOp_pos_essentiallySelfAdjoint` — multiplication by a real linear function `x ↦ ∑ᵢbᵢxᵢ` is essentially self-adjoint on the core.
+- `phasePow`, `phaseFamily`, `phaseBasis`, `phaseU`, `phaseCore`, `phaseU_foOp_hermiteCore` — the metaplectic rotation, realized as the diagonal phase `ψ_α ↦ ζ^α ψ_α`. In the ladder form of the canonical pair (`posL_hermiteCore`, `momL_hermiteCore`, `foOp_hermiteCore`) the quadrature raises the `i`-th excitation number with amplitude `wᵢ = bᵢ + ib'ᵢ/2` and lowers it with `conj wᵢ`; the polar decomposition `wᵢ = |wᵢ|ζᵢ` makes the phase unitary carry `∑ᵢ|wᵢ|xᵢ` onto `∑ᵢ(bᵢxᵢ + b'ᵢπᵢ)`, and essential self-adjointness transfers along it.
+
+A reusable by-product is `linearMap_ext_of_span` (two linear maps out of a spanned submodule agree as soon as they agree on the spanning family).
+
+**Registration and documentation.** The module is imported in `BookProof.lean`, axiom-certified by seven new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, and cited in `Book/DiffeomorphismsGravity.lean` (a new prose paragraph plus a `#check` block of six names, next to the Schwartz-core paragraph it complements). The wave is recorded in `BookProof/STATUS.md`, in `CONSOLIDATED_PLAN.md` (new A1 update block, new B1 gate note), and in a new dated entry at the top of `ARISTOTLE_SUMMARY.md`.
+
+**Verification gate (plan item B1) re-run and green in this snapshot:** `lake build` (8672 jobs: BookProof + Book + Singularity), `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049 jobs), `./patches/build-book.sh` (its `<base>`/fragment-link asserts pass) and `./patches/check-katex.sh` (2441 math snippets, 0 KaTeX failures) all succeed. Audits: no `sorry` and no `axiom` declaration outside docstrings/comments under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`; isolation greps unchanged. Hygiene repair: the `patches/*.sh` executable bit had again been lost in this snapshot and is restored and committed.
+
+**Editorial items.** C1–C3 of the plan turned out to be already closed in this snapshot (the Introduction caveat paragraph, the ODE-chapter honesty flag, and the `Issues.md` §6 "framing settled" heading all exist); the stale plan rows are corrected rather than re-done.
+
+**Still open**, recorded honestly: the QG continuum ESA with a general Faris–Lavine potential (plan item A1, the fibrewise/direct-integral gluing); the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol (A4); and, in this strand, a quadratic `H_A` *together with* a first-order term in a direction with no classical equilibrium.
+
+# Summary of changes for the continuation run (2026-08-21i — the quadrature `∑ᵢ(bᵢxᵢ + b'ᵢπᵢ)` on the Hermite core)
+
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the full build, the book render and the KaTeX check are green.
+
+**1. New mathematics — the quadrature on the Gauss–polynomial core** (`BookProof/ChapterQuadratureEsa.lean`, namespace `BookProof.QuadratureEsa`, new, `sorry`-free, axioms only `propext, Classical.choice, Quot.sound`). The first-order residue of the quadratic family — a direction carrying both a linear potential and a momentum term, so that there is no classical equilibrium and no `L²` eigenvector, and the operator is not constant-coefficient — had been settled by `ChapterMixedLinearEsa` on the **Schwartz** core, by a quadratic gauge. This module settles it on the **Gauss–polynomial (product Hermite) core**, the core the whole quadratic family (`ChapterHermiteRelativeBound`, `ChapterShiftedQuadratic*`, `ChapterQuadraticRotation*`) lives on: for *arbitrary* real coefficients `b, b'` the quadrature `foOp b b' = ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is essentially self-adjoint there (`foOp_essentiallySelfAdjoint`) and generates a complete unitary flow (`foOp_stone_flow`, through the Stone bridge, symmetry being `HermiteRelative.foOp_symmetric`).
+
+The proof has three parts.
+
+- **A moment lemma with no `L²` hypothesis** (`fourier_eq_zero_of_moments`, `ae_eq_zero_of_moments'`): a measurable `v` all of whose exponentially weighted absolute moments `∫ e^{c‖x‖}‖v‖` are finite and all of whose polynomial moments vanish is zero almost everywhere. This strengthens `HermiteProductCore.ae_eq_zero_of_moments`, which needs `v` to be a Gaussian times an `L²` function — a shape the deficiency vector `e^{−‖x‖²/4}(ℓ − z)w` of a multiplication operator does not have. The Fourier transform is shown entire-analytic in the frequency direction by the dominated Taylor series of `e^{−2πi⟪x,ξ⟫}`, and every Taylor coefficient is a polynomial moment.
+- **The purely positional quadrature** (`foOp_pos_deficiencyTrivialAt`, `foOp_pos_essentiallySelfAdjoint`): multiplication by the real linear function `x ↦ ∑ᵢbᵢxᵢ` is essentially self-adjoint on the core, by the moment lemma applied to `e^{−‖x‖²/4}(ℓ − z)w`.
+- **The metaplectic rotation, realized as a diagonal phase** (`phasePow`, `phaseFamily`, `orthonormal_phaseFamily`, `span_phaseFamily`, `phaseBasis`, `phaseU`, `phaseCore`). Multiplying the `α`-th product Hermite function by `ζ^α` with `|ζᵢ| = 1` produces another Hilbert basis, hence a unitary of `L²(ℝᵈ)`, and it preserves the core. In the ladder form of the canonical pair (`posL_hermiteCore`, `momL_hermiteCore`, `foOp_hermiteCore`) the quadrature raises the `i`-th excitation number with amplitude `wᵢ = bᵢ + ib'ᵢ/2` and lowers it with `conj wᵢ`; the polar decomposition `wᵢ = |wᵢ|ζᵢ` therefore makes the phase unitary carry the positional quadrature `∑ᵢ|wᵢ|xᵢ` onto `∑ᵢ(bᵢxᵢ + b'ᵢπᵢ)` (`phaseU_foOp_hermiteCore`), and essential self-adjointness transfers along it by `NavierStokesFlow.SignFlip.essentiallySelfAdjointOn_of_intertwine`.
+
+A reusable by-product is `linearMap_ext_of_span`: two linear maps out of a submodule spanned by a family agree as soon as they agree on that family.
+
+**2. Honest boundaries.** What is *not* closed: a quadratic `H_A` together with a first-order term in a direction with no classical equilibrium (the recorded route is the ℓ²-side instrument `NavierStokesIkebeKato.essentiallySelfAdjointOn_finiteModes_of_farisLavine_bounds`); the QG continuum ESA with a general Faris–Lavine potential (plan item A1, the fibrewise / direct-integral gluing); and the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol (plan item A4).
+
+**3. Registration and documentation.** The new module is imported in `BookProof.lean` (with an explanatory comment next to `ChapterMixedLinearEsa`), axiom-certified in `BookProof/ChapterRoadmapAudit.lean` (seven new `#print axioms` lines, all reporting only the three standard axioms), and cited in `Book/DiffeomorphismsGravity.lean` — a new prose paragraph explaining the metaplectic rotation and the moment lemma, plus a `#check` block of six names, immediately after the Schwartz-core paragraph it complements. The wave is recorded in `BookProof/STATUS.md`, in `CONSOLIDATED_PLAN.md` (a new A1 update block and the B1 gate note) and in this entry.
+
+**4. Verification gate (plan item B1) — re-run and green in this snapshot**: `lake build` (8672 jobs: `BookProof` + `Book` + `Singularity`), `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049 jobs), `./patches/build-book.sh` (with its `<base>`/fragment-link asserts passing) and `./patches/check-katex.sh` (**2441 math snippets, 0 KaTeX failures**) all succeed. Audits: no `sorry` and no `^axiom` outside a docstring or comment under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/`; the only `sorry`s in the repository remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`; the isolation greps are unchanged. Hygiene repair: the `patches/*.sh` executable bit had again been lost in this snapshot and is restored and committed.
+
+# Summary of changes for run 98552018-0d98-4b1d-9b65-b26fbb581fa3
+Continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**New mathematics — plan item A2 ("spectral theorem for unbounded self-adjoint operators: the diagonalizing unitary") is now closed.**
+
+New module `BookProof/ChapterUnboundedSpectralModel.lean` (namespace `BookProof.UnboundedSpectralModel`), `sorry`-free, with `#print axioms` reporting only `propext`, `Classical.choice`, `Quot.sound`.
+
+The route is the classical resolvent (Cayley) one. For a densely defined self-adjoint `A` (the `UnboundedSelfAdjoint` bundle of `ChapterStoneResolvent`), the resolvent `R = (A − i)⁻¹` is a *bounded* operator (`resOp`, with `A(Ry) = y + iRy`): injective (`resOp_injective`), with range exactly `dom A` (`exists_resOp_eq`), with adjoint the resolvent at the conjugate point (`adjoint_resCLM`), and commuting with it — hence normal (`isStarNormal_resOp`). The already-proved bounded multiplication model therefore applies to `R`, and `A = R⁻¹ + i` is read back off it (`model_mem`, `model_apply`).
+
+That the model represents a *self-adjoint* operator is extracted from the quadratic form: symmetry gives `⟪u, zu⟫ − ⟪zu, u⟫ = 2i⟪zu, zu⟫` (`model_symmetry_relation`), which via the pointwise identity `z − z̄ − 2i z̄z = 2i(Im z − |z|²)` forces the multiplication operator by the Cayley symbol to vanish (`mulRep_cayleyFn_eq_zero`). Hence the representing measure is carried by the Cayley circle `|z|² = Im z` (`model_ae_circle`) and gives no mass to `z = 0` (`model_ae_ne_zero`), so the multiplier `1/z + i` agrees almost everywhere with the *real* function `Re z/|z|²` (`model_ae_real_multiplier`).
+
+Headline theorems:
+- `unbounded_multiplication_model_cyclic` — resolvent with a cyclic unit vector: unitary equivalence with multiplication on a single `L²(μ)`, the domain being exactly the image of the multiplication-by-`z` range;
+- `unbounded_multiplication_model_general` — **every** densely defined self-adjoint operator on a complex Hilbert space is multiplication by a real function on a Hilbert sum of `L²(μₓ)` spaces; no cyclic vector and no separability assumed;
+- `unbounded_multiplication_model_separable` — countably many summands on a separable space.
+
+Boundary recorded honestly: the projection-valued-measure formulation and the Borel functional calculus for unbounded operators are not derived here; the general Faris–Lavine potential (item A1) remains open.
+
+**Registration and documentation.** The module is imported in `BookProof.lean`, axiom-certified in `BookProof/ChapterRoadmapAudit.lean` (eleven new `#print axioms` lines; the audit also gained the previously missing certification of `ChapterMixedLinearEsa.polyPotential_add_momentum_essentiallySelfAdjoint`), and cited from `Book/ConditionalUnitary.lean` with a new prose paragraph plus a `#check` block, replacing the sentence that recorded the step as open. Recorded in `BookProof/STATUS.md`, in `CONSOLIDATED_PLAN.md` (A2 marked CLOSED, stale text kept), and in a new dated entry at the top of `ARISTOTLE_SUMMARY.md`.
+
+**Verification gate (plan §8) re-run and green:** `lake build` (8671 jobs: `BookProof` + `Book` + `Singularity`), `lake build RandomMap`, `lake build UsedRoute`, `./patches/build-book.sh` (its `<base>`/fragment-link asserts pass) and `./patches/check-katex.sh` (2428 math snippets, 0 KaTeX failures) all succeed, with no warnings under `BookProof/` or `Book/`. Audits: the only `sorry`s in the repository remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`; all other textual matches for `sorry`/`axiom` are in comments; isolation greps unchanged. The `patches/*.sh` executable bit was restored.
+
+All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-21h — the spectral theorem for an unbounded self-adjoint operator)
+
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the full build, the book render and the KaTeX check are green.
+
+**1. New mathematics — the existence of the diagonalizing unitary (plan item A2, now CLOSED)** (`BookProof/ChapterUnboundedSpectralModel.lean`, namespace `BookProof.UnboundedSpectralModel`, new, `sorry`-free, axioms only `propext, Classical.choice, Quot.sound`). The development already had the spectral theorem in multiplication form for a **bounded** normal operator (`ChapterSpectralMultiplication`, `ChapterSpectralDirectSum`) and the transport of self-adjointness and Stone's relation through a *given* unitary (`ChapterUnitaryTransport`), but the *existence* of the diagonalizing unitary for an **unbounded** self-adjoint operator was the recorded open step — the one thing "behind a continuum Laplacian". This module supplies it, by the classical resolvent (Cayley) route.
+
+For a densely defined self-adjoint `A` — the `UnboundedSelfAdjoint` bundle of `ChapterStoneResolvent` — the resolvent `R = (A − i)⁻¹` is a *bounded* operator (`resOp`, with `A(Ry) = y + iRy` in `op_resOp`): it is injective (`resOp_injective`), its range is exactly `dom A` (`exists_resOp_eq`), its adjoint is the resolvent at the conjugate point (`adjoint_resCLM`), and resolvents commute, so `R` is **normal** (`isStarNormal_resOp`). The bounded theory therefore applies to `R`, and `A = R⁻¹ + i` is read back off the model: whenever an isometric embedding `V : L²(μ) → H` carries multiplication by `z` into `R`, every vector `V(z·u)` lies in `dom A` and `A(V(z·u)) = V(u + i z·u)` (`model_mem`, `model_apply`) — i.e. `A` is multiplication by `1/z + i`.
+
+That this is a model of a *self-adjoint* operator is extracted from the quadratic form. Symmetry of `A` gives `⟪u, zu⟫ − ⟪zu, u⟫ = 2i⟪zu, zu⟫` (`model_symmetry_relation`); the pointwise identity `z − z̄ − 2i z̄z = 2i(Im z − |z|²)` (`cayley_pointwise`, lifted to continuous symbols in `cayley_symbol_identity`) turns this into the statement that the multiplication operator by the Cayley symbol `Im z − |z|²` has vanishing quadratic form, hence vanishes (`mulRep_cayleyFn_eq_zero`). By the faithfulness criterion of `ChapterLinftyMultiplication` the representing measure is then carried by the **Cayley circle** `|z|² = Im z` (`model_ae_circle`) — the image of the real line under `t ↦ 1/(t − i)` — and an indicator-function argument using injectivity of `R` shows it gives no mass to `z = 0` (`model_ae_ne_zero`). Consequently the multiplier `1/z + i` agrees almost everywhere with the **real** function `Re z/|z|²` (`cayley_real_multiplier`, `model_ae_real_multiplier`), so `A` really is multiplication by a real function.
+
+Headline theorems: `unbounded_multiplication_model_cyclic` (resolvent with a cyclic unit vector: unitary equivalence with multiplication on a single `L²(μ)`, `μ` a Borel probability measure carried by the Cayley circle, the domain being exactly the image of the multiplication-by-`z` range); `unbounded_multiplication_model_general` — **every** densely defined self-adjoint operator on a complex Hilbert space is multiplication by a real function on a Hilbert sum of `L²(μₓ)` spaces, with **no cyclic vector and no separability assumed**; and `unbounded_multiplication_model_separable`, the same with a countable family of summands on a separable space.
+
+**2. Honest boundaries.** What is proved is the multiplication model for `A` on the range of the resolvent, with the multiplier `1/z + i` (equal a.e. to the real function `Re z/|z|²`); the projection-valued-measure formulation and the Borel functional calculus for unbounded operators are *not* derived from it here. Of the previously recorded analytic boundaries, the general Faris–Lavine potential (a potential bounded above by a quadratic but not itself quadratic — the fibrewise / direct-integral gluing) remains open, as does the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol.
+
+**3. Registration and documentation.** The new module is imported in `BookProof.lean`, axiom-certified in `BookProof/ChapterRoadmapAudit.lean` (eleven new `#print axioms` lines, all reporting only the three standard axioms), and cited in `Book/ConditionalUnitary.lean` (a new prose paragraph plus a `#check` block of nine names, replacing the sentence that recorded the step as open). The audit also gained the previously missing certification of `ChapterMixedLinearEsa.polyPotential_add_momentum_essentiallySelfAdjoint`. The wave is recorded in `BookProof/STATUS.md` and in `CONSOLIDATED_PLAN.md` (the A2 backlog entry is now marked CLOSED, with the stale text kept below it).
+
+**4. Verification gate (plan item B1) — re-run and green in this snapshot**: `lake build` (8671 jobs: `BookProof` + `Book` + `Singularity`), `lake build RandomMap`, `lake build UsedRoute`, `./patches/build-book.sh` (with its `<base>`/fragment-link asserts passing) and `./patches/check-katex.sh` (**2428 math snippets, 0 KaTeX failures**) all succeed, with no warnings under `BookProof/` or `Book/`. Audits: the only `sorry`s in the repository are in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`; every remaining textual match for `sorry` or `axiom` under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/` is inside a docstring or comment, and the isolation greps are unchanged. Hygiene repair: the `patches/*.sh` executable bit had again been lost in this snapshot and is restored and committed.
+
+# Summary of changes for the continuation run (2026-08-21g — singular quadratic forms, the Schrödinger flow in closed form, and Fourier multipliers)
+
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the full build, the book render and the KaTeX check are green.
+
+**1. New mathematics, wave 6a — the Stone flow acts on eigenvectors by a phase** (`BookProof/ChapterStoneEigenflow.lean`, namespace `BookProof.StoneEigenflow`, new, `sorry`-free, axioms only `propext, Classical.choice, Quot.sound`). Stone's theorem, as it was available in this development, produces the unitary group of an essentially self-adjoint core operator as an *existence* statement. This module makes the dynamics explicit wherever the core carries eigenvectors — which is the case for the whole quadratic family, via the (translated, modulated, rotated) Hermite functions. A self-adjoint extension keeps the eigenvectors of the core operator, with the same eigenvalue (`isSelfAdjointExtension_eigenvector`); and *any* Stone flow `U` of a self-adjoint `T` with `Tψ = λψ`, `λ` real, satisfies `U t ψ = e^{−iλt}ψ` (`stoneFlow_apply_eigenvector`, and `stoneFlow_apply_core_eigenvector` for an eigenvector of the core operator). The proof does not use the spectral theorem: `φ(t) = ⟪ψ, U t ψ⟫` solves the scalar ODE `φ' = −iλφ` by the Schrödinger equation and symmetry of `T`, so `φ(t) = e^{−iλt}‖ψ‖²`, and since `U t` is isometric this is the equality case of Cauchy–Schwarz, i.e. `‖U t ψ − e^{−iλt}ψ‖ = 0`. `exists_diagonal_stone_flow` packages the statement: a densely defined, symmetric, essentially self-adjoint core operator with a family of eigenvectors generates a complete unitary flow that is diagonal on that family.
+
+**2. New mathematics, wave 6b — the *singular* inhomogeneous quadratic Hamiltonian** (`BookProof/ChapterShiftedQuadraticDegenerate.lean`, namespace `BookProof.ShiftedQuadraticDegenerate`, new, `sorry`-free, same axiom profile). The matrix wave in the snapshot (`ChapterShiftedQuadraticMatrixEsa`) needed `A` invertible, and used invertibility exactly once — to solve the classical equilibrium equations `A a = −2b`, `A k = −b'/2`. Completing the square needs only a *solution*, so this module replaces invertibility by solvability and characterizes it: for a real symmetric `A`, the equation `A a = w` has a solution if and only if `w` is orthogonal to `ker A` (`equilibrium_orthogonal_to_kernel` for necessity, `exists_equilibrium` for sufficiency — proved from the spectral theorem for real symmetric matrices by inverting `A` on the non-degenerate eigendirections — and `exists_equilibrium_iff`). Consequently, for **every** real symmetric `A`, invertible or singular and of arbitrary signature, admitting a classical equilibrium, the operator `H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` with `H_A = ∑_{p,q} A_{pq}(π_pπ_q + x_px_q/4)` is symmetric (`shiftedHMatOp_symmetric_of_equilibrium`) and essentially self-adjoint (`shiftedHMatOp_essentiallySelfAdjoint_of_equilibrium`) on the translated, modulated Gauss–polynomial core. The intrinsic form is `exists_shiftedHMat_esa_of_kernel_orthogonal`: if `b, b' ⊥ ker A` then a dense core exists carrying symmetry, essential self-adjointness and a complete unitary flow. The concrete new instance is `diagonal_degenerate_essentiallySelfAdjoint`: the diagonal Hamiltonian `∑ᵢ (cᵢ(πᵢ² + xᵢ²/4) + bᵢxᵢ + b'ᵢπᵢ)` with *some weights allowed to vanish* (and first-order coefficients vanishing in those directions) — exactly the case excluded by `ShiftedQuadratic.shiftedHOp_essentiallySelfAdjoint`, which requires `cᵢ ≠ 0` everywhere. Finally, feeding the Hermite eigenbasis into wave 6a gives the dynamics in closed form: `exists_shiftedHMat_diagonal_flow` and `exists_shiftedH_diagonal_flow` state that the flow acts on `ψ_α` by `e^{−iE_αt}` with `E_α = ∑ᵢ cᵢ(αᵢ + ½) + const`.
+
+**3. New mathematics, wave 6c — Fourier multipliers with a real symbol, and the essential self-adjointness of the momentum operator** (`BookProof/ChapterFourierMultiplierEsa.lean`, namespace `BookProof.FourierMultiplierEsa`, new, `sorry`-free, same axiom profile). The Plancherel argument of `ChapterStrichartzWave` never used the *shape* of the second-order operator, only that it is a Fourier multiplier with a real, smooth symbol; this module extracts that argument as a reusable instrument (`symmetricOn_of_real_symbol`, `deficiencyTrivialAt_of_real_symbol`, `essentiallySelfAdjointOn_of_real_symbol`: any continuous linear operator on Schwartz space that the Fourier transform turns into multiplication by a real, smooth `σ` is symmetric and essentially self-adjoint on the Schwartz core of `L²(V)`) and applies it to the operators the second-order family could not reach. `fourier_firstOrderOp_apply` identifies the first-order operator `∑ᵢ cᵢ πᵢ`, `πᵢ = −i ∂_{wᵢ}`, as the multiplier with real symbol `∑ᵢ 2π cᵢ ⟪ξ, wᵢ⟫`, whence `firstOrderOp_essentiallySelfAdjoint` — **the momentum operator is essentially self-adjoint** on the Schwartz core, for an arbitrary finite family of directions and arbitrary real coefficients (`momentumOp_essentiallySelfAdjoint` is the one-direction case `−i ∂_m`) — and `mixedOp_essentiallySelfAdjoint` for the full constant-coefficient operator `∑ᵢ cᵢ ∂_{wᵢ}² + ∑ᵢ aᵢ (−i ∂_{wᵢ}) + κ`. This closes the pure-momentum kernel direction left open by wave 6b: there `H` degenerates to `∑ᵢ b'ᵢ πᵢ`, which has no `L²` eigenvector, so the Hermite-eigenbasis argument cannot see it, while the multiplier argument handles it directly. The mixed kernel direction `bᵢxᵢ + b'ᵢπᵢ` with both coefficients non-zero remains uncovered by either route, and is recorded as such.
+
+Honest boundaries, recorded in the module docstrings, in `BookProof/STATUS.md`, in `STRICHARTZ_WAVE_ESA.md` and in the plan: orthogonality of `b, b'` to `ker A` is necessary, not technical — in a kernel direction the Hamiltonian degenerates to the first-order operator `bᵢxᵢ + b'ᵢπᵢ`, which has no `L²` eigenvector and is diagonal in no Hermite-type basis, so that case is not covered. A general Faris–Lavine potential (bounded above by a quadratic but not itself quadratic) and the existence of the diagonalizing unitary for a *general* unbounded self-adjoint operator remain open, as does the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol.
+
+**4. Verification gate (plan item B1) — re-run and green in this snapshot after the new modules**: `lake build` (8668 jobs: `BookProof` + `Book` + `Singularity`), `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049 jobs), `./patches/build-book.sh` (with its `<base>`/fragment-link asserts passing) and `./patches/check-katex.sh` (**2402 math snippets, 0 KaTeX failures**) all succeed. Audits: the only `sorry`s in the repository are in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`; every remaining textual match for `sorry` or `axiom` under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/` is inside a docstring or comment, and the isolation greps are unchanged. Hygiene repair: the `patches/*.sh` executable bit had again been lost in this snapshot and is restored and committed.
+
+**4. Registration and documentation**: both new modules are imported in `BookProof.lean`, axiom-certified in `BookProof/ChapterRoadmapAudit.lean` (thirteen new `#print axioms` lines, all reporting only the three standard axioms), and cited (two new prose paragraphs plus two `#check` blocks) in `Book/DiffeomorphismsGravity.lean`; the same block also adds the citation of `ChapterShiftedQuadraticMatrixEsa`, which was present in the repository but not yet cited in the book or recorded in the status files. The waves are recorded in `BookProof/STATUS.md`, `STRICHARTZ_WAVE_ESA.md` and `CONSOLIDATED_PLAN.md` (leading status block, the A1 backlog entry, and the B1 gate note).
+
+# Summary of changes for the continuation run (2026-08-21e — the indefinite inhomogeneous quadratic Hamiltonian, plus the §8 gate)
+
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the full build, the book render and the KaTeX check are green.
+
+**0. Build repair on arrival.** The snapshot did not compile: `BookProof/ChapterQuadraticRotationPerturbed.lean` referred to `UnboundedSelfAdjoint` and `IsSelfAdjointExtension` without opening the namespaces that define them. The `open` line now names `BookProof.StoneBridge BookProof.EsaClosure BookProof.ChapterStoneResolvent`, and the full build is green again.
+
+**1. New mathematics, wave 5a — the translated, modulated Gauss–polynomial core** (`BookProof/ChapterShiftedHermiteCore.lean`, namespace `BookProof.ShiftedHermiteCore`, new, `sorry`-free, axioms only `propext, Classical.choice, Quot.sound`). For any `a, k ∈ ℝᵈ` the functions `p(x−a)e^{−‖x−a‖²/4}e^{i⟨k,x⟩}`, `p` a complex polynomial, form a subspace `polyGaussCoreT a k` of `L²(ℝᵈ)`. Translation by `a` and modulation by `e^{i⟨k,x⟩}` are unitary substitutions, which is proved rather than assumed: `inner_pgLpT` computes inner products by `integral_sub_right_eq_self` and `conj_mul_phaseFun`, giving `norm_pgLpT`, injectivity of the polynomial map (`pgMapT_injective`) and density of the core (`polyGaussCoreT_dense`, by the substitution `x = y + a` and the existing multidimensional moment argument). The recentred, boosted product Hermite functions `hermiteTLp` are orthonormal (`orthonormal_hermiteTLp`), span the core (`span_hermiteTLp`) and are total in `L²` (`hermiteTLp_total`). The canonical pair is computed in the new frame: `pgFunT_mulXTPoly` and `pgFunT_momTPoly` show that multiplication by `xᵢ` and `πᵢ = −i∂ᵢ` act on polynomials as `mulXPoly i + aᵢ` and `momPoly i + kᵢ` (`mulXTPoly`, `momTPoly`), via the explicit derivative `hasDerivAt_pgFunT_sec` along coordinate lines.
+
+**2. New mathematics, wave 5b — the indefinite inhomogeneous quadratic Hamiltonian** (`BookProof/ChapterShiftedQuadraticEsa.lean`, namespace `BookProof.ShiftedQuadratic`, new, `sorry`-free, same axiom profile). For diagonal weights `cᵢ ≠ 0` of **arbitrary sign** — so the signature may be hyperbolic — and arbitrary real `b, b'`, the operator `H = ∑ᵢ (cᵢ(πᵢ² + xᵢ²/4) + bᵢxᵢ + b'ᵢπᵢ)` is symmetric (`shiftedHOp_symmetric`) and essentially self-adjoint (`shiftedHOp_essentiallySelfAdjoint`) on the dense core (`shiftedCore_dense`) of wave 5a with `aᵢ = −2bᵢ/cᵢ`, `kᵢ = −b'ᵢ/(2cᵢ)`; it is genuinely unbounded (`shiftedHOp_not_bounded`), generates a complete unitary Schrödinger flow (`shiftedHOp_stone_flow`, via Stone), and *is* the differential expression `∑ᵢ (cᵢ(−∂ᵢ²f + xᵢ²f/4) + bᵢxᵢf + b'ᵢ(−i∂ᵢf))` pointwise (`shiftedHPoly_apply_eq_differential`, with Mathlib's `deriv` twice along each coordinate line). With the Minkowski weights `(1, −1, …, −1)` this is `wave_indefiniteQuadratic_linear_essentiallySelfAdjoint`: `□ + V`, `V(t,x) = (t² − ‖x‖²)/4` in the convention `□ = −∂_t² + Δ_x`, plus an arbitrary constant external field and an arbitrary constant boost.
+
+The route is **not** a relative bound, and this is what removes the sign condition left open by the two previous waves. Completing the square in position and momentum at once — `cᵢ(πᵢ² + xᵢ²/4) + bᵢxᵢ + b'ᵢπᵢ = cᵢ((πᵢ + b'ᵢ/(2cᵢ))² + (xᵢ + 2bᵢ/cᵢ)²/4) − b'ᵢ²/(4cᵢ) − bᵢ²/cᵢ` (`shiftedHPoly_term`, `shiftedHPoly_eq_quadPoly`) — rewrites `H` as the *same* `H_c` plus a real constant in the frame recentred at the classical equilibrium and boosted to the classical momentum, where it is diagonal on the orthonormal, total Hermite family with eigenvalues `∑ᵢ cᵢ(αᵢ + ½) + ∑ᵢ(−b'ᵢ²/(4cᵢ) − bᵢ²/cᵢ)` (`shiftedHOp_hermiteTLp`); the reusable instruments `symmetricOn_of_diagonal` and `deficiencyTrivialAt_of_diagonal` then finish. Only `cᵢ ≠ 0` is used, which is exactly what completing the square needs.
+
+Honest boundaries, recorded in the module docstrings, in `BookProof/STATUS.md` and in the plan: the weights here are **diagonal**, so the indefinite case *with cross terms* (a general indefinite symmetric `A` plus a first-order term) is still open — the rotation route of the 2026-08-21c wave composes with this one only once the rotated first-order coefficients are handled. A *general* Faris–Lavine potential (bounded above by a quadratic but not itself quadratic) and the spectral theorem for a general unbounded self-adjoint operator also remain open.
+
+**3. Registration and documentation.** Both new modules are imported in `BookProof.lean` (with explanatory comments), axiom-certified in `BookProof/ChapterRoadmapAudit.lean` (26 new `#print axioms` lines, every one reporting only `propext, Classical.choice, Quot.sound`), and cited in the book: `Book/DiffeomorphismsGravity.lean` gains a prose paragraph deriving the completion of the square and a `#check` block for the ten headline results, placed immediately after the relative-bound paragraph whose positivity restriction it lifts. The wave is recorded in `BookProof/STATUS.md` (new "Latest wave (2026-08-21e)" section) and in `CONSOLIDATED_PLAN.md` (leading status block and a new `A1 — UPDATE (2026-08-21e)` backlog entry).
+
+**4. Verification gate (plan item B1) — re-run and green in this snapshot after the new modules.** `lake build` (8665 jobs: `BookProof` + `Book` + `Singularity`), `lake build RandomMap` (8039 jobs), `lake build UsedRoute` (8049 jobs), `./patches/build-book.sh` (with its `<base>`/fragment-link asserts passing) and `./patches/check-katex.sh` (**2367 math snippets, 0 KaTeX failures**, up from 2353 with the new chapter text) all succeed. Audits: every textual match for `sorry` or `axiom` under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/` is inside a docstring or comment; the only real `sorry`s remain in the quarantined legacy RH route under `UsedRoute/`/`UnusedRoute/`, which are not build targets; the isolation greps (`import PnpProof`, `import UnusedRoute`) are unchanged. Hygiene: the `patches/*.sh` executable bit had again been lost in this snapshot and is restored and committed.
+
+**5. Editorial backlog.** Items C1/D1 (the `Book/Introduction.lean` slogan caveat), C2/D2 (the `Book/OdeSingularity.lean` honesty sentence) and C3 (the curated-edition coverage table in `Issues.md`) were re-checked and are all already addressed in the repository; no further editorial change was needed.
+
+# Summary of changes for the continuation run (2026-08-21c/d — non-diagonal and inhomogeneous quadratic Hamiltonians, plus the §8 gate)
+
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the full build, the book render and the KaTeX check are green.
+
+**1. New mathematics, wave 3 — general (non-diagonal) quadratic Hamiltonians of arbitrary signature** (`BookProof/ChapterQuadraticRotationEsa.lean`, namespace `BookProof.QuadraticRotation`, `sorry`-free, axioms only `propext, Classical.choice, Quot.sound`). For **every** real symmetric matrix `A` — no sign condition, so the signature may be elliptic, hyperbolic or degenerate — the operator `H_A = ∑_{k,l} A_{kl}(π_k π_l + x_k x_l/4)` with `π_k = −i∂/∂x_k` is symmetric (`quadOpMat_symmetric`) and essentially self-adjoint (`quadOpMat_essentiallySelfAdjoint`) on the dense Gauss–polynomial (product Hermite) core of `L²(ℝᵈ)`, and is genuinely unbounded whenever `A ≠ 0` (`quadOpMat_not_bounded`). The route is the orthogonal substitution `rotPoly O` on polynomial coordinates together with rotation invariance of the Gaussian weight (`rotIso`, `gaussInt_rotPoly`, `inner_pgLp_rotPoly`): the canonical pair transforms contravariantly with the *same* matrix (`rotPoly_mulXPoly`, `rotPoly_momPoly`), so `H_c` is carried onto `H_{O diag(c) Oᵀ}` (`quadPolyMat_rotPoly`), the rotated product Hermite functions are an orthonormal family of joint eigenvectors spanning the core (`orthonormal_rotHermiteLp`, `span_rotHermiteLp`, `quadOpMat_rotHermiteLp`), and the spectral theorem for real symmetric matrices supplies `O` and `c` (`exists_rotConj`, `exists_rotConj_eigenvalues`). With the rotated Minkowski form this is the wave operator `□ + V`, `V(t,x) = (t² − ‖x‖²)/4`, in rotated coordinates, where *neither* the kinetic form nor the potential is diagonal (`wave_rotated_essentiallySelfAdjoint`). `quadOpMat_diagonal` identifies the diagonal case with the previously proved one, so this is a genuine extension.
+
+**2. New mathematics, wave 4 — the general inhomogeneous elliptic quadratic Hamiltonian** (`BookProof/ChapterQuadraticRotationPerturbed.lean`, namespace `BookProof.QuadraticRotationPerturbed`, new, `sorry`-free, same axiom profile). For a **positive definite** real symmetric matrix `A` and arbitrary real vectors `b, b'`, the operator `H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` — a general elliptic quadratic form *with cross terms*, plus a general unbounded first-order term that does not commute with it — is symmetric (`quadOpMat_add_firstOrder_symmetric`, which needs only symmetry of `A`) and essentially self-adjoint (`quadOpMat_add_firstOrder_essentiallySelfAdjoint`) on the same core; with `b' = 0` this is an anisotropic harmonic oscillator with cross terms in a constant external field (`anisotropicOsc_add_linearPotential_essentiallySelfAdjoint`). The eigenbasis argument of wave 3 no longer suffices, because the perturbation is not diagonal in the rotated Hermite basis. Instead the rotated Hermite functions are upgraded to a Hilbert basis (`rotHermiteBasis`), which turns the orthogonal substitution into an honest **unitary** `rotU` of `L²(ℝᵈ)`; on the core that unitary *is* the polynomial substitution (`rotU_pgLp`), so it preserves the core (`rotU_mem_core`), carries `H_c` onto `H_{O diag(c) Oᵀ}` and carries the first-order symbol with coefficients `b, b'` onto the one with `Ob, Ob'` (`rotPoly_foPoly`, `rotVec_transpose`, `rotU_intertwine`). Essential self-adjointness is a unitary invariant, so the relative Kato–Rellich theorem of `ChapterHermiteRelativeBound` transfers.
+
+Honest boundaries, recorded in the module docstrings and in the plan: positive definiteness of `A` is used exactly once (`exists_lower_bound_eigenvalues`) and is **not** removable by this route — in the indefinite case the symbol vanishes on infinitely many multi-indices, so no relative bound for the first-order term holds; the unperturbed indefinite case remains covered by `quadOpMat_essentiallySelfAdjoint`. A *general* Faris–Lavine potential (bounded above by a quadratic but not itself quadratic) and the spectral theorem for a general unbounded self-adjoint operator remain open, as does the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol.
+
+**3. Verification gate (plan item B1) — re-run and green in this snapshot after the new modules**: `lake build` (8663 jobs: `BookProof` + `Book` + `Singularity`), `lake build RandomMap`, `lake build UsedRoute`, `./patches/build-book.sh` (with its `<base>`/fragment-link asserts passing) and `./patches/check-katex.sh` (**2353 math snippets, 0 KaTeX failures**) all succeed. Audits: the only `sorry`s in the repository are in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/` (not build targets); every remaining textual match for `sorry` or `axiom` under `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/` is inside a docstring or comment, and the isolation greps are unchanged. Hygiene repair: the `patches/*.sh` executable bit had again been lost in this snapshot; it is restored **and committed** this time, so the repair should not recur.
+
+**4. Editorial backlog**: items C1 and C2 (the two `Contention.md` items) were already ADDRESSED in the repository, and item C3 (the curated-edition coverage table) was already re-marked — §2 of `Issues.md` now records the formerly deferred physics chapters as covered and §6 as closed. No further editorial change was needed.
+
+**5. Registration and documentation**: the new module is imported in `BookProof.lean`, axiom-certified in `BookProof/ChapterRoadmapAudit.lean` (10 new `#print axioms` lines, all reporting only the three standard axioms), and cited (prose plus a `#check` block) in `Book/DiffeomorphismsGravity.lean`; both waves are recorded in `BookProof/STATUS.md`, `STRICHARTZ_WAVE_ESA.md` and `CONSOLIDATED_PLAN.md` (leading status block, the A1 backlog entry, and the B1 gate note).
+
+# Summary of changes for run 4beacf03-2be5-4fd7-b7fc-d729e077f687
+Continued executing `CONSOLIDATED_PLAN.md`. Everything below is committed and pushed; the working tree is clean.
+
+**1. Verification gate (plan item B1) — re-run and green in this snapshot**
+- `lake build BookProof`, `lake build Book`, `lake build Singularity RandomMap`, `lake build UsedRoute` — all "Build completed successfully".
+- `./patches/build-book.sh` → `_out/html-single/index.html`, with its invariants passing (no `<base>`, fragment links present); `./patches/check-katex.sh` → **2324 math snippets, 0 KaTeX failures**.
+- Audits: no `sorry` and no `axiom` declarations in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, `PnpProof/` (the only `sorry`s remain in the quarantined legacy route under `UsedRoute/`/`UnusedRoute/`, which are not build targets).
+- Hygiene repair: the scripts under `patches/` had lost their executable bit and could not be run; the mode is restored.
+
+**2. New mathematics, wave 1 — the hyperbolic operator with an indefinite quadratic potential** (`BookProof/ChapterHyperbolicQuadraticEsa.lean`, sorry-free, axioms only `propext, Classical.choice, Quot.sound`): for *every* real weight vector `c` (no sign condition, so the signature may be hyperbolic) the operator `H_c = ∑ᵢ cᵢ(−∂ᵢ² + xᵢ²/4)` is symmetric and essentially self-adjoint on the dense Gauss–polynomial (product Hermite) core of `L²(ℝᵈ)`, is genuinely unbounded, and is identified pointwise with the differential expression. With the Minkowski weights this is `□ + V`, `V(t,x) = (t² − ‖x‖²)/4`, in the convention `□ = −∂_t² + Δ_x`. A bounded real potential may be added (Kato–Rellich).
+
+**3. New mathematics, wave 2 — unbounded (relatively bounded) perturbations** (`BookProof/ChapterHermiteRelativeBound.lean`, new, sorry-free, same axiom profile): for strictly positive weights `cᵢ ≥ c₀ > 0`, the position and momentum operators are symmetric on the Hermite core (Gaussian integration by parts), satisfy the form identity `⟪u,(πᵢ²+xᵢ²/4)u⟫ = ‖πᵢu‖² + ‖xᵢu‖²/4`, and — via the symbol comparison `c₀(αᵢ+½) ≤ ∑ⱼcⱼ(αⱼ+½)` — are `H_c`-bounded with arbitrarily small relative bound `‖xᵢu‖ ≤ ε‖H_c u‖ + (2/(c₀ε))‖u‖`. Consequently `H_c + ∑ᵢ(bᵢxᵢ + b'ᵢπᵢ)` is essentially self-adjoint on the same core for arbitrary real coefficients — an *unbounded* perturbation, beyond the bounded Kato–Rellich statement — and in particular the Stark-shifted oscillator `−Δ + ‖x‖²/4 + ⟨b,x⟩` (with the perturbation identified as multiplication by the unbounded function `x ↦ ⟨b,x⟩`). The module also records that the product Hermite basis is an explicit diagonalizing unitary for `H_c`: in those coordinates the operator is multiplication by its real symbol on `ℓ²`. Two reusable instruments are proved on the way (a diagonal operator acts coefficientwise; quadratic forms of diagonal operators are ordered by their symbols).
+
+Honest boundaries, recorded in the module docstrings and the plan: strict positivity of the weights is used in wave 2 and is not removable by this argument (in the hyperbolic case the symbol vanishes on infinitely many multi-indices, so `H_c` does not dominate the number operator); a *general* potential bounded above by a quadratic (the Faris–Lavine class) and the spectral theorem for a general unbounded self-adjoint operator remain open, as does the alternative Faris–Lavine-estimate route for the Navier–Stokes quadratic symbol.
+
+**4. Registration and documentation**: the new module is imported in `BookProof.lean`, axiom-certified in `BookProof/ChapterRoadmapAudit.lean`, and cited (prose plus a `#check` block) in `Book/DiffeomorphismsGravity.lean`; the two waves are recorded in `BookProof/STATUS.md`, `STRICHARTZ_WAVE_ESA.md` and `CONSOLIDATED_PLAN.md` (with the gate results and the updated status of the backlog items, including one item that was found to be already closed in the repository).
+
+# Summary of changes for the continuation run (2026-08-20k, `CONSOLIDATED_PLAN.md` §9 item 4: the differential realization of the full Navier–Stokes quadratic symbol on `L²(du₁du₂du₃)`)
+
+The last named open plan item is now closed. All work is committed and pushed, and the §8 verification gate is green.
+
+**1. New proof module — the product Hermite basis of `L²(ℝᵈ)`.**
+`BookProof/ChapterHermiteProductBasis.lean` (namespace `BookProof.HermiteProductBasis`):
+- the normalized Gauss–polynomial functions `hermiteMvLp`, their orthonormality `orthonormal_hermiteMvLp` (Fubini reduction to the one-dimensional `hermiteInner_eq`) and `span_hermiteMvLp` (their span is the Gauss–polynomial core `polyGaussCore`), giving the Hilbert basis `hermiteMvBasis`;
+- the partial derivative of a product Hermite polynomial, `pderiv_hermiteMv` (`∂ᵢHe_α = αᵢHe_{α−eᵢ}`), and the polynomial ladder operators `annPoly`, `crePoly` with `crePoly_hermiteMv`;
+- the ladder actions on the orthonormal basis: `crePoly_hermiteMvLp` (`a†ψ_α = √(αᵢ+1)ψ_{α+eᵢ}`) and `annPoly_hermiteMvLp` (`aψ_α = √αᵢ ψ_{α−eᵢ}`).
+
+**2. New proof module — the differential realization and the unitary transport.**
+`BookProof/ChapterNavierStokesDifferentialL2.lean` (namespace `BookProof.NavierStokesFlow.DifferentialL2`):
+- `hasDerivAt_pgFun_sec` differentiates `p(u)e^{−‖u‖²/4}` along one coordinate; on the Gauss–polynomial core, `posOp i` is multiplication by `uᵢ` (`posOp_apply_eq_mul`) and `momOp i` is `πᵢ = −i ∂/∂uᵢ` — `momOp_apply_eq_differential` says its value at `p(u)e^{−‖u‖²/4}` is pointwise `−i` times Mathlib's `deriv` along the `i`-th coordinate — with the canonical commutation relation `comm_momOp_posOp` (`[πᵢ, u_k] = −i δ_{ik}`);
+- `velBasis` is the product Hermite Hilbert basis of `L²(ℝ³)` indexed by the three-mode multi-indices `Vel = Fin 3 → ℕ`, and `velUnitary : ℓ²(Vel) ≃ₗᵢ L²(ℝ³)` the resulting unitary; it maps the finite-mode core into the Gauss–polynomial core (`velUnitary_mem_core`, `embedCore`);
+- the intertwining: `intertwine_ann`, `intertwine_cre` for the ladder operators (via `ann_coreState`, `cre_coreState` and the span lemma `span_coreState`), then `intertwined_pos`, `intertwined_mom` for the canonical pairs and `intertwined_canH` for the Hamiltonian;
+- the conclusions: `nsDiffH_essentiallySelfAdjointOn_core` — for every real velocity gradient `A` and every real constant part `c`, the Weyl-ordered `∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` with `πᵢ = −i ∂/∂uᵢ` and `Vᵢ` multiplication by `∑ₖ A_{ik}uₖ + cᵢ` is essentially self-adjoint on the Hermite core of `L²(du₁du₂du₃)` — and `nsQuadraticDiffH_essentiallySelfAdjointOn_core` with the coefficients spelled out as `(ν, u_{i,j}, u_{i,jj})`. Non-vacuity: `nsDiffH_not_bounded` (unbounded) and `nsDiffH_domain_dense` (dense domain).
+
+Both modules are `sorry`-free; `#print axioms` on their headlines reports only `propext`, `Classical.choice`, `Quot.sound`. They are imported from `BookProof.lean`, certified by fifteen `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, and cited with a new prose paragraph and `#check` block in `Book/FreeField.lean` (the paragraph that recorded the transport as "not built" is rewritten accordingly), all of which appear in the rendered book.
+
+Honest boundary, unchanged: nothing here claims global regularity of the classical Navier–Stokes PDE (Contention D5). The theorem is about the Hilbert-space operator at one Eulerian fiber, where the derivative fields `u_{i,j}`, `u_{i,jj}` are independent canonical coordinates.
+
+**3. §8 verification gate re-run — green.**
+- `lake build` (default targets BookProof + Book + Singularity): 8659 jobs, 0 errors; `lake build RandomMap`: 8039 jobs, 0 errors.
+- `./patches/build-book.sh`: the book renders and its invariants hold (no `<base>` tag, fragment ToC links present); `./patches/check-katex.sh`: 2300 snippets extracted, 0 KaTeX failures.
+- Sorry/axiom audit: no code `sorry` and no `axiom` declarations in `BookProof/`, `PnpProof/`, `Singularity/`, `RandomMap/` (all matches are prose); the only remaining sorries are the quarantined legacy RH route files, which are not default targets. Isolation greps (`import PnpProof`, `import UnusedRoute`) are clean.
+
+**4. Documentation updated.** `CONSOLIDATED_PLAN.md` gains a leading `**Status (2026-08-20k, …)**` block and §9 item 4 is marked closed for the differential realization (only the Lagrangian trajectory-space `L²` differential realization remains from that item); `BookProof/STATUS.md` gains a "Latest wave (2026-08-20k)" section.
+
+# Summary of changes for run a2cf1c9c-a843-4c3e-8a14-48118a06e7e8
+Both items designated in `CONSOLIDATED_PLAN.md` §9 for the next Lean specialist are done, and all work is committed and pushed.
+
+**1. New proof module — the Lagrangian / Eulerian parity closure (§9 item 11's "next step").**
+`BookProof/ChapterNavierStokesLagrangianCanonical.lean` (namespace `BookProof.NavierStokesFlow.LagrangianCanonical`) builds the canonical/ladder realization of the Lagrangian Navier–Stokes second-order part on the trajectory-space Hermite basis, mirroring the Eulerian `ChapterNavierStokesCanonicalVector` / `ChapterNavierStokesHermiteCanonical`:
+- the ladder operators are mutually adjoint on the finite-mode core (`inner_ann_cre`, `inner_cre_ann`), so position and momentum are symmetric (`pos_isSymmetricDom`, `mom_isSymmetricDom`) and `posSq_add_momSq` gives `uᵢ² + πᵢ² = 2Nᵢ + 1`;
+- rescaling by `omega nu = √(2ν)` yields the canonical pair `lagQ`, `lagP` with the CCR `comm_lagP_lagQ` (`[Pᵢ,Qᵢ] = −i`) and `comm_lagP_lagQ_of_ne`;
+- `half_lagPSq_add_nu_lagQSq` (`½Pᵢ² + νQᵢ² = ω(Nᵢ+½)`) and `lagCan_secondOrder_eq` identify the second-order part of the bundled data `lagCanData` with `T = ½∑Pᵢ² + ν∑Qᵢ² = ω(N + 3/2)`;
+- `lagT_hasZeroDeficiencyOn` / `lagCan_secondOrder_hasZeroDeficiencyOn`, then `lagCan_esa` (essential self-adjointness of the full Lagrangian generator on the Hermite core, drift handled by the existing Kato–Rellich route) and `lagCan_stone_flow` (the complete unitary group `e^{-itT}` through the Stone bridge). `lagT_not_bounded` records that the operator is genuinely unbounded, so nothing is a bounded-operator artefact.
+
+The module is `sorry`-free; `#print axioms` on its headlines (including `lagCan_stone_flow`) reports only `propext`, `Classical.choice`, `Quot.sound`. It is imported from `BookProof.lean`, certified by twelve `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, and cited with prose and a `#check` block from `Book/FreeField.lean` (both appear in the rendered book).
+
+Honest boundary, unchanged: nothing here claims global regularity of the classical Navier–Stokes PDE, and the *differential* realization of the full NS quadratic symbol on `L²(du₁du₂du₃)` (§9 item 4) remains a recorded open boundary — as do the hyperbolic direct-integral/Faris–Lavine sign case for QG and the harmonic-oscillator application of Stone.
+
+**2. §8 verification gate re-run — green.**
+- `lake build` (default targets BookProof + Book + Singularity): completed successfully, 8657 jobs, 0 errors; `lake build RandomMap` and `lake build UsedRoute` also complete (only the expected legacy warnings).
+- `./patches/build-book.sh`: book renders and its invariants hold (no `<base>` tag, fragment ToC links present). The scripts under `patches/` had lost their executable bit; that is restored and recorded in git.
+- `./patches/check-katex.sh`: 2288 math snippets extracted, 0 KaTeX failures.
+- Sorry/axiom audit: no code `sorry` and no `axiom` declarations in `BookProof/`, `PnpProof/`, `Singularity/`, `RandomMap/`, `Book/` (all matches are prose). The only remaining sorries are in the quarantined legacy RH route under `UsedRoute/`/`UnusedRoute/`, which are not default targets, as the plan expects. Isolation greps (`import PnpProof`, `import UnusedRoute`) are clean.
+
+**3. Documentation updated.** `CONSOLIDATED_PLAN.md` gains a leading `**Status (2026-08-20j, …)**` block, marks §9 item 11's parity next-step as EXECUTED (original wording retained), supersedes the §9 item 9 rigor-parity record, and records the gate re-run; `BookProof/STATUS.md` gains a "Latest wave (2026-08-20j)" section and its parity paragraph is updated.
+
+The Properties table lists the new definition `lagCanData` and four proved properties (`comm_lagP_lagQ`, `lagCan_secondOrder_eq`, `lagCan_esa`, `lagCan_stone_flow`).
+
+# Summary of changes for run e6da42cd-798e-4401-8dd5-9a238f2a59a9
+The general Stone theorem for separable Hilbert spaces is now formalized and proved in Lean, `sorry`-free, and wired into the project's default build.
+
+**What is proved (all in `BookProof/`, chapters `ChapterStoneResolvent` → `ChapterStoneTheorem` → the new `ChapterStoneSeparable`):**
+
+Let `H` be a complete, separable complex Hilbert space, `UnboundedSelfAdjoint H` a densely defined operator that is symmetric with adjoint domain equal to its domain, and `WeakMeasurableUnitaryGroup H` a family `U t` of isometries with `U 0 = 1`, `U (s+t) = U s U t` and `t ↦ ⟪y, U t x⟫` measurable.
+
+* **Forward direction.** Every unbounded self-adjoint `A` generates the group `e^{-itA}` (built as the strong limit of the Yosida approximations): it is unitary, satisfies the group law, is weakly measurable (indeed strongly continuous), leaves the domain of `A` invariant, and solves the Schrödinger equation `d/dt (e^{-itA}x) = -i A (e^{-itA}x)` on the domain.
+* **Converse direction.** Every weakly measurable one-parameter unitary group on a separable Hilbert space is strongly continuous (von Neumann's averaging argument — this is where separability enters), its infinitesimal generator `A = i d/dt|₀ U` is densely defined and self-adjoint, and `U t = e^{-itA}`.
+* **The two are mutually inverse:** `stone_bijection`, and, newly added, the explicit bijection `stoneEquiv : UnboundedSelfAdjoint H ≃ WeakMeasurableUnitaryGroup H`.
+
+**Added in this session (`BookProof/ChapterStoneSeparable.lean`):**
+
+* `gen_eq_of_hasDerivAt` — if a weakly measurable unitary group solves `d/dt|₀ U t x = -i A x` on the whole domain of a self-adjoint `A`, its generator *is* `A` (no proper symmetric extension), and `eq_stoneU_of_hasDerivAt` — hence `U t = e^{-itA}`.
+* `stone_exists_unique_group` and `stone_exists_unique_generator` — the two halves in `∃!` form, so "the group generated by `A`" and "the generator of `U`" are both unambiguous.
+* `stoneEquiv` — the correspondence as a bijection, with its `simp` lemmas.
+* A non-vacuity witness on a genuinely unbounded operator: `separableSpace_L2Z` proves `ℓ²(ℤ)` is separable; `mulSA f` packages multiplication by a real field `f` on its natural domain as an unbounded self-adjoint operator (unbounded for the position field `f k = k`, recorded by `mulSA_position_unbounded`); `phaseGroup f` is the explicit phase group as a weakly measurable unitary group; and `stoneU_mulSA` shows the abstractly constructed group is exactly `(e^{-itA}ψ)_k = e^{-i t f k} ψ_k`.
+
+**Verification.** `BookProof/ChapterStoneTheorem.lean` and `BookProof/ChapterStoneSeparable.lean` are now imported by `BookProof.lean`, and the whole `BookProof` target builds cleanly (8448 jobs, no errors). A search confirms no `sorry` remains in any Stone chapter, and `#print axioms` (in the new file) reports only `propext`, `Classical.choice`, `Quot.sound` for `stone_exists_unique_group`, `stone_exists_unique_generator`, `stoneEquiv`, `stoneU_mulSA` and `stone_bijection`. All work is committed and pushed.
+
+# Summary of changes for run 5d953499-8723-40ca-bc91-378bbf84d7ee
+I executed the Lagrangian-variables route for Navier–Stokes (§9 item 9 of `CONSOLIDATED_PLAN.md`). The residual the plan named for that route — Kato–Rellich/Ikebe–Kato relative-boundedness control of the first-order drift against the second-order Laplacian, and a self-contained ESA/Hashimoto-selection proof on the Lagrangian side — is now closed by two new modules. Both are `sorry`-free, and every headline is `#print axioms`-certified (only `propext`, `Classical.choice`, `Quot.sound`) in `BookProof/ChapterRoadmapAudit.lean`. The whole project builds.
+
+**1. `BookProof/ChapterKatoRellichRelative.lean` — Kato–Rellich for relatively bounded perturbations.**
+The project previously had only the *bounded*-perturbation case. The new `essentiallySelfAdjointOn_add_relBounded` allows the perturbation to be unbounded: if `H` is symmetric and essentially self-adjoint on a domain `D` and `B` is symmetric on the same domain with `‖Bx‖ ≤ a‖Hx‖ + b‖x‖` for some `0 ≤ a < 1`, then `H + B` is essentially self-adjoint on `D`. The proof is an explicit Neumann iteration at a large non-real shift — no closures, no spectral theorem — using the new `norm_le_of_relBound` (for symmetric `H`, `‖Hx − eix‖² = ‖Hx‖² + e²‖x‖²`, so the relative bound becomes a contraction bound with factor `a + b/|e|`). The bounded case is recovered as `a = 0`.
+
+**2. `BookProof/ChapterNavierStokesLagrangianKatoRellich.lean` — the Lagrangian route.**
+- The transformed Hamiltonian `ĥ_full = ½∑Pᵢ² + ν∑Qᵢ² + ∑fᵢDᵢ + C` is split into its positive second-order part `T` and the low-order remainder (`secondOrder`, `lowOrder`, `hFull_eq_add`).
+- **The positivity gain of the Lagrangian change of variables is turned into the relative bound.** Since every other term of the quadratic form of `T` is nonnegative, `‖Pᵢv‖² = ⟪v,Pᵢ²v⟫ ≤ 2⟪v,Tv⟫ ≤ 2‖v‖‖Tv‖` (`norm_P_sq_le`), and with `√(2AB) ≤ εB + A/(2ε)` this gives `‖Pᵢv‖ ≤ ε‖Tv‖ + (2ε)⁻¹‖v‖` for every `ε > 0` (`norm_P_le`, `norm_sum_P_le`): the first-order terms are `T`-bounded with arbitrarily small relative bound.
+- **Headline:** `hFull_essentiallySelfAdjointOn` / `hFull_hasZeroDeficiencyOn` — essential self-adjointness of the positive second-order part alone (plus a drift dominated by the parcel momenta and a bounded constraint) gives essential self-adjointness of the *full* transformed Hamiltonian. In the physical case where the drift generators are the parcel momenta (`Dᵢ = Pᵢ`, the term `f·∇_X`) the domination is automatic (`drift_dominated_of_drive_eq_P`, `hFull_hasZeroDeficiencyOn_of_drive_eq_P`). `hasZeroDeficiencyOn_of_lagrangian_katoRellich` transports the conclusion back to the Eulerian operator through the unitary change of variables.
+- **Hashimoto/SIRK selection on the Lagrangian side:** `lagrangian_selfAdjoint_extension`, `lagrangian_selfAdjoint_extension_unique`, `lagrangian_hashimoto_selects` and `lagrangian_shiftInvert_selects` — the shift-invert resolvents exist, are bounded by `1/|Im γ|`, share the domain, satisfy the resolvent identity, commute, satisfy the SIRK relation, have strongly convergent Galerkin truncations, and each determines the unique self-adjoint transformed generator. This is obtained from the Kato–Rellich step above, so it is independent of the Eulerian chain.
+- **Non-vacuity and sharpness:** `diagKR` is a genuinely infinite-dimensional instance on `ℓ²(ℕ)` whose drift is *unbounded* (`diagKR_drift_not_bounded`), so the bounded Kato–Rellich theorem does not cover it, while the relative one does (`diagKR_hFull_essentiallySelfAdjointOn`, `diagKR_hashimoto_selects`). Conversely, `jacobiLag_secondOrder_eq_zero` and `jacobiLag_drift_not_relativelyBounded` show that the existing counterexample (an unbounded drift that destroys essential self-adjointness) fails exactly the domination hypothesis, so that hypothesis is not decorative.
+
+Both modules are registered in `BookProof.lean`, and `CONSOLIDATED_PLAN.md` §9 item 9 now records the route as executed with a description of what was proved.
+
+Honest boundary, unchanged: nothing here claims global regularity of the classical Navier–Stokes PDE. Essential self-adjointness of the positive second-order part is a hypothesis of the abstract theorem (verified in the concrete `ℓ²(ℕ)` realization); what the new work supplies is that the first-order drift needs no separate hypothesis, being controlled by that second-order part.
+
+# Summary of changes for run b8124628-4e94-46a4-8625-593a8cf39201
+`CONSOLIDATED_PLAN.md` is now fully executed; the two remaining actionable items (§9 item 1, the verification gate, and §9 item 8, the Navier–Stokes Hashimoto shift-invert selection theorem) are closed.
+
+**§9 item 8 — the NS selection theorem.** Two new `sorry`-free, axiom-clean modules:
+
+- `BookProof/ChapterEsaClosure.lean` (`BookProof.EsaClosure`) supplies the abstract step that was missing: it turns the deficiency-space form of essential self-adjointness into the operator it selects. The graph, its closure, the closed domain and the closed operator are built explicitly, symmetry is carried to the closure, closability and the surjectivity of `i − A` are proved, and the adjoint criterion is established. Headlines: `exists_isSelfAdjointExtension_of_esa` (existence of a self-adjoint extension — the closure — with no positivity, boundedness or semiboundedness), `selfAdjointExtension_eq_adjoint` and `isSelfAdjointExtension_unique_of_esa` (it is the only one), and `positiveExtension_eq_closure_of_esa` (for a positive operator the Friedrichs extension is that same closure). `hashimoto_multishift_selects_esa` is the positivity-free version of the existing `hashimoto_multishift_selects_friedrichs`. A Cayley-transform section (`norm_add_I_eq_norm_sub_I`, `exists_cayley_unitary`, `exists_selfAdjointExtension_and_cayley_of_esa`) carries the selected operator to a surjective linear isometry of the whole space with `U(Ax + ix) = Ax − ix`, without Stone's theorem.
+- `BookProof/ChapterNavierStokesHashimoto.lean` (`BookProof.NavierStokesFlow.NSHashimoto`) instantiates this for the coupled three-component Navier–Stokes fiber Hamiltonian on its finite-mode core (`velCore`): `ns_selfAdjoint_extension`, `ns_selfAdjoint_extension_unique`, `ns_shiftInvert_selects`, and the headline `ns_hashimoto_selects` — for an arbitrary sequence of non-real shifts the SIRK resolvents exist, are bounded by `1/|Im γ|`, share the generator's domain, satisfy the resolvent identity, commute, satisfy the Hashimoto–Nodera rational-Krylov relation, have strongly convergent Galerkin truncations, and each determines the generator completely.
+
+Honest deviation, recorded in the plan: the NS Hamiltonian is not positive, so the extension the algorithm selects is labelled the *closure* (the unique self-adjoint extension) rather than the Friedrichs extension — the two coincide exactly when the operator is positive. Step (c) of the plan item (Stone's theorem, the unitary flow) is not taken and remains the recorded research boundary, as does any claim about global regularity of the classical Navier–Stokes equation; the setting is the abstract sequence-space realization of the fiber Hamiltonian.
+
+Both modules are registered in `BookProof.lean`, `#print axioms`-certified in `BookProof/ChapterRoadmapAudit.lean`, and cited with prose and `#check` blocks in `Book/FreeField.lean`. `BookProof/STATUS.md` and `CONSOLIDATED_PLAN.md` were updated accordingly.
+
+**§9 item 1 — the verification gate, re-run green.** `lake build` (8642 jobs), `lake build RandomMap` (8039) and `lake build UsedRoute` (8049) all completed with zero errors; `patches/build-book.sh` succeeded with its own assertions, and `patches/check-katex.sh` checked 2280 rendered math snippets with 0 KaTeX failures. A `sorry` search across `BookProof/`, `PnpProof/`, `Singularity/` and `RandomMap/` returns only prose mentions; every certified declaration depends on `propext`, `Classical.choice`, `Quot.sound` only. The pre-existing `sorry`s in `UsedRoute/`/`UnusedRoute/` are unchanged legacy items outside the default targets.
+
+All work is committed and pushed.
+
+# Summary of changes for run 3fb0f2d9-535c-4655-bb5f-111fcbc07700
+Both parts of the request are now formalized, `sorry`-free and building (verified with a full `lake build`, all targets green; the new results depend only on `propext`, `Classical.choice`, `Quot.sound`, certified by `#print axioms` lines added to `BookProof/ChapterRoadmapAudit.lean`).
+
+**1. The sign-flip unitary, dropping `c ≥ 0`** — `BookProof/ChapterNavierStokesSignFlip.lean`
+- Essential self-adjointness on a core is proved to be a unitary invariant (`deficiencyTrivialAt_of_intertwine`, `essentiallySelfAdjointOn_of_intertwine`, `symmetricOn_of_intertwine`).
+- The sign flip `(Ux)_β = (−1)^{p β} x_β` is built as a `LinearIsometryEquiv` (`flipU`), shown to preserve the finite-mode core and the maximal domain, with the conjugation rule for hopping Hamiltonians (`shiftH_flip`).
+- Consequently `saffH`, the affine fiber Hamiltonian for an **arbitrary real** constant `c`, is symmetric and essentially self-adjoint on the finite-mode core (`saffH_essentiallySelfAdjointOn_core`), with the `±1` hopping still genuinely present (`saffH_coord_succ`, `saffH_ne_zero_of_shear`); the block assembly is rerun for a family of constants of arbitrary sign (`sblockH_essentiallySelfAdjointOn_core`).
+
+**2. Signed, non-monotone hoppings** — `BookProof/ChapterNavierStokesSignedShift.lean`
+- `SignedHop` carries an arbitrary real amplitude with `|w| ≤ ¼σ + K` (neither non-negative nor monotone), and the two Faris–Lavine bounds plus essential self-adjointness are proved against the majorant `¼σ + K`; `listH_essentiallySelfAdjointOn_core` extends this to a finite family sharing one comparison symbol.
+- Matrix entries on a basis vector (`SignedHop.hFun_single`, `listH_coe`).
+- As a by-product, `gaffH_essentiallySelfAdjointOn_core`: the one-component affine fiber Hamiltonian for `V(u) = κu + c` with **no sign hypothesis at all** on `κ` or `c`.
+
+**3. All three coupled velocity components** — `BookProof/ChapterNavierStokesThreeComponent.lean`
+- Hermite index `Vel = Fin 3 → ℕ`, fiber fields `V_i(u) = ∑_k A_{ik} u_k + c_i` with `A` an arbitrary real 3×3 matrix (no symmetry, positivity or sign assumption) and `c` an arbitrary real vector; `H = ∑_i ½(π_i V_i + V_i π_i)` is assembled as twenty-four hopping terms (diagonal `±2`, shear `±1`, strain double-raising, and the number-conserving vorticity hopping whose amplitude is not monotone), each dominated by `N = μ(2|β|+3)+1`.
+- Headline: `velH_essentiallySelfAdjointOn_core` — the coupled three-component fiber Hamiltonian is essentially self-adjoint on the finite-mode core of `ℓ²(Vel)`, together with `velH_symmetricOn` and density of the core.
+- Non-vacuity: matrix entries `velH_coord_pair` (strain coupling `(A₀₁+A₁₀)/2`), `velH_coord_rot` (vorticity coupling `(A₀₁−A₁₀)/2`), `velH_coord_shear`, `velH_coord_diag`, the non-vanishing statements `velH_ne_zero_of_strain` / `velH_ne_zero_of_vorticity`, and unboundedness `velH_not_bounded`.
+
+Integration: the three modules are imported from `BookProof.lean`, audited in `BookProof/ChapterRoadmapAudit.lean`, described in `BookProof/STATUS.md` (new wave section) and in the prose of `Book/FreeField.lean`. Everything is stated in the Hermite sequence-space realization of the fiber; the differential realization on `L²(du₁du₂du₃)` is not constructed and nothing is claimed about classical Navier–Stokes regularity.
+
+# Summary of changes for run 283fd602-63db-426f-bd5f-734dd91daf42
+`CONSOLIDATED_PLAN.md` is fully executed; the project on `main` is committed and pushed, builds cleanly, and contains no `sorry` and no `axiom` declarations.
+
+What the final stage of the plan required was closing the last recorded research boundary of the Navier–Stokes strand: the earlier essential-self-adjointness result covered only the bilinear advection term (a ±2 hopping in the Hermite basis), leaving the viscous term and the cross terms — which make each fiber field affine, `V(u) = κ_j u + c_j`, and add a ±1 hopping — outside its scope. That boundary is now removed by two new modules:
+
+- `BookProof/ChapterNavierStokesAffineFiberEsa.lean` — the affine fiber Hamiltonian `affH` and the proof `affH_essentiallySelfAdjointOn_core` that it is essentially self-adjoint on the finite-mode core of ℓ²(ℕ). Its engine is a reusable instrument, `PairShift.pairH_essentiallySelfAdjointOn_core`: the sum of two hopping operators dominated by one common comparison symbol is essentially self-adjoint, with explicit Faris–Lavine constants. The file also records the two coordinate formulas (`affH_coord_succ`, `affH_coord_succ_succ`) and `affH_ne_zero_of_pos_shear`, showing the new ±1 hopping is genuinely present.
+- `BookProof/ChapterNavierStokesAffineBlockEsa.lean` — the block assembly over the strain-rate spectrum: `affBlockH_essentiallySelfAdjointOn_core` on ℓ²(ℕ × J) for arbitrary, in particular unbounded, non-negative families `κ`, `c`, together with `affBlockH_not_bounded` (the result is not a boundedness phenomenon) and density of the domain.
+
+Honest boundary, stated in the module docstrings, the book prose and the status file: `c_j ≥ 0` is assumed (a hopping amplitude must be non-negative; the sign-flip unitary that would cover `c < 0` is not formalized), only one velocity component is carried, the setting is the abstract ℓ² matrix picture rather than a differential realization, and no claim is made about global regularity of the classical Navier–Stokes equation.
+
+Integration: both modules are imported from `BookProof.lean` and from the audit chapter, with 19 new axiom-audit lines (all reporting only the standard axioms); the earlier bilinear chapter's boundary note now points at the new results; `Book/FreeField.lean` gained a paragraph and checked references for them; `BookProof/STATUS.md` and `CONSOLIDATED_PLAN.md` record the new wave.
+
+The plan's verification gate was re-run and is green: the full `lake build` succeeds with no warnings or errors, the auxiliary targets build, the book build script exits 0 with the link check passing, the KaTeX check reports 2208 snippets and 0 failures, and the sorry/axiom audit over the proof directories finds only prose mentions.
+
+Possible future work, recorded rather than done: formalizing the sign-flip unitary to drop the `c ≥ 0` hypothesis, and extending to all three coupled velocity components.
+
+# Summary of changes for run 536c520a-3449-4be3-b099-fce168d35db2
+I executed the one outstanding work item of `PLAN_LEAN_SPECIALIST_NS_FLOW.md` — item **E.6, "Method B: BRST doublets and the Gauge-Fixing Fermion"** (every other headline item of that plan was already carried out, and E.5 is explicitly on hold in the plan, so I left it untouched).
+
+**New module: `BookProof/ChapterGaugeFixing.lean`** (namespace `BookProof.GaugeFixing`), fully proved, with no `sorry` and no `axiom` declarations; the headline results depend only on `propext`, `Classical.choice`, `Quot.sound`.
+
+What it contains, matching the plan's sub-items:
+- E.6.1 `BiDegree := ℤ × ℤ` and `addDeg`.
+- E.6.2/E.6.3 the structure `GaugeFixingSystem F`: a bi-graded family of carriers indexed by (form degree, ghost number) with zero/add/sub, a degree-additive product, the exterior derivative `d`, the nilpotent BRST operator `s`, the five fields `φ, v, c, c̄, B`, and the defining relations `s v = c`, `s φ = 0`, `s c̄ = B` plus the graded Leibniz rule across the anti-ghost. These relations are fields of a structure, not `axiom` declarations.
+- E.6.4/E.6.5 `s_c_eq_zero`, `s_B_eq_zero`: the ghost and the auxiliary field are BRST-closed.
+- E.6.6 `Psi`: the Gauge-Fixing Fermion `Ψ = c̄ · (v − dφ)` of bidegree `(2, −1)`, with `gaugeField = v − dφ`.
+- E.6.7 `L_gf_evaluation` (the culminating theorem): `s Ψ = B · (v − dφ) − c̄ · c` — BRST exactness generates exactly the Lagrange-multiplier term enforcing `v = dφ` together with the ghost term.
+- E.6.8 `L_gf_invariant`: `s (s Ψ) = 0`.
+- E.6.9 `BrstIntegral` with `int_L_gf_eq_zero` and `int_L_gf_evaluated`: under any evaluation functional annihilating BRST-exact terms, the gauge-fixing Lagrangian contributes nothing.
+
+Beyond the plan, I added an explicit **non-degenerate model** so that none of the above is vacuous: `matrixModel`, built from `2 × 2` real matrices with the odd differential `s x = Q x − (−1)^g x Q` for the nilpotent `Q = E₁₂`. In it the ghost, the auxiliary field, the Fermion and the gauge-fixing Lagrangian are all non-zero (`matrixModel_c_ne_zero`, `matrixModel_B_ne_zero`, `matrixModel_Psi_ne_zero`, `matrixModel_s_Psi_ne_zero`, with `s Ψ = 1`), and `matrixModelIntegral` is a non-zero evaluation functional satisfying the `BrstIntegral` requirement. This shows the structure's relations are consistent and satisfiable non-trivially.
+
+Integration and verification:
+- Registered the module in `BookProof.lean`; added `#print axioms` entries to `BookProof/ChapterRoadmapAudit.lean`; added a prose paragraph and a `#check` block to `Book/FreeField.lean`.
+- `lake build` (all default targets: BookProof, Book, Singularity) completes successfully; a search confirms no `sorry`/`admit` in the new file; lines are within 100 characters with no trailing whitespace.
+- Updated `PLAN_LEAN_SPECIALIST_NS_FLOW.md`: all E.6 rows moved from TODO to DONE, with an execution record noting where the work landed and the two formalization choices made (the graded Leibniz relation is stated for a general degree-`(1,0)` element, and bidegrees are passed explicitly to the product/subtraction so dependent elaboration never has to guess a degree decomposition).
+
+Nothing here claims anything about the Navier–Stokes continuum problem; as the plan states, this is the abstract algebraic skeleton underlying the concrete BRST charges. All work is committed and pushed.
+
+# Summary of changes for run b1049c3f-072b-483e-8a8d-70dddbc8562a
+I picked up the plan at its last open item and finished it.
+
+**What was completed this session — the selection theorem for the second-quantized Hamiltonian (Part F.11).**
+
+`BookProof/ChapterFockSecondQuantization.lean` already contained the occupation-number Fock space over the one-particle core (`Conf = ℕ →₀ ℕ`, `Fock = ℓ²(Conf)`), the ladder operators with the canonical commutation relation `[a_j, a_j†] = 1`, the second quantization `dΓ(A) = Σ_{j,k} ⟪e_j, A e_k⟫ a_j† a_k`, its symmetry and positivity on the dense finite-occupation domain, and the resulting Friedrichs extension, ending in `ym_fock_friedrichs_extension`. I added the missing final layer:
+
+- `fockConfBasis`, `fockBasisN` — the canonical orthonormal basis of the Fock space, indexed by the configurations and re-indexed by `ℕ`;
+- `finiteModeDomain_fockBasisN` — the key identification: the finite-mode domain of that basis *is* the finite-occupation domain `lpFiniteModes Conf`, so the Galerkin/shift-invert machinery of the earlier parts applies verbatim;
+- `dGammaOpB`, `dGammaOpB_symmetricOn`, `dGammaOpB_quadForm_nonneg` — the second-quantized operator on that domain, symmetric and positive;
+- `dGamma_hashimoto_selects` and `secondQuantization_hashimoto_selects` — for a Hermitian, positive semidefinite, column-finite one-particle matrix (respectively, for an arbitrary symmetric positive one-particle operator on the finite-mode domain of a Hilbert basis) and every shift `γ > 0`: `dΓ(A)` has a positive self-adjoint (Friedrichs) extension `A'`, the shift-inverted operator `R = (A' + γ)⁻¹` satisfies `‖R‖ ≤ γ⁻¹` and is self-adjoint, its Galerkin truncations converge strongly and in the resolvent sense, and `R` determines `A'` uniquely;
+- `ym_fock_hashimoto_selects` — the same conclusion for the second quantization of the concrete field-space Yang–Mills Hamiltonian `H₁ = ½Σπ² + ½ΣB²` on the Gauss–polynomial (product Hermite) core of `L²(ℝ⁹⁹)`;
+- `fockEnum` — a concrete enumeration of the configurations, so the statements are not vacuous.
+
+**Verification.** The module is `sorry`-free and `axiom`-free; `#print axioms` on each new theorem reports only `propext`, `Classical.choice`, `Quot.sound`. The new results are certified by `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` and cited by `#check` in `Book/YangMillsQuantization.lean`; both build. The whole project builds with no errors. I also cleaned up two stale `simp` lint warnings in the module.
+
+**Documentation.** The F.11 row and status paragraph of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` and the corresponding note in `CONSOLIDATED_PLAN.md` were updated to record the selection theorem. With this, every row of the plan's status tables is marked done; `ARISTOTLE_SUMMARY.md` was left untouched.
+
+**Scope.** As throughout this development, no mass gap and no global existence statement is claimed — the Yang–Mills existence and mass-gap problem remains deliberately out of scope. What is proved is the operator-theoretic construction: a symmetric, positive Hamiltonian on a dense core, its Friedrichs extension, and the Hashimoto/SIRK shift-invert limit that selects that extension.
+
+All work is committed and pushed.
+
+# Summary of changes for the Part F run
+
+Executed Part F of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`: the **field-space
+realization of the gauge-fixed Yang–Mills Hamiltonian** on the product Hermite
+core of `L²(ℝ⁹⁹)`.  Two new modules, both `sorry`-free and `axiom`-free:
+
+- `BookProof/ChapterHermiteProductCore.lean` — the Gauss–polynomial (product
+  Hermite) core of `L²(ℝᵈ)`: injectivity of `p ↦ p·e^{-‖x‖²/4}`, density of the
+  core, its identification with the span of the product Hermite functions,
+  Gaussian integration by parts, and an orthonormal basis whose finite-mode
+  domain is exactly the core.
+- `BookProof/ChapterYangMillsHermite.lean` — the coordinate, momentum and
+  magnetic-field operators on that core, the canonical commutation relation
+  `[A_j, π_j] = i` and the Weyl ordering `½(PQ+QP)` it forces, the Hamiltonian
+  `H₁ = ½Σπ² + ½ΣB²` in the positive sum-of-squares convention (symmetric,
+  positive), and the instantiation of the already-proved Friedrichs extension
+  and Hashimoto/SIRK selection theorems by it.
+
+Both modules are imported by `BookProof.lean`, certified with `#print axioms` in
+`BookProof/ChapterRoadmapAudit.lean` (only `propext`, `Classical.choice`,
+`Quot.sound`), and cited from `Book/YangMillsQuantization.lean`.  The Part F
+status rows in `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` and the §11.3/§11.4 records in
+`CONSOLIDATED_PLAN.md` are updated.  `lake build` (all default targets) is green.
+No mass gap and no global existence claim is made.
+
+# Summary of changes for run 12f2f3df-be24-45fa-acbe-e371d04a9574
+Continued and completed the execution of `CONSOLIDATED_PLAN.md`.
+
+**New mathematics landed this session — `BookProof/ChapterHarmonicOscillatorEsa.lean`** (namespace `BookProof.HarmonicOscillator`, builds green, `sorry`-free, `#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`).
+
+The previous wave had closed both *commuting* halves of the "unbounded potential" problem (an arbitrary real potential of temperate growth, and dually an arbitrary real Fourier multiplier), leaving the genuinely non-commuting mixture — a differential kinetic term together with an unbounded polynomial potential — open. That case is now settled in the elliptic normalization:
+
+- `harmonicOsc_essentiallySelfAdjoint` — the harmonic oscillator `-d²/dx² + x²/4` is essentially self-adjoint on the Hermite core of `L²(ℝ)`;
+- `harmonicOscOp_apply_eq_differential` — the substance of the result: the diagonal operator with eigenvalues `n + ½` sends the `n`-th Hermite basis vector to the `L²` class of `x ↦ -ψ_n''(x) + (x²/4) ψ_n(x)`, with the second derivative in the usual sense, so the statement really is about the differential operator and not about a diagonal matrix;
+- supporting results: `hermiteC_oscillator` (eigenvalue equation for the complexified Hermite functions), `memLp_harmonicDifferential`, `harmonicOsc_symmetric` (symmetry on the core) and `harmonicOsc_not_bounded` (the operator is genuinely unbounded).
+
+The construction reuses the project's existing Hermite orthonormal basis and real eigen-equation, and its existing deficiency computation for diagonal operators on the Hermite core, rather than duplicating them.
+
+**Integration and verification**
+- Module registered in `BookProof.lean`; the six new theorems are certified with `#print axioms` in `BookProof/ChapterRoadmapAudit.lean`, which rebuilds green with only the standard axioms.
+- Cited from the book: a new paragraph plus `#check` block in `Book/DiffeomorphismsGravity.lean`; the whole book re-renders through the build wrapper with its asserts holding, and the math check reports 2135 snippets, 0 failures.
+- Documentation updated: new wave sections in `BookProof/STATUS.md` and `STRICHARTZ_WAVE_ESA.md`, a new leading status block plus a §9.5 update in `CONSOLIDATED_PLAN.md`.
+- Full verification gate re-run and green: `lake build` (8630 jobs), `lake build RandomMap` (8039 jobs) and `lake build UsedRoute` all succeed with no errors; no `sorry` and no `axiom` declaration in `BookProof/`, `PnpProof/`, `Singularity/`, `RandomMap/` (only prose mentions of the words); the isolation greps are empty. The 28 remaining `sorry`ed declarations are the quarantined legacy Riemann-route ones in `UsedRoute/` / `UnusedRoute/`, which are not default build targets and which the plan records as deep, out-of-scope content; I inspected several and confirmed they are the Riemann-hypothesis-equivalent statements the plan describes, not technical residue.
+- One recorded caveat carried forward unchanged: the hyperbolic version of the mixed case (removing the truncation in `□ + W`) is still not claimed, and the plan's original wording of that item needs the sign correction documented in `STRICHARTZ_WAVE_ESA.md`.
+
+All work is committed and pushed.
+
+# Summary of changes for run 318cf929-fcff-49a1-aefd-97f537d7b519
+## What was done
+
+The Hermite work is now complete and sorry-free, and it has been extended to the "core" itself and to the gauge-fixed quantum-gravity Hamiltonian. Two chapters, both imported from `BookProof.lean`; the whole library builds.
+
+### `BookProof/ChapterHermiteFunctions.lean` — the Hermite orthonormal basis of L²(ℝ)
+The three remaining gaps (Fourier uniqueness) were closed, so the chapter is now entirely proved:
+- `hermiteR`, `derivative_hermiteR`, `hermiteR_ode` — the probabilists' Hermite polynomials and their ODE.
+- Integrability of polynomials against `e^{-x²/2}`, `e^{-x²/4}`, and integration by parts on ℝ (`gint_ibp`).
+- `hermiteInner_eq` — orthogonality: `∫ Hₘ Hₙ e^{-x²/2} = δₘₙ · n! · √(2π)`.
+- `orthonormal_hermiteLp` — the normalized Hermite functions `ψₙ(x) = Hₙ(x) e^{-x²/4}/√(n!√(2π))` are orthonormal in L².
+- `integral_fourier_mul_comm` (the multiplication formula `∫ (𝓕f) g = ∫ f (𝓕g)`), `ae_eq_zero_of_fourier_eq_zero`, `fourier_gaussH_mul_eq_zero`, `ae_eq_zero_of_moments` — the Fourier route to completeness; the exponential series of `e^{iax}e^{-x²/4}u` is dominated by `e^{|a||x|}e^{-x²/4}|u|`.
+- `hermiteLp_span_dense` and `hermiteBasis` — completeness: the Hermite functions form a Hilbert basis of L²(ℝ).
+- `hermiteFun_oscillator` — `−ψₙ'' + (x²/4)ψₙ = (n + ½)ψₙ`.
+
+### `BookProof/ChapterStrichartzHermiteQG.lean` — the Hermite core and the Hamiltonians
+- `hermiteCore` — the **Hermite core**: finite linear combinations of Hermite functions (polynomials times the Gaussian), with `hermiteCore_dense`.
+- `hermiteDiagOp` / `hermiteCoreOp lam` — the operator diagonal in the Hermite basis with arbitrary real symbol `lam`, on its maximal domain and on the core, with `H ψₙ = lam n · ψₙ`.
+- `hermiteCoreOp_symmetric`; `hermiteCoreOp_deficiencyTrivialAt` (the Strichartz-type "trivial deficiency at every non-real z" input, proved); `hermiteCoreOp_essentiallySelfAdjoint` — essential self-adjointness on the core; `hermiteCoreOp_not_bounded` — unbounded whenever the symbol is, so the statement is not a bounded-operator triviality.
+- `oscillator_essentiallySelfAdjoint_on_hermiteCore` — the harmonic oscillator `−d²/dx² + x²/4` on the core, tied to the pointwise eigenvalue equation.
+- `qg3DModeSymbol`, `qg3DHermiteHamiltonian` and `qg3D_essentiallySelfAdjoint_on_hermiteCore` — the **3D gauge-fixed quantum-gravity mode Hamiltonian**, whose symbol is the densitized hyperbolic form `(1/16)Σ_{a<3} ξ_a² − (1/24) ξ_y²` from the earlier gravity chapter plus a real potential, is essentially self-adjoint on the Hermite core; `qg3D_not_bounded` records that it is unbounded. `qgMode_essentiallySelfAdjoint_on_hermiteCore` gives the same for the earlier one-mode symbol, now realized on L²(ℝ) rather than abstractly on ℓ²(ℕ).
+
+### Verification
+Both chapters build with no `sorry`, no `axiom`, and no linter warnings; the main theorems depend only on `propext`, `Classical.choice`, `Quot.sound`. The full default target `BookProof` builds successfully with the new imports. A summary of the new material is in `HERMITE_CORE_STRICHARTZ.md`; `ARISTOTLE_SUMMARY.md` was left untouched. All work is committed and pushed.
+
+
+# Summary of changes for run 09a53d98-ff41-46b3-8e8d-1243c2efd0b8
+I executed the plan for a Strichartz-type essential self-adjointness (ESA) theorem for hyperbolic wave operators. Three new Lean files were added, all `sorry`-free and axiom-free (only `propext`, `Classical.choice`, `Quot.sound`), all wired into `BookProof.lean`; the whole `BookProof` library builds (8425 jobs, no errors).
+
+**Phase 1 — framework.** The requested von Neumann deficiency-index setup already existed in the project (`BookProof/ChapterFarisLavine.lean`: `SymmetricOn`, `DeficiencyTrivialAt`, `EssentiallySelfAdjointOn` for a linear map out of a domain submodule), so it was reused rather than duplicated.
+
+**Phase 2 — the operator** (`BookProof/ChapterStrichartzWave.lean`). `SpaceTime n = EuclideanSpace ℝ (Fin (1+n))` (index 0 = time); `waveOp n κ` is `□ + κ = -∂_t² + Δ_x + κ`, a special case of the general constant-coefficient operator `constCoeffOp c w κ = ∑ᵢ cᵢ ∂²_{wᵢ} + κ`. The domain is the Schwartz core `schwartzDomain`, transported into L² by `opL2`. `fourier_constCoeffOp_apply` shows the Fourier transform turns the operator into multiplication by its real symbol.
+
+**Phase 3 — cut-offs and the energy step.** `exists_smooth_cutoff` gives, for each radius R, a smooth compactly supported cut-off equal to 1 on the ball of radius R, valued in [0,1], vanishing outside radius R+1, with bounded gradient. For constant-coefficient operators the energy/light-cone estimates are replaced by an exact Fourier computation: Plancherel plus the realness of the symbol give symmetry, and dividing test functions by `symbol − z̄` kills the deficiency equation.
+
+**Phase 4 — the theorems.**
+- `wave_essentiallySelfAdjoint`: `□ + κ` (real constant κ) is essentially self-adjoint on the Schwartz core of L²(ℝ^{1+n}); both deficiency spaces vanish.
+- `constCoeffOp_essentiallySelfAdjoint`: the same for every constant-coefficient operator with real symbol (so also for the Laplacian).
+- `wave_symmetric`: symmetry of the wave operator on that core.
+- `BookProof.KatoRellich.essentiallySelfAdjointOn_add_bounded` (`BookProof/ChapterKatoRellichDeficiency.lean`): a bounded symmetric perturbation preserves ESA — proved from scratch in the deficiency formulation by an explicit Neumann series over finite sums of domain vectors, so no operator closure or spectral theory is needed.
+- `wave_add_potential_essentiallySelfAdjoint` (`BookProof/ChapterWaveBoundedPotential.lean`): `□ + V` is essentially self-adjoint on the Schwartz core for every real-valued, essentially bounded potential V, the potential acting through the multiplication operator `mulL2` (bounded by Hölder).
+
+**Scope note.** The core used is the Schwartz space rather than `C_c^∞`, since it is the Fourier-invariant core the proof needs. The plan's unbounded potential class (‖∇V x‖ ≤ c‖x‖ + d) is *not* proved: the results cover essentially bounded real potentials and, exactly, all constant-coefficient operators with real symbol. A phase-by-phase map from the plan to the Lean names, including this limitation, is in `STRICHARTZ_WAVE_ESA.md`.
+
+# Summary of changes for run 6208feec-584f-4595-8060-715a0507973c
+I adapted the shift-invert theory in `BookProof.HashimotoShiftInvert` to the setting of the attached Hashimoto–Nodera paper: shifts that are **complex with non-zero imaginary part**, and a **different shift at every step** (the rational Krylov / SIRK construction). The new material is in `BookProof/ChapterHashimotoComplexShifts.lean` (same namespace), is `sorry`-free and axiom-free, and the whole project builds (8622 jobs, no errors); each headline result is certified in `BookProof/ChapterRoadmapAudit.lean` to depend only on `propext`, `Classical.choice`, `Quot.sound`. A claim-by-claim map from the paper to the Lean names is in `HASHIMOTO_COMPLEX_SHIFTS.md`.
+
+What is proved:
+
+1. **Non-real shift ⇒ invertibility, with no positivity.** `cshiftMap` is `γI − A`; `norm_cshiftMap_ge` gives `‖(γ − A)x‖ ≥ |Im γ|·‖x‖` for a merely *symmetric* `A`. So the imaginary part of the shift alone bounds the shifted operator below — positivity of the Hamiltonian, which the previous real-shift chapter needed, is no longer used anywhere. `cshiftRange_isClosed`, `cshiftRange_orthogonal_eq_bot` and `cshiftMap_surjective` then make `γI − A` a bijection of the domain onto the whole space for every self-adjoint `A`.
+
+2. **The resolvent `X = (γI − A)⁻¹`.** `IsShiftInvertC` / `exists_isShiftInvertC` produce it as a bounded everywhere-defined operator with `‖X‖ ≤ 1/|Im γ|` (`IsShiftInvertC.opNorm_le`). Its range is the domain of `A` and it determines `A` completely (`dom_eq_range`, `shiftInvertC_determines`, `isShiftInvertC_unique`). At a non-real shift `X` is no longer self-adjoint: `IsShiftInvertC.inner_adjoint` shows its adjoint is the resolvent at the conjugate shift. `isShiftInvertC_neg_of_isShiftInvert` shows the earlier real positive-shift notion is the special case `γ = −c`, so the previous results are subsumed rather than discarded (the old chapter is unchanged, with a pointer added to the new one).
+
+3. **Many different shifts.** `shiftInvertC_resolvent_identity` (`X_j − X_k = (γ_k − γ_j)X_jX_k`), `shiftInvertC_commute` (resolvents at different shifts commute — proved with no side hypotheses), and `shiftInvertC_comp_one_sub`, the SIRK relation `X_j(I − (γ_m − γ_j)X_m) = X_m` of Section 4. The rational Krylov sequence and subspaces `Q_m({X_j}, v)` of Eq. (8) are `rkVec` / `rkSpan`, and `sirkDen_rkVec` is Eq. (11) in cleared-denominator form: `∏_{i<k}(I − (γ_m − γ_i)X_m)` maps the k-th rational Krylov vector `X_{k−1}⋯X_0 v` to `X_m^k v`, i.e. the space built from many shifts is a space of rational functions of the single resolvent `X_m`. `rkCompression_tendsto` gives strong convergence of the compressions along a dense rational Krylov flag.
+
+4. **Headline.** `hashimoto_multishift_selects_friedrichs`: for any positive self-adjoint extension `A` of a symmetric matrix in a complete basis — no boundedness hypothesis anywhere — and any sequence of shifts off the real axis, the resolvents exist, are bounded by `1/|Im γ_j|`, share the domain of `A` as their range, satisfy the resolvent identity, commute, satisfy the SIRK and rational-function identities, have strongly convergent Galerkin truncations, and each determines `A`.
+
+5. **A genuinely unbounded example with non-real shifts.** Complex diagonal operators on `ℓ²(ℕ,ℂ)` are built (`diagCLMC`), and `ell2Resolvent_isShiftInvertC` identifies the resolvent of the number operator `A eₙ = n eₙ` at any non-real `γ` as the explicit diagonal `eₙ ↦ eₙ/(γ − n)`. `hashimoto_multishift_unbounded_example` establishes every clause of the headline for that operator with an arbitrary sequence of non-real shifts, together with the fact that the matrix the algorithm is fed satisfies no bound `‖Hx‖ ≤ C‖x‖`.
+
+Scope: the operator-theoretic content is proved in full generality; the paper's approximation *rates* (Theorems 3.2, 3.3, 4.1, the φ-functions and the Crouzeix constant) are rational-approximation estimates and are not formalized here — this is stated in the module docstring and in `HASHIMOTO_COMPLEX_SHIFTS.md`. All work is committed and pushed, and the Properties table lists the new deliverables as proved.
+
+# Summary of changes for run db4f3f30-0651-499e-b291-7c1a5a2f21f9
+The convergence-to-Friedrichs theory now covers **unbounded** Hamiltonians, exactly via the shift-invert trick, in the new chapter `BookProof/ChapterHashimotoShiftInvert.lean` (namespace `BookProof.HashimotoShiftInvert`). It builds cleanly with no `sorry` and no extra axioms (each headline result is audited in `BookProof/ChapterRoadmapAudit.lean` and reports only `propext, Classical.choice, Quot.sound`); the new chapter is imported from `BookProof.lean`.
+
+What is proved:
+
+1. **Why the effective Hamiltonian is bounded.** `norm_shiftMap_ge`: for a positive Hamiltonian `H`, `‖(H + γ)x‖ ≥ γ‖x‖`. The shifted operator is bounded *below*, however unbounded `H` is, so what the algorithm iterates — `R = (H + γ)⁻¹` — is bounded *above*: `IsShiftInvert.opNorm_le` gives `‖R‖ ≤ 1/γ`.
+
+2. **`R` always exists, with no extra hypothesis.** `shiftMap_injective` and `shiftMap_surjective` show `H + γ` is a bijection for every positive self-adjoint `H` (the range is closed and has trivial orthogonal complement), and `exists_isShiftInvert` produces the bounded everywhere-defined `R`. `R` is also self-adjoint and positive.
+
+3. **Nothing is lost.** `shiftInvert_determines` / `isShiftInvert_unique`: the bounded `R` pins down both the domain and the action of the unbounded operator it came from. Conversely, `invShiftOperator R γ = R⁻¹ − γ` on `range R` reconstructs the operator, and `invShiftOperator_isPositiveSelfAdjointExtension` shows it is a positive self-adjoint (Friedrichs) extension of its restriction — so the bounded object the algorithm converges to corresponds to the correct unbounded Hamiltonian.
+
+4. **The headline theorem.** `hashimoto_shiftInvert_selects_friedrichs`: given *any* positive self-adjoint extension `A` of a finite-mode Hamiltonian matrix — with **no boundedness hypothesis anywhere** — there is `R` with `IsShiftInvert A γ R`, `‖R‖ ≤ 1/γ`, `R` self-adjoint and positive, the Galerkin/Hashimoto truncations of `R` converging strongly to `R`, their resolvents converging to the resolvent of `R`, and `R` determining `A` uniquely. This is the earlier bounded-case result freed of its boundedness assumption.
+
+5. **A genuinely unbounded example, so nothing is vacuous.** In `ℓ²(ℕ, ℂ)` the number operator `A eₙ = n eₙ` on `{x : ∑ (n+1)²|xₙ|² < ∞}` is built (`ell2UnboundedExample`); its shift-invert at `γ = 1` is the bounded diagonal `eₙ ↦ eₙ/(n+1)` with norm `≤ 1`. `ell2ExampleMatrix_unbounded` proves the matrix handed to the algorithm is unbounded (no constant `C` bounds it), and `hashimoto_shiftInvert_unbounded_example` establishes all conclusions of the headline theorem for it.
+
+The Properties table has been updated with these deliverables; all listed properties are marked proved.
+
+# Summary of changes for run 3c4e7fec-c8cf-4e07-b8d3-d68bd7700ff9
+I formalized the argument you gave — that a Galerkin/Rayleigh–Ritz (Hashimoto/Krylov) truncation in a complete Hermite-type basis needs no boundary condition, because the truncation is a minimization of the energy form and its limit is the extension the energy form determines — in a new Lean module `BookProof/ChapterHermiteGalerkinFriedrichs.lean` (namespace `BookProof.HermiteGalerkin`). It is `sorry`-free, adds no axioms (every result depends only on `propext`, `Classical.choice`, `Quot.sound`, certified by new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`), and the full project build plus the book render and KaTeX checks pass.
+
+What is proved, following your three steps:
+
+1. The Rayleigh–Ritz connection, with **no boundedness hypothesis**: `galerkinSpan`/`galerkinCompression` (the subspace and the matrix `PₘAPₘ`), `inner_galerkinCompression` — on the truncation subspace the compressed matrix carries *exactly* the energy form `⟨ψ,Hψ⟩`; `ritzSet`/`ritzInf` with `ritzInf_antitone` (enlarging the subspace lowers the minimum) and `ritzInf_tendsto_domainInf` (the Ritz values converge to the infimum of the energy form over the whole domain). `ritzInf_extension_le` adds that this limit dominates the ground-state energy of *every* positive self-adjoint extension — the extension attaining it being the one whose form is the closure of the form of `H`.
+
+2. Completeness of the basis: `galerkinProj_tendsto` (`Pₘ → I` strongly), `exists_mem_galerkinSpan` (every finite-mode vector already lies in a finite truncation subspace, so the flag exhausts the domain where the matrix elements live), `finiteModeDomain_dense`, and the general `starProjection_tendsto_of_monotone_dense`.
+
+3. The limit: `galerkinCompression_tendsto` (`PₘAPₘ → A` strongly), the resolvent bound `‖(A−z)⁻¹‖ ≤ 1/|Im z|` (`norm_sub_smul_ge`, `isUnit_algebraMap_sub`, `norm_resolvent_apply_le`), **strong resolvent convergence** `resolvent_tendsto_of_strong_tendsto` / `galerkinResolvent_tendsto` — `(PₘAPₘ − z)⁻¹ → (A − z)⁻¹` strongly at every non-real `z` — and `positive_selfadjoint_extension_unique` (via Hellinger–Toeplitz plus density: nothing is left for the algorithm to choose). These combine in the headline `hermiteGalerkin_selects_friedrichs`.
+
+Non-vacuity is checked: `finiteModeRestrict_hypotheses` and `finiteModeRestrict_selects_operator` show the hypotheses hold for the matrix elements of any bounded positive self-adjoint operator and that the algorithm recovers exactly that operator, while `finiteModeDomain_ne_top` shows the finite-mode domain is a genuinely *proper* dense subspace of `ℓ²(ℕ,ℂ)`, so this is not the degenerate everywhere-defined case.
+
+Scope, stated in the module docstring and in the new `HERMITE_GALERKIN_FRIEDRICHS.md` (a claim-by-claim map from your text to the Lean names): step 3 carries an explicit boundedness hypothesis on the operator on its domain, exactly as the project's earlier bounded-regime results do; for a genuinely unbounded, non-essentially-self-adjoint Hamiltonian the identification of the Galerkin limit with the Friedrichs extension is **not** proved here (only steps 1 and 2 are unconditional), and nothing about the indeterminate Stieltjes moment problem, Padé approximants or Nevanlinna-extremal measures is formalized. The Hermite basis enters only through orthonormality and completeness, so the theorems are stated for an arbitrary Hilbert basis indexed by ℕ, with `ell2Basis` as the concrete model.
+
+The module is imported from `BookProof.lean`, cited from the Verso chapter `Book/YangMillsQuantization.lean`, and recorded in `BookProof/STATUS.md`. All work is committed and pushed.
+
+# Summary of changes for run 15aab37f-d2ed-4545-a446-72f66dc8bf05
+Executed `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` (Quantum Yang–Mills, the Friedrichs route) and updated `ARISTOTLE_SUMMARY.md`.
+
+**Re-verification of the existing plan.** Every name listed in the plan's four tables exists in `BookProof/ChapterYangMillsFriedrichs.lean` (with the two cross-references in `BookProof/ChapterWeylHamiltonian.lean` and `BookProof/ChapterH9.lean`); the module rebuilds, contains no `sorry`/`admit`, and its twelve axiom certifications in `BookProof/ChapterRoadmapAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound`. So Parts A (the Weyl-gauge Hamiltonian `H = ½Σπᵢ² + ½ΣBₐ²` on an invariant domain: symmetric, sum-of-squares quadratic form, semi-bounded), B (the form inner product, its Cauchy–Schwarz inequality, closability of the form), C (the Friedrichs theorem as a named hypothesis, satisfiable, applied) and the proved half of D stand as claimed.
+
+**New work — the two places the plan stopped, both now closed under an explicit boundedness hypothesis.** A new module `BookProof/ChapterYangMillsFriedrichsLimit.lean` (`sorry`-free, no new axioms) adds:
+
+*Part C, extension constructed rather than assumed:*
+- `friedrichs_of_bounded` — a densely defined symmetric positive operator whose norm is bounded on its domain has an explicitly constructed positive self-adjoint extension (its continuous extension to the whole space), with all four clauses of `IsPositiveSelfAdjointExtension` proved. On this class the Friedrichs hypothesis that Part C had to name is discharged.
+- `symmetricOn_top_of_dense`, `quadForm_top_nonneg_of_dense` — the density arguments behind it.
+- `friedrichs_bounded_proper_domain_example` — the class is not the degenerate "domain = whole space" one: in ℓ²(ℕ,ℂ) the span of the canonical orthonormal basis is dense and proper (via `not_mem_span_of_repr_ne_zero` and the harmonic ℓ² vector), and the construction applies there.
+
+*Part D.4, previously recorded as a prose conjecture because the Krylov limit operator was not constructed:*
+- `sirkCompression`, `krylov_starProjection_tendsto`, `sirk_compression_tendsto` — for a bounded operator with a cyclic seed the Hashimoto/SIRK compressions `Pₙ A Pₙ` converge to `A` in the strong operator topology;
+- `sirk_limit_unique` — no other bounded operator agrees with the limit on the Krylov flag;
+- `sirk_limit_eq_positive_selfadjoint_extension` and `weyl_friedrichs_bounded` — the combination: in the bounded regime the infinite Hashimoto limit is exactly the constructed positive self-adjoint extension, stated in general and for the Weyl-gauge Yang–Mills Hamiltonian.
+
+**Wiring and verification.** The module is imported from `BookProof.lean`, certified by eleven new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the standard three axioms), and cited from the Verso chapter `Book/YangMillsQuantization.lean`. The plan file gains rows C.5–C.7 and D.5–D.8 with a dated status note (its D.4 row now reads "conjecture in general, proved in the bounded regime"), and `ARISTOTLE_SUMMARY.md` has a new section at the top. The full default build completes successfully (8619 jobs, 0 errors); a search finds no `sorry`/`admit` in the Yang–Mills modules. All work is committed and pushed.
+
+**Scope.** Nothing here claims self-adjointness of the unbounded continuum Yang–Mills operator, a mass gap, or global existence; the Millennium problem stays out of scope. Every new result carries an explicit boundedness hypothesis — that is exactly what makes the extension constructible and the Krylov limit an operator limit — and for unbounded operators the Friedrichs theorem remains a named hypothesis, never an axiom, with D.4 still a conjecture.
+
+# Summary of changes for the continuation run (2026-08-17b, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`: the Friedrichs extension constructed, and the Hashimoto/SIRK limit proved, in the bounded regime)
+Executed `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` (Quantum Yang–Mills, the Friedrichs route) and updated this file.
+
+**Re-verification of the existing Parts A–D.** Every name listed in the plan's four tables exists in `BookProof/ChapterYangMillsFriedrichs.lean` (with the two cross-references in `BookProof/ChapterWeylHamiltonian.lean` and `BookProof/ChapterH9.lean`); the module rebuilds, contains no `sorry`/`admit`, and its twelve `#print axioms` certifications in `BookProof/ChapterRoadmapAudit.lean` report only `propext`, `Classical.choice`, `Quot.sound`. So Part A (the Weyl-gauge Hamiltonian `H = ½Σπᵢ² + ½ΣBₐ²` on an invariant domain, symmetric, with sum-of-squares quadratic form, semi-bounded), Part B (the form inner product, its Cauchy–Schwarz inequality, and `form_closable`), Part C (the Friedrichs theorem as a named hypothesis, satisfiable, applied) and the proved half of Part D stand as claimed.
+
+**New work — the two places the plan stopped, both closed under an explicit boundedness hypothesis.** A new module `BookProof/ChapterYangMillsFriedrichsLimit.lean` (`sorry`-free, `axiom`-free) adds:
+
+*Part C.5–C.7 — the Friedrichs extension built rather than assumed.*
+* `friedrichs_of_bounded` — for a densely defined symmetric positive operator whose norm is bounded on its domain, the positive self-adjoint extension is **constructed**: it is the continuous extension of the operator to the whole space, and all four clauses of `IsPositiveSelfAdjointExtension` (agreement on the domain, symmetry, positivity, the adjoint condition) are proved for it. This discharges, on that class, the hypothesis that Part C had to name.
+* `symmetricOn_top_of_dense`, `quadForm_top_nonneg_of_dense` — the two density arguments behind it: symmetry and form positivity extend from a dense subspace to the whole space for a continuous operator.
+* `friedrichs_bounded_proper_domain_example` — the class is not the degenerate `D = ⊤` one: in `ℓ²(ℕ, ℂ)` the span of the canonical orthonormal basis is dense and *proper*, and the construction applies to it. Properness comes from `not_mem_span_of_repr_ne_zero` (a vector with all basis coefficients non-zero — the harmonic sequence, `memℓp_one_div_succ` — is not a finite linear combination of basis vectors).
+
+*Part D.5–D.8 — the Hashimoto/SIRK limit as an operator limit.* The plan recorded D.4 ("the infinite Hashimoto limit selects the Friedrichs extension") as a conjecture because the limit of the Krylov flag was not constructed. In the bounded regime it now is:
+* `sirkCompression` — the order-`n` compression `Pₙ A Pₙ` along the Krylov flag of a seed;
+* `krylov_starProjection_tendsto` — for a cyclic seed the Krylov projections converge strongly to the identity;
+* `sirk_compression_tendsto` — hence `Pₙ A Pₙ → A` in the strong operator topology;
+* `sirk_limit_unique` — no other bounded operator agrees with the limit on the Krylov flag;
+* `sirk_limit_eq_positive_selfadjoint_extension` — the two halves combined: a bounded symmetric positive `H` on a dense domain has the constructed positive self-adjoint extension `A`, and for any cyclic seed the infinite Hashimoto limit of the compressions of `A` is exactly `A`;
+* `weyl_friedrichs_bounded` — the same statement for the Weyl-gauge Yang–Mills Hamiltonian of Part A.
+
+**Wiring.** The new module is imported from `BookProof.lean`, certified by eleven new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (each reporting only `propext`, `Classical.choice`, `Quot.sound`), and cited from the Verso chapter `Book/YangMillsQuantization.lean` (two new paragraphs and `#check` blocks). `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` gains rows C.5–C.7 and D.5–D.8 and a dated status note; the D.4 row now reads "conjecture in general, proved in the bounded regime".
+
+**Verification.** `lake build BookProof.ChapterRoadmapAudit Book.YangMillsQuantization` completes successfully (8339 jobs, no errors, no warnings from the new file); `rg` finds no `sorry`/`admit` in either Yang–Mills Friedrichs module; no `axiom` declarations were added.
+
+**Scope, unchanged.** Nothing here claims self-adjointness of the *unbounded* continuum Yang–Mills operator on `L²(ℝ⁹⁹ × ℤ₂³¹)`, a mass gap, or global existence; the Millennium problem stays out of scope. Every new result carries an explicit boundedness hypothesis, which is exactly what makes the extension constructible and the Krylov limit an operator limit; for unbounded operators the Friedrichs theorem remains a *named* hypothesis, never an axiom, and D.4 remains a conjecture.
+
+# Summary of changes for run 2326a121-8c01-410a-a1ea-cc8a7b4da721
+Executed `PLAN_LEAN_SPECIALIST_QG_FLOW.md` (the Quantum Gravity "densitized route", Parts A–D) and updated `ARISTOTLE_SUMMARY.md`.
+
+**Re-verification of Parts A–D.** I checked that all 35 headline names of the plan's four tables actually exist in `BookProof/ChapterQuantumGravityDensitized.lean`, rebuilt the module, and re-ran the 20 `#print axioms` certifications that `BookProof/ChapterRoadmapAudit.lean` carries for it. Every one reports only `propext`, `Classical.choice`, `Quot.sound`, and the module contains no `sorry`/`admit`. So Parts A (change of variables and the corrected absorption identity `1/e = 4(∂y/∂e)²`), B (flat, indefinite/hyperbolic principal part and vanishing Christoffel symbols), C (Hermite-basis realization: unbounded, essentially self-adjoint, trivial deficiency at every non-real point) and D.1–D.4 stand as claimed.
+
+**New work — Part D.5: the half-density unitary, constructed rather than assumed.** The plan's honest boundary recorded that the raw point map is not a Hilbert-space unitary and that "the transfer theorem takes that unitary as data". For the conformal factor that gap is now closed, in a new module `BookProof/ChapterQuantumGravityHalfDensity.lean`:
+
+- `qgJacobian`, `qgHalfDensity`, `qgSrcMeasure` — the Jacobian `de/dy = 2y` of the change of variables `e = y²`, the half-density factor `√(2y)`, and the weighted measure `2y dy` on `(0,∞)`; `qgSrcMeasure_density_eq_halfDensity_sq` records that the weight is exactly the square of the half-density factor.
+- `measurePreserving_qgSquare` / `measurePreserving_qgSqrt` — the change of variables pushes `2y dy` forward to Lebesgue measure `de` on `(0,∞)`, and conversely, proved from the one-dimensional change-of-variables formula.
+- `halfDensityUnitary` — the resulting unitary `L²((0,∞), de) ≃ₗᵢ[ℂ] L²((0,∞), 2y dy)`, with the pointwise formulas `halfDensityUnitary_apply` (`(W g)(y) = g(y²)` a.e.), `halfDensityUnitary_symm_apply`, the norm identity `halfDensityUnitary_norm`, and `exists_halfDensity_unitary`.
+- `qg_halfDensity_transfer` — the Part D.4 transfer theorem instantiated at this concrete unitary, so the unitary is no longer a hypothesis of the transfer step.
+
+**Wiring and verification.** The new module is imported from `BookProof.lean`, certified by seven new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (all reporting only the three standard axioms), and cited from the chapter `Book/DiffeomorphismsGravity.lean`. `lake build` on the default targets (`BookProof`, `Book`, `Singularity`) completes successfully with 8618 jobs and no errors or in-file warnings; no `sorry`/`admit` and no `axiom` declarations were added.
+
+**Documentation.** `ARISTOTLE_SUMMARY.md` gains a new dated section for this run (appended; nothing earlier was altered), `BookProof/STATUS.md` describes the new module, and `PLAN_LEAN_SPECIALIST_QG_FLOW.md` gains a `D.5` row plus a note.
+
+**Scope, unchanged.** Nothing claims essential self-adjointness of the continuum gravity operator, global existence, or any unitary-evolution result. The Strichartz finite-speed input remains an explicit named hypothesis, shown satisfiable on the discretized realization but not asserted for the continuum; the BRST/gauge sector remains outside the transfer argument; and the constructed unitary covers the conformal factor `e = y²`, not the full tetrad map.
+
+All work is committed and pushed.
+
+# Summary of changes for run e77c5104-3df1-473e-a464-57b5a3667903
+Completed execution of `CONSOLIDATED_PLAN.md`.
+
+**What was outstanding and is now closed.** Every earlier plan item was already landed; the remaining actionable work was the two "suggested next step" items (§10.3 Quantum Gravity, §11.3 Quantum Yang–Mills) plus a full re-run of the §8 verification gate. Both are done.
+
+**New Lean development (both modules `sorry`-free and `axiom`-free; every new result depends only on `propext`, `Classical.choice`, `Quot.sound`):**
+
+- `BookProof/ChapterQuantumGravityDensitized.lean` — the densitized-tetrad change of variables (`densY = √e`, the tetrad `densTetrad` and its determinant/recovery lemmas), the absorption of the singular `1/e` coefficient (`inv_eq_four_mul_deriv_densY_sq`, `kinetic_absorption`, `conformal_absorption`), the flat principal part (`qgSymbol`, `qgSymbol_eq_metric_form`, `qgSymbol_indefinite` showing it is hyperbolic rather than elliptic, and `christoffel_eq_zero_of_const` / `qgMetric_christoffel_zero` showing the point transformation produces no connection corrections), the Hermite-basis realization of the fiber operator (unbounded, essentially self-adjoint on its maximal domain, trivial adjoint deficiency at every non-real point), and the Strichartz finite-speed input carried as an explicit *named hypothesis* (never an axiom), shown satisfiable, together with the unitary transfer step back to the physical variables.
+- `BookProof/ChapterYangMillsFriedrichs.lean` — the densely defined Weyl-gauge Yang–Mills Hamiltonian `H = ½Σπᵢ² + ½ΣBₐ²`, its symmetry, the sum-of-squares quadratic form and its nonnegativity (semi-boundedness), a general theory of the associated form inner product with the form Cauchy–Schwarz inequality and the headline closability theorem `form_closable`, and the Friedrichs extension as a named theorem yielding the conditional conclusion `weyl_friedrichs_extension` (a positive self-adjoint extension), plus the SIRK best-approximation facts.
+
+Honest boundaries are preserved and stated in the sources: nothing is claimed about essential self-adjointness of the continuum gravity operator, about self-adjointness of the continuum Yang–Mills operator, about the mass gap, or about global existence. The §11.2 "infinite Hashimoto limit selects the Friedrichs extension" sentence is deliberately kept as prose-only conjecture (no non-trivial Lean rendering is available without the limit operator).
+
+**Integration and documentation.** Both modules are registered in `BookProof.lean`, certified with `#print axioms` in `BookProof/ChapterRoadmapAudit.lean`, and cited from `Book/DiffeomorphismsGravity.lean` and `Book/YangMillsQuantization.lean`. Two new plan documents (`PLAN_LEAN_SPECIALIST_QG_FLOW.md`, `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`) were written in the existing NS-FLOW style; `CONSOLIDATED_PLAN.md` records the closures and the gate result, and `BookProof/STATUS.md` records the wave.
+
+**Verification gate (§8), all green:**
+- `lake build` over the default targets (BookProof + Book + Singularity) — 8617 jobs, no warnings (a stray emphasis-markup warning in the new book prose was fixed).
+- `lake build RandomMap` — successful.
+- `./patches/build-book.sh` — the book renders and both assertions (no `<base>` tag, fragment links present) pass; the new citations appear in the rendered output. `patches/check-katex.sh` reports 2088 math snippets, 0 KaTeX failures. (The shell scripts had lost their executable bits in this checkout; restored.)
+- Sorry/axiom audit: no `sorry` and no `axiom` declarations in `BookProof/`, `PnpProof/`, `Singularity/`, `RandomMap/`. The pre-existing, quarantined `sorry`s in `UsedRoute/` (not a default target) were left untouched.
+- Isolation audit: no `import PnpProof` in `BookProof/`, `Book/`, `Singularity/`, `RandomMap/`, and no `import UnusedRoute` in `RandomMap/`.
+
+All changes are committed and pushed.
+
+# Summary of changes for run 6ed4b907-e639-4563-ac0b-19e66caaea8e
+Completed execution of `CONSOLIDATED_PLAN.md`.
+
+**§8 verification gate — green.**
+- `lake build` (default targets: BookProof + Book + Singularity): "Build completed successfully (8615 jobs)", 0 errors.
+- `lake build RandomMap`: green. `lake build UsedRoute`: green (0 errors).
+- `./patches/build-book.sh`: OK (no `<base>`; fragment links present). `./patches/check-katex.sh`: 2069 snippets, 0 KaTeX failures.
+- sorry/axiom/isolation audits over `BookProof/ PnpProof/ Singularity/ RandomMap/`: clean.
+
+**Plan item A.7 (second-derivative gauge generator) — closed.** New module `BookProof/ChapterNavierStokesGaugeY2.lean`, sorry-free and axiom-clean (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`). It defines the second-order velocity field `uField2` (u_i + u_{i,j}y_j + ½·u_{i,jj}y_j² — the factor ½ is forced and was missing from the plan's informal version), the derivative field `uDField`, and the generator `genY2`, and proves: `genY2_uField2` (annihilation of the second-order field), `genY2_uDField`, `genX_uField2`, the symbol results `genY2_nsSymbol2`, `genX_nsSymbol2` and `setYZero_nsSymbol2` (collapse to the ordinary Navier–Stokes symbol at y = 0), sharpness (`genY_uField2_ne_zero`, `genY2_uField_ne_zero`, `genY2_uField2_perturbed_ne_zero`), and the algebra structure (`genY2_genY2_commute`, `genX_genY2_commute`, plus the honest non-commutation `genY_genY2_bracket_X_u` / `genY_genY2_not_commute`). Wired into `BookProof.lean`, the `#print axioms` audit block in `BookProof/ChapterRoadmapAudit.lean`, and the book text in `Book/FreeField.lean`.
+
+**Cosmetic item A.1 — closed.** `BookProof/ChapterF1.lean` now provides `positionOp` (alias of `fieldPhi`) with `positionOp_eq_creat_add_annih`.
+
+**Hygiene: `UsedRoute` library build repaired.** `UsedRoute/TwoLimits.lean` had no imports at all and `UsedRoute/SimplifiedStrategy.lean` was missing two; adding them makes `lake build UsedRoute` succeed. I then closed six sorries in `UsedRoute/SimplifiedStrategy.lean` (10 → 4): `σ_P_tendsto`, `corrected_partial_sums_bounded`, `S_smooth_analyticAt`, `f_P_analyticOnNhd`, `eulerProd_analyticOnNhd`, `eulerProd_ne_zero`, and `eulerProd_tendsto` (partial Euler products converge to 1/ζ on Re > 1, via Mathlib's Euler product for ζ). `σ_P_lt_one` was **false as stated** (σ_P 0 = 3/2, σ_P 1 = 1); it is restated with the hypothesis `2 ≤ P` and the reason is documented in a comment above it. Across `UsedRoute/` 26 legacy RH-route declarations still use `sorry` (down from 33); these are the deep RH-equivalent statements. `UsedRoute` is not a default build target and `RandomMap` imports only its sorry-free modules, so this does not affect the gate.
+
+**Docs kept in sync:** `BookProof/STATUS.md`, `CONSOLIDATED_PLAN.md` (gate marked done, A.7 and A.1 closed, new §7 entry recording the UsedRoute repair and residue), and `PLAN_LEAN_SPECIALIST_NS_FLOW.md` (A.7 row marked proved with the ½ correction noted). Executable bits on `patches/*.sh` were restored.
+
+All work is committed and pushed.
+
+# Summary of changes for run c517942d-f40b-4570-9abe-c6e7feb4979e
+I added the second coordinate `y` to the Navier–Stokes constraint formalization, in a new sorry-free, axiom-free module `BookProof/ChapterNavierStokesGaugeY.lean` (namespace `BookProof.NavierStokesGaugeY`), registered in `BookProof.lean`, cited from the book prose in `Book/FreeField.lean` and recorded in `BookProof/STATUS.md`.
+
+**Setting.** The canonical variables are now the space coordinate `x_j`, the second coordinate `y_j`, the velocity modes `u_i`, the derivative modes `u_{i,j}` and the second-derivative modes `u_{i,jj}` (`NSVar`), realized as the generators of the polynomial algebra `NSAlg`, with the conjugate momenta acting as partial derivatives (the same realization as the existing Navier–Stokes modules).
+
+**The field in the Hamiltonian.** `uField i = u_i + ∑_j u_{i,j} y_j`, i.e. `u_i(y)`, with `uField_pderiv_y`: `u_{i,j} = ∂u_i(y)/∂y_j`.
+
+**The two gauge generators.**
+* `genX j = ∂/∂x_j` — the standard momentum; `genX_ccr_x` is its canonical commutation relation `[π^j, x_k·] = δ^j_k`.
+* `genY j = ∂/∂y_j − u_{i,j} ∂/∂u_i` — the generator involving the derivatives of `u_i`; `genY_ccr_y` shows it is the momentum conjugate to `y`, and `genY_shifts_velocity` (`[G_j, u_i·] = −u_{i,j}`) shows the accompanying shift of each velocity mode by its own first derivative. Both obey the Leibniz rule (`genY_leibniz`, `genX_leibniz`).
+
+**Proved results.** Both generators annihilate the field (`genY_uField`, `genX_uField`) and the Hamiltonian symbol `A_i = u_j(y) u_{i,j} − ν u_{i,jj}` (`genY_nsSymbol`, `genX_nsSymbol`); the gauge algebra is abelian, hence first class (`genX_genX_commute`, `genX_genY_commute`, `genY_genY_commute`); and `u_{i,j}` is the only admissible coefficient of `y_j` — perturbing it by a non-zero constant destroys the invariance (`genY_uField_perturbed_ne_zero`).
+
+**`y = 0` in the initial state.** Algebraically, evaluating `y := 0` (`setYZero`) collapses the field to its point value (`setYZero_uField`: `u_i(0) = u_i`) and the symbol to the ordinary Navier–Stokes one (`setYZero_nsSymbol`). In operator form, on a state annihilated by the second-coordinate operators the field acts as `u_i` (`uFieldOp_apply_of_y_zero`) and the full Hamiltonian `∑_i (π^i A_i + A_i π^i)` built from `u_i(Y)` acts exactly as the one built from the point values (`hamiltonianOp_apply_of_y_zero`, under the assumption that the modes and momenta commute with the second-coordinate operators, so the `y = 0` subspace is invariant).
+
+**Verification.** `lake build BookProof` and `lake build Book` both complete successfully; the new file contains no `sorry`, and spot checks of the headline theorems report only the standard axioms (`propext`, `Classical.choice`, `Quot.sound`). Everything is committed and pushed. As before, nothing here claims anything about the continuum Navier–Stokes problem; these are the algebraic identities of the constrained finite construction.
+
+# Summary of changes for run d3e09870-489a-462f-914c-909606f0ccb2
+I executed `PLAN_LEAN_SPECIALIST_NS_FLOW.md`.
+
+**Where the plan already stood.** Auditing the project against the plan's "definition of done", every headline item of Parts A.1–A.4, B, C, D, E.1–E.2, F and G was already present and building in `BookProof/ChapterNavierStokesFlow.lean` (and the companion Navier–Stokes modules): the field-with-derivatives construction, the CCR family, the Lagrangian change of variables and volume preservation, the truncated Hermitian Hamiltonian, the complete unitary flow with no blow-up, the BRST nilpotency and divergence resolution, and the Faris–Lavine framing. The two gaps were **Part A.5** (the Eulerian constraints) and the optional **E.3** (hermiticity of the BRST charge).
+
+**What I added** — a new module `BookProof/ChapterNavierStokesEulerian.lean` (registered in `BookProof.lean`, cited from the book prose in `Book/FreeField.lean`, recorded in `BookProof/STATUS.md`), containing:
+
+* `dirDeriv` with `dirDeriv_eq`, `dirDeriv_coord`, `dirDeriv_dirDeriv` — partial derivatives of a field on ℝ³ in directional form, identified with the Fréchet derivative along the coordinate directions;
+* `u_evaluates_to_value` — the Eulerian velocity field `u_i(X) = u_i + u_{i,j}(X_j − x_j)` collapses to its point value on position eigenstates;
+* `eulerian_momentum_constraint` and `eulerian_momentum_dual` — the zeroth-order CCR `[u_j, π^k] = i δ^k_j` and the Kronecker pairing `π^{ij}(u_{k,l})` that makes each derivative mode an independent canonical variable;
+* `derivativeField_relates_to_field` (`u_{i,j} = ∂_j u_i`), `derivativeField_second` (`u_{i,jk} = ∂_k u_{i,j}`), `derivativeField_consistency` (Clairaut: mixed partials commute) — the gauge-generator constraints;
+* `eulerian_divergence_constraint` — incompressibility `∂_j u_j = 0` from the explicit substitution `u_{3,3} = −(u_{1,1}+u_{2,2})`, plus `cyclicShear_divergence_free` showing the constrained space is non-empty (the non-constant field `u_i(x) = x_{i+1}`).
+
+**On the optional item E.3.** The statement "the BRST charge is Hermitian" is false: I proved its negation, `nsBrst_not_hermitian` (whenever the divergence field is non-zero, `Ωᴴ ≠ Ω`, consistent with the already-proved `nsBrst_adjoint`), together with the Hermitian packaging `nsBrst_symmetrization_hermitian` for `Ω + Ω†`.
+
+**Scope kept as the plan requires.** Nothing here claims essential self-adjointness of the continuum Navier–Stokes operator or global existence/uniqueness for Navier–Stokes; the module docstring records that boundary and the gauge-generator vs. explicit-solution taxonomy.
+
+**Verification.** `lake build` (default targets `BookProof`, `Book`, `Singularity`) completes with no errors and no warnings; the Verso book also builds and renders through its patch/render/post-process pipeline (I additionally fixed the one pre-existing markup warning in `Book/YangMillsQuantization.lean`). The new module contains no `sorry`/`admit` and no `axiom`; `#print axioms` on every new theorem shows only `propext`, `Classical.choice`, `Quot.sound`. Generated book HTML under `_out/` is now git-ignored. All results are recorded in the Properties table, and all work is committed and pushed.
+
+# Summary of changes for run 5f49886b-b1fd-46dd-b31c-516244f2e747
+Both Faris–Lavine inequalities are now proved in Lean for the Navier–Stokes Hamiltonian itself — at the one-particle level and, generalized, on Fock space — with no `sorry` and using only the standard axioms (`propext`, `Classical.choice`, `Quot.sound`).
+
+**What is proved**
+
+1. *One-mode (fiber) Hamiltonian* — `BookProof/ChapterNavierStokesHermiteFarisLavine.lean`.
+   The symmetrised transport operator `h = ½(πV + Vπ)` in the oscillator basis, with comparison operator `N`. Proved: symmetry, the relative bound `‖Hx‖² ≤ ½‖Nx‖² + 2κ²‖x‖²`, the form-commutator bound `|⟨x, i[H,N]x⟩| ≤ (2κ+4κ²)⟨x, Nx⟩`, that the commutator form is **not** identically zero, and essential self-adjointness on the finite-configuration core.
+
+2. *Canonical identification* — `BookProof/ChapterNavierStokesHermiteCanonical.lean`.
+   The operators `π`, `u`, `V` are built from creation/annihilation operators; proved `[π, u] = −i` (genuinely non-commuting), `π² + V² + I = N` (the comparison operator really is the sum of the squares of the individual non-commuting pieces), `½(πV + Vπ) = H`, and ESA in the canonical form.
+
+3. *Abstract framework* — `BookProof/ChapterNavierStokesShiftHamiltonian.lean`.
+   A reusable `ShiftData` structure over an arbitrary index set packaging the structural hypotheses (hopping amplitude dominated by ¼ of the symbol plus a constant, constant energy step). Proved once and for all: symmetry, an explicit series formula for the commutator form `2Δ ∑ w(β) Re(x̄_β x_{sβ})`, the relative bound `‖Hx‖² ≤ ½‖Nx‖² + 8K²‖x‖²`, the commutator bound `|⟨x, i[H,N]x⟩| ≤ 2Δ(¼+K)⟨x, Nx⟩` (this is exactly the `2ab ≤ a² + b²` step: the cross terms `π·V` are absorbed by `π² + V²`), and ESA.
+
+4. *Fock-space generalization* — `BookProof/ChapterNavierStokesFockManyMode.lean` and `BookProof/ChapterNavierStokesFockCanonical.lean`.
+   `Ĥ = dΓ(h) = ∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ)` on occupation-number space, with `N̂ = ∑ᵢ(πᵢ² + Vᵢ²) + I`. Proved: symmetry; the relative bound `‖Ĥx‖² ≤ (d²/2)‖N̂x‖² + 2d(∑κᵢ²)‖x‖²`; additivity of the commutator form over modes; the commutator bound with `c = ∑ᵢ(2κᵢ + 4κᵢ²)`; the canonical identities `[πᵢ, uᵢ] = −i`, `∑ᵢ(πᵢ² + Vᵢ²) + I = N̂`, `∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ) = Ĥ`; and essential self-adjointness of `Ĥ` on the finite-configuration core, in both the abstract and the canonical presentation.
+
+**Completed this session.** The remaining gap was the non-triviality of the Fock-space commutator. It is now closed: `fock_commForm_ne_zero` exhibits the explicit test state `e₀ + e_{2eᵢ₀}` (vacuum plus two quanta in one mode) at which `⟨x, i[Ĥ, N̂]x⟩ = 8√2 κ_{i₀}² > 0` whenever the strain rate in that mode is positive. Supporting lemmas (`testState_coe`, the injectivity and separation facts for the two-quantum shift, and the mode-by-mode vanishing away from `i₀`) are all proved. So the Faris–Lavine criterion is being applied to a genuinely non-vanishing commutator, not a trivial one — which was the substantive point of the request.
+
+The five modules build cleanly with no errors and no linter warnings, are imported into `BookProof.lean`, and contain no `sorry`, `axiom`, or `@[implemented_by]`. All results are recorded in the Properties table. Everything is committed and pushed; `ARISTOTLE_SUMMARY.md` was left untouched.
+
+# Summary of changes for run 27624b8e-51a3-49e9-97e6-a48653ab79b8
+I supplied and proved the pieces that were previously missing from the essential–self-adjointness (ESA) route for the Navier–Stokes Hamiltonian, including the Ikebe–Kato-type input for the one-particle operator in the momentum representation. Three new modules were added (all `sorry`-free, `axiom`-free — only `propext`, `Classical.choice`, `Quot.sound` — and the whole project builds).
+
+**1. `BookProof/ChapterNavierStokesIkebeKato.lean` — the Ikebe–Kato input, proved.**
+For an arbitrary index set, multiplication by a real symbol `c` is taken on its *maximal* domain `maxDom c` in `ℓ²` (all states whose product with the symbol is again square summable), with operator `diagMax c`. Proved there:
+- symmetry, and the quadratic form `⟪x, Nx⟫ = ∑ₖ c(k)|xₖ|²`, hence positivity, and `N ≥ I` for a symbol `≥ 1`;
+- `diagMax_add_one_surjective`: `N + 1` maps the maximal domain **onto** the whole space for a non-negative symbol — the one consequence of self-adjointness of `N` that the Faris–Lavine argument uses;
+- `exists_finiteModes_graph_approx`: the finite-mode states (the momentum-space stand-in for `C_c^∞`) are an **operator core**, i.e. truncations converge in the graph norm of `N`;
+- `diagMax_essentiallySelfAdjointOn` (ESA on the maximal domain) and `ikebeKato_momentum` (ESA already on the finite-mode core);
+- `essentiallySelfAdjointOn_finiteModes_of_farisLavine_bounds`: **any** symmetric Hamiltonian on that domain which is relatively bounded by `N` and whose form commutator with `N` is dominated by `N` is essentially self-adjoint on the finite-mode core. The Faris–Lavine criterion is no longer a named hypothesis here — it is the theorem already proved in the project (`FarisLavine.essentiallySelfAdjointOn_core_of_farisLavine`).
+
+**2. `BookProof/ChapterNavierStokesMomentumEsa.lean` — the Navier–Stokes specialisations.**
+`nsSymbol = ∑ᵢpᵢ² + ∑ᵢqᵢ² + 1 ≥ 1` is the momentum symbol of `n = ∑ᵢπᵢ² + ∑ᵢVᵢ² + I`, and `nsComparison_restrict_eq` identifies the restriction of the maximal-domain operator to the finite-mode core with the existing `ComparisonData.comparison`. Consequences: the fiber comparison operator is self-adjoint on its maximal domain and ESA on the core (`nsComparison_ikebeKato`), and `ns_hamiltonian_essentiallySelfAdjointOn_core` gives ESA of the one-particle Navier–Stokes Hamiltonian from the two Faris–Lavine inequalities alone. In the occupation-number representation the bosonic Fock space over the fiber is `ℓ²` over configurations `ℕ →₀ ℕ` and `N̂ = dΓ(n) + I` is again a multiplication operator, by the total-energy symbol `Σ(α) = ∑ₖ α(k)n(k) + 1` (`fockSymbol`, with `fockSymbol_add` recording additivity of `dΓ` over particles); the same machinery then yields `navierStokes_fock_hamiltonian_essentiallySelfAdjointOn_core` — ESA of the second-quantized Navier–Stokes Hamiltonian on the finite-particle, finite-mode core — and its deficiency-predicate form.
+
+**3. `BookProof/ChapterNavierStokesMomentumPerturbation.lean` — non-vacuity.**
+`H = N + B` with `B` the symmetric rank-two operator built from two maximal-domain states satisfies both Faris–Lavine inequalities, hence is ESA on the core; and for the symbol `c(k) = k+1` this `H` is genuinely unbounded (`pertHam_not_bounded`) with non-vanishing commutator form (`exists_commForm_ne_zero`, value `−2` at an explicit state), so the criterion is not being applied in the commuting or bounded case.
+
+I also recorded, in the older Fock chapter's docstring and in the book chapter `Book/FreeField.lean`, that the earlier rendering of the criterion (relative bound plus commutator bound, with no positivity of `N` and no surjectivity of `N + 1`) is refutable by the project's own limit-circle Jacobi example, and that the new modules are the hypothesis-free replacement.
+
+**What is still assumed.** Only the two Faris–Lavine inequalities for the Hamiltonian itself (the relative bound `‖Hx‖² ≤ a‖Nx‖² + b‖x‖²` and the form-commutator bound `± i[H,N] ≤ cN`); verifying them for a continuum Navier–Stokes generator is not done here. Essential self-adjointness of the continuum Hamiltonian and global existence are not claimed.
+
+# Summary of changes for run cd6ee44b-2e89-4328-a5c5-8b69046ded4d
+The Faris–Lavine commutator criterion is now formalized and **proved** in the project, in the new module `BookProof/ChapterFarisLavine.lean` (namespace `BookProof.FarisLavine`, registered in `BookProof.lean`). It is `sorry`-free and `axiom`-free (`#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`), and the whole project (`lake build`) compiles.
+
+What is in the module, following Faris & Lavine, *Commutators and self-adjointness of Hamiltonian operators*, Commun. Math. Phys. 35 (1974), 39–48:
+
+- **Notions.** `SymmetricOn`, `DeficiencyTrivialAt` (triviality of a deficiency space of the adjoint at a point `z`), `EssentiallySelfAdjointOn` (triviality at both `i` and `−i`), and the two quadratic forms `quadForm N x = ⟪x, Nx⟫` and `commForm H N x = ⟪x, i[H,N]x⟫`, with `commForm_eq` identifying the latter with `−2 Im⟪Hx, Nx⟫`. The paper's two-sided estimate `± i[H,N] ≤ cN` is rendered as `|commForm H N x| ≤ c · quadForm N x`.
+- **Theorem 1** (`essentiallySelfAdjointOn_of_farisLavine`): for `H` Hermitian and `N` positive on a common domain, with `N + 1` mapping the domain onto the space and the commutator bound above, `H` is essentially self-adjoint. The paper's resolvent estimate is isolated as `deficiencyTrivialAt_of_farisLavine`; the passage from the conjugate pair `± d i` (with `2|d| > c`) to `± i` is supplied by `dense_range_of_deficiencyTrivialAt`, `exists_weak_graph_limit` and `deficiencyTrivialAt_of_dense_range`. Hypothesis (i) of the paper, `𝒟(N) ⊆ 𝒟(H)`, is built into the statement by the common domain; density of the domain is not assumed — it follows from surjectivity of `N + 1`.
+- **Corollary 1.1** (`essentiallySelfAdjointOn_core_of_farisLavine`): the core version, with the relative bound `‖Hf‖² ≤ a‖Nf‖² + b‖f‖²` and a graph-approximation hypothesis expressing that the subspace is a core for `N`, via the reusable `essentiallySelfAdjointOn_restrict_of_graph_core`.
+- **A sharpness result** (`not_farisLavine_criterion_of_relative_bound`): the version of the criterion that the project previously carried as a named hypothesis — symmetry on a dense domain plus a relative bound and a commutator bound, with *no* positivity or self-adjointness of `N` — is false. The refutation takes the limit-circle Jacobi operator already in `BookProof/ChapterNavierStokesDeficiency.lean` with `N = H`, which satisfies both inequalities yet is not essentially self-adjoint. So the positivity of `N` and the surjectivity of `N + 1` in the proved theorem are load-bearing.
+- **An unbounded application** (`mulHamiltonian_essentiallySelfAdjoint`): multiplication by an arbitrary real sequence on its maximal domain in `ℓ²(ℕ)` is essentially self-adjoint, obtained from Theorem 1 with `N = |lam|` and `c = 0`; `mulHamiltonian_not_bounded` confirms the operator is genuinely unbounded when its symbol is.
+- **Tie-in to the existing chapters** (`hasZeroDeficiencyOn_of_farisLavine`, with the bridge lemma `essentiallySelfAdjointOn_iff_hasZeroDeficiencyOn`): the conclusion is delivered in the project's own predicate `BookProof.NavierStokesFlow.HasZeroDeficiencyOn`, so the criterion that `ns_esa_of_farisLavine_dense` had to assume is now available as a proved theorem (in its corrected form).
+
+The paper's time-dependent Theorems 2 and 3, and the concrete Schrödinger/Dirac applications (Theorems 4–6), are not formalized here; the abstract criterion and its corollary — the part the project needed — are.
+
+`BookProof/STATUS.md` records this wave; `ARISTOTLE_SUMMARY.md` was left untouched. All work is committed and pushed.
+
+# Summary of changes for run 32da737e-67b3-4106-a20b-695c5b0a5401
+I continued the SIRK-nesting work by adding the **spectral and approximation-theoretic side** of the statement that the Hashimoto SIRK approximation orders nest, in a new module `BookProof/ChapterH9.lean` (registered in `BookProof.lean`, cited from the book prose in `Book/FreeField.lean` §"Dimensional Reduction", and recorded in `BookProof/STATUS.md`).
+
+Previously the project proved that the *approximants* nest (subspace tower, block compatibility of the reduced generators, projection refinement, band containment). What was missing was any statement about the frequencies and the actual approximation quality. The new module proves, for the reduced generators `Bₖ = Vₖ*XVₖ`:
+
+- **The numerical ranges nest**: `W(Bₘ) ⊆ W(Bₙ) ⊆ W(X)` for `m ≤ n` (`numRange_compress_subset`, `numRange_compress_mono`, `numRange_compress_chain`), with the uniform envelope `W(X) ⊆ {|z| ≤ ‖X‖}` and the same containment for the convex hulls.
+- **The operator norms nest**: `‖Bₘ‖ ≤ ‖Bₙ‖ ≤ ‖X‖` (`norm_compress_mono`, `norm_compress_le`).
+- **The Ritz values and whole Ritz spectra nest**: an eigenvalue of a coarse reduced generator is a Rayleigh quotient of every finer one and of `X` (`ritz_mem_numRange`, `ritz_mem_numRange_compress`), so real bounds proved at a fine order bind the coarse Ritz values; in finite dimensions this upgrades to `σ(Bₘ) ⊆ W(Bₙ)` and `σ(B) ⊆ W(X)`.
+- **Positivity and any real spectral window survive compression** at every order.
+- **The hypotheses are realized**: the headline `sirk_numRange_nested_orders` (any nested pair of orthonormal bases) and `sirk_numRange_krylov` (the orthonormal Krylov bases the method actually builds) carry no abstract hypotheses.
+- **The best-approximation error is antitone in the order** (`krylov_bestApprox_antitone`), with the Krylov subspaces shown finite-dimensional so the orthogonal projection exists, and `krylov_bestApprox_tendsto_zero`: for a dense Krylov flag (cyclic seed) the error tends to 0. These are the *unconditional* form of the band nesting — no Crouzeix inequality is used.
+
+Honest boundaries are recorded in the module docstring, the book prose and the status file: convergence of the numerical ranges to `W(X)` is not claimed, convexity of the numerical range (Toeplitz–Hausdorff) is neither used nor claimed, no convergence *rate* is claimed, and Crouzeix's inequality remains a named hypothesis of the earlier chapter rather than an axiom. The write-up also flags the direction that matters: because the numerical ranges grow with the order, a bound of the form `C·sup_{W(B)}|f|` is non-decreasing in the order, so the band decay comes from approximation quality, not from shrinking ranges.
+
+Verification: `lake build` (default targets), the book build wrapper and the KaTeX check (2018 snippets, 0 failures) are all green with no warnings from the new file; every new headline is `sorry`-free and depends only on `propext`, `Classical.choice`, `Quot.sound`; no `axiom` declarations were added. All work is committed and pushed.
+
+# Summary of changes for run 8155a25b-45b2-4dec-9c48-979aaae844e2
+I completed the Fock-space Faris–Lavine thread and integrated it into the book.
+
+**What is proved (all `sorry`-free, only the standard axioms `propext`, `Classical.choice`, `Quot.sound`), in three new modules registered in `BookProof.lean`:**
+
+1. `BookProof/ChapterNavierStokesSecondQuant.lean` — Fock space as the ℓ² direct sum of particle sectors, with the finite-particle domain `fockCore` (`fockCore_dense`, and `fockCore_ne_top`: it is a *proper* dense subspace, so nothing here is a disguised bounded-operator statement), the second quantization `fockOp = dΓ` acting sector by sector, and the lifting theorem `fockOp_hasZeroDeficiencyOn`: if every sector operator has vanishing adjoint deficiency on its own core, so does `dΓ(A)` on the finite-particle domain (your Step 2).
+
+2. `BookProof/ChapterNavierStokesFarisLavineLift.lean` — the one-particle comparison operator `n = ∑ᵢπᵢ² + ∑ᵢVᵢ² + I` (`ComparisonData`, `comparison`), its symmetry, its quadratic form, and `comparison_ge_norm_sq` (`n ≥ I`, unconditional because `V²` is a square). In the momentum representation the operator is essentially self-adjoint on the finite-mode core (`diagComparison_hasZeroDeficiencyOn`) while being genuinely unbounded (`diagComparison_not_bounded`) — this is the fiber-space form of your Step 1.
+
+3. `BookProof/ChapterNavierStokesFockFarisLavine.lean` — the bounds transferred to Fock space: `fockOp_norm_le_of_sectors`, `fockOp_norm_inner_le_of_sectors`, `fockOp_commDom` (the commutator of second quantizations is the second quantization of the sector commutators), the new `fockOp_ge_norm_sq` / `fockComparison_ge_norm_sq` (`N̂ ≥ I` survives second quantization), and the assembled `fockOp_hasZeroDeficiencyOn_of_farisLavine`. A concrete comparison operator `N̂ = dΓ(n) + I` is shown essentially self-adjoint on a proper dense finite-particle domain (`fockComparison_hasZeroDeficiencyOn`, `fockComparison_dense`, `fockComparison_domain_ne_top`).
+
+**Correction to Step 3 of your argument.** The form-commutator bound lifts as you described (with one caveat: it must be stated in modulus, since for symmetric constituents `⟪ψ,[H,N]ψ⟫` is purely imaginary, so its real part carries no information). The *operator* bound does **not** lift by the triangle inequality: the chain uses `∑ₖ‖nₖψ‖ ≤ ‖∑ₖ nₖψ‖`, which is false. This is formalized as `not_forall_norm_sum_le_of_pointwise` — two operator pairs with `‖hₖx‖ ≤ ‖nₖx‖` for every `x`, yet `‖(n₀+n₁)v‖ < ‖(h₀+h₁)v‖`. What does lift is the pairwise-dominated hypothesis (`norm_sum_le_of_pairwise`), and that is the form used in the assembly.
+
+**Scope, stated plainly.** Essential self-adjointness of the *continuum* Navier–Stokes Hamiltonian is not claimed, and global existence is not claimed anywhere. The Faris–Lavine criterion enters as an explicit named hypothesis (never an axiom), and the Ikebe–Kato-type input for the one-particle operator is realized in the momentum representation rather than as a general Schrödinger-operator theorem on `C_c^∞(ℝ³³)`, which would require Sobolev/distribution machinery not present in Mathlib.
+
+**Integration and verification.** Prose plus `#check` blocks for the new headline results were added to `Book/FreeField.lean`, and a new wave entry to `BookProof/STATUS.md`. `lake build` (default targets), `lake build RandomMap`, `lake build Book`, the book HTML build and the KaTeX check all pass (1996 math snippets, 0 failures); a `sorry`/`admit` search over the new files is clean, and axiom checks on the headline theorems show only the standard three. Everything is committed and pushed.
+
+# Summary of changes for run d3d8d247-de13-4ea4-aae7-e163956dabd0
+Continued the Navier–Stokes Hamiltonian essential-self-adjointness (ESA) development after the change of variables to the Lagrangian parcel variables X. All work is in `BookProof/ChapterNavierStokesFockLagrangian.lean` and `BookProof/ChapterNavierStokesFockParcels.lean`; the whole project builds cleanly (8599 jobs, 0 errors), the new material contains no `sorry` and no new axioms (`#print axioms` on every headline theorem reports only `propext`, `Classical.choice`, `Quot.sound`).
+
+State of the argument (previously established, verified again here):
+* the transformed Hamiltonian in the Lagrangian momentum representation is multiplication by the total classical symbol and is essentially self-adjoint for arbitrary measurable symbols;
+* second-quantized over all parcel-number sectors of the continuum Fock space it remains essentially self-adjoint, and for the physical symbols (advection = total kinetic energy) it is genuinely unbounded;
+* the Eulerian Hamiltonian inherits vanishing adjoint deficiency along a supplied unitary change of variables.
+
+New this session:
+* `momFock_core_ne_top` — the ESA domain is a *proper* dense subspace. An explicit `L²` state (`tailState`), supported on an unbounded set of momenta of finite total measure built from the intervals `[k, k+2⁻ᵏ]`, lies in the Fock space but outside the domain; so ESA here is not a bounded-operator statement in disguise.
+* `mulD_eq_zero_of_eigen` and `LagSymbols.hFull_eq_zero_of_eigen` — a multiplication-type Hamiltonian whose total symbol has a null level set at λ has no eigenvector at λ.
+* `volume_sum_level`, `volume_sum_sq_level`, `fockR_total_level` — every level set of the coordinate sum is a proper affine subspace hence Lebesgue-null in each nonempty parcel sector, and consequently every nonzero level set of the total energy is Fock-null.
+* `momFock_no_eigenvector` — no nonzero energy (real or complex) is an eigenvalue: the spectrum is purely continuous above the vacuum.
+* `momFock_vacuum_eigenvector` (with `norm_vacState`) — the no-parcel vacuum is a unit eigenvector of energy zero, so the hypothesis λ ≠ 0 above is sharp.
+
+Documentation: the module docstring of the parcels file and the "Latest wave" section of `BookProof/STATUS.md` were updated to describe the proper-core and spectral results; `ARISTOTLE_SUMMARY.md` was left untouched. The Properties table has been reconciled: all listed properties are marked proved, with the new entries for the proper core, the eigenvector criteria, and the vacuum.
+
+Scope: no claim of global existence (or any other statement about solutions) for Navier–Stokes is made anywhere, and essential self-adjointness of the Eulerian continuum generator remains conditional on being handed the unitary change of variables.
+
+# Summary of changes for run 7cd4538c-60de-4ff5-8acf-7d5c0009abeb
+I continued the essential-self-adjointness (ESA) work for the Navier–Stokes Hamiltonian in the Lagrangian variables `X`, in a two-level Fock (Fock-of-a-Fock) setting. Everything below builds and is `sorry`-free; `#print axioms` on the headline results shows only `propext`, `Classical.choice`, `Quot.sound`. A full `lake build` of the project completes successfully.
+
+**The Fock-of-a-Fock framework** (`BookProof/ChapterNavierStokesFockSpace.lean`)
+- Occupation-number Fock space `FockL2 M` over configurations `Conf M = M →₀ ℕ`, its dense finite-particle domain `FockDom M` (`fockDom_dense`), and a proof that this domain is a *proper* subspace (`fockDom_ne_top`) — so the ESA statements are genuinely about unbounded operators on a proper core.
+- `FockOfFockL2 J K = FockL2 (J × Conf K)`: the Fock space whose one-particle modes are a parcel mode together with an inner Fock occupation state, i.e. two levels of creation/annihilation operators.
+- Ladder operators `annih`/`creat` with the canonical commutation relations `ccr_same` (`[aₘ, a†ₘ] = 1`), `ccr_ne`, and adjointness `creat_adjoint`.
+
+**The Hamiltonian** (`BookProof/ChapterNavierStokesFockEsa.lean`)
+- `dGamma ω` — second quantization `dΓ(ω) = ∑ₘ ωₘ a†ₘaₘ`, with `dGamma_eq_sum_numberOp` making the quadraticity in the ladder operators explicit, `dGamma_hasZeroDeficiencyOn` (ESA for an arbitrary, in particular unbounded, real symbol) and `dGamma_not_bounded`.
+- `dGamma_inner_eq_integral` — the Hamiltonian written as an integral of operators over a continuous domain: `⟪v, dΓ(ω)v⟫ = ∫ w(ξ)⟪v, N(ξ)v⟫ dξ`, with `N(ξ)` the number-density operator.
+- `hTwoLevel_hasZeroDeficiencyOn` — ESA on the Fock space of a Fock space.
+- **`lagrangianFock_hasZeroDeficiencyOn`** — the requested headline: the full transformed Hamiltonian `ĥ_full = ½∑Pᵢ² + ν∑Qᵢ² + ∑fᵢDᵢ + C` in the Lagrangian variables `X`, second-quantized on the Fock-of-a-Fock space, is essentially self-adjoint on the dense finite-particle domain, with no boundedness assumption; `nsFullData_hasZeroDeficiencyOn_of_fockLagrangian` transports this back to the Eulerian operator through a unitary change of variables.
+- A concrete realization over `Ω = ℝ` with Lebesgue measure (interval mode densities, unbounded external field `ξ ↦ ξ²`), including the integral form and unboundedness of the resulting operator.
+
+**The genuinely continuous-spectrum case** (`BookProof/ChapterNavierStokesFockContinuum.lean`, new this session)
+- `boundedEnergyCore` together with **`boundedEnergyCore_dense`** (proved by dominated convergence on the energy tails), and `multOp` — multiplication by a real measurable function on that dense core.
+- **`multOp_hasZeroDeficiencyOn`** — ESA for an arbitrary real measurable symbol; unlike the occupation-number picture this covers operators with purely continuous spectrum and no eigenvectors, and is proved by testing the deficiency identity against truncations of `(g ∓ i)w`.
+- `sectorHamiltonian_hasZeroDeficiencyOn` — the application: on the `n`-parcel sector `L²(ℝⁿ)` of the continuum Fock space over the infinite continuous domain `ℝ`, the Hamiltonian `∫ w(ξ)a†(ξ)a(ξ)dξ`, i.e. multiplication by `∑ₖ w(ξₖ)`, is essentially self-adjoint.
+
+I also registered the new module in `BookProof.lean`, cleaned all linter warnings out of the three Fock modules (the modules now compile warning-free), recorded the wave in `BookProof/STATUS.md`, and updated the Properties table. Scope caveat: global existence for Navier–Stokes is not claimed anywhere.
+
+# Summary of changes for run d40e46ea-4d0a-45cd-b82f-7c7b4d613eac
+Added a new module `BookProof/ChapterNavierStokesLagrangianEsa.lean` (namespace `BookProof.NavierStokesFlow.LagrangianEsa`, registered in `BookProof.lean`) that removes the truncation from the Navier–Stokes Hamiltonian **written in the Lagrangian variables of the plan** — parcel trajectories `X(ξ)` with conjugate momenta `P = Ẋ = u(X)` in place of the Eulerian velocity `u` — and proves its essential self-adjointness. Everything is `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`).
+
+What is proved:
+- `LagrangianFullData` / `LagrangianFullData.hFull`: the untruncated transformed data and the four-term operator `ĥ_full = ½∑Pᵢ² + ν∑Qᵢ² + ∑fᵢDᵢ + C` (advection, viscosity, force drift, volume-preservation constraint) on a dense domain of an arbitrary complex inner-product space — nothing finite-dimensional, nothing bounded.
+- `hFull_isSymmetricDom`: symmetry on the domain, unconditionally. `kinetic_inner`, `kinetic_nonneg`, `viscous_inner`, `viscous_nonneg`: the quadratic forms of the two second-order terms are `½∑‖Pᵢv‖²` and `ν∑‖Qᵢv‖²` — after the change of variables the advection term is positive, which is the structural gain the transformation is made for.
+- Criteria for essential self-adjointness of the transformed operator: from a complete unitary flow, from a bounded realization, from a total family of its own eigenvectors, and the headline `hasZeroDeficiencyOn_of_commonEigenvectors` — a total family of common eigenvectors of the constituents (the Lagrangian momentum representation) with explicit eigenvalue `½∑pᵢ² + ν∑qᵢ² + ∑fᵢdᵢ + c`; no boundedness needed.
+- `hasZeroDeficiencyOn_iff_of_linearIsometryEquiv` and `NSFullData.hasZeroDeficiencyOn_of_lagrangian`: essential self-adjointness is invariant under a unitary change of variables, so proving it *after* passing to the Lagrangian variables gives it for the Eulerian operator it came from.
+- Two untruncated, infinite-dimensional realizations where the conclusion is unconditional: on `ℓ²(ℤ)` with the parcel momenta the symmetric-difference lattice momentum (so `½∑Pᵢ²` is a discrete Laplacian), essentially self-adjoint on the *proper* dense domain of finitely supported modes, with `latticeLag_hFull_ne_zero` certifying non-degeneracy; and on `ℓ²(ℕ)` with diagonal constituents of arbitrary real symbols, essentially self-adjoint while genuinely unbounded (`diagLag_not_bounded`).
+- `exists_lagrangianFullData_not_hasZeroDeficiencyOn`: sharpness — an unbounded first-order drift term alone already destroys the property, so the criteria above cannot be dispensed with; the docstring records that what the counterexample exploits is the absence of any relative-boundedness of the drift with respect to the positive kinetic term.
+
+Scope, stated in the module docstring and the book prose: essential self-adjointness of the *continuum* transformed generator, and with it global existence for Navier–Stokes, is **not** claimed.
+
+Integration and verification: new prose and `#check` blocks in `Book/FreeField.lean`, a new wave entry in `BookProof/STATUS.md`. `lake build` over the default targets completes with no errors and no in-scope warnings; the book pipeline (verso patches → `lake build book` → `lake exe book` → HTML post-processing asserts) runs green and the KaTeX gate reports 1981 math snippets with 0 failures. No `sorry`/`admit` and no `axiom` declarations were added. All work is committed and pushed.
+
+# Summary of changes for run 45767fe8-a984-43e3-8990-94c8637e0e49
+Continued and completed execution of `PLAN_LEAN_SPECIALIST_NS_FLOW.md`.
+
+**State on arrival.** The plan's Parts A–G were already formalized in `BookProof/ChapterNavierStokesFlow.lean` and `BookProof/ChapterNavierStokesCauchy.lean`, and the essential-self-adjointness (ESA) layer in the newer modules `BookProof/ChapterNavierStokesEsa.lean` and `BookProof/ChapterNavierStokesDeficiency.lean`. This session finished the outstanding verification, added one new result, and closed out the book integration.
+
+**What the ESA layer establishes** (all sorry-free, and `#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`):
+- `hasZeroDeficiencyOn_of_completeUnitaryFlow`: a complete norm-preserving flow generated by a symmetric operator forces vanishing adjoint deficiency (Nelson-style orbit argument).
+- `hasZeroDeficiencyOn_of_bounded_symmetric` and `hasZeroDeficiencyOn_of_total_eigenvectors`: two further criteria, the second covering unbounded operators.
+- `continuityHamiltonian_hasZeroDeficiencyOn_finiteModes`: an infinite-dimensional instance on a *proper* dense domain (the finitely supported modes of ℓ²(ℤ)), together with `finiteModes_ne_top` certifying the domain is proper.
+- `nsHamiltonian_hasZeroDeficiencyOn_of_flow`: the truncated Navier–Stokes ESA statement re-derived from completeness of its own unitary flow.
+- `jacobiOp_not_hasZeroDeficiencyOn` / `jacobi_symmetric_dense_not_esa`: an explicit tridiagonal (Jacobi) counterexample showing symmetry on a dense domain does *not* imply essential self-adjointness — so the low-degree/symmetry hypothesis cannot suffice on its own.
+- `diagOp_hasZeroDeficiencyOn`: the positive counterpart, an unbounded diagonal operator that *is* essentially self-adjoint on the very same domain.
+
+**New this session.** `DiagonalEsa.diagOp_not_bounded`: the diagonal ESA example is genuinely unbounded whenever its real symbol is — no constant dominates it on the finite-mode domain. This substantiates in Lean the previously prose-only claim that essential self-adjointness on a proper dense domain is not a boundedness phenomenon. Added the matching prose sentence and `#check` in `Book/FreeField.lean` and a note in `BookProof/STATUS.md`.
+
+**Verification.** Full `lake build`, `lake build RandomMap`, `lake build Book`, and the whole book pipeline (verso patches → `lake build book` → `lake exe book` → HTML postprocess → KaTeX check) all run green; the KaTeX gate reports 1971 math snippets with 0 failures. A repository-wide search finds no `sorry`/`admit` in `BookProof/` or `Singularity/` outside the pre-existing quarantined `UnusedRoute` files, and no `axiom` declarations were added. All work is committed and pushed.
+
+**Not done, and why.** The plan's §6 numerics gate (`cargo test` in a separate Rust workspace and a Cadabra2 symbolic check) lives outside this project and could not be run here. The plan's §7 continuum research target (essential self-adjointness of the untruncated operator, and hence Navier–Stokes global existence) remains explicitly unclaimed, as the plan directs; the Faris–Lavine statement is recorded as a conditional theorem with named analytic hypotheses, not as a proved unconditional result.
+
+# Summary of changes for run 0162efc0-0a40-48d1-b133-5aabe9941af8
+Continued execution of `PLAN_LEAN_SPECIALIST_NS_FLOW.md`, closing the gaps that the earlier pass left open. Everything already in `BookProof/ChapterNavierStokesFlow.lean` was re-verified to build and remain free of `sorry`; three new blocks of work were then added.
+
+**1. The differential half of the plan's §4210–4216 claim ("the solution exists and it is unique") — new module `BookProof/ChapterNavierStokesCauchy.lean`.** The previous pass had the flow only as a one-parameter unitary group. This module adds the evolution equation itself:
+- a generic layer for the flow `e^{tA}` of a finite matrix — `matrixFlow_hasDerivAt`, `matrixFlow_comm`, `matrixFlow_neg_hasDerivAt`, `matrixFlow_mul_neg`, `matrixFlow_vec_hasDerivAt`, `matrixFlow_unique` (uniqueness by the classical argument: `t ↦ e^{−tA} y(t)` has zero derivative, hence is constant) and `matrixFlow_cauchy_existsUnique`;
+- the Navier–Stokes layer: `nsFlow_hasDerivAt`, `nsFlow_continuous`, `nsFlow_solves_schrodinger` (the evolved state is differentiable and solves `ψ̇ = i H_N ψ`), `nsFlow_unique_solution`, and the headline `nsCauchy_existsUnique` — on the truncation the Cauchy problem has **exactly one** global solution, for every initial state and every real time. With the existing `nsFlow_noBlowup` this is the honest finite-dimensional statement of no finite-time singularity;
+- two conservation results: `nsFlow_comm_hamiltonian` and `nsFlow_energy_conserved` (the expectation of `H_N` is time-independent);
+- the Lagrangian (parcel) operator of Part B inherits all of it, since it is Hermitian on the truncation: `LagrangianNS.flowUnitary`, `flowUnitary_unitary`, `flowUnitary_group`, `cauchy_existsUnique`.
+
+**2. Part G made honest and non-vacuous.** The Faris–Lavine criterion previously entered as a universally quantified hypothesis without symmetry; as stated that hypothesis is contradictory, so the conditional theorem was vacuous. This is now recorded and fixed: `farisLavine_without_symmetry_forces_trivial` proves that the un-symmetrized criterion forces the space to be trivial, `ns_esa_of_farisLavine` now carries the symmetry of the operator as the actual criterion does, and `farisLavine_holds_of_everywhereDefined` shows the resulting hypothesis is satisfiable — indeed automatic for everywhere-defined operators. Because of that, the analytic notion is introduced explicitly: `HasZeroDeficiencyOn` (deficiency of the **adjoint** on a dense domain), `restrictToTop`, `hasZeroDeficiencyOn_top_of_symmetric`, the truncation instance `nsHamiltonian_hasZeroDeficiencyOn`, and the dense conditional theorem `ns_esa_of_farisLavine_dense` — still a named hypothesis, never an `axiom`.
+
+**3. Part A non-vacuity.** `field_evaluates_to_value_diagonal` realizes the hypothesis of the field-collapse statement in the position representation (`X_i = diag(x_i)`, coordinate states as eigenstates), so that statement is not about an empty situation.
+
+**Scope is unchanged and stated explicitly** in the module docstrings and the book prose: essential self-adjointness of the untruncated continuum operator, and global existence/uniqueness for Navier–Stokes, are *not* claimed; everything proved is about the finite truncation.
+
+**Integration and verification.** The new module is registered in `BookProof.lean`; the chapter `Book/FreeField.lean` has new prose and `#check` blocks for all new theorems, and `BookProof/STATUS.md` records the wave. `lake build` (default targets) and `lake build RandomMap` complete without errors; the book wrapper `patches/build-book.sh` runs green through render and post-processing asserts, and `patches/check-katex.sh` reports 1949 math snippets with 0 failures. No `sorry`/`admit` and no `axiom` declarations were added, and `#print axioms` on every new result reports only `propext`, `Classical.choice`, `Quot.sound`. The plan's numerics gate (`cargo test` in a separate repository) refers to code that is not part of this project, so it could not be run here. All work is committed and pushed.
+
+# Summary of changes for run 48be96ce-7364-4fad-a289-51678be40b83
+Executed `PLAN_LEAN_SPECIALIST_NS_FLOW.md` ("The Navier–Stokes Hamiltonian Has a Complete Flow"), the only Navier–Stokes plan in the project.
+
+**New module `BookProof/ChapterNavierStokesFlow.lean`** (namespace `BookProof.NavierStokesFlow`, ~630 lines, registered in `BookProof.lean`), covering the plan's Parts A–G:
+
+- **Part A — derivatives as fields.** `fieldTaylor` and `field_evaluates_to_value`: on a position eigenstate the operator-valued field `φ(X) = φ + φᵢ(Xᵢ − xᵢ)` collapses to its point value, so its first-order Taylor coefficients are independent modes. `ccr_field`, `derivativeField_momentum`, `secondDerivativeField_momentum` give the three commutation-relation families; `momentumConstraint_preserved` is the first-class invariance of the constraint.
+- **Part B — Lagrangian change of variables.** `lagrangian_velocity` (parcel velocity = canonical momentum), `volume_preservation_constraint` (unit Jacobian determinant ⇒ every set's volume is preserved), `det_one_add_smul_hasDerivAt` (its infinitesimal form is the divergence-free condition), and the four-term decomposition `LagrangianNS.hFull` with `transformed_hamiltonian_decomposition`, `kinetic_posSemidef`, `viscous_posSemidef` (advection and viscosity are positive second-order operators) and `transformed_hamiltonian_hermitian`.
+- **Parts C–D — the truncation and its complete flow.** `NSTruncation` packages the 15 Hermitian, mutually commuting field modes and 3 Hermitian momenta; `nsHamiltonian` is the Weyl-symmetrized `∑ᵢ(πᵢAᵢ + Aᵢπᵢ)` with `Aᵢ = ∑ⱼ uⱼu_{i,j} − ν u_{i,jj}`. Proved: `nsHamiltonian_hermitian`; `nsHamiltonian_isPolynomial` with `nsWord_length_le_three` (every term is a word of length ≤ 3 in the generators); `nsFlow_zero`, `nsFlow_group`, `nsFlow_unitary`, `nsFlow_groupOnEvolved` (a one-parameter unitary group for every real time — the flow is complete); `nsFlow_norm_preserving` and `nsFlow_noBlowup` (each coefficient of the evolved state stays bounded by the conserved initial mass — no finite-time singularity on the truncation). `nsTruncationOfDiagonal` and `nsHamiltonian_ne_zero_example` show the hypotheses are satisfiable and the operator non-degenerate.
+- **Part E — BRST.** `nsDivergenceConstraint_resolution` (and a matrix form) for the substitution `u_{3,3} = −(u_{1,1}+u_{2,2})`; `nsBrstCharge`, `nsBrst_nilpotent` (Ω² = 0) and `nsBrst_adjoint`.
+- **Part G — deficiency and the Faris–Lavine framing.** `HasZeroDeficiency`, `symmetric_hasZeroDeficiency`, and `nsHamiltonian_hasZeroDeficiency` (the truncated generator is essentially self-adjoint); `nsFockOfFock` (Fock-of-a-Fock structure), `nsSecondQuant` / `ns_outer_degree_le_two` (at most quadratic in the outer ladder operators), the comparison operator `nsNumberOp` with `nsNumberOp_eq_secondQuant` and `nsNumberOp_posSemidef`; and the conditional `ns_esa_of_farisLavine`, which takes the Faris–Lavine criterion and its two inequalities as named hypotheses.
+
+**Honest scoping, as the plan requires:** the module docstring and the new book prose state explicitly that essential self-adjointness of the untruncated continuum operator, and global existence/uniqueness for Navier–Stokes, are *not* claimed; the degree-≤ 3 bound is recorded as a symmetry statement, and the continuum route stays conditional (never an axiom).
+
+**Integration and verification.** A new section "The Navier–Stokes Hamiltonian: a Complete Flow on the Truncation" in `Book/FreeField.lean` cites all headline theorems, and `BookProof/STATUS.md` has a new wave entry. `lake build` (default targets) and `lake build RandomMap` complete with no errors and no in-scope warnings; the book wrapper `patches/build-book.sh` runs green through render and post-processing asserts, and `patches/check-katex.sh` reports 1941 math snippets with 0 failures. The new file contains no `sorry`/`admit`, no `axiom` declarations were added, and `#print axioms` on every new result reports only `propext`, `Classical.choice`, `Quot.sound`. The plan's numerics gate (`cargo test` in a separate Rust repository) refers to code not part of this project, so it could not be run here. All work is committed and pushed.
+
+# Summary of changes for run 42489b38-9eba-49f0-bed4-decab827b55a
+Continued execution of `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md` (the SIRK approximation orders nest) and updated `ARISTOTLE_SUMMARY.md`.
+
+Everything already in place in `BookProof/ChapterH8.lean` (subspace nesting, block compatibility, the power/polynomial/rational refinements, band containment, and the tower at arbitrary orders) was re-verified to build cleanly and remain free of `sorry`. Three gaps were then closed.
+
+1. **Whole-space projection identity for rational functions** (`sirk_approx_projection_rational`, in `BookProof/ChapterH8.lean`). If the coarse Krylov subspace reduces both the numerator generator and the denominator, then for *every* vector the coarse rational approximant is the fine one projected back into the coarse subspace. Supporting results: `compress_adjoint_intertwine` and `compress_adjoint_intertwine_poly` (the transposed intertwinings, which now also carry the proof of the existing polynomial version, removing a duplicated derivation) and `inv_comp_intertwine` (an intertwining relation passes to inverses).
+
+2. **The abstract hypotheses are realized** (new module `BookProof/ChapterH8Bases.lean`). `orthonormalEmbedding` builds the isometric embedding of an orthonormal family and `coordIncl` the coordinate inclusion; `orthonormalEmbedding_adjoint_comp`, `coordIncl_adjoint_comp`, `orthonormalEmbedding_nested` and `orthonormalEmbedding_range` discharge the hypotheses of the refinement theorems, giving the hypothesis-free instances `sirk_band_refinement_of_orthonormal` and `sirk_compression_submatrix_of_orthonormal`.
+
+3. **The nested orthonormal Krylov bases exist.** Gram–Schmidt on the Krylov sequence `k ↦ Hᵏ v` gives a single orthonormal sequence (`krylovOrthonormalSeq`) whose prefixes are orthonormal (`gramSchmidtNormed_orthonormal_prefix`, which needs only prefix linear independence), nested by construction, and span the Krylov subspaces (`krylovOrthonormal_span`, `krylovEmbedding_range`). This yields `sirk_band_refinement_krylov`: the refinement statement for the Krylov flag itself, at orders where the Krylov sequence has not broken down and for a generator leaving both Krylov ranges invariant.
+
+Scope is unchanged and honest: all of this is linear algebra over the finite reduced data; nothing here claims the numerical *width* of the bands, which stays conditional on Crouzeix's inequality as a named hypothesis in `ChapterH4`, never an axiom.
+
+Integration and verification: the new module is registered in `BookProof.lean`; module docstrings, the `#check` list and the "Dimensional Reduction" prose in `Book/FreeField.lean` cite the new theorems; `BookProof/STATUS.md` has a new wave entry, and `ARISTOTLE_SUMMARY.md` records this run. `ChapterH8.lean` was kept under the project's file-size guideline by moving the realization material into the companion module. `lake build` over the default targets completes with no errors and no in-scope warnings (a pre-existing markup warning in `Book/FreeField.lean` was fixed at its source), the book wrapper `patches/build-book.sh` runs green through render and post-processing asserts, and `patches/check-katex.sh` reports 1925 math snippets with 0 failures. All new results are free of `sorry`, no `axiom` declarations were added, and `#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`. The plan's numerics gate (`cargo test -p fock_sirk`) refers to a separate repository not part of this project, so it could not be run here. All work is committed and pushed.
+
+# Summary of changes for the continuation run (`PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`: the rational whole-space refinement and the realization of the nesting hypotheses)
+
+Continued execution of `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`, extending the nested-orders
+chapter `BookProof/ChapterH8.lean` (namespace `BookProof.ChapterH8`).  Everything already in
+place (subspace nesting, block compatibility, the power/polynomial/rational refinements, band
+containment and the tower at arbitrary orders) was re-verified to build cleanly and remain
+`sorry`-free.  Two gaps were then closed.
+
+**1. The whole-space projection identity for rational functions.**  The previous pass had the
+whole-space form only for polynomials.  `sirk_approx_projection_rational` now proves it for the
+rational functions the SIRK step actually evaluates: if the coarse Krylov subspace reduces both
+the numerator generator `X` and the denominator `qX` (its range is invariant under `X∗` and
+`qX∗`), then for *every* vector `v` the coarse approximant `Vₘ p(Bₘ) qBₘ⁻¹ Vₘ∗ v` is exactly the
+fine approximant projected back into the coarse subspace.  Supporting results:
+
+- `compress_adjoint_intertwine` — the transposed intertwining `J∗ ∘ Bₙ = Bₘ ∘ J∗`;
+- `compress_adjoint_intertwine_poly` — its polynomial form (the proof of the existing
+  `sirk_approx_projection_poly` was refactored to use it, removing a duplicated derivation);
+- `inv_comp_intertwine` — an intertwining relation passes to the inverses, from a left inverse
+  on one side and a right inverse on the other.
+
+**2. The nested orthonormal Krylov bases exist.**  In the new companion module
+`BookProof/ChapterH8Bases.lean` (same namespace, registered in `BookProof.lean`), Gram–Schmidt
+applied to the `ℕ`-indexed Krylov sequence `k ↦ Hᵏ v` produces a single orthonormal sequence
+`krylovOrthonormalSeq` whose prefixes are the nested orthonormal Krylov bases:
+
+- `gramSchmidtNormed_orthonormal_prefix` — a prefix of the normalized Gram–Schmidt vectors is
+  orthonormal as soon as the corresponding prefix of the family is linearly independent (no
+  global linear independence needed), with the supporting restriction lemmas `li_Fin_of_le`,
+  `li_Iic_of_li_Fin`, `krylov_li_of_le`;
+- `krylovOrthonormal_orthonormal`, `krylovOrthonormal_nested` (nesting holds by construction) and
+  `krylovOrthonormal_span` — the order-`n` prefix spans `Kry n(H, v)` of `ChapterH5`;
+- `krylovEmbedding` and `krylovEmbedding_range` — the prefix as an isometry whose range is
+  exactly the Krylov subspace;
+- `sirk_band_refinement_krylov` — the refinement theorem for the Krylov flag itself: at orders
+  `m ≤ n` where the Krylov sequence has not broken down, and for a generator leaving both Krylov
+  ranges invariant, the order-`n` approximant agrees with the order-`m` one on the order-`m` data.
+
+**3. The nesting hypotheses are realized (non-vacuity).**  The refinement theorems are stated for
+an abstract pair of isometric embeddings with `Vₘ = Vₙ ∘ J`.  This pass shows those hypotheses are
+met by any nested pair of orthonormal families — in particular by the nested orthonormal Krylov
+bases the SIRK method builds:
+
+- `orthonormalEmbedding` (and its isometry `orthonormalEmbeddingLI`) — the embedding
+  `EuclideanSpace ℂ (Fin m) →L[ℂ] E` sending the `i`-th coordinate vector to the `i`-th member of
+  an orthonormal family, with `orthonormalEmbedding_single` and `orthonormalEmbedding_inner`;
+- `orthonormalEmbedding_adjoint_comp` — the isometry hypothesis `V∗V = 1`;
+- `coordIncl` — the concrete coordinate inclusion along `Fin.castLE`, with `coordIncl_single` and
+  `coordIncl_adjoint_comp` (`J∗J = 1`);
+- `orthonormalEmbedding_nested` — the factorization hypothesis `Vₘ = Vₙ ∘ coordIncl` for nested
+  families (`w i = w' (castLE i)`);
+- `orthonormalEmbedding_range` — the range of the embedding is the span of the family;
+- `sirk_band_refinement_of_orthonormal` and `sirk_compression_submatrix_of_orthonormal` — the
+  resulting statements with no abstract hypotheses left: for nested orthonormal bases the
+  order-`n` polynomial approximant agrees with the order-`m` one on the order-`m` data, and the
+  order-`m` reduced generator is the leading `m × m` submatrix of the order-`n` one.
+
+Scope is unchanged and honest: all of this is finite-dimensional linear algebra.  Nothing here
+claims the numerical *width* of the bands, which stays conditional on Crouzeix's inequality as a
+named hypothesis in `ChapterH4`, never an axiom.
+
+The material of items 2 and 3 lives in `BookProof/ChapterH8Bases.lean`; `ChapterH8.lean` was kept
+under the project's file-size guideline by moving it there.
+
+Integration and verification: the module docstrings, the `#check` list and the "Dimensional
+Reduction" prose in `Book/FreeField.lean` cite the new theorems, and `BookProof/STATUS.md` has a
+new wave entry.  `lake build` (default targets `BookProof`, `Book`, `Singularity`) completes with
+no errors and no in-scope warnings — a pre-existing Verso markup warning in `Book/FreeField.lean`
+(`**not**` where the renderer wants `*not*`) was fixed at its source; `./patches/build-book.sh`
+runs green through render and post-processing asserts, and `./patches/check-katex.sh` reports
+1925 math snippets with 0 KaTeX failures.  The new results are `sorry`-free and `#print axioms`
+reports only `propext`, `Classical.choice`, `Quot.sound`; no `axiom` declarations were added.
+The plan's numerics gate (`cargo test -p fock_sirk`) refers to a separate repository that is not
+part of this project, so it could not be run here.
+
+# Summary of changes for run 2508ee79-0470-429f-9291-f9a5cbc78e19
+Continued execution of `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`, extending the nested-orders chapter `BookProof/ChapterH8.lean` (namespace `BookProof.ChapterH8`) beyond the state it was in.
+
+What was already in place (subspace nesting, the block-compatibility lemma, refinement for powers of the reduced generator, band containment, and the one-step tower) was verified to build cleanly and remain `sorry`-free. On top of that I proved the two pieces the plan's Part 3 calls for but that were not yet covered — refinement for the *polynomial and rational* functions the SIRK step actually evaluates — and the arbitrary-order ("and so on") form of the tower:
+
+- `compress_aeval_comp` / `compress_aeval_transfer` — polynomial transfer: on the range of the isometric Krylov embedding, `p(X) v = V p(B) V∗ v` for every polynomial `p` (linear extension of the existing power transfer).
+- `compress_inv_transfer_apply` / `compress_rational_transfer` — the resolvent (denominator) step in pointwise form, and its combination with the numerator: `p(X) qX⁻¹ v = V p(B) qB⁻¹ V∗ v` when the denominator and its compression are invertible.
+- `sirk_band_refinement_poly` — on the order-`n` data the order-`n+1` approximant equals the order-`n` one for an arbitrary polynomial of the reduced generator.
+- `sirk_band_refinement_rational` — the same for a rational function (numerator polynomial over an invertible denominator with invertible compressions at both orders); both approximants compute the exact value.
+- `sirk_approx_projection_poly` — the whole-space projection identity for arbitrary polynomials, under the same adjoint-invariance ("the subspace reduces the operator") hypothesis as the existing power version; supported by `compress_aeval_comp_intertwine` and `adjoint_aeval`.
+- `sirk_compression_block_le` / `sirk_compression_submatrix_le` — the leading-block identity between any two orders `m ≤ n`, not just one step.
+- `sirk_band_contained_le` and `sirk_nested_orders_le` — band containment and the full tower between any two orders `m ≤ n`.
+
+Scope is unchanged and honest: all of this is finite-dimensional linear algebra; nothing here claims the numerical *width* of the bands, which stays conditional on Crouzeix's inequality as a named hypothesis in `ChapterH4`, never an axiom.
+
+Verification: `lake build` (all default targets, including `BookProof` and `Book`) completes successfully; `lake build book` also succeeds. The new results are `sorry`-free and `#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`. No `axiom` declarations were added. The module docstring, the `#check` list and the "Dimensional Reduction" prose in `Book/FreeField.lean` were updated to cite the new theorems. All work is committed and pushed.
+
+# Summary of changes for run 04833037-be07-41f4-8f12-9ac8070343a4
+Executed `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`: the Hashimoto SIRK approximation orders are now formalized as a nested tower, in the new module `BookProof/ChapterH8.lean` (namespace `BookProof.ChapterH8`).
+
+What is proved (all `sorry`-free, no new axioms — `#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`):
+
+- **(a) Subspace nesting** — `sirk_krylov_tower`: `Kry n ≤ Kry (n+1)`, the tower form of the existing `ChapterH5.krylovSpan_mono`.
+- **(b) Block compatibility (the missing lemma)** — `sirk_compression_block` and `sirk_compression_submatrix`: for nested orthonormal bases (`Vₙ eᵢ = Vₙ₊₁ e_{castSucc i}`) the order-`n` reduced generator is the leading `n × n` submatrix of the order-`n+1` one. Its coordinate-free form is `sirk_compression_block_op`: `compress Vₙ X = J∗ (compress Vₙ₊₁ X) J` for the inclusion `J` with `Vₙ = Vₙ₊₁ ∘ J`.
+- **(c) Projection refinement (headline)** — `sirk_band_refinement`: on the order-`n` data (`Vₙ Vₙ∗ v = v`) the order-`n+1` approximant equals the order-`n` one (both reduce to `Xᵏ v` via `ChapterH4.compress_transfer`); `sirk_band_refinement_proj` states this as "project the finer approximant back into `Kry n`". `sirk_approx_projection` gives the whole-space version. The supporting intertwining results are `compress_comp_intertwine` and `compress_pow_comp_intertwine` (`Bₙ₊₁ ∘ J = J ∘ Bₙ`).
+- **(d) Band nesting** — `sirk_band_contained`: `[0, sirkBound (n+1)] ⊆ [0, sirkBound n]`; `sirk_bands_tendsto_zero` records the collapse of the nested family to `{0}`. `sirk_nested_orders` assembles (a) and (d) for every order `n`.
+
+Two honest scoping points, recorded both in the module docstring and in the book prose:
+- The whole-space projection identity needs the order-`n` subspace to *reduce* the operator (invariance under the operator **and** its adjoint), not merely to be invariant; with invariance alone the leading block controls exactly the coarse data, which is what `sirk_band_refinement` says. The refinement of the approximants likewise assumes invariance of the Krylov ranges.
+- Nothing here claims the numerical *width* of the bands: that the true error lies inside `sirkBound n` remains conditional on Crouzeix's inequality, which stays a named hypothesis of `ChapterH4.sirk_error_bound_decay`, never an axiom.
+
+Integration and verification:
+- Registered the module in `BookProof.lean` (right after the `ChapterH7` import) and added `#check`s for all eight new headline theorems to `Book/FreeField.lean` §"Dimensional Reduction"; the prose paragraph there was updated from "plan item" to the proved statements, including the two provisos.
+- `lake build` (default targets `BookProof`, `Book`, `Singularity`) completes successfully, and the book wrapper `patches/build-book.sh` runs green through render and post-processing asserts. The shell scripts under `patches/` had lost their executable bits in this checkout; they were restored.
+- Audits: no `sorry`/`admit` and no `axiom` in the new module; the repository-wide `sorry` audit over `BookProof/` and `Singularity/` still shows only prose mentions.
+- Added a "Latest wave" entry describing the new module to `BookProof/STATUS.md`.
+
+Not done: the plan's final verification gate `cargo test -p fock_sirk` refers to a separate numerics repository that is not part of this project, so it could not be run here; the Lean side is a pure linear-algebra addition and changes no model.
+
+
+# Summary of changes for the continuation run (2026-08-13b, `CONSOLIDATED_PLAN.md`: the unbounded layer carried through to self-adjointness and its unitary group)
+
+Continued executing `CONSOLIDATED_PLAN.md`.  Every plan item was again already closed, so
+this pass pushed the one thing the previous pass had left as the *precise* open boundary
+of §9.3: the step from a densely defined **symmetric** unbounded operator to a
+**self-adjoint** one, and the unitary group it generates.  That step is now proved, for
+multiplication operators on `ℓ²(ℤ)` — the lattice position operator included.  All new
+results are `sorry`-free and use only the standard axioms (`propext`, `Classical.choice`,
+`Quot.sound`, checked by `#print axioms` in `BookProof/ChapterRoadmapAudit.lean`).
+
+**Self-adjointness (`BookProof/ChapterUnboundedPosition.lean`).**  `adjointDomain f`
+collects the states `φ` that pair with some `η ∈ ℓ²(ℤ)` against the whole natural domain.
+Testing against the basis vectors (`inner_single_left`) forces `η = f·φ` pointwise
+(`mulOp_adjoint_apply`), so `f·φ` is square-summable and `φ` already lies in the natural
+domain.  Hence `adjointDomain_eq_mulDomain`: the adjoint domain is *exactly* `D(f)`,
+nothing larger, and `adjoint_eq_mulOp` says the adjoint acts by the same multiplication
+there.  The maximal multiplication operator is a genuine self-adjoint observable, not
+merely a symmetric one — while `position_not_boundedOperator` still records that it is
+nowhere near bounded.
+
+**The unitary group it generates.**  `phase f t k = e^{i t f_k}` has modulus `1`, so
+pointwise multiplication by it preserves `ℓ²` and is an isometry (`phaseLin_norm`, via
+Parseval).  `phaseUnitary f t : ℓ²(ℤ) ≃ₗᵢ[ℂ] ℓ²(ℤ)` is therefore a one-parameter unitary
+group (`phaseUnitary_zero`, `phaseUnitary_add`).  Two analytic theorems make it the group
+*generated by* the unbounded operator:
+
+* `tendsto_phaseUnitary` — **strong continuity at `0`**: `U t ψ → ψ` in `ℓ²(ℤ)` for every
+  state, with no domain hypothesis (dominated convergence with the uniform coordinate
+  bound `‖e^{itf_k} − 1‖ ≤ 2`).
+* `tendsto_slope_phaseUnitary` — **Stone's relation `dU/dt|₀ = iA`**: for `ψ` in the
+  natural domain the difference quotient `t⁻¹(U t ψ − ψ)` converges *in the `ℓ²(ℤ)` norm*
+  to `i·f·ψ`.  Pointwise this is `hasDerivAt_phase`; the passage to the norm is dominated
+  convergence with the domain-dependent bound `‖t⁻¹(e^{itf_k} − 1)‖ ≤ |f_k|`.
+
+**Prose corrected, not just extended.**  Both `Book/ConditionalUnitary.lean` and
+`Book/ProofPlans.lean` §E previously said that "the passage from *symmetric* to
+*self-adjoint*, and the unitary group it would produce, is the open layer".  That is no
+longer accurate, so the paragraphs were rewritten: the boundary now lies one layer
+further out, at unbounded operators that are *not* multiplication operators in the
+ambient basis (a continuum Laplacian) — i.e. Stone's theorem in full generality.  The
+module docstring of `ChapterUnboundedPosition.lean`, `BookProof/STATUS.md` (new
+`2026-08-13b` wave entry) and `CONSOLIDATED_PLAN.md` (status header and §9 item 3) were
+updated the same way.
+
+Verification, all green after the change: `lake build` over the default targets
+(`BookProof`, `Book`, `Singularity`, 8585 jobs, no errors and no linter warnings),
+`lake build RandomMap`, `./patches/build-book.sh` (asserts no `<base>` and fragment links
+present) and `./patches/check-katex.sh` (1874 math snippets, 0 KaTeX failures); the
+sorry/axiom audit is clean for `BookProof/`, `Book/` and `Singularity/`, and the
+`#print axioms` output in the build log confirms the five new certified results depend
+only on `propext`, `Classical.choice`, `Quot.sound`.  All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-13, `CONSOLIDATED_PLAN.md`: verification gate + the analytic layer behind §4.8)
+
+Continued executing `CONSOLIDATED_PLAN.md`.  On starting, every plan item was already
+closed, so this pass (1) re-ran the §8 verification gate and (2) advanced the *standing
+open layer* recorded in §9.3 — the infinite-dimensional analytic realization behind
+§4.8 — with three new modules.  All three are `sorry`-free and use only the standard
+axioms (`propext`, `Classical.choice`, `Quot.sound`, checked by `#print axioms` in
+`BookProof/ChapterRoadmapAudit.lean`), are registered in `BookProof.lean` and are cited
+from `Book/ConditionalUnitary.lean`.
+
+**`BookProof/ChapterContinuityUnitaryInfinite.lean` — the dynamics-based unitary on
+`ℓ²(ℤ)`.**  The finite chapter's matrices are replaced by bounded operators on a genuine
+infinite-dimensional Hilbert space.  The lattice translations `(S_m f) k = f (k + m)` are
+unitaries (`shiftEquiv`), with `inner_shiftOp_left` the adjoint identity
+`⟪S_m f, g⟫ = ⟪f, S_{-m} g⟫`; the symmetric-difference momentum `p = -(i/2)(S₁ - S₋₁)` is
+bounded self-adjoint (`momentum_isSelfAdjoint`); a bounded velocity field `v ∈ ℓ^∞(ℤ)`
+acts as a bounded self-adjoint multiplication operator (`velocityOp_isSelfAdjoint`, with
+the operator-norm bound `velocityLin_norm_le`); the Weyl-symmetrized generator
+`H = ½(p·v + v·p)` is bounded self-adjoint (`continuityHamiltonian_isSelfAdjoint`); and
+`continuityUnitary v t = exp (i t H)` — the Banach-algebra exponential of
+`ℓ²(ℤ) →L[ℂ] ℓ²(ℤ)` — is unitary (`continuityUnitary_unitary`, from the general
+`exp_smul_I_unitary` for a bounded self-adjoint operator on a Hilbert space) and a
+one-parameter group (`continuityUnitary_zero`, `continuityUnitary_add`).  The Born
+recovery is now *countably* additive: `bornRecover_tsum_univ` derives total mass `1` from
+Parseval plus unitarity, `bornPMF` packages it as a `PMF ℤ`, and the capstone
+`condProb_of_continuity_infinite` gives a probability law on the infinite lattice for
+every input.
+
+**`BookProof/ChapterBornMeasure.lean` — the Born law as a measure on a continuum.**  On
+an arbitrary measure space `(α, μ)` and for `Ψ ∈ L²(μ)`, `bornMeasure Ψ` is the density
+measure `μ.withDensity ‖Ψ ·‖ₑ²`, so `P(B) = ∫_B |Ψ|² dμ` is countably additive by
+construction (`bornMeasure_iUnion`).  `lintegral_bornDensity` computes the total mass of
+a normalized state as `1`, hence `isProbabilityMeasure_bornMeasure`; the law charges no
+`μ`-null set (`bornMeasure_absolutelyContinuous`).  The capstone
+`condProb_of_bounded_dynamics`: for a bounded self-adjoint generator `H` on `L²(μ)` and
+the unitary group `e^{itH}`, the evolved state carries a probability measure at every
+time.  This settles the "analytic integrability of `∫_B |Ψ₁|² dν`" that proof-plan
+appendix §E had deferred to the discretized level.
+
+**`BookProof/ChapterUnboundedPosition.lean` — the unbounded boundary, stated inside the
+theory.**  For a real multiplier `f : ℤ → ℝ`, the natural domain
+`mulDomain f = {ψ ∈ ℓ²(ℤ) : f·ψ ∈ ℓ²(ℤ)}` is a submodule, dense in `ℓ²(ℤ)`
+(`mulDomain_dense`, through the finitely supported vectors), and `mulOp f` is symmetric
+on it (`mulOp_symmetric`).  For the position field `f k = k` the operator is genuinely
+unbounded (`position_unbounded`: the unit vectors `e_n` have `‖x̂ e_n‖ = |n|`) and is not
+the restriction of any bounded operator (`position_not_boundedOperator`).  The one open
+step of the layer is therefore now precise: *symmetric ⟹ self-adjoint* for an unbounded
+operator, and the unitary group it would generate.
+
+Documentation: `Book/ConditionalUnitary.lean` gains three new sections citing the results,
+the `Book/ProofPlans.lean` §E *Boundary* paragraph is rewritten to record what is now
+closed and what remains, `BookProof/STATUS.md` has a new dated wave entry, and
+`CONSOLIDATED_PLAN.md` §9.3 and its status header are updated.  One root-cause fix: the
+executable bits on `patches/*.sh` had reverted to mode 644 (so `./patches/build-book.sh`
+would not run); they are restored in git.
+
+Verification, all green: `lake build` (default targets `BookProof`, `Book`,
+`Singularity`), `lake build RandomMap`, `./patches/build-book.sh` (asserts no `<base>`
+and fragment links present) and `./patches/check-katex.sh` (1862 math snippets, 0
+failures); the sorry/axiom audit and the isolation audit are clean.  All work is
+committed and pushed.
+
+# Summary of changes for run 84803a85-28dc-4cc1-b5fc-0050fc38722d
+Executed `CONSOLIDATED_PLAN.md` to completion. On starting, the project already built green with no `sorry`s or `axiom` declarations; the plan's open items were the two formalization targets §4.7 (`weakValue`) and §4.8 (`continuityUnitary`), plus the keep-or-delete decision on `Book/Trivial.lean`. All are now closed.
+
+**New: `BookProof/ChapterWeakValue.lean` (§4.7) — the weak value.** On `Fin n → ℂ` with the standard inner product `ip f v = ∑ₖ conj (f k)·v k`, `weakValue i f A = ⟨f|A|i⟩/⟨f|i⟩` is proved to be well defined and unique off orthogonality (`weakValue_wellDefined`, `weakValue_unique`), to collapse to the ordinary expectation `⟨i|A|i⟩` when the post-selection is the pre-selection (`weakValue_diag`) — an expectation that is real for a Hermitian observable (`weakValue_diag_isReal`) — and to be linear in the observable (`weakValue_add`, `weakValue_smul`, `weakValue_linear`). The weak values of a complete family of projectors sum to 1 (`weakValue_proj_sum`), the counterpart of the existing post-selection result. Two theorems tie it to the ABL machinery already in the library: the ABL joint law is the squared modulus of the weak-value numerator (`jointProb_eq_normSq_weakNumerator`) and the post-selected conditional law is its normalization (`condProb_eq_weakNumerator_ratio`). The capstone `dslit_weakValue` computes the two which-slit weak values (1 and 0) for the Hadamard double slit.
+
+**New: `BookProof/ChapterContinuityUnitary.lean` (§4.8) — the dynamics-based unitary.** On the finite cyclic lattice with the symmetric-difference momentum, the Weyl-symmetrized generator `H = ½(p·v + v·p)` is Hermitian (`continuityHamiltonian_hermitian`), while an explicit three-site counterexample shows the unsymmetrized `p·v` is not (`momentum_mul_velocityOp_not_hermitian`), so the symmetrization is necessary. `continuityUnitary v t = exp(i t H)` is unitary and forms a one-parameter group; the unitary is fixed by the function `v`, replacing the arbitrary Gram–Schmidt completion. The Born recovery `P(B) = ∑_{z∈B} |Ψ_t(z)|²` is nonnegative, finitely additive, monotone and of total mass 1, packaged as a distribution and as the capstone `condProb_of_continuity`: a genuine conditional probability law for every input. The finite tensor-product identification `L²(X) ⊗ L²(Z) ≅ L²(X × Z)` (`tensorIsom`, `tensorIsom_tmul`) and the product-state recovery `bornRecover_product_state` are included. The infinite-dimensional analytic realization remains the book's standing open layer, and the module's docstring says so.
+
+Both modules are `sorry`-free and use only the standard axioms (`propext`, `Classical.choice`, `Quot.sound`, verified by `#print axioms`), are registered in `BookProof.lean` and certified in `BookProof/ChapterRoadmapAudit.lean`, and are cited from the book text: the "Weak Measurements" section of `Book/DoubleSlit.lean` and the "A Less Arbitrary Construction" section of `Book/ConditionalUnitary.lean` were rewritten from "not yet formalized" to the actual results.
+
+Documentation and hygiene: the `Book/ProofPlans.lean` appendix §D/§E now record both items as PROVED; `BookProof/STATUS.md` has a new dated wave entry; `CONSOLIDATED_PLAN.md` §4.7/§4.8/§7/§9 are marked done with the `Book/Trivial.lean` decision settled as *keep* (retained as the minimal reproducer for the Verso section-count behaviour, as the file now states); `Issues.md` and `ARISTOTLE_SUMMARY.md` record the closures. Two root-cause fixes: the `patches/*.sh` executable bits were restored (the build wrapper would not run otherwise), and three `**not**` spans in `Book/OdeSingularity.lean` that tripped the Verso emphasis linter are now single-starred, so the book target builds warning-free.
+
+Final verification, all green: `lake build` (default targets), `lake build RandomMap`, the book wrapper `patches/build-book.sh` (asserts no `<base>` and fragment links present) and `patches/check-katex.sh` (1838 math snippets, 0 failures); no `sorry`/`admit`/`axiom` in the proof or book sources, and the isolation audit is empty. All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-12, `CONSOLIDATED_PLAN.md` §4.7 + §4.8)
+
+Continued executing `CONSOLIDATED_PLAN.md`.  On starting, the whole project built green
+(`lake build` over the default targets `BookProof`, `Book`, `Singularity`, plus
+`lake build RandomMap` and the book pipeline) with no `sorry`s or `axiom` declarations.
+GAP-1 and GAP-2 were already closed; the two open items were the medium-value
+formalization targets §4.7 (`weakValue`) and §4.8 (`continuityUnitary`), plus the
+keep-or-delete decision on `Book/Trivial.lean`.  All three are now settled.  Both new
+modules are `sorry`-free and use only the standard axioms (`propext`,
+`Classical.choice`, `Quot.sound`), are registered in `BookProof.lean`, certified by
+`#print axioms` in `BookProof/ChapterRoadmapAudit.lean`, and cited from the book.
+
+**`BookProof/ChapterWeakValue.lean` (§4.7) — the weak value.**  On `Fin n → ℂ` with the
+standard inner product `ip f v = ∑ₖ conj (f k) · v k`, `weakValue i f A = ⟨f|A|i⟩/⟨f|i⟩`.
+`weakValue_wellDefined` and `weakValue_unique` characterize it as the unique `w` with
+`w·⟨f|i⟩ = ⟨f|A|i⟩` when the pre- and post-selected states are not orthogonal;
+`weakValue_diag` is the collapse to the ordinary expectation `⟨i|A|i⟩` when the
+post-selection is the pre-selection, and `weakValue_diag_isReal` shows that expectation
+is real for a Hermitian observable, so a weak value leaves the real line only under a
+genuine post-selection.  `weakValue_add`, `weakValue_smul` and `weakValue_linear` give
+linearity in the observable; `weakValue_proj` and `weakValue_proj_sum` show the weak
+values of a complete family of projectors sum to `1`, the counterpart of
+`ChapterTrajectory.condProb_sum`.  The tie to the existing ABL machinery is explicit:
+`jointProb_eq_normSq_weakNumerator` identifies the ABL joint law with the squared
+modulus of the weak-value numerator for the post-selection covector `b ↦ conj (V f b)`,
+and `condProb_eq_weakNumerator_ratio` identifies the post-selected conditional law with
+its normalization.  The capstone `dslit_weakValue` computes the two which-slit weak
+values (`1` and `0`) for the Hadamard double slit.  Cited from the "Weak Measurements"
+section of `Book/DoubleSlit.lean`.
+
+**`BookProof/ChapterContinuityUnitary.lean` (§4.8) — the dynamics-based unitary.**  On
+the finite cyclic lattice `ZMod N` with the symmetric-difference momentum
+`(p ψ) k = -(i/2)(ψ(k+1) - ψ(k-1))`, the Weyl-symmetrized generator
+`continuityHamiltonian v = ½(p·v + v·p)` is Hermitian
+(`continuityHamiltonian_hermitian`), and `momentum_mul_velocityOp_not_hermitian` gives an
+explicit three-site velocity field for which the unsymmetrized `p·v` is not — the
+symmetrization is what makes the generator an observable.  `continuityUnitary v t =
+exp (i t H)` is unitary (`continuityUnitary_unitary`, from the general
+`exp_smul_I_unitary`) and forms a one-parameter group (`continuityUnitary_zero`,
+`continuityUnitary_add`): the unitary is fixed by the *function* `v`, with none of the
+arbitrariness of the Gram–Schmidt completion it replaces.  The Born recovery
+`bornRecover v t ψ B = ∑_{z ∈ B} |Ψ_t z|²` is nonnegative, finitely additive, monotone
+and of total mass `1` (`bornRecover_univ`, from `unitary_preserves_normSq`), packaged as
+`bornPMF` and as the capstone `condProb_of_continuity`: a genuine probability law on the
+lattice for every input, i.e. a conditional probability built from the dynamics rather
+than from a basis choice.  `tensorIsom`/`tensorIsom_tmul` provide the finite index-level
+identification `L²(X) ⊗ L²(Z) ≅ L²(X × Z)` that keeps the construction on the scalar
+space, and `bornRecover_product_state` runs the recovery on a product initial state
+`Ψ₀(x,z) = f(x) e₀(z)`.  The infinite-dimensional analytic realization remains the same
+standing open layer as elsewhere in the book.  Cited from the "A Less Arbitrary
+Construction" section of `Book/ConditionalUnitary.lean`.
+
+**Documentation and hygiene.**  `Book/ProofPlans.lean` appendix §D and §E now record both
+items as PROVED (with the theorem names and the boundary of what is claimed);
+`BookProof/STATUS.md` gained a dated wave entry; `CONSOLIDATED_PLAN.md` §4.7/§4.8/§7/§9
+are marked done, with the `Book/Trivial.lean` decision settled as *keep* (it is retained,
+and now says so, as the minimal reproducer for the Verso section-count behaviour);
+`Issues.md` records the closures, the refreshed KaTeX count and the two hygiene fixes.
+The `patches/*.sh` executable bits were restored (they had been lost again), and the
+three `**not**` spans in `Book/OdeSingularity.lean` that tripped the Verso emphasis
+linter are now single-starred, so the `Book` target builds warning-free.
+
+Final verification, all green: `lake build`, `lake build RandomMap`,
+`./patches/build-book.sh` (asserts no `<base>`, fragment links present) and
+`./patches/check-katex.sh` (1838 snippets, 0 KaTeX failures); no `sorry`, `admit` or
+`axiom` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`; the isolation audit
+(`import PnpProof` / `import UnusedRoute`) is empty.  All work is committed and pushed.
+
+# Summary of changes for run 8a50824d-029f-4e78-afbf-c40dc082406d
+Continued executing `CONSOLIDATED_PLAN.md`. On starting, I verified the whole project (default targets `BookProof`/`Book`/`Singularity`, plus `RandomMap` and the book pipeline) built green and was free of `sorry`s, `admit`s and `axiom` declarations. GAP-1, all of plan §4 and the D1/D2 prose items were already in place; the one mathematical item still open was the documented residue of GAP-2 — the exhaustiveness theorem for the abelian classification still *assumed* that the compact spectrum of the algebra may be taken metrizable. That residue is now closed, with two new modules that are `sorry`-free and use only the standard axioms (`propext`, `Classical.choice`, `Quot.sound`).
+
+**`BookProof/ChapterSeparableSpectrum.lean` — metrizability of the spectrum *is* separability of the algebra.** A dense family of continuous functions separates the points of a compact Hausdorff space (via Urysohn), so a countable dense family embeds the space in a countable power of ℂ and a continuous injection out of a compact space is an embedding: `metrizableSpace_of_separable_continuousMap`. With the converse this gives the equivalence `metrizableSpace_iff_separableSpace_continuousMap`. Through Gelfand duality the character space of a *separable* commutative unital C*-algebra is therefore metrizable (`metrizableSpace_characterSpace`), and the classification headlines `abelian_multiplication_model_classified_separable` and `abelian_algebra_multiplication_model_classified` now carry separability of the algebra instead of metrizability of the spectrum.
+
+**`BookProof/ChapterSeparableL2Model.lean` — a separably *acting* algebra needs no hypothesis at all.** If `L²(μ)` is separable then a countable family `D` of continuous functions is already dense in it (`exists_countable_dense_continuous`); evaluating that family, `y ↦ (f y)_{f ∈ D}`, maps into the countable power `D → ℂ`, a Polish and hence standard Borel space. Composition with the evaluation map is isometric with closed range containing the dense family, so it is a unitary, and it intertwines the multiplication operators: `separable_Lp_realizes_standard_type`. Applied to the cyclic summands of the general abelian model (whose `L²` spaces embed isometrically in the Hilbert space) this yields the headline `abelian_multiplication_model_classified_separable_hilbert`: every abelian algebra of operators on a separable complex Hilbert space is a countable direct sum of multiplication algebras, each realising one of the five standard types — no metrizability of the spectrum, no separability of the algebra. The Gelfand form of the same result is also proved. The only case now outside the statement is a nonseparably acting algebra.
+
+Both modules are registered in `BookProof.lean`, certified by `#print axioms` in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose in `Book/NullMeasure.lean`. Documentation was brought up to date: a dated wave entry in `BookProof/STATUS.md`, a status update in `CONSOLIDATED_PLAN.md` §3 (original text preserved), the closure of the stale "diffuse half" item in `Issues.md` §7, and a new section at the top of `ARISTOTLE_SUMMARY.md`. I also restored the executable bits on the `patches/*.sh` scripts, which had been lost.
+
+Final verification (all green, no in-scope warnings): `lake build`, `lake build RandomMap`, `./patches/build-book.sh` (asserts no `<base>` and fragment links present) and `./patches/check-katex.sh` (1699 snippets, 0 failures); no `sorry`, `admit` or `axiom` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/` (the pre-existing ones under `UsedRoute/`/`UnusedRoute/` are untouched). All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-12, `CONSOLIDATED_PLAN.md`, GAP-2: the metrizability residue)
+
+Continued executing `CONSOLIDATED_PLAN.md`.  The starting state was verified first:
+`lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap`
+and the book pipeline were green, with no `sorry`s, `admit`s or `axiom` declarations in
+`BookProof/`, `Book/`, `Singularity/` or `RandomMap/`.  GAP-1, all of §4 and the D1/D2
+prose items of §6 had already landed; the one mathematical item still open was the
+residue of GAP-2 recorded in `BookProof/STATUS.md` — the exhaustiveness theorem still
+*assumed* that the compact spectrum of the abelian algebra may be taken metrizable.
+This session closed that residue.  Two new modules, both `sorry`-free and `axiom`-free
+(`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), registered in
+`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed from
+new prose in `Book/NullMeasure.lean`.
+
+**1. `BookProof/ChapterSeparableSpectrum.lean` (new) — metrizability of the spectrum *is*
+separability of the algebra.**  `eq_of_forall_dense_apply_eq`: a dense family of
+continuous functions separates the points of a compact Hausdorff space (two points it
+does not separate are separated by no continuous function, and Urysohn's lemma separates
+distinct points).  Hence `metrizableSpace_of_separable_continuousMap`: a countable dense
+family embeds `Y` into a countable power of `ℂ`, and a continuous injection out of a
+compact space into a Hausdorff space is an embedding.  With the converse
+(`separableSpace_continuousMap_of_metrizable`) this gives the equivalence
+`metrizableSpace_iff_separableSpace_continuousMap`.  Through Gelfand duality
+(`separableSpace_continuousMap_characterSpace`, `metrizableSpace_characterSpace`) the
+character space of a **separable** commutative unital C*-algebra is metrizable, so the
+headlines `abelian_multiplication_model_classified_separable` and
+`abelian_algebra_multiplication_model_classified` state the five-type classification with
+separability of the algebra in place of metrizability of the spectrum.
+
+**2. `BookProof/ChapterSeparableL2Model.lean` (new) — a separably *acting* algebra needs
+no hypothesis at all.**  `exists_countable_dense_continuous`: when `L²(μ)` is separable, a
+countable family `D ⊆ C(Y, ℂ)` is already dense in it.  `coordMap` evaluates that family,
+`y ↦ (f y)_{f ∈ D}`, into the countable power `D → ℂ`, a Polish and hence standard Borel
+space; composition with it is isometric, its range is closed and contains the dense
+family, so it is a *unitary*, and it carries multiplication by `g` to multiplication by
+`g ∘ coordMap`.  Headline `separable_Lp_realizes_standard_type`: a Borel probability
+measure on a compact Hausdorff space with separable `L²` realises one of the five standard
+types.  Applied to the cyclic summands of the general abelian model — whose `L²` spaces
+embed isometrically in `H`, so are separable when `H` is
+(`separableSpace_of_linearIsometry`) — this gives the headline
+`abelian_multiplication_model_classified_separable_hilbert`: **every abelian algebra of
+operators on a separable complex Hilbert space is a countable direct sum of multiplication
+algebras, each realising one of the five standard types**, with no metrizability of the
+spectrum and no separability of the algebra assumed.  The Gelfand form of the same
+statement is `abelian_algebra_multiplication_model_classified_separable_hilbert`.  The
+only case left outside the statement is a nonseparably *acting* algebra.
+
+**Documentation.**  `BookProof/STATUS.md` gained a dated wave entry for the two modules;
+`Book/NullMeasure.lean` gained the prose and `#check`s; `CONSOLIDATED_PLAN.md` §3 records
+that the GAP-2 residue is closed (the original text is preserved); the stale
+`[NEEDS-INFO]` item of `Issues.md` §7 (the "diffuse half" of the abstract
+measure-theoretic layer of `book.tex` §3) is marked closed with the list of modules that
+close it.  The executable bits of the `patches/*.sh` scripts, which had been lost, were
+restored.
+
+**Verification.**  `lake build` (default targets), `lake build RandomMap`,
+`./patches/build-book.sh` (asserts no `<base>` and fragment links present) and
+`./patches/check-katex.sh` (0 KaTeX failures) are all green with no in-scope warnings;
+there are no `sorry`s, `admit`s or `axiom` declarations in `BookProof/`, `Book/`,
+`Singularity/` or `RandomMap/` (the pre-existing, out-of-scope ones under `UsedRoute/`
+and `UnusedRoute/` are untouched).  All work is committed and pushed.
+
+# Summary of changes for run 7a3dca1e-6de7-46ad-9a18-565afd77e7e9
+Continued executing `CONSOLIDATED_PLAN.md`. Everything in §4 of the plan had already landed; the one item still open was the last step of GAP-2 — reassembling the abelian von Neumann classification list and then proving its exhaustiveness. Both are now done (up to one documented hypothesis), with four new `sorry`-free, `axiom`-free modules (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`).
+
+**1. `BookProof/ChapterLpRestrictSplit.lean`** — the Hilbert-space form of the atomic/diffuse split. Extension by zero is a linear isometry `L²(μ|A) →ₗᵢ[ℂ] L²(μ)`; the pieces along `A` and `Aᶜ` have orthogonal ranges and add up to the original vector, so `L²(μ)` is the Hilbert sum of `L²(μ|A)` and `L²(μ|Aᶜ)` (`isHilbertSum_splitEmbed`), and the embeddings intertwine multiplication operators (`restrictEmbed_intertwines`) — a splitting of the algebra, not just of the space.
+
+**2. `BookProof/ChapterLpScaleMeasure.lean`** — total mass is invisible to the algebra: scaling a measure by a nonzero finite constant changes neither the null sets nor the `L²`/`L∞` classes, and the rescaled identity is a unitary `L²(c·ν) ≃ L²(ν)` carrying multiplication by a symbol to multiplication by the same symbol (`scaleUnitary_intertwines`, `normalized_multiplication_model`).
+
+**3. `BookProof/ChapterAbelianClassificationList.lean`** — the list itself. For a Borel probability measure `μ` on the line with atom set `S`: `L²(μ)` is the Hilbert sum of the atomic and diffuse pieces, multiplication is diagonal on the atomic piece in the basis of normalised point masses, and the diffuse piece (when nonzero) is unitarily `L²[0,1]` with `g ↦ g ∘ F` (`abelian_summand_standard_model`). Case-splitting on the mass of `S` and its cardinality gives `vonNeumann_abelian_classification_list`: the atoms are countable and exactly one of the five standard types occurs — `Iₙ`, `ℓ∞(ℕ)`, `L∞[0,1]`, `L∞[0,1] ⊕ Iₙ`, `L∞[0,1] ⊕ ℓ∞(ℕ)` — with an explicit bijection of the atoms with `ℕ` in the infinite cases.
+
+**4. `BookProof/ChapterStandardBorelClassification.lean`** — exhaustiveness. Composition with a measurable equivalence is a unitary `L²(e_*μ) ≃ L²(μ)` intertwining multiplication, and on a countable space no transport is needed since every measure is carried by its atoms. Via the Borel isomorphism theorem, a Borel probability measure on **any** standard Borel space realises one of the five types (`standardBorel_classification_list`). Two corollaries: every abelian algebra presented as a unital `*`-representation of `C(Y, ℂ)` with `Y` compact metrizable is a direct sum of multiplication algebras each realising one of the five types (`abelian_multiplication_model_classified`), and — with no extra hypothesis, since a spectrum is a compact subset of `ℂ` — every **normal operator** is a direct sum of multiplication operators each realising one of the five types (`spectral_multiplication_model_classified`).
+
+The one remaining residue, documented (never `sorry`-ed) in `BookProof/STATUS.md` and in the book prose: in the general representation-theoretic form, the reduction to a metrizable model of the spectrum is assumed rather than proved.
+
+All four modules are registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose in `Book/NullMeasure.lean`; `BookProof/STATUS.md` has two dated wave entries, `CONSOLIDATED_PLAN.md` §3 records the GAP-2 closure (original text preserved), and `ARISTOTLE_SUMMARY.md` has a new run entry.
+
+Verification: `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap`, the book pipeline and the KaTeX check (1679 snippets, 0 failures) are all green with no in-scope warnings; no `sorry`, `admit` or `axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/` (the pre-existing, out-of-scope ones in `UsedRoute/` and `UnusedRoute/` are untouched). All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-12, `CONSOLIDATED_PLAN.md`, GAP-2: reassembly and exhaustiveness)
+
+Continued executing `CONSOLIDATED_PLAN.md`.  The starting state was verified first:
+`lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build
+RandomMap` and the book pipeline were green, with no `sorry`s, `admit`s or `axiom`
+declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`.  Every item of
+§4 of the plan had already landed, and the only thing still open was the last step of
+GAP-2: the *reassembly* of the abelian classification list, and then its
+*exhaustiveness*.  This session closed both, up to one documented hypothesis.  Four
+new modules, all `sorry`-free and `axiom`-free (`#print axioms` reports only
+`propext`, `Classical.choice`, `Quot.sound`), all registered in `BookProof.lean`,
+certified in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed from new prose in
+`Book/NullMeasure.lean`.
+
+**1. `BookProof/ChapterLpRestrictSplit.lean` (new) — the Hilbert-space form of the
+atomic/diffuse split.**  Extension by zero is a linear isometry `L²(μ|A) →ₗᵢ[ℂ] L²(μ)`
+(`restrictEmbed`, `restrictEmbed_coeFn`); the pieces along `A` and `Aᶜ` have
+orthogonal ranges (`inner_restrictEmbed_eq_zero`) and add up to the vector one started
+from (`restrictProj`, `restrictEmbed_add_restrictEmbed_compl`), so `L²(μ)` is the
+Hilbert sum of `L²(μ|A)` and `L²(μ|Aᶜ)` (`isHilbertSum_splitEmbed`).  Because the
+embeddings intertwine the multiplication operators (`restrictEmbed_intertwines`), the
+splitting is a splitting of the multiplication *algebra*, not only of the space.
+
+**2. `BookProof/ChapterLpScaleMeasure.lean` (new) — total mass is invisible to the
+algebra.**  Scaling a measure by a nonzero finite constant changes neither the null
+sets (`ae_smul_measure_eq`) nor the `L²`/`L∞` classes
+(`memLp_two_smul_measure_iff`, `memLp_top_smul_measure_iff`); the same a.e. class,
+rescaled by `c^{1/2}`, is a unitary `scaleUnitary : L²(c·ν) ≃ₗᵢ[ℂ] L²(ν)`
+(`transferLp`, `scaleLin`, `norm_scaleLin`) and it carries multiplication by a symbol
+to multiplication by the same symbol (`scaleUnitary_intertwines`).  Headline
+`normalized_multiplication_model`: the multiplication algebra of a finite nonzero
+measure is unitarily that of its normalisation.
+
+**3. `BookProof/ChapterAbelianClassificationList.lean` (new) — the list.**  The atomic
+piece of a measure really is carried by its atoms (`atomSet_restrict_atomSet`,
+`restrict_atomSet_pure`), and the diffuse piece, normalised, is modelled by the unit
+interval through its distribution function
+(`diffuse_finite_multiplication_model`).  Gluing the two with the splitting gives the
+headline `abelian_summand_standard_model`: for a Borel probability measure `μ` on the
+line with atom set `S`, `L²(μ)` is the Hilbert sum of `L²(μ|S)` and `L²(μ|Sᶜ)`, the
+embeddings intertwine multiplication, multiplication is diagonal on the atomic piece
+in the basis of normalised point masses, and the diffuse piece — when nonzero — is
+unitarily `L²[0,1]` with `g ↦ g ∘ F`.  Case-splitting on the mass of `S` and on its
+cardinality gives `vonNeumann_abelian_classification_list`: the atoms are countable
+and exactly one of the manuscript's five types occurs — `Iₙ`, `ℓ∞(ℕ)`, `L∞[0,1]`,
+`L∞[0,1] ⊕ Iₙ`, `L∞[0,1] ⊕ ℓ∞(ℕ)` — with an explicit bijection of the atoms with `ℕ`
+in the infinite cases.
+
+**4. `BookProof/ChapterStandardBorelClassification.lean` (new) — exhaustiveness.**  A
+measurable equivalence is measure preserving onto the pushforward measure in both
+directions, so composition with it is a *unitary* `L²(e_*μ) ≃ L²(μ)` carrying
+multiplication by `g` to multiplication by `g ∘ e` (`transportUnitary`,
+`transportUnitary_intertwines`); on a countable space no transport is needed because
+every measure is carried by its atoms (`purelyAtomic_of_countable`).  With the Borel
+isomorphism theorem this gives `standardBorel_classification_list`: a Borel
+probability measure on **any** standard Borel space realises one of the five standard
+types (`RealizesStandardType`).  Two corollaries follow:
+`abelian_multiplication_model_classified` — every abelian algebra of operators,
+presented as a unital `*`-representation of `C(Y, ℂ)` with `Y` compact *metrizable*,
+is a direct sum of multiplication algebras each of which realises one of the five
+types — and `spectral_multiplication_model_classified`, where the hypothesis is
+automatic: every **normal operator** on a complex Hilbert space is a direct sum of
+multiplication operators, each summand realising one of the five standard types.
+
+**Remaining GAP-2 residue** (documented in `BookProof/STATUS.md` and in the book
+prose, never `sorry`-ed): in the general representation-theoretic form, the reduction
+to a metrizable model of the spectrum is assumed rather than proved (it is automatic
+for a separably acting algebra).
+
+**Documentation.**  `BookProof/STATUS.md` gained two dated wave entries,
+`Book/NullMeasure.lean` gained the prose and `#check`s for all four modules, and
+`CONSOLIDATED_PLAN.md` §3 records that GAP-2 is now essentially closed (the original
+text is preserved).
+
+**Verification.**  `lake build` (default targets), `lake build RandomMap`,
+`./patches/build-book.sh` and `./patches/check-katex.sh` (1679 snippets, 0 failures)
+are all green with no in-scope warnings; there are no `sorry`s, `admit`s or `axiom`
+declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/` (the
+pre-existing, out-of-scope ones in `UsedRoute/` and `UnusedRoute/` are untouched).
+All work is committed and pushed.
+
+# Summary of changes for run a7a925dc-38c6-4785-974c-3ee0529e7a4a
+Continued executing `CONSOLIDATED_PLAN.md`. The only item still open was GAP-2, the exhaustiveness of the abelian von Neumann classification; this session settled the two *standard types* of the classification list — the diffuse one and the atomic one — with three new modules. Everything added is `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`).
+
+**1. `BookProof/ChapterDiffuseCdfModel.lean` (new) — the diffuse type at the level of measures.** The distribution function `F = cdf μ` of an atomless Borel probability measure on the line is continuous, because its jump at a point is exactly the mass of that point (`continuous_cdf_of_noAtoms`); it therefore attains every level in `(0,1)` (`exists_cdf_eq`), and the sublevel set `{F ≤ t}` has mass exactly `t` (`measure_cdf_le`). Comparing the two measures on the half lines gives the headline `map_cdf_eq_volume_Icc`: `Measure.map (cdf μ) μ = volume.restrict (Set.Icc 0 1)`.
+
+**2. `BookProof/ChapterDiffuseUnitaryModel.lean` (new) — the diffuse type at the level of operators.** Composition with `F` is a linear isometry `L²[0,1] → L²(μ)`, and it is onto: the measurable sets that agree with an `F`-preimage up to a null set form a set algebra containing every half line (`cdfAlgebra`, `measure_symmDiff_Iic`), hence generating the Borel sets and measure dense (`measureDense_cdfAlgebra`); so every indicator lies in the closed range (`indicatorConstLp_mem_cdfRange`) and `Lp.induction` gives `cdfRange_eq_top`. The headline `diffuse_multiplication_model_uniform` produces a unitary `L²[0,1] ≃ L²(μ)` carrying multiplication by an essentially bounded symbol `g` to multiplication by `g ∘ F`.
+
+**3. `BookProof/ChapterAtomicDiagonalModel.lean` (new) — the atomic type.** For a finite measure carried by its atoms the normalised point masses are orthonormal and nothing is orthogonal to all of them, so they form a Hilbert basis of `L²(μ)` indexed by the atoms (`atomBasis`); the headline `atomic_multiplication_model_diagonal` shows every multiplication operator is diagonal in that basis, scaling the basis vector at `a` by `g a`.
+
+All three modules are registered in `BookProof.lean`, certified with `#print axioms` in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose added to `Book/NullMeasure.lean`; `BookProof/STATUS.md` and `ARISTOTLE_SUMMARY.md` carry dated entries for the waves.
+
+**Remaining GAP-2 obstruction** (documented in `BookProof/STATUS.md` and the book prose, never `sorry`-ed): only the final reassembly of the manuscript's five-type list is left — rewriting the classified direct sum as exactly one of the five standard models, with the multiplicity bookkeeping that entails.
+
+**Verification.** `lake build`, `lake build RandomMap` and `./patches/build-book.sh` all green with no in-scope warnings; `./patches/check-katex.sh` green (1651 snippets, 0 failures); no `sorry`/`admit` and no `axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/` (the pre-existing `sorry`s in `UsedRoute/` and `UnusedRoute/`, out of scope per the plan, are untouched). All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-12, `CONSOLIDATED_PLAN.md`, GAP-2: the standard types of the abelian classification list)
+
+Continued executing `CONSOLIDATED_PLAN.md`.  The starting state was verified first:
+`lake build` (default targets `BookProof`, `Book`, `Singularity`) and
+`lake build RandomMap` were green, and there were no open `sorry`s, `admit`s or
+`axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`.  The
+only item still open in the plan was GAP-2, the exhaustiveness of the abelian von
+Neumann classification, and within it the identification of the *diffuse* entry of
+the classification list, `L∞[0,1]`, together with its atomic counterpart.  Three new
+modules cover them: the diffuse type at the level of measures, then at the level of
+operators, and then the atomic type.  All three are `sorry`-free and
+`axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`,
+`Quot.sound`), all three are registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose in
+`Book/NullMeasure.lean`.
+
+**1. `BookProof/ChapterDiffuseCdfModel.lean` (new) — the measure-level statement.**
+The distribution function `F = cdf μ` of an atomless Borel probability measure on the
+line is continuous, because a monotone right-continuous function's jump at a point is
+exactly the mass of that point (`continuous_cdf_of_noAtoms`, via
+`StieltjesFunction.measure_singleton` and
+`Monotone.continuousAt_iff_leftLim_eq_rightLim`).  Running from `0` at `-∞` to `1` at
+`+∞`, it therefore attains every intermediate level (`exists_cdf_eq`), and the
+sublevel set `{F ≤ t}` has mass exactly `t` for `0 ≤ t < 1` (`measure_cdf_le`): it
+contains a half line `(-∞, x]` with `F x = t`, and is contained in every half line
+`(-∞, y]` with `F y > t`.  Comparing the two measures on the half lines with
+`Measure.ext_of_Iic` gives the headline **`map_cdf_eq_volume_Icc`**:
+`Measure.map (cdf μ) μ = volume.restrict (Set.Icc 0 1)` — every diffuse probability
+measure on the line is a copy of Lebesgue measure on the unit interval, read through
+its own distribution function.
+
+**2. `BookProof/ChapterDiffuseUnitaryModel.lean` (new) — the operator-level
+statement.**  What the classification list asserts is not a statement about measures
+but about multiplication algebras, and this module supplies the missing step.
+Composition with `F` is a linear isometry `L²[0,1] → L²(μ)` (`measurePreserving_cdf`,
+`cdfComp`), and it is *onto*.  Surjectivity is the substance: the measurable sets
+that agree with an `F`-preimage up to a `μ`-null set form a set algebra
+(`cdfAlgebra`, `isSetAlgebra_cdfAlgebra`) which contains every half line, because
+`(-∞, x]` and `{F ≤ F x}` have the same mass and so differ by a null set
+(`measure_cdf_le'`, `measure_symmDiff_Iic`); the algebra therefore generates the
+Borel sets (`generateFrom_cdfAlgebra`) and is measure dense
+(`measureDense_cdfAlgebra`).  Hence the indicator of *any* measurable set is an `L²`
+limit of indicators of `F`-preimages and lies in the (closed) range
+(`indicatorConstLp_mem_cdfRange`), and `Lp.induction` upgrades that to
+**`cdfRange_eq_top`**.  The resulting unitary `cdfUnitary` carries multiplication by
+an essentially bounded symbol `g` to multiplication by `g ∘ F`
+(`cdfUnitary_intertwines`), giving the headline
+**`diffuse_multiplication_model_uniform`**: the multiplication algebra of *any*
+diffuse probability measure on the line is unitarily the multiplication algebra of
+the unit interval.
+
+**3. `BookProof/ChapterAtomicDiagonalModel.lean` (new) — the atomic standard type.**
+The other alternative left by the atomic/diffuse split is settled by the same kind of
+argument in a simpler setting.  For a finite measure carried by its atoms the
+normalised point masses `δₐ / √μ{a}` are an orthonormal family (`atomVec`,
+`norm_atomVec`, `inner_atomIndicator_of_ne`, `orthonormal_atomVec`), and nothing is
+orthogonal to all of them: a vector orthogonal to the point mass at an atom vanishes
+there, and a vector vanishing at every atom vanishes almost everywhere because the
+complement of the atoms is null (`eq_zero_of_inner_atomVec_eq_zero`,
+`span_atomVec_orthogonal_eq_bot`).  So they form a Hilbert basis of `L²(μ)` indexed by
+the atoms (`atomBasis`), and multiplication by a symbol `g` is *diagonal* in it
+(`multOp_atomVec`), giving the headline **`atomic_multiplication_model_diagonal`**: an
+atomic summand of the abelian model is a diagonal algebra of size the number of atoms
+— the `I_n` and `ℓ∞(ℕ)` entries of the classification list.
+
+**Remaining GAP-2 obstruction**, recorded in `BookProof/STATUS.md` and in the book
+prose, never `sorry`-ed: only the final reassembly of the manuscript's five-type
+list is left — rewriting the classified direct sum as *exactly one* of the five
+standard models, with the multiplicity bookkeeping that entails.
+
+**Verification.** `lake build`, `lake build RandomMap` and `./patches/build-book.sh`
+all green with no in-scope warnings; `./patches/check-katex.sh` green (1651 snippets,
+0 failures); no `sorry`/`admit` and no `axiom` declarations in `BookProof/`, `Book/`,
+`Singularity/` or `RandomMap/` (the pre-existing `sorry`s in `UsedRoute/` and
+`UnusedRoute/`, out of scope per the plan, are untouched).  `BookProof/STATUS.md`
+carries dated entries for all three waves; all work is committed and pushed.
+
+# Summary of changes for run 581676fa-81c0-46a4-b534-a4470bb3b507
+Continued executing `CONSOLIDATED_PLAN.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting audit.** `lake build` (default targets `BookProof`, `Book`, `Singularity`) and `lake build RandomMap` were green, but an audit of the in-scope libraries turned up one open `sorry`: the Zorn step of `exists_cyclic_decomposition` in `BookProof/ChapterCyclicDecomposition.lean`, a module the previous pass had left unfinished and unregistered. That was closed first, and the pass then carried GAP-2 through the step it had been blocked on for several waves — the passage from a normal operator **with a cyclic vector** to an arbitrary one.
+
+**What was proved (all `sorry`-free, `axiom`-free — `#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`; all registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, `#check`-ed from new prose in `Book/NullMeasure.lean`):**
+
+1. `BookProof/ChapterCyclicDecomposition.lean` (completed, registered) — `exists_cyclic_decomposition`: by Zorn's lemma a normal operator admits a family of unit vectors whose cyclic subspaces are pairwise orthogonal and jointly dense; with `invariant_cyclicSubspace`, `invariant_orthogonal` and `cyclicSubspace_le_orthogonal`. Two inherited elaboration errors in the file were also repaired.
+2. `BookProof/ChapterCyclicDirectSum.lean` (new) — `orthogonalFamily_cyclicSubspace`, `isHilbertSum_cyclicSubspace`, `cyclicHilbertEquiv`, `exists_isHilbertSum_cyclicSubspace` (the space *is* the Hilbert sum of the cyclic subspaces), plus `starProjection_commutes_cfcHom` / `commute_starProjection_cfcHom` (projections onto invariant subspaces lie in the commutant), `starProjection_eq_of_hasSum` and `hasSum_starProjection_cyclicSubspace`.
+3. `BookProof/ChapterSpectralDirectSum.lean` (new) — the assembly: the summand model is built inside the ambient space (`cfcVecTo`, `denseRange_cfcVecTo`, `cyclicUnitary`, `cyclicEmbedding`, `range_cyclicEmbedding`, `cyclicEmbedding_intertwines_cfc/_intertwines`), giving the headline `spectral_multiplication_model_general`: for every normal operator on a complex Hilbert space there are Borel probability measures on its spectrum and isometric embeddings of the corresponding L² spaces exhibiting the space as their Hilbert sum, with the operator acting as multiplication by the coordinate function on each summand — no cyclic vector and no separability assumed. The separable corollary `spectral_multiplication_model_separable` (via `countable_orthogonalCyclicFamily`) makes the direct sum countable.
+
+**Remaining GAP-2 obstruction**, recorded in `BookProof/STATUS.md` and the book prose, never `sorry`-ed: the step from a *singly generated* abelian algebra to an arbitrary weakly closed one (a single generator, or a direct-integral decomposition), which the library does not provide.
+
+**Verification.** `lake build` and `lake build RandomMap` green with no in-scope warnings; `./patches/build-book.sh` green with its `<base>`/fragment-link assertions; `./patches/check-katex.sh` green (1587 snippets, 0 failures); no `sorry`/`admit` and no `axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/` (the pre-existing `sorry`s in `UsedRoute/`/`UnusedRoute/`, out of scope per the plan, are untouched). The `patches/*.sh` scripts had lost their executable bit in the delivered tree and are marked executable in git again. `ARISTOTLE_SUMMARY.md` and `BookProof/STATUS.md` carry a dated entry for this wave; all work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-11, `CONSOLIDATED_PLAN.md`, GAP-2: removing the cyclic-vector hypothesis)
+
+Continued executing `CONSOLIDATED_PLAN.md`.  The starting state was verified first:
+`lake build` (default targets `BookProof`, `Book`, `Singularity`) and
+`lake build RandomMap` were green, and an audit of the in-scope libraries turned up
+**one open `sorry`** — the Zorn step of `exists_cyclic_decomposition` in
+`BookProof/ChapterCyclicDecomposition.lean`, a module the previous pass had left
+unfinished and unregistered.  This pass closed it and then carried the GAP-2
+programme through the step it had been blocked on for several waves: the passage
+from the model of a normal operator **with a cyclic vector** to the model of an
+arbitrary one.  Three modules now cover that passage; all are `sorry`-free and
+`axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`,
+`Quot.sound`), all are registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose in
+`Book/NullMeasure.lean`.
+
+**1. `BookProof/ChapterCyclicDecomposition.lean` — completed and registered.**  The
+geometry of the decomposition: `cyclicSubspace` (the closed span of `{f(T)ξ}`),
+`Invariant`, `invariant_cyclicSubspace`, `invariant_orthogonal` (the orthogonal
+complement of an invariant subspace is invariant — this is where `*`-closedness of
+the functional-calculus algebra enters), `cyclicSubspace_le_orthogonal`,
+`invariant_iSup_cyclicSubspace`, and the headline **`exists_cyclic_decomposition`**,
+now proved: by Zorn's lemma there is a family of unit vectors whose cyclic subspaces
+are pairwise orthogonal and jointly dense.  (Maximality is what forces density: a
+unit vector in the orthogonal complement of everything collected so far could be
+added to the family.)  Two inherited elaboration errors in the file were repaired at
+the same time.
+
+**2. `BookProof/ChapterCyclicDirectSum.lean` (new) — the direct-sum form.**  The
+cyclic subspaces of such a family are an `OrthogonalFamily`
+(`orthogonalFamily_cyclicSubspace`) and, being total, exhibit the space as their
+Hilbert sum (`isHilbertSum_cyclicSubspace`, `cyclicHilbertEquiv`, headline
+`exists_isHilbertSum_cyclicSubspace`).  At operator level the splitting is respected
+by `T` for the sharpest possible reason: `starProjection_commutes_cfcHom` /
+`commute_starProjection_cfcHom` — the orthogonal projection onto an invariant
+subspace commutes with `f(T)` for every continuous `f`, so it lies in the commutant
+of the algebra generated by `T` — with `starProjection_cyclicSubspace_commutes`, the
+reusable `starProjection_eq_of_hasSum` (components of an unconditional sum drawn from
+an orthogonal family *are* the orthogonal projections) and
+`hasSum_starProjection_cyclicSubspace`.
+
+**3. `BookProof/ChapterSpectralDirectSum.lean` (new) — the assembly, and the general
+spectral theorem.**  The model of a summand is built *inside* the ambient space, which
+is what makes the assembly possible without a theory of restricted functional calculi:
+`cyclicSubspace_eq_closure_range`, `cfcVecTo`, `denseRange_cfcVecTo`, and — since the
+isometry `‖f(T)ξ‖ = ‖f‖_{L²(μ_ξ)}` needs no cyclicity —
+`cyclicUnitary : L²(μ_ξ) ≃ₗᵢ[ℂ] cyclicSubspace ξ`.  Read in `H` it becomes
+`cyclicEmbedding`, an isometric embedding with `range_cyclicEmbedding` the cyclic
+subspace, satisfying `cyclicEmbedding_intertwines_cfc` (`V M_g = g(T) V`) and
+`cyclicEmbedding_intertwines` (`V M_z = T V`).  Glued over a maximal orthogonal cyclic
+family (`orthogonalFamily_cyclicEmbedding`) this gives the headline
+**`spectral_multiplication_model_general`**: *for every normal operator on a complex
+Hilbert space there are Borel probability measures `μₓ` on its spectrum and isometric
+embeddings `Vₓ : L²(μₓ) → H` exhibiting `H` as the Hilbert sum of the `L²(μₓ)`, with
+`T` acting on each summand as multiplication by the coordinate function* — every
+normal operator is a direct sum of multiplication operators, with no cyclic vector and
+no separability assumed.  A final section adds the classical separable form: distinct
+members of the family are orthogonal unit vectors, hence at distance `√2`, so the
+balls of radius `1/2` around them are disjoint and a separable space admits only
+countably many (`inner_eq_zero_of_orthogonalCyclicFamily`,
+`one_lt_dist_of_orthogonalCyclicFamily`, `countable_orthogonalCyclicFamily`), giving
+**`spectral_multiplication_model_separable`**: on a separable space the direct sum is
+countable — the form in which the classification of abelian algebras on separable
+`L²` is usually stated.
+
+**Remaining GAP-2 obstruction (sharpened, recorded in `BookProof/STATUS.md`, never
+`sorry`-ed).**  What is missing for full five-way exhaustiveness is no longer the
+measure model of an operator, its commutant, or the reduction of the general case to
+the cyclic one.  It is the step from a *singly generated* abelian algebra to an
+arbitrary one: producing a single generator (or a direct-integral decomposition) for a
+weakly closed abelian algebra, which Mathlib does not provide.
+
+**Housekeeping.**  The `patches/*.sh` scripts had again lost their executable bit in
+the delivered tree; they are marked executable in git once more so
+`./patches/build-book.sh` runs.
+
+**Verification at the end of the pass.**  `lake build` (default targets `BookProof`,
+`Book`, `Singularity`) and `lake build RandomMap` green with no in-scope warnings;
+`./patches/build-book.sh` green with its `<base>`/fragment-link assertions;
+`./patches/check-katex.sh` green (0 failures); the axiom audit in
+`BookProof/ChapterRoadmapAudit.lean` prints only `propext`, `Classical.choice`,
+`Quot.sound` for every newly certified statement; no `sorry`/`admit` and no `axiom`
+declarations anywhere in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/` (the
+pre-existing `sorry`s in `UsedRoute/` and `UnusedRoute/`, which the plan puts out of
+scope, are untouched).  All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-11, `CONSOLIDATED_PLAN.md`, GAP-2: the measure model)
+
+Continued executing `CONSOLIDATED_PLAN.md`.  The starting state was verified first:
+`lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build
+RandomMap` and `./patches/build-book.sh` were green, with no `sorry`/`admit` and no
+`axiom` declarations in the in-scope directories, so the pass went straight to the
+one *mathematical* item still open in the plan: the remaining half of **GAP-2**, the
+passage from an **abstract** abelian algebra to a **concrete measure model** (the
+"spectral/Gelfand step" that earlier waves recorded as the obstruction).  Two new
+modules close that passage at the C*- and operator level.  Both are `sorry`-free and
+`axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`,
+`Quot.sound`), registered in `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose in
+`Book/NullMeasure.lean`.
+
+**1. `BookProof/ChapterAbelianGelfandModel.lean` (new) — the Gelfand/Riesz measure
+model.**  On a compact Hausdorff space a positive unital real-linear functional on
+`C(X, ℝ)` is integration against a Borel probability measure (`positiveCcMap`,
+`rieszStateMeasure`, `integral_rieszStateMeasure`,
+`isProbabilityMeasure_rieszStateMeasure`, built on Mathlib's
+`RealRMK.rieszMeasure`).  The complex form follows: a **state** of the C*-algebra
+`C(X, ℂ)` — positive on the squares `star g * g`, unital — is integration against a
+Borel probability measure (`stateMeasure`, `integral_stateMeasure`,
+`exists_probabilityMeasure_of_state`; positivity on real functions from
+`f = |√f|²`, reality of the values from `f = f⁺ − f⁻`, the complex case from
+`g = Re g + i Im g`).  `C(X, ℂ)` then acts on `L²(μ)` by multiplication through the
+unital `*`-homomorphism `mulRepHom` (`mulRep_one/_mul/_add/_smul/_star`), which is
+*faithful* whenever `μ` charges every nonempty open set (`mulRepHom_injective`), and
+the constant function `1` is a unit vector implementing the state (`oneVec`,
+`norm_oneVec`, `inner_oneVec_mulRep`).  Composing with Mathlib's Gelfand duality
+gives the headline `state_is_vector_state_of_multiplication`: **every state of a
+commutative unital C*-algebra is the vector state of a representation of that
+algebra by multiplication operators on the `L²` space of a Borel probability measure
+on its character space** — the abelian Gelfand–Naimark–Segal measure model.
+
+**2. `BookProof/ChapterSpectralMultiplication.lean` (new) — the spectral theorem in
+multiplication form.**  For a single operator the model is upgraded from a
+`*`-homomorphism to a **unitary equivalence**.  For a normal `T : H →L[ℂ] H` and a
+unit vector `ξ`, `f ↦ ⟪ξ, f(T)ξ⟫` is a state of `C(σ(T), ℂ)` (`vectorState`,
+`vectorState_star_mul_self`, `vectorState_pos`, `vectorState_one`), so it has a
+regular Borel probability measure on the spectrum (`spectralMeasure`,
+`integral_spectralMeasure`).  The identity
+`‖f(T)ξ‖² = ⟪ξ, (f̄f)(T)ξ⟫ = ∫ |f|² dμ` makes `f ↦ f(T)ξ` an `L²(μ)`-isometry
+(`norm_cfcHom_apply`); with continuous functions dense in `L²(μ)` and `ξ` **cyclic**
+it extends to a unitary `U : L²(μ) ≃ₗᵢ[ℂ] H` (`spectralUnitary`,
+`spectralUnitary_toLp`).  That unitary carries multiplication by any continuous
+symbol into the functional calculus (`spectralUnitary_intertwines_cfc`), in
+particular multiplication by the coordinate function into `T`
+(`spectralUnitary_intertwines`), giving the headline
+`spectral_multiplication_model`: **a normal operator with a cyclic unit vector is
+multiplication by `z` on the `L²` space of a probability measure carried by its
+spectrum.**
+
+**Remaining GAP-2 obstruction (sharpened, recorded in `BookProof/STATUS.md`, never
+`sorry`-ed).**  What is still missing for the full five-way exhaustiveness is the
+*von Neumann*-level statement: that a **weakly closed** abelian algebra on a
+separable `L²` is unitarily equivalent to *all* of `L∞(μ)` acting on `L²(μ)`.
+Beyond the models above that needs the bicommutant theorem, the decomposition of a
+general vector into cyclic subspaces, and the σ-weak continuity of the model, none
+of which Mathlib provides.
+
+**Housekeeping.**  The `patches/*.sh` scripts are now marked executable in git (they
+had lost the bit, so `./patches/build-book.sh` could not run).
+
+**Verification at the end of the pass.**  `lake build` (default targets) and
+`lake build RandomMap` green with no in-scope warnings; `./patches/build-book.sh`
+green with its `<base>`/fragment-link assertions; `./patches/check-katex.sh` green
+(1538 snippets, 0 failures); the axiom audit prints only the three standard axioms
+for the newly certified statements; no `sorry`/`admit` and no `axiom` declarations
+anywhere in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`.  All work is
+committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-11, `CONSOLIDATED_PLAN.md`)
+
+Continued executing `CONSOLIDATED_PLAN.md`.  The starting state was verified first:
+the default build (`BookProof`, `Book`, `Singularity`), `lake build RandomMap` and
+the book build were green, and the plan's earlier items (§9.1 D1/D2 prose, GAP-1,
+§4.1–§4.6, the purely atomic half of GAP-2, the §7 hygiene residue and the
+Issues.md refresh) were already on disk.  This pass closed the two remaining
+*mathematical* scope gaps that were reachable, fixed one honesty defect found by
+an axiom audit, and mechanically verified the rendering item of `Issues.md` §4.
+
+**1. GAP-2, diffuse half — `BookProof/ChapterLinftyMaximalAbelian.lean` (new).**
+The `L∞(μ)` multiplication algebra on `L²(μ)` is **its own commutant**, hence
+maximal abelian: on a finite measure space every bounded operator commuting with
+all multiplication operators is multiplication by its own symbol `ψ = T(1)`, and
+`‖ψ‖_∞ ≤ ‖T‖`.  Proved: `symbol`, `symbol_mul`, `symbol_ae_norm_le`,
+`memLp_top_symbol`, `commutant_eq_multOp`, `multOp_algebra_maximal_abelian` and
+`unitInterval_multOp_maximal_abelian` (Lebesgue on `[0,1]`).  This is the diffuse
+counterpart of the already-landed atomic condensation
+(`atomic_abelian_maximal_eq_diagonal`), so both ends of the classification list
+now carry their structural theorem.  The remaining obstruction — *exhaustiveness*
+in the diffuse case, i.e. the spectral/Gelfand passage from an abstract abelian
+von Neumann algebra to a measure model — stays a documented gap in
+`BookProof/STATUS.md`, never a `sorry`.
+
+**2. §4.2, completeness half — `BookProof/ChapterTensorCompleteness.lean` (new).**
+`ChapterSolovayHilbertTensor` explicitly did not claim that the pure tensors
+exhaust `L²` of a product measure.  They do, for finite measures:
+`tensorSpan_eq_top` (the closed span of `{f ⊗ g}` is `⊤`), `pureTensors_dense`
+and `exists_tensor_approx` (separation of variables — every `L²` function of two
+variables is an `L²`-limit of finite sums `∑ₖ fₖ(x)gₖ(y)`).  The proof is the
+classical π–λ argument (`indicatorConstLp_prod`, `indicator_mem_tensorSpan` via
+`MeasurableSpace.induction_on_inter` against `generateFrom_prod`, with the
+countable-disjoint-union step supplied by `partialUnion_indicator_mem` plus `L²`
+convergence of the partial unions), followed by `Lp.induction`.  With
+`inner_tensorLp` this says `L²(μ ⊗ ν)` *is* the Hilbert tensor product of `L²(μ)`
+and `L²(ν)`, without the library having a Hilbert tensor product to name.  A final
+section draws the practical corollary — the **product basis**: `tensorOf` (the pure
+tensor of two `L²` elements) with `inner_tensorOf`, `norm_tensorOf` and its
+bilinearity/continuity (`tensorRight`, `tensorLeft`); `orthonormal_tensorOf` (the
+products of two orthonormal families are orthonormal); and
+`tensorFamily_span_eq_top` (the products of two total families are total), so the
+products of two orthonormal bases form an orthonormal basis of `L²(μ ⊗ ν)`.
+
+Both modules are `sorry`-free and `axiom`-free (`#print axioms` reports only
+`propext`, `Classical.choice`, `Quot.sound`), are registered in `BookProof.lean`,
+are certified by `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`,
+and are `#check`-ed from new prose paragraphs in `Book/NullMeasure.lean` and
+`Book/SolovayTensor.lean`.  `BookProof/STATUS.md` records the new wave.
+
+**3. Honesty fix in the `RandomMap` target — `RandomMap/RandomMap2RH.lean`.**  An
+axiom audit of every declaration in the `RandomMap` library found exactly one
+`sorryAx` dependence: `riemann_hypothesis_bridge` discharged its conclusion by
+appealing to the historical `riemann_hypothesis_rect` of
+`UsedRoute/RectangleStrategy.lean`, whose proof still contains `sorry`
+placeholders — contradicting the module's own stated policy.  Since the isolated
+premise `RectangleRH` *is* the rectangle form of RH, the bridge is now proved from
+its own hypothesis; the stale `import UsedRoute.RectangleStrategy` was narrowed to
+`UsedRoute.Basic` (still needed for `zeta_symm`), and the honesty note is recorded
+in the module docstring.  A programmatic re-audit now reports **0 sorry-tainted
+declarations in the whole `RandomMap` library**; nothing is claimed about RH.
+
+**4. `Issues.md` §4 rendering item closed — `patches/check-katex.sh` (new).**  Math
+in the book is typeset client-side with `throwOnError: false`, so an unsupported
+construct would silently render in red.  The new script extracts every
+`.math.inline` / `.math.display` snippet from `_out/html-single/index.html` and
+re-renders each with `throwOnError: true` against the KaTeX build the book ships.
+Result: **1488 snippets, 0 failures**, including all 15 `pmatrix` displays — the
+case `Issues.md` flagged as never confirmed.  `Issues.md` and `AGENTS.md` are
+updated, and the shell scripts under `patches/` are now executable in git.
+
+**Verification at the end of the pass:** `lake build` (default targets) and
+`lake build RandomMap` green with no in-scope warnings; `./patches/build-book.sh`
+green with its `<base>`/fragment-link assertions; `./patches/check-katex.sh` green;
+no `sorry`/`admit` and no `axiom` declarations anywhere in `BookProof/`, `Book/`,
+`Singularity/` or `RandomMap/`.
+
+# Summary of changes for run d4db2eda-1de7-49e7-9e51-04b858b370ab
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting state was verified first**: the default build (`BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were green, with no `sorry`/`admit` and no `axiom` declarations in the in-scope directories, so the pass went straight to new deliverables.
+
+**Nine new proof packages landed**, in two batches, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionFreeEnergy.lean` — the free energy is a soft maximum: `β·sⱼ ≤ log Z ≤ log m + β·max s`, so `|log Z(β)/β − max s| ≤ log m/β` and `max s − ⟨s⟩_β ≤ log m/β`, with both converging to the maximum as `β → ∞`; the gap between the soft and the hard maximum is exactly the entropy.
+2. `BookProof/ChapterAttentionSparse.lean` — sparse attention costs exactly the discarded mass: the shortlisted head differs from the dense head by exactly `2(1 − P(S))` in `ℓ¹`, so a shortlist carrying `1 − ε` of the mass is `2ε`-accurate and its output is within `2εC`, with a tail bound and the lossless characterization.
+3. `BookProof/ChapterAttentionOVCircuit.lean` — the OV circuit: the attention average commutes with every linear map, so the value and output projections act only through `W_O W_V`, with the `GL(d)` gauge freedom `(W_O,W_V) ↦ (W_O A, B W_V)`, the rank-`d` bound, and the column-space range.
+4. `BookProof/ChapterAttentionSaturation.lean` — a saturated head cannot learn: the total absolute response of the weights to a nudge of one score is exactly `2β·pᵢ(1 − pᵢ)`, hence at most `β/2`, and at most `2βε` for every key once some key carries `1 − ε`.
+5. `BookProof/ChapterAttentionPrior.lean` — a logit bias is a Bayesian prior: `pⱼ ∝ wⱼe^{βsⱼ}` is the Bayes posterior with prior `w` and likelihood `e^{βs}`, its odds are prior odds × likelihood ratio, and a prior is exactly the score shift `sⱼ ↦ sⱼ + (log wⱼ)/β`.
+6. `BookProof/ChapterAttentionStreaming.lean` — incremental decoding is exact: appending a key/value pair rescales every cached weight by `1 − w` and updates the output to `(1 − w)·o_old + w·v_new`, moving the summary by exactly `w·‖v_new − o_old‖`.
+7. `BookProof/ChapterAttentionLocality.lean` — a distance penalty makes a head local: weights decay like `e^{−βγd}`, the mass beyond distance `R` is at most `m·e^{βΔ}e^{−βγR}`, and the sliding-window head is within `2C` times that of the full head.
+8. `BookProof/ChapterAttentionCalibration.lean` — the entropy fixes the temperature: the attention entropy is continuous and strictly decreasing in `β ≥ 0` whenever two scores differ, so each achievable level is realized by exactly one temperature.
+9. `BookProof/ChapterAttentionTopK.lean` — top-`k` is the optimal shortlist: a heaviest-first set carries the most mass, hence minimizes both the `ℓ¹` error and the output error, and at `β > 0` coincides with the highest-scoring shortlist.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap`, `lake build book` and `lake exe book` are all green with no in-scope warnings; the axiom audit prints only the three standard axioms for the twenty newly certified statements; a repository-wide search finds no `sorry`/`admit` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`; no `axiom` declarations were added.
+
+**Documentation.** `BookProof/STATUS.md`, the plan's status block and `ARISTOTLE_SUMMARY.md` each carry a dated note for the two batches. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved). All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-10, soft maximum, sparse attention, the OV circuit, saturation and priors)
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated this file.  Nine new proof packages landed in this run, in two batches.
+
+**Starting state checked first.** `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were green at the start of the pass, with no `sorry`/`admit` and no `axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`, so this pass went straight to new deliverables.
+
+**Five new proof packages landed**, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionFreeEnergy.lean` — **the free energy is a soft maximum.** Every score bounds the free energy from below (`β·sⱼ ≤ log Z`) and an upper bound `M` on the scores bounds it above (`log Z ≤ log m + βM`), so `|log Z(β)/β − max s| ≤ log m/β`. The same sandwich transfers to the attention-weighted mean score, `max s − ⟨s⟩_β ≤ log m/β` (using the free-energy identity `log Z = β⟨s⟩ + H` and `H ≤ log m`), and both quantities converge to the maximum score as `β → ∞`: the entire gap between the soft maximum and the hard one is the entropy of the collapse.
+2. `BookProof/ChapterAttentionSparse.lean` — **sparse attention costs exactly the discarded mass.** For a shortlist `S` carrying attention mass `P(S)`, the shortlisted (renormalized) head differs from the dense head by *exactly* `2(1 − P(S))` in `ℓ¹`. Hence a shortlist capturing all but `ε` of the mass is `2ε`-accurate, its output is within `2εC` for values of norm at most `C`, the discarded mass is at most `(m − |S|)ε` when each dropped key carries at most `ε`, and sparsification is lossless exactly when the shortlist already carried everything.
+3. `BookProof/ChapterAttentionOVCircuit.lean` — **the OV circuit**, the writing-side counterpart of the existing QK-circuit package. The attention average commutes with every linear map, so the value and output projections act only through their product `W_O W_V`; two factorizations with the same product are indistinguishable; `(W_O, W_V) ↦ (W_O A, B W_V)` with `AB = I` is an exact symmetry; the product has rank at most the head dimension; and a head writes only into the column space of its output map.
+4. `BookProof/ChapterAttentionSaturation.lean` — **a saturated head cannot learn.** The total absolute response of the attention distribution to a nudge of one score is exactly `2β·pᵢ(1 − pᵢ)`, hence never more than `β/2`; and once some key carries `1 − ε` of the attention, *every* row of the Softmax Jacobian has total size at most `2βε`, so a head that has made up its mind receives almost no learning signal.
+5. `BookProof/ChapterAttentionPrior.lean` — **a logit bias is a Bayesian prior.** The biased head `pⱼ ∝ wⱼe^{βsⱼ}` is definitionally the Bayes posterior of `ChapterBayesInference` with prior `w` and likelihood `e^{βs}`; its odds are prior odds times likelihood ratio; a prior is exactly the score shift `sⱼ ↦ sⱼ + (log wⱼ)/β` at `β ≠ 0`; only the ratios of the prior weights matter; a uniform prior gives plain Softmax; and at `β = 0` the head returns the normalized prior.
+
+**A second batch of four packages landed in the same run**, on the same terms (`sorry`-free, `axiom`-free, registered, certified and `#check`-ed):
+
+6. `BookProof/ChapterAttentionStreaming.lean` — **decoding is an incremental update.** Appending one key/value pair multiplies every cached attention weight by the single factor `1 − w` and turns the output into the convex interpolation `(1 − w)·o_old + w·v_new`, so an autoregressive decoder's KV cache is an exact identity rather than an approximation; a fresh token moves the summary by exactly `w·‖v_new − o_old‖`, and the odds among the cached keys are untouched.
+7. `BookProof/ChapterAttentionLocality.lean` — **a distance penalty makes a head local.** With scores reduced by γ times the distance, the weight of a key decays like `e^{−βγd}`, the total attention beyond distance `R` is at most `m·e^{βΔ}·e^{−βγR}`, and consequently the sliding-window head is within `2C·m·e^{βΔ}·e^{−βγR}` of the full head — locality is a theorem about the penalty, not an architectural stipulation.
+8. `BookProof/ChapterAttentionCalibration.lean` — **the entropy fixes the temperature.** For a head whose scores are not all equal, the attention entropy is a continuous, strictly decreasing function of the inverse temperature on β ≥ 0; hence distinct temperatures give distinct entropies, every level between `H(B)` and the maximal `log m` is attained on `[0, B]`, and the temperature realizing a target entropy is unique.
+9. `BookProof/ChapterAttentionTopK.lean` — **top-k is the optimal shortlist.** For non-negative weights, a heaviest-first set carries at least as much mass as any set of at most the same size; since the price of sparsification is exactly the discarded mass, the top-k shortlist minimizes both the ℓ¹ error and the output error, and at a positive temperature it coincides with the highest-scoring shortlist, so it can be selected before the Softmax is evaluated.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap`, `lake build book` and `lake exe book` are all green with no in-scope warnings. The axiom audit in `BookProof/ChapterRoadmapAudit.lean` prints only `propext`, `Classical.choice`, `Quot.sound` for the twenty newly certified statements, and a repository-wide search finds no `sorry`/`admit` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`. No `axiom` declarations were added.
+
+**Documentation.** `BookProof/STATUS.md`, the plan's status block and this file carry a dated note for the pass. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the quantum fidelity of displaced thermal states (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved). All work is committed and pushed.
+
+# Summary of changes for run 914eb950-6fd9-4899-97ef-61679ed7cb14
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting state checked first.** `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were all green, with no `sorry`/`admit` and no `axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`, so the pass went straight to new deliverables.
+
+**Five new proof packages landed**, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionTemperature.lean` — turning the temperature knob: the odds of two keys are the exponential `e^{β(sᵢ−sⱼ)}` of their score gap; the weight of a maximizing key is monotone in `β` (strictly so when another key scores lower) and that of a minimizing key antitone, so at every `β ≥ 0` the winner holds at least the uniform share `1/m` and the loser at most `1/m`; and if the scores span at most `D`, no weight exceeds `e^{βD}/m`, giving the entropy floor `H ≥ log m − βD`.
+2. `BookProof/ChapterAttentionSink.lean` — the attention sink as a rescaling: prepending one extra key multiplies every ordinary weight by the same factor `1 − w`, leaves the odds between ordinary keys untouched, strictly dilutes each of them, makes the output the two-point average `w·v₀ + (1−w)·o`, and splits the entropy into the binary entropy of the sink share plus `(1−w)` times the sink-free entropy.
+3. `BookProof/ChapterAttentionCoarseGrain.lean` — regrouping the keys: the pushforward `P(y) = ∑_{f(x)=y} p(x)` is again a distribution; when the values depend on a key only through its group, key-by-key and group-by-group outputs agree; merging keys satisfies the data-processing inequality (entropy can only fall); and the weights are not invariant — group scores are weighted by group size, so duplicating a key doubles its share.
+4. `BookProof/ChapterAttentionQKCircuit.lean` — a head sees only one matrix: the score is the bilinear form of `W_Qᵀ W_K`, any two parameter pairs with the same product give the same weights and output, `(W_Q, W_K) ↦ (A W_Q, B W_K)` with `AᵀB = I` is an exact symmetry, and the circuit has rank at most the head dimension.
+5. `BookProof/ChapterResidualStream.lean` — the residual stream is never overwritten: a head with values bounded by `C` moves the stream by at most `C`; an `L`-Lipschitz block with `L < 1` makes `x ↦ x + f x` expansive by `1 − L`, hence injective, with the matching `(1 + L)` upper bound; and a stack of `n` blocks drifts by at most `n·C`.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap` and `lake build book` are all green; the only warnings in the shared logs come from the out-of-scope `UnusedRoute/` directory, and the new files are warning-free. The axiom audit prints only the three standard axioms for the ten newly certified headlines, every new `#check` in the book chapter was elaborated separately to confirm it resolves, and a repository-wide search finds no `sorry`/`admit` in the in-scope directories.
+
+**Documentation.** `BookProof/STATUS.md`, the plan's status block and `ARISTOTLE_SUMMARY.md` all carry a dated note for this pass. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved). All work is committed and pushed.
+
+# Summary of changes for this run
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting state verified first.** `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were all green, with no `sorry`/`admit` and no `axiom` declarations in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`. Nothing needed repair, so the pass went straight to new deliverables.
+
+**Five new proof packages landed**, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionTemperature.lean` — turning the temperature knob: the odds of two keys are the pure exponential `e^{β(sᵢ−sⱼ)}` of their score gap; the weight of a maximizing key is monotone in `β` (strictly, if some key scores lower) and that of a minimizing key antitone, so at every `β ≥ 0` the winner holds at least the uniform share `1/m` and the loser at most `1/m`; and if the scores span at most `D`, no weight exceeds `e^{βD}/m`, giving the entropy floor `H ≥ log m − βD`.
+2. `BookProof/ChapterAttentionSink.lean` — the attention sink as a gauge: prepending one extra key multiplies every ordinary weight by the same factor `1 − w`, leaves the odds between ordinary keys untouched, strictly dilutes each of them, turns the output into the two-point average `w·v₀ + (1−w)·o`, and splits the entropy into the binary entropy of the sink share plus `(1−w)` times the sink-free entropy.
+3. `BookProof/ChapterAttentionCoarseGrain.lean` — regrouping the keys: the pushforward `P(y) = ∑_{f(x)=y} p(x)` is again a distribution; if the values depend on a key only through its group the key-by-key and group-by-group outputs agree; merging keys obeys the data-processing inequality (entropy can only fall); and the weights are *not* invariant — group scores are weighted by group size, so duplicating a key doubles its share.
+4. `BookProof/ChapterAttentionQKCircuit.lean` — the head only sees one matrix: the score is the bilinear form of `W_Qᵀ W_K`, any two parameter pairs with the same product give the same weights and output, the substitution `(W_Q, W_K) ↦ (A W_Q, B W_K)` with `AᵀB = I` is an exact symmetry, and the circuit has rank at most the head dimension.
+5. `BookProof/ChapterResidualStream.lean` — the residual stream is never overwritten: a head with values bounded by `C` moves the stream by at most `C`; an `L`-Lipschitz block with `L < 1` makes `x ↦ x + f x` expansive by `1 − L`, hence injective, with the matching `(1 + L)` upper bound; and a stack of `n` blocks drifts by at most `n·C`.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap` and `lake build book` are all green; the only warnings in the shared logs come from the out-of-scope `UnusedRoute/` directory. The axiom audit in `BookProof/ChapterRoadmapAudit.lean` prints only `propext`, `Classical.choice`, `Quot.sound` for the ten newly certified headlines, and every new `#check` in `Book/CoherentState.lean` was elaborated separately to confirm it resolves. A repository-wide search finds no `sorry`/`admit` in the in-scope directories, and no `axiom` declarations were added.
+
+**Documentation.** `BookProof/STATUS.md` and the plan's status block carry a dated wave note for this pass. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved).
+
+All work is committed and pushed.
+
+# Summary of changes for run 13118102-758c-4de4-93b1-45127ba6193f
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Starting state verified first.** `lake build` (default targets `BookProof`, `Book`, `Singularity`), `lake build RandomMap` and `lake build book` were all green, with no `sorry`/`admit` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`. Nothing needed repair, so the pass went straight to new deliverables.
+
+**Nine new proof packages landed**, all `sorry`-free and `axiom`-free (`#print axioms` reports only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified by a `#print axioms` line in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs added to `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterAttentionCollision.lean` — how many keys a head reads: the collision probability `∑pⱼ²`, the participation ratio `1/∑pⱼ²` (between `1` and `m`, exactly `m` at infinite temperature) and the Rényi-2 entropy, with `renyi2_le_shannonEntropy` showing the count is conservative.
+2. `BookProof/ChapterAttentionConcentration.lean` — a Markov bound (at most `1/t` keys carry weight `t` or more), the uniform-share existence `1/m`, and the min-entropy bound `−log pₘₐₓ ≤ H` (equivalently `pₘₐₓ ≥ e^{−H}`), tied back to the participation ratio.
+3. `BookProof/ChapterAttentionMarkov.lean` — attention as a Markov kernel: row-stochasticity, kernel composition = layer stacking, `ℓ¹` non-expansiveness, a Doeblin contraction `1 − mε`, and the headline that a layer with score spread `D` contracts by `1 − e^{−βD}`.
+4. `BookProof/ChapterScaledDotProduct.lean` — why scores are divided by `√d`: for a uniform `±1` query the raw score has mean `0` and mean square `‖k‖²` (hence RMS `√d`), rescaling scores rescales the temperature, and the `1/√d`-scaled score has mean square exactly `1` at any width.
+5. `BookProof/ChapterAttentionOutputVariance.lean` — the bias–variance identity for the output, the head output as the least-squares summary of the values, König–Huygens/Jensen, and zero output variance exactly when the values agree.
+6. `BookProof/ChapterAttentionLowRank.lean` — the score table of a head has rank at most the head dimension `d`; at `d < m` the identity ("attend to yourself only") routing pattern is unrealizable, and the bound is sharp at `d ≥ m`.
+7. `BookProof/ChapterLayerNorm.lean` — layer normalization as gauge fixing: zero mean and squared length `d`, invariance under `x ↦ ax + c` (`a > 0`), idempotence, and the resulting attention floor `e^{−2βd}/m`.
+8. `BookProof/ChapterSinusoidalPosition.lean` — the sinusoidal encoding aligns positions as `∑ cos(ω(p−q))`, so attention over sinusoidal positions depends only on offsets (the sinusoidal counterpart of the rotary result).
+9. `BookProof/ChapterAttentionMixing.lean` — iterating one layer: the `(1 − mε)ⁿ` mixing law, convergence to zero distance, uniqueness of a stationary belief, and the attention rate `(1 − e^{−βD})ⁿ`. Existence of a stationary distribution is deliberately not claimed.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap` and `lake build book` are all green with no in-scope warnings; the axiom audit prints only `propext`, `Classical.choice`, `Quot.sound` for all 45 certified headlines; a repository-wide search finds no `sorry`/`admit` in the in-scope directories; no `axiom` declarations were added.
+
+**Documentation.** `BookProof/STATUS.md` and the plan's status block carry a dated wave note; `ARISTOTLE_SUMMARY.md` has a new section describing this pass. The two long-standing mathematical gaps are unchanged and remain documented rather than `sorry`-ed: the derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states on a bosonic Fock space (its finite algebraic core is proved), and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the individual classes are proved).
+
+All work is committed and pushed.
+
+# Summary of changes for run d17bb48f-601c-4fa8-bb04-7ae3937ccfc2
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+**Verified the prior state first**, then landed a new wave of **six proof packages**, all `sorry`-free and `axiom`-free (`#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from new prose paragraphs in `Book/CoherentState.lean`:
+
+1. `BookProof/ChapterSoftmaxJacobian.lean` — the score derivative of attention: `∂ log Z/∂sᵢ = β·pᵢ` (a key's attention weight *is* the sensitivity of the free energy to its score) and the Softmax Jacobian `∂pⱼ/∂sᵢ = β·pⱼ(δᵢⱼ − pᵢ)`, both as `HasDerivAt` statements; the Jacobian is symmetric, has zero row sums, is diagonally non-negative / off-diagonally non-positive at `β ≥ 0`, and its quadratic form is `β` times an attention-weighted variance (positive semidefinite; equal to `β·Var_β(s)` on the scores).
+2. `BookProof/ChapterAttentionOutput.lean` — the output as a function of temperature, built on the project's existing `observableExpectation` rather than restating its convex-hull/norm bounds: the plain mean of the values at `β = 0`, winner-takes-all convergence to the arg-max value as `β → ∞`, `ℓ¹`-stability in the weights, and the Born output identified with the head output at `β = 2`.
+3. `BookProof/ChapterAttentionMasking.lean` — masking is Bayesian conditioning, `p(j | S) = p(j)/p(S)`, with odds invariance (a mask removes keys without re-ranking them), order preservation, the tower property for nested masks, and the causal mask (no weight on the future, nested windows).
+4. `BookProof/ChapterCoherentDynamics.lean` — the symmetry group of attention: unitary invariance of the Bargmann kernel and the Born weights, free harmonic evolution as a special case (attention is a constant of the motion), and Weyl displacement covariance.
+5. `BookProof/ChapterAttentionFactorization.lean` — independent modes factorize: the joint attention distribution over a product key set with additive scores is the product of the single-mode ones, its marginals are those distributions, and the attention entropy is additive.
+6. `BookProof/ChapterRotaryPosition.lean` — the rotary positional encoding is unitary and additive in the position, and the query–key alignment depends on the two positions only through their offset, so translating the whole sequence changes no attention weight.
+
+**Documentation.** `BookProof/STATUS.md` gained a dated wave note covering the above and, for the first time, four packages that had landed earlier but were never written up (`ChapterSoftmaxDivergence`, `ChapterLogPartitionConvex`, `ChapterCoherentPositionSpace`, `ChapterSoftmaxStability`); the plan's status section records the wave; `ARISTOTLE_SUMMARY.md` has a new run summary at the top.
+
+**Verification.** `lake build` (default targets), `lake build book` and `lake build RandomMap` are green with no in-scope warnings. `BookProof/`, `Book/`, `Singularity/` and `RandomMap/` contain no `sorry` and no `axiom` declarations; the only `sorry`s in the repository remain the pre-existing ones in the out-of-scope `UsedRoute/` and `UnusedRoute/` trees.
+
+**Gaps left open** (documented, never `sorry`-ed, unchanged by this run): the physical derivation of `τ = n̄ + ½` from the fidelity of displaced thermal states (its finite algebraic core and Gaussian phase-space route are formalized) and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (its finite, countable, diffuse and mixed classes are all proved).
+
+All work is committed and pushed.
+
+# Summary of changes for the continuation run (2026-08-09, operational layer of the attention head)
+
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md`.  The previous state was
+re-verified first (`lake build`, `lake build book`, `lake build RandomMap` all
+green, no in-scope warnings), then a new wave of **six proof packages** landed,
+all `sorry`-free and `axiom`-free (`#print axioms` shows only `propext`,
+`Classical.choice`, `Quot.sound`), each registered in `BookProof.lean`, certified
+in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed from
+`Book/CoherentState.lean`:
+
+1. **`BookProof/ChapterSoftmaxJacobian.lean` — the score derivative of attention.**
+   `∂ log Z/∂sᵢ = β·pᵢ` (the attention weight of a key *is* the sensitivity of the
+   free energy to that key's score) and the Softmax Jacobian
+   `∂pⱼ/∂sᵢ = β·pⱼ(δᵢⱼ − pᵢ)`, proved as `HasDerivAt` statements.  The Jacobian is
+   symmetric, its rows sum to zero (a key can only gain what the others lose), it
+   is diagonally non-negative and off-diagonally non-positive at `β ≥ 0`, and its
+   quadratic form is `β` times an attention-weighted variance — positive
+   semidefinite, and equal to `β·Var_β(s)` on the scores themselves.
+
+2. **`BookProof/ChapterAttentionOutput.lean` — the output as a function of the
+   temperature.**  The head output is *defined* as the existing
+   `observableExpectation` against `scoreSoftmax β s` (the project's convex-hull
+   and norm bounds are reused, not restated).  New: the plain mean of the values
+   at `β = 0`, winner-takes-all convergence to the arg-max value as `β → ∞`,
+   `ℓ¹`-stability of the output in the weights, and the identification of the
+   coherent-state Born output with the head output at `β = 2`.
+
+3. **`BookProof/ChapterAttentionMasking.lean` — masking is conditioning.**  Masked
+   Softmax is a probability distribution supported exactly on the admissible set,
+   and on that set it is the unmasked weight renormalized: `p(j | S) = p(j)/p(S)`.
+   Masking leaves every odds ratio inside `S` untouched (it removes keys without
+   re-ranking them), preserves the score order, and satisfies the tower property
+   (a composite mask is a single mask).  The causal mask is built, with no weight
+   on the future and nested attention windows.
+
+4. **`BookProof/ChapterCoherentDynamics.lean` — the symmetry group of attention.**
+   A common unitary change of frame on the query and all keys changes no weight;
+   free harmonic evolution `α ↦ e^{iθ}α` is such a unitary, so **attention is a
+   constant of the motion**; and a common Weyl displacement leaves the weights
+   unchanged, so only relative phase-space positions are physical.
+
+5. **`BookProof/ChapterAttentionFactorization.lean` — independent modes factorize.**
+   With additive per-mode scores the joint attention distribution over a product
+   key set is exactly the product of the single-mode distributions, its marginals
+   are those distributions, and the attention entropy is additive.
+
+6. **`BookProof/ChapterRotaryPosition.lean` — position enters only as a relative
+   phase.**  The rotary positional encoding is unitary and additive in the
+   position, and the alignment of a query at position `a` with a key at position
+   `b` depends on the positions only through the offset `b − a`; hence translating
+   the whole sequence changes no attention weight.
+
+**Documentation.**  `BookProof/STATUS.md` received a dated wave note covering the
+above and also recording, for the first time, four packages that had landed on
+disk in an earlier pass but were never written up (`ChapterSoftmaxDivergence`,
+`ChapterLogPartitionConvex`, `ChapterCoherentPositionSpace`,
+`ChapterSoftmaxStability`).  The status section of
+`PLAN_LEAN_SPECIALIST_COHERENT.md` records the wave as landed.
+
+**Verification.**  `lake build` (default targets `BookProof`, `Book`,
+`Singularity`), `lake build book` and `lake build RandomMap` are all green with no
+in-scope warnings; `BookProof/`, `Book/`, `Singularity/` and `RandomMap/` contain
+no `sorry` and no `axiom` declarations.  The only `sorry`s in the repository are
+the pre-existing ones in the out-of-scope `UsedRoute/` and `UnusedRoute/` trees.
+
+**Gaps left open** (documented, never `sorry`-ed, unchanged by this run): the
+physical derivation of `τ = n̄ + ½` from the fidelity of displaced thermal states
+(its finite algebraic core and the Gaussian phase-space route are both formalized)
+and the exhaustiveness of the abelian von Neumann `*`-isomorphism classification
+(the finite, countable, diffuse and mixed classes are all proved).
+
+All work is committed and pushed.
+
+# Summary of changes for run 8b7f7412-d317-4bbe-9596-2f8630398260
+Finished executing `PLAN_LEAN_SPECIALIST_COHERENT.md`. Parts A–E were already landed; this run completed the remaining Part F and Part G, and closed out the documentation and verification.
+
+**Part F — five new proof packages** (all `sorry`-free and `axiom`-free, registered in `BookProof.lean` and `#check`-ed from the book text):
+- `BookProof/ChapterH5.lean` (F.1) — the inversion-free Krylov shortcut: `krylovSpan`, `krylov_subspace_span`, `shift_pow_sub_pow_mem`, `krylovSpan_shift_eq`, `inversion_free_seed`, `generator_bounded_of_rankOneProjector`, headline `krylov_no_inversion_eq_standard` (the sequence `w₀ = v₀`, `wₖ = (H̄ − γI)wₖ₋₁` spans exactly the standard Krylov subspace).
+- `BookProof/ChapterH6.lean` (F.2) — the Krylov projection as a spectral low-pass filter: `sirk_error_decay_exponential`, `sirk_error_bound_antitone`, `sirk_error_tendsto_zero`, `krylov_rayleigh_transfer`, `krylovRetainsDominantSpectrum`, plus the reduced-generator and semigroup lemmas.
+- `BookProof/ChapterF8.lean` (F.3) — Tomographic Subspace Recovery: the two-level hash and its decoding, the matrix-unit operator basis, the offline/online cost split (`online_cost_independent_of_M`), headline `tsr_offline_compiles`.
+- `BookProof/ChapterThermalTemperatureCore.lean` (F.4) — the finite algebraic core of the temperature identity: geometric occupancy, its mean and variance, and headline `thermal_temperature_eq_mean_half` (`½·coth(x/2) = n̄ + ½`).
+- `BookProof/ChapterAbelianMixture.lean` (F.5) — the mixed atomic-plus-diffuse abelian von Neumann class, headline `vonNeumann_abelian_class_mixture`.
+
+New prose and `#check` blocks were added to `Book/FreeField.lean`, `Book/CoherentState.lean` and `Book/NullMeasure.lean`.
+
+**Part G — isolation refactor.** The shared analytic core was promoted out of `PnpProof/` into four Mathlib-only modules `BookProof/PhysMeasureBasis.lean`, `BookProof/PhysFunctionalAnalysis.lean`, `BookProof/PhysHSGaussian.lean`, `BookProof/PhysMehler.lean`; the original `PnpProof/` files became thin export aliases, all consumers were repointed, and no `PnpProof` module compiles in the default build any more. The Riemann-Hypothesis file was moved to `UnusedRoute/SchoenfeldPRA.lean`, taking its two intentional `sorry`s out of the default thread. One premise of the plan's G.3 was factually wrong and is now corrected in the plan: `RandomMap/RandomMap2.lean` genuinely depends on that file, so it imports the relocated module rather than being independent of it.
+
+**Verification.** `lake build` (default targets `BookProof`, `Book`, `Singularity`) completes green with 8523 jobs and 0 errors; `lake build RandomMap`, `PnpProof`, `UnusedRoute` and `book` are green as well. No `sorry` and no new `axiom` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`; the only `sorry` notices in the build are pre-existing legacy ones in the out-of-scope `UsedRoute/` and `UnusedRoute/` trees (count unchanged from before this work).
+
+**Documented gaps and follow-ups** (recorded in `BookProof/STATUS.md` and the plan's status section, not `sorry`-ed anywhere): the physical derivation of `τ = n̄ + ½` from the fidelity of displaced thermal states (F.4 proves its finite algebraic core), the exhaustiveness of the abelian von Neumann `*`-isomorphism classification (the finite, countable, diffuse and mixed classes are all proved), and a cosmetic style backlog — the promoted `Phys*` modules inherit long-line and tactic-style lint warnings from their origin. No linter was disabled and no `nolint` was added.
+
+All work is committed and pushed.
+
+# Summary of changes for run ec1b1253-3e20-4f2e-81d3-3d2c81c1ab67
+## What I did
+
+I worked `PLAN_LEAN_SPECIALIST_UNPROVED.md` in queue order. Priorities 1, 2, 3 and 5 were re-audited and found already landed (the Mehler tail split, the `ChapterSelectingEvents` conclusions, and all six Priority‑3 chapter claims — dissipative non‑singularity, the Ω‑conjugation invariance of the real‑representation summands, the gravity projector direct sum, `fieldStrengthMul_eq_Fbook`, the uniform‑prior pair, the deep‑learning ensemble identities). This pass closed the remaining realistic item and landed four new proof packages, all `sorry`‑free and using only `propext`, `Classical.choice`, `Quot.sound` (verified with `#print axioms`).
+
+**1. `BookProof/ChapterA3x.lean` — Priority 4, complete reducibility at `N = 3`.** The library had the `N = 2` case, where symmetrizer and antisymmetrizer are complementary. From `N = 3` they are not, and the leftover mixed‑symmetry projector `projMixed N = 1 − projSym N − projAnti N` is proved idempotent, orthogonal to both others, and commuting with the diagonal Lorentz generators and diagonal parity — so each summand is a full‑Lorentz subrepresentation. It vanishes at `N = 2` and, crucially, **does not vanish at `N = 3`** (an explicit diagonal entry equals `2/3`). Headline: `tensorCube_complete_reducibility`, the three‑part splitting `V^{⊗3} = Sym³V ⊕ Λ³V ⊕ Mixed`, with no external hypothesis.
+
+**2. `BookProof/ChapterBoseEinstein.lean` — the thermal law in physical variables.** With `boseEinstein x = 1/(eˣ−1)` at inverse temperature `x = ħω/kT`: the thermal ratio becomes the Boltzmann factor `e^{−x}`, the occupation law is exactly the Gibbs law `Pr(n) = (1−e^{−x})e^{−nx}`, the parameter is confirmed to be the mean occupation, heating strictly raises it, and the temperature has the closed form `τ(x) = n̄(x)+1/2 = ½·coth(x/2)` with zero‑temperature limit `τ → 1/2`. The already‑present energy‑expectation reading of `τ` was reused rather than restated.
+
+**3. `BookProof/ChapterThermalMaxEntropy.lean` — why the bath is thermal.** The thermal Shannon entropy with its closed form and its Gibbs‑variable form `S = −log(1−e^{−x}) + x·n̄`, the pointwise Gibbs inequality, and the headline: among finitely supported occupation distributions with a prescribed mean occupation, the thermal law maximizes the entropy.
+
+**4. `BookProof/ChapterLinftyMultiplication.lean` — the `L∞(μ)` class of the abelian von Neumann list.** Alongside the finite and countable diagonal (`ℓ∞`) classes already formalized, the diffuse model is now built: multiplication by an essentially bounded symbol is a bounded operator on `L²(μ)` with norm at most the essential supremum, and the assignment is unital, multiplicative, **abelian**, star‑closed (the adjoint is multiplication by the conjugate) and, on a finite measure space, **faithful**. Lebesgue measure on `[0,1]` is recorded as atomless — the feature separating this class from the atomic ones.
+
+## Hygiene (Priority 6)
+
+All four modules are registered in `BookProof.lean`; the corresponding book chapters gained `#check` blocks (`Book/PhysicalParity.lean`, `Book/CoherentState.lean`, `Book/NullMeasure.lean`) plus corrected prose; `BookProof/ChapterRoadmapAudit.lean` gained axiom certificates for the new headlines; `BookProof/STATUS.md` and the plan file received a dated wave note. `lake build` is green across all default targets, no `sorry` appears in the new work, and the only pre‑existing intentional ones (in `RandomMap/SchoenfeldPRA.lean`) were left untouched.
+
+## Gaps left open (documented, never `sorry`-ed)
+
+The derivation of `τ = n̄ + 1/2` from the quantum fidelity of displaced thermal states; the two mixture classes and the exhaustiveness of the five‑item von Neumann list; and the deep external inputs of §4 (Wigner/Mackey imprimitivity, Varadarajan, Lévy paths, Crouzeix), which the plan explicitly says to keep as named hypotheses.
+
+
+# Summary of changes for run aba8fb7a-613e-4e7c-959e-9215a8295b6e
+Continued executing `PLAN_LEAN_SPECIALIST_COHERENT.md`, landing a new wave (recorded in the plan as Part E) of formal content for the chapter `Book/CoherentState.lean`, plus the verification gate.
+
+**Verified the prior state first.** Parts A–D of the plan were re-checked rather than redone: a full `lake build` is green, `lake build RandomMap` and `lake build book` are green, and the only `sorry`s anywhere in `BookProof/`, `RandomMap/`, `Singularity/` are the two intentional, RH-related ones in `RandomMap/SchoenfeldPRA.lean`. The build log contains no in-scope warnings (only those two `sorry` notices, plus the excluded `PnpProof/`, `UnusedRoute/`, `UsedRoute/` directories, which were left untouched).
+
+**Three new proof modules, all `sorry`-free and axiom-clean (`propext`, `Classical.choice`, `Quot.sound`), registered in `BookProof.lean`:**
+
+1. `BookProof/ChapterCoherentGeometry.lean` — the wave-packet geometry. The coherent overlap is a lossless readout of distance (`-2·log⟨q|k⟩ = ‖q−k‖²`) and is strictly decreasing in it; the Born attention weight is *exactly* a Softmax over minus the squared distances at inverse temperature 1, with no hypothesis on the key norms; consequently attention orders the keys by proximity and the nearest key carries the largest weight (strictly, if strictly nearest).
+
+2. `BookProof/ChapterSoftmaxOrder.lean` — the order structure of the measurement: Softmax is gauge invariant (only score differences are physical), it is a strictly increasing reparametrization of the scores at any positive inverse temperature (so it reorders nothing and the argmax is temperature-independent), a constant score profile is uniform at every temperature, and the attention weights inherit the order of the query–key alignments.
+
+3. `BookProof/ChapterAttentionEntropy.lean` — the entropy of the attention distribution: Shannon entropy with nonnegativity, Gibbs' inequality `H ≤ log m` (proved from `log x ≤ x − 1`) and its sharpness at the uniform distribution; maximal entropy `log m` at infinite temperature; and the collapse — with a strict score maximizer the entropy tends to 0 as the inverse temperature grows, and likewise for the coherent-state Born weights as the query is amplified.
+
+**Chapter sync.** `Book/CoherentState.lean` gained three new prose paragraphs with `#check` blocks (in "The Geometry of the Wave-packet", "Softmax Is the Born Rule on Coherent States", and "Informational Superposition and the Unknown Output"); every referenced name was verified to elaborate. Its Summary was corrected: the two caveats it still advertised (real-only coherent parameters; the observable given only by spectral data) had already been discharged by the complex-kernel and observable-operator modules, while the physical derivation of `τ = n̄ + 1/2` from the fidelity of displaced thermal states is retained as a documented gap.
+
+**Documentation.** A dated wave note describing all of the above, including the unchanged disparity, was added at the top of `BookProof/STATUS.md`, and the status section of `PLAN_LEAN_SPECIALIST_COHERENT.md` now records Parts C, D and E as landed with the remaining mathematical gaps listed explicitly. `ARISTOTLE_SUMMARY.md` was deliberately left unmodified, as the project instructions state it should not be edited; the run notes live in `BookProof/STATUS.md` instead.
+
+All work is committed and pushed.
+
+# Summary of changes for run f2550135-bbf9-43b9-84b2-33e4b030a5ce
+I continued executing `PLAN_LEAN_SPECIALIST_UNPROVED.md` and updated `ARISTOTLE_SUMMARY.md`.
+
+An audit showed the plan's Priorities 1–5 were already landed and green, so this pass attacked the two threads it leaves open — the external representation-theoretic inputs (Priority 4) and the last unproved goal in the book's own Proof-Plans appendix — and landed four new packages in `BookProof/`, all `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean` and cross-referenced from the corresponding book chapter.
+
+1. `BookProof/ChapterSchurFullFiniteDim.lean` — Schur's lemma in its commutant form. `ChapterA2b` assumes `IsSchurFull` (every bounded operator commuting with the system is a complex scalar) as a named external hypothesis; `isSchurFull_of_irreducible` proves it for an irreducible system on a nonzero finite-dimensional complex inner-product space, with `commutant_eq_scalars_of_irreducible` and `commutant_eq_span_one` recording the commutant as exactly the line ℂ·1.
+
+2. `BookProof/ChapterUnitaryCompleteReducibility.lean` — Weyl's unitarian trick, for unitary representations of an arbitrary group: `orthogonal_isInvariant` (the orthogonal complement of an invariant subspace is invariant), `unitary_complete_reducibility` (in finite dimensions every invariant subspace has an invariant complement), `exists_irreducible_invariant_le` and `exists_irreducible_decomposition` (the representation is a sum of irreducibles).
+
+3. `BookProof/ChapterMaschkeFiniteGroup.lean` — the same complete-reducibility conclusion for a finite group with no unitarity assumed, via the averaging argument: `avgProj`, `avgProj_mem`, `avgProj_eq_self`, `avgProj_comm`, and the headline `maschke_invariant_complement`, stated in exactly the shape the Lorentz chapter has to assume in the non-compact case.
+
+4. `BookProof/ChapterSpectralEnergyBound.lean` — goal A.4 of the book's Proof-Plans appendix (energy-bounded initial conditions), in the spectral representation where the Hamiltonian is multiplication by its real eigenvalue function: `norm_diagOp_le` (‖Hψ‖ ≤ E‖ψ‖ for a state supported where |f| ≤ E), `norm_evolve` (unitarity), `evolve_support`, `hasDerivAt_evolve` (the Schrödinger equation ψ'(t) = −iHψ(t)), `norm_deriv_evolve_le` (time-derivative bounded by E‖ψ(0)‖ uniformly in time) and `evolve_lipschitz` (global Lipschitz continuity — no finite-time singularity).
+
+Hygiene wave: axiom checks on every new headline; `#check` blocks and updated prose in `Book/PhysicalParity.lean` and `Book/OdeSingularity.lean`; the `Book/ProofPlans.lean` entry for goal A.4 changed from an open goal to a proved status entry; a dated wave note added to `BookProof/STATUS.md`; and the four pre-existing Verso markup warnings fixed so the book target now builds warning-free.
+
+Verification: the full default build (`BookProof`, `Book`, `Singularity`) completes successfully (8509 jobs); a repository-wide search confirms the only remaining `sorry`s are the two pre-existing, intentional ones in `RandomMap/SchoenfeldPRA.lean`, and there are no `axiom` declarations in `BookProof/` or `PnpProof/`. All work is committed and pushed.
+
+# Summary of changes for the current run
+I continued executing `PLAN_LEAN_SPECIALIST_UNPROVED.md`.  An audit of the queue
+showed Priorities 1–5 already landed and green, so this pass attacked the two
+threads the plan leaves open — the `EXTERNAL` representation-theoretic inputs
+(Priority 4) and the remaining unproved goal in the book's own *Proof Plans*
+appendix — and delivered four new packages in `BookProof/`, all `sorry`-free and
+axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), each registered in
+`BookProof.lean` and cross-referenced from the corresponding book chapter.
+
+**1. `BookProof/ChapterSchurFullFiniteDim.lean` — Schur's lemma in its commutant
+form.**  `ChapterA2b` assumes `IsSchurFull` (every bounded operator commuting with
+the system is a complex scalar) as a named `EXTERNAL` hypothesis.
+`isSchurFull_of_irreducible` proves it for an irreducible system on a nonzero
+finite-dimensional complex inner-product space, with
+`commutant_eq_scalars_of_irreducible` and `commutant_eq_span_one` recording the
+commutant as exactly the line `ℂ·1`.
+
+**2. `BookProof/ChapterUnitaryCompleteReducibility.lean` — Weyl's unitarian
+trick.**  For unitary representations of an arbitrary group:
+`orthogonal_isInvariant` (the orthogonal complement of an invariant subspace is
+invariant), `unitary_complete_reducibility` (every invariant subspace of a
+finite-dimensional unitary representation has an invariant complement),
+`exists_irreducible_invariant_le` and `exists_irreducible_decomposition` (the
+representation is a sum of irreducibles).
+
+**3. `BookProof/ChapterMaschkeFiniteGroup.lean` — Maschke's averaging argument.**
+The same complete-reducibility conclusion for a finite group, with no unitarity
+assumed: `avgProj` (the group average of a projection), `avgProj_mem`,
+`avgProj_eq_self`, `avgProj_comm` and the headline
+`maschke_invariant_complement`, stated in exactly the shape the Lorentz chapter
+has to assume for the non-compact case.
+
+**4. `BookProof/ChapterSpectralEnergyBound.lean` — goal A.4 of the book's
+Proof-Plans appendix (energy-bounded initial conditions).**  In the spectral
+representation: `norm_diagOp_le` (`‖Hψ‖ ≤ E‖ψ‖` for a state supported on
+`{|f| ≤ E}`), `norm_evolve` (unitarity), `evolve_support`, `hasDerivAt_evolve`
+(the Schrödinger equation `ψ'(t) = -iHψ(t)`), `norm_deriv_evolve_le` (the
+time-derivative is bounded by `E‖ψ(0)‖` uniformly in time) and `evolve_lipschitz`
+(global Lipschitz continuity — no finite-time singularity).
+
+**5. Hygiene (the plan's final wave).**  Axiom checks on every new headline;
+`#check` blocks added to `Book/PhysicalParity.lean` and `Book/OdeSingularity.lean`
+with the surrounding prose updated; the `Book/ProofPlans.lean` entry for goal A.4
+changed from an open goal to a proved status entry; a dated wave note added to
+`BookProof/STATUS.md`; and the four pre-existing Verso markup warnings in the book
+build fixed, so `lake build Book` is now warning-free.
+
+Verification: the full default build (`BookProof`, `Book`, `Singularity`)
+completes successfully, and a repository-wide search confirms the only remaining
+`sorry`s are the two pre-existing, intentional ones in
+`RandomMap/SchoenfeldPRA.lean`, with no `axiom` declarations in `BookProof/` or
+`PnpProof/`.  All work is committed and pushed.
+
+# Summary of changes for run c1d2c8a6-7c1d-4efa-831d-3ce6d788e738
+I continued executing `PLAN_LEAN_SPECIALIST_UNPROVED.md` from where the previous pass stopped (Priorities 1–5 of the queue were already landed and green), and delivered six new packages in `BookProof/`, all `sorry`-free and axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), each registered in `BookProof.lean` and cross-referenced from the corresponding book chapter.
+
+**1. `BookProof/ChapterMehlerOrthogonalInvariance.lean` — the Priority-1 follow-on the plan asked for.** The chapter previously asserted invariance of the Mehler tail prior only at the abstract "measure-preserving" interface. Now proved concretely:
+- `charFun_stdGaussianEuclidean` — the characteristic function of the standard k-dimensional Gaussian is `exp(-‖t‖²/2)`, a function of the norm alone;
+- `stdGaussianEuclidean_map_isometry` — hence invariance under every linear isometry of ℝᵏ, i.e. the full orthogonal group O(k);
+- `gaussianHead_map_orthogonal` — the same in raw coordinates, for an orthogonal matrix acting by `x ↦ O *ᵥ x`;
+- `coordinateTailMeasure_map_headRotation` / `measurePreserving_headRotation` — the infinite Mehler coordinate prior is invariant under a rotation of its first k coordinates.
+
+**2. `BookProof/ChapterMehlerUniqueness.lean` — the forcing half of "only the Mehler measure".** `mehler_unique_by_finite_marginals` (a law on ℕ → ℝ whose finite-coordinate marginals are all the standard Gaussian product *is* the Mehler law), `mehler_characterization`, `language_blind_implies_mehler`, and `solovay_kopperman_probability_classification` (arbitrary law on the finite head, only the Mehler law on the infinite tail). This closes the two statements the book chapter still listed as "planned".
+
+**3. `BookProof/ChapterAtomicDecomposition.lean` — the Priority-2 residue.** `atoms_countable`, `noAtoms_continuousPart`, `eq_continuousPart_add_atomicPart`, `atomicPart_eq_sum_dirac` (the atomic part *is* ∑ₓ μ{x}·δₓ), and the headline `probability_measure_five_types`: every probability measure lies in exactly one of five mutually exclusive classes, matching the book's five types one for one. This is the measure-theoretic skeleton only — von Neumann's full *-isomorphism classification remains an explicitly documented gap.
+
+**4. `BookProof/ChapterAbelianVonNeumannFinite.lean` — the first of those five types as a genuine theorem.** For a Hermitian matrix with pairwise distinct eigenvalues, `commutant_eq_range_conjDiagonal` and `abelian_commutant_isomorphic_ellInfty` show the commutant is exactly a faithful *-algebra copy of ℓ∞({1,…,n}).
+
+**5. `BookProof/ChapterMixedPrior.lean` — worst-case vs best-case priors.** `atomless_prior_not_purelyAtomic`, `noAtoms_normalizedContinuousPart`, and `exists_continuous_prior_beyond_atomic`: rescaling the continuous part of a mixed prior yields a continuous probability measure that no discrete prior can reproduce.
+
+**6. Hygiene (the plan's final wave).** Axiom checks on every new headline; `#check` blocks added to `Book/SolovayTensor.lean` and `Book/NullMeasure.lean`, with the affected prose updated to reflect that the previously "planned" statements are now proved; a dated wave note added to `BookProof/STATUS.md`.
+
+Verification: the full default build (`BookProof`, `Book`, `Singularity`) completes successfully, and a repository-wide search confirms the only remaining `sorry`s are the two pre-existing, intentional ones in `RandomMap/SchoenfeldPRA.lean`, with no `axiom` declarations in `BookProof/` or `PnpProof/`. (The book target additionally needs the repository's tracked Verso patches applied to the local dependency checkout, as documented in `patches/`.) All work is committed and pushed.
+
+# Summary of changes for run 9d2ead15-df95-4e23-af42-c7f070ccfd50
+Fixed the project’s build errors and a substantial set of warnings.
+
+Changes include:
+- Removed unavailable modules from the `BookProof` aggregate imports.
+- Replaced the absent `PnpProof` default target with targets present in this repository snapshot.
+- Fixed formatting, whitespace, unused-variable, long-line, and flexible-tactic warnings throughout `Singularity`.
+- Corrected Verso emphasis markup throughout `Book/`; `lake build Book` now completes with zero warnings.
+- `lake build Singularity` now completes with zero warnings.
+- `lake build BookProof` and the full default `lake build` now complete successfully with no errors.
+- Confirmed no `sorry` or `admit` proof bodies were introduced in the repaired default targets.
+
+The full build still reports pre-existing Mathlib style-linter warnings in 113 `BookProof/` source files (primarily unused simp arguments, flexible tactics, and long lines). These do not prevent compilation; 1,953 such warnings remain.
+
 # Summary of changes for run d8c3de01-bd5f-4ab3-9d22-82583ec28542
 Completed the remaining step in `PLAN_A_ODE_CORE.md` and updated `ARISTOTLE_SUMMARY.md`.
 
@@ -3779,7 +8713,7 @@ Executed the next step of the standing roadmap directive (mine the next self-con
 
 The surrounding field-theoretic construction (full graded Lie superalgebra, essential self-adjointness of the polynomial Hamiltonian, existence/uniqueness) is physical modelling left as prose.
 
-**Verification.** Full `lake build` is green (8131 jobs); the module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified on the headline results). 
+**Verification.** Full `lake build` is green (8131 jobs); the module is confirmed `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`, verified on the headline results).
 
 **Docs.** Added a Wave 53 entry to `BookProof/STATUS.md` and prepended a matching Wave 53 section to `ARISTOTLE_SUMMARY.md` (as requested). All work is committed and pushed.
 
@@ -7014,3 +11948,785 @@ All three chapters registered in `BookProof.lean` (imports at lines 229-231). Fu
 1. Continue systematic verification of remaining BookProof theorems (spot-check with LSP)
 2. Update BookProof/STATUS.md with verification timestamps
 3. Review `BookProof/STATUS.md` for accuracy against current file state
+
+---
+
+# Continuation pass (2026-08-07, second pass of `PLAN_LEAN_SPECIALIST_UNPROVED.md`)
+
+Audit at the start of this pass: `lake build BookProof` green (8294 jobs); no
+`sorry` anywhere in `BookProof/`; the only `sorry`s in the repository remained the
+two intentional, pre-existing ones at `RandomMap/SchoenfeldPRA.lean:162,176`; no
+`axiom` declarations in `BookProof/` or `PnpProof/`. Priorities 1, 2, 3 and most of
+5 of the plan were already landed and were re-verified rather than redone. The
+remaining genuinely open items were Priority 4 (the Pauli fundamental theorem's
+`EXTERNAL` flag) and the `True`-valued placeholders the plan flags in §"Current
+state". This pass delivered **five** new packages, all `sorry`-free and
+axiom-clean (only `propext`, `Classical.choice`, `Quot.sound`), all registered in
+`BookProof.lean`, each cross-referenced from the corresponding book chapter.
+
+**1. `BookProof/ChapterPauliCommutant.lean` — Priority 4, Pauli discharged for the
+concrete model.** `ChapterA3b.lean` carries the Pauli fundamental theorem as the
+`EXTERNAL` named hypothesis `PauliFundamental` (in full generality it is not in
+Mathlib). For the fixed `4×4` Majorana model of `ChapterA3.lean` the irreducibility
+input is now proved outright, by solving the commutation system explicitly:
+
+- `mgamma_commutant_scalar` — any complex `4×4` matrix commuting with all four
+  Majorana matrices `iγ^μ` equals `M₀₀ · 1`;
+- `mgamma_commutant_iff` — hence the commutant of the family is exactly `ℂ · 1`;
+- `mgamma5_of_commutes` — such a matrix automatically commutes with `iγ⁵`;
+- `dgamma_commutant_scalar` — the same statement for the Dirac matrices
+  `γ^μ = -i (iγ^μ)`;
+- `mgamma_conjugation_unique_up_to_scalar` — the **uniqueness clause** of the
+  Pauli theorem for this family: two invertible matrices conjugating the `iγ^μ`
+  to the same family differ by a nonzero scalar;
+- `mgamma_conj_eq_self_iff` — the conjugation stabiliser of the family is the
+  group of nonzero scalars;
+- `mgamma_conjTranspose` — the family is closed under the conjugate transpose up
+  to a sign, `(iγ^μ)ᴴ = ±iγ^μ`; with `adjoint_mgammaLin` and
+  `mgammaLin_orthogonal_invariant` this gives `mgamma_irreducible`: the only
+  subspaces of `ℂ⁴` invariant under all four Majorana matrices are `⊥` and `⊤`,
+  i.e. the concrete representation is irreducible.
+
+**2. `BookProof/ChapterRieszFischer.lean` — the analytic core of the PA-free
+completion.** `ell2_completeSpace`; `riesz_fischer_hasSum` (every vector of
+`ℓ²(ℕ)` is the unconditional sum of its coordinate atoms, i.e. the norm-limit of
+its finitely-supported truncations); `sum_single_mem_finSupport`;
+`finSupport_dense`; `memℓp_geom`, `geomVec_not_mem_finSupport` and
+`finSupport_ne_univ` (the completion is *strictly* larger than the core);
+`core_proper_and_dense`.
+
+**3. `True` placeholders replaced by real conclusions.** In
+`BookProof/ChapterPaFreeCompletion.lean`, `riesz_fischer` was a
+`noncomputable def riesz_fischer : True`; it is now the genuine statement
+(completeness plus unconditional summation). The same file gains `ofCore`,
+`ofCore_apply` and `range_ofCore` — the image of the term-denotable core
+`ℕ →₀ ℝ` inside `ℓ²(ℕ)` is *exactly* the set of finitely-supported vectors —
+together with `denseCore_dense` and `denseCore_proper`. In
+`BookProof/ChapterDefinabilityFragment.lean`, `conservativity_documentation : True`
+is replaced by `completion_conservative_over_core`, which states the provable
+mathematical core of conservativity (image = finitely-supported vectors, dense,
+proper); the purely proof-theoretic reading is explicitly *not* claimed.
+
+**4. `BookProof/ChapterDensityMarginalConditional.lean` — Priority 5.1, the
+probabilistic reading of the spectral decomposition.** `ChapterDensitySpectral.lean`
+already proves `ρ = U · diag(d) · U†` with `d` a probability distribution. The
+book also reads the two factors probabilistically; that reading is now theorems:
+`bornKernel U i j = ‖U i j‖²` is nonnegative (`bornKernel_nonneg`) with unit row
+sums (`bornKernel_row_sum`) and unit column sums (`bornKernel_col_sum`), hence
+doubly stochastic — a genuine conditional probability;
+`density_diag_eq_kernel_apply` shows `ρ i i = ∑ k ‖U i k‖² d k`, i.e. the
+computational-basis marginal is the transport of the eigenvalue distribution by
+that conditional; `density_diag_isProbability`; headline
+`density_marginal_conditional`.
+
+**5. `BookProof/ChapterAbelianDiagonal.lean` — the finite (type `I_n`) case of the
+abelian von Neumann classification.** `diagonalStarAlgHom` is the `*`-algebra
+embedding `ℓ∞({1,…,n}) = (n → ℂ) → Mat(n, ℂ)`; `diagonalStarAlgHom_injective`;
+`diagonal_commute` (the image is abelian); `commutant_diagonal_eq_diagonal`
+(anything commuting with all diagonal matrices is diagonal — the image is
+maximal abelian); headline `vonNeumann_abelian_typeI_case`. Consequently the
+`True` placeholder pair `vonNeumann_abelian_classification` /
+`vonNeumann_abelian_classification_true` in `BookProof/ChapterSelectingEvents.lean`
+is retired — kept commented out, with an explanation — and replaced by the proved
+`vonNeumann_abelian_classification_typeI`. The exhaustiveness of von Neumann's
+five-item list and the other four classes are explicitly not claimed. The two
+remaining `True`-valued `Prop` placeholders in that file (`p_ne_np`,
+`random_generation_linear_time`) are likewise retired to comments, so no name in
+the library suggests a claim that is not made.
+
+**Book cross-references (plan §6.5).** `#check` blocks added to
+`Book/PhysicalParity.lean` (the Majorana commutant / Pauli uniqueness),
+`Book/PaFreeHilbert.lean` (Riesz–Fischer, core = finitely-supported, dense and
+proper) and `Book/ConditionalUnitary.lean` (density-matrix marginal/conditional).
+
+**Verification.** `lake build BookProof` (8673 jobs) and `lake build book`
+(376 jobs) both green. `#print axioms` on every new headline shows only
+`propext`, `Classical.choice`, `Quot.sound`. A repository-wide search for
+`sorry`/`admit` in Lean code finds only the two intentional, pre-existing
+occurrences in `RandomMap/SchoenfeldPRA.lean`. No `axiom` declarations were
+added.
+
+**Still open (unchanged, and deliberately so).** The deep `EXTERNAL` named
+hypotheses the plan tells us not to attempt remain named hypotheses, never
+axioms: Wigner/Mackey imprimitivity exhaustiveness, Varadarajan Thm 6.12,
+`levy_paths_nowhere_differentiable`, `CrouzeixBound`, and the Pauli fundamental
+theorem *in full generality* (only the fixed `4×4` model is discharged here).
+
+# Continuation pass (2026-08-09, `PLAN_LEAN_SPECIALIST_COHERENT.md`)
+
+**Audit at the start of this pass.** `lake build BookProof` was **red**:
+`BookProof/PhysMehler.lean` failed to compile (`substrate_orthonormal_pair`
+carried two stale `· norm_num` bullets after a `rw` whose side goal is now
+discharged automatically). Fixing that was the first thing this pass did. The
+audit also found three packages on disk that were registered in `BookProof.lean`
+and `#check`-ed from the book but had never been written up anywhere
+(`ChapterDisplacedThermalOverlap`, `ChapterDisplacedThermalMulti`, `ChapterH7`);
+they are now recorded in `BookProof/STATUS.md`.
+
+This pass then landed **four new packages** plus a hygiene group — all
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`),
+all registered in `BookProof.lean` and cross-referenced from
+`Book/CoherentState.lean`.
+
+**1. `BookProof/ChapterCoherentFidelity.lean` — the quantum fidelity of coherent
+states.** `fidelityC q k = ‖⟨q|k⟩‖²` for complex Bargmann parameters, with the
+headline `fidelityC_eq_exp_neg_dist_sq`: `F(q,k) = exp(−‖q − k‖²)`. The phase and
+the individual norms cancel, so the fidelity is a pure function of the distance
+between the displacement parameters — `fidelityC_symm`, `fidelityC_pos`,
+`fidelityC_le_one`, `fidelityC_self`, `fidelityC_eq_one_iff` (it separates
+coherent states), `fidelityC_translation_invariant`, the strict antitonicity
+`fidelityC_le_iff_dist_le` / `fidelityC_lt_iff_dist_lt`, `neg_log_fidelityC`, and
+`bornWeightC_eq_scoreSoftmax_neg_dist_sq` / `bornWeightC_eq_fidelity_normalized`
+(**attention is the normalized fidelity**).
+
+**2. `BookProof/ChapterSoftmaxFluctuation.lean` — the fluctuation–response law.**
+`partition`, `logPartition`, `meanScore`, `varScore`; `hasDerivAt_logPartition`
+(`d/dβ log Z = ⟨s⟩_β`), `hasDerivAt_scoreSoftmax`
+(`d/dβ pⱼ = pⱼ(sⱼ − ⟨s⟩_β)`), and the headline `hasDerivAt_meanScore` /
+`deriv_meanScore`: `d/dβ ⟨s⟩_β = Var_β(s) ≥ 0`. Plus `varScore_eq_sub_sq`,
+`varScore_nonneg`, `meanScore_monotone`, `meanScore_le_max`,
+`varScore_eq_zero_iff`, `varScore_eq_zero_of_const`, `varScore_pos_of_ne`.
+
+**3. `BookProof/ChapterSoftmaxMaxEntropy.lean` — Softmax is the maximum-entropy
+attention.** `crossEntropy` with **Gibbs' inequality** in general form
+(`shannonEntropy_le_crossEntropy`), the Boltzmann form `log_scoreSoftmax`, the
+thermodynamic identity `shannonEntropy_scoreSoftmax` (`H = log Z − β⟨s⟩`),
+`crossEntropy_scoreSoftmax`, and the headline
+`shannonEntropy_le_of_meanScore_eq`: every distribution over the keys with the
+same mean alignment score has entropy at most that of the Softmax distribution.
+`softmax_free_energy_le` / `softmax_free_energy_eq` give the equivalent
+variational form (Softmax minimises `β⟨s⟩_p − H(p)`, the minimum being
+`−log Z(β)`).
+
+**4. `BookProof/ChapterEntropyTemperature.lean` — the entropy is antitone in the
+inverse temperature.** `attentionEntropy`, `attentionEntropy_eq`, the headline
+`hasDerivAt_attentionEntropy` (`dH/dβ = −β·Var_β(s)`), `heatCapacity` with
+`heatCapacity_nonneg` and `hasDerivAt_attentionEntropy_neg_heatCapacity`, and
+`attentionEntropy_antitoneOn`, `attentionEntropy_le_at_zero`,
+`attentionEntropy_le_log_card`. This joins the two entropy endpoints
+`ChapterAttentionEntropy` had already computed by a monotone path.
+
+**5. Hygiene — `BookProof/PhysHSGaussian.lean` is now warning-free**, closing the
+style follow-up the plan recorded for the modules promoted out of `PnpProof/`.
+No linter was disabled and no `nolint` was added. New reusable lemmas
+`physHermite_rec`, `physHermite_hasDerivAt_aux`, `physHermite_exists_poly`,
+`physHermite_continuous` and `physHermite_differentiableAt` replace the
+auto-generated tangles; `physHermite_hasDerivAt` is now a one-liner; the
+integration-by-parts step closes with an explicit `linear_combination`;
+`sphereUniform_rotation_invariant` is a `calc` (the old proof left a measure
+metavariable, which is what made its `rw` unfocusable); the dominated-convergence
+bound is an explicit argument; and the two `linter.flexible` sites use the
+suggested `simp_all … only [...]` forms. Recorded honestly: the file still
+contains inherited `simp?`/`simp_all?` query tactics that emit "Try this"
+**info** (not warning) messages; several sit under `<;>` and give a different
+suggestion per goal, so they were left alone rather than replaced by a guess.
+
+**Verification.** `lake build` (default targets `BookProof`, `Book`,
+`Singularity`), `lake build RandomMap` and `lake build book` are all green with
+**no in-scope warnings**. `#print axioms` on each new headline shows only
+`propext`, `Classical.choice`, `Quot.sound`. A repository-wide search finds no
+`sorry`/`admit` in `BookProof/`, `Book/`, `Singularity/` or `RandomMap/`; the
+only remaining ones are the pre-existing occurrences in `UsedRoute/` and
+`UnusedRoute/`, which the plan puts out of scope to edit. No `axiom`
+declarations were added.
+
+**Still open (unchanged, and deliberately so).** The derivation of `τ` from the
+quantum fidelity of displaced thermal states *on a bosonic Fock space* (the
+Gaussian phase-space derivation is landed), and the **exhaustiveness** of the
+abelian von Neumann `*`-isomorphism classification. Both are documented gaps in
+`BookProof/STATUS.md`; neither is `sorry`-ed anywhere.
+
+# Information-theoretic pass (2026-08-10, `PLAN_LEAN_SPECIALIST_COHERENT.md`)
+
+**Audit at the start of this pass.** `lake build` (default targets `BookProof`,
+`Book`, `Singularity`), `lake build RandomMap` and `lake build book` were all
+green, with no `sorry`/`admit` anywhere in `BookProof/`, `Book/`, `Singularity/`
+or `RandomMap/`. Nothing needed repair, so the pass went straight to new
+deliverables.
+
+This pass landed **nine new proof packages**, all `sorry`-free and `axiom`-free
+(`#print axioms` shows only `propext`, `Classical.choice`, `Quot.sound`), each
+registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`,
+and `#check`-ed from new prose paragraphs in `Book/CoherentState.lean`:
+
+1. **`BookProof/ChapterAttentionCollision.lean` — how many keys is a head
+   actually reading?** The collision probability `P₂ = ∑ pⱼ²`, the participation
+   ratio `N_eff = 1/P₂` and the Rényi-2 entropy `H₂ = −log P₂`. Cauchy–Schwarz
+   gives `1/m ≤ P₂ ≤ 1`, hence the headline
+   `effectiveSupport_scoreSoftmax_mem_Icc`: the effective key count lies in
+   `[1, m]`, and equals `m` exactly at infinite temperature
+   (`effectiveSupport_scoreSoftmax_zero`). The headline inequality
+   `renyi2_le_shannonEntropy` — a tangent-line/Jensen argument for `log`, isolated
+   as the reusable `log_le_div_add_log_sub_one` — shows `H₂ ≤ H`, so the
+   participation ratio never overstates how much context is used.
+
+2. **`BookProof/ChapterAttentionConcentration.lean` — how concentrated can the
+   Born measurement be?** A Markov bound (`mul_card_filter_le_one`,
+   `card_filter_le_inv`): at most `1/t` keys can carry weight `t` or more.
+   `exists_inv_card_le`: some key always carries the uniform share `1/m`. The
+   min-entropy bound `neg_log_le_shannonEntropy` (`−log pₘₐₓ ≤ H`) and its
+   exponential form `exp_neg_shannonEntropy_le` (`pₘₐₓ ≥ e^{−H}`): a low-entropy
+   head necessarily has a dominant key. `collisionProb_le_max` /
+   `inv_le_effectiveSupport` tie the two packages together — the effective key
+   count is at least `1/pₘₐₓ`.
+
+3. **`BookProof/ChapterAttentionMarkov.lean` — attention is a Markov kernel.**
+   `attentionMatrix` (row `i` = the Born distribution of query `i`), `push`,
+   `compose`, `l1dist`; `attentionMatrix_isStochastic`, `push_isProb`,
+   `compose_isStochastic`, `push_compose` (stacking layers is composing kernels),
+   `l1dist_push_le` (a step is `ℓ¹`-nonexpansive) and the **Doeblin contraction**
+   `l1dist_push_le_of_min` (`1 − mε` from an entrywise lower bound `ε`). Headline
+   `l1dist_push_attentionMatrix_le`: with the finite-temperature lower bound of
+   `ChapterAttentionRetrieval`, a layer whose row scores have spread at most `D`
+   contracts the `ℓ¹` distance by `1 − e^{−βD} < 1`.
+
+4. **`BookProof/ChapterScaledDotProduct.lean` — why the scores are divided by
+   `√d`.** In the uniform Rademacher model of an unstructured query (with the
+   coordinate-flip permutation `flipEquiv` and the sign-sum lemmas
+   `sum_sgn_eq_zero`, `sum_sgn_mul_eq_zero`), the raw score has mean zero
+   (`rademacherMean_dot`) and mean square `‖k‖²` (`rademacherMean_dot_sq`), hence
+   root-mean-square `√d` for unit-size key entries. Since dividing every score by
+   `c` divides the inverse temperature by `c` (`scoreSoftmax_div`,
+   `scoreSoftmax_scaled`), raw dot products at a fixed `β` run the head at `β√d`;
+   `rademacherMean_scaledDot_sq_of_unit_entries` shows the `1/√d`-scaled score has
+   mean square exactly `1`, independently of the width.
+
+5. **`BookProof/ChapterAttentionOutputVariance.lean` — the uncertainty of the
+   output.** `outputVariance p v = ∑ pⱼ‖vⱼ − o‖²` on a real inner-product space;
+   the bias–variance identity `sum_dist_sq_eq` (`∑ pⱼ‖vⱼ − c‖² = Var + ‖o − c‖²`)
+   and hence `observableExpectation_minimizes` / `headOutput_minimizes`: the head
+   output is the least-squares summary of the values it reads. König–Huygens
+   (`outputVariance_eq_sub`), the Jensen bound
+   `norm_observableExpectation_sq_le`, and
+   `outputVariance_scoreSoftmax_eq_zero_iff` — at a finite temperature the output
+   is certain exactly when all the values agree.
+
+6. **`BookProof/ChapterAttentionLowRank.lean` — the low-rank bottleneck of a
+   head.** Every score matrix a head can produce factors through its head
+   dimension, so `rank_scoreMatrix_le`: rank `≤ d`. Hence
+   `not_exists_scoreMatrix_one` — at `d < m` the identity ("attend to yourself
+   only") pattern is unrealizable — and `exists_scoreMatrix_one_of_le`, which shows
+   the bound is sharp.
+
+7. **`BookProof/ChapterLayerNorm.lean` — layer normalization fixes the gauge.**
+   `mean`, `variance`, `layerNorm`; zero mean and squared length exactly `d`
+   (`sum_layerNorm_eq_zero`, `sum_sq_layerNorm`), invariance under `x ↦ ax + c`
+   with `a > 0` (`layerNorm_add_const`, `layerNorm_smul_pos`), idempotence
+   (`layerNorm_layerNorm`), and the consequence `scoreSoftmax_layerNorm_ge`:
+   normalized scores span at most `2d`, so every key keeps at least `e^{−2βd}/m`.
+
+8. **`BookProof/ChapterSinusoidalPosition.lean` — sinusoidal positions.**
+   `peInner_eq_sum_cos`: the alignment of two encoded positions is
+   `∑ₐ cos(ωₐ(p − q))`, so it depends only on the offset; with `peInner_self`,
+   `abs_peInner_le`, `scoreSoftmax_sinusoidal_shift` (translation equivariance of
+   every attention weight) and `scoreSoftmax_sinusoidal_ge`.
+
+9. **`BookProof/ChapterAttentionMixing.lean` — iterating the layer.**
+   `l1dist_pushIter_le` (`(1 − mε)ⁿ` after `n` layers),
+   `tendsto_l1dist_pushIter` (the stack forgets its input), `eq_of_stationary`
+   (at most one stationary belief) and
+   `tendsto_l1dist_pushIter_attentionMatrix` (rate `(1 − e^{−βD})ⁿ` for a real
+   attention layer). Existence of a stationary distribution is not claimed.
+
+**Verification.** `lake build` (default targets), `lake build RandomMap` and
+`lake build book` are all green with **no in-scope warnings**. `#print axioms` on
+every new headline shows only `propext`, `Classical.choice`, `Quot.sound`. A
+repository-wide search finds no `sorry`/`admit` in `BookProof/`, `Book/`,
+`Singularity/` or `RandomMap/`. No `axiom` declarations were added.
+`BookProof/STATUS.md` and the plan's status block carry a dated note for this
+wave.
+
+**Still open (unchanged, and deliberately so).** The derivation of `τ = n̄ + 1/2`
+from the quantum fidelity of displaced thermal states on a bosonic Fock space (the
+finite algebraic core is proved), and the exhaustiveness of the abelian von
+Neumann `*`-isomorphism classification (the four individual classes are proved).
+Both are documented gaps in `BookProof/STATUS.md`; neither is `sorry`-ed anywhere.
+
+---
+
+# Summary of changes for the `PLAN_LEAN_SPECIALIST_QG_FLOW.md` run (2026-08-17)
+
+Task: execute `PLAN_LEAN_SPECIALIST_QG_FLOW.md` (the Quantum Gravity densitized
+route, Parts A–D).
+
+**Re-verification of Parts A–D.** All 35 headline names of the plan's four
+tables were checked to exist in `BookProof/ChapterQuantumGravityDensitized.lean`,
+the module was rebuilt, and the 20 `#print axioms` lines that
+`BookProof/ChapterRoadmapAudit.lean` carries for it were re-run: every one
+reports only `propext`, `Classical.choice`, `Quot.sound`. The module contains no
+`sorry`/`admit`. So Parts A, B, C and D.1–D.4 stand as claimed.
+
+**New work: Part D.5 — the half-density unitary, constructed rather than
+assumed.** The plan's honest boundary recorded that "the raw point map
+`e ↦ (y, ẽ)` is not by itself a Hilbert-space unitary; the Jacobian half-density
+factor `|J|^{−1/2}` is what makes D.4 applicable. The transfer theorem takes that
+unitary as data." For the conformal factor that gap is now closed, in the new
+module `BookProof/ChapterQuantumGravityHalfDensity.lean`:
+
+* `qgJacobian`, `qgHalfDensity`, `qgSrcMeasure` — the Jacobian `de/dy = 2y` of
+  the conformal change of variables `e = y²`, the half-density factor `√(2y)`,
+  and the weighted measure `2y dy` on `(0, ∞)`;
+  `qgSrcMeasure_density_eq_halfDensity_sq` and
+  `qgSrcMeasure_eq_withDensity_halfDensity_sq` record that the weight is exactly
+  the square of the half-density factor.
+* `measurePreserving_qgSquare` — the change of variables `y ↦ y²` pushes the
+  weighted measure `2y dy` forward to Lebesgue measure `de` on `(0, ∞)`; proved
+  from the one-dimensional change-of-variables formula
+  (`lintegral_image_eq_lintegral_abs_deriv_mul`). `measurePreserving_qgSqrt` is
+  the converse for `e ↦ √e`.
+* `halfDensityIsom`, `halfDensityIsomInv`, `halfDensityIsom_surjective`,
+  `halfDensityUnitary` — the resulting **unitary**
+  `L²((0,∞), de) ≃ₗᵢ[ℂ] L²((0,∞), 2y dy)`, with the pointwise descriptions
+  `halfDensityUnitary_apply` (`(W g)(y) = g(y²)` a.e.),
+  `halfDensityUnitary_symm_apply` and the norm identity
+  `halfDensityUnitary_norm`; `exists_halfDensity_unitary` is the bare existence
+  statement.
+* `qg_halfDensity_transfer` — the Part D.4 transfer theorem
+  `BookProof.QuantumGravityDensitized.densitized_hasZeroDeficiencyOn_transfer`
+  instantiated **at this concrete unitary**: the unitary is no longer a
+  hypothesis of the transfer step.
+
+**Wiring.** The new module is imported from `BookProof.lean`, certified in
+`BookProof/ChapterRoadmapAudit.lean` (seven new `#print axioms` lines, all
+reporting only `propext`, `Classical.choice`, `Quot.sound`), and cited from the
+Verso chapter `Book/DiffeomorphismsGravity.lean` (new paragraph and `#check`
+block, plus a new summary bullet). `PLAN_LEAN_SPECIALIST_QG_FLOW.md` gains a
+`D.5` row and a dated note.
+
+**Verification.** `lake build` (default targets `BookProof`, `Book`,
+`Singularity`) completes successfully, 8618 jobs, with no errors; the only
+in-file warning raised during development (a long line) was fixed. `rg` finds no
+`sorry`/`admit` in either quantum-gravity module. No `axiom` declarations were
+added.
+
+**Scope, unchanged.** Nothing here claims essential self-adjointness of the
+continuum gravity operator on `L²(ℝ⁸⁴ × ℤ₂¹⁹)`, global existence, or any
+unitary-evolution result. The Strichartz finite-speed input remains an explicit
+named hypothesis (`strichartz_esa_of_finiteSpeed`), shown satisfiable on the
+discretized realization but not asserted for the continuum. The BRST/gauge
+sector is still outside the transfer argument, and the half-density unitary
+constructed here is for the conformal factor `e = y²`, not for the full
+`e ↦ (y, ẽ)` map on the whole tetrad.
+
+---
+
+# Summary of changes for the 2026-08-24b wave (continuing `CONSOLIDATED_PLAN.md`)
+
+Task: continue executing `CONSOLIDATED_PLAN.md`.  The item picked up is the part of
+§10.6.2 **item 3** that the previous wave left open on the graded Fock space
+`Γˢ ⊗ Γᵃ = ℓ²(Conf × FConf)`.
+
+**What was already there.**  `BookProof/ChapterGradedFock.lean` builds the graded space
+and its superalgebra (the unified Koszul-signed canonical relation, the `ℤ₂` grading),
+and `BookProof/ChapterGradedFriedrichs.lean` already proved the analytic core: the total
+graded Hamiltonian `H = dΓˢ(A) ⊗ 1 + 1 ⊗ dΓᵃ(B)` is densely defined, symmetric and
+positive **on the graded space itself** (via a slice calculus for the tensor product),
+hence has a positive self-adjoint (Friedrichs) extension, with the total number operator
+`N_b ⊗ 1 + 1 ⊗ N_f` as a non-vacuous instance.
+
+**What this wave adds — `BookProof/ChapterGradedHashimoto.lean`** (namespace
+`BookProof.GradedHashimoto`, `sorry`-free, no new axioms).  The three things each factor
+already had individually, now proved for the graded Hamiltonian:
+
+1. **It is an even operator.**  `support_parityF`, `modesF_parityF` and
+   `parityF_creVecF` (creation of a one-particle vector anticommutes with the
+   fermion-number parity) give `parityF_dGammaF`: the fermionic second quantization is a
+   sum of products of two odd operators, hence commutes with `(−1)^{N_f}`.  Combined with
+   `liftFst_liftSnd_comm` this is `gradeOp_gradedHamiltonianAlg`
+   (`(−1)^{N_f} H = H (−1)^{N_f}`), and therefore `gradedHamiltonianAlg_evenPart` /
+   `gradedHamiltonianAlg_oddPart`: `H` preserves the even and the odd subspace separately.
+2. **The Hashimoto/SIRK shift-invert limit selects its Friedrichs extension.**
+   `gradedHamiltonianB` reads `H` on the finite-mode domain of the canonical basis of
+   `ℓ²(Conf × FConf)` re-indexed by `ℕ`; `graded_hashimoto_selects` produces the positive
+   self-adjoint extension `A`, the resolvent `R = (A + γ)⁻¹` with `‖R‖ ≤ γ⁻¹`, strong and
+   resolvent-sense convergence of the Galerkin truncations, and the uniqueness clause.
+   `gradedSecondQuantization_hashimoto_selects` is the version for arbitrary symmetric
+   positive one-particle operators given in Hilbert bases; `gradedEnum` and
+   `gradedNumber_hashimoto_selects` make it concrete.
+3. **It generates a complete unitary flow.**  `graded_stone_flow` and
+   `gradedNumber_stone_flow` push the selected extension through the Stone bridge: a
+   global one-parameter unitary group on `ℓ²(Conf × FConf)` solving the Schrödinger
+   equation on the domain.
+
+`gradedHamiltonianAlg_otimes` records the Leibniz rule on elementary tensors
+(`H (v ⊗ w) = dΓˢ(A)v ⊗ w + v ⊗ dΓᵃ(B)w`).
+
+**Wiring.**  The module is imported from `BookProof.lean`, certified by 13 new
+`#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (each reporting only
+`propext`, `Classical.choice`, `Quot.sound`), and cited from the Verso chapter
+`Book/YangMillsQuantization.lean` (new paragraph plus `#check` block, which also cites
+the previously uncited `ChapterGradedFriedrichs` headlines).  `BookProof/STATUS.md` and
+the leading status block of `CONSOLIDATED_PLAN.md` carry a dated note for the wave.
+
+**Verification.**  `lake build` (default targets `BookProof`, `Book`, `Singularity`) and
+`lake build RandomMap` complete with no errors; the two pre-existing Verso emphasis
+warnings in `Book/YangMillsQuantization.lean` were fixed, so the chapter builds with no
+warnings.  `rg` finds no `sorry`/`admit` in the new module and none in `BookProof/`,
+`PnpProof/`, `Singularity/`, `RandomMap/`; the isolation greps are empty; no `axiom`
+declaration was added.  The book wrapper `./patches/build-book.sh` re-renders
+`_out/html-single/index.html` with its assertions holding (no `<base>`, fragment links
+present) and `./patches/check-katex.sh` reports 2777 math snippets, 0 KaTeX failures; the
+`patches/*.sh` scripts had again lost their executable bit in this snapshot and it has
+been restored in git.
+
+**Still open (unchanged).**  The graded statements are proved for the one-particle
+`ℓ²(ℕ)` of an arbitrary Hilbert basis, not for the gravity one-particle space
+`L²(ℝ⁸⁴ × ℤ₂¹⁹)` with its gauge-fixed Hamiltonian (§10.6.2 item 4); positivity of the
+one-particle matrices is a hypothesis; no essential self-adjointness of the graded
+Hamiltonian is claimed.  §10.6.1 targets 2/3/4 (the exponentially growing scalaron
+potential), §10.6.2 items 1 and 4, and research boundary A1 are untouched by this wave.
+
+---
+
+## Wave 2026-08-24c — the rational Krylov space of the shift-invert scheme, identified
+
+**What was added.**  One new module, `BookProof/ChapterKrylovShiftSpan.lean` (namespace
+`BookProof.KrylovShiftSpan`), `sorry`-free and `axiom`-free.  It settles, over an
+arbitrary module over an arbitrary commutative ring — no topology, no self-adjointness,
+an arbitrary schedule of (possibly repeated) shifts — the relation between the three
+subspaces the shift-invert rational Krylov (SIRK/Hashimoto) scheme moves between.
+
+1. **The shifted forward products.**  `shiftOp T z = T − z`,
+   `forwardProd T z j = (T − z_{j−1}) ⋯ (T − z₀)`, the spans `krylovSpan` and
+   `forwardSpan`, and `forwardSpan_eq_krylovSpan`: the shifted forward sequence spans
+   exactly `span{v, Tv, …, Tᵏv}` at every level, hence `forwardSpan_eq_forwardSpan` —
+   the span does not depend on the shifts.  This is the operator-product form of
+   `ChapterSirkMultiShift.krylov_multiShift_eq_standard`, which states the same thing for
+   the vectors of the sequence over a field; the products themselves are what the
+   resolvent statement needs.
+2. **The reversed (tail) products.**  `tailProd T z j k = (T − z_{k−1}) ⋯ (T − z_j)`,
+   `tailProd_peel_right`, `tailProd_eq_forwardProd_rev` (the tail products are the forward
+   products of the reversed schedule) and `tailSpan_eq_krylovSpan`.
+3. **The rational (resolvent) Krylov space.**  `IsResolventFamily T z X` (each `X i` a
+   two-sided inverse of `T − z i`), `resProd X j = X_{j−1} ⋯ X₀`, `resolventSpan`, the
+   commutation lemmas (`commute_shiftOp`, `commute_resolvent_shiftOp`,
+   `commute_resolvent`, `commute_resProd_shiftOp`, `commute_forwardProd_shiftOp`) and the
+   telescoping `resProd_mul_tailProd` give the headline
+   **`resolventSpan_eq_map_krylovSpan`**:
+   `span{v, X₀v, X₁X₀v, …, X_{k−1}⋯X₀v} = (X_{k−1}⋯X₀) '' span{v, Tv, …, Tᵏv}`.
+   `ChapterHashimotoComplexShifts.sirkDen_rkVec` describes the same space as rational
+   functions of a *single* resolvent; this is the complementary description in terms of
+   the generator itself.
+4. **Consequences.**  `resProd_mul_forwardProd` / `forwardProd_mul_resProd` (the two
+   products are mutually inverse) and `krylovSpan_eq_map_resolventSpan` (the identity read
+   backwards); `resVec` / `resolventSpan_eq_span_resVec` (the span written with the vectors
+   the solver computes, one resolvent solve at a time); and **`resolventSpan_of_perm`** —
+   reordering the first `k` shifts by any permutation of `ℕ` fixing everything from `k` on
+   changes the intermediate flag but not the subspace reached, because the resolvents
+   commute (`resProd_of_perm`).
+
+**Wiring.**  Imported from `BookProof.lean`; certified by 16 new `#print axioms` lines in
+`BookProof/ChapterRoadmapAudit.lean`, each reporting only `propext`, `Classical.choice`,
+`Quot.sound` (several report only `propext`, `Quot.sound`); cited from the Verso chapter
+`Book/SirkReliability.lean` (new paragraph and `#check` block next to the existing
+multi-shift material).  `BookProof/STATUS.md` and the leading status block of
+`CONSOLIDATED_PLAN.md` carry a dated note, and the §12 Gap 4b entry of the plan now
+records the resolvent half.
+
+**Verification.**  `lake build` (default targets `BookProof`, `Book`, `Singularity`;
+8713 jobs) and `lake build RandomMap` (8039 jobs) complete with no errors and no new
+warnings.  `./patches/build-book.sh` re-renders `_out/html-single/index.html` with its
+assertions holding (no `<base>`, fragment links present) and `./patches/check-katex.sh`
+reports 2783 math snippets with 0 KaTeX failures.  `rg` finds no `sorry`/`admit` in the
+new module and no new `axiom` declarations.
+
+**Boundary.**  Everything here is algebraic: invertibility of `T − z i` is a hypothesis
+(`IsResolventFamily`), not derived from spectral theory, and no claim is made about
+convergence of the compressions along the flag — that remains the content of the analytic
+chapters.  The open research targets recorded in `CONSOLIDATED_PLAN.md` (§10.6.1 target 4
+for the exponentially growing scalaron potential, §10.6.2 items 1 and 4, the general
+Faris–Lavine potential, research boundary A1) are untouched by this wave.
+
+# Summary of changes for run 2026-08-28 — the band-enclosure hypothesis, derived
+
+Continuing `CONSOLIDATED_PLAN.md`'s top work package ("Hashimoto observable to the
+real-Hamiltonian gap"), I closed the single hypothesis the previous wave had to assume in
+`BookProof/ChapterFockOneParticleGap.lean`: that a finite certificate brackets the
+one-particle edge of the **infinite** selected operator.  Two new `sorry`-free modules.
+
+**1. `BookProof/ChapterBandEnclosure.lean` (namespace `BookProof.BandEnclosure`).**
+
+* `NestedBands lo hi` — the already-proved band containment of
+  `ChapterH8.sirk_band_contained` in abstract form: `Icc (lo (m+1)) (hi (m+1)) ⊆
+  Icc (lo m) (hi m)`; `nestedBands_le` iterates it to any pair `m ≤ n`.
+* **`band_enclosure_of_nested`** — the derivation asked for.  If the bands nest, the
+  order-`m` approximant lies in the order-`m` band, and the approximants converge to `lam`,
+  then `lam` lies in *every* band: for `n ≥ m` the approximant `a n` is already in the
+  order-`m` band, which is closed.  With vanishing widths the enclosed point is unique and
+  the endpoints converge to it (`band_limit_unique`, `band_enclosure_endpoints_tendsto`).
+* The exponentially shrinking SIRK bands are recorded as the instance: `sirk_nestedBands`
+  (nesting), `sirk_band_widths_tendsto_zero` (from
+  `ChapterH6.sirk_error_decay_exponential`), `sirk_band_enclosure`.
+* **Bounded selected operator.**  `ritz_band_enclosure_of_nested`: the Galerkin/Hashimoto
+  algorithm selects the operator itself
+  (`HermiteGalerkin.finiteModeRestrict_selects_operator`) and its Ritz values converge to
+  `sInf (spectrum ℝ A)` (`ChapterSirkRitzSpectrum.ritzInf_tendsto_sInf_spectrum`), so nested
+  bands containing the Ritz values enclose that spectral edge.
+  **`fock_mass_gap_of_nested_ritz_bands`** composes this with the free `dΓ` lift of
+  `ChapterFockOneParticleGap`: with an eigenbasis, vanishing widths and one band of lower
+  end `≥ μ ≥ 0`, the vacuum has Fock energy `0` and every vacuum-orthogonal
+  finite-particle state has energy `≥ μ‖·‖²` — with **no enclosure hypothesis left**.
+* **Unbounded selected operator.**  `quadForm_real_smul`, `quadForm_ge_of_le_ritzInf` and
+  **`friedrichs_form_gap_of_nested_ritz_bands`**: with no boundedness at all, the Ritz
+  values converge to the form bottom of the core
+  (`HermiteGalerkin.ritzInf_tendsto_domainInf`), the nested bands enclose it, and the
+  Friedrichs extension satisfies `⟪y, A y⟫ ≥ μ‖y‖²` on its whole domain.
+* `shiftInvert_band_enclosure`, `shiftInvert_widths_tendsto_zero` — transport of a band
+  enclosure through the shift-invert map `lam = nu⁻¹ − γ`.
+
+**2. `BookProof/ChapterFriedrichsFormGap.lean` (namespace `BookProof.FriedrichsFormGap`).**
+The transfer of a certified bound to the infinite operator.  `formSpace_norm_bound`: a core
+bound `⟪x, H x⟫ ≥ μ‖x‖²` extends by continuity to `(1+μ)‖formExt k‖² ≤ ‖k‖²` on the completed
+form space.  `friedrichs_quadForm_lower_bound` and **`friedrichs_extension_form_gap`**: the
+Friedrichs extension `A = S⁻¹ − 1` of `ChapterFriedrichsExtension` — a positive self-adjoint
+extension of `H` whose Hashimoto shift-invert at `γ = 1` is the resolvent `S`, i.e. the
+operator the algorithm selects — inherits the bound, `⟪y, A y⟫ ≥ μ‖y‖²`.  No boundedness and
+no spectral theorem for unbounded operators are used.
+
+**Wiring.**  Both modules are imported from `BookProof.lean` with descriptive comments, and
+certified by 16 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean`, each
+reporting only `propext`, `Classical.choice`, `Quot.sound`.  `BookProof/STATUS.md` gains a
+dated wave section (and its 2026-08-27e "honest boundary" paragraph now points at the new
+derivation), and `CONSOLIDATED_PLAN.md` carries a dated status update recording what is now
+derived and what remains an input.
+
+**Verification.**  `lake build` (default targets, 8752 jobs) completes with 0 errors; the
+new modules contain no `sorry`/`admit` and no `axiom` declaration.
+
+**Boundary.**  What is now derived is the *enclosure*: given nesting and a certificate at
+every order, the finite bands bracket the edge of the infinite selected operator, and a
+certified lower bound transfers to it.  What remains an input is the finite certificate at
+each order — that the order-`m` Ritz value lies in the order-`m` emitted band, and that the
+emitted bands nest — and the free/diagonal (number-preserving) hypothesis in the `dΓ` lift,
+which excludes pair creation.  `1.932` remains the recorded certificate number; no mass gap
+of the physical Hamiltonian is claimed.
+
+# Summary of changes for run 2026-08-30e — the Ritz *gap*: the Courant–Fischer min–max levels
+
+Continuing `CONSOLIDATED_PLAN.md` §12.2 **Gap 2, QYM** ("the statement that the Ritz/gap
+values converge to the spectrum of the selected extension as `m → ∞`").  The previous
+wave (`BookProof/ChapterSirkRitzSpectrum.lean`) settled the *lowest* Ritz value: it
+converges to `sInf (spectrum ℝ A)`.  A *gap* statement needs a second level, and there is
+no second Rayleigh quotient — the correct object is the Courant–Fischer min–max level.
+One new module, `sorry`-free and `axiom`-free.
+
+**`BookProof/ChapterSirkRitzMinMax.lean` (namespace `BookProof.RitzMinMax`).**
+
+1. **Rayleigh quotients on a subspace.**  `rayleighVal T x = Re⟪x, Tx⟫`, `rayleighSetOn`
+   (its values on the unit sphere of a subspace) and `rayleighSup`, with
+   `abs_rayleighVal_le`, `rayleighSup_le_norm`, `neg_norm_le_rayleighSup`,
+   `rayleighVal_le_rayleighSup`, `rayleighSup_mono`, the scaling law `rayleighVal_smul`,
+   the Lipschitz estimate `rayleighVal_sub_le`, and `rayleighSup_span_singleton` (on a
+   line every unit vector has the same Rayleigh quotient).
+2. **The levels.**  `minmaxSet` / `minmaxLevel T k = sInf {rayleighSup T S : dim S = k+1}`
+   — the `k`-th Courant–Fischer level — and `minmaxSetIn` / `minmaxLevelIn T W k`, the
+   same infimum taken only over the subspaces of a retained space `W`: the level the
+   solver produces from the truncation to `W`.  `minmaxSet_bddBelow`,
+   `minmaxSetIn_bddBelow`, `minmaxSetIn_subset`, and **`minmaxLevel_le_minmaxLevelIn`**
+   — the variational principle in the direction the algorithm can certify: a computed
+   Ritz level is always an **upper** bound for the true level.  `minmaxLevel_mono` (via
+   `exists_le_finrank_eq`: a finite-dimensional subspace contains subspaces of every
+   smaller dimension) shows the levels increase with `k`.
+3. **The bottom rung.**  `minmaxSet_zero_eq_rayleighSet`,
+   `minmaxLevel_zero_eq_rayleighInf` and **`minmaxLevel_zero_eq_sInf_spectrum`**: level
+   zero is the bottom of the numerical range, hence — for a bounded self-adjoint
+   operator, through `ChapterSirkRitzSpectrum.sInf_spectrum_eq_rayleighInf` — the bottom
+   of the spectrum.  The ladder starts exactly where the previous wave stopped.
+4. **The approximation engine.**  `finrank_galerkinSpan` (the order-`m` Galerkin space
+   of a Hilbert basis has dimension `m`), `exists_uniform_proj_bound` (on a
+   finite-dimensional subspace the Galerkin projections converge **uniformly**: expand
+   in an orthonormal basis of the subspace and use that each basis vector is caught by a
+   large enough truncation), and **`exists_galerkin_approx_subspace`** — every
+   `(k+1)`-dimensional subspace `S` can be pushed by the projection into a large enough
+   Galerkin space, keeping its dimension (the projection is injective on `S` once the
+   error is `< 1`) and raising its Rayleigh supremum by at most `ε` (each unit vector of
+   the image is within `4δ` of a unit vector of `S`, and the Rayleigh quotient is
+   Lipschitz).
+5. **Headlines.**  `minmaxSetIn_galerkin_nonempty` / `minmaxSet_nonempty` (the levels are
+   defined: the Galerkin spaces themselves supply subspaces of every dimension),
+   **`galerkin_minmaxLevel_tendsto`** — for every `k` the Galerkin min–max levels
+   converge to `minmaxLevel T k`, by the two bounds of items 2 and 4 —
+   **`galerkin_gap_tendsto`** — the computed gap `Λ₁(m) − Λ₀(m)` converges to
+   `minmaxLevel T 1 − minmaxLevel T 0` — and **`galerkin_gap_eventually_pos`**: a
+   positive min–max gap is eventually seen by the truncations.
+
+**Wiring.**  The module is imported from `BookProof.lean` with a descriptive comment,
+certified by 12 new `#print axioms` lines in `BookProof/ChapterRoadmapAudit.lean` (each
+reporting only `propext`, `Classical.choice`, `Quot.sound`), and cited from the Verso
+chapter `Book/SirkReliability.lean` (new section "What the Computed Gap Converges To"
+with a `#check` block).  `BookProof/STATUS.md` and the leading status block of
+`CONSOLIDATED_PLAN.md` carry a dated note for the wave.
+
+**Verification.**  `lake build BookProof.ChapterSirkRitzMinMax`,
+`lake build BookProof.ChapterRoadmapAudit` (8344 jobs) and `lake build Book` (196 jobs)
+complete with no errors and no new warnings; the audit lines report only `propext`,
+`Classical.choice`, `Quot.sound` for all twelve public results.  `rg` finds no
+`sorry`/`admit` in the new module, and no `axiom` declaration was added.
+
+**Honest boundary.**  The operator is **bounded** throughout — the unbounded case is
+reached through the resolvent, not directly.  The min–max levels are spectral quantities
+only below the essential spectrum: nothing here claims that `minmaxLevel T k` is an
+eigenvalue for `k ≥ 1` (for `k = 0` the identification with `sInf (spectrum ℝ T)` *is*
+proved).  Convergence of the computed gap is to the **min–max** gap, not to a difference
+of eigenvalues of a physical Hamiltonian; the open research targets recorded in
+`CONSOLIDATED_PLAN.md` are untouched by this wave.
+
+# Summary of changes for run 2026-09-03c — `(A²)_F = A* Ā`, proved
+
+Continuing `CONSOLIDATED_PLAN.md`.  The previous wave built the relation `A* Ā` and proved
+that everything entering it is unique, but recorded as an honest boundary that the identity
+`(A²)_F = A* Ā` — the Friedrichs extension of `A²` *is* the composite — was not proved.
+This wave proves it, in one new module, `sorry`-free and `axiom`-free.
+
+**`BookProof/ChapterFriedrichsSquareFactorization.lean` (namespace
+`BookProof.FriedrichsSquare`).**  `A` is symmetric on a domain `D` of a Hilbert space with
+`A D ⊆ D`, so `A²` is a symmetric non-negative operator on `D`.  Its form is
+`⟪x, A²y⟫ = ⟪Ax, Ay⟫`, so its form domain is the domain `clDom A = D(Ā)` of the closure —
+the graph-norm closure of `D` is the closed graph, by construction.  The Friedrichs
+extension is characterized (Freudenthal/Krein) as the unique self-adjoint extension of `A²`
+whose domain lies in the form domain; `IsFriedrichsSqExtension A hstab R` records exactly
+that for a linear relation `R ⊆ F × F` (extends `A²`, domain inside `clDom A`, `R* = R`;
+self-adjointness already gives symmetry, `IsFriedrichsSqExtension.symmetric`).
+
+* `factorRel A` — the relation `A* Ā` of `ChapterClosureUniqueness`, packaged as a
+  submodule of `F × F` so that the adjoint `adjPairs` applies to it;
+  `fst_mem_clDom_of_mem_factorRel` (its domain lies in the form domain),
+  `clGraph_le_adjGraph` (`Ā ⊆ A*`) and `adjPairs_mono`.
+* **`le_factorRel_of_symmetric_extension`** — the easy half, proved in a stronger form than
+  needed: *every* symmetric extension of `A²` whose domain lies in the form domain is
+  contained in `A* Ā`.  For `(x, z) ∈ R` and `v ∈ D`, symmetry of `R` gives
+  `⟪z, v⟫ = ⟪x, A²v⟫`, while `(x, Āx) ∈ clGraph A` and the symmetry of `A` give
+  `⟪Āx, Av⟫ = ⟪x, A²v⟫`, so `(Āx, z)` is an adjoint pair.  No completeness, no density and
+  no self-adjointness are used.
+* **`adjPairs_factorRel`** — von Neumann's theorem: `A* Ā` is self-adjoint.  Done inside the
+  Hilbert direct sum `F ⊕₂ F = WithLp 2 (F × F)`: `flipGraph A` is the flipped closed graph
+  `V 𝒢(Ā) = {(−Āx, x)}`, it is closed (`flipGraph_isClosed`, as the preimage of the closed
+  graph under a continuous map) and hence has an orthogonal projection; its orthogonal
+  complement is exactly the graph of the adjoint (**`mem_flipGraph_orthogonal_iff`**).
+  Splitting `(0, h)` along `F ⊕₂ F = V𝒢(Ā) ⊕ 𝒢(A*)` solves `x + A*Āx = h`
+  (**`exists_mem_factorRel_add`**: `1 + A* Ā` is surjective), and surjectivity upgrades the
+  symmetry `factorRel_le_adjPairs` to self-adjointness.
+* **`isFriedrichsSqExtension_iff_eq_factorRel`** — the headline: a relation is a
+  self-adjoint extension of `A²` supported in the form domain **iff** it is `A* Ā`.  So the
+  Friedrichs extension of `A²` exists (`isFriedrichsSqExtension_factorRel`), is unique
+  (`friedrichsSqExtension_unique`) and equals the factorization.  Its quadratic form is
+  `‖Āx‖² ≥ 0` (`factorRel_quadForm_nonneg`).
+* **Operator form.**  `factorRel_snd_eq_zero_of_fst_eq_zero` — with a *dense* domain the
+  relation is single-valued (closability plus the adjoint of a densely defined operator) —
+  hence `frDom A`, `frFun`, **`frExt A`** with `opGraph_frExt : 𝒢(frExt A) = A* Ā` and
+  `frDom_le_clDom`; **`isSelfAdjointExtension_frExt`** (a self-adjoint extension of `A²` in
+  the sense of `EsaClosure.IsSelfAdjointExtension`), `frExt_quadForm_nonneg` (positivity)
+  and **`eq_frExt_of_isSelfAdjointExtension`** — every self-adjoint extension of `A²` whose
+  domain lies in the form domain has the domain and the values of `frExt A`.
+
+Together with `ClosureUniqueness.factorGraph_eq_of_isCoreOf_pair` (the composite does not
+depend on the core), the Friedrichs extension of `A²` may be computed from any core of `Ā`.
+
+**Wiring.**  The chapter is imported from `BookProof.lean` with a descriptive comment and
+audited by `Work/FriedrichsSquareFactorizationAudit.lean` (19 `#print axioms` lines, each
+reporting only `propext`, `Classical.choice`, `Quot.sound`).  `CONSOLIDATED_PLAN.md` and
+`STATUS.md` carry dated entries for the wave.
+
+**Verification.**  `lake build BookProof.ChapterFriedrichsSquareFactorization`,
+`lake build Work.FriedrichsSquareFactorizationAudit` and the full default
+`lake build BookProof` complete with no errors; the new module produces no warnings and
+contains no `sorry`, no `admit` and no `axiom` declaration.
+
+**Honest boundary.**  `A` must leave its domain invariant — that is what makes `A²` an
+operator on `D`.  The Friedrichs extension is identified through its standard
+characterization (self-adjoint, extends `A²`, domain inside the form domain) rather than
+through a separate construction of the form completion, and the theorem is about a general
+symmetric operator: nothing is claimed here about the physical Hamiltonians of the project
+beyond what follows when their hypotheses are checked.
+
+# Summary of changes for run 2026-09-05b — the min–max ladder of an **unbounded** operator, through its resolvent
+
+Continuing `CONSOLIDATED_PLAN.md`.  The plan's QG next step asks for "the min–max ladder
+through the resolvent for the continuum spectral claim", and the recorded honest boundary of
+the min–max chapters (`ChapterSirkRitzMinMax`, `ChapterMinMaxSpectrum`) was that *the
+operator is bounded throughout — the unbounded case is reached through the resolvent, not
+directly*.  This wave takes that step, in one new module, `sorry`-free and `axiom`-free.
+
+**`BookProof/ChapterResolventMinMaxLadder.lean` (namespace `BookProof.ResolventLadder`).**
+`T` is a non-negative self-adjoint linear relation on a complex Hilbert space and
+`R = (T + 1)⁻¹` (`res hT`) its resolvent at `1` — bounded, self-adjoint
+(`res_isSelfAdjoint`), non-negative (`res_re_inner_nonneg`), with `R (y + z) = y` on the
+graph (`res_eq_of_mem`) and injective when `T` is single-valued (`res_injective`).
+
+* **The analytic core, with no spectral theory.**  `sq_le_mul_of_quadratic_nonneg` and
+  `posForm_cauchy_schwarz` — Cauchy–Schwarz for the non-negative bounded form
+  `(u, v) ↦ Re⟪u, R v⟫`, by the discriminant of `t ↦ Re⟪x + t y, R(x + t y)⟫ ≥ 0`;
+  `normSq_sq_le_rayleigh_mul` — at the pair `(x, R x)` this is
+  `‖Rx‖⁴ ≤ Re⟪x, Rx⟫ · Re⟪Rx, R(Rx)⟫`; and, transported to the graph of `T` through
+  `x = y + z`, the **pointwise ladder inequality**
+  **`normSq_sq_le_rayleigh_graph`**: `‖y‖⁴ ≤ (‖y‖² + Re⟪y, z⟫)·Re⟪y, R y⟫`, i.e. on a unit
+  vector of the domain `Re⟪y, z⟫ ≥ 1/Re⟪y, R y⟫ − 1` (`one_le_add_mul_rayleigh_of_unit`,
+  `inv_sub_one_le_of_rayleigh_le`).  It is the operator form of the convexity of
+  `λ ↦ 1/(1 + λ)`.
+* **The two ladders.**  `rayleighInfOn`, `maxminSet`, `maxminLevel` — the Courant–Fischer
+  ladder of a bounded operator *read from the top*, with `maxminSet_bddAbove`,
+  `rayleighInfOn_le_maxminLevel`, `exists_unit_rayleigh_lt`,
+  `maxminSet_zero_eq_rayleighSet`, `maxminLevel_zero_eq_sSup_rayleighSet` and
+  `sSup_rayleighSet_eq_sSup_spectrum` (the mirror of `sInf_spectrum_eq_rayleighInf`).
+  `graphRayleighSet`, `graphRayleighSup`, `InDomain`, `graphMinmaxSet`, `graphMinmaxLevel` —
+  the ladder of the **relation**, over the finite-dimensional subspaces of its domain, with
+  `graphRayleighSet_bddAbove` (a single-valued relation is bounded on every
+  finite-dimensional subspace of its domain, so these suprema are genuine numbers),
+  `graphMinmaxSet_bddBelow` and `graphMinmaxSet_nonempty` (the resolvent maps a
+  `(k+1)`-dimensional subspace injectively into the domain).
+* **Headlines.**  **`resolvent_ladder_lower`** — `1 / maxminLevel R k − 1 ≤
+  graphMinmaxLevel T k` for every `k`.  **`graphMinmaxLevel_zero_eq`** and
+  **`graphMinmaxLevel_zero_eq_sSup_spectrum`** — at the bottom rung this is an equality:
+  `graphMinmaxLevel T 0 = 1 / maxminLevel R 0 − 1 = 1 / sSup (spectrum ℝ R) − 1`, the upper
+  bound coming from the line through `R x` for a near-maximiser `x` (`‖Rx‖ ≥ Re⟪x, Rx⟫`);
+  `maxminLevel_zero_pos` says the top level is strictly positive.  **`graphMinmax_gap_lower`**
+  and **`graphMinmax_gap_pos`** — gap transfer: `μ₁(T) − μ₀(T) ≥ 1/ν₁ − 1/ν₀`, strictly
+  positive as soon as `ν₁ < ν₀` with `ν₁ > 0`.
+
+* **What the numerics computes.**  `maxminSetIn` / `maxminLevelIn` (the Ritz levels of `R`
+  inside a retained subspace), the identification of the ladder from the top with the ladder
+  of `−R` from the bottom (`rayleighSup_neg`, `minmaxSet_neg`, `minmaxLevel_neg`,
+  `minmaxLevelIn_neg`), `maxminLevelIn_le_maxminLevel` (a computed level is a lower bound for
+  the true one), **`galerkin_maxminLevel_tendsto`** (the Galerkin levels of the resolvent
+  converge to `maxminLevel R k`), `galerkin_maxmin_gap_eventually_pos`, and
+  **`graphMinmaxLevel_zero_le_of_computed`**: `1/(computed level) − 1` is a rigorous upper
+  bound for the lowest min–max level of the unbounded `T`.
+
+**`BookProof/ChapterResolventMinMaxEquality.lean` (namespace `BookProof.ResolventLadderEq`).**
+A second new module, also `sorry`-free and `axiom`-free, removes the boundary of the first:
+the reverse inequality for `k ≥ 1`.  With the step symbol `stepUp` (the `cocutoff` of
+`ChapterMinMaxSpectrum`) the functional calculus gives two spectral estimates —
+**`mul_rayleigh_le_normSq_of_mem_range`** (`(c − δ) R ≤ R²` on the range of `q(R)`) and
+**`rayleighVal_le_of_cfc_eq_zero`** (`R ≤ c` on its kernel) — and the dimension dichotomy
+**`exists_unit_mem_ker_of_no_range_subspace`** decides between them.  Either the spectral
+subspace above `c` supplies a `(k+1)`-dimensional competitor `R S₀` inside the domain of `T`
+on which the Rayleigh quotient of `T` is at most `1/(c − δ) − 1`, or `q(R)` kills a unit
+vector of every competitor and `ν_k ≤ c`, contradicting the choice of `c`.  Hence
+**`graphMinmaxLevel_le`**, and with the previous chapter's lower bound the **ladder
+correspondence** **`graphMinmaxLevel_eq`**: `μ_k(T) = 1/ν_k − 1` at *every* rung (assuming
+the rung exists and `ν_k > 0`, both automatic at `k = 0`), together with
+**`graphMinmax_gap_eq`**: the gap of `T`'s ladder is exactly `1/ν₁ − 1/ν₀`.
+
+**Wiring.**  Imported from `BookProof.lean` with a descriptive comment, audited by
+`Work/ResolventMinMaxLadderAudit.lean` (41 `#print axioms` lines, each reporting only
+`propext`, `Classical.choice`, `Quot.sound`), and cited from the Verso chapter
+`Book/SirkReliability.lean` (new section "The Ladder of the Unbounded Operator, Through the
+Resolvent").  `CONSOLIDATED_PLAN.md` and `STATUS.md` carry dated entries for the wave.
+
+**Verification.**  `lake build BookProof.ChapterResolventMinMaxLadder`,
+`lake build BookProof.ChapterResolventMinMaxEquality`,
+`lake build Work.ResolventMinMaxLadderAudit` and `lake build BookProof Singularity Layout`
+(8650 jobs) complete with no errors and no warnings from the new modules; `rg` finds no
+`sorry`/`admit` in them and no `axiom` declaration was added.  The Verso book target could
+not be rebuilt in this working copy — the `verso` package checkout here is missing its
+sources, which is unrelated to this wave — so the new prose section of
+`Book/SirkReliability.lean` (plain prose and a literal `#check` block, as elsewhere in that
+chapter) was not re-elaborated.
+
+**Honest boundary.**  The equality at a rung `k ≥ 1` assumes that the rung exists — a
+`(k+1)`-dimensional subspace of the domain, which the resolvent supplies as soon as the space
+has dimension `k + 1` — and that the resolvent's level there is strictly positive; at `k = 0`
+both are automatic.  The relation is assumed single-valued
+where domain-boundedness and injectivity are used.  Nothing in this wave produces a spectral
+gap for any particular Hamiltonian: it converts a gap of the resolvent's numerical ladder
+into a gap of the ladder of the unbounded operator.

@@ -8,7 +8,22 @@ import Book.TotalVariance
 import Book.ProbabilityClock
 import Book.BornReproduces
 import Book.BornFiber
+import Book.GaugeSymmetry
 import Book.SternGerlach
+import Book.RealRepresentations
+import Book.YangMillsQuantization
+import Book.GribovAmbiguity
+import Book.PhysicalParity
+import Book.DiffeomorphismsGravity
+import Book.Starobinsky
+import Book.NavierStokesHashimoto
+import Book.CarlemanFlux
+import Book.SirkReliability
+import Book.Numerics
+import Book.NsNumerics
+import Book.ConsciousnessBayesianPrior
+import Book.AlignedDeepLearning
+import Book.CoherentState
 import Book.FreeField
 import Book.Irreversibility
 import Book.BijectionProbability
@@ -19,16 +34,11 @@ import Book.OdeSingularity
 import Book.PaFreeHilbert
 import Book.DeterministicTransformations
 import Book.CollapseKeepsKolmogorov
-import Book.EulerGeneric
-import Book.TimeTranslationStochastic
 import Book.DoubleSlit
 import Book.BellInequalities
 import Book.EPRComplete
-import Book.ClassicalLimit
 import Book.ProofPlans
 import Book.SpinStatistics
-import Book.SymmetryRep
-import Book.TrajectoryReconstruction
 import Book.SolovayTensor
 import Book.ConditionalUnitary
 
@@ -85,10 +95,10 @@ lake build BookProof
 
 compiles the entire library of formal proofs. It is `sorry`-free, and every theorem
 cited in this book relies only on Lean's standard `propext`, `Classical.choice`, and
-`Quot.sound`. The library's only `axiom` declarations are two `axiom … : True`
-placeholders in the P-versus-NP module (`ChapterSelectingEvents`), which this edition
-does not cite; since `True` is already provable, they add no logical strength.
-And
+`Quot.sound`. The only `sorry`s in the repository are the two intentional,
+quarantined ones in `UnusedRoute/SchoenfeldPRA.lean` (a historical PRA spine this
+edition does not import); the claims they leave open are stated and planned in
+{ref "proof-plans"}[the appendix]. And
 
 ```
 lake build book && lake exe book
@@ -121,18 +131,59 @@ verified layer is asserted without a proof; the open items are quarantined there
 
 {include 0 Book.Introduction}
 
+# A Decidable, Complete Foundation
+%%%
+tag := "part-pa-free"
+%%%
+
+A metamathematical chapter replacing the manuscript's chapters on _P versus NP_ and
+the _Riemann Hypothesis_: the completed Hilbert space is complete and decidable
+because its infinite elements are kept internally unselectable. The second chapter
+builds the Solovay–Kopperman tensor product on this foundation: a finite-dimensional
+factor carrying an arbitrary probability law, tensored with a separable
+infinite-dimensional factor whose law is forced to be the Mehler measure precisely
+because the language cannot distinguish its elements.
+
+*How to read this part.* Read {ref "pa-free-chapter"}[Completeness without Peano
+Arithmetic] first: its one verified engine is the Riesz–Fischer characterization of
+completeness by absolutely convergent series, and its one discipline is the refusal
+to name infinite elements as constants. Everything else in the part — the
+head–tail decomposition, the Mehler measure on the tail, the decidability of tensor
+products — is the same discipline applied to two factors instead of one. When the
+later physics chapters speak of a "free field" or of the "infinite tail" of a
+state space, this is the precise object they mean; the {ref "free-field"}[free-field
+chapter] in Part Relativity is the direct descendant of these two chapters and
+repays re-reading them.
+
+{include 0 Book.PaFreeHilbert}
+
+{include 0 Book.SolovayTensor}
+
 # Probability as Coherent Belief
 %%%
 tag := "part-probability"
 %%%
 
-The first part builds the probabilistic foundation on which the rest of the book
+The second part builds the probabilistic foundation on which the rest of the book
 rests. We begin from the most primitive question — _what does it mean for a system
 of degrees of belief to be consistent?_ — and recover the probability axioms as the
 answer (the Dutch-book theorem). We then establish the three working tools used
 throughout: the associativity of Bayesian updating, the maximum-entropy
 justification of the uniform prior, and the decomposition of variance into
 _within-group_ and _between-group_ parts.
+
+*How to read this part.* The four chapters are a single toolkit, and they are
+used constantly in the rest of the book. {ref "dutch-book"}[The Dutch-book theorem]
+fixes the *target* of every later construction: whatever the wave-function
+parametrization produces, it must land inside the coherent price systems, i.e.
+inside the simplex. {ref "sequential-bayes"}[Bayesian updating is associative] is
+the coherence property that makes the posterior a genuine state of knowledge, and
+{ref "max-entropy"}[maximum entropy] and {ref "total-variance"}[the law of total
+variance] are the two quantitative instruments — the former a principle for
+*choosing* priors within a parametrization, the latter a bookkeeping identity for
+*combining* sources of uncertainty. A reader who wants the conceptual core can read
+just the Dutch-book chapter and the law of total variance; the other two are needed
+by the consciousness and deep-learning parts later.
 
 {include 0 Book.DutchBook}
 
@@ -141,6 +192,45 @@ _within-group_ and _between-group_ parts.
 {include 0 Book.MaxEntropy}
 
 {include 0 Book.TotalVariance}
+
+# Determinism, Complementarity, and Collapse
+%%%
+tag := "part-foundations"
+%%%
+
+The third part is the conceptual core of the manuscript's quantum-foundations
+chapters. We begin with the group-theoretic fact that a symmetry group of canonical
+transformations is a unitary representation, taking the one-parameter time-translation
+group as the prototype; characterize deterministic versus non-deterministic symmetry
+transformations and locate the origin of complementarity; show why wave-function
+collapse keeps quantum mechanics an ordinary Kolmogorov probability theory, and how
+this differs from Gleason's theorem; prove that time-translation
+is a stochastic process _if and only if_ it is deterministic; reconstruct a quantum
+trajectory at intermediate times by post-selection; work the double-slit
+and Bell/CHSH experiments; and close with EPR-completeness, relativistic causality,
+a concrete deterministic theory, and the classical limit.
+
+*How to read this part.* {ref "deterministic-transformations"}[Symmetries,
+determinism, and complementarity] is the load-bearing chapter: everything else in
+the part is an application of its one theorem — time-translation is a stochastic
+process iff it is deterministic. {ref "collapse-kolmogorov"}[Collapse keeps quantum
+mechanics a probability theory] answers the standard objection, and
+{ref "double-slit"}[the double-slit experiment] and {ref "bell-inequalities"}[the
+Bell inequalities] are the two laboratory situations the manuscript reads through
+that lens; {ref "epr-complete"}[EPR-completeness] closes the logical circle. These
+four form a single argument and are best read in sequence; the double-slit chapter
+additionally introduces the post-selection and weak-value machinery that the
+Solovay–Kopperman tensor product chapter later generalizes.
+
+{include 1 Book.DeterministicTransformations}
+
+{include 1 Book.CollapseKeepsKolmogorov}
+
+{include 1 Book.DoubleSlit}
+
+{include 1 Book.BellInequalities}
+
+{include 1 Book.EPRComplete}
 
 # Wave-functions, Euler's Formula, and the Born Rule
 %%%
@@ -153,10 +243,20 @@ dimensions, the fact that the Born rule reproduces _every_ distribution in any f
 (or countable) dimension, the gauge ambiguity (the invisible phase) of the
 parametrization, the parametrization of any joint or conditional probability by a
 unitary operator (the finite-dimensional core of the book's commutative Wigner
-theorem), information erasure in the Stern–Gerlach experiment, the
-free-field construction of a uniform measure on a sphere out of the Gaussian, and the
-spin–statistics dichotomy that distinguishes bosonic commutation from fermionic
-anticommutation in a finite tensor product of sample spaces.
+theorem), and information erasure in the Stern–Gerlach experiment.
+
+*How to read this part.* {ref "probability-clock"}[The probability clock] is the
+smallest possible instance of the whole book — read it first even if you read
+nothing else in this part, since it introduces the generator $`J^2 = -1`$, Euler's
+formula, and the singular collapse matrix in two dimensions. {ref "born-reproduces"}[The
+Born rule reproduces every distribution] lifts the construction to $`n` outcomes,
+countable chains, and the complex and quaternionic cases; {ref "born-fiber"}[the
+gauge ambiguity] explains what is *invisible* in the parametrization. The remaining
+two chapters are the bridge to physics: {ref "conditional-unitary"}[a joint
+probability is a wave-function] is the finite-dimensional core of the commutative
+Wigner theorem, and {ref "stern-gerlach"}[the Stern–Gerlach experiment] is the
+first laboratory application. This part is the prerequisite for the field-theory
+and relativity part that follows.
 
 {include 0 Book.ProbabilityClock}
 
@@ -168,9 +268,97 @@ anticommutation in a finite tensor product of sample spaces.
 
 {include 0 Book.SternGerlach}
 
+# Relativity, Gauge Theory, and Gravity
+%%%
+tag := "part-relativity"
+%%%
+
+The manuscript's relativistic and field-theoretic programme. We develop the
+Lorentz group and its real representations, the CPT theorem and the relativistic
+position operator; quantization arising from time-evolution (Yang–Mills, the
+Weyl/CCR relations, the nilpotent BRST charge); the Gribov ambiguity and the
+abelian (electromagnetic) case; the physical parity transformation and
+antiparticles; and the diffeomorphism/`3+1` structure of gravity. We also develop
+the field-theoretic foundations: gauge symmetry and dissipative dynamics, the
+free-field construction of a uniform measure on a sphere out of the Gaussian, and
+the spin–statistics dichotomy that distinguishes bosonic commutation from
+fermionic anticommutation.
+
+*How to read this part.* This is the longest part and the one with the most
+independent threads. The two foundation chapters — {ref "gauge-symmetry"}[Gauge
+symmetry and dissipative dynamics] and {ref "free-field"}[the free-field
+construction] — set the vocabulary (gauge as parametrization redundancy, the
+Gaussian as the rotation-invariant prior) that the rest assume. The middle block
+({ref "real-representations"}[Real representations], {ref "quantization-time-evolution"}[Quantization
+due to time-evolution], {ref "gribov-ambiguity"}[the Gribov ambiguity],
+{ref "physical-parity"}[the physical parity transformation]) is the Standard-Model
+thread, and can be read largely independently of the free-field thread. The final
+chapters — {ref "diffeomorphisms-gravity"}[Diffeomorphisms and gravity], the
+Starobinsky scalaron, and the Navier–Stokes and Carleman threads — apply the same
+parametrization to the systems whose numerical validation is carried out in the
+companion solver work: the 3D gauge-fixed gravity Hamiltonian, the Yang–Mills
+Hamiltonian, and the Eulerian Navier–Stokes fiber. The {ref "spin-statistics"}[spin–
+statistics] chapter belongs with the free-field thread (it is the finite-degree
+instance of the tensor products of sample spaces).
+
+{include 0 Book.GaugeSymmetry}
+
 {include 0 Book.FreeField}
 
 {include 0 Book.SpinStatistics}
+
+{include 0 Book.RealRepresentations}
+
+{include 0 Book.YangMillsQuantization}
+
+{include 0 Book.GribovAmbiguity}
+
+{include 0 Book.PhysicalParity}
+
+{include 0 Book.DiffeomorphismsGravity}
+
+{include 0 Book.Starobinsky}
+
+{include 0 Book.NavierStokesHashimoto}
+
+{include 0 Book.CarlemanFlux}
+
+{include 0 Book.SirkReliability}
+
+{include 0 Book.Numerics}
+
+{include 0 Book.NsNumerics}
+
+# Consciousness, Deep Learning, and the Bayesian Prior
+%%%
+tag := "part-consciousness"
+%%%
+
+The manuscript's Bayesian foundations of agency. We show that no point of null
+measure is special and no prior is best for all cases, that a deterministic prior
+is still subjective, and that Bayesian inference is a unitary representation; and
+that randomized (deep) learning is a random sampling method inducing a Bayesian
+posterior over models. We close with the coherent-state reading of Softmax
+attention, where the Born rule on coherent states is shown to be the same equation
+as the attention mechanism.
+
+*How to read this part.* The three chapters share one thesis — a system is a
+Bayesian prior in action — but they use it in three different registers.
+{ref "consciousness-bayesian-prior"}[Consciousness as a representation of a
+Bayesian prior] is the philosophical application and needs only the probability
+part behind it. {ref "aligned-deep-learning"}[Aligned deep learning as a random
+sampling method] is the engineering application and re-uses the induced-prior
+machinery of the Bayesian chapters. {ref "coherent-state-attention"}[Softmax is the Born rule
+on coherent states] is the closest to physics: it re-uses the Gaussian of the
+free-field chapter and the Born rule of Part II, and it is the one chapter here
+that connects directly to the harmonic-oscillator machinery of the field-theory
+part.
+
+{include 0 Book.ConsciousnessBayesianPrior}
+
+{include 0 Book.AlignedDeepLearning}
+
+{include 0 Book.CoherentState}
 
 # Entropy, Irreversibility, and the Arrow of Time
 %%%
@@ -184,6 +372,18 @@ null-measure sets, quantify the cosmological amplification of the matter/radiati
 ratio, and close with the law of large numbers that gives the probabilities their
 empirical meaning.
 
+*How to read this part.* {ref "irreversibility"}[Irreversibility: injective but not
+surjective] and {ref "bijection-probability"}[a random map is almost surely
+non-invertible] form one argument (irreversibility is generic), while
+{ref "null-measure"}[null-measure sets need not be small] is the measure-theoretic
+caution that keeps the argument honest. {ref "baryon-asymmetry"}[the baryon
+asymmetry] is the cosmological application — the one place the part connects to
+the gravity thread, via the Friedmann–Robertson–Walker scaling that the companion
+numerical validation checks — and {ref "measurement-lln"}[the law of large numbers]
+closes the part by giving the probabilities their empirical content. Read the first
+two chapters and the LLN chapter for the core; the baryon-asymmetry chapter needs
+the FLRW terminology of the gravity part.
+
 {include 0 Book.Irreversibility}
 
 {include 0 Book.BijectionProbability}
@@ -194,7 +394,7 @@ empirical meaning.
 
 {include 0 Book.MeasurementLLN}
 
-# Resolution of the Singularity of an ODE
+# The ODE Singularity
 %%%
 tag := "part-ode"
 %%%
@@ -202,62 +402,17 @@ tag := "part-ode"
 An operator-theoretic resolution of the finite-time blow-up of $`x' = x^2`, replacing
 the ODE chapter of the manuscript.
 
+*How to read this part.* A single self-contained chapter, followed by the proof-plan
+appendix. It is the book's most explicit exercise in *honesty about verification*:
+read the section "What Is Verified, and What Is Open" carefully — the repository's
+`Singularity` library is `sorry`-free, but it splits into genuine theorems (the
+complexification resolution, the spectral energy bound) and algebraic certificates
+(the flow-completeness flags) that must not be read as analytic results. The
+chapter is also the conceptual bridge to the numerical SIRK solver work: the
+detection pipeline and the change-of-variables strategy it describes are the same
+ideas the companion solver implements when it evolves singular-looking systems.
+
 {include 0 Book.OdeSingularity}
-
-# Completeness without Peano Arithmetic
-%%%
-tag := "part-pa-free"
-%%%
-
-A metamathematical chapter replacing the manuscript's chapters on _P versus NP_ and
-the _Riemann Hypothesis_: the completed Hilbert space is complete and decidable
-because its infinite elements are kept internally unselectable. The second chapter
-builds the Solovay–Kopperman tensor product on this foundation: a finite-dimensional
-factor carrying an arbitrary probability law, tensored with a separable
-infinite-dimensional factor whose law is forced to be the Mehler measure precisely
-because the language cannot distinguish its elements.
-
-{include 0 Book.PaFreeHilbert}
-
-{include 0 Book.SolovayTensor}
-
-# Determinism, Complementarity, and Collapse
-%%%
-tag := "part-foundations"
-%%%
-
-The conceptual core of the manuscript's quantum-foundations chapters. We begin with
-the group-theoretic fact that a symmetry group of canonical transformations is a
-unitary representation, taking the one-parameter time-translation group as the
-prototype; characterize deterministic versus non-deterministic symmetry
-transformations and locate the origin of complementarity; show why wave-function
-collapse keeps quantum mechanics an ordinary Kolmogorov probability theory, and how
-this differs from Gleason's theorem; extend the Euler-angle parametrization to
-arbitrary, countable, complex, and quaternionic dimension; prove that time-translation
-is a stochastic process _if and only if_ it is deterministic; reconstruct a quantum
-trajectory at intermediate times by post-selection; work the double-slit and
-Bell/CHSH experiments; and close with EPR-completeness, relativistic causality, a
-concrete deterministic theory, and the classical limit.
-
-{include 1 Book.SymmetryRep}
-
-{include 1 Book.DeterministicTransformations}
-
-{include 1 Book.CollapseKeepsKolmogorov}
-
-{include 1 Book.EulerGeneric}
-
-{include 1 Book.TimeTranslationStochastic}
-
-{include 1 Book.TrajectoryReconstruction}
-
-{include 1 Book.DoubleSlit}
-
-{include 1 Book.BellInequalities}
-
-{include 1 Book.EPRComplete}
-
-{include 1 Book.ClassicalLimit}
 
 {include 0 Book.ProofPlans}
 

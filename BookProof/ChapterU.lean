@@ -17,7 +17,7 @@ to be merged into `book.tex`.  Deliverables:
 * **U.5**: independent components ⇒ portfolio risk falls like `1/√n`.
 
 U.2 (sphere→Gaussian / Gegenbauer→Hermite) is already `sorry`-free in
-`PnpProof/SphereGaussian.lean`; it is a cross-reference only, no new code here.
+`BookProof/PhysHSGaussian.lean`; it is a cross-reference only, no new code here.
 -/
 
 open MeasureTheory
@@ -61,22 +61,25 @@ crate's `Session.condition`; the present theorem is its measure-theoretic
 correctness statement. -/
 theorem born_conditioning (Ψ : X → ℂ) (μ : Measure X) (E : Set X)
     (hE : MeasurableSet E) (hpos : bornMeasure Ψ μ E ≠ 0)
-    (hfin : bornMeasure Ψ μ E ≠ ∞) :
+    (_hfin : bornMeasure Ψ μ E ≠ ∞) :
     bornMeasure (conditionedState Ψ μ E) μ = (bornMeasure Ψ μ)[|E] := by
   ext s hs;
-  simp +decide [ *, bornMeasure, ProbabilityTheory.cond_apply ];
-  simp +decide [ conditionedState ];
-  simp +decide [ mul_pow, ← MeasureTheory.lintegral_indicator, hE, hs ];
-  have h_const : (∫⁻ x, s.indicator (fun x => ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ) = ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ∫⁻ x, s.indicator (fun x => ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ := by
+  simp only [bornMeasure, norm_nonneg, ENNReal.ofReal_pow, ofReal_norm, withDensity_apply,
+      ProbabilityTheory.cond_apply, MeasurableSet.inter, hs, hE];
+  simp only [conditionedState, Complex.real_smul, Complex.ofReal_inv, enorm_mul];
+  simp only [mul_pow, hs, ← lintegral_indicator, hE, MeasurableSet.inter];
+  have h_const : (∫⁻ x, s.indicator (fun x => ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 *
+      ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ) = ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ∫⁻ x, s.indicator
+          (fun x => ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ := by
     rw [ ← MeasureTheory.lintegral_const_mul' ];
-    · congr with x ; by_cases hx : x ∈ s <;> simp +decide [ hx ];
+    · congr with x ; by_cases hx : x ∈ s <;> simp [ hx ];
     · finiteness
   convert h_const using 2;
   · norm_num [ ENorm.enorm ];
   · rw [ ← ENNReal.toReal_eq_toReal_iff' ] <;> norm_num;
     · unfold bornMeasure; aesop;
     · unfold bornMeasure at * ; aesop;
-  · congr with x ; by_cases hx : x ∈ E <;> by_cases hx' : x ∈ s <;> simp +decide [ hx, hx' ]
+  · congr with x ; by_cases hx : x ∈ E <;> by_cases hx' : x ∈ s <;> simp [ hx, hx' ]
 
 /-! ## U.3 — Fock-space layer: the exponential property `Sym(M ⊕ N) ≅ Sym M ⊗ Sym N` -/
 
@@ -105,11 +108,11 @@ noncomputable def tensorToProd :
 
 theorem tensorToProd_comp_prodToTensor :
     (tensorToProd R M N).comp (prodToTensor R M N) = AlgHom.id R _ := by
-  ext x; all_goals simp +decide [ tensorToProd, prodToTensor ]
+  ext x; all_goals simp [ tensorToProd, prodToTensor ]
 
 theorem prodToTensor_comp_tensorToProd :
     (prodToTensor R M N).comp (tensorToProd R M N) = AlgHom.id R _ := by
-  ext x; all_goals simp +decide [ prodToTensor, tensorToProd ]
+  ext x; all_goals simp [ prodToTensor, tensorToProd ]
 
 /-- **U.3 — the exponential property of the (bosonic) Fock functor.**
 `Sym(M × N) ≅ Sym M ⊗ Sym N` as `R`-algebras: the tensor product of two Fock
@@ -140,7 +143,7 @@ theorem no_differentiable_trajectory {Ω : Type*} [MeasurableSpace Ω] (P : Meas
     (hext : ∀ᵐ ω ∂P, ∀ t, ¬ DifferentiableAt ℝ (path ω) t) :
     P {ω | ∃ t, DifferentiableAt ℝ (path ω) t}ᶜ = 1 := by
   rw [ MeasureTheory.measure_congr, IsProbabilityMeasure.measure_univ ];
-  simp_all +decide [ MeasureTheory.ae_iff ]
+  simp_all [ MeasureTheory.ae_iff ]
 
 /-
 The `P(differentiable) = 0` corollary of `no_differentiable_trajectory`.
@@ -165,12 +168,13 @@ theorem portfolio_risk_inv_sqrt {n : ℕ} (hn : 0 < n) (X : Fin n → Ω → ℝ
     (hindep : ProbabilityTheory.iIndepFun X P)
     (hmem : ∀ i, MemLp (X i) 2 P) (hvar : ∀ i, ProbabilityTheory.variance (X i) P = σ ^ 2) :
     ProbabilityTheory.variance (fun ω => (∑ i, X i ω) / n) P = σ ^ 2 / n := by
-  have h_var_sum : (ProbabilityTheory.variance (fun ω => ∑ i, X i ω) P) = ∑ i,    (ProbabilityTheory.variance (X i) P) := by
+  have h_var_sum : (ProbabilityTheory.variance (fun ω => ∑ i, X i ω) P) = ∑ i,
+      (ProbabilityTheory.variance (X i) P) := by
     convert ProbabilityTheory.IndepFun.variance_sum ( fun i _ => hmem i ) _;
-    · simp +decide [ Finset.sum_apply ];
+    · simp [ Finset.sum_apply ];
     · intro i _ j _ hij; exact hindep.indepFun hij;
-  simp_all +decide [ div_eq_inv_mul, ProbabilityTheory.variance_const_mul ];
-  simp +decide [ sq, mul_assoc, hn.ne' ]
+  simp_all [ div_eq_inv_mul, ProbabilityTheory.variance_const_mul ];
+  simp [ sq, mul_assoc, hn.ne' ]
 
 /-
 Standard-deviation form of `portfolio_risk_inv_sqrt`: the aggregate

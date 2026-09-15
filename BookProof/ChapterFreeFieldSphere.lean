@@ -54,7 +54,7 @@ orthogonal maps preserve the norm.
 -/
 theorem normalize_comm (L : EuclideanSpace ℝ (Fin n) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin n))
     (x : EuclideanSpace ℝ (Fin n)) : normalize (L x) = L (normalize x) := by
-  simp +decide [ normalize, L.norm_map ]
+  simp [ normalize, L.norm_map ]
 
 /-- The **uniform measure on the sphere** built from the Gaussian: the
 pushforward of the standard Gaussian prior under radial normalization. -/
@@ -75,7 +75,8 @@ rotation-invariant: for every orthogonal map `L`,
 theorem sphereGaussian_map_linearIsometryEquiv
     (L : EuclideanSpace ℝ (Fin n) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin n)) :
     (sphereGaussian n).map L = sphereGaussian n := by
-  -- By definition of `sphereGaussian`,    we have `(sphereGaussian n).map L = ((stdGaussian n).map normalize).map L`.
+  -- By definition of `sphereGaussian`, we have `(sphereGaussian n).map L = ((stdGaussian n).map
+  -- normalize).map L`.
   rw [show sphereGaussian n = (stdGaussian n).map normalize from rfl];
   rw [ MeasureTheory.Measure.map_map, show L ∘ normalize = normalize ∘ L from ?_ ];
   · rw [ ← MeasureTheory.Measure.map_map, stdGaussian_map_linearIsometryEquiv ];

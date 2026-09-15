@@ -55,7 +55,7 @@ noncomputable section
 theorem disjoint_support_mul {α : Type*} (f g : α → ℂ)
     (h : Disjoint (Function.support f) (Function.support g)) : f * g = 0 := by
   ext x;
-  by_cases hx : f x = 0 <;> simp_all +decide [ Function.mem_support, Set.disjoint_left ]
+  by_cases hx : f x = 0 <;> simp_all [ Function.mem_support, Set.disjoint_left ]
 
 /-
 **F2.3** (L² orthogonality): packets with a.e.-disjoint supports are
@@ -66,7 +66,7 @@ theorem disjoint_support_inner_zero {α : Type*} [MeasurableSpace α] (μ : Meas
     (f g : α → ℂ) (h : Disjoint (Function.support f) (Function.support g)) :
     ∫ x, (starRingEnd ℂ) (f x) * g x ∂μ = 0 := by
   convert MeasureTheory.integral_eq_zero_of_ae ( Filter.Eventually.of_forall fun x => ?_ );
-  by_cases hx : f x = 0 <;> by_cases hx' : g x = 0 <;> simp_all +decide [ Set.disjoint_left ]
+  by_cases hx : f x = 0 <;> by_cases hx' : g x = 0 <;> simp_all [ Set.disjoint_left ]
 
 /-! ## F2.4 — the diagonal-Gram closed-form training solution (`O(M)` payoff) -/
 
@@ -85,10 +85,14 @@ theorem diagonal_gram_residual_orthogonal {ι : Type*} [Fintype ι]
     inner (𝕜 := ℂ) (g k)
       (b - ∑ j, ((inner (𝕜 := ℂ) (g j) b) / ((‖g j‖ : ℂ) ^ 2)) • g j) = 0 :=
     by
-  simp +decide ;
+  simp only [CStarModule.inner_sub_right, CStarModule.inner_sum_right,
+      CStarModule.inner_op_smul_right] ;
   rw [Finset.sum_eq_single k]
-    <;> simp_all +decide [div_eq_inv_mul, mul_assoc, mul_left_comm,
-      inner_self_eq_norm_sq_to_K]
+    <;> simp_all only [ne_eq, div_eq_inv_mul, inner_self_eq_norm_sq_to_K, Complex.coe_algebraMap,
+          mul_assoc, mul_left_comm, OfNat.ofNat_ne_zero, not_false_eq_true,
+          pow_eq_zero_iff, Complex.ofReal_eq_zero, norm_eq_zero, inv_mul_cancel₀,
+          mul_one, sub_self, Finset.mem_univ, mul_eq_zero, inv_eq_zero, false_or,
+          forall_const, not_true_eq_false, IsEmpty.forall_iff]
   exact fun i hi => Or.inr ( horth _ _ ( Ne.symm hi ) )
 
 /-! ## F2.6 — the vacuum projector `|0⟩⟨0|` (`nested_fock_algebra` `ProjectVacuum`) -/
@@ -105,7 +109,7 @@ def projOnto (ψ : E) : E →L[ℂ] E := (innerSL ℂ ψ).smulRight ψ
 -/
 theorem projOnto_idempotent {ψ : E} (hψ : ‖ψ‖ = 1) (s : E) :
     projOnto ψ (projOnto ψ s) = projOnto ψ s := by
-  simp +decide [ hψ, inner_self_eq_norm_sq_to_K ]
+  simp [ hψ, inner_self_eq_norm_sq_to_K ]
 
 /-
 **F2.6** (self-adjointness): `projOnto ψ` is symmetric,
@@ -143,7 +147,7 @@ theorem diagGen_eigenstate (a : ℂ) (n : ℕ) :
     (a • ChapterF1.numberOp) (X ^ n) = (a * n) • X ^ n :=
   by
   convert congr_arg (fun x => a • x) (ChapterF1.numberOp_monomial n) using 1
-    <;> norm_num [mul_assoc, smul_smul]
+    ; norm_num [mul_assoc, smul_smul]
 
 /-! ## F2.8 — the Mehler overlap and the dressed-vacuum Bessel bound -/
 
@@ -193,7 +197,7 @@ an off-diagonal generator.
 theorem mehler_projector_matrix (v xi xj : E') :
     inner (𝕜 := ℂ) xi (projOnto v xj)
       = (starRingEnd ℂ) (inner (𝕜 := ℂ) v xi) * inner (𝕜 := ℂ) v xj := by
-  simp +decide [ projOnto ];
+  simp [ projOnto ];
   ring
 
 end

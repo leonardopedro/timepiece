@@ -74,8 +74,10 @@ to an orthonormal basis (`Orthonormal.exists_orthonormalBasis_extension_of_card_
 yields a unitary `W` with `B = W · diag(D)`.
 -/
 set_option maxHeartbeats 400000 in
+-- the proof below is a large finite computation; the default heartbeat budget
+-- is not enough to elaborate it
 theorem svd_completion {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
-    (B : Matrix (Fin n) (Fin n) 𝕜) (D : Fin n → ℝ) (hD : ∀ i, 0 ≤ D i)
+    (B : Matrix (Fin n) (Fin n) 𝕜) (D : Fin n → ℝ) (_hD : ∀ i, 0 ≤ D i)
     (hBB : Bᴴ * B = Matrix.diagonal (fun i => ((D i : 𝕜) ^ 2))) :
     ∃ W ∈ Matrix.unitaryGroup (Fin n) 𝕜,
       B = W * Matrix.diagonal (fun i => (D i : 𝕜)) := by
@@ -90,32 +92,33 @@ theorem svd_completion {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
     have hv_inner : ∀ i j, i ∈ s → j ∈ s → inner 𝕜 (v i) (v j) = if i = j then 1 else 0 := by
       intro i j hi hj
       have h_inner : inner 𝕜 (v i) (v j) = (D i : 𝕜)⁻¹ * (D j : 𝕜)⁻¹ * (Bᴴ * B) i j := by
-        simp +decide [ hv i hi, hv j hj, Matrix.mul_apply, inner ];
-        simp +decide only [mul_comm, mul_left_comm, mul_assoc, Finset.mul_sum _ _ _];
-      by_cases hij : i = j <;> simp_all +decide [ sq, mul_assoc, mul_comm ];
-      simp +decide [ hj.out ];
-    simp_all +decide [ orthonormal_iff_ite ];
+        simp [ hv i hi, hv j hj, Matrix.mul_apply, inner ];
+        simp only [mul_comm, mul_left_comm, mul_assoc, Finset.mul_sum _ _ _];
+      by_cases hij : i = j <;> simp_all [ sq, mul_assoc, mul_comm ];
+      simp [ hj.out ];
+    simp_all [ orthonormal_iff_ite ];
   -- Extend `v` to an orthonormal basis `e` of `E`.
   obtain ⟨e, he⟩ : ∃ e : OrthonormalBasis (Fin n) 𝕜 (EuclideanSpace 𝕜 (Fin n)),
       ∀ j ∈ s, e j = v j := by
     convert Orthonormal.exists_orthonormalBasis_extension_of_card_eq _ hv_orthonormal;
-    simp +decide ;
-  refine' ⟨ Matrix.of ( fun i j => e j i ), _, _ ⟩ <;>
-    simp_all +decide [ Matrix.mem_unitaryGroup_iff' ]
+    simp ;
+  refine ⟨ Matrix.of ( fun i j => e j i ), ?_, ?_ ⟩ <;>
+    simp_all only [mem_unitaryGroup_iff']
   · ext i j
-    simp +decide [ Matrix.mul_apply, Matrix.star_apply ]
+    simp only [mul_apply, star_apply, of_apply, RCLike.star_def]
     have := e.orthonormal
     rw [ orthonormal_iff_ite ] at this
     convert this i j using 1
     ac_rfl
   · ext i j
     by_cases hj : D j = 0 <;>
-      simp_all +decide [ Matrix.mul_apply, Matrix.diagonal_apply ]
+      simp_all only [mul_apply, of_apply, diagonal_apply, map_zero, ite_self, mul_zero,
+        Finset.sum_const_zero, mul_ite, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
     · replace hBB := congr_fun ( congr_fun hBB j ) j
-      simp_all +decide [ Matrix.mul_apply, Matrix.diagonal ]
-      simp_all +decide [ mul_comm, RCLike.mul_conj ]
+      simp_all [ Matrix.mul_apply, Matrix.diagonal ]
+      simp_all [ mul_comm, RCLike.mul_conj ]
       norm_cast at hBB
-      simp_all +decide [ Finset.sum_eq_zero_iff_of_nonneg ]
+      simp_all [ Finset.sum_eq_zero_iff_of_nonneg ]
     · rw [ he j hj, hv j hj i, inv_mul_eq_div, div_mul_cancel₀ _ ( by simpa ) ]
 
 /-- **Finite-rank singular value decomposition (`denseCore_svd`).**  Every square

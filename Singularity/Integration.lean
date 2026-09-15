@@ -43,33 +43,41 @@ def UKDiagnosticCode.toString : UKDiagnosticCode → String
   | .odeDeficiencyIndices => "UK-2104: Nonzero deficiency indices"
   | .odePolynomialTooLarge => "UK-2105: Polynomial degree exceeds bound"
 
-/-- The Hamiltonian as an outer wave function.
-    Given an ODE system, construct the corresponding Hamiltonian operator
-    and represent it as an outer wave function on the Fock space.
-    
-    For a 1D ODE x' = f(x), the Weyl-symmetrized Hamiltonian is
-    H = f(x)·p - (i/2)·f'(x), which acts on the Fock algebra.
-    The outer wave function representation encodes the normal-ordered
-    coefficients of H. -/
+/-
+NOTE (build repair).  The definition below does not elaborate and is therefore
+commented out rather than deleted.  Two things are wrong with it: there is no
+constant `MeasureTheory.Measure.lebesgue` (the Lebesgue measure on `ℝ` is
+`MeasureTheory.volume`), and `OuterWaveFunction` requires its head law to be a
+*probability* measure, which the restriction of the volume measure to
+`Set.Icc (-1) 1` (total mass `2`) is not.  The body was in any case a
+placeholder returning `0`; a real construction needs the Fock representation of
+the normal-ordered Hamiltonian.
+
+/-- The Hamiltonian as an outer wave function. -/
 noncomputable def hamiltonian_as_outer_wavefunction {M : ℕ} (sys : ODESystem M) :
     OuterWaveFunction M (MeasureTheory.Measure.pi (fun _ : Fin M =>
       MeasureTheory.Measure.restrict MeasureTheory.Measure.lebesgue (Set.Icc (-1) 1))) :=
-  -- The Hamiltonian is a normal-ordered operator; we embed it as an outer wave function
-  -- by taking the expectation value in the vacuum state
   have hH := odeToHamiltonian sys
-  -- For now, return the zero wave function as a placeholder
-  -- The actual construction requires the Fock space representation
   0
+-/
 
-/-- Bridge between the singularity detection session and the RandomMap2 framework.
-    Converts an ODE system specification into a RandomMap2-compatible
-    Hamiltonian specification for the unfer protocol. -/
+/-
+NOTE (build repair).  The bridge below does not elaborate and is therefore
+commented out rather than deleted.  `HamiltonianSpec` is not in a `RandomMap2`
+namespace — it is the structure of `Singularity.Report` — and its `rhs` field is
+`Fin M → String` (unparsed polynomial source), whereas `ODESystem.rhs` is
+`Fin M → Polynomial ℝ`, so the record below is ill-typed.  Bridging the two
+needs a printer from `Polynomial ℝ` to the spec's string syntax, which the
+project does not have.
+
+/-- Bridge between the singularity detection session and the RandomMap2
+framework. -/
 noncomputable def session_to_randomMap2 {M : ℕ} (sys : ODESystem M) :
     RandomMap2.HamiltonianSpec M :=
   { vars := sys.vars
     rhs := sys.rhs
-    changeOfVariables := none
-  }
+    changeOfVariables := none }
+-/
 
 /-- Compute the blow-up time for a 1D scalar ODE x' = f(x) via improper integral.
     T(x₀) = ∫_{x₀}^{∞} dx / f(x)   (for f(x) > 0 when x > x₀)

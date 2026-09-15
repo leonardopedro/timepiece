@@ -12,8 +12,7 @@ cylindrical outer wave-functions.
 -/
 
 open MeasureTheory ProbabilityTheory Complex
-open PnpProof.Kopperman
-open SchoenfeldPRA
+open PhysMehler
 
 noncomputable section
 
@@ -59,7 +58,8 @@ theorem rcp_stateMeasure_decoupling {N : ℕ}
     Measure.map Prod.snd (stateMeasure N headDist) = rcpPriorOnSubstrate ∧
     ∃ (g₁ g₂ : Lp ℂ 2 headDist),
       inner ℂ Ψ₁ Ψ₂ = ∫ x, g₁ x * star (g₂ x) ∂headDist :=
-  outer_inner_reduces_to_head Ψ₁ Ψ₂ hcyl₁ hcyl₂
+  ⟨map_fst_stateMeasure N headDist, map_snd_stateMeasure N headDist,
+    outer_inner_reduces_to_head Ψ₁ Ψ₂ hcyl₁ hcyl₂⟩
 
 #print axioms tailMeasure_eq_rcpPrior
 #print axioms map_fst_stateMeasure

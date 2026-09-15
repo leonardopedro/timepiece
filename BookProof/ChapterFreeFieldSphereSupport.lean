@@ -47,7 +47,7 @@ Radial normalization sends every nonzero vector to the unit sphere.
 -/
 theorem normalize_mem_sphere {x : EuclideanSpace ℝ (Fin n)} (hx : x ≠ 0) :
     normalize x ∈ Metric.sphere (0 : EuclideanSpace ℝ (Fin n)) 1 := by
-  simp +decide [ ChapterFreeFieldSphere.normalize, norm_smul, hx ]
+  simp [ ChapterFreeFieldSphere.normalize, norm_smul, hx ]
 
 /-
 For `n ≥ 1` the standard Gaussian prior is atomless: every singleton is
@@ -60,9 +60,10 @@ theorem stdGaussian_singleton (hn : 0 < n) (x : EuclideanSpace ℝ (Fin n)) :
   · rw [ show ( WithLp.toLp 2 ⁻¹' { x } : Set ( Fin n → ℝ ) ) = { fun i => x i } from ?_ ];
     · convert MeasureTheory.Measure.pi_pi _ _;
       rotate_right;
-      exact fun i => { x.ofLp i };
+      focus (exact fun i => { x.ofLp i });
       · aesop;
-      · simp +decide [ gaussianReal ];
+      · simp only [gaussianReal, one_ne_zero, ↓reduceIte, measure_singleton, Finset.prod_const,
+          Finset.card_univ, Fintype.card_fin];
         rw [ zero_pow hn.ne' ];
       · exact fun _ => inferInstance;
     · aesop;
@@ -80,7 +81,7 @@ theorem sphereGaussian_sphere_eq_one (hn : 0 < n) :
   · rw [ show ChapterFreeFieldSphere.normalize ⁻¹' Metric.sphere 0 1 = { 0 } ᶜ from ?_ ];
     · convert MeasureTheory.measure_compl _ _ <;> norm_num [ stdGaussian_singleton hn ];
     · ext x; simp [ChapterFreeFieldSphere.normalize];
-      by_cases hx : x = 0 <;> simp +decide [ hx, norm_smul ];
+      by_cases hx : x = 0 <;> simp [ hx, norm_smul ];
   · exact ChapterFreeFieldSphere.measurable_normalize
   · exact Metric.isClosed_sphere.measurableSet
 

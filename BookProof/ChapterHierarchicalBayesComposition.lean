@@ -35,6 +35,7 @@ def IsNormalizedKernel (k : A → B → ℝ) : Prop :=
 def IsNonnegativeKernel (k : A → B → ℝ) : Prop :=
   ∀ a b, 0 ≤ k a b
 
+omit [Fintype A] [Fintype C] [DecidableEq A] [DecidableEq B] [DecidableEq C] in
 /-- Composition preserves pointwise nonnegativity. -/
 theorem compKernel_nonnegative (k₁ : A → B → ℝ) (k₂ : B → C → ℝ)
     (h₁ : IsNonnegativeKernel k₁) (h₂ : IsNonnegativeKernel k₂) :
@@ -42,6 +43,7 @@ theorem compKernel_nonnegative (k₁ : A → B → ℝ) (k₂ : B → C → ℝ)
   intro a c
   exact Finset.sum_nonneg fun b _ => mul_nonneg (h₁ a b) (h₂ b c)
 
+omit [Fintype A] [DecidableEq A] [DecidableEq B] [DecidableEq C] in
 /-- Composition preserves normalization. -/
 theorem compKernel_normalized (k₁ : A → B → ℝ) (k₂ : B → C → ℝ)
     (h₁ : IsNormalizedKernel k₁) (h₂ : IsNormalizedKernel k₂) :
@@ -61,6 +63,7 @@ theorem compKernel_normalized (k₁ : A → B → ℝ) (k₂ : B → C → ℝ)
       rw [h₂ b, mul_one]
     _ = 1 := h₁ a
 
+omit [Fintype A] [Fintype D] [DecidableEq A] [DecidableEq B] [DecidableEq C] [DecidableEq D] in
 /-- Composition of finite kernels is associative. -/
 theorem compKernel_assoc (k₁ : A → B → ℝ) (k₂ : B → C → ℝ)
     (k₃ : C → D → ℝ) :
@@ -83,6 +86,7 @@ theorem idKernel_normalized : IsNormalizedKernel (idKernel : A → A → ℝ) :=
   intro a
   simp [idKernel]
 
+omit [Fintype A] in
 /-- The identity kernel is nonnegative. -/
 theorem idKernel_nonnegative : IsNonnegativeKernel (idKernel : A → A → ℝ) := by
   intro a a'
@@ -90,12 +94,14 @@ theorem idKernel_nonnegative : IsNonnegativeKernel (idKernel : A → A → ℝ) 
   · simp [idKernel, h]
   · simp [idKernel, h]
 
+omit [Fintype B] [DecidableEq B] in
 /-- The identity kernel is a left identity for composition. -/
 theorem idKernel_comp (k : A → B → ℝ) :
     compKernel (idKernel : A → A → ℝ) k = k := by
   funext a b
   simp [compKernel, idKernel]
 
+omit [Fintype A] [DecidableEq A] in
 /-- The identity kernel is a right identity for composition. -/
 theorem compKernel_id (k : A → B → ℝ) :
     compKernel k (idKernel : B → B → ℝ) = k := by
@@ -106,6 +112,7 @@ theorem compKernel_id (k : A → B → ℝ) :
 def terminalMarginal (k : A → B → ℝ) (likelihood : B → ℝ) (a : A) : ℝ :=
   ∑ b, k a b * likelihood b
 
+omit [Fintype A] [DecidableEq A] [DecidableEq B] [DecidableEq C] in
 /-- Marginalizing two consecutive levels is the same as first composing their
 conditional kernels and then marginalizing once. -/
 theorem terminalMarginal_comp (k₁ : A → B → ℝ) (k₂ : B → C → ℝ)
@@ -122,6 +129,7 @@ theorem terminalMarginal_comp (k₁ : A → B → ℝ) (k₂ : B → C → ℝ)
   intro b hb
   ring
 
+omit [DecidableEq A] [DecidableEq B] [DecidableEq C] in
 /-- A three-level terminal likelihood gives the same outer posterior after the
 two conditional levels are collapsed into their composite kernel. -/
 theorem threeLevel_outerPosterior_eq_bayesUpdate (outer : A → ℝ)

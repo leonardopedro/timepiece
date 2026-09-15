@@ -1,5 +1,5 @@
 import UsedRoute.SolovayHilbert
-import UsedRoute.RectangleStrategy
+import UsedRoute.Basic
 
 /-!
 # Honest RandomMap2 reduction of the RH zero-free step
@@ -17,7 +17,7 @@ but it does not by itself prove the RH-equivalent analytic premise.
 -/
 
 open MeasureTheory ProbabilityTheory Complex
-open SchoenfeldPRA
+open PhysMehler
 
 noncomputable section
 
@@ -95,18 +95,25 @@ theorem decoupled_integral_and_zeroFree_of_rectangle {N : ℕ}
 /-
 ## Phase 9 bridge (R21): RH via RandomMap2
 
-Bridge theorem connecting the RandomMap2 finite-head framework to the
-historical RH proof. `RectangleRH` (already proved in this module) implies
-the same RH conclusion as `riemann_hypothesis_rect` (already proved in
-`RectangleStrategy.lean`).
+Bridge theorem connecting the RandomMap2 finite-head framework to the RH
+conclusion: the analytic premise `RectangleRH` isolated in this module *is* the
+rectangle form of the Riemann Hypothesis, so it yields that conclusion and
+nothing weaker.
 
-This closes the analytic content gap between Track A's `RandomMap2RH`
-framework and the historical RH proof.
+*Honesty note (2026-08-11).*  This theorem previously discharged its conclusion
+by appealing to the historical `riemann_hypothesis_rect` of
+`UsedRoute/RectangleStrategy.lean`, whose proof still contains `sorry`
+placeholders; `#print axioms` therefore reported `sorryAx` for it, contradicting
+the module's own stated policy of not importing that declaration as an
+established analytic input.  It is now proved from its own hypothesis, so the
+whole module is `sorry`-free (`#print axioms` shows only `propext`,
+`Classical.choice`, `Quot.sound`) and the remaining obstacle stays explicit: the
+premise itself is RH-strength and is *not* proved here.
 -/
 theorem riemann_hypothesis_bridge :
     RectangleRH → (∀ s : ℂ, riemannZeta s = 0 → 0 < s.re → s.re < 1 → s.re = 1 / 2) := by
-  intro _hrect s hs hre_pos hre_lt
-  exact riemann_hypothesis_rect s hs hre_pos hre_lt
+  intro hrect s hs hre_pos hre_lt
+  exact hrect s hs hre_pos hre_lt
 
 /-! ## R25: Generalized Decoupling Theorem
 
@@ -128,7 +135,7 @@ theorem outer_inner_reduces_to_head_generalized {X Y : Type*}
   have h_ν_ne_zero : ν ≠ 0 := by
     have h_univ_one : ν Set.univ = 1 := measure_univ
     intro h_eq
-    have h_univ_zero : ν Set.univ = 0 := by simpa [h_eq] using measure_univ
+    have h_univ_zero : ν Set.univ = 0 := by simp [h_eq]
     have h_eq_one_zero : (1 : ENNReal) = 0 := by
       rw [← h_univ_one, h_univ_zero]
     norm_num at h_eq_one_zero
@@ -215,33 +222,10 @@ theorem cylinder_expectation_eq {X Y : Type*}
     (μ : Measure X) (ν : Measure Y) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     (f : X → ℂ) (hf : Integrable f μ) :
     ∫ z : X × Y, f z.1 ∂(μ.prod ν) = ∫ x, f x ∂μ := by
-  have h_ν_ne_zero : ν ≠ 0 := by
-    have h_univ_one : ν Set.univ = 1 := measure_univ
-    intro h_eq
-    have h_univ_zero : ν Set.univ = 0 := by simpa [h_eq] using measure_univ
-    have h_eq_one_zero : (1 : ENNReal) = 0 := by
-      rw [← h_univ_one, h_univ_zero]
-    norm_num at h_eq_one_zero
   have h_map_fst : Measure.map Prod.fst (μ.prod ν) = μ := by
     rw [MeasureTheory.Measure.map_fst_prod, measure_univ, one_smul]
-  have h_ae_f : AEStronglyMeasurable f μ := hf.aestronglyMeasurable
-  have h_ae_comp : AEStronglyMeasurable (fun z : X × Y => f z.1) (μ.prod ν) := by
-    have h_ae_map : AEStronglyMeasurable f (Measure.map Prod.fst (μ.prod ν)) := by
-      rw [h_map_fst]; exact h_ae_f
-    exact h_ae_map.of_comp_fst h_ν_ne_zero
-  have h_int_comp : Integrable (fun z : X × Y => f z.1) (μ.prod ν) := by
-    have h_ae_map : AEStronglyMeasurable f (Measure.map Prod.fst (μ.prod ν)) := by
-      rw [h_map_fst]; exact h_ae_f
-    have h_meas_fst : AEMeasurable Prod.fst (μ.prod ν) :=
-      measurable_fst.aemeasurable
-    have h_mem : MemLp (fun z : X × Y => f z.1) 1 (μ.prod ν) := by
-      have h_equiv := MeasureTheory.memLp_map_measure_iff (p := 1) h_ae_map h_meas_fst
-      rw [h_map_fst] at h_equiv
-      exact h_equiv.mpr hf
-    exact h_mem.integrable (by norm_num)
-  calc
-    ∫ z : X × Y, f z.1 ∂(μ.prod ν) = ∫ y, ∫ x, f x ∂μ ∂ν := by
-      exact integral_prod_symm (fun z : X × Y => f z.1) h_int_comp
-    _ = ∫ x, f x ∂μ := by simp [integral_const]
+  conv_rhs => rw [← h_map_fst]
+  rw [MeasureTheory.integral_map measurable_fst.aemeasurable
+    (by rw [h_map_fst]; exact hf.aestronglyMeasurable)]
 
 end RandomMap2RH

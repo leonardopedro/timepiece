@@ -100,7 +100,7 @@ noncomputable def projChirR : Matrix (Fin 4) (Fin 4) ℂ :=
 
 /-- `P_L + P_R = 1`: the two chiral projectors are complementary. -/
 theorem projChirL_add_projChirR : projChirL + projChirR = 1 := by
-  ext i j; simp +decide [projChirL, projChirR]; ring
+  ext i j; simp [projChirL, projChirR]; ring
 
 /-- `P_L² = P_L`: the left chiral projector is idempotent. -/
 theorem projChirL_idem : projChirL * projChirL = projChirL := by

@@ -4,7 +4,7 @@
 
 Plan A is fully executed. The book (Verso v4.28.0) builds and renders. One
 `sorry` remains in the new code: `BookProof/ChapterSolovayCoordinates.lean:60`
-(`tailSplitEquiv_map`). The two `sorry`s in `RandomMap/SchoenfeldPRA.lean:162,176`
+(`tailSplitEquiv_map`). The two `sorry`s in `UnusedRoute/SchoenfeldPRA.lean:163,178`
 are pre-existing and documented as intentional (substantive limit form of
 `rcpZeroAt`); leave them. `BookProof/ChapterTensor.lean` has already been removed
 and is not imported anywhere — the old "delete it" task is done.
@@ -25,7 +25,7 @@ and is not imported anywhere — the old "delete it" task is done.
 
 - `lake build BookProof` exits 0.
 - `grep -rn "sorry" BookProof/ PnpProof/ Singularity/ RandomMap/` shows only
-  `RandomMap/SchoenfeldPRA.lean:162,176`.
+  `UnusedRoute/SchoenfeldPRA.lean:163,178`.
 - `grep -rn "^axiom" BookProof/ PnpProof/` is empty.
 - The four tensor/Mehler headline theorems exist and are sorry-free:
   B1 closure (`tensor_language_decidable`), B2 identification
@@ -423,7 +423,7 @@ lake build BookProof
 grep -rn "sorry" BookProof/ PnpProof/ Singularity/ RandomMap/
 grep -rn "^axiom" BookProof/ PnpProof/
 ```
-Expected: `sorry` only at `RandomMap/SchoenfeldPRA.lean:162,176` (pre-existing,
+Expected: `sorry` only at `UnusedRoute/SchoenfeldPRA.lean:163,178` (pre-existing,
 documented); **no `axiom`** anywhere in `BookProof/` or `PnpProof/` (see C3).
 
 ## Task C2 — Replace the `True`-placeholder theorems in `ChapterSelectingEvents.lean`
@@ -566,7 +566,7 @@ skeleton, and the language sees only that separable/finite-coordinate structure
 
 - `lake build BookProof` exits 0.
 - `grep -rn "sorry" BookProof/ PnpProof/ Singularity/ RandomMap/` shows only
-  `RandomMap/SchoenfeldPRA.lean:162,176`.
+  `UnusedRoute/SchoenfeldPRA.lean:163,178`.
 - `grep -rn "^axiom" BookProof/ PnpProof/` is empty.
 - The four tensor/Mehler headline theorems exist and are sorry-free:
   B1 closure (`tensor_language_decidable`), B2 identification
@@ -580,7 +580,7 @@ skeleton, and the language sees only that separable/finite-coordinate structure
 ## Constraints
 
 - No new `sorry` or `axiom` (the only acceptable `sorry`s are the two documented
-  ones in `RandomMap/SchoenfeldPRA.lean:162,176`; no `axiom` anywhere in
+  ones in `UnusedRoute/SchoenfeldPRA.lean:163,178`; no `axiom` anywhere in
   `BookProof/` or `PnpProof/`).
 - Lines ≤ 100 chars, no trailing whitespace.
 - Do NOT modify `Book/*.lean`, `Book.lean`, `BookMain.lean`, or any `.md` file.

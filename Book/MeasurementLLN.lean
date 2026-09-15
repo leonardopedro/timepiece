@@ -8,6 +8,14 @@ open Verso.Genre.Manual.InlineLean
 tag := "measurement-lln"
 %%%
 
+# Orientation and Status
+
+The source manuscript uses repeated measurements as an operational interpretation of
+probability. The statements cited below are the formal finite/abstract convergence
+core; they should not be read as a full independent identically distributed law of
+large numbers unless the theorem signature supplies those hypotheses explicitly.
+The distinction matters when measurements are dependent or have time-varying laws.
+
 # Frequencies Converge to Probabilities
 
 A probability distribution makes a testable promise: if you repeat an experiment

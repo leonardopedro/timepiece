@@ -55,7 +55,8 @@ noncomputable def spatialMetric (v : Fin 4 → ℝ) : Matrix (Fin 4) (Fin 4) ℝ
 -/
 theorem spatialMetric_symm (v : Fin 4 → ℝ) :
     (spatialMetric v)ᵀ = spatialMetric v := by
-      unfold spatialMetric; ext i j; simp +decide [ lower, mul_comm ] ;
+      unfold spatialMetric; ext i j; simp only [lower, transpose_apply, add_apply, of_apply,
+          mul_comm, add_left_inj] ;
       unfold metric; fin_cases i <;> fin_cases j <;> rfl;
 
 /-
@@ -64,9 +65,10 @@ with its free index lowered by the Minkowski metric.
 -/
 theorem spatialMetric_eq_metric_mul_proj (v : Fin 4 → ℝ) :
     spatialMetric v = metric * spatialProj v := by
-      ext a b; simp +decide [ spatialMetric, spatialProj, Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
-      simp +decide [ lower, metric, Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ; ring;
-      fin_cases a <;> fin_cases b <;> simp +decide [ Matrix.one_apply ]; all_goals ring
+      ext a b; simp only [spatialMetric, add_apply, of_apply, spatialProj, mul_apply,
+          Fin.sum_univ_four, Fin.isValue] ; ring;
+      simp only [metric, Fin.isValue, lower, mulVec, dotProduct, Fin.sum_univ_four] ; ring;
+      fin_cases a <;> fin_cases b <;> simp [ Matrix.one_apply ]; all_goals ring
 
 /-
 `h` annihilates the timelike vector `v` (`h v = 0`): the induced metric is
@@ -77,7 +79,7 @@ theorem spatialMetric_mulVec_self (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (spatialMetric v).mulVec v = 0 := by
       unfold spatialMetric minkSq at *;
       unfold lower metric at *;
-      ext i; simp_all +decide [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ;
+      ext i; simp_all [ Matrix.mulVec, dotProduct, Fin.sum_univ_four ] ;
       grind
 
 /-
@@ -91,19 +93,24 @@ theorem reverse_cauchy_schwarz (v x : Fin 4 → ℝ) (hv : minkSq v = -1) :
       unfold metric at * ; norm_num [ Fin.sum_univ_four, Matrix.mulVec ] at *;
       norm_num [ Fin.ext_iff ] at *;
       by_cases h : v 1 ^ 2 + v 2 ^ 2 + v 3 ^ 2 = 0;
-      · norm_num [ show v 1 = 0 by nlinarith only [ h ], show v 2 = 0 by nlinarith only [ h ], show v 3 = 0 by nlinarith only [ h ] ] at *;
+      · norm_num [ show v 1 = 0 by nlinarith only [ h ], show v 2 = 0
+                                   by nlinarith only [ h ], show v 3 = 0
+                                       by nlinarith only [ h ] ] at *;
         nlinarith [ sq_nonneg ( x 1 ), sq_nonneg ( x 2 ), sq_nonneg ( x 3 ) ];
-      · -- Let's simplify the expression by setting $a = x_1 v_1 + x_2 v_2 + x_3 v_3$ and $s = v_1^2 + v_2^2 + v_3^2$.
+      · -- Let's simplify the expression by setting $a = x_1 v_1 + x_2 v_2 + x_3 v_3$ and $s = v_1^2
+        -- + v_2^2 + v_3^2$.
         set a := x 1 * v 1 + x 2 * v 2 + x 3 * v 3
         set s := v 1 ^ 2 + v 2 ^ 2 + v 3 ^ 2
         have h_s_pos : 0 < s := by
           exact lt_of_le_of_ne ( by positivity ) ( Ne.symm h );
         -- Substitute $a$ and $s$ into the inequality.
-        have h_sub : s * ((-(x 0 * v 0) + a) ^ 2 + (-(x 0 * x 0) + x 1 * x 1 + x 2 * x 2 + x 3 * x 3)) = (a * v 0 - x 0 * s) ^ 2 + (s * (x 1 ^ 2 + x 2 ^ 2 + x 3 ^ 2) - a ^ 2) := by
+        have h_sub : s * ((-(x 0 * v 0) + a) ^ 2 + (-(x 0 * x 0) + x 1 * x 1 + x 2 * x 2 + x 3 * x
+            3)) = (a * v 0 - x 0 * s) ^ 2 + (s * (x 1 ^ 2 + x 2 ^ 2 + x 3 ^ 2) - a ^ 2) := by
           grind;
         -- By the Lagrange identity, we know that $s * (x_1^2 + x_2^2 + x_3^2) - a^2 \geq 0$.
         have h_lagrange : s * (x 1 ^ 2 + x 2 ^ 2 + x 3 ^ 2) - a ^ 2 ≥ 0 := by
-          nlinarith only [ sq_nonneg ( x 1 * v 2 - x 2 * v 1 ), sq_nonneg ( x 1 * v 3 - x 3 * v 1 ), sq_nonneg ( x 2 * v 3 - x 3 * v 2 ) ];
+          nlinarith only [ sq_nonneg ( x 1 * v 2 - x 2 * v 1 ), sq_nonneg ( x 1 * v 3 - x 3 * v 1 ),
+              sq_nonneg ( x 2 * v 3 - x 3 * v 2 ) ];
         nlinarith only [ h_sub, h_lagrange, h_s_pos ]
 
 /-
@@ -116,7 +123,7 @@ theorem spatialMetric_quadForm_nonneg (v x : Fin 4 → ℝ) (hv : minkSq v = -1)
     0 ≤ x ⬝ᵥ ((spatialMetric v).mulVec x) := by
       convert reverse_cauchy_schwarz v x hv using 1;
       unfold spatialMetric minkSq;
-      unfold lower; unfold metric; simp +decide [ Fin.sum_univ_four, Matrix.mulVec, dotProduct ] ; ring;
+      unfold lower; unfold metric; simp [ Fin.sum_univ_four, Matrix.mulVec, dotProduct ] ; ring;
 
 /-
 The packaged positive-semidefiniteness of the induced spatial metric.
@@ -124,10 +131,11 @@ The packaged positive-semidefiniteness of the induced spatial metric.
 theorem spatialMetric_posSemidef (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (spatialMetric v).PosSemidef := by
       constructor;
-      · ext i j; simp +decide [ spatialMetric ] ;
-        unfold metric; fin_cases i <;> fin_cases j <;> simp +decide [ mul_comm ] ;
+      · ext i j; simp only [spatialMetric, conjTranspose_apply, add_apply, of_apply, star_trivial] ;
+        unfold metric; fin_cases i <;> fin_cases j <;> simp [ mul_comm ] ;
       · intro x;
         convert spatialMetric_quadForm_nonneg v ( fun i => x i ) hv using 1;
-        simp +decide [ Finsupp.sum_fintype, dotProduct, Matrix.mulVec, Finset.mul_sum _ _ _, mul_comm, mul_left_comm ]
+        simp [ Finsupp.sum_fintype, dotProduct, Matrix.mulVec, Finset.mul_sum _ _ _, mul_comm,
+            mul_left_comm ]
 
 end BookProof.ChapterGravityMetric

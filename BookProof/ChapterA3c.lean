@@ -56,12 +56,19 @@ The real Majorana matrices form a real Clifford set.
 -/
 theorem mgammaR_clifford : IsCliffordR mgammaR := by
   intro μ ν;
-  convert congr_arg ( fun m : Matrix ( Fin 4 ) ( Fin 4 ) ℤ => ( Int.castRingHom ℝ ).mapMatrix m ) ( mgammaZ_clifford μ ν ) using 1;
-  · ext i j ; simp +decide [ Matrix.mul_apply, Matrix.add_apply ] ; ring;
+  convert congr_arg ( fun m : Matrix ( Fin 4 ) ( Fin 4 ) ℤ => ( Int.castRingHom ℝ ).mapMatrix m ) (
+      mgammaZ_clifford μ ν ) using 1;
+  · ext i j ; simp [ Matrix.mul_apply, Matrix.add_apply ] ; ring;
     rfl;
-  · ext i j ; by_cases hij : i = j <;> simp +decide [ hij, minkowskiR, minkowskiZ ];
-    · fin_cases μ <;> fin_cases ν <;> simp +decide ; all_goals fin_cases j <;> norm_cast;
-    · fin_cases i <;> fin_cases j <;> simp +decide at hij ⊢;
+  · ext i j ; by_cases hij : i = j <;> simp only [minkowskiR, minkowskiZ, Fin.isValue,
+      Int.reduceNeg, Int.cast_ite, Int.cast_one, Int.cast_neg, Int.cast_zero, mul_ite, mul_one,
+          mul_neg, neg_neg, mul_zero, hij, smul_apply, one_apply_eq, smul_eq_mul, ite_smul,
+              neg_smul, zsmul_eq_mul, Int.cast_ofNat, zero_smul, RingHom.mapMatrix_apply,
+                  Int.coe_castRingHom, map_apply, ne_eq, not_false_eq_true, one_apply_ne];
+    · fin_cases μ <;> fin_cases ν <;> simp only [Fin.zero_eta, Fin.isValue, ↓reduceIte, neg_apply,
+        Int.cast_neg, neg_inj, Fin.mk_one, zero_ne_one, zero_apply, Int.cast_zero, Fin.reduceFinMk,
+            Fin.reduceEq, one_ne_zero] ; all_goals fin_cases j <;> norm_cast;
+    · fin_cases i <;> fin_cases j <;> simp at hij ⊢;
       all_goals split_ifs <;> norm_num;
       all_goals norm_cast;
 
@@ -73,8 +80,8 @@ action is unique.
 theorem mgammaR_indep (c : Fin 4 → ℝ) (h : ∑ ν, c ν • mgammaR ν = 0) :
     ∀ ν, c ν = 0 := by
   unfold mgammaR at h;
-  simp_all +decide [ Fin.sum_univ_four, Fin.forall_fin_succ ];
-  unfold mgammaZ at h; simp_all +decide [ ← Matrix.ext_iff, Fin.forall_fin_succ ] ;
+  simp_all [ Fin.sum_univ_four, Fin.forall_fin_succ ];
+  unfold mgammaZ at h; simp_all [ ← Matrix.ext_iff, Fin.forall_fin_succ ] ;
   constructor <;> linarith
 
 /-! ## The Lorentz group and the map `Λ` -/
@@ -110,9 +117,9 @@ theorem hasLambda_LambdaOf (S : Matrix (Fin 4) (Fin 4) ℝ)
 -/
 theorem hasLambda_unique {S Λ Λ' : Matrix (Fin 4) (Fin 4) ℝ}
     (h : HasLambda S Λ) (h' : HasLambda S Λ') : Λ = Λ' := by
-  ext μ ν; have := h μ; have := h' μ; simp_all +decide [ HasLambda ] ;
+  ext μ ν; have := h μ; have := h' μ; simp_all only [HasLambda, implies_true] ;
   have h_eq : ∀ μ, ∑ ν, (Λ μ ν - Λ' μ ν) • mgammaR ν = 0 := by
-    simp_all +decide [ sub_smul, Finset.sum_sub_distrib ];
+    simp_all [ sub_smul, Finset.sum_sub_distrib ];
   exact sub_eq_zero.mp ( mgammaR_indep _ ( h_eq μ ) ν )
 
 /-! ## Prop 46(a) — `Λ(S)` lands in `O(1,3)` -/
@@ -127,11 +134,12 @@ theorem lorentz_of_conjR (S : Matrix (Fin 4) (Fin 4) ℝ) (hS : IsUnit S.det)
   convert lorentz_of_conj ( toC S ) _ Λ _ using 1;
   · rw [ toC_det ];
     exact IsUnit.map ( algebraMap ℝ ℂ ) hS;
-  · intro μ; specialize hΛ μ; simp_all +decide [ ← toC_inv ] ;
+  · intro μ; specialize hΛ μ; simp_all only [isUnit_iff_ne_zero, ne_eq, ← toC_inv, Complex.coe_smul]
+      ;
     convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℝ => toC x ) hΛ using 1;
-    · simp +decide [ toC_mul, toC_inv, toC_mgammaR ];
-    · ext i j; simp +decide [ toC, mgammaR ] ;
-      simp +decide [ Matrix.sum_apply, mgamma ]
+    · simp [ toC_mul, toC_inv, toC_mgammaR ];
+    · ext i j; simp [ toC, mgammaR ] ;
+      simp [ Matrix.sum_apply, mgamma ]
 
 /-- `Λ(S) ∈ O(1,3)` for every `S ∈ Pin(3,1)`. -/
 theorem lambda_mem_lorentz (S : Matrix (Fin 4) (Fin 4) ℝ) (hS : IsPin S) :
@@ -145,16 +153,20 @@ theorem lambda_mem_lorentz (S : Matrix (Fin 4) (Fin 4) ℝ) (hS : IsPin S) :
 `HasLambda S₂ Λ₂`, then `HasLambda (S₁ S₂) (Λ₁ Λ₂)`.
 -/
 theorem hasLambda_mul {S₁ S₂ Λ₁ Λ₂ : Matrix (Fin 4) (Fin 4) ℝ}
-    (h1 : IsUnit S₁.det) (h2 : IsUnit S₂.det)
+    (_h1 : IsUnit S₁.det) (_h2 : IsUnit S₂.det)
     (hL1 : HasLambda S₁ Λ₁) (hL2 : HasLambda S₂ Λ₂) :
     HasLambda (S₁ * S₂) (Λ₁ * Λ₂) := by
   intro μ;
-  simp_all +decide [ mul_assoc, Matrix.mul_inv_rev ];
-  convert congr_arg ( fun x => S₂⁻¹ * x * S₂ ) ( hL1 μ ) using 1 <;> simp +decide [ ← mul_assoc, Matrix.mul_sum, Matrix.sum_mul ];
-  simp +decide [ Matrix.mul_apply ];
-  simp +decide [ Finset.sum_smul ];
+  simp_all only [isUnit_iff_ne_zero, ne_eq, Matrix.mul_inv_rev, mul_assoc];
+  convert congr_arg ( fun x => S₂⁻¹ * x * S₂ ) ( hL1 μ ) using 1 <;> simp only [← mul_assoc,
+                                                                       Matrix.mul_sum,
+                                                                       Algebra.mul_smul_comm,
+                                                                       Matrix.sum_mul,
+                                                                       Algebra.smul_mul_assoc];
+  simp only [mul_apply];
+  simp only [Finset.sum_smul];
   rw [ Finset.sum_comm ];
-  exact Finset.sum_congr rfl fun _ _ => by rw [ hL2 ] ;    simp +decide [ Finset.smul_sum, smul_smul ] ;
+  exact Finset.sum_congr rfl fun _ _ => by rw [ hL2 ] ;    simp [ Finset.smul_sum, smul_smul ] ;
 
 /-
 `Pin(3,1)` is closed under multiplication.
@@ -163,9 +175,10 @@ theorem isPin_mul {S₁ S₂ : Matrix (Fin 4) (Fin 4) ℝ}
     (h1 : IsPin S₁) (h2 : IsPin S₂) : IsPin (S₁ * S₂) := by
   -- Show that the determinant of the product is 1.
   have h_det : IsUnit (S₁ * S₂).det ∧ |(S₁ * S₂).det| = 1 := by
-    simp_all +decide [ IsPin ]
+    simp_all [ IsPin ]
   generalize_proofs at *;
-  exact ⟨ h_det.1, h_det.2, by obtain ⟨ Λ₁, hL1 ⟩ := h1.2.2; obtain ⟨ Λ₂, hL2 ⟩ := h2.2.2; exact ⟨ Λ₁ * Λ₂, hasLambda_mul h1.1 h2.1 hL1 hL2 ⟩ ⟩
+  exact ⟨ h_det.1, h_det.2, by obtain ⟨ Λ₁, hL1 ⟩ := h1.2.2; obtain ⟨ Λ₂, hL2 ⟩ := h2.2.2; exact ⟨
+                               Λ₁ * Λ₂, hasLambda_mul h1.1 h2.1 hL1 hL2 ⟩ ⟩
 
 /-- **Prop 46 (homomorphism).** `Λ(S₁ S₂) = Λ(S₁) Λ(S₂)`. -/
 theorem lambdaOf_mul {S₁ S₂ : Matrix (Fin 4) (Fin 4) ℝ}
@@ -183,23 +196,30 @@ The Majorana-basis combination `β^μ = Σ_ν Λ^μ_ν (iγ^ν)` of a Lorentz ma
 theorem cliffordR_lorentz_comb (Λ : Matrix (Fin 4) (Fin 4) ℝ) (hΛ : Λ ∈ LorentzO) :
     IsCliffordR (fun μ => ∑ ν, Λ μ ν • mgammaR ν) := by
   intro μ ν;
-  -- By definition of matrix multiplication and the properties of the Majorana matrices,    we can expand the products.
+  -- By definition of matrix multiplication and the properties of the Majorana matrices, we can
+  -- expand the products.
   have h_expand : (∑ α, Λ μ α • mgammaR α) * (∑ β, Λ ν β • mgammaR β) +
       (∑ β, Λ ν β • mgammaR β) * (∑ α, Λ μ α • mgammaR α) =
       ∑ α, ∑ β, (Λ μ α * Λ ν β) • (mgammaR α * mgammaR β + mgammaR β * mgammaR α) := by
-        simp +decide only [Finset.mul_sum _ _ _, mul_smul_comm, Finset.sum_mul, smul_mul_assoc, smul_add];
-        simp +decide only [Finset.smul_sum, smul_smul, mul_comm, Finset.sum_add_distrib];
+        simp only [Finset.mul_sum _ _ _, mul_smul_comm, Finset.sum_mul, smul_mul_assoc, smul_add];
+        simp only [Finset.smul_sum, smul_smul, mul_comm, Finset.sum_add_distrib];
         rw [ Finset.sum_comm ];
-  -- By definition of matrix multiplication and the properties of the Majorana matrices,    we can simplify the expression.
+  -- By definition of matrix multiplication and the properties of the Majorana matrices, we can
+  -- simplify the expression.
   have h_simplify : ∑ α, ∑ β, (Λ μ α * Λ ν β) • (mgammaR α * mgammaR β + mgammaR β * mgammaR α) =
       ∑ α, ∑ β, (Λ μ α * Λ ν β) • ((-2 * minkowskiR α β) • 1) := by
-        exact Finset.sum_congr rfl fun i hi => Finset.sum_congr rfl fun j hj => by rw [ mgammaR_clifford i j ] ;
-  -- By definition of matrix multiplication and the properties of the Minkowski metric,    we can simplify the expression.
-  have h_final : ∑ α, ∑ β, (Λ μ α * Λ ν β) • (-2 * minkowskiR α β) • (1 : Matrix (Fin 4) (Fin 4) ℝ) =
+        exact Finset.sum_congr rfl fun i hi => Finset.sum_congr rfl fun j hj =>
+            by rw [ mgammaR_clifford i j ] ;
+  -- By definition of matrix multiplication and the properties of the Minkowski metric, we can
+  -- simplify the expression.
+  have h_final : ∑ α, ∑ β, (Λ μ α * Λ ν β) • (-2 * minkowskiR α β) • (1 : Matrix (Fin 4) (Fin 4) ℝ)
+      =
       (-2 * (Λ * minkowskiMat * Λᵀ) μ ν) • (1 : Matrix (Fin 4) (Fin 4) ℝ) := by
-        simp +decide [ Matrix.mul_apply, Finset.mul_sum _ _ _, mul_assoc, mul_left_comm, Finset.sum_mul ];
-        simp +decide [ Finset.sum_smul, mul_comm, mul_left_comm, minkowskiMat ];
-        exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by simp +decide [ mul_assoc, smul_smul ] );
+        simp only [neg_mul, neg_smul, smul_neg, Finset.sum_neg_distrib, mul_apply, transpose_apply,
+            Finset.sum_mul, mul_assoc, Finset.mul_sum _ _ _, mul_left_comm, mul_neg, neg_inj];
+        simp only [minkowskiMat, of_apply, mul_comm, mul_left_comm, Finset.sum_smul];
+        exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _
+            => by simp [ mul_assoc, smul_smul ] );
   exact h_expand.trans <| h_simplify.trans <| h_final.trans <| by rw [ hΛ ] ; rfl;
 
 /-
@@ -207,15 +227,16 @@ theorem cliffordR_lorentz_comb (Λ : Matrix (Fin 4) (Fin 4) ℝ) (hΛ : Λ ∈ L
 -/
 theorem hasLambda_neg {S Λ : Matrix (Fin 4) (Fin 4) ℝ} (h : HasLambda S Λ) :
     HasLambda (-S) Λ := by
-  intro μ; specialize h μ; simp_all +decide [ Matrix.inv_def ] ;
-  simp_all +decide [ Matrix.det_neg ];
+  intro μ; specialize h μ; simp_all only [inv_def, Ring.inverse_eq_inv', Algebra.smul_mul_assoc,
+      mul_neg] ;
+  simp_all only [det_neg, Fintype.card_fin, _root_.mul_inv_rev];
   convert h using 1;
-  rw [ show ( -S ).adjugate = ( -1 ) ^ 3 • S.adjugate from ?_ ] ; norm_num [ pow_succ ];
-  convert Matrix.adjugate_smul ( -1 : ℝ ) S using 1 ; norm_num;
+  rw [ show ( -S ).adjugate = ( -1 ) ^ 3 • S.adjugate from ?_ ] ; focus (norm_num [ pow_succ ]);
+  convert Matrix.adjugate_smul ( -1 : ℝ ) S using 1 ; focus (norm_num);
   norm_num [ Fintype.card_fin ]
 
 theorem isPin_neg {S : Matrix (Fin 4) (Fin 4) ℝ} (h : IsPin S) : IsPin (-S) := by
-  refine' ⟨ _, _, _ ⟩;
+  refine ⟨ ?_, ?_, ?_ ⟩;
   · rw [ Matrix.det_neg ];
     exact IsUnit.mul ( isUnit_one.neg.pow _ ) h.1;
   · convert h.2.1 using 1;
@@ -236,24 +257,25 @@ theorem lambda_surjective (hpf : PauliFundamental)
     (Λ : Matrix (Fin 4) (Fin 4) ℝ) (hΛ : Λ ∈ LorentzO) :
     ∃ S : Matrix (Fin 4) (Fin 4) ℝ, IsPin S ∧ LambdaOf S = Λ := by
   have := @cliffordR_lorentz_comb Λ hΛ;
-  obtain ⟨S, hS⟩ : ∃ S : Matrix (Fin 4) (Fin 4) ℝ,    |S.det| = 1 ∧ (∀ μ, mgammaR μ = S * (∑ ν, Λ μ ν • mgammaR ν) * S⁻¹) := by
+  obtain ⟨S, hS⟩ : ∃ S : Matrix (Fin 4) (Fin 4) ℝ,    |S.det| = 1 ∧ (∀ μ, mgammaR μ = S * (∑ ν, Λ μ
+      ν • mgammaR ν) * S⁻¹) := by
     have := @real_pauli hpf ( fun μ => ∑ ν, Λ μ ν • mgammaR ν ) mgammaR this mgammaR_clifford;
     exact ⟨ this.choose, this.choose_spec.1, this.choose_spec.2.1 ⟩;
-  refine' ⟨ S, ⟨ _, hS.1, _ ⟩, _ ⟩;
+  refine ⟨ S, ⟨ ?_, hS.1, ?_ ⟩, ?_ ⟩;
   · exact isUnit_iff_ne_zero.mpr ( by intro h; norm_num [ h ] at hS );
   · use Λ;
     intro μ;
     rw [ hS.2 μ ];
-    simp +decide [ ← mul_assoc, show S.det ≠ 0 from by intro h; simp +decide [ h ] at hS ];
+    simp [ ← mul_assoc, show S.det ≠ 0 from by intro h; simp [ h ] at hS ];
   · apply hasLambda_unique;
-    apply hasLambda_LambdaOf;
+    focus (apply hasLambda_LambdaOf);
     · use Λ;
       intro μ;
       rw [ hS.2 μ ];
-      simp +decide [ ← mul_assoc, show S.det ≠ 0 from by intro h; simp +decide [ h ] at hS ];
+      simp [ ← mul_assoc, show S.det ≠ 0 from by intro h; simp [ h ] at hS ];
     · intro μ;
       rw [ hS.2 μ ];
-      simp +decide [ ← mul_assoc, show S.det ≠ 0 from by intro h; norm_num [ h ] at hS ]
+      simp [ ← mul_assoc, show S.det ≠ 0 from by intro h; norm_num [ h ] at hS ]
 
 /-
 **Prop 46 (2-to-1).** Two Pin elements with the same Lorentz image differ by a
@@ -267,7 +289,7 @@ theorem lambda_two_to_one (hpf : PauliFundamental)
     fun μ => ⟨hasLambda_LambdaOf S hS.2.2 μ, hasLambda_LambdaOf S' hS'.2.2 μ⟩
   have h_conj_eq : ∀ μ, mgammaR μ = S * (∑ ν, (LambdaOf S) μ ν • mgammaR ν) * S⁻¹ ∧
       mgammaR μ = S' * (∑ ν, (LambdaOf S') μ ν • mgammaR ν) * S'⁻¹ := by
-    simp +decide [← h_conj, mul_assoc, hS.1.ne_zero, hS'.1.ne_zero]
+    simp [← h_conj, mul_assoc, hS.1.ne_zero, hS'.1.ne_zero]
   have hβcliff := cliffordR_lorentz_comb (LambdaOf S) (lambda_mem_lorentz S hS)
   obtain ⟨S₀, hS₀₁, hS₀₂, hS₀₃⟩ :=
     real_pauli hpf (fun μ => ∑ ν, (LambdaOf S) μ ν • mgammaR ν) mgammaR hβcliff mgammaR_clifford

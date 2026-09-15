@@ -42,13 +42,17 @@ On the deterministic skeleton (`v = 0`) the approximant collapses to the existin
 
 The genuinely deep inputs are kept honest and clearly marked:
 
-* S3 (`eulerG_tendstoUniformly_absConv`, right edge, absolute convergence) is now
-  **fully assembled and proved** from a single self-contained analytic input,
+* S3 (`eulerG_tendstoUniformly_absConv`, right edge, absolute convergence) is
+  **fully proved, `sorry`-free**. Its one analytic input,
   `zetaEulerProd_tendstoUniformlyOn_halfplane` (uniform convergence of the
-  ordinary Euler product to `ζ` on a closed half-plane `Re ≥ a > 1`). That core
-  lemma is *true and elementary* (a Weierstrass `M`-test against `∑ n^{-a}`, with
-  no critical-strip content) but requires Euler-product uniform-convergence
-  infrastructure not present in Mathlib, so it is left as the only `sorry` of S3.
+  ordinary Euler product to `ζ` on a closed half-plane `Re ≥ a > 1`), is now
+  proved here: expanding the geometric factors identifies the partial product
+  with the Dirichlet series over `(P+1)`-smooth numbers
+  (`zetaEulerProd_eq_tsum_smoothNumbers`, via Mathlib's smooth-number Euler
+  product), and the remaining non-smooth terms are dominated by the tail
+  `∑_{n > P} n^{-a}` of the convergent `p`-series
+  (`norm_zeta_sub_zetaEulerProd_le`), which vanishes as `P → ∞`. This is the
+  Weierstrass `M`-test, with no critical-strip content.
 * `exists_gaussian_corrector_uniform` (S4, the left/top/bottom edges) is the
   single deep input of the Gaussian route. It requires:
   1. The infinite-product Gaussian measure on `Ω` (not yet constructed).
@@ -281,13 +285,149 @@ lemma eulerG_zero_eq_etaEulerApprox_gt_one (P : ℕ) (s : ℂ) (ω : Ω) (hs : 1
   have hz : gaussSum P 0 s ω = 0 := by unfold gaussSum Xg; simp [Real.sqrt_zero]
   rw [hz, zero_add, Complex.exp_log hne]
 
+/-! ### The `M`-test majorant for the Euler tail
+
+The uniform majorant is the tail `∑_{n > P} n^{-a}` of the convergent `p`-series.
+`smoothTailMajorant a P` is that tail written as a series over all of `ℕ`. -/
+
+/-- The tail majorant `n ↦ n^{-a} · 1_{n > P}` used in the Weierstrass `M`-test for
+    the absolutely convergent Euler product. -/
+noncomputable def smoothTailMajorant (a : ℝ) (P : ℕ) : ℕ → ℝ :=
+  fun n => if P < n then (n : ℝ) ^ (-a) else 0
+
+lemma smoothTailMajorant_nonneg (a : ℝ) (P n : ℕ) : 0 ≤ smoothTailMajorant a P n := by
+  unfold smoothTailMajorant
+  split
+  · positivity
+  · exact le_refl 0
+
+lemma summable_smoothTailMajorant {a : ℝ} (ha : 1 < a) (P : ℕ) :
+    Summable (smoothTailMajorant a P) := by
+  refine (Real.summable_nat_rpow.mpr (by linarith : -a < -1)).of_nonneg_of_le
+    (smoothTailMajorant_nonneg a P) (fun n => ?_)
+  unfold smoothTailMajorant
+  split
+  · exact le_refl _
+  · positivity
+
+lemma tsum_smoothTailMajorant_eq {a : ℝ} (ha : 1 < a) (P : ℕ) :
+    ∑' n, smoothTailMajorant a P n
+      = (∑' n : ℕ, (n : ℝ) ^ (-a)) - ∑ n ∈ Finset.range (P + 1), (n : ℝ) ^ (-a) := by
+  have hs : Summable (fun n : ℕ => (n : ℝ) ^ (-a)) := Real.summable_nat_rpow.mpr (by linarith)
+  have h := hs.sum_add_tsum_compl (s := Finset.range (P + 1))
+  have h2 := _root_.tsum_subtype (((Finset.range (P + 1) : Finset ℕ) : Set ℕ)ᶜ)
+      (fun n : ℕ => (n : ℝ) ^ (-a))
+  have h3 : ∑' n : ℕ, Set.indicator (((Finset.range (P + 1) : Finset ℕ) : Set ℕ)ᶜ)
+      (fun n : ℕ => (n : ℝ) ^ (-a)) n = ∑' n, smoothTailMajorant a P n := by
+    congr 1
+    funext n
+    by_cases hn : P < n <;> simp [Set.indicator, smoothTailMajorant, hn]
+  rw [h2, h3] at h
+  linarith [h]
+
+/-- The majorant tails vanish: `∑_{n > P} n^{-a} → 0` as `P → ∞`. -/
+lemma tendsto_tsum_smoothTailMajorant {a : ℝ} (ha : 1 < a) :
+    Tendsto (fun P => ∑' n, smoothTailMajorant a P n) atTop (nhds 0) := by
+  have hs : Summable (fun n : ℕ => (n : ℝ) ^ (-a)) := Real.summable_nat_rpow.mpr (by linarith)
+  have hpart : Tendsto (fun P : ℕ => ∑ n ∈ Finset.range (P + 1), (n : ℝ) ^ (-a)) atTop
+      (nhds (∑' n : ℕ, (n : ℝ) ^ (-a))) :=
+    hs.hasSum.tendsto_sum_nat.comp (tendsto_add_atTop_nat 1)
+  have h := (tendsto_const_nhds (x := ∑' n : ℕ, (n : ℝ) ^ (-a)) (f := atTop (α := ℕ))).sub hpart
+  simp only [sub_self] at h
+  simpa [tsum_smoothTailMajorant_eq ha] using h
+
+/-- A natural number that is not `(P+1)`-smooth is either `0` or `> P`: it has a prime
+    factor `≥ P + 1`, which divides it. -/
+lemma eq_zero_or_lt_of_notMem_smoothNumbers {P n : ℕ} (hn : n ∉ (P + 1).smoothNumbers) :
+    n = 0 ∨ P < n := by
+  rcases eq_or_ne n 0 with h | h
+  · exact Or.inl h
+  refine Or.inr ?_
+  rw [Nat.mem_smoothNumbers] at hn
+  push_neg at hn
+  obtain ⟨p, hp, hpP⟩ := hn h
+  have : p ≤ n := Nat.le_of_dvd (Nat.pos_of_ne_zero h) (Nat.dvd_of_mem_primeFactorsList hp)
+  omega
+
+/-- Pointwise `M`-test bound: on the non-smooth numbers the summand `n^{-s}` is
+    dominated by the majorant, uniformly for `a ≤ Re s`. -/
+lemma norm_indicator_nonsmooth_le {a : ℝ} (P : ℕ) {s : ℂ} (hs : a ≤ s.re) (ha : 1 < a) (n : ℕ) :
+    ‖Set.indicator ((((P + 1).smoothNumbers) : Set ℕ)ᶜ) (fun m : ℕ => (m : ℂ) ^ (-s)) n‖
+      ≤ smoothTailMajorant a P n := by
+  have hne : (-s).re ≠ 0 := by
+    simp only [Complex.neg_re]
+    intro h
+    linarith
+  by_cases hn : n ∈ ((((P + 1).smoothNumbers) : Set ℕ)ᶜ)
+  · rw [Set.indicator_of_mem hn]
+    rcases eq_zero_or_lt_of_notMem_smoothNumbers (P := P) (n := n) hn with rfl | hlt
+    · have h0 : (-s) ≠ 0 := fun h => hne (by rw [h]; simp)
+      simpa [Complex.zero_cpow h0] using smoothTailMajorant_nonneg a P 0
+    · have hn1 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (by omega)
+      have hnorm : ‖(n : ℂ) ^ (-s)‖ = (n : ℝ) ^ (-s.re) := by
+        rw [← Complex.ofReal_natCast,
+          Complex.norm_cpow_eq_rpow_re_of_nonneg (Nat.cast_nonneg n) hne, Complex.neg_re]
+      simp only [hnorm, smoothTailMajorant, if_pos hlt]
+      exact Real.rpow_le_rpow_of_exponent_le hn1 (by linarith)
+  · rw [Set.indicator_of_notMem hn]
+    simpa using smoothTailMajorant_nonneg a P n
+
+/-- The primes occurring in `zetaEulerProd P` are exactly the primes below `P + 1`. -/
+lemma filter_prime_Icc_eq_primesBelow (P : ℕ) :
+    (Finset.Icc 2 P).filter Nat.Prime = Nat.primesBelow (P + 1) := by
+  ext p
+  simp only [Finset.mem_filter, Finset.mem_Icc, Nat.mem_primesBelow, Nat.lt_succ_iff]
+  exact ⟨fun ⟨⟨_, h2⟩, hp⟩ => ⟨h2, hp⟩, fun ⟨h, hp⟩ => ⟨⟨hp.two_le, h⟩, hp⟩⟩
+
+/-- Expanding the geometric factors: for `Re s > 1` the partial Euler product is the
+    Dirichlet series restricted to the `(P+1)`-smooth numbers. -/
+lemma zetaEulerProd_eq_tsum_smoothNumbers (P : ℕ) {s : ℂ} (hs : 1 < s.re) :
+    zetaEulerProd P s = ∑' m : (P + 1).smoothNumbers, (m : ℂ) ^ (-s) := by
+  have hs0 : s ≠ 0 := Complex.ne_zero_of_one_lt_re hs
+  have hsum : Summable (fun n : ℕ => (riemannZetaSummandHom hs0 : ℕ →* ℂ) n) := by
+    simpa using (summable_riemannZetaSummand hs).of_norm
+  simpa [zetaEulerProd, filter_prime_Icc_eq_primesBelow, riemannZetaSummandHom] using
+    EulerProduct.prod_primesBelow_geometric_eq_tsum_smoothNumbers hsum (P + 1)
+
+/-- The quantitative `M`-test estimate: the error of the partial Euler product is at
+    most the tail `∑_{n > P} n^{-a}`, uniformly on `{a ≤ Re}`. -/
+lemma norm_zeta_sub_zetaEulerProd_le {a : ℝ} (ha : 1 < a) (P : ℕ) {s : ℂ} (hs : a ≤ s.re) :
+    ‖riemannZeta s - zetaEulerProd P s‖ ≤ ∑' n, smoothTailMajorant a P n := by
+  have hs1 : 1 < s.re := lt_of_lt_of_le ha hs
+  have hsum : Summable (fun n : ℕ => (n : ℂ) ^ (-s)) := by
+    simpa [riemannZetaSummandHom] using (summable_riemannZetaSummand hs1).of_norm
+  have hz : ∑' (n : ℕ), (n : ℂ) ^ (-s) = riemannZeta s := by
+    simpa [riemannZetaSummandHom] using tsum_riemannZetaSummand hs1
+  have hsplit := hsum.tsum_subtype_add_tsum_subtype_compl ((P + 1).smoothNumbers : Set ℕ)
+  rw [hz] at hsplit
+  have hdiff : riemannZeta s - zetaEulerProd P s
+      = ∑' m : ((((P + 1).smoothNumbers) : Set ℕ)ᶜ : Set ℕ), (m : ℂ) ^ (-s) := by
+    rw [zetaEulerProd_eq_tsum_smoothNumbers P hs1]
+    linear_combination -hsplit
+  rw [hdiff,
+    _root_.tsum_subtype ((((P + 1).smoothNumbers : Set ℕ))ᶜ) (fun m : ℕ => (m : ℂ) ^ (-s))]
+  have hbd := norm_indicator_nonsmooth_le (a := a) P hs ha
+  have hsummable_ind : Summable (fun n : ℕ =>
+      ‖Set.indicator ((((P + 1).smoothNumbers) : Set ℕ)ᶜ) (fun m : ℕ => (m : ℂ) ^ (-s)) n‖) :=
+    (summable_smoothTailMajorant ha P).of_nonneg_of_le (fun n => norm_nonneg _) hbd
+  exact le_trans (norm_tsum_le_tsum_norm hsummable_ind)
+    (hsummable_ind.tsum_le_tsum hbd (summable_smoothTailMajorant ha P))
+
 /-- **Core analytic input for S3.** The partial Euler product converges to `ζ`
     uniformly on the closed half-plane `{a ≤ Re}` for any `a > 1`.  This is the
     classical absolutely-convergent Euler product (Weierstrass `M`-test against
     `∑_n n^{-a}`), with no critical-strip content. -/
 lemma zetaEulerProd_tendstoUniformlyOn_halfplane (a : ℝ) (ha : 1 < a) :
     TendstoUniformlyOn (fun P => zetaEulerProd P) riemannZeta atTop
-      {s : ℂ | a ≤ s.re} := by sorry
+      {s : ℂ | a ≤ s.re} := by
+  rw [Metric.tendstoUniformlyOn_iff]
+  intro ε hε
+  filter_upwards [(tendsto_tsum_smoothTailMajorant ha).eventually (eventually_lt_nhds hε)]
+    with P hP s hsmem
+  rw [dist_eq_norm]
+  have h : ‖riemannZeta s - zetaEulerProd P s‖ < ε :=
+    lt_of_le_of_lt (norm_zeta_sub_zetaEulerProd_le ha P (s := s) hsmem) hP
+  simpa [norm_sub_rev] using h
 
 /-- **S3.** Absolute-convergence regime: on `{a ≤ Re}` with `a > 1`, the `v = 0`
     skeleton converges uniformly to `η`. -/

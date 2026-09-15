@@ -73,28 +73,39 @@ noncomputable def chi : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ :=
 -/
 theorem isigma3_sq : isigma3 * isigma3 = -1 := by
   ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; norm_num [ isigma3 ];
-  fin_cases i <;> fin_cases k <;> simp +decide [ Matrix.mul_apply, kroneckerMap ];
-  · fin_cases j <;> fin_cases l <;> simp +decide [ Matrix.one_apply ];
-    all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ, pauli3 ] ;
-  · fin_cases j <;> fin_cases l <;> simp +decide [ pauli3 ];
-    all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ, Matrix.one_apply ] ;
-  · fin_cases j <;> fin_cases l <;> simp +decide [ pauli3 ];
-    all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ, Matrix.one_apply ] ;
-  · fin_cases j <;> fin_cases l <;> simp +decide [ Matrix.one_apply, pauli3 ];
-    all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ ] ;
+  fin_cases i <;> fin_cases k <;> simp only [kroneckerMap, smul_apply, smul_eq_mul, Fin.zero_eta,
+      Fin.isValue, mul_apply, of_apply, Fin.mk_one, ne_eq, Prod.mk.injEq, zero_ne_one, false_and,
+          not_false_eq_true, one_apply_ne, neg_zero, one_ne_zero];
+  · fin_cases j <;> fin_cases l <;> simp only [Fin.isValue, one_apply, Fin.zero_eta, mul_ite,
+      mul_one, mul_zero, ite_mul, zero_mul, Fin.mk_one, Prod.mk.injEq, zero_ne_one, and_false,
+          Fin.reduceFinMk, Fin.reduceEq, one_ne_zero];
+    all_goals erw [ Finset.sum_product ] ; simp [ Fin.sum_univ_succ, pauli3 ] ;
+  · fin_cases j <;> fin_cases l <;> simp only [pauli3, Fin.isValue, of_apply, cons_val',
+      cons_val_fin_one, cons_val_zero, cons_val_one];
+    all_goals erw [ Finset.sum_product ] ; simp [ Fin.sum_univ_succ, Matrix.one_apply ] ;
+  · fin_cases j <;> fin_cases l <;> simp only [pauli3, Fin.isValue, of_apply, cons_val',
+      cons_val_fin_one, cons_val_one, cons_val_zero];
+    all_goals erw [ Finset.sum_product ] ; simp [ Fin.sum_univ_succ, Matrix.one_apply ] ;
+  · fin_cases j <;> fin_cases l <;> simp only [pauli3, Fin.isValue, of_apply, cons_val',
+      cons_val_fin_one, cons_val_one, one_apply, Fin.zero_eta, mul_ite, mul_one, mul_zero, ite_mul,
+          zero_mul, Fin.mk_one, Prod.mk.injEq, zero_ne_one, and_false, Fin.reduceFinMk,
+              Fin.reduceEq, one_ne_zero];
+    all_goals erw [ Finset.sum_product ] ; simp [ Fin.sum_univ_succ ] ;
 
 /--
 `(iγ⁵)² = -1`: the internal spinor chirality generator squares to `-1`.
 -/
 theorem igamma5_sq : igamma5 * igamma5 = -1 := by
   unfold igamma5;
-  convert congr_arg ( fun x => kroneckerMap ( fun x1 x2 => x1 * x2 ) ( 1 : Matrix ( Fin 2 ) ( Fin 2 ) ℂ ) x ) BookProof.ChapterA3.mgamma5_sq using 1;
+  convert congr_arg ( fun x => kroneckerMap ( fun x1 x2 => x1 * x2 ) ( 1 : Matrix ( Fin 2 ) ( Fin 2
+      ) ℂ ) x ) BookProof.ChapterA3.mgamma5_sq using 1;
   · ext i j;
-    simp +decide [ Matrix.mul_apply, kroneckerMap ];
-    simp +decide [ Matrix.one_apply, Finset.sum_ite ];
-    split_ifs <;> simp_all +decide [ Finset.sum_filter ];
+    simp only [kroneckerMap, mul_apply, of_apply];
+    simp only [one_apply, ite_mul, one_mul, zero_mul, mul_ite, mul_zero, Finset.sum_ite,
+        Finset.sum_const_zero, add_zero];
+    split_ifs <;> simp_all only [Finset.sum_filter, ↓reduceIte, ite_self, Finset.sum_const_zero];
     rw [ ← Finset.sum_filter ];
-    refine' Finset.sum_bij ( fun x hx => x.2 ) _ _ _ _ <;> aesop;
+    refine Finset.sum_bij ( fun x hx => x.2 ) ?_ ?_ ?_ ?_ <;> aesop;
   · ext i j ; fin_cases i <;> fin_cases j <;> norm_num
 
 /--
@@ -103,9 +114,11 @@ theorem igamma5_sq : igamma5 * igamma5 = -1 := by
 theorem isigma3_igamma5 : isigma3 * igamma5 = chi := by
   convert Matrix.mul_kronecker_mul ( Complex.I • pauli3 ) 1 1 mgamma5;
   all_goals try exact ⟨ 1 ⟩;
-  · ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp +decide [ isigma3, igamma5 ];
-    simp +decide [ Matrix.mul_apply, kroneckerMap ];
-    simp +decide [ Matrix.one_apply, Finset.sum_ite ];
+  · ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp only [isigma3, igamma5, mul_one, one_mul, kroneckerMap_apply,
+      smul_apply, smul_eq_mul];
+    simp only [kroneckerMap, smul_apply, smul_eq_mul, mul_apply, of_apply];
+    simp only [one_apply, mul_ite, mul_one, mul_zero, ite_mul, one_mul, zero_mul, Finset.sum_ite,
+        Finset.sum_const_zero, add_zero];
     rw [ Finset.sum_eq_single ( k, j ) ] <;> aesop;
   · convert Matrix.mul_kronecker_mul ( Complex.I • pauli3 ) 1 1 mgamma5;
     unfold chi; aesop;
@@ -114,24 +127,26 @@ theorem isigma3_igamma5 : isigma3 * igamma5 = chi := by
 `iσ₃` and `iγ⁵` commute, their product being the chirality operator `χ`.
 -/
 theorem igamma5_isigma3 : igamma5 * isigma3 = chi := by
-  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp +decide [ igamma5, isigma3, chi, Matrix.mul_apply ];
-  simp +decide [ Matrix.one_apply, mul_comm, mul_left_comm ];
+  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp only [igamma5, isigma3, mul_apply, kroneckerMap_apply, smul_apply,
+      smul_eq_mul, chi];
+  simp only [one_apply, ite_mul, one_mul, zero_mul, mul_comm, mul_left_comm, mul_ite, mul_zero,
+      ite_self];
   rw [ Finset.sum_eq_single ( i, l ) ] <;> aesop
 
 /--
 `χ² = 1`: the chirality operator is an involution, so its eigenvalues are `±1`.
 -/
 theorem chi_sq : chi * chi = 1 := by
-  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; norm_num [ Matrix.mul_apply, mgamma5Z_sq ] ; ring;
-  fin_cases i <;> fin_cases k <;> simp +decide [ pauli3 ];
-  · fin_cases j <;> fin_cases l <;> simp +decide ;
-    all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ, mgamma5Z ] ;
-  · fin_cases j <;> fin_cases l <;> norm_num [ Fin.sum_univ_succ, mgamma5Z ];
-    all_goals erw [ Finset.sum_product ] ; norm_num [ Fin.sum_univ_succ ] ;
-  · fin_cases j <;> fin_cases l <;> simp +decide [ mgamma5Z ];
-    all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ ] ;
-  · fin_cases j <;> fin_cases l <;> simp +decide [ mgamma5Z ];
-    all_goals erw [ Finset.sum_product ] ; norm_num [ Fin.sum_univ_succ, Complex.ext_iff ] ;
+  have hp3 : pauli3 * pauli3 = 1 := by
+    ext i j
+    fin_cases i <;> fin_cases j <;> simp [pauli3, Matrix.mul_apply, Fin.sum_univ_two]
+  have hp : (Complex.I • pauli3) * (Complex.I • pauli3) = -1 := by
+    rw [Matrix.smul_mul, Matrix.mul_smul, hp3, smul_smul, Complex.I_mul_I]
+    simp
+  rw [chi, ← Matrix.mul_kronecker_mul, hp, BookProof.ChapterA3.mgamma5_sq]
+  ext ⟨i, j⟩ ⟨k, l⟩
+  simp [Matrix.one_apply, Matrix.kroneckerMap, Prod.ext_iff]
+  by_cases h : i = k <;> by_cases h2 : j = l <;> simp [h, h2]
 
 /--
 `tr χ = 0`: the `±1` eigenspaces of the chirality operator have equal dimension
@@ -192,7 +207,7 @@ theorem chirality_iff (v : Fin 2 × Fin 4 → ℂ) :
 theorem chirality_iff_proj (v : Fin 2 × Fin 4 → ℂ) :
     chi *ᵥ v = -v ↔ QLProj *ᵥ v = v := by
   have hsub : QLProj *ᵥ v = (1 / 2 : ℂ) • (v - chi *ᵥ v) := by
-    simp +decide [QLProj, Matrix.sub_mulVec, Matrix.smul_mulVec]
+    simp [QLProj, Matrix.sub_mulVec, Matrix.smul_mulVec]
   constructor
   · intro h
     exact hsub.trans (by ext; norm_num [h]; ring)

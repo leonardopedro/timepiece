@@ -33,7 +33,7 @@ theorem sum_inducedPrior_event
     (seedProb : Seed → ℝ) (train : Seed → Model)
     (A : Finset Model) :
     ∑ m ∈ A, inducedPrior seedProb train m = ∑ s with train s ∈ A, seedProb s := by
-  simp +decide only [inducedPrior]
+  simp only [inducedPrior]
   exact Finset.sum_fiberwise_eq_sum_filter Finset.univ A train seedProb
 
 /-
@@ -47,7 +47,7 @@ theorem inducedPrior_isProbability [Fintype Model]
       ∑ m, inducedPrior seedProb train m = 1 := by
   refine ⟨fun m => Finset.sum_nonneg fun s hs => hnonneg s, ?_⟩
   rw [← hsum, sum_inducedPrior_event]
-  simp +decide
+  simp
 
 /-
 If every seed trains to an admissible model, the induced prior is supported

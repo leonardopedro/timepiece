@@ -1,7 +1,8 @@
 import Mathlib
 
 /-!
-# Chapter "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory",  §"Pure SU(3) Yang-Mills theory" — the covariant derivative and the Bianchi (Jacobi) identity
+# Chapter "Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory",
+§"Pure SU(3) Yang-Mills theory" — the covariant derivative and the Bianchi (Jacobi) identity
 
 Source: `book.tex`, chapter *"Quantization due to time-evolution: Yang-Mills and
 Classical Statistical Field Theory"*, §*"Pure SU(3) Yang-Mills theory"*
@@ -73,8 +74,8 @@ lemma bianchi_cyclic (D : Fin 3 → R) (i j k : Fin 3) :
 -/
 theorem bianchi (D : Fin 3 → R) :
     ∑ i, ∑ j, ∑ k, (eps i j k) • ⁅D i, ⁅D j, D k⁆⁆ = 0 := by
-  simp +decide [ Fin.sum_univ_three, eps ];
-  simp +decide [ Int.sign ];
+  simp [ Fin.sum_univ_three, eps ];
+  simp [ Int.sign ];
   grind +suggestions
 
 /-- The Bianchi identity written with the field strength,
