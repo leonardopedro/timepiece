@@ -17,6 +17,10 @@ Usage:
     python3 scripts/import_components.py BookProof
     python3 scripts/import_components.py BookProof --lakefile
     python3 scripts/import_components.py --all
+
+Besides the independent parts, the tool knows the *sub-system targets* of
+`SUB_SYSTEM_TARGETS` below: a view of one part, for a coherent sub-development
+that is too connected to be a part of its own.  See `BUILD_COMPONENTS.md`.
 """
 
 from __future__ import annotations
@@ -75,6 +79,47 @@ COMPONENT_NAMES = {
     "BookProof.ChapterWeylSL2Group": "BookProofWeylSL2",
     "BookProof.ChapterWignerLittleGroup": "BookProofWignerOrbit",
 }
+
+
+# Sub-system targets: a *view* of one part, for a coherent sub-development that
+# is far too connected to be a part of its own.
+#
+# A sub-system target's `roots` are the modules the sub-system is *about*, and
+# its transitive import cone is what `lake build <name>` compiles -- necessarily
+# a subset of the cone of the containing part, so the target can never duplicate
+# work across jobs; it only lets one job compile less than the whole part.
+#
+# The derivative gauge.  The device these two chapters are about is to adjoin
+# each derivative in space of a field as an independent canonical variable and
+# let the gauge condition set it back equal to that derivative -- `u_{i,j}` for
+# Navier-Stokes, the auxiliary `D_{mu nu}^i(k)` for gravity.  They cannot be a
+# part of their own: their dependencies are shared with `BookProofOperatorCore`,
+# which is what makes the sub-system target worth having instead.
+#
+# Keyed by library, because a sub-system is a sub-system *of one library*: a
+# single global table would have `--check` demanding BookProof's roots inside
+# `Work` and `Layout`.
+SUB_SYSTEM_TARGETS = {
+    "BookProof": {
+        "BookProofDerivativeGauge": [
+            "BookProof.ChapterNsBrstDerivativeGauge",
+            "BookProof.ChapterQgBrstDerivativeGauge",
+        ],
+    },
+}
+
+
+def cone_of(roots: list[str], imports: dict[str, list[str]]) -> set[str]:
+    """The transitive import cone (inside one library) of a set of roots."""
+    cone: set[str] = set()
+    stack = list(roots)
+    while stack:
+        x = stack.pop()
+        if x in cone:
+            continue
+        cone.add(x)
+        stack.extend(imports.get(x, []))
+    return cone
 
 
 def module_files(lib: str) -> dict[str, str]:
@@ -194,9 +239,16 @@ def markdown(lib: str) -> None:
               f"`lake build <module>`:")
         print()
         print(", ".join(f"`{m}`" for m in single))
+        print()
+    sub = sub_system_markdown(lib, comps)
+    if sub:
+        print(sub, end="")
 
 
 def lakefile(lib: str) -> None:
+    mods = module_files(lib)
+    inside = set(mods)
+    imports = {n: imports_of(p, inside) for n, p in mods.items()}
     for comp, roots in components(lib):
         if len(comp) < 2:
             continue
@@ -210,6 +262,59 @@ def lakefile(lib: str) -> None:
         print(f"# independent part: {len(comp)} modules")
         print("roots = [" + ", ".join(f'"{r}"' for r in roots) + "]")
         print()
+    for name, roots in SUB_SYSTEM_TARGETS.get(lib, {}).items():
+        present = [r for r in roots if r in inside]
+        if not present:
+            continue
+        n = len(cone_of(present, imports))
+        print("[[lean_lib]]")
+        print(f'name = "{name}"')
+        print(f"# sub-system target: {len(present)} root(s), {n} modules in the cone")
+        print("roots = [" + ", ".join(f'"{r}"' for r in present) + "]")
+        print()
+
+
+def sub_system_markdown(lib: str, comps) -> str:
+    """The `### Sub-system targets` block of `BUILD_COMPONENTS.md`."""
+    mods = module_files(lib)
+    inside = set(mods)
+    imports = {n: imports_of(p, inside) for n, p in mods.items()}
+    part_of = {m: comp[0] for comp, _roots in comps for m in comp}
+    part_names = {comp[0]: COMPONENT_NAMES.get(comp[0], "*(unnamed)*")
+                  for comp, _roots in comps}
+    rows, out = [], []
+    for name, roots in SUB_SYSTEM_TARGETS.get(lib, {}).items():
+        present = [r for r in roots if r in inside]
+        if not present:
+            continue
+        cone = cone_of(present, imports)
+        parts = sorted({part_names.get(part_of.get(m, ""), "?")
+                        for m in cone if m in part_of})
+        rows.append((name, present, cone, parts))
+    if not rows:
+        return ""
+    out.append(f"### Sub-system targets of `{lib}`")
+    out.append("")
+    out.append("A sub-system target is a *view* of one part: a coherent piece of the "
+               "development that is far too connected to be a part of its own. Its "
+               "`roots` are the modules it is about, and its cone is a subset of the "
+               "containing part's cone, so it never duplicates work across jobs -- it "
+               "only lets one job compile less.")
+    out.append("")
+    out.append("| Lake target | roots | modules in the cone | inside the part |")
+    out.append("| --- | --- | ---: | --- |")
+    for name, roots, cone, parts in rows:
+        shown = ", ".join(f"`{r}`" for r in roots)
+        out.append(f"| `{name}` | {shown} | {len(cone)} | "
+                   f"{', '.join('`' + p + '`' for p in parts)} |")
+    out.append("")
+    out.append("Unlike a part target, a sub-system target is not checked for "
+               "closure: its cone is strictly larger than the sub-system, by "
+               "construction. `--check` verifies instead that its roots are real "
+               "modules, that they are exactly the maximal modules of the cone they "
+               "generate, and that the cone stays inside a single part.")
+    out.append("")
+    return "\n".join(out)
 
 
 def check(lib: str) -> int:
@@ -220,13 +325,24 @@ def check(lib: str) -> int:
     transitive import cone of those roots (inside the library) must be exactly
     the component — i.e. building the target builds that part and nothing more
     of this library.
+
+    For every sub-system target of the library (which is a *view* of one part,
+    so the closure requirement cannot apply): the roots must be real modules,
+    they must be exactly the maximal modules of the cone they generate, and the
+    cone must stay inside a single part.
     """
     text = open("lakefile.toml", encoding="utf-8").read()
     mods = module_files(lib)
     inside = set(mods)
     imports = {n: imports_of(p, inside) for n, p in mods.items()}
     bad = 0
-    for comp, roots in components(lib):
+    part_names = set(COMPONENT_NAMES.values())
+    comps = components(lib)
+    # Every module belongs to a part; a single-module part is identified by the
+    # module itself, since it needs no target.
+    part_of = {m: (COMPONENT_NAMES.get(comp[0]) or comp[0]) for comp, _ in comps
+               for m in comp}
+    for comp, roots in comps:
         if len(comp) < 2:
             continue
         name = COMPONENT_NAMES.get(comp[0])
@@ -242,19 +358,52 @@ def check(lib: str) -> int:
             if f'"{r}"' not in text:
                 print(f"TARGET {name}: root {r} not listed")
                 bad += 1
-        cone, stack = set(), list(roots)
-        while stack:
-            x = stack.pop()
-            if x in cone:
-                continue
-            cone.add(x)
-            stack.extend(imports.get(x, []))
+        cone = cone_of(roots, imports)
         if cone != set(comp):
             print(f"TARGET {name}: cone of the roots differs from the component "
                   f"({len(cone)} vs {len(comp)} modules)")
             bad += 1
         else:
             print(f"ok  {name}: {len(comp)} modules, closed under imports")
+
+    # Sub-system targets: a view of one part.  What must hold is that the roots
+    # are real modules, that they are exactly the maximal modules of the cone
+    # they generate (a sub-system root nothing else in its cone imports), and
+    # that the cone does not straddle two parts -- across parts the target would
+    # redo work another job is already doing.
+    for name, roots in SUB_SYSTEM_TARGETS.get(lib, {}).items():
+        present = [r for r in roots if r in inside]
+        missing = [r for r in roots if r not in inside]
+        if missing:
+            print(f"SUB-TARGET {name}: not a module of {lib}: {', '.join(missing)}")
+            bad += 1
+            continue
+        if name in part_names:
+            print(f"SUB-TARGET {name}: collides with a part target name")
+            bad += 1
+            continue
+        if f'name = "{name}"' not in text:
+            print(f"MISSING TARGET in lakefile.toml: {name}")
+            bad += 1
+            continue
+        for r in present:
+            if f'"{r}"' not in text:
+                print(f"SUB-TARGET {name}: root {r} not listed")
+                bad += 1
+        cone = cone_of(present, imports)
+        inner = {d for n in cone for d in imports.get(n, []) if d in cone}
+        maxima = sorted(n for n in cone if n not in inner)
+        if maxima != sorted(present):
+            print(f"SUB-TARGET {name}: roots are not the maximal modules of the cone "
+                  f"(maximal: {', '.join(maxima)})")
+            bad += 1
+        parts = sorted({part_of.get(m, m) for m in cone})
+        if len(parts) != 1:
+            print(f"SUB-TARGET {name}: cone straddles {len(parts)} parts: "
+                  f"{', '.join(parts[:4])}{' …' if len(parts) > 4 else ''}")
+            bad += 1
+        else:
+            print(f"ok  {name}: {len(cone)} modules, a view of {parts[0]}")
     return bad
 
 

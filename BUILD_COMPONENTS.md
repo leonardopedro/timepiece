@@ -35,6 +35,23 @@ python3 scripts/import_components.py --all --markdown     # this inventory
 `roots` are the maximal modules of the part, and that the transitive import cone
 of those roots is exactly the part (it currently passes for all 27 targets).
 
+## Sub-system targets
+
+Some coherent pieces of the development are far too connected to the rest to be
+independent parts of their own — their dependencies are shared with a part — yet
+they are exactly what one wants to compile while working on them. `lakefile.toml`
+therefore also carries **sub-system targets**: the `roots` are the modules the
+sub-system is *about*, and its cone (the transitive imports those roots need) is
+by construction a subset of the containing part's cone. Such a target can never
+duplicate work across jobs; it only lets one job compile less than the whole
+part. The concrete ones are listed under *Sub-system targets of `BookProof`* at
+the end of the inventory.
+
+`--check` verifies them as well: the roots must be real modules, they must be
+exactly the maximal modules of the cone they generate, and the cone must stay
+inside a single part — a cone spanning two parts would redo work that another
+job is already doing.
+
 Re-run it after adding modules: if a new module imports two previously
 independent parts it merges them, and the script says so by reporting fewer
 parts (and an `UNNAMED component` on stderr when a new multi-module part has no
@@ -89,6 +106,16 @@ never default targets.
 The remaining 83 parts are single modules, each built by `lake build <module>`:
 
 `BookProof.ChapterA4`, `BookProof.ChapterA4b`, `BookProof.ChapterAbelianVonNeumannFinite`, `BookProof.ChapterAngularMomentum`, `BookProof.ChapterAttentionLowRank`, `BookProof.ChapterB3`, `BookProof.ChapterB3b`, `BookProof.ChapterB4`, `BookProof.ChapterBaryonAsymmetry`, `BookProof.ChapterBijectionProbability`, `BookProof.ChapterBornPhaseFiber`, `BookProof.ChapterBosonicCCR`, `BookProof.ChapterC`, `BookProof.ChapterCcrNoBounded`, `BookProof.ChapterClassicalLimit`, `BookProof.ChapterCollapseDiagonal`, `BookProof.ChapterCompactCompleteReducibility`, `BookProof.ChapterComputableScarcity`, `BookProof.ChapterConsciousnessNullMeasure`, `BookProof.ChapterCountablePartition`, `BookProof.ChapterD`, `BookProof.ChapterDutchBook`, `BookProof.ChapterE`, `BookProof.ChapterE2`, `BookProof.ChapterE3`, `BookProof.ChapterE4`, `BookProof.ChapterEntropy`, `BookProof.ChapterErrorNorms`, `BookProof.ChapterEulerComplexQuat`, `BookProof.ChapterEulerCountableChain`, `BookProof.ChapterEulerDensityMatrix`, `BookProof.ChapterEulerGenericDensity`, `BookProof.ChapterEulerNState`, `BookProof.ChapterEulerStochastic`, `BookProof.ChapterF5`, `BookProof.ChapterF6`, `BookProof.ChapterF7`, `BookProof.ChapterFiniteArithmeticPrior`, `BookProof.ChapterFockDegreesOfFreedom`, `BookProof.ChapterGaugeAdjointAlgebra`, `BookProof.ChapterGaugeMechanicsCharge`, `BookProof.ChapterGaugeUnconstrainedSpectrum`, `BookProof.ChapterGaugeVariantVanishing`, `BookProof.ChapterGaugeWeylResidual`, `BookProof.ChapterGhostMajoranaRep`, `BookProof.ChapterGleason2D`, `BookProof.ChapterGleasonPureMixed`, `BookProof.ChapterGravityIrrep`, `BookProof.ChapterHowlandAutonomization`, `BookProof.ChapterIPin`, `BookProof.ChapterIrreversible`, `BookProof.ChapterIrreversibleDynamics`, `BookProof.ChapterKernelBound`, `BookProof.ChapterKernelTransport`, `BookProof.ChapterLittleGroup`, `BookProof.ChapterLocalOperators`, `BookProof.ChapterLocalityConstraintNull`, `BookProof.ChapterLorentzTranslation`, `BookProof.ChapterMAPNull`, `BookProof.ChapterMajoranaClifford`, `BookProof.ChapterMajoranaProp61`, `BookProof.ChapterMajoranaProp76`, `BookProof.ChapterMaschkeFiniteGroup`, `BookProof.ChapterMassGap`, `BookProof.ChapterMaxEntropy`, `BookProof.ChapterMeasurementLLN`, `BookProof.ChapterNavierStokes`, `BookProof.ChapterNoBestPrior`, `BookProof.ChapterNoLebesgue`, `BookProof.ChapterNoUniformCountable`, `BookProof.ChapterOdeComplexification`, `BookProof.ChapterParityMajoranaQuant`, `BookProof.ChapterProbabilityClockStochastic`, `BookProof.ChapterProbabilityInterface`, `BookProof.ChapterQuadraticOrdering`, `BookProof.ChapterQuantizationWeyl`, `BookProof.ChapterSirkGroupTransfer`, `BookProof.ChapterSpectralEnergyBound`, `BookProof.ChapterSpinStatistics`, `BookProof.ChapterSternGerlach`, `BookProof.ChapterTotalVariance`, `BookProof.ChapterUnitaryCompleteReducibility`, `BookProof.ChapterYangMillsBianchi`
+
+### Sub-system targets of `BookProof`
+
+A sub-system target is a *view* of one part: a coherent piece of the development that is far too connected to be a part of its own. Its `roots` are the modules it is about, and its cone is a subset of the containing part's cone, so it never duplicates work across jobs -- it only lets one job compile less.
+
+| Lake target | roots | modules in the cone | inside the part |
+| --- | --- | ---: | --- |
+| `BookProofDerivativeGauge` | `BookProof.ChapterNsBrstDerivativeGauge`, `BookProof.ChapterQgBrstDerivativeGauge` | 188 | `BookProofOperatorCore` |
+
+Unlike a part target, a sub-system target is not checked for closure: its cone is strictly larger than the sub-system, by construction. `--check` verifies instead that its roots are real modules, that they are exactly the maximal modules of the cone they generate, and that the cone stays inside a single part.
 
 ### `Singularity` — 12 modules, 2 independent parts (1 with more than one module)
 

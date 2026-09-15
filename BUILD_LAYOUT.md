@@ -167,7 +167,7 @@ all, so that they can be compiled separately.
 
 Two modules are dependent when one imports the other, directly or transitively;
 the connected components of that relation are the **independent parts** of the
-development. `BookProof` has 98 of them. Every part with more than one module now
+development. `BookProof` has 110 of them. Every part with more than one module now
 has its own Lake target whose `roots` are the maximal modules of the part, so
 
 ```
@@ -194,6 +194,29 @@ python3 scripts/import_components.py BookProof --check     # verify the targets
 multi-module part, that its target exists in `lakefile.toml`, that its `roots`
 are listed, and that the transitive import cone of those roots is exactly the
 part — so building the target cannot pull in a module of another part.
+
+### Sub-system targets: a view of one part
+
+Some coherent sub-developments are too connected to the rest to ever be a part of
+their own — their dependencies are shared with a part — yet they are exactly what
+one wants to compile while working on them. A **sub-system target** answers that:
+its `roots` are the modules the sub-system is *about*, and its cone (everything
+those roots import) is by construction a subset of the containing part's cone, so
+the target can never duplicate work across jobs; it only lets one job compile
+less.
+
+```
+lake build BookProofDerivativeGauge   # 188 modules: a view of BookProofOperatorCore
+```
+
+The derivative gauge is the sub-system so far: the two chapters that adjoin each
+derivative in space of a field as an independent canonical variable and let the
+gauge condition set it back equal to that derivative (`u_{i,j}` for
+Navier–Stokes, the auxiliary `D_mu_nu^i(k)` for gravity), together with the 188
+modules they rest on. `--check` verifies sub-system targets as well: the roots
+must be real modules, they must be exactly the maximal modules of the cone they
+generate, and the cone must stay inside a single part — a cone spanning two parts
+would redo another job's work.
 
 `BUILD_COMPONENTS.md` holds the generated inventory. Re-run the script after
 adding modules: a new module that imports two previously independent parts merges
