@@ -54,18 +54,26 @@ COMPONENT_NAMES = {
     "BookProof.ChapterAbelianDiagonal": "BookProofAttention",
     "BookProof.ChapterB": "BookProofMeasureFoundations",
     "BookProof.ChapterBell": "BookProofBell",
+    "BookProof.ChapterBesselHarmonic": "BookProofHarmonicAnalysis",
     "BookProof.ChapterCausality": "BookProofCausality",
+    "BookProof.ChapterConditional": "BookProofPauliGrover",
     "BookProof.ChapterConservative": "BookProofConservative",
     "BookProof.ChapterCountableDefinability": "BookProofDefinability",
     "BookProof.ChapterDensityMarginalConditional": "BookProofDensity",
     "BookProof.ChapterDeterministic": "BookProofReconstruction",
+    "BookProof.ChapterEnergyBandDecomposition": "BookProofEnergyBand",
     "BookProof.ChapterFreeEMField": "BookProofFieldStrength",
     "BookProof.ChapterFreeFieldBorn": "BookProofFreeFieldBorn",
     "BookProof.ChapterGravityGenInverse": "BookProofGravityAlgebra",
+    "BookProof.ChapterHilbertSumIntertwine": "BookProofInducedSystems",
+    "BookProof.ChapterHolomorphic": "BookProofHolomorphic",
     "BookProof.ChapterKrylovShiftSpan": "BookProofKrylovShiftSpan",
     "BookProof.ChapterLorentzDecomp": "BookProofLorentz",
+    "BookProof.ChapterOdeSampling": "BookProofSamplingTheory",
     "BookProof.ChapterPauliLorentz": "BookProofPauli",
     "BookProof.ChapterRoadmapAudit": "BookProofRoadmapAudit",
+    "BookProof.ChapterWeylSL2Group": "BookProofWeylSL2",
+    "BookProof.ChapterWignerLittleGroup": "BookProofWignerOrbit",
 }
 
 
@@ -152,6 +160,42 @@ def report(lib: str) -> None:
               f"(first: {comp[0]}){tag}")
 
 
+def markdown(lib: str) -> None:
+    """One library's section of the `## Inventory` in `BUILD_COMPONENTS.md`.
+
+    The committed inventory is this function's output, one section per library
+    (`--all` for the whole file), so the tables and the module counts in the
+    prose can be regenerated rather than transcribed.  The roots column is cut
+    after six entries and says how many there are, which is a rendering choice:
+    the `--lakefile` output always carries the complete list.
+    """
+    comps = components(lib)
+    if not comps:
+        return
+    modules = {m for comp, _ in comps for m in comp}
+    multi = [c for c in comps if len(c[0]) > 1]
+    single = [c[0][0] for c in comps if len(c[0]) == 1]
+    print(f"### `{lib}` — {len(modules)} modules, {len(comps)} independent parts "
+          f"({len(multi)} with more than one module)")
+    print()
+    if multi:
+        print("| modules | Lake target | maximal modules (the `roots` of the target) |")
+        print("| ---: | --- | --- |")
+        for comp, roots in multi:
+            name = COMPONENT_NAMES.get(comp[0])
+            cell = f"`{name}`" if name else "*(build its maximal modules directly)*"
+            shown = ", ".join(f"`{r}`" for r in roots[:6])
+            if len(roots) > 6:
+                shown += f", … ({len(roots)} in total)"
+            print(f"| {len(comp)} | {cell} | {shown} |")
+        print()
+    if single:
+        print(f"The remaining {len(single)} parts are single modules, each built by "
+              f"`lake build <module>`:")
+        print()
+        print(", ".join(f"`{m}`" for m in single))
+
+
 def lakefile(lib: str) -> None:
     for comp, roots in components(lib):
         if len(comp) < 2:
@@ -222,7 +266,15 @@ def main() -> None:
                     help="emit the [[lean_lib]] stanzas instead of the report")
     ap.add_argument("--check", action="store_true",
                     help="verify the targets in lakefile.toml against the sources")
+    ap.add_argument("--markdown", action="store_true",
+                    help="emit the `## Inventory` of BUILD_COMPONENTS.md")
     args = ap.parse_args()
+    if args.markdown:
+        for lib in (LIBRARIES if args.all else [args.library]):
+            if os.path.exists(lib) or os.path.exists(lib + ".lean"):
+                markdown(lib)
+                print()
+        return
     if args.lakefile:
         lakefile(args.library)
         return
