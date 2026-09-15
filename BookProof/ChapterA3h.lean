@@ -70,7 +70,7 @@ theorem pauli_expand (M : Matrix (Fin 2) (Fin 2) ℂ) :
   fin_cases i <;> fin_cases j <;>
     simp [pauliσ, pauliCoeff, Fin.sum_univ_four, Matrix.trace, Matrix.mul_apply,
       Fin.sum_univ_two, Matrix.diag, Matrix.add_apply] <;> ring_nf <;>
-    (try simp only [Complex.I_sq, Complex.I_mul_I]) <;> ring
+    (try simp only [Complex.I_sq]) <;> ring
 
 /-
 The Pauli coefficient of a Pauli combination recovers the coefficient.
@@ -78,7 +78,7 @@ The Pauli coefficient of a Pauli combination recovers the coefficient.
 theorem pauliCoeff_comb (c : Fin 4 → ℂ) (μ : Fin 4) :
     pauliCoeff (∑ ν, c ν • pauliσ ν) μ = c μ := by
   unfold pauliCoeff;
-  simp +decide [ Matrix.mul_sum, Matrix.trace_sum, Matrix.mul_smul, Matrix.transpose_smul, pauliσ_trace ];
+  simp +decide [ Matrix.mul_sum, Matrix.trace_sum, pauliσ_trace ];
   ring
 
 /-! ## The map `Υ` -/
@@ -105,7 +105,7 @@ theorem upsilonC_antihom (T U : Matrix (Fin 2) (Fin 2) ℂ) :
     convert pauli_expand ( Tᴴ * pauliσ ν * T ) using 1;
   conv_lhs => rw [ show Uᴴ * Tᴴ * pauliσ ν * ( T * U ) = Uᴴ * ( Tᴴ * pauliσ ν * T ) * U by simp +decide only [mul_assoc] ];
   conv_lhs => rw [ h_expand ];
-  simp +decide [ Matrix.mul_sum, Matrix.sum_mul, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul, pauliCoeff ]
+  simp +decide [ mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul, pauliCoeff ]
 
 /-! ## Reality of `Υ` -/
 
@@ -161,7 +161,7 @@ theorem upsilon_apply_comb (T : Matrix (Fin 2) (Fin 2) ℂ) (x : Fin 4 → ℂ) 
   -- By definition of $U$, we know that $Tᴴ * pauliσ ν * T = ∑ μ, U μ ν • pauliσ μ$.
   have hU : ∀ ν, Tᴴ * pauliσ ν * T = ∑ μ, UpsilonC T μ ν • pauliσ μ := fun ν => upsilon_recon T ν
   convert congr_arg ( fun m => ∑ ν, v ν • m ν ) ( funext hU ) using 1;
-  · simp +decide [ Matrix.mul_sum, Matrix.sum_mul, smul_smul, mul_assoc, Finset.mul_sum _ _ _ ];
+  · simp +decide [ Matrix.sum_mul, mul_assoc, Finset.mul_sum _ _ _ ];
     rfl;
   · simp +decide [ Finset.smul_sum, Finset.sum_smul, mul_comm, smul_smul ];
     exact Finset.sum_comm
@@ -259,7 +259,7 @@ theorem upsilon_mem_lorentz (T : Matrix (Fin 2) (Fin 2) ℂ) (hT : T.det = 1) :
   have hη2 : η * η = 1 := by
     ext i j
     fin_cases i <;> fin_cases j <;>
-      simp +decide [η, minkowskiMat, minkowskiR, minkowskiZ, Matrix.mul_apply, Fin.sum_univ_four]
+      simp +decide [η, minkowskiMat, minkowskiR, minkowskiZ, Matrix.mul_apply]
   have h : (Upsilon T)ᵀ * η * Upsilon T = η := upsilon_metric T hT
   generalize_proofs at *
   have h_mul : (η * (Upsilon T)ᵀ * η) * Upsilon T = 1 := by

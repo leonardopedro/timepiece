@@ -143,11 +143,25 @@ to any value.
 -/
 theorem massGap_shifted_gapless (lam : ℝ) :
     massGap (shiftedSpectrum (fun _ : Fin (n + 2) => (0 : ℝ)) lam) = lam := by
-  refine' le_antisymm _ _;
-  · refine' Finset.min'_le _ _ _;
-    simp +decide [ excited, shiftedSpectrum ];
-    exact ⟨ 1, by simp +decide, by simp +decide [ numberOp ] ⟩;
-  · refine' Finset.le_min' _ _ _ _ ; simp +decide [ shiftedSpectrum, numberOp ];
-    exact fun a ha => by rw [ if_neg ( Finset.mem_filter.mp ha |>.2 ) ] ;
+  unfold massGap
+  have h_image_eq : (excited n).image
+    (shiftedSpectrum (fun _ : Fin (n + 2) => (0 : ℝ)) lam) = {lam} := by
+    ext x
+    constructor
+    · rintro ⟨i, hi, rfl⟩
+      have hi' : i ≠ 0 := (Finset.mem_filter.mp hi).2
+      have : shiftedSpectrum (fun _ : Fin (n + 2) => (0 : ℝ)) lam i = lam := by
+        unfold shiftedSpectrum numberOp
+        simp [hi']
+      simp [this]
+    · intro hx
+      simp at hx
+      subst hx
+      refine ⟨⟨1, by omega⟩, ?_, ?_⟩
+      · apply Finset.mem_filter.mpr
+        exact ⟨Finset.mem_univ _, by decide⟩
+      · unfold shiftedSpectrum numberOp
+        simp
+  simp [h_image_eq]
 
 end BookProof.MassGap

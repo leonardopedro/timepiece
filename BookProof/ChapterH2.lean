@@ -50,8 +50,8 @@ theorem hessenberg_vanishing {n : ℕ} (v : Fin n → E) (hv : Orthonormal ℂ v
   · simp +zetaDelta at *;
     intro x l hl hx; rw [ hx, hv.2 ( show i ≠ l from by rintro rfl; linarith ) ] ;
   · simp +decide;
-  · simp +contextual [ inner_add_right ];
-  · simp +contextual [ inner_smul_right ]
+  · simp +contextual ;
+  · simp +contextual 
 
 /-- **H2.1** (compression is upper-Hessenberg): the compressed operator entries
 `Hₘ_{i,j} := ⟪vᵢ, X vⱼ⟫` vanish below the first subdiagonal (`i > j+1`), given the

@@ -150,7 +150,7 @@ theorem isPointMass_bornDist_iff (v : Fin n → ℂ) (hv : ∑ a, ‖v a‖ ^ 2 
   constructor <;> intro h;
   · obtain ⟨ a, ha₁, ha₂ ⟩ := h;
     exact ⟨ a, by contrapose! ha₁; simp_all +decide [ bornDist ], fun b hb => by specialize ha₂ b hb; simp_all +decide [ bornDist ] ⟩;
-  · obtain ⟨ a, ha₁, ha₂ ⟩ := h; use a; simp_all +decide [ IsPointMass, IsDeterministicColumn ] ;
+  · obtain ⟨ a, ha₁, ha₂ ⟩ := h; use a; simp_all +decide  ;
     simp_all +decide [ Finset.sum_eq_single a, bornDist ]
 
 /-

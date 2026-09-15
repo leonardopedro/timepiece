@@ -95,7 +95,7 @@ theorem spatialPart_orthogonal (v x : Fin 4 → ℝ) (hv : minkSq v = -1) :
     minkForm (spatialPart v x) v = 0 := by
   unfold minkForm;
   unfold spatialPart; simp +decide [ *, Matrix.mulVec, dotProduct ] ; ring;
-  unfold spatialProj; simp +decide [ *, Matrix.mulVec, dotProduct ] ; ring;
+  unfold spatialProj; simp +decide [ * ] ; ring;
   unfold minkSq at hv; simp_all +decide [ Fin.sum_univ_four, lower ] ; ring;
   grobner
 
@@ -120,9 +120,9 @@ theorem split_unique (v x s : Fin 4 → ℝ) (c : ℝ) (hv : minkSq v = -1)
     s = spatialPart v x ∧ c • v = timePart v x := by
   unfold spatialPart timePart;
   simp_all +decide [ spatialProj, timeProj, Matrix.mulVec_add, Matrix.mulVec_smul ];
-  simp_all +decide [ Matrix.add_mulVec, Matrix.mulVec_smul, minkForm ];
+  simp_all +decide [ Matrix.add_mulVec, minkForm ];
   simp_all +decide [ funext_iff, Matrix.mulVec, dotProduct ];
-  simp_all +decide [ mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, minkSq ];
-  simp_all +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul, mul_assoc, mul_comm, mul_left_comm, Finset.sum_add_distrib ]
+  simp_all +decide [ mul_comm, mul_left_comm, Finset.mul_sum _ _ _, minkSq ];
+  simp_all +decide [ ← Finset.mul_sum _ _ _ ]
 
 end BookProof.ChapterGravitySplit

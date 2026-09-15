@@ -129,7 +129,7 @@ The event map is invertible: it is a Boolean automorphism.
 -/
 theorem eventMap_leftInverse (f : α ≃ᵐ α) (A : Set α) :
     f.symm ⁻¹' (f ⁻¹' A) = A := by
-  ext x; simp [Set.mem_preimage]
+  ext x; simp 
 
 end EventAlgebra
 

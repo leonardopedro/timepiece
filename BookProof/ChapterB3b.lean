@@ -92,14 +92,14 @@ theorem svd_completion {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
       have h_inner : inner 𝕜 (v i) (v j) = (D i : 𝕜)⁻¹ * (D j : 𝕜)⁻¹ * (Bᴴ * B) i j := by
         simp +decide [ hv i hi, hv j hj, Matrix.mul_apply, inner ];
         simp +decide only [mul_comm, mul_left_comm, mul_assoc, Finset.mul_sum _ _ _];
-      by_cases hij : i = j <;> simp_all +decide [ sq, mul_assoc, mul_comm, mul_left_comm ];
-      simp +decide [ ← mul_assoc, hj.out ];
+      by_cases hij : i = j <;> simp_all +decide [ sq, mul_assoc, mul_comm ];
+      simp +decide [ hj.out ];
     simp_all +decide [ orthonormal_iff_ite ];
   -- Extend `v` to an orthonormal basis `e` of `E`.
   obtain ⟨e, he⟩ : ∃ e : OrthonormalBasis (Fin n) 𝕜 (EuclideanSpace 𝕜 (Fin n)),
       ∀ j ∈ s, e j = v j := by
     convert Orthonormal.exists_orthonormalBasis_extension_of_card_eq _ hv_orthonormal;
-    simp +decide [ Module.finrank_pi ];
+    simp +decide ;
   refine' ⟨ Matrix.of ( fun i j => e j i ), _, _ ⟩ <;>
     simp_all +decide [ Matrix.mem_unitaryGroup_iff' ]
   · ext i j
@@ -115,7 +115,7 @@ theorem svd_completion {𝕜 : Type*} [RCLike 𝕜] {n : ℕ}
       simp_all +decide [ Matrix.mul_apply, Matrix.diagonal ]
       simp_all +decide [ mul_comm, RCLike.mul_conj ]
       norm_cast at hBB
-      simp_all +decide [ Finset.sum_eq_zero_iff_of_nonneg, sq_nonneg ]
+      simp_all +decide [ Finset.sum_eq_zero_iff_of_nonneg ]
     · rw [ he j hj, hv j hj i, inv_mul_eq_div, div_mul_cancel₀ _ ( by simpa ) ]
 
 /-- **Finite-rank singular value decomposition (`denseCore_svd`).**  Every square

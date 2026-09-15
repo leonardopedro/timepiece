@@ -100,7 +100,7 @@ theorem prop79 (q : K → G) (hq : Function.Injective q) (l₀ : K)
     simp_all +decide [ ← mul_assoc, hq.eq_iff ];
     have hΛ_eq : Λ (α k * g * (α k)⁻¹) k = k := by
       have h_comm : (α k * g * (α k)⁻¹) * (α k * q l₀ * (α k)⁻¹) * (α k * g * (α k)⁻¹)⁻¹ = α k * q l₀ * (α k)⁻¹ := by
-        simp +decide [ mul_assoc, hg ];
+        simp +decide [ mul_assoc ];
         simp +decide [ ← mul_assoc, ← hg ];
       grind;
     rw [ hΛ_eq, inv_mul_cancel ]

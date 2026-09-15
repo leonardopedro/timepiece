@@ -121,8 +121,8 @@ of an `SE(2)` element.
 -/
 theorem boostZ_preserves_angle {l : ℂ} (hl : l ≠ 0) (T : Matrix (Fin 2) (Fin 2) ℂ) :
     (boostZ l * T * boostZ l⁻¹) 0 0 = T 0 0 := by
-      unfold boostZ; simp +decide [ hl, Matrix.mul_apply ] ;
-      simp +decide [ Matrix.vecMul, hl ];
+      unfold boostZ; simp +decide [ Matrix.mul_apply ] ;
+      simp +decide [ Matrix.vecMul ];
       exact mul_div_cancel_left₀ _ hl
 
 /-

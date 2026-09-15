@@ -190,8 +190,8 @@ theorem swap12_spinGenDiag_comm (μ ν : Fin 4) :
     intro μ ν;
     convert swap12_kronecker ( spinGen μ ν ) 1 1 using 1;
   convert congr_arg₂ ( fun x y => x + y ) ( congr_arg₂ ( fun x y => x + y ) ( step1 μ ν ) ( swap12_kronecker ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ( spinGen μ ν ) ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ) ) ( swap12_kronecker ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ( spinGen μ ν ) ) using 1;
-  · unfold spinGenDiag3; simp +decide [ Matrix.mul_add, add_mul ] ;
-  · unfold spinGenDiag3; simp +decide [ add_mul, mul_add, add_assoc ] ;
+  · unfold spinGenDiag3; simp +decide [ Matrix.mul_add ] ;
+  · unfold spinGenDiag3; simp +decide [ add_mul, add_assoc ] ;
     abel1
 
 theorem swap23_spinGenDiag_comm (μ ν : Fin 4) :
@@ -205,7 +205,7 @@ theorem swap13_spinGenDiag_comm (μ ν : Fin 4) :
     swap13 * spinGenDiag3 μ ν = spinGenDiag3 μ ν * swap13 := by
   unfold spinGenDiag3;
   simp +decide [ Matrix.mul_add, Matrix.add_mul ];
-  have := swap13_kronecker ( spinGen μ ν ) 1 1;    ( have := swap13_kronecker 1 ( spinGen μ ν ) 1; ( have := swap13_kronecker 1 1 ( spinGen μ ν ) ; simp_all +decide [ Matrix.mul_assoc ] ; ) );
+  have := swap13_kronecker ( spinGen μ ν ) 1 1;    ( have := swap13_kronecker 1 ( spinGen μ ν ) 1; ( have := swap13_kronecker 1 1 ( spinGen μ ν ) ; simp_all +decide  ; ) );
   abel1
 
 theorem swap12_parityDiag_comm : swap12 * parityDiag3 = parityDiag3 * swap12 := by
@@ -246,7 +246,7 @@ Lorentz group.
 theorem projSym3_parityDiag_comm :
     projSym3 * parityDiag3 = parityDiag3 * projSym3 := by
   rw [ show projSym3 = ( 6 : ℂ ) ⁻¹ • ( 1 + swap12 + swap23 + swap12 * swap23 + swap23 * swap12 + swap13 ) from rfl ];
-  simp +decide [ Matrix.mul_smul, Matrix.smul_mul, Matrix.add_mul, Matrix.mul_add, mul_assoc ];
+  simp +decide [ Matrix.add_mul, Matrix.mul_add, mul_assoc ];
   simp +decide only [swap12_parityDiag_comm, swap23_parityDiag_comm, ← Matrix.mul_assoc, swap13_parityDiag_comm]
 
 /-
@@ -258,10 +258,10 @@ the permutation representation, closed under multiplication.
 theorem projSym3_idem : projSym3 * projSym3 = projSym3 := by
   unfold projSym3;
   -- Expand the product using the distributive property.
-  simp [Matrix.mul_add, Matrix.add_mul, Matrix.mul_assoc, Matrix.smul_mul, Matrix.mul_smul] at *;
+  simp [Matrix.mul_add, Matrix.add_mul, Matrix.mul_assoc] at *;
   rw [ show swap13 = swap12 * swap23 * swap12 from braid_left.symm ];
-  simp_all +decide [ mul_assoc, swap12_sq, swap23_sq, swap13_sq, braid_rel ];
-  simp_all +decide [ ← mul_assoc, swap12_sq, swap23_sq, swap13_sq, braid_rel ];
+  simp_all +decide [ mul_assoc, swap12_sq, swap23_sq ];
+  simp_all +decide [ ← mul_assoc, swap12_sq, swap23_sq, braid_rel ];
   rw [ show swap23 * swap12 * swap23 * swap23 = swap23 * swap12 by
         rw [ mul_assoc, swap23_sq, mul_one ] ]
   rw [ show swap12 * swap23 * swap23 = swap12 by

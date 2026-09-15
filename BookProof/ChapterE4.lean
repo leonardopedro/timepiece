@@ -112,7 +112,7 @@ theorem wave_self_succ (θ : ℕ → ℝ) (s d : ℕ) :
     wave θ s (d + 1) s = Real.cos (θ s) := by
   -- Unfold one stick-break; the tail contributes nothing at index `s`.
   rw [wave_succ]
-  simp +decide [ basisVec, Pi.single_apply ];
+  simp +decide [ basisVec ];
   exact Or.inr ( wave_eq_zero_of_lt _ _ _ _ ( Nat.lt_succ_self _ ) )
 
 /-

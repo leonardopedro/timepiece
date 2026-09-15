@@ -110,7 +110,7 @@ theorem prop74_intertwine (g ns : Matrix (Fin 4) (Fin 4) ℂ)
     (hq : q = 2 * c * s * E) :
     Qmat g ns m q * Sinv (ns * g) c s = Sinv (ns * g) c s * Rmat g E := by
       unfold Qmat Sinv Rmat;
-      simp +decide [ Matrix.fromBlocks_multiply, ← Matrix.mul_assoc, ← Matrix.smul_eq_diagonal_mul ];
+      simp +decide [ Matrix.fromBlocks_multiply, ← Matrix.mul_assoc ];
       simp_all +decide [ mul_assoc, mul_left_comm, mul_comm ];
       refine' ⟨ _, _, _, _ ⟩ <;> ext <;> norm_num <;> ring;
       · rw [ show ( s : ℂ ) ^ 2 = 1 - c ^ 2 by norm_cast; linarith ] ; ring;

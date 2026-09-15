@@ -11,7 +11,7 @@ tag := "double-slit"
 # The Puzzle
 
 The ensemble interpretation, by itself, does not explain why an electron's
-wave-function appears to **interfere with itself** in Young's double-slit experiment
+wave-function appears to *interfere with itself* in Young's double-slit experiment
 — that would seem to require the wave-function to describe an _individual_ system.
 This chapter fills the gap using the result of
 {ref "time-translation-stochastic"}[the previous chapter]: the time-evolution is a
@@ -20,14 +20,14 @@ stochastic process only when it is deterministic.
 # The Two Transformations
 
 After the electron is fired (call this instant $`S_1`), its evolution to the
-detector ($`F`) is the product of **two** non-deterministic symmetry
+detector ($`F`) is the product of *two* non-deterministic symmetry
 transformations:
 
  * $`S_1 \to S_2`: passing through one slit or the other, with probability
    $`50/50`;
  * $`S_2 \to F`: a non-deterministic propagation from the slits to the screen.
 
-Because **both** transformations are non-deterministic, the theorem of the previous
+Because *both* transformations are non-deterministic, the theorem of the previous
 chapter says that no stochastic process can be defined through the intermediate
 instant $`S_2`. The only stochastic process that exists connects $`S_1` directly to
 $`F`; the transformations through $`S_2` "never occurred" as a sequence of random
@@ -40,7 +40,7 @@ wave-function at $`S_1` is
 
 $$`\Psi = \begin{pmatrix} 1 \\ 0 \end{pmatrix}.`
 
-The propagation from the slits to the screen is the **Hadamard** matrix, which adds
+The propagation from the slits to the screen is the *Hadamard* matrix, which adds
 the two slit-amplitudes for the first angle and subtracts them for the second:
 
 $$`H = \frac{1}{\sqrt 2}\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}.`
@@ -53,13 +53,13 @@ The verified properties of $`H` (module `BookProof.ChapterDoubleSlit`):
 #check @ChapterDoubleSlit.Hpsi0
 ```
 
-The matrix is unitary (probability-conserving) and **involutive**: $`H^2 = \mathbf 1`.
+The matrix is unitary (probability-conserving) and *involutive*: $`H^2 = \mathbf 1`.
 Acting once on $`\Psi` it produces the balanced superposition
 $`H\Psi = \tfrac{1}{\sqrt 2}(1,1)`.
 
 # One Slit Closed: 50/50
 
-With the second slit **closed**, only the propagation $`S_2 \to F` acts, so the
+With the second slit *closed*, only the propagation $`S_2 \to F` acts, so the
 state at the screen is $`H\Psi = \tfrac{1}{\sqrt 2}(1,1)`. Born's rule gives equal
 probability for the two angles:
 
@@ -69,7 +69,7 @@ probability for the two angles:
 
 # Both Slits Open: 100/0
 
-With the second slit **open**, both transformations act: first $`S_1 \to S_2`
+With the second slit *open*, both transformations act: first $`S_1 \to S_2`
 (which is again $`H`, putting the electron into an equal superposition of the two
 slits), then $`S_2 \to F` (another $`H`). The state at the screen is
 
@@ -84,13 +84,13 @@ angle and $`0` for the second:
 ```
 
 Opening the second slit has turned a $`50/50` distribution into a $`100/0`
-distribution. The first angle is **constructive** interference (the two
-slit-amplitudes add), the second **destructive** (they cancel).
+distribution. The first angle is *constructive* interference (the two
+slit-amplitudes add), the second *destructive* (they cancel).
 
 # Where the Mystery Goes
 
 The "mystery" is the same as for the probability clock: how can $`50/50` become
-$`100/0`? The answer is that $`H \cdot H` is **not** a stochastic process in which
+$`100/0`? The answer is that $`H \cdot H` is *not* a stochastic process in which
 $`H` is applied and then $`H` is applied again with a collapse in between. If one
 _collapses_ after the first $`H` (i.e. actually measures which slit), the
 interference is destroyed and one recovers $`50/50`. The coherent product $`H^2` and
@@ -119,9 +119,9 @@ The verified contrast between the coherent and the incoherent composition (modul
 
 The first says that if one _does_ record the intermediate outcome (summing the joint
 probabilities over the final index), one recovers the middle distribution. The
-second, `dslit_finalProb`, is the **collapsed** (incoherent) final law: once the
+second, `dslit_finalProb`, is the *collapsed* (incoherent) final law: once the
 intermediate measurement is made, the outcome is uniform $`50/50`. The third,
-`dslit_coherentFinal`, is the **coherent** double-slit result: without intermediate
+`dslit_coherentFinal`, is the *coherent* double-slit result: without intermediate
 measurement, the state is $`(1,0)`. The difference between them is exactly the
 interference cross term — present in the coherent product, erased by the
 intermediate measurement.

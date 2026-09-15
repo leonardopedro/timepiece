@@ -15,24 +15,24 @@ tag := "dutch-book"
 Before we can parametrize probability distributions by wave-functions, we should
 ask what a probability distribution _is_, and why its rules are the rules they are.
 The cleanest answer is due to de Finetti and Ramsey, and it is operational:
-probabilities are **coherent betting prices**.
+probabilities are *coherent betting prices*.
 :::
 
 :::paragraph
 Imagine a bookmaker who posts a price $`\mathrm{Pr}(A)` for each event
 $`A` in a finite sample space $`\Omega`. A bettor may buy, for a stake
 $`s`, a ticket on $`A` that pays $`s` if $`A` happens and returns the price
-$`s\cdot\mathrm{Pr}(A)` regardless. The bookmaker's **net payoff** in a state
+$`s\cdot\mathrm{Pr}(A)` regardless. The bookmaker's *net payoff* in a state
 $`\omega` from a finite family of such bets is
 :::
 
 $$`\mathrm{payoff}(\omega) = \sum_i s_i\big(\mathbf{1}_{A_i}(\omega) - \mathrm{Pr}(A_i)\big).`
 
 :::paragraph
-The posted prices are **incoherent** if the bettor can choose stakes so that the
+The posted prices are *incoherent* if the bettor can choose stakes so that the
 bookmaker loses money in _every_ state — that is, $`\mathrm{payoff}(\omega) < 0`
-for all $`\omega`. Such a guaranteed-loss portfolio is called a **Dutch book**.
-The prices are **coherent** if no Dutch book exists.
+for all $`\omega`. Such a guaranteed-loss portfolio is called a *Dutch book*.
+The prices are *coherent* if no Dutch book exists.
 :::
 
 :::paragraph
@@ -40,7 +40,7 @@ The theorem, made precise below, is the striking fact:
 :::
 
 :::paragraph
-**The coherent price systems are exactly the probability distributions.**
+*The coherent price systems are exactly the probability distributions.*
 :::
 
 :::paragraph
@@ -82,7 +82,7 @@ $`p`-measure of that event, $`\mathrm{Pr}(A) = \sum_{\omega \in A} p(\omega)`.
 # Sketch Proof
 
 :::paragraph
-**Easy direction — a probability is coherent.** Suppose $`\mathrm{Pr}(A) =
+*Easy direction — a probability is coherent.* Suppose $`\mathrm{Pr}(A) =
 \sum_{\omega \in A} p(\omega)` for a genuine distribution $`p`. Take the
 $`p`-expectation of the payoff:
 :::
@@ -96,7 +96,7 @@ Dutch book exists.
 :::
 
 :::paragraph
-**Hard direction — coherence forces the axioms.** Assume $`\mathrm{Pr}` is
+*Hard direction — coherence forces the axioms.* Assume $`\mathrm{Pr}` is
 coherent. Each axiom is forced by an explicit Dutch book that would otherwise be
 available to the bettor:
 
@@ -108,7 +108,7 @@ available to the bettor:
    loss.
  * $`0 \le \mathrm{Pr}(A) \le 1`: a negative price, or a price above $`1`, is
    exploited by a single ticket on $`A`.
- * **Finite additivity on disjoint events**: if $`A \cap B = \varnothing` but
+ * *Finite additivity on disjoint events*: if $`A \cap B = \varnothing` but
    $`\mathrm{Pr}(A \cup B) \ne \mathrm{Pr}(A) + \mathrm{Pr}(B)`, a three-ticket
    portfolio — long $`A \cup B` and short $`A` and $`B` (or the reverse) — locks in
    the discrepancy as a sure profit.
@@ -117,7 +117,7 @@ available to the bettor:
 :::paragraph
 Once additivity holds, the price of any event is the sum of the prices of its
 singletons, $`\mathrm{Pr}(A) = \sum_{\omega \in A} \mathrm{Pr}(\{\omega\})`. So the
-distribution $`p(\omega) := \mathrm{Pr}(\{\omega\})` **represents** $`\mathrm{Pr}`,
+distribution $`p(\omega) := \mathrm{Pr}(\{\omega\})` *represents* $`\mathrm{Pr}`,
 and the axioms above make $`p` a genuine probability. This is the converse
 direction.
 :::
@@ -172,9 +172,9 @@ probability.
 
 :::paragraph
 There is a misreading the theorem invites, and the source manuscript is explicit in
-resisting it. The Dutch-book argument makes the **rules** of probability objective:
+resisting it. The Dutch-book argument makes the *rules* of probability objective:
 coherence forces non-negativity, normalization, and finite additivity, and there is
-no choice in the matter. It does **not** make the **priors** objective. Coherence
+no choice in the matter. It does *not* make the *priors* objective. Coherence
 constrains the _form_ a probability must take — it must be a point of the simplex —
 but it is silent on _which_ point of the simplex is the right one. The prior is a
 free, unavoidable act of theoretical prejudice.
@@ -204,9 +204,9 @@ truth.
 :::
 
 :::paragraph
-So the Dutch-book theorem fixes the **objective** part of probability — the
+So the Dutch-book theorem fixes the *objective* part of probability — the
 calculus, the simplex, the rules any coherent belief must obey — and leaves the
-**subjective** part exactly where it belongs, in the choice of prior. The
+*subjective* part exactly where it belongs, in the choice of prior. The
 parametrizations of Part II map into this objectively fixed simplex; the point they
 land on is never forced by coherence alone. The one place a prior _is_ forced is the
 infinite-dimensional tail of the {ref "solovay-tensor"}[Solovay–Kopperman

@@ -45,10 +45,10 @@ theorem adj_mulXMode {M : ℕ} (op : NormalOrderedOp M) (i : Fin M) :
     · subst hji
       simp [Function.update_self]
     · simp [hji, Function.update_of_ne, swapCounts]
-  simp only [Finsupp.mapDomain_add, Finsupp.mapDomain_smul]
+  simp only [Finsupp.mapDomain_add, Finsupp.mapDomain_smul, mk.injEq]
   rw [← Finsupp.mapDomain_comp, ← Finsupp.mapDomain_comp]
-  simp [h_annih, h_creat]
-  rw [← Finsupp.mapDomain_comp, ← Finsupp.mapDomain_comp]
+  rw [h_annih, h_creat]
+  rw [Finsupp.mapDomain_comp, Finsupp.mapDomain_comp]
   rw [add_comm]
 
 /-- The real algebraic momentum generator changes sign under adjoint.  This is
@@ -56,11 +56,12 @@ why it is multiplied by `-i` in the complex operator interpretation. -/
 theorem adj_mulPMode {M : ℕ} (op : NormalOrderedOp M) (i : Fin M) :
     adj (mulPMode op i) = -(mulPMode (adj op) i) := by
   ext a
-  simp [mulPMode, adj]
-  -- Need to rewrite: mapDomain f (c • m - c • n) = c * mapDomain g (mapDomain f m) - c * mapDomain h (mapDomain f n)
+  simp only [mulPMode, adj, terms_neg, Finsupp.coe_neg, Pi.neg_apply]
+  -- Rewrite the mapped difference by composing `swapCounts` with each update.
   -- where g = f ∘ update_+, h = f ∘ update-
-  have h1 : ∀ ts : Fin M → ℕ × ℕ, swapCounts (Function.update ts i ((ts i).1, (ts i).2 + 1)) = 
-            Function.update (swapCounts ts) i ((ts i).2 + 1, (ts i).1) := by
+  have h1 : ∀ ts : Fin M → ℕ × ℕ,
+      swapCounts (Function.update ts i ((ts i).1, (ts i).2 + 1)) =
+        Function.update (swapCounts ts) i ((ts i).2 + 1, (ts i).1) := by
     intro ts
     funext j
     simp [swapCounts, Function.update]
@@ -101,7 +102,8 @@ theorem adj_mulPMode {M : ℕ} (op : NormalOrderedOp M) (i : Fin M) :
 /-- Weyl symmetrization is fixed by the Wick adjoint. -/
 theorem weyl_symmetrization_self_adjoint {M : ℕ} (sys : ODESystem M) :
     adj (odeToHamiltonian sys) = odeToHamiltonian sys := by
-  simp [odeToHamiltonian, adj_smul, adj_add, adj_involutive]
+  unfold odeToHamiltonian
+  rw [adj_smul, adj_add, adj_involutive]
   ext
   simp [NormalOrderedOp.add, add_comm]
 

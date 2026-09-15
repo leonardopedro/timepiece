@@ -147,7 +147,7 @@ real matrix.
 theorem exists_real_of_conj_fixed {N : Matrix (Fin 4) (Fin 4) ℂ}
     (hN : N.map (starRingEnd ℂ) = N) : ∃ M : Matrix (Fin 4) (Fin 4) ℝ, toC M = N := by
   use Matrix.of (fun i j => (N i j).re);
-  ext i j; simp +decide [ toC, hN ];
+  ext i j; simp +decide [ toC ];
   replace hN := congr_fun ( congr_fun hN i ) j; simp_all +decide [ Complex.ext_iff ] ;
   grobner
 
@@ -163,7 +163,7 @@ Complexification commutes with the matrix inverse.
 -/
 theorem toC_inv (M : Matrix (Fin 4) (Fin 4) ℝ) : toC M⁻¹ = (toC M)⁻¹ := by
   by_cases h : IsUnit ( Matrix.det M ) <;> simp_all +decide [ Matrix.inv_def ];
-  · ext i j ; simp +decide [ toC, h ];
+  · ext i j ; simp +decide [ toC ];
     simp +decide [ Matrix.det_apply', Matrix.adjugate_apply, Matrix.map_apply ];
     simp +decide [ Matrix.updateRow_apply, Pi.single_apply ];
     exact Or.inl ( Finset.sum_congr rfl fun _ _ => by congr; ext; aesop );
@@ -222,7 +222,7 @@ theorem real_pauli (hpf : PauliFundamental)
       exact ⟨ c ^ ( 1 / 2 : ℂ ), by rw [ ← Complex.cpow_nat_mul ] ; norm_num, by rw [ Complex.norm_cpow_of_ne_zero hc.1 ] ; norm_num [ hw ] ⟩
     use r, w, r * w, (r * w) • T;
     simp_all +decide [ mul_pow, abs_of_pos hr.1 ];
-    ext i j; simp +decide [ *, mul_assoc, mul_comm, mul_left_comm ] ;
+    ext i j; simp +decide [ *, mul_comm, mul_left_comm ] ;
     replace hc := congr_fun ( congr_fun hc.2 i ) j;      simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
     rw [ ← hw.1 ] ; ring;
     rw [ show w ^ 2 = w * w by ring, mul_assoc ] ; rw [ show ( starRingEnd ℂ ) w = w⁻¹ from ?_ ] ; ring;
@@ -237,10 +237,10 @@ theorem real_pauli (hpf : PauliFundamental)
   · intro μ
     have h_inter : B μ = S0 * A μ * S0⁻¹ := by
       simp_all +decide [ Matrix.inv_def ];
-      simp +decide [ Matrix.adjugate_smul, smul_smul, mul_assoc, mul_left_comm, mul_comm, hr.ne', show w ≠ 0 from by aesop_cat ];
+      simp +decide [ Matrix.adjugate_smul, smul_smul, mul_assoc, mul_comm ];
       simp +decide [ show (w * r) ^ 4 = (w * r) ^ 3 * (w * r) by ring, mul_assoc,
         mul_left_comm, hr.ne', show w ≠ 0 from by aesop_cat ];
-      simp +decide [ mul_assoc, mul_left_comm ( w : ℂ ), hr.ne', show w ≠ 0 from by aesop_cat ];
+      simp +decide [ mul_left_comm ( w : ℂ ), hr.ne', show w ≠ 0 from by aesop_cat ];
     refine' toC_injective _;
     convert h_inter using 1;
     rw [ ← hS, toC_mul, toC_mul, toC_inv ];
@@ -250,14 +250,14 @@ theorem real_pauli (hpf : PauliFundamental)
         intro μ; rw [ hS'_eq μ ] ; simp +decide [ toC_mul, toC_inv ] ;
       have := hpf A B ( isCliffordC_toC hα ) ( isCliffordC_toC hβ );
       apply this.right;
-      · simp_all +decide [ Matrix.det_smul ];
+      · simp_all +decide ;
         exact ⟨ hr.ne', by rintro rfl; norm_num at ha ⟩;
       · rw [ toC_det ];
         exact isUnit_iff_ne_zero.mpr ( by aesop_cat );
       · intro μ; specialize hT; have := hT.2 μ; simp_all +decide [ Matrix.mul_assoc ] ;
         simp +decide [ Matrix.inv_def, Matrix.smul_eq_diagonal_mul ];
         simp +decide [ ← mul_assoc, ← Matrix.smul_eq_diagonal_mul, Matrix.adjugate_smul ];
-        simp +decide [ ← smul_assoc, ← mul_assoc, ← pow_succ', hr.ne',
+        simp +decide [ ← smul_assoc, ← mul_assoc, 
           show w ≠ 0 from by aesop_cat ];
         field_simp;
         rw [show (r * w / (T.det * r * w)) = (1 / T.det) by
@@ -273,7 +273,7 @@ theorem real_pauli (hpf : PauliFundamental)
         grind;
       convert h_det_S using 1;
       norm_num [ toC_det ];
-    simp_all +decide [ abs_mul, Matrix.det_smul ];
+    simp_all +decide [ abs_mul ];
     rcases eq_or_eq_neg_of_abs_eq
       (show |d.re| = 1 by
         rw [pow_eq_one_iff_of_nonneg (abs_nonneg _)] at hS' <;> aesop) with h | h <;>
@@ -300,18 +300,18 @@ theorem lorentz_of_conj (S : Matrix (Fin 4) (Fin 4) ℂ) (hS : IsUnit S.det)
   have hP_eq : ∀ (μ ν : Fin 4),    (-2 * minkowski μ ν) • (1 : Matrix (Fin 4) (Fin 4) ℂ) = ∑ α,    ∑ β, ((Lam μ α : ℂ) * (Lam ν β : ℂ)) • ((mgamma α * mgamma β + mgamma β * mgamma α)) := by
     intro μ ν
     have hP_eq : (S⁻¹ * mgamma μ * S) * (S⁻¹ * mgamma ν * S) + (S⁻¹ * mgamma ν * S) * (S⁻¹ * mgamma μ * S) = (-2 * minkowski μ ν) • (1 : Matrix (Fin 4) (Fin 4) ℂ) := by
-      simp_all +decide [ mul_assoc, Matrix.isUnit_iff_isUnit_det ];
-      simp_all +decide [ ← hLam, mul_assoc, Finset.sum_mul _ _ _ ];
+      simp_all +decide [ mul_assoc ];
+      simp_all +decide [ ← hLam, mul_assoc ];
       convert congr_arg ( fun x => S⁻¹ * x * S ) ( mgamma_clifford μ ν ) using 1 <;> simp +decide [ mul_assoc, hS, isUnit_iff_ne_zero ];
       simp +decide only [Matrix.add_mul, mul_assoc, Matrix.mul_add];
     rw [ ← hP_eq, hLam, hLam ];
-    simp +decide [ mul_add, add_mul, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul, smul_add, smul_mul_assoc, mul_smul_comm ];
-    simp +decide [ Finset.smul_sum, Finset.sum_add_distrib, smul_smul, mul_comm ];
+    simp +decide [ Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul, smul_add ];
+    simp +decide [ Finset.smul_sum, smul_smul, mul_comm ];
     exact congrArg₂ ( · + · ) ( Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by norm_cast ) ) ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by norm_cast );
   -- By equating the two expressions for `P`,    we can conclude that the sums are equal. Use the fact that `mgamma_clifford` holds.
   have hP_eq' : ∀ (μ ν : Fin 4),    (-2 * minkowski μ ν) • (1 : Matrix (Fin 4) (Fin 4) ℂ) = (-2 * ∑ α, ∑ β, (Lam μ α : ℂ) * (minkowskiR α β) * (Lam ν β : ℂ)) • (1 : Matrix (Fin 4) (Fin 4) ℂ) := by
-    intro μ ν;      rw [ hP_eq μ ν ] ;      simp +decide [ mgamma_clifford, Finset.mul_sum _ _ _, Finset.sum_mul, mul_assoc, mul_left_comm, mul_comm ] ; ring;
-    simp +decide [ Finset.sum_smul, smul_smul, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _,      Finset.sum_mul, minkowski, minkowskiR ];
+    intro μ ν;      rw [ hP_eq μ ν ] ;      simp +decide [ mgamma_clifford, Finset.mul_sum _ _ _, mul_left_comm, mul_comm ] ; ring;
+    simp +decide [ Finset.sum_smul, smul_smul, mul_assoc, mul_comm, mul_left_comm, minkowski, minkowskiR ];
   ext μ ν; specialize hP_eq' μ ν; simp_all +decide [ ← Matrix.ext_iff ] ;
   convert congr_arg Complex.re hP_eq'.symm using 1 ;    norm_num [ Complex.ext_iff, Matrix.mul_apply ] ; ring;
   simp +decide only [minkowskiMat, Finset.sum_mul _ _ _];

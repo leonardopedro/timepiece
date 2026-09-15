@@ -47,11 +47,15 @@ iff they differ by a unit phase `e^{iθ}`.
 -/
 theorem Complex.normSq_eq_iff_exists_phase (z w : ℂ) :
     Complex.normSq z = Complex.normSq w ↔ ∃ θ : ℝ, w = Complex.exp (θ * Complex.I) * z := by
-  constructor <;> intro h;
-  · rw [ ← Complex.norm_mul_exp_arg_mul_I w, ← Complex.norm_mul_exp_arg_mul_I z ];
-    simp_all +decide [ Complex.normSq_eq_norm_sq ];
-    exact ⟨ w.arg - z.arg, by push_cast; rw [ mul_left_comm, ← Complex.exp_add ] ; simp +decide [ Complex.ext_iff, Complex.exp_re, Complex.exp_im ] ⟩;
-  · obtain ⟨ θ, rfl ⟩ := h; simp +decide [ Complex.normSq_eq_norm_sq, Complex.norm_exp ] ;
+  constructor <;> intro h
+  · have h_norm_eq : ‖z‖ = ‖w‖ := by
+      rwa [← Complex.normSq_eq_norm_sq, ← Complex.normSq_eq_norm_sq]
+    rw [← Complex.norm_mul_exp_arg_mul_I w, ← Complex.norm_mul_exp_arg_mul_I z]
+    refine ⟨w.arg - z.arg, ?_⟩
+    push_cast
+    rw [mul_left_comm, ← Complex.exp_add]
+    simp [Complex.ext_iff, Complex.exp_re, Complex.exp_im, h_norm_eq]
+  · obtain ⟨ θ, rfl ⟩ := h; simp [Complex.normSq_eq_norm_sq, Complex.norm_exp]
 
 /-
 **Born fiber (complex case).** Two complex wave-functions `u, v : Fin n → ℂ`
@@ -66,7 +70,8 @@ theorem born_fiber_complex {n : ℕ} (u v : Fin n → ℂ) :
   constructor;
   · intro h;
     exact ⟨ fun k => Classical.choose ( Complex.normSq_eq_iff_exists_phase ( u k ) ( v k ) |>.1 ( h k ) ), fun k => Classical.choose_spec ( Complex.normSq_eq_iff_exists_phase ( u k ) ( v k ) |>.1 ( h k ) ) ⟩;
-  · rintro ⟨ θ, hθ ⟩ k; simp +decide [ hθ k, Complex.normSq_eq_norm_sq ] ;
+  · rintro ⟨θ, hθ⟩ k
+    simp [hθ k, Complex.normSq_eq_norm_sq]
 
 /-
 Pointwise real sign fiber: two reals have equal squares iff they differ by a
@@ -115,11 +120,9 @@ theorem average_sq_le_max_sq {n : ℕ} (p : Fin n → ℝ)
       (hC ⟨0, Nat.pos_of_ne_zero hn⟩)
   calc
     ∑ i, p i * (e i) ^ 2 ≤ ∑ i, p i * C ^ 2 := by
-      apply Finset.sum_le_sum
-      intro i _
-      apply mul_le_mul_of_nonneg_left _ (hp i)
-      simpa only [sq_abs] using
-        (sq_le_sq₀ (abs_nonneg (e i)) hC0 |>.mpr (hC i))
+      refine Finset.sum_le_sum fun i _ => ?_
+      refine mul_le_mul_of_nonneg_left ?_ (hp i)
+      simpa [sq_abs] using sq_le_sq₀ (abs_nonneg (e i)) hC0 |>.mpr (hC i)
     _ = C ^ 2 := by rw [← Finset.sum_mul, hsum, one_mul]
 
 /-- Multiplication operators by scalar functions commute pointwise; this is the

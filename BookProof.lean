@@ -153,6 +153,7 @@ import BookProof.ChapterQuantizationWeyl
 import BookProof.ChapterKernelBound
 import BookProof.ChapterMarkovEntropy
 import BookProof.ChapterConditional
+import BookProof.ChapterPauliGrover
 import BookProof.ChapterBayesInference
 import BookProof.ChapterConservative
 import BookProof.ChapterSymmetryRep

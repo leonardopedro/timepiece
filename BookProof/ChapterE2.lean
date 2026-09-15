@@ -175,7 +175,7 @@ theorem exists_angles_realize (n : ℕ) (p : Fin n → ℝ)
       · have h_remainder_succ : remainder θ (j + 1) = remainder θ j * (1 - if R j = 0 then 0 else q j / R j) := by
           rw [ ← hθ j, remainder_succ ];
           rw [ Real.sin_sq ];
-        by_cases hj : R j = 0 <;> simp_all +decide [ Finset.sum_range_succ ];
+        by_cases hj : R j = 0 <;> simp_all +decide ;
         · simp +zetaDelta at *;
           by_cases hj' : j ≤ n <;> simp_all +decide [ Finset.sum_range_succ ];
           · have h_sum_le_one : ∑ k ∈ Finset.range (j + 1),            (if h : k ≤ n then p ⟨k, by linarith⟩ else 0) ≤ 1 := by
@@ -189,9 +189,9 @@ theorem exists_angles_realize (n : ℕ) (p : Fin n → ℝ)
         · simp +zetaDelta at *;
           rw [ Finset.sum_range_succ, mul_sub, mul_one, mul_div_cancel₀ _ hj ] ; ring;
     use θ; intro i; simp +decide [ bornProb, h_remainder ] ;
-    split_ifs <;> simp_all +decide [ Finset.sum_range, Fin.sum_univ_castSucc ];
+    split_ifs <;> simp_all +decide [ Fin.sum_univ_castSucc ];
     · rw [ stick_eq, h_remainder, hθ ];
-      split_ifs <;> simp_all +decide [ mul_div_cancel₀, ne_of_gt ];
+      split_ifs <;> simp_all +decide [ mul_div_cancel₀ ];
       · have h_contra : ∑ k ∈ Finset.range (i + 1), q k ≤ ∑ k ∈ Finset.range (n + 1), q k := by
           exact Finset.sum_le_sum_of_subset_of_nonneg ( Finset.range_mono ( by linarith ) ) fun _ _ _ => by aesop;
         simp +zetaDelta at *;
@@ -200,7 +200,7 @@ theorem exists_angles_realize (n : ℕ) (p : Fin n → ℝ)
       · grind;
     · simp +zetaDelta at *;
       simp_all +decide [ Fin.eq_last_of_not_lt ];
-      simp_all +decide [ Finset.sum_range, Fin.sum_univ_castSucc ];
+      simp_all +decide [ Finset.sum_range ];
       linarith!
 
 end BookProof.ChapterE2

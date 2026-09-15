@@ -65,8 +65,8 @@ theorem born_conditioning (Ψ : X → ℂ) (μ : Measure X) (E : Set X)
     bornMeasure (conditionedState Ψ μ E) μ = (bornMeasure Ψ μ)[|E] := by
   ext s hs;
   simp +decide [ *, bornMeasure, ProbabilityTheory.cond_apply ];
-  simp +decide [ conditionedState, Set.indicator_apply ];
-  simp +decide [ ENNReal.mul_rpow_of_nonneg, ENNReal.inv_mul_cancel, hpos, hfin, Set.indicator_apply, mul_pow, ← MeasureTheory.lintegral_indicator, hE, hs ];
+  simp +decide [ conditionedState ];
+  simp +decide [ mul_pow, ← MeasureTheory.lintegral_indicator, hE, hs ];
   have h_const : (∫⁻ x, s.indicator (fun x => ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ) = ‖(↑√((bornMeasure Ψ μ) E).toReal)⁻¹‖ₑ ^ 2 * ∫⁻ x, s.indicator (fun x => ‖E.indicator Ψ x‖ₑ ^ 2) x ∂μ := by
     rw [ ← MeasureTheory.lintegral_const_mul' ];
     · congr with x ; by_cases hx : x ∈ s <;> simp +decide [ hx ];

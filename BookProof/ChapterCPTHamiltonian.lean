@@ -193,8 +193,8 @@ theorem kinSum_sq (k : Fin 3 → ℝ) :
     (∑ j : Fin 3, (k j : ℂ) • Kin j) * (∑ j : Fin 3, (k j : ℂ) • Kin j)
       = (∑ j : Fin 3, (k j : ℂ) ^ 2) • (1 : Matrix (Fin 4) (Fin 4) ℂ) := by
   simp +decide [Fin.sum_univ_three]
-  simp +decide [add_mul, mul_add, mul_assoc, mul_smul_comm, smul_mul_assoc, sq]
-  simp +decide [← mul_assoc, ← smul_assoc, Kin_sq]
+  simp +decide [add_mul, mul_add, sq]
+  simp +decide [← smul_assoc, Kin_sq]
   have h_anticomm :
       Kin 1 * Kin 0 + Kin 0 * Kin 1 = 0 ∧ Kin 2 * Kin 0 + Kin 0 * Kin 2 = 0 ∧
         Kin 2 * Kin 1 + Kin 1 * Kin 2 = 0 :=

@@ -62,7 +62,7 @@ theorem invariant_apply_zpow {N : ℕ} {σ : Equiv.Perm (Fin N)} {a : Idx N}
     (ha : a ∘ σ = a) (k : ℤ) (x : Fin N) : a ((σ ^ k) x) = a x := by
   rcases k with ( _ | k ) <;> simp_all +decide [ funext_iff ];
   · induction ‹ℕ› <;> simp_all +decide [ pow_succ', Equiv.Perm.mul_apply ];
-  · induction' k with k ih generalizing x <;> simp_all +decide [ pow_succ', mul_assoc ];
+  · induction' k with k ih generalizing x <;> simp_all +decide [ pow_succ' ];
     · grind;
     · convert ih ( σ⁻¹ x ) using 1;
       rw [ ← ha ( σ⁻¹ x ), Equiv.Perm.apply_inv_self ]
@@ -103,7 +103,7 @@ theorem card_fixedTuples {N : ℕ} (σ : Equiv.Perm (Fin N)) :
       all_goals generalize_proofs at *;
       · intro a b h; ext x; by_cases hx : σ x = x <;> simp_all +decide [ funext_iff ] ;
         have h_cycle : σ.cycleOf x ∈ σ.cycleFactorsFinset := by
-          simp +decide [ Equiv.Perm.mem_cycleFactorsFinset_iff, hx ];
+          simp +decide [ Equiv.Perm.mem_cycleFactorsFinset_iff ];
           refine' ⟨ _, _ ⟩
           all_goals generalize_proofs at *;
           · exact Equiv.Perm.isCycle_cycleOf _ hx;
@@ -121,7 +121,7 @@ theorem card_fixedTuples {N : ℕ} (σ : Equiv.Perm (Fin N)) :
       · intro g;
         refine' ⟨ ⟨ fun x => if hx : σ x = x then g ( Sum.inl ⟨ x, hx ⟩ ) else g ( Sum.inr ⟨ σ.cycleOf x, _ ⟩ ), _ ⟩, _ ⟩ <;> simp_all +decide [ funext_iff ];
         all_goals generalize_proofs at *;
-        · simp +decide [ Equiv.Perm.mem_cycleFactorsFinset_iff, hx ];
+        · simp +decide [ Equiv.Perm.mem_cycleFactorsFinset_iff ];
           refine' ⟨ _, _ ⟩;
           · exact Equiv.Perm.isCycle_cycleOf _ ( by aesop );
           · intro a ha; simp_all +decide [ Equiv.Perm.cycleOf_apply ] ;

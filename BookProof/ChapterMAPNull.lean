@@ -31,7 +31,8 @@ A posterior sample almost surely does not equal a fixed MAP point.
 -/
 theorem ae_ne_map_point (μ : Measure α) [NoAtoms μ] (mapPoint : α) :
     ∀ᵐ x ∂μ, x ≠ mapPoint := by
-  convert MeasureTheory.measure_eq_zero_iff_ae_notMem.mp ( map_point_measure_zero μ mapPoint ) using 1
+  convert MeasureTheory.measure_eq_zero_iff_ae_notMem.mp
+    (map_point_measure_zero μ mapPoint) using 1
 
 /-
 More generally, any countable collection of posterior maximizers is null.
@@ -51,7 +52,7 @@ A countable set of posterior-score maximizers is null under an atomless posterio
 theorem maximizerSet_measure_zero (μ : Measure α) [NoAtoms μ]
     (score : α → ℝ) (hcountable : (maximizerSet score).Countable) :
     μ (maximizerSet score) = 0 := by
-  convert countable_map_set_measure_zero μ ( maximizerSet score ) hcountable
+  convert countable_map_set_measure_zero μ (maximizerSet score) hcountable
 
 /-
 A posterior sample almost surely avoids every point in a countable MAP set.

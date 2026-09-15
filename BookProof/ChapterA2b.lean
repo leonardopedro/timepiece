@@ -69,7 +69,7 @@ backward direction holds for any system: scalars are central.)
 theorem commutant_eq_complex_scalars (M : System ℂ V) (hSchur : IsSchurFull M)
     (S : V →L[ℂ] V) :
     M.Commutes S ↔ ∃ c : ℂ, S = c • (1 : V →L[ℂ] V) := by
-  exact ⟨ fun h => hSchur S h, fun ⟨ c, hc ⟩ => by rw [ hc ] ; exact fun m hm => by simp +decide [ mul_smul_comm, smul_mul_assoc ] ⟩
+  exact ⟨ fun h => hSchur S h, fun ⟨ c, hc ⟩ => by rw [ hc ] ; exact fun m hm => by simp +decide  ⟩
 
 /-! ## Prop 17 — the R-real commutant is `ℝ` -/
 
@@ -87,7 +87,7 @@ conjugate-linear, `θ ((r : ℂ) • x) = conj (r : ℂ) • θ x = (r : ℂ) �
 theorem real_scalar_commutesConj (θ : AntiUnitary V) (r : ℝ) :
     CommutesConj θ (((r : ℂ)) • (1 : V →L[ℂ] V)) := by
   intros x; exact (by
-  have := θ.map_smulₛₗ ( r : ℂ ) x; simp_all +decide [ Complex.ext_iff, mul_comm ] ;)
+  have := θ.map_smulₛₗ ( r : ℂ ) x; simp_all +decide  ;)
 
 /-
 **Prop 17 (R-real commutant `≅ ℝ`).**  For a complex Schur system `(M, V)`

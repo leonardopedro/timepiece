@@ -55,7 +55,7 @@ noncomputable def runTest {M : ℕ} (tc : TestCase M) : (EsaReport × Option (�
 /-- Verify that test results match expectations.
     Returns a list of verification errors (empty if all pass). -/
 noncomputable def expectedOutcomes {M : ℕ} (tc : TestCase M) : List String :=
-  let (report, singularity) := runTest tc
+  let (report, _) := runTest tc
   let errors := []
   -- Compare ESA status
   if report.isComplete ≠ tc.expectedESA then
@@ -79,7 +79,6 @@ noncomputable def test_x2_scalar : TestCase 1 :=
 noncomputable def test_coupled_xy : TestCase 2 :=
   { name := "coupled_xy"
     ode :=
-      let f : Polynomial ℝ := Polynomial.X ^ 2
       { vars := fun _ => "x"
         rhs := fun i =>
           if i = 0 then Polynomial.X  -- dx/dt = y (represented as x for simplicity)

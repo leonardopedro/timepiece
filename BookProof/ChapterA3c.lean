@@ -60,7 +60,7 @@ theorem mgammaR_clifford : IsCliffordR mgammaR := by
   · ext i j ; simp +decide [ Matrix.mul_apply, Matrix.add_apply ] ; ring;
     rfl;
   · ext i j ; by_cases hij : i = j <;> simp +decide [ hij, minkowskiR, minkowskiZ ];
-    · fin_cases μ <;> fin_cases ν <;> simp +decide [ hij ]; all_goals fin_cases j <;> norm_cast;
+    · fin_cases μ <;> fin_cases ν <;> simp +decide ; all_goals fin_cases j <;> norm_cast;
     · fin_cases i <;> fin_cases j <;> simp +decide at hij ⊢;
       all_goals split_ifs <;> norm_num;
       all_goals norm_cast;
@@ -73,7 +73,7 @@ action is unique.
 theorem mgammaR_indep (c : Fin 4 → ℝ) (h : ∑ ν, c ν • mgammaR ν = 0) :
     ∀ ν, c ν = 0 := by
   unfold mgammaR at h;
-  simp_all +decide [ Fin.sum_univ_four, funext_iff, Fin.forall_fin_succ ];
+  simp_all +decide [ Fin.sum_univ_four, Fin.forall_fin_succ ];
   unfold mgammaZ at h; simp_all +decide [ ← Matrix.ext_iff, Fin.forall_fin_succ ] ;
   constructor <;> linarith
 
@@ -127,11 +127,11 @@ theorem lorentz_of_conjR (S : Matrix (Fin 4) (Fin 4) ℝ) (hS : IsUnit S.det)
   convert lorentz_of_conj ( toC S ) _ Λ _ using 1;
   · rw [ toC_det ];
     exact IsUnit.map ( algebraMap ℝ ℂ ) hS;
-  · intro μ; specialize hΛ μ; simp_all +decide [ ← toC_mul, ← toC_inv ] ;
+  · intro μ; specialize hΛ μ; simp_all +decide [ ← toC_inv ] ;
     convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℝ => toC x ) hΛ using 1;
     · simp +decide [ toC_mul, toC_inv, toC_mgammaR ];
     · ext i j; simp +decide [ toC, mgammaR ] ;
-      simp +decide [ Finset.sum_apply, Matrix.sum_apply, mgamma ]
+      simp +decide [ Matrix.sum_apply, mgamma ]
 
 /-- `Λ(S) ∈ O(1,3)` for every `S ∈ Pin(3,1)`. -/
 theorem lambda_mem_lorentz (S : Matrix (Fin 4) (Fin 4) ℝ) (hS : IsPin S) :
@@ -150,11 +150,11 @@ theorem hasLambda_mul {S₁ S₂ Λ₁ Λ₂ : Matrix (Fin 4) (Fin 4) ℝ}
     HasLambda (S₁ * S₂) (Λ₁ * Λ₂) := by
   intro μ;
   simp_all +decide [ mul_assoc, Matrix.mul_inv_rev ];
-  convert congr_arg ( fun x => S₂⁻¹ * x * S₂ ) ( hL1 μ ) using 1 <;> simp +decide [ ← mul_assoc, ← Finset.mul_sum _ _ _, ← Finset.sum_mul, Matrix.mul_sum, Matrix.sum_mul ];
-  simp +decide [ Matrix.mul_apply, Finset.mul_sum _ _ _, Finset.sum_mul, hL2 ];
-  simp +decide [ hL2, Finset.sum_smul, smul_smul ];
+  convert congr_arg ( fun x => S₂⁻¹ * x * S₂ ) ( hL1 μ ) using 1 <;> simp +decide [ ← mul_assoc, Matrix.mul_sum, Matrix.sum_mul ];
+  simp +decide [ Matrix.mul_apply ];
+  simp +decide [ Finset.sum_smul ];
   rw [ Finset.sum_comm ];
-  exact Finset.sum_congr rfl fun _ _ => by rw [ hL2 ] ;    simp +decide [ Finset.smul_sum, smul_smul, mul_assoc ] ;
+  exact Finset.sum_congr rfl fun _ _ => by rw [ hL2 ] ;    simp +decide [ Finset.smul_sum, smul_smul ] ;
 
 /-
 `Pin(3,1)` is closed under multiplication.
@@ -198,8 +198,8 @@ theorem cliffordR_lorentz_comb (Λ : Matrix (Fin 4) (Fin 4) ℝ) (hΛ : Λ ∈ L
   have h_final : ∑ α, ∑ β, (Λ μ α * Λ ν β) • (-2 * minkowskiR α β) • (1 : Matrix (Fin 4) (Fin 4) ℝ) =
       (-2 * (Λ * minkowskiMat * Λᵀ) μ ν) • (1 : Matrix (Fin 4) (Fin 4) ℝ) := by
         simp +decide [ Matrix.mul_apply, Finset.mul_sum _ _ _, mul_assoc, mul_left_comm, Finset.sum_mul ];
-        simp +decide [ Finset.sum_smul, mul_assoc, mul_comm, mul_left_comm, minkowskiMat ];
-        exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by simp +decide [ mul_assoc, mul_comm, mul_left_comm, smul_smul ] );
+        simp +decide [ Finset.sum_smul, mul_comm, mul_left_comm, minkowskiMat ];
+        exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by simp +decide [ mul_assoc, smul_smul ] );
   exact h_expand.trans <| h_simplify.trans <| h_final.trans <| by rw [ hΛ ] ; rfl;
 
 /-
@@ -208,7 +208,7 @@ theorem cliffordR_lorentz_comb (Λ : Matrix (Fin 4) (Fin 4) ℝ) (hΛ : Λ ∈ L
 theorem hasLambda_neg {S Λ : Matrix (Fin 4) (Fin 4) ℝ} (h : HasLambda S Λ) :
     HasLambda (-S) Λ := by
   intro μ; specialize h μ; simp_all +decide [ Matrix.inv_def ] ;
-  simp_all +decide [ Matrix.det_neg, Matrix.adjugate_smul ];
+  simp_all +decide [ Matrix.det_neg ];
   convert h using 1;
   rw [ show ( -S ).adjugate = ( -1 ) ^ 3 • S.adjugate from ?_ ] ; norm_num [ pow_succ ];
   convert Matrix.adjugate_smul ( -1 : ℝ ) S using 1 ; norm_num;

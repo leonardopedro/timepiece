@@ -140,20 +140,20 @@ def brstIm : Submodule A (Fin 2 → A) :=
 /-- `Ω² = 0` gives `range Ω ⊆ ker Ω`. -/
 theorem brstIm_le_brstKer : brstIm Q ≤ brstKer Q := by
   intro v hv; simp_all +decide [ brstIm, brstKer,BRST ] ;
-  rcases hv with ⟨ y, rfl ⟩ ; simp +decide [ Matrix.vecHead, Matrix.vecTail ]
+  rcases hv with ⟨ y, rfl ⟩ ; simp +decide [ Matrix.vecHead ]
 
 /-- Membership in the BRST kernel: `Ω v = 0 ↔ Q · v₀ = 0`. -/
 theorem mem_brstKer_iff (v : Fin 2 → A) :
     v ∈ brstKer Q ↔ Q * v 0 = 0 := by
   unfold brstKer;
-  simp +decide [ BRST, Matrix.mulVec, funext_iff, Fin.forall_fin_two ];
+  simp +decide [ BRST, funext_iff, Fin.forall_fin_two ];
   rfl
 
 /-- Membership in the BRST image: `v` is exact iff `v₀ = 0` and `v₁ ∈ (Q)`. -/
 theorem mem_brstIm_iff (v : Fin 2 → A) :
     v ∈ brstIm Q ↔ v 0 = 0 ∧ ∃ a, v 1 = Q * a := by
   constructor;
-  · rintro ⟨ w, rfl ⟩ ; simp +decide [ brstIm, BRST ] ;
+  · rintro ⟨ w, rfl ⟩ ; simp +decide [ BRST ] ;
   · rintro ⟨ hv₀, a, hv₁ ⟩;
     use ![a, 0];
     ext i; fin_cases i <;> simp +decide [ *, BRST ] ;
@@ -235,11 +235,11 @@ theorem brstCohomology_equiv_right :
     (Submodule.liftQ _ (brstFwd Q) (brstFwd_ker Q)) ∘ₗ (brstGinv Q) = LinearMap.id := by
   ext ⟨a, y⟩; simp [brstGinv, brstG1, brstG2];
   · rfl;
-  · unfold brstGinv brstG1 brstFwd;    simp +decide [ Submodule.Quotient.mk_eq_zero, Submodule.mem_comap ] ;
+  · unfold brstGinv brstG1 brstFwd;    simp +decide  ;
   · simp +decide [ brstFwd, brstGinv, brstG1, brstG2 ];
-    erw [ Submodule.liftQ_apply ] ; simp +decide [ brstG2base ];
+    erw [ Submodule.liftQ_apply ] ; simp +decide ;
   · simp +decide [ brstGinv, brstG1, brstG2, brstFwd ];
-    erw [ Submodule.liftQ_apply ] ; simp +decide [ brstG2base ] ;
+    erw [ Submodule.liftQ_apply ] ; simp +decide  ;
 
 theorem brstCohomology_equiv_left :
     (brstGinv Q) ∘ₗ (Submodule.liftQ _ (brstFwd Q) (brstFwd_ker Q)) = LinearMap.id := by

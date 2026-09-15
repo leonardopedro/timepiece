@@ -108,7 +108,7 @@ theorem mem_fiber_iff {p : ↥(stdSimplex ℝ (Fin n))}
       exact bornMap_bornSection p.2;
   · obtain ⟨ b, hb ⟩ := h;
     convert bornMap_bornFiberPoint p.property b using 1;
-    simp +decide [ Subtype.ext_iff, hb ];
+    simp +decide [ Subtype.ext_iff ];
     convert Iff.rfl;
     exact hb ▸ rfl
 

@@ -35,7 +35,7 @@ theorem orientationCharacter_eq_false_iff_even {n : ℕ} (b : Fin n → Bool) :
     orientationCharacter n b = false ↔ Even (flipCount b) := by
   induction n <;> simp_all +decide [ Fin.sum_univ_succ, orientationCharacter, flipCount ];
   rename_i n ih;
-  by_cases h : b 0 <;> simp_all +decide [ Finset.filter_insert, parity_simps ];
+  by_cases h : b 0 <;> simp_all +decide [ parity_simps ];
   · rw [ show ( Finset.univ.filter fun k => b k = true ) = Finset.image ( fun k => Fin.succ k ) ( Finset.univ.filter fun k => b ( Fin.succ k ) = true ) ∪ { 0 } from ?_, Finset.card_union ] <;> norm_num [ Finset.card_image_of_injective, Function.Injective, h ];
     · cases Nat.mod_two_eq_zero_or_one ( Finset.card ( Finset.filter ( fun k => b ( Fin.succ k ) = true ) Finset.univ ) ) <;> simp_all +decide [ Nat.even_iff, Nat.add_mod ];
       · convert ih _ |>.2 ‹_› using 1;

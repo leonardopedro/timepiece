@@ -66,8 +66,8 @@ lemma structureConstant_formula
     (a b d : Fin d) :
     (f a b d : ℂ) = -2 * Complex.I * ((T a * T b - T b * T a) * T d).trace := by
   rw [ hf ];
-  simp_all +decide [ mul_assoc, Finset.mul_sum _ _ _, Finset.sum_mul, Matrix.mul_sum, Matrix.sum_mul ];
-  simp_all +decide [ ← mul_assoc, ← Finset.mul_sum _ _ _, ← Finset.sum_mul, TraceOrthonormal ];
+  simp_all +decide [ mul_assoc, Finset.mul_sum _ _ _, Finset.sum_mul ];
+  simp_all +decide [ ← mul_assoc, TraceOrthonormal ];
   ring
 
 /-
@@ -119,15 +119,15 @@ lemma structureConstant_jacobi
       have h_comm : ∀ a b c,        (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = - ∑ e,        ∑ g, (f a b e * f e c g : ℂ) • T g := by
         intros a b c
         have h_comm : (T a * T b - T b * T a) * T c - T c * (T a * T b - T b * T a) = Complex.I • (∑ e, (f a b e : ℂ) • (T e * T c - T c * T e)) := by
-          simp +decide [ hf a b, mul_sub, sub_mul, Finset.mul_sum _ _ _, Finset.sum_mul, mul_assoc,
+          simp +decide [ hf a b, Finset.mul_sum _ _ _, Finset.sum_mul, 
             smul_smul ];
           simp +decide only [smul_sub, Finset.sum_sub_distrib];
         convert h_comm using 1;
-        simp +decide [ Finset.smul_sum, smul_smul, hf ];
+        simp +decide [ Finset.smul_sum ];
         rw [ ← Finset.sum_neg_distrib ] ; congr ; ext e ; rw [ hf e c ] ;
-        simp +decide [ Finset.smul_sum, smul_smul, mul_assoc, mul_left_comm,
+        simp +decide [ Finset.smul_sum, 
           Finset.mul_sum _ _ _ ] ;
-        simp +decide [ Complex.ext_iff, Finset.sum_apply, Matrix.sum_apply ];
+        simp +decide [ Complex.ext_iff, Matrix.sum_apply ];
         exact ⟨ Finset.sum_congr rfl fun _ _ => by ring, Finset.sum_congr rfl fun _ _ => by ring ⟩;
       -- Applying the hypothesis `h_comm` to each term in the sum, we get:
       have h_sum_comm :
@@ -142,7 +142,7 @@ lemma structureConstant_jacobi
     convert congr_arg ( fun m => Matrix.trace ( m * T h ) ) h_sum_zero using 1;
     · simp +decide [ Matrix.sum_mul, Matrix.trace_sum ];
     · norm_num;
-  simp_all +decide [ mul_comm, mul_assoc, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul,
+  simp_all +decide [ 
     TraceOrthonormal ];
   rw [ ← @Complex.ofReal_inj ] ; simp_all +decide [ ← Finset.sum_mul _ _ _ ]
 

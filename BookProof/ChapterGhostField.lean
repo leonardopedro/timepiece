@@ -75,7 +75,7 @@ theorem psiDag_sq : psiDag * psiDag = 0 := by
 /-- The **canonical anticommutation relation** `{ψ, ψ†} = ψ ψ† + ψ† ψ = 1`. -/
 theorem car : psi * psiDag + psiDag * psi = 1 := by
   ext i j; fin_cases i <;> fin_cases j <;>
-    simp [psi, psiDag, Matrix.mul_apply, Fin.sum_univ_two, Matrix.one_apply]
+    simp [psi, psiDag]
 
 /-! ### The ghost number operator -/
 
@@ -106,7 +106,7 @@ theorem numberOp_selfAdjoint : numberOp = numberOpᴴ := by
 (occupied plus empty exhaust the ghost factor). -/
 theorem numberOp_add_hole : numberOp + psi * psiDag = 1 := by
   ext i j; fin_cases i <;> fin_cases j <;>
-    simp [numberOp, psi, psiDag, Matrix.mul_apply, Fin.sum_univ_two, Matrix.one_apply]
+    simp [numberOp, psi, psiDag]
 
 /-! ### Nilpotency of the BRST charge
 

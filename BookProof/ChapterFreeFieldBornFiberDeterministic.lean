@@ -73,7 +73,7 @@ theorem posSupport_card_one_iff_deterministic {p : Fin n → ℝ}
     · have h_sum : ∑ k ∈ Finset.univ.erase i, p k = 0 := by
         exact Finset.sum_eq_zero fun x hx =>
           le_antisymm ( le_of_not_gt fun hx' => by have := hi x; aesop ) ( hp.1 x );
-      simp_all +decide [ Finset.sum_erase ];
+      simp_all +decide ;
       linarith [ hp.2 ];
     · exact le_antisymm ( le_of_not_gt fun h => hk <| hi k |>.1 h ) ( hp.1 k );
   · obtain ⟨ i, rfl ⟩ := h_card; simp +decide [ posSupport ] ;

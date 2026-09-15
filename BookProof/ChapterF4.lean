@@ -82,7 +82,7 @@ def csketch (h : Fin d → Fin k) (ω : Fin d → Bool) (x : Fin d → ℝ) (j :
 theorem csketch_add (h : Fin d → Fin k) (ω : Fin d → Bool) (x y : Fin d → ℝ) :
     csketch h ω (x + y) = csketch h ω x + csketch h ω y := by
   ext j; exact (by
-  unfold csketch; simp +decide [ Finset.sum_add_distrib, mul_add ] ;
+  unfold csketch; simp +decide [ mul_add ] ;
   simpa only [ ← Finset.sum_add_distrib ] using Finset.sum_congr rfl fun _ _ => by split_ifs <;> ring;);
 
 /-
@@ -91,7 +91,7 @@ theorem csketch_add (h : Fin d → Fin k) (ω : Fin d → Bool) (x y : Fin d →
 theorem csketch_smul (h : Fin d → Fin k) (ω : Fin d → Bool) (a : ℝ) (x : Fin d → ℝ) :
     csketch h ω (a • x) = a • csketch h ω x := by
   unfold csketch;
-  ext j; simp +decide [ mul_assoc, mul_left_comm, Finset.mul_sum _ _ _ ] ;
+  ext j; simp +decide [ mul_left_comm, Finset.mul_sum _ _ _ ] ;
 
 /-- The uniform expectation over the `2^d` sign patterns `ω : Fin d → Bool`. -/
 def expectation (f : (Fin d → Bool) → ℝ) : ℝ := (∑ ω, f ω) / (2 ^ d)
@@ -111,7 +111,7 @@ theorem sign_pair_expectation (c c' : Fin d) :
       · simp;
       · intro a₁ _ a₂ _ h; ext i; by_cases hi : i = c <;> replace h := congr_fun h i <;> aesop;
       · exact fun b _ => ⟨ Function.update b c ( ¬b c ), Finset.mem_univ _, by aesop ⟩;
-      · simp +decide [ sgn, h ];
+      · simp +decide [ sgn ];
         grind;
     norm_num [ Finset.sum_neg_distrib, neg_mul ] at * ; split_ifs ; linarith
 
@@ -133,7 +133,7 @@ theorem countsketch_unbiased (h : Fin d → Fin k) (x y : Fin d → ℝ) :
     rw [ Finset.sum_comm ];
     exact Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => by split_ifs <;> simp +decide [ * ] );
   convert congr_arg ( fun x : ℝ => x / 2 ^ d ) h_exp using 1;
-  rw [ Finset.sum_div _ _ _ ] ;    congr ;    ext c ;    rw [ Finset.sum_eq_single c ] <;> simp +contextual [ Finset.sum_ite, sign_pair_expectation ] ; ring;  grind
+  rw [ Finset.sum_div _ _ _ ] ;    congr ;    ext c ;    rw [ Finset.sum_eq_single c ] <;> simp +contextual [ sign_pair_expectation ] ; ring;  grind
 
 /-! ## F3.2 — the observable-matrix identity (`qfm/src/observables.rs`) -/
 
@@ -149,7 +149,7 @@ theorem observable_matrix_identity {dd kk : ℕ} (W : Matrix (Fin dd) (Fin kk) �
         * (Matrix.single a a (1 : ℂ) : Matrix (Fin dd) (Fin dd) ℂ) * W)
       = (starRingEnd ℂ) (W a r) * W a s := by
   simp +decide [ Matrix.trace, Matrix.mul_apply ];
-  rw [ Finset.sum_eq_single s ] <;> simp_all +decide [ Finset.sum_eq_single, Matrix.single, mul_comm ];
+  rw [ Finset.sum_eq_single s ] <;> simp_all +decide [ Matrix.single, mul_comm ];
   exact fun b hb => Finset.sum_eq_zero fun x hx => if_neg <| by tauto;
 
 /-! ## F3.3 — the unitary reduced flow (`qfm/src/potential.rs`) -/
@@ -165,11 +165,11 @@ theorem unitary_preserves_dotProduct {n : ℕ} (U : Matrix (Fin n) (Fin n) ℂ)
   -- By the properties of the Hermitian transpose, we have:
   have h_star_mul : star (U *ᵥ x) = (star x) ᵥ* Uᴴ := by
     have h_conj : ∀ (v : Fin n → ℂ), star (U *ᵥ v) = (star v) ᵥ* Uᴴ := by
-      intro v; ext i; simp +decide [ Matrix.mulVec, dotProduct, mul_comm ] ;
+      intro v; ext i; simp +decide [ Matrix.mulVec, dotProduct ] ;
       simp +decide [ Matrix.vecMul, dotProduct, mul_comm ]
     exact h_conj x;
-  simp_all +decide [ Matrix.vecMul_mulVec, Matrix.vecMul_vecMul ];
-  simp +decide [ Matrix.vecMul_mulVec, Matrix.dotProduct_mulVec, hU ]
+  simp_all +decide ;
+  simp +decide [ Matrix.dotProduct_mulVec, hU ]
 
 variable {A : Type*} [NormedRing A] [NormedAlgebra ℂ A] [StarRing A] [ContinuousStar A]
   [CompleteSpace A] [StarModule ℂ A]
@@ -192,7 +192,7 @@ inverse, `Φ⁺ Φ = I` — the subspace-recovery guarantee.
 theorem pseudoinverse_left_inverse {m n : ℕ} (Φ : Matrix (Fin m) (Fin n) ℂ)
     (h : IsUnit (Φᴴ * Φ).det) :
     ((Φᴴ * Φ)⁻¹ * Φᴴ) * Φ = 1 := by
-  simp_all +decide [ Matrix.mul_assoc, Matrix.nonsing_inv_apply_not_isUnit ]
+  simp_all +decide [ Matrix.mul_assoc ]
 
 
 end
@@ -260,7 +260,7 @@ theorem observable_matrix_entry {d n : ℕ} (W : Matrix (Fin d) (Fin n) ℂ)
       = (starRingEnd ℂ) (W a r) * W a s := by
   simp +decide [ Matrix.trace, Matrix.mul_apply, Matrix.single ];
   simp +contextual [ Finset.sum_ite, Finset.filter_eq, Finset.filter_and, mul_comm ];
-  rw [ Finset.sum_eq_single s ] <;> simp +contextual [ Finset.sum_ite ];
+  rw [ Finset.sum_eq_single s ] <;> simp +contextual ;
   · rw [ Finset.sum_eq_single a ] <;> aesop;
   · aesop
 
@@ -276,7 +276,7 @@ theorem hermitian_flow_unitary {n : ℕ} (H : Matrix (Fin n) (Fin n) ℂ)
         * NormedSpace.exp ((-Complex.I * (t : ℂ)) • H) = 1 := by
   -- By definition of exponentiation, we know that $(e^{i t H})^* = e^{-i t H}$.
   have h_exp_conj : (NormedSpace.exp (-(Complex.I * t) • H))ᴴ = NormedSpace.exp ((Complex.I * t) • H) := by
-    simp_all +decide [ Matrix.IsHermitian, Matrix.conjTranspose_smul ];
+    simp_all +decide [ Matrix.IsHermitian ];
     rw [ ← Matrix.exp_conjTranspose ];
     simp +decide [ Matrix.conjTranspose_smul, hH ];
   convert congr_arg₂ ( fun x y => x * y ) h_exp_conj rfl using 1 ; ring;
@@ -300,7 +300,7 @@ theorem hermitian_flow_preserves_normSq {n : ℕ} (H : Matrix (Fin n) (Fin n) �
   have hstar : star (NormedSpace.exp ((-Complex.I * (t : ℂ)) • H) *ᵥ c) = star c ᵥ* (NormedSpace.exp ((-Complex.I * (t : ℂ)) • H))ᴴ := by
     ext i; simp +decide [ Matrix.mulVec, dotProduct ] ;
     simp +decide [ Matrix.vecMul, dotProduct, mul_comm ];
-  simp_all +decide [ Matrix.vecMul_mulVec, Matrix.dotProduct_mulVec ]
+  simp_all +decide [ Matrix.dotProduct_mulVec ]
 
 /-! ## F3.4 — the pseudo-inverse left-inverse -/
 
@@ -421,11 +421,11 @@ theorem mgRun_error_le (k : ℕ) (xs : List ι) (x : ι) :
     xs.count x ≤ (mgRun k xs).1 x + (mgRun k xs).2 := by
       induction' xs with a xs ih generalizing x <;> simp_all +decide [ mgRun ];
       by_cases hx : x = a <;> simp_all +decide [ List.count_cons ];
-      · unfold mgStep; split_ifs <;> simp_all +decide [ mgRun ] ;
+      · unfold mgStep; split_ifs <;> simp_all +decide  ;
         · linarith [ ih a ];
         · grind;
         · grind;
-      · unfold mgStep; split_ifs <;> simp_all +decide [ Function.update_apply ] ;
+      · unfold mgStep; split_ifs <;> simp_all +decide  ;
         grind
 
 /-

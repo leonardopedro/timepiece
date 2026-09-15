@@ -89,7 +89,7 @@ theorem trace_gram_eq_one (B : Matrix Y X 𝕜)
     (hB : ∑ x, ∑ y, ‖B y x‖ ^ 2 = 1) :
     (Bᴴ * B).trace = ((1 : ℝ) : 𝕜) := by
   rw [ ← hB ] ; simp +decide [ Matrix.trace, Matrix.mul_apply ] ; ring;
-  simp +decide [ mul_comm, ← sq, RCLike.mul_conj, RCLike.ofReal_pow ]
+  simp +decide [ mul_comm, RCLike.mul_conj ]
 
 /-
 The joint distribution sums to `1`: it is a probability distribution on

@@ -110,7 +110,7 @@ theorem prop61_star_mul_self :
       grind
     simp_all +decide [ mul_add, add_mul ]
   convert congr_arg ( fun x => Ni * Ni * x ) h_simp using 1
-  · simp +decide [ Uprime, mul_assoc, h_simp', h_simp'' ]
+  · simp +decide [ Uprime, mul_assoc, h_simp' ]
     simp +decide [ ← mul_assoc, hE_sa, h_simp'' ]
   · grind
 
@@ -121,13 +121,13 @@ theorem prop61_mul_star_self :
   -- Using the hypothesis `hNi₂ : Ni * N = 1`, we can simplify the expression.
   have h_comm : Ni * (E + Aop U H g) * (E + star (Aop U H g)) * Ni = Ni * N * N * Ni := by
     have h_comm : (E + Aop U H g) * (E + star (Aop U H g)) = 2 • (E * E) + (2 * m) • E := by
-      simp +decide [ two_smul, add_mul, mul_add, hEA, hE2 ]
+      simp +decide [ two_smul, add_mul, mul_add, hE2 ]
       simp_all +decide [ ← mul_assoc, Aop ]
       simp_all +decide [ mul_assoc, ← eq_sub_iff_add_eq' ]
-      simp_all +decide [ mul_sub, sub_mul, mul_assoc, smul_sub, sub_smul ]
+      simp_all +decide [ mul_sub, sub_mul, mul_assoc ]
       abel1
     simp +decide only [mul_assoc, h_comm]
-    simp +decide [ ← mul_assoc, ← hN2 ]
+    simp +decide [ ← mul_assoc ]
     simp +decide [ mul_add, add_mul, mul_assoc, two_mul, hN2 ]
     rw [ two_smul ]
   unfold Uprime; simp_all +decide [ mul_assoc ]

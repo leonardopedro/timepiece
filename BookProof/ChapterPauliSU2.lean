@@ -93,7 +93,7 @@ theorem su2_preserves_time {T : Matrix (Fin 2) (Fin 2) ℂ} (hT : Tᴴ * T = 1)
     (x : Fin 4 → ℝ) :
     (vecOfMat (spinorAction T (hermMat x))) 0 = x 0 := by
   unfold vecOfMat spinorAction hermMat;
-  simp_all +decide [ ← Matrix.ext_iff, Fin.forall_fin_two, Matrix.mul_apply, Matrix.adjugate_fin_two ];
+  simp_all +decide [ ← Matrix.ext_iff, Fin.forall_fin_two, Matrix.mul_apply ];
   norm_num [ Complex.ext_iff ] at *;
   grind
 

@@ -103,7 +103,7 @@ other counter by more than the indicator of `x`.
 theorem mgStep_apply_le (k : ℕ) (T : α →₀ ℕ) (x y : α) :
     (mgStep k T x) y ≤ T y + (if y = x then 1 else 0) := by
   unfold mgStep;
-  split_ifs <;> simp_all +decide [ Finsupp.single_apply, Finsupp.mapRange_apply ]
+  split_ifs <;> simp_all +decide [ Finsupp.mapRange_apply ]
 
 /-
 Per-step lower bound: the counter of `y` plus the occurrence indicator is at
@@ -112,7 +112,7 @@ most the new counter plus the decrement indicator.
 theorem mgStep_le_apply_add (k : ℕ) (T : α →₀ ℕ) (x y : α) :
     T y + (if y = x then 1 else 0)
       ≤ (mgStep k T x) y + (if 0 < T x ∨ T.support.card < k then 0 else 1) := by
-  unfold mgStep; split_ifs <;> simp_all +decide [ Finsupp.single_apply, Finsupp.mapRange_apply ] ;
+  unfold mgStep; split_ifs <;> simp_all +decide [ Finsupp.mapRange_apply ] ;
   omega
 
 /-! ### The capacity invariant -/
@@ -196,8 +196,8 @@ theorem mgSum_mapRange_pred (T : α →₀ ℕ) :
   refine' eq_tsub_of_add_eq _;
   unfold mgSum; simp +decide [ Finsupp.sum_mapRange_index ] ;
   zify [ Finset.sum_add_distrib ];
-  rw [ Finset.card_eq_sum_ones ] ;    rw [ Finsupp.sum, Finsupp.sum ] ; simp +decide [ Finset.sum_add_distrib ] ; ring;
-  rw [ Finset.sum_congr rfl fun x hx => Nat.cast_sub <| Nat.one_le_iff_ne_zero.mpr <| Finsupp.mem_support_iff.mp hx ] ; simp +decide [ Finset.sum_add_distrib ]
+  rw [ Finset.card_eq_sum_ones ] ;    rw [ Finsupp.sum, Finsupp.sum ] ; simp +decide  ; ring;
+  rw [ Finset.sum_congr rfl fun x hx => Nat.cast_sub <| Nat.one_le_iff_ne_zero.mpr <| Finsupp.mem_support_iff.mp hx ] ; simp +decide 
 
 /-
 The core mass-conservation invariant: each decrement round removes exactly

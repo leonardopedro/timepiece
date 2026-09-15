@@ -13,14 +13,14 @@ tag := "conditional-unitary"
 :::paragraph
 The Born rule ({ref "born-reproduces"}[the Born rule reproduces every
 distribution]) parametrizes a single probability distribution by a wave-function:
-$`p(x) = |\Psi(x)|^2`. The manuscript goes further. **Any joint probability density**
+$`p(x) = |\Psi(x)|^2`. The manuscript goes further. *Any joint probability density*
 $`p(x,y)` between two standard measure spaces $`X, Y` can be written as
 :::
 
 $$`p(x,y) = |\mathcal{U}(y,x,0)|^2,`
 
 :::paragraph
-where $`\mathcal{U} : L^2(\mathbb{Z}) \to L^2(X \times Y)` is a **unitary** operator.
+where $`\mathcal{U} : L^2(\mathbb{Z}) \to L^2(X \times Y)` is a *unitary* operator.
 The book calls this "a commutative version of Wigner's theorem." Its consequence is
 that any conditional probability measure in a standard measure space is parametrized
 by a unitary operator — and therefore quantum processes are not exotic, they are
@@ -56,7 +56,7 @@ squared modulus of a column of a unitary matrix:
 ```
 
 :::paragraph
-And in the book's exact two-space form: **every joint probability distribution**
+And in the book's exact two-space form: *every joint probability distribution*
 $`p(x,y)` on a finite $`X \times Y` is $`|U|^2` on a column of a unitary matrix
 indexed by $`X \times Y`:
 :::
@@ -87,7 +87,7 @@ the same object. This is the algebraic backbone of the wave-function parametriza
 # The Kernel Operator Is Bounded
 
 :::paragraph
-The book now views $`\Psi` as an **integral operator**
+The book now views $`\Psi` as an *integral operator*
 $`\Psi : L^2(X) \to L^2(Y)`, acting by
 $`\Psi\{\Phi\}(y) = \int dx\, \Psi(x,y)\,\Phi(x)`. By Cauchy–Schwarz, this operator
 is bounded, with operator norm at most the Hilbert–Schmidt norm of the kernel. In the
@@ -102,7 +102,7 @@ finite (discretized) model the kernel operator and its bound are explicit:
 
 :::paragraph
 In particular, when the kernel has $`L^2` norm at most $`1` — which holds for a
-normalized wave-function — the operator is a **contraction**:
+normalized wave-function — the operator is a *contraction*:
 :::
 
 ```
@@ -132,7 +132,7 @@ square roots of its eigenvalues:
 
 :::paragraph
 The factor $`V` that appears before completion to the unitary $`W` is a
-**partial isometry**: $`V^\dagger V` and $`V V^\dagger` are orthogonal projections,
+*partial isometry*: $`V^\dagger V` and $`V V^\dagger` are orthogonal projections,
 and $`V V^\dagger V = V`:
 :::
 
@@ -154,7 +154,7 @@ change-of-marginal identity is verified at the operator level:
 
 :::paragraph
 Finally the book reads the probabilities back off the operator. For a bounded
-operator $`B`, the joint distribution is $`p(x,y) = |B(y,x)|^2`, the **marginal** is
+operator $`B`, the joint distribution is $`p(x,y) = |B(y,x)|^2`, the *marginal* is
 the diagonal of the Gram matrix $`B^\dagger B`, and the normalization is the trace:
 :::
 
@@ -167,7 +167,7 @@ the diagonal of the Gram matrix $`B^\dagger B`, and the normalization is the tra
 
 :::paragraph
 When the marginal is positive, $`p(x) = \{B^\dagger B\}(x,x) > 0`, the
-**regular conditional probability** $`p(y|x) = p(x,y)/p(x)` is defined, is
+*regular conditional probability* $`p(y|x) = p(x,y)/p(x)` is defined, is
 non-negative, and sums to one over $`y`:
 :::
 
@@ -188,10 +188,10 @@ parametrizes it, $`p(x,y) = p(y|x)\,p(x)`:
 # What Is Verified and What Is Infinite-Dimensional
 
 :::paragraph
-Everything cited above is verified `sorry`-free, over **finite** index sets (the
+Everything cited above is verified `sorry`-free, over *finite* index sets (the
 discretized models used throughout `BookProof`). This is the concrete content of the
 book's Gram–Schmidt, Cauchy–Schwarz, and singular-value arguments. The
-manuscript states the result for arbitrary **standard** measure spaces, possibly with
+manuscript states the result for arbitrary *standard* measure spaces, possibly with
 continuous parts; the abstract measure-theoretic layer — the classification of
 standard measure spaces, the identification of commutative von Neumann algebras with
 $`L^\infty(X,\mu)`, and regular conditional probabilities via disintegration on a
@@ -200,6 +200,31 @@ recorded as proof plans in {ref "proof-plans"}[the appendix] (and as placeholder
 `ChapterSelectingEvents`); the finite-dimensional algebraic core proved here is what
 makes the parametrization work, and it is the part the book actually computes.
 :::
+
+# A Concrete Parametrization: the Pauli–Grover Rotation
+
+:::paragraph
+The abstract theorem of this chapter — every conditional probability measure is
+parametrized by a unitary operator — has a concrete finite-dimensional instance:
+the Pauli–Grover rotation. The Pauli–Grover Hamiltonian acts as a Pauli-X swap in the
+two-dimensional subspace `{ |i,0⟩, |i,f_i⟩ }`; at the ideal coupling `a = 1` it is the
+exact swap, so evolving `|0⟩` for time `τ = π/2` yields `|f⟩` up to an unobservable global
+phase. The readout probability `p(f|i) = |⟨i,f| e^{-iH_PG π/2} |i,0⟩|² = 1` is a
+deterministic regular conditional probability — a perfect classifier on the training
+pair. The imperfect-rotation case `a < 1` (a tunable approximation) and the many-input
+sum / Krylov start vector are described in the book prose; the ideal `a = 1` swap
+formalized here is the case `QFM.tex` reports as achieving 100% training accuracy.
+:::
+
+```lean
+#check @BookProof.ChapterPauliGrover.pauliX_unitary
+#check @BookProof.ChapterPauliGrover.pauliX_rotates
+#check @BookProof.ChapterPauliGrover.pauliX_parametrizes_delta
+#check @BookProof.ChapterPauliGrover.pauliGrover_cond_one
+#check @BookProof.ChapterJointUnitary.exists_unitary_joint
+#check @BookProof.ChapterConditional.pCond
+#check @BookProof.ChapterConditional.pJoint_eq_cond_mul_marg
+```
 
 # Why This Matters Here
 

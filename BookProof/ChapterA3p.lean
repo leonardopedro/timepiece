@@ -88,8 +88,8 @@ theorem projSym_mul_projAnti {N : ℕ} (hN : 2 ≤ N) :
     rw [ Finset.sum_congr rfl fun σ _ => h_fubini σ, Finset.sum_comm ];
     simp +decide only [Finset.sum_smul];
   convert congr_arg ( fun x : MN N => ( N.factorial : ℂ ) ⁻¹ ^ 2 • x ) h_fubini using 1;
-  · simp +decide [ sq, smul_smul, Finset.smul_sum, Finset.sum_mul, BookProof.ChapterA3n.permMat_mul ];
-    simp +decide [ Finset.mul_sum _ _ _, Finset.sum_mul, mul_assoc, mul_left_comm, Finset.smul_sum, smul_smul, BookProof.ChapterA3n.permMat_mul ];
+  · simp +decide [ sq, smul_smul, Finset.smul_sum, Finset.sum_mul ];
+    simp +decide [ Finset.mul_sum _ _ _, mul_assoc, Finset.smul_sum, smul_smul, BookProof.ChapterA3n.permMat_mul ];
   · -- By definition of $signC$,    we know that $\sum_{\sigma} signC(\sigma \rho) = \sum_{\sigma} signC(\sigma)$ for any $\rho$.
     have h_signC_sum : ∀ ρ : Equiv.Perm (Fin N),      ∑ σ : Equiv.Perm (Fin N), signC (σ * ρ) = ∑ σ : Equiv.Perm (Fin N), signC σ := by
       exact fun ρ => Equiv.sum_comp ( Equiv.mulRight ρ ) fun σ => signC σ;
@@ -105,7 +105,7 @@ theorem projAnti_mul_projSym {N : ℕ} (hN : 2 ≤ N) :
   have h_sum_zero : ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N),    signC σ • permMat (σ * τ) = ∑ σ : Equiv.Perm (Fin N),    ∑ τ : Equiv.Perm (Fin N), signC σ • permMat τ := by
     exact Finset.sum_congr rfl fun σ _ => Equiv.sum_comp ( Equiv.mulLeft σ ) fun τ => signC σ • permMat τ;
   convert congr_arg ( fun x : MN N => ( N.factorial : ℂ ) ⁻¹ • ( N.factorial : ℂ ) ⁻¹ • x ) h_sum_zero using 1;
-  · simp +decide [ Finset.sum_mul _ _ _, Finset.mul_sum, smul_smul, mul_assoc, mul_left_comm, Finset.sum_add_distrib, add_mul, mul_add, Finset.sum_smul, Finset.smul_sum, BookProof.ChapterA3n.permMat_mul ];
+  · simp +decide [ Finset.sum_mul _ _ _, Finset.mul_sum, smul_smul, Finset.smul_sum, BookProof.ChapterA3n.permMat_mul ];
   · simp +decide [ ← Finset.smul_sum, ← Finset.sum_smul, sum_signC_eq_zero hN ]
 
 /-

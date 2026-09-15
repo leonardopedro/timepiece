@@ -128,6 +128,6 @@ theorem spatialMetric_posSemidef (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
         unfold metric; fin_cases i <;> fin_cases j <;> simp +decide [ mul_comm ] ;
       · intro x;
         convert spatialMetric_quadForm_nonneg v ( fun i => x i ) hv using 1;
-        simp +decide [ Finsupp.sum_fintype, dotProduct, Matrix.mulVec, Finset.mul_sum _ _ _, mul_assoc, mul_comm, mul_left_comm ]
+        simp +decide [ Finsupp.sum_fintype, dotProduct, Matrix.mulVec, Finset.mul_sum _ _ _, mul_comm, mul_left_comm ]
 
 end BookProof.ChapterGravityMetric

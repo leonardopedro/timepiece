@@ -1,8 +1,9 @@
 import Mathlib
 
 /-!
-# Chapter *"On the physical parity transformation and antiparticles"*,  §*"Majorana spinors in canonical quantization and antiparticles"*: the **bosonic** canonical commutation variant
+# Chapter *"On the physical parity transformation and antiparticles"*,
 
+# §"Majorana spinors in canonical quantization and antiparticles"*: the **bosonic** canonical commutation variant
 This file formalizes the self-contained algebraic content of the **bosonic**
 paragraph of the book section *"Majorana spinors in canonical quantization and
 antiparticles"* (`book.tex` line ~7700), the companion of the fermionic

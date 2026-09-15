@@ -121,7 +121,7 @@ theorem exp_smul_mul_central (A B : 𝔸) (hA : Commute A (A * B - B * A)) (t : 
         rw [ ← h_comm ] <;> norm_num;
       simp_all +decide [ mul_assoc, mul_sub, sub_mul ];
       convert h_deriv using 1;
-      simp_all +decide [ ← mul_assoc, ← eq_sub_iff_add_eq' ];
+      simp_all +decide [ ← mul_assoc ];
       simp_all +decide [ mul_assoc, sub_eq_iff_eq_add ];
       simp_all +decide [ mul_assoc, add_mul, sub_mul ];
     have h_integral : ∀ a b : ℝ,      ∫ x in a..b,      deriv (fun s => (NormedSpace.exp (s • A)) * B * (NormedSpace.exp (-s • A))) x = (NormedSpace.exp (b • A)) * B * (NormedSpace.exp (-b • A)) - (NormedSpace.exp (a • A)) * B * (NormedSpace.exp (-a • A)) := by

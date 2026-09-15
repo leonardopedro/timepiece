@@ -45,7 +45,7 @@ shortTitle := "Timepiece"
 
 This book is a pedagogical, machine-verified tour of the mathematical ideas behind
 the _Timepiece_ programme: the observation that an ordinary probability measure can
-be **parametrized by a wave-function**, and that this single change of variables
+be *parametrized by a wave-function*, and that this single change of variables
 naturally reproduces the structural backbone of quantum mechanics — Born's rule,
 unitary time-evolution, gauge symmetry, quantization, and the classical limit — as
 theorems of probability theory rather than as physical postulates.
@@ -65,7 +65,7 @@ The book is written to be read in two layers at once.
 : The mathematical layer
 
   Each chapter develops a self-contained mathematical idea in ordinary prose and
-  notation, with a complete **sketch proof**. These sketches are meant to be
+  notation, with a complete *sketch proof*. These sketches are meant to be
   readable: they explain _why_ a statement is true, not merely _that_ it is true.
 
 : The verified layer
@@ -76,7 +76,7 @@ The book is written to be read in two layers at once.
   library. Where a claim is not yet proved, we say so and give a proof plan in
   {ref "proof-plans"}[the appendix].
 
-**Verifying everything for yourself.** Two commands reproduce the whole
+*Verifying everything for yourself.* Two commands reproduce the whole
 verification. From the repository root:
 
 ```
@@ -99,7 +99,7 @@ rebuilds this book and renders the HTML you are reading as a single page at
 blocks; upgrading them to elaborated, hover-enabled blocks, and migrating to
 `verso-blueprint`, are planned — see {ref "proof-plans"}[the appendix].)
 
-**Scope of this edition.** This is a curated edition. It follows the structure of
+*Scope of this edition.* This is a curated edition. It follows the structure of
 the source manuscript `book.tex`, but it selects the threads whose mathematics is
 both self-contained and already formalized. Two chapters of the manuscript are
 deliberately replaced here:
@@ -114,7 +114,7 @@ deliberately replaced here:
    complete, decidable extension that does not leak undecidable arithmetic, provided
    its infinite elements are kept _internally unselectable_.
 
-**A note on what remains open.** Where a statement is mathematically relevant to the
+*A note on what remains open.* Where a statement is mathematically relevant to the
 narrative but is not yet proved in `BookProof`, we say so explicitly and give a
 detailed proof plan in {ref "proof-plans"}[Appendix: Proof Plans]. Nothing in the
 verified layer is asserted without a proof; the open items are quarantined there.

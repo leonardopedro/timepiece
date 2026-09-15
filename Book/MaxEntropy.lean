@@ -15,7 +15,7 @@ tag := "max-entropy"
 The previous chapter singled out the uniform prior as the unique
 _relabeling-invariant_ one. There is a second, independent route to the same
 destination, due to Jaynes: the uniform prior is the distribution that
-**maximizes the Shannon entropy**. Within a fixed parametrization this is the prior
+*maximizes the Shannon entropy*. Within a fixed parametrization this is the prior
 that assumes the least — but, as we stress at the end, "least" is measured relative
 to the chosen coordinates, and the conclusion is no more objective than the
 parametrization it rests on.
@@ -23,7 +23,7 @@ parametrization it rests on.
 
 :::paragraph
 For a probability distribution $`p` on a finite non-empty space $`\alpha` with
-$`n = |\alpha|` outcomes, the **entropy** is
+$`n = |\alpha|` outcomes, the *entropy* is
 :::
 
 $$`H(p) = \sum_{i} -p_i \log p_i,`
@@ -35,11 +35,11 @@ out. The claim we prove is:
 :::
 
 :::paragraph
-**Among all distributions on $`n` outcomes, the uniform distribution $`u_i = 1/n` uniquely maximizes the entropy, and the maximum value is $`\log n`.**
+*Among all distributions on $`n` outcomes, the uniform distribution $`u_i = 1/n` uniquely maximizes the entropy, and the maximum value is $`\log n`.*
 :::
 
 :::paragraph
-This is the **maximum-entropy principle**: _relative to a fixed set of labeled
+This is the *maximum-entropy principle*: _relative to a fixed set of labeled
 outcomes_, if the only thing you know is the set of possibilities, the prior with
 the largest entropy is the uniform one, and any other prior assumes extra
 information beyond the labeling. The italicized clause is essential. Entropy is
@@ -60,7 +60,7 @@ $`t = 1/(n\,p_i)`:
 $$`-\log(n\,p_i) \le \frac{1}{n\,p_i} - 1.`
 
 :::paragraph
-Multiplying by $`p_i \ge 0` and rearranging gives the **pointwise Gibbs bound**
+Multiplying by $`p_i \ge 0` and rearranging gives the *pointwise Gibbs bound*
 :::
 
 $$`-p_i \log p_i \;-\; p_i \log n \;\le\; \frac{1}{n} - p_i.`
@@ -81,8 +81,8 @@ $`H(u) = \sum_i -\tfrac{1}{n}\log\tfrac{1}{n} = \log n`, so the bound is attaine
 
 :::paragraph
 Finally, equality in $`H(p) \le \log n` requires equality in $`\log t \le t - 1`
-for **every** $`i`, which forces $`1/(n p_i) = 1`, i.e. $`p_i = 1/n`, for every
-$`i`. So the uniform distribution is the **unique** maximizer.
+for *every* $`i`, which forces $`1/(n p_i) = 1`, i.e. $`p_i = 1/n`, for every
+$`i`. So the uniform distribution is the *unique* maximizer.
 :::
 
 # The Verified Statement
@@ -98,7 +98,7 @@ at most that of the uniform one:
 ```
 
 :::paragraph
-The stronger statement, that equality holds **only** for the uniform distribution:
+The stronger statement, that equality holds *only* for the uniform distribution:
 :::
 
 ```
@@ -130,8 +130,8 @@ The pointwise Gibbs bound that drives the proof is itself verified:
 We now have two independent characterizations of the uniform prior: it is the unique
 _relabeling-invariant_ distribution ({ref "sequential-bayes"}[previous chapter]) and
 the unique _maximum-entropy_ distribution. That a symmetry principle and an
-optimization principle agree makes the uniform prior a natural default **within a
-fixed parametrization**. It is not evidence that the uniform prior is objectively
+optimization principle agree makes the uniform prior a natural default *within a
+fixed parametrization*. It is not evidence that the uniform prior is objectively
 "the" non-informative prior. Both characterizations are parametrization-dependent:
 relabeling-invariance privileges a labeling, and entropy privileges the counting
 measure on that labeling, and {ref "sequential-bayes"}[the previous chapter] showed
@@ -145,7 +145,7 @@ insisting it is never objectively forced. Citing Eaton and Freedman
 ({ref "dutch-book"}[Dutch book against some 'objective' priors]), it holds that
 "there is no prior which is better for all cases" and that "there are no
 non-informative priors in Bayesian inference." On a _continuous_ space the point is
-sharper still: there is in general **no** non-informative prior at all
+sharper still: there is in general *no* non-informative prior at all
 ({ref "null-measure"}[Null-measure sets need not be small]). The maximum-entropy
 principle is a rule for choosing a prior once coordinates are fixed — not a proof
 that any prior, uniform or otherwise, is written into the problem.

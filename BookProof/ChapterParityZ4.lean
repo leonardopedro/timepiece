@@ -62,7 +62,7 @@ squares to `-1` (the invariant selecting the double cover `Pin(3,1)`).
 -/
 theorem combinedParity_sq :
     combinedParity ^ 2 = (-1, -1, -1, -1) := by
-  simp [combinedParity, higgsParity_sq];
+  simp [combinedParity];
   exact ⟨ by simpa [ sq ] using higgsParity_sq, by simpa [ sq ] using QLParity_sq, by simpa [ sq ] using mgamma0_sq ⟩
 
 /-- The combined parity is not an involution: `P² ≠ 1`. -/

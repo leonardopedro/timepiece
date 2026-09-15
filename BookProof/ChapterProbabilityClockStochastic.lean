@@ -81,7 +81,8 @@ noncomputable def Mab (a b : ℝ) : Matrix (Fin 2) (Fin 2) ℝ :=
 vector. -/
 theorem Mab_isColumnStochastic (a b : ℝ) : IsColumnStochastic (Mab a b) := by
   refine ⟨?_, ?_⟩
-  · intro i j; fin_cases i <;> fin_cases j <;> simp [Mab] <;> positivity
+  · intro i j
+    fin_cases i <;> fin_cases j <;> simp [Mab] <;> positivity
   · intro j; fin_cases j <;>
       simp [Mab, Fin.sum_univ_two, Real.cos_sq_add_sin_sq]
 
@@ -141,7 +142,7 @@ theorem isColumnStochastic_eq_Mab {M : Matrix (Fin 2) (Fin 2) ℝ}
   obtain ⟨hnn, hcol⟩ := hM
   have hc0 := hcol 0
   have hc1 := hcol 1
-  simp [Fin.sum_univ_two] at hc0 hc1
+  simp only [Fin.sum_univ_two] at hc0 hc1
   obtain ⟨a, ha⟩ := exists_cos_sq (hnn 0 0) (by linarith [hnn 1 0])
   obtain ⟨b, hb⟩ := exists_cos_sq (hnn 0 1) (by linarith [hnn 1 1])
   refine ⟨a, b, ?_⟩

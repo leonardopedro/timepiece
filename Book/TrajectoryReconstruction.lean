@@ -11,9 +11,9 @@ tag := "trajectory-reconstruction"
 # The Question
 
 :::paragraph
-A quantum trajectory can be measured directly only at its **final** time. The
+A quantum trajectory can be measured directly only at its *final* time. The
 manuscript asks whether the intermediate instants can nevertheless be recovered. The
-answer is **post-selection**: "using probabilities conditional on the final state and
+answer is *post-selection*: "using probabilities conditional on the final state and
 the same quantum time-evolution," we can "repeat the experiment in the same conditions
 and predict the results of a measurement at another time between the initial and final
 times." The trajectory is reconstructed at intermediate instants from the statistics
@@ -27,7 +27,7 @@ Aharonov–Bergmann–Lebowitz (two-state) reconstruction.
 Model three instants — initial, intermediate, final — on a finite phase space. A unit
 initial wave-function $`\Psi` is evolved by a unitary $`U` to the intermediate time,
 where a measurement in the standard basis yields outcome $`a` with the Born
-probability and **collapses** the state to $`e_a`:
+probability and *collapses* the state to $`e_a`:
 :::
 
 ```
@@ -85,7 +85,7 @@ normalization $`\|\Psi\| = 1`:
 # Post-Selection: the Reconstruction Formula
 
 :::paragraph
-Now condition on the final outcome $`f`. The **post-selected** law of the intermediate
+Now condition on the final outcome $`f`. The *post-selected* law of the intermediate
 outcome — the probability that the trajectory passed through $`a`, given that it ended
 at $`f` — is the conditional probability
 :::
@@ -116,7 +116,7 @@ is a honest probability law.
 
 :::paragraph
 The reconstruction does not depend on which final outcome one post-selects. Summing
-the post-selected joint law over **all** final outcomes recovers the original
+the post-selected joint law over *all* final outcomes recovers the original
 intermediate Born distribution:
 :::
 

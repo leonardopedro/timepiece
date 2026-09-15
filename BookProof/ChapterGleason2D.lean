@@ -93,8 +93,9 @@ The unit vector `w = (1/√2, 1/√2)` gives a pure state with `tr(ρ Q) = ½`
 -/
 theorem pure_realizes_Q :
     ∃ v : Fin 2 → ℝ, (v 0) ^ 2 + (v 1) ^ 2 = 1 ∧ expec (pure v) Q = 1/2 := by
-      refine' ⟨ fun i => if i = 0 then 1 else 0, _, _ ⟩ <;> norm_num;
-      convert expec_pure_Q ( fun i => if i = 0 then 1 else 0 ) using 1 ; norm_num
+      refine ⟨fun i => if i = 0 then 1 else 0, ?_, ?_⟩ <;> norm_num
+      convert expec_pure_Q (fun i => if i = 0 then 1 else 0) using 1
+      norm_num
 
 /-
 A pure state realizing `tr(ρ P₁) = ½`: the unit vector `w = (1/√2, 1/√2)`
@@ -102,9 +103,9 @@ gives `tr(w wᵀ P₁) = w₀² = ½`.
 -/
 theorem pure_realizes_P1 :
     ∃ v : Fin 2 → ℝ, (v 0) ^ 2 + (v 1) ^ 2 = 1 ∧ expec (pure v) P1 = 1/2 := by
-      refine' ⟨fun i => if i = 0 then 1 / Real.sqrt 2 else 1 / Real.sqrt 2, _, _⟩
-        <;> norm_num [expec, P1];
-      convert expec_pure_P1 ( fun _ => ( Real.sqrt 2 ) ⁻¹ ) using 1 ; norm_num [ pure ]
+      refine ⟨fun _ => (Real.sqrt 2)⁻¹, ?_, ?_⟩ <;> norm_num [expec, P1]
+      convert expec_pure_P1 (fun _ => (Real.sqrt 2)⁻¹) using 1
+      norm_num [pure]
 
 /-! ## No pure state realizes both constraints simultaneously. -/
 
@@ -115,8 +116,26 @@ theorem pure_realizes_P1 :
 theorem no_pure_state_both :
     ¬ ∃ v : Fin 2 → ℝ, (v 0) ^ 2 + (v 1) ^ 2 = 1 ∧
       expec (pure v) P1 = 1/2 ∧ expec (pure v) Q = 1/2 := by
-        norm_num [ expec_pure_P1, expec_pure_Q ];
-        grind
+  rintro ⟨v, h_norm, h_P1, h_Q⟩
+  rw [expec_pure_P1] at h_P1
+  rw [expec_pure_Q] at h_Q
+  have h_sq_eq : (v 0 + v 1) ^ 2 = 1 := by
+    linarith
+  have h_sum_sq : (v 0) ^ 2 + (v 1) ^ 2 = 1 := h_norm
+  have h_v0_sq : (v 0) ^ 2 = 1/2 := by linarith
+  have h_v1_sq : (v 1) ^ 2 = 1/2 := by linarith
+  have h_sum : (v 0 + v 1) ^ 2 = (v 0) ^ 2 + (v 1) ^ 2 + 2 * v 0 * v 1 := by ring
+  rw [h_sum_sq, h_sq_eq] at h_sum
+  have h_prod : 2 * v 0 * v 1 = 0 := by linarith
+  have h_v0_or_v1 : v 0 = 0 ∨ v 1 = 0 := by
+    rcases eq_zero_or_eq_zero_of_mul_eq_zero h_prod with (h | h)
+    · left; linarith
+    · right; linarith
+  rcases h_v0_or_v1 with (h_v0 | h_v1)
+  · rw [h_v0] at h_v0_sq
+    norm_num at h_v0_sq
+  · rw [h_v1] at h_v1_sq
+    norm_num at h_v1_sq
 
 /-! ## The mixed state `ρ = ½·I` realizes both constraints. -/
 

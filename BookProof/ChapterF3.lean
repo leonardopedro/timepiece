@@ -85,7 +85,7 @@ theorem diagonal_gram_residual_orthogonal {ι : Type*} [Fintype ι]
     inner (𝕜 := ℂ) (g k)
       (b - ∑ j, ((inner (𝕜 := ℂ) (g j) b) / ((‖g j‖ : ℂ) ^ 2)) • g j) = 0 :=
     by
-  simp +decide [ inner_sub_right, Finset.sum_ite, Finset.filter_eq', Finset.filter_ne', horth, hne ];
+  simp +decide ;
   rw [Finset.sum_eq_single k]
     <;> simp_all +decide [div_eq_inv_mul, mul_assoc, mul_left_comm,
       inner_self_eq_norm_sq_to_K]
@@ -193,7 +193,7 @@ an off-diagonal generator.
 theorem mehler_projector_matrix (v xi xj : E') :
     inner (𝕜 := ℂ) xi (projOnto v xj)
       = (starRingEnd ℂ) (inner (𝕜 := ℂ) v xi) * inner (𝕜 := ℂ) v xj := by
-  simp +decide [ projOnto, inner_smul_right ];
+  simp +decide [ projOnto ];
   ring
 
 end

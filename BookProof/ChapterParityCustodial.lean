@@ -57,8 +57,8 @@ theorem commutant_pauli_scalar (M : Matrix (Fin 2) (Fin 2) ℂ)
     (h1 : M * pauli1 = pauli1 * M) (h2 : M * pauli2 = pauli2 * M)
     (h3 : M * pauli3 = pauli3 * M) :
     M = (M 0 0) • (1 : Matrix (Fin 2) (Fin 2) ℂ) := by
-  simp_all +decide [← Matrix.ext_iff, Fin.forall_fin_two, mul_comm, mul_left_comm,
-    Fin.sum_univ_succ, Fin.sum_univ_zero, Matrix.mul_apply, Matrix.one_apply]
+  simp_all +decide [← Matrix.ext_iff, Fin.forall_fin_two, mul_comm, 
+    Fin.sum_univ_succ, Matrix.mul_apply, Matrix.one_apply]
   unfold pauli1 pauli2 pauli3 at *
   norm_num at *
   grind

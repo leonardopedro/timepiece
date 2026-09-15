@@ -32,20 +32,20 @@ which we may still choose a probability measure.
 :::
 
 :::paragraph
-The manuscript also repeatedly forms **tensor products of sample spaces**. A joint
+The manuscript also repeatedly forms *tensor products of sample spaces*. A joint
 probability density lives on a product $`X \times Y`; the prior wave-function can be
 "redefined as a tensor product of two Fock-spaces"; and often "we are interested in a
 tensor product of sample spaces, some of which have finite degrees of freedom," for
 instance $`\mathbb{Z}_2^n \times \mathbb{R}^m`. The construction below answers the
 Introduction's problem precisely by building such a tensor product: a
-**finite-dimensional** factor that carries an **arbitrary** probability law, tensored
-with a **separable infinite-dimensional** factor that carries a **forced** law.
+*finite-dimensional* factor that carries an *arbitrary* probability law, tensored
+with a *separable infinite-dimensional* factor that carries a *forced* law.
 :::
 
 # The Two Factors
 
 :::paragraph
-The total sample space splits as a finite **head** times an infinite **tail**:
+The total sample space splits as a finite *head* times an infinite *tail*:
 :::
 
 ```
@@ -57,7 +57,7 @@ The total sample space splits as a finite **head** times an infinite **tail**:
 :::paragraph
 The head $`\mathrm{InnerHead}\,N = \mathrm{Fin}\,N \to \mathbb{R} \cong \mathbb{R}^N`
 is an ordinary finite-dimensional Euclidean Hilbert space. The tail
-$`\mathrm{InnerTail}` is the Kopperman **substrate**, the standard separable real
+$`\mathrm{InnerTail}` is the Kopperman *substrate*, the standard separable real
 Hilbert space $`L^2([0,1])`. Its separability is the topological precondition for
 everything that follows, and it is verified directly:
 :::
@@ -68,7 +68,7 @@ everything that follows, and it is verified directly:
 ```
 
 :::paragraph
-Thus the tail is infinite-dimensional but **separable**: it possesses a countable
+Thus the tail is infinite-dimensional but *separable*: it possesses a countable
 dense skeleton of computable approximants. This is exactly the property the
 Introduction asked for. The finite head is the part we _know_; the separable infinite
 tail is the part we are _uncertain_ about.
@@ -77,7 +77,7 @@ tail is the part we are _uncertain_ about.
 # Decidable Languages Close Under Tensor Product
 
 :::paragraph
-A **language** here is an explicit Boolean decision procedure: a classifier
+A *language* here is an explicit Boolean decision procedure: a classifier
 $`\mathrm{decide} : \alpha \to \mathrm{Bool}`. The tensor product of two languages is
 conjunction on pairs — a point of the product carrier is accepted exactly when both
 components accept it:
@@ -97,8 +97,8 @@ tensor language is decidable for every point of the product carrier:
 ```
 
 :::paragraph
-This is the first half of the author's goal: **the tensor product of two decidable
-languages is a decidable language.** The same closure holds for the
+This is the first half of the author's goal: *the tensor product of two decidable
+languages is a decidable language.* The same closure holds for the
 Hilbert-space languages used in this book. The "cylindrical" observables — those that
 depend only on the finite head — form a decidable language, because the head is
 finite-dimensional and hence Tarski-decidable. A tensor product of two such
@@ -125,7 +125,7 @@ operation:
 :::paragraph
 The tensor product of the two factors is the total space
 $`\mathrm{InnerSpace}\,N = \mathrm{InnerHead}\,N \times \mathrm{InnerTail}`, and its
-Hilbert completion is the **Solovay–Hilbert space**:
+Hilbert completion is the *Solovay–Hilbert space*:
 :::
 
 ```
@@ -155,7 +155,7 @@ mere product of sets:
 ```
 
 :::paragraph
-The decisive simplification is the **decoupling theorem**: because the cylindrical
+The decisive simplification is the *decoupling theorem*: because the cylindrical
 wave-functions depend only on the finite head, and the tail measure is an independent
 probability measure, the $`L^2` inner product over the infinite-dimensional total
 space collapses exactly to a finite-dimensional integral over the head
@@ -176,7 +176,7 @@ us relate arbitrarily complex random events to standard, intuitive ones.
 # An Arbitrary Law on the Finite Part
 
 :::paragraph
-On the finite head we may choose **any** probability law. Given any probability
+On the finite head we may choose *any* probability law. Given any probability
 measure $`\mathrm{headDist}` on $`\mathbb{R}^N`, the product with the tail law is a
 probability measure on the total space, and its finite marginal is exactly the law we
 chose:
@@ -198,15 +198,15 @@ product of standard Gaussians:
 ```
 
 :::paragraph
-This is the finite-dimensional freedom the author wants: **our knowledge of the
-finite-dimensional part is an arbitrary probability distribution.** Nothing
+This is the finite-dimensional freedom the author wants: *our knowledge of the
+finite-dimensional part is an arbitrary probability distribution.* Nothing
 constrains it; it is the part we are free to choose.
 :::
 
 # Only the Mehler Measure on the Infinite Part
 
 :::paragraph
-The infinite tail is different. The Kopperman language is **cylindrical**: it can
+The infinite tail is different. The Kopperman language is *cylindrical*: it can
 query only finitely many coordinates at a time. Consequently it cannot distinguish
 two tail points that agree on every finite set of coordinates — no individual element
 of the infinite-dimensional Hilbert space can be named or singled out. (This is the
@@ -215,8 +215,8 @@ adding a named infinite element to the language would destroy decidability.)
 :::
 
 :::paragraph
-A probability law on the tail that respects this blindness must be **atomless** (no
-single state carries mass) and **invariant** under the symmetries the language can
+A probability law on the tail that respects this blindness must be *atomless* (no
+single state carries mass) and *invariant* under the symmetries the language can
 express. The selected Mehler/Kopperman prior has precisely these admissibility
 properties:
 :::
@@ -262,7 +262,7 @@ So the only data the language can observe is the family of finite-dimensional
 marginals, and a probability measure on $`\mathbb{N} \to \mathbb{R}` is determined by
 its finite marginals. The intended conclusion — that the Mehler measure is the
 _unique_ probability law whose every finite marginal is the standard Gaussian product,
-and hence the **only** law the blind language can use — is stated as the next target
+and hence the *only* law the blind language can use — is stated as the next target
 in {ref "proof-plans"}[the appendix] (`mehler_unique_by_finite_marginals`). The
 verified content above is the admissibility half: the Mehler law is probability,
 atomless, and invariant. The two halves together give the author's classification:
@@ -273,14 +273,14 @@ atomless, and invariant. The two halves together give the author's classificatio
 ```
 
 :::paragraph
-**Heads admit an arbitrary law; the tail admits the Mehler law.** That single
+*Heads admit an arbitrary law; the tail admits the Mehler law.* That single
 statement is the probabilistic content of the Solovay–Kopperman tensor product.
 :::
 
 # The Cross-Dimensional Inner Product
 
 :::paragraph
-Because the Mehler tail **splits** — the first $`k` Gaussian coordinates separate off
+Because the Mehler tail *splits* — the first $`k` Gaussian coordinates separate off
 as an independent finite Gaussian block, leaving a fresh copy of the tail — we may
 enlarge the finite head by adjoining $`k` tail coordinates:
 :::
@@ -291,7 +291,7 @@ enlarge the finite head by adjoining $`k` tail coordinates:
 ```
 
 :::paragraph
-This makes the inner product well-defined **across dimensions**: an element with
+This makes the inner product well-defined *across dimensions*: an element with
 $`N` head-coordinates and an element with $`N+k` head-coordinates can be compared
 after padding the smaller one with $`k` fresh Gaussian coordinates, and the result
 does not depend on the padding, because the added coordinates integrate to $`1`. The
@@ -308,7 +308,7 @@ This edition separates the verified layer from the open one.
 :::
 
 :::paragraph
-**Verified.** The two factors and their separability; closure of decidable languages
+*Verified.* The two factors and their separability; closure of decidable languages
 under tensor product; the tensor-product Hilbert space and the decoupling theorem;
 the arbitrary finite-head law and its marginal; the admissibility of the Mehler tail
 (probability, atomlessness, invariance, concentration on the sphere); and the
@@ -316,10 +316,10 @@ self-interleaving of the infinite tail. Every theorem cited above is `sorry`-fre
 :::
 
 :::paragraph
-**Planned.** Two statements are made precise and quarantined in
-{ref "proof-plans"}[the appendix]: the **uniqueness** of the Mehler tail law from its
+*Planned.* Two statements are made precise and quarantined in
+{ref "proof-plans"}[the appendix]: the *uniqueness* of the Mehler tail law from its
 finite marginals (`mehler_unique_by_finite_marginals`, the forcing half of "only the
-Mehler measure"), and the **measure-preservation** of the coordinate tail-split
+Mehler measure"), and the *measure-preservation* of the coordinate tail-split
 (`tailSplitEquiv_map`) from which the cross-dimensional inner product follows. They
 are the content of the next formalization pass, not assertions of this edition.
 :::
@@ -338,7 +338,7 @@ elements. Probability on the infinite part is not a choice; it is the Mehler mea
 :::
 
 :::paragraph
-This also identifies the construction as the **single exception** to the slogan
+This also identifies the construction as the *single exception* to the slogan
 "there are no non-informative priors." On a general continuous space a uniform prior
 stops being uniform under a change of coordinates
 ({ref "sequential-bayes"}[non-informativeness is coordinate-dependent]); here the

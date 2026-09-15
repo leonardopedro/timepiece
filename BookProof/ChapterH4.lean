@@ -94,7 +94,7 @@ theorem compress_X_comp_V (V : F →L[ℂ] E) (X : E →L[ℂ] E)
     X.comp V = V.comp (compress V X) := by
   ext x;
   obtain ⟨ y, hy ⟩ := hinv x;
-  replace hVV := congr_arg ( fun f => f y ) hVV; simp_all +decide [ ContinuousLinearMap.ext_iff ] ;
+  replace hVV := congr_arg ( fun f => f y ) hVV; simp_all +decide  ;
   unfold compress; aesop;
 
 /-

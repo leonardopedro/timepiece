@@ -161,11 +161,11 @@ theorem Rreal_isometric_iff_complexification_isometric
   obtain ⟨l, hl⟩ : ∃ l : ℂ, l^2 = c ∧ ‖l‖ = 1 := exists_unit_sqrt c hc.left;
   refine' ⟨ α.trans ( unitScaleEquiv l hl.2 ), _, _ ⟩ <;> simp_all +decide [ IsSystemIso ];
   · ext; simp [conjCLM_unitScale];
-  · intro x; simp +decide [ ← hl.1, smul_smul, mul_comm ] ;
+  · intro x; simp +decide [ ← hl.1 ] ;
     have h_unitScaleEquiv : α (θM (l • x)) = (starRingEnd ℂ) l • α (θM x) := by
       convert α.map_smul ( starRingEnd ℂ l ) ( θM x ) using 1;
       exact congr_arg _ ( θM.map_smulₛₗ _ _ );
-    simp +decide [ h_unitScaleEquiv, sq, mul_assoc, hl.2 ];
+    simp +decide [ h_unitScaleEquiv, sq ];
     simp +decide [ ← smul_assoc, mul_assoc, hl.2, Complex.mul_conj, Complex.normSq_eq_norm_sq ]
 
 end BookProof.ChapterA

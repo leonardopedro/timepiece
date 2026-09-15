@@ -95,7 +95,7 @@ theorem chir1_sq : chir1 * chir1 = -1 := by
 theorem chir2_sq : chir2 * chir2 = -1 := by
   unfold chir2;
   convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℂ => ( 1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ⊗ₖ x ) BookProof.ChapterA3j.chir_sq using 1;
-  · ext i j; simp +decide [ Matrix.mul_apply, Matrix.one_apply, Finset.sum_mul ] ;
+  · ext i j; simp +decide [ Matrix.mul_apply, Matrix.one_apply ] ;
     split_ifs <;> simp_all +decide [ Finset.sum_ite ];
     refine' Finset.sum_bij ( fun x hx => x.2 ) _ _ _ _ <;> aesop;
   · ext i j ; fin_cases i <;> fin_cases j <;> norm_num
@@ -105,7 +105,7 @@ theorem chir1_chir2_comm : chir1 * chir2 = chir2 * chir1 := by
   unfold chir1 chir2;
   ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp +decide [ Matrix.mul_apply ];
   erw [ Finset.sum_product ] ; erw [ Finset.sum_product ] ; ring;
-  simp +decide [ Matrix.one_apply, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ]
+  simp +decide [ Matrix.one_apply, mul_comm ]
 
 /-! ## Diagonal `Spin⁺`-invariance of the chirality operators -/
 

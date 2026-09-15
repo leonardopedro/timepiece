@@ -58,12 +58,12 @@ theorem exists_unitary_column (v : ι → ℂ) (i₀ : ι)
         norm_num [ EuclideanSpace.norm_eq, hv ];
       obtain ⟨u, hu⟩ : ∃ u : OrthonormalBasis ι ℂ (EuclideanSpace ℂ ι),        u i₀ = (EuclideanSpace.equiv ι ℂ).symm v := by
         have := @Orthonormal.exists_orthonormalBasis_extension_of_card_eq;
-        specialize @this ℂ _ ( EuclideanSpace ℂ ι ) _ _ _ ι _ ( by simp +decide [ Module.finrank_pi ] ) ( fun _ => ( EuclideanSpace.equiv ι ℂ ).symm v ) { i₀ } ; simp_all +decide [ Orthonormal ];
+        specialize @this ℂ _ ( EuclideanSpace ℂ ι ) _ _ _ ι _ ( by simp +decide  ) ( fun _ => ( EuclideanSpace.equiv ι ℂ ).symm v ) { i₀ } ; simp_all +decide [ Orthonormal ];
       exact ⟨ u, by aesop ⟩;
     refine' ⟨ Matrix.of fun i j => u j i, _, _, _ ⟩;
     · ext i j; simp +decide [ Matrix.mul_apply, Matrix.conjTranspose_apply ] ;
-      have := u.sum_repr ( EuclideanSpace.single i 1 ) ;        have := u.sum_repr ( EuclideanSpace.single j 1 ) ;        simp_all +decide [ EuclideanSpace.norm_eq, Finset.sum_apply, Matrix.one_apply ] ;
-      convert congr_arg ( fun x => inner ℂ ( EuclideanSpace.single i 1 ) x ) this using 1 ;        simp +decide [ inner_sum, inner_smul_right ] ; ring;
+      have := u.sum_repr ( EuclideanSpace.single i 1 ) ;        have := u.sum_repr ( EuclideanSpace.single j 1 ) ;        simp_all +decide [ Matrix.one_apply ] ;
+      convert congr_arg ( fun x => inner ℂ ( EuclideanSpace.single i 1 ) x ) this using 1 ;        simp +decide  ; ring;
       · simp +decide [ u.repr_apply_apply, inner ];
         ac_rfl;
       · simp +decide [ EuclideanSpace.inner_single_left ];

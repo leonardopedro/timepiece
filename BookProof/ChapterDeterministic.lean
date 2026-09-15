@@ -62,7 +62,7 @@ theorem proj_mul_measOp_apply (U : Matrix (Fin n) (Fin n) ℂ) (a b i j : Fin n)
     (proj a * measOp U b) i j =
       if i = a then U a b * (starRingEnd ℂ) (U j b) else 0 := by
   by_cases hij : i = a <;> simp +decide [ *, Matrix.mul_apply ];
-  · unfold proj measOp; simp +decide [ Finset.sum_ite, Finset.filter_eq', Finset.filter_ne' ] ;
+  · unfold proj measOp; simp +decide  ;
     convert measOp_apply U b a j using 1;
   · exact Finset.sum_eq_zero fun k hk => by unfold proj; aesop;
 
@@ -89,7 +89,7 @@ theorem commute_proj_measOp_iff_isDeterministicCol
     intro l m hlm;
     convert congr_arg (fun x : ℂ => starRingEnd ℂ x)
       (congr_fun (congr_fun (h_comm m) m) l) using 1
-      <;> simp +decide [*, proj, measOp_apply]
+      <;> simp +decide [*, proj]
     · simp +decide [Matrix.mul_apply, measOp_apply]
     · have h := measOp_mul_proj_apply U m b m l
       simp [proj, hlm] at h
@@ -132,8 +132,8 @@ The transformed event operator is the sum of the single-outcome ones:
 -/
 theorem measOpSet_eq_sum (U : Matrix (Fin n) (Fin n) ℂ) (B : Finset (Fin n)) :
     measOpSet U B = ∑ b ∈ B, measOp U b := by
-  unfold measOpSet measOp;    simp +decide [ Matrix.vecMul, dotProduct, Finset.mul_sum, Finset.sum_mul, mul_assoc ] ;
-  unfold projSet; simp +decide [ Matrix.sum_apply, Finset.sum_mul, Finset.mul_sum ] ;
+  unfold measOpSet measOp;    simp +decide [ mul_assoc ] ;
+  unfold projSet; simp +decide [ Finset.sum_mul, Finset.mul_sum ] ;
 
 /-
 **Headline (event form — the literal book statement).** For a unitary

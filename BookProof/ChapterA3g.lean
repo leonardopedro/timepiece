@@ -79,15 +79,15 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
       convert HasDerivAt.fun_sum fun ν _ => HasDerivAt.smul_const ( hZ_deriv ν ) ( mgammaR ν ) using 1;
     have h_comm : (-A) * NormedSpace.exp (t • (-A)) = -(NormedSpace.exp (t • (-A)) * A) := by
       have h_comm : Commute A (t • (-A)) := by
-        simp +decide [ Commute, mul_comm ];
-        simp +decide [ SemiconjBy, mul_smul_comm ];
+        simp +decide [ Commute ];
+        simp +decide [ SemiconjBy ];
       have := h_comm.exp_right;
       rw [ neg_mul, this.eq ];
     have h_sum : ∑ ν,      (NormedSpace.exp (t • (-A)) * A) μ ν • mgammaR ν = ∑ ν,      (NormedSpace.exp (t • (-A))) μ ν • (G * mgammaR ν - mgammaR ν * G) := by
-      simp_all +decide [ Matrix.mul_apply, Finset.mul_sum _ _ _, mul_assoc, mul_left_comm, Finset.sum_mul ];
-      simp_all +decide [ Finset.sum_smul, smul_sub, sub_smul, Finset.smul_sum, Finset.sum_add_distrib, Finset.sum_sub_distrib, mul_sub, sub_mul, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul _ _ _, HasAdLambda ];
-      exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by simp +decide [ mul_assoc, mul_comm, mul_left_comm, smul_smul ] );
-    simp_all +decide [ Matrix.mul_sum, Matrix.sum_mul, Finset.mul_sum _ _ _, Finset.sum_mul _ _ _, smul_sub, sub_mul, mul_sub ];
+      simp_all +decide [ Matrix.mul_apply ];
+      simp_all +decide [ Finset.sum_smul, Finset.smul_sum, mul_comm, HasAdLambda ];
+      exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by simp +decide [ mul_comm, smul_smul ] );
+    simp_all +decide [ Finset.mul_sum _ _ _, Finset.sum_mul _ _ _, smul_sub ];
   -- By definition of $φ$, we know that its derivative is zero.
   have hφ_deriv : ∀ t : ℝ,    HasDerivAt (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) 0 t := by
     intro t
@@ -99,11 +99,11 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
       rename_i h;
       convert HasDerivAt.mul h ( hZ_deriv t ) using 1;
     convert hφ_deriv.mul ‹HasDerivAt ( fun t => NormedSpace.exp ( t • -G ) ) ( -G * NormedSpace.exp ( t • -G ) ) t› using 1;
-    simp +decide [ mul_assoc, mul_sub, sub_mul, add_mul, mul_add, ← mul_assoc, ← Matrix.mul_assoc, ← Matrix.mul_smul, ← Matrix.smul_mul ];
+    simp +decide [ mul_sub, sub_mul, add_mul, ← mul_assoc ];
     have h_comm : Commute G (NormedSpace.exp (t • G)) := by
       apply_rules [ Commute.exp_right, Commute.exp_left ];
       exact Commute.smul_right ( Commute.refl G ) t;
-    simp +decide [ ← mul_assoc, ← h_comm.eq ];
+    simp +decide [ ← h_comm.eq ];
   -- Since the derivative of $φ$ is zero, $φ$ is constant.
   have hφ_const : ∀ t₁ t₂ : ℝ,    NormedSpace.exp (t₁ • G) * (∑ ν, (NormedSpace.exp (t₁ • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t₁ • (-G)) = NormedSpace.exp (t₂ • G) * (∑ ν, (NormedSpace.exp (t₂ • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t₂ • (-G)) := by
     have hφ_const : ∀ t : ℝ,      deriv (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) t = 0 := by

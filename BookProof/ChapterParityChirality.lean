@@ -74,11 +74,11 @@ noncomputable def chi : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ :=
 theorem isigma3_sq : isigma3 * isigma3 = -1 := by
   ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; norm_num [ isigma3 ];
   fin_cases i <;> fin_cases k <;> simp +decide [ Matrix.mul_apply, kroneckerMap ];
-  · fin_cases j <;> fin_cases l <;> simp +decide [ Fin.sum_univ_succ, Matrix.one_apply ];
+  · fin_cases j <;> fin_cases l <;> simp +decide [ Matrix.one_apply ];
     all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ, pauli3 ] ;
-  · fin_cases j <;> fin_cases l <;> simp +decide [ Fin.sum_univ_succ, pauli3 ];
+  · fin_cases j <;> fin_cases l <;> simp +decide [ pauli3 ];
     all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ, Matrix.one_apply ] ;
-  · fin_cases j <;> fin_cases l <;> simp +decide [ Fin.sum_univ_succ, pauli3 ];
+  · fin_cases j <;> fin_cases l <;> simp +decide [ pauli3 ];
     all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ, Matrix.one_apply ] ;
   · fin_cases j <;> fin_cases l <;> simp +decide [ Matrix.one_apply, pauli3 ];
     all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ ] ;
@@ -91,7 +91,7 @@ theorem igamma5_sq : igamma5 * igamma5 = -1 := by
   convert congr_arg ( fun x => kroneckerMap ( fun x1 x2 => x1 * x2 ) ( 1 : Matrix ( Fin 2 ) ( Fin 2 ) ℂ ) x ) BookProof.ChapterA3.mgamma5_sq using 1;
   · ext i j;
     simp +decide [ Matrix.mul_apply, kroneckerMap ];
-    simp +decide [ Matrix.one_apply, Finset.sum_ite, Finset.filter_eq', Finset.filter_ne' ];
+    simp +decide [ Matrix.one_apply, Finset.sum_ite ];
     split_ifs <;> simp_all +decide [ Finset.sum_filter ];
     rw [ ← Finset.sum_filter ];
     refine' Finset.sum_bij ( fun x hx => x.2 ) _ _ _ _ <;> aesop;
@@ -115,7 +115,7 @@ theorem isigma3_igamma5 : isigma3 * igamma5 = chi := by
 -/
 theorem igamma5_isigma3 : igamma5 * isigma3 = chi := by
   ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp +decide [ igamma5, isigma3, chi, Matrix.mul_apply ];
-  simp +decide [ Matrix.one_apply, mul_assoc, mul_comm, mul_left_comm ];
+  simp +decide [ Matrix.one_apply, mul_comm, mul_left_comm ];
   rw [ Finset.sum_eq_single ( i, l ) ] <;> aesop
 
 /--
@@ -123,15 +123,14 @@ theorem igamma5_isigma3 : igamma5 * isigma3 = chi := by
 -/
 theorem chi_sq : chi * chi = 1 := by
   ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; norm_num [ Matrix.mul_apply, mgamma5Z_sq ] ; ring;
-  simp +decide [ chi, mgamma5, mgamma ];
   fin_cases i <;> fin_cases k <;> simp +decide [ pauli3 ];
-  · fin_cases j <;> fin_cases l <;> simp +decide [ Fin.sum_univ_succ, Matrix.one_apply ];
+  · fin_cases j <;> fin_cases l <;> simp +decide ;
     all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ, mgamma5Z ] ;
   · fin_cases j <;> fin_cases l <;> norm_num [ Fin.sum_univ_succ, mgamma5Z ];
     all_goals erw [ Finset.sum_product ] ; norm_num [ Fin.sum_univ_succ ] ;
-  · fin_cases j <;> fin_cases l <;> simp +decide [ Fin.sum_univ_succ, mgamma5Z ];
+  · fin_cases j <;> fin_cases l <;> simp +decide [ mgamma5Z ];
     all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ ] ;
-  · fin_cases j <;> fin_cases l <;> simp +decide [ Fin.sum_univ_succ, mgamma5Z ];
+  · fin_cases j <;> fin_cases l <;> simp +decide [ mgamma5Z ];
     all_goals erw [ Finset.sum_product ] ; norm_num [ Fin.sum_univ_succ, Complex.ext_iff ] ;
 
 /--

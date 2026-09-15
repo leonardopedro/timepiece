@@ -33,8 +33,8 @@ def EnergySpectralSubspace (M : ℕ) (E_max : ℝ) :=
 subspace satisfies `‖Hψ‖ ≤ E_max ‖ψ‖`.  The ESA hypothesis is retained because
 it is the condition under which the analytic spectral projection exists. -/
 theorem energy_bounded_initial {M : ℕ} (sys : ODESystem M)
-    (h_esa : isEssentiallySelfAdjoint (odeToHamiltonian sys))
-    (E_max : ℝ) (hE : 0 ≤ E_max) (ψ : EnergySpectralSubspace M E_max) :
+    (_h_esa : isEssentiallySelfAdjoint (odeToHamiltonian sys))
+    (E_max : ℝ) (_hE : 0 ≤ E_max) (ψ : EnergySpectralSubspace M E_max) :
     ψ.1.imageNorm ≤ E_max * ψ.1.stateNorm := by
   exact ψ.2
 

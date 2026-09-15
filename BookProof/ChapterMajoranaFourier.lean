@@ -126,8 +126,8 @@ lemma dgamma_conjTranspose (μ : Fin 4) :
   rw [dgamma, Matrix.conjTranspose_smul, mgamma_conjTranspose]
   have hstar : star (-Complex.I) = Complex.I := by simp
   by_cases h : μ = 0
-  · simp only [h, if_pos]; rw [hstar]; simp [dgamma]
-  · simp only [h, if_neg, smul_neg]; rw [hstar]; simp [dgamma]
+  · simp only [h, if_pos]; rw [hstar]; simp 
+  · simp only [h]; rw [hstar]; simp 
 
 /-
 `(γ⁰)² = 1`.
@@ -168,22 +168,22 @@ lemma nslash_conjTranspose (n : Fin 3 → ℝ) : (nslash n)ᴴ = -nslash n := by
 -/
 lemma gamma0_nslash_anticomm (n : Fin 3 → ℝ) :
     dgamma 0 * nslash n = -(nslash n * dgamma 0) := by
-      unfold nslash; simp +decide [ mul_assoc, Finset.mul_sum _ _ _, Finset.sum_mul ] ;
-      rw [ ← Finset.sum_neg_distrib ] ;        congr ; ext x ; rw [ gamma0_spatial_anticomm ] ; simp +decide [ mul_comm ] ;
+      unfold nslash; simp +decide [ Finset.mul_sum _ _ _, Finset.sum_mul ] ;
+      rw [ ← Finset.sum_neg_distrib ] ;        congr ; ext x ; rw [ gamma0_spatial_anticomm ] ; simp +decide  ;
 
 /-
 Each spatial `γⁱ` squares to `−1`.
 -/
 lemma dgamma_spatial_sq (i : Fin 3) : dgamma i.succ * dgamma i.succ = -1 := by
-  fin_cases i <;> simp +decide [ dgamma_clifford ];
+  fin_cases i <;> simp +decide ;
   · unfold dgamma;
     unfold mgamma;
     ext i j ; fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, Complex.ext_iff ];
     all_goals norm_cast;
-  · unfold dgamma; simp +decide [ BookProof.ChapterA3.mgammaZ ] ;
+  · unfold dgamma; simp +decide  ;
     unfold mgamma; simp +decide [ BookProof.ChapterA3.mgammaZ ] ;
     ext i j ; fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, Fin.sum_univ_succ ];
-  · unfold dgamma; simp +decide [ BookProof.ChapterA3.mgammaZ ] ;
+  · unfold dgamma; simp +decide  ;
     unfold mgamma; simp +decide [ BookProof.ChapterA3.mgammaZ ] ;
     ext i j ; fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, Fin.sum_univ_succ ]
 
@@ -202,12 +202,12 @@ For a **unit** direction, the slash squares to `−1`: `n̸² = −1`.
 lemma nslash_sq (n : Fin 3 → ℝ) (hn : ∑ i, (n i) ^ 2 = 1) :
     nslash n * nslash n = -1 := by
       simp +decide only [nslash];
-      simp +decide [ Fin.sum_univ_three, Matrix.add_mul, Matrix.mul_add, Matrix.mul_assoc ] at hn ⊢;
+      simp +decide [ Fin.sum_univ_three, Matrix.add_mul, Matrix.mul_add ] at hn ⊢;
       -- Apply the known identities for the squares and products of the Dirac matrices.
       have h_identities : dgamma 1 * dgamma 1 = -1 ∧ dgamma 2 * dgamma 2 = -1 ∧ dgamma 3 * dgamma 3 = -1 ∧ dgamma 1 * dgamma 2 = -(dgamma 2 * dgamma 1) ∧ dgamma 1 * dgamma 3 = -(dgamma 3 * dgamma 1) ∧ dgamma 2 * dgamma 3 = -(dgamma 3 * dgamma 2) := by
         exact ⟨ dgamma_spatial_sq 0, dgamma_spatial_sq 1, dgamma_spatial_sq 2, dgamma_spatial_anticomm 0 1 ( by decide ), dgamma_spatial_anticomm 0 2 ( by decide ), dgamma_spatial_anticomm 1 2 ( by decide ) ⟩
       generalize_proofs at *; (
-      simp_all +decide [ ← mul_assoc, ← smul_assoc ] ; ring!;
+      simp_all +decide [ ← smul_assoc ] ; ring!;
       convert congr_arg ( fun x : ℝ => x • ( -1 : Matrix ( Fin 4 ) ( Fin 4 ) ℂ ) ) hn using 1 ;        norm_num ; ring!;
       · module;
       · norm_num [ Algebra.smul_def ])
@@ -216,7 +216,7 @@ lemma nslash_sq (n : Fin 3 → ℝ) (hn : ∑ i, (n i) ^ 2 = 1) :
 `A = n̸ γ⁰` is Hermitian.
 -/
 lemma Aop_conjTranspose (n : Fin 3 → ℝ) : (Aop n)ᴴ = Aop n := by
-  unfold Aop; simp +decide [ *, Matrix.conjTranspose_smul ] ;
+  unfold Aop; simp +decide [ * ] ;
   rw [ nslash_conjTranspose, dgamma_conjTranspose ] ; norm_num;
   rw [ gamma0_nslash_anticomm, neg_neg ]
 
@@ -248,17 +248,17 @@ theorem boostBlock_unitary {A : Matrix (Fin 4) (Fin 4) ℂ} (hA : Aᴴ = A)
       ext i j;
       rcases i with (i | i) <;> rcases j with (j | j)
         <;> norm_num [Matrix.mul_apply, Matrix.fromBlocks_multiply];
-      · simp_all +decide [ Matrix.one_apply, Finset.mul_sum _ _ _, mul_assoc, mul_left_comm, Finset.sum_mul ];
-        split_ifs <;> simp_all +decide [ ← mul_assoc, ← Finset.mul_sum _ _ _, ← Finset.sum_mul, ← Matrix.ext_iff ];
-        · simp_all +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul, mul_assoc, Matrix.mul_apply ];
+      · simp_all +decide [ Matrix.one_apply, mul_assoc, mul_left_comm ];
+        split_ifs <;> simp_all +decide [ ← mul_assoc, ← Matrix.ext_iff ];
+        · simp_all +decide [ ← Finset.mul_sum _ _ _, mul_assoc, Matrix.mul_apply ];
           norm_cast ; linarith;
-        · simp_all +decide [ ← Finset.mul_sum _ _ _, ← Finset.sum_mul, mul_assoc, Matrix.mul_apply ];
-      · simp_all +decide [ Matrix.one_apply, Finset.sum_ite, Finset.filter_eq', Finset.filter_ne' ];
+        · simp_all +decide [ ← Finset.mul_sum _ _ _, mul_assoc, Matrix.mul_apply ];
+      · simp_all +decide [ Matrix.one_apply ];
         replace hA := congr_fun ( congr_fun hA i ) j ;          simp_all +decide [ Matrix.conjTranspose_apply, mul_comm ];
-      · simp_all +decide [ Matrix.one_apply, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, Finset.sum_mul ];
+      · simp_all +decide [ Matrix.one_apply, mul_comm, mul_left_comm ];
         rw [ ← Matrix.ext_iff ] at hA ; simp_all +decide [ Complex.ext_iff ];
         constructor <;> ring;
-      · simp_all +decide [ Matrix.one_apply, mul_assoc, mul_left_comm, ← Finset.mul_sum _ _ _, ← Finset.sum_mul ];
+      · simp_all +decide [ Matrix.one_apply, mul_assoc, mul_left_comm, ← Finset.mul_sum _ _ _ ];
         simp_all +decide [ ← mul_assoc, ← Matrix.ext_iff ];
         simp_all +decide [ ← sq, Matrix.mul_apply ];
         split_ifs <;> simp_all +decide [ sq, Complex.ext_iff ];

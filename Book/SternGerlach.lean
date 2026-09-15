@@ -11,10 +11,10 @@ tag := "stern-gerlach"
 # A Unitary That Forgets Everything
 
 In {ref "probability-clock"}[the probability clock] we saw that collapse — sending a
-superposition to a definite outcome — is **irreversible** on the simplex: the
+superposition to a definite outcome — is *irreversible* on the simplex: the
 required stochastic matrix is singular. There is, however, a perfectly reversible
 operation on the wave-function that has the _statistical_ effect of erasing
-information: a **unitary** that sends _every_ basis state to the **uniform**
+information: a *unitary* that sends _every_ basis state to the *uniform*
 distribution.
 
 The manuscript asserts that "there is always a unitary transformation such that the
@@ -26,7 +26,7 @@ modulus $`1/n`. Feeding any basis state into such a matrix produces the uniform
 
 # The Construction: the Fourier Matrix
 
-The required unitary is the **normalized discrete Fourier transform** (a complex
+The required unitary is the *normalized discrete Fourier transform* (a complex
 Hadamard matrix):
 
 $$`U_{ij} = \frac{1}{\sqrt n}\, e^{2\pi i \, i j / n}, \qquad i,j \in \{0,\dots,n-1\}.`
@@ -58,7 +58,7 @@ law $`i \mapsto 1/n`.
 
 # The Two-State Case: Stern–Gerlach
 
-For $`n = 2` the Fourier matrix is the **Hadamard gate**
+For $`n = 2` the Fourier matrix is the *Hadamard gate*
 $`\frac{1}{\sqrt 2}\begin{pmatrix}1 & 1 \\ 1 & -1\end{pmatrix}` of the two-state
 Stern–Gerlach model. A spin prepared in any basis state and passed through a
 $`\pi/4` rotation gives outcomes with probability $`1/2` each:
@@ -70,14 +70,14 @@ $`\pi/4` rotation gives outcomes with probability $`1/2` each:
 
 since $`\cos^2(\pi/4) = \sin^2(\pi/4) = 1/2`. This is the iconic "50/50" split of a
 Stern–Gerlach apparatus oriented perpendicular to the prepared spin: the device
-**erases** the information about which basis state went in, replacing it with the
+*erases* the information about which basis state went in, replacing it with the
 uniform distribution.
 
 # Reversible Dynamics, Irreversible-Looking Statistics
 
 The subtle point — and the resolution of the apparent paradox with
 {ref "probability-clock"}[the singular collapse matrix] — is that this erasure is
-**unitary**, hence reversible at the level of the wave-function. The information is
+*unitary*, hence reversible at the level of the wave-function. The information is
 not destroyed; it is delocalized into the relative phases between the
 $`1/\sqrt n` amplitudes. What is irreversible is the subsequent restriction to the
 probabilities $`|U_{ij}|^2 = 1/n`, which discards those phases. The unitary mixes

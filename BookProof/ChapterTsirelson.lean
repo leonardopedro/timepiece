@@ -84,11 +84,11 @@ theorem chshOp_eq_tuple :
   · fin_cases i <;> fin_cases j <;> simp +decide [ Matrix.mul_apply ];
     all_goals erw [ Finset.sum_product ] ; simp +decide [ Matrix.one_apply ] ;
   · fin_cases i <;> fin_cases j <;> simp +decide [ Matrix.mul_apply, kroneckerMap_apply ];
-    all_goals simp +decide [ Fin.sum_univ_succ, Matrix.one_apply ] ;
-    all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ ] ;
+    all_goals simp +decide [ Matrix.one_apply ] ;
+    all_goals erw [ Finset.sum_product ] ; simp +decide  ;
   · simp +decide [ Matrix.mul_apply, A1, B1 ];
     fin_cases i <;> fin_cases j <;> simp +decide [ Matrix.one_apply ];
-    all_goals erw [ Finset.sum_product ] ; simp +decide [ Fin.sum_univ_succ ] ;
+    all_goals erw [ Finset.sum_product ] ; simp +decide  ;
 
 /-- The Tsirelson value `2√2` equals the constant `√2 ^ 3` appearing in Mathlib's abstract
 bound `tsirelson_inequality`. -/
@@ -104,12 +104,12 @@ theorem chshOp_eigenvector :
   ext ⟨ i, j ⟩;
   fin_cases i <;> fin_cases j <;> simp +decide [ chshOp, bellState, A0, A1, B0, B1, sx, sz ];
   · simp +decide [Matrix.mulVec, dotProduct, Fintype.sum_prod_type, Fin.sum_univ_two,
-      Matrix.add_apply, Matrix.sub_apply, Matrix.mul_apply, kroneckerMap]
+      Matrix.sub_apply, kroneckerMap]
     unfold bellState; norm_num; ring; norm_num [← Complex.ofReal_pow]
-  · simp +decide [Matrix.mulVec, dotProduct, Fin.sum_univ_succ, kroneckerMap]
+  · simp +decide [Matrix.mulVec, dotProduct, kroneckerMap]
     erw [Finset.sum_product]; norm_num [Fin.sum_univ_succ, bellState]
   · simp +decide [Matrix.mulVec, dotProduct, Fintype.sum_prod_type, Fin.sum_univ_two,
-      Matrix.add_apply, Matrix.sub_apply, Matrix.mul_apply, kroneckerMap]
+      Matrix.sub_apply, kroneckerMap]
     unfold bellState; norm_num
   · unfold bellState; norm_num [Matrix.mulVec, dotProduct, Fin.sum_univ_succ]
     erw [Finset.sum_product]; norm_num [Fin.sum_univ_succ]; ring;

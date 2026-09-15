@@ -126,15 +126,15 @@ theorem tensorPow_one {N : ℕ} :
 -/
 theorem permMat_mul {N : ℕ} (σ τ : Equiv.Perm (Fin N)) :
     permMat σ * permMat τ = permMat (σ * τ) := by
-  ext a c; simp +decide [ Matrix.mul_apply, Finset.sum_ite ] ;
-  unfold permMat; simp +decide [ Finset.sum_ite, Function.comp ] ;
+  ext a c; simp +decide [ Matrix.mul_apply ] ;
+  unfold permMat; simp +decide [ Finset.sum_ite ] ;
   rfl
 
 /-
 `permMat` sends the identity permutation to the identity matrix.
 -/
 theorem permMat_one {N : ℕ} : permMat (1 : Equiv.Perm (Fin N)) = 1 := by
-  ext a b; simp [permMat, Matrix.one_apply, Function.comp_id];
+  ext a b; simp [permMat, Matrix.one_apply];
   grind
 
 /-! ## The braiding relation -/
