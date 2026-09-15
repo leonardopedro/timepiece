@@ -293,7 +293,7 @@ theorem graphMinmaxLevel_le (hT : IsNonnegSelfAdjoint T)
       obtain ⟨x, hxW, hx1, hx0⟩ :=
         exists_unit_mem_ker_of_no_range_subspace P hex hWrank
       have hx0' : cfc q R x = 0 := by rw [← hPdef]; exact hx0
-      have hray := rayleighVal_le_of_cfc_eq_zero R hRsa q hqc c hspec2 hx0'
+      have hray := rayleighVal_le_of_cfc_eq_zero R hRsa q hqc c hspec2 hx0' 
       rw [hx1] at hray
       refine csInf_le_of_le (rayleighSetOn_bddBelow R W) (b := rayleighVal R x)
         ⟨x, hxW, hx1, rfl⟩ ?_

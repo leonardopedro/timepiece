@@ -90,6 +90,12 @@ import BookProof.ChapterReconstruct
 import BookProof.ChapterClassicalLimit
 import BookProof.ChapterJointUnitary
 import BookProof.ChapterHolomorphic
+-- The distributional (Weyl-lemma) form of the "Holomorphic fields" remark: a radial
+-- mollifier on `ℂ` with the disc mean value property, and the theorem that a locally
+-- integrable function satisfying the Cauchy–Riemann equations weakly agrees a.e. with
+-- an analytic function.
+import BookProof.ChapterRadialMollifier
+import BookProof.ChapterWeylCauchyRiemann
 import BookProof.ChapterNavierStokes
 import BookProof.ChapterNavierStokesFlow
 import BookProof.ChapterNavierStokesCauchy
@@ -221,6 +227,16 @@ import BookProof.ChapterMajoranaProp76
 import BookProof.ChapterParity
 import BookProof.ChapterCPTHamiltonian
 import BookProof.ChapterSphericalBessel
+-- Note 68: the spherical Bessel equation for every `l`, the three-term recurrence,
+-- and `jₗ(p r)` as an eigenfunction of the radial Laplacian with eigenvalue `p²`.
+import BookProof.ChapterSphericalBesselODE
+-- The Laplacian of a radial function and the `s`-wave form of Note 68.
+import BookProof.ChapterRadialLaplacian
+-- Note 68, angular half: the generator of rotations has eigenvalue `μ` on `e^{iμφ}`.
+import BookProof.ChapterAngularMomentum
+-- The Laplacian product rule, and Note 68 in the sector of angular momentum `l`.
+import BookProof.ChapterLaplacianProduct
+import BookProof.ChapterBesselHarmonic
 import BookProof.ChapterNoLebesgue
 import BookProof.ChapterNoUniformCountable
 import BookProof.ChapterCountablePartition
@@ -248,6 +264,46 @@ import BookProof.ChapterLorentzRealRepSum
 import BookProof.ChapterLorentzRealRepFull
 import BookProof.ChapterLorentzRealRepDirect
 import BookProof.ChapterLittleGroup
+-- Wigner's little-group classification in the `SL(2,ℂ)` model: the massive little group
+-- is `SU(2)`, the lightlike one is the `SE(2)` double cover, and the mass shells are
+-- single orbits (Definition 78 / Proposition 79 made concrete).
+-- Weyl's complete reducibility theorem for the Lie algebra `sl(2,ℂ)`, proved by the
+-- Casimir argument (Note 23).
+import BookProof.ChapterWeylSl2
+-- Weyl's complete reducibility theorem for the group `SL(2,ℂ)`: every finite-dimensional
+-- representation exponentiating an `sl₂`-triple is completely reducible; the defining
+-- representation on `ℂ²` is exhibited as an instance of the hypothesis.
+import BookProof.ChapterWeylSL2Group
+-- The sl₂-triple itself is derived from the group law: only unipotence of the two
+-- one-parameter subgroups is assumed.
+import BookProof.ChapterWeylSL2Unipotent
+import BookProof.ChapterWignerLittleGroup
+-- The orbit side of Wigner's classification: positive semidefiniteness of the matrix of a
+-- future momentum, invariance of the sign of the energy, the completeness of the pair
+-- (Minkowski square, sign of the energy) as orbit invariants of the future cone, and the
+-- little groups of the zero momentum and of the spacelike reference momentum.
+import BookProof.ChapterWignerLittleGroupOrbits
+import BookProof.ChapterOrthogonalSums
+import BookProof.ChapterWignerOrbitClassification
+-- Mackey's imprimitivity theorem (Note 33 / Note 84) proved in the transitive discrete
+-- case: a system of imprimitivity over a finite transitive base is unitarily equivalent
+-- to the system induced from the stabilizer representation on the fibre.
+import BookProof.ChapterMackeyImprimitivity
+-- The converse half of Mackey's theorem, completing the one-to-one correspondence of
+-- Note 84: every unitary representation of the stabilizer induces a genuine system of
+-- imprimitivity on the space of fibre-valued fields, whose own fibre representation is
+-- the one it was induced from.
+import BookProof.ChapterMackeyInducedSystem
+import BookProof.ChapterMackeyGeneralBase
+-- Wigner's symmetry theorem: a map of a complex Hilbert space with a finite orthonormal
+-- basis preserving all transition probabilities is, up to a vector-dependent phase, a
+-- single unitary or a single antiunitary operator.
+import BookProof.ChapterWignerSymmetry
+import BookProof.ChapterWignerSymmetryInfinite
+-- The uniqueness clause of Wigner's theorem ("defined up to a complex phase"): the
+-- implementing unitary, resp. antiunitary, is unique up to one global phase, and the two
+-- alternatives exclude each other as soon as the space has two orthonormal vectors.
+import BookProof.ChapterWignerSymmetryUniqueness
 import BookProof.ChapterIPin
 import BookProof.ChapterSE2
 import BookProof.ChapterLocalization
@@ -366,6 +422,37 @@ import BookProof.ChapterHierarchicalBayesComposition
 import BookProof.ChapterHierarchicalBayes
 import BookProof.ChapterFiniteBayesHierarchy
 import BookProof.ChapterOdeComplexification
+-- The unitary time-evolution of `ẋ = x²` (book.tex Equations 1–4): the Möbius flow,
+-- its one-parameter group of probability-preserving operators, and its generator `-iH`.
+import BookProof.ChapterOdeUnitaryFlow
+-- The Whittaker–Shannon sampling theorem, quoted by the ODE chapter: the interpolation
+-- formula for a band-limited signal and the uniqueness of a signal with given samples.
+import BookProof.ChapterShannonSampling
+-- The same chapter's conclusion: a wave-function with a band-limited chart transform is
+-- determined by its values at the discrete points `xₙ = -T/n`.
+import BookProof.ChapterOdeSampling
+-- The sampling theorem for genuinely band-limited functions of the line: a continuous
+-- integrable function whose Fourier transform vanishes outside the band is the sinc series
+-- built from its samples at `n/T` (the Paley–Wiener side of the sampling theorem).
+import BookProof.ChapterPaleyWienerSampling
+-- Weyl's unitarian trick for a compact group: every invariant subspace of a
+-- finite-dimensional continuous representation has an invariant complement (Haar averaging).
+import BookProof.ChapterCompactCompleteReducibility
+-- An energy bound on the initial condition makes the trajectory Lipschitz in time, so the
+-- time-derivative of the wave-function cannot diverge (book.tex, ODE chapter).
+import BookProof.ChapterEnergyBoundedEvolution
+-- The local velocity constraint is a null set for the joint Gaussian law of position and
+-- velocity (book.tex, "Balancing discretization and locality").
+import BookProof.ChapterLocalityConstraintNull
+-- Symmetries as irreversible processes: a non-deterministic symmetry acting on a
+-- deterministic ensemble strictly raises the entropy after the collapse (book.tex).
+import BookProof.ChapterSymmetryEntropy
+-- The canonical commutation relations admit no bounded (or finite-dimensional)
+-- realization, and a constrained null momentum contradicts them (book.tex, Timepiece).
+import BookProof.ChapterCcrNoBounded
+-- A time-dependent evolution becomes a one-parameter group in a larger space: the
+-- autonomization of a non-autonomous vector field and the Howland evolution group.
+import BookProof.ChapterHowlandAutonomization
 import BookProof.ChapterRieszFischer
 import BookProof.ChapterPaFreeCompletion
 import BookProof.ChapterDefinabilityFragment
@@ -434,6 +521,28 @@ import BookProof.ChapterEll2Separable
 -- unitarian trick (complete reducibility of unitary representations).
 import BookProof.ChapterSchurFullFiniteDim
 import BookProof.ChapterUnitaryCompleteReducibility
+
+-- Wave (September 2026): Schur's lemma for an irreducible *normal* system on an
+-- arbitrary complex Hilbert space, through the continuous functional calculus —
+-- this removes the finite-dimensionality restriction and turns the `EXTERNAL`
+-- hypotheses `IsSchurFull` / `IsSchurUnitary` of Chapter A.2 into theorems.
+import BookProof.ChapterSchurIrreducible
+
+-- Wave (September 2026): the two named corollaries of that theorem — Lemma 28
+-- (Schur for unitary representations) and Lemma 34 (Schur for systems of
+-- imprimitivity, without Mackey's theorem).
+import BookProof.ChapterSchurRepresentation
+
+-- Wave (September 2026): Note 36, **Pauli's fundamental theorem of the γ-matrices**,
+-- proved from the Clifford relations and the concrete Majorana model; this discharges
+-- the last `EXTERNAL` hypothesis of §A.3 (`PauliFundamental`).
+import BookProof.ChapterPauliFundamental
+
+-- Wave (September 2026): the two families of consequences of the results above —
+-- Prop 46 (the Pin(3,1) → O(1,3) covering) and the §A.2 ℝ/ℂ/ℍ trichotomy —
+-- restated with no external hypothesis.
+import BookProof.ChapterPauliConsequences
+import BookProof.ChapterSchurTrichotomy
 
 -- Wave (August 2026): goal A.4 of the book's Proof-Plans appendix — the spectral
 -- energy bound and the resulting absence of a finite-time singularity.
@@ -2298,3 +2407,233 @@ import BookProof.ChapterYangMillsGhostSector
 -- the single-time package, the absence of a one-particle form gap, the photon no-gap
 -- obstruction, and the ghost sector.  Re-exports only.
 import BookProof.ChapterQedAbelianConsolidation
+
+-- `ChapterFarisLavineOnly` (2026-09-11 wave): essential self-adjointness **only through
+-- Faris–Lavine**.  `CoreData.esa_on_core` brings the Faris–Lavine conclusion back from the
+-- domain of the comparison operator to the graph core itself, and
+-- `sqSumOp_esa_farisLavine` replaces the Carleman proof of essential self-adjointness of
+-- `½ Σ κ_j π_j² + ½ Σ_r L_r²` by the commutator criterion, with the Friedrichs extension of
+-- `N₁ = −Δ + ‖x‖²/4` as comparison operator — the only certificate that lifts to the outer
+-- Fock space.
+import BookProof.ChapterFarisLavineOnly
+
+-- `ChapterYangMillsOuterFockFL` (2026-09-11 wave): the 3D gauge-fixed Yang–Mills Hamiltonian
+-- on the outer Fock space `⊕ₙ L²(ℝ^{99n})`, by Faris–Lavine.  The one-particle abelian
+-- Hamiltonian is identified as a kinetic-plus-squares operator and re-proved essentially
+-- self-adjoint through Faris–Lavine; the parcel model adds the Gauss gauge-fixing forms and
+-- the nearest-neighbour ties of the independent derivative coordinates, and the lifted
+-- Hamiltonian is essentially self-adjoint on the domain of the lifted Friedrichs extension.
+import BookProof.ChapterYangMillsOuterFockFL
+
+-- `ChapterEsaFarisLavineIndex` (2026-09-11 wave): the index of the Faris–Lavine-only
+-- essential-self-adjointness statements of the three threads (QYM, NS, QG including the full
+-- exponential scalaron potential), on the sector core, on the finite-particle core of the
+-- outer Fock space, and on the domain of the lifted Friedrichs comparison operator.
+import BookProof.ChapterEsaFarisLavineIndex
+
+-- `ChapterQg3DGaugeFarisLavine` (2026-09-11 wave, second pass): the 84-coordinate 3D
+-- gauge-fixed gravity Hamiltonian — tetrad plus the independent coordinates representing the
+-- spatial derivatives of the tetrad — re-proved essentially self-adjoint **through
+-- Faris–Lavine only**, with the 3D gauge condition and the gauge fixing of the derivative
+-- coordinates added as quadratic gauge-fixing terms, on the one-particle space and on the
+-- nested Fock space `⊕ₙ L²(ℝ^{84n})`, whose Hamiltonian is shown to conserve the particle
+-- number.
+import BookProof.ChapterQg3DGaugeFarisLavine
+
+-- `ChapterQgVielbeinScalaronGaugeFL` (2026-09-11 wave, second pass): the complete gravity
+-- Hamiltonian — vielbein in exact Fourier modes (no lattice), independent derivative
+-- variables with their gauge fixing, the 3D transverse gauge fixing, and the scalaron with
+-- the full exponential Einstein-frame potential and its coupling to the trace of the
+-- vielbein — essentially self-adjoint on the outer Fock space by Faris–Lavine, on the
+-- lifted Friedrichs domain and on the finite-particle core, with particle-number
+-- conservation.
+import BookProof.ChapterQgVielbeinScalaronGaugeFL
+
+-- `ChapterScalaronNotQuadratic` (2026-09-12 wave): the full exponential Einstein-frame
+-- scalaron potential is not a polynomial of degree `≤ 2`, hence not a half-sum of squares of
+-- linear forms.  This is the precise obstruction that keeps the gravity Hamiltonian *with*
+-- the scalaron out of the kinetic-plus-squares class to which the 84-coordinate jet model
+-- (tetrad and its derivative coordinates, no scalaron) belongs, and is why that Hamiltonian
+-- is proved essentially self-adjoint by the Faris–Lavine mode machinery with a genuine wall.
+import BookProof.ChapterScalaronNotQuadratic
+
+-- `ChapterYangMillsFockFriedrichs` (2026-09-12 wave): quantum Yang–Mills on the nested Fock
+-- space `⊕ₙ L²(ℝ^{99n})` by the **direct Friedrichs extension**.  The Hamiltonian — kinetic
+-- term, full magnetic energy at arbitrary real structure constants (the quartic non-abelian
+-- case included) and the 3D gauge-fixing forms in the independent derivative coordinates —
+-- is a positive sum of squares, hence bounded below, so no Faris–Lavine commutator
+-- certificate is needed: symmetry and positivity are fibrewise and lift to the outer Fock
+-- space, where the Friedrichs extension and its unitary flow are constructed, and the outer
+-- Hamiltonian conserves the particle number.
+import BookProof.ChapterYangMillsFockFriedrichs
+
+-- Gauge symmetry (book.tex chapter "Gauge symmetry and dissipative dynamics in
+-- probability spaces", line 2128, and the gauge sections of the Yang–Mills /
+-- Gribov chapters, lines 6650–7400).  These five modules complete the formal
+-- coverage of the manuscript's gauge material: the vanishing of the expectation
+-- values of gauge-variant operators (no spontaneous breaking of a gauge
+-- symmetry), the gauge algebra with the Gauss law and the gauge invariance and
+-- positivity of the Weyl-gauge Hamiltonian, the identification of the remnant of
+-- the Weyl gauge fixing with the time-independent subgroup (hence its
+-- incompleteness), the gauge-mechanics charge operator with its BRST charge and
+-- gauge-invariant algebra, and the two presentations of the ghost algebra.
+import BookProof.ChapterGaugeVariantVanishing
+import BookProof.ChapterGaugeAdjointAlgebra
+import BookProof.ChapterGaugeWeylResidual
+import BookProof.ChapterGaugeMechanicsCharge
+import BookProof.ChapterGhostMajoranaRep
+import BookProof.ChapterGaugeIncompleteFixing
+import BookProof.ChapterGaugeShiftExample
+import BookProof.ChapterGaugeUnconstrainedSpectrum
+import BookProof.ChapterFockDegreesOfFreedom
+import BookProof.ChapterGravityPolymomentum
+import BookProof.ChapterComputableScarcity
+import BookProof.ChapterEnergyBandDecomposition
+
+-- `ChapterNsBrstDerivativeGauge`: the BRST charge of the Navier–Stokes gauge fixing of the
+-- variables that represent the spatial derivatives of the velocity field (the generators
+-- `genY`, `genY2` of `ChapterNavierStokesGaugeY`/`ChapterNavierStokesGaugeY2`), with the
+-- ghosts on `Λ(ℂ³)`, the nilpotency of the charge and — the headline — its vanishing
+-- commutator with the Navier–Stokes Hamiltonian, hence the descent of the dynamics to the
+-- BRST cohomology of that gauge.
+import BookProof.ChapterNsBrstDerivativeGauge
+
+-- `ChapterMackeyQuasiInvariant`: Mackey's induced system of imprimitivity over a
+-- *continuous* base.  For a `G`-space `X` with a quasi-invariant measure `μ` and a
+-- measurable unitary cocycle `L`, the induced representation
+-- `(V g f)(x) = √(d(g_*μ)/dμ (x)) · L g x (f (g⁻¹ x))` is a unitary representation of `G`
+-- on `L²(X, μ; K)`, multiplication by indicators is a projection-valued measure, and the
+-- two satisfy Mackey's covariance relation `V g P(E) V(g)⁻¹ = P(g · E)`.
+import BookProof.ChapterMackeyQuasiInvariant
+
+-- `ChapterCrouzeixSelfAdjoint`: Crouzeix's inequality, proved with constant `1` for
+-- self-adjoint (indeed normal) operators through the continuous functional calculus, and
+-- the SIRK error bound of `ChapterH4` with its two Crouzeix hypotheses discharged in the
+-- self-adjoint (positive shift-invert) regime.
+import BookProof.ChapterCrouzeixSelfAdjoint
+
+-- `ChapterMackeyQuasiInvariantSigma`: countable additivity of the projection-valued measure
+-- of the induced system over a continuous base — for a countable family of pairwise
+-- disjoint measurable sets, the projections sum unconditionally to the projection onto the
+-- union.
+import BookProof.ChapterMackeyQuasiInvariantSigma
+
+-- `ChapterMackeyTranslation`: the concrete continuous-base instance — the translation group
+-- of an additive group with a left-invariant measure, and in particular the localization
+-- structure of a particle in three-dimensional space: the translation representation on
+-- `L²(ℝ³)` together with the localization projections is a system of imprimitivity based
+-- on `ℝ³`.
+import BookProof.ChapterMackeyTranslation
+
+-- `ChapterPvmMeasure`: the scalar measure `E ↦ ‖P(E)ψ‖²` of a vector for a projection-valued
+-- measure on a measurable space — a finite measure, vanishing exactly where the projection
+-- does, and the notion of a cyclic vector for a projection-valued measure.
+import BookProof.ChapterPvmMeasure
+
+-- `ChapterPvmCyclicUnitary`: the spectral theorem for a *cyclic* projection-valued measure —
+-- the Hilbert space is unitarily `L²(X, μ)` with `μ = ‖P(·)ψ‖²`, by a unitary sending the
+-- indicator of `E` to `P(E)ψ` and intertwining multiplication by indicators with `P`.
+import BookProof.ChapterPvmCyclicUnitary
+
+-- `ChapterMackeyCocycle`: the converse construction at the level of `L²` — a unitary
+-- representation of `G` on `L²(X, μ)` covariant for the multiplication projections forces the
+-- measure to be quasi-invariant and is *induced*: `(V g f)(x) = u g x · √(dens μ g x) · f(g⁻¹x)`
+-- for a measurable cocycle `u` of modulus one.
+import BookProof.ChapterMackeyCocycle
+
+-- `ChapterMackeyConverse`: the converse of Mackey's imprimitivity theorem over a *continuous*
+-- base (cyclic case) — every system of imprimitivity over a measurable `G`-space with a cyclic
+-- vector is unitarily equivalent to the induced system of the (automatically quasi-invariant)
+-- measure `‖P(·)ψ‖²` and a modulus-one measurable cocycle.  This removes the honest boundary
+-- that the converse direction had been formalized only over a discrete base.
+import BookProof.ChapterMackeyConverse
+
+-- `ChapterNumericalRangeCrouzeix`: Crouzeix-type inequalities from the numerical range for
+-- general *non-normal* operators — the Berger power inequality `w(Aⁿ) ≤ w(A)ⁿ` by Pearcy's
+-- argument, `‖A‖ ≤ 2w(A)`, and the headline `‖f(A)‖ ≤ (1 + 2r/(R−r))·M` for the analytic
+-- functional calculus of a series obeying Cauchy's estimate on a strictly larger disc.
+import BookProof.ChapterNumericalRangeCrouzeix
+
+-- `ChapterSirkCrouzeixNumericalRange`: the SIRK error bound of `ChapterH4` for a general
+-- non-normal operator with **no** Crouzeix hypothesis — the two operator-norm bounds are
+-- proved from the numerical range by `ChapterNumericalRangeCrouzeix`, and the Crouzeix disc
+-- is inherited by the Krylov compression.
+import BookProof.ChapterSirkCrouzeixNumericalRange
+
+-- `ChapterPvmCyclicDecomposition`: the cyclic decomposition of a projection-valued measure —
+-- by Zorn's lemma every projection-valued measure on a complete space has a family of unit
+-- vectors with mutually orthogonal cyclic subspaces spanning a dense subspace, and the
+-- restriction to the cyclic subspace of a member is a projection-valued measure for which that
+-- member is cyclic.  This is the step that reduces the general case of the converse of Mackey's
+-- imprimitivity theorem (`ChapterMackeyConverse`, stated in the cyclic case) to the cyclic one.
+import BookProof.ChapterPvmCyclicDecomposition
+
+-- `ChapterPvmInducedSystem`: the assembly of the cyclic pieces into **one** system — the
+-- isometries `L²(X, μ_ψ) → H` of the pieces exhibit `H` as their Hilbert sum, so there is a
+-- single unitary from `H` onto the `ℓ²`-sum of the fibres `L²(X, μ_ψ)`, indexed by the
+-- multiplicity set `S`, under which `P(E)` becomes multiplication by the indicator of `E` in
+-- every fibre at once.  This removes the boundary recorded in `ChapterPvmCyclicDecomposition`.
+import BookProof.ChapterPvmInducedSystem
+
+-- `ChapterHilbertSumIntertwine`: the abstract fibrewise principle — an operator carried by the
+-- isometries of a Hilbert sum to a family of contractions of the fibres acts, under the
+-- canonical unitary onto the `ℓ²`-sum, as that fibrewise family.
+import BookProof.ChapterHilbertSumIntertwine
+
+-- `ChapterL2FibreSum`: for a countable index `ι`, the vector-valued space `L²(X, μ; ℓ²(ι))` of
+-- Mackey's induced system *is* the `ℓ²`-sum of `ι` copies of `L²(X, μ)`, compatibly with
+-- multiplication by indicators.
+import BookProof.ChapterL2FibreSum
+
+-- `ChapterPvmFibreInducedSystem`: the two together — a projection-valued measure whose cyclic
+-- decomposition is countable and *homogeneous* (all the fibre measures equal one measure `μ`) is
+-- unitarily the induced multiplication system on `L²(X, μ; K)` with the multiplicity (fibre)
+-- Hilbert space `K = ℓ²(S)`.
+import BookProof.ChapterPvmFibreInducedSystem
+
+-- `ChapterPvmScalarMeasure`: the scalar spectral measure of a projection-valued measure — on a
+-- separable space the weighted sum of the measures of a total orthogonal cyclic family is a
+-- finite measure whose null sets are exactly the sets carrying the zero projection, and for a
+-- system of imprimitivity it is quasi-invariant, with no cyclic vector assumed.
+import BookProof.ChapterPvmScalarMeasure
+
+-- `ChapterNumericalRangeSemigroup`: Crouzeix's inequality on a *half-plane*, with the optimal
+-- constant 1, for the exponentials: if the numerical range of a bounded operator lies in
+-- `{Re z ≤ ω}` then `‖e^{tA}‖ ≤ e^{ωt}` for `t ≥ 0` (a contraction semigroup when `ω = 0`),
+-- proved from the differential inequality for `‖e^{tA}x‖²`, together with the matching
+-- Hille–Yosida resolvent estimate `‖(z − A)⁻¹‖ ≤ 1/(Re z − ω)` for `Re z > ω`.
+import BookProof.ChapterNumericalRangeSemigroup
+
+-- `ChapterSchurFiniteDimensional`: Lemma 20 of the real-representations chapter — Schur's
+-- lemma for an irreducible *finite-dimensional* complex system, with no normality hypothesis
+-- (the eigenvalue argument), so that Props 17–19 apply unconditionally there; and the core of
+-- Lemma 21 — a commuting anti-unitary squares to `+1` or `−1` (real / pseudoreal dichotomy).
+import BookProof.ChapterSchurFiniteDimensional
+
+-- `ChapterSolidHarmonicTools`: the analytic toolkit behind the solid harmonics — the Laplacian
+-- of a power of a (complex or real) linear form, of a power of the squared norm, and of a
+-- product of an angular factor with a "cylindrical" monomial `⟪e,x⟫^j (‖x‖²)^m`.
+import BookProof.ChapterSolidHarmonicTools
+
+-- `ChapterLegendrePolynomial`: Legendre polynomials from Rodrigues' formula (Mathlib has none),
+-- the Legendre ODE, the Gegenbauer equation satisfied by the `μ`-th derivative, and the
+-- coefficient recursion `(j+2)(j+1)g_{j+2} = −(n−j)(n+j+2μ+1)g_j` with the degree, parity and
+-- leading-coefficient facts it needs.
+import BookProof.ChapterLegendrePolynomial
+
+-- `ChapterSolidHarmonic`: the solid harmonics `rˡ Y_{lμ}` for **all** `l` and `μ ≤ l`, built as
+-- `Re((⟪u,x⟫+i⟪v,x⟫)^μ) · Σ_m P_l^{(μ)}[n−2m] ⟪e,x⟫^{n−2m} (‖x‖²)^m`; they are harmonic
+-- (`solidHarmonic_harmonic`), homogeneous of degree `l` (`solidHarmonic_euler`), and in spherical
+-- coordinates equal `rˡ P_l^μ(cos θ) cos(μφ)` (`solidHarmonic_spherical`).
+import BookProof.ChapterSolidHarmonic
+
+-- `ChapterNote68AllModes`: Note 68 of §A.5 in every angular-momentum mode `(l, μ)` — combining
+-- the Bessel reduction with the solid harmonics above — and its concrete instance on `ℝ³`.
+import BookProof.ChapterNote68AllModes
+
+-- `ChapterSphericalPlancherel`: **unitarity of the spherical transform** in the `s`-wave sector.
+-- Plancherel for the Fourier sine transform, obtained from Mathlib's Fourier–Plancherel theorem
+-- by odd extension, and hence `∫₀^∞ |(𝓢f)(p)|² p² dp = ∫₀^∞ |f(r)|² r² dr` for the transform
+-- `(𝓢f)(p) = √(2/π) ∫₀^∞ f(r) j₀(pr) r² dr`, for every radial profile whose moment `r f(r)` is
+-- an odd Schwartz function; with an explicit nonzero profile witnessing non-vacuity.
+import BookProof.ChapterSphericalPlancherel

@@ -1,0 +1,371 @@
+import Mathlib
+import BookProof.ChapterSqSumOuterFamily
+import BookProof.ChapterQgOuterFockInteractionFL
+import BookProof.ChapterNsOuterFockFarisLavine.Part1
+
+/-!
+# The gauge-fixed Navier–Stokes Hamiltonian on the outer Fock space, by Faris–Lavine
+
+This module carries out for Navier–Stokes what
+`BookProof.ChapterQgOuterFockFullFL` and `BookProof.ChapterQgOuterFockInteractionFL` do for
+quantum gravity: it exhibits the gauge-fixed Hamiltonian as a *uniform* kinetic-plus-squares
+family on the sectors of an outer Fock space and runs the Faris–Lavine theorem there, with
+the **same comparison operator** — the lifted Friedrichs extension `dΓ(N₁)` of the positive
+one-particle operator `N₁ = −Δ + ‖x‖²/4`.
+
+## The variables
+
+The parcel (excitation) of the Navier–Stokes thread carries the gauge-fixed field variables
+of `BookProof.ChapterNavierStokesGaugeY`, *without* the space coordinate `x_j`, on which the
+Hamiltonian symbol does not depend (`genX_nsSymbol`): the three velocity modes `u_i`, the
+nine first-derivative modes `u_{i,j}`, the three Laplacian modes `u_{i,jj}` and the three
+auxiliary coordinates `y_j` in which the field is expanded, `u_i(y) = u_i + u_{i,j} y_j`.
+That is `18` coordinates per parcel (`NsLoc`), so the `n`-parcel sector is `L²(ℝ^{18n})` and
+the state space is the outer Fock space `⊕ₙ L²(ℝ^{18n})`.
+
+## The Hamiltonian
+
+For a background advection velocity `bv`, viscosity `nu`, derivative-gauge strengths `lam`,
+`mu` and `y`-gauge strength `gg`, the `n`-parcel Hamiltonian is
+
+`H_n = ½ Σ_I π_I² + ½ Σ_r L_r²`
+
+with, for every parcel `p`, the following four families of linear forms `L_r` (`sameVec`
+gives their coefficients on the coordinates of `p`, `nextVec` those on the coordinates of
+the cyclic neighbour `nextPart p`):
+
+* **the Navier–Stokes constraint** `A_i = Σ_j bv_j u_{i,j} − nu·u_{i,jj}` — the advection
+  (with background velocity `bv`) and viscous terms of the Navier–Stokes symbol, imposed as
+  a squared constraint exactly as the torsion constraints are in the gravity sector;
+* **the derivative gauge-fixing** `lam·(u_{i,j} + u_i − u_i^{next})` — the statement that
+  the variable `u_{i,j}`, which represents a *spatial derivative of the field*, is the
+  finite difference of the velocity between neighbouring parcels.  This form mixes the
+  coordinates of two different parcels, so it is genuinely an **interaction term**;
+* **the Laplacian gauge-fixing** `mu·(u_{i,jj} + Σ_j u_{i,j} − Σ_j u_{i,j}^{next})` — the
+  same for the second-derivative variables;
+* **the `y`-gauge fixing** `gg·y_j` — the gauge condition `y = 0` of the auxiliary
+  expansion coordinate, whose generator `G_j = ∂/∂y_j − u_{i,j}∂/∂u_i` annihilates the
+  Navier–Stokes symbol.
+
+## What is proved
+
+* `NsLoc`, `locU`, `locD`, `locL`, `locY`, `coordOf`, `parcelOf`, `locOf`,
+  `sum_reindex_parcels` — the `18` field coordinates of a parcel and the bookkeeping of the
+  `18n` coordinates of a sector;
+* `sameVec`, `nextVec`, `nsVec` — the coefficient vectors of the four families of forms,
+  with `nsVec_advection`, `nsVec_viscous`, `nsVec_tie_self`, `nsVec_tie_velocity`,
+  `nsVec_lap_self`, `nsVec_gaugeY` reading off the individual coefficients, and
+  `linForm_nsVec`, `linForm_nsConstraint`, `linForm_nsTie`, `linForm_nsLap`,
+  `linForm_nsGaugeY` writing the four families out as polynomials in the field variables;
+* `sum_abs_sameVec_row`, `sum_abs_nextVec_row`, `sum_abs_sameVec_col`,
+  `sum_abs_nextVec_col`, `nsVec_row_le`, `nsVec_col_le` — the Schur data: every form has
+  `ℓ¹` norm at most `7B` and every coordinate is touched by forms of total `ℓ¹` weight at
+  most `6B`, where `B` bounds all the coefficients.  **Both bounds are independent of the
+  parcel number `n`** — the locality of the gauge-fixing couplings — which is exactly the
+  uniformity the `ℓ²`-direct-sum Faris–Lavine theorem needs;
+* `nsFamily` — the family, as a `BookProof.SqSumOuterFamily.SqFamily`;
+* `nsSectorHam`, `nsOuterHam` — the sector Hamiltonians and the full Hamiltonian on the
+  finite-particle core of the outer Fock space, `nsOuterHam_symmetricOn`,
+  `nsOuterHam_esa_core`;
+* **`nsOuterFock_esa_farisLavine`** — the headline: the full gauge-fixed Navier–Stokes
+  Hamiltonian, with its interaction (inter-parcel) terms and all its gauge-fixing terms, is
+  essentially self-adjoint on the domain of the lifted Friedrichs extension of `N₁`, and
+  the operator so realized extends `nsOuterHam` on the finite-particle core;
+* `nsVec_coupling`, `ns_interaction_nontrivial` — the derivative gauge-fixing forms really
+  do couple two different parcels, so for `lam ≠ 0` the Hamiltonian is *not* a sum of
+  one-parcel operators.
+
+## Honest boundary
+
+*Added 2026‑09‑12:* the **full**, non-linearised Navier–Stokes Hamiltonians — with the exact
+advection `u·∇u` in Eulerian variables and the exact Piola pressure term together with the
+exact `det F = 1` volume constraint in Lagrangian variables — are carried by
+`BookProof/ChapterNavierStokesFullEulerianFock.lean` and
+`BookProof/ChapterNavierStokesFullLagrangianFock.lean`.  They are bounded below, so there the
+route is the direct Friedrichs extension, lifted fibrewise to the outer Fock space, with the
+Faris–Lavine criterion run there with that lift as comparison operator; *essential*
+self-adjointness on the finite-parcel core is what this module — the quadratic model — adds,
+and it is claimed for the quadratic model only.
+
+The Hamiltonian of *this* module is quadratic: the advection is taken with a **background velocity field
+`bv`** (the Oseen linearisation), the nonlinear self-advection `u_j u_{i,j}` — a cubic term
+in the canonical variables — is *not* included, and nothing here bears on global regularity
+of the classical Navier–Stokes equations.  This is the same class of Hamiltonian as in the
+gravity sector, and the restriction is essential: for a genuinely nonlinear transport
+symbol the classical flow can leave every ball in finite time and no comparison operator
+can help — the `ẋ = x²` warning of the Navier–Stokes thread, formalized in
+`BookProof.ChapterNavierStokesFullEsa.exists_nsFullData_not_hasZeroDeficiencyOn`.  The Fock
+space is the `ℓ²`-direct sum of the sectors (distinguishable parcels, no symmetrization),
+and no spectral information is claimed.
+
+Everything is `sorry`-free and `axiom`-free.
+-/
+
+namespace BookProof.NsOuterFock
+
+open Finset MvPolynomial
+open BookProof.FarisLavine BookProof.DirectSumEsa
+open BookProof.HermiteProductCore BookProof.QgHermiteOscillator
+open BookProof.QgOuterFock BookProof.QgOuterFockFL
+open BookProof.QgOuterFockInteractionFL
+open BookProof.SqSumOuterFamily
+
+noncomputable section
+
+variable (bv : Fin 3 → ℝ) (nu lam mu gg : ℝ)
+/-! ### The Schur data -/
+
+variable {bv nu lam mu gg}
+variable {B : ℝ} (hB : 0 ≤ B) (hbv : ∀ j, |bv j| ≤ B) (hnu : |nu| ≤ B) (hlam : |lam| ≤ B)
+  (hmu : |mu| ≤ B) (hgg : |gg| ≤ B)
+
+include hB hbv hnu hlam hmu hgg in
+/-- Every form has `ℓ¹` norm at most `4B` on the coordinates of its own parcel. -/
+theorem sum_abs_sameVec_row (f : NsLoc) :
+    ∑ c : NsLoc, |sameVec bv nu lam mu gg f c| ≤ 4 * B := by
+  obtain i | (⟨i, j⟩ | (i | j)) := f <;>
+    simp [Fintype.sum_sum_type, Fintype.sum_prod_type, sameVec, Fin.sum_univ_three,
+      apply_ite (fun t : ℝ => |t|), abs_neg] <;>
+    (try fin_cases i) <;> (try fin_cases j) <;> (try simp) <;>
+    linarith [hbv 0, hbv 1, hbv 2, hnu, hlam, hmu, hgg, abs_nonneg lam, abs_nonneg mu]
+
+include hB hlam hmu in
+/-- Every form has `ℓ¹` norm at most `3B` on the coordinates of the neighbouring parcel. -/
+theorem sum_abs_nextVec_row (f : NsLoc) :
+    ∑ c : NsLoc, |nextVec lam mu f c| ≤ 3 * B := by
+  obtain i | (⟨i, j⟩ | (i | j)) := f <;>
+    simp [Fintype.sum_sum_type, Fintype.sum_prod_type, nextVec, Fin.sum_univ_three,
+      apply_ite (fun t : ℝ => |t|), abs_neg] <;>
+    (try fin_cases i) <;> (try fin_cases j) <;> (try simp) <;>
+    linarith [hlam, hmu, abs_nonneg lam, abs_nonneg mu]
+
+include hB hbv hnu hlam hmu hgg in
+/-- Every coordinate is touched by forms of its own parcel of total `ℓ¹` weight at most
+`3B`. -/
+theorem sum_abs_sameVec_col (c : NsLoc) :
+    ∑ f : NsLoc, |sameVec bv nu lam mu gg f c| ≤ 3 * B := by
+  obtain i | (⟨i, j⟩ | (i | j)) := c <;>
+    simp [Fintype.sum_sum_type, Fintype.sum_prod_type, sameVec, Fin.sum_univ_three,
+      apply_ite (fun t : ℝ => |t|), abs_neg] <;>
+    (try fin_cases i) <;> (try fin_cases j) <;> (try simp) <;>
+    linarith [hbv 0, hbv 1, hbv 2, hnu, hlam, hmu, hgg, abs_nonneg lam, abs_nonneg mu]
+
+include hB hlam hmu in
+/-- Every coordinate is touched by forms of the preceding parcel of total `ℓ¹` weight at
+most `3B`. -/
+theorem sum_abs_nextVec_col (c : NsLoc) :
+    ∑ f : NsLoc, |nextVec lam mu f c| ≤ 3 * B := by
+  obtain i | (⟨i, j⟩ | (i | j)) := c <;>
+    simp [Fintype.sum_sum_type, Fintype.sum_prod_type, nextVec, Fin.sum_univ_three,
+      apply_ite (fun t : ℝ => |t|), abs_neg] <;>
+    (try fin_cases i) <;> (try fin_cases j) <;> (try simp) <;>
+    linarith [hlam, hmu, abs_nonneg lam, abs_nonneg mu]
+
+/-- The coefficient of a form on a coordinate is controlled by its own-parcel part and its
+neighbour part. -/
+theorem abs_nsVec_le {n : ℕ} (r : Fin n × NsLoc) (p : Fin n) (l : NsLoc) :
+    |nsVec bv nu lam mu gg n r (coordOf p l)|
+      ≤ (if p = r.1 then |sameVec bv nu lam mu gg r.2 l| else 0)
+        + (if p = nextPart r.1 then |nextVec lam mu r.2 l| else 0) := by
+  rw [nsVec, parcelOf_coordOf, locOf_coordOf]
+  by_cases h1 : p = r.1
+  · rw [if_pos h1, if_pos h1]
+    have h2 : (0 : ℝ) ≤ if p = nextPart r.1 then |nextVec lam mu r.2 l| else 0 := by
+      split_ifs
+      · exact abs_nonneg _
+      · exact le_rfl
+    linarith
+  · rw [if_neg h1, if_neg h1]
+    by_cases h2 : p = nextPart r.1
+    · rw [if_pos h2, if_pos h2]
+      simp
+    · rw [if_neg h2, if_neg h2]
+      simp
+
+include hB hbv hnu hlam hmu hgg in
+/-- **The row bound**: every linear form of the family has `ℓ¹` norm at most `7B`,
+uniformly in the parcel number. -/
+theorem nsVec_row_le (n : ℕ) (r : Fin n × NsLoc) :
+    ∑ I : Fin (n * 18), |nsVec bv nu lam mu gg n r I| ≤ 7 * B := by
+  set A : NsLoc → ℝ := fun l => |sameVec bv nu lam mu gg r.2 l| with hA
+  set C : NsLoc → ℝ := fun l => |nextVec lam mu r.2 l| with hC
+  have hstep : ∀ p : Fin n,
+      ∑ l : NsLoc, ((if p = r.1 then A l else 0) + (if p = nextPart r.1 then C l else 0))
+        = (if p = r.1 then ∑ l : NsLoc, A l else 0)
+          + (if p = nextPart r.1 then ∑ l : NsLoc, C l else 0) := by
+    intro p
+    rw [Finset.sum_add_distrib]
+    congr 1
+    · by_cases h : p = r.1 <;> simp [h]
+    · by_cases h : p = nextPart r.1 <;> simp [h]
+  have hagg : ∑ p : Fin n, ∑ l : NsLoc,
+      ((if p = r.1 then A l else 0) + (if p = nextPart r.1 then C l else 0))
+      = (∑ l : NsLoc, A l) + ∑ l : NsLoc, C l := by
+    rw [Finset.sum_congr rfl fun p _ => hstep p, Finset.sum_add_distrib,
+      Finset.sum_ite_eq' Finset.univ r.1 (fun _ => ∑ l : NsLoc, A l),
+      Finset.sum_ite_eq' Finset.univ (nextPart r.1) (fun _ => ∑ l : NsLoc, C l)]
+    simp
+  rw [sum_reindex_parcels]
+  calc ∑ p : Fin n, ∑ l : NsLoc, |nsVec bv nu lam mu gg n r (coordOf p l)|
+      ≤ ∑ p : Fin n, ∑ l : NsLoc,
+          ((if p = r.1 then A l else 0) + (if p = nextPart r.1 then C l else 0)) :=
+        Finset.sum_le_sum fun p _ => Finset.sum_le_sum fun l _ => abs_nsVec_le r p l
+    _ = (∑ l : NsLoc, A l) + ∑ l : NsLoc, C l := hagg
+    _ ≤ 7 * B := by
+        have h1 := sum_abs_sameVec_row hB hbv hnu hlam hmu hgg r.2
+        have h2 := sum_abs_nextVec_row hB hlam hmu r.2
+        rw [hA, hC]
+        linarith
+
+include hB hbv hnu hlam hmu hgg in
+/-- **The column bound**: every coordinate is touched by forms of total `ℓ¹` weight at most
+`6B`, uniformly in the parcel number — the couplings are nearest-neighbour, so a coordinate
+belongs to one parcel and that parcel occurs in exactly two coupling blocks. -/
+theorem nsVec_col_le (n : ℕ) (I : Fin (n * 18)) :
+    ∑ r : Fin n × NsLoc, |nsVec bv nu lam mu gg n r I| ≤ 6 * B := by
+  set b0 : Fin n := parcelOf I with hb0
+  set c0 : NsLoc := locOf I with hc0
+  have hI : I = coordOf b0 c0 := (coordOf_parcelOf_locOf I).symm
+  have hterm : ∀ (p : Fin n) (f : NsLoc),
+      |nsVec bv nu lam mu gg n (p, f) I|
+        ≤ (if b0 = p then |sameVec bv nu lam mu gg f c0| else 0)
+          + (if b0 = nextPart p then |nextVec lam mu f c0| else 0) := by
+    intro p f
+    rw [hI, nsVec, parcelOf_coordOf, locOf_coordOf]
+    by_cases h1 : b0 = p
+    · rw [if_pos h1, if_pos h1]
+      have h2 : (0 : ℝ) ≤ if b0 = nextPart p then |nextVec lam mu f c0| else 0 := by
+        split_ifs
+        · exact abs_nonneg _
+        · exact le_rfl
+      linarith
+    · rw [if_neg h1, if_neg h1]
+      by_cases h2 : b0 = nextPart p
+      · rw [if_pos h2, if_pos h2]
+        simp
+      · rw [if_neg h2, if_neg h2]
+        simp
+  have hinner : ∀ p : Fin n,
+      ∑ f : NsLoc, ((if b0 = p then |sameVec bv nu lam mu gg f c0| else 0)
+          + (if b0 = nextPart p then |nextVec lam mu f c0| else 0))
+        = (if b0 = p then ∑ f : NsLoc, |sameVec bv nu lam mu gg f c0| else 0)
+          + (if b0 = nextPart p then ∑ f : NsLoc, |nextVec lam mu f c0| else 0) := by
+    intro p
+    rw [Finset.sum_add_distrib]
+    congr 1
+    · by_cases h : b0 = p <;> simp [h]
+    · by_cases h : b0 = nextPart p <;> simp [h]
+  have hagg : ∑ p : Fin n,
+      ((if b0 = p then ∑ f : NsLoc, |sameVec bv nu lam mu gg f c0| else 0)
+        + (if b0 = nextPart p then ∑ f : NsLoc, |nextVec lam mu f c0| else 0))
+      = (∑ f : NsLoc, |sameVec bv nu lam mu gg f c0|)
+        + ∑ f : NsLoc, |nextVec lam mu f c0| := by
+    rw [Finset.sum_add_distrib,
+      Finset.sum_ite_eq Finset.univ b0
+        (fun _ => ∑ f : NsLoc, |sameVec bv nu lam mu gg f c0|),
+      sum_comp_nextPart (fun x => if b0 = x then ∑ f : NsLoc, |nextVec lam mu f c0| else 0),
+      Finset.sum_ite_eq Finset.univ b0 (fun _ => ∑ f : NsLoc, |nextVec lam mu f c0|)]
+    simp
+  calc ∑ r : Fin n × NsLoc, |nsVec bv nu lam mu gg n r I|
+      = ∑ p : Fin n, ∑ f : NsLoc, |nsVec bv nu lam mu gg n (p, f) I| :=
+        Fintype.sum_prod_type _
+    _ ≤ ∑ p : Fin n, ∑ f : NsLoc,
+          ((if b0 = p then |sameVec bv nu lam mu gg f c0| else 0)
+            + (if b0 = nextPart p then |nextVec lam mu f c0| else 0)) :=
+        Finset.sum_le_sum fun p _ => Finset.sum_le_sum fun f _ => hterm p f
+    _ = (∑ f : NsLoc, |sameVec bv nu lam mu gg f c0|)
+          + ∑ f : NsLoc, |nextVec lam mu f c0| := by
+        rw [Finset.sum_congr rfl fun p _ => hinner p, hagg]
+    _ ≤ 6 * B := by
+        have h1 := sum_abs_sameVec_col hB hbv hnu hlam hmu hgg c0
+        have h2 := sum_abs_nextVec_col hB hlam hmu c0
+        linarith
+
+/-! ## 3. The family and the Faris–Lavine theorem -/
+
+include hB hbv hnu hlam hmu hgg in
+/-- **The gauge-fixed Navier–Stokes family** on the outer Fock space `⊕ₙ L²(ℝ^{18n})`: the
+kinetic term `½ Σ_I π_I²` in all `18n` field variables together with the squared
+Navier–Stokes constraints and the squared gauge-fixing forms, with Schur constants
+`7B` and `6B` independent of the parcel number. -/
+def nsFamily : SqFamily where
+  dim := fun n => n * 18
+  R := fun n => Fin n × NsLoc
+  finR := fun _ => inferInstance
+  kap := fun _ _ => 1
+  vv := fun n => nsVec bv nu lam mu gg n
+  km := 1
+  a := 7 * B
+  b := 6 * B
+  km_nonneg := by norm_num
+  a_nonneg := by linarith
+  b_nonneg := by linarith
+  kap_le := by intro n I; norm_num
+  row_le := fun n r => nsVec_row_le hB hbv hnu hlam hmu hgg n r
+  col_le := fun n I => nsVec_col_le hB hbv hnu hlam hmu hgg n I
+
+include hB hbv hnu hlam hmu hgg in
+theorem nsFamily_dim : (nsFamily hB hbv hnu hlam hmu hgg).dim = fun n => n * 18 := rfl
+
+include hB hbv hnu hlam hmu hgg in
+/-- The kinetic term of the Navier–Stokes sector Hamiltonian is the plain Laplacian
+`½ Σ_I π_I²`: the signature is identically one — there is no hyperbolic signature here,
+unlike the gravity sector. -/
+theorem nsFamily_kap (n : ℕ) (I : Fin ((nsFamily hB hbv hnu hlam hmu hgg).dim n)) :
+    (nsFamily hB hbv hnu hlam hmu hgg).kap n I = 1 := rfl
+
+include hB hbv hnu hlam hmu hgg in
+/-- The linear forms of the family are the Navier–Stokes constraints and the gauge-fixing
+forms of §2. -/
+theorem nsFamily_vv (n : ℕ) (r : Fin n × NsLoc)
+    (I : Fin ((nsFamily hB hbv hnu hlam hmu hgg).dim n)) :
+    (nsFamily hB hbv hnu hlam hmu hgg).vv n r I = nsVec bv nu lam mu gg n r I := rfl
+
+include hB hbv hnu hlam hmu hgg in
+/-- **The full gauge-fixed Navier–Stokes Hamiltonian** on the finite-particle core of the
+outer Fock space `⊕ₙ L²(ℝ^{18n})`, and its symmetry. -/
+theorem nsOuterHam_symmetricOn :
+    SymmetricOn (outerCore (nsFamily hB hbv hnu hlam hmu hgg).dim)
+      (nsFamily hB hbv hnu hlam hmu hgg).outerHam :=
+  (nsFamily hB hbv hnu hlam hmu hgg).outerHam_symmetricOn
+
+include hB hbv hnu hlam hmu hgg in
+/-- The Hamiltonian is essentially self-adjoint already on the finite-particle core, by the
+Carleman route of `BookProof.ChapterQgOuterFockEsa`. -/
+theorem nsOuterHam_esa_core :
+    EssentiallySelfAdjointOn (outerCore (nsFamily hB hbv hnu hlam hmu hgg).dim)
+      (nsFamily hB hbv hnu hlam hmu hgg).outerHam :=
+  (nsFamily hB hbv hnu hlam hmu hgg).outerHam_esa
+
+include hB hbv hnu hlam hmu hgg in
+/-- **The full gauge-fixed Navier–Stokes Hamiltonian on the outer Fock space is essentially
+self-adjoint, by Faris–Lavine**, on the domain of the lifted Friedrichs extension of the
+positive one-particle operator `N₁ = −Δ + ‖x‖²/4` — the same comparison operator as in the
+quantum-gravity sector — and the operator so realized extends the finite-particle-core
+Hamiltonian `outerHam`.
+
+The Hamiltonian contains the interaction terms (the derivative gauge-fixing forms couple
+neighbouring parcels, `nsVec_coupling`) and all the gauge-fixing terms for the variables
+that represent spatial derivatives of the field, as well as for the auxiliary expansion
+coordinate `y`. -/
+theorem nsOuterFock_esa_farisLavine :
+    EssentiallySelfAdjointOn
+        (outerFriedDom (nsFamily hB hbv hnu hlam hmu hgg).dim)
+        (dsFibOp (fun n : ℕ => harmFried ((nsFamily hB hbv hnu hlam hmu hgg).dim n))
+          (nsFamily hB hbv hnu hlam hmu hgg).secExt
+          (nsFamily hB hbv hnu hlam hmu hgg).flK
+          (nsFamily hB hbv hnu hlam hmu hgg).secExt_rel) ∧
+      ∀ x : outerCore (nsFamily hB hbv hnu hlam hmu hgg).dim,
+        ∃ h : (x : outerFock (nsFamily hB hbv hnu hlam hmu hgg).dim)
+            ∈ outerFriedDom (nsFamily hB hbv hnu hlam hmu hgg).dim,
+          dsFibOp (fun n : ℕ => harmFried ((nsFamily hB hbv hnu hlam hmu hgg).dim n))
+              (nsFamily hB hbv hnu hlam hmu hgg).secExt
+              (nsFamily hB hbv hnu hlam hmu hgg).flK
+              (nsFamily hB hbv hnu hlam hmu hgg).secExt_rel
+              ⟨(x : outerFock (nsFamily hB hbv hnu hlam hmu hgg).dim), h⟩
+            = (nsFamily hB hbv hnu hlam hmu hgg).outerHam x :=
+  (nsFamily hB hbv hnu hlam hmu hgg).esa_farisLavine
+
+end
+
+end BookProof.NsOuterFock

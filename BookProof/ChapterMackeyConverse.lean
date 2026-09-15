@@ -1,0 +1,94 @@
+import Mathlib
+import BookProof.ChapterPvmCyclicUnitary
+import BookProof.ChapterMackeyCocycle
+
+/-!
+# The converse of Mackey's imprimitivity theorem over a continuous base
+
+`BookProof.ChapterMackeyQuasiInvariant` proves the **induced direction** over a
+measure-theoretic base: a quasi-invariant measure and a measurable unitary cocycle give a
+system of imprimitivity on `L²(X, μ; K)`.  The converse — every system of imprimitivity
+over such a base is unitarily equivalent to an induced one — was formalized only for a
+**discrete** base (`BookProof.ChapterMackeyGeneralBase`).  This file proves the converse
+over a continuous base, for a system with a **cyclic** vector (the multiplicity-one case,
+to which the general case reduces by decomposing into cyclic subspaces).
+
+## Statement
+
+A *continuous-base system of imprimitivity* is a unitary representation `U` of `G` on `H`
+together with a projection-valued measure `P` on the measurable `G`-space `X` obeying
+Mackey's covariance relation `U(g) P(E) = P(g·E) U(g)`.  If `ψ` is a cyclic vector for `P`
+and `μ = ‖P(·)ψ‖²` is the measure it defines, then
+
+* `μ` is **quasi-invariant** (`QuasiInvariant μ G`) — this is forced, not assumed;
+* there is a unitary `W : L²(X, μ) ≃ H` carrying the projection-valued measure to
+  multiplication by indicators, and
+* a measurable cocycle `u : G → X → ℂ` of **modulus one** with
+  `W⁻¹ U(g) W f (x) = u g x · √(dens μ g x) · f(g⁻¹ x)` a.e.,
+
+i.e. the system is unitarily equivalent to the induced system of
+`BookProof.ChapterMackeyQuasiInvariant` built from `μ` and `u`.
+
+Everything is `sorry`-free and uses only the standard axioms.
+-/
+
+open MeasureTheory
+open scoped InnerProductSpace
+
+namespace BookProof.ChapterMackeyConverse
+
+open BookProof.ChapterPvmMeasure BookProof.ChapterMackeyQuasiInvariant
+open BookProof.ChapterPvmCyclicUnitary BookProof.ChapterMackeyCocycle
+
+variable {G X H : Type*} [Group G] [MeasurableSpace X] [MulAction G X]
+variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
+
+/-- A **system of imprimitivity over a continuous base**: a unitary representation of `G`
+on `H`, a projection-valued measure on the measurable `G`-space `X`, and Mackey's
+covariance relation. -/
+structure ContinuousImprimitivitySystem (G X H : Type*) [Group G] [MeasurableSpace X]
+    [MulAction G X] [NormedAddCommGroup H] [InnerProductSpace ℂ H] where
+  /-- The unitary representation. -/
+  U : G →* (H ≃ₗᵢ[ℂ] H)
+  /-- The projection-valued measure over the base. -/
+  P : Pvm X H
+  /-- The action is measurable. -/
+  measurable : ∀ g : G, Measurable fun x : X => g • x
+  /-- Mackey's covariance relation `U(g) P(E) = P(g·E) U(g)`. -/
+  covariant : ∀ (g : G) {E : Set X}, MeasurableSet E → ∀ v : H,
+    U g (P.p E v) = P.p ((fun x => g • x) '' E) (U g v)
+
+/-- **The converse of Mackey's imprimitivity theorem over a continuous base, cyclic
+case.**  A system of imprimitivity over a measurable `G`-space with a cyclic vector is
+unitarily equivalent to the induced system of the (automatically quasi-invariant) measure
+`μ = ‖P(·)ψ‖²` and a modulus-one measurable cocycle. -/
+theorem mackey_converse_continuous (S : ContinuousImprimitivitySystem G X H) (ψ : H)
+    (hcyc : IsCyclic S.P ψ) :
+    ∃ (W : Lp ℂ 2 (pvmMeasure S.P ψ) ≃ₗᵢ[ℂ] H) (u : G → X → ℂ),
+      QuasiInvariant (pvmMeasure S.P ψ) G ∧
+      (∀ g x, ‖u g x‖ = 1) ∧ (∀ g, Measurable (u g)) ∧
+      (∀ (E : Set X) (hE : MeasurableSet E) (f : Lp ℂ 2 (pvmMeasure S.P ψ)),
+          W (proj (pvmMeasure S.P ψ) hE f) = S.P.p E (W f)) ∧
+      (∀ (g : G) (f : Lp ℂ 2 (pvmMeasure S.P ψ)),
+          ((W.symm (S.U g (W f))) : X → ℂ) =ᵐ[pvmMeasure S.P ψ]
+            fun x => u g x * (sqrtDens (pvmMeasure S.P ψ) g x : ℂ) * (f : X → ℂ) (g⁻¹ • x)) := by
+  set μ := pvmMeasure S.P ψ with hμ
+  set W := swEquiv S.P ψ hcyc with hW
+  -- the unitary `W` carries multiplication by indicators to the projection-valued measure
+  have hWproj : ∀ (E : Set X) (hE : MeasurableSet E) (f : Lp ℂ 2 μ),
+      W (proj μ hE f) = S.P.p E (W f) := fun _ hE f => swCLM_proj S.P ψ hE f
+  -- transport the representation to `L²(X, μ)`
+  set V : G → (Lp ℂ 2 μ ≃ₗᵢ[ℂ] Lp ℂ 2 μ) := fun g => W.trans ((S.U g).trans W.symm) with hV
+  have key : ∀ (g : G) (v : Lp ℂ 2 μ), W (V g v) = S.U g (W v) := by
+    intro g v
+    show W (W.symm (S.U g (W v))) = S.U g (W v)
+    exact W.apply_symm_apply _
+  have hcov : Covariant μ S.measurable V := by
+    intro g E hE f
+    refine W.injective ?_
+    rw [key, hWproj, S.covariant g hE, hWproj, key]
+  obtain ⟨hqi, u, hu1, humeas, hform⟩ := covariant_unitary_is_induced hcov
+  refine ⟨W, u, hqi, hu1, humeas, hWproj, fun g f => ?_⟩
+  exact hform g f
+
+end BookProof.ChapterMackeyConverse

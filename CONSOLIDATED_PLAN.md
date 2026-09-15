@@ -1,5 +1,307 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
+## Latest wave — 2026-09-14 (third): the Whittaker–Shannon sampling theorem, the energy bound of the ODE chapter, and Weyl's unitarian trick for a compact group
+
+Four statements of `book.tex` that had not been formalized, each in a new `sorry`-free,
+`axiom`-free module (audit `Work/ShannonSamplingAudit.lean`, every result reporting only
+`propext`, `Classical.choice`, `Quot.sound`).
+
+* **The Whittaker–Shannon sampling theorem** — `BookProof/ChapterShannonSampling.lean`.
+  The ODE chapter quotes "the Whittaker–Shannon interpolation (also called sinc
+  interpolation)" as an external fact; it is now proved.  A spectrum is a square-integrable
+  function on the circle of circumference `T` (equivalently, a spectrum on the band
+  `[-T/2, T/2]`), the signal is its inverse Fourier transform `bandSignal`, and
+  `integral_exp_mul_ofReal` computes the elementary integral that produces the cardinal sine
+  `sinc`.  Pairing the spectrum with the `T`-periodic extension of the exponential kernel
+  (`kern`, `kernLp`) and expanding in the Fourier basis of `L²` of the circle gives
+  `bandSignal_sample` (the samples at `n/T` are `T` times the Fourier coefficients),
+  **`bandSignal_hasSum_sinc`** (the interpolation formula
+  `f(x) = ∑ₙ f(n/T) · sinc(Tx − n)`, unconditionally convergent, at every real `x`),
+  **`hasSum_sq_samples`** (Parseval for the samples: their energy is the energy of the
+  spectrum) and **`bandSignal_eq_of_samples_eq`** (a band-limited signal is determined by its
+  samples); `continuous_bandSignal_lp` adds that such a signal is a continuous function, so
+  sampling really is evaluation.
+* **The chapter's own conclusion** — `BookProof/ChapterOdeSampling.lean`.  Combined with
+  `ChapterOdeUnitaryFlow` (the evolution of `ẋ = x²` is the translation group in the chart
+  `w = −1/x`), sampling the chart at `n/T` is evaluating the wave-function at `xₙ = −T/n`
+  (`chartW_sample`), so a wave-function with a band-limited chart transform is completely
+  determined by its values at those discrete points
+  (**`eq_of_sample_eq_on_lattice`**) and is recovered from them by an explicit cardinal-sine
+  series (**`hasSum_wavefunction_interpolation`**) — the book's `xₙ = Δ/n`.
+* **The energy bound forbids a divergent time-derivative** —
+  `BookProof/ChapterEnergyBoundedEvolution.lean`.  With the Hamiltonian realized as
+  multiplication by an energy function (the model of `ChapterEnergyBandDecomposition`), a
+  state vanishing outside the window `|E| ≤ Emax` (`EnergyLimited`) keeps that window
+  (`energyLimited_evol`), moves isometrically (`eLpNorm_evol`), and its trajectory is
+  **Lipschitz in time**: `‖U(t)ψ − U(s)ψ‖₂ ≤ |t − s|·Emax·‖ψ‖₂`
+  (**`eLpNorm_evol_sub_evol_le`**), so every difference quotient is bounded by `Emax‖ψ‖`
+  (**`eLpNorm_difference_quotient_le`**) — the chapter's "there is no way in which the
+  time-evolution will produce a divergent derivative in time of the wave-function".
+* **Weyl's unitarian trick for a compact group** —
+  `BookProof/ChapterCompactCompleteReducibility.lean`.  Note 23 (complete reducibility) is
+  quoted by the book and carried as the named hypothesis `ChapterA3w.WeylCompleteReducibility`;
+  the unitary case and the finite-group case were already theorems here.  The compact case is
+  now proved by Haar averaging: the average `p = ∫_G ρ(g) T ρ(g)⁻¹ dg` of an arbitrary
+  continuous projection onto an invariant subspace is again a projection onto it
+  (`avgOp_apply_mem`, `avgOp_apply_eq_self`) and **commutes with the representation**
+  (`avgOp_comm`), so its kernel is an invariant complement
+  (**`compact_invariant_complement`**, and `compact_invariant_complement_haar` with the
+  normalized Haar measure supplied).  The non-compact semisimple case of Note 23 remains a
+  named hypothesis.
+
+*Honest boundary.*  The sampling theorem is proved in the spectral picture (the signal is
+defined as the inverse Fourier transform of an `L²` spectrum over the band); the identification
+of that class with the band-limited subspace of `L²(ℝ)` through Plancherel on the line is not
+part of this wave.
+
+## Latest wave — 2026-09-13: the BRST charge of the Navier–Stokes derivative gauge, and its commutator with the Hamiltonian
+
+`BookProof/ChapterNsBrstDerivativeGauge.lean` (`BookProof.NsBrstDerivativeGauge`, audit
+`Work/NsBrstDerivativeGaugeAudit.lean`) answers the question *does the BRST charge belonging
+to the gauge fixing of the Navier–Stokes variables that represent the derivatives in space of
+a field have the correct commutator with the Hamiltonian?*  It did not exist in the project
+before (the earlier Navier–Stokes BRST charge, `NavierStokesFlow.nsBrstCharge`, belongs to the
+*divergence* constraint), and it is now built and proved.
+
+* Ghost sector `Λ(ℂ³)`, one ghost per generator, with the canonical anticommutation relations
+  (`nsGhost_car`), and the graded state space `NSGraded = NSAlg ⊗ Λ(ℂ³)` with commuting
+  bosonic and ghost embeddings (`nsBos_nsGh_comm`, `nsGradedGhostCar`).
+* The charges `nsDerivBrstCharge = ∑_j G_j χ_j` and `nsDerivBrstCharge2 = ∑_j G²_j χ_j`, built
+  from the derivative-gauge generators `genY`, `genY2` of `ChapterNavierStokesGaugeY`/`…Y2`;
+  both are nilpotent (`nsDerivBrstCharge_nilpotent`, `nsDerivBrstCharge2_nilpotent`, through
+  the abelian case of `QuantumGravityBrstCharge.brst_abelian_nilpotent`) and non-zero
+  (`nsDerivBrstCharge_ne_zero`, `nsDerivBrstCharge2_ne_zero`).
+* **Headline** — `nsDerivBrstCharge_comm_hamiltonian`, `nsDerivBrstCharge2_comm_hamiltonian2`:
+  `⁅Ω, H⁆ = 0` for the Navier–Stokes Hamiltonian `H = ∑_i (π^i A_i + A_i π^i)` built from the
+  gauge-invariant symbols `nsSymbol`, `nsSymbol2`.  The mechanism is
+  `comm_mulOp_of_apply_eq_zero` (a derivation killing the symbol commutes with multiplication
+  by it) plus `genY_comm_genU`/`genY2_comm_genU` (the generator commutes with the momenta).
+* **Correction, 2026-09-13b: the momentum is `π^i = ∂/∂u_i`, not `∂/∂x_i`.**  The momentum of
+  the Navier–Stokes Hamiltonian is the one conjugate to the *velocity field* (`genU`,
+  `genU_ccr_u`: `[π^i, u_k · ] = δ^i_k`), and `nsHamAlg`, `nsHamAlg2` are built from it.  It
+  does not commute with the symbol — `genU_nsSymbol`: `[∂/∂u_m, A_i] = u_{i,m}` — so the
+  symmetric ordering matters and the corrected operator differs from the superseded one
+  (`nsHamAlgX`, `nsHamAlg_ne_nsHamAlgX`, `nsHamAlg_one`, `nsHamAlgX_one`).  The gauge
+  generators still commute with the new momenta (`genY_comm_genU`, `genY2_comm_genU`), so
+  `⁅Ω, H⁆ = 0` and its consequences hold for the corrected Hamiltonian.
+* Consequences: the dynamics preserves the BRST-closed and BRST-exact states
+  (`nsHamiltonian_mapsTo_ker`, `nsHamiltonian_mapsTo_range`, `nsHamiltonian2_mapsTo_ker`) and
+  descends to the BRST cohomology of the derivative gauge (`nsBrstCohomologyMap`).
+
+The module is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`)
+and is imported from `BookProof.lean`.
+
+## Latest wave — 2026-09-12d: five more `book.tex` claims formalized
+
+Answering "formalize everything possible from `book.tex` that is not yet formalized"
+(excluding the P-vs-NP and Riemann-Hypothesis chapters), five gaps identified by reading
+the manuscript against the existing chapters were closed.  All five modules are
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), imported
+from `BookProof.lean`, and audited in `Work/`.
+
+* `BookProof/ChapterOdeUnitaryFlow.lean` (`BookProof.OdeUnitaryFlow`,
+  audit `Work/OdeUnitaryFlowAudit.lean`) — the ODE chapter's Equations 1-4, which had no
+  Lean counterpart: the classical solution `x(t) = x0/(1 - t x0)` solves `x' = x^2`
+  (`classicalSol_hasDerivAt`) and blows up at `t = 1/x0` (`classicalSol_tendsto_atTop`);
+  the Moebius flow `mob t x = x/(1+tx)` is a group action off its pole (`mob_mob`,
+  `mob_neg_mob`, `image_mob`); the evolution operator of Equation 3,
+  `odeKoop t psi x = psi(x/(1+tx))/(1+tx)`, is a one-parameter group (`odeKoop_add`)
+  which **conserves total probability at every time**, past the classical blow-up
+  (`odeKoop_lintegral_normSq`, by the change of variables `lintegral_comp_mob`);
+  Equation 4 is `odeKoop_conj_mul`; the generator is `-iH` with `H = x^2 p - i x`
+  (`odeKoop_generator`); and the chapter's remark that the Hamiltonian is a translation
+  after the change of variables `y -> 1/x` is the exact intertwining `odeKoop_chartW`
+  with the norm-preserving chart `chartW` (`chartW_lintegral_normSq`).
+* `BookProof/ChapterLocalityConstraintNull.lean` (`BookProof.LocalityConstraint`,
+  audit `Work/LocalityConstraintNullAudit.lean`) — the closing claim of "Balancing
+  discretization and locality": the set where the velocity is constrained by the position
+  is null for the joint law whenever the velocity law is atomless (`graphSet_null`,
+  `graphSet_gaussian_null`, `graphSet_volume_null`), so naive conditioning on the
+  constraint gives the zero measure (`not_isProbabilityMeasure_restrict_graphSet`).
+* `BookProof/ChapterSymmetryEntropy.lean` (`BookProof.SymmetryEntropy`,
+  audit `Work/SymmetryEntropyAudit.lean`) — "Symmetries as irreversible processes": with
+  the entropy of `ChapterMarkovEntropy` and the determinism notion of `ChapterReconstruct`,
+  a symmetry acting on a deterministic ensemble raises the entropy above `0` **iff** it is
+  non-deterministic in that column (`entropy_bornCol_pos_iff_not_isDeterministicCol`,
+  `isDeterministicCol_iff_entropy_eq_zero`, `entropy_pointMass`).
+* `BookProof/ChapterCcrNoBounded.lean` (`BookProof.CcrNoBounded`,
+  audit `Work/CcrNoBoundedAudit.lean`) — the Timepiece chapter's claim that a constrained
+  null momentum clashes with the canonical commutation relations
+  (`ccr_fails_of_momentum_zero`), the finite-dimensional trace no-go (`matrix_no_ccr`), and
+  the Wielandt-Wintner theorem `no_ccr_one` / `no_ccr_smul`: in any nontrivial normed real
+  algebra the CCR has no solution, so position and momentum are necessarily unbounded.
+
+* `BookProof/ChapterHowlandAutonomization.lean` (`BookProof.Howland`,
+  audit `Work/HowlandAutonomizationAudit.lean`) — the same chapter's claim that *"any
+  time-dependent Hamiltonian can be converted into a time-independent Hamiltonian in an
+  even larger sample space"*: classically, the graph of a solution of `x' = f(t,x)` solves
+  the autonomous extension `z' = (1, f z)` and conversely (`hasDerivAt_autonomize`,
+  `hasDerivAt_of_autonomize`); quantum-mechanically, for any unitary propagator family
+  (`IsPropagator`, shown satisfiable) the Howland evolution
+  `(U(sigma) psi)(t) = U(t, t-sigma) psi(t-sigma)` is a one-parameter **group**
+  (`howland_add`, `howland_zero`, `howland_neg`) conserving total probability
+  (`howland_lintegral_normSq`), i.e. an autonomous evolution on the larger space.
+
+Verified with `lake build BookProof` (8855 jobs, no errors) and the five audit targets.
+
+
+## State update — 2026-09-12c (**verified build**): the *definition* of a gauge
+## symmetry by a comprehensive but incomplete gauge fixing is formalized, and the
+## independent parts of the project each have their own build target
+
+**Gauge symmetry, definition section** (`book.tex` 2221–2400; review
+`REVIEW_GAUGE_DEFINITION_20260912.md`, audit `Work/GaugeIncompleteFixingAudit.lean`):
+
+* `BookProof/ChapterGaugeIncompleteFixing.lean` — the book's three notions
+  (*comprehensive*, *complete*, *unconstrained*) as predicates; an unconstrained gauge
+  fixing of a non-trivial gauge group is necessarily incomplete with faithful remnant and
+  no gauge-invariant point of the spectrum; the physical observables are a subalgebra and
+  are exactly the functions of the gauge equivalence class; comprehensiveness alone makes
+  the gauge fixing lossless (restriction determines a physical observable, and every
+  remnant-invariant observable of the surface extends); on the Hilbert space the physical
+  operators are the commutant of the gauge unitaries and their expectation values are
+  constant along every gauge equivalence class — while no unit vector need be gauge
+  invariant.
+* `BookProof/ChapterGaugeShiftExample.lean` — the book's own example: the translations of
+  `ℓ²(ℤ)` are unitaries generating a commutative algebra, every non-trivial translation
+  moves every non-zero state, there is no invariant normalized wave function, and the
+  expectation values of the physical operators are gauge invariant.
+* Correction: `ChapterG.IsUnconstrainedGaugeFixing` is unsatisfiable as stated
+  (`chapterG_isUnconstrainedGaugeFixing_vacuous`); the definition is kept with a caveat and
+  the book's condition is re-formalized as `MovesEveryPointOfSpectrum`.
+
+**Build layout, second step.** The connected components of the import relation are the
+parts of the project with no Lean dependency on each other; `BookProof` has 98. Each
+multi-module part now has its own Lake target (roots = its maximal modules), so
+`lake build BookProofAttention` and `lake build BookProofMeasureFoundations` compile
+disjoint sets of modules and can run separately. The targets are generated by
+`scripts/import_components.py`; the inventory is `BUILD_COMPONENTS.md` and the rules are in
+`BUILD_LAYOUT.md`. No default target changed.
+
+
+## State update — 2026-09-12b (**verified build**): the gauge-symmetry material of
+## `book.tex` is fully formalized, and the long modules are split into parts
+
+**Gauge symmetry.** Five new `sorry`-free modules close the gaps between `book.tex`
+and the formal development (audit `Work/GaugeSymmetryAudit.lean`, review
+`REVIEW_GAUGE_SYMMETRY_20260912.md`):
+
+* `BookProof/ChapterGaugeVariantVanishing.lean` — expectation values of gauge-variant
+  operators vanish in a gauge-invariant state (no spontaneous breaking of a gauge
+  symmetry); gauge-invariant observables are constant on gauge orbits.
+* `BookProof/ChapterGaugeAdjointAlgebra.lean` — the gauge algebra closes; the covariant
+  derivative and the Gauss law transform in the adjoint (so the constraint surface
+  `G = 0` is gauge invariant); the magnetic field is covariant under a local gauge
+  transformation with the derivative coordinates kept independent; the Weyl-gauge energy
+  `½π² + ½B²` has vanishing gauge variation and is non-negative.
+* `BookProof/ChapterGaugeWeylResidual.lean` — the remnant of the Weyl gauge fixing is
+  exactly the time-independent subgroup, it moves every configuration, and therefore the
+  Weyl gauge fixing is incomplete.
+* `BookProof/ChapterGaugeMechanicsCharge.lean` — the gauge-mechanics model: `[φ,π] = i`,
+  `[φ,π*] = 0`, the charge `Q = πφ + π*φ*` as the shifted degree operator, its exclusion
+  from the commutative algebra of the fields, the gauge-invariant bilinears, and the
+  nilpotent non-zero BRST charge `Ω = Qψ†`.
+* `BookProof/ChapterGhostMajoranaRep.lean` — the fermionic and the self-adjoint
+  (Majorana/Clifford) presentations of the ghost algebra and the change of basis between
+  them.
+
+**Build layout.** Every `BookProof` module longer than ~500 lines is now split into
+sequential parts `BookProof/Chapter<Name>/Part<k>.lean`, with the original module name
+kept as a thin re-export, so a one-line edit re-elaborates a few hundred lines instead of
+a thousand. The two helpers are `scripts/propose_split.py` and `scripts/split_module.py`;
+the convention is documented in `BUILD_LAYOUT.md`. `lake build BookProof` (8848 jobs)
+completes, and the split preserves the set of declarations of every module.
+
+## State update — 2026-09-12 (**verified build**): Navier–Stokes **without approximations**,
+## in Eulerian and Lagrangian variables (the Oseen caveat is gone)
+
+Two new modules, both `sorry`-free and axiom-clean (audit
+`Work/NsFullEulerianLagrangianAudit.lean`), with `REVIEW_FARIS_LAVINE_20260911.md` §2
+rewritten accordingly and `BookProof/ChapterEsaFarisLavineIndex.lean` extended:
+
+* `BookProof/ChapterNavierStokesFullEulerianFock.lean` — the Navier–Stokes Hamiltonian in
+  Eulerian variables with the **exact quadratic advection `u·∇u`** (no Oseen linearisation:
+  `nsResPoly_not_affine`), incompressibility as the 3D gauge fixing, and the gauge fixing of
+  the nine independent coordinates representing `∂_j u_i` (which couples neighbouring
+  parcels), on the nested Fock space `⊕ₙ L²(ℝ^{21n})`.
+* `BookProof/ChapterNavierStokesFullLagrangianFock.lean` — the same fluid in Lagrangian
+  variables, with the **exact Piola pressure term** `cof(F)ᵀ∇q` and the **exact cubic volume
+  constraint `det F = 1`** (`volumePoly_not_quadratic`), on `⊕ₙ L²(ℝ^{36n})`.
+
+Both Hamiltonians are positive sums of squares, hence bounded below
+(`nsFullFockHam_quadForm_nonneg`, `lagFullFockHam_quadForm_nonneg`); the Friedrichs extension
+therefore applies directly, sector by sector and on the whole nested Fock space, and the
+Faris–Lavine criterion is run **on the outer Fock space** with the lifted Friedrichs
+extension as comparison operator and `c = 0` (`nsFullOuterN_esa`, `lagFullOuterN_esa`,
+together with `nsFullOuterN_isPositiveSelfAdjointExtension` and its Lagrangian counterpart).
+Unitary flows (`nsFullFock_stone_flow`, `lagFullFock_stone_flow`) and parcel-number
+conservation (so no lattice) are proved as well.  *Essential* self-adjointness from the
+finite-parcel core is claimed only for the earlier quadratic (Oseen) model.
+
+## State update — 2026-09-12 (**verified build**): Yang–Mills through the **direct
+## Friedrichs extension** (it is bounded below, so Faris–Lavine is not needed), and the
+## kinetic-plus-squares claim about the gravity Hamiltonian corrected
+
+Two new modules, both `sorry`-free and axiom-clean, with the review note
+`REVIEW_FARIS_LAVINE_20260911.md` rewritten accordingly:
+
+* `BookProof/ChapterYangMillsFockFriedrichs.lean` — quantum Yang–Mills on the nested Fock
+  space `⊕ₙ L²(ℝ^{99n})`: the magnetic energy at **arbitrary real structure constants** (the
+  quartic non-abelian case included), the `72` independent coordinates representing the
+  spatial derivatives of the gauge field, and the 3D gauge-fixing forms `Σ_j ∂_j A_{j,a}`
+  written in them.  The Hamiltonian is a positive sum of squares
+  (`ymSectorHam_quadForm_nonneg`, `ymFockHam_quadForm_nonneg`), hence bounded below, so the
+  Friedrichs extension applies directly — sector by sector
+  (`ymSector_friedrichs_extension`) and on the whole nested Fock space
+  (`ymFock_friedrichs_extension`), with its unitary flow (`ymFock_stone_flow`) and
+  particle-number conservation (`ymFockHam_number_conserving`).  No Faris–Lavine certificate
+  is used on the Yang–Mills side.  *Essential* self-adjointness in the non-abelian case is
+  still not claimed.
+* `BookProof/ChapterScalaronNotQuadratic.lean` — the correction: the full exponential
+  Einstein-frame scalaron potential is **not** a polynomial of degree `≤ 2`
+  (`starobinskyV_not_quadratic`) and **not** a half-sum of squares of linear forms
+  (`starobinskyPot_not_sum_of_squares`).  The kinetic-plus-squares identification of the
+  `84`-coordinate jet model therefore concerns the tetrad/jet sector only, *not* the gravity
+  Hamiltonian with the scalaron; the docstring of `ChapterQg3DGaugeFarisLavine.lean` now says
+  so, and the gravity Hamiltonian of interest remains the mode model
+  `ChapterQgVielbeinScalaronGaugeFL.lean` (vielbein, scalaron, 3D gauge fixing and gauge
+  fixing of the derivative variables), proved by Faris–Lavine with the wall inside the
+  comparison operator.
+
+Axiom audit: `Work/YmFockFriedrichsScalaronAudit.lean` reports only `propext`,
+`Classical.choice`, `Quot.sound` for every new result.
+
+## State update — 2026-09-11 (second pass, **verified build**): quantum gravity with the
+## **vielbein and the full exponential scalaron potential and the 3D gauge fixing and the
+## gauge fixing of the variables representing spatial derivatives of the fields**, on the
+## outer Fock space, **by Faris–Lavine only**, with particle-number conservation and no
+## lattice
+
+Two new modules, both `sorry`-free and axiom-clean, and a review note
+`REVIEW_FARIS_LAVINE_20260911.md`:
+
+* `BookProof/ChapterQgVielbeinScalaronGaugeFL.lean` — the complete mode model: exact Fourier
+  modes of the vielbein over `ℤ³` (no lattice, no truncation), the twenty-seven independent
+  variables representing the spatial derivatives, the torsion written in those variables, the
+  gauge fixing `D = ∂e` of the derivative variables, the 3D transverse gauge fixing, and the
+  scalaron with the full exponential Einstein-frame potential coupled to the trace of the
+  vielbein.  Essential self-adjointness by Faris–Lavine on the lifted Friedrichs domain
+  (`qgFull_esa_farisLavine`) and on the finite-particle core (`qgFull_esa_core_fl`), the
+  Starobinsky instances, the unitary flow (`qgFull_stone_flow`), particle-number conservation
+  (`secHam_number_conserving`), and the gauge-fixing identity
+  `torsion_eq_exact_of_gauge_fixed`.
+* `BookProof/ChapterQg3DGaugeFarisLavine.lean` — the `84`-coordinate jet model re-proved
+  through Faris–Lavine (`qgSigned_esa_fl`, `qg3D_esa_fl`), the two gauge-fixing families
+  added as quadratic terms (`qg3DGaugeFixed_esa_fl`), the nested Fock space
+  (`qgGauge_outerHam_esa_fl`), its unitary flow and its particle-number conservation
+  (`dsOp_number_conserving`).
+
+`BookProof/ChapterEsaFarisLavineIndex.lean` now also tabulates every Carleman-route
+statement of the main line against its Faris–Lavine replacement of the same statement.
+Still open and unchanged: essential self-adjointness of the **non-abelian** one-particle
+Yang–Mills operator (quartic potential; the Faris–Lavine relative bound fails for every
+oscillator comparison operator).  No mass gap and no spectral information is claimed.
+
 ## State update — 2026-09-07 (full review + execution wave, **verified build**): the band
 ## calculus is extended to **arbitrary order**, giving the Hermite matrix data (sparsity,
 ## band radius `4`, entry bound `C(deg+1)²`) of the **full non-abelian** gauge-fixed
@@ -11222,3 +11524,35 @@ residual (T2, ~1e-2), not by the T1/T3 roundoff (~1e-13) or T5 enclosure
 (~1e-15) — so the certified margin against `lo=0` is ~1.93, *huge* relative to
 the f64 roundoff.  This is a proof-carrying gap for every `H_m`; what the leg
 would add is the *uniformity* making this an actual `gap(H)` statement.
+
+
+## 2026-09-13 — the two representation-theoretic `EXTERNAL` inputs of book chapter A, discharged
+
+New modules (all `sorry`-free, `axiom`-free; audited by `Work/SchurPauliWaveAudit.lean`,
+35 `#print axioms` lines, each reporting only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `BookProof/ChapterSchurIrreducible.lean` — **Schur's lemma on an arbitrary complex
+  Hilbert space**: the commutant of a topologically irreducible *normal* system (Defs 7/24)
+  is `ℂ · 1` (`commutant_scalar_of_irreducible`), proved through the continuous functional
+  calculus (two distinct spectral points of a self-adjoint element of the commutant give a
+  nonzero proper closed invariant subspace).  This *proves* the `EXTERNAL` hypotheses
+  `IsSchurFull` (`isSchurFull_of_irreducible`) and `IsSchurUnitary`
+  (`isSchurUnitary_of_irreducible`) of `ChapterA2`/`ChapterA2b` with no dimension
+  restriction, superseding the finite-dimensional `ChapterSchurFullFiniteDim`.
+* `BookProof/ChapterSchurRepresentation.lean` — **Lemma 28** (Schur for unitary
+  representations) and **Lemma 34** (Schur for systems of imprimitivity), the latter
+  without Mackey's imprimitivity theorem: the generators' adjoints (`U g⁻¹`, and the
+  self-adjoint projections `π A`) stay inside the system, so it is normal.
+* `BookProof/ChapterSchurTrichotomy.lean` — **Lemma 14** and **Props 17–19** (the
+  ℝ / ℂ / ℍ commutant trichotomy) restated with the Schur hypothesis replaced by
+  "normal and irreducible".
+* `BookProof/ChapterPauliFundamental.lean` — **Note 36, Pauli's fundamental theorem of the
+  γ-matrices**, proved (`pauliFundamental`): the shared Clifford commutation rule for the
+  sixteen ordered products (`clifford_key`), the trace-orthogonality and spanning of the
+  sixteen concrete Majorana products (finite integer computations), Pauli's averaged
+  intertwiner and its invertibility.  Also `real_pauli'` (Prop 37 with no external input).
+* `BookProof/ChapterPauliConsequences.lean` — **Prop 46** (the `Pin(3,1) → O(1,3)` covering
+  is surjective and two-to-one) with no external input.
+
+`lake build BookProof` (8866 jobs) and `lake build Work.SchurPauliWaveAudit` complete with
+no errors and no warnings from the new modules.

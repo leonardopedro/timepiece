@@ -1,5 +1,372 @@
 # `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`
 
+## Latest wave — 2026-09-15 (second): unitarity of the spherical transform (Fourier–Bessel Plancherel, `l = 0`)
+
+The second honest boundary of the Note-68 thread.  `BookProof/ChapterSphericalPlancherel.lean`
+(`sorry`-free, `axiom`-free, audit `Work/SphericalPlancherelAudit.lean`) proves that the spherical
+transform `(𝓢f)(p) = √(2/π) ∫₀^∞ f(r) j₀(pr) r² dr` of `book.tex` §A.5 preserves the norm of
+`L²((0,∞), r² dr)` in the `s`-wave sector:
+
+`∫₀^∞ |(𝓢f)(p)|² p² dp = ∫₀^∞ |f(r)|² r² dr`   (`spherical_plancherel`),
+
+for every radial profile `f` whose moment `r ↦ r f(r)` is the restriction of an odd Schwartz
+function — a dense class, and a nonempty one: `spherical_plancherel_bump` applies the theorem to an
+explicit nonzero compactly supported profile built from a smooth bump.
+
+The route: since `j₀(x) = sin x / x`, the kernel collapses to a sine kernel, so the statement is
+Plancherel for the **Fourier sine transform**; and that follows from Mathlib's Fourier–Plancherel
+theorem applied to the *odd extension*.  The intermediate results are of independent interest:
+`fourier_odd_eq` (the Fourier transform of an odd integrable function is `−2i` times its sine
+transform, the cosine part integrating to zero), `sine_plancherel` (`2π` convention) and
+`sineKernel_plancherel` (`∫₀^∞ |∫₀^∞ G(r) sin(pr) dr|² dp = (π/2) ∫₀^∞ |G(r)|² dr`), together with
+the elementary symmetry lemmas `integral_eq_zero_of_odd`, `integral_eq_two_smul_of_even` and
+`integral_eq_two_mul_of_even_real`.
+
+Recorded boundary of this module: the extension of `𝓢` from that dense class to all of
+`L²((0,∞), r² dr)` by continuity, and the sectors `l ≥ 1`, are not formalized.
+
+## Latest wave — 2026-09-15: spherical harmonics `Y_{lμ}` for all `l, μ`, and Note 68 in every mode
+
+The first of the two honest boundaries recorded for the Note-68 wave is now closed.  Previously
+`BookProof/ChapterBesselHarmonic.lean` proved Note 68 of `book.tex` §A.5 for an *arbitrary*
+harmonic function homogeneous of degree `l`, but such functions were realized concretely only for
+`l ≤ 1`.  Four new `sorry`-free, `axiom`-free modules (audit `Work/SolidHarmonicAudit.lean`, every
+result reporting only `propext`, `Classical.choice`, `Quot.sound`) supply them for every `l` and
+every order `μ ≤ l`.
+
+* **`BookProof/ChapterSolidHarmonicTools.lean`** — the analytic toolkit: the Laplacian of a power
+  of a complex or real continuous linear form (`laplacian_clmPow`, `laplacian_rclmPow`), of a power
+  of the squared norm (`laplacian_normSqPow`), of a "cylindrical" monomial
+  `⟪e,x⟫^j (‖x‖²)^m` (`laplacian_cylTerm`), and of an angular factor times such a monomial
+  (`laplacian_angular_mul_cylTerm`).
+* **`BookProof/ChapterLegendrePolynomial.lean`** — Legendre polynomials, which Mathlib does not
+  have, from **Rodrigues' formula**; the Legendre ODE (`legendreAux_ode`, `legendre_deriv_ode`),
+  the **Gegenbauer coefficient recursion** `(j+2)(j+1) g_{j+2} = −(n−j)(n+j+2μ+1) g_j` for
+  `g = P_l^{(μ)}`, `n = l−μ` (`legendre_deriv_coeff_rec`), together with the degree, parity and
+  leading-coefficient facts (`legendre_natDegree_le`, `legendre_deriv_coeff_parity`,
+  `legendre_deriv_coeff_top_ne_zero`) that show the construction is not vacuous.
+* **`BookProof/ChapterSolidHarmonic.lean`** — the **solid harmonics** themselves.  With
+  `w = ⟪u,x⟫ + i⟪v,x⟫`, `z = ⟪e,x⟫`, `s = ‖x‖²` the definition is
+  `rˡY_{lμ}(x) = Re(w^μ) · Σ_m P_l^{(μ)}[n−2m] z^{n−2m} s^m`, and harmonicity reduces *exactly* to
+  the Gegenbauer recursion above (`laplacian_angular_mul_sum`, `legendre_rec_factored`).  Results:
+  **`solidHarmonic_harmonic`** / `solidHarmonicIm_harmonic` (harmonic for all `l`, `μ ≤ l`),
+  **`solidHarmonic_euler`** / `solidHarmonicIm_euler` (homogeneous of degree `l`), and
+  **`solidHarmonic_spherical`** — in spherical coordinates it is literally
+  `rˡ P_l^μ(cos θ) cos(μφ)`, so the function constructed is the associated Legendre / spherical
+  harmonic up to normalization.
+* **`BookProof/ChapterNote68AllModes.lean`** — the two together: **Note 68 in every mode `(l, μ)`**,
+  `−∂⃗²(jₗ(p‖x⃗‖)/‖x⃗‖ˡ · rˡY_{lμ}) = p²(jₗ(p‖x⃗‖)/‖x⃗‖ˡ · rˡY_{lμ})`, with the concrete instance on
+  `EuclideanSpace ℝ (Fin 3)` for the standard frame.
+
+Remaining boundary of this thread at the time: the **unitarity of the spherical transform** (a
+Fourier–Bessel / Hankel Plancherel theorem) — closed in the wave above.
+
+
+## Latest wave — 2026-09-14 (third): the Whittaker–Shannon sampling theorem, the energy bound of the ODE chapter, and Weyl's unitarian trick for a compact group
+
+Four statements of `book.tex` that had not been formalized, each in a new `sorry`-free,
+`axiom`-free module (audit `Work/ShannonSamplingAudit.lean`, every result reporting only
+`propext`, `Classical.choice`, `Quot.sound`).
+
+* **The Whittaker–Shannon sampling theorem** — `BookProof/ChapterShannonSampling.lean`.
+  The ODE chapter quotes "the Whittaker–Shannon interpolation (also called sinc
+  interpolation)" as an external fact; it is now proved.  A spectrum is a square-integrable
+  function on the circle of circumference `T` (equivalently, a spectrum on the band
+  `[-T/2, T/2]`), the signal is its inverse Fourier transform `bandSignal`, and
+  `integral_exp_mul_ofReal` computes the elementary integral that produces the cardinal sine
+  `sinc`.  Pairing the spectrum with the `T`-periodic extension of the exponential kernel
+  (`kern`, `kernLp`) and expanding in the Fourier basis of `L²` of the circle gives
+  `bandSignal_sample` (the samples at `n/T` are `T` times the Fourier coefficients),
+  **`bandSignal_hasSum_sinc`** (the interpolation formula
+  `f(x) = ∑ₙ f(n/T) · sinc(Tx − n)`, unconditionally convergent, at every real `x`),
+  **`hasSum_sq_samples`** (Parseval for the samples: their energy is the energy of the
+  spectrum) and **`bandSignal_eq_of_samples_eq`** (a band-limited signal is determined by its
+  samples); `continuous_bandSignal_lp` adds that such a signal is a continuous function, so
+  sampling really is evaluation.
+* **The chapter's own conclusion** — `BookProof/ChapterOdeSampling.lean`.  Combined with
+  `ChapterOdeUnitaryFlow` (the evolution of `ẋ = x²` is the translation group in the chart
+  `w = −1/x`), sampling the chart at `n/T` is evaluating the wave-function at `xₙ = −T/n`
+  (`chartW_sample`), so a wave-function with a band-limited chart transform is completely
+  determined by its values at those discrete points
+  (**`eq_of_sample_eq_on_lattice`**) and is recovered from them by an explicit cardinal-sine
+  series (**`hasSum_wavefunction_interpolation`**) — the book's `xₙ = Δ/n`.
+* **The energy bound forbids a divergent time-derivative** —
+  `BookProof/ChapterEnergyBoundedEvolution.lean`.  With the Hamiltonian realized as
+  multiplication by an energy function (the model of `ChapterEnergyBandDecomposition`), a
+  state vanishing outside the window `|E| ≤ Emax` (`EnergyLimited`) keeps that window
+  (`energyLimited_evol`), moves isometrically (`eLpNorm_evol`), and its trajectory is
+  **Lipschitz in time**: `‖U(t)ψ − U(s)ψ‖₂ ≤ |t − s|·Emax·‖ψ‖₂`
+  (**`eLpNorm_evol_sub_evol_le`**), so every difference quotient is bounded by `Emax‖ψ‖`
+  (**`eLpNorm_difference_quotient_le`**) — the chapter's "there is no way in which the
+  time-evolution will produce a divergent derivative in time of the wave-function".
+* **Weyl's unitarian trick for a compact group** —
+  `BookProof/ChapterCompactCompleteReducibility.lean`.  Note 23 (complete reducibility) is
+  quoted by the book and carried as the named hypothesis `ChapterA3w.WeylCompleteReducibility`;
+  the unitary case and the finite-group case were already theorems here.  The compact case is
+  now proved by Haar averaging: the average `p = ∫_G ρ(g) T ρ(g)⁻¹ dg` of an arbitrary
+  continuous projection onto an invariant subspace is again a projection onto it
+  (`avgOp_apply_mem`, `avgOp_apply_eq_self`) and **commutes with the representation**
+  (`avgOp_comm`), so its kernel is an invariant complement
+  (**`compact_invariant_complement`**, and `compact_invariant_complement_haar` with the
+  normalized Haar measure supplied).  The non-compact semisimple case of Note 23 remains a
+  named hypothesis.
+
+*Honest boundary.*  The sampling theorem is proved in the spectral picture (the signal is
+defined as the inverse Fourier transform of an `L²` spectrum over the band); the identification
+of that class with the band-limited subspace of `L²(ℝ)` through Plancherel on the line is not
+part of this wave.
+
+## Latest wave — 2026-09-14 (second): the cyclic decomposition of a projection-valued measure, Crouzeix's inequality on a half-plane, and two further `book.tex` statements
+
+Three items land: two honest boundaries are narrowed and two statements of the book are formalized.
+
+* **Cyclic decomposition of a projection-valued measure** —
+  `BookProof/ChapterPvmCyclicDecomposition.lean`.  `ChapterMackeyConverse` proves the
+  converse of Mackey's imprimitivity theorem over a continuous base *in the cyclic case*,
+  and recorded that the general case follows by decomposing the Hilbert space into cyclic
+  subspaces — the step now formalized.  `OrthOrbit P ψ φ` expresses orthogonality of the two
+  cyclic subspaces by the single condition `⟪ψ, P(E) φ⟫ = 0`; `exists_orthCyclicFamily`
+  produces, by Zorn's lemma, a family of unit vectors that are pairwise cyclic-orthogonal
+  (hence orthonormal) and whose orbits span a dense subspace; `restrictSub` shows that the
+  restriction of a projection-valued measure to a closed invariant subspace is again one,
+  `isCyclic_restrictCyclic` that `ψ` is a cyclic vector of the restriction to the cyclic
+  subspace it generates, and `pvmMeasure_restrictCyclic` that the scalar measure of the piece
+  is unchanged, so `ChapterPvmCyclicUnitary.pvm_cyclic_unitary` applies to it verbatim.
+  `exists_cyclic_decomposition` packages the three, and
+  `exists_countable_cyclic_decomposition` makes the family **countable** on a separable
+  space (distinct members are at distance `√2`).  Remaining boundary: assembling the pieces
+  into a single induced system with a multiplicity (fibre) Hilbert space is not formalized.
+
+* **Crouzeix's inequality on a half-plane, with the optimal constant `1`** —
+  `BookProof/ChapterNumericalRangeSemigroup.lean`.  `ChapterNumericalRangeCrouzeix` settles
+  the *disc* with a larger constant; here the convex domain is the half-plane
+  `{Re z ≤ ω}` and the functions are the exponentials.  `NumReLE A ω` (`Re ⟪x, A x⟫ ≤ ω‖x‖²`,
+  identified with `numRange A ⊆ {Re z ≤ ω}`) gives `‖e^{tA} x‖ ≤ e^{ωt}‖x‖` and
+  `‖e^{tA}‖ ≤ e^{ωt}` for `t ≥ 0` (`norm_exp_apply_le`, `norm_exp_le`), by the differential
+  inequality for `‖e^{tA}x‖²e^{-2ωt}`; `norm_exp_le_one` is the contraction-semigroup case
+  `ω = 0`, and `norm_cexp_le_of_re_le` checks that `e^{ωt}` is exactly the supremum of
+  `|e^{tz}|` over the domain, so the constant is optimal.  The matching resolvent estimate is
+  proved as well: for `Re z > ω` the shift `z − A` is injective (bounded below) and
+  surjective (closed range, injective adjoint), and `‖(z − A)⁻¹‖ ≤ 1/(Re z − ω)`
+  (`shiftEquiv`, `norm_resolvent_le`).  Remaining boundary: Crouzeix's inequality for an
+  arbitrary convex set containing the numerical range and an arbitrary analytic function.
+
+* **Two statements of `book.tex` that had not been formalized** —
+  `BookProof/ChapterSchurFiniteDimensional.lean`.  **Lemma 20** (Schur's lemma for
+  finite-dimensional representations) is proved with *no* normality hypothesis, by the
+  eigenvalue argument: on a nonzero finite-dimensional complex space every operator commuting
+  with an irreducible system is a scalar (`isSchurFull_of_irreducible_finiteDimensional`,
+  with the unitary form and, as a corollary, Prop 17 unconditionally in finite dimension).
+  The core of **Lemma 21** follows: an anti-unitary commuting with such a system squares to
+  `+1` or `−1` (`antiUnitary_sq_of_irreducible_finiteDimensional`), the real / pseudoreal
+  dichotomy, restated as "either a C-conjugation of the system or a pseudoreal structure".
+  In `BookProof/ChapterHolomorphic.lean` the *Holomorphic fields* remark is strengthened from
+  "differentiable + Cauchy–Riemann" to the **Morera** form `conservative_analyticOn`:
+  continuity plus vanishing of all rectangle integrals (the integral form of `∂̄f = 0`)
+  already gives analyticity, with no differentiability assumed.  The fully distributional
+  (locally integrable) version remains the recorded boundary there.
+
+Audits: `Work/PvmCyclicDecompositionAudit.lean`, `Work/NumericalRangeSemigroupAudit.lean`,
+`Work/SchurFiniteDimensionalAudit.lean`
+(all results report only `propext`, `Classical.choice`, `Quot.sound`).  `lake build BookProof`
+is green and both new modules are imported from `BookProof.lean`.
+
+## Latest wave — 2026-09-14: the continuous base of Mackey's theorem, and Crouzeix's inequality for self-adjoint operators
+
+Two restrictions that were recorded as honest boundaries are removed, and one build error in
+the previous wave is fixed.
+
+* **Mackey's induced system of imprimitivity over a *continuous* base** —
+  `BookProof/ChapterMackeyQuasiInvariant.lean`.  `ChapterMackeyGeneralBase` had lifted the
+  finiteness of the base but left it *discrete*; the measure-theoretic base with a
+  quasi-invariant measure was the remaining boundary.  Here the base is an arbitrary
+  `G`-space `X` with a σ-finite **quasi-invariant** measure `μ` (`QuasiInvariant`), the
+  Radon–Nikodym cocycle `dens μ g = d(g_*μ)/dμ` is built and its change-of-variables formula
+  (`lintegral_dens_mul`), unit (`dens_one`) and **chain rule**
+  (`dens_mul : dens μ (gk) x = dens μ g x · dens μ k (g⁻¹x)`, a.e.) are proved from the
+  uniqueness of Radon–Nikodym derivatives.  The induced representation
+  `(V g f)(x) = √(dens μ g x) · L g x (f (g⁻¹x))` on `L²(X, μ; K)`, for an arbitrary
+  measurable unitary cocycle `L` (`UnitaryCocycle`, with the trivial cocycle exhibited), is
+  linear (`vmap_add`, `vmap_smul`), **isometric** (`vmap_norm` — this is what the square root
+  of the cocycle is for), and a representation (`vmap_one`, `vmap_mul`), hence a unitary
+  (`inducedRep`); multiplication by indicators is a projection-valued measure
+  (`proj_idem`, `proj_inter`, `proj_univ`, `proj_empty`, `proj_symm`, `proj_add_of_disjoint`)
+  and the two satisfy Mackey's covariance relation `V g P(E) V(g)⁻¹ = P(g · E)`
+  (`inducedSystem_covariance`), assembled in `mackey_inducedSystem_continuous`.
+* **Countable additivity of that projection-valued measure** —
+  `BookProof/ChapterMackeyQuasiInvariantSigma.lean`: `norm_sq_proj` (`‖P(A) f‖² = ∫_A ‖f‖²`),
+  `proj_orthogonal` and `proj_hasSum_iUnion` — for a countable pairwise disjoint family the
+  projections are unconditionally summable with sum the projection onto the union.
+* **Crouzeix's inequality with constant `1` for self-adjoint operators** —
+  `BookProof/ChapterCrouzeixSelfAdjoint.lean`.  The SIRK chapters carried Crouzeix's
+  inequality as a named hypothesis.  For a normal (in particular self-adjoint) operator it is
+  *proved* here, with constant `1`, from the continuous functional calculus
+  (`norm_cfc_le_of_spectrum_subset`, `norm_cfc_le_of_selfAdjoint`), together with
+  `spectrum_subset_realSegment` (the spectrum of a self-adjoint operator of norm `≤ ρ` lies
+  in the real segment `[-ρ, ρ]` — the `realSegment` Crouzeix domain of the shift-invert
+  route) and `crouzeix_realSegment_of_selfAdjoint`.  The consequence is
+  `sirk_error_bound_selfAdjoint`: the SIRK reduction bound `‖ψ(X)v − V ψ(B) V∗v‖ ≤ 2·D·‖v‖`
+  with **no Crouzeix hypothesis at all**, for self-adjoint `X` and its compression `B`
+  (`compress_isSelfAdjoint`, `norm_compress_le`).
+* **Build fix.**  `BookProof/ChapterWeylSL2Unipotent.lean` (`coeff_sqFactor_two`) did not
+  compile; it now does, so the whole `lake build BookProof` is green again.
+
+All the new modules are `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`), are imported from `BookProof.lean` and are audited by
+`Work/HonestBoundariesAudit.lean` and `Work/CrouzeixSelfAdjointAudit.lean`.
+
+*Honest boundaries of this wave.*  For the continuous base only the **induced** direction is
+proved: that the induced data really is a system of imprimitivity.  The converse (every
+system of imprimitivity over a continuous base is unitarily equivalent to an induced one,
+Mackey's theorem proper in the measure-theoretic setting) is not formalized; the discrete
+base case of that converse is `ChapterMackeyGeneralBase`.  Crouzeix's inequality is proved
+for normal operators with constant `1`; the general (non-normal) case, with the numerical
+range and the constant `1 + √2`, remains a named hypothesis.
+
+## Latest wave — 2026-09-13c: Mackey, Wigner and Weyl — the external representation-theoretic inputs of `book.tex`, completed
+
+This wave finishes the three theorems that `book.tex` quotes as external inputs.
+
+* **Mackey's imprimitivity theorem, the converse half** — `BookProof/ChapterMackeyInducedSystem.lean`
+  (`BookProof.ChapterMackeyInducedSystem`).  For every unitary representation `L` of the
+  stabilizer `H = Stab(x₀)` on a complex Hilbert space `K`, the induced data on the `ℓ²`-space
+  of `K`-valued fields over the finite transitive base — `(V g f) x = L(c g x)(f (g⁻¹ • x))`
+  with the cocycle `c g x = (s x)⁻¹ g s(g⁻¹ • x)`, and multiplication by indicators as the
+  projection-valued measure — really **is** a system of imprimitivity (`inducedSystem`), and its
+  fibre representation over `x₀` is `L` again (`inducedSystem_fibre`,
+  `inducedSystem_stabilizer_rep`).  With `ChapterMackeyImprimitivity.mackey_imprimitivity` this
+  gives the one-to-one correspondence of Note 84 (`mackey_correspondence`).
+* **Wigner's little-group classification, the orbit side** — `BookProof/ChapterWignerLittleGroupOrbits.lean`.
+  The matrix of a momentum in the closed future cone is positive semidefinite
+  (`hermOfMom_posSemidef`, by reduction along the boosts to `diag(m,m)` and `diag(2,0)`), hence
+  the **sign of the energy is an orbit invariant** (`energy_nonneg_of_act`, `energy_pos_of_act`,
+  `future_cone_invariant`) — the invariant that the previous wave had left out — and
+  `orbit_iff_massSq_eq` shows that `(p·p, sign p⁰)` is a complete set of invariants in the
+  future cone.  `littleGroup_zero` and `littleGroup_spacelike` add the two remaining orbit
+  types: the origin (whole of `SL(2,ℂ)`) and the tachyonic shell (`SU(1,1)`).
+* **Weyl's complete reducibility theorem for `SL(2,ℂ)`** — `BookProof/ChapterWeylSL2Group.lean`,
+  completed and wired in (with `BookProof/ChapterWeylSl2.lean`, the `sl(2,ℂ)` Casimir proof).
+  `isInv_of_rho` (invariance under the unipotent one-parameter subgroups gives `sl₂`-invariance,
+  through `coeff_mem_of_poly_mem`), `rho_mem_of_unipotent_inv` (and back to the whole group,
+  through `exists_factorization`) and the headline `weyl_complete_reducibility_SL2`.  The
+  defining representation on `ℂ²` (`stdRep`, `stdSl2`, `isExpOfSl2_stdRep`) is exhibited as an
+  instance of the hypothesis, so the theorem is not vacuous.
+* **Wigner's symmetry theorem, the uniqueness clause** — `BookProof/ChapterWignerSymmetryUniqueness.lean`.
+  `eq_smul_of_forall_eigenvector` (a linear operator all of whose vectors are eigenvectors is a
+  scalar) gives `wigner_unique_unitary` and `wigner_unique_antiunitary`: the implementing
+  operator is unique up to one global phase — the "defined up to a complex phase" of the book's
+  quotation — and `not_linear_and_antiunitary` shows the unitary and antiunitary alternatives
+  exclude each other whenever the space has two orthonormal vectors.
+
+All four modules are `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`), are imported from `BookProof.lean` and are audited by
+`Work/WignerMackeyWeylAudit.lean`.  `lake build BookProof` (8874 jobs) and
+`lake build Work.WignerMackeyWeylAudit` complete with no errors and no warnings from the new
+files.
+
+*Honest boundary (superseded — see "The four honest boundaries are removed" at the end of this
+file).*  Mackey's theorem was proved for a **finite** transitive base with a chosen section;
+Wigner's symmetry theorem for a Hilbert space with a **finite** orthonormal basis; the orbit
+classification covered the future cone, the origin and the reference spacelike momentum
+(transitivity on the spacelike shells was not formalized); and Weyl's theorem for the group
+assumed that the two unipotent one-parameter subgroups act by the exponential series of an
+`sl₂`-triple.  All four restrictions have since been lifted.
+
+## Latest wave — 2026-09-13: the BRST charge of the Navier–Stokes derivative gauge, and its commutator with the Hamiltonian
+
+`BookProof/ChapterNsBrstDerivativeGauge.lean` (`BookProof.NsBrstDerivativeGauge`, audit
+`Work/NsBrstDerivativeGaugeAudit.lean`) answers the question *does the BRST charge belonging
+to the gauge fixing of the Navier–Stokes variables that represent the derivatives in space of
+a field have the correct commutator with the Hamiltonian?*  It did not exist in the project
+before (the earlier Navier–Stokes BRST charge, `NavierStokesFlow.nsBrstCharge`, belongs to the
+*divergence* constraint), and it is now built and proved.
+
+* Ghost sector `Λ(ℂ³)`, one ghost per generator, with the canonical anticommutation relations
+  (`nsGhost_car`), and the graded state space `NSGraded = NSAlg ⊗ Λ(ℂ³)` with commuting
+  bosonic and ghost embeddings (`nsBos_nsGh_comm`, `nsGradedGhostCar`).
+* The charges `nsDerivBrstCharge = ∑_j G_j χ_j` and `nsDerivBrstCharge2 = ∑_j G²_j χ_j`, built
+  from the derivative-gauge generators `genY`, `genY2` of `ChapterNavierStokesGaugeY`/`…Y2`;
+  both are nilpotent (`nsDerivBrstCharge_nilpotent`, `nsDerivBrstCharge2_nilpotent`, through
+  the abelian case of `QuantumGravityBrstCharge.brst_abelian_nilpotent`) and non-zero
+  (`nsDerivBrstCharge_ne_zero`, `nsDerivBrstCharge2_ne_zero`).
+* **Headline** — `nsDerivBrstCharge_comm_hamiltonian`, `nsDerivBrstCharge2_comm_hamiltonian2`:
+  `⁅Ω, H⁆ = 0` for the Navier–Stokes Hamiltonian `H = ∑_i (π^i A_i + A_i π^i)` built from the
+  gauge-invariant symbols `nsSymbol`, `nsSymbol2`.  The mechanism is
+  `comm_mulOp_of_apply_eq_zero` (a derivation killing the symbol commutes with multiplication
+  by it) plus `genY_comm_genU`/`genY2_comm_genU` (the generator commutes with the momenta).
+* **Correction, 2026-09-13b: the momentum is `π^i = ∂/∂u_i`, not `∂/∂x_i`.**  The momentum in
+  the Navier–Stokes Hamiltonian is the one conjugate to the *velocity field*: `genU`, with
+  the canonical commutation relation `[π^i, u_k · ] = δ^i_k` (`genU_ccr_u`).  `nsHamAlg`,
+  `nsHamAlg2` are now built from it.  The correction has content: `genU_nsSymbol` computes
+  `[∂/∂u_m, A_i] = u_{i,m} ≠ 0` (`genU_nsSymbol_ne_zero`), so the symmetric ordering
+  `π^i A_i + A_i π^i` is no longer redundant, and `nsHamAlg_ne_nsHamAlgX` shows the corrected
+  Hamiltonian differs from the superseded one (`nsHamAlgX`, kept only for the comparison) —
+  already on the constant state, where it returns the divergence `∑_i u_{i,i}`
+  (`nsHamAlg_one`) instead of `0` (`nsHamAlgX_one`).  The BRST commutation survives the
+  change: `genY_comm_genU`, `genY2_comm_genU` hold because the coefficients `u_{i,j}`,
+  `u_{i,jj}` of the gauge generators are independent canonical variables, so `⁅Ω, H⁆ = 0`
+  and all its consequences are re-proved for the corrected `H`.
+* Consequences: the dynamics preserves the BRST-closed and BRST-exact states
+  (`nsHamiltonian_mapsTo_ker`, `nsHamiltonian_mapsTo_range`, `nsHamiltonian2_mapsTo_ker`) and
+  descends to the BRST cohomology of the derivative gauge (`nsBrstCohomologyMap`).
+
+The module is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`)
+and is imported from `BookProof.lean`.
+
+## Latest wave — 2026-09-12d: five more `book.tex` claims formalized
+
+Answering "formalize everything possible from `book.tex` that is not yet formalized"
+(excluding the P-vs-NP and Riemann-Hypothesis chapters), five gaps identified by reading
+the manuscript against the existing chapters were closed.  All five modules are
+`sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`), imported
+from `BookProof.lean`, and audited in `Work/`.
+
+* `BookProof/ChapterOdeUnitaryFlow.lean` (`BookProof.OdeUnitaryFlow`,
+  audit `Work/OdeUnitaryFlowAudit.lean`) — the ODE chapter's Equations 1-4, which had no
+  Lean counterpart: the classical solution `x(t) = x0/(1 - t x0)` solves `x' = x^2`
+  (`classicalSol_hasDerivAt`) and blows up at `t = 1/x0` (`classicalSol_tendsto_atTop`);
+  the Moebius flow `mob t x = x/(1+tx)` is a group action off its pole (`mob_mob`,
+  `mob_neg_mob`, `image_mob`); the evolution operator of Equation 3,
+  `odeKoop t psi x = psi(x/(1+tx))/(1+tx)`, is a one-parameter group (`odeKoop_add`)
+  which **conserves total probability at every time**, past the classical blow-up
+  (`odeKoop_lintegral_normSq`, by the change of variables `lintegral_comp_mob`);
+  Equation 4 is `odeKoop_conj_mul`; the generator is `-iH` with `H = x^2 p - i x`
+  (`odeKoop_generator`); and the chapter's remark that the Hamiltonian is a translation
+  after the change of variables `y -> 1/x` is the exact intertwining `odeKoop_chartW`
+  with the norm-preserving chart `chartW` (`chartW_lintegral_normSq`).
+* `BookProof/ChapterLocalityConstraintNull.lean` (`BookProof.LocalityConstraint`,
+  audit `Work/LocalityConstraintNullAudit.lean`) — the closing claim of "Balancing
+  discretization and locality": the set where the velocity is constrained by the position
+  is null for the joint law whenever the velocity law is atomless (`graphSet_null`,
+  `graphSet_gaussian_null`, `graphSet_volume_null`), so naive conditioning on the
+  constraint gives the zero measure (`not_isProbabilityMeasure_restrict_graphSet`).
+* `BookProof/ChapterSymmetryEntropy.lean` (`BookProof.SymmetryEntropy`,
+  audit `Work/SymmetryEntropyAudit.lean`) — "Symmetries as irreversible processes": with
+  the entropy of `ChapterMarkovEntropy` and the determinism notion of `ChapterReconstruct`,
+  a symmetry acting on a deterministic ensemble raises the entropy above `0` **iff** it is
+  non-deterministic in that column (`entropy_bornCol_pos_iff_not_isDeterministicCol`,
+  `isDeterministicCol_iff_entropy_eq_zero`, `entropy_pointMass`).
+* `BookProof/ChapterCcrNoBounded.lean` (`BookProof.CcrNoBounded`,
+  audit `Work/CcrNoBoundedAudit.lean`) — the Timepiece chapter's claim that a constrained
+  null momentum clashes with the canonical commutation relations
+  (`ccr_fails_of_momentum_zero`), the finite-dimensional trace no-go (`matrix_no_ccr`), and
+  the Wielandt-Wintner theorem `no_ccr_one` / `no_ccr_smul`: in any nontrivial normed real
+  algebra the CCR has no solution, so position and momentum are necessarily unbounded.
+
+* `BookProof/ChapterHowlandAutonomization.lean` (`BookProof.Howland`,
+  audit `Work/HowlandAutonomizationAudit.lean`) — the same chapter's claim that *"any
+  time-dependent Hamiltonian can be converted into a time-independent Hamiltonian in an
+  even larger sample space"*: classically, the graph of a solution of `x' = f(t,x)` solves
+  the autonomous extension `z' = (1, f z)` and conversely (`hasDerivAt_autonomize`,
+  `hasDerivAt_of_autonomize`); quantum-mechanically, for any unitary propagator family
+  (`IsPropagator`, shown satisfiable) the Howland evolution
+  `(U(sigma) psi)(t) = U(t, t-sigma) psi(t-sigma)` is a one-parameter **group**
+  (`howland_add`, `howland_zero`, `howland_neg`) conserving total probability
+  (`howland_lintegral_normSq`), i.e. an autonomous evolution on the larger space.
+
+Verified with `lake build BookProof` (8855 jobs, no errors) and the five audit targets.
+
+
 ## Latest wave — 2026-09-05b: the min-max ladder of an unbounded operator, through its resolvent
 
 `ChapterResolventMinMaxLadder` (`BookProof.ResolventLadder`) carries the Courant-Fischer
@@ -690,7 +1057,7 @@ One new module, `sorry`-free and audited to `propext`, `Classical.choice`,
   and no level with `k ≥ 1` is claimed to be an eigenvalue (that needs the essential
   spectrum); the `k = 0` identification with `sInf (spectrum ℝ T)` is proved.
 
-## Latest wave (2026-08-29g, **QG-3.2(a) attempt: derivative-variable fixing + the lifted quadratic coupling is self-adjoint**)
+## Latest wave (2026-08-29g, **QG-3.2(a) attempt: derivative-variable fixing + the lifted quadratic coupling is self-adjoint**)  
 
 One new module, `sorry`-free and audited to `propext`, `Classical.choice`,
 `Quot.sound`; verified with `lake build
@@ -11779,3 +12146,131 @@ The ODE, P≠NP, and Riemann-Hypothesis chapters are explicitly
 excluded by the author; note the pre-existing `PnpProof` and `RiemannProof`
 libraries already cover the adjacent Kopperman/Mehler substrate and the
 analytic-ζ route respectively.
+
+
+## 2026-09-13 — the two representation-theoretic `EXTERNAL` inputs of book chapter A, discharged
+
+New modules (all `sorry`-free, `axiom`-free; audited by `Work/SchurPauliWaveAudit.lean`,
+35 `#print axioms` lines, each reporting only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `BookProof/ChapterSchurIrreducible.lean` — **Schur's lemma on an arbitrary complex
+  Hilbert space**: the commutant of a topologically irreducible *normal* system (Defs 7/24)
+  is `ℂ · 1` (`commutant_scalar_of_irreducible`), proved through the continuous functional
+  calculus (two distinct spectral points of a self-adjoint element of the commutant give a
+  nonzero proper closed invariant subspace).  This *proves* the `EXTERNAL` hypotheses
+  `IsSchurFull` (`isSchurFull_of_irreducible`) and `IsSchurUnitary`
+  (`isSchurUnitary_of_irreducible`) of `ChapterA2`/`ChapterA2b` with no dimension
+  restriction, superseding the finite-dimensional `ChapterSchurFullFiniteDim`.
+* `BookProof/ChapterSchurRepresentation.lean` — **Lemma 28** (Schur for unitary
+  representations) and **Lemma 34** (Schur for systems of imprimitivity), the latter
+  without Mackey's imprimitivity theorem: the generators' adjoints (`U g⁻¹`, and the
+  self-adjoint projections `π A`) stay inside the system, so it is normal.
+* `BookProof/ChapterSchurTrichotomy.lean` — **Lemma 14** and **Props 17–19** (the
+  ℝ / ℂ / ℍ commutant trichotomy) restated with the Schur hypothesis replaced by
+  "normal and irreducible".
+* `BookProof/ChapterPauliFundamental.lean` — **Note 36, Pauli's fundamental theorem of the
+  γ-matrices**, proved (`pauliFundamental`): the shared Clifford commutation rule for the
+  sixteen ordered products (`clifford_key`), the trace-orthogonality and spanning of the
+  sixteen concrete Majorana products (finite integer computations), Pauli's averaged
+  intertwiner and its invertibility.  Also `real_pauli'` (Prop 37 with no external input).
+* `BookProof/ChapterPauliConsequences.lean` — **Prop 46** (the `Pin(3,1) → O(1,3)` covering
+  is surjective and two-to-one) with no external input.
+
+`lake build BookProof` (8866 jobs) and `lake build Work.SchurPauliWaveAudit` complete with
+no errors and no warnings from the new modules.
+
+## The four honest boundaries are removed
+
+The four restrictions recorded above with the Mackey / Wigner / Weyl wave are now lifted.
+
+* **Mackey's imprimitivity theorem over an arbitrary transitive base** —
+  `BookProof/ChapterMackeyGeneralBase.lean`.  The base is an arbitrary `G`-set with a
+  countably additive (unconditionally summable) system of projections; no section is
+  supplied, it is *built* from transitivity, and the induced space is the ℓ²-space of
+  fields.  `mackey_imprimitivity_general` is the unitary equivalence; `ofFintype` embeds the
+  earlier finite theory.  *Remaining boundary:* the base is discrete; the continuous
+  (measure-theoretic) base with a quasi-invariant measure is not formalized.
+* **Wigner's symmetry theorem in an arbitrary complex Hilbert space** —
+  `BookProof/ChapterWignerSymmetryInfinite.lean`.  For an arbitrary Hilbert basis
+  `b : HilbertBasis ι ℂ E`, every surjective transition-probability preserving map agrees,
+  up to a vector-dependent phase, with one unitary or one antiunitary operator
+  (`wigner_symmetry_hilbert`, and the basis-free `wigner_symmetry_of_completeSpace`).  The
+  two infinite-dimensional ingredients are the saturation of Bessel's inequality
+  (`BookProof/ChapterOrthogonalSums.lean`) and the equality case of the triangle inequality
+  for series.  Surjectivity is genuinely needed (the unilateral shift preserves all
+  transition probabilities and is not unitary) and is automatic in finite dimensions.
+* **Transitivity on the spacelike shells, and the complete orbit classification** —
+  `BookProof/ChapterWignerOrbitClassification.lean`.  `exists_boost_spacelike` produces, for
+  every spacelike momentum, an explicit element of `SL(2,ℂ)` carrying the reference momentum
+  `(0,0,0,m)` to it, whence `sameOrbit_spacelike` and the complete `orbit_classification`.
+* **Weyl's theorem for the group, with the `sl₂`-triple derived** —
+  `BookProof/ChapterWeylSL2Unipotent.lean`.  Only *unipotence* is assumed: the two
+  one-parameter subgroups act by the exponential series of nilpotent operators `E` and `F`,
+  with no relation between them (`IsUnipotentExp`).  The action of the diagonal torus is
+  shown to be a Laurent polynomial in the torus parameter (`dPoly`); its conjugation rule
+  `d(a) u₊(t) d(a)⁻¹ = u₊(a²t)` gives `[H₀, E] = 2E` and `[H₀, F] = -2F` by differentiating a
+  polynomial identity, and the big-cell identity `u₋(s)u₊(s) = u₊(sc) d(c) u₋(sc)` with
+  `c = (1+s²)⁻¹`, compared in the coefficient of `s²`, gives `H₀ = EF - FE + (n-1)`.  Hence
+  `sl2_relations_of_unipotent`, the triple `sl2OfUnipotent` and
+  `weyl_complete_reducibility_SL2_unipotent`.  The defining representation on `ℂ²` is an
+  instance of the hypothesis.
+
+All the new modules are `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
+`Quot.sound`) and are imported from `BookProof.lean`.
+
+## 2026-09-15 — Note 68 of `book.tex` §A.5 (Hankel–Majorana transform): the intertwining relations
+
+Three new modules, all `sorry`-free and `axiom`-free (audited in
+`Work/SphericalBesselODEAudit.lean`; every result reports only `propext`,
+`Classical.choice`, `Quot.sound`).  `lake build BookProof` is green.
+
+* `BookProof/ChapterSphericalBesselODE.lean` — the spherical Bessel functions of
+  Definition 67 beyond the `l = 0` case that `ChapterSphericalBessel` had:
+  every Rayleigh iterate `gₗ = (−(1/r) d/dr)ˡ(sin r/r)` is smooth away from the
+  origin (`contDiffOn_gIter`) and satisfies `r gₗ'' + (2l+2) gₗ' + r gₗ = 0`
+  (`gIter_ode`, by induction, with the companion identity
+  `gₗ = (2l+3) gₗ₊₁ + r gₗ₊₁'`); hence **the spherical Bessel equation**
+  `r² jₗ'' + 2 r jₗ' + (r² − l(l+1)) jₗ = 0` for every `l` (`sbessel_ode`), the
+  Rayleigh raising relation `jₗ₊₁ = −rˡ (jₗ/rˡ)'` (`sbessel_rayleigh_raise`),
+  the three-term recurrence (`sbessel_recurrence`), and **Note 68 in the radial
+  variable**: `r ↦ jₗ(p r)` is an eigenfunction of the radial Laplacian in the
+  sector of angular momentum `l` with eigenvalue `p²` (`sbessel_radial_eigen`).
+* `BookProof/ChapterRadialLaplacian.lean` — the formula for the Laplacian of a
+  radial function, which Mathlib does not have: `Δ(y ↦ G‖y‖²)(x) =
+  4‖x‖²G''(‖x‖²) + 2n G'(‖x‖²)` (`laplacian_comp_normSq`) and
+  `Δ(y ↦ g‖y‖)(x) = g''(‖x‖) + ((n−1)/‖x‖) g'(‖x‖)` (`laplacian_radial`).
+  Combined with the previous module this gives **Note 68 in space, in the
+  `s`-wave sector**: on a three-dimensional real inner product space, away from
+  the origin, `−∂⃗² j₀(p‖x⃗‖) = p² j₀(p‖x⃗‖)` (`helmholtz_sbessel_zero`, with the
+  concrete `ℝ³` instance `helmholtz_sbessel_zero_euclidean`).
+* `BookProof/ChapterAngularMomentum.lean` — **the angular half of Note 68**: a
+  function transforming with the phase `e^{iμt}` under the rotations of the
+  `1`–`2` plane is an eigenfunction of `L₃ = −i(x¹∂₂ − x²∂₁)` with eigenvalue
+  `μ` (`angularMomentum_eigen`), realized concretely by the circular harmonic
+  `(z/‖z‖)^μ` — the `e^{iμφ}` factor of `Y_{lμ}` (`circHarm_rotate`,
+  `circHarm_angularMomentum_eigen`).
+
+Recorded boundary: for `l ≥ 1` the space (as opposed to radial) form of Note 68
+needs the spherical harmonics as eigenfunctions of the angular Laplacian, which
+is not formalized; unitarity of the spherical transform itself (a Fourier–Bessel
+Plancherel theorem) also remains open.
+
+### Same wave, continued: angular momentum `l ≥ 1` in space
+
+* `BookProof/ChapterLaplacianProduct.lean` — the product rule for the Laplacian
+  (`laplacian_mul`), the derivative of a radial function (`fderiv_radial`), and
+  the Laplacian of a radial factor times a harmonic factor homogeneous of
+  degree `l` (`laplacian_radial_mul_harmonic`,
+  `Δ(g‖·‖·H) = (g'' + ((n−1+2l)/r) g')·H`), with the degree-one hypotheses
+  realized by any continuous linear functional (`harmonic_clm`, `euler_clm`).
+* `BookProof/ChapterBesselHarmonic.lean` — the one-variable reduction
+  (`reduced_from_radial`, `reduced_radial_sbessel`: `g = jₗ(p·)/rˡ` solves
+  `g'' + ((2+2l)/r) g' = −p² g`) and hence **Note 68 in the sector of angular
+  momentum `l`** (`helmholtz_sbessel_harmonic`):
+  `−∂⃗²(jₗ(p‖x⃗‖)/‖x⃗‖ˡ · H) = p² (jₗ(p‖x⃗‖)/‖x⃗‖ˡ · H)` in three dimensions, for
+  every harmonic `H` homogeneous of degree `l`; the case `l = 1` with `H` a
+  coordinate is `helmholtz_sbessel_one_clm`.
+
+Boundary still recorded: that the spherical harmonics `Y_{lμ}` of Definition 67
+are of this form for every `l`, `μ` (equivalently, the associated Legendre
+functions) is not formalized, nor is the unitarity of the spherical transform.
