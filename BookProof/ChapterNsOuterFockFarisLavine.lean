@@ -1,5 +1,6 @@
 import BookProof.ChapterNsOuterFockFarisLavine.Part1
 import BookProof.ChapterNsOuterFockFarisLavine.Part2
+import BookProof.ChapterProve2meReuse
 
 /-!
 # The gauge-fixed Navier–Stokes Hamiltonian on the outer Fock space, by Faris–Lavine
@@ -10,6 +11,16 @@ quantum gravity: it exhibits the gauge-fixed Hamiltonian as a *uniform* kinetic-
 family on the sectors of an outer Fock space and runs the Faris–Lavine theorem there, with
 the **same comparison operator** — the lifted Friedrichs extension `dΓ(N₁)` of the positive
 one-particle operator `N₁ = −Δ + ‖x‖²/4`.
+
+**Reused platform theorems.**  The momentum-space route built on this operator (the
+2026‑09‑15 wave of `CONSOLIDATED_PLAN.md`) takes the already-proved prove2me theorems it needs
+as **named hypotheses** — `BookProof.Prove2meReuse.RouteHypotheses` — instead of re-proving or
+axiomatizing them.  For Navier–Stokes those are the convolution-operator symmetry and
+compactness (the convolution algebra of plan item 3) and the positive-definite form lower
+bound (the Friedrichs positivity of item 4 / §5); the projections are
+`ns_convolution_symmetric`, `ns_convolution_compact` and `ns_friedrichs_lower_bound`.  The
+frozen source is `PROVE2ME_REUSABLE_THEOREMS.md` at the repository root; the carrier module is
+`BookProof.ChapterProve2meReuse`.
 
 ## The variables
 

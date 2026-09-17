@@ -772,7 +772,6 @@ theorem wigner_symmetry_hilbert (b : HilbertBasis ι ℂ E) (o : ι) (hT : IsWig
         _ = conj ⟪x, y⟫_ℂ := by rw [hxy]
     · intro y
       refine ⟨b.repr.symm (star (G.repr y)), ?_⟩
-      show G.repr.symm (star (b.repr (b.repr.symm (star (G.repr y))))) = y
       rw [LinearIsometryEquiv.apply_symm_apply, star_star, LinearIsometryEquiv.symm_apply_apply]
     · obtain ⟨lam, hlam, hk⟩ :=
         coord_of_key (b := b) (o := o) (starRingEnd ℂ) hT (fun z => Complex.norm_conj z)

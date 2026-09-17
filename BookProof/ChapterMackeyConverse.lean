@@ -81,7 +81,6 @@ theorem mackey_converse_continuous (S : ContinuousImprimitivitySystem G X H) (ψ
   set V : G → (Lp ℂ 2 μ ≃ₗᵢ[ℂ] Lp ℂ 2 μ) := fun g => W.trans ((S.U g).trans W.symm) with hV
   have key : ∀ (g : G) (v : Lp ℂ 2 μ), W (V g v) = S.U g (W v) := by
     intro g v
-    show W (W.symm (S.U g (W v))) = S.U g (W v)
     exact W.apply_symm_apply _
   have hcov : Covariant μ S.measurable V := by
     intro g E hE f

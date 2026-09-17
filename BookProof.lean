@@ -2637,3 +2637,43 @@ import BookProof.ChapterNote68AllModes
 -- `(𝓢f)(p) = √(2/π) ∫₀^∞ f(r) j₀(pr) r² dr`, for every radial profile whose moment `r f(r)` is
 -- an odd Schwartz function; with an explicit nonzero profile witnessing non-vacuity.
 import BookProof.ChapterSphericalPlancherel
+
+-- `ChapterProve2meReuse` (2026-09-17 wave): proved theorems of the prove2me catalogue that the
+-- momentum-space (Fourier-elimination) route of Navier–Stokes and quantum gravity consumes,
+-- carried as **named hypotheses** because the Lean `v4.28.0` / `v4.33.1` split rules out an
+-- `import`.  One `Prop` per theorem (convolution symmetry and compactness, the positive-definite
+-- form lower bound, the `2 × 2` determinant of a sum, the compact-symmetric spectral edge and its
+-- Ritz truncation, and the Gribov negative direction), the bundle `RouteHypotheses`, and the
+-- route-facing projections `ns_*` / `lagrangian_*` / `qg_*`.  The frozen search, with the platform
+-- ids and the verbatim statements, is `PROVE2ME_REUSABLE_THEOREMS.md`.
+import BookProof.ChapterProve2meReuse
+
+-- `ChapterNsFourierElimination` (2026-09-17 wave): the *Fourier elimination* of the variables
+-- representing spatial derivatives of the Navier–Stokes field, as the plan of record for
+-- defining the Hamiltonian (instead of the BRST gauge fixing of the jet coordinates).  The
+-- substitution `u_{i,j} ⇒ i k_j u_i`, `w_i ⇒ −|k|² u_i`, `y_j ⇒ 0` is a ring map (`nsElimHom`);
+-- the residual and the incompressibility are pushed through it (`nsElimSubst_resPoly`,
+-- `nsElimSubst_divPoly`), the eliminated residual being quadratic and the eliminated
+-- incompressibility linear; the reduced sector Hamiltonian on the six surviving coordinates per
+-- parcel (`redHam`, a Weyl-ordered sum of squares of the *real* pressure–viscous symbols) is
+-- symmetric and bounded below with an unconditional Friedrichs extension; and the nested-Fock
+-- lift (`nsRedFullFockHam`, `nsRedOuterComparison`) gives the Faris–Lavine statement for the
+-- eliminated generator (`nsRedFullOuterN_esa`) and the extension of the Hamiltonian by its
+-- comparison operator (`nsRedFullOuterN_isPositiveSelfAdjointExtension`).  The skew-adjoint
+-- advection is deliberately *not* a square; it enters as the momentum convolution of the route.
+-- The book chapter is `Book/FourierElimination.lean`; the design note is
+-- `DESIGN_COMPARISON_N_20260915.md` §5.
+import BookProof.ChapterNsFourierElimination
+
+-- `ChapterNsLagrangianFourierElimination` (2026-09-17, **WIP — do not import yet**): the same
+-- Fourier elimination in *material* (Lagrangian) variables, where it turns out to be degenerate:
+-- `σ(F_{ij}) = i ℓ_j ξ_i` makes the deformation gradient the rank-one matrix `F = ℓ ⊗ ξ`, so the
+-- eliminated cofactor vanishes and with it the whole Piola pressure coupling of the material
+-- momentum equation, while `det F = 0` collapses the volume constraint `det F = 1` to the
+-- constant `−1` (a constraint with no field content).  The surviving sector is the velocity
+-- gradient `V_{ij} → i ℓ_j v_i` plus the viscous coordinate `S_i → −|ℓ|² v_i`, giving
+-- `σ(R_i) = a_i + |ℓ|² v_i` — see `CONSOLIDATED_PLAN.md` item 6.  The file is a handoff scaffold:
+-- §1–3 are green except the two `Fin`-index lemmas `lagElimCoord_fIdx` / `lagElimCoord_vgIdx`, which
+-- exceed the heartbeat budget, and §4–5 depend on them.  Add the `import` line above (and the
+-- chapter to the Book) only once it compiles.
+-- import BookProof.ChapterNsLagrangianFourierElimination

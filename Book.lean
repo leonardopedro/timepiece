@@ -15,6 +15,7 @@ import Book.YangMillsQuantization
 import Book.GribovAmbiguity
 import Book.PhysicalParity
 import Book.DiffeomorphismsGravity
+import Book.FourierElimination
 import Book.Starobinsky
 import Book.NavierStokesHashimoto
 import Book.CarlemanFlux
@@ -316,6 +317,8 @@ instance of the tensor products of sample spaces).
 {include 0 Book.PhysicalParity}
 
 {include 0 Book.DiffeomorphismsGravity}
+
+{include 0 Book.FourierElimination}
 
 {include 0 Book.Starobinsky}
 

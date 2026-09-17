@@ -1,5 +1,6 @@
 import BookProof.ChapterQgOuterFockFarisLavine.Part1
 import BookProof.ChapterQgOuterFockFarisLavine.Part2
+import BookProof.ChapterProve2meReuse
 
 /-!
 # Faris–Lavine on the outer Fock space: the lifted Friedrichs comparison operator
@@ -10,6 +11,15 @@ essentially self-adjoint on the finite-particle core of the outer Fock space
 **Faris–Lavine apparatus on the outer Fock space itself**, with the comparison operator
 that the strategy calls for: the Friedrichs extension of the positive one-particle
 operator `N₁ = −Δ + ‖x‖²/4`, lifted to `𝔉`.
+
+**Reused platform theorems.**  The Fourier-elimination route on this operator (the
+2026‑09‑15 wave of `CONSOLIDATED_PLAN.md`) takes the already-proved prove2me theorems it needs
+as **named hypotheses** — `BookProof.Prove2meReuse.RouteHypotheses` — instead of re-proving or
+axiomatizing them.  For gravity those are the compact-symmetric spectral edge and its
+Ritz-truncation refinement (the band / Ritz ladder of plan item 8) and the Gribov negative
+direction (item 7); the projections are `qg_compact_spectral_edge`,
+`qg_high_part_finiteDimensional` and `qg_gribov_negative_direction`.  The frozen source is
+`PROVE2ME_REUSABLE_THEOREMS.md`; the carrier module is `BookProof.ChapterProve2meReuse`.
 
 Theorem 1 of Faris–Lavine (`BookProof.ChapterFarisLavine`) needs exactly three things of
 its comparison operator `N`: symmetry, positivity, and that `N + 1` maps the domain

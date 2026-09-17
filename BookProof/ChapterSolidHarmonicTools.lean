@@ -213,7 +213,7 @@ theorem hasFDerivAt_cylTerm (e : E) (j m : ℕ) (x : E) :
   have h := hf.mul hg
   convert h using 1
   ext u
-  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.coe_smul', Pi.smul_apply,
+  simp only [ContinuousLinearMap.add_apply, Pi.smul_apply,
     smul_eq_mul, innerCLM_apply, ContinuousLinearMap.smulRight_apply,
     ContinuousLinearMap.coe_smul]
   ring

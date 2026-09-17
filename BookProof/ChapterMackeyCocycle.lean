@@ -219,7 +219,7 @@ theorem aestronglyMeasurable_tfun (hqi : QuasiInvariant μ G) (g : G) {w : X →
 
 /-- The translation–multiplication map preserves the `L²`-integral. -/
 theorem lintegral_enorm_tfun (hqi : QuasiInvariant μ G) (g : G) {w : X → ℂ}
-    (hwmeas : Measurable w) (hdens : dens μ g =ᵐ[μ] fun x => ‖w x‖ₑ ^ 2)
+    (hdens : dens μ g =ᵐ[μ] fun x => ‖w x‖ₑ ^ 2)
     {f : X → ℂ} (hf : AEStronglyMeasurable f μ) :
     ∫⁻ x, ‖tfun g w f x‖ₑ ^ (2 : ℕ) ∂μ = ∫⁻ x, ‖f x‖ₑ ^ (2 : ℕ) ∂μ := by
   have hφ : AEMeasurable (fun x => ‖f x‖ₑ ^ (2 : ℕ)) μ := hf.enorm.pow_const _
@@ -246,7 +246,7 @@ theorem memLp_tfun (hqi : QuasiInvariant μ G) (g : G) {w : X → ℂ} (hwmeas :
     refine lintegral_congr fun x => ?_
     rw [show ((2 : ENNReal).toReal) = ((2:ℕ):ℝ) by norm_num, ENNReal.rpow_natCast]
   rw [c1] at h2 ⊢
-  rw [lintegral_enorm_tfun hqi g hwmeas hdens (Lp.aestronglyMeasurable f)]
+  rw [lintegral_enorm_tfun hqi g hdens (Lp.aestronglyMeasurable f)]
   exact h2
 
 /-- The translation–multiplication operator on `L²`. -/
@@ -302,7 +302,7 @@ theorem norm_tmap (hqi : QuasiInvariant μ G) (g : G) {w : X → ℂ} (hwmeas : 
     refine lintegral_congr fun x => ?_
     rw [show ((2 : ENNReal).toReal) = ((2:ℕ):ℝ) by norm_num, ENNReal.rpow_natCast]
   rw [c1, c1]
-  exact lintegral_enorm_tfun hqi g hwmeas hdens (Lp.aestronglyMeasurable f)
+  exact lintegral_enorm_tfun hqi g hdens (Lp.aestronglyMeasurable f)
 
 /-- The translation–multiplication operator, as a continuous linear map. -/
 noncomputable def tmapL (hqi : QuasiInvariant μ G) (g : G) {w : X → ℂ} (hwmeas : Measurable w)

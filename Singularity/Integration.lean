@@ -124,10 +124,10 @@ noncomputable def blowup_time_integral (f : Polynomial ℝ) (x0 : ℝ) : ℝ :=
 
 /-- Full pipeline: ODE system → Hamiltonian → ESA report → UK diagnostic codes.
     This is the main entry point for the SIRK pipeline integration. -/
-noncomputable def sirk_pipeline {M : ℕ} (sys : ODESystem M) (x0 : Fin M → ℝ) :
+noncomputable def sirk_pipeline {M : ℕ} (sys : ODESystem M) (_x0 : Fin M → ℝ) :
     UKDiagnosticCode × EsaReport :=
   let H := odeToHamiltonian sys
-  let flow := analyzeClassicalFlow sys
+  let _flow := analyzeClassicalFlow sys
   let esa := esaReport sys
   let cov := detectChangeOfVariables sys
   

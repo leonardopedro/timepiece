@@ -1,5 +1,603 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
+**How to read this plan offline.**  It is written for a Lean 4 specialist who has this repository
+and Mathlib and **nothing else** — no prove2me account, no `../unfer/`, no Cadabra2, no upload
+pipeline.  Every result that comes from those outside systems is therefore **transcribed here as a
+*result*** (name, statement, verdict), never left as a pointer to a tool or a file that cannot be
+read.  The only records that have to be opened are inside this repository:
+
+| what the plan needs from outside timepiece | where it is recorded **inside** the repository |
+| :-- | :-- |
+| the search over proved prove2me theorems for reusable results: exact statements, platform ids, authors, version/portability verdicts, the leaf-name triage, and the anti-reuse list | `PROVE2ME_REUSABLE_THEOREMS.md` (frozen 2026‑09‑17, self-contained), with the route mapping in §“Cross-platform reuse” of this file |
+| the seven Mathlib-only reusable theorems, as Lean objects | `BookProof/ChapterProve2meReuse.lean` — named hypotheses (never silent axioms) with `RouteHypotheses`, wired into the NS/QG/Esa route chapters |
+| the Cadabra2 checks A1–A7, B1–B5b, C1–C5, D1–D6, E1–E3 that back the Fourier-elimination strategy (B4/B5 are the rank-one degeneracy of the *Lagrangian* substitution) | results table in `DESIGN_COMPARISON_N_20260915.md` §9 (and §5–§6 for how each is used); the same checks are *run* by `DESIGN_COMPARISON_N_20260915.cdb`, which is in this repository too but is **reference only** and never part of a Lake build |
+| the QG Hamiltonian/frame algebra that `../unfer/docs/qg_*.cdb` derives | the displayed identities and the corresponding theorems of `BookProof/ChapterQg*` in this file and in the chapter headers |
+
+Consequently the mentions of `../unfer/docs/*.cdb`, of the Cadabra2 nix pin and of
+`cadabra2-cli` below are **provenance, not dependencies**: each of them names the host on which a
+check was produced, and the numbers that check produced are in the tables of
+`DESIGN_COMPARISON_N_20260915.md`.  Nothing in the route plan requires running a `.cdb` module,
+building `../unfer/`, or calling the prove2me API; a new addition to the route should cite the
+in-repo record, not the external artifact.
+
+## Latest wave — 2026-09-17: the **Fourier elimination of the derivative variables is formalized** — the substituting ring map, the quadratic residual, the reduced sector Hamiltonian and its Faris–Lavine route on the nested Fock space (NS, Eulerian)
+
+**Landed and verified.**  `BookProof/ChapterNsFourierElimination.lean` (namespace
+`BookProof.NsFullEuler`) — `sorry`-free, `axiom`-free, `lake build
+BookProof.ChapterNsFourierElimination` succeeds on Lean `v4.28.0` with no warning from the module
+(8 197 jobs), and the manual chapter `Book/FourierElimination.lean` is written and registered in
+`Book.lean` (`import Book.FourierElimination` beside `import Book.DiffeomorphismsGravity`, and
+`{include 0 Book.FourierElimination}` beside `{include 0 Book.DiffeomorphismsGravity}`).  All
+thirty `#check`ed names of the chapter resolve against the module (verified by replaying them in a
+scratch module that imports it), and `lake build Book` succeeds with the chapter included
+(197 jobs; `Book.FourierElimination` built in 2.2 s).
+
+**Companion, Lagrangian: written but *degenerate*, and deliberately not landed.**  The same
+construction in material variables is a handoff scaffold, not a result — the substitution
+`F_{ij} ⇒ i ℓ_j ξ_i` makes the deformation gradient rank one, which kills the Piola coupling and
+`det F`; see **item 6 of the NS plan items below** for the finding, the machine-checked evidence
+(`DESIGN_COMPARISON_N_20260915.md` §9, B4a–B5b) and the state of the scaffold.  Nothing in the
+Eulerian chain above depends on it.
+
+What is proved, in the order of the file (the whole chain is *constructive*: no new axiom, no
+new hypothesis):
+
+1. **The substitution is a ring map.**  `nsElimCoord` eliminates one parcel's jet coordinates,
+   `liftParcel` reindexes a one-parcel reduced polynomial into its block, and
+   `nsElimHom k n : MvPolynomial (Fin (n*21)) ℂ →+* MvPolynomial (Fin (n*6)) ℂ` applies it
+   parcelwise.  Its values on the coordinates are the coordinate lemmas
+   `nsElimHom_X_u`, `nsElimHom_X_d` (`u_{i,j} ↦ i k_j u_i`), `nsElimHom_X_w` (`w_i ↦ −|k|² u_i`),
+   `nsElimHom_X_q` (`q_i ↦ q_i`), `nsElimHom_X_y` (`y_j ↦ 0`), computed with ordinary `Nat`
+   arithmetic on the index layout.
+2. **The residual and the divergence are eliminated.**  `nsElimSubst_advect`,
+   `nsElimSubst_pressure`, `nsElimSubst_viscous` and then
+   `nsElimSubst_resPoly`:
+
+   ```
+   nsElimHom k n (nsResPoly nu p i) = C I * liftParcel p (fourierAdvect k i)
+                                        + liftParcel p (fourierVisc nu k i),
+   i.e.   σ(R_i) = i (k·u) u_i + q_i + ν|k|² u_i ,   (k·u) = Σ_j k_j u_j ,
+   ```
+
+   and `nsElimSubst_divPoly`: `σ(Σ_j u_{j,j}) = i (k·u)`, the momentum scalar
+   (`fourierMomentum`) times `i` (`fourierDiv`).  This is the formal content of step 2 of the
+   2026‑09‑15 wave below: the eliminated residual is a **quadratic** symbol in the six reduced
+   coordinates `(u_i, q_i)` and the eliminated incompressibility is **linear**, so the cubic
+   symbol of the gauge-fixed presentation is gone *from the definition*, with no ghost sector.
+3. **The reduced sector Hamiltonian.**  `redVisc nu k n p i = X (rqIdx p i) + C (ν|k|²) * X
+   (ruIdx p i)` and `redVisc_eq_liftParcel` (it is exactly the lifted `fourierVisc`, i.e. the
+   real part of `σ(R_i)`), `realCoeff_redVisc`; the momenta `redPiN` and multiplication forms
+   `redFieldN` on `polyGaussCore (d := n*6) ⊂ L²(ℝ^{6n})`; then
+   `redHam nu k n = weylOp (redPiN n) (redFieldN nu k n)`, with `redHam_symmetricOn`,
+   `redHam_quadForm_nonneg` and `redHam_friedrichs_extension`.
+4. **The nested-Fock lift and Faris–Lavine.**  `nsRedFockSpace = ⊕ₙ L²(ℝ^{6n})`,
+   `nsRedFockCore`, `nsRedFockCore_dense`, `nsRedFullFockHam`, `nsRedFullFockHam_symmetricOn`,
+   `nsRedFullFockHam_quadForm_nonneg`, `nsRedFullFock_friedrichs_extension`,
+   `nsRedFullFockHam_sector`, `nsRedFullFockHam_number_conserving`; the lifted comparison
+   `nsRedOuterComparison = dsComparison (fun n => redFried nu k n)` — the candidate `N_E` of the
+   route — with `nsRedOuterN_apply`, `nsRedFockCore_le_friedDom`, `nsRedFullOuterN_esa`
+   (Faris–Lavine, the `H = N`, `c = 0` case, exactly as `nsFullOuterN_esa`) and
+   `nsRedFullOuterN_isPositiveSelfAdjointExtension`.  This discharges the route's *definition of
+   done* for the reduced sector: symmetry on the domain, surjectivity of `N + 1`, and the
+   extension/Faris–Lavine statements are all proved for the eliminated operator.
+
+**Honest correction of the 2026‑09‑15 wording, carried into the plan below.**  The informal
+sentence “the reduced sector Hamiltonian `H_n^red = ½Σπ² + ½Σ(Φ^E_r)²` is still a sum of squares”
+is too generous as written, and the formalization fixes what it should say: the residual splits as
+`σ(R_i) = i (k·u) u_i + (q_i + ν|k|² u_i)`, the first term is *purely imaginary*, so
+multiplication by it is **skew-adjoint** and its square is **negative** — it cannot be a square of
+a symmetric form.  The sum of squares is therefore the *real* pressure–viscous symbol
+`q_i + ν|k|² u_i` (`fourierVisc` / `redVisc`), and the advection is kept out of the squares: it is
+carried by the momentum convolution of the route and bounded against this `N` by the Faris–Lavine
+commutator estimate (the `c > 0` side of the criterion), which is where its difficulty honestly
+lies.  Positivity is unaffected: `redHam_quadForm_nonneg` holds, and the Friedrichs extension is
+unconditional.
+
+**Reuse for the new module (no duplication).**  The formalization introduces *no* new instrument.
+It is built entirely from the already-proved ones of this repository: `weylOp`,
+`weylOpDom_symmetricOn`, `weylOpDom_quadForm_nonneg` (`ChapterYangMillsFriedrichs/Part2`),
+`friedrichs_extension_exists`, `friedrichsComparison` (`ChapterFriedrichsExtension`),
+`Comparison.esa_self`, `dsCore`, `dsOp`, `dsComparison`, `dsOp_quadForm_nonneg`,
+`dsOp_number_conserving` (`ChapterDirectSumEsa`, `ChapterQgOuterFockFarisLavine/Part1`,
+`ChapterQg3DGaugeFarisLavine`), `momOp_polySym`, `mulOp_polySym`, `RealCoeff`
+(`ChapterYangMillsHermite/Part1`), plus Mathlib's `MvPolynomial` API.  On the prove2me side the
+import-reduction map of `PIPELINE_PLAN.md` §1n is unchanged and empty for this module: no
+platform theorem is needed, and none of the new statements restates one (checked, see
+`PIPELINE_PLAN.md` §1o).
+
+**Still open on this route** (not touched by the formalization): the advection as a momentum
+convolution with the declared kernel (`k_j π^i u_j u_i`), the uniformity of the mode coefficients
+under an energy cutoff `|k| ≤ Λ`, and the identification with the momentum-space operator — items
+3–5 of the “Plan items — Navier–Stokes” list below.  The Lagrangian and QG versions of the
+elimination are likewise unformalized; their design is in the 2026‑09‑15 wave below, which remains
+the plan of record for everything this wave did not land.
+
+## Latest wave — 2026-09-15: the derivative variables are **eliminated by the spatial Fourier transform**, not fixed by a BRST gauge symmetry — the NS (Eulerian and Lagrangian) and QG Faris–Lavine routes on the nested Fock space
+
+> **Scope correction, 2026‑09‑17 (see item 6 of the NS plan items below, and §6 of
+> `DESIGN_COMPARISON_N_20260915.md`).**  “The derivative variables are eliminated” holds for the
+> **Eulerian** jets `u_{i,j}`, `w_i`, `y_j` and for the **QG** derivative modes `D_{μν}^i`, and for
+> the Lagrangian `V_{ij}` (velocity gradient) and `S_i` (viscous coordinate).  It does **not** hold
+> for the Lagrangian **deformation gradient**: `F_{ij} ⇒ i ℓ_j ξ_i` makes `F = ℓ ⊗ ξ` rank one, so
+> the eliminated cofactor vanishes (the whole Piola pressure coupling dies) and `det F = 0`
+> collapses the volume constraint to the constant `−1` — machine-checked as B4a–B5b in
+> `DESIGN_COMPARISON_N_20260915.md` §9.  `F` is therefore carried as an independent scalar mode
+> (`log det F`).
+
+**New state of the repository.**  The two chapters that carried the BRST gauge fixing of the
+derivative variables now have a Lake sub-system target of their own, and the book narrates the
+device they implement.
+
+* `BookProof/ChapterNsBrstDerivativeGauge.lean` and
+  `BookProof/ChapterQgBrstDerivativeGauge.lean` are the roots of the sub-system target
+  **`BookProofDerivativeGauge`** (cone: 188 modules, entirely inside `BookProofOperatorCore`),
+  generated by `scripts/import_components.py`; the inventory is `BUILD_COMPONENTS.md`, the
+  rules `BUILD_LAYOUT.md`.  It is a *view* of the part that already contains them, not a new
+  import component.
+* The book now carries the prose of the derivative-variable gauge fixing: the principle in
+  `Book/GaugeSymmetry.lean` (adjoin each spatial derivative as an independent canonical
+  variable and let the gauge condition set it back equal to the derivative, which is what
+  makes the constraint algebraic, abelian, hence first class, hence gauge-able); the
+  Navier–Stokes instantiation in `Book/FreeField.lean` (the charge `Ω = ∑_j G_j χ_j`, its
+  nilpotency and non-vacuity, the field-conjugate momentum `π^i = ∂/∂u_i`, and `⁅Ω, H⁆ = 0`
+  so the Hamiltonian descends to the cohomology); and the gravitational one in
+  `Book/DiffeomorphismsGravity.lean` (the extended vielbein-plus-derivative variables
+  `EMode`, the torsion `extTorsionCoef` linear in the auxiliaries, the two lossless
+  `gaugeReduce` identities, and the restriction principle `restrict_essentiallySelfAdjointOn`
+  / `gaugeFixedSubset_esa`).
+
+**The strategy change.**  All of that stays true as a *consistency* view of the derivative
+variables.  The plan of record for **defining the Hamiltonian operator** is now different:
+the auxiliary jet coordinates are **eliminated**, not gauge-fixed.  In `book.tex` the field
+`u(x)` is not an operator-valued distribution — `(x, u)` is a **continuous coordinate** in a
+single-particle sample space `S = ℝ_x^d × ℝ_u^m`, the single-particle space is
+`ℋ₁ = L²(S)` with wave-functions `ψ(x, u)`, and `a†(x, u)`, `a(x, u)` act on `ℱ(ℋ₁)` to
+*parametrize probabilities* over the classical configurations: the number density
+`ρ(x, u) = a†(x, u) a(x, u)` generates the commutative algebra of joint events, and the
+Hamiltonian is the **differential second quantization**
+
+```
+H = ∫ d^d x ∫ d^m u  a†(x, u) H_sp a(x, u)          (quadratic in a†, a),
+```
+
+with the one-body generator `H_sp` acting on `(x, u)` and conjugate momentum
+`π^i = −i ∂/∂u_i`.  Within this exact setting the jet coordinates `u^{(1)}` and the
+constraint `D_x = 0` are removed as follows.
+
+1. **The dilemma in coordinate space.**  The generator along the classical flow has the
+   Koopman form `H_sp = π^i (u_j ∂_j u_i − ν ∇² u_i) + h.c.`  To make the local product
+   `u_j · ∂_j u_i` *algebraic* inside a one-body operator, `book.tex` inflates `S` by
+   adjoining `u_{i,j} ≡ u^{(1)}` as an independent coordinate (the `ℝ³³`-like configuration
+   space), then imposes the constraint
+   `D_x = φ^{(1)} ∂/∂u + ∂_x = i π φ^{(1)} + ∂_x = 0`.
+2. **Solving the constraint by the spatial Fourier transform.**  Transform only the
+   *spatial* argument, `a(p, u) = (2π)^{−d/2} ∫ e^{−i p·x} a(x, u) d^d x` (the adjoint with
+   `e^{+i p·x}`), so `[a(p, u), a†(k, v)] = δ(p − k) δ(u − v)` and the single-particle space
+   becomes `L²(ℝ_p^d × ℝ_u^m)`.  The spatial derivative is now **diagonal**,
+   `∂_{x_j} ↦ i p_j`, and the constraint becomes an operator equation on the wave-function,
+   `(u^{(1)}_j ∂/∂u + i p_j) ψ = 0`, whose exact solution **eliminates `u^{(1)}`**:
+   `u^{(1)}_j ≡ p_j π^{−1} = p_j (−i ∂/∂u)^{−1}` on physical states.  The auxiliary
+   coordinate is no longer an independent degree of freedom: the whole spatial variation is
+   carried by the momentum coordinate `p`.
+3. **Local products become momentum convolutions.**  For the one-body field observable
+   `Û_i(x) = ∫ d^m u  u_i a†(x, u) a(x, u)`, the momentum mode is
+   `Û_i(q) = (2π)^{−d/2} ∫ d^d k ∫ d^m u  a†(k + q, u) u_i a(k, u)` — creation at `k + q`,
+   annihilation at `k`, the field coordinate `u_i` in the middle, the continuous momentum
+   `k` integrated over.  The spatial derivative is the momentum transfer, `∂_j U_i ↦ i q_j`,
+   and by the convolution theorem the non-linear term is
+   `ℱ[u_j ∂_j u_i](Q) = (i/(2π)^{d/2}) ∫ d^d q  q_j Û_j(Q − q) Û_i(q)`.
+   The derivative has become the **weight `q_j` inside a continuous convolution** — no
+   distribution product at a coincident point, no jet coordinate.
+4. **The explicit Hamiltonian on the nested Fock space.**  With the momentum dependence split
+   into a diagonal part and a convolution part,
+   `H = ∫∫ d^d p d^d k ∫ d^m u  a†(p, u) 𝒦(p, k; u, π) a(k, u)`, the viscous term is diagonal
+   in momentum, `𝒦_visc(p, k) = δ(p − k) [−ν|k|² π^i u_i + h.c.]`, hence the ordinary one-body
+   integral `H_visc = −ν ∫ d^d k ∫ d^m u  |k|² a†(k, u) (π^i u_i + h.c.) a(k, u)`, while the
+   advection term transfers momentum `q = p − k`,
+   `𝒦_advect(p, k) = (i/(2π)^{d/2}) k_j π^i u_j u_i + h.c.`, hence the continuous momentum
+   convolution `H_advect = (i/(2π)^{d/2}) ∫∫ d^d p d^d k ∫ d^m u  k_j a†(p, u) [π^i u_j u_i] a(k, u) + h.c.`
+   Restricted to a finite energy/momentum cutoff (Ch. 2 of `book.tex`) the integral is a
+   well-defined one-body operator, and its essential self-adjointness together with the
+   proved `dΓ` lifts gives the nested-Fock statement.
+
+**What this buys** (the reason to prefer it over the BRST route for the *definition*): the
+single-particle configuration space stays `ℝ_p^d × ℝ_u^m` — **no jet coordinates**, not the
+`33`-dimensional inflations; the constraint `D_x = 0` is **solved identically** rather than
+imposed cohomologically; and the continuous `∫∫ d^d p d^d k` **smoothes** the local
+singularity, so on the cutoff the operator is essentially self-adjoint and generates a
+well-defined unitary evolution on the nested Fock space.
+
+**Where the Faris–Lavine route lives.**  The instruments are reviewed in
+`REVIEW_FARIS_LAVINE_20260911.md` — §0: only the **Friedrichs extension** of a
+bounded-below symmetric operator and the **commutator with `N`** lift from the
+one-particle space to `⊕ₙ L²(ℝ^{d·n})`; the index is
+`BookProof/ChapterEsaFarisLavineIndex.lean`.  This wave changes the *operator* those
+instruments are run on, not the instruments: the same `c = 0` lifted-Friedrichs comparison
+(`BookProof.QgOuterFockFL.dsComparison`, `Comparison.esa_self`,
+`nsFullOuterN_esa` / `lagFullOuterN_esa`) now compares `dΓ(H_sp)` with
+`H_sp = H_visc + H_advect`, so items 4–5 and 8 below are edits to the reviewed line, not a
+new route.  The review is revised in place (2026‑09‑15) to say so.
+
+### The comparison operator `N` — one per Hamiltonian (the load-bearing design)
+
+The candidates are derived, with the obligation each one still owes, in
+**`DESIGN_COMPARISON_N_20260915.md`**; the summary is below.  Everything above is bookkeeping
+until the comparison operator is fixed, because that is what the criterion consumes.  Faris–Lavine as this project proves it
+(`ChapterFarisLavineCore.essentiallySelfAdjointOn_of_farisLavine`) asks for a **common dense
+domain** `D` and a positive self-adjoint `N` with
+
+* `H` and `N` both **symmetric on `D`**, `N ≥ 0` in the form sense, and `D = 𝒟(N)` — i.e.
+  `H` must be *defined* on the domain of `N`;
+* `(N + 1)` **onto** (automatic once `N` is positive self-adjoint; for the lifted
+  comparisons it is `dsCompOp_surj`);
+* the **commutator-form bound** `|commForm H N x| ≤ c · quadForm N x`.
+
+There is **no relative-bound smallness hypothesis** in this rendering — the relative bound
+only enters as the informal way of saying "`H` is defined on `𝒟(N)`" — so the design problem
+is exactly: pick a positive self-adjoint `N` whose domain carries the eliminated one-body
+generator and whose commutator with it stays bounded by `c·N`.  One per version:
+
+1. **NS, Eulerian — the positive route, now worked out.**  The elimination is applied
+   **inside the squares**: with `u_{i,j} ⇒ i k_j u_i`, `w_i ⇒ −|k|² u_i`, `y_j ⇒ 0`, the
+   residual becomes `i Σ_j k_j u_j u_i + q_i + ν|k|² u_i` and the reduced sector Hamiltonian
+   `H_n^red = ½Σπ² + ½Σ(Φ^E_r)²` is still a **sum of squares**, hence `≥ 0`.
+   (**Correction, landed 2026‑09‑17 — see the wave above.**  The squares are the *real*
+   pressure–viscous symbol `q_i + ν|k|² u_i`, not the whole residual: the advection term
+   `i (k·u) u_i` is purely imaginary, so multiplication by it is skew-adjoint and its square is
+   negative.  The advection is therefore carried by the momentum convolution and bounded against
+   `N_E` by the commutator estimate, not put inside a square.  The positivity and Friedrichs
+   claims below are unaffected and are now proved: `redHam_quadForm_nonneg`,
+   `redHam_friedrichs_extension`.)  The candidate is
+   `N_E = ι(Friedrichs(H_n^red))` — the lifted Friedrichs comparison (`dsComparison`) — and
+   the criterion holds **with `c = 0`**, exactly as `nsFullOuterN_esa`.  The two residual
+   obligations are worked out in `DESIGN_COMPARISON_N_20260915.md` §5: *uniformity* under the
+   energy cutoff `|k| ≤ Λ` (the mode coefficients are bounded only there), and the
+   *identification* with the momentum-space operator, dischargeable by
+   `restrict_essentiallySelfAdjointOn` / `gaugeFixedSubset_esa`.  The literal-cubic fallback
+   `N_E = dΓ((1 + A_u + P)²) + 𝒩 + 1` — the square of the field oscillator plus momentum,
+   which meets the N-bound by Young but **not** the commutator bound, since a cubic symbol
+   loses the quadratic Lie closure — is refuted by an **order-counting no-go** in the note's
+   §4.1: the commutator has order `≥ ord(n) + 1`, so no (pseudo)differential comparison of
+   order `≥ 3` can work, and the only commuting comparison is a function of `h_E` itself
+   (circular).  Route (b) is therefore *unavailable*, not merely harder.
+2. **NS, Lagrangian — reuse positivity, determinant included.**  (**Correction, 2026‑09‑17 — see
+   item 6 of the plan items below.**  The *mode-wise* elimination of the deformation gradient is
+   **degenerate**: `σ(F_{ij}) = i ℓ_j ξ_i` makes `F` rank one, so the Piola term is annihilated and
+   `det F ↦ 0`, collapsing `det F = 1` to the constant `−1`; machine-checked as B4a–B5b in
+   `DESIGN_COMPARISON_N_20260915.md` §9.  The positivity statement of this item therefore applies
+   to the **un-eliminated** material Hamiltonian and to the surviving sector (`V_{ij} → i ℓ_j v_i`,
+   `S_i → −|ℓ|² v_i`), with `det F` carried as an independent scalar mode — not to `F = i ℓ ⊗ ξ`.)
+   The material model is a
+   positive sum of squares (exact Piola `cof(F)ᵀ∇q`, exact `det F = 1`), so the natural `N` is
+   the **lifted Friedrichs extension** already built and verified by `lagFullOuterN_esa`, with
+   the criterion in its `c = 0` form (the committed operator is its own comparison, the
+   commutator vanishing).  The determinant in the volume constraint is a **cubic**, and since
+   `det F > 0` on the physical sector its constraint square `(det F − 1)²` (and the real
+   logarithmic form) is positive, so its Friedrichs extension is unconditional by
+   `FriedrichsExtension.friedrichs_extension_exists` — the "easy because the determinant is
+   positive" step.  Worked out in `DESIGN_COMPARISON_N_20260915.md` §6: `detPoly_pos` is the
+   singular-value bound `det(1 + A) ≥ (1 − ‖A‖)³ > 0` on the operator-norm ball `‖A‖ < 1`
+   around the identity, and it makes the **logarithmic volume square** `(log det F)²` a real
+   positive-definite square whose gradient `F^{−T} = cof F / det F` (`grad_logDet`) is finite
+   exactly on that sector — the better-conditioned form of the incompressibility constraint,
+   comparable to `(det F − 1)²` on any compact part of the sector.
+3. **QG, the full Hamiltonian — the comparison stands.**  The elimination
+   `D_{μν}^i = i k_μ e_ν^i` leaves the torsion **linear** in the field derivatives, so the
+   one-body operator stays quadratic and the `N` of `ChapterQgVielbeinScalaronGaugeFL` — the
+   lifted Friedrichs extension whose fibre is `−∂²_φ + φ²/4 + V(φ) + σ_a` with the
+   **exponential wall inside it** (`qgFullModes`, `κ = 855 + |g|`, band `36`) — needs no
+   redesign: `qgFull_esa_farisLavine` runs against it unchanged.  The differing-bases design
+   `N = Σ_ℓ dΓ(h_ℓ)₊ + 𝒩 + 1` (`DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md` §2) is the same
+   object for the coupling sum.
+
+The three obligations above are the **definition of done** for the corresponding item: a
+candidate `N` becomes *the* `N` only once symmetry-on-`D`, surjectivity and the commutator
+bound are all proved for the eliminated generator.
+
+### Plan items — Navier–Stokes, Eulerian and Lagrangian
+
+**Reuse.**  Every item below invokes one or more of the already-proved platform theorems of the
+table under “Cross-platform reuse” further down — as a *named hypothesis* on the `4.28.0` side,
+and, where the item is uploaded, as an `import Theorems.Thm_<slug>` reduction on the `4.33.1`
+side.  In particular item 1 is the Fourier unitarity row, item 3 the convolution row, item 4 the
+Schur/positivity/onto rows, and item 6 the singular-value row for the determinant.
+
+1. **The spatial Fourier unitary and the diagonal derivative.**  Build the Plancherel
+   identification `L²(ℝ_x^d × ℝ_u^m) ≅ L²(ℝ_p^d × ℝ_u^m)` with the *spatial* transform only,
+   and prove that on it `−i ∂_{x_j}` is the Fourier multiplier of real symbol `p_j`.  Reuse
+   `ChapterStrichartzWave` (the constant-coefficient multiplier lemma) and
+   `ChapterFourierMultiplierEsa` (`firstOrderOp_essentiallySelfAdjoint`,
+   `momentumOp_essentiallySelfAdjoint`, `mixedOp_essentiallySelfAdjoint`) — the operator
+   `∑_i c_i π_i` already has its ESA, so the derivative side of the new construction is a
+   proved instrument, not new analysis.
+2. **The constraint solved, `D_j ψ = 0`.**  Define the field momentum `π^i = −i ∂/∂u_i`
+   (the `genU` of `ChapterNsBrstDerivativeGauge` is already this operator, with
+   `genU_ccr_u`) and state the identity `u^{(1)}_j = p_j π^{−1}` on the physical sector.
+   *Honest residual:* `π` is not boundedly invertible and has the `u`-constant mode in its
+   kernel, so `π^{−1}` is the inverse on the orthogonal complement of that
+   finite-dimensional kernel (the sector carrying no `u`-momentum, which the
+   number-conserving Hamiltonian already preserves).  This is the one genuine domain
+   question of the construction and is a plan item, not an assumed axiom.
+3. **The convolution algebra.**  Formalize `Û_i(q)` and prove the convolution theorem
+   `ℱ[u_j ∂_j u_i](Q) = (i/(2π)^{d/2}) ∫ q_j Û_j(Q − q) Û_i(q) d^d q` — the momentum-space
+   replacement for the `G_j` gauge generator.  The momentum representation already built
+   for NS (`ChapterNavierStokesMomentumEsa`, `ikebeKato_momentum`) is the existing `p`-space
+   instance to extend.
+4. **The one-body generator and its two Faris–Lavine inequalities.**  Assemble
+   `H_sp = H_visc + H_advect` on the dense core, and verify the criterion's hypotheses
+   against the comparison **`N_E`** designed above — the pattern reviewed in
+   `REVIEW_FARIS_LAVINE_20260911.md` §2 / `ChapterNsOuterFockFarisLavine`, but with
+   the advection kernel written as the momentum convolution `k_j π^i u_j u_i` instead of a
+   derivatively gauge-fixed symbol, so the derivative-gauge forms
+   (`ChapterNavierStokesGaugeY` / `…Y2`) and the `y`-gauge drop out of the operator.  The
+   particle-number-independent Schur bounds of the existing chapter carry over unchanged.
+5. **The nested-Fock lift.**  Obtain ESA of `dΓ(H_sp)` by the proved lifts
+   (`dGamma_hasZeroDeficiencyOn`, `qgDGamma_esa`), giving the nested-Fock Hamiltonian with no
+   finite-mode truncation beyond the energy/momentum cutoff.
+6. **The Lagrangian version — the device is degenerate in material variables (2026-09-17
+   finding).**  The same device in material variables takes the spatial transform on the
+   *reference* coordinate `a`, so the material derivative is diagonal and
+   `σ(F_{ij}) = i ℓ_j ξ_i`, `σ(V_{ij}) = i ℓ_j v_i`, `σ(S_i) = −|ℓ|² v_i`, `σ(y_j) = 0`.
+   **But `σ` makes the deformation gradient the rank-one matrix `F = ℓ ⊗ ξ`, and in three
+   dimensions that annihilates exactly the two terms the material route needs:**
+   * every `2 × 2` minor of a rank-one matrix vanishes, hence `cof(F) = 0`, so the Piola
+     pressure term `Σ_j cof(F)_{ji} q_j` — the *entire* pressure coupling of the material
+     momentum equation (`lagResPoly`) — is annihilated by the elimination
+     (`lagElimSubst_piola`);
+   * `det F = 0` for the same reason, so the volume constraint `det F = 1`
+     (`volumePoly`, `volumePoly_not_quadratic`) collapses to the **constant** `−1`
+     (`lagElimSubst_volumePoly`), whose square is `1` (`lagElimSubst_volumePoly_sq`) —
+     a constraint with no field content that cannot couple to the field.
+   The symbolic checks B1–B3 of `DESIGN_COMPARISON_N_20260915.md` §9 (Piola quadratic,
+   determinant cubic, volume square sextic) are *degree* checks and are passed trivially by
+   the zero polynomial, so they are **not** evidence that the elimination closes — the checks
+   that discriminate are B4a–B4d and B5/B5b of that §9 (all three `2 × 2` minors zero, `det F = 0`,
+   `volumePoly ↦ −1`, its square `↦ 1`), all machine-verified in `DESIGN_COMPARISON_N_20260915.cdb`; the §6
+   reading of that note is the right one: **treat `det F` as an independent scalar mode**
+   (`log det F`, `grad_logDet` on the physical sector `‖A‖ < 1`), not through
+   `F = i ℓ ⊗ ξ`.  What *does* survive the elimination is the velocity gradient
+   `V_{ij} → i ℓ_j v_i` and the viscous coordinate `S_i → −|ℓ|² v_i`: the eliminated material
+   momentum equation is `σ(R_i) = a_i + |ℓ|² v_i` (`lagElimSubst_lagResPoly`), the material
+   acceleration plus the viscous term and **no pressure**.
+   The positivity of the Lagrangian sums of squares (`lagFullFockHam_quadForm_nonneg`) still
+   makes the Friedrichs comparison available for the surviving sector, exactly as in the
+   Eulerian item 4–5, with the convolutions of item 3 now over the *material* modes.
+   **Status — handoff to the Lean specialist (not executed here).**  The design above is
+   written out, with its proofs, in the working-tree scaffold
+   `BookProof/ChapterNsLagrangianFourierElimination.lean` (namespace `BookProof.NsLagFourier`;
+   **not imported by `BookProof.lean` and not in any Lake target**, so the build is unaffected).
+   §1–3 of that file — `lRedIdx`, the substitution `lagElimCoord`/`lagLift`/`lagElimHom`, and
+   the coordinate values for `ξ_i`, `v_i`, `a_i`, `q_i`, `y_j`, `S_i` (`lagElimCoord_sIdx`) —
+   are `sorry`-free and green; the two rank-one coordinate lemmas `lagElimCoord_fIdx` and
+   `lagElimCoord_vgIdx` are written but **exceed the heartbeat budget** (a `whnf` timeout in
+   their `Fin`-index bookkeeping, not a mathematical gap), and §4–5 (`rankOne_cof_zero`,
+   `lagElimSubst_cofPoly`/`_piola`/`_detPoly`/`_volumePoly`/`_volumePoly_sq`,
+   `lagElimSubst_lagResPoly`) are written on top of them and so do not yet elaborate.  The
+   remaining obligation is therefore small and local: close those two index lemmas (they are
+   `Fin 3` reindexings of `Fin 36`, `fIdx i j ↦ (i, j)` and `vgIdx i j ↦ (i, j)`), then let §4–5
+   through.  Once green, register it as item 3 of the registration list below does for the
+   Eulerian chapter (a commented `import` line in `BookProof.lean`, the chapter in the Book).
+
+### Plan items — quantum gravity, the full Hamiltonian
+
+**Reuse.**  As for Navier–Stokes: item 7 is the discrete-mode Fourier row of the reuse table, and
+item 8 the compact-spectral-edge row; both are cited as named hypotheses on the `4.28.0` side and
+become reductions on the `4.33.1` side.  No item of this section is re-proved from scratch while a
+checked platform theorem states it.
+
+7. **The vielbein derivative modes are already in momentum space.**  The QG gauge condition
+   of `ChapterQgBrstDerivativeGauge` is `D_{μν}^i(k) = i k_μ e_ν^i(k)` — *the same relation*
+   `u^{(1)} = i × (momentum) × (field)` that item 3 solves, because the derivative modes
+   there are indexed by the *continuum mode* `k`.  The two identities
+   `gaugeReduce_extTorsionCoef` (the gauge-fixed extended torsion is exactly the physical
+   `k_μ e_ν^i − k_ν e_μ^i`) and `gaugeReduce_gram` (hence the gauge-fixed Gram matrix is
+   `contTorsionGram`) are therefore exactly the statement that the derivative content is
+   carried by the momentum weight.  The item is to restate those identities as the
+   *elimination* `D_{μν}^i = i k_μ e_ν^i` (a substitution to be used when defining the
+   operator — no BRST charge and no ghost sector needed for the definition) and to prove that
+   the resulting `T = D − Dᵀ` equals `k_μ e_ν^i − k_ν e_μ^i` with the extended space never
+   entering the domain.
+8. **The full QG Hamiltonian on the outer Fock space.**  With the derivative variables
+   eliminated, run Faris–Lavine on the one-body operator of
+   `ChapterQgVielbeinScalaronGaugeFL` (vielbein, exact Fourier modes over `ℤ³`, the full
+   exponential Einstein-frame scalaron wall inside the comparison operator — the line
+   reviewed in `REVIEW_FARIS_LAVINE_20260911.md` §1), run it against the comparison
+   **`N_QG`** above (unchanged by the elimination) and lift with
+   `qgFull_esa_farisLavine` / `qgFull_esa_core_fl`.  The gain over the BRST realization is the
+   same as for NS: the extended variables `EMode` / `DMode` never enter the operator domain,
+   and the `gaugeFixedSubset_esa` restriction argument becomes unnecessary — the physical
+   torsion is the only torsion from the start.
+
+### Honest boundary, and what is *not* superseded
+
+* The BRST-derivative-gauge material stays **true** and stays in the tree: the Lake target
+  `BookProofDerivativeGauge`, `ChapterNsBrstDerivativeGauge`'s
+  `nsDerivBrstCharge_comm_hamiltonian` / `nsDerivBrstCharge2_comm_hamiltonian2`, and
+  `ChapterQgBrstDerivativeGauge`'s two lossless identities remain consistency checks and book
+  prose.  What changes is the **plan of record for the definition**: the Hamiltonian is the
+  momentum-space one-body operator, not the gauge-fixed extended one.
+* The `ℝ³³` / `ℝ⁸⁴` jet inversions are no longer on the route: the single-particle space is
+  `ℝ_p^d × ℝ_u^m`, and the derivative variables are gone by construction — **except the Lagrangian
+  deformation gradient `F`**, which is *not* eliminated and not eliminable: the substitution
+  `F_{ij} ⇒ i ℓ_j ξ_i` is degenerate (rank one ⇒ `cof F = 0`, `det F = 0`, volume constraint
+  collapses to the constant `−1`; item 6 and the note's §6, checks B4a–B5b of §9).  Its determinant
+  enters as an independent scalar mode through the logarithmic volume square, so reading “the
+  derivative variables are gone by construction” as covering `F` would silently drop the entire
+  pressure coupling of the material momentum equation (`Σ_j cof(F)_{ji} q_j`).
+* **Residual analysis, recorded and not hidden:** (i) the inverse field momentum `π^{−1}` on
+  the physical sector (item 2); (ii) the Plancherel identification between the discrete-mode
+  and continuum pictures; (iii) the finite energy/momentum cutoff that makes the continuous
+  integral a bona fide operator (Ch. 2 of `book.tex`); (iv) the Faris–Lavine constants for
+  the convolution kernel.  None of these is an axiom; each is a named plan item above.
+* No mass gap and no classical global existence are claimed.
+
+### Cross-platform reuse — proved theorems on prove2me (Lean 4.33.1) invoked from timepiece (Lean 4.28.0)
+
+**Why reuse instead of re-prove.**  The route adds a small set of instruments that are *already*
+proved — and already machine-checked on the platform — many of them by **other prove2me users**:
+a quadratic form domain on `H^s` with a cutoff, the coercivity⇒bijectivity fact behind “`N + 1`
+is onto”, the positive-definite form lower bound behind Friedrichs positivity, the
+singular-value/operator-norm identity behind `detPoly_pos`, convolution-operator symmetry, the
+finite-group Fourier convolution and Parseval identities, and row-sum Schur bounds.  Each is one
+of the plan items above; none should be re-derived in `4.28.0` when a checked `4.33.1` proof
+exists.
+
+**The search is frozen, because the specialist is offline.**  Whoever works this plan has no
+prove2me access (and nothing outside this repository but Mathlib), so the lookup cannot be redone
+later: the **verbatim `formal_statement` of every reusable theorem**, with its platform id, author
+and a per-row *portability* verdict, is registered **in this repository** as
+**`PROVE2ME_REUSABLE_THEOREMS.md`** (search run 2026‑09‑17, prove2me API 0.10.4).  That file is the
+only copy the specialist can see; the names below are citations into it, not fetchable paths.
+
+**The two toolchains, and why a raw `import` cannot cross them.**  timepiece is pinned to
+`leanprover/lean4:v4.28.0` (`lean-toolchain`), which is what the Aristotle round requires; the
+prove2me platform compiles at **Lean 4.33.1 / Mathlib
+`0df444a360eaa60ab8c11dca51a86af692955474`**.  A Lean `import` binds one toolchain, so a platform
+module **cannot** be imported into timepiece.  Reuse is therefore **statement-level**, in the two
+directions of the platform’s reduction machinery (`import Theorems.Thm_<slug>`):
+
+* **Downward (platform → timepiece).**  Transcribe the frozen statement (or its abstraction, per
+the row’s portability note) as a *named hypothesis* of the timepiece theorem that needs it — a
+`Prop`-valued binder, or a structure field on the route’s core in the style of `FarisLavine`’s
+hypotheses — with the platform name and id in a comment.  timepiece stays `sorry`-free.  Where the
+statement must be restated against the `4.28.0` Mathlib API, do it the same as any local lemma:
+those drifts are ordinary API changes, not a special problem.  Statements that need a platform-local
+notion the specialist cannot see are re-declared in the *minimal abstract* form named in the report
+and then assumed — never added as a silent `axiom`, so the axiom gate (`axiom_gate.lean`,
+`Audits/`) keeps listing them.
+
+  **Already done (2026‑09‑17).**  The seven rows whose notions *do* exist in the `4.28.0` Mathlib are
+transcribed in **`BookProof/ChapterProve2meReuse.lean`** (`BookProof.Prove2meReuse`): one `Prop` per
+theorem, the bundle `RouteHypotheses` whose fields are those seven propositions, and the
+route-facing projections the NS / QG chapters call — `ns_convolution_symmetric`,
+`ns_convolution_compact`, `ns_friedrichs_lower_bound`, `lagrangian_det_add_two`,
+`qg_compact_spectral_edge`, `qg_high_part_finiteDimensional`, `qg_gribov_negative_direction`.
+`ChapterEsaFarisLavineIndex` §8 lists them, and `ChapterNsOuterFockFarisLavine` /
+`ChapterQgOuterFockFarisLavine` import the module and name the projections they will consume.  A
+route theorem takes one `RouteHypotheses` value as a parameter and projects, so the platform theorem
+enters as a hypothesis and never as an axiom.
+  **Correction to the portability verdict.**  The report’s verdict was originally computed against
+the platform’s `4.33.1` Mathlib; it has been **re-checked against timepiece’s `v4.28.0` by `#check`**,
+and three rows that had been marked **Mathlib-only** are in fact 4.28 gaps and are now marked
+`needs defs (4.28 gap)`: `Bochner.fourierTransform_nonneg` (its hypothesis `IsPositiveDefinite` does
+not exist here), and `singular_value_zero_le_spectral_norm` / `spectral_norm_le_singular_value_zero`
+(`Matrix.singularValues` does not exist, and the `spectralNorm` that does is the `Algebra`-norm
+`spectralNorm 𝕜 x : ℝ`, a different notion).  Those three are recorded as **deferred** in the module
+header and must be re-declared locally before use.
+* **Upward (timepiece → platform).**  A timepiece lemma whose platform proof exists is published as
+a *reduction*: the solution `import Theorems.Thm_<slug>` and proves `solution` from it.  Importing
+a **Proved** node verifies as a direct proof (`ACCEPTED`); importing an **Open** node is accepted as
+a reduction (`SKETCH_ACCEPTED`) and the child becomes the parent’s decomposition child.  The three
+submission rules still hold: the theorem is named `solution`, never import your own target, and no
+`sorry` in the submitted code.
+
+**Candidate theorems, mapped to the route items above.**  All are status `Proved` on platform
+`0.10.4` (verified 2026‑09‑17).  The **statements themselves are in
+`PROVE2ME_REUSABLE_THEOREMS.md`**; the `theorem_id` here is provenance only.  Read
+“needs defs” in that report as: abstract the notion first, then assume the abstract statement.
+
+| route item | platform theorem (module `Theorems.Thm_<slug>`) | author | discharges |
+| :-- | :-- | :-- | :-- |
+| 1 (Plancherel / spatial unitary) | `BookProof.ChapterMajoranaProp76.fourierTransform_isNote4Unitary` (`2cdf5458-…`), our own; `FourierFA.parseval` / `parseval_norm` / `dft_conv`; `ChebotarevDFT.dft_conv` | self / raver1975 | `L²` Fourier unitarity on the modes; finite-group convolution and Parseval for the discrete mode picture |
+| 1–3 (cutoff, form domain, `D = 𝒟(N)`) | `QFS.formHs_ball_ne_top_of_L2inclusion` (`76bd738e-…`), `QFS.formHs_congr_ae`, `QFS.localPoincare_visible_on`, `QFS.chain_estimate`, `QFS.cutoff_le_one`, `QFS.lintegral_stepG_eq`, `QFS.limsup_lintegral_stepG_le` | dbenbenn | the `H^s` quadratic-form domain, the cutoff function and its bounds, and the local Poincaré / chaining estimates behind residual (iii) |
+| 3 (convolution algebra) | `MeasureTheory.L2.convolutionCLM_isSymmetric_of_conj_neg` (`f7acdc05-…`), `MeasureTheory.L2.exists_convolutionCLM_isCompactOperator_of_compactSpace` (`b4b789f8-…`) | Claude | symmetry and compactness of a convolution operator on `L²` (continuity and self-adjointness of `Û_i(q)`) |
+| 4 (`N + 1` onto) | `VectorSpaceOpt.coercive_selfadjoint_bijective` (`35241842-a11f-40ab-9014-feca9c844c94`) | wenxinzhang | a coercive real self-adjoint bounded operator is bijective — the bounded-cutoff surrogate for hypothesis (3) |
+| 4 / §5 (Friedrichs positivity) | `posDef_quadratic_form_lower_bound` (`0fc6dadb-…`) | olivier | `∃ c > 0, c‖x‖² ≤ ⟨x, Mx⟩` — the fibrewise form lower bound feeding `PosSymOp.pos` |
+| 4 / §3 (Schur bound) | `AsaiLargeSieve.schur_row_bound_of_quasiOrthogonal` (`20165988-…`), `AsaiLargeSieve.largeSieve_of_schur` (`f1277cdd-…`) | raver1975 | the row-sum Schur test behind the particle-number-independent bound on the advection kernel and on `dΓ` |
+| 4 (viscous term) | `NavierStokes.hasDerivAt_heatFlow` (`d70bd03f-…`), `NavierStokes.heatFlow_heatFlow`, `NavierStokes.integral_heatKernel_mul_heatKernel`, `NavierStokes.norm_heatFlow_le` | korbonits | the 3-D vector heat-flow semigroup and heat-kernel convolution — the classical model of `H_visc` on the cutoff |
+| §6 (`detPoly_pos`) | `singular_value_zero_le_spectral_norm` (`dc5ff0e0-72e0-4a4b-85e1-95bd8ba76d14`), `spectral_norm_le_singular_value_zero` (`1243cf8d-48bd-44aa-bee7-f997599e2467`) | Aphrodite | **4.28 gap** — the operator norm equals the largest singular value, `spectralNorm Y = singularValues 0` — the norm input to `σ_min(1 + A) ≥ 1 − ‖A‖ > 0` of §6.1; needs local singular-value / operator-norm definitions first.  **This row still stands after the 2026‑09‑17 correction:** it feeds the logarithmic-volume treatment of §6.2 on the *un-eliminated* `F`, which **replaces** the degenerate mode-wise elimination of `F` (B4/B5 of §9) rather than complementing it |
+| QG (spectral edge) | `ContinuousLinearMap.orthogonal_iSup_eigenspace_ne_zero_eq_ker` (`9b157d55-…`), `ContinuousLinearMap.le_ker_or_finiteDimensional_of_forall_inf_highPart_orthogonal` (`2126e74d-…`) | Claude | the compact-symmetric spectral decomposition and its finite-dimensional high part, consumed by the band / Ritz ladder |
+| QG (Gribov region) | `GribovRegion.exists_neg_quadratic_form_of_traceless` (`a883b692-…`) | Lucas | a non-zero traceless Hermitian matrix has a negative quadratic-form direction |
+
+**Domain caveat on every row.**  The cross-user statements live on `L²(G)` for a *compact* group
+`G`, on finite matrices, or on finite index sets; the route needs `ℝ_p^d × ℝ_u^m`, which is
+non-compact.  The reuse is of the *inequality or identity*, not of the setting: each downward use
+still owes its translation to the non-compact fibre, which is one of the named residuals (iii),
+(iv).  A row is cited only when its statement is the same proposition after that translation.
+
+**One recorded anti-reuse (a trap).**  `tianyipeng.navier_stokes_global_regularity` is `Proved`,
+but its formal statement only asserts `∃ u, (∀ t, ContDiff ℝ ⊤ (u t)) ∧ u 0 = u₀` — it never states
+the momentum equation, so it is vacuous with respect to the Navier–Stokes system and proves
+nothing about this route (likewise `tianyipeng.sum_of_squares_r_function`, whose conclusion is
+literally `True`).  It must not be cited.  The honest position is that **no** platform theorem
+asserts global regularity *of the equation*.
+
+**A second, milder trap (checked, not a reuse).**  One pipeline stub shares its leaf name with
+another user's `Proved` node yet needs no citation, because timepiece's own `v4.28.0` Mathlib
+already proves it: `QFS.abs_coord_le_norm` (dbenbenn, `9fed8780-d3ea-4228-820b-252f6afb439a`, verbatim
+`lemma QFS.abs_coord_le_norm (x : EuclideanSpace ℝ (Fin d)) (i : Fin d) : |x i| ≤ ‖x‖`) leaf-matches
+`BookProof.HermiteQuadraticEsa.abs_coord_le_norm`, and that statement is `PiLp.norm_apply_le`
+(`Mathlib`) with `Real.norm_eq_abs`.  A leaf match is a name coincidence, not a reuse; the live
+reuse set stays exactly the table above.  (Both traps are recorded with the verbatim statements in
+`PROVE2ME_REUSABLE_THEOREMS.md`.)
+
+### The Cadabra module for the elimination (in `../unfer/`) and the Book chapter
+
+The symbolic facts the strategy rests on — the Fourier substitution `u_{i,j} ⇒ i k_j u_i`, the
+momentum-transfer weight, the degree bookkeeping that decides §4(b)’s no-go, and the determinant
+expansion of §6.1 — are checked by Cadabra in the shared `../unfer/` module library (done
+2026‑09‑17), and are narrated in the book.  **Division of labour:** the `.cdb` module is produced
+by a host that has `../unfer/` and Cadabra2 — the offline specialist has neither, and consumes only
+the **recorded** checks, which live in this repository in `DESIGN_COMPARISON_N_20260915.md` §9 (and
+`DESIGN_COMPARISON_N_20260915.cdb`), plus the derived identities the book displays.
+
+1. **`../unfer/docs/ns_qg_fourier_elimination.cdb` — DONE (2026‑09‑17).**  Follows the conventions
+   of the six modules already there (`qg_densitized_hamiltonian.cdb`, `qg_gauge_fixed_hamiltonian.cdb`,
+   `qg_starobinsky_hamiltonian.cdb`, `qg_starobinsky_vielbein_hamiltonian.cdb`,
+   `qg_unitarity_check.cdb`, `yang_mills_hamiltonian.cdb`).  It carries checks A1–A7, B1–B3,
+   B4a–B5b (the Lagrangian rank-one degeneracy) and
+   C1–C5 of `DESIGN_COMPARISON_N_20260915.md` §9 (plus D1–D6, the no-go), together with the
+   convolution bookkeeping E1–E3 of `ℱ[u_j ∂_j u_i](Q) = (i/(2π)^{d/2}) ∫ q_j Û_j(Q − q) Û_i(q) dq`
+   (momentum conservation `p = k + q`, linearity of the transfer weight, and degree 3 of the
+   advection integrand), so the elimination has a single engine-checked source shared by both
+   repositories.  Verified clean on
+   `cadabra2-cli -q -n docs/ns_qg_fourier_elimination.cdb` (Cadabra 2.5.14-p1, nix pin
+   `b5aa0fbd538984f6e3d201be0005b4463d8b09f8`): **A1–A7, B1–B3, C1–C5, D3, D5, E1–E3 all 0**, D2/D4
+   non-zero as required, and **B4a–B5b as recorded below** (minors `0`, `det F = 0`,
+   `volumePoly = −1`, `(volumePoly)² − 1 = 0` — the Lagrangian degeneracy of item 6).  The evidence base is `../unfer/docs/VERIFY_NS_QG_FOURIER.md`.
+2. **Keep it reference-only for the Lean specialist.**  The modules are produced and run on a host
+   with Cadabra2 (nix pin `b5aa0fbd538984f6e3d201be0005b4463d8b09f8#cadabra2`, CLI
+   `cadabra2-cli -q -n`); they are never run by the Lean 4 specialist and never part of a Lake
+   build — the same rule as the vendored `unfer_contracts/docs/*.cdb` (AGENTS.md, “Vendored
+   files”, which records “reference only, never run”).
+3. **Use it for book pedagogy.**  The elimination is the natural narrative of the chapter that
+   follows the gauge-symmetry one (`Book/GaugeSymmetry.lean` → `Book/FreeField.lean` →
+   `Book/DiffeomorphismsGravity.lean`): the new chapter presents the jet-coordinate dilemma, the
+   spatial Fourier transform that removes it, the convolution products, and the momentum-space
+   one-body Hamiltonian — the `.cdb` computations as the displayed algebra, and the Lean results
+   (`ChapterNsBrstDerivativeGauge.genU` / `genU_ccr_u`, the QG `gaugeReduce_extTorsionCoef` /
+   `gaugeReduce_gram`, `nsFullOuterN_esa` / `lagFullOuterN_esa`, `qgFull_esa_farisLavine`) as the
+   formal counterparts.
+
+   **Book registration list (recorded here so the offline specialist has it).**  The new chapter is
+   `Book/FourierElimination.lean` — the follow-on to the three gauge chapters
+   (`Book/GaugeSymmetry.lean`, `Book/FreeField.lean`, `Book/DiffeomorphismsGravity.lean`).  Its
+   evidence module is the shared Cadabra source `../unfer/docs/ns_qg_fourier_elimination.cdb`, with
+   the run recorded in `../unfer/docs/VERIFY_NS_QG_FOURIER.md` and in this repository in
+   `DESIGN_COMPARISON_N_20260915.md` §9 (`DESIGN_COMPARISON_N_20260915.cdb` carries the same A–E
+   checks, now including the B4/B5 Lagrangian-degeneracy rows).  When the chapter is written, register it in **`Book.lean`** with exactly two additions,
+   both copied from the pattern of the three chapters above:
+
+   * in the `import` block at the top (beside `import Book.GaugeSymmetry` / `import Book.FreeField` /
+     `import Book.DiffeomorphismsGravity`): `import Book.FourierElimination`;
+   * in the table of contents (beside `{include 0 Book.GaugeSymmetry}` /
+     `{include 0 Book.FreeField}` / `{include 0 Book.DiffeomorphismsGravity}`):
+     `{include 0 Book.FourierElimination}`.
+
+   **Do not add either line until `Book/FourierElimination.lean` exists** — `Book.lean` is the
+   Verso manual and a dangling `import`/`{include}` breaks `lake build Book`.  The chapter is a plan
+   item (the plan of record for the *definition* is the operator, not the prose); this list is the
+   registration the specialist performs in the same commit that lands the file.
+
+   **DONE (2026‑09‑17).**  `Book/FourierElimination.lean` now exists (the wave above), the two
+   lines are in `Book.lean` exactly as listed, and the chapter's code blocks contain only
+   `#check`s of declarations of `BookProof/ChapterNsFourierElimination.lean` — all thirty
+   resolve against the module.  The prose states the elimination as the plan does: the jet
+   coordinates are eliminated, the residual and the divergence are pushed through the substitution
+   (`nsElimSubst_resPoly`, `nsElimSubst_divPoly`), the squares of the reduced Hamiltonian are the
+   real pressure–viscous symbol, and the skew-adjoint advection is left to the momentum
+   convolution of the route (the correction recorded in the wave above).
+
 ## Latest wave — 2026-09-14 (third): the Whittaker–Shannon sampling theorem, the energy bound of the ODE chapter, and Weyl's unitarian trick for a compact group
 
 Four statements of `book.tex` that had not been formalized, each in a new `sorry`-free,
@@ -7640,6 +8238,14 @@ with `Ω² = 0` (`ChapterQuantumGravityBrstCharge`), the graded Fock CAR
 (`ChapterQuantumGravityFock`), and the completed bounded nilpotent charge with
 its reduced transfer (`ChapterQgBrstCompleted`, `ChapterBrstReducedTransfer`).
 
+> **Strategy note (2026-09-15).**  The derivative-variable constraint is no
+> longer fixed by a BRST gauge symmetry on the route.  The leading wave records
+> the **momentum-space elimination** — `u^{(1)}_j = p_j π^{−1}`, local products
+> as continuous momentum convolutions `ℱ[u_j ∂_j u_i](Q) = (i/(2π)^{d/2}) ∫ q_j
+> Û_j(Q − q) Û_i(q) dq` — which defines the Hamiltonian with no jet coordinates.
+> The BRST charge, the graded CAR and the reduced-transfer items above stay as
+> consistency results, not as the definition.
+
 **The single remaining load-bearing item — the discharge of one hypothesis, not
 a missing ESA.**  The one-particle ESA on the `C_c^∞` core is **already a proved
 theorem, modulo a single named premise**:
@@ -7744,6 +8350,14 @@ operator — is the one remaining open piece, and it is an *identification* item
 (the step from the Hermite-basis matrices to `π = −i∂/∂u`), exactly the QYM
 §11.4 item 2 decision; the same applies to the Lagrangian trajectory-space
 differential realization (the parity item).
+
+> **Strategy note (2026-09-15).**  The derivative variables `u_{i,j}` of the
+> Eulerian route are now constrained by the **spatial Fourier transform** (the
+> momentum-space elimination of the leading wave), not by the
+> `ChapterNavierStokesGaugeY` / `…Y2` BRST gauge symmetry: the `G_j` generators
+> stay recorded, but the operator of record is defined by the convolution kernel
+> `k_j π^i u_j u_i`.  The Lagrangian trajectory-space item is treated the same
+> way.
 
 **Exploration / legacy:** the classical NS PDE regularity (Contention D5) is out
 of scope; `ChapterNavierStokesIkebeKato` / `ShiftHamiltonian` / `SignedShift` are
@@ -8372,6 +8986,13 @@ for all four physical systems (QYM, NS Eulerian, NS Lagrangian, QG).
   `RandomMap/`, and no `import UnusedRoute` in `RandomMap/`.
 
 ## 9. Suggested attack order for the next agent
+
+> **Strategy note (2026-09-15).**  The derivative-constraint work below
+> (`genY` / `genY2`, the `G_j` gauge generators) is a consistency view.  The
+> leading wave fixes the derivative variables by the spatial Fourier transform /
+> momentum-space convolution, eliminating the jet coordinates instead of
+> gauge-fixing them; items 4 and 8 keep their statements, but the operator of
+> record is the momentum-space one-body operator.
 
 **Update (2026-08-17): the NS thread, the QG route and the QYM route are all
 executed; the remaining work is the recorded research boundaries.** D1/D2 prose
@@ -9902,6 +10523,14 @@ whose `1/e` denominator (with `e = det(e_i^a)`) diverges as the tetrad
 determinant vanishes. This record states the *candidate route* the manuscript's
 own analytic-layer pattern (the NS-FLOW wave) suggests, following the same
 honesty discipline: **named theorems, never claimed Lean results.**
+
+> **Strategy change (2026-09-15).**  The derivative variables are no longer fixed
+> by a BRST gauge symmetry to define the operator: the leading wave records the
+> **momentum-space elimination** (`D_{μν}^i = i k_μ e_ν^i` read as a substitution,
+> products as continuous momentum convolutions), so the outer-Fock route of
+> §10.2b runs on the one-body operator `ChapterQgVielbeinScalaronGaugeFL` with
+> the extended `EMode` / `DMode` variables never entering the domain.  The BRST
+> charge items of §10.3 / §10.6.2.4 remain as consistency results.
 
 ### 10.1 The change of variables: densitized tetrads
 

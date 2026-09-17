@@ -8,6 +8,7 @@ import BookProof.ChapterYangMillsFockFriedrichs
 import BookProof.ChapterScalaronNotQuadratic
 import BookProof.ChapterNavierStokesFullEulerianFock
 import BookProof.ChapterNavierStokesFullLagrangianFock
+import BookProof.ChapterProve2meReuse
 
 /-!
 # Index: self-adjointness of the three Hamiltonians — **Faris–Lavine only**, except that
@@ -371,6 +372,64 @@ alias qgFull_esa_core_fl := BookProof.QgVielbeinScalaronGaugeFL.qgFull_esa_core_
 /-- The physical instance, with the Einstein-frame Starobinsky potential in its full
 exponential form. -/
 alias starobinsky_qgFull_esa_fl := BookProof.QgVielbeinScalaronGaugeFL.starobinsky_qgFull_esa
+
+/-! ## 8. Reused prove2me theorems (external hypotheses)
+
+The Fourier-elimination route (the 2026‑09‑15 wave of `CONSOLIDATED_PLAN.md`) consumes a
+handful of propositions that the prove2me catalogue **already proves** but that cannot be imported
+across the Lean `v4.28.0` / `v4.33.1` split.  They are transcribed in
+`BookProof.ChapterProve2meReuse` as **named hypotheses** — the bundle
+`BookProof.Prove2meReuse.RouteHypotheses` and one `Prop` per theorem — never as `axiom`s.
+The frozen source, with the platform ids, is `PROVE2ME_REUSABLE_THEOREMS.md` at the repository
+root.  A route theorem takes the bundle as a parameter and calls the projection below.
+
+* **NS 3** (convolution algebra) — `ns_convolution_symmetric`:
+  `L2.convolutionCLM_isSymmetric_of_conj_neg` (Claude).
+* **NS 3** (Ritz ladder) — `ns_convolution_compact`:
+  `L2.exists_convolutionCLM_isCompactOperator_of_compactSpace` (Claude).
+* **NS 4 / §5** (Friedrichs positivity) — `ns_friedrichs_lower_bound`:
+  `posDef_quadratic_form_lower_bound` (olivier).
+* **NS 6 / §6.1** (determinant) — `lagrangian_det_add_two`: `Diaz.det_add_two`
+  (carlok).
+* **QG 8** (band / Ritz ladder) — `qg_compact_spectral_edge`:
+  `ContinuousLinearMap.orthogonal_iSup_eigenspace_ne_zero_eq_ker` (Claude).
+* **QG 8** (Ritz truncation) — `qg_high_part_finiteDimensional`:
+  `ContinuousLinearMap.le_ker_or_finiteDimensional_of_forall_inf_highPart_orthogonal`
+  (Claude).
+* **QG 7** (Gribov region) — `qg_gribov_negative_direction`:
+  `GribovRegion.exists_neg_quadratic_form_of_traceless` (Lucas).
+
+The fully qualified source names (with namespaces) and the verbatim platform statements
+are in `PROVE2ME_REUSABLE_THEOREMS.md`.
+
+Nothing in the already-proved index above depends on these hypotheses; they are the
+carrier for the *new* momentum-space route, which is still a plan item.
+-/
+
+open BookProof.Prove2meReuse in
+/-- NS item 3: the one-particle convolution mode operator is symmetric (reused prove2me
+hypothesis, `RouteHypotheses.convolution_symmetric`). -/
+theorem index_ns_convolution_symmetric (H : RouteHypotheses) : ConvolutionCLMSymmetric :=
+  ns_convolution_symmetric H
+
+open BookProof.Prove2meReuse in
+/-- NS item 4 / §5: the positive-definite form lower bound behind the Friedrichs comparison
+(reused prove2me hypothesis). -/
+theorem index_ns_friedrichs_lower_bound (H : RouteHypotheses) : PosDefLowerBound :=
+  ns_friedrichs_lower_bound H
+
+open BookProof.Prove2meReuse in
+/-- QG item 8: the compact-symmetric spectral edge of the band / Ritz ladder (reused prove2me
+hypothesis). -/
+theorem index_qg_compact_spectral_edge (H : RouteHypotheses) :
+    CompactSymmetricOrthogonalEigenspace :=
+  qg_compact_spectral_edge H
+
+open BookProof.Prove2meReuse in
+/-- QG item 7: a traceless Hermitian non-zero matrix has a negative direction (reused prove2me
+hypothesis). -/
+theorem index_qg_gribov_negative_direction (H : RouteHypotheses) : GribovNegativeDirection :=
+  qg_gribov_negative_direction H
 
 end BookProof.EsaFarisLavineIndex
 

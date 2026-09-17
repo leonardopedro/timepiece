@@ -152,7 +152,6 @@ theorem fderiv_angularIm (u v : E) (μ : ℕ) (x w : E) :
 theorem angular_euler (u v : E) (μ : ℕ) (x : E) :
     fderiv ℝ (angular u v μ) x x = (μ : ℝ) * angular u v μ x := by
   rw [fderiv_angular]
-  show _ = (μ : ℝ) * ((nullCLM u v x) ^ μ).re
   rcases μ with _ | n
   · simp
   · simp only [Nat.add_sub_cancel]
@@ -164,7 +163,6 @@ theorem angular_euler (u v : E) (μ : ℕ) (x : E) :
 theorem angularIm_euler (u v : E) (μ : ℕ) (x : E) :
     fderiv ℝ (angularIm u v μ) x x = (μ : ℝ) * angularIm u v μ x := by
   rw [fderiv_angularIm]
-  show _ = (μ : ℝ) * ((nullCLM u v x) ^ μ).im
   rcases μ with _ | n
   · simp
   · simp only [Nat.add_sub_cancel]

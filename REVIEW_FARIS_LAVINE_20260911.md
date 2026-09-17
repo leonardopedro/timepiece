@@ -3,7 +3,12 @@
 *Started 2026‑09‑11.  Revised 2026‑09‑12 (Yang–Mills routed through the direct Friedrichs
 extension, and the kinetic-plus-squares claim about the gravity Hamiltonian corrected).
 Revised again 2026‑09‑12 (**the Oseen caveat on Navier–Stokes is gone**: the full nonlinear
-Hamiltonian is now carried, in Eulerian **and** in Lagrangian variables).*
+Hamiltonian is now carried, in Eulerian **and** in Lagrangian variables).  Revised
+2026‑09‑15 (**the derivative variables are eliminated by the spatial Fourier transform**,
+not fixed by a BRST gauge symmetry, so the Faris–Lavine line runs on the momentum-space
+one-body operator — see §0.1).  Revised 2026‑09‑17 (**the elimination applies only to the velocity
+jet, not to the Lagrangian deformation gradient, whose mode-wise substitution is degenerate**, and
+the Eulerian advection is skew, not a square — §0.1).*
 
 This note reviews the state of the essential-self-adjointness (ESA) / self-adjointness proofs
 of the three threads — quantum Yang–Mills, Navier–Stokes, quantum gravity — under the
@@ -53,13 +58,89 @@ statement by a liftable instrument:
 | `Qg3DGaugeEsa.qg3D_essentiallySelfAdjointOn_core` | `Qg3DGaugeFL.qg3D_esa_fl` |
 | `QgOuterFock.qgOuterFock_esa` | `EsaFarisLavineIndex.qg_outerHam_esa_fl`, `qg84_outerHam_esa_fl` |
 
+## 0.1 The derivative variables are eliminated, not gauge-fixed (2026‑09‑15 revision)
+
+> **Scope correction, 2026‑09‑17.**  The elimination covers the Eulerian jets (`u_{i,j}`, `w_i`),
+> the QG derivative modes (`D_{μν}^i`) and the Lagrangian `V_{ij}` / `S_i`.  It does **not** cover
+> the Lagrangian **deformation gradient** `F`: `F_{ij} ⇒ i ℓ_j ξ_i` makes `F` rank one, so the
+> eliminated cofactor — and with it the whole Piola pressure coupling — vanishes and `det F`
+> collapses the volume constraint to a constant (machine-checked: `B4a–B5b` of
+> `DESIGN_COMPARISON_N_20260915.md` §9).  `F` stays an independent scalar mode.  See
+> `CONSOLIDATED_PLAN.md` item 6.
+
+The plan of record for the Hamiltonians reviewed here changed after this note was written.
+Until 2026‑09‑14 the variables representing the spatial derivatives of the fields were handled
+by an *auxiliary independent coordinate plus a gauge condition* — `u_{i,j}` for Navier–Stokes,
+`D_{μν}^i` for gravity — with the constraint treated as an abelian first-class constraint
+(BRST).  The plan now **eliminates** those variables instead, by the spatial Fourier
+transform.  Nothing in the rest of this note is invalidated: the *instruments* of §0 are
+unchanged.  What changes is the operator they are applied to.
+
+* **The constraint is solved, not imposed.**  Transforming only the spatial argument,
+  `∂_{x_j}` becomes multiplication by `i p_j`, and the constraint
+  `D_j = u^{(1)}_j ∂/∂u + i p_j` is solved on physical states by the operator identity
+  `u^{(1)}_j = p_j π^{−1}`, with `π = −i ∂/∂u` the field-conjugate momentum
+  (`ChapterNsBrstDerivativeGauge.genU`, `genU_ccr_u`).  Local products become continuous
+  momentum convolutions, `ℱ[u_j ∂_j u_i](Q) = (i/(2π)^{d/2}) ∫ q_j Û_j(Q − q) Û_i(q) dq`, and
+  the one-body generator is `H_sp = H_visc + H_advect` with the advective kernel
+  `k_j π^i u_j u_i`.
+* **The reviewed lines read as substitutions.**  The gravity form
+  `G_{μν}^i = D_{μν}^i − i k_μ e_ν^i` of §1 and the Navier–Stokes forms
+  `λ(u_{i,j} + u_i − u_i^{next})` of §2 are the same device; under the new strategy the
+  substitution they name is used **when defining the operator**, so `D_{μν}^i` / `u_{i,j}`
+  never enter the domain.  The identities that carried the content —
+  `torsion_eq_exact_of_gauge_fixed` (gravity) and the exact `u·∇u` residual
+  (`nsResPoly_not_affine`, Navier–Stokes) — are unchanged; the BRST charge and the restriction
+  principle (`gaugeFixedSubset_esa`, `restrict_essentiallySelfAdjointOn`) stay valid as
+  consistency results and as the book's prose, but they are no longer needed for the
+  definition.
+* **What the Faris–Lavine route still does.**  The two liftable data of §0 — the fibrewise
+  Friedrichs comparison (`dsComparison`, `dsCompOp_surj`) and the commutator with `N`
+  (`dsFibOp_hasSum_commForm`) — are exactly what the new one-body operator is measured
+  against: `nsFullOuterN_esa` / `lagFullOuterN_esa` and `qgFull_esa_farisLavine` /
+  `qgFull_esa_core_fl` are the same theorems, run on `dΓ(H_sp)`.
+* **The comparison operator, one per version — the load-bearing design.**  The criterion
+  consumes exactly one positive self-adjoint `N`: `H` and `N` symmetric on a common dense
+  `D = 𝒟(N)`, `N + 1` onto, and `|commForm H N x| ≤ c·quadForm N x`
+  (`essentiallySelfAdjointOn_of_farisLavine`; **no smallness of a relative bound is
+  required**).  The candidates are `N_E = ι(Friedrichs(H_n^red))` for the Eulerian
+  momentum-space operator, the lifted Friedrichs comparison `lagFullOuterN_esa` for the
+  Lagrangian model, and the unchanged `qgFull` comparison (the exponential wall inside it) for
+  gravity; the criterion holds **with `c = 0`** for the two Navier–Stokes ones.
+  **Corrections of 2026‑09‑17 (see `CONSOLIDATED_PLAN.md` items 1 and 6, and §5–§6 of
+  `DESIGN_COMPARISON_N_20260915.md`).**  (i) The Eulerian elimination is applied inside the
+  squares *of the real pressure–viscous symbol*, so the reduced Hamiltonian is
+  `½Σπ² + ½ΣΦ_r² ≥ 0` with `Φ_r = q_r + ν|k|²u_r`: the advection `i (k·u) u_i` is purely
+  imaginary, so multiplying by it is **skew-adjoint and its square is negative** — it is *not*
+  a square (`½(u·∇u)²` above was the older reading) but the momentum convolution of §0.1,
+  bounded against `N_E` by the commutator estimate.  (ii) The Lagrangian determinant statement
+  is a statement about the **un-eliminated** `det F` (positive on `‖F − 1‖ < 1`, §6.1): the
+  deformation gradient is deliberately **not** eliminated, because `F_{ij} ⇒ i ℓ_j ξ_i` makes
+  `F` rank one and annihilates both the Piola coupling and `det F`, collapsing `det F = 1` to a
+  constant (machine-checked as B4a–B5b of that §9).  The literal-cubic comparison is recorded as a
+  **no-go** (`DESIGN_COMPARISON_N_20260915.md` §4.1): its N-bound holds, but its commutator
+  out-grows `n` by one order, and order counting shows no (pseudo)differential comparison of
+  order `≥ 3` can repair it.  The candidates, the three rules behind them (positivity; quadratic
+  degree closure; the wall inside `N`) and the obligation each still owes are derived in
+  **`DESIGN_COMPARISON_N_20260915.md`** (§5 the Eulerian construction, §6 the determinant);
+  the leading wave of `CONSOLIDATED_PLAN.md` records them under "The comparison operator
+  `N` — one per Hamiltonian".
+* **Residual.**  `π = −i ∂/∂u` is not boundedly invertible (its `u`-constant mode is in the
+  kernel), so `π^{−1}` is the inverse on the physical (no-`u`-momentum) sector; the continuum
+  operator is defined after the finite energy/momentum cutoff (Ch. 2 of `book.tex`); the
+  Plancherel gluing and the Faris–Lavine constants remain plan items.  These are honest
+  residuals, not axioms, and they are recorded in the leading wave of `CONSOLIDATED_PLAN.md`
+  (2026‑09‑15).
+
 ## 1. Quantum gravity — vielbein **and** scalaron **and** both gauge fixings
 
 This is the only gravity model of interest: vielbein *and* scalaron with the full exponential
 potential (no Taylor expansion) *and* 3D gauge fixing *and* the gauge fixing of the variables
 representing spatial derivatives of the fields; no lattice; outer Fock space.  It is
 `BookProof/ChapterQgVielbeinScalaronGaugeFL.lean`.  Reviewed again in this revision and
-unchanged: it is `sorry`-free and its audit reports only the standard axioms.
+unchanged: it is `sorry`-free and its audit reports only the standard axioms.  (By the §0.1
+revision the `D_{μν}^i` are *eliminated* by the substitution `D_{μν}^i = i k_μ e_ν^i` rather
+than gauge-fixed; the module and every result below are unchanged.)
 
 * **No lattice.**  The vielbein is expanded in its *exact* Fourier modes, so momenta run over
   all of `ℤ³` and the spatial derivative is the exact symbol `∂_μ ↦ i k_μ`.  The mode set is
@@ -135,7 +216,9 @@ occurs anywhere in this line.
 The standing caveat of the earlier revisions ("the advection is the Oseen linearisation") is
 **removed**.  Two new modules carry the Hamiltonian with the complete nonlinearity, in the
 two sets of variables, each on its own nested Fock space, each with the gauge fixing of the
-variables that represent spatial derivatives of the fields:
+variables that represent spatial derivatives of the fields (by the §0.1 revision those
+derivative variables are eliminated by the spatial Fourier transform; the modules and their
+results are unchanged):
 
 ### 2.1 Eulerian variables — `BookProof/ChapterNavierStokesFullEulerianFock.lean`
 
@@ -282,4 +365,9 @@ pulls in every chapter cited above, including the two new Navier–Stokes chapte
 `Work/NsFullEulerianLagrangianAudit.lean` (this wave),
 `Work/YmFockFriedrichsScalaronAudit.lean`,
 `Work/QgVielbeinScalaronGaugeAudit.lean` and `Work/FarisLavineOnlyAudit.lean` report only
-`propext`, `Classical.choice`, `Quot.sound` for every result listed above.
+`propext`, `Classical.choice`, `Quot.sound` for every result listed above.  The 2026‑09‑15
+revision is documentation only: no module of this line changed, so the verification above
+still applies verbatim to the operator of §0.1 after the derivative variables are eliminated —
+with the one deliberate exception recorded in §0.1: the Lagrangian **deformation gradient** is not
+eliminated (the mode-wise substitution for it is degenerate), so the material Piola term and the
+volume constraint keep `F` as an independent scalar mode (`CONSOLIDATED_PLAN.md` item 6).

@@ -257,10 +257,8 @@ theorem dMat_factor {a : ℂ} (ha : a ≠ 0) :
   intro i j
   fin_cases i <;> fin_cases j <;>
     simp [wOne, Matrix.SpecialLinearGroup.coe_mul, dMat_coe ha, uPlus, uMinus,
-      Matrix.mul_apply, Fin.sum_univ_two, ha] <;>
-    first
-      | (field_simp; ring)
-      | (field_simp; done)
+      Matrix.mul_apply, Fin.sum_univ_two] <;>
+    field_simp [ha] <;> (try ring; try exact Or.inl trivial)
 
 /-- Conjugating the upper unipotent subgroup by the torus squares the parameter. -/
 theorem dMat_mul_uPlus {a : ℂ} (ha : a ≠ 0) (t : ℂ) :
@@ -269,10 +267,8 @@ theorem dMat_mul_uPlus {a : ℂ} (ha : a ≠ 0) (t : ℂ) :
   intro i j
   fin_cases i <;> fin_cases j <;>
     simp [Matrix.SpecialLinearGroup.coe_mul, dMat_coe ha, uPlus, Matrix.mul_apply,
-      Fin.sum_univ_two, ha] <;>
-    first
-      | (field_simp; ring)
-      | (field_simp; done)
+      Fin.sum_univ_two] <;>
+    field_simp [ha]
 
 /-- Conjugating the lower unipotent subgroup by the torus inverts the square. -/
 theorem dMat_mul_uMinus {a : ℂ} (ha : a ≠ 0) (t : ℂ) :
@@ -281,10 +277,8 @@ theorem dMat_mul_uMinus {a : ℂ} (ha : a ≠ 0) (t : ℂ) :
   intro i j
   fin_cases i <;> fin_cases j <;>
     simp [Matrix.SpecialLinearGroup.coe_mul, dMat_coe ha, uMinus, Matrix.mul_apply,
-      Fin.sum_univ_two, ha] <;>
-    first
-      | (field_simp; ring)
-      | (field_simp; done)
+      Fin.sum_univ_two] <;>
+    field_simp [ha]
 
 /-- The big-cell (Bruhat) identity on the diagonal `s = t`. -/
 theorem bruhat {s : ℂ} (hs : 1 + s ^ 2 ≠ 0) :
@@ -295,10 +289,8 @@ theorem bruhat {s : ℂ} (hs : 1 + s ^ 2 ≠ 0) :
   intro i j
   fin_cases i <;> fin_cases j <;>
     simp [Matrix.SpecialLinearGroup.coe_mul, dMat_coe hc, uPlus, uMinus, Matrix.mul_apply,
-      Fin.sum_univ_two, hs] <;>
-    first
-      | (field_simp; ring)
-      | (field_simp; done)
+      Fin.sum_univ_two] <;>
+    field_simp [hs]; ring
 
 end Matrices
 
@@ -405,7 +397,7 @@ theorem dMat_one : dMat (1 : ℂ) = 1 := by
   apply Matrix.SpecialLinearGroup.ext
   intro i j
   fin_cases i <;> fin_cases j <;>
-    simp [dMat_coe (one_ne_zero (α := ℂ)), Matrix.one_apply]
+    simp [dMat_coe (one_ne_zero (α := ℂ))]
 
 /-- The linear coefficient of an exponential curve is determined by the curve. -/
 theorem linear_coeff_eq {m : ℕ} (hm : 2 ≤ m) {c d : ℕ → Module.End ℂ V}
@@ -439,9 +431,6 @@ theorem torus_mul_E (hn : 2 ≤ n) {a : ℂ} (ha : a ≠ 0) :
   have hgroup : rho (dMat a) * rho (uPlus t) = rho (uPlus (a ^ 2 * t)) * rho (dMat a) := by
     rw [← map_mul, ← map_mul, dMat_mul_uPlus ha t]
   rw [hU, hU, expSum, expSum, Finset.mul_sum, Finset.sum_mul] at hgroup
-  show ∑ k ∈ Finset.range n, (t ^ k / (Nat.factorial k : ℂ)) • (rho (dMat a) * E ^ k)
-      = ∑ k ∈ Finset.range n,
-        (t ^ k / (Nat.factorial k : ℂ)) • ((a ^ (2 * k)) • (E ^ k * rho (dMat a)))
   calc ∑ k ∈ Finset.range n, (t ^ k / (Nat.factorial k : ℂ)) • (rho (dMat a) * E ^ k)
       = ∑ k ∈ Finset.range n, rho (dMat a) * ((t ^ k / (Nat.factorial k : ℂ)) • E ^ k) :=
         Finset.sum_congr rfl fun k _ => (mul_smul_comm _ _ _).symm
@@ -464,7 +453,7 @@ theorem dPoly_mul_C_E (hn : 2 ≤ n) :
   have hd := evalA_dPoly hU hL (show 1 ≤ n by omega) ha
   have hE := torus_mul_E hU hn ha
   rw [evalA_mul, evalA_mul, evalA_mul, evalA_C, evalA_X_pow, hd, smul_mul_assoc, hE]
-  simp only [smul_smul, mul_smul_comm, smul_mul_assoc, mul_one]
+  simp only [smul_smul, mul_smul_comm, mul_one]
   congr 1
   ring
 
@@ -479,9 +468,6 @@ theorem torus_mul_F (hn : 2 ≤ n) {a : ℂ} (ha : a ≠ 0) :
        = rho (uMinus ((a ^ 2)⁻¹ * t)) * rho (dMat a) := by
      rw [← map_mul, ← map_mul, dMat_mul_uMinus ha t]
    rw [hL, hL, expSum, expSum, Finset.mul_sum, Finset.sum_mul] at hgroup
-   show ∑ k ∈ Finset.range n, (t ^ k / (Nat.factorial k : ℂ)) • (rho (dMat a) * F ^ k)
-       = ∑ k ∈ Finset.range n,
-         (t ^ k / (Nat.factorial k : ℂ)) • ((((a ^ 2)⁻¹) ^ k) • (F ^ k * rho (dMat a)))
    calc ∑ k ∈ Finset.range n, (t ^ k / (Nat.factorial k : ℂ)) • (rho (dMat a) * F ^ k)
        = ∑ k ∈ Finset.range n, rho (dMat a) * ((t ^ k / (Nat.factorial k : ℂ)) • F ^ k) :=
          Finset.sum_congr rfl fun k _ => (mul_smul_comm _ _ _).symm
@@ -505,7 +491,7 @@ theorem dPoly_mul_C_F (hn : 2 ≤ n) :
   have hF := torus_mul_F hL hn ha
   have ha2 : (a ^ 2 : ℂ) ≠ 0 := pow_ne_zero _ ha
   rw [evalA_mul, evalA_mul, evalA_mul, evalA_C, evalA_X_pow, hd, smul_mul_assoc, hF]
-  simp only [smul_smul, mul_smul_comm, smul_mul_assoc, mul_one]
+  simp only [smul_smul, mul_smul_comm, mul_one]
   congr 1
   field_simp
 
