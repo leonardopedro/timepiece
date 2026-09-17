@@ -114,17 +114,22 @@ $`k \cdot u`), `fourierAdvect` ($`(k \cdot u) u_i`), `fourierDiv`
 ($`i (k \cdot u)`) and `fourierVisc` ($`q_i + \nu |k|^2 u_i`).
 :::
 
-# The Reduced Hamiltonian, and Which Part Is a Square
+# The Reduced Hamiltonian: Both Real Parts Are Squares
 
 :::paragraph
 A multiplication operator on $`L^2` with respect to the real coordinates is
 symmetric exactly when its symbol has *real* coefficients. The residual splits
-as $`\sigma(R_i) = i\,(k \cdot u) u_i + \big(q_i + \nu |k|^2 u_i\big)`: the
-first term is purely imaginary, so multiplication by it is *skew-adjoint* and
-its square is *negative*, while the second term is real. The reduced Hamiltonian
-is therefore built from the real symbol — `fourierVisc` and its lifted form
-`redVisc` — and its quadratic form is a sum of Weyl-ordered squares, hence
-nonnegative:
+as $`\sigma(R_i) = i\,(k \cdot u) u_i + \big(q_i + \nu |k|^2 u_i\big)`, and *both*
+brackets have real coefficients — the first is a real polynomial times $`i`.
+Multiplication by that imaginary part is indeed *skew-adjoint* and its operator
+square is *negative*, but that square is the operator of the *equation*, not a
+summand of the Hamiltonian; the squares in the Hamiltonian are the two
+real-coefficient parts, $`\tfrac12\big((k\cdot u)u_i\big)^2` and
+$`\tfrac12\big(q_i + \nu|k|^2u_i\big)^2` (equivalently the modulus square of the
+multiplication operator of the complex form, whose skew cross term is invisible on
+the quadratic form). The reduced Hamiltonian is a Weyl-ordered sum of squares of
+those two parts — `fourierVisc` and `fourierAdvect` (the line above lifts the
+real part as `redVisc`) — hence nonnegative:
 :::
 
 ```
@@ -138,21 +143,29 @@ nonnegative:
 ```
 
 :::paragraph
-This is the honest form of the strategy: the *squares* are the real
-(pressure–viscous) part, and the skew-adjoint advection — the genuine
-nonlinearity — is not smuggled into them but is carried by the momentum
-convolution of the plan and bounded against this comparison operator by the
-Faris–Lavine commutator estimate. Positivity of the square part is what makes
-the Friedrichs extension unconditional, exactly as for the full Eulerian sector.
+This is the honest form of the strategy: the *squares* are the two
+real-coefficient parts of each substituted form, so the genuine nonlinearity —
+the advection $`(k\cdot u)u_i` — is *inside* the Hamiltonian as one of the
+squares, and no perturbation, no commutator estimate and no ghost sector is owed.
+Positivity of the sum of squares is what makes the Friedrichs extension
+unconditional, exactly as for the full Eulerian sector. (The landed `redFieldN`
+still carries the *real* residual forms only, so as it stands `redHam` is the
+real-part-only truncation; extending the family to the imaginary parts as well is
+the recorded handoff item, and the surrounding proofs are generic in the field
+family.)
 :::
 
 # The Nested Fock Lift and Faris–Lavine
 
 :::paragraph
-The comparison operator the route needs is the lifted Friedrichs realization of
-the reduced one-body operators, on the nested Fock space
-$`\bigoplus_n L^2(\mathbb{R}^{6n})`. Positivity, symmetry and surjectivity of
-$`N + 1` are all fibrewise, so they lift verbatim from the fibre:
+The outer Fock space of the reduced model is the nested space
+$`\bigoplus_n L^2(\mathbb{R}^{6n})`, and `nsRedFullFockHam` is the
+*particle-number-conserving second quantization* $`d\Gamma(H_1)` of the reduced
+one-particle Hamiltonian `redHam` at $`n = 1` — a direct sum over parcel number,
+taking no new square. The comparison operator the route needs is the lifted
+Friedrichs realization of the reduced one-body operators on that space.
+Positivity, symmetry and surjectivity of $`N + 1` are all fibrewise, so they lift
+verbatim from the fibre:
 :::
 
 ```
@@ -187,6 +200,6 @@ The Fourier-elimination route, as verified here:
 
  * the derivative coordinates are *eliminated* by a ring homomorphism (`nsElimHom`) that sends $`u_{i,j}` to $`i k_j u_i`, $`w_i` to $`-|k|^2 u_i` and $`y_j` to $`0`, cutting each parcel from twenty-one coordinates to six;
  * the residual and the incompressibility are pushed through it, `nsElimSubst_resPoly` and `nsElimSubst_divPoly`, becoming a *quadratic* symbol $`i (k \cdot u) u_i + q_i + \nu |k|^2 u_i` and a *linear* one $`i (k \cdot u)` — the cubic symbol of the gauge-fixed presentation is gone, so no ghost sector is needed for the definition;
- * the reduced Hamiltonian on $`L^2(\mathbb{R}^{6n})` is built with the same Weyl-ordered sum of squares (`redHam`), squaring **both** real-coefficient parts of each substituted form — so the real pressure–viscous symbol $`q_i + \nu|k|^2 u_i` **and** the advection $`(k\cdot u)u_i` both sit inside squares, and the Hamiltonian keeps the Navier–Stokes nonlinearity in full; it is symmetric and bounded below (`redHam_symmetricOn`, `redHam_quadForm_nonneg`) and therefore has an unconditional positive self-adjoint Friedrichs extension;
+ * the reduced Hamiltonian on $`L^2(\mathbb{R}^{6n})` is built with the same Weyl-ordered sum of squares (`redHam`), squaring *both* real-coefficient parts of each substituted form (the *definition* is the one-particle case $`n = 1`; `redHam` at general $`n` is that one-particle operator summed over the parcels, and the Fock operator `nsRedFullFockHam` is its particle-number-conserving lift $`d\Gamma(H_1)` — no further square is taken) — so the real pressure–viscous symbol $`q_i + \nu|k|^2 u_i` *and* the advection $`(k\cdot u)u_i` both sit inside squares, and the Hamiltonian keeps the Navier–Stokes nonlinearity in full; it is symmetric and bounded below (`redHam_symmetricOn`, `redHam_quadForm_nonneg`) and therefore has an unconditional positive self-adjoint Friedrichs extension;
  * the comparison operator of the Faris–Lavine criterion is free, and the convenient choice is this same lifted Friedrichs realization, on which the reduced Hamiltonian is essentially self-adjoint with `c = 0` (`nsRedFullOuterN_esa`, `nsRedFullOuterN_isPositiveSelfAdjointExtension`) — the advection is inside it rather than measured against it by a commutator estimate;
  * the plan of record (2026‑09‑17b) is the modulus-square Hamiltonian above; the landed `redFieldN` still carries only the three real residual forms, so extending the reduced field family to the real and imaginary parts of every surviving form is the handoff item.

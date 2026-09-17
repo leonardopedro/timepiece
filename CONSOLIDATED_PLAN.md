@@ -81,21 +81,43 @@ new hypothesis):
    done* for the reduced sector: symmetry on the domain, surjectivity of `N + 1`, and the
    extension/Faris–Lavine statements are all proved for the eliminated operator.
 
-**Plan of record for the reduced Hamiltonian (2026‑09‑17b — supersedes both the 2026‑09‑15 wording
+**Plan of record for the reduced one-particle Hamiltonian and its outer-Fock lift (2026‑09‑17b — supersedes both the 2026‑09‑15 wording
 and the skew-based reading that briefly replaced it): the Hamiltonian is the honest one, and the
-elimination is applied to every constraint form and to *both* of its real parts.**  In this
-formalism the Hamiltonian *is* a Weyl-ordered sum of squares of the constraint (gauge-fixing) forms
-— `H = ½Σπ² + ½Σ_r Φ_r²`, each `Φ_r` real-coefficient so that `mulOp Φ_r` is symmetric; the energies
-are then the eigenvalues of that operator, no square being taken of an energy anywhere.  After the
-substitution each form is complex, `σ(Φ_r) = Re σ(Φ_r) + i·Im σ(Φ_r)` with **both** parts
-real-coefficient, and the honest reduced Hamiltonian squares each real-coefficient part separately:
+elimination is applied to every constraint form and to *both* of its real parts.**  The one-particle
+Hamiltonian and the particle-number-conserving Hamiltonian on the outer Fock space are two different
+objects, so state them separately.
+
+* **The one-particle Hamiltonian `H₁` — where the model is *defined*.**  `H₁` is the `n = 1` member of
+  the family — in the notation of `ChapterNavierStokesFullEulerianFock`, `nsSectorHam … 1 =
+  weylOp (nsPiN 1) (nsFieldN … 1)` on `L²(ℝ²¹)`, i.e. `H₁ = ½Σ_m π_m² + ½Σ_r (mulOp Φ_r)²` with each
+  `Φ_r` real-coefficient so that `mulOp Φ_r` is symmetric.  **The squares live here, and only here:**
+  which forms are squared, and how many of each, is a one-parcel modelling choice.  Symmetry,
+  positivity and the Friedrichs realization at `n = 1` are `nsSectorHam_symmetricOn`,
+  `nsSectorHam_quadForm_nonneg`, `nsSector_friedrichs_extension`; the reduced analogue is `redHam`,
+  and `redHam nu k 1` is the reduced `H₁`.
+* **The particle-number-conserving Hamiltonian on the outer (nested) Fock space.**  It is
+  *generated* from `H₁`; it is **not** a further sum of squares.  Each summand of `weylOp` acts on a
+  single parcel (`ycoord p ·`, `momIdx j`), so `nsSectorHam … n` is `H₁` summed over the `n` parcels —
+  `dΓ(H₁)` on the `n`-parcel sector — and `nsFullFockHam = dsOp (fun n => nsSectorHam … n)` on
+  `⊕ₙ L²(ℝ^{21n})` is the second quantization `dΓ(H₁)` in full, i.e. the number-conserving lift
+  (`nsFullFockHam_number_conserving`; the same pattern as `dΓ(H₁)` in the Yang–Mills thread,
+  `ChapterSqSumFockEsa`, `ChapterQymTimeIndependentFlow`).  Positivity and symmetry are inherited
+  *fibrewise* (`dsOp_quadForm_nonneg`, `dsOp_symmetricOn`), which is why the one-particle statement is
+  the one to get right.
+
+So the question the substitution has to answer is a **one-particle** question: which forms are
+squared in `H₁` (and in its reduced analogue).  After the substitution each form is complex,
+`σ(Φ_r) = Re σ(Φ_r) + i·Im σ(Φ_r)` with **both** parts real-coefficient, and the honest reduced
+one-particle Hamiltonian squares each real-coefficient part separately (the Fock Hamiltonian then
+lifts that choice unchanged):
 
 ```
-H_n^red := ½ Σ_m π_m² + ½ Σ_r [ (mulOp (Re σ(Φ_r)))² + (mulOp (Im σ(Φ_r)))² ] ,
+H_n^red := ½ Σ_m π_m² + ½ Σ_r [ (mulOp (Re σ(Φ_r)))² + (mulOp (Im σ(Φ_r)))² ]   on L²(ℝ^{6n}),
 ```
 
 whose quadratic form at `x` is `Σ_r ‖(Re σ(Φ_r) + i Im σ(Φ_r)) x‖²` up to a skew cross term that
-vanishes on the form (`coreRep_quadForm_skew_zero`).  Nothing is dropped and nothing is demoted to a
+vanishes on the form (`coreRep_quadForm_skew_zero`); its particle-number-conserving lift is
+`nsRedFullFockHam`, and the Faris–Lavine statement is about that lift.  Nothing is dropped and nothing is demoted to a
 perturbation.  For the residual, `Re σ(R_i) = q_i + ν|k|² u_i` and `Im σ(R_i) = (k·u) u_i`
 (`fourierVisc` / `fourierAdvect`), so the **nonlinear advection is one of the squares**,
 `½ ((k·u)u_i)²`, alongside the pressure–viscous square — which is what Navier–Stokes requires;
@@ -634,9 +656,9 @@ the **recorded** checks, which live in this repository in `DESIGN_COMPARISON_N_2
    `#check`s of declarations of `BookProof/ChapterNsFourierElimination.lean` — all thirty
    resolve against the module.  The prose states the elimination as the plan does: the jet
    coordinates are eliminated, the residual and the divergence are pushed through the substitution
-   (`nsElimSubst_resPoly`, `nsElimSubst_divPoly`), and the reduced Hamiltonian squares both real
-   parts of every reduced form — so the advection is one of the squares, alongside the real
-   pressure–viscous symbol (the plan of record of 2026‑09‑17b in the wave above; the chapter's
+   (`nsElimSubst_resPoly`, `nsElimSubst_divPoly`), and the reduced *sector* Hamiltonian squares both
+   real parts of every reduced form — so the advection is one of the squares, alongside the real
+   pressure–viscous symbol (the lift `nsRedFullFockHam` inherits positivity fibrewise) (the plan of record of 2026‑09‑17b in the wave above; the chapter's
    prose and its `redFieldN` still carry the earlier, narrower reading and are the handoff delta).
 
 ## Latest wave — 2026-09-14 (third): the Whittaker–Shannon sampling theorem, the energy bound of the ODE chapter, and Weyl's unitarian trick for a compact group

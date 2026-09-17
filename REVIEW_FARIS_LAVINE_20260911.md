@@ -8,8 +8,8 @@ Hamiltonian is now carried, in Eulerian **and** in Lagrangian variables).  Revis
 not fixed by a BRST gauge symmetry, so the Faris–Lavine line runs on the momentum-space
 one-body operator — see §0.1).  Revised 2026‑09‑17 (**the elimination applies only to the velocity
 jet, not to the Lagrangian deformation gradient, whose mode-wise substitution is degenerate**; the
-Eulerian reduced Hamiltonian is the *modulus-square* one, so the advection stays squared and `N` is
-free to be chosen, `c = 0` — §0.1).*
+Eulerian reduced *one-particle* Hamiltonian squares both real parts of every substituted form, so the
+advection stays squared and `N` is free to be chosen, `c = 0` — §0.1).*
 
 This note reviews the state of the essential-self-adjointness (ESA) / self-adjointness proofs
 of the three threads — quantum Yang–Mills, Navier–Stokes, quantum gravity — under the
@@ -46,7 +46,10 @@ advection sits inside a constraint square.  **It stays true after the Fourier el
 the reduction squares *both* real parts of each substituted form: for the residual,
 `(Re σ(R_i))² + (Im σ(R_i))² = (q_i + ν|k|² u_i)² + ((k·u) u_i)²`, both brackets real-coefficient and
 so both symmetric squares — the advection is one of them, `½((k·u)u_i)²`, and the nonlinearity is
-kept in full (the reduced Hamiltonian is quartic, not the real-part-only truncation).  *What the
+kept in full (the reduced *one-particle* Hamiltonian is quartic, not the real-part-only
+truncation; the outer-Fock operator is its particle-number-conserving second quantization
+`dΓ(H₁)`, not a second sum of squares).
+*What the
 skewness argument does not license:* `mulOp (i (k·u)u_i)` is indeed skew with negative
 operator-square, but the quadratic form is `⟨x, L*L x⟩ = ‖Tx‖² + ‖Sx‖²` for `L = mulOp σ(R_i)`, the
 skew cross term contributing nothing — see §0.1 and §5.2 of `DESIGN_COMPARISON_N_20260915.md`.  On the outer Fock space the Faris–Lavine
@@ -117,8 +120,10 @@ unchanged.  What changes is the operator they are applied to.
   gravity; the criterion holds **with `c = 0`** for the two Navier–Stokes ones.
   **Corrections of 2026‑09‑17 (see `CONSOLIDATED_PLAN.md` items 1 and 6, and §5–§6 of
   `DESIGN_COMPARISON_N_20260915.md`).**  (i) The Eulerian elimination is applied inside the
-  squares of **every constraint form, in both of its real parts** — the reduced Hamiltonian is
-  `½Σπ² + ½Σ_r [(mulOp Re σ(Φ_r))² + (mulOp Im σ(Φ_r))²] ≥ 0` — with the advection squared,
+  squares of **every constraint form, in both of its real parts** — the reduced *one-particle*
+  Hamiltonian (`n = 1`) is `½Σπ² + ½Σ_r [(mulOp Re σ(Φ_r))² + (mulOp Im σ(Φ_r))²] ≥ 0`, while the
+  outer-Fock Hamiltonian `nsFullFockHam = dsOp (fun n => nsSectorHam … n)` is its
+  particle-number-conserving lift `dΓ(H₁)`, taking no further square — with the advection squared,
   `½((k·u)u_i)²`, alongside the real pressure–viscous square `½(q_i + ν|k|²u_i)²`.  The reduced
   Hamiltonian is therefore quartic (interacting), the mainstream Navier–Stokes one, and `N_E` — which
   is its lifted Friedrichs extension — contains the advection by construction, so no commutator

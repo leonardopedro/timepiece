@@ -99,10 +99,10 @@ Two candidates, and they are not equal.
 **(a) The positive completion (R1) — preferred, and worked out in §5.**  Apply the Fourier
 elimination **inside the squares**: each constraint form is substituted and **both** of its
 real-coefficient parts are squared, so the advection is one of the squares,
-`½((k·u)u_i)²`, alongside the viscous and gauge-fixing squares (§5.2).  The Hamiltonian therefore
-stays a positive sum of squares, the nonlinearity is kept **in full** (the reduced Hamiltonian is
-quartic and interacting, as Navier–Stokes requires), and the candidate is the lifted Friedrichs
-comparison with `c = 0`.  §5 gives the construction, the
+`½((k·u)u_i)²`, alongside the viscous and gauge-fixing squares (§5.2).  The **sector** Hamiltonian
+therefore stays a positive sum of squares — and its outer-Fock lift inherits that fibrewise — the
+nonlinearity is kept **in full** (the reduced *sector* Hamiltonian is quartic and interacting, as
+Navier–Stokes requires), and the candidate is the lifted Friedrichs comparison with `c = 0`.  §5 gives the construction, the
 four hypotheses with `c = 0`, and the two obligations (uniformity under the cutoff, and the
 identification with the momentum-space operator).
 
@@ -240,29 +240,38 @@ and eliminate the coordinates that *represent derivatives* by the momentum-space
 * the **divergence** `Σ_j u_{j,j} ⇒ i Σ_j k_j u_j` — linear;
 * the **gauge forms** — linear in the surviving coordinates after substitution.
 
-### 5.2 The reduced Hamiltonian is a sum of squares — the honest one
+### 5.2 The reduced *one-particle* Hamiltonian is a sum of squares, and the Fock Hamiltonian is its lift — the honest reading
 
 ```
-H_n^red := ½ Σ_m π_m² + ½ Σ_r [ (mulOp (Re σ(Φ_r)))² + (mulOp (Im σ(Φ_r)))² ] ,   on ⊕ₙ L²(ℝ^{6n}),
+H₁^red := ½ Σ_m π_m² + ½ Σ_r [ (mulOp (Re σ(Φ_r)))² + (mulOp (Im σ(Φ_r)))² ] ,   on L²(ℝ⁶) ,
 ```
 
-where the sum runs over **every** constraint form of the sector — the three residuals, the
-incompressibility, the derivative-gauge forms and the viscous-gauge forms — and `σ(Φ_r)` is the
-form's reduced, complex image under the substitution: the elimination is applied to each form and
-**both** of its real parts are squared separately.
+the **reduced one-particle Hamiltonian** — the `n = 1` member of the family, `redHam nu k 1`.  This is
+where the model is *defined*: the sum runs over **every** constraint form of the sector — the three
+residuals, the incompressibility, the derivative-gauge forms and the viscous-gauge forms — and
+`σ(Φ_r)` is the form's reduced, complex image under the substitution, the elimination being applied
+to each form with **both** of its real parts squared separately.  `redHam nu k n` on `L²(ℝ^{6n})` is
+that same one-particle operator summed over the `n` parcels (`dΓ(H₁^red)` on the `n`-parcel sector),
+and the object of the Faris–Lavine analysis is not it either but the **particle-number-conserving
+lift** to the outer (nested) Fock space, `nsRedFullFockHam = dsOp (fun n => redHam … n) = dΓ(H₁^red)`;
+the squares are a one-particle notion, and the lift adds no further square.
 
 > **Plan of record (2026‑09‑17b) — the elimination squares both real parts of every form.**
-> In this formalism the Hamiltonian *is* the Weyl-ordered sum of squares of the constraint
-> (gauge-fixing) forms — `H = ½Σπ² + ½Σ_r Φ_r²`, each `Φ_r` real-coefficient so that `mulOp Φ_r` is
-> symmetric; the energies are the eigenvalues of that operator.  After the substitution each `Φ_r`
-> is complex with **real-coefficient** real and imaginary parts, and the honest reduced Hamiltonian
-> above squares each part on its own; equivalently, its quadratic form at `x` is
+> The Hamiltonian of the model is **defined at the one-particle level**: `H₁ = ½Σπ² + ½Σ_r (mulOp Φ_r)²`
+> on the one-parcel space (`nsSectorHam … 1` on `L²(ℝ²¹)`), each `Φ_r` real-coefficient so that
+> `mulOp Φ_r` is symmetric — `H₁` is the one-particle Hamiltonian.  The `n`-parcel operator
+> `nsSectorHam … n` is that one-particle operator summed over the parcels, and the outer-Fock
+> Hamiltonian `nsFullFockHam = dsOp (fun n => nsSectorHam … n)` is *generated* from `H₁` as its
+> **particle-number-conserving second quantization** `dΓ(H₁)` — a direct sum over parcel number, with
+> positivity and symmetry inherited fibrewise and no further square taken.  After the substitution each
+> `Φ_r` is complex with **real-coefficient** real and imaginary parts, and the honest reduced sector
+> Hamiltonian above squares each part on its own; equivalently, its quadratic form at `x` is
 > `Σ_r ‖(Re σ(Φ_r) + i Im σ(Φ_r)) x‖²`, up to the skew cross term `i[S,T]` which contributes nothing
 > to the form (`coreRep_quadForm_skew_zero`).  For the residual,
 > `Re σ(R_i) = q_i + ν|k|² u_i = fourierVisc` and `Im σ(R_i) = (k·u) u_i = fourierAdvect`, so **the
 > nonlinear advection is one of the squares**, `½ ((k·u)u_i)²`, exactly as in the manuscript: this is
-> the mainstream Navier–Stokes nonlinearity, and the reduced Hamiltonian is therefore **quartic
-> (interacting)** — like the full sector, and unlike the real-symbol-only truncation.  The eliminated
+> the mainstream Navier–Stokes nonlinearity, and the reduced *sector* Hamiltonian is therefore
+> **quartic (interacting)** — like the full sector, and unlike the real-part-only truncation.  The eliminated
 > incompressibility contributes `½ (k·u)²` (`fourierDiv`), and `σ` sends the `y`-gauge forms to `0`,
 > so those drop out rather than being dropped by hand.
 >
@@ -362,7 +371,7 @@ cite:
 6. `nsRed_eq_momentumForm` — the identification of §5.4(2), via
    `restrict_essentiallySelfAdjointOn` / `gaugeFixedSubset_esa` on the gauge-fixing surface.
 7. Axiom audit in `ChapterRoadmapAudit.lean`; the plan and this note updated.
-8. **PENDING (2026‑09‑17b) — the honest reduced Hamiltonian.**  Extend `redFieldN` from the three
+8. **PENDING (2026‑09‑17b) — the honest reduced *sector* Hamiltonian.**  Extend `redFieldN` from the three
    *real* residual forms to the **real and imaginary parts of every surviving substituted form**:
    the residuals (`fourierVisc` *and* `fourierAdvect`), the incompressibility (`fourierDiv`), and
    the substituted derivative-gauge and viscous-gauge forms; the `y`-gauge forms need no entry

@@ -27,11 +27,13 @@ route: the residual
 
 the two facts `nsElimSubst_resPoly` / `nsElimSubst_divPoly` below.  Splitting
 `σ(R_i) = I·Im + Re` into its real-coefficient parts `Re = q_i + ν|k|² u_i` and `Im = (k·u) u_i`,
-the reduced sector Hamiltonian is again a positive sum of Weyl-ordered squares built with the same
-`weylOp` as the full Eulerian sector, and it keeps the nonlinearity **in full**: squaring both real
+the reduced one-particle Hamiltonian is again a positive sum of Weyl-ordered squares built with the
+same `weylOp` as the full Eulerian sector — and this is where the reduced model is *defined*, since
+the outer-Fock Hamiltonian is its particle-number-conserving second quantization `dΓ(H₁)` and not
+another sum of squares — and it keeps the nonlinearity **in full**: squaring both real
 parts puts `(Re)² = (q_i + ν|k|² u_i)²` *and* `(Im)² = ((k·u) u_i)²` inside the Hamiltonian, so the
-advection is one of the squares and the reduced Hamiltonian is quartic, unlike the real-part-only
-truncation.  The skewness of `mulOp (i·Im)` (below, §7) is a statement about the operator of the
+advection is one of the squares and the reduced *sector* Hamiltonian is quartic, unlike the
+real-part-only truncation.  The skewness of `mulOp (i·Im)` (below, §7) is a statement about the operator of the
 *equation*: it is what makes the **coefficientwise** product of the complex form unusable, and it is
 also why `L*L` and the two-square form are the same *form* (the skew cross term of `L*L` contributes
 nothing).  **Plan of record, 2026‑09‑17b:** the honest Hamiltonian is the
@@ -206,11 +208,14 @@ elimination is that the Fourier symbols below come out **quadratic** — the der
 * `σ(q_i) = q_i`,  `σ(−ν w_i) = ν|k|² u_i`,
 * `σ(Σ_j u_{j,j}) = i (k·u)`.
 
-Splitting `σ(R_i) = i·(advection symbol) + (real symbol)`, the real symbol is a *legitimate*
-(purely real-coefficient, hence symmetric) multiplication form; the advection symbol is purely
-imaginary, so multiplication by it is **skew-adjoint** and its square is *negative* — which is why
-the reduced Hamiltonian of §5 is built from the real symbol alone, and the advection enters the
-Faris–Lavine comparison as a perturbation (the convolution of plan item 3), not as a square. -/
+Splitting `σ(R_i) = i·(advection symbol) + (real symbol)`, each part is a *legitimate*
+(real-coefficient, hence symmetric) multiplication form; multiplication by the **imaginary** part
+`i (k·u) u_i` is **skew-adjoint** and its operator square is *negative*, which is what rules out the
+**coefficientwise** product of the complex form.  It does **not** rule the advection out of the
+Hamiltonian: the real polynomial `(k·u) u_i` has a symmetric operator, so the reduced *one-particle*
+Hamiltonian of §5 squares it — `½ ((k·u)u_i)²` alongside `½(q_i + ν|k|²u_i)²` (plan of record
+2026‑09‑17b) — and `N` is free, the convenient choice being the lifted Friedrichs extension of that
+same one-particle Hamiltonian (`c = 0`), which the outer-Fock lift `dΓ(H₁)` of §6 carries unchanged. -/
 
 /-- The momentum scalar `k·u` in the reduced ring. -/
 def fourierMomentum (k : Fin 3 → ℝ) : MvPolynomial (Fin 6) ℂ :=
@@ -333,13 +338,17 @@ scalar, so the eliminated incompressibility is the constant-coefficient multipli
 theorem fourierDiv_eq (k : Fin 3 → ℝ) :
     fourierDiv k = C Complex.I * fourierMomentum k := rfl
 
-/-! ## 5. The reduced sector Hamiltonian: the real (pressure–viscous) sums of squares
+/-! ## 5. The reduced one-particle Hamiltonian: the sums of squares, the advection included
 
 After the elimination a parcel has **six** canonical coordinates `(u_i, q_i)`.  The real part
 `Re σ(R_i) = q_i + ν|k|² u_i` is a real-coefficient multiplication form, so the same `weylOp` that
 builds the full Eulerian sector builds the reduced one, and its quadratic form is a sum of squares:
 `H_n^red = ½ Σ_m π_m² + ½ Σ_r [(mulOp Re σ(Φ_r))² + (mulOp Im σ(Φ_r))²] ≥ 0` — both real parts of
-**every** reduced form squared.  That
+**every** reduced form squared.  Level bookkeeping: `redHam nu k 1` is the reduced **one-particle**
+Hamiltonian, and it — not the Fock operator — is where the choice of squared forms is made;
+`redHam nu k n` is that one-particle operator summed over the `n` parcels, and §6's
+`nsRedFullFockHam = dsOp (fun n => redHam nu k n)` is its particle-number-conserving second
+quantization `dΓ(H₁)`, the lift taking no further square.  That
 puts the advection **inside** a square — `½ ((k·u) u_i)²`, via `Im σ(R_i) = fourierAdvect`, whose
 multiplication operator is symmetric (`realCoeff_fourierAdvect` + `mulOp_polySym`) — so the reduced
 Hamiltonian is quartic and interacting, as Navier–Stokes requires; `N` is then free, and
@@ -385,7 +394,8 @@ theorem redFieldN_symmetricOn (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (m : Fin 
       ((polyGaussCore (d := n * 6)).subtype.comp (redFieldN nu k n m)) :=
   (coreRepPoly (n * 6)).symmetricOn_op (mulOp_polySym (realCoeff_redVisc _ _ _ _ _))
 
-/-- **The reduced `n`-parcel Hamiltonian** on the Gauss–polynomial core of `L²(ℝ^{6n})`. -/
+/-- **The reduced `n`-parcel Hamiltonian** on the Gauss–polynomial core of `L²(ℝ^{6n})` — the
+`n`-parcel member of the one-particle family (`n = 1` is the reduced one-particle Hamiltonian). -/
 def redHam (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) :
     polyGaussCore (d := n * 6) →ₗ[ℂ] L2d (n * 6) :=
   weylOp (redPiN n) (redFieldN nu k n)
