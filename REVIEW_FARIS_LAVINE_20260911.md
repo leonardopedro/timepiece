@@ -42,15 +42,14 @@ in the line below depends on them.
 **Where the Hamiltonian is bounded below, Faris–Lavine is not needed.**  A positive sum of
 squares has a Friedrichs extension outright, and that is one of the two liftable data.  This
 applies to Yang–Mills (§3) and to the full nonlinear Navier–Stokes Hamiltonians (§2), where the
-advection sits inside a constraint square.  **It stays true after the Fourier elimination**, provided
-the square of a reduced form is read as its *modulus* square: for the residual,
-`|σ(R_i)|² = (Re σ(R_i))² + (Im σ(R_i))² = (q_i + ν|k|² u_i)² + ((k·u) u_i)²`, both brackets with real
-coefficients and so both symmetric squares — the advection therefore enters as the square
-`½((k·u)u_i)²` and the nonlinearity is kept in full (the reduced Hamiltonian is quartic, not the
-real-symbol-only truncation).  *What the skewness argument does not license:* `mulOp (i (k·u)u_i)`
-is indeed skew with negative operator-square, but the energy is `L*L = T² + S² + i[S,T]` for
-`L = mulOp σ(R_i)`, and the skew cross term contributes nothing to the quadratic form — see §0.1 and
-§5.2 of `DESIGN_COMPARISON_N_20260915.md`.  On the outer Fock space the Faris–Lavine
+advection sits inside a constraint square.  **It stays true after the Fourier elimination**, because
+the reduction squares *both* real parts of each substituted form: for the residual,
+`(Re σ(R_i))² + (Im σ(R_i))² = (q_i + ν|k|² u_i)² + ((k·u) u_i)²`, both brackets real-coefficient and
+so both symmetric squares — the advection is one of them, `½((k·u)u_i)²`, and the nonlinearity is
+kept in full (the reduced Hamiltonian is quartic, not the real-part-only truncation).  *What the
+skewness argument does not license:* `mulOp (i (k·u)u_i)` is indeed skew with negative
+operator-square, but the quadratic form is `⟨x, L*L x⟩ = ‖Tx‖² + ‖Sx‖²` for `L = mulOp σ(R_i)`, the
+skew cross term contributing nothing — see §0.1 and §5.2 of `DESIGN_COMPARISON_N_20260915.md`.  On the outer Fock space the Faris–Lavine
 criterion is then run in its `c = 0` form, with the **lifted Friedrichs extension itself** as
 the comparison operator (`Comparison.esa_self`): the commutator vanishes, and the conclusion
 is that the lifted realization is essentially self-adjoint on its domain.
@@ -118,14 +117,14 @@ unchanged.  What changes is the operator they are applied to.
   gravity; the criterion holds **with `c = 0`** for the two Navier–Stokes ones.
   **Corrections of 2026‑09‑17 (see `CONSOLIDATED_PLAN.md` items 1 and 6, and §5–§6 of
   `DESIGN_COMPARISON_N_20260915.md`).**  (i) The Eulerian elimination is applied inside the
-  squares of **every surviving form**, each square being the *modulus* square of the complex reduced
-  form, so the reduced Hamiltonian is `½Σπ² + ½Σ_r |σ(Φ_r)|² ≥ 0` — with the advection squared,
+  squares of **every constraint form, in both of its real parts** — the reduced Hamiltonian is
+  `½Σπ² + ½Σ_r [(mulOp Re σ(Φ_r))² + (mulOp Im σ(Φ_r))²] ≥ 0` — with the advection squared,
   `½((k·u)u_i)²`, alongside the real pressure–viscous square `½(q_i + ν|k|²u_i)²`.  The reduced
   Hamiltonian is therefore quartic (interacting), the mainstream Navier–Stokes one, and `N_E` — which
   is its lifted Friedrichs extension — contains the advection by construction, so no commutator
   estimate is owed.  (The intermediate reading that the advection “cannot be a square” used the
-  *coefficientwise* product `σ(R_i)² = −a² + 2iar + r²` instead of the energy; `mulOp (i a)` is skew,
-  but the modulus square of the form is `T² + S²` up to a form-invisible skew term.)
+  *coefficientwise* product `σ(R_i)² = −a² + 2iar + r²` instead of the two real-part squares;
+  `mulOp (i a)` is skew, but the quadratic form is `‖Tx‖² + ‖Sx‖²` up to a form-invisible skew term.)
   (ii) The Lagrangian determinant statement
   is a statement about the **un-eliminated** `det F` (positive on `‖F − 1‖ < 1`, §6.1): the
   deformation gradient is deliberately **not** eliminated, because `F_{ij} ⇒ i ℓ_j ξ_i` makes

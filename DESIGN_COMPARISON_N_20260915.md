@@ -97,12 +97,12 @@ h_E = h_visc + h_advect,   h_visc ∼ |k|² π^i u_i        (quadratic in (u,π)
 Two candidates, and they are not equal.
 
 **(a) The positive completion (R1) — preferred, and worked out in §5.**  Apply the Fourier
-elimination **inside the squares**: the advection enters **squared**, as `½((k·u)u_i)²`, alongside
-the viscous and gauge-fixing squares — the square of a reduced form is its **modulus** square, i.e.
-the sum of the squares of its real and imaginary parts, each real-coefficient and hence a symmetric
-square (§5.2).  So the Hamiltonian stays a positive sum of squares, the nonlinearity is kept **in
-full** (the reduced Hamiltonian is quartic and interacting, as Navier–Stokes requires), and the
-candidate is the lifted Friedrichs comparison with `c = 0`.  §5 gives the construction, the
+elimination **inside the squares**: each constraint form is substituted and **both** of its
+real-coefficient parts are squared, so the advection is one of the squares,
+`½((k·u)u_i)²`, alongside the viscous and gauge-fixing squares (§5.2).  The Hamiltonian therefore
+stays a positive sum of squares, the nonlinearity is kept **in full** (the reduced Hamiltonian is
+quartic and interacting, as Navier–Stokes requires), and the candidate is the lifted Friedrichs
+comparison with `c = 0`.  §5 gives the construction, the
 four hypotheses with `c = 0`, and the two obligations (uniformity under the cutoff, and the
 identification with the momentum-space operator).
 
@@ -212,10 +212,10 @@ uniformly in the cutoff.
 ## 5. Route (a) worked out — the Eulerian comparison by positive completion
 
 This is the construction the wave commits to.  The point is that the elimination is applied
-**inside the squares of every surviving form**, each of those squares being the *modulus* square of
-a complex reduced form, i.e. the sum of the squares of its real and imaginary parts (§5.2) — so the
-advection is squared along with the pressure–viscous symbol — and **positivity** — not a degree
-estimate — is what supplies `N_E`.
+**inside the squares of every constraint form, to both of its real parts** (§5.2): each substituted
+form is complex with real-coefficient real and imaginary parts, and each part is squared on its own —
+so the advection is squared along with the pressure–viscous symbol — and **positivity** — not a
+degree estimate — is what supplies `N_E`.
 
 ### 5.1 The elimination as a substitution on the constraint forms
 
@@ -243,31 +243,36 @@ and eliminate the coordinates that *represent derivatives* by the momentum-space
 ### 5.2 The reduced Hamiltonian is a sum of squares — the honest one
 
 ```
-H_n^red := ½ Σ_m π_m² + ½ Σ_r |σ(Φ_r)|² ,      H^red on ⊕ₙ L²(ℝ^{6n}),
+H_n^red := ½ Σ_m π_m² + ½ Σ_r [ (mulOp (Re σ(Φ_r)))² + (mulOp (Im σ(Φ_r)))² ] ,   on ⊕ₙ L²(ℝ^{6n}),
 ```
 
 where the sum runs over **every** constraint form of the sector — the three residuals, the
 incompressibility, the derivative-gauge forms and the viscous-gauge forms — and `σ(Φ_r)` is the
-form's reduced, complex image under the substitution.
+form's reduced, complex image under the substitution: the elimination is applied to each form and
+**both** of its real parts are squared separately.
 
-> **Plan of record (2026‑09‑17b) — the square of a reduced form is its *modulus* square.**
-> A gauge-fixing energy is the square of a **real** functional, so for each form
-> `|σ(Φ_r)|² = (Re σ(Φ_r))² + (Im σ(Φ_r))²`, and both brackets have **real** coefficients, so each
-> quantizes (via `weylOp` + `RealCoeff`) to a Weyl-ordered square of a **symmetric** operator.  For
-> the residual, `Re σ(R_i) = q_i + ν|k|² u_i = fourierVisc` and `Im σ(R_i) = (k·u) u_i =
-> fourierAdvect`, so **the nonlinear advection enters squared**, `½ ((k·u)u_i)²`, exactly as in the
-> manuscript: this is the mainstream Navier–Stokes nonlinearity, and the reduced Hamiltonian is
-> therefore **quartic (interacting)** — like the full sector, and unlike the real-symbol-only
-> truncation.  The eliminated incompressibility contributes `½ (k·u)²` (`fourierDiv`), and `σ` sends
-> the `y`-gauge forms to `0`, so those drop out rather than being dropped by hand.
+> **Plan of record (2026‑09‑17b) — the elimination squares both real parts of every form.**
+> In this formalism the Hamiltonian *is* the Weyl-ordered sum of squares of the constraint
+> (gauge-fixing) forms — `H = ½Σπ² + ½Σ_r Φ_r²`, each `Φ_r` real-coefficient so that `mulOp Φ_r` is
+> symmetric; the energies are the eigenvalues of that operator.  After the substitution each `Φ_r`
+> is complex with **real-coefficient** real and imaginary parts, and the honest reduced Hamiltonian
+> above squares each part on its own; equivalently, its quadratic form at `x` is
+> `Σ_r ‖(Re σ(Φ_r) + i Im σ(Φ_r)) x‖²`, up to the skew cross term `i[S,T]` which contributes nothing
+> to the form (`coreRep_quadForm_skew_zero`).  For the residual,
+> `Re σ(R_i) = q_i + ν|k|² u_i = fourierVisc` and `Im σ(R_i) = (k·u) u_i = fourierAdvect`, so **the
+> nonlinear advection is one of the squares**, `½ ((k·u)u_i)²`, exactly as in the manuscript: this is
+> the mainstream Navier–Stokes nonlinearity, and the reduced Hamiltonian is therefore **quartic
+> (interacting)** — like the full sector, and unlike the real-symbol-only truncation.  The eliminated
+> incompressibility contributes `½ (k·u)²` (`fourierDiv`), and `σ` sends the `y`-gauge forms to `0`,
+> so those drop out rather than being dropped by hand.
 >
 > **What the skew observation does and does not say.**  `mulOp (i (k·u) u_i) = i·T` with `T`
 > symmetric is skew-adjoint and `(iT)² = −T² ≤ 0`; that is a statement about the operator appearing
-> *in the equation*, not about an energy.  With `L = mulOp σ(R_i) = iT + S` (`S = mulOp fourierVisc`),
-> the energy is `L*L = T² + S² + i[S,T]`: the first two terms are the positive squares and the third
-> is skew, so it contributes **nothing** to the quadratic form (`coreRep_quadForm_skew_zero`).  The
-> modulus reading and the sum-of-squares reading therefore have the *same* quadratic form; what is
-> neither symmetric nor positive is the **coefficientwise** square
+> *in the equation*, not about a summand of `H`.  With `L = mulOp σ(R_i) = iT + S`
+> (`S = mulOp fourierVisc`), the quadratic form is `⟨x, L*L x⟩ = ‖Tx‖² + ‖Sx‖²` — the cross term
+> `i[S,T]` is skew, so it contributes **nothing** to the form (`coreRep_quadForm_skew_zero`).  The
+> norm-square form and the sum-of-squares form above are therefore the *same* form; what is neither
+> symmetric nor positive is the **coefficientwise** product
 > `σ(R_i)² = −a² + 2i a r + r²`, which is the object the earlier “the advection cannot be a square”
 > note used by mistake.
 >
@@ -338,9 +343,9 @@ cite:
 2. **DONE** — the reduced sector Hamiltonian is `redHam nu k n = weylOp (redPiN n) (redFieldN nu k n)`,
    with `redHam_symmetricOn` and `redHam_quadForm_nonneg` (the names `nsRedSectorHam_*` of this
    section were the plan's provisional handles; `redVisc`/`redVisc_eq_liftParcel`/`realCoeff_redVisc`
-   are *part* of the reduced forms that go inside the squares — the squares are the modulus squares
-   of **all** the surviving forms (§5.2), so `redFieldN` covering only `redVisc` is the pending
-   delta recorded as stage 8 below).
+   are *part* of the reduced forms that go inside the squares — the squares are taken over **all**
+   the reduced forms and over both real parts of each (§5.2), so `redFieldN` covering only `redVisc`
+   is the pending delta recorded as stage 8 below).
 3. **DONE** — `redPosSym`, `redFried` (the reduced `PosSymOp` and its `friedrichsComparison` on
    `polyGaussCore_dense`), plus `polyGaussCore_le_redFriedDom` and `redFried_op_core`.
 4. **DONE** — the lift: `nsRedFockCore`, `nsRedFockCore_dense`, `nsRedFullFockHam`,
@@ -363,7 +368,7 @@ cite:
    the substituted derivative-gauge and viscous-gauge forms; the `y`-gauge forms need no entry
    because `σ` sends them to `0`.  This is what makes `redHam` the modulus-square Hamiltonian of
    §5.2 — quartic, interacting, with the advection square **inside** the positive operator whose
-   Friedrichs extension is `N_E` — instead of the real-symbol-only truncation that is landed today.
+   Friedrichs extension is `N_E` — instead of the real-part-only truncation that is landed today.
    `weylOp` + `RealCoeff` cover the new forms (`realCoeff_fourierAdvect` is already proved), and the
    §5.3–§5.5 chain is generic in the field family, so it re-elaborates unchanged.
 

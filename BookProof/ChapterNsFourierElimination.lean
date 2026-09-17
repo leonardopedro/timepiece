@@ -15,9 +15,10 @@ On a mode of momentum `k` the auxiliary jet coordinates are **eliminated** (not 
 ```
 
 so the sector lives on **six** coordinates per parcel (`u_i`, `q_i`).  The elimination is applied
-**inside the squares of every surviving form**, each square being the *modulus* square of a reduced
-form — `|σ(Φ_r)|² = (Re σ(Φ_r))² + (Im σ(Φ_r))²`, both brackets real-coefficient, hence each a
-symmetric square — which is the whole point of the positive-completion route: the residual
+**inside the squares of every constraint form, to both of its real parts**: a substituted form is
+complex, `σ(Φ_r) = Re σ(Φ_r) + i·Im σ(Φ_r)`, and each part is real-coefficient, hence a symmetric
+multiplication form whose square is positive — which is the whole point of the positive-completion
+route: the residual
 
 ```
 σ(R_i) = i (k·u) u_i + q_i + ν|k|² u_i        (quadratic — never a cubic symbol),
@@ -27,13 +28,13 @@ symmetric square — which is the whole point of the positive-completion route: 
 the two facts `nsElimSubst_resPoly` / `nsElimSubst_divPoly` below.  Splitting
 `σ(R_i) = I·Im + Re` into its real-coefficient parts `Re = q_i + ν|k|² u_i` and `Im = (k·u) u_i`,
 the reduced sector Hamiltonian is again a positive sum of Weyl-ordered squares built with the same
-`weylOp` as the full Eulerian sector, and it keeps the nonlinearity **in full**: the modulus square
-puts `(Re)² = (q_i + ν|k|² u_i)²` *and* `(Im)² = ((k·u) u_i)²` inside the squares, so the advection
-enters squared and the reduced Hamiltonian is quartic, unlike the real-symbol-only truncation.  The
-skewness of `mulOp (i·Im)` (below, §7) is a statement about the operator of the *equation*: it is
-what makes the **coefficientwise** square of the complex form unusable, and it is also why the
-modulus form and the sum-of-squares form have the same quadratic form (the skew cross term of
-`L*L` contributes nothing).  **Plan of record, 2026‑09‑17b:** the honest Hamiltonian is the
+`weylOp` as the full Eulerian sector, and it keeps the nonlinearity **in full**: squaring both real
+parts puts `(Re)² = (q_i + ν|k|² u_i)²` *and* `(Im)² = ((k·u) u_i)²` inside the Hamiltonian, so the
+advection is one of the squares and the reduced Hamiltonian is quartic, unlike the real-part-only
+truncation.  The skewness of `mulOp (i·Im)` (below, §7) is a statement about the operator of the
+*equation*: it is what makes the **coefficientwise** product of the complex form unusable, and it is
+also why `L*L` and the two-square form are the same *form* (the skew cross term of `L*L` contributes
+nothing).  **Plan of record, 2026‑09‑17b:** the honest Hamiltonian is the
 modulus-square one, `N` is free, and the convenient choice `N = ι(Friedrichs(H_n^red))` makes the
 commutator vanish (`c = 0`).  **Pending delta:** `redFieldN` below still carries the three *real*
 residual forms only, so the landed `redHam` is the Gaussian part; extending the family to the real
@@ -337,7 +338,8 @@ theorem fourierDiv_eq (k : Fin 3 → ℝ) :
 After the elimination a parcel has **six** canonical coordinates `(u_i, q_i)`.  The real part
 `Re σ(R_i) = q_i + ν|k|² u_i` is a real-coefficient multiplication form, so the same `weylOp` that
 builds the full Eulerian sector builds the reduced one, and its quadratic form is a sum of squares:
-`H_n^red = ½ Σ_m π_m² + ½ Σ_r |σ(Φ_r)|² ≥ 0`, the modulus square of every surviving form.  That
+`H_n^red = ½ Σ_m π_m² + ½ Σ_r [(mulOp Re σ(Φ_r))² + (mulOp Im σ(Φ_r))²] ≥ 0` — both real parts of
+**every** reduced form squared.  That
 puts the advection **inside** a square — `½ ((k·u) u_i)²`, via `Im σ(R_i) = fourierAdvect`, whose
 multiplication operator is symmetric (`realCoeff_fourierAdvect` + `mulOp_polySym`) — so the reduced
 Hamiltonian is quartic and interacting, as Navier–Stokes requires; `N` is then free, and

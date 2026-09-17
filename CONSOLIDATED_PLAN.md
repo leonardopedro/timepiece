@@ -82,30 +82,35 @@ new hypothesis):
    extension/Faris–Lavine statements are all proved for the eliminated operator.
 
 **Plan of record for the reduced Hamiltonian (2026‑09‑17b — supersedes both the 2026‑09‑15 wording
-and the skew-based reading that briefly replaced it): the Hamiltonian is the honest one, the
-elimination is applied to *every* form, and the squares are *modulus* squares.**  A gauge-fixing
-energy is the square of a *real* functional, so after the substitution each reduced form `σ(Φ_r)` —
-which is complex — contributes its **modulus square**
+and the skew-based reading that briefly replaced it): the Hamiltonian is the honest one, and the
+elimination is applied to every constraint form and to *both* of its real parts.**  In this
+formalism the Hamiltonian *is* a Weyl-ordered sum of squares of the constraint (gauge-fixing) forms
+— `H = ½Σπ² + ½Σ_r Φ_r²`, each `Φ_r` real-coefficient so that `mulOp Φ_r` is symmetric; the energies
+are then the eigenvalues of that operator, no square being taken of an energy anywhere.  After the
+substitution each form is complex, `σ(Φ_r) = Re σ(Φ_r) + i·Im σ(Φ_r)` with **both** parts
+real-coefficient, and the honest reduced Hamiltonian squares each real-coefficient part separately:
 
 ```
-|σ(Φ_r)|² = (Re σ(Φ_r))² + (Im σ(Φ_r))² ,
+H_n^red := ½ Σ_m π_m² + ½ Σ_r [ (mulOp (Re σ(Φ_r)))² + (mulOp (Im σ(Φ_r)))² ] ,
 ```
 
-and each bracket is a **real-coefficient** polynomial, hence a Weyl-ordered square of a symmetric
-operator.  Nothing is dropped and nothing is demoted to a perturbation.  For the residual,
-`Re σ(R_i) = q_i + ν|k|² u_i` and `Im σ(R_i) = (k·u) u_i` (`fourierVisc` / `fourierAdvect`), so the
-**nonlinear advection enters squared**, `½ ((k·u)u_i)²`, alongside the pressure–viscous square —
-which is what Navier–Stokes requires, with no approximation; the eliminated incompressibility
-contributes its own square `½ (k·u)²`, and the substitution's kernel (`σ(y_j) = 0`) simply
-contributes nothing.
+whose quadratic form at `x` is `Σ_r ‖(Re σ(Φ_r) + i Im σ(Φ_r)) x‖²` up to a skew cross term that
+vanishes on the form (`coreRep_quadForm_skew_zero`).  Nothing is dropped and nothing is demoted to a
+perturbation.  For the residual, `Re σ(R_i) = q_i + ν|k|² u_i` and `Im σ(R_i) = (k·u) u_i`
+(`fourierVisc` / `fourierAdvect`), so the **nonlinear advection is one of the squares**,
+`½ ((k·u)u_i)²`, alongside the pressure–viscous square — which is what Navier–Stokes requires;
+the eliminated incompressibility contributes its own square `½ (k·u)²`, and the substitution's
+kernel (`σ(y_j) = 0`) contributes nothing.  (Whether this `H_n^red` is exactly the compression of
+the un-eliminated Hamiltonian is the identification obligation of
+`DESIGN_COMPARISON_N_20260915.md` §5.4(2) — a statement to prove, not an assumption.)
 
 **Why the skew argument does not apply.**  `mulOp (i (k·u) u_i) = i·T` with `T` symmetric is indeed
 skew and `(iT)² = −T² ≤ 0`, but that is the square of the *operator that appears in the equation*,
-not an energy.  With `L = mulOp σ(R_i) = iT + S`, the energy is
-`L*L = T² + S² + i[S,T]`, and the cross term is skew, hence contributes **nothing** to the quadratic
-form (`coreRep_quadForm_skew_zero`).  The modulus reading and the sum-of-squares reading therefore
-have the *same* quadratic form; what is neither symmetric nor positive is the **coefficientwise**
-square `σ(R_i)² = −a² + 2i a r + r²`, which is the object the skew argument silently used.
+not a summand of the Hamiltonian.  With `L = mulOp σ(R_i) = iT + S`, the quadratic form is
+`⟨x, L*L x⟩ = ‖Tx‖² + ‖Sx‖²` (the `i[S,T]` cross term is skew, so it contributes **nothing** to the
+form — `coreRep_quadForm_skew_zero`): the sum-of-squares form above and the norm-square form are the
+same form.  What is neither symmetric nor positive is the **coefficientwise** product
+`σ(R_i)² = −a² + 2i a r + r²`, which is the object the skew argument silently used.
 
 **Faris–Lavine: `N` is free.**  It only has to be positive, co-final with `H`, `N + 1` onto, with
 `|⟨x,[H,N]x⟩| ≤ c⟨x,Nx⟩`, so the convenient choice is `N = ι(Friedrichs(H_n^red))` — the comparison
@@ -269,12 +274,12 @@ is exactly: pick a positive self-adjoint `N` whose domain carries the eliminated
 generator and whose commutator with it stays bounded by `c·N`.  One per version:
 
 1. **NS, Eulerian — the positive route, now worked out.**  The elimination is applied
-   **inside the squares of every surviving form** (modulus squares, plan of record 2026‑09‑17b):
-   with `u_{i,j} ⇒ i k_j u_i`, `w_i ⇒ −|k|² u_i`, `y_j ⇒ 0`, the
+   **inside the squares of every constraint form, taking both real parts** (plan of record
+   2026‑09‑17b): with `u_{i,j} ⇒ i k_j u_i`, `w_i ⇒ −|k|² u_i`, `y_j ⇒ 0`, the
    residual becomes `i Σ_j k_j u_j u_i + q_i + ν|k|² u_i` and the reduced sector Hamiltonian
-   `H_n^red = ½Σπ² + ½Σ_r |σ(Φ_r)|²` is a **sum of squares** — of the *real and imaginary parts*
-   of every surviving reduced form, hence `≥ 0` and quartic (interacting), as Navier–Stokes
-   requires.  (**Plan of record, 2026‑09‑17b — see the wave above for the full statement and the
+   `H_n^red = ½Σπ² + ½Σ_r [(mulOp Re σ(Φ_r))² + (mulOp Im σ(Φ_r))²]` is a **sum of squares** — of the
+   *real and imaginary parts* of every reduced form, both real-coefficient — hence `≥ 0` and
+   quartic (interacting), as Navier–Stokes requires.  (**Plan of record, 2026‑09‑17b — see the wave above for the full statement and the
    formalization delta.**  The square of the complex form is its *modulus* square; the advection
    therefore enters squared, `½ ((k·u)u_i)²`.  The skewness of `mulOp (i (k·u) u_i)` governs the
    *coefficientwise* product, which is not the energy — the skew cross term of
@@ -629,8 +634,8 @@ the **recorded** checks, which live in this repository in `DESIGN_COMPARISON_N_2
    `#check`s of declarations of `BookProof/ChapterNsFourierElimination.lean` — all thirty
    resolve against the module.  The prose states the elimination as the plan does: the jet
    coordinates are eliminated, the residual and the divergence are pushed through the substitution
-   (`nsElimSubst_resPoly`, `nsElimSubst_divPoly`), and the reduced Hamiltonian is a modulus square
-   over every surviving form — so the advection enters squared along with the real
+   (`nsElimSubst_resPoly`, `nsElimSubst_divPoly`), and the reduced Hamiltonian squares both real
+   parts of every reduced form — so the advection is one of the squares, alongside the real
    pressure–viscous symbol (the plan of record of 2026‑09‑17b in the wave above; the chapter's
    prose and its `redFieldN` still carry the earlier, narrower reading and are the handoff delta).
 
