@@ -22,7 +22,7 @@ finish them.
 *Vocabulary:* the nested-Fock-space definition of record — `book.tex`'s `Γ^s(L²(ℝ^N × ℤ₂^k)) ⊗
 Γ^a(L²(ℝ^N × ℤ₂^k))`, the recursive second quantization that makes the outer Hamiltonian `dΓ(H₁)`,
 the formalized `Conf`/`dGamma` instrument, and the NS/QG instance tables — is
-`CONSOLIDATED_PLAN.md` §“Definitions of record”, **D1–D7**.  The two instruments below are what
+`CONSOLIDATED_PLAN.md` §“Definitions of record”, **D1–D8**.  The two instruments below are what
 lifts §D4/§D5's one-particle statements to that outer space.
 
 Exactly two data lift from the one-particle Hilbert space to the `ℓ²`-direct sum
@@ -40,7 +40,19 @@ Exactly two data lift from the one-particle Hilbert space to the `ℓ²`-direct 
 
 A Faris–Lavine certificate consists of precisely those two data (a Friedrichs comparison
 operator `N`, a relative bound `‖Hu‖ ≤ K‖(N+1)u‖` and the commutator bound), which is why the
-gravity thread is routed through it.  A Carleman flux estimate and a Schur weight are
+gravity thread is routed through it.
+
+**Consequently the criterion itself lifts, together with its comparison operator.**  If a positive
+`N₁` is a valid Faris–Lavine comparison for the *one-particle* Hamiltonian `H₁` — symmetry,
+positivity, `N₁ + 1` onto, the relative bound and `±i[H₁,N₁] ≤ cN₁` — then the lifted
+`N = dsComparison (fun i => N₁ᵢ)` is a valid comparison for the lifted Hamiltonian `dΓ(H₁)` on the
+outer Fock space, with the **same** `c` and the same `K` (`dsCompOp_surj` for the onto-ness, where
+fibre solutions satisfy `‖xᵢ‖ ≤ ‖(Nᵢ+1)xᵢ‖ = ‖fᵢ‖` and are therefore square-summable;
+`dsFibOp_hasSum_commForm` + `dsFibOp_commForm_le` for the commutator; the packaged statement is
+`dsFibOp_essentiallySelfAdjointOn` = Faris–Lavine on an `ℓ²`-direct sum, QG instance
+`qgOuterFock_esa_farisLavine`).  So the criterion is established **once, at the one-particle
+level**, and the only thing to check at the outer level is that the fibre constants are uniform in
+the particle number.  Stated in the plan as §D6.  A Carleman flux estimate and a Schur weight are
 statements about the shells of a *fixed* one-particle basis; the number of shells of the
 `n`-particle sector grows with `n` and the constants degrade, so neither lifts, and nothing
 in the line below depends on them.

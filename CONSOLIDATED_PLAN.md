@@ -81,8 +81,8 @@ one-particle energy lifted to nested Fock space” and the “Full-Hamiltonian d
 same thing operationally and remains in force: *the outer Hamiltonian is a quadratic
 (free-particle-like) form in the outer ladders for **any** one-particle `h`, so a quartic
 nonlinearity, an exponential wall or a singular potential enters only the one-particle matrix
-elements `⟨eᵢ, h eⱼ⟩` with **no 3-/4-particle vertices at the outer level***.  §D3–§D5 name the
-objects that realize this, and §D7 lists what each item below must therefore prove.
+elements `⟨eᵢ, h eⱼ⟩` with **no 3-/4-particle vertices at the outer level***.  §D3–§D6 name the
+objects that realize this, and §D8 lists what each item below must therefore prove.
 
 ### D3. The formalized second quantization (this repository)
 
@@ -130,7 +130,54 @@ be run through it:
 | coupling across differing bases | `H_coup = Σ_ℓ dΓ(h_ℓ)` — one second-quantized operator by linearity, positive Friedrichs extension, comparison `N = Σ_ℓ dΓ(h_ℓ) + 𝒩`; ESA `coupling_esa_dGamma` | `Definitions/Def_ChapterQgCouplingDGammaSum.lean`, `DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md` |
 | QYM companion | `H₁ = ½Σπ² + ½ΣB²` on the Gauss core of `L²(ℝ⁹⁹)`, `dΓ(H₁)` | `ChapterYangMillsHermite`, `ChapterFockSecondQuantization`, `ChapterQymTimeIndependentFlow` |
 
-### D6. The numerical twin (`../unfer/`) — provenance, and a cross-check
+### D6. The Faris–Lavine criterion lifts with its comparison operator (one-particle ⇒ outer Fock space)
+
+**Statement.**  Let `H₁` be a symmetric operator on the one-particle space and `N₁` a positive
+self-adjoint comparison operator for it, i.e. the three things Theorem 1 of Faris–Lavine needs
+(`BookProof/ChapterFarisLavine`): symmetry, positivity, and `N₁ + 1` **onto**; plus the relative bound
+`‖H₁u‖ ≤ K‖(N₁+1)u‖` and the commutator bound `|±i[H₁,N₁]| ≤ c N₁` on `dom N₁`.  Then the lift
+`N := dsComparison (fun i => N₁ᵢ)` is a valid positive comparison operator for the lifted Hamiltonian
+`dΓ(H₁)` on the outer Fock space, with the *same* `c`, and `dΓ(H₁)` is essentially self-adjoint on the
+lifted domain as soon as the fibre data is **uniform in the particle number**.  So the criterion is
+proved once, at the one-particle level, and then transports.
+
+**Why it holds, and where.**  `dsComparison` (`BookProof/ChapterQgOuterFockFarisLavine`) lifts a
+family of fibre comparison operators to the `ℓ²`-direct sum on the maximal domain `dsDom`:
+
+* symmetry and positivity are **fibrewise** (`dsCompOp_hasSum_quadForm`, `dsFibOp_symmetricOn`);
+* surjectivity of `N + 1` lifts because the fibre solutions obey `‖xᵢ‖ ≤ ‖(Nᵢ+1)xᵢ‖ = ‖fᵢ‖`
+  (`norm_le_norm_shift`), hence are automatically square-summable (`dsCompOp_surj`) — this is quoted
+  verbatim in the chapter as “the precise sense in which *the Friedrichs extension of the positive
+  one-particle operator lifts to an operator on the outer Fock space*”;
+* the **commutator form of the lift is the sum of the fibre commutator forms**
+  (`dsFibOp_hasSum_commForm`), so `dsFibOp_commForm_le` gives `±i[H,N] ≤ cN` with the **same** `c`;
+* `dsFibOp_essentiallySelfAdjointOn` is the resulting **Faris–Lavine theorem on an `ℓ²`-direct sum**;
+  `qgOuterComparison`/`qgOuterFriedN_surj`/`qgOuterFriedN_esa`/`qgOuterFock_esa_farisLavine` are the
+  QG instances, `Comparison.selfAdjoint` / `Comparison.esa_self` the packaged form (`H = N`, `c = 0`).
+
+**Consequences for the NS and QG items.**
+
+* **Work at the one-particle level.**  The route is: (i) `H₁` symmetric and bounded below on its core
+  (`nsSectorHam_symmetricOn` + `nsSectorHam_quadForm_nonneg`; the QG kernel `h_{ab}` + the wall
+  `starobinskyWall_esa`); (ii) its Friedrichs realization `friedrichsComparison` (so `N₁ + 1` is onto
+  *by construction*); (iii) the lifted `dsComparison` — which is then a valid comparison for
+  `dΓ(H₁)`.  The convenient choice `N₁ := Friedrichs(H₁)` makes `H = N` at the outer level and the
+  commutator vanish (`c = 0`): `nsFullOuterN_esa`, `lagFullOuterN_esa`, `qgFull_esa_farisLavine`.
+* **The two lift forms are the two faces of §D3–§D5.**  The `ℓ²`-direct-sum lift `dsOp`/`dsComparison`
+  is the one the NS parcel-number space and the QG `Sec ι = ℓ²(ι ; L²(ℝ))` are built with; the
+  occupation-number form `dGamma`/`Conf` is the other face of the same statement
+  (`dGamma_friedrichs_extension`, `qgDGamma_esa`, `dGamma_hasZeroDeficiencyOn`) — used when the
+  one-particle operator is diagonalized in its own basis.
+* **What must be checked, not assumed.**  The fibre constants `K` and `c` have to be **uniform in the
+  particle number** (this is the hypothesis of `dsFibOp_essentiallySelfAdjointOn`, not a formality),
+  and the comparison family must be the *same* `N₁` on every fibre (`fun i => N₁ᵢ`) — a comparison
+  that exists fibrewise with fibre-dependent constants does not lift by this route.  Where the
+  coupling is a **sum** of second quantizations in differing bases (`Σ_ℓ dΓ(h_ℓ)`), the linearity
+  `dGamma_finsetSum_col` is what keeps this to *one* `dΓ`, and `N = Σ_ℓ dΓ(h_ℓ) + 𝒩` is positive
+  self-adjoint with the summand form bounds (`coupling_quadForm_le`, `comparison_friedrichs`);
+  a genuine `ℓ¹` gate on cross-basis entries is never assumed.
+
+### D7. The numerical twin (`../unfer/`) — provenance, and a cross-check
 
 `fock_sirk` + `nested_fock_algebra` implement exactly this structure, with the outer level called the
 “multiverse”: `OuterBosonicCreate(inner)` creates a *universe* whose local configuration is an
@@ -155,7 +202,7 @@ its models are the two routes:
   numerical check that the twin's term lists and the `.cdb` Hamiltonians of
   `DESIGN_COMPARISON_N_20260915.md` agree.
 
-### D7. What this fixes for every NS/QG item below
+### D8. What this fixes for every NS/QG item below
 
 1. **Definitions are made at the inner (one-particle) level**: the one-particle space `h` and its
    core, the one-particle Hamiltonian `H₁` (symmetric, bounded below on the core), and its
@@ -164,7 +211,11 @@ its models are the two routes:
    new square, no new hypothesis, no regularization.
 3. **Positivity / symmetry / ESA split accordingly**: the one-particle statement, then the proved
    lifts (`dsOp_*`, `dGamma_*`, `qgDGamma_esa`), and the Faris–Lavine comparison is either a sum of
-   `dΓ`'s plus `𝒩` or the lifted Friedrichs realization with `c = 0`.
+   `dΓ`'s plus `𝒩` or the lifted Friedrichs realization with `c = 0`.   **The criterion itself lifts
+   with its comparison operator**: if a positive `N₁` is a valid Faris–Lavine comparison for a
+   one-particle `H₁`, then the lifted `N` is valid for the lifted Hamiltonian on the outer Fock
+   space, with the *same* constant `c` — so the criterion has to be established **once, at the
+   one-particle level**.  See **§D6** for the statement and the names that carry it.
 4. **No ghost sector is needed for the definition** — `book.tex`, §*Holomorphic fields* sets the
    precedent (there the Hilbert space is `Γ^s(L²(ℝ³))`, the Hamiltonian `H = π_v ∂_x u − π_u ∂_x v`
    and the constraint `[D_x, u + iv] = 0`): “There is no need to define a gauge symmetry for these
@@ -437,7 +488,9 @@ well-defined unitary evolution on the nested Fock space.
 **Where the Faris–Lavine route lives.**  The instruments are reviewed in
 `REVIEW_FARIS_LAVINE_20260911.md` — §0: only the **Friedrichs extension** of a
 bounded-below symmetric operator and the **commutator with `N`** lift from the
-one-particle space to `⊕ₙ L²(ℝ^{d·n})`; the index is
+one-particle space to `⊕ₙ L²(ℝ^{d·n})` — and together they lift the **criterion itself with its
+comparison operator** (§D6): a valid positive `N₁` for the one-particle operator is a valid
+comparison for `dΓ(H₁)`, with the same `K` and `c`.  The index is
 `BookProof/ChapterEsaFarisLavineIndex.lean`.  This wave changes the *operator* those
 instruments are run on, not the instruments: the same `c = 0` lifted-Friedrichs comparison
 (`BookProof.QgOuterFockFL.dsComparison`, `Comparison.esa_self`,
@@ -564,8 +617,8 @@ Schur/positivity/onto rows, and item 6 the singular-value row for the determinan
    particle-number-independent Schur bounds of the existing chapter carry over unchanged.
 5. **The nested-Fock lift.**  Obtain ESA of `dΓ(H_sp)` by the proved lifts
    (`dGamma_hasZeroDeficiencyOn`, `qgDGamma_esa`), giving the nested-Fock Hamiltonian with no
-   finite-mode truncation beyond the energy/momentum cutoff.  This is precisely step 3 of §D7:
-   the one-particle statement of item 4 lifted by §D3's instruments — nothing at the outer level is
+   finite-mode truncation beyond the energy/momentum cutoff.  This is precisely step 3 of §D8:
+   the one-particle statement of item 4 lifted by §D3's instruments via the criterion-lift §D6 — nothing at the outer level is
    assumed, since the outer Hamiltonian *is* `dΓ(H_sp)` and `dΓ` is linear in its one-particle datum
    (`dGamma_finsetSum_col`), number conserving (`dGamma_inSector`) and positive whenever the datum is
    (`dGammaOp_quadForm_nonneg`).
