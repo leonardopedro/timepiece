@@ -17,8 +17,168 @@ Consequently the mentions of `../unfer/docs/*.cdb`, of the Cadabra2 nix pin and 
 `cadabra2-cli` below are **provenance, not dependencies**: each of them names the host on which a
 check was produced, and the numbers that check produced are in the tables of
 `DESIGN_COMPARISON_N_20260915.md`.  Nothing in the route plan requires running a `.cdb` module,
-building `../unfer/`, or calling the prove2me API; a new addition to the route should cite the
-in-repo record, not the external artifact.
+building `../unfer/`, or calling the prove2me API; a new addition to the route should cite thein-repo record, not the external artifact.
+
+
+## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)
+
+**Read this before any item below that mentions a Fock space, a “nested”/“outer” Fock space, a
+one-particle (one-body) operator, `dΓ`, or “the lift” of a comparison operator.**  The definition has
+three sources, and they agree: `book.tex` (the manuscript, in this repository), the formalized
+second-quantization/QYM chapters, and `../unfer/fock_sirk` + `../unfer/nested_fock_algebra` (the
+numerical twin — *provenance only, never a dependency*).  The plan uses their vocabulary; nothing
+below re-defines it.
+
+### D1. The Hilbert space of record
+
+`book.tex` fixes the space of the theory as a **tensor product of a symmetric and an antisymmetric
+Fock space over the same one-particle space**:
+
+```
+NS (free-field parametrization):   Γ^s(L²(ℝ¹⁵ × ℤ₂³))  ⊗ Γ^a(L²(ℝ¹⁵ × ℤ₂³))
+QYM (SU(3), Λ_{ka} and D_jΛ_{ka}): Γ^s(L²(ℝ⁹⁹ × ℤ₂³¹)) ⊗ Γ^a(L²(ℝ⁹⁹ × ℤ₂³¹))
+```
+
+The displayed NS space is from `book.tex` §*Free field parametrization in Navier–Stokes equations*, the
+QYM one from the SU(3) section.  The bosonic factor carries the field coordinates (NS: `u_k`,
+`∂_j u_k`, and the Laplacian group `∂_j∂_j u_k`; QYM: `Λ_{ka}`, `∂_j Λ_{ka}`), the antisymmetric
+factor the ℤ₂ grading (NS: the divergence ghost `ψ` and its derivatives; QYM: the eight SU(3)
+ghosts) — one ℤ₂ short of the sum of the two lists, because the tensor product itself contributes
+one.  The graded algebra is a
+**Lie superalgebra** of bosonic and fermionic creation/annihilation operators, and the *total
+fermionic number* is the sum of the fermionic number operators: bosonic operators act on the
+even-total-fermion configurations, fermionic operators on the odd ones.  `book.tex` also counts
+“the ℝ³³ degrees of freedom” for NS (3 space coordinates + 3 fields + first and second space
+derivatives) while displaying the **field** factor as ℝ¹⁵; the Fock-space factor to use is the
+**displayed** one, and ℝ¹⁵ is the `u_i` ⊕ `u_{i,j}` ⊕ Laplacian split `3 + 9 + 3` — the same split
+the twin's NS model uses (modes 0–2 `u_i`, 3–11 `u_{i,j}`, 12–14 the Laplacian group).  QYM's ℝ⁹⁹ =
+`3` space coordinates + `24` `Λ_{ka}` + `72` `∂_j Λ_{ka}`.
+
+### D2. The recursion that makes the space *nested* (`book.tex`)
+
+> “Since the second-quantization procedure can be applied recursively, we can assume without loss
+> of generality that the Hamiltonian is quadratic in the creation/annihilation operators and thus
+> no further regularization is needed … For instance, in case the Hamiltonian acting in the
+> Fock-space is not quadratic in the creation/annihilation operators, then we can consider instead
+> **a new Fock-space where the base Hilbert space is the original Fock-space**. The new Hamiltonian
+> is quadratic in the creation/annihilation operators.” … “We can also assume the Hamiltonian to be
+> local, **at the cost of enlarging the Fock-space**.”
+
+This is the definition the NS and QG routes use, and it is the reason the notion of a *one-particle*
+Hamiltonian is the load-bearing one:
+
+* the **inner** space is the original Fock space (the local oscillators at one parcel / on the
+  scalaron line); its Hamiltonian may be **quartic, singular or non-polynomial** (Navier–Stokes, the
+  exponential scalaron wall);
+* the **outer** space is the Fock space *whose base Hilbert space is that inner one* — the nested
+  (“Fock space of a Fock space”, “outer Fock space”, “multiverse”) space;
+* the **outer Hamiltonian is `dΓ(H₁)`**, i.e. quadratic in the outer ladder operators, *number
+  conserving* and free of any further square or regularization.  `H₁` — an operator on the inner
+  space — is the “one-particle Hamiltonian”; it is where the model is *defined*.
+
+The plan's older “nested-Fock doctrine” (see §“Correct observable and final Hamiltonian: the
+one-particle energy lifted to nested Fock space” and the “Full-Hamiltonian doctrine” below) says the
+same thing operationally and remains in force: *the outer Hamiltonian is a quadratic
+(free-particle-like) form in the outer ladders for **any** one-particle `h`, so a quartic
+nonlinearity, an exponential wall or a singular potential enters only the one-particle matrix
+elements `⟨eᵢ, h eⱼ⟩` with **no 3-/4-particle vertices at the outer level***.  §D3–§D5 name the
+objects that realize this, and §D7 lists what each item below must therefore prove.
+
+### D3. The formalized second quantization (this repository)
+
+`BookProof/ChapterFockSecondQuantization` is the instrument, and every NS/QG item below is meant to
+be run through it:
+
+* `Conf = ℕ →₀ ℕ` (configuration/occupation numbers), `Fock = ℓ²(Conf)`, and the **finite-occupation
+  core** `lpFiniteModes Conf`; `FockAlg = Conf →₀ ℂ` for the algebraic layer;
+* `dGamma col` — the second quantization `dΓ(A) = Σ_{j,k} ⟪e_j, A e_k⟫ a†_j a_k` of a one-particle
+  operator given by its column-finite matrix, with `dGamma_one_particle` (on the one-particle sector
+  it *is* `A`), `dGammaOp_symmetricOn`, `dGammaOp_quadForm_nonneg`, `dGamma_friedrichs_extension`,
+  and `secondQuantization_friedrichs` for a basis-independent symmetric positive `A`;
+* `dGamma_inSector` — `dΓ(A)` **preserves every particle-number sector** — and
+  `norm_dGamma_le_of_sector` / the Schur gate `‖dΓ(A)u‖ ≤ K‖𝒩u‖` on the core, which is what the
+  Faris–Lavine comparison needs;
+* `dGamma_finsetSum_col`, `isHermCol_finsetSum`, `isPosCol_finsetSum`, `coupling_friedrichs`,
+  `comparisonCol`, `coupling_quadForm_le`, `commForm_finsetSum`, `coupling_esa_dGamma`
+  (`Definitions/Def_ChapterQgCouplingDGammaSum.lean`) — **`dΓ` is linear in the one-particle
+  datum**, so a coupling `Σ_ℓ dΓ(h_ℓ)` is *one* second-quantized operator even when the `h_ℓ` are
+  diagonalizable only in *different* bases, and the comparison `N = Σ_ℓ dΓ(h_ℓ) + 𝒩` dominates every
+  summand in the form sense; `numberOp_essentiallySelfAdjoint` gives `𝒩 = dΓ(1)`;
+* `ym_fock_friedrichs_extension` (**F.11**) — the instance for the field-space Yang–Mills
+  `H₁ = ½Σπ² + ½ΣB²` on the Gauss–polynomial core of `L²(ℝ⁹⁹)`; `ChapterQymTimeIndependentFlow`
+  states the single-time package for `dΓ(H₁)`.
+
+### D4. The NS instance
+
+| level | object | where |
+| :-- | :-- | :-- |
+| inner (one-particle / one-parcel) space | `h = L²(ℝ²¹)` — full Eulerian sector; `h = L²(ℝ⁶)` — reduced (Fourier-eliminated) sector; `h = L²(Ω)` — parcel continuum; with the Gauss–polynomial core `polyGaussCore` as its dense domain | `ChapterNavierStokesFullEulerianFock`, `ChapterNsFourierElimination` |
+| inner one-particle Hamiltonian | `H₁ = nsSectorHam … 1 = ½Σ_m π_m² + ½Σ_r (mulOp Φ_r)²` — Weyl-ordered sum of squares of the constraint forms, symmetric and bounded below on the core (`nsSectorHam_symmetricOn`, `nsSectorHam_quadForm_nonneg`, `nsSector_friedrichs_extension`) | same |
+| outer (nested) space | `nsFockSpace = lp (fun n : ℕ => L2d (n * 21)) 2 ≅ ⊕ₙ Symⁿ h = Γ_s(h)`, core `nsFockCore = dsCore (fun n => polyGaussCore (d := n * 21))`; reduced: `nsRedFockSpace = lp (fun n => L2d (n * 6)) 2` with the same shape | same |
+| outer Hamiltonian | `nsFullFockHam = dsOp (fun n => nsSectorHam … n) = dΓ(H₁)` — `nsSectorHam … n` is `H₁` summed over the `n` parcels, i.e. `dΓ(H₁)` restricted to the parcel sector; number conserving (`nsFullFockHam_number_conserving`), symmetric and positive **fibrewise** | same |
+| continuum form | `ĥ = ∫_Ω w(ξ) a†(ξ) a(ξ) dξ` on the `n`-parcel sector `L²(Ωⁿ)` = multiplication by `Σ_k w(ξ_k)` | `Definitions/Def_ChapterNavierStokesFockContinuum.lean` (`multOp`, `multOp_hasZeroDeficiencyOn`, `sectorHamiltonian_hasZeroDeficiencyOn`) |
+| gluing | `dsOp`, `dsCore`, `dsOp_deficiencyTrivialAt`, `dsOp_essentiallySelfAdjointOn`, `dsOpD_stone_flow` — ESA passes from the fibres to the orthogonal sum | `BookProof/ChapterDirectSumEsa` |
+
+### D5. The QG instance (and its QYM companion)
+
+| level | object | where |
+| :-- | :-- | :-- |
+| inner space | the scalaron line `L²(ℝ_φ)`, with the **full exponential** Einstein-frame wall `V(φ)` in it | `ChapterScalaronOuterFockFL` |
+| outer index | the vielbein mode configurations `ι` (exact Fourier modes over ℤ³; a continuum instance exists) | `ChapterQgVielbeinScalaronGaugeFL`, `ChapterQgContinuumModeInstance` |
+| outer (nested) space | `Sec ι = ℓ²(ι ; L²(ℝ))` (`abbrev Sec (ι : Type*) := lp (fun _ : ι => L2R) 2`) — the Fock space whose base Hilbert space is the inner one | `ChapterScalaronOuterFockFL/Part1` |
+| outer Hamiltonian | `H = Σ_{a,b} a†_a h_{ab} a_b` with the one-particle kernel `h_{ab} = δ_{ab}(−d²/dφ² + φ²/4 + V(φ) + σ_b) + A_{ab}·1 + B_{ab}·φ` — Hermitian, number conserving (`secHam_number_conserving`, `qgFull_number_conserving`), `secHam_single`, `secHam_matrix_element`, `secHam_eq_sum_oneParticle` | `ChapterQgOuterFockOneParticle` |
+| coupling across differing bases | `H_coup = Σ_ℓ dΓ(h_ℓ)` — one second-quantized operator by linearity, positive Friedrichs extension, comparison `N = Σ_ℓ dΓ(h_ℓ) + 𝒩`; ESA `coupling_esa_dGamma` | `Definitions/Def_ChapterQgCouplingDGammaSum.lean`, `DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md` |
+| QYM companion | `H₁ = ½Σπ² + ½ΣB²` on the Gauss core of `L²(ℝ⁹⁹)`, `dΓ(H₁)` | `ChapterYangMillsHermite`, `ChapterFockSecondQuantization`, `ChapterQymTimeIndependentFlow` |
+
+### D6. The numerical twin (`../unfer/`) — provenance, and a cross-check
+
+`fock_sirk` + `nested_fock_algebra` implement exactly this structure, with the outer level called the
+“multiverse”: `OuterBosonicCreate(inner)` creates a *universe* whose local configuration is an
+`InnerBosonicState`, `QuantumState` is a superposition of `OuterState`s, and — verbatim from its
+README — “**inner operators intrinsically act as operators integrated over the outer field**”: applying
+`a_i` iterates over the outer universes, applies the local logic to each and shifts the outer
+configuration.  That *is* `dΓ`, in sparse-matrix form.  Its conventions are `φ = a† + a` for the
+field (`u_j` in the book's `[u_j, π^k] = i δ^k_j`) and `π = i(a† − a)` for its conjugate momentum, and
+its models are the two routes:
+
+* NS: `H = Σ_i {π_i , A_i}` with `A_i = Σ_j u_j u_{ij} − ν u_{12+i}` (`navier_stokes_hamiltonian`) —
+  the Hermitized `momentum × constraint` shape, which is the *book's own* shape for a constrained
+  first-quantized Hamiltonian (`H = π_v ∂_x u − π_u ∂_x v` in §*Holomorphic fields*), and not the
+  Weyl-ordered `½Σπ² + ½ΣΦ²` of the gauge-fixed presentation the plan of record uses; the divergence
+  constraint is kept separately as `Ω = Σ_j u_{j,j} c_j` (`navier_stokes_brst`) — a *consistency
+  check*, never the definition.  The Eulerian velocity fibre `H = Σ_i {π_i , V_i}`,
+  `V_i(u) = Σ_k A_{ik} u_k + c_i` (`ns_eulerian_fiber`) is the numerical counterpart of the plan's
+  chain `BilinearEsa.bilH → AffineFiber.affH → AffineBlock.affBlockH → ThreeComponent.velH` (its
+  header cites this plan by name);
+* QG/YM: `yang_mills_hamiltonian(g)`, `gravity_hamiltonian()` — the same operators as §D5, in
+  term-list form.  Its `cdb_hamiltonian_match` / `latex_cas_hamiltonian_match` tests are the
+  numerical check that the twin's term lists and the `.cdb` Hamiltonians of
+  `DESIGN_COMPARISON_N_20260915.md` agree.
+
+### D7. What this fixes for every NS/QG item below
+
+1. **Definitions are made at the inner (one-particle) level**: the one-particle space `h` and its
+   core, the one-particle Hamiltonian `H₁` (symmetric, bounded below on the core), and its
+   Friedrichs realization.  Nothing is defined on the outer space directly.
+2. **The outer Hamiltonian is `dΓ(H₁)`** — quadratic in the outer `a†`, `a`, number conserving, no
+   new square, no new hypothesis, no regularization.
+3. **Positivity / symmetry / ESA split accordingly**: the one-particle statement, then the proved
+   lifts (`dsOp_*`, `dGamma_*`, `qgDGamma_esa`), and the Faris–Lavine comparison is either a sum of
+   `dΓ`'s plus `𝒩` or the lifted Friedrichs realization with `c = 0`.
+4. **No ghost sector is needed for the definition** — `book.tex`, §*Holomorphic fields* sets the
+   precedent (there the Hilbert space is `Γ^s(L²(ℝ³))`, the Hamiltonian `H = π_v ∂_x u − π_u ∂_x v`
+   and the constraint `[D_x, u + iv] = 0`): “There is no need to define a gauge symmetry for these
+   constraints, because there is an explicit solution”.  The antisymmetric
+   ℤ₂ factor of `Γ^s ⊗ Γ^a` stays available as the fermionic bookkeeping, and the BRST material
+   stays in the tree as a consistency check.
+5. **Identification items owed** (handoff, in `dGamma` vocabulary rather than by inspection):
+   (a) `nsSectorHam … n = dΓ(H₁)` restricted to the `n`-parcel sector and
+   `nsFullFockHam = dΓ(H₁)`; (b) the same for `nsRedFullFockHam`; (c) `Sec ι` realized as the Fock
+   space over the inner scalaron space; (d) the bridge between the ordered forms — the twin's
+   `{π_i, A_i}` (book shape) and the plan's Weyl-ordered `½Σπ² + ½ΣΦ²` — as statements about the same
+   one-particle datum `H₁`.  Until (a)–(d) are proved, the plan's Fock statements rest on the
+   structural reading of `weylOp` (each summand acting on a single parcel) and of `Sec`.
+
 
 ## Latest wave — 2026-09-17: the **Fourier elimination of the derivative variables is formalized** — the substituting ring map, the quadratic residual, the reduced sector Hamiltonian and its Faris–Lavine route on the nested Fock space (NS, Eulerian)
 
@@ -83,7 +243,9 @@ new hypothesis):
 
 **Plan of record for the reduced one-particle Hamiltonian and its outer-Fock lift (2026‑09‑17b — supersedes both the 2026‑09‑15 wording
 and the skew-based reading that briefly replaced it): the Hamiltonian is the honest one, and the
-elimination is applied to every constraint form and to *both* of its real parts.**  The one-particle
+elimination is applied to every constraint form and to *both* of its real parts.**  (Vocabulary:
+§“Definitions of record — the nested Fock space and the Hamiltonian on it” above; “nested”/“outer”
+below always means the Fock space whose base Hilbert space is the one-particle space of §D4.)  The one-particle
 Hamiltonian and the particle-number-conserving Hamiltonian on the outer Fock space are two different
 objects, so state them separately.
 
@@ -258,6 +420,13 @@ constraint `D_x = 0` are removed as follows.
    well-defined one-body operator, and its essential self-adjointness together with the
    proved `dΓ` lifts gives the nested-Fock statement.
 
+   In the vocabulary of §“Definitions of record” this item *is* the definition of the route: `𝒦` is
+   the one-particle (inner) datum of §D1–§D3, the `a† … a` sandwich is the outer level of §D2,
+   and the “diagonal part + convolution part” split is the inner-vs-outer split (`𝒦_visc` acts on a
+   single parcel’s local coordinates — `dΓ` on the `n`-parcel sector — while `𝒦_advect` transfers
+   momentum and is the genuine outer-bonded term).  The cutoff is the finite-occupation core
+   `lpFiniteModes Conf` of §D3 in disguise.
+
 **What this buys** (the reason to prefer it over the BRST route for the *definition*): the
 single-particle configuration space stays `ℝ_p^d × ℝ_u^m` — **no jet coordinates**, not the
 `33`-dimensional inflations; the constraint `D_x = 0` is **solved identically** rather than
@@ -395,7 +564,11 @@ Schur/positivity/onto rows, and item 6 the singular-value row for the determinan
    particle-number-independent Schur bounds of the existing chapter carry over unchanged.
 5. **The nested-Fock lift.**  Obtain ESA of `dΓ(H_sp)` by the proved lifts
    (`dGamma_hasZeroDeficiencyOn`, `qgDGamma_esa`), giving the nested-Fock Hamiltonian with no
-   finite-mode truncation beyond the energy/momentum cutoff.
+   finite-mode truncation beyond the energy/momentum cutoff.  This is precisely step 3 of §D7:
+   the one-particle statement of item 4 lifted by §D3's instruments — nothing at the outer level is
+   assumed, since the outer Hamiltonian *is* `dΓ(H_sp)` and `dΓ` is linear in its one-particle datum
+   (`dGamma_finsetSum_col`), number conserving (`dGamma_inSector`) and positive whenever the datum is
+   (`dGammaOp_quadForm_nonneg`).
 6. **The Lagrangian version — the device is degenerate in material variables (2026-09-17
    finding).**  The same device in material variables takes the spatial transform on the
    *reference* coordinate `a`, so the material derivative is diagonal and
@@ -459,7 +632,10 @@ checked platform theorem states it.
    operator — no BRST charge and no ghost sector needed for the definition) and to prove that
    the resulting `T = D − Dᵀ` equals `k_μ e_ν^i − k_ν e_μ^i` with the extended space never
    entering the domain.
-8. **The full QG Hamiltonian on the outer Fock space.**  With the derivative variables
+8. **The full QG Hamiltonian on the outer Fock space.**  (§D2/§D5 vocabulary: the outer space is
+   `Sec ι = ℓ²(ι ; L²(ℝ))`, the one-body operator is the kernel `h_{ab}` of
+   `ChapterQgOuterFockOneParticle`, and the coupling sum is `Σ_ℓ dΓ(h_ℓ)`, one second-quantized
+   operator by `dGamma_finsetSum_col`.)  With the derivative variables
    eliminated, run Faris–Lavine on the one-body operator of
    `ChapterQgVielbeinScalaronGaugeFL` (vielbein, exact Fourier modes over `ℤ³`, the full
    exponential Einstein-frame scalaron wall inside the comparison operator — the line
@@ -884,10 +1060,13 @@ rewritten accordingly and `BookProof/ChapterEsaFarisLavineIndex.lean` extended:
   Eulerian variables with the **exact quadratic advection `u·∇u`** (no Oseen linearisation:
   `nsResPoly_not_affine`), incompressibility as the 3D gauge fixing, and the gauge fixing of
   the nine independent coordinates representing `∂_j u_i` (which couples neighbouring
-  parcels), on the nested Fock space `⊕ₙ L²(ℝ^{21n})`.
+  parcels), on the nested Fock space `⊕ₙ L²(ℝ^{21n})` — the outer space of §D4, with
+  `h = L²(ℝ²¹)` the one-particle space and `nsFullFockHam = dΓ(H₁)`.
 * `BookProof/ChapterNavierStokesFullLagrangianFock.lean` — the same fluid in Lagrangian
   variables, with the **exact Piola pressure term** `cof(F)ᵀ∇q` and the **exact cubic volume
-  constraint `det F = 1`** (`volumePoly_not_quadratic`), on `⊕ₙ L²(ℝ^{36n})`.
+  constraint `det F = 1`** (`volumePoly_not_quadratic`), on `⊕ₙ L²(ℝ^{36n})` (the same §D4
+  shape, `h = L²(ℝ³⁶)`; the deformation-gradient mode is kept as an independent scalar mode —
+  §“Honest boundary” of the 2026‑09‑15 wave).
 
 Both Hamiltonians are positive sums of squares, hence bounded below
 (`nsFullFockHam_quadForm_nonneg`, `lagFullFockHam_quadForm_nonneg`); the Friedrichs extension
@@ -935,7 +1114,8 @@ Axiom audit: `Work/YmFockFriedrichsScalaronAudit.lean` reports only `propext`,
 ## State update — 2026-09-11 (second pass, **verified build**): quantum gravity with the
 ## **vielbein and the full exponential scalaron potential and the 3D gauge fixing and the
 ## gauge fixing of the variables representing spatial derivatives of the fields**, on the
-## outer Fock space, **by Faris–Lavine only**, with particle-number conservation and no
+## outer Fock space (§D5: `Sec ι = ℓ²(ι ; L²(ℝ))`, one-particle kernel `h_{ab}`, outer form
+## `H = Σ_{a,b} a†_a h_{ab} a_b`), **by Faris–Lavine only**, with particle-number conservation and no
 ## lattice
 
 Two new modules, both `sorry`-free and axiom-clean, and a review note

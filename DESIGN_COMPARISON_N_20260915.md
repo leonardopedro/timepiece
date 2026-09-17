@@ -242,6 +242,10 @@ and eliminate the coordinates that *represent derivatives* by the momentum-space
 
 ### 5.2 The reduced *one-particle* Hamiltonian is a sum of squares, and the Fock Hamiltonian is its lift — the honest reading
 
+(Fock-space vocabulary used below: `CONSOLIDATED_PLAN.md` §“Definitions of record — the nested Fock
+space and the Hamiltonian on it”, **D1–D7** — `book.tex`'s `Γ^s ⊗ Γ^a` space and its recursive
+second quantization, the formalized `dGamma`/`Conf` instrument, and the NS/QG instance tables.)
+
 ```
 H₁^red := ½ Σ_m π_m² + ½ Σ_r [ (mulOp (Re σ(Φ_r)))² + (mulOp (Im σ(Φ_r)))² ] ,   on L²(ℝ⁶) ,
 ```

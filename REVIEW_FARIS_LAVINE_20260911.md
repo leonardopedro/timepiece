@@ -19,6 +19,12 @@ finish them.
 
 ## 0. Which instruments lift, and what each thread uses
 
+*Vocabulary:* the nested-Fock-space definition of record — `book.tex`'s `Γ^s(L²(ℝ^N × ℤ₂^k)) ⊗
+Γ^a(L²(ℝ^N × ℤ₂^k))`, the recursive second quantization that makes the outer Hamiltonian `dΓ(H₁)`,
+the formalized `Conf`/`dGamma` instrument, and the NS/QG instance tables — is
+`CONSOLIDATED_PLAN.md` §“Definitions of record”, **D1–D7**.  The two instruments below are what
+lifts §D4/§D5's one-particle statements to that outer space.
+
 Exactly two data lift from the one-particle Hilbert space to the `ℓ²`-direct sum
 `⊕ₙ L²(ℝ^{d·n})`:
 
