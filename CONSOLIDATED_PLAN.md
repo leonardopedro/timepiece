@@ -12,6 +12,7 @@ read.  The only records that have to be opened are inside this repository:
 | the seven Mathlib-only reusable theorems, as Lean objects | `BookProof/ChapterProve2meReuse.lean` — named hypotheses (never silent axioms) with `RouteHypotheses`, wired into the NS/QG/Esa route chapters |
 | the Cadabra2 checks A1–A7, B1–B5b, C1–C5, D1–D6, E1–E3 that back the Fourier-elimination strategy (B4/B5 are the rank-one degeneracy of the *Lagrangian* substitution) | results table in `DESIGN_COMPARISON_N_20260915.md` §9 (and §5–§6 for how each is used); the same checks are *run* by `DESIGN_COMPARISON_N_20260915.cdb`, which is in this repository too but is **reference only** and never part of a Lake build |
 | the QG Hamiltonian/frame algebra that `../unfer/docs/qg_*.cdb` derives | the displayed identities and the corresponding theorems of `BookProof/ChapterQg*` in this file and in the chapter headers |
+| how to check that an addition is consistent with the rest of the project **without** a full `lake build` (the independent-part targets, the four-step gate, and the build-graph check) | §“Build scope — verify an addition **without** a full `lake build`” below, and the generated inventory `BUILD_COMPONENTS.md` |
 
 Consequently the mentions of `../unfer/docs/*.cdb`, of the Cadabra2 nix pin and of
 `cadabra2-cli` below are **provenance, not dependencies**: each of them names the host on which a
@@ -224,11 +225,77 @@ its models are the two routes:
    stays in the tree as a consistency check.
 5. **Identification items owed** (handoff, in `dGamma` vocabulary rather than by inspection):
    (a) `nsSectorHam … n = dΓ(H₁)` restricted to the `n`-parcel sector and
-   `nsFullFockHam = dΓ(H₁)`; (b) the same for `nsRedFullFockHam`; (c) `Sec ι` realized as the Fock
-   space over the inner scalaron space; (d) the bridge between the ordered forms — the twin's
+   `nsFullFockHam = dΓ(H₁)`;   (b) the same for `nsRedFullFockHam`; (c) `Sec ι` realized as the Fock space over the inner scalaron
+   space; (d) the bridge between the ordered forms — the twin's
    `{π_i, A_i}` (book shape) and the plan's Weyl-ordered `½Σπ² + ½ΣΦ²` — as statements about the same
    one-particle datum `H₁`.  Until (a)–(d) are proved, the plan's Fock statements rest on the
    structural reading of `weylOp` (each summand acting on a single parcel) and of `Sec`.
+
+
+## Build scope — verify an addition **without** a full `lake build`
+
+**Do not run `lake build`.**  `lakefile.toml` sets
+`defaultTargets = ["BookProof", "Book", "Singularity", "Layout"]`, so a bare `lake build` compiles all
+four libraries, and `lake build BookProof` is the aggregate of **690 imports / 890 modules** (measured
+at **8848 jobs** from cold, 2026‑09‑12).  The repository is already partitioned into **independent
+parts** — connected components of the import relation, each with its own Lake target — so verifying an
+addition costs the part it touches, never the repository.  `BUILD_COMPONENTS.md` is the inventory.
+
+### The gate, cheapest step first
+
+| # | command | what it establishes | cost |
+| :-- | :-- | :-- | :-- |
+| 1 | `lake env lean BookProof/Chapter<New>.lean` | the new file elaborates against its imports: every name it uses exists, no `sorry`, no `axiom` | one file; seconds on a warm `.lake` |
+| 2 | `grep -rl "^import BookProof.Chapter<New>" --include="*.lean" .` | who depends on it.  If the answer is only `BookProof.lean` (or `Book.lean`), **nothing else can be invalidated** | instant |
+| 3 | `lake env lean <each importer from step 2>` | the *dependents* still elaborate — the real “consistent with the rest” check for an interface change | one file each |
+| 4 | `python3 scripts/import_components.py BookProof --check` (or `--all --check`) | the **build graph** is still consistent: each part target's roots are the maximal modules of the part and its cone is exactly the part (now: 890 modules, 110 parts, 27 multi-module targets).  **Currently passes.** | ~2 min, no Lean |
+| 5 | `lake build BookProof.Chapter<New>` | the module through Lake, incrementally (stale dependencies + the module).  From *cold* this is the module's whole import cone — e.g. 8197 jobs for `ChapterNsFourierElimination` | cone |
+| 6 | `lake build Book` | the Verso manual, after a `Book/*.lean` change | 197 jobs, ~2 min |
+| 7 | `lake build <part target>`, e.g. `BookProofOperatorCore` | only when a *shared* module of that part changed | that part (≈ 500 modules for `BookProofOperatorCore`) |
+
+**Steps 1–4 are the default gate for a new chapter.**  Steps 5–7 are for edits to modules that other
+modules import (or when you want Lake's own target rather than a single-file elaboration).
+
+### “Consistent with the remaining timepiece”, form by form
+
+* **Declaration level** — every identifier used resolves: step 1, plus the `#check` blocks the
+  chapters carry.
+* **Interface level** — a new chapter only *adds*: step 2's importer set is empty apart from the
+  aggregate, so nothing in the rest of the development can be affected.
+* **Shared-module level** — an existing module was edited: `git diff --stat` names it, step 2 names
+  exactly the files to re-elaborate, and step 3 does it.  This is the only case where a *dependent*
+  needs rebuilding.
+* **Build-graph level** — step 4.  A new import that crosses a part boundary makes `--check` fail; the
+  fix is to regenerate the stanzas (`--lakefile`) and the inventory (`--markdown`) — the numbers in
+  the `lakefile.toml` comments lag the source counts, `--check` is the authoritative gate.
+* **Aggregate wiring** — the new module must be imported exactly once by the aggregate
+  (`BookProof.lean`), or by `Book.lean` for a manual chapter: `grep -n "Chapter<New>" BookProof.lean`.
+  **Never elaborate the aggregate to check an import line** — that is the full 8848-job build.
+* **Axiom audit** — put `#print axioms <theorems>` in a `Work/` module and `lake env lean` it.  `Work`
+  and `Audits` are deliberately *not* default targets: “a module placed in `Work/` compiles only its
+  own import cone, so a new proof that needs one chapter costs one chapter, not the whole book.”
+
+### The additions of the 2026‑09‑17 wave, and their exact gates
+
+| addition | who imports it | gate |
+| :-- | :-- | :-- |
+| `BookProof/ChapterNsFourierElimination.lean` (namespace `BookProof.NsFullEuler`) | only `BookProof.lean` → a single-module part | steps 1 + 4; `lake build BookProof.ChapterNsFourierElimination` also works (its own Lake target) |
+| `BookProof/ChapterProve2meReuse.lean` | `ChapterEsaFarisLavineIndex`, `ChapterNsOuterFockFarisLavine`, `ChapterQgOuterFockFarisLavine` — all three are roots of the `BookProofOperatorCore` part | steps 1–3 (the three importers); `lake build BookProofOperatorCore` only if the part target itself is wanted |
+| `Book/FourierElimination.lean` | `Book.lean` | step 6 (`lake build Book`) |
+| `BookProof.lean` | — (the aggregate) | `grep -n` only |
+| `BookProof/ChapterNsLagrangianFourierElimination.lean` | **nothing** — WIP, deliberately unimported | `lake env lean` on that file alone; it is *expected* to fail until the handoff items are done |
+
+### Never
+
+* `lake build` (four default targets) or `lake build BookProof` (890 modules) to check one chapter;
+* `lake clean`, or re-fetching the dependency oleans when they are present — a warm `.lake` is exactly
+  what makes step 1 cheap;
+* importing a WIP module into the aggregate “to make it build”: that converts a bounded handoff into a
+  broken default build for everyone.
+
+Cross-repository checks (platform dedup, reusable theorems, the anti-reuse list) are *not* part of this
+build gate; they live in `PROVE2ME_REUSABLE_THEOREMS.md`, §“Cross-platform reuse” below, and
+`DEDUP_REPORT_leonardopedro.md`.
 
 
 ## Latest wave — 2026-09-17: the **Fourier elimination of the derivative variables is formalized** — the substituting ring map, the quadratic residual, the reduced sector Hamiltonian and its Faris–Lavine route on the nested Fock space (NS, Eulerian)
