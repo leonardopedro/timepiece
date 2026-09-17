@@ -2655,12 +2655,17 @@ import BookProof.ChapterProve2meReuse
 -- the residual and the incompressibility are pushed through it (`nsElimSubst_resPoly`,
 -- `nsElimSubst_divPoly`), the eliminated residual being quadratic and the eliminated
 -- incompressibility linear; the reduced sector Hamiltonian on the six surviving coordinates per
--- parcel (`redHam`, a Weyl-ordered sum of squares of the *real* pressure–viscous symbols) is
--- symmetric and bounded below with an unconditional Friedrichs extension; and the nested-Fock
--- lift (`nsRedFullFockHam`, `nsRedOuterComparison`) gives the Faris–Lavine statement for the
--- eliminated generator (`nsRedFullOuterN_esa`) and the extension of the Hamiltonian by its
--- comparison operator (`nsRedFullOuterN_isPositiveSelfAdjointExtension`).  The skew-adjoint
--- advection is deliberately *not* a square; it enters as the momentum convolution of the route.
+-- parcel (`redHam`, a Weyl-ordered sum of squares) is symmetric and bounded below with an
+-- unconditional Friedrichs extension; and the nested-Fock lift (`nsRedFullFockHam`,
+-- `nsRedOuterComparison`) gives the Faris–Lavine statement for the eliminated generator
+-- (`nsRedFullOuterN_esa`) and the extension of the Hamiltonian by its comparison operator
+-- (`nsRedFullOuterN_isPositiveSelfAdjointExtension`).  **Plan of record 2026‑09‑17b:** the square
+-- of a reduced form is its *modulus* square, so the advection enters squared
+-- (`½ ((k·u)u_i)²`, via `fourierAdvect`, whose multiplication operator is symmetric) and the
+-- Hamiltonian keeps the Navier–Stokes nonlinearity in full; `N` is free, and
+-- `N = ι(Friedrichs(H_n^red))` gives the commutator `c = 0`.  The landed `redFieldN` still carries
+-- only the three real residual forms — extending it to the real and imaginary parts of every
+-- surviving form is the pending delta.
 -- The book chapter is `Book/FourierElimination.lean`; the design note is
 -- `DESIGN_COMPARISON_N_20260915.md` §5.
 import BookProof.ChapterNsFourierElimination

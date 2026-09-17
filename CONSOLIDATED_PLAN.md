@@ -81,17 +81,48 @@ new hypothesis):
    done* for the reduced sector: symmetry on the domain, surjectivity of `N + 1`, and the
    extension/Faris–Lavine statements are all proved for the eliminated operator.
 
-**Honest correction of the 2026‑09‑15 wording, carried into the plan below.**  The informal
-sentence “the reduced sector Hamiltonian `H_n^red = ½Σπ² + ½Σ(Φ^E_r)²` is still a sum of squares”
-is too generous as written, and the formalization fixes what it should say: the residual splits as
-`σ(R_i) = i (k·u) u_i + (q_i + ν|k|² u_i)`, the first term is *purely imaginary*, so
-multiplication by it is **skew-adjoint** and its square is **negative** — it cannot be a square of
-a symmetric form.  The sum of squares is therefore the *real* pressure–viscous symbol
-`q_i + ν|k|² u_i` (`fourierVisc` / `redVisc`), and the advection is kept out of the squares: it is
-carried by the momentum convolution of the route and bounded against this `N` by the Faris–Lavine
-commutator estimate (the `c > 0` side of the criterion), which is where its difficulty honestly
-lies.  Positivity is unaffected: `redHam_quadForm_nonneg` holds, and the Friedrichs extension is
-unconditional.
+**Plan of record for the reduced Hamiltonian (2026‑09‑17b — supersedes both the 2026‑09‑15 wording
+and the skew-based reading that briefly replaced it): the Hamiltonian is the honest one, the
+elimination is applied to *every* form, and the squares are *modulus* squares.**  A gauge-fixing
+energy is the square of a *real* functional, so after the substitution each reduced form `σ(Φ_r)` —
+which is complex — contributes its **modulus square**
+
+```
+|σ(Φ_r)|² = (Re σ(Φ_r))² + (Im σ(Φ_r))² ,
+```
+
+and each bracket is a **real-coefficient** polynomial, hence a Weyl-ordered square of a symmetric
+operator.  Nothing is dropped and nothing is demoted to a perturbation.  For the residual,
+`Re σ(R_i) = q_i + ν|k|² u_i` and `Im σ(R_i) = (k·u) u_i` (`fourierVisc` / `fourierAdvect`), so the
+**nonlinear advection enters squared**, `½ ((k·u)u_i)²`, alongside the pressure–viscous square —
+which is what Navier–Stokes requires, with no approximation; the eliminated incompressibility
+contributes its own square `½ (k·u)²`, and the substitution's kernel (`σ(y_j) = 0`) simply
+contributes nothing.
+
+**Why the skew argument does not apply.**  `mulOp (i (k·u) u_i) = i·T` with `T` symmetric is indeed
+skew and `(iT)² = −T² ≤ 0`, but that is the square of the *operator that appears in the equation*,
+not an energy.  With `L = mulOp σ(R_i) = iT + S`, the energy is
+`L*L = T² + S² + i[S,T]`, and the cross term is skew, hence contributes **nothing** to the quadratic
+form (`coreRep_quadForm_skew_zero`).  The modulus reading and the sum-of-squares reading therefore
+have the *same* quadratic form; what is neither symmetric nor positive is the **coefficientwise**
+square `σ(R_i)² = −a² + 2i a r + r²`, which is the object the skew argument silently used.
+
+**Faris–Lavine: `N` is free.**  It only has to be positive, co-final with `H`, `N + 1` onto, with
+`|⟨x,[H,N]x⟩| ≤ c⟨x,Nx⟩`, so the convenient choice is `N = ι(Friedrichs(H_n^red))` — the comparison
+*is* the Hamiltonian, `c = 0`, `N + 1` onto by `friedrichs_extension_exists` (which carries **no**
+boundedness hypothesis) — optionally enlarged by further positive terms for the cutoff/uniformity
+bookkeeping.  No commutator estimate is owed for the honest Hamiltonian; the order-counting no-go
+(D1–D6 of `DESIGN_COMPARISON_N_20260915.md` §9) is about the *literal-cubic* comparison
+(`N_E = dΓ((1 + A_u + P)²) + 𝒩 + 1`), a different `N`.
+
+**Formalization delta (handoff).**  `redFieldN` currently carries only the three *real* residual
+forms, so the landed `redHam` is the Gaussian part of the honest Hamiltonian and is **missing the
+advection square** — that is an approximation, and this correction is the instruction to remove it.
+The honest reduced family is *every* surviving substituted form, i.e. for each surviving `Φ_r` its
+real and imaginary parts (both real-coefficient, and `weylOp` + `RealCoeff` handle them;
+`realCoeff_fourierAdvect` is already proved), with the `y`-gauge forms contributing nothing since
+`σ` sends them to `0`.  `redHam_quadForm_nonneg` and `redHam_friedrichs_extension` are generic in
+the field family, so they survive the extension unchanged.
 
 **Reuse for the new module (no duplication).**  The formalization introduces *no* new instrument.
 It is built entirely from the already-proved ones of this repository: `weylOp`,
@@ -238,16 +269,18 @@ is exactly: pick a positive self-adjoint `N` whose domain carries the eliminated
 generator and whose commutator with it stays bounded by `c·N`.  One per version:
 
 1. **NS, Eulerian — the positive route, now worked out.**  The elimination is applied
-   **inside the squares**: with `u_{i,j} ⇒ i k_j u_i`, `w_i ⇒ −|k|² u_i`, `y_j ⇒ 0`, the
+   **inside the squares of every surviving form** (modulus squares, plan of record 2026‑09‑17b):
+   with `u_{i,j} ⇒ i k_j u_i`, `w_i ⇒ −|k|² u_i`, `y_j ⇒ 0`, the
    residual becomes `i Σ_j k_j u_j u_i + q_i + ν|k|² u_i` and the reduced sector Hamiltonian
-   `H_n^red = ½Σπ² + ½Σ(Φ^E_r)²` is still a **sum of squares**, hence `≥ 0`.
-   (**Correction, landed 2026‑09‑17 — see the wave above.**  The squares are the *real*
-   pressure–viscous symbol `q_i + ν|k|² u_i`, not the whole residual: the advection term
-   `i (k·u) u_i` is purely imaginary, so multiplication by it is skew-adjoint and its square is
-   negative.  The advection is therefore carried by the momentum convolution and bounded against
-   `N_E` by the commutator estimate, not put inside a square.  The positivity and Friedrichs
-   claims below are unaffected and are now proved: `redHam_quadForm_nonneg`,
-   `redHam_friedrichs_extension`.)  The candidate is
+   `H_n^red = ½Σπ² + ½Σ_r |σ(Φ_r)|²` is a **sum of squares** — of the *real and imaginary parts*
+   of every surviving reduced form, hence `≥ 0` and quartic (interacting), as Navier–Stokes
+   requires.  (**Plan of record, 2026‑09‑17b — see the wave above for the full statement and the
+   formalization delta.**  The square of the complex form is its *modulus* square; the advection
+   therefore enters squared, `½ ((k·u)u_i)²`.  The skewness of `mulOp (i (k·u) u_i)` governs the
+   *coefficientwise* product, which is not the energy — the skew cross term of
+   `L*L = T² + S² + i[S,T]` contributes nothing to the quadratic form.  The landed `redHam`
+   (`redHam_quadForm_nonneg`, `redHam_friedrichs_extension`) currently carries the three real
+   residual forms only and must be extended to the full surviving family.)  The candidate is
    `N_E = ι(Friedrichs(H_n^red))` — the lifted Friedrichs comparison (`dsComparison`) — and
    the criterion holds **with `c = 0`**, exactly as `nsFullOuterN_esa`.  The two residual
    obligations are worked out in `DESIGN_COMPARISON_N_20260915.md` §5: *uniformity* under the
@@ -291,8 +324,10 @@ generator and whose commutator with it stays bounded by `c·N`.  One per version
    object for the coupling sum.
 
 The three obligations above are the **definition of done** for the corresponding item: a
-candidate `N` becomes *the* `N` only once symmetry-on-`D`, surjectivity and the commutator
-bound are all proved for the eliminated generator.
+candidate `N` becomes *the* `N` only once symmetry-on-`D`, surjectivity of `N + 1` and the
+commutator bound are all settled for the eliminated generator — and in the `c = 0` case the last
+one is settled by the commutator *vanishing*, which is what happens for the honest reduced
+Hamiltonian with `N` its own Friedrichs extension (plan of record 2026‑09‑17b, wave above).
 
 ### Plan items — Navier–Stokes, Eulerian and Lagrangian
 
@@ -594,9 +629,10 @@ the **recorded** checks, which live in this repository in `DESIGN_COMPARISON_N_2
    `#check`s of declarations of `BookProof/ChapterNsFourierElimination.lean` — all thirty
    resolve against the module.  The prose states the elimination as the plan does: the jet
    coordinates are eliminated, the residual and the divergence are pushed through the substitution
-   (`nsElimSubst_resPoly`, `nsElimSubst_divPoly`), the squares of the reduced Hamiltonian are the
-   real pressure–viscous symbol, and the skew-adjoint advection is left to the momentum
-   convolution of the route (the correction recorded in the wave above).
+   (`nsElimSubst_resPoly`, `nsElimSubst_divPoly`), and the reduced Hamiltonian is a modulus square
+   over every surviving form — so the advection enters squared along with the real
+   pressure–viscous symbol (the plan of record of 2026‑09‑17b in the wave above; the chapter's
+   prose and its `redFieldN` still carry the earlier, narrower reading and are the handoff delta).
 
 ## Latest wave — 2026-09-14 (third): the Whittaker–Shannon sampling theorem, the energy bound of the ODE chapter, and Weyl's unitarian trick for a compact group
 

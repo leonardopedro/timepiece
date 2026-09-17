@@ -23,9 +23,10 @@ the gauge forms appeared inside the Hamiltonian.
 
 This chapter records the alternative followed by the current plan of record:
 *eliminate* the derivative coordinates instead of fixing them. The
-elimination is applied *inside the squares* that make up the Hamiltonian, so the
-jet coordinates never appear as dynamical variables at all, no ghost sector is
-introduced, and the derivative content is carried by the momentum of a spatial
+elimination is applied *inside the squares* that make up the Hamiltonian — each
+square being the *modulus* square of a reduced form, so the nonlinear advection
+is kept, squared, rather than dropped — so the jet coordinates never appear as
+dynamical variables at all, no ghost sector is introduced, and the derivative content is carried by the momentum of a spatial
 Fourier transform — $`\partial_j \mapsto i k_j` at momentum $`k`. The
 substitution is
 
@@ -36,7 +37,8 @@ reducing each parcel from twenty-one field-space coordinates to the
 *six* physical ones $`(u_i, q_i)`. The algebraic content of the chapter — that
 the substitution is a ring map, that the residual and the incompressibility
 become *quadratic* and *linear* symbols, and that the reduced Hamiltonian is
-again a sum of squares on which the Friedrichs extension and Faris–Lavine run as
+again a sum of squares — the modulus squares of the reduced forms, the advection
+among them — on which the Friedrichs extension and Faris–Lavine run as
 before — is verified in this repository; the displayed algebra of the
 substitution is engine-checked in the companion symbolic module
 `../unfer/docs/ns_qg_fourier_elimination.cdb`, which is *reference only* and is
@@ -184,6 +186,6 @@ The Fourier-elimination route, as verified here:
 
  * the derivative coordinates are *eliminated* by a ring homomorphism (`nsElimHom`) that sends $`u_{i,j}` to $`i k_j u_i`, $`w_i` to $`-|k|^2 u_i` and $`y_j` to $`0`, cutting each parcel from twenty-one coordinates to six;
  * the residual and the incompressibility are pushed through it, `nsElimSubst_resPoly` and `nsElimSubst_divPoly`, becoming a *quadratic* symbol $`i (k \cdot u) u_i + q_i + \nu |k|^2 u_i` and a *linear* one $`i (k \cdot u)` — the cubic symbol of the gauge-fixed presentation is gone, so no ghost sector is needed for the definition;
- * the reduced Hamiltonian on $`L^2(\mathbb{R}^{6n})` is built with the same Weyl-ordered sum of squares (`redHam`), with the real pressure–viscous symbol inside the squares and the skew-adjoint advection kept out of them; it is symmetric and bounded below (`redHam_symmetricOn`, `redHam_quadForm_nonneg`) and therefore has an unconditional positive self-adjoint Friedrichs extension;
- * the lift to the nested Fock space preserves all three comparison-operator properties, and the lifted Friedrichs realization is a positive self-adjoint extension of the reduced Hamiltonian on which the latter is essentially self-adjoint (`nsRedFullOuterN_esa`, `nsRedFullOuterN_isPositiveSelfAdjointExtension`);
- * the remaining analytic obligation of the route is external to this chapter: the advection as a momentum convolution, bounded against the reduced comparison operator — the same shape as the full Eulerian sector's commutator estimate, and the reason the elimination was performed in the first place.
+ * the reduced Hamiltonian on $`L^2(\mathbb{R}^{6n})` is built with the same Weyl-ordered sum of squares (`redHam`), where the square of a reduced form is its *modulus* square $`|\sigma(\Phi_r)|^2` — so the real pressure–viscous symbol $`q_i + \nu|k|^2 u_i` **and** the advection $`(k\cdot u)u_i` both sit inside squares, and the Hamiltonian keeps the Navier–Stokes nonlinearity in full; it is symmetric and bounded below (`redHam_symmetricOn`, `redHam_quadForm_nonneg`) and therefore has an unconditional positive self-adjoint Friedrichs extension;
+ * the comparison operator of the Faris–Lavine criterion is free, and the convenient choice is this same lifted Friedrichs realization, on which the reduced Hamiltonian is essentially self-adjoint with `c = 0` (`nsRedFullOuterN_esa`, `nsRedFullOuterN_isPositiveSelfAdjointExtension`) — the advection is inside it rather than measured against it by a commutator estimate;
+ * the plan of record (2026‑09‑17b) is the modulus-square Hamiltonian above; the landed `redFieldN` still carries only the three real residual forms, so extending the reduced field family to the real and imaginary parts of every surviving form is the handoff item.

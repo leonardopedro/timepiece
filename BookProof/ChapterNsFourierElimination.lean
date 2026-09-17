@@ -15,7 +15,9 @@ On a mode of momentum `k` the auxiliary jet coordinates are **eliminated** (not 
 ```
 
 so the sector lives on **six** coordinates per parcel (`u_i`, `q_i`).  The elimination is applied
-**inside the squares**, which is the whole point of the positive-completion route: the residual
+**inside the squares of every surviving form**, each square being the *modulus* square of a reduced
+form — `|σ(Φ_r)|² = (Re σ(Φ_r))² + (Im σ(Φ_r))²`, both brackets real-coefficient, hence each a
+symmetric square — which is the whole point of the positive-completion route: the residual
 
 ```
 σ(R_i) = i (k·u) u_i + q_i + ν|k|² u_i        (quadratic — never a cubic symbol),
@@ -25,8 +27,19 @@ so the sector lives on **six** coordinates per parcel (`u_i`, `q_i`).  The elimi
 the two facts `nsElimSubst_resPoly` / `nsElimSubst_divPoly` below.  Splitting
 `σ(R_i) = I·Im + Re` into its real-coefficient parts `Re = q_i + ν|k|² u_i` and `Im = (k·u) u_i`,
 the reduced sector Hamiltonian is again a positive sum of Weyl-ordered squares built with the same
-`weylOp` as the full Eulerian sector, so `nsRedSectorHam_quadForm_nonneg` and the unconditional
-Friedrichs extension follow exactly as for `nsSectorHam`.
+`weylOp` as the full Eulerian sector, and it keeps the nonlinearity **in full**: the modulus square
+puts `(Re)² = (q_i + ν|k|² u_i)²` *and* `(Im)² = ((k·u) u_i)²` inside the squares, so the advection
+enters squared and the reduced Hamiltonian is quartic, unlike the real-symbol-only truncation.  The
+skewness of `mulOp (i·Im)` (below, §7) is a statement about the operator of the *equation*: it is
+what makes the **coefficientwise** square of the complex form unusable, and it is also why the
+modulus form and the sum-of-squares form have the same quadratic form (the skew cross term of
+`L*L` contributes nothing).  **Plan of record, 2026‑09‑17b:** the honest Hamiltonian is the
+modulus-square one, `N` is free, and the convenient choice `N = ι(Friedrichs(H_n^red))` makes the
+commutator vanish (`c = 0`).  **Pending delta:** `redFieldN` below still carries the three *real*
+residual forms only, so the landed `redHam` is the Gaussian part; extending the family to the real
+and imaginary parts of every surviving form (with `realCoeff_fourierAdvect` already available) is
+the handoff item, and `redHam_quadForm_nonneg` / `redHam_friedrichs_extension` are generic in that
+family and re-elaborate unchanged.
 
 Everything is `sorry`-free and `axiom`-free.
 -/
@@ -324,9 +337,13 @@ theorem fourierDiv_eq (k : Fin 3 → ℝ) :
 After the elimination a parcel has **six** canonical coordinates `(u_i, q_i)`.  The real part
 `Re σ(R_i) = q_i + ν|k|² u_i` is a real-coefficient multiplication form, so the same `weylOp` that
 builds the full Eulerian sector builds the reduced one, and its quadratic form is a sum of squares:
-`H_n^red = ½ Σ_m π_m² + ½ Σ_r (Φ^E_r)² ≥ 0`.  The advection symbol is *not* inside a square (its
-square is negative, see the section header of §4); it is carried by the momentum convolution of the
-plan and bounded against this `N` by the Faris–Lavine commutator estimate. -/
+`H_n^red = ½ Σ_m π_m² + ½ Σ_r |σ(Φ_r)|² ≥ 0`, the modulus square of every surviving form.  That
+puts the advection **inside** a square — `½ ((k·u) u_i)²`, via `Im σ(R_i) = fourierAdvect`, whose
+multiplication operator is symmetric (`realCoeff_fourierAdvect` + `mulOp_polySym`) — so the reduced
+Hamiltonian is quartic and interacting, as Navier–Stokes requires; `N` is then free, and
+`N = ι(Friedrichs(H_n^red))` makes the commutator vanish (`c = 0`).  **Pending delta (2026‑09‑17b):**
+`redFieldN` carries only `redVisc` today, so the landed `redHam` is the Gaussian part — the honest
+family is the real and imaginary parts of every surviving substituted form. -/
 
 /-- The real reduced residual form of a parcel, in the six reduced coordinates. -/
 def redVisc (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
@@ -464,8 +481,12 @@ proved about it and — just as importantly — what is not:
   `_smul` record that the weight is linear in the momentum, and `fourierAdvect_eq_transfer` is the
   contraction itself);
 * multiplication by the *imaginary* advection symbol is **skew** on the core
-  (`mulOp_polySkew`, `CoreRep.skewOn_op`), so the advection contributes **nothing** to the quadratic
-  form (`redAdvect_quadForm_zero`) — it is not a square and cannot be one;
+  (`mulOp_polySkew`, `CoreRep.skewOn_op`), so it contributes **nothing** to the quadratic form
+  (`redAdvect_quadForm_zero`) — which is precisely what makes the *modulus* square of §5 and the
+  plain sum of squares agree as forms, and what makes the **coefficientwise** square of the complex
+  form unusable.  It does **not** say the advection is excluded from the energy: the real polynomial
+  `fourierAdvect` has a symmetric multiplication operator, so `½ a_i²` is a legitimate square
+  (`§5`, plan of record 2026‑09‑17b);
 * consequently the one remaining obligation of the route is the **commutator bound** against the
   comparison operator, and `nsRedFullFock_esa_of_commBound` states exactly what that obligation
   buys: Faris–Lavine with the comparison of §6, the advection as `H`, and the bound as the single
