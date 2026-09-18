@@ -1373,6 +1373,41 @@ already proves it: `QFS.abs_coord_le_norm` (dbenbenn, `9fed8780-d3ea-4228-820b-2
 reuse set stays exactly the table above.  (Both traps are recorded with the verbatim statements in
 `PROVE2ME_REUSABLE_THEOREMS.md`.)
 
+**Re-run and re-verification, 2026‑09‑18 (prove2me API `0.10.5`, Lean 4.33.1 / Mathlib `0df444a`).**
+The platform has moved `0.10.4 → 0.10.5` (the moderator review loop) and the whole search was redone
+rather than trusted.  Two outcomes bear on this plan, and both are *registered here* because the
+specialist cannot repeat them:
+
+1. **The instrument table above is unchanged and still live.**  All seven Mathlib-only rows were
+   re-fetched from the live catalogue and are still `Proved`, at the same ids —
+   `MeasureTheory.L2.convolutionCLM_isSymmetric_of_conj_neg` (`f7acdc05`),
+   `…exists_convolutionCLM_isCompactOperator_of_compactSpace` (`b4b789f8`),
+   `posDef_quadratic_form_lower_bound` (`0fc6dadb`), `Diaz.det_add_two` (`47ddec80`),
+   `ContinuousLinearMap.orthogonal_iSup_eigenspace_ne_zero_eq_ker` (`9b157d55`),
+   `…le_ker_or_finiteDimensional_of_forall_inf_highPart_orthogonal` (`2126e74d`),
+   `GribovRegion.exists_neg_quadratic_form_of_traceless` (`a883b692`).  Nothing in
+   `BookProof/ChapterProve2meReuse.lean` needs revisiting, and the three rows re-marked
+   `needs defs (4.28 gap)` on the earlier `#check` remain deferred as recorded.
+2. **No new addition duplicates an *other user's* theorem** — which is the check that keeps this
+   plan's premise (reuse instead of re-prove) honest.  Sweeping all 1 674 wave stubs against the
+   73 968-row catalogue: `STMT`/`DECL`/`NAME` = 0 collisions with another author's node, `SHAPE` = 0
+   cross-author, and the 23 non-generic cross-author `LEAF` hits are the same three triaged
+   false positives already recorded above (`QFS.abs_coord_le_norm`, `NavierStokes.norm_heatFlow_le`,
+   `PythHydra.phi_zero`).  What the sweep *did* find is six **self**-restatements (two of our own
+   chapters stating one lemma), five of which the platform resolved on its own as `reused` —
+   recorded with ids in `PIPELINE_PLAN.md` §1y and `DEDUP_REPORT_leonardopedro.md` §F.
+
+**One caution that transfers to this plan directly.**  The wave sweep had a silent defect worth
+knowing about wherever reuse is judged *by statement*: the platform side is hashed from the bare
+declaration (`formal_statement`), so a local statement hashed from a whole file never collides with
+it — and the tokenizer used for the near classes (`_WORD = [A-Za-z_]…`) does **not match Greek
+letters at all**, so `(b g : Vel) : …b…g` and `(β γ : Vel) : …β…γ`, literally the same theorem, read
+as different strings.  The class that closes both gaps (drop every single-character identifier,
+compare the rest) is `SHAPE` in `debug/find_duplicates.py`.  For the specialist the practical rule
+is the same one this whole section rests on: **transcribe the platform statement as it is**, into the
+named hypothesis of the timepiece theorem that needs it — a restatement under renamed binders is the
+one way a legitimate reuse silently degrades into a re-proved duplicate.
+
 ### The Cadabra module for the elimination (in `../unfer/`) and the Book chapter
 
 The symbolic facts the strategy rests on — the Fourier substitution `u_{i,j} ⇒ i k_j u_i`, the
