@@ -148,11 +148,11 @@ real-coefficient parts of each substituted form, so the genuine nonlinearity —
 the advection $`(k\cdot u)u_i` — is *inside* the Hamiltonian as one of the
 squares, and no perturbation, no commutator estimate and no ghost sector is owed.
 Positivity of the sum of squares is what makes the Friedrichs extension
-unconditional, exactly as for the full Eulerian sector. (The landed `redFieldN`
-still carries the *real* residual forms only, so as it stands `redHam` is the
-real-part-only truncation; extending the family to the imaginary parts as well is
-the recorded handoff item, and the surrounding proofs are generic in the field
-family.)
+unconditional, exactly as for the full Eulerian sector. The field family
+`redFieldN` is the honest one — seven real-coefficient forms per parcel
+(`redFormPoly`): the three real residual parts, the three advection parts and the
+eliminated incompressibility — so `redHam` is the full modulus-square Hamiltonian
+and `redFieldN_advect` exhibits the advection as one of its squares.
 :::
 
 # The Nested Fock Lift and Faris–Lavine
@@ -194,6 +194,78 @@ the plan's definition of done for the reduced sector:
 #check @BookProof.NsFullEuler.nsRedFullOuterN_isPositiveSelfAdjointExtension
 ```
 
+# The Lagrangian Sector: the Volume Constraint Collapses
+
+:::paragraph
+Navier–Stokes is equally often written in **Lagrangian** variables, where the field is the placement
+and the derivative content is the deformation gradient $`F = \partial x/\partial X` — so the
+elimination has a second, independent instance, and there the elimination degenerates in a way that
+is itself the mathematical content.
+
+Everything is done parcelwise on the twelve coordinates of one parcel (`lRedIdx`), with the
+substitution defined by `lagElimCoord` and applied by the ring homomorphism `lagElimHom`; the
+coordinate values (`lagElimHom_X_xiIdx`, `_vIdx`, `_accIdx`, `_qIdx`, `_fIdx`, `_vgIdx`, `_sIdx`,
+`_yIdx`) name what each Lagrangian coordinate becomes. Two index lemmas — `lagElimCoord_fIdx` and
+`lagElimCoord_vgIdx` — are the bookkeeping that the earlier state of this chapter left open at a
+`whnf` heartbeat timeout; they are proved by rewriting the index arithmetic *before* touching the
+dependent `Fin` constructors.
+:::
+
+```
+#check @BookProof.NsLagFourier.lRedIdx
+#check @BookProof.NsLagFourier.lagElimCoord_fIdx
+#check @BookProof.NsLagFourier.lagElimCoord_vgIdx
+#check @BookProof.NsLagFourier.lagElimHom_X_fIdx
+#check @BookProof.NsLagFourier.lagElimHom_X_vgIdx
+```
+
+:::paragraph
+The degenerate part is the **rank-one** structure of the eliminated kinematics. The cofactor matrix
+of the eliminated deformation gradient vanishes identically (`rankOne_cof_zero`), and with it the Piola
+coupling that would carry the deformation-gradient square:
+
+ * `lagElimSubst_cofPoly` — the cofactor polynomial is the constant `0`;
+ * `lagElimSubst_piola` — the Piola stress that multiplies it is annihilated;
+ * `lagElimSubst_detPoly` — hence $`\det F = 0`;
+ * `lagElimSubst_volumePoly` and `lagElimSubst_volumePoly_sq` — so the volume constraint
+   $`\det F = 1` collapses to the constant $`-1`, whose square is `1`: it carries no field content
+   and cannot couple to the field;
+ * `lagElimSubst_lagResPoly` — the surviving form is the momentum equation, a *quadratic* symbol in
+   the reduced velocities rather than a cubic one in the deformation gradient.
+
+This is the Lagrangian face of the same claim the Eulerian chapter makes: after the elimination the
+only squares that carry field content are the momentum/viscous and advection forms — for both real
+parts of each substituted form — and any deformation-gradient square is vacuous rather than merely
+absent.  The consequence for the plan is a *removal* obligation, not a proof obligation: no
+invariance under the deformation gradient, and no determinant identity inside the Hamiltonian, has to
+be established, because the determinant is constant there.
+:::
+
+```
+#check @BookProof.NsLagFourier.rankOne_cof_zero
+#check @BookProof.NsLagFourier.lagElimSubst_cofPoly
+#check @BookProof.NsLagFourier.lagElimSubst_piola
+#check @BookProof.NsLagFourier.lagElimSubst_detPoly
+#check @BookProof.NsLagFourier.lagElimSubst_volumePoly
+#check @BookProof.NsLagFourier.lagElimSubst_volumePoly_sq
+#check @BookProof.NsLagFourier.lagElimSubst_lagResPoly
+```
+
+# Where the Two New Operator Chapters Sit
+
+The elimination above produces the *reduced* forms; the operator questions they raise are answered in
+two chapters of this book:
+
+ * {ref "ns-one-particle-hamiltonian"}[the Navier–Stokes one-particle Hamiltonian and its Fock
+   enclosure] takes the reduced one-parcel family, exhibits the one-body generator
+   $`H_{\rm sp} = H_{\rm visc} + H_{\rm advect}` as its single-parcel member, proves the two
+   Faris–Lavine inequalities for the exact nonlinearity, and identifies the outer Hamiltonian as its
+   second quantization $`d\Gamma(H_{\rm sp})` — creation on the left, annihilation on the right;
+ * {ref "qg-elimination"}[eliminating the derivative variables in quantum gravity] does the same
+   service for the vielbein sector of the $`R^2` model, where the elimination removes twenty-seven
+derivative components per momentum and still reproduces the vielbein self-interaction and the
+   scalaron coupling verbatim.
+
 # Summary
 
 The Fourier-elimination route, as verified here:
@@ -202,4 +274,4 @@ The Fourier-elimination route, as verified here:
  * the residual and the incompressibility are pushed through it, `nsElimSubst_resPoly` and `nsElimSubst_divPoly`, becoming a *quadratic* symbol $`i (k \cdot u) u_i + q_i + \nu |k|^2 u_i` and a *linear* one $`i (k \cdot u)` — the cubic symbol of the gauge-fixed presentation is gone, so no ghost sector is needed for the definition;
  * the reduced Hamiltonian on $`L^2(\mathbb{R}^{6n})` is built with the same Weyl-ordered sum of squares (`redHam`), squaring *both* real-coefficient parts of each substituted form (the *definition* is the one-particle case $`n = 1`; `redHam` at general $`n` is that one-particle operator summed over the parcels, and the Fock operator `nsRedFullFockHam` is its particle-number-conserving lift $`d\Gamma(H_1)` — no further square is taken) — so the real pressure–viscous symbol $`q_i + \nu|k|^2 u_i` *and* the advection $`(k\cdot u)u_i` both sit inside squares, and the Hamiltonian keeps the Navier–Stokes nonlinearity in full; it is symmetric and bounded below (`redHam_symmetricOn`, `redHam_quadForm_nonneg`) and therefore has an unconditional positive self-adjoint Friedrichs extension;
  * the comparison operator of the Faris–Lavine criterion is free, and the convenient choice is this same lifted Friedrichs realization, on which the reduced Hamiltonian is essentially self-adjoint with `c = 0` (`nsRedFullOuterN_esa`, `nsRedFullOuterN_isPositiveSelfAdjointExtension`) — the advection is inside it rather than measured against it by a commutator estimate;
- * the plan of record (2026‑09‑17b) is the modulus-square Hamiltonian above; the landed `redFieldN` still carries only the three real residual forms, so extending the reduced field family to the real and imaginary parts of every surviving form is the handoff item.
+ * the reduced field family `redFieldN` is the honest one: `redFormPoly` collects, for each parcel, the real and imaginary parts of every surviving substituted form — the three real residual parts $`q_i + \nu|k|^2 u_i`, the three advection parts $`(k\cdot u)u_i` and the eliminated incompressibility $`k\cdot u` — and `redFieldN_advect` exhibits the advection as one of the squares of the Hamiltonian.

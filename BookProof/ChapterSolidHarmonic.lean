@@ -158,7 +158,9 @@ theorem angular_euler (u v : E) (μ : ℕ) (x : E) :
     push_cast
     rw [show ((n : ℂ) + 1) * (nullCLM u v x) ^ n * nullCLM u v x
         = ((n : ℂ) + 1) * (nullCLM u v x) ^ (n + 1) from by ring]
-    simp [Complex.mul_re]
+    simp only [Complex.mul_re, Complex.natCast_re, Complex.natCast_im, Complex.one_re,
+      Complex.one_im, Complex.add_re, Complex.add_im]
+    simp [angular]
 
 theorem angularIm_euler (u v : E) (μ : ℕ) (x : E) :
     fderiv ℝ (angularIm u v μ) x x = (μ : ℝ) * angularIm u v μ x := by
@@ -169,7 +171,9 @@ theorem angularIm_euler (u v : E) (μ : ℕ) (x : E) :
     push_cast
     rw [show ((n : ℂ) + 1) * (nullCLM u v x) ^ n * nullCLM u v x
         = ((n : ℂ) + 1) * (nullCLM u v x) ^ (n + 1) from by ring]
-    simp [Complex.mul_im]
+    simp only [Complex.mul_im, Complex.natCast_re, Complex.natCast_im, Complex.one_re,
+      Complex.one_im, Complex.add_re, Complex.add_im]
+    simp [angularIm]
 
 /-- The angular factor does not vary along the axis. -/
 theorem angular_axis {u v e : E} (hue : ⟪u, e⟫_ℝ = 0) (hve : ⟪v, e⟫_ℝ = 0) (μ : ℕ) (x : E) :

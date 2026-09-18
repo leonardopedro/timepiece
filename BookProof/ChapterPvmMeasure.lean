@@ -96,7 +96,7 @@ theorem add_of_disjoint {E F : Set X} (hE : MeasurableSet E) (hF : MeasurableSet
     simp only [Function.onFun]
     by_cases hi0 : i = 0 <;> by_cases hi1 : i = 1 <;> by_cases hj0 : j = 0 <;>
       by_cases hj1 : j = 1 <;>
-      simp_all [hd]
+      simp_all [hd.symm]
   have hunion : (⋃ i : ℕ, if i = 0 then E else if i = 1 then F else (∅ : Set X)) = E ∪ F := by
     apply Set.Subset.antisymm
     · refine Set.iUnion_subset fun i => ?_
@@ -135,6 +135,8 @@ noncomputable def pvmMeasure (P : Pvm X H) (ψ : H) : Measure X :=
         BookProof.ChapterOrthogonalSums.hasSum_norm_sq_of_hasSum
           (P.hasSum f hf hdisj ψ)
           (fun i j hij => P.inner_eq_zero (hf i) (hf j) (hdisj hij) ψ ψ)
+      change ENNReal.ofReal (‖P.p (⋃ i, f i) ψ‖ ^ 2)
+          = ∑' i, ENNReal.ofReal (‖P.p (f i) ψ‖ ^ 2)
       rw [← hsum.tsum_eq,
         ENNReal.ofReal_tsum_of_nonneg (fun i => by positivity) hsum.summable])
 

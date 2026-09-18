@@ -134,7 +134,7 @@ $`i \mapsto 1/n`. The subtlety — and the resolution of the apparent paradox wi
 *unitary*, hence reversible at the level of the wave-function: the information is
 not destroyed but delocalized into the relative phases between the
 $`1/\sqrt n` amplitudes. What is irreversible is only the subsequent restriction
-to the probabilities $`|U_{ij}|^2 = 1/n`$, which discards those phases. The unitary
+to the probabilities $`|U_{ij}|^2 = 1/n`, which discards those phases. The unitary
 mixes the state perfectly; Born's rule then forgets how. This is the cleanest
 finite illustration of the manuscript's distinction between reversible wave-function
 dynamics and the irreversible appearance of measurement statistics.

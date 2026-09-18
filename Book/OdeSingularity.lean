@@ -228,9 +228,9 @@ solution is globally Lipschitz — there is no finite-time singularity
 ```
 
 `ae_no_real_singular_time` proves that for almost every initial condition in
-$`L^2(\mathbb{R}^2)`$, the singular time of $`\dot z = z^2` is non-real, so there
+$`L^2(\mathbb{R}^2)`, the singular time of $`\dot z = z^2` is non-real, so there
 is no finite-time singularity. The proof uses `MeasureTheory.Measure.addHaar_submodule`
-to show the real axis has Lebesgue measure zero in $`\mathbb{R}^2`$.
+to show the real axis has Lebesgue measure zero in $`\mathbb{R}^2`.
 
 # What Is Verified, and What Is Open
 

@@ -119,6 +119,16 @@ be run through it:
 | outer Hamiltonian | `nsFullFockHam = dsOp (fun n => nsSectorHam … n) = dΓ(H₁)` — `nsSectorHam … n` is `H₁` summed over the `n` parcels, i.e. `dΓ(H₁)` restricted to the parcel sector; number conserving (`nsFullFockHam_number_conserving`), symmetric and positive **fibrewise** | same |
 | continuum form | `ĥ = ∫_Ω w(ξ) a†(ξ) a(ξ) dξ` on the `n`-parcel sector `L²(Ωⁿ)` = multiplication by `Σ_k w(ξ_k)` | `Definitions/Def_ChapterNavierStokesFockContinuum.lean` (`multOp`, `multOp_hasZeroDeficiencyOn`, `sectorHamiltonian_hasZeroDeficiencyOn`) |
 | gluing | `dsOp`, `dsCore`, `dsOp_deficiencyTrivialAt`, `dsOp_essentiallySelfAdjointOn`, `dsOpD_stone_flow` — ESA passes from the fibres to the orthogonal sum | `BookProof/ChapterDirectSumEsa` |
+| **the shape that is *not* the one-particle operator of record** | `H_NS = ½ Σ_m (π_m F_m + F_m π_m)` — the mainstream (Koopman–von Neumann / Liouville) generator of `u̇ = −νAu + B(u,u)`, Hermitized “momentum × drift”; **symmetric but unbounded below** (`nsKoopmanOp_not_bounded_below`, `nsKoopmanOp_not_positive`), so it can never be the positive comparison operator `N` and the `H = N`, `c = 0` shortcut is unavailable for it.  Its own leg carries the Leray-energy comparison `N_E = 1 + ‖u‖²` instead (`nsEnergyOp_quadForm_ge`, `commForm_kvn_energy_bound`, `nsKoopman_esa_of_energy_comparison`) | `BookProof/ChapterNsKoopman` (Part1 + Part2) |
+
+The reduced one-parcel family is not merely *read* as a one-body datum: `BookProof/ChapterNsOneBodyDGamma`
+proves `redHam_eq_sum_parcel` (the reduced `n`-parcel Hamiltonian is the sum of `n` copies of the
+one-body generator `H_sp = H_visc + H_advect`, one per parcel) and
+`nsRedFullFockHam_sector_sum_parcel` on the outer Hamiltonian's `n`-parcel sector, with
+`weylOpDom_block_sum` the general regrouping of a Weyl-ordered sum of squares into blocks.  The
+*pedagogical* face of all of this is `Book/NsOneParticleHamiltonian.lean` (chapter tag
+`ns-one-particle-hamiltonian`), which states the final-Hamiltonian convention
+`H = Σ_ij h_ij C†(e_i) A(e_j) = dΓ(h)` for Navier–Stokes and walks through items 1–5.
 
 ### D5. The QG instance (and its QYM companion)
 
@@ -194,7 +204,12 @@ its models are the two routes:
   first-quantized Hamiltonian (`H = π_v ∂_x u − π_u ∂_x v` in §*Holomorphic fields*), and not the
   Weyl-ordered `½Σπ² + ½ΣΦ²` of the gauge-fixed presentation the plan of record uses; the divergence
   constraint is kept separately as `Ω = Σ_j u_{j,j} c_j` (`navier_stokes_brst`) — a *consistency
-  check*, never the definition.  The Eulerian velocity fibre `H = Σ_i {π_i , V_i}`,
+  check*, never the definition.  **This shape is now known not to be usable as the one-particle
+  operator of record**: `BookProof/ChapterNsKoopman` proves the mainstream generator is unbounded
+  below (`nsKoopmanOp_not_bounded_below`), so it cannot be the positive `N` of the criterion — the
+  envelope of the outer Hamiltonian must be taken of the *positive* sum-of-squares generator
+  `H_sp` of `ChapterNsOneBodyDGamma` (`dΓ(H_sp)`, `nsSpDGamma_esa_farisLavine`), and the twin's
+  `{π_i, A_i}` builder is only a consistency check of the same one-particle datum.  The Eulerian velocity fibre `H = Σ_i {π_i , V_i}`,
   `V_i(u) = Σ_k A_{ik} u_k + c_i` (`ns_eulerian_fiber`) is the numerical counterpart of the plan's
   chain `BilinearEsa.bilH → AffineFiber.affH → AffineBlock.affBlockH → ThreeComponent.velH` (its
   header cites this plan by name);
@@ -230,6 +245,16 @@ its models are the two routes:
    `{π_i, A_i}` (book shape) and the plan's Weyl-ordered `½Σπ² + ½ΣΦ²` — as statements about the same
    one-particle datum `H₁`.  Until (a)–(d) are proved, the plan's Fock statements rest on the
    structural reading of `weylOp` (each summand acting on a single parcel) and of `Sec`.
+   **Progress (2026‑09‑18, verified): for the reduced sector the structural reading is now a
+   theorem, not a reading.**  `BookProof/ChapterNsOneBodyDGamma.lean` §5 proves
+   `redHam_eq_sum_parcel`: the reduced `n`-parcel Hamiltonian *is* the sum of `n` copies of the
+   one-body generator, the `p`-th copy written in the six coordinates and six momenta of the
+   parcel `p` (`redParcelHam`, symmetric and positive by `redParcelHam_symmetricOn` /
+   `redParcelHam_quadForm_nonneg`), with `nsRedFullFockHam_sector_sum_parcel` the same statement
+   on the `n`-parcel sector of the outer Hamiltonian and `weylOpDom_block_sum` the general
+   regrouping of a Weyl-ordered sum of squares into blocks.  What (b) still owes is the
+   identification of the parcel sectors with the symmetric tensor powers of the one-particle
+   space; (a), (c) and (d) are untouched.
 
 
 ## Build scope — verify an addition **without** a full `lake build`
@@ -283,7 +308,9 @@ modules import (or when you want Lake's own target rather than a single-file ela
 | `BookProof/ChapterProve2meReuse.lean` | `ChapterEsaFarisLavineIndex`, `ChapterNsOuterFockFarisLavine`, `ChapterQgOuterFockFarisLavine` — all three are roots of the `BookProofOperatorCore` part | steps 1–3 (the three importers); `lake build BookProofOperatorCore` only if the part target itself is wanted |
 | `Book/FourierElimination.lean` | `Book.lean` | step 6 (`lake build Book`) |
 | `BookProof.lean` | — (the aggregate) | `grep -n` only |
-| `BookProof/ChapterNsLagrangianFourierElimination.lean` | **nothing** — WIP, deliberately unimported | `lake env lean` on that file alone; it is *expected* to fail until the handoff items are done |
+| `BookProof/ChapterNsLagrangianFourierElimination.lean` | only `BookProof.lean` (landed 2026‑09‑17c) | steps 1 + 4; `lake build BookProof.ChapterNsLagrangianFourierElimination` also works |
+| `BookProof/ChapterQgFourierElimination.lean` | only `BookProof.lean` (landed 2026‑09‑17c) | steps 1 + 4; `lake build BookProof.ChapterQgFourierElimination` also works |
+| `Work/NsFourierEliminationAudit.lean` (the axiom audit of the three elimination chapters) | **nothing** — a `Work/` module | `lake build Work.NsFourierEliminationAudit` |
 
 ### Never
 
@@ -297,6 +324,65 @@ Cross-repository checks (platform dedup, reusable theorems, the anti-reuse list)
 build gate; they live in `PROVE2ME_REUSABLE_THEOREMS.md`, §“Cross-platform reuse” below, and
 `DEDUP_REPORT_leonardopedro.md`.
 
+
+## Latest wave — 2026-09-17c: the two handoffs of the 2026‑09‑17 wave are **executed** — the honest reduced field family (the advection square) and the landed Lagrangian chapter
+
+**Both items this plan left open at the Lean level are done, verified, and in the build.**
+
+1. **The Eulerian formalization delta is closed** (`BookProof/ChapterNsFourierElimination.lean`).
+   The reduced field family `redFieldN` is no longer the real-part-only truncation: it is indexed by
+   `Fin (n*7)` and built from `redFormPoly`, the real *and* imaginary parts of every surviving
+   substituted form of a parcel — `redVisc = q_i + ν|k|² u_i`, `redAdvectPoly = (k·u) u_i` and
+   `redMomentumPoly = k·u`.  New: `redMomentumPoly` with `realCoeff_redMomentumPoly` and
+   `redMomentumPoly_eq_liftParcel`; `redFormPoly` with `redFormPoly_re` / `_im` / `_div` and
+   `realCoeff_redFormPoly`; and `redFieldN_re` / `redFieldN_advect` / `redFieldN_div`, which
+   exhibit each kind of square in the Hamiltonian — in particular **the advection is one of the
+   squares**, so `redHam` is quartic and interacting.  As the plan predicted, everything downstream
+   (`redHam_symmetricOn`, `redHam_quadForm_nonneg`, `redHam_friedrichs_extension`, `redFried`,
+   `nsRedFullFockHam*`, `nsRedOuterComparison`, `nsRedFullOuterN_esa`,
+   `nsRedFullOuterN_isPositiveSelfAdjointExtension`) is generic in the field family and
+   re-elaborates unchanged.
+2. **The Lagrangian chapter is landed** (`BookProof/ChapterNsLagrangianFourierElimination.lean`,
+   item 6 of the NS plan items).  The two `Fin`-index lemmas `lagElimCoord_fIdx` and
+   `lagElimCoord_vgIdx` that exceeded the heartbeat budget are proved — the fix is to do the index
+   arithmetic first and close with `simp only [hsub, hmod, hdiv, Fin.eta]`, instead of rewriting
+   under the dependent `Fin` constructors — so §4–5 (the rank-one degeneracy: `cof F = 0`, the
+   annihilated Piola coupling, `det F = 0`, the volume constraint collapsing to `−1`, and the
+   surviving momentum equation `σ(R_i) = a_i + |ℓ|² v_i`) now elaborate.  The module is imported by
+   `BookProof.lean`; the `BookProofOperatorCore` stanza of `lakefile.toml` and the inventory row of
+   `BUILD_COMPONENTS.md` were regenerated (494 → 497 modules, 70 → 72 roots), and
+   `python3 scripts/import_components.py BookProof --check` now passes (it did not before this
+   wave).
+
+**Gates run.**  `lake build BookProof.ChapterNsFourierElimination`,
+`lake build BookProof.ChapterNsLagrangianFourierElimination`, `lake build Book` and
+`lake build Work.NsFourierEliminationAudit` all succeed, with **no warning** from the two chapters
+(the pre-existing long-line and `show`-linter warnings of the Eulerian chapter were fixed too), and
+the audit reports only `propext`, `Classical.choice`, `Quot.sound` for every headline result of
+both chapters.  The prose of `Book/FourierElimination.lean` is updated to the landed state.
+
+3. **QG item 7 is executed** — `BookProof/ChapterQgFourierElimination.lean` (namespace
+   `BookProof.QgFourierElim`) restates the BRST derivative-gauge identities as a *definition-time
+   elimination* of the vielbein derivative modes: `elimD`, `elimTorsion`,
+   `elimTorsion_eq_torsionCoef`, `elimTorsion_eq_gaugeReduce`, `elimGram_eq_contTorsionGram`,
+   `qgElimModes` / `qgElimModes_A`, `qgElim_esa` / `starobinsky_qgElim_esa`, `elimTorsion_ne_zero`.
+   All forms live on the physical modes `CMode`, so the extended space never enters the domain.
+   See item 7 below for the detail.
+
+**Still open:** NS plan items 4–5 (the one-body generator against the comparison, and the
+nested-Fock lift of it); item 2, the inverse field momentum `π^{−1}`
+(`BookProof/ChapterNsFieldMomentumInverse.lean`), and item 3, the convolution algebra
+(`BookProof/ChapterNsAdvectionConvolution.lean`), are **done** (2026‑09‑17e).  Item 1
+is **done** in the fibred model: its multiplier half by `BookProof/ChapterNsSpatialMomentumMultiplier.lean`
+(2026‑09‑17d) and the partial (spatial-only) transform itself by
+`BookProof/ChapterNsPartialFourier.lean` (2026‑09‑17e), with the honest boundary that the model is
+the vector-valued `L²(V; L²(W))` rather than the scalar `L²(V × W)` — see item 1 below.  QG item 8 is now **done in both halves**: the *definitional*
+half by §4 of `ChapterQgFourierElimination` (the derivative components of the full model carry no
+independent content, the constraint surface being exactly the image of the elimination), and the
+remaining half by the new module `BookProof/ChapterQgFullEliminated.lean` (2026‑09‑17d), which
+rebuilds the whole Hamiltonian of `ChapterQgVielbeinScalaronGaugeFL` on the nine eliminated
+components alone and re-proves its Faris–Lavine essential self-adjointness there — see item 8
+below.
 
 ## Latest wave — 2026-09-17: the **Fourier elimination of the derivative variables is formalized** — the substituting ring map, the quadratic residual, the reduced sector Hamiltonian and its Faris–Lavine route on the nested Fock space (NS, Eulerian)
 
@@ -422,14 +508,21 @@ bookkeeping.  No commutator estimate is owed for the honest Hamiltonian; the ord
 (D1–D6 of `DESIGN_COMPARISON_N_20260915.md` §9) is about the *literal-cubic* comparison
 (`N_E = dΓ((1 + A_u + P)²) + 𝒩 + 1`), a different `N`.
 
-**Formalization delta (handoff).**  `redFieldN` currently carries only the three *real* residual
-forms, so the landed `redHam` is the Gaussian part of the honest Hamiltonian and is **missing the
-advection square** — that is an approximation, and this correction is the instruction to remove it.
-The honest reduced family is *every* surviving substituted form, i.e. for each surviving `Φ_r` its
-real and imaginary parts (both real-coefficient, and `weylOp` + `RealCoeff` handle them;
-`realCoeff_fourierAdvect` is already proved), with the `y`-gauge forms contributing nothing since
-`σ` sends them to `0`.  `redHam_quadForm_nonneg` and `redHam_friedrichs_extension` are generic in
-the field family, so they survive the extension unchanged.
+**Formalization delta — closed (2026‑09‑17c, verified).**  `redFieldN` now carries the honest
+family `redFormPoly`: **seven** real-coefficient forms per parcel — the three real residual parts
+`redVisc = q_i + ν|k|² u_i`, the three advection parts `redAdvectPoly = (k·u) u_i` (the imaginary
+part of `σ(R_i)`) and the eliminated incompressibility `redMomentumPoly = k·u` (the imaginary part
+of `σ(Σ_j u_{j,j})`; the `y`-gauge forms contribute nothing since `σ` sends them to `0`, and the
+real part of the incompressibility is zero).  `realCoeff_redFormPoly` gives symmetry of every
+multiplication form, `redFieldN_re` / `redFieldN_advect` / `redFieldN_div` exhibit the three kinds
+of square, and `redHam_symmetricOn`, `redHam_quadForm_nonneg`, `redHam_friedrichs_extension` and
+the whole Fock/Faris–Lavine chain (`nsRedFullFockHam_quadForm_nonneg`,
+`nsRedFullFock_friedrichs_extension`, `nsRedFullOuterN_esa`,
+`nsRedFullOuterN_isPositiveSelfAdjointExtension`) re-elaborate for it unchanged, as predicted:
+`lake build BookProof.ChapterNsFourierElimination` is green with no warning from the module, and
+the audit `Work/NsFourierEliminationAudit.lean` reports only `propext`, `Classical.choice`,
+`Quot.sound`.  So the landed `redHam` is the full modulus-square Hamiltonian — quartic and
+interacting — and the *approximation is gone*.
 
 **Reuse for the new module (no duplication).**  The formalization introduces *no* new instrument.
 It is built entirely from the already-proved ones of this repository: `weylOp`,
@@ -661,6 +754,41 @@ Schur/positivity/onto rows, and item 6 the singular-value row for the determinan
    `momentumOp_essentiallySelfAdjoint`, `mixedOp_essentiallySelfAdjoint`) — the operator
    `∑_i c_i π_i` already has its ESA, so the derivative side of the new construction is a
    proved instrument, not new analysis.
+   **Status — partially done (2026‑09‑17d, verified).**
+   `BookProof/ChapterNsSpatialMomentumMultiplier.lean` (namespace `BookProof.NsSpatialMultiplier`,
+   imported from `BookProof.lean`, `sorry`-free and `axiom`-free; audit
+   `Work/NsSpatialMomentumMultiplierAudit.lean` reports only `propext`, `Classical.choice`,
+   `Quot.sound`) does the *multiplier* half: `l2Fourier` names the Plancherel identification of
+   `L²(V)` as a linear isometry equivalence (`l2Fourier_norm`, `l2Fourier_inner`),
+   `fourier_opL2_eq_mulSymbol` lifts the Schwartz-space multiplier identity of
+   `ChapterFourierMultiplierEsa` to the Hilbert space where the operator lives (a real-symbol
+   operator is carried, on the Schwartz core, to multiplication by its symbol), and
+   `fourier_opL2_firstOrderOp` / `fourier_opL2_momentumOp` specialize it to `∑_j c_j (−i ∂_{w_j})`
+   and `−i ∂_m`, whose real symbols are `∑_j 2π c_j ⟪ξ, w_j⟫` and `2π ⟪ξ, m⟫` — the symbol `p_j`
+   of this item.  `foSymbolFn_congr_of_inner_eq`, `foSymbolFn_add_fibre` and
+   `euclidean_foSymbolFn_add_fibre` prove that the symbol of a *spatial* derivative does not see
+   the fibre frequency, and `spatialMomentum_esa` re-exports the essential self-adjointness.
+   **The partial transform is now built too (2026‑09‑17e, verified).**
+   `BookProof/ChapterNsPartialFourier.lean` (namespace `BookProof.NsPartialFourier`, imported from
+   `BookProof.lean`, `sorry`-free and `axiom`-free; audit `Work/NsPartialFourierAudit.lean`
+   reports only `propext`, `Classical.choice`, `Quot.sound`) constructs the spatial-only transform
+   in the **fibred (vector-valued) model** of the one-particle space,
+   `L²(V; F) = Lp F 2 (volume : Measure V)`: `partialFourier` is the Plancherel identification in
+   the spatial variable (`partialFourier_norm`, `partialFourier_inner`), and
+   `partialFourier_fibreOp` is the statement that it **leaves the fibre alone** — it commutes with
+   the pointwise action of every bounded operator of the fibre, which is exactly what "partial"
+   asserts.  `fourier_vecMomentumOp_apply` is the diagonal spatial derivative there (symbol
+   `2π ⟪ξ, m⟫`, no fibre dependence) and `postcompCLM_vecMomentumOp` that the spatial derivative
+   commutes with the fibre operators.  §4 of the module is the Navier–Stokes instance `F = L²(W)`:
+   `nsPartialFourier`, `nsPartialFourier_norm`, `nsPartialFourier_fibreOp`, and
+   `nsPartialFourier_fibreFourier` / `nsPartialFourier_comp_fibreFourier_eq` — the spatial
+   transform commutes with the Fourier transform *of the fibre variable*.  Reusable by-product:
+   `postcompCLM`, the postcomposition of a Schwartz function with a continuous linear map of the
+   target (absent from Mathlib), with its Fourier, `L²` and derivative compatibilities
+   (`fourier_postcompCLM`, `toLp_postcompCLM`, `postcompCLM_lineDerivOp`).
+   **Honest boundary that remains:** the model is the vector-valued one, `L²(V; L²(W))`; the
+   measure-theoretic identification of it with the scalar `L²(ℝ_x^d × ℝ_u^m)` — a Bochner–Fubini
+   statement about slices, which Mathlib does not have — is not formalized.
 2. **The constraint solved, `D_j ψ = 0`.**  Define the field momentum `π^i = −i ∂/∂u_i`
    (the `genU` of `ChapterNsBrstDerivativeGauge` is already this operator, with
    `genU_ccr_u`) and state the identity `u^{(1)}_j = p_j π^{−1}` on the physical sector.
@@ -669,11 +797,41 @@ Schur/positivity/onto rows, and item 6 the singular-value row for the determinan
    finite-dimensional kernel (the sector carrying no `u`-momentum, which the
    number-conserving Hamiltonian already preserves).  This is the one genuine domain
    question of the construction and is a plan item, not an assumed axiom.
+   **Status — done (2026‑09‑17e, verified).**  `BookProof/ChapterNsFieldMomentumInverse.lean`
+   (namespace `BookProof.NsFieldMomentumInverse`, imported from `BookProof.lean`, `sorry`-free and
+   `axiom`-free; audit `Work/NsFieldMomentumInverseAudit.lean` reports only `propext`,
+   `Classical.choice`, `Quot.sound`) does it in the momentum representation of the fibre variable,
+   where the field momentum *is* multiplication by the real symbol `momSymbol m ξ = 2π ⟪ξ, m⟫` —
+   `isMomInverse_momentumOp` is the faithfulness statement, taken from
+   `fourier_opL2_momentumOp` of item 1.  `IsMomInverse m f g` names the relation `π_m g = f`,
+   i.e. `g = π_m^{-1} f`.  The residual flagged above is **resolved rather than assumed**: the
+   symbol vanishes only on a hyperplane, a Lebesgue null set (`volume_momSymbol_zero`,
+   `momSymbol_ne_zero_ae`), so the `u`-constant mode is not an `L²` state and the kernel is
+   *trivial* (`momentum_kernel_trivial`) — no finite-dimensional kernel has to be split off — and
+   the inverse is single valued (`isMomInverse_unique`).  Its honest domain is the states with
+   square-integrable divided symbol (`isMomInverse_of_memLp`), a submodule `momDomain` which is
+   **dense** (`momDomain_dense`, proved by cutting off a neighbourhood of `{σ = 0}`:
+   `cut_mem_momDomain`), so `π^{-1}` is densely defined and unbounded, exactly as expected.  The
+   identity of the physical sector `u^{(1)}_j = p_j π^{-1}` is `isMomInverse_smul`, and its symbol
+   form — a derivative symbol constrained by `σ · t = p` equals `p / σ` almost everywhere — is
+   `eq_div_of_mul_eq_ae`.
 3. **The convolution algebra.**  Formalize `Û_i(q)` and prove the convolution theorem
    `ℱ[u_j ∂_j u_i](Q) = (i/(2π)^{d/2}) ∫ q_j Û_j(Q − q) Û_i(q) d^d q` — the momentum-space
    replacement for the `G_j` gauge generator.  The momentum representation already built
    for NS (`ChapterNavierStokesMomentumEsa`, `ikebeKato_momentum`) is the existing `p`-space
    instance to extend.
+   **Status — done (2026‑09‑17e, verified).**  `BookProof/ChapterNsAdvectionConvolution.lean`
+   (namespace `BookProof.NsAdvectionConvolution`, imported from `BookProof.lean`, `sorry`-free and
+   `axiom`-free; audit `Work/NsAdvectionConvolutionAudit.lean` reports only `propext`,
+   `Classical.choice`, `Quot.sound`).  `Û_i = 𝓕 u_i`, and the convolution theorem is
+   `fourier_advection_convolution`:
+   `ℱ[u_j ∂_m u_i](Q) = ∫ 2π i ⟪q, m⟫ Û_i(q) Û_j(Q − q) dq`, with the full advection
+   `∑_j u_j ∂_{w_j} u_i` in `fourier_advection_sum`.  The two ingredients are proved here as well:
+   `fourier_mul_eq_convolution`, the **product-to-convolution theorem**
+   `𝓕(f · g)(Q) = ∫ 𝓕f(q) 𝓕g(Q − q) dq` — the dual of Mathlib's convolution theorem, obtained from
+   it by Fourier inversion (`fourier_fourier_apply`, the double transform is the reflection) — and
+   `fourier_lineDeriv_apply`, the derivative symbol `2π i ⟪q, m⟫`.  Normalization: Mathlib's
+   `𝓕 f (ξ) = ∫ e^{−2π i ⟪x, ξ⟫} f(x) dx`, in which no `(2π)^{−d/2}` factors appear.
 4. **The one-body generator and its two Faris–Lavine inequalities.**  Assemble
    `H_sp = H_visc + H_advect` on the dense core, and verify the criterion's hypotheses
    against the comparison **`N_E`** designed above — the pattern reviewed in
@@ -682,6 +840,41 @@ Schur/positivity/onto rows, and item 6 the singular-value row for the determinan
    derivatively gauge-fixed symbol, so the derivative-gauge forms
    (`ChapterNavierStokesGaugeY` / `…Y2`) and the `y`-gauge drop out of the operator.  The
    particle-number-independent Schur bounds of the existing chapter carry over unchanged.
+   **Partial status — the uniformity obligation, coefficient half, done (2026‑09‑17e,
+   verified).**  `BookProof/ChapterNsCutoffUniformity.lean` (namespace
+   `BookProof.NsCutoffUniformity`, imported from `BookProof.lean`, `sorry`-free and `axiom`-free;
+   audit `Work/NsCutoffUniformityAudit.lean`) proves the first of the two residual obligations of
+   §5.4 of `DESIGN_COMPARISON_N_20260915.md` at the level of the data: under the energy cutoff
+   `|k_j| ≤ Λ` **every coefficient of every one of the seven reduced forms of every parcel is
+   bounded by `cutoffBound ν Λ = 1 + 3Λ + 3|ν|Λ²`** (`norm_coeff_redFormPoly_le`), a bound
+   independent of the parcel number `n`, of the parcel and of the form; the forms have degree at
+   most two (`totalDegree_redFormPoly_le`) and are **parcel local**, involving only the six
+   coordinates of their own parcel (`vars_redFormPoly_subset`) — the sparsity that makes the
+   row/column (Schur) data independent of `n`.  `norm_coeff_redFormPoly_unbounded_of_no_cutoff`
+   shows the cutoff is load-bearing: without it the coefficients are unbounded.  *Not* settled by
+   this module: the operator-level relative bound `‖H_n x‖ ≤ K ‖(N_n + 1) x‖` with `K` independent
+   of `n`; on the landed route it is not needed, the comparison being the lifted Friedrichs
+   extension of the reduced Hamiltonian itself (`nsRedFullOuterN_esa`, Faris–Lavine constant
+   `c = 0`).
+   **Status — the operator half is now done too (2026‑09‑18, verified).**
+   `BookProof/ChapterNsOneBodyDGamma.lean` (namespace `BookProof.NsOneBody`, imported from
+   `BookProof.lean`, `sorry`-free and `axiom`-free; audit `Work/NsOneBodyDGammaAudit.lean` reports
+   only `propext`, `Classical.choice`, `Quot.sound`) assembles the one-body generator itself.
+   `spFormPoly` is the seven-member one-parcel family (three real residual parts
+   `q_i + ν|k|² u_i`, three advection parts `(k·u) u_i`, the eliminated incompressibility `k·u`),
+   and `redFormPoly_eq_liftParcel` identifies it with the landed `n`-parcel family parcel by
+   parcel, so the generator really is the single-parcel member of the reduced family.  `spHam` is
+   `H_sp = ½ Σ_m π_m² + ½ Σ_r (mulOp Φ_r)²` on any core representation of the Gauss–polynomial
+   core of `L²(ℝ⁶)`, and **`spHam_eq_visc_add_advect` is the splitting `H_sp = H_visc + H_advect`**
+   asked for here: `H_visc` carries the six momenta and the four non-advective squares, `H_advect`
+   the three squares of the momentum convolution `(k·u) u_i = Σ_j k_j u_j u_i` — the advection
+   kernel written in momentum space, with no derivative-gauge form and no `y`-gauge anywhere in
+   the operator.  The **two Faris–Lavine inequalities** are `spVisc_quadForm_nonneg` and
+   `spAdvect_quadForm_nonneg` (with `spVisc_symmetricOn`, `spAdvect_symmetricOn`), and
+   `spHam_quadForm_split` shows the two form contributions add to the generator's.  Against the
+   comparison `N_E = spFried` — the Friedrichs realization of `H_sp` — `spHam_commForm_zero`,
+   `spHam_esa_farisLavine` and `spFried_isPositiveSelfAdjointExtension` give the criterion in its
+   `H = N`, `c = 0` form, with `polyGaussCore_le_spFriedDom` the domain obligation.
 5. **The nested-Fock lift.**  Obtain ESA of `dΓ(H_sp)` by the proved lifts
    (`dGamma_hasZeroDeficiencyOn`, `qgDGamma_esa`), giving the nested-Fock Hamiltonian with no
    finite-mode truncation beyond the energy/momentum cutoff.  This is precisely step 3 of §D8:
@@ -689,6 +882,23 @@ Schur/positivity/onto rows, and item 6 the singular-value row for the determinan
    assumed, since the outer Hamiltonian *is* `dΓ(H_sp)` and `dΓ` is linear in its one-particle datum
    (`dGamma_finsetSum_col`), number conserving (`dGamma_inSector`) and positive whenever the datum is
    (`dGammaOp_quadForm_nonneg`).
+   **Status — done (2026‑09‑18, verified).**  §4 of `BookProof/ChapterNsOneBodyDGamma.lean` lifts
+   the generator of item 4: `nsOnePart` is `H_sp` on the finite-mode domain of the product Hermite
+   basis `coreBasis e` of `L²(ℝ⁶)`, `nsSpCol` its matrix there, and `dGammaOp (nsSpCol …)` the
+   second quantization `dΓ(H_sp) = Σ_{j,k} ⟪e_j, H_sp e_k⟫ a†_j a_k` on the finite-occupation core
+   of the Fock space.  `nsSpDGamma_symmetricOn` and `nsSpDGamma_quadForm_nonneg` transport the
+   symmetry and the two positivity inequalities of item 4 to the outer level (through
+   `isHermCol_opCol` / `isPosCol_opCol`), `nsSpDGamma_friedrichs_extension` and
+   `nsSpDGammaFried_isPositiveSelfAdjointExtension` give the positive self-adjoint realization, and
+   **`nsSpDGamma_esa_farisLavine` is the essential self-adjointness of `dΓ(H_sp)`** on the domain
+   of that realization (again `H = N`, `c = 0`).  `nsSpDGamma_number_conserving` (via
+   `dGamma_inSector`) records that the lift preserves every particle-number sector — no
+   finite-mode truncation is introduced — and `nsSpDGamma_one_particle` that on the one-particle
+   sector the lift *is* the one-body generator.  `spHam_stone_flow` and `nsSpDGamma_stone_flow`
+   add the single-time package: by Stone's theorem each of the two comparison realizations
+   generates a strongly continuous one-parameter unitary group.  Honest boundary: the comparison is
+   the Friedrichs realization of the lift itself, so no relative bound of the advection against an
+   independent comparison operator is claimed.
 6. **The Lagrangian version — the device is degenerate in material variables (2026-09-17
    finding).**  The same device in material variables takes the spatial transform on the
    *reference* coordinate `a`, so the material derivative is diagonal and
@@ -717,21 +927,22 @@ Schur/positivity/onto rows, and item 6 the singular-value row for the determinan
    The positivity of the Lagrangian sums of squares (`lagFullFockHam_quadForm_nonneg`) still
    makes the Friedrichs comparison available for the surviving sector, exactly as in the
    Eulerian item 4–5, with the convolutions of item 3 now over the *material* modes.
-   **Status — handoff to the Lean specialist (not executed here).**  The design above is
-   written out, with its proofs, in the working-tree scaffold
-   `BookProof/ChapterNsLagrangianFourierElimination.lean` (namespace `BookProof.NsLagFourier`;
-   **not imported by `BookProof.lean` and not in any Lake target**, so the build is unaffected).
-   §1–3 of that file — `lRedIdx`, the substitution `lagElimCoord`/`lagLift`/`lagElimHom`, and
-   the coordinate values for `ξ_i`, `v_i`, `a_i`, `q_i`, `y_j`, `S_i` (`lagElimCoord_sIdx`) —
-   are `sorry`-free and green; the two rank-one coordinate lemmas `lagElimCoord_fIdx` and
-   `lagElimCoord_vgIdx` are written but **exceed the heartbeat budget** (a `whnf` timeout in
-   their `Fin`-index bookkeeping, not a mathematical gap), and §4–5 (`rankOne_cof_zero`,
+   **Status — done (2026‑09‑17c, verified).**  The design above is
+   written out, with its proofs, in `BookProof/ChapterNsLagrangianFourierElimination.lean`
+   (namespace `BookProof.NsLagFourier`), now **imported by `BookProof.lean`** and part of the
+   `BookProofOperatorCore` part (the lakefile stanza and `BUILD_COMPONENTS.md` were regenerated,
+   and `python3 scripts/import_components.py BookProof --check` passes).
+   §1–5 of that file all elaborate: `lRedIdx`, the substitution
+   `lagElimCoord`/`lagLift`/`lagElimHom`, the coordinate values for `ξ_i`, `v_i`, `a_i`, `q_i`,
+   `y_j`, `S_i` (`lagElimCoord_sIdx`), the two rank-one coordinate lemmas `lagElimCoord_fIdx` and
+   `lagElimCoord_vgIdx` — whose `whnf` timeout was a proof-engineering issue, fixed by doing the
+   `Fin`-index arithmetic (`hsub`, `hmod`, `hdiv`) *before* touching the dependent `Fin`
+   constructors, after which a single `simp only [hsub, hmod, hdiv, Fin.eta]` closes each — and
+   the degeneracy itself (`rankOne_cof_zero`,
    `lagElimSubst_cofPoly`/`_piola`/`_detPoly`/`_volumePoly`/`_volumePoly_sq`,
-   `lagElimSubst_lagResPoly`) are written on top of them and so do not yet elaborate.  The
-   remaining obligation is therefore small and local: close those two index lemmas (they are
-   `Fin 3` reindexings of `Fin 36`, `fIdx i j ↦ (i, j)` and `vgIdx i j ↦ (i, j)`), then let §4–5
-   through.  Once green, register it as item 3 of the registration list below does for the
-   Eulerian chapter (a commented `import` line in `BookProof.lean`, the chapter in the Book).
+   `lagElimSubst_lagResPoly`).  The module is `sorry`-free and `axiom`-free (audit
+   `Work/NsFourierEliminationAudit.lean`: only `propext`, `Classical.choice`, `Quot.sound`) and
+   `lake build BookProof.ChapterNsLagrangianFourierElimination` is green with no warning from it.
 
 ### Plan items — quantum gravity, the full Hamiltonian
 
@@ -752,6 +963,29 @@ checked platform theorem states it.
    operator — no BRST charge and no ghost sector needed for the definition) and to prove that
    the resulting `T = D − Dᵀ` equals `k_μ e_ν^i − k_ν e_μ^i` with the extended space never
    entering the domain.
+   **Status — done (2026‑09‑17c, verified).**  `BookProof/ChapterQgFourierElimination.lean`
+   (namespace `BookProof.QgFourierElim`, imported from `BookProof.lean`, `sorry`-free and
+   `axiom`-free): `elimD` is the substitution as a linear form on the *physical* modes `CMode`
+   alone and `elimTorsion = elimD_{μν} − elimD_{νμ}`, so the extended space `EMode` occurs
+   nowhere — neither in the definition nor in the domain.  `elimTorsion_eq_torsionCoef` proves
+   `T = k_μ e_ν^i − k_ν e_μ^i` at the momentum `k` (and `0` elsewhere),
+   `elimTorsion_eq_gaugeReduce` identifies it with the gauge-reduced extended form of
+   `ChapterQgBrstDerivativeGauge` (so that chapter's identities are exactly *restated* as the
+   elimination), `elimTorsion_antisymm` / `_diag` / `_conj` are the structural facts,
+   `elimGram_eq_contTorsionGram` shows the Gram matrix of all eliminated torsion forms is the
+   continuum vielbein self-interaction with **no** hypothesis on the momenta, and
+   `qgElimModes` / `qgElimModes_A` / `qgElim_esa` / `starobinsky_qgElim_esa` give the mode data of
+   the eliminated presentation and the essential self-adjointness of the Hamiltonian it defines,
+   with no restriction-to-a-subset argument; `elimTorsion_ne_zero` records non-vacuity.  §4 of the
+   same module does the corresponding thing for the **full** vielbein–scalaron model of
+   `ChapterQgVielbeinScalaronGaugeFL` (whose modes carry the nine vielbein components *and* the
+   twenty-seven derivative components): `elimConfig` parameterizes the derivative-gauge constraint
+   surface exactly — `formValue_dGauge_elimConfig` (every eliminated configuration satisfies all
+   twenty-seven constraints identically, so no constraint has to be imposed and no ghost sector is
+   needed) and `eq_elimConfig_of_gauge_fixed` (conversely every gauge-fixed configuration is an
+   eliminated one) — with `formValue_torsion_elimConfig` the exact Fourier torsion on it and
+   `formValue_gauge3d_elimConfig` the untouched transverse form.  (A Book chapter for this module
+   is not written.)
 8. **The full QG Hamiltonian on the outer Fock space.**  (§D2/§D5 vocabulary: the outer space is
    `Sec ι = ℓ²(ι ; L²(ℝ))`, the one-body operator is the kernel `h_{ab}` of
    `ChapterQgOuterFockOneParticle`, and the coupling sum is `Σ_ℓ dΓ(h_ℓ)`, one second-quantized
@@ -765,6 +999,32 @@ checked platform theorem states it.
    same as for NS: the extended variables `EMode` / `DMode` never enter the operator domain,
    and the `gaugeFixedSubset_esa` restriction argument becomes unnecessary — the physical
    torsion is the only torsion from the start.
+   **Status — done (2026‑09‑17d, verified).**  `BookProof/ChapterQgFullEliminated.lean`
+   (namespace `BookProof.QgFullEliminated`, imported from `BookProof.lean`, `sorry`-free and
+   `axiom`-free; `lake build BookProof.ChapterQgFullEliminated` and
+   `lake build Work.NsFourierEliminationAudit` are green, the audit reporting only `propext`,
+   `Classical.choice`, `Quot.sound` for every headline result).  The components are `EComp =
+   Fin 3 × Fin 3` — the nine vielbein components, the twenty-seven derivative components being
+   absent, not gauge fixed — and the modes `EGMode = Mom × EComp` still run over all of `ℤ³`.
+   `elimCoef k F` is the coefficient vector of each of the `57` linear forms of the full model
+   after the elimination `D_{μν}^i ↦ i k_μ e_ν^i`, and `eFormValue_eq_formValue_elimConfig`
+   (`formValue k F (elimConfig k z) = eFormValue k F z`) is the statement that nothing is added
+   and nothing is dropped: the torsion form becomes the exact Fourier torsion
+   `i(k_μ e_ν^i − k_ν e_μ^i)` (`eFormValue_torsion`), the twenty-seven derivative-gauge forms
+   become identically zero (`elimCoef_dGauge`, `eFormValue_dGauge`) and the 3D transverse form is
+   unchanged (`eFormValue_gauge3d`).  `eGram` is the rebuilt vielbein self-interaction, exhibited
+   as torsion plus transverse gauge fixing by `eGram_eq_torsion_add_gauge3d`; `eGram_quadForm`,
+   `gGram_quadForm` and `quadForm_eq_of_gauge_fixed` prove that the rebuilt `9`-component
+   quadratic form and the full `36`-component one agree on the gauge surface.  `eCoupling` is the
+   scalaron–vielbein coupling, unchanged (`eTrace_eq_gTrace`), and `qgElimFullModes` is the mode
+   data, satisfying all five Faris–Lavine bounds with `κ = 513 + |g|` and band size `9` instead
+   of `36`.  The headline results are `qgElimFull_esa_farisLavine`, `qgElimFull_esa_core_fl`,
+   `starobinsky_qgElimFull_esa`, `starobinsky_qgElimFull_esa_core`, `qgElimFull_stone_flow` and
+   `starobinsky_qgElimFull_stone_flow`, together with `qgElimFull_momentum_conserving` /
+   `qgElimFull_number_conserving` and the non-vacuity lemmas `elimCoef_torsion_ne_zero`,
+   `elimCoef_gauge3d_ne_zero`, `eGram_diag_ne_zero`, `eCoupling_ne_zero`, `infinite_egmode`.  No
+   `gaugeFixedSubset_esa` restriction, no BRST charge and no ghost sector enters.  (A Book chapter
+   for this module is not written.)
 
 ### Honest boundary, and what is *not* superseded
 
@@ -12548,3 +12808,137 @@ New modules (all `sorry`-free, `axiom`-free; audited by `Work/SchurPauliWaveAudi
 
 `lake build BookProof` (8866 jobs) and `lake build Work.SchurPauliWaveAudit` complete with
 no errors and no warnings from the new modules.
+
+
+## 2026-09-18 — the mainstream Navier–Stokes Hamiltonian and its Faris–Lavine comparison operator
+
+**Correction of the Faris–Lavine usage on the Navier–Stokes side.**  The earlier NS wave applied
+the criterion in its `H = N`, `c = 0` form.  That is legitimate only for the *positive*
+sum-of-squares surrogate `H_sp = ½ Σ π_m² + ½ Σ (mulOp Φ_r)²` of
+`BookProof/ChapterNsOneBodyDGamma.lean`; the Hamiltonian of the mainstream Navier–Stokes equations
+is **not bounded below**, so it can never equal the positive comparison operator `N`.
+
+New chapter `BookProof/ChapterNsKoopman.lean` (Part1 + Part2, `sorry`-free, `axiom`-free) works
+with the mainstream Hamiltonian itself — the Koopman–von Neumann (Liouville) generator of the
+exact Leray–Galerkin Navier–Stokes system `u̇_i = −ν λ_i u_i + B_i(u,u)`,
+`B_i(u,u) = Σ_{j,k} b_{ijk} u_j u_k`, carrying the two structural identities of incompressibility
+(`Σ_i u_i B_i = 0`, Leray; `Σ_i ∂_i B_i = 0`, Liouville) as fields of `NsSystem d`:
+
+```
+H_NS = ½ Σ_m (π_m F_m + F_m π_m) = −i (Σ_i F_i ∂_i + ½ Σ_i ∂_i F_i),   F = drift.
+```
+
+* `kvnPoly` / `nsKoopmanOp` — the Hamiltonian, exactly (no truncation of the nonlinearity);
+  `nsKoopmanOp_symmetricOn` — it is symmetric on the Gauss–polynomial core;
+* `quadP_starP` — conjugation `ψ ↦ ψ̄` anticommutes with it, so its numerical range is symmetric
+  about `0`; `gpair_hermite_kvn` computes the exact Hermite matrix element (the advection drops
+  out by a degree-parity selection rule, the viscous/dilation part grows like `n`);
+* `nsKoopmanOp_not_bounded_below`, `nsKoopmanOp_not_positive` — hence the mainstream NS
+  Hamiltonian is unbounded below;
+* `energyPoly` / `nsEnergyOp` — the **replacement comparison operator**: multiplication by the
+  Leray energy `E = 1 + ‖u‖²`, positive and `≥ 1` (`nsEnergyOp_quadForm_ge`);
+* `kvn_comm_energy`, `fluxPoly_eq` — the exact commutator `i[H_NS, N_E] = F·∇E = −2ν Σ λ_i u_i²`,
+  the advection and pressure gradient cancelling by Leray's identity;
+* `commForm_kvn_energy_bound` — the Faris–Lavine commutator inequality
+  `|⟪x, i[H_NS,N_E] x⟫| ≤ 2νΛ ⟪x, N_E x⟫` for the *exact nonlinear* Hamiltonian;
+* `nsKoopman_esa_of_energy_comparison` — essential self-adjointness, with the surjectivity of
+  `N_E + 1` on the common domain carried as an explicit hypothesis (the single input the
+  polynomial core does not supply; it is never an axiom);
+* `nsTriad` — non-vacuity: the resonant Navier–Stokes Fourier triad with `a + b + c = 0`.
+
+Remaining on this leg: discharge the `N_E + 1` surjectivity hypothesis on a concrete domain
+(weighted Sobolev/Gauss space), and lift the comparison operator to the Fock/dΓ setting.
+
+
+## 2026-09-18b — the Navier–Stokes operator wave is in the tree **and in the Book**; the final-Hamiltonian convention is stated once, for NS and QG
+
+**What is in the tree.**  The Aristotle snapshot wave of 2026‑09‑17d–18 has been merged.  New
+`sorry`-free, `axiom`-free chapters (all imported from `BookProof.lean`, all in the operator part of
+`lakefile.toml`):
+
+| chapter | namespace | what it settles |
+| :-- | :-- | :-- |
+| `ChapterNsSpatialMomentumMultiplier` | `BookProof.NsSpatialMultiplier` | Plancherel identification of `L²(V)` and the diagonal spatial derivative: `l2Fourier`, `fourier_opL2_eq_mulSymbol`, `fourier_opL2_momentumOp`, `foSymbolFn_add_fibre`, `spatialMomentum_esa` — item 1, multiplier half |
+| `ChapterNsPartialFourier` | `BookProof.NsPartialFourier` | the **partial** (spatial-only) transform on `L²(V; F)`: `partialFourier`, `partialFourier_fibreOp`, `fourier_vecMomentumOp_apply`, `nsPartialFourier*`, plus `postcompCLM` and its Fourier/`toLp`/derivative lemmas — item 1, remaining half |
+| `ChapterNsFieldMomentumInverse` | `BookProof.NsFieldMomentumInverse` | `π^{-1}`: `momSymbol_ne_zero_ae`, `momentum_kernel_trivial`, `isMomInverse_unique`, `isMomInverse_of_memLp`, `momDomain_dense`, `isMomInverse_smul`, `isMomInverse_momentumOp` — item 2 |
+| `ChapterNsAdvectionConvolution` | `BookProof.NsAdvectionConvolution` | the momentum-space convolution algebra: `fourier_fourier_apply`, `fourier_mul_eq_convolution`, `fourier_lineDeriv_apply`, `fourier_advection_convolution`, `fourier_advection_sum` — item 3 |
+| `ChapterNsCutoffUniformity` | `BookProof.NsCutoffUniformity` | `O(Λ)` uniformity of `redFormPoly` in the parcel number: `norm_coeff_redFormPoly_le`, `totalDegree_redFormPoly_le`, `vars_redFormPoly_subset`, `norm_coeff_redFormPoly_unbounded_of_no_cutoff` — item 4, coefficient half |
+| `ChapterNsOneBodyDGamma` | `BookProof.NsOneBody` | `H_sp = H_visc + H_advect` and its second quantization: `redFormPoly_eq_liftParcel`, `spHam_eq_visc_add_advect`, `spVisc/spAdvect/spHam_symmetricOn` and `_quadForm_nonneg`, `spHam_quadForm_split`, `spFried`, `spHam_esa_farisLavine`, `nsSpDGamma_esa_farisLavine`, `nsSpDGamma_number_conserving`, `nsSpDGamma_one_particle`, `nsSpDGamma_stone_flow`, `redHam_eq_sum_parcel`, `nsRedFullFockHam_sector_sum_parcel`, `weylOpDom_block_sum` — items 4 (operator half) and 5 |
+| `ChapterNsKoopman` (Part1 + Part2) | `BookProof.NsKoopman` | the mainstream generator: `kvnPoly`, `nsKoopmanOp_symmetricOn`, `quadP_starP`, `gpair_hermite_kvn`, **`nsKoopmanOp_not_bounded_below`**, `nsKoopmanOp_not_positive`; and the replacement comparison: `energyPoly`/`nsEnergyOp`, `nsEnergyOp_quadForm_ge`, `kvn_comm_energy`, `fluxPoly_eq`, `commForm_kvn_energy_bound`, `nsKoopman_esa_of_energy_comparison`, `nsTriad` |
+| `ChapterQgFourierElimination` | `BookProof.QgFourierElim` | elimination of the vielbein derivative modes: `elimD`, `elimTorsion_eq_torsionCoef`, `elimTorsion_eq_gaugeReduce`, `elimGram_eq_contTorsionGram`, `qgElimModes_A`, `qgElim_esa`, `starobinsky_qgElim_esa`, `elimConfig`, `formValue_dGauge_elimConfig`, `eq_elimConfig_of_gauge_fixed` — QG item 7 |
+| `ChapterQgFullEliminated` | `BookProof.QgFullEliminated` | the full Hamiltonian on the nine eliminated components: `eGram`, `eCoupling`, `eFormValue_eq_formValue_elimConfig`, `qgElimFullModes`, `qgElimFull_esa_farisLavine`, `qgElimFull_esa_core_fl`, `starobinsky_qgElimFull_esa`, `qgElimFull_momentum_conserving`, `qgElimFull_number_conserving`, `qgElimFull_stone_flow` — QG item 8, second half |
+
+Modified: `ChapterNsFourierElimination` (the honest `redFieldN` — `redFormPoly`, seven real-coefficient
+forms per parcel, `redFieldN_advect`), `ChapterNsLagrangianFourierElimination` (**complete** — the two
+`Fin`-index lemmas are proved and §4–5 elaborate; the module is now imported by `BookProof.lean`),
+plus the PVM, solid-harmonic and Wigner-symmetry proof repairs of the same wave.
+
+**The final-Hamiltonian convention, stated once.**  For QYM, QED, QG and NS the final Hamiltonian is
+the **one-particle Hamiltonian enclosed in creation (on the left) and annihilation (on the right)
+operators** on the outer (nested) Fock space, `H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ) = dΓ(h)`.  The inner
+operator enters verbatim (only a constant shift is allowed, and only to lift a truncated spectrum);
+the outer Hamiltonian is therefore quadratic in the outer ladders for *any* `h`, so a quartic
+nonlinearity, an exponential wall, or an interaction term lives entirely in the one-particle matrix
+elements and adds no outer vertex.  Three consequences that are now theorems rather than readings:
+
+1. **NS.**  The one-particle operator of record is the **positive** sum-of-squares generator
+   `H_sp = H_visc + H_advect` of `ChapterNsOneBodyDGamma` on the reduced sector, and the outer
+   Hamiltonian is `dΓ(H_sp)` (`nsSpDGamma_esa_farisLavine`).  The *mainstream* generator
+   `½Σ(πF + Fπ)` is symmetric but **unbounded below** (`nsKoopmanOp_not_bounded_below`), so it is
+   **not** the operator to enclose, and the `H = N`, `c = 0` shortcut is not available for it — its
+   own leg uses the Leray-energy comparison `N_E = 1 + ‖u‖²` with the exact commutator
+   `i[H_NS, N_E] = −2ν Σ λᵢuᵢ²`.  This is the one place where a reader could otherwise conflate two
+   different one-particle operators; the plan's §D4 now records the distinction.
+2. **QG.**  The one-particle space is the *nine*-component vielbein space
+   (`EGMode = Mom × EComp`), not the thirty-six-component one: the twenty-seven derivative variables
+   are eliminated (`elimGram_eq_contTorsionGram` shows the vielbein self-interaction survives
+   verbatim, `eCoupling` carries the scalaron coupling), and the full exponential Einstein-frame wall
+   and arbitrary coupling are inside the one-particle matrix elements
+   (`starobinsky_qgElimFull_esa`).  The decoupling used by the *fiber* model is an assumption; the
+   eliminated full model does not need it.
+3. **QYM / QED.**  Unchanged, and consistent with the above: `H₁ = ½Σπ² + ½ΣB²` on the Gauss core of
+   `L²(ℝ⁹⁹)` for QYM (`ym_fock_friedrichs_extension`, `ChapterQymTimeIndependentFlow`), the free
+   photon for QED; both enclosed as `dΓ(H₁)`.
+
+**The Book.**  `Book/NsOneParticleHamiltonian.lean` (tag `ns-one-particle-hamiltonian`) and
+`Book/QgElimination.lean` (tag `qg-elimination`) are new chapters that state the convention above for
+NS and QG and walk through the new results; `Book/FourierElimination.lean` gained the Lagrangian
+section (the rank-one degeneracy: `rankOne_cof_zero` ⇒ `det F = 0` ⇒ the volume constraint collapses
+to `−1`) and a pointer to the two new chapters; `Book.lean` includes all three and its
+“Relativity, Gauge Theory, and Gravity” preamble now names the derivative-variables thread.  While
+editing, a **systematic formatting defect** in the book was found and fixed: 248 math spans used the
+`$`…`` ` ``-closed form, which Verso renders as the formula *followed by a literal `$`* (visible in the
+built HTML); the correct form is the open-only `` $`…` `` / `` $$`…` `` used by the older chapters.
+
+**Build bookkeeping.**  `lakefile.toml` and `BUILD_COMPONENTS.md` were regenerated
+(`python3 scripts/import_components.py BookProof --lakefile`, `--all --markdown`); the
+`BookProofOperatorCore` part is now **507 modules / 77 roots**, `BookProof` is 901 modules, and the
+`BookProofDerivativeGauge` sub-system target now covers all three derivative-variable chapters
+(`BookProof.ChapterNsBrstDerivativeGauge`, `BookProof.ChapterNsFieldMomentumInverse`,
+`BookProof.ChapterQgBrstDerivativeGauge`) — `python3 scripts/import_components.py --all --check`
+passes (it did **not** before this entry: the newly added `ChapterNsKoopman` was a maximal module
+missing from the target's roots).
+
+**Next steps for the Lean specialist** (ordered; none of them is a restatement of something proved):
+
+1. **The parcel-sector identification** — the last item of §D8(5): show that the `n`-parcel sector
+   `L²(ℝ^{6n})` of the reduced outer space is the symmetric tensor power `Symⁿ(L²(ℝ⁶))`, so that
+   `nsRedFullFockHam = dΓ(H_sp)` follows from `redHam_eq_sum_parcel` rather than accompanying it.
+   `weylOpDom_block_sum` is the regrouping lemma to build on.
+2. **The scalar–vector identification** — `L²(V; L²(W)) ≅ L²(V × W)` for the partial transform
+   (a Bochner–Fubini statement about slices, absent from Mathlib).  Without it, item 1 is stated in
+   the vector-valued model; with it, the partial transform is the textbook one.
+3. **The mainstream leg** — discharge the `N_E + 1` surjectivity hypothesis of
+   `nsKoopman_esa_of_energy_comparison` on a concrete domain (a weighted Sobolev or Gauss space with
+   `E = 1 + ‖u‖²` as weight), then lift `N_E` to the nested Fock setting with the lift of §D6.  The
+   commutator inequality `commForm_kvn_energy_bound` is already unconditional.
+4. **The uniformity obligation's operator half** — the relative bound with a constant independent of
+   the parcel number is *not* needed on the landed route (`c = 0`, the comparison being the lifted
+   Friedrichs realization); if a future item wants an *independent* comparison `N₁`, this is what it
+   will have to prove, and `ChapterNsCutoffUniformity` supplies the coefficient data.
+5. **QG coupling across differing bases** — `Σ_ℓ dΓ(h_ℓ)` is one second-quantized operator by
+   `dGamma_finsetSum_col`; what is owed is the comparison `N = Σ_ℓ dΓ(h_ℓ) + 𝒩` in the eliminated
+   basis, i.e. re-running `ChapterQgCouplingDGammaSum` with `EGMode` in place of the extended index.
+6. **Book maintenance** — the two new Book chapters cite only proved names; when item 1 above lands,
+   the “What Is Verified, and What Is Open” section of `ns-one-particle-hamiltonian` should drop that
+   bullet.  Keep new math spans in the open-only `` $`…` `` / `` $$`…` `` form.

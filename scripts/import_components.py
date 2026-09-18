@@ -103,6 +103,7 @@ SUB_SYSTEM_TARGETS = {
     "BookProof": {
         "BookProofDerivativeGauge": [
             "BookProof.ChapterNsBrstDerivativeGauge",
+            "BookProof.ChapterNsFieldMomentumInverse",
             "BookProof.ChapterQgBrstDerivativeGauge",
         ],
     },

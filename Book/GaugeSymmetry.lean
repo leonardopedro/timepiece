@@ -158,7 +158,7 @@ The manuscript's gauge-mechanics example quantizes a classical gauge system on t
 Hilbert space $`L^2(\mathbb{R}^2 \times \mathbb{Z}_2)`,
 where the $`\mathbb{Z}_2` factor is the ghost degree of freedom. The gauge
 generator is the charge $`Q = \pi\phi + \pi^*\phi^*`, and the BRST charge is
-$`\Omega = (\pi\phi + \pi^*\phi^*)\,\psi^\dagger` with the ghost field $`\psi`$
+$`\Omega = (\pi\phi + \pi^*\phi^*)\,\psi^\dagger` with the ghost field $`\psi`
 satisfying the canonical anticommutation relation $`\{\psi,\psi^\dagger\}=1`.
 The wave-function itself need not be gauge invariant — only the observables must
 commute with $`Q`. The manuscript separates the gauge generator from the

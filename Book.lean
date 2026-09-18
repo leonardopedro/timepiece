@@ -16,6 +16,8 @@ import Book.GribovAmbiguity
 import Book.PhysicalParity
 import Book.DiffeomorphismsGravity
 import Book.FourierElimination
+import Book.NsOneParticleHamiltonian
+import Book.QgElimination
 import Book.Starobinsky
 import Book.NavierStokesHashimoto
 import Book.CarlemanFlux
@@ -248,7 +250,7 @@ theorem), and information erasure in the Stern–Gerlach experiment.
 
 *How to read this part.* {ref "probability-clock"}[The probability clock] is the
 smallest possible instance of the whole book — read it first even if you read
-nothing else in this part, since it introduces the generator $`J^2 = -1`$, Euler's
+nothing else in this part, since it introduces the generator $`J^2 = -1`, Euler's
 formula, and the singular collapse matrix in two dimensions. {ref "born-reproduces"}[The
 Born rule reproduces every distribution] lifts the construction to $`n` outcomes,
 countable chains, and the complex and quaternionic cases; {ref "born-fiber"}[the
@@ -302,6 +304,32 @@ Hamiltonian, and the Eulerian Navier–Stokes fiber. The {ref "spin-statistics"}
 statistics] chapter belongs with the free-field thread (it is the finite-degree
 instance of the tensor products of sample spaces).
 
+Three of these chapters form a single thread on the *derivative variables* of a
+field — the places where a first-order system is written with the derivatives of
+the fields as fields. {ref "fourier-elimination"}[The Fourier elimination of the
+derivative variables] states the strategy of record: *eliminate* them by a
+spatial Fourier transform inside the squares that make up the Hamiltonian, rather
+than constrain them by a gauge symmetry, so that no ghost sector and no cubic
+derivative symbol is needed for the definition. It also settles the Lagrangian
+face of the same question, where the eliminated kinematics turns out to be
+rank-one — the cofactor of the deformation gradient vanishes, so the volume
+constraint collapses to a constant and no deformation-gradient square carries
+field content. {ref "ns-one-particle-hamiltonian"}[The Navier–Stokes one-particle
+Hamiltonian and its Fock enclosure] then does the operator work for the Eulerian
+route: it exhibits the reduced one-parcel family, proves the one-body generator
+$`H_{\rm sp} = H_{\rm visc} + H_{\rm advect}` symmetric and positive for the
+exact nonlinearity, and identifies the final Hamiltonian with its second
+quantization $`d\Gamma(H_{\rm sp})` — the one-particle Hamiltonian enclosed in
+creation on the left and annihilation on the right, so every particle-number
+sector is preserved. {ref "qg-elimination"}[Eliminating the derivative variables
+in quantum gravity] is the same service for the vielbein sector of the $`R^2`
+Starobinsky model, deleting twenty-seven derivative components per momentum while
+reproducing the vielbein self-interaction and the scalaron coupling verbatim.
+Those three chapters are the structural companion of
+{ref "starobinsky-scalaron"}[the Starobinsky scalaron] and of the Navier–Stokes
+and numerics chapters that follow, and they are where the final-Hamiltonian
+convention of the whole programme is explained for these two systems.
+
 {include 0 Book.GaugeSymmetry}
 
 {include 0 Book.FreeField}
@@ -319,6 +347,10 @@ instance of the tensor products of sample spaces).
 {include 0 Book.DiffeomorphismsGravity}
 
 {include 0 Book.FourierElimination}
+
+{include 0 Book.NsOneParticleHamiltonian}
+
+{include 0 Book.QgElimination}
 
 {include 0 Book.Starobinsky}
 

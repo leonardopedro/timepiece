@@ -29,15 +29,15 @@ formalizes the finite/truncated level. The new proof layer now supplies a condit
 The solver evolves a state by projecting the generator onto a Krylov subspace,
 exponentiating the resulting $`m \times m` matrix, and lifting the answer back.
 Written out, the approximation is
-$`V_m \, \psi(B_m) \, V_m^{*} v`$, where $`V_m`$ is an isometric embedding of the
-retained subspace, $`B_m = V_m^{*} X V_m`$ is the compression of the shift-invert
-resolvent $`X`$, and $`\psi`$ is the function whose calculus at $`X`$ reproduces
+$`V_m \, \psi(B_m) \, V_m^{*} v`, where $`V_m` is an isometric embedding of the
+retained subspace, $`B_m = V_m^{*} X V_m` is the compression of the shift-invert
+resolvent $`X`, and $`\psi` is the function whose calculus at $`X` reproduces
 the propagator. The reliability question is how far that is from the exact
-$`\varphi_k(A) v`$.
+$`\varphi_k(A) v`.
 :::
 
 :::paragraph
-The ingredients were proved separately: the $`\varphi`$-function calculus, the
+The ingredients were proved separately: the $`\varphi`-function calculus, the
 compression transfer, the rational-transfer identity, and the exponential decay
 of the error bound in the reduction order. What was missing was a theorem that
 *composes* them. `BookProof/ChapterSirkEndToEnd.lean` is that composition.
@@ -72,7 +72,7 @@ For the physical lift, `ChapterFockNumberPreservingGap.lean` proves that a posit
 # Why the Transfer Identity Has To Be Pointwise
 
 :::paragraph
-The rational transfer $`r(X) v = V_m \, r(B_m) \, V_m^{*} v`$ is not an operator
+The rational transfer $`r(X) v = V_m \, r(B_m) \, V_m^{*} v` is not an operator
 identity: it holds only for states already inside the retained subspace. The
 Krylov seed is such a state, and the triangle-inequality core only ever uses the
 identity at the seed. Weakening the hypothesis accordingly is what allows the
@@ -806,7 +806,7 @@ being defaulted.
 :::paragraph
 What the reader then proves is the gap theorem with the parsed numbers substituted in:
 given the two enclosures the certificate asserts, the certified difference
-$`\theta^o - \theta^e - (\delta^o + \delta^e)`$ is a lower bound for the parity gap of
+$`\theta^o - \theta^e - (\delta^o + \delta^e)` is a lower bound for the parity gap of
 the truncated Hamiltonian. Worked through on the recorded run — measured gap $`1.9875`,
 assembled width $`0.0555` — the emitted text alone yields a certified gap of at least
 $`1.932`, in particular a strictly positive one.
@@ -837,7 +837,7 @@ recorded run is $`[1.932, 2.043]`, which contains it.
 The finite-size study asks a different question — what the gap tends to as the lattice
 grows. If the finite-size correction is a pure power $`C \, l^{-p}`, the Richardson
 combination of two lattice sizes returns the limit exactly, and if the two values are
-known only to within $`\varepsilon`$, the extrapolant is off by at most
+known only to within $`\varepsilon`, the extrapolant is off by at most
 $`\varepsilon (1 + 2/X)`, where $`X` is the extrapolation denominator. That is a
 theorem. The number obtained by feeding the recorded lattice data into it is not: it is
 a numerical estimate, and the passage to the thermodynamic limit is not claimed.

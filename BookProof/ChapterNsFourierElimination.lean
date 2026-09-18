@@ -33,16 +33,17 @@ the outer-Fock Hamiltonian is its particle-number-conserving second quantization
 another sum of squares — and it keeps the nonlinearity **in full**: squaring both real
 parts puts `(Re)² = (q_i + ν|k|² u_i)²` *and* `(Im)² = ((k·u) u_i)²` inside the Hamiltonian, so the
 advection is one of the squares and the reduced *sector* Hamiltonian is quartic, unlike the
-real-part-only truncation.  The skewness of `mulOp (i·Im)` (below, §7) is a statement about the operator of the
-*equation*: it is what makes the **coefficientwise** product of the complex form unusable, and it is
-also why `L*L` and the two-square form are the same *form* (the skew cross term of `L*L` contributes
-nothing).  **Plan of record, 2026‑09‑17b:** the honest Hamiltonian is the
+real-part-only truncation.  The skewness of `mulOp (i·Im)` (below, §7) is a statement about the
+operator of the *equation*: it is what makes the **coefficientwise** product of the complex form
+unusable, and it is also why `L*L` and the two-square form are the same *form* (the skew cross term
+of `L*L` contributes nothing).  **Plan of record, 2026‑09‑17b:** the honest Hamiltonian is the
 modulus-square one, `N` is free, and the convenient choice `N = ι(Friedrichs(H_n^red))` makes the
-commutator vanish (`c = 0`).  **Pending delta:** `redFieldN` below still carries the three *real*
-residual forms only, so the landed `redHam` is the Gaussian part; extending the family to the real
-and imaginary parts of every surviving form (with `realCoeff_fourierAdvect` already available) is
-the handoff item, and `redHam_quadForm_nonneg` / `redHam_friedrichs_extension` are generic in that
-family and re-elaborate unchanged.
+commutator vanish (`c = 0`).  **The delta is closed:** `redFieldN` below carries the honest family
+`redFormPoly` — the real and imaginary parts of *every* surviving substituted form, i.e. the three
+real residual parts `q_i + ν|k|² u_i`, the three advection parts `(k·u) u_i` and the eliminated
+incompressibility `k·u`, seven forms per parcel — so `redHam` is the full modulus-square
+Hamiltonian, quartic and interacting (`redFieldN_advect` exhibits the advection as one of the
+squares), and `redHam_quadForm_nonneg` / `redHam_friedrichs_extension` hold for it unchanged.
 
 Everything is `sorry`-free and `axiom`-free.
 -/
@@ -215,7 +216,8 @@ Splitting `σ(R_i) = i·(advection symbol) + (real symbol)`, each part is a *leg
 Hamiltonian: the real polynomial `(k·u) u_i` has a symmetric operator, so the reduced *one-particle*
 Hamiltonian of §5 squares it — `½ ((k·u)u_i)²` alongside `½(q_i + ν|k|²u_i)²` (plan of record
 2026‑09‑17b) — and `N` is free, the convenient choice being the lifted Friedrichs extension of that
-same one-particle Hamiltonian (`c = 0`), which the outer-Fock lift `dΓ(H₁)` of §6 carries unchanged. -/
+same one-particle Hamiltonian (`c = 0`), which the outer-Fock lift `dΓ(H₁)` of §6 carries
+unchanged. -/
 
 /-- The momentum scalar `k·u` in the reduced ring. -/
 def fourierMomentum (k : Fin 3 → ℝ) : MvPolynomial (Fin 6) ℂ :=
@@ -352,9 +354,10 @@ quantization `dΓ(H₁)`, the lift taking no further square.  That
 puts the advection **inside** a square — `½ ((k·u) u_i)²`, via `Im σ(R_i) = fourierAdvect`, whose
 multiplication operator is symmetric (`realCoeff_fourierAdvect` + `mulOp_polySym`) — so the reduced
 Hamiltonian is quartic and interacting, as Navier–Stokes requires; `N` is then free, and
-`N = ι(Friedrichs(H_n^red))` makes the commutator vanish (`c = 0`).  **Pending delta (2026‑09‑17b):**
-`redFieldN` carries only `redVisc` today, so the landed `redHam` is the Gaussian part — the honest
-family is the real and imaginary parts of every surviving substituted form. -/
+`N = ι(Friedrichs(H_n^red))` makes the commutator vanish (`c = 0`).  The squared family is
+`redFormPoly`: seven real-coefficient forms per parcel — `redVisc` (the real residual part),
+`redAdvectPoly` (the advection, the imaginary residual part) and `redMomentumPoly` (the eliminated
+incompressibility) — so nothing is dropped and nothing is demoted to a perturbation. -/
 
 /-- The real reduced residual form of a parcel, in the six reduced coordinates. -/
 def redVisc (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
@@ -371,28 +374,138 @@ theorem realCoeff_redVisc (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (
     RealCoeff (redVisc nu k n p i) :=
   (realCoeff_X _).add ((realCoeff_realConst _).mul (realCoeff_X _))
 
+/-- The lifted **real** advection symbol `(k·u) u_i` of the `i`-th residual of the `p`-th parcel —
+the *imaginary* part `Im σ(R_i)` of the eliminated residual, written as a real-coefficient
+polynomial. -/
+def redAdvectPoly (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
+    MvPolynomial (Fin (n * 6)) ℂ :=
+  ∑ j : Fin 3, C (((k j : ℝ)) : ℂ) * (X (ruIdx p j) * X (ruIdx p i))
+
+theorem realCoeff_redAdvectPoly (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
+    RealCoeff (redAdvectPoly k n p i) :=
+  RealCoeff.sum fun j _ =>
+    (realCoeff_realConst (k j)).mul ((realCoeff_X _).mul (realCoeff_X _))
+
+/-- The lifted real advection symbol is the lift of the one-parcel `fourierAdvect`. -/
+theorem redAdvectPoly_eq_liftParcel (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
+    redAdvectPoly k n p i = liftParcel p (fourierAdvect k i) := by
+  rw [redAdvectPoly, fourierAdvect_eq_transfer, map_sum]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  simp only [map_mul, liftParcel_C, liftParcel_X, ruIdx]
+
+/-- The lifted momentum scalar `k·u` of the `p`-th parcel — the *imaginary* part of the eliminated
+incompressibility `σ(Σ_j u_{j,j}) = i (k·u)` (its real part is zero). -/
+def redMomentumPoly (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) : MvPolynomial (Fin (n * 6)) ℂ :=
+  ∑ j : Fin 3, C (((k j : ℝ)) : ℂ) * X (ruIdx p j)
+
+theorem realCoeff_redMomentumPoly (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) :
+    RealCoeff (redMomentumPoly k n p) :=
+  RealCoeff.sum fun j _ => (realCoeff_realConst (k j)).mul (realCoeff_X _)
+
+/-- The lifted momentum scalar is the lift of the one-parcel `fourierMomentum`. -/
+theorem redMomentumPoly_eq_liftParcel (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) :
+    redMomentumPoly k n p = liftParcel p (fourierMomentum k) := by
+  rw [redMomentumPoly, fourierMomentum, map_sum]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  simp only [map_mul, liftParcel_C, liftParcel_X, ruIdx]
+
+/-- Index of the real part `Re σ(R_i) = q_i + ν|k|² u_i` of the `i`-th residual among the seven
+forms of a parcel. -/
+abbrev reIdx7 (i : Fin 3) : Fin 7 := ⟨i.val, by omega⟩
+
+/-- Index of the imaginary part `Im σ(R_i) = (k·u) u_i` — the **advection** — of the `i`-th
+residual among the seven forms of a parcel. -/
+abbrev imIdx7 (i : Fin 3) : Fin 7 := ⟨3 + i.val, by omega⟩
+
+/-- Index of the eliminated incompressibility `Im σ(Σ_j u_{j,j}) = k·u` among the seven forms of a
+parcel. -/
+abbrev divIdx7 : Fin 7 := ⟨6, by omega⟩
+
+/-- **The honest reduced constraint family of one parcel**: the real and imaginary parts of *every*
+surviving substituted form — the three real residual parts `q_i + ν|k|² u_i`, the three advection
+parts `(k·u) u_i`, and the eliminated incompressibility `k·u`.  (The `y`-gauge forms contribute
+nothing, `σ(y_j) = 0`, and the real part of the incompressibility is zero.)  Each member is
+real-coefficient, hence a symmetric multiplication form whose square is positive. -/
+def redFormPoly (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (r : Fin 7) :
+    MvPolynomial (Fin (n * 6)) ℂ :=
+  if h : r.val < 3 then redVisc nu k n p ⟨r.val, h⟩
+  else if h2 : r.val < 6 then redAdvectPoly k n p ⟨r.val - 3, by omega⟩
+  else redMomentumPoly k n p
+
+@[simp] theorem redFormPoly_re (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
+    redFormPoly nu k n p (reIdx7 i) = redVisc nu k n p i := by
+  have h : (reIdx7 i).val < 3 := i.isLt
+  rw [redFormPoly, dif_pos h]
+
+@[simp] theorem redFormPoly_im (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
+    redFormPoly nu k n p (imIdx7 i) = redAdvectPoly k n p i := by
+  have hi : i.val < 3 := i.isLt
+  have hv : (imIdx7 i).val = 3 + i.val := rfl
+  have h1 : ¬ (imIdx7 i).val < 3 := by omega
+  have h2 : (imIdx7 i).val < 6 := by omega
+  have hsub : (imIdx7 i).val - 3 = i.val := by omega
+  rw [redFormPoly, dif_neg h1, dif_pos h2]
+  simp only [hsub, Fin.eta]
+
+@[simp] theorem redFormPoly_div (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) :
+    redFormPoly nu k n p divIdx7 = redMomentumPoly k n p := by
+  have h1 : ¬ (divIdx7).val < 3 := by norm_num
+  have h2 : ¬ (divIdx7).val < 6 := by norm_num
+  rw [redFormPoly, dif_neg h1, dif_neg h2]
+
+/-- **Every member of the reduced family is real-coefficient**, hence its multiplication operator is
+symmetric and its square is a positive summand of the Hamiltonian. -/
+theorem realCoeff_redFormPoly (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (r : Fin 7) :
+    RealCoeff (redFormPoly nu k n p r) := by
+  rw [redFormPoly]
+  split
+  · exact realCoeff_redVisc nu k n p _
+  · split
+    · exact realCoeff_redAdvectPoly k n p _
+    · exact realCoeff_redMomentumPoly k n p
+
 /-- The momenta of the six reduced coordinates of each parcel. -/
 def redPiN (n : ℕ) (m : Fin (n * 6)) :
     polyGaussCore (d := n * 6) →ₗ[ℂ] polyGaussCore (d := n * 6) :=
   (coreRepPoly (n * 6)).op
     (momOp (redIdx (finProdFinEquiv.symm m).1 (finProdFinEquiv.symm m).2))
 
-/-- The reduced constraint (multiplication) forms of the `n`-parcel sector: the three real residual
-forms per parcel. -/
-def redFieldN (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (m : Fin (n * 3)) :
+/-- The reduced constraint (multiplication) forms of the `n`-parcel sector: the **seven** forms of
+each parcel — the real and imaginary parts of every surviving substituted form (three real residual
+parts, three advection parts and the eliminated incompressibility). -/
+def redFieldN (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (m : Fin (n * 7)) :
     polyGaussCore (d := n * 6) →ₗ[ℂ] polyGaussCore (d := n * 6) :=
   (coreRepPoly (n * 6)).op
-    (mulOp (redVisc nu k n (finProdFinEquiv.symm m).1 (finProdFinEquiv.symm m).2))
+    (mulOp (redFormPoly nu k n (finProdFinEquiv.symm m).1 (finProdFinEquiv.symm m).2))
+
+/-- The real residual part `q_i + ν|k|² u_i` is one of the squared forms. -/
+theorem redFieldN_re (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
+    redFieldN nu k n (finProdFinEquiv (p, reIdx7 i))
+      = (coreRepPoly (n * 6)).op (mulOp (redVisc nu k n p i)) := by
+  simp only [redFieldN, Equiv.symm_apply_apply, redFormPoly_re]
+
+/-- **The advection is one of the squared forms** — the reduced Hamiltonian is quartic and keeps
+the Navier–Stokes nonlinearity, no term being demoted to a perturbation. -/
+theorem redFieldN_advect (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
+    redFieldN nu k n (finProdFinEquiv (p, imIdx7 i))
+      = (coreRepPoly (n * 6)).op (mulOp (redAdvectPoly k n p i)) := by
+  simp only [redFieldN, Equiv.symm_apply_apply, redFormPoly_im]
+
+/-- The eliminated incompressibility `k·u` contributes its own square. -/
+theorem redFieldN_div (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) :
+    redFieldN nu k n (finProdFinEquiv (p, divIdx7))
+      = (coreRepPoly (n * 6)).op (mulOp (redMomentumPoly k n p)) := by
+  simp only [redFieldN, Equiv.symm_apply_apply, redFormPoly_div]
 
 theorem redPiN_symmetricOn (n : ℕ) (m : Fin (n * 6)) :
     SymmetricOn (polyGaussCore (d := n * 6))
       ((polyGaussCore (d := n * 6)).subtype.comp (redPiN n m)) :=
   (coreRepPoly (n * 6)).symmetricOn_op (momOp_polySym _)
 
-theorem redFieldN_symmetricOn (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (m : Fin (n * 3)) :
+theorem redFieldN_symmetricOn (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) (m : Fin (n * 7)) :
     SymmetricOn (polyGaussCore (d := n * 6))
       ((polyGaussCore (d := n * 6)).subtype.comp (redFieldN nu k n m)) :=
-  (coreRepPoly (n * 6)).symmetricOn_op (mulOp_polySym (realCoeff_redVisc _ _ _ _ _))
+  (coreRepPoly (n * 6)).symmetricOn_op (mulOp_polySym (realCoeff_redFormPoly _ _ _ _ _))
 
 /-- **The reduced `n`-parcel Hamiltonian** on the Gauss–polynomial core of `L²(ℝ^{6n})` — the
 `n`-parcel member of the one-particle family (`n = 1` is the reduced one-particle Hamiltonian). -/
@@ -521,7 +634,7 @@ theorem mulOp_polySkew {f : MvPolynomial (Fin d) ℂ} (hf : RealCoeff f) :
   have hR : starP p * ((-mulOp (C Complex.I * f)) q) = (-(C Complex.I * f)) * (starP p * q) := by
     simp only [mulOp_apply, LinearMap.neg_apply, neg_mul]
     ring
-  show gaussInt (starP ((mulOp (C Complex.I * f)) p) * q)
+  change gaussInt (starP ((mulOp (C Complex.I * f)) p) * q)
       = gaussInt (starP p * (-(mulOp (C Complex.I * f))) q)
   rw [mulOp_apply, hL, hR]
 
@@ -561,23 +674,6 @@ theorem coreRep_quadForm_skew_zero (Φ : CoreRep d D) {T : Module.End ℂ (MvPol
     linarith
   change (inner ℂ ((x : D) : L2d d) ((D.subtype.comp (Φ.op T)) x)).re = 0
   exact h4
-
-/-- The lifted **real** advection symbol `(k·u) u_i` of the `i`-th residual of the `p`-th parcel. -/
-def redAdvectPoly (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
-    MvPolynomial (Fin (n * 6)) ℂ :=
-  ∑ j : Fin 3, C (((k j : ℝ)) : ℂ) * (X (ruIdx p j) * X (ruIdx p i))
-
-theorem realCoeff_redAdvectPoly (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
-    RealCoeff (redAdvectPoly k n p i) :=
-  RealCoeff.sum fun j _ =>
-    (realCoeff_realConst (k j)).mul ((realCoeff_X _).mul (realCoeff_X _))
-
-/-- The lifted real advection symbol is the lift of the one-parcel `fourierAdvect`. -/
-theorem redAdvectPoly_eq_liftParcel (k : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : Fin 3) :
-    redAdvectPoly k n p i = liftParcel p (fourierAdvect k i) := by
-  rw [redAdvectPoly, fourierAdvect_eq_transfer, map_sum]
-  refine Finset.sum_congr rfl fun j _ => ?_
-  simp only [map_mul, liftParcel_C, liftParcel_X, ruIdx]
 
 /-- **The advection term of the eliminated Hamiltonian**: multiplication by `i (k·u) u_i`, one for
 each residual direction of each parcel. -/

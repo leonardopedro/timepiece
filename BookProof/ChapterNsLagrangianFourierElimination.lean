@@ -22,9 +22,9 @@ three dimensions
 * every `2 × 2` minor of a rank-one matrix vanishes, hence `cof(F) = 0` — so the **Piola pressure
   term** `Σ_j cof(F)_{ji} q_j`, which is the entire pressure coupling of the material momentum
   equation, is annihilated by the elimination (`lagElimSubst_piola`);
-* `det F = 0` for the same reason, so the **volume constraint** `det F = 1` collapses to the constant
-  `−1` (`lagElimSubst_volumePoly`), whose square is `1` (`lagElimSubst_volumePoly_sq`) — it carries
-  no field content and cannot couple to the field.
+* `det F = 0` for the same reason, so the **volume constraint** `det F = 1` collapses to the
+  constant `−1` (`lagElimSubst_volumePoly`), whose square is `1`
+  (`lagElimSubst_volumePoly_sq`) — it carries no field content and cannot couple to the field.
 
 So the Lagrangian route cannot eliminate `F` mode-wise.  The symbolic checks B1–B3 of
 `DESIGN_COMPARISON_N_20260915.md` §9 (Piola quadratic, determinant cubic, volume square sextic) are
@@ -35,15 +35,15 @@ elimination of the *velocity* derivative `V_{ij} → i ℓ_j v_i` and of the vis
 `S_i → −|ℓ|² v_i` is unaffected, and the eliminated momentum equation keeps exactly those two terms
 (`lagElimSubst_lagResPoly`).
 
-**Status (2026-09-17): handoff scaffold — not finished, not imported, in no Lake target.**  §1–3
-below (`lRedIdx`, `lagElimCoord` / `lagLift` / `lagElimHom`, and the coordinate values for `ξ_i`,
-`v_i`, `a_i`, `q_i`, `y_j`, `S_i`) are `sorry`-free and green, **except** the two rank-one
-coordinate lemmas `lagElimCoord_fIdx` and `lagElimCoord_vgIdx`, which exceed the heartbeat budget
-(a `whnf` timeout in their `Fin 36`-index bookkeeping — a proof-engineering issue, not a
-mathematical gap).  §4–5 (`rankOne_cof_zero`, `lagElimSubst_cofPoly`/`_piola`/`_detPoly`/
-`_volumePoly`/`_volumePoly_sq`, `lagElimSubst_lagResPoly`) are written on top of those two and so
-do not yet elaborate.  No `sorry` and no `axiom` is used anywhere in the file.  The handoff is
-recorded in `CONSOLIDATED_PLAN.md` item 6, “Status — handoff to the Lean specialist”.
+**Status: complete.**  §1–5 below all elaborate: `lRedIdx`, `lagElimCoord` / `lagLift` /
+`lagElimHom` and the coordinate values for `ξ_i`, `v_i`, `a_i`, `q_i`, `y_j`, `S_i`; the two
+rank-one coordinate lemmas `lagElimCoord_fIdx` and `lagElimCoord_vgIdx` (previously a heartbeat
+timeout in their `Fin 36`-index bookkeeping, now proved by rewriting the index arithmetic before
+the dependent `Fin` constructors are touched); and the degeneracy itself (`rankOne_cof_zero`,
+`lagElimSubst_cofPoly`/`_piola`/`_detPoly`/`_volumePoly`/`_volumePoly_sq`,
+`lagElimSubst_lagResPoly`).  No `sorry` and no `axiom` is used anywhere in the file, and the
+module is imported by `BookProof.lean`.  This discharges the handoff of `CONSOLIDATED_PLAN.md`
+item 6, “Status — handoff to the Lean specialist”.
 -/
 
 namespace BookProof.NsLagFourier
@@ -53,8 +53,6 @@ open BookProof.YangMillsHermite BookProof.HermiteProductCore
 open BookProof.NsFullLagrangian
 
 noncomputable section
-
-set_option maxHeartbeats 1000000
 
 variable {n : ℕ}
 
@@ -194,28 +192,17 @@ theorem lagElimCoord_fIdx (l : Fin 3 → ℝ) (i j : Fin 3) :
   have hi : i.val < 3 := i.isLt
   have hj : j.val < 3 := j.isLt
   have hv : (fIdx i j).val = 9 + 3 * i.val + j.val := rfl
-  have h1 : ¬ (fIdx i j).val < 3 := by rw [hv]; omega
-  have h2 : ¬ (fIdx i j).val < 6 := by rw [hv]; omega
-  have h3 : ¬ (fIdx i j).val < 9 := by rw [hv]; omega
-  have h4 : (fIdx i j).val < 18 := by rw [hv]; omega
-  have hsub : (↑(fIdx i j) - 9) = 3 * i.val + j.val := by rw [hv]; omega
+  have h1 : ¬ (fIdx i j).val < 3 := by omega
+  have h2 : ¬ (fIdx i j).val < 6 := by omega
+  have h3 : ¬ (fIdx i j).val < 9 := by omega
+  have h4 : (fIdx i j).val < 18 := by omega
+  have hsub : ((fIdx i j).val - 9) = 3 * i.val + j.val := by omega
   have hmod : (3 * i.val + j.val) % 3 = j.val := by
     rw [Nat.mul_add_mod, Nat.mod_eq_of_lt hj]
   have hdiv : (3 * i.val + j.val) / 3 = i.val := by
     rw [Nat.mul_add_div (by norm_num : 0 < 3), Nat.div_eq_of_lt hj, Nat.add_zero]
-  have hmod3 : ((fIdx i j).val - 9) % 3 < 3 := Nat.mod_lt _ (by norm_num)
-  have hlt3 : ((fIdx i j).val - 9) / 3 < 3 := by
-    rw [Nat.div_lt_iff_lt_mul (by norm_num : 0 < 3), hsub]; omega
   rw [lagElimCoord, dif_neg h1, dif_neg h2, dif_neg h3, dif_pos h4]
-  have hl : (⟨(↑(fIdx i j) - 9) % 3, hmod3⟩ : Fin 3) = j := by
-    apply Fin.ext
-    change (↑(fIdx i j) - 9) % 3 = j.val
-    rw [hsub, hmod]
-  have hx : (⟨(↑(fIdx i j) - 9) / 3, hlt3⟩ : Fin 3) = i := by
-    apply Fin.ext
-    change (↑(fIdx i j) - 9) / 3 = i.val
-    rw [hsub, hdiv]
-  simp only [hl, hx]
+  simp only [hsub, hmod, hdiv, Fin.eta]
 
 /-- **The velocity gradient becomes `i ℓ_j v_i`.** -/
 theorem lagElimCoord_vgIdx (l : Fin 3 → ℝ) (i j : Fin 3) :
@@ -223,29 +210,18 @@ theorem lagElimCoord_vgIdx (l : Fin 3 → ℝ) (i j : Fin 3) :
   have hi : i.val < 3 := i.isLt
   have hj : j.val < 3 := j.isLt
   have hv : (vgIdx i j).val = 18 + 3 * i.val + j.val := rfl
-  have h1 : ¬ (vgIdx i j).val < 3 := by rw [hv]; omega
-  have h2 : ¬ (vgIdx i j).val < 6 := by rw [hv]; omega
-  have h3 : ¬ (vgIdx i j).val < 9 := by rw [hv]; omega
-  have h4 : ¬ (vgIdx i j).val < 18 := by rw [hv]; omega
-  have h5 : (vgIdx i j).val < 27 := by rw [hv]; omega
-  have hsub : (↑(vgIdx i j) - 18) = 3 * i.val + j.val := by rw [hv]; omega
+  have h1 : ¬ (vgIdx i j).val < 3 := by omega
+  have h2 : ¬ (vgIdx i j).val < 6 := by omega
+  have h3 : ¬ (vgIdx i j).val < 9 := by omega
+  have h4 : ¬ (vgIdx i j).val < 18 := by omega
+  have h5 : (vgIdx i j).val < 27 := by omega
+  have hsub : ((vgIdx i j).val - 18) = 3 * i.val + j.val := by omega
   have hmod : (3 * i.val + j.val) % 3 = j.val := by
     rw [Nat.mul_add_mod, Nat.mod_eq_of_lt hj]
   have hdiv : (3 * i.val + j.val) / 3 = i.val := by
     rw [Nat.mul_add_div (by norm_num : 0 < 3), Nat.div_eq_of_lt hj, Nat.add_zero]
-  have hmod3 : ((vgIdx i j).val - 18) % 3 < 3 := Nat.mod_lt _ (by norm_num)
-  have hlt3 : ((vgIdx i j).val - 18) / 3 < 3 := by
-    rw [Nat.div_lt_iff_lt_mul (by norm_num : 0 < 3), hsub]; omega
   rw [lagElimCoord, dif_neg h1, dif_neg h2, dif_neg h3, dif_neg h4, dif_pos h5]
-  have hl : (⟨(↑(vgIdx i j) - 18) % 3, hmod3⟩ : Fin 3) = j := by
-    apply Fin.ext
-    change (↑(vgIdx i j) - 18) % 3 = j.val
-    rw [hsub, hmod]
-  have hx : (⟨(↑(vgIdx i j) - 18) / 3, hlt3⟩ : Fin 3) = i := by
-    apply Fin.ext
-    change (↑(vgIdx i j) - 18) / 3 = i.val
-    rw [hsub, hdiv]
-  simp only [hl, hx]
+  simp only [hsub, hmod, hdiv, Fin.eta]
 
 /-- **The viscous coordinate becomes `−|ℓ|² v_i`.** -/
 theorem lagElimCoord_sIdx (l : Fin 3 → ℝ) (i : Fin 3) :
@@ -358,7 +334,7 @@ theorem lagElimSubst_lagResPoly (l : Fin 3 → ℝ) (n : ℕ) (p : Fin n) (i : F
       = X (lRedIdx p (accIdx12 i))
         + C (((∑ j : Fin 3, (l j) ^ 2 : ℝ)) : ℂ) * X (lRedIdx p (vIdx12 i)) := by
   simp only [lagResPoly, map_add, map_mul, lagElimHom_C, C_neg_one_real n,
-    lagElimHom_X_accIdx, lagElimHom_X_sIdx, lagElimSubst_piola, zero_add, add_zero]
+    lagElimHom_X_accIdx, lagElimHom_X_sIdx, lagElimSubst_piola, add_zero]
   ring
 
 end

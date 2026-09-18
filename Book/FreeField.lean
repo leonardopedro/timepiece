@@ -52,7 +52,7 @@ finite-mode core vector $`v = x + w` into its order-$`m` Galerkin part and its
 tail, and proves that a gap certified on the truncation lifts to the core once
 the tail is coercive and the coupling across the split is bounded
 (`gap_of_level_gap_and_tail`, `gap_of_uniform_truncated_gap`), and further via
-the d\Gamma operator applied to the outer-enclosed $`H`$ (the `ym_fock_*` compositions).
+the d\Gamma operator applied to the outer-enclosed $`H` (the `ym_fock_*` compositions).
 `BookProof/ChapterSchurGershgorinGap.lean` then proves those two analytic
 inputs *from the matrix elements* the certificate records: diagonal dominance
 on the tail gives coercivity (`tail_coercive_of_gershgorin`) and a Schur test
@@ -101,7 +101,7 @@ Where a gap *is* claimed for QED, it is claimed honestly — attached to the
 regulated or massive instantiation, not to the free photon. The infrared-
 regulated dispersion (a mass cutoff $`\mu > 0` away from zero) recovers
 $`\omega_k \ge \mu` and therefore the Fock mass gap `irPhoton_fock_mass_gap`;
-the Proca (massive photon) dispersion $`\omega_k = \sqrt{p_k^2 + m^2}`$
+the Proca (massive photon) dispersion $`\omega_k = \sqrt{p_k^2 + m^2}`
 gives `proca_fock_mass_gap`. Both are labelled exactly as what they are:
 gapped statements for *regulated/massive* QED, with the masslessness of the
 physical photon kept as the explicit reason the free sector has no gap. This
@@ -414,20 +414,20 @@ of an explicitly $`m \times m` object.
 :::paragraph
 The reductions form a *nested tower of approximation orders*, and this nesting is
 itself a decidable, finite-dimensional statement — the part of the Hashimoto
-convergence guarantee that needs no analytic input. Write $`\mathrm{Kry}_n`$ for
-the order-$`n`$ Krylov subspace $`\mathrm{Kry}_n(\bar H, v_0)`$. Two facts are
+convergence guarantee that needs no analytic input. Write $`\mathrm{Kry}_n` for
+the order-$`n` Krylov subspace $`\mathrm{Kry}_n(\bar H, v_0)`. Two facts are
 purely algebraic. First, the subspaces nest:
-$`\mathrm{Kry}_n \subseteq \mathrm{Kry}_{n+1}`$
-($`\mathrm{krylovSpan\_mono}`$): the order-$`n`$ basis is the first $`n`$ vectors
-of the order-($`n`+1) basis. Second, the order-$`n`$ reduced generator is the
-top-left $`n \times n`$ block of the order-($`n`+1) reduced generator, because the
-compression is upper-Hessenberg — so the order-$`n`$ approximant is the
-*projection* of the order-($`n`+1) approximant onto $`\mathrm{Kry}_n`$: the finer
+$`\mathrm{Kry}_n \subseteq \mathrm{Kry}_{n+1}`
+($`\mathrm{krylovSpan\_mono}`): the order-$`n` basis is the first $`n` vectors
+of the order-($`n`+1) basis. Second, the order-$`n` reduced generator is the
+top-left $`n \times n` block of the order-($`n`+1) reduced generator, because the
+compression is upper-Hessenberg — so the order-$`n` approximant is the
+*projection* of the order-($`n`+1) approximant onto $`\mathrm{Kry}_n`: the finer
 band, restricted to the coarser information, reproduces the coarser band exactly.
 And the error bound is monotone in the same direction: the band
-$`[0, \mathrm{sirkBound}(n+1)]`$ is contained in $`[0, \mathrm{sirkBound}(n)]`$
-($`\mathrm{sirk\_error\_bound\_antitone}`$), and the bands collapse to $`\{0\}`$
-as $`n`$ grows ($`\mathrm{sirk\_error\_decay\_exponential}`$).
+$`[0, \mathrm{sirkBound}(n+1)]` is contained in $`[0, \mathrm{sirkBound}(n)]`
+($`\mathrm{sirk\_error\_bound\_antitone}`), and the bands collapse to $`\{0\}`
+as $`n` grows ($`\mathrm{sirk\_error\_decay\_exponential}`).
 :::
 
 ```
@@ -466,37 +466,37 @@ the decidable skeleton (Solovay–Mehler–Kopperman: every inner product over t
 infinite substrate collapses to a finite head integral), so it is provable
 without any analytic hypothesis. What the nesting does *not* supply is the
 numerical *width* of the bands: that the true error lies inside
-$`\mathrm{sirkBound}(n)`$ is conditional on Crouzeix's inequality
-($`\mathrm{sirk\_error\_bound\_decay}`$, `ChapterH4`), which is recorded in
+$`\mathrm{sirkBound}(n)` is conditional on Crouzeix's inequality
+($`\mathrm{sirk\_error\_bound\_decay}`, `ChapterH4`), which is recorded in
 `BookProof/` as a named hypothesis rather than an axiom. The band-containment
-statement itself — order-($`n`$+1) refines order-$`n`$, iterated — is proved in
-`ChapterH8`: the block identity $`\mathrm{sirk\_compression\_block}`$, the
-projection identities $`\mathrm{sirk\_band\_refinement}`$ and
-$`\mathrm{sirk\_approx\_projection}`$, and the tower
-$`\mathrm{sirk\_nested\_orders}`$ — which holds not only one step at a time but
-between any two orders $`m \le n`$ ($`\mathrm{sirk\_nested\_orders\_le}`$, with
-the leading-block identity $`\mathrm{sirk\_compression\_submatrix\_le}`$). The
+statement itself — order-($`n`+1) refines order-$`n`, iterated — is proved in
+`ChapterH8`: the block identity $`\mathrm{sirk\_compression\_block}`, the
+projection identities $`\mathrm{sirk\_band\_refinement}` and
+$`\mathrm{sirk\_approx\_projection}`, and the tower
+$`\mathrm{sirk\_nested\_orders}` — which holds not only one step at a time but
+between any two orders $`m \le n` ($`\mathrm{sirk\_nested\_orders\_le}`, with
+the leading-block identity $`\mathrm{sirk\_compression\_submatrix\_le}`). The
 refinement is not restricted to powers of
 the generator: it holds for an arbitrary polynomial of the reduced generator
-($`\mathrm{sirk\_band\_refinement\_poly}`$) and for the rational functions the
+($`\mathrm{sirk\_band\_refinement\_poly}`) and for the rational functions the
 SIRK step actually evaluates — numerator polynomial over an invertible
 denominator whose compression is invertible
-($`\mathrm{sirk\_band\_refinement\_rational}`$), with the whole-space projection
-forms $`\mathrm{sirk\_approx\_projection\_poly}`$ and
-$`\mathrm{sirk\_approx\_projection\_rational}`$. The hypotheses are not vacuous:
+($`\mathrm{sirk\_band\_refinement\_rational}`), with the whole-space projection
+forms $`\mathrm{sirk\_approx\_projection\_poly}` and
+$`\mathrm{sirk\_approx\_projection\_rational}`. The hypotheses are not vacuous:
 any pair of nested orthonormal Krylov bases realizes them, through the embedding
-of an orthonormal family and the coordinate inclusion along $`\mathrm{castLE}`$,
+of an orthonormal family and the coordinate inclusion along $`\mathrm{castLE}`,
 which gives the hypothesis-free instances
-$`\mathrm{sirk\_band\_refinement\_of\_orthonormal}`$ and
-$`\mathrm{sirk\_compression\_submatrix\_of\_orthonormal}`$. Those bases exist:
-Gram–Schmidt on the Krylov sequence $`k \mapsto H^k v`$ produces one orthonormal
+$`\mathrm{sirk\_band\_refinement\_of\_orthonormal}` and
+$`\mathrm{sirk\_compression\_submatrix\_of\_orthonormal}`. Those bases exist:
+Gram–Schmidt on the Krylov sequence $`k \mapsto H^k v` produces one orthonormal
 sequence whose prefixes are orthonormal, nested by construction and span the
-Krylov subspaces ($`\mathrm{krylovOrthonormal\_span}`$,
-$`\mathrm{krylovEmbedding\_range}`$), which gives the refinement statement for the
-Krylov flag itself ($`\mathrm{sirk\_band\_refinement\_krylov}`$, under the
+Krylov subspaces ($`\mathrm{krylovOrthonormal\_span}`,
+$`\mathrm{krylovEmbedding\_range}`), which gives the refinement statement for the
+Krylov flag itself ($`\mathrm{sirk\_band\_refinement\_krylov}`, under the
 hypothesis that the Krylov sequence has not broken down before the finer order).
 Two provisos are recorded
-there. The refinement of the *approximants* needs the order-$`n`$ subspace to be
+there. The refinement of the *approximants* needs the order-$`n` subspace to be
 invariant under the compressed operator — the block-triangularity that makes the
 leading block a generator in its own right; and the whole-space form of the projection
 identity needs that subspace to *reduce* the operator (invariance under the
@@ -506,35 +506,35 @@ data.
 
 :::paragraph
 The nesting has a spectral face as well: not only do the approximants refine, the
-*frequencies* the reduced generators can see nest. Writing $`W(\cdot)`$ for the
+*frequencies* the reduced generators can see nest. Writing $`W(\cdot)` for the
 numerical range — the set of Rayleigh quotients over unit vectors — the reduced
-generators $`B_k = V_k^{*} X V_k`$ satisfy
-$`W(B_m) \subseteq W(B_n) \subseteq W(X)`$ for $`m \le n`$
-($`\mathrm{sirk\_numRange\_nested\_orders}`$, and
-$`\mathrm{sirk\_numRange\_krylov}`$ for the Krylov flag the method actually
-builds), with the matching norm chain $`\|B_m\| \le \|B_n\| \le \|X\|`$ and the
-uniform envelope $`W(X) \subseteq \{|z| \le \|X\|\}`$. Every Ritz value of a
+generators $`B_k = V_k^{*} X V_k` satisfy
+$`W(B_m) \subseteq W(B_n) \subseteq W(X)` for $`m \le n`
+($`\mathrm{sirk\_numRange\_nested\_orders}`, and
+$`\mathrm{sirk\_numRange\_krylov}` for the Krylov flag the method actually
+builds), with the matching norm chain $`\|B_m\| \le \|B_n\| \le \|X\|` and the
+uniform envelope $`W(X) \subseteq \{|z| \le \|X\|\}`. Every Ritz value of a
 coarse order is therefore a Rayleigh quotient of every finer order, and of the
-full generator ($`\mathrm{ritz\_mem\_numRange}`$,
-$`\mathrm{ritz\_mem\_numRange\_compress}`$): refining the order can only *add*
+full generator ($`\mathrm{ritz\_mem\_numRange}`,
+$`\mathrm{ritz\_mem\_numRange\_compress}`): refining the order can only *add*
 frequencies, and never one the physics does not already have. Since a
 finite-dimensional reduced generator has only eigenvalues in its spectrum, the
 whole Ritz *spectrum* nests the same way
-($`\mathrm{spectrum\_compress\_subset\_numRange\_orthonormal}`$). Positivity and any
-real window $`[a,b]`$ of the quadratic form survive compression at every order
-($`\mathrm{compress\_nonneg}`$, $`\mathrm{compress\_re\_inner\_mem\_Icc}`$). The
+($`\mathrm{spectrum\_compress\_subset\_numRange\_orthonormal}`). Positivity and any
+real window $`[a,b]` of the quadratic form survive compression at every order
+($`\mathrm{compress\_nonneg}`, $`\mathrm{compress\_re\_inner\_mem\_Icc}`). The
 direction matters for honesty: since the numerical ranges *grow* with the order,
-a Crouzeix-type bound $`C \sup_{W(B)}|f|`$ is non-decreasing in the order — the
-band decay of $`\mathrm{sirkBound}`$ comes from the approximation quality, not
+a Crouzeix-type bound $`C \sup_{W(B)}|f|` is non-decreasing in the order — the
+band decay of $`\mathrm{sirkBound}` comes from the approximation quality, not
 from shrinking numerical ranges. Convexity of the numerical range
 (Toeplitz–Hausdorff) is neither used nor claimed. The approximation quality
 itself does improve, unconditionally: the Krylov subspaces are
 finite-dimensional, so the orthogonal projection onto them exists, and since they
-nest, the best-approximation error is antitone in the order — for $`m \le n`$ the
-order-$`n`$ subspace approximates any target at least as well as the order-$`m`$
-one ($`\mathrm{krylov\_bestApprox\_antitone}`$), and when the Krylov flag is
-dense — a cyclic seed — the error tends to $`0`$
-($`\mathrm{krylov\_bestApprox\_tendsto\_zero}`$). Those statements need no
+nest, the best-approximation error is antitone in the order — for $`m \le n` the
+order-$`n` subspace approximates any target at least as well as the order-$`m`
+one ($`\mathrm{krylov\_bestApprox\_antitone}`), and when the Krylov flag is
+dense — a cyclic seed — the error tends to $`0`
+($`\mathrm{krylov\_bestApprox\_tendsto\_zero}`). Those statements need no
 Crouzeix constant; what they do *not* give is a rate.
 :::
 
@@ -903,25 +903,25 @@ ways, and the difference between them is exactly the difference between a
 above has to make. The three are:
 
 * Method A — the topological (gauge-invariant) constraint. One introduces a
-  symmetry that shifts both fields at once, $`\delta\varphi = \varepsilon`$ and
-  $`\delta v = d\varepsilon`$, so that the combination $`v - d\varphi`$ is
-  *gauge-invariant* ($`\delta(v-d\varphi) = 0`$) and hence a candidate physical
-  observable.  Promoting the parameter to a ghost, $`s\varphi = c`$,
-  $`s v = dc`$, $`s c = 0`$ is nilpotent, and the constraint is BRST-closed
+  symmetry that shifts both fields at once, $`\delta\varphi = \varepsilon` and
+  $`\delta v = d\varepsilon`, so that the combination $`v - d\varphi` is
+  *gauge-invariant* ($`\delta(v-d\varphi) = 0`) and hence a candidate physical
+  observable.  Promoting the parameter to a ghost, $`s\varphi = c`,
+  $`s v = dc`, $`s c = 0` is nilpotent, and the constraint is BRST-closed
   but not BRST-exact: it sits in the BRST cohomology.  That is the correct
-  structure when $`v = d\varphi`$ is a genuinely topological relation — a
-  Bogomol'nyi equation, a field-strength relation $`F = dA`$ — a piece of physics
+  structure when $`v = d\varphi` is a genuinely topological relation — a
+  Bogomol'nyi equation, a field-strength relation $`F = dA` — a piece of physics
   one wants to keep.  It is the wrong structure for the Navier–Stokes thread,
   where the derivative modes are redundant canonical coordinates one wants to
   eliminate, not promote to observables.
 
-* Method B — the gauge-fixing condition (the one chosen here). Here $`v`$
+* Method B — the gauge-fixing condition (the one chosen here). Here $`v`
   starts as an arbitrary unconstrained field with its own shift symmetry,
-  $`\delta v = \varepsilon`$, $`\delta\varphi = 0`$, and the relation
-  $`v = d\varphi`$ is a condition one imposes by gauge fixing.  The Gauge-Fixing
-  Fermion $`\Psi = \bar c\,(v - d\varphi)`$ is chosen so that its BRST variation
-  $`s\Psi = B(v-d\varphi) - \bar c\,c`$ is a BRST-exact term: the Lagrange
-  multiplier $`B`$ enforces $`v = d\varphi`$ as a delta function in the path
+  $`\delta v = \varepsilon`, $`\delta\varphi = 0`, and the relation
+  $`v = d\varphi` is a condition one imposes by gauge fixing.  The Gauge-Fixing
+  Fermion $`\Psi = \bar c\,(v - d\varphi)` is chosen so that its BRST variation
+  $`s\Psi = B(v-d\varphi) - \bar c\,c` is a BRST-exact term: the Lagrange
+  multiplier $`B` enforces $`v = d\varphi` as a delta function in the path
   integral, and the ghost term carries no derivatives, so the ghosts decouple.
   Being BRST-exact, the whole term integrates to zero against any evaluation
   functional that annihilates exact terms (`int_L_gf_eq_zero`) — it contributes
@@ -930,17 +930,17 @@ above has to make. The three are:
   `BookProof/ChapterGaugeFixing.lean`.
 
 * A complex gauge field (a flat-connection reading of the same content). One
-  might instead replace the derivative $`\partial_\mu u`$ in the Hamiltonian by
-  $`A_\mu u`$ for a complex gauge field $`A_\mu`$ (a complexified vector
+  might instead replace the derivative $`\partial_\mu u` in the Hamiltonian by
+  $`A_\mu u` for a complex gauge field $`A_\mu` (a complexified vector
   potential), fix the magnetic field to zero as an initial condition, and impose
-  covariant constancy $`D_\mu u = \partial_\mu u + A_\mu u = 0`$ to fix the field
+  covariant constancy $`D_\mu u = \partial_\mu u + A_\mu u = 0` to fix the field
   derivatives.  This is geometrically elegant — the derivative field becomes the
   connection coefficient of a flat line bundle — but it carries no new content:
-  wherever $`u \neq 0`$ the constraint forces $`A_\mu = -\partial_\mu\log u`$, a
-  pure gauge with curvature automatically zero, so $`A`$ is the derivative field
+  wherever $`u \neq 0` the constraint forces $`A_\mu = -\partial_\mu\log u`, a
+  pure gauge with curvature automatically zero, so $`A` is the derivative field
   in disguise and the "magnetic field is zero" is the flatness consistency, not a
   dynamical condition.  It also costs the structure the proofs here depend on: a
-  gauge field is not a constant of the motion (it is coupled to $`u`$ through the
+  gauge field is not a constant of the motion (it is coupled to $`u` through the
   covariant constraint), so the block decomposition over the derivative spectrum
   that drives the ESA chain collapses; and a complex coefficient breaks the real
   Hermitian form of the Navier–Stokes Hamiltonian, re-opening the symmetrization
@@ -951,7 +951,7 @@ above has to make. The three are:
 :::paragraph
 Why Method B is chosen.  The task in the Navier–Stokes thread is to *remove*
 the derivative coordinates, not to make them physical: the Eulerian
-derivatives-as-fields construction promotes $`u_{i,j}`$ and $`u_{i,jj}`$ to
+derivatives-as-fields construction promotes $`u_{i,j}` and $`u_{i,jj}` to
 independent canonical coordinates purely so the Hamiltonian carries momenta only
 for the velocity modes — which is what makes the derivative field a constant of
 the motion and the block decomposition possible.  Method B is the instrument that
@@ -959,7 +959,7 @@ completes that construction: it eliminates the redundant coordinates by a
 BRST-exact gauge fixing whose ghosts decouple and whose Lagrange multiplier
 enforces the constraint as a strict delta function, leaving the physical
 cohomology untouched.  Method A would invert the logic (it would make
-$`v - d\varphi`$ a physical observable), and the flat-connection reading, while
+$`v - d\varphi` a physical observable), and the flat-connection reading, while
 insightful, is the same logic repackaged at the cost of a new gauge redundancy and
 a complexified Hermitian structure.  Method B is also the formalization-friendly
 choice: one graded Leibniz rule, no analysis, a purely algebraic skeleton
@@ -971,7 +971,7 @@ the Navier–Stokes Hamiltonian (§9 item 8 of `CONSOLIDATED_PLAN.md`) is to be 
 
 :::paragraph
 Because that transformed operator is Hermitian on the truncation, everything
-said about the flow of $`H_N` holds for it verbatim: $`e^{\mathrm{i}t\hat h}`$ is
+said about the flow of $`H_N` holds for it verbatim: $`e^{\mathrm{i}t\hat h}` is
 a one-parameter unitary group and the corresponding Cauchy problem has exactly
 one global solution. That is the truncated form of the Lagrangian route — the
 continuum statement remains unclaimed.

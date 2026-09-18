@@ -187,7 +187,7 @@ The total sample space splits as a finite *head* times an infinite *tail*:
 ```
 
 :::paragraph
-The head $`\mathrm{InnerHead}\,N = \mathrm{Fin}\,N \to \mathbb{R} \cong \mathbb{R}^N`$
+The head $`\mathrm{InnerHead}\,N = \mathrm{Fin}\,N \to \mathbb{R} \cong \mathbb{R}^N`
 is an ordinary finite-dimensional Euclidean Hilbert space. The tail
 $`\mathrm{InnerTail}` is the Kopperman *substrate*, the standard separable real
 Hilbert space $`L^2([0,1])`. Its separability is the topological precondition for

@@ -2663,22 +2663,139 @@ import BookProof.ChapterProve2meReuse
 -- of a reduced form is its *modulus* square, so the advection enters squared
 -- (`½ ((k·u)u_i)²`, via `fourierAdvect`, whose multiplication operator is symmetric) and the
 -- Hamiltonian keeps the Navier–Stokes nonlinearity in full; `N` is free, and
--- `N = ι(Friedrichs(H_n^red))` gives the commutator `c = 0`.  The landed `redFieldN` still carries
--- only the three real residual forms — extending it to the real and imaginary parts of every
--- surviving form is the pending delta.
+-- `N = ι(Friedrichs(H_n^red))` gives the commutator `c = 0`.  `redFieldN` carries the honest
+-- family `redFormPoly` — the real and imaginary parts of every surviving substituted form (three
+-- real residual parts, three advection parts, the eliminated incompressibility) — so the
+-- Hamiltonian is the full modulus-square one (`redFieldN_advect`).
 -- The book chapter is `Book/FourierElimination.lean`; the design note is
 -- `DESIGN_COMPARISON_N_20260915.md` §5.
 import BookProof.ChapterNsFourierElimination
 
--- `ChapterNsLagrangianFourierElimination` (2026-09-17, **WIP — do not import yet**): the same
+-- `ChapterNsLagrangianFourierElimination` (2026-09-17, landed): the same
 -- Fourier elimination in *material* (Lagrangian) variables, where it turns out to be degenerate:
 -- `σ(F_{ij}) = i ℓ_j ξ_i` makes the deformation gradient the rank-one matrix `F = ℓ ⊗ ξ`, so the
 -- eliminated cofactor vanishes and with it the whole Piola pressure coupling of the material
 -- momentum equation, while `det F = 0` collapses the volume constraint `det F = 1` to the
 -- constant `−1` (a constraint with no field content).  The surviving sector is the velocity
 -- gradient `V_{ij} → i ℓ_j v_i` plus the viscous coordinate `S_i → −|ℓ|² v_i`, giving
--- `σ(R_i) = a_i + |ℓ|² v_i` — see `CONSOLIDATED_PLAN.md` item 6.  The file is a handoff scaffold:
--- §1–3 are green except the two `Fin`-index lemmas `lagElimCoord_fIdx` / `lagElimCoord_vgIdx`, which
--- exceed the heartbeat budget, and §4–5 depend on them.  Add the `import` line above (and the
--- chapter to the Book) only once it compiles.
--- import BookProof.ChapterNsLagrangianFourierElimination
+-- `σ(R_i) = a_i + |ℓ|² v_i` — see `CONSOLIDATED_PLAN.md` item 6.  The two `Fin`-index lemmas
+-- `lagElimCoord_fIdx` / `lagElimCoord_vgIdx` that used to exceed the heartbeat budget are proved,
+-- so §1–5 of the chapter elaborate; the module is `sorry`-free and `axiom`-free.
+import BookProof.ChapterNsLagrangianFourierElimination
+
+-- `ChapterQgFourierElimination` (2026-09-17c): item 7 of the quantum-gravity plan items — the
+-- derivative modes of the vielbein sector are *eliminated*, not gauge-fixed.  `elimD` is the
+-- substitution `D_{μν}^i(k) = i k_μ e_ν^i(k)` read as a definition-time elimination, so every
+-- torsion form is a linear form on the physical modes alone and the extended mode space `EMode`
+-- never enters: `elimTorsion_eq_torsionCoef` (the eliminated torsion is exactly the physical
+-- Fourier torsion `k_μ e_ν^i − k_ν e_μ^i`), `elimTorsion_eq_gaugeReduce` (it restates the BRST
+-- gauge reduction of `ChapterQgBrstDerivativeGauge`), the structural facts
+-- (`elimTorsion_antisymm`, `_diag`, `_conj`), `elimGram_eq_contTorsionGram` (the Gram matrix of
+-- all eliminated torsion forms is the continuum vielbein self-interaction, with no hypothesis on
+-- the momenta) and hence `qgElim_esa` / `starobinsky_qgElim_esa`: the Hamiltonian so defined is
+-- essentially self-adjoint on the outer Fock space, with no ghost sector and no restriction
+-- argument.
+import BookProof.ChapterQgFourierElimination
+
+-- `ChapterQgFullEliminated` (2026-09-17d): the second half of item 8 of the quantum-gravity plan
+-- items — the *full* vielbein–scalaron Hamiltonian of `ChapterQgVielbeinScalaronGaugeFL`, whose
+-- modes carry the nine vielbein components together with the twenty-seven derivative components,
+-- is rebuilt on the nine eliminated components alone.  `elimCoef` is the coefficient vector of
+-- each of the 57 linear forms after the elimination `D_{μν}^i ↦ i k_μ e_ν^i`
+-- (`eFormValue_eq_formValue_elimConfig`: the eliminated form is the full form on the eliminated
+-- configuration; `elimCoef_dGauge`: the 27 derivative-gauge forms become identically zero),
+-- `eGram` the rebuilt vielbein self-interaction (`eGram_eq_torsion_add_gauge3d`) and
+-- `quadForm_eq_of_gauge_fixed` proves that the rebuilt quadratic form is the full one restricted
+-- to the gauge surface.  `qgElimFullModes` is the mode data (κ = 513 + |g|, band size 9 instead
+-- of 36) and `qgElimFull_esa_farisLavine` / `qgElimFull_esa_core_fl` /
+-- `starobinsky_qgElimFull_esa` / `qgElimFull_stone_flow` are the Faris–Lavine essential
+-- self-adjointness and the Stone flow of the rebuilt Hamiltonian, on the outer Fock space over
+-- the nine components only.
+import BookProof.ChapterQgFullEliminated
+
+-- `ChapterNsSpatialMomentumMultiplier` (2026-09-17d): part of item 1 of the Navier–Stokes plan
+-- items — the Plancherel identification and the diagonal spatial derivative.  `l2Fourier` names
+-- the Fourier transform of `L²(V)` as a linear isometry equivalence (`l2Fourier_norm`,
+-- `l2Fourier_inner`), `fourier_opL2_eq_mulSymbol` lifts the Schwartz-space multiplier identity of
+-- `ChapterFourierMultiplierEsa` to the Hilbert space (a real-symbol operator is carried, on the
+-- Schwartz core, to multiplication by its symbol), and `fourier_opL2_firstOrderOp` /
+-- `fourier_opL2_momentumOp` specialize it to `∑_j c_j (−i ∂_{w_j})` and `−i ∂_m`, whose symbols
+-- are `∑_j 2π c_j ⟪ξ, w_j⟫` and `2π ⟪ξ, m⟫`.  `foSymbolFn_add_fibre` (and its Euclidean instance)
+-- is the statement that a spatial derivative is blind to the fibre momentum.  Honest boundary:
+-- the *partial* spatial-only transform is not constructed; see the module docstring.
+import BookProof.ChapterNsSpatialMomentumMultiplier
+
+-- `ChapterNsPartialFourier` (2026-09-17e): the remaining part of item 1 of the Navier–Stokes plan
+-- items — the *partial* (spatial-only) Fourier transform, on the fibred one-particle space
+-- `L²(V; F)`.  `partialFourier` is the Plancherel identification in the spatial variable
+-- (`partialFourier_norm`, `partialFourier_inner`) and `partialFourier_fibreOp` proves that it
+-- leaves the fibre alone: it commutes with the pointwise action of every bounded operator of the
+-- fibre.  `fourier_vecMomentumOp_apply` is the diagonal spatial derivative in the fibred space
+-- (symbol `2π ⟪ξ, m⟫`, no fibre dependence) and `postcompCLM_vecMomentumOp` that the spatial
+-- derivative commutes with the fibre operators.  §4 instantiates the fibre as `L²(W)`:
+-- `nsPartialFourier`, `nsPartialFourier_fibreOp`, `nsPartialFourier_fibreFourier`.  Auxiliary and
+-- of independent use: `postcompCLM`, the postcomposition of a Schwartz function with an operator
+-- of the target, with its Fourier, `L²` and derivative compatibilities.
+import BookProof.ChapterNsPartialFourier
+
+-- `ChapterNsFieldMomentumInverse` (2026-09-17e): item 2 of the Navier–Stokes plan items — the
+-- inverse field momentum `π^{-1}`.  In the momentum representation of the fibre variable the field
+-- momentum `−i ∂_m` is multiplication by `momSymbol m ξ = 2π ⟪ξ, m⟫` (`isMomInverse_momentumOp`),
+-- whose zero set is a hyperplane and therefore null (`volume_momSymbol_zero`): the kernel is
+-- trivial (`momentum_kernel_trivial`), so `π^{-1}` is single valued (`isMomInverse_unique`), its
+-- domain `momDomain` is the states with square-integrable divided symbol
+-- (`isMomInverse_of_memLp`), and it is dense (`momDomain_dense`).  The identity of the physical
+-- sector `u^{(1)}_j = p_j π^{-1}` is `isMomInverse_smul`, with the symbol form
+-- `eq_div_of_mul_eq_ae`.
+import BookProof.ChapterNsFieldMomentumInverse
+
+-- `ChapterNsAdvectionConvolution` (2026-09-17e): item 3 of the Navier–Stokes plan items — the
+-- convolution algebra.  `fourier_mul_eq_convolution` is the product-to-convolution theorem
+-- `𝓕(f · g)(Q) = ∫ 𝓕f(q) 𝓕g(Q − q) dq` (the dual of Mathlib's convolution theorem, obtained by
+-- Fourier inversion), `fourier_lineDeriv_apply` the derivative symbol `2π i ⟪q, m⟫`, and
+-- `fourier_advection_convolution` / `fourier_advection_sum` the momentum-space form of the
+-- Navier–Stokes nonlinearity `u_j ∂_j u_i` as a convolution — the momentum-space replacement of
+-- the derivative-gauge generator.
+import BookProof.ChapterNsAdvectionConvolution
+
+-- `ChapterNsCutoffUniformity` (2026-09-17e): the coefficient half of the uniformity obligation of
+-- item 4 of the Navier–Stokes plan items (§5.4(1) of `DESIGN_COMPARISON_N_20260915.md`).  Under
+-- the energy cutoff `|k_j| ≤ Λ` every coefficient of every reduced form is bounded by
+-- `cutoffBound nu Λ = 1 + 3Λ + 3|ν|Λ²` (`norm_coeff_redFormPoly_le`), uniformly in the parcel
+-- number, the parcel and the form; the forms have degree at most two
+-- (`totalDegree_redFormPoly_le`) and involve only the coordinates of their own parcel
+-- (`vars_redFormPoly_subset`).  `norm_coeff_redFormPoly_unbounded_of_no_cutoff` shows the cutoff
+-- is load-bearing: without it the coefficients are unbounded.
+import BookProof.ChapterNsCutoffUniformity
+
+-- `ChapterNsOneBodyDGamma` (2026-09-18): the operator half of item 4 and item 5 of the
+-- Navier–Stokes plan items.  `spHam` is the one-body generator of the Fourier-eliminated Eulerian
+-- sector on a core representation of the Gauss–polynomial core of `L²(ℝ⁶)`;
+-- `spHam_eq_visc_add_advect` splits it as `H_sp = H_visc + H_advect` with the advection squares
+-- (the momentum convolution `(k·u) u_i`) separated out, and both halves are symmetric and positive
+-- (`spVisc_quadForm_nonneg`, `spAdvect_quadForm_nonneg`) — the two Faris–Lavine inequalities, with
+-- the comparison `N_E = spFried` giving `spHam_esa_farisLavine` (`H = N`, `c = 0`).  The lift
+-- `dΓ(H_sp)` is built in the product Hermite basis (`nsOnePart`, `nsSpCol`) and is symmetric,
+-- positive, particle-number conserving (`nsSpDGamma_number_conserving`) and essentially
+-- self-adjoint on the domain of its Friedrichs realization (`nsSpDGamma_esa_farisLavine`).
+-- `redHam_eq_sum_parcel` adds the parcel decomposition: the reduced `n`-parcel Hamiltonian is the
+-- sum of `n` copies of the one-body generator, one per parcel (`weylOpDom_block_sum`), and
+-- `spHam_stone_flow` / `nsSpDGamma_stone_flow` give the unitary time evolution by Stone's theorem.
+import BookProof.ChapterNsOneBodyDGamma
+
+-- `ChapterNsKoopman` (2026-09-18): the **mainstream** Navier–Stokes Hamiltonian, i.e. the
+-- Koopman–von Neumann (Liouville) generator `H_NS = ½ Σ_m (π_m F_m + F_m π_m)` of the exact
+-- Leray–Galerkin system `u̇ = −νAu + B(u,u)` with the two structural identities of
+-- incompressibility (Leray energy `Σ_i u_i B_i = 0`, Liouville `Σ_i ∂_i B_i = 0`) as hypotheses.
+-- `nsKoopmanOp_symmetricOn` shows it is symmetric, while `nsKoopmanOp_not_bounded_below`
+-- (`quadP_starP` + an exact Hermite matrix element) shows its quadratic form takes arbitrarily
+-- negative values: the mainstream NS Hamiltonian is **not** bounded below, so it cannot serve as
+-- the positive comparison operator `N` of Faris–Lavine (the `H = N`, `c = 0` shortcut of
+-- `ChapterNsOneBodyDGamma` applies only to the auxiliary positive sum-of-squares surrogate).
+-- The replacement comparison operator is multiplication by the Leray energy `E = 1 + ‖u‖²`
+-- (`nsEnergyOp`), with the exact commutator identity `i[H_NS, N_E] = F·∇E = −2ν Σ λ_i u_i²`
+-- (`kvn_comm_energy`, advection cancelling by Leray) and the Faris–Lavine commutator bound
+-- `commForm_kvn_energy_bound`; `nsKoopman_esa_of_energy_comparison` then gives essential
+-- self-adjointness, carrying the surjectivity of `N_E + 1` as an explicit hypothesis.
+-- `nsTriad` is a non-vacuity witness: the resonant Navier–Stokes Fourier triad.
+import BookProof.ChapterNsKoopman

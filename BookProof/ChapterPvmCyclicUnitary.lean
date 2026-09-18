@@ -282,7 +282,7 @@ theorem swCLM_simple (F : Lp.simpleFunc ℂ 2 (pvmMeasure P ψ)) :
 theorem swCLM_norm (v : Lp ℂ 2 (pvmMeasure P ψ)) : ‖swCLM P ψ v‖ = ‖v‖ := by
   refine (denseRange_coeToLp P ψ).induction (P := fun v => ‖swCLM P ψ v‖ = ‖v‖) ?_ ?_ v
   · rintro _ ⟨F, rfl⟩
-    rw [swCLM_simple P ψ F]
+    show ‖swCLM P ψ (F : Lp ℂ 2 (pvmMeasure P ψ))‖ = ‖(F : Lp ℂ 2 (pvmMeasure P ψ))‖
     rw [swCLM_simple P ψ F]
     exact swSimple_norm P ψ F
   · exact isClosed_eq (by fun_prop) (by fun_prop)

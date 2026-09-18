@@ -213,9 +213,8 @@ theorem hasFDerivAt_cylTerm (e : E) (j m : ℕ) (x : E) :
   have h := hf.mul hg
   convert h using 1
   ext u
-  simp only [ContinuousLinearMap.add_apply, Pi.smul_apply,
-    smul_eq_mul, innerCLM_apply, ContinuousLinearMap.smulRight_apply,
-    ContinuousLinearMap.coe_smul]
+  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply,
+    smul_eq_mul, innerCLM_apply]
   ring
 
 /-- **The Laplacian of the cylindrical monomial** `⟪e,y⟫ʲ (‖y‖²)ᵐ` for a unit

@@ -1,5 +1,219 @@
 # `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`
 
+## Latest wave — 2026-09-18: the one-body generator `H_sp = H_visc + H_advect` and its second
+## quantization `dΓ(H_sp)` (NS plan items 4, operator half, and 5)
+
+`BookProof/ChapterNsOneBodyDGamma.lean` (new, namespace `BookProof.NsOneBody`, imported from
+`BookProof.lean`, `sorry`-free and `axiom`-free) closes the operator half of NS plan item 4 and
+item 5 on the Fourier-eliminated Eulerian sector.
+
+* `spFormPoly` / `redFormPoly_eq_liftParcel`: the seven one-parcel forms of the eliminated sector
+  (`q_i + ν|k|² u_i`, `(k·u) u_i`, `k·u`) are the single-parcel member of the landed `n`-parcel
+  family, parcel by parcel.
+* `spHam_eq_visc_add_advect`: **the splitting `H_sp = H_visc + H_advect`** — `H_visc` carries the
+  six momenta and the four non-advective squares, `H_advect` the three squares of the momentum
+  convolution `(k·u) u_i = Σ_j k_j u_j u_i`.  No derivative-gauge form and no `y`-gauge enters.
+* `spVisc_symmetricOn` / `spVisc_quadForm_nonneg` and `spAdvect_symmetricOn` /
+  `spAdvect_quadForm_nonneg`: the two Faris–Lavine inequalities, with `spHam_quadForm_split` adding
+  the two form contributions back to the generator's.
+* `spFried` (the comparison `N_E`), `spHam_commForm_zero`, `spHam_esa_farisLavine` and
+  `spFried_isPositiveSelfAdjointExtension`: the criterion in its `H = N`, `c = 0` form, with
+  `polyGaussCore_le_spFriedDom` the domain obligation.
+* `nsOnePart`, `nsSpCol`, `dGammaOp (nsSpCol …)`: the same generator in the product Hermite basis
+  and its second quantization on the finite-occupation core; `nsSpDGamma_symmetricOn`,
+  `nsSpDGamma_quadForm_nonneg`, `nsSpDGamma_friedrichs_extension`,
+  `nsSpDGammaFried_isPositiveSelfAdjointExtension` and **`nsSpDGamma_esa_farisLavine`** (essential
+  self-adjointness of `dΓ(H_sp)`), together with `nsSpDGamma_number_conserving` (every
+  particle-number sector is preserved) and `nsSpDGamma_one_particle`.
+* `spHam_stone_flow` and `nsSpDGamma_stone_flow`: the single-time package — by Stone's theorem
+  each comparison realization generates a strongly continuous one-parameter unitary group.
+* `redHam_eq_sum_parcel` and `nsRedFullFockHam_sector_sum_parcel` (with the general
+  `weylOpDom_block_sum`): the reduced `n`-parcel Hamiltonian is the sum of `n` copies of the
+  one-body generator, one per parcel — the structural reading of `weylOp` that §D8(5) of the plan
+  left owed for the reduced sector is now a theorem.
+* Honest boundary: the comparison is the Friedrichs realization of the operator itself, so the
+  Faris–Lavine constant is `c = 0` and no relative bound of the advection against an independent
+  comparison operator is claimed.
+* Bookkeeping: the `BookProofOperatorCore` stanza of `lakefile.toml` and the `## Inventory` section
+  of `BUILD_COMPONENTS.md` were updated (898 modules), `import_components.py BookProof --check`
+  passes, and `Work/NsOneBodyDGammaAudit.lean` reports only `propext`, `Classical.choice`,
+  `Quot.sound`.
+
+
+## Latest wave — 2026-09-17e (fourth part): uniformity of the reduced forms under the energy cutoff
+
+`BookProof/ChapterNsCutoffUniformity.lean` (new, namespace `BookProof.NsCutoffUniformity`,
+imported from `BookProof.lean`, `sorry`-free and `axiom`-free) settles the coefficient half of the
+uniformity obligation of NS plan item 4.
+
+* `norm_coeff_redFormPoly_le`: under the cutoff `|k_j| ≤ Λ`, every coefficient of every reduced
+  form of every parcel is bounded by `1 + 3Λ + 3|ν|Λ²`, uniformly in the parcel number.
+* `totalDegree_redFormPoly_le` (degree at most two) and `vars_redFormPoly_subset` (parcel
+  locality: a form involves only its own parcel's six coordinates).
+* `norm_coeff_redFormPoly_unbounded_of_no_cutoff`: without the cutoff the coefficients are
+  unbounded, so the cutoff is load-bearing.
+* Not settled here: the operator-level relative bound with a constant independent of the parcel
+  number; on the landed route the comparison is the lifted Friedrichs extension of the reduced
+  Hamiltonian itself, whose Faris–Lavine constant is `c = 0`.
+
+
+## Latest wave — 2026-09-17e (third part): the convolution algebra of the advection (NS plan item 3)
+
+`BookProof/ChapterNsAdvectionConvolution.lean` (new, namespace `BookProof.NsAdvectionConvolution`,
+imported from `BookProof.lean`, `sorry`-free and `axiom`-free) puts the Navier–Stokes nonlinearity
+into momentum space.
+
+* `fourier_mul_eq_convolution`: the product-to-convolution theorem
+  `𝓕(f · g)(Q) = ∫ 𝓕f(q) 𝓕g(Q − q) dq`, the dual of Mathlib's convolution theorem, derived from it
+  by Fourier inversion together with `fourier_fourier_apply` (the double transform is the
+  reflection).
+* `fourier_lineDeriv_apply`: the derivative symbol, `𝓕(∂_m u)(q) = 2π i ⟪q, m⟫ 𝓕u(q)`.
+* `fourier_advection_convolution` and `fourier_advection_sum`: the item's convolution theorem,
+  `ℱ[u_j ∂_m u_i](Q) = ∫ 2π i ⟪q, m⟫ Û_i(q) Û_j(Q − q) dq`, and its sum over a finite family of
+  directions — the momentum-space replacement of the derivative-gauge generator.
+* Bookkeeping: the `BookProofOperatorCore` stanza of `lakefile.toml` and the `## Inventory` section
+  of `BUILD_COMPONENTS.md` were regenerated (896 modules), `import_components.py BookProof --check`
+  passes, and `Work/NsAdvectionConvolutionAudit.lean` reports only the standard axioms.
+
+
+## Latest wave — 2026-09-17e (second part): the inverse field momentum (NS plan item 2)
+
+`BookProof/ChapterNsFieldMomentumInverse.lean` (new, namespace `BookProof.NsFieldMomentumInverse`,
+imported from `BookProof.lean`, `sorry`-free and `axiom`-free) builds `π^{-1}` in the momentum
+representation of the fibre variable, where the field momentum is multiplication by
+`momSymbol m ξ = 2π ⟪ξ, m⟫` (`isMomInverse_momentumOp`).
+
+* `volume_momSymbol_zero` / `momSymbol_ne_zero_ae`: the symbol vanishes only on a hyperplane, a
+  null set — hence `momentum_kernel_trivial`, the kernel of the field momentum is trivial, and
+  `isMomInverse_unique`, the inverse is single valued.
+* `isMomInverse_of_memLp` is the domain criterion, `momDomain` the domain as a submodule, and
+  `momDomain_dense` (via `cut`, `cut_mem_momDomain`) that `π^{-1}` is densely defined.
+* `isMomInverse_smul` is the physical-sector identity `u^{(1)}_j = p_j π^{-1}`, with the symbol
+  form `eq_div_of_mul_eq_ae`.
+* Bookkeeping: `lakefile.toml` and `BUILD_COMPONENTS.md` regenerated (502 modules, 76 roots),
+  `python3 scripts/import_components.py BookProof --check` passes, and the audit
+  `Work/NsFieldMomentumInverseAudit.lean` reports only the standard axioms.
+
+
+## Latest wave — 2026-09-17e: the partial (spatial-only) Fourier transform (NS plan item 1, remaining half)
+
+`BookProof/ChapterNsPartialFourier.lean` (new, namespace `BookProof.NsPartialFourier`, imported
+from `BookProof.lean`, `sorry`-free and `axiom`-free) builds the spatial-only Fourier transform in
+the fibred (vector-valued) model of the one-particle space, `L²(V; F)`.
+
+* `partialFourier` is the Plancherel identification in the spatial variable
+  (`partialFourier_norm`, `partialFourier_inner`), and `partialFourier_fibreOp` proves that it
+  **leaves the fibre alone**: it commutes with the pointwise action of every bounded operator of
+  the fibre.
+* `fourier_vecMomentumOp_apply` is the diagonal spatial derivative in the fibred space — the
+  symbol is `2π ⟪ξ, m⟫`, with no fibre dependence — and `postcompCLM_vecMomentumOp` that the
+  spatial derivative commutes with every fibre operator.
+* §4 is the Navier–Stokes instance `F = L²(W)`: `nsPartialFourier`, `nsPartialFourier_norm`,
+  `nsPartialFourier_fibreOp`, `nsPartialFourier_fibreFourier` and
+  `nsPartialFourier_comp_fibreFourier_eq` (the spatial transform commutes with the Fourier
+  transform of the fibre variable).
+* Reusable by-product: `postcompCLM`, the postcomposition of a Schwartz function with a continuous
+  linear map of the target (absent from Mathlib), with `postcompCLM_apply`,
+  `postcompCLM_lineDerivOp`, `fourier_postcompCLM` and `toLp_postcompCLM`.
+* Honest boundary: the model is the vector-valued `L²(V; L²(W))`; its measure-theoretic
+  identification with the scalar `L²(V × W)` is not formalized (Mathlib does not have it).
+* Build bookkeeping: the `BookProofOperatorCore` stanza of `lakefile.toml` and the inventory row of
+  `BUILD_COMPONENTS.md` were regenerated (501 modules, 75 roots), and
+  `python3 scripts/import_components.py BookProof --check` passes.  The axiom audit
+  `Work/NsPartialFourierAudit.lean` reports only `propext`, `Classical.choice`, `Quot.sound` for
+  every headline result.
+
+
+## Latest wave — 2026-09-17d: the full quantum-gravity Hamiltonian rebuilt on the eliminated components alone (QG plan item 8, second half)
+
+`BookProof/ChapterQgFullEliminated.lean` (new, namespace `BookProof.QgFullEliminated`, imported
+from `BookProof.lean`, `sorry`-free and `axiom`-free) rebuilds the whole Hamiltonian of
+`ChapterQgVielbeinScalaronGaugeFL` — vielbein in exact Fourier modes over `ℤ³`, torsion
+self-interaction, derivative gauge fixing, 3D transverse gauge fixing, and the scalaron in
+position representation with the full exponential Einstein-frame wall coupled to the trace — on
+the **nine eliminated components alone**, the twenty-seven derivative components being absent
+rather than gauge fixed.
+
+* `elimCoef` is the coefficient vector of each of the `57` linear forms after the elimination
+  `D_{μν}^i ↦ i k_μ e_ν^i`, and `eFormValue_eq_formValue_elimConfig` says it is the full form
+  evaluated on the eliminated configuration: the torsion becomes the exact Fourier torsion
+  (`eFormValue_torsion`), the twenty-seven derivative-gauge forms become identically zero
+  (`elimCoef_dGauge`), the transverse form is unchanged (`eFormValue_gauge3d`).
+* `eGram` is the rebuilt vielbein self-interaction (`eGram_eq_torsion_add_gauge3d`), and
+  `eGram_quadForm` / `gGram_quadForm` / `quadForm_eq_of_gauge_fixed` prove that the rebuilt
+  `9`-component quadratic form and the full `36`-component one agree on the gauge surface.
+* `qgElimFullModes` satisfies all five Faris–Lavine bounds with `κ = 513 + |g|` and band size `9`
+  (instead of `36`), and `qgElimFull_esa_farisLavine`, `qgElimFull_esa_core_fl`,
+  `starobinsky_qgElimFull_esa`, `starobinsky_qgElimFull_esa_core`, `qgElimFull_stone_flow`,
+  `starobinsky_qgElimFull_stone_flow` are the essential self-adjointness and the unitary flow of
+  the rebuilt Hamiltonian; `qgElimFull_momentum_conserving` / `qgElimFull_number_conserving` are
+  the conservation statements and `elimCoef_torsion_ne_zero`, `elimCoef_gauge3d_ne_zero`,
+  `eGram_diag_ne_zero`, `eCoupling_ne_zero`, `infinite_egmode` the non-vacuity.
+* Build bookkeeping: the `BookProofOperatorCore` stanza of `lakefile.toml` and the inventory rows
+  of `BUILD_COMPONENTS.md` were regenerated (500 modules, 74 roots), and
+  `python3 scripts/import_components.py BookProof --check` passes.  The axiom audit
+  `Work/NsFourierEliminationAudit.lean` covers the new chapter and reports only `propext`,
+  `Classical.choice`, `Quot.sound`.
+
+The same wave makes a start on **NS plan item 1** (the spatial Fourier unitary and the diagonal
+derivative).  `BookProof/ChapterNsSpatialMomentumMultiplier.lean` (new, namespace
+`BookProof.NsSpatialMultiplier`, `sorry`-free and `axiom`-free, audit
+`Work/NsSpatialMomentumMultiplierAudit.lean`) names the Plancherel identification of `L²(V)` as a
+linear isometry equivalence (`l2Fourier`, `l2Fourier_norm`, `l2Fourier_inner`), lifts the
+Schwartz-space multiplier identity of `ChapterFourierMultiplierEsa` to that Hilbert space
+(`fourier_opL2_eq_mulSymbol`: a real-symbol operator is carried, on the Schwartz core, to
+multiplication by its symbol) and specializes it to the momentum operators
+(`fourier_opL2_firstOrderOp`, `fourier_opL2_momentumOp`: symbols `∑_j 2π c_j ⟪ξ, w_j⟫` and
+`2π ⟪ξ, m⟫`).  `foSymbolFn_add_fibre` and `euclidean_foSymbolFn_add_fibre` prove that a spatial
+derivative is blind to the fibre momentum.  **Honest boundary:** the *partial* (spatial-only)
+transform `L²(ℝ_x^d × ℝ_u^m) ≅ L²(ℝ_p^d × ℝ_u^m)` is not constructed; the full Plancherel
+transform is used, and that construction is what remains of item 1.
+
+## Latest wave — 2026-09-17c: the Fourier elimination of the Navier–Stokes derivative variables — the honest reduced Hamiltonian (advection included) and the Lagrangian degeneracy chapter
+
+Both Lean handoffs recorded in `CONSOLIDATED_PLAN.md` for the 2026‑09‑17 wave are executed, and
+both chapters are `sorry`-free and `axiom`-free (audit `Work/NsFourierEliminationAudit.lean`:
+only `propext`, `Classical.choice`, `Quot.sound`).
+
+* `BookProof/ChapterNsFourierElimination.lean` — the reduced field family is now the honest one.
+  `redFormPoly` collects, for each parcel, the real *and* imaginary parts of every surviving
+  substituted form: the three real residual parts `q_i + ν|k|² u_i` (`redVisc`), the three
+  advection parts `(k·u) u_i` (`redAdvectPoly`) and the eliminated incompressibility `k·u`
+  (`redMomentumPoly`, new, with `realCoeff_redMomentumPoly` and `redMomentumPoly_eq_liftParcel`).
+  `realCoeff_redFormPoly` makes every multiplication form symmetric, and `redFieldN_re`,
+  `redFieldN_advect`, `redFieldN_div` exhibit the three kinds of square — so the reduced sector
+  Hamiltonian `redHam` is the full modulus-square one, quartic and interacting, and not the
+  earlier real-part-only truncation.  Symmetry, positivity, the Friedrichs extension, the
+  nested-Fock lift and the Faris–Lavine statements (`nsRedFullOuterN_esa`,
+  `nsRedFullOuterN_isPositiveSelfAdjointExtension`) hold for it unchanged.
+* `BookProof/ChapterNsLagrangianFourierElimination.lean` — landed and imported from
+  `BookProof.lean`.  The two `Fin 36`-index lemmas that used to exceed the heartbeat budget
+  (`lagElimCoord_fIdx`, `lagElimCoord_vgIdx`) are proved, so the degeneracy of the material
+  elimination is fully formalized: the substituted deformation gradient is rank one, hence
+  `cof F = 0` and the whole Piola pressure coupling is annihilated (`lagElimSubst_piola`),
+  `det F = 0` and the volume constraint collapses to the constant `−1`
+  (`lagElimSubst_volumePoly`, `lagElimSubst_volumePoly_sq`), while what survives is
+  `σ(R_i) = a_i + |ℓ|² v_i` (`lagElimSubst_lagResPoly`).
+* `BookProof/ChapterQgFourierElimination.lean` (new) — the same elimination for quantum gravity
+  (plan item 7).  The gauge condition `D_{μν}^i(k) = i k_μ e_ν^i(k)` is read as a definition-time
+  substitution: `elimD` and `elimTorsion` are linear forms on the *physical* vielbein modes alone,
+  so the extended mode space never enters the operator or its domain.  The eliminated torsion is
+  the exact Fourier torsion `k_μ e_ν^i − k_ν e_μ^i` (`elimTorsion_eq_torsionCoef`) and coincides
+  with the gauge-reduced extended form of the BRST chapter (`elimTorsion_eq_gaugeReduce`); the
+  Gram matrix of all eliminated torsion forms is the continuum vielbein self-interaction with no
+  hypothesis on the momenta (`elimGram_eq_contTorsionGram`); and the Hamiltonian defined from that
+  data is essentially self-adjoint on the outer Fock space, with the exponential Einstein-frame
+  scalaron wall and arbitrary coupling (`qgElim_esa`, `starobinsky_qgElim_esa`), with no ghost
+  sector and no restriction-to-a-subset argument.  `elimTorsion_ne_zero` records non-vacuity.  For the full vielbein–scalaron model the same
+  chapter proves that the elimination parameterizes the derivative-gauge constraint surface
+  exactly (`formValue_dGauge_elimConfig`, `eq_elimConfig_of_gauge_fixed`), with the exact Fourier
+  torsion on it (`formValue_torsion_elimConfig`) and the transverse gauge form unchanged
+  (`formValue_gauge3d_elimConfig`).
+* Build bookkeeping: the `BookProofOperatorCore` stanza of `lakefile.toml` and the inventory row
+  of `BUILD_COMPONENTS.md` were regenerated (498 modules, 73 roots), and
+  `python3 scripts/import_components.py BookProof --check` passes.  `lake build Book` is green
+  with the updated `Book/FourierElimination.lean` prose.
+
 ## Latest wave — 2026-09-15 (second): unitarity of the spherical transform (Fourier–Bessel Plancherel, `l = 0`)
 
 The second honest boundary of the Note-68 thread.  `BookProof/ChapterSphericalPlancherel.lean`

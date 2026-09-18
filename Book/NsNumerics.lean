@@ -12,7 +12,7 @@ tag := "ns-numerics"
 
 :::paragraph
 The companion solver's Navier–Stokes validation suite measures three things:
-the *laminar decay rate* $`\nu k^2`$ of a diffusing velocity mode, the
+the *laminar decay rate* $`\nu k^2` of a diffusing velocity mode, the
 *advection symmetry* that makes the quadratic generator a legitimate
 Hamiltonian, and the *energy bookkeeping* (Ehrenfest identities, conserved
 norm, no-blowup bounds) that distinguishes a computation about the
@@ -33,13 +33,13 @@ it.
 # The Laminar Decay Rate: Diffusive Decay of the Parabolic Part
 
 :::paragraph
-The laminar-regime test evolves $`du/dt = -\nu k^2 u`$ and measures the
+The laminar-regime test evolves $`du/dt = -\nu k^2 u` and measures the
 exponential decay rate. The verified counterpart is the parabolic-semigroup
-theorem: for a *coercive* bounded generator $`A`$ — one satisfying
-$`\mu\|x\|^2 \le \operatorname{Re}\langle x, A x\rangle`$ — the heat
-semigroup $`e^{-tA}`$ decays at exactly the coercivity rate, in vector norm
-and in operator norm. The coercivity constant $`\mu`$ is precisely the
-$`\nu k^2`$ the numerics read off the reduced model:
+theorem: for a *coercive* bounded generator $`A` — one satisfying
+$`\mu\|x\|^2 \le \operatorname{Re}\langle x, A x\rangle` — the heat
+semigroup $`e^{-tA}` decays at exactly the coercivity rate, in vector norm
+and in operator norm. The coercivity constant $`\mu` is precisely the
+$`\nu k^2` the numerics read off the reduced model:
 :::
 
 ```
@@ -51,17 +51,17 @@ $`\nu k^2`$ the numerics read off the reduced model:
 
 :::paragraph
 The decay bound is proved by a Grönwal argument on the weighted energy
-$`\|e^{-tA}v\|^2 e^{2\mu t}`$: the energy identity
-$`d/dt\,\|u(t)\|^2 = -2\operatorname{Re}\langle u(t), Au(t)\rangle`$ makes
-the weight antitone, and the bound $`\|e^{-tA}v\| \le e^{-\mu t}\|v\|`$
-follows for every $`t \ge 0`$. Crucially, the theorem is *exact at the
+$`\|e^{-tA}v\|^2 e^{2\mu t}`: the energy identity
+$`d/dt\,\|u(t)\|^2 = -2\operatorname{Re}\langle u(t), Au(t)\rangle` makes
+the weight antitone, and the bound $`\|e^{-tA}v\| \le e^{-\mu t}\|v\|`
+follows for every $`t \ge 0`. Crucially, the theorem is *exact at the
 rate* — not merely asymptotic — which is what makes the measured decay
 constant a certificate rather than a fit.
 :::
 
 :::paragraph
 The reduction-invariance half of the statement is what connects the theorem
-to the solver's Galerkin/SIRK reduction: the compression $`V^*AV`$ of a
+to the solver's Galerkin/SIRK reduction: the compression $`V^*AV` of a
 coercive generator along an isometry is coercive with the *same* constant,
 so the reduced propagator obeys the identical decay bound at every
 reduction order. The measured laminar rate is therefore not an artifact of
@@ -74,10 +74,10 @@ the truncation:
 ```
 
 :::paragraph
-The honest boundary: identifying $`\mu`$ with $`\nu k^2`$ for a
+The honest boundary: identifying $`\mu` with $`\nu k^2` for a
 *particular* discretization is the content of the per-mode symbol
 computations in the Navier–Stokes chapters, and the numerical value of
-$`\nu`$ is an input, not a theorem. The generator in the decay theorem is
+$`\nu` is an input, not a theorem. The generator in the decay theorem is
 bounded — the regime in which the project's Galerkin/Hashimoto reduction is
 an operator statement; the unbounded case is the standing
 Stone/Trotter–Kato boundary.
@@ -89,8 +89,8 @@ Stone/Trotter–Kato boundary.
 Every decay and energy statement above silently assumes the generator is
 *symmetric* — otherwise there is no self-adjoint evolution and no conserved
 energy to track. For the truncated Navier–Stokes Hamiltonian
-$`H = \sum_i (\pi_i A_i + A_i \pi_i)`$ with the advective term
-$`A_i = \sum_j u_j u_{i,j} - \nu u_{i,jj}`$, symmetry is proved term by
+$`H = \sum_i (\pi_i A_i + A_i \pi_i)` with the advective term
+$`A_i = \sum_j u_j u_{i,j} - \nu u_{i,jj}`, symmetry is proved term by
 term: the advective part is symmetric on the domain because the modes are
 symmetric and pairwise commuting and the viscosity is real:
 :::
@@ -106,7 +106,7 @@ The same structure holds *untruncated*: on a dense domain of an arbitrary
 inner-product space, with fifteen symmetric pairwise-commuting field modes
 and three symmetric momenta, the full Hamiltonian is symmetric on its
 domain unconditionally — and for concrete realizations (bounded lattice
-modes on $`\ell^2(\mathbb{Z})`$, diagonal modes on $`\ell^2(\mathbb{N})`$)
+modes on $`\ell^2(\mathbb{Z})`, diagonal modes on $`\ell^2(\mathbb{N})`)
 it is essentially self-adjoint. The sharpness companion proves the
 converse boundary: structural hypotheses alone can never yield essential
 self-adjointness, so the analytic input (a complete flow) is indispensable:
@@ -124,7 +124,7 @@ Weyl-ordered Hamiltonian is the core realization of an explicit polynomial
 whose Gauss symmetry is checked purely algebraically, the closure is the
 *unique* self-adjoint extension, and the Hashimoto selection theorem pins
 down the operator the SIRK Krylov iteration computes — the shift-inverted
-resolvents exist, are bounded by $`1/|\operatorname{Im}\gamma_j|`$, and
+resolvents exist, are bounded by $`1/|\operatorname{Im}\gamma_j|`, and
 each single one determines the generator completely:
 :::
 
@@ -145,7 +145,7 @@ measuring *the* generator: the selection theorem guarantees the Krylov
 subspace reconstructs spectral information about the differential
 Navier–Stokes operator rather than an artifact of the shifts. The
 Ehrenfest identities the validation checks exactly on probes
-($`i\langle[H, u]\rangle = 4\kappa\langle u\rangle + 4c`$ on the affine
+($`i\langle[H, u]\rangle = 4\kappa\langle u\rangle + 4c` on the affine
 fiber) are statements about this selected operator.
 :::
 
@@ -153,7 +153,7 @@ fiber) are statements about this selected operator.
 
 :::paragraph
 The classical turbulence laws — kinetic-energy balance, enstrophy
-bookkeeping for the 2D inverse cascade, the Kolmogorov $`-5/3`$ inertial
+bookkeeping for the 2D inverse cascade, the Kolmogorov $`-5/3` inertial
 spectrum — are *statistical* statements about solutions the verified layer
 does not construct. What it does prove is the exact finite-dimensional
 energy bookkeeping the numerical pipeline relies on: the truncated flow is
@@ -202,7 +202,7 @@ to represent an incompressible flow:
 # What Is Verified, and What Is Open
 
 :::paragraph
-The exactly-verified laminar decay bound $`\|e^{-tA}\| \le e^{-\mu t}`$
+The exactly-verified laminar decay bound $`\|e^{-tA}\| \le e^{-\mu t}`
 for coercive generators with reduction-invariance of the rate; advection
 symmetry of the truncated and untruncated Navier–Stokes Hamiltonians with
 essential self-adjointness on concrete realizations and the Hashimoto
@@ -214,13 +214,13 @@ truncation and its Lagrangian transform.
 
 :::paragraph
 Deliberately left open is everything statistical: the inertial-range spectrum
-($`E(k) \sim k^{-5/3}`$), the enstrophy cascade and its 2D inverse
+($`E(k) \sim k^{-5/3}`), the enstrophy cascade and its 2D inverse
 counterpart, intermittency, and any claim about a *continuum* solution.
-The viscosity $`\nu`$ and the per-mode identification $`\mu = \nu k^2`$ are
+The viscosity $`\nu` and the per-mode identification $`\mu = \nu k^2` are
 numerical inputs consumed by the theorems, not outputs of them. The
 sharpness theorem
 (`BookProof.NavierStokesFlow.FullEsa.exists_nsFullData_not_hasZeroDeficiencyOn`)
 marks exactly where structural reasoning must stop and analytic input must
-begin — the same boundary the $`\dot{x} = x^2`$ warning of the ODE chapter
+begin — the same boundary the $`\dot{x} = x^2` warning of the ODE chapter
 draws for flows.
 :::

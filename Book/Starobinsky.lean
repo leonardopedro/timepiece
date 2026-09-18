@@ -378,9 +378,9 @@ full-exponential `starobinskyV` fiber, not a small-field substitute.
 Reading the pair honestly: the reassembly certifies that the *fibrewise
 direct sum* is a well-defined self-adjoint Hamiltonian with a unitary flow and
 a uniform lower bound, and the edge theorem certifies that the scalaron fiber
-contributes a strict $`E_0 > 0`$. What the reassembly does *not* do is claim a
+contributes a strict $`E_0 > 0`. What the reassembly does *not* do is claim a
 mass gap for the reassembled operator itself — the shear fibers are harmonic
-($`\omega_i`$-confined, so they carry their own per-mode gaps) but the
+($`\omega_i`-confined, so they carry their own per-mode gaps) but the
 scalaron fiber's continuum above the plateau is real, and the strict edge is a
 statement about the one-particle form on the core, not about the spectrum of
 the reassembled Hamiltonian. The honest boundary stated in the plan's 29b/29c

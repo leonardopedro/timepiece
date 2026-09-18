@@ -43,7 +43,7 @@ product $`q \cdot k` as a probability *amplitude* and apply Born's rule â€” the
 normalized squared modulus:
 :::
 
-$$`P(q \to k) = \frac{|q \cdot k|^2}{\sum_j |q \cdot k_j|^2}.`$$
+$$`P(q \to k) = \frac{|q \cdot k|^2}{\sum_j |q \cdot k_j|^2}.`
 
 :::paragraph
 This is beautiful but behaves differently from Softmax. Squaring creates a flat,
@@ -87,7 +87,7 @@ a localized wave-packet, the "most classical" quantum state. The overlap of two
 coherent states is Gaussian:
 :::
 
-$$`\langle q | k \rangle = \exp\!\Big(-\tfrac12 |q|^2 - \tfrac12 |k|^2 + q \cdot k\Big).`$$
+$$`\langle q | k \rangle = \exp\!\Big(-\tfrac12 |q|^2 - \tfrac12 |k|^2 + q \cdot k\Big).`
 
 :::paragraph
 The baseline magnitudes $`|q|^2, |k|^2` pull the amplitude down; their alignment
@@ -170,7 +170,7 @@ exponent by two, and the laws of exponents split the result into three factors:
 :::
 
 $$`|\langle q | k \rangle|^2
-  = \exp(-|q|^2)\cdot\exp(-|k|^2)\cdot\exp(2\,q \cdot k).`$$
+  = \exp(-|q|^2)\cdot\exp(-|k|^2)\cdot\exp(2\,q \cdot k).`
 
 :::paragraph
 Normalizing across the keys completes the Born rule. The term $`\exp(-|q|^2)` is
@@ -180,7 +180,7 @@ $`\exp(-|k_j|^2)` is also a fixed constant and factors out too. What remains is
 exactly Softmax attention:
 :::
 
-$$`\text{Attention Weight} = \frac{\exp(2\,q \cdot k_j)}{\sum_l \exp(2\,q \cdot k_l)}.`$$
+$$`\text{Attention Weight} = \frac{\exp(2\,q \cdot k_j)}{\sum_l \exp(2\,q \cdot k_l)}.`
 
 :::paragraph
 This is the headline claim of the chapter, and it is now a theorem. It is a
@@ -275,7 +275,7 @@ thermal state at temperature $`T > 0` with $`\bar n` background thermal bosons â
 the fidelity of the thermal states introduces the noise directly into the exponent:
 :::
 
-$$`\tau = \bar n + \tfrac12.`$$
+$$`\tau = \bar n + \tfrac12.`
 
 :::paragraph
 The $`\tfrac12` is the zero-point energy of the vacuum. The *physical* derivation
@@ -1187,7 +1187,7 @@ $`\beta \in [0,B]`. "Run this head at entropy $`h`" is a well-posed instruction:
 Attention ends with an aggregation of *Value* vectors:
 :::
 
-$$`\mathbf{o}_i = \sum_j a_{ij}\,\mathbf{v}_j.`$$
+$$`\mathbf{o}_i = \sum_j a_{ij}\,\mathbf{v}_j.`
 
 :::paragraph
 The physics of this output is the physics of a datum before measurement. A
@@ -1242,7 +1242,7 @@ operator*. By the spectral theorem an operator is fixed by its outcomes
 $`|k_j\rangle` and their eigenvalues $`\mathbf{v}_j`:
 :::
 
-$$`\hat V = \sum_j \mathbf{v}_j\,|k_j\rangle\langle k_j|.`$$
+$$`\hat V = \sum_j \mathbf{v}_j\,|k_j\rangle\langle k_j|.`
 
 :::paragraph
 The environment acts as an informational observable: the keys are the eigenstates
@@ -1251,7 +1251,7 @@ Born-rule measurement yields the posterior $`p_j`, the expectation value of the
 observable over that distribution is the probability-weighted sum of eigenvalues:
 :::
 
-$$`\langle \hat V \rangle = \sum_j p_j\,\mathbf{v}_j.`$$
+$$`\langle \hat V \rangle = \sum_j p_j\,\mathbf{v}_j.`
 
 :::paragraph
 This is structurally identical to the attention output $`\mathbf{o}_i =
