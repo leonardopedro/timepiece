@@ -64,8 +64,12 @@ extension as comparison operator and `c = 0`),
 `BookProof.ChapterNavierStokesFullEsa.exists_nsFullData_not_hasZeroDeficiencyOn` shows that
 *structural* hypotheses alone (symmetric modes, symmetric momenta, degree ≤ 3) can never give
 essential self-adjointness of a nonlinear Navier–Stokes Hamiltonian.  The analytic input used
-here is **positivity**: the constraints enter squared, so the Hamiltonian is bounded below and
-the Friedrichs extension produces a distinguished self-adjoint realization.  That is a
+here is **positivity**: the constraints enter squared in the **auxiliary sum-of-squares
+operator** `weylOp … = ½ Σ π² + ½ Σ form²`, so *that* operator is bounded below and
+the Friedrichs extension produces a distinguished self-adjoint realization.  The mainstream
+Navier–Stokes Hamiltonian has no square of a residual and is **not** bounded below
+(`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`), so this is a statement about the
+auxiliary operator and must not be read as boundedness of the NS Hamiltonian.  It is a
 statement about existence of a canonical realization, not about uniqueness of the extension,
 and it is consistent with the sharpness result.
 
@@ -280,7 +284,10 @@ theorem lagSectorHam_symmetricOn (lam lam' mu gg : ℝ) (n : ℕ) :
     SymmetricOn (polyGaussCore (d := n * 36)) (lagSectorHam lam lam' mu gg n) :=
   weylOpDom_symmetricOn (lagPiN_symmetricOn n) (lagFieldN_symmetricOn lam lam' mu gg n)
 
-/-- **The `n`-parcel Lagrangian Hamiltonian is bounded below.** -/
+/-- **The `n`-parcel Lagrangian auxiliary sum-of-squares operator is bounded below.**  Its
+quadratic form is a sum of squares (`lagSectorHam = weylOp … = ½ Σ π² + ½ Σ form²`), which is
+*not* an assertion that the Navier–Stokes Hamiltonian is bounded below — it is not
+(`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`). -/
 theorem lagSectorHam_quadForm_nonneg (lam lam' mu gg : ℝ) (n : ℕ)
     (x : polyGaussCore (d := n * 36)) : 0 ≤ quadForm (lagSectorHam lam lam' mu gg n) x :=
   weylOpDom_quadForm_nonneg (lagPiN_symmetricOn n) (lagFieldN_symmetricOn lam lam' mu gg n) x
@@ -315,7 +322,9 @@ theorem lagFullFockHam_symmetricOn (lam lam' mu gg : ℝ) :
     SymmetricOn lagFockCore (lagFullFockHam lam lam' mu gg) :=
   dsOp_symmetricOn _ fun n => lagSectorHam_symmetricOn lam lam' mu gg n
 
-/-- **The outer Lagrangian Hamiltonian is bounded below** — positivity is fibrewise. -/
+/-- **The outer Lagrangian auxiliary sum-of-squares operator is bounded below** — positivity is
+fibrewise.  (The NS Hamiltonian itself is not bounded below:
+`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`.) -/
 theorem lagFullFockHam_quadForm_nonneg (lam lam' mu gg : ℝ) (x : lagFockCore) :
     0 ≤ quadForm (lagFullFockHam lam lam' mu gg) x :=
   dsOp_quadForm_nonneg _ (fun n u => lagSectorHam_quadForm_nonneg lam lam' mu gg n u) x

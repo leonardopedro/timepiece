@@ -49,7 +49,7 @@ enters the main line: the essential self-adjointness of a kinetic-plus-squares H
 * `SqFamily.secHam_esa_fl`, `SqFamily.outerHam_esa_fl` — the same for every sector of a
   uniform family, and hence for the Hamiltonian on the finite-particle core of the outer
   Fock space: **the finite-particle-core statement, too, is now Faris–Lavine only.**
-* `SqFamily.fl_certificate` — the certificate itself, collected in one statement: the
+* `SqFamily.esa_farisLavine` — the certificate itself, collected in one statement: the
   comparison operator is the lifted Friedrichs extension, the relative bound and the
   commutator bound hold with constants `flK`, `flc` independent of the particle number, and
   the conclusion is essential self-adjointness on the lifted domain together with the

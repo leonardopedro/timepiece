@@ -531,6 +531,17 @@ anywhere in the tree.
 The one required `N` that is new mathematics is the positive comparison for the Eulerian
 Hamiltonian; the other two are, respectively, already proved and already built.
 
+**Status 2026‑09‑18 (verified against the tree — see `HAMILTONIAN_AUDIT_20260918.md`).**  The two
+NS rows above name *declarations* (`lagRedOuterN_esa`, `nsRedOuterN_esa`) that exist in no Lean
+file; only the design content of those rows is load-bearing.  What the tree actually proves is:
+
+| row | realized statements |
+| :-- | :-- |
+| NS, Lagrangian | `BookProof.NsFullLagrangian.lagFullOuterN_esa` (lifted Friedrichs, `c = 0`) |
+| NS, Eulerian (squared) | `BookProof.NsOneBody.spHam_esa_farisLavine` (one body), `nsSpDGamma_esa_farisLavine` (the `dΓ` lift), `BookProof.NsOuterFock.nsOuterFock_esa_farisLavine` (the gauge-fixed parcels) |
+| QG, full | `qgFull_esa_farisLavine` **and**, after the Fourier elimination, `BookProof.QgFullEliminated.qgElimFull_esa_farisLavine` — both with the wall inside `secN` (`c = 6K_Q`), not only the candidate of §2 |
+| QYM | `ymAbelian_esa_farisLavine` (one body) and `ymOuterFock_esa_farisLavine` (parcels), both against the Friedrichs oscillator |
+
 ## 8. Why one `N` per Hamiltonian, and not a uniform one
 
 A single `N` across all three is not available, and the reason is structural: `N` must be

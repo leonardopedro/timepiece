@@ -56,7 +56,10 @@ Per parcel (excitation) of the Eulerian field:
 
 ## What is proved
 
-* `nsSectorHam_quadForm_nonneg` — the `n`-parcel Hamiltonian is bounded below;
+* `nsSectorHam_quadForm_nonneg` — the `n`-parcel **auxiliary sum-of-squares operator**
+  `nsSectorHam = weylOp … = ½ Σ_m π_m² + ½ Σ_r (constraint form_r)²` is bounded below (the
+  Navier–Stokes Hamiltonian itself is **not** bounded below:
+  `BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`);
 * `nsSector_friedrichs_extension` — hence it has a positive self-adjoint (Friedrichs)
   extension on `L²(ℝ^{21n})`;
 * `nsFullFockHam_quadForm_nonneg`, `nsFullFock_friedrichs_extension` — the same on the
@@ -82,8 +85,12 @@ regularity.
 `BookProof.ChapterNavierStokesFullEsa.exists_nsFullData_not_hasZeroDeficiencyOn` shows that
 *structural* hypotheses alone (symmetric modes, symmetric momenta, degree ≤ 3) can never give
 essential self-adjointness of a nonlinear Navier–Stokes Hamiltonian.  The analytic input used
-here is **positivity**: the constraints enter squared, so the Hamiltonian is bounded below and
-the Friedrichs extension produces a distinguished self-adjoint realization.  That is a
+here is **positivity**: the constraints enter squared in the **auxiliary sum-of-squares
+operator** `weylOp … = ½ Σ π² + ½ Σ form²`, so *that* operator is bounded below and
+the Friedrichs extension produces a distinguished self-adjoint realization.  The mainstream
+Navier–Stokes Hamiltonian has no square of a residual and is **not** bounded below
+(`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`), so this is a statement about the
+auxiliary operator and must not be read as boundedness of the NS Hamiltonian.  It is a
 statement about existence of a canonical realization, not about uniqueness of the extension,
 and it is consistent with the sharpness result.
 
@@ -246,8 +253,11 @@ theorem nsSectorHam_symmetricOn (nu lam mu gg : ℝ) (n : ℕ) :
     SymmetricOn (polyGaussCore (d := n * 21)) (nsSectorHam nu lam mu gg n) :=
   weylOpDom_symmetricOn (nsPiN_symmetricOn n) (nsFieldN_symmetricOn nu lam mu gg n)
 
-/-- **The `n`-parcel Hamiltonian is bounded below** — its quadratic form is a sum of squares.
-This holds for the *full* nonlinear advection: no linearisation is used. -/
+/-- **The `n`-parcel auxiliary sum-of-squares operator is bounded below** — its quadratic form
+is a sum of squares (`weylOp` is `½ Σ π² + ½ Σ form²`).  This holds for the *full* nonlinear
+advection: no linearisation is used.  It is *not* a statement about the Navier–Stokes
+Hamiltonian, which has no square of a residual and is not bounded below
+(`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`). -/
 theorem nsSectorHam_quadForm_nonneg (nu lam mu gg : ℝ) (n : ℕ)
     (x : polyGaussCore (d := n * 21)) : 0 ≤ quadForm (nsSectorHam nu lam mu gg n) x :=
   weylOpDom_quadForm_nonneg (nsPiN_symmetricOn n) (nsFieldN_symmetricOn nu lam mu gg n) x
@@ -281,8 +291,9 @@ theorem nsFullFockHam_symmetricOn (nu lam mu gg : ℝ) :
     SymmetricOn nsFockCore (nsFullFockHam nu lam mu gg) :=
   dsOp_symmetricOn _ fun n => nsSectorHam_symmetricOn nu lam mu gg n
 
-/-- **The outer Navier–Stokes Hamiltonian is bounded below**: positivity is fibrewise, so it
-lifts from the one-parcel Hilbert space to the nested Fock space. -/
+/-- **The outer auxiliary sum-of-squares operator is bounded below**: positivity is fibrewise,
+so it lifts from the one-parcel Hilbert space to the nested Fock space.  (The NS Hamiltonian
+itself is not bounded below — `BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`.) -/
 theorem nsFullFockHam_quadForm_nonneg (nu lam mu gg : ℝ) (x : nsFockCore) :
     0 ≤ quadForm (nsFullFockHam nu lam mu gg) x :=
   dsOp_quadForm_nonneg _ (fun n u => nsSectorHam_quadForm_nonneg nu lam mu gg n u) x

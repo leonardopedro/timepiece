@@ -50,8 +50,8 @@ constants degrade, so neither lifts.
 | QYM (abelian, 3D gauge-fixed) | `ymAbelian_esa_farisLavine` | `ym_outerHam_esa_fl` | `ym_outerFock_esa_fl` |
 | QYM (**non-abelian**, 3D gauge-fixed) — direct Friedrichs, no Faris–Lavine | `ym_fock_bddBelow` | `ym_fock_friedrichs` | — |
 | NS (quadratic/Oseen model, gauge-fixed, derivative variables) | `ns_sector_esa_fl` | `ns_outerHam_esa_fl` | `ns_outerFock_esa_fl` |
-| NS **full nonlinear**, Eulerian variables — bounded below, direct Friedrichs | `nsFullEuler_sector_friedrichs` | `nsFullEuler_bddBelow` | `nsFullEuler_outer_esa_fl` |
-| NS **full nonlinear**, Lagrangian variables — bounded below, direct Friedrichs | `nsFullLagrangian_sector_friedrichs` | `nsFullLagrangian_bddBelow` | `nsFullLagrangian_outer_esa_fl` |
+| NS **full nonlinear**, Eulerian variables — auxiliary sum-of-squares operator bounded below, direct Friedrichs (the NS Hamiltonian itself is **not** bounded below) | `nsFullEuler_sector_friedrichs` | `nsFullEuler_bddBelow` | `nsFullEuler_outer_esa_fl` |
+| NS **full nonlinear**, Lagrangian variables — auxiliary sum-of-squares operator bounded below, direct Friedrichs (the NS Hamiltonian itself is **not** bounded below) | `nsFullLagrangian_sector_friedrichs` | `nsFullLagrangian_bddBelow` | `nsFullLagrangian_outer_esa_fl` |
 | QG (`R²`, vielbein, torsion) | `qg_sector_esa_fl` | `qg_outerHam_esa_fl` | `qg_outerFock_esa_fl` |
 | QG interacting (nearest-neighbour torsion coupling) | `qgInt_sector_esa_fl` | `qgInt_outerHam_esa_fl` | `qgInt_outerFock_esa_fl` |
 | QG with the **full exponential** scalaron potential | — | `scalaron_esa_core_fl` | `scalaron_esa_fl` |
@@ -113,10 +113,15 @@ Unchanged from the individual chapters, and repeated here because this is the in
   variables, carry the exact advection `u·∇u`, the exact Piola pressure term and the exact
   `det F = 1` volume constraint (`BookProof.NsFullEuler.nsResPoly_not_affine`,
   `BookProof.NsFullLagrangian.volumePoly_not_quadratic` prove that these really are nonlinear);
-  they are bounded below, so — exactly as for non-abelian Yang–Mills — the route is the
+  the operator they build is the **auxiliary Weyl-ordered sum-of-squares** operator
+  (`weylOp` is `½ Σ π² + ½ Σ form²`), and *that* is bounded below, so — exactly as for
+  non-abelian Yang–Mills — the route is the
   *direct Friedrichs extension*, lifted fibrewise to the outer Fock space, and the
   Faris–Lavine criterion is run there with that lifted extension as comparison operator and
   commutator constant `c = 0` (`nsFullEuler_outer_esa_fl`, `nsFullLagrangian_outer_esa_fl`).
+  The Navier–Stokes Hamiltonian itself has no square of a residual and is **not** bounded
+  below (`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`), so the `c = 0` above is a
+  statement about the auxiliary operator, not about the NS Hamiltonian.
   What is *not* claimed for the nonlinear models is uniqueness of the self-adjoint extension
   from the finite-parcel core;
 * nothing anywhere bears on classical Navier–Stokes regularity;
@@ -217,13 +222,17 @@ alias ns_outerFock_esa_fl := BookProof.NsOuterFock.nsOuterFock_esa_farisLavine
 
 The advection is the exact `u·∇u` in Eulerian variables, and in Lagrangian variables the
 pressure term is the exact Piola transform `cof(F)ᵀ∇q` and incompressibility is the exact
-`det F = 1`.  Both Hamiltonians are positive sums of squares, hence bounded below, so — as
+`det F = 1`.  The operator each module builds is the **auxiliary positive sum of squares**
+(`weylOp` is `½ Σ π² + ½ Σ form²`), hence bounded below, so — as
 for non-abelian Yang–Mills — the Friedrichs extension applies directly and lifts fibrewise
 to the nested Fock space, where the Faris–Lavine criterion is then run with that lifted
-extension as the comparison operator. -/
+extension as the comparison operator.  This is **not** a claim that the Navier–Stokes
+Hamiltonian is bounded below: the mainstream Hamiltonian, which has no square of a residual,
+is not (`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`). -/
 
-/-- The full nonlinear **Eulerian** Navier–Stokes Hamiltonian on the nested Fock space is
-bounded below. -/
+/-- The full nonlinear **Eulerian** auxiliary sum-of-squares operator on the nested Fock space
+is bounded below.  (The NS Hamiltonian itself is not bounded below:
+`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`.) -/
 alias nsFullEuler_bddBelow := BookProof.NsFullEuler.nsFullFockHam_quadForm_nonneg
 
 /-- Its Friedrichs extension on every parcel-number sector. -/
@@ -246,8 +255,9 @@ alias nsFullEuler_stone_flow := BookProof.NsFullEuler.nsFullFock_stone_flow
 the coordinates, so the model is not an Oseen linearisation. -/
 alias nsFullEuler_nonlinear := BookProof.NsFullEuler.nsResPoly_not_affine
 
-/-- The full nonlinear **Lagrangian** Navier–Stokes Hamiltonian on the nested Fock space is
-bounded below. -/
+/-- The full nonlinear **Lagrangian** auxiliary sum-of-squares operator on the nested Fock
+space is bounded below.  (The NS Hamiltonian itself is not bounded below:
+`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`.) -/
 alias nsFullLagrangian_bddBelow := BookProof.NsFullLagrangian.lagFullFockHam_quadForm_nonneg
 
 /-- Its Friedrichs extension on every parcel-number sector. -/

@@ -173,7 +173,12 @@ family of fibre comparison operators to the `ℓ²`-direct sum on the maximal do
   `starobinskyWall_esa`); (ii) its Friedrichs realization `friedrichsComparison` (so `N₁ + 1` is onto
   *by construction*); (iii) the lifted `dsComparison` — which is then a valid comparison for
   `dΓ(H₁)`.  The convenient choice `N₁ := Friedrichs(H₁)` makes `H = N` at the outer level and the
-  commutator vanish (`c = 0`): `nsFullOuterN_esa`, `lagFullOuterN_esa`, `qgFull_esa_farisLavine`.
+  commutator vanish (`c = 0`) — the case realized by `nsFullOuterN_esa` and `lagFullOuterN_esa`,
+  and always for the **auxiliary sum-of-squares** operator
+  `weylOp = ½ Σ_i π_i² + ½ Σ_a B_a²` (never for the NS Hamiltonian, which is not bounded below).
+  Where the comparison is the oscillator/wall family instead, `c ≠ 0`: `qgFull_esa_farisLavine`
+  and `qgElimFull_esa_farisLavine` use `secN W (qgFullModes g)` with `c = 6·K_Q`, not the
+  `H = N` shortcut.
 * **The two lift forms are the two faces of §D3–§D5.**  The `ℓ²`-direct-sum lift `dsOp`/`dsComparison`
   is the one the NS parcel-number space and the QG `Sec ι = ℓ²(ι ; L²(ℝ))` are built with; the
   occupation-number form `dGamma`/`Conf` is the other face of the same statement
@@ -788,7 +793,13 @@ Schur/positivity/onto rows, and item 6 the singular-value row for the determinan
    (`fourier_postcompCLM`, `toLp_postcompCLM`, `postcompCLM_lineDerivOp`).
    **Honest boundary that remains:** the model is the vector-valued one, `L²(V; L²(W))`; the
    measure-theoretic identification of it with the scalar `L²(ℝ_x^d × ℝ_u^m)` — a Bochner–Fubini
-   statement about slices, which Mathlib does not have — is not formalized.
+   statement about slices, which Mathlib does not have — is **not yet formalized**.  It is the
+   *only* thing item 1 leaves open, and the whole obligation is now specified (statements, Mathlib
+   inventory verified against the pinned revision, route, pitfalls, and the in-project material to
+   reuse) in **Blueprint — the scalar–vector identification** at the end of these plan items.  The
+   target is `curryₗᵢ : Lp (Lp ℂ 2 ν) 2 μ ≃ₗᵢ[ℂ] Lp ℂ 2 (μ.prod ν)` together with its a.e. slice
+   computation lemma; the only genuinely new analysis is the totality of the rectangle span, and
+   `ChapterL2FibreSum` already contains that proof technique.
 2. **The constraint solved, `D_j ψ = 0`.**  Define the field momentum `π^i = −i ∂/∂u_i`
    (the `genU` of `ChapterNsBrstDerivativeGauge` is already this operator, with
    `genU_ccr_u`) and state the identity `u^{(1)}_j = p_j π^{−1}` on the physical sector.
@@ -943,6 +954,219 @@ Schur/positivity/onto rows, and item 6 the singular-value row for the determinan
    `lagElimSubst_lagResPoly`).  The module is `sorry`-free and `axiom`-free (audit
    `Work/NsFourierEliminationAudit.lean`: only `propext`, `Classical.choice`, `Quot.sound`) and
    `lake build BookProof.ChapterNsLagrangianFourierElimination` is green with no warning from it.
+
+### Blueprint — the scalar–vector identification `L²(V; L²(W)) ≅ L²(V × W)` (residual of NS item 1)
+
+**Why this is here.**  Item 1 above is complete except for the measure-theoretic identification of
+the fibred one-particle space with the scalar one.  This subsection is the *specification* of that
+single obligation: the statements to prove, the Mathlib inventory (names, statements, file
+locations — verified against the pinned revision, `lake-manifest.json`: mathlib
+`8f9d9cff6bd728b17a24e163c9402775d9e6a365`, `leanprover/lean4:v4.28.0`), the route, the pitfalls
+that cost time if rediscovered, and what must **not** be reproved.  The Lean snippets below are
+statements to write and prove, not compiled code.
+
+**Target module.**  `BookProof/ChapterNsScalarVectorCurry.lean`, namespace
+`BookProof.NsScalarVectorCurry`, imported from `BookProof.lean`, `sorry`-free and `axiom`-free,
+with `Work/NsScalarVectorCurryAudit.lean` in the style of the sibling NS audits (expect only
+`propext`, `Classical.choice`, `Quot.sound`), plus the regenerated build bookkeeping of any new
+module (`scripts/import_components.py BookProof --check`, lakefile stanza, `BUILD_COMPONENTS.md`).
+Follow the *API shape* of `BookProof/ChapterQgMultiHalfDensity.lean` — `multiHalfDensityUnitary`
+with its `_apply` / `_norm` / `_symm_apply` / `_intertwines_…` companions — since that is the
+house pattern for a `≃ₗᵢ` between `Lp` spaces built from a measure-theoretic change of variables:
+one unitary, its a.e. computation lemmas, its norm lemma.
+
+**The statements.**  For `μ : Measure V`, `ν : Measure W`, both σ-finite (Lebesgue on `ℝ^d` in the
+application), and `p = 2`:
+
+```lean
+noncomputable def curryₗᵢ : Lp (Lp ℂ 2 ν) 2 μ ≃ₗᵢ[ℂ] Lp ℂ 2 (μ.prod ν)
+```
+
+with the two computation lemmas that make it *the* identification rather than an arbitrary unitary:
+
+```lean
+-- on the tensor generators (s, t measurable, of finite measure): 1_s ⊗ 1_t ↦ 1_{s × t}
+theorem curryₗᵢ_indicator_prod (s : Set V) (t : Set W) (hs : MeasurableSet s)
+    (ht : MeasurableSet t) (hμs : μ s < ∞) (hνt : ν t < ∞) :
+    curryₗᵢ (fibreTensor hs c) = (indicatorConst (hs.prod ht) (hμs.ne) (hνt.ne) : Lp ℂ 2 (μ.prod ν))
+
+-- the slice form: currying *is* slicing, a.e. in the spatial variable only
+theorem curryₗᵢ_symm_apply_ae (g : Lp ℂ 2 (μ.prod ν)) :
+    ∀ᵐ x ∂μ, ((curryₗᵢ.symm g) x : W → ℂ) =ᵐ[ν] fun y => (g : V × W → ℂ) (x, y)
+```
+
+(The first is a shape hint: `fibreTensor` is whichever generator the construction uses —
+`Lp.simpleFunc.indicatorConst p _ _ c` on the fibre-valued side, or, *recommended*, an element of
+the `Submodule.span` of the generators `1_s ⊗ c`; see step 2.  The `∀ᵐ x ∂μ` in the second is
+unavoidable and *is* the “Bochner–Fubini statement about slices” the plan flagged: a slice of a
+class is determined only a.e., and there is no `MeasurableSet.section` in Mathlib — sections occur
+only inside the a.e. statements of `Measure/Prod.lean`, e.g. `ae_ae_of_ae_prod`.)
+
+**Mathlib inventory — already present, so not to be reproved.**  Verified names and locations:
+
+*Fubini/Tonelli.*  `MeasureTheory.lintegral_prod (f : α × β → ℝ≥0∞) (hf : AEMeasurable f (μ.prod ν)) :
+∫⁻ z, f z ∂μ.prod ν = ∫⁻ x, ∫⁻ y, f (x, y) ∂ν ∂μ` (`Measure/Prod.lean:1002`);
+`Measurable.lintegral_prod_right` (`:146`, measurability of the inner integral in the parameter);
+`integral_prod (f) (hf : Integrable f (μ.prod ν))` and `integral_prod_symm` (`Integral/Prod.lean:494`,
+`:517`) should the proof be run through inner products rather than norms.
+
+*Currying of a.e. equality — the well-definedness tool.*  `ae_ae_eq_curry_of_prod
+(h : f =ᵐ[μ.prod ν] g) : ∀ᵐ x ∂μ, curry f x =ᵐ[ν] curry g x`, `ae_ae_eq_of_ae_eq_uncurry`,
+`ae_ae_of_ae_prod`, `measure_prod_null`, `measure_ae_null_of_prod_null` (`Measure/Prod.lean`,
+after `ae_ae_of_ae_prod`).  This is the *only* well-definedness input the construction needs: it is
+what makes the slice class independent of the representative of the fibred element.
+
+*σ-finiteness.*  `instance prod.instSigmaFinite : SigmaFinite (μ.prod ν)` under `[SigmaFinite μ]
+[SigmaFinite ν]` (`Measure/Prod.lean:543`).
+
+*Norms and the square-root bookkeeping.*  `Lp.norm_def (f) : ‖f‖ = ENNReal.toReal (eLpNorm f p μ)`
+(`Function/LpSpace/Basic.lean:215`); `def eLpNorm' f q μ := (∫⁻ a, ‖f a‖ₑ ^ q ∂μ) ^ (1 / q)`
+(`Function/LpSeminorm/Defs.lean:70`) with `eLpNorm'_eq_lintegral_enorm` (`:73`) and
+`eLpNorm_eq_eLpNorm' (hp_ne_zero) (hp_ne_top)` (`:92`); `ENNReal.rpow_inv_natCast_pow
+(hn : n ≠ 0) (x : ℝ≥0∞) : (x ^ (n⁻¹ : ℝ)) ^ n = x` (`Analysis/SpecialFunctions/Pow/NNReal.lean:950`,
+the `ℝ≥0∞` section) — **unconditional**, so there is no `x ≠ 0`/`≠ ⊤` case split — with
+`ENNReal.rpow_two` (`:666`), `rpow_natCast` (`:651`), `rpow_mul` (`:634`); `MemLp.enorm
+(h : MemLp f p μ) : MemLp (‖f ·‖ₑ) p μ` (`Function/LpSeminorm/Basic.lean:743`).
+Concretely, the whole exponent bookkeeping is the single chain
+`eLpNorm_eq_eLpNorm' (by norm_num) (by norm_num)` → `eLpNorm'_eq_lintegral_enorm` →
+`rw [show (2 : ℝ≥0∞).toReal = (2 : ℝ) by norm_num, one_div]` →
+`ENNReal.rpow_inv_natCast_pow (n := 2) (by norm_num) _`, which yields pointwise in `x`
+
+```lean
+(eLpNorm (fun y => f (x, y)) (2 : ℝ≥0∞) ν) ^ 2 = ∫⁻ y, ‖f (x, y)‖ₑ ^ (2 : ℝ) ∂ν
+```
+
+(i.e. the squared `L²(ν)`-seminorm of a slice is the slice of the squared `ℝ≥0∞`-norm integral).
+
+*Dense subspaces.*  `Lp.simpleFunc E p μ` (`Function/SimpleFuncDenseLp.lean:385`),
+`Lp.simpleFunc.isDenseEmbedding (hp_ne_top)` (`:660`), `Lp.simpleFunc.denseRange (hp_ne_top) :
+DenseRange ((↑) : Lp.simpleFunc E p μ → Lp E p μ)` (`:682`), `Lp.simpleFunc.dense` (`:686`),
+`Lp.simpleFunc.coeToLp : Lp.simpleFunc E p μ →L[𝕜] Lp E p μ` (`:693`), `Lp.simpleFunc.induction`
+(`:616`), `MemLp.exists_simpleFunc_eLpNorm_sub_lt (hf) (hp_ne_top) (hε)` (`:181`).  Use them as
+*totality* statements only; see the pitfall in step 2.
+
+*Zero-testing and totality.*  `Lp.ae_eq_zero_of_forall_setIntegral_eq_zero (f : Lp E p μ)
+(hp_ne_zero) (hp_ne_top) (hf_int_finite) (hf_zero) : f =ᵐ[μ] 0` (`Function/AEEqOfIntegral.lean:315`),
+with `ae_eq_zero_of_forall_setIntegral_eq_of_sigmaFinite` (`:256`),
+`ae_eq_zero_restrict_of_forall_setIntegral_eq_zero` (`:228`) and `ae_eq_zero_of_forall_inner`
+(`:61`) as alternatives; `MemLp.restrict (s : Set α) (hf : MemLp f p μ) : MemLp f p (μ.restrict s)`
+(`LpSeminorm/Basic.lean:628`) for the “integrable on every finite-measure set” hypothesis;
+`Submodule.dense_iff_topologicalClosure_eq_top` (`Topology/Algebra/Module/Basic.lean:191`) to turn
+dense + closed into `⊤`.
+
+*π-system of rectangles.*  `generateFrom_prod` and `isPiSystem_prod`
+(`MeasureTheory/MeasurableSpace/Prod.lean:65`, `:72`) — the product σ-algebra is generated by the
+measurable rectangles and they form a π-system — and `MeasurableSpace.induction_on_inter
+(h_eq : m = generateFrom s) (h_inter : IsPiSystem s) (empty) (basic) (compl) (iUnion)`
+(`MeasureTheory/PiSystem.lean:678`, implemented over `DynkinSystem.GenerateHas`).
+
+*Extension and assembly.*  `LinearEquiv.extendOfIsometry (h_dense₁) (h_dense₂) (f) (h_norm)`
+(`Analysis/Normed/Operator/Extend.lean:321`), `ContinuousLinearMap.extend` (`:58`),
+`LinearMap.extendOfNorm_eq` (the tool behind the Fourier computation lemma);
+`LinearIsometryEquiv.ofSurjective (f) (hfr : Function.Surjective f)`
+(`Analysis/Normed/Operator/LinearIsometry.lean:952`) — **this exists**, so the final packaging is one
+call once surjectivity is in hand; `Lp.compMeasurePreserving` / `compMeasurePreservingₗᵢ`
+(`Function/LpSpace/Basic.lean:548`, `:586`) as the alternative route for a `≃ₗᵢ` between `Lp` spaces
+over a measure-preserving change of variables.  **Template to imitate:**
+`Mathlib/Analysis/Fourier/LpSpace.lean`, where `Lp.fourierTransformₗᵢ` is built as
+`(fourierEquiv ℂ 𝓢(E, F)).extendOfIsometry (toLpCLM …) (toLpCLM …) (denseRange_toLpCLM …)
+(denseRange_toLpCLM …) norm_fourier_toL2_eq` — the map on a dense core, a `DenseRange`, a norm
+identity and the extension — with the companion `_norm`/`_inner` lemmas and the dense-core
+computation lemma `SchwartzMap.toLp_fourier_eq` proved by `LinearMap.extendOfNorm_eq`.  That file is
+the nearest thing in Mathlib to the module asked for here, and it is 147 lines.
+
+**What is genuinely missing in Mathlib (the real content).**  (i) No currying or product
+identification for `Lp`: nothing named `curry`/`uncurry` about `Lp`, and no `TensorProduct`
+statement under `Mathlib/MeasureTheory/`.  (ii) The composite `eLpNorm`-level slice identity: the
+pointwise identity and Tonelli exist separately (above), the composite does not.  (iii) `MemLp` /
+a.e. strong measurability of slices: Mathlib's section statements are a.e. statements about
+*measures* only, and there is no `MeasurableSet.section`.  (iv) Totality of the rectangle span in
+`Lp ℂ 2 (μ.prod ν)`.  (v) Nothing else: in particular `LinearIsometryEquiv.ofSurjective` and the
+extension machinery are all present, so the assembly is bookkeeping, not new mathematics.
+
+**The route.**  Six steps; 0–1 are `ℝ≥0∞` bookkeeping, 2–4 are the analysis, 5 is packaging.
+
+0. *Pointwise slice identity* — the displayed chain above, in a lemma
+   `eLpNorm_slice_sq (f : V × W → ℂ) (x : V)`.  No measurability hypothesis, no side conditions.
+1. *Tonelli* — `∫⁻ x, (eLpNorm (slice x) 2 ν) ^ 2 ∂μ = ∫⁻ z, ‖f z‖ₑ ^ (2 : ℝ) ∂(μ.prod ν)` for `f`
+   with `AEMeasurable (fun z => ‖f z‖ₑ ^ (2 : ℝ)) (μ.prod ν)`: `lintegral_prod` + `lintegral_congr`
+   + step 0.  Get the hypothesis from the fibred element by `MemLp.enorm` + `MemLp.aemeasurable`,
+   or dodge `rpow` entirely by rewriting `x ^ (2 : ℝ)` to `x * x` with `ENNReal.rpow_two` and
+   using `AEMeasurable.mul`.  This lemma is the reusable by-product worth upstreaming: it is the
+   “Bochner–Fubini statement about slices” in its provable form.
+2. *The dense core, both sides.*  Fibred side: the `Submodule.span` of the generators
+   `{1_E ⊗ c : E ⊆ V measurable with μ E < ∞, c ∈ Lp ℂ 2 ν}`, dense because
+   `Lp.simpleFunc (Lp ℂ 2 ν) 2 μ` is dense (`denseRange`) and the fibre `c` runs over a dense set
+   (`Lp.simpleFunc` again in `ν`, transported along continuity of `•`).  Scalar side: the
+   `Submodule.span` of `{1_{s × t}}`, dense by step 4.  **Pitfall:** `Lp.simpleFunc E p μ` is an
+   `AddSubgroup` whose carrier is an *existential* (`∃ s : α →ₛ E, AEEqFun.mk s … = f`), so a
+   `LinearMap` out of it needs either `Classical.choose` plus a representative-independence proof —
+   and that proof *is* `ae_ae_eq_curry_of_prod` — or, recommended, never mention it: use the
+   `Submodule.span` of the generators, which is an honest `Submodule`, and cite
+   `Lp.simpleFunc.denseRange` only as totality.
+3. *Currying on the core* (`1_E ⊗ c ↦ 1_{E × W} · c`), which needs **no** section measurability:
+   well-defined by `ae_ae_eq_curry_of_prod` (changing the representative of `c` changes the product
+   only on a null set), linear from the pointwise class operations, and isometric because
+   `‖1_E ⊗ c‖² = (μ E).toReal * ‖c‖²` on the fibred side and
+   `‖1_{s × t}‖² = (μ s).toReal * (ν t).toReal` on the scalar side (with `‖1_t‖²_{L²(ν)} =
+   (ν t).toReal`), so the two agree on the tensors `1_E ⊗ 1_t` and extend linearly to the span.
+   This directional asymmetry is the design point: only the *inverse* direction (a scalar `1_F`
+   with general `F ⊆ V × W` and its slices) would need sections, and it is never written down.
+4. *Totality of the scalar side* — the one genuinely new analysis.  Recommended proof is the
+   project's own orthogonality trick, mirroring `ChapterL2FibreSum.orthogonal_iSup_range_fibreEmb`
+   (there: a function orthogonal to every copy of `L²(X, μ)` in the `ℓ²(ι)`-valued `L²` has all
+   coordinates zero a.e.).  Here: show `(Submodule.span {1_{s × t}})ᗮ = ⊥`, i.e. given
+   `g ∈ Lp ℂ 2 (μ.prod ν)` with `⟪1_{s × t}, g⟫ = 0` for every measurable rectangle of finite
+   measure, prove `g = 0` a.e.:
+   (a) `∫ x in E, g ∂(μ.prod ν) = 0` for every `E` in the ring generated by the rectangles, by
+       linearity;
+   (b) extend to every finite-measure measurable `E`.  Do it on a fixed finite-measure rectangle
+       `K` and use `MeasurableSpace.induction_on_inter` with `h_eq := generateFrom_prod` and
+       `h_inter := isPiSystem_prod`; its four clauses are `∅` ✓, the basic rectangles ✓ by (a),
+       the complement *inside* `K` (where `1_{K \ E} = 1_K − 1_E` and `∫_K g = 0`) ✓, and countable
+       disjoint unions ✓ by dominated convergence; then exhaust `V × W` by the σ-finiteness
+       spanning sets to remove `K`.
+   (c) conclude with `Lp.ae_eq_zero_of_forall_setIntegral_eq_zero` at `p = 2` (so `p ≠ 0`, `p ≠ ∞`),
+       whose hypothesis “`IntegrableOn g s` for every finite-measure measurable `s`” comes from
+       `MemLp.restrict` plus integrability on a finite measure.
+   *Fallback if (b) fights:* run the same π-λ for `∫⁻` instead of `∫`, using `lintegral_iUnion` and
+   concluding `∫⁻ E, ‖g‖ₑ = 0` on finite-measure `E`, hence `g = 0` a.e.  Either way, this is the
+   step to budget for; steps 0–3 and 5 are short.
+5. *Assembly.*  Extend the core isometry: `ContinuousLinearMap.extend` / `LinearMap.extendOfNorm`
+   (template: `Lp.fourierTransformₗᵢ`) gives `Φ : Lp (Lp ℂ 2 ν) 2 μ →L[ℂ] Lp ℂ 2 (μ.prod ν)` with
+   `Φ.norm_map`; its range is dense by step 4 and closed (the image of the complete space under an
+   isometry is complete, and a complete subset of a complete space is closed — `IsComplete.isClosed`),
+   so `Submodule.dense_iff_topologicalClosure_eq_top` makes the range `⊤` and
+   `LinearIsometryEquiv.ofSurjective` delivers `curryₗᵢ`.  Then the computation lemmas:
+   `curryₗᵢ_indicator_prod` by `LinearMap.extendOfNorm_eq` on the dense core (exactly how
+   `SchwartzMap.toLp_fourier_eq` is proved) and `curryₗᵢ_symm_apply_ae` from `curryₗᵢ_indicator_prod`
+   + `ae_ae_eq_curry_of_prod`.
+   *Acceptable stopping point:* steps 0–4 plus the `LinearIsometry` `Φ` already suffice for
+   everything the partial transform needs — the scalar-side operator is then the conjugation of the
+   fibred one through `Φ` — so if budget runs short, land that and mark the `≃ₗᵢ` as the residual.
+
+**Reuse inside the project (not to be reinvented).**  `BookProof/ChapterL2FibreSum.lean`:
+`projCLM` (multiplication by an indicator as a bounded operator on a vector-valued `L²`),
+`fibreEmb`/`fibreEquiv`/`isHilbertSum_fibreEmb`, and above all the totality pattern
+`coord_eq_zero_of_mem_orthogonal` + `orthogonal_iSup_range_fibreEmb` (its `Lp.eq_zero_iff_ae_eq_zero`
++ a.e.-coordinate style is the model for step 4).  `BookProof/ChapterQgMultiHalfDensity.lean`:
+`multiHalfDensityUnitary` — the only existing `Lp ℂ 2 (… .prod …) ≃ₗᵢ[ℂ] Lp ℂ 2 (… .prod …)` in the
+project, hence the house style for the API surface.  `BookProof/ChapterNsPartialFourier.lean`: the
+consumer — `partialFourier`, `partialFourier_norm`, `partialFourier_fibreOp`, `nsPartialFourier`,
+`nsPartialFourier_fibreOp`, and the reusable by-product `postcompCLM`.
+
+**What it unblocks.**  After `curryₗᵢ`, the *scalar* spatial transform on
+`L²(ℝ_x^d × ℝ_u^m)` is one definition, `curryₗᵢ ∘ nsPartialFourier ∘ curryₗᵢ.symm`, with
+`nsPartialFourier_norm` and `nsPartialFourier_fibreOp` transported by `Lp.norm_map` and `simp`; the
+fibre-alone statement then becomes commutation with the scalar operators `1 ⊗ B` rather than a
+`postcompCLM` statement.  Consequences to apply once it lands: rewrite the caveats at
+`BookProof/ChapterNsPartialFourier.lean:13–14`, `:40`, `:229` and
+`Book/NsOneParticleHamiltonian.lean:67–68`, `:79`, `:348` from “the model is the vector-valued one”
+to “the fibred and the scalar model are identified by `curryₗᵢ`”, mark NS item 1 done, and reuse the
+identification for the QG spatially-transformed statement (§D7).  Since the whole module is
+proposition-level Mathlib material (no project definitions appear except through `Lp`), it is worth
+upstreaming rather than keeping private — and if a later Mathlib revision gains the currying
+identification, prefer deleting this module over maintaining it.
 
 ### Plan items — quantum gravity, the full Hamiltonian
 
@@ -1448,9 +1672,12 @@ rewritten accordingly and `BookProof/ChapterEsaFarisLavineIndex.lean` extended:
   shape, `h = L²(ℝ³⁶)`; the deformation-gradient mode is kept as an independent scalar mode —
   §“Honest boundary” of the 2026‑09‑15 wave).
 
-Both Hamiltonians are positive sums of squares, hence bounded below
-(`nsFullFockHam_quadForm_nonneg`, `lagFullFockHam_quadForm_nonneg`); the Friedrichs extension
-therefore applies directly, sector by sector and on the whole nested Fock space, and the
+The operators the two modules build are the **auxiliary Weyl-ordered sum-of-squares** operators
+`nsSectorHam` / `lagSectorHam = weylOp … = ½Σ_m π_m² + ½Σ_r (form_r)²` — positive sums of
+squares, hence bounded below (`nsFullFockHam_quadForm_nonneg`, `lagFullFockHam_quadForm_nonneg`).
+(The Navier–Stokes Hamiltonian itself is neither a sum of squares nor bounded below the way:
+`nsKoopmanOp`, `nsKoopmanOp_not_bounded_below`; §D4 records the distinction.)  The Friedrichs
+extension therefore applies directly, sector by sector and on the whole nested Fock space, and the
 Faris–Lavine criterion is run **on the outer Fock space** with the lifted Friedrichs
 extension as comparison operator and `c = 0` (`nsFullOuterN_esa`, `lagFullOuterN_esa`,
 together with `nsFullOuterN_isPositiveSelfAdjointExtension` and its Lagrangian counterpart).
@@ -12942,3 +13169,88 @@ missing from the target's roots).
 6. **Book maintenance** — the two new Book chapters cite only proved names; when item 1 above lands,
    the “What Is Verified, and What Is Open” section of `ns-one-particle-hamiltonian` should drop that
    bullet.  Keep new math spans in the open-only `` $`…` `` / `` $$`…` `` form.
+
+## 2026-09-18c — Hamiltonian audit: the QYM / QG / NS Hamiltonians that the proofs consume, and the `N` of each
+
+`HAMILTONIAN_AUDIT_20260918.md` records, for every Faris–Lavine (FL) statement in the tree, (i) the
+operator the proof actually consumes, (ii) the **already-proved** theorem that pins it to the intended
+physical expression, and (iii) the explicit comparison `N` and constant `c`.  Nothing there is a new
+obligation; the summary a specialist needs:
+
+| theory | FL statement | comparison `N` | `c` | pinned by |
+| :-- | :-- | :-- | :-- | :-- |
+| NS, one body (6 momenta) | `NsOneBody.spHam_esa_farisLavine` | `spFried` = Friedrichs(**H_sp itself**) | `0` | `spHam_eq_visc_add_advect` |
+| NS, `dΓ` lift | `NsOneBody.nsSpDGamma_esa_farisLavine` | `nsSpDGammaFried` = Friedrichs(`dΓ(H_sp)`) | `0` | `nsSpDGamma_one_particle` |
+| NS, gauge-fixed parcels | `NsOuterFock.nsOuterFock_esa_farisLavine` | `⊕ₙ Friedrichs(−Δ + ‖x‖²/4)` on `L²(ℝ^{18n})` | `½ + 84B²` | `nsFamily_kap`, `nsVec_coupling` |
+| NS, full Lagrangian | `NsFullLagrangian.lagFullOuterN_esa` | lifted Friedrichs extension of the **auxiliary sum-of-squares operator** `lagSectorHam = weylOp … = ½Σπ² + ½Σ(form)²` (self-comparison — **not** of the NS Hamiltonian, which is not bounded below) | `0` | `lagSectorHam_quadForm_nonneg`, `volumePoly_not_quadratic` |
+| QYM, one body (abelian) | `YmOuterFockFL.ymAbelian_esa_farisLavine` | `Friedrichs(−Δ + ‖x‖²/4)` on `L²(ℝ⁹⁹)` | `Σ‖κ‖/2 + 2(mass v)²` | `ymAbelian_eq_sqSumOp` |
+| QYM, gauge-fixed parcels | `YmOuterFockFL.ymOuterFock_esa_farisLavine` | `⊕ₙ Friedrichs(−Δ + ‖x‖²/4)` on `L²(ℝ^{99n})` | `12 + 2 059 200B²` | `ymFamily_vv`, `ym_interaction_nontrivial` |
+| QG, fibre / scalaron band | `ScalaronOuterFockFL.secHam_essentiallySelfAdjointOn` | `⊕ₐ Friedrichs(−∂²_φ + φ²/4 + V(φ) + σ_a)` (**wall inside**) | `6K_Q` | `secHam_commForm_le` |
+| QG, full vielbein+scalaron | `QgVielbeinScalaronGaugeFL.qgFull_esa_farisLavine` | same `secN`, `Q = qgFullModes g` (κ = 855 + \|g\|, band 36) | `6K_Q` | `qgFullModes` |
+| QG, after the Fourier elimination | `QgFullEliminated.qgElimFull_esa_farisLavine` | same `secN`, `Q = qgElimFullModes g` (κ = 513 + \|g\|, band 9) | `6K_Q` | `eGram_eq_torsion_add_gauge3d` |
+| QG, `dΓ` form on the outer Fock space | `QgOuterFockFL.qgOuterFock_esa_farisLavine` | `dΓ(N₁)`, `N₁ = harmFried (84n)` | hypothesis (uniform in `n`) | `qgOuterFriedN_isPositiveSelfAdjointExtension` |
+
+Four points to keep straight (the audit's substance):
+
+1. **The NS one-body comparison is not the oscillator.**  `N_E = Friedrichs(H_sp)` (`c = 0`, a
+   consequence of positivity, `spHam_commForm_zero`); the oscillator comparison is what the
+   *gauge-fixed parcel* family uses.  Both live in the same route.  **And `c = 0` is always a
+   statement about the *auxiliary sum-of-squares operator*, never about the NS Hamiltonian:**
+   `weylOp` is literally `½ Σ_i π_i² + ½ Σ_a B_a²`, so every operator it builds is non-negative and
+   has a Friedrichs realization — that is what makes `H = N`, `c = 0` available for
+   `nsFullOuterN_esa` / `lagFullOuterN_esa` and the one-body/`dΓ` pair.  The **Navier–Stokes
+   Hamiltonian** itself, `kvnPoly`/`nsKoopmanOp` — the mainstream Liouville/KvN generator with the
+   *exact* nonlinearity, no square of a residual — is symmetric but **not bounded below**
+   (`kvn_quadP_not_bounded_below`, `nsKoopmanOp_not_bounded_below`, `nsKoopmanOp_not_positive`;
+   `quadP_starP` shows its numerical range is symmetric about `0`, so bounded below ⟺ bounded
+   above), so it has neither a Friedrichs realization nor a self-comparison; its leg carries the
+   Leray-energy comparison `N_E = 1 + ‖u‖²` (`nsEnergyOp_quadForm_ge`, `commForm_kvn_energy_bound`,
+   `nsKoopman_esa_of_energy_comparison`).  No row of this table asserts that the NS Hamiltonian is
+   bounded below, and none may be read that way.
+2. **The wall is inside `N` in every QG statement** (rule R3): the exact exponential `starobinskyV`
+   is not required to be `N`-bounded as a perturbation; the relative bound `K = 1 + 3K_Q` concerns the
+   vielbein matrices only.
+3. **Two lift spellings of the same object**: `dGammaOp` (`Σ_{j,k} ⟪e_j, A e_k⟫ a†_j a_k`, the NS
+   one-body chapter) and the `lp ℕ`-sector spelling `dsOp`/`dsFibOp` (the parcel and QG chapters).
+   New chapters must use one of these two and say which.
+4. **Symbolic evidence**: `../unfer/docs/ns_qg_fourier_elimination.cdb` (A1–E3, incl. the B4/B5
+   rank-one degeneracy), `yang_mills_hamiltonian.cdb` (`H = ½π² + ½B²` by Legendre) and
+   `qg_gauge_fixed_hamiltonian.cdb` (book.tex‑8190 with the coefficients `1/16, −1/24, ½, ⅓`) all
+   re-run clean on 2026‑09‑18; `qg_starobinsky_vielbein_hamiltonian.cdb` also re-runs clean after
+   its repair of the same date.  It had four defects: **four** `@()` references that mis-resolve
+   through the Cadabra LaTeX parser (`@(U_psi)`, `@(ex1_st)`, `@(H_8182_st)`, `@(H_final_st)` — an
+   underscore is a subscript separator unless its stem is ≥ 4 characters), the missing
+   `expand`/`expand_power` steps that keep `fR_check`/`R2_check` from reaching `0`, the
+   `pi_psi`/`pi_psi_check` name its Rust test extracts, and a `unwrap` that collapsed the expanded
+   action to one term.  **The same `unwrap` defect was found in the base module
+   `qg_gauge_fixed_hamiltonian.cdb` and repaired the same day** (it was silent there: the module does
+   not abort and its Rust test only checks `ex1` is non-empty and tetrad-shaped; `ex1` went from one
+   summand — `len` 18, one product of 18 factors — to the full 120-summand `eR` integrand, and
+   `pi_derived` from 2 to 132 summands, while `G`/`t0_tegr`/`H_final` stay byte-identical).
+   A module-level audit of all seven `../unfer/docs/*.cdb` modules for that class — epilogue dumping
+   the size of every named expression, counterfactual runs, replay of the Rust extraction trailer —
+   found it to be the **only** truncated module, and no module has an active `unwrap` in
+   `post_process` (the variant that would corrupt every sum in the file); two adjacent
+   non-truncation findings (a `diff` handle that is a hand-typed tautology, a benign `unwrap` on a
+   plain sum) are recorded in `../unfer/docs/VERIFY_CDB_TRUNCATION_AUDIT.md`.  The vielbein module
+   now runs clean, `fR_check = R2_check = pi_psi_check = 0`, and
+   `H_final_st = (M²/2)ψ·(book.tex 8190) + U(ψ)e` is confirmed coefficient by coefficient
+   (`../unfer/docs/VERIFY_QG_STAROBINSKY_VIELBEIN.md`).  No Lean proof depends on any of this.
+   `scripts/check_hamiltonian_identities.py` re-derives 19 of the
+   identities in exact arithmetic (`ALL CHECKS PASSED`).
+
+**The comparison operator `N`, verbatim.**  `HAMILTONIAN_AUDIT_20260918.md` §8–§9 spell out, from
+the definitions rather than from doc-comments, exactly what each Faris–Lavine proof consumes: the
+oscillator `harmFried (d) = Friedrichs(−Δ + ‖x‖²/4)` (with `SqFamily.secData`'s `C := harmFried` and
+`flc = km/2 + 2ab`), the scalaron-wall comparison `secN W Q = dsComparison (fibCompar W Q)` with the
+wall *inside*, and NS's self-comparisons (§9 also gives the evidence chain that the operator entering
+each `h` is the intended physical one, and states plainly that the **nested** structure is certified
+in Lean, not by Cadabra).  The module-level truncation audit of all seven `../unfer/docs/*.cdb`
+modules is `../unfer/docs/VERIFY_CDB_TRUNCATION_AUDIT.md`.
+
+**Stale names corrected.**  `DESIGN_COMPARISON_N_20260915.md` §7 names `lagRedOuterN_esa` and
+`nsRedOuterN_esa`, which **exist in no Lean file**; the realized statements are
+`lagFullOuterN_esa` and (`spHam_esa_farisLavine`, `nsSpDGamma_esa_farisLavine`,
+`nsOuterFock_esa_farisLavine`).  The design *content* of that note stands; only its NS rows need
+renaming.  `ChapterFarisLavineOnly`'s summary cited a non-existent `SqFamily.fl_certificate` (the
+certificate is `SqFamily.esa_farisLavine`) — fixed in the same edit.
