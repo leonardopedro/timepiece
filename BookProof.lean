@@ -2483,6 +2483,10 @@ import BookProof.ChapterGaugeWeylResidual
 import BookProof.ChapterGaugeMechanicsCharge
 import BookProof.ChapterGhostMajoranaRep
 import BookProof.ChapterGaugeIncompleteFixing
+import BookProof.ChapterGaugeComprehensiveFixing
+import BookProof.ChapterGaugeParametrization
+import BookProof.ChapterGaugeCasimirAverage
+import BookProof.ChapterDampedOscillatorEnergy
 import BookProof.ChapterGaugeShiftExample
 import BookProof.ChapterGaugeUnconstrainedSpectrum
 import BookProof.ChapterFockDegreesOfFreedom
@@ -2799,3 +2803,97 @@ import BookProof.ChapterNsOneBodyDGamma
 -- self-adjointness, carrying the surjectivity of `N_E + 1` as an explicit hypothesis.
 -- `nsTriad` is a non-vacuity witness: the resonant Navier–Stokes Fourier triad.
 import BookProof.ChapterNsKoopman
+
+-- `ChapterGraphCoreTransfer` (2026-09-20): the **core transfer principle** for essential
+-- self-adjointness.  `IsGraphCore D₁ T` says that `D₁` is dense in the domain of `T` for the
+-- graph norm `‖x‖ + ‖T x‖`; `deficiencyTrivialAt_of_graphCore` transfers each deficiency space
+-- and `essentiallySelfAdjointOn_of_graphCore` the whole property from the domain to any core.
+-- This is the instrument that lets the hypothesis "`A` is self-adjoint on `D`" be weakened to
+-- "`A` is essentially self-adjoint on `D`": one works with the closure's domain and comes back
+-- to `D` by graph-norm density, with no invariant domain and no resolvent on `D`.
+-- `pushOp` / `isGraphCore_pushOp` transport the notion along a linear isometry, e.g. into a
+-- completion.
+import BookProof.ChapterGraphCoreTransfer
+
+-- `ChapterTensorGraphCore` (2026-09-20): the **multilinear core estimate**.  `IPSpace.pow` is
+-- the `n`-fold algebraic tensor power of an inner product space, `derPow` the sector derivation
+-- `dΓ(A)⁽ⁿ⁾ = Σⱼ 1 ⊗ ⋯ ⊗ A ⊗ ⋯ ⊗ 1` (Leibniz recursion), `corePow` the tensor power `D^{⊗n}` of
+-- a one-particle core.  `graphPow_tmul_mem_closure` is the telescoping estimate on elementary
+-- tensors and `exists_core_approx` / `isGraphCore_sectorCore` its conclusion: if `D` is a core
+-- for `A`, then `D^{⊗n}` is a core for `dΓ(A)⁽ⁿ⁾`.  `derPow_symm` proves the sector derivation
+-- symmetric whenever `A` is.
+import BookProof.ChapterTensorGraphCore
+
+-- `ChapterSecondQuantizationCoreEsa` (2026-09-20): the assembly.  The Fock space is the
+-- ℓ²-direct sum of the completed sectors, `dGammaCoreOp` is `dΓ(A)` on the finite-particle
+-- domain built from the core `D` alone, and `dGamma_essentiallySelfAdjointOn_fockCore` proves
+-- it essentially self-adjoint, given sectorwise essential self-adjointness on the tensor powers
+-- of the domain of the closure (the self-adjoint-one-particle-operator input, not proved here).
+-- The gluing is `ChapterDirectSumEsa`, the descent to the core is `ChapterGraphCoreTransfer`
+-- plus `ChapterTensorGraphCore`.
+import BookProof.ChapterSecondQuantizationCoreEsa
+
+-- `ChapterScalarDGammaEsa` (2026-09-20): an unconditional instance of the assembly.  For the
+-- scalar one-particle operator `A = c • id` (`c : ℝ`) the sector derivation is the bounded
+-- scalar `n · c` on a dense domain, so the sector hypothesis of the main theorem is proved
+-- outright (`essentiallySelfAdjointOn_fockSectorDom_scalar`); the conclusion
+-- `dGamma_scalar_essentiallySelfAdjointOn_fockCore` is then unconditional: `dΓ(c • id)` is
+-- essentially self-adjoint on the finite-particle domain over *any* dense core `D`.
+import BookProof.ChapterScalarDGammaEsa
+
+-- `ChapterTensorOperatorBound` (2026-09-20): the missing operator bound for
+-- `TensorProduct.map` on inner product spaces.  `exists_orthonormal_repr` writes any tensor as
+-- `∑ xᵢ ⊗ eᵢ` with orthonormal right legs, `norm_sum_tmul_orthonormal` is Pythagoras for such
+-- sums, and `norm_map_left_le` / `norm_map_right_le` / `norm_map_le` give
+-- `‖(S ⊗ T) u‖ ≤ ‖S‖ ‖T‖ ‖u‖` for arbitrary bounded — in particular indefinite — factors.
+import BookProof.ChapterTensorOperatorBound
+
+-- `ChapterBoundedDGammaEsa` (2026-09-20): the sector hypothesis of the main theorem, proved for
+-- *every* bounded symmetric one-particle operator, with no positivity.  `norm_derPow_le` runs
+-- the tensor operator bound through the Leibniz recursion to get `‖dΓ(A)⁽ⁿ⁾‖ ≤ n ‖A‖`, and
+-- `dGamma_bounded_essentiallySelfAdjointOn_fockCore` concludes: for any bounded symmetric `B`
+-- and any dense subspace `D`, `dΓ(B)` is essentially self-adjoint on `𝓕_fin(D)`.  The instance
+-- `dGamma_neg_id_essentiallySelfAdjointOn_fockCore` (minus the number operator) is unbounded
+-- below, which is the point of dropping positivity.
+import BookProof.ChapterBoundedDGammaEsa
+
+-- `ChapterEsaPairDGamma` (2026-09-20): the packaged form.  `ESAPair` bundles a symmetric
+-- one-particle operator on the domain of its closure with a graph-norm core `D` and the
+-- sectorwise input; `ESAPair.dGamma_essentiallySelfAdjoint` is the main theorem over the
+-- package, `ESAPair.norm_sub_smul_sq` records the only quantitative input (Pythagoras at `± i`,
+-- valid with no spectral lower bound) and `ESAPair.ofBounded` produces packages — with the
+-- sectorwise input proved — for all bounded symmetric one-particle operators.
+import BookProof.ChapterEsaPairDGamma
+
+-- `ChapterDiagonalDGammaEsa` (2026-09-20): the sectorwise input, discharged for **unbounded**
+-- hermitian one-particle operators.  `essentiallySelfAdjointOn_of_dense_eigenvectors` is the
+-- eigenvector criterion (a total family of eigenvectors with real eigenvalues kills both
+-- deficiency spaces), `derPow_eigTensor` and `dense_eigSpan` lift it to the tensor sectors, and
+-- `essentiallySelfAdjointOn_fockSectorDom_diagonal` is the sector hypothesis with no bound on
+-- the one-particle operator; `dGamma_diagonal_essentiallySelfAdjointOn_fockCore` is the main
+-- theorem over any graph-norm core.  `diagOp` builds such operators (multiplication by an
+-- arbitrary real family along an orthonormal family) and `not_bounded_diagOp` shows they are
+-- genuinely unbounded.
+import BookProof.ChapterDiagonalDGammaEsa
+
+-- `ChapterFlowDGammaEsa` (2026-09-20): the sectorwise input, discharged for **every
+-- self-adjoint** one-particle operator, unbounded and with arbitrary spectrum.
+-- `deficiencyTrivialAt_of_orbits` is Nelson's invariant-domain criterion in orbit form,
+-- `OneParticleFlow` bundles the unitary group with invariant domain supplied by Stone's
+-- theorem (`ofSelfAdjoint`), `hasDerivAt_tpow` is the Leibniz rule for the tensor flow, and
+-- `dGamma_selfAdjoint_essentiallySelfAdjointOn_fockCore` is the main theorem: for any
+-- self-adjoint `A` and any graph-norm core `D`, `dΓ(A)` is essentially self-adjoint on
+-- `𝓕_fin(D)`.  `dGamma_position_essentiallySelfAdjointOn_fockCore` is the unbounded instance
+-- (multiplication by `k` on `ℓ²(ℤ)`).
+import BookProof.ChapterFlowDGammaEsa
+
+-- `ChapterEsaOneParticleDGamma` (2026-09-20): the one-particle operator is only
+-- **essentially self-adjoint** on its domain `D` — symmetric with trivial deficiency, not
+-- self-adjoint.  `closureSelfAdjoint` packages the graph closure of such an operator as a
+-- self-adjoint operator and `isGraphCore_clDom` shows `D` is a core of it, `esa_graph_le`
+-- and the tensor lemmas transfer the sectorwise statement back to `D` itself, and
+-- `dGamma_essentiallySelfAdjointOn_of_esa` is the main theorem: `dΓ(A)` is essentially
+-- self-adjoint on `𝓕_fin(D)`.  `positionCore` — multiplication by `k` on `ℓ²(ℤ)` restricted
+-- to the finitely supported vectors — is an instance which is essentially self-adjoint but
+-- not self-adjoint (`positionCore_not_isSelfAdjointOn`).
+import BookProof.ChapterEsaOneParticleDGamma

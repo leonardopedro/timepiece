@@ -114,12 +114,12 @@ be run through it:
 | level | object | where |
 | :-- | :-- | :-- |
 | inner (one-particle / one-parcel) space | `h = L²(ℝ²¹)` — full Eulerian sector; `h = L²(ℝ⁶)` — reduced (Fourier-eliminated) sector; `h = L²(Ω)` — parcel continuum; with the Gauss–polynomial core `polyGaussCore` as its dense domain | `ChapterNavierStokesFullEulerianFock`, `ChapterNsFourierElimination` |
-| inner one-particle Hamiltonian | `H₁ = nsSectorHam … 1 = ½Σ_m π_m² + ½Σ_r (mulOp Φ_r)²` — Weyl-ordered sum of squares of the constraint forms, symmetric and bounded below on the core (`nsSectorHam_symmetricOn`, `nsSectorHam_quadForm_nonneg`, `nsSector_friedrichs_extension`) | same |
+| inner one-particle **auxiliary** operator (the comparison/energy auxiliary — **not** the NS Hamiltonian, and **not** book.tex's literal `H²`; see the last row of this table and §D6b) | `H₁ = nsSectorHam … 1 = ½Σ_m π_m² + ½Σ_r (mulOp Φ_r)²` — Weyl-ordered sum of squares of the constraint forms, symmetric and bounded below on the core (`nsSectorHam_symmetricOn`, `nsSectorHam_quadForm_nonneg`, `nsSector_friedrichs_extension`) | same |
 | outer (nested) space | `nsFockSpace = lp (fun n : ℕ => L2d (n * 21)) 2 ≅ ⊕ₙ Symⁿ h = Γ_s(h)`, core `nsFockCore = dsCore (fun n => polyGaussCore (d := n * 21))`; reduced: `nsRedFockSpace = lp (fun n => L2d (n * 6)) 2` with the same shape | same |
 | outer Hamiltonian | `nsFullFockHam = dsOp (fun n => nsSectorHam … n) = dΓ(H₁)` — `nsSectorHam … n` is `H₁` summed over the `n` parcels, i.e. `dΓ(H₁)` restricted to the parcel sector; number conserving (`nsFullFockHam_number_conserving`), symmetric and positive **fibrewise** | same |
 | continuum form | `ĥ = ∫_Ω w(ξ) a†(ξ) a(ξ) dξ` on the `n`-parcel sector `L²(Ωⁿ)` = multiplication by `Σ_k w(ξ_k)` | `Definitions/Def_ChapterNavierStokesFockContinuum.lean` (`multOp`, `multOp_hasZeroDeficiencyOn`, `sectorHamiltonian_hasZeroDeficiencyOn`) |
 | gluing | `dsOp`, `dsCore`, `dsOp_deficiencyTrivialAt`, `dsOp_essentiallySelfAdjointOn`, `dsOpD_stone_flow` — ESA passes from the fibres to the orthogonal sum | `BookProof/ChapterDirectSumEsa` |
-| **the shape that is *not* the one-particle operator of record** | `H_NS = ½ Σ_m (π_m F_m + F_m π_m)` — the mainstream (Koopman–von Neumann / Liouville) generator of `u̇ = −νAu + B(u,u)`, Hermitized “momentum × drift”; **symmetric but unbounded below** (`nsKoopmanOp_not_bounded_below`, `nsKoopmanOp_not_positive`), so it can never be the positive comparison operator `N` and the `H = N`, `c = 0` shortcut is unavailable for it.  Its own leg carries the Leray-energy comparison `N_E = 1 + ‖u‖²` instead (`nsEnergyOp_quadForm_ge`, `commForm_kvn_energy_bound`, `nsKoopman_esa_of_energy_comparison`) | `BookProof/ChapterNsKoopman` (Part1 + Part2) |
+| **the NS Hamiltonian itself** — the generator of the equation, *not* a comparison operator | `H_NS = ½ Σ_m (π_m F_m + F_m π_m)`, equivalently `π^i(u_j u_{i,j} + q_i − ν u_{i,jj}) + h.c.` for the **full** residual (the tree's `BookProof.NsFullEuler.nsResPoly`, with `q_i = ∂_i p` the pressure-gradient coordinate and the incompressibility `divPoly`; in the mainstream Leray–Galerkin form the pressure is eliminated by the Leray projection and it is `π^i(u_j u_{i,j} − ν u_{i,jj}) + h.c.`, book.tex eq. 4186) — the (Koopman–von Neumann / Liouville) generator, Hermitized “momentum × drift”.  This is the operator whose commutator with the velocity density is the Navier–Stokes equation: `i[H_NS, u_k] = 2 F_k` (one body) and, on the nested Fock space, `[dΓ(H_NS), dΓ(u_k)] = dΓ([H_NS,u_k])`, verified symbolically in `../unfer/docs/ns_kvn_equation.cdb`.  It is **symmetric but unbounded below** (`nsKoopmanOp_not_bounded_below`, `nsKoopmanOp_not_positive`), so it can never be the positive comparison operator `N` and the `H = N`, `c = 0` shortcut is unavailable for it.  Its own leg carries the **valid** comparison — the Leray energy `N_E = 1 + ‖u‖²` (`nsEnergyOp`, `nsEnergyOp_quadForm_ge`, `kvn_comm_energy`, `fluxPoly_eq`, `commForm_kvn_energy_bound`, `nsKoopman_esa_of_energy_comparison`).  **`H²` is not a valid `N`** even though book.tex floats it (see §D6b): the criterion needs `N + 1` *onto*, and `H² + 1 = (H−i)(H+i)` gives `range(H²+1) ⊆ range(H−i)`, so it fails precisely when `H` has a non-trivial deficiency — the formalized general case is `BookProof.FarisLavine.not_farisLavine_criterion_of_relative_bound` (limit-circle Jacobi, `N = H`) — and independently `D(H²) ⊊ D(H)` | `BookProof/ChapterNsKoopman` (Part1 + Part2) |
 
 The reduced one-parcel family is not merely *read* as a one-body datum: `BookProof/ChapterNsOneBodyDGamma`
 proves `redHam_eq_sum_parcel` (the reduced `n`-parcel Hamiltonian is the sum of `n` copies of the
@@ -192,6 +192,160 @@ family of fibre comparison operators to the `ℓ²`-direct sum on the maximal do
   `dGamma_finsetSum_col` is what keeps this to *one* `dΓ`, and `N = Σ_ℓ dΓ(h_ℓ) + 𝒩` is positive
   self-adjoint with the summand form bounds (`coupling_quadForm_le`, `comparison_friedrichs`);
   a genuine `ℓ¹` gate on cross-basis entries is never assumed.
+
+### D6b. The **core** of the comparison operator, and why ESA must be reproved on the lifted core
+
+Faris–Lavine as this project formalizes it (`BookProof/ChapterFarisLavineCore`, `structure CoreData`)
+and as `BookProof/ChapterFarisLavineOnly` uses it is **not** a statement about `𝒟(N)` alone: the
+concrete Hamiltonian is handed to us on a small **core** `C₀`, and the criterion is run **on the
+core**.  The data are:
+
+* a comparison operator `C : Comparison F` — positive, symmetric, `N + 1` onto (so `N` is a positive
+  self-adjoint operator, `Comparison.isPositiveSelfAdjointExtension`);
+* a **graph core** `C₀` (`structure IsGraphCore`): a subspace of `𝒟(N)` such that every domain
+  vector is approximated by a core vector *together with its `N`-image* (`approx`) — this is what
+  makes the extension `CoreData.ext : 𝒟(N) → F` of the core-defined `H₀` well-defined, symmetric
+  and relatively bounded;
+* the relative bound `‖H₀ p‖ ≤ K‖(N+1)p‖` on the core.
+
+`CoreData.esa_on_core` then gives `EssentiallySelfAdjointOn C₀ H₀` — essential self-adjointness **of
+the original operator on the graph core itself**, not merely of the extension on `𝒟(N)`.
+
+**What this asks of `N`.**  `N` must be symmetric on `C₀` **and** `C₀` must be a core for `N` — the
+approximation property above is exactly “`C₀` is dense in the graph norm of `N`”.  For the
+oscillator comparison `N₁ = −Δ + ‖x‖²/4` on `L²(ℝ^D)` the natural core is the **Hermite /
+Gauss-polynomial core** `polyGaussCore D`, and the requirement is a genuine theorem, not a
+formality: `N₁` is essentially self-adjoint on that core (the Hermite functions are a core for the
+harmonic oscillator, and `polyGaussCore D` is dense in its graph norm).  The same holds for the QG
+fibre operator `N_a = −∂²_φ + φ²/4 + V(φ) + σ_a` (wall **inside**) on the compactly supported smooth
+core, where `W.comparison` / `WallPot.comparison` are built.  **Obligation for the specialist:**
+prove, *for the chosen core*, that `N` — not only `H` — is essentially self-adjoint on it.  The
+positivity of `N` and surjectivity of `N + 1` alone do **not** discharge `IsGraphCore`; it is the
+precise, non-free hypothesis of `CoreData`.
+
+**ESA does not lift to the outer Fock space.**  §D6 says the *criterion* (comparison operator and
+commutator bound) lifts from the one-particle space to `⊕ₙ L²(ℝ^{d·n})` with the same `K`, `c`.  That
+statement is about `EssentiallySelfAdjointOn 𝒟(N) H_ext` — the extension on the whole comparison
+domain.  The **core-level** statement `EssentiallySelfAdjointOn C₀ H₀` is a *different* object and
+does **not** transport for free: the lifted core is the finite-particle / Hermite-product core of
+the **nested** Fock space (`outerCore`, and the `polyGaussCore` / `HermiteProductCore` basis), and the lifted Hamiltonian
+is `dΓ(H₁)` (or `secHam`), not `H₁`; symmetry and graph-core density must be re-established there.
+The Lean tree proves the two levels separately, and the plan must keep them separate:
+
+* the one-particle statement `BookProof.FarisLavineOnly.sqSumOp_esa_farisLavine` (via
+  `FarisLavineOnly.secHam_esa_fl` on the `constFamily`) — ESA on the Gauss-polynomial core of the
+  *one-particle* space;
+* the lifted **domain** statement `BookProof.ScalaronOuterFockFL.secHam_essentiallySelfAdjointOn`
+  (`EssentiallySelfAdjointOn (secN W Q).dom (secData W Q).ext`) and, for the `ℓ²`-sum spelling,
+  `BookProof.QgOuterFockFL.qgOuterFock_esa_farisLavine` — on the lifted domain, **not** on the
+  lifted core;
+* the lifted **core** statements `BookProof.FarisLavineOnly.outerHam_esa_fl`
+  (`EssentiallySelfAdjointOn (outerCore F.dim) F.outerHam`, sector by sector) and
+  `dsOp_essentiallySelfAdjointOn` — these are the ones that must be proved for `dΓ(H₁)` on the
+  lifted core, and they are not implied by the one-particle `esa_on_core`.
+
+So the plan’s obligation is the **pair**: (i) `N` is ESA on the chosen core (Hermite for the
+oscillator, compactly-supported smooth for the QG wall); and (ii) the lifted Hamiltonian `dΓ(H₁)`
+(or `secHam`) is ESA on the **lifted** core.  Neither implies the other; (ii) is the nested-Fock
+statement §D6’s “the criterion lifts” does **not** supply.  (The two lift spellings `dGammaOp` vs
+`dsOp`/`dsFibOp` are the same object — §D3/§D6.)
+
+> **Update (2026-09-21).**  Obligation **(ii) is discharged in general** by the core-transfer /
+> `dΓ`-ESA wave (`ChapterGraphCoreTransfer`, `ChapterTensorGraphCore`,
+> `ChapterSecondQuantizationCoreEsa`, plus the bounded / scalar / diagonal / self-adjoint /
+> only-ESA one-particle cases): `dGamma_essentiallySelfAdjointOn_fockCore` and
+> `dGamma_essentiallySelfAdjointOn_of_esa` prove that `dΓ(H₁)` is ESA on the finite-particle domain
+> built from the one-particle core `C₀` **alone**, with no invariant domain and no resolvent on `C₀`.
+> Only obligation **(i)** — `N` ESA on its core — remains, plus the symmetrization step (the new
+> theorems are about the full tensor powers, not the symmetric/antisymmetric sectors).  The
+> “likely to be easy” heuristic below is superseded by the proof.  The pedagogical face is
+> `Book/SecondQuantizationEsa.lean`; see the state entry “2026-09-21” at the end of this file.
+
+**Why obligation (ii) — the lifted core — is nevertheless likely to be *easy* (the sector-uniform gap).**
+The one-particle obligation (i) is where the analysis lives; once it is in hand, the lift adds only
+elementary number-operator bookkeeping, for a structural reason: `dΓ` has a **gap that grows with the
+particle number**.  Concretely, for a comparison `N₁ ≥ 0` on the one-particle space, write
+`𝒩` for the number operator, so `dΓ(N₁ + 1) = dΓ(N₁) + 𝒩`.  `dΓ(N₁)` preserves particle number and
+on the `n`-particle sector it is the `n`-fold sum `N₁^{(n)} = Σ_{p=1}^n 1⊗…⊗N₁⊗…⊗1 ≥ 0`, hence
+`dΓ(N₁ + 1)` is `≥ n` on that sector.  Therefore for `ψ = Σ_n ψ_n` in the finite-particle algebraic
+core `⨁_n Γ^n_sym(C₀)`,
+`‖T_K ψ‖² = Σ_{n>K}‖ψ_n‖² ≤ Σ_{n>K}‖(dΓ(N₁)+1)ψ_n‖²/(n+1)² ≤ ‖(dΓ(N₁)+1)ψ‖²/(K+1)²`,
+so the tail `T_K ψ = Σ_{n>K} ψ_n → 0` in the **graph norm** of `dΓ(N₁)`: the algebraic core is a
+graph core.  On each fixed sector the tensor power `C₀^{⊗n}` is dense in the graph norm of
+`N₁^{(n)}` because `N₁` is ESA on `C₀` — the one-particle input (i).  No new estimate, no uniformity
+in `n`, and no interaction input is used.  This is why every `c = 0` self-comparison (and, more
+generally, every lifted comparison) in this plan is a **lift** rather than a new proof, and it is
+the mechanism `REVIEW_FARIS_LAVINE_20260911.md` §0 records.  The precise Lean spellings to target
+are `dsOp_essentiallySelfAdjointOn` (the `ℓ²`-sum) and `outerHam_esa_fl` / `nsSpDGamma_esa_farisLavine`
+(the sector-wise instances).  *Caveat, hence “likely”:* the argument does not need `N₁ > 0` or
+discrete spectrum, but it does need (a) `N₁` defined and symmetric on `C₀` and ESA there
+(obligation (i)), and (b) `N₁ + 1` onto (automatic for a Friedrichs realization of a bounded-below
+symmetric operator).  If a comparison is taken with no gap and no shift — e.g. the self-comparison
+`N = H` of the NS **Koopman** Hamiltonian, which is not bounded below — the sector gap argument does
+not apply as stated, and **neither `N = H` nor `N = H²` is a legitimate replacement**: `H²` is
+positive, but the criterion needs `N + 1` *onto*, and `range(H²+1) ⊆ range(H−i)` since
+`H² + 1 = (H−i)(H+i)` on the domain, so `H² + 1` fails to be onto exactly when `H` has a
+non-trivial deficiency (circular) — the formalized general refutation of relying on the two
+inequalities alone is `BookProof.FarisLavine.not_farisLavine_criterion_of_relative_bound`
+(limit-circle Jacobi operator, `N = H`: `a = 1`, `b = 0`, ESA fails) — and `D(H²) ⊊ D(H)` rules it
+out on the common Faris–Lavine domain independently.  The **valid** comparison for that leg is the
+**Leray energy** `N_E = 1 + ‖u‖²` (`BookProof.NsKoopman.nsEnergyOp`): a multiplication operator,
+hence self-adjoint, positive, `N_E + 1` onto, whose commutator collapses (Leray’s identity
+`ΣᵢuᵢBᵢ = 0` for the advection, with the pressure work also vanishing on the divergence-free
+sector, `Σₖuₖqₖ = 0`) to the sign-definite viscous dissipation `i[H_NS,N_E] = −2ν Σᵢλᵢuᵢ²`, giving
+`|⟪x,i[H_NS,N_E]x⟫| ≤ 2νΛ ⟪x,N_E x⟫` unconditionally (`commForm_kvn_energy_bound`).  Verified
+symbolically in `../unfer/docs/ns_kvn_equation.cdb` CHECK 4–6, 8.  The pressure is the Lagrange
+multiplier of the constraint, and its own equation — the pressure Poisson equation
+`Δp = −∂_i(u_j∂_ju_i) + ∂_i f_i` — is derived symbolically in `../unfer/docs/ns_pressure_poisson.cdb`.
+
+**The pressure constraint is second-class — eliminate it, do not give it a new BRST generator.**
+The pressure enters the residual only through `q_i = ∂_i p`, with no `∂_t p` and no conjugate
+momentum: it is the **Lagrange multiplier** of incompressibility.  Taking the divergence of the
+momentum equation gives the secondary constraint `φ₂ = Δp + ∂_i(u_j∂_ju_i) − ∂_i f_i = 0`, and the
+persistence condition `∂_t(div u) = 0` is **second-class** — it fixes the multiplier `p` through the
+elliptic operator `Δ` (symbol `|k|²`), invertible on the non-zero modes, so
+`p = −|k|⁻²S` (with
+`S = −\widehat{div[(u·∇)u]} + i k·f̂`) and there is **no residual gauge freedom** — the only free
+mode is the additive constant `p(0)`, which is annihilated by `∂_i` and therefore invisible to
+`q_i = ∂_i p` and to the dynamics (book.tex fixes it by requiring the constraints to be conserved).
+BRST is the tool for **first-class** (gauge) constraints; for this solvable /**second-class** one it
+buys nothing.  This is book.tex's own statement — *"the divergence constraint can be easily solved
+(e.g. using the replacement `u_{3,3} = u_{1,1} + u_{2,2}`) … the BRST formalism is used only to allow
+a more elegant formulation … and not to define the theory itself"* — and it is the taxonomy already
+formalized in `BookProof.ChapterNavierStokesEulerian`: `div u = 0` is an **explicit-solution
+constraint** (`eulerian_divergence_constraint`), while the derivative relations `u_{i,j} = ∂_j u_i`
+are the **gauge-generator** constraints, whose BRST charge is `Ω = Σ_j G_jχ_j` (`G_j = ∂/∂y_j −
+u_{i,j}∂/∂u_i`), nilpotent with `[Ω, H] = 0` (`BookProof.NsBrstDerivativeGauge`).  book.tex's
+divergence charge `Ω = ∫ u_{j,j}ψ†` is nilpotent but is *"only the elegant packaging"* of the same
+solvable constraint — verified symbolically in `../unfer/docs/ns_pressure_constraint.cdb` (CHECK 4).
+**Therefore the treatment is the plan's elimination strategy** (the same one used for the
+derivative variables `u_{i,j}, w_i, y_j`): solve `div u = 0` by the book's substitution and solve the
+Poisson equation for `p`, i.e. replace `q_i` by `∂_i p = ∂_i Δ⁻¹(−∂_j(u_k∂_ku_j) + ∂_j f_j)`, a
+function of `(u, f)` alone (`ns_pressure_constraint.cdb` CHECK 5).  New self-contained Lean
+obligations: `pressure_poisson_constraint` (the secondary constraint, no `∂_t p`),
+`pressure_determined_by_laplace` (`Δ` invertible on the non-zero-mode / divergence-free space, so
+`p` is fixed up to the additive constant), and `pressure_const_gradient_zero` (`∂_i(p + c) = ∂_i p`,
+so the constant is unobservable); extend the `ChapterNavierStokesEulerian` taxonomy with the
+pressure entry.  *If a uniform BRST packaging is nevertheless wanted*, keep `q_i` as a reduced
+coordinate and impose the pair (`∂_i q_j = ∂_j q_i` integrability, `∂_i q_i = Δp` Poisson) — both
+explicitly solvable by the potential `p` — with the existing charge for the derivative gauge; a new
+generator for the pressure is not needed.
+
+**The `N` and the commutation conditions, per Hamiltonian.**  From §“The comparison operator `N` —
+one per Hamiltonian” below and `HAMILTONIAN_AUDIT_20260918.md` §5/§8: NS one body `H_sp` uses the
+self-comparison (`N = Friedrichs(H_sp)`, `c = 0`); the mainstream NS **Hamiltonian** itself
+(`kvnPoly`, symmetric but unbounded below) uses the **Leray energy** `N_E = 1 + ‖u‖²` with
+`c = 2νΛ` (`commForm_kvn_energy_bound`) — *not* book.tex's `H²`; NS gauge-fixed parcels use the
+lifted oscillator `N₁ = −Δ + ‖x‖²/4` with `c = ½ + 84B²`; the full Eulerian / Lagrangian models use
+the lifted Friedrichs extension of the **auxiliary** `weylOp` (`c = 0`, never the NS Hamiltonian —
+§2.3 of the audit); QG uses the lifted fibre operator `N_a = −∂²_φ + φ²/4 + V(φ) + σ_a` with the
+wall **inside**, `c = 6·K_Q`; QYM uses the lifted oscillator `N₁ = −Δ + ‖x‖²/4` on `L²(ℝ^{99n})`.  The one-particle commutator shapes and constants were re-derived symbolically in the
+sibling repo (`../unfer/docs/faris_lavine_n_ns.cdb`, `../unfer/docs/faris_lavine_n_qg.cdb`; evidence
+`../unfer/docs/VERIFY_FARIS_LAVINE_N.md`) and are recorded here so the specialist has them without
+the modules: NS `[H,N]` is again **first order**,
+`(−¼Σ_j κ_j + Σ_rΣ_k v_{rk}²) + Σ_j(−κ_j/2) x_j ∂_j + 2 Σ_j (∂_j V) ∂_j`, with `∂_j V = grad_j`,
+`∂_j² V = Σ_r v_{rj}²` (the entries of `commConst`); QG’s scalaron–vielbein coupling obeys
+`[φ, H_fib] = 2 ∂_φ` (`ham_x_comm_cc`), the derivative term `imB_le` controls uniformly in the wall.
 
 ### D7. The numerical twin (`../unfer/`) — provenance, and a cross-check
 
@@ -601,7 +755,10 @@ with the one-body generator `H_sp` acting on `(x, u)` and conjugate momentum
 constraint `D_x = 0` are removed as follows.
 
 1. **The dilemma in coordinate space.**  The generator along the classical flow has the
-   Koopman form `H_sp = π^i (u_j ∂_j u_i − ν ∇² u_i) + h.c.`  To make the local product
+   Koopman form `H_sp = π^i (u_j ∂_j u_i + ∂_i p − ν ∇² u_i) + h.c.` (the pressure gradient is the
+   `q_i` coordinate, carried independently — tree `nsResPoly`; the divergence-free constraint
+   `∂_j u_j = 0` is the companion `divPoly`, and in the Leray-projected form the `∂_i p` is
+   dropped).  To make the local product
    `u_j · ∂_j u_i` *algebraic* inside a one-body operator, `book.tex` inflates `S` by
    adjoining `u_{i,j} ≡ u^{(1)}` as an independent coordinate (the `ℝ³³`-like configuration
    space), then imposes the constraint
@@ -675,7 +832,12 @@ domain** `D` and a positive self-adjoint `N` with
   `H` must be *defined* on the domain of `N`;
 * `(N + 1)` **onto** (automatic once `N` is positive self-adjoint; for the lifted
   comparisons it is `dsCompOp_surj`);
-* the **commutator-form bound** `|commForm H N x| ≤ c · quadForm N x`.
+* the **commutator-form bound** `|commForm H N x| ≤ c · quadForm N x`;
+* a **graph core** `C₀` on which the criterion is actually run — the Hermite / Gauss-polynomial
+  core for the oscillator comparisons, the compactly supported smooth core for the QG wall — with
+  `C₀` dense in the graph norm of `N` (`IsGraphCore`).  This is a *fourth* obligation, not a
+  formality: it asks that **`N` itself is essentially self-adjoint on `C₀`**, and the lifted
+  analogue asks the same for `dΓ(H₁)` on the lifted nested-core.  See §D6b.
 
 There is **no relative-bound smallness hypothesis** in this rendering — the relative bound
 only enters as the informal way of saying "`H` is defined on `𝒟(N)`" — so the design problem
@@ -737,11 +899,14 @@ generator and whose commutator with it stays bounded by `c·N`.  One per version
    `N = Σ_ℓ dΓ(h_ℓ)₊ + 𝒩 + 1` (`DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md` §2) is the same
    object for the coupling sum.
 
-The three obligations above are the **definition of done** for the corresponding item: a
-candidate `N` becomes *the* `N` only once symmetry-on-`D`, surjectivity of `N + 1` and the
-commutator bound are all settled for the eliminated generator — and in the `c = 0` case the last
-one is settled by the commutator *vanishing*, which is what happens for the honest reduced
-Hamiltonian with `N` its own Friedrichs extension (plan of record 2026‑09‑17b, wave above).
+The **four** obligations above are the **definition of done** for the corresponding item: a
+candidate `N` becomes *the* `N` only once symmetry-on-`D`, surjectivity of `N + 1`, the
+commutator bound, and the graph-core / core-ESA obligation (§D6b) are all settled for the
+eliminated generator — and in the `c = 0` case the commutator bound is settled by the commutator
+*vanishing*, which is what happens for the honest reduced Hamiltonian with `N` its own Friedrichs
+extension (plan of record 2026‑09‑17b, wave above).  The core obligation is independent of the
+other three and of the one-particle ↔ lifted passage: `N` must be proved ESA on the chosen core,
+and `dΓ(H₁)` must be proved ESA on the **lifted** core — ESA does not lift (§D6b).
 
 ### Plan items — Navier–Stokes, Eulerian and Lagrangian
 
@@ -1396,6 +1561,41 @@ specialist cannot repeat them:
    `PythHydra.phi_zero`).  What the sweep *did* find is six **self**-restatements (two of our own
    chapters stating one lemma), five of which the platform resolved on its own as `reused` —
    recorded with ids in `PIPELINE_PLAN.md` §1y and `DEDUP_REPORT_leonardopedro.md` §F.
+
+**Re-run and re-verification, 2026‑09‑21 (prove2me API `0.10.7`, Lean 4.33.1 / Mathlib `0df444a`).**
+The platform has moved again (`0.10.5 → 0.10.7`) and the search was redone.  Registered here because
+the specialist cannot repeat it:
+
+1. **The seven Mathlib-only instrument rows are unchanged.**  Re-fetched live by name: still `Proved`
+   at the same ids — `MeasureTheory.L2.convolutionCLM_isSymmetric_of_conj_neg` (`f7acdc05`),
+   `…exists_convolutionCLM_isCompactOperator_of_compactSpace` (`b4b789f8`),
+   `posDef_quadratic_form_lower_bound` (`0fc6dadb`), `Diaz.det_add_two` (`47ddec80`),
+   `ContinuousLinearMap.orthogonal_iSup_eigenspace_ne_zero_eq_ker` (`9b157d55`),
+   `…le_ker_or_finiteDimensional_of_forall_inf_highPart_orthogonal` (`2126e74d`),
+   `GribovRegion.exists_neg_quadratic_form_of_traceless` (`a883b692`).  Nothing in
+   `BookProof/ChapterProve2meReuse.lean` needs revisiting; the three `4.28 gap` rows stay deferred.
+2. **The offline wave sweep (1 732 stubs) still finds no cross-author duplicate.**  Classes
+   `STMT`/`DECL`/`NAME` = 0 collisions with another author's node, `SHAPE` = 0 cross-author, and the
+   `LEAF` cross-author hits are the same triaged false positives (`QFS.abs_coord_le_norm`,
+   `NavierStokes.norm_heatFlow_le`, `PythHydra.phi_zero`).  What it does show is the *self*
+   backlog: 1 298 of the 1 732 wave names already exist on the platform (the continuation re-publishes
+   names the account already has), and two chapters still state one lemma twice
+   (`HermiteQuadraticEsa.cpoly_add` / `QgHermiteFriedrichs.cpoly_add` and the `gaussInt_sub` pair) —
+   the import-not-re-prove targets for the next pipeline pass (`PIPELINE_PLAN.md` §1n,
+   `DEDUP_REPORT_leonardopedro.md`).
+3. **The 2026‑09‑21 timepiece wave (ten core-transfer / `dΓ`-ESA chapters + four gauge chapters) is
+   *new* and must not be reduced to anything already on the platform.**  A live search for the
+   natural phrasings (`Faris-Lavine`, `essentially self-adjoint`, `Friedrichs extension`, `Fock
+   space`, `second quantization`, `Kato-Rellich`, `relatively bounded`, `Friedrichs inequality`)
+   returns **no relevant Proved node**: the platform’s day-to-day catalogue carries number theory and
+   analysis, not this operator theory.  What the account *has* published of the route’s own tree is a
+   subset — `BookProof.FarisLavine.essentiallySelfAdjointOn_core_of_farisLavine` (`7db0d12f`),
+   `BookProof.FarisLavine.not_farisLavine_criterion_of_relative_bound` (`141a95c7`),
+   `BookProof.FockSecondQuantization.dGamma_one_particle` (`2a89fd45`) are `Proved`; while
+   `BookProof.DirectSumEsa.*`, `BookProof.EsaClosure.*`, `BookProof.ChapterFarisLavineCore.*`,
+   `BookProof.NsOuterFock.*` and `BookProof.QgOuterFockFL.*` are **not on the platform at all**.
+   So the new chapters are new nodes, not reductions, and the only *downward* reuses they consume are
+   the seven instruments already transcribed.
 
 **One caution that transfers to this plan directly.**  The wave sweep had a silent defect worth
 knowing about wherever reuse is judged *by statement*: the platform side is hashed from the bare
@@ -13289,3 +13489,114 @@ modules is `../unfer/docs/VERIFY_CDB_TRUNCATION_AUDIT.md`.
 `nsOuterFock_esa_farisLavine`).  The design *content* of that note stands; only its NS rows need
 renaming.  `ChapterFarisLavineOnly`'s summary cited a non-existent `SqFamily.fl_certificate` (the
 certificate is `SqFamily.esa_farisLavine`) — fixed in the same edit.
+
+## 2026-09-21 — the core-transfer / second-quantization ESA wave: **obligation (ii) of §D6b is discharged for `dΓ(h)`**
+
+**Why this wave matters for the whole plan.**  The outer Hamiltonian of record is the second
+quantization of an inner one-particle operator, `H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ) = dΓ(h)` (QYM, QED, QG and
+NS alike).  §D6b left two obligations: (i) the comparison `N` must itself be essentially
+self-adjoint on the chosen core; and (ii) the lifted Hamiltonian `dΓ(H₁)` must be proved ESA on the
+**lifted core**, because „ESA does not lift for free“ — the criterion lifts on the *domain* `𝒟(N)`,
+but the core-level statement is a different object.  This wave supplies the general instrument that
+discharges (ii), and proves it in every case the inner operator actually takes in this project.
+
+**The instrument.**  Ten new `sorry`-free, `axiom`-free chapters (all imported from `BookProof.lean`,
+all in the `BookProofOperatorCore` / `BookProof` parts):
+
+| chapter | namespace | what it proves |
+| :-- | :-- | :-- |
+| `ChapterGraphCoreTransfer` | `BookProof.GraphCore` | the **core transfer principle**: `IsGraphCore D₁ T` (graph-norm density), `deficiencyTrivialAt_of_graphCore`, `essentiallySelfAdjointOn_of_graphCore`; `IsGraphCore.refl/trans`; isometry transport `pushOp`/`isGraphCore_pushOp`; the unconditional bounded/dense criterion `essentiallySelfAdjointOn_of_bounded_dense` |
+| `ChapterTensorGraphCore` | `BookProof.TensorCore` | the **multilinear core estimate**: `IPSpace.pow`, `derPow` (Leibniz recursion), `corePow`; `graphPow_tmul_mem_closure`, `exists_core_approx`, **`isGraphCore_sectorCore`** (a core lifts to every tensor power), `derPow_symm`/`symmetricOn_sectorOp` |
+| `ChapterSecondQuantizationCoreEsa` | `BookProof.SecondQuantizationCore` | the assembly on the nested Fock space: `fockSector`, `fockSectorDom`/`Core`, `dGammaCoreOp`, **`dGamma_essentiallySelfAdjointOn_fockCore`**, `symmetricOn_dGammaCoreOp`, `exists_ne_zero_mem_dGammaCoreDomain` (non-vacuity), `essentiallySelfAdjointOn_fockSectorCore` |
+| `ChapterTensorOperatorBound` | `BookProof.TensorOpBound` | the operator bound for `TensorProduct.map`: `exists_orthonormal_repr`, `norm_sum_tmul_orthonormal`, `norm_map_left_le`/`right_le`/`norm_map_le` — arbitrary bounded (in particular indefinite) factors |
+| `ChapterBoundedDGammaEsa` | `BookProof.BoundedDGamma` | `norm_derPow_le` (`‖dΓ(A)⁽ⁿ⁾‖ ≤ n‖A‖`) and **`dGamma_bounded_essentiallySelfAdjointOn_fockCore`** — unconditional for every bounded symmetric `h`; `dGamma_neg_id_essentiallySelfAdjointOn_fockCore` is unbounded below (no positivity smuggled in) |
+| `ChapterScalarDGammaEsa` | `BookProof.ScalarDGamma` | the scalar instance, unconditional for *any* dense `D`: `dGamma_scalar_essentiallySelfAdjointOn_fockCore` |
+| `ChapterDiagonalDGammaEsa` | `BookProof.DiagonalDGamma` | the **unbounded** pure-point case: `essentiallySelfAdjointOn_of_dense_eigenvectors`, `derPow_eigTensor`, `dense_eigSpan`, **`dGamma_diagonal_essentiallySelfAdjointOn_fockCore`**; `diagOp`, `not_bounded_diagOp` |
+| `ChapterFlowDGammaEsa` | `BookProof.FlowDGamma` | **every self-adjoint `h`**: Nelson's orbit criterion `deficiencyTrivialAt_of_orbits`, `OneParticleFlow`/`ofSelfAdjoint` (from Stone), `hasDerivAt_tpow`, **`dGamma_selfAdjoint_essentiallySelfAdjointOn_fockCore`**, unbounded instance `dGamma_position_essentiallySelfAdjointOn_fockCore`; `esaPairOfSelfAdjoint` |
+| `ChapterEsaPairDGamma` | `BookProof.EsaPair` | the packaging `ESAPair` / `ESAPair.dGamma_essentiallySelfAdjoint`, the quantitative input `norm_sub_smul_sq` (Pythagoras at `±i`, no spectral lower bound), and `ofBounded` |
+| `ChapterEsaOneParticleDGamma` | `BookProof.EsaOneParticle` | the final weakening: `h` only **essentially** self-adjoint on `D`. `closureSelfAdjoint`, `isGraphCore_clDom`, `esa_graph_le`, `sectorCore_graph_le`, `fockSectorCore_graph_le`, **`dGamma_essentiallySelfAdjointOn_of_esa`**; strictness `essentiallySelfAdjointOn_restrict`/`not_isSelfAdjointOn_restrict` and the witness `positionCore` (ESA but **not** self-adjoint on the finitely supported vectors) |
+
+**What this changes for §D6b.**  Obligation (ii) is now a **theorem**, not a task: once `H₁` is ESA
+on the one-particle core `C₀`, `isGraphCore_sectorCore` lifts `C₀^{⊗n}` to a core of the sector
+derivation, and `dGamma_essentiallySelfAdjointOn_fockCore` glues the sectors over the `ℓ²`-direct sum
+— giving `EssentiallySelfAdjointOn` of `dΓ(H₁)` on the finite-particle domain over `C₀` **alone**.
+For a self-adjoint `H₁` the carried sectorwise input is proved outright
+(`dGamma_selfAdjoint_essentiallySelfAdjointOn_fockCore`), and for an only-ESA `H₁` it is reduced to
+the one-particle statement on `D` itself (`dGamma_essentiallySelfAdjointOn_of_esa`).  The remaining
+obligation is (i) alone — `N` ESA on its core — exactly as §D6b says.  The plan's earlier „likely to
+be easy“ heuristic (the sector-uniform gap) is now superseded by a proof.
+
+**Scope warnings kept in force.**  (a) The tensor powers used are the **full** powers `H^{⊗n}`, not
+the symmetric (bosonic) / antisymmetric (fermionic) subspaces: the new theorems are about the
+derivation on those powers, and no claim about the *symmetrized* Fock sectors is made.  Where the
+physical outer space is `Γ_s(h)` / `Γ^a(h)` (NS, QYM), the symmetrization step is still owed.  (b) The
+inner one-particle operators are the record ones already audited (§2026‑09‑18c and
+`HAMILTONIAN_AUDIT_20260918.md`): `H_sp` for NS one body, `H₁ = ½Σπ² + ½ΣB²` on the Gauss core of
+`L²(ℝ⁹⁹)` for QYM, the free photon for QED, and the eliminated vielbein/scalaron kernel for QG —
+with the **exact exponential wall inside the comparison** and the inner nonlinearity entering only
+the matrix elements `hᵢⱼ`.  Products of fields with spatial derivatives (NS advection, QG vielbein
+derivatives) are handled in **momentum space by convolution**, not by a derivative gauge —
+`ChapterNsAdvectionConvolution` (`fourier_advection_convolution`, `fourier_advection_sum`) is the
+formal statement.
+
+**Evidence bookkeeping.**  `CORE_TRANSFER_ESA.md` is the design note for items 1–4; the axiom audit is
+`Work/GraphCoreTransferAudit.lean`, extended to every new result (only `propext`, `Classical.choice`,
+`Quot.sound`), with `Work/EsaOneParticleAudit.lean` for the one-particle-ESA chapter.  Pedagogically the
+wave is `Book/SecondQuantizationEsa.lean` (tag `second-quantization-esa`), included from `Book.lean`
+next to the one-particle and comparison-operator chapters; it states the `dΓ(h)` convention and the
+core-transfer problem, and lists every theorem by `#check`.
+
+**Next steps for the Lean specialist** (ordered; none restates a proved result):
+
+1. **Symmetrization.**  Lift the `dΓ` statements from the full tensor powers to the symmetric (and
+   antisymmetric) sectors, so that the NS/QYM outer spaces `Γ_s(l²)` ⊗ `Γ^a(l²)` are covered —
+   `weylOpDom_block_sum` and the bosonic-CCR chapters are the starting points.
+2. **The one-particle obligation (i) for the record cores.**  For the comparison `N` actually used
+   (`harmFried d = Friedrichs(−Δ + ‖x‖²/4)` on the Hermite/Gauss core; the scalaron-wall `secN` with
+   the wall inside on the compactly-supported smooth core), prove `EssentiallySelfAdjointOn` on the
+   chosen core — this is the *only* input the new wave still carries.
+3. **Feed the packaged form into the route chapters.**  Replace the ad-hoc sectorwise hypotheses of the
+   QG `dΓ` statements (`qgOuterFock_esa_farisLavine`) by an `ESAPair` with its sectorwise slot filled
+   by `dGamma_essentiallySelfAdjointOn_fockCore` (self-adjoint) or `…_of_esa` (only-ESA), so the
+   uniform-in-`n` hypothesis disappears where the one-particle operator is self-adjoint.
+4. **Keep the plan's §D6b text honest** — its „obligation (ii)“ paragraph is now historical; the
+   specialist should treat it as answered by this wave and work only on (i) and on symmetrization.
+
+## 2026-09-21b — gauge fixing (comprehensive / complete / unconstrained), Casimir constraints, gauge averaging, and the dissipative example
+
+Four new `sorry`-free, `axiom`-free chapters close the remaining `book.tex` gaps in the gauge-symmetry
+section (audited by `Work/GaugeComprehensiveFixingAudit.lean`, only the three standard axioms):
+
+* `ChapterGaugeComprehensiveFixing` (`BookProof.ChapterGaugeComprehensiveFixing`) — a fixing that is at
+  once comprehensive and complete always exists (`orbitRepresentatives_isComprehensiveGaugeFixing`,
+  `…_isCompleteGaugeFixing'`, `exists_comprehensive_complete_gaugeFixing`); on it every function
+  extends to exactly one physical observable (`existsUnique_physical_extension_of_complete`); the two
+  axes are characterized as surjectivity/injectivity of the restriction map with explicit converses
+  (`physical_extension_iff_complete`, `physical_ext_iff_comprehensive`); the Gribov-type obstruction
+  `not_isClopen_of_complete_comprehensive`; the spurious-field construction (`spuriousSection*`); and
+  the four-way classification for the translation gauge symmetry of the line (`unitCell*`,
+  `shift_gaugeFixing_classification`, `unitCell_indicator_not_isPhysicalObservable`).  Builds on
+  `ChapterGaugeIncompleteFixing` (which holds `IsComprehensiveGaugeFixing`, `IsCompleteGaugeFixing'`,
+  `IsPhysicalObservable`).
+* `ChapterGaugeParametrization` — every parametrization carries a gauge group: `fiberGauge`,
+  `orbit_eq_fiber`, `isPhysicalObservable_iff_factors_through`, `fiberGauge_eq_bot_iff` /
+  `ne_bot_iff` (redundancy ⟺ non-trivial group), and the two axes as `isCompleteGaugeFixing'_iff_injOn`
+  / `isComprehensiveGaugeFixing_iff_surjOn`.
+* `ChapterGaugeCasimirAverage` — `casimir_apply`, `inner_casimir`, `casimir_apply_eq_zero_iff`,
+  `ker_casimir`: setting the quadratic Casimir to zero imposes every Hermitian constraint.  `Haar` and
+  finite averages: `gaugeAverage_isPhysicalObservable`, `gaugeAverage_of_isPhysicalObservable`,
+  `finiteGaugeAverage_*`; no anomaly `isPhysicalObservable_of_tendsto`; and the pushforward
+  `map_measure_constrainedSet`, `physical_invariant_along_gaugeProjection`.
+* `ChapterDampedOscillatorEnergy` (`BookProof.DampedOscillatorEnergy`) — the book's damped coupled
+  oscillators: `hasDerivAt_coupledEnergy` (`Ė = −λ₁ẋ₁² − λ₂ẋ₂²`), `coupledEnergy_antitone`,
+  `coupledEnergy_not_constant_of_damped`, the explicit critically damped solution
+  `criticallyDamped_*` (`criticallyDamped_energy_strictAnti`), and
+  `total_probability_conserved`.
+
+Pedagogically these are added to `Book/GaugeSymmetry.lean` (sections „Complete and Comprehensive Gauge
+Fixing“, „Parametrizations Are Gauge Symmetries“, „Casimir Constraints, Gauge Averaging and the
+Absence of Anomalies“, plus the dissipative energy balance in the existing dissipative section, and
+two new summary bullets).  `BookProof.lean` imports the four chapters with explanatory notes;
+`lakefile.toml` / `BUILD_COMPONENTS.md` are regenerated (`BookProof` is now 915 modules,
+`BookProofOperatorCore` 517 modules / 77 roots) and `scripts/import_components.py BookProof --check`
+passes; a new wave entry is in `STATUS.md` and a new run summary in `ARISTOTLE_SUMMARY.md`.

@@ -1,0 +1,58 @@
+import BookProof.ChapterGaugeComprehensiveFixing
+import BookProof.ChapterGaugeCasimirAverage
+import BookProof.ChapterDampedOscillatorEnergy
+import BookProof.ChapterGaugeParametrization
+
+/-!
+# Audit of the comprehensive gauge-fixing, Casimir, averaging and dissipation chapters
+
+Axiom check for the results of `BookProof/ChapterGaugeComprehensiveFixing.lean`,
+`BookProof/ChapterGaugeCasimirAverage.lean` and
+`BookProof/ChapterDampedOscillatorEnergy.lean`.  Only the standard axioms
+`propext`, `Classical.choice`, `Quot.sound` may appear.
+-/
+
+open BookProof.ChapterGaugeComprehensiveFixing
+open BookProof.ChapterGaugeCasimirAverage
+open BookProof.DampedOscillatorEnergy
+
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.exists_comprehensive_complete_gaugeFixing
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.existsUnique_mem_of_complete_comprehensive
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.existsUnique_physical_extension_of_complete
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.not_isPhysicalObservable_indicator
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.not_isClopen_of_complete_comprehensive
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.physical_ext_iff_comprehensive
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.physical_extension_iff_complete
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.unitCell_isComprehensiveGaugeFixing
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.unitCell_isCompleteGaugeFixing'
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.shift_movesEveryPointOfSpectrum
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.shift_no_clopen_complete_gaugeFixing
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.shift_gaugeFixing_classification
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.spuriousSection_isComprehensiveGaugeFixing
+#print axioms BookProof.ChapterGaugeComprehensiveFixing.spuriousSection_isCompleteGaugeFixing'
+
+#print axioms BookProof.ChapterGaugeParametrization.orbit_eq_fiber
+#print axioms BookProof.ChapterGaugeParametrization.isPhysicalObservable_iff_factors_through
+#print axioms BookProof.ChapterGaugeParametrization.fiberGauge_eq_bot_iff
+#print axioms BookProof.ChapterGaugeParametrization.isCompleteGaugeFixing'_iff_injOn
+#print axioms BookProof.ChapterGaugeParametrization.isComprehensiveGaugeFixing_iff_surjOn
+
+#print axioms BookProof.ChapterGaugeCasimirAverage.inner_casimir
+#print axioms BookProof.ChapterGaugeCasimirAverage.casimir_apply_eq_zero_iff
+#print axioms BookProof.ChapterGaugeCasimirAverage.ker_casimir
+#print axioms BookProof.ChapterGaugeCasimirAverage.gaugeAverage_isPhysicalObservable
+#print axioms BookProof.ChapterGaugeCasimirAverage.gaugeAverage_of_isPhysicalObservable
+#print axioms BookProof.ChapterGaugeCasimirAverage.finiteGaugeAverage_isPhysicalObservable
+#print axioms BookProof.ChapterGaugeCasimirAverage.map_measure_constrainedSet
+#print axioms BookProof.ChapterGaugeCasimirAverage.integral_map_of_invariant
+#print axioms BookProof.ChapterGaugeCasimirAverage.isPhysicalObservable_of_tendsto
+
+#print axioms BookProof.DampedOscillatorEnergy.hasDerivAt_dampedEnergy
+#print axioms BookProof.DampedOscillatorEnergy.dampedEnergy_antitone
+#print axioms BookProof.DampedOscillatorEnergy.dampedEnergy_not_constant_of_damped
+#print axioms BookProof.DampedOscillatorEnergy.hasDerivAt_coupledEnergy
+#print axioms BookProof.DampedOscillatorEnergy.coupledEnergy_antitone
+#print axioms BookProof.DampedOscillatorEnergy.coupledEnergy_not_constant_of_damped
+#print axioms BookProof.DampedOscillatorEnergy.criticallyDamped_energy_strictAnti
+#print axioms BookProof.DampedOscillatorEnergy.criticallyDamped_energy_not_constant
+#print axioms BookProof.DampedOscillatorEnergy.total_probability_conserved

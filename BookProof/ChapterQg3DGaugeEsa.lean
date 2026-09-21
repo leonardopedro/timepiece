@@ -1,5 +1,6 @@
 import Mathlib
 import BookProof.ChapterQuantumGravity3DGauge
+import BookProof.ChapterNavierStokesDifferentialL2
 import BookProof.ChapterFullQuadraticEsa
 
 /-!

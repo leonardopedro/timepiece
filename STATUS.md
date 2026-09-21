@@ -1,5 +1,35 @@
 # `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`
 
+## Latest wave — 2026-09-21: gauge fixing (comprehensive / complete / unconstrained),
+## Casimir constraints, gauge averaging and the dissipative example
+
+Four new `sorry`-free, `axiom`-free chapters, all imported from `BookProof.lean` and audited by
+`Work/GaugeComprehensiveFixingAudit.lean` (only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `BookProof/ChapterGaugeComprehensiveFixing.lean` — existence of a complete *and* comprehensive
+  gauge fixing (the orbit representatives), the unique-extension property that makes it a faithful
+  parametrization of the physical algebra, the characterization of the book's two axes as
+  injectivity and surjectivity of the restriction map, the Gribov-type obstruction
+  (`not_isClopen_of_complete_comprehensive`: on a connected spectrum with a free non-trivial gauge
+  action no complete comprehensive gauge fixing is clopen), the spurious-field construction of
+  `book.tex` 7406, and the four-way classification with explicit witnesses for the translation
+  gauge symmetry of the line.
+* `BookProof/ChapterGaugeParametrization.lean` — every parametrization carries a gauge group whose
+  orbits are the fibers and whose invariants are the functions of the parametrized point
+  (`book.tex` 2240–2252).
+* `BookProof/ChapterGaugeCasimirAverage.lean` — constraining the quadratic Casimir to zero imposes
+  every Hermitian constraint (`book.tex` 2383), the Haar and finite gauge averages are projections
+  onto the physical algebra (`book.tex` 2377), gauge invariance survives limits (no anomaly,
+  `book.tex` 2389), and the pushforward along a measurable projection into the constrained set
+  gives it probability one (`book.tex` 2369).
+* `BookProof/ChapterDampedOscillatorEnergy.lean` — the book's damped coupled oscillators
+  (`book.tex` 2196): the energy balance `Ė = −λ₁ẋ₁² − λ₂ẋ₂²`, monotonicity, non-conservation, an
+  explicit strictly dissipating solution, and conservation of the total probability.
+
+`lake build BookProof` (8942 jobs) completes successfully with these chapters included; the
+`lakefile.toml` component stanzas and `BUILD_COMPONENTS.md` were regenerated and
+`scripts/import_components.py BookProof --check` passes.
+
 ## Latest wave — 2026-09-18: the one-body generator `H_sp = H_visc + H_advect` and its second
 ## quantization `dΓ(H_sp)` (NS plan items 4, operator half, and 5)
 

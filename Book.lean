@@ -17,6 +17,8 @@ import Book.PhysicalParity
 import Book.DiffeomorphismsGravity
 import Book.FourierElimination
 import Book.NsOneParticleHamiltonian
+import Book.NsComparisonOperator
+import Book.SecondQuantizationEsa
 import Book.QgElimination
 import Book.Starobinsky
 import Book.NavierStokesHashimoto
@@ -321,7 +323,12 @@ $`H_{\rm sp} = H_{\rm visc} + H_{\rm advect}` symmetric and positive for the
 exact nonlinearity, and identifies the final Hamiltonian with its second
 quantization $`d\Gamma(H_{\rm sp})` — the one-particle Hamiltonian enclosed in
 creation on the left and annihilation on the right, so every particle-number
-sector is preserved. {ref "qg-elimination"}[Eliminating the derivative variables
+sector is preserved. {ref "ns-comparison-operator"}[The comparison operator of the
+Navier–Stokes Hamiltonian] supplies the other half of that operator story: the Faris–Lavine
+comparison operator `N` — the Leray energy on the mainstream leg and the lifted auxiliary
+Friedrichs extension on the full nonlinear leg — with the theorems that establish each, and the
+reasons the Hamiltonian itself (or its square) cannot serve as `N`.
+{ref "qg-elimination"}[Eliminating the derivative variables
 in quantum gravity] is the same service for the vielbein sector of the $`R^2`
 Starobinsky model, deleting twenty-seven derivative components per momentum while
 reproducing the vielbein self-interaction and the scalaron coupling verbatim.
@@ -349,6 +356,10 @@ convention of the whole programme is explained for these two systems.
 {include 0 Book.FourierElimination}
 
 {include 0 Book.NsOneParticleHamiltonian}
+
+{include 0 Book.NsComparisonOperator}
+
+{include 0 Book.SecondQuantizationEsa}
 
 {include 0 Book.QgElimination}
 

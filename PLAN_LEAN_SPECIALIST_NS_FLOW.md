@@ -890,7 +890,10 @@ nix develop --command cargo test -p prob_kernel --lib symbolic
 ## 7. Research target (record, do not attempt)
 
 The infinite-dimensional extension — essential self-adjointness of the continuum
-operator `H = ∫ a†(πⁱ(u_j u_{i,j} − ν u_{i,jj}) + h.c.)a` on
+operator `H = ∫ a†(πⁱ(u_j u_{i,j} + q_i − ν u_{i,jj}) + h.c.)a` on
+(`q_i = ∂_i p` the pressure-gradient coordinate of the full residual — the tree's
+`BookProof.NsFullEuler.nsResPoly`, paired with the incompressibility `divPoly`
+`Σ_j u_{j,j} = 0`; the Leray-projected mainstream form drops `q_i`)
 `Γ^s(L²(ℝ¹⁵×ℤ₂³)) ⊗ Γ^a(L²(ℝ¹⁵×ℤ₂³))` — is **not** a plan item. Note that
 "and hence global existence/uniqueness" is *not* an additional claim here: once
 ESA is proved, Stone's theorem gives the complete unitary flow (global existence

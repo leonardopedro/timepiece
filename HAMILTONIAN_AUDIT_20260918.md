@@ -60,9 +60,36 @@ plan should say so once.
 
 ## 2. Navier–Stokes
 
-### 2.1 The one-body generator (`ChapterNsOneBodyDGamma`, namespace `BookProof.NsOneBody`)
+### 2.1 The auxiliary one-body operator (comparison/energy), and the NS Hamiltonian (`ChapterNsOneBodyDGamma`, namespace `BookProof.NsOneBody`)
 
-The operator is the *eliminated Eulerian* one-parcel generator on `L²(ℝ⁶)`:
+**Correction (2026‑09‑19).**  The operator below is the *auxiliary positive operator* of the
+Navier–Stokes sector — a positive sum of squares, and the one run as the Faris–Lavine comparison —
+**not** the Navier–Stokes Hamiltonian.  (It is *not* to be confused with the literal object
+book.tex floats in the sentence after eq. 4186, “using `H²(x)` as a positive auxiliary operator”:
+that `H²` is the **square of the generator**, and it is **not** a valid Faris–Lavine comparison `N`
+— the criterion needs `N + 1` *onto*, whereas `H² + 1 = (H−i)(H+i)` gives
+`range(H²+1) ⊆ range(H−i)` so it fails exactly when `H` has a non-trivial deficiency; the
+formalized general case is `BookProof.FarisLavine.not_farisLavine_criterion_of_relative_bound`,
+and `D(H²) ⊊ D(H)` rules it out on the common domain.)  The
+Navier–Stokes Hamiltonian is the Hermitized momentum×drift Koopman–von Neumann (Liouville)
+generator of the **full** residual, which carries the pressure gradient `q_i = ∂_i p` (and the
+external force `f_i`) as well as the advection and viscosity — the tree's
+`BookProof.NsFullEuler.nsResPoly` (`u_j u_{i,j} + q_i − ν w_i`) with the incompressibility
+`divPoly` (`Σ_j u_{j,j} = 0`); in the mainstream Leray–Galerkin form the pressure is eliminated by
+the Leray projection, leaving `BookProof.NsKoopman.kvnPoly` / `nsKoopmanOp` with the pressure-free
+drift.  The two are
+*not* interchangeable: only the Koopman generator satisfies the defining commutator property of
+the equation, `i[H, u_k] = 2F_k` with the full drift `F_k = u_j u_{k,j} + q_k − ν u_{k,jj} + f_k`
+(i.e. the
+Heisenberg equation of the velocity density **is** the Navier–Stokes equation), while the
+auxiliary sum-of-squares gives the momentum density `i[½Σπ²,u_k] = π_k`.  The commutator
+statement is verified symbolically at the one-body and outer-Fock levels (with the momentum-space
+split `F_k → ν|k|²u_k + i(k·u)u_k`, the advection being the momentum convolution proved by
+`fourier_advection_convolution`) in `../unfer/docs/ns_kvn_equation.cdb`; see
+`../unfer/docs/VERIFY_FARIS_LAVINE_N.md`.  The choice of comparison operator is free
+(Faris–Lavine), and it is this module `ChapterNsOneBodyDGamma` that supplies it.
+
+The auxiliary operator is the *eliminated Eulerian* one-parcel one on `L²(ℝ⁶)`:
 
 ```
 spHam Φ ν k = weylOp (spPi Φ) (spField Φ ν k)    -- ½ Σ_m π_m² + ½ Σ_{r<7} (mulOp Φ_r)²
@@ -293,6 +320,16 @@ Three points worth stating plainly, because they are easy to get wrong:
 3. **The wall is inside `N` in every QG statement**, so the exponential does not have to be
    `N`-bounded as a perturbation — the relative bound `K = 1 + 3·K_Q` is a statement about the
    vielbein matrices, not about `V`.
+4. **The mainstream NS Hamiltonian has no comparison in this table**, because it is the only
+   operator here that is not a positive sum of squares: its leg carries the **Leray energy**
+   `N_E = 1 + ‖u‖²` (`BookProof.NsKoopman.nsEnergyOp`), a multiplication operator (positive,
+   self-adjoint, `N_E + 1` onto) whose commutator is the sign-definite viscous dissipation
+   (`commForm_kvn_energy_bound`, `nsKoopman_esa_of_energy_comparison`).  Its `N` is **not**
+   book.tex's literal `H²`: the criterion needs `N + 1` onto, and `H² + 1 = (H−i)(H+i)` gives
+   `range(H²+1) ⊆ range(H−i)`, so `H² + 1` fails to be onto exactly when `H` has a non-trivial
+   deficiency (the formalized general case is
+   `BookProof.FarisLavine.not_farisLavine_criterion_of_relative_bound`), and `D(H²) ⊊ D(H)`
+   independently excludes it.  Symbolic evidence: `../unfer/docs/ns_kvn_equation.cdb` CHECK 4–6.
 
 ## 6. Independent evidence (symbolic and arithmetic)
 
@@ -309,6 +346,33 @@ rank-one degeneracy** it exposes, the Eulerian substitution with the residual
 degree `q+1` no-go for the bare cubic (D), and the convolution bookkeeping (E).  The C-line is
 the symbolic statement of the NS one-body generator of §2.1; the B-line is the reason the
 Lagrangian determinant is carried as an independent scalar mode rather than eliminated.
+
+```
+cadabra2-cli -q -n ../unfer/docs/ns_kvn_equation.cdb
+```
+
+Exit code 0; CHECK 1a–1c identify the Navier–Stokes Hamiltonian through `[H,u_k] = −2iF_k` with
+the full drift `F_k = u_j u_{k,j} + q_k − ν u_{k,jj} + f_k` (pressure gradient `q_k` and force
+`f_k` included), CHECK 5 shows the Hermitized `π^iF_i + F_iπ^i` carries **both** the flow term and
+the `+h.c.`/ordering term `−i(div F)` (so the operator is complete — book.tex 4186 to the letter),
+CHECK 4–6 give the commutation condition and the sign-definite energy flux for the **valid**
+comparison `N_E = 1 + ‖u‖²` (Leray), CHECK 7 records that the advection is the bilinear
+(convolution) term while the viscosity is diagonal, and CHECK 8 verifies the pressure/constraint
+structure (incompressibility `Σu_{j,j} → i(k·u)`, pressure does no work `Σu_k q_k → i(k·u)p = 0`).
+The companion module `../unfer/docs/ns_pressure_poisson.cdb` derives the resulting pressure Poisson
+equation `Δp = −∂_i(u_j∂_ju_i) + ∂_i f_i` by contracting the divergence with the momentum
+equation (Clairaut for the viscous term, the Leibniz split `div[(u·∇)u] = tr((∇u)²)` for the
+advection, and the constraint cancellations).  That equation is a **second-class** constraint: it
+*determines* the multiplier `p` (inverting `Δ`, invertible on the non-zero modes), so there is no
+gauge freedom to fix — the only free mode is the additive constant of `p`, invisible to
+`q_i = ∂_i p` — and the correct treatment is the elimination strategy, not a new BRST generator.
+This is book.tex's own taxonomy (the divergence constraint is solvable; the BRST charge is "only
+the elegant packaging") and the tree's `ChapterNavierStokesEulerian` (`div u = 0` =
+explicit-solution constraint; the derivative relations are the gauge-generator ones, with the
+nilpotent `Ω = Σ_j G_jχ_j`, `[Ω,H] = 0`, in `ChapterNsBrstDerivativeGauge`).  Verified in
+`../unfer/docs/ns_pressure_constraint.cdb` (CHECK 2/3 second-class; CHECK 4 cosmetic nilpotency;
+CHECK 5 elimination).
+See `../unfer/docs/VERIFY_FARIS_LAVINE_N.md`.
 
 ### 6.2 Yang–Mills, re-run 2026‑09‑18
 
@@ -416,6 +480,40 @@ re-executed in this audit**: the workspace pins `nanoda_lib` through a `git` dep
 network) and the flake's default dev shell pulls a CUDA closure.  Run them in a networked
 shell before citing them.
 
+### 6.6 The Faris–Lavine comparison `N` and its commutation conditions, certified 2026‑09‑19
+
+Two new Cadabra modules in the sibling repo re-derive the one-particle content of the
+comparison-operator certificate that §5/§8 record; both run clean (`exit 0`) with every numbered
+check reducing to `0` (evidence: `../unfer/docs/VERIFY_FARIS_LAVINE_N.md`).
+
+```
+cadabra2-cli -q -n ../unfer/docs/faris_lavine_n_ns.cdb
+cadabra2-cli -q -n ../unfer/docs/faris_lavine_n_qg.cdb
+```
+
+**NS** (`faris_lavine_n_ns.cdb`): `H = ½Σ_j κ_j π_j² + ½Σ_r L_r²`, `π_j = −i∂_j`, `L_r = Σ_i v_{ri}x_i`,
+against the oscillator `N = −Δ + ‖x‖²/4`.  CHECK 1 (Leibniz expansion of `H(Nφ) − N(Hφ)`) reproduces
+the shape of `commPoly_eq` — the commutator is **first order**,
+`[H,N] = (−¼Σ_j κ_j + Σ_rΣ_k v_{rk}²) + Σ_j(−κ_j/2) x_j ∂_j + 2 Σ_j (∂_j V) ∂_j`; CHECK 2 verifies the
+potential data `∂_j V = grad_j`, `∂_j² V = Σ_r v_{rj}²` (hence `commConst = −¼Σκ + Σ v²`); CHECK 4 the
+AM‑GM `a² + b²/4 − ab = (a − b/2)²` and Young `2M(g²/2M + 2Ma² − 2ga) = (g − 2Ma)²` identities behind
+`c = km/2 + 2M` and `K = 3km/2 + 8B`.
+
+**QG** (`faris_lavine_n_qg.cdb`): `H_fib = N = −∂²_φ + φ²/4 + V(φ) + σ` with the **full exponential
+wall inside `N`**, `H = secDiag + secA + secB`.  CHECK 1 the fibre self-commutator `[H_fib,N] = 0`
+(the `c = 0` fibre part), CHECK 2 `[A,H_fib] = 0` for the constant vielbein self-interaction (`imA_le`),
+CHECK 3 the coupling identity `[φ, H_fib] = 2 ∂_φ` (`ham_x_comm_cc`) whose derivative term `imB_le`
+controls uniformly in the wall, CHECK 4–6 the wall-inside-`N` fibre estimates (`‖∂ψ‖² ≤ q`,
+`‖ψ‖² ≤ q`, `‖φψ‖² ≤ 4q`), CHECK 7–9 the AM‑GM of `double_sum_amgm` and `2(½K + 9/4K) = 11/2 K ≤ 6K`
+(`secHam_commForm_le`, `c = 6·K_Q`).
+
+What the modules **cannot** certify is unchanged from §9: the one-particle symbol only.  In
+particular the *core* obligations — `N` itself essentially self-adjoint on the Hermite /
+Gauss-polynomial core, and `dΓ(H₁)` essentially self-adjoint on the **lifted** nested core — are
+Hilbert-space statements proved in Lean and are **not** implied by the symbolic checks nor by the
+one-particle `esa_on_core`.  `CONSOLIDATED_PLAN.md` §D6b records the two-level obligation for the
+specialist.
+
 ## 7. Residuals, stale citations and doc repairs
 
 1. `DESIGN_COMPARISON_N_20260915.md` §7 rows **NS, Lagrangian** (`lagRedOuterN_esa`) and
@@ -512,7 +610,7 @@ vielbein matrices, not about `V` (§5, rule R3).
 
 | theory | the operator the FL proof runs on (shape) | proved identification with the intended physics | nested-space realization | symbolic / arithmetic evidence |
 | :-- | :-- | :-- | :-- | :-- |
-| **NS** one body | `spHam = weylOp (spPi Φ) (spField Φ ν k)` = `½ Σ_{m<6} π_m² + ½ Σ_{r<7} (mulOp Φ_r)²` | `spHam_eq_visc_add_advect` (advection kept **squared**, three squares `½((k·u)u_i)²`, no momentum term), `spHam_quadForm_split` | `dΓ(H_sp)` = `dGammaOp (nsSpCol …)`; `redHam_eq_sum_parcel`, `nsRedFullFockHam_sector_sum_parcel`, `weylOpDom_block_sum`, `nsSpDGamma_number_conserving` | `ns_qg_fourier_elimination.cdb` C1–C5 (the Eulerian residual and divergence are the substituted ones); `scripts/check_hamiltonian_identities.py` NS block |
+| **NS** one body (**auxiliary** comparison, not the NS Hamiltonian — see §2.1 correction; the Hamiltonian is the Koopman form `kvnPoly`/`nsKoopmanOp`, `i[H,u_k]=2F_k`) | `spHam = weylOp (spPi Φ) (spField Φ ν k)` = `½ Σ_{m<6} π_m² + ½ Σ_{r<7} (mulOp Φ_r)²` | `spHam_eq_visc_add_advect` (advection kept **squared**, three squares `½((k·u)u_i)²`, no momentum term), `spHam_quadForm_split` | `dΓ(H_sp)` = `dGammaOp (nsSpCol …)`; `redHam_eq_sum_parcel`, `nsRedFullFockHam_sector_sum_parcel`, `weylOpDom_block_sum`, `nsSpDGamma_number_conserving` | `ns_qg_fourier_elimination.cdb` C1–C5 (the Eulerian residual and divergence are the substituted ones); `scripts/check_hamiltonian_identities.py` NS block |
 | **NS** full Eulerian / Lagrangian | `nsSectorHam` / `lagSectorHam` = `weylOp … = ½Σπ² + ½Σ(constraint form)²` | `nsResPoly_not_affine` (Piola term is genuinely quadratic), `volumePoly_not_quadratic` + `detPoly_eval_testPt` (`det F = 1` is cubic, `t³ − 1` on the isotropic line) | `dsOp`/`dsFibOp` on `lp (fun n => L²(ℝ^{18n})) 2`, `lagFockSpace = lp (fun n => L²(ℝ^{36n})) 2`; number conserving (`nsFullFockHam_number_conserving`, `lagFullFockHam_number_conserving`) | `ns_qg_fourier_elimination.cdb` A1–E3 (incl. B4/B5: the rank-one degeneracy that forbids eliminating `F`) |
 | **QYM** one body | `ymHamiltonian (coreRepPoly 99) 0 = sqSumOp ymKap ymMagVec` = `½ Σ_j κ_j π_j² + ½ Σ_m B_m²` | `ymAbelian_eq_sqSumOp` (`= ` by construction), `gramQ_ymMagVec` (the Gram of the 24 magnetic forms) | `dΓ(H₁)` (`ChapterFockSecondQuantization`, `ChapterQymTimeIndependentFlow`); `ym_fock_friedrichs_extension` for the non-abelian direct-Friedrichs route | `yang_mills_hamiltonian.cdb`: `L_y = ½π² − ½B²` → Legendre → `H_final = ½π² + ½B²`, plus the 3D ε identity numerically |
 | **QYM** parcels | `ymFamily.secHam` (99 coordinates per parcel) | `ymFamily_vv` (the forms are the magnetic, Gauss and derivative-tie forms), `ym_interaction_nontrivial` | `outerHam`/`outerCore` on `⊕ₙ L²(ℝ^{99n})`, `ymOuterHam_symmetricOn`; number conserving | same module (the same magnetic forms appear as `B_{i a}`) |

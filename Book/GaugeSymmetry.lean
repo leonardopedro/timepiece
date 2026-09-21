@@ -376,6 +376,157 @@ since it is non-singular it conserves probability, and that conserved probabilit
 is all the quantum formalism needs.
 :::
 
+:::paragraph
+The manuscript's *specific* dissipative system is the damped coupled oscillator,
+and its energy balance is proved rather than read off. For a solution of
+$`\ddot x + \lambda\dot x + \omega^2 x = 0` the energy $`E = \tfrac12\dot x^2 +
+\tfrac12\omega^2 x^2` obeys $`\dot E = -\lambda\dot x^2`, so it is non-increasing for
+non-negative damping, and it is *not* constant at any instant at which the damping
+is positive and the oscillator moves. The coupled system of the manuscript,
+
+$$`\ddot{x}_1 + \lambda_1 \dot{x}_1 + \omega_1^2 x_1 - c_2 x_2 = 0, \qquad
+  \ddot{x}_2 + \lambda_2 \dot{x}_2 + \omega_2^2 x_2 - c_1 x_1 = 0,`
+
+satisfies the same identity, $`\dot E = -\lambda_1\dot x_1^2 - \lambda_2\dot x_2^2`,
+with monotonicity and non-conservation inherited. An explicit critically damped
+solution shows the statement is not vacuous: its energy is strictly decreasing. And
+the total probability is conserved by *any* measurable deterministic evolution, so
+energy loss and probability conservation are not in tension.
+:::
+
+```
+#check @BookProof.DampedOscillatorEnergy.hasDerivAt_dampedEnergy
+#check @BookProof.DampedOscillatorEnergy.dampedEnergy_antitone
+#check @BookProof.DampedOscillatorEnergy.dampedEnergy_not_constant_of_damped
+#check @BookProof.DampedOscillatorEnergy.hasDerivAt_coupledEnergy
+#check @BookProof.DampedOscillatorEnergy.coupledEnergy_antitone
+#check @BookProof.DampedOscillatorEnergy.coupledEnergy_not_constant_of_damped
+#check @BookProof.DampedOscillatorEnergy.criticallyDamped_energy
+#check @BookProof.DampedOscillatorEnergy.criticallyDamped_energy_strictAnti
+#check @BookProof.DampedOscillatorEnergy.total_probability_conserved
+```
+
+# Complete and Comprehensive Gauge Fixing
+
+:::paragraph
+The manuscript distinguishes two properties a gauge fixing may have. It is
+*comprehensive* if it meets every gauge orbit at least once (nothing physical is
+dropped), and *complete* if it meets every orbit **at most** once (no remnant
+symmetry is left constraining the surface). `IsComprehensiveGaugeFixing` and
+`IsCompleteGaugeFixing'` are those two predicates, and the chapter proves that the
+pair is not a wish but a construction: the set of orbit representatives is at once
+comprehensive and complete, so a faithful gauge fixing always exists.
+:::
+
+```
+#check @BookProof.ChapterGaugeComprehensiveFixing.orbitRepresentatives_isComprehensiveGaugeFixing
+#check @BookProof.ChapterGaugeComprehensiveFixing.orbitRepresentatives_isCompleteGaugeFixing'
+#check @BookProof.ChapterGaugeComprehensiveFixing.exists_comprehensive_complete_gaugeFixing
+```
+
+:::paragraph
+The pay-off is that on such a gauge fixing every function *extends* to a
+gauge-invariant observable, and extends *uniquely* — the gauge fixing is a faithful
+parametrization of the physical algebra, not merely a choice of coordinates. The
+two axes are then characterized exactly, as the two directions of the restriction
+map on the physical observables: comprehensiveness is its injectivity, completeness
+its surjectivity. Both converses are proved with explicit counter-observables, not
+asserted.
+:::
+
+```
+#check @BookProof.ChapterGaugeComprehensiveFixing.existsUnique_physical_extension_of_complete
+#check @BookProof.ChapterGaugeComprehensiveFixing.physical_ext_iff_comprehensive
+#check @BookProof.ChapterGaugeComprehensiveFixing.physical_extension_iff_complete
+#check @BookProof.ChapterGaugeComprehensiveFixing.exists_physical_ne_agreeing_of_not_comprehensive
+#check @BookProof.ChapterGaugeComprehensiveFixing.exists_not_extendable_of_not_complete
+```
+
+:::paragraph
+The manuscript's *unconstrained* condition is what makes this non-trivial, and its
+consequence is formalized as a Gribov-type obstruction: on a connected spectrum,
+with the gauge group acting freely and non-trivially, a fixing that is at once
+complete and comprehensive is **never** clopen — a complete choice of
+representatives cannot be a continuous one. The manuscript's spurious-field device
+is shown to produce a complete *and* comprehensive fixing for an arbitrary gauge
+group, and for the concrete translation gauge symmetry of the line all four
+combinations of the two axes are realized by explicit witnesses.
+:::
+
+```
+#check @BookProof.ChapterGaugeComprehensiveFixing.not_isClopen_of_complete_comprehensive
+#check @BookProof.ChapterGaugeComprehensiveFixing.not_isPhysicalObservable_indicator
+#check @BookProof.ChapterGaugeComprehensiveFixing.spuriousSection_isComprehensiveGaugeFixing
+#check @BookProof.ChapterGaugeComprehensiveFixing.spuriousSection_isCompleteGaugeFixing'
+#check @BookProof.ChapterGaugeComprehensiveFixing.unitCell_isComprehensiveGaugeFixing
+#check @BookProof.ChapterGaugeComprehensiveFixing.unitCell_isCompleteGaugeFixing'
+#check @BookProof.ChapterGaugeComprehensiveFixing.unitCell_not_isClopen
+#check @BookProof.ChapterGaugeComprehensiveFixing.shift_gaugeFixing_classification
+```
+
+# Parametrizations Are Gauge Symmetries
+
+:::paragraph
+A more structural reading of the same phenomenon: *every* parametrization carries a
+gauge group. For a map $`\pi : X \to Y` the group is the set of permutations of the
+parameter space that fix the parametrized point, `fiberGauge π`; its orbits are
+exactly the fibers, and its invariant observables are exactly the functions of the
+parametrized point. The group is trivial precisely when the parametrization is
+redundant-free, and the two axes above reappear as injectivity of the
+parametrization on the gauge fixing (completeness) and surjectivity onto the
+fibers (comprehensiveness).
+:::
+
+```
+#check @BookProof.ChapterGaugeParametrization.fiberGauge
+#check @BookProof.ChapterGaugeParametrization.orbit_eq_fiber
+#check @BookProof.ChapterGaugeParametrization.isPhysicalObservable_iff_factors_through
+#check @BookProof.ChapterGaugeParametrization.fiberGauge_eq_bot_iff
+#check @BookProof.ChapterGaugeParametrization.fiberGauge_ne_bot_iff
+#check @BookProof.ChapterGaugeParametrization.isCompleteGaugeFixing'_iff_injOn
+#check @BookProof.ChapterGaugeParametrization.isComprehensiveGaugeFixing_iff_surjOn
+```
+
+# Casimir Constraints, Gauge Averaging and the Absence of Anomalies
+
+:::paragraph
+The manuscript's device for imposing *all* constraints at once is the quadratic
+Casimir of a family of Hermitian generators. That it works is a theorem here: the
+expectation of the Casimir in a state is the sum of the squared norms of the
+constraint expectations, so its kernel is *exactly* the intersection of the kernels
+of the individual constraints — setting the single Casimir to zero really does
+impose every constraint.
+:::
+
+```
+#check @BookProof.ChapterGaugeCasimirAverage.casimir_apply
+#check @BookProof.ChapterGaugeCasimirAverage.inner_casimir
+#check @BookProof.ChapterGaugeCasimirAverage.casimir_apply_eq_zero_iff
+#check @BookProof.ChapterGaugeCasimirAverage.ker_casimir
+```
+
+:::paragraph
+Averaging is the other half: the Haar average (for a right-invariant measure) and
+the finite normalized average of any observable are gauge-invariant, normalized on
+the constants, and fix the observables that were already invariant — averaging is a
+projection onto the physical algebra, not merely a smoothing. Gauge invariance is
+preserved by limits, which is the manuscript's statement that a gauge symmetry can
+never exhibit an anomaly; and pushing a probability measure forward along a
+measurable projection into the constrained set gives that set probability one,
+with the expectations of observables that do not see the projection left unchanged
+— the constraint imposed exactly, without a null set.
+:::
+
+```
+#check @BookProof.ChapterGaugeCasimirAverage.gaugeAverage_isPhysicalObservable
+#check @BookProof.ChapterGaugeCasimirAverage.gaugeAverage_of_isPhysicalObservable
+#check @BookProof.ChapterGaugeCasimirAverage.finiteGaugeAverage_isPhysicalObservable
+#check @BookProof.ChapterGaugeCasimirAverage.finiteGaugeAverage_of_isPhysicalObservable
+#check @BookProof.ChapterGaugeCasimirAverage.isPhysicalObservable_of_tendsto
+#check @BookProof.ChapterGaugeCasimirAverage.map_measure_constrainedSet
+#check @BookProof.ChapterGaugeCasimirAverage.physical_invariant_along_gaugeProjection
+```
+
 # Summary
 
 The gauge symmetry of the wave-function parametrization is a redundancy of the
@@ -389,4 +540,14 @@ coordinates, not a new physical phenomenon. Concretely:
    is well-defined — one never needs the wave-function itself to be gauge
    invariant;
  * in the abelian limit the field strength is gauge invariant and the Gribov
-   ambiguity does not arise.
+   ambiguity does not arise;
+ * a fixing that is at once comprehensive and complete always exists (the orbit
+   representatives) and makes every observable extend *uniquely* to a physical
+   one, but on a connected spectrum with a free non-trivial action it can never be
+   clopen — completeness forces a discontinuous choice;
+ * the quadratic-Casimir constraint imposes every Hermitian constraint at once, and
+   gauge averaging is a projection onto the physical algebra that survives limits
+   (no anomaly);
+ * the dissipative coupled oscillators lose energy at the rate
+   $`\dot E = -\lambda_1\dot x_1^2 - \lambda_2\dot x_2^2` while conserving total
+   probability — irreversibility without a classical Hamiltonian.
