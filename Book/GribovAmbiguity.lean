@@ -97,6 +97,7 @@ read off a positive operator, and the number-operator shift is unobservable.
 
 # The Mass Gap in the Numerical Validation
 
+:::paragraph
 The mass-gap discussion above is not only a formal statement about Heisenberg
 evolution: it is exactly the quantity the companion numerical validation measures.
 The free gluon one-particle operator is *gapless* — its lowest one-gluon
@@ -120,6 +121,21 @@ Hamiltonian is the gauge-fixed one-particle operator enclosed at the outer level
 with creation on the left and annihilation on the right. Its outer vacuum is
 therefore the exact ground after the permitted one-particle shift; a parity or
 squeezed inner-sector result is not a replacement for that conclusion.
+:::
+
+:::paragraph
+**Manuscript provenance.**  The outer-enclosure shape is the manuscript's, and the reason it may
+assume the Hamiltonian quadratic in the ladders is its recursive construction of the Fock space:
+*“Since the second-quantization procedure can be applied recursively … in case the Hamiltonian acting
+in the Fock-space is not quadratic in the creation/annihilation operators, then we can consider
+instead a new Fock-space where the base Hilbert space is the original Fock-space. The new Hamiltonian
+is quadratic in the creation/annihilation operators.”*  Its Navier–Stokes section displays the
+template, $`H = \int d^3\vec x\, a^\dagger(\vec x)\, H(\vec x)\, a(\vec x)` with the inner
+$`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)`; the Yang–Mills free-gluon enclosure
+$`H = \sum_{i,j} h_{ij} C_i^\dagger A_j` below is the same envelope, and a product of fields with a
+spatial derivative is handled in momentum space as a **convolution** rather than by a gauge
+constraint on the derivative variables.
+:::
 
 # The Algebraic-Ideals View of Gauge
 

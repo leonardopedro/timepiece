@@ -225,6 +225,21 @@ validation of the model.
 :::
 
 :::paragraph
+**Manuscript provenance.**  The manuscript fixes this shape and the reason it may assume the
+Hamiltonian quadratic in the ladders: *“Since the second-quantization procedure can be applied
+recursively … in case the Hamiltonian acting in the Fock-space is not quadratic in the
+creation/annihilation operators, then we can consider instead a new Fock-space where the base
+Hilbert space is the original Fock-space. The new Hamiltonian is quadratic in the
+creation/annihilation operators.”*  It writes each sector's Hamiltonian as a one-particle operator
+enclosed between creation and annihilation, $`H = \int d^3\vec x\, a^\dagger(\vec x)\, H(\vec x)\,
+a(\vec x)` — its Navier–Stokes instance, the worked example, is
+$`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)` — and the scalaron/vielbein instance below
+has the same envelope.  Where a spatial derivative of a field enters (the vielbein derivative modes),
+the formal route eliminates it by the spatial Fourier substitution, so that in momentum space it
+becomes a **convolution** rather than a gauge constraint.
+:::
+
+:::paragraph
 The final Hamiltonian is the one-particle Hamiltonian enclosed in creation
 (on the left) and annihilation (on the right) operators on the nested Fock
 space — the same doctrine as QYM, QED, and NS: $`H = \sum_{ij} h_{ij}

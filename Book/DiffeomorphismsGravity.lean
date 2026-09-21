@@ -1178,6 +1178,22 @@ self-adjoint as soon as the one-particle operator is. No mass gap and no global
 existence is claimed.
 :::
 
+:::paragraph
+**Manuscript provenance.**  The outer-enclosure shape is the manuscript's, and the reason it may
+assume the Hamiltonian quadratic in the ladders is its recursive construction of the Fock space:
+*“Since the second-quantization procedure can be applied recursively … in case the Hamiltonian acting
+in the Fock-space is not quadratic in the creation/annihilation operators, then we can consider
+instead a new Fock-space where the base Hilbert space is the original Fock-space. The new Hamiltonian
+is quadratic in the creation/annihilation operators.”*  It writes each sector's Hamiltonian as a
+one-particle operator enclosed between creation and annihilation,
+$`H = \int d^3\vec x\, a^\dagger(\vec x)\, H(\vec x)\, a(\vec x)` — its Navier–Stokes instance is
+$`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)`, and the gauge-fixed gravity symbol here has
+the same envelope.  Where the inner space carries the fields' spatial derivatives (the vielbein
+derivative modes), the formal route eliminates them by the spatial Fourier substitution, so that in
+momentum space a product with a derivative becomes a **convolution** rather than a gauge constraint
+(`ChapterQgFourierElimination`, `ChapterQgFullEliminated`).
+:::
+
 ```
 #check @BookProof.QuantumGravityFock.car_fermAnn_fermCre
 #check @BookProof.QuantumGravityFock.car_fermAnn_fermCre_of_ne

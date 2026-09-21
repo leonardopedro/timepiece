@@ -182,6 +182,23 @@ non-negative. This is the fact the manuscript invokes for the mass-gap discussio
 :::
 
 :::paragraph
+**Manuscript provenance — why the Hamiltonian may be taken quadratic in the ladders.**  The
+manuscript fixes this shape and justifies the passage to the outer level by a recursive
+construction: *“Since the second-quantization procedure can be applied recursively … in case the
+Hamiltonian acting in the Fock-space is not quadratic in the creation/annihilation operators, then
+we can consider instead a new Fock-space where the base Hilbert space is the original Fock-space.
+The new Hamiltonian is quadratic in the creation/annihilation operators.”*  It writes each sector's
+Hamiltonian as a one-particle operator enclosed between creation and annihilation,
+$`H = \int d^3\vec x\, a^\dagger(\vec x)\, H(\vec x)\, a(\vec x)` — its Navier–Stokes instance is
+$`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)`, and the Yang–Mills instance is the same
+envelope with the one-particle Weyl Hamiltonian $`\tfrac12\sum_i\pi_i^2 + \tfrac12\sum_a B_a^2` on the
+Gauss–polynomial core of $`L^2(\mathbb{R}^{99})`.  Because the inner space already contains the
+fields and their spatial derivatives, a product carrying a spatial derivative is not a differential
+operator there: in momentum space it becomes a **convolution** (the Navier–Stokes companion
+`BookProof.NsAdvectionConvolution`), not a gauge fixing of the derivative variables.
+:::
+
+:::paragraph
 Because the one-particle Hamiltonian is bounded below, choose an energy origin so that
 `h₊ ≥ μ I` for some `μ > 0`. For free outer particles this changes the Fock Hamiltonian
 by `μ N`, not by a vacuum constant: `N Ω = 0`, while every non-vacuum finite-particle

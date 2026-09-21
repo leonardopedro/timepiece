@@ -139,6 +139,23 @@ again, by the same Faris–Lavine route, on the *smaller* outer Fock space:
 ```
 
 :::paragraph
+**Manuscript provenance — why the Hamiltonian may be taken quadratic in the ladders.**  The shape
+above is the manuscript's, and its justification is the recursive construction of the Fock space:
+*“Since the second-quantization procedure can be applied recursively … in case the Hamiltonian acting
+in the Fock-space is not quadratic in the creation/annihilation operators, then we can consider
+instead a new Fock-space where the base Hilbert space is the original Fock-space. The new Hamiltonian
+is quadratic in the creation/annihilation operators.”*  The manuscript writes each sector's
+Hamiltonian as a one-particle operator enclosed between creation and annihilation,
+$`H = \int d^3\vec x\, a^\dagger(\vec x)\, H(\vec x)\, a(\vec x)` — its Navier–Stokes instance is
+$`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)`, and the graviton/scalaron instance has the
+same envelope.  The inner space is where the fields and their spatial derivatives live; in this
+chapter the vielbein's derivative modes are **not** constrained by a gauge symmetry — they are
+eliminated by the spatial Fourier substitution and reappear in momentum space as **convolutions**
+(`ChapterQgFourierElimination`, `ChapterQgFullEliminated`), the same device the Navier–Stokes route
+uses (`BookProof.NsAdvectionConvolution`).
+:::
+
+:::paragraph
 The final Hamiltonian of the sector is again the one-particle Hamiltonian enclosed in creation (on
 the left) and annihilation (on the right) operators on the outer Fock space, and the chapter proves
 the structural clauses that make that enclosure usable: `qgElimFull_momentum_conserving` (momentum),
