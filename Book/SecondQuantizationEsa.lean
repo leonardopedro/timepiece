@@ -21,6 +21,36 @@ operator is quadratic in the ladders. So the whole spectral question for the out
 Hamiltonian reduces to a question about the one-particle operator `h`, and it is
 this reduction that this chapter makes rigorous.
 
+This is not a convention the programme invented: the manuscript states it and the
+recursive construction that justifies it. Its Navier–Stokes Hamiltonian is written
+exactly in this enclosure form,
+$`H = \int d^3\vec x\, a^\dagger(\vec x)\, H(\vec x)\, a(\vec x)` with
+$`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)` — one-particle operator
+inside, creation on the left and annihilation on the right — and the Fock space is
+introduced recursively: *“Since the second-quantization procedure can be applied
+recursively … in case the Hamiltonian acting in the Fock-space is not quadratic in
+the creation/annihilation operators, then we can consider instead a **new Fock-space
+where the base Hilbert space is the original Fock-space**. The new Hamiltonian is
+quadratic in the creation/annihilation operators.”*  That sentence is the definition
+of the **nested** (outer) Fock space this chapter works on: the inner one-particle
+space is itself a Fock space, and the outer Hamiltonian is its second quantization,
+quadratic in the outer ladders whatever the inner operator is.
+
+Two consequences of that definition are used below and are worth stating here.
+First, the inner space is where the fields and their **spatial derivatives** live —
+in the manuscript's Navier–Stokes count, the derivative coordinates
+$`u_{k,j} = \partial_j u_k` are among the $`\mathbb{R}^{15}` field degrees of freedom,
+and the QG vielbein carries the same kind of derivative coordinates. Second, a
+product of fields with a spatial derivative is **not** a differential operator once
+the derivative has been eliminated: in momentum space it becomes a **convolution**,
+$`\mathcal F[u_j\,\partial_j u_i](Q) = \int 2\pi i\,\langle q,m\rangle\,
+\hat u_i(q)\,\hat u_j(Q-q)\,dq` (`BookProof.NsAdvectionConvolution.fourier_advection_convolution`,
+`fourier_advection_sum`), with the same device for the QG vielbein derivative modes
+(`ChapterQgFourierElimination`, `ChapterQgFullEliminated`).  That is what replaces the
+constraining of the derivative variables: they are eliminated by the spatial Fourier
+substitution and reappear as convolutions, not fixed by a gauge symmetry or a BRST
+charge.
+
 The specific question is the one the Faris–Lavine route keeps returning to:
 **when is `dΓ(h)` essentially self-adjoint, and on what domain?** The answer proved
 here is: whenever `h` is essentially self-adjoint on its own domain `D`, `dΓ(h)` is
