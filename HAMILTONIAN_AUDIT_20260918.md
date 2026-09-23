@@ -278,6 +278,15 @@ included, and `c = 6·Q.K`.**  This is exactly the `N_QG` candidate of the desig
   `starobinskyV M α φ = M⁴/(16α)·(1 − e^{−√(2/3)·φ/M})²` is the exact exponential — no Taylor
   truncation — with `starobinskyV_nonneg` (strongest sign form), `starobinskyV_zero`,
   `starobinskyV_tendsto_plateau`.
+* **The wall's closed form is now derived, not asserted** (2026-09-21).  The Jordan-frame
+  modules stop at `U(ψ) = (M⁴/16α)(ψ−1)²`; `../unfer/docs/qg_starobinsky_einstein_frame.cdb`
+  certifies the conformal rescaling link `U(ψ)/ψ²  at  ψ = e^{√(2/3)φ/M}  =
+  (M⁴/16α)(1 − e^{−√(2/3)φ/M})²` (weight `√(−g) = ψ²√(−g̃)`; kinetic `(3M²/4)(∂lnψ)² =
+  ½(∂φ)²`), so `starobinskyV` is the genuine Einstein-frame potential of `f(R) = (M²/2)R + αR²`.
+  The same note records the source-level comparison showing that the one-particle kernel used
+  here — `oneParticleOp`/`secHam`/`qgFullModes`,
+  `h_{ab} = δ_{ab}(−d²/dφ² + φ²/4 + V(φ) + σ_b) + A_{ab}·1 + B_{ab}·φ` — is the plan's stated QG
+  inner operator **term for term**.  Evidence: `../unfer/docs/VERIFY_QG_STAROBINSKY_EINSTEIN_FRAME.md`.
 * `ChapterQgFullEliminated` rebuilds the same model on the nine vielbein components **after the
   Fourier elimination** (`eSig = 1 + |k|²`, `eGram`, `eCoupling g`), with
   `eFormValue_torsion` (the eliminated torsion is the exact Fourier torsion),
@@ -611,10 +620,10 @@ vielbein matrices, not about `V` (§5, rule R3).
 | theory | the operator the FL proof runs on (shape) | proved identification with the intended physics | nested-space realization | symbolic / arithmetic evidence |
 | :-- | :-- | :-- | :-- | :-- |
 | **NS** one body (**auxiliary** comparison, not the NS Hamiltonian — see §2.1 correction; the Hamiltonian is the Koopman form `kvnPoly`/`nsKoopmanOp`, `i[H,u_k]=2F_k`) | `spHam = weylOp (spPi Φ) (spField Φ ν k)` = `½ Σ_{m<6} π_m² + ½ Σ_{r<7} (mulOp Φ_r)²` | `spHam_eq_visc_add_advect` (advection kept **squared**, three squares `½((k·u)u_i)²`, no momentum term), `spHam_quadForm_split` | `dΓ(H_sp)` = `dGammaOp (nsSpCol …)`; `redHam_eq_sum_parcel`, `nsRedFullFockHam_sector_sum_parcel`, `weylOpDom_block_sum`, `nsSpDGamma_number_conserving` | `ns_qg_fourier_elimination.cdb` C1–C5 (the Eulerian residual and divergence are the substituted ones); `scripts/check_hamiltonian_identities.py` NS block |
-| **NS** full Eulerian / Lagrangian | `nsSectorHam` / `lagSectorHam` = `weylOp … = ½Σπ² + ½Σ(constraint form)²` | `nsResPoly_not_affine` (Piola term is genuinely quadratic), `volumePoly_not_quadratic` + `detPoly_eval_testPt` (`det F = 1` is cubic, `t³ − 1` on the isotropic line) | `dsOp`/`dsFibOp` on `lp (fun n => L²(ℝ^{18n})) 2`, `lagFockSpace = lp (fun n => L²(ℝ^{36n})) 2`; number conserving (`nsFullFockHam_number_conserving`, `lagFullFockHam_number_conserving`) | `ns_qg_fourier_elimination.cdb` A1–E3 (incl. B4/B5: the rank-one degeneracy that forbids eliminating `F`) |
+| **NS** full Eulerian / Lagrangian | `nsSectorHam` / `lagSectorHam` = `weylOp … = ½Σπ² + ½Σ(constraint form)²` | `nsResPoly_not_affine` (Piola term is genuinely quadratic), `volumePoly_not_quadratic` + `detPoly_eval_testPt` (`det F = 1` is cubic, `t³ − 1` on the isotropic line) | `dsOp`/`dsFibOp` on `lp (fun n => L²(ℝ^{21n})) 2` (`nsFockSpace = lp (fun n => L2d (n*21)) 2`, `ChapterNavierStokesFullEulerianFock:277`; the `18n` belongs to the **reduced / gauge-fixed** family `nsFamily`, `dim := n*18`), `lagFockSpace = lp (fun n => L²(ℝ^{36n})) 2`; number conserving (`nsFullFockHam_number_conserving`, `lagFullFockHam_number_conserving`) | `ns_qg_fourier_elimination.cdb` A1–E3 (incl. B4/B5: the rank-one degeneracy that forbids eliminating `F`) |
 | **QYM** one body | `ymHamiltonian (coreRepPoly 99) 0 = sqSumOp ymKap ymMagVec` = `½ Σ_j κ_j π_j² + ½ Σ_m B_m²` | `ymAbelian_eq_sqSumOp` (`= ` by construction), `gramQ_ymMagVec` (the Gram of the 24 magnetic forms) | `dΓ(H₁)` (`ChapterFockSecondQuantization`, `ChapterQymTimeIndependentFlow`); `ym_fock_friedrichs_extension` for the non-abelian direct-Friedrichs route | `yang_mills_hamiltonian.cdb`: `L_y = ½π² − ½B²` → Legendre → `H_final = ½π² + ½B²`, plus the 3D ε identity numerically |
 | **QYM** parcels | `ymFamily.secHam` (99 coordinates per parcel) | `ymFamily_vv` (the forms are the magnetic, Gauss and derivative-tie forms), `ym_interaction_nontrivial` | `outerHam`/`outerCore` on `⊕ₙ L²(ℝ^{99n})`, `ymOuterHam_symmetricOn`; number conserving | same module (the same magnetic forms appear as `B_{i a}`) |
-| **QG** | `secHam (n) = Σ_{a,b} a†_a h_{ab} a_b` with `h_{ab} = δ_{ab}(−d²/dφ² + φ²/4 + V(φ) + σ_b) + A_{ab}·1 + B_{ab}·φ` | `secHam_eq_sum_oneParticle`, `secHam_single`, `secHam_matrix_element` — one-particle matrix elements, *no outer vertex*; `starobinskyV_not_quadratic` (the wall is not a degree-≤2 polynomial) | `Sec ι = ℓ²(ι ; L²(ℝ))`; `secHam_number_conserving`, `qgFull_number_conserving` (so no lattice/occupation cut-off is needed) | `qg_gauge_fixed_hamiltonian.cdb` (book.tex 8190, coefficients `1/16, −1/24, ½, ⅓`), `qg_starobinsky_vielbein_hamiltonian.cdb` (`H_final_st = (M²/2)ψ·(8190) + U(ψ)e`, `base_limit_check`), `qg_densitized_hamiltonian.cdb` (`1/16ε S² − 1/24ε P²` is flat after densitization) |
+| **QG** | `secHam (n) = Σ_{a,b} a†_a h_{ab} a_b` with `h_{ab} = δ_{ab}(−d²/dφ² + φ²/4 + V(φ) + σ_b) + A_{ab}·1 + B_{ab}·φ` | `secHam_eq_sum_oneParticle`, `secHam_single`, `secHam_matrix_element` — one-particle matrix elements, *no outer vertex*; `starobinskyV_not_quadratic` (the wall is not a degree-≤2 polynomial) | `Sec ι = ℓ²(ι ; L²(ℝ))`; `secHam_number_conserving`, `qgFull_number_conserving` (so no lattice/occupation cut-off is needed) | `qg_gauge_fixed_hamiltonian.cdb` (book.tex 8190, coefficients `1/16, −1/24, ½, ⅓`), `qg_starobinsky_vielbein_hamiltonian.cdb` (`H_final_st = (M²/2)ψ·(8190) + U(ψ)e`, `base_limit_check`), `qg_densitized_hamiltonian.cdb` (`1/16ε S² − 1/24ε P²` is flat after densitization), `qg_starobinsky_einstein_frame.cdb` (`U(ψ)/ψ²` at `ψ = e^{√(2/3)φ/M}` is `starobinskyV`; the kernel above equals the plan's stated inner operator) |
 
 **The one thing the Cadabra modules cannot certify, stated plainly.**  A `.cdb` module is a
 symbolic/algebraic engine on *classical* expressions: it can certify the one-particle symbol — that
@@ -628,6 +637,26 @@ and `*_number_conserving` for the sector preservation.  The two halves are exact
 the plan states once (§“The final-Hamiltonian convention”): the **inner** matrix elements carry all
 the nonlinearity (quartic, wall, interaction), and the **outer** operator is quadratic in the
 ladders for any `h`.
+
+**Inner-operator audits, sector by sector (2026‑09‑21).**  The one-particle operators of §9's table
+have been checked against the plan *definition by definition* (not from the doc-comments):
+
+* **QG** — `h_{ab} = δ_{ab}(−d²/dφ² + φ²/4 + V(φ) + σ_b) + A_{ab}·1 + B_{ab}·φ` with
+  `V = starobinskyV`, `A = gGram`, `B = gCoupling g`: `oneParticleOp` / `secHam` /
+  `qgFullModes` match the plan term for term, and the Einstein-frame closed form of `V` is now
+  derived (not asserted) in `../unfer/docs/qg_starobinsky_einstein_frame.cdb`;
+  `../unfer/docs/VERIFY_QG_STAROBINSKY_EINSTEIN_FRAME.md`.
+* **NS** — reduced `spHam` (6 coordinates, 7 forms), full `nsSectorHam` (21 coordinates, 12 momenta,
+  19 forms) with `nsFullFockHam = dΓ(H₁)` on `L²(ℝ^{21n})`, the mainstream `kvnPoly` with
+  `F_i = −νλ_iu_i + B_i(u,u)`, and the full residue `nsResPoly`/`divPoly`: all match the plan;
+  the plan should just say *which* one-particle model it means at each occurrence
+  (`H_sp` = reduced, `H₁` = `nsSectorHam … 1`).
+* **QYM** — `ymHamiltonian = ½Σπ² + ½ΣB²` (24 momenta, 24 magnetic forms), the abelian
+  `ymAbelian_eq_sqSumOp` identification, and the `99n` parcel family: all match the plan,
+  including the `+½Σ` sign convention.
+
+The NS/QYM tables are in `../unfer/docs/VERIFY_FARIS_LAVINE_N.md` §“Audit of the NS and QYM inner
+one-particle operators”.
 
 **Re-certified on the current tree (2026‑09‑18).**  All seven `../unfer/docs/*.cdb` modules re-run
 with the term-count epilogue: `exit 0`, no tracebacks, for every one; the two values that repair

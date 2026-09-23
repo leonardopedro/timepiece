@@ -50,7 +50,7 @@ namespace BookProof.ChapterContinuityUnitaryInfinite
 /-! ## The lattice Hilbert space and the `ℓ^∞` velocity fields -/
 
 /-- The infinite lattice Hilbert space `ℓ²(ℤ)`. -/
-abbrev L2Z := lp (fun _ : ℤ => ℂ) 2
+noncomputable abbrev L2Z := lp (fun _ : ℤ => ℂ) 2
 
 /-- Bounded velocity fields on the lattice: `ℓ^∞(ℤ)`. -/
 abbrev LinfZ := lp (fun _ : ℤ => ℝ) ∞
@@ -78,7 +78,7 @@ theorem memℓp_shift (f : L2Z) (m : ℤ) : Memℓp (fun k : ℤ => (f : ℤ →
 /-- The lattice translation `(S_m f) k = f (k + m)`, as a linear map. -/
 noncomputable def shiftLin (m : ℤ) : L2Z →ₗ[ℂ] L2Z where
   toFun f := ⟨fun k => (f : ℤ → ℂ) (k + m), memℓp_shift f m⟩
-  map_add' f g := by ext k; simp
+  map_add' f g := by ext k; simp [Pi.add_apply]
   map_smul' c f := by ext k; simp
 
 @[simp] theorem shiftLin_apply (m : ℤ) (f : L2Z) (k : ℤ) :
@@ -167,7 +167,7 @@ theorem memℓp_mul (v : LinfZ) (f : L2Z) :
 /-- Multiplication by a bounded real velocity field, as a linear map. -/
 noncomputable def velocityLin (v : LinfZ) : L2Z →ₗ[ℂ] L2Z where
   toFun f := ⟨fun k => ((v : ℤ → ℝ) k : ℂ) * (f : ℤ → ℂ) k, memℓp_mul v f⟩
-  map_add' f g := by ext k; simp [mul_add]
+  map_add' f g := by ext k; simp [mul_add, Pi.add_apply]
   map_smul' c f := by
     ext k
     simp only [lp.coeFn_smul, Pi.smul_apply, smul_eq_mul, RingHom.id_apply]

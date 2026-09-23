@@ -37,9 +37,12 @@ continuous linear map of the target, which Mathlib does not provide, together wi
 (`fourier_postcompCLM`), `L²` (`toLp_postcompCLM`) and derivative (`postcompCLM_lineDerivOp`)
 compatibilities.
 
-**Honest boundary.**  The model is the vector-valued one, `L²(V; L²(W))`; the measure-theoretic
-identification of it with the scalar `L²(V × W)` (a Bochner–Fubini statement about slices of an
-`L²` function of two variables) is not formalized here, and Mathlib does not have it.
+**The model.**  The model used here is the vector-valued one, `L²(V; L²(W))`.  Its
+measure-theoretic identification with the scalar `L²(V × W)` — which Mathlib does not have — is
+now formalized in `BookProof.ChapterNsScalarVectorCurry` (`curryLI`, pinned down on the
+generators by `curryLI_fibMk` and `curryLI_indicator_prod`), and
+`BookProof.ChapterNsScalarFourier` transports the transform of this module to the scalar space
+by it (`nsScalarFourier`, with `nsScalarFourier_scalarFibreOp` for the fibre-blindness).
 
 Everything is `sorry`-free and `axiom`-free.
 -/

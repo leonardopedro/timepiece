@@ -608,7 +608,18 @@ Navier–Stokes equations: the velocity field, *its derivatives* $`u_{k,j}`,
 $`u_{k,jj}`, and the conjugate momenta $`\pi^i` are all treated as independent
 canonical degrees of freedom, and the Hamiltonian is the Weyl-symmetrized
 $`H = \sum_i (\pi_i A_i + A_i \pi_i)` with
-$`A_i = \sum_j u_j u_{i,j} - \nu\, u_{i,jj}`. That the derivatives may be treated
+$`A_i = \sum_j u_j u_{i,j} - \nu\, u_{i,jj}`. One scoping sentence, because the
+word "Hamiltonian" is doing two jobs in this chapter: this Weyl-symmetrized
+operator is the **one-particle** operator — the manuscript's $`H(\vec x)` that
+sits *inside* the enclosure — and the final Hamiltonian of record is its
+creation-left/annihilation-right second quantization $`d\Gamma(h) =
+\sum_{ij} h_{ij} C^\dagger(e_i) A(e_j)`, as {ref "ns-one-particle-hamiltonian"}[the
+Navier–Stokes one-particle Hamiltonian chapter] states and as
+{ref "second-quantization-esa"}[Second Quantization and Essential Self-Adjointness]
+makes rigorous. Everything in this section — the truncation's completeness, the
+deficiency computation, the Faris–Lavine lift below — is about that operator and
+its lift, not about a different final Hamiltonian. That the derivatives may be
+treated
 as fields is an operator statement: an operator-valued field
 $`\varphi(X) = \varphi + \varphi_i (X_i - x_i)` collapses to its point value on
 the position eigenstates, so the first-order Taylor coefficients are free modes
@@ -1621,7 +1632,27 @@ self-adjoint operator the Friedrichs extension *is* the closure.
 #check @BookProof.EsaClosure.exists_isSelfAdjointExtension_of_esa
 #check @BookProof.EsaClosure.isSelfAdjointExtension_unique_of_esa
 #check @BookProof.EsaClosure.positiveExtension_eq_closure_of_esa
+#check @BookProof.SelfAdjointCoreEsa.essentiallySelfAdjointOn_dom_of_isSelfAdjointExtension
+#check @BookProof.SelfAdjointCoreEsa.essentiallySelfAdjointOn_of_graphCore_selfAdjoint
+#check @BookProof.ComparisonCoreEsa.esa_of_isGraphCore
+#check @BookProof.ComparisonCoreEsa.isGraphCore_iff_esa
 ```
+
+:::paragraph
+Two short companions complete the picture from the other direction. Where the
+closure chapters say "essentially self-adjoint *gives* a unique self-adjoint
+extension", `BookProof.SelfAdjointCoreEsa` runs the implication backwards: an
+operator that *has* a self-adjoint extension was already essentially
+self-adjoint on its own domain (`essentiallySelfAdjointOn_dom_of_isSelfAdjointExtension`),
+the deficiency equation at a non-real point forcing the putative deficiency
+vector to vanish by symmetry. And `BookProof.ComparisonCoreEsa` translates
+between the two vocabularies the route chapters use — for a Faris–Lavine
+comparison operator, "graph core" and "core of essential self-adjointness" are
+the same notion (`isGraphCore_iff_esa`), so a route chapter that exhibits a
+graph core has, without further work, exhibited a core of essential
+self-adjointness (`esa_of_isGraphCore`). That equivalence is what turns the
+per-sector obligations of the plan from analytic tasks into bookkeeping.
+:::
 
 :::paragraph
 A Cayley-transform section takes the selected operator one step further: symmetry

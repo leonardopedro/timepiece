@@ -162,6 +162,33 @@ inverse-free SIRK numerics of the Navier–Stokes validation a computation of *t
 operator rather than of an artefact of the discretization.
 :::
 
+:::paragraph
+The algebra that the selection theorem *uses* is proved outright in the companion
+chapter `BookProof/ChapterH1.lean` (namespace `BookProof.ChapterH1`), with no
+analytic hypotheses of its own: the $`\varphi`-functions
+$`\varphi_k(z) = \int_0^1 e^{sz}(1-s)^k/k!\,ds` of the SIRK method, their
+recurrence `phi_succ_mul` and their values (`phi_zero`, `phi_one`), the numerical
+range `numericalRange` with the easy half of Toeplitz–Hausdorff
+(`eigenvalue_mem_numericalRange`), the resolvent identity `resolvent_identity`,
+and the shift relation `resolvent_shift_mul` that makes the shifted resolvents
+multiply into one another. The deep error theorems that would need Crouzeix's
+inequality are *named hypotheses* in `ChapterH2`, never axioms — which is why
+everything in `ChapterH1` can be proved outright. The Duhamel companion
+`duhamel_phiOp1` is what connects the $`\varphi`-functions back to the operator
+exponential the flow actually is.
+:::
+
+```
+#check @BookProof.ChapterH1.phi
+#check @BookProof.ChapterH1.phi_succ_mul
+#check @BookProof.ChapterH1.phi_one
+#check @BookProof.ChapterH1.numericalRange
+#check @BookProof.ChapterH1.eigenvalue_mem_numericalRange
+#check @BookProof.ChapterH1.resolvent_identity
+#check @BookProof.ChapterH1.resolvent_shift_mul
+#check @BookProof.ChapterH1.duhamel_phiOp1
+```
+
 # How This Connects to the Numerical Validation
 
 :::paragraph

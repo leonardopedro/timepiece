@@ -19,7 +19,12 @@ of the *spatial* electric and magnetic field operators,
 `ymHamiltonian_quadForm`).  The gauge condition removes the time component of the connection
 outright: no time derivative and no time parameter enters, so the quantized Hamiltonian —
 and its second quantization `dΓ(H₁)` on the Fock space over the Gauss–polynomial core of
-`L²(ℝ⁹⁹)` — is a single fixed self-adjoint operator, an **autonomous** generator.  Combined
+`L²(ℝ⁹⁹)` — is a single fixed self-adjoint operator, an **autonomous** generator.  The
+BRST-exact gauge-fixing term `{Ω, Ψ}` that `book.tex` may add to the 4D Hamiltonian
+vanishes on this slice (`BookProof.BookBrstGaugeFixing.bookGfTerm_eq_zero_of_Afield0`,
+QYM instance `su2_bookGfTerm_eq_zero_of_Afield0` in `ChapterBookBrstInstances.lean`), so
+the spatial-only record of `H₁` already accounts for the gauge-fixing/ghost sector — no
+extra summand in `h` or `N`.  Combined
 with `BookProof.ChapterSirkSingleTimeShift` (the SIRK/Hashimoto algorithm evaluates the
 propagator at *one* finite time through the bounded shift-invert resolvent) this removes any
 need for a discretization of time.

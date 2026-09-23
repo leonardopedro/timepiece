@@ -205,4 +205,28 @@ Open items, as obligations:
  * the decoupling of the scalaron and vielbein one-particle operators in the *fiber* model is an
    assumption, not a theorem; the eliminated full model does not need it, but the closed-form
    spectrum of the fiber model does.
+
+:::paragraph
+Two of the plan's general obligations, which used to be listed per sector, no
+longer apply here as open work. The *lifted* obligation — that the enclosure
+$`H = \sum_{ij} h_{ij} C^\dagger(e_i) A(e_j)` above is essentially self-adjoint
+on the lifted core — is the core-transfer chain of
+{ref "second-quantization-esa"}[Second Quantization and Essential Self-Adjointness],
+available here because the chapter already exhibits the finite-occupation core.
+The *one-particle* obligation, that the comparison operator of record is
+essentially self-adjoint on the core actually chosen, is discharged in general by
+`BookProof.ComparisonCoreEsa.esa_of_isGraphCore` and the equivalence
+`isGraphCore_iff_esa`: both graph cores this route uses —
+`QgOuterFockFullFL.harmFried_isGraphCore`, the Gauss-polynomial core of
+$`-\Delta + \lVert x\rVert^2/4` in every dimension, and
+`ScalaronOuterFockFL.secN_isGraphCore`, the compactly supported smooth core of
+the scalaron-wall comparison — are therefore cores of essential
+self-adjointness by definition of the notions agreeing. And where the model is
+written in its decoupled form — the TEGR shear fibres $`\oplus` the scalaron
+sector, with no cross terms — essential self-adjointness of the sum follows from
+`BookProof.TensorSumChain.chain_esa` rather than from a separate argument. What
+remains genuinely open is the *interaction* content: the full exponential wall
+and the scalaron–vielbein coupling are inside $`h` (they are one-particle matrix
+elements, per the enclosure doctrine), and their combined spectral theory —
+beyond the ESA statements quoted above — is where the mass-gap work continues.
 :::
