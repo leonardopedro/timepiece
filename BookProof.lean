@@ -3121,6 +3121,19 @@ import BookProof.ChapterSmDiracYukawa
 import BookProof.ChapterSmComparisonFull
 import BookProof.ChapterSmHiggsVacuum
 
+-- `ChapterSmFarisLavine` is the bosonic half of §D6b-SM.3.  It proves the two
+-- Faris–Lavine inequalities of the Standard-Model one-particle Hamiltonian with the
+-- absolute constants `c = 1` and `K = 1`, against the comparison operator
+-- `N = 2h + Σ_m q_m² + c₀`, and supplies the abstract last mile `CoreData.esa_core` that
+-- descends the criterion from the comparison domain back to the Gauss–polynomial core.
+-- It also records, with the computation that shows it, why the quartic uncoupled
+-- `smComparison` of §D6b-SM.2 cannot serve as the Faris–Lavine comparison operator.  The
+-- conclusion `sm_h_esa_of_graph_core` is conditional on one hypothesis — that the core is
+-- a graph core of the comparison operator — which is the remaining analytic input.  That
+-- input is discharged by `ChapterSmComparisonEsa` below: `smFlN_esa` (Kato-type theorem
+-- plus Hermite graph approximation) yields the unconditional `sm_h_esa`.
+import BookProof.ChapterSmFarisLavine
+
 -- `ChapterSmDiracSpinor` joins the two halves: the concrete `4 × 4` Dirac one-particle
 -- matrix of the Majorana model of `ChapterCPTHamiltonian` (Hermitian, with the mass-shell
 -- identity `H² = (k² + m₁² + m₂²)·1` and hence the relativistic energies
@@ -3167,3 +3180,12 @@ import BookProof.ChapterSmGaugeRepresentation
 import BookProof.ChapterBookBrstYangMills
 import BookProof.ChapterBookBrstGaugeFixing
 import BookProof.ChapterBookBrstInstances
+
+-- The Kato-type essential self-adjointness input for the Standard-Model Faris–Lavine
+-- comparison operator: degenerate Schrödinger operators `−Δ_S + W` on the two cores,
+-- the cut-off/mollifier proof on the compactly supported core, the Hermite graph
+-- approximation, and the resulting unconditional `sm_h_esa`.
+import BookProof.ChapterDegSchrodingerCore
+import BookProof.ChapterDegKatoEsa
+import BookProof.ChapterHermiteGraphApprox
+import BookProof.ChapterSmComparisonEsa

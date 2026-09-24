@@ -14,7 +14,7 @@ the nested Fock space of excitations, and the Hamiltonian of record is — as
 everywhere in this development — the *outer second quantization* $`d\Gamma(h)` of
 a one-particle operator $`h`, never the bare $`h`.
 
-Proof chapters carry the content, in four generations of work. The first four
+Proof chapters carry the content, in five generations of work. The first four
 set the frame: `BookProof/ChapterSmOneParticle.lean` (the collective
 coordinates and the mixing algebra), `BookProof/ChapterSmHamiltonian.lean` (the
 one-particle operator), `BookProof/ChapterSmComparison.lean` (the comparison
@@ -36,9 +36,24 @@ covariant derivative),
 fourth takes the manuscript's own BRST definition literally:
 `BookProof/ChapterBookBrstYangMills.lean`,
 `BookProof/ChapterBookBrstGaugeFixing.lean` and
-`BookProof/ChapterBookBrstInstances.lean`. Every chapter named here is
-`sorry`-free and `axiom`-free, audited by `Work/SmStandardModelAudit.lean`,
-`Work/SmHonestBoundariesAudit.lean` and `Work/BookBrstAudit.lean`; the ledger
+`BookProof/ChapterBookBrstInstances.lean`. The fifth closes the last open
+analytic hypothesis of the bosonic route: it begins with
+`BookProof/ChapterSmFarisLavine.lean` (the two Faris–Lavine inequalities,
+against the comparison operator that actually satisfies them) and continues
+through the independent Kato-type theorem and its transfer between the two
+cores — `BookProof/ChapterDegSchrodingerCore.lean`,
+`BookProof/ChapterMollifierL2.lean`, `BookProof/ChapterConvolutionCalc.lean`,
+`BookProof/ChapterDegEnergyEstimate.lean`,
+`BookProof/ChapterDegKatoEsa.lean`,
+`BookProof/ChapterHermiteLadderOrder.lean`,
+`BookProof/ChapterHermiteGraphApprox.lean` and
+`BookProof/ChapterSmComparisonEsa.lean` — ending in the unconditional
+essential self-adjointness of the one-particle operator. Those two sections,
+“The Bosonic Faris–Lavine Certificate” and “The Kato-Type Input”, are the
+pedagogical face of that chain. Every chapter named here is `sorry`-free and
+`axiom`-free, audited by `Work/SmStandardModelAudit.lean`,
+`Work/SmHonestBoundariesAudit.lean`, `Work/BookBrstAudit.lean`,
+`Work/SmFarisLavineAudit.lean` and `Work/SmComparisonEsaAudit.lean`; the ledger
 of what moved and what did not is `HONEST_BOUNDARIES_SM.md`.
 
 # Counting the Coordinates
@@ -154,6 +169,12 @@ part — the forty uncoupled one-dimensional factors $`-d^2/dq^2 + q^4` and
 $`-d^2/dq^2 + q^2` — is essentially self-adjoint: each factor by the
 bounded-below wall theorem, and their tensor sum by the chain theorem of the
 second-quantization chapter.
+
+One caution carries the reader into the next two sections: this $`N`$, despite
+its name, is *not* the comparison operator the Faris–Lavine criterion consumes
+for $`h`$. Which operator does, why this one cannot, and what has to be proved
+about the replacement instead are the subject of “The Bosonic Faris–Lavine
+Certificate” below.
 :::
 
 ```
@@ -299,6 +320,140 @@ spatial ones, which do not appear in $`N_0`.
 #check @BookProof.SmComparisonFull.smFullChain_length
 #check @BookProof.SmComparisonFull.sm_N_full_esa
 #check @BookProof.SmComparisonFull.sm_N_full_stone_flow
+```
+
+# The Bosonic Faris–Lavine Certificate
+
+:::paragraph
+The Faris–Lavine route needs a comparison operator $`N`$ against which the
+one-particle Hamiltonian satisfies two bounds: a relative bound and a form
+commutator bound $`\pm i[h,N] \le cN`$. The quartic operator of the previous
+sections **cannot** serve, and the obstruction is a theorem rather than a
+gap in the formalization. Write $`h = \tfrac12 T + V_h`$ and
+$`N = T + V_N + c_0`$ with $`T = \sum_m \pi_m^2`$. The commutator is first
+order, $`i[h,N] = \sum_m (\pi_m G_m + G_m \pi_m)`$ with
+$`G = \nabla(\tfrac12 V_N - V_h)`$, and the bound forces the pointwise
+inequality $`|G|^2 \le c^2 (V_N + c_0)`$ — test the form on a wave packet
+$`e^{i\xi \cdot x}\varphi`$ concentrated at a point and optimize in $`\xi`$.
+For a quartic $`V_N`$ the gradient is cubic: along a single gluon direction,
+where the totally antisymmetric structure constants and $`\varphi = 0`$ make
+$`\nabla V_h = 0`$, the requirement reads $`4R^6 \le c^2 R^4`$ — false for
+large $`R`$, already for the free Hamiltonian. The confinement of the
+comparison operator itself is what fails, not the interaction.
+
+The cure is the one Faris and Lavine use in their own application: let the
+comparison operator **contain** the Hamiltonian, so that $`\nabla V_h`
+cancels. With $`N = 2h + \sum_m q_m^2 + c_0`$ the difference becomes
+$`G = \tfrac12 \nabla(\sum_m q_m^2)`$, which is linear, and both inequalities
+hold with the absolute constants $`c = 1`$ and $`K = 1`$ — for every choice
+of couplings, structure constants and electroweak generators. That is the
+operator $`smFlN`$ of this section, together with its symmetry, its quadratic
+form and the Friedrichs comparison built from it. What the two inequalities
+leave behind is exactly one hypothesis: essential self-adjointness of this
+$`N`$ itself on the Gauss–polynomial core, isolated as
+$`sm_h_esa_of_comparison_esa`$ (and, in its packaged form through the abstract
+last mile $`CoreData.esa_core`$, as $`sm_h_esa_of_graph_core`$). The next
+section discharges it with an instrument Faris–Lavine does not provide.
+:::
+
+```
+#check @BookProof.SmFarisLavine.smFlN
+#check @BookProof.SmFarisLavine.smFlN_symmetricOn
+#check @BookProof.SmFarisLavine.smFlN_quadForm_nonneg
+#check @BookProof.SmFarisLavine.sm_commForm_le
+#check @BookProof.SmFarisLavine.sm_norm_le_shift
+#check @BookProof.SmFarisLavine.smFlPosSymOp
+#check @BookProof.SmFarisLavine.smFlComparison
+#check @BookProof.SmFarisLavine.smFlComparison_extends
+#check @BookProof.SmFarisLavine.smCoreData
+#check @BookProof.SmFarisLavine.sm_h_esa_of_graph_core
+#check @BookProof.SmFarisLavine.isGraphCore_of_esa
+#check @BookProof.SmFarisLavine.sm_h_esa_of_comparison_esa
+```
+
+# The Kato-Type Input, and the Unconditional Theorem
+
+:::paragraph
+The remaining hypothesis — essential self-adjointness of a coupled quartic
+Schrödinger operator in 163 variables — is of a kind the Faris–Lavine
+criterion structurally cannot produce, since every admissible comparison
+contains $`2V_h`$ and is therefore as hard as $`h`$ itself. It is supplied
+instead by an independent theorem, proved in four chapters whose content is
+worth walking through because the instrument is general.
+
+`BookProof/ChapterDegSchrodingerCore.lean` sets up the class: operators
+$`-\Delta_S + W`$ whose kinetic term differentiates only a subset $`S`$ of
+the coordinates, on both cores the project works with. The analytic heart is
+`BookProof/ChapterDegKatoEsa.lean`: a deficiency vector $`w`$ at a purely
+imaginary $`z`$ is *mollified* — for a smooth compactly supported mollifier
+$`\rho_\varepsilon`$ the translate-average $`w * \rho_\varepsilon`$ is smooth,
+which is what `BookProof/ChapterMollifierL2.lean` (mollification converges in
+$`L^2`$) and `BookProof/ChapterConvolutionCalc.lean` (the mollified function
+is smooth, and every derivative falls on the smooth factor) make precise — and
+the smoothed deficiency equation is tested against a cut-off
+$`\chi_R^2 \bar w_\varepsilon`$. One integration by parts per direction of
+$`S`$, the Young absorption of `BookProof/ChapterDegEnergyEstimate.lean`, and
+the limit $`\varepsilon \to 0`$ at fixed $`R`$ leave
+$`\int_{\lVert x \rVert \le R} |w|^2 \le (2C^2/R^2)\lVert w\rVert^2`$; letting
+$`R \to \infty`$ gives $`w = 0`$. No elliptic regularity is used, and no
+regularity of $`W`$ beyond smoothness with $`W \ge 1`$.
+
+The theorem lives on the compactly supported smooth core; the comparison
+operator is consumed on the Gauss–polynomial core. The bridge is the Hermite
+expansion: `BookProof/ChapterHermiteLadderOrder.lean` shows that every
+polynomial differential operator has a finite *ladder order* against the
+Hermite weights, and `BookProof/ChapterHermiteGraphApprox.lean` uses it to
+make the Hermite truncations of a compactly supported smooth vector Cauchy in
+the graph norm — so essential self-adjointness transfers from one core to the
+other. Finally `BookProof/ChapterSmComparisonEsa.lean` identifies, on the
+core, $`N = 2h + \sum_m q_m^2 + c_0`$ with exactly such an operator — $`S`$
+the forty momentum-carrying coordinates, $`W = \sum_r \Phi_r^2 + \sum_m q_m^2 + c_0`$
+— proves the theorem for every real $`c_0`$ (values below one by a bounded
+shift), and concludes the unconditional $`sm_h_esa`$.
+
+What this chain establishes for the record must be read under the chapter's
+doctrine: $`sm_h_esa`$ is a **one-particle** theorem — it says nothing about
+outer ladders — and its implication for the final Hamiltonian is exactly the
+reduction the doctrine prescribes. Essential self-adjointness of $`h`$ on the
+Gauss–polynomial core feeds
+$`dGamma_essentiallySelfAdjointOn_of_esa`$, so the enclosure
+$`H = d\Gamma(h) = \sum_{i,j} h_{ij} C^{\dagger}(e_i) A(e_j)`$ — creation on
+the left, annihilation on the right — is essentially self-adjoint on the
+finite-particle core over that core, with no hypothesis beyond $`P : SmParams`$:
+both obligations of the plan’s §D6b are discharged for the Standard-Model
+row. What is still owed is the sector-wise assembly of the full $`h`$
+(bosonic $`\otimes`$ fermionic, the Dirac and Yukawa operators on the CAR
+algebra) into that enclosure. The instrument itself is sector-agnostic —
+$`ccHamS_esa`$ and $`hamCoreS_esa`$ hold for every smooth, respectively
+polynomial, $`W \ge 1`$ and every coordinate subset $`S`$ — so the same two
+theorems are the natural candidate for the non-abelian Yang–Mills instance of
+the same shape; no such instance is claimed in this chapter. One vocabulary
+detail keeps the two convolutions apart: the convolution of
+`BookProof/ChapterConvolutionCalc.lean` is the *mollifier* convolution of
+analysis; the momentum-space convolution that disposes of products of fields
+with spatial derivatives is the NS/QG device of
+`BookProof/ChapterNsAdvectionConvolution.lean` and plays no role here.
+:::
+
+```
+#check @BookProof.DegSchrodinger.ccHamS
+#check @BookProof.DegSchrodinger.hamCoreS
+#check @BookProof.DegSchrodinger.hamCoreS_symmetricOn
+#check @BookProof.MollifierL2.tendsto_mollify_L2
+#check @BookProof.ConvolutionCalc.contDiff_cnv
+#check @BookProof.ConvolutionCalc.dcoord_cnv
+#check @BookProof.ConvolutionCalc.lapCS_cnv
+#check @BookProof.DegEnergy.energy_bound
+#check @BookProof.DegKatoEsa.deficiencyTrivialAt_ccHamS
+#check @BookProof.DegKatoEsa.ccHamS_esa
+#check @BookProof.HermiteLadder.exists_ladderOrd_hamPolyL
+#check @BookProof.HermiteGraphApprox.exists_core_graph_approx
+#check @BookProof.HermiteGraphApprox.hamCoreS_esa
+#check @BookProof.SmComparisonEsa.smFlN_eq_hamCoreS
+#check @BookProof.SmComparisonEsa.smFlN_esa_one_le
+#check @BookProof.SmComparisonEsa.smFlN_esa
+#check @BookProof.SmComparisonEsa.sm_h_esa
+#check @BookProof.EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa
 ```
 
 # The Higgs Vacuum, as Statics
@@ -583,6 +738,22 @@ shown well defined, nothing is claimed about its *size*.
 # What Is Not Claimed
 
 :::paragraph
+One item has left this list: essential self-adjointness of the *bosonic*
+one-particle operator is now unconditional. The fermionic theorems are
+$`sm_fermi_fl_i`$/$`ii`$/$`iii`$ and
+$`sm_fermi_esa`$. For the bosons, `ChapterSmFarisLavine.lean` proves both
+Faris–Lavine inequalities with absolute constants against the comparison
+operator $`N = 2h + \sum_m q_m^2 + c_0`$ and reduces the conclusion to
+essential self-adjointness of $`N`$ itself on the same core — a coupled quartic
+Schrödinger operator in 163 variables, an input of Kato type that Faris–Lavine
+structurally cannot supply. That input is proved independently:
+`ChapterDegKatoEsa.lean` shows that $`-\Delta_S + W`$ with $`W \ge 1`$ smooth is
+essentially self-adjoint on compactly supported smooth functions,
+`ChapterHermiteGraphApprox.lean` transfers this to the Gauss–polynomial core for
+polynomial $`W`$, and `ChapterSmComparisonEsa.lean` identifies $`N`$ with such an
+operator, giving `smFlN_esa` and the unconditional `sm_h_esa` (see
+`CONSOLIDATED_PLAN.md` §2026-09-23g).
+
 The boundaries of this chapter are as much a part of it as its theorems. The CAR
 algebra, the Dirac and Yukawa operators, the continuum CAR algebra over an
 infinite-dimensional one-particle space, the gauge connection inside $`D`, and
@@ -590,12 +761,7 @@ the ghost/BRST sector (including the charge as the manuscript defines it and
 the accounting identity that adds no gauge-fixing summand to $`h`$ or $`N`$)
 are all Lean theorems now — see the sections above and the ledger
 `HONEST_BOUNDARIES_SM.md` (live list §L). Still open there: Majorana masses
-and the see-saw; the three Faris–Lavine hypotheses for the *bosonic* operator
-($`sm_fermi_fl_i`$/$`ii`$/$`iii`$ and $`sm_fermi_esa`$ are the fermionic
-theorems; the bosonic Lean counterpart is `ChapterSmFarisLavine.lean` →
-$`sm_h_esa`$ — still open, design handed to the Lean4 specialist in
-`CONSOLIDATED_PLAN.md` §2026-09-23e, while the independent Friedrichs route
-for that operator is already proved); no continuum spectrum or mass gap for
+and the see-saw; no continuum spectrum or mass gap for
 $`d\Gamma(h)`, no QCD mass gap; electroweak symmetry breaking as statics only — vacuum manifold,
 Goldstone flatness, radial curvature, mass form of broken generators — not
 dynamics (no expansion of the quantum Hamiltonian around the vacuum and no

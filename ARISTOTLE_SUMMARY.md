@@ -1,3 +1,39 @@
+# Summary of changes for run 69fdb072-8379-48ca-a298-6233b6fb34ec
+I proved the hypothesis that was left open. The comparison operator `N = 2h + Σ_m q_m² + c₀` is a coupled quartic Schrödinger operator in 163 variables, and it is now proved essentially self-adjoint on the Gauss–polynomial core. So the Standard-Model bosonic one-particle Hamiltonian is essentially self-adjoint with no extra assumption: `BookProof.SmComparisonEsa.sm_h_esa (P : SmParams)`. The full `lake build BookProof` succeeds with no `sorry` in the touched modules. `#print axioms` shows only `propext`, `Classical.choice` and `Quot.sound`; you can re-run the check with `Work/SmComparisonEsaAudit.lean`.
+
+**How the proof goes** (all four modules are imported by `BookProof.lean`):
+- **Kato-type theorem** (`BookProof/ChapterDegKatoEsa.lean`, `ccHamS_esa`): `−Δ_S + W` is essentially self-adjoint on compactly supported smooth functions. Here `W` is smooth with `W ≥ 1`, and the Laplacian may act on any subset `S` of the coordinates. The proof smooths out a deficiency vector and applies a cut-off energy estimate, so no elliptic regularity is needed. This is the input the Faris–Lavine criterion can't provide.
+- **Moving to the polynomial core** (`BookProof/ChapterHermiteLadderOrder.lean` and `BookProof/ChapterHermiteGraphApprox.lean`): `exists_core_graph_approx` and `hamCoreS_esa` show that, when `W` is a real polynomial with `W ≥ 1`, every compactly supported smooth vector is a graph-norm limit of Gauss–polynomial vectors. The self-adjointness result therefore carries over to the Gauss–polynomial core.
+- **The Standard-Model case** (`BookProof/ChapterSmComparisonEsa.lean`): `smFlN_eq_hamCoreS` identifies `N` on the core with `−Δ_S + W`, where `S` is the 40 momentum coordinates and `W = Σ_r Φ_r² + Σ_m q_m² + c₀`. This gives `smFlN_esa` for every real `c₀`; values below 1 are handled by a bounded shift. Feeding that into the existing `sm_h_esa_of_comparison_esa` gives the unconditional `sm_h_esa`.
+
+**Documentation updates:**
+- `HONEST_BOUNDARIES_SM.md`: the L2 row is marked closed and names the theorems that close it. §2 and §2bis each have a dated update, and the list of open items now reads L3–L11.
+- `CONSOLIDATED_PLAN.md`: a new appended section (2026-09-23g) covers the chain of results, the axiom audit and the bookkeeping.
+- `Book/StandardModel.lean`: the "What Is Not Claimed" prose now says the bosonic self-adjointness result is unconditional and explains how it is obtained.
+- `BookProof/ChapterSmFarisLavine.lean`: the "Honest boundary" docstring now notes that the hypothesis is proved in `ChapterSmComparisonEsa.lean`.
+
+I didn't edit `ARISTOTLE_SUMMARY.md`, and I deleted the scratch files.
+
+**Not checked:** I couldn't build `Book/StandardModel.lean`. The build fails inside the documentation library the book depends on (`unknown module prefix 'MD4Lean'`), before it reaches any project file. I only changed prose in that file.
+
+The Properties table is updated: `sm_h_esa`, `smFlN_esa`, `ccHamS_esa` and `hamCoreS_esa` are marked proved.
+
+# Summary of changes for run d77798af-de97-43c1-bc06-e1b3ef7d573b
+Executed the final handover section of `CONSOLIDATED_PLAN.md` (the Faris–Lavine treatment of the Standard-Model bosonic one-particle Hamiltonian).
+
+**Mathematical finding.** The comparison operator the plan prescribed (`smComparison`, with quartic potential) provably cannot satisfy the Faris–Lavine commutator hypothesis: since `i[h,N]` is first order, the hypothesis `±i[h,N] ≤ cN` forces `|∇(½V_N − V_h)|² ≤ c²(V_N + c₀)`, which for a quartic `V_N` reads `4R⁶ ≤ c²R⁴` along a single gluon direction — false, even for the free Hamiltonian. I therefore used Faris–Lavine's own device, `N = 2h + Σ_m q_m² + c₀`, for which the gradient term is linear.
+
+**New file `BookProof/ChapterSmFarisLavine.lean`** (namespace `BookProof.SmFarisLavine`, ~850 lines, no `sorry`, axioms only `propext`, `Classical.choice`, `Quot.sound`) contains:
+- `sm_commForm_le` — Faris–Lavine hypothesis (ii) on the Gauss–polynomial core of `L²(ℝ¹⁶³)` with the absolute constant `c = 1`;
+- `sm_norm_le_shift` — the relative bound `‖h u‖ ≤ ‖(N+1)u‖`, constant `K = 1`;
+- `CoreData.esa_core` — the general "last mile" descending essential self-adjointness from the comparison domain back to the graph core;
+- `isGraphCore_of_esa`, `smFlComparison`, `smCoreData` and supporting CCR/polynomial-calculus lemmas;
+- `sm_h_esa_of_graph_core` and `sm_h_esa_of_comparison_esa` — the conditional forms of the target theorem.
+
+**The unconditional `sm_h_esa` is not delivered.** Any comparison operator meeting hypothesis (ii) must contain `2V_h`, so its graph-core property is equivalent to its own essential self-adjointness — a coupled quartic Schrödinger operator in 163 variables, which requires a Kato-type input that Faris–Lavine structurally cannot supply. That gap is carried as an explicit named hypothesis, never as an axiom, and is documented in `HONEST_BOUNDARIES_SM.md` (new §2bis, rewritten L2 row), in the appended section of `CONSOLIDATED_PLAN.md`, and in the prose of `Book/StandardModel.lean`.
+
+**Gates.** The module is imported from `BookProof.lean`; `lake build BookProof` completes successfully (8792 jobs, 0 errors); `Work/SmFarisLavineAudit.lean` reports clean axioms for all eight results; `rg` finds no `sorry`/`admit`. Along the way I repaired two pre-existing build breaks unrelated to this work: `gfFermion_eq_zero` in `BookProof/ChapterBookBrstGaugeFixing.lean` sat outside its section and was auto-binding its variables to the wrong types, and the two call sites of `bookGfTerm_eq_zero_of_Afield0` in `BookProof/ChapterBookBrstInstances.lean` were missing their explicit gauge-algebra argument. All work is committed.
+
 # Summary of changes for run e65826f4-b616-4c5a-ba5b-347641b31646
 BRST is now implemented exactly as `book.tex` defines it, and this session completed and extended that work.
 

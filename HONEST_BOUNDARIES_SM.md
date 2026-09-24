@@ -5,7 +5,7 @@ and the accounting identity of §2026-09-23d in `CONSOLIDATED_PLAN.md`).  Every 
 cited here is intended to compile inside `lake build BookProof` with no `sorry` and no
 `axiom` beyond the usual `propext`, `Classical.choice`, `Quot.sound`; the axiom audits are
 `Work/SmStandardModelAudit.lean`, `Work/SmHonestBoundariesAudit.lean`, and
-`Work/BookBrstAudit.lean`.  Historical boundary quotes that the tree has since *closed*
+`Work/BookBrstAudit.lean`, and (for L2, closed 2026-09-23g) `Work/SmComparisonEsaAudit.lean`.  Historical boundary quotes that the tree has since *closed*
 are kept only as section titles of the form *“…was open”* — the live list is **§L** below.
 
 > **Supersession.**  Earlier drafts of this file left §1’s “Still open” line
@@ -24,7 +24,7 @@ either a closed boundary (theorem now in tree) or a historical quote.
 | # | Boundary | Why it stays open |
 | :-- | :-- | :-- |
 | L1 | **Majorana masses and the see-saw** | `book.tex` works *“in the absence of Majorana masses”*; only the Dirac-type Yukawa `M_ν φ ν_R` and its biunitary/PMNS algebra are in `h`. |
-| L2 | **Bosonic Faris–Lavine hypotheses** for `smHamiltonian` vs `smComparison` | Fermionic half is proved (`sm_fermi_fl_i/ii/iii`, `sm_fermi_esa`). Bosonic half is `ChapterSmFarisLavine.lean` → `sm_h_esa` (plan §D6b-SM Step 3 / §2026-09-23c). **Still open: the proof module is not in the tree.** Design research for that module is done and handed over (plan **§2026-09-23e**: domain obstruction, `friedrichsComparison` + `CoreData` path, CHECK→Lean map, registration/gates) — L2 closes only when `sm_h_esa` compiles `sorry`-free. Not needed for the independent **Friedrichs** statements that already exist (`sm_friedrichs_extension`, `sm_dGamma_friedrichs_extension`). |
+| L2 | **Unconditional bosonic ESA** `sm_h_esa` — **closed (2026-09-23g)** | Fermionic half: `sm_fermi_fl_i/ii/iii`, `sm_fermi_esa`.  Bosonic half: `BookProof/ChapterSmFarisLavine.lean` proves both Faris–Lavine inequalities against `N = 2h + Σ_m q_m² + c₀` (`sm_commForm_le`, `c = 1`; `sm_norm_le_shift`, `K = 1`; `smComparison` provably cannot serve, §2bis) and reduces `sm_h_esa` to essential self-adjointness of `N` on `polyGaussCore 163` (`sm_h_esa_of_comparison_esa`).  That former hypothesis — a Kato-type statement for a coupled quartic Schrödinger operator in 163 variables, which Faris–Lavine structurally cannot supply — is now a **theorem**: `SmComparisonEsa.smFlN_esa` (every `c₀ : ℝ`), via `smFlN_eq_hamCoreS` (`N = −Δ_S + W`, `W = Σ_r Φ_r² + Σ_m q_m² + c₀`), `HermiteGraphApprox.hamCoreS_esa` (polynomial-core transfer), and `DegKatoEsa.ccHamS_esa` (Kato's theorem for `−Δ_S + W`, `W ≥ 1` smooth, on `C_c^∞`).  Hence **`SmComparisonEsa.sm_h_esa`** is proved with no hypothesis beyond `P : SmParams`.  Axioms: `propext`, `Classical.choice`, `Quot.sound` only (`Work/SmComparisonEsaAudit.lean`). |
 | L3 | **Continuum spectrum / mass gap** of the bosonic `dΓ(h)`; QCD confinement | Spectral claims are only the finite-mode fermionic spectrum/gap and the one-particle relativistic energies. |
 | L4 | **EWSB as dynamics**; measured CKM/PMNS parameters | Statics only (vacuum manifold, Goldstone flatness, radial curvature, mass form of broken generators). No expansion of `H` around the vacuum, no `W/Z` mass value, no Wolfenstein/PMNS angles, phases, ordering or absolute masses — only unitarity identities and `yukawa_entry_bound`. |
 | L5 | **Size of the BRST cohomology** `ker Ω / im Ω` | The quotient is defined and well defined (`exactStates_le_physicalStates`); its dimension is not claimed. |
@@ -78,7 +78,7 @@ algebra) — only the mixing algebra they rest on is.”*
 
 ---
 
-# 2. Closed for the fermionic sector; bosonic FL still open (L2)
+# 2. Closed for the fermionic sector and (since 2026-09-23g) for the bosonic sector (L2)
 
 **Was:** *“The three Faris–Lavine hypotheses of §D6b-SM.3 remain symbolic.”*
 
@@ -94,14 +94,74 @@ algebra) — only the mixing algebra they rest on is.”*
 side conditions: `smFermiN_symmetricOn`, `sm_fermi_N_ge_one`, `sm_fermi_N_add_one_surjective`;
 conclusion **`sm_fermi_esa`**; spinor instance `dirac_field_esa`.
 
-**Still open (L2):** the same three hypotheses for the **bosonic** one-particle `h` of
-§D6b-SM.1 against the quartic `N₀`.  Not needed for the Friedrichs route
-(`sm_friedrichs_extension`, `sm_dGamma_friedrichs_extension`).  Cadabra
-`../unfer/docs/faris_lavine_n_sm.cdb` certifies the algebraic content of (i)–(iii)
-(CHECK 1–28 + PART F) at exit 0; Lean counterpart is `ChapterSmFarisLavine.lean`
-(**not yet written** — design research and specialist handover are plan **§2026-09-23e**;
-the Lean FL theorems consume symmetry + positivity + surjectivity of `N+1` + the form
-commutator, not the Cadabra double commutator (iii)).
+**Bosonic half (L2), current state.**  `BookProof/ChapterSmFarisLavine.lean` is in the tree
+and `sorry`-free.  It proves the two inequalities the Lean Faris–Lavine theorems actually
+consume — the form commutator bound `sm_commForm_le` (`c = 1`) and the relative bound
+`sm_norm_le_shift` (`K = 1`) — and instantiates Theorem 1 / Corollary 1.1 through the new
+abstract last mile `CoreData.esa_core`.  Two honest qualifications:
+
+* the comparison operator is **not** the `smComparison` of §D6b-SM.2 but
+  `N = 2h + Σ_m q_m² + c₀` (see §2bis for why the quartic uncoupled `N₀` cannot work);
+* the conclusion is **conditional**: `sm_h_esa_of_graph_core` assumes
+  `IsGraphCore (smFlComparison P hc₀) (polyGaussCore 163)`, and `isGraphCore_of_esa` turns
+  that into the plainer `sm_h_esa_of_comparison_esa`, which assumes only
+  `EssentiallySelfAdjointOn (polyGaussCore 163) (smFlN P c₀)`.  Both are named hypotheses,
+  never axioms.  The unconditional `sm_h_esa` was therefore
+  not claimed by that module alone.
+
+**Update 2026-09-23g — the hypothesis is discharged.**  `BookProof/ChapterSmComparisonEsa.lean`
+proves `smFlN_esa : EssentiallySelfAdjointOn (polyGaussCore 163) (smFlN P c₀)` for every
+`c₀ : ℝ` and hence the unconditional **`sm_h_esa P`**.  The Kato-type input is supplied by
+
+* `BookProof/ChapterDegKatoEsa.lean` — `ccHamS_esa`: `−Δ_S + W` (kinetic part on any
+  coordinate subset `S`, `W` smooth, `W ≥ 1`) is essentially self-adjoint on `C_c^∞(ℝᵈ)`
+  (mollifier + cut-off energy argument; no elliptic regularity);
+* `BookProof/ChapterHermiteGraphApprox.lean` with `BookProof/ChapterHermiteLadderOrder.lean`
+  — `hamCoreS_esa`: for a real polynomial `W ≥ 1`, every `C_c^∞` vector is a graph-norm limit
+  of Gauss–polynomial vectors, so essential self-adjointness transfers to `polyGaussCore`;
+* `smFlN_eq_hamCoreS` — on the core `N = −Δ_S + W` with `S` the 40 momentum coordinates and
+  `W = Σ_r Φ_r² + Σ_m q_m² + c₀ ≥ 1` for `c₀ ≥ 1`; other `c₀` by a bounded shift.
+
+No named hypothesis and no axiom remains on this route; `#print axioms` reports only
+`propext`, `Classical.choice`, `Quot.sound`.
+
+Not needed for the Friedrichs route (`sm_friedrichs_extension`,
+`sm_dGamma_friedrichs_extension`).  The Cadabra module
+`../unfer/docs/faris_lavine_n_sm.cdb` certifies *algebraic shape* (CHECK 1–28 + PART F) at
+exit 0; a shape check is not the inequality, and the Lean FL theorems consume symmetry +
+positivity + surjectivity of `N+1` + the form commutator, not the double commutator (iii).
+
+---
+
+# 2bis. Why `smComparison` cannot be the Faris–Lavine comparison operator
+
+Write `h = ½T + V_h` and `N = T + V_N + c₀` with `T = Σ_m π_m²`.  The commutator is first
+order,
+
+```
+i[h, N] = Σ_m (π_m G_m + G_m π_m),   G = ∇(½V_N − V_h),
+```
+
+so `± i[h,N] ≤ c N` forces the pointwise bound `|G|² ≤ c²(V_N + c₀)`: test the form on a
+wave packet `e^{iξ·x}φ` concentrated at a point and optimize in `ξ` (the optimum is at
+`ξ = G/c`, not at `ξ = G`).  For `smComparison`, `V_N = Σ_m q_m⁴ + …` is quartic and `G` is
+cubic.  Along a single gluon direction `G^1_1 = R` the totally antisymmetric structure
+constants kill the non-abelian magnetic energy and `φ = 0` kills the covariant Higgs
+derivative, so `∇V_h = 0` there and the requirement reads `4R⁶ ≤ c²R⁴` — false for large
+`R`.  The obstruction is caused by the quartic confinement of `N` itself and is already
+present for the free Hamiltonian; it is not an artefact of the interaction.
+
+The cure — the one Faris and Lavine use in their own application — is to let the comparison
+operator contain the Hamiltonian, so that `∇V_h` cancels: with `V_N = 2V_h + Σ_m q_m²` one
+gets `G = ½∇(Σ_m q_m²)`, which is linear, and both inequalities hold with absolute
+constants.  That is `smFlN`.  The price is that graph-core-ness of `N` is no longer free.
+
+That price has now been paid (2026-09-23g): Faris–Lavine indeed cannot produce
+essential self-adjointness of `N` — any admissible `N` contains `2V_h` and is a coupled
+quartic Schrödinger operator in 163 variables — so it is supplied by an independent
+Kato-type theorem, `DegKatoEsa.ccHamS_esa`, transferred to the Gauss–polynomial core by
+`HermiteGraphApprox.hamCoreS_esa`.  The result is `SmComparisonEsa.smFlN_esa` and the
+unconditional `SmComparisonEsa.sm_h_esa`.
 
 ---
 
@@ -210,7 +270,8 @@ with `[A,π] = i δ`, `{ψ,ψ†} = δ`:
 
 ## 5.4 From the original §1 sentence, only this remains open
 
-**Majorana masses and the see-saw (L1)** — plus everything in **§L** (L2–L11).
+**Majorana masses and the see-saw (L1)** — plus everything in **§L** (L3–L11; L2 was closed on 2026-09-23g and is kept in the table
+with its closing theorems).
 
 ## 5.5 Accounting identity (2026-09-23d): no extra gauge-fixing/ghost summand in `h` or `N`
 
@@ -249,4 +310,4 @@ structurally complete without an extra summand.
 | Fermionic FL | `ChapterSmDiracYukawa` (`sm_fermi_fl_*`, `sm_fermi_esa`) |
 | Friedrichs (bosonic, independent) | `ChapterSmHamiltonian`, `ChapterSmOuterFock` |
 | Cadabra certificate (h, N, FL algebra, PART F) | `../unfer/docs/faris_lavine_n_sm.cdb`, `VERIFY_SM_FARIS_LAVINE.md` |
-| **Open** bosonic FL Lean | **`ChapterSmFarisLavine.lean` (not yet written)** → `sm_h_esa`; design + specialist handover: `CONSOLIDATED_PLAN.md` §2026-09-23e |
+| Bosonic FL / L2 **closed (2026-09-23g)** | **`ChapterSmFarisLavine`** (`sm_commForm_le`, `sm_norm_le_shift`, `sm_h_esa_of_comparison_esa`) + **`ChapterSmComparisonEsa`** (`smFlN_eq_hamCoreS`, `smFlN_esa`, `sm_h_esa`), on the instrument chapters `ChapterDegSchrodingerCore`, `ChapterMollifierL2`, `ChapterConvolutionCalc`, `ChapterDegEnergyEstimate`, `ChapterDegKatoEsa`, `ChapterHermiteLadderOrder`, `ChapterHermiteGraphApprox`; audits `Work/SmFarisLavineAudit.lean`, `Work/SmComparisonEsaAudit.lean` |

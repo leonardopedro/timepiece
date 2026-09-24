@@ -1,70 +1,48 @@
-Update ../timepiece : from archive /home/leo/Downloads/7c32b35a-8a97-4253-912d-6e7e4c209085-aristotle/output-final_aristotle copy the files:
+Update ../timepiece : from archive /home/leo/Downloads/68244ec7-1feb-4b2b-8add-e9ad4677582a-aristotle/output-final_aristotle copy the files:
 
 Book/
 StandardModel.lean
-+329
++17 -6
 
 BookProof/
 ChapterBookBrstGaugeFixing.lean
-+580
++2 -1
 ChapterBookBrstInstances.lean
-+239
-ChapterBookBrstYangMills.lean
-+721
-ChapterSmBrstGhost.lean
-+932
-ChapterSmCarAlgebra.lean
-+512
-ChapterSmCarContinuum.lean
-+767
-ChapterSmComparison.lean
-+244
-ChapterSmComparisonFull.lean
-+111
-ChapterSmDiracSpinor.lean
-+116
-ChapterSmDiracYukawa.lean
-+494
-ChapterSmGaugeConnection.lean
-+365
-ChapterSmGaugeRepresentation.lean
-+294
-ChapterSmHamiltonian.lean
-+330
-ChapterSmHiggsVacuum.lean
-+187
-ChapterSmOneParticle.lean
-+236
-ChapterSmOuterFock.lean
-+199
++2 -2
+ChapterConvolutionCalc.lean
++150
+ChapterDegEnergyEstimate.lean
++327
+ChapterDegKatoEsa.lean
++571
+ChapterDegSchrodingerCore.lean
++311
+ChapterHermiteGraphApprox.lean
++514
+ChapterHermiteLadderOrder.lean
++445
+ChapterMollifierL2.lean
++281
+ChapterSmComparisonEsa.lean
++259
+ChapterSmFarisLavine.lean
++856
 
 Work/
-BookBrstAudit.lean
-+58
-SmBookCheck.lean
-+115
-SmHonestBoundariesAudit.lean
-+69
-SmStandardModelAudit.lean
-+84
+SmComparisonEsaAudit.lean
++9
+SmFarisLavineAudit.lean
++16
 
 ./
 ARISTOTLE_SUMMARY.md
-+98
-Book.lean
-+3
++36
 BookProof.lean
-+94
-BUILD_COMPONENTS.md
-+8
++20
 CONSOLIDATED_PLAN.md
-+108 -1
++134
 HONEST_BOUNDARIES_SM.md
-+278
-lakefile.toml
-+1 -1
-STATUS.md
-+89
++73 -12
 
  .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.  Ensure also  that @CONSOLIDATED_PLAN.md and @BookProof/ and @Book/ and @../test/ and @../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , use the correct QYM, QED, QG (R^2 version with vielbein and full exponential (without Taylor expansion)  and interaction terms) and NS final Hamiltonian which is the one-particle Hamiltonian enclosed in creation (on the left) and annihilation (on the right) operators, and consider all implications of this fact (for example in the plan for new proofs, or in explaining what was achieved or interpreting the existing proofs in BookProof/ ). Note that we use the convolution in momentum space to deal with products in coordinate space involving derivatives in space of the fields (relevant for NS and QG only).
  
