@@ -393,7 +393,8 @@ theorem bookGfTerm_eq :
 /-! ## 2b. The accounting identity: the gauge-fixing term vanishes at `A₀ = 0` -/
 
 /-- **An abstract gauge-fixing fermion with vanishing bosonic slots is zero.** -/
-theorem gfFermion_eq_zero (h : ∀ d : Fin n, B d = 0) : gfFermion β B = 0 := by
+theorem gfFermion_eq_zero {R : Type*} [Ring R] {n : ℕ} {β B : Fin n → R}
+    (h : ∀ d : Fin n, B d = 0) : gfFermion β B = 0 := by
   unfold gfFermion
   exact Finset.sum_eq_zero fun d _ => by rw [h d, mul_zero]
 

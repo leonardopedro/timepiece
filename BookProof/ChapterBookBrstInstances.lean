@@ -251,7 +251,7 @@ gauge-fixing/ghost summand is needed in `h` or `N`. -/
 theorem su2_bookGfTerm_eq_zero_of_Afield0 (x : Fin 4 → Fin 3 → ℝ)
     (hA0 : ∀ a : Fin 3, Afield (N := 3) 0 a = 0) :
     bookGfTerm (su2BookAlgebra x) = 0 :=
-  bookGfTerm_eq_zero_of_Afield0 hA0
+  bookGfTerm_eq_zero_of_Afield0 (su2BookAlgebra x) hA0
 
 /-- **SM accounting identity**: the same vanishing for the Standard-Model gauge algebra
 `su(3) ⊕ su(2) ⊕ u(1)`, so the temporal-gauge record of `h` and `N` carries no separate
@@ -263,7 +263,7 @@ theorem sm_bookGfTerm_eq_zero_of_Afield0 (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ
     (x : Fin 4 → Fin 12 → ℝ)
     (hA0 : ∀ a : Fin 12, Afield (N := 12) 0 a = 0) :
     bookGfTerm (smBookAlgebra f3 h3anti h3cyc h3jac x) = 0 :=
-  bookGfTerm_eq_zero_of_Afield0 hA0
+  bookGfTerm_eq_zero_of_Afield0 (smBookAlgebra f3 h3anti h3cyc h3jac x) hA0
 
 end
 

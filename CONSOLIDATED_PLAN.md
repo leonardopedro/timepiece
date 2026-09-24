@@ -1,7 +1,16 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
-> **Start here (2026-09-22c/d).**  The current state of the project — what the
-> 2026-09-21 … 2026-09-22b waves landed, the four final-Hamiltonian statements of record and
+> **Start here (2026-09-24a).**  The newest state entry — the 2026-09-23g closure wave
+> (`sm_h_esa` unconditional) merged with its prose layer, read under the final-Hamiltonian
+> convention of §B (one-particle `h` enclosed creation-left / annihilation-right), and the
+> current ordered work order for the LLM-Lean4 specialist — is
+> **§“State of the project — 2026-09-24a”** at the very end of this file.  Read that first,
+> then the general gates and the four final-Hamiltonian statements of record in
+> **§“State of the project — 2026-09-22c (post-merge)”**, then D6b-SM, then §“Definitions of
+> record” below, then whichever wave entry concerns your item.  Nothing of the 2026-09-23g/24a merge has been compiled; step 0 of the 2026-09-24a work order is the gate for
+> everything else.
+>
+> **Older entry point (2026-09-22c/d).**  What the 2026-09-21 … 2026-09-22b waves landed, the four final-Hamiltonian statements of record and
 > their implications, the prose-layer corrections, and the ordered work order for the
 > LLM-Lean4 specialist — is **§“State of the project — 2026-09-22c (post-merge)”** at the end of
 > this file.  **The Standard Model work order (Cadabra CHECK 1–28 complete — Higgs, CKM,
@@ -15110,3 +15119,329 @@ References already in tree for the two FL inequalities:
 No new Lean theorem, no compiled module, no FL/ESA claim for the bosonic sector, no change
 to the accounting identity (§2026-09-23d), no QYM/QG doctrine change.  Cadabra evidence
 unchanged (CHECK 1–28 + PART F, exit 0).  `HONEST_BOUNDARIES_SM.md` L2 remains open.
+
+## State of the project — 2026-09-23f: `ChapterSmFarisLavine.lean` written and compiled — the two bosonic Faris–Lavine inequalities are theorems, the comparison operator of §D6b-SM.2 is *refuted*, and `sm_h_esa` is reduced to one hypothesis
+
+> **Read this instead of §2026-09-23e for the bosonic FL item.**  The handover of
+> §2026-09-23e has been executed, with one substantive correction: the comparison operator
+> it prescribed (`smComparison`, the quartic uncoupled `N₀` of §D6b-SM.2) **provably fails**
+> Faris–Lavine hypothesis (ii) against `smHamiltonian`, and no amount of instantiation work
+> can repair that.  The module now in the tree uses the comparison operator that does work,
+> proves both inequalities the Lean Faris–Lavine theorems consume, and reduces `sm_h_esa` to
+> a single named hypothesis.  `HONEST_BOUNDARIES_SM.md` **L2 stays open**, but its content
+> has changed: see §L and the new §2bis there.
+
+### 1. What is in the tree
+
+`BookProof/ChapterSmFarisLavine.lean` (imported from `BookProof.lean` in the SM block after
+`ChapterSmHiggsVacuum`), `sorry`-free and `axiom`-free; audit
+`Work/SmFarisLavineAudit.lean` reports only `propext`, `Classical.choice`, `Quot.sound` for
+every named result.  `lake build BookProof.ChapterSmFarisLavine` is green.
+
+| name | statement |
+| :-- | :-- |
+| `CoreData.esa_core` | **the missing last mile** (plan §2026-09-23e.4, finish (A)): from a `CoreData` whose core is a graph core, symmetry on the core and the commutator bound give `EssentiallySelfAdjointOn d.C₀ d.H₀` — the *original* operator on the *original* core, not the extension on `𝒟(N)`.  General, reusable by any sector. |
+| `smMomCoord_injective`, `smCoord`, `smQPoly`, `pderiv_smQPoly` | the 40 momentum-carrying coordinates are pairwise distinct, and `∂_{q_k}(Σ_m q_m²) = 2q_k`. |
+| `momOp_mulOp` | the canonical commutation relation on polynomials, `π_j(a·p) = a·(π_j p) − i(∂_j a)p`; with `op_comp`/`op_sum`/`op_add`/`op_smul` it transports to the Gauss–polynomial core. |
+| `smFlN`, `smFlN_symmetricOn`, `smFlN_quadForm`, `smFlN_quadForm_nonneg` | the comparison operator `N = 2h + Σ_m q_m² + c₀`, symmetric, with quadratic form `Σ_m‖π_m x‖² + Σ_r‖Φ_r x‖² + Σ_m‖q_m x‖² + c₀‖x‖²`, positive for `c₀ ≥ 0`. |
+| **`sm_commForm_le`** | hypothesis (ii): `\|⟪u, i[h,N]u⟫\| ≤ 1 · ⟪u, N u⟫` on `polyGaussCore 163`, for every `SmParams` and every `c₀ ≥ 0`. |
+| **`sm_norm_le_shift`** | the relative bound: `‖h u‖ ≤ 1 · ‖(N + 1)u‖` on the core. |
+| `smFlPosSymOp`, `smFlComparison`, `smFlComparison_extends`, `smCoreData` | the Friedrichs `Comparison` for `N` (so `N + 1` is onto by construction) and the `CoreData` package. |
+| **`sm_h_esa_of_graph_core`** | `IsGraphCore (smFlComparison P hc₀) (polyGaussCore 163) → EssentiallySelfAdjointOn (polyGaussCore 163) (smHamiltonian P)`. |
+| `norm_le_norm_shift_I`, `isGraphCore_of_esa` | a core of an essentially self-adjoint positive symmetric operator is a graph core of its Friedrichs comparison operator (general). |
+| **`sm_h_esa_of_comparison_esa`** | `EssentiallySelfAdjointOn (polyGaussCore 163) (smFlN P c₀) → EssentiallySelfAdjointOn (polyGaussCore 163) (smHamiltonian P)` — the sharpest form of the reduction. |
+
+### 2. Why §D6b-SM.2's `N` had to be replaced (do not revert this)
+
+With `h = ½T + V_h`, `N = T + V_N + c₀`, `T = Σ_m π_m²`, the commutator is first order,
+`i[h,N] = Σ_m (π_m G_m + G_m π_m)` with `G = ∇(½V_N − V_h)`, and `± i[h,N] ≤ c N` is
+equivalent to the pointwise bound `|G|² ≤ c²(V_N + c₀)` — test the form on `e^{iξ·x}φ` and
+optimize in `ξ`; the optimum is `ξ = G/c`.  For the quartic uncoupled `V_N = Σ_m q_m⁴` the
+gradient `G` is cubic, and along a single gluon direction `G^1_1 = R` the antisymmetry of
+`f^{abc}` and `φ = 0` make `∇V_h = 0`, so the bound reads `4R⁶ ≤ c²R⁴`: false.  The failure
+occurs already for the free Hamiltonian, so it is a property of `N`, not of the interaction.
+This is a **negative result about the design of §D6b-SM.2**, not a gap in the formalization.
+The Cadabra CHECK 1–28 do not contradict it: they certify *shape* (“first order in `p`”,
+“order ≤ 2”), and a shape check is not the inequality.
+
+The repair is Faris and Lavine's own: put the Hamiltonian inside the comparison operator so
+that `∇V_h` cancels.  `V_N = 2V_h + Σ_m q_m²` gives `G = ½∇(Σ_m q_m²)`, linear, and both
+inequalities then hold with the absolute constants `c = 1`, `K = 1`.
+
+### 3. What remains, and why Faris–Lavine cannot close it
+
+The one open hypothesis is `IsGraphCore (smFlComparison P hc₀) (polyGaussCore 163)`, and by
+`isGraphCore_of_esa` it is implied by — for a positive symmetric operator it is in fact
+equivalent to — essential self-adjointness of `N` on the core.  So the whole obligation is
+now exactly `EssentiallySelfAdjointOn (polyGaussCore 163) (smFlN P c₀)`.  Since every
+comparison operator that satisfies hypothesis (ii) must contain `2V_h`, it is itself a
+Schrödinger operator with a coupled quartic potential in 163 variables — exactly as hard as
+`h`.  Faris–Lavine is therefore *structurally unable* to produce `sm_h_esa` on its own, with
+any choice of `N`; an independent essential-self-adjointness theorem is needed.
+
+Recommended target for the next wave, stated in the project's own vocabulary:
+
+> **`−Δ + V` with `0 ≤ V` smooth is essentially self-adjoint on the Gauss–polynomial core of
+> `L²(ℝᴰ)`** (Kato 1972 / Simon).  The one-dimensional case is already in the tree
+> (`wallHam_essentiallySelfAdjoint_of_bddBelow`, `ChapterWallEsaBddBelow.lean`), by a
+> limit-point argument that does not generalize.  The multi-dimensional statement needs
+> Kato's inequality `Δ|u| ≥ Re(sgn ū · Δu)` in the distributional sense, plus the standard
+> “no non-trivial non-negative `L²` distributional subsolution of `Δw ≥ w`” lemma.
+
+Note that the same input would close the *non-abelian* Yang–Mills ESA obligation, where the
+tree likewise has only the abelian/quadratic case
+(`ChapterYangMillsAbelianEsa.lean`, `ymHamiltonian … 0`).  It is one theorem for two sectors.
+
+### 4. Bookkeeping
+
+* `HONEST_BOUNDARIES_SM.md` — **L2** rewritten (what is proved, what stays open) and the new
+  **§2bis** records the refutation of §D6b-SM.2's `N`.
+* `BookProof.lean` — the module is imported in the SM block with an explanatory comment.
+* `scripts/import_components.py BookProof --check` — the new module appears in the existing
+  backlog of “root … not listed” notices (`ChapterSmComparisonFull`, `ChapterSmCarContinuum`,
+  `ChapterSmGaugeConnection`, … are in the same state); no *new* class of failure, and the
+  six pre-existing `MISSING NAME` notices are unchanged.
+* **Do not** claim `sm_h_esa`, L1–L11 closure, or any spectral statement on the strength of
+  this wave.
+
+---
+
+## State of the project — 2026-09-23g: the Kato-type input is proved — `smFlN_esa` and the unconditional `sm_h_esa` are theorems
+
+The single named hypothesis left by §2026-09-23f — essential self-adjointness on
+`polyGaussCore 163` of the comparison operator `N = 2h + Σ_m q_m² + c₀`, a coupled quartic
+Schrödinger operator in 163 variables which, as recorded there, Faris–Lavine structurally
+cannot supply — is now **discharged**.  It was never an axiom; it is now a theorem.
+
+### 1. The chain
+
+* `BookProof/ChapterDegKatoEsa.lean` — **`ccHamS_esa`**: for `W : ℝᵈ → ℝ` smooth with
+  `W ≥ 1` and any coordinate subset `S`, `−Δ_S + W` is essentially self-adjoint on
+  `C_c^∞(ℝᵈ)`.  Proof: a deficiency vector `w` at `z ∈ iℝ` is mollified, the pointwise
+  identity `Δ_S w_ε = ((W − z̄)w) ∗ ρ_ε` is tested against `χ_R² w̄_ε`, integrated by parts,
+  `ε → 0` at fixed `R`, giving `∫_{‖x‖≤R} |w|² ≤ (2C²/R²)‖w‖²`, hence `w = 0`
+  (`deficiencyTrivialAt_ccHamS`).  No elliptic regularity, no Kato distributional inequality
+  needed — the recommendation of §2026-09-23f.3 was realised by this more direct route.
+* `BookProof/ChapterHermiteLadderOrder.lean` — Hermite ladder weights, ladder order of
+  polynomial differential operators, Parseval (`exists_ladderOrd_hamPolyL`,
+  `LadderOrd.norm_sq_le`).
+* `BookProof/ChapterHermiteGraphApprox.lean` — **`exists_core_graph_approx`** and
+  **`hamCoreS_esa`**: for a real polynomial `q` with `polyW q ≥ 1`, every `C_c^∞` vector is a
+  graph-norm limit of Gauss–polynomial vectors, so ESA transfers from `C_c^∞` to
+  `polyGaussCore`.
+* `BookProof/ChapterSmComparisonEsa.lean` — `smFlN_eq_hamCoreS` (on the core, `N = −Δ_S + W`
+  with `S` the 40 momentum coordinates, `W = Σ_r Φ_r² + Σ_m q_m² + c₀`), `smFlN_esa_one_le`,
+  **`smFlN_esa`** (every `c₀ : ℝ`, by a bounded symmetric shift), and
+  **`sm_h_esa : EssentiallySelfAdjointOn (polyGaussCore 163) (smHamiltonian P)`** for every
+  `P : SmParams`, via `sm_h_esa_of_comparison_esa`.
+
+### 2. Audit
+
+`Work/SmComparisonEsaAudit.lean`: `sm_h_esa`, `smFlN_esa`, `hamCoreS_esa`,
+`exists_core_graph_approx`, `ccHamS_esa`, `deficiencyTrivialAt_ccHamS`,
+`exists_ladderOrd_hamPolyL` all depend only on `propext`, `Classical.choice`, `Quot.sound`.
+No `sorry`, no `axiom`, no named hypothesis on this route.  All four modules are imported by
+`BookProof.lean`.
+
+### 3. Bookkeeping
+
+* `HONEST_BOUNDARIES_SM.md` — L2 row marked closed with the closing theorems; §2 and §2bis
+  carry a 2026-09-23g update.
+* `BookProof/ChapterSmFarisLavine.lean` — “Honest boundary” docstring points to the discharge.
+* `Book/StandardModel.lean` — the boundary paragraph now states the bosonic ESA as proved.
+* Still **not** claimed: L1, L3–L11 (spectrum / mass gap of `dΓ(h)`, EWSB dynamics, measured
+  mixing parameters, …).  Remark of §2026-09-23f.3 on non-abelian Yang–Mills: `ccHamS_esa` /
+  `hamCoreS_esa` are general and apply to any real polynomial potential `≥ 1`, but no
+  Yang–Mills instance is claimed in this wave.
+
+---
+
+## State of the project — 2026-09-24a: the closure wave is merged and read under the final-Hamiltonian doctrine; ordered work order for the LLM-Lean4 specialist
+
+> **What this section is.**  The current state entry.  It records (1) what the merge of the
+> 2026-09-23g closure wave put into the tree, (2) how those results must be read under §B's
+> final-Hamiltonian convention — the one-particle Hamiltonian enclosed in creation (on the
+> left) and annihilation (on the right), `H = Σ_{i,j} h_ij C†(e_i) A(e_j) = dΓ(h)`, for QYM,
+> QED, QG and NS alike — including what they imply for the record and for future proofs,
+> (3) the audit status, and (4) the ordered work order.  **No Lean was compiled in the pass
+> that merged and wrote this**; step 0 below is the gate.  The chain of results itself is
+> §2026-09-23g and is not restated here — this section interprets it and orders what comes
+> next.  §2026-09-23e (“proof module not written”) and §2026-09-23f (“reduced to one
+> hypothesis”) are historical: §2026-09-23g discharged the hypothesis, and §2026-09-24a is
+> the entry point.
+
+### 1. What merged (byte-verified against the archive; diff counts match)
+
+New proof chapters (all imported by `BookProof.lean`, either directly or transitively):
+
+| chapter | namespace | what it proves (one line) |
+| :-- | :-- | :-- |
+| `ChapterSmFarisLavine` | `BookProof.SmFarisLavine` | the two Faris–Lavine inequalities for `(h, N = 2h + Σ_m q_m² + c₀)` with absolute constants `c = 1`, `K = 1`; the refutation of the §D6b-SM.2 `smComparison`; the last mile `CoreData.esa_core`; `sm_h_esa_of_comparison_esa` |
+| `ChapterDegSchrodingerCore` | `BookProof.DegSchrodinger` | the class `−Δ_S + W` on both cores (`ccHamS`, `hamCoreS`), pointwise formulas, symmetry, polynomial-potential utilities |
+| `ChapterMollifierL2` | `BookProof.MollifierL2` | mollification converges in `L²` (`tendsto_mollify_L2`), translation continuity in `Lᵖ` |
+| `ChapterConvolutionCalc` | `BookProof.ConvolutionCalc` | the *mollifier* convolution calculus: `contDiff_cnv`, `dcoord_cnv`, `lapCS_cnv` — every derivative falls on the smooth factor |
+| `ChapterDegEnergyEstimate` | `BookProof.DegEnergy` | the cut-off energy inequality `energy_bound` (Young absorption, no ellipticity outside `S`) |
+| `ChapterDegKatoEsa` | `BookProof.DegKatoEsa` | Kato-type theorem: `−Δ_S + W`, `W ≥ 1` smooth, ESA on `C_c^∞` (`ccHamS_esa`, `deficiencyTrivialAt_ccHamS`) |
+| `ChapterHermiteLadderOrder` | `BookProof.HermiteLadder` | Hermite–Sobolev weights and ladder order; `exists_ladderOrd_hamPolyL`, `norm_sq_le_hn` |
+| `ChapterHermiteGraphApprox` | `BookProof.HermiteGraphApprox` | graph-norm approximation of `C_c^∞` by Gauss polynomials ⇒ transfer of ESA to `polyGaussCore` (`exists_core_graph_approx`, `hamCoreS_esa`) |
+| `ChapterSmComparisonEsa` | `BookProof.SmComparisonEsa` | `smFlN_eq_hamCoreS`, `smFlN_esa` (every `c₀ : ℝ`), and the unconditional **`sm_h_esa`** |
+
+Also merged: `Work/SmFarisLavineAudit.lean` and `Work/SmComparisonEsaAudit.lean` (the two
+axiom audits), the modified `Book/StandardModel.lean` (+17 −6),
+`BookProof/ChapterBookBrstGaugeFixing.lean` (+2 −1: `gfFermion_eq_zero` generalized to an
+arbitrary `Ring`), `BookProof/ChapterBookBrstInstances.lean` (+2 −2: two applications carry
+their algebra argument explicitly), `BookProof.lean` (+20: the five imports with comments),
+`ARISTOTLE_SUMMARY.md` (+36), `HONEST_BOUNDARIES_SM.md` (L2 closed; module map corrected in
+this pass), and `CONSOLIDATED_PLAN.md` through §2026-09-23g (+134).
+
+### 2. Reading the wave under the final-Hamiltonian convention — what it achieved, and what it implies
+
+1. **Every theorem of the wave is a *one-particle* statement, and must be labelled so (§B rule).**
+   `sm_h_esa`, `smFlN_esa`, `ccHamS_esa`, `hamCoreS_esa` are statements about operators on
+   `polyGaussCore 163` / `C_c^∞(ℝᵈ)`; none mentions outer ladders.  No new *enclosure* theorem
+   landed in this wave — the enclosure statements are the existing `smFockHam` machinery
+   (`sm_dGamma_friedrichs_extension`, `sm_dGamma_stone_flow`) plus the general lift.
+2. **What it buys for the record.**  With `h` ESA on `polyGaussCore 163` unconditionally,
+   `EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa` applies verbatim: the final
+   Hamiltonian of record `H = dΓ(h) = Σ_{i,j} h_ij C†(e_i) A(e_j)` — creation left,
+   annihilation right — is essentially self-adjoint on the finite-particle core over the
+   Gauss–polynomial core, with no hypothesis beyond `P : SmParams`.  **Both obligations of
+   §D6b are therefore discharged for the Standard-Model row**: (i) `N`/`h` ESA on the core is
+   this wave, (ii) the lift is the 2026-09-21 core-transfer wave.  The only SM proof work left
+   is bookkeeping, not analysis: the sector-wise assembly of the *full* `h` (bosonic ⊗
+   fermionic, Dirac/Yukawa on the CAR algebra) before enclosure — §D6b-SM Step 3 item 3.
+   Consequences that follow with no new proof: the outer vacuum statement and
+   `smFockHam_number_conserving` now sit under an ESA (hence unique-self-adjoint-closure)
+   operator; L3 (continuum spectrum / mass gap of `dΓ(h)`) remains open and is *not* implied;
+   the Friedrichs route stays a separate, independent certificate (do not report one as the
+   other — §D6b-SM doctrinal note).
+3. **The instruments are sector-agnostic, and their scoping must be kept.**
+   `ccHamS_esa` / `hamCoreS_esa` hold for *any* smooth (resp. real polynomial) `W ≥ 1` and
+   *any* coordinate subset `S`, so the same two theorems are the natural candidate input for
+   the **non-abelian QYM** ESA obligation of §2026-09-23f.3 (“one theorem, two sectors”) and
+   for any QG/NS comparison operator of that Schrödinger shape.  They say nothing about
+   products of fields with **spatial derivatives**: that content is handled, **for NS and QG
+   only**, by the momentum-space convolution of `ChapterNsAdvectionConvolution` /
+   `ChapterQgFourierElimination` (§B “Convolution in momentum space”); QYM and QED do not
+   need the device.  One name collision to keep straight in prose: `ChapterConvolutionCalc`
+   is the *mollifier* convolution of analysis (smoothing a deficiency vector), **not** the
+   momentum-space device — future sections that mention both must say so.
+4. **The QG record is untouched by this wave.**  The instrument chapters import
+   `QgOneParticleCc`/`QgHermiteCore` infrastructure, which is reuse of shared modules, not a
+   statement about QG.  The QG final Hamiltonian remains the R² vielbein form in full —
+   vielbein/torsion kinetic + the exact exponential Einstein-frame wall (**no Taylor
+   truncation**) + the scalaron–vielbein interaction terms, all inside `h` (Lean
+   `qgElimFullModes`, twin `qg3d_full_hamiltonian`) — enclosed as `dΓ(h)`; the two
+   scalar-fiber builders remain comparison models.  NS remains `dΓ(H_sp)` with the mainstream
+   Koopman generator never enclosed; QYM `dΓ(½Σπ² + ½ΣB²)`; QED the abelian instance of QYM,
+   same enclosure.
+5. **Implications for how future proofs are planned.**  (a) The §D6b architecture is now
+   validated end-to-end: the criterion lifts for free (obligation (ii) is a theorem in
+   general), so every sector reduces to *one-particle* work — prescribe the comparison `N`
+   first, prove `N` ESA on the chosen core second.  (b) Prescribing `N` is a genuine design
+   step with a refutation mode: `smComparison` fails hypothesis (ii) by a three-line
+   computation (`4R⁶ ≤ c²R⁴`), so **check (ii) symbolically before committing a comparison** —
+   a shape check (Cadabra “first order”) is not the inequality.  (c) Where the comparison must
+   contain `h` (Faris–Lavine's own device), `N` inherits `h`'s hardness, and the plan's
+   instrument of choice becomes an independent Kato/core-transfer theorem of exactly the shape
+   landed here — reuse, do not re-derive.
+
+### 3. Audit status of this pass
+
+* The 18 archived files were copied and verified **byte-identical** to the archive; `git diff
+  --stat` counts match the stated `+17 −6`, `+2 −1`, `+2 −2`, `+134`, `+73 −12`, `+36`, `+20`.
+* Axiom audits to re-run (they exist in the tree): `Work/SmFarisLavineAudit.lean`,
+  `Work/SmComparisonEsaAudit.lean` — expected: only `propext`, `Classical.choice`,
+  `Quot.sound`.
+* Stale text corrected in this pass: `BookProof.lean`'s `ChapterSmFarisLavine` import comment
+  (the “remaining analytic input” is discharged by `ChapterSmComparisonEsa`);
+  `HONEST_BOUNDARIES_SM.md`'s module-map row (it still said the bosonic FL module was “not
+  yet written”); `Book/StandardModel.lean` now names the fifth generation of proof chapters
+  and carries two new pedagogical sections (“The Bosonic Faris–Lavine Certificate”, “The
+  Kato-Type Input, and the Unconditional Theorem”); `Book/SecondQuantizationEsa.lean` gained
+  “The Standard-Model Instance: Both Obligations Discharged”; `../test/numerics/qed-qg-ns.md`
+  and `../test/numerics/qg-mass-gap.md` now lead with the R² vielbein record (full
+  exponential, no Taylor, interaction terms) before the fiber reductions.
+* The §D step-1 doctrine grep was re-run over `CONSOLIDATED_PLAN.md`, `Book/`, `BookProof/`,
+  `../test/`, `../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md` in this pass: no mismatch class
+  beyond the items fixed above; the guide's convention box, §4 table and §5.3 already state
+  the record correctly, and `../test` scoping of the convolution to NS/QG is correct.
+
+### 4. Work order for the LLM-Lean4 specialist (ordered; nothing below is a restatement of something proved)
+
+**0. Gates — no new mathematics.**  Nothing of this merge has been compiled.
+   * `lake build BookProof` (the full target), then `lake build BookProofOperatorCore`.
+   * `lake build Work.SmFarisLavineAudit Work.SmComparisonEsaAudit` and read the
+     `#print axioms` output (expect `propext`, `Classical.choice`, `Quot.sound` only).
+   * `python3 scripts/import_components.py BookProof --check` — must be clean against
+     `lakefile.toml` / `BUILD_COMPONENTS.md`.  Status at writing: the check **passes**
+     (exit 0) with the six pre-existing `MISSING NAME` notices and the known root backlog;
+     exactly **one** notice involves the new modules — `root BookProof.ChapterSmComparisonEsa
+     not listed` (it is the only new *maximal* module; the other eight are imported by it or
+     by the aggregate).  Same class as `ChapterSmComparisonFull`/`ChapterSmCarContinuum` in
+     the backlog: fix by regenerating the stanzas (`--lakefile`) and the inventory
+     (`--markdown`) as §“Build scope” says, then re-run `--check`.
+   * `rg -n "sorry|admit" BookProof/` (expect only the two quarantined `UnusedRoute` ones).
+   * Name-level check of the prose layer without building Verso: every `#check @…` name added
+     to `Book/StandardModel.lean` and `Book/SecondQuantizationEsa.lean` in this pass must
+     resolve (the names were taken from the modules' own namespaces — `BookProof.SmFarisLavine`,
+     `BookProof.DegSchrodinger`, `BookProof.MollifierL2`, `BookProof.ConvolutionCalc`,
+     `BookProof.DegEnergy`, `BookProof.DegKatoEsa`, `BookProof.HermiteLadder`,
+     `BookProof.HermiteGraphApprox`, `BookProof.SmComparisonEsa`,
+     `BookProof.EsaOneParticle`); then `lake build Book && lake exe book`, with the known
+     `MD4Lean` environment caveat (§2026-09-22e) recorded rather than worked around.
+
+**1. The SM enclosure assembly (§D6b-SM Steps 3–4) — the analysis is done; this is bookkeeping.**
+   Assemble `h_full = h_bosonic ⊗ (smDirac + smYukawa)` sector-wise via
+   `ChapterTensorGraphCore` (`isGraphCore_sectorCore`) + `dGamma_essentiallySelfAdjointOn_of_esa`,
+   state `smFullFockHam = dΓ(h_full)` in the creation-left/annihilation-right spelling with ESA
+   on the finite-particle core, label bare-`h` theorems one-particle (§B), and update the §D6b
+   `N`-and-core row, the §B SM row and `HONEST_BOUNDARIES_SM.md` §L wording accordingly.
+   Keep `faris_lavine_n_sm.cdb` at exit 0 — no definition moved, so no re-run is required.
+
+**2. The non-abelian QYM ESA instance of the new instrument (“one theorem, two sectors”).**
+   §2026-09-23f.3 records that the tree has only the abelian/quadratic case
+   (`ChapterYangMillsAbelianEsa`); the general theorem now exists.  Instantiate
+   `DegKatoEsa.ccHamS_esa` + `HermiteGraphApprox.hamCoreS_esa` for the *non-abelian*
+   `ymHamiltonian` (arbitrary real structure constants): identify it on the core with
+   `−Δ_S + W`, `W = ` the magnetic + potential polynomial shifted to `≥ 1`, conclude ESA on
+   `polyGaussCore 99` (and `C_c^∞`), and record it as the QYM row's obligation (i).  Then the
+   existing lift closes (ii) — a `Work/` axiom audit alongside.
+
+**3. The NS symmetrization instantiation** (unchanged from the §2026-09-22c work order, step 2):
+   the general theorems `PermSector.essentiallySelfAdjointOn_bosonic_core` /
+   `FockStatistics.bosonicFock_esa` exist; the NS *instance* (exhibit `Good` for the NS pair
+   against `nsSpCol`) is owed so that `nsRedFullFockHam = dΓ(H_sp)` follows from
+   `redHam_eq_sum_parcel`.  Expected shape: `BookProof/ChapterNsSymmetricSector.lean` +
+   `Work/` audit + a `lakefile.toml` root.
+
+**4. The QG `secCore` spelling** (§2026-09-22c step 3): re-run step 3's pattern against
+   `secHam` so the *record* QG operator — R² vielbein, full exponential, interaction terms,
+   enclosed — carries ESA on the symmetrized core the route names, not only on the Friedrichs
+   domain (`qgFull_esa_core_fl` restated on the symmetrized core).
+
+**5. QG-3.2(a)/(b)** (§2026-09-22c step 4): close the cross-term question for the 84-dim
+   `qg3DHamiltonian` — either the BRST-closed-sector vanishing (a) or direct ESA (b).  Do
+   **not** use the tensor-sum theorem (cross terms are exactly what it does not cover) and do
+   **not** let a fiber model stand in for the record.
+
+**6. The NS mainstream leg** (§2026-09-22c step 5): surjectivity of `N_E + 1` on a concrete
+   domain for the Leray energy `N_E = 1 + ‖u‖²`, then lift that comparison with §D6's lift.
+   The commutator bound is already unconditional.  This leg concerns the mainstream Koopman
+   generator, which is **never** the enclosed operator — keep the labels straight.
+
+**7. The gap packages** (§2026-09-22c step 6), unchanged: the truncated-gap → infinite `h` →
+   `dΓ(h)` bridge, and the QYM one-particle form gap `⟪x, H₁x⟫ ≥ μ‖x‖²` — now potentially
+   better armed by step 2's non-abelian ESA input.
+
+**8. Prose maintenance.**  When step 1 or step 2 lands: update the “What Is Verified, and
+   What Is Open” section of `Book/NsOneParticleHamiltonian.lean` / the SM chapter's open list
+   and `HONEST_BOUNDARIES_SM.md` §L (only once the theorem compiles); keep all new math spans
+   in the open-only `` $`…` `` / `` $$`…` `` form; keep every convolution claim scoped to
+   NS/QG and every QG record statement carrying “full exponential / no Taylor / interaction
+   terms”.
+
+**Do not:** run `lake build` as a check of a single chapter (§“Build scope”); claim L1 or
+L3–L11 on the strength of this wave; edit a definition that a `../unfer/docs/*.cdb` module
+verifies without re-running that module to exit 0 first; report the Friedrichs certificate as
+the Faris–Lavine certificate or vice versa.

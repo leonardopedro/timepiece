@@ -268,9 +268,47 @@ survives, and it is a caveat about *this* chapter rather than about the theory:
 the tensor powers used **here** are the full powers $`H^{\otimes n}`, not the
 symmetric (bosonic) or antisymmetric (fermionic) subspaces. The statements above
 are about the derivation on those powers. The passage to the symmetrized sectors
-is not a further hypothesis — it is the subject of the next section, and it is
-now proved.
+is not a further hypothesis — it is the subject of the next section, and it is now proved.
 :::
+
+# The Standard-Model Instance: Both Obligations Discharged
+
+:::paragraph
+The reduction this chapter makes rigorous has, as of the closure wave, a
+complete worked instance. For the Standard-Model one-particle operator $`h`$
+of the previous chapter, essential self-adjointness on the
+Gauss–polynomial core of $`L^2(\mathbb{R}^{163})`$ is now a theorem with no
+hypothesis beyond the parameters: $`sm_h_esa`$, obtained by combining the two
+Faris–Lavine inequalities of `BookProof/ChapterSmFarisLavine.lean` with the
+independent Kato-type theorem of `BookProof/ChapterSmComparisonEsa.lean` and
+its transfer between the two cores (the chain is walked through in the
+Standard-Model chapter of this manual). Fed into
+$`dGamma_essentiallySelfAdjointOn_of_esa`$ — the main theorem above — it
+gives essential self-adjointness of the enclosure
+$`H = d\Gamma(h) = \sum_{i,j} h_{ij} C^{\dagger}(e_i) A(e_j)`$, creation on
+the left and annihilation on the right, on the finite-particle core over the
+Gauss–polynomial core. In the plan’s vocabulary, obligations (i) and (ii) of
+§D6b are both discharged for the Standard-Model row: (i) is the
+one-particle statement just named, (ii) is this chapter’s general lift
+applied to it. What remains owed there is not an analytic hypothesis but an
+assembly: the sector-wise tensor/graph-core combination of the bosonic and
+fermionic halves of $`h`$ before enclosure. The instrument is not
+sector-specific — the Kato theorem behind (i) holds for any smooth,
+respectively polynomial, potential bounded below by one — which is why the
+same two chapters are the natural next input for the non-abelian
+Yang–Mills instance of the same shape.
+:::
+
+```
+#check @BookProof.SmFarisLavine.sm_commForm_le
+#check @BookProof.SmFarisLavine.sm_norm_le_shift
+#check @BookProof.SmFarisLavine.sm_h_esa_of_comparison_esa
+#check @BookProof.DegKatoEsa.ccHamS_esa
+#check @BookProof.HermiteGraphApprox.hamCoreS_esa
+#check @BookProof.SmComparisonEsa.smFlN_eq_hamCoreS
+#check @BookProof.SmComparisonEsa.smFlN_esa
+#check @BookProof.SmComparisonEsa.sm_h_esa
+```
 
 # The Symmetric and Antisymmetric Sectors, at Every Particle Number
 
