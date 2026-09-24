@@ -68,7 +68,7 @@ theorem hasDerivAt_dampedEnergy {lam omega : ℝ} {x v a : ℝ → ℝ}
       have h := (((hx t).pow 2).const_mul (omega ^ 2)).div_const 2
       convert h using 1
       ring
-    simpa [dampedEnergy] using h1.add h2
+    exact h1.add h2
   have hrate : v t * a t + omega ^ 2 * (x t * v t) = -(lam * v t ^ 2) := by
     have ha : a t = -(lam * v t) - omega ^ 2 * x t := by linarith [heq t]
     rw [ha]; ring
@@ -146,7 +146,7 @@ theorem hasDerivAt_coupledEnergy {lam1 lam2 omega1 omega2 c : ℝ}
   have : HasDerivAt (coupledEnergy omega1 omega2 c x1 x2 v1 v2)
       (v1 t * a1 t + v2 t * a2 t + omega1 ^ 2 * (x1 t * v1 t)
         + omega2 ^ 2 * (x2 t * v2 t) - c * (v1 t * x2 t + x1 t * v2 t)) t := by
-    simpa [coupledEnergy] using hsum
+    exact hsum
   rwa [hrate] at this
 
 /-- With non-negative damping constants the energy of the coupled pair is
@@ -193,12 +193,15 @@ to its velocity `−e^{−t}`. -/
 theorem criticallyDamped_hasDerivAt_pos (t : ℝ) :
     HasDerivAt (fun s => Real.exp (-s)) (-Real.exp (-t)) t := by
   have h := (Real.hasDerivAt_exp (-t)).comp t ((hasDerivAt_id t).neg)
-  simpa using h
+  simp at h
+  exact h
 
 /-- Its velocity differentiates to its acceleration `e^{−t}`. -/
 theorem criticallyDamped_hasDerivAt_vel (t : ℝ) :
     HasDerivAt (fun s => -Real.exp (-s)) (Real.exp (-t)) t := by
-  simpa using (criticallyDamped_hasDerivAt_pos t).neg
+  have h := (criticallyDamped_hasDerivAt_pos t).neg
+  simp at h
+  exact h
 
 /-- The critically damped motion `x t = e^{−t}` solves `ẍ + 2ẋ + x = 0`. -/
 theorem criticallyDamped_isSolution (t : ℝ) :

@@ -1,0 +1,10 @@
+import BookProof.ChapterComparisonCoreEsa
+
+#print axioms BookProof.SelfAdjointCoreEsa.deficiencyTrivialAt_dom_of_isSelfAdjointExtension
+#print axioms BookProof.SelfAdjointCoreEsa.essentiallySelfAdjointOn_dom_of_isSelfAdjointExtension
+#print axioms BookProof.SelfAdjointCoreEsa.essentiallySelfAdjointOn_of_graphCore_selfAdjoint
+#print axioms BookProof.ComparisonCoreEsa.comparison_isSelfAdjointExtension
+#print axioms BookProof.ComparisonCoreEsa.comparison_essentiallySelfAdjointOn_dom
+#print axioms BookProof.ComparisonCoreEsa.graphCore_of_isGraphCore
+#print axioms BookProof.ComparisonCoreEsa.esa_of_isGraphCore
+#print axioms BookProof.ComparisonCoreEsa.isGraphCore_iff_esa

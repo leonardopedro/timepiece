@@ -64,7 +64,8 @@ theorem hasDerivAt_of_autonomize (f : ℝ → E → E) (x : ℝ → E) (t : ℝ)
     (h : HasDerivAt (fun s : ℝ => ((s, x s) : ℝ × E)) (autonomize f (t, x t)) t) :
     HasDerivAt x (f t (x t)) t := by
   have := h.snd
-  simpa [autonomize] using this
+  simp only [autonomize] at this ⊢
+  exact this
 
 /-! ## The quantum level: the Howland group of a time-dependent propagator -/
 

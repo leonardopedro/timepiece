@@ -38,11 +38,17 @@ $`U(\psi)e = \tfrac{M^4}{16\alpha}(\psi-1)^2 e \ge 0`, i.e. the potential is
 manifestly bounded below for $`\alpha > 0`, and it is this (together with the
 Weyl 3D gauge-fixing of the frame's local Lorentz / conformal freedom — the
 frame's time component $`A_0^j` fixed via the gauge-fixing fermion
-$`\{G, i\, b_j A_0^j\}` in the base TEGR module's BRST cell, the gravity
-analogue of the Yang–Mills Weyl gauge $`A_0 = 0` — the TEGR module's job)
+$`\{G, i\, b_j A_0^j\}`$ in the base TEGR module's BRST cell, the gravity
+analogue of the Yang–Mills Weyl gauge $`A_0 = 0`$ — the TEGR module's job)
 that regularizes the would-be wrong-sign conformal
-direction. The completed-square identity
-$`V_3(R_c) \ge -M^4/(16\alpha)` below records the same stabilization at the
+direction.  This three-dimensional reduction is **not** the ADM one: it
+fixes the globally defined time-like vector to $`v^\mu = \delta^\mu_0`$,
+diffeomorphisms must conserve it, so the ghosts of the resulting BRST charge
+are **constant in the timepiece**, and the charge keeps the **same functional
+form as the four-dimensional formalism** — explicitly different from the ADM
+BRST charge ($`book.tex`$, and the doctrine recorded in
+$`BookProof/ChapterQuantumGravityBrstCharge.lean`$).  The completed-square identity
+$`V_3(R_c) \ge -M^4/(16\alpha)`$ below records the same stabilization at the
 level of the spatial potential.
 :::
 
@@ -243,23 +249,42 @@ becomes a **convolution** rather than a gauge constraint.
 The final Hamiltonian is the one-particle Hamiltonian enclosed in creation
 (on the left) and annihilation (on the right) operators on the nested Fock
 space — the same doctrine as QYM, QED, and NS: $`H = \sum_{ij} h_{ij}
-C^\dagger(e_i) A(e_j)` with $`h = h_{\rm TEGR} \oplus (m)` for the vielbein
-(teleparallel) form, i.e. $`H = \sum_i :(1/16)\mathcal S_i^2: + m\,N_\psi`.
+C^\dagger(e_i) A(e_j)`. **The one-particle operator of record is the $`R^2`
+vielbein form in full**: the nine-component eliminated operator with the *exact*
+Einstein-frame exponential wall and the scalaron–vielbein interaction terms
+inside $`h` — `qgElimFullModes`, whose essential self-adjointness is
+`qgElimFull_esa_farisLavine` / `starobinsky_qgElimFull_esa`, as set out in
+{ref "qg-elimination"}[Fourier Elimination for Gravity]. Two simpler
+realizations are used where their smaller content suffices, and they must be
+read as limits of that record rather than as alternatives to it: the decoupled
+$`h = h_{\rm TEGR} \oplus (m)`, i.e.
+$`H = \sum_i :(1/16)\mathcal S_i^2: + m\,N_\psi`, whose scalaron entry is only
+the mass $`m = \sqrt{V''(0)}`, and the full-exponential *fiber*
+$`h = \tfrac12\pi^2 + V(\hat\varphi)` with the wall used as-is. The first is the
+small-field (quadratic) limit of the second, and the second decouples the fiber
+from the vielbein cross terms that the record operator carries.
 The nested Fock space has two levels: the outer Fock space (whose ladders are
 the $`C^\dagger/A` of the enclosure) and the inner one-particle Hilbert space
 on which $`h` acts. The outer Hamiltonian is a *quadratic (free-particle-like)
 form in the outer ladders for any* $`h` — so the FULL Einstein-frame scalaron
 potential $`V(\varphi) = \frac{M^4}{16\alpha}(1-e^{-\sqrt{2/3}\,\varphi/M})^2`,
-*exponential included*, may live inside $`h` (in the one-particle matrix
-elements $`\langle e_i, h\, e_j\rangle`), with no 3-/4-particle vertices at
-the outer level. That is the realization `qg_starobinsky_vielbein_
-hamiltonian_full` in `../unfer` (the truncated-Hermite enclosure of
-$`h = \tfrac12\pi^2 + V(\hat\varphi)`, whose one-particle spectrum is exactly
-the Schrödinger spectrum proved essentially self-adjoint above,
-`starobinskyWall_esa`); the quadratic $`m\,N_\psi` realization is its
-small-field limit. Either way $`\langle 0|H|0\rangle = 0` and the outer vacuum
+*exponential included, with no Taylor expansion*, may live inside $`h` (in the
+one-particle matrix elements $`\langle e_i, h\, e_j\rangle`), with no
+3-/4-particle vertices at the outer level. That is the realization
+`qg_starobinsky_vielbein_hamiltonian_full` in `../unfer` (the truncated-Hermite
+enclosure of $`h = \tfrac12\pi^2 + V(\hat\varphi)`, whose one-particle spectrum
+is exactly the Schrödinger spectrum proved essentially self-adjoint above,
+`starobinskyWall_esa`); the quadratic $`m\,N_\psi` realization
+`qg_starobinsky_vielbein_hamiltonian` is its small-field limit. Either way
+$`\langle 0|H|0\rangle = 0` and the outer vacuum
 is the exact ground — the R² content never creates higher vertices at the outer
-level.
+level. Note also that the decoupled forms are exactly the situation of
+`BookProof.TensorSumChain.chain_esa`: a finite family of uncoupled one-particle
+factors glued by the tensor sum is essentially self-adjoint on the algebraic
+tensor product of their domains, so the *decoupled* realizations need no
+bespoke argument — while the record operator, whose interaction terms tie the
+scalaron to the vielbein, is not a tensor sum and is covered by its own
+Faris–Lavine theorem instead.
 :::
 
 :::paragraph
@@ -362,7 +387,7 @@ self-adjoint extension selected by the Hashimoto shift-invert at $`\gamma = 1`.
 #check @BookProof.ScalaronEdge.edge_sup_sq_le
 #check @BookProof.ScalaronEdge.edge_energy_bound
 #check @BookProof.ScalaronEdge.starobinskyEdge_form_gap
-#check @BookProof.ScalaronEdge.starobinskyEdge_friedrichs_gap
+#check @BookProof.ScalaronEdge.scalaronEdge_friedrichs_gap
 ```
 
 :::paragraph
@@ -417,7 +442,7 @@ V(\varphi)` on $`L^2(\mathbb R)`, and this is exactly the operator proved
 essentially self-adjoint with a strict edge:
 `starobinskyWall_esa` (ESA on the compactly supported smooth core, full
 exponential wall) and `starobinskyEdge_quadForm` /
-`starobinskyEdge_friedrichs_gap` (the strict $`E_0 > 0`). The "1D" labels
+`scalaronEdge_friedrichs_gap` (the strict $`E_0 > 0`). The "1D" labels
 mean only that the *scalaron slice* of the one-particle space is one
 coordinate per quantum; the reassembly assembles these kinetic-inclusive
 fibers (harmonic shear oscillators $`h_{\omega_i}` plus $`h_\psi`), and the

@@ -44,6 +44,8 @@ import Book.BellInequalities
 import Book.EPRComplete
 import Book.ProofPlans
 import Book.SpinStatistics
+import Book.StatisticalModelTheory
+import Book.StandardModel
 import Book.SolovayTensor
 import Book.ConditionalUnitary
 
@@ -163,6 +165,8 @@ repays re-reading them.
 {include 0 Book.PaFreeHilbert}
 
 {include 0 Book.SolovayTensor}
+
+{include 0 Book.StatisticalModelTheory}
 
 # Probability as Coherent Belief
 %%%
@@ -364,6 +368,8 @@ convention of the whole programme is explained for these two systems.
 {include 0 Book.QgElimination}
 
 {include 0 Book.Starobinsky}
+
+{include 0 Book.StandardModel}
 
 {include 0 Book.NavierStokesHashimoto}
 

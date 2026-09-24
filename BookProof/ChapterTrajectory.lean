@@ -180,7 +180,7 @@ theorem transProb_H (f a : Fin 2) : transProb H f a = 1 / 2 := by
 
 /-- Intermediate Born distribution for the double slit is uniform `1/2`. -/
 theorem midProb_H (a : Fin 2) : midProb H psi0 a = 1 / 2 := by
-  convert BookProof.ChapterDoubleSlit.slit_closed_born a using 1
+  simpa [midProb, bornProb] using BookProof.ChapterDoubleSlit.slit_closed_born a
 
 /-- **Collapsed** final law of the double slit is uniform `1/2`. -/
 theorem dslit_finalProb (f : Fin 2) : finalProb H H psi0 f = 1 / 2 := by

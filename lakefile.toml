@@ -24,27 +24,22 @@ maxSynthPendingDepth = 10
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "v4.28.0"
+rev = "v4.33.1"
 
 [[require]]
 name = "verso"
 git = "https://github.com/leanprover/verso"
-rev = "v4.28.0"
+rev = "v4.33.0"
 
 [[require]]
 name = "subverso"
 git = "https://github.com/leanprover/subverso"
-rev = "verso-v4.28.0"
+rev = "verso-v4.33.0"
 
 [[require]]
 name = "MD4Lean"
 git = "https://github.com/acmepjz/md4lean"
 rev = "7e097e9a076d5fbe48aa39aceee871af0d011101"
-
-[[require]]
-name = "plausible"
-git = "https://github.com/leanprover-community/plausible"
-rev = "55c8532eb21ec9f6d565d51d96b8ca50bd1fbef3"
 
 [[lean_lib]]
 name = "UsedRoute"
@@ -112,8 +107,8 @@ root = "BookMain"
 # ---------------------------------------------------------------------------
 [[lean_lib]]
 name = "BookProofOperatorCore"
-# independent part: 517 modules
-roots = ["BookProof.ChapterAbelianCyclicCommutant", "BookProof.ChapterAbelianMixture", "BookProof.ChapterBddBelowFiberSumEsa", "BookProof.ChapterBornMeasure", "BookProof.ChapterBrstUnboundedLeakage", "BookProof.ChapterCarlemanGeneralHop", "BookProof.ChapterCarlemanUnboundedHop", "BookProof.ChapterCayleyInverse", "BookProof.ChapterCayleySpectralModel", "BookProof.ChapterConformalFiberDeficiency", "BookProof.ChapterConservativeDiagonal", "BookProof.ChapterCrouzeixSelfAdjoint", "BookProof.ChapterDirectSumEdge", "BookProof.ChapterEsaFarisLavineIndex", "BookProof.ChapterEsaOneParticleDGamma", "BookProof.ChapterExpPotentialEsa", "BookProof.ChapterFockDifferingBasesEsa", "BookProof.ChapterFriedrichsCanonical", "BookProof.ChapterGaugeShiftExample", "BookProof.ChapterGradedHashimoto", "BookProof.ChapterH2", "BookProof.ChapterH3", "BookProof.ChapterHalfLineLimitCircle", "BookProof.ChapterHarmonicOscillatorEsa", "BookProof.ChapterHermiteExpWall", "BookProof.ChapterHermiteLadderShift", "BookProof.ChapterLimitCircleExample", "BookProof.ChapterMixedLinearEsa", "BookProof.ChapterNavierStokesCarleman", "BookProof.ChapterNavierStokesEsaConsolidation", "BookProof.ChapterNavierStokesEulerian", "BookProof.ChapterNavierStokesFiberGap", "BookProof.ChapterNavierStokesFockCanonical", "BookProof.ChapterNavierStokesFockFarisLavine", "BookProof.ChapterNavierStokesFockParcels", "BookProof.ChapterNavierStokesMomentumPerturbation", "BookProof.ChapterNonnegSemigroupGenerator", "BookProof.ChapterNsBrstDerivativeGauge", "BookProof.ChapterNsCutoffUniformity", "BookProof.ChapterNsFieldMomentumInverse", "BookProof.ChapterNsKoopman", "BookProof.ChapterNsLagrangianFourierElimination", "BookProof.ChapterNsOneBodyDGamma", "BookProof.ChapterNsPartialFourier", "BookProof.ChapterNumericalRangeSemigroup", "BookProof.ChapterPolarPartialIsometry", "BookProof.ChapterQedAbelianConsolidation", "BookProof.ChapterQgBrstCompleted", "BookProof.ChapterQgDerivativeRealization", "BookProof.ChapterQgFullEliminated", "BookProof.ChapterQgMultiHalfDensity", "BookProof.ChapterQgOneParticleCcEsa", "BookProof.ChapterQgOuterFockEllipticFL", "BookProof.ChapterQgOuterFockOneParticle", "BookProof.ChapterQuadraticRotationPerturbed", "BookProof.ChapterRelationShiftInvert", "BookProof.ChapterResolventCorrespondence", "BookProof.ChapterResolventMinMaxEquality", "BookProof.ChapterScalaronHermiteEsa", "BookProof.ChapterSeparableL2Model", "BookProof.ChapterShiftedQuadraticDegenerate", "BookProof.ChapterSirkBandLedger", "BookProof.ChapterSirkCrouzeixNumericalRange", "BookProof.ChapterSirkGapTable", "BookProof.ChapterSirkGramCutoff", "BookProof.ChapterSirkLagrangianCanonical", "BookProof.ChapterSirkMultiShift", "BookProof.ChapterSirkPerSystemFlowBound", "BookProof.ChapterSirkRitzPerturbation", "BookProof.ChapterSqSumFockEsa", "BookProof.ChapterStoneFlows", "BookProof.ChapterTempleSeparationNecessary", "BookProof.ChapterUnboundedSpectralModel", "BookProof.ChapterVielbeinFiberFock", "BookProof.ChapterWeakValue", "BookProof.ChapterYangMillsBandBounds", "BookProof.ChapterYangMillsCertificateSeam"]
+# independent part: 521 modules
+roots = ["BookProof.ChapterAbelianCyclicCommutant", "BookProof.ChapterAbelianMixture", "BookProof.ChapterBddBelowFiberSumEsa", "BookProof.ChapterBornMeasure", "BookProof.ChapterBrstUnboundedLeakage", "BookProof.ChapterCarlemanGeneralHop", "BookProof.ChapterCarlemanUnboundedHop", "BookProof.ChapterCayleyInverse", "BookProof.ChapterCayleySpectralModel", "BookProof.ChapterComparisonCoreEsa", "BookProof.ChapterConformalFiberDeficiency", "BookProof.ChapterConservativeDiagonal", "BookProof.ChapterCrouzeixSelfAdjoint", "BookProof.ChapterDirectSumEdge", "BookProof.ChapterEsaFarisLavineIndex", "BookProof.ChapterEsaOneParticleDGamma", "BookProof.ChapterExpPotentialEsa", "BookProof.ChapterFockDifferingBasesEsa", "BookProof.ChapterFriedrichsCanonical", "BookProof.ChapterGaugeShiftExample", "BookProof.ChapterGradedHashimoto", "BookProof.ChapterH2", "BookProof.ChapterH3", "BookProof.ChapterHalfLineLimitCircle", "BookProof.ChapterHarmonicOscillatorEsa", "BookProof.ChapterHermiteExpWall", "BookProof.ChapterHermiteLadderShift", "BookProof.ChapterLimitCircleExample", "BookProof.ChapterMixedLinearEsa", "BookProof.ChapterNavierStokesCarleman", "BookProof.ChapterNavierStokesEsaConsolidation", "BookProof.ChapterNavierStokesEulerian", "BookProof.ChapterNavierStokesFiberGap", "BookProof.ChapterNavierStokesFockCanonical", "BookProof.ChapterNavierStokesFockFarisLavine", "BookProof.ChapterNavierStokesFockParcels", "BookProof.ChapterNavierStokesMomentumPerturbation", "BookProof.ChapterNonnegSemigroupGenerator", "BookProof.ChapterNsBrstDerivativeGauge", "BookProof.ChapterNsCutoffUniformity", "BookProof.ChapterNsFieldMomentumInverse", "BookProof.ChapterNsKoopman", "BookProof.ChapterNsLagrangianFourierElimination", "BookProof.ChapterNsOneBodyDGamma", "BookProof.ChapterNsPartialFourier", "BookProof.ChapterNumericalRangeSemigroup", "BookProof.ChapterPermutationSectorEsa", "BookProof.ChapterPolarPartialIsometry", "BookProof.ChapterQedAbelianConsolidation", "BookProof.ChapterQgBrstCompleted", "BookProof.ChapterQgDerivativeRealization", "BookProof.ChapterQgFullEliminated", "BookProof.ChapterQgMultiHalfDensity", "BookProof.ChapterQgOneParticleCcEsa", "BookProof.ChapterQgOuterFockEllipticFL", "BookProof.ChapterQgOuterFockOneParticle", "BookProof.ChapterQuadraticRotationPerturbed", "BookProof.ChapterRelationShiftInvert", "BookProof.ChapterResolventCorrespondence", "BookProof.ChapterResolventMinMaxEquality", "BookProof.ChapterScalaronHermiteEsa", "BookProof.ChapterSeparableL2Model", "BookProof.ChapterShiftedQuadraticDegenerate", "BookProof.ChapterSirkBandLedger", "BookProof.ChapterSirkCrouzeixNumericalRange", "BookProof.ChapterSirkGapTable", "BookProof.ChapterSirkGramCutoff", "BookProof.ChapterSirkLagrangianCanonical", "BookProof.ChapterSirkMultiShift", "BookProof.ChapterSirkPerSystemFlowBound", "BookProof.ChapterSirkRitzPerturbation", "BookProof.ChapterSmComparison", "BookProof.ChapterSmOuterFock", "BookProof.ChapterSqSumFockEsa", "BookProof.ChapterStoneFlows", "BookProof.ChapterTempleSeparationNecessary", "BookProof.ChapterTensorSumChain", "BookProof.ChapterUnboundedSpectralModel", "BookProof.ChapterVielbeinFiberFock", "BookProof.ChapterWeakValue", "BookProof.ChapterYangMillsBandBounds", "BookProof.ChapterYangMillsCertificateSeam"]
 
 [[lean_lib]]
 name = "BookProofAttention"

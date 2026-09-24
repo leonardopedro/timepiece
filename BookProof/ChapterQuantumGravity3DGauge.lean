@@ -22,6 +22,16 @@ module `BookProof/ChapterQuantumGravityBrstCharge.lean`.
 (`idxX`, `idxE`, `idxDE`, with the injectivity and disjointness lemmas that make them a
 genuine coordinate system).
 
+**Non-ADM note (book.tex ~8226–8244).**  The three-dimensional reduction of record fixes
+the globally defined time-like vector `v^μ = δ^μ_0`; it is **not** the ADM formalism
+(the constraints differ; ADM is only weakly hyperbolic).  Diffeomorphisms conserve
+`v^μ = δ^μ_0`, so the BRST ghosts of the reduction are **constant in the timepiece**,
+and the charge keeps the same functional form as the 4D one — see
+`BookProof/ChapterQuantumGravityBrstCharge.lean` and `Book/Starobinsky.lean`
+(gauge-fixing fermion `{G, i b_j A_0^j}`).  The coordinate set `ℝ⁸⁴` above is the full
+4D field content carried on the reduced phase space, **not** an ADM spatial-metric
+truncation.
+
 ## What is proved
 
 **F.1 — the singular density and its absorption.**  `qg3DDensity` is the manuscript's

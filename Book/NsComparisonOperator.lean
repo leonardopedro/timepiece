@@ -175,6 +175,51 @@ explicit-solution constraint. Consequently the comparison operator is unchanged 
 Leray energy in the truncated system, the lifted auxiliary Friedrichs extension in the full model.
 :::
 
+# The One-Particle Obligation, Discharged
+
+:::paragraph
+Every layer of the table below runs the same criterion, and the criterion has two
+obligations. The *lifted* one — that the second quantization of $`N` is
+essentially self-adjoint on the lifted core — is the core-transfer chain of
+{ref "second-quantization-esa"}[Second Quantization and Essential Self-Adjointness].
+The *inner* one is that $`N` itself must be essentially self-adjoint on the core
+the proof actually chooses. For a long time that obligation was discharged
+sector by sector; it is now a theorem in general, in two short chapters.
+
+`BookProof.SelfAdjointCoreEsa` says that an operator possessing a self-adjoint
+extension is already essentially self-adjoint on its own domain: at a non-real
+$`z` the deficiency equation makes the deficiency vector a domain eigenvector of
+the extension, and symmetry forces it to be zero
+(`deficiencyTrivialAt_dom_of_isSelfAdjointExtension`). `BookProof.ComparisonCoreEsa`
+restates this in the vocabulary of the criterion — a `Comparison` is self-adjoint,
+hence essentially self-adjoint, on its own domain
+(`comparison_essentiallySelfAdjointOn_dom`) — and proves the equivalence that
+matters for the route chapters: **`isGraphCore_iff_esa`**, *for a Faris–Lavine
+comparison operator, "graph core" and "core of essential self-adjointness" are
+the same notion.* `esa_of_isGraphCore` is obligation (i) itself.
+
+For the layers above this has a concrete reading. The auxiliary sum-of-squares
+operator $`H_{\rm sp}` of the lifted layer is positive and self-adjoint in its
+Friedrichs realization, so its core statements follow without a fresh deficiency
+argument; and wherever a route chapter exhibits a graph core for its comparison
+— as the QG chapters do with the Gauss–polynomial core of the oscillator and the
+compactly supported smooth core of the wall — obligation (i) is discharged by
+`esa_of_isGraphCore` alone. The Leray-energy leg of the mainstream layer keeps
+its own open input (the surjectivity of $`N_E + 1` on a concrete domain), which
+is a statement about $`N_E`, not about the obligation in general.
+:::
+
+```
+#check @BookProof.SelfAdjointCoreEsa.deficiencyTrivialAt_dom_of_isSelfAdjointExtension
+#check @BookProof.SelfAdjointCoreEsa.essentiallySelfAdjointOn_dom_of_isSelfAdjointExtension
+#check @BookProof.SelfAdjointCoreEsa.essentiallySelfAdjointOn_of_graphCore_selfAdjoint
+#check @BookProof.ComparisonCoreEsa.comparison_isSelfAdjointExtension
+#check @BookProof.ComparisonCoreEsa.comparison_essentiallySelfAdjointOn_dom
+#check @BookProof.ComparisonCoreEsa.graphCore_of_isGraphCore
+#check @BookProof.ComparisonCoreEsa.esa_of_isGraphCore
+#check @BookProof.ComparisonCoreEsa.isGraphCore_iff_esa
+```
+
 # Summary: the Comparison Operator, Per Layer
 
 :::paragraph

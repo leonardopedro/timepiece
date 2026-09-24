@@ -63,7 +63,7 @@ omit [MeasurableSpace α] in
 /-- **The book's claim.**  When the velocity is constrained by the position, the constraint
 set is null for the joint law of position and unconstrained velocity, provided the law of
 the velocity is atomless (e.g. Gaussian). -/
-theorem graphSet_null (μ : Measure α) (ν : Measure ℝ) [SFinite ν] [NoAtoms ν]
+theorem graphSet_null (μ : Measure α) (ν : Measure ℝ) [SFinite ν] [NullSingletonClass ν]
     {f : α → ℝ} (hf : Measurable f) :
     (μ.prod ν) (graphSet f) = 0 := by
   refine Measure.measure_prod_null_of_ae_null (measurableSet_graphSet hf) ?_
@@ -83,19 +83,19 @@ measure. -/
 theorem graphSet_gaussian_null (m₁ m₂ : ℝ) (v₁ : ℝ≥0) (v₂ : ℝ≥0) (hv₂ : v₂ ≠ 0)
     {f : ℝ → ℝ} (hf : Measurable f) :
     ((gaussianReal m₁ v₁).prod (gaussianReal m₂ v₂)) (graphSet f) = 0 := by
-  have : NoAtoms (gaussianReal m₂ v₂) := noAtoms_gaussianReal hv₂
+  have : NullSingletonClass (gaussianReal m₂ v₂) := nullSingletonClass_gaussianReal hv₂
   exact graphSet_null _ _ hf
 
 /-- **The consequence.**  Conditioning the joint law on the constraint gives the zero
 measure: the local constraint cannot be imposed by naive conditioning. -/
-theorem restrict_graphSet_eq_zero (μ : Measure α) (ν : Measure ℝ) [SFinite ν] [NoAtoms ν]
+theorem restrict_graphSet_eq_zero (μ : Measure α) (ν : Measure ℝ) [SFinite ν] [NullSingletonClass ν]
     {f : α → ℝ} (hf : Measurable f) :
     (μ.prod ν).restrict (graphSet f) = 0 :=
   Measure.restrict_eq_zero.mpr (graphSet_null μ ν hf)
 
 /-- In particular the conditioned law is not a probability measure. -/
 theorem not_isProbabilityMeasure_restrict_graphSet (μ : Measure α) (ν : Measure ℝ)
-    [SFinite ν] [NoAtoms ν] {f : α → ℝ} (hf : Measurable f) :
+    [SFinite ν] [NullSingletonClass ν] {f : α → ℝ} (hf : Measurable f) :
     ¬ IsProbabilityMeasure ((μ.prod ν).restrict (graphSet f)) := by
   intro h
   have h1 : ((μ.prod ν).restrict (graphSet f)) Set.univ = 1 := h.measure_univ

@@ -49,7 +49,6 @@ theorem fourier_fourier_apply (f : 𝓢(V, ℂ)) (x : V) :
     (𝓕 (𝓕 f : 𝓢(V, ℂ)) : 𝓢(V, ℂ)) x = f (-x) := by
   have h : (𝓕⁻ (𝓕 f : 𝓢(V, ℂ)) : 𝓢(V, ℂ)) = f := FourierTransform.fourierInv_fourier_eq f
   have h2 := congrArg (fun g : 𝓢(V, ℂ) => g (-x)) h
-  simp only at h2
   rw [SchwartzMap.fourierInv_coe, Real.fourierInv_eq_fourier_neg] at h2
   rw [← h2, neg_neg, SchwartzMap.fourier_coe]
 

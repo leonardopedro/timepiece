@@ -1,5 +1,108 @@
 # `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`
 
+## Latest wave — 2026-09-23: **BRST implemented as `book.tex` defines it** — the charge
+## `Ω = π^μ_a ∂_μψ†_a − π^μ_a f_{abc}A_{μb}ψ†_c − (i/2) f_{abc}ψ†_aψ†_bψ_c`, its Gauss law and
+## its gauge-fixing fermion
+
+Previously the project proved nilpotency for the *abstract* BRST charge
+`Ω = Σ_a G_a χ_a − ½ f_{abe} χ_aχ_bβ_e` with the constraints `G_a` supplied as data.  The charge
+that `book.tex` actually writes down (§*"Pure SU(3) Yang-Mills theory"*, lines ~7060 and ~7343) is
+now built, together with the canonical relations of the same section.  Three new `sorry`-free,
+`axiom`-free chapters, all imported from `BookProof.lean` and audited by `Work/BookBrstAudit.lean`
+(every line reports only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `BookProof/ChapterBookBrstYangMills.lean` — the graded state space `ℂ[A_{μa}] ⊗ Λ(ℂ^N)`, the
+  operators `A_{μa}`, `π^μ_a = −i ∂/∂A_{μa}`, `ψ†_a`, `ψ_a` with **`bookCCR`**
+  (`[A_{μa}, π^ν_b] = i δ^ν_μ δ_{ab}`) and **`bookGhostCar`** (`{ψ_a, ψ†_b} = δ_{ab}`); the book's
+  charge `bookOmega` with its three terms; **`gaussGen_bracket`**, the Gauss-law constraint algebra
+  `[𝒢_c, 𝒢_e] = Σ_h f_{ceh} 𝒢_h` *derived* from the canonical relations, the Leibniz property of
+  the spacetime derivations `∂_μ` and the Jacobi identity; `bookOmega_eq_brstCharge` (the book's
+  charge is `i` times the abstract one, so its coefficient `−i/2` is the one nilpotency requires);
+  and **`bookOmega_nilpotent`**: `Ω² = 0`.
+* `BookProof/ChapterBookBrstGaugeFixing.lean` — the **gauge-fixing fermion** `Ψ = i ψ_a A_{0a}` of
+  the book's Weyl-gauge passage, the closed-form anticommutator
+  **`brstCharge_gf_anticomm`** / **`bookGfTerm_eq`**
+  (`{Ω,Ψ}` = the Gauss law contracted with `A_0`, minus the ghost kinetic term, minus the
+  non-abelian ghost–field coupling), and **`bookGfTerm_brst_closed`**: the generated term commutes
+  with `Ω`, so adding it to the Hamiltonian preserves BRST invariance; and the BRST cohomology
+  of the book's charge, `brstCohomology = ker Ω / im Ω`, is well defined
+  (**`exactStates_le_physicalStates`**), with the gauge-fixing term preserving both the physical
+  and the exact states; and `bookOmega_comm_multOp` / `su2_casimir_bookOmega_comm`, gauge-invariant
+  observables commute with `Ω` and so act on the cohomology.
+* `BookProof/ChapterBookBrstInstances.lean` — admissible spacetime derivations
+  (**`innerDeriv_leibniz`**: every `∂_μ = ad_{X_μ}` satisfies the Leibniz condition, by Jacobi),
+  the `su(2)` and Standard-Model `su(3) ⊕ su(2) ⊕ u(1)` instances (`su2BookAlgebra`,
+  `smBookAlgebra`, hence **`sm_bookOmega_nilpotent`**) and `su2_gaussGenPoly_ne_zero`, so the
+  constraints are not the zero operator.
+
+`HONEST_BOUNDARIES_SM.md` §5.3bis records what is and is not claimed: the local gauge algebra is a
+finite-dimensional Lie algebra with derivations (the book's totally antisymmetric `SU(N)` structure
+constants are used), the book's operator formalism uses no Faddeev–Popov determinant and none is
+constructed, and, although the cohomology `ker Ω / im Ω` is now defined and shown to be well defined, nothing
+is claimed about its size.
+
+## Latest wave — 2026-09-21b: **the scalar–vector identification lands** — `L²(V; L²(W)) ≅ L²(V × W)`,
+## and with it the spatial Fourier transform on the scalar one-particle space (NS item 1 is closed)
+
+The residual of item 1 of the Navier–Stokes plan items of `CONSOLIDATED_PLAN.md` — the only thing
+that item still left open, specified in the blueprint *“the scalar–vector identification”* of that
+file — is formalized.  Two new `sorry`-free, `axiom`-free chapters, both imported from
+`BookProof.lean`, audited by `Work/NsScalarVectorCurryAudit.lean` and `Work/NsScalarFourierAudit.lean`
+(every listed result reports only `propext`, `Classical.choice`, `Quot.sound`):
+
+* `BookProof/ChapterNsScalarVectorCurry.lean` (namespace `BookProof.NsScalarVectorCurry`) —
+  **`curryLI : Lp (Lp ℂ 2 ν) 2 μ ≃ₗᵢ[ℂ] Lp ℂ 2 (μ.prod ν)`** for arbitrary σ-finite `μ`, `ν`.
+  The two generator families are `fibMk a c` (the fibred `x ↦ a x • c`) and `prodMk a c` (the
+  scalar `(x, y) ↦ a x * c y`); they are bilinear, so they lift to `fibTensor` and `prodTensor`
+  on the algebraic tensor product `L²(μ) ⊗[ℂ] L²(ν)`, and their inner products agree
+  (`inner_fibMk`, `inner_prodMk` — the latter by Fubini), hence so do their norms
+  (`norm_prodTensor_eq_norm_fibTensor`).  Both lifts have dense range: `denseRange_fibTensor`
+  because every `Lp`-simple function with values in the fibre is a finite sum of generators
+  (`simpleFunc_mem_range_fibTensor`), and `denseRange_prodTensor` by the orthogonality argument
+  through **`ae_eq_zero_of_forall_setIntegral_rect_eq_zero`** — an `L²` function of a product of
+  σ-finite measures whose integral over every finite-measure measurable rectangle vanishes is zero
+  a.e., proved by a π–λ induction (`MeasurableSpace.induction_on_inter` over the rectangles) along
+  the exhausting rectangles `spanningSets μ n ×ˢ spanningSets ν n`.  `LinearEquiv.extendOfIsometry`
+  assembles the two dense isometric pictures.  The unitary is pinned down on the generators by
+  **`curryLI_fibMk`** (`curryLI (fibMk a c) = prodMk a c`) and **`curryLI_indicator_prod`**
+  (`1_s ⊗ 1_t ↦ 1_{s ×ˢ t}`).  Nothing about `ℝ^d` or Lebesgue measure is used: the module is
+  Mathlib-level material.
+* `BookProof/ChapterNsScalarFourier.lean` (namespace `BookProof.NsScalarFourier`) — what the
+  identification unblocks.  **`nsScalarFourier`** is the spatial-only Fourier transform on the
+  *scalar* one-particle space `L²(V × W)`, the conjugate `curryLI ∘ nsPartialFourier ∘ curryLI.symm`
+  of the fibred transform of `ChapterNsPartialFourier`, with `nsScalarFourier_norm` its Plancherel
+  identity.  The fibre-blindness of the transform becomes a statement about the scalar operators
+  `1 ⊗ T`: `scalarFibreOp` is the fibre operator transported to the scalar space,
+  `scalarFibreOp_prodMk` identifies it on the product generators
+  (`prodMk a c ↦ prodMk a (T c)`), and **`nsScalarFourier_scalarFibreOp`** (with its instance
+  `nsScalarFourier_fibreFourier` for the fibre Fourier transform) is the commutation.
+
+**Gates run.**  `lake build BookProof.ChapterNsScalarVectorCurry`,
+`lake build BookProof.ChapterNsScalarFourier`, `lake build Work.NsScalarVectorCurryAudit`,
+`lake build Work.NsScalarFourierAudit`; `python3 scripts/import_components.py BookProof --check`
+is unchanged by the addition (both chapters are single-module parts, so no lakefile stanza and no
+`BUILD_COMPONENTS.md` row changes).  `rg` finds no `sorry`/`admit` in either chapter and no
+`axiom` was added.  The Verso manual target could not be rebuilt in this working copy (the
+`verso` checkout here fails to build, unrelated to this wave), so the prose of
+`Book/NsOneParticleHamiltonian.lean` was left untouched; the module-level caveat of
+`BookProof/ChapterNsPartialFourier.lean` was updated to point at the identification.
+
+**The slice statements.**  `curryLI_setIntegral_rect`: the integral of `curryLI f` over a
+measurable rectangle `s ×ˢ t` is `∫_s (∫_t f x y dν) dμ`.  `isSliceOf_curryLI`: pointwise, for
+almost every `x` the fibre `f x` is, `ν`-almost everywhere, the slice `y ↦ (curryLI f) (x, y)` —
+so the unitary really is currying.  Its ingredients are of independent use: `eLpNorm_two_sq` and
+`lintegral_eLpNorm_slice_sq`, the Bochner–Fubini identity for the squared `L²(ν)` seminorms of the
+slices, and `ae_tendsto_zero_of_tsum_lintegral_ne_top` for the passage to the limit.
+
+**Build repairs — the aggregate target is green again.**  Four chapters unrelated to this wave had
+drifted against the pinned Mathlib and no longer elaborated; all four were repaired in place, with
+no statement weakened and no `sorry` introduced: `BookProof/ChapterEsaClosureCore.lean`
+(`Dense.eq_zero_of_inner_left` signature), `BookProof/ChapterH1.lean` (a `HasDerivAt` `convert`
+block), `BookProof/ChapterHermiteFunctions.lean` (`convert`/`rfl` blocks, and
+`integral_mul_deriv_eq_deriv_mul_of_integrable` now taking `∀ x, HasDerivAt …`) and
+`BookProof/ChapterHermiteProductCore.lean` (`map_add` in `continuous_polyEval`; a redundant `rfl`).
+With them, `lake build BookProof` completes successfully — 8762 jobs, no error.
+
 ## Latest wave — 2026-09-21: gauge fixing (comprehensive / complete / unconstrained),
 ## Casimir constraints, gauge averaging and the dissipative example
 
@@ -12518,3 +12621,123 @@ Plancherel theorem) also remains open.
 Boundary still recorded: that the spherical harmonics `Y_{lμ}` of Definition 67
 are of this form for every `l`, `μ` (equivalently, the associated Legendre
 functions) is not formalized, nor is the unitarity of the spherical transform.
+
+## 2026-09-21c — the sector-reduction wave (symmetrization, step 1)
+
+* `BookProof/ChapterReducingSubspaceEsa.lean` — essential self-adjointness descends to an
+  invariant sector: for an idempotent symmetric projection `P` which preserves the domain and
+  commutes with `T`, `deficiencyTrivialAt_red` and `essentiallySelfAdjointOn_red` transfer the
+  property to the part of `T` inside the range of `P`.  The projections `(1 ± U)/2` of a
+  self-inverse isometry `U` are shown to be such projections.
+* `BookProof/ChapterTwoParticleSectorEsa.lean` — the swap of the two-particle space is a
+  self-inverse isometry preserving the domain and the core and commuting with the derivation, so
+  the bosonic and the fermionic two-particle derivations are essentially self-adjoint
+  (`essentiallySelfAdjointOn_bosonic(_core)`, `essentiallySelfAdjointOn_fermionic(_core)`), with
+  non-vacuity witnesses.
+* Axiom audit: `Work/TwoParticleSectorAudit.lean` (only `propext`, `Classical.choice`,
+  `Quot.sound`).
+
+Boundary: the symmetrization is the two-particle one (the swap), not the full symmetric group on
+`H^{⊗n}` for `n ≥ 3`, and no statement about the symmetric Fock space as a whole is claimed.
+
+* `BookProof/ChapterGroupAverageEsa.lean` (same wave) — averaging over a finite group of
+  unitaries: the average `|G|⁻¹ Σ_g ρ(g)` is a reducing projection whose range is the joint fixed
+  space, so essential self-adjointness descends to the invariant sector
+  (`essentiallySelfAdjointOn_invariantSector`).  The two-element case reproduces `(1 + U)/2`.
+
+## 2026-09-21d — the `n`-particle symmetrization wave (symmetrization, step 1 completed)
+
+* `BookProof/ChapterTensorPermutation.lean` — the action of the symmetric group
+  `Equiv.Perm (Fin n)` on the nested tensor power `E^{⊗n}`, built by recursion out of the
+  exchange `swapFirst` of the first two factors and the lift `liftTail` to the last `n`
+  factors, so every permutation operator is a linear isometry equivalence by construction.
+  `permOp_purePow` computes it on pure tensors, `permOp_one` / `permOp_mul` are the group
+  law, and `permRep` / `signRep` are the resulting unitary representation and its sign twist.
+* `BookProof/ChapterPermutationSectorEsa.lean` — every permutation operator preserves the
+  domain `D₂^{⊗n}` and the core `D^{⊗n}` and commutes with the sector derivation
+  (`good_permOp`, by structural induction along the recursion).  Averaging over the symmetric
+  group and over its sign twist therefore gives essential self-adjointness of the bosonic and
+  the fermionic `n`-particle derivation, on the domain and on the symmetrized /
+  antisymmetrized one-particle core (`essentiallySelfAdjointOn_bosonic(_core)`,
+  `essentiallySelfAdjointOn_fermionic(_core)`), with `mem_bosonicSector_iff` /
+  `mem_fermionicSector_iff` identifying the sectors, the `n`-th power of a core vector and the
+  Slater determinant of `n` orthogonal core vectors as non-vacuity witnesses, and
+  `permOp_two_eq_swapH` as the consistency check against the two-particle chapter.
+* Axiom audit: `Work/PermutationSectorAudit.lean` (only `propext`, `Classical.choice`,
+  `Quot.sound`).
+
+Boundary: the statements are about the `n`-particle sectors of `H^{⊗n}` for each fixed `n`;
+nothing is claimed about the symmetric or antisymmetric Fock space as a whole (the direct sum
+over `n`), and the hypothesis that `dΓ(A)⁽ⁿ⁾` is essentially self-adjoint on `D₂^{⊗n}` is
+carried, not proved, here.
+
+## 2026-09-22b — `A ⊗ 1 + 1 ⊗ B`: the tensor sum of two different operators
+
+* `BookProof/ChapterTensorSumEsa.lean` — for a symmetric `A` on a dense domain of `H` and a
+  symmetric `B` on a dense domain of `K`, the tensor sum `A ⊗ 1 + 1 ⊗ B` is symmetric and
+  essentially self-adjoint on the algebraic tensor product of the two domains inside the
+  completed tensor product `H ⊗̂ K`, whenever each factor is self-adjoint
+  (`essentiallySelfAdjointOn_cpairDom_selfAdjoint`) or merely essentially self-adjoint
+  (`essentiallySelfAdjointOn_cpairDom_esa`); the two-factor core estimate
+  (`isGraphCore_pairCore`) descends the statement to a product of cores, and
+  `tensorSum_stone_flow` is the resulting unitary group.  Route: the product flow `U t ⊗ V t`
+  plus Nelson's invariant-domain criterion.
+* Axiom audit: `Work/TensorSumEsaAudit.lean` (only `propext`, `Classical.choice`,
+  `Quot.sound`).
+
+Boundary: two factors (finitely many by iteration), not a direct integral, and the potential
+must separate as `V(u, v) = V₁(u) + V₂(v)`.
+
+* `BookProof/ChapterTensorSumChain.lean` — the same statement for finitely many factors:
+  `EsaOp` / `pair` / `chain` iterate the two-factor theorem, so `chain_esa` gives essential
+  self-adjointness of `A₁ ⊗ 1 ⊗ ⋯ + ⋯ + 1 ⊗ ⋯ ⊗ Aₙ` for an arbitrary finite family of
+  different operators on different Hilbert spaces, with `chain_stone_flow` the unitary group
+  and `positionChain_esa` a concrete unbounded instance.
+
+## 2026-09-22d — the Standard Model: coordinates, mixing algebra, the bosonic Hamiltonian and its `dΓ` enclosure
+
+Steps 1, 2, 4 and 5 of the Standard-Model work order of `CONSOLIDATED_PLAN.md` §D6b-SM, in
+the four chapters below.  All are `sorry`-free and `axiom`-free; the axiom audit is
+`Work/SmStandardModelAudit.lean` (only `propext`, `Classical.choice`, `Quot.sound`), and
+`lake build BookProof BookProofOperatorCore Work.SmStandardModelAudit` is green.
+
+* `BookProof/ChapterSmOneParticle.lean` — the nine blocks of bosonic collective coordinates
+  as a type, with the **recount** `card_smCoord : Fintype.card SmCoord = 163` (the plan's
+  `D_B`, proved rather than quoted) and the labelling `smIdx`, from which the named
+  coordinates `smX`, `smG`, `smDG`, `smW`, `smDW`, `smB`, `smDB`, `smPhi`, `smDPhi` are
+  injective by construction.  The CKM / PMNS algebra: `unitary_row_sum_normSq`,
+  `unitary_entry_norm_le_one` (`|V_ij| ≤ 1`; CHECK 19 / 27), `unitary_transpose_of_real`
+  (Cabibbo `V Vᵀ = I`; CHECK 17 / 25), `biunitary_massSq`
+  (`M = U_L V† D U_R† ⟹ M†M = U_R D†D U_R†`; CHECK 18 / 26), `norm_mulVec_le_sum` and
+  `yukawa_bound` (mixing-bounded Yukawa domination; CHECK 20 / 28).
+* `BookProof/ChapterSmHamiltonian.lean` — the bosonic one-particle operator in temporal
+  gauge on the Gauss–polynomial core of `L²(ℝ¹⁶³)`: the `40` momenta (`card_smMom`) and the
+  `49` squared real field polynomials (`card_smForm`) — gluon, weak and hypercharge magnetic
+  fields at arbitrary real structure constants (the quartic non-abelian case included), the
+  covariant Higgs derivative with arbitrary real electroweak generators, and the Higgs wall.
+  `smHamiltonian_symmetricOn`, `smHamiltonian_quadForm`, `smHamiltonian_quadForm_nonneg` and
+  **`sm_friedrichs_extension`**; `higgs_mexican_hat` and `wall_sq` relate the square form of
+  the potential to `−½μ²‖φ‖² + ¼λ‖φ‖⁴` (they differ by `μ⁴/4λ`, `v² = μ²/λ`).
+* `BookProof/ChapterSmComparison.lean` — the Faris–Lavine comparison operator
+  `N = N₀ + c₀` of §D6b-SM.2 with its quartic/quadratic confinement mix (`card_smConf`),
+  `smComparison_symmetricOn`, `smComparison_quadForm` and **`sm_N_positive`** (`N ≥ 1`,
+  CHECK 9c); `quarticEsaOp`, `quadraticEsaOp`, **`sm_N_dyn_esa`** and `sm_N_dyn_stone_flow`
+  — the `40` uncoupled confining factors `−d²/dq² + q⁴`, `−d²/dq² + q²` and their tensor sum.
+* `BookProof/ChapterSmOuterFock.lean` — the enclosure: `smSectorHam` per particle number,
+  `smFockSpace`/`smFockCore`/`smFockHam` = `dΓ(h)` on `⊕ₙ L²(ℝ^{163n})`,
+  `smFockHam_symmetricOn`, `smFockHam_quadForm_nonneg`,
+  **`sm_dGamma_friedrichs_extension`**, `sm_dGamma_stone_flow` and
+  `smFockHam_number_conserving`.
+* `Book/StandardModel.lean` (tag `standard-model`), registered in `Book.lean`; every
+  `#check @BookProof.Sm…` name resolves (checked by elaborating the list against the four
+  chapters).  The Verso book target itself does not build in this working copy: the
+  `MD4Lean` dependency checkout contains only a `lakefile.lean` and no sources, so
+  `Verso.Code.External.Files` and `VersoManual.Markdown` fail on `unknown module prefix
+  'MD4Lean'` — an environmental obstacle, unrelated to the edits.
+
+Boundaries, unchanged from the plan and restated in every chapter: the Dirac and Yukawa
+*operators* are not formalized (they need the CAR/Grassmann algebra); the three Faris–Lavine
+hypotheses of §D6b-SM.3 remain symbolic (Cadabra CHECK 1–28) and are not needed for the
+Friedrichs route this bosonic operator takes; the derivative-coordinate summands of `N₀` are
+outside the ESA chain; and no spectrum, no mass gap, no symmetry breaking as dynamics and no
+measured mixing parameter is claimed.

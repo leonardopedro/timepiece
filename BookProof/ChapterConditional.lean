@@ -115,7 +115,8 @@ The marginal distribution sums to `1`: it is a probability distribution on
 theorem pMarg_sum_one (B : Matrix Y X 𝕜)
     (hB : ∑ x, ∑ y, ‖B y x‖ ^ 2 = 1) :
     ∑ x, pMarg B x = 1 := by
-  convert hB using 1
+  simp only [pMarg]
+  exact hB
 
 omit [Fintype X] [DecidableEq X] in
 theorem pCond_nonneg (B : Matrix Y X 𝕜) (x : X) (y : Y) : 0 ≤ pCond B x y := by

@@ -138,6 +138,71 @@ even though the underlying creation operators are not. The anticommutation lives
 the parametrization, not in the measured quantities.
 :::
 
+# Every Particle Number: the Symmetric and Antisymmetric Sectors
+
+:::paragraph
+The matrices above are the whole story for two modes. The same dichotomy at
+*arbitrary* particle number is not a matrix computation but an operator-theoretic
+one, and it is now a theorem: essential self-adjointness passes from a one-particle
+operator to its restriction to the bosonic and the fermionic sectors of every
+tensor power, and then to the Fock spaces assembled from them.
+
+The mechanism is averaging. A self-inverse isometry $`U` that preserves the
+domain and commutes with $`T` has reducing projections $`(1 \pm U)/2`
+(`BookProof.ReducedEsa.symProj`, `…_asymProj`), and
+`essentiallySelfAdjointOn_symSector` / `…_asymSector` restrict the operator to the
+$`\pm` eigenspaces. A finite group of such symmetries is handled by its Haar
+average `avgProj`, whose range is the joint fixed space —
+`essentiallySelfAdjointOn_invariantSector` in `BookProof.GroupAverage`. The group
+in question is the symmetric group $`S_n`, acting on $`H^{\otimes n}` by the
+permutation action `permOp` of `BookProof.TensorPerm` (built from `swapFirst` and
+`liftTail`, checked on pure tensors by `permOp_purePow`), twisted by `signRep`
+for the fermionic case.
+
+The conclusion, in `BookProof.PermSector`, is
+`essentiallySelfAdjointOn_bosonic` and `essentiallySelfAdjointOn_fermionic` on
+$`D_2^{\otimes n}`, and — composing with the multilinear core estimate —
+`essentiallySelfAdjointOn_bosonic_core` / `…_fermionic_core` on the symmetrized
+and antisymmetrized one-particle core $`D^{\otimes n}`, for any core $`D` of
+$`A`. `mem_bosonicSector_iff` and `mem_fermionicSector_iff` identify the sectors
+as the symmetric and the antisymmetric tensors — the infinite-dimensional
+counterpart of the two-dimensional $`\Lambda^2` and $`S^2` the Pauli and
+commutation arguments above detect. `BookProof.FockStatistics` discharges the
+carried hypothesis from essential self-adjointness of the one-particle operator
+alone (`bosonicFock_esa`, `fermionicFock_esa`), and its completion chapter
+assembles the sectors over all particle numbers:
+`hbosonicFock_esa` — the bosonic Fock space — and `hfermionicFock_esa`, the
+fermionic one.
+
+So the finite $`4 \times 4` computation of this chapter and the infinite
+construction above answer the same question at two levels: *which vectors are
+counted once (bosons) and which cancel (fermions)*, and *does the Hamiltonian of
+record, restricted to those vectors, still have a unique self-adjoint extension*.
+The answer to the second is now yes, at every particle number, under no
+hypothesis beyond essential self-adjointness of the one-particle operator.
+:::
+
+```
+#check @BookProof.ReducedEsa.symProj
+#check @BookProof.ReducedEsa.essentiallySelfAdjointOn_symSector
+#check @BookProof.GroupAverage.avgProj
+#check @BookProof.GroupAverage.essentiallySelfAdjointOn_invariantSector
+#check @BookProof.TensorPerm.permOp
+#check @BookProof.TensorPerm.permOp_purePow
+#check @BookProof.TensorPerm.permRep
+#check @BookProof.TensorPerm.signRep
+#check @BookProof.PermSector.essentiallySelfAdjointOn_bosonic
+#check @BookProof.PermSector.essentiallySelfAdjointOn_fermionic
+#check @BookProof.PermSector.essentiallySelfAdjointOn_bosonic_core
+#check @BookProof.PermSector.essentiallySelfAdjointOn_fermionic_core
+#check @BookProof.PermSector.mem_bosonicSector_iff
+#check @BookProof.PermSector.mem_fermionicSector_iff
+#check @BookProof.FockStatistics.bosonicFock_esa
+#check @BookProof.FockStatistics.fermionicFock_esa
+#check @BookProof.FockStatistics.hbosonicFock_esa
+#check @BookProof.FockStatistics.hfermionicFock_esa
+```
+
 # Why This Matters Here
 
 :::paragraph

@@ -118,7 +118,6 @@ theorem legendreAux_ode (l : ℕ) :
   · set n := l + 1 with hn
     set v : ℝ[X] := (X ^ 2 - 1) ^ n with hv
     have hLHS := congrArg (fun p => derivative^[n+1] p) (rodrigues_step n)
-    simp only at hLHS
     have e1 : (X ^ 2 - 1 : ℝ[X]) * derivative v = X ^ 2 * derivative v - derivative v := by ring
     rw [e1, iterate_derivative_sub, iterD_Xsq_mul (n+1) (derivative v),
       show C (2 * (n : ℝ)) * X * v = C (2 * (n : ℝ)) * (X * v) from by ring,

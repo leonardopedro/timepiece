@@ -1,0 +1,115 @@
+import BookProof.ChapterSmOneParticle
+import BookProof.ChapterSmHamiltonian
+import BookProof.ChapterSmComparison
+import BookProof.ChapterSmOuterFock
+import BookProof.ChapterSmCarAlgebra
+import BookProof.ChapterSmDiracYukawa
+import BookProof.ChapterSmDiracSpinor
+import BookProof.ChapterSmComparisonFull
+import BookProof.ChapterSmHiggsVacuum
+
+/-!
+Resolution check for the `#check` names of `Book/StandardModel.lean`.
+
+The Verso book target cannot be built in every working copy, so the book chapter's
+fenced `#check @…` blocks are elaborated here against the Standard-Model proof chapters
+instead: if this module compiles, every name the chapter cites exists with the spelling
+the chapter uses.
+-/
+
+#check @BookProof.SmOneParticle.SmCoord
+#check @BookProof.SmOneParticle.card_smCoord
+#check @BookProof.SmOneParticle.smIdx
+#check @BookProof.SmOneParticle.smG
+#check @BookProof.SmOneParticle.smPhi
+#check @BookProof.SmOneParticle.IsMixing
+#check @BookProof.SmOneParticle.unitary_row_sum_normSq
+#check @BookProof.SmOneParticle.unitary_entry_norm_le_one
+#check @BookProof.SmOneParticle.unitary_transpose_of_real
+#check @BookProof.SmOneParticle.biunitary_massSq
+#check @BookProof.SmOneParticle.norm_mulVec_le_sum
+#check @BookProof.SmOneParticle.yukawa_bound
+#check @BookProof.SmHamiltonian.SmParams
+#check @BookProof.SmHamiltonian.smMagG
+#check @BookProof.SmHamiltonian.smMagW
+#check @BookProof.SmHamiltonian.smMagB
+#check @BookProof.SmHamiltonian.smCovD
+#check @BookProof.SmHamiltonian.smWall
+#check @BookProof.SmHamiltonian.card_smMom
+#check @BookProof.SmHamiltonian.card_smForm
+#check @BookProof.SmHamiltonian.smHamiltonian
+#check @BookProof.SmHamiltonian.smHamiltonian_symmetricOn
+#check @BookProof.SmHamiltonian.smHamiltonian_quadForm
+#check @BookProof.SmHamiltonian.smHamiltonian_quadForm_nonneg
+#check @BookProof.SmHamiltonian.sm_friedrichs_extension
+#check @BookProof.SmHamiltonian.higgs_mexican_hat
+#check @BookProof.SmHamiltonian.wall_sq
+#check @BookProof.SmComparison.card_smConf
+#check @BookProof.SmComparison.smComparison
+#check @BookProof.SmComparison.smComparison_symmetricOn
+#check @BookProof.SmComparison.smComparison_quadForm
+#check @BookProof.SmComparison.sm_N_positive
+#check @BookProof.SmComparison.quarticEsaOp
+#check @BookProof.SmComparison.quadraticEsaOp
+#check @BookProof.SmComparison.sm_N_dyn_esa
+#check @BookProof.SmComparison.sm_N_dyn_stone_flow
+#check @BookProof.SmOuterFock.smSectorHam
+#check @BookProof.SmOuterFock.smSectorHam_symmetricOn
+#check @BookProof.SmOuterFock.smSectorHam_quadForm_nonneg
+#check @BookProof.SmOuterFock.smSector_friedrichs_extension
+#check @BookProof.SmOuterFock.smFockSpace
+#check @BookProof.SmOuterFock.smFockCore
+#check @BookProof.SmOuterFock.smFockCore_dense
+#check @BookProof.SmOuterFock.smFockHam
+#check @BookProof.SmOuterFock.smFockHam_symmetricOn
+#check @BookProof.SmOuterFock.smFockHam_quadForm_nonneg
+#check @BookProof.SmOuterFock.sm_dGamma_friedrichs_extension
+#check @BookProof.SmOuterFock.sm_dGamma_stone_flow
+#check @BookProof.SmOuterFock.smFockHam_number_conserving
+#check @BookProof.SmCar.FermiFock
+#check @BookProof.SmCar.jwSign
+#check @BookProof.SmCar.annih
+#check @BookProof.SmCar.creat
+#check @BookProof.SmCar.car_annih_creat_self
+#check @BookProof.SmCar.car_annih_creat_of_ne
+#check @BookProof.SmCar.car_annih_annih
+#check @BookProof.SmCar.car_creat_creat
+#check @BookProof.SmCar.inner_creat_left
+#check @BookProof.SmCar.norm_annih_le
+#check @BookProof.SmCar.fermiBilin
+#check @BookProof.SmCar.fermiBilin_symmetric
+#check @BookProof.SmCar.fermiEnergy_occ
+#check @BookProof.SmCar.fermi_mass_gap
+#check @BookProof.SmDiracYukawa.smDirac
+#check @BookProof.SmDiracYukawa.smYukawa
+#check @BookProof.SmDiracYukawa.smFermiHam
+#check @BookProof.SmDiracYukawa.smFermiHam_symmetricOn
+#check @BookProof.SmDiracYukawa.yukawa_entry_bound
+#check @BookProof.SmDiracYukawa.smFermiN
+#check @BookProof.SmDiracYukawa.sm_fermi_N_ge_one
+#check @BookProof.SmDiracYukawa.sm_fermi_N_add_one_surjective
+#check @BookProof.SmDiracYukawa.sm_fermi_fl_i
+#check @BookProof.SmDiracYukawa.sm_fermi_fl_ii
+#check @BookProof.SmDiracYukawa.sm_fermi_fl_iii
+#check @BookProof.SmDiracYukawa.sm_fermi_esa
+#check @BookProof.SmDiracSpinor.diracOneParticle
+#check @BookProof.SmDiracSpinor.diracOneParticle_hermitian
+#check @BookProof.SmDiracSpinor.diracOneParticle_sq
+#check @BookProof.SmDiracSpinor.diracOneParticle_eigenvalue_sq
+#check @BookProof.SmDiracSpinor.diracFieldHam
+#check @BookProof.SmDiracSpinor.dirac_field_esa
+#check @BookProof.SmComparisonFull.derivEsaOp
+#check @BookProof.SmComparisonFull.deriv_coordinate_esa
+#check @BookProof.SmComparisonFull.smFullChain
+#check @BookProof.SmComparisonFull.smFullChain_length
+#check @BookProof.SmComparisonFull.sm_N_full_esa
+#check @BookProof.SmComparisonFull.sm_N_full_stone_flow
+#check @BookProof.SmHiggsVacuum.higgsV
+#check @BookProof.SmHiggsVacuum.higgsV_sq_form
+#check @BookProof.SmHiggsVacuum.higgsV_ge_min
+#check @BookProof.SmHiggsVacuum.higgsV_eq_min_iff
+#check @BookProof.SmHiggsVacuum.higgs_goldstone
+#check @BookProof.SmHiggsVacuum.higgs_radial
+#check @BookProof.SmHiggsVacuum.gaugeMassForm
+#check @BookProof.SmHiggsVacuum.gaugeMassForm_nonneg
+#check @BookProof.SmHiggsVacuum.gaugeMassForm_eq_zero_iff

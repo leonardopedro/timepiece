@@ -192,10 +192,19 @@ Hamiltonian as a one-particle operator enclosed between creation and annihilatio
 $`H = \int d^3\vec x\, a^\dagger(\vec x)\, H(\vec x)\, a(\vec x)` — its Navier–Stokes instance is
 $`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)`, and the Yang–Mills instance is the same
 envelope with the one-particle Weyl Hamiltonian $`\tfrac12\sum_i\pi_i^2 + \tfrac12\sum_a B_a^2` on the
-Gauss–polynomial core of $`L^2(\mathbb{R}^{99})`.  Because the inner space already contains the
-fields and their spatial derivatives, a product carrying a spatial derivative is not a differential
-operator there: in momentum space it becomes a **convolution** (the Navier–Stokes companion
-`BookProof.NsAdvectionConvolution`), not a gauge fixing of the derivative variables.
+Gauss–polynomial core of $`L^2(\mathbb{R}^{99})`.  One point of scope, because
+the phrase "spatial derivative of a field" occurs in more than one sector: the
+passage to a momentum-space **convolution** is the device of the Navier–Stokes
+and quantum-gravity routes, where a *product* of fields carrying a spatial
+derivative has to be written without a differential operator
+(`BookProof.NsAdvectionConvolution`, and the QG elimination chapters
+`ChapterQgFourierElimination` / `ChapterQgFullEliminated`). Yang–Mills needs no
+such device: in the Weyl-gauge field space of this chapter the coordinates
+$`A_{j,a}` and the momenta $`\pi` — together with the magnetic field $`B`, which
+is a polynomial in them — are already the independent variables, so no product of
+fields with a spatial derivative ever has to be reinterpreted. Nothing is gauge
+*fixed* by the convolution in the other two sectors either; it is a change of
+description, not a constraint.
 :::
 
 :::paragraph
@@ -424,6 +433,32 @@ is exactly the core:
 #check @BookProof.HermiteProductCore.polyGaussCore_eq_hermiteSpan
 #check @BookProof.HermiteProductCore.coreBasis
 #check @BookProof.HermiteProductCore.span_range_coreBasis
+```
+
+:::paragraph
+The core is built from Hermite material, and the companion chapter
+`BookProof/ChapterHermiteFunctions.lean` (namespace `BookProof.HermiteCore`)
+supplies that material from scratch: the probabilists' Hermite polynomials
+`hermiteR` with their ODE (`hermiteR_ode`) and integration-by-parts identity
+(`gint_ibp`), the normalized Hermite functions `hermiteLp`, their orthonormality
+`orthonormal_hermiteLp`, their density `hermiteLp_span_dense` — assembled into
+the Hilbert basis `hermiteBasis` — and the eigen-relation
+`hermiteFun_oscillator`: the functions $`H_n e^{-x^2/4}` are exactly the
+eigenfunctions of the harmonic oscillator $`-\partial^2 + x^2/4`, which is the
+comparison operator the QYM Faris–Lavine route runs on. The completeness of the
+basis is proved internally, by a moment/Fourier argument, so the Gauss-polynomial
+core above is anchored in a basis that does not presuppose the spectral theory it
+is used to establish.
+:::
+
+```
+#check @BookProof.HermiteCore.hermiteR
+#check @BookProof.HermiteCore.hermiteR_ode
+#check @BookProof.HermiteCore.gint_ibp
+#check @BookProof.HermiteCore.orthonormal_hermiteLp
+#check @BookProof.HermiteCore.hermiteLp_span_dense
+#check @BookProof.HermiteCore.hermiteBasis
+#check @BookProof.HermiteCore.hermiteFun_oscillator
 ```
 
 :::paragraph

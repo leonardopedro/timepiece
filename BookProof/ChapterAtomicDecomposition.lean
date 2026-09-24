@@ -63,7 +63,7 @@ theorem noAtoms_continuousPart (mu : Measure X) [SFinite mu] : NoAtoms (continuo
   constructor
   intro x
   rcases eq_or_ne (mu {x}) 0 with h | h
-  · exact le_antisymm ((Measure.restrict_apply_le _ _).trans (le_of_eq h)) (zero_le _)
+  · exact le_antisymm ((Measure.restrict_apply_le _ _).trans (le_of_eq h)) zero_le
   · have hxA : x ∈ atoms mu := pos_iff_ne_zero.mpr h
     rw [continuousPart, Measure.restrict_apply (measurableSet_singleton x)]
     have hempty : ({x} : Set X) ∩ (atoms mu)ᶜ = ∅ := by

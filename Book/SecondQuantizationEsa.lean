@@ -263,9 +263,252 @@ outer ladders.
 The carried input in the fully general case is the sectorwise statement for a
 self-adjoint one-particle operator, and even that is now proved for every
 self-adjoint `H₁` (`dGamma_selfAdjoint_essentiallySelfAdjointOn_fockCore`) — with
-the bounded, scalar and diagonal cases unconditional as well. The remaining warning
-worth keeping in view is the scope stated by the chapters themselves: the tensor
-powers used are the **full** powers $`H^{\\otimes n}`, not the symmetric (bosonic)
-or antisymmetric (fermionic) subspaces; the statements are about the derivation on
-those powers, and no claim about the symmetrized Fock sectors is made here.
+the bounded, scalar and diagonal cases unconditional as well. One scope caveat
+survives, and it is a caveat about *this* chapter rather than about the theory:
+the tensor powers used **here** are the full powers $`H^{\otimes n}`, not the
+symmetric (bosonic) or antisymmetric (fermionic) subspaces. The statements above
+are about the derivation on those powers. The passage to the symmetrized sectors
+is not a further hypothesis — it is the subject of the next section, and it is
+now proved.
+:::
+
+# The Symmetric and Antisymmetric Sectors, at Every Particle Number
+
+:::paragraph
+The enclosure $`H = d\Gamma(h)` is a statement about the *whole* nested Fock
+space, but the physical content lives in the symmetric (bosonic) and
+antisymmetric (fermionic) subspaces of each sector $`H^{\otimes n}`. That
+passage was the honest boundary of the previous section. It has been executed,
+in four steps that are worth reading as one argument, because each step is an
+abstract instrument reusable far beyond this book.
+
+**Step one — reduction.** `BookProof/ChapterReducingSubspaceEsa.lean`
+(namespace `BookProof.ReducedEsa`): if $`P` is an idempotent symmetric
+*reducing* projection that preserves the domain and commutes with $`T`, then
+essential self-adjointness of $`T` descends to the sector $`D \cap P F`. The
+proof is the deficiency argument in miniature — for $`w` in the range,
+$`\langle T v, w \rangle = \langle P(Tv), w \rangle = \langle T(Pv), w \rangle` —
+and needs no completeness, no closedness and no spectral theory
+(`essentiallySelfAdjointOn_red`). Applied to a self-inverse isometry $`U`
+preserving $`D` and commuting with $`T`, the two canonical projections
+$`(1 \pm U)/2` (`symProj`, `asymProj`) are such projections, giving
+`essentiallySelfAdjointOn_symSector` / `…_asymSector` on the eigenspaces
+$`Ux = \pm x`.
+
+**Step two — finite groups.** `BookProof/ChapterGroupAverageEsa.lean`
+(namespace `BookProof.GroupAverage`) generalizes the single involution to any
+finite group of symmetries: `UnitaryRep G F` is an action by inner-preserving
+linear maps, `avgProj = |G|^{-1} \sum_g \rho(g)` is the Haar average, its range
+is the joint fixed space (`mem_range_avgProj_iff`), it is again a reducing
+projection (`isReducingProjection_avgProj`, by the reindexing
+$`\sum_g\sum_h \rho(gh) = |G|\sum_k \rho(k)`), and hence
+**`essentiallySelfAdjointOn_invariantSector`**: an operator commuting with the
+action is essentially self-adjoint on the invariant sector as soon as it is on
+its domain. This is the instrument the higher sectors need — the symmetric group
+of $`n` factors, twisted by the sign character for the fermionic case.
+
+**Step three — the permutation action.** `BookProof/ChapterTensorPermutation.lean`
+(namespace `BookProof.TensorPerm`) builds it out of two elementary isometries
+only: `swapFirst`, the exchange of the first two factors of $`E^{\otimes(n+2)}`
+(associator ∘ commutor ∘ associator), and `liftTail u`, applied to the last $`n`
+factors; `permOp n σ` follows `Equiv.Perm.decomposeFin`. Since every operator is
+a composite of linear isometry equivalences, each is one, and
+`permOp_purePow` is the familiar formula
+$`U_\sigma(x_0 \otimes \cdots \otimes x_{n-1}) = x_{\sigma 0} \otimes \cdots \otimes x_{\sigma(n-1)}`,
+from which the group law `permOp_mul` follows. `permRep` and `signRep` package
+the action and its sign twist as `UnitaryRep`s.
+
+**Step four — the two sectors.** `BookProof/ChapterPermutationSectorEsa.lean`
+(namespace `BookProof.PermSector`) checks the three compatibilities of a pair of
+operators — with the inclusion of the domain, with the sector derivation
+$`d\Gamma(A)^{(n)}`, and with the core power $`D^{\otimes n}` — for the two
+generators (`Good`, `good_swapFirst`, `good_liftTail`) and passes them along the
+recursion (`good_permOp`). Through `essentiallySelfAdjointOn_invariantSector`
+come the four headline statements: **`essentiallySelfAdjointOn_bosonic`** and
+**`essentiallySelfAdjointOn_fermionic`** on $`D_2^{\otimes n}`, and
+**`essentiallySelfAdjointOn_bosonic_core`** / **`essentiallySelfAdjointOn_fermionic_core`**
+on the symmetrized and antisymmetrized one-particle core $`D^{\otimes n}`, for
+any core $`D` of $`A`. `mem_bosonicSector_iff` / `mem_fermionicSector_iff`
+identify the two sectors as the symmetric and the antisymmetric tensors;
+`exists_ne_zero_bosonic` (the $`n`-th power $`a \otimes \cdots \otimes a` of a
+core vector) and `exists_ne_zero_fermionic` (the Slater determinant, nonzero by
+`inner_purePow` and orthogonality) are the non-vacuity witnesses.
+
+Two companion chapters make the picture complete. The two-particle case in
+isolation, from which the general construction checks itself
+(`permOp_two_eq_swapH`), is `BookProof/ChapterTwoParticleSectorEsa.lean`
+(namespace `BookProof.TwoParticleSector`), with its reducing projection the
+swap $`(1 \pm \mathrm{swap})/2`. And `BookProof/ChapterFockStatisticsEsa.lean`
+(namespace `BookProof.FockStatistics`) discharges the hypothesis the permutation
+chapter *carries* — that the sector derivation is essentially self-adjoint on
+$`D_2^{\otimes n}` — from essential self-adjointness of the one-particle
+operator alone (`essentiallySelfAdjointOn_bosonic_of_esa`, …), assembling the
+algebraic-tensor Fock statements `bosonicFock_esa` and `fermionicFock_esa`.
+`BookProof/ChapterFockStatisticsCompletion.lean` then carries all of it across
+to the *completed* sectors and takes the direct sum over particle numbers:
+**`hbosonicFock_esa`** — $`d\Gamma(A)` is essentially self-adjoint on the
+bosonic Fock space, the Hilbert space direct sum over all particle numbers of
+the symmetric sectors — and **`hfermionicFock_esa`**, its fermionic twin, under
+no hypotheses beyond essential self-adjointness of $`A` on a dense domain.
+:::
+
+```
+#check @BookProof.ReducedEsa.IsReducingProjection
+#check @BookProof.ReducedEsa.essentiallySelfAdjointOn_red
+#check @BookProof.ReducedEsa.symmetricOn_redOp
+#check @BookProof.ReducedEsa.symProj
+#check @BookProof.ReducedEsa.asymProj
+#check @BookProof.ReducedEsa.essentiallySelfAdjointOn_symSector
+#check @BookProof.ReducedEsa.essentiallySelfAdjointOn_asymSector
+#check @BookProof.GroupAverage.UnitaryRep
+#check @BookProof.GroupAverage.avgProj
+#check @BookProof.GroupAverage.mem_range_avgProj_iff
+#check @BookProof.GroupAverage.isReducingProjection_avgProj
+#check @BookProof.GroupAverage.essentiallySelfAdjointOn_invariantSector
+#check @BookProof.GroupAverage.repOfInvolution
+#check @BookProof.GroupAverage.avgProj_repOfInvolution
+#check @BookProof.TensorPerm.permOp
+#check @BookProof.TensorPerm.permOp_purePow
+#check @BookProof.TensorPerm.permOp_mul
+#check @BookProof.TensorPerm.permRep
+#check @BookProof.TensorPerm.signRep
+#check @BookProof.PermSector.good_permOp
+#check @BookProof.PermSector.essentiallySelfAdjointOn_bosonic
+#check @BookProof.PermSector.essentiallySelfAdjointOn_fermionic
+#check @BookProof.PermSector.essentiallySelfAdjointOn_bosonic_core
+#check @BookProof.PermSector.essentiallySelfAdjointOn_fermionic_core
+#check @BookProof.PermSector.mem_bosonicSector_iff
+#check @BookProof.PermSector.mem_fermionicSector_iff
+#check @BookProof.PermSector.permOp_two_eq_swapH
+#check @BookProof.TwoParticleSector.essentiallySelfAdjointOn_bosonic
+#check @BookProof.TwoParticleSector.essentiallySelfAdjointOn_fermionic
+#check @BookProof.FockStatistics.essentiallySelfAdjointOn_bosonic_of_esa
+#check @BookProof.FockStatistics.bosonicFock_esa
+#check @BookProof.FockStatistics.fermionicFock_esa
+#check @BookProof.FockStatistics.hbosonicFock_esa
+#check @BookProof.FockStatistics.hfermionicFock_esa
+#check @BookProof.GroupAverage.UnitaryRep.completionRep
+```
+
+:::paragraph
+**Honest boundary of the symmetrization.** The statements are about the two
+sectors of $`H^{\otimes n}` for each *fixed* particle number $`n`, and — through
+the completed-Fock chapter — about the direct sum that assembles them. Nothing
+is claimed about a continuum of particle numbers beyond that sum, and essential
+self-adjointness of $`d\Gamma(A)^{(n)}` on $`D_2^{\otimes n}` is carried as a
+hypothesis through the reduction, discharged separately by the Fock-statistics
+chapter as described above. The passage is *statistics*, not dynamics: it says
+which vectors are physical, and that the physical subspace inherits the
+essential self-adjointness — it says nothing about the spectrum.
+:::
+
+# The One-Particle Obligation, Discharged in General
+
+:::paragraph
+There are two obligations behind every Faris–Lavine route chapter, and it is
+worth naming them separately because they are easy to confuse. Obligation (ii)
+was that the *lifted* operator $`d\Gamma(N)` must be essentially self-adjoint on
+the lifted core — that is what the core-transfer chain of the earlier sections
+discharges. Obligation (i) is the *inner* one: the comparison operator $`N` of
+record must itself be essentially self-adjoint on the core the proof actually
+chooses. Two short chapters discharge it in general.
+
+`BookProof/ChapterSelfAdjointCoreEsa.lean` (namespace
+`BookProof.SelfAdjointCoreEsa`): if $`T` has a self-adjoint extension, then it
+was already essentially self-adjoint on its own domain. At a non-real $`z` the
+deficiency equation makes $`w` a domain vector with $`A w = z \bullet w`, and
+symmetry then forces $`(\bar z - z)\langle w, w \rangle = 0`, so $`w = 0`
+(`deficiencyTrivialAt_dom_of_isSelfAdjointExtension`); composing with the graph
+transfer gives `essentiallySelfAdjointOn_of_graphCore_selfAdjoint`.
+
+`BookProof/ChapterComparisonCoreEsa.lean` (namespace
+`BookProof.ComparisonCoreEsa`) restates the same fact in the vocabulary the
+route chapters use: `comparison_isSelfAdjointExtension` and
+`comparison_essentiallySelfAdjointOn_dom` (a `Comparison` is self-adjoint, hence
+essentially self-adjoint, on its own domain), `graphCore_of_isGraphCore` (the
+two graph-core notions agree), **`esa_of_isGraphCore`** — obligation (i) — and
+**`isGraphCore_iff_esa`**, the equivalence obtained with the already-proved
+converse `ScalaronFiberFL.isGraphCore_of_esa`: *for a Faris–Lavine comparison
+operator, "graph core" and "core of essential self-adjointness" are the same
+notion.* Wherever a route chapter exhibits a graph core for its comparison
+operator — `QgOuterFockFullFL.harmFried_isGraphCore`, the Gauss-polynomial core
+of $`-\Delta + \lVert x\rVert^2/4` in every dimension, and
+`ScalaronOuterFockFL.secN_isGraphCore`, the compactly-supported smooth core of
+the scalaron-wall comparison — obligation (i) therefore needs no further work.
+:::
+
+```
+#check @BookProof.SelfAdjointCoreEsa.deficiencyTrivialAt_dom_of_isSelfAdjointExtension
+#check @BookProof.SelfAdjointCoreEsa.essentiallySelfAdjointOn_dom_of_isSelfAdjointExtension
+#check @BookProof.SelfAdjointCoreEsa.essentiallySelfAdjointOn_of_graphCore_selfAdjoint
+#check @BookProof.ComparisonCoreEsa.comparison_isSelfAdjointExtension
+#check @BookProof.ComparisonCoreEsa.comparison_essentiallySelfAdjointOn_dom
+#check @BookProof.ComparisonCoreEsa.graphCore_of_isGraphCore
+#check @BookProof.ComparisonCoreEsa.esa_of_isGraphCore
+#check @BookProof.ComparisonCoreEsa.isGraphCore_iff_esa
+```
+
+# Non-Interacting Degrees of Freedom: the Tensor Sum
+
+:::paragraph
+The last elementary situation the enclosure needs, and did not have, is the
+tensor sum of two *different* operators — $`A \otimes 1 + 1 \otimes B`, the
+Hamiltonian of two non-interacting degrees of freedom with potential
+$`V(u,v) = V_1(u) + V_2(v)`. `BookProof/ChapterTensorSumEsa.lean` (namespace
+`BookProof.TensorSumEsa`) puts it on the completed tensor product
+$`H \hat\otimes K` with domain $`D_A \otimes D_B`: symmetry
+(`symmetricOn_cpairOp`), density of that domain (`dense_cpairDom`), the product
+flow $`U t \otimes V t` (`pflow`, `hasDerivAt_pflow`) which is isometric,
+preserves the domain and obeys the Leibniz rule — hence solves the Schrödinger
+equation of the tensor sum — and Nelson's invariant-domain criterion applied to
+those orbits gives **`essentiallySelfAdjointOn_cpairDom_flow`**, with the
+self-adjoint case `essentiallySelfAdjointOn_cpairDom_selfAdjoint` (Stone's
+theorem supplying the flows: no boundedness, no positivity, no relative bound and
+no assumption on either spectrum) and the weakest headline
+**`essentiallySelfAdjointOn_cpairDom_esa`**, where both hypotheses are only
+*essential* self-adjointness. The two-factor core estimate
+`isGraphCore_pairCore` says a core of $`A` tensor a core of $`B` is a core of
+the sum.
+
+`BookProof/ChapterTensorSumChain.lean` (namespace `BookProof.TensorSumChain`)
+iterates it: `EsaOp` bundles the data, `pair` is the two-factor step and `chain`
+folds it along a list, so **`chain_esa`** covers
+$`A_1 \otimes 1 \otimes \cdots + \cdots + 1 \otimes \cdots \otimes A_n` for an
+arbitrary finite family of symmetric, essentially self-adjoint operators — the
+Hamiltonian of $`n` non-interacting degrees of freedom — on the algebraic tensor
+product of the $`n` domains, with the unitary group `chain_stone_flow`.
+
+This is the theorem behind every *decoupled* realization in the programme: when
+a final Hamiltonian of record is written as a sum of uncoupled one-particle
+pieces — the TEGR shear fibres $`\oplus` the scalaron mass, say, in the
+R² vielbein model's small-field limit — its essential self-adjointness follows
+from `chain_esa` rather than from a bespoke argument per sector.
+:::
+
+```
+#check @BookProof.TensorSumEsa.symmetricOn_cpairOp
+#check @BookProof.TensorSumEsa.dense_cpairDom
+#check @BookProof.TensorSumEsa.essentiallySelfAdjointOn_cpairDom_flow
+#check @BookProof.TensorSumEsa.essentiallySelfAdjointOn_cpairDom_selfAdjoint
+#check @BookProof.TensorSumEsa.essentiallySelfAdjointOn_cpairDom_esa
+#check @BookProof.TensorSumEsa.isGraphCore_pairCore
+#check @BookProof.TensorSumEsa.essentiallySelfAdjointOn_cpairCore
+#check @BookProof.TensorSumEsa.tensorSum_stone_flow
+#check @BookProof.TensorSumChain.EsaOp
+#check @BookProof.TensorSumChain.chain
+#check @BookProof.TensorSumChain.chain_esa
+#check @BookProof.TensorSumChain.chain_symmetric
+#check @BookProof.TensorSumChain.chain_dense
+#check @BookProof.TensorSumChain.chain_stone_flow
+```
+
+:::paragraph
+**Honest boundary.** The gluing is over a tensor product of finitely many
+factors (by iteration); it is not the direct-integral step, and it says nothing
+about a potential that is *not* a sum of a function of the first variable and a
+function of the second. Interaction terms — the scalaron–vielbein coupling, the
+$`B^2` pair terms, the advection convolution — are exactly what a tensor sum
+does **not** cover; they live in the one-particle operator of a single factor
+and enter the enclosure through the matrix elements $`h_{ij}`, as the doctrine at
+the head of this chapter says.
 :::

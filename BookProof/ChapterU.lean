@@ -152,7 +152,8 @@ theorem differentiable_trajectory_null {Ω : Type*} [MeasurableSpace Ω] (P : Me
     [IsProbabilityMeasure P] (path : Ω → ℝ → ℝ)
     (hext : ∀ᵐ ω ∂P, ∀ t, ¬ DifferentiableAt ℝ (path ω) t) :
     P {ω | ∃ t, DifferentiableAt ℝ (path ω) t} = 0 := by
-  convert MeasureTheory.measure_mono_null ( fun ω hω => by aesop ) hext
+  refine MeasureTheory.measure_mono_null (fun ω hω => ?_) hext
+  aesop
 
 /-! ## U.5 — Independent components: portfolio risk falls like `1/√n` -/
 

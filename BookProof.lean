@@ -2742,6 +2742,24 @@ import BookProof.ChapterNsSpatialMomentumMultiplier
 -- of the target, with its Fourier, `L²` and derivative compatibilities.
 import BookProof.ChapterNsPartialFourier
 
+-- `ChapterNsScalarVectorCurry` (2026-09-21): the residual of item 1 of the Navier–Stokes plan
+-- items — the measure-theoretic identification of the *fibred* one-particle space with the
+-- *scalar* one.  `curryLI : L²(V; L²(W)) ≃ₗᵢ[ℂ] L²(μ.prod ν)` is built from the two generator
+-- families (`fibMk a c : x ↦ a x • c` and `prodMk a c : (x, y) ↦ a x * c y`), whose inner
+-- products agree by Fubini (`inner_fibMk`, `inner_prodMk`) and whose spans are dense on both
+-- sides (`denseRange_fibTensor`; `denseRange_prodTensor`, through the rectangle totality
+-- theorem `ae_eq_zero_of_forall_setIntegral_rect_eq_zero`).  `curryLI_fibMk` and
+-- `curryLI_indicator_prod` pin the unitary down on the generators: `1_s ⊗ 1_t ↦ 1_{s ×ˢ t}`.
+import BookProof.ChapterNsScalarVectorCurry
+
+-- `ChapterNsScalarFourier` (2026-09-21): what the identification unblocks — the spatial-only
+-- Fourier transform on the *scalar* one-particle space `L²(V × W)`, obtained by conjugating the
+-- fibred `nsPartialFourier` with `curryLI` (`nsScalarFourier`, `nsScalarFourier_norm`).  The
+-- fibre-blindness is now a statement about the scalar operators `1 ⊗ T`: `scalarFibreOp_prodMk`
+-- identifies the transported fibre operator on the product generators, and
+-- `nsScalarFourier_scalarFibreOp` / `nsScalarFourier_fibreFourier` are the commutation.
+import BookProof.ChapterNsScalarFourier
+
 -- `ChapterNsFieldMomentumInverse` (2026-09-17e): item 2 of the Navier–Stokes plan items — the
 -- inverse field momentum `π^{-1}`.  In the momentum representation of the fibre variable the field
 -- momentum `−i ∂_m` is multiplication by `momSymbol m ξ = 2π ⟪ξ, m⟫` (`isMomInverse_momentumOp`),
@@ -2897,3 +2915,255 @@ import BookProof.ChapterFlowDGammaEsa
 -- to the finitely supported vectors — is an instance which is essentially self-adjoint but
 -- not self-adjoint (`positionCore_not_isSelfAdjointOn`).
 import BookProof.ChapterEsaOneParticleDGamma
+
+-- `ChapterReducingSubspaceEsa` (2026-09-21c): the **reduction principle** — essential
+-- self-adjointness descends to an invariant sector.  `IsReducingProjection` is an idempotent
+-- symmetric projection; if it maps the domain of `T` into itself and commutes with `T` there,
+-- `redOp` is the part of `T` inside the range and `deficiencyTrivialAt_red` /
+-- `essentiallySelfAdjointOn_red` carry each deficiency space, hence essential self-adjointness,
+-- from `T` to that part.  `symProj` / `asymProj` are the projections `(1 ± U)/2` of a
+-- self-inverse isometry `U`, giving the two sectors `U x = ± x` (`mem_sector_symProj_iff`).
+import BookProof.ChapterReducingSubspaceEsa
+
+-- `ChapterTwoParticleSectorEsa` (2026-09-21c): **symmetrization of the two-particle sector**.
+-- `swapTwo` is the swap `x ⊗ y ↦ y ⊗ x` of the nested tensor square used by
+-- `ChapterTensorGraphCore`; it is a self-inverse isometry which preserves the domain
+-- (`swapH_mem_sectorDom`) and the core (`swapH_mem_sectorCore`) and commutes with the
+-- derivation (`derPow_swapDom`) — the Leibniz rule is symmetric in the two factors.  Reducing
+-- by `(1 ± swap)/2` then gives `essentiallySelfAdjointOn_bosonic` /
+-- `essentiallySelfAdjointOn_fermionic` on the domain and
+-- `essentiallySelfAdjointOn_bosonic_core` / `…_fermionic_core` on the symmetrized and
+-- antisymmetrized one-particle core, with `exists_ne_zero_bosonic` /
+-- `exists_ne_zero_fermionic` as non-vacuity witnesses.
+import BookProof.ChapterTwoParticleSectorEsa
+
+-- `ChapterGroupAverageEsa` (2026-09-21c): **averaging over a finite group of symmetries**.
+-- `UnitaryRep` is an action of a finite group by inner-product-preserving linear maps;
+-- `avgProj` is the average `|G|⁻¹ Σ_g ρ(g)`, `mem_range_avgProj_iff` identifies its range with
+-- the joint fixed space, `isReducingProjection_avgProj` shows it is a reducing projection in the
+-- sense of `ChapterReducingSubspaceEsa`, and `essentiallySelfAdjointOn_invariantSector` is the
+-- conclusion: an operator commuting with the action is essentially self-adjoint on the invariant
+-- sector as soon as it is on its domain.  `repOfInvolution` / `avgProj_repOfInvolution` check the
+-- two-element case against the symmetrizing projection `(1 + U)/2`.
+import BookProof.ChapterGroupAverageEsa
+
+-- `ChapterTensorPermutation` (2026-09-21d): **the symmetric group acting on a tensor power**.
+-- The action of `Equiv.Perm (Fin n)` on the nested tensor power `E^{⊗n}` of
+-- `ChapterTensorGraphCore`, built by recursion out of two elementary isometries only — the
+-- exchange `swapFirst` of the first two factors and the lift `liftTail` of an operator to the
+-- last `n` factors — so every permutation operator is a linear isometry equivalence by
+-- construction.  `purePow` is the pure tensor of a family, `span_purePow_eq_top` /
+-- `linearMap_ext_purePow` say that pure tensors determine a linear map, `permOp_purePow` is the
+-- formula `U_σ (x₀ ⊗ ⋯) = x_{σ 0} ⊗ ⋯`, and `permOp_one` / `permOp_mul` are the group law.
+-- `permRep` and `signRep` package the action and its sign twist as unitary representations in
+-- the sense of `ChapterGroupAverageEsa`.
+import BookProof.ChapterTensorPermutation
+
+-- `ChapterPermutationSectorEsa` (2026-09-21d): **the bosonic and the fermionic `n`-particle
+-- sector**, for every particle number.  `Good` bundles the three compatibilities of a pair of
+-- operators — with the inclusion of the domain, with the sector derivation and with the core —
+-- and `good_permOp` proves them for every permutation operator by structural induction along
+-- the recursion of `ChapterTensorPermutation`.  Averaging over the symmetric group
+-- (`bosonicProj`) and over its sign twist (`fermionicProj`) then gives
+-- `essentiallySelfAdjointOn_bosonic` / `essentiallySelfAdjointOn_fermionic` on the domain
+-- `D₂^{⊗n}` and `essentiallySelfAdjointOn_bosonic_core` / `…_fermionic_core` on the
+-- symmetrized and antisymmetrized one-particle core `D^{⊗n}`, with `mem_bosonicSector_iff` /
+-- `mem_fermionicSector_iff` identifying the two sectors, `exists_ne_zero_bosonic` /
+-- `exists_ne_zero_fermionic` (the Slater determinant) as non-vacuity witnesses and
+-- `permOp_two_eq_swapH` as the consistency check against `ChapterTwoParticleSectorEsa`.
+import BookProof.ChapterPermutationSectorEsa
+
+-- `ChapterFockStatisticsEsa` (2026-09-21e): **the sectorwise hypothesis discharged, and the
+-- direct sum over the particle number**.  `essentiallySelfAdjointOn_of_pushOp` descends
+-- essential self-adjointness along an isometry, so the completed-sector theorem
+-- `EsaOneParticle.essentiallySelfAdjointOn_fockSectorDom_esa` gives
+-- `essentiallySelfAdjointOn_sectorDom_of_esa`: `dΓ(A)⁽ⁿ⁾` *is* essentially self-adjoint on
+-- `D^{⊗n}` whenever the one-particle operator is symmetric and essentially self-adjoint on a
+-- dense domain of a Hilbert space.  The four statements of `ChapterPermutationSectorEsa`
+-- therefore become unconditional (`essentiallySelfAdjointOn_bosonic_of_esa` and its three
+-- companions), and `bosonicFock` / `fermionicFock` sum them over `n`: `bosonicFock_esa` and
+-- `fermionicFock_esa` are essential self-adjointness of `dΓ(A)` on the `ℓ²` direct sum of the
+-- symmetric, respectively antisymmetric, parts of the tensor powers, with
+-- `bosonicFockCore_esa` / `fermionicFockCore_esa` over a one-particle core.
+import BookProof.ChapterFockStatisticsEsa
+
+-- `ChapterFockStatisticsCompletion` (2026-09-21e): **the two Fock spaces as Hilbert spaces**.
+-- `UnitaryRep.completionRep` extends a unitary representation of a finite group to the
+-- completion and `isClosed_sector_completionRep` makes its invariant sector closed, hence
+-- complete.  Applied to `permRep` and `signRep` this puts the symmetrizer `cbosonicProj` and
+-- the antisymmetrizer `cfermionicProj` on the *complete* `n`-particle sector,
+-- `essentiallySelfAdjointOn_cbosonic` / `…_cfermionic` reduce `dΓ(A)⁽ⁿ⁾` to them, and
+-- `hbosonicFock_esa` / `hfermionicFock_esa` are the headline: `dΓ(A)` is essentially
+-- self-adjoint on the bosonic and on the fermionic Fock space — the Hilbert direct sum over
+-- all particle numbers — for any symmetric, essentially self-adjoint one-particle operator.
+-- `exists_ne_zero_hbosonicFockDom` / `exists_ne_zero_hfermionicFockDom` are the non-vacuity
+-- witnesses.
+import BookProof.ChapterFockStatisticsCompletion
+
+-- `ChapterStatisticalModelTheory` (2026-09-22): **the Upward Löwenheim–Skolem boundary** of
+-- `book.tex`'s *Statistical Model Theory* chapter.  `upward_lowenheim_skolem` is the theorem
+-- itself — a first-order theory with an infinite model has a model of every cardinality that
+-- is infinite and at least the size of the language — and `exists_uncountable_model`,
+-- `monster_model_continuum`, `exists_uncountable_model_of_countable_language`,
+-- `countability_not_first_order_axiomatizable` and `exists_nonisomorphic_models` are the
+-- book's readings of it: the "monster" uncountable model always exists, no set of
+-- first-order axioms filters the uncountable models out, `exists_nonstandard_model` gives a
+-- model not in bijection with a given countable one (the book's remark that Presburger
+-- arithmetic has non-standard models), and the theory never pins its model down up to
+-- isomorphism.  `exists_countable_model` /
+-- `exists_model_not_bijective_of_uncountable` and `secondOrder_categoricity_real` formalize
+-- the chapter's contrast between the two logics: first-order axioms over a countable
+-- language always admit a countable model beside any uncountable one, while the
+-- second-order completeness axiom is categorical for `ℝ`.  The Bayesian-prior /
+-- Riemann-hypothesis material of the same chapter is deliberately out of scope.
+import BookProof.ChapterStatisticalModelTheory
+
+-- `ChapterStatementOperator` (2026-09-22): **statements as operators on the Hilbert space of
+-- models** (same chapter of `book.tex`).  A `ModelStatement` is an orthogonal projection and
+-- its `truthValue` is the expectation `Re ⟪ψ, Pψ⟫`, a number in `[0, ‖ψ‖²]`
+-- (`truthValue_nonneg`, `truthValue_le_norm_sq`, `truthValue_mem_unitInterval`) — "statements
+-- become more than true/false/undecidable".  `not` and the commuting `and` give the
+-- propositional calculus (`truthValue_not`, `truthValue_and_le_left`/`_right`),
+-- `truthValue_eq_zero_iff` / `truthValue_eq_norm_sq_iff` identify the models of extreme truth
+-- value, and `undecidable_iff` characterizes an undecidable statement as a projection with a
+-- proper nonzero range.  `UncertainStatement` is the book's weakening — operators that are
+-- not projections — with `halfUncertain_not_idempotent` as a witness, and
+-- `approximate_proof_error` is the "approximated proof" bound.
+import BookProof.ChapterStatementOperator
+
+-- `ChapterSelfAdjointCoreEsa` (2026-09-22): **a self-adjoint operator is essentially
+-- self-adjoint on every graph core**.  `deficiencyTrivialAt_dom_of_isSelfAdjointExtension` and
+-- `essentiallySelfAdjointOn_dom_of_isSelfAdjointExtension` show that a self-adjoint extension
+-- has trivial deficiency at every non-real point on its own domain (the deficiency equation
+-- puts `w` in the domain with `A w = z • w`, and symmetry then forces `(z - conj z)⟪w, w⟫ = 0`),
+-- and `essentiallySelfAdjointOn_of_graphCore_selfAdjoint` combines this with the core-transfer
+-- principle of `ChapterGraphCoreTransfer`.
+import BookProof.ChapterSelfAdjointCoreEsa
+
+-- `ChapterComparisonCoreEsa` (2026-09-22): **obligation (i) of §D6b, discharged in general**.
+-- In the vocabulary of the route chapters — `Comparison` and the graph core `IsGraphCore` —
+-- `comparison_essentiallySelfAdjointOn_dom` is essential self-adjointness of the comparison
+-- operator on its own domain and `esa_of_isGraphCore` is obligation (i): whatever the
+-- comparison operator restricts to on a graph core is essentially self-adjoint there.  With
+-- `ScalaronFiberFL.isGraphCore_of_esa` this gives the equivalence `isGraphCore_iff_esa`, so for
+-- every comparison operator of the development that already has an exhibited graph core
+-- (`harmFried_isGraphCore`, `secN_isGraphCore`) obligation (i) needs no further work.
+import BookProof.ChapterComparisonCoreEsa
+
+-- `ChapterTensorSumEsa` (2026-09-22): **the tensor sum of two different operators**.
+-- `dΓ(A)` puts the *same* operator on every factor; this chapter treats `A ⊗ 1 + 1 ⊗ B` with
+-- two different Hilbert spaces and two different operators, on the algebraic tensor product
+-- `D_A ⊗ D_B` inside the completed tensor product `H ⊗̂ K`.  The product flow `U t ⊗ V t`
+-- satisfies the Leibniz rule (`hasDerivAt_pflow`), so Nelson's invariant-domain criterion
+-- gives `essentiallySelfAdjointOn_cpairDom_flow` and, with Stone's theorem,
+-- `essentiallySelfAdjointOn_cpairDom_selfAdjoint`; the two-factor core estimate
+-- (`isGraphCore_pairCore`) descends this to a product of cores, and
+-- `essentiallySelfAdjointOn_cpairDom_esa` weakens both hypotheses to essential
+-- self-adjointness.  `tensorSum_stone_flow` is the resulting unitary group.  This is the
+-- separated-variables gluing step: for `V(u,v) = V₁(u) + V₂(v)` the Hamiltonian of a product
+-- of two continua is exactly such a tensor sum.
+import BookProof.ChapterTensorSumEsa
+
+-- `ChapterTensorSumChain` (2026-09-22): **finitely many factors**.  The two-factor theorem
+-- produces exactly the data it consumes (a Hilbert space, a dense domain, a symmetric and
+-- essentially self-adjoint operator), so it iterates: `EsaOp` bundles that data, `pair` is the
+-- two-factor step and `chain` folds it along a list, giving `chain_esa` — the total tensor sum
+-- `A₁ ⊗ 1 ⊗ ⋯ + ⋯ + 1 ⊗ ⋯ ⊗ Aₙ` of an arbitrary finite family of different operators on
+-- different Hilbert spaces is essentially self-adjoint — and `chain_stone_flow`, its unitary
+-- group.  `positionChain_esa` is the concrete instance with `n` copies of the unbounded
+-- position operator of `ℓ²(ℤ)`.
+import BookProof.ChapterTensorSumChain
+
+-- `ChapterSmOneParticle` / `ChapterSmHamiltonian` / `ChapterSmComparison` /
+-- `ChapterSmOuterFock` (2026-09-22d wave, the Standard-Model work order §D6b-SM of
+-- `CONSOLIDATED_PLAN.md`).  `ChapterSmOneParticle` pins the bosonic collective coordinate
+-- count `D_B = 163` as a theorem (`card_smCoord`) and proves the CKM / PMNS matrix algebra
+-- the Yukawa sector rests on: row unitarity, the entry bound `|V_ij| ≤ 1`, the Cabibbo
+-- identity `V Vᵀ = I` for real mixings, the biunitary mass identity `M†M = U_R D†D U_R†`
+-- and the mixing-bounded Yukawa domination.  `ChapterSmHamiltonian` defines the bosonic
+-- one-particle operator of record in temporal gauge — the three magnetic energies at
+-- arbitrary real structure constants (the non-abelian, quartic case included), the
+-- covariant Higgs kinetic energy and the Higgs wall in its square (Mexican-hat) form — on
+-- the Gauss–polynomial core of `L²(ℝ¹⁶³)`, and proves it symmetric, bounded below and
+-- possessed of a positive self-adjoint (Friedrichs) extension.  `ChapterSmComparison`
+-- defines the Faris–Lavine comparison operator `N = N₀ + c₀` of §D6b-SM.2 with its quartic /
+-- quadratic confinement mix, proves `N ≥ 1`, and proves the essential self-adjointness of
+-- the uncoupled confining chain of the `40` momentum-carrying coordinates.
+-- `ChapterSmOuterFock` is the enclosure: the Hamiltonian of record is `dΓ(h)` on the nested
+-- Fock space `⊕ₙ L²(ℝ^{163n})`, where it is symmetric, bounded below, has a positive
+-- self-adjoint extension with its Stone flow, and conserves the particle number.
+import BookProof.ChapterSmOneParticle
+import BookProof.ChapterSmHamiltonian
+import BookProof.ChapterSmComparison
+import BookProof.ChapterSmOuterFock
+
+-- `ChapterSmCarAlgebra` / `ChapterSmDiracYukawa` / `ChapterSmComparisonFull` /
+-- `ChapterSmHiggsVacuum` (the honest-boundary wave of the Standard-Model work order
+-- §D6b-SM of `CONSOLIDATED_PLAN.md`).  `ChapterSmCarAlgebra` builds the missing algebra:
+-- the occupation-number Fock space over `n` fermionic modes with Jordan–Wigner creation
+-- and annihilation operators, the four canonical **anticommutation** relations, mutual
+-- adjointness, contractivity, the second quantization `Σ h_ij a†_i a_j` of a one-particle
+-- matrix, the exact spectrum of its diagonal case and a gap theorem above the Fock vacuum.
+-- `ChapterSmDiracYukawa` puts the Dirac and Yukawa operators on that algebra — with the
+-- CKM/PMNS entry bound of `ChapterSmOneParticle` bounding the biunitary mass matrix — and
+-- proves the **three Faris–Lavine hypotheses** of §D6b-SM.3 for the fermionic sector with
+-- explicit constants, concluding essential self-adjointness through the project's proof of
+-- Faris–Lavine Corollary 1.1.  `ChapterSmComparisonFull` closes the derivative-coordinate
+-- gap of `ChapterSmComparison`: multiplication by `q²` is essentially self-adjoint on the
+-- compactly supported smooth core, so all `160` summands of `N₀` — not only the `40`
+-- dynamical ones — sit in one tensor-sum chain (`sm_N_full_esa`).  `ChapterSmHiggsVacuum`
+-- adds the statics of electroweak symmetry breaking: the vacuum manifold `‖φ‖² = μ²/λ` as
+-- the exact minimum set, the quartic-only (Goldstone) behaviour transverse to it, the
+-- radial curvature `m² = 2μ²`, and the gauge mass form that vanishes exactly on the
+-- unbroken generators.
+import BookProof.ChapterSmCarAlgebra
+import BookProof.ChapterSmDiracYukawa
+import BookProof.ChapterSmComparisonFull
+import BookProof.ChapterSmHiggsVacuum
+
+-- `ChapterSmDiracSpinor` joins the two halves: the concrete `4 × 4` Dirac one-particle
+-- matrix of the Majorana model of `ChapterCPTHamiltonian` (Hermitian, with the mass-shell
+-- identity `H² = (k² + m₁² + m₂²)·1` and hence the relativistic energies
+-- `±√(k² + m₁² + m₂²)`) is second quantized on the CAR algebra, and its essential
+-- self-adjointness follows through the Faris–Lavine hypotheses of `ChapterSmDiracYukawa`.
+import BookProof.ChapterSmDiracSpinor
+
+-- `ChapterSmCarContinuum` / `ChapterSmGaugeConnection` / `ChapterSmBrstGhost` (the
+-- honest-boundary closure wave of §D6b-SM).  `ChapterSmCarContinuum` removes the finite-mode
+-- restriction of `ChapterSmCarAlgebra`: the antisymmetric Fock space over `ℓ²(ℕ)` in its
+-- occupation-number presentation carries bounded smeared operators `a(f), a†(g)` for
+-- arbitrary one-particle vectors, with `{a(f), a†(g)} = ⟪f, g⟫ · 1` (`car_smeared`),
+-- `‖a†(f)‖ = ‖f‖`, the isometric one-particle embedding, and the same relations over an
+-- arbitrary separable one-particle Hilbert space presented by a Hilbert basis
+-- (`car_hilbert`).  `ChapterSmGaugeConnection` puts the gauge connection inside the
+-- covariant derivative: `D_j = i(k_j + A_j)` is anti-Hermitian, `[D_j, D_l]` is the
+-- non-abelian field strength, `D` transforms covariantly under gauge conjugation, and the
+-- gauged Dirac matrix is Hermitian and essentially self-adjoint after second quantization.
+-- `ChapterSmBrstGhost` builds the ghost/BRST sector: the structure constants of
+-- `su(3) ⊕ su(2) ⊕ u(1)` (antisymmetric, Jacobi), twelve ghost modes on the CAR algebra with
+-- their ghost-number operator, the Lie homomorphism `[dΓ(A), dΓ(B)] = dΓ([A,B])` giving the
+-- Gauss-law generators, and nilpotency `Ω² = 0` of the full BRST charge.
+import BookProof.ChapterSmCarContinuum
+import BookProof.ChapterSmGaugeConnection
+import BookProof.ChapterSmBrstGhost
+
+-- `ChapterSmGaugeRepresentation` removes the last representation-level hypothesis of the
+-- ghost/BRST sector: a concrete twelve-generator family on the internal space of one
+-- coloured weak doublet (`T_a ⊗ 1`, `1 ⊗ τ_k/2`, `y·1`) closes with `smStruct f₃`, so the
+-- Standard-Model BRST charge of that multiplet on the eighteen-mode Fock space squares to
+-- zero on the strength of the two defining relations of the `su(3)` generators alone.
+import BookProof.ChapterSmGaugeRepresentation
+
+-- `ChapterBookBrstYangMills` implements the BRST charge **exactly as `book.tex` defines it**
+-- (§"Pure SU(3) Yang-Mills theory"): the three terms
+-- `Ω = π^μ_a ∂_μψ†_a − π^μ_a f_{abc} A_{μb} ψ†_c − (i/2) f_{abc} ψ†_aψ†_bψ_c` realized on a
+-- graded state space, with the book's canonical relations `[A_{μa}, π^ν_b] = i δ^ν_μ δ_{ab}`
+-- and `{ψ_a, ψ†_b} = δ_{ab}` proved in the realization, the Gauss-law constraint algebra
+-- *derived* from them, and `Ω² = 0`.  `ChapterBookBrstGaugeFixing` adds the book's
+-- gauge-fixing fermion `Ψ = i ψ_a A_{0a}`, computes `{Ω, Ψ}` and shows that the generated
+-- gauge-fixing term is BRST invariant; `ChapterBookBrstInstances` supplies the gauge algebras
+-- (`su(2)`, the Standard Model `su(3) ⊕ su(2) ⊕ u(1)`, and the inner derivations `ad_{X_μ}`
+-- as admissible spacetime derivatives) and the non-vacuity of the constraints.
+import BookProof.ChapterBookBrstYangMills
+import BookProof.ChapterBookBrstGaugeFixing
+import BookProof.ChapterBookBrstInstances

@@ -132,9 +132,11 @@ instead a new Fock-space where the base Hilbert space is the original Fock-space
 is quadratic in the creation/annihilation operators.”*  Its Navier–Stokes section displays the
 template, $`H = \int d^3\vec x\, a^\dagger(\vec x)\, H(\vec x)\, a(\vec x)` with the inner
 $`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)`; the Yang–Mills free-gluon enclosure
-$`H = \sum_{i,j} h_{ij} C_i^\dagger A_j` below is the same envelope, and a product of fields with a
-spatial derivative is handled in momentum space as a **convolution** rather than by a gauge
-constraint on the derivative variables.
+$`H = \sum_{i,j} h_{ij} C_i^\dagger A_j` below is the same envelope. The convolution device
+belongs to the two sectors whose inner space carries *spatial derivatives of the fields* —
+Navier–Stokes and the vielbein sector of gravity — where a product of fields with a derivative
+is handled in momentum space as a **convolution** rather than by a gauge constraint on the
+derivative variables (QYM's free-gluon symbol needs neither device).
 :::
 
 # The Algebraic-Ideals View of Gauge

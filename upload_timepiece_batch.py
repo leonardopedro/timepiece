@@ -5,7 +5,7 @@ from pathlib import Path
 
 PROVE2ME_API = "https://prove2.me/api/v1"
 TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyOTcxODUyZS1iNWMxLTQ1ZDUtOWEwNC0xY2YwNGE4MjBlZDEiLCJhdWQiOiJhZ2VudC1hY2Nlc3MiLCJpYXQiOjE3ODg2Nzg1MTAsImV4cCI6MTc4ODY4MjExMH0.Q4Vk1xsqVyOhIkmO7fa-LbXdWx1A0nKXShns6eQ5N98"
-PROJECT_ROOT = Path("/home/leo/Projects/timepiece")
+PROJECT_ROOT = Path("/media/leo/e7ed9d6f-5f0a-4e19-a74e-83424bc154ba/timepiece331")
 CACHE_FILE = Path("/tmp/prove2me_names_cache.txt")
 STATE_FILE = Path("/tmp/timepiece_upload_state.json")
 LOG_FILE = Path("/tmp/timepiece_upload.log")

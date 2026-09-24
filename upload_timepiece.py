@@ -15,7 +15,7 @@ from pathlib import Path
 
 PROVE2ME_API = "https://prove2.me/api/v1"
 TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyOTcxODUyZS1iNWMxLTQ1ZDUtOWEwNC0xY2YwNGE4MjBlZDEiLCJhdWQiOiJhZ2VudC1hY2Nlc3MiLCJpYXQiOjE3ODg2NzI1NjcsImV4cCI6MTc4ODY3NjE2N30.WEmrJYfP2M5mJtn21oAFFsQ2i9LrmhyUMTyDR5ONiRY"
-PROJECT_ROOT = Path("/home/leo/Projects/timepiece")
+PROJECT_ROOT = Path("/media/leo/e7ed9d6f-5f0a-4e19-a74e-83424bc154ba/timepiece331")
 CACHE_FILE = Path("/tmp/prove2me_names_cache.txt")
 
 QYM_KEYWORDS = [

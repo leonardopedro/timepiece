@@ -54,7 +54,7 @@ theorem real_axis_volume_zero : volume {z : ℂ | z.im = 0} = 0 := by
         intro r z hz
         dsimp at hz
         dsimp
-        rw [hz]
+        rw [Complex.mul_im, hz]
         simp
     }
   have hs_proper : s ≠ ⊤ := by

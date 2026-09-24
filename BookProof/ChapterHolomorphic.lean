@@ -17,10 +17,8 @@ The book's phrasing is the *distributional* (Weyl-lemma) version: a merely
 locally-integrable function whose Cauchy–Riemann equations hold in the weak
 (distributional) sense is a.e. equal to a holomorphic function. That
 distribution-theoretic elliptic-regularity statement is not available in
-Mathlib; it is proved from scratch in `BookProof/ChapterWeylCauchyRiemann.lean`
-(`BookProof.WeylCauchyRiemann.weak_cauchyRiemann_ae_eq_analytic`).  What this
-file contains is the classical (strong / pointwise-derivative) core that the
-book's remark rests on:
+Mathlib. What *is* available — and what we formalize here — is the classical
+(strong / pointwise-derivative) core that the book's remark rests on:
 
 > **A complex function that is (real-)differentiable on an open domain and
 > satisfies the Cauchy–Riemann equations there is holomorphic, i.e. complex
@@ -123,40 +121,5 @@ theorem cauchyRiemann_contDiffOn {f : ℂ → ℂ} {s : Set ℂ} (hs : IsOpen s)
     (hCR : ∀ z ∈ s, fderiv ℝ f z Complex.I = Complex.I • fderiv ℝ f z 1) :
     ContDiffOn ℂ (⊤ : ℕ∞) f s :=
   ((cauchyRiemann_analyticOn hs hf hCR).contDiffOn hs.uniqueDiffOn)
-
-/-! ## Weakening the hypothesis: no differentiability, only continuity
-
-The book's remark assumes *no* differentiability of `f` — only local integrability and the
-Cauchy–Riemann equations in the weak sense.  The statements above assume pointwise
-differentiability.  The following Morera-type statement removes the differentiability
-assumption at the cost of an integral (rather than distributional) form of the
-Cauchy–Riemann equations: a **continuous** function whose integral around the boundary of
-every rectangle contained in the domain vanishes — the integral form of `∂̄f = 0`, by Green's
-theorem — is analytic.  The fully distributional version (a merely locally integrable `f`)
-is proved, by the mollification argument, in `BookProof/ChapterWeylCauchyRiemann.lean`
-(`BookProof.WeylCauchyRiemann.weak_cauchyRiemann_ae_eq_analytic`). -/
-
-/-- **Morera form of the book's remark.**  A *continuous* function on an open set whose
-integral around the boundary of every rectangle contained in the set vanishes (the integral
-form of the Cauchy–Riemann equations) is complex analytic there.  No differentiability is
-assumed. -/
-theorem conservative_analyticOn {f : ℂ → ℂ} {s : Set ℂ} (hs : IsOpen s)
-    (hcont : ContinuousOn f s) (hcons : Complex.IsConservativeOn f s) :
-    AnalyticOn ℂ f s := by
-  have hdiff : DifferentiableOn ℂ f s :=
-    (Complex.isConservativeOn_and_continuousOn_iff_isDifferentiableOn hs).mp ⟨hcons, hcont⟩
-  exact hdiff.analyticOn hs
-
-/-- The converse: an analytic function is continuous and conservative, so for continuous
-functions on an open set the vanishing of all rectangle integrals characterizes
-analyticity. -/
-theorem conservative_iff_analyticOn {f : ℂ → ℂ} {s : Set ℂ} (hs : IsOpen s)
-    (hcont : ContinuousOn f s) :
-    Complex.IsConservativeOn f s ↔ AnalyticOn ℂ f s := by
-  constructor
-  · exact fun hcons => conservative_analyticOn hs hcont hcons
-  · intro hA
-    exact ((Complex.isConservativeOn_and_continuousOn_iff_isDifferentiableOn hs).mpr
-      (hA.differentiableOn)).1
 
 end BookProof.ChapterHolomorphic

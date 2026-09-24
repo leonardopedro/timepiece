@@ -89,7 +89,8 @@ theorem classicalSol_hasDerivAt (x₀ t : ℝ) (ht : 1 - t * x₀ ≠ 0) :
   have heq : (0 * (1 - t * x₀) - x₀ * -x₀) / (1 - t * x₀) ^ 2 = (classicalSol x₀ t) ^ 2 := by
     simp only [classicalSol, div_pow]
     ring
-  simpa only [classicalSol, Pi.div_def, heq] using h
+  simp only [classicalSol, Pi.div_def, heq] at h ⊢
+  exact h
 
 /-- At `t = 1/x₀` the denominator of the classical solution vanishes: that is the
 blow-up time. -/
@@ -117,7 +118,8 @@ theorem classicalSol_tendsto_atTop (x₀ : ℝ) (hx₀ : 0 < x₀) :
   have hinv : Tendsto (fun t : ℝ => (1 - t * x₀)⁻¹) (𝓝[<] (1 / x₀)) atTop :=
     tendsto_inv_nhdsGT_zero.comp hden
   have h := hinv.const_mul_atTop hx₀
-  simpa only [classicalSol, div_eq_mul_inv] using h
+  simp only [classicalSol, div_eq_mul_inv] at ⊢
+  exact h
 
 /-! ## The Möbius flow -/
 
@@ -247,7 +249,8 @@ theorem hasDerivAt_mob (t x : ℝ) (hx : x ∈ flowDom t) :
   have heq : (1 * (1 + t * x) - x * t) / (1 + t * x) ^ 2 = ((1 + t * x) ^ 2)⁻¹ := by
     field_simp
     ring
-  simpa only [mob, Pi.div_def, id_eq, heq] using hq
+  simp only [mob, Pi.div_def, id_eq, heq] at hq
+  exact hq
 
 theorem injOn_mob (t : ℝ) : InjOn (mob t) (flowDom t) := by
   intro a ha b hb hab
@@ -336,7 +339,8 @@ theorem hasDerivAt_odeKoop_zero (ψ : ℝ → ℂ) (x : ℝ) (d : ℂ) (hψ : Ha
   have h0 : (1 + (0 : ℝ) * x) ≠ 0 := by norm_num
   have hu : HasDerivAt (fun t : ℝ => (1 + t * x)⁻¹) (-x) 0 := by
     have h := hlin.inv h0
-    simpa using h
+    simp at h
+    exact h
   have hden : HasDerivAt (fun t : ℝ => ((1 + t * x : ℝ) : ℂ)⁻¹) (-(x : ℂ)) 0 := by
     have h := Complex.ofRealCLM.hasDerivAt.scomp (0 : ℝ) hu
     simpa [Function.comp_def, Complex.ofReal_inv] using h
@@ -355,7 +359,6 @@ theorem hasDerivAt_odeKoop_zero (ψ : ℝ → ℂ) (x : ℝ) (d : ℂ) (hψ : Ha
       = fun t : ℝ => ((1 + t * x : ℝ) : ℂ)⁻¹ * ψ (mob t x) := rfl
   rw [hfun]
   convert hmul using 1
-  simp only [mob_zero]
   push_cast
   simp
 
@@ -431,7 +434,8 @@ theorem hasDerivAt_invMap {x : ℝ} (hx : x ≠ 0) : HasDerivAt invMap ((x ^ 2)�
   have heq : (0 * x - (-1 : ℝ) * 1) / x ^ 2 = (x ^ 2)⁻¹ := by
     field_simp
     ring
-  simpa only [invMap, Pi.div_def, id_eq, heq] using h
+  simp only [invMap, Pi.div_def, id_eq, heq] at h
+  exact h
 
 theorem injOn_invMap : Set.InjOn invMap {x : ℝ | x ≠ 0} := by
   intro a ha b hb hab

@@ -39,7 +39,7 @@ variable (mu : Measure ℝ)
 /-- **The distribution function of an atomless measure is continuous.**  For a
 monotone right-continuous function continuity at `a` means that the left limit agrees
 with the value, and that difference is exactly the mass of the singleton `{a}`. -/
-theorem continuous_cdf_of_noAtoms [IsProbabilityMeasure mu] [NoAtoms mu] :
+theorem continuous_cdf_of_noAtoms [IsProbabilityMeasure mu] [NullSingletonClass mu] :
     Continuous (cdf mu) := by
   refine continuous_iff_continuousAt.2 fun a => ?_
   have hmono : Monotone (cdf mu) := (cdf mu).mono
@@ -60,7 +60,7 @@ theorem continuous_cdf_of_noAtoms [IsProbabilityMeasure mu] [NoAtoms mu] :
 
 /-- **Every level in `(0, 1)` is attained** by the distribution function of a diffuse
 probability measure. -/
-theorem exists_cdf_eq [IsProbabilityMeasure mu] [NoAtoms mu] {t : ℝ} (ht0 : 0 < t)
+theorem exists_cdf_eq [IsProbabilityMeasure mu] [NullSingletonClass mu] {t : ℝ} (ht0 : 0 < t)
     (ht1 : t < 1) : ∃ x : ℝ, cdf mu x = t := by
   have hc : Continuous (cdf mu) := continuous_cdf_of_noAtoms mu
   obtain ⟨a, ha⟩ := ((tendsto_cdf_atBot mu).eventually (eventually_lt_nhds ht0)).exists
@@ -80,7 +80,7 @@ distribution function of a diffuse probability measure has mass exactly `t`.  Th
 lower bound comes from a point `x` with `F x = t` (the sublevel set contains
 `(-∞, x]`); the upper bound from points at slightly higher levels `s ↓ t` (the
 sublevel set is contained in `(-∞, y]` whenever `F y = s > t`). -/
-theorem measure_cdf_le [IsProbabilityMeasure mu] [NoAtoms mu] {t : ℝ} (ht0 : 0 ≤ t)
+theorem measure_cdf_le [IsProbabilityMeasure mu] [NullSingletonClass mu] {t : ℝ} (ht0 : 0 ≤ t)
     (ht1 : t < 1) : mu {x | cdf mu x ≤ t} = ENNReal.ofReal t := by
   refine le_antisymm ?_ ?_
   · have key : ∀ s : ℝ, t < s → s < 1 → mu {x | cdf mu x ≤ t} ≤ ENNReal.ofReal s := by
@@ -134,7 +134,7 @@ theorem volume_Icc_inter_Iic {t : ℝ} (ht1 : t ≤ 1) :
 atomless Borel probability measure on `ℝ` pushes it forward to the **uniform**
 measure on `[0, 1]`: every diffuse probability measure on the line is a copy of
 Lebesgue measure on the unit interval, read through its own distribution function. -/
-theorem map_cdf_eq_volume_Icc [IsProbabilityMeasure mu] [NoAtoms mu] :
+theorem map_cdf_eq_volume_Icc [IsProbabilityMeasure mu] [NullSingletonClass mu] :
     Measure.map (cdf mu) mu = volume.restrict (Set.Icc (0 : ℝ) 1) := by
   have hmeas : Measurable (cdf mu) := (cdf mu).mono.measurable
   refine Measure.ext_of_Iic _ _ fun t => ?_

@@ -22,14 +22,14 @@ variable {α : Type*} [MeasurableSpace α]
 /-
 Every selected MAP point has posterior mass zero under an atomless posterior.
 -/
-theorem map_point_measure_zero (μ : Measure α) [NoAtoms μ] (mapPoint : α) :
+theorem map_point_measure_zero (μ : Measure α) [NullSingletonClass μ] (mapPoint : α) :
     μ {mapPoint} = 0 := by
   exact measure_singleton mapPoint
 
 /-
 A posterior sample almost surely does not equal a fixed MAP point.
 -/
-theorem ae_ne_map_point (μ : Measure α) [NoAtoms μ] (mapPoint : α) :
+theorem ae_ne_map_point (μ : Measure α) [NullSingletonClass μ] (mapPoint : α) :
     ∀ᵐ x ∂μ, x ≠ mapPoint := by
   convert MeasureTheory.measure_eq_zero_iff_ae_notMem.mp
     ( map_point_measure_zero μ mapPoint ) using 1
@@ -37,7 +37,7 @@ theorem ae_ne_map_point (μ : Measure α) [NoAtoms μ] (mapPoint : α) :
 /-
 More generally, any countable collection of posterior maximizers is null.
 -/
-theorem countable_map_set_measure_zero (μ : Measure α) [NoAtoms μ]
+theorem countable_map_set_measure_zero (μ : Measure α) [NullSingletonClass μ]
     (maximizers : Set α) (hcountable : maximizers.Countable) :
     μ maximizers = 0 := by
   exact hcountable.measure_zero μ
@@ -49,7 +49,7 @@ def maximizerSet (score : α → ℝ) : Set α :=
 /-
 A countable set of posterior-score maximizers is null under an atomless posterior.
 -/
-theorem maximizerSet_measure_zero (μ : Measure α) [NoAtoms μ]
+theorem maximizerSet_measure_zero (μ : Measure α) [NullSingletonClass μ]
     (score : α → ℝ) (hcountable : (maximizerSet score).Countable) :
     μ (maximizerSet score) = 0 := by
   convert countable_map_set_measure_zero μ ( maximizerSet score ) hcountable
@@ -57,7 +57,7 @@ theorem maximizerSet_measure_zero (μ : Measure α) [NoAtoms μ]
 /-
 A posterior sample almost surely avoids every point in a countable MAP set.
 -/
-theorem ae_not_mem_countable_map_set (μ : Measure α) [NoAtoms μ]
+theorem ae_not_mem_countable_map_set (μ : Measure α) [NullSingletonClass μ]
     (maximizers : Set α) (hcountable : maximizers.Countable) :
     ∀ᵐ x ∂μ, x ∉ maximizers := by
   convert countable_map_set_measure_zero μ maximizers hcountable using 1;

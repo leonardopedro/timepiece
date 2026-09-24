@@ -76,9 +76,11 @@ transform of the field variable is the full transform in both variables). A reus
 with `postcompCLM_lineDerivOp`, `fourier_postcompCLM` and `toLp_postcompCLM` — Mathlib does not
 provide it.
 
-The honest boundary is the model: the construction is the vector-valued `L²(V; L²(W))`, and its
-measure-theoretic identification with the scalar `L²(V × W)` is not formalized, because Mathlib does
-not have it.
+The model so far is the vector-valued `L²(V; L²(W))`. Its measure-theoretic
+identification with the scalar `L²(V × W)` — a Bochner–Fubini statement about
+slices, which Mathlib does not have — was the honest boundary of this section.
+It has since been closed, in the next section; nothing about the elimination
+itself changed, only the description of the space on which it acts.
 :::
 
 ```
@@ -91,6 +93,74 @@ not have it.
 #check @BookProof.NsPartialFourier.nsPartialFourier_comp_fibreFourier_eq
 #check @BookProof.NsPartialFourier.postcompCLM
 ```
+
+# The Fibred Model Identified with the Scalar One
+
+:::paragraph
+The identification that the section above could only flag is now a theorem, in two
+steps that the reader should take in this order.
+
+**Step one: currying.** `BookProof/ChapterNsScalarVectorCurry.lean` proves
+$`L^2(V; L^2(W)) \cong L^2(V \times W)` outright, as the linear isometry
+`curryLI`, for arbitrary σ-finite measures. The route is the one a probabilist
+would take: lift the two generator families — `fibMk a c`, the fibred element
+$`x \mapsto a\,x \bullet c`, and `prodMk a c`, the scalar product $`(x,y) \mapsto a x \cdot c y`
+— to the *algebraic* tensor product, where they are bilinear, show their inner
+products agree on generators (`inner_prodMk` by Fubini, `inner_fibMk` pointwise)
+hence everywhere, and conclude that the norms agree
+(`norm_prodTensor_eq_norm_fibTensor`). Density of the generators on both sides
+(`denseRange_fibTensor`, `denseRange_prodTensor`) then lets
+`LinearEquiv.extendOfIsometry` assemble the unitary — no quotient by a kernel is
+needed. The only genuinely new analysis is the π–λ induction
+`ae_eq_zero_of_forall_setIntegral_rect_eq_zero`: an $`L^2` function of the product
+measure whose integral over every finite-measure measurable rectangle vanishes is
+zero almost everywhere.
+
+**Step two: transport.** `BookProof/ChapterNsScalarFourier.lean` then carries the
+spatial transform of the previous section to the scalar space *by conjugation*,
+`nsScalarFourier := curryLI ∘ nsPartialFourier ∘ curryLI.symm`. No new analysis
+enters: `nsScalarFourier_scalarFibreOp` is precisely the fibre-blindness of the
+spatial transform in the scalar picture, `scalarFibreOp_prodMk` pinning an
+operator of the fibre variable to $`1 \otimes T` on the product generators.
+
+Two by-products are worth keeping even if one never speaks of Navier–Stokes again.
+`curryLI_setIntegral_rect` says that currying *is* slicing, tested against the
+rectangles: the integral of `curryLI f` over $`s \times t` is
+$`\int_s \big(\int_t f\,x\,y\,d\nu\big)\,d\mu`. And `isSliceOf_curryLI` is the
+pointwise version — for almost every $`x`, the fibre $`f x` equals, almost
+everywhere, the slice $`y \mapsto (curryLI f)(x, y)` — proved through the
+seminorm identity `lintegral_eLpNorm_slice_sq` and a Borel–Cantelli passage along
+the dense span.
+:::
+
+```
+#check @BookProof.NsScalarVectorCurry.curryLI
+#check @BookProof.NsScalarVectorCurry.curryLI_fibMk
+#check @BookProof.NsScalarVectorCurry.curryLI_indicator_prod
+#check @BookProof.NsScalarVectorCurry.curryLI_setIntegral_rect
+#check @BookProof.NsScalarVectorCurry.isSliceOf_curryLI
+#check @BookProof.NsScalarVectorCurry.denseRange_fibTensor
+#check @BookProof.NsScalarVectorCurry.denseRange_prodTensor
+#check @BookProof.NsScalarVectorCurry.ae_eq_zero_of_forall_setIntegral_rect_eq_zero
+#check @BookProof.NsScalarFourier.nsScalarFourier
+#check @BookProof.NsScalarFourier.nsScalarFourier_norm
+#check @BookProof.NsScalarFourier.scalarFibreOp
+#check @BookProof.NsScalarFourier.scalarFibreOp_prodMk
+#check @BookProof.NsScalarFourier.nsScalarFourier_scalarFibreOp
+#check @BookProof.NsScalarFourier.nsScalarFourier_fibreFourier
+```
+
+:::paragraph
+**Why this matters for the final Hamiltonian of record.** The NS final
+Hamiltonian is the one-particle operator enclosed in creation and annihilation
+operators, $`H = \sum_{ij} h_{ij}\, C^\dagger(e_i)\, A(e_j) = d\Gamma(h)`; the
+elimination and the convolution device that define $`h` were carried out on the
+*fibred* one-particle space. The identification above says the resulting $`h` is
+an operator on the scalar $`L^2(\mathbb{R}^6)` the manuscript writes, so the
+enclosure is taken over the right space: the two descriptions of the one-particle
+space — the one the elimination is convenient on, and the one the enclosure is
+stated on — are the same Hilbert space, up to a unitary that is now a theorem.
+:::
 
 # The Constraint Solved: the Inverse Field Momentum
 
@@ -345,8 +415,11 @@ The verified layer, in one list:
 
 What remains open on this leg, stated as obligations rather than as caveats:
 
- * the identification of the vector-valued `L²(V; L²(W))` with the scalar `L²(V × W)` (a
-   Bochner–Fubini statement about slices; not in Mathlib);
+ * ~~the identification of the vector-valued `L²(V; L²(W))` with the scalar `L²(V × W)`~~ —
+   **closed**: `curryLI` (`BookProof.NsScalarVectorCurry`) is the identification, and
+   `nsScalarFourier` (`BookProof.NsScalarFourier`) carries the spatial transform across it, so
+   the elimination and the enclosure act on one and the same one-particle space (see
+   “The Fibred Model Identified with the Scalar One” above);
  * the operator-level relative bound with a constant independent of the parcel number — not needed on
    the landed route, where the comparison is the lifted Friedrichs realization;
  * the identification of the parcel sectors with the symmetric tensor powers of the one-particle
