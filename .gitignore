@@ -25,5 +25,9 @@ lib.llbc
 # Rust build artifacts
 unfer_contracts/**/target/
 
+# Python bytecode (scripts/*.py tools; nothing under scripts/ is compiled into the build)
+__pycache__/
+*.pyc
+
 # scratch backups
 Book.lean.bak
