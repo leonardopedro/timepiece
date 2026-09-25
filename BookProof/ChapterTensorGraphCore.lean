@@ -60,14 +60,14 @@ attribute [instance] IPSpace.nacg IPSpace.ips
 instance : CoeSort IPSpace Type := ⟨IPSpace.carrier⟩
 
 /-- The `n`-fold algebraic tensor power `E^{⊗n}`, with `E^{⊗0} = ℂ`. -/
-def IPSpace.pow (E : IPSpace) : ℕ → IPSpace
+@[reducible] def IPSpace.pow (E : IPSpace) : ℕ → IPSpace
   | 0 => ⟨ℂ⟩
   | (n + 1) => ⟨E.carrier ⊗[ℂ] (E.pow n).carrier⟩
 
 variable (Hs : IPSpace) (D₂ : Submodule ℂ Hs.carrier)
 
 /-- The domain of the one-particle operator, as an inner product space in its own right. -/
-def domSpace : IPSpace := ⟨D₂⟩
+@[reducible] def domSpace : IPSpace := ⟨D₂⟩
 
 /-- The isometric inclusion `D₂^{⊗n} → H^{⊗n}`. -/
 def inclPow : ∀ n : ℕ, ((domSpace Hs D₂).pow n) →ₗᵢ[ℂ] (Hs.pow n)
@@ -219,7 +219,7 @@ theorem graphPow_tmul_mem_closure (hcore : IsGraphCore D A) (n : ℕ)
         - (graphPow Hs D₂ A (n + 1) (a' ⊗ₜ[ℂ] b')).1
         = (a : Hs.carrier) ⊗ₜ[ℂ] u - (a' : Hs.carrier) ⊗ₜ[ℂ] u' := rfl
     rw [hcomp]
-    linarith
+    exact lt_of_le_of_lt (le_trans hmove₁ hbudget₁) hδC
   · rw [dist_eq_norm]
     have hcomp : (graphPow Hs D₂ A (n + 1) (a ⊗ₜ[ℂ] b)).2
         - (graphPow Hs D₂ A (n + 1) (a' ⊗ₜ[ℂ] b')).2
@@ -230,7 +230,7 @@ theorem graphPow_tmul_mem_closure (hcore : IsGraphCore D A) (n : ℕ)
       abel
     rw [hcomp]
     refine lt_of_le_of_lt (norm_add_le _ _) ?_
-    linarith
+    exact lt_of_le_of_lt (le_trans (add_le_add hmove₂ hmove₃) hbudget₂) hδC
 
 /-- **The graph of the sector derivation is the closure of the graph of its restriction to
 the core.**  This is the multilinear (telescoping) estimate in its topological form. -/
@@ -253,8 +253,8 @@ theorem graphPow_range_le_closure (hcore : IsGraphCore D A) (n : ℕ) :
           obtain ⟨p, q, rfl⟩ := ht
           exact graphPow_tmul_mem_closure Hs D₂ A D hcore n (fun c => ih ⟨c, rfl⟩) p q
       | zero => rw [map_zero]; exact Submodule.zero_mem _
-      | add s t _ _ hs ht => simpa [map_add] using Submodule.add_mem _ hs ht
-      | smul c s _ hs => simpa [map_smul] using Submodule.smul_mem _ c hs
+      | add s t _ _ hs ht => rw [map_add]; exact Submodule.add_mem _ hs ht
+      | smul c s _ hs => rw [map_smul]; exact Submodule.smul_mem _ c hs
 
 /-- **The multilinear core estimate.**  If `D` is a core for `A`, then the algebraic tensor
 power `D^{⊗n}` is a core for the sector derivation `dΓ(A)⁽ⁿ⁾` on `D₂^{⊗n}`: every vector of
@@ -340,7 +340,8 @@ theorem derPow_symm_tmul (hA : SymmetricOn D₂ A) (n : ℕ)
     (a c : D₂) (b d : ((domSpace Hs D₂).pow n)) :
     (inner ℂ (derPow Hs D₂ A (n + 1) (a ⊗ₜ[ℂ] b)) (inclPow Hs D₂ (n + 1) (c ⊗ₜ[ℂ] d)) : ℂ)
       = inner ℂ (inclPow Hs D₂ (n + 1) (a ⊗ₜ[ℂ] b)) (derPow Hs D₂ A (n + 1) (c ⊗ₜ[ℂ] d)) := by
-  simp only [derPow_tmul, inclPow_tmul, inner_add_left, inner_add_right]
+  rw [derPow_tmul, inclPow_tmul, inclPow_tmul, derPow_tmul]
+  rw [inner_add_left, inner_add_right]
   rw [inner_tmul_pow Hs n (A a) ((c : Hs.carrier)),
     inner_tmul_pow Hs n ((a : Hs.carrier)) ((c : Hs.carrier)),
     inner_tmul_pow Hs n ((a : Hs.carrier)) (A c),
@@ -355,6 +356,8 @@ theorem derPow_symm (hA : SymmetricOn D₂ A) (n : ℕ) :
   induction n with
   | zero => intro x y; simp [derPow]
   | succ n ih =>
+      have hlinL : ∀ (x y : (Hs.pow (n + 1)).carrier) (r : ℂ),
+          inner ℂ (r • x) y = star r * inner ℂ x y := fun x y r => inner_smul_left x y r
       -- first: `x` an elementary tensor, `y` arbitrary
       have hpure : ∀ (a : D₂) (b : ((domSpace Hs D₂).pow n))
           (y : ((domSpace Hs D₂).pow (n + 1))),
@@ -365,13 +368,15 @@ theorem derPow_symm (hA : SymmetricOn D₂ A) (n : ℕ) :
             {t : (D₂ ⊗[ℂ] ((domSpace Hs D₂).pow n).carrier) |
               ∃ (p : D₂) (q : ((domSpace Hs D₂).pow n)), p ⊗ₜ[ℂ] q = t} := by
           rw [TensorProduct.span_tmul_eq_top]; trivial
+        have hlin : ∀ (x y : (Hs.pow (n + 1)).carrier) (r : ℂ),
+            inner ℂ x (r • y) = r * inner ℂ x y := fun x y r => inner_smul_right x y r
         induction hy using Submodule.span_induction with
         | mem t ht =>
             obtain ⟨c, d, rfl⟩ := ht
             exact derPow_symm_tmul Hs D₂ A hA n ih a c b d
         | zero => simp
         | add s t _ _ hs ht => simp only [map_add, inner_add_right, hs, ht]
-        | smul r s _ hs => simp only [map_smul, inner_smul_right, hs]
+        | smul r s _ hs => rw [map_smul, map_smul, hlin, hlin, hs]
       -- then: `x` arbitrary
       intro x y
       have hx : x ∈ Submodule.span ℂ
@@ -384,7 +389,7 @@ theorem derPow_symm (hA : SymmetricOn D₂ A) (n : ℕ) :
           exact hpure a b y
       | zero => simp
       | add s t _ _ hs ht => simp only [map_add, inner_add_left, hs, ht]
-      | smul r s _ hs => simp only [map_smul, inner_smul_left, hs]
+      | smul r s _ hs => rw [map_smul, map_smul, hlinL, hlinL, hs]
 
 /-- The sector derivation, as an operator on `sectorDom` inside `H^{⊗n}`, is symmetric. -/
 theorem symmetricOn_sectorOp (hA : SymmetricOn D₂ A) (n : ℕ) :

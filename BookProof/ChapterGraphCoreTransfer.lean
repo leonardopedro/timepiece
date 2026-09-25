@@ -111,8 +111,10 @@ theorem deficiencyTrivialAt_of_graphCore {D₁ D₂ : Submodule ℂ F} (T : D₂
     intro ε hε
     obtain ⟨y, hyD₁, hy₁, hy₂⟩ := hcore v ε hε
     have hy : (inner ℂ (T y) w : ℂ) = z * inner ℂ (y : F) w := by
+      have hre : restrictOp T h ⟨(y : F), hyD₁⟩ = T y := rfl
       have := hw ⟨(y : F), hyD₁⟩
-      simpa [restrictOp] using this
+      rw [hre] at this
+      exact this
     have hcc : c = (inner ℂ (T v - T y) w : ℂ) - z * inner ℂ ((v : F) - (y : F)) w := by
       rw [hc, inner_sub_left, inner_sub_left, hy]; ring
     have h1 : ‖(inner ℂ (T v - T y) w : ℂ)‖ ≤ ε * ‖w‖ := by

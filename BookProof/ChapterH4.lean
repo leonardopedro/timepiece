@@ -124,10 +124,11 @@ theorem compress_transfer (V : F →L[ℂ] E) (X : E →L[ℂ] E)
     (hinv : ∀ x : F, ∃ y : F, X (V x) = V y) (n : ℕ)
     (v : E) (hv : V (V.adjoint v) = v) :
     (X ^ n) v = V ((compress V X ^ n) (V.adjoint v)) := by
-  convert congr_arg (fun f => f (V.adjoint v)) (compress_pow V X hVV hinv n) using 1
-  rw [← hv]
-  have haux : V.adjoint (V (V.adjoint v)) = V.adjoint v := by simp [hv]
-  simp [ContinuousLinearMap.comp_apply, haux]
+  calc (X ^ n) v = ((X ^ n).comp V) (V.adjoint v) := by
+        rw [ContinuousLinearMap.comp_apply, hv]
+    _ = (V.comp ((compress V X) ^ n)) (V.adjoint v) := by
+        rw [compress_pow V X hVV hinv n]
+    _ = V ((compress V X ^ n) (V.adjoint v)) := rfl
 
 omit [CompleteSpace E] [CompleteSpace F] in
 /-
@@ -176,7 +177,9 @@ theorem sirk_error_bound
       ‖phiA v - V (psiB (V.adjoint v))‖
         ≤ ‖(psiX - rX) v‖ + ‖V ((rB - psiB) (V.adjoint v))‖ := by
     convert norm_add_le ((psiX - rX) v) (V ((rB - psiB) (V.adjoint v))) using 2
-    simp [hphi, hrt]
+    · rfl
+    · simp only [hphi, ContinuousLinearMap.sub_apply, map_sub, hrt]
+      abel
   have h_bounds :
       ‖(psiX - rX) v‖ ≤ C * D * ‖v‖ ∧
         ‖V ((rB - psiB) (V.adjoint v))‖ ≤ C * D * ‖v‖ := by
@@ -239,7 +242,9 @@ theorem sia_error_bound
       ‖phiA v - V (psiB (V.adjoint v))‖
         ≤ ‖(psiX - pX) v‖ + ‖V ((pB - psiB) (V.adjoint v))‖ := by
     convert norm_add_le ((psiX - pX) v) (V ((pB - psiB) (V.adjoint v))) using 2
-    simp [hphi, hrt]
+    · rfl
+    · simp only [hphi, ContinuousLinearMap.sub_apply, map_sub, hrt]
+      abel
   have h_bounds :
       ‖(psiX - pX) v‖ ≤ C * Dsia * ‖v‖ ∧
         ‖V ((pB - psiB) (V.adjoint v))‖ ≤ C * Dsia * ‖v‖ := by

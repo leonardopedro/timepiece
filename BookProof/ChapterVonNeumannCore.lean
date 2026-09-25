@@ -238,10 +238,10 @@ theorem eq_zero_of_inner_frDom_eq_zero (A : D →ₗ[ℂ] F) (hdense : Dense (D 
     simpa using this
   have hp2 : p.2 = 0 := by
     rw [mem_adjGraph_iff] at hz
-    refine Dense.eq_zero_of_inner_right hdense fun v => ?_
-    have hv := hz v
-    simp only [hy0, inner_zero_right] at hv
-    exact hv.symm
+    refine Dense.eq_zero_of_inner_right ℂ hdense fun v hv => ?_
+    have hv' := hz ⟨v, hv⟩
+    simp only [hy0, inner_zero_right] at hv'
+    exact hv'.symm
   rw [← hsum, hp1, hp2, add_zero]
 
 /-- **`D(A* Ā)` is dense.** -/

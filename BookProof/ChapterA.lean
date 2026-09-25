@@ -81,11 +81,11 @@ theorem schur_normal_irreducible (M : System 𝔽 V) (hM : IsNormal M)
   intro W hW
   obtain ⟨hW_subsystem, hW_closed⟩ := hW
   have hW_orthogonal : IsClosed (Wᗮ : Set V) ∧ ∀ m ∈ M.ops, ∀ w ∈ Wᗮ, m w ∈ Wᗮ := by
-    convert orthogonal_isSubsystem M hM ⟨ hW_subsystem, hW_closed ⟩ using 1;
+    have hsub := orthogonal_isSubsystem M hM ⟨hW_subsystem, hW_closed⟩
+    exact hsub
   obtain ⟨c, hc⟩ := hSchur (W.starProjection) (by
-  intro m hm;    ext v; simp only [ContinuousLinearMap.coe_mul, Function.comp_apply]  ;  have
-      h_decomp : m v = m (W.starProjection v) + m (v -
-      W.starProjection v) := by
+  intro m hm;    ext v;    rw [mul_apply_eq_comp, mul_apply_eq_comp];  have
+      h_decomp : m v = m (W.starProjection v) + m (v - W.starProjection v) := by
     rw [ ← map_add, add_sub_cancel ];
   have h_comm : W.starProjection (m (v - W.starProjection v)) = 0 := by
     have h_comm : m (v - W.starProjection v) ∈ Wᗮ := by

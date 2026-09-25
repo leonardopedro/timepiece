@@ -88,7 +88,9 @@ theorem timeEvo_mem_unitaryGroup (H : Matrix n n ℂ) (hH : H.IsHermitian) (t : 
     timeEvo H t ∈ Matrix.unitaryGroup n ℂ := by
   constructor
   · convert timeEvo_unitary H hH t using 1
+    rw [Matrix.star_eq_conjTranspose]
   · convert timeEvo_unitary' H hH t using 1
+    rw [Matrix.star_eq_conjTranspose]
 
 /-- The inverse of the time-evolution is the time-reversed evolution:
 `U(t)⁻¹ = U(-t)`. -/

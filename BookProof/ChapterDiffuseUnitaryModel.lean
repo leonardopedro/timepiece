@@ -37,9 +37,9 @@ instance isProbabilityMeasure_volume_Icc :
   constructor
   simp [Real.volume_Icc]
 
-variable (mu : Measure ℝ) [IsProbabilityMeasure mu] [NoAtoms mu]
+variable (mu : Measure ℝ) [IsProbabilityMeasure mu] [NullSingletonClass mu]
 
-omit [IsProbabilityMeasure mu] [NoAtoms mu] in
+omit [IsProbabilityMeasure mu] [NullSingletonClass mu] in
 theorem measurable_cdf : Measurable (cdf mu) := (cdf mu).mono.measurable
 
 /-- **The distribution function is measure preserving** from `μ` to the uniform
@@ -64,9 +64,13 @@ def cdfRange : Submodule ℂ (Lp ℂ 2 mu) := LinearMap.range (cdfComp mu).toLin
 
 theorem isClosed_cdfRange : IsClosed (cdfRange mu : Set (Lp ℂ 2 mu)) := by
   have h : IsComplete (⇑(cdfComp mu) '' Set.univ) :=
-    (LinearIsometry.isComplete_image_iff (cdfComp mu)).2 complete_univ
+    (LinearIsometry.isComplete_image_iff (cdfComp mu)).2 isComplete_univ
   rw [Set.image_univ] at h
-  simpa [cdfRange] using h.isClosed
+  have heq : (cdfRange mu : Set (Lp ℂ 2 mu)) = Set.range ⇑(cdfComp mu) := by
+    simp only [cdfRange]
+    exact LinearMap.coe_range _
+  rw [heq]
+  exact h.isClosed
 
 /-- Composition with `F` turns the indicator of `B` into the indicator of `F⁻¹(B)`. -/
 theorem cdfComp_indicatorConstLp {B : Set ℝ} (hB : MeasurableSet B) (c : ℂ) :
@@ -101,7 +105,7 @@ theorem measure_cdf_le' {t : ℝ} (ht0 : 0 ≤ t) (ht1 : t ≤ 1) :
   · exact measure_cdf_le mu ht0 h
   · have huniv : {x : ℝ | cdf mu x ≤ t} = Set.univ := by
       ext x
-      simp only [Set.mem_setOf_eq, Set.mem_univ, iff_true]
+      simp only [Set.mem_ofPred_eq, Set.mem_univ, iff_true]
       rw [h]
       exact cdf_le_one mu x
     rw [huniv, measure_univ, h]
@@ -129,7 +133,7 @@ def cdfAlgebra : Set (Set ℝ) :=
   {s | MeasurableSet s ∧ ∃ B : Set ℝ, MeasurableSet B ∧
     mu (symmDiff s ((cdf mu) ⁻¹' B)) = 0}
 
-omit [IsProbabilityMeasure mu] [NoAtoms mu] in
+omit [IsProbabilityMeasure mu] [NullSingletonClass mu] in
 theorem isSetAlgebra_cdfAlgebra : IsSetAlgebra (cdfAlgebra mu) where
   empty_mem := ⟨MeasurableSet.empty, ∅, MeasurableSet.empty, by simp⟩
   compl_mem := by
@@ -143,7 +147,7 @@ theorem isSetAlgebra_cdfAlgebra : IsSetAlgebra (cdfAlgebra mu) where
     refine ⟨hs.union ht, B ∪ C, hB.union hC, ?_⟩
     have hpre : (cdf mu) ⁻¹' (B ∪ C) = ((cdf mu) ⁻¹' B) ∪ ((cdf mu) ⁻¹' C) := rfl
     rw [hpre]
-    refine le_antisymm ?_ (zero_le _)
+    refine le_antisymm ?_ zero_le
     calc mu (symmDiff (s ∪ t) (((cdf mu) ⁻¹' B) ∪ ((cdf mu) ⁻¹' C)))
         ≤ mu (symmDiff s ((cdf mu) ⁻¹' B) ∪ symmDiff t ((cdf mu) ⁻¹' C)) :=
           measure_mono Set.union_symmDiff_union_subset

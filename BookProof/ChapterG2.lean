@@ -244,7 +244,10 @@ theorem brstCohomology_equiv_right :
     (Submodule.liftQ _ (brstFwd Q) (brstFwd_ker Q)) ∘ₗ (brstGinv Q) = LinearMap.id := by
   ext ⟨a, y⟩; focus (simp [brstGinv, brstG1, brstG2]);
   · rfl;
-  · unfold brstGinv brstG1 brstFwd;    simp  ;
+  · simp only [brstFwd, Fin.isValue, brstGinv, brstG1, brstG2, LinearMap.coe_comp,
+      LinearMap.coe_inl, Function.comp_apply, Submodule.mkQ_apply, LinearMap.coprod_apply,
+      LinearMap.inl_apply, map_zero, zero_add, LinearMap.id_comp];
+    erw [Submodule.liftQ_apply]; simp;
   · simp only [brstFwd, Fin.isValue, brstGinv, brstG1, brstG2, LinearMap.coe_comp,
       LinearMap.coe_inr, Function.comp_apply, Submodule.mkQ_apply, Ideal.Quotient.mk_eq_mk, map_one,
           LinearMap.coprod_apply, map_zero, zero_add, LinearMap.id_comp, ZeroMemClass.coe_zero,
@@ -287,6 +290,7 @@ ones. -/
 theorem brst_physical_iff_gauge_invariant (a : A) :
     (![a, 0] ∈ brstKer Q) ↔ Q * a = 0 := by
   convert mem_brstKer_iff Q _
+  simp
 
 end BRST
 

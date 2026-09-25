@@ -64,8 +64,15 @@ noncomputable def sj2 : ℝ → ℝ :=
 /-- The derivative of the generating function `sin r / r`. -/
 theorem deriv_sbesselBase {r : ℝ} (hr : r ≠ 0) :
     deriv sbesselBase r = Real.cos r / r - Real.sin r / r ^ 2 := by
-  convert HasDerivAt.deriv (HasDerivAt.div (Real.hasDerivAt_sin r) (hasDerivAt_id r) hr) using 1
-  simp only [id_eq]; field_simp
+  have hd : HasDerivAt (fun x => Real.sin x / x)
+      ((Real.cos r * id r - Real.sin r * 1) / id r ^ 2) r :=
+    HasDerivAt.div (Real.hasDerivAt_sin r) (hasDerivAt_id r) hr
+  have heq : (Real.cos r * id r - Real.sin r * 1) / id r ^ 2
+      = Real.cos r / r - Real.sin r / r ^ 2 := by
+    simp only [id_eq, mul_one]
+    field_simp [hr]
+  rw [show sbesselBase = fun x => Real.sin x / x from rfl]
+  rw [HasDerivAt.deriv hd, heq]
 
 /-- The Rayleigh formula reproduces `j₀(r) = sin r / r`. -/
 theorem sbessel_zero : sbessel 0 = sj0 := by
@@ -93,9 +100,36 @@ theorem sbessel_two_eq {r : ℝ} (hr : r ≠ 0) : sbessel 2 r = sj2 r := by
     simp only [rayleighOp, deriv_sbesselBase hx]
   have h2 : (rayleighOp^[2] sbesselBase) r
       = -(1 / r) * deriv (rayleighOp sbesselBase) r := rfl
-  rw [sbessel, h2, hee, sj2]
-  norm_num [hr, differentiableAt_inv]
-  field_simp; ring
+  have hd2 : deriv (fun x => -(1 / x) * (Real.cos x / x - Real.sin x / x ^ 2)) r
+      = Real.sin r / r ^ 2 + 3 * Real.cos r / r ^ 3 - 3 * Real.sin r / r ^ 4 := by
+    have hcos : HasDerivAt (fun x => Real.cos x / x)
+        ((-Real.sin r * id r - Real.cos r * 1) / id r ^ 2) r :=
+      HasDerivAt.div (Real.hasDerivAt_cos r) (hasDerivAt_id r) hr
+    have hsq : HasDerivAt (fun x => Real.sin x / x ^ 2)
+        ((Real.cos r * (r ^ 2) - Real.sin r * (2 * r ^ 1)) / (r ^ 2) ^ 2) r :=
+      HasDerivAt.div (Real.hasDerivAt_sin r) (hasDerivAt_pow 2 r)
+        (pow_ne_zero 2 hr)
+    have hdif : HasDerivAt (fun x => Real.cos x / x - Real.sin x / x ^ 2)
+        (-Real.sin r / r - 2 * Real.cos r / r ^ 2 + 2 * Real.sin r / r ^ 3) r :=
+      (hcos.sub hsq).congr_deriv (by simp only [id_eq, mul_one]; field_simp [hr]; ring)
+    have hinv : HasDerivAt (fun x => -(1 / x)) (1 / r ^ 2) r := by
+      have h : HasDerivAt (fun x => 1 / x) ((0 * id r - 1 * 1) / id r ^ 2) r :=
+        HasDerivAt.div (hasDerivAt_const r 1) (hasDerivAt_id r) hr
+      have hneg := h.neg
+      have heq : -((0 * id r - 1 * 1) / id r ^ 2) = 1 / r ^ 2 := by
+        simp only [id_eq, zero_mul, mul_one, zero_sub, neg_div, neg_neg]
+      rw [heq] at hneg
+      exact hneg
+    have hprod := hinv.mul hdif
+    refine HasDerivAt.deriv ?_
+    convert hprod using 1
+    · rfl
+    · rfl
+    · field_simp [hr]
+      ring
+  rw [sbessel, h2, hee, hd2, sj2]
+  field_simp [hr]
+  ring
 
 /-- `j₀(r) = sin r / r` solves the `l = 0` spherical Bessel ODE
 `r² j'' + 2 r j' + r² j = 0`. -/
@@ -108,7 +142,18 @@ theorem sj0_satisfies_ode {r : ℝ} (hr : r ≠ 0) :
     Filter.EventuallyEq.deriv_eq
       (Filter.eventuallyEq_of_mem (isOpen_compl_singleton.mem_nhds hr) h1)
   rw [h2, h1 r hr, sj0]
-  norm_num [Real.differentiableAt_sin, Real.differentiableAt_cos, hr, differentiableAt_inv]
-  field_simp; ring
+  have hd : HasDerivAt (fun x => Real.cos x / x - Real.sin x / x ^ 2)
+      (-Real.sin r / r - 2 * Real.cos r / r ^ 2 + 2 * Real.sin r / r ^ 3) r := by
+    have hcos : HasDerivAt (fun x => Real.cos x / x)
+        ((-Real.sin r * id r - Real.cos r * 1) / id r ^ 2) r :=
+      HasDerivAt.div (Real.hasDerivAt_cos r) (hasDerivAt_id r) hr
+    have hsq : HasDerivAt (fun x => Real.sin x / x ^ 2)
+        ((Real.cos r * (r ^ 2) - Real.sin r * (2 * r ^ 1)) / (r ^ 2) ^ 2) r :=
+      HasDerivAt.div (Real.hasDerivAt_sin r) (hasDerivAt_pow 2 r)
+        (pow_ne_zero 2 hr)
+    exact (hcos.sub hsq).congr_deriv (by simp only [id_eq, mul_one]; field_simp [hr]; ring)
+  rw [HasDerivAt.deriv hd]
+  field_simp [hr]
+  ring
 
 end BookProof.ChapterSphericalBessel

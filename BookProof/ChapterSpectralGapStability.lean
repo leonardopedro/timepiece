@@ -114,9 +114,16 @@ theorem notMem_spectrum_of_gapAt {A : F →L[ℂ] F} (hA : IsSelfAdjoint A) {lam
   have hanti : AntilipschitzWith ⟨d⁻¹, (inv_pos.2 hd).le⟩ B := by
     refine AddMonoidHomClass.antilipschitz_of_bound B ?_
     intro x
-    have := hBx x
-    rw [NNReal.coe_mk, inv_mul_eq_div, le_div_iff₀ hd]
-    linarith
+    have hxb := hBx x
+    have h1 : ‖x‖ = d⁻¹ * (d * ‖x‖) := by
+      calc ‖x‖ = 1 * ‖x‖ := (one_mul _).symm
+        _ = (d⁻¹ * d) * ‖x‖ :=
+          (congrArg (fun w => w * ‖x‖) (inv_mul_cancel₀ hd.ne')).symm
+        _ = d⁻¹ * (d * ‖x‖) := mul_assoc d⁻¹ d ‖x‖
+    have h2 : d⁻¹ * (d * ‖x‖) ≤ d⁻¹ * ‖B x‖ :=
+      mul_le_mul_of_nonneg_left hxb (inv_pos.2 hd).le
+    have h3 : ‖x‖ ≤ d⁻¹ * ‖B x‖ := by linarith
+    exact h3
   have hclosed : IsClosed (Set.range B) := hanti.isClosed_range B.lipschitz.uniformContinuous
   -- symmetry
   have hAsym := ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA
@@ -257,6 +264,6 @@ theorem spectrum_disjoint_of_shifted_square_bound {A : F →L[ℂ] F} (hA : IsSe
         Real.sqrt_sq (norm_nonneg _)] at h1
     linarith
   have hpos : 0 < Real.sqrt q - |lam - c| := sub_pos.mpr hdist
-  exact notMem_spectrum_of_gapAt hA hpos (by simpa [ContinuousLinearMap.sub_apply] using hnot)
+  exact notMem_spectrum_of_gapAt hA hpos (by simpa [GapAt] using hnot)
 
 end BookProof.SpectralGapStability

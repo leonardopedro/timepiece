@@ -35,28 +35,22 @@ theorem null_singleton_volume (y : ℝ) : volume ({y} : Set ℝ) = 0 := by
   norm_num +zetaDelta at *
 
 theorem null_singleton {α : Type*} [MeasurableSpace α] (μ : Measure α)
-    [MeasurableSingletonClass α] [NoAtoms μ] (a : α) : μ {a} = 0 := by
-  convert MeasureTheory.NoAtoms.measure_singleton a;
+    [MeasurableSingletonClass α] [NullSingletonClass μ] (a : α) : μ {a} = 0 := by
+  convert MeasureTheory.NullSingletonClass.measure_singleton a;
   infer_instance
 
 /-! ### F2. Countable sets are null -/
 
 theorem countable_null {α : Type*} [MeasurableSpace α]
-    [MeasurableSingletonClass α] (μ : Measure α) [NoAtoms μ]
+    [MeasurableSingletonClass α] (μ : Measure α) [NullSingletonClass μ]
     {s : Set α} (hs : s.Countable) : μ s = 0 := by
   convert Set.Countable.measure_zero hs μ
 
 /-! ### F3. Selection exists: disintegration / regular conditional probability -/
 
 theorem selection_exists :
-    squareMeasure.fst ⊗ₘ squareMeasure.condKernel = squareMeasure := by
-  have h_cond : ∀ s : Set (ℝ × ℝ), MeasurableSet s →
-      squareMeasure (s.preimage (fun x => (x.1, x.2)))
-        = ∫⁻ a, squareMeasure.condKernel a (s.preimage fun x => (a, x)) ∂squareMeasure.fst := by
-    grind +suggestions
-  ext s hs
-  specialize h_cond s hs
-  simp_all +decide [MeasureTheory.Measure.compProd_apply]
+    squareMeasure.fst ⊗ₘ squareMeasure.condKernel = squareMeasure :=
+  Measure.disintegrate _ _
 
 /-! ### F4. No complete history realizes the selected event -/
 
@@ -115,7 +109,7 @@ theorem countable_atoms {α : Type*} [MeasurableSpace α]
 /-! ### F6. Continuous and atomic parts are mutually singular -/
 
 theorem atomless_mutuallySingular_atomic {α : Type*} [MeasurableSpace α]
-    [MeasurableSingletonClass α] (μ ν : Measure α) [NoAtoms μ]
+    [MeasurableSingletonClass α] (μ ν : Measure α) [NullSingletonClass μ]
     {A : Set α} (hA : A.Countable) (hν : ν Aᶜ = 0) :
     μ ⟂ₘ ν := by
   refine ⟨A, ?_, ?_⟩
@@ -145,12 +139,12 @@ theorem cdf_jump_separation (F G : ℝ → ℝ) (_hF : Monotone F) (_hG : Monoto
 /-- Conditioning a finite measure on the complement of its (countable) set of
     atoms yields an atomless measure.  The positivity hypothesis `hpos` of the
     plan's F8 is kept for fidelity to the statement, but turns out to be
-    unnecessary for the `NoAtoms` conclusion (it is needed only when one further
+    unnecessary for the `NullSingletonClass` conclusion (it is needed only when one further
     normalizes to a probability measure, as in `mixed_to_continuous`). -/
 theorem cond_diffuse_noAtoms {α : Type*} [MeasurableSpace α]
     [MeasurableSingletonClass α] (μ : Measure α) [IsFiniteMeasure μ]
     (_hpos : μ {x | μ {x} ≠ 0}ᶜ ≠ 0) :
-    NoAtoms ((μ {x | μ {x} ≠ 0}ᶜ)⁻¹ • μ.restrict {x | μ {x} ≠ 0}ᶜ) := by
+    NullSingletonClass ((μ {x | μ {x} ≠ 0}ᶜ)⁻¹ • μ.restrict {x | μ {x} ≠ 0}ᶜ) := by
   refine ⟨fun x => ?_⟩
   by_cases hx : μ {x} = 0 <;> simp_all +decide
 

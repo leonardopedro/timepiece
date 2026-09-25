@@ -91,8 +91,7 @@ theorem not_translationInvariant_of_pointSupported
     apply hy0
     have : y = (x₀ + y) - x₀ := by ring
     rw [this, hcon]; ring
-  have h2 := congrFun (h y) x₀
-  simp only at h2
+  have h2 : l (x₀ + y) = l x₀ := congrFun (h y) x₀
   rw [hsupp _ hx] at h2
   exact hne h2.symm
 

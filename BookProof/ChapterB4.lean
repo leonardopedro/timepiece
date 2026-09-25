@@ -93,11 +93,13 @@ theorem pure_state_satisfies_P2 :
 theorem no_pure_state_satisfies_both :
     ¬ ∃ ρ, IsPureState ρ ∧ Matrix.trace (ρ * P1) = 1 / 2 ∧
       Matrix.trace (ρ * P2) = 1 / 2 := by
-  rintro ⟨ρ, ⟨v, hv, rfl⟩, h1, h2⟩
-  simp only [P1, P2, Matrix.trace_fin_two, Matrix.mul_apply, Fin.sum_univ_two,
-    Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.of_apply,
-    Matrix.cons_val'] at h1 h2
-  nlinarith [hv, h1, h2, sq_nonneg (v 0 - v 1), sq_nonneg (v 0 + v 1)]
+  rintro ⟨ρ, ⟨v, hv, hρ⟩, h1, h2⟩
+  simp only [P1, P2, Matrix.trace_fin_two] at h1 h2
+  simp only [Matrix.mul_apply, Fin.sum_univ_two, Matrix.of_apply, Matrix.cons_val_zero,
+    Matrix.cons_val_one] at h1 h2
+  rw [hρ] at h1 h2
+  simp only at h1 h2
+  nlinarith [hv, h1, h2]
 
 /-- The mixed state `ρ = ½ I` satisfies **both** Born constraints simultaneously. -/
 theorem mixed_state_satisfies_both :

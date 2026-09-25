@@ -350,8 +350,8 @@ theorem factorRel_snd_eq_zero_of_fst_eq_zero {A : D →ₗ[ℂ] F} (hdense : Den
   obtain ⟨y, hy, hz⟩ := h
   have hy0 : y = 0 := clGraph_snd_eq_zero_of_fst_eq_zero hdense hsym hy
   rw [mem_adjGraph_iff] at hz
-  refine Dense.eq_zero_of_inner_right hdense fun v => ?_
-  have hv := hz v
+  refine Dense.eq_zero_of_inner_right (𝕜 := ℂ) (S := D) hdense fun v hv => ?_
+  have hv := hz ⟨v, hv⟩
   simp only [hy0, inner_zero_right] at hv
   exact hv.symm
 

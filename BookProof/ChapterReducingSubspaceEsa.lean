@@ -141,8 +141,12 @@ theorem deficiencyTrivialAt_red (hP : IsReducingProjection P) {hPD : ∀ x ∈ D
     have hPv : P (v : F) ∈ D := hPD _ v.2
     set v' : redDom P D := ⟨⟨P (v : F), ⟨(v : F), rfl⟩⟩, hPv⟩ with hv'
     have h1 : (inner ℂ (T ⟨P (v : F), hPv⟩) W : ℂ) = z * inner ℂ (P (v : F)) W := by
-      have := hw v'
-      simpa [Submodule.coe_inner, redOp, redIncl, hv', hW] using this
+      have h2 := hw v'
+      simp only [hv', redOp_coe, Submodule.coe_inner] at h2
+      have hinc : (redIncl P D) ⟨⟨P (v : F), ⟨(v : F), rfl⟩⟩, hPv⟩ = ⟨P (v : F), hPv⟩ := rfl
+      rw [hinc] at h2
+      rw [hW]
+      exact h2
     have h2 : (inner ℂ (T v) W : ℂ) = inner ℂ (P (T v)) W := by
       rw [hP.symm (T v) W, hPW]
     have h3 : (inner ℂ (P (T v)) W : ℂ) = inner ℂ (T ⟨P (v : F), hPv⟩) W := by

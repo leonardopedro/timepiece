@@ -309,8 +309,7 @@ theorem absolutelyContinuous_test {g : ℝ → ℝ} (hg : IsTestFun g) (a b : �
     hg.deriv.hasCompactSupport.norm
   refine (LipschitzWith.lipschitzOnWith (K := ⟨‖deriv g x₀‖, norm_nonneg _⟩)
     (lipschitzWith_of_nnnorm_deriv_le hg.differentiable fun x => ?_)).absolutelyContinuousOnInterval
-  rw [← NNReal.coe_le_coe]
-  simpa using hx₀ x
+  exact_mod_cast hx₀ x
 
 /-- **Integration by parts against an indefinite integral.**  For a locally integrable `G`
 the primitive `x ↦ ∫_c^x G` is absolutely continuous, so it can be integrated by parts

@@ -62,12 +62,10 @@ theorem hasDerivAt_dampedEnergy {lam omega : ℝ} {x v a : ℝ → ℝ}
       (v t * a t + omega ^ 2 * (x t * v t)) t := by
     have h1 : HasDerivAt (fun s => v s ^ 2 / 2) (v t * a t) t := by
       have h := ((hv t).pow 2).div_const 2
-      convert h using 1
-      ring
+      convert h using 1 <;> first | rfl | ring
     have h2 : HasDerivAt (fun s => omega ^ 2 * x s ^ 2 / 2) (omega ^ 2 * (x t * v t)) t := by
       have h := (((hx t).pow 2).const_mul (omega ^ 2)).div_const 2
-      convert h using 1
-      ring
+      convert h using 1 <;> first | rfl | ring
     exact h1.add h2
   have hrate : v t * a t + omega ^ 2 * (x t * v t) = -(lam * v t ^ 2) := by
     have ha : a t = -(lam * v t) - omega ^ 2 * x t := by linarith [heq t]
@@ -120,20 +118,16 @@ theorem hasDerivAt_coupledEnergy {lam1 lam2 omega1 omega2 c : ℝ}
       (-(lam1 * v1 t ^ 2) - lam2 * v2 t ^ 2) t := by
   have h1 : HasDerivAt (fun s => v1 s ^ 2 / 2) (v1 t * a1 t) t := by
     have h := ((hv1 t).pow 2).div_const 2
-    convert h using 1
-    ring
+    convert h using 1 <;> first | rfl | ring
   have h2 : HasDerivAt (fun s => v2 s ^ 2 / 2) (v2 t * a2 t) t := by
     have h := ((hv2 t).pow 2).div_const 2
-    convert h using 1
-    ring
+    convert h using 1 <;> first | rfl | ring
   have h3 : HasDerivAt (fun s => omega1 ^ 2 * x1 s ^ 2 / 2) (omega1 ^ 2 * (x1 t * v1 t)) t := by
     have h := (((hx1 t).pow 2).const_mul (omega1 ^ 2)).div_const 2
-    convert h using 1
-    ring
+    convert h using 1 <;> first | rfl | ring
   have h4 : HasDerivAt (fun s => omega2 ^ 2 * x2 s ^ 2 / 2) (omega2 ^ 2 * (x2 t * v2 t)) t := by
     have h := (((hx2 t).pow 2).const_mul (omega2 ^ 2)).div_const 2
-    convert h using 1
-    ring
+    convert h using 1 <;> first | rfl | ring
   have h5 : HasDerivAt (fun s => c * (x1 s * x2 s))
       (c * (v1 t * x2 t + x1 t * v2 t)) t := ((hx1 t).mul (hx2 t)).const_mul c
   have hsum := ((((h1.add h2).add h3).add h4).sub h5)

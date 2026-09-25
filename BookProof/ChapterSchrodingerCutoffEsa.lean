@@ -250,7 +250,7 @@ theorem cutoff_energy_core
     have hR' := hasDerivAt_reInner u u' u'' x (h1 x) (h2 x)
     rw [hP x] at hR'
     have hw2 : HasDerivAt (fun y => w y ^ 2) (2 * w x * wd x) x := by
-      simpa using (hwderiv x).pow 2
+      convert (hwderiv x).pow 2 <;> first | rfl | norm_num | (funext y; rfl)
     exact hw2.mul hR'
   have hGcont : Continuous G := by fun_prop
   -- compact support of everything built from the cutoff

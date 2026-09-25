@@ -68,7 +68,7 @@ theorem restrict_atomSet_add_restrict_compl [IsFiniteMeasure mu] :
   Measure.restrict_add_restrict_compl (measurableSet_atomSet mu)
 
 /-- **The complementary part is diffuse**: off the atoms the measure has no atoms. -/
-instance noAtoms_restrict_compl_atomSet : NoAtoms (mu.restrict (atomSet mu)ᶜ) := by
+instance noAtoms_restrict_compl_atomSet : NullSingletonClass (mu.restrict (atomSet mu)ᶜ) := by
   constructor
   intro x
   by_cases hx : x ∈ atomSet mu
@@ -80,7 +80,7 @@ instance noAtoms_restrict_compl_atomSet : NoAtoms (mu.restrict (atomSet mu)ᶜ) 
       rintro rfl
       exact hx
     simp [hempty]
-  · refine le_antisymm ?_ (zero_le _)
+  · refine le_antisymm ?_ zero_le
     exact le_trans (Measure.restrict_apply_le _ _)
       (le_of_eq (measure_singleton_eq_zero_of_notMem_atomSet mu hx))
 
@@ -127,7 +127,7 @@ theorem exists_atomic_diffuse_decomposition [IsFiniteMeasure mu] :
     ∃ (A : Set α) (mua mud : Measure α), A.Countable ∧ MeasurableSet A ∧
       mu = mua + mud ∧
       mua = Measure.sum (fun x : A => mu {(x : α)} • Measure.dirac (x : α)) ∧
-      mua Aᶜ = 0 ∧ NoAtoms mud := by
+      mua Aᶜ = 0 ∧ NullSingletonClass mud := by
   refine ⟨atomSet mu, mu.restrict (atomSet mu), mu.restrict (atomSet mu)ᶜ,
     countable_atomSet mu, measurableSet_atomSet mu,
     (restrict_atomSet_add_restrict_compl mu).symm, restrict_atomSet_eq_sum_dirac mu, ?_,
@@ -164,7 +164,7 @@ theorem abelian_multiplication_model_atomic_diffuse
       (∀ x : S, ∃ (A : Set X) (mua mud : Measure X), A.Countable ∧ MeasurableSet A ∧
         mu x = mua + mud ∧
         mua = Measure.sum (fun y : A => (mu x) {(y : X)} • Measure.dirac (y : X)) ∧
-        mua Aᶜ = 0 ∧ NoAtoms mud) := by
+        mua Aᶜ = 0 ∧ NullSingletonClass mud) := by
   obtain ⟨S, mu, V, hprob, hsum, hint⟩ := abelian_multiplication_model_general pi
   refine ⟨S, mu, V, hprob, hsum, hint, fun x => ?_⟩
   haveI : IsProbabilityMeasure (mu x) := hprob x

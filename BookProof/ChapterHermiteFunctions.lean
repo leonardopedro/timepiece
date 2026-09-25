@@ -108,7 +108,8 @@ theorem hasDerivAt_gaussW (x : ℝ) : HasDerivAt gaussW (-x * gaussW x) x := by
       simpa using ((hasDerivAt_pow 2 x).neg).div_const 2
     convert h0 using 1
     ring
-  simpa [gaussW, mul_comm] using h.exp
+  show HasDerivAt (fun y : ℝ => Real.exp (-y ^ 2 / 2)) (-x * Real.exp (-x ^ 2 / 2)) x
+  simpa [mul_comm] using h.exp
 
 theorem hasDerivAt_gaussH (x : ℝ) : HasDerivAt gaussH (-(x / 2) * gaussH x) x := by
   have h : HasDerivAt (fun y : ℝ => -y ^ 2 / 4) (-(x / 2)) x := by
@@ -116,7 +117,8 @@ theorem hasDerivAt_gaussH (x : ℝ) : HasDerivAt gaussH (-(x / 2) * gaussH x) x 
       simpa using ((hasDerivAt_pow 2 x).neg).div_const 4
     convert h0 using 1
     ring
-  simpa [gaussH, mul_comm] using h.exp
+  show HasDerivAt (fun y : ℝ => Real.exp (-y ^ 2 / 4)) (-(x / 2) * Real.exp (-x ^ 2 / 4)) x
+  simpa [mul_comm] using h.exp
 
 /-- Every monomial is integrable against a Gaussian. -/
 theorem integrable_pow_mul_exp_neg (k : ℕ) {b : ℝ} (hb : 0 < b) :
@@ -156,7 +158,8 @@ theorem integrable_poly_mul_exp_neg (p : Polynomial ℝ) {b : ℝ} (hb : 0 < b) 
     Integrable (fun x : ℝ => p.eval x * Real.exp (-b * x ^ 2)) := by
   induction p using Polynomial.induction_on' with
   | add p q hp hq =>
-    simpa [Polynomial.eval_add, add_mul] using hp.add hq
+    refine (hp.add hq).congr (Filter.Eventually.of_forall fun x => ?_)
+    simp [Polynomial.eval_add, add_mul]
   | monomial k a =>
       simpa [Polynomial.eval_monomial, mul_assoc] using
         (integrable_pow_mul_exp_neg k hb).const_mul a
@@ -214,8 +217,7 @@ theorem gint_ibp (p q : Polynomial ℝ) :
       (((derivative q).eval x - x * q.eval x) * gaussW x) x := by
     intro x
     have h := (q.hasDerivAt x).mul (hasDerivAt_gaussW x)
-    convert h using 1
-    ring
+    convert h using 1 <;> first | rfl | ring
   have hiuv' : Integrable ((fun y : ℝ => p.eval y) *
       (fun y : ℝ => ((derivative q).eval y - y * q.eval y) * gaussW y)) := by
     refine (integrable_poly_mul_gaussW (p * (derivative q - X * q))).congr
@@ -233,7 +235,7 @@ theorem gint_ibp (p q : Polynomial ℝ) :
     simp only [Pi.mul_apply, Polynomial.eval_mul]
     ring
   have key := integral_mul_deriv_eq_deriv_mul_of_integrable
-    (fun x => hu x) (fun x => hv x) hiuv' hiu'v hiuv
+    (fun x _ => hu x) (fun x _ => hv x) hiuv' hiu'v hiuv
   have hL : ∫ x : ℝ, p.eval x * (((derivative q).eval x - x * q.eval x) * gaussW x)
       = - gint (p * (X * q - derivative q)) := by
     rw [gint, ← integral_neg]
@@ -468,7 +470,7 @@ theorem ae_eq_zero_of_fourier_eq_zero {v : ℝ → ℂ} (hv : Integrable v)
   rw [hzero] at hkey
   have hrw : ∫ x : ℝ, g x • v x = ∫ x : ℝ, v x * (psi : ℝ → ℂ) x := by
     refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
-    simp [hpsi, Complex.real_smul, smul_eq_mul]
+    simp [hpsi, Complex.real_smul]
     exact mul_comm _ _
   rw [hrw, ← hkey]
 
@@ -503,7 +505,7 @@ theorem fourier_gaussH_mul_eq_zero {u : ℝ → ℂ} (hu : MemLp u 2 (volume : M
       push_cast
       ring
     simp_rw [hpt]
-    rw [integral_finset_sum _ (fun k _ => (hterm k).const_mul _)]
+    rw [integral_finsetSum _ (fun k _ => (hterm k).const_mul _)]
     have hmom' : ∀ k : ℕ, ∫ x : ℝ, (x : ℂ) ^ k * ((gaussH x : ℝ) : ℂ) * u x = 0 := by
       intro k
       have h := hmom k
@@ -704,17 +706,17 @@ theorem hasDerivAt_hermiteFun (n : ℕ) (x : ℝ) :
       (((derivative (hermiteR n)).eval x - x / 2 * (hermiteR n).eval x) * gaussH x) x := by
   have h := ((hermiteR n).hasDerivAt x).mul (hasDerivAt_gaussH x)
   unfold hermiteFun
-  convert h using 1
-  ring
+  convert h using 1 <;> first | rfl | ring
 
 /-- The derivative of "polynomial times half Gaussian" is again of that form. -/
 theorem hasDerivAt_poly_mul_gaussH (p : Polynomial ℝ) (x : ℝ) :
     HasDerivAt (fun y : ℝ => p.eval y * gaussH y)
       ((derivative p - C (1 / 2 : ℝ) * (X * p)).eval x * gaussH x) x := by
   have h := (p.hasDerivAt x).mul (hasDerivAt_gaussH x)
-  convert h using 1
-  simp only [Polynomial.eval_sub, Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_X]
-  ring
+  convert h using 1 <;> first
+  | rfl
+  | simp only [Polynomial.eval_sub, Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_X]
+    ring
 
 theorem deriv_poly_mul_gaussH (p : Polynomial ℝ) :
     deriv (fun y : ℝ => p.eval y * gaussH y)

@@ -76,13 +76,10 @@ Gaussian form `t ↦ exp(-‖t‖²/2)`, and in particular depends only on the n
 `‖t‖` — the rotational symmetry visible already at the level of the
 characteristic function. -/
 theorem charFun_stdGaussian (t : EuclideanSpace ℝ (Fin n)) :
-    charFun (stdGaussian n) t = Complex.exp (-(‖t‖ ^ 2 : ℝ) / 2) := by
-  convert MeasureTheory.charFun_pi t using 1;
-  · rw [ Finset.prod_congr rfl fun _ _ => ProbabilityTheory.charFun_gaussianReal _ ] ;    norm_num [
-      Complex.exp_neg, neg_div ];
-    rw [ ← Complex.exp_sum ] ; norm_cast ; norm_num [ EuclideanSpace.norm_eq ] ; ring;
-    rw [ Real.sq_sqrt <| Finset.sum_nonneg fun _ _ => sq_nonneg _, ← Finset.sum_mul ];
-  · infer_instance
+    charFun (stdGaussian n) t = Complex.exp (-‖t‖ ^ 2 / 2) := by
+  show charFun ((Measure.pi (fun _ : Fin n => gaussianReal 0 1)).map (toLp 2)) t = _
+  rw [ProbabilityTheory.map_pi_eq_stdGaussian]
+  exact ProbabilityTheory.charFun_stdGaussian t
 
 /-- **Headline (rotation invariance of the free-field Gaussian prior).**  For
 every orthogonal transformation `L` of `EuclideanSpace ℝ (Fin n)` (a linear
@@ -93,14 +90,8 @@ built from the Gaussian measure. -/
 theorem stdGaussian_map_linearIsometryEquiv
     (L : EuclideanSpace ℝ (Fin n) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin n)) :
     (stdGaussian n).map L = stdGaussian n := by
-  apply Measure.ext_of_charFun;
-  ext t;
-  convert charFun_stdGaussian ( L.symm t ) using 1;
-  · convert MeasureTheory.integral_map _ _ using 3;
-    · convert MeasureTheory.integral_congr_ae _ using 3;
-      filter_upwards [ ] with x using by rw [ ← L.inner_map_map ] ; simp  ;
-    · exact L.continuous.aemeasurable;
-    · fun_prop;
-  · convert charFun_stdGaussian t using 1 ; norm_num [ L.norm_map ]
+  unfold stdGaussian
+  rw [ProbabilityTheory.map_pi_eq_stdGaussian]
+  exact ProbabilityTheory.stdGaussian_map L
 
 end BookProof.ChapterFreeFieldGaussian

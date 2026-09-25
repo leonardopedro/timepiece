@@ -73,14 +73,14 @@ theorem angularMomentum_eigen {u : ℂ → ℂ} {μ : ℝ} {z : ℂ}
         ((fun s : ℝ => Complex.exp ((s : ℂ) * Complex.I) * z) 0) := by
       simpa using hdiff.hasFDerivAt
     have h := HasFDerivAt.comp_hasDerivAt (0 : ℝ) hu hpath
-    simpa [Function.comp] using h
+    exact h
   -- the same derivative, computed from the equivariance
   have hphase : HasDerivAt (fun s : ℝ => Complex.exp ((μ : ℂ) * (s : ℂ) * Complex.I) * u z)
       (Complex.I * (μ : ℂ) * u z) 0 := by
     have h : HasDerivAt (fun s : ℝ => (μ : ℂ) * (s : ℂ) * Complex.I)
         ((μ : ℂ) * Complex.I) (0 : ℝ) := by
-      have h0 : HasDerivAt (fun s : ℝ => ((s : ℂ))) 1 (0 : ℝ) := by
-        simpa using (Complex.ofRealCLM.hasDerivAt (x := (0 : ℝ)))
+      have h0 : HasDerivAt (fun s : ℝ => ((s : ℂ))) 1 (0 : ℝ) :=
+        Complex.ofRealCLM.hasDerivAt (x := (0 : ℝ))
       simpa [mul_comm, mul_assoc] using ((h0.const_mul (μ : ℂ)).mul_const Complex.I)
     have hexp := h.cexp
     have := hexp.mul_const (u z)

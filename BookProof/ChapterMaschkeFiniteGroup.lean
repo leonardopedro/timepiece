@@ -114,11 +114,13 @@ theorem maschke_invariant_complement [Finite G] [FiniteDimensional ℂ V]
   classical
   letI : Fintype G := Fintype.ofFinite G
   obtain ⟨W₀, hW₀⟩ := Submodule.exists_isCompl W
-  set pi : V →ₗ[ℂ] V := W.subtype ∘ₗ W.linearProjOfIsCompl W₀ hW₀ with hpidef
-  have hpi_mem : ∀ x, pi x ∈ W := fun x => (W.linearProjOfIsCompl W₀ hW₀ x).2
+  set pi : V →ₗ[ℂ] V := W.subtype ∘ₗ W.projectionOnto W₀ hW₀ with hpidef
+  have hpi_mem : ∀ x, pi x ∈ W := fun x => (W.projectionOnto W₀ hW₀ x).2
   have hpi_id : ∀ x ∈ W, pi x = x := by
     intro x hx
-    simp [hpidef, Submodule.linearProjOfIsCompl_apply_left hW₀ ⟨x, hx⟩]
+    have h : W.projectionOnto W₀ hW₀ x = ⟨x, hx⟩ :=
+      Submodule.projectionOnto_apply_of_mem_left hW₀ hx
+    simp [hpidef, h]
   set p : V →ₗ[ℂ] V := avgProj ρ pi with hpdef
   have hp_mem : ∀ x, p x ∈ W := avgProj_mem hW pi hpi_mem
   have hp_id : ∀ x ∈ W, p x = x := fun x hx => avgProj_eq_self hW pi hpi_id hx
@@ -159,11 +161,13 @@ theorem maschke_decomposition [Finite G] [FiniteDimensional ℂ V]
   classical
   letI : Fintype G := Fintype.ofFinite G
   obtain ⟨W₀, hW₀⟩ := Submodule.exists_isCompl W
-  set pi : V →ₗ[ℂ] V := W.subtype ∘ₗ W.linearProjOfIsCompl W₀ hW₀ with hpidef
-  have hpi_mem : ∀ x, pi x ∈ W := fun x => (W.linearProjOfIsCompl W₀ hW₀ x).2
+  set pi : V →ₗ[ℂ] V := W.subtype ∘ₗ W.projectionOnto W₀ hW₀ with hpidef
+  have hpi_mem : ∀ x, pi x ∈ W := fun x => (W.projectionOnto W₀ hW₀ x).2
   have hpi_id : ∀ x ∈ W, pi x = x := by
     intro x hx
-    simp [hpidef, Submodule.linearProjOfIsCompl_apply_left hW₀ ⟨x, hx⟩]
+    have h : W.projectionOnto W₀ hW₀ x = ⟨x, hx⟩ :=
+      Submodule.projectionOnto_apply_of_mem_left hW₀ hx
+    simp [hpidef, h]
   set p : V →ₗ[ℂ] V := avgProj ρ pi with hpdef
   have hp_mem : ∀ x, p x ∈ W := avgProj_mem hW pi hpi_mem
   have hp_id : ∀ x ∈ W, p x = x := fun x hx => avgProj_eq_self hW pi hpi_id hx

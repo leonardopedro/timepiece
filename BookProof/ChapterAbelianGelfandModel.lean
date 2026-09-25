@@ -110,7 +110,10 @@ theorem integral_rieszStateMeasure (L : C(X, ℝ) →ₗ[ℝ] ℝ)
     ∫ x, f x ∂(rieszStateMeasure L hL) = L f := by
   have h := RealRMK.integral_rieszMeasure (positiveCcMap L hL)
     (CompactlySupportedContinuousMap.continuousMapEquiv f)
-  simpa [rieszStateMeasure, positiveCcMap] using h
+  have hΛ : positiveCcMap L hL (CompactlySupportedContinuousMap.continuousMapEquiv f) = L f :=
+    rfl
+  rw [rieszStateMeasure]
+  exact hΛ ▸ h
 
 /-- A *unital* positive functional gives a **probability** measure. -/
 theorem isProbabilityMeasure_rieszStateMeasure (L : C(X, ℝ) →ₗ[ℝ] ℝ)
@@ -120,7 +123,11 @@ theorem isProbabilityMeasure_rieszStateMeasure (L : C(X, ℝ) →ₗ[ℝ] ℝ)
   have h : ∫ _x : X, (1 : ℝ) ∂(rieszStateMeasure L hL) = 1 := by
     have h1 := integral_rieszStateMeasure L hL 1
     simpa [hone] using h1
-  have h' : ((rieszStateMeasure L hL) Set.univ).toReal = 1 := by simpa using h
+  have h' : ((rieszStateMeasure L hL) Set.univ).toReal = 1 := by
+    have h2 : (rieszStateMeasure L hL).real Set.univ = 1 := by
+      rw [← h, integral_const]
+      simp
+    simpa [Measure.real] using h2
   exact (ENNReal.toReal_eq_one_iff _).mp h'
 
 end Riesz
@@ -432,7 +439,8 @@ section Gelfand
 variable (A : Type*) [CommCStarAlgebra A]
 
 /-- The character space of `A` carries its Borel σ-algebra. -/
-scoped instance instMeasurableSpaceCharacterSpace : MeasurableSpace (characterSpace ℂ A) :=
+noncomputable scoped instance instMeasurableSpaceCharacterSpace :
+    MeasurableSpace (characterSpace ℂ A) :=
   borel _
 
 scoped instance instBorelSpaceCharacterSpace : BorelSpace (characterSpace ℂ A) := ⟨rfl⟩

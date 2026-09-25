@@ -80,7 +80,13 @@ theorem memLp_smulConst (a : Lp ℂ 2 μ) (c : Lp ℂ 2 ν) :
   refine (memLp_two_iff_integrable_sq_norm ((Lp.aestronglyMeasurable a).smul_const c)).2 ?_
   have h1 : Integrable (fun x => ‖(a : V → ℂ) x‖ ^ 2) μ :=
     (memLp_two_iff_integrable_sq_norm (Lp.aestronglyMeasurable a)).1 (Lp.memLp a)
-  simpa [norm_smul, mul_pow, smul_eq_mul, mul_comm] using h1.smul (‖c‖ ^ 2)
+  have key : (fun x => ‖(a : V → ℂ) x • c‖ ^ 2)
+      = ‖c‖ ^ 2 • fun x => ‖(a : V → ℂ) x‖ ^ 2 := by
+    funext x
+    rw [norm_smul, mul_pow]
+    simp [mul_comm, smul_eq_mul]
+  rw [key]
+  exact h1.smul (‖c‖ ^ 2)
 
 /-- The scalar generator: the class of `(x, y) ↦ a x * c y` in `L²(μ.prod ν)`. -/
 def prodMk (a : Lp ℂ 2 μ) (c : Lp ℂ 2 ν) : Lp ℂ 2 (μ.prod ν) := (memLp_mulProd a c).toLp _
@@ -441,8 +447,8 @@ def curryLI : Lp (Lp ℂ 2 ν) 2 μ ≃ₗᵢ[ℂ] Lp ℂ 2 (μ.prod ν) :=
 
 /-- The identification carries the fibred lift of a tensor to its scalar lift. -/
 theorem curryLI_fibTensor (t : TensorProduct ℂ (Lp ℂ 2 μ) (Lp ℂ 2 ν)) :
-    curryLI (fibTensor t) = prodTensor t := by
-  simp [curryLI]
+    curryLI (fibTensor t) = prodTensor t :=
+  LinearEquiv.extendOfIsometry_eq _ _ _ _ _ _ t
 
 @[simp] theorem curryLI_fibMk (a : Lp ℂ 2 μ) (c : Lp ℂ 2 ν) :
     curryLI (fibMk a c) = prodMk a c := curryLI_fibTensor (a ⊗ₜ[ℂ] c)
@@ -679,7 +685,7 @@ theorem isSliceOf_curryLI (f : Lp (Lp ℂ 2 ν) 2 μ) : IsSliceOf f (curryLI f) 
   set C : W → ℂ := fun y => (curryLI f : V × W → ℂ) (x, y) with hC
   have hAmeas : AEStronglyMeasurable A ν := Lp.aestronglyMeasurable _
   have hzero : eLpNorm (A - C) 2 ν = 0 := by
-    refine le_antisymm ?_ (zero_le _)
+    refine le_antisymm ?_ zero_le
     have hle : ∀ k : ℕ, eLpNorm (A - C) 2 ν ≤ φ₁ k x + φ₂ k x := by
       intro k
       set B : W → ℂ := ((w k : V → Lp ℂ 2 ν) x : W → ℂ) with hB

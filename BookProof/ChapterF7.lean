@@ -188,22 +188,33 @@ theorem schwartz_integration_by_parts (f g : 𝓢(ℝ, ℂ)) :
   have hbot : Filter.Tendsto ((fun t => (starRingEnd ℂ) (f t)) * (g : ℝ → ℂ))
       Filter.atBot (nhds 0) := by
     have huc : Filter.Tendsto (fun t => (starRingEnd ℂ) (f t)) Filter.atBot (nhds 0) := by
-      have := (Complex.continuous_conj.tendsto (0 : ℂ)).comp
+      have h := (Complex.continuous_conj.tendsto (0 : ℂ)).comp
         (f.tendsto_cocompact.mono_left atBot_le_cocompact)
-      simpa [Function.comp] using this
+      rw [map_zero] at h
+      exact h
     have hvc : Filter.Tendsto (g : ℝ → ℂ) Filter.atBot (nhds 0) :=
       g.tendsto_cocompact.mono_left atBot_le_cocompact
-    simpa using huc.mul hvc
+    have hm := huc.mul hvc
+    rw [show (0 : ℂ) * 0 = 0 by ring] at hm
+    convert hm using 1
+    funext t
+    rfl
   have htop : Filter.Tendsto ((fun t => (starRingEnd ℂ) (f t)) * (g : ℝ → ℂ))
       Filter.atTop (nhds 0) := by
     have huc : Filter.Tendsto (fun t => (starRingEnd ℂ) (f t)) Filter.atTop (nhds 0) := by
-      have := (Complex.continuous_conj.tendsto (0 : ℂ)).comp
+      have h := (Complex.continuous_conj.tendsto (0 : ℂ)).comp
         (f.tendsto_cocompact.mono_left atTop_le_cocompact)
-      simpa [Function.comp] using this
+      rw [map_zero] at h
+      exact h
     have hvc : Filter.Tendsto (g : ℝ → ℂ) Filter.atTop (nhds 0) :=
       g.tendsto_cocompact.mono_left atTop_le_cocompact
-    simpa using huc.mul hvc
-  have key := integral_deriv_mul_eq_sub hdu hdv (h1.add h2) hbot htop
+    have hm := huc.mul hvc
+    rw [show (0 : ℂ) * 0 = 0 by ring] at hm
+    convert hm using 1
+    funext t
+    rfl
+  have key := integral_deriv_mul_eq_sub (fun x _ => hdu x) (fun x _ => hdv x)
+    (h1.add h2) hbot htop
   simp only [sub_self] at key
   rw [integral_add h1 h2] at key
   exact eq_neg_of_add_eq_zero_left key

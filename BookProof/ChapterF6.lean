@@ -172,21 +172,28 @@ theorem mgT_le_apply_add_mgD (k : ℕ) (T : α →₀ ℕ) (s : List α) (y : α
   induction s using List.reverseRecOn generalizing T y with
   | nil => ?_
   | append_singleton s x ih => ?_
-  · simp [ mgT, mgD ];
-  · have h_step : mgD k T (s ++ [x]) = mgD k T s + (if 0 < (mgT k T s) x ∨ (mgT k T s).support.card
-      < k then 0 else 1) := by
-      have h_step : ∀ (T : α →₀ ℕ) (s : List α) (x : α),        mgD k T (s ++ [x]) = mgD k T s + (if
-          0 < (mgT k T s) x ∨ (mgT k T s).support.card < k then 0 else 1) := by
-        intros T s x
-        induction s generalizing T with
-        | nil => ?_
-        | cons s x ih => ?_
-        · simp [ mgD, mgT ];
-        · simp [ mgD, mgT, ih ];
-          ring;
-      exact h_step T s x;
-    have := mgStep_le_apply_add k ( mgT k T s ) x y; simp_all [ mgT ] ;
-    grind
+  · simp [mgT, mgD]
+  · have h_step : ∀ (T' : α →₀ ℕ) (l : List α),
+        mgD k T' (l ++ [x]) = mgD k T' l + (if 0 < (mgT k T' l) x
+          ∨ (mgT k T' l).support.card < k then 0 else 1) := by
+      intro T' l
+      induction l generalizing T' with
+      | nil => simp [mgD, mgT]; rfl
+      | cons z zs ih =>
+        simp only [List.cons_append, mgD_cons, mgT_cons]
+        rw [ih]
+        ring
+    have hcount : List.count y (s ++ [x]) = List.count y s + if x = y then 1 else 0 := by
+      rw [List.count_append, List.count_singleton]
+      by_cases h : x = y <;> simp [h]
+    have hT : mgT k T (s ++ [x]) = mgStep k (mgT k T s) x := by
+      simp [mgT, List.foldl_append]
+    have hstep := mgStep_le_apply_add k (mgT k T s) x y
+    have hih := ih T y
+    have heq : (if x = y then 1 else 0 : ℕ) = if y = x then 1 else 0 := by
+      by_cases h : x = y <;> simp [h, eq_comm]
+    rw [hcount, h_step, hT, heq]
+    omega
 
 /-- **Lower bound**: the estimate undershoots by at most the number of decrement
 rounds. -/

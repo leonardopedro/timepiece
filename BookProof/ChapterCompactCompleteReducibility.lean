@@ -153,16 +153,20 @@ theorem compact_invariant_complement {ρ : G →* (V ≃L[ℂ] V)}
     ∃ W' : Submodule ℂ V, (∀ g : G, ∀ x ∈ W', ρ g x ∈ W') ∧ IsCompl W W' := by
   -- an arbitrary continuous projection onto `W`
   obtain ⟨W₀, hW₀⟩ := W.exists_isCompl
-  set T₀ : V →ₗ[ℂ] V := W.subtype.comp (W.linearProjOfIsCompl W₀ hW₀) with hT₀
+  set T₀ : V →ₗ[ℂ] V := W.subtype.comp (W.projectionOnto W₀ hW₀) with hT₀
   set T : V →L[ℂ] V := LinearMap.toContinuousLinearMap T₀ with hT
   have hTmem : ∀ v, T v ∈ W := by
     intro v
-    exact (W.linearProjOfIsCompl W₀ hW₀ v).2
+    exact (W.projectionOnto W₀ hW₀ v).2
   have hTid : ∀ w ∈ W, T w = w := by
     intro w hw
-    have h1 : W.linearProjOfIsCompl W₀ hW₀ (⟨w, hw⟩ : W) = (⟨w, hw⟩ : W) :=
-      W.linearProjOfIsCompl_apply_left hW₀ (⟨w, hw⟩ : W)
-    simpa [hT, hT₀] using congrArg (Subtype.val) h1
+    have h2 : W.projectionOnto W₀ hW₀ w = ⟨w, hw⟩ :=
+      Submodule.projectionOnto_apply_of_mem_left hW₀ hw
+    have hT₀w : T₀ w = w := by
+      rw [hT₀, LinearMap.comp_apply, h2]
+      rfl
+    show T w = w
+    exact hT₀w
   -- the averaged projection
   set p : V →L[ℂ] V := avgOp μ ρ T with hp
   have hpmem : ∀ v, p v ∈ W := fun v => avgOp_apply_mem hρ hTmem hW v

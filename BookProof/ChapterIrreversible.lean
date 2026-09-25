@@ -125,7 +125,8 @@ theorem exists_mem_Ioo_of_not_pointMass (p : Fin n → ℝ) (hnn : ∀ a, 0 ≤ 
       ( hnp a ha ),
     fun b hb => le_antisymm
       ( by
-          have := hsum ▸ Finset.sum_eq_add_sum_diff_singleton ( Finset.mem_univ a ) p
+          have := hsum ▸ Finset.sum_eq_add_sum_sdiff_singleton_of_mem
+            ( Finset.mem_univ a ) p
           linarith [ hnp a ha, hnn b, Finset.single_le_sum ( fun x _ => hnn x )
             ( Finset.mem_sdiff.mpr ⟨ Finset.mem_univ b, by aesop ⟩ :
               b ∈ Finset.univ \ { a } ) ] )
@@ -188,7 +189,7 @@ theorem entropy_bornDist_pos_iff (v : Fin n → ℂ) (hv : ∑ a, ‖v a‖ ^ 2 
   rw [ ← entropy_bornDist_eq_zero_iff v hv ];
   exact ⟨ fun h => ne_of_gt h,
     fun h => lt_of_le_of_ne
-      ( entropy_nonneg _ ( fun a => sq_nonneg _ ) ( by simpa [ ← sq ] using hv ) )
+      ( entropy_nonneg _ ( fun a => sq_nonneg _ ) ( bornDist_sum v hv ) )
       ( Ne.symm h ) ⟩
 
 end BookProof.ChapterIrreversible

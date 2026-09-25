@@ -101,7 +101,7 @@ probability is exactly the off-diagonal Born sum of `ChapterReconstruct`. -/
 theorem trace_diff (U : Matrix (Fin n) (Fin n) ℂ) (a : Fin n) (Ψ : Fin n → ℂ) :
     (rho Ψ * measOp U a).trace - (diagPart (rho Ψ) * measOp U a).trace
       = offDiag U a Ψ := by
-  rw [trace_rho_measOp, trace_diagPart_measOp, offDiag_eq]
+  rw [trace_rho_measOp, trace_diagPart_measOp, offDiag_eq (U := fun i j => U i j)]
 
 /-- **Headline (density-matrix form).** The collapsed and full Born probabilities
 agree for every outcome `a` and every state `Ψ` — i.e. the symmetry `U` induces a
@@ -113,6 +113,9 @@ theorem trace_eq_iff_isDeterministic (U : Matrix (Fin n) (Fin n) ℂ) :
     (∀ (a : Fin n) (Ψ : Fin n → ℂ),
         (diagPart (rho Ψ) * measOp U a).trace = (rho Ψ * measOp U a).trace)
       ↔ IsDeterministic U := by
+  show (∀ (a : Fin n) (Ψ : Fin n → ℂ),
+        (diagPart (rho Ψ) * measOp U a).trace = (rho Ψ * measOp U a).trace)
+      ↔ IsDeterministic (fun i j => U i j)
   rw [← offDiag_eq_zero_iff_isDeterministic]
   constructor
   · intro h a Ψ
@@ -133,6 +136,9 @@ theorem trace_eq_iff_isDeterministic_pure (U : Matrix (Fin n) (Fin n) ℂ) :
     (∀ (a : Fin n) (Ψ : Fin n → ℂ), (∑ k : Fin n, ‖Ψ k‖ ^ 2) = 1 →
         (diagPart (rho Ψ) * measOp U a).trace = (rho Ψ * measOp U a).trace)
       ↔ IsDeterministic U := by
+  show (∀ (a : Fin n) (Ψ : Fin n → ℂ), (∑ k : Fin n, ‖Ψ k‖ ^ 2) = 1 →
+        (diagPart (rho Ψ) * measOp U a).trace = (rho Ψ * measOp U a).trace)
+      ↔ IsDeterministic (fun i j => U i j)
   rw [← offDiag_unit_iff]
   constructor
   · intro h a Ψ hΨ

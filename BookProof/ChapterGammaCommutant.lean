@@ -136,7 +136,7 @@ theorem gamma_intertwiner_unique (S T : Matrix (Fin 4) (Fin 4) ℂ) (hS : IsUnit
     rintro rfl
     rw [zero_smul] at hcS
     subst hcS
-    rw [Matrix.det_zero (⟨0⟩ : Nonempty (Fin 4))] at hS
+    rw [Matrix.det_zero] at hS
     exact absurd hS not_isUnit_zero
   refine ⟨cT / cS, ?_⟩
   rw [hcT, hcS, smul_smul, div_mul_cancel₀ _ hcS0]

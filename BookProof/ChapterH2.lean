@@ -103,17 +103,28 @@ theorem sirk_error_bound_of_crouzeix
     (hC1 : ‖T - rXm‖ ≤ C * D) (hC2 : ‖SH - rH‖ ≤ C * D)
     (v : E) :
     ‖T v - V (SH (W v))‖ ≤ 2 * C * D * ‖v‖ := by
-  convert le_trans ( norm_add_le ( ( T - rXm ) v ) ( V ( ( rH - SH ) ( W v ) ) ) ) _ using 1;
-  · simp [ hrepr, sub_add ];
-  · refine le_trans ( add_le_add ( ContinuousLinearMap.le_opNorm _ _ ) (
-      ContinuousLinearMap.le_opNorm _ _ ) ) ?_;
-    refine le_trans ( add_le_add ( mul_le_mul_of_nonneg_right hC1 ( norm_nonneg _ ) )
-      ( mul_le_mul hVnorm ( ContinuousLinearMap.le_opNorm _ _ ) ( by positivity )
-        ( by positivity ) ) ) ?_;
-    rw [ norm_sub_rev ];
-    nlinarith [ norm_nonneg v, norm_nonneg ( W v ), norm_nonneg ( SH - rH ),
-        mul_le_mul_of_nonneg_left hWnorm ( norm_nonneg v ), mul_le_mul_of_nonneg_left hVnorm (
-            norm_nonneg v ), ContinuousLinearMap.le_opNorm W v ]
+  have hsum : T v - V (SH (W v)) = (T - rXm) v + V ((rH - SH) (W v)) := by
+    simp only [ContinuousLinearMap.sub_apply, map_sub, hrepr]; abel
+  refine le_trans (le_of_eq (congr_arg (fun x => ‖x‖) hsum)) ?_
+  refine le_trans (norm_add_le _ _) ?_
+  have hcd : 0 ≤ C * D := le_trans (norm_nonneg (T - rXm)) hC1
+  have h1 : ‖(T - rXm) v‖ ≤ C * D * ‖v‖ := by
+    refine le_trans (ContinuousLinearMap.le_opNorm (T - rXm) v)
+      (mul_le_mul_of_nonneg_right hC1 (norm_nonneg v))
+  have hWv : ‖W v‖ ≤ ‖v‖ := by
+    calc ‖W v‖ ≤ ‖W‖ * ‖v‖ := ContinuousLinearMap.le_opNorm W v
+      _ ≤ 1 * ‖v‖ := mul_le_mul_of_nonneg_right hWnorm (norm_nonneg v)
+      _ = ‖v‖ := one_mul _
+  have h2 : ‖V ((rH - SH) (W v))‖ ≤ C * D * ‖v‖ := by
+    calc ‖V ((rH - SH) (W v))‖ ≤ ‖V‖ * ‖(rH - SH) (W v)‖ :=
+        ContinuousLinearMap.le_opNorm V ((rH - SH) (W v))
+      _ ≤ 1 * ‖(rH - SH) (W v)‖ := mul_le_mul_of_nonneg_right hVnorm (norm_nonneg _)
+      _ = ‖(rH - SH) (W v)‖ := one_mul _
+      _ ≤ ‖rH - SH‖ * ‖W v‖ := ContinuousLinearMap.le_opNorm (rH - SH) (W v)
+      _ = ‖SH - rH‖ * ‖W v‖ := by rw [norm_sub_rev]
+      _ ≤ C * D * ‖W v‖ := mul_le_mul_of_nonneg_right hC2 (norm_nonneg _)
+      _ ≤ C * D * ‖v‖ := mul_le_mul_of_nonneg_left hWv hcd
+  nlinarith [h1, h2, norm_nonneg ((T - rXm) v), norm_nonneg (V ((rH - SH) (W v)))]
 
 /-! ## H2.4 — the SIRK-vs-SIA advantage factor (Remark 4.2) -/
 

@@ -744,12 +744,15 @@ theorem weyl_complete_reducibility [FiniteDimensional ℂ V] (R : Sl2Rep V) (W :
   obtain ⟨psi, hpsi⟩ := Module.Projective.exists_dual_eq_one ℂ hw0
   -- a vector-space projection onto `W`
   obtain ⟨C, hC⟩ := Submodule.exists_isCompl W
-  set p : Module.End ℂ V := W.subtype ∘ₗ W.linearProjOfIsCompl C hC with hp
-  have hpW : ∀ v : V, p v ∈ W := fun v => (W.linearProjOfIsCompl C hC v).2
+  set p : Module.End ℂ V := W.subtype ∘ₗ W.projectionOnto C hC with hp
+  have hpW : ∀ v : V, p v ∈ W := fun v => (W.projectionOnto C hC v).2
   have hpid : ∀ w ∈ W, p w = w := by
     intro w hw
-    have := Submodule.linearProjOfIsCompl_apply_left hC ⟨w, hw⟩
-    simpa [hp] using congrArg (fun y : ↥W => (y : V)) this
+    have h : W.projectionOnto C hC w = ⟨w, hw⟩ :=
+      Submodule.projectionOnto_apply_of_mem_left hC hw
+    simp only [hp, LinearMap.comp_apply]
+    rw [h]
+    rfl
   have hpmem : p ∈ scalarOps W := ⟨hpW, 1, fun w hw => by rw [hpid w hw, one_smul]⟩
   -- the codimension-one situation inside `scalarOps W`
   set S := scalarOps W with hS

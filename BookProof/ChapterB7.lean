@@ -44,18 +44,19 @@ theorem koopman_comp (f : α ≃ᵐ β) (g : β ≃ᵐ γ) (hf : MeasurePreservi
   simp only [koopmanEquiv, LinearIsometryEquiv.coe_mk, LinearEquiv.coe_mk,
       LinearIsometry.coe_toLinearMap];
   refine Lp.ext ?_;
-  have h_eq : (Lp.compMeasurePreservingₗᵢ ℝ (⇑f) hf) ((Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u)
-      =ᵐ[μ] (fun x => u (g (f x))) := by
-    have h_eq : (Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u =ᵐ[ν] (fun x => u (g x)) := by
-      apply_rules [ Lp.coeFn_compMeasurePreserving ];
-    have h_eq_comp : (Lp.compMeasurePreservingₗᵢ ℝ (⇑f) hf) ((Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg)
-        u) =ᵐ[μ] (fun x => (Lp.compMeasurePreservingₗᵢ ℝ (⇑g) hg) u (f x)) := by
-      convert Lp.coeFn_compMeasurePreserving ( Lp.compMeasurePreservingₗᵢ ℝ ( ⇑g ) hg u ) hf using
-          1;
-    filter_upwards [ h_eq_comp, hf.quasiMeasurePreserving.ae ( h_eq ) ] with x hx₁ hx₂ using
-        by aesop;
-  refine h_eq.trans ?_;
-  convert ( Lp.coeFn_compMeasurePreserving ( u ) hfg ).symm using 1
+  have h1 : (Lp.compMeasurePreservingₗᵢ ℝ (g : β → γ) hg) u =ᵐ[ν] (fun x => u (g x)) :=
+    Lp.coeFn_compMeasurePreserving u hg
+  have h2 : (Lp.compMeasurePreservingₗᵢ ℝ (f : α → β) hf)
+      ((Lp.compMeasurePreservingₗᵢ ℝ (g : β → γ) hg) u) =ᵐ[μ]
+      ((Lp.compMeasurePreservingₗᵢ ℝ (g : β → γ) hg) u ∘ (f : α → β)) :=
+    Lp.coeFn_compMeasurePreserving _ hf
+  have h3 : (Lp.compMeasurePreservingₗᵢ ℝ ((f.trans g : α ≃ᵐ γ) : α → γ) hfg) u =ᵐ[μ]
+      (u ∘ (f.trans g : α ≃ᵐ γ)) :=
+    Lp.coeFn_compMeasurePreserving u hfg
+  filter_upwards [h2, hf.quasiMeasurePreserving.ae h1, h3] with x hx2 hx1 hx3
+  simp only [Function.comp] at hx1 hx2 hx3 ⊢
+  have hfgx : (f.trans g : α ≃ᵐ γ) x = g (f x) := rfl
+  exact hx2.trans (hx1.trans (by rw [← hfgx]; exact hx3.symm))
 
 /-
 The Koopman unitary of the identity is the identity.
@@ -99,14 +100,14 @@ theorem koopman_const {α β E : Type*} [MeasurableSpace α] [MeasurableSpace β
     koopmanEquiv f hf (Lp.const p ν c) = Lp.const p μ c := by
   refine Lp.ext ?_;
   have h_const : (Lp.const p ν c : Lp E p ν) =ᵐ[ν] fun _ => c := by
-    convert Lp.coeFn_const p ν c;
+    rw [show (fun _ : β => c) = Function.const β c from rfl]
+    exact Lp.coeFn_const p ν c
   have h_const_comp : (Lp.compMeasurePreservingₗᵢ ℝ (f : α → β) hf (Lp.const p ν c) : Lp E p μ)
-      =ᵐ[μ] fun _ => c := by
-    have h_const_comp : (Lp.compMeasurePreservingₗᵢ ℝ (f : α → β) hf (Lp.const p ν c) : Lp E p μ)
-        =ᵐ[μ] (fun x => (Lp.const p ν c : Lp E p ν) (f x)) := by
-      convert MeasureTheory.Lp.coeFn_compMeasurePreserving ( Lp.const p ν c ) hf using 1;
-    filter_upwards [ h_const_comp, hf.preimage_null h_const ] with x hx₁ hx₂ using hx₁.trans hx₂;
-  exact Filter.EventuallyEq.trans ‹_› ( h_const_comp.symm )
+      =ᵐ[μ] (fun x => (Lp.const p ν c : Lp E p ν) (f x)) :=
+    MeasureTheory.Lp.coeFn_compMeasurePreserving (Lp.const p ν c) hf
+  filter_upwards [h_const_comp, hf.preimage_null h_const, Lp.coeFn_const p μ c] with x hx1 hx2 hx3
+  have hx2' : (Lp.const p ν c : Lp E p ν) (f x) = c := hx2
+  exact hx1.trans (hx2'.trans hx3.symm)
 
 /-! ## B7.3 — Deterministic transformations preserve the event algebra -/
 

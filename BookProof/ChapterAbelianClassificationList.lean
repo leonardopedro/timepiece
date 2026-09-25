@@ -68,7 +68,7 @@ theorem restrict_atomSet_pure (mu : Measure α) [IsFiniteMeasure mu] :
 /-! ## 2. Scaling preserves diffuseness -/
 
 omit [MeasurableSingletonClass α] in
-theorem noAtoms_smul {nu : Measure α} [NoAtoms nu] (c : ENNReal) : NoAtoms (c • nu) := by
+theorem noAtoms_smul {nu : Measure α} [NullSingletonClass nu] (c : ENNReal) : NullSingletonClass (c • nu) := by
   constructor
   intro x
   simp [Measure.smul_apply]
@@ -77,14 +77,14 @@ theorem noAtoms_smul {nu : Measure α} [NoAtoms nu] (c : ENNReal) : NoAtoms (c �
 
 section Diffuse
 
-variable (nu : Measure ℝ) [IsFiniteMeasure nu] [NoAtoms nu]
+variable (nu : Measure ℝ) [IsFiniteMeasure nu] [NullSingletonClass nu]
 
 /-- The normalised diffuse measure: an atomless probability measure on the line. -/
 def normalized : Measure ℝ := (nu Set.univ)⁻¹ • nu
 
-instance : NoAtoms (normalized nu) := noAtoms_smul _
+instance : NullSingletonClass (normalized nu) := noAtoms_smul _
 
-omit [NoAtoms nu] in
+omit [NullSingletonClass nu] in
 theorem isProbabilityMeasure_normalized (hne : nu Set.univ ≠ 0) :
     IsProbabilityMeasure (normalized nu) :=
   isProbabilityMeasure_inv_smul hne

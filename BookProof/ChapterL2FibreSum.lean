@@ -128,7 +128,10 @@ noncomputable def coordCLM (i : ι) : Fibre ι →L[ℂ] ℂ :=
     { toFun := fun w => (w : ∀ _ : ι, ℂ) i
       map_add' := fun w v => rfl
       map_smul' := fun c w => rfl } 1
-    (fun w => by simpa using lp.norm_apply_le_norm (by norm_num) w i)
+    (fun w => by
+      show ‖(w : ∀ _ : ι, ℂ) i‖ ≤ 1 * ‖w‖
+      rw [one_mul]
+      exact lp.norm_apply_le_norm (by norm_num) w i)
 
 theorem coordCLM_apply (i : ι) (w : Fibre ι) : coordCLM i w = w i := rfl
 

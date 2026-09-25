@@ -142,6 +142,7 @@ theorem legendreAux_ode (l : ℕ) :
     simp only [C_add, C_1, C_mul, map_ofNat, C_sub] at hLHS ⊢
     linear_combination hLHS
 
+set_option maxHeartbeats 4000000 in
 /-- **The equation satisfied by the `μ`-th derivative of the Legendre
 polynomial** (Gegenbauer form). -/
 theorem legendreAux_deriv_ode (l μ : ℕ) :

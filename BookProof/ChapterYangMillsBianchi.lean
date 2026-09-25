@@ -60,14 +60,15 @@ def fieldStrength (D : Fin 3 → R) (j k : Fin 3) : R := ⁅D j, D k⁆
 /-- The field strength is antisymmetric: `F_{j k} = - F_{k j}`. -/
 lemma fieldStrength_antisymm (D : Fin 3 → R) (j k : Fin 3) :
     fieldStrength D j k = - fieldStrength D k j := by
-  simp only [fieldStrength]
-  exact (lie_skew (D j) (D k)).symm
+  simp only [fieldStrength, Ring.lie_def]
+  noncomm_ring
 
 /-- The cyclic Jacobi identity for the double commutators of the covariant
 derivatives (the source of the Bianchi identity). -/
 lemma bianchi_cyclic (D : Fin 3 → R) (i j k : Fin 3) :
-    ⁅D i, ⁅D j, D k⁆⁆ + ⁅D j, ⁅D k, D i⁆⁆ + ⁅D k, ⁅D i, D j⁆⁆ = 0 :=
-  lie_jacobi (D i) (D j) (D k)
+    ⁅D i, ⁅D j, D k⁆⁆ + ⁅D j, ⁅D k, D i⁆⁆ + ⁅D k, ⁅D i, D j⁆⁆ = 0 := by
+  simp only [Ring.lie_def]
+  noncomm_ring
 
 /-
 **Bianchi (Jacobi) identity**, `ε_{i j k} [D_i, [D_j, D_k]] = 0`.
@@ -76,7 +77,8 @@ theorem bianchi (D : Fin 3 → R) :
     ∑ i, ∑ j, ∑ k, (eps i j k) • ⁅D i, ⁅D j, D k⁆⁆ = 0 := by
   simp [ Fin.sum_univ_three, eps ];
   simp [ Int.sign ];
-  grind +suggestions
+  simp only [ Ring.lie_def ];
+  noncomm_ring
 
 /-- The Bianchi identity written with the field strength,
 `ε_{i j k} [D_i, F_{j k}] = 0`. -/

@@ -79,6 +79,7 @@ def diagLin (d : EllInf) : Ell2C →ₗ[ℂ] Ell2C where
     apply lp.ext
     funext i
     simp [mul_add]
+    rfl
   map_smul' c f := by
     apply lp.ext
     funext i

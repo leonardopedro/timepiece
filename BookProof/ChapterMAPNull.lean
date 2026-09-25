@@ -33,6 +33,7 @@ theorem ae_ne_map_point (μ : Measure α) [NullSingletonClass μ] (mapPoint : α
     ∀ᵐ x ∂μ, x ≠ mapPoint := by
   convert MeasureTheory.measure_eq_zero_iff_ae_notMem.mp
     ( map_point_measure_zero μ mapPoint ) using 1
+  · funext x; simp
 
 /-
 More generally, any countable collection of posterior maximizers is null.

@@ -359,8 +359,10 @@ theorem hasDerivAt_odeKoop_zero (ψ : ℝ → ℂ) (x : ℝ) (d : ℂ) (hψ : Ha
       = fun t : ℝ => ((1 + t * x : ℝ) : ℂ)⁻¹ * ψ (mob t x) := rfl
   rw [hfun]
   convert hmul using 1
-  push_cast
-  simp
+  · rfl
+  · rfl
+  · rw [mob_zero]
+    norm_num [Complex.real_smul, Complex.ofReal_pow]
 
 /-- **The generator of the group is `-iH`.**  Equation 3 solves the Schrödinger equation
 of the Weyl-quantized vector field `H = x² p - i x` at `t = 0`; combined with the group

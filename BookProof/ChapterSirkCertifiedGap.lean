@@ -365,8 +365,14 @@ theorem certifiedGap_tendsto {thetaE thetaO deltaE deltaO : ℕ → ℝ} {lamE l
     (hE : Tendsto thetaE atTop (𝓝 lamE)) (hO : Tendsto thetaO atTop (𝓝 lamO))
     (hdE : Tendsto deltaE atTop (𝓝 0)) (hdO : Tendsto deltaO atTop (𝓝 0)) :
     Tendsto (certifiedGap thetaE thetaO deltaE deltaO) atTop (𝓝 (lamO - lamE)) := by
-  have h := ((hO.sub hE).sub (hdO.add hdE))
-  simpa [certifiedGap] using h
+  have h : Tendsto (fun x => thetaO x - thetaE x - (deltaO x + deltaE x)) atTop
+      (𝓝 (lamO - lamE)) := by
+    simpa using ((hO.sub hE).sub (hdO.add hdE))
+  refine Filter.Tendsto.congr ?_ h
+  intro m
+  show thetaO m - thetaE m - (deltaO m + deltaE m)
+      = thetaO m - thetaE m - (deltaO m + deltaE m)
+  rfl
 
 /-- **T7, completeness.**  If the true sector gap is positive, the certificate detects
 it: there is a finite threshold `m₀` beyond which the certified lower bound is

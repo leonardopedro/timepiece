@@ -123,8 +123,8 @@ theorem clGraph_inner_pair {T : D →ₗ[ℂ] F} (hsym : SymmetricOn D T) {p q :
 closure is again a graph — the fibre over `0` is trivial. -/
 theorem clGraph_snd_eq_zero_of_fst_eq_zero {T : D →ₗ[ℂ] F} (hdense : Dense (D : Set F))
     (hsym : SymmetricOn D T) {y : F} (h : ((0 : F), y) ∈ clGraph T) : y = 0 := by
-  refine Dense.eq_zero_of_inner_left (𝕜 := ℂ) hdense (fun v => ?_)
-  have := clGraph_inner hsym h v
+  refine Dense.eq_zero_of_inner_left (𝕜 := ℂ) hdense (fun v hv => ?_)
+  have := clGraph_inner hsym h ⟨v, hv⟩
   simpa using this
 
 /-- The **domain of the closure**: the first projection of the closed graph. -/
@@ -274,7 +274,7 @@ theorem clShift_surjective (T : D →ₗ[ℂ] F) (hdense : Dense (D : Set F)) (h
     Function.Surjective (cshiftMap (clExt T hdense hsym) Complex.I) := by
   have hclosed : IsClosed ((cshiftRange (clExt T hdense hsym) Complex.I : Submodule ℂ F) : Set F) :=
     clRange_isClosed T hdense hsym (by simp)
-  haveI : CompleteSpace (cshiftRange (clExt T hdense hsym) Complex.I) := hclosed.completeSpace_coe
+  have : CompleteSpace (cshiftRange (clExt T hdense hsym) Complex.I) := hclosed.completeSpace_coe
   have htop : cshiftRange (clExt T hdense hsym) Complex.I = ⊤ := by
     have h1 := Submodule.orthogonal_orthogonal (cshiftRange (clExt T hdense hsym) Complex.I)
     rw [clRange_orthogonal_eq_bot T hdense hsym hesa, Submodule.bot_orthogonal_eq_top] at h1

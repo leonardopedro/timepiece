@@ -52,14 +52,14 @@ theorem continuousPart_eq_zero_of_isPurelyAtomic {mu : Measure X} (h : IsPurelyA
 
 omit [MeasurableSingletonClass X] in
 /-- The atom set of an atomless measure is empty. -/
-theorem atoms_eq_empty_of_noAtoms (mu : Measure X) [NoAtoms mu] : atoms mu = ∅ := by
+theorem atoms_eq_empty_of_noAtoms (mu : Measure X) [NullSingletonClass mu] : atoms mu = ∅ := by
   ext x
-  simp only [atoms, Set.mem_setOf_eq, measure_singleton x, lt_self_iff_false,
+  simp only [atoms, Set.mem_ofPred_eq, measure_singleton x, lt_self_iff_false,
     Set.mem_empty_iff_false]
 
 omit [MeasurableSingletonClass X] in
 /-- **A measure cannot be both atomless and purely atomic unless it is zero.** -/
-theorem eq_zero_of_noAtoms_of_isPurelyAtomic (mu : Measure X) [NoAtoms mu]
+theorem eq_zero_of_noAtoms_of_isPurelyAtomic (mu : Measure X) [NullSingletonClass mu]
     (h : IsPurelyAtomic mu) : mu = 0 := by
   have huniv : mu Set.univ = 0 := by
     rw [IsPurelyAtomic, atoms_eq_empty_of_noAtoms mu, Set.compl_empty] at h
@@ -69,8 +69,8 @@ theorem eq_zero_of_noAtoms_of_isPurelyAtomic (mu : Measure X) [NoAtoms mu]
 omit [MeasurableSingletonClass X] in
 /-- **Headline.**  A continuous (atomless) probability measure is never purely
 atomic: no discrete/mixed prior can reproduce it. -/
-theorem atomless_prior_not_purelyAtomic (mu : Measure X) [IsProbabilityMeasure mu] [NoAtoms mu] :
-    ¬ IsPurelyAtomic mu := by
+theorem atomless_prior_not_purelyAtomic (mu : Measure X) [IsProbabilityMeasure mu]
+    [NullSingletonClass mu] : ¬ IsPurelyAtomic mu := by
   intro h
   have hzero := eq_zero_of_noAtoms_of_isPurelyAtomic mu h
   have : (1 : ENNReal) = 0 := by rw [← measure_univ (μ := mu), hzero]; simp
@@ -94,15 +94,14 @@ noncomputable def normalizedContinuousPart (mu : Measure X) : Measure X :=
 
 /-- Rescaling the continuous part yields an **atomless** measure. -/
 theorem noAtoms_normalizedContinuousPart (mu : Measure X) [SFinite mu] :
-    NoAtoms (normalizedContinuousPart mu) := by
-  have hcont : NoAtoms (continuousPart mu) := noAtoms_continuousPart mu
-  constructor
-  intro x
+    NullSingletonClass (normalizedContinuousPart mu) := by
+  have hcont : NullSingletonClass (continuousPart mu) := noAtoms_continuousPart mu
+  refine NullSingletonClass.mk fun x => ?_
   have : normalizedContinuousPart mu {x}
       = (mu (atoms mu)ᶜ)⁻¹ * (continuousPart mu) {x} := by
     rw [normalizedContinuousPart, cond_apply' (measurableSet_singleton x), continuousPart,
       Measure.restrict_apply (measurableSet_singleton x), Set.inter_comm]
-  rw [this, measure_singleton x, mul_zero]
+  rw [this, hcont.measure_singleton x, mul_zero]
 
 omit [MeasurableSingletonClass X] in
 /-- Rescaling the continuous part of a *mixed* prior — one that is not purely
@@ -117,10 +116,12 @@ not purely atomic) one extracts a continuous probability measure — its rescale
 continuous part — which no purely atomic prior can reproduce. -/
 theorem exists_continuous_prior_beyond_atomic (mu : Measure X) [IsProbabilityMeasure mu]
     (h : ¬ IsPurelyAtomic mu) :
-    ∃ nu : Measure X, IsProbabilityMeasure nu ∧ NoAtoms nu ∧ ¬ IsPurelyAtomic nu := by
-  haveI := isProbabilityMeasure_normalizedContinuousPart mu h
-  haveI := noAtoms_normalizedContinuousPart mu
-  exact ⟨normalizedContinuousPart mu, inferInstance, inferInstance,
+    ∃ nu : Measure X, IsProbabilityMeasure nu ∧ NullSingletonClass nu ∧ ¬ IsPurelyAtomic nu := by
+  haveI hpm : IsProbabilityMeasure (normalizedContinuousPart mu) :=
+    isProbabilityMeasure_normalizedContinuousPart mu h
+  haveI hns : NullSingletonClass (normalizedContinuousPart mu) :=
+    noAtoms_normalizedContinuousPart mu
+  exact ⟨normalizedContinuousPart mu, hpm, hns,
     atomless_prior_not_purelyAtomic _⟩
 
 end BookProof.ChapterMixedPrior

@@ -76,7 +76,7 @@ theorem eq_smul_of_forall_eigenvector (V : E →ₗ[ℂ] E) (h : ∀ x : E, ∃ 
       rw [sub_smul, sub_smul]
       have := hsum
       abel_nf
-      abel_nf at this
+      try abel_nf at this
       linear_combination (norm := module) this
     have hc1 : c₁ = c := by
       by_contra hne

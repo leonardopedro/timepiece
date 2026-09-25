@@ -63,9 +63,16 @@ omit [IsProbabilityMeasure μ] in
 theorem outcomeIndicator_integral (M : ℕ → Ω → Fin k) (a : Fin k)
     (hM : Measurable (M 0)) :
     ∫ ω, outcomeIndicator M a 0 ω ∂μ = (μ {ω | M 0 ω = a}).toReal := by
-  convert MeasureTheory.integral_indicator_one
-    (hM (MeasurableSingletonClass.measurableSet_singleton a))
-  ext ω; simp [outcomeIndicator, Set.indicator]
+  have hmeas : MeasurableSet (M 0 ⁻¹' {a}) :=
+    hM (MeasurableSingletonClass.measurableSet_singleton a)
+  have hset : {ω | M 0 ω = a} = M 0 ⁻¹' {a} := rfl
+  rw [hset]
+  have key : outcomeIndicator M a 0 =
+      (M 0 ⁻¹' {a}).indicator 1 := by
+    funext ω
+    simp [outcomeIndicator, Set.indicator, Set.mem_preimage, Set.mem_singleton_iff]
+  rw [key, MeasureTheory.integral_indicator_one hmeas]
+  rfl
 
 /-- **Unbiased sampling over infinite time (general observable version).**
 For an i.i.d. sequence of `Fin k`-valued measurements `M` (each measurable,

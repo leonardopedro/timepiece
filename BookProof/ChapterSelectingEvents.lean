@@ -33,19 +33,19 @@ real variable y ∈ [0,1] verifies y = 0, but there is no complete history of
 events where y = 0 (always, or even just once) because the probability space
 is continuous by assumption and thus the event y = 0 has null measure.
 
-Formally: if μ has no atoms (`NoAtoms μ`), then every singleton has measure zero.
+Formally: if μ has no atoms (`NullSingletonClass μ`), then every singleton has measure zero.
 -/
 
 /-- In a continuous probability space, singleton events have measure zero.
 This is the formal version of "selecting events does not rewrite history":
 singletons cannot be conditioning events because they carry no measure. -/
 theorem singleton_null_in_continuous {α : Type*} [MeasurableSpace α]
-    (μ : Measure α) [NoAtoms μ] (x : α) : μ {x} = 0 :=
-  NoAtoms.measure_singleton x
+    (μ : Measure α) [NullSingletonClass μ] (x : α) : μ {x} = 0 :=
+  NullSingletonClass.measure_singleton x
 
 /-- Finite sets also have measure zero in a continuous probability space. -/
 theorem finite_set_null_in_continuous {α : Type*} [MeasurableSpace α]
-    (μ : Measure α) [NoAtoms μ] (s : Finset α) : μ (s : Set α) = 0 :=
+    (μ : Measure α) [NullSingletonClass μ] (s : Finset α) : μ (s : Set α) = 0 :=
   Finset.measure_zero s μ
 
 /-!
@@ -175,7 +175,7 @@ variable {X : Type*} [MeasurableSpace X] (μ : Measure X) [IsProbabilityMeasure 
 countable set of points.  Concretely, with `A = {x | 0 < μ {x}}` the (countable)
 set of atoms, the decomposition is `μ = μ.restrict Aᶜ + μ.restrict A`. -/
 theorem exists_continuous_atomic_decomposition [MeasurableSingletonClass X] :
-    ∃ cont atom : Measure X, μ = cont + atom ∧ NoAtoms cont ∧
+    ∃ cont atom : Measure X, μ = cont + atom ∧ NullSingletonClass cont ∧
       ∃ A : Set X, A.Countable ∧ atom Aᶜ = 0 := by
   classical
   set A : Set X := {x | 0 < μ {x}} with hA
@@ -191,9 +191,9 @@ theorem exists_continuous_atomic_decomposition [MeasurableSingletonClass X] :
   · constructor
     intro x
     rcases eq_or_ne (μ {x}) 0 with h | h
-    · exact le_antisymm (le_trans (Measure.restrict_apply_le _ _) (le_of_eq h)) (zero_le _)
+    · exact le_antisymm (le_trans (Measure.restrict_apply_le _ _) (le_of_eq h)) zero_le
     · have hxA : x ∈ A := by
-        simp only [hA, Set.mem_setOf_eq]
+        simp only [hA, Set.mem_ofPred_eq]
         exact pos_iff_ne_zero.mpr h
       rw [Measure.restrict_apply (measurableSet_singleton x)]
       have hempty : ({x} : Set X) ∩ Aᶜ = ∅ := by
@@ -279,7 +279,7 @@ probability kernel) equals the standard formula `μ(E ∩ F) / μ(E)` whenever
 `μ(E) > 0`. -/
 theorem selecting_events_not_rewriting_history
     {α : Type*} [MeasurableSpace α] [StandardBorelSpace α]
-    (μ : Measure α) [IsProbabilityMeasure μ] [NoAtoms μ]
+    (μ : Measure α) [IsProbabilityMeasure μ] [NullSingletonClass μ]
     (E F : Set α) (_hE : MeasurableSet E) (hF : MeasurableSet F)
     (_hEpos : μ E > 0) (_hFpos : μ F > 0) :
     μ[F | E] = μ (E ∩ F) / μ E := by

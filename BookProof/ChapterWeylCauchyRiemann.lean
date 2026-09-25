@@ -135,8 +135,9 @@ theorem dbar_mollify {F : ℂ → ℂ} (hF : LocallyIntegrable F) {χ : ℂ → 
       hcfd.comp_left (g := fun T : ℂ →L[ℝ] ℝ => T v) (by simp)
     have hcont : Continuous (fun a : ℂ => (fderiv ℝ χ a v : ℝ)) :=
       hcontfd.clm_apply continuous_const
-    have := hcs.convolutionExists_right L hF hcont z
-    simpa [hLdef, Complex.real_smul] using this
+    have hthis := hcs.convolutionExists_right L hF hcont z
+    rw [ConvolutionExistsAt] at hthis
+    simpa [hLdef, Complex.real_smul] using hthis
   rw [dbar, happ 1, happ Complex.I, ← MeasureTheory.integral_const_mul,
     ← integral_add (hint 1) ((hint Complex.I).const_mul _)]
   congr 1

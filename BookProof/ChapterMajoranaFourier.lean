@@ -82,15 +82,16 @@ lemma boost_sq_add (m q : ℝ) (hm : 0 ≤ m) (hq : 0 < q) :
 /-
 `c² − s² = m/E`.
 -/
-lemma boost_sq_sub (m q : ℝ) (hm : 0 ≤ m) (_hq : 0 < q) :
+lemma boost_sq_sub (m q : ℝ) (hm : 0 ≤ m) (hq : 0 < q) :
     boostC m q ^ 2 - boostS m q ^ 2 = m / Ep m q := by
-      convert congr_arg₂ ( · - · ) ( Real.sq_sqrt <| show 0 ≤ ( Ep m q + m ) / ( 2 * Ep m q ) from
-                                 div_nonneg ( add_nonneg ( Real.sqrt_nonneg _ ) hm ) ( mul_nonneg
-                                     zero_le_two ( Real.sqrt_nonneg _ ) ) ) ( Real.sq_sqrt <| show 0
-                                         ≤ ( Ep m q - m ) / ( 2 * Ep m q ) from div_nonneg (
-                                             sub_nonneg.mpr <| Real.le_sqrt_of_sq_le <|
-                                                 by nlinarith ) ( mul_nonneg zero_le_two (
-                                                     Real.sqrt_nonneg _ ) ) ) using 1;
+      have hE : 0 < Ep m q := Ep_pos m q hq
+      have hE2 : 0 < 2 * Ep m q := by positivity
+      have hc : 0 ≤ (Ep m q + m) / (2 * Ep m q) :=
+        div_nonneg (add_nonneg (le_of_lt hE) hm) (le_of_lt hE2)
+      have hs : 0 ≤ (Ep m q - m) / (2 * Ep m q) :=
+        div_nonneg (sub_nonneg.mpr (Ep_ge m q hm)) (le_of_lt hE2)
+      rw [boostC, boostS, Real.sq_sqrt hc, Real.sq_sqrt hs]
+      field_simp
       ring
 
 /-

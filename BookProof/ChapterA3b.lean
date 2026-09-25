@@ -107,8 +107,8 @@ The complexification of a real Clifford set is a complex Clifford set.
 -/
 theorem isCliffordC_toC {A : Fin 4 → Matrix (Fin 4) (Fin 4) ℝ} (hA : IsCliffordR A) :
     IsCliffordC (fun μ => toC (A μ)) := by
-  intro μ ν; specialize hA μ ν; simp_all only [neg_mul, neg_smul, ← ext_iff, add_apply, mul_apply,
-      neg_apply, smul_apply, smul_eq_mul] ;
+  intro μ ν; specialize hA μ ν; simp_all only [neg_mul, neg_smul, ← ext_iff,
+      Matrix.add_apply, Matrix.mul_apply] ;
   convert hA using 3;
   simp [ ← Complex.ofReal_inj, minkowski, minkowskiR, toC ];
   simp [ Matrix.one_apply ];
@@ -148,7 +148,7 @@ real matrix.
 theorem exists_real_of_conj_fixed {N : Matrix (Fin 4) (Fin 4) ℂ}
     (hN : N.map (starRingEnd ℂ) = N) : ∃ M : Matrix (Fin 4) (Fin 4) ℝ, toC M = N := by
   use Matrix.of (fun i j => (N i j).re);
-  ext i j; simp only [toC, map_apply, of_apply];
+  ext i j; simp only [toC, map_apply, Matrix.of_apply];
   replace hN := congr_fun ( congr_fun hN i ) j; simp_all [ Complex.ext_iff ] ;
   grobner
 
@@ -166,10 +166,8 @@ theorem toC_inv (M : Matrix (Fin 4) (Fin 4) ℝ) : toC M⁻¹ = (toC M)⁻¹ := 
   by_cases h : IsUnit ( Matrix.det M ) <;> simp_all only [isUnit_iff_ne_zero, ne_eq, inv_def,
       Ring.inverse_eq_inv', Decidable.not_not, not_true_eq_false, not_false_eq_true,
           Ring.inverse_non_unit, zero_smul];
-  · ext i j ; simp only [toC, map_apply, smul_apply, smul_eq_mul, Complex.ofReal_mul,
-      Complex.ofReal_inv];
-    simp only [det_apply', Complex.ofReal_sum, Complex.ofReal_mul, Complex.ofReal_intCast,
-      Complex.ofReal_prod, adjugate_apply, map_apply, mul_eq_mul_left_iff, inv_eq_zero];
+  · ext i j ; simp only [toC, map_apply, Matrix.smul_apply, smul_eq_mul, Complex.ofReal_mul, Complex.ofReal_inv];
+    simp only [det_apply', Complex.ofReal_sum, Complex.ofReal_mul, Complex.ofReal_intCast, Complex.ofReal_prod, adjugate_apply, map_apply, mul_eq_mul_left_iff, inv_eq_zero];
     simp only [updateRow_apply, Pi.single_apply, map_apply];
     exact Or.inl ( Finset.sum_congr rfl fun _ _ => by congr; ext; aesop );
   · simp_all [ toC, Matrix.det_apply' ];
@@ -248,10 +246,9 @@ theorem real_pauli (hpf : PauliFundamental)
         Fintype.card_fin, mul_pow, smul_eq_mul, Complex.norm_mul, norm_pow, Complex.norm_real,
             Real.norm_eq_abs, abs_of_pos hr.1, one_pow, mul_one, norm_eq_zero, not_false_eq_true,
                 inv_mul_cancel₀, and_true, true_and];
-    ext i j; simp only [mul_comm, map_apply, smul_apply, smul_eq_mul, mul_left_comm, map_mul,
-        Complex.conj_ofReal] ;
+    ext i j; simp only [mul_comm, map_apply, Matrix.smul_apply, smul_eq_mul, mul_left_comm, map_mul, Complex.conj_ofReal] ;
     replace hc := congr_fun ( congr_fun hc.2 i ) j;      simp_all only [mul_assoc, map_apply,
-                                                           smul_apply,
+                                                           Matrix.smul_apply,
                                                            smul_eq_mul,
                                                            mul_comm,
                                                            mul_left_comm] ;
@@ -342,8 +339,7 @@ theorem lorentz_of_conj (S : Matrix (Fin 4) (Fin 4) ℂ) (hS : IsUnit S.det)
           mul_assoc, hS, isUnit_iff_ne_zero ];
       simp only [Matrix.add_mul, mul_assoc, Matrix.mul_add];
     rw [ ← hP_eq, hLam, hLam ];
-    simp only [Complex.coe_smul, Finset.mul_sum _ _ _, Algebra.mul_smul_comm, Finset.sum_mul,
-        Algebra.smul_mul_assoc, smul_add, Finset.sum_add_distrib];
+    simp only [Complex.coe_smul, Finset.mul_sum _ _ _, Algebra.mul_smul_comm, Finset.sum_mul, Algebra.smul_mul_assoc, smul_add, Finset.sum_add_distrib];
     simp only [Finset.smul_sum, smul_smul, mul_comm];
     exact congrArg₂ ( · + · ) ( Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ =>
                             Finset.sum_congr rfl fun _ _ => by norm_cast ) ) ( Finset.sum_congr rfl
@@ -358,13 +354,19 @@ theorem lorentz_of_conj (S : Matrix (Fin 4) (Fin 4) ℂ) (hS : IsUnit S.det)
         mul_left_comm, mul_comm ] ; ring;
     simp [ Finset.sum_smul, smul_smul, mul_assoc, mul_comm, mul_left_comm, minkowski, minkowskiR ];
   ext μ ν; specialize hP_eq' μ ν; simp_all only [isUnit_iff_ne_zero, ne_eq, Complex.coe_smul, ←
-      ext_iff, neg_mul, neg_smul, smul_add, neg_apply, smul_apply, smul_eq_mul, neg_inj,
+      ext_iff, neg_mul, neg_smul, smul_add, neg_inj,
           one_ne_zero, not_false_eq_true, smul_left_inj, mul_eq_mul_left_iff, OfNat.ofNat_ne_zero,
               or_false] ;
   convert congr_arg Complex.re hP_eq'.symm using 1 ;    norm_num [ Complex.ext_iff, Matrix.mul_apply
       ] ; ring;
-  simp only [minkowskiMat, Finset.sum_mul _ _ _];
-  exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ =>
-      by ring! )
+  have hL : ∀ μ ν : Fin 4,
+      (Lam * minkowskiMat * Lamᵀ) μ ν
+        = ∑ α : Fin 4, ∑ β : Fin 4, Lam μ α * minkowskiR α β * Lam ν β := by
+    intro μ ν
+    simp only [minkowskiMat, Matrix.of_apply, Matrix.transpose_apply, Matrix.mul_apply]
+    simp only [Finset.sum_mul, mul_assoc]
+    rw [Finset.sum_comm]
+  exact hL μ ν
+  simp [minkowskiMat, minkowskiR, minkowski]
 
 end BookProof.ChapterA3

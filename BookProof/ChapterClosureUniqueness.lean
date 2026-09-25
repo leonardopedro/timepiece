@@ -449,7 +449,9 @@ theorem eqOn_topologicalClosure_range_of_eqOn_range (B : D →ₗ[ℂ] F) (U V :
     rintro _ ⟨x, rfl⟩
     exact h x
   have := closure_minimal hsub hclosed
-  exact this (by simpa [Submodule.topologicalClosure_coe] using hz)
+  exact this (by
+    rw [← Submodule.topologicalClosure_coe]
+    exact hz)
 
 /-! ## Part 7 — (c) the positive self-adjoint factor is strictly unique -/
 

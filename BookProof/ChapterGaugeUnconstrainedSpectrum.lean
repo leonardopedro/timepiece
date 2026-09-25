@@ -174,7 +174,8 @@ theorem permOp_isFunctionOfSpectrum_iff (σ : Equiv.Perm X) :
   · rintro rfl
     refine ⟨fun _ => 1, ?_⟩
     ext f x
-    simp
+    show f ((1 : Equiv.Perm X).symm x) = 1 * f x
+    simp [Equiv.Perm.one_def]
 
 /-! ## 2. The book's definition of an unconstrained gauge-fixing -/
 
@@ -279,7 +280,10 @@ theorem exists_isUnconstrainedGaugeFixing :
   refine constrainedSpectrum_eq_univ_of_isUnconstrained
     shift_isUnconstrainedGaugeFixing ?_
   ext f k
-  simp [shiftPerm]
+  change f ((shiftPerm 1).symm k) = f k
+  have h1 : shiftPerm 1 = (1 : Equiv.Perm ℤ) := by ext k; simp
+  rw [h1]
+  simp [Equiv.Perm.one_def]
 
 /-! ## 4. The contrast: a *constrained* gauge-fixing
 
@@ -409,6 +413,9 @@ theorem shift_full_spectrum_vs_observable_spectrum :
     shift_observableSpectrum_subsingleton⟩
   refine constrainedSpectrum_eq_univ_of_isUnconstrained shift_isUnconstrainedGaugeFixing ?_
   ext f k
-  simp [shiftPerm]
+  change f ((shiftPerm 1).symm k) = f k
+  have h1 : shiftPerm 1 = (1 : Equiv.Perm ℤ) := by ext k; simp
+  rw [h1]
+  simp [Equiv.Perm.one_def]
 
 end BookProof.ChapterGaugeUnconstrainedSpectrum

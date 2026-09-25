@@ -59,7 +59,7 @@ noncomputable def continuousPart (mu : Measure X) : Measure X := mu.restrict (at
 noncomputable def atomicPart (mu : Measure X) : Measure X := mu.restrict (atoms mu)
 
 /-- The continuous part is atomless: no point carries positive mass for it. -/
-theorem noAtoms_continuousPart (mu : Measure X) [SFinite mu] : NoAtoms (continuousPart mu) := by
+theorem noAtoms_continuousPart (mu : Measure X) [SFinite mu] : NullSingletonClass (continuousPart mu) := by
   constructor
   intro x
   rcases eq_or_ne (mu {x}) 0 with h | h

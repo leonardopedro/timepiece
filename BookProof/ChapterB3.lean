@@ -150,8 +150,7 @@ theorem conditional_operator_identity (W U D R Ψ : H →L[𝕜] H)
     (hD : IsSelfAdjoint D) (hΨ : Ψ = W ∘L D ∘L adjoint U) :
     Ψ ∘L R ∘L adjoint Ψ
       = W ∘L D ∘L adjoint U ∘L R ∘L U ∘L D ∘L adjoint W := by
-  have hDadj : adjoint D = D := by
-    simpa [ContinuousLinearMap.star_eq_adjoint] using hD
+  have hDadj : adjoint D = D := hD
   subst hΨ
   simp only [adjoint_comp, adjoint_adjoint, hDadj]
   ext x

@@ -1,6 +1,6 @@
 import Mathlib.ModelTheory.Satisfiability
 import Mathlib.SetTheory.Cardinal.Continuum
-import Mathlib.Data.Real.CompleteField
+import Mathlib.Algebra.Order.Archimedean.Real.Hom
 
 /-!
 # Statistical Model Theory — the Upward Löwenheim–Skolem boundary
@@ -157,9 +157,10 @@ are the unique solution to a set of axioms": every conditionally complete linear
 field — the completeness axiom being the second-order one — is order-ring-isomorphic to
 `ℝ`, and the isomorphism is unique. -/
 theorem secondOrder_categoricity_real (β : Type*)
-    [ConditionallyCompleteLinearOrderedField β] :
+    [Field β] [ConditionallyCompleteLinearOrder β] [IsStrictOrderedRing β] :
     ∃ e : β ≃+*o ℝ, ∀ f : β ≃+*o ℝ, f = e := by
-  have : Unique (β ≃+*o ℝ) := LinearOrderedField.uniqueOrderRingIso β ℝ
+  have : Unique (β ≃+*o ℝ) :=
+    ConditionallyCompleteLinearOrderedField.uniqueOrderRingIso β ℝ
   exact ⟨default, fun f => Unique.eq_default f⟩
 
 end BookProof.ChapterStatisticalModelTheory

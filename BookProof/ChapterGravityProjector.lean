@@ -65,11 +65,11 @@ of the spatial projector.
 theorem spatialProj_mulVec_self (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (spatialProj v).mulVec v = 0 := by
   ext a;
-  simp only [mulVec, dotProduct, spatialProj, add_apply, of_apply, Pi.zero_apply];
+  simp only [mulVec, dotProduct, spatialProj, Matrix.add_apply, Matrix.of_apply, Pi.zero_apply];
   simp_all only [minkSq, lower, add_mul, mul_assoc, Finset.sum_add_distrib];
-  simp_all only [one_apply, mul_comm, mul_ite, mul_one, mul_zero, Finset.sum_ite_eq,
+  simp_all only [Matrix.one_apply, mul_comm, mul_ite, mul_one, mul_zero, Finset.sum_ite_eq,
       Finset.mem_univ, ↓reduceIte];
-  rw [ ← Finset.mul_sum _ _ _, hv ] ; ring
+  rw [← Finset.mul_sum, hv]; ring
 
 /-
 `χ` is idempotent: `χ² = χ`, i.e. it is a genuine projector.

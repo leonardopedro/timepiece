@@ -102,14 +102,24 @@ theorem exp_smul_mul_central (A B : 𝔸) (hA : Commute A (A * B - B * A)) (t : 
               • A)) * B * A * (NormedSpace.exp (-t • A))) t := by
         have h_deriv : HasDerivAt (fun s => (NormedSpace.exp (s • A)) * B) ((NormedSpace.exp (t •
             A)) * A * B) t := by
-          have := @hasDerivAt_exp_smul_const;
-          simpa using HasDerivAt.mul ( this A t ) ( hasDerivAt_const _ _ );
+          have h1 := @hasDerivAt_exp_smul_const
+          convert HasDerivAt.mul (h1 A t) (hasDerivAt_const _ _) <;>
+            (first | rfl | simp [mul_zero, add_zero])
         have h_deriv : HasDerivAt (fun s => (NormedSpace.exp (-s • A))) (-A * (NormedSpace.exp (-t •
             A))) t := by
           have := @hasDerivAt_exp_smul_const' ℝ;
           convert this ( -A ) t using 1; all_goals simp [ neg_smul ];
         convert HasDerivAt.mul ‹HasDerivAt ( fun s => exp ( s • A ) * B ) ( exp ( t • A ) * A * B )
-            t› h_deriv using 1 ; simp [ mul_assoc, sub_eq_add_neg ];
+            t› h_deriv using 1 ; simp [ mul_assoc, sub_eq_add_neg ]
+        · funext s; exact (mul_assoc (exp (s • A)) B (exp (-(s • A)))).symm
+        · have hz : exp (t • A) * B * (-A * exp (-t • A))
+              = -((exp (t • A) * B * A) * exp (-t • A)) :=
+            (congrArg (fun w => exp (t • A) * B * w) (neg_mul A (exp (-t • A)))).trans
+              ((mul_neg (exp (t • A) * B) (A * exp (-t • A))).trans
+                (congrArg Neg.neg (mul_assoc (exp (t • A) * B) A (exp (-t • A))).symm))
+          exact (sub_eq_add_neg (exp (t • A) * A * B * exp (-t • A))
+              (exp (t • A) * B * A * exp (-t • A))).trans
+            (congrArg (fun w => exp (t • A) * A * B * exp (-t • A) + w) hz.symm)
       have h_comm : (NormedSpace.exp (t • A)) * (A * B - B * A) = (A * B - B * A) * (NormedSpace.exp
           (t • A)) := by
         have h_comm : ∀ s : ℝ,          (NormedSpace.exp (s • A)) * (A * B - B * A) = (A * B - B *
@@ -165,6 +175,7 @@ theorem hasDerivAt_normalCurve (A B : 𝔸) (hA : Commute A (A * B - B * A)) (t 
     hasDerivAt_exp_smul_const' B t
   have hmul := hdA.mul hdB
   convert hmul using 1
+  · funext s; rfl
   have hcommA : exp (t • A) * A = A * exp (t • A) :=
     ((Commute.refl A).smul_left t).exp_left.eq
   have hadj : exp (t • A) * B = (B + t • (A * B - B * A)) * exp (t • A) :=
@@ -195,10 +206,11 @@ theorem hasDerivAt_symCurve (A B : 𝔸)
     hasDerivAt_exp_smul_const C (t ^ 2 / 2)
   have hdQ : HasDerivAt (fun s : ℝ => exp ((s ^ 2 / 2 : ℝ) • C))
       (t • (exp ((t ^ 2 / 2 : ℝ) • C) * C)) t := by
-    have := hdEC.scomp t hφ
-    simpa [Function.comp] using this
+    have h := hdEC.scomp t hφ
+    convert h <;> (first | rfl | simp [Function.comp])
   have hmul := hdP.mul hdQ
   convert hmul using 1
+  · funext s; rfl
   have hcommPD : exp (t • D) * D = D * exp (t • D) :=
     ((Commute.refl D).smul_left t).exp_left.eq
   have hCP : Commute C (exp (t • D)) := (hDC.symm.smul_right t).exp_right
@@ -251,7 +263,9 @@ theorem exp_mul_exp_central (A B : 𝔸)
               constructor <;> [linarith [ht.1]; linarith [ht.2.le]]
             calc ‖t‖ * ‖C‖ ≤ 1 * ‖C‖ := mul_le_mul_of_nonneg_right ht1 (norm_nonneg _)
               _ = ‖C‖ := one_mul _
-          simp only [hK_def, NNReal.coe_mk]; linarith
+          simp only [hK_def]
+          change ‖A + B + t • C‖ ≤ ‖A + B‖ + ‖C‖
+          linarith
   have hcontf : ContinuousOn f (Set.Icc 0 1) :=
     (show Differentiable ℝ f from fun t => (hf' t).differentiableAt).continuous.continuousOn
   have hcontg : ContinuousOn g (Set.Icc 0 1) :=
