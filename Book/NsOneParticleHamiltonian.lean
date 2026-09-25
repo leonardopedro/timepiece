@@ -401,9 +401,12 @@ $`h = \tfrac12\sum_i P_i^2 + \nu\sum_i Q_i^2 + f\cdot P` on the trajectory space
 $`\ell^2(\mathrm{Fin}\,3 \to \mathbb{N})` is unconditionally essentially self-adjoint on the
 finite-mode Hermite core for every $`\nu > 0` and every constant force `f`
 (`LagrangianCanonical.lagCan_esa`).  `BookProof/ChapterNsLagrangianOuterFockEsa.lean` carries
-it — with no new hypothesis — into the final-Hamiltonian form: the enclosure $`d\Gamma(h)`,
-creation on the left and annihilation on the right, is essentially self-adjoint on the
-finite-particle domain over that core (`lagOne_dGamma_esa`), on the bosonic and fermionic Fock
+it — with no new hypothesis — into the final-Hamiltonian form: the enclosure $`d\Gamma(h)`,creation on the left and annihilation on
+the right, is essentially self-adjoint on the
+finite-particle domain over that core (`lagOne_dGamma_esa` — the mechanism is the
+second-quantization lift `EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa`:
+graph-core transfer from the one-particle row `lagCan_esa`, with symmetry from
+`EsaOneParticle.symmetricOn_dGammaCoreOp_of_esa`), on the bosonic and fermionic Fock
 spaces and their Hilbert direct sums (`lagOne_bosonicFock_esa`, `lagOne_fermionicFock_esa`,
 `lagOne_hbosonicFock_esa`).  The conditional Lagrangian Koopman generator gets the same lift
 (`lagKoopman_dGamma_esa_of_comparison_esa`), which inherits exactly the standing hypothesis on

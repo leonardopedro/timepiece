@@ -1304,7 +1304,18 @@ $`d\Gamma(h)` — creation on the left, annihilation on the right — on the fin
 domain (`qgFull_dGamma_esa`).  So for QG the outer Hamiltonian is quadratic in the outer ladders
 exactly as the manuscript's recursion requires, with the full exponential wall and the
 interaction terms living entirely in the one-particle matrix elements and contributing no outer
-vertex.  The boundary of that chapter is the 84-dimensional `qg3DHamiltonian` with its
+vertex.  The mechanism is worth stating because it is now routine: the symmetric rows average
+the derivation with the permutation projector, which preserves the `n`-fold symmetrized core
+and commutes with the derivation, so essential self-adjointness transfers to it
+(`PermSector.essentiallySelfAdjointOn_bosonic_core`,
+`essentiallySelfAdjointOn_bosonic_core_of_esa`) and the two Fock rows are the algebraic and
+Hilbert direct-sum spellers (`bosonicFock_esa`); the unsymmetrized $`d\Gamma(h)` row is the
+graph-core lift of `BookProof/ChapterEsaOneParticleDGamma.lean`
+(`EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa`) — the same theorem that carries
+every one-particle statement of the programme to its final-Hamiltonian form.  Dependencies,
+then: `qgFull_esa_core_fl` as the one-particle input, `ChapterFockStatisticsEsa` for the
+projector, `ChapterEsaOneParticleDGamma` for the lift; no new analysis and no positivity
+assumption enter at this step.  The boundary of that chapter is the 84-dimensional `qg3DHamiltonian` with its
 Weyl-ordered cross terms — covered separately, at frozen density, by the paragraphs above.  No
 spectral information and no mass gap is claimed.
 :::

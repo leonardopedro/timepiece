@@ -128,7 +128,9 @@ observation: the Koopman–von Neumann generator of an **affine** drift $`F(u) =
 *real quadratic Hamiltonian*.  Its Weyl-ordered symbol $`\sum_i
 \tfrac12(\pi_iF_i + F_i\pi_i)` (`linKvnPoly`) *is* `fqPoly 0 0 Aᵀ 0 c`
 (`linKvnPoly_eq_fqPoly`) — cross terms and momenta only, no kinetic and no potential part — so
-the Carleman-flux theorem for general quadratic Hamiltonians applies with **no comparison
+the Carleman-flux theorem for general quadratic Hamiltonians,
+`FullQuadratic.fqOp_essentiallySelfAdjoint` of `BookProof/ChapterFullQuadraticEsa.lean`, applies
+with **no comparison
 operator, no surjectivity hypothesis and no sign condition**: the generator is essentially
 self-adjoint on the Gauss–polynomial core (`linKoopman_esa`), generates a complete unitary flow
 (`linKoopman_stone_flow`), and its second quantization — creation on the left, annihilation on
@@ -175,7 +177,13 @@ $`N = H^2 + E` satisfies every Faris–Lavine inequality — $`\langle x, Nx\ran
 \langle x, Ex\rangle`, $`\|Hx\| \le \|Nx\| + \|x\|`, and the commutator identity
 $`\langle x, i[H,N]x\rangle = \langle x, i[H,E]x\rangle` exactly — so that essential
 self-adjointness of `N` on `D` implies essential self-adjointness of `H`
-(`essentiallySelfAdjointOn_of_square_comparison`).
+(`essentiallySelfAdjointOn_of_square_comparison`).  The proof of the core form is the paper's
+test-vector argument with the inverse replaced by a sequence: given `w`, pick `g_n ∈ D` with
+$`(N + 1) g_n \to w` by density — the relative bound keeps `H g_n` bounded, the commutator
+bound forces $`\langle g_n, (N+1) g_n\rangle \to 0`, and closability of $`N + 1` (symmetry
+plus density of `D`) turns $`g_n \to 0` together with $`(N+1) g_n \to w` into $`w = 0` — the
+deficiency spaces are trivial.  The module imports only `ChapterFarisLavineCore`: no spectral
+hypothesis, no boundedness, no onto.
 :::
 
 :::paragraph
