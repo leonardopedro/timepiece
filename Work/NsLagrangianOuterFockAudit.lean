@@ -1,0 +1,10 @@
+import BookProof.ChapterNsLagrangianOuterFockEsa
+
+#print axioms BookProof.NsLagrangianOuterFock.lagOneOp_esa
+#print axioms BookProof.NsLagrangianOuterFock.lagOne_dGamma_esa
+#print axioms BookProof.NsLagrangianOuterFock.lagOne_dGamma_symmetricOn
+#print axioms BookProof.NsLagrangianOuterFock.lagOne_bosonicFock_esa
+#print axioms BookProof.NsLagrangianOuterFock.lagOne_fermionicFock_esa
+#print axioms BookProof.NsLagrangianOuterFock.lagOne_hbosonicFock_esa
+#print axioms BookProof.NsLagrangianOuterFock.lagKoopman_dGamma_esa_of_comparison_esa
+#print axioms BookProof.NsLagrangianOuterFock.lagKoopman_bosonicFock_esa_of_comparison_esa

@@ -1,3 +1,253 @@
+# Summary of changes for run d5e4e441-daeb-4475-ad7b-965de97e6870
+The gap is closed. The full, interacting Lagrangian Hamiltonian `lagFullFockHam` is now proved essentially self-adjoint on the finite-parcel core `lagFockCore`, for all real couplings. The proof uses two theorems that were already in the project; the only new work was checking that the momentum coordinates are distinct. The new file `BookProof/ChapterNsFullLagrangianFockEsa.lean` has no `sorry`. `Work/NsFullLagrangianFockEsaAudit.lean` shows that every new theorem depends only on `propext`, `Classical.choice` and `Quot.sound`.
+
+**The existing results I used**
+- **Each parcel-number sector (`YangMillsNonAbelianEsa.weylPoly_esa`, `BookProof/ChapterYangMillsNonAbelianEsa.lean`).** Any operator `½ Σ π_{idx m}² + ½ Σ Φ_j²` on the Gauss–polynomial core of `L²(ℝᵈ)` is essentially self-adjoint, provided each momentum acts on a different coordinate and the `Φ_j` are real polynomials. Its proof rests on the project's Kato-type theorem for polynomial potentials.
+  - The `n`-parcel sector `lagSectorHam n` is exactly this kind of operator by definition (`lagSectorHam_eq_weylPoly`, proved by `rfl`).
+  - The polynomials include the gauge-fixing forms that couple neighbouring parcels, the Piola term and `det F − 1`, so the interaction is covered.
+  - This gives `lagSectorHam_esa`, with `lagIdx_injective` as the new check.
+- **Gluing the sectors (`DirectSumEsa.dsOp_essentiallySelfAdjointOn`, `BookProof/ChapterDirectSumEsa.lean`).** If every sector is essentially self-adjoint on its core, so is their direct sum on the finite direct-sum core. This is the finite-parcel-core theorem you asked me to look for. It applies here, where the second-quantization theorem did not, because each sector is the whole `n`-parcel space `L²(ℝ^{36n})`, not a tensor power of a one-parcel operator.
+
+**What the new file proves**
+- `lagSectorHam_esa` and **`lagFullFockHam_esa`**: every sector, and then the full Hamiltonian on the finite-parcel core, is essentially self-adjoint.
+- `lagFullFockHam_selfAdjointExtension_unique`: any self-adjoint extension from the finite-parcel core has the same domain and values as the Friedrichs realization `lagOuterComparison` built earlier. So that realization is the only one.
+- The Eulerian model in `ChapterNavierStokesFullEulerianFock` had the same gap and the same structure, so I closed it the same way: `nsSectorHam_esa`, `nsFullFockHam_esa` and `nsFullFockHam_selfAdjointExtension_unique`.
+
+**Scope, unchanged from the earlier modules**
+- These results are about the operator those modules build: the positive sum of squares `½Σπ² + ½Σ(constraint form)²`. They are not about the Koopman generator, which is not bounded below.
+- They hold on the finite-parcel sectors with neighbour-to-neighbour gauge fixing. No continuum limit is taken.
+
+**Other changes**
+- The new module is imported from `BookProof.lean`. I regenerated `lakefile.toml` with the project's script, its `--check` passes, and I updated the counts in `BUILD_COMPONENTS.md`.
+- Documentation now reflects the result:
+  - a new section in `CONSOLIDATED_PLAN.md`;
+  - an update section in `NS_LAGRANGIAN_OUTER_FOCK_ESA.md`, replacing the old "remains unproved" wording;
+  - the sentence in the header comment of `BookProof/ChapterEsaFarisLavineIndex.lean` that said uniqueness was not claimed.
+- The Properties table has the three main results marked as proved.
+
+I built the new module, the edited index module and their dependencies, but not the full `BookProof` target. Everything is committed.
+
+# Summary of changes for run e7feac43-88f8-4f52-a00e-a1f53cdd1d6e
+You were right: the extension needed no new analysis. The one-particle Lagrangian result is a direct instance of the project's second-quantization theorem, and all of that theorem's hypotheses are already proved. The new file builds with no `sorry`, and every new theorem uses only the standard axioms (`propext`, `Classical.choice`, `Quot.sound`), checked in `Work/NsLagrangianOuterFockAudit.lean`. I built only the new module and what it depends on, not the full `BookProof` target.
+
+**1. The one-particle proof and its assumptions.** It is `LagrangianCanonical.lagCan_esa` in `BookProof/ChapterNavierStokesLagrangianCanonical.lean`. It is the only unconditional essential self-adjointness proof in the project for a Lagrangian one-parcel operator on a proper core.
+- **Space and core:** `ℓ²(Fin 3 → ℕ)`, the Hermite-coefficient space of one parcel's three coordinates, with the finitely supported Hermite states as the core. Reading this as `L²(ℝ³)` is the intended interpretation, but that unitary is not formalized.
+- **Operator:** `h = ½ΣPᵢ² + νΣQᵢ² + Σfᵢ Pᵢ`. `Q` and `P` are the oscillator position and momentum rescaled with `ω = √(2ν)`, so `[Pᵢ,Qᵢ] = −i`.
+- **Hypotheses:** only `ν > 0` and a constant force `f ∈ ℝ³`.
+- **Limits built into the model:** there is no pressure or volume-constraint term (it is set to `0`), no nonlinearity, and one parcel with no interaction. So `h` is a 3D harmonic oscillator `ω(N+3/2)` shifted by the drift `f·P`.
+- **How it is proved:** the Hermite states diagonalize the second-order part, and Kato–Rellich handles the drift. Kato–Rellich is itself proved in the project.
+
+The other Lagrangian results are weaker. `lagKoopman_esa_of_comparison_esa` still assumes that `N_L` is essentially self-adjoint. `lagFullOuterN_esa` only says the Friedrichs extension is essentially self-adjoint on its own domain, which is automatic; it says nothing about the Hamiltonian on the finite-parcel core.
+
+**2. The extension, in `BookProof/ChapterNsLagrangianOuterFockEsa.lean`.** It uses `EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa`, whose hypotheses are: complete space, dense core, symmetric operator, one-particle essential self-adjointness. Each is met by an existing result, the last by `lagCan_esa`.
+- `lagOne_dGamma_esa`: `dΓ(h)` is essentially self-adjoint on the finite-particle domain `⊕ₙ D^{⊗n}`, the span of the finite-particle Hermite product states. `lagOne_dGamma_symmetricOn` is the matching symmetry statement.
+- `lagOne_bosonicFock_esa`, `lagOne_fermionicFock_esa` and `lagOne_hbosonicFock_esa`: the same on the symmetric, antisymmetric and Hilbert-space bosonic Fock spaces.
+- `lagKoopman_dGamma_esa_of_comparison_esa` (plus a bosonic version): the conditional Koopman result carried over the same way. It keeps exactly its original hypothesis on `N_L` and adds nothing.
+
+**3. Where it stops.** `dΓ(h)` is the non-interacting, number-conserving Hamiltonian: on the `n`-parcel sector it is `Σ_p 1⊗⋯⊗h⊗⋯⊗1`. The interacting Lagrangian Hamiltonian in `ChapterNavierStokesFullLagrangianFock` couples neighbouring parcels through its gauge-fixing terms and contains the Piola and `det F − 1` terms. It is not the second quantization of a one-body operator, so this theorem cannot reach it, and its essential self-adjointness on the finite-parcel core is still open. The one-particle model's limits (no pressure, no nonlinearity) carry over unchanged to the Fock-space results.
+
+**Other changes:**
+- The full explanation is in `NS_LAGRANGIAN_OUTER_FOCK_ESA.md`.
+- The new module is imported from `BookProof.lean`. I regenerated `lakefile.toml` with the project's own script, its check passes, and I updated the counts in `BUILD_COMPONENTS.md`.
+- There is a new section, 2026-09-24h, in `CONSOLIDATED_PLAN.md`.
+- The Properties table has the new entries. The Koopman entry is marked as conditional.
+- Everything is committed.
+
+# Summary of changes for run a4688d21-fb8c-4bd2-ad32-e70f65e8a515
+I formalized Navier–Stokes in Lagrangian variables, with the incompressibility determinant and with spatial derivatives written as momenta inside momentum convolutions, and ran it through Faris–Lavine. The final result is **conditional**: if the comparison operator `N_L` is essentially self-adjoint, so is the Lagrangian NS generator. I did not prove that essential self-adjointness. All three new files build with no `sorry` and no new axioms. `Work/NsLagrangianDetAudit.lean` checks 18 of the theorems, and each depends only on `propext`, `Classical.choice` and `Quot.sound`.
+
+**1. Determinant as a momentum convolution — `BookProof/ChapterNsLagrangianDetConvolution.lean`**
+- **Setup:** the displacement is `ξ(a) = Σ_k (ξ̂_k e^{ik·a} + c.c.)`. It is real by construction (`dispField_im`), and the real and imaginary parts of `ξ̂_k` are the phase-space coordinates.
+- **Derivatives are momenta:** the coefficient of `∂_c ξ_r` is `i w_c ξ̂_{m,r}`. `hasDerivAt_dispField` proves this series is the actual derivative of the field.
+- **Determinant:** `detCoef q` sums, over every way of picking one Fourier component of `F = I + ∇ξ` per row with total momentum `q`, the determinant of the chosen rows.
+- **`det_deformation_eq`:** `det(I + ∇ξ(a)) = Σ_q detCoef_q e^{iq·a}` exactly, at every point and every configuration. Because different modes are combined, the cross-mode minors survive. This avoids the rank-one collapse (`det F ≡ 0`) found earlier in the project for the single-mode substitution.
+- **Constraint:** the volume penalty `V_κ = (κ/2) Σ_q |(det F − 1)^(q)|²` is real and never negative. `det_eq_one_of_volPot_eq_zero` shows that for `κ > 0`, `V_κ = 0` forces `det F(a) = 1` at every `a`. The converse is not formalized.
+
+**2. Faris–Lavine for any Koopman generator with an energy function — `BookProof/ChapterKoopmanLyapunovFarisLavine.lean`**
+- `kvnGen_esa_of_lyapunov` covers any real polynomial vector field `G` and any real polynomial `E ≥ 0` with `|G·∇E| ≤ cE` pointwise. If `N = H_G² + E` is essentially self-adjoint on the Gauss–polynomial core, then so is `H_G`.
+- This generalizes the earlier Eulerian result.
+
+**3. Lagrangian NS — `BookProof/ChapterNsLagrangianDetFarisLavine.lean`**
+- **Dynamics:** `ξ̇ = v`, `v̇ = −ν|k|² v − ∂V_κ/∂ξ`. The generator `H_L = ½Σ(πF + Fπ)` keeps the full degree-five constraint force, with no linearization.
+- **Energy identity (`lagFlux_eq`):** for `E = 1 + ½|v|² + V_κ`, the rate of change along the flow is `−νΣ|k|²v²`, so the constraint force does no net work. `lagDiv_eq` shows the divergence of the flow is the constant `−νΣ|k|²`.
+- **Faris–Lavine inequalities for `N_L = H_L² + E`:**
+  - `N_L ≥ 1`;
+  - `‖H_L x‖ ≤ ‖N_L x‖ + ‖x‖`;
+  - the exact relation `⟨i[H_L,N_L]⟩ = ⟨−νΣ|k|²v²⟩`;
+  - the bound `|⟨i[H_L,N_L]⟩| ≤ 2νΛ⟨N_L⟩`, with `Λ = Σ|k|²`.
+- **Main theorem:** `lagKoopman_esa_of_comparison_esa`.
+
+**Limits of the result**
+- Essential self-adjointness of `N_L` is an explicit hypothesis. It is the one Faris–Lavine input not discharged, as in the earlier Eulerian result.
+- Incompressibility is imposed through the penalty, i.e. a slightly compressible fluid with bulk modulus `κ`. The exactly incompressible limit `κ → ∞` is not taken.
+- The viscous term is `νΔ_a v` in reference coordinates. This is exact only at `F = I`; the exact Lagrangian viscous term is not polynomial.
+- Each real coordinate has unit mass; the Parseval factor is absorbed into `κ`.
+- The results hold for any finite set of wave vectors.
+
+**Other changes:** the three modules are imported at the end of `BookProof.lean`. I regenerated `lakefile.toml` and the inventory in `BUILD_COMPONENTS.md`, and the component check passes. A new section (2026‑09‑24g) is in `CONSOLIDATED_PLAN.md`, and the Properties table has the new entries, with the main theorem marked as conditional. I built the new modules, their dependencies and the audit file, but not the full `BookProof` target. All work is committed.
+
+# Summary of changes for run 836374db-363e-4686-a784-07ab2356a721
+I did not prove that the nonlinear Navier–Stokes generator is essentially self-adjoint. I found a positive `N` with the right commutation relations and proved every Faris–Lavine hypothesis for it except one: that `N` is itself essentially self-adjoint. The result is therefore conditional: if `N` is essentially self-adjoint, so is the nonlinear generator. Everything below builds with no `sorry`, and `Work/NsNonlinearFarisLavineAudit.lean` shows all 15 listed theorems use only `propext`, `Classical.choice` and `Quot.sound`.
+
+**Operator.** `H_NS = ½Σ(π_m F_m + F_m π_m)` with `F = −νλu + B(u,u)`. The advection `B` is exact (no linearization); its coefficients are the momentum-space convolution form of `(u·∇)u` after the Leray projection. The only facts used about them are Leray's energy identity and `div B = 0`.
+
+**1. Faris–Lavine on a core — `BookProof/ChapterFarisLavineDenseCore.lean`.** The project's earlier version needed `N + 1` to map the domain *onto* the Hilbert space, which never happens on a polynomial core.
+- `essentiallySelfAdjointOn_of_farisLavine_dense`: all hypotheses are stated only on a dense core, and `(N+1)D` only needs to be dense.
+- `dense_range_add_one_of_esa_of_pos`: for a positive `N`, that density follows from `N` being essentially self-adjoint.
+- `essentiallySelfAdjointOn_of_square_comparison`: for `N = H² + E`, the form is `⟨N⟩ = ‖Hx‖² + ⟨E⟩`, `‖Hx‖ ≤ ‖Nx‖ + ‖x‖`, and `⟨i[H,N]⟩ = ⟨i[H,E]⟩` exactly. So if `E` has a controlled commutator, essential self-adjointness of `N` gives that of `H`.
+
+**2. The NS case — `BookProof/ChapterNsNonlinearFarisLavine.lean`.** For every NS system with any finite set of modes, on the Gauss–polynomial core:
+- The comparison operator is `N_NS = H_NS² + 1 + ‖u‖²` (`nsSquareComparison`).
+- It is symmetric and `N_NS ≥ 1`, and it bounds the generator: `‖H_NS x‖ ≤ ‖N_NS x‖ + ‖x‖`.
+- Exact commutation relation (`nsSquareComparison_commForm`): `⟨i[H_NS, N_NS]⟩ = ⟨−2ν Σ λ_m u_m²⟩`. `H_NS²` commutes with `H_NS`, and the nonlinear advection drops out by Leray's identity.
+- `nsSquareComparison_commForm_bound`: `|⟨i[H_NS,N_NS]⟩| ≤ 2νΛ ⟨N_NS⟩`, where `Λ` bounds the Stokes eigenvalues.
+- `nsKoopman_esa_of_squareComparison_esa`: if `N_NS` is essentially self-adjoint on the core, so is the nonlinear `H_NS`.
+
+**Why it stops there (my reasoning, not formalized):**
+- **Polynomial `N` looks ruled out.** Faris–Lavine needs `N` to grow at a bounded exponential rate along the classical flow in both time directions. The quadratic advection stretches momenta at a rate proportional to `|u|`, which is unbounded, so harmonic-oscillator-type polynomials in `u` and `π` fail. The flow-invariant `H_NS` plus the energy does work, but that pushes the whole difficulty into self-adjointness of `N_NS`. I have not shown this hypothesis is any easier than the original problem.
+- **Truly without approximation (all Fourier modes), the method breaks.** The commutator `2νΣ|k|²|û_k|²` is not bounded by any multiple of `1 + ‖u‖²`, so the constant `2νΛ` becomes infinite. This matches the fact that viscous Navier–Stokes is not well posed backward in time, so a unitary Koopman group should not be expected in infinite dimensions. The results therefore hold for every finite set of modes, with the exact nonlinearity on those modes.
+
+**Other changes:** both modules are imported at the end of `BookProof.lean`, the audit file is `Work/NsNonlinearFarisLavineAudit.lean`, and a section was added to `CONSOLIDATED_PLAN.md`. The properties table has the new entries, with the NS result marked as conditional. I confirmed `BookProof.ChapterNsNonlinearFarisLavine` and its dependencies build; I did not run the full `BookProof` build.
+
+# Summary of changes for run d6433106-64fe-43fd-a700-20b6b3c51c83
+I continued `CONSOLIDATED_PLAN.md` on the five items you listed. There are three new chapters. Each builds with no `sorry`. `Work/DensitySectorAudit.lean` runs `#print axioms` on 31 of the new theorems, and every one depends only on `propext`, `Classical.choice` and `Quot.sound`. The new chapters are imported at the end of `BookProof.lean`, but I stopped the full `lake build BookProof` part-way through, so only the three new modules and their dependencies were confirmed to build this session.
+
+**1. How gravity depends on e — `BookProof/ChapterQg3DDensityEsa.lean`.**
+- `qg3DDensityHam e χ Qb` is the Weyl-ordered operator `(1/(16e))𝒮·𝒮 − (1/(24e))𝒫² + ½𝒮·E + ⅓𝒫E − e·Qb`, with the momentum combinations built from any inverse tetrad `χ`.
+- `qg3DDensity_esa`: it is essentially self-adjoint for every real `e`, `χ` and `Qb`. The unitary group and both second-quantized forms are also proved. `qg3DDensity_flat` shows that at `e = 1` with flat `χ` it is the earlier operator.
+- The √e form: `qg3DDensitized_eq_density` shows the densitized operator (with `y = √e`) equals the density form when `y ≠ 0`. `qg3DDensitized_esa` proves it essentially self-adjoint for every `y`, including `y = 0`.
+- `det_smul_background` shows the density is a degree-4 polynomial in the tetrad.
+- `qgFibredDensity_esa` proves self-adjointness for the direct sum over any family of background tetrads with `e = det ē`, with no uniformity assumption (`1/e` may be unbounded over the family).
+- **Limit:** e is a real number or a background label here. The case where e is multiplication by the determinant of the quantized tetrad coordinates is **not** covered.
+- **Edge case:** at `e = 0`, Lean's convention `1/0 = 0` removes the kinetic term. The √e form handles that point properly.
+
+**2. Navier–Stokes redesign — `BookProof/ChapterNsLinearKoopmanEsa.lean`.**
+- `linKoopman_esa`: the Koopman generator of any affine vector field is essentially self-adjoint. The unitary group and the second-quantized form are also proved.
+- `nsKoopman_stokes_esa`: the actual NS Koopman generator is essentially self-adjoint when the nonlinear coefficient is zero.
+- `oseenKoopman_esa`: the same holds for the Oseen linearization about any constant flow.
+- **Not covered:** the nonlinear case. It needs a theory of smooth flows of differential equations that Mathlib doesn't provide.
+
+**3. Sector identifications — `BookProof/ChapterL2TensorPowerUnitary.lean`.**
+- `tensorPowUnitary`: for a σ-finite measure μ, the completed n-fold tensor power of `L²(μ)` is unitarily equivalent to `L²(μⁿ)`, sending f₁⊗…⊗fₙ to the product function.
+- `nsParcelSectorUnitary`: the n-parcel sector over `L²(ℝ⁶)` is unitarily equivalent to `L²(ℝ^{6n})`.
+- `nsFockUnitary`: the whole Fock space is unitarily equivalent to the reduced NS Fock space.
+- **Not done:** carrying the operators across these unitaries.
+
+**4. Gap packages.** Nothing new was proved. The analysis (splitting into fibres over ξ, and the need for a gap bound that is uniform in η) is recorded in the plan only. The non-abelian Yang–Mills gap remains open.
+
+**5. How `BookProofOperatorCore` is built.**
+- The operator core is built as one Lake target whose roots are generated automatically (451 modules). The separate LieRep target is retired and merged into it, and `BookProofDerivativeGauge` stays as a faster partial build of part of the core.
+- `scripts/import_components.py` gained a name-precedence rule and an option to rewrite `lakefile.toml` directly. It now also reports modules nothing imports: there are 192 old `X/PartN.lean` split files that `BookProof.lean` doesn't import, which are not built. They are listed as a note rather than an error; whether to delete or re-import them is your call.
+- I regenerated `lakefile.toml`, and `--check` passes. The inventory in `BUILD_COMPONENTS.md` is regenerated, with a note explaining the layout. `CONSOLIDATED_PLAN.md` has a new status section.
+
+The Properties table now lists these results (and the definition of the e-dependent operator), each marked proved with its limits in the comments. I also updated the comments on three earlier entries. All work is committed.
+
+# Summary of changes for run 4d4c949a-0bd1-4da5-86ac-aad21a9e3919
+I added the next items from `CONSOLIDATED_PLAN.md`: the quantum-gravity cross terms and the operator-valued Yukawa coupling. The full `lake build BookProof` finishes with no errors (8810 jobs). The three new modules contain no `sorry` and no `axiom`. `#print axioms` shows every new headline result depends only on `propext`, `Classical.choice` and `Quot.sound`. Everything is committed.
+
+**Main assumptions**
+- **Flat density:** the gravity result holds the density at `e = 1`. The real dependence on `e` (the `1/e` kinetic coefficient, `√e`, and the polynomial `e` in front of the bracket) is still not covered.
+- **Yukawa assumptions:** the result needs a positive Higgs quartic (`λ > 0`) and a finite set of fermion modes. Which two real Higgs components carry the coupling is a modelling choice I made.
+
+**New modules**
+- **`BookProof/ChapterQg3DCrossTermEsa.lean`:** the 84-coordinate 3D gravity Hamiltonian with the book's Weyl-ordered cross terms `½ 𝒮·E + ⅓ 𝒫·E` and an arbitrary real quadratic bracket.
+  - `bookCrossMat_eq_sym` shows the trace parts of the cross terms cancel.
+  - `qgWithCoupling_esa` gives essential self-adjointness for any real cross-coefficient matrix, so the index convention doesn't affect the result.
+  - `qg3DCross_esa` is the gravity statement itself; `qg3DCross_stone_flow` gives the corresponding unitary group.
+  - `qg3DCross_dGamma_esa` and `qg3DCross_dGammaOp_esa` prove it for the second-quantised operator `dΓ` as well.
+- **`BookProof/ChapterTensorKatoRellich.lean`:** a general Kato–Rellich result for product couplings, `essentiallySelfAdjointOn_tensorSum_add_coupling`. Adding `Σ Vᵢ ⊗ Yᵢ` keeps a tensor sum essentially self-adjoint when:
+  - the second factor is finite-dimensional;
+  - each `Vᵢ` is symmetric with relative bound 0;
+  - each `Yᵢ` is symmetric.
+- **`BookProof/ChapterSmYukawaCoupling.lean`:** the Standard Model one-particle Hamiltonian with a real boson–fermion Yukawa interaction (`smYukawaFullHam`), rather than the earlier fixed Higgs background.
+  - `smYukawa_h_esa` proves it essentially self-adjoint.
+  - `smYukawa_dGamma_esa` does the same for its second quantisation `dΓ`.
+  - `smYukawa_eq_re_im` recovers the earlier fixed-background operator as the constant-field case.
+
+**Other updates:** `BookProof.lean` imports the new modules, and audit files are in `Work/QgCrossTermAudit.lean` and `Work/SmYukawaCouplingAudit.lean`. I added new sections to `Book/DiffeomorphismsGravity.lean`, `Book/StandardModel.lean`, `HONEST_BOUNDARIES_SM.md` and `CONSOLIDATED_PLAN.md` (new 2026-09-24d entry). The Properties table lists the new results, all marked proved.
+
+**Still open**
+- These plan items remain: the Navier–Stokes mainstream redesign, sector identifications, and the gap packages.
+- The `Book` target still doesn't build in this environment because of a problem with the MD4Lean dependency.
+- My question about how the `BookProofOperatorCore` build should be laid out is unanswered, so I left the lakefile unchanged.
+
+# Summary of changes for run c0522d23-8651-454f-9c5a-4ce1b06ca227
+I continued with the remaining work order in `CONSOLIDATED_PLAN.md` (the 2026-09-24b entry). This pass adds four new proof chapters, all imported by `BookProof.lean`. `lake build BookProof Work.FullEnclosureAudit` succeeds (8808 jobs). None of the new files contain `sorry` or `axiom`, and every audited theorem uses only `propext`, `Classical.choice` and `Quot.sound` (checked in `Work/FullEnclosureAudit.lean`).
+
+**1. Standard Model fermionic assembly — done, with the Yukawa term in a fixed Higgs background** (`BookProof/ChapterSmFullEnclosure.lean`)
+- `smFullHam` is the full one-particle Hamiltonian `h_B ⊗ 1 + 1 ⊗ (smDirac + smYukawa)` on `L²(ℝ¹⁶³) ⊗̂ FermiFock n`. `smFullHam_tmul` checks the formula on elementary tensors.
+- `smFull_h_esa`: this Hamiltonian is essentially self-adjoint on `polyGaussCore 163 ⊗ FermiFock n` (a one-particle statement). The proof feeds `sm_h_esa` and `sm_fermi_esa` into the two-factor tensor-sum theorem.
+- `smFull_dGamma_esa`: its second quantization dΓ(h_full), with creation on the left and annihilation on the right, is essentially self-adjoint on the finite-particle domain.
+- **Limitation:** because `smYukawa` uses a constant Higgs value, this operator is a tensor sum. It contains no boson–fermion coupling operator.
+
+**2. Navier–Stokes symmetrization** (`BookProof/ChapterNsSymmetricSector.lean`)
+- `spHam_esa`: the one-body generator H_sp, advection included, is essentially self-adjoint on `polyGaussCore 6`.
+- Four results follow:
+  - `nsSp_bosonic_core_esa`: essentially self-adjoint on the symmetrized tensor power for every particle number;
+  - `nsSp_bosonicFock_esa`: the same on the bosonic Fock space;
+  - `nsSp_hbosonicFock_esa`: the Hilbert-space version;
+  - `nsSp_dGamma_esa`: the unsymmetrized enclosure.
+- **Still open:** identifying `L²(ℝ^{6n})` with the tensor power, and identifying the `ℓ²`-based `nsSpCol` form of dΓ with the form used here.
+
+**3. The QG `secCore` form** (`BookProof/ChapterQgSymmetricSector.lean`)
+- No non-polynomial approximation step turned out to be needed. The core of `qgFull_esa_core_fl` is `secCore` itself, where essential self-adjointness is already proved.
+- `qgFull_bosonic_core_esa`, `qgFull_bosonicFock_esa`, `qgFull_hbosonicFock_esa` and `qgFull_dGamma_esa` extend it to the enclosures, for the full-exponential operator with interaction terms.
+- The 84-dimensional operator with cross terms is not covered.
+
+**4. NS mainstream leg — the planned surjectivity input is false as stated** (`BookProof/ChapterNsEnergySurjectivityObstruction.lean`)
+- `not_nsEnergy_surjective`: for d ≥ 1, N_E + 1 does not map `polyGaussCore` onto `L²(ℝᵈ)`. It maps the core into itself, and by Baire's theorem a countably spanned subspace of an infinite-dimensional complete space is proper (`countable_span_ne_top`, `polyGaussCore_ne_top`).
+- So the named hypothesis `hsurj` of the existing theorem `nsKoopman_esa_of_energy_comparison` can never hold, and that theorem is vacuous as stated. This leg needs to be redesigned.
+
+**Documentation.** I updated `Book/StandardModel.lean` (new section on the full one-particle Hamiltonian), `Book/NsOneParticleHamiltonian.lean`, `Book/NsComparisonOperator.lean`, `HONEST_BOUNDARIES_SM.md`, and added a new state entry "2026-09-24c" at the end of `CONSOLIDATED_PLAN.md`, now linked from the top.
+
+That entry lists what is still open:
+- the QG cross terms;
+- the NS mainstream redesign;
+- the sector identifications;
+- an operator-valued Yukawa coupling;
+- the gap packages;
+- the decision on the `BookProofOperatorCore` build target.
+
+It also records an informal, unformalized observation: when the structure constants are zero, the Yang–Mills one-particle operator has spectrum starting at 0, so a positive form gap cannot hold in that case.
+
+The Book target itself wasn't built, because of the known `MD4Lean` environment problem, so the new `#check` names in the prose were not checked by building the Book. The Properties table is updated and all work is committed.
+
+# Summary of changes for run 62f9fa06-dc6e-48a8-b9e2-7f055c1e26b3
+I carried out the 2026-09-24a work order in `CONSOLIDATED_PLAN.md`: I ran the gates in step 0, fully completed step 2, completed the bosonic part of step 1, and proved one NS result that falls short of step 3. Steps 3–7 and the fermionic part of step 1 are still open. `lake build BookProof` succeeds (8803 jobs), and every new theorem depends only on `propext`, `Classical.choice` and `Quot.sound` (checked in `Work/EnclosureEsaAudit.lean`). None of the new files contain `sorry`.
+
+**Step 0 (gates)**
+- `lake build BookProof`, `lake build BookProofOperatorCore` and both audit files (`Work/SmFarisLavineAudit.lean`, `Work/SmComparisonEsaAudit.lean`) all pass, using only the three standard axioms.
+- There is no `sorry` or `admit` in any proof.
+- **The plan is wrong about `scripts/import_components.py --check`.** It says the check exits 0, but it exits 1, both on the tree as you gave it and after my changes. The cause is an existing backlog of unlisted roots. Regenerating the build stanzas would delete the `BookProofOperatorCore` target, which the plan itself uses as a gate, so I left `lakefile.toml` unchanged. You'll need to decide whether to keep or retire that target.
+- **Name check:** every `#check @…` name in `Book/StandardModel.lean`, `Book/SecondQuantizationEsa.lean` and `Book/NsOneParticleHamiltonian.lean` now resolves. To get there I fixed 4 stale `GroupAverage.*` names in `Book/SecondQuantizationEsa.lean` and 2 in `Book/SpinStatistics.lean`; they live in `…GroupAverage.UnitaryRep`. Other chapters still contain unresolved names, which I listed in the plan but didn't fix.
+- `lake build Book` fails with the known `MD4Lean` environment problem. I recorded it as the plan instructs, so `lake exe book` wasn't run.
+
+**Step 2 – non-abelian Yang–Mills (done)** — `BookProof/ChapterYangMillsNonAbelianEsa.lean`:
+- `weylPoly_esa` is a general tool: any operator of the form ½Σπ² + ½ΣΦ² on the Gauss–polynomial core, with momenta in distinct coordinates and real polynomial fields Φ, is essentially self-adjoint. The proof uses 2H + 1 = −Δ_S + W with W = ΣΦ² + 1, plus the existing Kato-type theorem.
+- A supporting lemma, `deficiencyTrivialAt_of_esa`, extends essential self-adjointness from the points ±i to every non-real point.
+- `ym_h_esa`: the Yang–Mills one-particle Hamiltonian is essentially self-adjoint for arbitrary real structure constants (a one-particle statement).
+- `ym_dGamma_esa`: its second quantization dΓ(H), with creation on the left and annihilation on the right, is essentially self-adjoint on the finite-particle domain.
+
+**Step 1 – Standard Model, bosonic sector only** — `BookProof/ChapterSmFockEsa.lean`:
+- `smSectorHam_esa`: each particle-number sector is essentially self-adjoint.
+- `smFockHam_esa`: the Hamiltonian of record `smFockHam` is essentially self-adjoint on its finite-particle core.
+- `sm_dGamma_esa`: the same holds for dΓ(h) built from `sm_h_esa`.
+- The Dirac/Yukawa (fermionic) assembly is still open.
+
+**NS (a partial result, not step 3)** — `BookProof/ChapterNsReducedCoreEsa.lean`:
+- `redHam_esa` and `nsRedFullFockHam_esa`: the reduced NS Hamiltonian (advection included) is essentially self-adjoint on its finite-parcel core. Before this it was only known on its own Friedrichs domain.
+- Step 3 proper, identifying the parcel sectors with symmetric tensor powers, is still owed.
+
+**Documentation updated** (after the proofs compiled): `BookProof.lean` imports the three new chapters, and I added sections or items to the three Book chapters above, the L2 row and module map of `HONEST_BOUNDARIES_SM.md`, and a new state entry "2026-09-24b" at the end of `CONSOLIDATED_PLAN.md`, now linked from the top. That entry gives the gate results and the renumbered remaining work:
+- the SM fermionic assembly;
+- NS symmetrization;
+- the QG `secCore` spelling, which needs a non-polynomial version of the graph-approximation step because of the exponential wall;
+- QG cross terms, the NS mainstream leg, and the gap packages.
+
+I also flagged that the Yang–Mills one-particle gap statement ⟪x, H₁x⟫ ≥ μ‖x‖² may be false: the spatial coordinates don't appear in the operator at all, and the magnetic field is affine in the derivative coordinates, which carry no momenta. It should be tested before anyone tries to prove it.
+
+All work is committed.
+
 # Summary of changes for run 69fdb072-8379-48ca-a298-6233b6fb34ec
 I proved the hypothesis that was left open. The comparison operator `N = 2h + Σ_m q_m² + c₀` is a coupled quartic Schrödinger operator in 163 variables, and it is now proved essentially self-adjoint on the Gauss–polynomial core. So the Standard-Model bosonic one-particle Hamiltonian is essentially self-adjoint with no extra assumption: `BookProof.SmComparisonEsa.sm_h_esa (P : SmParams)`. The full `lake build BookProof` succeeds with no `sorry` in the touched modules. `#print axioms` shows only `propext`, `Classical.choice` and `Quot.sound`; you can re-run the check with `Work/SmComparisonEsaAudit.lean`.
 

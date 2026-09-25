@@ -426,8 +426,8 @@ row. What is still owed is the sector-wise assembly of the full $`h`$
 algebra) into that enclosure. The instrument itself is sector-agnostic —
 $`ccHamS_esa`$ and $`hamCoreS_esa`$ hold for every smooth, respectively
 polynomial, $`W \ge 1`$ and every coordinate subset $`S`$ — so the same two
-theorems are the natural candidate for the non-abelian Yang–Mills instance of
-the same shape; no such instance is claimed in this chapter. One vocabulary
+theorems also give the non-abelian Yang–Mills instance of the same shape
+(`BookProof/ChapterYangMillsNonAbelianEsa.lean`, next section). One vocabulary
 detail keeps the two convolutions apart: the convolution of
 `BookProof/ChapterConvolutionCalc.lean` is the *mollifier* convolution of
 analysis; the momentum-space convolution that disposes of products of fields
@@ -454,6 +454,100 @@ with spatial derivatives is the NS/QG device of
 #check @BookProof.SmComparisonEsa.smFlN_esa
 #check @BookProof.SmComparisonEsa.sm_h_esa
 #check @BookProof.EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa
+```
+
+# The Enclosure, Made Explicit
+
+:::paragraph
+The reduction of the previous section is now carried out as theorems.
+`BookProof/ChapterYangMillsNonAbelianEsa.lean` packages the instrument once:
+every Weyl-type operator $`\tfrac12\sum_m \pi_{\iota(m)}^2 + \tfrac12\sum_j \Phi_j^2`
+on the Gauss–polynomial core, with momenta in pairwise distinct coordinates and
+real polynomial fields $`\Phi_j`, satisfies $`2H + 1 = -\Delta_S + W` with
+$`W = \sum_j \Phi_j^2 + 1 \ge 1`, hence is essentially self-adjoint
+(`weylPoly_esa`; the passage from $`2H+1` back to $`H` uses that trivial
+deficiency at $`\pm i` gives trivial deficiency at every non-real point).
+The non-abelian Yang–Mills Hamiltonian is such an operator, for arbitrary real
+structure constants (`ym_h_esa`, a one-particle statement), and so is every
+particle-number sector of the Standard-Model Hamiltonian of record.
+`BookProof/ChapterSmFockEsa.lean` records the consequences: each sector
+`smSectorHam_esa`, the outer operator $`smFockHam = d\Gamma(h)` on
+$`\bigoplus_n L^2(\mathbb{R}^{163n})` essentially self-adjoint on its
+finite-particle core (`smFockHam_esa`), and, in the creation-left /
+annihilation-right spelling of the general second quantization,
+`sm_dGamma_esa` — the lift `dGamma_essentiallySelfAdjointOn_of_esa` applied
+to `sm_h_esa`. The enclosed operator here is the bosonic sector; the Dirac and
+Yukawa operators act on the CAR algebra, and the assembly of the full $`h` is the
+next section. No spectral statement follows.
+:::
+
+```
+#check @BookProof.YangMillsNonAbelianEsa.deficiencyTrivialAt_of_esa
+#check @BookProof.YangMillsNonAbelianEsa.essentiallySelfAdjointOn_affine
+#check @BookProof.YangMillsNonAbelianEsa.weylPoly_eq_hamCoreS
+#check @BookProof.YangMillsNonAbelianEsa.weylPoly_esa
+#check @BookProof.YangMillsNonAbelianEsa.ym_h_esa
+#check @BookProof.YangMillsNonAbelianEsa.ym_dGamma_esa
+#check @BookProof.SmFockEsa.smSectorHam_esa
+#check @BookProof.SmFockEsa.smFockHam_esa
+#check @BookProof.SmFockEsa.sm_dGamma_esa
+```
+
+# The Full One-Particle Hamiltonian: Bosonic and Fermionic Sectors Together
+
+:::paragraph
+`BookProof/ChapterSmFullEnclosure.lean` assembles the full one-particle Hamiltonian
+before enclosure. The one-particle space is the completed tensor product
+$`L^2(\mathbb{R}^{163}) \mathbin{\hat\otimes} \mathcal{F}_{\rm CAR}` of the bosonic
+space with the (finite-mode) fermionic Fock space, and the Hamiltonian is the tensor sum
+$`h_{\rm full} = h_B \otimes 1 + 1 \otimes (h_{\rm Dirac} + h_{\rm Yukawa})`
+(`smFullHam`, checked on elementary tensors by `smFullHam_tmul`). The two-factor
+theorem of `ChapterTensorSumEsa`, fed with `sm_h_esa` and the Faris–Lavine certificate
+`sm_fermi_esa`, gives essential self-adjointness on the tensor product of the
+Gauss–polynomial core with the fermionic space (`smFull_h_esa`, a one-particle
+statement), and the lift gives the enclosure: $`d\Gamma(h_{\rm full})`, creation on the
+left and annihilation on the right, is essentially self-adjoint on the finite-particle
+domain (`smFull_dGamma_esa`). The Yukawa term is taken in a fixed Higgs background, as
+`smYukawa` is defined, so no boson–fermion coupling operator is included: a tensor sum is
+not an interaction. No spectral statement follows.
+:::
+
+```
+#check @BookProof.SmFullEnclosure.smFullHam
+#check @BookProof.SmFullEnclosure.smFullHam_tmul
+#check @BookProof.SmFullEnclosure.smFull_h_esa
+#check @BookProof.SmFullEnclosure.smFull_dGamma_esa
+```
+
+# The Yukawa Coupling as an Operator
+
+:::paragraph
+`BookProof/ChapterSmYukawaCoupling.lean` replaces the constant Higgs value in the
+Yukawa term by the Higgs field itself. The fixed-background operator splits as
+$`h_{\rm Yukawa}(z) = \operatorname{Re} z \, h_{\rm Yukawa}(1) + \operatorname{Im} z \, h_{\rm Yukawa}(i)`
+(`smYukawa_eq_re_im`), and the coupling
+$`H_Y = \varphi_0 \otimes h_{\rm Yukawa}(1) + \varphi_1 \otimes h_{\rm Yukawa}(i)`
+multiplies two real Higgs components on the bosonic side by the corresponding
+fermion bilinears: a genuine boson–fermion interaction, not a tensor sum. For a
+positive quartic $`\lambda > 0` the Higgs wall confines the Higgs coordinates
+(`higgs_sq_le`), so multiplication by a Higgs component is bounded relative to
+$`h_B` with arbitrarily small relative bound (`higgsMul_relBound`). Because the
+fermionic factor is finite-dimensional, a Kato–Rellich theorem for product
+couplings on a tensor sum (`essentiallySelfAdjointOn_tensorSum_add_coupling`)
+applies: $`h_B \otimes 1 + 1 \otimes h_{\rm Dirac} + H_Y` is essentially
+self-adjoint on the same core (`smYukawa_h_esa`), and its enclosure is
+essentially self-adjoint on the finite-particle domain (`smYukawa_dGamma_esa`).
+Which two components of the doublet carry the coupling is a modelling choice.
+:::
+
+```
+#check @BookProof.SmYukawaCoupling.smYukawa_eq_re_im
+#check @BookProof.SmYukawaCoupling.higgs_sq_le
+#check @BookProof.SmYukawaCoupling.higgsMul_relBound
+#check @BookProof.TensorKatoRellich.essentiallySelfAdjointOn_tensorSum_add_coupling
+#check @BookProof.SmYukawaCoupling.smYukawaFullHam
+#check @BookProof.SmYukawaCoupling.smYukawa_h_esa
+#check @BookProof.SmYukawaCoupling.smYukawa_dGamma_esa
 ```
 
 # The Higgs Vacuum, as Statics

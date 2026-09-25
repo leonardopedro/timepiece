@@ -1,52 +1,132 @@
-Update ../timepiece : from archive /home/leo/Downloads/68244ec7-1feb-4b2b-8add-e9ad4677582a-aristotle/output-final_aristotle copy the files:
+Step 0 (gates)
+
+    lake build BookProof, lake build BookProofOperatorCore and both audit files (Work/SmFarisLavineAudit.lean, Work/SmComparisonEsaAudit.lean) all pass, using only the three standard axioms.
+    There is no sorry or admit in any proof.
+    The plan is wrong about scripts/import_components.py --check. It says the check exits 0, but it exits 1, both on the tree as you gave it and after my changes. The cause is an existing backlog of unlisted roots. Regenerating the build stanzas would delete the BookProofOperatorCore target, which the plan itself uses as a gate, so I left lakefile.toml unchanged. You'll need to decide whether to keep or retire that target.
+    Name check: every #check @… name in Book/StandardModel.lean, Book/SecondQuantizationEsa.lean and Book/NsOneParticleHamiltonian.lean now resolves. To get there I fixed 4 stale GroupAverage.* names in Book/SecondQuantizationEsa.lean and 2 in Book/SpinStatistics.lean; they live in …GroupAverage.UnitaryRep. Other chapters still contain unresolved names, which I listed in the plan but didn't fix.
+    lake build Book fails with the known MD4Lean environment problem. I recorded it as the plan instructs, so lake exe book wasn't run.
+I also flagged that the Yang–Mills one-particle gap statement ⟪x, H₁x⟫ ≥ μ‖x‖² may be false: the spatial coordinates don't appear in the operator at all, and the magnetic field is affine in the derivative coordinates, which carry no momenta. It should be tested before anyone tries to prove it.
+
+
+Update ../timepiece : from folder /home/leo/Downloads/597de982-cf77-45e0-b71a-c20d5a486eff-aristotle/output-final_aristotle copy the files:
 
 Book/
+DiffeomorphismsGravity.lean
++31
+NsComparisonOperator.lean
++6
+NsOneParticleHamiltonian.lean
++33 -5
+SecondQuantizationEsa.lean
++13 -7
+SpinStatistics.lean
++2 -2
 StandardModel.lean
-+17 -6
++96 -2
 
 BookProof/
-ChapterBookBrstGaugeFixing.lean
-+2 -1
-ChapterBookBrstInstances.lean
-+2 -2
-ChapterConvolutionCalc.lean
+ChapterEsaFarisLavineIndex.lean
++3 -2
+ChapterFarisLavineDenseCore.lean
++459
+ChapterKoopmanLyapunovFarisLavine.lean
++221
+ChapterL2TensorPowerUnitary.lean
++401
+ChapterNsEnergySurjectivityObstruction.lean
++103
+ChapterNsFullLagrangianFockEsa.lean
++182
+ChapterNsLagrangianDetConvolution.lean
++348
+ChapterNsLagrangianDetFarisLavine.lean
++421
+ChapterNsLagrangianOuterFockEsa.lean
++172
+ChapterNsLinearKoopmanEsa.lean
++294
+ChapterNsNonlinearFarisLavine.lean
++165
+ChapterNsReducedCoreEsa.lean
++83
+ChapterNsSymmetricSector.lean
++119
+ChapterQg3DCrossTermEsa.lean
++223
+ChapterQg3DDensityEsa.lean
++292
+ChapterQgSymmetricSector.lean
++110
+ChapterSmFockEsa.lean
++112
+ChapterSmFullEnclosure.lean
 +150
-ChapterDegEnergyEstimate.lean
-+327
-ChapterDegKatoEsa.lean
-+571
-ChapterDegSchrodingerCore.lean
+ChapterSmYukawaCoupling.lean
++285
+ChapterTensorKatoRellich.lean
 +311
-ChapterHermiteGraphApprox.lean
-+514
-ChapterHermiteLadderOrder.lean
-+445
-ChapterMollifierL2.lean
-+281
-ChapterSmComparisonEsa.lean
-+259
-ChapterSmFarisLavine.lean
-+856
+ChapterYangMillsNonAbelianEsa.lean
++307
+
+scripts/
+import_components.py
++118 -6
 
 Work/
-SmComparisonEsaAudit.lean
-+9
-SmFarisLavineAudit.lean
-+16
+DensitySectorAudit.lean
++44
+EnclosureEsaAudit.lean
++19
+FullEnclosureAudit.lean
++27
+NsFullLagrangianFockEsaAudit.lean
++10
+NsLagrangianDetAudit.lean
++27
+NsLagrangianOuterFockAudit.lean
++10
+NsNonlinearFarisLavineAudit.lean
++23
+QgCrossTermAudit.lean
++15
+SmYukawaCouplingAudit.lean
++13
 
 ./
 ARISTOTLE_SUMMARY.md
-+36
++250
 BookProof.lean
-+20
++94
+BUILD_COMPONENTS.md
++43 -39
 CONSOLIDATED_PLAN.md
-+134
++459 -1
 HONEST_BOUNDARIES_SM.md
-+73 -12
++4 -1
+lakefile.toml
++4 -14
+NS_LAGRANGIAN_OUTER_FOCK_ESA.md
++182
 
- .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.  Ensure also  that @CONSOLIDATED_PLAN.md and @BookProof/ and @Book/ and @../test/ and @../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , use the correct QYM, QED, QG (R^2 version with vielbein and full exponential (without Taylor expansion)  and interaction terms) and NS final Hamiltonian which is the one-particle Hamiltonian enclosed in creation (on the left) and annihilation (on the right) operators, and consider all implications of this fact (for example in the plan for new proofs, or in explaining what was achieved or interpreting the existing proofs in BookProof/ ). Note that we use the convolution in momentum space to deal with products in coordinate space involving derivatives in space of the fields (relevant for NS and QG only).
+ .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be 
+executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.  Ensure also that @CONSOLIDATED_PLAN.md and @BookProof/ and @Book/ and @../test/ and  
+@../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , use the correct QYM, QED, QG (R^2 version with vielbein and full exponential (without Taylor expansion) and interaction terms) and NS final Hamiltonian 
+which is the one-particle Hamiltonian enclosed in creation (on the left) and annihilation (on the right) operators, and consider all implications of this fact (for example in the plan for new proofs, or 
+in explaining what was achieved or interpreting the existing proofs in BookProof/ ). Note that we use the convolution in momentum space to deal with products in coordinate space involving derivatives in 
+space of the fields (relevant for NS and QG only).
  
- add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically efficient) discussed in:  ../timepiece/CONSOLIDATED_PLAN.md
+ add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically 
+ efficient) discussed in: ../timepiece/CONSOLIDATED_PLAN.md
+
+When you finish your tasks, add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm in ../unfer/, based on the formalization for Lagrangian variables discussed in ../timepiece/CONSOLIDATED_PLAN.md
+
+When you finish your tasks, add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm in ../unfer/, based on the formalization for Lagrangian variables discussed in ../timepiece/CONSOLIDATED_PLAN.md, also derive in a Cadabra module the Lagrangian variables version  of the Hamiltonian for NS from the Eulerian variables version, including the constraints 
+
+When you finish your tasks, add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm in ../unfer/, based on the formalization for Lagrangian variables discussed in 
+../timepiece/CONSOLIDATED_PLAN.md, also derive in a Cadabra module the Lagrangian variables version of the Hamiltonian for NS from the Eulerian variables version, including the constraint. Then commit 
+and push ../timepiece and ../unfer. Also, create a new branch in the git repo from ../timepiece for the contents of ../timepiece331 (after you merge the new contents in ../timepiece into ../timepiece331, 
+without losing the work already done in ../timepiece331 as much as possible, use the git history to see what parts of the files are genuinely new in ../timepiece and only these parts can replace the 
+changes already in place in ../timepiece331)
  
  are you using the QG Hamiltonian derived in the cadabra module (starting from the Action with R²), in the numerical calculations? Do these calculations involve the Hashimoto alǵorithm (in analogy with the calculation for QYM and NS in this project)
  
@@ -58,6 +138,9 @@ This project includes the folders ../unfer/ , ../australVM/ , ../velysterm/ . In
 This project includes the folders ../unfer/ , ../australVM/ , ../velysterm/ . In folder ../why3/ is a project (GPL license, attention with copyright issues) that produces OCaml code from a math language (WhyML) and with math guarantees about the properties of the code. Since the compiler for AustralVM is written in OCaml, I want to find a way of using the probability kernel of this project to produce WhyML code (or calling the probability kernel from WhyML) that will compile to an OCaml module that extends the AustralVM compiler, guaranteeing certain properties of the AustralVM code. This establishes a cycle, where the AustralVM plugin system is used to extend the compiler of AustralVM itself (through WhyML).
 Note that in ../mirage-skeleton are examples of using mirage to convert OCaml programs to unikernels. Please define the compiler (and its extensions defined by Why3) of AustralVM  as plugins of  AustralVM itself. In this way it becomes a unified application/VM
 
+
+This project includes the folders ../unfer/ , ../australVM/ , ../velysterm/ , ../timepiece , ../dynamic-arctic , ../test/ . Do a deep , full review of the project as a whole and create a detailed plan to improve this project (except writting direct Lean4 code, leave that to the LLM-Lean4-specialist). In folders ../typos/ and ../ax/ are projects I want you to study (attention with copyright issues) and update the new plan with improvements and features adapted from these projects (improvements of existing features inspired by these 2 projects have priority over creating features from scratch, unless there is a good justification).
+Then execute the plan . Do not stop.
 
 
 What changed: from testing the gauge condition to testing the physics it leaves behind
@@ -224,7 +307,10 @@ Gotchas encoded in the tests (documented in AGENTS.md): nalgebra's  symmetric_ei
 
 Note that the Ground state is always the outer-Fock vacuum because the one-particle Hamiltonian can be added a constant to make it positive (for QYM) and it is enclosed in creation (on the left) and annihilation (on the right) operators
 
-Please fill the documentation in ../test/ (a gitbook.com website/subdomain) with contents inspired by book.tex (except P vs. NP and Riemann Hipothesis chapters) , Book/ , Bookproof/ and ../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , it should cover everything and be faithful to the original contents, but also form a self-consistent and pedagogical whole. Specially the proofs in BookProof/ are mentioned in Book/ with some context but the proofs themselves deserve more explanation (at least the most relevant ones) about what is the claim, its meaning within the context, a sketch of the proof and dependencies on other proofs or assumptions.
+Please fill the documentation in ../test/ (a gitbook.com website/subdomain) with contents inspired by book.tex (except P vs. NP and Riemann Hipothesis chapters) , Book/ , Bookproof/ and 
+../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , it should cover everything and be faithful to the original contents, but also form a self-consistent and pedagogical whole. Specially the proofs in 
+BookProof/ are mentioned in Book/ with some context but the proofs themselves deserve more explanation (at least the most relevant ones) about what is the claim, its meaning within the context, a sketch 
+of the proof and dependencies on other proofs or assumptions.
 
 
 I regenerated and checked the non-Lean portions that can be handled here.

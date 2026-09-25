@@ -3189,3 +3189,97 @@ import BookProof.ChapterDegSchrodingerCore
 import BookProof.ChapterDegKatoEsa
 import BookProof.ChapterHermiteGraphApprox
 import BookProof.ChapterSmComparisonEsa
+
+-- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
+-- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator
+-- `½ Σ π_{idx m}² + ½ Σ Φ_j²` with distinct momentum coordinates and real polynomial fields is
+-- essentially self-adjoint on the Gauss–polynomial core (`weylPoly_esa`), and instantiates it
+-- for the **non-abelian** Yang–Mills Hamiltonian (`ym_h_esa`, one-particle) and its second
+-- quantization (`ym_dGamma_esa`).  `ChapterSmFockEsa` does the same for the bosonic
+-- Standard-Model Hamiltonian of record: every number sector (`smSectorHam_esa`), the outer
+-- Fock operator `smFockHam` (`smFockHam_esa`), and `dΓ(h)` in the creation-left /
+-- annihilation-right spelling (`sm_dGamma_esa`).  The fermionic Dirac/Yukawa sector is not
+-- part of the enclosed operator.  `ChapterNsReducedCoreEsa` applies the same instrument to the
+-- reduced Navier–Stokes sector: every `redHam n` (`redHam_esa`) and the outer operator
+-- `nsRedFullFockHam` on its finite-parcel core (`nsRedFullFockHam_esa`).
+import BookProof.ChapterYangMillsNonAbelianEsa
+import BookProof.ChapterSmFockEsa
+import BookProof.ChapterNsReducedCoreEsa
+-- `ChapterSmFullEnclosure` (2026-09-24c): the full Standard-Model one-particle Hamiltonian
+-- `h_full = h_B ⊗ 1 + 1 ⊗ (smDirac + smYukawa)` on `L²(ℝ¹⁶³) ⊗̂ FermiFock n` (fixed Higgs
+-- background in the Yukawa term), ESA on `polyGaussCore 163 ⊗ FermiFock n` (`smFull_h_esa`,
+-- one-particle) and its enclosure `dΓ(h_full)` ESA on the finite-particle domain
+-- (`smFull_dGamma_esa`).  `ChapterNsSymmetricSector`: the NS one-body generator `H_sp` ESA on
+-- `polyGaussCore 6` (`spHam_esa`) and `dΓ(H_sp)` ESA on every symmetrized sector core and on the
+-- bosonic Fock space (`nsSp_bosonic_core_esa`, `nsSp_bosonicFock_esa`, `nsSp_hbosonicFock_esa`).
+import BookProof.ChapterSmFullEnclosure
+import BookProof.ChapterNsSymmetricSector
+-- `ChapterQgSymmetricSector` (2026-09-24c): the complete gauge-fixed QG Hamiltonian
+-- `secHam W (qgFullModes g)` (full exponential wall, no Taylor, interaction terms), ESA on
+-- `secCore` (`qgFull_esa_core_fl`), carried to the symmetrized sector cores and the bosonic Fock
+-- space (`qgFull_bosonic_core_esa`, `qgFull_bosonicFock_esa`, `qgFull_hbosonicFock_esa`) and to
+-- the enclosure `dΓ(h)` (`qgFull_dGamma_esa`).
+import BookProof.ChapterQgSymmetricSector
+-- `ChapterNsEnergySurjectivityObstruction` (2026-09-24c): the named hypothesis `hsurj` of
+-- `NsKoopman.nsKoopman_esa_of_energy_comparison` (surjectivity of `N_E + 1` from the Gauss core)
+-- is false for `d ≥ 1` (`not_nsEnergy_surjective`, via Baire: `countable_span_ne_top`,
+-- `polyGaussCore_ne_top`); that theorem is vacuous as stated.
+import BookProof.ChapterNsEnergySurjectivityObstruction
+-- `ChapterQg3DCrossTermEsa` (2026-09-24d): the 84-coordinate gravity Hamiltonian **with** the
+-- Weyl-ordered cross terms `½ 𝒮·E + ⅓ 𝒫·E` of the book's 3D density and an arbitrary real
+-- quadratic bracket, at flat density `e = 1`: ESA on the Gauss–polynomial core
+-- (`qg3DCross_esa`, general form `qgWithCoupling_esa`), with the trace cancellation
+-- `bookCrossMat_eq_sym`.  The genuine `e`-dependence is not covered.
+import BookProof.ChapterQg3DCrossTermEsa
+-- `ChapterTensorKatoRellich` (2026-09-24d): Kato–Rellich for a product coupling `Σᵢ Vᵢ ⊗ Yᵢ` on a
+-- tensor sum `A ⊗ 1 + 1 ⊗ B` with a finite-dimensional second factor and `A`-bounded `Vᵢ` of
+-- relative bound `0` (`essentiallySelfAdjointOn_tensorSum_add_coupling`).
+-- `ChapterSmYukawaCoupling` (2026-09-24d): the SM one-particle Hamiltonian with the
+-- **operator-valued** Yukawa coupling `φ₀ ⊗ smYukawa M 1 + φ₁ ⊗ smYukawa M i` (a genuine
+-- boson–fermion interaction), ESA for `λ > 0` (`smYukawa_h_esa`) and its enclosure
+-- (`smYukawa_dGamma_esa`).
+import BookProof.ChapterTensorKatoRellich
+import BookProof.ChapterSmYukawaCoupling
+-- `ChapterQg3DDensityEsa` (2026-09-24e): the 3D gravity Hamiltonian with its density
+-- dependence restored — the `1/e` kinetic coefficient, the inverse tetrad `χ` in `𝒮` and `𝒫`,
+-- and the `e` in front of the bracket — ESA for every real `e`, `χ`, bracket
+-- (`qg3DDensity_esa`); the densitized form `y = √e`, `𝒮 = y𝒮̃` (`kinOf_absorption`,
+-- `qg3DDensity_eq_densitized`, `qg3DDensitized_esa`, including `y = 0`); and the
+-- background-fibred operator with density `det (bg i)` (`qgFibredDensity_esa`).  The operator
+-- with `e` a function of the canonical tetrad coordinates is not covered.
+import BookProof.ChapterQg3DDensityEsa
+-- `ChapterNsLinearKoopmanEsa` (2026-09-24e): NS mainstream leg, redesigned — the Koopman
+-- generator of every affine drift is a real quadratic Hamiltonian (`linKvnPoly_eq_fqPoly`), so it
+-- is ESA with no comparison operator (`linKoopman_esa`); the mainstream `nsKoopmanOp S` of a
+-- Stokes system (`nsKoopman_stokes_esa`) and the Oseen linearization at any point
+-- (`oseenKoopman_esa`, `oseenDrift_eq`).  The nonlinear generator is not covered.
+import BookProof.ChapterNsLinearKoopmanEsa
+-- `ChapterL2TensorPowerUnitary` (2026-09-24e): the sector identification — for any σ-finite
+-- measure, the completed tensor power `L²(μ)^{⊗̂n}` is unitarily `L²(μ^{⊗n})`
+-- (`tensorPowUnitary`, pure-tensor formula `embPow_succ_tmul_ae`); with the relabelling
+-- `(ℝ^d)ⁿ ≅ ℝ^{n·d}`, `L²(ℝ⁶)^{⊗̂n} ≅ L2d (n * 6)` (`nsParcelSectorUnitary`) and the Fock space
+-- over `L²(ℝ⁶)` is `nsRedFockSpace` (`nsFockUnitary`).  Operator-level transport not covered.
+import BookProof.ChapterL2TensorPowerUnitary
+-- 2026-09-24f: Faris–Lavine on a core (`N + 1` with dense range; ESA of a positive `N` suffices)
+-- and the nonlinear Navier–Stokes Koopman generator with the comparison `N = H_NS² + 1 + ‖u‖²`
+-- (exact commutation relation `i[H_NS, N] = i[H_NS, E] = −2ν Σ λ u²`); the ESA of `N` itself is
+-- the remaining explicit hypothesis.
+import BookProof.ChapterFarisLavineDenseCore
+import BookProof.ChapterNsNonlinearFarisLavine
+-- Lagrangian Navier–Stokes: the incompressibility determinant `det(I + ∇ξ)` as a triple momentum
+-- convolution (spatial derivatives as momenta), the volume penalty, the generic Koopman/Lyapunov
+-- Faris–Lavine theorem, and its Lagrangian instance (ESA of `N_L = H_L² + E` is the explicit
+-- remaining hypothesis).
+import BookProof.ChapterNsLagrangianDetConvolution
+import BookProof.ChapterKoopmanLyapunovFarisLavine
+import BookProof.ChapterNsLagrangianDetFarisLavine
+-- 2026-09-24h: the Lagrangian one-parcel Hamiltonian (`lagCan_esa`, unconditional) and the
+-- Lagrangian Koopman generator (conditional on ESA of `N_L`) carried to the outer Fock space
+-- via the second-quantization theorems `dGamma_essentiallySelfAdjointOn_of_esa` /
+-- `bosonicFock_esa` / `fermionicFock_esa`.
+import BookProof.ChapterNsLagrangianOuterFockEsa
+-- 2026-09-25: ESA of the full (interacting) Lagrangian and Eulerian Navier–Stokes Hamiltonians
+-- on the finite-parcel core, from `weylPoly_esa` (each parcel-number sector) and
+-- `dsOp_essentiallySelfAdjointOn` (fibrewise gluing), plus uniqueness of the self-adjoint
+-- realization.
+import BookProof.ChapterNsFullLagrangianFockEsa

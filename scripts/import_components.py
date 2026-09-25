@@ -80,6 +80,44 @@ COMPONENT_NAMES = {
     "BookProof.ChapterWignerLittleGroup": "BookProofWignerOrbit",
 }
 
+# Build-layout decision (2026-09-24e).  When a new module imports two previously
+# independent parts, the merged component contains the anchors of *both* names.
+# The name listed first here wins, so a target that the plan and the audits use
+# as a gate is never silently renamed by a merge.  `BookProofOperatorCore` is the
+# operator-theoretic core; the former `BookProofLieRep` part (the `ChapterA3*`
+# Lie-representation chapters) was merged into it by the Standard-Model and
+# gauge chapters, which import both, and is retired as a separate target.
+NAME_PRECEDENCE = [
+    "BookProofOperatorCore",
+]
+
+
+def component_name(comp: list[str]) -> str | None:
+    """The Lake target name of a component (`None` if it has none).
+
+    Default: the name keyed by the alphabetically first module of the
+    component (the historical rule).  If the component contains the anchor
+    modules of several names, `NAME_PRECEDENCE` decides.
+    """
+    members = set(comp)
+    cands = [n for k, n in COMPONENT_NAMES.items() if k in members]
+    if not cands:
+        return None
+    for n in NAME_PRECEDENCE:
+        if n in cands:
+            return n
+    return COMPONENT_NAMES.get(comp[0], cands[0])
+
+
+def aggregator_cone(lib: str) -> set[str] | None:
+    """The modules reachable from the library root `<Lib>.lean`, or `None`."""
+    mods = module_files(lib)
+    if lib not in mods:
+        return None
+    inside = set(mods)
+    imports = {n: imports_of(p, inside) for n, p in mods.items()}
+    return cone_of([lib], imports)
+
 
 # Sub-system targets: a *view* of one part, for a coherent sub-development that
 # is far too connected to be a part of its own.
@@ -161,6 +199,12 @@ def components(lib: str, skip_root: bool = True):
         # the library root is the aggregator that imports every module; it is
         # not a mathematical dependency, so it is left out of the graph
         if len(imports_of(mods[lib], set(mods) - {lib})) >= 2:
+            # Build-layout decision (2026-09-24e): the parts partition exactly
+            # what `lake build <Lib>` compiles.  Modules the aggregator does not
+            # reach (stale split copies `X/Part*.lean` of a monolithic `X.lean`)
+            # are left out of the graph and reported by `orphans`.
+            reach = aggregator_cone(lib) or set(mods)
+            mods = {n: p for n, p in mods.items() if n in reach}
             mods.pop(lib, None)
     inside = set(mods)
     imports = {n: imports_of(p, inside) for n, p in mods.items()}
@@ -193,6 +237,21 @@ def components(lib: str, skip_root: bool = True):
     return comps
 
 
+def orphans(lib: str) -> list[str]:
+    """Modules of the library that its aggregator `<Lib>.lean` does not reach.
+
+    `lake build <Lib>` never compiles them, so they belong to no part and need
+    no target.  In `BookProof` they are stale split copies `X/Part*.lean` of a
+    monolithic `X.lean`; they are listed so that they can be deleted or wired in
+    deliberately, never silently.
+    """
+    mods = module_files(lib)
+    reach = aggregator_cone(lib)
+    if reach is None:
+        return []
+    return sorted(n for n in mods if n not in reach)
+
+
 def report(lib: str) -> None:
     comps = components(lib)
     multi = [c for c in comps if len(c[0]) > 1]
@@ -200,7 +259,7 @@ def report(lib: str) -> None:
           f"{len(comps)} independent parts "
           f"({len(multi)} with more than one module)")
     for comp, roots in comps:
-        name = COMPONENT_NAMES.get(comp[0], "")
+        name = (component_name(comp) or "")
         tag = f"  target `{name}`" if name else ""
         print(f"* {len(comp):4d} modules, {len(roots)} maximal "
               f"(first: {comp[0]}){tag}")
@@ -228,7 +287,7 @@ def markdown(lib: str) -> None:
         print("| modules | Lake target | maximal modules (the `roots` of the target) |")
         print("| ---: | --- | --- |")
         for comp, roots in multi:
-            name = COMPONENT_NAMES.get(comp[0])
+            name = component_name(comp)
             cell = f"`{name}`" if name else "*(build its maximal modules directly)*"
             shown = ", ".join(f"`{r}`" for r in roots[:6])
             if len(roots) > 6:
@@ -246,6 +305,40 @@ def markdown(lib: str) -> None:
         print(sub, end="")
 
 
+PART_MARKER = "# Independent parts of `BookProof`, one Lake target each."
+SUB_MARKER = "# Sub-system targets: a *view* of one part"
+
+
+def write_lakefile(lib: str) -> None:
+    """Regenerate the part and sub-system stanzas of `lakefile.toml` in place.
+
+    Everything before the first generated `[[lean_lib]]` after `PART_MARKER`
+    and the hand-written comment block starting at `SUB_MARKER` are kept
+    verbatim; only the generated stanzas are replaced.
+    """
+    import contextlib
+    import io
+    text = open("lakefile.toml", encoding="utf-8").read()
+    i = text.index(PART_MARKER)
+    j = text.index("[[lean_lib]]", i)
+    k = text.index(SUB_MARKER)
+    k0 = text.rindex("# ----", 0, k)
+    m = text.index("[[lean_lib]]", k)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        lakefile(lib)
+    gen = buf.getvalue()
+    subs = list(SUB_SYSTEM_TARGETS.get(lib, {}))
+    cut = len(gen)
+    for name in subs:
+        pos = gen.find(f'[[lean_lib]]\nname = "{name}"')
+        if pos != -1:
+            cut = min(cut, pos)
+    parts, subpart = gen[:cut], gen[cut:]
+    new = text[:j] + parts + text[k0:m] + subpart.rstrip("\n") + "\n"
+    open("lakefile.toml", "w", encoding="utf-8").write(new)
+
+
 def lakefile(lib: str) -> None:
     mods = module_files(lib)
     inside = set(mods)
@@ -253,7 +346,7 @@ def lakefile(lib: str) -> None:
     for comp, roots in components(lib):
         if len(comp) < 2:
             continue
-        name = COMPONENT_NAMES.get(comp[0])
+        name = component_name(comp)
         if name is None:
             print(f"# UNNAMED component of {len(comp)} modules, first {comp[0]}",
                   file=sys.stderr)
@@ -281,7 +374,7 @@ def sub_system_markdown(lib: str, comps) -> str:
     inside = set(mods)
     imports = {n: imports_of(p, inside) for n, p in mods.items()}
     part_of = {m: comp[0] for comp, _roots in comps for m in comp}
-    part_names = {comp[0]: COMPONENT_NAMES.get(comp[0], "*(unnamed)*")
+    part_names = {comp[0]: (component_name(comp) or "*(unnamed)*")
                   for comp, _roots in comps}
     rows, out = [], []
     for name, roots in SUB_SYSTEM_TARGETS.get(lib, {}).items():
@@ -341,12 +434,21 @@ def check(lib: str) -> int:
     comps = components(lib)
     # Every module belongs to a part; a single-module part is identified by the
     # module itself, since it needs no target.
-    part_of = {m: (COMPONENT_NAMES.get(comp[0]) or comp[0]) for comp, _ in comps
+    part_of = {m: (component_name(comp) or comp[0]) for comp, _ in comps
                for m in comp}
+    reachable = aggregator_cone(lib)
     for comp, roots in comps:
         if len(comp) < 2:
             continue
-        name = COMPONENT_NAMES.get(comp[0])
+        name = component_name(comp)
+        if name is None and reachable is not None and not (set(comp) & reachable):
+            # An orphan part: none of its modules is imported by `<Lib>.lean`,
+            # so `lake build <Lib>` never compiles it (typically a stale split
+            # copy `X/Part*.lean` of a monolithic `X.lean`).  Reported, not a
+            # failure: it needs no target because it is not part of the build.
+            print(f"orphan (not imported by {lib}.lean, not built): "
+                  f"{', '.join(comp)}")
+            continue
         if name is None:
             print(f"MISSING NAME: component of {len(comp)} modules ({comp[0]})")
             bad += 1
@@ -405,6 +507,11 @@ def check(lib: str) -> int:
             bad += 1
         else:
             print(f"ok  {name}: {len(cone)} modules, a view of {parts[0]}")
+    orph = orphans(lib)
+    if orph:
+        print(f"note: {len(orph)} module(s) not imported by {lib}.lean "
+              f"(not built, belong to no part): {', '.join(orph[:8])}"
+              f"{' …' if len(orph) > 8 else ''}")
     return bad
 
 
@@ -414,6 +521,8 @@ def main() -> None:
     ap.add_argument("--all", action="store_true", help="report every library")
     ap.add_argument("--lakefile", action="store_true",
                     help="emit the [[lean_lib]] stanzas instead of the report")
+    ap.add_argument("--write-lakefile", action="store_true",
+                    help="regenerate the stanzas of lakefile.toml in place")
     ap.add_argument("--check", action="store_true",
                     help="verify the targets in lakefile.toml against the sources")
     ap.add_argument("--markdown", action="store_true",
@@ -424,6 +533,9 @@ def main() -> None:
             if os.path.exists(lib) or os.path.exists(lib + ".lean"):
                 markdown(lib)
                 print()
+        return
+    if args.write_lakefile:
+        write_lakefile(args.library)
         return
     if args.lakefile:
         lakefile(args.library)

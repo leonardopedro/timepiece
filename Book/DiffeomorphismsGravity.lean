@@ -1021,6 +1021,72 @@ continuum limit is claimed.
 ```
 
 :::paragraph
+The operator `qg3DHamiltonian` does not yet contain the momentum–coordinate cross
+terms $`\tfrac12\mathcal{S}^{ab}E_{ab} + \tfrac13\mathcal{P}E_a{}^a` of the
+three-dimensional density. At the flat density $`e = 1` every term of that
+density is quadratic in the canonical pair, and adding an arbitrary
+Weyl-ordered quadratic coupling keeps the operator inside the general real
+quadratic class (`fqPoly_add_coupling`), so essential self-adjointness survives for
+every real signature and every real coupling (`qgWithCoupling_esa`). With the
+book's cross terms written out (`bookCrossMat`) the trace parts cancel, leaving
+$`\tfrac12\sum_{a,b}(p^{ab} + p^{ba})E_{ab}` (`bookCrossMat_eq_sym`), and the
+Hamiltonian with the cross terms and an arbitrary real quadratic bracket is
+essentially self-adjoint on the Gauss-polynomial core (`qg3DCross_esa`,
+`qg3DCross_stone_flow`), and so is its enclosure $`d\Gamma(h)`, both on the
+finite-particle domain (`qg3DCross_dGamma_esa`) and in the occupation-number
+spelling on the finite-occupation core (`qg3DCross_dGammaOp_esa`). The genuine
+dependence on the density $`e` — the
+$`1/e` of the kinetic term and the polynomial $`e` in front of the bracket — is
+not covered.
+:::
+
+```
+#check @BookProof.Qg3DCrossTermEsa.fqPoly_add_coupling
+#check @BookProof.Qg3DCrossTermEsa.qgWithCoupling_esa
+#check @BookProof.Qg3DCrossTermEsa.bookCrossMat
+#check @BookProof.Qg3DCrossTermEsa.bookCrossMat_eq_sym
+#check @BookProof.Qg3DCrossTermEsa.qg3DCross_esa
+#check @BookProof.Qg3DCrossTermEsa.qg3DCross_stone_flow
+#check @BookProof.Qg3DCrossTermEsa.qg3DCross_dGamma_esa
+#check @BookProof.Qg3DCrossTermEsa.qg3DCross_dGammaOp_esa
+```
+
+:::paragraph
+The density left as a boundary there is taken up in `BookProof/ChapterQg3DDensityEsa.lean`, in
+the two forms in which it can be handled.  The inverse tetrad `χ` enters `𝒫` and `𝒮` as
+coefficient vectors in the 84 momenta (`momCalP`, `momCalS`, flat at `χ = δ`), and the book's
+three-dimensional density at density `e` is
+$`\mathcal{H} = (1/(16e))\mathcal{S}^2 - (1/(24e))\mathcal{P}^2 + \tfrac12\mathcal{S}\cdot E + \tfrac13\mathcal{P}\cdot E - e\,Q_b`
+(`qg3DDensityHam`): for **every** real `e`, `χ` and bracket `Q_b` the operator is essentially
+self-adjoint on the Gauss–polynomial core, with its Stone flow and both enclosures
+(`qg3DDensity_esa`, `qg3DDensity_stone_flow`, `qg3DDensity_dGamma_esa`,
+`qg3DDensity_dGammaOp_esa`).  In the densitized variables $`y = \sqrt e` the kinetic
+coefficient is constant and the physical operator is recovered verbatim (`kinOf_absorption`,
+`qg3DDensitized_eq_density`, `qg3DDensitized_esa` — the last holds even at the degenerate
+$`y = 0`, where the physical $`1/e` form does not exist), and letting the density label a
+family of background tetrads gives the fibred operator, essentially self-adjoint fibrewise with
+no uniformity in the family (`qgFibredDensityHam`, `qgFibredDensity_esa`,
+`qgFibredDensity_posDet_esa`).  The honest boundary: the density is *frozen* in each operator —
+a constant, or a fibre label without a conjugate momentum of its own.  The operator in which
+$`e = \det e_b{}^a` is itself a multiplication operator in the canonical tetrad coordinates is
+not covered: $`1/e` is singular on the zero set of `e`, and in the densitized coordinates the
+cross terms turn cubic and the bracket a sextic indefinite potential under a hyperbolic kinetic
+term — outside every essential-self-adjointness instrument of the project.
+:::
+
+```
+#check @BookProof.Qg3DDensityEsa.momCalS
+#check @BookProof.Qg3DDensityEsa.qg3DDensityHam
+#check @BookProof.Qg3DDensityEsa.qg3DDensity_esa
+#check @BookProof.Qg3DDensityEsa.qg3DDensity_stone_flow
+#check @BookProof.Qg3DDensityEsa.qg3DDensity_dGamma_esa
+#check @BookProof.Qg3DDensityEsa.qg3DDensitized_eq_density
+#check @BookProof.Qg3DDensityEsa.qg3DDensitized_esa
+#check @BookProof.Qg3DDensityEsa.qgFibredDensity_esa
+#check @BookProof.Qg3DDensityEsa.qgFibredDensity_posDet_esa
+```
+
+:::paragraph
 The constraints of that field space are dressed with ghosts into the BRST charge
 $`\Omega = \sum_a G_a\chi_a - \tfrac12\sum_{a,b,e} f_{abe}\chi_a\chi_b\beta_e`.
 Nilpotency is proved in full: the square of the constraint part is half the
@@ -1222,6 +1288,37 @@ momentum space a product with a derivative becomes a **convolution** rather than
 #check @BookProof.QuantumGravityFock.qgFock_hashimoto_selects
 ```
 
+:::paragraph
+The one-particle statement behind that gluing now has its enclosure in exactly the form the
+final-Hamiltonian convention fixes.  The complete gauge-fixed QG Hamiltonian of record is the
+one-particle operator `secHam W (qgFullModes g)` of
+`BookProof/ChapterQgVielbeinScalaronGaugeFL.lean` — vielbein/torsion kinetic terms, the **exact**
+exponential Einstein-frame wall `W`, with no Taylor truncation, and the scalaron–vielbein
+interaction terms — essentially self-adjoint on `secCore`, the core of finite sums of
+$`C_c^\infty` fibres in $`Sec\,GMode = \ell^2(GMode; L^2(\mathbb{R}))`
+(`qgFull_esa_core_fl`).  `BookProof/ChapterQgSymmetricSector.lean` carries it to the enclosures:
+the `n`-particle derivation on the **symmetric** tensor power of that core
+(`qgFull_bosonic_core_esa`), the bosonic Fock direct sums, algebraic and Hilbert
+(`qgFull_bosonicFock_esa`, `qgFull_hbosonicFock_esa`), and the unsymmetrized enclosure
+$`d\Gamma(h)` — creation on the left, annihilation on the right — on the finite-particle
+domain (`qgFull_dGamma_esa`).  So for QG the outer Hamiltonian is quadratic in the outer ladders
+exactly as the manuscript's recursion requires, with the full exponential wall and the
+interaction terms living entirely in the one-particle matrix elements and contributing no outer
+vertex.  The boundary of that chapter is the 84-dimensional `qg3DHamiltonian` with its
+Weyl-ordered cross terms — covered separately, at frozen density, by the paragraphs above.  No
+spectral information and no mass gap is claimed.
+:::
+
+```
+#check @BookProof.QgVielbeinScalaronGaugeFL.qgFull_esa_core_fl
+#check @BookProof.QgSymmetricSector.qgSecSpace
+#check @BookProof.QgSymmetricSector.qgFullOp
+#check @BookProof.QgSymmetricSector.qgFull_bosonic_core_esa
+#check @BookProof.QgSymmetricSector.qgFull_bosonicFock_esa
+#check @BookProof.QgSymmetricSector.qgFull_hbosonicFock_esa
+#check @BookProof.QgSymmetricSector.qgFull_dGamma_esa
+```
+
 # The BRST Charge on the Completed Space and the Reduced Transfer
 
 :::paragraph
@@ -1305,3 +1402,5 @@ The algebraic core of the manuscript's diffeomorphisms/gravity chapter:
  * the BRST charge of that field space: the $`\mathbb{Z}_2^{19}` ghost sector with its canonical anticommutation relations, the graded field space on which bosons and ghosts commute, the $`\mathfrak{gl}(84)` constraint generators, the nilpotency $`\Omega^2 = 0`, and a concrete non-abelian instance witnessing that the construction is not vacuous.
  * the graded Fock space $`\Gamma^s \otimes \Gamma^a` of bosons and $`\mathbb{Z}_2^{19}` ghosts: the fermionic canonical anticommutation relations with their Jordan–Wigner signs, the adjointness of creation and annihilation, the $`\mathbb{Z}_2` grading and superbracket, and the essential self-adjointness — with its unitary group — of the second-quantized Hamiltonian on the finite-occupation domain, with no positivity assumption.
  * the bounded, nonzero, nilpotent BRST charge on the *completed* graded space $`\ell^2` of joint boson/ghost occupations, an explicit commuting unitary group, and the resulting reduced transfer: the evolution preserves the physical states and descends to the BRST cohomology as a norm-preserving one-parameter group of automorphisms.
+ * the enclosure of the complete gauge-fixed one-particle Hamiltonian — vielbein/torsion kinetic terms, the exact exponential Einstein-frame wall with no Taylor truncation, and the scalaron–vielbein interaction terms — on the symmetrized tensor powers of `secCore`, on the bosonic Fock spaces and on the finite-particle domain, creation left / annihilation right (`qgFull_bosonic_core_esa`, `qgFull_bosonicFock_esa`, `qgFull_hbosonicFock_esa`, `qgFull_dGamma_esa`); the one-particle input is `qgFull_esa_core_fl`, and the boundary of the enclosing chapter is the 84-dimensional operator with cross terms, which the next bullet's chapter treats at frozen density.
+ * the 3D density with its three density-dependent places — the $`1/e` kinetic coefficient, the densitized $`\sqrt e` momenta, the polynomial $`e` in front of the bracket — for every real density, inverse tetrad and bracket, frozen or fibred over a family of backgrounds (`qg3DDensity_esa`, `qg3DDensitized_esa`, `qgFibredDensity_esa`, with the enclosures `qg3DDensity_dGamma_esa` / `qg3DDensity_dGammaOp_esa`), the non-frozen density (a canonical variable) stated as the honest boundary.

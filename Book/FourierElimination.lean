@@ -251,6 +251,59 @@ be established, because the determinant is constant there.
 #check @BookProof.NsLagFourier.lagElimSubst_lagResPoly
 ```
 
+:::paragraph
+The rank-one collapse is a statement about the *reduced* Hamiltonian that the elimination
+produces.  The full Lagrangian model — the one whose interacting outer operator is proved
+essentially self-adjoint in {ref "ns-one-particle-hamiltonian"}[the Navier–Stokes one-particle
+Hamiltonian and its Fock enclosure] — keeps the determinant, and
+`BookProof/ChapterNsLagrangianDetConvolution.lean` writes it honestly in momentum space:
+expanding `det(I + ∇ξ)` row by row turns the local cubic product into the **triple momentum
+convolution** over signed tuples of modes with `w(τ 0) + w(τ 1) + w(τ 2) = q` (`detCoef`,
+`det_deformation_eq` — exact at every point and every configuration, cross-mode minors
+included, so the constraint is *not* the degenerate rank-one substitution above).  The
+coefficients `volCoef q` of the residual `det F − 1` (`volume_residual_eq`) build the volume
+penalty $`V_κ = (κ/2)\sum_q |\mathrm{volCoef}\,q|^2`, a real polynomial, non-negative at
+every real configuration (`volPot_eval_nonneg`), whose zero set is exactly the incompressible
+configurations (`det_eq_one_of_volPot_eq_zero`, for `κ > 0`).  This is the momentum-space
+convolution device in its Lagrangian form: a product in coordinate space involving spatial
+derivatives of the fields — here the three gradient factors inside the determinant — becomes a
+convolution in momentum space.  The device belongs to NS and QG only.
+:::
+
+:::paragraph
+On that phase space the Koopman generator of the constrained flow — $`\dot\xi = v`,
+$`\dot v = -\nu|k|^2 v - \partial V_κ/\partial\xi`, with the *exact* degree-five constraint
+force — is treated by the generic Lyapunov criterion of
+`BookProof/ChapterKoopmanLyapunovFarisLavine.lean`: for any polynomial vector field `G` and real
+$`E \ge 0` with $`|G \cdot \nabla E| \le cE` pointwise, essential self-adjointness of
+$`N = H_G^2 + E` on the Gauss–polynomial core implies essential self-adjointness of the
+Koopman generator $`H_G` (`kvnGen_esa_of_lyapunov`).  The Lagrangian instance is
+`BookProof/ChapterNsLagrangianDetFarisLavine.lean`: for the energy
+$`E = 1 + \tfrac12|v|^2 + V_κ` the derivative along the flow is the sign-definite viscous
+dissipation $`F \cdot \nabla E = -\nu\sum|k|^2v^2` (`lagFlux_eq` — the constraint force does
+no net work, being the gradient of the potential part of `E`) and the divergence is constant
+(`lagDiv_eq`), so the Faris–Lavine commutator bound
+$`|\langle i[H_L, N_L]\rangle| \le 2\nu\Lambda\langle N_L\rangle` holds
+(`lagComparison_commForm_bound`) and essential self-adjointness of the Lagrangian generator
+follows from that of `N_L` (`lagKoopman_esa_of_comparison_esa`).  The hypothesis — essential
+self-adjointness of `N_L` — is explicit and not proved, exactly as on the Eulerian leg of
+{ref "ns-comparison-operator"}[the comparison-operator chapter]; incompressibility is imposed
+by the penalty with bulk modulus `κ`, and the limit `κ → ∞` is not taken.
+:::
+
+```
+#check @BookProof.NsLagrangianDet.detCoef
+#check @BookProof.NsLagrangianDet.det_deformation_eq
+#check @BookProof.NsLagrangianDet.volume_residual_eq
+#check @BookProof.NsLagrangianDet.volPot_eval_nonneg
+#check @BookProof.NsLagrangianDet.det_eq_one_of_volPot_eq_zero
+#check @BookProof.KoopmanLyapunov.kvnGen_esa_of_lyapunov
+#check @BookProof.NsLagrangianDetFL.lagFlux_eq
+#check @BookProof.NsLagrangianDetFL.lagDiv_eq
+#check @BookProof.NsLagrangianDetFL.lagComparison_commForm_bound
+#check @BookProof.NsLagrangianDetFL.lagKoopman_esa_of_comparison_esa
+```
+
 # Where the Two New Operator Chapters Sit
 
 The elimination above produces the *reduced* forms; the operator questions they raise are answered in

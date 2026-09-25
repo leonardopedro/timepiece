@@ -294,9 +294,15 @@ applied to it. What remains owed there is not an analytic hypothesis but an
 assembly: the sector-wise tensor/graph-core combination of the bosonic and
 fermionic halves of $`h`$ before enclosure. The instrument is not
 sector-specific — the Kato theorem behind (i) holds for any smooth,
-respectively polynomial, potential bounded below by one — which is why the
-same two chapters are the natural next input for the non-abelian
-Yang–Mills instance of the same shape.
+respectively polynomial, potential bounded below by one. The lift is now
+also a theorem in each instance: `BookProof/ChapterSmFockEsa.lean` states
+`sm_dGamma_esa` (this chapter's main theorem applied to `sm_h_esa`) and
+`smFockHam_esa` (the Standard-Model outer operator on
+$`\bigoplus_n L^2(\mathbb{R}^{163n})`), and
+`BookProof/ChapterYangMillsNonAbelianEsa.lean` gives the non-abelian
+Yang–Mills instance of the same shape, `ym_h_esa` (one-particle, arbitrary
+real structure constants) and `ym_dGamma_esa` (enclosed). The fermionic
+assembly named above is still open.
 :::
 
 ```
@@ -399,10 +405,10 @@ no hypotheses beyond essential self-adjointness of $`A` on a dense domain.
 #check @BookProof.ReducedEsa.essentiallySelfAdjointOn_symSector
 #check @BookProof.ReducedEsa.essentiallySelfAdjointOn_asymSector
 #check @BookProof.GroupAverage.UnitaryRep
-#check @BookProof.GroupAverage.avgProj
-#check @BookProof.GroupAverage.mem_range_avgProj_iff
-#check @BookProof.GroupAverage.isReducingProjection_avgProj
-#check @BookProof.GroupAverage.essentiallySelfAdjointOn_invariantSector
+#check @BookProof.GroupAverage.UnitaryRep.avgProj
+#check @BookProof.GroupAverage.UnitaryRep.mem_range_avgProj_iff
+#check @BookProof.GroupAverage.UnitaryRep.isReducingProjection_avgProj
+#check @BookProof.GroupAverage.UnitaryRep.essentiallySelfAdjointOn_invariantSector
 #check @BookProof.GroupAverage.repOfInvolution
 #check @BookProof.GroupAverage.avgProj_repOfInvolution
 #check @BookProof.TensorPerm.permOp
