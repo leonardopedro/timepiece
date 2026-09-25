@@ -185,8 +185,8 @@ hypothesis beyond essential self-adjointness of the one-particle operator.
 ```
 #check @BookProof.ReducedEsa.symProj
 #check @BookProof.ReducedEsa.essentiallySelfAdjointOn_symSector
-#check @BookProof.GroupAverage.avgProj
-#check @BookProof.GroupAverage.essentiallySelfAdjointOn_invariantSector
+#check @BookProof.GroupAverage.UnitaryRep.avgProj
+#check @BookProof.GroupAverage.UnitaryRep.essentiallySelfAdjointOn_invariantSector
 #check @BookProof.TensorPerm.permOp
 #check @BookProof.TensorPerm.permOp_purePow
 #check @BookProof.TensorPerm.permRep

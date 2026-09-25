@@ -641,6 +641,35 @@ at every instant.
 ```
 
 :::paragraph
+One sharper instrument has landed since the sections above, and it changes the status of this
+row.  `BookProof/ChapterYangMillsNonAbelianEsa.lean` packages a single Kato-type theorem —
+every Weyl-type operator $`\tfrac12\sum_m \pi_{\iota(m)}^2 + \tfrac12\sum_j \Phi_j^2` on the
+Gauss–polynomial core, with momenta in pairwise distinct coordinates and real polynomial
+fields, is essentially self-adjoint (`weylPoly_esa`: $`2H + 1 = -\Delta_S + W` with
+$`W = \sum_j \Phi_j^2 + 1 \ge 1`, the affine transfer `essentiallySelfAdjointOn_affine` from
+trivial deficiency at $`\pm i`) — and applies it to the gauge-fixed Hamiltonian itself:
+`ym_h_esa` — the non-abelian `ymHamiltonian (coreRepPoly 99) fabc` is essentially self-adjoint
+on `polyGaussCore 99` for **arbitrary real** structure constants `fabc`, with no Friedrichs
+selection needed — and its enclosure `ym_dGamma_esa`: the final Hamiltonian in the
+creation-left / annihilation-right spelling is essentially self-adjoint on the finite-particle
+domain.  What the Friedrichs route above contributes to this row is then the *selection* of the
+positive realization by the Hashimoto criterion, not existence or uniqueness of the
+self-adjoint realization.  The gap statements stay on the one-particle `h` of this enclosure:
+the abelian case has no one-particle form gap (`ym_abelian_no_one_particle_form_gap`), and the
+non-abelian form gap — a gap of the direct-integral fibres uniform in the 72 derivative
+coordinates — is the single open analytic input of the gap programme.
+:::
+
+```
+#check @BookProof.YangMillsNonAbelianEsa.weylPoly_esa
+#check @BookProof.YangMillsNonAbelianEsa.weylPoly_eq_hamCoreS
+#check @BookProof.YangMillsNonAbelianEsa.essentiallySelfAdjointOn_affine
+#check @BookProof.YangMillsNonAbelianEsa.ym_h_esa
+#check @BookProof.YangMillsNonAbelianEsa.ym_dGamma_esa
+#check @BookProof.YangMillsAbelianNoGap.ym_abelian_no_one_particle_form_gap
+```
+
+:::paragraph
 No continuum mass gap and no global existence statement is claimed anywhere in this
 section. The full nested-Fock ground-state statement is structural: once the
 sector one-particle operator is shifted positive and enclosed as

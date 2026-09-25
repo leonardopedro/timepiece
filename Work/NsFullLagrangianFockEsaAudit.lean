@@ -1,0 +1,10 @@
+import BookProof.ChapterNsFullLagrangianFockEsa
+
+#print axioms BookProof.NsFullLagrangianEsa.lagIdx_injective
+#print axioms BookProof.NsFullLagrangianEsa.lagSectorHam_eq_weylPoly
+#print axioms BookProof.NsFullLagrangianEsa.lagSectorHam_esa
+#print axioms BookProof.NsFullLagrangianEsa.lagFullFockHam_esa
+#print axioms BookProof.NsFullLagrangianEsa.lagFullFockHam_selfAdjointExtension_unique
+#print axioms BookProof.NsFullLagrangianEsa.nsSectorHam_esa
+#print axioms BookProof.NsFullLagrangianEsa.nsFullFockHam_esa
+#print axioms BookProof.NsFullLagrangianEsa.nsFullFockHam_selfAdjointExtension_unique

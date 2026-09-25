@@ -1,6 +1,19 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
-> **Start here (2026-09-24a).**  The newest state entry — the 2026-09-23g closure wave
+> **Start here (2026-09-25).**  The newest state entry is **§“State of the project — 2026-09-25 (consolidated): the landed wave under the final-Hamiltonian convention, and the work order”** at the very end of this file.  It consolidates the 2026-09-24b … 2026-09-25 waves — twenty-one new or updated proof chapters (the QYM/SM/QG/NS enclosures, the QG density dependence, the redesigned NS mainstream leg, the sector identification, the dense-core Faris–Lavine criterion and its NS instances, the Lagrangian determinant convolution, and the interacting finite-parcel core) — re-reads every landed statement under the final-Hamiltonian convention of §B (one-particle `h` enclosed creation-left / annihilation-right; QG in its R² vielbein form with the full exponential wall, no Taylor truncation, and the interaction terms; NS and QG products-with-derivatives disposed of by the momentum-space convolution), and carries the ordered work order for the LLM-Lean4 specialist.  The prose layer added in that pass has **not** been compiled; step 0 of the new work order is its name-level check.
+>
+> **Previous entry point (2026-09-24e).**  The state entry at that time was **§“State of the project — 2026-09-24e”** at the very end of this file (QG density dependence at frozen/fibred density; NS mainstream leg redesigned — linear Koopman generators ESA; the sector identification `L²(ℝ⁶)^{⊗̂n} ≅ L²(ℝ^{6n})`; the `BookProofOperatorCore` build-layout decision; gap packages: status); it is followed in place by the 2026-09-24f, 2026-09-24g, 2026-09-24h and 2026-09-25 entries.
+>
+> **Previous entry point (2026-09-24d).**  The newest state entry is **§“State of the project — 2026-09-24d”** at the very end of this file (QG-3.2(b) at flat density: the 84-dim gravity Hamiltonian with the Weyl-ordered cross terms is ESA, and its enclosure; the SM operator-valued Yukawa coupling is ESA).
+>
+> **Previous entry point (2026-09-24c).**  The newest state entry is **§“State of the project — 2026-09-24c”** at the very end of this file (SM full assembly, NS and QG symmetrized enclosures, NS mainstream obstruction).
+>
+> **Previous entry point (2026-09-24b).**  The newest state entry is **§“State of the project — 2026-09-24b”** at
+> the very end of this file: the 2026-09-24a work order executed (gates run; SM bosonic enclosure,
+> non-abelian YM and NS reduced-core ESA proved and compiled) and the remaining order.  The
+> 2026-09-24a entry below is kept for context.
+>
+> **Previous entry point (2026-09-24a).**  The newest state entry — the 2026-09-23g closure wave
 > (`sm_h_esa` unconditional) merged with its prose layer, read under the final-Hamiltonian
 > convention of §B (one-particle `h` enclosed creation-left / annihilation-right), and the
 > current ordered work order for the LLM-Lean4 specialist — is
@@ -15445,3 +15458,683 @@ this pass), and `CONSOLIDATED_PLAN.md` through §2026-09-23g (+134).
 L3–L11 on the strength of this wave; edit a definition that a `../unfer/docs/*.cdb` module
 verifies without re-running that module to exit 0 first; report the Friedrichs certificate as
 the Faris–Lavine certificate or vice versa.
+
+## State of the project — 2026-09-24b: work order 2026-09-24a executed — gates run, the enclosures proved (SM bosonic, non-abelian YM, NS reduced), what remains
+
+> **What this section is.**  The current state entry; it supersedes §2026-09-24a as the entry
+> point.  Everything claimed as *proved* below was compiled in this pass (`lake build BookProof`,
+> 8803 jobs, success) and axiom-audited (`Work/EnclosureEsaAudit.lean`: `propext`,
+> `Classical.choice`, `Quot.sound` only).
+
+### 1. Step 0 (gates) — results
+
+| gate | result |
+| :-- | :-- |
+| `lake build BookProof` | **passes** (8802 jobs before this pass's additions, 8803 after) |
+| `lake build BookProofOperatorCore` | **passes** (8379 jobs) |
+| `lake build Work.SmFarisLavineAudit Work.SmComparisonEsaAudit` | **passes**; every audited name depends only on `propext`, `Classical.choice`, `Quot.sound` |
+| `rg -n "sorry\|admit" BookProof/` | no `sorry`/`admit` in any proof (matches are prose only) |
+| `python3 scripts/import_components.py BookProof --check` | **exits 1**, both on the tree as merged (2026-09-24a) and after this pass — the 2026-09-24a statement “the check passes (exit 0)” was not accurate.  The failures are the pre-existing `root … not listed` backlog of `BookProofLieRep` (86 lines) plus the six `MISSING NAME` notices.  Regenerating the stanzas with `--lakefile` would **delete the `BookProofOperatorCore` target** (the generator now finds it merged into the `BookProofLieRep` component, 610 modules), which the gate list above names; the lakefile was therefore **not** regenerated.  Decision owed: either give the merged component a name that keeps `BookProofOperatorCore`, or retire that target in `BUILD_COMPONENTS.md` and this plan.  This pass's new maximal modules (`ChapterSmFockEsa`, `ChapterNsReducedCoreEsa`) join that backlog in the same class; `ChapterSmComparisonEsa` left it (it is now imported). |
+| name-level check of the prose layer | every `#check @…` in `Book/StandardModel.lean`, `Book/SecondQuantizationEsa.lean`, `Book/NsOneParticleHamiltonian.lean` resolves against `import BookProof`, **after** fixing four stale names in `Book/SecondQuantizationEsa.lean` and two in `Book/SpinStatistics.lean` (`GroupAverage.avgProj`, `…mem_range_avgProj_iff`, `…isReducingProjection_avgProj`, `…essentiallySelfAdjointOn_invariantSector` live in `BookProof.GroupAverage.UnitaryRep`).  A whole-book run finds further unresolved `#check` names in other chapters (e.g. `Book/NavierStokesHashimoto.lean` — `BookProof.NavierStokesFlow.nsDiffH_*`; and chapters that write names relative to an `open`, e.g. `ChapterDutchBook.*`, `ChapterEulerNState.*`); not addressed in this pass. |
+| `lake build Book` | fails in the Verso dependency with `unknown module prefix 'MD4Lean'` (`Verso.Code.External.Files`, `VersoManual.Markdown`) — the known `MD4Lean` environment caveat of §2026-09-22e, recorded, not worked around; `lake exe book` therefore not run. |
+
+### 2. What was proved (new chapters, all imported by `BookProof.lean`)
+
+* **`BookProof/ChapterYangMillsNonAbelianEsa.lean`** (namespace `BookProof.YangMillsNonAbelianEsa`)
+  — work order step 2, *done*.
+  * `deficiencyTrivialAt_of_esa`: for a symmetric operator on a Hilbert space, trivial deficiency
+    at `± i` gives trivial deficiency at every non-real point (from `deficiencyTrivialAt_of_dense_range`);
+    `essentiallySelfAdjointOn_affine`: `a • K + b` (`a > 0`, `b` real) is ESA when `K` is.
+  * `weylPoly_eq_hamCoreS`, **`weylPoly_esa`** — the instrument packaged once: every Weyl-type
+    operator `½Σ_m π_{idx m}² + ½Σ_j Φ_j²` on `polyGaussCore d` with `idx` injective and real
+    polynomial fields satisfies `2H + 1 = −Δ_S + W`, `W = Σ_j Φ_j² + 1`, hence is ESA.
+  * `ymHamiltonian_eq_weylPoly` (by `rfl`), **`ym_h_esa`**: the non-abelian `ymHamiltonian
+    (coreRepPoly 99) fabc` is ESA on `polyGaussCore 99` for **arbitrary real** `fabc` — the QYM
+    row's obligation (i), one-particle.
+  * **`ym_dGamma_esa`**: `dGammaCoreOp (L2dSpace 99) …` (creation left / annihilation right) is ESA on
+    the finite-particle domain over `polyGaussCore 99` — obligation (ii), via
+    `EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa`.  (`C_c^∞` is covered by
+    `DegKatoEsa.ccHamS_esa` directly; no separate statement was added.)
+* **`BookProof/ChapterSmFockEsa.lean`** (namespace `BookProof.SmFockEsa`) — work order step 1,
+  *bosonic sector done*.
+  * `smSectorHam_eq_weylPoly` (by `rfl`), **`smSectorHam_esa`**: every number sector of
+    `smFockHam` is ESA on `polyGaussCore (n·163)`;
+  * **`smFockHam_esa`**: the Hamiltonian of record `smFockHam P` is ESA on `smFockCore`
+    (`dsOp_essentiallySelfAdjointOn`);
+  * **`sm_dGamma_esa`**: `dΓ(h)` in the `dGammaCoreOp` spelling is ESA on the finite-particle domain
+    over `polyGaussCore 163` (the lift applied to `sm_h_esa`).
+  * **Still open (step 1 proper):** the assembly `h_full = h_bosonic ⊗ (smDirac + smYukawa)` —
+    nothing in this pass touches the CAR sector; the enclosed operator is bosonic.
+* **`BookProof/ChapterNsReducedCoreEsa.lean`** (namespace `BookProof.NsReducedCoreEsa`) — a partial
+  NS result found while scoping step 3.
+  * `redHam_eq_weylPoly` (by `rfl`), **`redHam_esa`**: every reduced `n`-parcel sector (advection
+    included) is ESA on `polyGaussCore (n·6)`; `n = 1` is one-particle;
+  * **`nsRedFullFockHam_esa`**: the reduced outer operator is ESA on its finite-parcel core
+    `nsRedFockCore` — previously only on its own Friedrichs domain (`nsRedFullOuterN_esa`).
+  * This is **not** step 3: the identification of the parcel sectors with symmetric tensor powers
+    (`Good` for the NS pair, `essentiallySelfAdjointOn_bosonic_core` for `nsSpDGamma`) is still owed.
+
+Prose updated (only after compilation): `Book/StandardModel.lean` (new section “The Enclosure, Made
+Explicit”; the “no such instance is claimed” sentence corrected), `Book/SecondQuantizationEsa.lean`
+(instances recorded), `Book/NsOneParticleHamiltonian.lean` (verified list), `HONEST_BOUNDARIES_SM.md`
+(L2 row and module map).  New math spans use the open-only `` $`…` `` form; note that the
+2026-09-24a sections of `Book/StandardModel.lean` and `Book/SecondQuantizationEsa.lean` use the
+closed `` $`…`$ `` form, contrary to the open-only convention of the work order — not changed in this pass (unverified how Verso renders the trailing `$`, since the book target cannot be built here).
+
+### 3. Remaining work order (unchanged items renumbered)
+
+1. SM fermionic assembly (`h_full`, CAR sector) before enclosure — §D6b-SM Step 3 item 3.
+2. NS symmetrization instance (old step 3).
+3. QG `secCore` spelling (old step 4).  Note: the instrument of this pass needs a **polynomial**
+   potential on the Gauss core (`hamCoreS_esa`); the QG exponential wall is smooth, so
+   `ccHamS_esa` covers `C_c^∞`, but the transfer to the Gauss core would need a non-polynomial
+   version of `exists_core_graph_approx`.
+4. QG-3.2(a)/(b) (old step 5), 5. NS mainstream leg (old step 6), 6. gap packages (old step 7).
+   On the QYM one-particle form gap: the three spatial coordinates enter neither the momenta nor
+   the potential of `ymHamiltonian`, and `B` is affine in the 72 derivative coordinates (which
+   carry no momenta), so a positive form gap `⟪x, H₁x⟫ ≥ μ‖x‖²` should be checked for truth
+   (try the negation) before any proof effort.
+7. Build-layout decision on `BookProofOperatorCore` (§1 above).
+
+## State of the project — 2026-09-24c: SM full assembly, NS and QG symmetrized enclosures, and an obstruction on the NS mainstream leg
+
+> **What this section is.**  The current state entry; it supersedes §2026-09-24b as the entry
+> point.  Four new proof chapters, all imported by `BookProof.lean`, audited by
+> `Work/FullEnclosureAudit.lean` (every audited name: `propext`, `Classical.choice`,
+> `Quot.sound` only), no `sorry`/`axiom`.
+
+### 1. What was proved
+
+* **`BookProof/ChapterSmFullEnclosure.lean`** (namespace `BookProof.SmFullEnclosure`) — item 1 of
+  the 2026-09-24b order (SM fermionic assembly), *done in the fixed-Higgs-background form*.
+  * `smFermiSpace n`, `smFullSpace n = L²(ℝ¹⁶³) ⊗̂ FermiFock n`, `smFullCore n =
+    polyGaussCore 163 ⊗ FermiFock n`;
+  * `smFullHam P hD M z = h_B ⊗ 1 + 1 ⊗ (smDirac hD + smYukawa M z)` with `smFullHam_tmul`
+    (formula on elementary tensors) and `smFullHam_fermi_block`;
+  * `smFullHam_symmetricOn`, `smFullCore_dense`, `smFermiHam_esa` (from `sm_fermi_esa`, `N = 1`),
+    **`smFull_h_esa`** (one-particle; `TensorSumEsa.essentiallySelfAdjointOn_cpairDom_esa` fed with
+    `sm_h_esa` and `sm_fermi_esa`), **`smFull_dGamma_esa`** (`dΓ(h_full)`, creation left /
+    annihilation right, ESA on the finite-particle domain).
+  * Boundary: the Yukawa term is `smYukawa M z` with a *constant* Higgs value `z`, as defined in
+    `ChapterSmDiracYukawa`; `h_full` is therefore a tensor **sum** (§E.4: a tensor sum is not an
+    interaction).  An operator-valued Yukawa coupling `φ(q) ⊗ ψ̄Mψ` is not covered.
+* **`BookProof/ChapterNsSymmetricSector.lean`** (namespace `BookProof.NsSymmetricSector`) — item 2
+  (NS symmetrization instance).
+  * `spHam_eq_weylPoly` (`rfl`), **`spHam_esa`**: the one-body generator `H_sp` (advection
+    included) is ESA on `polyGaussCore 6`;
+  * **`nsSp_bosonic_core_esa`**: for every `n`, the `n`-particle derivation on the symmetric tensor
+    power is ESA on `bosonicProj (polyGaussCore^{⊗n})` — `PermSector.essentiallySelfAdjointOn_bosonic_core`
+    instantiated (the `Good` compatibilities are supplied generically by `permRep`);
+  * **`nsSp_bosonicFock_esa`**, **`nsSp_hbosonicFock_esa`**, **`nsSp_dGamma_esa`**.
+  * Still owed: the unitary identification of `L²(ℝ^{6n})` (the parcel sectors of
+    `nsRedFullFockHam`) with `L²(ℝ⁶)^{⊗n}`, and of the `ℓ²` spelling `dGammaOp (nsSpCol e ν k)`
+    with the `IPSpace` spelling used here.
+* **`BookProof/ChapterQgSymmetricSector.lean`** (namespace `BookProof.QgSymmetricSector`) — item 3
+  (QG `secCore` spelling).  The 2026-09-24b note that a non-polynomial graph approximation is
+  needed does not apply: the one-particle core of `qgFull_esa_core_fl` is `secCore` itself
+  (finite sums of `C_c^∞` fibres), where ESA is already proved.
+  * `qgSecSpace = ⟨Sec GMode⟩`, `qgFullOp W g = secHam W (qgFullModes g)` (full exponential wall,
+    no Taylor truncation, interaction terms);
+  * **`qgFull_bosonic_core_esa`**, **`qgFull_bosonicFock_esa`**, **`qgFull_hbosonicFock_esa`**,
+    **`qgFull_dGamma_esa`**.
+  * Not covered: the 84-dim `qg3DHamiltonian` with cross terms (QG-3.2(a)/(b), item 4).
+* **`BookProof/ChapterNsEnergySurjectivityObstruction.lean`** (namespace
+  `BookProof.NsEnergySurjectivityObstruction`) — a *negative* result on item 5 (NS mainstream leg).
+  * `countable_span_ne_top` (Baire: a countably spanned subspace of an infinite-dimensional
+    Banach space is proper), `not_finiteDimensional_L2d` (`d ≥ 1`), `polyGaussCore_ne_top`;
+  * **`not_nsEnergy_surjective`**: for `d ≥ 1`,
+    `¬ ∀ f : L2d d, ∃ x : polyGaussCore, nsEnergyOp x + x = f`.  This is exactly the named
+    hypothesis `hsurj` of `NsKoopman.nsKoopman_esa_of_energy_comparison`, which is therefore
+    **vacuous as stated**.  The surjectivity of `N_E + 1` must be taken on a larger domain (e.g.
+    the maximal domain of the multiplication operator); note also (informal, not formalized) that the Koopman generator is a
+    first-order differential operator, which multiplication by `1 + ‖u‖²` does not dominate, so
+    the Faris–Lavine route with the Leray energy needs re-design, not only a new domain.
+
+Prose updated after compilation: `Book/StandardModel.lean` (new section “The Full One-Particle
+Hamiltonian: Bosonic and Fermionic Sectors Together”), `Book/NsOneParticleHamiltonian.lean`
+(verified/open lists), `Book/NsComparisonOperator.lean` (the obstruction),
+`HONEST_BOUNDARIES_SM.md` (L2 row, module map).
+
+### 2. Remaining work order
+
+1. QG-3.2(a)/(b) for the 84-dim `qg3DHamiltonian` (unchanged).
+2. NS mainstream leg — re-design: `hsurj` on `polyGaussCore` is refuted; choose a domain and a
+   comparison that dominates the first-order generator, or use a completeness-of-flow argument.
+3. NS/QG sector identifications (`L²(ℝ^{6n}) ≅ L²(ℝ⁶)^{⊗n}`; `ℓ²` vs `IPSpace` spelling).
+4. SM: operator-valued Yukawa coupling (a genuine boson–fermion interaction), if wanted.
+5. Gap packages (unchanged).  On the QYM one-particle form gap: for `fabc = 0` the operator is
+   `½Σπ_A² ⊗ 1 + 1 ⊗ ½Σ w²` in suitable linear coordinates (`w` the 24 antisymmetrized derivative
+   combinations), whose spectrum starts at `0` with no gap, so a positive form gap cannot hold for
+   the abelian case (informal observation, not formalized); the non-abelian case is not settled.
+6. Build-layout decision on `BookProofOperatorCore` (unchanged); the four new chapters join the
+   `--check` root backlog.
+
+## State of the project — 2026-09-24d: QG-3.2(b) at flat density (84-dim gravity Hamiltonian with the Weyl-ordered cross terms ESA, and its enclosure) and the SM operator-valued Yukawa coupling
+
+> **What this section is.**  The current state entry; it supersedes §2026-09-24c as the entry
+> point.  Three new proof chapters (`ChapterQg3DCrossTermEsa`, `ChapterTensorKatoRellich`,
+> `ChapterSmYukawaCoupling`), imported by `BookProof.lean`, audited by
+> `Work/QgCrossTermAudit.lean` and `Work/SmYukawaCouplingAudit.lean` (every audited name:
+> `propext`, `Classical.choice`, `Quot.sound` only), no `sorry`/`axiom`.
+
+### 1. What was proved — `BookProof/ChapterQg3DCrossTermEsa.lean` (namespace `BookProof.Qg3DCrossTermEsa`)
+
+Item 1 of the 2026-09-24c order (QG-3.2(a)/(b)), route (b) — direct ESA of the operator with the
+cross terms — **in the flat-density form**.
+
+* Observation that makes it work: at the flat density `e = 1` (so `y = √e = 1`, `χ = δ`) every
+  term of the book's 3D density `(1/16)𝒮² − (1/24)𝒫² + ½𝒮·E + ⅓𝒫·E − (…)` is quadratic in the
+  canonical pair, so the operator is a general real quadratic Hamiltonian, covered by
+  `FullQuadratic.fqOp_essentiallySelfAdjoint` (no sign/ellipticity hypothesis; Carleman-flux
+  proof).  This is an identification, not a perturbation argument, and the tensor-sum theorem is
+  not used.
+* `qgCouplingPoly` / `qgCouplingOp` — arbitrary Weyl-ordered quadratic coupling
+  `Σ (Q'ᵢⱼ xᵢxⱼ + Cᵢⱼ ½(xᵢπⱼ + πⱼxᵢ)) + Σ (bᵢxᵢ + b'ᵢπᵢ)`; `fqPoly_add_coupling` (absorption into
+  `fqPoly`); `qgWithCoupling_eq_fqOp`; **`qgWithCoupling_esa`**: for every real signature `κ` and
+  all real coupling data, `½Σκ_jπ_j² + ½ΣT_m² + coupling` is ESA on `polyGaussCore 84`.
+* The book's cross terms: `qgEta`, `pVec` (`p^{ab} = η^{bb} π_{e_b{}^a}`), `eVec`
+  (`E_{ab} = ∂_0 e_b{}^a`), `calPVec`, `calSVec`, `eTrVec`, `bookCrossMat` (coefficients of
+  `½𝒮^{ab}E_{ab} + ⅓𝒫E_a{}^a`); **`bookCrossMat_eq_sym`**: the trace parts cancel,
+  `½𝒮^{ab}E_{ab} + ⅓𝒫E_a{}^a = ½Σ(p^{ab} + p^{ba})E_{ab}`; `bookCrossMat_idx11` (non-vacuity: a
+  nonzero entry).
+* `qg3DCrossHamiltonian Q' = qg3DHamiltonian + qgCouplingOp Q' bookCrossMat 0 0`,
+  `qg3DCross_eq_fqOp`, **`qg3DCross_esa`** (hyperbolic `qgKappa`, torsion potential, the book's
+  Weyl-ordered cross terms, arbitrary real quadratic bracket `Q'`), `qg3DCross_stone_flow`,
+  `qg3DCross_symmetricOn`, **`qg3DCross_dGamma_esa`** (enclosure `dΓ(h)`, creation left /
+  annihilation right, ESA on the finite-particle domain), **`qg3DCross_dGammaOp_esa`** (the
+  occupation-number spelling `dGammaOp (hermCol e …)`, ESA on the finite-occupation core, via
+  `QuadFockEsa.dGamma_fqPoly_essentiallySelfAdjointOn_core`).
+
+**Boundary (do not collapse).**  The genuine density dependence — the `1/e` of the kinetic term,
+the factor `y` in `𝒮 = y𝒮̃`, and the degree-four polynomial `e` in front of the bracket — is not
+covered; with it the operator is no longer quadratic (the bracket becomes a sextic, indefinite
+potential), and `fqOp` does not apply.  The index conventions for `p^{ab}` and `E_{ab}` are a
+modelling choice, but `qgWithCoupling_esa` holds for *every* real cross matrix, so the conclusion
+does not depend on them.  The bracket is not written index by index (it enters as an arbitrary
+real matrix `Q'`).  QG-3.2(a) (vanishing on the physical sector) is untouched.
+
+Prose updated: `Book/DiffeomorphismsGravity.lean` (new paragraph after the
+`Qg3DGaugeEsa` block, `#check` names verified to resolve against the compiled module).  The
+docstring of `BookProof/ChapterQgSymmetricSector.lean` still says the 84-dim operator with cross
+terms “is not covered”; that remains true of *that* chapter's statements (its operator is
+`secHam`), and the flat-density cross-term result is here.
+
+### 1b. What was proved — the SM operator-valued Yukawa coupling (item 4 of 2026-09-24c)
+
+* **`BookProof/ChapterTensorKatoRellich.lean`** (namespace `BookProof.TensorKatoRellich`) — a
+  general instrument: `pairLiftOp` (a linear map `D_A ⊗ D_B → H ⊗ K` read on `cpairDom`;
+  `cpairOp_eq_pairLiftOp`), `couplingPoly V Y = Σᵢ Vᵢ ⊗ Yᵢ`, `mapPoly_symm`,
+  `symmetricOn_coupling`, **`coupling_relBound`** (for a finite-dimensional second factor and
+  `Vᵢ` that are `A`-bounded with relative bound `0`, the coupling is bounded relative to the
+  tensor sum with relative bound `< 1`; proof by an orthonormal expansion in the finite factor,
+  `norm_sq_sum_tmul_orthonormal`), **`essentiallySelfAdjointOn_tensorSum_add_coupling`**
+  (Kato–Rellich, `KatoRellich.essentiallySelfAdjointOn_add_relBounded`).
+* **`BookProof/ChapterSmYukawaCoupling.lean`** (namespace `BookProof.SmYukawaCoupling`):
+  `higgsMul a` (multiplication by `φ_a`), `higgs_sq_le` (`φ_a² ≤ (2/λ)W² + v² + ¼`),
+  `norm_higgsMul_sq_le`, `norm_wall_sq_le_quadForm`, **`higgsMul_relBound`** (for `λ > 0`:
+  `‖φ_a u‖ ≤ ε‖h_B u‖ + C_ε‖u‖` for every `ε > 0`), `smYukawa_symmetricOn`,
+  **`smYukawa_eq_re_im`** (`smYukawa M z = Re z · smYukawa M 1 + Im z · smYukawa M i`),
+  `smYukawaFullHam P hD M = h_B ⊗ 1 + 1 ⊗ smDirac hD + φ₀ ⊗ smYukawa M 1 + φ₁ ⊗ smYukawa M i`,
+  **`smYukawa_h_esa`** (ESA on `polyGaussCore 163 ⊗ FermiFock n`, `λ > 0`, Hermitian `hD`,
+  arbitrary `M`), **`smYukawa_dGamma_esa`** (enclosure, finite-particle domain).  Audit:
+  `Work/SmYukawaCouplingAudit.lean`.
+* Boundary: `λ > 0` is needed (the relative bound comes from the Higgs wall); the fermionic
+  mode set is finite; the choice of the two doublet components `smPhi 0`, `smPhi 1` carrying the
+  coupling is a modelling choice (the proof works for any).
+* Correction to 2026-09-24c item 5: the abelian (`fabc = 0`) failure of the QYM one-particle
+  form gap is **already formalized** — `BookProof/ChapterYangMillsAbelianNoGap.lean`,
+  `ym_abelian_no_one_particle_form_gap` (imported by `BookProof.lean`); the 2026-09-24c entry
+  called it an informal observation.
+
+Prose updated: `Book/StandardModel.lean` (new section “The Yukawa Coupling as an Operator”),
+`HONEST_BOUNDARIES_SM.md` (L2 row, module map).
+
+### 2. Remaining work order
+
+1. QG: the density-dependent operator (non-constant `e`), or QG-3.2(a).
+2. NS mainstream leg — redesign (unchanged from 2026-09-24c; note that a Faris–Lavine comparison
+   `−Δ + |u|^{2k}` fails the commutator bound by one power of `|u|` for every `k`, so a
+   completeness-of-flow argument is the likelier route — informal, not formalized).
+3. NS/QG sector identifications (unchanged).  Note: the graded-band Schur gate
+   (`GradedBandSchur`) needs entry growth `≤ C(deg+1)`, which the quartic NS one-body generator
+   violates, so the ℓ²-spelling ESA of `dGammaOp (nsSpCol …)` on the finite-occupation core does
+   not follow from it.
+4. SM operator-valued Yukawa coupling — **done** (§1b); open refinements: infinitely many
+   fermion modes, and the full doublet structure of the Yukawa term.
+5. Gap packages (unchanged; the abelian QYM case is settled negatively in
+   `ChapterYangMillsAbelianNoGap`, the non-abelian case is open).
+6. Build-layout decision on `BookProofOperatorCore` (unchanged; the new chapter joins the
+   `--check` root backlog).
+
+## State of the project — 2026-09-24e: density dependence of the QG Hamiltonian, the NS mainstream leg redesigned, the sector identification, and the build-layout decision
+
+> **What this section is.**  The current state entry; it supersedes §2026-09-24d as the entry
+> point.  Three new proof chapters (`ChapterQg3DDensityEsa`, `ChapterNsLinearKoopmanEsa`,
+> `ChapterL2TensorPowerUnitary`), imported by `BookProof.lean`, audited by
+> `Work/DensitySectorAudit.lean`, no `sorry`/`axiom`.  Items 1, 2, 3, 5, 6 of the 2026-09-24d
+> order are addressed below; each boundary is stated.
+
+### 1. QG: the density dependence (item 1 of 2026-09-24d) — `BookProof/ChapterQg3DDensityEsa.lean`
+
+* `momCalP`, `momCalS` — `𝒫 = η_{ab}χ^a{}_{a₁}χ^b{}_{a₂}p^{a₁a₂}` and
+  `𝒮^{ab} = χ^a{}_{a₁}χ^b{}_{a₂}(p^{a₁a₂} + p^{a₂a₁} − ⅔η^{a₁a₂}𝒫)` for an **arbitrary real inverse
+  tetrad** `χ`; `momCalP_flat`, `momCalS_flat`, `densCross_flat` (at `χ = δ` they are the vectors of
+  `Qg3DCrossTermEsa`; `qg3DDensity_flat`).
+* `kinOf S P c`, `crossOf S P`; **`qg3DDensityHam e χ Qb`** — `(1/(16e))𝒮² − (1/(24e))𝒫² + ½𝒮·E +
+  ⅓𝒫·E − e·Qb`, Weyl ordered; **`qg3DDensity_esa`** (every real `e`, `χ`, `Qb`),
+  `qg3DDensity_stone_flow`, `qg3DDensity_dGamma_esa`, `qg3DDensity_dGammaOp_esa`.
+* The densitized form (`y = √e`, `𝒮 = y𝒮̃`): **`kinOf_absorption`** (`(1/e)(y𝒮̃)² = 𝒮̃²`),
+  `crossOf_smul`, **`qg3DDensitized_eq_density`**, **`qg3DDensity_eq_densitized`** (the physical
+  operator at `e = y²` *is* the densitized one: constant kinetic coefficient, cross terms × `y`,
+  bracket × `y²`), **`qg3DDensitized_esa`** (every real `y`, including the degenerate `y = 0`).
+* The density as a function of the background: **`qgFibredDensityHam bg Qb`** = `⊕ᵢ` of the
+  operators at `e = det (bg i)`, `χ = (bg i)⁻¹`; **`qgFibredDensity_esa`** (arbitrary family, no
+  uniformity — `1/e` may be unbounded over it; `det_smul_background`, `det_smul_one`),
+  `qgFibredDensity_posDet_esa` (all backgrounds with `det > 0`).
+* **Boundary (do not collapse).**  The density is frozen in each operator (a constant or a
+  fibre label without conjugate momentum).  The operator in which `e = det e_b{}^a` is itself a
+  multiplication operator in the canonical tetrad coordinates is **not** covered: `1/e` is not
+  defined on the Gauss–polynomial core (it is singular on `{e = 0}`), and in the densitized form
+  (`y` a coordinate) the cross terms become cubic and the bracket a quartic/sextic indefinite
+  potential under a hyperbolic kinetic term — outside every ESA instrument of the project.
+
+### 2. NS mainstream leg — redesign (item 2) — `BookProof/ChapterNsLinearKoopmanEsa.lean`
+
+* **`linKvnPoly_eq_fqPoly`** — the Weyl-ordered Koopman generator `½Σ(π_iF_i + F_iπ_i)` of every
+  affine drift `F(u) = Au + c` is the real quadratic Hamiltonian `fqPoly 0 0 Aᵀ 0 c`; hence
+  **`linKoopman_esa`** (no comparison operator, no surjectivity, no sign hypothesis),
+  `linKoopman_stone_flow`, `linKoopman_dGammaOp_esa`.
+* **`nsKoopman_stokes_esa`** — the mainstream operator `NsKoopman.nsKoopmanOp S` itself is ESA for
+  every system with vanishing advection (`drift_eq_linDrift_of_stokes`).
+* **`oseenKoopman_esa`** — the Koopman generator of the Oseen linearization at an arbitrary point
+  `ū` is ESA; `oseenDrift_eq` identifies that drift as the first-order Taylor polynomial of the
+  mainstream drift (remainder exactly `B(u − ū, u − ū)`).
+* **Boundary.**  The nonlinear generator (`B ≠ 0`) is not covered.  The redesign replaces the
+  Leray-energy Faris–Lavine route (refuted as stated: `not_nsEnergy_surjective`) by: (i) the
+  quadratic Carleman flux for the linear part (done); (ii) for the nonlinear part, completeness of
+  the classical flow + the orbit criterion `FlowDGammaEsa.deficiencyTrivialAt_of_orbits` on a
+  flow-invariant core.  (ii) needs the smooth dependence of the Galerkin flow on its initial data
+  (to make `C_c^∞` flow-invariant), which Mathlib does not provide (only Picard–Lindelöf and
+  Gronwall); that ODE infrastructure is the next concrete task of this leg.
+
+### 3. Sector identifications (item 3) — `BookProof/ChapterL2TensorPowerUnitary.lean`
+
+* `inner_prodTensor`, `prodTensorₗᵢ` (the scalar lift is an isometry for Mathlib's tensor inner
+  product); `splitIso`; `embPow` (the isometry `L²(μ)^{⊗n} → L²(μ^{⊗n})`), `embPow_succ_tmul_ae`
+  (pure-tensor formula), **`denseRange_embPow`**; **`tensorPowUnitary n : fockSector (L2Space μ) n
+  ≃ₗᵢ L²(μ^{⊗n})`** for any σ-finite `μ`, `tensorPowUnitary_coe`.
+* `l2dSectorUnitary`; `measurePreserving_uncurry_fin`, `blockSplit`/`blockJoin`,
+  `measurePreserving_blockSplit`/`_blockJoin`, `mpEquivUnitary`, `parcelRelabel`;
+  **`parcelSectorUnitary d n : fockSector (L2dSpace d) n ≃ₗᵢ L2d (n * d)`**,
+  **`nsParcelSectorUnitary`** (`d = 6`, exactly the parcel-sector space of `nsRedFockSpace`),
+  `lpFiberwise`, **`nsFockUnitary`** (`⊕ₙ L²(ℝ⁶)^{⊗̂n} ≅ nsRedFockSpace`).
+* **Boundary.**  Hilbert-space level only.  Still owed: the operator-level transport (the
+  unitary carries the sector derivation of `H_sp` on `polyGaussCore^{⊗n}` to the parcel operator
+  of `nsRedFullFockHam` on its core), and the `ℓ²` spelling `dGammaOp (nsSpCol …)` (for which the
+  graded-band Schur gate does not apply, 2026-09-24d item 3).  The QG `secHam` sectors are
+  already in the `IPSpace` spelling and need no identification.
+
+### 4. Gap packages (item 5) — status, nothing new proved
+
+* The Hashimoto → real-Hamiltonian bridge is in place and conditional by construction
+  (`YangMillsFockGapChain.ym_fock_gap_of_nested_ritz_bands`,
+  `BandEnclosure.friedrichs_form_gap_of_nested_ritz_bands`); QED is settled negatively
+  (`QedFockGapChain.photon_no_one_particle_gap`), abelian QYM likewise
+  (`YangMillsAbelianNoGap.ym_abelian_no_one_particle_form_gap`).
+* The single open analytic input remains the **non-abelian** QYM one-particle form gap.
+  Structure (informal, not formalized): `H₁` acts trivially on the 3 spatial coordinates, and the
+  72 derivative coordinates `ξ` carry no momenta, so `H₁` is the direct integral over `ξ` of the
+  24-dimensional operators `H(η) = ½Σπ_A² + ½|η + q(A)|²`, `η = εξ` (a surjection onto `ℝ²⁴`),
+  `q_{ia}(A) = ε_{ijk}f_{abc}A_{jb}A_{kc}`.  The form gap is therefore equivalent to a gap of
+  `H(η)` **uniform in `η ∈ ℝ²⁴`**; at `η = 0` this is the quartic Yang–Mills matrix model, and
+  for large `|η|` a scaling argument suggests growth like `|η|^{1/2}`.  A proof needs a
+  Simon-type lower bound uniform in `η`; it is not attempted here.
+* The QG operators of this wave are hyperbolic (the `𝒫²` direction carries `−1/(24e)`), so they
+  cannot feed a positivity/gap chain; this is recorded, not formalized.
+
+### 5. Build layout (item 6) — decided and implemented
+
+* **Decision.**  `BookProofOperatorCore` is kept.  The former part `BookProofLieRep` (the
+  `ChapterA3*` Lie-representation chapters) was merged into the operator core by chapters that
+  import both; the merged part keeps the name `BookProofOperatorCore` and `BookProofLieRep` is
+  retired.  `scripts/import_components.py` now resolves names by `NAME_PRECEDENCE`
+  (`component_name`), so a merge can never silently rename a gate target again.
+* **Orphans.**  192 modules under `BookProof/` (stale split copies `X/Part*.lean` of monolithic
+  `X.lean`) are not imported by `BookProof.lean` and are never built.  The parts are now computed
+  on the aggregator's import cone only (so the targets partition exactly what `lake build
+  BookProof` compiles); `--check` lists the orphans as a note, not a failure.  Deleting or wiring
+  them in is a separate, deliberate decision.
+* `--write-lakefile` regenerates the stanzas in place; `lakefile.toml` and the inventory of
+  `BUILD_COMPONENTS.md` were regenerated; `python3 scripts/import_components.py BookProof --check`
+  **exits 0**.
+
+### 6. Remaining work order
+
+1. QG: the density as a multiplication operator (non-frozen `e`), on a core adapted to `{e > 0}`
+   or in the densitized coordinates; QG-3.2(a).
+2. NS: ODE infrastructure (smooth dependence on initial data, global Galerkin flow from the
+   energy inequality), then the orbit criterion for the nonlinear Koopman generator.
+3. Sector identification at operator level (NS parcel operator; `ℓ²` spelling).
+4. Non-abelian QYM one-particle form gap (uniform fibre gap).
+5. Decide on the 192 orphan split copies.
+
+
+## 2026-09-24f — NS nonlinear leg: Faris–Lavine with `N = H_NS² + E`
+
+Modules: `BookProof/ChapterFarisLavineDenseCore.lean`, `BookProof/ChapterNsNonlinearFarisLavine.lean`
+(audit `Work/NsNonlinearFarisLavineAudit.lean`: every listed theorem uses only `propext`,
+`Classical.choice`, `Quot.sound`).
+
+* **Faris–Lavine on a core** (`essentiallySelfAdjointOn_of_farisLavine_dense`): the hypotheses are
+  stated only on a dense core `D`, and `N + 1` only needs a dense range from `D` rather than
+  being onto.  `dense_range_add_one_of_esa_of_pos`: for a positive `N` that range is dense as
+  soon as `N` is ESA on `D`.
+* **Square comparison** (`essentiallySelfAdjointOn_of_square_comparison`): for `H` mapping `D` into
+  itself and `E ≥ 0` with `|⟨i[H,E]⟩| ≤ c⟨E⟩`, the operator `N = H² + E` satisfies all the
+  Faris–Lavine inequalities.  Its form is `⟨N⟩ = ‖Hx‖² + ⟨E⟩`, `‖Hx‖ ≤ ‖Nx‖ + ‖x‖`, and
+  `⟨i[H,N]⟩ = ⟨i[H,E]⟩` exactly.  Hence ESA(`N`) ⇒ ESA(`H`).
+* **NS instance** (`nsKoopman_esa_of_squareComparison_esa`): for every `NsSystem`, with exact
+  quadratic advection (the convolution/triad coefficients) and any finite mode set, the comparison
+  `N_NS = H_NS² + 1 + ‖u‖²` has `⟨i[H_NS,N_NS]⟩ = ⟨−2νΣλu²⟩` (Leray), so
+  `|⟨i[H_NS,N_NS]⟩| ≤ 2νΛ⟨N_NS⟩`.  Therefore ESA of `N_NS` on the Gauss–polynomial core implies
+  ESA of the nonlinear `H_NS`.
+* **Boundary.**  ESA of `N_NS` is an explicit hypothesis and is not proved.  Informally, no
+  polynomial harmonic-type `N` can work: the quadratic advection stretches momenta at a rate
+  `∝ |u|`.  With all Fourier modes the constant `2νΛ` is infinite, which matches the backward
+  ill-posedness of viscous NS.
+
+
+## 2026-09-24g — NS Lagrangian leg: determinant constraint in momentum convolution, through Faris–Lavine
+
+Modules: `BookProof/ChapterNsLagrangianDetConvolution.lean`,
+`BookProof/ChapterKoopmanLyapunovFarisLavine.lean`, `BookProof/ChapterNsLagrangianDetFarisLavine.lean`
+(audit `Work/NsLagrangianDetAudit.lean`: every listed theorem uses only `propext`,
+`Classical.choice`, `Quot.sound`).  All three are imported at the end of `BookProof.lean`.
+
+* **Fields.**  Lagrangian displacement `ξ(a) = Σ_{k∈K} (ξ̂_k e^{ik·a} + c.c.)` (real,
+  `dispField_im`), coefficients `ξ̂_{k,i} = x_Re + i x_Im` as real phase-space coordinates, plus the
+  material velocity coefficients `v̂_{k,i}`.
+* **Derivatives as momenta.**  `gradCoef = i w_c ξ̂_{m,r}`; `hasDerivAt_dispField` proves this is the
+  actual derivative of the displacement field.
+* **Determinant as a momentum convolution** (this fixes the rank-one collapse of item 6).
+  `detCoef q = Σ_{τ : Fin 3 → Option(signed modes), Σ w(τ r) = q} det[row r of B_{τ r}]`, with
+  `B_none = I`.  `det_deformation_eq`: `det(I + ∇ξ(a)) = Σ_q detCoef_q e^{iq·a}` at every point and
+  every configuration (multilinearity of `det` in the rows).  Cross-mode minors survive.
+  `volume_residual_eq` gives the same for `det F − 1`.
+* **Constraint.**  Volume penalty `V_κ = (κ/2)Σ_q |volCoef_q|²` (degree 6, real, `≥ 0`);
+  `det_eq_one_of_volPot_eq_zero`: `κ > 0`, `V_κ = 0` ⇒ `det F(a) = 1` for all `a`.
+* **Dynamics.**  `ξ̇ = v`, `v̇ = −ν|k|²v − ∂V_κ/∂ξ`; energy `E = 1 + ½|v|² + V_κ`.
+  `lagFlux_eq`: `F·∇E = −νΣ|k|²v²` (the constraint force does no net work); `lagDiv_eq`:
+  `div F = −νΣ|k|²`.
+* **Generic Faris–Lavine** (`kvnGen_esa_of_lyapunov`): for any real polynomial field `G` and real
+  `E ≥ 0` with `|G·∇E| ≤ cE` pointwise, ESA of `N = H_G² + E` on the Gauss–polynomial core implies
+  ESA of the Koopman generator `H_G`.
+* **Lagrangian instance** (`lagKoopman_esa_of_comparison_esa`): `N_L = H_L² + E` has
+  `N_L ≥ 1`, `‖H_L x‖ ≤ ‖N_L x‖ + ‖x‖`, `⟨i[H_L,N_L]⟩ = ⟨−νΣ|k|²v²⟩`,
+  `|⟨i[H_L,N_L]⟩| ≤ 2νΛ⟨N_L⟩` (`Λ = Σ|k|²`), hence ESA(`N_L`) ⇒ ESA(`H_L`).
+* **Boundary.**  ESA of `N_L` is an explicit hypothesis (as in 2026‑09‑24f).  Incompressibility is
+  imposed by the penalty (bulk modulus `κ`); `κ → ∞` is not taken.  The viscous term is `νΔ_a v`
+  in reference coordinates (exact at `F = I`).
+
+## State 2026-09-24h — Lagrangian one-parcel ESA carried to the outer Fock space
+
+* Located the unconditional one-particle ESA proof in Lagrangian variables:
+  `LagrangianCanonical.lagCan_esa` (`ℓ²(Fin 3 → ℕ)`, Hermite core,
+  `h = ½ΣP² + νΣQ² + f·P`, hypotheses `ν > 0`, constant `f`; no pressure/constraint term,
+  no nonlinearity, one parcel).
+* New module `BookProof/ChapterNsLagrangianOuterFockEsa.lean`: `lagOne_dGamma_esa`
+  (ESA of `dΓ(h)` on the finite-particle domain over the Hermite core), bosonic/fermionic and
+  Hilbert-space versions, and the conditional `lagKoopman_dGamma_esa_of_comparison_esa`
+  (inherits ESA of `N_L`). All from `EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa`
+  and `FockStatistics.*Fock_esa`; audit `Work/NsLagrangianOuterFockAudit.lean`.
+* Scope: `dΓ(h)` is non-interacting; the interacting parcel-coupled outer Hamiltonian of
+  `ChapterNavierStokesFullLagrangianFock` is not a second quantization and remains open.
+  Details: `NS_LAGRANGIAN_OUTER_FOCK_ESA.md`.
+
+## State 2026-09-25 — ESA of the interacting full NS Hamiltonians on the finite-parcel core
+
+* New module `BookProof/ChapterNsFullLagrangianFockEsa.lean` (imported from `BookProof.lean`;
+  lakefile regenerated, `--check` exits 0; audit `Work/NsFullLagrangianFockEsaAudit.lean`).
+* `lagSectorHam_esa` / `nsSectorHam_esa`: every parcel-number sector of the full Lagrangian /
+  Eulerian Hamiltonian is ESA on the Gauss–polynomial core, as an instance of the existing
+  `YangMillsNonAbelianEsa.weylPoly_esa` (sectors are `weylPoly` by `rfl`; only injectivity of
+  the momentum coordinates was new).
+* `lagFullFockHam_esa` / `nsFullFockHam_esa`: ESA on the finite-parcel core, by the existing
+  `DirectSumEsa.dsOp_essentiallySelfAdjointOn`.
+* `lagFullFockHam_selfAdjointExtension_unique` / `nsFullFockHam_selfAdjointExtension_unique`:
+  the lifted Friedrichs realization is the unique self-adjoint extension.
+* This closes the item left open in 2026-09-24h. Scope unchanged: auxiliary sum-of-squares
+  operator, not the Koopman generator; no continuum limit.
+
+## State of the project — 2026-09-25 (consolidated): the landed wave under the final-Hamiltonian convention, and the work order
+
+> **What this section is.**  The current entry point; it supersedes the individual 2026-09-24b
+> … 2026-09-25 entries as the *reading guide* — those remain the detailed per-wave record and
+> are not restated line by line here.  This section does three things the per-wave entries do
+> not: it fixes the convention under which every landed theorem is to be read (§1), it
+> inventories what the wave established with each statement's status and honest boundary (§2),
+> and it derives the implications of that convention for interpretation and for the next proofs
+> (§3), before the gates (§4) and the ordered work order for the LLM-Lean4 specialist (§5).
+>
+> **Compilation status — read before anything else.**  The wave entries record their own gates
+> (`lake build BookProof` passing, the `Work/*Audit.lean` axiom audits, `--check` exiting 0).
+> The **prose layer added afterwards — the new sections of `Book/NsComparisonOperator.lean`,
+> `Book/NsOneParticleHamiltonian.lean`, `Book/DiffeomorphismsGravity.lean` and
+> `Book/FourierElimination.lean` — has not been compiled**, deliberately: name-level
+> verification of its `#check` blocks is step 1 below, and a compile is the specialist's to
+> run, not this pass's.
+
+### 1. The convention of record, and how to read every theorem below under it
+
+**The final Hamiltonian, for all four sectors (QYM, QED, QG, NS).**  The object of record is the
+**outer enclosure** of an inner one-particle Hamiltonian on the nested Fock space,
+
+```
+H = Σ_{ij} h_{ij} C†(e_i) A(e_j) = dΓ(h),     creation on the left, annihilation on the right,
+```
+
+with the inner operator `h` entering **verbatim** (only a constant shift, used to establish
+positivity, is allowed).  Because the outer Hamiltonian is quadratic in the outer ladders for
+*any* `h`, a quartic nonlinearity, an exponential wall or a singular potential lives entirely
+in the one-particle matrix elements and adds **no outer vertex**; the outer level is number
+conserving, so every enclosure question is fibrewise.  Two spellings are in force and are
+interchangeable only where an identification theorem exists: `dGammaCoreOp` (finite-particle
+domain over the core) and `dGammaOp` (occupation-number `ℓ²` spelling on the finite-occupation
+core).
+
+**Per sector, what `h` is.**
+
+* **QYM** — `ymHamiltonian`: `½Σπ² + ½ΣB²` with the *full* cubic magnetic polynomial (so `B²` is
+  quartic) and the derivative coordinates carried as independent coordinates; `h` is enclosed
+  as `ym_dGamma_esa` once `ym_h_esa` holds (arbitrary real structure constants).
+* **QED** — the abelian case of the same `h` (`fabc = 0`); its one-particle form gap is proved
+  *absent* (`YangMillsAbelianNoGap.ym_abelian_no_one_particle_form_gap`), as is the photon gap
+  (`QedFockGapChain.photon_no_one_particle_gap`) — these are negative statements about `h`,
+  fully consistent with the enclosure convention.
+* **QG** — the model of record is the **R² (Starobinsky) theory in its vielbein/TEGR
+  realization: the exact exponential Einstein-frame wall with no Taylor truncation, plus the
+  scalaron–vielbein interaction terms** — `secHam W (qgFullModes g)` on
+  `Sec GMode = ℓ²(GMode; L²(ℝ))`, enclosed in `QgSymmetricSector.qgFull_dGamma_esa`.  The
+  quadratic / small-field scalaron realizations (`qg_starobinsky_vielbein_hamiltonian` as
+  opposed to `_full`), and the *metric-route* densitized/conformal-mode chapters, are **separate,
+  labeled realizations** — never the record; when a document says "the QG Hamiltonian", it means
+  the vielbein full-exponential operator with the interaction terms inside `h`.
+* **NS** — the one-particle operator enclosed is the positive sum-of-squares generator
+  `H_sp = H_visc + H_advect` on the Fourier-eliminated six-coordinate parcel
+  (`nsSpDGamma_*`).  The **mainstream** Koopman–von Neumann generator is symmetric but not
+  bounded below, and is *not* the operator that gets enclosed; the auxiliary Weyl sum-of-squares
+  operators (`redHam`, `nsFullFockHam`, `lagFullFockHam`, `H_sos`) are **comparison objects**,
+  never the final Hamiltonian.
+
+**Derivative variables — the momentum-space convolution (NS and QG only).**  Where a product in
+coordinate space involves spatial derivatives of the fields, the project does not gauge-fix the
+derivative modes away and does not expand in coordinates: it performs the spatial Fourier
+substitution inside the squares, so that in momentum space the product becomes a **convolution**.
+Three instances are in force and every new proof touching such products must use them:
+
+1. NS advection: `u_j∂_mu_i` becomes the triad convolution `Σ_{p+q=k} i(û_p·q)û_q`
+   (`NsAdvectionConvolution.fourier_advection_convolution`);
+2. QG: the twenty-seven vielbein derivative modes are eliminated the same way
+   (`ChapterQgFourierElimination`, `ChapterQgFullEliminated`);
+3. Lagrangian NS: `det(I + ∇ξ)` becomes the triple momentum convolution `detCoef`
+   (`NsLagrangianDet.det_deformation_eq`), cross-mode minors included.
+
+BRST charges and ghost projections are consistency checks on the twin's operators, not the
+definition of the theory — the formal route eliminates the derivative modes outright.
+
+### 2. What the landed wave established — the inventory
+
+Every item below is `sorry`-free and `axiom`-free and imported by `BookProof.lean`; audits are
+the `Work/*.lean` files named in the wave entries.  Status is one of **U** (unconditional),
+**C** (conditional — the hypothesis is named and not proved), **N** (negative/obstruction),
+**B** (boundary — what the item explicitly does not cover).
+
+**Instruments (sector-independent), 2026-09-24b … 09-25:**
+
+* `YangMillsNonAbelianEsa.weylPoly_esa` — every Weyl-type `½Σπ² + ½ΣΦ²` with distinct momentum
+  coordinates and real polynomial fields is ESA on the Gauss core (**U**); this one theorem
+  now carries the QYM one-particle row, every NS sector, and the interacting Lagrangian/
+  Eulerian outer operators.
+* `FarisLavine.essentiallySelfAdjointOn_of_farisLavine_dense` +
+  `essentiallySelfAdjointOn_of_square_comparison` — the Faris–Lavine criterion on a dense core
+  with `N + 1` of *dense range* instead of onto, and the square comparison `N = H² + E` (**U**);
+  `dense_range_add_one_of_esa_of_pos` identifies the density hypothesis with ESA of `N`.
+* `KoopmanLyapunov.kvnGen_esa_of_lyapunov` — the generic Lyapunov instance for any polynomial
+  vector field (**C**: ESA of `N = H_G² + E` is the hypothesis).
+* `TensorKatoRellich.essentiallySelfAdjointOn_tensorSum_add_coupling` — Kato–Rellich for product
+  couplings on a tensor sum (**U**); `EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa` and
+  `FockStatistics.*Fock_esa` — the enclosure lifts (**U**); `DirectSumEsa.dsOp_essentiallySelfAdjointOn`
+  — fibrewise ESA glues to the algebraic direct sum (**U**).
+
+**QYM / QED:** `ym_h_esa` for arbitrary real `fabc` (**U**, one-particle) and `ym_dGamma_esa`
+(enclosed, **U**); abelian form gap absent (**N**); the non-abelian one-particle form gap open
+(§5 item 4).
+
+**SM:** every sector of `smFockHam` ESA + `sm_dGamma_esa` (**U**); the full one-particle
+assembly `smFull_h_esa` / `smFull_dGamma_esa` with the fixed-background Yukawa as a tensor sum
+(**U**, **B**: tensor sum ≠ interaction); the operator-valued Yukawa coupling
+`smYukawa_h_esa` / `smYukawa_dGamma_esa` for `λ > 0`, Hermitian `hD`, arbitrary `M` (**U**,
+**B**: two Higgs components of the doublet, finite fermion mode set — infinitely many modes and
+the full doublet structure remain open).
+
+**QG:** enclosures of the record operator `secHam` on the symmetric core, the bosonic Fock
+spaces and the finite-particle domain — `qgFull_bosonic_core_esa`, `qgFull_bosonicFock_esa`,
+`qgFull_hbosonicFock_esa`, `qgFull_dGamma_esa` (**U**); the 84-dim Hamiltonian with the Weyl-
+ordered cross terms at flat density — `qg3DCross_esa` + enclosures (**U**); the density
+dependence in its two handleable forms — `qg3DDensity_esa` for every real `e`, `χ`, `Qb`, the
+densitized `y = √e` form, and the background-fibred direct sum (`qgFibredDensity_esa`) (**U**).
+**B** (do not collapse): the density is frozen/fibred — with `e` a canonical variable the
+kinetic term carries `1/e` (singular at `e = 0`) and the bracket turns sextic under a hyperbolic
+kinetic term, outside every instrument of the project; QG-3.2(a) untouched; the operators are
+hyperbolic, so they cannot feed a positivity/gap chain (**B**).
+
+**NS:** reduced sectors + outer operator on the finite-parcel core (`redHam_esa`,
+`nsRedFullFockHam_esa`, **U**); one-body generator and its enclosures on the symmetric
+structures (`spHam_esa`, `nsSp_*_esa`, **U**); the sector identification at Hilbert level
+(`tensorPowUnitary`, `nsParcelSectorUnitary`, `nsFockUnitary`, **U**; operator-level transport
+still owed); the mainstream surjectivity hypothesis **refuted** (`not_nsEnergy_surjective`,
+**N** — `nsKoopman_esa_of_energy_comparison` is vacuous as stated); the mainstream leg rebuilt:
+affine/Stokes/Oseen generators are quadratic Hamiltonians (`linKoopman_esa`,
+`nsKoopman_stokes_esa`, `oseenKoopman_esa`, **U**) with their `dΓ` enclosures; the nonlinear
+generator reduced to ESA of `N_NS = H_NS² + 1 + ‖u‖²` (`nsKoopman_esa_of_squareComparison_esa`,
+**C**); the Lagrangian determinant as momentum convolution with the volume penalty
+(`det_deformation_eq`, `det_eq_one_of_volPot_eq_zero`, **U**); the Lagrangian generator reduced
+to ESA of `N_L` (`lagKoopman_esa_of_comparison_esa`, **C**); the one-parcel Lagrangian
+enclosure (`lagOne_dGamma_esa`, **U**; the Koopman version **C**); and the *interacting*
+finite-parcel outer operators ESA with unique extension (`lagFullFockHam_esa`,
+`nsFullFockHam_esa`, `*_selfAdjointExtension_unique`, **U** — auxiliary operators, §3.4).
+
+### 3. The implications of the convention — how to interpret what is proved
+
+**3.1  One-particle ESA is the load-bearing statement; the enclosure is a transport theorem.**
+By `EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa` (and the `FockStatistics` variants),
+ESA of `h` on a dense core *is* the final-Hamiltonian statement: ESA of `dΓ(h)` on the
+finite-particle domain follows with no further analytic input, in both spellings wherever an
+identification exists.  Consequences for planning: (i) a new proof target should always be
+phrased at the one-particle level — enclosing afterwards is bookkeeping; (ii) a gap in a
+final-Hamiltonian statement is *always* a gap about `h` (or about a spelling identification),
+never about "the Fock level"; (iii) an enclosure theorem transports hypotheses as faithfully as
+conclusions — `lagKoopman_dGamma_esa_of_comparison_esa` is conditional exactly where its
+one-particle input is, and reports must say so.
+
+**3.2  Conditional means conditional.**  The Faris–Lavine legs (`nsKoopman_esa_of_squareComparison_esa`,
+`lagKoopman_esa_of_comparison_esa`, `kvnGen_esa_of_lyapunov` instances, the SM/NS comparison
+legs) each name an ESA hypothesis on their comparison operator `N` that is *not proved*.
+Nothing about the final Hamiltonian follows from them until §5 discharges those hypotheses;
+never report a `C` item as essential self-adjointness of a Hamiltonian.
+
+**3.3  The refuted/vacuous statements must not be counted.**
+`nsKoopman_esa_of_energy_comparison` is vacuous as stated (`not_nsEnergy_surjective`); the
+Leray-energy route cannot be repaired by a change of domain (informal: no multiplication
+operator dominates a first-order generator).  Any inventory that lists it as a discharged
+obligation is wrong; the discharged parts are the commutator bound and the redesign of §2.
+
+**3.4  Auxiliary operators are not the final Hamiltonian.**  `redHam`/`nsFullFockHam`/
+`lagFullFockHam`/`H_sos` are the comparison layer (bounded below, hence Friedrichs).  Their ESA
+and extension-uniqueness (2026-09-25) upgrade the *inputs* of the Faris–Lavine legs from
+assumptions to theorems — a real gain — but `dΓ` of them is never to be reported as the final
+NS Hamiltonian.  The reduced outer operator `nsRedFullFockHam` *is* an enclosure (it is the
+particle-number-conserving lift of `H_sp`); the interacting two are not.
+
+**3.5  Provenance of QG results.**  When citing a QG theorem, name the realization: the vielbein
+full-exponential record (`secHam`/`qgFullModes`), the 84-dim density forms (frozen/fibred), the
+quadratic small-field scalaron fibers, or the metric-route densitized chapters.  Statements
+proved for one realization are never silently attributed to another — the correction logged
+under 2026-09-24d/`HAMILTONIAN_AUDIT` stands.
+
+**3.6  Derivative products.**  A proof that manipulates products of fields with spatial
+derivatives must go through the momentum-space convolution (§1.3, NS/QG only).  A coordinate-
+space product treated as a pointwise polynomial, or a BRST projection used *instead* of the
+elimination, is a modelling error, not a proof.
+
+### 4. Step 0 — gates for the specialist (nothing below is trustworthy until these pass)
+
+1. **Name-level check of the new prose layer** (not compiled in this pass): every `#check` in
+   the new sections of `Book/NsComparisonOperator.lean`, `Book/NsOneParticleHamiltonian.lean`,
+   `Book/DiffeomorphismsGravity.lean`, `Book/FourierElimination.lean` must resolve against
+   `import BookProof`; fix any stale name in place (the four stale-name fixes of
+   `Book/SecondQuantizationEsa.lean` show the failure mode).
+2. `rg -n "sorry|admit" BookProof/` — prose only.
+3. Re-run the audits: `Work/DensitySectorAudit`, `Work/NsNonlinearFarisLavineAudit`,
+   `Work/NsLagrangianDetAudit`, `Work/NsLagrangianOuterFockAudit`,
+   `Work/NsFullLagrangianFockEsaAudit`, `Work/QgCrossTermAudit`, `Work/FullEnclosureAudit`,
+   `Work/SmYukawaCouplingAudit` — `propext`, `Classical.choice`, `Quot.sound` only.
+4. `python3 scripts/import_components.py BookProof --check` (exits 0 as of 2026-09-25); then
+   `lake build BookProof BookProofOperatorCore`.
+5. `lake build Book` — the known `MD4Lean`/Verso caveat of §2026-09-22e may stop it; record,
+   do not work around, and clear the whole-book stale-`#check` backlog noted in §2026-09-24b
+   (e.g. `Book/NavierStokesHashimoto.lean`).
+
+### 5. The work order, in sequence
+
+1. **Prose verification (step 4.1).**  Cheap, and it is the only part of this pass that has not
+   been machine-checked.
+2. **QG: the density as a canonical variable.**  Either a core adapted to `{e > 0}` (the record
+   operator's physical region) or the densitized coordinates with the cubic cross terms — the
+   two forms of the `qg3DDensityEsa` boundary.  This is the remaining half of QG-3.2(b).
+   QG-3.2(a) (vanishing on the physical sector) runs in parallel and is independent.
+3. **NS: discharge the standing ESA hypotheses** — ESA of `N_NS` and ESA of `N_L`, the two `C`
+   items of §2 — *or* take the orbit route: the ODE infrastructure first (smooth dependence of
+   the Galerkin flow on initial data, global flow from the energy inequality; Mathlib has
+   Picard–Lindelöf and Gronwall only), then
+   `FlowDGammaEsa.deficiencyTrivialAt_of_orbits` on a flow-invariant core for the nonlinear
+   generator.  The square-comparison reductions mean either path closes the mainstream leg.
+4. **Non-abelian QYM one-particle form gap.**  The single outstanding analytic input of the
+   whole gap programme: a gap of `H(η) = ½Σπ_A² + ½|η + q(A)|²` **uniform in `η ∈ ℝ²⁴`**
+   (the direct-integral fibre over the 72 derivative coordinates), at `η = 0` the quartic
+   Yang–Mills matrix model.  A Simon-type lower bound uniform in `η`; check truth-value first
+   by the same technique that settled the abelian case negatively.
+5. **Sector identification at operator level.**  Transport the NS sector derivations through
+   `nsFockUnitary` to the parcel operators of `nsRedFullFockHam`, and identify the `ℓ²`
+   spelling `dGammaOp (nsSpCol …)` (the graded-band Schur gate fails on the quartic generator;
+   a weighted Schur or Nelson's analytic vectors are the candidates).
+6. **SM refinements.**  Infinitely many fermion modes; the full doublet structure of the
+   Yukawa coupling (both components carried by the same Higgs multiplet), preserving the
+   Kato–Rellich relative bound of `higgsMul_relBound`.
+7. **Hygiene decisions.**  The 192 orphan split copies (`X/Part*.lean`) — delete or wire in;
+   the whole-book `#check` backlog; the Verso build.
+
+Nothing in this order requires re-deciding a settled convention: the final Hamiltonians of §1
+are the record, the inventory of §2 is the baseline, and every new entry should be filed with
+its status letter (U/C/N/B), its audit file, and — if it involves derivative products — the
+convolution spelling.

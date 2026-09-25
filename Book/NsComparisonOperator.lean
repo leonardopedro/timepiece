@@ -99,6 +99,11 @@ Non-vacuity of the leg is not assumed: `nsTriad` is the resonant Navier–Stokes
 The one input this leg does *not* supply by itself is the surjectivity of `N_E + 1` from the common
 domain, which is the part of the criterion the Gauss–polynomial core does not deliver. It is carried
 as a named hypothesis in `nsKoopman_esa_of_energy_comparison` and never asserted as an axiom.
+That hypothesis, as stated — surjectivity *from the Gauss core itself* — is false in every
+dimension $`d \ge 1`: $`N_E + 1` maps the core into the core, and a countably spanned subspace
+of the infinite-dimensional $`L^2(\mathbb{R}^d)` is proper by Baire's theorem
+(`not_nsEnergy_surjective`). The theorem is therefore vacuous as stated, and the surjectivity
+input must be supplied on a larger domain together with a separate core argument.
 :::
 
 ```
@@ -111,6 +116,106 @@ as a named hypothesis in `nsKoopman_esa_of_energy_comparison` and never asserted
 #check @BookProof.NsKoopman.nsKoopman_esa_of_energy_comparison
 #check @BookProof.NsKoopman.nsTriad
 ```
+
+# Layer 1, Rebuilt: Affine Drifts Are Quadratic Hamiltonians
+
+:::paragraph
+The Baire refutation above is a statement about the Leray-energy route *as stated*, and the
+repair is not a change of domain: informally, no multiplication operator can dominate a
+first-order generator.  The mainstream leg was therefore rebuilt where it can be closed with
+the instruments of this project — in `BookProof/ChapterNsLinearKoopmanEsa.lean` — around one
+observation: the Koopman–von Neumann generator of an **affine** drift $`F(u) = Au + c` is a
+*real quadratic Hamiltonian*.  Its Weyl-ordered symbol $`\sum_i
+\tfrac12(\pi_iF_i + F_i\pi_i)` (`linKvnPoly`) *is* `fqPoly 0 0 Aᵀ 0 c`
+(`linKvnPoly_eq_fqPoly`) — cross terms and momenta only, no kinetic and no potential part — so
+the Carleman-flux theorem for general quadratic Hamiltonians applies with **no comparison
+operator, no surjectivity hypothesis and no sign condition**: the generator is essentially
+self-adjoint on the Gauss–polynomial core (`linKoopman_esa`), generates a complete unitary flow
+(`linKoopman_stone_flow`), and its second quantization — creation on the left, annihilation on
+the right — is essentially self-adjoint on the finite-occupation core
+(`linKoopman_dGammaOp_esa`).  Two named systems are instances: the **Stokes system** (vanishing
+advection), for which the mainstream operator `nsKoopmanOp S` of the previous layers is itself
+essentially self-adjoint (`nsKoopman_stokes_esa`, with `drift_eq_linDrift_of_stokes` identifying
+its drift), and the **Oseen linearization** of the full Navier–Stokes drift about an *arbitrary*
+point `ū` (`oseenKoopman_esa`; `oseenDrift_eq` identifies that affine drift as the first-order
+Taylor polynomial of the true drift, the remainder being exactly $`B(u - \bar u, u - \bar u)`).
+:::
+
+```
+#check @BookProof.NsLinearKoopmanEsa.linKvnPoly_eq_fqPoly
+#check @BookProof.NsLinearKoopmanEsa.linKoopman_esa
+#check @BookProof.NsLinearKoopmanEsa.linKoopman_stone_flow
+#check @BookProof.NsLinearKoopmanEsa.linKoopman_dGammaOp_esa
+#check @BookProof.NsLinearKoopmanEsa.nsKoopman_stokes_esa
+#check @BookProof.NsLinearKoopmanEsa.oseenDrift_eq
+#check @BookProof.NsLinearKoopmanEsa.oseenKoopman_esa
+```
+
+:::paragraph
+The **nonlinear** part of the mainstream generator (advection $`B \ne 0`) is not covered: it
+is cubic, and neither instrument above applies.  Its recorded route is no longer a comparison
+operator but the classical flow — completeness of the Galerkin flow (the energy inequality plus
+$`\operatorname{div} F = -\nu\sum\lambda_i`) together with the orbit criterion
+`FlowDGammaEsa.deficiencyTrivialAt_of_orbits` on a flow-invariant core, which needs the smooth
+dependence of the flow on its initial data — infrastructure Mathlib does not yet provide.  That,
+and the conditional comparison below, are the two open inputs of this leg.
+:::
+
+# The Criterion on a Core, and the Nonlinear Instance
+
+:::paragraph
+The criterion itself was sharpened so that its hypotheses can hold on an algebraic core.
+`BookProof/ChapterFarisLavineDenseCore.lean` states Faris–Lavine Corollary 1.1 with every
+hypothesis on a dense subspace `D` and with `N + 1` required to have only **dense range** from
+`D` rather than to be onto (`essentiallySelfAdjointOn_of_farisLavine_dense`) — on a polynomial
+core, onto never happens — and proves that for a positive symmetric `N` this density hypothesis
+*is* essential self-adjointness of `N` (`dense_range_add_one_of_esa_of_pos`).  The same module
+proves the **square comparison**: for an `H` mapping `D` into itself and $`E \ge 0`, the choice
+$`N = H^2 + E` satisfies every Faris–Lavine inequality — $`\langle x, Nx\rangle = \|Hx\|^2 +
+\langle x, Ex\rangle`, $`\|Hx\| \le \|Nx\| + \|x\|`, and the commutator identity
+$`\langle x, i[H,N]x\rangle = \langle x, i[H,E]x\rangle` exactly — so that essential
+self-adjointness of `N` on `D` implies essential self-adjointness of `H`
+(`essentiallySelfAdjointOn_of_square_comparison`).
+:::
+
+:::paragraph
+`BookProof/ChapterNsNonlinearFarisLavine.lean` is the nonlinear instance, with the exact
+quadratic advection and no linearization: the coefficients $`b_{mjk}` are the momentum-space
+form of $`(u \cdot \nabla)u` after the Leray projection — the coordinate-space product with
+spatial derivatives becomes the triad convolution $`\sum_{p+q=k} i(\hat u_p \cdot q)\hat u_q`
+(`NsAdvectionConvolution.fourier_advection_convolution`), the momentum-space convolution device
+that this project uses for NS and QG only.  The comparison is
+$`N_{\rm NS} = H_{\rm NS}^2 + 1 + \|u\|^2`: it dominates the first-order generator, and its
+commutator against $`H_{\rm NS}` is exactly the Leray dissipation, giving
+$`|\langle i[H_{\rm NS},N_{\rm NS}]\rangle| \le 2\nu\Lambda\langle N_{\rm NS}\rangle`
+(`nsSquareComparison_commForm_bound`).  Hence **if** `N_NS` is essentially self-adjoint on the
+Gauss–polynomial core, so is the nonlinear generator
+(`nsKoopman_esa_of_squareComparison_esa`).  The generic instrument behind the instance — the
+Lyapunov criterion $`N = H_G^2 + E` for *any* polynomial vector field `G` with real
+$`E \ge 0` and $`|G \cdot \nabla E| \le cE` pointwise — is
+`KoopmanLyapunov.kvnGen_esa_of_lyapunov` (`BookProof/ChapterKoopmanLyapunovFarisLavine.lean`),
+whose other instance is the Lagrangian system of
+{ref "fourier-elimination"}[the Fourier elimination of the derivative variables].
+:::
+
+```
+#check @BookProof.FarisLavine.essentiallySelfAdjointOn_of_farisLavine_dense
+#check @BookProof.FarisLavine.dense_range_add_one_of_esa_of_pos
+#check @BookProof.FarisLavine.essentiallySelfAdjointOn_of_square_comparison
+#check @BookProof.NsNonlinearFarisLavine.nsKoopman_esa_of_squareComparison_esa
+#check @BookProof.KoopmanLyapunov.kvnGen_esa_of_lyapunov
+```
+
+:::paragraph
+**Boundary.**  Essential self-adjointness of `N_NS` (equivalently, by the lemma above, density
+of `(N_NS + 1)` applied to the core) is an explicit hypothesis and is *not* proved: this is a
+reduction, not a proof, for the mainstream generator.  Why no simpler comparison works is
+recorded informally in the module — the quadratic advection stretches momenta at a rate
+proportional to $`\|u\|`, so no polynomial harmonic-type `N` satisfies the bound — and with
+*all* Fourier modes the constant $`2\nu\Lambda` is infinite, which is the formal face of the
+backward ill-posedness of viscous Navier–Stokes.  The statements are for every finite mode set,
+with the exact nonlinearity on those modes.
+:::
 
 # Layer 2 — The Full Hamiltonian: the Lifted Auxiliary Friedrichs Extension
 
@@ -218,6 +323,7 @@ is a statement about $`N_E`, not about the obligation in general.
 #check @BookProof.ComparisonCoreEsa.graphCore_of_isGraphCore
 #check @BookProof.ComparisonCoreEsa.esa_of_isGraphCore
 #check @BookProof.ComparisonCoreEsa.isGraphCore_iff_esa
+#check @BookProof.NsEnergySurjectivityObstruction.not_nsEnergy_surjective
 ```
 
 # Summary: the Comparison Operator, Per Layer
@@ -228,16 +334,27 @@ is a statement about $`N_E`, not about the obligation in general.
    `N_E = mulOp(1 + ‖u‖²)`, positive and `≥ 1` by `nsEnergyOp_quadForm_ge`; the commutator is the
    energy flux (`kvn_comm_energy`), which Leray's identity makes the sign-definite viscous
    dissipation (`fluxPoly_eq`), giving the bound `2νΛ·⟨x,N_Ex⟩` (`commForm_kvn_energy_bound`) and the
-   conclusion `nsKoopman_esa_of_energy_comparison`. The open input is the surjectivity of `N_E + 1`.
+   conclusion `nsKoopman_esa_of_energy_comparison`. The open input is the surjectivity of `N_E + 1` —
+   refuted for this core (`not_nsEnergy_surjective`), which is why the leg is rebuilt in the next
+   two sections.
  * **Full nonlinear Hamiltonian**, Eulerian or Lagrangian variables: `N` is the **lifted Friedrichs
    extension of the auxiliary Weyl sum of squares** `H_sos`, which is bounded below
    (`nsFullFockHam_quadForm_nonneg`, `lagFullFockHam_quadForm_nonneg`), so its Friedrichs extension
    exists without a Faris–Lavine detour and lifts to the nested Fock space; the criterion is then run
    with `c = 0` (`nsFullOuterN_esa`, `lagFullOuterN_esa`). The `c = 0` is a statement about the
    auxiliary operator, not about `H_NS`.
+ * **Mainstream leg, rebuilt in two parts.**  Affine drifts (Stokes, Oseen, any `Au + c`) are
+   quadratic Hamiltonians and are *unconditionally* ESA, with their `dΓ` enclosures
+   (`linKoopman_esa`, `nsKoopman_stokes_esa`, `oseenKoopman_esa`, `linKoopman_dGammaOp_esa`); the
+   nonlinear generator is ESA **conditional** on the ESA of the square comparison
+   `N_NS = H² + 1 + ‖u‖²` (`nsKoopman_esa_of_squareComparison_esa`), through the dense-core form
+   of the criterion (`essentiallySelfAdjointOn_of_farisLavine_dense`,
+   `essentiallySelfAdjointOn_of_square_comparison`).
  * **In neither layer** is `N` the Hamiltonian, and `N = H²` is invalid for the wrong-domain and the
    `N + 1`-not-onto reasons above; the general obstruction for `N = H` is the formalized
-   `not_farisLavine_criterion_of_relative_bound`.
+   `not_farisLavine_criterion_of_relative_bound`.  Under the final-Hamiltonian convention none of
+   these `N` is ever enclosed: what gets enclosed — creation left, annihilation right — is the
+   one-particle Hamiltonian `h` once its own essential self-adjointness is in hand.
 :::
 
 :::paragraph

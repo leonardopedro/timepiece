@@ -122,8 +122,9 @@ Unchanged from the individual chapters, and repeated here because this is the in
   The Navier–Stokes Hamiltonian itself has no square of a residual and is **not** bounded
   below (`BookProof.NsKoopman.nsKoopmanOp_not_bounded_below`), so the `c = 0` above is a
   statement about the auxiliary operator, not about the NS Hamiltonian.
-  What is *not* claimed for the nonlinear models is uniqueness of the self-adjoint extension
-  from the finite-parcel core;
+  Essential self-adjointness on the finite-parcel core, and hence uniqueness of the
+  self-adjoint extension, is proved separately in `BookProof.ChapterNsFullLagrangianFockEsa`
+  (`lagFullFockHam_esa`, `nsFullFockHam_esa`) for this auxiliary operator;
 * nothing anywhere bears on classical Navier–Stokes regularity;
 * no spectral information, no mass gap and no continuum limit is claimed anywhere.
 

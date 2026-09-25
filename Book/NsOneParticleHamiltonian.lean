@@ -392,6 +392,68 @@ triad with $`a+b+c = 0`.
 #check @BookProof.NsKoopman.nsTriad
 ```
 
+# The Lagrangian Face: One Parcel, Then the Interacting Whole
+
+:::paragraph
+The Lagrangian (material-coordinate) description carries two enclosure results, and they must
+be read apart.  The **one-parcel** Lagrangian Hamiltonian
+$`h = \tfrac12\sum_i P_i^2 + \nu\sum_i Q_i^2 + f\cdot P` on the trajectory space
+$`\ell^2(\mathrm{Fin}\,3 \to \mathbb{N})` is unconditionally essentially self-adjoint on the
+finite-mode Hermite core for every $`\nu > 0` and every constant force `f`
+(`LagrangianCanonical.lagCan_esa`).  `BookProof/ChapterNsLagrangianOuterFockEsa.lean` carries
+it — with no new hypothesis — into the final-Hamiltonian form: the enclosure $`d\Gamma(h)`,
+creation on the left and annihilation on the right, is essentially self-adjoint on the
+finite-particle domain over that core (`lagOne_dGamma_esa`), on the bosonic and fermionic Fock
+spaces and their Hilbert direct sums (`lagOne_bosonicFock_esa`, `lagOne_fermionicFock_esa`,
+`lagOne_hbosonicFock_esa`).  The conditional Lagrangian Koopman generator gets the same lift
+(`lagKoopman_dGamma_esa_of_comparison_esa`), which inherits exactly the standing hypothesis on
+the comparison operator `N_L` — an enclosure theorem transports hypotheses as faithfully as it
+transports conclusions.  The scope is the *non-interacting* $`d\Gamma(h)`: on the `n`-parcel
+sector it acts as $`\sum_p 1 \otimes \cdots \otimes h \otimes \cdots \otimes 1`.
+:::
+
+:::paragraph
+The **interacting** outer Hamiltonians — the parcel-coupled Lagrangian `lagFullFockHam` and its
+Eulerian companion — are *not* second quantizations of a one-body operator: the gauge-fixing
+forms couple neighbouring parcels, and the Piola and `det F − 1` forms have degree two and
+three.  The enclosure theorem therefore does not apply to them, and the question is different:
+is the outer operator itself essentially self-adjoint on its finite-parcel core?
+`BookProof/ChapterNsFullLagrangianFockEsa.lean` answers yes, for all real couplings and with no
+new analysis: every `n`-parcel sector is a Weyl-type operator with distinct momentum coordinates
+and real polynomial forms (`lagSectorHam_eq_weylPoly`, `nsSectorHam_eq_weylPoly`, both `rfl`),
+hence essentially self-adjoint on the Gauss–polynomial core by the general instrument
+`weylPoly_esa` (`lagSectorHam_esa`, `nsSectorHam_esa`); the sectors glue to the finite-parcel
+core by the direct-sum theorem (`lagFullFockHam_esa`, `nsFullFockHam_esa`); and consequently
+the lifted Friedrichs realization of the earlier module is *the* self-adjoint extension
+(`lagFullFockHam_selfAdjointExtension_unique`, `nsFullFockHam_selfAdjointExtension_unique`).
+:::
+
+:::paragraph
+**Convention and boundary.**  These two interacting operators are the **auxiliary**
+Weyl-ordered sum-of-squares operators of the comparison layers, not the final Hamiltonian of
+record — which remains the one-particle `h` enclosed creation-left / annihilation-right (the
+*reduced* outer operator `nsRedFullFockHam` is such an enclosure; these two are not).  What the
+result buys for the final-Hamiltonian programme is the comparison side: the auxiliary operator
+is now known to be essentially self-adjoint with a unique extension, so the Faris–Lavine legs
+that consume it as `N` consume a theorem rather than an assumption about its realization.
+Nothing is claimed about the non-semibounded Koopman generator, no continuum limit is taken,
+and no spectral information follows.
+:::
+
+```
+#check @BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_esa
+#check @BookProof.NsLagrangianOuterFock.lagOneOp_esa
+#check @BookProof.NsLagrangianOuterFock.lagOne_dGamma_esa
+#check @BookProof.NsLagrangianOuterFock.lagOne_bosonicFock_esa
+#check @BookProof.NsLagrangianOuterFock.lagKoopman_dGamma_esa_of_comparison_esa
+#check @BookProof.NsFullLagrangianEsa.lagSectorHam_esa
+#check @BookProof.NsFullLagrangianEsa.lagFullFockHam_esa
+#check @BookProof.NsFullLagrangianEsa.lagFullFockHam_selfAdjointExtension_unique
+#check @BookProof.NsFullLagrangianEsa.nsSectorHam_esa
+#check @BookProof.NsFullLagrangianEsa.nsFullFockHam_esa
+#check @BookProof.NsFullLagrangianEsa.nsFullFockHam_selfAdjointExtension_unique
+```
+
 # What Is Verified, and What Is Open
 
 :::paragraph
@@ -407,6 +469,19 @@ The verified layer, in one list:
    (`nsSpDGamma_esa_farisLavine`, `nsSpDGamma_number_conserving`, `nsSpDGamma_one_particle`), and the
    `n`-parcel reduced Hamiltonian is the sum over parcels of the one-body generator
    (`redHam_eq_sum_parcel`, `nsRedFullFockHam_sector_sum_parcel`);
+ * every sector of the reduced Hamiltonian is a Weyl-type operator with momenta in distinct
+   coordinates and real polynomial forms, so the Kato-type theorem applies: each `redHam n` is
+   essentially self-adjoint on the Gauss–polynomial core of $`L^2(\mathbb{R}^{6n})` (`redHam_esa`;
+   the case `n = 1` is a one-particle statement), and the reduced outer operator
+   `nsRedFullFockHam` is essentially self-adjoint on its finite-parcel core, not only on the
+   domain of its own Friedrichs realization (`nsRedFullFockHam_esa`,
+   `BookProof/ChapterNsReducedCoreEsa.lean`);
+ * the one-body generator itself is essentially self-adjoint on the Gauss–polynomial core of
+   $`L^2(\mathbb{R}^6)` (`spHam_esa`, one-particle), and $`d\Gamma(H_{\rm sp})` is essentially
+   self-adjoint on the symmetrized tensor power of that core for every particle number, on the
+   bosonic Fock space, and — unsymmetrized, creation left / annihilation right — on the
+   finite-particle domain (`nsSp_bosonic_core_esa`, `nsSp_bosonicFock_esa`,
+   `nsSp_hbosonicFock_esa`, `nsSp_dGamma_esa`, `BookProof/ChapterNsSymmetricSector.lean`);
  * the momentum variables are honest: a unitary partial transform that leaves the fibre alone, a
    derivative that is a real symbol, a densely defined $`\pi^{-1}` with trivial kernel, and the
    advection as a convolution whose coefficients are $`O(\Lambda)` uniformly in the parcel number;
@@ -422,8 +497,38 @@ What remains open on this leg, stated as obligations rather than as caveats:
    “The Fibred Model Identified with the Scalar One” above);
  * the operator-level relative bound with a constant independent of the parcel number — not needed on
    the landed route, where the comparison is the lifted Friedrichs realization;
- * the identification of the parcel sectors with the symmetric tensor powers of the one-particle
-   space (the remaining item of the record-definitions section of the plan);
- * on the mainstream leg, the surjectivity of $`N_E + 1` on a concrete domain (weighted
-   Sobolev/Gauss), and the lift of that comparison operator to the nested-Fock setting.
+ * ~~the unitary identification of the parcel sectors $`L^2(\mathbb{R}^{6n})` with the tensor
+   powers of the one-particle space~~ — **closed at the Hilbert-space level** by
+   `BookProof/ChapterL2TensorPowerUnitary.lean`: `tensorPowUnitary` identifies the `n`-particle
+   sector with $`L^2(\mu^{\otimes n})` for any σ-finite `μ` (the scalar lift is an isometry,
+   `inner_prodTensor`, and the embedding has dense range, `denseRange_embPow`), while the
+   measure-preserving relabelling `(ℝ^d)^n ≅ ℝ^{n·d}` (`mpEquivUnitary`, `parcelRelabel`) gives
+   `parcelSectorUnitary`, its Navier–Stokes instance `nsParcelSectorUnitary` — exactly the
+   parcel-sector space $`L^2(\mathbb{R}^{6n})` — and `nsFockUnitary` for the whole Fock space
+   $`\bigoplus_n L^2(\mathbb{R}^6)^{\otimes\hat n}`.  Still open is the *operator-level*
+   transport through that unitary (the sector derivation of $`H_{\rm sp}` on
+   $`\text{polyGaussCore}^{\otimes n}` carried to the parcel operator of `nsRedFullFockHam` on
+   its core), and the identification with the occupation-number (`ℓ²`) spelling
+   `dGammaOp (nsSpCol …)`, for which the graded-band Schur gate does not apply (the quartic
+   one-body generator violates its entry-growth condition);
+ * on the mainstream leg, the surjectivity of $`N_E + 1` on a concrete domain, and the lift of
+   that comparison operator to the nested-Fock setting. The domain cannot be the Gauss core:
+   for $`d \ge 1`, $`N_E + 1` maps the core into itself and the core is a proper subspace of
+   $`L^2(\mathbb{R}^d)` (Baire), so the surjectivity hypothesis of
+   `nsKoopman_esa_of_energy_comparison` is false (`not_nsEnergy_surjective`,
+   `BookProof/ChapterNsEnergySurjectivityObstruction.lean`).
 :::
+
+```
+#check @BookProof.NsReducedCoreEsa.redHam_esa
+#check @BookProof.NsReducedCoreEsa.nsRedFullFockHam_esa
+#check @BookProof.NsSymmetricSector.spHam_esa
+#check @BookProof.NsSymmetricSector.nsSp_bosonic_core_esa
+#check @BookProof.NsSymmetricSector.nsSp_bosonicFock_esa
+#check @BookProof.NsSymmetricSector.nsSp_dGamma_esa
+#check @BookProof.NsEnergySurjectivityObstruction.not_nsEnergy_surjective
+#check @BookProof.L2TensorPower.tensorPowUnitary
+#check @BookProof.L2TensorPower.parcelSectorUnitary
+#check @BookProof.L2TensorPower.nsParcelSectorUnitary
+#check @BookProof.L2TensorPower.nsFockUnitary
+```

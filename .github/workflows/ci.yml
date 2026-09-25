@@ -80,7 +80,22 @@ jobs:
           export PATH="$HOME/.elan/bin:$PATH"
           ./patches/build-book.sh
 
-      - name: verify every math snippet with throwOnError: true
+      - name: "verify every math snippet with throwOnError: true"
         run: |
           export PATH="$HOME/.elan/bin:$PATH"
           ./patches/check-katex.sh
+
+  # ---------------------------------------------------------------------------
+  # Doc-index freshness. One plain probe, one exit code — the `ax` /healthz
+  # pattern (../ax, Apache-2.0) applied as CI, same shape as ../test's
+  # site-check workflow. Python-stdlib only: DOC_INDEX.md + the versioned
+  # state/doc_index.json must match a fresh rebuild (typos index discipline).
+  # ---------------------------------------------------------------------------
+  docs:
+    name: doc index freshness (doc_index.py --check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # actions/checkout@v7.0.1
+
+      - name: DOC_INDEX.md + state/doc_index.json fresh?
+        run: python3 scripts/doc_index.py --check
