@@ -226,10 +226,10 @@ theorem castR_mem_WHalf : ∀ M ∈ SBHalf, castR M ∈ WHalf :=
   intro M hM
   unfold SBHalf at hM
   simp only [Finset.mem_union, Finset.mem_image, Finset.mem_univ, true_and] at hM;
-  rcases hM with ( ⟨ i, rfl ⟩ | ⟨ i, rfl ⟩ ) <;> [ refine Submodule.subset_span ⟨ i, rfl ⟩ ; refine
-      Submodule.neg_mem ?_ ( Submodule.subset_span ⟨ i, rfl ⟩ ) ];
-  convert Submodule.neg_mem _ ( Submodule.subset_span <| Set.mem_range_self i ) using 1;
-  ext; simp [castR, bHalfR]
+  rcases hM with ( ⟨ i, rfl ⟩ | ⟨ i, rfl ⟩ )
+  · exact Submodule.subset_span ⟨ i, rfl ⟩
+  · rw [show castR (-bHalf i) = -castR (bHalf i) by ext; simp [castR]]
+    exact Submodule.neg_mem _ (Submodule.subset_span (Set.mem_range_self i))
 
 theorem castR_mem_W10 : ∀ M ∈ SB10, castR M ∈ W10 := by
   -- By definition of `SB10`, every element is either in the image of `b10` or the image of `-b10`.
@@ -246,8 +246,8 @@ theorem castR_mem_WPs : ∀ M ∈ SBPs, castR M ∈ WPs := by
   simp only [Finset.mem_union, Finset.mem_image, Finset.mem_univ, true_and] at hM
   rcases hM with ⟨i, rfl⟩ | ⟨i, rfl⟩;
   · exact Submodule.subset_span ⟨ i, rfl ⟩;
-  · convert Submodule.neg_mem _ ( Submodule.subset_span <| Set.mem_range_self i ) using 1;
-    ext; simp [castR, bPsR]
+  · rw [show castR (-bPs i) = -castR (bPs i) by ext; simp [castR]]
+    exact Submodule.neg_mem _ (Submodule.subset_span (Set.mem_range_self i))
 
 /-! ### `Submodule` invariance under conjugation by `Ω` -/
 

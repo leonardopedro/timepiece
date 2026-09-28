@@ -518,7 +518,9 @@ theorem affH_coord_succ {κ c : ℝ} (hκ : 0 ≤ κ) (hc : 0 ≤ c) (n : ℕ) :
       (by simp [hX]) (by simp [hX]; omega)
     simpa using h
   change ((PairShift.pairH (affData hκ hc) (basisState κ c n) : L2I ℕ) : ℕ → ℂ) (n + 1) = _
-  rw [PairShift.pairH_coe, hfst, hsnd, zero_add]
+  have hp1 := PairShift.pairH_coe (P := affData hκ hc) (basisState κ c n) (n + 1)
+  refine hp1.trans ?_
+  rw [hfst, hsnd, zero_add]
 
 /-- The coordinate of `H eₙ` at Hermite level `n + 2` is the `±2`-hopping
 amplitude `(κ/2)√((n+1)(n+2))` of the linear part. -/
@@ -542,7 +544,9 @@ theorem affH_coord_succ_succ {κ c : ℝ} (hκ : 0 ≤ κ) (hc : 0 ≤ c) (n : �
       (by simp [hX]) (by simp [hX]; omega)
     simpa using h
   change ((PairShift.pairH (affData hκ hc) (basisState κ c n) : L2I ℕ) : ℕ → ℂ) (n + 2) = _
-  rw [PairShift.pairH_coe, hfst, hsnd, add_zero]
+  have hp2 := PairShift.pairH_coe (P := affData hκ hc) (basisState κ c n) (n + 2)
+  refine hp2.trans ?_
+  rw [hfst, hsnd, add_zero]
 
 /-- With a non-zero constant part the affine fiber Hamiltonian does not vanish
 on the ground state: the `±1`-shift is not an artefact of the bookkeeping. -/

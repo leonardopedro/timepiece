@@ -57,7 +57,7 @@ theorem hasDerivAt_attentionEntropy (beta : ℝ) (s : Fin m → ℝ) (i : Fin m)
   have hmean := hasDerivAt_meanScore beta s i
   have hprod : HasDerivAt (fun b : ℝ => b * meanScore b s)
       (1 * meanScore beta s + beta * varScore beta s) beta := by
-    simpa using (hasDerivAt_id beta).mul hmean
+    convert (hasDerivAt_id beta).mul hmean using 1 <;> (first | rfl | simp)
   have := hlog.sub hprod
   refine this.congr_deriv ?_
   ring

@@ -408,8 +408,8 @@ theorem mem_smulRel_iff {c : ℝ} (hc : c ≠ 0) {p : F × F} :
   have hc' : (c : ℂ) ≠ 0 := by exact_mod_cast hc
   constructor
   · rintro ⟨q, hq, rfl⟩
-    convert hq using 2
-    rw [smulSnd_apply, smul_smul, inv_mul_cancel₀ hc', one_smul]
+    simp only [smulSnd_apply, smul_smul, inv_mul_cancel₀ hc', one_smul]
+    exact hq
   · intro hp
     refine ⟨(p.1, ((c : ℂ))⁻¹ • p.2), hp, ?_⟩
     simp [smul_smul, mul_inv_cancel₀ hc']

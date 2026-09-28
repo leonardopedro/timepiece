@@ -65,8 +65,8 @@ theorem metric_mul_metric : metric * metric = 1 := by
 -/
 theorem invSpatialMetric_symm (v : Fin 4 → ℝ) :
     (invSpatialMetric v)ᵀ = invSpatialMetric v := by
-      ext i j; simp only [invSpatialMetric, transpose_apply, add_apply, of_apply, mul_comm,
-          add_left_inj] ;
+      ext i j; simp only [invSpatialMetric, transpose_apply, Matrix.add_apply, of_apply,
+          mul_comm, add_left_inj]
       fin_cases i <;> fin_cases j <;> rfl
 
 /-
@@ -77,8 +77,8 @@ time covector, complementary to `h_{ab} v^b = 0`.
 theorem invSpatialMetric_mulVec_lower_self (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (invSpatialMetric v).mulVec (lower v) = 0 := by
       convert spatialProj_mulVec_self v hv using 1;
-      unfold invSpatialMetric spatialProj;        ext; simp only [mulVec, dotProduct, add_apply,
-                                                         of_apply,
+      unfold invSpatialMetric spatialProj;        ext; simp only [mulVec, dotProduct,
+                                                         Matrix.add_apply, of_apply,
                                                          Fin.sum_univ_four,
                                                          Fin.isValue] ;
       unfold lower metric; simp only [Fin.isValue, mulVec, dotProduct, Fin.sum_univ_four,
@@ -96,10 +96,21 @@ spatial hyperplane `v^⊥`.
 -/
 theorem invSpatialMetric_mul_spatialMetric (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     invSpatialMetric v * spatialMetric v = spatialProj v := by
-      unfold invSpatialMetric spatialMetric spatialProj;
-      ext a b; simp [ *, Matrix.mul_apply, Fin.sum_univ_four ] ; ring;
-      simp [ Fin.sum_univ_four, Matrix.mulVec, dotProduct, lower, minkSq, metric ] at *;
-      simp [ Matrix.one_apply, Matrix.diagonal_apply ] at *;
-      grind
+      have msym : ∀ i j : Fin 4, metric i j = metric j i := by
+        intro i j
+        by_cases h : i = j
+        · simp [metric, h]
+        · simp [metric, h, eq_comm]
+      have h1 : invSpatialMetric v * metric = spatialProj v := by
+        unfold invSpatialMetric spatialProj
+        rw [add_mul, metric_mul_metric]
+        congr 1
+        ext a b
+        simp only [of_apply, mul_apply, mulVec, dotProduct, lower, mul_assoc]
+        rw [Finset.mul_sum]
+        exact Finset.sum_congr rfl fun k _ => by
+          rw [msym b k, mul_comm (v k) (metric k b)]
+      rw [spatialMetric_eq_metric_mul_proj, ← mul_assoc, h1,
+        spatialProj_idempotent v hv]
 
 end BookProof.ChapterGravityInvMetric

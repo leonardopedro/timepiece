@@ -145,8 +145,7 @@ theorem hasDerivAt_normSq_expNeg (A : F →L[ℂ] F) (x : F) (s : ℝ) :
       = (inner ℂ (A (expNeg A s x)) (expNeg A s x) : ℂ).re := by
     rw [← hcs]; exact Complex.conj_re _
   simp only [hrw] at h3
-  convert h3 using 1
-  rw [hconj]; ring
+  convert h3 using 1 <;> (first | rfl | (rw [hconj]; ring))
 
 /-- For `A ≥ 0` the squared norm along the orbit is antitone. -/
 theorem antitone_normSq_expNeg (A : F →L[ℂ] F) (hA : 0 ≤ A) (x : F) :
@@ -180,12 +179,13 @@ theorem hasDerivAt_interp (A B : F →L[ℂ] F) (hcomm : Commute A B) (t s : ℝ
     (hcomm.smul_right (-(t - s) : ℝ)).exp_right
   simp only [hE, Function.comp_def, ContinuousLinearMap.coe_restrictScalars',
     ContinuousLinearMap.apply_apply] at h4
-  convert h4 using 1
   have hx := congrArg (fun S : F →L[ℂ] F => S x) hAB
   simp only [ContinuousLinearMap.mul_apply] at hx
-  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.mul_apply,
-    ContinuousLinearMap.neg_apply, map_sub, hx]
-  abel
+  convert h4 using 1 <;>
+    first
+    | (funext u; rfl)
+    | (simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.mul_apply,
+        ContinuousLinearMap.neg_apply, map_sub, hx]; abel)
 
 /-- **The Cauchy estimate**: for commuting non-negative bounded operators,
 `‖e^{-tA}x − e^{-tB}x‖ ≤ t ‖Ax − Bx‖`. -/

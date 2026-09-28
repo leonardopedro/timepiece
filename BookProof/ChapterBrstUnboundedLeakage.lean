@@ -394,7 +394,10 @@ theorem flow_mem_of_proj {P B : H →L[ℂ] H} (hPB : P * B = B)
     simpa [Function.comp_def, hPZ'] using h
   have hdderiv : ∀ u : ℝ, HasDerivAt d 0 u := by
     intro u
-    simpa [hd] using (hPfderiv u).sub (hfderiv u)
+    rw [hd]
+    have h := (hPfderiv u).sub (hfderiv u)
+    rw [sub_self] at h
+    exact h
   have hconst : d t = d 0 :=
     is_const_of_deriv_eq_zero (fun u => (hdderiv u).differentiableAt)
       (fun u => (hdderiv u).deriv) t 0

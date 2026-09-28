@@ -68,8 +68,10 @@ theorem invariant_apply_zpow {N : ℕ} {σ : Equiv.Perm (Fin N)} {a : Idx N}
     | succ k ih => ?_
     all_goals simp_all only [zero_add, pow_succ', pow_zero, mul_one]
     · grind;
-    · convert ih ( σ⁻¹ x ) using 1;
-      rw [ ← ha ( σ⁻¹ x ) ] ; simp
+    · convert ih ( σ⁻¹ x ) using 1
+      · rfl
+      · rw [← ha (σ⁻¹ x)]
+        simp [Equiv.apply_symm_apply]
 
 /-- An invariant tuple takes the same value on elements in the same cycle. -/
 theorem invariant_sameCycle {N : ℕ} {σ : Equiv.Perm (Fin N)} {a : Idx N}

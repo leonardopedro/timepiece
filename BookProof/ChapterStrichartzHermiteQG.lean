@@ -46,7 +46,7 @@ open MeasureTheory BookProof.HermiteCore BookProof.FarisLavine
 open BookProof.QuantumGravityDensitized
 
 /-- `L²(ℝ)` with the Lebesgue measure. -/
-abbrev L2R := Lp ℂ 2 (volume : Measure ℝ)
+noncomputable abbrev L2R := Lp ℂ 2 (volume : Measure ℝ)
 
 /-- The unitary `L²(ℝ) ≃ ℓ²(ℕ)` given by the Hermite basis. -/
 noncomputable def hermiteRepr : L2R ≃ₗᵢ[ℂ] L2Nat := hermiteBasis.repr
@@ -140,6 +140,9 @@ theorem hermiteCoreOp_hermiteLp (lam : ℕ → ℝ) (n : ℕ) :
   simp only [hermiteCoreOp, LinearMap.comp_apply, Submodule.inclusion_apply, hermiteDiagOp,
     hsub, mulHamiltonian_mulBasis, hsmul]
   simp
+  all_goals first
+  | exact rfl
+  | trace_state
 
 /-! ## Symmetry, deficiency, essential self-adjointness -/
 

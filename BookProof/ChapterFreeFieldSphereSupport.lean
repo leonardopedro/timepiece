@@ -56,7 +56,7 @@ null.  (For `n = 0` the space is a single point of full mass, so the hypothesis
 -/
 theorem stdGaussian_singleton (hn : 0 < n) (x : EuclideanSpace ℝ (Fin n)) :
     stdGaussian n {x} = 0 := by
-  rw [ stdGaussian, Measure.map_apply ];
+  rw [ ChapterFreeFieldGaussian.stdGaussian, Measure.map_apply ];
   · rw [ show ( WithLp.toLp 2 ⁻¹' { x } : Set ( Fin n → ℝ ) ) = { fun i => x i } from ?_ ];
     · convert MeasureTheory.Measure.pi_pi _ _;
       rotate_right;

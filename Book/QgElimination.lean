@@ -205,6 +205,7 @@ Open items, as obligations:
  * the decoupling of the scalaron and vielbein one-particle operators in the *fiber* model is an
    assumption, not a theorem; the eliminated full model does not need it, but the closed-form
    spectrum of the fiber model does.
+:::
 
 :::paragraph
 Two of the plan's general obligations, which used to be listed per sector, no

@@ -133,7 +133,6 @@ theorem inner_reduces_to_head (N : ℕ) (headDist : Measure (_root_.InnerHead N)
       (g₂' z.1) * star (g₁' z.1) ∂(headDist.prod _root_.tailMeasure) := by
     rw [MeasureTheory.L2.inner_def (𝕜 := ℂ) Ψ₁ Ψ₂]
     simp_rw [RCLike.inner_apply]
-    dsimp [_root_.stateMeasure]
     refine integral_congr_ae ?_
     filter_upwards with z
     simp [hg₁, hg₂]
@@ -146,7 +145,7 @@ theorem inner_reduces_to_head (N : ℕ) (headDist : Measure (_root_.InnerHead N)
           ((Ψ₂ : _root_.InnerSpace N → ℂ) z) * star ((Ψ₁ : _root_.InnerSpace N → ℂ) z))
           (headDist.prod _root_.tailMeasure) := by
         have h := MeasureTheory.L2.integrable_inner (𝕜 := ℂ) Ψ₁ Ψ₂
-        simpa [RCLike.inner_apply] using h
+        simpa [RCLike.inner_apply, _root_.stateMeasure] using h
       have h_eq : (fun z : _root_.InnerSpace N => (g₂' z.1) * star (g₁' z.1))
           =ᵐ[headDist.prod _root_.tailMeasure]
           (fun z =>

@@ -160,8 +160,9 @@ theorem transportUnitary_zero (W : H ≃ₗᵢ[ℂ] K) (U : H ≃ₗᵢ[ℂ] H) 
 theorem tendsto_transportUnitary (W : H ≃ₗᵢ[ℂ] K) (U : ℝ → H ≃ₗᵢ[ℂ] H)
     (h : ∀ x : H, Filter.Tendsto (fun t : ℝ => U t x) (nhds 0) (nhds x)) (y : K) :
     Filter.Tendsto (fun t : ℝ => transportUnitary W (U t) y) (nhds 0) (nhds y) := by
-  have := (W.continuous.tendsto (W.symm y)).comp (h (W.symm y))
-  simpa [Function.comp] using this
+  have h1 := (W.continuous.tendsto (W.symm y)).comp (h (W.symm y))
+  rw [LinearIsometryEquiv.apply_symm_apply] at h1
+  exact h1
 
 /-- **Stone's relation transports**: if `A` generates `U` on `D`, then `W A W⁻¹`
 generates `W U W⁻¹` on `W(D)`. -/
@@ -178,7 +179,7 @@ theorem tendsto_slope_transportUnitary (W : H ≃ₗᵢ[ℂ] K) (D : Submodule �
   have hlim : Filter.Tendsto
       (fun t : ℝ => W ((t⁻¹ : ℝ) • (U t (a : H) - (a : H))))
       (nhdsWithin 0 {0}ᶜ) (nhds (W (Complex.I • A a))) := by
-    simpa [Function.comp] using hW
+    exact hW
   rw [map_smul] at hlim
   refine hlim.congr fun t => ?_
   rw [map_real_smul, map_sub, transportUnitary_apply, transportEquiv_coe,

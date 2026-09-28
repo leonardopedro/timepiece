@@ -225,8 +225,8 @@ theorem gaussian_concentration_sphere :
         ∂(ProbabilityTheory.gaussianReal 0 1) := by
         have h_map : MeasureTheory.Measure.map (fun x : ℕ → ℝ => x 0) gammaMeasure =
           ProbabilityTheory.gaussianReal 0 1 := by
-          convert MeasureTheory.Measure.infinitePi_map_eval _ _ using 1;
-          exact fun _ => by infer_instance;
+          convert MeasureTheory.Measure.infinitePi_map_eval _ _ using 1
+          <;> (first | rfl | infer_instance);
         rw [ ← h_map, MeasureTheory.integral_map ];
         · exact measurable_pi_apply 0 |> Measurable.aemeasurable;
         · exact Continuous.aestronglyMeasurable ( continuous_pow 2 );
@@ -256,8 +256,8 @@ theorem gaussian_concentration_sphere :
     exact h_integrable;
   · have h_indep : ProbabilityTheory.iIndepFun (fun i : ℕ => fun ω : ℕ → ℝ => ω i) gammaMeasure
     := by
-      convert ProbabilityTheory.iIndepFun_infinitePi ( fun i => measurable_id ) using 1;
-      infer_instance;
+      convert ProbabilityTheory.iIndepFun_infinitePi ( fun i => measurable_id ) using 1
+      <;> (first | rfl | infer_instance);
     exact fun i j hij => h_indep.indepFun hij |> fun h => h.comp ( measurable_id.pow_const 2 ) (
       measurable_id.pow_const 2 );
   · intro i
@@ -271,7 +271,7 @@ theorem gaussian_concentration_sphere :
           intro i
           generalize_proofs at *; (
           convert MeasureTheory.Measure.infinitePi_map_eval ( fun _ =>
-            ProbabilityTheory.gaussianReal 0 1 ) i using 1);
+            ProbabilityTheory.gaussianReal 0 1 ) i using 1 <;> (first | rfl | infer_instance));
         rw [ h_map i, h_map 0 ]
     generalize_proofs at *; (
     exact h_ident.comp ( measurable_id.pow_const 2 ))

@@ -84,7 +84,9 @@ theorem eq_zero_of_hasDerivAt_smul_of_bounded (g : ℝ → ℂ) (s C : ℝ) (hs 
     intro t
     have h1 : HasDerivAt (fun t : ℝ => Real.exp (-(s * t))) (-s * Real.exp (-(s * t))) t := by
       have hlin : HasDerivAt (fun t : ℝ => -(s * t)) (-s) t := by
-        simpa using ((hasDerivAt_id t).const_mul s).neg
+        have h0 := ((hasDerivAt_id t).const_mul s).neg
+        simp only [id, mul_one] at h0
+        exact h0
       simpa [mul_comm] using hlin.exp
     have h2 := h1.smul (hgd t)
     have heq : Real.exp (-(s * t)) • ((s : ℂ) * g t) + (-s * Real.exp (-(s * t))) • g t = 0 := by
@@ -237,8 +239,12 @@ theorem hasZeroDeficiencyOn_of_bounded_symmetric (A : F →L[ℂ] F)
     exact (symmetric_hasZeroDeficiency (A : F →ₗ[ℂ] F) hsym).1 w (key Complex.I w hw)
   · intro w hw
     refine (symmetric_hasZeroDeficiency (A : F →ₗ[ℂ] F) hsym).2 w ?_
-    have := key (-Complex.I) w (by simpa using hw)
-    simpa using this
+    have hkey := key (-Complex.I) w (by
+      have h2 := hw
+      simp only [← neg_smul] at h2
+      exact h2)
+    simp only [neg_smul] at hkey
+    exact hkey
 
 end Abstract
 

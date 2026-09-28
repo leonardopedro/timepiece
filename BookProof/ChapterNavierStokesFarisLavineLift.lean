@@ -244,21 +244,27 @@ theorem diagComparison_eq (d : ℕ) (p q : Fin d → ℕ → ℝ) :
     have hcomp : ∀ i : Fin d, ((diagComparisonData d p q).mom i).comp
         ((diagComparisonData d p q).mom i) = diagOp (fun k => p i k ^ 2) := by
       intro i
-      rw [show ((diagComparisonData d p q).mom i) = diagOp (p i) from rfl,
-        FullEsa.diagOp_comp]
+      refine (FullEsa.diagOp_comp (p i) (p i)).trans ?_
       simp [sq]
-    rw [Finset.sum_congr rfl fun i _ => hcomp i, FullEsa.diagOp_sum]
+    rw [Finset.sum_congr rfl fun i _ => hcomp i]
+    exact (FullEsa.diagOp_sum (Finset.univ : Finset (Fin d)) fun i k => p i k ^ 2).trans rfl
   have hdrift : (∑ i, ((diagComparisonData d p q).drift i).comp
       ((diagComparisonData d p q).drift i)) = diagOp (fun k => ∑ i, q i k ^ 2) := by
     have hcomp : ∀ i : Fin d, ((diagComparisonData d p q).drift i).comp
         ((diagComparisonData d p q).drift i) = diagOp (fun k => q i k ^ 2) := by
       intro i
-      rw [show ((diagComparisonData d p q).drift i) = diagOp (q i) from rfl,
-        FullEsa.diagOp_comp]
+      refine (FullEsa.diagOp_comp (q i) (q i)).trans ?_
       simp [sq]
-    rw [Finset.sum_congr rfl fun i _ => hcomp i, FullEsa.diagOp_sum]
-  rw [ComparisonData.comparison, hmom, hdrift, diagOp_one, FullEsa.diagOp_add,
-    FullEsa.diagOp_add]
+    rw [Finset.sum_congr rfl fun i _ => hcomp i]
+    exact (FullEsa.diagOp_sum (Finset.univ : Finset (Fin d)) fun i k => q i k ^ 2).trans rfl
+  rw [ComparisonData.comparison, hmom, hdrift]
+  have h1 :
+      (diagOp fun k => ∑ i, p i k ^ 2) + (diagOp fun k => ∑ i, q i k ^ 2)
+          + (LinearMap.id : lpFiniteModes ℕ →ₗ[ℂ] lpFiniteModes ℕ)
+        = diagOp (fun k => (∑ i, p i k ^ 2) + (∑ i, q i k ^ 2) + 1) := by
+    rw [diagOp_one, FullEsa.diagOp_add, FullEsa.diagOp_add]
+    all_goals rfl
+  exact h1
 
 /-- **The one-particle comparison operator is essentially self-adjoint** in the
 momentum representation, with no hypothesis whatsoever on the symbols: this is

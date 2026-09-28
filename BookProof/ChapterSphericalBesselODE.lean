@@ -106,7 +106,7 @@ theorem second_deriv_gIter (l : ℕ) {r : ℝ} (hr : r ≠ 0) :
   have hEq : deriv (gIter l) =ᶠ[nhds r] fun x => -x * gIter (l + 1) x := by
     filter_upwards [isOpen_ne.mem_nhds hr] with x hx using deriv_gIter_eq l hx
   have hneg : HasDerivAt (fun x : ℝ => -x) (-1 : ℝ) r := by
-    simpa using (hasDerivAt_id r).neg
+    simpa using! (hasDerivAt_id r).neg
   have hD : HasDerivAt (fun x : ℝ => -x * gIter (l + 1) x)
       (-1 * gIter (l + 1) r + -r * deriv (gIter (l + 1)) r) r :=
     hneg.mul ((diffAt_gIter (l + 1) hr).hasDerivAt)
@@ -131,7 +131,7 @@ theorem gIter_ode_zero {r : ℝ} (hr : r ≠ 0) :
     filter_upwards [isOpen_ne.mem_nhds hr] with x hx using (hasDerivAt_sbesselBase hx).deriv
   have h3 : HasDerivAt (fun x : ℝ => Real.cos x / x)
       ((-Real.sin r * r - Real.cos r * 1) / r ^ 2) r := by
-    simpa using (Real.hasDerivAt_cos r).div (hasDerivAt_id r) hr
+    simpa using! (Real.hasDerivAt_cos r).div (hasDerivAt_id r) hr
   have h4 : HasDerivAt (fun x : ℝ => Real.sin x / x ^ 2)
       ((Real.cos r * r ^ 2 - Real.sin r * (2 * r)) / (r ^ 2) ^ 2) r := by
     have h : HasDerivAt (fun x : ℝ => x ^ 2) (2 * r) r := by simpa using hasDerivAt_pow 2 r
@@ -228,7 +228,7 @@ theorem sbessel_ode (l : ℕ) {r : ℝ} (hr : r ≠ 0) :
       (((l : ℝ) * deriv (gIter l) r * r - (l : ℝ) * gIter l r) / r ^ 2) r := by
     have h1 : HasDerivAt (fun x : ℝ => (l : ℝ) * gIter l x) ((l : ℝ) * deriv (gIter l) r) r :=
       ((diffAt_gIter l hr).hasDerivAt).const_mul _
-    simpa using h1.div (hasDerivAt_id r) hr
+    simpa using! h1.div (hasDerivAt_id r) hr
   have hinner : HasDerivAt (fun x : ℝ => (l : ℝ) * gIter l x / x + deriv (gIter l) x)
       ((((l : ℝ) * deriv (gIter l) r * r - (l : ℝ) * gIter l r) / r ^ 2)
         + deriv (deriv (gIter l)) r) r :=

@@ -94,6 +94,7 @@ Reconstruction: `T† σ^ν T = ∑_μ Υ(T)^μ_ν σ^μ`.
 theorem upsilon_recon (T : Matrix (Fin 2) (Fin 2) ℂ) (ν : Fin 4) :
     Tᴴ * pauliσ ν * T = ∑ μ, UpsilonC T μ ν • pauliσ μ := by
   convert pauli_expand ( Tᴴ * pauliσ ν * T ) using 1
+  simp only [UpsilonC, Matrix.of_apply]
 
 /-
 `Υ` is an anti-homomorphism: `Υ(T U) = Υ(U) Υ(T)`.
@@ -115,19 +116,18 @@ The entries of `Υ(T)` are real (fixed by complex conjugation).
 -/
 theorem upsilonC_real (T : Matrix (Fin 2) (Fin 2) ℂ) (μ ν : Fin 4) :
     conj (UpsilonC T μ ν) = UpsilonC T μ ν := by
-  unfold UpsilonC pauliCoeff;
-  field_simp;
-  convert congr_arg ( fun x : ℂ => x / 2 ) ( show ( starRingEnd ℂ ) ( Matrix.trace ( pauliσ μ * ( Tᴴ
-      * pauliσ ν * T ) ) ) = Matrix.trace ( pauliσ μ * ( Tᴴ * pauliσ ν * T ) ) from ?_ ) using 1;
-  · norm_num [ Complex.ext_iff, div_eq_mul_inv ];
-  · -- By the properties of the trace and the Hermitian nature of the Pauli matrices, we can show
-    -- that the trace of the conjugate transpose is equal to the trace of the original matrix.
-    have h_trace_conj : ∀ (M : Matrix (Fin 2) (Fin 2) ℂ),      (starRingEnd ℂ) (Matrix.trace M) =
-        Matrix.trace (Mᴴ) := by
-      simp [ Matrix.trace, Matrix.conjTranspose ];
-    rw [ h_trace_conj, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul
-        ];
-    rw [ ← Matrix.trace_mul_comm ] ; simp [ Matrix.mul_assoc, pauliσ_herm ] ;
+  simp only [UpsilonC, Matrix.of_apply, pauliCoeff]
+  have hc : ∀ M : Matrix (Fin 2) (Fin 2) ℂ, conj (Matrix.trace M) = Matrix.trace (Mᴴ) := by
+    intro M
+    simp [Matrix.trace, Matrix.conjTranspose]
+  have h2 : conj ((2:ℂ)⁻¹) = (2:ℂ)⁻¹ := by rw [Complex.conj_inv, Complex.conj_ofNat]
+  have htr : Matrix.trace ((pauliσ μ * (Tᴴ * pauliσ ν * T))ᴴ)
+      = Matrix.trace (pauliσ μ * (Tᴴ * pauliσ ν * T)) := by
+    repeat rw [Matrix.conjTranspose_mul]
+    rw [Matrix.conjTranspose_conjTranspose, pauliσ_herm μ, pauliσ_herm ν]
+    rw [Matrix.trace_mul_comm]
+    simp [mul_assoc]
+  rw [map_mul, h2, hc, htr]
 
 /-- The real Lorentz matrix `Υ(T)`. -/
 noncomputable def Upsilon (T : Matrix (Fin 2) (Fin 2) ℂ) :

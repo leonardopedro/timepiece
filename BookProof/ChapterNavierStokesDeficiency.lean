@@ -42,7 +42,7 @@ namespace BookProof.NavierStokesFlow
 namespace LpNat
 
 /-- The Hilbert space `ℓ²(ℕ)`. -/
-abbrev L2N := lp (fun _ : ℕ => ℂ) 2
+noncomputable abbrev L2N := lp (fun _ : ℕ => ℂ) 2
 
 /-- Square-summability of the moduli is membership in `ℓ²`. -/
 theorem memLpTwo_of_summable_normSq {ι : Type*} {g : ι → ℂ}
@@ -168,7 +168,7 @@ noncomputable def jacobiOp : lpFiniteModes ℕ →ₗ[ℂ] lpFiniteModes ℕ whe
       exact mem_lpFiniteModes_of_tail_zero (N := N + 1) (jacobiFun_tail_zero hN)⟩
   map_add' f g := by
     ext n
-    simpa using jacobiFun_add ((f : L2N) : ℕ → ℂ) ((g : L2N) : ℕ → ℂ) n
+    exact jacobiFun_add ((f : L2N) : ℕ → ℂ) ((g : L2N) : ℕ → ℂ) n
   map_smul' c f := by
     ext n
     simpa using jacobiFun_smul c ((f : L2N) : ℕ → ℂ) n
@@ -343,7 +343,11 @@ theorem diagOp_basis (c : ℕ → ℝ) (n : ℕ) : diagOp c (basis n) = ((c n : 
   by_cases hmn : m = n
   · subst hmn
     simp [diagOp, basis, diagFun, lp.single_apply]
+    change ↑(c m) = c m • ((lp.single 2 m 1 : lp (fun _ : ℕ => ℂ) 2) : ℕ → ℂ) m
+    simp [lp.single_apply]
   · simp [diagOp, basis, diagFun, lp.single_apply, Pi.single_eq_of_ne hmn]
+    change 0 = c n • ((lp.single 2 n 1 : lp (fun _ : ℕ => ℂ) 2) : ℕ → ℂ) m
+    simp [Pi.single_eq_of_ne hmn]
 
 /-- The basis states are total: only `0` is orthogonal to all of them. -/
 theorem basis_total (w : L2N) (hw : ∀ n, (inner ℂ ((basis n : lpFiniteModes ℕ) : L2N) w : ℂ) = 0) :

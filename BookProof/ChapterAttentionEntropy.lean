@@ -133,9 +133,9 @@ theorem tendsto_shannonEntropy_scoreSoftmax (s : Fin m → ℝ) (j : Fin m)
     by_cases hl : l = j
     · subst hl
       have h := (Real.continuous_mul_log.tendsto 1).comp (tendsto_scoreSoftmax_max s l hmax)
-      simpa [Function.comp] using h
+      convert h using 1 <;> (first | rfl | simp)
     · have h := (Real.continuous_mul_log.tendsto 0).comp (tendsto_scoreSoftmax_ne s j l hmax hl)
-      simpa [Function.comp] using h
+      convert h using 1 <;> (first | rfl | simp)
   have hsum : Tendsto
       (fun b : ℝ => ∑ l, scoreSoftmax b s l * Real.log (scoreSoftmax b s l)) atTop (𝓝 0) := by
     have h := tendsto_finset_sum (Finset.univ : Finset (Fin m))
@@ -159,7 +159,7 @@ theorem tendsto_shannonEntropy_bornWeight_smul_query {n : ℕ}
   have hscale : Tendsto (fun c : ℝ => 2 * c) atTop atTop :=
     Filter.tendsto_id.const_mul_atTop (by norm_num)
   have hlim := (tendsto_shannonEntropy_scoreSoftmax (fun i => inner ℝ q (k i)) j hmax).comp hscale
-  simpa [Function.comp, hrewrite] using hlim
+  convert hlim using 1 <;> (first | rfl | (funext x; rw [hrewrite x]; rfl))
 
 end BookProof.ChapterAttentionEntropy
 

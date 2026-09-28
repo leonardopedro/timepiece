@@ -60,7 +60,9 @@ theorem trunc_coe [DecidableEq ι] (c : ι → ℝ) (x : maxDom c) (S : Finset �
     ((trunc c x S : lpFiniteModes ι) : L2I ι) k =
       if k ∈ S then ((x : L2I ι) : ι → ℂ) k else 0 := by
   classical
-  simp [trunc]
+  show ((∑ i ∈ S, lp.single 2 i (((x : L2I ι) : ι → ℂ) i) : L2I ι) : ι → ℂ) k
+    = if k ∈ S then ((x : L2I ι) : ι → ℂ) k else 0
+  exact coe_sum_single S _ k
 
 theorem trunc_add [DecidableEq ι] (c : ι → ℝ) (x y : maxDom c) (S : Finset ι) :
     trunc c (x + y) S = trunc c x S + trunc c y S := by
@@ -84,7 +86,8 @@ theorem tendsto_trunc [DecidableEq ι] (c : ι → ℝ) (x : maxDom c) :
   classical
   have h : HasSum (fun i : ι => lp.single 2 i (((x : L2I ι) : ι → ℂ) i)) ((x : L2I ι)) :=
     lp.hasSum_single (by norm_num) _
-  simpa [trunc] using h
+  simp [trunc]
+  exact h
 
 /-- The truncations converge in the graph norm of the comparison operator. -/
 theorem tendsto_diag_trunc [DecidableEq ι] (c : ι → ℝ) (x : maxDom c) :
@@ -103,7 +106,8 @@ theorem tendsto_diag_trunc [DecidableEq ι] (c : ι → ℝ) (x : maxDom c) :
     by_cases hk : k ∈ S
     · simp [hk, this, hv, diagMax_coe]
     · simp [hk, this]
-  simpa [heq] using h
+  simp [heq]
+  exact h
 
 /-! ## 2. The extension of a core operator -/
 

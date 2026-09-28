@@ -161,7 +161,8 @@ theorem norm_expU_sub_apply_le (hB : IsSelfAdjoint B) (hC : IsSelfAdjoint C)
       have he : -(expU B (t - r) * gB) = Complex.I • (expU B (t - r) * B) := by
         rw [hgB, mul_smul_comm, neg_smul, neg_neg]
       rw [he]
-      simpa using h3
+      convert h3 using 1 <;>
+        (first | rfl | simp only [neg_smul, one_smul, mul_neg, neg_neg, mul_smul_comm])
     have hd : HasDerivAt (fun r : ℝ => expU C r) (expU C r * gC) r := hasDerivAt_expU C r
     have hmul := hc.mul hd
     have hEq : -(expU B (t - r) * gB) * expU C r + expU B (t - r) * (expU C r * gC) = D r := by
@@ -743,7 +744,8 @@ theorem eq_unitaryU_of_hasDerivAt (hT : IsNonnegSelfAdjoint T)
     intro s
     have h2 := hasDerivAt_unitaryU hT hsv (hmem 0) s
     have h3 := (hu s).sub h2
-    simpa [hwdef, hkwdef, smul_sub] using h3
+    convert h3 using 1 <;>
+      (first | rfl | rw [hkwdef, smul_sub])
   have hf : ∀ s : ℝ, HasDerivAt (fun r : ℝ => ‖w r‖ ^ 2) 0 s := by
     intro s
     have hin := (hderivw s).inner ℂ (hderivw s)

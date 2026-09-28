@@ -46,7 +46,7 @@ variable {n : ℕ}
 /-- The positive support is a subset of all `n` coordinates, so its cardinality
 is at most `n`. -/
 theorem posSupport_card_le_n {p : Fin n → ℝ} : (posSupport p).card ≤ n := by
-  simpa using Finset.card_filter_le Finset.univ (fun k => 0 < p k)
+  simpa [posSupport] using Finset.card_filter_le Finset.univ (fun k => 0 < p k)
 
 /-- Every Born fiber has at most `2 ^ n` points: the `{±1}ⁿ` sign gauge acts
 freely only on the positive support, whose size is at most `n`. -/

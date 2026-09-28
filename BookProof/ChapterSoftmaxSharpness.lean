@@ -173,7 +173,7 @@ theorem tendsto_scoreSoftmax_ne (s : Fin m → ℝ) (j i : Fin m)
     rw [scoreSoftmax, hfac, show Real.exp (b * s i)
         = Real.exp (b * s j) * Real.exp (b * (s i - s j)) by rw [← Real.exp_add]; ring_nf,
       mul_div_mul_left _ _ (Real.exp_ne_zero _)]
-  simpa [heq, zero_div] using hquot
+  simpa [heq, zero_div] using! hquot
 
 /-! ## The resolution: the coherent Born rule does sharpen -/
 
@@ -195,7 +195,7 @@ theorem tendsto_coherentBorn_smul_query (q : EuclideanSpace ℝ (Fin n))
   have hscale : Tendsto (fun c : ℝ => 2 * c) atTop atTop :=
     Filter.tendsto_id.const_mul_atTop (by norm_num)
   have hlim := (tendsto_scoreSoftmax_max (fun l => inner ℝ q (k l)) j hmax).comp hscale
-  simpa [hrewrite, Function.comp] using hlim
+  simpa [hrewrite, Function.comp] using! hlim
 
 /-- The losing keys of the same configuration are extinguished. -/
 theorem tendsto_coherentBorn_smul_query_ne (q : EuclideanSpace ℝ (Fin n))
@@ -210,7 +210,7 @@ theorem tendsto_coherentBorn_smul_query_ne (q : EuclideanSpace ℝ (Fin n))
   have hscale : Tendsto (fun c : ℝ => 2 * c) atTop atTop :=
     Filter.tendsto_id.const_mul_atTop (by norm_num)
   have hlim := (tendsto_scoreSoftmax_ne (fun l => inner ℝ q (k l)) j i hmax hi).comp hscale
-  simpa [hrewrite, Function.comp] using hlim
+  simpa [hrewrite, Function.comp] using! hlim
 
 end BookProof.ChapterSoftmaxSharpness
 

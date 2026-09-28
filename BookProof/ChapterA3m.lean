@@ -233,8 +233,7 @@ theorem swap12_parityDiag_comm : swap12 * parityDiag3 = parityDiag3 * swap12 := 
   exact swap12_kronecker _ _ _
 
 theorem swap23_parityDiag_comm : swap23 * parityDiag3 = parityDiag3 * swap23 := by
-  convert swap23_kronecker ( BookProof.ChapterA3.mgamma 0 ) ( BookProof.ChapterA3.mgamma 0 ) (
-      BookProof.ChapterA3.mgamma 0 ) using 1
+  exact swap23_kronecker _ _ _
 
 theorem swap13_parityDiag_comm : swap13 * parityDiag3 = parityDiag3 * swap13 := by
   have := @swap13_kronecker;

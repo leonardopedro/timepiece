@@ -118,7 +118,9 @@ theorem exists_factorization (g : Matrix.SpecialLinearGroup (Fin 2) ℂ) :
     apply Matrix.SpecialLinearGroup.ext
     intro i j
     fin_cases i <;> fin_cases j
-    all_goals simp [Matrix.SpecialLinearGroup.coe_mul, uPlus, uMinus, Matrix.mul_apply,
+    all_goals rw [Matrix.SpecialLinearGroup.coe_mul, Matrix.SpecialLinearGroup.coe_mul,
+      Matrix.SpecialLinearGroup.coe_mul]
+    all_goals simp [uPlus, uMinus, Matrix.mul_apply,
       Fin.sum_univ_two]
     all_goals field_simp
     all_goals try ring1
@@ -138,8 +140,8 @@ theorem exists_factorization (g : Matrix.SpecialLinearGroup (Fin 2) ℂ) :
         rw [h0, mul_zero] at hdet
         exact zero_ne_one hdet
       have : (h : Matrix (Fin 2) (Fin 2) ℂ) 1 0 = (g : Matrix (Fin 2) (Fin 2) ℂ) 1 1 := by
-        simp [hh, Matrix.SpecialLinearGroup.coe_mul, uMinus, Matrix.mul_apply, Fin.sum_univ_two,
-          hc]
+        rw [hh, Matrix.SpecialLinearGroup.coe_mul]
+        simp [uMinus, Matrix.mul_apply, Fin.sum_univ_two, hc]
       rw [this]
       exact h11
     obtain ⟨x, y, z, w, hfac⟩ : ∃ x y z w : ℂ, h = uPlus x * uMinus y * uPlus z * uMinus w :=
@@ -148,16 +150,18 @@ theorem exists_factorization (g : Matrix.SpecialLinearGroup (Fin 2) ℂ) :
     have hinv : uMinus w * uMinus (-1) = uMinus (w - 1) := by
       apply Matrix.SpecialLinearGroup.ext
       intro i j
-      fin_cases i <;> fin_cases j <;>
-        simp [Matrix.SpecialLinearGroup.coe_mul, uMinus, Matrix.mul_apply, Fin.sum_univ_two]
+      fin_cases i <;> fin_cases j
+      all_goals rw [Matrix.SpecialLinearGroup.coe_mul]
+      all_goals simp [uMinus, Matrix.mul_apply, Fin.sum_univ_two]
       ring
     have hg : g = h * uMinus (-1) := by
       rw [hh, mul_assoc]
       have : uMinus 1 * uMinus (-1) = 1 := by
         apply Matrix.SpecialLinearGroup.ext
         intro i j
-        fin_cases i <;> fin_cases j <;>
-          simp [Matrix.SpecialLinearGroup.coe_mul, uMinus, Matrix.mul_apply, Fin.sum_univ_two]
+        fin_cases i <;> fin_cases j
+        all_goals rw [Matrix.SpecialLinearGroup.coe_mul]
+        all_goals simp [uMinus, Matrix.mul_apply, Fin.sum_univ_two]
       rw [this, mul_one]
     rw [hg, hfac, mul_assoc, mul_assoc, ← mul_assoc (uPlus z), ← hinv]
     simp [mul_assoc]

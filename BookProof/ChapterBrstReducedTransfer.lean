@@ -104,7 +104,7 @@ theorem exactStates_invariant {f : H →L[ℂ] H} (h : ∀ y, f (Om y) = Om (f y
     have : f (Om y) ∈ exactStates Om := by
       rw [h y]; exact mem_exactStates_of_apply Om (f y)
     exact this
-  exact hsub (by simpa [exactStates, Submodule.topologicalClosure_coe] using hx)
+  exact hsub hx
 
 variable (Om)
 

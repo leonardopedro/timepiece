@@ -67,7 +67,11 @@ theorem mem_signStab {x : EuclideanSpace ℝ (Fin n)} {b : Fin n → Bool} :
       simp only [signStab, Finset.mem_filter, Finset.mem_univ, true_and, ne_eq];
       constructor <;> intro h <;> simp_all only [signFlip, WithLp.equiv_symm_apply];
       · intro k hk; replace h := congr_arg ( fun f => f k ) h; simp_all [ boolSign ] ;
-        grind;
+        by_cases hb : b k = true
+        · exact hb
+        · have hbf : b k = false := by simpa using hb
+          have hz0 : x.ofLp k = 0 := by linarith [h hbf]
+          exact absurd hz0 hk;
       · ext k; by_cases hk : x.ofLp k = 0 <;> simp_all [ boolSign ] ;
 
 /-
@@ -95,7 +99,13 @@ theorem signStab_card (x : EuclideanSpace ℝ (Fin n)) :
           Bool.or_false, Finset.mem_image, Finset.mem_powerset];
         constructor;
         · intro hb; use Finset.univ.filter (fun k => b k = false); simp_all ;
-          grind;
+          intro k hkb
+          simp at hkb
+          by_contra hnz
+          simp at hnz
+          have := hb k hnz
+          rw [hkb] at this
+          exact Bool.noConfusion this
         · rintro ⟨ a, ha, rfl ⟩ k hk; specialize ha; replace ha := @ha k; aesop;
 
 /-

@@ -81,6 +81,7 @@ theorem sum_finrank_WFam :
     (∑ i, finrank ℝ (WFam i)) = finrank ℝ (Matrix (Fin 4) (Fin 4) ℝ) := by
   convert BookProof.ChapterLorentzRealRepFull.finrank_full_eq_add.symm;
   convert Fin.sum_univ_four _
+  all_goals rfl
 
 /-
 **Internal direct sum.**  The four mutually orthogonal representation spaces
@@ -98,15 +99,15 @@ theorem WFam_isInternal : DirectSum.IsInternal WFam := by
           (Matrix (Fin 4) (Fin 4) ℝ) := by
         convert sum_finrank_WFam using 1;
         convert Module.finrank_directSum ℝ ( fun i => WFam i );
-      have h_inj : LinearMap.ker (DirectSum.coeLinearMap WFam) = ⊥ := by
-        have := LinearMap.finrank_range_add_finrank_ker ( DirectSum.coeLinearMap WFam );
-        rw [ h_surj, finrank_top ] at this ; aesop;
-      exact LinearMap.ker_eq_bot.mp h_inj;
+      exact ( OrzechProperty.bijective_of_surjective_of_finrank_le
+          ( DirectSum.coeLinearMap WFam ) ( LinearMap.range_eq_top.mp h_surj )
+          ( le_of_eq h_finrank ) ).injective;
     exact h_inj hxy;
   · convert LinearMap.range_eq_top.mp ( show LinearMap.range ( DirectSum.coeLinearMap WFam ) = ⊤
-      from ?_ ) using 1;
-    rw [ DirectSum.range_coeLinearMap ];
-    exact iSup_WFam_eq_top
+      from ?_ ) using 1
+    · rfl
+    · rw [ DirectSum.range_coeLinearMap ]
+      exact iSup_WFam_eq_top
 
 /-- **Independence.**  The four representation spaces are supremum-independent. -/
 theorem WFam_iSupIndep : iSupIndep WFam :=

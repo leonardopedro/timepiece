@@ -74,7 +74,7 @@ theorem p_eq_zero_of_forall_measure_zero {P : Pvm X H} {S : Set H}
   have hv : v ∈ closure ((Submodule.span ℂ (familyOrbit P S) : Submodule ℂ H) : Set H) :=
     hdense v
   have := (closure_minimal (fun w hw => hspan w hw) hclosed) hv
-  simpa using this
+  exact this
 
 /-! ## The scalar spectral measure -/
 

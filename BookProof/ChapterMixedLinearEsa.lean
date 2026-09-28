@@ -119,7 +119,7 @@ theorem posOp_deficiencyTrivialAt (b : V) {z : ℂ} (hz : z.im ≠ 0) :
     have hsupp : HasCompactSupport
         (fun x => (χ x : ℂ) * (((inner ℝ x b : ℝ) : ℂ) - (starRingEnd ℂ) z)⁻¹) := by
       refine HasCompactSupport.mul_right ?_
-      simpa using hχc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
+      exact hχc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
     obtain ⟨ψ, hψcoe⟩ : ∃ ψ : 𝓢(V, ℂ), (ψ : V → ℂ) =
         fun x => (χ x : ℂ) * (((inner ℝ x b : ℝ) : ℂ) - (starRingEnd ℂ) z)⁻¹ :=
       ⟨hsupp.toSchwartzMap hsmooth, rfl⟩
@@ -447,8 +447,7 @@ lemma hasDerivAt_gaugePhase_line (b m : V) (hm : m ≠ 0) (x : V) :
   have h3 := ((h1n.mul h2).div_const D).add (((h2.pow 2).const_mul B).div_const (2 * D ^ 2))
   simp only [Nat.cast_ofNat] at h3
   convert h3 using 1
-  field_simp
-  ring
+  all_goals first | rfl | (field_simp; ring) | trace_state
 
 omit [FiniteDimensional ℝ V] [MeasurableSpace V] [BorelSpace V] in
 lemma hasDerivAt_gaugeFun_line (b m : V) (hm : m ≠ 0) (x : V) :
@@ -510,7 +509,9 @@ lemma mixedLinearOp_gauge (b m : V) (hm : m ≠ 0) (φ : 𝓢(V, ℂ))
   have hprod : HasDerivAt (fun t : ℝ => gaugeFun b m (x + t • m) * φ (x + t • m))
       ((gaugeFun b m x * (Complex.I * ((-(inner ℝ x b : ℝ) : ℝ) : ℂ))) * φ x
         + gaugeFun b m x * fderiv ℝ (φ : V → ℂ) x m) 0 := by
-    simpa using hνd.mul hφd
+    have h := hνd.mul hφd
+    simp only [zero_smul, add_zero] at h
+    exact h
   have hgd : HasDerivAt (fun t : ℝ => (gaugeSchwartz b m φ hφ) (x + t • m))
       (fderiv ℝ ((gaugeSchwartz b m φ hφ) : V → ℂ) x m) 0 :=
     ((gaugeSchwartz b m φ hφ).differentiableAt).hasFDerivAt.hasLineDerivAt m
@@ -670,7 +671,9 @@ lemma potMomOp_gauge {W θ : V → ℝ} (hW : Function.HasTemperateGrowth W) {m 
   have hprod : HasDerivAt (fun t : ℝ => phaseFun θ (x + t • m) * φ (x + t • m))
       ((phaseFun θ x * (Complex.I * ((-(W x) : ℝ) : ℂ))) * φ x
         + phaseFun θ x * fderiv ℝ (φ : V → ℂ) x m) 0 := by
-    simpa using hνd.mul hφd
+    have h := hνd.mul hφd
+    simp only [zero_smul, add_zero] at h
+    exact h
   have hgd : HasDerivAt (fun t : ℝ => (phaseSchwartz hθ φ hφ) (x + t • m))
       (fderiv ℝ ((phaseSchwartz hθ φ hφ) : V → ℂ) x m) 0 :=
     ((phaseSchwartz hθ φ hφ).differentiableAt).hasFDerivAt.hasLineDerivAt m
@@ -757,7 +760,7 @@ lemma hasTemperateGrowth_polyPotential (c : ℕ → ℝ) (n : ℕ) (m : V) :
     Function.HasTemperateGrowth (polyPotential c n m) := by
   unfold polyPotential
   refine Function.HasTemperateGrowth.sum fun i _ => ?_
-  simpa using (Function.HasTemperateGrowth.const (c i)).mul
+  exact (Function.HasTemperateGrowth.const (c i)).mul
     ((Function.hasTemperateGrowth_inner_left m).pow i)
 
 omit [FiniteDimensional ℝ V] [MeasurableSpace V] [BorelSpace V] in
@@ -792,11 +795,15 @@ lemma hasDerivAt_polyPhase_line (c : ℕ → ℝ) (n : ℕ) {m : V} (hm : m ≠ 
     intro i _
     have h1 : HasDerivAt (fun t : ℝ => ((inner ℝ x m : ℝ) + t * ‖m‖ ^ 2) ^ (i + 1))
         (((i : ℝ) + 1) * ((inner ℝ x m : ℝ)) ^ i * ‖m‖ ^ 2) 0 := by
-      simpa using hbase.pow (i + 1)
+      have h := hbase.pow (i + 1)
+      simp only [Nat.cast_add, Nat.cast_one, zero_mul, add_zero, Nat.add_sub_cancel] at h
+      exact h
     have h2 := ((h1.const_mul (c i)).div_const (((i : ℝ) + 1) * ‖m‖ ^ 2)).neg
-    convert h2 using 1
     have hi0 : ((i : ℝ) + 1) ≠ 0 := by positivity
-    field_simp
+    convert h2 using 1
+    all_goals first | rfl
+      | (rw [neg_inj, eq_div_iff (mul_ne_zero hi0 hD0)]; ring)
+      | (field_simp; ring) | trace_state
   have hsum := HasDerivAt.sum hterm
   have hfe : (∑ i ∈ Finset.range n, fun t : ℝ =>
         -(c i * ((inner ℝ x m : ℝ) + t * ‖m‖ ^ 2) ^ (i + 1) / (((i : ℝ) + 1) * ‖m‖ ^ 2)))
@@ -805,7 +812,7 @@ lemma hasDerivAt_polyPhase_line (c : ℕ → ℝ) (n : ℕ) {m : V} (hm : m ≠ 
     funext fun t => by simp
   rw [hfe] at hsum
   convert hsum using 1
-  simp [polyPotential]
+  all_goals first | rfl | (simp [polyPotential, Finset.sum_neg_distrib]; done) | trace_state
 
 /-- **A polynomial potential in the momentum direction plus the momentum operator.**  For
 arbitrary real coefficients `c`, degree bound `n` and direction `m ≠ 0`, the operator

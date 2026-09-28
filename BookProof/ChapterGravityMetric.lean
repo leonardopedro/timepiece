@@ -55,7 +55,7 @@ noncomputable def spatialMetric (v : Fin 4 → ℝ) : Matrix (Fin 4) (Fin 4) ℝ
 -/
 theorem spatialMetric_symm (v : Fin 4 → ℝ) :
     (spatialMetric v)ᵀ = spatialMetric v := by
-      unfold spatialMetric; ext i j; simp only [lower, transpose_apply, add_apply, of_apply,
+      unfold spatialMetric; ext i j; simp only [lower, transpose_apply, Matrix.add_apply, of_apply,
           mul_comm, add_left_inj] ;
       unfold metric; fin_cases i <;> fin_cases j <;> rfl;
 
@@ -65,7 +65,7 @@ with its free index lowered by the Minkowski metric.
 -/
 theorem spatialMetric_eq_metric_mul_proj (v : Fin 4 → ℝ) :
     spatialMetric v = metric * spatialProj v := by
-      ext a b; simp only [spatialMetric, add_apply, of_apply, spatialProj, mul_apply,
+      ext a b; simp only [spatialMetric, Matrix.add_apply, of_apply, spatialProj, mul_apply,
           Fin.sum_univ_four, Fin.isValue] ; ring;
       simp only [metric, Fin.isValue, lower, mulVec, dotProduct, Fin.sum_univ_four] ; ring;
       fin_cases a <;> fin_cases b <;> simp [ Matrix.one_apply ]; all_goals ring
@@ -131,11 +131,12 @@ The packaged positive-semidefiniteness of the induced spatial metric.
 theorem spatialMetric_posSemidef (v : Fin 4 → ℝ) (hv : minkSq v = -1) :
     (spatialMetric v).PosSemidef := by
       constructor;
-      · ext i j; simp only [spatialMetric, conjTranspose_apply, add_apply, of_apply, star_trivial] ;
+      · ext i j; simp only [spatialMetric, conjTranspose_apply, Matrix.add_apply, of_apply, star_trivial] ;
         unfold metric; fin_cases i <;> fin_cases j <;> simp [ mul_comm ] ;
       · intro x;
-        convert spatialMetric_quadForm_nonneg v ( fun i => x i ) hv using 1;
-        simp [ Finsupp.sum_fintype, dotProduct, Matrix.mulVec, Finset.mul_sum _ _ _, mul_comm,
+        convert spatialMetric_quadForm_nonneg v ( fun i => x i ) hv using 1
+        · rfl
+        · simp [ Finsupp.sum_fintype, dotProduct, Matrix.mulVec, Finset.mul_sum _ _ _, mul_comm,
             mul_left_comm ]
 
 end BookProof.ChapterGravityMetric

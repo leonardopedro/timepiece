@@ -183,7 +183,7 @@ theorem deficiencyTrivialAt_of_farisLavine_dense [CompleteSpace F]
       simpa using this.div_const (|d| - c / 2)
     have hsqrt : Tendsto (fun n : ℕ => Real.sqrt
         ((A + |d| * M) * (1 / ((n : ℝ) + 1)) / (|d| - c / 2))) atTop (𝓝 0) := by
-      simpa using (Real.continuous_sqrt.tendsto 0).comp hK
+      simpa [Function.comp] using! (Real.continuous_sqrt.tendsto 0).comp hK
     refine squeeze_zero (fun n => norm_nonneg _) (fun n => ?_) hsqrt
     apply Real.le_sqrt_of_sq_le
     have h1 := ht_le n
@@ -351,7 +351,7 @@ theorem dense_range_add_one_of_esa_of_pos [CompleteSpace F] (N : D →ₗ[ℂ] F
     rw [tendsto_zero_iff_norm_tendsto_zero]
     have hK : Tendsto (fun n : ℕ => Real.sqrt (4 * M * (1 / ((n : ℝ) + 1)))) atTop (𝓝 0) := by
       have := (tendsto_one_div_add_atTop_nhds_zero_nat.const_mul (4 * M))
-      simpa using (Real.continuous_sqrt.tendsto 0).comp (by simpa using this)
+      simpa [Function.comp] using! (Real.continuous_sqrt.tendsto 0).comp (by simpa using this)
     refine squeeze_zero (fun n => norm_nonneg _) (fun n => ?_) hK
     apply Real.le_sqrt_of_sq_le
     have hnorm : ‖N (v n) + Complex.I • (v n : F)‖ ^ 2 = ‖N (v n)‖ ^ 2 + ‖(v n : F)‖ ^ 2 := by
@@ -445,7 +445,8 @@ theorem essentiallySelfAdjointOn_of_square_comparison [CompleteSpace F]
     rw [hqN]; have := hEpos x; positivity
   -- the relative bound
   have hrel : ∀ x : D, ‖H x‖ ≤ 1 * ‖N x‖ + 1 * ‖(x : F)‖ := fun x => by
-    simpa using norm_le_square_comparison H₀ E hH hEpos x
+    simp only [hHx, hNx, one_mul]
+    exact norm_le_square_comparison H₀ E hH hEpos x
   -- the commutator: the square drops out
   have hcommN : ∀ x : D, |commForm H N x| ≤ c * quadForm N x := by
     intro x

@@ -104,8 +104,10 @@ theorem mem_fiber_iff {p : ↥(stdSimplex ℝ (Fin n))}
       simp_all only [Set.mem_preimage, Set.mem_singleton_iff, bornFiberPoint]
       congr! 1;
       exact signVec_signBool hs₁;
-    · convert congr_arg Subtype.val h using 1;
-      exact bornMap_bornSection p.2;
+    · convert congr_arg Subtype.val h using 1 <;> try rfl
+      all_goals first
+        | exact (bornMap_bornSection p.2).symm
+        | exact bornMap_bornSection p.2
   · obtain ⟨ b, hb ⟩ := h;
     convert bornMap_bornFiberPoint p.property b using 1;
     simp only [Set.mem_preimage, Set.mem_singleton_iff, Subtype.ext_iff];

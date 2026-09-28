@@ -166,7 +166,7 @@ permuting identical factors leaves the tensor unchanged.
 theorem permMat_uniform_comm {N : ℕ} (σ : Equiv.Perm (Fin N))
     (A : Matrix (Fin 4) (Fin 4) ℂ) :
     permMat σ * uniform A = uniform A * permMat σ := by
-  convert permMat_braiding σ ( fun _ => A ) using 1
+  convert permMat_braiding σ ( fun _ => A ) using 1 <;> rfl
 
 /-
 Every braiding commutes with the diagonal `Spin⁺` generator, since permuting

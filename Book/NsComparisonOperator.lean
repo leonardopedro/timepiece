@@ -85,7 +85,7 @@ $`N_E = \text{mulOp}\big(E(u)\big), \qquad E(u) = 1 + \|u\|^2 ,`
    the **energy flux**;
  * `fluxPoly_eq` — and the flux identity collapses it, using Leray's identity, to the **sign-definite
    viscous dissipation** $`F\cdot\nabla E = -2\nu\sum_i\lambda_i u_i^2 \le 0`. The advection and the
-   pressure gradient cancel: this is where the $\sum_i u_iB_i = 0$ hypothesis is consumed;
+   pressure gradient cancel: this is where the $`\sum_i u_iB_i = 0` hypothesis is consumed;
  * `commForm_kvn_energy_bound` — the resulting Faris–Lavine commutator inequality,
    $`\big|\langle x, i[H_{\rm NS},N_E]x\rangle\big| \le 2\nu\Lambda\,\langle x,N_Ex\rangle ,`
    with `Λ = max_i λ_i` the largest Stokes eigenvalue of the truncation (the cutoff's role here is

@@ -39,7 +39,9 @@ theorem boolSum_eq_false_iff_even_card {α : Type*} (s : Finset α) (f : α → 
   | insert a s ha ih =>
     rw [Finset.sum_insert ha, Finset.filter_insert]
     cases hfa : f a with
-    | false => simpa [hfa] using ih
+    | false =>
+      simpa [hfa] using
+        show (∑ x ∈ s, f x) = 0 ↔ Even {k ∈ s | f k = true}.card from ih
     | true =>
       have hcard : (insert a (s.filter (fun k => f k = true))).card
           = (s.filter (fun k => f k = true)).card + 1 :=
@@ -96,5 +98,6 @@ theorem orientationQuotientEquiv_mk (n : ℕ) (b : Fin (n + 1) → Bool) :
     orientationQuotientEquiv n (QuotientAddGroup.mk b) =
       orientationCharacter (n + 1) b := by
   convert QuotientAddGroup.kerLift_mk (orientationCharacter (n + 1)) b using 1
+  rfl
 
 end BookProof.ChapterFreeFieldBornSignOrientationQuotient

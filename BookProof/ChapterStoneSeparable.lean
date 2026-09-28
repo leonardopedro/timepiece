@@ -199,7 +199,9 @@ theorem hasDerivAt_phaseGroup (f : ℤ → ℝ) (x : (mulSA f).domain) :
     simp [slope, phaseLin_zero]
   have hneg : HasDerivAt (fun t : ℝ => -t) (-1 : ℝ) 0 := by
     simpa using hasDerivAt_neg (0 : ℝ)
-  simpa [neg_smul] using hd.scomp (0 : ℝ) hneg
+  have h2 := hd.scomp (0 : ℝ) hneg
+  simp [neg_smul, neg_one_smul] at h2 ⊢
+  exact h2
 
 /-- **The Stone group of lattice multiplication is the explicit phase group**:
 `e^{-it f̂} ψ = (k ↦ e^{-i t f k} ψ_k)`.  In particular Stone's theorem, applied to the

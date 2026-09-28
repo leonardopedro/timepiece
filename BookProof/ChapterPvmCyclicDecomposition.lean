@@ -203,7 +203,7 @@ theorem cyclicSubspace_invariant (P : Pvm X H) (ψ : H) {E : Set X} (hE : Measur
 theorem hasSum_subtype {V : Submodule ℂ H} {g : ℕ → V} {a : V}
     (h : HasSum (fun i => (g i : H)) (a : H)) : HasSum g a := by
   rw [HasSum, tendsto_subtype_rng]
-  simpa using h
+  simpa using! h
 
 open Classical in
 /-- The projection of the restricted measure: the restriction of `P(E)` to an invariant

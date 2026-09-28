@@ -326,7 +326,9 @@ theorem dense_avgSpan [CompleteSpace H] [TopologicalSpace.SeparableSpace H] :
     Submodule.topologicalClosure_eq_top_iff.mpr G.avgSpan_orthogonal_eq_bot
   rw [dense_iff_closure_eq]
   have := congrArg (fun K : Submodule ℂ H => (K : Set H)) h
-  simpa [Submodule.topologicalClosure] using this
+  have h2 : (G.avgSpan.topologicalClosure : Set H) = closure (G.avgSpan : Set H) := rfl
+  rw [h2] at this
+  simpa using this
 
 /-! ## Von Neumann's theorem: weak measurability implies strong continuity -/
 

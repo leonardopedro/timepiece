@@ -38,7 +38,7 @@ def orientationPreservingSigns (n : ℕ) : AddSubgroup (Fin n → Bool) where
     exact orientationPreserving_xor h₁ h₂
   neg_mem' := by
     intro b hb
-    simpa using hb
+    exact hb
 
 @[simp] theorem mem_orientationPreservingSigns_iff (b : Fin n → Bool) :
     b ∈ orientationPreservingSigns n ↔
@@ -71,6 +71,7 @@ theorem orientationPreservingSigns_index (n : ℕ) :
     (orientationPreservingSigns (n + 1)).index = 2 := by
   have h_card : Nat.card (orientationPreservingSigns (n + 1)) = 2 ^ n := by
     convert natCard_orientationPreserving_flip n using 1
+    rfl
   have h_index :=
     AddSubgroup.card_mul_index (orientationPreservingSigns (n + 1))
   simp_all [pow_succ']

@@ -111,8 +111,11 @@ theorem diffuse_finite_multiplication_model (hne : nu Set.univ ≠ 0) :
       = ((scaleUnitary hc0 hctop (multOp (fun x => g (cdf (normalized nu) x))
           (memLp_top_comp_cdf (normalized nu) hg)
             (cdfUnitary (normalized nu) u)) : Lp ℂ 2 nu) : ℝ → ℂ) := by
-        rw [LinearIsometryEquiv.trans_apply, hstep]
-        rfl
+        have htrans : ∀ w : Lp ℂ 2 (volume.restrict (Set.Icc (0 : ℝ) 1)),
+            ((cdfUnitary (normalized nu)).trans (scaleUnitary hc0 hctop) w : Lp ℂ 2 nu)
+              = (scaleUnitary hc0 hctop (cdfUnitary (normalized nu) w) : Lp ℂ 2 nu) :=
+          fun _ => LinearIsometryEquiv.trans_apply _ _ _
+        rw [htrans, hstep]
     _ =ᵐ[nu] fun x => g (cdf (normalized nu) x) *
           ((scaleUnitary hc0 hctop (cdfUnitary (normalized nu) u) : Lp ℂ 2 nu) : ℝ → ℂ) x :=
         hmul

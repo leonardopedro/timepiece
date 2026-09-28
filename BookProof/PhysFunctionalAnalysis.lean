@@ -11,7 +11,7 @@ sphere.
 -/
 
 open MeasureTheory Set
-open scoped ENNReal
+open scoped ENNReal lp
 
 noncomputable section
 
@@ -25,9 +25,9 @@ instance : Fact ((2 : ℝ≥0∞) ≠ ⊤) := ⟨by norm_num⟩
 
 theorem l2_separable :
     TopologicalSpace.SeparableSpace (Lp ℝ 2 unitMeasure) := by
-  convert inferInstanceAs (TopologicalSpace.SeparableSpace (MeasureTheory.Lp ℝ 2
+  exact inferInstanceAs (TopologicalSpace.SeparableSpace (MeasureTheory.Lp ℝ 2
     (MeasureTheory.Measure.restrict (MeasureTheory.volume : MeasureTheory.Measure ℝ) (Set.Icc 0
-    1)))) using 1
+    1))))
 
 /-! ### H2. `L^∞([0,1])` is NOT separable -/
 
@@ -146,6 +146,7 @@ theorem sqrt_density_norm {α : Type*} [MeasurableSpace α] (μ : Measure α)
 
 /-! ### H5. Polynomials are dense in `L²([0,1])` -/
 
+set_option maxHeartbeats 4000000 in
 theorem polynomial_dense_L2 :
     Dense {f : Lp ℝ 2 unitMeasure | ∃ P : Polynomial ℝ,
            f =ᵐ[unitMeasure] fun x => P.eval x} := by
@@ -155,19 +156,19 @@ theorem polynomial_dense_L2 :
     intro ε ε_pos;
     -- By the density of continuous functions in L², there exists a continuous function g such that
     -- ‖f - g‖ < ε/2.
-    obtain ⟨g, hg⟩ : ∃ g : Lp ℝ 2 unitMeasure, ‖f - g‖ < ε / 2 ∧ ∃ g_cont : C(ℝ, ℝ), g
-      =ᵐ[unitMeasure] fun x => g_cont x := by
-      have h_dense : ∀ f : Lp ℝ 2 unitMeasure, ∀ ε > 0, ∃ g : Lp ℝ 2 unitMeasure, ‖f - g‖ < ε ∧ ∃
+    have dens : ∀ f : Lp ℝ 2 unitMeasure, ∀ ε > 0, ∃ g : Lp ℝ 2 unitMeasure, ‖f - g‖ < ε ∧ ∃
         g_cont : C(ℝ, ℝ), g =ᵐ[unitMeasure] fun x => g_cont x := by
-        intro f ε ε_pos;
-        have := @BoundedContinuousFunction.toLp_denseRange;
-        specialize this ℝ unitMeasure ( p := 2 ) ℝ;
-        have := this ( by norm_num );
-        have := this.exists_dist_lt f ε_pos;
-        obtain ⟨ g, hg ⟩ := this;
-        refine ⟨_, hg, g.toContinuousMap, ?_⟩;
-        exact MeasureTheory.AEEqFun.coeFn_mk _ _;
-      exact h_dense f ( ε / 2 ) ( half_pos ε_pos );
+      intro f ε ε_pos;
+      have := @BoundedContinuousFunction.toLp_denseRange;
+      specialize this ℝ unitMeasure ( p := 2 ) ℝ;
+      have := this ( by norm_num );
+      have := this.exists_dist_lt f ε_pos;
+      obtain ⟨ g, hg ⟩ := this;
+      have hg' : ‖f - BoundedContinuousFunction.toLp 2 unitMeasure ℝ g‖ < ε := by
+        rwa [dist_eq_norm] at hg
+      refine ⟨_, hg', g.toContinuousMap, ?_⟩;
+      exact BoundedContinuousFunction.coeFn_toLp 2 unitMeasure ℝ g;
+    obtain ⟨g, hg⟩ := dens f ( ε / 2 ) ( half_pos ε_pos );
     obtain ⟨ g_cont, hg_cont ⟩ := hg.2
     obtain ⟨ P, hP ⟩ : ∃ P : Polynomial ℝ, ∀ x ∈ Set.Icc (0 : ℝ) 1, |g_cont x - P.eval x| < ε / 4
       := by

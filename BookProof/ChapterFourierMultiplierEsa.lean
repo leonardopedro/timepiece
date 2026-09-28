@@ -130,7 +130,7 @@ theorem deficiencyTrivialAt_of_real_symbol (P : 𝓢(V, ℂ) →L[ℂ] 𝓢(V, �
     have hsupp : HasCompactSupport
         (fun x => (χ x : ℂ) * (((σ x : ℝ) : ℂ) - (starRingEnd ℂ) z)⁻¹) := by
       refine HasCompactSupport.mul_right ?_
-      simpa using hχc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
+      exact hχc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
     obtain ⟨ψ, hψcoe⟩ : ∃ ψ : 𝓢(V, ℂ), (ψ : V → ℂ) =
         fun x => (χ x : ℂ) * (((σ x : ℝ) : ℂ) - (starRingEnd ℂ) z)⁻¹ :=
       ⟨hsupp.toSchwartzMap hsmooth, rfl⟩

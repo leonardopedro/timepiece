@@ -106,8 +106,8 @@ theorem lorentz_delta_decomp_unique
     have htime : δ₁ 0 0 * s₁ 0 0 = δ₂ 0 0 * s₂ 0 0 := by
       convert congr_arg ( fun m : Matrix ( Fin 4 ) ( Fin 4 ) ℝ => m 0 0 ) heq using 1 <;>
         simp only [Fin.isValue, mul_apply];
-      · convert delta_mul_time hδ₁ s₁ |> Eq.symm using 1;
-      · convert delta_mul_time hδ₂ s₂ |> Eq.symm using 1;
+      · convert delta_mul_time hδ₁ s₁ |> Eq.symm using 1; rfl
+      · convert delta_mul_time hδ₂ s₂ |> Eq.symm using 1; rfl
     rcases hδ₁ with ( rfl | rfl | rfl | rfl ) <;> rcases hδ₂ with ( rfl | rfl | rfl | rfl ) <;>
         norm_num at hdet htime ⊢;
     all_goals norm_num [ eta_det, Matrix.det_neg ] at hdet;

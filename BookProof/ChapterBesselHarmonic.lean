@@ -58,10 +58,7 @@ theorem hasDerivAt_quot {R : ℝ → ℝ} {l : ℕ} {s : ℝ} (hs : s ≠ 0) (hR
       (deriv R s / s ^ l - (l : ℝ) * R s / s ^ (l + 1)) s := by
   have hp : HasDerivAt (fun t : ℝ => t ^ l) ((l : ℝ) * s ^ (l - 1)) s := hasDerivAt_pow l s
   have h := (hR.hasDerivAt).div hp (pow_ne_zero l hs)
-  convert h using 1
-  rw [pow_pred_coef l hs]
-  field_simp
-  ring
+  convert h using 1 <;> (first | rfl | (rw [pow_pred_coef l hs]; field_simp; ring))
 
 /-- **The reduction of the radial equation.**  If `R` solves
 `R'' + (2/r)R' + (p² − l(l+1)/r²)R = 0`, then `g = R/rˡ` solves

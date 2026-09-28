@@ -80,7 +80,8 @@ def coeffOp (T : (ι → ℂ) → ι → ℂ)
     have : (((f + g : lpFiniteModes ι) : lp (fun _ : ι => ℂ) 2) : ι → ℂ)
         = ((f : lp (fun _ : ι => ℂ) 2) : ι → ℂ) + ((g : lp (fun _ : ι => ℂ) 2) : ι → ℂ) := by
       ext j; simp
-    simp [ofCoeff, hadd]
+    simp [ofCoeff]
+    exact congrArg (fun F : ι → ℂ => F i) (hadd _ _)
   map_smul' c f := by
     ext i
     have : (((c • f : lpFiniteModes ι) : lp (fun _ : ι => ℂ) 2) : ι → ℂ)
@@ -200,8 +201,12 @@ theorem lpDiag_basis [DecidableEq ι] (c : ι → ℝ) (i : ι) :
     lpDiag c (lpBasis i) = ((c i : ℝ) : ℂ) • lpBasis i := by
   ext j
   by_cases h : j = i
-  · subst h; simp [lpDiag_coe, lpBasis_coe]
-  · simp [lpDiag_coe, lpBasis_coe, h]
+  · subst h
+    simp only [lpDiag_coe, lpBasis_coe, Submodule.coe_smul, lp.coeFn_smul, Pi.smul_apply,
+      if_pos, smul_eq_mul, mul_one]
+  · simp only [lpDiag_coe, lpBasis_coe, h, Submodule.coe_smul, lp.coeFn_smul, Pi.smul_apply,
+      smul_eq_mul]
+    simp
 
 theorem lpDiag_isSymmetricDom (c : ι → ℝ) : IsSymmetricDom (lpDiag c) := by
   intro x y
@@ -243,7 +248,7 @@ abbrev Conf (M : Type*) := M →₀ ℕ
 
 /-- The bosonic Fock space over the mode index `M`, in the occupation-number
 representation. -/
-abbrev FockL2 (M : Type*) := lp (fun _ : Conf M => ℂ) 2
+noncomputable abbrev FockL2 (M : Type*) := lp (fun _ : Conf M => ℂ) 2
 
 /-- The dense domain of finite-particle, finite-mode states. -/
 abbrev FockDom (M : Type*) : Submodule ℂ (FockL2 M) := lpFiniteModes (Conf M)
@@ -359,6 +364,7 @@ theorem annih_basis (m : M) (n : Conf M) :
     have hnm : (n m : ℝ) = (k m : ℝ) + 1 := by
       rw [← hk]; push_cast; simp
     subst hkm
+    simp only [Submodule.coe_smul, lp.coeFn_smul, Pi.smul_apply, smul_eq_mul]
     simp [annih_coe, fockBasis_coe, hk, hnm]
   · have hkne : k ≠ n - Finsupp.single m 1 ∨ (n m) = 0 := by
       by_contra hcon
@@ -369,7 +375,8 @@ theorem annih_basis (m : M) (n : Conf M) :
       exact sub_single_add_single (by omega)
     simp only [annih_coe, fockBasis_coe, hk, if_false, mul_zero, Submodule.coe_smul]
     rcases hkne with h | h
-    · simp [fockBasis_coe, h]
+    · simp only [lp.coeFn_smul, Pi.smul_apply, smul_eq_mul, fockBasis_coe, h]
+      simp
     · simp [h]
 
 /-- `a†ₘ |n⟩ = √(nₘ + 1) |n + δₘ⟩`. -/
@@ -381,6 +388,7 @@ theorem creat_basis (m : M) (n : Conf M) :
   · have h1 : (n + Finsupp.single m 1 : Conf M) - Finsupp.single m 1 = n :=
       add_single_sub_single m n
     have h2 : ((n + Finsupp.single m 1 : Conf M) m : ℝ) = (n m : ℝ) + 1 := by push_cast; simp
+    simp only [Submodule.coe_smul, lp.coeFn_smul, Pi.smul_apply, smul_eq_mul]
     simp [creat_coe, fockBasis_coe, h1]
   · have hne : k - Finsupp.single m 1 ≠ n ∨ k m = 0 := by
       by_contra hcon
@@ -395,8 +403,10 @@ theorem creat_basis (m : M) (n : Conf M) :
       rw [fockBasis_coe, if_neg hk]
     rcases hne with h | h
     · rw [if_neg h, mul_zero]
+      simp only [lp.coeFn_smul, Pi.smul_apply, smul_eq_mul]
       simp [hr]
     · rw [h]
+      simp only [lp.coeFn_smul, Pi.smul_apply, smul_eq_mul]
       simp [hr]
 
 /-- The outer creation operator applied to the vacuum creates the one-particle
@@ -497,7 +507,7 @@ theorem lpFiniteModes_sum_repr {ι : Type*} [DecidableEq ι] (f : lpFiniteModes 
     · intro hcon; exact absurd hj hcon
   · have hzero : ((f : lp (fun _ : ι => ℂ) 2) : ι → ℂ) j = 0 := by
       by_contra hne
-      exact hj (by simpa [Set.Finite.mem_toFinset, Function.mem_support] using hne)
+      exact hj (Set.Finite.mem_toFinset f.2 |>.mpr (Function.mem_support.mpr hne))
     rw [hzero]
     refine (Finset.sum_eq_zero fun i hi => ?_).symm
     by_cases hij : j = i
@@ -550,7 +560,7 @@ variable {J K : Type*} [DecidableEq J] [DecidableEq K]
 `FockL2 K` of the field modes `K`; a one-particle state of the *outer* level is
 a parcel carrying a parcel mode `j : J` together with an inner Fock (occupation)
 state `c : Conf K`, so the outer mode index is `J × Conf K`. -/
-abbrev FockOfFockL2 (J K : Type*) := FockL2 (J × Conf K)
+noncomputable abbrev FockOfFockL2 (J K : Type*) := FockL2 (J × Conf K)
 
 /-- The dense finite-particle domain of the two-level Fock space. -/
 abbrev FockOfFockDom (J K : Type*) : Submodule ℂ (FockOfFockL2 J K) := FockDom (J × Conf K)

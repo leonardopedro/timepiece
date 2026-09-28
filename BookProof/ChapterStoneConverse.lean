@@ -438,7 +438,8 @@ theorem selfAdjoint : BookProof.ChapterUnitaryTransport.IsSelfAdjointOn G.genDom
         have h := HasDerivAt.scomp (0 : ℝ) (by simpa using h0) (hasDerivAt_neg (0 : ℝ))
         simp only [Function.comp_def] at h
         convert h using 1
-        simp
+        · exact rfl
+        · simp
       have hslope := hasDerivAt_iff_tendsto_slope.mp hMd
       have hcj : Tendsto
           (fun t : ℝ => (starRingEnd ℂ) (slope (fun u : ℝ => ⟪phi, G.U (-u) x⟫_ℂ) 0 t))

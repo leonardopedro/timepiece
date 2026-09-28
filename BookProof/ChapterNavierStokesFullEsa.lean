@@ -360,17 +360,12 @@ noncomputable def latticeFullData (v : Fin 15 → LinfZ) (nu : ℝ) : NSFullData
   u_comm k l := by
     refine LinearMap.ext fun f => Subtype.ext ?_
     have h := congrArg (fun T : L2Z →L[ℂ] L2Z => T (f : L2Z)) (velocityOp_commute (v k) (v l))
-    simpa [restrictCLM] using h
+    simpa [restrictCLM_apply] using h
 
 theorem latticeFullData_advection_apply (v : Fin 15 → LinfZ) (nu : ℝ) (i : Fin 3)
     (x : (latticeFullData v nu).D) :
     ((latticeFullData v nu).advection i x : L2Z) = latticeAdvectionCLM v nu i (x : L2Z) := by
-  simp only [NSFullData.advection, NSFullData.velocity, NSFullData.gradVelocity,
-    NSFullData.lapVelocity, latticeFullData, latticeAdvectionCLM, LinearMap.sub_apply,
-    LinearMap.sum_apply, LinearMap.smul_apply, LinearMap.comp_apply, Submodule.coe_sub,
-    Submodule.coe_smul, Submodule.coe_sum, restrictCLM_apply,
-    ContinuousLinearMap.sub_apply, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
-    ContinuousLinearMap.mul_apply]
+  exact rfl
 
 theorem latticeFullData_hamiltonian_apply (v : Fin 15 → LinfZ) (nu : ℝ)
     (x : (latticeFullData v nu).D) :
@@ -516,9 +511,10 @@ def diagFullSymbol (c : Fin 15 → ℕ → ℝ) (p : Fin 3 → ℕ → ℝ) (nu 
 
 theorem diagFullData_hamiltonian (c : Fin 15 → ℕ → ℝ) (p : Fin 3 → ℕ → ℝ) (nu : ℝ) :
     (diagFullData c p nu).hamiltonian = diagOp (diagFullSymbol c p nu) := by
+  simp only [diagFullData]
   simp only [NSFullData.hamiltonian, NSFullData.advection, NSFullData.velocity,
-    NSFullData.gradVelocity, NSFullData.lapVelocity, diagFullData, diagOp_comp, diagOp_sum,
-    diagOp_real_smul, diagOp_sub, diagOp_add]
+    NSFullData.gradVelocity, NSFullData.lapVelocity]
+  simp only [diagOp_comp, diagOp_sum, diagOp_real_smul, diagOp_sub, diagOp_add]
   congr 1
   funext n
   simp only [diagFullSymbol]
@@ -661,12 +657,14 @@ theorem jacobiFullData_hamiltonian : jacobiFullData.hamiltonian = jacobiOp := by
     rw [NSFullData.advection, hsum i, hlapne i hi, smul_zero, sub_zero]
   have hmom0 : jacobiFullData.mom 0 = jacobiOp := jacobiMom_zero
   have hmomne : ∀ i : Fin 3, i ≠ 0 → jacobiFullData.mom i = 0 := fun i hi => jacobiMom_of_ne hi
-  rw [NSFullData.hamiltonian, Fin.sum_univ_three, hadv0, hmom0,
-    hadvne 1 (by decide), hmomne 1 (by decide), hadvne 2 (by decide), hmomne 2 (by decide)]
+  rw [NSFullData.hamiltonian, Fin.sum_univ_three, hadv0,
+    hadvne 1 (by decide), hadvne 2 (by decide), hmomne 1 (by decide), hmomne 2 (by decide)]
   simp only [LinearMap.comp_zero, add_zero,
     LinearMap.comp_smul, LinearMap.smul_comp, LinearMap.comp_id, LinearMap.id_comp]
   rw [← add_smul]
-  norm_num
+  have hhalf : ((1 / 2 : ℝ) : ℂ) + ((1 / 2 : ℝ) : ℂ) = 1 := by norm_num
+  rw [hhalf, one_smul]
+  exact hmom0
 
 /-- **Sharpness of the criteria above.**  There is untruncated Navier–Stokes
 data — a dense domain, symmetric pairwise commuting field modes, symmetric

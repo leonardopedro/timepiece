@@ -67,7 +67,7 @@ open LpNat FarisLavine
 variable {ι : Type*}
 
 /-- The Hilbert space `ℓ²(ι)` of the momentum representation. -/
-abbrev L2I (ι : Type*) := lp (fun _ : ι => ℂ) 2
+noncomputable abbrev L2I (ι : Type*) := lp (fun _ : ι => ℂ) 2
 
 /-! ## Square summability helpers -/
 

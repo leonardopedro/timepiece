@@ -465,10 +465,22 @@ theorem latticeLagData_hFull_apply (v : Fin 3 → LinfZ) (w : LinfZ) (fr : Fin 3
     (hnu : 0 ≤ nu) (x : (latticeLagData v w fr hnu).D) :
     ((latticeLagData v w fr hnu).hFull x : L2Z) = latticeLagCLM v w fr nu (x : L2Z) := by
   simp only [LagrangianFullData.hFull, LagrangianFullData.kinetic, LagrangianFullData.viscous,
-    LagrangianFullData.drift, latticeLagData, latticeLagCLM, LinearMap.add_apply,
-    LinearMap.smul_apply, LinearMap.sum_apply, LinearMap.comp_apply, Submodule.coe_add,
-    Submodule.coe_smul, Submodule.coe_sum, restrictCLM_apply, ContinuousLinearMap.add_apply,
-    ContinuousLinearMap.smul_apply, ContinuousLinearMap.sum_apply, ContinuousLinearMap.mul_apply]
+    LagrangianFullData.drift, latticeLagData, latticeLagCLM]
+  simp only [LinearMap.add_apply, LinearMap.smul_apply, LinearMap.sum_apply, LinearMap.comp_apply,
+    Submodule.coe_add, Submodule.coe_smul, Submodule.coe_sum, restrictCLM_apply,
+    ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply, ContinuousLinearMap.sum_apply,
+    ContinuousLinearMap.mul_apply]
+  show ↑((((1 / 2 : ℝ) : ℂ) • (∑ i, restrictCLM momentum finiteModes _
+            ∘ₗ restrictCLM momentum finiteModes _)
+      + (((nu : ℝ) : ℂ) • (∑ i, restrictCLM momentum finiteModes _
+            ∘ₗ restrictCLM momentum finiteModes _))
+      + (∑ i, ((fr i : ℝ) : ℂ) • restrictCLM (velocityOp (v i)) finiteModes _)
+      + restrictCLM (velocityOp w) finiteModes _) x)
+      = (((1 / 2 : ℝ) : ℂ) • (∑ i, momentum (momentum ↑x)))
+        + (((nu : ℝ) : ℂ) • (∑ i, momentum (momentum ↑x)))
+        + (∑ i, ((fr i : ℝ) : ℂ) • (velocityOp (v i)) ↑x)
+        + (velocityOp w) ↑x
+  rfl
 
 /-- **The full transformed Navier–Stokes Hamiltonian of the lattice realization
 is essentially self-adjoint** on the proper dense domain of finitely supported
@@ -546,6 +558,11 @@ theorem diagLagData_hFull (p q dr : Fin 3 → ℕ → ℝ) (c : ℕ → ℝ) (fr
     (diagLagData p q dr c fr hnu).hFull = diagOp (diagLagSymbol p q dr c fr nu) := by
   simp only [LagrangianFullData.hFull, LagrangianFullData.kinetic, LagrangianFullData.viscous,
     LagrangianFullData.drift, diagLagData, diagOp_comp, diagOp_sum, diagOp_real_smul, diagOp_add]
+  show ((((1 / 2 : ℝ) : ℂ) • (∑ i, diagOp fun n ↦ p i n * p i n))
+      + (((nu : ℝ) : ℂ) • (∑ i, diagOp fun n ↦ q i n * q i n)))
+      + (∑ i, ((fr i : ℝ) : ℂ) • diagOp (dr i)) + diagOp c
+      = diagOp (diagLagSymbol p q dr c fr nu)
+  simp only [diagOp_sum, diagOp_real_smul, diagOp_add]
   refine congrArg diagOp ?_
   funext n
   simp only [diagLagSymbol]
@@ -655,8 +672,12 @@ theorem jacobiLagData_hFull : jacobiLagData.hFull = jacobiOp := by
   have hvis : jacobiLagData.viscous = 0 := by
     simp [LagrangianFullData.viscous, hQ]
   have hdrift : jacobiLagData.drift = jacobiOp := by
-    simp [LagrangianFullData.drift, Fin.sum_univ_three, hd0, hd1, hd2, hf0, hf1, hf2]
+    simp only [LagrangianFullData.drift, Fin.sum_univ_three]
+    simp [hd1, hd2, hf0, hf1, hf2]
+    rw [hd0]
+    all_goals first | rfl | exact one_smul _ _
   simp [LagrangianFullData.hFull, hkin, hvis, hdrift, hC]
+  all_goals exact zero_add _
 
 /-- **Sharpness.**  There is untruncated transformed (Lagrangian) Navier–Stokes
 data — a dense domain, symmetric parcel momenta, viscous gradients, drift

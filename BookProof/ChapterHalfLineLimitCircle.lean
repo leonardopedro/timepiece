@@ -319,8 +319,13 @@ theorem deficiencyFun_hasDerivAt (x : ℝ) :
     HasDerivAt deficiencyFun (-lam * deficiencyFun x) x := by
   have h1 : HasDerivAt (fun y : ℝ => (y : ℂ)) 1 x := Complex.ofRealCLM.hasDerivAt
   have h2 : HasDerivAt (fun y : ℝ => -(lam * (y : ℂ))) (-lam) x := by
-    simpa using (h1.const_mul lam).neg
-  simpa [deficiencyFun, mul_comm] using h2.cexp
+    have h3 := (h1.const_mul lam).neg
+    rw [mul_one] at h3
+    exact h3
+  have h6 := h2.cexp
+  rw [mul_neg, mul_comm (Complex.exp (-(lam * (x : ℂ)))) lam] at h6
+  rw [show deficiencyFun = fun y : ℝ => Complex.exp (-(lam * (y : ℂ))) from rfl, neg_mul]
+  exact h6
 
 theorem deriv_deficiencyFun : deriv deficiencyFun = fun x => -lam * deficiencyFun x :=
   funext fun x => (deficiencyFun_hasDerivAt x).deriv
@@ -477,7 +482,7 @@ theorem hlBumpTest_ne_zero : hlBumpTest ≠ 0 := by
   intro h
   have : hlBumpFun 2 = 0 := by
     have := congrArg (fun g : testSpace => (g : ℝ → ℂ) 2) h
-    simpa using this
+    simpa [hlBumpTest] using this
   rw [hlBumpFun_two] at this
   exact one_ne_zero this
 

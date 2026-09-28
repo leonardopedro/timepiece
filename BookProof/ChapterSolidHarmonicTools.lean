@@ -69,6 +69,7 @@ theorem fderiv_fderiv_clmPow (ψ : E →L[ℝ] ℂ) (k : ℕ) (x v w : E) :
     convert h using 1
     ext u
     simp [mul_assoc, mul_comm, mul_left_comm]
+    simp only [mul_assoc, mul_smul]
   rw [(hc.smul_const (ψ : E →L[ℝ] ℂ)).fderiv]
   simp only [ContinuousLinearMap.smulRight_apply, ContinuousLinearMap.coe_smul', Pi.smul_apply,
     smul_eq_mul]
@@ -88,8 +89,10 @@ theorem fderiv_fderiv_rclmPow (L : E →L[ℝ] ℝ) (k : ℕ) (x v w : E) :
       (((k : ℝ) * ((k - 1 : ℕ) : ℝ) * (L x) ^ (k - 1 - 1)) • (L : E →L[ℝ] ℝ)) x := by
     have h := (hasFDerivAt_rclmPow L (k - 1) x).const_mul (k : ℝ)
     convert h using 1
-    ext u
-    simp [mul_assoc, mul_comm, mul_left_comm]
+      <;> first
+        | rfl
+        | simp only [← Nat.cast_smul_eq_nsmul ℝ, smul_smul, mul_assoc]
+        | (ext u; simp only [smul_apply, smul_eq_mul, nsmul_eq_mul, mul_assoc])
   rw [(hc.smul_const (L : E →L[ℝ] ℝ)).fderiv]
   simp only [ContinuousLinearMap.smulRight_apply, ContinuousLinearMap.coe_smul', Pi.smul_apply,
     smul_eq_mul]
@@ -212,10 +215,11 @@ theorem hasFDerivAt_cylTerm (e : E) (j m : ℕ) (x : E) :
     exact hdiff.hasFDerivAt
   have h := hf.mul hg
   convert h using 1
-  ext u
-  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply,
-    smul_eq_mul, innerCLM_apply]
-  ring
+    <;> first
+      | rfl
+      | (ext u; simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply,
+          smul_eq_mul, innerCLM_apply])
+    <;> first | ring | (simp [mul_assoc, mul_comm, mul_left_comm]; ring)
 
 /-- **The Laplacian of the cylindrical monomial** `⟪e,y⟫ʲ (‖y‖²)ᵐ` for a unit
 vector `e`. -/

@@ -42,6 +42,7 @@ theorem evidence_eq_seed_average (seedProb : Seed → ℝ)
     evidence seedProb train likelihood d =
       ∑ s, seedProb s * likelihood (train s) d := by
   convert inducedPrior_expectation seedProb train (fun m => likelihood m d) using 1
+  simp only [evidence]
 
 /-
 Any observable weighted by the unnormalized posterior can likewise be
@@ -65,12 +66,14 @@ theorem posterior_expectation_eq_seed_ratio (seedProb : Seed → ℝ)
     ∑ m, posterior seedProb train likelihood d m * observable m =
       (∑ s, seedProb s * likelihood (train s) d * observable (train s)) /
         (∑ s, seedProb s * likelihood (train s) d) := by
-  convert congr_arg
-    (fun x : ℝ => x / ∑ m, inducedPrior seedProb train m * likelihood m d)
-    (posterior_numerator_eq_seed_average seedProb train likelihood observable d) using 1
-  · simp only [posterior, div_mul_eq_mul_div, Finset.sum_div]
-    convert rfl
-  · rw [← evidence_eq_seed_average]
-    rfl
+  simp only [posterior]
+  have key : (∑ m : Model, inducedPrior seedProb train m * likelihood m d /
+          evidence seedProb train likelihood d * observable m)
+      = (∑ m : Model, inducedPrior seedProb train m * likelihood m d * observable m) /
+          evidence seedProb train likelihood d := by
+    rw [Finset.sum_div]
+    refine Finset.sum_congr rfl ?_
+    intro m _; ring
+  rw [key, posterior_numerator_eq_seed_average, evidence_eq_seed_average]
 
 end BookProof.ChapterDeepLearningEnsemble

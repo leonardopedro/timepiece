@@ -94,15 +94,44 @@ theorem gegenbauerScaled_tendsto_hermite (n : ℕ) (x : ℝ) :
     have h_limit : Filter.Tendsto (fun lam => (2 * x * (1 + (n + 1) / lam) * gegenbauerScaled (n +
       1) lam x - (2 + n / lam) * gegenbauerScaled n lam x) / (n + 2)) Filter.atTop (nhds ((2 * x *
       physHermite (n + 1) x - 2 * (n + 1) * physHermite n x) / (Nat.factorial (n + 2)))) := by
-      convert Filter.Tendsto.div_const ( Filter.Tendsto.sub ( Filter.Tendsto.mul (
-        tendsto_const_nhds.mul ( tendsto_const_nhds.add ( tendsto_const_nhds.div_atTop
-        Filter.tendsto_id ) ) ) ( ih _ _ ) ) ( Filter.Tendsto.mul ( tendsto_const_nhds.add (
-        tendsto_const_nhds.div_atTop Filter.tendsto_id ) ) ( ih _ _ ) ) ) _ using 2 <;> norm_num [
-        Nat.factorial_succ ]
-      ring
-      -- Combine and simplify the fractions
-      field_simp
-      ring;
+      have h0 : Filter.Tendsto (fun lam : ℝ => (n + 1) / lam) Filter.atTop (𝓝 (0 : ℝ)) := by
+        simpa using tendsto_const_nhds.div_atTop Filter.tendsto_id
+      have h0' : Filter.Tendsto (fun lam : ℝ => n / lam) Filter.atTop (𝓝 (0 : ℝ)) := by
+        simpa using tendsto_const_nhds.div_atTop Filter.tendsto_id
+      have h1 : Filter.Tendsto (fun lam : ℝ => 1 + (n + 1) / lam) Filter.atTop (𝓝 (1 : ℝ)) := by
+        simpa using tendsto_const_nhds.add h0
+      have h2 : Filter.Tendsto (fun lam : ℝ => 2 + n / lam) Filter.atTop (𝓝 (2 : ℝ)) := by
+        simpa using tendsto_const_nhds.add h0'
+      have hA : Filter.Tendsto
+          (fun lam => 2 * x * (1 + (n + 1) / lam) * gegenbauerScaled (n + 1) lam x) Filter.atTop
+          (𝓝 (2 * x * 1 * (physHermite (n + 1) x / (n + 1).factorial))) :=
+        (tendsto_const_nhds.mul h1).mul (ih (n + 1) (Nat.le_refl _))
+      have hB : Filter.Tendsto (fun lam => (2 + n / lam) * gegenbauerScaled n lam x) Filter.atTop
+          (𝓝 (2 * (physHermite n x / n.factorial))) :=
+        h2.mul (ih n (Nat.le_succ n))
+      have hsub : Filter.Tendsto
+          (fun lam => 2 * x * (1 + (n + 1) / lam) * gegenbauerScaled (n + 1) lam x - (2 + n / lam)
+            * gegenbauerScaled n lam x)
+          Filter.atTop
+          (𝓝 (2 * x * 1 * (physHermite (n + 1) x / (n + 1).factorial)
+            - 2 * (physHermite n x / n.factorial))) :=
+        hA.sub hB
+      have hd : Filter.Tendsto
+          (fun lam => (2 * x * (1 + (n + 1) / lam) * gegenbauerScaled (n + 1) lam x - (2 + n / lam)
+            * gegenbauerScaled n lam x) / (n + 2))
+          Filter.atTop
+          (𝓝 ((2 * x * 1 * (physHermite (n + 1) x / (n + 1).factorial)
+            - 2 * (physHermite n x / n.factorial)) / (n + 2))) :=
+        Filter.Tendsto.div_const hsub (n + 2)
+      have heq : (2 * x * 1 * (physHermite (n + 1) x / (n + 1).factorial)
+            - 2 * (physHermite n x / n.factorial)) / (n + 2)
+          = (2 * x * physHermite (n + 1) x - 2 * (n + 1) * physHermite n x)
+            / (Nat.factorial (n + 2)) := by
+        norm_num [Nat.factorial_succ]
+        field_simp
+        ring
+      rw [← heq]
+      exact hd
     refine h_limit.congr' ?_
     filter_upwards [ Filter.eventually_gt_atTop 0 ] with lam hl
     rw [ ← h_recurrence lam hl, mul_div_cancel_left₀ _ ( by positivity ) ]
@@ -150,7 +179,15 @@ theorem sphereUniform_sphere (k : ℕ) (hk : 0 < k) :
       rw [ Measure.map_apply ] <;> norm_num [ MeasurableEquiv.toLp ];
       · rw [ MeasureTheory.measure_eq_zero_iff_ae_notMem ] ; norm_num;
         rw [ MeasureTheory.ae_iff ] ; norm_num;
-        exact ⟨ by rw [ ProbabilityTheory.gaussianReal ] ; norm_num, hk.ne' ⟩;
+        haveI : NullSingletonClass (ProbabilityTheory.gaussianReal 0 1) :=
+          ProbabilityTheory.nullSingletonClass_gaussianReal (by norm_num)
+        refine MeasureTheory.measure_mono_null ?_ (MeasureTheory.Measure.pi_hyperplane
+          (fun _ => ProbabilityTheory.gaussianReal 0 1) (⟨0, hk⟩ : Fin k) (0 : ℝ))
+        intro a ha
+        simp only [Set.mem_setOf] at ha ⊢
+        have ha1 : WithLp.toLp 2 a = 0 := ha
+        have ha' : a = 0 := (WithLp.toLp_eq_zero 2).mp ha1
+        rw [ha']; rfl
       · fun_prop;
     filter_upwards [ MeasureTheory.measure_eq_zero_iff_ae_notMem.mp h_zero_measure ] with x hx;
     unfold sphereProj; simp +decide [ hx, norm_smul, Real.norm_eq_abs ] ;
@@ -160,8 +197,18 @@ theorem sphereUniform_sphere (k : ℕ) (hk : 0 < k) :
     ‖sphereProj k x‖ = Real.sqrt k} := by
     rw [ Measure.map_apply ] <;> norm_num [ sphereProj_measurable ];
     exact measurableSet_eq_fun ( measurable_norm ) measurable_const |> MeasurableSet.mem;
-  convert h_preimage using 1;
-  rw [ MeasureTheory.measure_congr, MeasureTheory.IsProbabilityMeasure.measure_univ ] ; aesop
+  have h1 : (gaussianE k) {x | ‖sphereProj k x‖ = Real.sqrt k} = 1 := by
+    have h0 : (gaussianE k) {x | ¬ ‖sphereProj k x‖ = Real.sqrt k} = 0 :=
+      MeasureTheory.ae_iff.mp h_norm_map
+    have hM : MeasurableSet {x : EuclideanSpace ℝ (Fin k) | ‖sphereProj k x‖ = Real.sqrt k} :=
+      measurableSet_eq_fun (measurable_norm.comp (sphereProj_measurable k)) measurable_const
+    have hfull : (gaussianE k) {x | ‖sphereProj k x‖ = Real.sqrt k} = (gaussianE k) Set.univ := by
+      rw [← Set.union_compl_self ({x | ‖sphereProj k x‖ = Real.sqrt k}),
+        MeasureTheory.measure_union disjoint_compl_right (MeasurableSet.compl hM),
+        Set.compl_ofPred, h0, add_zero]
+    rw [hfull, IsProbabilityMeasure.measure_univ]
+  show (gaussianE k).map (sphereProj k) {x | ‖x‖ = Real.sqrt k} = 1
+  rw [h_preimage, h1]
 
 /-! ### G3. The weight limit -/
 
@@ -185,8 +232,18 @@ theorem weight_tendsto_gaussian (x : ℝ) :
     filter_upwards [ Filter.eventually_gt_atTop ( x ^ 2 ) ] with lam hl
     rw [ ← Real.rpow_add ( sub_pos.mpr ( by rw [ div_lt_iff₀ <| by nlinarith ]; nlinarith ) ) ]
     ring
-  convert h_exp.mul ( Filter.Tendsto.rpow ( tendsto_const_nhds.sub ( tendsto_const_nhds.div_atTop
-    Filter.tendsto_id ) ) tendsto_const_nhds _ ) using 2 <;> norm_num
+  have h0 : Filter.Tendsto (fun lam : ℝ => 1 - x ^ 2 / lam) Filter.atTop (𝓝 ((1 : ℝ) - 0)) :=
+    tendsto_const_nhds.sub (tendsto_const_nhds.div_atTop Filter.tendsto_id)
+  have hr : Filter.Tendsto (fun lam : ℝ => (1 - x ^ 2 / lam) ^ (-1 / 2 : ℝ)) Filter.atTop
+      (𝓝 ((1 - 0 : ℝ) ^ (-1 / 2 : ℝ))) :=
+    Filter.Tendsto.rpow h0 tendsto_const_nhds (Or.inl (by norm_num))
+  have hmul : Filter.Tendsto
+      (fun lam => ((1 - x ^ 2 / lam) ^ lam) * ((1 - x ^ 2 / lam) ^ (-1 / 2 : ℝ)))
+      Filter.atTop (nhds (Real.exp (-x ^ 2) * ((1 : ℝ) - 0) ^ (-1 / 2 : ℝ))) :=
+    h_exp.mul hr
+  have heq : Real.exp (-x ^ 2) * ((1 - 0 : ℝ) ^ (-1 / 2 : ℝ)) = Real.exp (-x ^ 2) := by norm_num
+  rw [← heq]
+  exact hmul
 
 /-! ### G5 (continued). Rotation invariance of the uniform sphere measure -/
 

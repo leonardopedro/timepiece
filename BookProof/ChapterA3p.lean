@@ -125,8 +125,8 @@ antisymmetrizer sum to the identity: `(1/2)(1+τ) + (1/2)(1-τ) = 1`.
 -/
 theorem projSym_add_projAnti_two :
     projSym 2 + projAnti 2 = 1 := by
-  ext a b; simp only [projSym, Nat.factorial_two, Nat.cast_ofNat, projAnti, add_apply, smul_apply,
-      smul_eq_mul] ;
+  ext a b; simp only [projSym, Nat.factorial_two, Nat.cast_ofNat, projAnti, Matrix.add_apply,
+      Matrix.smul_apply, smul_eq_mul] ;
   unfold permMat signC;
   rw [ Finset.sum_eq_multiset_sum, Finset.sum_eq_multiset_sum ] ; norm_cast;
   erw [ show ( Finset.univ.val : Multiset ( Equiv.Perm ( Fin 2 ) ) )

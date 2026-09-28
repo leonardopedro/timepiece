@@ -64,7 +64,7 @@ theorem proj_mul_measOp_apply (U : Matrix (Fin n) (Fin n) ℂ) (a b i j : Fin n)
   by_cases hij : i = a <;> simp only [mul_apply, ↓reduceIte, hij];
   · unfold proj measOp; simp only [of_apply, true_and, ite_mul, one_mul, zero_mul, sum_ite_eq',
       mem_univ, ↓reduceIte]  ;
-    convert measOp_apply U b a j using 1;
+    convert measOp_apply U b a j using 1; rfl
   · exact Finset.sum_eq_zero fun k hk => by unfold proj; aesop;
 
 /-

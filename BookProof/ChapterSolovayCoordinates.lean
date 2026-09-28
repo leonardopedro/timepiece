@@ -69,15 +69,19 @@ theorem infinitePi_map_sumPiEquivProdPi_symm {ι ι' : Type*} {X : ι ⊕ ι' �
       = ((s.toLeft : Set ι).pi fun i => t (Sum.inl i)) ×ˢ
         ((s.toRight : Set ι').pi fun j => t (Sum.inr j)) := by
     ext ⟨a, b⟩
+    have hL : ∀ i, (MeasurableEquiv.sumPiEquivProdPi X).symm (a, b) (Sum.inl i) = a i :=
+      fun _ => rfl
+    have hR : ∀ j, (MeasurableEquiv.sumPiEquivProdPi X).symm (a, b) (Sum.inr j) = b j :=
+      fun _ => rfl
     constructor
     · intro h
       refine ⟨fun i hi => ?_, fun j hj => ?_⟩
-      · simpa using h (Sum.inl i) (by simpa using hi)
-      · simpa using h (Sum.inr j) (by simpa using hj)
+      · simpa using hL i ▸ h (Sum.inl i) (by simpa using hi)
+      · simpa using hR j ▸ h (Sum.inr j) (by simpa using hj)
     · rintro ⟨h1, h2⟩ i hi
       cases i with
-      | inl i => simpa using h1 i (by simpa using hi)
-      | inr j => simpa using h2 j (by simpa using hi)
+      | inl i => simpa using (hL i).symm ▸ h1 i (by simpa using hi)
+      | inr j => simpa using (hR j).symm ▸ h2 j (by simpa using hi)
   rw [hpre, Measure.prod_prod,
     Measure.infinitePi_pi (μ := fun i : ι => mu (Sum.inl i)) (s := s.toLeft)
       (t := fun i => t (Sum.inl i)) (fun i _ => ht _),

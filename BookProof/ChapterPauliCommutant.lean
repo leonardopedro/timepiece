@@ -136,7 +136,7 @@ theorem mgamma_conjugation_unique_up_to_scalar
   intro hc0
   rw [hc0, zero_smul] at hST
   rw [hST] at hS
-  rw [Matrix.det_zero ⟨0⟩] at hS
+  rw [Matrix.det_zero] at hS
   exact hS.ne_zero rfl
 
 /-- The stabiliser of the Majorana family under conjugation consists precisely of

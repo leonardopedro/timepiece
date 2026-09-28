@@ -135,7 +135,7 @@ noncomputable def cplxSub (Y : Submodule ℝ V) (hJ : ∀ y ∈ Y, (Complex.I : 
 /-- Round-trip: `cplxSub (realSub X) _ = X`. -/
 @[simp] lemma cplxSub_realSub (X : Submodule ℂ V) :
     cplxSub (realSub X) (realSub_Jinvariant X) = X := by
-  ext x; simp [mem_realSub]
+  ext x; exact mem_cplxSub.trans mem_realSub
 
 /-! ### Extremal values -/
 
@@ -153,7 +153,7 @@ lemma realSub_isSubsystem [CompleteSpace V] (M : System ℂ V) {X : Submodule �
     (hX : (M).IsSubsystem X) : (rxSystem M).IsSubsystem (realSub X) := by
   obtain ⟨hcl, hinv⟩ := hX
   refine ⟨?_, ?_⟩
-  · convert hcl using 1
+  · convert hcl using 1 <;> (ext x; simp [mem_realSub])
   · rintro _ ⟨m, hm, rfl⟩ w hw
     rw [mem_realSub] at *
     exact hinv m hm w hw
@@ -165,7 +165,7 @@ lemma cplxSub_isSubsystem [CompleteSpace V] (M : System ℂ V) {Y : Submodule �
     (M).IsSubsystem (cplxSub Y hJ) := by
   obtain ⟨hcl, hinv⟩ := hY
   refine ⟨?_, ?_⟩
-  · convert hcl using 1
+  · convert hcl using 1 <;> (ext x; simp [mem_cplxSub])
   · intro m hm w hw
     rw [mem_cplxSub] at *
     exact hinv (rxMap m) (Set.mem_image_of_mem _ hm) w hw

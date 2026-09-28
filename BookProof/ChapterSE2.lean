@@ -113,9 +113,10 @@ theorem Nmat_zero : Nmat 0 0 = 1 := by
 /-- **Proposition 79 (`SE(2)` translations).** `N` is a homomorphism from `(ℝ², +)`:
 `N(a,b) · N(c,d) = N(a+c, b+d)`. -/
 theorem Nmat_mul (a b c d : ℝ) : Nmat a b * Nmat c d = Nmat (a + c) (b + d) := by
-  convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℝ => 1 + x ) ( Xmat_add a b c d ) using 1;
-  unfold Nmat; simp only [mul_add, mul_one, add_mul, one_mul, Xmat_mul_Xmat, add_zero] ;
-  rw [ add_assoc ]
+  convert congr_arg ( fun x : Matrix ( Fin 4 ) ( Fin 4 ) ℝ => 1 + x ) ( Xmat_add a b c d ) using 1
+  · unfold Nmat; simp only [mul_add, mul_one, add_mul, one_mul, Xmat_mul_Xmat, add_zero] ;
+    rw [ add_assoc ]
+  · rfl
 
 /-- Each `N(a,b)` is invertible with inverse `N(-a,-b)`. -/
 theorem Nmat_inv (a b : ℝ) : Nmat a b * Nmat (-a) (-b) = 1 := by

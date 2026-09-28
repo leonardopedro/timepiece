@@ -77,7 +77,8 @@ theorem op_eq_of_inner {phi eta : H} (hphi : phi ∈ T.domain)
       rw [inner_sub_right, ← h1, h2]
       simp
     rwa [inner_eq_zero_symm] at h3
-  have h0 := T.denseDomain.eq_zero_of_inner_left (x := eta - T.op ⟨phi, hphi⟩) key
+  have h0 := Dense.eq_zero_of_inner_left (𝕜 := ℂ) (x := eta - T.op ⟨phi, hphi⟩)
+      T.denseDomain (fun v hv => key ⟨v, hv⟩)
   exact (sub_eq_zero.mp h0).symm
 
 /-- A self-adjoint operator is **closed**: its graph is closed. -/

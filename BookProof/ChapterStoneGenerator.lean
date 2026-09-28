@@ -103,7 +103,11 @@ theorem norm_approxU_sub_smul_le (n h : ℝ) (x : H) :
       T.hasDerivAt_approxU_apply n s x
     have h2 : HasDerivAt (fun s : ℝ => s • v) v s := by
       simpa using (hasDerivAt_id s).smul_const v
-    simpa [hg] using (h1.sub_const x).sub h2
+    have h0 := (h1.sub_const x).sub h2
+    have hvrw : T.approxU n s v - v = T.approxU n s (T.yosidaGen n x) - v := by simp [hv]
+    rw [hvrw]
+    simp only [hg]
+    exact h0
   have hbound : ∀ s ∈ Set.uIcc (0 : ℝ) h, ‖T.approxU n s v - v‖ ≤ |h| * M := by
     intro s hs
     have hsh : |s| ≤ |h| := by

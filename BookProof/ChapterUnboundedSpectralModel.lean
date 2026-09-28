@@ -84,7 +84,8 @@ theorem op_resOp (T : UnboundedSelfAdjoint H) (y : H) :
     T.op ⟨resOp T y, resOp_mem T y⟩ = y + Complex.I • resOp T y := by
   rw [resOp_eq_res]
   have h := T.op_res (l := 1) one_ne_zero y
-  simpa using h
+  simp at h
+  exact h
 
 /-- The resolvent is injective. -/
 theorem resOp_injective (T : UnboundedSelfAdjoint H) : Function.Injective (resOp T) := by

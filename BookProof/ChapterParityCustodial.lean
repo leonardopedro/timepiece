@@ -59,7 +59,7 @@ theorem commutant_pauli_scalar (M : Matrix (Fin 2) (Fin 2) ℂ)
     M = (M 0 0) • (1 : Matrix (Fin 2) (Fin 2) ℂ) := by
   simp_all only [← ext_iff, mul_apply, Fin.sum_univ_succ, Fin.isValue, Finset.univ_unique,
     Fin.default_eq_zero, Finset.sum_singleton, Fin.succ_zero_eq_one, mul_comm,
-    Fin.forall_fin_two, add_right_inj, add_left_inj, smul_apply, one_apply, smul_eq_mul,
+    Fin.forall_fin_two, add_right_inj, add_left_inj, Matrix.smul_apply, one_apply, smul_eq_mul,
     ite_mul, one_mul, zero_mul, ↓reduceIte, zero_ne_one, true_and, one_ne_zero]
   unfold pauli1 pauli2 pauli3 at *
   norm_num at *
@@ -76,7 +76,8 @@ theorem pauli_basis_indep (c0 c1 c2 c3 : ℂ)
     c0 = 0 ∧ c1 = 0 ∧ c2 = 0 ∧ c3 = 0 := by
   unfold pauli1 pauli2 pauli3 at h
   simp_all only [smul_of, smul_cons, smul_eq_mul, mul_zero, mul_one, smul_empty, mul_neg, ← ext_iff,
-      add_apply, smul_apply, of_apply, cons_val', cons_val_fin_one, zero_apply, Fin.forall_fin_two,
+      Matrix.add_apply, Matrix.smul_apply, of_apply, cons_val', cons_val_fin_one,
+      Matrix.zero_apply, Fin.forall_fin_two,
           Fin.isValue, cons_val_zero, cons_val_one, one_apply_eq, add_zero, ne_eq, zero_ne_one,
               not_false_eq_true, one_apply_ne, zero_add, one_ne_zero]
   simp_all only [add_eq_zero_iff_eq_neg, Complex.ext_iff, Complex.neg_re, Complex.neg_im, neg_neg,

@@ -148,7 +148,6 @@ theorem outer_inner_reduces_to_head {N : ℕ} {headDist : Measure (InnerHead N)}
       (g₂' z.1) * star (g₁' z.1) ∂(headDist.prod tailMeasure) := by
     rw [MeasureTheory.L2.inner_def (𝕜 := ℂ) Ψ₁ Ψ₂]
     simp_rw [RCLike.inner_apply]
-    dsimp [stateMeasure]
     refine integral_congr_ae ?_
     filter_upwards with z
     simp [hg₁, hg₂]
@@ -160,7 +159,7 @@ theorem outer_inner_reduces_to_head {N : ℕ} {headDist : Measure (InnerHead N)}
           ((Ψ₂ : InnerSpace N → ℂ) z) * star ((Ψ₁ : InnerSpace N → ℂ) z))
           (headDist.prod tailMeasure) := by
         have h := MeasureTheory.L2.integrable_inner (𝕜 := ℂ) Ψ₁ Ψ₂
-        simpa [RCLike.inner_apply] using h
+        exact h
       have h_eq : (fun z : InnerSpace N => (g₂' z.1) * star (g₁' z.1)) =ᵐ[headDist.prod tailMeasure]
           (fun z => ((Ψ₂ : InnerSpace N → ℂ) z) * star ((Ψ₁ : InnerSpace N → ℂ) z)) := by
         filter_upwards with z
@@ -996,7 +995,8 @@ theorem Var_sum_independent_zeroMean {X : Type*} [MeasurableSpace X]
         have hpqr : (2 : ENNReal).HolderTriple (2 : ENNReal)
           (1 : ENNReal) := inferInstance
         have h := h_norm.mul h_norm (hpqr := hpqr)
-        simpa [sq] using h
+        simp only [sq]
+        exact h
       simpa [Complex.normSq_eq_norm_sq] using h_sq
     exact h_mem.integrable (by norm_num)
   have h_int_normSq_f1 : Integrable (fun x => Complex.normSq (f 1 x)) μ := by
@@ -1006,7 +1006,8 @@ theorem Var_sum_independent_zeroMean {X : Type*} [MeasurableSpace X]
         have hpqr : (2 : ENNReal).HolderTriple (2 : ENNReal)
           (1 : ENNReal) := inferInstance
         have h := h_norm.mul h_norm (hpqr := hpqr)
-        simpa [sq] using h
+        simp only [sq]
+        exact h
       simpa [Complex.normSq_eq_norm_sq] using h_sq
     exact h_mem.integrable (by norm_num)
   have h_int_cross_re : Integrable (fun x => (f 0 x * star (f 1 x)).re) μ := by
@@ -1015,7 +1016,11 @@ theorem Var_sum_independent_zeroMean {X : Type*} [MeasurableSpace X]
         have hpqr : (2 : ENNReal).HolderTriple (2 : ENNReal)
           (1 : ENNReal) := inferInstance
         have h := (hf 0).mul (hf 1).star (hpqr := hpqr)
-        simpa [mul_comm] using h
+        have hcomm : (fun x => f 0 x * star (f 1 x)) = star (f 1) * f 0 := by
+          ext x
+          simp [mul_comm]
+        rw [hcomm]
+        exact h
       exact h_mem.integrable (by norm_num)
     exact h_int.re
   have h_int_cross_re_scaled : Integrable (fun x => 2 * (f 0 x * star (f 1 x)).re) μ :=
@@ -1036,7 +1041,11 @@ theorem Var_sum_independent_zeroMean {X : Type*} [MeasurableSpace X]
       have h_mem : MemLp (star (f 1) * f 0) 1 μ :=
         (hf 0).mul (hf 1).star (hpqr := hpqr)
       have h_mem' : MemLp (fun x => f 0 x * star (f 1 x)) 1 μ := by
-        simpa [Pi.mul_apply, mul_comm] using h_mem
+        have hcomm : (fun x => f 0 x * star (f 1 x)) = star (f 1) * f 0 := by
+          ext x
+          simp [mul_comm]
+        rw [hcomm]
+        exact h_mem
       exact h_mem'.integrable (by norm_num)
     have h_int_re : Integrable (fun x => (f 0 x * star (f 1 x)).re) μ :=
       h_int.re
@@ -1094,7 +1103,8 @@ theorem L2_cylindrical_norm_diff {X Y : Type*}
         have hpqr : (2 : ENNReal).HolderTriple (2 : ENNReal) (1 : ENNReal) :=
           inferInstance
         have h := h_norm.mul h_norm (hpqr := hpqr)
-        simpa [sq] using h
+        simp only [sq]
+        exact h
       simpa [Complex.normSq_eq_norm_sq] using h_sq
     exact h_mem_sq.integrable (by norm_num)
   calc
@@ -1322,7 +1332,11 @@ theorem Covariance_bound {N : ℕ} (headDist : Measure (InnerHead N)) [IsProbabi
       have hpqr : (2 : ENNReal).HolderTriple (2 : ENNReal)
           (1 : ENNReal) := inferInstance
       have h := hf.mul hg.star (hpqr := hpqr)
-      simpa [mul_comm] using h
+      have hcomm : (fun x => f x * star (g x)) = star g * f := by
+        ext x
+        simp [mul_comm]
+      rw [hcomm]
+      exact h
     exact h_mem.re.integrable (by norm_num)
   -- |∫ Re(f·g*)| ≤ ∫ |Re(f·g*)|
   have h_abs_int : |∫ x, (f x * star (g x)).re ∂headDist| ≤
@@ -1337,7 +1351,11 @@ theorem Covariance_bound {N : ℕ} (headDist : Measure (InnerHead N)) [IsProbabi
       have hpqr : (2 : ENNReal).HolderTriple (2 : ENNReal)
           (1 : ENNReal) := inferInstance
       have h := hf.mul hg.star (hpqr := hpqr)
-      simpa [mul_comm] using h
+      have hcomm : (fun x => f x * star (g x)) = star g * f := by
+        ext x
+        simp [mul_comm]
+      rw [hcomm]
+      exact h
     exact h_mem.norm.integrable (by norm_num)
   -- ∫ |Re(f·g*)| ≤ ∫ ‖f·g*‖
   have h_abs_norm : ∫ x, |(f x * star (g x)).re| ∂headDist ≤ ∫ x, ‖f x * star (g x)‖ ∂headDist :=
@@ -1413,7 +1431,7 @@ theorem Correlation_bound {N : ℕ} (headDist : Measure (InnerHead N)) [IsProbab
       have hpqr : (2 : ENNReal).HolderTriple (2 : ENNReal)
           (1 : ENNReal) := inferInstance
       have h := (hg.star).mul hf (hpqr := hpqr)
-      simpa [mul_comm] using h
+      exact h
     exact h_mem.re.integrable (by norm_num)
   have h_abs_int : |∫ x, (f x * star (g x)).re ∂headDist| ≤
       ∫ x, |(f x * star (g x)).re| ∂headDist :=
@@ -1425,7 +1443,7 @@ theorem Correlation_bound {N : ℕ} (headDist : Measure (InnerHead N)) [IsProbab
       have hpqr : (2 : ENNReal).HolderTriple (2 : ENNReal)
           (1 : ENNReal) := inferInstance
       have h := (hg.star).mul hf (hpqr := hpqr)
-      simpa [mul_comm] using h
+      exact h
     exact h_mem.norm.integrable (by norm_num)
   have h_abs_norm : ∫ x, |(f x * star (g x)).re| ∂headDist ≤ ∫ x, ‖f x * star (g x)‖ ∂headDist :=
     integral_mono_ae h_int.abs h_norm_int (ae_of_all _ (fun x => h_re_le_norm _))

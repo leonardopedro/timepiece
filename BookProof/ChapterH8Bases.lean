@@ -220,7 +220,7 @@ theorem li_Fin_of_le (f : ℕ → E) {m n : ℕ} (hmn : m ≤ n)
     (hli : LinearIndependent ℂ (fun i : Fin n => f i)) :
     LinearIndependent ℂ (fun i : Fin m => f i) := by
   have h := hli.comp (Fin.castLE hmn) (Fin.castLE_injective hmn)
-  simpa [Function.comp] using h
+  exact h
 
 omit [CompleteSpace E] in
 /-- Linear independence of a prefix also gives linear independence of every

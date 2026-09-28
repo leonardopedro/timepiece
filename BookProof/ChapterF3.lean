@@ -134,8 +134,8 @@ theorem projOnto_eq_starProjection {ψ : E} (hψ : ‖ψ‖ = 1) (s : E) :
 `|0⟩ = 1`.  (`N̂ 1 = 0`.)
 -/
 theorem diagGen_vacuum (a : ℂ) : (a • ChapterF1.numberOp) (1 : ℂ[X]) = 0 := by
-  convert congr_arg ( fun x : ℂ[X] => a • x ) ( ChapterF1.numberOp_monomial 0 ) using 1;
-  norm_num
+  convert congr_arg ( fun x : ℂ[X] => a • x ) ( ChapterF1.numberOp_monomial 0 ) using 1
+    <;> (first | norm_num | simp)
 
 /-
 **F2.7** (eigenstates): the monomials `Xⁿ = |xₙ⟩` are eigenvectors of the
@@ -147,7 +147,7 @@ theorem diagGen_eigenstate (a : ℂ) (n : ℕ) :
     (a • ChapterF1.numberOp) (X ^ n) = (a * n) • X ^ n :=
   by
   convert congr_arg (fun x => a • x) (ChapterF1.numberOp_monomial n) using 1
-    ; norm_num [mul_assoc, smul_smul]
+    <;> (first | norm_num [mul_assoc, smul_smul] | simp only [mul_smul])
 
 /-! ## F2.8 — the Mehler overlap and the dressed-vacuum Bessel bound -/
 

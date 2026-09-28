@@ -272,8 +272,9 @@ theorem iUnion_indicator_mem {f : ℕ → Set (α × β)}
         = Real.sqrt (ρ.real (E \ F N)) := fun N =>
       norm_indicatorConstLp_diff hEm (hFm N) (hFsub N)
     simp only [hrw]
-    have := (Real.continuous_sqrt.tendsto 0).comp hdiff_tendsto
-    simpa using this
+    have h := (Real.continuous_sqrt.tendsto 0).comp hdiff_tendsto
+    rw [Real.sqrt_zero] at h
+    exact h
   have hconv : Tendsto (fun N => indicatorConstLp (μ := ρ) 2 (hFm N) (measure_ne_top _ _) (1 : ℂ))
       atTop (𝓝 (indicatorConstLp (μ := ρ) 2 hEm (measure_ne_top _ _) (1 : ℂ))) := by
     rw [tendsto_iff_norm_sub_tendsto_zero]
@@ -291,7 +292,6 @@ theorem indicator_mem_tensorSpan {E : Set (α × β)} (hE : MeasurableSet E) :
       ∈ tensorSpan μ ν)
     (generateFrom_prod (α := α) (β := β)).symm isPiSystem_prod ?_ ?_ ?_ ?_ E hE
   · -- the empty set
-    dsimp only
     have hzero : indicatorConstLp (μ := μ.prod ν) 2 MeasurableSet.empty
         (measure_ne_top _ _) (1 : ℂ) = 0 := by
       refine Lp.ext ?_
@@ -303,12 +303,10 @@ theorem indicator_mem_tensorSpan {E : Set (α × β)} (hE : MeasurableSet E) :
     rw [hzero]
     exact Submodule.zero_mem _
   · -- rectangles
-    dsimp only
     rintro R ⟨s, hs, t, ht, rfl⟩
     rw [indicatorConstLp_prod hs ht]
     exact pureTensor_mem_tensorSpan _ _
   · -- complements
-    dsimp only
     intro F hF hmem
     have hgoal : indicatorConstLp (μ := μ.prod ν) 2 hF.compl (measure_ne_top _ _) (1 : ℂ)
         = indicatorConstLp (μ := μ.prod ν) 2 MeasurableSet.univ (measure_ne_top _ _) (1 : ℂ)
@@ -319,7 +317,6 @@ theorem indicator_mem_tensorSpan {E : Set (α × β)} (hE : MeasurableSet E) :
     rw [hgoal]
     exact Submodule.sub_mem _ indicatorConstLp_univ_mem hmem
   · -- countable disjoint unions
-    dsimp only
     intro f hdisj hfm hmem
     exact iUnion_indicator_mem hdisj hfm hmem
 

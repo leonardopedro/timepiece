@@ -203,7 +203,7 @@ theorem exists_boost_spacelike_of_zero {m : ℝ} (hm : 0 < m) (p : Fin 4 → ℝ
     rw [hbeta]; field_simp
   have hbetac' : (starRingEnd ℂ) beta ^ 2 * (m : ℂ) = -((p 1 : ℂ) + I * (p 2 : ℂ)) := by
     have h := congrArg (starRingEnd ℂ) hbeta'
-    simpa [map_mul, map_pow, Complex.conj_ofReal] using h
+    simpa [map_mul, map_pow, Complex.conj_ofReal, sub_eq_add_neg] using h
   set lam : ℝ := -(m + 2 * p 0) / (2 * m) with hlam
   have hlamC : (lam : ℂ) * (2 * (m : ℂ)) = -((m : ℂ) + 2 * (p 0 : ℂ)) := by
     have h := congrArg (fun x : ℝ => (x : ℂ)) hlam

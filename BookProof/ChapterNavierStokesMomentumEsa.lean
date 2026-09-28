@@ -112,7 +112,12 @@ theorem nsComparison_restrict_eq (d : ℕ) (p q : Fin d → ℕ → ℝ) :
         (Submodule.inclusion (finiteModes_le_maxDom (nsSymbol d p q)))
       = (lpFiniteModes ℕ).subtype.comp (diagComparisonData d p q).comparison := by
   refine LinearMap.ext fun f => lp.ext (funext fun k => ?_)
-  rw [LinearMap.comp_apply, LinearMap.comp_apply, diagMax_coe, diagComparison_eq]
+  rw [diagComparison_eq]
+  change ⇑((diagMax (nsSymbol d p q))
+      (Submodule.inclusion (finiteModes_le_maxDom (nsSymbol d p q)) f)) k
+      = ⇑((lpFiniteModes ℕ).subtype
+          (diagOp (fun k' => (∑ i, p i k' ^ 2) + (∑ i, q i k' ^ 2) + 1) f)) k
+  rw [diagMax_coe]
   simp [DiagonalEsa.diagFun, nsSymbol]
 
 /-- **The comparison operator of the fiber is self-adjoint on its maximal
@@ -136,8 +141,10 @@ independently of the eigenvector argument of
 theorem nsComparison_ikebeKato (d : ℕ) (p q : Fin d → ℕ → ℝ) :
     EssentiallySelfAdjointOn (lpFiniteModes ℕ)
       ((lpFiniteModes ℕ).subtype.comp (diagComparisonData d p q).comparison) := by
-  rw [← nsComparison_restrict_eq]
-  exact ikebeKato_momentum _ (nsSymbol_nonneg d p q)
+  have h := nsComparison_restrict_eq d p q
+  have h2 := ikebeKato_momentum _ (nsSymbol_nonneg d p q)
+  rw [h] at h2
+  exact h2
 
 /-- **The one-particle Navier–Stokes Hamiltonian is essentially self-adjoint on
 the finite-mode core** as soon as it satisfies the two Faris–Lavine inequalities

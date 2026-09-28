@@ -43,13 +43,21 @@ namespace BookProof.ChapterA3
 
 variable {G A : Matrix (Fin 4) (Fin 4) ℝ}
 
+/-- `Matrix.of_apply` fails on the nested `of (of M)` shapes below because the
+outer `of` argument has type `Matrix`, not `Fin 4 → Fin 4 → ℝ`, which does not
+typecheck at `simp`'s implicit transparency. This `rfl` variant states the
+argument at `Matrix` type so the pattern matches syntactically. -/
+theorem of_of_apply (M : Fin 4 → Fin 4 → ℝ) (i j : Fin 4) :
+    Matrix.of (Matrix.of M) i j = M i j := rfl
+
 /-! ## The matrix exponential is invertible with inverse `exp (-G)` -/
 
 /-- `exp(-G)` is a two-sided inverse of `exp G`. -/
 theorem exp_neg_mul_exp (G : Matrix (Fin 4) (Fin 4) ℝ) :
     NormedSpace.exp (-G) * NormedSpace.exp G = 1 := by
-  rw [← NormedSpace.exp_add_of_commute (Commute.neg_left (Commute.refl G)), neg_add_cancel,
-    NormedSpace.exp_zero]
+  have hstep : NormedSpace.exp (-G) * NormedSpace.exp G = NormedSpace.exp (-G + G) :=
+    (NormedSpace.exp_add_of_commute (Commute.neg_left (Commute.refl G))).symm
+  rw [hstep, neg_add_cancel, NormedSpace.exp_zero]
 
 /-- The (matrix) inverse of `exp G` is `exp (-G)`. -/
 theorem exp_matrix_inv (G : Matrix (Fin 4) (Fin 4) ℝ) :
@@ -79,10 +87,10 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
         intro ν
         have h_entry_deriv : HasDerivAt (fun t => (NormedSpace.exp (t • (-A)))) ((-A) *
             (NormedSpace.exp (t • (-A)))) t := by
-          convert hasDerivAt_exp_smul_const' ( -A ) t using 1;
+          convert hasDerivAt_exp_smul_const' ( -A ) t using 1 <;> (first | rfl | simp);
         exact hasDerivAt_pi.1 ( hasDerivAt_pi.1 h_entry_deriv μ ) ν;
       convert HasDerivAt.fun_sum fun ν _ => HasDerivAt.smul_const ( hZ_deriv ν ) ( mgammaR ν ) using
-          1;
+          1 <;> (first | rfl | simp);
     have h_comm : (-A) * NormedSpace.exp (t • (-A)) = -(NormedSpace.exp (t • (-A)) * A) := by
       have h_comm : Commute A (t • (-A)) := by
         simp [ Commute ];
@@ -91,7 +99,8 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
       rw [ neg_mul, this.eq ];
     have h_sum : ∑ ν,      (NormedSpace.exp (t • (-A)) * A) μ ν • mgammaR ν = ∑ ν,
         (NormedSpace.exp (t • (-A))) μ ν • (G * mgammaR ν - mgammaR ν * G) := by
-      simp_all only [smul_neg, mul_apply, neg_apply, neg_mul, Finset.sum_neg_distrib, neg_smul,
+      simp_all only [smul_neg, mul_apply, Matrix.neg_apply, neg_mul, Finset.sum_neg_distrib,
+          neg_smul,
           neg_inj];
       simp_all only [HasAdLambda, Finset.sum_smul, mul_comm, Finset.smul_sum];
       exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ =>
@@ -103,19 +112,18 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
     intro t
     have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • G)) (G * NormedSpace.exp (t • G)) t :=
         by
-      convert hasDerivAt_exp_smul_const' G t using 1;
+      convert hasDerivAt_exp_smul_const' G t using 1 <;> (first | rfl | simp);
     have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • (-G))) ((-G) * NormedSpace.exp (t •
         (-G))) t := by
-      convert hasDerivAt_exp_smul_const' ( -G ) t using 1;
+      convert hasDerivAt_exp_smul_const' ( -G ) t using 1 <;> (first | rfl | simp);
     have hφ_deriv : HasDerivAt (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t •
         (-A))) μ ν • mgammaR ν)) (G * NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp (t • (-A))) μ
             ν • mgammaR ν) + NormedSpace.exp (t • G) * (-(G * (∑ ν, (NormedSpace.exp (t • (-A))) μ ν
                 • mgammaR ν) - (∑ ν, (NormedSpace.exp (t • (-A))) μ ν • mgammaR ν) * G))) t := by
       rename_i h;
-      convert HasDerivAt.mul h ( hZ_deriv t ) using 1;
+      convert HasDerivAt.mul h ( hZ_deriv t ) using 1 <;> (first | rfl | simp);
     convert hφ_deriv.mul ‹HasDerivAt ( fun t => NormedSpace.exp ( t • -G ) ) ( -G * NormedSpace.exp
-        ( t • -G ) ) t› using 1;
-    simp [ mul_sub, sub_mul, add_mul, ← mul_assoc ];
+        ( t • -G ) ) t› using 1 <;> (first | rfl | simp [mul_sub, sub_mul, add_mul, ← mul_assoc]);
     have h_comm : Commute G (NormedSpace.exp (t • G)) := by
       apply_rules [ Commute.exp_right, Commute.exp_left ];
       exact Commute.smul_right ( Commute.refl G ) t;
@@ -127,7 +135,7 @@ theorem conj_exp_hasAdLambda (h : HasAdLambda G A) (μ : Fin 4) :
     have hφ_const : ∀ t : ℝ,      deriv (fun t => NormedSpace.exp (t • G) * (∑ ν, (NormedSpace.exp
         (t • (-A))) μ ν • mgammaR ν) * NormedSpace.exp (t • (-G))) t = 0 := by
       intro t;
-      convert HasDerivAt.deriv ( hφ_deriv t ) using 1;
+      convert HasDerivAt.deriv ( hφ_deriv t ) using 1 <;> (first | rfl | simp);
     apply_rules [ is_const_of_deriv_eq_zero ];
     exact fun t => ( hφ_deriv t |> HasDerivAt.differentiableAt );
   specialize hφ_const 1 0 ; simp_all only [smul_neg, neg_sub, mul_assoc, one_smul, zero_smul,
@@ -150,6 +158,7 @@ theorem hasLambda_exp (h : HasAdLambda G A) :
 /-
 **Lie algebra → group.**  If `A ∈ 𝔬(1,3)` then `exp A ∈ O(1,3)`.
 -/
+set_option maxHeartbeats 800000 in
 theorem lorentzLie_exp (h : A ∈ LorentzLie) :
     NormedSpace.exp A ∈ LorentzO := by
   have h_2 : (Matrix.of minkowskiMat) * A * (Matrix.of minkowskiMat) = -A.transpose := by
@@ -164,6 +173,10 @@ theorem lorentzLie_exp (h : A ∈ LorentzLie) :
           Int.cast_neg, Int.cast_zero, ite_mul, one_mul, neg_mul, zero_mul, Finset.sum_ite_eq,
               Finset.mem_univ, ↓reduceIte, mul_ite, mul_neg];
       fin_cases i <;> fin_cases j <;> simp [ Fin.sum_univ_succ ];
+      all_goals first
+        | rfl
+        | (simp [of_of_apply, Matrix.mul_apply, Matrix.transpose_apply] <;> norm_num)
+        | (norm_cast; ring)
     exact h_2
   have h_3 : NormedSpace.exp ((Matrix.of minkowskiMat) * A * (Matrix.of minkowskiMat)) = (Matrix.of
       minkowskiMat) * NormedSpace.exp A * (Matrix.of minkowskiMat) := by
@@ -172,15 +185,30 @@ theorem lorentzLie_exp (h : A ∈ LorentzLie) :
       ext i j; fin_cases i <;> fin_cases j <;> norm_num [ minkowskiMat ] ;
       all_goals simp [ minkowskiR, Matrix.mul_apply ] ;
       all_goals norm_cast;
+      all_goals first
+        | rfl
+        | (split_ifs <;> simp_all)
+        | (simp [of_of_apply, minkowskiZ, Fin.sum_univ_four] <;> norm_num)
+        | (norm_cast; ring)
     · rw [ Matrix.inv_eq_left_inv ];
       ext i j; fin_cases i <;> fin_cases j <;> norm_num [ minkowskiMat ] ;
       all_goals simp [ Matrix.mul_apply, minkowskiR ] ;
       all_goals norm_cast;
+      all_goals first
+        | rfl
+        | (split_ifs <;> simp_all)
+        | (simp [of_of_apply, minkowskiZ, Fin.sum_univ_four] <;> norm_num)
+        | (norm_cast; ring)
     · convert IsUnit.of_mul_eq_one_right _
         ( show ( of minkowskiMat ) * ( of minkowskiMat ) = 1 from ?_ ) using 1;
       ext i j ; fin_cases i <;> fin_cases j <;> simp [ minkowskiMat ];
       all_goals simp [ Matrix.mul_apply, minkowskiR ] ;
       all_goals norm_cast;
+      all_goals first
+        | rfl
+        | (split_ifs <;> simp_all)
+        | (simp [of_of_apply, minkowskiZ, Fin.sum_univ_four] <;> norm_num)
+        | (norm_cast; ring)
   have h_4 : NormedSpace.exp (-A.transpose) = (Matrix.of minkowskiMat) * NormedSpace.exp A *
       (Matrix.of minkowskiMat) := by
     rw [ ← h_2, h_3 ]
@@ -195,6 +223,11 @@ theorem lorentzLie_exp (h : A ∈ LorentzLie) :
     have h_7 : (Matrix.of minkowskiMat) * (Matrix.of minkowskiMat) = 1 := by
       ext i j ; fin_cases i <;> fin_cases j <;> norm_num [ Matrix.mul_apply, minkowskiMat ];
       all_goals unfold minkowskiR; norm_num [ Fin.sum_univ_succ, minkowskiZ ] ;
+      all_goals first
+        | rfl
+        | (split_ifs <;> simp_all)
+        | (simp [of_of_apply, minkowskiZ, Fin.sum_univ_four] <;> norm_num)
+        | (norm_cast; ring)
     simp [ ← mul_assoc, h_6, h_7 ]
   exact h_5
 

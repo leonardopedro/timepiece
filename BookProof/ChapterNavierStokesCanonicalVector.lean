@@ -739,7 +739,7 @@ theorem canH_not_bounded (hA : A 0 0 ≠ 0) (C : ℝ) :
       = (velH A c (velState A c β) : L2I Vel) := by
     have h := congrArg (fun T : lpFiniteModes Vel →ₗ[ℂ] L2I Vel => T (coreState β))
       (canH_eq_velH A c)
-    simpa using h
+    exact h
   rw [hEq]
   exact h2
 

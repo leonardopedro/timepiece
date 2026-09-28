@@ -156,8 +156,10 @@ theorem majoranaFourier_prop74 (m q : ℝ) (hm : 0 ≤ m) (hq : 0 < q)
       = Sinv (Aop n) (boostC m q) (boostS m q) * Rmat (dgamma 0) (Ep m q) := by
         convert prop74_intertwine ( dgamma 0 ) ( nslash n ) gamma0_sq ( nslash_sq n hn ) (
             gamma0_nslash_anticomm n ) ( boostC m q ) ( boostS m q ) m q ( Ep m q ) ( boost_sq_add m
-                q hm hq ) _ _ using 1;
-        · rw [ boost_sq_sub m q hm hq, div_mul_cancel₀ _ ( ne_of_gt ( Ep_pos m q hq ) ) ];
+                q hm hq ) _ _ using 1
+        · rfl
+        · rfl
+        · rw [ boost_sq_sub m q hm hq, div_mul_cancel₀ _ ( ne_of_gt ( Ep_pos m q hq ) ) ]
         · rw [ BookProof.ChapterMajoranaFourier.boost_two_mul m q hm hq, div_mul_cancel₀ _ (
             ne_of_gt ( BookProof.ChapterMajoranaFourier.Ep_pos m q hq ) ) ]
 

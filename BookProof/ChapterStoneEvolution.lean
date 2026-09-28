@@ -105,7 +105,9 @@ theorem norm_approxU_sub_apply_le (n m t : ℝ) (x : H) :
       have h1 := T.hasDerivAt_approxU n (t - s)
       have h2 : HasDerivAt (fun s : ℝ => t - s) (-1 : ℝ) s := by
         simpa using (hasDerivAt_id s).const_sub t
-      simpa using h1.scomp s h2
+      have h0 := h1.scomp s h2
+      simp only [neg_smul, one_smul] at h0
+      convert h0 using 1 <;> rfl
     have hd : HasDerivAt (fun s : ℝ => T.approxU m s) (T.approxU m s * T.yosidaGen m) s :=
       T.hasDerivAt_approxU m s
     have hmul := hc.mul hd

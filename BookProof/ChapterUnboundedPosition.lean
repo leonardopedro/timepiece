@@ -93,7 +93,10 @@ theorem mem_mulDomain_iff (f : ℤ → ℝ) (psi : L2Z) :
 /-- Multiplication by `f`, on its natural domain. -/
 noncomputable def mulOp (f : ℤ → ℝ) : mulDomain f →ₗ[ℂ] L2Z where
   toFun psi := ⟨fun k => (f k : ℂ) * ((psi : L2Z) : ℤ → ℂ) k, psi.2⟩
-  map_add' a b := by ext k; simp [mul_add]
+  map_add' a b := by
+    ext k
+    simp only [Submodule.coe_add, lp.coeFn_add, Pi.add_apply]
+    ring
   map_smul' c a := by
     ext k
     simp only [lp.coeFn_smul, Pi.smul_apply, smul_eq_mul, RingHom.id_apply, Submodule.coe_smul]
@@ -247,7 +250,10 @@ theorem memℓp_phase (f : ℤ → ℝ) (t : ℝ) (psi : L2Z) :
 /-- Multiplication by the phase `e^{i t f}`, as a linear map. -/
 noncomputable def phaseLin (f : ℤ → ℝ) (t : ℝ) : L2Z →ₗ[ℂ] L2Z where
   toFun psi := ⟨fun k => phase f t k * (psi : ℤ → ℂ) k, memℓp_phase f t psi⟩
-  map_add' a b := by ext k; simp [mul_add]
+  map_add' a b := by
+    ext k
+    simp only [lp.coeFn_add, Pi.add_apply]
+    ring
   map_smul' c a := by
     ext k
     simp only [lp.coeFn_smul, Pi.smul_apply, smul_eq_mul, RingHom.id_apply]
@@ -343,7 +349,7 @@ theorem tendsto_phaseUnitary (f : ℤ → ℝ) (psi : L2Z) :
   have hsqrt : Filter.Tendsto
       (fun t : ℝ => Real.sqrt (∑' k : ℤ, ‖(phase f t k - 1) * (psi : ℤ → ℂ) k‖ ^ 2))
       (nhds 0) (nhds 0) := by
-    simpa using (Real.continuous_sqrt.tendsto 0).comp htsum
+    simpa using! (Real.continuous_sqrt.tendsto 0).comp htsum
   refine hsqrt.congr fun t => ?_
   rw [← hsq t, Real.sqrt_sq (norm_nonneg _)]
 
@@ -436,7 +442,7 @@ theorem tendsto_slope_phaseUnitary (f : ℤ → ℝ) (psi : mulDomain f) :
       (fun t : ℝ => Real.sqrt (∑' k : ℤ,
         ‖((t⁻¹ : ℝ) • (phase f t k - 1)) * g k - Complex.I * (f k : ℂ) * g k‖ ^ 2))
       (nhdsWithin 0 {0}ᶜ) (nhds 0) := by
-    simpa using (Real.continuous_sqrt.tendsto 0).comp htsum
+    simpa using! (Real.continuous_sqrt.tendsto 0).comp htsum
   refine hsqrt.congr fun t => ?_
   rw [← hsq t, Real.sqrt_sq (norm_nonneg _)]
 

@@ -417,6 +417,7 @@ theorem commForm_testState_self (hκ : ∀ i, 0 ≤ κ i) (i₀ : Fin d) :
     · rw [testState_coe_eq_zero i₀ (modeShift_shift_ne i₀ i₀) (modeShift_shift_ne' i₀ i₀),
         mul_zero]
     · rw [testState_coe_eq_zero i₀ hβ h1, zero_mul]
+  simp only [modeData_sym]
   rw [hs.unique hsingle]
   have hshift0 : (modeData hκ i₀).shift 0 = modeShift i₀ 0 := rfl
   have hamp0 : (modeData hκ i₀).amp 0 = modeAmp κ i₀ 0 := rfl

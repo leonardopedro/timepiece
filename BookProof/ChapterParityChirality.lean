@@ -73,7 +73,8 @@ noncomputable def chi : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ :=
 -/
 theorem isigma3_sq : isigma3 * isigma3 = -1 := by
   ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; norm_num [ isigma3 ];
-  fin_cases i <;> fin_cases k <;> simp only [kroneckerMap, smul_apply, smul_eq_mul, Fin.zero_eta,
+  fin_cases i <;> fin_cases k <;> simp only [kroneckerMap, Matrix.smul_apply, smul_eq_mul,
+      Fin.zero_eta,
       Fin.isValue, mul_apply, of_apply, Fin.mk_one, ne_eq, Prod.mk.injEq, zero_ne_one, false_and,
           not_false_eq_true, one_apply_ne, neg_zero, one_ne_zero];
   · fin_cases j <;> fin_cases l <;> simp only [Fin.isValue, one_apply, Fin.zero_eta, mul_ite,
@@ -115,8 +116,8 @@ theorem isigma3_igamma5 : isigma3 * igamma5 = chi := by
   convert Matrix.mul_kronecker_mul ( Complex.I • pauli3 ) 1 1 mgamma5;
   all_goals try exact ⟨ 1 ⟩;
   · ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp only [isigma3, igamma5, mul_one, one_mul, kroneckerMap_apply,
-      smul_apply, smul_eq_mul];
-    simp only [kroneckerMap, smul_apply, smul_eq_mul, mul_apply, of_apply];
+      Matrix.smul_apply, smul_eq_mul];
+    simp only [kroneckerMap, Matrix.smul_apply, smul_eq_mul, mul_apply, of_apply];
     simp only [one_apply, mul_ite, mul_one, mul_zero, ite_mul, one_mul, zero_mul, Finset.sum_ite,
         Finset.sum_const_zero, add_zero];
     rw [ Finset.sum_eq_single ( k, j ) ] <;> aesop;
@@ -127,8 +128,8 @@ theorem isigma3_igamma5 : isigma3 * igamma5 = chi := by
 `iσ₃` and `iγ⁵` commute, their product being the chirality operator `χ`.
 -/
 theorem igamma5_isigma3 : igamma5 * isigma3 = chi := by
-  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp only [igamma5, isigma3, mul_apply, kroneckerMap_apply, smul_apply,
-      smul_eq_mul, chi];
+  ext ⟨ i, j ⟩ ⟨ k, l ⟩ ; simp only [igamma5, isigma3, mul_apply, kroneckerMap_apply,
+      Matrix.smul_apply, smul_eq_mul, chi];
   simp only [one_apply, ite_mul, one_mul, zero_mul, mul_comm, mul_left_comm, mul_ite, mul_zero,
       ite_self];
   rw [ Finset.sum_eq_single ( i, l ) ] <;> aesop
@@ -191,13 +192,11 @@ theorem chirality_iff (v : Fin 2 × Fin 4 → ℂ) :
   constructor
   · intro h
     have hh := congr_arg (fun w => igamma5 *ᵥ w) h
-    simp only at hh
     rw [Matrix.mulVec_mulVec, igamma5_isigma3, Matrix.mulVec_mulVec, igamma5_sq,
       Matrix.neg_mulVec, Matrix.one_mulVec] at hh
     exact hh
   · intro h
     have hh := congr_arg (fun w => isigma3 *ᵥ w) h
-    simp only at hh
     rw [Matrix.mulVec_mulVec, ← isigma3_igamma5, ← Matrix.mul_assoc, isigma3_sq,
       neg_one_mul, Matrix.neg_mulVec, Matrix.mulVec_neg] at hh
     exact (neg_injective hh).symm

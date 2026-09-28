@@ -88,15 +88,15 @@ theorem boolFlip_false (x : EuclideanSpace ℝ (Fin n)) :
 -/
 theorem boolFlip_comp (b₁ b₂ : Fin n → Bool) (x : EuclideanSpace ℝ (Fin n)) :
     boolFlip b₁ (boolFlip b₂ x) = boolFlip (fun k => xor (b₁ k) (b₂ k)) x := by
-  ext k; simp [*]
-  grind +qlia
+  ext k; simp only [boolFlip_apply]
+  cases h₁ : b₁ k <;> cases h₂ : b₂ k <;> simp_all
 
 /-
 Every sign flip is an involution.
 -/
 theorem boolFlip_involutive (b : Fin n → Bool) (x : EuclideanSpace ℝ (Fin n)) :
     boolFlip b (boolFlip b x) = x := by
-  grind +suggestions
+  ext k; simp only [boolFlip_apply]; split_ifs <;> ring
 
 /-- The action preserves the unit sphere. -/
 theorem boolFlip_mem_sphere (b : Fin n → Bool) {x : EuclideanSpace ℝ (Fin n)}
@@ -116,7 +116,16 @@ theorem bornMap_boolFlip (b : Fin n → Bool) (x : EuclideanSpace ℝ (Fin n)) :
 theorem boolFlip_eq_self_iff {b : Fin n → Bool} {x : EuclideanSpace ℝ (Fin n)} :
     boolFlip b x = x ↔ ∀ k, x k ≠ 0 → b k = false := by
   refine ⟨fun h => ?_, fun h => ?_⟩
-  · grind +suggestions
+  · intro k hk
+    cases hb : b k
+    · rfl
+    · have hval : (if b k then -1 else 1) * x k = x k := by
+        rw [← boolFlip_apply]
+        exact congrArg (fun y : EuclideanSpace ℝ (Fin n) => y k) h
+      simp [hb] at hval
+      have hk2 : x k ≠ 0 := by simpa using hk
+      have : x k = 0 := by linarith
+      exact absurd this hk2
   · ext k; by_cases hk : x.ofLp k = 0 <;> simp_all [boolFlip_apply]
 
 /-

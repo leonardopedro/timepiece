@@ -94,7 +94,7 @@ theorem hasDerivAt_expApply (A : E →L[ℂ] E) (x : E) (t : ℝ) :
   have hcomm : NormedSpace.exp (t • A) * A = A * NormedSpace.exp (t • A) := by
     have hc : Commute (t • A) A := (Commute.refl A).smul_left t
     exact hc.exp_left.eq
-  simpa [hΦ, hcomm, Function.comp] using h2
+  convert h2 using 1 <;> (first | rfl | simp [hΦ, hcomm, Function.comp])
 
 /-- The derivative of `t ↦ ‖e^{tA} x‖²` is `2 Re ⟪e^{tA} x, A e^{tA} x⟫`. -/
 theorem hasDerivAt_normSq (A : E →L[ℂ] E) (x : E) (t : ℝ) :
@@ -119,7 +119,7 @@ theorem hasDerivAt_normSq (A : E →L[ℂ] E) (x : E) (t : ℝ) :
     simp only [Complex.reCLM_apply, Complex.add_re, hsym]
     ring
   rw [← hfun]
-  simpa [hval, Function.comp] using hre
+  convert hre using 1 <;> (first | rfl | simp [hval, Function.comp])
 
 /-! ## The growth bound -/
 
@@ -284,7 +284,7 @@ theorem shift_range_eq_top {A : E →L[ℂ] E} {ω : ℝ} (h : NumReLE A ω) {z 
     exact hkeradj
   have hdd := Submodule.orthogonal_orthogonal ((T : E →ₗ[ℂ] E).range)
   rw [hperp] at hdd
-  simpa using hdd.symm
+  convert hdd.symm using 1 <;> (first | rfl | simp [hT])
 
 /-- The resolvent of `A` at a point to the right of the half-plane, as a continuous linear
 equivalence. -/

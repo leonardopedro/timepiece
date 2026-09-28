@@ -102,7 +102,8 @@ theorem matrixFlow_comm (A : Matrix (Fin n) (Fin n) ℂ) (t : ℝ) :
 theorem matrixFlow_neg_hasDerivAt (A : Matrix (Fin n) (Fin n) ℂ) (t : ℝ) :
     HasDerivAt (fun s : ℝ => matrixFlow A (-s)) (-(matrixFlow A (-t) * A)) t := by
   have h : HasDerivAt (fun s : ℝ => -s) (-1 : ℝ) t := (hasDerivAt_id t).neg
-  simpa using HasDerivAt.scomp t (matrixFlow_hasDerivAt A (-t)) h
+  convert HasDerivAt.scomp t (matrixFlow_hasDerivAt A (-t)) h using 1
+    <;> (first | rfl | simp)
 
 /-- `e^{tA} e^{−tA} = 1`: the flow is invertible at every time, its inverse
 being the flow run backwards. -/
@@ -118,7 +119,12 @@ theorem matrixFlow_mul_neg (A : Matrix (Fin n) (Fin n) ℂ) (t : ℝ) :
 theorem matrixFlow_vec_hasDerivAt (A : Matrix (Fin n) (Fin n) ℂ) (x : Fin n → ℂ) (t : ℝ) :
     HasDerivAt (fun s : ℝ => matrixFlow A s *ᵥ x) (A *ᵥ (matrixFlow A t *ᵥ x)) t := by
   have h := (applyVecCLM x).hasFDerivAt.comp_hasDerivAt t (matrixFlow_hasDerivAt A t)
-  simpa [matrixFlow_comm, Matrix.mulVec_mulVec] using h
+  convert h using 1
+    <;> (first
+      | rfl
+      | (change A *ᵥ (matrixFlow A t *ᵥ x) = (matrixFlow A t * A) *ᵥ x
+          <;> rw [matrixFlow_comm, ← Matrix.mulVec_mulVec])
+      | simp [applyVecCLM, matrixFlow_comm, Matrix.mulVec_mulVec])
 
 /-- **Uniqueness for the linear Cauchy problem.**  Any differentiable curve with
 `ẏ(t) = A y(t)` for every `t` and `y(0) = x` is the orbit of the flow.  The

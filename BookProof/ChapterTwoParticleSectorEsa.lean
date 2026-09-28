@@ -154,7 +154,6 @@ theorem derPow_two_tmul (a b : D₂) (c : ℂ) :
           + (b : Hs.carrier) ⊗ₜ[ℂ] derPow Hs D₂ A 0 c := rfl
     rw [this, derPow_zero]
     simp [inclPow]
-    rfl
   rw [h1, h2, h3]
 
 /-- **The swap commutes with the derivation**: the Leibniz rule is symmetric in the two

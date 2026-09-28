@@ -243,7 +243,12 @@ noncomputable def dMat (a : ℂ) : Matrix.SpecialLinearGroup (Fin 2) ℂ :=
 
 theorem dMat_coe {a : ℂ} (ha : a ≠ 0) :
     (dMat a : Matrix (Fin 2) (Fin 2) ℂ) = !![a, 0; 0, a⁻¹] := by
-  rw [dMat, dif_neg ha]
+  have h1 : dMat a
+      = (⟨!![a, 0; 0, a⁻¹], by rw [Matrix.det_fin_two_of, mul_inv_cancel₀ ha]; ring⟩
+        : Matrix.SpecialLinearGroup (Fin 2) ℂ) := by
+    simp only [dMat]
+    exact dif_neg ha
+  simp only [h1]
 
 /-- The Weyl element `w₁ = u₊(1) u₋(-1) u₊(1)`. -/
 noncomputable def wOne : Matrix.SpecialLinearGroup (Fin 2) ℂ :=
@@ -255,30 +260,31 @@ theorem dMat_factor {a : ℂ} (ha : a ≠ 0) :
   refine eq_mul_inv_of_mul_eq ?_
   apply Matrix.SpecialLinearGroup.ext
   intro i j
-  fin_cases i <;> fin_cases j <;>
-    simp [wOne, Matrix.SpecialLinearGroup.coe_mul, dMat_coe ha, uPlus, uMinus,
-      Matrix.mul_apply, Fin.sum_univ_two] <;>
-    field_simp [ha] <;> (try ring; try exact Or.inl trivial)
+  fin_cases i <;> fin_cases j
+  all_goals simp only [show wOne = uPlus 1 * uMinus (-1) * uPlus 1 from rfl]
+  all_goals repeat rw [Matrix.SpecialLinearGroup.coe_mul]
+  all_goals simp [dMat_coe ha, uPlus, uMinus, Matrix.mul_apply, Fin.sum_univ_two,
+    mul_inv_cancel₀ ha, inv_mul_cancel₀ ha]
 
 /-- Conjugating the upper unipotent subgroup by the torus squares the parameter. -/
 theorem dMat_mul_uPlus {a : ℂ} (ha : a ≠ 0) (t : ℂ) :
     dMat a * uPlus t = uPlus (a ^ 2 * t) * dMat a := by
   apply Matrix.SpecialLinearGroup.ext
   intro i j
-  fin_cases i <;> fin_cases j <;>
-    simp [Matrix.SpecialLinearGroup.coe_mul, dMat_coe ha, uPlus, Matrix.mul_apply,
-      Fin.sum_univ_two] <;>
-    field_simp [ha]
+  fin_cases i <;> fin_cases j
+  all_goals repeat rw [Matrix.SpecialLinearGroup.coe_mul]
+  all_goals simp [dMat_coe ha, uPlus, Matrix.mul_apply, Fin.sum_univ_two]
+  all_goals field_simp [ha]
 
 /-- Conjugating the lower unipotent subgroup by the torus inverts the square. -/
 theorem dMat_mul_uMinus {a : ℂ} (ha : a ≠ 0) (t : ℂ) :
     dMat a * uMinus t = uMinus ((a ^ 2)⁻¹ * t) * dMat a := by
   apply Matrix.SpecialLinearGroup.ext
   intro i j
-  fin_cases i <;> fin_cases j <;>
-    simp [Matrix.SpecialLinearGroup.coe_mul, dMat_coe ha, uMinus, Matrix.mul_apply,
-      Fin.sum_univ_two] <;>
-    field_simp [ha]
+  fin_cases i <;> fin_cases j
+  all_goals repeat rw [Matrix.SpecialLinearGroup.coe_mul]
+  all_goals simp [dMat_coe ha, uMinus, Matrix.mul_apply, Fin.sum_univ_two]
+  all_goals field_simp [ha]
 
 /-- The big-cell (Bruhat) identity on the diagonal `s = t`. -/
 theorem bruhat {s : ℂ} (hs : 1 + s ^ 2 ≠ 0) :
@@ -287,10 +293,11 @@ theorem bruhat {s : ℂ} (hs : 1 + s ^ 2 ≠ 0) :
   have hc : (1 + s ^ 2)⁻¹ ≠ 0 := inv_ne_zero hs
   apply Matrix.SpecialLinearGroup.ext
   intro i j
-  fin_cases i <;> fin_cases j <;>
-    simp [Matrix.SpecialLinearGroup.coe_mul, dMat_coe hc, uPlus, uMinus, Matrix.mul_apply,
-      Fin.sum_univ_two] <;>
-    field_simp [hs]; ring
+  fin_cases i <;> fin_cases j
+  all_goals repeat rw [Matrix.SpecialLinearGroup.coe_mul]
+  all_goals simp [dMat_coe hc, uPlus, uMinus, Matrix.mul_apply, Fin.sum_univ_two]
+  all_goals field_simp [hs]
+  all_goals ring
 
 end Matrices
 

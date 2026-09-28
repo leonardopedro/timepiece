@@ -186,7 +186,7 @@ basis is dense but omits every vector of infinite support. -/
 
 section ProperDomain
 
-open scoped InnerProductSpace ENNReal
+open scoped InnerProductSpace ENNReal lp
 
 variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
 

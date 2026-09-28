@@ -205,7 +205,7 @@ def lpCongrOfMeasurePreserving (μ : Measure α) (ν : Measure β) (e : α ≃�
     have h3 : (fun y => (Lp.compMeasurePreservingₗ ℂ (e : α → β) he g) (e.symm y))
         =ᵐ[ν] fun y => g (e (e.symm y)) := by
       have := he.symm.quasiMeasurePreserving.ae h2
-      simpa [Function.comp] using this
+      exact this
     refine h1.trans (h3.trans ?_)
     filter_upwards with y
     simp
@@ -221,7 +221,7 @@ def lpCongrOfMeasurePreserving (μ : Measure α) (ν : Measure β) (e : α ≃�
     have h3 : (fun x => (Lp.compMeasurePreservingₗ ℂ (e.symm : β → α) he.symm g) (e x))
         =ᵐ[μ] fun x => g (e.symm (e x)) := by
       have := he.quasiMeasurePreserving.ae h2
-      simpa [Function.comp] using this
+      exact this
     refine h1.trans (h3.trans ?_)
     filter_upwards with x
     simp

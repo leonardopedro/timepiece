@@ -140,9 +140,13 @@ theorem countsketch_unbiased (h : Fin d → Fin k) (x y : Fin d → ℝ) :
     rw [ Finset.sum_comm ];
     exact Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ =>
         by split_ifs <;> simp [ * ] );
-  convert congr_arg ( fun x : ℝ => x / 2 ^ d ) h_exp using 1;
-  rw [ Finset.sum_div _ _ _ ] ;    congr ;    ext c ;    rw [ Finset.sum_eq_single c ] <;> simp
-      +contextual [ sign_pair_expectation ] ; ring;  grind
+  convert congr_arg ( fun x : ℝ => x / 2 ^ d ) h_exp using 1
+  · rw [ expectation, Finset.sum_div ]
+  · rw [ Finset.sum_div _ _ _ ] ;    congr ;    ext c ;    rw [ Finset.sum_eq_single c ] <;> simp
+      +contextual [ sign_pair_expectation ] <;> (first
+        | exact fun b hne _ habc => (hne habc.symm).elim
+        | ring
+        | grind)
 
 /-! ## F3.2 — the observable-matrix identity (`qfm/src/observables.rs`) -/
 
@@ -267,8 +271,9 @@ theorem countSketch_unbiased (μ : Measure Ω) [IsProbabilityMeasure μ]
     refine MeasureTheory.integrable_finset_sum _ fun i hi =>
       MeasureTheory.integrable_finset_sum _ fun j hj => ?_;
     convert MeasureTheory.Integrable.const_mul ( MeasureTheory.Integrable.const_mul ( ‹∀ c c',
-        MeasureTheory.Integrable ( fun ω => s c ω * s c' ω ) μ› i j ) ( x i ) ) ( y j ) using 2 ;
-            ring
+        MeasureTheory.Integrable ( fun ω => s c ω * s c' ω ) μ› i j ) ( x i ) ) ( y j ) using 2
+    · rfl
+    · ring
 
 /-! ## F3.2 — the observable-matrix identities -/
 
@@ -411,7 +416,7 @@ theorem mgRun_support_le (k : ℕ) (xs : List ι) :
       | cons a xs ih => ?_
       · simp [ mgRun ];
         simp [ mgSupport ];
-      · convert mgStep_support_le k ( mgRun k xs ) a ih using 1
+      · convert mgStep_support_le k ( mgRun k xs ) a ih using 1 <;> simp [mgRun]
 
 /-
 Master conservation invariant: the total counter mass plus `(k+1)` per
@@ -429,10 +434,13 @@ theorem mgRun_sum (k : ℕ) (xs : List ι) :
         · simp only [Finset.mem_univ, Finset.sum_update_of_mem];
           rw [ ← Finset.sum_sdiff ( Finset.subset_univ { xs } ) ] at * ;            simp_all [
               Finset.sum_singleton ] ; linarith;
-        · rw [ Finset.sum_eq_add_sum_diff_singleton ( Finset.mem_univ xs ) ] at *;
-          simp_all only [zero_add, Function.update_self, Function.update_apply];
-          rw [ Finset.sum_congr rfl fun x hx => if_neg ( Finset.mem_singleton.not.mp (
-              Finset.mem_sdiff.mp hx |>.2 ) ) ] ; linarith;
+        · simp only [Finset.mem_univ, Finset.sum_update_of_mem]
+          have hsub : ∑ x ∈ Finset.univ \ {xs}, (mgRun k ih).1 x = ∑ a, (mgRun k ih).1 a := by
+            rw [← Finset.sum_sdiff (Finset.subset_univ {xs})]
+            simp [Finset.sum_singleton]
+            linarith
+          rw [hsub, add_assoc, _ih]
+          ring
         · have := mgSum_decrement ( mgRun k ih |>.1 ) ; simp_all [ mgSupport ] ;
           linarith [ show Finset.card ( Finset.filter ( fun a => 0 < ( mgRun k ih |>.1 ) a )
               Finset.univ ) = k from le_antisymm ( mgRun_support_le k ih ) ‹_› ]

@@ -82,8 +82,10 @@ lemma JY_isClosed {Y : Submodule ℝ V} (hY : IsClosed (Y : Set V)) :
     IsClosed ((JY Y : Submodule ℝ V) : Set V) := by
   -- Since `Jmap` is a linear isometry equivalence, it is a homeomorphism.
   have h_homeo : IsHomeomorph (Jmap : V → V) := by
-    convert Homeomorph.isHomeomorph ( Jmap.toHomeomorph ) using 1;
+    convert Homeomorph.isHomeomorph ( Jmap.toHomeomorph ) using 1
+    · rfl
   convert h_homeo.isClosedMap Y hY using 1
+  rfl
 
 /-
 **`J Y` is a subsystem** of the realification whenever `Y` is: `Jmap`

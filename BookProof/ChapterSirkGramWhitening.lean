@@ -334,7 +334,7 @@ theorem exists_isWhitening {m : ℕ} {w : Fin m → E} (hw : LinearIndependent �
   · exact fun y => ⟨A y, e.symm_apply_apply y⟩
   · have hid : (ContinuousLinearMap.adjoint (A.comp T)).comp (A.comp T)
         = ContinuousLinearMap.id ℂ (EuclideanSpace ℂ (Fin m)) := by
-      rw [hATcomp]; ext c; simp
+      rw [hATcomp]; ext c; simp [ContinuousLinearMap.adjoint_id]
     rw [IsWhitening, ← hAA]
     rw [ContinuousLinearMap.adjoint_comp] at hid
     rw [← hid]

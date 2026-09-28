@@ -282,7 +282,7 @@ theorem sirk_end_to_end_satisfiable
     (ContinuousLinearMap.id ℂ F) (Polynomial.X : Polynomial ℂ) X X (compress V X) 1 1 1 m
     hVV hViso hVadj hinvX (fun x => ⟨x, rfl⟩) (by ext x; simp) ?_ rfl ?_ ?_ v hv
   · have hcid : compress V (ContinuousLinearMap.id ℂ E) = ContinuousLinearMap.id ℂ F := by
-      ext x; simpa using congrArg (fun f : F →L[ℂ] F => f x) hVV
+      ext x; simpa [compress] using congrArg (fun f : F →L[ℂ] F => f x) hVV
     rw [hcid]; ext x; simp
   · have : (Polynomial.aeval X (Polynomial.X : Polynomial ℂ) : E →L[ℂ] E).comp
         (ContinuousLinearMap.id ℂ E) = X := by ext x; simp

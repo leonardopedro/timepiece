@@ -63,7 +63,11 @@ theorem dirDeriv_eq {f : (Fin 3 → ℝ) → ℝ} {L : (Fin 3 → ℝ) →L[ℝ]
   have h : HasDerivAt (fun t : ℝ => x + t • evec j) (evec j) 0 := by
     simpa using ((hasDerivAt_id (0 : ℝ)).smul_const (evec j)).const_add x
   have hf' : HasFDerivAt f L (x + (0 : ℝ) • evec j) := by simpa using hf
-  simpa [dirDeriv] using (hf'.comp_hasDerivAt 0 h).deriv
+  first
+    | exact (hf'.comp_hasDerivAt 0 h).deriv
+    | (simp only [dirDeriv]; exact (hf'.comp_hasDerivAt 0 h).deriv)
+    | (simp only [dirDeriv] <;> convert (hf'.comp_hasDerivAt 0 h).deriv using 1
+        <;> (first | rfl | simp))
 
 /-- The partial derivatives of the coordinate functions: `∂_j x_k = δ_{kj}`. -/
 theorem dirDeriv_coord (k j : Fin 3) (x : Fin 3 → ℝ) :

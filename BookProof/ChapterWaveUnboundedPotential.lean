@@ -76,7 +76,7 @@ noncomputable def potentialOp (W : V → ℝ) : 𝓢(V, ℂ) →L[ℂ] 𝓢(V, �
 omit [FiniteDimensional ℝ V] [MeasurableSpace V] [BorelSpace V] in
 lemma hasTemperateGrowth_ofReal {W : V → ℝ} (hW : Function.HasTemperateGrowth W) :
     Function.HasTemperateGrowth (fun x => (W x : ℂ)) := by
-  simpa using Function.HasTemperateGrowth.comp Complex.ofRealCLM.hasTemperateGrowth hW
+  exact Function.HasTemperateGrowth.comp Complex.ofRealCLM.hasTemperateGrowth hW
 
 omit [FiniteDimensional ℝ V] [MeasurableSpace V] [BorelSpace V] in
 @[simp] lemma potentialOp_apply {W : V → ℝ} (hW : Function.HasTemperateGrowth W)
@@ -151,7 +151,7 @@ theorem potentialOp_deficiencyTrivial (W : V → ℝ) (hW : Function.HasTemperat
     have hsupp : HasCompactSupport
         (fun x => (χ x : ℂ) * (((W x : ℝ) : ℂ) - (starRingEnd ℂ) z)⁻¹) := by
       refine HasCompactSupport.mul_right ?_
-      simpa using hχc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
+      exact hχc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
     obtain ⟨ψ, hψcoe⟩ : ∃ ψ : 𝓢(V, ℂ), (ψ : V → ℂ) =
         fun x => (χ x : ℂ) * (((W x : ℝ) : ℂ) - (starRingEnd ℂ) z)⁻¹ :=
       ⟨hsupp.toSchwartzMap hsmooth, rfl⟩
@@ -187,7 +187,8 @@ theorem polynomialPotential_essentiallySelfAdjoint (k : ℕ) :
       (opL2 (potentialOp (fun x : V => ‖x‖ ^ (2 * k)))) := by
   have h : Function.HasTemperateGrowth (fun x : V => ‖x‖ ^ (2 * k)) := by
     have := (Function.hasTemperateGrowth_norm_sq (H := V)).pow k
-    simpa [pow_mul] using this
+    simp only [pow_mul]
+    exact this
   exact potentialOp_essentiallySelfAdjoint _ h
 
 /-! ## The operator `□ + W` for an unbounded potential -/
@@ -299,7 +300,7 @@ theorem multiplierOp_deficiencyTrivial (m : V → ℝ) (hm : Function.HasTempera
     have hsupp : HasCompactSupport
         (fun x => (χ x : ℂ) * (((m x : ℝ) : ℂ) - (starRingEnd ℂ) z)⁻¹) := by
       refine HasCompactSupport.mul_right ?_
-      simpa using hχc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
+      exact hχc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
     obtain ⟨ψ, hψcoe⟩ : ∃ ψ : 𝓢(V, ℂ), (ψ : V → ℂ) =
         fun x => (χ x : ℂ) * (((m x : ℝ) : ℂ) - (starRingEnd ℂ) z)⁻¹ :=
       ⟨hsupp.toSchwartzMap hsmooth, rfl⟩
@@ -379,7 +380,7 @@ lemma memLp_top_of_continuous_of_hasCompactSupport {W : V → ℝ} (hW : Continu
     MemLp (fun x => (W x : ℂ)) (⊤ : ℝ≥0∞) (volume : Measure V) := by
   have hc : Continuous (fun x => (W x : ℂ)) := Complex.continuous_ofReal.comp hW
   have hcs : HasCompactSupport (fun x => (W x : ℂ)) := by
-    simpa using hWc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
+    exact hWc.comp_left (g := fun r : ℝ => (r : ℂ)) (by simp)
   exact hc.memLp_top_of_hasCompactSupport hcs (volume : Measure V)
 
 /-- For an essentially bounded potential the multiplication operator of this module is the

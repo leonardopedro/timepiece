@@ -123,7 +123,7 @@ theorem measurePreserving_qgSquare :
   have hkey : ∫⁻ x in qgSquare '' s, (1 : ℝ≥0∞) = ∫⁻ y in s, ENNReal.ofReal (|2 * y|) * 1 := by
     refine MeasureTheory.lintegral_image_eq_lintegral_abs_deriv_mul hsm ?_ ?_ _
     · intro x _
-      simpa [qgSquare] using ((hasDerivAt_pow 2 x).hasDerivWithinAt (s := s)).congr_deriv (by ring)
+      exact ((hasDerivAt_pow 2 x).hasDerivWithinAt (s := s)).congr_deriv (by ring)
     · intro a ha b hb hab
       have ha0 : (0 : ℝ) < a := ha.2
       have hb0 : (0 : ℝ) < b := hb.2

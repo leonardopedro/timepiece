@@ -198,10 +198,10 @@ theorem hasDerivAt_dispField (kv : K → Fin 3 → ℝ) (y : DIdx K → ℝ) (a 
       rw [phase, hlin t]
     · rw [phase]; ring
   have := hphase.const_mul (ev y (scoef m r))
-  convert this using 1
-  rw [gradCoef, MvPolynomial.smul_eq_C_mul, map_mul]
-  simp [ev]
-  ring
+  convert this using 1 <;>
+    (first
+      | rfl
+      | rw [gradCoef, MvPolynomial.smul_eq_C_mul, map_mul]; simp [ev]; ring)
 
 /-- The displacement field is real: the modes `±k` carry conjugate coefficients. -/
 theorem dispField_im (kv : K → Fin 3 → ℝ) (y : DIdx K → ℝ) (a : Fin 3 → ℝ) (i : Fin 3) :

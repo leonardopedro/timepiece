@@ -473,9 +473,19 @@ theorem mode_hamiltonian_eq (hκ : ∀ i, 0 ≤ κ i) (i : Fin d) :
       ring
     rw [hc1, hc2]
     push_cast
+    show (1 / 2 * (Complex.I * ↑(κ i) * (↑(Real.sqrt ↑(β i)) * ↑(Real.sqrt (↑(β i) - 1)) * ↑↑x
+      (dn i (dn i β)) - ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2)) * ↑↑x
+      (modeShift i β)))) =
+      (Complex.I * (↑(κ i) / 2 * ↑(Real.sqrt (↑(β i) - 1)) * ↑(Real.sqrt ↑(β i)) * ↑↑x
+        (dn i (dn i β)) - ↑(κ i) / 2 * ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2)) * ↑↑x
+        (modeShift i β)))
     ring
   · rw [if_neg h, cre_cre_coe_of_lt i x (by omega)]
     push_cast
+    show (1 / 2 * (Complex.I * ↑(κ i) * (0 - ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2))
+      * ↑↑x (modeShift i β)))) =
+      (Complex.I * (0 - ↑(κ i) / 2 * ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2)) * ↑↑x
+        (modeShift i β)))
     ring
 
 /-- **`∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ) = Ĥ`**: the many-mode Navier–Stokes Hamiltonian of the

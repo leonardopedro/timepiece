@@ -517,7 +517,6 @@ theorem pauli_unique {B : Fin 4 → M4} (hA : IsCliffordC A)
     have e2 : S⁻¹ * (T * A μ * T⁻¹) * T = (S⁻¹ * T) * A μ * (T⁻¹ * T) := by
       simp only [Matrix.mul_assoc]
     have h2 := congrArg (fun Y : M4 => S⁻¹ * Y * T) h1
-    simp only at h2
     rw [e1, e2, hSS, hTT, Matrix.one_mul, Matrix.mul_one] at h2
     rw [hX, ← h2]
   -- transport to the concrete model, where the commutant is scalar
@@ -550,7 +549,7 @@ theorem pauli_unique {B : Fin 4 → M4} (hA : IsCliffordC A)
   refine ⟨c, ?_, hTc⟩
   rintro rfl
   rw [zero_smul] at hTc
-  rw [hTc, Matrix.det_zero ⟨0⟩] at hT
+  rw [hTc, Matrix.det_zero] at hT
   exact not_isUnit_zero hT
 
 /-- **Pauli's fundamental theorem (Note 36)** — the `EXTERNAL` hypothesis

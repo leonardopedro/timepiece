@@ -3,7 +3,8 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "The Standard Model Hamiltonian" => %%%
+#doc (Manual) "The Standard Model Hamiltonian" =>
+%%%
 tag := "standard-model"
 %%%
 

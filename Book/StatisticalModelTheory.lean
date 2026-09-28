@@ -3,7 +3,8 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Statistical Model Theory, and Statements as Operators" => %%%
+#doc (Manual) "Statistical Model Theory, and Statements as Operators" =>
+%%%
 tag := "statistical-model-theory"
 %%%
 

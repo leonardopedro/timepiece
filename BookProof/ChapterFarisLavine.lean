@@ -63,7 +63,7 @@ section Multiplication
 open scoped ENNReal
 
 /-- The Hilbert space `ℓ²(ℕ)`. -/
-abbrev L2Nat := lp (fun _ : ℕ => ℂ) 2
+noncomputable abbrev L2Nat := lp (fun _ : ℕ => ℂ) 2
 
 /-- Coefficientwise multiplication by a real symbol. -/
 def mulSymbolFun (s : ℕ → ℝ) (f : ℕ → ℂ) : ℕ → ℂ := fun n => (s n : ℂ) * f n
@@ -106,7 +106,10 @@ noncomputable def mulSymbolOp (lam s : ℕ → ℝ) (hs : ∀ n, |s n| ≤ |lam 
     refine memLpTwo_of_norm_le f.2 fun n => ?_
     simp only [mulSymbolFun, norm_mul, Complex.norm_real, Real.norm_eq_abs]
     exact mul_le_mul_of_nonneg_right (hs n) (norm_nonneg _)⟩
-  map_add' f g := by ext n; simp [mulSymbolFun]; ring
+  map_add' f g := by
+    ext n
+    simp only [Submodule.coe_add, lp.coeFn_add, Pi.add_apply, mulSymbolFun]
+    ring
   map_smul' c f := by ext n; simp [mulSymbolFun]; ring
 
 @[simp] theorem mulSymbolOp_coe (lam s : ℕ → ℝ) (hs : ∀ n, |s n| ≤ |lam n|)
@@ -252,10 +255,12 @@ theorem mulHamiltonian_not_bounded (lam : ℕ → ℝ) (hlam : ∀ C : ℝ, ∃ 
   have hval : (mulHamiltonian lam (mulBasis lam n) : L2Nat)
       = (lam n : ℂ) • lp.single 2 n (1 : ℂ) := by
     ext m
+    simp only [mulHamiltonian, mulBasis, mulSymbolOp, mulSymbolFun, lp.single_apply]
+    simp only [lp.coeFn_smul]
     by_cases hmn : m = n
     · subst hmn
-      simp [mulHamiltonian, mulBasis, mulSymbolFun, lp.single_apply]
-    · simp [mulHamiltonian, mulBasis, mulSymbolFun, lp.single_apply, Pi.single_eq_of_ne hmn]
+      simp [mulSymbolFun, lp.single_apply]
+    · simp [mulSymbolFun, lp.single_apply, hmn]
   have hnorm : ‖(lp.single 2 n (1 : ℂ) : L2Nat)‖ = 1 := by
     simp
   rw [hval, norm_smul] at hb

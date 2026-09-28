@@ -46,7 +46,8 @@ theorem natCard_even_flip (n : ℕ) :
         rw [Finset.prod_ite]
         aesop
     convert h_incl_excl using 1
-    norm_num [Finset.prod_const, Finset.card_univ]
+    · simp [flipCount]
+    · norm_num [Finset.prod_const, Finset.card_univ]
   have h_eq :
       (∑ i : Fin (n + 1) → Bool, (if Even (flipCount i) then 1 else 0) : ℝ) -
           (∑ i : Fin (n + 1) → Bool, (if Odd (flipCount i) then 1 else 0) : ℝ) = 0 := by

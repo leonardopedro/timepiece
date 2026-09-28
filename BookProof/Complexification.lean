@@ -297,8 +297,7 @@ instance [CompleteSpace W] : CompleteSpace (Cx W) := by
     obtain ⟨N, hN⟩ := hu ε hε
     refine ⟨N, fun m hm n hn => ?_⟩
     have h_dist : dist (u m).re (u n).re ≤ dist (u m) (u n) := by
-      convert norm_re_le (u m - u n) using 1
-      simp [dist_eq_norm]
+      convert norm_re_le (u m - u n) using 1 <;> simp [dist_eq_norm]
     exact lt_of_le_of_lt h_dist (hN m hm n hn)
   obtain ⟨b, hb⟩ : ∃ b : W, Filter.Tendsto (fun n => (u n).im) Filter.atTop (nhds b) := by
     refine cauchySeq_tendsto_of_complete ?_
@@ -307,8 +306,7 @@ instance [CompleteSpace W] : CompleteSpace (Cx W) := by
     obtain ⟨N, hN⟩ := hu ε hε
     refine ⟨N, fun m hm n hn => ?_⟩
     have h_dist : dist (u m).im (u n).im ≤ dist (u m) (u n) := by
-      convert norm_im_le (u m - u n) using 1
-      simp [dist_eq_norm]
+      convert norm_im_le (u m - u n) using 1 <;> simp [dist_eq_norm]
     exact lt_of_le_of_lt h_dist (hN m hm n hn)
   refine ⟨⟨a, b⟩, ?_⟩
   rw [tendsto_iff_norm_sub_tendsto_zero] at *

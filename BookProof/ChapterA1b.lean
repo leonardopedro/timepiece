@@ -198,6 +198,8 @@ lemma complexify_isSubsystem (M : System ℝ W) {Y : Submodule ℝ W}
     (hY : (M).IsSubsystem Y) : (cxSystem M).IsSubsystem (complexify Y) := by
   refine ⟨?_, ?_⟩
   · convert IsClosed.inter (hY.1.preimage continuous_re) (hY.1.preimage continuous_im) using 1
+    ext w
+    simp [complexify]
   · rintro _ ⟨m, hm, rfl⟩ w hw
     exact ⟨by simpa [cxMap_apply] using hY.2 m hm w.re hw.1,
       by simpa [cxMap_apply] using hY.2 m hm w.im hw.2⟩
@@ -210,6 +212,8 @@ lemma realPart_isSubsystem (M : System ℝ W) {X : Submodule ℂ (Cx W)}
   obtain ⟨hX_closed, hX_inv⟩ := hX
   refine ⟨?_, ?_⟩
   · convert hX_closed.preimage continuous_ofReal using 1
+    ext w
+    simp [realPart]
   · intro m hm w hw
     have hmap : cxMap m (ofReal w) = ofReal (m w) := by
       ext <;> simp [ofReal]

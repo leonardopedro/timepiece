@@ -452,7 +452,7 @@ theorem Rpseudoreal_realCommutant_eq_quaternion (M : System ℂ V) (hSchur : IsS
       rw [hsym] at hz
       rw [hz, hy, smul_neg, neg_smul]
     -- Assemble `S = c·1 + (-d')·θ = qembed ⟨c.re, c.im, (-d').re, (-d').im⟩`.
-    refine ⟨⟨c.re, c.im, (-d').re, (-d').im⟩, ?_⟩
+    refine ⟨(@id (Quaternion ℝ) ⟨c.re, c.im, (-d').re, (-d').im⟩), ?_⟩
     ext x
     have hSx : S x = c • x + (-d') • θ x := by
       have h1 : S x = Plin S x + Qanti S x := by

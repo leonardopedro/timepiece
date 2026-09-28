@@ -279,9 +279,11 @@ theorem saffH_symmetricOn {κ : ℝ} (hκ : 0 ≤ κ) (c : ℝ) :
   have h₂ := ShiftData.shiftH_symmetricOn (affData hκ (abs_nonneg c)).snd x y
   change (inner ℂ (saffH hκ c x : L2I ℕ) (y : L2I ℕ) : ℂ)
     = inner ℂ (x : L2I ℕ) (saffH hκ c y : L2I ℕ)
-  simp only [saffH, LinearMap.add_apply, LinearMap.smul_apply, inner_add_left, inner_add_right,
+  simp only [affData, PairShift.fst, PairShift.snd, affData_sym] at h₁ h₂
+  simp only [saffH, affData, PairShift.fst, PairShift.snd, affData_sym]
+  simp only [LinearMap.add_apply, LinearMap.smul_apply, inner_add_left, inner_add_right,
     inner_smul_left, inner_smul_right, conj_esgn]
-  linear_combination h₁ + esgn c * h₂
+  first | linear_combination h₁ + esgn c * h₂ | trace_state
 
 /-- **The sign-flip unitary conjugates the `|c|` fiber Hamiltonian into the `c`
 fiber Hamiltonian**, for `c < 0`: it preserves the `±2`-hopping of the linear

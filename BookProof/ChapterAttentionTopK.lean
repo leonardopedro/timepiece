@@ -51,9 +51,9 @@ theorem sum_le_sum_of_isTop {p : Fin m → ℝ} (hp : ∀ x, 0 ≤ p x) {S T : F
     (hS : IsTop p S) (hcard : T.card ≤ S.card) :
     ∑ x ∈ T, p x ≤ ∑ x ∈ S, p x := by
   have hsplitT : ∑ x ∈ T ∩ S, p x + ∑ x ∈ T \ S, p x = ∑ x ∈ T, p x :=
-    Finset.sum_inter_add_sum_diff T S p
+    Finset.sum_inter_add_sum_sdiff T S p
   have hsplitS : ∑ x ∈ S ∩ T, p x + ∑ x ∈ S \ T, p x = ∑ x ∈ S, p x :=
-    Finset.sum_inter_add_sum_diff S T p
+    Finset.sum_inter_add_sum_sdiff S T p
   have hinter : ∑ x ∈ T ∩ S, p x = ∑ x ∈ S ∩ T, p x := by rw [Finset.inter_comm]
   have hcardT := Finset.card_inter_add_card_sdiff T S
   have hcardS := Finset.card_inter_add_card_sdiff S T

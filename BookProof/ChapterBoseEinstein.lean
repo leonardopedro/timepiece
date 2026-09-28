@@ -132,7 +132,7 @@ theorem tendsto_thermalTemperature_boseEinstein :
   have h1 : Tendsto (fun x : ℝ => Real.exp x - 1) atTop atTop :=
     Real.tendsto_exp_atTop.atTop_add tendsto_const_nhds
   have h2 : Tendsto (fun x : ℝ => boseEinstein x) atTop (𝓝 0) := by
-    simpa [boseEinstein, one_div] using h1.inv_tendsto_atTop
+    simpa [boseEinstein, one_div] using! h1.inv_tendsto_atTop
   simpa [thermalTemperature] using h2.add (tendsto_const_nhds (x := (1 / 2 : ℝ)))
 
 end BookProof.ChapterBoseEinstein

@@ -92,7 +92,10 @@ theorem chir1_sq : chir1 * chir1 = -1 := by
       BookProof.ChapterA3j.chir_sq ) using 1 <;> simp only [one_apply, mul_ite, mul_one, mul_zero,
           ite_mul, zero_mul, mul_apply, Prod.mk.injEq, neg_apply] ; focus (ring);
   · erw [ Finset.sum_product ] ; aesop;
-  · grind
+  · rw [show (-1 : M2) (i, j) (k, l) = -(if (i, j) = (k, l) then 1 else 0) from rfl,
+        show (-1 : Matrix (Fin 4) (Fin 4) ℂ) i k = -(if i = k then 1 else 0) from rfl]
+    simp only [Prod.mk.injEq]
+    grind
 
 theorem chir2_sq : chir2 * chir2 = -1 := by
   unfold chir2;

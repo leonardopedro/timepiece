@@ -71,6 +71,7 @@ theorem two_le_bornFiber_card {p : ↥(stdSimplex ℝ (Fin n))} :
     2 ≤ Nat.card ↥(bornMapSphere n ⁻¹' {p}) := by
   convert Nat.pow_le_pow_right ( by decide : 1 ≤ 2 ) ( one_le_posSupport_card p.2 ) using 1;
   convert bornFiber_card_general
+  rfl
 
 /-
 For `n ≥ 1` the wave-function (Born) parametrization is not unique: the Born

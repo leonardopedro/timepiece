@@ -342,7 +342,8 @@ theorem flow_truncGen_mem {P H : E →L[ℂ] E} (hP : IsIdempotentElem P) (t : �
     simpa [Function.comp_def, hPZ'] using this
   have hdderiv : ∀ u : ℝ, HasDerivAt d 0 u := by
     intro u
-    simpa [hd] using (hPfderiv u).sub (hfderiv u)
+    rw [hd]
+    convert (hPfderiv u).sub (hfderiv u) using 1 <;> (first | rfl | simp)
   have hconst : d t = d 0 := by
     have : ∀ u : ℝ, deriv d u = 0 := fun u => (hdderiv u).deriv
     have hdiff : Differentiable ℝ d := fun u => (hdderiv u).differentiableAt

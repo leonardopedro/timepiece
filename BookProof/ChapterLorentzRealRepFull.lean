@@ -125,8 +125,9 @@ theorem w2R_linearIndependent : LinearIndependent ℝ w2R :=
 
 /-- The remaining representation space has dimension `2`. -/
 theorem finrank_WTwo : finrank ℝ WTwo = 2 := by
-  have := finrank_span_eq_card w2R_linearIndependent
-  simpa [WTwo] using this
+  have h := finrank_span_eq_card w2R_linearIndependent
+  rw [WTwo]
+  exact h.trans (by simp)
 
 /-! ## Every element of the signed basis casts into `WTwo` -/
 

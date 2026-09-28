@@ -55,20 +55,18 @@ theorem detExpPath_add (A : Matrix (Fin n) (Fin n) ℝ) (s t : ℝ) :
   have h_comm : Commute (s • A) (t • A) := by
     exact Commute.smul_left ( Commute.smul_right ( Commute.refl _ ) _ ) _;
   convert congr_arg Matrix.det ( NormedSpace.exp_add_of_commute h_comm ) using 1;
-  · unfold detExpPath; norm_num [ add_smul ] ;
-  · unfold detExpPath; aesop;
+  · unfold detExpPath; norm_num [ add_smul ]; rfl
+  · unfold detExpPath; rw [Matrix.det_mul]; rfl
 
 /-
 `Matrix.det` is differentiable (it is a polynomial in the entries).
 -/
 theorem differentiable_det :
     Differentiable ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ) := by
-  unfold det;
-  simp only [detRowAlternating, MultilinearMap.alternatization, MultilinearMap.coe_sum,
-      MultilinearMap.mkPiAlgebra, AddMonoidHom.coe_mk, ZeroHom.coe_mk, AlternatingMap.coe_mk,
-          MultilinearMap.coe_mk, Finset.sum_apply, MultilinearMap.smul_apply,
-              MultilinearMap.domDomCongr_apply, MultilinearMap.compLinearMap_apply,
-                  LinearMap.coe_proj, Function.eval];
+  have heq : (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+      = fun M => ∑ σ : Equiv.Perm (Fin n), Equiv.Perm.sign σ • ∏ i, M (σ i) i := by
+    funext M; exact Matrix.det_apply M
+  rw [heq]
   fun_prop
 
 /-
@@ -77,13 +75,14 @@ trace.
 -/
 theorem hasDerivAt_det_line (A : Matrix (Fin n) (Fin n) ℝ) :
     HasDerivAt (fun t : ℝ => (1 + t • A).det) A.trace 0 := by
-  obtain ⟨P, hP⟩ : ∃ P : Polynomial ℝ,    ∀ t : ℝ, (1 + t • A).det = 1 + A.trace * t + P.eval t * t
-      ^ 2 := by
+  obtain ⟨P, hP⟩ : ∃ P : Polynomial ℝ, ∀ t : ℝ,
+      (1 + t • A).det = 1 + A.trace * t + P.eval t * t ^ 2 := by
     exact ⟨ _, fun t => Matrix.det_one_add_smul t A ⟩;
   norm_num [ sq, mul_assoc, mul_comm, mul_left_comm, Polynomial.differentiableAt, hP ];
   convert HasDerivAt.add ( HasDerivAt.add ( hasDerivAt_const _ _ ) ( HasDerivAt.mul ( hasDerivAt_id
       ( 0 : ℝ ) ) ( hasDerivAt_const _ _ ) ) ) ( HasDerivAt.mul ( hasDerivAt_id ( 0 : ℝ ) ) (
-          HasDerivAt.mul ( hasDerivAt_id ( 0 : ℝ ) ) ( P.hasDerivAt 0 ) ) ) using 1 ; norm_num
+          HasDerivAt.mul ( hasDerivAt_id ( 0 : ℝ ) ) ( P.hasDerivAt 0 ) ) ) using 1 <;>
+      (first | rfl | norm_num)
 
 /-
 Jacobi's formula at the identity along the exponential path:
@@ -91,26 +90,45 @@ Jacobi's formula at the identity along the exponential path:
 -/
 theorem hasDerivAt_detExpPath_zero (A : Matrix (Fin n) (Fin n) ℝ) :
     HasDerivAt (detExpPath A) A.trace 0 := by
-  -- The derivative of the determinant at the identity matrix is the trace of the matrix.
-  have h_det_deriv : HasDerivAt (fun t : ℝ => (1 + t • A).det) (A.trace) 0 :=
-    hasDerivAt_det_line A
-  have h_det_deriv : HasFDerivAt (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ) (fderiv ℝ (Matrix.det :
-      Matrix (Fin n) (Fin n) ℝ → ℝ) (1 : Matrix (Fin n) (Fin n) ℝ)) (1 : Matrix (Fin n) (Fin n) ℝ)
-          := by
-    apply_rules [ DifferentiableAt.hasFDerivAt, differentiable_det ];
-  have h_det_deriv : HasDerivAt (fun t : ℝ => Matrix.det (1 + t • A)) (fderiv ℝ (Matrix.det : Matrix
-      (Fin n) (Fin n) ℝ → ℝ) (1 : Matrix (Fin n) (Fin n) ℝ) A) 0 := by
-    convert HasFDerivAt.comp_hasDerivAt _ _ _ using 1;
-    · simpa using h_det_deriv;
-    · simp [ hasDerivAt_iff_tendsto ];
-  have h_det_deriv : fderiv ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ) (1 : Matrix (Fin n) (Fin
-      n) ℝ) A = A.trace := by
-    exact h_det_deriv.unique ‹_›;
-  convert HasFDerivAt.comp_hasDerivAt _ _ _ using 1;
-  any_goals exact hasDerivAt_exp_smul_const' A 0;
-  focus (convert h_det_deriv.symm);
-  · norm_num [ NormedSpace.exp_zero ];
-  · aesop
+  have hline : HasDerivAt (fun t : ℝ => (1 + t • A).det) A.trace 0 := hasDerivAt_det_line A
+  have hf : HasFDerivAt (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+      (fderiv ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+        (1 : Matrix (Fin n) (Fin n) ℝ)) (1 : Matrix (Fin n) (Fin n) ℝ) := by
+    apply_rules [DifferentiableAt.hasFDerivAt, differentiable_det]
+  have hchain : HasDerivAt (fun t : ℝ => Matrix.det (1 + t • A))
+      (fderiv ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+        (1 : Matrix (Fin n) (Fin n) ℝ) A)
+      0 := by
+    have hc : HasDerivAt (fun t : ℝ => (1 : Matrix (Fin n) (Fin n) ℝ) + t • A) A 0 := by
+      have h1 : HasDerivAt (fun _ : ℝ => (1 : Matrix (Fin n) (Fin n) ℝ))
+          (0 : Matrix (Fin n) (Fin n) ℝ) 0 := hasDerivAt_const _ _
+      have h2 : HasDerivAt (fun t : ℝ => t • A) A 0 := by
+        convert (hasDerivAt_id (0 : ℝ)).smul_const A using 1 <;> (first | rfl | simp)
+      convert HasDerivAt.add h1 h2 using 1 <;> (first | rfl | simp)
+    have hf2 : HasFDerivAt (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+        (fderiv ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+          (1 : Matrix (Fin n) (Fin n) ℝ))
+        (1 + (0 : ℝ) • A) := by
+      convert hf using 1 <;> (first | rfl | simp)
+    exact HasFDerivAt.comp_hasDerivAt 0 hf2 hc
+  have hval : fderiv ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+      (1 : Matrix (Fin n) (Fin n) ℝ) A = A.trace := (hline.unique hchain).symm
+  have hcurve : HasDerivAt (fun u : ℝ => NormedSpace.exp (u • A)) A 0 := by
+    have h := hasDerivAt_exp_smul_const' A (0 : ℝ)
+    simp only [zero_smul, exp_zero, mul_one] at h
+    exact h
+  have hf1 : HasFDerivAt (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+      (fderiv ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+        (1 : Matrix (Fin n) (Fin n) ℝ))
+      (NormedSpace.exp ((0 : ℝ) • A)) := by
+    convert hf using 1 <;> (first | rfl | simp [exp_zero])
+  have hexp0 : HasDerivAt (fun u : ℝ => Matrix.det (NormedSpace.exp (u • A)))
+      (fderiv ℝ (Matrix.det : Matrix (Fin n) (Fin n) ℝ → ℝ)
+        (1 : Matrix (Fin n) (Fin n) ℝ) A) 0 :=
+    HasFDerivAt.comp_hasDerivAt 0 hf1 hcurve
+  have hexp : HasDerivAt (fun u : ℝ => Matrix.det (NormedSpace.exp (u • A))) A.trace 0 := by
+    convert hexp0 using 1 <;> (first | rfl | simp [hval])
+  exact hexp
 
 /-
 The derivative of the one-parameter determinant at an arbitrary point,
@@ -119,9 +137,11 @@ obtained from the group property and the derivative at `0`.
 theorem hasDerivAt_detExpPath (A : Matrix (Fin n) (Fin n) ℝ) (t : ℝ) :
     HasDerivAt (detExpPath A) (A.trace * detExpPath A t) t := by
   have h_deriv : HasDerivAt (fun h => detExpPath A (t + h)) (A.trace * detExpPath A t) 0 := by
-    convert HasDerivAt.const_mul ( detExpPath A t ) ( hasDerivAt_detExpPath_zero A ) using 1;
-    · exact funext fun x => detExpPath_add A t x;
-    · ring;
+    have hadd : (fun h : ℝ => detExpPath A (t + h)) = fun h => detExpPath A t * detExpPath A h :=
+      funext fun x => detExpPath_add A t x
+    rw [hadd]
+    convert HasDerivAt.const_mul (detExpPath A t) (hasDerivAt_detExpPath_zero A) using 1 <;>
+      (first | rfl | ring)
   rw [ hasDerivAt_iff_tendsto_slope_zero ] at *;
   aesop
 
@@ -137,7 +157,8 @@ theorem det_exp_eq_exp_trace (A : Matrix (Fin n) (Fin n) ℝ) :
   have hg_deriv_zero : ∀ t, HasDerivAt g 0 t := by
     intro t;
     convert HasDerivAt.mul ( hasDerivAt_detExpPath A t ) ( HasDerivAt.exp ( HasDerivAt.neg (
-        HasDerivAt.const_mul ( A.trace ) ( hasDerivAt_id t ) ) ) ) using 1 ; ring;
+        HasDerivAt.const_mul ( A.trace ) ( hasDerivAt_id t ) ) ) ) using 1 <;>
+      (first | rfl | ring | simp +zetaDelta | norm_num)
   -- Since $g$ is differentiable and its derivative is zero everywhere, $g$ must be constant.
   have hg_const : ∀ t₁ t₂, g t₁ = g t₂ := by
     exact fun t₁ t₂ => is_const_of_deriv_eq_zero ( fun t => HasDerivAt.differentiableAt (

@@ -163,7 +163,7 @@ theorem continuous_polyEval (p : MvPolynomial (Fin d) ℂ) :
   induction p using MvPolynomial.induction_on with
   | C a => simpa using continuous_const
   | add p q hp hq =>
-      simpa only [map_add] using hp.add hq
+      simpa only [map_add] using! hp.add hq
   | mul_X p i hp =>
       simp only [map_mul, MvPolynomial.eval_X]
       exact hp.mul (by fun_prop)
@@ -506,6 +506,7 @@ theorem ae_eq_zero_of_fourier_eq_zero {v : Vd d → ℂ} (hv : Integrable v)
     refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
     have hpsi_val : (psi : Vd d → ℂ) x = ((g x : ℝ) : ℂ) := by
       dsimp [psi]
+      rfl
     calc
       g x • v x = ((g x : ℝ) : ℂ) * v x := by simp
       _ = v x * ((g x : ℝ) : ℂ) := mul_comm _ _

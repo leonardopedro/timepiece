@@ -89,7 +89,7 @@ global `±1` sign gauge precisely on the deterministic distributions.
 theorem bornFiber_card_eq_two_iff_deterministic {p : ↥(stdSimplex ℝ (Fin n))} :
     Nat.card ↥(bornMapSphere n ⁻¹' {p}) = 2 ↔
       ∃ i, (p : Fin n → ℝ) = fun k => if k = i then (1 : ℝ) else 0 := by
-  convert bornFiber_card_eq_two_iff_posSupport using 1;
-  convert posSupport_card_one_iff_deterministic p.2 |> Iff.symm using 1
+  rw [bornFiber_card_eq_two_iff_posSupport]
+  exact posSupport_card_one_iff_deterministic p.2
 
 end BookProof.ChapterFreeFieldBornFiberDeterministic

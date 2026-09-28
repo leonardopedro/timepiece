@@ -300,7 +300,7 @@ theorem isSchurUnitary_of_irreducible [Nontrivial V] (M : System ℂ V) (hM : M.
   have hcomm : M.Commutes S := by
     intro m hm
     ext x
-    simp only [ContinuousLinearMap.coe_mul, Function.comp_apply, hSapp]
+    simp only [ContinuousLinearMap.mul_apply, hSapp]
     exact hg m hm x
   obtain ⟨c, hc⟩ := commutant_scalar_of_irreducible M hM hirr hcomm
   have hcx : ∀ x, g x = c • x := by

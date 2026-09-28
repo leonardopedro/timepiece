@@ -106,8 +106,7 @@ theorem hasDerivAt_heatFlow_normSq (A : E →L[ℂ] E) (v : E) (t : ℝ) :
         = inner ℂ (A (heatFlow A t v)) (heatFlow A t v) := inner_conj_symm _ _
     rw [← h3, Complex.conj_re]
   simp only [hnorm, hcomm] at h2
-  convert h2 using 1
-  ring
+  convert h2 using 1 <;> (first | rfl | ring)
 
 /-! ## 2. Coercivity and the decay bound -/
 
@@ -151,8 +150,7 @@ theorem norm_heatFlow_apply_le (A : E →L[ℂ] E) {mu : ℝ} (hA : IsCoercive A
       have := (((hasDerivAt_id s).const_mul (2 * mu)).exp)
       simpa [mul_comm, mul_left_comm, mul_assoc] using this
     have := h1.mul h2
-    convert this using 1
-    ring
+    convert this using 1 <;> (first | rfl | ring)
   have hnonpos : ∀ s : ℝ, deriv G s ≤ 0 := by
     intro s
     rw [(hderiv s).deriv]

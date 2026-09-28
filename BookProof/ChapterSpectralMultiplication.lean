@@ -48,7 +48,7 @@ open BookProof.ChapterAbelianGelfandModel
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
 /-- The spectrum of an operator carries its Borel σ-algebra. -/
-scoped instance instMeasurableSpaceSpectrum (T : H →L[ℂ] H) :
+noncomputable scoped instance instMeasurableSpaceSpectrum (T : H →L[ℂ] H) :
     MeasurableSpace (spectrum ℂ T) := borel _
 
 scoped instance instBorelSpaceSpectrum (T : H →L[ℂ] H) :

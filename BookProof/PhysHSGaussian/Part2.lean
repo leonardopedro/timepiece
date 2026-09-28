@@ -37,7 +37,7 @@ theorem physHermite_hasDerivAt_aux (n : ℕ) (x : ℝ) :
     HasDerivAt (physHermite n) (2 * n * physHermite (n-1) x) x := by
   induction n using Nat.strong_induction_on generalizing x with | _ n ih => ?_
   match n, ih with
-  | 0, _ => simpa using hasDerivAt_const x (1 : ℝ)
+  | 0, _ => simpa [physHermite] using hasDerivAt_const x (1 : ℝ)
   | 1, _ =>
       have hf : physHermite 1 = fun y : ℝ => 2 * y := funext physHermite_one
       rw [hf]
@@ -112,10 +112,12 @@ theorem hermite_sq_integral (n : ℕ) :
             convert HasDerivAt.mul ( physHermite_hasDerivAt n x ) ( HasDerivAt.mul
               ( HasDerivAt.neg ( physHermite_hasDerivAt_aux n x ) )
               ( HasDerivAt.exp ( HasDerivAt.neg ( hasDerivAt_pow 2 x ) ) ) ) using 1
-            have hrec := physHermite_rec n x
-            simp only [ Pi.mul_apply, Pi.neg_apply ]
-            norm_num
-            linear_combination ( physHermite ( n + 1 ) x * Real.exp ( -x ^ 2 ) ) * hrec
+            · rfl
+            · funext b; rfl
+            · simp only [ Pi.mul_apply, Pi.neg_apply ]
+              norm_num
+              have hrec := physHermite_rec n x
+              linear_combination ( physHermite ( n + 1 ) x * Real.exp ( -x ^ 2 ) ) * hrec
           · apply_rules [ Continuous.intervalIntegrable ];
             -- The Hermite polynomials are continuous, and the exponential function is continuous,
             -- so their product is continuous.
@@ -193,6 +195,8 @@ theorem hermite_sq_integral (n : ℕ) :
                 by simp +decide [ hp, hq ] ⟩
         obtain ⟨ p, hp ⟩ := h_hermite_poly ( n + 1 ) ; simp_all? +decide [ sq, mul_assoc ] ;
         convert h_integrable ( p * p ) using 1 ; norm_num [ mul_assoc, mul_comm, mul_left_comm ];
+        · rfl
+        · funext x; simp only [ Polynomial.eval_mul ]; ring
       · exact Filter.tendsto_neg_atTop_atBot;
       · -- The function $x \mapsto (physHermite n x)^2 * \exp(-x^2)$ is integrable because
         -- it is a polynomial times a Gaussian.

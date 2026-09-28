@@ -100,8 +100,9 @@ theorem mem_fiber_iff_general {p : ↥(stdSimplex ℝ (Fin n))}
     obtain ⟨s, hs⟩ : ∃ s : Fin n → ℝ, (∀ k, s k = 1 ∨ s k = -1) ∧
         x.val = signFlip s (bornSection p.val) := by
       convert bornMap_eq_iff_signFlip ( bornSection p.val ) x.val |>.1 _;
-      convert congr_arg Subtype.val hx using 1;
-      exact bornMap_bornSection p.2;
+      convert congr_arg Subtype.val hx using 1
+      · rfl
+      · exact bornMap_bornSection p.2
     use fun k => decide (s k.val = 1);
     ext k;
     by_cases hk : k ∈ posSupport p.val <;>

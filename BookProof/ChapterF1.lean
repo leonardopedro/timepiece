@@ -136,8 +136,10 @@ terms off the supports vanish.
 theorem bargmann_eq_sum (p q : ℂ[X]) {s : Finset ℕ}
     (hp : p.support ⊆ s) (hq : q.support ⊆ s) :
     bargmann p q = ∑ n ∈ s, (n.factorial : ℂ) * (starRingEnd ℂ) (p.coeff n) * q.coeff n := by
-  convert Finset.sum_subset ( Finset.union_subset hp hq ) _ using 1;
-  aesop
+  convert Finset.sum_subset ( Finset.union_subset hp hq ) _ using 1
+  all_goals first
+    | aesop
+    | (intro x _ hnp; simp_all [Finset.mem_union, Polynomial.mem_support_iff])
 
 /--
 The pairing with a monomial on the left collapses to a single coefficient:

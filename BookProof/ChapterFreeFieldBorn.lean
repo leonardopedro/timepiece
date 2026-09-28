@@ -89,7 +89,7 @@ full mass.
 -/
 theorem bornGaussian_stdSimplex_eq_one (hn : 0 < n) :
     ((sphereGaussian n).map bornMap) (stdSimplex ℝ (Fin n)) = 1 := by
-  rw [Measure.map_apply measurable_bornMap (isClosed_stdSimplex (Fin n)).measurableSet]
+  rw [Measure.map_apply measurable_bornMap (isClosed_stdSimplex ℝ (Fin n)).measurableSet]
   refine le_antisymm prob_le_one ?_
   calc (1 : ENNReal)
       = sphereGaussian n (Metric.sphere (0 : EuclideanSpace ℝ (Fin n)) 1) :=

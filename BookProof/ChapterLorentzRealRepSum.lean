@@ -157,17 +157,17 @@ theorem span_bAllR_eq :
 /-- The `(1/2,1/2)` representation has dimension `4`. -/
 theorem finrank_WHalf : finrank ℝ WHalf = 4 := by
   have := finrank_span_eq_card bHalfR_linearIndependent
-  simpa [WHalf] using this
+  first | exact this | (convert this using 1 <;> (first | rfl | simp [WHalf]))
 
 /-- The `(1,0)` representation has dimension `6`. -/
 theorem finrank_W10 : finrank ℝ W10 = 6 := by
   have := finrank_span_eq_card b10R_linearIndependent
-  simpa [W10] using this
+  first | exact this | (convert this using 1 <;> (first | rfl | simp [W10]))
 
 /-- The pseudo-`(1/2,1/2)` representation has dimension `4`. -/
 theorem finrank_WPs : finrank ℝ WPs = 4 := by
   have := finrank_span_eq_card bPsR_linearIndependent
-  simpa [WPs] using this
+  first | exact this | (convert this using 1 <;> (first | rfl | simp [WPs]))
 
 /-- The sum of the three representation spaces has dimension `14`. -/
 theorem finrank_sup : finrank ℝ ↥(WHalf ⊔ W10 ⊔ WPs) = 14 := by

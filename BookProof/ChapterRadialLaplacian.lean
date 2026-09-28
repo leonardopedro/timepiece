@@ -95,12 +95,9 @@ theorem fderiv_fderiv_comp_normSq [FiniteDimensional ℝ E] {G : ℝ → ℝ} {x
     have hd : HasFDerivAt (fun y : E => deriv G (‖y‖ ^ 2))
         ((2 * deriv (deriv G) (‖x‖ ^ 2)) • innerCLM E x) x := by
       rw [smul_smul] at hd0
-      convert hd0 using 2
-      ring
+      convert hd0 using 2 <;> (first | rfl | ring)
     have h2 := hd.const_mul (2 : ℝ)
-    convert h2 using 1
-    rw [smul_smul]
-    ring_nf
+    convert h2 using 1 <;> (first | rfl | (rw [smul_smul]; ring_nf))
   have hF : HasFDerivAt (fun y : E => (2 * deriv G (‖y‖ ^ 2)) • innerCLM E y)
       ((2 * deriv G (‖x‖ ^ 2)) • (innerCLM E)
         + ((4 * deriv (deriv G) (‖x‖ ^ 2)) • innerCLM E x).smulRight (innerCLM E x)) x :=
@@ -181,9 +178,7 @@ theorem deriv_sqrt_comp {g : ℝ → ℝ} {r : ℝ} (hr : 0 < r) (hg : ContDiffA
           = fun q : ℝ => 1 / (2 * Real.sqrt q) := by
         funext q; rw [one_div, one_div, mul_inv]
       rw [hfun] at h
-      convert h using 1
-      field_simp
-      norm_num
+      convert h using 1 <;> (first | rfl | (field_simp; ring))
     have hprod : HasDerivAt (fun q : ℝ => deriv g (Real.sqrt q) * (1 / (2 * Real.sqrt q)))
         (deriv (deriv g) r * (1 / (2 * r)) * (1 / (2 * Real.sqrt (r ^ 2)))
           + deriv g (Real.sqrt (r ^ 2)) * (-(1 / (4 * r ^ 3)))) (r ^ 2) := h1.mul h2

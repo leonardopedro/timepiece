@@ -29,8 +29,8 @@ $`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)` — one-particle opera
 inside, creation on the left and annihilation on the right — and the Fock space is
 introduced recursively: *“Since the second-quantization procedure can be applied
 recursively … in case the Hamiltonian acting in the Fock-space is not quadratic in
-the creation/annihilation operators, then we can consider instead a **new Fock-space
-where the base Hilbert space is the original Fock-space**. The new Hamiltonian is
+the creation/annihilation operators, then we can consider instead a* **new Fock-space
+where the base Hilbert space is the original Fock-space**. *The new Hamiltonian is
 quadratic in the creation/annihilation operators.”*  That sentence is the definition
 of the **nested** (outer) Fock space this chapter works on: the inner one-particle
 space is itself a Fock space, and the outer Hamiltonian is its second quantization,
@@ -249,7 +249,7 @@ and `esaPairOfSelfAdjoint` does the same for self-adjoint ones.
 
 :::paragraph
 The plan's §D6b obligation (ii) was: *the lifted Hamiltonian `dΓ(H₁)` must be
-proved essentially self-adjoint on the **lifted core**, and ESA does not lift for
+proved essentially self-adjoint on the* **lifted core**, *and ESA does not lift for
 free*. The results of this chapter are exactly the instrument that discharges it:
 once `H₁` is essentially self-adjoint on the one-particle core `C₀`, the core
 transfer principle descends the sectorwise statement to `C₀^{⊗n}`, the multilinear
