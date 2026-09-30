@@ -152,7 +152,15 @@ lemma hasDerivAt_lcLogFun (x : ℝ) :
 
 lemma hasDerivAt_lcSol (x : ℝ) : HasDerivAt lcSol (lcLog' x * lcSol x) x := by
   have h := (hasDerivAt_lcLogFun x).cexp
-  simpa [lcSol, mul_comm] using h
+  have hval : Complex.exp (((lcP x : ℝ) : ℂ) + Complex.I * ((lcQ x : ℝ) : ℂ))
+      = lcSol x := by rfl
+  have hfun : (fun t : ℝ => Complex.exp (((lcP t : ℝ) : ℂ) + Complex.I * ((lcQ t : ℝ) : ℂ)))
+      = lcSol := by
+    funext t; rfl
+  rw [hfun] at h
+  have hval : Complex.exp (((lcP x : ℝ) : ℂ) + Complex.I * ((lcQ x : ℝ) : ℂ)) = lcSol x := by rfl
+  rw [hval, mul_comm] at h
+  exact h
 
 /-- The algebraic heart: `(p'' + i(−x)) + (p' + iq')² = V − i`. -/
 lemma lcLog_ode (x : ℝ) :

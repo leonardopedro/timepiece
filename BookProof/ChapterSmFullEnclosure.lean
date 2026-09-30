@@ -80,18 +80,21 @@ theorem smFullHam_fermi_block {n : ℕ} (hD M : Matrix (Fin n) (Fin n) ℂ) (z :
     onFull (smFermiHam hD M z) = onFull (smDirac hD + smYukawa M z) := by
   rw [smFermiHam_eq]
 
+set_option maxRecDepth 20000 in
 /-- On elementary tensors, `h_full (u ⊗ ψ) = (h_B u) ⊗ ψ + u ⊗ (h_F ψ)`. -/
 theorem smFullHam_tmul (P : SmParams) {n : ℕ} (hD M : Matrix (Fin n) (Fin n) ℂ) (z : ℂ)
-    (x : smFullCore n) (u : polyGaussCore (d := 163)) (ψ : fullDom n)
+    (x : ↥(smFullCore n)) (u : ↥(polyGaussCore (d := 163))) (ψ : ↥(fullDom n))
     (hx : (x : (smFullSpace n).carrier)
       = pairEmb (L2dSpace 163) (smFermiSpace n)
-          (u.1 ⊗ₜ[ℂ] ψ.1 : (L2dSpace 163).carrier ⊗[ℂ] (smFermiSpace n).carrier)) :
+          (inclPair (L2dSpace 163) (smFermiSpace n) (polyGaussCore (d := 163)) (fullDom n)
+            (u ⊗ₜ[ℂ] ψ : ↥(polyGaussCore (d := 163)) ⊗[ℂ] ↥(fullDom n)))) :
     smFullHam P hD M z x
       = pairEmb (L2dSpace 163) (smFermiSpace n)
-          ((smHamiltonian P u ⊗ₜ[ℂ] ψ.1 + u.1 ⊗ₜ[ℂ] (smDirac hD + smYukawa M z) ψ.1 :
-            (L2dSpace 163).carrier ⊗[ℂ] (smFermiSpace n).carrier)) := by
-  refine (cpairOp_apply _ _ _ _ _ _ x (u ⊗ₜ[ℂ] ψ) hx).trans ?_
-  rw [sumPoly_tmul, ← smFermiHam_eq]
+          ((smHamiltonian P) u ⊗ₜ[ℂ] (ψ : FermiFock n)
+            + (u : L2d 163) ⊗ₜ[ℂ] (smDirac hD + smYukawa M z) ψ) := by
+  refine (cpairOp_apply _ _ _ _ _ _ x
+    (u ⊗ₜ[ℂ] ψ : ↥(polyGaussCore (d := 163)) ⊗[ℂ] ↥(fullDom n)) hx).trans ?_
+  rw [← smFermiHam_eq]
   rfl
 
 /-! ## 2. Essential self-adjointness of the full one-particle Hamiltonian -/

@@ -243,15 +243,21 @@ def smYukawaFullHam (P : SmParams) {n : ℕ} (hD M : Matrix (Fin n) (Fin n) ℂ)
 instance smFermiSpace_finiteDimensional (n : ℕ) : FiniteDimensional ℂ (smFermiSpace n).carrier :=
   inferInstanceAs (FiniteDimensional ℂ (FermiFock n))
 
+/-- `fullDom n = ⊤`, and the subtype inclusion into the Fock space is injective. -/
+instance fullDom_finiteDimensional (n : ℕ) : FiniteDimensional ℂ ↥(fullDom n) := by
+  haveI : FiniteDimensional ℂ (FermiFock n) := inferInstance
+  exact FiniteDimensional.of_injective (fullDom n).subtype Subtype.val_injective
+
 /-- **The coupled full one-particle Hamiltonian is essentially self-adjoint** on
 `polyGaussCore 163 ⊗ FermiFock n`, for a positive Higgs quartic, every Hermitian Dirac matrix
 and every Yukawa matrix. -/
 theorem smYukawa_h_esa (P : SmParams) (hlam : 0 < P.lam) {n : ℕ}
     {hD : Matrix (Fin n) (Fin n) ℂ} (M : Matrix (Fin n) (Fin n) ℂ)
     (hh : hD.conjTranspose = hD) :
-    EssentiallySelfAdjointOn (smFullCore n) (smYukawaFullHam P hD M) :=
-  essentiallySelfAdjointOn_tensorSum_add_coupling (L2dSpace 163) (smFermiSpace n)
-    (polyGaussCore (d := 163)) (fullDom n) (smHamiltonian P) (onFull (smFermiHam hD 0 0))
+    EssentiallySelfAdjointOn (smFullCore n) (smYukawaFullHam P hD M) := by
+  exact @essentiallySelfAdjointOn_tensorSum_add_coupling (L2dSpace 163) (smFermiSpace n)
+    (polyGaussCore (d := 163)) (fullDom n) _ _ (fullDom_finiteDimensional n)
+    (smHamiltonian P) (onFull (smFermiHam hD 0 0))
     yukV (yukY M) (smHamiltonian_symmetricOn P)
     (smFermiHam_symmetricOn (M := 0) (z := 0) hh)
     (fun i => by fin_cases i <;> exact higgsMul_symmetricOn _)

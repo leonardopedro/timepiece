@@ -76,7 +76,7 @@ theorem enorm_add_sq_le (x y : ℂ) : ‖x + y‖ₑ ^ 2 ≤ 2 * ‖x‖ₑ ^ 2 
       push_cast
       nlinarith [sq_nonneg (‖x‖ - ‖y‖)]
     exact_mod_cast h3
-  exact (pow_le_pow_left₀ (zero_le _) h1 2).trans h2
+  exact (pow_le_pow_left₀ (M₀ := ℝ≥0∞) (by simp) h1 2).trans h2
 
 theorem hn_add_le (m : ℕ) (v w : L2d d) : hn m (v + w) ≤ 2 * hn m v + 2 * hn m w := by
   unfold hn

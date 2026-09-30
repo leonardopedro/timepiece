@@ -219,8 +219,14 @@ theorem norm_stoneU_sub_taylor_le {tau : ℝ} (htau : 0 ≤ tau) (x : T.domain)
       simpa using hc.smul_const (T.op x)
     have h3 : HasDerivAt (fun s : ℝ => (x : H) - ((s : ℂ) * Complex.I) • T.op x)
         (-(Complex.I • T.op x)) s := by
-      simpa using (hasDerivAt_const s (x : H)).sub h2
-    simpa [hf, sub_neg_eq_add] using h1.sub h3
+      have hsub := (hasDerivAt_const s (x : H)).sub h2
+      convert hsub using 1
+      · funext t; rfl
+      · simp
+    have hdh := h1.sub h3
+    convert hdh using 1
+    · funext t; rfl
+    · simp [hf, sub_neg_eq_add]
   have hbound : ∀ s ∈ Set.Ico (0 : ℝ) tau,
       ‖T.stoneU s ((-Complex.I) • T.op x) + Complex.I • T.op x‖ ≤ C := by
     intro s hs

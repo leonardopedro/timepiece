@@ -309,9 +309,15 @@ variable {Hs Ks : IPSpace} {DA : Submodule ℂ Hs.carrier} {DB : Submodule ℂ K
 variable (P : OneParticleFlow Hs DA A) (Q : OneParticleFlow Ks DB B)
 
 local instance : ContinuousSMul ℝ (Hs.carrier ⊗[ℂ] Ks.carrier) := by
-  have h : IsBoundedSMul ℝ (Hs.carrier ⊗[ℝ] Ks.carrier) := NormedSpace.toIsBoundedSMul
-  haveI := h
+  haveI : IsBoundedSMul ℝ (Hs.carrier ⊗[ℂ] Ks.carrier) := NormedSpace.toIsBoundedSMul
   exact IsBoundedSMul.continuousSMul
+
+-- The normed `AddCommGroup`/`Module` structures on the complex tensor product are the ones
+-- the product rule and the `Submodule.span_induction` motive both elaborate to; pinning
+-- them here keeps goal and hypothesis from disagreeing about the hidden instances.
+local instance : AddCommGroup (Hs.carrier ⊗[ℂ] Ks.carrier) :=
+  TensorProduct.instNormedAddCommGroup.toAddCommGroup
+local instance : Module ℝ (Hs.carrier ⊗[ℂ] Ks.carrier) := NormedSpace.complexToReal.toModule
 
 /-- The product flow `U t ⊗ V t`, acting on the algebraic tensor product of the domains. -/
 def pflow (t : ℝ) : (DA ⊗[ℂ] DB) →ₗ[ℂ] (DA ⊗[ℂ] DB) :=
@@ -359,10 +365,13 @@ theorem norm_pflow (t : ℝ) (x : DA ⊗[ℂ] DB) : ‖pflow P Q t x‖ = ‖x�
   have h := norm_pflow_le P Q (-t) (pflow P Q t x)
   rwa [pflow_neg P Q t x] at h
 
+include P Q in
 /-- **The Leibniz rule for the product flow**: it solves the Schrödinger equation of the
 tensor sum. -/
 theorem hasDerivAt_pflow (x : DA ⊗[ℂ] DB) (t : ℝ) :
-    HasDerivAt (fun s : ℝ => inclPair Hs Ks DA DB (pflow P Q s x))
+    @HasDerivAt ℝ _ (Hs.carrier ⊗[ℂ] Ks.carrier)
+      TensorProduct.instNormedAddCommGroup.toAddCommGroup (NormedSpace.complexToReal.toModule)
+      _ _ (fun s : ℝ => inclPair Hs Ks DA DB (pflow P Q s x))
       ((-Complex.I) • sumPoly Hs Ks DA DB A B (pflow P Q t x)) t := by
   have hpure : ∀ (a : DA) (b : DB),
       HasDerivAt (fun s : ℝ => inclPair Hs Ks DA DB (pflow P Q s (a ⊗ₜ[ℂ] b)))
@@ -394,7 +403,11 @@ theorem hasDerivAt_pflow (x : DA ⊗[ℂ] DB) (t : ℝ) :
       have h : HasDerivAt (fun _ : ℝ => (0 : Hs.carrier ⊗[ℂ] Ks.carrier)) 0 t :=
         hasDerivAt_const _ _
       simpa using h
-  | add a b _ _ ha hb => simpa [map_add, smul_add] using ha.add hb
+  | add a b _ _ ha hb =>
+      have h := ha.add hb
+      convert h using 1
+      · funext s; simp [pflow, map_add]
+      · simp [pflow, map_add, smul_add]
   | smul c a _ ha =>
       have h := ha.const_smul c
       have hfun : (c • fun s : ℝ => inclPair Hs Ks DA DB (pflow P Q s a))
@@ -439,7 +452,7 @@ theorem hasDerivAt_porbit (x : DA ⊗[ℂ] DB) (t : ℝ) :
       = pairEmb Hs Ks (sumPoly Hs Ks DA DB A B (pflow P Q t x)) :=
     cpairOp_apply Hs Ks DA DB A B (porbit P Q x t) (pflow P Q t x) rfl
   rw [hop]
-  have hval : ((pairEmb Hs Ks).toContinuousLinearMap.restrictScalars ℝ)
+  have hval : (ContinuousLinearMap.restrictScalars ℝ (pairEmb Hs Ks).toContinuousLinearMap)
       ((-Complex.I) • sumPoly Hs Ks DA DB A B (pflow P Q t x))
       = (-Complex.I) • pairEmb Hs Ks (sumPoly Hs Ks DA DB A B (pflow P Q t x)) := by
     simp

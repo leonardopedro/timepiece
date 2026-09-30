@@ -92,6 +92,7 @@ theorem pair_op_tmul (E F : EsaOp) (x : E.dom) (y : F.dom)
       = pairEmb E.space F.space
         ((E.op x) ⊗ₜ[ℂ] (y : F.space.carrier) + (x : E.space.carrier) ⊗ₜ[ℂ] (F.op y)) := by
   have h := cpairOp_apply E.space F.space E.dom F.dom E.op F.op v (x ⊗ₜ[ℂ] y) hv
+  show cpairOp E.space F.space E.dom F.dom E.op F.op v = _
   simpa [sumPoly_tmul] using h
 
 /-- The total tensor sum of a nonempty finite family, by folding the two-factor step. -/

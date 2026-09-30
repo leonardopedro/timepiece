@@ -54,6 +54,22 @@ def SemiboundedBelowOn (D : Submodule ℂ F) (T : D →ₗ[ℂ] F) (c : ℝ) : P
 
 /-! ## The Green identity on the compactly supported smooth core -/
 
+/-- **The product rule for the energy density.**  For `g x = conj (f' x) * f x` the
+derivative is `conj (f'' x) * f x + |f' x|²`, where the second term is the quotient rule
+`conj (f' x) * f' x = |f' x|²`.  The two derivative hypotheses are explicit parameters so
+that the hidden normed-structure instances agree with the conclusion. -/
+theorem hasDerivAt_conj_deriv_mul (f : ℝ → ℂ)
+    (h1 : ∀ x, HasDerivAt f (deriv f x) x)
+    (h2 : ∀ x, HasDerivAt (deriv f) (deriv (deriv f) x) x) (x : ℝ) :
+    HasDerivAt (fun t : ℝ => (starRingEnd ℂ) (deriv f t) * f t)
+      ((starRingEnd ℂ) (deriv (deriv f) x) * f x + ((‖deriv f x‖ ^ 2 : ℝ) : ℂ)) x := by
+  have hstar : HasDerivAt (fun y : ℝ => (starRingEnd ℂ) (deriv f y))
+      ((starRingEnd ℂ) (deriv (deriv f) x)) x := (h2 x).star
+  have hmul := hstar.mul (h1 x)
+  have hsq : (starRingEnd ℂ) (deriv f x) * deriv f x = ((‖deriv f x‖ ^ 2 : ℝ) : ℂ) := by
+    rw [Complex.normSq_eq_conj_mul_self.symm, Complex.sq_norm]
+  rwa [hsq] at hmul
+
 /-- **Integration by parts once.**  For a compactly supported `C²` function on the line,
 `∫ conj(−f'') f = ∫ |f'|²`.  Both sides are real; the statement is phrased in `ℂ` so it
 can be substituted directly into an `L²` pairing. -/
@@ -75,12 +91,8 @@ theorem integral_conj_neg_deriv2_mul (f : ℝ → ℂ)
     (starRingEnd ℂ) (deriv (deriv f) x) * f x + ((‖deriv f x‖ ^ 2 : ℝ) : ℂ) with hg'def
   have hgderiv : ∀ x, HasDerivAt g (g' x) x := by
     intro x
-    have hstar : HasDerivAt (fun y => (starRingEnd ℂ) (deriv f y))
-        ((starRingEnd ℂ) (deriv (deriv f) x)) x := (h2 x).star
-    have hmul := hstar.mul (h1 x)
-    have hsq : (starRingEnd ℂ) (deriv f x) * deriv f x = ((‖deriv f x‖ ^ 2 : ℝ) : ℂ) := by
-      rw [Complex.normSq_eq_conj_mul_self.symm, Complex.sq_norm]
-    simpa [hgdef, hg'def, hsq] using hmul
+    have hx := hasDerivAt_conj_deriv_mul f h1 h2 x
+    simpa [hgdef, hg'def] using hx
   have hg'cont : Continuous g' := by
     simp only [hg'def]
     fun_prop

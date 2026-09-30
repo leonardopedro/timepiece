@@ -81,8 +81,10 @@ theorem integral_dcoord_mul {f g : Vd d → ℂ} (hf : ContDiff ℝ ((⊤ : ℕ�
     integrable_of_cc (hfcont.mul hdg) (hfc.mul_right)
   have h3 : Integrable (fun x => f x * g x) (volume : Measure (Vd d)) :=
     integrable_of_cc (hfcont.mul hgcont) (hfc.mul_right)
+  have hfd : Differentiable ℝ f := hf.differentiable (by simp)
+  have hgd : Differentiable ℝ g := hg.differentiable (by simp)
   exact integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable h1 h2 h3
-    (hf.differentiable (by simp)) (hg.differentiable (by simp))
+    (fun x _ => hfd.differentiableAt) (fun x _ => hgd.differentiableAt)
 
 /-! ## 2. The energy estimate -/
 

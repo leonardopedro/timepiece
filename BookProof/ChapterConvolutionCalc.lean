@@ -53,7 +53,10 @@ theorem hasCompactSupport_finsetSum {ι : Type*} (s : Finset ι) {f : ι → Vd 
     (h : ∀ i ∈ s, HasCompactSupport (f i)) : HasCompactSupport (fun x => ∑ i ∈ s, f i x) := by
   classical
   induction s using Finset.induction with
-  | empty => simpa using (HasCompactSupport.zero : HasCompactSupport (fun _ : Vd d => (0 : ℂ)))
+  | empty =>
+      have hz : HasCompactSupport (fun _ : Vd d => (0 : ℂ)) := HasCompactSupport.zero
+      convert hz using 1
+      funext x; simp
   | insert i s hi ih =>
       simp only [Finset.sum_insert hi]
       exact (h i (by simp)).add (ih fun j hj => h j (by simp [hj]))
@@ -114,8 +117,17 @@ theorem lapCS_cnv {u ρ : Vd d → ℂ} (hu : LocallyIntegrable u (volume : Meas
 theorem dcoord_reflect {g : Vd d → ℂ} (hg : ContDiff ℝ ((⊤ : ℕ∞) : WithTop ℕ∞) g) (x : Vd d)
     (j : Fin d) : dcoord j (fun y => g (x - y)) = fun y => -(dcoord j g (x - y)) := by
   funext y
-  have hA : HasFDerivAt (fun y : Vd d => x - y) (-(ContinuousLinearMap.id ℝ (Vd d))) y := by
-    simpa using (hasFDerivAt_const (𝕜 := ℝ) x y).sub (hasFDerivAt_id y)
+  have hA : @HasFDerivAt ℝ _ (Vd d) (PiLp.normedAddCommGroup 2 fun _ : Fin d => ℝ).toAddCommGroup
+      ((PiLp.normedSpace 2 ℝ fun _ : Fin d => ℝ).toModule)
+      ((PiLp.instPseudoMetricSpace 2 fun _ : Fin d => ℝ).toUniformSpace.toTopologicalSpace)
+      (Vd d) (PiLp.normedAddCommGroup 2 fun _ : Fin d => ℝ).toAddCommGroup
+      ((PiLp.normedSpace 2 ℝ fun _ : Fin d => ℝ).toModule)
+      ((PiLp.instPseudoMetricSpace 2 fun _ : Fin d => ℝ).toUniformSpace.toTopologicalSpace)
+      (fun y : Vd d => x - y) (-(ContinuousLinearMap.id ℝ (Vd d))) y := by
+    have h := (hasFDerivAt_const (𝕜 := ℝ) x y).sub (hasFDerivAt_id y)
+    convert h using 1
+    · funext z; simp
+    · ext z; simp
   have hgd : HasFDerivAt g (fderiv ℝ g (x - y)) (x - y) :=
     (hg.differentiable (by simp)).differentiableAt.hasFDerivAt
   have hcomp : HasFDerivAt (fun y : Vd d => g (x - y))

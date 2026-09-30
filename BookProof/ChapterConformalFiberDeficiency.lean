@@ -109,41 +109,58 @@ lemma cosh_half_ne_zero (y : ℝ) : Real.cosh (y / 2) ≠ 0 := (Real.cosh_pos _)
 
 lemma hasDerivAt_cfP (y : ℝ) : HasDerivAt cfP (cfP' y) y := by
   have hc : HasDerivAt (fun t : ℝ => Real.cosh (t / 2)) (Real.sinh (y / 2) * (1 / 2)) y := by
-    simpa using (Real.hasDerivAt_cosh (y / 2)).comp y ((hasDerivAt_id y).div_const 2)
+    have h := (Real.hasDerivAt_cosh (y / 2)).comp y ((hasDerivAt_id y).div_const 2)
+    exact h
   have hlog := (hc.log (cosh_half_ne_zero y)).neg
-  convert hlog using 1
-  unfold cfP'
   have hcne : Real.cosh (y / 2) ≠ 0 := cosh_half_ne_zero y
-  field_simp
+  have hder : -(Real.sinh (y / 2) * (1 / 2) / Real.cosh (y / 2)) = cfP' y := by
+    unfold cfP'
+    field_simp
+  show HasDerivAt (fun t : ℝ => -(Real.log (Real.cosh (t / 2)))) _ y
+  rwa [hder] at hlog
 
 lemma hasDerivAt_cfP' (y : ℝ) : HasDerivAt cfP' (cfP'' y) y := by
   have hs : HasDerivAt (fun t : ℝ => Real.sinh (t / 2)) (Real.cosh (y / 2) * (1 / 2)) y := by
-    simpa using (Real.hasDerivAt_sinh (y / 2)).comp y ((hasDerivAt_id y).div_const 2)
+    have h := (Real.hasDerivAt_sinh (y / 2)).comp y ((hasDerivAt_id y).div_const 2)
+    exact h
   have hc : HasDerivAt (fun t : ℝ => 2 * Real.cosh (t / 2))
       (2 * (Real.sinh (y / 2) * (1 / 2))) y := by
-    simpa using
+    have h :=
       ((Real.hasDerivAt_cosh (y / 2)).comp y ((hasDerivAt_id y).div_const 2)).const_mul 2
+    exact h
   have hcne : (2 : ℝ) * Real.cosh (y / 2) ≠ 0 := by
     have := Real.cosh_pos (y / 2); positivity
   have h := (hs.div hc hcne).neg
-  convert h using 1
-  unfold cfP''
   have hc0 : Real.cosh (y / 2) ≠ 0 := cosh_half_ne_zero y
   have hid : Real.sinh (y / 2) ^ 2 = Real.cosh (y / 2) ^ 2 - 1 := by
     have := Real.cosh_sq (y / 2); linarith
-  field_simp
-  nlinarith [hid, Real.cosh_pos (y / 2)]
+  have hnum : Real.cosh (y / 2) * (1 / 2) * (2 * Real.cosh (y / 2))
+      - Real.sinh (y / 2) * (2 * (Real.sinh (y / 2) * (1 / 2))) = 1 := by
+    nlinarith [hid]
+  have hden : (2 * Real.cosh (y / 2)) ^ 2 = 4 * Real.cosh (y / 2) ^ 2 := by ring
+  have hval : -((Real.cosh (y / 2) * (1 / 2) * (2 * Real.cosh (y / 2))
+        - Real.sinh (y / 2) * (2 * (Real.sinh (y / 2) * (1 / 2)))) / (2 * Real.cosh (y / 2)) ^ 2)
+      = cfP'' y := by
+    unfold cfP''
+    rw [hnum, hden]
+  have hfun : -((fun t : ℝ => Real.sinh (t / 2))
+      / (fun t : ℝ => 2 * Real.cosh (t / 2))) = cfP' := rfl
+  rw [hfun] at h
+  rwa [hval] at h
 
 lemma hasDerivAt_cfQ (y : ℝ) : HasDerivAt cfQ (cfQ' y) y := by
-  have h : HasDerivAt (fun t : ℝ => t - Real.exp (-t)) (1 - -Real.exp (-y)) y := by
-    simpa using (hasDerivAt_id y).sub ((hasDerivAt_neg y).exp)
-  have heq : 1 - -Real.exp (-y) = cfQ' y := by unfold cfQ'; ring
-  rw [← heq]
-  exact h
+  have h := (hasDerivAt_id y).sub ((hasDerivAt_neg y).exp)
+  have heq : 1 - Real.exp (-y) * -1 = cfQ' y := by unfold cfQ'; ring
+  show HasDerivAt (fun t : ℝ => t - Real.exp (-t)) _ y
+  rwa [heq] at h
 
 lemma hasDerivAt_cfQ' (y : ℝ) : HasDerivAt cfQ' (-Real.exp (-y)) y := by
-  unfold cfQ'
-  simpa using ((hasDerivAt_neg y).exp).const_add (1 : ℝ)
+  have h := ((hasDerivAt_neg y).exp).const_add (1 : ℝ)
+  have hfun : (fun t : ℝ => 1 + Real.exp (-t)) = cfQ' := rfl
+  rw [hfun] at h
+  have hval : Real.exp (-y) * -1 = -Real.exp (-y) := by ring
+  rw [hval] at h
+  exact h
 
 /-- `V` is smooth: `cosh` never vanishes. -/
 lemma contDiff_cfV : ContDiff ℝ ((⊤ : ℕ∞) : WithTop ℕ∞) cfV := by
@@ -209,7 +226,13 @@ lemma hasDerivAt_cfLogFun (y : ℝ) :
 
 lemma hasDerivAt_cfSol (y : ℝ) : HasDerivAt cfSol (cfLog' y * cfSol y) y := by
   have h := (hasDerivAt_cfLogFun y).cexp
-  simpa [cfSol, mul_comm] using h
+  have hfun : (fun t : ℝ => Complex.exp (((cfP t : ℝ) : ℂ) + Complex.I * ((cfQ t : ℝ) : ℂ)))
+      = cfSol := rfl
+  rw [hfun] at h
+  have hval : Complex.exp (((cfP y : ℝ) : ℂ) + Complex.I * ((cfQ y : ℝ) : ℂ))
+      = cfSol y := rfl
+  rw [hval, mul_comm] at h
+  exact h
 
 /-- The algebraic heart: `(p'' + i(−e^{−y})) + (p' + iq')² = V − i`. -/
 lemma cfLog_ode (y : ℝ) :

@@ -98,9 +98,15 @@ def zeta (r : ℝ) : ℝ → ℝ := fun x => (bumpG : ℝ → ℝ) (x / r)
 /-- Its derivative. -/
 def zeta' (r : ℝ) : ℝ → ℝ := fun x => bumpG' (x / r) / r
 
-lemma hasDerivAt_zeta (r : ℝ) (x : ℝ) : HasDerivAt (zeta r) (zeta' r x) x := by
+lemma hasDerivAt_zeta (r : ℝ) (x : ℝ) :
+    @HasDerivAt ℝ _ ℝ
+      DenselyNormedField.toNontriviallyNormedField.toDivisionRing.toAddCommGroup
+      ((NormedAlgebra.toNormedSpace ℝ).toModule)
+      _ _ (zeta r) (zeta' r x) x := by
   have h := (hasDerivAt_bumpG (x / r)).comp x ((hasDerivAt_id x).div_const r)
-  convert h using 1 <;> (try rfl; simp [zeta, zeta', div_eq_mul_inv])
+  convert h using 1
+  · funext y; simp [zeta, Function.comp_apply, id_eq]
+  · simp [zeta', div_eq_mul_inv]
 
 lemma continuous_zeta (r : ℝ) : Continuous (zeta r) :=
   continuous_iff_continuousAt.2 fun x => (hasDerivAt_zeta r x).continuousAt
@@ -133,14 +139,18 @@ lemma hasCompactSupport_zeta' {r : ℝ} (hr : 0 < r) : HasCompactSupport (zeta' 
   exact (hasCompactSupport_zeta hr).deriv
 
 lemma hasCompactSupport_zeta_sq {r : ℝ} (hr : 0 < r) :
-    HasCompactSupport (fun x => (zeta r x) ^ 2) := by
+    @HasCompactSupport ℝ ℝ _ instMulZeroClassOfSemiring.toZero
+      (fun x => (zeta r x) ^ 2) := by
   have h := (hasCompactSupport_zeta hr).mul_right (f' := zeta r)
-  convert h using 1 <;> (try rfl; simp [pow_two])
+  convert h using 1
+  funext y; simp [pow_two]
 
 lemma hasCompactSupport_zeta'_sq {r : ℝ} (hr : 0 < r) :
-    HasCompactSupport (fun x => (zeta' r x) ^ 2) := by
+    @HasCompactSupport ℝ ℝ _ instMulZeroClassOfSemiring.toZero
+      (fun x => (zeta' r x) ^ 2) := by
   have h := (hasCompactSupport_zeta' hr).mul_right (f' := zeta' r)
-  convert h using 1 <;> (try rfl; simp [pow_two])
+  convert h using 1
+  funext y; simp [pow_two]
 
 lemma abs_zeta'_le {r : ℝ} (hr : 0 < r) (x : ℝ) : |zeta' r x| ≤ bumpM / r := by
   rw [zeta', abs_div, abs_of_pos hr]
@@ -195,36 +205,54 @@ lemma wronsk_deriv_im (x : ℝ) :
 /-- The real part of the weighted identity, before integration. -/
 lemma hasDerivAt_reWeighted (hW : ∀ x, HasDerivAt W (W' x) x)
     (hW2 : ∀ x, HasDerivAt W' ((((V x : ℝ) : ℂ) - z) * W x) x) (r : ℝ) (x : ℝ) :
-    HasDerivAt (fun y => (zeta r y) ^ 2 * ((starRingEnd ℂ) (W y) * W' y).re)
+    @HasDerivAt ℝ _ ℝ
+      DenselyNormedField.toNontriviallyNormedField.toDivisionRing.toAddCommGroup
+      ((NormedAlgebra.toNormedSpace ℝ).toModule) _ _
+      (fun y => (zeta r y) ^ 2 * ((starRingEnd ℂ) (W y) * W' y).re)
       (2 * zeta r x * zeta' r x * ((starRingEnd ℂ) (W x) * W' x).re
         + (zeta r x) ^ 2 * (‖W' x‖ ^ 2 + (V x - z.re) * ‖W x‖ ^ 2)) x := by
-  have hz2 : HasDerivAt (fun y => (zeta r y) ^ 2) (2 * zeta r x * zeta' r x) x := by
+  have hz2 : @HasDerivAt ℝ _ ℝ
+      DenselyNormedField.toNontriviallyNormedField.toDivisionRing.toAddCommGroup
+      ((NormedAlgebra.toNormedSpace ℝ).toModule)
+      _ _ (fun y => (zeta r y) ^ 2) (2 * zeta r x * zeta' r x) x := by
     have h := (hasDerivAt_zeta r x).pow 2
-    convert h using 1 <;> (try rfl; simp [mul_comm, mul_assoc, mul_left_comm])
+    convert h using 1
+    · funext y; rfl
+    · simp [mul_comm, mul_assoc, mul_left_comm]
   have hP : HasDerivAt (fun y => ((starRingEnd ℂ) (W y) * W' y).re)
       (‖W' x‖ ^ 2 + (V x - z.re) * ‖W x‖ ^ 2) x := by
     have h := Complex.reCLM.hasFDerivAt.comp_hasDerivAt x (hasDerivAt_wronsk hW hW2 x)
     simp only [Function.comp_def, Complex.reCLM_apply] at h
     rwa [wronsk_deriv_re (V := V) (z := z) (W := W) (W' := W') x] at h
   have hmul := hz2.mul hP
-  convert hmul using 1 <;> (try rfl; simp [mul_comm, mul_left_comm, mul_assoc])
+  convert hmul using 1
+  · funext y; simp
 
 /-- The imaginary part of the weighted identity, before integration. -/
 lemma hasDerivAt_imWeighted (hW : ∀ x, HasDerivAt W (W' x) x)
     (hW2 : ∀ x, HasDerivAt W' ((((V x : ℝ) : ℂ) - z) * W x) x) (r : ℝ) (x : ℝ) :
-    HasDerivAt (fun y => (zeta r y) ^ 2 * ((starRingEnd ℂ) (W y) * W' y).im)
+    @HasDerivAt ℝ _ ℝ
+      DenselyNormedField.toNontriviallyNormedField.toDivisionRing.toAddCommGroup
+      ((NormedAlgebra.toNormedSpace ℝ).toModule) _ _
+      (fun y => (zeta r y) ^ 2 * ((starRingEnd ℂ) (W y) * W' y).im)
       (2 * zeta r x * zeta' r x * ((starRingEnd ℂ) (W x) * W' x).im
         + (zeta r x) ^ 2 * (-z.im * ‖W x‖ ^ 2)) x := by
-  have hz2 : HasDerivAt (fun y => (zeta r y) ^ 2) (2 * zeta r x * zeta' r x) x := by
+  have hz2 : @HasDerivAt ℝ _ ℝ
+      DenselyNormedField.toNontriviallyNormedField.toDivisionRing.toAddCommGroup
+      ((NormedAlgebra.toNormedSpace ℝ).toModule)
+      _ _ (fun y => (zeta r y) ^ 2) (2 * zeta r x * zeta' r x) x := by
     have h := (hasDerivAt_zeta r x).pow 2
-    convert h using 1 <;> (try rfl; simp [mul_comm, mul_assoc, mul_left_comm])
+    convert h using 1
+    · funext y; rfl
+    · simp [mul_comm, mul_assoc, mul_left_comm]
   have hP : HasDerivAt (fun y => ((starRingEnd ℂ) (W y) * W' y).im)
       (-z.im * ‖W x‖ ^ 2) x := by
     have h := Complex.imCLM.hasFDerivAt.comp_hasDerivAt x (hasDerivAt_wronsk hW hW2 x)
     simp only [Function.comp_def, Complex.imCLM_apply] at h
     rwa [wronsk_deriv_im (V := V) (z := z) (W := W) (W' := W') x] at h
   have hmul := hz2.mul hP
-  convert hmul using 1 <;> (try rfl; simp [mul_comm, mul_left_comm, mul_assoc])
+  convert hmul using 1
+  · funext y; simp
 
 end Ode
 

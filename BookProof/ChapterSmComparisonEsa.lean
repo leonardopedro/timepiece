@@ -180,10 +180,15 @@ theorem smFlN_eq_hamCoreS (P : SmParams) (c0 : ℝ) :
       = ((1 / 2 : ℝ) : ℂ) • ((∑ m : Fin 40, pgLp (momOp (smCoord m) (momOp (smCoord m) p)))
           + ∑ r : Fin 49, pgLp (smPhi P r * (smPhi P r * p))) := by
     rw [smHamiltonian, weylOp_apply]
-    congr 1
-    congr 1
-    · exact Finset.sum_congr rfl fun m _ => hpi m
-    · exact Finset.sum_congr rfl fun r _ => hfield r
+    have h1 : (∑ i : Fin 40,
+          ((smPi i) ((smPi i) ⟨pgLp p, pgLp_mem_core p⟩) : L2d 163))
+        = ∑ m : Fin 40, pgLp (momOp (smCoord m) (momOp (smCoord m) p)) :=
+      Finset.sum_congr rfl fun m _ => hpi m
+    have h2 : (∑ a : Fin 49,
+          ((smField P a) ((smField P a) ⟨pgLp p, pgLp_mem_core p⟩) : L2d 163))
+        = ∑ r : Fin 49, pgLp (smPhi P r * (smPhi P r * p)) :=
+      Finset.sum_congr rfl fun r _ => hfield r
+    rw [h1, h2]
   -- collect the left-hand side
   have hpgsum : ∀ (n : ℕ) (f : Fin n → MvPolynomial (Fin 163) ℂ),
       (∑ i : Fin n, pgLp (f i)) = pgLp (∑ i : Fin n, f i) := by

@@ -215,7 +215,9 @@ theorem denseRange_embPow : ∀ n : ℕ, DenseRange (embPow μ n)
         simp only [Function.comp_apply] at hx1 hx2
         exact hx1.trans (hx2.trans (by rw [MeasurableEquiv.symm_apply_apply]))
       have hcomp : (embPow μ (n + 1) : _ → _) = (splitIso μ n) ∘ F := rfl
-      rw [DenseRange, hcomp, Set.range_comp]
+      rw [DenseRange, hcomp]
+      show Dense (Set.range ((splitIso μ n) ∘ (F : _ → _)))
+      rw [Set.range_comp]
       exact hsurj.denseRange.dense_image (splitIso μ n).continuous hdF
 
 /-- **The `n`-particle sector identification**: the completed `n`-fold tensor power of

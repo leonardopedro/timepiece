@@ -110,7 +110,9 @@ def truncHam (F : SqFamily) (N : ℕ) : outerCore F.dim →ₗ[ℂ] outerFock F.
 
 @[simp] theorem truncHam_coe (F : SqFamily) (N : ℕ) (x : outerCore F.dim) (n : ℕ) :
     ((truncHam F N x : outerFock F.dim) : ∀ n : ℕ, L2d (F.dim n)) n
-      = (F.trunc N).secHam n ⟨((x : outerFock F.dim) : ∀ n : ℕ, L2d (F.dim n)) n, x.2.2 n⟩ :=
+      = (F.trunc N).secHam n
+          ((⟨((x : outerFock F.dim) : ∀ n : ℕ, L2d (F.dim n)) n, x.2.2 n⟩ :
+            ↥(polyGaussCore (d := F.dim n))) : polyGaussCore (d := F.dim n)) :=
   rfl
 
 theorem truncHam_symmetricOn (F : SqFamily) (N : ℕ) :
@@ -127,14 +129,18 @@ theorem truncHam_eq_of_support (F : SqFamily) (x : outerCore F.dim) {N : ℕ}
     (truncHam F N x : outerFock F.dim) = F.outerHam x := by
   refine lp.ext (funext fun n => ?_)
   have h2 : ((F.outerHam x : outerFock F.dim) : ∀ n : ℕ, L2d (F.dim n)) n
-      = F.secHam n ⟨((x : outerFock F.dim) : ∀ n : ℕ, L2d (F.dim n)) n, x.2.2 n⟩ := rfl
+      = F.secHam n
+          ((⟨((x : outerFock F.dim) : ∀ n : ℕ, L2d (F.dim n)) n, x.2.2 n⟩ :
+            ↥(polyGaussCore (d := F.dim n))) : polyGaussCore (d := F.dim n)) := rfl
   by_cases h : n ≤ N
   · rw [truncHam_coe, h2, trunc_secHam_eq_of_le F h]
     rfl
   · have hzero : (⟨((x : outerFock F.dim) : ∀ n : ℕ, L2d (F.dim n)) n, x.2.2 n⟩ :
-        polyGaussCore (d := F.dim n)) = 0 :=
+        ↥(polyGaussCore (d := F.dim n))) = 0 :=
       Subtype.ext (hsupp n (by omega))
-    rw [truncHam_coe, h2, hzero, map_zero, map_zero]
+    rw [truncHam_coe, h2]
+    simp only [hzero, LinearMap.map_zero]
+    exact LinearMap.map_zero ((F.trunc N).secHam n)
 
 /-- **On every finite-particle state the truncation is eventually exact.** -/
 theorem truncHam_eventuallyEq (F : SqFamily) (x : outerCore F.dim) :

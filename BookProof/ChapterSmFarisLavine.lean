@@ -146,7 +146,7 @@ theorem CoreData.esa_core (d : CoreData F) (hsym : SymmetricOn d.C₀ d.H₀) {c
   have hres := essentiallySelfAdjointOn_restrict_of_graph_core d.gc.le d.ext hcore hD
   have hid : d.ext.comp (Submodule.inclusion d.gc.le) = d.H₀ := by
     refine LinearMap.ext fun p => ?_
-    simpa using d.ext_core p
+    simpa only [LinearMap.comp_apply, Submodule.inclusion_apply] using d.ext_core p
   rwa [hid] at hres
 
 end Abstract
