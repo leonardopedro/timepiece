@@ -147,7 +147,7 @@ theorem matrixModel_lagrange_term_zero
     matrixModel.mul (1, 0) (1, 0) matrixModel.B
         (gaugeField matrixModel.toGaugeFixingSystem) = 0 := by
   rw [hfix]
-  simpa using matrixModel.mul_zero_right matrixModel.B
+  exact matrixModel.mul_zero_right matrixModel.B
 
 /-- The model's fixing surface is exactly `v = dφ`: in the model
 `gaugeField = v − dφ`, and the doublet structure `s(v − dφ) = c` holds

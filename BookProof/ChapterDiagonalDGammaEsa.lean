@@ -406,7 +406,7 @@ def diagDomain (E : ι → Hs.carrier) : Submodule ℂ Hs.carrier := Submodule.s
 def diagBasis : Module.Basis ι ℂ (diagDomain E) := Module.Basis.span hE.linearIndependent
 
 theorem diagBasis_apply (i : ι) : (diagBasis hE i : Hs.carrier) = E i :=
-  Module.Basis.span_apply hE.linearIndependent i
+  Module.Basis.coe_span_apply hE.linearIndependent i
 
 /-- **Multiplication by an arbitrary real family along an orthonormal family**: the diagonal
 one-particle operator, on the algebraic span of the family. -/

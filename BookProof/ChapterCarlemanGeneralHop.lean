@@ -142,11 +142,11 @@ theorem sum_hop_im {w : ℂ} {c c' : (Fin d →₀ ℕ) → ℝ} {p m : Fin d �
   set B := hopB A p m with hB
   have hsplitA : ∑ a ∈ A, rtG u w c p m a
       = ∑ a ∈ A ∩ B, rtG u w c p m a + ∑ a ∈ A \ B, rtG u w c p m a :=
-    (Finset.sum_inter_add_sum_diff A B _).symm
+    (Finset.sum_inter_add_sum_sdiff A B _).symm
   have hsplitB : ∑ a ∈ B, rtG u w c p m a
       = ∑ a ∈ A ∩ B, rtG u w c p m a + ∑ a ∈ B \ A, rtG u w c p m a := by
     rw [Finset.inter_comm]
-    exact (Finset.sum_inter_add_sum_diff B A _).symm
+    exact (Finset.sum_inter_add_sum_sdiff B A _).symm
   rw [Finset.sum_add_distrib, sum_ltG hcomp hvanL A, ← hB, Complex.add_im,
     Complex.conj_im, hsplitA, hsplitB]
   simp only [Complex.add_im]

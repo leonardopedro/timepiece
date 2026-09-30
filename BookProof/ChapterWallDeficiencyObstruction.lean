@@ -74,15 +74,19 @@ theorem integral_conj_deriv2_mul {P P' P'' : ℝ → ℂ} {W W' G : ℝ → ℂ}
   have hfd : ∀ x, HasDerivAt f
       ((starRingEnd ℂ) (P x) * G x - (starRingEnd ℂ) (P'' x) * W x) x := by
     intro x
-    have h1 : HasDerivAt (fun y => (starRingEnd ℂ) (P y) * W' y)
-        ((starRingEnd ℂ) (P' x) * W' x + (starRingEnd ℂ) (P x) * G x) x := by
-      simpa [mul_comm] using ((hP x).star.mul (hW' x))
-    have h2 : HasDerivAt (fun y => (starRingEnd ℂ) (P' y) * W y)
-        ((starRingEnd ℂ) (P'' x) * W x + (starRingEnd ℂ) (P' x) * W' x) x := by
-      simpa [mul_comm] using ((hP' x).star.mul (hW x))
+    have h1 : HasDerivAt (fun y : ℝ => (starRingEnd ℂ) (P y) * W' y)
+        ((starRingEnd ℂ) (P' x) * W' x + (starRingEnd ℂ) (P x) * G x) x :=
+      (hP x).star.mul (hW' x)
+    have h2 : HasDerivAt (fun y : ℝ => (starRingEnd ℂ) (P' y) * W y)
+        ((starRingEnd ℂ) (P'' x) * W x + (starRingEnd ℂ) (P' x) * W' x) x :=
+      (hP' x).star.mul (hW x)
     have h3 := h1.sub h2
-    convert h3 using 1
-    ring
+    have heq : ((starRingEnd ℂ) (P' x) * W' x + (starRingEnd ℂ) (P x) * G x)
+          - ((starRingEnd ℂ) (P'' x) * W x + (starRingEnd ℂ) (P' x) * W' x)
+        = (starRingEnd ℂ) (P x) * G x - (starRingEnd ℂ) (P'' x) * W x := by
+      ring
+    rw [heq] at h3
+    exact h3
   have hAsupp : HasCompactSupport (fun x => (starRingEnd ℂ) (P x) * G x) :=
     (hPsupp.comp_left (g := fun z : ℂ => (starRingEnd ℂ) z) (by simp)).mul_right
   have hBsupp : HasCompactSupport (fun x => (starRingEnd ℂ) (P'' x) * W x) :=
@@ -330,9 +334,16 @@ theorem gaussianState_isL2Ode : IsL2Ode harmonicShiftedV 0 gaussianState := by
   have hexp : ∀ x : ℝ, HasDerivAt (fun y : ℝ => Real.exp (-(y ^ 2 / 2)))
       (-x * Real.exp (-(x ^ 2 / 2))) x := by
     intro x
+    have hp : HasDerivAt (fun y : ℝ => y ^ 2) (2 * x ^ (2 - 1)) x := hasDerivAt_pow 2 x
+    have hd : HasDerivAt (fun y : ℝ => y ^ 2 / 2) ((2 * x ^ (2 - 1)) / 2) x := hp.div_const 2
+    have hneg := hd.neg
     have h1 : HasDerivAt (fun y : ℝ => -(y ^ 2 / 2)) (-x) x := by
-      simpa using ((hasDerivAt_pow 2 x).div_const 2).neg
-    simpa [mul_comm] using h1.exp
+      have heq : -((2 * x ^ (2 - 1)) / 2) = -x := by rw [pow_one]; ring
+      rw [heq] at hneg
+      exact hneg
+    have he := h1.exp
+    rwa [show (fun y : ℝ => Real.exp (-(y ^ 2 / 2))) = (fun x => Real.exp (-(x ^ 2 / 2))) by rfl,
+      show Real.exp (-(x ^ 2 / 2)) * -x = -x * Real.exp (-(x ^ 2 / 2)) by ring] at he
   refine ⟨fun x => ((-x * Real.exp (-(x ^ 2 / 2)) : ℝ) : ℂ), fun x => ?_, fun x => ?_, ?_⟩
   · exact (hexp x).ofReal_comp
   · have h3 : HasDerivAt (fun y : ℝ => (-y) * Real.exp (-(y ^ 2 / 2)))

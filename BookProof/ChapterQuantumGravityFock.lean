@@ -407,7 +407,8 @@ theorem fermToLp_mem (u : FermAlg) : fermToLp u ∈ lpFiniteModes FermConf := u.
 
 theorem fermToLp_add (x y : FermAlg) : fermToLp (x + y) = fermToLp x + fermToLp y := by
   refine lp.ext (funext fun α => ?_)
-  simp [fermToLp]
+  simp [fermToLp, Pi.add_apply]
+  try rfl
 
 theorem inner_fermToLp_of_subset {u : FermAlg} {s : Finset FermConf} (hs : u.support ⊆ s)
     (v : FermAlg) :

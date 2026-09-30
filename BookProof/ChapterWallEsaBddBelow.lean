@@ -70,7 +70,8 @@ lemma wallHam_add_const (V : ℝ → ℝ) (hV : ContDiff ℝ ((⊤ : ℕ∞) : W
           Lp ℂ 2 (volume : Measure ℝ)) : ℝ → ℂ) x
         = (c : ℂ) * (((f : 𝓢(ℝ, ℂ)).toLp 2 (volume : Measure ℝ) :
           Lp ℂ 2 (volume : Measure ℝ)) : ℝ → ℂ) x := by
-      simpa [constOp, smul_eq_mul] using h5
+      rw [constOp, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply]
+      simpa using h5
     rw [h1, h4, Pi.add_apply, h2, h5', h3]
     simp only [mulCc_apply]
     push_cast

@@ -308,6 +308,11 @@ variable {Hs Ks : IPSpace} {DA : Submodule ℂ Hs.carrier} {DB : Submodule ℂ K
 
 variable (P : OneParticleFlow Hs DA A) (Q : OneParticleFlow Ks DB B)
 
+local instance : ContinuousSMul ℝ (Hs.carrier ⊗[ℂ] Ks.carrier) := by
+  have h : IsBoundedSMul ℝ (Hs.carrier ⊗[ℝ] Ks.carrier) := NormedSpace.toIsBoundedSMul
+  haveI := h
+  exact IsBoundedSMul.continuousSMul
+
 /-- The product flow `U t ⊗ V t`, acting on the algebraic tensor product of the domains. -/
 def pflow (t : ℝ) : (DA ⊗[ℂ] DB) →ₗ[ℂ] (DA ⊗[ℂ] DB) :=
   TensorProduct.map (OneParticleFlow.dmap P t) (OneParticleFlow.dmap Q t)

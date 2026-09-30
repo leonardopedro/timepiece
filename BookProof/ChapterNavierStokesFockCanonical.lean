@@ -421,6 +421,9 @@ theorem hop_modeData_eq (hκ : ∀ i, 0 ≤ κ i) (i : Fin d) (g : Occ d → ℂ
     rw [← hα, modeShift_self]
     omega
 
+set_option maxHeartbeats 1000000 in
+-- reason for change: the defeq checks of the two lattice `show` statements below
+-- unify coercion towers over `↑↑x`/`Submodule.inclusion`-terms and exceed 200k
 /-- The mode-`i` symmetrised transport operator is the mode-`i` shift
 Hamiltonian. -/
 theorem mode_hamiltonian_eq (hκ : ∀ i, 0 ≤ κ i) (i : Fin d) :
@@ -448,8 +451,7 @@ theorem mode_hamiltonian_eq (hκ : ∀ i, 0 ≤ κ i) (i : Fin d) :
   refine LinearMap.ext fun x => lp.ext (funext fun β => ?_)
   simp only [LinearMap.comp_apply, hsym, Submodule.subtype_apply, LinearMap.smul_apply,
     Submodule.coe_smul, lp.coeFn_smul, Pi.smul_apply, smul_eq_mul, LinearMap.sub_apply,
-    Submodule.coe_sub, lp.coeFn_sub, Pi.sub_apply, ShiftData.shiftH_coe,
-    Submodule.inclusion_apply]
+    Submodule.coe_sub, lp.coeFn_sub, Pi.sub_apply, ShiftData.shiftH_coe]
   rw [ShiftData.hFun, hop_modeData_eq hκ i, ann_ann_coe]
   have hamp : ∀ γ : Occ d, ((modeData hκ i).amp γ : ℂ)
       = ((κ i / 2 : ℝ) : ℂ) * (Real.sqrt ((γ i : ℝ) + 1) : ℂ)
@@ -473,19 +475,21 @@ theorem mode_hamiltonian_eq (hκ : ∀ i, 0 ≤ κ i) (i : Fin d) :
       ring
     rw [hc1, hc2]
     push_cast
-    show (1 / 2 * (Complex.I * ↑(κ i) * (↑(Real.sqrt ↑(β i)) * ↑(Real.sqrt (↑(β i) - 1)) * ↑↑x
-      (dn i (dn i β)) - ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2)) * ↑↑x
-      (modeShift i β)))) =
-      (Complex.I * (↑(κ i) / 2 * ↑(Real.sqrt (↑(β i) - 1)) * ↑(Real.sqrt ↑(β i)) * ↑↑x
-        (dn i (dn i β)) - ↑(κ i) / 2 * ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2)) * ↑↑x
-        (modeShift i β)))
+    change (1 / 2 * (Complex.I * ↑(κ i) * (↑(Real.sqrt ↑(β i)) * ↑(Real.sqrt (↑(β i) - 1))
+      * ((x : L2I (Occ d)) : Occ d → ℂ) (dn i (dn i β))
+      - ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2))
+        * ((x : L2I (Occ d)) : Occ d → ℂ) (modeShift i β)))) =
+      (Complex.I * (↑(κ i) / 2 * ↑(Real.sqrt (↑(β i) - 1)) * ↑(Real.sqrt ↑(β i))
+        * ((x : L2I (Occ d)) : Occ d → ℂ) (dn i (dn i β))
+        - ↑(κ i) / 2 * ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2))
+          * ((x : L2I (Occ d)) : Occ d → ℂ) (modeShift i β)))
     ring
   · rw [if_neg h, cre_cre_coe_of_lt i x (by omega)]
     push_cast
-    show (1 / 2 * (Complex.I * ↑(κ i) * (0 - ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2))
-      * ↑↑x (modeShift i β)))) =
-      (Complex.I * (0 - ↑(κ i) / 2 * ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2)) * ↑↑x
-        (modeShift i β)))
+    change (1 / 2 * (Complex.I * ↑(κ i) * (0 - ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2))
+      * ((x : L2I (Occ d)) : Occ d → ℂ) (modeShift i β)))) =
+      (Complex.I * (0 - ↑(κ i) / 2 * ↑(Real.sqrt (↑(β i) + 1)) * ↑(Real.sqrt (↑(β i) + 2))
+        * ((x : L2I (Occ d)) : Occ d → ℂ) (modeShift i β)))
     ring
 
 /-- **`∑ᵢ ½(πᵢVᵢ + Vᵢπᵢ) = Ĥ`**: the many-mode Navier–Stokes Hamiltonian of the

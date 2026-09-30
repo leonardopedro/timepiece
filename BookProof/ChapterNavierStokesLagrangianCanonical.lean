@@ -353,20 +353,25 @@ number operator of the trajectory-space Hermite basis**: `T = ω(N + 3/2)` with
 `N = ∑ᵢ a_i† a_i` and `ω = √(2ν)`. -/
 theorem lagCan_secondOrder_eq (hnu : 0 < nu) (f : Fin 3 → ℝ) :
     secondOrder (lagCanData nu hnu f) = lagT nu := by
-  rw [lagT]
+  simp only [lagCanData, lagT]
   have hmode := fun i => half_lagPSq_add_nu_lagQSq nu hnu i
   have hhalf : ((1 / 2 : ℝ) : ℂ) = (1 / 2 : ℂ) := by push_cast; ring
-  simp only [secondOrder, LagrangianFullData.kinetic, LagrangianFullData.viscous, lagCanData,
-    Finset.smul_sum, hhalf]
+  have hcnt :
+      (∑ i : Fin 3, ((omega nu / 2 : ℝ) : ℂ) • LinearMap.id :
+        lpFiniteModes Vel →ₗ[ℂ] lpFiniteModes Vel)
+      = ((3 * omega nu / 2 : ℝ) : ℂ) • LinearMap.id := by
+    rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, ← Nat.cast_smul_eq_nsmul ℂ,
+      smul_smul]
+    congr 1
+    push_cast
+    ring
+  have hbridge : (∑ i : Fin 3, ((omega nu : ℝ) : ℂ) • numOp i)
+      = ∑ x : Fin 3, ((omega nu : ℝ) : ℂ) • numOp x := rfl
+  simp only [secondOrder, LagrangianFullData.kinetic, LagrangianFullData.viscous, hhalf]
+  rw [Finset.smul_sum, Finset.smul_sum, Finset.smul_sum]
   rw [← Finset.sum_add_distrib]
   rw [Finset.sum_congr rfl fun i _ => hmode i]
-  rw [Finset.sum_add_distrib, ← Finset.smul_sum]
-  congr 1
-  rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, ← Nat.cast_smul_eq_nsmul ℂ,
-    smul_smul]
-  congr 1
-  push_cast
-  ring
+  rw [Finset.sum_add_distrib, hcnt, hbridge]
 
 /-! ## Diagonalization by the Hermite states -/
 
@@ -429,14 +434,15 @@ part. -/
 theorem lagCan_esa (hnu : 0 < nu) (f : Fin 3 → ℝ) :
     EssentiallySelfAdjointOn (lagCanData nu hnu f).D (lagrangianCore (lagCanData nu hnu f)) :=
   hFull_essentiallySelfAdjointOn_of_drive_eq_P (lagCanData nu hnu f) rfl le_rfl
-    (fun v => by simp [lagCanData])
+    (fun v => by simp only [lagCanData]; simp; first | rfl | exact? | done)
     ((essentiallySelfAdjointOn_iff_hasZeroDeficiencyOn (lagCanData nu hnu f).D
       (secondOrder (lagCanData nu hnu f))).mpr (lagCan_secondOrder_hasZeroDeficiencyOn nu hnu f))
 
 theorem lagCan_hFull_hasZeroDeficiencyOn (hnu : 0 < nu) (f : Fin 3 → ℝ) :
     HasZeroDeficiencyOn (lagCanData nu hnu f).D (lagCanData nu hnu f).hFull :=
   hFull_hasZeroDeficiencyOn_of_drive_eq_P (lagCanData nu hnu f) rfl le_rfl
-    (fun v => by simp [lagCanData]) (lagCan_secondOrder_hasZeroDeficiencyOn nu hnu f)
+    (fun v => by simp only [lagCanData]; simp; first | rfl | exact? | done)
+    (lagCan_secondOrder_hasZeroDeficiencyOn nu hnu f)
 
 /-! ## Unboundedness, and the complete unitary flow -/
 

@@ -66,7 +66,7 @@ def toL2 (u : γ →₀ ℂ) : L2I γ :=
 /-- The transport map is linear. -/
 def toL2L : (γ →₀ ℂ) →ₗ[ℂ] L2I γ where
   toFun := toL2
-  map_add' u v := by refine lp.ext (funext fun g => ?_); simp [toL2]
+  map_add' u v := by refine lp.ext (funext fun g => ?_); rfl
   map_smul' c u := by refine lp.ext (funext fun g => ?_); simp [toL2]
 
 @[simp] theorem toL2L_apply (u : γ →₀ ℂ) : toL2L u = toL2 u := rfl

@@ -330,7 +330,7 @@ theorem summable_cutMass (hu : Summable fun n => ‖u n‖ ^ 2) (hΘ0 : ∀ j, 0
       have : N = N' := by omega
       simp [this]
     have hcomp : Summable (fun p : ℕ × ℕ => Θ p.2 * v (p.2 + p.1 + 1)) := by
-      simpa [Function.comp] using hprod.comp_injective hinj
+      exact hprod.comp_injective hinj
     exact hcomp.prod
   simpa [cutMass, hv] using hpart1.add hpart2
 
@@ -410,7 +410,7 @@ theorem memℓp_finsetSum (s : Finset ℕ) (g : ℕ → ℕ → ℂ) (h : ∀ k 
     Memℓp (fun n => ∑ k ∈ s, g k n) 2 := by
   classical
   induction s using Finset.induction with
-  | empty => simpa using zero_memℓp (E := fun _ : ℕ => ℂ) (p := 2)
+  | empty => exact zero_memℓp (E := fun _ : ℕ => ℂ) (p := 2)
   | insert j s hj ih =>
     have h1 : Memℓp (g j) 2 := h j (Finset.mem_insert_self _ _)
     have h2 : Memℓp (fun n => ∑ k ∈ s, g k n) 2 :=

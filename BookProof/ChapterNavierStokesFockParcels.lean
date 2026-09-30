@@ -254,8 +254,8 @@ theorem bigState_mem_core {K : ℝ} (hK : 0 ≤ K) : bigState K ∈ momFock.core
     have hnn : 0 ≤ ξ 0 := le_trans hK h0.1
     have hs : |momFock.scale (parcelMk 1 ξ)| = 3 * ξ 0 := by
       rw [momFock_scale]
-      simp only [parcelMk, Fin.sum_univ_one]
-      rw [abs_of_nonneg hnn, abs_of_nonneg (by positivity)]
+      show abs (3 * abs (∑ k : Fin 1, ξ k)) = 3 * ξ 0
+      rw [Fin.sum_univ_one, abs_of_nonneg hnn, abs_of_nonneg (by positivity)]
     rw [hs]
     calc 3 * ξ 0 ≤ 3 * (K + 1) := by linarith [h0.2]
       _ ≤ (⌈3 * (K + 1)⌉₊ : ℝ) := Nat.le_ceil _
@@ -273,7 +273,8 @@ theorem bigState_symbol_ge {K : ℝ} (hK : 1 ≤ K) :
   have h0 : ξ 0 ∈ Set.Icc K (K + 1) := hξ 0 (Set.mem_univ 0)
   have ht : momFock.total (parcelMk 1 ξ) = (3 / 2) * (ξ 0) ^ 2 := by
     rw [momFock_total]
-    simp only [parcelMk, Fin.sum_univ_one]
+    show 3 / 2 * (∑ k : Fin 1, ξ k) ^ 2 = 3 / 2 * ξ 0 ^ 2
+    rw [Fin.sum_univ_one]
   rw [ht, abs_of_nonneg (by positivity)]
   nlinarith [h0.1, hK]
 
@@ -384,8 +385,8 @@ theorem tailState_not_mem_core : tailState ∉ momFock.core := by
     have hnn : (0 : ℝ) ≤ ξ 0 := le_trans (by positivity) h0.1
     have hs : |momFock.scale (parcelMk 1 ξ)| = 3 * ξ 0 := by
       rw [momFock_scale]
-      simp only [parcelMk, Fin.sum_univ_one]
-      rw [abs_of_nonneg hnn, abs_of_nonneg (by positivity)]
+      show abs (3 * abs (∑ k : Fin 1, ξ k)) = 3 * ξ 0
+      rw [Fin.sum_univ_one, abs_of_nonneg hnn, abs_of_nonneg (by positivity)]
     have hbig : ¬ (|momFock.scale (parcelMk 1 ξ)| ≤ (n : ℝ)) := by
       rw [hs]
       have hge : (n : ℝ) + 1 ≤ ξ 0 := h0.1
@@ -462,7 +463,7 @@ theorem volume_sum_sq_level (n : ℕ) (hn : 0 < n) (a : ℝ) :
       rcases mul_eq_zero.1 hprod with h1 | h1
       · exact Or.inl (by simp only [Set.mem_setOf_eq]; linarith)
       · exact Or.inr (by simp only [Set.mem_setOf_eq]; linarith)
-    refine le_antisymm ?_ (zero_le _)
+    refine le_antisymm ?_ zero_le
     calc (volume : Measure (Fin n → ℝ)) {ξ : Fin n → ℝ | (∑ i, ξ i) ^ 2 = a}
         ≤ volume ({ξ : Fin n → ℝ | ∑ i, ξ i = Real.sqrt a}
             ∪ {ξ : Fin n → ℝ | ∑ i, ξ i = -Real.sqrt a}) := measure_mono hsub
@@ -564,7 +565,8 @@ theorem vacState_mem_core : vacState ∈ momFock.core := by
     apply hbig
     obtain ⟨ξ, -, rfl⟩ := hmem
     rw [momFock_scale]
-    simp [parcelMk]
+    show abs (3 * abs (∑ k : Fin 0, ξ k)) ≤ (↑(0:ℕ) : ℝ)
+    simp
   · exact Set.indicator_of_notMem hmem _
 
 /-- **The vacuum is an eigenvector of energy zero**, of norm one — so the bound
@@ -583,7 +585,9 @@ theorem momFock_vacuum_eigenvector :
     by_cases hmem : x ∈ vacSet
     · obtain ⟨ξ, -, rfl⟩ := hmem
       have h0 : momFock.total (parcelMk 0 ξ) = 0 := by
-        rw [momFock_total]; simp [parcelMk]
+        rw [momFock_total]
+        show 3 / 2 * (∑ k : Fin 0, ξ k) ^ 2 = 0
+        simp
       rw [h0]
       simp
     · rw [hx, Set.indicator_of_notMem hmem]

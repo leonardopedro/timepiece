@@ -281,7 +281,7 @@ theorem le_of_sq_le {a t b : ℝ} (ht : 0 ≤ t) (hb : 0 ≤ b)
   have h' : a ^ 2 ≤ (t * b) ^ 2 := by rw [mul_pow]; exact h
   exact le_of_sq_le_sq h' (by positivity)
 
-set_option maxHeartbeats 2000000 in
+set_option maxHeartbeats 8000000 in
 -- The proof assembles 24 momentum and 24 magnetic coordinate bounds inside the 99-variable
 -- Gauss-polynomial core, so the elaboration exceeds the default heartbeat budget.
 /-- **The quadratic form of the abelian gauge-fixed Yang–Mills Hamiltonian has infimum `0` on
@@ -399,7 +399,8 @@ theorem exists_core_state_small_energy (e : ℕ ≃ (Fin 99 →₀ ℕ)) {ε : �
         _ = 9 * (t * ‖pgLp P‖) := by simp; ring
     rw [hcoe]
     have hnn : 0 ≤ ‖pgLp (magPoly (fun _ _ _ => (0 : ℝ)) i a * P)‖ := norm_nonneg _
-    have hrhs : 0 ≤ 9 * (t * ‖pgLp P‖) := by positivity
+    have hrhs : 0 ≤ 9 * (t * ‖pgLp P‖) :=
+      mul_nonneg (by norm_num) (mul_nonneg ht0 (norm_nonneg _))
     nlinarith [hnorm, hnn, ht2, norm_nonneg (pgLp P)]
   -- assemble
   refine ⟨x, ?_, ?_⟩

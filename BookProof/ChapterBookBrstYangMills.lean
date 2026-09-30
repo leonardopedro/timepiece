@@ -236,7 +236,10 @@ theorem bosOpN_rsmul (r : ℝ) (T : Module.End ℂ (FieldPoly N)) :
     simp [Complex.real_smul]
   have h2 : ((r : ℂ)) • bosOpN T = (r : ℝ) • bosOpN T := by
     ext x
-    simp
+    first
+      | exact algebraMap_smul ℂ r (bosOpN T _)
+      | exact (algebraMap_smul ℂ r (bosOpN T _)).symm
+      | rfl
   rw [h1, bosOpN_smul, h2]
 
 theorem bosOpN_sum {n : ℕ} (T : Fin n → Module.End ℂ (FieldPoly N)) :

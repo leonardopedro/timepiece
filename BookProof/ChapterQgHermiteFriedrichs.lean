@@ -558,7 +558,24 @@ theorem hasDerivAt_polyEval_coordLine (p : MvPolynomial (Fin d) ℂ) (x : Vd d) 
       (MvPolynomial.eval (fun i => (((coordLine x j t) i : ℝ) : ℂ)) (pderiv j p)) t := by
   induction p using MvPolynomial.induction_on with
   | C a => simpa using hasDerivAt_const t (a : ℂ)
-  | add p q hp hq => simpa [map_add] using hp.add hq
+  | add p q hp hq =>
+      have hfun :
+          (fun s : ℝ => MvPolynomial.eval (fun i => (((coordLine x j s) i : ℝ) : ℂ)) p)
+            + (fun s : ℝ => MvPolynomial.eval (fun i => (((coordLine x j s) i : ℝ) : ℂ)) q)
+          = fun s : ℝ =>
+              MvPolynomial.eval (fun i => (((coordLine x j s) i : ℝ) : ℂ)) (p + q) := by
+        funext s
+        exact MvPolynomial.eval_add.symm
+      have hder :
+          MvPolynomial.eval (fun i => (((coordLine x j t) i : ℝ) : ℂ)) (pderiv j p)
+            + MvPolynomial.eval (fun i => (((coordLine x j t) i : ℝ) : ℂ)) (pderiv j q)
+          = MvPolynomial.eval (fun i => (((coordLine x j t) i : ℝ) : ℂ))
+            (pderiv j (p + q)) := by
+        rw [← MvPolynomial.eval_add, ← map_add]
+      have h1 := hp.add hq
+      rw [hfun] at h1
+      rw [hder] at h1
+      exact h1
   | mul_X p i hp =>
       have hcoord : HasDerivAt (fun s : ℝ => (((coordLine x j s) i : ℝ) : ℂ))
           (MvPolynomial.eval (fun k => (((coordLine x j t) k : ℝ) : ℂ))

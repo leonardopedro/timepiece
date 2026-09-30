@@ -77,7 +77,7 @@ def modeBasis (b : HilbertBasis ℕ ℂ F) : Basis ℕ ℂ (finiteModeDomain b) 
 
 @[simp] theorem modeBasis_coe (b : HilbertBasis ℕ ℂ F) (i : ℕ) :
     ((modeBasis b i : finiteModeDomain b) : F) = b i :=
-  Basis.span_apply _ i
+  Basis.coe_span_apply _ i
 
 /-- A core vector is the linear combination of the basis with its coordinates. -/
 theorem coe_eq_linearCombination (b : HilbertBasis ℕ ℂ F) (x : finiteModeDomain b) :

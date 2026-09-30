@@ -291,7 +291,9 @@ theorem ritzInf_finiteModeDomain_le (A : F →L[ℂ] F) (b : HilbertBasis ℕ �
     rw [dist_comm]
     exact (hydist n).le
   have hnorm : Tendsto (fun n => ‖y n‖) atTop (nhds 1) := by
-    simpa [hx1] using (continuous_norm.continuousAt.tendsto.comp hy)
+    have h := continuous_norm.continuousAt.tendsto.comp hy
+    rw [hx1] at h
+    exact h
   set u : ℕ → F := fun n => ‖y n‖⁻¹ • y n with hu
   have hutend : Tendsto u atTop (nhds x) := by
     have h1 : Tendsto (fun n => ‖y n‖⁻¹) atTop (nhds 1) := by

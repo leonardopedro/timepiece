@@ -451,6 +451,10 @@ theorem diagKR_secondOrder :
     secondOrder diagKR = diagOp (fun n => (3 / 2 : ℝ) * (n : ℝ) ^ 2) := by
   simp only [secondOrder, LagrangianFullData.kinetic, LagrangianFullData.viscous, diagKR,
     diagLagData, diagOp_comp, diagOp_sum, diagOp_real_smul, diagOp_add]
+  show ((((1 / 2 : ℝ) : ℂ) • ∑ i, diagOp fun n => (n : ℝ) * (n : ℝ))
+      + (((0 : ℝ) : ℂ) • ∑ i, diagOp fun n => (0 : ℝ) * (0 : ℝ)))
+      = diagOp fun n => (3 / 2 : ℝ) * (n : ℝ) ^ 2
+  simp only [diagOp_sum, diagOp_real_smul, diagOp_add]
   refine congrArg diagOp ?_
   funext n
   simp only [Fin.sum_univ_three]
@@ -458,6 +462,8 @@ theorem diagKR_secondOrder :
 
 theorem diagKR_drift : diagKR.drift = diagOp (fun n => 3 * (n : ℝ)) := by
   simp only [LagrangianFullData.drift, diagKR, diagLagData, diagOp_sum, diagOp_real_smul]
+  show ∑ i, (((1 : ℝ) : ℂ) • diagOp fun n => (n : ℝ)) = diagOp fun n => 3 * (n : ℝ)
+  simp only [diagOp_real_smul, diagOp_sum]
   refine congrArg diagOp ?_
   funext n
   simp only [Fin.sum_univ_three]

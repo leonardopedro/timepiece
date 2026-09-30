@@ -336,6 +336,7 @@ def toLpL : FockAlg →ₗ[ℂ] Fock where
   map_add' u v := by
     refine lp.ext (funext fun α => ?_)
     simp [toLp]
+    rfl
   map_smul' c u := by
     refine lp.ext (funext fun α => ?_)
     simp [toLp]

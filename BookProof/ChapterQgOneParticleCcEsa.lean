@@ -330,7 +330,8 @@ theorem contDiff_cut (R : ℝ) : ContDiff ℝ ((⊤ : ℕ∞) : WithTop ℕ∞) 
 theorem hasCompactSupport_cut {R : ℝ} (hR : 0 < R) : HasCompactSupport (cut d R) := by
   have h := (bump_spec d).2.1
   have hne : (R⁻¹ : ℝ) ≠ 0 := by positivity
-  simpa [cut] using h.comp_smul hne
+  have hc : HasCompactSupport (fun x : Vd d => bump d (R⁻¹ • x)) := h.comp_smul hne
+  exact hc
 
 theorem cut_eq_one {R : ℝ} (hR : 0 < R) {x : Vd d} (hx : ‖x‖ ≤ R) : cut d R x = 1 := by
   refine (bump_spec d).2.2.1 _ ?_
@@ -607,9 +608,30 @@ theorem tendsto_tailNorm {g : Vd d → ℝ} (hg : MemLp g 2 (volume : Measure (V
   have h2 : Filter.Tendsto
       (fun n : ℕ => eLpNorm (({z : Vd d | ‖z‖ ≤ (n : ℝ)}ᶜ).indicator g) 2 μ)
       Filter.atTop (nhds 0) := by
-    simp_rw [hrw]
-    simpa using ((ENNReal.continuous_rpow_const (y := 1 / (2 : ℝ))).tendsto 0).comp hlim
-  simpa using (ENNReal.tendsto_toReal (by simp)).comp h2
+    have heq : (fun n : ℕ => eLpNorm (({z : Vd d | ‖z‖ ≤ (n : ℝ)}ᶜ).indicator g) 2 μ)
+      = fun n : ℕ =>
+          (∫⁻ z, ‖(({z : Vd d | ‖z‖ ≤ (n : ℝ)}ᶜ).indicator g) z‖ₑ ^ (2 : ℝ) ∂μ) ^ (1 / (2 : ℝ)) := by
+      funext n
+      exact hrw n
+    have hlim' : Filter.Tendsto
+        (fun n : ℕ => (∫⁻ z, ‖(({z : Vd d | ‖z‖ ≤ (n : ℝ)}ᶜ).indicator g) z‖ₑ ^ (2 : ℝ) ∂μ)
+          ^ (1 / (2 : ℝ)))
+        Filter.atTop (nhds 0) := by
+      have h := ((ENNReal.continuous_rpow_const (y := (1 / 2 : ℝ))).tendsto 0).comp hlim
+      show Filter.Tendsto
+          ((fun a : ENNReal => a ^ (1 / 2)) ∘ fun n : ℕ =>
+            ∫⁻ z, ‖(({z : Vd d | ‖z‖ ≤ (n : ℝ)}ᶜ).indicator g) z‖ₑ ^ (2 : ℝ) ∂μ)
+          Filter.atTop (nhds 0)
+      simpa using h
+    rw [heq]
+    exact hlim'
+  have ht2 : Filter.Tendsto ENNReal.toReal (nhds 0) (nhds 0) :=
+    ENNReal.tendsto_toReal (by simp)
+  have h3 := ht2.comp h2
+  show Filter.Tendsto
+      (ENNReal.toReal ∘ fun n : ℕ => eLpNorm (({z : Vd d | ‖z‖ ≤ (n : ℝ)}ᶜ).indicator g) 2 μ)
+      Filter.atTop (nhds 0)
+  simpa using h3
 
 /-- A vector dominated by the tail of a square-integrable majorant has small norm. -/
 theorem norm_le_tailNorm {u : L2d d} {S : Set (Vd d)} {g : Vd d → ℝ}

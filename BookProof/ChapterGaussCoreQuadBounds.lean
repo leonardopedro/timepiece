@@ -410,6 +410,7 @@ theorem norm_mul_le_of_pointwise {f g : MvPolynomial (Fin D) ℂ} {lam : ℝ} (h
   have hrhs : 0 ≤ lam * ‖pgLp (g * p)‖ := mul_nonneg hlam (norm_nonneg _)
   nlinarith [norm_nonneg (pgLp (f * p))]
 
+set_option maxHeartbeats 800000 in
 /-- A family of real polynomials dominated pointwise *in the sum of squares* gives a
 dominated family of multiplication operators, in the sum of squares. -/
 theorem sum_norm_sq_mul_le_of_pointwise {R : Type*} [Fintype R]

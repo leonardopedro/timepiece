@@ -125,7 +125,14 @@ theorem tendsto_eLpNorm_indicator_compl (μ : Measure X) {g : X → ℝ} (hg : M
       (fun n => (((Lp.aestronglyMeasurable f).indicator (hmeasS n)).enorm).pow_const _)
       hdom hbdd hae
     simpa using hdct
-  simpa using ((ENNReal.continuous_rpow_const (y := 1 / (2 : ℝ))).tendsto 0).comp hlim
+  have h := ((ENNReal.continuous_rpow_const (y := 1 / (2 : ℝ))).tendsto 0).comp hlim
+  simp only [one_div] at h
+  rw [show (0 : ENNReal) ^ (2 : ℝ)⁻¹ = 0 from ENNReal.zero_rpow_of_pos (by norm_num)] at h
+  have hfun : ∀ I : ℕ → ENNReal,
+      (fun a : ENNReal => a ^ (2:ℝ)⁻¹) ∘ I = fun n => I n ^ (2:ℝ)⁻¹ := fun I => rfl
+  simp only [one_div]
+  rw [← hfun]
+  exact h
 
 /-- **The bounded-energy core is dense.**  Every square-integrable state is the
 `L²`-limit of its truncations to the regions where the energy is bounded, so the
@@ -337,10 +344,10 @@ theorem multOp_hasZeroDeficiencyOn (μ : Measure X) {g : X → ℝ} (hg : Measur
                   simp
               exact MemLp.of_le_mul humem
                 ((Complex.measurable_ofReal.comp hg).aestronglyMeasurable.mul hmeasu) hb
-            simpa using MemLp.integrable_mul (memLp_conj h1) (Lp.memLp w)
+            exact MemLp.integrable_mul (memLp_conj h1) (Lp.memLp w)
           have hint2 : Integrable
               (fun x => (starRingEnd ℂ) (u x) * (c * (w : X → ℂ) x)) μ := by
-            simpa using MemLp.integrable_mul (memLp_conj humem) ((Lp.memLp w).const_mul c)
+            exact MemLp.integrable_mul (memLp_conj humem) ((Lp.memLp w).const_mul c)
           have hsub : ∫ x, ((starRingEnd ℂ) ((g x : ℂ) * u x) * (w : X → ℂ) x
               - (starRingEnd ℂ) (u x) * (c * (w : X → ℂ) x)) ∂μ = 0 := by
             rw [integral_sub hint1 hint2, ← hid, sub_self]

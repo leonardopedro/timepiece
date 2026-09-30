@@ -79,6 +79,7 @@ namespace BookProof.FriedrichsExtension
 
 open BookProof.FarisLavine BookProof.YangMillsFriedrichs BookProof.HashimotoShiftInvert
 open BookProof.HermiteGalerkin
+open scoped InnerProductSpace ENNReal lp
 
 variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
 
@@ -189,7 +190,9 @@ def inclLin (P : PosSymOp F) : FormDom P →ₗ[ℂ] F where
 
 /-- The inclusion as a continuous linear map of norm at most one. -/
 noncomputable def incl (P : PosSymOp F) : FormDom P →L[ℂ] F :=
-  (inclLin P).mkContinuous 1 (fun x => by simpa using norm_toAmbient_le x)
+  (inclLin P).mkContinuous 1 (fun x => by
+    rw [one_mul]
+    exact norm_toAmbient_le x)
 
 @[simp] theorem incl_apply {P : PosSymOp F} (x : FormDom P) : incl P x = toAmbient x := rfl
 

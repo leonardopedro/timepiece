@@ -125,9 +125,13 @@ theorem ode_solution_eq_zero {V : ℝ → ℝ} (hVnn : ∀ x, 0 ≤ V x) {z : �
       (2 * (W x).re * (W' x).re + 2 * (W x).im * (W' x).im) x := by
     intro x
     have h1 : HasDerivAt (fun y => (W y).re ^ 2) (2 * (W x).re * (W' x).re) x := by
-      simpa [mul_comm, mul_assoc, mul_left_comm] using (hdp x).pow 2
+      have h := (hdp x).pow 2
+      show HasDerivAt ((fun y => (W y).re) ^ 2) _ x
+      simpa [mul_comm, mul_assoc, mul_left_comm] using h
     have h2 : HasDerivAt (fun y => (W y).im ^ 2) (2 * (W x).im * (W' x).im) x := by
-      simpa [mul_comm, mul_assoc, mul_left_comm] using (hdq x).pow 2
+      have h := (hdq x).pow 2
+      show HasDerivAt ((fun y => (W y).im) ^ 2) _ x
+      simpa [mul_comm, mul_assoc, mul_left_comm] using h
     exact h1.add h2
   have hdG : ∀ x, HasDerivAt (fun y => 2 * (W y).re * (W' y).re + 2 * (W y).im * (W' y).im)
       (2 * ((W' x).re ^ 2 + (W' x).im ^ 2) + 2 * V x * ((W x).re ^ 2 + (W x).im ^ 2)) x := by

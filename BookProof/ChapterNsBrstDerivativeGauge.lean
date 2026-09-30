@@ -369,7 +369,7 @@ theorem nsHamAlg_one_ne_zero (nu : ℂ) : nsHamAlg nu 1 ≠ 0 := by
   have hc := congrArg (MvPolynomial.coeff (Finsupp.single (NSVar.uD 0 0) 1)) h
   rw [MvPolynomial.coeff_sum] at hc
   rw [Finset.sum_eq_single (0 : Fin 3), MvPolynomial.coeff_X] at hc
-  · exact one_ne_zero hc
+  simp at hc
   · intro b _ hb
     rw [MvPolynomial.coeff_X']
     exact if_neg fun hh => hb (by
@@ -524,7 +524,17 @@ def nsBrstCohomologyMap (nu : ℂ) : nsBrstCohomology →ₗ[ℂ] nsBrstCohomolo
     simpa using hmem
   refine Submodule.mem_comap.2 ?_
   refine ⟨nsHamiltonian nu w, ?_⟩
-  simpa [hw] using (nsHamiltonian_mapsTo_range nu w).symm
+  first
+    | rfl
+    | exact (nsHamiltonian_mapsTo_range nu w).symm.trans
+        (by
+          first
+            | (simp only [hw, Submodule.subtype_apply, LinearMap.restrict_apply,
+                Subtype.coe_mk]; first | rfl | exact? | done)
+            | (simp only [hw, Submodule.subtype_apply, LinearMap.coe_restrict_apply,
+                Subtype.coe_mk]; first | rfl | exact? | done)
+            | exact?)
+    | exact?
 
 /-! ## 7. The charge is not zero -/
 

@@ -69,8 +69,12 @@ theorem stoneFlow_apply_eigenvector {T : UnboundedSelfAdjoint F} {U : ℝ → (F
     intro s
     obtain ⟨h, hd⟩ := hflow x hx s
     have hL : HasDerivAt φ (⟪x, (-Complex.I) • T.op ⟨U s x, h⟩⟫_ℂ) s := by
-      have := ((innerSL ℂ x).restrictScalars ℝ).hasFDerivAt.comp_hasDerivAt s hd
-      simpa [hφ] using this
+      have hthis := ((innerSL ℂ x).restrictScalars ℝ).hasFDerivAt.comp_hasDerivAt s hd
+      have hfun : (fun w : F => ⟪x, w⟫_ℂ) ∘ (fun s : ℝ => (U s) x)
+          = fun s => ⟪x, (U s) x⟫_ℂ := rfl
+      rw [hφ]
+      rw [← hfun]
+      exact hthis
     have hval : (⟪x, (-Complex.I) • T.op ⟨U s x, h⟩⟫_ℂ) = -(Complex.I * lam) * φ s := by
       rw [inner_smul_right]
       have hs := T.symmetric ⟨x, hx⟩ ⟨U s x, h⟩
@@ -87,7 +91,11 @@ theorem stoneFlow_apply_eigenvector {T : UnboundedSelfAdjoint F} {U : ℝ → (F
     have h1 : HasDerivAt (fun s : ℝ => Complex.I * lam * (s : ℂ)) (Complex.I * lam) s := by
       simpa using ((Complex.ofRealCLM.hasDerivAt (x := s)).const_mul (Complex.I * lam))
     have h2 := (h1.cexp).mul (hderiv s)
-    simpa [hg] using h2.congr_deriv (by ring)
+    have hm : (fun x : ℝ => Complex.exp (Complex.I * lam * x)) * φ
+        = fun s : ℝ => Complex.exp (Complex.I * lam * s) * φ s := rfl
+    simp [hg]
+    rw [← hm]
+    exact h2.congr_deriv (by ring)
   have hconst : g t = g 0 :=
     is_const_of_fderiv_eq_zero (fun s => (hgderiv s).differentiableAt)
       (fun s => by simpa using (hgderiv s).hasFDerivAt.fderiv) t 0

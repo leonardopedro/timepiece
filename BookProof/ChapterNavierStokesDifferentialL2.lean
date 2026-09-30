@@ -112,8 +112,8 @@ theorem hasDerivAt_gaussD_sec (i : Fin d) (x : Vd d) (t : ℝ) :
       exact h0.neg.div_const 4
     simpa using h
   have h2 := (Real.hasDerivAt_exp (-(S + t ^ 2) / 4)).comp t h1
-  convert h2 using 1
-  rw [gaussD, norm_sq_sec]
+  refine HasDerivAt.congr_deriv h2 ?_
+  rw [gaussD, norm_sq_sec, hS]
   ring
 
 /-- The derivative of a polynomial along one coordinate is the partial derivative. -/
@@ -123,12 +123,16 @@ theorem hasDerivAt_eval_update (i : Fin d) (p : MvPolynomial (Fin d) ℂ) (x : F
   classical
   induction p using MvPolynomial.induction_on with
   | C a => simpa using (hasDerivAt_const t (a : ℂ))
-  | add p q hp hq => simpa [map_add] using hp.add hq
+  | add p q hp hq =>
+      simp only [map_add]
+      exact hp.add hq
   | mul_X p j hp =>
       by_cases hj : j = i
       · subst hj
         have hX : HasDerivAt (fun s : ℂ => MvPolynomial.eval (Function.update x j s) (X j))
-            1 t := by simpa using hasDerivAt_id t
+            1 t := by
+          simp only [MvPolynomial.eval_X, Function.update_self]
+          exact hasDerivAt_id t
         have h := hp.mul hX
         have hpd : pderiv j (p * X j) = X j * pderiv j p + p := by
           rw [Derivation.leibniz]
@@ -137,7 +141,7 @@ theorem hasDerivAt_eval_update (i : Fin d) (p : MvPolynomial (Fin d) ℂ) (x : F
         rw [hpd]
         simp only [map_add, map_mul, MvPolynomial.eval_X, Function.update_self] at h ⊢
         convert h using 1
-        ring
+        all_goals first | rfl | ring
       · have hX : HasDerivAt (fun s : ℂ => MvPolynomial.eval (Function.update x i s) (X j))
             0 t := by
           simp only [MvPolynomial.eval_X, Function.update_apply, hj]
@@ -149,7 +153,7 @@ theorem hasDerivAt_eval_update (i : Fin d) (p : MvPolynomial (Fin d) ℂ) (x : F
         rw [hpd]
         simp only [map_mul, MvPolynomial.eval_X] at h ⊢
         convert h using 1
-        ring
+        all_goals first | rfl | ring
 
 theorem hasDerivAt_evalSec (i : Fin d) (p : MvPolynomial (Fin d) ℂ) (x : Vd d) :
     HasDerivAt (fun t : ℝ => MvPolynomial.eval (fun j => (((sec i x t) j : ℝ) : ℂ)) p)
@@ -194,10 +198,10 @@ theorem hasDerivAt_pgFun_sec (i : Fin d) (p : MvPolynomial (Fin d) ℂ) (x : Vd 
     funext t; simp [pgFun]
   rw [hfun]
   convert h using 1
-  rw [sec_self]
-  simp only [pgFun, map_sub, MvPolynomial.smul_eval, map_mul, MvPolynomial.eval_X]
-  push_cast
-  ring
+  all_goals first
+    | rfl
+    | (rw [sec_self]; simp only [pgFun, map_sub, MvPolynomial.smul_eval, map_mul,
+        MvPolynomial.eval_X]; push_cast; ring)
 
 /-! ## The polynomial coordinates of the core -/
 

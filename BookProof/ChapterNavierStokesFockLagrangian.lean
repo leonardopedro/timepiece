@@ -230,6 +230,7 @@ theorem mulD_comp (μ : Measure X) {g h₁ h₂ : X → ℝ} (hh₁ : Measurable
   simp only [LinearMap.comp_apply]
   rw [h1, h2, h3]
   push_cast
+  simp only [Pi.mul_apply, Complex.ofReal_mul]
   ring
 
 /-- Adding two multiplication operators adds the symbols. -/
@@ -246,6 +247,7 @@ theorem mulD_add (μ : Measure X) {g h₁ h₂ : X → ℝ} (hh₁ : Measurable 
   simp only [Pi.add_apply]
   rw [h1, h2, h3]
   push_cast
+  simp only [Pi.add_apply, Complex.ofReal_add]
   ring
 
 /-- A real multiple of a multiplication operator multiplies the symbol. -/
@@ -263,6 +265,7 @@ theorem mulD_real_smul (μ : Measure X) {g h : X → ℝ} (r : ℝ) (hh : Measur
   simp only [Pi.smul_apply, smul_eq_mul]
   rw [h1, h2]
   push_cast
+  simp only [Pi.mul_apply, Complex.ofReal_mul]
   ring
 
 /-! ### Flexible forms of the algebra, with the target symbol given explicitly -/
@@ -394,10 +397,10 @@ theorem mulD_hasZeroDeficiencyOn (μ : Measure X) {g h : X → ℝ} (hg : Measur
                   simp
               exact MemLp.of_le_mul humem
                 ((Complex.measurable_ofReal.comp hh).aestronglyMeasurable.mul hmeasu) hb
-            simpa using MemLp.integrable_mul (memLp_conj h1) (Lp.memLp w)
+            exact MemLp.integrable_mul (memLp_conj h1) (Lp.memLp w)
           have hint2 : Integrable
               (fun x => (starRingEnd ℂ) (u x) * (c * (w : X → ℂ) x)) μ := by
-            simpa using MemLp.integrable_mul (memLp_conj humem) ((Lp.memLp w).const_mul c)
+            exact MemLp.integrable_mul (memLp_conj humem) ((Lp.memLp w).const_mul c)
           have hsub : ∫ x, ((starRingEnd ℂ) ((h x : ℂ) * u x) * (w : X → ℂ) x
               - (starRingEnd ℂ) (u x) * (c * (w : X → ℂ) x)) ∂μ = 0 := by
             rw [integral_sub hint1 hint2, ← hid, sub_self]
@@ -701,15 +704,24 @@ theorem kinetic_eq : S.data.kinetic = mulD μ S.kinSym_meas S.kinSym_dom := by
       = mulD μ ((S.P_meas i).pow_const 2) (S.sq_dom i) := fun i =>
     mulD_comp' μ (S.P_meas i) (S.P_meas i) ((S.P_meas i).pow_const 2) (S.P_dom i)
       (S.P_dom i) (S.sq_dom i) fun x => by rw [pow_two]
+  have hfold : mulD μ ((S.P_meas 0).pow_const 2) (S.sq_dom 0)
+      + mulD μ ((S.P_meas 1).pow_const 2) (S.sq_dom 1)
+      + mulD μ ((S.P_meas 2).pow_const 2) (S.sq_dom 2)
+      = mulD μ (Finset.univ.measurable_sum fun i (_ : i ∈ Finset.univ) =>
+            (S.P_meas i).pow_const 2)
+          (DominatedOn.sum Finset.univ fun i _ => S.sq_dom i) := by
+    rw [mulD_add' μ ((S.P_meas 0).pow_const 2) ((S.P_meas 1).pow_const 2)
+        (((S.P_meas 0).pow_const 2).add ((S.P_meas 1).pow_const 2)) (S.sq_dom 0) (S.sq_dom 1)
+        ((S.sq_dom 0).add (S.sq_dom 1)) fun _ => rfl]
+    exact mulD_add' μ _ _ _ _ _ _ fun x => by
+      rw [Fin.sum_univ_three]
+      simp [Pi.add_apply]
   have hsum : (∑ i : Fin 3, (S.Pop i).comp (S.Pop i))
       = mulD μ (Finset.univ.measurable_sum fun i (_ : i ∈ Finset.univ) =>
             (S.P_meas i).pow_const 2)
           (DominatedOn.sum Finset.univ fun i _ => S.sq_dom i) := by
-    rw [Fin.sum_univ_three, hsq 0, hsq 1, hsq 2,
-      mulD_add' μ ((S.P_meas 0).pow_const 2) ((S.P_meas 1).pow_const 2)
-        (((S.P_meas 0).pow_const 2).add ((S.P_meas 1).pow_const 2)) (S.sq_dom 0) (S.sq_dom 1)
-        ((S.sq_dom 0).add (S.sq_dom 1)) fun _ => rfl]
-    exact mulD_add' μ _ _ _ _ _ _ fun x => by rw [Fin.sum_univ_three]
+    rw [Fin.sum_univ_three, hsq 0, hsq 1, hsq 2]
+    exact hfold
   have hkin : S.data.kinetic = ((1 / 2 : ℝ) : ℂ) • (∑ i : Fin 3, (S.Pop i).comp (S.Pop i)) := rfl
   rw [hkin, hsum]
   exact mulD_real_smul' μ (1 / 2 : ℝ) _ _ _ _ fun _ => rfl
@@ -720,15 +732,24 @@ theorem viscous_eq : S.data.viscous = mulD μ S.visSym_meas S.visSym_dom := by
       = mulD μ ((S.Q_meas i).pow_const 2) (S.sqQ_dom i) := fun i =>
     mulD_comp' μ (S.Q_meas i) (S.Q_meas i) ((S.Q_meas i).pow_const 2) (S.Q_dom i)
       (S.Q_dom i) (S.sqQ_dom i) fun x => by rw [pow_two]
+  have hfold : mulD μ ((S.Q_meas 0).pow_const 2) (S.sqQ_dom 0)
+      + mulD μ ((S.Q_meas 1).pow_const 2) (S.sqQ_dom 1)
+      + mulD μ ((S.Q_meas 2).pow_const 2) (S.sqQ_dom 2)
+      = mulD μ (Finset.univ.measurable_sum fun i (_ : i ∈ Finset.univ) =>
+            (S.Q_meas i).pow_const 2)
+          (DominatedOn.sum Finset.univ fun i _ => S.sqQ_dom i) := by
+    rw [mulD_add' μ ((S.Q_meas 0).pow_const 2) ((S.Q_meas 1).pow_const 2)
+        (((S.Q_meas 0).pow_const 2).add ((S.Q_meas 1).pow_const 2)) (S.sqQ_dom 0) (S.sqQ_dom 1)
+        ((S.sqQ_dom 0).add (S.sqQ_dom 1)) fun _ => rfl]
+    exact mulD_add' μ _ _ _ _ _ _ fun x => by
+      rw [Fin.sum_univ_three]
+      simp [Pi.add_apply]
   have hsum : (∑ i : Fin 3, (S.Qop i).comp (S.Qop i))
       = mulD μ (Finset.univ.measurable_sum fun i (_ : i ∈ Finset.univ) =>
             (S.Q_meas i).pow_const 2)
           (DominatedOn.sum Finset.univ fun i _ => S.sqQ_dom i) := by
-    rw [Fin.sum_univ_three, hsq 0, hsq 1, hsq 2,
-      mulD_add' μ ((S.Q_meas 0).pow_const 2) ((S.Q_meas 1).pow_const 2)
-        (((S.Q_meas 0).pow_const 2).add ((S.Q_meas 1).pow_const 2)) (S.sqQ_dom 0) (S.sqQ_dom 1)
-        ((S.sqQ_dom 0).add (S.sqQ_dom 1)) fun _ => rfl]
-    exact mulD_add' μ _ _ _ _ _ _ fun x => by rw [Fin.sum_univ_three]
+    rw [Fin.sum_univ_three, hsq 0, hsq 1, hsq 2]
+    exact hfold
   have hvis : S.data.viscous = ((S.nu : ℝ) : ℂ) • (∑ i : Fin 3, (S.Qop i).comp (S.Qop i)) := rfl
   rw [hvis, hsum]
   exact mulD_real_smul' μ S.nu _ _ _ _ fun _ => rfl
@@ -740,12 +761,23 @@ theorem drift_eq : S.data.drift = mulD μ S.driSym_meas S.driSym_dom := by
           (DominatedOn.const_mul (S.force i) (S.Dr_dom i)) := fun i =>
     mulD_real_smul' μ (S.force i) (S.Dr_meas i) _ (S.Dr_dom i) _ fun _ => rfl
   have hdri : S.data.drift = ∑ i : Fin 3, ((S.force i : ℝ) : ℂ) • S.Drop i := rfl
-  rw [hdri, Fin.sum_univ_three, hterm 0, hterm 1, hterm 2,
-    mulD_add' μ _ _ ((measurable_const.mul (S.Dr_meas 0)).add
+  have hfold : mulD μ (measurable_const.mul (S.Dr_meas 0))
+      (DominatedOn.const_mul (S.force 0) (S.Dr_dom 0))
+      + mulD μ (measurable_const.mul (S.Dr_meas 1))
+          (DominatedOn.const_mul (S.force 1) (S.Dr_dom 1))
+      + mulD μ (measurable_const.mul (S.Dr_meas 2))
+          (DominatedOn.const_mul (S.force 2) (S.Dr_dom 2))
+      = mulD μ S.driSym_meas S.driSym_dom := by
+    rw [mulD_add' μ _ _ ((measurable_const.mul (S.Dr_meas 0)).add
         (measurable_const.mul (S.Dr_meas 1))) _ _
       ((DominatedOn.const_mul (S.force 0) (S.Dr_dom 0)).add
         (DominatedOn.const_mul (S.force 1) (S.Dr_dom 1))) fun _ => rfl]
-  exact mulD_add' μ _ _ _ _ _ _ fun x => by simp only [driSym]; rw [Fin.sum_univ_three]
+    exact mulD_add' μ _ _ _ _ _ _ fun x => by
+      simp only [driSym]
+      rw [Fin.sum_univ_three]
+      simp [Pi.add_apply, Pi.mul_apply]
+  rw [hdri, Fin.sum_univ_three, hterm 0, hterm 1, hterm 2]
+  exact hfold
 
 /-- **The transformed Navier–Stokes Hamiltonian in the Lagrangian momentum
 representation is multiplication by the total Lagrangian symbol**
@@ -755,14 +787,24 @@ theorem hFull_eq_mulD : S.data.hFull = mulD μ S.total_meas S.total_dom := by
   have hdec : S.data.hFull
       = S.data.kinetic + S.data.viscous + S.data.drift + S.data.constraintOp := rfl
   have hcon : S.data.constraintOp = mulD μ S.c_meas S.c_dom := rfl
-  rw [hdec, S.kinetic_eq, S.viscous_eq, S.drift_eq, hcon,
+  have hfold1 : mulD μ S.kinSym_meas S.kinSym_dom + mulD μ S.visSym_meas S.visSym_dom
+      = mulD μ (S.kinSym_meas.add S.visSym_meas) (S.kinSym_dom.add S.visSym_dom) :=
     mulD_add' μ S.kinSym_meas S.visSym_meas (S.kinSym_meas.add S.visSym_meas) S.kinSym_dom
-      S.visSym_dom (S.kinSym_dom.add S.visSym_dom) fun _ => rfl,
+      S.visSym_dom (S.kinSym_dom.add S.visSym_dom) fun _ => rfl
+  have hfold2 : mulD μ (S.kinSym_meas.add S.visSym_meas) (S.kinSym_dom.add S.visSym_dom)
+        + mulD μ S.driSym_meas S.driSym_dom
+      = mulD μ ((S.kinSym_meas.add S.visSym_meas).add S.driSym_meas)
+          ((S.kinSym_dom.add S.visSym_dom).add S.driSym_dom) :=
     mulD_add' μ (S.kinSym_meas.add S.visSym_meas) S.driSym_meas
       ((S.kinSym_meas.add S.visSym_meas).add S.driSym_meas)
       (S.kinSym_dom.add S.visSym_dom) S.driSym_dom
-      ((S.kinSym_dom.add S.visSym_dom).add S.driSym_dom) fun _ => rfl]
-  exact mulD_add' μ _ _ _ _ _ _ fun _ => rfl
+      ((S.kinSym_dom.add S.visSym_dom).add S.driSym_dom) fun _ => rfl
+  have hfold3 : mulD μ ((S.kinSym_meas.add S.visSym_meas).add S.driSym_meas)
+            ((S.kinSym_dom.add S.visSym_dom).add S.driSym_dom)
+        + mulD μ S.c_meas S.c_dom = mulD μ S.total_meas S.total_dom :=
+    mulD_add' μ _ _ _ _ _ _ fun _ => rfl
+  rw [hdec, S.kinetic_eq, S.viscous_eq, S.drift_eq, hcon]
+  exact hfold1 ▸ (hfold2 ▸ hfold3)
 
 /-- **The headline.  The untruncated transformed Navier–Stokes Hamiltonian is
 essentially self-adjoint in the Lagrangian momentum representation.**

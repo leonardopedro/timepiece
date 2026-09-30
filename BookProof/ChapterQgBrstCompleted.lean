@@ -127,7 +127,7 @@ include hw hinj in
 /-- The weighted shift as a linear map on `ℓ²`. -/
 def wshiftL : L2 ι →ₗ[ℂ] L2 ι where
   toFun f := ⟨fun i => w i * f (e i), memlp_weighted w e hw hinj f⟩
-  map_add' f g := by ext i; simp [mul_add]
+  map_add' f g := by ext i; simp only [lp.coeFn_add, Pi.add_apply, mul_add]
   map_smul' c f := by ext i; simp [mul_left_comm]
 
 @[simp] theorem wshiftL_apply (f : L2 ι) (i : ι) : (wshiftL w e hw hinj f) i = w i * f (e i) := rfl

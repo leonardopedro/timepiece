@@ -170,9 +170,7 @@ theorem isGraphCore_clDom (A : D →ₗ[ℂ] Hs.carrier) (hdense : Dense (D : Se
     (hsym : SymmetricOn D A) : IsGraphCore D (clExt A hdense hsym) := by
   intro x ε hε
   have hmem : ((x : Hs.carrier), clFun A x) ∈ closure ((opGraph A : Submodule ℂ _) :
-      Set (Hs.carrier × Hs.carrier)) := by
-    have := clFun_spec A x
-    simpa [clGraph, Submodule.topologicalClosure_coe] using this
+      Set (Hs.carrier × Hs.carrier)) := clFun_spec A x
   obtain ⟨p, hp, hdist⟩ := Metric.mem_closure_iff.mp hmem ε hε
   obtain ⟨v, rfl⟩ : ∃ v : D, ((v : Hs.carrier), A v) = p := by
     obtain ⟨v, hv⟩ := hp

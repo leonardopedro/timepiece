@@ -269,7 +269,8 @@ theorem gcSeq_ext_tendsto (x : d.C.dom) :
     Tendsto (fun k => d.ext (d.gcSeq x k)) atTop (𝓝 (d.ext x)) := by
   have hs : Tendsto (fun k => d.C.op (d.gcSeq x k) + ((d.gcSeq x k : d.C.dom) : F)) atTop
       (𝓝 (d.C.op x + (x : F))) := (d.gcSeq_op_tendsto x).add (d.gcSeq_tendsto x)
-  simpa only [ext_apply] using (d.extCLM.continuous.tendsto _).comp hs
+  simp only [ext_apply]
+  exact (d.extCLM.continuous.tendsto _).comp hs
 
 theorem ext_gcSeq (x : d.C.dom) (k : ℕ) :
     d.ext (d.gcSeq x k) = d.H₀ ⟨((d.gcSeq x k : d.C.dom) : F), d.gcSeq_mem x k⟩ := by
@@ -306,7 +307,8 @@ theorem ext_commForm_tendsto (x : d.C.dom) :
   have h2 : Tendsto (fun k => (inner ℂ (d.C.op (d.gcSeq x k)) (d.ext (d.gcSeq x k)) : ℂ))
       atTop (𝓝 (inner ℂ (d.C.op x) (d.ext x))) :=
     (d.gcSeq_op_tendsto x).inner (d.gcSeq_ext_tendsto x)
-  simpa only [commForm] using (Complex.reCLM.continuous.tendsto _).comp
+  simp only [commForm]
+  exact (Complex.reCLM.continuous.tendsto _).comp
     (((h1.sub h2).const_mul Complex.I))
 
 theorem quadForm_tendsto (x : d.C.dom) :
@@ -314,7 +316,8 @@ theorem quadForm_tendsto (x : d.C.dom) :
   have h1 : Tendsto (fun k => (inner ℂ ((d.gcSeq x k : d.C.dom) : F)
       (d.C.op (d.gcSeq x k)) : ℂ)) atTop (𝓝 (inner ℂ (x : F) (d.C.op x))) :=
     (d.gcSeq_tendsto x).inner (d.gcSeq_op_tendsto x)
-  simpa only [quadForm] using (Complex.reCLM.continuous.tendsto _).comp h1
+  simp only [quadForm]
+  exact (Complex.reCLM.continuous.tendsto _).comp h1
 
 theorem ext_commForm_le {c : ℝ}
     (hcomm : ∀ p : d.C₀, |commForm d.H₀ d.coreN p| ≤ c * quadForm d.coreN p)

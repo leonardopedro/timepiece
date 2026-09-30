@@ -613,7 +613,7 @@ end Headline
 
 section Example
 
-open scoped InnerProductSpace ENNReal
+open scoped InnerProductSpace ENNReal lp
 
 /-! ### The diagonal operator on `ℓ²(ℕ, ℂ)` -/
 
@@ -634,7 +634,7 @@ bounded by one, as a linear map. -/
 noncomputable def diagLin {c : ℕ → ℝ} (hc : ∀ n, |c n| ≤ 1) : ℓ²(ℕ, ℂ) →ₗ[ℂ] ℓ²(ℕ, ℂ) where
   toFun x := ⟨fun n => (c n : ℂ) * x n, memlp_diagFun hc x⟩
   map_add' x y := by
-    apply lp.ext; funext n; simp [mul_add]
+    apply lp.ext; funext n; simp [mul_add]; rfl
   map_smul' a x := by
     apply lp.ext; funext n; simp; ring
 

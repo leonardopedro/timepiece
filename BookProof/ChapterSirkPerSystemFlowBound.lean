@@ -375,7 +375,7 @@ theorem isSirkScheme_trivial (X : E →L[ℂ] E) (V : G →L[ℂ] E)
   have hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ G :=
     adjoint_comp_self_of_isometry V hViso
   have hcid : compress V (ContinuousLinearMap.id ℂ E) = ContinuousLinearMap.id ℂ G := by
-    ext x; simpa using congrArg (fun f : G →L[ℂ] G => f x) hVV
+    rw [compress, ContinuousLinearMap.id_comp, hVV]
   refine ⟨hViso, hinvX, fun x => ⟨x, rfl⟩, by ext x; simp, ?_, ?_, ?_⟩
   · rw [hcid]; ext x; simp
   · intro _

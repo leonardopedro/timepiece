@@ -160,6 +160,7 @@ def cAnnL (i : ℕ) : CFock →ₗ[ℂ] CFock where
   toFun ψ := ⟨annFun i ψ, memLp_annFun i ψ⟩
   map_add' x y := by
     refine lp.ext (funext fun S => ?_)
+    show (annFun i (x + y)) S = (annFun i x + annFun i y) S
     by_cases h : i ∈ S <;> simp [annFun, h, mul_add]
   map_smul' c x := by
     refine lp.ext (funext fun S => ?_)
@@ -170,6 +171,7 @@ def cCreL (i : ℕ) : CFock →ₗ[ℂ] CFock where
   toFun ψ := ⟨creFun i ψ, memLp_creFun i ψ⟩
   map_add' x y := by
     refine lp.ext (funext fun S => ?_)
+    show (creFun i (x + y)) S = (creFun i x + creFun i y) S
     by_cases h : i ∈ S <;> simp [creFun, h, mul_add]
   map_smul' c x := by
     refine lp.ext (funext fun S => ?_)
@@ -217,10 +219,14 @@ def cCre (i : ℕ) : CFock →L[ℂ] CFock := (cCreL i).mkContinuous 1 (norm_cCr
     (cCre i ψ) S = if i ∈ S then jwSign i S * ψ (S.erase i) else 0 := rfl
 
 theorem norm_cAnn_le (i : ℕ) (ψ : CFock) : ‖cAnn i ψ‖ ≤ ‖ψ‖ := by
-  simpa using norm_cAnnL_le i ψ
+  have h := norm_cAnnL_le i ψ
+  rw [one_mul] at h
+  exact h
 
 theorem norm_cCre_le (i : ℕ) (ψ : CFock) : ‖cCre i ψ‖ ≤ ‖ψ‖ := by
-  simpa using norm_cCreL_le i ψ
+  have h := norm_cCreL_le i ψ
+  rw [one_mul] at h
+  exact h
 
 /-! ## 2. The canonical anticommutation relations -/
 

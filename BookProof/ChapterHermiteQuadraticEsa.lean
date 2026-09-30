@@ -644,7 +644,9 @@ theorem tendsto_starobinskyV_div_sq (M alpha : ℝ) :
     field_simp
   have hderiv : HasDerivAt (fun phi : ℝ => 1 - Real.exp (-(k * phi))) k 0 := by
     have h1 : HasDerivAt (fun phi : ℝ => -(k * phi)) (-k) 0 := by
-      simpa using ((hasDerivAt_id (0 : ℝ)).const_mul k).neg
+      have h := ((hasDerivAt_id (0 : ℝ)).const_mul k).neg
+      show HasDerivAt (-fun y : ℝ => k * y) (-k) 0
+      simpa using h
     have h2 := (Real.hasDerivAt_exp (-(k * 0))).comp 0 h1
     simpa using h2.const_sub 1
   have hslope : Filter.Tendsto

@@ -71,7 +71,7 @@ theorem dom_le_formDomain (P : PosSymOp F) : P.dom ≤ formDomain P := by
   intro v hv
   refine ⟨((show FormDom P from ⟨v, hv⟩ : FormDom P) : FormSpace P), ?_⟩
   simp only [ContinuousLinearMap.coe_coe]
-  rw [formExt_coe]
+  erw [formExt_coe]
   rfl
 
 /-- **The domain of the Friedrichs extension**: the range of the form resolvent
@@ -106,7 +106,8 @@ theorem friedrichsOp_resolvent (P : PosSymOp F) (hdense : Dense (P.dom : Set F))
   have hpre : preim (friedrichsResolvent P)
       ⟨friedrichsResolvent P u, resolvent_mem_friedrichsDomain P u⟩ = u :=
     preim_eq _ (friedrichsResolvent_injective P hdense) _ rfl
-  rw [friedrichsOp_apply, hpre]
+  rw [friedrichsOp_apply]
+  erw [hpre]
   push_cast
   module
 
@@ -513,6 +514,7 @@ end QG
 noncomputable section Example
 
 open BookProof.HermiteGalerkin
+open scoped lp
 
 /-- The genuinely unbounded diagonal operator `A eₙ = n eₙ` on `ℓ²(ℕ, ℂ)`, on the
 finite-mode domain, as a positive symmetric operator. -/

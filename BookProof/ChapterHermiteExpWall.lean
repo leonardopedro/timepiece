@@ -315,7 +315,7 @@ theorem quadForm_scalaron_ge (M alpha : ℝ) (hM : 0 < M) (halpha : 0 < alpha) (
     rw [integral_congr_ae (Filter.Eventually.of_forall hid), integral_const_mul]
     congr 1
     have hA : Integrable (fun x : ℝ => P x - 2 * (Real.exp (-s * x) * P x)) := by
-      simpa using hPint.sub (hI1.const_mul 2)
+      exact hPint.sub (hI1.const_mul 2)
     rw [integral_add hA hI2, integral_sub hPint (hI1.const_mul 2), integral_const_mul]
   have hPm : ∫ x, P x = gaussMoment (2 * N) := by
     rw [gaussMoment_eq_integral]
@@ -470,7 +470,6 @@ theorem osc_psi (m : ℕ) :
       = gaussPoly (oscQ m (aCoef m) (bCoef m)) := by
   funext x
   have h := congrFun (neg_deriv2_psi m) x
-  simp only at h
   rw [h, psi_apply]
   simp only [kinQ, gaussPoly, Polynomial.eval_sub, Polynomial.eval_mul, Polynomial.eval_C,
     Polynomial.eval_pow, Polynomial.eval_X]

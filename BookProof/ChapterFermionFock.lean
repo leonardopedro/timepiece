@@ -411,7 +411,8 @@ def toLpFL : FermiAlg →ₗ[ℂ] FermiFock where
   toFun := toLpF
   map_add' u v := by
     refine lp.ext (funext fun S => ?_)
-    simp [toLpF]
+    simp [toLpF, Pi.add_apply]
+    try rfl
   map_smul' c u := by
     refine lp.ext (funext fun S => ?_)
     simp [toLpF]

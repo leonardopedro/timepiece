@@ -562,7 +562,10 @@ theorem exists_rotConj_eigenvalues {A : Matrix (Fin d) (Fin d) ℝ} (hA : A.IsHe
   refine ⟨(hA.eigenvectorUnitary : Matrix (Fin d) (Fin d) ℝ), ?_, ?_⟩
   · have hu := hA.eigenvectorUnitary.2
     rw [Unitary.mem_iff] at hu
-    simpa [Matrix.star_eq_conjTranspose, Matrix.conjTranspose] using hu.1
+    have hkey : star (hA.eigenvectorUnitary : Matrix (Fin d) (Fin d) ℝ)
+        = (hA.eigenvectorUnitary : Matrix (Fin d) (Fin d) ℝ)ᵀ := rfl
+    rw [← hkey]
+    exact hu.1
   · have hspec := hA.spectral_theorem
     rw [Unitary.conjStarAlgAut_apply] at hspec
     have hd : (Matrix.diagonal (RCLike.ofReal ∘ hA.eigenvalues) : Matrix (Fin d) (Fin d) ℝ)

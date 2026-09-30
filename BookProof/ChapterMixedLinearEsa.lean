@@ -800,10 +800,9 @@ lemma hasDerivAt_polyPhase_line (c : ℕ → ℝ) (n : ℕ) {m : V} (hm : m ≠ 
       exact h
     have h2 := ((h1.const_mul (c i)).div_const (((i : ℝ) + 1) * ‖m‖ ^ 2)).neg
     have hi0 : ((i : ℝ) + 1) ≠ 0 := by positivity
+    have hD : ((i : ℝ) + 1) * ‖m‖ ^ 2 ≠ 0 := mul_ne_zero hi0 hD0
     convert h2 using 1
-    all_goals first | rfl
-      | (rw [neg_inj, eq_div_iff (mul_ne_zero hi0 hD0)]; ring)
-      | (field_simp; ring) | trace_state
+    all_goals first | rfl | (rw [neg_inj, eq_div_iff hD]; ring) | (field_simp; ring) | trace_state
   have hsum := HasDerivAt.sum hterm
   have hfe : (∑ i ∈ Finset.range n, fun t : ℝ =>
         -(c i * ((inner ℝ x m : ℝ) + t * ‖m‖ ^ 2) ^ (i + 1) / (((i : ℝ) + 1) * ‖m‖ ^ 2)))

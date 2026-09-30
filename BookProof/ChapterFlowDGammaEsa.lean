@@ -146,18 +146,27 @@ def tmulRlin : E₁ →ₗ[ℝ] E₂ →ₗ[ℝ] (E₁ ⊗[ℂ] E₂) where
 def tmulL : E₁ →L[ℝ] E₂ →L[ℝ] (E₁ ⊗[ℂ] E₂) :=
   LinearMap.mkContinuous₂ (tmulRlin E₁ E₂) 1 (by
     intro x y
-    simp [tmulRlin, TensorProduct.norm_tmul])
+    change ‖x ⊗ₜ[ℂ] y‖ ≤ 1 * ‖x‖ * ‖y‖
+    rw [TensorProduct.norm_tmul, one_mul])
 
 variable {E₁ E₂}
 
-/-- **The product rule for elementary tensors.** -/
+@[simp]
+lemma tmulL_apply (a : E₁) (b : E₂) : tmulL E₁ E₂ a b = a ⊗ₜ[ℂ] b := rfl
+
+local instance : ContinuousSMul ℝ (E₁ ⊗[ℂ] E₂) := by
+  have h : IsBoundedSMul ℝ (E₁ ⊗[ℂ] E₂) := NormedSpace.toIsBoundedSMul
+  haveI := h
+  exact IsBoundedSMul.continuousSMul
+
+set_option maxHeartbeats 2000000 in
+/-- **The product rule for elementary tensors.**  `tmulL` is the bounded bilinear
+tensor multiplication `a b ↦ a ⊗ₜ b`; `ContinuousLinearMap.hasDerivAt_of_bilinear`
+applied to its flip gives the Leibniz rule with the summands in the stated order. -/
 theorem hasDerivAt_tmul {f : ℝ → E₁} {g : ℝ → E₂} {f' : E₁} {g' : E₂} {t : ℝ}
     (hf : HasDerivAt f f' t) (hg : HasDerivAt g g' t) :
-    HasDerivAt (fun s => (f s) ⊗ₜ[ℂ] (g s)) (f' ⊗ₜ[ℂ] (g t) + (f t) ⊗ₜ[ℂ] g') t := by
-  have hc : HasDerivAt (fun s => tmulL E₁ E₂ (f s)) (tmulL E₁ E₂ f') t :=
-    (tmulL E₁ E₂).hasFDerivAt.comp_hasDerivAt t hf
-  have h := hc.clm_apply hg
-  simpa [tmulL, tmulRlin] using h
+    HasDerivAt (fun s => (f s) ⊗ₜ[ℂ] (g s)) (f' ⊗ₜ[ℂ] (g t) + (f t) ⊗ₜ[ℂ] g') t :=
+  (tmulL E₁ E₂).flip.hasDerivAt_of_bilinear (fun _ => hg) (fun _ => hf)
 
 end TmulDeriv
 
@@ -291,9 +300,13 @@ theorem hasDerivAt_tpow : ∀ (n : ℕ) (x : ((domSpace Hs D₂).pow n)) (t : �
       have h : HasDerivAt (fun _ : ℝ => inclPow Hs D₂ 0 x) 0 t := hasDerivAt_const _ _
       have heq : (fun s : ℝ => inclPow Hs D₂ 0 (tpow P s 0 x))
           = fun _ : ℝ => inclPow Hs D₂ 0 x := rfl
-      rw [heq]
+      rw [heq, derPow_zero]
       simpa using h
   | succ n ih =>
+      haveI : ContinuousSMul ℝ (Hs.pow (n + 1)).carrier := by
+        have h : IsBoundedSMul ℝ (Hs.pow (n + 1)).carrier := NormedSpace.toIsBoundedSMul
+        haveI := h
+        exact IsBoundedSMul.continuousSMul
       have hpure : ∀ (a : D₂) (b : ((domSpace Hs D₂).pow n)) (t : ℝ),
           HasDerivAt (fun s : ℝ => inclPow Hs D₂ (n + 1) (tpow P s (n + 1) (a ⊗ₜ[ℂ] b)))
             ((-Complex.I) • derPow Hs D₂ A (n + 1) (tpow P t (n + 1) (a ⊗ₜ[ℂ] b))) t := by
@@ -328,10 +341,21 @@ theorem hasDerivAt_tpow : ∀ (n : ℕ) (x : ((domSpace Hs D₂).pow n)) (t : �
       induction hx using Submodule.span_induction with
       | mem y hy => obtain ⟨p, q, rfl⟩ := hy; exact hpure p q t
       | zero =>
-          have h : HasDerivAt (fun _ : ℝ => (0 : (Hs.pow (n + 1)).carrier)) 0 t :=
-            hasDerivAt_const _ _
-          simpa using h
-      | add a b _ _ ha hb => simpa [map_add, smul_add] using ha.add hb
+          have heq : (fun s : ℝ => inclPow Hs D₂ (n + 1) (tpow P s (n + 1) 0))
+              = fun _ : ℝ => inclPow Hs D₂ (n + 1) (0 : _) := by
+            funext s
+            simp [tpow_succ]
+          rw [heq]
+          rw [show (-Complex.I) • derPow Hs D₂ A (n + 1) (tpow P t (n + 1) 0)
+              = (0 : (Hs.pow (n + 1)).carrier) by simp [tpow_succ]]
+          exact hasDerivAt_const _ _
+      | add a b _ _ ha hb =>
+          have h := ha.add hb
+          rw [show (fun s : ℝ => inclPow Hs D₂ (n + 1) (tpow P s (n + 1) a))
+                + (fun s : ℝ => inclPow Hs D₂ (n + 1) (tpow P s (n + 1) b))
+                = fun s : ℝ => inclPow Hs D₂ (n + 1) (tpow P s (n + 1) a)
+                    + inclPow Hs D₂ (n + 1) (tpow P s (n + 1) b) from rfl] at h
+          simpa [map_add, smul_add] using h
       | smul c a _ ha =>
           have h := ha.const_smul c
           have hfun : (c • fun s : ℝ => inclPow Hs D₂ (n + 1) (tpow P s (n + 1) a))
