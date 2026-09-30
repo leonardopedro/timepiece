@@ -8,6 +8,34 @@ open Verso.Genre.Manual.InlineLean
 tag := "ode-chapter"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The single chapter of the ODE part, and the book's most explicit exercise in
+honesty about verification: read its "What Is Verified, and What Is Open"
+section carefully — the `Singularity` library is `sorry`-free, but it splits
+into genuine theorems (the complexification resolution, the spectral energy
+bound) and algebraic certificates (the flow-completeness flags) that must not
+be read as analytic results. It is also the conceptual bridge to the numerical
+SIRK solver work: the detection pipeline and the change-of-variables strategy
+described here are the ideas the companion solver implements.
+:::
+
+:::paragraph
+The route: the blow-up of $`x' = x^2`, the central idea (admit uncertainty in
+the initial data), Koopman–von Neumann mechanics, Weyl quantization (from ODE
+to Hamiltonian), Nelson's theorem and the $`x^2` Hamiltonian, the resolution by
+complexification, the verified-versus-open account, and the algorithmic side
+(singularity detection, coordinate transformations, the full analysis
+pipeline, validation cases) with its price: non-determinism.
+:::
+
+:::paragraph
+The operator core rests on the Stone chapters
+(`BookProof/ChapterStoneBridge`, `ChapterStoneFlows`, `ChapterStoneResolvent`,
+`ChapterStoneSeparable`).
+:::
+
 This chapter replaces the ODE chapter of the source manuscript. It follows the
 expanded, operator-theoretic treatment of `ODE.tex`, and is honest about which parts
 are formally verified and which remain open (see the proof-plan appendix).

@@ -8,6 +8,36 @@ open Verso.Genre.Manual.InlineLean
 tag := "diffeomorphisms-gravity"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The gravity chapter: the manuscript's diffeomorphism/`3+1` programme carried to
+a gauge-fixed field-space Hamiltonian and its BRST charge — the heaviest
+construction in the part, and the one the companion solver work validates
+numerically. It needs the BRST vocabulary of
+{ref "gauge-symmetry"}[the gauge-symmetry chapter]; the derivative-variable
+thread ({ref "fourier-elimination"}[Fourier elimination] and after) explains
+the convention this chapter uses for its derivative variables.
+:::
+
+:::paragraph
+The route: the 3+1 split, the induced spatial metric and its irreducible
+decomposition, the densitized tetrad variables and the flat principal part, the
+Starobinsky potentials and the flow of the regularized conformal mode, the
+scalaron wall and the compactly supported core, the gauge-fixed field-space
+Hamiltonian and its BRST charge, fixing the derivative variables (the torsion
+becomes linear), the graded Fock space of bosons and ghosts, and the BRST
+charge on the completed space with the reduced transfer.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterGravity*` (split, metric, projectors, inverse),
+the `QuantumGravity*` / `Qg*` family (densitized, Fock, BRST completed,
+symmetric sector, vielbein–scalaron), the `Scalaron*` and `Starobinsky`
+chapters, and the quadratic/Hermite/Carleman operator chapters that the
+field-space Hamiltonian rests on.
+:::
+
 # The Question
 
 :::paragraph

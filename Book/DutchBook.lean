@@ -15,6 +15,22 @@ The Dutch-book result is a finite sample-space theorem. It establishes the preci
 coherence/probability equivalence used by the manuscript, while continuous-space
 and decision-theoretic extensions require separate measure and utility hypotheses.
 
+:::paragraph
+This chapter opens the probability part of the tour and fixes its *target*:
+every later construction — above all the wave-function parametrization — must
+land inside the coherent price systems, i.e. inside the simplex. It is
+self-contained; the route is the question (why bookies force a probability), the
+formal setup, the sketch proof, the verified statement, and two closing
+readings: why the result matters here, and why the *rules* are objective while
+the *priors* are not.
+:::
+
+:::paragraph
+The proof is `BookProof/ChapterDutchBook`. A reader in a hurry can read this
+chapter and {ref "total-variance"}[the law of total variance] alone for the
+conceptual core of the part.
+:::
+
 # The Question
 
 :::paragraph

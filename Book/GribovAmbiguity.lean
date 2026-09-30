@@ -15,6 +15,24 @@ field theory. This chapter keeps those levels separate: the abelian gauge-invari
 and number-shift identities are verified, whereas a global non-abelian gauge-fixing
 and a continuum Yang--Mills mass-gap theorem are not yet formalized.
 
+:::paragraph
+In the tour this chapter closes the Standard-Model thread of the part, after
+{ref "quantization-time-evolution"}[quantization by time-evolution]. It is the
+place where the *mass gap* of the programme is stated at the abelian level and
+checked against the companion numerical validation, and the algebraic-ideals
+view of gauge at the end is the vocabulary the gravity chapter later reuses.
+:::
+
+:::paragraph
+The route: the question, the abelian field strength and gauge invariance, the
+mass gap and observable invariance, the mass gap in the numerical validation,
+and the algebraic-ideals view of gauge.
+:::
+
+:::paragraph
+The proofs are `BookProof/FreeEMField` and `BookProof/MassGap`.
+:::
+
 # The Question
 
 :::paragraph

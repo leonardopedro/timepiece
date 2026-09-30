@@ -8,6 +8,20 @@ open Verso.Genre.Manual.InlineLean
 tag := "bijection-probability"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The second chapter of the arrow-of-time argument: a random map is almost surely
+non-invertible. With {ref "irreversibility"}[the previous chapter] this makes
+irreversibility *generic*, and {ref "null-measure"}[the next chapter] adds the
+measure-theoretic caution that keeps the argument honest.
+:::
+
+:::paragraph
+The route: counting maps and bijections, the probability of invertibility, and
+the sharp asymptotic by Stirling's formula.
+:::
+
 # Counting Maps and Bijections
 
 The previous chapter showed that an irreversible deterministic dynamics is an

@@ -9,6 +9,31 @@ open Verso.Genre.Manual.InlineLean
 tag := "sequential-bayes"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The second instrument of the probability part: the coherence property that
+makes a posterior a genuine state of knowledge — updating in any order gives the
+same answer. It follows {ref "dutch-book"}[the Dutch-book chapter] (which fixed
+the simplex as the target) and precedes
+{ref "max-entropy"}[the maximum-entropy chapter], which builds on the uniform
+prior characterized here.
+:::
+
+:::paragraph
+The route: one-piece-at-a-time updating and its associativity, the sketch proof,
+the verified statement, the fact that every prior is a posterior from the
+uniform prior, the precise sense in which non-informativeness is
+coordinate-dependent, why the uniform prior is special only within a
+parametrization — and the exception that the later physics leans on:
+infinite-dimensional spaces need the Mehler formalism of
+{ref "solovay-tensor"}[the Solovay–Kopperman chapter].
+:::
+
+:::paragraph
+The proof is `BookProof/ChapterSequentialBayes`.
+:::
+
 # Updating One Piece of Evidence at a Time
 
 :::paragraph

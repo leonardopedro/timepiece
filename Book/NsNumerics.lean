@@ -8,6 +8,28 @@ open Verso.Genre.Manual.InlineLean
 tag := "ns-numerics"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The Navier–Stokes numerics companion of the part: what the SIRK measurements
+on the NS generator actually measure, and how they sit against the analytic
+statements of {ref "ns-one-particle-hamiltonian"}[the operator chapters] and
+{ref "sirk-reliability"}[the reliability chapter]. Like the constants suite
+next in the tour, it closes with what is verified and what is open.
+:::
+
+:::paragraph
+The route: what the NS numerics measure, the laminar decay rate (diffusive
+decay of the parabolic part), advection symmetry (the generator is a
+Hamiltonian), and the turbulence laws (energy bookkeeping on the truncation).
+:::
+
+:::paragraph
+The verified pieces are `BookProof/ChapterSirkDiffusiveDecay` and the
+`BookProof/NavierStokesEulerian` / `BookProof/NavierStokesFlow` statements the
+measurements are compared against.
+:::
+
 # What the NS Numerics Measure
 
 :::paragraph

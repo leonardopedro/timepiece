@@ -8,6 +8,31 @@ open Verso.Genre.Manual.InlineLean
 tag := "qg-elimination"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The derivative-variables thread's service for gravity: the same elimination
+that {ref "fourier-elimination"}[the Fourier-elimination chapter] states as
+strategy is carried out here for the vielbein sector of the $`R^2`
+Starobinsky model — deleting twenty-seven derivative components per momentum
+while reproducing the vielbein self-interaction and the scalaron coupling
+verbatim. It is the structural companion of
+{ref "starobinsky-scalaron"}[the Starobinsky scalaron] chapter that follows.
+:::
+
+:::paragraph
+The route: the problem (twenty-seven derivative components per momentum), step
+one (the torsion is a form in the physical modes alone), step two (the whole
+Hamiltonian on the nine components), and what the elimination doctrines — and
+what it leaves open.
+:::
+
+:::paragraph
+The proofs are `BookProof/QgFourierElim` and
+`BookProof/QgFullEliminated`, with the comparison/convolution/tensor-sum
+machinery they reuse from the Navier–Stokes thread.
+:::
+
 # The Problem: Twenty-Seven Derivative Components Per Momentum
 
 :::paragraph
@@ -205,6 +230,7 @@ Open items, as obligations:
  * the decoupling of the scalaron and vielbein one-particle operators in the *fiber* model is an
    assumption, not a theorem; the eliminated full model does not need it, but the closed-form
    spectrum of the fiber model does.
+:::
 
 :::paragraph
 Two of the plan's general obligations, which used to be listed per sector, no

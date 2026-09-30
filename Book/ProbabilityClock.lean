@@ -16,6 +16,28 @@ fully formalized; the interpretive claims about collapse and the physical meanin
 quantum mechanics remain explanatory, not additional Lean theorems. Later chapters
 reuse this clock as a two-dimensional building block.
 
+:::paragraph
+This chapter opens the heart of the book — the wave-function parametrization —
+in its smallest possible instance: two outcomes, one angle. Read it first even
+if you read nothing else in this part; it introduces the generator
+$`J^2 = -1`, Euler's formula as a matrix identity, and the singular collapse
+matrix that later chapters reuse as a two-dimensional building block.
+:::
+
+:::paragraph
+The route: the two-state system, the generator that squares to minus one,
+Euler's formula as a matrix identity, why the parametrization acts on the
+wave-function and not on the probability, the density matrix and collapse, and
+why coherence is a feature of the parametrization rather than a phenomenon.
+:::
+
+:::paragraph
+The finite matrix identities are `BookProof/ChapterProbabilityClockStochastic`
+and `BookProof/ChapterEulerStochastic` / `ChapterEulerDensityMatrix`; the
+interpretive claims stay explanatory, as the status paragraph above says. The
+next chapter lifts the construction to $`n` outcomes.
+:::
+
 # A Two-State System
 
 The smallest non-trivial probability space has two outcomes. A distribution on it is

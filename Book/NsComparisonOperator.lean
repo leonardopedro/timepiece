@@ -8,6 +8,35 @@ open Verso.Genre.Manual.InlineLean
 tag := "ns-comparison-operator"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The other half of the Navier–Stokes operator story: the Faris–Lavine
+*comparison operator* $`N` — the Leray energy on the mainstream leg, the lifted
+auxiliary Friedrichs extension on the full nonlinear leg — with the theorems
+that establish each, and the reasons the Hamiltonian itself (or its square)
+cannot serve as $`N`. Read it after
+{ref "ns-one-particle-hamiltonian"}[the one-particle Hamiltonian chapter];
+together the two discharge the operator obligations that
+{ref "second-quantization-esa"}[the next chapter] transfers to Fock space.
+:::
+
+:::paragraph
+The route: the question and the one-line answer, why $`N` cannot be the
+Hamiltonian (nor $`H^2`), layer 1 (the mainstream Hamiltonian as Leray energy,
+and the rebuilt affine-drifts-are-quadratic view), the criterion on a core and
+the nonlinear instance, layer 2 (the lifted auxiliary Friedrichs extension),
+why the pressure does not change the comparison operator, and the one-particle
+obligation discharged.
+:::
+
+:::paragraph
+The proofs are `BookProof/FarisLavine`, `BookProof/ComparisonCoreEsa`,
+`BookProof/SelfAdjointCoreEsa`, `BookProof/NsNonlinearFarisLavine`,
+`BookProof/NsLinearKoopmanEsa`, and the `NsFullEuler` / `NsFullLagrangian` /
+`ChapterNavierStokesEulerian` statements they feed.
+:::
+
 # The Question, and the Answer in One Line
 
 :::paragraph
@@ -85,7 +114,7 @@ $`N_E = \text{mulOp}\big(E(u)\big), \qquad E(u) = 1 + \|u\|^2 ,`
    the **energy flux**;
  * `fluxPoly_eq` — and the flux identity collapses it, using Leray's identity, to the **sign-definite
    viscous dissipation** $`F\cdot\nabla E = -2\nu\sum_i\lambda_i u_i^2 \le 0`. The advection and the
-   pressure gradient cancel: this is where the $\sum_i u_iB_i = 0$ hypothesis is consumed;
+   pressure gradient cancel: this is where the $`\sum_i u_iB_i = 0`$ hypothesis is consumed;
  * `commForm_kvn_energy_bound` — the resulting Faris–Lavine commutator inequality,
    $`\big|\langle x, i[H_{\rm NS},N_E]x\rangle\big| \le 2\nu\Lambda\,\langle x,N_Ex\rangle ,`
    with `Λ = max_i λ_i` the largest Stokes eigenvalue of the truncation (the cutoff's role here is

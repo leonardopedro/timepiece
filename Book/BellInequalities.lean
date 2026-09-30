@@ -8,6 +8,25 @@ open Verso.Genre.Manual.InlineLean
 tag := "bell-inequalities"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The second laboratory situation of the part: the CHSH inequality, its quantum
+violation, the Tsirelson bound, and the manuscript's reading of what the
+violation does and does not show. Read it after
+{ref "double-slit"}[the double-slit chapter] — the two experiments are read
+through the same lens and are best taken together.
+:::
+
+:::paragraph
+The route: what the CHSH combination bounds, how quantum mechanics violates it,
+where the Tsirelson bound sits, and the manuscript's reading.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterBell` and `BookProof/ChapterTsirelson`.
+:::
+
 # What the Inequality Bounds
 
 The CHSH inequality is a constraint that any *local* theory must satisfy. Two

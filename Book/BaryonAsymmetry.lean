@@ -15,6 +15,18 @@ radiation densities obey the stated power laws and their ratio grows linearly wi
 the scale factor. The origin and observed magnitude of the baryon asymmetry are
 physical model questions, not consequences of this calculation alone.
 
+:::paragraph
+In the tour this is the part's cosmological application — the one place the
+arrow-of-time part connects to the gravity thread, via the
+Friedmann–Robertson–Walker scaling that the companion numerical validation
+checks. The chapter assumes the FLRW terminology of
+{ref "diffeomorphisms-gravity"}[the gravity chapter]. The route: a small
+asymmetry, amplified; the FRW scaling of the densities; the ratio grows like
+the scale factor; how this amplifies a small asymmetry; the same scaling
+checked in the numerical validation; and the closing caution that amplification
+is not an explanation of the origin.
+:::
+
 # A Small Asymmetry, Amplified
 
 In its chapter on entropy and irreversible time-evolution, the manuscript turns to

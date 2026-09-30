@@ -8,6 +8,28 @@ open Verso.Genre.Manual.InlineLean
 tag := "carleman-flux"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The Carleman-flux chapter: the bookkeeping identity — *flux cancellation* —
+that keeps the unbounded-operator Carleman linearization honest when hops
+leave the finite range. It belongs to the Navier–Stokes/Carleman thread of the
+part and pairs with the Hermite-Carleman machinery the gravity and
+SIRK chapters use.
+:::
+
+:::paragraph
+The route: the problem, a concrete look at the two hop kinds, the abstract
+flux cancellation, why this underpins the physics, and beyond finite range:
+unbounded hops.
+:::
+
+:::paragraph
+The proofs are `BookProof/CarlemanGeneralHop`,
+`BookProof/CarlemanUnboundedHop`, `BookProof/ChapterCarlemanTwoStep`, and
+`BookProof/ChapterHermiteCarlemanEsa`.
+:::
+
 # The Problem
 
 :::paragraph

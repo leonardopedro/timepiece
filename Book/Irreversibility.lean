@@ -8,6 +8,27 @@ open Verso.Genre.Manual.InlineLean
 tag := "irreversibility"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The opening chapter of the arrow-of-time part: what "irreversible" means
+precisely (injective but not surjective), and why a *finite* world cannot be
+irreversible — the continuum admits it. With
+{ref "bijection-probability"}[the next chapter] it forms one argument:
+irreversibility is generic.
+:::
+
+:::paragraph
+The route: the precise meaning, the finite obstruction, the continuum case, a
+concrete dissipative map on the interval, and the arrow of time from pure set
+theory. The field-theoretic instance of the same phenomenon is the dissipative
+dynamics of {ref "gauge-symmetry"}[the gauge-symmetry chapter].
+:::
+
+:::paragraph
+The proof is `BookProof/ChapterIrreversibleDynamics`.
+:::
+
 # What "Irreversible" Means, Precisely
 
 A deterministic time-evolution is a function $`f` from the state space to itself.

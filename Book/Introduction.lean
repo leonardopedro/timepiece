@@ -343,50 +343,99 @@ confirming that the theorem exists and has exactly this type.
 # Roadmap
 
 :::paragraph
-The book is organized into six parts.
+The book is organized as a tour in eight parts, followed by the proof-plan
+appendix. The order is the reading order, and it is deliberate: the
+metamathematical foundation is laid before the probability it hosts, the
+probability toolkit before the wave-function parametrization that turns it into
+physics, and the applications — gravity, learning, the arrow of time — after
+the physics they reuse. Each part opens with its own *How to read this part*
+note; the list below is the map, in reading order.
 :::
 
-: Part I — Probability as Coherent Belief
+: A Decidable, Complete Foundation
 
-  The probabilistic foundations: the Dutch-book derivation of the probability
+  Where the sample spaces live before anything is measured on them: the completed
+  Hilbert space is a complete, decidable, conservative extension that does not leak
+  undecidable arithmetic, because its infinite elements are kept internally
+  unselectable. The Solovay–Kopperman tensor product then builds the two-factor
+  spaces used everywhere later — an arbitrary law on a finite factor, tensored with
+  an infinite factor whose law is forced to be the Mehler measure precisely because
+  the language cannot distinguish its elements — and the statistical-model-theory
+  chapter reads statements as operators on these spaces.
+
+: Probability as Coherent Belief
+
+  The probabilistic toolkit: the Dutch-book derivation of the probability
   axioms, the associativity of Bayesian updating, the maximum-entropy
   characterization of the uniform prior (and why it holds only relative to a chosen
   parametrization), and the law of total variance.
 
-: Part II — Wave-functions, Euler's Formula, and the Born Rule
+: Determinism, Complementarity, and Collapse
+
+  The conceptual core of the manuscript's quantum-foundations chapters: symmetries
+  as unitary representations; deterministic versus non-deterministic transformations
+  and the origin of complementarity; why wave-function collapse keeps quantum
+  mechanics an ordinary (Kolmogorov) probability theory, and how this differs from
+  Gleason's theorem; the theorem that time-translation is a stochastic process _if
+  and only if_ it is deterministic; the double-slit and Bell/CHSH experiments read
+  through that lens; EPR-completeness, relativistic causality, and the classical
+  limit.
+
+: Wave-functions, Euler's Formula, and the Born Rule
 
   The heart of the book: the probability clock and Euler's formula, the fact that
-  the Born rule reproduces every distribution, the gauge ambiguity (phase) of the
-  parametrization, information erasure in the Stern–Gerlach experiment, and the
-  free-field construction of a uniform measure on a sphere.
+  the Born rule reproduces every distribution (finite, countable, complex,
+  quaternionic), the gauge ambiguity (phase) of the parametrization, the
+  parametrization of a joint probability by a unitary operator, and information
+  erasure in the Stern–Gerlach experiment.
 
-: Part III — Entropy, Irreversibility, and the Arrow of Time
+: Relativity, Gauge Theory, and Gravity
+
+  The longest part and the field-theoretic one: gauge symmetry as parametrization
+  redundancy and dissipative dynamics, the free-field construction of a uniform
+  measure on a sphere out of the Gaussian, the spin–statistics dichotomy, real
+  representations and CPT, quantization due to time-evolution (Yang–Mills, the
+  Weyl/CCR relations, the BRST charge), the Gribov ambiguity, physical parity and
+  antiparticles, diffeomorphisms and gravity — and the thread on the *derivative
+  variables* of a field (the Fourier elimination, the Navier–Stokes one-particle
+  Hamiltonian and comparison operator, the quantum-gravity elimination) that closes
+  with the Starobinsky scalaron, the Standard Model, and the SIRK numerics chapters.
+
+: Consciousness, Deep Learning, and the Bayesian Prior
+
+  The Bayesian foundations of agency in three registers: no prior is best for all
+  cases and a deterministic prior is still subjective; randomized (deep) learning as
+  a random sampling method that induces a posterior over models; and the
+  coherent-state reading of Softmax attention, where the Born rule on coherent
+  states is the same equation as the attention mechanism.
+
+: Entropy, Irreversibility, and the Arrow of Time
 
   How an irreversible, entropy-increasing dynamics coexists with deterministic
   evolution: injective-but-not-surjective maps, the vanishing probability that a
   random map is invertible, uncountable null-measure sets, cosmological
   amplification of the matter/radiation ratio, and the law of large numbers.
 
-: Part IV — Resolution of the Singularity of an ODE
+: The ODE Singularity
 
   An operator-theoretic resolution of the blow-up of $`x' = x^2`, via
   Koopman–von Neumann theory, Weyl quantization, Nelson's essential
   self-adjointness theorem, and the complexification argument
-  (`ae_no_real_singular_time`). All results are `sorry`-free.
+  (`ae_no_real_singular_time`) — together with the book's most careful accounting
+  of which results are genuine theorems and which are algebraic certificates.
 
-: Part V — Completeness without Peano Arithmetic
+: Appendix: Proof Plans
 
-  A metamathematical chapter: the completed Hilbert space is a complete, decidable,
-  conservative extension that does not leak undecidable arithmetic, because its
-  infinite elements are kept internally unselectable.
+  Where the unproved claims are quarantined, each with a detailed plan. Nothing in
+  the verified layer is asserted without a proof.
 
-: Part VI — Determinism, Complementarity, and Collapse
-
-  The conceptual core of the manuscript's quantum-foundations chapters: deterministic
-  versus non-deterministic transformations and the origin of complementarity; why
-  wave-function collapse keeps quantum mechanics an ordinary (Kolmogorov)
-  probability theory, and how this differs from Gleason's theorem; the Euler-angle
-  parametrization in arbitrary, countable, complex, and quaternionic dimension; the
-  theorem that time-translation is a stochastic process _if and only if_ it is
-  deterministic; the double-slit and Bell/CHSH experiments; EPR-completeness and
-  relativistic causality; and the classical limit.
+:::paragraph
+Two reading paths are worth knowing. For the *idea*, the shortest route through
+the tour is this chapter, {ref "probability-clock"}[the probability clock] (the
+smallest instance of the whole construction), {ref "dutch-book"}[the Dutch-book
+chapter] (what the construction must land in), and {ref "free-field"}[the
+free-field chapter] (the same construction at field scale); the part introductions
+say where to go next. For the *verified machinery*, take the parts in order: the
+field-theoretic part assumes both the probability toolkit and the Born-rule
+parametrization, and every later part reuses something from it.
+:::

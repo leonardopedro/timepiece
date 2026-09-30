@@ -8,6 +8,40 @@ open Verso.Genre.Manual.InlineLean
 tag := "sirk-reliability"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The reliability chapter of the SIRK numerics: what the computation computes,
+what a Ritz certificate can and cannot say, and — the chapter's spine — *when
+a computation is a proof*. It is the book's honesty layer for the companion
+solver work, and it needs the operator chapters of the part behind it
+({ref "ns-one-particle-hamiltonian"}[the one-particle Hamiltonian],
+{ref "ns-comparison-operator"}[the comparison operator],
+{ref "navier-stokes-hashimoto"}[the Hashimoto selection]).
+:::
+
+:::paragraph
+The route, in five stages: what the numerics compute and what a Ritz
+certificate may say; the proof layer (pointwise transfer identity, one Crouzeix
+domain for both bounds, convergence and uniformity in time, implementation
+specifics, leakage out of the physical subspace, the measurement region, the
+four systems and one named bound per system); what the values converge to
+(Ritz values, computed gap, spectral levels, gap of the spectrum, stability
+under operator perturbation); certification (no time discretization, the
+laminar decay rate, exact arithmetic to certified enclosures, the certified gap
+of the truncated Hamiltonian, when a computation is a proof, from the emitted
+certificate to the theorem, the table of couplings and the finite-size limit);
+and the honest boundary (what would close the one-particle limit, the ladder of
+the unbounded operator through the resolvent).
+:::
+
+:::paragraph
+The proofs are the `ChapterSirk*` family (certified gap, gap table, Ritz
+spectrum, whitening, Trotter–Kato, multi-shift, restart, per-system bounds,
+Lagrangian canonical), `RitzMinMax`/`RitzPerturbation`, the `ResolventLadder`
+chapters, the `Fock*` gap chains and `BrstLeakage`.
+:::
+
 # What the Numerics Compute
 
 :::paragraph

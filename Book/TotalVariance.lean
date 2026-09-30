@@ -8,6 +8,28 @@ open Verso.Genre.Manual.InlineLean
 tag := "total-variance"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The closing chapter of the probability part, and its bookkeeping identity: how
+uncertainty splits into a within-group and a between-group part. It is
+self-contained (the conditional expectation is set up from scratch), and it is
+one of the two chapters — with {ref "dutch-book"}[the Dutch-book theorem] —
+that give the conceptual core of the part.
+:::
+
+:::paragraph
+The route: the two kinds of uncertainty (aleatoric and epistemic), the setup,
+the "Pythagoras for conditional expectation" sketch proof, the verified
+statement, and a reading of what the decomposition tells you when sources of
+uncertainty are combined. The identity is reused wherever the book later
+combines uncertainties — notably in the learning chapters.
+:::
+
+:::paragraph
+The proof is `BookProof/ChapterTotalVariance`.
+:::
+
 # Two Kinds of Uncertainty
 
 When a model makes a prediction, its error has two conceptually distinct sources:

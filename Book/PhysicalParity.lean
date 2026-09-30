@@ -8,6 +8,32 @@ open Verso.Genre.Manual.InlineLean
 tag := "physical-parity"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The closing chapter of the Standard-Model thread of this part: the physical
+parity transformation, the double cover, and the manuscript's claim that every
+particle is its own antiparticle. Read it after
+{ref "real-representations"}[the real-representations chapter] — its Majorana
+and CPT material is the prerequisite — and before
+{ref "diffeomorphisms-gravity"}[the gravity chapter], which starts the part's
+final block.
+:::
+
+:::paragraph
+The route: the question, the order-four parity transformation and the double
+cover, every particle as its own antiparticle, CP and the parity-breaking term,
+the chiral structure and quark-doublet parity, Majorana quantization, and the
+custodial symmetry.
+:::
+
+:::paragraph
+The proofs are the `ChapterParity*` family (parity, chirality, custodial, Higgs,
+hypercharge, Majorana quantization, quark-lepton, SU, Z), the Pin double-cover
+chapters, the Schur/Maschke finite-group chapters, and
+`BookProof/ChapterCPTParity` / `BookProof/MajoranaClifford`.
+:::
+
 # The Question
 
 :::paragraph

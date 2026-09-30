@@ -16,6 +16,26 @@ claims about generalization, overfitting, alignment, and real training systems n
 separate statistical or empirical hypotheses and are listed as specialist proof
 targets only when they have a precise mathematical formulation.
 
+:::paragraph
+In the tour this is the engineering application of the part: randomized
+training as a *random sampling method*, re-using the induced-prior machinery of
+the Bayesian chapters ({ref "consciousness-bayesian-prior"}[the chapter before
+this one]). The route: the question, randomized training induces a prior, deep
+learning as MAP estimation, the induced posterior is Bayesian, MAP points are
+null under an atomless posterior, the hierarchical and subjective structure,
+previous knowledge and finite arithmetic, and probability as a universal
+language.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterDeepLearningSampling`,
+`BookProof/ChapterDeepLearningEnsemble`, `BookProof/ChapterDeepLearningMAP`,
+`BookProof/ChapterMAPNull`, and the hierarchical/finite-arithmetic chapters
+(`ChapterHierarchicalBayes`, `ChapterFiniteArithmeticPrior`,
+`ChapterFiniteBayesHierarchy`). The closing chapter of the part reads the same
+mathematics in the language of coherent states.
+:::
+
 # The Question
 
 :::paragraph

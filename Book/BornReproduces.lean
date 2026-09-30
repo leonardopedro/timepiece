@@ -8,6 +8,28 @@ open Verso.Genre.Manual.InlineLean
 tag := "born-reproduces"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The lifting chapter: the probability clock's one angle becomes $`n-1` Euler
+angles, and the Born rule is shown to reproduce *every* distribution. Read it
+after {ref "probability-clock"}[the probability clock]; it is the second of the
+three parametrization chapters, and {ref "born-fiber"}[the next chapter] asks
+what the map forgets.
+:::
+
+:::paragraph
+The route: from two states to $`n` states (the telescoping stick-breaking
+process), the construction always sums to one, it reaches every distribution,
+the countable case as an infinite stick-breaking chain, the complex and
+quaternionic wave-functions, and the average-versus-maximal error comparison.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterEulerNState` (the parametrization) and
+`BookProof/ChapterErrorNorms` (the error comparison).
+:::
+
 # From Two States to n States
 
 The probability clock parametrized a two-outcome distribution by one angle. The

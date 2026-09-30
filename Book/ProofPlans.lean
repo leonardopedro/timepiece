@@ -17,6 +17,15 @@ and perturbative interaction stability. It is addressed to an LLM Lean specialis
 (e.g. Aristotle). A more detailed, machine-oriented version lives in
 `CONSOLIDATED_PLAN.md` at the repository root.
 
+:::paragraph
+*How to use this appendix.* Each entry states the claim, its current status
+(proved / conditional / open), and the plan for the open parts; the chapter
+names in the body text point here whenever a claim is not yet a theorem. The
+plans are the hand-off document for the Lean specialist who carries the next
+proof wave.
+:::
+
+
 # The New Spectral-Gap Proof Layer
 
 The following modules are now part of the proof architecture:

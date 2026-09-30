@@ -17,6 +17,33 @@ measurability, tensor-product, and disintegration infrastructure; the cited fini
 results should therefore be read as a verified core, not as that full infinite-
 dimensional theorem.
 
+:::paragraph
+In the tour this chapter is the bridge from probability to physics: the
+finite-dimensional core of the book's commutative Wigner theorem, where a
+*joint* probability is parametrized by a unitary operator rather than by
+angles. It follows the three parametrization chapters
+({ref "probability-clock"}[the clock], {ref "born-reproduces"}[$`n` outcomes],
+{ref "born-fiber"}[the fiber]) and precedes
+{ref "stern-gerlach"}[the Stern–Gerlach application] that closes the part.
+:::
+
+:::paragraph
+The route: the question, a joint probability is a wave-function, the converse
+(an operator defines a joint probability), the kernel operator is bounded, the
+singular-value expansion, marginal and conditional probability, the concrete
+Pauli–Grover rotation, what is verified versus what is infinite-dimensional,
+the less arbitrary unitary built from the dynamics, and the generalization to
+conditional probability on a standard Hilbert space.
+:::
+
+:::paragraph
+The verified core includes `BookProof/ChapterBornMeasure`,
+`BookProof/ChapterPauliGrover`, `BookProof/ChapterUnitaryTransport`, and the
+selecting-events chapter `BookProof/ChapterSelectingEvents`; the
+infinite-dimensional bridge is `BookProof/ChapterContinuityUnitary` (with its
+infinite variants and the Stone/unbounded-spectral chapters).
+:::
+
 # The Question
 
 :::paragraph

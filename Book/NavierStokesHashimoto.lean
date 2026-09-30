@@ -8,6 +8,34 @@ open Verso.Genre.Manual.InlineLean
 tag := "navier-stokes-hashimoto"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The selection-theorem chapter for the Navier–Stokes fiber generator: the
+inverse-free rational-Krylov (Hashimoto/SIRK) iteration is trustworthy exactly
+when the shift-inverted resolvents of the generator are well-behaved, and a
+selection theorem *selects the operator the Krylov iteration is actually
+computing*. Read it after the operator pair
+({ref "ns-one-particle-hamiltonian"}[one-particle Hamiltonian],
+{ref "ns-comparison-operator"}[comparison operator]) and before the numerics
+tail of the part ({ref "sirk-reliability"}[SIRK reliability],
+{ref "ns-numerics"}[NS numerics]) that consumes it.
+:::
+
+:::paragraph
+The route: why a selection theorem is needed, what the forward sequence is
+doing intuitively, the differential generator as the transport of a
+polynomial, the unique self-adjoint extension, the Hashimoto selection itself,
+how this connects to the numerical validation, and what the Eulerian fiber can
+certify (the absence of a form gap, and the comparison operator).
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterH` and the `BookProof/NavierStokesFlow`
+namespace; the numerics this feeds are the companion solver work described in
+{ref "ns-numerics"}[the NS numerics chapter].
+:::
+
 # Why a Selection Theorem
 
 :::paragraph

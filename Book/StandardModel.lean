@@ -3,9 +3,42 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "The Standard Model Hamiltonian" => %%%
+#doc (Manual) "The Standard Model Hamiltonian" =>
+%%%
 tag := "standard-model"
 %%%
+
+# Orientation and Status
+
+:::paragraph
+The chapter that assembles the whole bosonic content of the Standard Model in
+the frame the previous chapters built: temporal (Weyl) gauge, nested Fock state
+space, final Hamiltonian as the outer second quantization $`d\Gamma(h)`, and
+Faris–Lavine comparison certificates. Read it after
+{ref "quantization-time-evolution"}[the Yang–Mills quantization chapter] and
+{ref "second-quantization-esa"}[the transfer chapter], whose Standard-Model
+instance already discharged the two operator obligations used here.
+:::
+
+:::paragraph
+The route: counting the coordinates, the CKM and PMNS matrices, the
+one-particle operator and its comparison operator, the enclosure, the CAR
+algebra of the fermions, the Dirac/Yukawa Faris–Lavine certificate and its
+bosonic counterpart, the Kato-type input and the unconditional theorem, the
+explicit enclosure, the full one-particle Hamiltonian (bosonic and fermionic
+sectors together), the Yukawa coupling as an operator, the Higgs vacuum as
+statics, the continuum CAR algebra, the gauge connection, and the ghosts,
+generators, and BRST charge — closing with what is *not* claimed.
+:::
+
+:::paragraph
+The proofs are the `Sm*` family (`SmHamiltonian`, `SmOneParticle`,
+`SmComparison`/`SmComparisonEsa`/`SmComparisonFull`, `SmFarisLavine`,
+`SmDiracSpinor`, `SmDiracYukawa`, `SmYukawaCoupling`, `SmHiggsVacuum`,
+`SmCar`/`SmCarContinuum`, `SmGaugeConnection`, `SmGaugeRep`, `SmBrstGhost`,
+`SmFockEsa`, `SmOuterFock`, `SmFullEnclosure`) plus the `BookBrst*`
+instances.
+:::
 
 The Yang–Mills chapter quantized a single non-abelian gauge field; this chapter
 puts the whole bosonic content of the Standard Model into the same frame. The

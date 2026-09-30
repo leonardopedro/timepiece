@@ -16,6 +16,15 @@ core; they should not be read as a full independent identically distributed law 
 large numbers unless the theorem signature supplies those hypotheses explicitly.
 The distinction matters when measurements are dependent or have time-varying laws.
 
+:::paragraph
+In the tour this chapter closes the part by giving the probabilities their
+empirical content — frequencies converge to probabilities — and connects back
+to {ref "total-variance"}[the law of total variance] in the probability
+part. The route: frequencies converge to probabilities, the setup, the
+convergence itself, the connection to the variance decomposition, and why this
+closes the loop.
+:::
+
 # Frequencies Converge to Probabilities
 
 A probability distribution makes a testable promise: if you repeat an experiment

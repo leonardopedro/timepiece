@@ -8,6 +8,33 @@ open Verso.Genre.Manual.InlineLean
 tag := "consciousness-bayesian-prior"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The opening chapter of the Bayesian-agency part: the philosophical application
+of the toolkit — no prior is best for all cases, no point of null measure is
+special, and a deterministic prior is still subjective. Per the part's reading
+note, it needs only the probability part behind it:
+{ref "dutch-book"}[the coherence target], {ref "sequential-bayes"}[the
+associativity of updating], {ref "max-entropy"}[the uniform prior as point of
+reference].
+:::
+
+:::paragraph
+The route: the question, no prior is special and no point is special, a
+deterministic prior is still subjective, the uniform prior as a point of
+reference, and Bayesian inference as a representation.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterNoBestPrior`,
+`BookProof/ChapterPriorDependence`, `BookProof/ChapterPriorOdds`,
+`BookProof/ChapterUniformPrior` (with its posterior variant), and
+`BookProof/ChapterBayesInference`. The null-measure discipline behind "no point
+is special" is developed in {ref "null-measure"}[the null-measure chapter]
+later in the tour.
+:::
+
 # The Question
 
 :::paragraph

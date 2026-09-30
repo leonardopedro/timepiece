@@ -9,6 +9,30 @@ open Verso.Genre.Manual.InlineLean
 tag := "max-entropy"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The second, independent route to the uniform prior: not relabeling invariance
+(the previous chapter) but Jaynes' maximum-entropy principle. The two routes
+agree — and both are relative to a fixed parametrization, a point the closing
+section drives home. The chapter is self-contained once
+{ref "sequential-bayes"}[the Bayesian-updating chapter] is read.
+:::
+
+:::paragraph
+The route: measuring ignorance (the entropy functional), the Gibbs-inequality
+sketch proof, the verified statement (the uniform distribution is the unique
+entropy maximizer, with maximum $`\log n`), the thermal law where a fixed mean
+replaces a fixed count, and the reconciliation of the two roads to one prior.
+The maximum-entropy instrument is reused by the consciousness and
+learning chapters at the end of the book.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterMaxEntropy` and
+`BookProof/ChapterThermalMaxEntropy`.
+:::
+
 # Measuring Ignorance
 
 :::paragraph

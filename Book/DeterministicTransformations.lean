@@ -8,6 +8,34 @@ open Verso.Genre.Manual.InlineLean
 tag := "deterministic-transformations"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The load-bearing chapter of this part: every chapter after it is an application
+of its one theorem — *time-translation is a stochastic process if and only if it
+is deterministic*. It sits between the probability toolkit of the previous part
+({ref "dutch-book"}[the coherence target] and the bookkeeping of
+{ref "total-variance"}[total variance]) and the laboratory chapters that
+follow; no field theory is needed.
+:::
+
+:::paragraph
+The route: symmetries are unitary representations (canonical transformations,
+the one-parameter group law), symmetry transformations act on events,
+deterministic versus non-deterministic transformations, complementarity as
+randomness, the reading of quantum mechanics as a generalization of statistical
+mechanics rather than of probability, the stochastic-process theorem itself,
+and conservative transformations.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterDeterministic` and
+`BookProof/ChapterTimeTranslation` (the main theorem),
+`BookProof/ChapterConservative` with `BookProof/ChapterConservativeDiagonal`
+(the conservative case), and `BookProof/ChapterReconstruct` (trajectory
+reconstruction).
+:::
+
 # Symmetries Are Unitary Representations
 
 :::paragraph

@@ -8,6 +8,30 @@ open Verso.Genre.Manual.InlineLean
 tag := "null-measure"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The measure-theoretic caution of the part: a null event is not automatically
+special, and null does not mean structurally small — the Cantor set is
+uncountable and still null. It keeps the irreversibility argument honest and
+the priors of the Bayesian chapters disciplined.
+:::
+
+:::paragraph
+The route: a null event is not automatically special, no point is special,
+countable sets are null, null does not mean countable (the Cantor set), the
+headline, why this matters for priors, the atomic and continuous parts (the
+five types), and why continuous priors are out of reach of discrete ones.
+:::
+
+:::paragraph
+The classification is the large verified block:
+`BookProof/ChapterStandardBorelClassification`, the `ChapterAbelian*` and
+`ChapterSpectral*` model chapters, the atomic/diffuse decomposition chapters
+(`ChapterAtomicDecomposition`, `ChapterMeasureAtomicDiffuse`,
+`ChapterMixedPrior`), and `BookProof/ChapterSelectingEvents`.
+:::
+
 # A Null Event Is Not Automatically Special
 
 A recurring intuitive error is to treat a *measure-zero* event as negligible in a

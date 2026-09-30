@@ -8,6 +8,32 @@ open Verso.Genre.Manual.InlineLean
 tag := "pa-free-chapter"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+This is the first chapter of the tour, and its foundation: the only place where
+the *sample space* itself is built. Nothing from the rest of the book is
+assumed beyond the Introduction.
+:::
+
+:::paragraph
+The chapter runs: Kopperman's warning (why one named infinite constant destroys
+decidability), the construction of the completed space, the verified core — the
+Riesz–Fischer characterization of completeness by absolutely convergent series —
+the *verifiable* unselectability facts, the metamathematical interpretation that
+is deliberately **not** claimed as a theorem, why this chapter replaces the
+manuscript's P-versus-NP and Riemann-hypothesis chapters, and the tensor products
+of decidable languages that the next chapter generalizes.
+:::
+
+:::paragraph
+The verified core lives in `BookProof/ChapterRieszFischer` and
+`BookProof/ChapterEll`; everything else in the chapter is the analysis of those
+results and is labelled as such. The continuation is
+{ref "solovay-tensor"}[the Solovay–Kopperman tensor product], which needs
+precisely the tensor-product section at the end here.
+:::
+
 This chapter replaces the manuscript's chapters on _P versus NP_ and on the _Riemann
 Hypothesis_. Those chapters both turned on a single metamathematical point, isolated
 here in self-contained form: a completed Hilbert space can be *topologically

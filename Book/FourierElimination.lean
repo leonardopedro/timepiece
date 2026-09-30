@@ -8,6 +8,36 @@ open Verso.Genre.Manual.InlineLean
 tag := "fourier-elimination"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The strategy-of-record chapter of the *derivative variables* thread of this
+part: when a first-order system is written with the derivatives of the fields
+as fields, *eliminate* them by a spatial Fourier transform inside the squares
+of the Hamiltonian rather than constrain them by a gauge symmetry — no ghost
+sector, no cubic derivative symbol. It also settles the Lagrangian face of the
+same question: the eliminated kinematics is rank-one, the cofactor of the
+deformation gradient vanishes, and the volume constraint collapses to a
+constant. This chapter states the strategy;
+{ref "ns-one-particle-hamiltonian"}[the Navier–Stokes one-particle
+Hamiltonian], {ref "ns-comparison-operator"}[its comparison operator] and
+{ref "qg-elimination"}[the quantum-gravity elimination] carry it out.
+:::
+
+:::paragraph
+The route: the idea (eliminate the jets, do not gauge-fix them), the
+substitution as a ring map, the residual becoming quadratic, the reduced
+Hamiltonian (both real parts are squares), the nested-Fock lift and the
+Faris–Lavine comparison, the Lagrangian sector (the volume constraint
+collapses), and where the two new operator chapters sit.
+:::
+
+:::paragraph
+The proofs are `BookProof/NsFullEuler`, `BookProof/NsLagFourier`,
+`BookProof/NsLagrangianDet` (with `BookProof/NsLagrangianDetFL`), and
+`BookProof/KoopmanLyapunov`.
+:::
+
 # The Idea: Eliminate the Jets, Do Not Gauge-Fix Them
 
 :::paragraph

@@ -8,6 +8,35 @@ open Verso.Genre.Manual.InlineLean
 tag := "quantization-time-evolution"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The quantization chapter of the Standard-Model thread: the manuscript's proposal
+that quantization *arises from time-evolution* rather than being postulated,
+worked out for Yang–Mills. It needs the BRST vocabulary of
+{ref "gauge-symmetry"}[the gauge-symmetry chapter] and belongs with
+{ref "real-representations"}[real representations] before it and
+{ref "gribov-ambiguity"}[the Gribov ambiguity] after it.
+:::
+
+:::paragraph
+The route: the problem (the inconsistencies of quantum Yang–Mills, classical
+statistical field theory, and quantum gravity), the structure constants of
+SU(3), the field strength and the Bianchi identity, the Weyl relations as the
+engine of quantization, the nilpotent BRST charge, positivity of the
+Weyl–Gauge Hamiltonian, its quadratic form and the Friedrichs route, the
+Friedrichs extension without a boundedness hypothesis, and the field-space
+realization on the product Hermite core.
+:::
+
+:::paragraph
+The proofs include `BookProof/QuantizationWeyl`, `BookProof/WeylHamiltonian`,
+the Yang–Mills chapters (`YangMillsSU`, `YangMillsFieldStrength`,
+`YangMillsBianchi`, `YangMillsFriedrichs` and its limit/abelian variants), and
+the graded Fock/Friedrichs/Hashimoto chapters that the field-space realization
+rests on.
+:::
+
 # The Problem
 
 :::paragraph

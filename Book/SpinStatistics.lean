@@ -8,6 +8,28 @@ open Verso.Genre.Manual.InlineLean
 tag := "spin-statistics"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The chapter that closes the free-field thread of this part: the spin–statistics
+dichotomy as a statement about tensor products of sample spaces — bosons
+commute, fermions anticommute — in the finite-degree instance. Read it after
+{ref "free-field"}[the free-field chapter] (whose premise — infinitely many
+degrees of freedom — it examines and repairs).
+:::
+
+:::paragraph
+The route: the question (what happens at finitely many degrees of freedom),
+two modes by Jordan–Wigner, each mode a fermionic oscillator, the modes
+anticommute (fermionic statistics), Pauli exclusion, and every particle number
+via the symmetric and antisymmetric sectors.
+:::
+
+:::paragraph
+The proofs are `BookProof/FockStatistics`, `BookProof/PermSector`,
+`BookProof/TensorPerm`, `BookProof/GroupAverage`, and `BookProof/ReducedEsa`.
+:::
+
 # The Question
 
 :::paragraph

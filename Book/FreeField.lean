@@ -32,6 +32,34 @@ one-particle edge and its lift through the free nested-Fock `dGamma` Hamiltonian
 | QED photon sector | proved: positivity with *no gap* for the massless photon (`ChapterQedFockGapChain`), the no-gap obstruction proved for every `m > 0` under infrared momenta accumulating at zero, and gapped statements attached only to the regulated/massive instantiations (`irPhoton_fock_mass_gap`, `proca_fock_mass_gap`) |
 | real Fock mass gap of the continuum operator | still conditional on the one-particle form gap (the certificate supplies a truncated bound); no continuum claim |
 
+:::paragraph
+In the tour this is the second vocabulary chapter of the part (the first is
+{ref "gauge-symmetry"}[gauge symmetry]) and the direct descendant of
+{ref "solovay-tensor"}[the Solovay–Kopperman tensor product] — the Mehler
+measure reappears here as the rotation-invariant Gaussian, so re-reading that
+chapter first repays itself. From {ref "born-reproduces"}[the Born-rule
+chapters] it takes the push from the sphere to the simplex.
+:::
+
+:::paragraph
+The route: the problem (there is no infinite-dimensional Lebesgue measure),
+what masslessness costs in QED, the rotation-invariant Gaussian as substitute,
+pushing the Gaussian to the sphere, the Mehler limit (why the Gaussian *is* the
+uniform measure on the infinite sphere), Born pushing the sphere to the
+simplex, differentiability in the Fourier-transformed space, the countability
+sanity check, and the dimensional-reduction/Krylov material that lands on the
+Navier–Stokes Hamiltonian as a complete flow on the truncation.
+:::
+
+:::paragraph
+The Gaussian layers are `BookProof/ChapterNoLebesgue`,
+`BookProof/ChapterFreeFieldGaussian`, `BookProof/PhysHSGaussian` and the
+Mehler chapters; the Hamiltonian layers are `BookProof/ChapterF`,
+`BookProof/ChapterH`, the Navier–Stokes chapters, and the ESA toolbox
+(`ComparisonCoreEsa`, `SelfAdjointCoreEsa`, `KatoRellich`, and the
+truncation-gap chapters).
+:::
+
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure
 
 :::paragraph

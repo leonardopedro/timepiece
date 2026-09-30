@@ -8,6 +8,36 @@ open Verso.Genre.Manual.InlineLean
 tag := "starobinsky-scalaron"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The scalaron chapter: the $`R + \alpha R^2` model end to end, from the
+ghost-free scalar–tensor form to the essential self-adjointness of its
+Hamiltonian on the continuum and its Fock-space mass-gap statement. Read it
+after {ref "qg-elimination"}[the quantum-gravity elimination] (which prepared
+the variables) and with the ESA toolbox of
+{ref "second-quantization-esa"}[the transfer chapter] at hand; the chapter is
+deliberately explicit about where Kato–Rellich applies and where it cannot.
+:::
+
+:::paragraph
+The route, in three stages: why $`R + \alpha R^2` (the ghost-free
+scalar–tensor form, the square Einstein-frame potential, what $`\alpha` buys
+the conformal mode); the operator stage (essential self-adjointness on the
+continuum, the Fock-space statement, the proved strict edge of the
+full-exponential fiber, the wall dichotomy, the Hermite core and the Friedrichs
+realization, and in what sense the realization is canonical); and the
+wall/closure stage (the compactly supported core, the exponential wall closed
+by convexity, bounded-below versus non-negative, and the energy form).
+:::
+
+:::paragraph
+The proofs are `BookProof/Starobinsky`, the `Scalaron*` family (Esa, Fock,
+Edge, WallEsa, HermiteEsa), the `QgHermite*` and `WallEsa*` chapters, and the
+Friedrichs/Kato/limit-circle toolbox they cite. The companion numerical
+validation lives in the solver work the numerics chapters describe.
+:::
+
 # Why R + αR²
 
 :::paragraph

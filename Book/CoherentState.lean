@@ -35,6 +35,16 @@ proof plan is the thermal temperature identity; its statistical core is proved,
 its physical derivation is not.
 :::
 
+:::paragraph
+The route: the divergence between classical sharpness and quantum flatness, the
+geometry of the wave-packet, the Softmax–Born identity on coherent states,
+temperature and the thermal bath, informational superposition and the unknown
+output, the posterior as observable operators and expectation values, and the
+deep cascade of successive Bayesian updates. The proof material is cited
+section by section above; the one planned item — the thermal temperature
+identity — is collected in {ref "proof-plans"}[the appendix].
+:::
+
 # The Divergence: Classical Sharpness versus Quantum Flatness
 
 :::paragraph

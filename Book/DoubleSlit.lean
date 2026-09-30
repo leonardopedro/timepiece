@@ -8,6 +8,29 @@ open Verso.Genre.Manual.InlineLean
 tag := "double-slit"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The first laboratory situation of the part, and the chapter that introduces the
+post-selection and weak-value machinery that
+{ref "solovay-tensor"}[the Solovay–Kopperman tensor product] later generalizes.
+It follows {ref "deterministic-transformations"}[the previous chapter] and uses
+its theorem directly: time-evolution is a stochastic process only when it is
+deterministic.
+:::
+
+:::paragraph
+The route: the puzzle of self-interference under the ensemble reading, the two
+transformations (source to slits, slits to screen), a two-by-two model — one
+slit closed gives 50/50, both open gives 100/0 — where the "mystery" goes, and
+weak measurements reconstructing the trajectory at intermediate times.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterDoubleSlit`, `BookProof/ChapterTrajectory`,
+and `BookProof/ChapterWeakValue`.
+:::
+
 # The Puzzle
 
 The ensemble interpretation, by itself, does not explain why an electron's

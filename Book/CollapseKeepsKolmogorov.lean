@@ -8,6 +8,32 @@ open Verso.Genre.Manual.InlineLean
 tag := "collapse-kolmogorov"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The second chapter of the part answers the standard objection to the ensemble
+reading — "quantum mechanics is a non-commutative generalization of probability
+theory" — and shows instead that collapse keeps quantum mechanics an ordinary
+(Kolmogorov) probability theory. Read it after
+{ref "deterministic-transformations"}[the deterministic-transformations
+chapter]; the contrast with Gleason's theorem at the end marks exactly where
+this book diverges from the mainstream foundations.
+:::
+
+:::paragraph
+The route: the apparent non-commutativity of position and momentum projections,
+why the state of an ensemble is diagonal, why measuring momentum still changes
+the ensemble, the collapse as a recursion of two-dimensional maps, and the
+contrast with Gleason's theorem.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterCollapseDiagonal`,
+`BookProof/ChapterEulerDensityMatrix`,
+`BookProof/ChapterEulerGenericDensity`, and the Gleason comparison
+`BookProof/ChapterGleason` / `BookProof/ChapterGleasonPureMixed`.
+:::
+
 # The Apparent Non-Commutativity
 
 It is often said that quantum mechanics is a *non-commutative generalization of

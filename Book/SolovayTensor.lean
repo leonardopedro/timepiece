@@ -8,6 +8,38 @@ open Verso.Genre.Manual.InlineLean
 tag := "solovay-tensor"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The second chapter of the foundation, and the construction the physics parts
+run on: a single sample space that is infinite-dimensional yet separable, built
+as a tensor product of two factors. It answers the open problem the Introduction
+posed — a separable probability space with an arbitrary measure over real
+functions — and it needs only
+{ref "pa-free-chapter"}[the completed-space discipline of the previous chapter]:
+never name an infinite element.
+:::
+
+:::paragraph
+The route: the three-instant ABL reconstruction and its joint and marginal laws
+(the finite-dimensional model), post-selection and the reconstruction formula,
+the tensor product itself and why decidable languages close under it, the two
+factors and their laws (arbitrary on the finite part, the Mehler measure forced
+on the infinite part), the cross-dimensional inner product, and a closing
+account of what is proved versus planned.
+:::
+
+:::paragraph
+The proofs are spread across `BookProof/ChapterSolovayHilbertTensor`,
+`ChapterSolovaySeparableExistence`, `ChapterSolovayCrossDim`,
+`ChapterSolovayTailDimension`, `ChapterTensorCompleteness`, and the Mehler
+uniqueness and orthogonal-invariance chapters; the planned items are stated in
+the chapter and collected in {ref "proof-plans"}[the appendix]. The chapter
+below on {ref "statistical-model-theory"}[statistical model theory] closes this
+part, and the {ref "free-field"}[free-field chapter] later reuses the Mehler
+measure as its Gaussian.
+:::
+
 # The Question
 
 :::paragraph

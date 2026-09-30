@@ -8,6 +8,37 @@ open Verso.Genre.Manual.InlineLean
 tag := "ns-one-particle-hamiltonian"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The operator chapter of the derivative-variables thread for the Eulerian
+Navier–Stokes route: it exhibits the reduced one-parcel family, proves the
+one-body generator $`H_{\rm sp} = H_{\rm visc} + H_{\rm advect}` symmetric and
+positive for the exact nonlinearity, and identifies the final Hamiltonian with
+its second quantization $`d\Gamma(H_{\rm sp})` — every particle-number sector
+is preserved. Read it after
+{ref "fourier-elimination"}[the Fourier-elimination chapter], which fixed the
+strategy of record; {ref "ns-comparison-operator"}[the next chapter] supplies
+the Faris–Lavine comparison operator for the same Hamiltonian.
+:::
+
+:::paragraph
+The route: why the final Hamiltonian is a one-particle statement, the momentum
+variables (a diagonal derivative and a partial transform), the fibred model
+identified with the scalar one, the constraint solved (the inverse field
+momentum), the advection as a convolution, uniformity under the energy cutoff,
+the one-body generator and the outer Hamiltonian as its second quantization,
+why not the mainstream generator, the Lagrangian face (one parcel, then the
+interacting whole), and what is verified versus open.
+:::
+
+:::paragraph
+The proofs are `BookProof/NsOneBody`, `BookProof/NsLagrangianOuterFock`,
+`BookProof/NsFullLagrangianEsa`, `BookProof/NsAdvectionConvolution`,
+`BookProof/NsCutoffUniformity`, `BookProof/NsFieldMomentumInverse`, and the
+`NsKoopman` / `NsScalarFourier` / `NsReducedCoreEsa` family.
+:::
+
 # The Final Hamiltonian of Record, and Why It Is a One-Particle Statement
 
 :::paragraph

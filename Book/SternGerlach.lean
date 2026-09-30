@@ -8,6 +8,29 @@ open Verso.Genre.Manual.InlineLean
 tag := "stern-gerlach"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The chapter that closes the Born-rule part with its first laboratory
+application: Stern–Gerlach, where a symmetry of the wave-function is
+non-deterministic on the phase space and information is erased by a unitary.
+Read it after {ref "probability-clock"}[the probability clock] — the two-state
+phase space is the same one — and note the part's closing point: this part is
+the prerequisite for the field-theory and relativity part that follows.
+:::
+
+:::paragraph
+The route: the stronger case for non-deterministic symmetry, the experiment,
+the two-state phase space, why sequential measurements give 50/50, and
+information erasure by a unitary.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterSternGerlach` and
+`BookProof/ChapterEulerDensityMatrix` (the density-matrix language reused from
+the clock).
+:::
+
 # A Stronger Case for Non-Deterministic Symmetry
 
 In {ref "probability-clock"}[the probability clock] the symmetry transformations

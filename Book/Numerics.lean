@@ -8,6 +8,31 @@ open Verso.Genre.Manual.InlineLean
 tag := "constants-suite"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The constants suite: the four numbers the programme's physics is measured
+against — the blackbody spectrum, the oscillator spectrum, positronium, and the
+Lamb shift and $`g-2` — read as thermal statistics and radiative corrections
+inside the same frame. It sits at the end of the field-theory part, where the
+reader has the Fock/BRST vocabulary to see what is being claimed; the closing
+section is the chapter's contract: what is verified, and what is open.
+:::
+
+:::paragraph
+The route: why these four numbers, the blackbody spectrum (thermal
+statistics), the oscillator spectrum (the bridge to bound states), positronium
+(the two-body touchstone), and the Lamb shift and $`g-2` (radiative
+corrections).
+:::
+
+:::paragraph
+The verified pieces include `BookProof/ChapterBoseEinstein`, the coherent-state
+thermal chapters, `BookProof/ChapterThermalMaxEntropy`, the CPT Hamiltonian,
+`BookProof/RitzCertificate`, `BookProof/TempleSeparationNecessary`, and the
+`BookProof/SirkCertifiedGap` enclosure.
+:::
+
 # Why These Four Numbers
 
 :::paragraph

@@ -8,6 +8,31 @@ open Verso.Genre.Manual.InlineLean
 tag := "epr-complete"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The chapter that closes the logical circle of the part: EPR-completeness,
+relativistic causality, an explicit deterministic theory, and the classical
+limit. It opens with the negative fact that shapes everything below — there is
+no uniform probability measure on a countable space — and needs only the
+chapters before it in this part.
+:::
+
+:::paragraph
+The route: no uniform measure on a countable space, the two kinds of
+incompleteness (quantum mechanics has only the first), ensemble forecasting as
+many models in one, when probabilities become calculable (the classical limit),
+the monotonicity of entropy for Markov processes, relativistic causality, the
+existing deterministic theory (inverse-transform sampling), and why the uniform
+countable measure cannot exist.
+:::
+
+:::paragraph
+The proofs are `BookProof/ChapterNoUniformCountable`,
+`BookProof/ChapterClassicalLimit`, `BookProof/ChapterMarkovEntropy`,
+`BookProof/ChapterCausality`, and `BookProof/ChapterInverseTransform`.
+:::
+
 # No Uniform Measure on a Countable Space
 
 We begin with a negative fact that shapes everything below. There is *no uniform

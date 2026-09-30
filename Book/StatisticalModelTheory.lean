@@ -3,9 +3,30 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Statistical Model Theory, and Statements as Operators" => %%%
+#doc (Manual) "Statistical Model Theory, and Statements as Operators" =>
+%%%
 tag := "statistical-model-theory"
 %%%
+
+# Orientation and Status
+
+:::paragraph
+The last chapter of the foundation part, read best after
+{ref "solovay-tensor"}[the Solovay–Kopperman tensor product]: it uses the same
+completed-space discipline ({ref "pa-free-chapter"}[no named infinite
+elements]) but turns from *spaces* to *language* — what a theory can pin down,
+and what a statement is once its models form a Hilbert space. No field theory
+and no probability beyond the Introduction is needed.
+:::
+
+:::paragraph
+The chapter has two halves and says so: first-order axioms never select a single
+uncountable structure over a countable language (while second-order axioms can),
+then a statement becomes an orthogonal projection whose truth value is a number
+rather than a bit. The probabilistic toolkit that the next part builds —
+{ref "dutch-book"}[the Dutch-book chapter] and after — is exactly what turns
+those numbers into degrees of belief.
+:::
 
 This chapter formalizes the model-theoretic content of the manuscript's closing
 chapter, *Statistical Model Theory and Bayesian priors where the Riemann

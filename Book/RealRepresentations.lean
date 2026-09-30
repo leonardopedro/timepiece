@@ -8,6 +8,32 @@ open Verso.Genre.Manual.InlineLean
 tag := "real-representations"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The opening chapter of the Standard-Model thread of this part — the block
+(this chapter, {ref "quantization-time-evolution"}[quantization by
+time-evolution], {ref "gribov-ambiguity"}[the Gribov ambiguity],
+{ref "physical-parity"}[physical parity]) that can be read largely
+independently of the free-field thread. It answers the manuscript's question of
+how Lorentz covariance and quantum mechanics are compatible, and needs only the
+wave-function parametrization of the Born part behind it.
+:::
+
+:::paragraph
+The route: the Lorentz group and its discrete subgroup, its real
+representations, the Pauli matrices and the double cover, the Poincaré group and
+the little group, Majorana spinors and the CPT theorem, the relativistic
+position operator, and the bosonic CCR relations.
+:::
+
+:::paragraph
+The proofs include `BookProof/ChapterLorentzRealRep` (with its direct/full/sum
+variants), `BookProof/ChapterLittleGroup`, the CPT chapters
+(`ChapterCPTParity`, `ChapterCPTPT`, `ChapterCPTHamiltonian`), the Majorana
+chapters, and `BookProof/Bosonic` for the CCR close.
+:::
+
 # The Question
 
 :::paragraph

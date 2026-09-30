@@ -8,6 +8,30 @@ open Verso.Genre.Manual.InlineLean
 tag := "born-fiber"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The chapter of the part that asks what the parametrization *forgets*: the Born
+map is surjective ({ref "born-reproduces"}[the previous chapter]) but far from
+injective, and its fibers are exactly the coordinate-wise phases (or signs).
+That redundancy is the book's first *gauge freedom*, and the chapter closes
+with the structural consequence — no continuous symmetry survives on the
+simplex.
+:::
+
+:::paragraph
+The route: the many-to-one question and its precise answer, the complex fiber
+(coordinate-wise phases), the real fiber (coordinate-wise signs), why this is
+"gauge", and the consequence for continuous symmetries on the simplex.
+:::
+
+:::paragraph
+The fiber theorems are `ChapterBornPhaseFiber.born_fiber_complex` and
+`ChapterBornPhaseFiber.born_fiber_real`. The geometric version of the same
+statement — the simplex as the sphere modulo the gauge — is developed in the
+{ref "free-field"}[free-field chapter].
+:::
+
 # The Parametrization Is Many-to-One
 
 We have seen that the Born map — sending a unit wave-function $`\psi` to the

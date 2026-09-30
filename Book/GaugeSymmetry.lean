@@ -8,6 +8,36 @@ open Verso.Genre.Manual.InlineLean
 tag := "gauge-symmetry"
 %%%
 
+# Orientation and Status
+
+:::paragraph
+The opening chapter of the field-theory part, and one of its two vocabulary
+chapters: *gauge* is the redundancy of a many-to-one parametrization — exactly
+the freedom {ref "born-fiber"}[the fiber chapter] isolated algebraically — and
+the BRST machinery is how that redundancy is carried into dynamics. The other
+vocabulary chapter is {ref "free-field"}[the free-field construction]; the rest
+of the part assumes both.
+:::
+
+:::paragraph
+The route: gauge as parametrization redundancy (and its Born-parametrization
+instance), first-class constraints as gauge generators and their conservation,
+the BRST charge and the ghost field, reduced dynamics on BRST cohomology, the
+abelian case (no Gribov ambiguity — the non-abelian one is
+{ref "gribov-ambiguity"}[its own chapter]), dissipative dynamics as
+irreversibility without a classical Hamiltonian, complete and comprehensive
+gauge fixing, parametrizations as gauge symmetries, and Casimir constraints,
+gauge averaging, and the absence of anomalies.
+:::
+
+:::paragraph
+The proofs are spread over `BookProof/BRSTNilpotent`, `BookProof/GhostField`,
+`BookProof/BrstReducedTransfer`, `BookProof/FreeFieldConstraint`,
+`BookProof/IrreversibleDynamics`, and the gauge-fixing and Casimir-averaging
+chapters; the same BRST pattern is re-used, system by system, in the
+Navier–Stokes and quantum-gravity chapters below.
+:::
+
 # The Idea: Gauge Is a Redundancy of the Parametrization
 
 :::paragraph
