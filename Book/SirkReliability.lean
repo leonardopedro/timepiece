@@ -732,6 +732,18 @@ The remaining term is an interval evaluation with outward rounding, whose soundn
 a handful of order facts about endpoints.
 :::
 
+:::paragraph
+The decomposition is worth reading as a division of responsibility. The residual says
+*where a level sits* — it is a statement about the operator and the computed vector, and
+nothing else. The backward-error term says *what the arithmetic did* — the computed
+eigendecomposition is exact for a nearby operator, and Weyl transports the question back.
+The interval term says *what reading the number did* — even writing a value down is
+arithmetic. Each term can fail independently, and each is checked independently, which is
+why the assembled width is a bound and not a heuristic tolerance. Nothing in the proof
+consumes a raw floating-point value; the statements consume the enclosures, and the only
+trusted component in the whole chain is the outward-rounding evaluation itself.
+:::
+
 ```
 #check @BookProof.SirkFinitePrecision.exists_eigenvalue_dist_le_residual
 #check @BookProof.SirkFinitePrecision.exists_eigenvalue_dist_le_residual_unit
@@ -772,6 +784,20 @@ is instead the lowest positive one-particle energy after a constant shift. The p
 certificate can be used for that observable only after the specialist proves the
 one-particle vacuum/first-excitation identification. Until then, `1.932` is a rigorous
 truncated value, not a real-Hamiltonian Fock gap.
+:::
+
+:::paragraph
+One clarification the numerics forced on the program, and which the prose should carry:
+the recorded run behind `1.932` is the *historical* lattice-era instantiation. The object
+of record is the three-dimensional gauge-fixed Yang–Mills Hamiltonian on the nested Fock
+space, whose exact symmetry is the reflection $`(A_0, A_1) \mapsto (-A_1, -A_0)` and not
+the occupation parity of the lattice model. Its gap is its own — on the order of
+$`0.09` at coupling $`g = 1` and growing with $`g` — and the lattice's $`g^2/2`
+electric law does not transfer to it. The two instantiations are both legitimate uses of
+the same abstract gap theorem; they are not two measurements of one number. The
+gauge-fixed depth study replaces the lattice finite-size study as the order parameter:
+stable in truncation depth at $`g > 0`, shrinking with depth in the gapless abelian
+limit.
 :::
 
 :::paragraph
@@ -844,6 +870,24 @@ $`\theta^o - \theta^e - (\delta^o + \delta^e)` is a lower bound for the parity g
 the truncated Hamiltonian. Worked through on the recorded run — measured gap $`1.9875`,
 assembled width $`0.0555` — the emitted text alone yields a certified gap of at least
 $`1.932`, in particular a strictly positive one.
+:::
+
+:::paragraph
+The reading step is itself checked from outside. The instantiated gap theorem is exported
+to the `lean4export` NDJSON format and reduced by nanoda, a checker independent of Lean's
+kernel — the same discipline as the confluence certificates of the Logos pipeline — and
+the algorithmic core the certificates describe is available as a generated Lean model
+extracted from the Rust implementation by the Aeneas pipeline, so the identities the proof
+relies on can be checked against the code rather than an idealisation of it. The state of
+this formalization as of this chapter's last revision (2026-10-04): the finite-precision
+layers, the certified-gap theorem, the stopping rule, the certificate reader and the
+gap-table instantiation are closed; the Aeneas identity proofs and the per-coupling table
+rows are the remaining executable work; and the two analytic inputs — the one-particle
+form gap uniform in the derivative coordinates, and the gap-preserving convergence of the
+truncation family — remain the honest open boundary of the previous sections. The work
+order lives in `CONSOLIDATED_PLAN.md` ("State of the project — 2026-10-04"), and the
+planner-side pipeline that regenerates every input of this chapter lives in
+`../unfer/PLAN_MASS_GAP.md`.
 :::
 
 ```

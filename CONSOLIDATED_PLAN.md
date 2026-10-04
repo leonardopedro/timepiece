@@ -16138,3 +16138,231 @@ Nothing in this order requires re-deciding a settled convention: the final Hamil
 are the record, the inventory of §2 is the baseline, and every new entry should be filed with
 its status letter (U/C/N/B), its audit file, and — if it involves derivative products — the
 convolution spelling.
+
+## State of the project — 2026-10-04: the mass-gap proof in Lean4 — consolidated status and work order (plan only; no Lean code in this entry)
+
+> **What this section is.**  The single reading guide for the mass-gap proof thread, in the
+> style of the 2026-09-25 consolidated entry: where the proof stands (§M1), why it is possible
+> at all (§M2), the inventory with status letters (§M3), the Lean4 work order for the
+> LLM-Lean4 specialist (§M4), the gates that precede any proof claim (§M5), and the division
+> of labour with the planner-side companion plan `../unfer/PLAN_MASS_GAP.md` (§M6).  It
+> consolidates — and supersedes as a reading guide — §13 (T1–T12), `MASS_GAP_CERTIFIED.md`,
+> `unfer_contracts/MASS_GAP_SPEC.md` and `unfer_contracts/MASS_GAP_REGENERATION.md`; those
+> remain the detailed record.  **No Lean code is written or compiled for this entry** (by
+> instruction); every Lean-shaped item below is a work order for the specialist, and every
+> executable Rust step is the planner's, scoped in `../unfer/PLAN_MASS_GAP.md`.
+
+### M1. Where the proof stands — it has already started
+
+The mass-gap proof is **under way, not prospective**.  Concretely, as of this entry:
+
+* **T1–T7 are proved** — the finite-precision certificate layer (backward error + Weyl,
+  Rayleigh–Ritz residual bound, certified-observable propagation, directed-rounding interval
+  enclosure) and the certified-gap theorem T6
+  (`BookProof/ChapterSirkFinitePrecision.lean`, `BookProof/ChapterSirkCertifiedGap.lean`),
+  `sorry`-free and `axiom`-free, together with T7 (the stopping-rule theorem) and the
+  nested-selection lemma (§13.3/§13.6, status 2026-08-26g).
+* **T8, T11, T12 are closed** (`BookProof/ChapterSirkCertificateReader.lean`,
+  `BookProof/ChapterSirkGapTable.lean`; 2026-08-27d) — the NDJSON certificate reader and the
+  gap-table instantiation, the latter general per-coupling plus the one aggregate row this
+  repository records.
+* **T9 and T10 are executed and green** (2026-08-27e): the Aeneas pipeline (Charon →
+  `SirkCoreModel.lean`, the pure SIRK core) is operational end to end, and the T10 export of
+  the T6 instance through the official `lean4export` 3.1.0 is re-verified by the independent
+  checker nanoda (`gap_certificate_proof_verifies_in_nanoda`; pinned fixture
+  `prob_kernel/tests/fixtures/gap_certificate.ndjson`, Lean source of the arithmetic instance
+  `GapCertificate/GapCertificate.lean` in this repo).  The abstract core of the continuum leg
+  exists as `BookProof/ChapterSpectralGapStability.lean`.
+* The **kernel half is complete** in `../unfer`: `fock_sirk::mass_gap_spec` (pure,
+  dependency-free proof-facing core), `fock_sirk::certificate` (the NDJSON emitter), and the
+  runtime-preconditioned seam `fock_sirk::certified_mass_gap_parity`, pinned by the
+  `qym_mass_gap.rs` / `qcd_mass_gap_certified.rs` suites (`unfer_contracts/MASS_GAP_SPEC.md`
+  is the code-to-math map of record).
+
+### M2. Why the proof is possible — the two structural facts
+
+1. **Nested Fock space gives the exact sector structure.**  The object of record is the outer
+   enclosure `H = Σᵢⱼ hᵢⱼ C†(eᵢ)A(eⱼ) = dΓ(h)` of the 3D gauge-fixed QYM one-particle
+   Hamiltonian `h` (§1 convention; `qcd_ym_hamiltonian(g)`, `H_final = ½π² + ½B²` with
+   `B = (A₀ − A₁) + ½g·A₀A₁`).  The outer level is number conserving, the exact `Z₂`
+   reflection `R: (A₀,A₁) → (−A₁,−A₀)` splits the problem into two pure sectors with disjoint
+   Krylov chains, and the two-level Friedrichs selection is already proved
+   (`ChapterFockSecondQuantization`, `ChapterYangMillsFriedrichs`, …).  The gap observable is
+   therefore a *difference of two sector-ground quantities* — finite, well-posed, and already
+   named in Lean (T6).
+2. **The Hashimoto approximations carry rigorous bands.**  Every numerical quantity is a
+   SIRK–Hashimoto solve (`solve_forward_sirk_with_opts`) whose Ritz values ship with certified
+   widths `δ = ‖r‖ + c(n)·u·‖Ĝ‖ + h_O` — a-posteriori residual, eigendecomposition backward
+   error, directed-rounding enclosure (`MASS_GAP_CERTIFIED.md` §4).  The numerics thus enter
+   Lean as **enclosures, not trusted floats**: the only new trusted component is the ≤100-line
+   interval core (T5), and the f64 arithmetic is enclosed, never asserted.  This is precisely
+   what makes a *proof* of a numerically-located gap legitimate — the band is the bridge from
+   the computed number to the exact quantity, and it is machine-checkable on both sides
+   (Rust emitter ↔ Lean reader ↔ nanoda).
+
+### M3. The mass-gap chain — inventory with status letters
+
+(letters as in the 2026-09-25 convention: **U** unconditional, **C** conditional, **N**
+negative/obstruction, **B** boundary)
+
+* T1–T5 finite-precision layer, T6 certified-gap theorem, T7 stopping rule, nested-selection
+  lemma — **U** (`ChapterSirkFinitePrecision`, `ChapterSirkCertifiedGap`).
+* T6 arithmetic instance (`GapCertificate.lean`) on the historical `g = 2, m = 4`
+  lattice-era fixture (gap 1.9875, δ 0.0555, `lo = 1.932 > 0`), nanoda re-verified — **U**
+  *for that fixture*; the fixture is retained as an input, not as the object of record.
+* The gauge-fixed statement of record (§6 of `MASS_GAP_CERTIFIED.md`): the certified window
+  `[lo, hi]` **encloses the exact truncated gap** `E₁ − E₀` of `H_m` for `g ∈ {1, 2}` across
+  truncations, cross-checked against exact `N ≤ 8` diagonalization — **U** at the level of the
+  pinned Rust suites; its Lean instantiation for the gauge-fixed numbers is the specialist's
+  item M4.1 below.
+* Truncation-depth stability (gapped at `g > 0` stable in depth; gapless abelian limit shrinks)
+  — **U** numerically, as pinned claims.
+* Non-abelian one-particle form gap, uniform in the derivative-coordinate parameter `η` —
+  open, the single outstanding analytic input of the whole gap programme (work order item 4
+  of the 2026-09-25 entry) — **C**, truth value to be checked before any proof attempt.
+* Gap-preserving norm-resolvent convergence of the nested-Fock truncation family (or an
+  independent a-priori continuum gap bound) — the **single missing leg** to the continuum
+  claim; abstract core only (`ChapterSpectralGapStability`) — **B**.
+* Continuum Millennium mass gap, confinement, the lattice-era `g²/2` reading as the
+  gauge-fixed gap — never claimed: the gauge-fixed gap is its own (`≈ 0.09` at `g = 1`,
+  growing with `g`), and the lattice electric result does not transfer — **B**/**N** as
+  recorded in `MASS_GAP_SPEC.md` §4.
+
+### M4. The Lean4 work order (specialist; plan only — no code in this entry)
+
+In sequence, smallest honest step first:
+
+1. **Instantiate T6/T10 on the gauge-fixed numbers.**  Regenerate the gap-certificate
+   instance from the gauge-fixed sector solves (the current `GapCertificate.lean` is the
+   historical lattice-era instantiation; `MASS_GAP_SPEC.md` §6 records this explicitly),
+   keeping the discipline of the existing file: pure core Lean, no imports, closed `Bool`
+   certificates by kernel reduction (`rfl`), exact decimal reading on scaled naturals, no
+   `native_decide`/`decide`, exportable to `lean4export` 3.1.0 for nanoda.  The numbers come
+   from the planner's fresh emission (§M5).
+2. **Aeneas model integration (T9 remainder).**  Integrate the generated
+   `unfer_contracts/sirk_core_model/aeneas/SirkCoreModel.lean` into the finite-precision
+   layer and prove the algebraic identities against it: projection identity
+   `H_jk = G_{j,k+1} + z_k G_{j,k}`, Gram Hermitian symmetry, `T* Ĝ T = I`, and the residual
+   formula `e_m = τ_m c_{m−1}` (the f64 leaves stay opaque — the documented honesty
+   boundary).
+3. **Per-coupling gap-table rows (T11 growth).**  As the planner emits certificates per `g`
+   (M1 of the companion plan), instantiate the general per-coupling statement for each new
+   row; the table stays a derived view of emitted certificates, never hand-entered numbers.
+4. **The non-abelian one-particle form gap uniform in `η`** — first a truth-value probe by the
+   same technique that settled the abelian case negatively (`YangMillsAbelianNoGap`), then,
+   if true, a Simon-type uniform lower bound for `H(η) = ½Σπ_A² + ½|η + q(A)|²`.  This is the
+   analytic input that turns the truncated certificate chain into a statement about the
+   one-particle `h` of record.
+5. **The continuum leg** — gap-preserving norm-resolvent convergence of the nested-Fock
+   truncation family (or an a-priori continuum gap bound), building on
+   `ChapterSpectralGapStability` and the already-proved bottom-of-spectrum / flow convergence.
+   Until it closes, the truncated claim of record stands and the boundary (**B**) is restated
+   in every status table.
+6. **Sector identification and the outer lift** (cross-reference to work order item 5 of the
+   2026-09-25 entry): transport sector derivations to the parcel operators and discharge the
+   one-particle positivity/edge theorem and its outer `dΓ` lift as separate obligations
+   (`MASS_GAP_REGENERATION.md` closing note).
+7. **Book prose** — the certified-gap chapter with `#check` citations to the final names, in
+   the pedagogical style of the `SirkReliability` discussion; step-0 gates of the
+   2026-09-25 entry apply to the prose layer.
+
+### M5. Gates before any proof claim (planner steps; nothing is trustworthy until they pass)
+
+The regeneration gate of `unfer_contracts/MASS_GAP_REGENERATION.md` is binding, restated as
+the checklist the planner automates in `../unfer/PLAN_MASS_GAP.md`: (1) run the corrected
+QYM/QED/QG/NS numerical suites and emit fresh SIRK–Hashimoto NDJSON certificates from the
+actual outer-enclosed Hamiltonians; (2) regenerate the Aeneas `.llbc`/Lean model and check
+completeness (7 expected f64 errors, no truncation class of bug — cf. the `unwrap` audit
+discipline); (3) re-export the Lean instantiation with the official `lean4export` 3.1.0 and
+re-verify in nanoda; (4) record source revision, Hamiltonian constructor, coupling,
+truncation, Krylov order, shifts and SHA-256 of every emitted artifact; (5) replace vendored
+fixtures and update status tables only after (2) and (3) are both green.  Old fixtures are
+never evidence for changed code, and a verified finite certificate never upgrades the
+continuum claim.
+
+### M6. Division of labour, and the companion plan
+
+**The specialist never compiles Rust and never reads `../unfer`** (surface: this repo's
+`unfer_contracts/` bundle + `GapCertificate/` + the Lean modules).  **The planner never
+writes Lean** (surface: `../unfer` numerics, emission, Aeneas/nanoda/lean4export runs,
+re-vendoring into `unfer_contracts/`, hashes and logs).  The planner's full scope — the
+per-`g` emission campaign, the one-command regeneration gate, the spec-parity drift gate
+between `../unfer/docs/MASS_GAP_SPEC.md` and `unfer_contracts/MASS_GAP_SPEC.md`, band-test
+maintenance, the Kani/proptest complement to the f64 paths, and the evidence pinning — lives
+in **`../unfer/PLAN_MASS_GAP.md`** (PLAN M).  Any Lean-shaped discovery on the planner side
+is filed back here as a work-order row, never implemented in Rust-as-Lean or Lean-in-a-hurry;
+any planner-shaped need discovered by the specialist is filed to PLAN M.  The shared frozen
+contract: the `Certificate`/NDJSON schema, the T6 statement, and the S29/S31 export
+pipeline.
+
+## State of the project — 2026-10-04b: the documentation pass, and what the overall project still needs (plan only; no Lean code in this entry)
+
+> **What this section is.**  The companion to the 2026-10-04 mass-gap entry: what the
+> documentation pass changed in the Lean-facing prose and the shared corpus (§N1), and the
+> overall-project assessment — the goals restated as checkable targets and the ordered path
+> to them (§N2) — as seen from this plan.  The engineering-side companion is Part IV of the
+> workspace improvement plan; the planner-side companion remains `../unfer/PLAN_MASS_GAP.md`.
+> **No Lean code is written for this entry.**
+
+### N1. What the documentation pass changed (2026-10-04b)
+
+* **`Book/SirkReliability.lean` — prose only.**  Three pedagogical insertions, no code, no
+  `#check` changes, no new cross-references: (i) the division of responsibility behind the
+  certified width — residual = *where the level sits*, backward error = *what the
+  arithmetic did*, interval = *what reading the number did* — and why that decomposition is
+  a bound rather than a tolerance; (ii) the clarification the numerics forced on the
+  program: the `1.932` run is the *historical lattice-era instantiation*, the object of
+  record is the gauge-fixed nested-Fock operator whose gap is its own (`≈ 0.09` at `g = 1`),
+  and the two are instantiations of one abstract theorem, not two measurements of one
+  number; (iii) the external-check paragraph — nanoda as the checker independent of Lean's
+  kernel, the Aeneas model as the code-side anchor — with the T1–T12 status and pointers to
+  this plan and `../unfer/PLAN_MASS_GAP.md`.  The prose layer remains to be compiled by the
+  specialist (the standing step-0 gate: name-level verification, then `lake build Book`).
+* **`test/` (the GitBook site).**  The numerics and proof pages now teach the certification
+  chain: the band decomposition and the T6 direction of inequality (`test/numerics/
+  qym-mass-gap.md`), the explicit trust boundary — proved / one trusted component / never
+  trusted / independently re-checked (`test/numerics/certification.md`), and the refreshed
+  honest ledger with the uniform-in-`η` form gap and the continuum leg as named open items
+  (`test/proofs/proof-plans.md`).
+* **`../unfer/docs/*.cdb` — comment-only module documentation.**  All fifteen Cadabra
+  modules carry a MODULE DOCUMENTATION header (purpose, role in the program, certified
+  content, improvement notes tied to the goals); extraction pipelines read only run stdout,
+  so the headers are inert to them.  Two line-number references in `../unfer/AGENTS.md` and
+  `docs/VERIFY_CDB_TRUNCATION_AUDIT.md` were converted to content-based references so the
+  audit trail survives future edits.
+
+### N2. What the overall project needs to achieve its goals — the specialist-relevant path
+
+The full goal statement (four goals, checkable targets, nine ordered items) lives in the
+workspace improvement plan, Part IV.  From this plan's side of the fence, the ordered needs
+are:
+
+1. **The truth-value probe of the one-particle form gap uniform in `η`** (work order §M4.4
+   of the 2026-10-04 entry).  This is the single outstanding analytic input of the whole gap
+   programme and it *dictates how the program's central claim may be stated*.  The project's
+   own record — the abelian case settled **negatively** by the same technique — makes the
+   probe mandatory before any proof attempt.  If the uniform gap fails, the correct outcome
+   is a recorded obstruction (**N**) and a redirected observable, exactly as
+   `YangMillsAbelianNoGap` redirected the QED story; if it holds, a Simon-type lower bound
+   closes the one-particle leg of QYM.
+2. **The gauge-fixed T6/T10 instantiation and the per-coupling rows** (§M4.1/§M4.3).  The
+   gap table is a derived view of emitted certificates; its growth is data-bound (planner
+   item M1), and each row is a small, honest, verifiable step — the ideal steady traffic for
+   the specialist lane.
+3. **The continuum leg** (§M4.5).  The single missing leg to any non-truncated statement;
+   the abstract stability core exists, and the honest default remains: state truncated
+   claims as truncated until it closes.
+4. **The NS standing hypotheses** (the `C` items of the 2026-09-25 entry) and the sector
+   identification (§M4.6 cross-reference) — the sectors where the gap story is *not* yet
+   the blocker, and where the square-comparison reductions already in place can close the
+   mainstream leg.
+5. **The Aeneas identity integration** (§M4.2) — proving the projection identity, Gram
+   symmetry, `T* Ĝ T = I` and `e_m = τ_m c_{m-1}` against the generated model, so the
+   finite-precision theorems are anchored to the code that runs.
+
+Two disciplines carry the whole path and the documentation pass exists to make them
+teachable: **the honest boundary is part of the result** — a truncated claim stated as
+truncated is progress, an overstated claim is a defect — and **the improvement principle**:
+before anything new, name the existing feature it improves.  The current-work-order pointer
+per track (the X8 item) is the mechanism that keeps this section from being re-decided by
+every new reader.
