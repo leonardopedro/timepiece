@@ -1,6 +1,27 @@
 # CONSOLIDATED_PLAN.md — The Single Plan
 
-> **Start here (2026-09-25).**  The newest state entry is **§“State of the project — 2026-09-25 (consolidated): the landed wave under the final-Hamiltonian convention, and the work order”** at the very end of this file.  It consolidates the 2026-09-24b … 2026-09-25 waves — twenty-one new or updated proof chapters (the QYM/SM/QG/NS enclosures, the QG density dependence, the redesigned NS mainstream leg, the sector identification, the dense-core Faris–Lavine criterion and its NS instances, the Lagrangian determinant convolution, and the interacting finite-parcel core) — re-reads every landed statement under the final-Hamiltonian convention of §B (one-particle `h` enclosed creation-left / annihilation-right; QG in its R² vielbein form with the full exponential wall, no Taylor truncation, and the interaction terms; NS and QG products-with-derivatives disposed of by the momentum-space convolution), and carries the ordered work order for the LLM-Lean4 specialist.  The prose layer added in that pass has **not** been compiled; step 0 of the new work order is its name-level check.
+> **Per-track routing table: [`CURRENT_WORK_ORDER.md`](CURRENT_WORK_ORDER.md).** That file
+> holds one row per track — the current entry point, what it supersedes, and — where the
+> corpus contradicts itself — an explicit flag naming the disagreement instead of resolving
+> it. It exists because this file is ~16,400 lines of append-only dated entries and the
+> pointer below is stated once, in prose, at the top of a document that keeps growing past
+> its own header.
+>
+> **Newest entry (2026-10-04b):** **§"State of the project — 2026-10-04b: the documentation
+> pass, and what the overall project still needs (plan only; no Lean code in this entry)"** at
+> the very end of this file, preceded by **§"State of the project — 2026-10-04: the mass-gap
+> proof in Lean4 — consolidated status and work order"** (work order in its **§M4**).  The
+> 2026-10-04 entry **supersedes as a reading guide** §13 (T1–T12),
+> `MASS_GAP_CERTIFIED.md`, `unfer_contracts/MASS_GAP_SPEC.md` and
+> `unfer_contracts/MASS_GAP_REGENERATION.md`; those remain the detailed record.
+>
+> **Entry point for the QYM / QG / NS / SM / book tracks (2026-09-25):**
+> **§"State of the project — 2026-09-25 (consolidated): the landed wave under the
+> final-Hamiltonian convention, and the work order"** at the very end of this file.  It
+> consolidates the 2026-09-24b … 2026-09-25 waves — twenty-one new or updated proof chapters (the QYM/SM/QG/NS enclosures, the QG density dependence, the redesigned NS mainstream leg, the sector identification, the dense-core Faris–Lavine criterion and its NS instances, the Lagrangian determinant convolution, and the interacting finite-parcel core) — re-reads every landed statement under the final-Hamiltonian convention of §B (one-particle `h` enclosed creation-left / annihilation-right; QG in its R² vielbein form with the full exponential wall, no Taylor truncation, and the interaction terms; NS and QG products-with-derivatives disposed of by the momentum-space convolution), and carries the ordered work order for the LLM-Lean4 specialist.  The prose layer added in that pass has **not** been compiled; step 0 of the new work order is its name-level check.  Its ordered work order is **§5** (items 1–7: prose verification, QG density, NS ESA, the QYM one-particle form gap, sector identification, SM refinements, hygiene).
+>
+> **No order currently exists for the RandomMap / RH track** — three documents claim
+> authority and none is reconciled. See flag **F2** in `CURRENT_WORK_ORDER.md`.
 >
 > **Previous entry point (2026-09-24e).**  The state entry at that time was **§“State of the project — 2026-09-24e”** at the very end of this file (QG density dependence at frozen/fibred density; NS mainstream leg redesigned — linear Koopman generators ESA; the sector identification `L²(ℝ⁶)^{⊗̂n} ≅ L²(ℝ^{6n})`; the `BookProofOperatorCore` build-layout decision; gap packages: status); it is followed in place by the 2026-09-24f, 2026-09-24g, 2026-09-24h and 2026-09-25 entries.
 >

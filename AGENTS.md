@@ -4,12 +4,26 @@ Welcome, Agent. This document contains critical context, guidelines, and command
 to help you navigate and contribute to the Riemann Hypothesis probabilistic
 formalization project.
 
+> **Read `CURRENT_WORK_ORDER.md` first.** It holds one row per proof track — the
+> current work order, what it supersedes, and flags for the places this corpus
+> contradicts itself. `CONSOLIDATED_PLAN.md` is ~16,400 lines of append-only dated
+> entries whose own header tracks only some of them; the routing table is the
+> maintained index. Two things this file asserts below are **stale** and marked
+> as such: the Formalization State table's `*Sorry*` marks for the three `RandomMap2`
+> items (all now proved — see flag F2), and the "Priority Attack Order" section that
+> follows from it.
+
 ---
 
 ## Workspace Layout & File Map
 
-- **`/PLAN.md`**: Tracks implemented theorems vs. remaining axioms/loopholes.
+- **`CURRENT_WORK_ORDER.md`**: the per-track routing table — which plan section is
+  current, what it supersedes, and where the corpus disagrees with itself.
   **Read this first** to identify the next development target.
+- **`CONSOLIDATED_PLAN.md`**: the single plan. ~16,400 lines, append-only, newest state
+  entry at the end. Reached through the routing table above, not read end to end.
+- **`DOC_INDEX.md`**: generated backlink graph over the documentation corpus
+  (`python3 scripts/doc_index.py`).
 - **`/` (repo root)**: The Lean 4 project root. The library entry point is
   `RiemannProof.lean` (root-level aggregator; imports the `UsedRoute.*`,
   `UnusedRoute.*`, `RandomMap.*` modules). The former `RiemannProof/`
@@ -179,6 +193,22 @@ algorithm structure; `f64` rounding is enclosed by the T1–T5 theorems.
 ---
 
 ## Priority Attack Order for Next Agent
+
+> ⚠ **This section is stale — do not work from it.** All three items below are
+> **already proved**: `FORMALIZATION_ROADMAP.md` lists them as proved, and
+> `CONSOLIDATED_PLAN.md` records the `RandomMap2` chain as "`sorry`-free in both
+> trees". The Formalization State table above still marks them `*Sorry*`; that
+> table is wrong on these three rows. Recorded as flag **F2** in
+> `CURRENT_WORK_ORDER.md`.
+>
+> The open question this section was supposed to answer is still unanswered, and
+> it is a decision rather than a proof: *is the RH analytic route's remaining
+> `sorry`s next in queue, or parked behind the QG/QYM/operator thread?* The plan
+> asks for that confirmation and no one has written it down. **The current order is
+> the QYM / QG / NS / SM / book rows of `CURRENT_WORK_ORDER.md`.**
+>
+> The three items are kept below verbatim so the record of what was once believed
+> open is not lost.
 
 Work through the remaining items in this order (each unlocks the next):
 
