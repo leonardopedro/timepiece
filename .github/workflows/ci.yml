@@ -13,6 +13,27 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
+  # X1: the shared-LaTeX drift gate, run from the *source of record* side.
+  #
+  # `book.tex` / `ODE.tex` live here and are mirrored into ../unfer, whose tests
+  # read them by that path. The gate has to exist on both sides: unfer's CI
+  # catches an edit made there, and this one catches the commoner case -- someone
+  # editing the source and forgetting the mirror, which is invisible until
+  # unfer's suite reads a stale copy.
+  #
+  # unfer is checked out as a sibling because the comparison needs both halves.
+  # ---------------------------------------------------------------------------
+  corpus-sync:
+    name: book.tex / ODE.tex mirror in sync (X1)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # actions/checkout@v7.0.1
+      - name: checkout unfer as sibling (mirror of the shared LaTeX corpus)
+        run: git clone --depth 1 --branch main https://github.com/leonardopedro/unfer.git ../unfer
+      - name: source of record matches the unfer mirror
+        run: bash scripts/check-book-sync
+
+  # ---------------------------------------------------------------------------
   # Lean proof + certificate targets. These are pure-core & mathlib targets:
   #   - BookProof : the formalization (E_sum, RH, mass-gap chain, PME, ...)
   #   - Layout    : pure-core-Learn certificates for the GPU federation
