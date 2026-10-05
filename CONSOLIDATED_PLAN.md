@@ -16387,3 +16387,33 @@ truncated is progress, an overstated claim is a defect — and **the improvement
 before anything new, name the existing feature it improves.  The current-work-order pointer
 per track (the X8 item) is the mechanism that keeps this section from being re-decided by
 every new reader.
+
+<!-- board-rollup -->
+## State of the project — 2026-10 (board rollup)
+
+Machine-generated from the shared board by `scripts/board_rollup.py`. **11** weighted entries across 12 total. This is a rollup of board observations, not a plan: the authoritative work order per track is `CURRENT_WORK_ORDER.md`.
+
+### FAIL — an approach that did not work, and why — the highest-value kind
+
+- `w-faris-lavine` (cursor 1): uniform_variance_bound, jensen_bohr, convergent_series_has_no_poles: AGENTS.md still lists all three as next, and all three are already proved (sorry-free in both trees) — AGENTS.md 'Priority Attack Order for Next Agent' is stale; FORMALIZATION_ROADMAP.md lists them as proved. See CURRENT_WORK_ORDER.md flag F2.
+- `w-qym` (cursor 5): PLAN_LEAN_SPECIALIST_QYM_FLOW.md §11.4 'closed' claims are superseded by its own later status block — the continuous flow is not instantiated for QYM — Do not read §11.4 as a completion claim.
+- `w-sm` (cursor 10): smComparison as a comparison operator is refuted by the 09-23f wave, though it remains defined and proved positive — Still defined because the fermionic completion needs it. Do not present it as a live comparison.
+- `w-mass-gap` (cursor 12): Commit 7fa2b6c (2026-09-30) added Orientation/Status to 48 Book chapters and appended no plan entry — CURRENT_WORK_ORDER.md flag F4. The most recent substantive work in the repo is invisible to the plan.
+
+### FACT — established (ideally with evidence in the entry)
+
+- `w-ns` (cursor 2): not_nsEnergy_surjective is refuted (N), so nsKoopman_esa_of_energy_comparison is vacuous as stated — CONSOLIDATED_PLAN 09-25 §2/§3. The NS order at 09-25 §5 item 3 still names two unproved C hypotheses that lean on it.
+- `w-qym` (cursor 4): The QYM one-particle form gap is the programme's top analytic input — CONSOLIDATED_PLAN 10-04b §N2; restated from 09-25 §5 item 4.
+- `w-qg` (cursor 8): The density is a canonical variable for QG; the record operator is pinned separately and is never the density — CONSOLIDATED_PLAN 09-25 §1: separate, labeled realizations — never the record.
+- `w-mass-gap` (cursor 11): The mass-gap proof order is §M4 in the 10-04 entry — the newest entry in CONSOLIDATED_PLAN.md — §13 (T1–T12) and MASS_GAP_CERTIFIED.md remain the detailed record but are superseded as a reading guide.
+
+### CLAIM — a scope a worker held
+
+- `w-ns` (cursor 3): editing unfer_contracts/prob_kernel — NS derivative fixing
+- `w-sm` (cursor 9): editing HONEST_BOUNDARIES_SM.md — fermionic completion boundary ledger
+
+### PATCH_SUMMARY — a change plus its machine-generated gate output
+
+- `w-g1` (cursor 7): X8: per-track work-order routing table added (CURRENT_WORK_ORDER.md) — gate: check-status PASS; doc_index --check 201 links
+
+**Handover note.** Every item above is a work order for the LLM-Lean4-specialist. No `.lean` file was written or compiled to produce this section.

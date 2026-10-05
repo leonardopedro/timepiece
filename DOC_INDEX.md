@@ -17,9 +17,9 @@
 | [BUILD_COMPONENTS.md](BUILD_COMPONENTS.md) | The independent parts of the development, and how to compile them separately | 214 | 0 | 5 |
 | [BUILD_LAYOUT.md](BUILD_LAYOUT.md) | Project layout and how to build as little as possible | 234 | 1 | 3 |
 | [CHANGELOG.md](CHANGELOG.md) | Changelog | 63 | 1 | 0 |
-| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 16389 | 43 | 18 |
+| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 16419 | 43 | 18 |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator | 100 | 0 | 2 |
-| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 153 | 28 | 2 |
+| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 194 | 28 | 2 |
 | [Contention.md](Contention.md) | Contention: Message Differences Between `book.tex` and `Book/` | 252 | 0 | 3 |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | Which `N`? Comparison operators for the Faris–Lavine route — one per Hamiltonian | 623 | 3 | 3 |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | QG‑3.2 operator half: ESA of a sum of couplings with *differing* bases | 199 | 0 | 2 |
@@ -269,7 +269,7 @@
 - ## the **Courant–Fischer min–max ladder of an unbounded** non-negative self-adjoint relation,
 - ## through its resolvent: the pointwise inequality, the exact bottom rung, and gap transfer
 - ## State update — 2026-09-05a (execution wave, **verified build**): revised next step 1 gets
-- … (141 more)
+- … (142 more)
 
 ### The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator (`CORE_TRANSFER_ESA.md`)
 
@@ -284,6 +284,7 @@
 
 - # Current work order — one pointer per track
 - ## The table
+- ## Recent board entries — per track
 - ## Flags — where the corpus contradicts itself
 - ## Maintaining this file
 

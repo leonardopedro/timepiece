@@ -66,6 +66,47 @@ plans for future work"* — it absorbs everything still open from `BOOK_PROOF_PL
 
 ---
 
+## Recent board entries — per track
+
+> **What this section is.** The table above says *which document is authoritative*.
+> This one says *what the shared board currently records* for the same track, so
+> a specialist can see recent observations without reading the whole 16k-line plan.
+> Entries are cited by **board cursor**, which is a stable monotonic id, not a line
+> number — the same content-based discipline the rest of this file uses.
+>
+> **Where they come from.** `BOARD.ndjson`, the board's NDJSON snapshot, read by
+> `scripts/board_rollup.py`. `Board::write` assigns no timestamp, deliberately: adding
+> wall-clock would make the log non-deterministic, and the cursor ordering is what
+> everything depends on. A month therefore comes from the snapshot's mtime unless a
+> writer supplies `ts`.
+>
+> ⚠ **`BOARD.ndjson` is currently a seed corpus**, transcribed from the plan entries
+> and flags this file already cites — not observations captured from live agent runs.
+> It exists so the rollup path is exercisable and auditable before any agent writes
+> to it. Treat these as restatements, not as new evidence; when real workers write
+> entries they will carry the same shape and the same cursors continue.
+
+| Track | Recent board entries |
+|---|---|
+| **NS** (Navier–Stokes) | cursor 2 `FACT` — `not_nsEnergy_surjective` refuted, so `nsKoopman_esa_of_energy_comparison` is vacuous as stated; cursor 3 `CLAIM` — `unfer_contracts/prob_kernel`, NS derivative fixing |
+| **QYM** (Yang–Mills) | cursor 4 `FACT` — the one-particle form gap is the programme's top analytic input; cursor 5 `FAIL` — `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` §11.4 "closed" is superseded by its own later status block |
+| **QG** (quantum gravity) | cursor 8 `FACT` — the density is a canonical variable; the record operator is pinned separately and is **never** the density |
+| **SM** (Standard Model) | cursor 9 `CLAIM` — `HONEST_BOUNDARIES_SM.md`, fermionic completion boundary ledger; cursor 10 `FAIL` — `smComparison` as a comparison operator is refuted by the 09-23f wave though still defined and proved positive |
+| **RandomMap** (RH) | cursor 1 `FAIL` — `AGENTS.md` still lists three already-proved items as next (see **F2**). No `CLAIM` recorded: this is the one track with no order and nobody has taken it |
+| **book** (Verso / pedagogical) | cursor 12 `FAIL` — commit `7fa2b6c` added Orientation/Status to 48 chapters and appended no plan entry (see **F4**); cursor 6 `OBSERVED` — prose consistent with the 08-27 supersession wave |
+| **mass-gap** | cursor 11 `FACT` — the order is §M4 in the 10-04 entry; §13 and `MASS_GAP_CERTIFIED.md` remain the detailed record but are superseded as a reading guide |
+
+**Rolling up.** `python3 scripts/board_rollup.py --list-months` shows what is present;
+`--month YYYY-MM --dry-run` prints the block without writing. The script **appends only**
+— `CONSOLIDATED_PLAN.md` is append-only by house rule and this one never edits it — and
+refuses to write a second rollup for a month that already has one, because a duplicate
+would be indistinguishable from a correction. Use `--force` to append anyway; the earlier
+block is kept rather than replaced. `FAIL` entries sort first, `OBSERVED` last and
+usually not at all: they are conclusions-free notes, and surfacing them would bury the
+entries that tell a specialist something.
+
+---
+
 ## Flags — where the corpus contradicts itself
 
 These are recorded, not resolved. Each names who would have to decide.

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-05T05:52:28+00:00",
+ "generated_at": "2026-10-05T16:26:36+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -294,7 +294,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 16389,
+   "lines": 16419,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -476,7 +476,8 @@
     "## State 2026-09-25 — ESA of the interacting full NS Hamiltonians on the finite-parcel core",
     "## State of the project — 2026-09-25 (consolidated): the landed wave under the final-Hamiltonian convention, and the work order",
     "## State of the project — 2026-10-04: the mass-gap proof in Lean4 — consolidated status and work order (plan only; no Lean code in this entry)",
-    "## State of the project — 2026-10-04b: the documentation pass, and what the overall project still needs (plan only; no Lean code in this entry)"
+    "## State of the project — 2026-10-04b: the documentation pass, and what the overall project still needs (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10 (board rollup)"
    ]
   },
   {
@@ -495,10 +496,11 @@
   {
    "path": "CURRENT_WORK_ORDER.md",
    "title": "Current work order — one pointer per track",
-   "lines": 153,
+   "lines": 194,
    "headings": [
     "# Current work order — one pointer per track",
     "## The table",
+    "## Recent board entries — per track",
     "## Flags — where the corpus contradicts itself",
     "## Maintaining this file"
    ]
