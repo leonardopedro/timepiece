@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-05T16:26:36+00:00",
+ "generated_at": "2026-10-05T16:52:23+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -614,7 +614,7 @@
   {
    "path": "GPU_FEDERATION_PLAN.md",
    "title": "GPU Federation Improvement Plan",
-   "lines": 273,
+   "lines": 275,
    "headings": [
     "# GPU Federation Improvement Plan",
     "## 1. Ideas extracted from GPU.md",

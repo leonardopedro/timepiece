@@ -26,7 +26,7 @@
 | [EXPPOT.md](EXPPOT.md) | EXPPOT | 174 | 0 | 0 |
 | [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md) | FEDERATION DEEP REVIEW & IMPROVEMENT PLAN | 201 | 1 | 0 |
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | Formalization Roadmap for `book.tex` | 3817 | 6 | 8 |
-| [GPU_FEDERATION_PLAN.md](GPU_FEDERATION_PLAN.md) | GPU Federation Improvement Plan | 273 | 1 | 0 |
+| [GPU_FEDERATION_PLAN.md](GPU_FEDERATION_PLAN.md) | GPU Federation Improvement Plan | 275 | 1 | 0 |
 | [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md) | Hamiltonian audit — what the proofs actually use, and the Faris–Lavine `N` of each theory | 681 | 3 | 2 |
 | [HASHIMOTO_COMPLEX_SHIFTS.md](HASHIMOTO_COMPLEX_SHIFTS.md) | Complex (non-real) shifts and many shifts in the shift-invert theory | 96 | 0 | 2 |
 | [HERMITE_CORE_STRICHARTZ.md](HERMITE_CORE_STRICHARTZ.md) | The Hermite core of `L²(ℝ)` and a Strichartz-type theorem on it | 69 | 0 | 2 |
