@@ -1,11 +1,11 @@
 {
  "version": 1,
- "generated_at": "2026-09-24T06:13:59+00:00",
+ "generated_at": "2026-10-05T05:52:28+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
    "title": "AGENTS.md - Developer Guide for AI Coding Agents",
-   "lines": 249,
+   "lines": 279,
    "headings": [
     "# AGENTS.md - Developer Guide for AI Coding Agents",
     "## Workspace Layout & File Map",
@@ -27,9 +27,17 @@
   },
   {
    "path": "ARISTOTLE_SUMMARY.md",
-   "title": "Summary of changes for run 69fdb072-8379-48ca-a298-6233b6fb34ec",
-   "lines": 13265,
+   "title": "Summary of changes for run d5e4e441-daeb-4475-ad7b-965de97e6870",
+   "lines": 13515,
    "headings": [
+    "# Summary of changes for run d5e4e441-daeb-4475-ad7b-965de97e6870",
+    "# Summary of changes for run e7feac43-88f8-4f52-a00e-a1f53cdd1d6e",
+    "# Summary of changes for run a4688d21-fb8c-4bd2-ad32-e70f65e8a515",
+    "# Summary of changes for run 836374db-363e-4686-a784-07ab2356a721",
+    "# Summary of changes for run d6433106-64fe-43fd-a700-20b6b3c51c83",
+    "# Summary of changes for run 4d4c949a-0bd1-4da5-86ac-aad21a9e3919",
+    "# Summary of changes for run c0522d23-8651-454f-9c5a-4ce1b06ca227",
+    "# Summary of changes for run 62f9fa06-dc6e-48a8-b9e2-7f055c1e26b3",
     "# Summary of changes for run 69fdb072-8379-48ca-a298-6233b6fb34ec",
     "# Summary of changes for run d77798af-de97-43c1-bc06-e1b3ef7d573b",
     "# Summary of changes for run e65826f4-b616-4c5a-ba5b-347641b31646",
@@ -221,15 +229,16 @@
     "# Summary of changes for run 283fd602-63db-426f-bd5f-734dd91daf42",
     "# Summary of changes for run 536c520a-3449-4be3-b099-fce168d35db2",
     "# Summary of changes for run b1049c3f-072b-483e-8a8d-70dddbc8562a",
-    "# Summary of changes for the Part F run",
-    "# Summary of changes for run 12f2f3df-be24-45fa-acbe-e371d04a9574",
-    "# Summary of changes for run 318cf929-fcff-49a1-aefd-97f537d7b519",
-    "## What was done",
-    "# Summary of changes for run 09a53d98-ff41-46b3-8e8d-1243c2efd0b8",
-    "# Summary of changes for run 6208feec-584f-4595-8060-715a0507973c",
-    "# Summary of changes for run db4f3f30-0651-499e-b291-7c1a5a2f21f9",
-    "# Summary of changes for run 3c4e7fec-c8cf-4e07-b8d3-d68bd7700ff9",
-    "# Summary of changes for run 15aab37f-d2ed-4545-a446-72f66dc8bf05"
+    "# Summary of changes for the Part F run"
+   ]
+  },
+  {
+   "path": "ATTRIBUTION.md",
+   "title": "Attribution",
+   "lines": 20,
+   "headings": [
+    "# Attribution",
+    "## Notes"
    ]
   },
   {
@@ -251,7 +260,7 @@
   {
    "path": "BUILD_COMPONENTS.md",
    "title": "The independent parts of the development, and how to compile them separately",
-   "lines": 210,
+   "lines": 214,
    "headings": [
     "# The independent parts of the development, and how to compile them separately",
     "## Sub-system targets",
@@ -285,7 +294,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 15447,
+   "lines": 16389,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -456,7 +465,18 @@
     "## State of the project — 2026-09-23e: Lean4-specialist handover for `ChapterSmFarisLavine.lean` (design research complete; proof module **not** written; no `lake build`)",
     "## State of the project — 2026-09-23f: `ChapterSmFarisLavine.lean` written and compiled — the two bosonic Faris–Lavine inequalities are theorems, the comparison operator of §D6b-SM.2 is *refuted*, and `sm_h_esa` is reduced to one hypothesis",
     "## State of the project — 2026-09-23g: the Kato-type input is proved — `smFlN_esa` and the unconditional `sm_h_esa` are theorems",
-    "## State of the project — 2026-09-24a: the closure wave is merged and read under the final-Hamiltonian doctrine; ordered work order for the LLM-Lean4 specialist"
+    "## State of the project — 2026-09-24a: the closure wave is merged and read under the final-Hamiltonian doctrine; ordered work order for the LLM-Lean4 specialist",
+    "## State of the project — 2026-09-24b: work order 2026-09-24a executed — gates run, the enclosures proved (SM bosonic, non-abelian YM, NS reduced), what remains",
+    "## State of the project — 2026-09-24c: SM full assembly, NS and QG symmetrized enclosures, and an obstruction on the NS mainstream leg",
+    "## State of the project — 2026-09-24d: QG-3.2(b) at flat density (84-dim gravity Hamiltonian with the Weyl-ordered cross terms ESA, and its enclosure) and the SM operator-valued Yukawa coupling",
+    "## State of the project — 2026-09-24e: density dependence of the QG Hamiltonian, the NS mainstream leg redesigned, the sector identification, and the build-layout decision",
+    "## 2026-09-24f — NS nonlinear leg: Faris–Lavine with `N = H_NS² + E`",
+    "## 2026-09-24g — NS Lagrangian leg: determinant constraint in momentum convolution, through Faris–Lavine",
+    "## State 2026-09-24h — Lagrangian one-parcel ESA carried to the outer Fock space",
+    "## State 2026-09-25 — ESA of the interacting full NS Hamiltonians on the finite-parcel core",
+    "## State of the project — 2026-09-25 (consolidated): the landed wave under the final-Hamiltonian convention, and the work order",
+    "## State of the project — 2026-10-04: the mass-gap proof in Lean4 — consolidated status and work order (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-04b: the documentation pass, and what the overall project still needs (plan only; no Lean code in this entry)"
    ]
   },
   {
@@ -470,6 +490,17 @@
     "## The hypothesis that is carried, not proved",
     "## Scope",
     "## Session note"
+   ]
+  },
+  {
+   "path": "CURRENT_WORK_ORDER.md",
+   "title": "Current work order — one pointer per track",
+   "lines": 153,
+   "headings": [
+    "# Current work order — one pointer per track",
+    "## The table",
+    "## Flags — where the corpus contradicts itself",
+    "## Maintaining this file"
    ]
   },
   {
@@ -651,7 +682,7 @@
   {
    "path": "HONEST_BOUNDARIES_SM.md",
    "title": "The Standard-Model honest boundaries: what is now a Lean theorem, and what is not",
-   "lines": 313,
+   "lines": 316,
    "headings": [
     "# The Standard-Model honest boundaries: what is now a Lean theorem, and what is not",
     "## §L. Still open, and explicitly not claimed",
@@ -669,21 +700,6 @@
     "## 5.4 From the original §1 sentence, only this remains open",
     "## 5.5 Accounting identity (2026-09-23d): no extra gauge-fixing/ghost summand in `h` or `N`",
     "## Module map (closed boundaries → files)"
-   ]
-  },
-  {
-   "path": "Hashimoto.md",
-   "title": "Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
-   "lines": 425,
-   "headings": [
-    "# Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
-    "## Abstract",
-    "## 1 Introduction",
-    "## 2 The definition of the operator function",
-    "## 4 Shift-invert rational Krylov method",
-    "## 5 Numerical experiments",
-    "## 6 Conclusion",
-    "# References"
    ]
   },
   {
@@ -764,6 +780,17 @@
     "## 5. Certifying the code implementation (the probability kernel), with Lean4",
     "## 6. What is proved, what is not, and the single missing leg",
     "## 7. Suggested next steps (for a Lean4 specialist)"
+   ]
+  },
+  {
+   "path": "NS_LAGRANGIAN_OUTER_FOCK_ESA.md",
+   "title": "Lagrangian Navier–Stokes: from the one-particle ESA proof to the outer Fock space",
+   "lines": 182,
+   "headings": [
+    "# Lagrangian Navier–Stokes: from the one-particle ESA proof to the outer Fock space",
+    "## 1. The one-particle theorem that already exists",
+    "## 2. The extension to the outer Fock space",
+    "## Update 2026-09-25 — the interacting Hamiltonian on the finite-parcel core"
    ]
   },
   {
@@ -969,8 +996,10 @@
   {
    "path": "README.md",
    "title": "README",
-   "lines": 8,
-   "headings": []
+   "lines": 33,
+   "headings": [
+    "## Status"
+   ]
   },
   {
    "path": "REVIEW_AND_PLAN_20260907.md",
@@ -1487,22 +1516,6 @@
    ]
   },
   {
-   "path": "lopez99.md",
-   "title": "APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
-   "lines": 783,
-   "headings": [
-    "# APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
-    "# 1. Introduction",
-    "## 2. Expansions in terms of Hermite polynomials",
-    "## 3. Gegenbauer polynomials",
-    "## APPROXIMATION OF ORTHOGONAL POLYNOMIALS",
-    "## 4. Laguerre polynomials",
-    "## 5 The Tricomi-Carlitz polynomials",
-    "## 6. Jacobi polynomials",
-    "## References"
-   ]
-  },
-  {
    "path": "newproof.md",
    "title": "newproof",
    "lines": 285,
@@ -1560,5 +1573,810 @@
    ]
   }
  ],
- "links": []
+ "links": [
+  {
+   "source": "AGENTS.md",
+   "target": "BOOK_PROOF_PLAN.md"
+  },
+  {
+   "source": "AGENTS.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "AGENTS.md",
+   "target": "CURRENT_WORK_ORDER.md"
+  },
+  {
+   "source": "AGENTS.md",
+   "target": "DOC_INDEX.md"
+  },
+  {
+   "source": "AGENTS.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "AGENTS.md",
+   "target": "unfer_contracts/MASS_GAP_REGENERATION.md"
+  },
+  {
+   "source": "AGENTS.md",
+   "target": "unfer_contracts/MASS_GAP_SPEC.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "BOOK_PROOF_PLAN.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "BUILD_COMPONENTS.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "BUILD_LAYOUT.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "CORE_TRANSFER_ESA.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "Contention.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "HASHIMOTO_COMPLEX_SHIFTS.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "HERMITE_CORE_STRICHARTZ.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "HERMITE_GALERKIN_FRIEDRICHS.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "HONEST_BOUNDARIES_SM.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "IMPLEMENTATION_PLAN_RCP.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "Issues.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "NS_LAGRANGIAN_OUTER_FOCK_ESA.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "PLAN_B_PROSE_VERIFICATION.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "PLAN_LEAN_SPECIALIST_COHERENT.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "PLAN_LEAN_SPECIALIST_NS_FLOW.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "PLAN_LEAN_SPECIALIST_QG_FLOW.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "PLAN_LEAN_SPECIALIST_QYM_FLOW.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "PLAN_LEAN_SPECIALIST_SIRK_NESTED.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "PLAN_LEAN_SPECIALIST_UNPROVED.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "PNP_IMPLEMENTATION_PLAN.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "PnpProof/IMPLEMENTED.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "REVIEW_AND_PLAN_20260907.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "REVIEW_FARIS_LAVINE_20260911.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "REVIEW_GAUGE_DEFINITION_20260912.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "REVIEW_GAUGE_SYMMETRY_20260912.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "REVIEW_GAUGE_UNCONSTRAINED_SPECTRUM_20260912.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "REVIEW_THREADS_20260906.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "RandomMap2.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "STATUS.md"
+  },
+  {
+   "source": "ARISTOTLE_SUMMARY.md",
+   "target": "STRICHARTZ_WAVE_ESA.md"
+  },
+  {
+   "source": "BOOK_PROOF_PLAN.md",
+   "target": "Issues.md"
+  },
+  {
+   "source": "BUILD_LAYOUT.md",
+   "target": "BUILD_COMPONENTS.md"
+  },
+  {
+   "source": "CHANGELOG.md",
+   "target": "DOC_INDEX.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "BOOK_PROOF_PLAN.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "BUILD_COMPONENTS.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "BUILD_LAYOUT.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "CORE_TRANSFER_ESA.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "CURRENT_WORK_ORDER.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "Contention.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "DESIGN_COMPARISON_N_20260915.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "HAMILTONIAN_AUDIT_20260918.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "HASHIMOTO_COMPLEX_SHIFTS.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "HERMITE_CORE_STRICHARTZ.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "HERMITE_GALERKIN_FRIEDRICHS.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "HONEST_BOUNDARIES_SM.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "IMPLEMENTED.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "Issues.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "MASS_GAP_CERTIFIED.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "NS_LAGRANGIAN_OUTER_FOCK_ESA.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PLAN_A_BOOK_FORMALIZATION.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PLAN_A_EXECUTION_REPORT.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PLAN_B_PROSE_VERIFICATION.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PLAN_LEAN_SPECIALIST_COHERENT.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PLAN_LEAN_SPECIALIST_NS_FLOW.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PLAN_LEAN_SPECIALIST_QG_FLOW.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PLAN_LEAN_SPECIALIST_QYM_FLOW.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PLAN_LEAN_SPECIALIST_SIRK_NESTED.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PLAN_LEAN_SPECIALIST_UNPROVED.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "PROVE2ME_REUSABLE_THEOREMS.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "README.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "REVIEW_AND_PLAN_20260907.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "REVIEW_FARIS_LAVINE_20260911.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "REVIEW_GAUGE_DEFINITION_20260912.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "REVIEW_GAUGE_SYMMETRY_20260912.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "REVIEW_THREADS_20260906.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "SINGULARITY_DETECTION_PLAN.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "SPECIALIST_PLAN_REMAINING.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "STATUS.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "STRICHARTZ_WAVE_ESA.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "newproof.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "unfer_contracts/MASS_GAP_REGENERATION.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "unfer_contracts/MASS_GAP_SPEC.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "unfer_contracts/sirk_core_model/README.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "BOOK_PROOF_PLAN.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "DOC_INDEX.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "HONEST_BOUNDARIES_SM.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "IMPLEMENTATION_PLAN.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "IMPLEMENTATION_PLAN_RCP.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "MASS_GAP_CERTIFIED.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "PLAN_A_BOOK_FORMALIZATION.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "PLAN_A_EXECUTION_REPORT.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "PLAN_B_PROSE_VERIFICATION.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "PLAN_LEAN_SPECIALIST_COHERENT.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "PLAN_LEAN_SPECIALIST_NS_FLOW.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "PLAN_LEAN_SPECIALIST_QG_FLOW.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "PLAN_LEAN_SPECIALIST_QYM_FLOW.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "PLAN_LEAN_SPECIALIST_UNPROVED.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "REVIEW_AND_PLAN_20260907.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "REVIEW_THREADS_20260906.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "RandomMap.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "RandomMap2LegacyDraft.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "RandomMap_old.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "SINGULARITY_DETECTION_PLAN.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "SPECIALIST_PLAN_REMAINING.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "STATUS.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "newproof.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "unfer_contracts/MASS_GAP_REGENERATION.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "unfer_contracts/MASS_GAP_SPEC.md"
+  },
+  {
+   "source": "DESIGN_COMPARISON_N_20260915.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "DESIGN_COMPARISON_N_20260915.md",
+   "target": "HAMILTONIAN_AUDIT_20260918.md"
+  },
+  {
+   "source": "DESIGN_COMPARISON_N_20260915.md",
+   "target": "REVIEW_FARIS_LAVINE_20260911.md"
+  },
+  {
+   "source": "FEDERATION_DEEP_REVIEW.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "FORMALIZATION_ROADMAP.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "FORMALIZATION_ROADMAP.md",
+   "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "FORMALIZATION_ROADMAP.md",
+   "target": "RandomMap2.md"
+  },
+  {
+   "source": "FORMALIZATION_ROADMAP.md",
+   "target": "SINGULARITY_DETECTION_PLAN.md"
+  },
+  {
+   "source": "FORMALIZATION_ROADMAP.md",
+   "target": "STATUS.md"
+  },
+  {
+   "source": "FORMALIZATION_ROADMAP.md",
+   "target": "unfer_contracts/MASS_GAP_REGENERATION.md"
+  },
+  {
+   "source": "GPU_FEDERATION_PLAN.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "HAMILTONIAN_AUDIT_20260918.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "HAMILTONIAN_AUDIT_20260918.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "HAMILTONIAN_AUDIT_20260918.md",
+   "target": "DESIGN_COMPARISON_N_20260915.md"
+  },
+  {
+   "source": "HONEST_BOUNDARIES_SM.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "IMPLEMENTATION_PLAN_RCP.md",
+   "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "IMPLEMENTATION_PLAN_RCP.md",
+   "target": "IMPLEMENTATION_PLAN.md"
+  },
+  {
+   "source": "IMPLEMENTED.md",
+   "target": "PNP_IMPLEMENTATION_PLAN.md"
+  },
+  {
+   "source": "Issues.md",
+   "target": "BOOK_PROOF_PLAN.md"
+  },
+  {
+   "source": "Issues.md",
+   "target": "STATUS.md"
+  },
+  {
+   "source": "Issues.md",
+   "target": "newproof.md"
+  },
+  {
+   "source": "MASS_GAP_CERTIFIED.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "PLAN_A_BOOK_FORMALIZATION.md",
+   "target": "Issues.md"
+  },
+  {
+   "source": "PLAN_B_PROSE_VERIFICATION.md",
+   "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "PLAN_B_PROSE_VERIFICATION.md",
+   "target": "Issues.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_COHERENT.md",
+   "target": "Contention.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_COHERENT.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_COHERENT.md",
+   "target": "Issues.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_COHERENT.md",
+   "target": "PLAN_LEAN_SPECIALIST_UNPROVED.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_COHERENT.md",
+   "target": "coherent.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_COHERENT.md",
+   "target": "newproof.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_NS_FLOW.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_NS_FLOW.md",
+   "target": "PLAN_LEAN_SPECIALIST_SIRK_NESTED.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_QG_FLOW.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_QG_FLOW.md",
+   "target": "PLAN_LEAN_SPECIALIST_NS_FLOW.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_QYM_FLOW.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_QYM_FLOW.md",
+   "target": "PLAN_LEAN_SPECIALIST_NS_FLOW.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_SIRK_NESTED.md",
+   "target": "PLAN_LEAN_SPECIALIST_NS_FLOW.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_UNPROVED.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "PLAN_LEAN_SPECIALIST_UNPROVED.md",
+   "target": "PLAN_LEAN_SPECIALIST_COHERENT.md"
+  },
+  {
+   "source": "PNP_IMPLEMENTATION_PLAN.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "PNP_IMPLEMENTATION_PLAN.md",
+   "target": "IMPLEMENTATION_PLAN_RCP.md"
+  },
+  {
+   "source": "PNP_IMPLEMENTATION_PLAN.md",
+   "target": "IMPLEMENTED.md"
+  },
+  {
+   "source": "PNP_IMPLEMENTATION_PLAN.md",
+   "target": "PnpProof/IMPLEMENTED.md"
+  },
+  {
+   "source": "PROVE2ME_REUSABLE_THEOREMS.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "PnpProof/IMPLEMENTED.md",
+   "target": "PNP_IMPLEMENTATION_PLAN.md"
+  },
+  {
+   "source": "REVIEW_FARIS_LAVINE_20260911.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "REVIEW_FARIS_LAVINE_20260911.md",
+   "target": "DESIGN_COMPARISON_N_20260915.md"
+  },
+  {
+   "source": "REVIEW_GAUGE_DEFINITION_20260912.md",
+   "target": "BUILD_COMPONENTS.md"
+  },
+  {
+   "source": "REVIEW_GAUGE_DEFINITION_20260912.md",
+   "target": "REVIEW_GAUGE_UNCONSTRAINED_SPECTRUM_20260912.md"
+  },
+  {
+   "source": "REVIEW_THREADS_20260906.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "RandomMap.md",
+   "target": "newproof.md"
+  },
+  {
+   "source": "RandomMap2.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "RandomMap2.md",
+   "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "RandomMap2.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "RandomMap2.md",
+   "target": "SINGULARITY_DETECTION_PLAN.md"
+  },
+  {
+   "source": "RandomMap2.md",
+   "target": "STATUS.md"
+  },
+  {
+   "source": "RandomMap2LegacyDraft.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "RandomMap_old.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "RandomMap_old.md",
+   "target": "newproof.md"
+  },
+  {
+   "source": "SPECIALIST_PLAN_MERGE.md",
+   "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "SPECIALIST_PLAN_REMAINING.md",
+   "target": "AGENTS.md"
+  },
+  {
+   "source": "SPECIALIST_PLAN_REMAINING.md",
+   "target": "Issues.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "BUILD_COMPONENTS.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "BUILD_LAYOUT.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "HONEST_BOUNDARIES_SM.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "MASS_GAP_CERTIFIED.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "PLAN_LEAN_SPECIALIST_COHERENT.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "PLAN_LEAN_SPECIALIST_NS_FLOW.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "PLAN_LEAN_SPECIALIST_QG_FLOW.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "PLAN_LEAN_SPECIALIST_QYM_FLOW.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "PLAN_LEAN_SPECIALIST_SIRK_NESTED.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "PLAN_LEAN_SPECIALIST_UNPROVED.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "SPECIALIST_PLAN_REMAINING.md"
+  },
+  {
+   "source": "STATUS.md",
+   "target": "STRICHARTZ_WAVE_ESA.md"
+  },
+  {
+   "source": "STRICHARTZ_WAVE_ESA.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "bkPrompts.md",
+   "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "bkPrompts.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "bkPrompts.md",
+   "target": "STATUS.md"
+  },
+  {
+   "source": "unfer_contracts/MASS_GAP_REGENERATION.md",
+   "target": "STATUS.md"
+  },
+  {
+   "source": "unfer_contracts/MASS_GAP_REGENERATION.md",
+   "target": "unfer_contracts/MASS_GAP_SPEC.md"
+  },
+  {
+   "source": "unfer_contracts/MASS_GAP_SPEC.md",
+   "target": "MASS_GAP_CERTIFIED.md"
+  },
+  {
+   "source": "unfer_contracts/sirk_core_model/README.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "unfer_contracts/sirk_core_model/README.md",
+   "target": "MASS_GAP_CERTIFIED.md"
+  }
+ ]
 }

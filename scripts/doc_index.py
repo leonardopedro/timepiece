@@ -45,6 +45,32 @@ LINK_RE = re.compile(r"!?\[[^\]]*\]\(\s*([^)\s]+)\)")
 HEADING_RE = re.compile(r"^(#{1,2})\s+(.+?)\s*$", re.M)
 SKIP_SCHEMES = ("http://", "https://", "mailto:", "#", "ftp://")
 
+# Reference forms beyond `[text](path.md)`.
+#
+# The original LINK_RE understood markdown links only, and on this corpus it
+# found 0 backlinks across 61 documents -- which is what the plan's G-T1 called
+# "the index machinery exists but cross-references aren't mined". The machinery
+# was fine; the *convention* was wrong. This project writes documents by naming
+# them in backticks (`CONSOLIDATED_PLAN.md`, `BookProof/STATUS.md`), and there
+# are ~2400 such references against ~120 real markdown links. So a tool that
+# only reads markdown links reports a fully cross-referenced corpus as an
+# orphan graph.
+#
+# Two more forms are accepted, both inert if unused:
+#   - `[[wikilink]]` (the form the plan assumed; the corpus does not use it)
+#   - a bare path at the start of a line, for tables and bullet lists
+#
+# A reference only counts when it resolves to a file that exists inside the repo,
+# which is what keeps the noise down: `*.md`, `.md`, `CHANGELOG.md.example` and
+# anything outside the tree are all rejected.
+WIKILINK_RE = re.compile(r"\[\[([^\]|#]+?)(?:\|[^\]]*)?\]\]")
+# Backticked, path-shaped, ending in .md. The leading char class excludes a
+# bare ".md" and the trailing guard (in extract_refs) rejects glob characters.
+BARE_MD_RE = re.compile(r"`([A-Za-z0-9_.][A-Za-z0-9_./+-]*\.md)`")
+# A path on its own line, e.g. a bullet or table cell listing a document.
+LINE_MD_RE = re.compile(r"^[ \t>*-]*([A-Za-z0-9_][A-Za-z0-9_./+-]*\.md)[ \t]*$", re.M)
+GLOB_CHARS = "*?[]"
+
 
 def repo_root() -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -73,24 +99,45 @@ def scan_docs(root: str, scans: list[str], exclude_rel: str | None = None) -> li
     return sorted(found)
 
 
-def resolve_link(source_rel: str, raw: str, root: str) -> str | None:
-    """Return the repo-relative .md path a link points at, or None."""
+def extract_refs(text: str) -> list[str]:
+    """Every document reference in `text`, as raw path strings.
+
+    Order is irrelevant (the caller dedups); the three passes are kept separate
+    so a failure to understand one convention cannot silence the others.
+    """
+    refs: list[str] = []
+    for m in LINK_RE.finditer(text):
+        refs.append(m.group(1))
+    for rx in (WIKILINK_RE, BARE_MD_RE, LINE_MD_RE):
+        for m in rx.finditer(text):
+            refs.append(m.group(1))
+    return [r for r in refs if r and not any(c in r for c in GLOB_CHARS)]
+
+
+def resolve_ref(source_rel: str, raw: str, root: str) -> str | None:
+    """Return the repo-relative .md path a reference points at, or None.
+
+    A repo-relative reference (`CONSOLIDATED_PLAN.md`) is the common case in this
+    corpus and is written as if from the repository root even when the citing
+    document lives in a subdirectory, so a source-relative interpretation is
+    tried first and the root-relative one second. Source-relative wins when both
+    exist, because that is the stricter reading of what the author wrote.
+    """
     target = urllib.parse.unquote(raw.strip())
     if target.startswith(SKIP_SCHEMES) or not target:
         return None
-    target = target.split("#", 1)[0]
-    if not target:
-        return None
-    if not target.endswith(".md"):
+    target = target.split("#", 1)[0].strip()
+    if not target or not target.endswith(".md"):
         return None  # anchors, assets, non-markdown artifacts
     src_dir = os.path.dirname(os.path.join(root, source_rel))
-    resolved = os.path.normpath(os.path.join(src_dir, target))
     root_abs = os.path.normpath(root)
-    if not resolved.startswith(root_abs + os.sep) and resolved != root_abs:
-        return None  # outside the repo — not ours to index
-    if not os.path.exists(resolved):
-        return None  # broken link: recorded nowhere (check_site covers those)
-    return os.path.relpath(resolved, root).replace(os.sep, "/")
+    for base in (src_dir, root_abs):
+        resolved = os.path.normpath(os.path.join(base, target))
+        if not resolved.startswith(root_abs + os.sep) and resolved != root_abs:
+            continue  # outside the repo — not ours to index
+        if os.path.exists(resolved):
+            return os.path.relpath(resolved, root).replace(os.sep, "/")
+    return None  # broken or out-of-tree reference (check_site covers those)
 
 
 def parse_doc(root: str, rel: str) -> tuple[dict, list[tuple[str, str]]]:
@@ -109,9 +156,9 @@ def parse_doc(root: str, rel: str) -> tuple[dict, list[tuple[str, str]]]:
         headings.append(("#" if level == "#" else "##") + " " + body)
 
     links: set[str] = set()
-    for m in LINK_RE.finditer(text):
-        tgt = resolve_link(rel, m.group(1), root)
-        if tgt is not None:
+    for raw in extract_refs(text):
+        tgt = resolve_ref(rel, raw, root)
+        if tgt is not None and tgt != rel:
             links.add(tgt)
 
     doc = {
@@ -163,6 +210,14 @@ def render(root: str, out_md: str, docs: list[dict],
         "> Index semantics adapted from `typos` (notes-core `index.rs`,",
         "> Apache-2.0): full rebuild, incremental `--file` update, links"
         " deduplicated by (source, target), versioned JSON under `state/`.",
+        ">",
+        "> A reference is counted when it *resolves to a file that exists in the"
+        " repo*. Four forms qualify: a markdown link `[t](p.md)`, a"
+        " `[[wikilink]]`, a backticked `` `p.md` ``, and a bare `p.md` on its"
+        " own line. The backticked form is this corpus's dominant convention"
+        " (~2400 references vs ~120 markdown links), and reading only markdown"
+        " links is what previously made a heavily cross-referenced corpus"
+        " report zero backlinks.",
         "",
         f"## Documents ({len(docs)})",
         "",
