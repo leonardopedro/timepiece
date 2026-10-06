@@ -13,6 +13,61 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
+  # D.5: the H1 `verify-invariants` gate, in CI, behind a `.lean` path filter.
+  #
+  # Until 2026-10-05 this gate existed only as a script a human had to remember
+  # to run. That is a documentation promise, not a gate: the G6 work order commit
+  # recorded the gate as "unrun" rather than "passing", and silence was one
+  # skipped command away from reading as green.
+  #
+  # The path filter is the point. `verify-invariants` pulls in a full Mathlib
+  # build, which is minutes of CI for something a prose-only commit cannot
+  # affect. So it runs when — and only when — a `.lean` file changed, plus on a
+  # weekly schedule and on manual dispatch, so it cannot rot between Lean
+  # touches. A documentation-only commit therefore stops being a special case,
+  # and "the gate did not run" becomes an explainable fact rather than silence.
+  #
+  # It still does NOT run on every commit: that remains a known limit, recorded
+  # in PROJECT_REVIEW_AND_IMPROVEMENT_PLAN.md §D.5.
+  # ---------------------------------------------------------------------------
+  verify-invariants:
+    name: H1 verify-invariants (.lean changes, weekly, manual)
+    runs-on: ubuntu-latest
+    on:
+      push:
+        branches: [main]
+        paths:
+          - '**/*.lean'
+          - 'scripts/verify-invariants'
+      pull_request:
+        paths:
+          - '**/*.lean'
+          - 'scripts/verify-invariants'
+      schedule:
+        # Monday 04:17 UTC. Deliberately not on the hour: every scheduled
+        # workflow in every repo fires at :00, and the queue is worse there.
+        - cron: '17 4 * * 1'
+      workflow_dispatch:
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # actions/checkout@v7.0.1
+
+      - name: install elan (pinned 4.28.0)
+        run: |
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v4.1.2/elan-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz -C $HOME/.elan
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: elan toolchain
+        run: elan toolchain install "$LEAN_VERSION"
+
+      - name: fetch mathlib cache
+        working-directory: .
+        run: lake exe cache get
+
+      - name: H1 gate
+        run: bash scripts/verify-invariants
+
+  # ---------------------------------------------------------------------------
   # X1: the shared-LaTeX drift gate, run from the *source of record* side.
   #
   # `book.tex` / `ODE.tex` live here and are mirrored into ../unfer, whose tests
