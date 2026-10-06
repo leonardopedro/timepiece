@@ -7,10 +7,23 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-04b):** **§"State of the project — 2026-10-04b: the documentation
-> pass, and what the overall project still needs (plan only; no Lean code in this entry)"** at
-> the very end of this file, preceded by **§"State of the project — 2026-10-04: the mass-gap
-> proof in Lean4 — consolidated status and work order"** (work order in its **§M4**).  The
+> **Newest entry (2026-10-06b):** **§"State of the project — 2026-10-06b: the
+> sector correction — the campaign measured a diagnostic, and §M4.9 gates §M4.3"** at
+> the very end of this file (the physical gap is the outer vacuum's `E₁` through
+> `‖Hφ₁‖`, not a difference of one-particle sector grounds; the positivity
+> precondition of `../unfer/fock_sirk/src/mass_gap_spec.rs` is violated at every
+> measured coupling). Preceded by **§"State of the project — 2026-10-06: PLAN M
+> (planner side) landed, and the work orders its findings create"** (M1–M9 plus the
+> §M4.6–§M4.8 rows; read its campaign tables under 10-06b — they are diagnostics),
+> **§"State of the project — 2026-10-05b: the
+> Faris–Lavine comparison operators N for the Lagrangian lines (NS + QG) — work order"** (NS-L / QG-L / GEN-FL rows: the positive N per Hamiltonian and
+> the **N-ESA-on-the-core** obligation), **§"State of the project — 2026-10-05:
+> the analytic-decision-engine work orders"** (L1–L4, from `../PLAN_ANALYTIC_DECISION_ENGINE.md`
+> Part V; optional for the engineering track), **§"State of the project — 2026-10 (board
+> rollup)"** (machine-generated), **§"State of the project — 2026-10-04b: the documentation
+> pass, and what the overall project still needs"**, and **§"State of the project —
+> 2026-10-04: the mass-gap proof in Lean4 — consolidated status and work order"** (work
+> order in its **§M4**).  The
 > 2026-10-04 entry **supersedes as a reading guide** §13 (T1–T12),
 > `MASS_GAP_CERTIFIED.md`, `unfer_contracts/MASS_GAP_SPEC.md` and
 > `unfer_contracts/MASS_GAP_REGENERATION.md`; those remain the detailed record.
@@ -16417,3 +16430,591 @@ Machine-generated from the shared board by `scripts/board_rollup.py`. **11** wei
 - `w-g1` (cursor 7): X8: per-track work-order routing table added (CURRENT_WORK_ORDER.md) — gate: check-status PASS; doc_index --check 201 links
 
 **Handover note.** Every item above is a work order for the LLM-Lean4-specialist. No `.lean` file was written or compiled to produce this section.
+
+## State of the project — 2026-10-05: the analytic-decision-engine work orders (plan only; no Lean code in this entry)
+
+Plan of record: `../PLAN_ANALYTIC_DECISION_ENGINE.md` (workspace root) — the adaptation of
+AnaCP (Momeni, Xiao & Liu, NeurIPS 2025), AnaNC (same authors, AAAI-2026), and the
+`open-jev` typed System-1 interface into a continual closed-form decision layer for the
+seven folders. Its **Part V** files the theorem-shaped items below; the engineering track
+does **not** block on them (the engine ships as measured, uncertified advice without any
+of these). Notation follows the plan's Part I: $Z = \phi(XR)$ random features ($D$ dims,
+GELU), ridge $W = (Z^\top Z + \lambda I)^{-1}H$, incremental Gram/cross updates
+$G_t, H_t$, input-layer class means $M$, counts $N = \mathrm{diag}(n_c)$, shared covariance
+$\Sigma$, ETF gram $S = I - \frac{1}{C-1}(\mathbf{1}\mathbf{1}^\top - I)$. All four rows are
+self-contained linear algebra — **B**: nothing here asserts anything about model quality,
+calibration, or physics; those are measured (plan Part III.4) and never proved here. No
+`.lean` file was written or compiled to produce this entry.
+
+### L1 — ETF/Procrustes correctness (**U**)
+
+Let $S = U_S \Lambda U_S^\top$ be the eigendecomposition of the PSD ETF gram matrix, and
+$Q \in \mathbb{R}^{D \times C}$ semi-orthogonal ($Q^\top Q = I$).
+
+- (a) For $\tilde M = U_S \Lambda^{1/2} Q^\top$: $\tilde M \tilde M^\top = S$ (AnaNC
+  eq. 12–13 — the ETF constraint holds by construction).
+- (b) With $B = M$ and $A = U_S \Lambda^{1/2}$, if $M^\top A = U \Sigma' V^\top$ is an
+  SVD and $Q^* = U V^\top$, then $Q^*$ minimizes $\|A Q^\top - M\|_F$ over
+  semi-orthogonal $Q$ (AnaNC Lemma 1, orthogonal Procrustes — Gower & Dijksterhuis
+  2004, cited at source).
+
+### L2 — Incremental ridge equivalence (**U**)
+
+For $\lambda > 0$: accumulating $G_t = G_{t-1} + X_t^\top X_t$ and
+$H_t = H_{t-1} + X_t^\top Y_t$ (columns of $H$ zero-padded when the class set grows —
+AnaCP eqs. 3, ACIL) yields $(G_t + \lambda I)^{-1} H_t$ equal to the batch ridge solution
+over the pooled data. (This is the property the engine's batch-≡-incremental proptest
+asserts numerically; here it should be exact.)
+
+### L3 — Calibration sanity lemmas (**U**)
+
+- (a) Softmax normalization: $\sum_k \mathrm{softmax}(\ell)_k = 1$ and each component is
+  in $(0,1)$.
+- (b) The logistic energy-gap confidence $\sigma(-(E - \theta)/s)$ is monotonically
+  non-increasing in $E$ for $s > 0$.
+- (c) Temperature scaling preserves the argmax of the logits.
+
+(These are the only prove-able content of the "calibration bridge"; the bridge's
+*validity* — ECE bounds on project data — is measured, not proved. Plan Part III.4.)
+
+### L4 — Certified ridge enclosures (**C**, gated on engineering item D13)
+
+If the engine gains a certified mode (plan Part IV D13), enclose the ridge solve
+$(A + \lambda I)\theta = B$ in the `ChapterSirkFinitePrecision` enclosure style: an
+interval-enclosed Cholesky/solve with a reported width, sound for symmetric
+positive-definite $A + \lambda I$ with $\lambda > 0$. Until D13 exists this row is **N**
+as a claim: the engine reports f64 scores and says so.
+
+### Addendum 2026-10-06 — what the Rust implementation found, and one new row
+
+The engine shipped in `../unfer/decide_core` (91 tests, plus a pinned calibration
+report at `decide_core/tests/fixtures/decide_calibration_report.json`). Three
+findings bear on the rows above.
+
+**L1 is now stated more sharply, and one of its preconditions is a theorem.** The
+ETF constraint `M̃M̃ᵀ = S` is satisfiable by the Procrustes solution **only when the
+feature dimension `k` is at least the class count `C`**: the derivation gives
+`M̃M̃ᵀ = U_S Λ^{1/2}(V Vᵀ)Λ^{1/2}U_Sᵀ`, which equals `S` exactly when `V Vᵀ = I_C`,
+and the SVD of the `k × C` matrix `MᵀU_SΛ^{1/2}` supplies only `min(k,C)`
+orthonormal columns. The Rust side enforces this as a loud precondition, because
+violating it does not yield a slightly-worse target but a target that **is not an
+ETF at all**. *Lean row L1(a)* should therefore be stated as an implication with
+its hypothesis attached:
+
+> **L1(a)′** For PSD `S = U_S Λ U_Sᵀ` and `Q ∈ ℝ^{D×C}` with `QᵀQ = I`, **if
+> `D ≥ C`** then `M̃ = U_S Λ^{1/2} Qᵀ` satisfies `M̃ M̃ᵀ = S`. The hypothesis is
+> necessary: it is what lets the Procrustes rotation `Q = UVᵀ` span the whole ETF.
+> A statement of L1(a) that omits it is *false*, and the Rust property test
+> refuses the input rather than returning a plausible wrong answer.
+
+Two corrections of fact worth carrying, both found by implementing L1:
+
+- The non-trivial eigenvalue of `S = I − (1/(C−1))(11ᵀ − I)` is **`C/(C−1)`**, not
+  `1`. Mis-scaling `Λ^{1/2}` there mis-scales every prototype.
+- The formula is `M̃ = U_S Λ^{1/2} V Uᵀ` with `V = (v_t)ᵀ`, i.e. `V` is the
+  **transpose** of the right-singular-vector matrix the SVD routine returns.
+  Reading "Q* = UVᵀ" at face value gives the transpose of `Qᵀ` and indexes out of
+  bounds whenever `k < C`.
+
+**L3(b) is no longer hypothetical — it was violated, in Rust, and fixed there.** A
+Platt calibrator fitted with a **negative slope** inverts the ID ordering. The Rust
+fix was to make a negative slope *inadmissible* rather than to clamp it, so the
+property became a validated invariant with the failing property test kept in the
+tree. *Lean row*:
+
+> **L3(b)′** For `s > 0`, `E ↦ σ(−(E−θ)/s)` is non-increasing in `E`. For a
+> logistic form `E ↦ σ(aE + b)` the same conclusion holds **iff `a ≥ 0`**; a
+> fitted `a < 0` must be rejected at construction rather than corrected after the
+> fact.
+
+**The calibration bridge earned nothing, and that is the recorded result.** On the
+pinned corpus **no** candidate (temperature / Platt / (K+1)-logit, in either mode)
+met the full R1–R5 contract: measured ECE ran 0.068–0.108 against a bar of 0.05,
+and the measured class-arrival drift was 0.067 against `ε = 0.05`. So the engine
+emits **scores**, and `calibrated: true` is not licensed — enforced in code, not by
+convention. The corpus is synthetic (seeded PRNG with class anchors), so this is a
+mechanism check and not a calibration result; a point that belongs with the row
+rather than in a code comment. *No Lean work order is created by this*: L3's
+content is unchanged and is still worth proving, because it is the part that *can*
+be.
+
+**L5 (new, optional).** If the certified mode (plan item D13) is taken up, note
+what the engine's enclosure actually is: a plain **reported-width** interval, not a
+proof. The statement worth proving is that Cholesky of an `n × n`
+positive-definite `A + λI` carries backward error `O(n·u)`, hence `θ` carries a
+relative perturbation of `u · (‖B‖_F + ‖θ‖‖A‖_F)/λ`. That is the content L4 is
+after, in the `ChapterSirkFinitePrecision` style; the Rust side implemented the
+weaker checkable version and says so in its own documentation.
+
+**Two measurement results a future reader should not have to rediscover:**
+
+- Mode `ananc` (ETF + cosine readout) **forgets catastrophically** on the pinned
+  corpus: worst task-incremental accuracy drops by the full 1.0 as classes arrive,
+  against 0.5 for `anacp`. The forgetting matrix is published rather than only the
+  headline number.
+- One-sample-per-class training gives **degenerate prototypes**, because the class
+  mean *is* that sample. This is a property of the methods, not of a test
+  harness, and it is worth knowing before anyone evaluates either method on a
+  small labelled set.
+
+**Handover note.** L1–L4 are independent of each other and of every physics track; file
+closures as their own `BookProof` chapters when picked up. No `.lean` file was written or
+compiled to produce this section.
+
+## State of the project — 2026-10-05b: the Faris–Lavine comparison operators N for the Lagrangian lines (NS + QG) — work order
+
+The Faris–Lavine commutator criterion (`BookProof.ChapterFarisLavineCore.essentiallySelfAdjointOn_of_farisLavine`,
+Faris & Lavine, CMP 35 (1974) Thm 1) is run on a **core** `C_0`, and its `CoreData`
+hypotheses require the comparison operator **N itself to be essentially self-adjoint ON
+`C_0`** (`C_0` a core for N in the graph norm) — not merely self-adjoint on its own domain
+and not merely bounded below. This entry records, per Hamiltonian written in **Lagrangian
+variables**, (a) the positive comparison **N**, certified symbolically by the new Cadabra
+modules in `unfer/docs/`, and (b) the Lean obligations — the N-ESA-on-the-core obligation
+first, since it is the one the criterion actually consumes and the one easiest to omit.
+
+### NS-L — the NS one-parcel canonical (Lagrangian) Hamiltonian
+
+Object: `h = ½ΣP² + νΣQ² + Σf·P` (`lagCanData`, `constraintOp = 0`,
+`ChapterNavierStokesLagrangianCanonical`), enclosure `H = dΓ(h)`; comparison certified in
+`unfer/docs/faris_lavine_n_ns_lagrangian.cdb` (new, 2026-10-05), numerical twin
+`unfer/fock_sirk/tests/ns_lagrangian_sirk_certified.rs` (new):
+
+- **NS-L-N1 (U)** — the comparison `N := ½Σ(P+f)² + νΣQ² = h + ½|f|²` is positive with
+  `N ≥ 3ω/2 > 0`, `ω = √(2ν)`: shifted-ladder diagonalization
+  `N = ω Σ b†b + 3ω/2`, `b_m = a_m + i f_m/√(2ω)` (module CHECK 1–2/6;
+  numerics: certified ground bands contain `3ω/2 − ½|f|²` for every `f` and `ν` tested).
+  *Prove*: positivity of the Friedrichs lift of `N` on the one-parcel space.
+- **NS-L-N2 (U) — THE CORE CONDITION.** `N` is ESA on `lpFiniteModes Vel` (the Hermite
+  core): the shift is canonical (`[b_m, b_n†] = δ_mn`, CHECK 3), the ladder
+  `[N, b†] = ω b†` (CHECK 4) makes the b-Hermite states exact eigenvectors with
+  eigenvalues `ω(n + 3/2)`, arithmetic in `n` — every core vector is a Nelson analytic
+  vector. *Prove*: `N` essentially self-adjoint **on the core**, and the core is a core
+  for `N` in the graph norm. (Note: the b-core is the a-core — a coherent displacement
+  does not move `lpFiniteModes Vel`.)
+- **NS-L-N3 (U)** — `N + 1` onto (the oscillator resolvent), and `h = N − ½|f|²` shares
+  `D(N)` (module CHECK 1).
+- **NS-L-N4 (C)** — the commutator-form bound for the **penalty family**
+  `H_κ = h + κ(det F − 1)²` (`ChapterNsLagrangianDetFarisLavine`, `NsLagrangianDetFL`):
+  `[h, N] = 0` identically (module CHECK 5, `c = 0`), so the content to prove is the
+  bound for `[V_κ, N]`, `V_κ = κ(det F − 1)²` — or, if that form bound fails, the
+  comparison of `NsLagrangianDetFL` must be **replaced**: its current hypothesis
+  `N_L = H_L² + E` is ESA is exactly the `H²`-as-comparison shape that
+  `unfer/docs/faris_lavine_n_ns.cdb` (NAME NOTE, reasons (i)–(ii)) warns is **not** a
+  valid Faris–Lavine comparison in general (`N + 1` not onto; `D(H²) ⊊ D(H)`).
+
+### QG-L — the QG vielbein (Lagrangian) Hamiltonian
+
+Object: the vielbein-Lagrangian record `H_final_st` of
+`unfer/docs/qg_starobinsky_vielbein_hamiltonian.cdb` (scalaron `ψ` + full Starobinsky wall
+`U`, vielbein energy `σ_a ≥ 1`); comparison certified in
+`unfer/docs/faris_lavine_n_qg_lagrangian.cdb` (new, 2026-10-05), assembling the N of
+`BookProof.ScalaronOuterFockFL.secN`:
+
+- **QG-L-N1 (U)** — positivity: `N_a = −d²/dφ² + φ²/4 + U(φ) + σ_a = (a†a + ½) +
+  (U + σ_a)` with `U + σ_a ≥ 1` (module CHECK 1/4; `starobinskyV_nonneg`,
+  `QgModeData.one_le_sig`). *Prove*: `N_a ≥ 1` as a quadratic form.
+- **QG-L-N2 (U) — THE CORE CONDITION.** `N_a` is ESA on the Hermite/Gauss-polynomial
+  core (`ccDomain ℝ` / `polyGaussCore`) — oscillator **plus** non-negative
+  multiplication, exactly `oscillatorPlus_esa`'s shape (no smallness on the wall;
+  module CHECK 1–3 certify the factorization `a†a = −∂² + φ²/4 − ½` and the CCR).
+  *Prove*: `N_a` essentially self-adjoint **on the core**, graph-norm density. Lean
+  targets: `oscillatorPlus_esa`, `WallPot.ham_esa`, `starobinskyWall_esa`.
+- **QG-L-N3 (U)** — `N + 1` onto and `H` defined on `D(N)` (the fibre self-comparison
+  `[H_fib, N] = 0`, module CHECK 7).
+- **QG-L-N4 (U)** — the commutator-form bound `|commForm H N| ≤ 6 K_Q quadForm N`:
+  coupling identity `[φ, H_fib] = 2∂_φ` (CHECK 5), vielbein self-interaction commutes
+  (CHECK 6), constants `2((1/2)K + (9/4)K) = 11/2 K ≤ 6 K`, slack `1/2 K` (CHECK 8);
+  and the outer-Fock lift `dΓ(N)` ESA on the **lifted** core (symbolic half:
+  `unfer/docs/faris_lavine_n_qg.cdb` CHECK 11).
+
+### GEN-FL — the standing checklist (every future Faris–Lavine application)
+
+Record the triple `(H, N, C_0)` in the module/plan row with all five hypotheses explicit:
+(1) `N` positive self-adjoint; (2) `N + 1` **onto**; (3) `H` defined on `D(N)` and
+symmetric on `C_0`; (4) the commutator-form bound `±i[H,N] ≤ c N` on `C_0`; (5) **`N`
+essentially self-adjoint ON `C_0`**, `C_0` a core for `N` in the graph norm (the
+Hermite/Gauss core is the default `C_0` in these lines). Hypothesis (5) is the one this
+entry exists to keep visible: `lagCan_esa`-style direct ESA and the FL route answer
+different questions, and a certificate that silently proves (1)–(4) while assuming (5)
+is not a proof. Numerical evidence for the N rows:
+`unfer/fock_sirk/tests/ns_lagrangian_sirk_certified.rs` (certified bands contain the
+closed-form levels; T6-style one-parcel gap band `[lo, hi] ∋ ω`; penalty family
+perturbative capture + min–max monotonicity, with the fixed-depth low-end capture
+boundary documented at the test).
+
+**Handover note.** Every row above is a work order for the LLM-Lean4-specialist; the
+symbolic content is certified by the named Cadabra modules (all CHECKs green under
+`nix develop` in `unfer/`, 2026-10-05). No `.lean` file was written or compiled to
+produce this section.
+
+## State of the project — 2026-10-06: PLAN M (planner side) landed, and the work orders its findings create (plan only; no Lean code in this entry)
+
+Plan of record: `../unfer/PLAN_MASS_GAP.md` (PLAN M) — the planner-side plan for
+the mass-gap pipeline, everything except Lean4 code. Its items M1–M9 were executed
+on 2026-10-06; this entry records what the numerics actually produced and files
+the **new** Lean-shaped work orders that follow from it. §M4 (the existing
+mass-gap work order, 2026-10-04) is unchanged and still governs the proof itself;
+§M4.6 below is new and is about what Lean may *consume*, given a measurement
+result that was not known when §M4 was written.
+
+Notation follows `../unfer/docs/MASS_GAP_SPEC.md` §4.4: sector Ritz values `θᵉ₀`
+(R-even) and `θᵒ₀` (R-odd), widths `δᵒ`, `δᵉ`, T6 statement
+`λ₁(H_m) − λ₀(H_m) ≥ θᵒ₀ − θᵉ₀ − (δᵒ + δᵉ)`, width
+`δ = ‖r‖ + c(n)·u·‖Ĝ‖ + h_O`, `u = 2⁻⁵³`.
+
+### The measurement that changes the gap table's premise
+
+The per-coupling campaign (PLAN M item M1) emitted **20 pinned fixtures** —
+`g ∈ {0, 0.5, 1, 2, 3}` × Krylov order `m ∈ {10, 12}` × exact cross-check
+`N ≤ {6, 8}` — and **not one of them certifies a positive gap**. Every row carries
+`certified_positive: false`.
+
+At `g = 1, m = 12` the certified window is `[−8.009312, +6.866393]` while the
+exact truncated gap is `E₁ − E₀ = 0.0911` — a window about **87× wider than the
+quantity it must resolve**.
+
+**The mechanism is identified, and it is a design property.** `scales[k]` is the
+one-step step norm `τ_k = ‖(H − z_k I)u_{k−1}‖`, and it grows without bound:
+
+| `m` | `τ_m` | `‖ĉ_{m−1}‖` | `resid₀` | `θ₀` |
+|---|---|---|---|---|
+| 4 | 6.409e+1 | 1.487e-1 | 2.7289 | −0.980743 |
+| 8 | 2.239e+2 | 3.400e-1 | 2.9790 | −1.348649 |
+| 12 | 4.655e+2 | 1.338e+0 | 3.3502 | −1.531486 |
+| 16 | 7.855e+2 | 6.434e+0 | 3.7465 | −1.658222 |
+| 24 | 1.653e+3 | 1.509e+1 | 4.3529 | −1.695953 |
+| 32 | 2.816e+3 | 1.041e+1 | 4.8204 | −1.662896 |
+| 48 | 6.010e+3 | 1.078e+1 | 5.6992 | −1.663100 |
+
+`τ_m` grows ~94× over `m = 4…48` with no plateau. `ritz_abs_residuals` forms
+`e[j] = (z_j − θ)·ĉ[j] + τ_{j+1}·ĉ[j−1]` for `j < m`, `e[m] = τ_m·ĉ[m−1]`, and
+contracts `e†Ge`, so `τ` and `‖G‖` set the bound's scale.
+
+**The reference method's rate is available here; the reference method's *quantity* is
+not.** `papers/Hashimoto.md` (Hashimoto–Nodera, JJIAM 2019) concludes that for SIRK
+"the decay speed of the approximation error … is similar to an **exponential order**",
+whereas Arnoldi/SIA/RK reach only "the polynomial order or slower", because SIRK's
+vectors are built from **resolvents** `(γI − A)⁻¹`, "which are bounded".
+
+**Retraction — the exponential rate is not blocked by the inverse-free design.** An
+earlier version of this entry said it "cannot transfer to an inverse-free
+construction". That was wrong. With harmonic shifts `γ_k = γ_0 + kh` and
+`X = (γ_m I − H)⁻¹`, the one-step chain is `w_k = (−1)^k X^{−k}Π_{j=1}^{m−k}(1 − hjX)v`
+— a *cleared-denominator* form of the resolvent chain, differing only by scalars that
+the unit-norm frame removes. The rate is a property of the rational Krylov **space**,
+not of how vectors are materialised, and the start vector is a free choice. So
+"inverse-free" is not the blocker.
+
+**The actual blocker is a quantity mismatch.** Hashimoto's rate is for the
+**φ-function approximation error** `‖φ_k(H)v − V_mψ(H_mK_m⁻¹)V_m*v‖` (Eq. 12; Fig. 1's
+"relative errors in each Krylov step"). Three different quantities are in play:
+
+| quantity | what it is | what we need |
+|---|---|---|
+| φ-function error | `‖φ_k(H)v − approx‖` | exponential rate proved here |
+| Ritz residual | `‖Hψ − θψ‖` | what `certified_width` consumes |
+| gap error | `\|E₁ − E₀\|` | **what the mass-gap table needs** |
+
+Exponential convergence of the first does not make the third small. The regime makes
+it concrete: the gap is `0.091` while the spectrum spans `−1.7 … +337` — ratio ~3.7e3.
+Resolving a 0.091 splitting inside a 340-wide band is intrinsically much harder than
+the φ-function application analysed in the paper. **Nothing in Hashimoto bounds
+`|E₁ − E₀|` more sharply than the a-posteriori residual does today**, so the
+programme cannot inherit the paper's conclusion; it needs its own eigenvalue-error
+bound.
+
+**The measured anomalies remain real and separate.** `τ_m = ‖(H − z_k I)u_k‖` grows
+~94× over `m = 4…48` (`6.409e+1 → 6.010e+3`, no plateau); `resid₀` grows
+`2.73 → 5.70` while `θ₀` converges (→ ≈ −1.66); and both escapes fail — fixed window
+width leaves `resid₀` at `2.73 → 4.82` at full rank, and moving the window off the
+spectrum lowers it only where rank collapses (`R = 400`: rank 3→9, `θ₀` frozen at
+≈ −1.51; `R = 3000`: rank 3→4, `θ₀` ≈ −1.04). These are observations about **this
+residual pipeline**. They are **not** evidence that the underlying method lacks an
+exponential rate — only that this residual does not show one.
+
+**Two further explanations in this entry were wrong and are retracted:**
+
+- The width is **not** dominated by the eigendecomposition backward error
+  `c(n)·u·‖Ĝ‖`. Inferred from `c(n) = n³` growing without measuring, it is in fact
+  `6.0e-11` at `m = 10` and `7.0e-08` at `m = 64` — eight orders of magnitude below
+  a width of ~3–7.
+- The extraction is **not** invalidated. `θ₀` being bit-identical across shift sets
+  is the *expected* signature, not a defect: shifts change the basis, not the
+  minimal-polynomial subspace `K(H, u₀)` that the Krylov sequence spans, so a
+  converged `θ₀` must be shift-invariant (and the basis does respond — `scales`, `G`,
+  `h_proj` all move). The separate claim that `θ₀` "sits above `E₃`" compared **two
+  different Hilbert spaces**: the solve is capped by `max_components = 200_000`, and
+  capping it at 495 (the `N ≤ 8` dimension) makes it explode at 571 components. The
+  Parlett bounds `λ_min ≤ θ₀` and `λ_min ≥ θ₀ − ‖r‖` are internally consistent
+  throughout.
+
+A third, intermediate retraction: the hypothesis that the basis was built with a
+one-step recurrence while `h_proj` was filled with a *two-term* pattern was **also
+wrong**. `H w_k = w_{k+1} + z_k w_k` holds *exactly* for a one-step recurrence, and
+that identity is precisely what fills `h_proj_raw`. The projection is sound.
+
+**Net:** the certified window cannot be tightened by choosing shifts or raising `m`,
+and the reason it cannot inherit a Krylov rate is that the rate is for a *different
+quantity* — not that the construction is second-rate. This is a `unfer` error-analysis
+question, and it is open.
+
+Two consequences for how this section should be read:
+
+- `qcd_mass_gap_certified`'s "certified window contains the exact gap" assertion
+  currently passes **vacuously** — a `±8` window centred on `−0.57` contains `0.091`
+  regardless of width quality. Do not read it as evidence of width tightness.
+- The *gap* is the well-conditioned quantity: it is N-stable (`0.091073` at `N ≤ 6`
+  → `0.091161` at `N ≤ 8`) while the absolute energies are not (`E₀ = −2.025 →
+  −2.744`). So the programme's target quantity looks better behaved than the
+  intermediate bound that currently blocks it.
+
+The `g = 0` gapless control still does what a control should — it declines to
+certify a positive gap (`[−1.58, +1.58]` straddling zero, `gap ≈ −3.9e-9`) — which
+is a property of the emitter's bookkeeping rather than of the physics.
+
+### M4.6 — the gap table must be populated from enclosure rows, not from `certified_positive`
+
+**Status: OPEN. This is the new work order created by the M1 measurement.**
+
+§M4.3 asks for gap-table rows per coupling. The M1 result says the *natural* form
+of such a row — one asserting a positive certified gap — **cannot be filled from
+this pipeline today**. The gap table must therefore either wait, or be populated
+in a weaker form that is stated honestly.
+
+Three options, in the order they should be taken, with the Lean consequence of
+each:
+
+- **(a) The table asserts the enclosure, not positivity.** Each row carries
+  `(θᵒ₀, δᵒ, θᵉ₀, δᵉ)` and the interval `[lo, hi]`, and the row's claim is
+  `lo ≤ E₁ − E₀ ≤ hi` — an enclosure theorem per coupling. This is **available
+  today** from the pinned fixtures, needs no new numerics, and is strictly weaker
+  than the Millennium claim in the correct direction. *Lean work*: a
+  `GapTable` chapter that consumes the 20 rows and proves per-row enclosure, with
+  the `g = 0` control row carrying `lo ≤ 0 ≤ hi` as its own instance.
+- **(b) Find an eigenvalue-error bound for the gap itself.** This is the real open
+  question, and it is *not* "sharpen the width" or "apply resolvents". Measured:
+  choosing shifts or raising `m` does not help (window width and placement both
+  tested, both fail). `papers/Hashimoto.md`'s exponential rate is available to this
+  construction — the inverse-free chain with harmonic shifts is a
+  cleared-denominator form of the resolvent chain, and the start vector is free — but
+  it bounds the **φ-function approximation error**, not `|E₁ − E₀|`. So the needed
+  ingredient is a bound on the *gap* in a regime where `E₁ − E₀ = 0.091` sits inside
+  a `−1.7 … +337` spectrum (~3.7e3 ratio). Candidates worth an `unfer` look, none of
+  them free: a two-sided Weyl/inertia argument exploiting the near-degeneracy
+  structure; an explicitly-`τ`-free enclosure built on a Ritz *interval* rather than
+  an a-posteriori residual; or a start vector chosen (legitimately — it is a free
+  parameter) so the gap is resolved directly rather than via two nearly-degenerate
+  eigenvalues.
+  Note the backward-error constant is irrelevant to the current blockage
+  (`6.0e-11 … 7.0e-08` against a width of ~3–7). Until such a bound exists, option
+  (a) is the only honest table — and even (a)'s rows read as "an interval was
+  emitted", not as a meaningful bound.
+- **(c) Keep the table empty and say so.** Acceptable, and arguably *more* honest
+  than (a) while no gap-specific bound exists.
+
+**The discipline this entry exists to enforce:** a gap table whose rows are
+enclosures must be *titled* and *typed* as enclosures. A reader who sees
+`ChapterSirkGapTable` must not be able to mistake it for a positivity table. If the
+Lean types do not distinguish the two, that is a defect in the types, not a
+documentation oversight.
+
+### M4.7 — the `Z₂` sector split is exact for **all** `g`, and the certificate should say so
+
+**Status: OPEN.**
+
+`MASS_GAP_SPEC.md` records that the reflection `R: (A₀,A₁) → (−A₁,−A₀)` is a `Z₂`
+symmetry of the gauge-fixed Hamiltonian **for all `g`** — the occupation parity is
+*not* a symmetry at `g > 0`, where `B²` carries the mixing. The sector split is
+what makes T6's difference-of-two-sector-grounds well-posed at all.
+
+The numerics rely on this (`parities_disjoint`, two independent Krylov chains), so
+it is load-bearing and currently asserted on the Rust side only. *Lean work*:
+prove `R H(g) R⁻¹ = H(g)` for the gauge-fixed `H_final = ½π² + ½B²` at symbolic
+`g`, together with `R² = 1` and the disjointness of the two Krylov supports.
+This is a self-contained algebraic row, independent of every other item here, and
+it is the kind of thing that is cheap to prove and expensive to discover later.
+
+### M4.8 — `certified_positive` is a *derived* flag, and the Lean reader must derive it too
+
+**Status: OPEN.**
+
+The emitter sets `certified_positive` from `lo > 0`, and a proptest now pins that
+(`../unfer/fock_sirk/tests/mass_gap_properties.rs::certified_positive_follows_lo`).
+The certificate schema is frozen and additive-only, so the field stays — but a
+reader that *trusts* the field rather than recomputing it has adopted an `f64`
+comparison as an axiom. *Lean work*: in `ChapterSirkCertificateReader`, derive
+`certified_positive` from the parsed `lo` and **assert agreement** with the
+transported field, so a mismatch is a read-time error rather than a silent
+acceptance of a contradictory record.
+
+### What is NOT a work order
+
+Recorded so the absence is deliberate and not read as an oversight:
+
+- **The continuum leg (§M4.5) is unchanged.** Nothing in the M1 campaign bears on
+  it. The certified claim remains about the **truncated** gauge-fixed object
+  `H_m`; gap-preserving norm-resolvent convergence of the truncation family, or an
+  independent a-priori bound, is still the single missing leg, and the M1 result
+  does not weaken or strengthen it.
+- **The certification gap is a numerics problem, not a Lean one.** §M4.6 option
+  (b) is `unfer` work. Filing it here as a Lean row would misattribute it.
+- **M5's Kani half** is `unfer` work too, and is not done: no `#[kani::proof]`
+  harness exists. The 12 `proptest` properties that *are* done are evidence about
+  the pure functions' behaviour, not a proof, and nothing in this entry should be
+  read as upgrading them.
+
+### Verification status of the planner side, stated plainly
+
+The regeneration gate (`../unfer/scripts/regen_mass_gap.sh`) now exists as one
+command and was run on 2026-10-06: **steps 1 and 4 green** (certified suites, and
+**nanoda re-verification green over the pinned payloads**), **steps 2 and 3
+UNAVAILABLE** (the Aeneas release bundle is not installed on this host;
+`lean4export` 3.1.0 needs network). The gate reported `INCOMPLETE`, refused to
+touch any vendored fixture, and exited non-zero under `--strict`. **The
+regeneration chain is therefore unverified end to end**, and the vendored bundle in
+`unfer_contracts/` still reflects whatever produced it before — not today's source.
+The full log entry, including the two plan-framing corrections this campaign
+forced, is in `unfer_contracts/MASS_GAP_REGENERATION.md` under the 2026-10-05
+heading.
+
+### M4.9 — the emitted rows are a *diagnostic*, not the gap; do not populate the table from them
+
+**Status: OPEN. Opened 2026-10-06 by a sector correction that supersedes the
+premise of §M4.3. Highest-priority item in this section** — it is a data-source
+error, not a numerical one.
+
+**The error.** `run_campaign` in `../unfer/fock_sirk/tests/mass_gap_campaign.rs`
+starts from `OuterBosonCreate(InnerBosonicState::vacuum())` — the
+**one-outer-boson** sector — and `certified_mass_gap`
+(`../unfer/fock_sirk/src/certificate.rs:176`) computes
+
+```rust
+let gap = co.value - ce.value;
+```
+
+a difference of two **one-particle reflection-sector** ground energies. Per this
+repo's own `AGENTS.md` (S45) and `../unfer/fock_sirk/src/mass_gap_spec.rs:135`,
+the nested-Fock ground is the **outer vacuum at `E₀ = 0` identically**, in the
+zero-outer-boson sector, and one-particle states are **diagnostics only**. So the
+20 pinned fixtures and everything downstream of them describe a diagnostic.
+
+**Second error, in the same neighbourhood.** `mass_gap_spec.rs:135` requires the
+one-particle `h` to be "shifted if needed for positivity" before it is enclosed.
+`qcd_ym_hamiltonian(g)` applies no such shift (bare `compile_to_fock`), and the
+one-particle ground is **negative at every coupling**:
+
+```text
+  g = 0.5   theta_0 = -1.601101    even_sector_is_vacuum(tol=1e-6) = false
+  g = 1.0   theta_0 = -1.695953    even_sector_is_vacuum(tol=1e-6) = false
+  g = 2.0   theta_0 = -3.009018    even_sector_is_vacuum(tol=1e-6) = false
+```
+
+**What this invalidates on the Lean side.**
+
+- The **one-sidedness** lemma in `../unfer/docs/VERIFY_MASS_GAP_NORM_RESIDUAL.md`
+  (`||H\phi|| >= E`) requires `H` positive semidefinite — i.e. the shift. Unshifted
+  it bounds only `|E|`, never the sign, and the sign is what a gap claim needs.
+  CHECK 5's non-negativity witness is therefore conditional, not unconditional.
+- `||H|| >= 6.0e3` was measured unshifted; it changes under `+3.009` at `g = 1`.
+- Every use of the figure **`0.091`** in this section is an
+  exact-diagonalization number at occupation cutoff `N <= 8` of the **unshifted
+  one-particle** `h` — a third quantity, and not the target.
+- The "difference of large energies" objection that was raised against the
+  `||H\phi||` route **does not apply to the physical gap at all**: `E_0 = 0`, so
+  there is no difference. It applies only to the diagnostic being emitted.
+
+**What survives.** The four measured arithmetic facts — backward term
+`6.0e-11 … 7.0e-08`; `theta_0` shift-invariance being the *expected* signature;
+`tau_m` growth `6.4e+1 → 6.0e+3`; both placement escapes failing — are statements
+about the one-particle diagnostic and are unaffected by which quantity should have
+been emitted.
+
+**Work for the specialist (no `.lean` written or compiled here).**
+
+1. **Do not populate the §M4.3 gap table from the current fixtures.** They are
+   diagnostics. Keep the table empty (option (c) of §M4.6) until §M4.9 rows exist.
+2. **Require a sector label per row.** The current emitter labels rows by parity,
+   which is precisely what let a diagnostic read as a mass gap. A row that cannot
+   name its sector should not be admitted by the reader — this is a Lean-side
+   guard on `ChapterSirkCertificateReader`.
+3. **Treat `q` as mandatory.** A gap row without its residual is not a claim;
+   `ChapterSirkCertifiedGap` should refuse it rather than default it.
+4. **The right quantity is easier than the one being emitted.** With `E_0 = 0`,
+   `gap = ||H phi_1||` needs **no positivity shift**, and its relative error is
+   `~ 1/2 (q/E_1)^2` — non-cancelling. See `../unfer/PLAN_MASS_GAP.md` §7 (M4.9)
+   for the emission contract and `../unfer/docs/VERIFY_MASS_GAP_NORM_RESIDUAL.md`
+   for the CAS proof and the reachability ledger.
+
+**Handover note.** M4.6, M4.7, M4.8 and M4.9 are work-order rows for the
+LLM-Lean4-specialist; each is independent of the others and of §M4.1–§M4.5, but
+**M4.9 gates M4.3** — M4.6(b)'s "find a gap-specific eigenvalue bound" is only
+worth doing once the rows are the gap. No `.lean` file was written or compiled to
+produce this section.
+
+---
+
+## State of the project — 2026-10-06b: the sector correction — the campaign measured an intra-sector diagnostic, and §M4.9 gates §M4.3 (plan only; no Lean code in this entry)
+
+This entry exists because the 2026-10-06 entry above **predates the correction**:
+its campaign tables are sound arithmetic about the *wrong quantity*. Everything
+here is recorded with its full derivation in `../unfer/PLAN_MASS_GAP.md` (the
+sector-correction block and its §7, which is the work order itself) and in
+`../unfer/docs/VERIFY_MASS_GAP_NORM_RESIDUAL.md`; this entry is the routing layer
+for the Lean track, in timepiece's own voice.
+
+### The correction, in three facts
+
+1. **The emitted quantity is not the physical gap.** `run_campaign` starts in the
+   one-outer-boson sector, and `certified_mass_gap` returns `co.value - ce.value` —
+   a difference of two *one-particle* reflection-sector ground energies. Per
+   `../unfer/AGENTS.md` S45 and the contract comment in
+   `../unfer/fock_sirk/src/mass_gap_spec.rs`, the nested-Fock ground is the
+   **outer vacuum at `E₀ = 0`**, in the *zero*-outer-boson sector; one-particle
+   states are diagnostics only. At `g = 1` that difference is `gap ≈ −0.571` —
+   neither a gap nor positive.
+2. **The documented positivity precondition is violated.** The spec's contract
+   says the one-particle `h` is "shifted if needed for positivity" before it is
+   enclosed; the real builder (`qcd_ym_hamiltonian(g)`) applies no such shift.
+   Measured, the one-particle ground is negative at every coupling:
+
+   ```text
+     g = 0.5   theta_0 = -1.601101     even_sector_is_vacuum(tol=1e-6) = false
+     g = 1.0   theta_0 = -1.695953     even_sector_is_vacuum(tol=1e-6) = false
+     g = 2.0   theta_0 = -3.009018     even_sector_is_vacuum(tol=1e-6) = false
+   ```
+
+   `even_sector_is_vacuum` is labelled legacy, but it *encodes* the precondition
+   the spec states, and the real builder fails it.
+3. **The one-sidedness lemma is conditional, exactly where the gap needs it.**
+   The `‖Hφ‖ ≥ E` result in `../unfer/docs/VERIFY_MASS_GAP_NORM_RESIDUAL.md`
+   requires `H` positive semidefinite — i.e. the shift. Unshifted it bounds only
+   `|E|`, never the sign, and the sign is the whole content of a gap claim.
+   Likewise `‖H‖ ≥ 6.0e3` was measured unshifted and changes once the `+3.009`
+   is applied at `g = 1`.
+
+### What changes downstream
+
+- **§M4.9 gates §M4.3.** The work order in `../unfer/PLAN_MASS_GAP.md` §7 is the
+  one that emits a *physical* row: drop the even/odd split as the gap (keep it as
+  the labelled diagnostic it is), compute `gap = ‖Hφ₁‖` for the first excited
+  state of the full `H` above the outer vacuum — with **no positivity shift**,
+  because for the physical gap `E₀ = 0` already — report `q` beside every gap
+  (`‖Hφ₁‖² = E₁² + ‖H d‖²`, relative error `≈ ½(q/E₁)²`, so the error is
+  quadratic in the measurable residual), and name the sector in every emitted
+  row. The Lean gap table stays **empty** until a physical row certifies.
+- **The 2026-10-06 tables survive as statements about the diagnostic.** The four
+  measured arithmetic facts — backward term `6.0e-11 … 7.0e-08`; `θ₀`
+  shift-invariance (the *expected* signature of a converged extremal value);
+  `τ_m` growth `6.4e+1 → 6.0e+3` with the two placement escapes both failing;
+  and all 20 fixtures carrying `certified_positive: false` — are unaffected by
+  which quantity should have been emitted, and none of them is retracted.
+- **One talk of "a difference of large energies" was aimed at the wrong
+  quantity** and is retracted here with it: for the physical gap `E₀ = 0`, so no
+  cancellation sits between two large numbers. The `0.091` used throughout is an
+  exact-diagonalization number at occupation cutoff `N ≤ 8` of the *unshifted
+  one-particle* `h` — a third quantity again, not the Lean-side target.
+
+Citations above are content-based per house rule (never line numbers); the
+authoritative statements are the sector-correction block and §M4.9 in
+`../unfer/PLAN_MASS_GAP.md`. No `.lean` file was written or compiled for this
+entry.

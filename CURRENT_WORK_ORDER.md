@@ -44,7 +44,10 @@ obstructive, **B** boundary (explicitly not covered).
 
 Anchor shorthand used below: **§09-25** = `CONSOLIDATED_PLAN.md` §"State of the project —
 2026-09-25 (consolidated)"; **§10-04** = §"State of the project — 2026-10-04: the mass-gap
-proof in Lean4"; **§10-04b** = §"State of the project — 2026-10-04b".
+proof in Lean4"; **§10-04b** = §"State of the project — 2026-10-04b"; **§10-06** = §"State of
+the project — 2026-10-06: PLAN M (planner side) landed, and the work orders its findings
+create"; **§10-06b** = §"State of the project — 2026-10-06b: the sector correction — the
+campaign measured a diagnostic, and §M4.9 gates §M4.3".
 
 | Track | Current work order | Superseded as a reading guide | Superseded outright |
 |---|---|---|---|
@@ -54,7 +57,7 @@ proof in Lean4"; **§10-04b** = §"State of the project — 2026-10-04b".
 | **SM** (Standard Model) | §09-25 **§5, item 6** ("SM refinements"), baseline in §09-25 **§2**; live boundary ledger `HONEST_BOUNDARIES_SM.md` ("Current state of record") | the 2026-09-22e "what stays open" list — "superseded 2026-09-22f by the closure wave and the state section below"; the 2026-09-23e bosonic FL item ("Read this instead of … for the bosonic FL item") | the §D6b-SM **Step 3** work order — executed; and `smComparison` as a comparison operator — **refuted** by the 09-23f wave, though still defined and proved positive because the fermionic completion needs it |
 | **RandomMap** (RH) | ⚠ **no current work order exists** — see flag **F2** | — | `IMPLEMENTATION_PLAN.md` — its own text marks the conjugate-reflection route "**Legacy / off-critical-path files (the superseded …)**"; `RandomMap_old.md` (superseded by `RandomMap.md`); `RandomMap2LegacyDraft.md` — "kept as historical material because several declarations use **obsolete APIs or state invalid proposals**"; `newproof.md` (superseded per `RandomMap.md`'s "Adaptation notes (what this plan adopts from `newproof.md`, and what supersedes it)"); `IMPLEMENTATION_PLAN_RCP.md`'s C2–C4 and Phase 3 — "C2–C4 are retained below **for historical context only** — do not implement" |
 | **book** (Verso / pedagogical) | §09-25 **§5, items 1 and 7** (prose verification; hygiene decisions), build contract in the "Build scope" section | the §4 BookProof task list — "now all LANDED … kept as a record only; do not redo them" | `SPECIALIST_PLAN_REMAINING.md` — "**Plan A is fully executed.**"; `BOOK_PROOF_PLAN.md` Priorities 1–2 (COMPLETE) |
-| **mass-gap** | §10-04, work order **§M4** — *the newest entry in the file* | §13 (T1–T12, "the Lean4 plan"), `MASS_GAP_CERTIFIED.md`, `unfer_contracts/MASS_GAP_SPEC.md`, `unfer_contracts/MASS_GAP_REGENERATION.md` — §10-04 consolidates and supersedes all four "as a reading guide"; they "**remain the detailed record**" | — (§13.1's honesty boundaries and §13.6's definition of done still stand) |
+| **mass-gap** | §10-06b (the sector correction; **M4.9 gates M4.3**) → work order **§M4.9** in `../unfer/PLAN_MASS_GAP.md` §7; the proof itself remains §10-04 **§M4** | §13 (T1–T12, "the Lean4 plan"), `MASS_GAP_CERTIFIED.md`, `unfer_contracts/MASS_GAP_SPEC.md`, `unfer_contracts/MASS_GAP_REGENERATION.md` — §10-04 consolidates and supersedes all four "as a reading guide"; they "**remain the detailed record**"; §10-06's campaign tables are read under §10-06b (diagnostics) | — (§13.1's honesty boundaries and §13.6's definition of done still stand) |
 
 **The single most load-bearing supersession sentence for the book track** is buried inside
 the 2026-08-27 wave block, not in any header: *"One plan that supersedes the per-thread

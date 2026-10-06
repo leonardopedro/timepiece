@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-05T16:52:23+00:00",
+ "generated_at": "2026-10-06T16:37:53+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -294,7 +294,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 16419,
+   "lines": 17020,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -477,7 +477,11 @@
     "## State of the project — 2026-09-25 (consolidated): the landed wave under the final-Hamiltonian convention, and the work order",
     "## State of the project — 2026-10-04: the mass-gap proof in Lean4 — consolidated status and work order (plan only; no Lean code in this entry)",
     "## State of the project — 2026-10-04b: the documentation pass, and what the overall project still needs (plan only; no Lean code in this entry)",
-    "## State of the project — 2026-10 (board rollup)"
+    "## State of the project — 2026-10 (board rollup)",
+    "## State of the project — 2026-10-05: the analytic-decision-engine work orders (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-05b: the Faris–Lavine comparison operators N for the Lagrangian lines (NS + QG) — work order",
+    "## State of the project — 2026-10-06: PLAN M (planner side) landed, and the work orders its findings create (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-06b: the sector correction — the campaign measured an intra-sector diagnostic, and §M4.9 gates §M4.3 (plan only; no Lean code in this entry)"
    ]
   },
   {
@@ -496,7 +500,7 @@
   {
    "path": "CURRENT_WORK_ORDER.md",
    "title": "Current work order — one pointer per track",
-   "lines": 194,
+   "lines": 197,
    "headings": [
     "# Current work order — one pointer per track",
     "## The table",
@@ -1537,7 +1541,7 @@
   {
    "path": "unfer_contracts/MASS_GAP_REGENERATION.md",
    "title": "Self-contained mass-gap regeneration bundle",
-   "lines": 112,
+   "lines": 219,
    "headings": [
     "# Self-contained mass-gap regeneration bundle",
     "## Object of record",
