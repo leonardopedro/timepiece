@@ -110,3 +110,110 @@ errors, `SirkCoreModel.lean` byte-identical to committed).
 - Cleanup: the stale crate-root `Lib.lean`/`lib.llbc` duplicates (tracked
   since `e0dfb3d`, superseded by the `aeneas/` normalization) were removed
   by the script's own `mv`; README documents only the `aeneas/` outputs.
+
+### 2026-10-05 — PLAN M items M1–M6 landed; gate run for the first time from one command
+
+- Source revision at the time of the run: `a5a105f` in `../unfer`; toolchain
+  `rustc 1.97.1 (8bab26f4f 2026-07-14)`.
+- **M1 — the per-coupling campaign ran and produced 20 pinned fixtures**
+  (`../unfer/fock_sirk/tests/fixtures/mass_gap_campaign/`, SHA-256 manifest in
+  `MANIFEST.tsv`). Grid: `g ∈ {0, 0.5, 1, 2, 3}` × `m ∈ {10, 12}` × exact
+  cross-check `N ≤ {6, 8}`.
+- **The campaign's headline result, and it is negative: no row certifies a
+  positive gap.** All 20 carry `certified_positive: false`. At `g = 1, m = 12` the
+  certified window is `[-8.009312, +6.866393]` against an exact truncated gap of
+  `0.0911` — roughly **87× wider than the gap it must resolve**.
+- **RETRACTION, recorded twice the same day — the second supersedes the first.**
+  - *First error:* this entry blamed the eigendecomposition backward error
+    `c(n)·u·‖Ĝ‖`. That was inferred from `c(n) = n³` growing without measuring, and
+    it is wrong: that term is `6.0e-11` at `m = 10` and `7.0e-08` at `m = 64`, i.e.
+    **eight orders of magnitude below** a width of ~3–7. The width is essentially all
+    Parlett residual `‖r‖`.
+  - *Second error:* the entry then concluded the extraction was "unvalidated"
+    because `θ₀` is bit-identical across shift sets and sits above `E₃`. **Both
+    inferences were wrong.** Shift-invariance is the *expected* signature: shifts
+    change the basis, not the minimal-polynomial subspace `K(H, u₀)` the Krylov
+    sequence spans, so a converged `θ₀` must be shift-invariant (and the basis does
+    respond — `scales`, `G`, `h_proj` all move). And the `E₃` comparison spanned two
+    different Hilbert spaces: the solve is capped by `max_components = 200_000`, so
+    capping it at 495 (the `N ≤ 8` dimension) makes it explode at 571 components.
+    The Ritz bounds are internally consistent throughout.
+- **The anomaly that does survive, and its measured mechanism.** The one-step step
+  norms `τ_k = scales[k] = ‖(H − z_k I)u_{k−1}‖` grow without bound — `6.409e+1` at
+  `m = 4` to `6.010e+3` at `m = 48`, ~94×, no plateau — and the width inherits them,
+  because `ritz_abs_residuals` forms `e[j] = (z_j − θ)ĉ[j] + τ_{j+1}ĉ[j−1]` and
+  `e[m] = τ_mĉ[m−1]`, then contracts `e†Ge`.
+- **The reference method's rate is available here; its *quantity* is not.**
+  `papers/Hashimoto.md` (Hashimoto–Nodera, JJIAM 2019) concludes that for SIRK "the
+  decay speed of the approximation error … is similar to an **exponential order**",
+  while Arnoldi/SIA/RK reach only "the polynomial order or slower", because SIRK's
+  vectors are built from **resolvents** `(γI − A)⁻¹`, *which are bounded*.
+  - **The inverse-free design does NOT block the rate.** With harmonic shifts
+    `γ_k = γ_0 + kh` and `X = (γ_m I − H)⁻¹`, the one-step chain is
+    `w_k = (−1)^k X^{−k}Π_{j=1}^{m−k}(1 − hjX)v` — a cleared-denominator form of the
+    resolvent chain, differing only by scalars that the unit-norm frame removes. The
+    rate is a property of the rational Krylov space, and the start vector is free.
+  - **The quantity is what blocks it.** Hashimoto's rate is for the **φ-function
+    approximation error** `‖φ_k(H)v − approx‖`. `certified_width` consumes the Ritz
+    residual `‖Hψ − θψ‖`, and the gap needs `|E₁ − E₀|` — three different quantities.
+    Exponential convergence of the first does not make the third small, and the
+    regime is brutal: gap `0.091` inside a `−1.7 … +337` spectrum (~3.7e3 ratio).
+    Nothing in Hashimoto bounds the gap more sharply than the a-posteriori residual
+    does today.
+- The `τ_k` growth and the residual growth measured above are observations about
+  **this residual pipeline**, not evidence that the method lacks an exponential rate.
+- **Two escapes measured, both refuted:**
+  - *Fixed window width.* `shifts_for_range((0,m))` widens with `m`; pinning it to
+    width 2 leaves `resid₀` climbing `2.73 → 4.82` at full rank.
+  - *Window off the spectrum.* `resid₀` falls only where rank collapses
+    (`R = 400`: rank 3→9, `θ₀` frozen at ≈ −1.51; `R = 3000`: rank 3→4, `θ₀` ≈ −1.04).
+    That is polynomial-Krylov degeneracy once `|γ| > ‖A‖`, not convergence.
+- **What this means for the existing suite.** `qcd_mass_gap_certified`'s
+  "certified window contains the exact gap" assertion currently passes
+  **vacuously**: a window of `±8` centred on `−0.57` contains `0.091` regardless of
+  width quality. It becomes meaningful only once the residual bound is tightened.
+- One encouraging observation, since it bears on whether the programme is viable:
+  the exact *gap* is N-stable (`0.091073` at `N ≤ 6` → `0.091161` at `N ≤ 8`) even
+  though the absolute energies are not (`E₀ = −2.025 → −2.744`). The gap is the
+  well-conditioned quantity.
+- **Three corrections to the plan's own framing**, all found by running it:
+  - The SIRK sector-assembled `gap` (`−0.571` at `g = 1`) and the exact truncated
+    gap `E₁−E₀` (`+0.091`) are **different quantities**. The "≈ 0.09 at `g = 1`"
+    figure in `MASS_GAP_SPEC.md` and in `PLAN_MASS_GAP.md` §5 refers to the
+    *exact* truncated gap.
+  - `N` is **not** a solve parameter of the SIRK solve (the truncation knobs
+    `max_components`/`adaptive` bound memory, they do not set the inner
+    occupation ceiling). `N` is therefore carried as the exact-diagonalization
+    cross-check axis and `m` as the solve axis.
+- **M2 — the gate now exists as one command**: `bash scripts/regen_mass_gap.sh`
+  (`--check` to verify wiring, `--strict` to fail on any unavailable step). Its
+  first run on this host: steps 1 and 4 green, step 2 (Aeneas) and step 3
+  (`lean4export`) **UNAVAILABLE** — the Aeneas release bundle is not installed
+  and `lean4export` needs network. The gate therefore reported `INCOMPLETE`,
+  refused to touch any vendored fixture, and said so. **This is not a green gate
+  and must not be recorded as one.**
+- Step 4 is worth stating on its own: **nanoda re-verification is green** over the
+  pinned payloads, so the Lean-side proof artifacts still check against an
+  independent kernel.
+- **M3 — `MASS_GAP_SPEC.md` had already drifted** (sha `f3ebdb89…` vs `e3fe9f9d…`).
+  Inspection showed the differences were *intentional* (this bundle is
+  self-contained: rewritten `.cdb` paths, its own "never run the `.cdb` files"
+  preamble, in-bundle pointer prose). A byte-sync would have destroyed that, so
+  the gate checks **operative parity** — 22 anchors covering the Hamiltonian, the
+  `B` field, each width term, the T6 statement, the `Z₂` reflection and the
+  frozen API names. Verified against a planted one-term width change, which it
+  caught.
+- **M5 — 12 property tests** on the pure `mass_gap_spec` functions
+  (`../unfer/fock_sirk/tests/mass_gap_properties.rs`): width monotonicity in the
+  residual and in `‖Ĝ‖`, non-negativity, interval reflexivity, `lo ≤ hi`, the T6
+  endpoint identity, `certified_positive` following `lo`, backward-error
+  monotonicity in the rank, and the pinned `UNIT_ROUNDOFF`. **The Kani half of
+  M5 is NOT done** — no `#[kani::proof]` harness exists and `kani` is not a
+  workspace dependency.
+- **M9 — the non-claim guard** (`scripts/check-non-claims`) passed on 70 documents
+  with **zero false positives**, and caught a planted continuum overclaim. Its
+  first version flagged four *correct* lines of prose that explain the
+  truncated/lattice distinction; it was rewritten narrow rather than shipped
+  crying wolf. Two bugs found while building it: `awk` does not support `\s`, and
+  `.` does not match the multibyte `²` in `g²/2` — so the B2 pattern had to be
+  spelled `g[^ ]{0,3}/ *2` or it silently never matched anything.
