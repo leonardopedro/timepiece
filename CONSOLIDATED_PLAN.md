@@ -17040,3 +17040,52 @@ Citations above are content-based per house rule (never line numbers); the
 authoritative statements are the sector-correction block and §M4.9 in
 `../unfer/PLAN_MASS_GAP.md`. No `.lean` file was written or compiled for this
 entry.
+
+## State of the project — 2026-10-07: RH/RandomMap's two owner questions routed (C2 authority, C4 sequencing) (plan only; no Lean code in this entry)
+
+**Status: questions recorded, not decided.** `../PLAN_MATHED_NATIVE_AND_IMPROVEMENT.md`
+§6 (Routing) sends Priority-C Lean-side prose to a dated, append-only entry in this
+file, and its §4 is titled "owner decisions (recorded, not made)". Nothing below
+chooses an answer: it states both questions where the Lean-side specialist will read
+them, and the corresponding `CURRENT_WORK_ORDER.md` row stays deliberately empty
+until the owner answers (an empty cell is a finding, not an omission).
+
+**C2 — which RandomMap/RH document is authoritative?** Three documents each claim
+it and none is reconciled:
+
+- `RandomMap.md` — the current plan of the family, carrying its own "Adaptation
+  notes (what this plan adopts from `newproof.md`, and what supersedes it)";
+- `RandomMap_old.md` (superseded by `RandomMap.md`) and `RandomMap2LegacyDraft.md` —
+  "kept as historical material because several declarations use obsolete APIs or
+  state invalid proposals";
+- `IMPLEMENTATION_PLAN_RCP.md`, which self-declares in its own first line "**NEW
+  STRATEGY (maintainer), AUTHORITATIVE. READ THIS FIRST.**" (last touched
+  2026-07-22) — while its own C2–C4 and Phase 3 are marked "retained below for
+  historical context only — do not implement", and `IMPLEMENTATION_PLAN.md` marks
+  the conjugate-reflection route "Legacy / off-critical-path files (the superseded …)".
+
+Corroborating signal: `DOC_INDEX.md` lists `RandomMap.md`, `RandomMap_old.md` and
+`RandomMap2LegacyDraft.md` under **Never linked** — nothing in the corpus points at
+them, and `CURRENT_WORK_ORDER.md` flag F2 records RandomMap as the one track with
+**no current work order at all**. Owner question: name the authority (or declare
+the track parked). Until then the row stays empty rather than filled with a guess.
+
+**C4 — is the RH route next in queue, or parked?** `AGENTS.md`'s "Priority Attack
+Order for Next Agent" publishes `uniform_variance_bound`, `jensen_bohr`,
+`convergent_series_has_no_poles`, and its own Formalization State table marks all
+three ***Sorry*** — **all three are already proved**: `FORMALIZATION_ROADMAP.md`
+lists them as "proved", and this file records the `RandomMap2` chain as "`sorry`-free
+in both trees". `AGENTS.md` is stale here, and it is the file an agent is most likely
+to read first (its header already warns). The open question has been on the table
+since August, in the same paragraph that records the sorry-free chain: "Confirm with
+the plan's RH section whether the route `sorry`s are next in queue or parked behind
+the QG/QYM/operator thread." Pointing the other way, `FORMALIZATION_ROADMAP.md`
+says "**No UsedRoute/ or UnusedRoute/ work — RH work out of scope.**" Owner
+question: queue or park? The two statements are not reconciled either; this entry
+does not reconcile them.
+
+Citations above are content-based per house rule (never line numbers); the
+authoritative statements are F2 ("⚠ F2 — RandomMap/RH has no order, and three
+documents claim to have one") in `../timepiece/CURRENT_WORK_ORDER.md` and §4/§6 of
+`../PLAN_MATHED_NATIVE_AND_IMPROVEMENT.md`. No `.lean` file was written or compiled
+for this entry.
