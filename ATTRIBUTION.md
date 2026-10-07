@@ -8,6 +8,7 @@ cross-repo table — including what was deliberately **not** adopted — is
 |---|---|---|---|
 | mathlib (tag `v4.28.0`) | MIT | standard library, pinned by `lean-toolchain` | all four build targets |
 | typos | Apache-2.0 | the index/graph discipline | `scripts/doc_index.py` + CI gate |
+| ax | Apache-2.0 (as recorded in `../test/AGENTS.md`; sibling absent — re-verify) | the `/healthz` endpoint pattern | `scripts/health.sh` |
 
 ## Notes
 
