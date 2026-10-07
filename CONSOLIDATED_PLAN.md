@@ -16879,9 +16879,29 @@ heading.
 
 ### M4.9 — the emitted rows are a *diagnostic*, not the gap; do not populate the table from them
 
-**Status: OPEN. Opened 2026-10-06 by a sector correction that supersedes the
-premise of §M4.3. Highest-priority item in this section** — it is a data-source
+**Status: DONE (Rust emission) 2026-10-07; the Lean-side reader guards
+(items 2–3 below) remain OPEN for the specialist.** Opened 2026-10-06 by a
+sector correction that supersedes the premise of §M4.3 — it was a data-source
 error, not a numerical one.
+
+**Landed 2026-10-07 (planner side; no `.lean` written or compiled).**
+`fock_sirk::certificate` now exports `PhysicalGapCertificate` +
+`measure(sector, h, φ)` (matvec: `e1 = ⟨φ|H|φ⟩`, `gap = ‖Hφ‖`,
+`q = ‖Hφ − e₁φ‖`; `None` when `e1 ≤ 0`, so nothing at/below the outer vacuum
+becomes a row) and `emit_physical_gap_ndjson[_with]`, emitting
+`{"kind":"physical_gap","sector","physical":true,"gap","q","e1",
+"rel_err_est"}` with `rel_err_est = ½(q/e1)²`. The diagnostic emitter now
+stamps **every** row with its `sector` (`one_outer_boson_r_even` / `r_odd` /
+`r_split`) and `"physical":false` — additive schema, kinds unchanged (the
+`unfer_ffi` T6 recorder test asserting the exact kind sequence passes
+unmodified). `run_campaign` appends one physical row per `(g, m)` from a
+recorded `φ₁` start (four-species one-quanton + squeezed-pair superposition;
+the multi-outer-boson variant was measured to hit the 200k component budget —
+`StateExplosion` at `g=1, m=10` — and is filed as an open item). All 20
+regenerated fixtures carry the physical row with `e1 > 0` and the identity
+`gap² = e1² + q²` holding to roundoff; `rel_err_est` runs `0.86 – 3.2e1`, so
+**no physical row certifies and the gap table stays empty** per §M4.6(c).
+Details and verification: `../unfer/PLAN_MASS_GAP.md` §7 RESULT block.
 
 **The error.** `run_campaign` in `../unfer/fock_sirk/tests/mass_gap_campaign.rs`
 starts from `OuterBosonCreate(InnerBosonicState::vacuum())` — the
@@ -16931,8 +16951,10 @@ been emitted.
 
 **Work for the specialist (no `.lean` written or compiled here).**
 
-1. **Do not populate the §M4.3 gap table from the current fixtures.** They are
-   diagnostics. Keep the table empty (option (c) of §M4.6) until §M4.9 rows exist.
+1. **Do not populate the §M4.3 gap table from the current fixtures.** They are    diagnostics. Keep the table empty (option (c) of §M4.6) until a §M4.9
+    physical row **certifies** — physical rows are emitted as of 2026-10-07,
+    and none certifies yet (`rel_err_est` 0.86–3.2e1 against the 4.1e-3
+    reachability target).
 2. **Require a sector label per row.** The current emitter labels rows by parity,
    which is precisely what let a diagnostic read as a mass gap. A row that cannot
    name its sector should not be admitted by the reader — this is a Lean-side
