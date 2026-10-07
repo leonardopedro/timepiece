@@ -175,3 +175,56 @@ jobs:
 
       - name: DOC_INDEX.md + state/doc_index.json fresh?
         run: python3 scripts/doc_index.py --check
+
+  # ---------------------------------------------------------------------------
+  # G6: the board rollup is a gate, not a script someone has to remember.
+  #
+  # board_rollup.py shipped without tests and wired into no gate — the two
+  # gaps the G6 row named. This runs its stdlib-only test suite (append-only,
+  # the double-rollup refusal, --force keeping the old block, --dry-run
+  # writing nothing, FAIL-first rendering, month buckets) plus a live smoke
+  # against the real BOARD.ndjson, and asserts the append-only invariant a
+  # reviewer would otherwise have to eyeball: after a --dry-run,
+  # CONSOLIDATED_PLAN.md must be byte-identical.
+  #
+  # The real append is deliberately not exercised here — appending to the
+  # plan is the act the script's refusal logic governs, and CI has no plan
+  # file to spend.
+  # ---------------------------------------------------------------------------
+  board-rollup:
+    name: G6 board_rollup tests + smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # actions/checkout@v7.0.1
+
+      - name: unit tests (python stdlib only)
+        run: python3 scripts/test_board_rollup.py
+
+      - name: smoke --list-months against the real board
+        run: python3 scripts/board_rollup.py --list-months
+
+      - name: --dry-run writes nothing (real plan and probe plan both byte-identical)
+        run: |
+          before=$(sha256sum CONSOLIDATED_PLAN.md | cut -d' ' -f1)
+          month=$(python3 scripts/board_rollup.py --list-months | head -n1 | cut -f1 || true)
+          if [ -n "$month" ]; then
+            # A probe plan, not the real one: the real plan already carries the
+            # current month's rollup, and the script refuses (writing nothing,
+            # exit 1) before --dry-run is even considered. The unit tests cover
+            # that refusal; this step covers the write path's invariant.
+            probe=$(mktemp)
+            printf '# probe plan\n' > "$probe"
+            probe_before=$(sha256sum "$probe" | cut -d' ' -f1)
+            python3 scripts/board_rollup.py --month "$month" --plan "$probe" --dry-run >/dev/null
+            probe_after=$(sha256sum "$probe" | cut -d' ' -f1)
+            rm -f "$probe"
+            if [ "$probe_before" != "$probe_after" ]; then
+              echo "--dry-run modified the probe plan" >&2
+              exit 1
+            fi
+          fi
+          after=$(sha256sum CONSOLIDATED_PLAN.md | cut -d' ' -f1)
+          if [ "$before" != "$after" ]; then
+            echo "--dry-run modified CONSOLIDATED_PLAN.md" >&2
+            exit 1
+          fi
