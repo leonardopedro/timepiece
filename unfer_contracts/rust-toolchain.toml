@@ -1,0 +1,12 @@
+# Pinned Rust toolchain for timepiece's Rust subtree (unfer_contracts:
+# prob_kernel / fock_sirk / sirk_core_model — the crates that mirror unfer's).
+#
+# This is a Lean 4 repo, so it previously had no pin and these crates inherited
+# whatever rustup default happened to be active (a nightly — the exact drift
+# the sibling repos' pins exist to prevent). The project pins ONE Rust version
+# everywhere; bump this in lockstep with unfer / velysterm / dynamic-arctic /
+# australVM / emthin rust-toolchain.toml files. rustup resolves the file from
+# the working directory, so this lives at the root of the Rust subtree.
+[toolchain]
+channel = "1.99.0"
+components = ["clippy", "rustfmt"]
