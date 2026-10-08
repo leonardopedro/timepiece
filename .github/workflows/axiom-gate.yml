@@ -1,0 +1,136 @@
+name: Axiom gate
+
+# A13 (PLAN_MATHED_NATIVE_AND_IMPROVEMENT): the soundness gate and the
+# `#print axioms` audits were on-demand only — a documentation promise, not a
+# gate. "The lakefile says Never a default target" is exactly the shape of
+# silence that reads as green: nothing runs `axiom_gate.lean`, so nothing can
+# fail it. This workflow runs both, using the same shape as the H1
+# verify-invariants job in ci.yml: a `.lean` path filter so a prose-only
+# commit costs no CI minutes, plus a weekly schedule and manual dispatch so
+# the gate cannot rot between Lean touches.
+#
+# The triggers live in their own workflow file on purpose: `on:` with `paths`
+# is workflow-level, and adding it to the shared CI file would gate *every*
+# job in it. A second workflow is the schema-valid place for the filter.
+#
+# What each leg enforces:
+#   * `axiom_gate.lean` already computes the transitive axiom closure of every
+#     theorem in the gated modules (BookProof/PnpProof/UsedRoute/UnusedRoute/
+#     RandomMap) and *flags* anything outside {propext, Classical.choice,
+#     Quot.sound} with a `BAD` line — it flags via logInfo, i.e. it exits 0, so
+#     this workflow turns the flag into a failure and separately requires the
+#     `GATE: checked` tally so a silent no-op cannot read as passing.
+#   * The `Audits/` scripts exist to "confirm zero sorries and zero additional
+#     axioms beyond classical logic" (their own header). Each is re-run with
+#     its output captured; every `depends on axioms:` line is stripped of the
+#     three allowed axioms, and anything left (including `sorryAx`) fails.
+#   * `Audits/Trivial.lean` is deliberately NOT run: it is a Verso
+#     section-count reproducer (`import VersoManual`), not an axiom audit.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.lean'
+      - 'lakefile.toml'
+      - 'lean-toolchain'
+      - '.github/workflows/axiom-gate.yml'
+  pull_request:
+    paths:
+      - '**/*.lean'
+      - 'lakefile.toml'
+      - 'lean-toolchain'
+      - '.github/workflows/axiom-gate.yml'
+  schedule:
+    # Monday 05:43 UTC — weekly, deliberately off the hour and clear of the
+    # H1 job's Monday 04:17 slot (same queue reasoning as that job's comment).
+    - cron: '43 5 * * 1'
+  workflow_dispatch:
+
+env:
+  LEAN_VERSION: "4.28.0"
+
+jobs:
+  axiom-gate:
+    name: transitive axiom closure + axioms audits (.lean changes, weekly, manual)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # actions/checkout@v7.0.1
+
+      - name: install elan (pinned 4.28.0)
+        run: |
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v4.1.2/elan-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz -C $HOME/.elan
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: elan toolchain
+        run: elan toolchain install "$LEAN_VERSION"
+
+      - name: fetch mathlib cache
+        run: lake exe cache get || lake exe cache get
+
+      - name: build the gate's import cone (the 7 chapters axiom_gate imports)
+        run: |
+          lake build \
+            BookProof.ChapterBRSTNilpotent \
+            BookProof.ChapterNavierStokes \
+            BookProof.ChapterGaugeFixing \
+            BookProof.ChapterMassGap \
+            BookProof.ChapterGhostField \
+            BookProof.ChapterYangMillsFieldStrength \
+            BookProof.ChapterSirkFinitePrecision
+
+      - name: run axiom_gate.lean (fail on BAD; require the GATE tally)
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean axiom_gate.lean 2>&1 | tee "$RUNNER_TEMP/axiom_gate.log"
+          if ! grep -q "GATE: checked" "$RUNNER_TEMP/axiom_gate.log"; then
+            echo "axiom_gate did not report its tally — the gate did not run" >&2
+            exit 1
+          fi
+          if grep -E "(^|[[:space:]])BAD " "$RUNNER_TEMP/axiom_gate.log"; then
+            echo "axiom_gate: axioms outside {propext, Classical.choice, Quot.sound} above" >&2
+            exit 1
+          fi
+
+      - name: build the audit scripts (Audits.lean aggregator + the 5 axiom audits)
+        run: |
+          lake build \
+            Audits \
+            Audits.Verification \
+            Audits.Singularity_axioms \
+            Audits.randomMap2_axioms \
+            Audits.randomMap2RH_axioms \
+            Audits.B1_randomMap2_axioms
+
+      - name: audits print clean closures (no sorryAx, no axiom beyond the allowed three)
+        shell: bash
+        run: |
+          set -o pipefail
+          total_axiom_lines=0
+          for f in Verification Singularity_axioms randomMap2_axioms randomMap2RH_axioms B1_randomMap2_axioms; do
+            lake env lean "Audits/$f.lean" 2>&1 | tee "$RUNNER_TEMP/audit_$f.log"
+            # Strip the allowed three from every `depends on axioms:` list;
+            # anything left (sorryAx included) is a flag. Empty output = clean.
+            leftover=$(grep "depends on axioms:" "$RUNNER_TEMP/audit_$f.log" \
+              | sed -E 's/.*axioms: \[//; s/\]$//' | tr ',' '\n' \
+              | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+              | grep -vE '^(propext|Classical\.choice|Quot\.sound)?$' || true)
+            if [ -n "$leftover" ]; then
+              echo "audit $f flagged axioms outside {propext, Classical.choice, Quot.sound}:" >&2
+              echo "$leftover" >&2
+              exit 1
+            fi
+            n=$(grep -c "depends on axioms:" "$RUNNER_TEMP/audit_$f.log" || true)
+            total_axiom_lines=$((total_axiom_lines + n))
+          done
+          # Format-drift guard: several of these scripts audit via `#check`
+          # lists, so a run with zero axiom lines can be legitimate — but never
+          # across all five (`Audits/Verification.lean` prints 11 today). If
+          # `#print axioms` ever changes wording, this fails loudly instead of
+          # letting the whitelist above quietly match nothing.
+          if [ "$total_axiom_lines" -eq 0 ]; then
+            echo "no 'depends on axioms:' lines seen across all five audits — the whitelist check matched nothing; has #print axioms changed wording?" >&2
+            exit 1
+          fi
