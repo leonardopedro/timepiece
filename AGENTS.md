@@ -106,6 +106,40 @@ See `BOOK_PROOF_PLAN.md` Priority 4 for the original 26-chapter elaboration fix.
 
 ---
 
+## Repository scripts
+
+Everything below lives under `scripts/`. `python3` is **not** on `PATH` in a
+bare NixOS shell, so python entry points carry their `nix-shell -p python3
+--run …` wrapper — the wrapper is part of the command, not a precondition.
+
+| script | what it does |
+| :--- | :--- |
+| `health.sh` | one-command gate (exit 0 ⇔ healthy): doc-index freshness, `import_components --check`, GitBook drift. Calls `python3` itself — run it *through* the wrapper below. |
+| `verify-invariants` | invariant/drift gate; a missing tool is an explained `[gap]`, never a false failure. |
+| `check-links` | relative markdown links resolve (CI: `.github/workflows/linkcheck.yml`). |
+| `check-gitbook-drift` | identifiers cited by `../test`'s GitBook pages still exist here (skips when `../test` is absent). |
+| `check-book-sync` | `unfer/`'s synced copy of the LaTeX corpus still matches this repo (the source of record). |
+| `sync-book` | one-way sync of that corpus into `../unfer`; `check-book-sync` is its verifier. |
+| `workspace-root.sh` | shared workspace discovery, sourced by `sync-book`/`check-book-sync` (not run directly). |
+| `check-mass-gap-spec-parity` | `MASS_GAP_SPEC.md` stays in step with the Lean sources — **wired nowhere** (not in `health.sh` or CI). Its paths are cross-repo (`unfer/docs/…` → `unfer_contracts/…`), so it **runs from `../unfer`**, not from here. |
+| `check_hamiltonian_identities.py` | exact, non-Cadabra checks of the identities behind the three Hamiltonians. |
+| `doc_index.py` | renders the `DOC_INDEX.md` backlink graph; `--check` is the freshness gate. |
+| `import_components.py` | computes the independent-parts build graph; `--check` is the consistency gate. |
+| `board_rollup.py` (+ `test_board_rollup.py`) | rolls board observations up into `CONSOLIDATED_PLAN.md`; the three safety claims of the script are those tests. |
+| `propose_split.py` | proposes a `split_module.py` invocation for a long Lean module. |
+| `split_module.py` | splits a long Lean module into sequential parts, keeping the original name as a thin re-export. |
+
+```bash
+# copy-pasteable in a clean shell:
+nix-shell -p python3 --run "bash scripts/health.sh"
+bash scripts/verify-invariants
+nix-shell -p python3 --run "python3 scripts/import_components.py BookProof --check"
+nix-shell -p python3 --run "python3 scripts/check-links"
+(cd ../unfer && bash ../timepiece/scripts/check-mass-gap-spec-parity)   # unwired gate — runs from unfer/
+```
+
+---
+
 ## Formalization State
 
 | Target | Lean 4 Identifier | Status | Notes |
