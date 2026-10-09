@@ -67,22 +67,34 @@ fi
 
 # --- H1.5 GitBook drift (F7): every identifier cited by the ../test pages
 # must resolve in the timepiece Lean tree / unfer test suites. Skippable when
-# ../test is absent.
-if [[ -d "$repo_root/../test" ]]; then
+# ../test is absent, or when python3 is (the check body is Python; without an
+# interpreter this gate used to report FAIL, which made a missing tool
+# indistinguishable from real citation drift).
+if [[ ! -d "$repo_root/../test" ]]; then
+    gap "../test GitBook absent; drift check skipped"
+elif ! command -v python3 >/dev/null 2>&1; then
+    gap "gitbook drift: python3 not on PATH (tooling absent) — drift check skipped"
+else
     check "gitbook drift: cited identifiers resolve (scripts/check-gitbook-drift)" \
         bash "$repo_root/scripts/check-gitbook-drift"
-else
-    gap "../test GitBook absent; drift check skipped"
 fi
 
 # --- H1.6 Proof targets build ---
 # This is the expensive gate (mathlib). Skip via TIMEPIECE_SKIP_LAKE=1 for the
-# fast invariant pass.
-if [[ "${TIMEPIECE_SKIP_LAKE:-0}" != "1" ]]; then
+# fast invariant pass, or when there is no Lean toolchain at all: `lake` absent
+# is an unenforced check on this machine, not a failing proof. It used to exit
+# 1 with `command failed: 'lake'` and read as a broken build.
+if [[ "${TIMEPIECE_SKIP_LAKE:-0}" == "1" ]]; then
+    gap "TIMEPIECE_SKIP_LAKE=1 set; lake build gate skipped"
+elif ! bash -lc "lake --version" >/dev/null 2>&1; then
+    # Probe executability, not presence: an elan shim can be on PATH while the
+    # toolchain it dispatches to is not installed, in which case `lake` exists
+    # but every invocation fails with `command failed: 'lake'`. `command -v`
+    # would call that a working gate.
+    gap "lake unusable (Lean toolchain not installed; 'lake --version' fails) — lake build gate skipped"
+else
     check "lake build BookProof Singularity Layout" \
         bash -lc "cd '$repo_root' && lake build BookProof Singularity Layout"
-else
-    gap "TIMEPIECE_SKIP_LAKE=1 set; lake build gate skipped"
 fi
 
 echo

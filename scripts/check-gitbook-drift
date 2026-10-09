@@ -23,6 +23,15 @@ if [[ ! -d "$GITBOOK" ]]; then
     exit 0
 fi
 
+# The check body is Python. Without an interpreter this is an unenforced check,
+# not detected drift; saying so and exiting 0 keeps a missing tool from reading
+# as a stale citation (callers such as scripts/verify-invariants report the
+# skip, and a bare invocation here does too).
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "[gap]  python3 not on PATH — drift check skipped"
+    exit 0
+fi
+
 FAILED=0
 PASSED=0
 
