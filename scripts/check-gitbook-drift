@@ -3,7 +3,7 @@
 # that no longer exist in the source-of-truth trees.
 #
 # Two drift surfaces (the GitBook mirrors the project in prose):
-#   1. LEAN surface: backtick-quoted identifiers in test/proofs|book|unfer
+#   1. LEAN surface: backtick-quoted identifiers in test/mathematical-foundations|the-program|unfer
 #      must resolve in the timepiece Lean tree (word token, *.lean file, or
 #      BookProof.X module). A renamed/removed theorem shows up here as a MISS.
 #   2. RUST surface: `.rs` suite names cited in test/numerics must resolve in
@@ -35,7 +35,7 @@ fi
 FAILED=0
 PASSED=0
 
-echo "=== Lean-surface citations (test/proofs, test/book, test/unfer) ==="
+echo "=== Lean-surface citations (test/mathematical-foundations, test/the-program, test/unfer) ==="
 # Collect every backtick-quoted token that looks like an identifier
 # (contains '_' or '.' and is not a filename with a foreign extension).
 python3 - "$repo_root" "$GITBOOK" "$UNFER_TESTS" <<'PYEOF'
@@ -76,8 +76,8 @@ def resolves(token):
 
 pat = re.compile(r"`([A-Za-z_][A-Za-z0-9_.]*)`")
 misses = []
-for f in sorted(glob.glob(os.path.join(gitbook, "proofs", "*.md"))
-                + glob.glob(os.path.join(gitbook, "book", "*.md"))
+for f in sorted(glob.glob(os.path.join(gitbook, "mathematical-foundations", "*.md"))
+                + glob.glob(os.path.join(gitbook, "the-program", "*.md"))
                 + glob.glob(os.path.join(gitbook, "unfer", "*.md"))):
     txt = open(f, encoding="utf-8", errors="replace").read()
     for m in pat.finditer(txt):
@@ -102,11 +102,11 @@ if [[ "$PY_RC" -ne 0 ]]; then
 fi
 
 echo
-echo "=== Rust-surface citations (test/numerics → unfer/fock_sirk/tests) ==="
+echo "=== Rust-surface citations (test/numerical-physics → unfer/fock_sirk/tests) ==="
 if [[ -d "$UNFER_TESTS" ]]; then
     RUST_MISS=0
     RUST_OK=0
-    for f in "$GITBOOK"/numerics/*.md; do
+    for f in "$GITBOOK"/numerical-physics/*.md; do
         for id in $(grep -oE '`[A-Za-z0-9_]+\.rs`' "$f" 2>/dev/null | tr -d '`' | sort -u); do
             if [[ -f "$UNFER_TESTS/$id" ]]; then
                 RUST_OK=$((RUST_OK + 1))
