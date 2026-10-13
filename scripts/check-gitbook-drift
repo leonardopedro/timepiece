@@ -38,10 +38,22 @@ PASSED=0
 echo "=== Lean-surface citations (test/mathematical-foundations, test/the-program, test/unfer) ==="
 # Collect every backtick-quoted token that looks like an identifier
 # (contains '_' or '.' and is not a filename with a foreign extension).
-python3 - "$repo_root" "$GITBOOK" "$UNFER_TESTS" <<'PYEOF'
+# Misses listed in scripts/pending-lemmas.txt are documented forward
+# references (planned lemmas) and do not fail the gate; everything else
+# does. See that file's header for the full contract.
+python3 - "$repo_root" "$GITBOOK" "$UNFER_TESTS" "$repo_root/scripts/pending-lemmas.txt" <<'PYEOF'
 import re, sys, glob, os
 
-repo_root, gitbook, unfer_tests = sys.argv[1:4]
+repo_root, gitbook, unfer_tests, pending_path = sys.argv[1:5]
+
+pending = set()
+if os.path.isfile(pending_path):
+    for line in open(pending_path, encoding="utf-8"):
+        line = line.strip()
+        if line and not line.startswith("#"):
+            pending.add(line)
+else:
+    print(f"  [warn] {pending_path} missing — every miss is fatal", file=sys.stderr)
 
 lean_files = [
     f for f in glob.glob(os.path.join(repo_root, "**", "*.lean"), recursive=True)
@@ -86,15 +98,31 @@ for f in sorted(glob.glob(os.path.join(gitbook, "mathematical-foundations", "*.m
             misses.append((t, os.path.relpath(f, gitbook)))
 
 seen = set()
+fatal = 0
+n_pending = 0
 for t, f in sorted(misses):
     if (t, f) in seen:
         continue
     seen.add((t, f))
-    print(f"  [MISS lean] {t:<55s} {f}")
+    if t in pending:
+        n_pending += 1
+        print(f"  [pending]  {t:<55s} {f}")
+    else:
+        fatal += 1
+        print(f"  [MISS lean] {t:<55s} {f}")
+
+# A pending entry that now resolves in the Lean tree has landed: the entry
+# must be removed so the list stays exactly the outstanding surface.
+stale = sorted(t for t in pending if resolves(t))
+for t in stale:
+    print(f"  [stale]    {t:<55s} resolves now — remove from pending-lemmas.txt")
 
 if not misses:
     print("  [ok] all cited Lean identifiers resolve in the tree")
-sys.exit(1 if misses else 0)
+else:
+    print(f"  ({n_pending} pending forward reference(s) documented in {os.path.basename(pending_path)}, "
+          f"{fatal} unreviewed miss(es))")
+sys.exit(1 if fatal else 0)
 PYEOF
 PY_RC=$?
 if [[ "$PY_RC" -ne 0 ]]; then

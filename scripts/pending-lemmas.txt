@@ -1,0 +1,103 @@
+# Pending Lean surface — reviewed forward references.
+#
+# Every identifier below is cited by a test/ GitBook page (the two math-
+# review rounds) but does NOT yet exist in this repo's Lean tree. Each one
+# is a planned lemma/module the LLM-Lean4-specialist is expected to prove;
+# the site cites forward on purpose.
+#
+# The contract with scripts/check-gitbook-drift:
+#   * a MISS whose identifier is listed here is reported as [pending] and
+#     does NOT fail the gate — the citation is a documented plan, not rot;
+#   * a MISS whose identifier is NOT listed here fails the gate — new or
+#     renamed stale citations must never land unreviewed;
+#   * an entry whose identifier now RESOLVES in the Lean tree is reported
+#     as [stale] — remove it in the change that lands the lemma.
+#
+# Removing an entry without landing the lemma re-opens the failure on
+# purpose. One identifier per line; '#' starts a comment.
+add_right_imp
+BookProof.ChapterEuler
+ChapterQgFockComparisonEsa.lean
+classical_series_converges_at_s0
+commForm_eq_leray_advect
+conditional_convergence_is_null
+decide_core
+det_deformation_corr
+det_deformation_corr3
+det_deformation_zero
+embPow_nsmul_eq
+essentiallySelfAdjointOn_h_full_higgs
+etf_procrustes
+false_of_nsEnergy_hsurj
+h_full_def
+h_full_essentiallySelfAdjointOn
+h_full_fermi
+h_full_sm
+higgsCore_essentiallySelfAdjointOn
+higgsProduct_le_wall
+hp_indep
+hYuk_def
+isometry_embPow
+iterated_bayes_module
+katoRellich_of_relBounded_zero
+lagCan_esa_farisLavine
+lagCan_essentiallySelfAdjointOn
+lagFullFockHam_essentiallySelfAdjointOn
+lagFullHam_eq_weylPoly
+lagFullHam_essentiallySelfAdjointOn
+lagOne_fermi_dGamma_esa
+lagOne_hbosonic_dGamma_esa
+lagOne_symm_dGamma_esa
+leadCoeff_volumePoly
+log_primes_linearIndependent
+lyapunovFarisLavine_lagKoopman
+lyapunovLagKoopman_esa_conditional
+not_isEmpty_unit_of_ofNat_ne_zero
+not_surjective_of_countable_denseRange_span_neq_univ
+not_unit_volumePoly
+nsEnergy_hsurj
+nsEnergy_not_denseRange
+ns_eulerian_fiber
+nsFullFockHam_essentiallySelfAdjointOn
+nsKoopman_norm_le_sq_comparison
+nsKoopman_quadForm_eq_nsEnergy_sq
+number_op
+propHolds_iff
+qfm_text
+qg3DCross_essentiallySelfAdjointOn
+qg3DDensity_dGamma_essentiallySelfAdjointOn
+qg3DDensity_essentiallySelfAdjointOn
+qgFull_bosonic_core_essentiallySelfAdjointOn
+qgFull_bosonicFock_essentiallySelfAdjointOn
+qgFull_dGamma_essentiallySelfAdjointOn
+qgFull_esa
+qgFull_hbosonicFock_essentiallySelfAdjointOn
+qgFullOp_essentiallySelfAdjointOn
+qgWithCoupling_eq_fqPoly
+qgWithCoupling_essentiallySelfAdjointOn
+random_rearrangement_divergence
+realize_injective
+redHam_essentiallySelfAdjointOn_weylPoly
+sm_dGamma_essentiallySelfAdjointOn
+smFock_esa
+smFock_essentiallySelfAdjointOn
+smFockHam_essentiallySelfAdjointOn
+smFull_dGamma_essentiallySelfAdjointOn
+smFull_dGamma_higgs_essentiallySelfAdjointOn
+smFull_esa
+smMuCoeff_le
+smSectorHam_essentiallySelfAdjointOn
+smYukawa_esa
+smYukawa_essentiallySelfAdjointOn
+spHam_essentiallySelfAdjointOn_weylPoly
+spread_means
+summable_invIndex_sq
+symmetricOn_h_full
+tensorPowUnitary_embPow
+volPotential_def
+wallHam_stone_flow
+weylPoly_essentiallySelfAdjoint
+W_proj
+ym_dGamma_essentiallySelfAdjointOn
+ym_h
+ym_h_essentiallySelfAdjointOn

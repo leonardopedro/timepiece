@@ -121,7 +121,7 @@ bare NixOS shell, so python entry points carry their `nix-shell -p python3
 | `check-book-sync` | `unfer/`'s synced copy of the LaTeX corpus still matches this repo (the source of record). |
 | `sync-book` | one-way sync of that corpus into `../unfer`; `check-book-sync` is its verifier. |
 | `workspace-root.sh` | shared workspace discovery, sourced by `sync-book`/`check-book-sync` (not run directly). |
-| `check-mass-gap-spec-parity` | `MASS_GAP_SPEC.md` stays in step with the Lean sources — **wired nowhere** (not in `health.sh` or CI). Its paths are cross-repo (`unfer/docs/…` → `unfer_contracts/…`), so it **runs from `../unfer`**, not from here. |
+| `check-todo-ledger` | code files carry no `TODO`/`FIXME`/`HACK`/`XXX` marker unless reviewed in `TODO_LEDGER.md` (markdown prose is out of scan scope by policy). |
 | `check_hamiltonian_identities.py` | exact, non-Cadabra checks of the identities behind the three Hamiltonians. |
 | `doc_index.py` | renders the `DOC_INDEX.md` backlink graph; `--check` is the freshness gate. |
 | `import_components.py` | computes the independent-parts build graph; `--check` is the consistency gate. |
@@ -135,8 +135,13 @@ nix-shell -p python3 --run "bash scripts/health.sh"
 bash scripts/verify-invariants
 nix-shell -p python3 --run "python3 scripts/import_components.py BookProof --check"
 nix-shell -p python3 --run "python3 scripts/check-links"
-(cd ../unfer && bash ../timepiece/scripts/check-mass-gap-spec-parity)   # unwired gate — runs from unfer/
 ```
+
+The former `check-mass-gap-spec-parity` gate is **gone** (deleted 2026-10-12,
+S2): it was a byte-identical, cwd-broken fork of `unfer`'s gate of the same
+name, and unfer's copy covers the parity — run it from there
+(`cd ../unfer && bash ../timepiece/scripts/check-mass-gap-spec-parity`).
+Duplicate gates are superseded code.
 
 ---
 
