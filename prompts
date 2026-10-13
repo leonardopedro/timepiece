@@ -123,7 +123,7 @@ When you finish your tasks, add more tests of Navier-Stokes that use the fock_si
 When you finish your tasks, add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm in ../unfer/, based on the formalization for Lagrangian variables discussed in ../timepiece/CONSOLIDATED_PLAN.md, also derive in a Cadabra module the Lagrangian variables version  of the Hamiltonian for NS from the Eulerian variables version, including the constraints 
 
 When you finish your tasks, add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm in ../unfer/, based on the formalization for Lagrangian variables discussed in 
-../timepiece/CONSOLIDATED_PLAN.md, also derive in a Cadabra module the Lagrangian variables version of the Hamiltonian for NS from the Eulerian variables version, including the constraint. Then commit 
+timepiece/CONSOLIDATED_PLAN.md, also derive in a Cadabra module the Lagrangian variables version of the Hamiltonian for NS from the Eulerian variables version, including the constraints. Then commit 
 and push ../timepiece and ../unfer. Also, create a new branch in the git repo from ../timepiece for the contents of ../timepiece331 (after you merge the new contents in ../timepiece into ../timepiece331, 
 without losing the work already done in ../timepiece331 as much as possible, use the git history to see what parts of the files are genuinely new in ../timepiece and only these parts can replace the 
 changes already in place in ../timepiece331)
@@ -228,7 +228,7 @@ freebuff --continue 2026-08-22T20-53-40.518Z
 freebuff --continue 2026-08-22T20-53-40.518Z
 
 
-Pause what you are doing. Please do a deep, complete review while improving deeply the pedagogy of the contents of ../timepiece/Book/ (staying faithful to the Lean4 proofs in timepiece/ and the contents of timepiece/book.tex and other documents in timepiece/ when they are related to Book/ contents). And then finish the numerical tests about physics (NG, QG,QYM, QED) you started and I asked you to pause.
+Pause what you are doing. Please do a deep, complete review while improving deeply the pedagogy of the contents of timepiece/Book/ and test/ (staying faithful to the Lean4 proofs in timepiece/ and the contents of timepiece/book.tex and other documents in timepiece/ when they are related to Book/ contents). And then add more numerical tests about physics (NG, QG,QYM, QED) you find approprieate due to your previous review and then update timepiece/Book/ and test/ with a discussion of the results.
 
 
 "Loops": none exist and none were added — the forward sequence remains a strict single-pass product ∏(H−zₖI)v₀. The restarts in evolve_restarted are outer time-stepping (dt slicing for dynamics), not iteration inside the spectral algorithm.
