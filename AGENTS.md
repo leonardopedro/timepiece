@@ -118,6 +118,7 @@ bare NixOS shell, so python entry points carry their `nix-shell -p python3
 | `verify-invariants` | invariant/drift gate; a missing tool is an explained `[gap]`, never a false failure. |
 | `check-links` | relative markdown links resolve (CI: `.github/workflows/linkcheck.yml`). |
 | `check-gitbook-drift` | identifiers cited by `../test`'s GitBook pages still exist here (skips when `../test` is absent). |
+| `pending-lemmas.txt` | data, not a script: the reviewed forward-reference ledger the drift gate consults. A MISS listed there is `[pending]` (a planned lemma for the Lean4 specialist, not rot); an unlisted MISS fails; a listed identifier that now resolves is `[stale]` — remove it in the change that lands the lemma. |
 | `check-book-sync` | `unfer/`'s synced copy of the LaTeX corpus still matches this repo (the source of record). |
 | `sync-book` | one-way sync of that corpus into `../unfer`; `check-book-sync` is its verifier. |
 | `workspace-root.sh` | shared workspace discovery, sourced by `sync-book`/`check-book-sync` (not run directly). |
