@@ -34,6 +34,22 @@ gap() {
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 export PATH="$HOME/.elan/bin:$PATH"
 
+# P7 (2026-10-15): python3 is uv-managed on some machines and lives outside
+# the default non-login PATH. Without the same fallback check-all-gates
+# already applies, a *direct* run here would [gap] the gitbook-drift check on
+# a box that actually has an interpreter — "no interpreter" then reads as a
+# real skip and the drift goes unchecked. Only the search is special-cased;
+# a gate that still finds nothing reports the gap honestly below.
+if ! command -v python3 >/dev/null 2>&1; then
+    for candidate in /usr/local/bin/python3 "$HOME/.local/bin/python3"; do
+        if [ -x "$candidate" ]; then
+            PATH="$(dirname "$candidate"):$PATH"
+            export PATH
+            break
+        fi
+    done
+fi
+
 # --- H1.1 Default targets are the documented proof + book + core-cert set ---
 # lakefile.toml must declare BookProof, Book, Singularity, Layout as the
 # default targets (Layout = GPU_FEDERATION pure-core certificates).

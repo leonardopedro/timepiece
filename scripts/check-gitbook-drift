@@ -26,7 +26,20 @@ fi
 # The check body is Python. Without an interpreter this is an unenforced check,
 # not detected drift; saying so and exiting 0 keeps a missing tool from reading
 # as a stale citation (callers such as scripts/verify-invariants report the
-# skip, and a bare invocation here does too).
+# skip, and a bare invocation here does too). P7 (2026-10-15): uv-managed
+# python3 lives outside the default non-login PATH on some machines — the same
+# fallback check-all-gates applies — so a direct run on such a box checks
+# drift instead of gapping past it.
+if ! command -v python3 >/dev/null 2>&1; then
+    for candidate in /usr/local/bin/python3 "$HOME/.local/bin/python3"; do
+        if [ -x "$candidate" ]; then
+            PATH="$(dirname "$candidate"):$PATH"
+            export PATH
+            break
+        fi
+    done
+fi
+
 if ! command -v python3 >/dev/null 2>&1; then
     echo "[gap]  python3 not on PATH — drift check skipped"
     exit 0
@@ -65,7 +78,57 @@ for f in lean_files:
     lean_tokens.update(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", txt))
 lean_basenames = {os.path.basename(f) for f in lean_files}
 
-EXTERNAL_EXT = (".rs", ".bin", ".lp", ".json", ".loro", ".md", ".tex", ".toml")
+# Third surface: the sibling engine code the GitBook cites.  test/unfer pages
+# are *about* the unfer Rust engine and the workspace-root reference repos, so
+# their identifiers must resolve there; math pages may cite unfer/docs
+# artifacts (Cadabra modules, spec docs) but not arbitrary Rust tokens — a
+# planned Lean lemma must not be masked by a mention in a .rs comment.
+def _tokens(patterns, exclude=()):
+    out = set()
+    for pat_ in patterns:
+        for f in glob.glob(pat_, recursive=True):
+            if any(x in f for x in exclude):
+                continue
+            out.update(re.findall(r"[A-Za-z_][A-Za-z0-9_]*",
+                                  open(f, encoding="utf-8", errors="replace").read()))
+    return out
+
+unfer_root = os.path.join(repo_root, "..", "unfer")
+unfer_tokens = set()
+cdb_stems = set()
+doc_stems = set()
+if os.path.isdir(unfer_root):
+    unfer_tokens |= _tokens([os.path.join(unfer_root, "**", "*.rs")], exclude=("/target/",))
+    unfer_tokens |= {os.path.splitext(os.path.basename(f))[0]
+                     for f in glob.glob(os.path.join(unfer_root, "fock_sirk", "tests", "*.rs"))}
+    docs_dir = os.path.join(unfer_root, "docs")
+    for f in glob.glob(os.path.join(docs_dir, "*")):
+        if os.path.isfile(f):
+            stem = os.path.splitext(os.path.basename(f))[0]
+            doc_stems.add(stem)
+            if f.endswith(".cdb"):
+                cdb_stems.add(stem)
+    unfer_tokens |= _tokens([os.path.join(docs_dir, "*.cdb"),
+                             os.path.join(docs_dir, "*.md")])
+    unfer_tokens |= doc_stems
+
+ref_tokens = set()
+for _ref in ("AnaCP", "AnaNC"):
+    _p = os.path.join(repo_root, "..", _ref)
+    if os.path.isdir(_p):
+        ref_tokens |= _tokens([os.path.join(_p, "**", "*.py"),
+                               os.path.join(_p, "**", "*.md")])
+
+def resolves_sibling(token, relpath):
+    """Resolve against sibling source trees, scoped by the citing page."""
+    if relpath.startswith("unfer/"):
+        return (token in unfer_tokens) or (token in ref_tokens)
+    # math/the-program pages: only unfer/docs artifacts (Cadabra/spec) —
+    # never the bare Rust token pool, so Lean forward refs stay visible.
+    return token in cdb_stems or token in doc_stems
+
+EXTERNAL_EXT = (".rs", ".bin", ".lp", ".json", ".loro", ".md", ".tex", ".toml",
+                ".py", ".cdb")
 # mathlib / ecosystem names that legitimately live outside this tree
 EXTERNAL_HEADS = ("Finset", "Quot", "Metric", "NormedAddCommGroup", "Classical",
                   "Mathlib", "Complex", "Real", "Nat", "Int", "Fin", "green_tsetlin")
@@ -94,7 +157,8 @@ for f in sorted(glob.glob(os.path.join(gitbook, "mathematical-foundations", "*.m
     txt = open(f, encoding="utf-8", errors="replace").read()
     for m in pat.finditer(txt):
         t = m.group(1)
-        if ("_" in t or "." in t) and not resolves(t):
+        if ("_" in t or "." in t) and not resolves(t) \
+                and not resolves_sibling(t, os.path.relpath(f, gitbook)):
             misses.append((t, os.path.relpath(f, gitbook)))
 
 seen = set()
