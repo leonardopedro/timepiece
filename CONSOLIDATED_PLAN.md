@@ -7,9 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-15):** **§"State of the project — 2026-10-15:
+> **Newest entry (2026-10-15b):** **§"State of the project — 2026-10-15b:
+> closing the two open halves of the transformed-ESA entry — executable
+> Lean plan for the LLM-Lean4-specialist"** at the very end of this file
+> (turns rows ODE-C / NS-L-C / QG-D-C into a dependency-ordered,
+> acceptance-checked Lean plan, and closes the lifted comparison
+> `dΓ(N_L) + 1` via `ChapterFlowDGammaEsa`'s lifted-core theorem — the one
+> row allowed to remain open is the continuum finite-speed discharge
+> QG-D-C.1).  Preceded by **§"State of the project — 2026-10-15:
 > closing the ESA of the TRANSFORMED operator — work order for the
-> LLM-Lean4-specialist"** at the very end of this file (rows ODE-C.1–3,
+> LLM-Lean4-specialist"** (rows ODE-C.1–3,
 > NS-L-C.1–3, QG-D-C.1–3: close ESA of the transformed operator in the
 > reciprocal chart of `x' = x²`, the Lagrangian variables of NS, and the
 > densitized variables of QG; symbolic half certified by
@@ -17279,9 +17286,174 @@ LLM-Lean4-specialist; the symbolic content is certified by
 `../unfer/docs/transformed_esa_charts.cdb` (all 9 CHECKs green under
 `nix-shell -p cadabra2` in `../unfer/`, 2026-10-15) and numerically by
 `../unfer/fock_sirk/tests/transformed_esa_charts_validation.rs` (10
-tests), `../unfer/fock_sirk/tests/qg_half_density_stone_flow_validation.rs`
-(9 tests, rows QG-D-C.2–3) and
+tests), `../unfer/fock_sirk/tests/qg_half_density_stone_flow_validation.rs`(9 tests, rows QG-D-C.2–3) and
 `../unfer/fock_sirk/tests/ns_penalty_lyapunov_validation.rs` (10 tests, row
 NS-L-C.3, including the lifted comparison `dΓ(N_L) + 1` on the Fock
 sectors m = 0, 1, 2).  No `.lean` file was written or compiled to produce
 this section.
+
+## State of the project — 2026-10-15b: closing the two open halves of the transformed-ESA entry — executable Lean plan for the LLM-Lean4-specialist (plan only; no Lean code in this entry)
+
+**What this entry fixes.**  The 2026-10-15 entry above leaves exactly two
+things open, and they are the only things open:
+
+1. its rows **ODE-C / NS-L-C / QG-D-C are work orders** — the Lean
+   theorems themselves are not written (by the project convention that
+   Lean4 code belongs to the LLM-Lean4-specialist);
+2. the lifted comparison **`dΓ(N_L) + 1` is verified only as a
+   finite-dimensional shadow** — the four assertions of
+   `../unfer/fock_sirk/tests/ns_penalty_lyapunov_validation.rs`
+   (`pl_lifted_comparison_fock_sectors`, `pl_lifted_commutator_identity`,
+   `pl_lifted_deficiency_resolvent_bound`, and the Hermiticity residuals:
+   Hermitian, form ≥ m+1, `[dΓ(H), dΓ(N)] = dΓ([H,N])`, resolvent
+   `‖(A − z)⁻¹‖ ≤ 1/|Im z|`) have no analytic counterpart; ESA of
+   `dΓ(N_L) + 1` **on the lifted core** (toolbox §5, row D6b) is the
+   still-open analytic row.
+
+This entry turns both into a dependency-ordered, acceptance-checked Lean
+plan.  Nothing here is new mathematics: every closing step is an
+*instantiation* of a theorem already in the tree, named below with its
+file.  The one row that needs genuinely new analytic input is QG-D-C.1,
+and it is marked as such rather than papered over.
+
+### The closing tools (already proved — do not re-prove)
+
+| tool | where | closes |
+|---|---|---|
+| `deficiencyTrivialAt_of_orbits` — Nelson's criterion in orbit form: a spanning family with norm-preserving orbits solving `d/dt orb = −i T (orb)` has zero deficiency | `BookProof/ChapterFlowDGammaEsa.lean` | ODE-C.1; any "explicit complete flow ⇒ ESA" row |
+| `dGamma_selfAdjoint_essentiallySelfAdjointOn_fockCore`, `dGamma_flow_essentiallySelfAdjointOn_fockCore` — for **any** self-adjoint one-particle `A` and graph-norm core `D`, `dΓ(A)` is ESA on the finite-particle core `𝓕_fin(D)` | `BookProof/ChapterFlowDGammaEsa.lean` | **NS-L-C.3 (the lifted comparison)** |
+| `densitized_hasZeroDeficiencyOn_transfer` — generic unitary transfer `(W : F ≃ₗᵢ[ℂ] G)`, zero deficiency of `H'` gives zero deficiency of `H` when `W` intertwines | `BookProof/ChapterQuantumGravityDensitized.lean` | ODE-C.2, QG-D-C.2 |
+| `hasZeroDeficiencyOn_of_commonEigenvectors` — total family of common eigenvectors with explicit eigenvalues ⇒ zero deficiency | `BookProof/ChapterNavierStokesLagrangianEsa.lean` | NS-L-C.1 |
+| `lagKoopman_esa_of_comparison_esa`, `lagKoopman_dGamma_esa_of_comparison_esa` — the Faris–Lavine chain from the comparison to the generator and its `dΓ` carry-over | `BookProof/ChapterNsLagrangianDetFarisLavine.lean`, `BookProof/ChapterNsLagrangianOuterFockEsa.lean` | NS-L-C.2 |
+| `qg_halfDensity_transfer` — the transfer instantiated at the **constructed** half-density unitary | `BookProof/ChapterQuantumGravityHalfDensity.lean` | QG-D-C.2 |
+| `strichartz_esa_of_finiteSpeed`, `qg_esa_of_farisLavine` — the two named deduction steps (hypothesis-shaped, never axioms) | `BookProof/ChapterQuantumGravityDensitized.lean` | QG-D-C.1 |
+| `exists_stone_flow_of_esa`, `ChapterStoneResolvent.UnboundedSelfAdjoint.stoneU` — the Stone bridge (ESA ⇒ complete unitary flow) | `BookProof/ChapterStoneBridge.lean`, `BookProof/ChapterStoneResolvent.lean` | QG-D-C.3, ODE-C.3 |
+| `odeKoop_chartW`, `chartW_lintegral_normSq` — the evolution *is* the translation group in the chart, chart norm-preserving | `BookProof/ChapterOdeUnitaryFlow.lean` | ODE-C.1–2 inputs |
+
+### ODE-C — the reciprocal chart of `x' = x²` (executable)
+
+* **ODE-C.1 (U) — new module `BookProof/ChapterMomentumChartEsa.lean`
+  (suggested; namespace `BookProof.MomentumChart`).**  Target:
+  `momentum_essentiallySelfAdjointOn : EssentiallySelfAdjointOn D₀ (−i d/dw)`
+  on a **translation-stable dense core** `D₀` of `L²(ℝ, dw)` (Schwartz or
+  `C_c^∞`; the exact core is the specialist's choice, but it must carry a
+  spanning family).  Closing route: `deficiencyTrivialAt_of_orbits` with
+  the translation orbit `orb t ψ = ψ(· − t)` — norm-preserving
+  (`∫|ψ(w − t)|² dw = ∫|ψ|² dw`), solving `d/dt orb = −i H orb` (the
+  generator face of `odeKoop_chartW`), and staying in the core
+  (Schwartz is translation-closed).  Symbolic input: CHECK 2/3 of
+  `../unfer/docs/transformed_esa_charts.cdb`; numeric anchor:
+  `xf_chain_rule_completes_flow`, `xf_chart_of_flow_is_translation`.
+* **ODE-C.2 (U) — transport through `chartW`.**  Apply the generic
+  `densitized_hasZeroDeficiencyOn_transfer` (it is a statement about any
+  unitary equivalence) at the chart unitary whose norm preservation is
+  `chartW_lintegral_normSq` and whose intertwining is `odeKoop_chartW`.
+  **The statement must name its domain**: the verdict is for the chart
+  realization; `Book/OdeSingularity.lean` keeps the correction that
+  `H = x²p − ix` on `L²(ℝ)` as it stands is *not* ESA (incomplete flow).
+  Numeric anchor: `xf_chartw_norm_preservation`, `xf_weyl_sum_equals_h`.
+* **ODE-C.3 (C, optional).**  Feed the achieved ESA into
+  `BookProof/ChapterOdeSampling.lean` (`chartW_sample`,
+  `eq_of_sample_eq_on_lattice`) to state the sampling theorem for the
+  *self-adjoint* generator.
+
+### NS-L-C — the Lagrangian variables (executable)
+
+* **NS-L-C.1 (U).**  Instantiate `hasZeroDeficiencyOn_of_commonEigenvectors`
+  for the full transformed operator `ĥ_full` (penalty/constraint term as
+  `constraintOp`), closing `lagrangianFock_hasZeroDeficiencyOn`'s one-parcel
+  input for the interacting row.  The eigenvalue arithmetic is the
+  shifted-ladder diagonalization of
+  `../unfer/docs/faris_lavine_n_ns_lagrangian.cdb` CHECK 2/4; numeric
+  anchor `xf_lagrangian_completed_square` (CHECK 7 mirror).
+* **NS-L-C.2 (C).**  Replace the invalid `N_L = H_L² + E` comparison shape
+  with the completed square `N = h + ½|f|²`
+  (`faris_lavine_n_ns_lagrangian.cdb` CHECK 1; `transformed_esa_charts.cdb`
+  CHECK 7), discharging the core-ESA obligation of the GEN-FL checklist.
+  Closing this closes `lagKoopman_esa_of_comparison_esa` and its `dΓ`
+  carry-over `lagKoopman_dGamma_esa_of_comparison_esa`.
+* **NS-L-C.3 (C) — THE lifted comparison, this entry's main row.**  Three
+  steps, in order:
+  1. **`comparison_esa_on_gaussCore`**: `N_L` is ESA on the
+     Gauss–polynomial core — from NS-L-C.1/2 (the completed square is a
+     family of shifted oscillators, `lagCan_essentiallySelfAdjointOn` is
+     the unconditional one-parcel face) or directly from
+     `hasZeroDeficiencyOn_of_commonEigenvectors` at the material
+     momenta + harmonic-position decomposition.
+  2. **Lift**: let `T` be the self-adjoint closure of `N_L`
+     (`ChapterStoneResolvent.UnboundedSelfAdjoint`);
+     `dGamma_selfAdjoint_essentiallySelfAdjointOn_fockCore` with
+     `D = ` the Gauss core (a graph-norm core of `T`) gives `dΓ(T)` ESA
+     on the finite-particle core `𝓕_fin(D)` — this is toolbox §5 / row
+     D6b exactly: ESA is reproved on the lifted core.
+  3. **The `+1`**: the vacuum shift is the identity; either apply the
+     one-particle theorem to the self-adjoint `T + 1` directly, or add the
+     one-line lemma `essentiallySelfAdjointOn_add_const` (deficiency of
+     `H` at `z` is deficiency of `H + c` at `z + c`, non-real preserved).
+     Result: `liftedComparison_esa : EssentiallySelfAdjointOn (𝓕_fin D)
+     (dΓ(N_L) + 1)` — the analytic counterpart of the four finite-shadow
+     assertions of `pl_lifted_*` (Hermitian ⇒ symmetric; form ≥ m+1 ⇒ the
+     form bound; the resolvent estimate ⇒ deficiency trivial).
+
+### QG-D-C — the densitized variables (executable, one honest gap)
+
+* **QG-D-C.1 (U) — the one row that needs genuinely new analytic input.**
+  The continuum `DeficiencyTrivialAt` for the flat d'Alembertian +
+  polynomial potential on the `L²(ℝ⁸⁴)` core (the standing residue of
+  A1/A5).  Two named routes, both hypothesis-shaped:
+  (R1) the Chernoff finite-speed route of `strichartz_esa_of_finiteSpeed` —
+  discharge its hypothesis for the continuum operator (unique
+  continuation for the hyperbolic polynomial-potential operator);
+  (R2) the Faris–Lavine route of `qg_esa_of_farisLavine`, once the
+  completed-square potential bound `qgR2Mode_potential_ge` is extended
+  fiberwise.  Sub-obligations for either route: the direct-integral
+  (Fubini) reduction of the continuum operator to its mode fibers; the
+  fiberwise `DeficiencyTrivialAt` already proved at the mode level
+  (`qgModeHamiltonian_deficiencyTrivialAt`); the interchange (a dense
+  invariant domain).  **This row may legitimately remain open after the
+  specialist's pass** — it is named here so that it is the *only* thing
+  that may.
+* **QG-D-C.2 (U).**  Assemble kinetic + potential + ghosts + gauge-fixing
+  (the 2026-08-24 scope clarification) and run the transfer
+  `densitized_hasZeroDeficiencyOn_transfer` at the constructed
+  `halfDensityUnitary` (`qg_halfDensity_transfer`).  Symbolic CHECK 8/9;
+  numeric anchors `hd_jacobian_and_half_density_factor`,
+  `hd_unitary_norm_preservation`, `hd_intertwines_multiplication`.
+* **QG-D-C.3 (C).**  Feed the achieved ESA into the Stone bridge
+  (`exists_stone_flow_of_esa`) for the continuum analogue of
+  `qgR2_stone_flow`, explicit on the Hermite/scalaron eigenbasis
+  (`BookProof/ChapterStoneEigenflow.lean`).  Numeric anchors
+  `qg_stone_flow_group_and_norm`, `qg_stone_flow_generator`,
+  `qg_deficiency_resolvent_bound`.
+
+### Order, files, acceptance
+
+| step | file (suggested) | consumes | may remain open? |
+|---|---|---|---|
+| 1 | `ChapterMomentumChartEsa.lean` | `deficiencyTrivialAt_of_orbits`, `ChapterOdeUnitaryFlow` | no |
+| 2 | extend `ChapterOdeUnitaryFlow.lean` (or `ChapterOdeChartTransfer.lean`) | step 1, `densitized_hasZeroDeficiencyOn_transfer` | no |
+| 3 | `ChapterNsComparisonEsa.lean` | `hasZeroDeficiencyOn_of_commonEigenvectors`, CHECK 2/4/7 arithmetic | no |
+| 4 | extend `ChapterNsLagrangianOuterFockEsa.lean` | step 3, `lagKoopman_*_of_comparison_esa` | no |
+| 5 | `ChapterLiftedComparisonEsa.lean` | steps 3–4, `dGamma_selfAdjoint_essentiallySelfAdjointOn_fockCore`, `essentiallySelfAdjointOn_add_const` | no |
+| 6 | extend `ChapterQuantumGravityDensitized.lean` / `ChapterQuantumGravityHalfDensity.lean` | `qg_halfDensity_transfer`, assembly | no |
+| 7 | `ChapterQgContinuumFiniteSpeed.lean` | `strichartz_esa_of_finiteSpeed` hypothesis / R2 | **yes — the named gap** |
+| 8 | extend `ChapterStoneEigenflow.lean` | steps 6–7 | after 7 |
+
+**Acceptance checklist (every step).**  (a) `lake build` green; (b) no
+`sorry`, no `axiom` — `#print axioms` for every new theorem registered in
+`BookProof/ChapterRoadmapAudit.lean` returns only `propext,
+Classical.choice, Quot.sound`; (c) new roots added to `timepiece/lakefile.toml`;
+(d) the three numerical suites stay green — `transformed_esa_charts_validation`
+(10), `qg_half_density_stone_flow_validation` (9),
+`ns_penalty_lyapunov_validation` (10) — and the Cadabra gate stays 23/23;
+(e) `timepiece/STATUS.md` gains the row closures; (f) closures are recorded
+by a *new* dated entry appending "closed by <theorem>" pointers — old
+entries are never edited.
+
+### Boundary (unchanged, stated once)
+
+QG-D-C.1 is the only row allowed to remain open.  Nothing here claims
+continuum NS regularity, a Yang–Mills or QG mass gap, ESA of the
+*original* variables (`x`, Eulerian, `1/e`), or a mass–coupling derivation
+of the SM parameters.  This entry contains no Lean code: it is a plan for
+the LLM-Lean4-specialist, per the project's convention.
