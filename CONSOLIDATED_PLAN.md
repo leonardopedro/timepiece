@@ -7,9 +7,18 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-06b):** **§"State of the project — 2026-10-06b: the
-> sector correction — the campaign measured a diagnostic, and §M4.9 gates §M4.3"** at
-> the very end of this file (the physical gap is the outer vacuum's `E₁` through
+> **Newest entry (2026-10-15):** **§"State of the project — 2026-10-15:
+> closing the ESA of the TRANSFORMED operator — work order for the
+> LLM-Lean4-specialist"** at the very end of this file (rows ODE-C.1–3,
+> NS-L-C.1–3, QG-D-C.1–3: close ESA of the transformed operator in the
+> reciprocal chart of `x' = x²`, the Lagrangian variables of NS, and the
+> densitized variables of QG; symbolic half certified by
+> `../unfer/docs/transformed_esa_charts.cdb` CHECK 1–9 and
+> `../unfer/fock_sirk/tests/transformed_esa_charts_validation.rs`).
+> Preceded by **§"State of the project — 2026-10-07: RH/RandomMap's two
+> owner questions routed"**, **§"State of the project — 2026-10-06b: the
+> sector correction — the campaign measured a diagnostic, and §M4.9 gates §M4.3"**
+> further below (the physical gap is the outer vacuum's `E₁` through
 > `‖Hφ₁‖`, not a difference of one-particle sector grounds; the positivity
 > precondition of `../unfer/fock_sirk/src/mass_gap_spec.rs` is violated at every
 > measured coupling). Preceded by **§"State of the project — 2026-10-06: PLAN M
@@ -17089,3 +17098,190 @@ authoritative statements are F2 ("⚠ F2 — RandomMap/RH has no order, and thre
 documents claim to have one") in `../timepiece/CURRENT_WORK_ORDER.md` and §4/§6 of
 `../PLAN_MATHED_NATIVE_AND_IMPROVEMENT.md`. No `.lean` file was written or compiled
 for this entry.
+
+## State of the project — 2026-10-15: closing the ESA of the TRANSFORMED operator — work order for the LLM-Lean4-specialist (plan only; no Lean code in this entry)
+
+**The one doctrine, three instances.**  A classical singularity does not
+decide whether an operator is essentially self-adjoint — the *variables*
+in which the operator is posed do.  Each of the three lines below changes
+variables until the flow is complete and the operator is tame; the ESA
+argument then runs on the **transformed** operator, and the change of
+variables has been proved unitary (or norm-preserving) so the verdict
+transfers back.  The reader-facing statement of the doctrine is
+`../test/mathematical-foundations/ode-singularity.md` §7; the symbolic
+half of all three transformations is certified by the new Cadabra module
+**`../unfer/docs/transformed_esa_charts.cdb`** (CHECK 1–9; numerical
+companion `../unfer/fock_sirk/tests/transformed_esa_charts_validation.rs`,
+10 tests, plus the row-level suites
+`../unfer/fock_sirk/tests/qg_half_density_stone_flow_validation.rs`
+(9 tests, rows QG-D-C.2–3) and
+`../unfer/fock_sirk/tests/ns_penalty_lyapunov_validation.rs` (10 tests,
+row NS-L-C.3)), and the work-order rows below reference those CHECK numbers.
+
+| system | change of variables | transformed operator | symbolic rows |
+|---|---|---|---|
+| ODE `x' = x²` | reciprocal chart `w = −1/x` | translation `ẇ = 1` (complete) | CHECK 1–6 |
+| NS (Lagrangian) | material map `Ψ(ξ)` | shifted harmonic oscillator | CHECK 7 |
+| QG (densitized) | `e = y²`, `𝒮 = y𝒮̃`, `𝒫 = y𝒫̃` | flat principal part | CHECK 8–9 |
+
+### ODE-C — the reciprocal chart of `x' = x²` (close ESA of the transformed operator)
+
+**Object.**  The transformed operator of the ODE chapter in the chart
+`w = −1/x`: the classical flow `Φ_t(x₀) = x₀/(1 − t x₀)` (CHECK 1) pushes
+forward to `w(t) = w₀ + t` (CHECK 3) via the chain rule `ẇ = (dw/dx)·ẋ = 1`
+(CHECK 2), and the quantized operator is the Weyl Hamiltonian
+`H = x²p − ix = ½(px² + x²p)` (CHECK 4–5) conjugated by the norm-preserving
+chart `chartW ψ(x) = x⁻¹ ψ(−1/x)` (CHECK 6).
+
+**Already proved (do not re-prove).**  `ChapterOdeUnitaryFlow`:
+`odeKoop_add`/`odeKoop_zero` (a one-parameter group), the headline
+`odeKoop_lintegral_normSq` (total probability conserved at every real
+time, past the classical blow-up), `odeKoop_generator` (the generator is
+`−iH` with `H = x²p − ix`), and `odeKoop_chartW` + `chartW_lintegral_normSq`
+— **the evolution *is* the translation group in the chart, with a
+norm-preserving chart**.  The corrected analytic claim recorded in
+`Book/OdeSingularity.lean` is that the *transformed* operator is ESA; that
+is the row to close.
+
+* **ODE-C.1 (U).**  Identify the transformed generator with the momentum
+  operator `−i d/dw` on `L²(ℝ, dw)` (the translation group of
+  `odeKoop_chartW`), and prove it essentially self-adjoint on the
+  Schwartz / `C_c^∞` core.  Lean targets: the Stone bridge
+  (`ChapterStoneBridge`/`ChapterStoneFlows` — a unitary group gives a
+  self-adjoint generator), or the common-eigenvector criterion
+  (`hasZeroDeficiencyOn_of_commonEigenvectors`, whose eigenbasis here is
+  the Fourier basis), or the Weyl instrument.  Symbolic input: CHECK 2/3.
+* **ODE-C.2 (U).**  Transport the verdict through `chartW`: since
+  `chartW` is a norm-preserving intertwinement (`chartW_lintegral_normSq`,
+  `odeKoop_chartW`), ESA of the transformed operator gives the corrected
+  statement of the ODE chapter for `H = x²p − ix` **in the chart
+  realization** — not on `L²(ℝ)` as it stands, where the operator is
+  honestly *not* ESA (incomplete flow; `Book/OdeSingularity.lean` keeps
+  that correction).  The row must state which domain the verdict is on.
+  Symbolic input: CHECK 4/5/6 (the two spellings of `H` coincide; the
+  chart kernel times the Jacobian is 1).
+* **ODE-C.3 (C).**  Optional: feed the achieved ESA into the sampling
+  chapter (`ChapterOdeSampling` — `chartW_sample`,
+  `eq_of_sample_eq_on_lattice`) to state the sampling theorem for the
+  *self-adjoint* generator.
+
+### NS-L-C — the Lagrangian (material) variables (close ESA of the transformed operator)
+
+**Object.**  The transformed NS operator in material coordinates,
+`ĥ_full = ½∑P² + ν∑Q² + ∑f·D + C` (`ChapterNavierStokesFlow` B.3; the
+one-parcel face `h = ½P² + νQ² + f·P` completes to the shifted oscillator
+`½(P+f)² + νQ² − ½f²`, CHECK 7).  The doctrine instance: the Eulerian
+field `u(x,t)` is the coordinate in which the flow may blow up and the
+verdict stalls (the mainstream generator's ESA is conditional on the open
+square comparison; see the 2026-09-25 and 2026-10-05b entries); the
+material map `Ψ(ξ,t)` is the reciprocal chart — each parcel is a shifted
+harmonic oscillator, a complete flow, and ESA there is a theorem.
+
+**Already proved (do not re-prove).**  `lagCan_essentiallySelfAdjointOn`
+(one parcel, unconditional), the outer-Fock enclosure `lagOne_dGamma_esa`,
+the interacting auxiliary `lagFullFockHam_essentiallySelfAdjointOn` /
+`nsFullFockHam_essentiallySelfAdjointOn`, and the headline criterion
+`LagrangianFullData.hasZeroDeficiencyOn_of_commonEigenvectors` (a total
+family of common eigenvectors with explicit eigenvalue
+`½∑pᵢ² + ν∑qᵢ² + ∑fᵢdᵢ + c`).
+
+* **NS-L-C.1 (U).**  Instantiate `hasZeroDeficiencyOn_of_commonEigenvectors`
+  for the full transformed operator `ĥ_full` (with the penalty/constraint
+  term as `constraintOp`), closing `lagrangianFock_hasZeroDeficiencyOn`'s
+  one-parcel input for the *interacting* row — the eigenvalue arithmetic is
+  the shifted-ladder diagonalization of
+  `../unfer/docs/faris_lavine_n_ns_lagrangian.cdb` CHECK 2/4.
+  (Numerical shadow: `../unfer/fock_sirk/tests/transformed_esa_charts_validation.rs`
+  CHECK 7 mirror.)
+* **NS-L-C.2 (C, replace the comparison).**  Per the 2026-10-05b NS-L row:
+  the `NsLagrangianDetFL` comparison `N_L = H_L² + E` must be **replaced**
+  (the `H²`-as-comparison shape is not a valid Faris–Lavine `N`); the valid
+  comparison is the completed square `N = h + ½|f|²`
+  (`faris_lavine_n_ns_lagrangian.cdb` CHECK 1, and CHECK 7 here) with the
+  core-ESA obligation of the GEN-FL checklist.  Closing this closes
+  `lagKoopman_esa_of_comparison_esa` and its `dΓ` carry-over
+  (`lagKoopman_dGamma_esa_of_comparison_esa`).
+* **NS-L-C.3 (C).**  The final penalty + Lyapunov row
+  (`ChapterNsLagrangianDetFarisLavine`): recorded as conditional today;
+  the row is closed exactly when the lifted comparison `dΓ(N_L) + 1` is
+  ESA on the lifted core (toolbox §5 — ESA is reproved on the lifted
+  core, D6b).  Numerical shadow
+  (`../unfer/fock_sirk/tests/ns_penalty_lyapunov_validation.rs`, 10 tests):
+  the penalty's non-negativity and zero set `det F = 1` (closed form vs
+  grid DFT of the exact determinant), the energy identity (the penalty
+  force does no net work) along RK4 trajectories and pointwise, the
+  Liouville identity `div F = −ν Σ|k|²`, the pointwise Lyapunov bound
+  `|F·∇E| ≤ 2νΛ E`, the form identity `⟨ψ, N ψ⟩ = ‖Hψ‖² + ⟨ψ, Eψ⟩ ≥ ‖ψ‖²`,
+  the exact commutation relation and its Faris–Lavine bound, and the lift
+  `dΓ(N_L) + 1` on the Fock sectors `m = 0, 1, 2` (Hermitian, form ≥ m+1,
+  `[dΓ(H), dΓ(N)] = dΓ([H,N])`, resolvent `‖(A − z)⁻¹‖ ≤ 1/|Im z|`); the
+  lift's ESA itself remains this row's analytic obligation.
+
+### QG-D-C — the densitized variables (close ESA of the transformed operator)
+
+**Object.**  The densitized gravity Hamiltonian with the **flat principal
+part**: the singular kinetic terms `(1/16e)𝒮² − (1/24e)𝒫²` absorb under
+`e = y²`, `𝒮 = y𝒮̃`, `𝒫 = y𝒫̃` into `(1/16)𝒮̃² − (1/24)𝒫̃²` (CHECK 9),
+the absorption being the honest identity `1/e = 4(dy/de)²` with its factor
+4 (CHECK 8; `inv_eq_four_mul_deriv_densY_sq` — the plan's older prose
+writes `1/e = (dy/de)²`, which is wrong by that factor).
+
+**Already proved (do not re-prove).**  Parts A–D of
+`ChapterQuantumGravityDensitized` (the absorption identities, the flat
+symbol, the mode-level ESA `qgModeHamiltonian_essentiallySelfAdjoint` with
+trivial deficiency at every non-real `z`, `strichartz_esa_of_finiteSpeed`
+as the named deduction step, `densitized_hasZeroDeficiencyOn_transfer`);
+`ChapterQuantumGravityHalfDensity` (the half-density unitary
+**constructed**, `halfDensityUnitary`, `qg_halfDensity_transfer` — the
+transfer no longer takes the unitary as data); and the potential half in
+`ChapterScalaronDensitizedTransfer` (`densConf_hasZeroDeficiencyOn`,
+`physConf_hasZeroDeficiencyOn_transfer`, `physConf_stone_flow`).
+
+* **QG-D-C.1 (U).**  Discharge the finite-speed / unique-continuation
+  hypothesis `DeficiencyTrivialAt` for the **continuum** flat operator
+  (the d'Alembertian with polynomial potential on the `L²(ℝ⁸⁴)` core) —
+  the standing residue of A1/A5.  The mode-level discharge exists
+  (`strichartz_finiteSpeed_satisfiable`); the continuum one is the
+  missing step and is the *definition* of closing ESA for the transformed
+  operator in this line.
+* **QG-D-C.2 (U).**  Assemble kinetic + potential + ghosts + gauge-fixing
+  into the combined statement (the 2026-08-24 scope clarification: the
+  target is the **full** gauge-fixed Hamiltonian, not the potential
+  alone) and run the transfer: `densitized_hasZeroDeficiencyOn_transfer`
+  at the constructed `halfDensityUnitary`
+  (`qg_halfDensity_transfer`)  gives ESA of the physical operator from ESA
+  of the densitized one.  Symbolic input: CHECK 8/9.  Numerical shadow
+  (`../unfer/fock_sirk/tests/qg_half_density_stone_flow_validation.rs`,
+  `hd_*` tests): the Jacobian half-density factor `2y = (√(2y))²`, the
+  unitary's norm preservation `∫|g|² de = ∫|g(y²)|² 2y dy`, the measure
+  pushforward, and the multiplication intertwining.
+* **QG-D-C.3 (C).**  Feed the achieved ESA into the Stone bridge for
+  `qgR2_stone_flow` (the QG analogue of `ns_stone_flow` /
+  `ym_fock_stone_flow`), explicit on the Hermite/scalaron eigenbasis
+  (`ChapterStoneEigenflow`).  Numerical shadow (same suite, `qg_*` tests):
+  the conformal-mode potential's completed square and its floor
+  `−M⁴/(16α)`, the mode symbol's reality and unboundedness, the Stone
+  group law / norm conservation / generator, and the deficiency resolvent
+  estimate `‖(H − z)⁻¹‖ ≤ 1/|Im z|` at the mode level.
+
+### The boundary, stated once
+
+Every row above is a work order; the algebra it consumes is certified by
+`transformed_esa_charts.cdb` (c-number / formal-operator bookkeeping
+only), and nothing in this entry claims continuum NS regularity, a
+Yang–Mills or QG mass gap, or ESA of the *original* (`x`, Eulerian,
+`1/e`) variables — the doctrine is precisely that those verdicts are the
+wrong question.  The open analytic inputs are named as hypotheses
+(Strichartz finite-speed; the NS square comparison), never as axioms.
+
+**Handover note.**  Every row above is a work order for the
+LLM-Lean4-specialist; the symbolic content is certified by
+`../unfer/docs/transformed_esa_charts.cdb` (all 9 CHECKs green under
+`nix-shell -p cadabra2` in `../unfer/`, 2026-10-15) and numerically by
+`../unfer/fock_sirk/tests/transformed_esa_charts_validation.rs` (10
+tests), `../unfer/fock_sirk/tests/qg_half_density_stone_flow_validation.rs`
+(9 tests, rows QG-D-C.2–3) and
+`../unfer/fock_sirk/tests/ns_penalty_lyapunov_validation.rs` (10 tests, row
+NS-L-C.3, including the lifted comparison `dΓ(N_L) + 1` on the Fock
+sectors m = 0, 1, 2).  No `.lean` file was written or compiled to produce
+this section.
