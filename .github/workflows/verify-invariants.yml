@@ -50,11 +50,16 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # actions/checkout@v7.0.1
 
+      # The release tarball holds only the `elan-init` installer — extracting
+      # it leaves no `elan` on PATH, which is what made the toolchain step die
+      # with 127 on the second run. Run the installer (it creates ~/.elan/bin
+      # and installs the toolchain we name); the *pin* stays in the next step,
+      # which is what the job description promises.
       - name: install elan (pinned 4.28.0)
         run: |
-          mkdir -p "$HOME/.elan"
           curl -sSfL https://github.com/leanprover/elan/releases/download/v4.1.2/elan-x86_64-unknown-linux-gnu.tar.gz \
-            | tar xz -C "$HOME/.elan"
+            | tar xz -C /tmp
+          /tmp/elan-init -y --no-modify-path --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
       - name: elan toolchain
