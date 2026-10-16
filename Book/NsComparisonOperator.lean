@@ -298,6 +298,169 @@ from the finite-parcel core.
 #check @BookProof.NsFullLagrangian.lagFullOuterN_esa
 ```
 
+# The Transformed Lagrangian Leg: Constraint, Completed Square, and the Lift
+
+:::paragraph
+A third leg, closed in the 2026-10-15c wave, runs the criterion where the
+Lagrangian parcel Hamiltonian lives in its **canonical (Hermite/ladder)
+realization** — the same operator {ref "ns-one-particle-hamiltonian"}[the
+one-particle chapter] records as $`h = \tfrac12\sum_i P_i^2 +
+\nu\sum_i Q_i^2 + \sum_i f_i P_i` on $`\ell^2(\mathrm{Fin}\,3 \to
+\mathbb{N})`, with $`[P_i, Q_i] = -i`.  Two questions were open there, and
+both are now theorems in `BookProof/ChapterNsComparisonEsa.lean`.
+:::
+
+:::paragraph
+**NS-L-C.1 — the constraint term.**  The transformed operator of a real
+gauge/penalty treatment carries, besides the squares, a **constraint** term —
+the penalty or pressure contribution — written as an arbitrary bounded
+symmetric operator `C` on the Hermite core.  `lagConstrData` adds it to the
+canonical data, and `lagConstr_esa` / `lagConstr_hasZeroDeficiencyOn` prove
+that $`\hat h_{\rm full} = \tfrac12\sum_i P_i^2 + \nu\sum_i Q_i^2 +
+\sum_i f_i P_i + C` is essentially self-adjoint there.  The route is worth
+recording because the *obvious* route is impossible: the common-eigenvector
+criterion `hasZeroDeficiencyOn_of_commonEigenvectors` cannot be instantiated
+in this realization — a common eigenvector of $`P_i` and $`Q_i` would
+violate $`[P_i, Q_i] = -i` — so the closing route is the Kato–Rellich
+theorem `hFull_essentiallySelfAdjointOn_of_drive_eq_P` on top of the
+diagonalization of the second-order part by the Hermite states.  Symmetry of
+the addition is separate (`symmetricOn_add_const` for real scalars, and the
+bounded-symmetric case is `lagConstr_esa`'s hypothesis, never silently
+assumed).
+:::
+
+:::paragraph
+**NS-L-C.2 — the completed square.**  The comparison question for `h` has a
+classical answer, now checked: complete the square,
+
+$$`N = h + \tfrac12|f|^2 = \tfrac12\sum_i (P_i + f_i)^2 + \nu\sum_i Q_i^2.`
+
+`lagCompN` builds `N`, `lagCompN_eq` states the shift identity as operators on
+the Hermite core, and the three properties the criterion consumes are each a
+theorem: `lagCompN_symmetricOn`, **`lagCompN_esa`** (essentially self-adjoint —
+and note *how*: it is the NS-L-C.1 theorem itself, instantiated at the scalar
+constraint $`C = (\tfrac12|f|^2)\cdot 1` via `isSymmetricDom_real_smul_id`,
+so the completed square falls out of the constraint result with no fresh
+deficiency computation), **`lagCompN_nonneg`** (the completed square is
+$`\ge 0`) and
+`lagCompN_add_one_ge` (form bound $`\langle v, (N+1)v\rangle \ge \|v\|^2`).
+Pedagogically the point is the same one the Oseen/Lyapunov legs make: the
+force term $`f \cdot P` is *not* a perturbation to be estimated — it is
+absorbed exactly by the shift $`P_i \mapsto P_i + f_i`, at the price of the
+constant $`\tfrac12|f|^2` that the shift leaves behind.
+:::
+
+:::paragraph
+**NS-L-C.3 — the lift.**  The lifted form of the same statement —
+$`d\Gamma(N) + 1` essentially self-adjoint on the finite-particle core of the
+outer Fock space — is the three-step chain of
+`BookProof/ChapterLiftedComparisonEsa.lean` (comparison ESA on the core →
+second-quantization lift → the real-shift lemma
+`EsaRealShift.essentiallySelfAdjointOn_add_const`), recorded with its
+resolvent face `liftedComparison_resolvent_deficiency` (trivial deficiency at
+**every** non-real $`z`, the analytic content of the numerical`pl_lifted_*` shadow).  It is discussed in full at the end of
+{ref "ns-one-particle-hamiltonian"}[the one-particle chapter].
+:::
+
+:::paragraph
+**Honest boundary — and the convention reading.**  None of `h + C`, `N` or
+$`d\Gamma(N) + 1` is a Hamiltonian of record: under the final-Hamiltonian
+convention the NS record remains the enclosure $`d\Gamma(H_{\rm sp})` (and
+$`d\Gamma(h)` on the Lagrangian face), and these are *comparison and lifted
+comparison* objects — enclosing `N` does not promote it.  In particular the
+completed square is the comparison operator of the **canonical parcel**
+`h`; it does **not** discharge the standing hypothesis of
+`lagKoopman_esa_of_comparison_esa`, which is about a different operator —
+$`N_L = H_L^2 + E` of the Koopman–von Neumann generator of the Galerkin
+Lagrangian flow with the exact degree-five constraint force, on
+$`L^2(\mathbb{R}^{\mathrm{PIdx}\,K})` (see
+{ref "fourier-elimination"}[the Fourier-elimination chapter]).  That
+input was discharged on 2026-10-16, by `NsLagrangianComparisonEsa.lagComparison_esa`
+(the next section).
+:::
+
+```
+#check @BookProof.NsComparisonEsa.lagConstr_esa
+#check @BookProof.NsComparisonEsa.lagConstr_hasZeroDeficiencyOn
+#check @BookProof.NsComparisonEsa.lagCompN_eq
+#check @BookProof.NsComparisonEsa.lagCompN_symmetricOn
+#check @BookProof.NsComparisonEsa.lagCompN_esa
+#check @BookProof.NsComparisonEsa.lagCompN_nonneg
+#check @BookProof.NsComparisonEsa.lagCompN_add_one_ge
+#check @BookProof.LiftedComparisonEsa.liftedComparison_dGamma_esa
+#check @BookProof.LiftedComparisonEsa.liftedComparison_esa
+#check @BookProof.LiftedComparisonEsa.liftedComparison_resolvent_deficiency
+#check @BookProof.LiftedComparisonEsa.lagKoopman_liftedComparison_esa_of_comparison_esa
+#check @BookProof.NavierStokesFlow.LagrangianKatoRellich.hFull_essentiallySelfAdjointOn_of_drive_eq_P
+#check @BookProof.NavierStokesFlow.LagrangianEsa.hasZeroDeficiencyOn_of_commonEigenvectors
+```
+
+# Closing the Standing Hypothesis: the Koopman Comparison `N_L`
+
+:::paragraph
+**The one input, and its closure.**  Every step of the Lagrangian line above ended in a
+single named hypothesis — `lagKoopman_esa_of_comparison_esa`: essential self-adjointness
+of the Faris–Lavine comparison $`N_L = H_L^2 + E`$ on the Gauss–polynomial core of
+$`L^2(\mathbb{R}^{\mathrm{PIdx}\,K})`$, for the Galerkin Lagrangian Koopman generator
+with the exact degree-five constraint force.  The 2026-10-16 wave closes it
+**unconditionally** (every finite `K`, `ν ≥ 0`, `κ ≥ 0`):
+`BookProof/ChapterNsLagrangianComparisonEsa.lean` proves **`lagComparison_esa`** (the
+comparison) and hence **`lagKoopman_esa`** (the generator), literally as the
+instantiation `lagKoopman_esa_of_comparison_esa S (lagComparison_esa S)`.
+:::
+
+:::paragraph
+**Route — a Lyapunov polynomial, then Kato's argument.**  The generic criterion is
+`KvnKato.lyapunovComparison_esa_poly` (in `BookProof/ChapterKvnKatoPoly.lean`): for a
+real polynomial vector field `G` and a real polynomial $`E \ge 1`$, the comparison
+$`N = H_G^2 + E`$ is essentially self-adjoint on the Gauss–polynomial core as soon as
+some real polynomial `P` satisfies $`\|y\| \le P(y)`$ and
+$`|G \cdot \nabla P| \le c_0 P`$ — a deficiency vector is transferred to a weak
+solution against $`C_c^\infty`$ by the Hermite graph approximation, then killed by
+Kato's argument along the complete flow.  The energy here is *not* proper (the penalty
+vanishes on the unbounded incompressible set), so the Lyapunov function is the
+completed $`P = E + \tfrac12|\xi|^2`$: the flux identity `lagLyapFlux_eq`
+($`F \cdot \nabla P = -\nu\sum|k|^2v^2 + \xi\cdot v`$), the bound
+`abs_eval_lagLyapFlux_le` ($`|F \cdot \nabla P| \le (2\nu\Lambda + 1)P`$), and
+`norm_le_lagP` ($`\|y\| \le 1 + \tfrac12\|y\|^2 \le P`$).
+:::
+
+:::paragraph
+**The seven-chapter machine.**  The Kato route is not a single lemma but a pipeline,
+one chapter per step: `ChapterKvnKatoCalc` (pointwise rules for the coordinate
+derivative `dcoord`), `ChapterKvnKatoMol` (mollifiers and the Schur test),
+`ChapterKvnKatoKernel` (explicit commutator kernels), `ChapterKvnKatoFriedrichs`
+(Friedrichs' lemma for those kernels), `ChapterKvnKatoEnergy` (the energy inequality
+for the mollified deficiency equation), `ChapterKvnKatoEsa` (the deficiency vectors
+vanish), and `ChapterKvnKatoPoly` (the polynomial core).  All seven enter
+`BookProof.lean` transitively through `BookProof.ChapterNsLagrangianComparisonEsa`;
+the two closing statements carry their `#print axioms` lines in
+`ChapterRoadmapAudit.lean` and report only `propext`, `Classical.choice`, `Quot.sound`.
+:::
+
+:::paragraph
+**What this does not touch.**  Boundaries are exactly those of
+`ChapterNsLagrangianDetFarisLavine`: Galerkin truncation (finite `K`), the volume
+penalty at finite bulk modulus `κ` (no `κ → ∞` limit), the viscous term evaluated at
+$`F = I`$; no continuum NS regularity and no mass gap.  The **Eulerian**
+square-comparison hypothesis (`nsKoopman_esa_of_squareComparison_esa`) and the energy
+surjectivity input stay open.  And under the final-Hamiltonian convention nothing
+changes about what is enclosed: `N_L` is a comparison operator and is never enclosed —
+the NS record remains $`d\Gamma(h)`$ (resp. $`d\Gamma(H_{\rm sp})`$), creation left,
+annihilation right.  Plan pointers: the acceptance and boundary paragraphs of
+`CONSOLIDATED_PLAN.md` §"State of the project — 2026-10-16: the Koopman comparison
+`N_L = H_L² + E` is ESA — closed-by pointers".
+:::
+
+```
+#check @BookProof.KvnKato.lyapunovComparison_esa_poly
+#check @BookProof.NsLagrangianComparisonEsa.lagLyapFlux_eq
+#check @BookProof.NsLagrangianComparisonEsa.abs_eval_lagLyapFlux_le
+#check @BookProof.NsLagrangianComparisonEsa.norm_le_lagP
+#check @BookProof.NsLagrangianComparisonEsa.lagComparison_esa
+#check @BookProof.NsLagrangianComparisonEsa.lagKoopman_esa
+```
+
 # The Pressure Does Not Change the Comparison Operator
 
 :::paragraph
@@ -387,6 +550,18 @@ is a statement about $`N_E`, not about the obligation in general.
    `N_NS = H² + 1 + ‖u‖²` (`nsKoopman_esa_of_squareComparison_esa`), through the dense-core form
    of the criterion (`essentiallySelfAdjointOn_of_farisLavine_dense`,
    `essentiallySelfAdjointOn_of_square_comparison`).
+ * **Transformed Lagrangian leg (canonical realization):** the operator
+   $`\tfrac12\sum P_i^2 + \nu\sum Q_i^2 + \sum f_iP_i` with an arbitrary
+   bounded symmetric constraint term `C` is essentially self-adjoint on the Hermite core
+   (`lagConstr_esa`, closing route Kato–Rellich — the common-eigenvector criterion is
+   structurally unavailable because $`[P_i,Q_i] = -i`); its comparison is the completed
+   square $`N = h + \tfrac12|f|^2`, with `lagCompN_esa`, `lagCompN_nonneg` and the form
+   bound `lagCompN_add_one_ge`; the lift $`d\Gamma(N) + 1` is ESA on the finite-particle
+   core (`LiftedComparisonEsa.liftedComparison_esa`).  The completed square does *not*
+   discharge the `lagKoopman_esa_of_comparison_esa` hypothesis — that is a different
+   operator, `N_L = H_L^2 + E`, on `L²(ℝ^{PIdx K})` — which is why the same wave
+   also landed `NsLagrangianComparisonEsa.lagComparison_esa` / `lagKoopman_esa`
+   (next section), closing that input on its own terms.
  * **In neither layer** is `N` the Hamiltonian, and `N = H²` is invalid for the wrong-domain and the
    `N + 1`-not-onto reasons above; the general obstruction for `N = H` is the formalized
    `not_farisLavine_criterion_of_relative_bound`.  Under the final-Hamiltonian convention none of

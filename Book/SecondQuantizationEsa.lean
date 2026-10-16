@@ -522,6 +522,58 @@ the scalaron-wall comparison — obligation (i) therefore needs no further work.
 #check @BookProof.ComparisonCoreEsa.isGraphCore_iff_esa
 ```
 
+# Two Stability Moves: Real Shifts and Unitary Conjugation
+
+:::paragraph
+The enclosure of $`d\Gamma(h)` consumes essential self-adjointness of $`h`
+wherever it finds it — and two cheap ways to *produce* it where it is not
+initially stated joined the toolbox in the 2026-10-15c wave.  Both are
+one-particle moves; the enclosure is downstream of both.
+:::
+
+:::paragraph
+**A real shift does not change the answer** (`BookProof/ChapterEsaRealShift.lean`).
+The definition in use is essential self-adjointness through the two deficiency
+spaces at $`\pm i` only, so the statement “$`h` ESA $`\Rightarrow h + c`
+ESA” for real $`c` is not formal: shifting moves the deficiency question from
+$`\pm i` to $`\pm i - c`.  The chapter supplies the missing general fact — a
+symmetric operator that is essentially self-adjoint has **trivial deficiency
+spaces at every non-real** $`z`
+(`deficiencyTrivialAt_of_essentiallySelfAdjointOn`, built on the non-real
+lower bound $`|\operatorname{Im} z|\,\|v\| \le \|Tv - \bar z v\|` and the
+disk-stability lemma `deficiencyTrivialAt_of_near`) — and concludes
+`essentiallySelfAdjointOn_add_const`.  This matters twice under the
+final-Hamiltonian convention: the shift of $`h` used to make it positive (the
+move that makes the outer vacuum the exact ground state) is legitimate only
+because ESA survives it; and the `+ 1` of the NS lifted comparison of
+{ref "ns-one-particle-hamiltonian"}[the one-particle chapter] is the same move
+on $`d\Gamma(N)` — there an explicitly labeled *lifted comparison*, not a
+Hamiltonian of record.
+:::
+
+:::paragraph
+**Unitary conjugation transports ESA** (`BookProof/ChapterOdeChartTransfer.lean`):
+if $`W` is a unitary carrying a dense domain $`D` onto $`D'`, then
+$`T` essentially self-adjoint on $`D` implies $`W T W^{-1}` essentially
+self-adjoint on $`D'` (`conj_essentiallySelfAdjointOn`, with the companion
+`conj_deficiencyTrivialAt` and `conjDomain_dense`).  The instrument is generic
+— its first instance was the ODE chart of {ref "ode-chapter"}[the
+singularity chapter], its structural sibling the half-density transfer of
+{ref "diffeomorphisms-gravity"}[Diffeomorphisms and gravity] — and its
+pedagogical content is that a change of variables is *never* bought for free:
+the domain moves with the operator, and the theorem is about the pair.  A
+conjugation proof that forgets to name $`D'` has proved nothing.
+:::
+
+```
+#check @BookProof.EsaRealShift.deficiencyTrivialAt_of_essentiallySelfAdjointOn
+#check @BookProof.EsaRealShift.deficiencyTrivialAt_of_near
+#check @BookProof.EsaRealShift.essentiallySelfAdjointOn_add_const
+#check @BookProof.OdeChartTransfer.conj_essentiallySelfAdjointOn
+#check @BookProof.OdeChartTransfer.conj_deficiencyTrivialAt
+#check @BookProof.OdeChartTransfer.conjDomain_dense
+```
+
 # Non-Interacting Degrees of Freedom: the Tensor Sum
 
 :::paragraph

@@ -3283,3 +3283,16 @@ import BookProof.ChapterNsLagrangianOuterFockEsa
 -- `dsOp_essentiallySelfAdjointOn` (fibrewise gluing), plus uniqueness of the self-adjoint
 -- realization.
 import BookProof.ChapterNsFullLagrangianFockEsa
+-- 2026-10-15b (CONSOLIDATED_PLAN.md, "closing the two open halves of the transformed-ESA
+-- entry"): the real-shift lemma `essentiallySelfAdjointOn_add_const`; ODE-C.1 (momentum
+-- `−i d/dw` ESA on the Schwartz core of the reciprocal chart); ODE-C.2/3 (the chart unitary
+-- `W`, ESA of `W P W⁻¹ = x²p − ix` on `W(𝓢)`, Stone flow); NS-L-C.1/2 (constraint term,
+-- completed-square comparison `N = h + ½|f|²`); NS-L-C.3 (`dΓ(N) + 1` ESA on `𝓕_fin(D)`);
+-- QG-D-C.2/3 (assembled transfer at the half-density unitary; QG-D-C.1 stays a hypothesis).
+import BookProof.ChapterEsaRealShift
+import BookProof.ChapterMomentumChartEsa
+import BookProof.ChapterOdeChartTransfer
+import BookProof.ChapterNsComparisonEsa
+import BookProof.ChapterLiftedComparisonEsa
+import BookProof.ChapterQgAssembledTransfer
+import BookProof.ChapterNsLagrangianComparisonEsa

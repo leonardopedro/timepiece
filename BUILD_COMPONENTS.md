@@ -85,11 +85,11 @@ never default targets.
 > `--check` reports them as a note rather than an error.  After adding a chapter, run
 > `python3 scripts/import_components.py BookProof --write-lakefile` and then `--check`.
 
-### `BookProof` — 792 modules, 113 independent parts (25 with more than one module)
+### `BookProof` — 798 modules, 112 independent parts (24 with more than one module)
 
 | modules | Lake target | maximal modules (the `roots` of the target) |
 | ---: | --- | --- |
-| 458 | `BookProofOperatorCore` | `BookProof.ChapterA3g`, `BookProof.ChapterA3i`, `BookProof.ChapterA3m`, `BookProof.ChapterA3s`, `BookProof.ChapterA3t`, `BookProof.ChapterA3v`, … (115 in total) |
+| 468 | `BookProofOperatorCore` | `BookProof.ChapterA3g`, `BookProof.ChapterA3i`, `BookProof.ChapterA3m`, `BookProof.ChapterA3s`, `BookProof.ChapterA3t`, `BookProof.ChapterA3v`, … (119 in total) |
 | 75 | `BookProofAttention` | `BookProof.ChapterAttentionCalibration`, `BookProof.ChapterAttentionCapacity`, `BookProof.ChapterAttentionCoarseGrain`, `BookProof.ChapterAttentionConcentration`, `BookProof.ChapterAttentionEquivariance`, `BookProof.ChapterAttentionFactorization`, … (40 in total) |
 | 32 | `BookProofMeasureFoundations` | `BookProof.ChapterB7`, `BookProof.ChapterF2`, `BookProof.ChapterF4`, `BookProof.ChapterF8`, `BookProof.ChapterG3`, `BookProof.ChapterGaugeCasimirAverage`, … (15 in total) |
 | 30 | `BookProofFreeFieldBorn` | `BookProof.ChapterFreeFieldBornFiberDeterministic`, `BookProof.ChapterFreeFieldBornFiberInterior`, `BookProof.ChapterFreeFieldBornFiberSpectrum`, `BookProof.ChapterFreeFieldBornFiberStabilizer`, `BookProof.ChapterFreeFieldBornHomeo`, `BookProof.ChapterFreeFieldBornSignRepresentation`, … (7 in total) |
@@ -100,7 +100,6 @@ never default targets.
 | 5 | `BookProofDefinability` | `BookProof.ChapterCountableDefinability`, `BookProof.ChapterEll2Separable` |
 | 5 | `BookProofReconstruction` | `BookProof.ChapterDeterministic`, `BookProof.ChapterSymmetryEntropy` |
 | 4 | `BookProofAtomicDecomposition` | `BookProof.ChapterAbelianAtomicCondensation`, `BookProof.ChapterMixedPrior` |
-| 4 | `BookProofSamplingTheory` | `BookProof.ChapterOdeSampling`, `BookProof.ChapterPaleyWienerSampling` |
 | 3 | `BookProofHolomorphic` | `BookProof.ChapterWeylCauchyRiemann` |
 | 3 | `BookProofLorentz` | `BookProof.ChapterLorentzDecomp` |
 | 3 | `BookProofWeylSL2` | `BookProof.ChapterWeylSL2Unipotent` |

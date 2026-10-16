@@ -178,6 +178,52 @@ singularity.
 #check @ChapterSpectralEnergyBound.evolve_lipschitz
 ```
 
+## A.5 The chart realization: ESA of the transformed Hamiltonian
+
+*Status: PROVED (2026-10-15c wave).*  The one claim above that still lived
+only at the certificate layer — that the quantized vector field of
+$`\dot x = x^2` becomes essentially self-adjoint *after* the change of
+variables — is now a theorem in the verified layer, in three steps, each a
+separate `BookProof` module:
+
+ * **ODE-C.1** `BookProof/ChapterMomentumChartEsa.lean` — the momentum
+   operator $`P = -i\,d/dw` of the reciprocal chart is essentially
+   self-adjoint on the Schwartz core of $`L^2(\mathbb{R})`
+   (`MomentumChart.momentum_essentiallySelfAdjointOn`), through the
+   Fourier-multiplier instrument (under Plancherel, multiplication by the
+   real symbol $`2\pi\xi`);
+ * **ODE-C.2** `BookProof/ChapterOdeChartTransfer.lean` — the chart
+   $`(W\psi)(x) = \psi(-1/x)/x` is a genuine unitary of $`L^2(\mathbb{R})`
+   (`chartUnitary`), unitary conjugation carries essential
+   self-adjointness (`conj_essentiallySelfAdjointOn`), and the conjugated
+   operator $`W P W^{-1}` is essentially self-adjoint **on the named chart
+   domain** $`W(\mathcal{S}(\mathbb{R}))` (`chartHam_essentiallySelfAdjointOn`),
+   where it equals $`x^2p - i x` almost everywhere (`chartHam_apply_ae`);
+ * **ODE-C.3** `chartHam_stone_flow` — the Stone bridge yields the complete
+   unitary group on that domain.
+
+The supporting toolbox is `BookProof/ChapterEsaRealShift.lean`: a symmetric
+essentially-self-adjoint operator has trivial deficiency spaces at **every**
+non-real point (`deficiencyTrivialAt_of_essentiallySelfAdjointOn`), and ESA
+survives real shifts (`essentiallySelfAdjointOn_add_const`).
+
+```
+#check @BookProof.MomentumChart.momentum_essentiallySelfAdjointOn
+#check @BookProof.OdeChartTransfer.chartUnitary
+#check @BookProof.OdeChartTransfer.conj_essentiallySelfAdjointOn
+#check @BookProof.OdeChartTransfer.chartHam_essentiallySelfAdjointOn
+#check @BookProof.OdeChartTransfer.chartHam_stone_flow
+#check @BookProof.EsaRealShift.deficiencyTrivialAt_of_essentiallySelfAdjointOn
+#check @BookProof.EsaRealShift.essentiallySelfAdjointOn_add_const
+```
+
+**Boundary unchanged:** A.1–A.3 say what they said.  The certificate layer
+(`analyzeClassicalFlow`, `deficiencyIndices`, `runTest`) is still a
+certificate layer, and nothing above is claimed on $`C_c^\infty(\mathbb{R})`
+or on $`L^2(\mathbb{R})` as it stands — the theorem is for the chart
+realization, on its domain.  The proof is recorded in
+{ref "ode-chapter"}[the ODE chapter], section “The Chart Realization”.
+
 # B. The PA-Free Chapter
 
 ## B.1 The verifiable analytic core (proved)

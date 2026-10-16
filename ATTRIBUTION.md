@@ -2,7 +2,8 @@
 
 Borrowed patterns and components that concern *this* repo. The authoritative,
 cross-repo table — including what was deliberately **not** adopted — is
-[`../ATTRIBUTION.md`](../ATTRIBUTION.md).
+the workspace ledger at `../ATTRIBUTION.md` (a path, not a link: the file
+lives one level above this repo and is outside the build).
 
 | source | licence | what was adapted | where it landed |
 |---|---|---|---|

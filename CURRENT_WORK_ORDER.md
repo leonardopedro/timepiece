@@ -51,12 +51,12 @@ campaign measured a diagnostic, and §M4.9 gates §M4.3".
 
 | Track | Current work order | Superseded as a reading guide | Superseded outright |
 |---|---|---|---|
-| **NS** (Navier–Stokes) | §09-25 **§5, item 3** ("NS: discharge the standing ESA hypotheses"), baseline in §09-25 **§2** (`**NS:**` row) | the 2026-09-24a…e state entries as entry points — each preamble supersedes its predecessor in place | `PLAN_LEAN_SPECIALIST_NS_FLOW.md` — self-marked `**EXECUTED (2026-08-14→16).**`; its **E.3** is marked `SUPERSEDED by the executed wave (2026-08-16)`; demoted globally by §09 route map ("supersedes the spread of routes in §9–§12 **and the per-thread plans**") |
+| **NS** (Navier–Stokes) | §09-25 **§5, item 3** ("NS: discharge the standing ESA hypotheses"), baseline in §09-25 **§2** (`**NS:**` row); the Lagrangian half closed 2026-10-16 — §"State of the project — 2026-10-16: the Koopman comparison `N_L = H_L² + E` is ESA — closed-by pointers" — remaining: the Eulerian square-comparison input and energy surjectivity (§"State of the project — 2026-10-16" step 4) | the 2026-09-24a…e state entries as entry points — each preamble supersedes its predecessor in place | `PLAN_LEAN_SPECIALIST_NS_FLOW.md` — self-marked `**EXECUTED (2026-08-14→16).**`; its **E.3** is marked `SUPERSEDED by the executed wave (2026-08-16)`; demoted globally by §09 route map ("supersedes the spread of routes in §9–§12 **and the per-thread plans**") |
 | **QYM** (Yang–Mills) | §09-25 **§5, item 4** ("Non-abelian QYM one-particle form gap"); restated as the programme's top analytic input in §10-04b **§N2** | `REVIEW_AND_PLAN_20260907.md` — but note §09-25 records that it *extends* `REVIEW_THREADS_20260906.md` and "supersedes nothing in" it | `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` — "the continuous flow is **not yet instantiated for QYM**"; its own §11.4 "closed" claims are superseded by its later status block |
 | **QG** (quantum gravity) | §09-25 **§5, item 2** ("QG: the density as a canonical variable"); record operator pinned in §09-25 **§1** | the 2026-08-29e QG order (`**QG-ESA-C — the reassembly …**`) | `PLAN_LEAN_SPECIALIST_QG_FLOW.md` — status `executed` (2026-08-17); its densitized subject is demoted by §09-25 §1's "separate, labeled realizations — **never the record**" |
 | **SM** (Standard Model) | §09-25 **§5, item 6** ("SM refinements"), baseline in §09-25 **§2**; live boundary ledger `HONEST_BOUNDARIES_SM.md` ("Current state of record") | the 2026-09-22e "what stays open" list — "superseded 2026-09-22f by the closure wave and the state section below"; the 2026-09-23e bosonic FL item ("Read this instead of … for the bosonic FL item") | the §D6b-SM **Step 3** work order — executed; and `smComparison` as a comparison operator — **refuted** by the 09-23f wave, though still defined and proved positive because the fermionic completion needs it |
 | **RandomMap** (RH) | ⚠ **no current work order exists** — see flag **F2** | — | `IMPLEMENTATION_PLAN.md` — its own text marks the conjugate-reflection route "**Legacy / off-critical-path files (the superseded …)**"; `RandomMap_old.md` (superseded by `RandomMap.md`); `RandomMap2LegacyDraft.md` — "kept as historical material because several declarations use **obsolete APIs or state invalid proposals**"; `newproof.md` (superseded per `RandomMap.md`'s "Adaptation notes (what this plan adopts from `newproof.md`, and what supersedes it)"); `IMPLEMENTATION_PLAN_RCP.md`'s C2–C4 and Phase 3 — "C2–C4 are retained below **for historical context only** — do not implement" |
-| **book** (Verso / pedagogical) | §09-25 **§5, items 1 and 7** (prose verification; hygiene decisions), build contract in the "Build scope" section | the §4 BookProof task list — "now all LANDED … kept as a record only; do not redo them" | `SPECIALIST_PLAN_REMAINING.md` — "**Plan A is fully executed.**"; `BOOK_PROOF_PLAN.md` Priorities 1–2 (COMPLETE) |
+| **book** (Verso / pedagogical) | §"State of the project — 2026-10-16" **steps 0 and 6** (compile/name-check the chapters its §1 and its later same-day edits touched — six from §1 plus `Book/FourierElimination.lean`; hygiene) plus its §1–§2 as the reading of the 2026-10-15c wave; its steps 1 and 3 are **closed** by the final 2026-10-16 entry; the rest of the track stays §09-25 **§5, items 1 and 7** (prose verification; hygiene decisions), build contract in the "Build scope" section | §09-25 §5 item 1 **for the six chapters touched by §"2026-10-16"** (`Book/OdeSingularity`, `Book/ProofPlans`, `Book/NsComparisonOperator`, `Book/NsOneParticleHamiltonian`, `Book/SecondQuantizationEsa`, `Book/DiffeomorphismsGravity`) — that entry's preamble supersedes it for those chapters only; the §4 BookProof task list — "now all LANDED … kept as a record only; do not redo them" | `SPECIALIST_PLAN_REMAINING.md` — "**Plan A is fully executed.**"; `BOOK_PROOF_PLAN.md` Priorities 1–2 (COMPLETE) |
 | **mass-gap** | §10-06b (the sector correction; **M4.9 gates M4.3**) → work order **§M4.9** in `../unfer/PLAN_MASS_GAP.md` §7; the proof itself remains §10-04 **§M4** | §13 (T1–T12, "the Lean4 plan"), `MASS_GAP_CERTIFIED.md`, `unfer_contracts/MASS_GAP_SPEC.md`, `unfer_contracts/MASS_GAP_REGENERATION.md` — §10-04 consolidates and supersedes all four "as a reading guide"; they "**remain the detailed record**"; §10-06's campaign tables are read under §10-06b (diagnostics) | — (§13.1's honesty boundaries and §13.6's definition of done still stand) |
 
 **The single most load-bearing supersession sentence for the book track** is buried inside
@@ -174,6 +174,39 @@ Commit `7fa2b6c` (2026-09-30) added Orientation and Status sections to 48 `Book/
 `CONSOLIDATED_PLAN.md`. The nearest plan-facing artifact, `Book/ProofPlans.lean`, defers
 elsewhere: *"A more detailed, machine-oriented version lives in `CONSOLIDATED_PLAN.md` at the
 repository root."*
+
+### ⚠ F5 — `ARISTOTLE_SUMMARY.md` claims a run whose artifacts are absent *(resolved 2026-10-16)*
+
+The summary copied from `../internal-final_aristotle` (run `8c1a652e…`) describes
+`BookProof/ChapterNsLagrangianComparisonEsa.lean` (`lagComparison_esa`, `lagKoopman_esa` —
+the `N_L = H_L² + E` comparison proved ESA **with no extra hypotheses**), the
+`ChapterKvnKato*` chapters newly imported from `BookProof.lean`, two added `#print axioms`
+lines in `ChapterRoadmapAudit.lean`, and `§"2026-10-16"` entries in `STATUS.md` and
+`CONSOLIDATED_PLAN.md`. None of these exist: no such files anywhere in the workspace, no
+`§"2026-10-16"` entry in either document, and the claim contradicts the 2026-10-15c row,
+which records the `N_L` hypothesis as **still explicit**.
+
+*Search closed 2026-10-16 (negative).* The attachment `../internal-final_aristotle` was
+searched exhaustively (`rg` over the whole tree, `.lake` included): no
+`ChapterNsLagrangianComparison*`, no `ChapterKvnKato*`, no `lagComparison_esa`. The full
+git history of all eight local repos under `/home/leo/Projects` (timepiece included —
+`git log --all --diff-filter=A`, `--grep=8c1a652e`, `git stash list`, every reachable tree
+via `ls-tree`) contains no commit that ever added these paths; neither do timepiece's
+remote-tracking branches `origin/main` or `origin/aristotle-331`, and `git fetch
+--dry-run` reports nothing new. The artifacts are therefore not restorable from anything
+persisted in this workspace.
+
+*Resolved 2026-10-16 (same day, later).*  The search above stands as a record — the
+artifacts were in fact nowhere in the workspace, git history, or remotes — but the run's
+contents arrived in the repo as `MISSING_FILES_CONTENTS.md`, the manifest of run
+`e9b2b456`: full text of the eight modules (the seven `ChapterKvnKato*` chapters +
+`ChapterNsLagrangianComparisonEsa.lean`), the `BookProof.lean` import line, the two
+`#print axioms` lines for `ChapterRoadmapAudit.lean`, and the `STATUS.md` /
+`CONSOLIDATED_PLAN.md` sections.  All were regenerated from it; every claim of
+`ARISTOTLE_SUMMARY.md` §"2026-10-16" checks out against the restored files, the
+`N_L`-hypothesis work-order step closed on the ordered route, and
+`CONSOLIDATED_PLAN.md`'s final entry records the closure.  The "do not implement from
+the summary" warning is lifted.
 
 ---
 

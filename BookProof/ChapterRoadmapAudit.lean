@@ -254,6 +254,13 @@ import BookProof.ChapterNsTimeIndependentFlow
 import BookProof.ChapterQymTimeIndependentFlow
 import BookProof.ChapterSqSumOuterFamily
 import BookProof.ChapterNsOuterFockFarisLavine
+import BookProof.ChapterEsaRealShift
+import BookProof.ChapterMomentumChartEsa
+import BookProof.ChapterOdeChartTransfer
+import BookProof.ChapterNsComparisonEsa
+import BookProof.ChapterLiftedComparisonEsa
+import BookProof.ChapterQgAssembledTransfer
+import BookProof.ChapterNsLagrangianComparisonEsa
 
 /-!
 # Roadmap headline certificate
@@ -3259,5 +3266,33 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.NsOuterFock.nsOuterHam_symmetricOn
 #print axioms BookProof.NsOuterFock.nsOuterHam_esa_core
 #print axioms BookProof.NsOuterFock.nsOuterFock_esa_farisLavine
+
+-- 2026-10-15b work order (CONSOLIDATED_PLAN.md, "closing the two open halves of the
+-- transformed-ESA entry"): the real-shift lemma; ODE-C.1–3; NS-L-C.1–3 (the lifted comparison
+-- `dΓ(N) + 1`); QG-D-C.2–3 (QG-D-C.1 is the named open hypothesis `hflat`).
+#print axioms BookProof.EsaRealShift.deficiencyTrivialAt_of_essentiallySelfAdjointOn
+#print axioms BookProof.EsaRealShift.essentiallySelfAdjointOn_add_const
+#print axioms BookProof.MomentumChart.momentum_essentiallySelfAdjointOn
+#print axioms BookProof.OdeChartTransfer.conj_essentiallySelfAdjointOn
+#print axioms BookProof.OdeChartTransfer.chartUnitary_apply
+#print axioms BookProof.OdeChartTransfer.chartHam_essentiallySelfAdjointOn
+#print axioms BookProof.OdeChartTransfer.chartHam_apply_ae
+#print axioms BookProof.OdeChartTransfer.chartHam_stone_flow
+#print axioms BookProof.NsComparisonEsa.lagConstr_esa
+#print axioms BookProof.NsComparisonEsa.lagConstr_hasZeroDeficiencyOn
+#print axioms BookProof.NsComparisonEsa.lagCompN_eq
+#print axioms BookProof.NsComparisonEsa.lagCompN_esa
+#print axioms BookProof.NsComparisonEsa.lagCompN_nonneg
+#print axioms BookProof.NsComparisonEsa.lagCompN_add_one_ge
+#print axioms BookProof.LiftedComparisonEsa.liftedComparison_dGamma_esa
+#print axioms BookProof.LiftedComparisonEsa.liftedComparison_esa
+#print axioms BookProof.LiftedComparisonEsa.liftedComparison_resolvent_deficiency
+#print axioms BookProof.LiftedComparisonEsa.lagKoopman_liftedComparison_esa_of_comparison_esa
+#print axioms BookProof.QgAssembledTransfer.assembled_transfer
+#print axioms BookProof.QgAssembledTransfer.qg_assembled_halfDensity_transfer
+#print axioms BookProof.QgAssembledTransfer.qg_assembled_conformal_hasZeroDeficiencyOn
+#print axioms BookProof.QgAssembledTransfer.qg_assembled_stone_flow_of_flat
+#print axioms BookProof.NsLagrangianComparisonEsa.lagComparison_esa
+#print axioms BookProof.NsLagrangianComparisonEsa.lagKoopman_esa
 
 end BookProof.ChapterRoadmapAudit

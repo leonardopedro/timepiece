@@ -383,6 +383,105 @@ self-adjoint. This is the concrete mechanism by which the manuscript's conclusio
 recovered — the Hamiltonian is made self-adjoint by completing the flow, not by the
 auxiliary-operator argument the manuscript cites (see Nelson's section above).
 
+# The Chart Realization: From Claim to Theorem
+
+:::paragraph
+The sentence above — *the quantized operator on the transformed coordinates is
+essentially self-adjoint* — was for a long time a plan-level claim pointing at
+the certificate layer. It is now a theorem in the verified layer, in three
+checked steps (`BookProof/ChapterMomentumChartEsa.lean`,
+`BookProof/ChapterOdeChartTransfer.lean`), and every step is a reusable
+instrument rather than a fact about this one ODE.
+:::
+
+:::paragraph
+**ODE-C.1 — the momentum of the chart.**  In the reciprocal coordinate
+$`w = -1/x` the transformed flow $`\dot w = -1` is pure translation, so the
+quantized evolution of the chart is the translation group
+$`\psi \mapsto \psi(\cdot - t)` (`BookProof.OdeUnitaryFlow.odeKoop_chartW`),
+whose generator is the momentum operator $`P = -i\,d/dw` on $`L^2(\mathbb{R})`.
+`BookProof.MomentumChart.momentum_essentiallySelfAdjointOn` proves that `P` is
+essentially self-adjoint on the Schwartz core $`\mathcal{S}(\mathbb{R})` —
+dense, and stable under translation — by the Fourier-multiplier route: under
+Plancherel, `P` becomes multiplication by the real symbol $`2\pi\xi`, and
+reality of the symbol is the whole argument.  The plan allowed either that
+route or Nelson's orbit criterion along the translation orbit; the Fourier
+route was the shorter one, and `chartMomentum_apply` records that the operator
+really is $`-i` times the derivative.
+:::
+
+:::paragraph
+**ODE-C.2 — transporting the theorem through the chart.**  The change of
+variables itself, $`(W\psi)(x) = \psi(-1/x)/x`, was first an isometry
+(`chartW_lintegral_normSq`); `BookProof.OdeChartTransfer` upgrades it to a
+*genuine unitary* $`W` of $`L^2(\mathbb{R})` (`chartUnitary`, with
+`chartUnitary_apply` and $`W^2 = -1`) and proves the generic fact a transfer
+needs: **unitary conjugation carries essential self-adjointness**
+(`conj_essentiallySelfAdjointOn` — the `EssentiallySelfAdjointOn` analogue of
+the densitized transfer theorem used on the gravity side).  Applying it to
+ODE-C.1 gives `chartHam_essentiallySelfAdjointOn`: the operator
+$`W P W^{-1}` is essentially self-adjoint on the chart domain
+$`\mathcal{D}_{\rm chart} = W(\mathcal{S}(\mathbb{R}))`, and
+`chartHam_apply_ae` identifies it there, almost everywhere, with the Weyl
+Hamiltonian of this chapter:
+$`(\text{chartHam}\,(W\psi))(x) = x^2(-i(W\psi)'(x)) - i\,x(W\psi)(x)`.
+:::
+
+:::paragraph
+**The domain is part of the theorem — the correction above still stands.**
+Nothing here says that $`H = x^2\hat p - i\hat x` is essentially self-adjoint
+on $`C_c^\infty(\mathbb{R})` or on $`L^2(\mathbb{R})` as it stands; the
+Nelson-theorem correction in the previous sections is untouched.  What is
+proved is ESA **on the named chart domain**: functions in
+$`W(\mathcal{S}(\mathbb{R}))` behave like $`x^{-1}\psi(-1/x)` near $`x = 0`
+and decay like $`x^{-1}` at infinity — exactly the states for which the flow
+through the blow-up is complete.  The manuscript's conclusion is recovered in
+this form: not by the auxiliary-operator argument it cites, and not on its
+stated domain, but by completing the flow in coordinates and transporting the
+theorem back.
+:::
+
+:::paragraph
+**ODE-C.3 — the flow.**  Feeding the chart result into the Stone bridge gives
+`chartHam_stone_flow`: the quantized vector field of $`\dot x = x^2`, on its
+chart domain, generates a complete unitary group — the operator-level face of
+"the singular classical flow becomes a globally defined unitary evolution".
+The instrument behind the two transfers is worth naming on its own:
+`BookProof/ChapterEsaRealShift.lean` proves that a symmetric, essentially
+self-adjoint operator has **trivial deficiency spaces at every non-real** $`z`
+(`deficiencyTrivialAt_of_essentiallySelfAdjointOn`, with the disk-stability
+lemma `deficiencyTrivialAt_of_near`), that essential self-adjointness survives a
+real shift $`H \mapsto H + c` (`essentiallySelfAdjointOn_add_const`), and that
+a unitary conjugation transports it (`conj_essentiallySelfAdjointOn` above) —
+three facts the definition at $`\pm i` alone does not supply, and each of them
+consumed somewhere else in this programme (the NS lifted comparison of
+{ref "ns-comparison-operator"}[the comparison-operator chapter] and the
+assembled gravity Hamiltonian of {ref "diffeomorphisms-gravity"}[Diffeomorphisms
+and gravity] both use them).
+:::
+
+```
+#check @BookProof.MomentumChart.momentum_essentiallySelfAdjointOn
+#check @BookProof.MomentumChart.chartMomentum_symmetricOn
+#check @BookProof.OdeChartTransfer.chartUnitary
+#check @BookProof.OdeChartTransfer.conj_essentiallySelfAdjointOn
+#check @BookProof.OdeChartTransfer.chartHam_essentiallySelfAdjointOn
+#check @BookProof.OdeChartTransfer.chartHam_apply_ae
+#check @BookProof.OdeChartTransfer.chartHam_stone_flow
+#check @BookProof.EsaRealShift.deficiencyTrivialAt_of_essentiallySelfAdjointOn
+#check @BookProof.EsaRealShift.essentiallySelfAdjointOn_add_const
+```
+
+:::paragraph
+*Honesty note.*  This theorem does not upgrade the `Singularity` certificate
+layer described above: `analyzeClassicalFlow`'s completeness flag and the
+`deficiencyIndices` placeholders are still placeholders, and the validation
+benchmarks that read them are still specifications.  What changed is that the
+analytic statement they point to — ESA of the quantized transformed vector
+field — now exists in `BookProof`, proved independently of the certificate
+interface.
+:::
+
 # The Full Analysis Pipeline
 
 The pieces assemble into a single `sirk_pipeline` (module `Singularity.Integration`)
@@ -429,7 +528,9 @@ above, so the ESA/singularity verdicts they record are not yet analytic facts. T
 are consistent with the corrected mathematics — in particular the `x' = x^2` case is
 rightly expected to *fail* ESA as it stands on $`L^2(\mathbb{R})` (the flow is
 incomplete), and to become ESA only after the reciprocal change of variables — but
-the actual SIRK/unitary realization they point to remains open in the verified layer.
+the ESA theorem on the changed variables is now proved there (2026-10-15c,
+`OdeChartTransfer`), while the SIRK pipeline realization they point to remains open in
+the verified layer.
 
 # The Price: Non-Determinism
 

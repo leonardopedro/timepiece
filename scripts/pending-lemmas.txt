@@ -94,6 +94,7 @@ spread_means
 summable_invIndex_sq
 symmetricOn_h_full
 tensorPowUnitary_embPow
+transformed_esa_charts
 volPotential_def
 wallHam_stone_flow
 weylPoly_essentiallySelfAdjoint

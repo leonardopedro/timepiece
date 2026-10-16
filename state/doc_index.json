@@ -1,11 +1,11 @@
 {
  "version": 1,
- "generated_at": "2026-10-06T16:37:53+00:00",
+ "generated_at": "2026-10-16T16:51:35+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
    "title": "AGENTS.md - Developer Guide for AI Coding Agents",
-   "lines": 279,
+   "lines": 319,
    "headings": [
     "# AGENTS.md - Developer Guide for AI Coding Agents",
     "## Workspace Layout & File Map",
@@ -19,6 +19,8 @@
     "# One-shot book build (patches + render + postprocess). Idempotent.",
     "# -> _out/html-single/index.html",
     "# -> re-renders every math snippet with throwOnError: true; exits non-zero on any failure",
+    "## Repository scripts",
+    "# copy-pasteable in a clean shell:",
     "## Formalization State",
     "## Mass-Gap Formalization (self-contained in `unfer_contracts/`)",
     "## Priority Attack Order for Next Agent",
@@ -27,215 +29,16 @@
   },
   {
    "path": "ARISTOTLE_SUMMARY.md",
-   "title": "Summary of changes for run d5e4e441-daeb-4475-ad7b-965de97e6870",
-   "lines": 13515,
+   "title": "Summary of changes for run 8c1a652e-a861-4b69-9c74-5c967943edf4",
+   "lines": 22,
    "headings": [
-    "# Summary of changes for run d5e4e441-daeb-4475-ad7b-965de97e6870",
-    "# Summary of changes for run e7feac43-88f8-4f52-a00e-a1f53cdd1d6e",
-    "# Summary of changes for run a4688d21-fb8c-4bd2-ad32-e70f65e8a515",
-    "# Summary of changes for run 836374db-363e-4686-a784-07ab2356a721",
-    "# Summary of changes for run d6433106-64fe-43fd-a700-20b6b3c51c83",
-    "# Summary of changes for run 4d4c949a-0bd1-4da5-86ac-aad21a9e3919",
-    "# Summary of changes for run c0522d23-8651-454f-9c5a-4ce1b06ca227",
-    "# Summary of changes for run 62f9fa06-dc6e-48a8-b9e2-7f055c1e26b3",
-    "# Summary of changes for run 69fdb072-8379-48ca-a298-6233b6fb34ec",
-    "# Summary of changes for run d77798af-de97-43c1-bc06-e1b3ef7d573b",
-    "# Summary of changes for run e65826f4-b616-4c5a-ba5b-347641b31646",
-    "# Summary of changes for run 077ec23c-c286-46cc-8c67-f363d511af27",
-    "# Summary of changes for run 7fc56b4e-3ee4-4ad0-b987-3aed36ed78fc",
-    "# Summary of changes for run 1005bcf8-a934-4a66-82d5-ab65ecf2880a",
-    "# Summary of changes for run 29f4e7ba-12aa-40b7-b399-ea90215fe29d",
-    "# Summary of changes for run 3d5c2694-5eab-4e28-aeb6-c8a07a1cfff5",
-    "# Summary of changes for run dcf49048-5df1-4572-b79b-5d14162bc34d",
-    "# Summary of changes for run ed9aa022-0fe3-4170-9ba2-b3e89fb7b53f",
-    "# Summary of changes for run 5752621e-e31a-4fce-819b-1184d44b7d3c",
-    "# Summary of changes for run 9fb566ce-9d02-48e9-8fbd-241260ffb37d",
-    "# Summary of changes for run 11e1beff-efd9-405b-b44c-28b62d47dfb3",
-    "# Summary of changes for run 9dd800c2-3cda-4d26-bbab-8e296c78c567",
-    "# Summary of changes for run d0a4cffe-1bf2-4748-9555-78278e6b66a7",
-    "# Summary of changes for run 6abb0e46-9ec6-4e9e-9782-b3a6c39ddd43",
-    "# Summary of changes for run 5b22a558-62a1-4996-8a31-79bab8c91523",
-    "# Summary of changes for run a640c544-38a4-4e11-ada4-6d453d86b540",
-    "# Summary of changes for run 4c5adcde-6ea5-4bc1-b8be-360a1985a9b4",
-    "# Summary of changes for run 2ce2f9f7-e4f7-4143-8bd2-ed0b27caf988",
-    "# Summary of changes for run 4f21d149-bca4-46f1-a9d5-f081d9c85f3c",
-    "# Summary of changes for run 017a1319-78a9-4c42-88b1-4f39c2e0ceee",
-    "# Summary of changes for run f654494a-c199-4ee0-854a-07a0f75aea18",
-    "# Summary of changes for run 132e755a-dd8a-4988-80c1-507f75525ae2",
-    "# Summary of changes for run 676e79b2-1301-4151-85b9-2ecafa84a6c8",
-    "# Summary of changes for run bb39836b-1167-4fea-99e6-d591b48dd256",
-    "# Summary of changes for run 54a6f590-fb92-4536-a6e1-9da05987e7dd",
-    "# Summary of changes for run ecaaa69e-4c37-4d29-a005-2cca151e0baa",
-    "# Summary of changes for run 26da6add-7ad7-4d17-b30d-ad5ba8aa9647",
-    "# Summary of changes for run c1ac0d99-af63-401d-a0fd-3de8fb8ffe66",
-    "# Summary of changes for run 39f47040-9127-4189-a7c0-de82b9316099",
-    "# Summary of changes for run 4c2cd512-6772-4b4c-9619-22a1e23e2632",
-    "# Summary of changes for run 1a3e72e7-e373-4765-8f62-2333057bc5fc",
-    "# Summary of changes for run 67c06e0f-2b79-4b79-a85a-81ae0be1cb13",
-    "# Summary of changes for run cc07297e-df6a-4384-af03-d054b4c14849",
-    "# Summary of changes for run 930b632e-68b9-4f29-96cd-313b60a393d1",
-    "## What I did",
-    "# Summary of changes for run e63d8ddf-dcff-41d5-9af6-ce1d8622cbe6",
-    "## Review",
-    "## Execution — four new modules, all building and `sorry`-free",
-    "## What remains open, and is stated as such",
-    "# Summary of changes — 2026-09-07 wave (full review, plan, and its execution)",
-    "## The review and the plan",
-    "## What was executed (four new modules, `lake build BookProof` completes)",
-    "## What stays open (unchanged, and stated as such)",
-    "# Summary of changes for run c12d8024-fbc9-445b-970b-d302c664f4c8",
-    "## Review first",
-    "## Then execution — the gap the plan itself named",
-    "# Summary of changes for the 2026-09-06 run (review + execution)",
-    "## The review",
-    "## The new mathematics — `dΓ` of an **unbounded** one-particle operator",
-    "## Boundary",
-    "# Summary of changes for run d2cfd6b8-1205-47fc-bde8-50a26bb366d5",
-    "# Summary of changes for run 19c382fe-9d79-414f-a6df-e7ea731c6fcd",
-    "# Summary of changes for run 2026-09-05a",
-    "# Summary of changes for run bb76a476-396b-4cb6-8787-151c1e80cfd2",
-    "# Summary of changes for the 2026-09-04i execution wave (`CONSOLIDATED_PLAN.md`)",
-    "## What was asked",
-    "## What landed — `BookProof/ChapterNonnegSemigroupGenerator.lean`, `sorry`-free and `axiom`-free",
-    "# Summary of changes for the 2026-09-04h execution wave (`CONSOLIDATED_PLAN.md`)",
-    "## What was asked",
-    "## What landed — `BookProof/ChapterNonnegSemigroup.lean`, `sorry`-free and `axiom`-free",
-    "# Summary of changes for the 2026-09-04g execution wave (`CONSOLIDATED_PLAN.md`)",
-    "## What was asked",
-    "## What landed — four of the seven, all `sorry`-free and `axiom`-free",
-    "## Verification",
-    "## What did not land, and why",
-    "# Summary of changes for run ec44fb6b-b93d-49e2-984c-15584c524e0c",
-    "## 1. The three chapters were already in the build — checked, not broken",
-    "## 2. Reorganization: a new file in `BookProof/` is now cheap",
-    "## 3. Plan continued: two new chapters, `sorry`-free and `axiom`-free",
-    "## Verification",
-    "# Summary of changes for run 2026-09-04d",
-    "## What was asked",
-    "## 1. The three chapters were already in the build — verified, not repaired",
-    "## 2. Build reorganization: a new chapter now costs seconds, not minutes",
-    "## 3. Two new chapters, both `sorry`-free and `axiom`-free",
-    "## Verification",
-    "## Honest boundary",
-    "# Summary of changes for run e43ab1cf-a2ad-4447-9a61-6c54a9062682",
-    "# Summary of changes for run 2026-09-04c",
-    "## The square root of an *arbitrary* non-negative self-adjoint linear relation",
-    "# Summary of changes for run 9a270306-f474-41c7-8932-b1772094d245",
-    "# Summary of changes for run 2026-09-04b",
-    "## The polar decomposition as a genuine partial isometry, and uniqueness of `(A* Ā)^{1/2}`",
-    "# Summary of changes for run 2026-09-04",
-    "## von Neumann's core theorem for `A* Ā`, and the bounded inverse of `1 + A* Ā`",
-    "# Summary of changes for run 0c7436fa-6b5a-4263-bdd9-7bde9c854175",
-    "## `(A²)_F = A* Ā` — proved",
-    "# Summary of changes for run c9e360ca-cfa7-471c-bb28-4caf76a4e5bb",
-    "## 1. Reorganized the project so it builds — cheaply",
-    "## 2. Formalized the closure/factorization uniqueness questions",
-    "# Summary of changes for run d4efbefa-4ac0-432f-a4c2-d378718816e6",
-    "# Summary of changes for run 81c9dcf7-aa39-49dc-8709-e99bcd29fcc3",
-    "# Summary of changes for run 67875227-757f-4a3e-9264-6f67d13e122f",
-    "# Summary of changes for run 059df25b-4649-4bae-864a-3d763c4d888e",
-    "# Summary of changes for run 5d516880-07e1-4291-9334-368ef9e15853",
-    "# Summary of changes for run b47d7347-96c9-4e04-8948-8c9698a3c530",
-    "# Summary of changes — the full quantum-gravity Hamiltonian (scalaron in vielbein variables,",
-    "# full exponential wall) is essentially self-adjoint on the outer Fock space",
-    "# Summary of changes for run 2d6b055f-453f-47ee-a7e6-8fc4ceaf40a2",
-    "# Summary of changes — §10.2b discharged: the one-particle quantum-gravity Hamiltonian is",
-    "# essentially self-adjoint on the Gauss–polynomial core of `L²(ℝ⁸⁴)`",
-    "# Summary of changes for run b7c9aded-7b04-40e8-b22c-8f77a4222142",
-    "# Summary of changes — QG-3.2 operator half: sums of one-particle Hamiltonians in",
-    "# **differing bases**, via Faris–Lavine with a positive *diagonal* `N`",
-    "# Summary of changes for run 9d177de4-23a0-48ef-8d43-8fb0533009c1",
-    "# Summary of changes — QG-2 Case A: `-d^2/dx^2 + V` is essentially self-adjoint for every",
-    "# smooth potential **bounded below**",
-    "# Summary of changes — QG-2 Case B, the conformal fiber: a non-negative exponential wall",
-    "# does **not** restore essential self-adjointness at the wrong kinetic sign",
-    "# Summary of changes for run 24d65fbe-4156-490b-bdbc-31a846b43e25",
-    "# Summary of changes — QG-2 Case B, part 2 (an explicit non-essentially-self-adjoint",
-    "# Schrödinger operator)",
-    "# Summary of changes — QG-2 \"Case B\" (the deficiency space of `−d²/dx² + V`)",
-    "# Summary of changes — QYM-1 task 3 (matrix-element criteria for the one-particle gap)",
-    "# Summary of changes for run f9525e8a-9f9a-4ae7-bc61-c1497a072d12",
-    "# Summary of changes — QYM-1 task 2 (truncated → infinite gap lift)",
-    "# Summary of changes for the current run",
-    "# Summary of changes for run 43ac8dac-7f27-4464-a0fb-01325c48f169",
-    "# Summary of changes for this run",
-    "# Summary of changes for run 4e7fb02d-a7d0-4745-996b-9c7d6cfbe7f2",
-    "# Summary of changes for this run",
-    "# Summary of changes for run 2e425980-dd1a-408f-af76-4f4604d3d5ca",
-    "# Summary of changes for run 06bbec70-f53c-49e5-b6c0-be1d9ae869c7",
-    "# Summary of changes for the 2026-08-28b continuation run",
-    "# Summary of changes for run 40c9e0fa-3885-4c1d-aee1-5ea958ea00db",
-    "# Summary of changes for run ab2d56b9-257a-4cdb-bdb6-0e60164ca8a9",
-    "# Summary of changes for run b2342286-fc55-44bf-81ca-d47878dc5c62",
-    "# Summary of changes for run 9c1d904f-c151-482c-8c80-8d77bbde25a8",
-    "# Summary of changes for run 2026-08-27 (attached cutoff plan + continued `CONSOLIDATED_PLAN.md`)",
-    "# Summary of changes for run 340674a4-f85c-4204-9083-210eda4e6ae2",
-    "## Execution of `CONSOLIDATED_PLAN.md` §13 — complete",
-    "# Summary of changes for run d8da8fc8-dec6-4668-96f4-aea931fa1a03",
-    "# Summary of changes for run 2ba7fe0c-7bdb-4f66-8e71-e60100782652",
-    "# Summary of changes for the 2026-08-26 wave (QG R + αR² ESA on the compactly supported smooth core)",
-    "# Summary of changes for run a73e2f29-f806-4ddc-bce2-77208b37d722",
-    "# Summary of changes for run 35754420-c3bf-4c9b-b19d-5691da7e9b9d",
-    "# Summary of changes for run 2026-08-25e (CONSOLIDATED_PLAN §10.6.1 target 3 — the Carleman flux criterion for unbounded (infinite-range) hops)",
-    "# Summary of changes for run f72d16e4-de5c-4ab0-a2f4-b6fc5293a8fe",
-    "# Summary of changes for run 2026-08-25d (CONSOLIDATED_PLAN §12.2 Gap 5 — the physical-subspace (BRST) leakage of the truncated dynamics, quantified at the level of the generators)",
-    "# Summary of changes for run 268d90f1-c315-4a10-b371-cc1e3e607e72",
-    "# Summary of changes for run 2026-08-25c (CONSOLIDATED_PLAN §10.6.1 target 4 — the sum `−Δ + V` on the Gauss–polynomial (Hermite) core for potentials of quadratic type)",
-    "# Summary of changes for run fcf5c12c-6797-4c15-a279-23d67bdf63f6",
-    "# Summary of changes for run 2026-08-25b (CONSOLIDATED_PLAN §10.6.1 target 2 — the exponential wall is *not* a relatively bounded perturbation on the Gauss–polynomial (Hermite) core)",
-    "# Summary of changes for run e07a85b6-9bad-4564-9727-317718816751",
-    "# Summary of changes for run 2026-08-25 (CONSOLIDATED_PLAN §10.6.1 target 4 — the exponentially growing scalaron potential is essentially self-adjoint on the Gauss–polynomial (Hermite) core)",
-    "# Summary of changes for run 2026-08-24g (CONSOLIDATED_PLAN backlog item 3 — the Cayley transform: the unbounded self-adjoint layer encoded by a unitary)",
-    "# Summary of changes for run 2026-08-24f (CONSOLIDATED_PLAN §12.2 Gap 4c — the recorded residue: the numerical Gram-eigenvalue cutoff bounds the truncation defect)",
-    "# Summary of changes for run c43013ef-25f2-4f28-957f-84f93c204d68",
-    "# Summary of changes for run c0337ccc-cb19-4fdb-9b74-0ac6bb8fab26",
-    "# Summary of changes for run 2026-08-24d (CONSOLIDATED_PLAN §12 Gap 4c — the Gram whitening the SIRK solver performs: it is an orthonormalization, and one exists)",
-    "# Summary of changes for run bb03f8a8-8896-44e4-8948-b42b1cf97ceb",
-    "# Summary of changes for run 1119d862-8559-4cb9-ae58-c0757603fcc9",
-    "# Summary of changes for run 2026-08-23j (CONSOLIDATED_PLAN — the Friedrichs canonical self-adjoint extension theorem: existence was already proved, this wave proves canonicity/uniqueness)",
-    "# Summary of changes for run dd451941-ed5a-45ee-8b75-f61748c0b4ae",
-    "# Summary of changes for run 2026-08-23i (CONSOLIDATED_PLAN §10.6.1 — the canonical realization of the QG one-particle Hamiltonian on the Hermite core, and essential self-adjointness for the parabolic potential)",
-    "# Summary of changes for run 2026-08-23h (CONSOLIDATED_PLAN §10.6.1 target 1 — the Gauss–polynomial (Hermite) core is a domain for the QG one-particle Hamiltonian)",
-    "# Summary of changes for run 2026-08-23g (CONSOLIDATED_PLAN §12 Gap 2 — what the Ritz values converge to, and the laminar decay rate)",
-    "# Summary of changes for run 6b5b05ef-2887-4b17-b736-4f3c8e11cc57",
-    "# Summary of changes for run 2026-08-23f (CONSOLIDATED_PLAN §12 — Trotter–Kato, and the last two Lagrangian realizations)",
-    "# Summary of changes for run 2026-08-23 (CONSOLIDATED_PLAN §12 — the SIRK/Hashimoto reliability chain)",
-    "# Summary of changes for run 8220d26a-8c17-452a-81c3-8ae94a133a50",
-    "# Summary of changes for run 2026-08-23 (A4 and A5 step 2)",
-    "# Summary of changes for run 0daf6e55-21fc-4d6d-9840-c8c8f1f1d245",
-    "# Summary of changes for run 50bb89a7-6876-4e57-9268-b8ad9cfbc76b",
-    "# Summary of changes for run 0a3a3683-8a6d-4d0b-93de-2e37aac545d2",
-    "# Summary of changes for run 9a161022-cea0-4275-b4a9-722e58f1d514",
-    "# Summary of changes for the continuation run (2026-08-22d — fibrewise essential self-adjointness glues: the orthogonal direct sum, the continuum Fock Hamiltonian and its unitary flow)",
-    "# Summary of changes for run 365f2efe-87e5-4115-b09a-d6922ce241e3",
-    "# Summary of changes for the continuation run (2026-08-22c — the quadratic Hamiltonian at infinitely many modes: the boson Fock space)",
-    "# Summary of changes for run 53825323-95c7-45da-b2e2-0f9e09485ca9",
-    "# Summary of changes for the continuation run (2026-08-22b — the general real quadratic Hamiltonian: distinct modes coupled)",
-    "# Summary of changes for the continuation run (2026-08-22 — Carleman on the Hermite lattice: the general quadratic-plus-first-order Hamiltonian)",
-    "# Summary of changes for run d7f5335d-ba30-405d-8255-8e944695b342",
-    "# Summary of changes for the continuation run (2026-08-21i — the quadrature `∑ᵢ(bᵢxᵢ + b'ᵢπᵢ)` on the Hermite core)",
-    "# Summary of changes for run 98552018-0d98-4b1d-9b65-b26fbb581fa3",
-    "# Summary of changes for the continuation run (2026-08-21h — the spectral theorem for an unbounded self-adjoint operator)",
-    "# Summary of changes for the continuation run (2026-08-21g — singular quadratic forms, the Schrödinger flow in closed form, and Fourier multipliers)",
-    "# Summary of changes for the continuation run (2026-08-21e — the indefinite inhomogeneous quadratic Hamiltonian, plus the §8 gate)",
-    "# Summary of changes for the continuation run (2026-08-21c/d — non-diagonal and inhomogeneous quadratic Hamiltonians, plus the §8 gate)",
-    "# Summary of changes for run 4beacf03-2be5-4fd7-b7fc-d729e077f687",
-    "# Summary of changes for the continuation run (2026-08-20k, `CONSOLIDATED_PLAN.md` §9 item 4: the differential realization of the full Navier–Stokes quadratic symbol on `L²(du₁du₂du₃)`)",
-    "# Summary of changes for run a2cf1c9c-a843-4c3e-8a14-48118a06e7e8",
-    "# Summary of changes for run e6da42cd-798e-4401-8dd5-9a238f2a59a9",
-    "# Summary of changes for run 5d953499-8723-40ca-bc91-378bbf84d7ee",
-    "# Summary of changes for run b8124628-4e94-46a4-8625-593a8cf39201",
-    "# Summary of changes for run 3fb0f2d9-535c-4655-bb5f-111fcbc07700",
-    "# Summary of changes for run 283fd602-63db-426f-bd5f-734dd91daf42",
-    "# Summary of changes for run 536c520a-3449-4be3-b099-fce168d35db2",
-    "# Summary of changes for run b1049c3f-072b-483e-8a8d-70dddbc8562a",
-    "# Summary of changes for the Part F run"
+    "# Summary of changes for run 8c1a652e-a861-4b69-9c74-5c967943edf4"
    ]
   },
   {
    "path": "ATTRIBUTION.md",
    "title": "Attribution",
-   "lines": 20,
+   "lines": 21,
    "headings": [
     "# Attribution",
     "## Notes"
@@ -260,7 +63,7 @@
   {
    "path": "BUILD_COMPONENTS.md",
    "title": "The independent parts of the development, and how to compile them separately",
-   "lines": 214,
+   "lines": 213,
    "headings": [
     "# The independent parts of the development, and how to compile them separately",
     "## Sub-system targets",
@@ -294,7 +97,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 17020,
+   "lines": 17684,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -481,7 +284,13 @@
     "## State of the project — 2026-10-05: the analytic-decision-engine work orders (plan only; no Lean code in this entry)",
     "## State of the project — 2026-10-05b: the Faris–Lavine comparison operators N for the Lagrangian lines (NS + QG) — work order",
     "## State of the project — 2026-10-06: PLAN M (planner side) landed, and the work orders its findings create (plan only; no Lean code in this entry)",
-    "## State of the project — 2026-10-06b: the sector correction — the campaign measured an intra-sector diagnostic, and §M4.9 gates §M4.3 (plan only; no Lean code in this entry)"
+    "## State of the project — 2026-10-06b: the sector correction — the campaign measured an intra-sector diagnostic, and §M4.9 gates §M4.3 (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-07: RH/RandomMap's two owner questions routed (C2 authority, C4 sequencing) (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-15: closing the ESA of the TRANSFORMED operator — work order for the LLM-Lean4-specialist (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-15b: closing the two open halves of the transformed-ESA entry — executable Lean plan for the LLM-Lean4-specialist (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-15c: the 2026-10-15b work order executed — closed-by pointers (ODE-C.1–3, NS-L-C.1–3, QG-D-C.2–3; QG-D-C.1 open as planned)",
+    "## State of the project — 2026-10-16: the 2026-10-15c wave read into `Book/`, the final-Hamiltonian audit of the five targets, and the work order for the LLM-Lean4-specialist",
+    "## State of the project — 2026-10-16: the Koopman comparison `N_L = H_L² + E` is ESA — closed-by pointers"
    ]
   },
   {
@@ -500,7 +309,7 @@
   {
    "path": "CURRENT_WORK_ORDER.md",
    "title": "Current work order — one pointer per track",
-   "lines": 197,
+   "lines": 230,
    "headings": [
     "# Current work order — one pointer per track",
     "## The table",
@@ -789,6 +598,38 @@
    ]
   },
   {
+   "path": "MISSING_FILES_CONTENTS.md",
+   "title": "Summary of changes for run e9b2b456-f2db-4696-a30c-e9b4fbe5ec50",
+   "lines": 3683,
+   "headings": [
+    "# Summary of changes for run e9b2b456-f2db-4696-a30c-e9b4fbe5ec50",
+    "# Full contents of the files you could not access",
+    "## BookProof/ChapterKvnKatoCalc.lean",
+    "# Calculus for the Kato argument for `N = H_G² + E`",
+    "## BookProof/ChapterKvnKatoMol.lean",
+    "# Mollifiers and the Schur test for the Kato argument for `N = H_G² + E`",
+    "## BookProof/ChapterKvnKatoKernel.lean",
+    "# Explicit formulas for the commutator kernels of the Kato argument",
+    "## BookProof/ChapterKvnKatoFriedrichs.lean",
+    "# Friedrichs' lemma for the commutator kernels",
+    "## BookProof/ChapterKvnKatoEnergy.lean",
+    "# The energy inequality for the mollified deficiency equation",
+    "## BookProof/ChapterKvnKatoEsa.lean",
+    "# Kato's argument for `N = H_G² + E`: deficiency vectors vanish",
+    "## BookProof/ChapterKvnKatoPoly.lean",
+    "# Essential self-adjointness of `N = H_G² + E` on the Gauss–polynomial core",
+    "## BookProof/ChapterNsLagrangianComparisonEsa.lean",
+    "# Essential self-adjointness of the Lagrangian Koopman comparison operator `N_L = H_L² + E`",
+    "## Main results",
+    "## BookProof.lean (addition)",
+    "## BookProof/ChapterRoadmapAudit.lean (additions)",
+    "## STATUS.md (new section)",
+    "## 2026-10-16 — ESA of the Koopman comparison `N_L = H_L² + E` (the standing input of `lagKoopman_esa_of_comparison_esa`)",
+    "## CONSOLIDATED_PLAN.md (new section)",
+    "## State of the project — 2026-10-16: the Koopman comparison `N_L = H_L² + E` is ESA — closed-by pointers"
+   ]
+  },
+  {
    "path": "NS_LAGRANGIAN_OUTER_FOCK_ESA.md",
    "title": "Lagrangian Navier–Stokes: from the one-particle ESA proof to the outer Fock space",
    "lines": 182,
@@ -1002,7 +843,7 @@
   {
    "path": "README.md",
    "title": "README",
-   "lines": 33,
+   "lines": 42,
    "headings": [
     "## Status"
    ]
@@ -1276,7 +1117,7 @@
   {
    "path": "STATUS.md",
    "title": "`BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`",
-   "lines": 12743,
+   "lines": 12776,
    "headings": [
     "# `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`",
     "## Latest wave — 2026-09-23: **BRST implemented as `book.tex` defines it** — the charge",
@@ -1502,6 +1343,14 @@
    ]
   },
   {
+   "path": "TODO_LEDGER.md",
+   "title": "TODO ledger — reviewed code markers",
+   "lines": 15,
+   "headings": [
+    "# TODO ledger — reviewed code markers"
+   ]
+  },
+  {
    "path": "bkPrompts.md",
    "title": "Chapter SirkRitzMinMax — the higher Rayleigh–Ritz levels and the Ritz gap",
    "lines": 702,
@@ -1602,6 +1451,10 @@
   },
   {
    "source": "AGENTS.md",
+   "target": "TODO_LEDGER.md"
+  },
+  {
+   "source": "AGENTS.md",
    "target": "unfer_contracts/MASS_GAP_REGENERATION.md"
   },
   {
@@ -1610,139 +1463,11 @@
   },
   {
    "source": "ARISTOTLE_SUMMARY.md",
-   "target": "AGENTS.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "BOOK_PROOF_PLAN.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "BUILD_COMPONENTS.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "BUILD_LAYOUT.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
    "target": "CONSOLIDATED_PLAN.md"
   },
   {
    "source": "ARISTOTLE_SUMMARY.md",
-   "target": "CORE_TRANSFER_ESA.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "Contention.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "FORMALIZATION_ROADMAP.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "HASHIMOTO_COMPLEX_SHIFTS.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "HERMITE_CORE_STRICHARTZ.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "HERMITE_GALERKIN_FRIEDRICHS.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "HONEST_BOUNDARIES_SM.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "IMPLEMENTATION_PLAN_RCP.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "Issues.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "NS_LAGRANGIAN_OUTER_FOCK_ESA.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "PLAN_B_PROSE_VERIFICATION.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "PLAN_LEAN_SPECIALIST_COHERENT.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "PLAN_LEAN_SPECIALIST_NS_FLOW.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "PLAN_LEAN_SPECIALIST_QG_FLOW.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "PLAN_LEAN_SPECIALIST_QYM_FLOW.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "PLAN_LEAN_SPECIALIST_SIRK_NESTED.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "PLAN_LEAN_SPECIALIST_UNPROVED.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "PNP_IMPLEMENTATION_PLAN.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "PnpProof/IMPLEMENTED.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "REVIEW_AND_PLAN_20260907.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "REVIEW_FARIS_LAVINE_20260911.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "REVIEW_GAUGE_DEFINITION_20260912.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "REVIEW_GAUGE_SYMMETRY_20260912.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "REVIEW_GAUGE_UNCONSTRAINED_SPECTRUM_20260912.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "REVIEW_THREADS_20260906.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "RandomMap2.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
    "target": "STATUS.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "STRICHARTZ_WAVE_ESA.md"
   },
   {
    "source": "BOOK_PROOF_PLAN.md",
@@ -1798,6 +1523,14 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "DOC_INDEX.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "HAMILTONIAN_AUDIT_20260918.md"
   },
   {
@@ -1818,6 +1551,14 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "IMPLEMENTATION_PLAN.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "IMPLEMENTATION_PLAN_RCP.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "IMPLEMENTED.md"
   },
   {
@@ -1827,6 +1568,10 @@
   {
    "source": "CONSOLIDATED_PLAN.md",
    "target": "MASS_GAP_CERTIFIED.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "MISSING_FILES_CONTENTS.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
@@ -1898,6 +1643,18 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "RandomMap.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "RandomMap2LegacyDraft.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "RandomMap_old.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "SINGULARITY_DETECTION_PLAN.md"
   },
   {
@@ -1934,6 +1691,10 @@
   },
   {
    "source": "CURRENT_WORK_ORDER.md",
+   "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
    "target": "BOOK_PROOF_PLAN.md"
   },
   {
@@ -1963,6 +1724,10 @@
   {
    "source": "CURRENT_WORK_ORDER.md",
    "target": "MASS_GAP_CERTIFIED.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "MISSING_FILES_CONTENTS.md"
   },
   {
    "source": "CURRENT_WORK_ORDER.md",
@@ -2127,6 +1892,18 @@
   {
    "source": "MASS_GAP_CERTIFIED.md",
    "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "MISSING_FILES_CONTENTS.md",
+   "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "MISSING_FILES_CONTENTS.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "MISSING_FILES_CONTENTS.md",
+   "target": "STATUS.md"
   },
   {
    "source": "PLAN_A_BOOK_FORMALIZATION.md",

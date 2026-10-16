@@ -447,6 +447,57 @@ sector it acts as $`\sum_p 1 \otimes \cdots \otimes h \otimes \cdots \otimes 1`.
 :::
 
 :::paragraph
+**The comparison side of the same face (NS-L-C.1–C.3, 2026-10-15c).**  Three
+statements around this `h` were open and are now theorems — and it matters for
+reading them that they are *comparison-side*, not further enclosures of the
+record.  First, the transformed operator with a penalty/pressure **constraint
+term**: for any bounded symmetric `C`, $`h + C` is essentially self-adjoint on
+the Hermite core (`BookProof/ChapterNsComparisonEsa.lean`:
+`lagConstr_esa`, `lagConstr_hasZeroDeficiencyOn`) — closed by Kato–Rellich,
+because the ladder realization admits no common eigenvector of $`P_i` and
+$`Q_i`.  Second, the **completed square**
+$`N = h + \tfrac12|f|^2 = \tfrac12\sum_i(P_i+f_i)^2 + \nu\sum_i Q_i^2` is
+symmetric, essentially self-adjoint (`lagCompN_esa` — the constraint theorem
+instantiated at $`C = (\tfrac12|f|^2)\cdot 1`), non-negative
+(`lagCompN_nonneg`) and obeys the form bound
+$`\langle v,(N+1)v\rangle \ge \|v\|^2` (`lagCompN_add_one_ge`).  Third, the
+**lift** (`BookProof/ChapterLiftedComparisonEsa.lean`): $`d\Gamma(N)` is
+essentially self-adjoint on the finite-particle domain by the
+second-quantization theorem, and adding the constant `1` preserves that by the
+real-shift lemma (`liftedComparison_dGamma_esa`, **`liftedComparison_esa`**),
+with the resolvent face `liftedComparison_resolvent_deficiency` — trivial
+deficiency at every non-real $`z` — as the analytic counterpart of the
+solver's finite `pl_lifted_*` shadow (Hermitian, form $`\ge m+1`, resolvent
+bound $`1/|\operatorname{Im} z|`).
+:::
+
+:::paragraph
+Read under the final-Hamiltonian convention: `N` is a comparison operator, so
+$`d\Gamma(N)+1` is a *lifted comparison* — enclosing it does not make it a
+Hamiltonian of record, and the NS record stays $`d\Gamma(h)` (resp.
+$`d\Gamma(H_{\rm sp})` on the Eulerian face).  The lift also does not touch
+the standing hypothesis on `N_L`: the comparison of the **Koopman generator**
+of the constrained Lagrangian flow, $`N_L = H_L^2 + E` on
+$`L^2(\mathbb{R}^{\mathrm{PIdx}\,K})`, is a different operator, and
+`lagKoopman_liftedComparison_esa_of_comparison_esa` — like
+`lagKoopman_dGamma_esa_of_comparison_esa` above — carries it explicitly; that input
+closed separately on 2026-10-16 (`NsLagrangianComparisonEsa.lagComparison_esa`), not
+through the lift.
+:::
+
+```
+#check @BookProof.NsComparisonEsa.lagConstr_esa
+#check @BookProof.NsComparisonEsa.lagCompN_eq
+#check @BookProof.NsComparisonEsa.lagCompN_esa
+#check @BookProof.NsComparisonEsa.lagCompN_nonneg
+#check @BookProof.NsComparisonEsa.lagCompN_add_one_ge
+#check @BookProof.LiftedComparisonEsa.liftedComparison_dGamma_esa
+#check @BookProof.LiftedComparisonEsa.liftedComparison_esa
+#check @BookProof.LiftedComparisonEsa.liftedComparison_resolvent_deficiency
+#check @BookProof.LiftedComparisonEsa.lagKoopman_liftedComparison_esa_of_comparison_esa
+```
+
+:::paragraph
 The **interacting** outer Hamiltonians — the parcel-coupled Lagrangian `lagFullFockHam` and its
 Eulerian companion — are *not* second quantizations of a one-body operator: the gauge-fixing
 forms couple neighbouring parcels, and the Piola and `det F − 1` forms have degree two and

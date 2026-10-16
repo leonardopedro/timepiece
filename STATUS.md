@@ -12741,3 +12741,36 @@ hypotheses of §D6b-SM.3 remain symbolic (Cadabra CHECK 1–28) and are not need
 Friedrichs route this bosonic operator takes; the derivative-coordinate summands of `N₀` are
 outside the ESA chain; and no spectrum, no mass gap, no symmetry breaking as dynamics and no
 measured mixing parameter is claimed.
+
+## 2026-10-15c — the transformed-ESA work order (CONSOLIDATED_PLAN.md §"2026-10-15b") executed
+
+Six new `sorry`-free, `axiom`-free chapters (imported from `BookProof.lean`, audited in
+`ChapterRoadmapAudit.lean`):
+
+* `BookProof/ChapterEsaRealShift.lean` — `essentiallySelfAdjointOn_add_const`;
+  `deficiencyTrivialAt_of_essentiallySelfAdjointOn` (trivial deficiency at every non-real `z`).
+* `BookProof/ChapterMomentumChartEsa.lean` — **ODE-C.1** `momentum_essentiallySelfAdjointOn`.
+* `BookProof/ChapterOdeChartTransfer.lean` — **ODE-C.2** `chartUnitary`,
+  `chartHam_essentiallySelfAdjointOn` (domain `W(𝓢(ℝ))`), `chartHam_apply_ae`
+  (`= x²p − ix` there); **ODE-C.3** `chartHam_stone_flow`.
+* `BookProof/ChapterNsComparisonEsa.lean` — **NS-L-C.1** `lagConstr_esa` (bounded symmetric
+  constraint term); **NS-L-C.2** `lagCompN_esa`, `lagCompN_nonneg`, `lagCompN_add_one_ge`
+  (completed square `N = h + ½|f|²` of the canonical parcel Hamiltonian; the Koopman
+  comparison hypothesis of `lagKoopman_esa_of_comparison_esa` is *not* discharged).
+* `BookProof/ChapterLiftedComparisonEsa.lean` — **NS-L-C.3** `liftedComparison_esa`
+  (`dΓ(N) + 1` ESA on `𝓕_fin(D)`), `liftedComparison_resolvent_deficiency`.
+* `BookProof/ChapterQgAssembledTransfer.lean` — **QG-D-C.2** `qg_assembled_halfDensity_transfer`,
+  `qg_assembled_conformal_hasZeroDeficiencyOn`; **QG-D-C.3** `qg_assembled_stone_flow_of_flat`.
+  **QG-D-C.1** (continuum flat input) remains the open hypothesis `hflat`.
+
+## 2026-10-16 — ESA of the Koopman comparison `N_L = H_L² + E` (the standing input of `lagKoopman_esa_of_comparison_esa`)
+
+* `BookProof/ChapterNsLagrangianComparisonEsa.lean` — **`lagComparison_esa`**: the Faris–Lavine
+  comparison operator `N_L = H_L² + E` of the degree-five Galerkin Lagrangian Navier–Stokes
+  Koopman generator is essentially self-adjoint on the Gauss–polynomial core of `L²(ℝ^{PIdx K})`,
+  unconditionally (every finite `K`, `ν ≥ 0`, `κ ≥ 0`); hence **`lagKoopman_esa`**: `H_L` itself
+  is ESA on the core.  Route: `KvnKato.lyapunovComparison_esa_poly` (Hermite graph approximation
+  + Kato argument, chapters `ChapterKvnKato*`, now imported from `BookProof.lean`) with the proper
+  polynomial Lyapunov function `P = E + ½|ξ|²` (`F·∇P = −νΣ|k|²v² + ξ·v`, `|F·∇P| ≤ (2νΛ+1)P`,
+  `‖y‖ ≤ P(y)`).  Audit lines in `ChapterRoadmapAudit.lean`; `#print axioms` reports only
+  `propext, Classical.choice, Quot.sound`.

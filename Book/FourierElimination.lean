@@ -316,7 +316,10 @@ no net work, being the gradient of the potential part of `E`) and the divergence
 $`|\langle i[H_L, N_L]\rangle| \le 2\nu\Lambda\langle N_L\rangle` holds
 (`lagComparison_commForm_bound`) and essential self-adjointness of the Lagrangian generator
 follows from that of `N_L` (`lagKoopman_esa_of_comparison_esa`).  The hypothesis — essential
-self-adjointness of `N_L` — is explicit and not proved, exactly as on the Eulerian leg of
+self-adjointness of `N_L` — was explicit and unproved here until 2026-10-16, when
+`NsLagrangianComparisonEsa.lagComparison_esa` discharged it via
+`KvnKato.lyapunovComparison_esa_poly` (the Eulerian leg's own comparison hypothesis
+remains open), as on
 {ref "ns-comparison-operator"}[the comparison-operator chapter]; incompressibility is imposed
 by the penalty with bulk modulus `κ`, and the limit `κ → ∞` is not taken.
 :::
@@ -332,6 +335,8 @@ by the penalty with bulk modulus `κ`, and the limit `κ → ∞` is not taken.
 #check @BookProof.NsLagrangianDetFL.lagDiv_eq
 #check @BookProof.NsLagrangianDetFL.lagComparison_commForm_bound
 #check @BookProof.NsLagrangianDetFL.lagKoopman_esa_of_comparison_esa
+#check @BookProof.NsLagrangianComparisonEsa.lagComparison_esa
+#check @BookProof.NsLagrangianComparisonEsa.lagKoopman_esa
 ```
 
 # Where the Two New Operator Chapters Sit

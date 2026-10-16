@@ -7,7 +7,24 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-15b):** **§"State of the project — 2026-10-15b:
+> **Newest entry (2026-10-16, later):** **§"State of the project — 2026-10-16: the
+> Koopman comparison `N_L = H_L² + E` is ESA — closed-by pointers"** at the very end
+> of this file — the restored run (manifest `MISSING_FILES_CONTENTS.md`): seven
+> `ChapterKvnKato*` chapters plus `ChapterNsLagrangianComparisonEsa`
+> (`lagComparison_esa`, `lagKoopman_esa`), imported from `BookProof.lean`, audited in
+> `ChapterRoadmapAudit.lean`; flag **F5** resolved by that restoration.  Preceded by
+> **§"State of the project — 2026-10-16: the
+> 2026-10-15c wave read into `Book/`, the final-Hamiltonian audit of the five
+> targets, and the work order for the LLM-Lean4-specialist"** at the very end of
+> this file (six new `Book/` sections that read the six 2026-10-15c chapters
+> pedagogically; the enclosure / QG-R²-full-exponential / momentum-convolution
+> audit over `CONSOLIDATED_PLAN.md`, `BookProof/`, `Book/`, `../test/` and the
+> numerical guide — no violations; flag **F5** (resolved — see the newest entry);
+> work order steps 0–6 — compile the prose layer first, of which steps 1 and 3 are
+> closed by the newest entry).  Preceded by **§"State of
+> the project — 2026-10-15c: the 2026-10-15b work order executed — closed-by
+> pointers (ODE-C.1–3, NS-L-C.1–3, QG-D-C.2–3; QG-D-C.1 open as planned)"**.
+> The chain continues with **§"State of the project — 2026-10-15b:
 > closing the two open halves of the transformed-ESA entry — executable
 > Lean plan for the LLM-Lean4-specialist"** at the very end of this file
 > (turns rows ODE-C / NS-L-C / QG-D-C into a dependency-ordered,
@@ -17457,3 +17474,211 @@ continuum NS regularity, a Yang–Mills or QG mass gap, ESA of the
 *original* variables (`x`, Eulerian, `1/e`), or a mass–coupling derivation
 of the SM parameters.  This entry contains no Lean code: it is a plan for
 the LLM-Lean4-specialist, per the project's convention.
+
+## State of the project — 2026-10-15c: the 2026-10-15b work order executed — closed-by pointers (ODE-C.1–3, NS-L-C.1–3, QG-D-C.2–3; QG-D-C.1 open as planned)
+
+Six new `sorry`-free, `axiom`-free modules, imported from `BookProof.lean` and audited in
+`BookProof/ChapterRoadmapAudit.lean` (every new `#print axioms` line reports only
+`propext, Classical.choice, Quot.sound`).  The 2026-10-15b entry is not edited; this entry
+only appends the pointers.
+
+| row | status | closed by |
+|---|---|---|
+| (tool) `essentiallySelfAdjointOn_add_const` | **closed** | `BookProof/ChapterEsaRealShift.lean`: `EsaRealShift.essentiallySelfAdjointOn_add_const`, built on `deficiencyTrivialAt_of_essentiallySelfAdjointOn` (symmetric + ESA ⇒ trivial deficiency at **every** non-real `z`, on a complete space; the disk-stability lemma `deficiencyTrivialAt_of_near`).  Needed because `EssentiallySelfAdjointOn` is defined at `± i` only. |
+| ODE-C.1 | **closed** | `BookProof/ChapterMomentumChartEsa.lean`: `MomentumChart.momentum_essentiallySelfAdjointOn` — `−i d/dw` ESA on the Schwartz core of `L²(ℝ)`.  Route: the Fourier-multiplier instrument (`FourierMultiplierEsa.momentumOp_essentiallySelfAdjoint`) rather than the orbit route; the plan left the core/route to the specialist. |
+| ODE-C.2 | **closed** | `BookProof/ChapterOdeChartTransfer.lean`: `chartUnitary` (the chart `W` as a unitary of `L²(ℝ)`, `chartUnitary_apply`, `W² = −1`), the generic `conj_essentiallySelfAdjointOn`, and `OdeChartTransfer.chartHam_essentiallySelfAdjointOn` — ESA of `W P W⁻¹` **on the named domain** `chartDomain = W(𝓢(ℝ))`; `chartHam_apply_ae` identifies the operator there with `H = x²p − ix` (`hamValue`).  `Book/OdeSingularity.lean`'s correction (not ESA on `L²(ℝ)` as it stands) is untouched. |
+| ODE-C.3 | **closed (Stone face)** | `OdeChartTransfer.chartHam_stone_flow`.  The sampling restatement via `ChapterOdeSampling` was optional and is not done. |
+| NS-L-C.1 | **closed, with a route flag** | `BookProof/ChapterNsComparisonEsa.lean`: `NsComparisonEsa.lagConstr_esa` / `lagConstr_hasZeroDeficiencyOn` — the canonical transformed operator with an arbitrary bounded symmetric constraint term `C` is ESA on the Hermite core.  **Flag:** `hasZeroDeficiencyOn_of_commonEigenvectors` cannot be instantiated in the canonical realization (`[Pᵢ, Qᵢ] = −i` excludes common eigenvectors); the closing route is Kato–Rellich (`hFull_essentiallySelfAdjointOn_of_drive_eq_P`). |
+| NS-L-C.2 | **closed for the canonical parcel Hamiltonian; flag on the Koopman row** | `NsComparisonEsa.lagCompN` (`N = h + ½|f|²`, `lagCompN_eq`), `lagCompN_esa`, `lagCompN_nonneg` (`N ≥ 0`), `lagCompN_add_one_ge` (form `≥ 1`).  **Flag:** the completed square is the comparison operator of the canonical one-parcel `h` on `ℓ²(Fin 3 → ℕ)`; it does **not** discharge the hypothesis of `NsLagrangianDetFL.lagKoopman_esa_of_comparison_esa` / `lagKoopman_dGamma_esa_of_comparison_esa`, which concerns the different operator `N_L = H_L² + E` of the degree-five Koopman generator on `L²(ℝ^{PIdx K})`.  That hypothesis stays explicit. |
+| NS-L-C.3 | **closed** | `BookProof/ChapterLiftedComparisonEsa.lean`: `LiftedComparisonEsa.liftedComparison_esa` — `dΓ(N) + 1` ESA on `𝓕_fin(D)`, `D` the Hermite core (the canonical-realization form of the Gauss core); steps `comparison_esa_on_core`, `liftedComparison_dGamma_esa` (second quantization of an ESA operator), `essentiallySelfAdjointOn_add_const`; plus `liftedComparison_symmetricOn` and `liftedComparison_resolvent_deficiency` (trivial deficiency at every non-real `z`).  The conditional Koopman form is `lagKoopman_liftedComparison_esa_of_comparison_esa`. |
+| QG-D-C.1 | **open (the named gap)** | Not discharged.  It enters only as the hypothesis `hflat` of the QG-D-C.2/3 theorems below. |
+| QG-D-C.2 | **closed modulo QG-D-C.1** | `BookProof/ChapterQgAssembledTransfer.lean`: `QgPieces` (kinetic + potential + ghost + gauge-fixing), `assembled_transfer`, `QgAssembledTransfer.qg_assembled_halfDensity_transfer` at the constructed `halfDensityUnitary`; non-vacuity instance with every hypothesis discharged: `qg_assembled_conformal_hasZeroDeficiencyOn` (conformal potential `V₃`, other terms off). |
+| QG-D-C.3 | **closed modulo QG-D-C.1** | `QgAssembledTransfer.qg_assembled_stone_flow_of_flat`.  The explicit Hermite/scalaron eigenbasis form (`ChapterStoneEigenflow`) is not added. |
+
+**Acceptance checklist.**  (a) `lake build` of the six new modules green; (b) no `sorry`, no
+`axiom`, audit lines appended to `ChapterRoadmapAudit.lean`; (c) the modules are roots via
+`BookProof.lean` (the `BookProof` library's root); (d) the numerical suites and the Cadabra gate
+live in `../unfer/`, which is not part of this tree — **not re-run** here; (e) `STATUS.md`
+gains the row closures; (f) this entry.
+
+**Boundary.**  Unchanged: no continuum NS regularity, no Yang–Mills or QG mass gap, no ESA of
+the original variables (`x` on `C_c^∞`, Eulerian, `1/e`), and QG-D-C.1 remains open.
+
+## State of the project — 2026-10-16: the 2026-10-15c wave read into `Book/`, the final-Hamiltonian audit of the five targets, and the work order for the LLM-Lean4-specialist
+
+*Prose pass — **not compiled**, per the order (compilation is the specialist's, step 0
+below).  This entry appends three things and edits nothing: the `Book/` sections that read
+the six new 2026-10-15c chapters pedagogically, the audit record for the five named
+targets, and the next work order.  As the reading guide it supersedes only the book-track
+prose-verification item of §"2026-09-25 (consolidated)" §5 item 1 for the six chapters
+touched here; every other row of that order is untouched.  Status letters below:
+**U** unconditional, **C** conditional (hypothesis named, unproved), **B** boundary.*
+
+### 1. What landed in `Book/` — six chapters, six new sections (name-level checked only)
+
+Every `#check` name added below was verified against the module source by exact string
+match (the same names the `#print axioms` lines of `BookProof/ChapterRoadmapAudit.lean`
+already audit); the elaboration of the prose layer is step 0 of §5.
+
+| Book chapter | new section / addition | what it teaches, and the names it cites |
+|---|---|---|
+| `Book/OdeSingularity.lean` | `# The Chart Realization: From Claim to Theorem` | the chapter's standing claim — *the quantized operator on the transformed coordinates is ESA* — as a three-step theorem: **ODE-C.1** momentum `P = −i d/dw` ESA on the Schwartz core (`BookProof.MomentumChart.momentum_essentiallySelfAdjointOn`, `chartMomentum_symmetricOn`); **ODE-C.2** the chart as a genuine unitary (`chartUnitary`), `conj_essentiallySelfAdjointOn`, `chartHam_essentiallySelfAdjointOn` **on the named domain** `W(𝓢(ℝ))`, `chartHam_apply_ae` identifying it with `x²p − ix`; **ODE-C.3** `chartHam_stone_flow`.  The domain caveat is stated inside the section: the chapter's correction (not ESA on `C_c^∞` / `L²(ℝ)` as it stands) is untouched, and an honesty note records that the `Singularity` certificate layer is *not* upgraded by this theorem. |
+| `Book/ProofPlans.lean` | `## A.5 The chart realization: ESA of the transformed Hamiltonian` | the appendix status line for the ODE chapter: *PROVED (2026-10-15c wave)*, same names, same boundary (A.1–A.3 unchanged, certificate layer still certificates), pointer to the new OdeSingularity section. |
+| `Book/NsComparisonOperator.lean` | `# The Transformed Lagrangian Leg: Constraint, Completed Square, and the Lift` | **NS-L-C.1** `lagConstr_esa` / `lagConstr_hasZeroDeficiencyOn` with the route flag spelled out (common-eigenvector criterion structurally unavailable — `[Pᵢ,Qᵢ] = −i` — closing route Kato–Rellich `hFull_essentiallySelfAdjointOn_of_drive_eq_P`); **NS-L-C.2** the completed square `N = h + ½\|f\|²`, and *how* `lagCompN_esa` is really NS-L-C.1 at `C = (½\|f\|²)·1`; **NS-L-C.3** pointer to the lift (`liftedComparison_esa`, `liftedComparison_resolvent_deficiency`), plus a convention paragraph (comparison objects are never the record) and a Summary bullet — **and, added later on 2026-10-16, the section `# Closing the Standing Hypothesis: the Koopman Comparison \`N_L\``** reading the restored `ChapterNsLagrangianComparisonEsa` closure, with matching amendments to `Book/FourierElimination.lean`, `Book/NsOneParticleHamiltonian.lean` and `Book/OdeSingularity.lean`. |
+| `Book/NsOneParticleHamiltonian.lean` | `**The comparison side of the same face (NS-L-C.1–C.3)**` paragraph + `#check` block in the Lagrangian-Face section | the same three results read as *comparison-side*: constraint term, completed square (symmetric / ESA / `≥ 0` / form `≥ 1`), and the lift `dΓ(N) + 1` on the finite-particle domain — explicitly a *lifted comparison*, the analytic counterpart of the solver's finite `pl_lifted_*` shadow, **not** a Hamiltonian of record; the NS record stays `dΓ(h)` / `dΓ(H_sp)`. |
+| `Book/SecondQuantizationEsa.lean` | `# Two Stability Moves: Real Shifts and Unitary Conjugation` | the toolbox of the wave: `EsaRealShift.deficiencyTrivialAt_of_essentiallySelfAdjointOn` (deficiency trivial at **every** non-real `z` — needed because the definition only sees `± i`), `essentiallySelfAdjointOn_add_const`, `OdeChartTransfer.conj_essentiallySelfAdjointOn` (+ `conj_deficiencyTrivialAt`, `conjDomain_dense`); both tied to the convention: the positivity shift of `h` that makes the outer vacuum the exact ground state is legitimate *because* ESA survives it, and a conjugation proof that forgets the domain has proved nothing. |
+| `Book/DiffeomorphismsGravity.lean` | `# The Assembled Hamiltonian: Transfer, Flow, and the One Named Gap` + Summary bullet | **QG-D-C.2/3** pedagogy: `QgPieces` (kinetic + potential + ghost + gauge-fixing — full exponential wall and interaction terms inside `h`, no Taylor truncation), `assembled_transfer` (termwise intertwining — the assembly where a cross-term can be lost), `qg_assembled_halfDensity_transfer` at the constructed `halfDensityUnitary`, the conformal non-vacuity instance `qg_assembled_conformal_hasZeroDeficiencyOn`, `qg_assembled_stone_flow_of_flat`; **QG-D-C.1** kept visibly open as the hypothesis `hflat` (routes R1/R2); convention paragraph: all of it is one-particle content and the record remains the enclosed `dΓ(h)` of the R² vielbein operator. |
+
+Delimiter hygiene: Verso inline math is written dollar-*then*-code — the dollar sign
+opens, the backticked span closes, and there is no trailing dollar (`Verso.Parser.math`).
+The pre-existing spans of the touched chapters were audited against that rule and left as
+written; the new sections follow it exactly (verified by a parser-level scan of the six
+files: zero new delimiter flags against the pre-edit baseline).
+
+### 2. How the 2026-10-15c theorems read under the final-Hamiltonian convention (§B; §"2026-09-25" §1)
+
+The wave closed eight rows.  Under `H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ) = dΓ(h)` — creation left,
+annihilation right — each closure means the following, and these are the implications a
+future proof or prose claim must carry:
+
+1. **Every new theorem is one-particle or comparison-level; the enclosure is downstream.**
+   ODE-C.1–3, NS-L-C.1–2 and QG-D-C.2–3 are statements about an inner operator (chart
+   momentum, `ĥ_full`, `N`, the assembled `h`) on its own domain.  Nothing new needed an
+   enclosure theorem: `EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa` consumes
+   one-particle ESA and returns `dΓ` ESA.  **(U)**
+2. **`dΓ(N) + 1` does not promote `N`.**  NS-L-C.3 encloses a *comparison* operator.  Under
+   the convention, enclosing `N` creates a lifted comparison — a diagnostic with the
+   resolvent shadow the numerics measure — and never a Hamiltonian of record.  The Book now
+   says this in both chapters that mention it.  **(B)**
+3. **Positivity and the vacuum stay one-particle moves.**  The allowed shift of `h` that
+   makes it positive (the outer vacuum as exact ground state) is safe because ESA survives
+   real shifts (`essentiallySelfAdjointOn_add_const`) — the new justification for a
+   standing convention; `gap(H) = gap(h)` and the one-particle diagnostics (squeezed inner
+   ground) keep their labels.  **(U)**
+4. **QG: assembly changes nothing about which operator is the record.**  The assembled
+   transfer is about the four-constituent one-particle `h` and its densitized twin (a
+   labeled realization, never the record); the record stays the R² vielbein operator with
+   the exact exponential wall (**no Taylor truncation**) and the scalaron–vielbein
+   interaction terms inside `h`, enclosed.  Discharging `hflat` would move the whole chain
+   from **C** to **U** at the one-particle level.  **(C today)**
+5. **The momentum-space convolution scope is unchanged: NS and QG only.**  Any future
+   proof touching a product in coordinate space involving spatial derivatives of the
+   fields (NS advection, QG vielbein derivative modes, Lagrangian `det(I + ∇ξ)`) uses the
+   three named instances (`fourier_advection_convolution`, `ChapterQgFourierElimination`,
+   `det_deformation_eq`) — never a coordinate-space expansion, never a gauge constraint on
+   the derivative variables, and never in QYM/QED/SM, where no such product occurs.  **(U)**
+6. **QED is the abelian instance of the QYM `h`**; its negative gap statements
+   (`ym_abelian_no_one_particle_form_gap`, `photon_no_one_particle_gap`) are statements
+   about `h` and fully consistent with the enclosure of `H`.  **(U)**
+
+### 3. Audit record — the five targets, checked (no violations found)
+
+Method: exact-string searches over `CONSOLIDATED_PLAN.md`, `BookProof/`, `Book/`,
+`../test/`, `../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md` for
+`final Hamiltonian|Hamiltonian of record|enclosed in creation|dΓ(|C†|Taylor|convolution`,
+read in context.  Result per axis:
+
+* **Enclosure form** — every statement of a final Hamiltonian for QYM/QED/QG/NS (and SM)
+  exhibits the `a† … a` / `dΓ` enclosure or explicitly says "one-particle statement";
+  auxiliary Weyl sums (`redHam`, `nsFullFockHam`, `lagFullFockHam`, `H_sos`, `H_sp` at the
+  comparison level) are labeled comparison objects in all five targets.
+* **QG record** — the R² vielbein + exact-exponential (**no Taylor truncation**) +
+  interaction-terms description is present in all five targets; densitized/half-density
+  material is always labeled a separate realization or a transfer instrument.
+* **Convolution device** — scoped to NS/QG wherever it is stated (`Book/GribovAmbiguity.lean`,
+  `Book/StandardModel.lean` "plays no role here", `Book/FourierElimination.lean` "NS and QG
+  only", §"2026-09-25" §1 instance list, `../test` `momentum-space-products.md` and its
+  §5.26 pointer).  One nuance kept as-is: `../test/unfer/numerical-validation-guide.md`
+  §5.26 reads "the device belongs to **NS and QG** (and the SM degree split) only" — the
+  parenthetical is the Faris–Lavine *degree-counting* split, not a product-with-derivatives
+  use, so it does not contradict the scope.
+
+The six copied 2026-10-15c chapters were read against the same three axes: they state
+one-particle/comparison-level mathematics and make no final-Hamiltonian claim that the
+convention would contradict.  **No edit was needed in `BookProof/`, `../test/` or the
+numerical guide in this pass.**
+
+### 4. Flag **F5** (new) — `ARISTOTLE_SUMMARY.md` describes a run whose artifacts are not in this tree
+
+The summary copied from `../internal-final_aristotle` (run `8c1a652e…`) claims: a new file
+`BookProof/ChapterNsLagrangianComparisonEsa.lean` with `lagComparison_esa` / `lagKoopman_esa`
+— *the comparison `N_L = H_L² + 1 + ½|v|² + V_κ(ξ)` proved ESA with no extra hypotheses* — the
+`ChapterKvnKato*` chapters entering `BookProof.lean` "for the first time", two `#print
+axioms` lines in `ChapterRoadmapAudit.lean`, and new entries `§"2026-10-16"` in `STATUS.md`
+and this plan.  **None of these exist in this tree**: no `ChapterNsLagrangianComparisonEsa.lean`
+and no `ChapterKvnKato*` anywhere under `/home/leo/Projects`, no `§"2026-10-16"` entry in either
+file, and the summary's claim directly contradicts the 2026-10-15c flag ("the `N_L`
+hypothesis stays explicit").  The file was copied as instructed; until this is resolved
+**do not implement from `ARISTOTLE_SUMMARY.md`**.  Resolution is step 1 of §5.
+
+*Search closed 2026-10-16 (negative).*  `../internal-final_aristotle` was searched
+exhaustively (`rg`, `.lake` included); the full git history of all eight local repos
+(`git log --all --diff-filter=A -- '*NsLagrangianComparison*' '*KvnKato*'`,
+`--grep=8c1a652e`, stashes, every reachable tree's `ls-tree`), both timepiece
+remote-tracking branches, and a `git fetch --dry-run` all come back empty — the run's
+artifacts are persisted nowhere this workspace can reach, so step 1 defaults to *mark the
+summary stale* unless an external copy surfaces.
+
+***Resolved later that day.***  The artifacts were regenerated from
+`MISSING_FILES_CONTENTS.md` — the manifest of run e9b2b456, itself present in this repo —
+which carries the full contents of the eight modules plus the `BookProof.lean` import, the
+two `#print axioms` lines, and the `STATUS.md` / plan sections.  All six claims of
+`ARISTOTLE_SUMMARY.md` §"2026-10-16" check out against them (file count, theorem names,
+import, audit lines, both sections), so no staleness marking is needed.  F5 is closed; the
+final section of this file records the closure.
+
+### 5. Work order for the LLM-Lean4-specialist (ordered; each step names its own acceptance)
+
+| step | what | why / consumes | may remain open? |
+|---|---|---|---|
+| **0** | **Compile the prose layer.**  Name-level checks are done (§1); elaborate the edited `Book/` chapters — the six of §1 plus `Book/FourierElimination.lean`, touched later on 2026-10-16 — and the whole book: `lake build` then `./patches/build-book.sh` and `./patches/check-katex.sh`.  Fix only name/ elaboration fallout; do not restructure prose. | the pass above was deliberately uncompiled (house rule); §"2026-09-25" §5 item 1's compile obligation now covers these chapters too. | no |
+| **1** | **Resolve flag F5 — DONE (2026-10-16, later):** the artifacts were regenerated from `MISSING_FILES_CONTENTS.md` (the manifest of run e9b2b456) — the eight modules, the `BookProof.lean` import, the two `#print axioms` lines, and the `STATUS.md` / plan sections; the six claims of `ARISTOTLE_SUMMARY.md` §"2026-10-16" check out against them, and §4 is closed below. | §4 above + this file's final entry | no — done |
+| **2** | **QG-D-C.1 — the one named gap.**  Discharge `hflat`: route R1 (Chernoff finite-speed / unique continuation for the flat d'Alembertian + polynomial potential on the `L²(ℝ⁸⁴)` core) or route R2 (fiberwise Faris–Lavine, `qgR2Mode_potential_ge` extended fiberwise), with the direct-integral reduction and the dense-invariant-domain interchange as sub-obligations; `ChapterQgContinuumFiniteSpeed.lean`. | §"2026-10-15b" QG-D-C — unchanged; QG-D-C.2/3 now wait only on it | **yes — the only row allowed open** |
+| **3** | **The `N_L` hypothesis — DONE (2026-10-16, later):** closed exactly on the ordered route — `KvnKato.lyapunovComparison_esa_poly` with the Lyapunov polynomial `P = E + ½\|ξ\|²` — as `lagComparison_esa` + `lagKoopman_esa` in `BookProof/ChapterNsLagrangianComparisonEsa.lean` (restored from `MISSING_FILES_CONTENTS.md`), with `#print axioms` lines in `ChapterRoadmapAudit.lean`; the Kato pipeline is the seven `ChapterKvnKato*` chapters.  See this file's final entry. | was: `ChapterKoopmanLyapunovFarisLavine.lean`, `ChapterNsLagrangianDetFarisLavine.lean` | no — done |
+| **4** | **NS mainstream nonlinear leg.**  ESA of the square comparison `N_NS = H² + 1 + ‖u‖²` on the Gauss core (`nsKoopman_esa_of_squareComparison_esa`'s hypothesis), or the orbit route `FlowDGamma.deficiencyTrivialAt_of_orbits` once Mathlib provides smooth dependence of the flow on initial data. | §09-25 §5 item 3 (unchanged) | C |
+| **5** | **QYM one-particle form gap** — the programme's top analytic input (`§"2026-10-04b"` §N2); everything downstream (`ym_dGamma_esa` unconditional chain) waits on it. | §09-25 §5 item 4 (unchanged) | C |
+| **6** | **Hygiene.**  `nix-shell -p python3 --run "bash scripts/health.sh"`, `bash scripts/verify-invariants`, `nix-shell -p python3 --run "python3 scripts/doc_index.py --check"`; update `CURRENT_WORK_ORDER.md` (the book row must point at this entry; add flag F5 to the flags section); append a `STATUS.md` row for steps 0–6 as they land. | the routing table exists so appended entries are not invisible | no |
+
+**Acceptance checklist for this pass's prose (step 0).**  (a) `lake build` elaborates the six
+edited `Book/` chapters with every new `#check` resolving; (b) the book renders
+(`./patches/build-book.sh`) and `./patches/check-katex.sh` exits 0 — in particular the new
+math spans; (c) no `#check` name was removed or renamed to make the build pass — a name
+that fails is a bug in the prose, reported, not silenced; (d) `scripts/health.sh` green;
+(e) `STATUS.md` and this plan gain their rows — appended, never edited.
+
+### 6. Boundary (unchanged, stated once)
+
+No continuum NS regularity, no Yang–Mills or QG mass gap, no continuum QYM convergence,
+no ESA of the original variables (`x` on `C_c^∞`, Eulerian, `1/e`), no SM parameter
+derivation.  QG-D-C.1 remains the single open row the plan permits.  This entry contains
+no Lean proof code: it is prose and a work order for the LLM-Lean4-specialist, per the
+project's convention.
+
+## State of the project — 2026-10-16: the Koopman comparison `N_L = H_L² + E` is ESA — closed-by pointers
+
+The open input recorded at the end of §"2026-10-15d" — essential self-adjointness of the
+Koopman comparison `N_L = H_L² + E` (hypothesis of
+`NsLagrangianDetFL.lagKoopman_esa_of_comparison_esa`) — is **closed**.  Earlier entries are not
+edited; this entry only appends the pointers.
+
+| item | status | closed by |
+|---|---|---|
+| ESA of `N_L = H_L² + E` on the Gauss–polynomial core of `L²(ℝ^{PIdx K})` | **closed, unconditional** | `BookProof/ChapterNsLagrangianComparisonEsa.lean`: `NsLagrangianComparisonEsa.lagComparison_esa` |
+| ESA of the Lagrangian Koopman generator `H_L` | **closed, unconditional** | `NsLagrangianComparisonEsa.lagKoopman_esa` (= `lagKoopman_esa_of_comparison_esa S (lagComparison_esa S)`) |
+
+**Route.**  `KvnKato.lyapunovComparison_esa_poly` (`BookProof/ChapterKvnKatoPoly.lean`): for a
+real polynomial vector field `G` and a real polynomial `E ≥ 1`, `N = H_G² + E` is ESA on the
+Gauss–polynomial core as soon as there is a real polynomial `P` with `‖y‖ ≤ P(y)` and
+`|G·∇P| ≤ c₀ P` (a deficiency vector is transferred to a weak solution against `C_c^∞` by the
+Hermite graph approximation, then killed by the Kato argument along the complete flow).  The
+energy `E` is not proper (the penalty vanishes on the unbounded incompressible set), so the
+Lyapunov polynomial is `P = E + ½|ξ|²`: `lagLyapFlux_eq` (`F·∇P = −ν Σ|k|² v² + ξ·v`),
+`abs_eval_lagLyapFlux_le` (`|F·∇P| ≤ (2νΛ + 1) P`), `norm_le_lagP` (`‖y‖ ≤ 1 + ½‖y‖² ≤ P`).
+
+**Acceptance.**  `lake build BookProof.ChapterNsLagrangianComparisonEsa` green; no `sorry`, no
+`axiom`; `#print axioms` lines appended to `ChapterRoadmapAudit.lean` report only `propext,
+Classical.choice, Quot.sound`; the module is imported from `BookProof.lean`.
+
+**Boundary.**  Galerkin truncation (finite `K`), volume penalty with finite bulk modulus `κ`
+(no `κ → ∞` limit), viscous term at `F = I` — exactly as in `ChapterNsLagrangianDetFarisLavine`.
+No continuum NS regularity, no mass gap.
