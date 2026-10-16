@@ -1,11 +1,11 @@
 {
  "version": 1,
- "generated_at": "2026-10-06T16:37:53+00:00",
+ "generated_at": "2026-10-16T15:34:12+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
    "title": "AGENTS.md - Developer Guide for AI Coding Agents",
-   "lines": 279,
+   "lines": 319,
    "headings": [
     "# AGENTS.md - Developer Guide for AI Coding Agents",
     "## Workspace Layout & File Map",
@@ -19,6 +19,8 @@
     "# One-shot book build (patches + render + postprocess). Idempotent.",
     "# -> _out/html-single/index.html",
     "# -> re-renders every math snippet with throwOnError: true; exits non-zero on any failure",
+    "## Repository scripts",
+    "# copy-pasteable in a clean shell:",
     "## Formalization State",
     "## Mass-Gap Formalization (self-contained in `unfer_contracts/`)",
     "## Priority Attack Order for Next Agent",
@@ -235,7 +237,7 @@
   {
    "path": "ATTRIBUTION.md",
    "title": "Attribution",
-   "lines": 20,
+   "lines": 21,
    "headings": [
     "# Attribution",
     "## Notes"
@@ -294,7 +296,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 17020,
+   "lines": 17459,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -481,7 +483,10 @@
     "## State of the project — 2026-10-05: the analytic-decision-engine work orders (plan only; no Lean code in this entry)",
     "## State of the project — 2026-10-05b: the Faris–Lavine comparison operators N for the Lagrangian lines (NS + QG) — work order",
     "## State of the project — 2026-10-06: PLAN M (planner side) landed, and the work orders its findings create (plan only; no Lean code in this entry)",
-    "## State of the project — 2026-10-06b: the sector correction — the campaign measured an intra-sector diagnostic, and §M4.9 gates §M4.3 (plan only; no Lean code in this entry)"
+    "## State of the project — 2026-10-06b: the sector correction — the campaign measured an intra-sector diagnostic, and §M4.9 gates §M4.3 (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-07: RH/RandomMap's two owner questions routed (C2 authority, C4 sequencing) (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-15: closing the ESA of the TRANSFORMED operator — work order for the LLM-Lean4-specialist (plan only; no Lean code in this entry)",
+    "## State of the project — 2026-10-15b: closing the two open halves of the transformed-ESA entry — executable Lean plan for the LLM-Lean4-specialist (plan only; no Lean code in this entry)"
    ]
   },
   {
@@ -1502,6 +1507,14 @@
    ]
   },
   {
+   "path": "TODO_LEDGER.md",
+   "title": "TODO ledger — reviewed code markers",
+   "lines": 15,
+   "headings": [
+    "# TODO ledger — reviewed code markers"
+   ]
+  },
+  {
    "path": "bkPrompts.md",
    "title": "Chapter SirkRitzMinMax — the higher Rayleigh–Ritz levels and the Ritz gap",
    "lines": 702,
@@ -1599,6 +1612,10 @@
   {
    "source": "AGENTS.md",
    "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "AGENTS.md",
+   "target": "TODO_LEDGER.md"
   },
   {
    "source": "AGENTS.md",
@@ -1798,6 +1815,14 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "DOC_INDEX.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "FORMALIZATION_ROADMAP.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "HAMILTONIAN_AUDIT_20260918.md"
   },
   {
@@ -1815,6 +1840,14 @@
   {
    "source": "CONSOLIDATED_PLAN.md",
    "target": "HONEST_BOUNDARIES_SM.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "IMPLEMENTATION_PLAN.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "IMPLEMENTATION_PLAN_RCP.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
@@ -1895,6 +1928,18 @@
   {
    "source": "CONSOLIDATED_PLAN.md",
    "target": "REVIEW_THREADS_20260906.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "RandomMap.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "RandomMap2LegacyDraft.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "RandomMap_old.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
