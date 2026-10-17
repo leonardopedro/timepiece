@@ -7,7 +7,24 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-16, later):** **§"State of the project — 2026-10-16: the
+> **Newest entry (2026-10-17b):** **§"State of the project — 2026-10-17b:
+> `BookProof/` split plan and the redundancy / legacy / dead-end inventory"** — the
+> plan document `BOOKPROOF_SPLIT_PLAN.md` (repo root): folder taxonomy for the 807
+> flat modules, a four-phase gated execution order for the LLM-Lean4-specialist, and
+> the three-way inventory (redundant / legacy / dead-end) with the attention-part
+> decision flagged for the plan owner; tracked by the `BookProof layout` row of
+> `CURRENT_WORK_ORDER.md`.  **Preceded by (2026-10-17):** **§"State of the project
+> — 2026-10-17:
+> QG-D-C.1 (`hflat`) closed — the restored continuum module, and the work order
+> refreshed"** at the very end of this file — the second pasted
+> `MISSING_FILES_CONTENTS` manifest carried `BookProof/ChapterQgFlatContinuumEsa.lean`
+> (465 lines): the flat densitized operator on `L²(ℝ⁸⁴)` is ESA with trivial deficiency
+> at every non-real `z` **under the sign condition that makes the statement true**,
+> `qg_flat_transfer_esa` discharges `hflat` as a theorem, the `BookProof.lean` import,
+> the 15 `#print axioms` lines and the `lakefile.toml` root are wired (import gate
+> green), routes R1/R2 are superseded by the factorisation route, and the work order
+> gains step **2a** (the assembled-side alignment) with steps 1 and 3 already closed.
+> **Preceded by (2026-10-16, later):** **§"State of the project — 2026-10-16: the
 > Koopman comparison `N_L = H_L² + E` is ESA — closed-by pointers"** at the very end
 > of this file — the restored run (manifest `MISSING_FILES_CONTENTS.md`): seven
 > `ChapterKvnKato*` chapters plus `ChapterNsLagrangianComparisonEsa`
@@ -19,9 +36,9 @@
 > this file (six new `Book/` sections that read the six 2026-10-15c chapters
 > pedagogically; the enclosure / QG-R²-full-exponential / momentum-convolution
 > audit over `CONSOLIDATED_PLAN.md`, `BookProof/`, `Book/`, `../test/` and the
-> numerical guide — no violations; flag **F5** (resolved — see the newest entry);
+> numerical guide — no violations; flag **F5** (resolved — see the entries below);
 > work order steps 0–6 — compile the prose layer first, of which steps 1 and 3 are
-> closed by the newest entry).  Preceded by **§"State of
+> closed in place, and step 2 by the 2026-10-17 entry).  Preceded by **§"State of
 > the project — 2026-10-15c: the 2026-10-15b work order executed — closed-by
 > pointers (ODE-C.1–3, NS-L-C.1–3, QG-D-C.2–3; QG-D-C.1 open as planned)"**.
 > The chain continues with **§"State of the project — 2026-10-15b:
@@ -17633,7 +17650,7 @@ final section of this file records the closure.
 |---|---|---|---|
 | **0** | **Compile the prose layer.**  Name-level checks are done (§1); elaborate the edited `Book/` chapters — the six of §1 plus `Book/FourierElimination.lean`, touched later on 2026-10-16 — and the whole book: `lake build` then `./patches/build-book.sh` and `./patches/check-katex.sh`.  Fix only name/ elaboration fallout; do not restructure prose. | the pass above was deliberately uncompiled (house rule); §"2026-09-25" §5 item 1's compile obligation now covers these chapters too. | no |
 | **1** | **Resolve flag F5 — DONE (2026-10-16, later):** the artifacts were regenerated from `MISSING_FILES_CONTENTS.md` (the manifest of run e9b2b456) — the eight modules, the `BookProof.lean` import, the two `#print axioms` lines, and the `STATUS.md` / plan sections; the six claims of `ARISTOTLE_SUMMARY.md` §"2026-10-16" check out against them, and §4 is closed below. | §4 above + this file's final entry | no — done |
-| **2** | **QG-D-C.1 — the one named gap.**  Discharge `hflat`: route R1 (Chernoff finite-speed / unique continuation for the flat d'Alembertian + polynomial potential on the `L²(ℝ⁸⁴)` core) or route R2 (fiberwise Faris–Lavine, `qgR2Mode_potential_ge` extended fiberwise), with the direct-integral reduction and the dense-invariant-domain interchange as sub-obligations; `ChapterQgContinuumFiniteSpeed.lean`. | §"2026-10-15b" QG-D-C — unchanged; QG-D-C.2/3 now wait only on it | **yes — the only row allowed open** |
+| **2** | **QG-D-C.1 — closed 2026-10-17 (was: the one named gap).**  `hflat` is discharged by the restored `BookProof/ChapterQgFlatContinuumEsa.lean` — routes R1/R2 superseded by the factorisation route (`flatOp_esa` over any two Hilbert spaces + `exists_schOp_repr` + `prodUnitary` + the Kato-type `hamCoreS_esa`), **under the sign condition that makes the row true** (conformal potential with the kinetic sign — the densitized `−y²·Q_b` term for `Q_b ≥ 0`; the opposite sign is Weyl limit-circle with deficiency `(2,2)`) — and exported by `qg_flat_transfer_esa`.  **Residual step 2a:** align the flat side `P'.total` of `qg_assembled_halfDensity_transfer` with the `qgFlatL2Op` sign-class instance so the theorem is consumed by the assembled chain; start from the module header's "QG-D-C.2 without `hflat`". | §"2026-10-17" at the end of this file | no — content proved; only step 2a remains |
 | **3** | **The `N_L` hypothesis — DONE (2026-10-16, later):** closed exactly on the ordered route — `KvnKato.lyapunovComparison_esa_poly` with the Lyapunov polynomial `P = E + ½\|ξ\|²` — as `lagComparison_esa` + `lagKoopman_esa` in `BookProof/ChapterNsLagrangianComparisonEsa.lean` (restored from `MISSING_FILES_CONTENTS.md`), with `#print axioms` lines in `ChapterRoadmapAudit.lean`; the Kato pipeline is the seven `ChapterKvnKato*` chapters.  See this file's final entry. | was: `ChapterKoopmanLyapunovFarisLavine.lean`, `ChapterNsLagrangianDetFarisLavine.lean` | no — done |
 | **4** | **NS mainstream nonlinear leg.**  ESA of the square comparison `N_NS = H² + 1 + ‖u‖²` on the Gauss core (`nsKoopman_esa_of_squareComparison_esa`'s hypothesis), or the orbit route `FlowDGamma.deficiencyTrivialAt_of_orbits` once Mathlib provides smooth dependence of the flow on initial data. | §09-25 §5 item 3 (unchanged) | C |
 | **5** | **QYM one-particle form gap** — the programme's top analytic input (`§"2026-10-04b"` §N2); everything downstream (`ym_dGamma_esa` unconditional chain) waits on it. | §09-25 §5 item 4 (unchanged) | C |
@@ -17682,3 +17699,134 @@ Classical.choice, Quot.sound`; the module is imported from `BookProof.lean`.
 **Boundary.**  Galerkin truncation (finite `K`), volume penalty with finite bulk modulus `κ`
 (no `κ → ∞` limit), viscous term at `F = I` — exactly as in `ChapterNsLagrangianDetFarisLavine`.
 No continuum NS regularity, no mass gap.
+
+## State of the project — 2026-10-17: QG-D-C.1 (`hflat`) closed — the restored continuum module, and the work order refreshed
+
+The row the 2026-10-15b work order left as **"the single row allowed open"** — QG-D-C.1,
+the continuum flat input `hflat` of `qg_assembled_halfDensity_transfer` — is **closed**,
+by the second pasted `MISSING_FILES_CONTENTS` manifest, which carried
+`BookProof/ChapterQgFlatContinuumEsa.lean` (465 lines) — the file the 2026-10-16
+negative search honestly could not find anywhere in the workspace.  The file was
+restored verbatim, the `BookProof.lean` import and the 15 `#print axioms` lines of
+`ChapterRoadmapAudit.lean` were re-added, the `BookProofOperatorCore` root of
+`lakefile.toml` was regenerated (`scripts/import_components.py BookProof
+--write-lakefile`; `--check` green, 477 modules), and the `BUILD_COMPONENTS.md`
+inventory was refreshed (807 modules).  Earlier entries are not edited; this entry only
+appends the pointers.
+
+| item | status | closed by |
+|---|---|---|
+| `DeficiencyTrivialAt` at **every** non-real `z` for the densitized flat operator on `L²(ℝⁿ × ℝ)`, hence ESA + Stone flow (`n = 83` instance: `L²(ℝ⁸⁴)`) | **closed, unconditional modulo the sign condition below** | `BookProof/ChapterQgFlatContinuumEsa.lean`: `qgFlatL2_deficiencyTrivialAt`, `qgFlat84_deficiencyTrivialAt`, `qgFlatL2_esa`, `qgFlatL2_stone_flow` |
+| `hflat`, the hypothesis of `qg_assembled_halfDensity_transfer` (QG-D-C.2) — flat input available for the transfer | **closed as a theorem** | `esa_of_unitary_intertwines` / **`qg_flat_transfer_esa`** ("QG-D-C.2 without `hflat`") |
+| The ordered routes R1 (Chernoff finite-speed / unique continuation) and R2 (fiberwise Faris–Lavine) with `ChapterQgContinuumFiniteSpeed.lean` | **superseded** by the factorisation route | `flatOp_esa` + `exists_schOp_repr` + `prodUnitary` + `hamCoreS_esa` |
+
+**Route.**  The indefinite operator separates over the densitized coordinates:
+`qgFlatOp = flatOp (spatialOp n qs bs) (confOp qc bc)`, i.e.
+`(1/16)(−Δ_x) + V_s(x) − [(1/24)(−∂_y²) + V_c(y)]`, symbol
+`qgSymbol ξ ξ_y = (1/16)|ξ|² − (1/24)ξ_y²` (`BookProof/` §"2026-10-15b", corrected
+wording §"2026-10-15d").  The abstract instrument `flatOp_esa` /
+`flatOp_deficiencyTrivialAt` runs over **any two Hilbert spaces**: for `A`, `B`
+symmetric and ESA on dense domains, `A ⊗ 1 − 1 ⊗ B` on `D_A ⊗ D_B` is ESA with
+trivial deficiency, no positivity or relative bound on the composite used.  The
+factors are covered by `exists_schOp_repr` (every real polynomial potential bounded
+below is of the form `schOp` uses) + the Kato-type `hamCoreS_esa`.
+`prodUnitary : L²(ℝⁿ) ⊗̂ L²(ℝ) ≃ₗᵢ L²(ℝⁿ × ℝ)` then carries the tensor picture to
+the continuum field space, and `conj_deficiencyTrivialAt` /
+`EsaRealShift.deficiencyTrivialAt_of_essentiallySelfAdjointOn` finish.
+
+**Boundary — the sign condition is part of the theorem.**  The conformal potential
+enters with the same sign as the conformal kinetic term — exactly the sign of the
+densitized `− e·Q_b = − y²·Q_b` term for `Q_b ≥ 0`.  For the opposite sign the
+conformal fibre is the Weyl limit-circle class where ESA fails (`−d²/dy² − y⁴`,
+deficiency indices `(2,2)`; `ChapterLimitCircleExample`,
+`ChapterConformalFiberDeficiency`, `ConformalSignFlip.wrongSignKinetic_esa_iff`), so
+"flat d'Alembertian + arbitrary polynomial potential" is false in general.  The
+transport of a fibre deficiency vector to the full operator (tensoring with a spatial
+oscillator eigenvector) is **recorded informally, not formalized**, and non-separable
+(mixed `x`–`y`) polynomial potentials are not covered.  For the enclosure rows nothing
+changes: under the final-Hamiltonian convention `hflat`, the comparison `N_L` and the
+flat densitized operator are one-particle / transfer instruments and are **never
+enclosed** — the record of QYM, QED, QG stays the enclosure
+`dΓ(h)` / `∑ hᵢⱼ C†(eᵢ) A(eⱼ)` of the complete `R²` vielbein operator (full
+exponential wall + interaction terms, no Taylor expansion), and NS stays the
+one-particle Hamiltonian enclosed creation-left / annihilation-right.  The
+momentum-space convolution device remains NS + QG only, at the level where products
+involving field-space derivatives are rewritten; this module never forms such a
+product (its principal part is constant-coefficient).
+
+**Implications for the next proofs.**  (i) The flat core `qgFlatCore n` and
+`qgFlatL2Op` are now reusable targets: any later physical realization can be closed by
+`qg_flat_transfer_esa` instead of a fresh deficiency computation — plan future QG
+transform theorems against its `hmap`/`hsurj`/`hint` data rather than restating
+routes R1/R2.  (ii) An extension to mixed `x`–`y` potentials, or a necessity
+companion (the limit-circle side made exact), would sharpen the row but is **not
+required** by the chain.  (iii) The QG-D-C branch's remaining work is the single
+alignment step in the work order below.
+
+**Acceptance (done in this pass; elaboration deliberately not run).**  File present at
+`BookProof/ChapterQgFlatContinuumEsa.lean` (465 lines) with its manifest imports
+resolving to existing modules; `grep` shows no `sorry` and no `axiom`; import wired
+into `BookProof.lean` and `BookProof/ChapterRoadmapAudit.lean` with all 15
+`#print axioms` lines; `python3 scripts/import_components.py BookProof --check`
+exit 0; `BUILD_COMPONENTS.md` regenerated.  Compile is **step 0 below, for the
+LLM-Lean4-specialist.**
+
+### Work order for the LLM-Lean4-specialist — refreshed 2026-10-17
+
+The §"2026-10-16" work order (steps 0–6) stands, with step 2 closed and step 6's
+hygiene item requiring the `STATUS.md` row appended in this pass; the current table is:
+
+| step | what | why / consumes | may remain open? |
+|---|---|---|---|
+| **0** | **Compile the prose + proof layer.**  `lake build` then `./patches/build-book.sh` and `./patches/check-katex.sh`; the compile scope now also includes `BookProof/ChapterQgFlatContinuumEsa.lean`, the `BookProof.lean` / `ChapterRoadmapAudit.lean` additions and the `Book/DiffeomorphismsGravity.lean` closure prose of this entry.  Fix only name/elaboration fallout; do not restructure prose. | house rule — this pass was deliberately uncompiled | no |
+| **2a** | **Align the assembled flat side (the QG-D-C residual).**  Identify the flat-side operator `P'.total` of `qg_assembled_halfDensity_transfer` with the `qgFlatL2Op` sign-class instance (`spatialOp`/`confOp` at the densitized potentials) and feed it `qgFlatL2_deficiencyTrivialAt` through `qg_flat_transfer_esa` (or restate the `hflat` hypothesis in `DeficiencyTrivialAt` vocabulary), so QG-D-C.2/3 become unconditional at the one-particle level.  Start from the module header's "QG-D-C.2 without `hflat`". | §"2026-10-17" above; `BookProof/ChapterQgAssembledTransfer.lean` | no — the only QG-D-C.1 residue left |
+| **4** | **NS mainstream nonlinear leg.**  ESA of the square comparison `N_NS = H² + 1 + ‖u‖²` on the Gauss core (`nsKoopman_esa_of_squareComparison_esa`'s hypothesis), or the orbit route `FlowDGamma.deficiencyTrivialAt_of_orbits` once Mathlib provides smooth dependence of the flow on initial data. | §09-25 §5 item 3 (unchanged) | C |
+| **5** | **QYM one-particle form gap** — the programme's top analytic input (§"2026-10-04b" §N2); everything downstream (`ym_dGamma_esa` unconditional chain) waits on it. | §09-25 §5 item 4 (unchanged) | C |
+| **6** | **Hygiene.**  `bash scripts/health.sh`, `bash scripts/verify-invariants`, `python3 scripts/doc_index.py --check`, `python3 scripts/check-links`; `CURRENT_WORK_ORDER.md` rows repointed at this entry; `STATUS.md` row appended (done). | the routing table exists so appended entries are not invisible | no |
+
+Steps 1 and 3 of the previous table are already marked DONE in place; step 0's earlier
+instance is superseded by step 0 above (wider compile scope), and old step 2 (R1/R2)
+is superseded by 2a.
+
+## State of the project — 2026-10-17b: `BookProof/` split plan and the redundancy / legacy / dead-end inventory
+
+**Plan document created: `BOOKPROOF_SPLIT_PLAN.md`** (repo root; plan only — nothing
+moved, renamed or deleted, nothing compiled).  It records the measured layout — 807
+flat modules, 86 orphan directories holding the 192 stale `X/Part*.lean` copies, 112
+import-graph parts of which `BookProofOperatorCore` is 477 modules / 119 roots — a
+target folder taxonomy (`Toolbox/ Ns/ Qg/ Qym/ Sm/ Qed/ Sirk/ Ode/ Probability/
+Attention/ Textbook/ RoadmapAudit/`), a four-phase gated execution order for the
+LLM-Lean4-specialist (Phase 0 delete the declared-stale orphans after a
+declaration diff; Phase 1 folder the already-independent parts; Phase 2 folder the
+core *after* publishing the domain × domain cross-import matrix, cutting new lake
+parts only where the matrix shows a clean seam; Phase 3 renames/consolidations,
+Phase 4 the perpetual gates), and the three-way inventory the question asked for:
+
+* **redundant (delete):** the 192 orphan `PartN` copies only; worktree junk
+  (`witness`, `*_tmp`, `ScriptSketchInfo`, `YNOT_IGNORED`) already absent 2026-10-17;
+* **legacy/superseded (keep, out of the critical path, folder + annotate):** the
+  vacuous-as-stated Leray-energy leg of `ChapterNsKoopman`, the QG R1/R2 ordering
+  (superseded by `ChapterQgFlatContinuumEsa`; `ChapterQgContinuumFiniteSpeed.lean`
+  never existed), the classical-geometry vocabulary cluster, `smComparison`
+  (refuted as a comparison, still needed by the fermionic completion), the 80
+  lettered `ChapterA1…H9` textbook relics and 17 unprefixed utility names, and the
+  track-less 75-module attention/ML part — **decision flagged for the plan owner**;
+* **dead ends (honest negative records — retain and build, never consume as
+  positive input):** `not_nsEnergy_surjective`,
+  `not_farisLavine_criterion_of_relative_bound`,
+  `nsKoopmanOp_not_bounded_below`/`not_positive`, `nsResPoly_not_affine`,
+  `leadCoeff_volumePoly`/`not_unit_volumePoly`, the limit-circle family
+  (`ChapterHalfLineLimitCircle`, `ChapterLimitCircleExample`,
+  `ChapterConformalFiberDeficiency`, `wrongSignKinetic_esa_iff` — the reason
+  QG-D-C.1's sign condition exists), `ChapterFockCubicUnbounded`,
+  `ChapterTempleSeparationNecessary`, and 107 files carrying `not_`/`false_`
+  declarations overall.
+
+**Why folders are not targets** is stated in the document: a folder move renames the
+Lean module, so `Book/` `#check`s, the `#print axioms` audit and every
+`BookProof/ChapterX.lean` path cited in `../test/` (drift gate) must move in the same
+commit; and independence is a property of the import graph, measured first.
+
+**Work order:** tracked by the new `BookProof layout` row of `CURRENT_WORK_ORDER.md`;
+phases are ordered and acceptance-checked in `BOOKPROOF_SPLIT_PLAN.md` §3; compile
+gates stay with the LLM-Lean4-specialist (this pass ran no `lake`).

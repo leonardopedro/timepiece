@@ -1476,16 +1476,33 @@ QG face of the same bridge the NS and ODE chapters use.
 :::
 
 :::paragraph
-**QG-D-C.1 — the one named gap, still open by design.**  The hypothesis
+**QG-D-C.1 — the flat input, now a theorem (2026-10-17).**  The hypothesis
 `hflat` of the transfer — vanishing deficiency of the densitized assembled
 operator, whose kinetic term is the flat d'Alembertian
 $`(1/16)\sum\partial^2 - (1/24)\partial_y^2` on the continuum
-$`L^2(\mathbb{R}^{84})` — is precisely the continuum input the plan keeps
-open: route R1 is the finite-speed/unique-continuation residue of
-`strichartz_esa_of_finiteSpeed`, route R2 the fiberwise Faris–Lavine residue
-of `qg_esa_of_farisLavine`.  It enters the theorems only as the explicit
-named hypothesis, never as a claimed result; this is the single row the plan
-allows to remain open.
+$`L^2(\mathbb{R}^{84})` — was the continuum input the plan kept open (routes
+R1, R2 above).  It is discharged by `BookProof/ChapterQgFlatContinuumEsa.lean`:
+the indefinite operator *separates* over the densitized coordinates as
+$`A \otimes 1 - 1 \otimes B` — the shear factor
+$`(1/16)(-\Delta_x) + V_s` above, the conformal factor
+$`(1/24)(-\partial_y^2) + V_c` (signs as on the left) below.  Each factor is
+essentially self-adjoint on its Gauss–polynomial core by the Kato-type theorem
+(`exists_schOp_repr` covers every real polynomial potential bounded below), and
+`flatOp_esa` / `flatOp_deficiencyTrivialAt` assemble them over any two Hilbert
+spaces — no positivity of the composite is used, because there is none.  The
+product unitary `prodUnitary : L²(ℝⁿ) ⊗̂ L²(ℝ) ≃ L²(ℝⁿ × ℝ)` then carries the
+tensor picture to the continuum field space span of products $`f(x)g(y)`, giving
+`qgFlatL2_deficiencyTrivialAt`, the field-space instance
+`qgFlat84_deficiencyTrivialAt` ($`n = 83`), and the Stone flow
+`qgFlatL2_stone_flow`.  `qg_flat_transfer_esa` feeds the result into the transfer
+above as *data*.  The sign is part of the theorem, not a convenience: the
+conformal potential enters with the conformal kinetic term's sign — exactly the
+sign of the densitized $`-e \cdot Q_b = -y^2 Q_b` term for $`Q_b \ge 0` — because
+for the opposite sign that fibre is the Weyl limit-circle class where essential
+self-adjointness fails ($`-d^2/dy^2 - y^4` has deficiency indices $`(2,2)`, proved
+in `ChapterLimitCircleExample`).  What remains of the branch is one alignment
+step — identifying this flat operator with the assembled chain's flat side
+(`CONSOLIDATED_PLAN.md` §"State of the project — 2026-10-17", step 2a).
 :::
 
 :::paragraph
@@ -1496,9 +1513,11 @@ remains the enclosure $`d\Gamma(h)` of the $`R^2` vielbein operator with the
 full exponential wall and the interaction terms, creation left / annihilation
 right (`qgFull_dGamma_esa`, above).  What the transfer buys for the enclosure
 is immediate: an `h` known to have a unique self-adjoint realization encloses
-by the second-quantization theorem without further analysis, and discharging
-`hflat` would promote the whole assembled chain from conditional to
-unconditional at the one-particle level.
+by the second-quantization theorem without further analysis, and with `hflat`
+discharged (2026-10-17, `ChapterQgFlatContinuumEsa`) the assembled chain stands
+on its alignment step alone (`CONSOLIDATED_PLAN.md` §"State of the project —
+2026-10-17", step 2a) — unconditional at the one-particle level once that
+identification is in hand.
 :::
 
 ```
@@ -1509,6 +1528,9 @@ unconditional at the one-particle level.
 #check @BookProof.QgAssembledTransfer.qg_assembled_conformal_hasZeroDeficiencyOn
 #check @BookProof.QgAssembledTransfer.qg_assembled_stone_flow_of_flat
 #check @BookProof.QuantumGravityHalfDensity.halfDensityUnitary
+#check @BookProof.QgFlatContinuumEsa.qgFlatL2_deficiencyTrivialAt
+#check @BookProof.QgFlatContinuumEsa.qgFlat84_deficiencyTrivialAt
+#check @BookProof.QgFlatContinuumEsa.qg_flat_transfer_esa
 ```
 
 # Summary
@@ -1527,4 +1549,4 @@ The algebraic core of the manuscript's diffeomorphisms/gravity chapter:
  * the bounded, nonzero, nilpotent BRST charge on the *completed* graded space $`\ell^2` of joint boson/ghost occupations, an explicit commuting unitary group, and the resulting reduced transfer: the evolution preserves the physical states and descends to the BRST cohomology as a norm-preserving one-parameter group of automorphisms.
  * the enclosure of the complete gauge-fixed one-particle Hamiltonian — vielbein/torsion kinetic terms, the exact exponential Einstein-frame wall with no Taylor truncation, and the scalaron–vielbein interaction terms — on the symmetrized tensor powers of `secCore`, on the bosonic Fock spaces and on the finite-particle domain, creation left / annihilation right (`qgFull_bosonic_core_esa`, `qgFull_bosonicFock_esa`, `qgFull_hbosonicFock_esa`, `qgFull_dGamma_esa`); the one-particle input is `qgFull_esa_core_fl`, and the boundary of the enclosing chapter is the 84-dimensional operator with cross terms, which the next bullet's chapter treats at frozen density.
  * the 3D density with its three density-dependent places — the $`1/e` kinetic coefficient, the densitized $`\sqrt e` momenta, the polynomial $`e` in front of the bracket — for every real density, inverse tetrad and bracket, frozen or fibred over a family of backgrounds (`qg3DDensity_esa`, `qg3DDensitized_esa`, `qgFibredDensity_esa`, with the enclosures `qg3DDensity_dGamma_esa` / `qg3DDensity_dGammaOp_esa`), the non-frozen density (a canonical variable) stated as the honest boundary.
- * the **assembled** gauge-fixed Hamiltonian — kinetic + potential + ghost + gauge-fixing, packaged as `QgPieces` and summed — transferred termwise through the half-density unitary (`assembled_transfer`, `qg_assembled_halfDensity_transfer`), with the conformal-mode instance discharging every hypothesis unconditionally (`qg_assembled_conformal_hasZeroDeficiencyOn`) and the Stone flow of the physical total (`qg_assembled_stone_flow_of_flat`); the continuum flat input `hflat` (QG-D-C.1) remains the one named open hypothesis, and all of it is one-particle content — the record stays the enclosed $`d\Gamma(h)` above.
+ * the **assembled** gauge-fixed Hamiltonian — kinetic + potential + ghost + gauge-fixing, packaged as `QgPieces` and summed — transferred termwise through the half-density unitary (`assembled_transfer`, `qg_assembled_halfDensity_transfer`), with the conformal-mode instance discharging every hypothesis unconditionally (`qg_assembled_conformal_hasZeroDeficiencyOn`) and the Stone flow of the physical total (`qg_assembled_stone_flow_of_flat`); the continuum flat input `hflat` (QG-D-C.1) is now proved — `qgFlat84_deficiencyTrivialAt`, `qgFlatL2_stone_flow`, exported by `qg_flat_transfer_esa`, under the sign condition stated in the section above — with only the assembled-side alignment (plan step 2a) left to consume it, and all of it is one-particle content: the record stays the enclosed $`d\Gamma(h)` above.

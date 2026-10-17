@@ -12774,3 +12774,32 @@ Six new `sorry`-free, `axiom`-free chapters (imported from `BookProof.lean`, aud
   polynomial Lyapunov function `P = E + ½|ξ|²` (`F·∇P = −νΣ|k|²v² + ξ·v`, `|F·∇P| ≤ (2νΛ+1)P`,
   `‖y‖ ≤ P(y)`).  Audit lines in `ChapterRoadmapAudit.lean`; `#print axioms` reports only
   `propext, Classical.choice, Quot.sound`.
+
+## 2026-10-17 — QG-D-C.1 (`hflat`) closed: `ChapterQgFlatContinuumEsa`
+
+* `BookProof/ChapterQgFlatContinuumEsa.lean` — restored from the second pasted
+  manifest (465 lines; no `sorry`, no `axiom` at content level). The densitized flat
+  gravity operator `(1/16)(−Δ_x) + V_s − [(1/24)(−∂_y²) + V_c]` (`V_s`, `V_c` real
+  polynomials bounded below, conformal potential with the kinetic sign — the densitized
+  `−y²·Q_b` sign for `Q_b ≥ 0`) is essentially self-adjoint on the Gauss–polynomial
+  product core of `L²(ℝⁿ × ℝ)` with **trivial deficiency at every non-real `z`**
+  (`qgFlatL2_esa`, `qgFlatL2_deficiencyTrivialAt`, the `n = 83` instance
+  `qgFlat84_deficiencyTrivialAt`) and a complete unitary (Stone) flow
+  (`qgFlatL2_stone_flow`); `qg_flat_transfer_esa` discharges the flat input `hflat`
+  of `qg_assembled_halfDensity_transfer` **as a theorem** (QG-D-C.2 without `hflat`).
+  Route: the abstract factor instrument `flatOp_esa` / `flatOp_deficiencyTrivialAt`
+  (`A ⊗ 1 − 1 ⊗ B` over any two Hilbert spaces), the Kato-type factor theorem
+  `HermiteGraphApprox.hamCoreS_esa`, and the product unitary
+  `prodUnitary : L²(ℝⁿ) ⊗̂ L²(ℝ) ≃ L²(ℝⁿ × ℝ)`. **Sign condition is part of the
+  statement:** for the opposite sign the conformal fibre is the Weyl limit-circle
+  class (`−d²/dy² − y⁴`, deficiency indices `(2,2)`),
+  `ConformalSignFlip.wrongSignKinetic_esa_iff` / `ChapterLimitCircleExample`; mixed
+  `x`–`y` potentials are not covered.
+* Bookkeeping: `import BookProof.ChapterQgFlatContinuumEsa` added to `BookProof.lean`
+  and `BookProof/ChapterRoadmapAudit.lean`, 15 `#print axioms` lines appended to the
+  audit; the `BookProofOperatorCore` root of `lakefile.toml` regenerated
+  (`import_components.py --write-lakefile`) and `--check` green (477 modules);
+  `BUILD_COMPONENTS.md` inventory refreshed (807 modules). Elaboration deliberately
+  not run — compile remains the specialist's step 0. `Book/DiffeomorphismsGravity.lean`
+  prose updated to record the closure (qg-enclosures / proof-plans / ode-singularity /
+  cadabra-modules sync'd in `../test`).
