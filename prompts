@@ -8,112 +8,194 @@ Step 0 (gates)
 I also flagged that the Yang–Mills one-particle gap statement ⟪x, H₁x⟫ ≥ μ‖x‖² may be false: the spatial coordinates don't appear in the operator at all, and the magnetic field is affine in the derivative coordinates, which carry no momenta. It should be tested before anyone tries to prove it.
 
 
-Update ../timepiece : from folder /home/leo/Downloads/597de982-cf77-45e0-b71a-c20d5a486eff-aristotle/output-final_aristotle copy the files:
+Update ../timepiece : from folder ../internal-final_aristotle copy the files:
 
-Book/
-DiffeomorphismsGravity.lean
-+31
-NsComparisonOperator.lean
-+6
-NsOneParticleHamiltonian.lean
-+33 -5
-SecondQuantizationEsa.lean
-+13 -7
-SpinStatistics.lean
-+2 -2
-StandardModel.lean
-+96 -2
 
 BookProof/
-ChapterEsaFarisLavineIndex.lean
-+3 -2
-ChapterFarisLavineDenseCore.lean
-+459
-ChapterKoopmanLyapunovFarisLavine.lean
-+221
-ChapterL2TensorPowerUnitary.lean
-+401
-ChapterNsEnergySurjectivityObstruction.lean
-+103
-ChapterNsFullLagrangianFockEsa.lean
-+182
-ChapterNsLagrangianDetConvolution.lean
-+348
-ChapterNsLagrangianDetFarisLavine.lean
-+421
-ChapterNsLagrangianOuterFockEsa.lean
-+172
-ChapterNsLinearKoopmanEsa.lean
-+294
-ChapterNsNonlinearFarisLavine.lean
-+165
-ChapterNsReducedCoreEsa.lean
-+83
-ChapterNsSymmetricSector.lean
-+119
-ChapterQg3DCrossTermEsa.lean
-+223
-ChapterQg3DDensityEsa.lean
-+292
-ChapterQgSymmetricSector.lean
-+110
-ChapterSmFockEsa.lean
-+112
-ChapterSmFullEnclosure.lean
-+150
-ChapterSmYukawaCoupling.lean
-+285
-ChapterTensorKatoRellich.lean
-+311
-ChapterYangMillsNonAbelianEsa.lean
-+307
+ChapterEsaRealShift.lean
++254
+ChapterLiftedComparisonEsa.lean
++140
+ChapterMomentumChartEsa.lean
++56
+ChapterNsComparisonEsa.lean
++211
+ChapterOdeChartTransfer.lean
++363
+ChapterQgAssembledTransfer.lean
++202
+ChapterRoadmapAudit.lean
++32
 
-scripts/
-import_components.py
-+118 -6
+.lake/packages/subverso/.github/workflows/
+ci-module.yml
+-52
+ci-pre-module.yml
+-87
+demodulize.yml
+-44
+formalities.yml
+-29
+nightly.yml
+-63
+run-ci.yml
+-73
 
-Work/
-DensitySectorAudit.lean
-+44
-EnclosureEsaAudit.lean
-+19
-FullEnclosureAudit.lean
-+27
-NsFullLagrangianFockEsaAudit.lean
-+10
-NsLagrangianDetAudit.lean
-+27
-NsLagrangianOuterFockAudit.lean
-+10
-NsNonlinearFarisLavineAudit.lean
-+23
-QgCrossTermAudit.lean
-+15
-SmYukawaCouplingAudit.lean
-+13
+.lake/packages/subverso/.github/
+NIGHTLY_FAILURE.md
+-11
+
+.lake/packages/subverso/demo-toml/Demo/
+Basic.lean
+-6
+.gitignore
+-1
+Anchors.lean
+-31
+Demo.lean
+-42
+lakefile.toml
+-16
+lean-toolchain
+-1
+Main.lean
+-9
+
+.lake/packages/subverso/demo/Demo/
+Basic.lean
+-6
+
+.lake/packages/subverso/demo/
+.gitignore
+-1
+Demo.lean
+-47
+lakefile.lean
+-23
+lean-toolchain
+-1
+Main.lean
+-9
+
+.lake/packages/subverso/small-tests/Small/
+TacticAlts.lean
+-24
+
+.lake/packages/subverso/small-tests/
+lakefile.lean
+-20
+Small.lean
+-13
+
+.lake/packages/subverso/src/SubVerso/Examples/Messages/
+NormalizeLineNum.lean
+-83
+NormalizeMetavars.lean
+-81
+
+.lake/packages/subverso/src/SubVerso/Examples/Slice/
+Attribute.lean
+-49
+Env.lean
+-107
+Messages.lean
+-24
+
+.lake/packages/subverso/src/SubVerso/Helper/
+Netstring.lean
+-59
+
+.lake/packages/subverso/src/SubVerso/Highlighting/Anchors/
+Basic.lean
+-416
+Check.lean
+-41
+
+.lake/packages/subverso/src/SubVerso/Highlighting/
+Anchors.lean
+-9
+Code.lean
+-1692
+Export.lean
+-239
+Highlighted.lean
+-699
+Messages.lean
+-35
+Split.lean
+-166
+String.lean
+-81
+
+.lake/packages/subverso/src/SubVerso/
+Compat.lean
+-863
+Examples.lean
+-646
+Helper.lean
+-154
+Highlighting.lean
+-13
+Module.lean
+-106
+Signature.lean
+-130
+SubVerso.lean
+-10
+.gitignore
+-6
+demodulize.py
+-95
+Extract.lean
+-36
+ExtractModule.lean
+-177
+Helper.lean
+-254
+InternalTests.lean
+-320
+lakefile.lean
++1 -348
+lean-toolchain
+-1
+LICENSE
+-71
+README.md
+-119
+Tests.lean
+-426
+
+.lake/packages/subverso/src/
+package-overrides.json
++18
 
 ./
 ARISTOTLE_SUMMARY.md
-+250
++16 -13509
 BookProof.lean
-+94
-BUILD_COMPONENTS.md
-+43 -39
++12
 CONSOLIDATED_PLAN.md
-+459 -1
-HONEST_BOUNDARIES_SM.md
-+4 -1
-lakefile.toml
-+4 -14
-NS_LAGRANGIAN_OUTER_FOCK_ESA.md
-+182
++29
+README.md
++9
+STATUS.md
++21
 
- .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project and next steps useful to improve it , to be 
+ .  Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project   and next steps useful to improve it , to be 
 executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.  Ensure also that @CONSOLIDATED_PLAN.md and @BookProof/ and @Book/ and @../test/ and  
 @../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , use the correct QYM, QED, QG (R^2 version with vielbein and full exponential (without Taylor expansion) and interaction terms) and NS final Hamiltonian 
 which is the one-particle Hamiltonian enclosed in creation (on the left) and annihilation (on the right) operators, and consider all implications of this fact (for example in the plan for new proofs, or 
 in explaining what was achieved or interpreting the existing proofs in BookProof/ ). Note that we use the convolution in momentum space to deal with products in coordinate space involving derivatives in 
 space of the fields (relevant for NS and QG only).
+
+When you finish all your tasks, regenerate the missing files from MISSING_FILES_CONTENTS.md . Update Book/ to refer to the new proofs in BookProof/ and discuss them pedagogically . Update CONSOLIDATED_PLAN.md about the new state of this project   and next steps useful to improve it , to be 
+executed by a LLM-Lean4-specialist. Do not compile the project, leave that to the Lean4-specialist.  Ensure also that @CONSOLIDATED_PLAN.md and @BookProof/ and @Book/ and @../test/ and  
+@../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md , use the correct QYM, QED, QG (R^2 version with vielbein and full exponential (without Taylor expansion) and interaction terms) and NS final Hamiltonian 
+which is the one-particle Hamiltonian enclosed in creation (on the left) and annihilation (on the right) operators, and consider all implications of this fact (for example in the plan for new proofs, or 
+in explaining what was achieved or interpreting the existing proofs in BookProof/ ). Note that we use the convolution in momentum space to deal with products in coordinate space involving derivatives in 
+space of the fields (relevant for NS and QG only). 
+
+git config pull.rebase false
  
  add more tests of Navier-Stokes that use the fock_sirk/Hashimoto algorithm, based on the formalization for Eulerian variables (or Lagrangian variables, whichever you expect to be more numerically 
  efficient) discussed in: ../timepiece/CONSOLIDATED_PLAN.md
