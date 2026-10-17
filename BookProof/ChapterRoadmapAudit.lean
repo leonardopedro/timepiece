@@ -260,6 +260,7 @@ import BookProof.ChapterOdeChartTransfer
 import BookProof.ChapterNsComparisonEsa
 import BookProof.ChapterLiftedComparisonEsa
 import BookProof.ChapterQgAssembledTransfer
+import BookProof.ChapterQgFlatContinuumEsa
 import BookProof.ChapterNsLagrangianComparisonEsa
 
 /-!
@@ -3294,5 +3295,20 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.QgAssembledTransfer.qg_assembled_stone_flow_of_flat
 #print axioms BookProof.NsLagrangianComparisonEsa.lagComparison_esa
 #print axioms BookProof.NsLagrangianComparisonEsa.lagKoopman_esa
+#print axioms BookProof.QgFlatContinuumEsa.flatOp_esa
+#print axioms BookProof.QgFlatContinuumEsa.flatOp_deficiencyTrivialAt
+#print axioms BookProof.QgFlatContinuumEsa.flatOp_stone_flow
+#print axioms BookProof.QgFlatContinuumEsa.schOp_esa
+#print axioms BookProof.QgFlatContinuumEsa.exists_schOp_repr
+#print axioms BookProof.QgFlatContinuumEsa.qgFlat_esa
+#print axioms BookProof.QgFlatContinuumEsa.qgFlat_deficiencyTrivialAt
+#print axioms BookProof.QgFlatContinuumEsa.prodUnitary_tmul_ae
+#print axioms BookProof.QgFlatContinuumEsa.qgFlatL2Op_tmul
+#print axioms BookProof.QgFlatContinuumEsa.qgFlatL2_esa
+#print axioms BookProof.QgFlatContinuumEsa.qgFlatL2_deficiencyTrivialAt
+#print axioms BookProof.QgFlatContinuumEsa.qgFlatL2_stone_flow
+#print axioms BookProof.QgFlatContinuumEsa.qgFlat84_deficiencyTrivialAt
+#print axioms BookProof.QgFlatContinuumEsa.esa_of_unitary_intertwines
+#print axioms BookProof.QgFlatContinuumEsa.qg_flat_transfer_esa
 
 end BookProof.ChapterRoadmapAudit

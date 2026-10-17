@@ -3295,4 +3295,5 @@ import BookProof.ChapterOdeChartTransfer
 import BookProof.ChapterNsComparisonEsa
 import BookProof.ChapterLiftedComparisonEsa
 import BookProof.ChapterQgAssembledTransfer
+import BookProof.ChapterQgFlatContinuumEsa
 import BookProof.ChapterNsLagrangianComparisonEsa
