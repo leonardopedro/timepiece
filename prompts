@@ -1,3 +1,12 @@
+Note that in hermit-rs/ is an unikernel in Rust, study it and consider if it could be useful to achieve the goals of this plan, or perhaps extend the plan to use it  for Cloud VMs while the current plan is for bare-metal . Continue your remaining tasks
+
+I think ZeroSSL is configured for the Reserved IP only
+
+umbrella stays single-crate/single-module per run (PLAN_valen §5, by design of the prototype).
+- Pre-existing owner artifacts left untouched: untracked  emthin-android/Cargo.lock , timepiece  state/  backups at  /tmp/timepiece_state_backup .
+
+
+
 Step 0 (gates)
 
     lake build BookProof, lake build BookProofOperatorCore and both audit files (Work/SmFarisLavineAudit.lean, Work/SmComparisonEsaAudit.lean) all pass, using only the three standard axioms.
@@ -222,6 +231,9 @@ Note that in ../mirage-skeleton are examples of using mirage to convert OCaml pr
 
 
 This project includes the folders ../unfer/ , ../australVM/ , ../velysterm/ , ../timepiece , ../dynamic-arctic , ../test/ . Do a deep , full review of the project as a whole and create a detailed plan to improve this project (except writting direct Lean4 code, leave that to the LLM-Lean4-specialist). In folders ../typos/ and ../ax/ are projects I want you to study (attention with copyright issues) and update the new plan with improvements and features adapted from these projects (improvements of existing features inspired by these 2 projects have priority over creating features from scratch, unless there is a good justification).
+Then execute the plan . Do not stop.
+
+This project includes the folders unfer/ , australVM/ , velysterm/ , timepiece/ , dynamic-arctic , test/ , emthin/ . Do a deep , full review of the project as a whole, debug and test the project,  and create a detailed plan to improve this project (except writting direct Lean4 code, leave that to the LLM-Lean4-specialist). 
 Then execute the plan . Do not stop.
 
 
