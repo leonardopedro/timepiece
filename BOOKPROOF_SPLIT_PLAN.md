@@ -5,6 +5,16 @@ Created 2026-10-17. Execution belongs to the LLM-Lean4-specialist (the house rul
 stands: a phase compiles, this document does not). Pointers: `CONSOLIDATED_PLAN.md`
 §"2026-10-17b" and the `BookProof layout` row of `CURRENT_WORK_ORDER.md`.
 
+**2026-10-18 Prove2.me addendum** (same house rule): §6 records the exploration of
+the prove2.me platform (missions + other authors' proofs), the downloaded proof
+sources and where they will land after conversion; Phase 1.5 was added for that
+conversion; §7 lists the platform missions/proofs this corpus can feed; §8 extends
+the same treatment to the sibling projects `../unfer` and `../dynamic-arctic`
+(70 more downloads in 4 sibling-earmarked groups; `../australVM` and `../emthin`
+were searched for and do not exist in this workspace — earmarks deferred).
+Downloads live outside this repo (`../prove2me_workspace/Downloads/`), so no gate
+of this repo sees them until they are converted on their target side.
+
 ---
 
 ## 1. Measured current state (2026-10-17, all numbers from the repo itself)
@@ -74,8 +84,14 @@ BookProof/
   RoadmapAudit/     ChapterRoadmapAudit.lean (the #print axioms gate)
 ```
 
-Two consequences stated deliberately:
+Three consequences stated deliberately:
 
+0. **Prove2.me imports land in `Toolbox/` as a `Prove2me/` subfolder** (namespace
+   `BookProof.Toolbox.Prove2me.*`), not into domain folders: imported results are
+   generic operator-theory / Wick / concentration tools until a domain chapter
+   adopts one and cites it (Phase 1.5, §6). Raw, unconverted downloads stay in the
+   workspace staging area `../prove2me_workspace/Downloads/<group>/` and never sit
+   inside this repo's build cone.
 1. `BookProofOperatorCore` (477 modules) keeps its name and stays one connected
    component until step 2.1's cross-import matrix says where the seams are; the folders
    above are where those seams will *fall*, not a claim that they already hold.
@@ -112,6 +128,25 @@ Then `--write-lakefile`, `--check`, `doc_index.py`, `check_site.py` in `../test`
 Acceptance: every gate green in the same commit as the move; zero remaining references
 to the old module paths (`rg -g '!*.md' 'BookProof\.<Chapter>\b'` empty for moved names;
 `../test` drift 0 misses).
+
+**Phase 1.5 — Prove2.me imports: convert, adopt, audit (independent of Phase 1).**
+For each group of §6 (start with `operator-qm`, then `analytic-nt`, `prob-concentration`):
+1. Convert the downloaded solution source to this repo's toolchain
+   (`leanprover/lean4:v4.28.0` + this repo's Mathlib pin): the downloads target the
+   platform's pinned Mathlib rev (`0df444a360ea`, two items on `c5ea00351c28`), so
+   expect renames and lemma-name drift — the conversion diff is part of the record.
+2. Rename into `BookProof/Toolbox/Prove2me/` with the namespace
+   `BookProof.Toolbox.Prove2me.<Author>.<ShortName>`; keep a header block carrying
+   the platform `theorem_id`, the original name, the submitting author, and the
+   Apache-2.0 attribution (site terms, public contributions).
+3. Wire into `BookProof.lean`, then `--write-lakefile` + `--check` (the converted
+   modules join `BookProofOperatorCore` unless the cross-import matrix of step 2.1
+   says they are standalone — most are).
+4. `#print axioms` each new declaration in `ChapterRoadmapAudit.lean`; acceptance
+   is `propext, Classical.choice, Quot.sound` only.
+Do NOT convert during Phases 0–1: the folder renames of Phase 1 would invalidate
+conversion diffs, and the conversion diff is the honesty record that the import
+was faithful.
 
 **Phase 2 — folder the core along §2, and measure the real seams.**
 2.1 **Cross-import matrix first** (python: reuse `imports_of` in
@@ -222,3 +257,163 @@ false is the route that changes.
       `BookProof layout` row of `CURRENT_WORK_ORDER.md` (done at creation).
 - [ ] No phase compiles nothing: every phase lists the exact `lake` commands for the
       LLM-Lean4-specialist; this document itself was produced without compiling.
+- [ ] Phase 1.5: every imported proof converted, namespaced
+      `BookProof.Toolbox.Prove2me.*`, attribution header present, `--check` green,
+      `#print axioms` clean; the conversion diff archived next to the download.
+- [ ] §6 downloads stay in sync with `../prove2me_workspace/Downloads/manifest.json`
+      (regenerate the manifest when re-running the fetcher; never edit by hand).
+
+---
+
+## 6. Prove2.me: exploration and downloads (2026-10-18, addendum)
+
+The prove2.me platform (Lean 4 formalization platform; API
+`https://prove2.me/api/v1`, release 0.12.7) was explored end-to-end with the
+prove2me_workspace skill (`../prove2me_workspace/SKILL.md`). Credentials: the old
+API key expired 2026-10-15 (`PIPELINE_PLAN.md` §2.54 of the workspace repo); a new
+key was supplied 2026-10-18 and stored in `../prove2me_workspace/credentials.json`
+(gitignored, valid ~30 days).
+
+### 6.A What is on the platform (relevant slice)
+
+| fact | value |
+|---|---|
+| missions catalogued | **4,639** (2,305 open / 2,334 completed) |
+| relevant fields (mission counts) | functional-analysis 228, mathematical-physics 246, analysis 306, PDE 92, dynamical-systems 160, harmonic-analysis 52, calculus-of-variations 14, quantum-gravity 5, quantum-geometrodynamics 1, general-relativity 2, statistical-mechanics 1, condensed-matter-physics 1 |
+| our footprint (`leonardopedro`) | **7,322** `BookProof.*` theorems mirrored: **6,062 proved**, 712 open, 544 definitions, 4 disproved |
+| other authors with directly usable proved material | `Lucas` (QFT: Wick/Feynman/Dirac/Yukawa/Connes-RZ/Hamburger/ClassNumber…), `Shuze Chen` (OAI: DirectCrouzeix, bosonic Fock ladders, thermal generators, Markov-chain CLT), `cm_beta` (`FamousTheorems.*`: Gelfand–Naimark, spectrum, Hahn–Banach, Krein–Milman, mean ergodic), `mikedeng1` (Teschl QM & Hunter PDE series, matrix tail bounds, trace estimation), `dbenbenn` (Lawler–Sokal/Cheeger), `Grace`, `Hartmann_Psi`, `Aphrodite` (concentration), `raresbuhai` (Helfgott/Green–Tao), `wurtle` (quasi-RH 7/8), `junyihjy` (Grünbaum), `Nickrobbins95` (Rellich), `waitingintime` (Weil-defect sesquilinear), `Community (Bot)` (Courant–Fischer/interlacing) |
+
+Selection rule for downloads: proved theorems **by other authors** that duplicate or
+generalize machinery this repo either proved on its own or still lacks. Our own
+`BookProof.*` mirror was excluded (already the corpus; no re-download).
+
+### 6.B What was downloaded (sources only — nothing converted yet)
+
+Location: `../prove2me_workspace/Downloads/<group>/<name>.lean` + `manifest.json`
+(93 manifest entries; **91 solution sources** + 2 statement-only; 2.2 MB; every
+source `sorry`-free, verbatim platform submission). Manifest carries per item:
+`theorem_id`, formal statement, natural-language statement, source paper, author,
+accepted submission id/date, platform Mathlib rev.
+
+| group | files | contents | destination after Phase 1.5 conversion |
+|---|---:|---|---|
+| `operator-qm` | 12 | Teschl QM series: self-adjoint extensions & defect indices, unbounded spectral theorem, Kato–Rellich, min–max/Temple, Weyl limit-circle/limit-point alternative, Herglotz–Stieltjes, RAGE, harmonic oscillator; Sturm–Liouville eigenfunction expansion; Hunter PDE: Lumer–Phillips semigroups, Rellich–Kondrachov | `Toolbox/` ESA-closure layer — feeds `ChapterKatoRellichDeficiencyCore`, limit-circle chapters, `ChapterStone*`, `ChapterResolvent*`, `ChapterTemple*` |
+| `cstar-gelfand` | 10 | `FamousTheorems.*`: Gelfand transform bijective/formula/Mazur, spectrum nonempty, spectral radius = norm (self-adjoint), Banach–Alaoglu, Hahn–Banach separation, Krein–Milman, von Neumann mean ergodic, ergodic = extreme invariant | `Toolbox/` + Koopman line (`lagKoopman_esa` supports) |
+| `crouzeix-convex` | 6 | `OAI.DirectCrouzeix.*` resolvent/Faber-calculus machinery, exp-level holomorphy, positive blocks; Lawler–Sokal Cheeger inequality (Dirichlet eigenvalue); Grünbaum extreme-point steps | `Sirk/` — `ChapterSirkCrouzeixNumericalRange`, `ChapterCrouzeixSelfAdjoint`, gap table |
+| `fock-ladders` | 12 | `OAI.*` n-mode bosonic Fock ℓ²(ℕⁿ) ladder algebra: beam-splitter generators, weighted raising/lowering, weak-operator & dissipator pairing identities, thermal-generator / photon-number machinery | `Toolbox/Fock` — `ChapterFockSecondQuantization`, `ChapterFermionFock`, thermal/entropy chapters |
+| `qft-wick` | 28 | Wick/Isserlis theorem + Gaussian moments + pairings; Feynman 1948 path-integral step & Fresnel integrals; Dirac slash²; Yukawa Fourier transform; Giddings1999 QG boundary Wronskian; QED field equations; Koch Hartree–Fock Brillouin; Chatterjee QFT one-particle spaces; Uhlenbeck gauge; graphene Dirac cone; undecidable spectral gap; BCS gap ratio; Weinberg boson spectrum; minimal-SM neutrino; high-entropy classical limit; Cl(6,0) Casimir spectrum | `Qg/`, `Sm/`, `Qed/`, `Toolbox/Fock` |
+| `analytic-nt` | 12 | zero-free half-plane Re(s) > 7/8 (wurtle); Connes–Weil positivity ⇒ RH; Ramanujan–Petersson L-function functional equation & summability; Dedekind-zeta residue = coefficient average; Hamburger moment problem + Carleman-type uniqueness (factorial bound); Davenport three-primes (Siegel–Walfisz); ζ(0) port; Helfgott Möbius energy bound; ζ(5) irrationality (Zudilin / Hankel determinants) | RH analytic route — `jensen_bohr` (Bohr–Cahen), `ChapterCarleman*`, `zeta_no_zeros_right_half_plane` |
+| `prob-concentration` | 7 | two-sided Azuma–Hoeffding martingale bound; Markov-chain CLT; conditional Khintchine; weighted Bernstein; Hutchinson trace estimation; Bernstein q-moment + Markov-tail concentration | probability chain — `uniform_variance_bound`, RandomMap2, `Var_X_bound` |
+| `matrix-spectral` | 2 (+2 stmt) | Courant–Fischer and Cauchy interlacing (statement-only: no accepted submission source retrievable — recorded honestly in the manifest); max-degree spectral bound; A² = c·I eigenvalue lemma | RandomMap2 / SIRK Ritz |
+| `misc` | 3 | Weil-defect sesquilinear Gram realization & Hermitian-form additivity; Koopman finite-dynamics eventuality | `Toolbox/` |
+
+Known gaps (manifest `failures`, kept deliberately): `OAI.DirectCrouzeix.FaberCalculus`
+is a platform Definition (no stored solution); `courant_fischer` and
+`cauchy_interlacing_sorted` are Proved but expose no accepted submission source.
+
+Conversion is **deferred by instruction**: Lean 4.28.0 conversion happens later
+(Phase 1.5), never in the same step that touches the folder layout.
+
+---
+
+## 7. Prove2.me missions / open proofs this corpus can feed (2026-10-18)
+
+The platform already mirrors 6,062 proved `BookProof.*` theorems under our account
+(`leonardopedro`), so the corpus can be cited directly as lemmas inside
+proof-sketch reductions (`POST /verify` sketches importing platform theorems;
+children auto-resolve). Mechanics per the skill: connect to a mission's milestones
+(`GET /missions/:id/milestones`) — orphan subtrees earn no score — and read each
+milestone's history for rejected formalization paths before attacking. Mission ids
+are listed so the solver session can go straight to `GET /missions/:id`.
+
+### 7.A Open missions / theorem trees that overlap our proved assets
+
+| mission / open theorem (id) | captain | our proved assets that map onto it | honest caveat |
+|---|---|---|---|
+| Formalize Navier-Stokes — `NavierStokes.existence_and_smoothness_R3` (mission 953b89b7) | korbonits | the ~45 `BookProof.NavierStokesFlow.*` / `ChapterNavierStokes*` chapters, incl. platform-proved `ns_hamiltonian_essentiallySelfAdjointOn`, `fock_ns_hamiltonian_…`, Carleman hops, Lagrangian comparison ESA | our route proves **ESA + comparison-operator structure of the Fock/enclosure Hamiltonian**, not classical ℝ³ Leray regularity; only milestone lemmas that are genuinely operator-theoretic should be attacked with our material |
+| Yang–Mills mass gap (open trees `YangMillsMassGap.yang_mills_existence_and_mass_gap` and `YangMills.existence_and_mass_gap`, both by Lucas/korbonits) | (open theorems; Clay/Jaffe–Witten statements) | `ChapterYangMills*` 19 chapters (band bounds, ESA, certificate seam), the vendored QYM mass-gap contract (`unfer_contracts/MASS_GAP_SPEC.md`), `ChapterSirk*` certificate machinery — literally the same object | the platform statement demands constructive spectral gap for every compact simple G; our chain certifies the gauge-fixed one-particle lattice/enclosure Hamiltonians — feed milestones of the analytic-type sub-lemmas first |
+| The complete Crouzeix theorem (missions 09579e9d, a699cf50) | wurtle | `ChapterCrouzeixSelfAdjoint`, `ChapterSirkCrouzeixNumericalRange` + the downloaded `OAI.DirectCrouzeix` machinery | matrix-numerical-range results are the finite-dim core; the Hilbert-space completion is the open part |
+| Sharp one-dimensional Lieb–Thirring constants (mission 7fdd065b) | wurtle | Faris–Lavine toolbox (`ChapterFarisLavine*` 18), `ChapterFockCubicUnbounded` (the negative bound), relative-bound machinery | sharp constants need the 1D Schrödinger input we do not have |
+| Teschl QM open series: OneParticle ESA & essential spectrum (397f61c5), Weyl relatively compact perturbations (99ebf092), Atomic HvZ (9795f718), TraceClass (25fc7ee6), Scattering wave operators (a5feda4a) | mikedeng1 | our ESA closure layer: `ChapterEsaClosure*`, wall-ESA/deficiency datasets, `ChapterFriedrichs*`, tensor-core ESA | each mission pins Teschl's exact statements; port faithfully rather than citing our chapter names |
+| Spectral Gap Conjecture, random SU(2) (mission ca46da98) | Lucas | spectral-gap/certificate machinery (`ChapterSirkGapTable`, Cheeger download), boundary record `UndecidableSpectralGap` (already proved there) | group-random-walk input is number-theoretic, not ours |
+| User-Friendly Tail Bounds for Sums of Random Matrices I–V (missions e6254467, e12ada41, 54113457, 97673b33, 28d03443) | mikedeng1 | matrix/martingale concentration downloads + RandomMap2 chain + `Var_*` toolbox; Hutchinson trace estimation already there | matrix-valued; our chain is scalar/probabilistic — use as the bridge lemmas, not wholesale |
+| Bakry–Émery Curvature-Dimension series (missions 111a6f25, cdd71fd7, 5c93db1b, 858cf705, 44d5eec3, 77c7c693) | mikedeng1 | KvnKato Lyapunov comparison (`lagKoopman_esa`, `lyapunovComparison_esa_poly`), semigroup chapters | Ricci-geometry hypotheses are beyond our corpus |
+| RH-adjacent open trees: Lindelöf (b41789a6), Weil Conjectures (8b573f13), Class Number Formula (cc969585), Ramanujan–Petersson (b2db41fc) | Lucas | `zeta_symm`, zero-free strip, `eta_non_zero_real_axis`, the Bohr–Cahen/`jensen_bohr` route; Connes–Weil chain (waitingintime's `ConnesGreen`/`ConnesWeilArithmetic` missions) | analytic-NT milestones are far from the probabilistic regularization route — contribute only the genuinely analytic sub-lemmas (zeta reflection, zero-free half-planes) |
+| Lattice Hamiltonian simulation I/II (missions c54e7754, 5b274206) | mikedeng1 | mass-gap lattice comparison layers (marked comparison-only in our conventions) | our lattice objects are comparison models; the formalization object stays the continuum Hamiltonian |
+
+### 7.B Gaps on the platform that only this corpus fills — mission proposals
+
+1. **No Bohr–Cahen / Dirichlet-series continuation mission exists** (searches for
+   Bohr–Cahen/Dirichlet series return only Bohr *sets* and L-function setups). Our
+   RH analytic route (`jensen_bohr`, `convergent_series_has_no_poles`,
+   `uniform_variance_bound` — the three recorded `sorry`s) is a ready-made mission
+   proposal under the prove2me_workspace captain flow
+   (`references/mission_captain.md`; milestones verbatim from the plan's own work
+   order; the human audits and launches).
+2. **"Fock-enclosure ESA for NS/QG/QYM" mission**: the 712 open `BookProof.*`
+   platform theorems are exactly the open leaves (`dGamma_essentiallySelfAdjointOn_…`,
+   `nsComparison_ikebeKato`, `wave_add_boundedPotential_…` — see
+   `../test/mathematical-foundations/proof-plans.md`). A mission over them turns our
+   internal work order into a public leaderboard-visible campaign, and other agents
+   can attack leaves that currently sit only in `CURRENT_WORK_ORDER.md`.
+3. **Full-project upload** (`references/upload_full_project.md`): the workspace
+   pipeline already mirrored 7,322 theorems; the remaining step for reuse is
+   publishing the shared `Definitions/` bundles so foreign reductions can import our
+   operators (dΓ, comparison operator `N_L`, certificate structures) without
+   re-deriving them.
+
+Honesty rule carried over from §4.C: we contribute boundary/negative records (e.g.
+the limit-circle `(2,2)` family, `not_nsEnergy_surjective`) as *boundary* lemmas on
+the platform too — a mission that needs one of them false is the mission that
+changes, never the record.
+
+---
+
+## 8. Sibling-project imports: `../unfer`, `../dynamic-arctic`, `../australVM`, `../emthin` (2026-10-18)
+
+The same exploration was run against the needs of the sibling repositories.
+Recon findings (read, not guessed): `../unfer` is the Rust probability kernel
+(SIRK solver, nested-Fock CAS, QFM + HMC/Bayes, logos confluence hashes, nanoda
+Lean verification via `prob_kernel::verify::verify_export`, mass-gap contract);
+`../dynamic-arctic` is the Arctic threshold-Schnorr + Shine robust-VPSS authority
+(`arctic_core`/`shine_core`/`lagrange`). **`../australVM` and `../emthin` do not
+exist anywhere in this workspace** (unfer's AGENTS references an `australVM`
+`UNFER_SYMBOLS` list, so it is real but absent here); no theorems are earmarked
+for them until the plan owner supplies the paths — recorded, not papered over.
+
+### 8.A What was downloaded (second batch: 70 sources, all `sorry`-free)
+
+Same staging area and manifest as §6.B: `../prove2me_workspace/Downloads/<group>/`
++ `manifest.json` (now 163 entries / 161 solution files; a `sibling_projects_note`
+field records the earmarks).
+
+| group | files | contents | feeds (sibling component → item in their AGENTS/README) |
+|---|---:|---|---|
+| `unfer-sirk` | 19 | SVD existence; nuclear-norm dual achiever + von Neumann trace duality (Candès–Recht); Danielson–Lanczos FFT split; Riccati PSD fixed point (exists+unique+convergent, closed-loop stable); Gershgorin; Hellinger–Toeplitz; Faber coefficient bounds + analytic-domain core + cross-boundary estimates (DirectCrouzeix); spectral unitary exponential `exp_spectral`; Neumann-series certificates with λ ≤ 1/8; trace-square compression & multiplicity bounds; unbounded self-adjoint domain; Liouville flow-volume | `fock_sirk` whitening/eigendecomposition (SVD, trace duality), inverse-free Neumann certificates (SIRK's whole design), Padé/unitarity (`exp_spectral`), Hashimoto band ceilings & Rayleigh–Ritz sharp tier (quadratic-form bounds, Riccati), `ode_sirk` flow |
+| `unfer-bayes` | 19 | Gaussian integration-by-parts; OU semigroup commutation/invariance/entropy derivative; Gaussian log-Sobolev bounded below; Hermite moments of Gaussians (Krivine/Mehler kernel); Gaussian KL formula; `−p log p ≤ cq` cross-entropy; Gibbs attains spectral minimum; Gibbs form-energy identity; high-moment summability; Fock-spectral regularity on ℓ²(ℕⁿ); entropy ≤ thermal cross-entropy; photon-number regularizer minimum; three-state posterior score; Markov-chain α-mixing rate | QFM Mehler vacuum prior + Hermitian coupling flow (OU/Gaussian machinery), HMC posterior layer (`qfm::bayes`), Born-rule/thermal readout (Gibbs on Fock), posterior concentration |
+| `logos-confluence` | 8 | Abstract Church–Rosser; Church–Rosser for free-group word reduction; Knuth–Bendix Newman's lemma; Merkle opening completeness + root binding; almost-lossless collision probability + silent-error ⇒ collision; SUBSET SUM NP-complete (Cook–Levin) | `logos` CNL→UNF confluence self-check (free-group reduction = word normal forms), `unfer_data::release` CID manifest (Merkle binding), `decide_core` |
+| `arctic-crypto` | 24 | Full Schnorr σ-protocol suite (completeness, perfect HVZK, honest = simulated, special soundness w/ extractor, soundness error ≤ 1/q, ROM union bound, challenge-counting lemmas, group bridge `gexp_injective`/`orderOf`); OR-composition special soundness; Shamir: perfect privacy, reconstruct from d+1, d shares fail; Lagrange interpolation uniqueness; Byzantine interactive consistency (authenticated + oral + impossibility boundary); discrete log via HSG (Shor); unconditional Fiat–Shamir failure (boundary) | `arctic_core` (Arctic = threshold Schnorr; the σ-protocol suite is its core spec), `shine_core` robust VPSS (Shamir + Lagrange), `MintAuthority::Threshold` t-of-n (interactive consistency, incl. the impossibility boundary), `lagrange` |
+
+### 8.B Restructure consequence (routing rule, added to Phases 1.5/2)
+
+Sibling-earmarked groups do **not** enter `BookProof/Toolbox/Prove2me/` — that
+namespace is this repo's own toolbox. Two channels, both gated:
+
+1. **`unfer` channel (precedent: `Layout/`).** Pure-kernel-rfl certificates in
+   this repo, exported through lean4export to NDJSON fixtures re-verified by
+   `nanoda` inside `unfer` (`layout_bijective` is the working example). Converted
+   `unfer-sirk` / `unfer-bayes` / `logos-confluence` material that wants this
+   channel becomes zero-import `Layout`-style modules first; anything requiring
+   Mathlib stays in this repo's `Toolbox/Prove2me/` and is cited by the vendor
+   seams (`unfer_contracts/`) instead.
+2. **`dynamic-arctic` channel (out of this repo's build).** The `arctic-crypto`
+   group converts inside `../dynamic-arctic`'s own Lean surface when one exists;
+   this plan only records the earmark and the manifest groups. If that repo later
+   wants a `Layout`-style certificate folder, the §6 recipe (namespace, attribution
+   header, `#print axioms` audit) repeats verbatim.
+
+Acceptance addition to §5: no file from a sibling group lands in `BookProof/`
+without going through channel 1's zero-import discipline; the manifest's
+`sibling_projects_note` and per-group directories stay the single source of
+earmarks; `../australVM` / `../emthin` entries are added only when those repos
+are located.

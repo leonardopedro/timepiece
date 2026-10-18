@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-17T07:09:21+00:00",
+ "generated_at": "2026-10-18T10:54:55+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -47,14 +47,17 @@
   {
    "path": "BOOKPROOF_SPLIT_PLAN.md",
    "title": "BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory",
-   "lines": 224,
+   "lines": 419,
    "headings": [
     "# BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory",
     "## 1. Measured current state (2026-10-17, all numbers from the repo itself)",
     "## 2. Target layout",
     "## 3. Phased execution (each phase ends green or is not applied)",
     "## 4. Redundancy / legacy / dead-end inventory",
-    "## 5. Acceptance checklist (whole document)"
+    "## 5. Acceptance checklist (whole document)",
+    "## 6. Prove2.me: exploration and downloads (2026-10-18, addendum)",
+    "## 7. Prove2.me missions / open proofs this corpus can feed (2026-10-18)",
+    "## 8. Sibling-project imports: `../unfer`, `../dynamic-arctic`, `../australVM`, `../emthin` (2026-10-18)"
    ]
   },
   {
@@ -110,7 +113,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 17832,
+   "lines": 17944,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -305,7 +308,9 @@
     "## State of the project — 2026-10-16: the 2026-10-15c wave read into `Book/`, the final-Hamiltonian audit of the five targets, and the work order for the LLM-Lean4-specialist",
     "## State of the project — 2026-10-16: the Koopman comparison `N_L = H_L² + E` is ESA — closed-by pointers",
     "## State of the project — 2026-10-17: QG-D-C.1 (`hflat`) closed — the restored continuum module, and the work order refreshed",
-    "## State of the project — 2026-10-17b: `BookProof/` split plan and the redundancy / legacy / dead-end inventory"
+    "## State of the project — 2026-10-17b: `BookProof/` split plan and the redundancy / legacy / dead-end inventory",
+    "## State of the project — 2026-10-17c: Prove2.me addendum to the split plan",
+    "## State of the project — 2026-10-17d: sibling-project Prove2.me imports (unfer, dynamic-arctic)"
    ]
   },
   {
@@ -1459,6 +1464,10 @@
   {
    "source": "BOOKPROOF_SPLIT_PLAN.md",
    "target": "CURRENT_WORK_ORDER.md"
+  },
+  {
+   "source": "BOOKPROOF_SPLIT_PLAN.md",
+   "target": "unfer_contracts/MASS_GAP_SPEC.md"
   },
   {
    "source": "BOOK_PROOF_PLAN.md",

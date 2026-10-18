@@ -7,7 +7,21 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-17b):** **§"State of the project — 2026-10-17b:
+> **Newest entry (2026-10-17d):** **§"State of the project — 2026-10-17d:
+> sibling-project Prove2.me imports (unfer, dynamic-arctic)"** at the very end
+> of this file — the prove2.me workspace fork synced with the official upstream
+> (merge to v0.12.7), 70 more solution sources downloaded for `../unfer`
+> (`unfer-sirk`, `unfer-bayes`, `logos-confluence`) and `../dynamic-arctic`
+> (`arctic-crypto`), `BOOKPROOF_SPLIT_PLAN.md` §8 routing rule added;
+> `../australVM` and `../emthin` are absent from this workspace (earmarks
+> deferred).  **Preceded by (2026-10-17c):** **§"State of the project — 2026-10-17c:
+> Prove2.me addendum to the split plan"** — the
+> prove2me skill loaded, the platform explored (4,639 missions; our 7,322 mirrored
+> `BookProof.*` theorems under `leonardopedro`), 91 other-authors' solution sources
+> downloaded into `../prove2me_workspace/Downloads/` (manifested; nothing converted
+> yet), `BOOKPROOF_SPLIT_PLAN.md` extended with Phase 1.5 + §6 (inventory) + §7
+> (missions our corpus can feed, incl. two mission-proposal gaps).  **Preceded by
+> (2026-10-17b):** **§"State of the project — 2026-10-17b:
 > `BookProof/` split plan and the redundancy / legacy / dead-end inventory"** — the
 > plan document `BOOKPROOF_SPLIT_PLAN.md` (repo root): folder taxonomy for the 807
 > flat modules, a four-phase gated execution order for the LLM-Lean4-specialist, and
@@ -17830,3 +17844,101 @@ commit; and independence is a property of the import graph, measured first.
 **Work order:** tracked by the new `BookProof layout` row of `CURRENT_WORK_ORDER.md`;
 phases are ordered and acceptance-checked in `BOOKPROOF_SPLIT_PLAN.md` §3; compile
 gates stay with the LLM-Lean4-specialist (this pass ran no `lake`).
+
+## State of the project — 2026-10-17c: Prove2.me addendum to the split plan
+
+Session 2026-10-18. Follow-up to §"2026-10-17b" (the `BookProof/` split plan).
+Loaded the prove2me_workspace skill (`../prove2me_workspace/SKILL.md`, platform
+release 0.12.7; the workspace's previous API key had expired 2026-10-15 per its
+PIPELINE_PLAN §2.54 — a fresh key was supplied and stored in the workspace's
+gitignored `credentials.json`). Then explored prove2.me end-to-end and acted in
+both directions the platform allows.
+
+**Explored.** 4,639 missions (2,305 open / 2,334 completed); relevant fields
+(functional-analysis 228, mathematical-physics 246, analysis 306, PDE 92,
+quantum-gravity 5, quantum-geometrodynamics 1, …). Our own footprint under
+`leonardopedro`: 7,322 `BookProof.*` theorems mirrored — 6,062 proved, 712 open,
+544 definitions. Mapped 803+ relevant hits by other authors and the mission
+trees that overlap our proved assets (Navier–Stokes, Yang–Mills mass gap,
+complete Crouzeix, sharp Lieb–Thirring, the open Teschl QM series, matrix tail
+bounds, Bakry–Émery, Lindelöf/Weil/Class-Number/Ramanujan–Petersson).
+
+**Downloaded (sources only, nothing converted).** 91 verbatim solution sources
+(+2 statement-only) from 16 authors into
+`../prove2me_workspace/Downloads/<group>/` with a full `manifest.json`
+(theorem_id, formal + natural statement, source, author, accepted submission,
+platform Mathlib rev `0df444a360ea`); groups: `operator-qm`, `cstar-gelfand`,
+`crouzeix-convex`, `fock-ladders`, `qft-wick`, `analytic-nt`,
+`prob-concentration`, `matrix-spectral`, `misc`. All `sorry`-free; licensing
+Apache-2.0 per site terms; known gaps (FaberCalculus definition, two
+statement-only matrix lemmas) recorded in the manifest, not papered over.
+Conversion to this repo's Lean 4.28.0 toolchain is deferred to Phase 1.5 of
+`BOOKPROOF_SPLIT_PLAN.md`, deliberately after the folder phases so the
+conversion diff stays a clean honesty record.
+
+**Updated `BOOKPROOF_SPLIT_PLAN.md`:** header note; §2 layout consequence 0
+(`Toolbox/Prove2me/` landing zone for converted imports; raw staging stays in
+the workspace, outside this repo's build cone); new **Phase 1.5** (convert →
+namespace `BookProof.Toolbox.Prove2me.*` → wire → `--check` → `#print axioms`);
+new **§6** (exploration + download inventory with per-group destinations);
+new **§7** (mission table with ids + honest caveats, plus two mission-proposal
+gaps only this corpus fills: no Bohr–Cahen/Dirichlet-series mission exists —
+our three recorded RH analytic `sorry`s are a ready proposal; and a public
+"Fock-enclosure ESA" mission over the 712 open `BookProof.*` leaves).
+Checklist extended (Phase 1.5 acceptance; manifest sync).
+
+**Verification.** No compile (house rule; conversion is a later specialist
+phase). Gates re-run after the edit: doc_index fresh, `health.sh` green,
+`check-links` OK. Nothing in `BookProof/`, `lakefile.toml`, or the git history
+changed — this entry is documentation of exploration and downloads only.
+
+## State of the project — 2026-10-17d: sibling-project Prove2.me imports (unfer, dynamic-arctic)
+
+Session 2026-10-18, continuation of §"2026-10-17c". Two threads:
+
+**(1) The prove2.me workspace fork is synced with the official upstream.**
+`../prove2me_workspace` (origin `leonardopedro/prove2me_workspace`) had no
+`upstream` remote; added `upstream = https://github.com/prove2me/prove2me_workspace.git`,
+fetched it (new tags v0.10.8…v0.12.7 the fork's origin lacked), and merged
+`upstream/main` (11 commits, v0.12.4–0.12.7: fuzzy relevance search, graph node
+cap, math in mission names, collection leaderboard). The single conflict —
+`SKILL.md`'s `version:` line, the fork's manual 0.12.6 backport vs upstream's
+0.12.7 — resolved by taking upstream's file. Fork `main` is now 12 ahead of its
+origin (11 upstream + the merge); pushing to origin was not requested and was
+not done. Skill version self-check now passes cleanly (0.12.7 = platform).
+
+**(2) Prove2.me explored and downloaded for the sibling projects.**
+Recon: `../unfer` (SIRK probability kernel — whitening/eigendecomposition,
+inverse-free Neumann certificates, Padé unitarity, QFM Mehler prior + HMC/Bayes,
+Gibbs/Born readout, logos CNL→UNF confluence, release CID manifest, decide_core)
+and `../dynamic-arctic` (Arctic threshold-Schnorr, Shine robust VPSS, t-of-n
+mint authority, Lagrange). **`../australVM` and `../emthin` do not exist in this
+workspace** (unfer's AGENTS references an australVM `UNFER_SYMBOLS` list, so it
+is real but absent here) — earmarks deferred until the owner supplies paths;
+recorded in the manifest's `sibling_projects_note`, not papered over.
+
+70 further verbatim, `sorry`-free solution sources downloaded into
+`../prove2me_workspace/Downloads/` (now 163 manifest entries / 161 files):
+`unfer-sirk` 19 (SVD + trace duality, Riccati PSD fixed points, Faber/Crouzeix
+bounds, Neumann-series certificates with λ ≤ 1/8, unitary `exp_spectral`,
+Liouville flow volume …), `unfer-bayes` 19 (Gaussian IBP, OU semigroup
+invariance/entropy, log-Sobolev, Hermite moments, Gibbs-on-Fock ℓ²(ℕⁿ),
+posterior score …), `logos-confluence` 8 (Church–Rosser abstract + free-group,
+Newman's lemma, Merkle binding/opening, collision bounds, SUBSET SUM NP-c),
+`arctic-crypto` 24 (the complete Schnorr σ-protocol suite — completeness, HVZK,
+special soundness, ≤ 1/q, ROM union bound — plus OR-composition, Shamir
+privacy/reconstruction, Lagrange uniqueness, Byzantine interactive consistency,
+discrete log, and the unconditional Fiat–Shamir failure boundary).
+
+`BOOKPROOF_SPLIT_PLAN.md` gained **§8**: the recon findings, the per-group
+download inventory mapped to the sibling components each feeds, and the routing
+rule — sibling-earmarked material does NOT enter `BookProof/Toolbox/Prove2me/`;
+`unfer`-bound conversions use the `Layout/` zero-import → lean4export → nanoda
+channel (working precedent: `layout_bijective`), `dynamic-arctic`-bound ones
+convert in that repo when its Lean surface exists. Checklist acceptance extended.
+
+**Verification.** Downloads: 70 files non-empty, `grep -l sorry` empty,
+manifest consistent. timepiece gates re-run after the doc edits: doc_index
+fresh, health.sh green, check-links OK. No compile (house rule); nothing in
+`BookProof/` or `lakefile.toml` touched; the workspace merge is the only commit
+made this session (in `../prove2me_workspace`, not in this repo).
