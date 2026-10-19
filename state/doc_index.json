@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-18T10:54:55+00:00",
+ "generated_at": "2026-10-18T22:56:48+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -535,6 +535,21 @@
     "## 5.4 From the original §1 sentence, only this remains open",
     "## 5.5 Accounting identity (2026-09-23d): no extra gauge-fixing/ghost summand in `h` or `N`",
     "## Module map (closed boundaries → files)"
+   ]
+  },
+  {
+   "path": "Hashimoto.md",
+   "title": "Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
+   "lines": 425,
+   "headings": [
+    "# Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
+    "## Abstract",
+    "## 1 Introduction",
+    "## 2 The definition of the operator function",
+    "## 4 Shift-invert rational Krylov method",
+    "## 5 Numerical experiments",
+    "## 6 Conclusion",
+    "# References"
    ]
   },
   {
@@ -1359,6 +1374,22 @@
    ]
   },
   {
+   "path": "lopez99.md",
+   "title": "APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
+   "lines": 783,
+   "headings": [
+    "# APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
+    "# 1. Introduction",
+    "## 2. Expansions in terms of Hermite polynomials",
+    "## 3. Gegenbauer polynomials",
+    "## APPROXIMATION OF ORTHOGONAL POLYNOMIALS",
+    "## 4. Laguerre polynomials",
+    "## 5 The Tricomi-Carlitz polynomials",
+    "## 6. Jacobi polynomials",
+    "## References"
+   ]
+  },
+  {
    "path": "newproof.md",
    "title": "newproof",
    "lines": 285,
@@ -1894,6 +1925,10 @@
    "target": "CONSOLIDATED_PLAN.md"
   },
   {
+   "source": "MASS_GAP_CERTIFIED.md",
+   "target": "Hashimoto.md"
+  },
+  {
    "source": "PLAN_A_BOOK_FORMALIZATION.md",
    "target": "Issues.md"
   },
@@ -1980,6 +2015,10 @@
   {
    "source": "PNP_IMPLEMENTATION_PLAN.md",
    "target": "PnpProof/IMPLEMENTED.md"
+  },
+  {
+   "source": "PNP_IMPLEMENTATION_PLAN.md",
+   "target": "lopez99.md"
   },
   {
    "source": "PROVE2ME_REUSABLE_THEOREMS.md",
