@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-18T22:56:48+00:00",
+ "generated_at": "2026-10-19T06:08:53+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -47,7 +47,7 @@
   {
    "path": "BOOKPROOF_SPLIT_PLAN.md",
    "title": "BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory",
-   "lines": 419,
+   "lines": 425,
    "headings": [
     "# BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory",
     "## 1. Measured current state (2026-10-17, all numbers from the repo itself)",
@@ -113,7 +113,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 17944,
+   "lines": 17979,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -310,7 +310,8 @@
     "## State of the project — 2026-10-17: QG-D-C.1 (`hflat`) closed — the restored continuum module, and the work order refreshed",
     "## State of the project — 2026-10-17b: `BookProof/` split plan and the redundancy / legacy / dead-end inventory",
     "## State of the project — 2026-10-17c: Prove2.me addendum to the split plan",
-    "## State of the project — 2026-10-17d: sibling-project Prove2.me imports (unfer, dynamic-arctic)"
+    "## State of the project — 2026-10-17d: sibling-project Prove2.me imports (unfer, dynamic-arctic)",
+    "## State of the project — 2026-10-19: Downloads moved in-repo; `_deps/` platform import closure"
    ]
   },
   {
@@ -382,6 +383,20 @@
     "## 4. Proved unconditionally vs. proved-on-the-concrete-instance (no physics hypotheses)",
     "## 5. Concrete Lean plan (staged, each stage independent)",
     "## 6. Clarification: `E = ∂e` is *achieved* by BRST, not a representability gap"
+   ]
+  },
+  {
+   "path": "Downloads/_deps/README.md",
+   "title": "`_deps/` — prove2.me platform library, verbatim (2026-10-19)",
+   "lines": 78,
+   "headings": [
+    "# `_deps/` — prove2.me platform library, verbatim (2026-10-19)",
+    "## Layout",
+    "## Why the `Thm_` files end in `:= by sorry`",
+    "## One normalization (recorded per item in `manifest.json`)",
+    "## Environments",
+    "## Verification (2026-10-19)",
+    "## Use"
    ]
   },
   {
@@ -535,21 +550,6 @@
     "## 5.4 From the original §1 sentence, only this remains open",
     "## 5.5 Accounting identity (2026-09-23d): no extra gauge-fixing/ghost summand in `h` or `N`",
     "## Module map (closed boundaries → files)"
-   ]
-  },
-  {
-   "path": "Hashimoto.md",
-   "title": "Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
-   "lines": 425,
-   "headings": [
-    "# Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
-    "## Abstract",
-    "## 1 Introduction",
-    "## 2 The definition of the operator function",
-    "## 4 Shift-invert rational Krylov method",
-    "## 5 Numerical experiments",
-    "## 6 Conclusion",
-    "# References"
    ]
   },
   {
@@ -1374,22 +1374,6 @@
    ]
   },
   {
-   "path": "lopez99.md",
-   "title": "APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
-   "lines": 783,
-   "headings": [
-    "# APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
-    "# 1. Introduction",
-    "## 2. Expansions in terms of Hermite polynomials",
-    "## 3. Gegenbauer polynomials",
-    "## APPROXIMATION OF ORTHOGONAL POLYNOMIALS",
-    "## 4. Laguerre polynomials",
-    "## 5 The Tricomi-Carlitz polynomials",
-    "## 6. Jacobi polynomials",
-    "## References"
-   ]
-  },
-  {
    "path": "newproof.md",
    "title": "newproof",
    "lines": 285,
@@ -1498,6 +1482,10 @@
   },
   {
    "source": "BOOKPROOF_SPLIT_PLAN.md",
+   "target": "Downloads/_deps/README.md"
+  },
+  {
+   "source": "BOOKPROOF_SPLIT_PLAN.md",
    "target": "unfer_contracts/MASS_GAP_SPEC.md"
   },
   {
@@ -1559,6 +1547,10 @@
   {
    "source": "CONSOLIDATED_PLAN.md",
    "target": "DOC_INDEX.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "Downloads/_deps/README.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
@@ -1849,6 +1841,10 @@
    "target": "REVIEW_FARIS_LAVINE_20260911.md"
   },
   {
+   "source": "Downloads/_deps/README.md",
+   "target": "BOOKPROOF_SPLIT_PLAN.md"
+  },
+  {
    "source": "FEDERATION_DEEP_REVIEW.md",
    "target": "CONSOLIDATED_PLAN.md"
   },
@@ -1923,10 +1919,6 @@
   {
    "source": "MASS_GAP_CERTIFIED.md",
    "target": "CONSOLIDATED_PLAN.md"
-  },
-  {
-   "source": "MASS_GAP_CERTIFIED.md",
-   "target": "Hashimoto.md"
   },
   {
    "source": "PLAN_A_BOOK_FORMALIZATION.md",
@@ -2015,10 +2007,6 @@
   {
    "source": "PNP_IMPLEMENTATION_PLAN.md",
    "target": "PnpProof/IMPLEMENTED.md"
-  },
-  {
-   "source": "PNP_IMPLEMENTATION_PLAN.md",
-   "target": "lopez99.md"
   },
   {
    "source": "PROVE2ME_REUSABLE_THEOREMS.md",
