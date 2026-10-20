@@ -1,4 +1,4 @@
-import BookProof.ChapterFockWeightedSchurEsa
+import BookProof.Toolbox.ChapterFockWeightedSchurEsa
 
 /-!
 Axiom audit for the wave that adds the **Schur gate weighted by the one-particle symbol**

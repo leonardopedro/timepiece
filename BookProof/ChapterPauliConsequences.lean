@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterA3c
+import BookProof.Textbook.ChapterA3c
 import BookProof.ChapterPauliFundamental
 
 /-!

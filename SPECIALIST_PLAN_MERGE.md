@@ -45,7 +45,7 @@ between Aristotle and live, so the overlay did not alter them.
 A safety backup of the pre-merge `BookProof.lean`, `lakefile.toml`, `Book.lean` is at
 `/media/leo/e7ed9d6f-5f0a-4e19-a74e-83424bc154ba/containers/tmp/opencode/merge_backup/`.
 
-### 2. New module `BookProof/ChapterPauliGrover.lean`
+### 2. New module `BookProof/PauliGrover/ChapterPauliGrover.lean`
 
 A new sorry-free module formalizing the ideal (`a = 1`) Pauli–Grover rotation as a
 concrete unitary parametrization of a deterministic regular conditional probability
@@ -69,7 +69,7 @@ lake build BookProof      # exits 0  (validates Aristotle cleanups + ChapterPaul
 lake build Singularity    # exits 0  (validates Aristotle Singularity cleanups)
 lake build book           # exits 0  (after Priority 3 prose is added)
 ```
-- `grep -rn "sorry" BookProof/ChapterPauliGrover.lean` is empty.
+- `grep -rn "sorry" BookProof/PauliGrover/ChapterPauliGrover.lean` is empty.
 - `BookProof.lean` still imports `Substrate`, `ChapterSolovay`,
   `ChapterSolovayCoordinates`, `ChapterG3`, `ChapterKopperman`, `ChapterPauliGrover`.
 - `lakefile.toml` still has `defaultTargets = ["PnpProof", "BookProof"]`.

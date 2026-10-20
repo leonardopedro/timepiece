@@ -71,8 +71,8 @@ All RandomMap2*.lean files (5 files, 1501+ lines) fully proved — zero sorries.
 `#print axioms` verification: Singularity/ (38 symbols), BookProof/ (200+ modules),
 PnpProof/ (3 files), RandomMap/RandomMap2*.lean (5 files), UsedRoute/,
 UnusedRoute/ all complete — zero sorries.
-Chapter G (Gauge symmetry) formalized in `BookProof/ChapterG.lean` and
-`BookProof/ChapterG2.lean` — zero sorries, axiom-clean.
+Chapter G (Gauge symmetry) formalized in `BookProof/Textbook/ChapterG.lean` and
+`BookProof/Textbook/ChapterG2.lean` — zero sorries, axiom-clean.
 RH track (UsedRoute/, UnusedRoute/, SchoenfeldPRA.lean) explicitly out of scope.
 
 **Build status:** `lake build` SUCCEEDED (8246+ jobs, 2026-07-26).
@@ -103,16 +103,16 @@ See `ARISTOTLE_SUMMARY.md` for the wave-by-wave audit trail (Waves 1-149).
 
 | File | Lean Module | Status | Sorries |
 |:---|:---|:---:|:---:|
-| `BookProof/ChapterG.lean` — G.0–G.7: gauge group, orbits=fibers, invariant subalgebras, Dirac obstruction on ℤ, gauge-fixing sections, Haar averaging, BRST nilpotency, Koopman evolution | `BookProof.ChapterG` | **DONE** | 0 |
-| `BookProof/ChapterG.lean` — G.13–G.15: unconstrained gauge-fixing, two-basis correspondence, Casimir operator constraints | `BookProof.ChapterG` | **DONE** | 0 |
-| `BookProof/ChapterG2.lean` — G.8–G.12: conditioning fails on null sets, Dirac obstruction for any countably infinite group, Gribov ambiguity (no continuous gauge fixing of circle), BRST cohomology of gauge-mechanics model, Haar averaging = invariant projection | `BookProof.ChapterG2` | **DONE** | 0 |
-| `BookProof/ChapterG2.lean` — G.16–G.17: simultaneous diagonalization of commuting symmetric operators, Haar measure for locally compact gauge groups | `BookProof.ChapterG2` | **DONE** | 0 |
+| `BookProof/Textbook/ChapterG.lean` — G.0–G.7: gauge group, orbits=fibers, invariant subalgebras, Dirac obstruction on ℤ, gauge-fixing sections, Haar averaging, BRST nilpotency, Koopman evolution | `BookProof.ChapterG` | **DONE** | 0 |
+| `BookProof/Textbook/ChapterG.lean` — G.13–G.15: unconstrained gauge-fixing, two-basis correspondence, Casimir operator constraints | `BookProof.ChapterG` | **DONE** | 0 |
+| `BookProof/Textbook/ChapterG2.lean` — G.8–G.12: conditioning fails on null sets, Dirac obstruction for any countably infinite group, Gribov ambiguity (no continuous gauge fixing of circle), BRST cohomology of gauge-mechanics model, Haar averaging = invariant projection | `BookProof.ChapterG2` | **DONE** | 0 |
+| `BookProof/Textbook/ChapterG2.lean` — G.16–G.17: simultaneous diagonalization of commuting symmetric operators, Haar measure for locally compact gauge groups | `BookProof.ChapterG2` | **DONE** | 0 |
 
 **Chapter G extension (Mehler measure) — PENDING:**
 
 | File | Lean Module | Status | Sorries |
 |:---|:---|:---:|:---:|
-| `BookProof/ChapterG3.lean` — G.18–G.22: commutative von Neumann algebra, Mehler as uniform measure, incomplete unconstrained gauge-fixing, Haar invariantization, QFT vacuum | — | **PENDING** | 0 planned |
+| `BookProof/Textbook/ChapterG3.lean` — G.18–G.22: commutative von Neumann algebra, Mehler as uniform measure, incomplete unconstrained gauge-fixing, Haar invariantization, QFT vacuum | — | **PENDING** | 0 planned |
 
 **Chapter S (Solovay-Hilbert decidability) — COMPLETED:**
 
@@ -204,7 +204,7 @@ All 22 BookProof files are sorry-free and axiom-clean (only `propext`, `Classica
 - Never writes `RandomMap2*.lean`, `RcpRandomMap2Bridge.lean`, `SchoenfeldPRA.lean`,
   `STATUS.md`, `ARISTOTLE_SUMMARY.md`, `RandomMap2Audit.lean`, `RandomMap2RH.lean`.
 - Never writes `Singularity/` (Track C owns this).
-- Never writes `BookProof/ChapterG3.lean` (Track B owns this).
+- Never writes `BookProof/Textbook/ChapterG3.lean` (Track B owns this).
 - Never modifies `UsedRoute/` or `UnusedRoute/` files.
 - Edits: `RandomMap2.md`, `FORMALIZATION_ROADMAP.md`, `ARISTOTLE_SUMMARY.md` only.
 - Completes sorries in `BookProof/ChapterSolovay.lean` (S.2, S.3, S.4).
@@ -447,25 +447,25 @@ above and per-file in `BookProof/STATUS.md`):**
 
 | File | Roadmap section (package) | Headline declarations |
 |---|---|---|
-| `BookProof/ChapterA.lean` | §A.0–A.2 foundational core | `System` (Def 1), `Commutes`, `IsNormal` (Def 24), `IsSubsystem`/`IsIrreducible` (Def 7); **Lemma 26** `orthogonal_isSubsystem`; **Lemma 27** `schur_normal_irreducible` (Schur property Def 13 = named hypothesis, per policy) |
-| `BookProof/ChapterA1.lean` | §A.1 Def 8 scaffolding (N1) | `AntiUnitary V` (`V ≃ₗᵢ⋆[ℂ] V`) + `inner_map_map`/`comp_inner`; `IsConjugation` (Def 8.1), `IsRImaginary` (Def 8.2); `conjugation_avg_fixed`/`_antifixed`, `conjugation_decomp`, `rimaginary_orthogonal`, `rimaginary_symm_apply` |
-| `BookProof/Complexification.lean` | §A.1 infrastructure (N1) | `Cx W` — complex Hilbert space structure on the complexification **built from scratch** (was "not in Mathlib"); `cxConj` anti-unitary involution, `cxMap` (operator complexification), `cxSystem`, `cxConj_isConjugation` (complexification of a real system is C-real) |
-| `BookProof/ChapterA1b.lean` | §A.1 subspace correspondence (N1) | `Cx.complexify`/`Cx.realPart` with both round-trips + subsystem preservation; headline `irreducible_iff_no_conj_subsystem` (real irreducibility ⇔ no proper conjugation-invariant complex subsystem) |
-| `BookProof/ChapterA1c.lean` | §A.1 C-type/R-type classification (N1) | Def 9 predicates `IsCReal`/`IsCPseudoreal`/`IsCComplex` + trichotomy `cType_exhaustive` + mutual exclusions; `cxSystem_isCReal`; `IsRReal` (Def 10) + **Prop 12 R-real case** `IsRReal.isIrreducible` |
-| `BookProof/ChapterA1d.lean` | §A.1 realification dual (N1) | `rxMap`/`rxSystem` (restriction of scalars, via `rclikeToReal` as **local** instance), `Jmap` + `Jmap_sq`/`Jmap_isRImaginary`; `realSub`/`cplxSub` correspondence; headline `complex_irreducible_iff_no_Jinvariant_subsystem` |
-| `BookProof/ChapterA2.lean` | §A.2 Lemma 14 (N2) | `CommutesUnitary`/`IsSchurUnitary` (Def 13, named predicate — never an axiom); **Lemma 14** `antiisometry_unique_up_to_phase` (two commuting anti-unitaries differ by a unit phase); `commuting_antiUnitary_scalar_multiple` |
-| `BookProof/ChapterA3.lean` | §A.3 concrete model (N4) | `mgamma` (4×4 Majorana `iγ^μ`), `mgamma5`, `minkowski`, `dgamma`; `mgamma_clifford`/`dgamma_clifford` (Def 38, `decide` over ℤ then cast to ℂ), `mgamma_map_conj`, `mgamma_unitary`, `mgamma5_sq`/`_anticomm`/`_eq_prod` |
-| `BookProof/ChapterB.lean` | §B.1–B.2 + **B.2′ (N3)** | `born_forward`, `born_backward`, `unit_vector_extends`; **`condKernel_disintegration`** (`ρ.fst.compProd ρ.condKernel = ρ`, the book's `p(y\|x)`) |
+| `BookProof/Realification/ChapterA.lean` | §A.0–A.2 foundational core | `System` (Def 1), `Commutes`, `IsNormal` (Def 24), `IsSubsystem`/`IsIrreducible` (Def 7); **Lemma 26** `orthogonal_isSubsystem`; **Lemma 27** `schur_normal_irreducible` (Schur property Def 13 = named hypothesis, per policy) |
+| `BookProof/Realification/ChapterA1.lean` | §A.1 Def 8 scaffolding (N1) | `AntiUnitary V` (`V ≃ₗᵢ⋆[ℂ] V`) + `inner_map_map`/`comp_inner`; `IsConjugation` (Def 8.1), `IsRImaginary` (Def 8.2); `conjugation_avg_fixed`/`_antifixed`, `conjugation_decomp`, `rimaginary_orthogonal`, `rimaginary_symm_apply` |
+| `BookProof/Realification/Complexification.lean` | §A.1 infrastructure (N1) | `Cx W` — complex Hilbert space structure on the complexification **built from scratch** (was "not in Mathlib"); `cxConj` anti-unitary involution, `cxMap` (operator complexification), `cxSystem`, `cxConj_isConjugation` (complexification of a real system is C-real) |
+| `BookProof/Realification/ChapterA1b.lean` | §A.1 subspace correspondence (N1) | `Cx.complexify`/`Cx.realPart` with both round-trips + subsystem preservation; headline `irreducible_iff_no_conj_subsystem` (real irreducibility ⇔ no proper conjugation-invariant complex subsystem) |
+| `BookProof/Realification/ChapterA1c.lean` | §A.1 C-type/R-type classification (N1) | Def 9 predicates `IsCReal`/`IsCPseudoreal`/`IsCComplex` + trichotomy `cType_exhaustive` + mutual exclusions; `cxSystem_isCReal`; `IsRReal` (Def 10) + **Prop 12 R-real case** `IsRReal.isIrreducible` |
+| `BookProof/Realification/ChapterA1d.lean` | §A.1 realification dual (N1) | `rxMap`/`rxSystem` (restriction of scalars, via `rclikeToReal` as **local** instance), `Jmap` + `Jmap_sq`/`Jmap_isRImaginary`; `realSub`/`cplxSub` correspondence; headline `complex_irreducible_iff_no_Jinvariant_subsystem` |
+| `BookProof/Realification/ChapterA2.lean` | §A.2 Lemma 14 (N2) | `CommutesUnitary`/`IsSchurUnitary` (Def 13, named predicate — never an axiom); **Lemma 14** `antiisometry_unique_up_to_phase` (two commuting anti-unitaries differ by a unit phase); `commuting_antiUnitary_scalar_multiple` |
+| `BookProof/Textbook/ChapterA3.lean` | §A.3 concrete model (N4) | `mgamma` (4×4 Majorana `iγ^μ`), `mgamma5`, `minkowski`, `dgamma`; `mgamma_clifford`/`dgamma_clifford` (Def 38, `decide` over ℤ then cast to ℂ), `mgamma_map_conj`, `mgamma_unitary`, `mgamma5_sq`/`_anticomm`/`_eq_prod` |
+| `BookProof/Textbook/ChapterB.lean` | §B.1–B.2 + **B.2′ (N3)** | `born_forward`, `born_backward`, `unit_vector_extends`; **`condKernel_disintegration`** (`ρ.fst.compProd ρ.condKernel = ρ`, the book's `p(y\|x)`) |
 | `BookProof/ChapterC.lean` | §C.1 complete | `card_invertible`, `card_all`, `prob_invertible` (`n!/nⁿ`), `invertible_ratio_isEquivalent` (Stirling), `invertible_ratio_tendsto_zero` |
 | `BookProof/ChapterD.lean` | §D.1 complete | `computable_countable`, `computable_bool_countable`, `computable_null`, `computable_bool_null` (atomless ⇒ computable functions null) |
 | `BookProof/ChapterE.lean` | §E.1–E.4 complete | `cos_sq_surjective`, `exp_J`/`exp_J_mulVec`, `collapse_density`, `stochastic_uniform_to_vertex_singular`, `hadamard_uniformizes` (n=2), `exists_uniformizer` (general-n DFT "black hole"), `stickBreaking_surjective` |
-| `BookProof/ChapterG.lean` | **Chapter G complete (N6 ✅)** | All of G.0–G.7: `gaugeGroup`, `gaugeOrbit_eq_fiber`, `gaugeInvariant_iff_factors`, `gaugeInvariantSubalgebra`/`gaugeInvariantOperators`, `expectation_gauge_invariant`, Dirac obstruction (`no_shift_invariant_probabilityMeasure`, `no_shift_invariant_unit_vector`), `exists_complete_gaugeFixing`, `haarAverage` + headline **`gauge_constraint_pushforward_full_measure`**, `BRST_nilpotent`, `koopmanEquiv`, `evolution_conserves_probability` |
-| `BookProof/Substrate.lean` | **§0 glue complete (N5 ✅)** | `substrate_born_forward`, `substrate_born_backward`, `substrate_unit_vector_extends` — Ch. B instantiated at the `PnpProof` Kopperman substrate measure |
+| `BookProof/Textbook/ChapterG.lean` | **Chapter G complete (N6 ✅)** | All of G.0–G.7: `gaugeGroup`, `gaugeOrbit_eq_fiber`, `gaugeInvariant_iff_factors`, `gaugeInvariantSubalgebra`/`gaugeInvariantOperators`, `expectation_gauge_invariant`, Dirac obstruction (`no_shift_invariant_probabilityMeasure`, `no_shift_invariant_unit_vector`), `exists_complete_gaugeFixing`, `haarAverage` + headline **`gauge_constraint_pushforward_full_measure`**, `BRST_nilpotent`, `koopmanEquiv`, `evolution_conserves_probability` |
+| `BookProof/Toolbox/Substrate.lean` | **§0 glue complete (N5 ✅)** | `substrate_born_forward`, `substrate_born_backward`, `substrate_unit_vector_extends` — Ch. B instantiated at the `PnpProof` Kopperman substrate measure |
 | `BookProof/ChapterU.lean` | **Chapter U complete (N8 ✅)** | **U.1 headline** `bornMeasure`/`conditionedState`/`born_conditioning` (Born collapse = `ProbabilityTheory.cond`); U.3 `prodEquiv : Sym(M×N) ≃ₐ[R] Sym M ⊗ Sym N` (Fock exponential, from two `lift`s + round-trips); U.4 `no_differentiable_trajectory`/`differentiable_trajectory_null` (around the `EXTERNAL` Lévy hypothesis, cited PWZ 1933/Bertoin 1994); U.5 `portfolio_risk_inv_sqrt`/`portfolio_std_inv_sqrt`; U.2 = cross-ref to `PnpProof/SphereGaussian.lean` |
-| `BookProof/ChapterA1e.lean` | §A.1 `V ⊕ V̄` splitting (N1) | `JY` image subspace + involution `JY_JY`, closedness/invariance lemmas; headline **`realification_splits`** (a real subsystem of an irreducible complex system is trivial or splits `V` as the closure of `Y ⊕ JY`) + `proper_realification_subsystem_splits` |
-| `BookProof/ChapterA1f.lean` | §A.1 R-real dichotomy (N1) | `conjFixed θ` real form as a subsystem of `V^r` (+ `ne_bot`/`ne_top`); headline **`realification_reducible_of_conjugation`**, `isCReal_realification_reducible`, `not_isCReal_of_realification_irreducible` |
-| `BookProof/ChapterA2b.lean` | §A.2 Prop 17 (N2) | `IsSchurFull` (Schur named predicate), `commutant_eq_complex_scalars`; **Prop 17** `Rreal_commutant_eq_real_scalars` (R-real commutant = ℝ) + `CommutesConj` |
-| `BookProof/ChapterA2c.lean` | **§A.2 Props 18–19 (N2 ✅ trichotomy complete)** | **Prop 18** `Rcomplex_realCommutant_eq_complex` (R-complex commutant = ℂ), **Prop 19** `Rpseudoreal_realCommutant_eq_quaternion` (R-pseudoreal commutant = ℍ, via `qembed : ℍ →ₐ[ℝ] (V →L[ℝ] V)` + `qembed_injective`); infrastructure `RealCommutes`, `mulI`, `thetaR`, `cembed`, `Plin`/`Qanti`/`cplxify` |
+| `BookProof/Realification/ChapterA1e.lean` | §A.1 `V ⊕ V̄` splitting (N1) | `JY` image subspace + involution `JY_JY`, closedness/invariance lemmas; headline **`realification_splits`** (a real subsystem of an irreducible complex system is trivial or splits `V` as the closure of `Y ⊕ JY`) + `proper_realification_subsystem_splits` |
+| `BookProof/Realification/ChapterA1f.lean` | §A.1 R-real dichotomy (N1) | `conjFixed θ` real form as a subsystem of `V^r` (+ `ne_bot`/`ne_top`); headline **`realification_reducible_of_conjugation`**, `isCReal_realification_reducible`, `not_isCReal_of_realification_irreducible` |
+| `BookProof/Realification/ChapterA2b.lean` | §A.2 Prop 17 (N2) | `IsSchurFull` (Schur named predicate), `commutant_eq_complex_scalars`; **Prop 17** `Rreal_commutant_eq_real_scalars` (R-real commutant = ℝ) + `CommutesConj` |
+| `BookProof/Realification/ChapterA2c.lean` | **§A.2 Props 18–19 (N2 ✅ trichotomy complete)** | **Prop 18** `Rcomplex_realCommutant_eq_complex` (R-complex commutant = ℂ), **Prop 19** `Rpseudoreal_realCommutant_eq_quaternion` (R-pseudoreal commutant = ℍ, via `qembed : ℍ →ₐ[ℝ] (V →L[ℝ] V)` + `qembed_injective`); infrastructure `RealCommutes`, `mulI`, `thetaR`, `cembed`, `Plin`/`Qanti`/`cplxify` |
 | `BookProof/ChapterB3.lean` | §B.3 partial-isometry API (N3) | `IsPartialIsometry` (`V V† V = V`) built from scratch (absent from Mathlib): `V†V`/`VV†` self-adjoint idempotents, `IsPartialIsometry.adjoint`, characterization `isPartialIsometry_iff_adjointComp_isIdempotent`, `norm_map_of_adjointComp_eq` |
 
 **What remains open (2026-07-08, post-integration). The ENTIRE queue is
@@ -569,11 +569,11 @@ obstruction note) and `lake build BookProof` is green.
   re-run locally, green (8032 jobs; only style-linter warnings — long lines /
   whitespace in `ChapterE.lean`, cosmetic).
 - ~~**N5 — §0 substrate glue.**~~ **DONE (run `bee1f248`)**:
-  `BookProof/Substrate.lean` instantiates Ch. B at the `PnpProof` Kopperman
+  `BookProof/Toolbox/Substrate.lean` instantiates Ch. B at the `PnpProof` Kopperman
   substrate measure — `substrate_born_forward`, `substrate_born_backward`,
   `substrate_unit_vector_extends`.
 - ~~**N6 — Chapter G: gauge transformations.**~~ **DONE, COMPLETE (run
-  `bee1f248`)**: `BookProof/ChapterG.lean` delivers all of G.0–G.7 (guided
+  `bee1f248`)**: `BookProof/Textbook/ChapterG.lean` delivers all of G.0–G.7 (guided
   section below now serves as documentation), `sorry`/`axiom`-free, no
   `EXTERNAL` hypothesis, headline `gauge_constraint_pushforward_full_measure`
   included.
@@ -597,7 +597,7 @@ obstruction note) and `lake build BookProof` is green.
   (Prop 11 real side: `IsRRealType`/`IsRComplexType`/`IsRPseudorealType`,
   `rType_exhaustive`, `cxSystem_reducible_of_commuting_rImaginary`).
 - ~~**N9 — Chapter G II.**~~ **DONE, COMPLETE (wave 4, run `8296bfb3`)**:
-  `BookProof/ChapterG2.lean` delivers all of G.8–G.12 — `cond_of_null`,
+  `BookProof/Textbook/ChapterG2.lean` delivers all of G.8–G.12 — `cond_of_null`,
   `no_translation_invariant_probabilityMeasure` (any countably infinite gauge
   group), the Gribov headline `no_continuous_gauge_fixing_circle` +
   `gauge_fixing_section_discontinuous`, the BRST layer
@@ -605,7 +605,7 @@ obstruction note) and `lake build BookProof` is green.
   `brst_physical_iff_gauge_invariant`, and the Haar projection triple. No
   `EXTERNAL` input. The guided "Chapter G II" section below is documentation.
 - ~~**N10 — Ch. B §§7–9.**~~ **DONE, COMPLETE (wave 4, run `8296bfb3`)**:
-  `BookProof/ChapterB7.lean` delivers B7.1–B7.4 (`koopman_comp`/`koopman_refl`/
+  `BookProof/Textbook/ChapterB7.lean` delivers B7.1–B7.4 (`koopman_comp`/`koopman_refl`/
   `koopmanRep_mul`, `koopman_const`, `eventMap_*` + `koopman_indicatorConstLp`,
   `hadamard_not_deterministic`). The guided section below is documentation.
 - ~~**N2 leftover — §A.2 Props 15–16.**~~ **DONE — N2 COMPLETE IN FULL
@@ -641,8 +641,8 @@ obstruction note) and `lake build BookProof` is green.
   H2.3/H2.4 conditional on the one named `EXTERNAL` `CrouzeixBound` exactly
   as designed. The spec below is retained as documentation of what landed.**
   Source: `RiemannProof/Hashimoto.md`. Target
-  `BookProof/ChapterH1.lean` (φ-functions + exponential integrator + resolvent
-  algebra) and `BookProof/ChapterH2.lean` (Krylov compression + convergence).
+  `BookProof/Textbook/ChapterH1.lean` (φ-functions + exponential integrator + resolvent
+  algebra) and `BookProof/Textbook/ChapterH2.lean` (Krylov compression + convergence).
   §0 S7 governs (this is the numerical backbone of the Mehler/Hashimoto Fock
   formalism); §0 S3 core method carries every infinite-dim step to a
   finite-rank Mathlib fact then closes by density. **The design is the
@@ -734,9 +734,9 @@ obstruction note) and `lake build BookProof` is green.
   uniform-sign and measure-theoretic — 22 theorems) plus an independent
   F3.5 in `ChapterF6.lean` (`misra_gries_bound`). The spec below is retained
   as documentation of what landed.** Source: `RiemannProof/QFM.tex`
-  (impl `../unfer/qfm/`). Targets were `BookProof/ChapterF3.lean` (continuity
+  (impl `../unfer/qfm/`). Targets were `BookProof/Textbook/ChapterF3.lean` (continuity
   Hamiltonian + Fock encoding + training) and
-  `BookProof/ChapterF4.lean` (tomographic recovery) —
+  `BookProof/Textbook/ChapterF4.lean` (tomographic recovery) —
   **`ChapterF1` (N12) and `ChapterF2` (N7(c) mass gap)
   were already on disk, so QFM uses F3/F4.** §0 S7 governs
   (this IS the Mehler/Kopperman generative flow); **reuses N12's number
@@ -843,7 +843,7 @@ obstruction note) and `lake build BookProof` is green.
   **DONE (wave 38): `ChapterA4h.lean` + `ChapterA3w.lean` on disk,
   `sorry`/`axiom`-free.** The spec below is retained as documentation of what
   landed (external theorems as named hypotheses, conditional headlines proved).
-  Target `BookProof/ChapterA4h.lean` (+
+  Target `BookProof/Textbook/ChapterA4h.lean` (+
   `ChapterA3w.lean` for the Weyl half if cleaner). The single residue every
   wave since 22 has recorded. Design (matches the `IsSchurFull` pattern —
   named hypotheses with citation docstrings, *never* axioms, then prove the
@@ -875,7 +875,7 @@ obstruction note) and `lake build BookProof` is green.
   (`quadratic_ordering_vacuum` headline `⟨0|H|0⟩ = 0`, `numberOp`, BRST
   bridge).** N14's F2.7 reuses this file's `numberOp`/`numberOp_monomial`. The
   spec below is retained as documentation.
-  Target `BookProof/ChapterF1.lean` (field-theory core; book "Quadratic
+  Target `BookProof/Textbook/ChapterF1.lean` (field-theory core; book "Quadratic
   ordering" ~line 4031, "Mass gap" ~4061; §0 S7 governs). **No `EXTERNAL`
   input** — the one-mode model is `ℂ[X]` (Mathlib `Polynomial`), the
   `n`-mode model is `MvPolynomial (Fin n) ℂ`; the vacuum `|0⟩` is `1`,
@@ -951,7 +951,7 @@ in that file compile without `sorry`.
 
 | # | File | Target | Owner |
 |---|:---|:---|:---:|
-| A1 | `BookProof/ChapterA1.lean` through `ChapterA5.lean` | 100+ modules | **A** |
+| A1 | `BookProof/Realification/ChapterA1.lean` through `ChapterA5.lean` | 100+ modules | **A** |
 | A2 | `BookProof/RandomMap2Audit.lean` | 16 statements | **A** |
 | A3 | `BookProof/randomMap2_axioms.lean` | 2 statements | **A** (already verified) |
 | A4 | `BookProof/randomMap2RH_axioms.lean` | 2 statements | **A** (already verified) |
@@ -1258,7 +1258,7 @@ Scope: this binds **N4 (§A.3–A.5)**, **N9 G.11 (BRST)**, **Ch. U** cross-refe
 | D | Aligned deep learning as random sampling (9606) | sampling-method equivalence lemma(s) | **D.1 DONE in Lean** (`BookProof/ChapterD.lean`) |
 | E | Wave-function collapse vs Euler's formula (3229) | Euler-formula identities for phase spaces | **E.1–E.4 DONE in Lean** (`BookProof/ChapterE.lean`); E.5 = cross-ref into §A.2 |
 | F | Reconstructing the classical trajectory (2494) | conditional-expectation trajectory statement | Triaged non-formalizable (prose); Wigner anchor = N7(b) |
-| **G** | **Gauge symmetry & dissipative dynamics (2128) + Gribov chapter (7125)** | **gauge group of a parametrization, invariant subalgebras, gauge-fixing, Haar averaging, pushforward constraints, BRST nilpotency, Koopman; PLUS (G II): conditioning-fails-on-null, general Dirac obstruction, Gribov no-continuous-gauge-fixing, BRST cohomology, Haar projection** | **G.0–G.7 DONE in Lean** (`BookProof/ChapterG.lean`, run `bee1f248`); **G.8–G.12 DONE (N9 ✅, wave 4 run `8296bfb3`, `BookProof/ChapterG2.lean` incl. Gribov headline + BRST cohomology)** |
+| **G** | **Gauge symmetry & dissipative dynamics (2128) + Gribov chapter (7125)** | **gauge group of a parametrization, invariant subalgebras, gauge-fixing, Haar averaging, pushforward constraints, BRST nilpotency, Koopman; PLUS (G II): conditioning-fails-on-null, general Dirac obstruction, Gribov no-continuous-gauge-fixing, BRST cohomology, Haar projection** | **G.0–G.7 DONE in Lean** (`BookProof/Textbook/ChapterG.lean`, run `bee1f248`); **G.8–G.12 DONE (N9 ✅, wave 4 run `8296bfb3`, `BookProof/Textbook/ChapterG2.lean` incl. Gribov headline + BRST cohomology)** |
 | H | Consciousness as a Bayesian prior (9122) | Bayesian-prior representation lemma(s) | Triaged non-formalizable (prose) |
 | P | Physics-heavy (3699, 6486, 7125, 7522, 7881) | discrete lemmas only | Mined — no discrete lemmas beyond Ch. A/B/E reuse; deeper gauge content now lives in Ch. G |
 | **U** | **Unitary inference / unfer (added 2026-07-02; source `../test` gitbook + pubpub ec0in, to be merged into book.tex)** | **Born-rule conditioning = classical conditional measure (`ProbabilityTheory.cond`), Fock exponential property `Sym(M×N) ≅ Sym M ⊗ Sym N`, 1/√n portfolio risk, Lévy nowhere-differentiability (`EXTERNAL`)** | **DONE in Lean** (`BookProof/ChapterU.lean`, run `e3ffd49f`: U.1 headline `born_conditioning`, U.3 `prodEquiv`, U.4 `EXTERNAL` + wrappers, U.5 portfolio; U.2 = cross-ref to `PnpProof/SphereGaussian.lean`); merge into book.tex remains editorial (author's task) |
@@ -1312,7 +1312,7 @@ July 2026); every ✅ row gives the exact declaration and `file:line`.
 | **Quaternions `ℍ`** (§A.2 P19) | ✅ | `Quaternion` — `Algebra/Quaternion.lean:753` (`ℍ[R]`). |
 | **DFT unitary** (Ch. E.3) | ⚠️ only `ZMod` | `Analysis/Fourier/ZMod.lean` (DFT over `ZMod n`, character orthogonality). **No `Matrix.dft`** (correction). Use the `ZMod` Fourier transform, or build the `n×n` unitary + `|·|²=1/n` by hand (Hadamard for `n=2`). |
 | **Weyl complete reducibility** (§A.2 N23, §A.3 N50) | ❌ | Not formalized (Mathlib has semisimple *modules*, not Weyl for Lie groups). Named hypothesis; cite Hall/Weyl. |
-| **Schur for unitary reps / Mackey imprimitivity** (§A.2 L28/34, N33; §A.4 N84) | ✅ **in-repo (L28/L34)** | `BookProof/ChapterSchurIrreducible.lean` — `commutant_scalar_of_irreducible`: the commutant of an irreducible *normal* system on any complex Hilbert space is `ℂ·1` (continuous functional calculus, no dimension restriction); it discharges `IsSchurFull`/`IsSchurUnitary`. `BookProof/ChapterSchurRepresentation.lean` — L28 (`schur_unitary_representation`) and L34 (`schur_imprimitivity`, without Mackey). The full **imprimitivity theorem** (N33) itself is still `EXTERNAL`. |
+| **Schur for unitary reps / Mackey imprimitivity** (§A.2 L28/34, N33; §A.4 N84) | ✅ **in-repo (L28/L34)** | `BookProof/Realification/ChapterSchurIrreducible.lean` — `commutant_scalar_of_irreducible`: the commutant of an irreducible *normal* system on any complex Hilbert space is `ℂ·1` (continuous functional calculus, no dimension restriction); it discharges `IsSchurFull`/`IsSchurUnitary`. `BookProof/Realification/ChapterSchurRepresentation.lean` — L28 (`schur_unitary_representation`) and L34 (`schur_imprimitivity`, without Mackey). The full **imprimitivity theorem** (N33) itself is still `EXTERNAL`. |
 | **Pauli's fundamental theorem of γ-matrices** (§A.3 N36) | ✅ **in-repo** | `BookProof/ChapterPauliFundamental.lean` — `pauliFundamental` proves `ChapterA3b.PauliFundamental` (averaging over the sixteen ordered products; trace-orthogonality of the concrete Majorana products by `decide`). Consequences with no external input: `real_pauli'` (Prop 37) and `ChapterPauliConsequences.lambda_surjective'`/`lambda_two_to_one'` (Prop 46). |
 | **Wigner's symmetry theorem** (§A.4, Ch. F) | ❌ | **Not in Lean, Isabelle, or Coq** (verified). Named hypothesis. Related infra: Isabelle "Complex Bounded Operators" (arXiv:2512.05878). |
 | **Wigner little-group Poincaré classification** (§A.4 N80–83) | ❌ | Not formalized. Named hypothesis; cite Wigner 1939. |
@@ -1327,7 +1327,7 @@ July 2026); every ✅ row gives the exact declaration and `file:line`.
 | **Continuous discrete-valued ⇒ constant on connected** (G.10) | ✅ | `IsPreconnected.constant` — `Topology/Connected/TotallyDisconnected.lean:297`; `PreconnectedSpace.constant` — `…:305`; or avoid via `intermediate_value_Icc` (`Topology/Order/IntermediateValue.lean`). |
 | **Quotient-module algebra for BRST cohomology** (G.11) | ✅ | `Submodule.Quotient` + `Submodule.liftQ`, `Ideal.Quotient.mk`/`.lift` (core Mathlib, ubiquitous); `LinearMap.mulLeft` for `ker Q`. |
 | **Fubini for the Haar projection** (G.12) | ✅ | `MeasureTheory.integral_integral_swap` — `MeasureTheory/Integral/Prod.lean:532`; `integral_mul_left_eq_self` — `MeasureTheory/Group/Integral.lean:91` (already pinned for G.5). |
-| **Koopman composition layer** (B7.1–B7.3) | ✅ | `Lp.coeFn_compMeasurePreserving` — `MeasureTheory/Function/LpSpace/Basic.lean:559`; `MeasurePreserving.comp` — `Dynamics/Ergodic/MeasurePreserving.lean:93`; `MeasurableEquiv.trans`/`refl`; on-disk template `koopman_comp_left`/`_right` in `BookProof/ChapterG.lean`. |
+| **Koopman composition layer** (B7.1–B7.3) | ✅ | `Lp.coeFn_compMeasurePreserving` — `MeasureTheory/Function/LpSpace/Basic.lean:559`; `MeasurePreserving.comp` — `Dynamics/Ergodic/MeasurePreserving.lean:93`; `MeasurableEquiv.trans`/`refl`; on-disk template `koopman_comp_left`/`_right` in `BookProof/Textbook/ChapterG.lean`. |
 
 **Net effect (after pinning against real source).** Chapters B.1/B.2, C.1, D.1, E,
 and the algebraic Schur core of §A.2 are near-total *reuse* — every needed lemma is
@@ -2130,7 +2130,7 @@ definitions of gauge transformation / gauge group / gauge-invariant algebra /
 gauge-fixing and their properties **are formalizable and important** — they are
 the mathematical backbone that the Yang–Mills, Gribov, parity and gravity
 chapters (Ch. P) all lean on. Formalize the whole package below into
-`BookProof/ChapterG.lean` (split a `ChapterG/Koopman.lean` if the file grows
+`BookProof/Textbook/ChapterG.lean` (split a `ChapterG/Koopman.lean` if the file grows
 past ~600 lines). **None of G.0–G.7 needs an `EXTERNAL` hypothesis.** Book
 sources: §"Gauge transformations, constrained systems and conditioned
 probability" (line 2223, the core), §"Wave-function parametrization of
@@ -2484,11 +2484,11 @@ four lemmas, `gauge_constraint_pushforward_full_measure`, `ghostAnnih`/
 
 # Chapter G II — Gribov ambiguity, BRST cohomology, deeper constraint implementation — **work package N9** (NEW 2026-07-03, author: "the gauge transformations definition and properties is very important")
 
-G.0–G.7 are DONE (`BookProof/ChapterG.lean`). This package mines the **rest**
+G.0–G.7 are DONE (`BookProof/Textbook/ChapterG.lean`). This package mines the **rest**
 of the gauge chapter (book 2223–2455) plus the gauge-fixing core of the
 "Timepiece and the Gribov ambiguity" chapter (book 7125): the parts of the
 gauge story that G.0–G.7 did not touch. Target file
-**`BookProof/ChapterG2.lean`** (import `BookProof.ChapterG` — build on its
+**`BookProof/Textbook/ChapterG2.lean`** (import `BookProof.ChapterG` — build on its
 `gaugeGroup`/`IsCompleteGaugeFixing`/`haarAverage`/BRST definitions, never
 re-derive). Everything below is self-contained mathematics with pinned Mathlib
 names; **no `EXTERNAL` hypothesis anywhere in this package**.
@@ -2686,7 +2686,7 @@ wave-functions. §8: conservative transformations preserve the measure. §9:
 **deterministic transformations are exactly the unitaries that preserve the
 commutative algebra of events**, and complementarity (non-commuting
 observables) is the signature of a *non-deterministic* symmetry
-transformation. Target file **`BookProof/ChapterB7.lean`** (import
+transformation. Target file **`BookProof/Textbook/ChapterB7.lean`** (import
 `BookProof.ChapterG` for `koopmanEquiv` — G.7 built the single-map case; this
 package adds the group/algebra structure). §§10–11 (ensemble
 forecasting/classical limit) remain prose — triaged, cite-only. **No
@@ -3363,7 +3363,7 @@ Can only write:
 - `BookProof.lean` — hygiene (import updates)
 
 **Verification targets (BookProof/ core):
-- `BookProof/ChapterA1.lean` through `ChapterA5.lean` — 100+ modules
+- `BookProof/Realification/ChapterA1.lean` through `ChapterA5.lean` — 100+ modules
 - `BookProof/RandomMap2Audit.lean` — 16 statements
 - `BookProof/randomMap2_axioms.lean` — 2 statements (already verified)
 - `BookProof/randomMap2RH_axioms.lean` — 2 statements (already verified)
@@ -3478,7 +3478,7 @@ Co-Authored-By: Mistral Vibe <vibe@mistral.ai>"
 
 | File | Lean Module | Status | Sorries |
 |:---|:---|:---:|:---:|
-| `BookProof/ChapterG3.lean` — G.18–G.22: commutative von Neumann algebra (event projections), Mehler as uniform measure, incomplete unconstrained gauge-fixing (faithful remnant), Haar invariantization, QFT vacuum | `BookProof.ChapterG3` | **DONE** | 0 |
+| `BookProof/Textbook/ChapterG3.lean` — G.18–G.22: commutative von Neumann algebra (event projections), Mehler as uniform measure, incomplete unconstrained gauge-fixing (faithful remnant), Haar invariantization, QFT vacuum | `BookProof.ChapterG3` | **DONE** | 0 |
 
 - **G.18** `eventProj`/`eventProj_idem`/`eventProj_comm`/`eventProj_inter`/`eventProj_compl`/`eventProj_union`/`integral_eventProj` — the algebraic measure theory: events are idempotent projections of the *commutative* function algebra `X → ℝ`; intersection/union ↦ product/inclusion-exclusion; the state integrates a projection to its probability (`book.tex` 1426–1441).
 - **G.19** `mehler_uniform_isProbability`/**`mehler_uniform_gauge_invariant`**/`mehler_uniform_concentrates` — the Mehler prior = uniform measure on the `√k`-sphere, a probability measure, orthogonal-(gauge-)invariant, concentrated on the sphere (reuses `PnpProof.SphereGaussian`, `book.tex` 2488/3845).
@@ -3501,7 +3501,7 @@ Both `sorry`-free and axiom-clean; registered in `BookProof.lean`; full default 
 
 | File | Lean Module | Status | Sorries |
 |:---|:---|:---:|:---:|
-| `BookProof/ChapterParitySU3.lean` — the `ℤ₂` outer automorphism of `SU(3)`: entrywise complex conjugation of the Gell-Mann generators is an order-2, nontrivial Lie-algebra automorphism `conj([λ^a,λ^b]) = ε^a ε^b·[λ^a,λ^b]` (encodes `s^a s^b s^c f^{abc}=f^{abc}`, the gluon parity signs), companion to `ChapterParitySU2` (`book.tex` ~7818) | `BookProof.ChapterParitySU3` | **DONE** | 0 |
+| `BookProof/Sm/ChapterParitySU3.lean` — the `ℤ₂` outer automorphism of `SU(3)`: entrywise complex conjugation of the Gell-Mann generators is an order-2, nontrivial Lie-algebra automorphism `conj([λ^a,λ^b]) = ε^a ε^b·[λ^a,λ^b]` (encodes `s^a s^b s^c f^{abc}=f^{abc}`, the gluon parity signs), companion to `ChapterParitySU2` (`book.tex` ~7818) | `BookProof.ChapterParitySU3` | **DONE** | 0 |
 | `BookProof/ChapterGellMann.lean` — the concrete Gell-Mann generators are Hermitian, traceless and trace-orthonormal `tr(λ^a λ^b)=2δ_{ab}`; `T_a=½λ^a` discharges the abstract `YangMillsSU3.TraceOrthonormal` hypothesis `tr(T_a T_b)=½δ_{ab}` (bridge to `ChapterYangMillsSU3`) (`book.tex` ~7001) | `BookProof.ChapterGellMann` | **DONE** | 0 |
 
 Both `sorry`-free and axiom-clean (`propext`, `Classical.choice`, `Quot.sound`); registered in `BookProof.lean`; full default build green (8275 jobs).

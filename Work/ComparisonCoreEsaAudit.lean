@@ -1,4 +1,4 @@
-import BookProof.ChapterComparisonCoreEsa
+import BookProof.Toolbox.ChapterComparisonCoreEsa
 
 #print axioms BookProof.SelfAdjointCoreEsa.deficiencyTrivialAt_dom_of_isSelfAdjointExtension
 #print axioms BookProof.SelfAdjointCoreEsa.essentiallySelfAdjointOn_dom_of_isSelfAdjointExtension

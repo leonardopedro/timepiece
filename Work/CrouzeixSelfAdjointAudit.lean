@@ -1,4 +1,4 @@
-import BookProof.ChapterCrouzeixSelfAdjoint
+import BookProof.Sirk.ChapterCrouzeixSelfAdjoint
 
 /-!
 Axiom audit for `BookProof.ChapterCrouzeixSelfAdjoint`: Crouzeix's inequality with

@@ -23,7 +23,7 @@ All new theorems must remain `sorry`-free and `axiom`-free (only `propext`,
 This plan is new. All ingredients except one compatibility lemma are already
 proved:
 
-- **Subspace nesting.** `krylovSpan_mono` (`BookProof/ChapterH5.lean:64`):
+- **Subspace nesting.** `krylovSpan_mono` (`BookProof/Textbook/ChapterH5.lean:64`):
   `m ≤ n → krylovSpan H v m ≤ krylovSpan H v n`.
 - **Monotone bound.** `sirk_error_bound_antitone` (`ChapterH6.lean:70`):
   `sirkBound` is non-increasing in the Krylov dimension; `sirk_error_decay_exponential`
@@ -92,7 +92,7 @@ limit or the numerical convergence rate.
 
 ## 3. New module and placement
 
-Create **`BookProof/ChapterH8.lean`** (namespace `BookProof.ChapterH8`), and
+Create **`BookProof/Textbook/ChapterH8.lean`** (namespace `BookProof.ChapterH8`), and
 register it in `BookProof.lean` immediately after the `ChapterH7` import
 (`BookProof.lean:334`):
 

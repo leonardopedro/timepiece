@@ -390,7 +390,7 @@ The sentence above — *the quantized operator on the transformed coordinates is
 essentially self-adjoint* — was for a long time a plan-level claim pointing at
 the certificate layer. It is now a theorem in the verified layer, in three
 checked steps (`BookProof/ChapterMomentumChartEsa.lean`,
-`BookProof/ChapterOdeChartTransfer.lean`), and every step is a reusable
+`BookProof/Ode/ChapterOdeChartTransfer.lean`), and every step is a reusable
 instrument rather than a fact about this one ODE.
 :::
 

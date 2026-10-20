@@ -1,9 +1,9 @@
-import BookProof.ChapterNsFieldMomentumInverse
+import BookProof.Ns.ChapterNsFieldMomentumInverse
 
 /-!
 # Axiom audit — the inverse field momentum
 
-Every headline result of `BookProof/ChapterNsFieldMomentumInverse.lean` (item 2 of the
+Every headline result of `BookProof/Ns/ChapterNsFieldMomentumInverse.lean` (item 2 of the
 Navier–Stokes plan items) must rest on the standard axioms only: `propext`, `Classical.choice`,
 `Quot.sound`.
 -/

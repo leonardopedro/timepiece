@@ -1,7 +1,7 @@
-import BookProof.ChapterSmCarContinuum
-import BookProof.ChapterSmGaugeConnection
-import BookProof.ChapterSmBrstGhost
-import BookProof.ChapterSmGaugeRepresentation
+import BookProof.Sm.ChapterSmCarContinuum
+import BookProof.Sm.ChapterSmGaugeConnection
+import BookProof.Sm.ChapterSmBrstGhost
+import BookProof.Sm.ChapterSmGaugeRepresentation
 
 /-!
 Axiom audit for the honest-boundary closure wave of the Standard-Model work order

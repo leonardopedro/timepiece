@@ -1,12 +1,12 @@
-import BookProof.ChapterSmOneParticle
-import BookProof.ChapterSmHamiltonian
-import BookProof.ChapterSmComparison
-import BookProof.ChapterSmOuterFock
-import BookProof.ChapterSmCarAlgebra
-import BookProof.ChapterSmDiracYukawa
-import BookProof.ChapterSmComparisonFull
+import BookProof.Sm.ChapterSmOneParticle
+import BookProof.Sm.ChapterSmHamiltonian
+import BookProof.Sm.ChapterSmComparison
+import BookProof.Sm.ChapterSmOuterFock
+import BookProof.Sm.ChapterSmCarAlgebra
+import BookProof.Sm.ChapterSmDiracYukawa
+import BookProof.Sm.ChapterSmComparisonFull
 import BookProof.ChapterSmHiggsVacuum
-import BookProof.ChapterSmDiracSpinor
+import BookProof.Sm.ChapterSmDiracSpinor
 
 /-!
 Axiom audit for the Standard-Model wave (§D6b-SM of `CONSOLIDATED_PLAN.md`): the coordinate

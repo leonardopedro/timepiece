@@ -1,6 +1,6 @@
-import BookProof.ChapterPvmScalarMeasure
-import BookProof.ChapterPvmInducedSystem
-import BookProof.ChapterPvmFibreInducedSystem
+import BookProof.InducedSystems.ChapterPvmScalarMeasure
+import BookProof.InducedSystems.ChapterPvmInducedSystem
+import BookProof.InducedSystems.ChapterPvmFibreInducedSystem
 
 /-!
 Axiom audit for the assembly of the cyclic pieces of a projection-valued measure into a

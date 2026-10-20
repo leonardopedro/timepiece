@@ -1,9 +1,9 @@
 # Hermite-basis Galerkin truncation and the Friedrichs extension — what was formalized
 
-Lean module: `BookProof/ChapterHermiteGalerkinFriedrichs.lean`
+Lean module: `BookProof/Toolbox/ChapterHermiteGalerkinFriedrichs.lean`
 (namespace `BookProof.HermiteGalerkin`; `sorry`-free, no new axioms — every
 result below depends only on `propext`, `Classical.choice`, `Quot.sound`, as
-certified in `BookProof/ChapterRoadmapAudit.lean`).
+certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`).
 
 The prose argument was: *a Krylov/Galerkin algorithm run in the Hermite basis
 performs a Rayleigh–Ritz minimization of the energy form, the finite energy
@@ -52,7 +52,7 @@ statements are proved for an arbitrary Hilbert basis indexed by `ℕ`;
 | feeding in the matrix elements of a bounded operator recovers that operator | `finiteModeRestrict_hypotheses`, `finiteModeRestrict_selects_operator` |
 
 The construction of the extension itself is the one already in
-`BookProof/ChapterYangMillsFriedrichsLimit.lean` (`friedrichs_of_bounded`).
+`BookProof/Qym/ChapterYangMillsFriedrichsLimit.lean` (`friedrichs_of_bounded`).
 
 ## What is *not* claimed
 

@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterFlowDGammaEsa
-import BookProof.ChapterEsaClosureCore
+import BookProof.Toolbox.ChapterEsaClosureCore
 
 /-!
 # Second quantization of an **essentially self-adjoint** one-particle operator
@@ -11,7 +11,7 @@ finite-particle domain over a graph-norm core `D` whenever the one-particle oper
 only assumed **symmetric and essentially self-adjoint on its own domain `D`** (trivial
 deficiency at `± i`, the classical criterion), and the conclusion is stated for that same `D`.
 
-The route is the one the closure machinery of `BookProof/ChapterEsaClosureCore.lean` makes
+The route is the one the closure machinery of `BookProof/Toolbox/ChapterEsaClosureCore.lean` makes
 available:
 
 * `closureSelfAdjoint` — the closure `Ā` of `A`, an `UnboundedSelfAdjoint` operator on

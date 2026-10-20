@@ -32,7 +32,7 @@ are **not yet proved**. Every new theorem must remain `sorry`-free and
 > and 5 were re-audited and are all landed (see the item-by-item notes below and
 > in `BookProof/STATUS.md`).  Priority 4 is now closed as well: the last realistic
 > target on that list, a concrete complete-reducibility witness beyond `N = 2`,
-> is `BookProof/ChapterA3x.lean`
+> is `BookProof/Textbook/ChapterA3x.lean`
 > (`tensorCube_complete_reducibility`: `V^{⊗3} = Sym³V ⊕ Λ³V ⊕ Mixed`, with the
 > mixed summand proved non-zero).  Three further packages landed in the same
 > pass: `ChapterBoseEinstein` (the thermal law is the Gibbs law; `τ = ½ coth(x/2)`),
@@ -227,7 +227,7 @@ is only proved for generators. Verify by `#check`; close any missing lemma.
 
 ### 3.3 Gravity: the two projectors are orthogonal complements
 `Book/DiffeomorphismsGravity.lean` asserts $`\chi\cdot\Pi = 0` and
-$`\chi + \Pi = \delta`. `BookProof/ChapterGravityTimeProj.lean` has
+$`\chi + \Pi = \delta`. `BookProof/GravityAlgebra/ChapterGravityTimeProj.lean` has
 `spatialProj_mul_timeProj` and `spatialProj_add_timeProj`. Add the missing
 `timeProj_mul_spatialProj = 0` (already present) and, if not present, the
 conclusion that the image of $`\chi` equals the kernel of $`\Pi` (the orthogonal
@@ -254,7 +254,7 @@ prove it.
 ### 3.6 Deep learning: the induced-prior expectation identity
 `Book/AlignedDeepLearning.lean` asserts `inducedPrior_expectation` (expectation
 under the induced prior equals the seed-average of the trained model).
-`BookProof/ChapterDeepLearningEnsemble.lean` has it. Add the missing companion
+`BookProof/Attention/ChapterDeepLearningEnsemble.lean` has it. Add the missing companion
 `evidence_eq_seed_average` if not present, and the full posterior-as-ratio statement
 `posterior_expectation_eq_seed_ratio` (both listed by the roadmap as present —
 verify, and prove any that are still placeholders).
@@ -307,7 +307,7 @@ unitary defining the conditioned probability."
 $`\rho = U D U^\dagger` with $`D` diagonal real and $`U` unitary. Use Mathlib's
 `Matrix.PosSemidef.spectral_decomposition` / `Module.End` spectral theorem
 (`LinearMap.IsSymmetric.eigenvectorBasis`). Express $`D` as the marginal and $`U`
-as the conditional via `BookProof/ChapterDensitySpectral.lean` and
+as the conditional via `BookProof/Density/ChapterDensitySpectral.lean` and
 `ChapterConditional.lean`. Deliverable: `density_spectral_unitary_decomposition`.
 
 **Status (2026-08-08): DONE.** `BookProof.DensitySpectral.density_spectral` proves
@@ -329,7 +329,7 @@ inequality on a finite measure space. Use Mathlib `MeasureTheory.Lp` /
 
 ### 5.3 Countable definability of the reals
 `book.tex` ~8430–8434: the set of reals definable in a fixed countable language is
-countable. `BookProof/ChapterDefinabilityFragment.lean` and
+countable. `BookProof/Definability/ChapterDefinabilityFragment.lean` and
 `ChapterCountableDefinability.lean` already prove `definable_reals_countable` and
 `exists_nondefinable_real`. Verify they are `sorry`-free; if the roadmap notes any
 gap, complete it. Deliverable already present — confirm and add `#check`.

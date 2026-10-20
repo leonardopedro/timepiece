@@ -93,9 +93,9 @@ atomic-plus-diffuse abelian von Neumann class, headline
 to `Book/FreeField.lean`, `Book/CoherentState.lean` and `Book/NullMeasure.lean`.
 
 **Part G — landed (2026-08-09).** The shared analytic core was promoted out of
-`PnpProof/` into four new Mathlib-only modules `BookProof/PhysMeasureBasis.lean`,
-`BookProof/PhysFunctionalAnalysis.lean`, `BookProof/PhysHSGaussian.lean` and
-`BookProof/PhysMehler.lean`; the original `PnpProof/` files are now thin `export`
+`PnpProof/` into four new Mathlib-only modules `BookProof/Toolbox/PhysMeasureBasis.lean`,
+`BookProof/Toolbox/PhysFunctionalAnalysis.lean`, `BookProof/Toolbox/PhysHSGaussian.lean` and
+`BookProof/Toolbox/PhysMehler.lean`; the original `PnpProof/` files are now thin `export`
 aliases and **no `PnpProof` module compiles in the default build**.
  `RandomMap/SchoenfeldPRA.lean` was moved to `UnusedRoute/SchoenfeldPRA.lean`
  (taking its two intentional RH `sorry`s out of the default thread).  A style
@@ -115,7 +115,7 @@ aliases and **no `PnpProof` module compiles in the default build**.
  >   `rcpPriorOnSubstrate_isProb` (thin wrappers over
  >   `BookProof.PhysMehler.exists_atomless_prob_substrate`) plus `Substrate`
  >   (already shared in `PhysMehler`).  Move those two wrappers into
- >   `BookProof/PhysMehler.lean` (or define them locally in `RandomMap2`), and
+ >   `BookProof/Toolbox/PhysMehler.lean` (or define them locally in `RandomMap2`), and
  >   repoint `RandomMap2`'s import to `BookProof.PhysMehler` — dropping
  >   `UnusedRoute.SchoenfeldPRA` from the default thread entirely.
  > - **`RandomMap2.lean` Phase 7 (lines 844–931) is RH content** and must move to
@@ -130,7 +130,7 @@ aliases and **no `PnpProof` module compiles in the default build**.
  > `Book/ChapterSolovay` → `RandomMap2` edge) has no `UnusedRoute` dependency.
 
 **Continuation pass — landed (2026-08-09, later the same day).**  The audit found
-`lake build BookProof` **red** (`BookProof/PhysMehler.lean`: two stale bullets
+`lake build BookProof` **red** (`BookProof/Toolbox/PhysMehler.lean`: two stale bullets
 after a `rw`); that was repaired first.  Four further packages landed, all
 `sorry`-free/`axiom`-free, registered and `#check`-ed in `Book/CoherentState.lean`:
 `ChapterCoherentFidelity` (the quantum fidelity of coherent states,
@@ -139,7 +139,7 @@ after a `rw`); that was repaired first.  Four further packages landed, all
 `d/dβ⟨s⟩_β = Var_β(s)`), `ChapterSoftmaxMaxEntropy` (Gibbs' inequality and the
 maximum-entropy characterization of Softmax) and `ChapterEntropyTemperature`
 (`dH/dβ = −β·Var_β(s)`, entropy antitone on `β ≥ 0`).  The **style follow-up
-recorded under Part G is closed**: `BookProof/PhysHSGaussian.lean` is now
+recorded under Part G is closed**: `BookProof/Toolbox/PhysHSGaussian.lean` is now
 warning-free, with the Hermite derivative/polynomiality lemmas rewritten as
 reusable top-level results; no linter was disabled.  Also recorded in
 `BookProof/STATUS.md` for the first time: the previously undocumented
@@ -147,7 +147,7 @@ reusable top-level results; no linter was disabled.  Also recorded in
 
 **Operational-layer pass — landed (2026-08-09, latest).**  Five further packages,
 all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified in
-`BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
 `ChapterSoftmaxJacobian` (the score derivative of attention: `∂ log Z/∂sᵢ = β·pᵢ`,
 the Jacobian `∂pⱼ/∂sᵢ = β·pⱼ(δᵢⱼ − pᵢ)`, its symmetry, zero row sums and
 positive-semidefinite quadratic form `β·Var`), `ChapterAttentionOutput` (the
@@ -169,7 +169,7 @@ gaps below are unchanged.
 
 **Attention-layer pass — landed (2026-08-10, this wave).**  Four further packages,
 all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified in
-`BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
 `ChapterAttentionRetrieval` (the head as a *quantitative* associative memory —
 under a score margin `δ` every distractor keeps at most `e^{-βδ}`, the target keeps
 at least `1/(1+(m-1)e^{-βδ})`, and the output is within `2C(m-1)e^{-βδ}` of the
@@ -188,7 +188,7 @@ temperature).
 
 **The Part G.3 isolation item recorded above is now CLOSED.**
 `rcpPriorOnSubstrate` and its two companions were promoted into
-`BookProof/PhysMehler.lean`; `RandomMap/RandomMap2.lean` imports
+`BookProof/Toolbox/PhysMehler.lean`; `RandomMap/RandomMap2.lean` imports
 `BookProof.PhysMehler` instead of `UnusedRoute.SchoenfeldPRA`; its RH Phase 7 moved
 verbatim to `UnusedRoute/RandomMap2Phase7.lean`; and `RcpRandomMap2Bridge.lean`
 moved to `UnusedRoute/`.  `grep -rn "import UnusedRoute" RandomMap/` is now empty
@@ -228,7 +228,7 @@ groups per pass (`PnpProof/`, `UnusedRoute/`, `UsedRoute/` remain out of scope t
 
 **Information-theoretic pass — landed (2026-08-10, latest).**  Five further
 packages, all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified
-in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in
+in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and `#check`-ed in
 `Book/CoherentState.lean`: `ChapterAttentionCollision` (the participation ratio
 `1/∑pⱼ²` as the effective number of attended keys — between `1` and `m`, exactly
 `m` at `β = 0`, and bounded by `exp H` since the Rényi-2 entropy never exceeds the
@@ -258,7 +258,7 @@ belief, and the attention rate `(1 − e^{−βD})ⁿ`).
 
 **Control-layer pass — landed (2026-08-10, latest).**  Five further packages, all
 `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified in
-`BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
 `ChapterAttentionTemperature` (turning the temperature knob: the odds
 `pᵢ = e^{β(sᵢ−sⱼ)}pⱼ`, the monotonicity of the winner's weight and the antitonicity
 of the loser's, the uniform share `1/m` as the separating value at `β ≥ 0`, and the
@@ -278,7 +278,7 @@ The two mathematical gaps below are unchanged.
 
 **Soft-maximum / circuit pass — landed (2026-08-10, latest).**  Five further
 packages, all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified
-in `BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
 `ChapterAttentionFreeEnergy` (the free energy is a soft maximum: `β·sⱼ ≤ log Z ≤
 log m + β·max s`, hence `|log Z/β − max s| ≤ log m/β` and `max s − ⟨s⟩_β ≤ log m/β`,
 with both quantities converging to the maximum as `β → ∞` — the gap between the soft
@@ -303,7 +303,7 @@ unchanged.
 
 **Decoding / locality pass — landed (2026-08-10, final).**  Four further packages,
 all `sorry`-free/`axiom`-free, registered in `BookProof.lean`, certified in
-`BookProof/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and `#check`-ed in `Book/CoherentState.lean`:
 `ChapterAttentionStreaming` (appending a key multiplies every cached weight by one
 common factor `1 − w` and updates the output to `(1 − w)·o_old + w·v_new`, so the KV
 cache of an autoregressive decoder is exact, and a fresh token moves the summary by
@@ -938,7 +938,7 @@ so it is part of the default build and importable by the QFM/Fork thread:
   - `RandomMap2.lean` uses only `rcpPriorOnSubstrate` /
     `rcpPriorOnSubstrate_isProb` (thin wrappers over
     `BookProof.PhysMehler.exists_atomless_prob_substrate`) and `Substrate`
-    (already shared).  Move those two wrappers into `BookProof/PhysMehler.lean`
+    (already shared).  Move those two wrappers into `BookProof/Toolbox/PhysMehler.lean`
     (or define them locally in `RandomMap2`), and repoint `RandomMap2`'s import
     at `BookProof.PhysMehler` — dropping `UnusedRoute.SchoenfeldPRA`.
   - `RandomMap2.lean` **Phase 7 (lines 844–931) is RH content** and must move to

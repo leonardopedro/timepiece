@@ -1,9 +1,9 @@
-import BookProof.ChapterNsPartialFourier
+import BookProof.Ns.ChapterNsPartialFourier
 
 /-!
 # Axiom audit — the partial (spatial-only) Fourier transform
 
-Every headline result of `BookProof/ChapterNsPartialFourier.lean` (the remaining part of item 1 of
+Every headline result of `BookProof/Ns/ChapterNsPartialFourier.lean` (the remaining part of item 1 of
 the Navier–Stokes plan items: the partial transform on the fibred one-particle space) must rest on
 the standard axioms only: `propext`, `Classical.choice`, `Quot.sound`.
 -/

@@ -1,5 +1,5 @@
 import BookProof.ChapterNonnegUnitaryGroup
-import BookProof.ChapterHashimotoShiftInvert
+import BookProof.Sirk.ChapterHashimotoShiftInvert
 
 /-!
 # The resolvent of a non-negative self-adjoint relation is its Hashimoto shift-invert

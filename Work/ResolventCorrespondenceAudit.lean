@@ -1,4 +1,4 @@
-import BookProof.ChapterResolventCorrespondence
+import BookProof.Toolbox.ChapterResolventCorrespondence
 
 /-!
 # Axiom audit for `BookProof.ChapterResolventCorrespondence`

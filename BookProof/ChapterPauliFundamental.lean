@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterA3
-import BookProof.ChapterA3b
+import BookProof.Textbook.ChapterA3
+import BookProof.Textbook.ChapterA3b
 import BookProof.ChapterGammaCommutant
 
 /-!

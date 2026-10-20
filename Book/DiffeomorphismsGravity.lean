@@ -1082,7 +1082,7 @@ not covered.
 ```
 
 :::paragraph
-The density left as a boundary there is taken up in `BookProof/ChapterQg3DDensityEsa.lean`, in
+The density left as a boundary there is taken up in `BookProof/Qg/ChapterQg3DDensityEsa.lean`, in
 the two forms in which it can be handled.  The inverse tetrad `χ` enters `𝒫` and `𝒮` as
 coefficient vectors in the 84 momenta (`momCalP`, `momCalS`, flat at `χ = δ`), and the book's
 three-dimensional density at density `e` is
@@ -1322,11 +1322,11 @@ momentum space a product with a derivative becomes a **convolution** rather than
 The one-particle statement behind that gluing now has its enclosure in exactly the form the
 final-Hamiltonian convention fixes.  The complete gauge-fixed QG Hamiltonian of record is the
 one-particle operator `secHam W (qgFullModes g)` of
-`BookProof/ChapterQgVielbeinScalaronGaugeFL.lean` — vielbein/torsion kinetic terms, the **exact**
+`BookProof/Qg/ChapterQgVielbeinScalaronGaugeFL.lean` — vielbein/torsion kinetic terms, the **exact**
 exponential Einstein-frame wall `W`, with no Taylor truncation, and the scalaron–vielbein
 interaction terms — essentially self-adjoint on `secCore`, the core of finite sums of
 $`C_c^\infty` fibres in $`Sec\,GMode = \ell^2(GMode; L^2(\mathbb{R}))`
-(`qgFull_esa_core_fl`).  `BookProof/ChapterQgSymmetricSector.lean` carries it to the enclosures:
+(`qgFull_esa_core_fl`).  `BookProof/Qg/ChapterQgSymmetricSector.lean` carries it to the enclosures:
 the `n`-particle derivation on the **symmetric** tensor power of that core
 (`qgFull_bosonic_core_esa`), the bosonic Fock direct sums, algebraic and Hilbert
 (`qgFull_bosonicFock_esa`, `qgFull_hbosonicFock_esa`), and the unsymmetrized enclosure
@@ -1435,7 +1435,7 @@ obstruction is proved, not hidden.
 The pieces above each carry their own essential-self-adjointness story; the
 2026-10-15c wave closes the question for their **sum** — the complete
 gauge-fixed gravity Hamiltonian, not the potential alone (the 2026-08-24
-scope clarification), in `BookProof/ChapterQgAssembledTransfer.lean`.
+scope clarification), in `BookProof/Qg/ChapterQgAssembledTransfer.lean`.
 :::
 
 :::paragraph
@@ -1481,7 +1481,7 @@ QG face of the same bridge the NS and ODE chapters use.
 operator, whose kinetic term is the flat d'Alembertian
 $`(1/16)\sum\partial^2 - (1/24)\partial_y^2` on the continuum
 $`L^2(\mathbb{R}^{84})` — was the continuum input the plan kept open (routes
-R1, R2 above).  It is discharged by `BookProof/ChapterQgFlatContinuumEsa.lean`:
+R1, R2 above).  It is discharged by `BookProof/Qg/ChapterQgFlatContinuumEsa.lean`:
 the indefinite operator *separates* over the densitized coordinates as
 $`A \otimes 1 - 1 \otimes B` — the shear factor
 $`(1/16)(-\Delta_x) + V_s` above, the conformal factor

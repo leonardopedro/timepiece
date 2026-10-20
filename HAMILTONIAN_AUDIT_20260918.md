@@ -532,7 +532,7 @@ specialist.
    `BookProof.NsOneBody.spHam_esa_farisLavine` + `nsSpDGamma_esa_farisLavine` +
    `BookProof.NsOuterFock.nsOuterFock_esa_farisLavine` (Eulerian: one body, `dΓ` lift, outer
    Fock).  The note's *design* content stands — only the names need updating.
-2. `BookProof/ChapterFarisLavineOnly.lean` §"What is proved" cites `SqFamily.fl_certificate`; no
+2. `BookProof/Toolbox/ChapterFarisLavineOnly.lean` §"What is proved" cites `SqFamily.fl_certificate`; no
    such declaration exists.  The certificate is `SqFamily.esa_farisLavine`.  (Fixed in this
    commit.)
 3. `../unfer/docs/qg_starobinsky_vielbein_hamiltonian.cdb` — **repaired 2026‑09‑18** (§6.3): four
@@ -557,7 +557,7 @@ Taken from the **definitions**, not from the doc-comments.  All three theories u
 building block on a parcel family, so it is stated once:
 
 ```lean
--- BookProof/ChapterQgHermiteOscillatorEsa.lean
+-- BookProof/Qg/ChapterQgHermiteOscillatorEsa.lean
 def harmW (x : Vd d) : ℝ := ‖x‖ ^ 2 / 4
 def harmCore : (polyGaussCore (d := d)) →ₗ[ℂ] L2d d :=
   hamCore harmW continuous_harmW expBounded_harmW

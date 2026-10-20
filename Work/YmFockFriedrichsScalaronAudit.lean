@@ -1,5 +1,5 @@
-import BookProof.ChapterYangMillsFockFriedrichs
-import BookProof.ChapterScalaronNotQuadratic
+import BookProof.Qym.ChapterYangMillsFockFriedrichs
+import BookProof.Qg.ChapterScalaronNotQuadratic
 import BookProof.ChapterEsaFarisLavineIndex
 
 /-!

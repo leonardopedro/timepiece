@@ -1,5 +1,5 @@
-import BookProof.ChapterResolventMinMaxLadder
-import BookProof.ChapterResolventMinMaxEquality
+import BookProof.Toolbox.ChapterResolventMinMaxLadder
+import BookProof.Toolbox.ChapterResolventMinMaxEquality
 
 /-!
 Axiom audit for the wave that carries the Courant–Fischer ladder to an **unbounded**

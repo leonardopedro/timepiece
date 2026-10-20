@@ -1,9 +1,9 @@
-import BookProof.ChapterNsCutoffUniformity
+import BookProof.Ns.ChapterNsCutoffUniformity
 
 /-!
 # Axiom audit — uniformity of the reduced forms under the energy cutoff
 
-Every headline result of `BookProof/ChapterNsCutoffUniformity.lean` must rest on the standard
+Every headline result of `BookProof/Ns/ChapterNsCutoffUniformity.lean` must rest on the standard
 axioms only: `propext`, `Classical.choice`, `Quot.sound`.
 -/
 

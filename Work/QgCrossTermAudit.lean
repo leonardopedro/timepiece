@@ -1,4 +1,4 @@
-import BookProof.ChapterQg3DCrossTermEsa
+import BookProof.Qg.ChapterQg3DCrossTermEsa
 
 /-!
 # Axiom audit of `BookProof.ChapterQg3DCrossTermEsa`

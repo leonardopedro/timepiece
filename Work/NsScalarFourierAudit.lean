@@ -1,9 +1,9 @@
-import BookProof.ChapterNsScalarFourier
+import BookProof.Ns.ChapterNsScalarFourier
 
 /-!
 # Axiom audit — the spatial Fourier transform on the scalar one-particle space
 
-Every result of `BookProof/ChapterNsScalarFourier.lean` must rest on the standard axioms only:
+Every result of `BookProof/Ns/ChapterNsScalarFourier.lean` must rest on the standard axioms only:
 `propext`, `Classical.choice`, `Quot.sound`.
 -/
 

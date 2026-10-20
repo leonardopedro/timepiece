@@ -1,4 +1,4 @@
-import BookProof.ChapterG
+import BookProof.Textbook.ChapterG
 
 /-!
 # Gauge symmetry defined by a *comprehensive but incomplete* gauge fixing

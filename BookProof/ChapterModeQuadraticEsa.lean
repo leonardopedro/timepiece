@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterCarlemanTwoStep
+import BookProof.Toolbox.ChapterCarlemanTwoStep
 
 /-!
 # The general mode-diagonal quadratic Hamiltonian on the Gauss–polynomial core

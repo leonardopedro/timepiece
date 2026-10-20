@@ -1,6 +1,6 @@
-import BookProof.ChapterSchurIrreducible
-import BookProof.ChapterSchurRepresentation
-import BookProof.ChapterSchurTrichotomy
+import BookProof.Realification.ChapterSchurIrreducible
+import BookProof.Realification.ChapterSchurRepresentation
+import BookProof.Realification.ChapterSchurTrichotomy
 import BookProof.ChapterPauliFundamental
 import BookProof.ChapterPauliConsequences
 

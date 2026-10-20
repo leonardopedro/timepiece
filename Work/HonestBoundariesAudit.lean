@@ -1,11 +1,11 @@
-import BookProof.ChapterOrthogonalSums
-import BookProof.ChapterMackeyGeneralBase
-import BookProof.ChapterWignerSymmetryInfinite
-import BookProof.ChapterWignerOrbitClassification
-import BookProof.ChapterWeylSL2Unipotent
-import BookProof.ChapterMackeyQuasiInvariant
-import BookProof.ChapterMackeyQuasiInvariantSigma
-import BookProof.ChapterMackeyTranslation
+import BookProof.InducedSystems.ChapterOrthogonalSums
+import BookProof.InducedSystems.ChapterMackeyGeneralBase
+import BookProof.InducedSystems.ChapterWignerSymmetryInfinite
+import BookProof.WignerOrbit.ChapterWignerOrbitClassification
+import BookProof.WeylSL2.ChapterWeylSL2Unipotent
+import BookProof.InducedSystems.ChapterMackeyQuasiInvariant
+import BookProof.InducedSystems.ChapterMackeyQuasiInvariantSigma
+import BookProof.InducedSystems.ChapterMackeyTranslation
 
 /-!
 Axiom audit for the wave that removes the four honest boundaries recorded with the

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-18T22:56:48+00:00",
+ "generated_at": "2026-10-19T00:37:35+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -45,9 +45,25 @@
    ]
   },
   {
+   "path": "BOOKPROOF_PHASE1_MOVES.md",
+   "title": "BookProof Phase 1 move map",
+   "lines": 102,
+   "headings": [
+    "# BookProof Phase 1 move map"
+   ]
+  },
+  {
+   "path": "BOOKPROOF_PHASE2_MOVES.md",
+   "title": "BookProof Phase 2.2 move map",
+   "lines": 398,
+   "headings": [
+    "# BookProof Phase 2.2 move map"
+   ]
+  },
+  {
    "path": "BOOKPROOF_SPLIT_PLAN.md",
    "title": "BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory",
-   "lines": 419,
+   "lines": 539,
    "headings": [
     "# BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory",
     "## 1. Measured current state (2026-10-17, all numbers from the repo itself)",
@@ -57,7 +73,8 @@
     "## 5. Acceptance checklist (whole document)",
     "## 6. Prove2.me: exploration and downloads (2026-10-18, addendum)",
     "## 7. Prove2.me missions / open proofs this corpus can feed (2026-10-18)",
-    "## 8. Sibling-project imports: `../unfer`, `../dynamic-arctic`, `../australVM`, `../emthin` (2026-10-18)"
+    "## 8. Sibling-project imports: `../unfer`, `../dynamic-arctic`, `../australVM`, `../emthin` (2026-10-18)",
+    "## 9. Execution record (2026-10-18)"
    ]
   },
   {
@@ -79,7 +96,7 @@
   {
    "path": "BUILD_COMPONENTS.md",
    "title": "The independent parts of the development, and how to compile them separately",
-   "lines": 211,
+   "lines": 109,
    "headings": [
     "# The independent parts of the development, and how to compile them separately",
     "## Sub-system targets",
@@ -113,7 +130,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 17944,
+   "lines": 17984,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -310,7 +327,8 @@
     "## State of the project — 2026-10-17: QG-D-C.1 (`hflat`) closed — the restored continuum module, and the work order refreshed",
     "## State of the project — 2026-10-17b: `BookProof/` split plan and the redundancy / legacy / dead-end inventory",
     "## State of the project — 2026-10-17c: Prove2.me addendum to the split plan",
-    "## State of the project — 2026-10-17d: sibling-project Prove2.me imports (unfer, dynamic-arctic)"
+    "## State of the project — 2026-10-17d: sibling-project Prove2.me imports (unfer, dynamic-arctic)",
+    "## State of the project — 2026-10-18: Prove2.me downloads converted (`converted/`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0–2 executed"
    ]
   },
   {
@@ -528,28 +546,13 @@
     "# 3. Closed: derivative-coordinate summands of `N₀`",
     "# 4. Still open in part: spectrum, gap, dynamics, measured parameters (L3, L4)",
     "# 5. The closure wave: the three §1 boundaries that are now theorems",
-    "## 5.1 Closed: continuum CAR — `BookProof/ChapterSmCarContinuum.lean`",
-    "## 5.2 Closed: gauge connection inside `D` — `BookProof/ChapterSmGaugeConnection.lean`",
+    "## 5.1 Closed: continuum CAR — `BookProof/Sm/ChapterSmCarContinuum.lean`",
+    "## 5.2 Closed: gauge connection inside `D` — `BookProof/Sm/ChapterSmGaugeConnection.lean`",
     "## 5.3 Closed: ghost / BRST sector — `ChapterSmBrstGhost.lean` + `ChapterSmGaugeRepresentation.lean`",
     "## 5.3bis Closed: BRST **as `book.tex` defines it** — `ChapterBookBrstYangMills`,",
     "## 5.4 From the original §1 sentence, only this remains open",
     "## 5.5 Accounting identity (2026-09-23d): no extra gauge-fixing/ghost summand in `h` or `N`",
     "## Module map (closed boundaries → files)"
-   ]
-  },
-  {
-   "path": "Hashimoto.md",
-   "title": "Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
-   "lines": 425,
-   "headings": [
-    "# Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
-    "## Abstract",
-    "## 1 Introduction",
-    "## 2 The definition of the operator function",
-    "## 4 Shift-invert rational Krylov method",
-    "## 5 Numerical experiments",
-    "## 6 Conclusion",
-    "# References"
    ]
   },
   {
@@ -1374,19 +1377,26 @@
    ]
   },
   {
-   "path": "lopez99.md",
-   "title": "APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
-   "lines": 783,
+   "path": "converted/GAPS.md",
+   "title": "Dependency gaps of the prove2.me downloads",
+   "lines": 438,
    "headings": [
-    "# APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
-    "# 1. Introduction",
-    "## 2. Expansions in terms of Hermite polynomials",
-    "## 3. Gegenbauer polynomials",
-    "## APPROXIMATION OF ORTHOGONAL POLYNOMIALS",
-    "## 4. Laguerre polynomials",
-    "## 5 The Tricomi-Carlitz polynomials",
-    "## 6. Jacobi polynomials",
-    "## References"
+    "# Dependency gaps of the prove2.me downloads",
+    "## Per blocked download",
+    "## Missing platform modules (inverse index)"
+   ]
+  },
+  {
+   "path": "converted/README.md",
+   "title": "`converted/` — prove2.me downloads converted to Lean 4.28.0",
+   "lines": 90,
+   "headings": [
+    "# `converted/` — prove2.me downloads converted to Lean 4.28.0",
+    "## Layout",
+    "## What a converted file contains",
+    "## Hand conversion edits (compiled files)",
+    "## Gaps (why 140 files are not compiled)",
+    "## Routing note (BOOKPROOF_SPLIT_PLAN.md §8)"
    ]
   },
   {
@@ -1490,11 +1500,27 @@
   },
   {
    "source": "BOOKPROOF_SPLIT_PLAN.md",
+   "target": "BOOKPROOF_PHASE1_MOVES.md"
+  },
+  {
+   "source": "BOOKPROOF_SPLIT_PLAN.md",
+   "target": "BOOKPROOF_PHASE2_MOVES.md"
+  },
+  {
+   "source": "BOOKPROOF_SPLIT_PLAN.md",
    "target": "CONSOLIDATED_PLAN.md"
   },
   {
    "source": "BOOKPROOF_SPLIT_PLAN.md",
    "target": "CURRENT_WORK_ORDER.md"
+  },
+  {
+   "source": "BOOKPROOF_SPLIT_PLAN.md",
+   "target": "converted/GAPS.md"
+  },
+  {
+   "source": "BOOKPROOF_SPLIT_PLAN.md",
+   "target": "converted/README.md"
   },
   {
    "source": "BOOKPROOF_SPLIT_PLAN.md",
@@ -1519,6 +1545,14 @@
   {
    "source": "CONSOLIDATED_PLAN.md",
    "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "BOOKPROOF_PHASE1_MOVES.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "BOOKPROOF_PHASE2_MOVES.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
@@ -1702,6 +1736,10 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "converted/GAPS.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "newproof.md"
   },
   {
@@ -1826,6 +1864,10 @@
   },
   {
    "source": "CURRENT_WORK_ORDER.md",
+   "target": "converted/GAPS.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
    "target": "newproof.md"
   },
   {
@@ -1925,10 +1967,6 @@
    "target": "CONSOLIDATED_PLAN.md"
   },
   {
-   "source": "MASS_GAP_CERTIFIED.md",
-   "target": "Hashimoto.md"
-  },
-  {
    "source": "PLAN_A_BOOK_FORMALIZATION.md",
    "target": "Issues.md"
   },
@@ -2015,10 +2053,6 @@
   {
    "source": "PNP_IMPLEMENTATION_PLAN.md",
    "target": "PnpProof/IMPLEMENTED.md"
-  },
-  {
-   "source": "PNP_IMPLEMENTATION_PLAN.md",
-   "target": "lopez99.md"
   },
   {
    "source": "PROVE2ME_REUSABLE_THEOREMS.md",
@@ -2169,6 +2203,14 @@
    "target": "STATUS.md"
   },
   {
+   "source": "converted/README.md",
+   "target": "BOOKPROOF_SPLIT_PLAN.md"
+  },
+  {
+   "source": "converted/README.md",
+   "target": "converted/GAPS.md"
+  },
+  {
    "source": "unfer_contracts/MASS_GAP_REGENERATION.md",
    "target": "STATUS.md"
   },
@@ -2179,10 +2221,6 @@
   {
    "source": "unfer_contracts/MASS_GAP_SPEC.md",
    "target": "MASS_GAP_CERTIFIED.md"
-  },
-  {
-   "source": "unfer_contracts/sirk_core_model/README.md",
-   "target": "CONSOLIDATED_PLAN.md"
   },
   {
    "source": "unfer_contracts/sirk_core_model/README.md",

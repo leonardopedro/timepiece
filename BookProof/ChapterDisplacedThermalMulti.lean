@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterDisplacedThermalOverlap
-import BookProof.ChapterCoherentGeometry
+import BookProof.Attention.ChapterCoherentGeometry
 
 /-!
 # Multi-mode displaced thermal states: attention at the bath temperature

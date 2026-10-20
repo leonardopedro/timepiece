@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterStrichartzWave
-import BookProof.ChapterKatoRellichDeficiency
+import BookProof.Toolbox.ChapterKatoRellichDeficiency
 
 /-!
 # The wave operator with a bounded potential

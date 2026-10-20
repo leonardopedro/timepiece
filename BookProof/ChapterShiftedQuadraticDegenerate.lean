@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterShiftedQuadraticMatrixEsa
-import BookProof.ChapterStoneEigenflow
+import BookProof.Toolbox.ChapterStoneEigenflow
 
 /-!
 # The inhomogeneous quadratic Hamiltonian with a **singular** quadratic form

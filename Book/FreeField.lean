@@ -63,7 +63,7 @@ truncation-gap chapters).
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure
 
 :::paragraph
-The new gap modules make the operator-level boundary explicit. `BookProof/ChapterFockOneParticleGap.lean` proves the positive one-particle edge statement under its spectral hypotheses; `ChapterFriedrichsFormGap.lean` packages the corresponding closed-form/Friedrichs route; and `ChapterBandEnclosure.lean` shows how nested finite bands can provide the remaining enclosure input. These are conditional analytic bridges, not a claim that numerical data alone proves the continuum gap.
+The new gap modules make the operator-level boundary explicit. `BookProof/Toolbox/ChapterFockOneParticleGap.lean` proves the positive one-particle edge statement under its spectral hypotheses; `ChapterFriedrichsFormGap.lean` packages the corresponding closed-form/Friedrichs route; and `ChapterBandEnclosure.lean` shows how nested finite bands can provide the remaining enclosure input. These are conditional analytic bridges, not a claim that numerical data alone proves the continuum gap.
 :::
 
 :::paragraph
@@ -103,7 +103,7 @@ not an unanalysed spectral assumption.
 
 :::paragraph
 The QED sector is the cleanest illustration of why a *gap* is a separate,
-stronger statement than *positivity*. `BookProof/ChapterQedFockGapChain.lean`
+stronger statement than *positivity*. `BookProof/Qed/ChapterQedFockGapChain.lean`
 (namespace `BookProof.QedFockGapChain`) runs the diagonal gap chain
 (`ChapterFockDiagonalGapChain` — the instrument for one-particle energies
 $`e_k \mapsto \omega_k e_k`) on the photon dispersion. For the massless photon

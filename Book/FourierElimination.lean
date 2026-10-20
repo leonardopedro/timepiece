@@ -286,7 +286,7 @@ The rank-one collapse is a statement about the *reduced* Hamiltonian that the el
 produces.  The full Lagrangian model — the one whose interacting outer operator is proved
 essentially self-adjoint in {ref "ns-one-particle-hamiltonian"}[the Navier–Stokes one-particle
 Hamiltonian and its Fock enclosure] — keeps the determinant, and
-`BookProof/ChapterNsLagrangianDetConvolution.lean` writes it honestly in momentum space:
+`BookProof/Ns/ChapterNsLagrangianDetConvolution.lean` writes it honestly in momentum space:
 expanding `det(I + ∇ξ)` row by row turns the local cubic product into the **triple momentum
 convolution** over signed tuples of modes with `w(τ 0) + w(τ 1) + w(τ 2) = q` (`detCoef`,
 `det_deformation_eq` — exact at every point and every configuration, cross-mode minors
@@ -308,7 +308,7 @@ force — is treated by the generic Lyapunov criterion of
 $`E \ge 0` with $`|G \cdot \nabla E| \le cE` pointwise, essential self-adjointness of
 $`N = H_G^2 + E` on the Gauss–polynomial core implies essential self-adjointness of the
 Koopman generator $`H_G` (`kvnGen_esa_of_lyapunov`).  The Lagrangian instance is
-`BookProof/ChapterNsLagrangianDetFarisLavine.lean`: for the energy
+`BookProof/Ns/ChapterNsLagrangianDetFarisLavine.lean`: for the energy
 $`E = 1 + \tfrac12|v|^2 + V_κ` the derivative along the flow is the sign-definite viscous
 dissipation $`F \cdot \nabla E = -\nu\sum|k|^2v^2` (`lagFlux_eq` — the constraint force does
 no net work, being the gradient of the potential part of `E`) and the divergence is constant

@@ -1,8 +1,8 @@
 # Complex (non-real) shifts and many shifts in the shift-invert theory
 
-Module: `BookProof/ChapterHashimotoComplexShifts.lean`
+Module: `BookProof/Sirk/ChapterHashimotoComplexShifts.lean`
 Namespace: `BookProof.HashimotoShiftInvert` (the same namespace as the
-single-real-shift chapter `BookProof/ChapterHashimotoShiftInvert.lean`).
+single-real-shift chapter `BookProof/Sirk/ChapterHashimotoShiftInvert.lean`).
 
 The earlier chapter developed the shift-invert trick for one **real positive**
 shift `c`, where invertibility of `A + c` came from positivity of `A`.  The
@@ -17,7 +17,7 @@ with resolvents `X_j = (γ_j I − A)⁻¹` at shifts `γ_j` that
   whole family.
 
 This file records where each claim lives in Lean.  Everything is `sorry`-free
-and every headline result is certified in `BookProof/ChapterRoadmapAudit.lean`
+and every headline result is certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`
 to depend only on `propext`, `Classical.choice`, `Quot.sound`.
 
 ## Non-real shift ⇒ invertibility, with no positivity

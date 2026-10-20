@@ -192,7 +192,7 @@ separate `BookProof` module:
    (`MomentumChart.momentum_essentiallySelfAdjointOn`), through the
    Fourier-multiplier instrument (under Plancherel, multiplication by the
    real symbol $`2\pi\xi`);
- * **ODE-C.2** `BookProof/ChapterOdeChartTransfer.lean` — the chart
+ * **ODE-C.2** `BookProof/Ode/ChapterOdeChartTransfer.lean` — the chart
    $`(W\psi)(x) = \psi(-1/x)/x` is a genuine unitary of $`L^2(\mathbb{R})`
    (`chartUnitary`), unitary conjugation carries essential
    self-adjointness (`conj_essentiallySelfAdjointOn`), and the conjugated
@@ -348,7 +348,7 @@ ratio; it is not claimed here. The formal content is the ratio, its well-defined
 and its agreement with the ordinary expectation in the diagonal case.
 
 *Where it lives.* `BookProof.ChapterWeakValue`, registered in `BookProof.lean`,
-certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed from the
+certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, and `#check`-ed from the
 double-slit chapter's "Weak Measurements" section.
 
 # E. The Dynamics-Based Unitary (from a function / conditional probability)
@@ -478,5 +478,5 @@ $`\ell^2(\mathbb Z)` instance) and `BookProof.ChapterStoneBridge` /
 `ChapterStoneFlows` (the packaged `IsStoneFlow` and the concrete flows for the
 Eulerian NS, Lagrangian NS and QYM Hamiltonians) and `BookProof.ChapterUnboundedSpectralModel`
 (the diagonalizing unitary, via the resolvent route), all registered in
-`BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`, and `#check`-ed
+`BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, and `#check`-ed
 from the `ConditionalUnitary` chapter's "A Less Arbitrary Construction" section.

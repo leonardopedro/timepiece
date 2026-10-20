@@ -1,5 +1,5 @@
-import BookProof.ChapterNavierStokesFullEulerianFock
-import BookProof.ChapterNavierStokesFullLagrangianFock
+import BookProof.Ns.ChapterNavierStokesFullEulerianFock
+import BookProof.Ns.ChapterNavierStokesFullLagrangianFock
 
 /-!
 Axiom audit for the full (non-linearised) Navier–Stokes Hamiltonians on the nested Fock

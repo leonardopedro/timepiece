@@ -131,7 +131,7 @@ itself changed, only the description of the space on which it acts.
 The identification that the section above could only flag is now a theorem, in two
 steps that the reader should take in this order.
 
-**Step one: currying.** `BookProof/ChapterNsScalarVectorCurry.lean` proves
+**Step one: currying.** `BookProof/Ns/ChapterNsScalarVectorCurry.lean` proves
 $`L^2(V; L^2(W)) \cong L^2(V \times W)` outright, as the linear isometry
 `curryLI`, for arbitrary σ-finite measures. The route is the one a probabilist
 would take: lift the two generator families — `fibMk a c`, the fibred element
@@ -147,7 +147,7 @@ needed. The only genuinely new analysis is the π–λ induction
 measure whose integral over every finite-measure measurable rectangle vanishes is
 zero almost everywhere.
 
-**Step two: transport.** `BookProof/ChapterNsScalarFourier.lean` then carries the
+**Step two: transport.** `BookProof/Ns/ChapterNsScalarFourier.lean` then carries the
 spatial transform of the previous section to the scalar space *by conjugation*,
 `nsScalarFourier := curryLI ∘ nsPartialFourier ∘ curryLI.symm`. No new analysis
 enters: `nsScalarFourier_scalarFibreOp` is precisely the fibre-blindness of the
@@ -431,7 +431,7 @@ be read apart.  The **one-parcel** Lagrangian Hamiltonian
 $`h = \tfrac12\sum_i P_i^2 + \nu\sum_i Q_i^2 + f\cdot P` on the trajectory space
 $`\ell^2(\mathrm{Fin}\,3 \to \mathbb{N})` is unconditionally essentially self-adjoint on the
 finite-mode Hermite core for every $`\nu > 0` and every constant force `f`
-(`LagrangianCanonical.lagCan_esa`).  `BookProof/ChapterNsLagrangianOuterFockEsa.lean` carries
+(`LagrangianCanonical.lagCan_esa`).  `BookProof/Ns/ChapterNsLagrangianOuterFockEsa.lean` carries
 it — with no new hypothesis — into the final-Hamiltonian form: the enclosure $`d\Gamma(h)`,creation on the left and annihilation on
 the right, is essentially self-adjoint on the
 finite-particle domain over that core (`lagOne_dGamma_esa` — the mechanism is the
@@ -452,7 +452,7 @@ statements around this `h` were open and are now theorems — and it matters for
 reading them that they are *comparison-side*, not further enclosures of the
 record.  First, the transformed operator with a penalty/pressure **constraint
 term**: for any bounded symmetric `C`, $`h + C` is essentially self-adjoint on
-the Hermite core (`BookProof/ChapterNsComparisonEsa.lean`:
+the Hermite core (`BookProof/Ns/ChapterNsComparisonEsa.lean`:
 `lagConstr_esa`, `lagConstr_hasZeroDeficiencyOn`) — closed by Kato–Rellich,
 because the ladder realization admits no common eigenvector of $`P_i` and
 $`Q_i`.  Second, the **completed square**
@@ -503,7 +503,7 @@ Eulerian companion — are *not* second quantizations of a one-body operator: th
 forms couple neighbouring parcels, and the Piola and `det F − 1` forms have degree two and
 three.  The enclosure theorem therefore does not apply to them, and the question is different:
 is the outer operator itself essentially self-adjoint on its finite-parcel core?
-`BookProof/ChapterNsFullLagrangianFockEsa.lean` answers yes, for all real couplings and with no
+`BookProof/Ns/ChapterNsFullLagrangianFockEsa.lean` answers yes, for all real couplings and with no
 new analysis: every `n`-parcel sector is a Weyl-type operator with distinct momentum coordinates
 and real polynomial forms (`lagSectorHam_eq_weylPoly`, `nsSectorHam_eq_weylPoly`, both `rfl`),
 hence essentially self-adjoint on the Gauss–polynomial core by the general instrument
@@ -560,13 +560,13 @@ The verified layer, in one list:
    the case `n = 1` is a one-particle statement), and the reduced outer operator
    `nsRedFullFockHam` is essentially self-adjoint on its finite-parcel core, not only on the
    domain of its own Friedrichs realization (`nsRedFullFockHam_esa`,
-   `BookProof/ChapterNsReducedCoreEsa.lean`);
+   `BookProof/Ns/ChapterNsReducedCoreEsa.lean`);
  * the one-body generator itself is essentially self-adjoint on the Gauss–polynomial core of
    $`L^2(\mathbb{R}^6)` (`spHam_esa`, one-particle), and $`d\Gamma(H_{\rm sp})` is essentially
    self-adjoint on the symmetrized tensor power of that core for every particle number, on the
    bosonic Fock space, and — unsymmetrized, creation left / annihilation right — on the
    finite-particle domain (`nsSp_bosonic_core_esa`, `nsSp_bosonicFock_esa`,
-   `nsSp_hbosonicFock_esa`, `nsSp_dGamma_esa`, `BookProof/ChapterNsSymmetricSector.lean`);
+   `nsSp_hbosonicFock_esa`, `nsSp_dGamma_esa`, `BookProof/Ns/ChapterNsSymmetricSector.lean`);
  * the momentum variables are honest: a unitary partial transform that leaves the fibre alone, a
    derivative that is a real symbol, a densely defined $`\pi^{-1}` with trivial kernel, and the
    advection as a convolution whose coefficients are $`O(\Lambda)` uniformly in the parcel number;
@@ -601,7 +601,7 @@ What remains open on this leg, stated as obligations rather than as caveats:
    for $`d \ge 1`, $`N_E + 1` maps the core into itself and the core is a proper subspace of
    $`L^2(\mathbb{R}^d)` (Baire), so the surjectivity hypothesis of
    `nsKoopman_esa_of_energy_comparison` is false (`not_nsEnergy_surjective`,
-   `BookProof/ChapterNsEnergySurjectivityObstruction.lean`).
+   `BookProof/Ns/ChapterNsEnergySurjectivityObstruction.lean`).
 :::
 
 ```

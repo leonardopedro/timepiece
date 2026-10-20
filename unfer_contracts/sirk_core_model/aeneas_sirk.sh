@@ -31,7 +31,7 @@
 # is enclosed by the finite-precision theorems. The algebraic identities
 # (projection identity, Gram Hermitian symmetry, T* Ĝ T = I, e_m = τ_m c_{m-1})
 # are proved against this model by the Lean 4 specialist in
-# BookProof/ChapterSirkFinitePrecision.lean.
+# BookProof/Sirk/ChapterSirkFinitePrecision.lean.
 
 set -euo pipefail
 

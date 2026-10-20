@@ -48,7 +48,7 @@ $`\\pi_i \\pi_j`, $`x_i \\pi_j` with $`i \\neq j` — produces the hops
 $`\\alpha \\mapsto \\alpha \\pm (e_i + e_j)` and $`\\alpha \\mapsto \\alpha \\pm (e_i - e_j)`.
 The second kind is *not monotone*: the shift raises one coordinate while
 lowering another. The general flux criterion must handle that. The module
-`BookProof/ChapterCarlemanGeneralHop.lean` (namespace `BookProof.CarlemanGeneralHop`)
+`BookProof/Toolbox/ChapterCarlemanGeneralHop.lean` (namespace `BookProof.CarlemanGeneralHop`)
 runs the argument for a hop of the completely general shape
 $`\\alpha \\mapsto \\alpha + p - m`, with $`p` and $`m` multi-indices, and is the
 last ingredient of the Hermite-core analysis used by the Navier–Stokes and
@@ -154,7 +154,7 @@ bookkeeping has to be redone with tails instead of layers.
 :::
 
 :::paragraph
-The module `BookProof/ChapterCarlemanUnboundedHop.lean` (namespace
+The module `BookProof/Toolbox/ChapterCarlemanUnboundedHop.lean` (namespace
 `BookProof.CarlemanUnboundedHop`) carries this out. Fix a Hermitian kernel
 $`a_{nk}` on $`\\mathbb N` and a square-summable $`u` solving
 $`\\sum_k a_{nk} u_k = z u_n` at a non-real $`z`. The flux across the cut at

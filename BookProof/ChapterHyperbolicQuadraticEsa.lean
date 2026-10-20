@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterNavierStokesDifferentialL2
+import BookProof.Ns.ChapterNavierStokesDifferentialL2
 import BookProof.ChapterWaveBoundedPotential
 
 /-!

@@ -1,8 +1,8 @@
 import BookProof.ChapterGraphCoreTransfer
-import BookProof.ChapterTensorGraphCore
+import BookProof.Toolbox.ChapterTensorGraphCore
 import BookProof.ChapterSecondQuantizationCoreEsa
 import BookProof.ChapterScalarDGammaEsa
-import BookProof.ChapterTensorOperatorBound
+import BookProof.Toolbox.ChapterTensorOperatorBound
 import BookProof.ChapterBoundedDGammaEsa
 import BookProof.ChapterEsaPairDGamma
 import BookProof.ChapterDiagonalDGammaEsa
@@ -12,7 +12,7 @@ import BookProof.ChapterFlowDGammaEsa
 # Axiom audit for the core transfer route to second quantization
 
 Every result of `BookProof/ChapterGraphCoreTransfer.lean`,
-`BookProof/ChapterTensorGraphCore.lean` and
+`BookProof/Toolbox/ChapterTensorGraphCore.lean` and
 `BookProof/ChapterSecondQuantizationCoreEsa.lean` should report only the three standard
 axioms `propext`, `Classical.choice`, `Quot.sound`.
 -/

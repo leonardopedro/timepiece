@@ -1,10 +1,10 @@
-import BookProof.ChapterTensorPermutation
+import BookProof.Toolbox.ChapterTensorPermutation
 import BookProof.ChapterPermutationSectorEsa
 
 /-!
 # Axiom audit for the `n`-particle symmetrization wave
 
-Every result of `BookProof/ChapterTensorPermutation.lean` and
+Every result of `BookProof/Toolbox/ChapterTensorPermutation.lean` and
 `BookProof/ChapterPermutationSectorEsa.lean` should report only the three standard axioms
 `propext`, `Classical.choice`, `Quot.sound`.
 -/

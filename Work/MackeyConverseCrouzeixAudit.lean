@@ -1,8 +1,8 @@
-import BookProof.ChapterPvmCyclicUnitary
-import BookProof.ChapterMackeyCocycle
-import BookProof.ChapterMackeyConverse
+import BookProof.InducedSystems.ChapterPvmCyclicUnitary
+import BookProof.InducedSystems.ChapterMackeyCocycle
+import BookProof.InducedSystems.ChapterMackeyConverse
 import BookProof.ChapterNumericalRangeCrouzeix
-import BookProof.ChapterSirkCrouzeixNumericalRange
+import BookProof.Sirk.ChapterSirkCrouzeixNumericalRange
 
 /-!
 Axiom audit for the wave that removes the two honest boundaries recorded by the Mackey and

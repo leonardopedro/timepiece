@@ -12,8 +12,8 @@ are the maximal modules of the part (those nothing else imports). Building the
 target builds exactly that part:
 
 ```
-lake build BookProofMeasureFoundations   # 32 modules: measure/gauge foundations
-lake build BookProofAttention            # 75 modules, disjoint from the above
+lake build BookProofRealification        # 22 modules (BookProof/Realification/)
+lake build BookProofInducedSystems       # 20 modules, disjoint from the above
 lake build BookProof.ChapterBosonicCCR   # a part that is a single module
 ```
 
@@ -71,52 +71,32 @@ never default targets.
 
 ## Inventory
 
-> **Layout decision (2026-09-24e): how `BookProofOperatorCore` is built.**
-> The operator-theoretic core is one connected component of the import graph, so it is built
-> as **one** Lake target, `BookProofOperatorCore`, whose `roots` are exactly its maximal modules
-> (generated, never hand-edited).  The former separate `BookProofLieRep` target has been
-> retired: its modules became connected to the core, and a second target over the same cone
-> would only duplicate work.  Faster partial builds of the core are provided by *sub-system
-> views* (currently `BookProofDerivativeGauge`), whose cones `--check` verifies to lie inside the
-> core.  The part of a module is decided on the aggregator cone (modules reachable from
-> `BookProof.lean`); when a name is ambiguous, `NAME_PRECEDENCE` in the script prefers
-> `BookProofOperatorCore`.  Modules of the form `X/PartN.lean` that `BookProof.lean` does not
-> import (192 at present, stale splits of earlier waves) are not built and belong to no part;
-> `--check` reports them as a note rather than an error.  After adding a chapter, run
-> `python3 scripts/import_components.py BookProof --write-lakefile` and then `--check`.
-
-### `BookProof` — 807 modules, 112 independent parts (24 with more than one module)
+### `BookProof` — 807 modules, 100 independent parts (18 with more than one module)
 
 | modules | Lake target | maximal modules (the `roots` of the target) |
 | ---: | --- | --- |
-| 477 | `BookProofOperatorCore` | `BookProof.ChapterA3g`, `BookProof.ChapterA3i`, `BookProof.ChapterA3m`, `BookProof.ChapterA3s`, `BookProof.ChapterA3t`, `BookProof.ChapterA3v`, … (119 in total) |
-| 75 | `BookProofAttention` | `BookProof.ChapterAttentionCalibration`, `BookProof.ChapterAttentionCapacity`, `BookProof.ChapterAttentionCoarseGrain`, `BookProof.ChapterAttentionConcentration`, `BookProof.ChapterAttentionEquivariance`, `BookProof.ChapterAttentionFactorization`, … (40 in total) |
-| 32 | `BookProofMeasureFoundations` | `BookProof.ChapterB7`, `BookProof.ChapterF2`, `BookProof.ChapterF4`, `BookProof.ChapterF8`, `BookProof.ChapterG3`, `BookProof.ChapterGaugeCasimirAverage`, … (15 in total) |
-| 30 | `BookProofFreeFieldBorn` | `BookProof.ChapterFreeFieldBornFiberDeterministic`, `BookProof.ChapterFreeFieldBornFiberInterior`, `BookProof.ChapterFreeFieldBornFiberSpectrum`, `BookProof.ChapterFreeFieldBornFiberStabilizer`, `BookProof.ChapterFreeFieldBornHomeo`, `BookProof.ChapterFreeFieldBornSignRepresentation`, … (7 in total) |
-| 22 | `BookProofRealification` | `BookProof.ChapterA1Prop5`, `BookProof.ChapterA1g`, `BookProof.ChapterA1h`, `BookProof.ChapterA2d`, `BookProof.ChapterA2e`, `BookProof.ChapterSchurFiniteDimensional`, … (9 in total) |
-| 20 | `BookProofInducedSystems` | `BookProof.ChapterMackeyGeneralBase`, `BookProof.ChapterMackeyInducedSystem`, `BookProof.ChapterMackeyTranslation`, `BookProof.ChapterPvmFibreInducedSystem`, `BookProof.ChapterPvmScalarMeasure`, `BookProof.ChapterWignerSymmetryInfinite`, … (7 in total) |
-| 10 | `BookProofHarmonicAnalysis` | `BookProof.ChapterNote68AllModes`, `BookProof.ChapterSphericalPlancherel` |
-| 9 | `BookProofGravityAlgebra` | `BookProof.ChapterGravityGenInverse`, `BookProof.ChapterGravityPolymomentum`, `BookProof.ChapterGravityRankSplit`, `BookProof.ChapterGravitySplit` |
-| 5 | `BookProofDefinability` | `BookProof.ChapterCountableDefinability`, `BookProof.ChapterEll2Separable` |
-| 5 | `BookProofReconstruction` | `BookProof.ChapterDeterministic`, `BookProof.ChapterSymmetryEntropy` |
-| 4 | `BookProofAtomicDecomposition` | `BookProof.ChapterAbelianAtomicCondensation`, `BookProof.ChapterMixedPrior` |
-| 3 | `BookProofHolomorphic` | `BookProof.ChapterWeylCauchyRiemann` |
-| 3 | `BookProofLorentz` | `BookProof.ChapterLorentzDecomp` |
-| 3 | `BookProofWeylSL2` | `BookProof.ChapterWeylSL2Unipotent` |
-| 3 | `BookProofWignerOrbit` | `BookProof.ChapterWignerOrbitClassification` |
-| 2 | `BookProofBell` | `BookProof.ChapterTsirelson` |
-| 2 | `BookProofCausality` | `BookProof.ChapterCausality` |
-| 2 | `BookProofPauliGrover` | `BookProof.ChapterPauliGrover` |
-| 2 | `BookProofConservative` | `BookProof.ChapterSymmetryRep` |
-| 2 | `BookProofDensity` | `BookProof.ChapterDensityMarginalConditional` |
-| 2 | `BookProofEnergyBand` | `BookProof.ChapterEnergyBoundedEvolution` |
-| 2 | `BookProofFieldStrength` | `BookProof.ChapterFreeEMField` |
-| 2 | `BookProofPauli` | `BookProof.ChapterPauliSU2` |
-| 2 | `BookProofRoadmapAudit` | `BookProof.RandomMap2Audit` |
+| 629 | `BookProofOperatorCore` | `BookProof.Attention.ChapterCoherentPositionSpace`, `BookProof.Attention.ChapterDeepLearningEnsemble`, `BookProof.Attention.ChapterDeepLearningMAP`, `BookProof.Attention.ChapterSoftmaxStability`, `BookProof.ChapterAbelianMixture`, `BookProof.ChapterBookBrstInstances`, … (106 in total) |
+| 22 | `BookProofRealification` | `BookProof.Realification.ChapterA1Prop5`, `BookProof.Realification.ChapterA1g`, `BookProof.Realification.ChapterA1h`, `BookProof.Realification.ChapterA2d`, `BookProof.Realification.ChapterA2e`, `BookProof.Realification.ChapterSchurFiniteDimensional`, … (9 in total) |
+| 20 | `BookProofInducedSystems` | `BookProof.InducedSystems.ChapterMackeyGeneralBase`, `BookProof.InducedSystems.ChapterMackeyInducedSystem`, `BookProof.InducedSystems.ChapterMackeyTranslation`, `BookProof.InducedSystems.ChapterPvmFibreInducedSystem`, `BookProof.InducedSystems.ChapterPvmScalarMeasure`, `BookProof.InducedSystems.ChapterWignerSymmetryInfinite`, … (7 in total) |
+| 10 | `BookProofHarmonicAnalysis` | `BookProof.HarmonicAnalysis.ChapterNote68AllModes`, `BookProof.HarmonicAnalysis.ChapterSphericalPlancherel` |
+| 9 | `BookProofGravityAlgebra` | `BookProof.GravityAlgebra.ChapterGravityGenInverse`, `BookProof.GravityAlgebra.ChapterGravityPolymomentum`, `BookProof.GravityAlgebra.ChapterGravityRankSplit`, `BookProof.GravityAlgebra.ChapterGravitySplit` |
+| 5 | `BookProofDefinability` | `BookProof.Definability.ChapterCountableDefinability`, `BookProof.Definability.ChapterEll2Separable` |
+| 5 | `BookProofReconstruction` | `BookProof.Reconstruction.ChapterDeterministic`, `BookProof.Reconstruction.ChapterSymmetryEntropy` |
+| 3 | `BookProofLorentz` | `BookProof.Lorentz.ChapterLorentzDecomp` |
+| 3 | `BookProofWeylSL2` | `BookProof.WeylSL2.ChapterWeylSL2Unipotent` |
+| 3 | `BookProofWignerOrbit` | `BookProof.WignerOrbit.ChapterWignerOrbitClassification` |
+| 2 | `BookProofBell` | `BookProof.Bell.ChapterTsirelson` |
+| 2 | `BookProofCausality` | `BookProof.Causality.ChapterCausality` |
+| 2 | `BookProofConservative` | `BookProof.Conservative.ChapterSymmetryRep` |
+| 2 | `BookProofDensity` | `BookProof.Density.ChapterDensityMarginalConditional` |
+| 2 | `BookProofEnergyBand` | `BookProof.EnergyBand.ChapterEnergyBoundedEvolution` |
+| 2 | `BookProofFieldStrength` | `BookProof.FieldStrength.ChapterFreeEMField` |
+| 2 | `BookProofPauli` | `BookProof.Pauli.ChapterPauliSU2` |
+| 2 | `BookProofPauliGrover` | `BookProof.PauliGrover.ChapterPauliGrover` |
 
-The remaining 88 parts are single modules, each built by `lake build <module>`:
+The remaining 82 parts are single modules, each built by `lake build <module>`:
 
-`BookProof.ChapterA4`, `BookProof.ChapterA4b`, `BookProof.ChapterAbelianVonNeumannFinite`, `BookProof.ChapterAngularMomentum`, `BookProof.ChapterAttentionLowRank`, `BookProof.ChapterB3`, `BookProof.ChapterB3b`, `BookProof.ChapterB4`, `BookProof.ChapterBaryonAsymmetry`, `BookProof.ChapterBijectionProbability`, `BookProof.ChapterBornPhaseFiber`, `BookProof.ChapterBosonicCCR`, `BookProof.ChapterC`, `BookProof.ChapterCcrNoBounded`, `BookProof.ChapterClassicalLimit`, `BookProof.ChapterCollapseDiagonal`, `BookProof.ChapterCompactCompleteReducibility`, `BookProof.ChapterComputableScarcity`, `BookProof.ChapterConsciousnessNullMeasure`, `BookProof.ChapterCountablePartition`, `BookProof.ChapterD`, `BookProof.ChapterDampedOscillatorEnergy`, `BookProof.ChapterDutchBook`, `BookProof.ChapterE`, `BookProof.ChapterE2`, `BookProof.ChapterE3`, `BookProof.ChapterE4`, `BookProof.ChapterEntropy`, `BookProof.ChapterErrorNorms`, `BookProof.ChapterEulerComplexQuat`, `BookProof.ChapterEulerCountableChain`, `BookProof.ChapterEulerDensityMatrix`, `BookProof.ChapterEulerGenericDensity`, `BookProof.ChapterEulerNState`, `BookProof.ChapterEulerStochastic`, `BookProof.ChapterF5`, `BookProof.ChapterF6`, `BookProof.ChapterF7`, `BookProof.ChapterFiniteArithmeticPrior`, `BookProof.ChapterFockDegreesOfFreedom`, `BookProof.ChapterGaugeAdjointAlgebra`, `BookProof.ChapterGaugeMechanicsCharge`, `BookProof.ChapterGaugeUnconstrainedSpectrum`, `BookProof.ChapterGaugeVariantVanishing`, `BookProof.ChapterGaugeWeylResidual`, `BookProof.ChapterGhostMajoranaRep`, `BookProof.ChapterGleason2D`, `BookProof.ChapterGleasonPureMixed`, `BookProof.ChapterGravityIrrep`, `BookProof.ChapterHowlandAutonomization`, `BookProof.ChapterIPin`, `BookProof.ChapterIrreversible`, `BookProof.ChapterIrreversibleDynamics`, `BookProof.ChapterKernelBound`, `BookProof.ChapterKernelTransport`, `BookProof.ChapterKrylovShiftSpan`, `BookProof.ChapterLittleGroup`, `BookProof.ChapterLocalOperators`, `BookProof.ChapterLocalityConstraintNull`, `BookProof.ChapterLorentzTranslation`, `BookProof.ChapterMAPNull`, `BookProof.ChapterMajoranaClifford`, `BookProof.ChapterMajoranaProp61`, `BookProof.ChapterMajoranaProp76`, `BookProof.ChapterMaschkeFiniteGroup`, `BookProof.ChapterMassGap`, `BookProof.ChapterMaxEntropy`, `BookProof.ChapterMeasurementLLN`, `BookProof.ChapterNavierStokes`, `BookProof.ChapterNoBestPrior`, `BookProof.ChapterNoLebesgue`, `BookProof.ChapterNoUniformCountable`, `BookProof.ChapterNsAdvectionConvolution`, `BookProof.ChapterOdeComplexification`, `BookProof.ChapterParityMajoranaQuant`, `BookProof.ChapterProbabilityClockStochastic`, `BookProof.ChapterProbabilityInterface`, `BookProof.ChapterQuadraticOrdering`, `BookProof.ChapterQuantizationWeyl`, `BookProof.ChapterSirkGroupTransfer`, `BookProof.ChapterSmHiggsVacuum`, `BookProof.ChapterSpectralEnergyBound`, `BookProof.ChapterSpinStatistics`, `BookProof.ChapterStatisticalModelTheory`, `BookProof.ChapterSternGerlach`, `BookProof.ChapterTotalVariance`, `BookProof.ChapterUnitaryCompleteReducibility`, `BookProof.ChapterYangMillsBianchi`
+`BookProof.ChapterA4`, `BookProof.ChapterA4b`, `BookProof.ChapterAbelianVonNeumannFinite`, `BookProof.ChapterAngularMomentum`, `BookProof.ChapterB3`, `BookProof.ChapterB3b`, `BookProof.ChapterBaryonAsymmetry`, `BookProof.ChapterBijectionProbability`, `BookProof.ChapterBornPhaseFiber`, `BookProof.ChapterBosonicCCR`, `BookProof.ChapterC`, `BookProof.ChapterCcrNoBounded`, `BookProof.ChapterClassicalLimit`, `BookProof.ChapterCollapseDiagonal`, `BookProof.ChapterCompactCompleteReducibility`, `BookProof.ChapterComputableScarcity`, `BookProof.ChapterConsciousnessNullMeasure`, `BookProof.ChapterCountablePartition`, `BookProof.ChapterD`, `BookProof.ChapterDampedOscillatorEnergy`, `BookProof.ChapterDutchBook`, `BookProof.ChapterE`, `BookProof.ChapterE2`, `BookProof.ChapterE3`, `BookProof.ChapterE4`, `BookProof.ChapterEntropy`, `BookProof.ChapterErrorNorms`, `BookProof.ChapterEulerComplexQuat`, `BookProof.ChapterEulerCountableChain`, `BookProof.ChapterEulerDensityMatrix`, `BookProof.ChapterEulerGenericDensity`, `BookProof.ChapterEulerNState`, `BookProof.ChapterEulerStochastic`, `BookProof.ChapterF5`, `BookProof.ChapterF6`, `BookProof.ChapterF7`, `BookProof.ChapterFiniteArithmeticPrior`, `BookProof.ChapterFockDegreesOfFreedom`, `BookProof.ChapterGaugeAdjointAlgebra`, `BookProof.ChapterGaugeUnconstrainedSpectrum`, `BookProof.ChapterGaugeVariantVanishing`, `BookProof.ChapterGaugeWeylResidual`, `BookProof.ChapterGleason2D`, `BookProof.ChapterGleasonPureMixed`, `BookProof.ChapterGravityIrrep`, `BookProof.ChapterHowlandAutonomization`, `BookProof.ChapterIPin`, `BookProof.ChapterIrreversible`, `BookProof.ChapterIrreversibleDynamics`, `BookProof.ChapterKernelBound`, `BookProof.ChapterKernelTransport`, `BookProof.ChapterLittleGroup`, `BookProof.ChapterLocalOperators`, `BookProof.ChapterLocalityConstraintNull`, `BookProof.ChapterLorentzTranslation`, `BookProof.ChapterMAPNull`, `BookProof.ChapterMajoranaClifford`, `BookProof.ChapterMajoranaProp61`, `BookProof.ChapterMajoranaProp76`, `BookProof.ChapterMaschkeFiniteGroup`, `BookProof.ChapterMassGap`, `BookProof.ChapterMaxEntropy`, `BookProof.ChapterMeasurementLLN`, `BookProof.ChapterNavierStokes`, `BookProof.ChapterNoBestPrior`, `BookProof.ChapterNoLebesgue`, `BookProof.ChapterNoUniformCountable`, `BookProof.ChapterNsAdvectionConvolution`, `BookProof.ChapterOdeComplexification`, `BookProof.ChapterParityMajoranaQuant`, `BookProof.ChapterProbabilityClockStochastic`, `BookProof.ChapterProbabilityInterface`, `BookProof.ChapterQuadraticOrdering`, `BookProof.ChapterQuantizationWeyl`, `BookProof.ChapterSmHiggsVacuum`, `BookProof.ChapterSpectralEnergyBound`, `BookProof.ChapterSpinStatistics`, `BookProof.ChapterStatisticalModelTheory`, `BookProof.ChapterSternGerlach`, `BookProof.ChapterTotalVariance`, `BookProof.ChapterUnitaryCompleteReducibility`, `BookProof.ChapterYangMillsBianchi`
 
 ### Sub-system targets of `BookProof`
 
@@ -124,88 +104,6 @@ A sub-system target is a *view* of one part: a coherent piece of the development
 
 | Lake target | roots | modules in the cone | inside the part |
 | --- | --- | ---: | --- |
-| `BookProofDerivativeGauge` | `BookProof.ChapterNsBrstDerivativeGauge`, `BookProof.ChapterNsFieldMomentumInverse`, `BookProof.ChapterQgBrstDerivativeGauge` | 106 | `BookProofOperatorCore` |
+| `BookProofDerivativeGauge` | `BookProof.Ns.ChapterNsBrstDerivativeGauge`, `BookProof.Ns.ChapterNsFieldMomentumInverse`, `BookProof.Qg.ChapterQgBrstDerivativeGauge` | 106 | `BookProofOperatorCore` |
 
 Unlike a part target, a sub-system target is not checked for closure: its cone is strictly larger than the sub-system, by construction. `--check` verifies instead that its roots are real modules, that they are exactly the maximal modules of the cone they generate, and that the cone stays inside a single part.
-
-### `Singularity` — 12 modules, 2 independent parts (1 with more than one module)
-
-| modules | Lake target | maximal modules (the `roots` of the target) |
-| ---: | --- | --- |
-| 11 | *(build its maximal modules directly)* | `Singularity.EnergyBounded`, `Singularity.Integration`, `Singularity.Singularity`, `Singularity.Tests` |
-
-The remaining 1 parts are single modules, each built by `lake build <module>`:
-
-`Singularity`
-
-
-### `Layout` — 1 modules, 1 independent parts (0 with more than one module)
-
-The remaining 1 parts are single modules, each built by `lake build <module>`:
-
-`Layout`
-
-
-### `RandomMap` — 5 modules, 2 independent parts (1 with more than one module)
-
-| modules | Lake target | maximal modules (the `roots` of the target) |
-| ---: | --- | --- |
-| 4 | *(build its maximal modules directly)* | `RandomMap.RandomMap2InfiniteWalk` |
-
-The remaining 1 parts are single modules, each built by `lake build <module>`:
-
-`RandomMap.RandomMap2RH`
-
-
-### `UsedRoute` — 15 modules, 3 independent parts (1 with more than one module)
-
-| modules | Lake target | maximal modules (the `roots` of the target) |
-| ---: | --- | --- |
-| 13 | *(build its maximal modules directly)* | `UsedRoute.ContourStrategy`, `UsedRoute.GaussianEuler`, `UsedRoute.MultiplicityOne`, `UsedRoute.SimplifiedStrategy` |
-
-The remaining 2 parts are single modules, each built by `lake build <module>`:
-
-`UsedRoute.SolovayHilbert`, `UsedRoute.TwoLimits`
-
-
-### `UnusedRoute` — 7 modules, 4 independent parts (1 with more than one module)
-
-| modules | Lake target | maximal modules (the `roots` of the target) |
-| ---: | --- | --- |
-| 4 | *(build its maximal modules directly)* | `UnusedRoute.RcpRandomMap2Bridge` |
-
-The remaining 3 parts are single modules, each built by `lake build <module>`:
-
-`UnusedRoute.Legacy`, `UnusedRoute.RandomMap2Phase7`, `UnusedRoute.RcpRandomMapBridge`
-
-
-### `RiemannProof` — 7 modules, 7 independent parts (0 with more than one module)
-
-The remaining 7 parts are single modules, each built by `lake build <module>`:
-
-`RiemannProof`, `RiemannProof.RandomMap2InfiniteWalk`, `RiemannProof.RandomMap2Moments`, `RiemannProof.RandomMap2RH`, `RiemannProof.RandomMap2Walk`, `RiemannProof.RcpRandomMapBridge`, `RiemannProof.SolovayHilbert`
-
-
-### `PnpProof` — 11 modules, 2 independent parts (1 with more than one module)
-
-| modules | Lake target | maximal modules (the `roots` of the target) |
-| ---: | --- | --- |
-| 10 | *(build its maximal modules directly)* | `PnpProof.GeometricTruth`, `PnpProof.Main`, `PnpProof.Skeleton` |
-
-The remaining 1 parts are single modules, each built by `lake build <module>`:
-
-`PnpProof.NPComplete`
-
-
-### `Work` — 87 modules, 87 independent parts (0 with more than one module)
-
-The remaining 87 parts are single modules, each built by `lake build <module>`:
-
-`Work`, `Work.BookBrstAudit`, `Work.CcrNoBoundedAudit`, `Work.ClosureUniquenessAudit`, `Work.ComparisonCoreEsaAudit`, `Work.ComputableScarcityAudit`, `Work.CrouzeixSelfAdjointAudit`, `Work.DensitySectorAudit`, `Work.EnclosureEsaAudit`, `Work.EnergyBandDecompositionAudit`, `Work.EsaOneParticleAudit`, `Work.FarisLavineOnlyAudit`, `Work.FockDegreesOfFreedomAudit`, `Work.FockSchurEsaAudit`, `Work.FockStatisticsAudit`, `Work.FockWeightedSchurEsaAudit`, `Work.FriedrichsSquareFactorizationAudit`, `Work.FullEnclosureAudit`, `Work.GaugeComprehensiveFixingAudit`, `Work.GaugeIncompleteFixingAudit`, `Work.GaugeSymmetryAudit`, `Work.GaugeUnconstrainedSpectrumAudit`, `Work.GraphCoreTransferAudit`, `Work.GravityPolymomentumAudit`, `Work.HonestBoundariesAudit`, `Work.HowlandAutonomizationAudit`, `Work.LocalityConstraintNullAudit`, `Work.MackeyConverseCrouzeixAudit`, `Work.MinMaxSpectrumAudit`, `Work.NonnegResolventAudit`, `Work.NonnegSemigroupGeneratorAudit`, `Work.NonnegSquareRootAudit`, `Work.NonnegUnitaryGroupAudit`, `Work.NsAdvectionConvolutionAudit`, `Work.NsBrstDerivativeGaugeAudit`, `Work.NsCutoffUniformityAudit`, `Work.NsFieldMomentumInverseAudit`, `Work.NsFourierEliminationAudit`, `Work.NsFullEulerianLagrangianAudit`, `Work.NsFullLagrangianFockEsaAudit`, `Work.NsLagrangianDetAudit`, `Work.NsLagrangianOuterFockAudit`, `Work.NsNonlinearFarisLavineAudit`, `Work.NsOneBodyDGammaAudit`, `Work.NsPartialFourierAudit`, `Work.NsScalarFourierAudit`, `Work.NsScalarVectorCurryAudit`, `Work.NsSpatialMomentumMultiplierAudit`, `Work.NumericalRangeSemigroupAudit`, `Work.OdeUnitaryFlowAudit`, `Work.PermutationSectorAudit`, `Work.PlanExecution20260904gAudit`, `Work.PolarPartialIsometryAudit`, `Work.PositiveSquareRootUniqueAudit`, `Work.PvmCyclicDecompositionAudit`, `Work.PvmInducedSystemAudit`, `Work.QgCrossTermAudit`, `Work.QgVielbeinScalaronGaugeAudit`, `Work.QuadraticFockEsaAudit`, `Work.RelationShiftInvertAudit`, `Work.ResolventCorrespondenceAudit`, `Work.ResolventMinMaxLadderAudit`, `Work.SchurFiniteDimensionalAudit`, `Work.SchurPauliWaveAudit`, `Work.ShannonSamplingAudit`, `Work.SmBookCheck`, `Work.SmComparisonEsaAudit`, `Work.SmFarisLavineAudit`, `Work.SmHonestBoundariesAudit`, `Work.SmStandardModelAudit`, `Work.SmYukawaCouplingAudit`, `Work.SolidHarmonicAudit`, `Work.SphericalBesselODEAudit`, `Work.SphericalPlancherelAudit`, `Work.SplitSanityCheck`, `Work.SqSumOuterSingleTimeScratch`, `Work.StatisticalModelTheoryAudit`, `Work.SymmetryEntropyAudit`, `Work.TensorSumEsaAudit`, `Work.TmpProbe`, `Work.TwoParticleSectorAudit`, `Work.UnboundedPolarAudit`, `Work.VonNeumannCoreAudit`, `Work.WeylAudit`, `Work.WignerMackeyWeylAudit`, `Work.YangMillsBandGhostAudit`, `Work.YmFockFriedrichsScalaronAudit`
-
-
-### `Audits` — 7 modules, 7 independent parts (0 with more than one module)
-
-The remaining 7 parts are single modules, each built by `lake build <module>`:
-
-`Audits`, `Audits.B1_randomMap2_axioms`, `Audits.Singularity_axioms`, `Audits.Trivial`, `Audits.Verification`, `Audits.randomMap2RH_axioms`, `Audits.randomMap2_axioms`

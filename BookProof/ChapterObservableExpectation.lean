@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterSoftmaxBorn
+import BookProof.Attention.ChapterSoftmaxBorn
 import BookProof.ChapterBayesInference
 
 /-!

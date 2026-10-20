@@ -7,9 +7,9 @@ realization with its analytic conclusions, Part D the continuum theorem as a
 **named hypothesis, never an axiom**.
 
 **Status (2026-08-17): executed.**  Every headline below is proved,
-`sorry`-free and `axiom`-free, in `BookProof/ChapterQuantumGravityDensitized.lean`;
+`sorry`-free and `axiom`-free, in `BookProof/Qg/ChapterQuantumGravityDensitized.lean`;
 the module is registered in `BookProof.lean`, certified in
-`BookProof/ChapterRoadmapAudit.lean` (`#print axioms`, only `propext`,
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` (`#print axioms`, only `propext`,
 `Classical.choice`, `Quot.sound`) and cited from `Book/DiffeomorphismsGravity.lean`.
 `ChapterStrichartzHermiteQG.lean` and `ChapterQuantumGravityHalfDensity.lean`
 carry the Hermite-core realization and the constructed half-density unitary.
@@ -134,7 +134,7 @@ gauge-fixed Hamiltonian.  The answer, verified against the module and the plan:
    `CONSOLIDATED_PLAN.md` §9.5, which explicitly calls it "a classical fact
    quoted from the literature and **not formalized here**."  The repo proves a
    *discrete* limit-circle Jacobi counterexample
-   (`BookProof/ChapterNavierStokesDeficiency.lean`), but not the continuum
+   (`BookProof/Ns/ChapterNavierStokesDeficiency.lean`), but not the continuum
    `−x⁴` case.  So the warning is mathematically sound (it is a standard
    classical fact) but it is not a Lean theorem.
 4. **The genuine open question is the sign of `Ṽ` after the unitary.**  Whether
@@ -153,7 +153,7 @@ gauge-fixed Hamiltonian.  The answer, verified against the module and the plan:
 variables, like `y = 1/x` for `x' = x²`, under which completing the flow becomes
 obvious.  The answer is yes, and the tool is already proved in-repo: **Nelson's
 complete-flow criterion** `hasZeroDeficiencyOn_of_completeUnitaryFlow`
-(`BookProof/ChapterNavierStokesEsa.lean:170`).  If a symmetric `H` generates a
+(`BookProof/Ns/ChapterNavierStokesEsa.lean:170`).  If a symmetric `H` generates a
 *norm-preserving* flow `U(t)` that leaves the domain invariant and solves
 `d/dt U(t)v = iH U(t)v` for **all** real `t` (a *complete* flow), then `H` is
 essentially self-adjoint.  For `x' = x²` the flow blows up in finite time
@@ -220,7 +220,7 @@ substantive and the only one that connects to a *proved* repo theorem.  Solving
 the constraint `(1/16e)𝒮² − (1/24e)𝒫² − eV(e) = 0` for `𝒫` and using it as time
 (York time) gives a square-root Hamiltonian `H_true = √((3/2)𝒮² − 24e²V(e))`.
 If it is bounded below, the **proved** `friedrichs_extension_of_semibounded_below`
-(`BookProof/ChapterFriedrichsExtension.lean:468`) gives a self-adjoint extension
+(`BookProof/Toolbox/ChapterFriedrichsExtension.lean:468`) gives a self-adjoint extension
 with the same lower bound.  **Two claims must be verified, not assumed:** (a) the
 radicand `(3/2)𝒮² − 24e²V(e)` must be a *positive* operator (or shifted to be
 positive) before the functional-calculus square root is real — if `V(e)` is the
@@ -248,7 +248,7 @@ the `γ⁵`-type element — which anticommutes with the generators and squares 
 positive `H`.  This directly resolves the `−𝒫²` indefinite-sign problem that
 Route 3's functional-calculus square root could not (that needed a *positive*
 radicand).  **The `γ⁵`/Clifford/Dirac-matrix machinery is already proved in the
-repo:** `BookProof/ChapterA3.lean` has `mgamma5` (`iγ⁵`), `mgamma5_sq`
+repo:** `BookProof/Textbook/ChapterA3.lean` has `mgamma5` (`iγ⁵`), `mgamma5_sq`
 (`(iγ⁵)² = −1`), `mgamma5_anticomm` (`{iγ⁵, iγ^μ} = 0`), `mgamma5_eq_prod`,
 `mgamma_clifford` / `dgamma_clifford` for the indefinite metric
 `η = diag(1,−1,−1,−1)`, and `mgamma_unitary`; `BookProof/ChapterMajoranaClifford.lean`
@@ -288,7 +288,7 @@ operator, and buildable on already-proved `γ⁵`/Clifford content.**
 half-density factor `√(2y)`.  Composition with `y ↦ y²` is therefore a genuine
 unitary `L²((0,∞), de) ≃ L²((0,∞), 2y dy)`, and D.4 is instantiated at it
 (`qg_halfDensity_transfer`).  This is in
-`BookProof/ChapterQuantumGravityHalfDensity.lean`, `sorry`-free and
+`BookProof/Qg/ChapterQuantumGravityHalfDensity.lean`, `sorry`-free and
 `axiom`-free.  It removes the last bullet of the honest boundary below ("the
 transfer theorem takes that unitary as data") for the conformal factor.
 
@@ -316,15 +316,15 @@ coordinates + 16 tetrad fields `e_μ^a` + 64 spacetime-derivatives
 `∂_μ ψ_ν` − 1 (the tensor product of two Fock spaces introduces an extra `ℤ₂`).
 
 This part mirrors exactly the Yang–Mills thread's
-`BookProof/ChapterFockSecondQuantization.lean` (Part F.11), reusing its
+`BookProof/Toolbox/ChapterFockSecondQuantization.lean` (Part F.11), reusing its
 occupation-number machinery; the new content is the **`ℤ₂`-grading and the
 fermionic (CAR) half**.  The suggested module is
-`BookProof/ChapterQuantumGravityFock.lean`, namespace
+`BookProof/Qg/ChapterQuantumGravityFock.lean`, namespace
 `BookProof.QuantumGravityFock`.
 
 **Key point (2026-08-19): the *general* second-quantization ESA theorem — which
 QG needs, because its one-particle operator is indefinite/unbounded below — is
-already formalized.**  `BookProof/ChapterNavierStokesFockEsa.lean` (sorry-free /
+already formalized.**  `BookProof/Ns/ChapterNavierStokesFockEsa.lean` (sorry-free /
 axiom-free, registered in `BookProof.lean`, currently **not** in the
 `ChapterRoadmapAudit.lean` audit and **not** cited from `Book/`) proves
 `dGamma_hasZeroDeficiencyOn` — ESA of the second quantization `dΓ(ω)` for an
@@ -350,7 +350,7 @@ After acting on the first-level Fock basis (the Hermite polynomials,
   configurations, so the Fock basis is not an eigenbasis.  Being "an operator on
   a Hilbert space" does not by itself give ESA.  **But the general
   second-quantization theorem still gives it:** `fockOp_hasZeroDeficiencyOn`
-  (`BookProof/ChapterNavierStokesSecondQuant.lean:275`) states that if each
+  (`BookProof/Ns/ChapterNavierStokesSecondQuant.lean:275`) states that if each
   one-particle sector `A m` is ESA, then `fockOp A = dΓ(A)` is ESA — with `A`
   arbitrary (not diagonal, not positive, not bounded).  So the Fock level is ESA
   **whenever the one-particle `h̃` is ESA**, diagonal or not.
@@ -382,7 +382,7 @@ hypothesis; the non-diagonal continuum is the D.6 sign/regime question.
 | E.7 **register + cite** the existing general Fock/Fock-of-Fock ESA theorems (`dGamma_hasZeroDeficiencyOn`, `hTwoLevel_hasZeroDeficiencyOn`, `lagrangianFock_hasZeroDeficiencyOn`) in `ChapterRoadmapAudit.lean` (`#print axioms`) and from `Book/` — currently missing | audit entries + `#check` citations | **DONE** (2026-08-26b) |
 | E.6 the finite-mode-domain identification so the Hashimoto/SIRK shift-invert machinery applies to the second-quantized operator (reuse `finiteModeDomain_fockBasisN`, `dGamma_hashimoto_selects`) | `qgFock_hashimoto_selects` | DONE (reuse) |
 
-**Executed 2026-08-26b.**  `BookProof/ChapterQuantumGravityFock.lean` (namespace
+**Executed 2026-08-26b.**  `BookProof/Qg/ChapterQuantumGravityFock.lean` (namespace
 `BookProof.QuantumGravityFock`) is `sorry`-free and `axiom`-free.  E.1/E.2 reuse the
 bosonic Fock module (`qgCCR_bose`); E.3 is the Jordan–Wigner construction with the four CAR
 theorems, the Pauli identities `fermAnn_comp_self` / `fermCre_comp_self` and the adjoint
@@ -411,7 +411,7 @@ book's own definition, is the **full 3D gauge-fixed Hamiltonian as a concrete
 field-space operator** on that Fock space, and the **BRST charge** `G`
 (diffeomorphism + local Lorentz + global-translation constraints,
 book.tex:8198–8245).  The suggested module is
-`BookProof/ChapterQuantumGravity3DGauge.lean`, namespace
+`BookProof/Qg/ChapterQuantumGravity3DGauge.lean`, namespace
 `BookProof.QuantumGravity3DGauge`, reusing `ChapterYangMillsHermite.lean` (the
 product-Hermite-core operators) and `ChapterFockSecondQuantization.lean`.
 
@@ -427,7 +427,7 @@ product-Hermite-core operators) and `ChapterFockSecondQuantization.lean`.
 | F.8 the instantiation of the Friedrichs + Hashimoto theorems on the concrete 3D operator (reuse `friedrichs_extension_exists`, `friedrichs_hashimoto_selects`) | `qg3D_friedrichs_extension`, `qg3D_hashimoto_selects` | **DONE** (2026-08-25h) |
 | F.9 a **bounded** nilpotent BRST charge on the *completed* graded Hilbert space (so that the reduced-transfer theorems, which need a bounded charge on a complete space, apply), together with a commuting unitary group and the induced transfer on BRST cohomology | `qgBrstCharge`, `qgBrstCharge_nilpotent`, `qgPhase`, `qgBrstTransfer` | **DONE** (2026-08-26c) |
 
-**Executed 2026-08-26c (F.9).**  `BookProof/ChapterQgBrstCompleted.lean` is `sorry`-free and
+**Executed 2026-08-26c (F.9).**  `BookProof/Qg/ChapterQgBrstCompleted.lean` is `sorry`-free and
 `axiom`-free.  It adds a bounded weighted-shift calculus on `ℓ²` (`tsum_sq_weighted_le`,
 `wshift`, `wshift_norm_le`, `wshift_norm_eq`), the dressed ghost creation operators
 `brstTerm` on the completed graded space `ℓ²(GradedIdx)` with `brstTerm_comp_self` and
@@ -443,8 +443,8 @@ energy — and that restriction is proved necessary by `qgPhaseFull_not_comm_brs
 nonzero ghost energy the full-symbol evolution does not commute with the charge, so it does
 not descend to the cohomology.
 
-**Executed 2026-08-25h.**  `BookProof/ChapterQuantumGravity3DGauge.lean` (F.1–F.5, F.8)
-and `BookProof/ChapterQuantumGravityBrstCharge.lean` (F.6, F.7) are `sorry`-free and
+**Executed 2026-08-25h.**  `BookProof/Qg/ChapterQuantumGravity3DGauge.lean` (F.1–F.5, F.8)
+and `BookProof/Qg/ChapterQuantumGravityBrstCharge.lean` (F.6, F.7) are `sorry`-free and
 `axiom`-free.  Realized names (the table's suggestions, lightly renamed): F.1
 `qg3DDensity` / `qg3DDensity_singular` / `qg3DDensity_densitized`; F.2 `qg3DHamiltonian`,
 `qg3D_apply`; F.3 `qgCoord`, `qgMom`, `qgCCR`, `qgCCR_tetrad`; F.4 `qgWeylProd`,

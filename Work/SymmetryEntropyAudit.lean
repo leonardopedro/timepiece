@@ -1,4 +1,4 @@
-import BookProof.ChapterSymmetryEntropy
+import BookProof.Reconstruction.ChapterSymmetryEntropy
 
 /-!
 # Axiom audit for `BookProof.ChapterSymmetryEntropy`

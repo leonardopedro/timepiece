@@ -1,9 +1,9 @@
-import BookProof.ChapterNsSpatialMomentumMultiplier
+import BookProof.Ns.ChapterNsSpatialMomentumMultiplier
 
 /-!
 # Axiom audit — the Plancherel identification and the diagonal spatial derivative
 
-Every headline result of `BookProof/ChapterNsSpatialMomentumMultiplier.lean` (part of item 1 of
+Every headline result of `BookProof/Ns/ChapterNsSpatialMomentumMultiplier.lean` (part of item 1 of
 the Navier–Stokes plan items: the momentum-side form of the spatial derivative) must rest on the
 standard axioms only: `propext`, `Classical.choice`, `Quot.sound`.
 -/

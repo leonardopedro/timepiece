@@ -48,39 +48,39 @@ everywhere in this development — the *outer second quantization* $`d\Gamma(h)`
 a one-particle operator $`h`, never the bare $`h`.
 
 Proof chapters carry the content, in five generations of work. The first four
-set the frame: `BookProof/ChapterSmOneParticle.lean` (the collective
-coordinates and the mixing algebra), `BookProof/ChapterSmHamiltonian.lean` (the
-one-particle operator), `BookProof/ChapterSmComparison.lean` (the comparison
-operator of the Faris–Lavine route) and `BookProof/ChapterSmOuterFock.lean` (the
+set the frame: `BookProof/Sm/ChapterSmOneParticle.lean` (the collective
+coordinates and the mixing algebra), `BookProof/Sm/ChapterSmHamiltonian.lean` (the
+one-particle operator), `BookProof/Sm/ChapterSmComparison.lean` (the comparison
+operator of the Faris–Lavine route) and `BookProof/Sm/ChapterSmOuterFock.lean` (the
 enclosure). The second generation completes the fermions:
-`BookProof/ChapterSmCarAlgebra.lean` (the CAR algebra over a finite mode set),
-`BookProof/ChapterSmDiracYukawa.lean` (the Dirac and Yukawa operators and the
+`BookProof/Sm/ChapterSmCarAlgebra.lean` (the CAR algebra over a finite mode set),
+`BookProof/Sm/ChapterSmDiracYukawa.lean` (the Dirac and Yukawa operators and the
 three Faris–Lavine hypotheses for them),
-`BookProof/ChapterSmDiracSpinor.lean` (the relativistic spinor content) and
-`BookProof/ChapterSmComparisonFull.lean` (every summand of the comparison
+`BookProof/Sm/ChapterSmDiracSpinor.lean` (the relativistic spinor content) and
+`BookProof/Sm/ChapterSmComparisonFull.lean` (every summand of the comparison
 operator, derivative coordinates included). The third generation closes the
-honest boundaries of the first: `BookProof/ChapterSmCarContinuum.lean` (the
+honest boundaries of the first: `BookProof/Sm/ChapterSmCarContinuum.lean` (the
 continuum CAR algebra over an infinite-dimensional one-particle space),
-`BookProof/ChapterSmGaugeConnection.lean` (the gauge connection inside the
+`BookProof/Sm/ChapterSmGaugeConnection.lean` (the gauge connection inside the
 covariant derivative),
-`BookProof/ChapterSmBrstGhost.lean` and
-`BookProof/ChapterSmGaugeRepresentation.lean` (the ghost/BRST sector), and
+`BookProof/Sm/ChapterSmBrstGhost.lean` and
+`BookProof/Sm/ChapterSmGaugeRepresentation.lean` (the ghost/BRST sector), and
 `BookProof/ChapterSmHiggsVacuum.lean` (symmetry breaking as statics). The
 fourth takes the manuscript's own BRST definition literally:
 `BookProof/ChapterBookBrstYangMills.lean`,
 `BookProof/ChapterBookBrstGaugeFixing.lean` and
 `BookProof/ChapterBookBrstInstances.lean`. The fifth closes the last open
 analytic hypothesis of the bosonic route: it begins with
-`BookProof/ChapterSmFarisLavine.lean` (the two Faris–Lavine inequalities,
+`BookProof/Sm/ChapterSmFarisLavine.lean` (the two Faris–Lavine inequalities,
 against the comparison operator that actually satisfies them) and continues
 through the independent Kato-type theorem and its transfer between the two
-cores — `BookProof/ChapterDegSchrodingerCore.lean`,
+cores — `BookProof/Toolbox/ChapterDegSchrodingerCore.lean`,
 `BookProof/ChapterMollifierL2.lean`, `BookProof/ChapterConvolutionCalc.lean`,
 `BookProof/ChapterDegEnergyEstimate.lean`,
 `BookProof/ChapterDegKatoEsa.lean`,
-`BookProof/ChapterHermiteLadderOrder.lean`,
-`BookProof/ChapterHermiteGraphApprox.lean` and
-`BookProof/ChapterSmComparisonEsa.lean` — ending in the unconditional
+`BookProof/Toolbox/ChapterHermiteLadderOrder.lean`,
+`BookProof/Toolbox/ChapterHermiteGraphApprox.lean` and
+`BookProof/Sm/ChapterSmComparisonEsa.lean` — ending in the unconditional
 essential self-adjointness of the one-particle operator. Those two sections,
 “The Bosonic Faris–Lavine Certificate” and “The Kato-Type Input”, are the
 pedagogical face of that chain. Every chapter named here is `sorry`-free and
@@ -414,7 +414,7 @@ contains $`2V_h`$ and is therefore as hard as $`h`$ itself. It is supplied
 instead by an independent theorem, proved in four chapters whose content is
 worth walking through because the instrument is general.
 
-`BookProof/ChapterDegSchrodingerCore.lean` sets up the class: operators
+`BookProof/Toolbox/ChapterDegSchrodingerCore.lean` sets up the class: operators
 $`-\Delta_S + W`$ whose kinetic term differentiates only a subset $`S`$ of
 the coordinates, on both cores the project works with. The analytic heart is
 `BookProof/ChapterDegKatoEsa.lean`: a deficiency vector $`w`$ at a purely
@@ -433,12 +433,12 @@ regularity of $`W`$ beyond smoothness with $`W \ge 1`$.
 
 The theorem lives on the compactly supported smooth core; the comparison
 operator is consumed on the Gauss–polynomial core. The bridge is the Hermite
-expansion: `BookProof/ChapterHermiteLadderOrder.lean` shows that every
+expansion: `BookProof/Toolbox/ChapterHermiteLadderOrder.lean` shows that every
 polynomial differential operator has a finite *ladder order* against the
-Hermite weights, and `BookProof/ChapterHermiteGraphApprox.lean` uses it to
+Hermite weights, and `BookProof/Toolbox/ChapterHermiteGraphApprox.lean` uses it to
 make the Hermite truncations of a compactly supported smooth vector Cauchy in
 the graph norm — so essential self-adjointness transfers from one core to the
-other. Finally `BookProof/ChapterSmComparisonEsa.lean` identifies, on the
+other. Finally `BookProof/Sm/ChapterSmComparisonEsa.lean` identifies, on the
 core, $`N = 2h + \sum_m q_m^2 + c_0`$ with exactly such an operator — $`S`$
 the forty momentum-carrying coordinates, $`W = \sum_r \Phi_r^2 + \sum_m q_m^2 + c_0`$
 — proves the theorem for every real $`c_0`$ (values below one by a bounded
@@ -460,7 +460,7 @@ algebra) into that enclosure. The instrument itself is sector-agnostic —
 $`ccHamS_esa`$ and $`hamCoreS_esa`$ hold for every smooth, respectively
 polynomial, $`W \ge 1`$ and every coordinate subset $`S`$ — so the same two
 theorems also give the non-abelian Yang–Mills instance of the same shape
-(`BookProof/ChapterYangMillsNonAbelianEsa.lean`, next section). One vocabulary
+(`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean`, next section). One vocabulary
 detail keeps the two convolutions apart: the convolution of
 `BookProof/ChapterConvolutionCalc.lean` is the *mollifier* convolution of
 analysis; the momentum-space convolution that disposes of products of fields
@@ -493,7 +493,7 @@ with spatial derivatives is the NS/QG device of
 
 :::paragraph
 The reduction of the previous section is now carried out as theorems.
-`BookProof/ChapterYangMillsNonAbelianEsa.lean` packages the instrument once:
+`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean` packages the instrument once:
 every Weyl-type operator $`\tfrac12\sum_m \pi_{\iota(m)}^2 + \tfrac12\sum_j \Phi_j^2`
 on the Gauss–polynomial core, with momenta in pairwise distinct coordinates and
 real polynomial fields $`\Phi_j`, satisfies $`2H + 1 = -\Delta_S + W` with
@@ -503,7 +503,7 @@ deficiency at $`\pm i` gives trivial deficiency at every non-real point).
 The non-abelian Yang–Mills Hamiltonian is such an operator, for arbitrary real
 structure constants (`ym_h_esa`, a one-particle statement), and so is every
 particle-number sector of the Standard-Model Hamiltonian of record.
-`BookProof/ChapterSmFockEsa.lean` records the consequences: each sector
+`BookProof/Sm/ChapterSmFockEsa.lean` records the consequences: each sector
 `smSectorHam_esa`, the outer operator $`smFockHam = d\Gamma(h)` on
 $`\bigoplus_n L^2(\mathbb{R}^{163n})` essentially self-adjoint on its
 finite-particle core (`smFockHam_esa`), and, in the creation-left /
@@ -529,7 +529,7 @@ next section. No spectral statement follows.
 # The Full One-Particle Hamiltonian: Bosonic and Fermionic Sectors Together
 
 :::paragraph
-`BookProof/ChapterSmFullEnclosure.lean` assembles the full one-particle Hamiltonian
+`BookProof/Sm/ChapterSmFullEnclosure.lean` assembles the full one-particle Hamiltonian
 before enclosure. The one-particle space is the completed tensor product
 $`L^2(\mathbb{R}^{163}) \mathbin{\hat\otimes} \mathcal{F}_{\rm CAR}` of the bosonic
 space with the (finite-mode) fermionic Fock space, and the Hamiltonian is the tensor sum
@@ -555,7 +555,7 @@ not an interaction. No spectral statement follows.
 # The Yukawa Coupling as an Operator
 
 :::paragraph
-`BookProof/ChapterSmYukawaCoupling.lean` replaces the constant Higgs value in the
+`BookProof/Sm/ChapterSmYukawaCoupling.lean` replaces the constant Higgs value in the
 Yukawa term by the Higgs field itself. The fixed-background operator splits as
 $`h_{\rm Yukawa}(z) = \operatorname{Re} z \, h_{\rm Yukawa}(1) + \operatorname{Im} z \, h_{\rm Yukawa}(i)`
 (`smYukawa_eq_re_im`), and the coupling

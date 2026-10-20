@@ -1,11 +1,11 @@
-import BookProof.ChapterWeylSl2
-import BookProof.ChapterWeylSL2Group
-import BookProof.ChapterWignerLittleGroup
-import BookProof.ChapterWignerLittleGroupOrbits
-import BookProof.ChapterMackeyImprimitivity
-import BookProof.ChapterMackeyInducedSystem
-import BookProof.ChapterWignerSymmetry
-import BookProof.ChapterWignerSymmetryUniqueness
+import BookProof.WeylSL2.ChapterWeylSl2
+import BookProof.WeylSL2.ChapterWeylSL2Group
+import BookProof.WignerOrbit.ChapterWignerLittleGroup
+import BookProof.WignerOrbit.ChapterWignerLittleGroupOrbits
+import BookProof.InducedSystems.ChapterMackeyImprimitivity
+import BookProof.InducedSystems.ChapterMackeyInducedSystem
+import BookProof.InducedSystems.ChapterWignerSymmetry
+import BookProof.InducedSystems.ChapterWignerSymmetryUniqueness
 
 /-!
 Axiom audit for the wave that discharges the remaining representation-theoretic

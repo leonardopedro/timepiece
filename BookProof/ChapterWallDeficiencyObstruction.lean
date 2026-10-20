@@ -1,10 +1,10 @@
 import Mathlib
-import BookProof.ChapterScalaronWallEsa
+import BookProof.Qg.ChapterScalaronWallEsa
 
 /-!
 # The deficiency space of `−d²/dx² + V` *is* its space of `L²` classical solutions
 
-`BookProof/ChapterScalaronWallEsa.lean` proves one direction of the classical Weyl
+`BookProof/Qg/ChapterScalaronWallEsa.lean` proves one direction of the classical Weyl
 alternative for the one-dimensional Schrödinger operator on the compactly supported smooth
 core: every deficiency vector is (a.e.) a classical solution of `W'' = (V − z)W`
 (`wallHam_weak_eq` plus the regularity theorem `exists_deriv2_of_weak_eq`), and for `V ≥ 0`

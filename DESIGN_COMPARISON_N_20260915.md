@@ -343,7 +343,7 @@ comparison.  No positive `N` of oscillator type is needed, and the cubic's lost 
 
 ### 5.5 Staged Lean plan — DONE 2026‑09‑17
 
-All of the stages below are landed in `BookProof/ChapterNsFourierElimination.lean` (namespace
+All of the stages below are landed in `BookProof/Ns/ChapterNsFourierElimination.lean` (namespace
 `BookProof.NsFullEuler`), `sorry`-free and `axiom`-free; the book chapter that narrates them is
 `Book/FourierElimination.lean`.  The names are the ones the plan and the offline specialist should
 cite:
@@ -509,7 +509,7 @@ thing `friedrichs_extension_exists` consumes.
    via `restrict_essentiallySelfAdjointOn`).
 
 **Status of the stage plan (2026-09-17) — items 1–6 above are *not* done; the file is a handoff
-scaffold.**  `BookProof/ChapterNsLagrangianFourierElimination.lean` (namespace
+scaffold.**  `BookProof/Ns/ChapterNsLagrangianFourierElimination.lean` (namespace
 `BookProof.NsLagFourier`, unimported, in no Lake target) contains, `sorry`-free: the substitution
 `lagElimCoord` / `lagLift` / `lagElimHom` and its coordinate values for `ξ_i`, `v_i`, `a_i`,
 `q_i`, `y_j`, `S_i` (green), the rank-one degeneracy lemmas of §6 above and

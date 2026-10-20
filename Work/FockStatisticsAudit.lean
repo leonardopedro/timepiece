@@ -1,11 +1,11 @@
-import BookProof.ChapterFockStatisticsEsa
-import BookProof.ChapterFockStatisticsCompletion
+import BookProof.Toolbox.ChapterFockStatisticsEsa
+import BookProof.Toolbox.ChapterFockStatisticsCompletion
 
 /-!
 # Axiom audit for the bosonic and fermionic Fock space
 
-Every result of `BookProof/ChapterFockStatisticsEsa.lean` and
-`BookProof/ChapterFockStatisticsCompletion.lean` should report only the three standard
+Every result of `BookProof/Toolbox/ChapterFockStatisticsEsa.lean` and
+`BookProof/Toolbox/ChapterFockStatisticsCompletion.lean` should report only the three standard
 axioms `propext`, `Classical.choice`, `Quot.sound`.
 -/
 

@@ -1,6 +1,6 @@
-import BookProof.ChapterBesselHarmonic
+import BookProof.HarmonicAnalysis.ChapterBesselHarmonic
 import BookProof.ChapterAngularMomentum
-import BookProof.ChapterRadialLaplacian
+import BookProof.HarmonicAnalysis.ChapterRadialLaplacian
 
 /-!
 Axiom audit for `BookProof.ChapterSphericalBesselODE`: the spherical Bessel

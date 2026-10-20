@@ -1,4 +1,4 @@
-import BookProof.ChapterRoadmapAudit
+import BookProof.RoadmapAudit.ChapterRoadmapAudit
 
 /-!
 # RandomMap2 roadmap audit quarantine

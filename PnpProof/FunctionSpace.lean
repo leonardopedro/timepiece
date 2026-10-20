@@ -1,11 +1,11 @@
 import PnpProof.Foundations
-import BookProof.PhysFunctionalAnalysis
+import BookProof.Toolbox.PhysFunctionalAnalysis
 
 /-!
 # Part 3: Function space (promoted)
 
 **Promoted (2026-08-09).**  The mathematical content of this module has been
-promoted out of `PnpProof/` into `BookProof/PhysFunctionalAnalysis.lean` (see
+promoted out of `PnpProof/` into `BookProof/Toolbox/PhysFunctionalAnalysis.lean` (see
 `PLAN_LEAN_SPECIALIST_COHERENT.md` Part G): it is general mathematics — the
 measure-theoretic, functional-analytic and hyperspherical/Gaussian backbone —
 reused by the QFM/Fork thread, and `PnpProof/` must be a one-way leaf of the

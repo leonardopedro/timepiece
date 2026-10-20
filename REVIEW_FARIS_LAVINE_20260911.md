@@ -172,7 +172,7 @@ unchanged.  What changes is the operator they are applied to.
 This is the only gravity model of interest: vielbein *and* scalaron with the full exponential
 potential (no Taylor expansion) *and* 3D gauge fixing *and* the gauge fixing of the variables
 representing spatial derivatives of the fields; no lattice; outer Fock space.  It is
-`BookProof/ChapterQgVielbeinScalaronGaugeFL.lean`.  Reviewed again in this revision and
+`BookProof/Qg/ChapterQgVielbeinScalaronGaugeFL.lean`.  Reviewed again in this revision and
 unchanged: it is `sorry`-free and its audit reports only the standard axioms.  (By the §0.1
 revision the `D_{μν}^i` are *eliminated* by the substitution `D_{μν}^i = i k_μ e_ν^i` rather
 than gauge-fixed; the module and every result below are unchanged.)
@@ -212,10 +212,10 @@ than gauge-fixed; the module and every result below are unchanged.)
 The 2026‑09‑11 note said that "the densitized 3D gauge-fixed gravity Hamiltonian on the 84
 coordinates (tetrad plus the independent coordinates for its derivatives) is identified as a
 kinetic-plus-squares operator".  That sentence is true **only of the pure tetrad/jet model of
-`BookProof/ChapterQg3DGaugeFarisLavine.lean`, which carries no scalaron**, and it must not be
+`BookProof/Qg/ChapterQg3DGaugeFarisLavine.lean`, which carries no scalaron**, and it must not be
 read as a statement about the gravity Hamiltonian of §1.  With the full exponential potential
 kept, no such identification exists, and the module
-**`BookProof/ChapterScalaronNotQuadratic.lean`** proves it:
+**`BookProof/Qg/ChapterScalaronNotQuadratic.lean`** proves it:
 
 * `starobinskyV_le_plateau` — on the plateau side the wall is bounded by `M⁴/(16α)`;
 * `starobinskyV_pos` — it is not the zero potential;
@@ -255,7 +255,7 @@ variables that represent spatial derivatives of the fields (by the §0.1 revisio
 derivative variables are eliminated by the spatial Fourier transform; the modules and their
 results are unchanged):
 
-### 2.1 Eulerian variables — `BookProof/ChapterNavierStokesFullEulerianFock.lean`
+### 2.1 Eulerian variables — `BookProof/Ns/ChapterNavierStokesFullEulerianFock.lean`
 
 `21` coordinates per parcel: the three velocity modes `u_i`, the nine **independent
 coordinates `u_{i,j}` representing `∂_j u_i`**, the three viscous coordinates `w_i`
@@ -274,7 +274,7 @@ expansion coordinates `y_j`.  `19` constraint forms per parcel:
 * the **gauge fixing of the viscous variables** `μ(w_i + Σ_j u_{i,j} − Σ_j u_{i,j}^{next})`;
 * the **`y`-gauge fixing** `g·y_j`.
 
-### 2.2 Lagrangian variables — `BookProof/ChapterNavierStokesFullLagrangianFock.lean`
+### 2.2 Lagrangian variables — `BookProof/Ns/ChapterNavierStokesFullLagrangianFock.lean`
 
 `36` coordinates per parcel: the material position `ξ_i`, the velocity `v_i`, the material
 acceleration `a_i`, the nine **deformation-gradient coordinates `F_{ij}` representing
@@ -319,7 +319,7 @@ rather than linear.  Hence, exactly as for non-abelian Yang–Mills:
 
 ### 2.4 The two layers, and the honest boundary
 
-The earlier quadratic model (`BookProof/ChapterNsOuterFockFarisLavine.lean`, background
+The earlier quadratic model (`BookProof/Ns/ChapterNsOuterFockFarisLavine.lean`, background
 advection) is kept and remains valid where it applies: there the Faris–Lavine relative bound
 holds, so one gets the stronger conclusion of *essential* self-adjointness on the
 finite-parcel core (`EsaFarisLavineIndex.Ns.ns_outerHam_esa_fl`).
@@ -340,7 +340,7 @@ is precisely positivity — the constraints enter squared.
 
 ## 3. Quantum Yang–Mills — bounded below, so a **direct Friedrichs extension**
 
-**`BookProof/ChapterYangMillsFockFriedrichs.lean`** (as noted in the request, the Yang–Mills
+**`BookProof/Qym/ChapterYangMillsFockFriedrichs.lean`** (as noted in the request, the Yang–Mills
 Hamiltonian is bounded below, so no Faris–Lavine certificate is needed here).
 
 `99 = 3 + 24 + 72` coordinates per particle: three spatial coordinates, the `24 = 3 × 8`
@@ -369,7 +369,7 @@ nested Fock space `⊕ₙ L²(ℝ^{99n})` carries its own copy (`ycoord`).
   particle number: no lattice.
 
 The earlier Faris–Lavine Yang–Mills results are kept and remain valid where they apply
-(`BookProof/ChapterYangMillsOuterFockFL.lean`): for the **abelian** magnetic field the
+(`BookProof/Qym/ChapterYangMillsOuterFockFL.lean`): for the **abelian** magnetic field the
 Hamiltonian is kinetic-plus-squares and is *essentially* self-adjoint — the self-adjoint
 extension is unique — on the one-particle core and on the outer Fock space.
 
@@ -380,7 +380,7 @@ flow, on every sector and on the whole nested Fock space.  Not proved, and not c
 — the Faris–Lavine relative bound `‖Hu‖ ≤ K‖(N+1)u‖` fails for every comparison operator built
 from the harmonic oscillator when the potential is quartic.  The matrix data of the full
 non-abelian Hamiltonian in the Hermite basis (band radius, sparsity, entry bounds) is
-available in `BookProof/ChapterYangMillsBandBounds.lean`.
+available in `BookProof/Qym/ChapterYangMillsBandBounds.lean`.
 
 ## 4. What is *not* claimed
 

@@ -1,4 +1,4 @@
-import BookProof.ChapterSmFarisLavine
+import BookProof.Sm.ChapterSmFarisLavine
 
 /-!
 # Axiom audit of `BookProof.ChapterSmFarisLavine`

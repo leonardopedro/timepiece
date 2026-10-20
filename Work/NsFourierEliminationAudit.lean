@@ -1,15 +1,15 @@
-import BookProof.ChapterNsFourierElimination
-import BookProof.ChapterNsLagrangianFourierElimination
-import BookProof.ChapterQgFourierElimination
-import BookProof.ChapterQgFullEliminated
+import BookProof.Ns.ChapterNsFourierElimination
+import BookProof.Ns.ChapterNsLagrangianFourierElimination
+import BookProof.Qg.ChapterQgFourierElimination
+import BookProof.Qg.ChapterQgFullEliminated
 
 /-!
 # Axiom audit — the Fourier elimination of the derivative variables (NS Eulerian and Lagrangian, QG)
 
-Every headline result of `BookProof/ChapterNsFourierElimination.lean` (the Eulerian elimination,
+Every headline result of `BookProof/Ns/ChapterNsFourierElimination.lean` (the Eulerian elimination,
 with the honest reduced family `redFormPoly` that squares the real *and* imaginary parts of every
 surviving form, so that the advection is one of the squares) and of
-`BookProof/ChapterNsLagrangianFourierElimination.lean` (the material elimination and the rank-one
+`BookProof/Ns/ChapterNsLagrangianFourierElimination.lean` (the material elimination and the rank-one
 degeneracy it meets) must rest on the standard axioms only:
 `propext`, `Classical.choice`, `Quot.sound`.
 -/

@@ -1,5 +1,5 @@
-import BookProof.ChapterSmFockEsa
-import BookProof.ChapterNsReducedCoreEsa
+import BookProof.Sm.ChapterSmFockEsa
+import BookProof.Ns.ChapterNsReducedCoreEsa
 
 /-!
 # Axiom audit of `BookProof.ChapterYangMillsNonAbelianEsa` and `BookProof.ChapterSmFockEsa`,

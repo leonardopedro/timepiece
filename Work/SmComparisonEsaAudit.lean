@@ -1,4 +1,4 @@
-import BookProof.ChapterSmComparisonEsa
+import BookProof.Sm.ChapterSmComparisonEsa
 
 #print axioms BookProof.SmComparisonEsa.sm_h_esa
 #print axioms BookProof.SmComparisonEsa.smFlN_esa

@@ -1,4 +1,4 @@
-import BookProof.Prelude
+import BookProof.Toolbox.Prelude
 import BookProof.ChapterNonnegSquareRoot
 
 /-!

@@ -148,7 +148,7 @@ new files contains `sorry`, and every audited result reports only `propext`,
 `Work/YangMillsBandGhostAudit.lean`.  Nothing in Part IV changed: G1, G5 and G6 stay open,
 and no mass gap is claimed anywhere.
 
-**W1 — `BookProof/ChapterHermiteBandCalculusHigher.lean`: the band calculus of arbitrary
+**W1 — `BookProof/Toolbox/ChapterHermiteBandCalculusHigher.lean`: the band calculus of arbitrary
 order.**  Generalise `Band`/`IsBand2` from the two fixed growths `√(n+1)`, `n+1` to the
 family `gpow m n = √(n+1)^m`, and prove the general composition law
 
@@ -160,7 +160,7 @@ and the base cases `x_i`, `π_i`, and multiplication by an arbitrary polynomial.
 *Acceptance*: `IsBandDeg m` closed under the algebra; `isBandDeg_mulOp` for every
 polynomial; the old `IsBand1`/`IsBand2` recovered as `IsBandDeg 1`/`IsBandDeg 2`.
 
-**W2 — `BookProof/ChapterYangMillsBandBounds.lean`: the Hermite matrix of the full
+**W2 — `BookProof/Qym/ChapterYangMillsBandBounds.lean`: the Hermite matrix of the full
 non-abelian gauge-fixed Yang–Mills Hamiltonian.**  Define the polynomial-level `ymPoly fabc`
 (the general-`f_abc` analogue of `ymAbelianPoly`), identify it with `ymHamiltonian` on the
 Hermite core, prove `IsBandDeg 4 (ymPoly fabc)` and deduce the explicit matrix statement:
@@ -175,7 +175,7 @@ real structure-constant family, plus the transport identity to `ymHamiltonian`. 
 certificate-data infrastructure of G2: it makes the emission of a *complete* certificate
 over a degree window a finite computation.
 
-**W3 — `BookProof/ChapterYangMillsGhostSector.lean`: the ghost sector.**  The
+**W3 — `BookProof/Qym/ChapterYangMillsGhostSector.lean`: the ghost sector.**  The
 Faddeev–Popov ghost sector of the 3D gauge-fixed Yang–Mills Hamiltonian in the
 finite-ghost-mode model: total space `Fin n → L²(ℝ⁹⁹)` (the gauge sector tensored with the
 finite-dimensional ghost Fock space), `H_tot = H₁ ⊗ 1 + 1 ⊗ H_gh`, ghost-number
@@ -183,7 +183,7 @@ conservation, and — in the abelian case, where `H_gh` is field-independent and
 essential self-adjointness of the total Hamiltonian, its unique realization and its flow.
 *Acceptance*: symmetry unconditional; ESA of the total abelian Hamiltonian; `[H_tot,N_gh]=0`.
 
-**W4 — `BookProof/ChapterQedAbelianConsolidation.lean`: the abelian/QED index.**  One
+**W4 — `BookProof/Qed/ChapterQedAbelianConsolidation.lean`: the abelian/QED index.**  One
 chapter that states, with proofs by re-export, the abelian/QED statements of record:
 one-particle ESA, Friedrichs = closure, Fock ESA, the unconditional single-time package, the
 absence of a one-particle form gap, the photon positivity/no-gap pair, and the new ghost
@@ -195,7 +195,7 @@ All four are imported from `BookProof.lean`, audited by a new `Work/*Audit.lean`
 
 ### What was delivered, declaration by declaration
 
-* `BookProof/ChapterHermiteBandCalculusHigher.lean` — `gpow`, `gpow_mono`, `gpow_add`,
+* `BookProof/Toolbox/ChapterHermiteBandCalculusHigher.lean` — `gpow`, `gpow_mono`, `gpow_add`,
   `Band.monoR`, `Band.monoG`, **`Band.compGen`**, `IsBandR` / `IsBandDeg` with `add`, `smul`,
   `sum`, `monoR`, `le` and **`IsBandR.comp`** (radii and orders add), the base cases
   `isBandR1_mulXPoly`, `isBandR1_momPoly`, `isBandR1_crePoly`, `isBandR1_annPoly`,
@@ -203,17 +203,17 @@ All four are imported from `BookProof.lean`, audited by a new `Work/*Audit.lean`
   `mulOp_sum`, and **`isBandDeg_mulOp_multiset`**, **`isBandDeg_mulOp_monomial`**,
   **`isBandDeg_mulOp`** (an arbitrary polynomial multiplier is a band operator of its total
   degree).
-* `BookProof/ChapterYangMillsBandBounds.lean` — `ymPoly`, `ymHermOp`, **`ymHermOp_eq`**,
+* `BookProof/Qym/ChapterYangMillsBandBounds.lean` — `ymPoly`, `ymHermOp`, **`ymHermOp_eq`**,
   `ymHamiltonian_hermCore_eq'`, `ymHermCol`, `isHermCol_ymHermCol`, `isBandR2_magMulOp`,
   **`isBandR4_ymPoly`**, `gradedBand_of_isBandR` and the headline
   **`ym_hermCol_band_bounds`**.
-* `BookProof/ChapterYangMillsGhostSector.lean` — `GConf`, `ghostNum`, `ghostEnergy`,
+* `BookProof/Qym/ChapterYangMillsGhostSector.lean` — `GConf`, `ghostNum`, `ghostEnergy`,
   `GhostSpace`, `ghostCore`, `ghostCore_dense`, `fibreHam`, **`ymGhostHam`**,
   `fibreHam_symmetricOn`, **`ymGhostHam_symmetricOn`**,
   **`ymGhostHam_preserves_ghostNumber`**, **`ymGhostHam_vacuum_fibre`**,
   `fibreHam_abelian_esa`, **`ymGhostHam_essentiallySelfAdjointOn_core`**,
   `ymGhostHam_stone_flow`, **`ymGhostHam_add_bounded_coupling_esa`**.
-* `BookProof/ChapterQedAbelianConsolidation.lean` — `qed_one_particle_esa`,
+* `BookProof/Qed/ChapterQedAbelianConsolidation.lean` — `qed_one_particle_esa`,
   `qed_one_particle_stone_flow`, `qed_fock_esa`, `qed_fock_friedrichs_extension`,
   `qed_fock_exists_selfAdjoint_realization`, `qed_fock_time_translation`,
   `qed_no_one_particle_form_gap`, `qed_photon_no_one_particle_gap`, `qed_ghost_symmetric`,

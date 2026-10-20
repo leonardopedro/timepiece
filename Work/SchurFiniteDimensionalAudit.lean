@@ -1,4 +1,4 @@
-import BookProof.ChapterSchurFiniteDimensional
+import BookProof.Realification.ChapterSchurFiniteDimensional
 
 /-!
 Axiom audit for Lemma 20 (Schur's lemma for finite-dimensional representations, with no

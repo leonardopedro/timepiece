@@ -1431,7 +1431,7 @@ complete. `ChapterSolovay.lean` is `sorry`-free.
 Verified all new chapters use only `propext`, `Classical.choice`, `Quot.sound`:
 
 Run `#print axioms` on:
-- `BookProof/ChapterG3.lean` (Gauge + Mehler, 6 theorems)
+- `BookProof/Textbook/ChapterG3.lean` (Gauge + Mehler, 6 theorems)
 - `BookProof/ChapterHierarchicalBayes.lean` (hierarchical Bayes, ~20 theorems)
 - `BookProof/ChapterSolovay.lean` (Solovay-Hilbert, 6 theorems)
 
@@ -1518,9 +1518,9 @@ Wick expansion, adaptive step blow-up detection, UK diagnostic codes (UK-2101–
 
 | # | Item | Owner | Status | File | Folder |
 |---|:---|:---:|:---:|:---|:---|
-| B1a | Chapter G verification (52 theorems) | **B** | ✅ DONE | `BookProof/ChapterG.lean`, `ChapterG2.lean` | `BookProof/` |
+| B1a | Chapter G verification (52 theorems) | **B** | ✅ DONE | `BookProof/Textbook/ChapterG.lean`, `ChapterG2.lean` | `BookProof/` |
 | B1b | Chapter 13: Selecting events | **B** | ✅ DONE | `BookProof/ChapterSelectingEvents.lean` | `BookProof/` |
-| B1c | Chapter 16: Deep learning | **B** | ✅ DONE | `BookProof/ChapterDeepLearningSampling.lean` (67 theorems) | `BookProof/` |
+| B1c | Chapter 16: Deep learning | **B** | ✅ DONE | `BookProof/Attention/ChapterDeepLearningSampling.lean` (67 theorems) | `BookProof/` |
 | B2a | Chapter 17: Euler density matrix | **B** | ✅ DONE | `BookProof/ChapterEulerDensityMatrix.lean` | `BookProof/` |
 | B2b | Chapter 18: Euler generic density | **B** | ✅ DONE | `BookProof/ChapterEulerGenericDensity.lean` | `BookProof/` |
 | B2c | Chapter 19: Euler countable chain | **B** | ✅ DONE | `BookProof/ChapterEulerCountableChain.lean` | `BookProof/` |
@@ -1543,17 +1543,17 @@ Wick expansion, adaptive step blow-up detection, UK diagnostic codes (UK-2101–
 | B6a | Two-level hierarchy (joint prior, evidence, outer posterior, Bayes update) | `BookProof/ChapterHierarchicalBayes.lean` | **B** | ✅ DONE | `BookProof/ChapterHierarchicalBayes.lean` | `BookProof/` |
 | B6b | Kernel composition algebra (associativity, identity, nested marginalization) | `BookProof/ChapterHierarchicalBayesComposition.lean` | **B** | ✅ DONE | `BookProof/ChapterHierarchicalBayesComposition.lean` | `BookProof/` |
 | B6c | Finite hierarchy depth (list collapse, recursive marginalization) | `BookProof/ChapterFiniteBayesHierarchy.lean` | **B** | ✅ DONE | `BookProof/ChapterFiniteBayesHierarchy.lean` | `BookProof/` |
-| B7a | Gauge symmetry deep-dive (continued) | `BookProof/ChapterG.lean`, `ChapterG2.lean`, `ChapterG3.lean` | **B** | ✅ DONE | `BookProof/ChapterG3.lean` | `BookProof/` |
+| B7a | Gauge symmetry deep-dive (continued) | `BookProof/Textbook/ChapterG.lean`, `ChapterG2.lean`, `ChapterG3.lean` | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
 | B7b | Consciousness deep-dive | `BookProof/ChapterPriorDependence.lean` | **B** | ✅ DONE | `BookProof/ChapterPriorDependence.lean` | `BookProof/` |
 | B7c | Gravity chapters deep-dive | `BookProof/ChapterGravity*.lean` | **B** | ✅ DONE | `BookProof/ChapterGravity*.lean` | `BookProof/` |
 | B7d | Free field chapters deep-dive | `BookProof/ChapterFreeField*.lean` | **B** | ✅ DONE | `BookProof/ChapterFreeField*.lean` | `BookProof/` |
 | B8 | New self-contained claims | No unformalized claims found in book.tex beyond existing chapters | **B** | ✅ DONE | — | `BookProof/` |
-| G18-G22 | Gauge + Mehler (ChapterG3) | Commutative von Neumann algebra, Mehler invariance, incomplete unconstrained gauge-fixing, Haar invariantization, QFT vacuum | **B** | ✅ DONE | `BookProof/ChapterG3.lean` | `BookProof/` |
-| G18 | Commutative von Neumann algebra | `gaugeInvariantVonNeumann`, commutativity theorems | **B** | ✅ DONE | `BookProof/ChapterG3.lean` | `BookProof/` |
-| G19 | Mehler prior invariance | `mehler_uniform_isProbability`, `mehler_uniform_gauge_invariant`, `mehler_uniform_concentrates` | **B** | ✅ DONE | `BookProof/ChapterG3.lean` | `BookProof/` |
-| G20 | Incomplete unconstrained gauge-fixing | `faithful_remnant_nontrivial`, `free_remnant_moves_every_point` | **B** | ✅ DONE | `BookProof/ChapterG3.lean` | `BookProof/` |
-| G21 | Haar invariantization | `averagedMeasure_isProbability`, `averagedMeasure_invariant` | **B** | ✅ DONE | `BookProof/ChapterG3.lean` | `BookProof/` |
-| G22 | QFT vacuum | `qftVacuum`, `qftVacuum_isProbability`, `qftVacuum_gauge_invariant` | **B** | ✅ DONE | `BookProof/ChapterG3.lean` | `BookProof/` |
+| G18-G22 | Gauge + Mehler (ChapterG3) | Commutative von Neumann algebra, Mehler invariance, incomplete unconstrained gauge-fixing, Haar invariantization, QFT vacuum | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
+| G18 | Commutative von Neumann algebra | `gaugeInvariantVonNeumann`, commutativity theorems | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
+| G19 | Mehler prior invariance | `mehler_uniform_isProbability`, `mehler_uniform_gauge_invariant`, `mehler_uniform_concentrates` | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
+| G20 | Incomplete unconstrained gauge-fixing | `faithful_remnant_nontrivial`, `free_remnant_moves_every_point` | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
+| G21 | Haar invariantization | `averagedMeasure_isProbability`, `averagedMeasure_invariant` | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
+| G22 | QFT vacuum | `qftVacuum`, `qftVacuum_isProbability`, `qftVacuum_gauge_invariant` | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
 | S.1-S.5 | Solovay-Hilbert decidability (ChapterSolovay) | Inner product reduction, Mehler concentration, finite-orthogonal invariance, no Gödelian self-reference, expectation decidability | **A** | ✅ DONE | `BookProof/ChapterSolovay.lean` | `BookProof/` |
 | C6 | Nelson's forward direction | `nelson_essential_self_adjoint` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
 | C7 | Flow completeness criterion | `flowComplete_iff_bounded` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
@@ -1596,7 +1596,7 @@ Wick expansion, adaptive step blow-up detection, UK diagnostic codes (UK-2101–
 # Phase 24: Gauge Symmetry with Mehler Measure — COMPLETE (partial)
 
 **Owner:** Track B (BookProof specialist)
-**Status:** COMPLETE — `BookProof/ChapterG3.lean` created; 6 of 7 definitions/theorems fully proved; 1 sorry remains in `vacuum_expectation_eq_haarAverage` (requires `0` to be a G-fixed point, not stated in context)
+**Status:** COMPLETE — `BookProof/Textbook/ChapterG3.lean` created; 6 of 7 definitions/theorems fully proved; 1 sorry remains in `vacuum_expectation_eq_haarAverage` (requires `0` to be a G-fixed point, not stated in context)
 
 ## Context
 
@@ -1728,7 +1728,7 @@ theorem vacuum_expectation_eq_haarAverage (A : X → ℝ) (op : X → ℝ)
 
 | File | Content |
 |------|---------|
-| `BookProof/ChapterG3.lean` | G.18–G.22: Gauge symmetry with Mehler measure |
+| `BookProof/Textbook/ChapterG3.lean` | G.18–G.22: Gauge symmetry with Mehler measure |
 
 ## Hard constraints
 
@@ -1738,14 +1738,14 @@ theorem vacuum_expectation_eq_haarAverage (A : X → ℝ) (op : X → ℝ)
   `RandomMap2RH.lean`
 - Track B **never** modifies `UsedRoute/` or `UnusedRoute/` files
 - Track B **never** modifies any existing `BookProof/Chapter*.lean` file
-- Track B creates ONLY `BookProof/ChapterG3.lean`
+- Track B creates ONLY `BookProof/Textbook/ChapterG3.lean`
 
 ## Dependencies (read-only, do not modify)
 
 - `PnpProof/SphereGaussian.lean` — `gammaMeasure`, `mehler_concentrates_on_sphere`
 - `PnpProof/Kopperman.lean` — `MehlerPrior`, `mehler_concentrates_on_sphere`, `rcpPriorOnSubstrate`
-- `BookProof/ChapterG.lean` — `gaugeGroup`, `gaugeInvariantSubalgebra`, `haarAverage`
-- `BookProof/ChapterG2.lean` — `brstCohomology`, `no_continuous_gauge_fixing_circle`
+- `BookProof/Textbook/ChapterG.lean` — `gaugeGroup`, `gaugeInvariantSubalgebra`, `haarAverage`
+- `BookProof/Textbook/ChapterG2.lean` — `brstCohomology`, `no_continuous_gauge_fixing_circle`
 - `RandomMap/SchoenfeldPRA.lean` — `rcpPriorOnSubstrate`, `rcpPriorOnSubstrate_isProb`
 
 ---

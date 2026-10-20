@@ -1,9 +1,9 @@
-import BookProof.ChapterNsOneBodyDGamma
+import BookProof.Ns.ChapterNsOneBodyDGamma
 
 /-!
 # Axiom audit — the one-body generator `H_sp = H_visc + H_advect` and its lift `dΓ(H_sp)`
 
-Every headline result of `BookProof/ChapterNsOneBodyDGamma.lean` must rest on the standard
+Every headline result of `BookProof/Ns/ChapterNsOneBodyDGamma.lean` must rest on the standard
 axioms only: `propext`, `Classical.choice`, `Quot.sound`.
 -/
 

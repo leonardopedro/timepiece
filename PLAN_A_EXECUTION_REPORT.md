@@ -44,7 +44,7 @@ New modules:
 - `BookProof/ChapterProbabilityInterface.lean`: transport of probability laws
   and events through measurable equivalences, including inverse transport and
   preservation of probability;
-- `BookProof/ChapterCountableDefinability.lean`: countability of values denoted
+- `BookProof/Definability/ChapterCountableDefinability.lean`: countability of values denoted
   by a countable syntax, existence of a real outside that range, and the
   non-uniqueness of nondegenerate interval constraints;
 - `BookProof/ChapterKopperman.lean`: readable all-model separability and
@@ -61,7 +61,7 @@ Extended modules:
 - `BookProof/ChapterJointUnitary.lean`: finite purification/linearization.
 
 The requested density decomposition was already fully present in
-`BookProof/ChapterDensitySpectral.lean` as
+`BookProof/Density/ChapterDensitySpectral.lean` as
 `density_iff_exists_unitary_diagonal`; it was reused rather than duplicated.
 
 ### A3 — readable headline types

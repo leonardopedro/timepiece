@@ -1,4 +1,4 @@
-import BookProof.ChapterPvmCyclicDecomposition
+import BookProof.InducedSystems.ChapterPvmCyclicDecomposition
 
 /-!
 Axiom audit for the cyclic decomposition of a projection-valued measure — the step that

@@ -1,5 +1,5 @@
-import BookProof.ChapterYangMillsBandBounds
-import BookProof.ChapterQedAbelianConsolidation
+import BookProof.Qym.ChapterYangMillsBandBounds
+import BookProof.Qed.ChapterQedAbelianConsolidation
 
 /-!
 Axiom audit for the 2026-09-07 wave: the **band calculus of arbitrary order** and the

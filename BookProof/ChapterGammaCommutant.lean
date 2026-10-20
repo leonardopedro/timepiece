@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterA3
+import BookProof.Textbook.ChapterA3
 
 /-!
 # The commutant of the concrete `4×4` gamma matrices is scalar

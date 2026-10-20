@@ -51,33 +51,33 @@ IMPORT_RE = re.compile(r"\s*import\s+([A-Za-z0-9_.]+)")
 # A component that is not listed keeps no dedicated target: a single-module
 # component is already built by `lake build <module>`.
 COMPONENT_NAMES = {
-    "BookProof.ChapterA": "BookProofRealification",
-    "BookProof.ChapterA3": "BookProofLieRep",
+    "BookProof.Realification.ChapterA": "BookProofRealification",
+    "BookProof.Textbook.ChapterA3": "BookProofLieRep",
     "BookProof.ChapterAbelianAtomicCondensation": "BookProofAtomicDecomposition",
     "BookProof.ChapterAbelianClassificationList": "BookProofOperatorCore",
     "BookProof.ChapterAbelianDiagonal": "BookProofAttention",
-    "BookProof.ChapterB": "BookProofMeasureFoundations",
-    "BookProof.ChapterBell": "BookProofBell",
-    "BookProof.ChapterBesselHarmonic": "BookProofHarmonicAnalysis",
-    "BookProof.ChapterCausality": "BookProofCausality",
-    "BookProof.ChapterConditional": "BookProofPauliGrover",
-    "BookProof.ChapterConservative": "BookProofConservative",
-    "BookProof.ChapterCountableDefinability": "BookProofDefinability",
-    "BookProof.ChapterDensityMarginalConditional": "BookProofDensity",
-    "BookProof.ChapterDeterministic": "BookProofReconstruction",
-    "BookProof.ChapterEnergyBandDecomposition": "BookProofEnergyBand",
-    "BookProof.ChapterFreeEMField": "BookProofFieldStrength",
+    "BookProof.Textbook.ChapterB": "BookProofMeasureFoundations",
+    "BookProof.Bell.ChapterBell": "BookProofBell",
+    "BookProof.HarmonicAnalysis.ChapterBesselHarmonic": "BookProofHarmonicAnalysis",
+    "BookProof.Causality.ChapterCausality": "BookProofCausality",
+    "BookProof.PauliGrover.ChapterConditional": "BookProofPauliGrover",
+    "BookProof.Conservative.ChapterConservative": "BookProofConservative",
+    "BookProof.Definability.ChapterCountableDefinability": "BookProofDefinability",
+    "BookProof.Density.ChapterDensityMarginalConditional": "BookProofDensity",
+    "BookProof.Reconstruction.ChapterDeterministic": "BookProofReconstruction",
+    "BookProof.EnergyBand.ChapterEnergyBandDecomposition": "BookProofEnergyBand",
+    "BookProof.FieldStrength.ChapterFreeEMField": "BookProofFieldStrength",
     "BookProof.ChapterFreeFieldBorn": "BookProofFreeFieldBorn",
-    "BookProof.ChapterGravityGenInverse": "BookProofGravityAlgebra",
-    "BookProof.ChapterHilbertSumIntertwine": "BookProofInducedSystems",
+    "BookProof.GravityAlgebra.ChapterGravityGenInverse": "BookProofGravityAlgebra",
+    "BookProof.InducedSystems.ChapterHilbertSumIntertwine": "BookProofInducedSystems",
     "BookProof.ChapterHolomorphic": "BookProofHolomorphic",
-    "BookProof.ChapterKrylovShiftSpan": "BookProofKrylovShiftSpan",
-    "BookProof.ChapterLorentzDecomp": "BookProofLorentz",
-    "BookProof.ChapterOdeSampling": "BookProofSamplingTheory",
-    "BookProof.ChapterPauliLorentz": "BookProofPauli",
-    "BookProof.ChapterRoadmapAudit": "BookProofRoadmapAudit",
-    "BookProof.ChapterWeylSL2Group": "BookProofWeylSL2",
-    "BookProof.ChapterWignerLittleGroup": "BookProofWignerOrbit",
+    "BookProof.Sirk.ChapterKrylovShiftSpan": "BookProofKrylovShiftSpan",
+    "BookProof.Lorentz.ChapterLorentzDecomp": "BookProofLorentz",
+    "BookProof.Ode.ChapterOdeSampling": "BookProofSamplingTheory",
+    "BookProof.Pauli.ChapterPauliLorentz": "BookProofPauli",
+    "BookProof.RoadmapAudit.ChapterRoadmapAudit": "BookProofRoadmapAudit",
+    "BookProof.WeylSL2.ChapterWeylSL2Group": "BookProofWeylSL2",
+    "BookProof.WignerOrbit.ChapterWignerLittleGroup": "BookProofWignerOrbit",
 }
 
 # Build-layout decision (2026-09-24e).  When a new module imports two previously
@@ -140,9 +140,9 @@ def aggregator_cone(lib: str) -> set[str] | None:
 SUB_SYSTEM_TARGETS = {
     "BookProof": {
         "BookProofDerivativeGauge": [
-            "BookProof.ChapterNsBrstDerivativeGauge",
-            "BookProof.ChapterNsFieldMomentumInverse",
-            "BookProof.ChapterQgBrstDerivativeGauge",
+            "BookProof.Ns.ChapterNsBrstDerivativeGauge",
+            "BookProof.Ns.ChapterNsFieldMomentumInverse",
+            "BookProof.Qg.ChapterQgBrstDerivativeGauge",
         ],
     },
 }
@@ -176,14 +176,28 @@ def module_files(lib: str) -> dict[str, str]:
 
 
 def imports_of(path: str, inside: set[str]) -> list[str]:
+    """First-party imports of a module: the `import` lines of its header.
+
+    The header may contain blank lines, `--` comments and `/- ... -/` block
+    comments (copyright notices, module docs written before the imports); the
+    scan stops at the first other line.  (Fixed 2026-10-18: block comments used
+    to end the scan, so a module with a copyright header before its imports was
+    treated as import-free and could be reported as an independent part.)
+    """
     out = []
+    depth = 0  # nesting depth of `/- ... -/` comments (Lean block comments nest)
     with open(path, encoding="utf-8") as fh:
         for line in fh:
+            stripped = line.strip()
+            if depth > 0 or stripped.startswith("/-"):
+                depth += line.count("/-") - line.count("-/")
+                depth = max(depth, 0)
+                continue
             m = IMPORT_RE.match(line)
             if m:
                 if m.group(1) in inside:
                     out.append(m.group(1))
-            elif line.strip() and not line.lstrip().startswith("--"):
+            elif stripped and not stripped.startswith("--"):
                 break
     return out
 

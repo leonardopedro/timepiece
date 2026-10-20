@@ -1,7 +1,7 @@
-import BookProof.ChapterEsaClosure
+import BookProof.Toolbox.ChapterEsaClosure
 import BookProof.ChapterClosureUniqueness
-import BookProof.ChapterHashimotoComplexShifts
-import BookProof.ChapterFarisLavine
+import BookProof.Sirk.ChapterHashimotoComplexShifts
+import BookProof.Toolbox.ChapterFarisLavine
 import BookProof.ChapterNonnegResolvent
 
 /-!

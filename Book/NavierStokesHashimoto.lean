@@ -57,7 +57,7 @@ $`Vel = \\operatorname{Fin} 3 \\to \\mathbb N`. The *differential* realization �
 the same Hamiltonian written with $`\\pi_i = -i\\,\\partial/\\partial u_i` and $`u_i`
 a genuine multiplication operator on the Gauss–polynomial (product Hermite) core
 of $`L^2(du_1 du_2 du_3)` — was known to be essentially self-adjoint but carried
-no selection theorem. The module `BookProof/ChapterNavierStokesDiffHashimoto.lean`
+no selection theorem. The module `BookProof/Ns/ChapterNavierStokesDiffHashimoto.lean`
 supplies it (namespace `BookProof.NavierStokesFlow`).
 :::
 
@@ -192,7 +192,7 @@ operator rather than of an artefact of the discretization.
 
 :::paragraph
 The algebra that the selection theorem *uses* is proved outright in the companion
-chapter `BookProof/ChapterH1.lean` (namespace `BookProof.ChapterH1`), with no
+chapter `BookProof/Textbook/ChapterH1.lean` (namespace `BookProof.ChapterH1`), with no
 analytic hypotheses of its own: the $`\varphi`-functions
 $`\varphi_k(z) = \int_0^1 e^{sz}(1-s)^k/k!\,ds` of the SIRK method, their
 recurrence `phi_succ_mul` and their values (`phi_zero`, `phi_one`), the numerical
@@ -259,7 +259,7 @@ The shift-invert selection theorems above identify *which operator* the Krylov
 iteration computes. A separate question — the one the gap programme asks of
 every sector — is whether that operator has a positive spectral gap above its
 ground state. For the Navier–Stokes Eulerian fiber the answer is *negative and
-provable*: `BookProof/ChapterNavierStokesFiberGap.lean` (namespace
+provable*: `BookProof/Ns/ChapterNavierStokesFiberGap.lean` (namespace
 `BookProof.NavierStokesFlow`) shows that the fiber Hamiltonian has *no
 one-particle form gap at any positive level*, and explains why none of the gap
 instruments that other sectors enjoy applies here.

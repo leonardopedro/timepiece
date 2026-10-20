@@ -1,4 +1,4 @@
-import BookProof.ChapterSmYukawaCoupling
+import BookProof.Sm.ChapterSmYukawaCoupling
 
 /-!
 # Axiom audit of `BookProof.ChapterTensorKatoRellich` and `BookProof.ChapterSmYukawaCoupling`

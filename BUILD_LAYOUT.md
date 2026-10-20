@@ -79,7 +79,7 @@ thread; apply the same recipe to any new development.
 
 `import Mathlib` pulls the whole library — about **8000** build jobs — into the
 import cone of the file, and that cone is re-checked on every build of it.
-`BookProof/Prelude.lean` collects the Mathlib theory the analysis chapters
+`BookProof/Toolbox/Prelude.lean` collects the Mathlib theory the analysis chapters
 actually use (tactics, inner product spaces and adjoints, positive operators,
 the continuous functional calculus and its order theory, real powers and square
 roots) in about **3200** jobs.
@@ -90,7 +90,7 @@ import BookProof.Chapter<TheOneChapterYouNeed>
 ```
 
 If something you need is outside that cone, add the *specific* Mathlib module to
-`BookProof/Prelude.lean` (or to your file) rather than falling back to
+`BookProof/Toolbox/Prelude.lean` (or to your file) rather than falling back to
 `import Mathlib`.
 
 ### 2. Depend on a `…Core` chapter, not on a physics chapter
@@ -107,9 +107,9 @@ unchanged, so nothing else had to move):
 
 | Core module | Contents | Re-exported by |
 | --- | --- | --- |
-| `BookProof/ChapterFarisLavineCore.lean` | `SymmetricOn`, `DeficiencyTrivialAt`, `EssentiallySelfAdjointOn`, `quadForm`, `commForm`, the Faris–Lavine criterion | `ChapterFarisLavine` |
+| `BookProof/Toolbox/ChapterFarisLavineCore.lean` | `SymmetricOn`, `DeficiencyTrivialAt`, `EssentiallySelfAdjointOn`, `quadForm`, `commForm`, the Faris–Lavine criterion | `ChapterFarisLavine` |
 | `BookProof/ChapterComplexShiftCore.lean` | `closed_of_selfAdjointCriterion`, `cshiftMap`, `cshiftRange` and the non-real shift bounds | `ChapterHashimotoShiftInvert`, `ChapterHashimotoComplexShifts` |
-| `BookProof/ChapterEsaClosureCore.lean` | `opGraph`, `clGraph`, `clDom`, `clExt`, the self-adjointness criterion, the Cayley transform | `ChapterEsaClosure` |
+| `BookProof/Toolbox/ChapterEsaClosureCore.lean` | `opGraph`, `clGraph`, `clDom`, `clExt`, the self-adjointness criterion, the Cayley transform | `ChapterEsaClosure` |
 
 The cone of `BookProof.ChapterNonnegResolvent` — the current tip of the thread —
 is now **10 modules instead of 34**, a cold build of the whole thread takes

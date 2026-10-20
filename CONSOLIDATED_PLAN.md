@@ -7,7 +7,9 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-17d):** **§"State of the project — 2026-10-17d:
+> **Newest entry (2026-10-18):** **§"State of the project — 2026-10-18: Prove2.me downloads
+> converted (`converted/`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0–2 executed"** at the very end of
+> this file. **Preceded by (2026-10-17d):** **§"State of the project — 2026-10-17d:
 > sibling-project Prove2.me imports (unfer, dynamic-arctic)"** at the very end
 > of this file — the prove2.me workspace fork synced with the official upstream
 > (merge to v0.12.7), 70 more solution sources downloaded for `../unfer`
@@ -17942,3 +17944,41 @@ manifest consistent. timepiece gates re-run after the doc edits: doc_index
 fresh, health.sh green, check-links OK. No compile (house rule); nothing in
 `BookProof/` or `lakefile.toml` touched; the workspace merge is the only commit
 made this session (in `../prove2me_workspace`, not in this repo).
+
+## State of the project — 2026-10-18: Prove2.me downloads converted (`converted/`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0–2 executed
+
+Session 2026-10-18, executing §"2026-10-17c"/§"2026-10-17d" and `BOOKPROOF_SPLIT_PLAN.md`.
+The downloads were available in this repo as `Downloads/` (same content as
+`../prove2me_workspace/Downloads`). Detail and numbers are in `BOOKPROOF_SPLIT_PLAN.md` §9.
+This entry is the pointer.
+
+**Phase 1.5 (conversion), landing in `converted/` by request.** It is a separate lake library
+`Prove2me` (`srcDir = "converted"`, not a default target, not wired into `BookProof.lean`).
+21 of the 161 solutions import only Mathlib. They are converted to Lean 4.28.0, compiled,
+re-checked against their registered platform statements, and audited
+(`lake build Prove2me.Audit`: only `propext` / `Classical.choice` / `Quot.sound`). The other
+140 import prove2.me platform library modules that the download does not contain (281
+distinct `Definitions.Def_*` / `Theorems.Thm_*` modules). Their text is prepared under
+`converted/blocked/`, and the missing modules are listed in `converted/GAPS.md`. They stay
+uncompiled until those modules are supplied; nothing was reconstructed or guessed. The
+conversion diffs are in `converted/diffs/`, and the README lists the hand edits for Mathlib drift.
+
+**Split plan.** Phase 0 removed 83 orphan `X/Part*.lean` directories (183 files, all
+declarations present in `X.lean`). Four `X/` directories are live re-export splits and were
+kept. Nine unprefixed legacy modules remain outside `BookProof.lean` (owner decision, Phase 3).
+A measurement bug was fixed: `scripts/import_components.py` ignored every import after a
+`/- -/` header comment. With the fix the development has 100 independent parts, not 112, and
+the operator core has 629 modules, not 477. The Attention, MeasureFoundations, FreeFieldBorn,
+AtomicDecomposition, Holomorphic and RoadmapAudit "parts" were never independent, and their
+lake targets were retired. Phase 1 foldered the 17 truly independent parts (96 modules). Phase
+2.1 published the cross-import matrix: there is no clean cut, so no new lake part. Phase 2.2
+foldered 392 core modules into the §2 areas, and the 237 that no name family classifies stay
+flat. Module names changed and declaration names did not; the maps are in
+`BOOKPROOF_PHASE1_MOVES.md` and `BOOKPROOF_PHASE2_MOVES.md`. Historical paths in this file
+are not rewritten (append-only).
+
+**Verification.** `lake build BookProof` was green after Phase 1 and again after Phase 2.2
+(8835 jobs, no `sorryAx`). All 17 part targets build, `lake build Prove2me Prove2me.Audit` is
+green, `import_components.py --check` is green, and `doc_index.py` was regenerated. The
+`../test` drift gate, the book render and `verify-invariants` were not run, because their
+sibling checkouts are absent from this workspace.

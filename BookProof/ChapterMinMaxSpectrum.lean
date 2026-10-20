@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterSirkRitzMinMax
+import BookProof.Sirk.ChapterSirkRitzMinMax
 
 /-!
 # Chapter MinMaxSpectrum — every Courant–Fischer level is a point of the spectrum

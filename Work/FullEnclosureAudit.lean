@@ -1,7 +1,7 @@
-import BookProof.ChapterSmFullEnclosure
-import BookProof.ChapterNsSymmetricSector
-import BookProof.ChapterQgSymmetricSector
-import BookProof.ChapterNsEnergySurjectivityObstruction
+import BookProof.Sm.ChapterSmFullEnclosure
+import BookProof.Ns.ChapterNsSymmetricSector
+import BookProof.Qg.ChapterQgSymmetricSector
+import BookProof.Ns.ChapterNsEnergySurjectivityObstruction
 
 /-!
 # Axiom audit of `BookProof.ChapterSmFullEnclosure`, `BookProof.ChapterNsSymmetricSector` and

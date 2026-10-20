@@ -1,4 +1,4 @@
-import BookProof.ChapterNote68AllModes
+import BookProof.HarmonicAnalysis.ChapterNote68AllModes
 
 /-!
 Axiom audit for the solid-harmonic wave: Legendre polynomials from Rodrigues'

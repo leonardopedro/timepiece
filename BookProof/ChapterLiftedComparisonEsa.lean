@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterNsComparisonEsa
+import BookProof.Ns.ChapterNsComparisonEsa
 import BookProof.ChapterEsaRealShift
 
 /-!

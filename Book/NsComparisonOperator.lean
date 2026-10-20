@@ -152,7 +152,7 @@ input must be supplied on a larger domain together with a separate core argument
 The Baire refutation above is a statement about the Leray-energy route *as stated*, and the
 repair is not a change of domain: informally, no multiplication operator can dominate a
 first-order generator.  The mainstream leg was therefore rebuilt where it can be closed with
-the instruments of this project — in `BookProof/ChapterNsLinearKoopmanEsa.lean` — around one
+the instruments of this project — in `BookProof/Ns/ChapterNsLinearKoopmanEsa.lean` — around one
 observation: the Koopman–von Neumann generator of an **affine** drift $`F(u) = Au + c` is a
 *real quadratic Hamiltonian*.  Its Weyl-ordered symbol $`\sum_i
 \tfrac12(\pi_iF_i + F_i\pi_i)` (`linKvnPoly`) *is* `fqPoly 0 0 Aᵀ 0 c`
@@ -196,7 +196,7 @@ and the conditional comparison below, are the two open inputs of this leg.
 
 :::paragraph
 The criterion itself was sharpened so that its hypotheses can hold on an algebraic core.
-`BookProof/ChapterFarisLavineDenseCore.lean` states Faris–Lavine Corollary 1.1 with every
+`BookProof/Toolbox/ChapterFarisLavineDenseCore.lean` states Faris–Lavine Corollary 1.1 with every
 hypothesis on a dense subspace `D` and with `N + 1` required to have only **dense range** from
 `D` rather than to be onto (`essentiallySelfAdjointOn_of_farisLavine_dense`) — on a polynomial
 core, onto never happens — and proves that for a positive symmetric `N` this density hypothesis
@@ -216,7 +216,7 @@ hypothesis, no boundedness, no onto.
 :::
 
 :::paragraph
-`BookProof/ChapterNsNonlinearFarisLavine.lean` is the nonlinear instance, with the exact
+`BookProof/Ns/ChapterNsNonlinearFarisLavine.lean` is the nonlinear instance, with the exact
 quadratic advection and no linearization: the coefficients $`b_{mjk}` are the momentum-space
 form of $`(u \cdot \nabla)u` after the Leray projection — the coordinate-space product with
 spatial derivatives becomes the triad convolution $`\sum_{p+q=k} i(\hat u_p \cdot q)\hat u_q`
@@ -307,7 +307,7 @@ realization** — the same operator {ref "ns-one-particle-hamiltonian"}[the
 one-particle chapter] records as $`h = \tfrac12\sum_i P_i^2 +
 \nu\sum_i Q_i^2 + \sum_i f_i P_i` on $`\ell^2(\mathrm{Fin}\,3 \to
 \mathbb{N})`, with $`[P_i, Q_i] = -i`.  Two questions were open there, and
-both are now theorems in `BookProof/ChapterNsComparisonEsa.lean`.
+both are now theorems in `BookProof/Ns/ChapterNsComparisonEsa.lean`.
 :::
 
 :::paragraph
@@ -404,14 +404,14 @@ of the Faris–Lavine comparison $`N_L = H_L^2 + E`$ on the Gauss–polynomial c
 $`L^2(\mathbb{R}^{\mathrm{PIdx}\,K})`$, for the Galerkin Lagrangian Koopman generator
 with the exact degree-five constraint force.  The 2026-10-16 wave closes it
 **unconditionally** (every finite `K`, `ν ≥ 0`, `κ ≥ 0`):
-`BookProof/ChapterNsLagrangianComparisonEsa.lean` proves **`lagComparison_esa`** (the
+`BookProof/Ns/ChapterNsLagrangianComparisonEsa.lean` proves **`lagComparison_esa`** (the
 comparison) and hence **`lagKoopman_esa`** (the generator), literally as the
 instantiation `lagKoopman_esa_of_comparison_esa S (lagComparison_esa S)`.
 :::
 
 :::paragraph
 **Route — a Lyapunov polynomial, then Kato's argument.**  The generic criterion is
-`KvnKato.lyapunovComparison_esa_poly` (in `BookProof/ChapterKvnKatoPoly.lean`): for a
+`KvnKato.lyapunovComparison_esa_poly` (in `BookProof/Toolbox/ChapterKvnKatoPoly.lean`): for a
 real polynomial vector field `G` and a real polynomial $`E \ge 1`$, the comparison
 $`N = H_G^2 + E`$ is essentially self-adjoint on the Gauss–polynomial core as soon as
 some real polynomial `P` satisfies $`\|y\| \le P(y)`$ and

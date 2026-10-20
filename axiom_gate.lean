@@ -9,8 +9,8 @@ import BookProof.ChapterNavierStokes
 import BookProof.ChapterGaugeFixing
 import BookProof.ChapterMassGap
 import BookProof.ChapterGhostField
-import BookProof.ChapterYangMillsFieldStrength
-import BookProof.ChapterSirkFinitePrecision
+import BookProof.FieldStrength.ChapterYangMillsFieldStrength
+import BookProof.Sirk.ChapterSirkFinitePrecision
 -- For a future batch from PnpProof/UsedRoute/UnusedRoute, add those imports
 -- here (e.g. `import UsedRoute.Basic`) and the gate covers them automatically.
 

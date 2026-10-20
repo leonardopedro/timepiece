@@ -1,7 +1,7 @@
 # QG‑3.2 operator half: ESA of a sum of couplings with *differing* bases
 
 Status: **design** (no Lean yet). Target: extend the operator-theoretic half of
-`BookProof/ChapterQgPhysicalSectorIdentity.lean` (QG‑3.2(a)/(b)) so that the
+`BookProof/Qg/ChapterQgPhysicalSectorIdentity.lean` (QG‑3.2(a)/(b)) so that the
 coupling is a sum of one-particle Hamiltonians that are each diagonalizable **in
 their own basis**, without ever forcing them into a common alphabet.
 

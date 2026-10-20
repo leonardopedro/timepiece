@@ -1,4 +1,4 @@
-import BookProof.Prelude
+import BookProof.Toolbox.Prelude
 import BookProof.ChapterNonnegResolvent
 import Mathlib.Analysis.SpecialFunctions.Exponential
 import Mathlib.Analysis.Calculus.MeanValue

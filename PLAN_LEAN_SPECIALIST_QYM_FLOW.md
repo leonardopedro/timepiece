@@ -18,7 +18,7 @@ instantiation step for the next specialist.
 
 **Status (2026-08-18, third pass): Part C is now discharged *without any
 boundedness hypothesis*, and the two plan items of `CONSOLIDATED_PLAN.md` §11.4
-are closed.**  `BookProof/ChapterFriedrichsExtension.lean` (namespace
+are closed.**  `BookProof/Toolbox/ChapterFriedrichsExtension.lean` (namespace
 `BookProof.FriedrichsExtension`, `sorry`-free / `axiom`-free) proves the
 Friedrichs extension theorem itself — see the new rows C.8–C.12 and D.9–D.11 —
 and settles the realization question in favour of the occupation-number (Hermite)
@@ -27,12 +27,12 @@ picture.
 **Status (2026-08-17, second pass): Parts A–C executed; Part C is now also
 *discharged by construction* in the bounded regime, and Part D.4 is proved there
 rather than left as prose.  See the new rows C.5–C.7 and D.5–D.8 below, in
-`BookProof/ChapterYangMillsFriedrichsLimit.lean`.**
+`BookProof/Qym/ChapterYangMillsFriedrichsLimit.lean`.**
 
 **Status (2026-08-17): executed, with one item deliberately left unstated.**
 Parts A–C and the proved half of Part D are in
-`BookProof/ChapterYangMillsFriedrichs.lean`, `sorry`-free and `axiom`-free,
-registered in `BookProof.lean`, certified in `BookProof/ChapterRoadmapAudit.lean`
+`BookProof/Qym/ChapterYangMillsFriedrichs.lean`, `sorry`-free and `axiom`-free,
+registered in `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`
 and cited from `Book/YangMillsQuantization.lean`.  The Part D *identification of
 the SIRK limit with the Friedrichs extension* remains a research conjecture and is
 recorded in prose only (see the note at the end of Part D).
@@ -47,7 +47,7 @@ magnetic-field operators,
 H = ½ Σ (πⁱ_a)² + ½ Σ (B_{i a})²,
 ```
 
-hence symmetric and bounded below by `0`.  `BookProof/ChapterWeylHamiltonian.lean`
+hence symmetric and bounded below by `0`.  `BookProof/Toolbox/ChapterWeylHamiltonian.lean`
 already proves this for *bounded* fields (`weylHamiltonian_isPositive`); the
 Friedrichs route needs the densely defined version.
 
@@ -97,9 +97,9 @@ not be well defined.
 | C.11 **the Friedrichs theorem, no boundedness hypothesis**; C.2's named hypothesis discharged | `friedrichs_extension_exists`, `friedrichs_hypothesis_holds` | PROVED |
 | C.12 the Weyl-gauge conclusion, unconditional | `weyl_friedrichs_extension_unconditional` | PROVED |
 
-C.5–C.7 live in `BookProof/ChapterYangMillsFriedrichsLimit.lean`: on the bounded
+C.5–C.7 live in `BookProof/Qym/ChapterYangMillsFriedrichsLimit.lean`: on the bounded
 class the extension is built, not assumed, and the domain may be a proper dense
-subspace.  C.8–C.12 (`BookProof/ChapterFriedrichsExtension.lean`) go further and
+subspace.  C.8–C.12 (`BookProof/Toolbox/ChapterFriedrichsExtension.lean`) go further and
 **remove the named hypothesis of C.2 outright**: the classical form-completion
 construction is carried out in Lean (form inner product → completion → Riesz
 representation → `A = S⁻¹ − 1`), so every densely defined symmetric positive
@@ -127,12 +127,12 @@ Mathematical Physics*, Thm X.23.  It is a hypothesis, never an `axiom`.
 | D.11 non-vacuity: a genuinely unbounded operator (`A eₙ = n eₙ` on `ℓ²(ℕ,ℂ)`) | `unbounded_friedrichs_example` | PROVED |
 | D.12 **the continuous flow `e^{-itA}` for the QYM Hamiltonian** — the abstract Stone theorem (2026-08-20e) applied to the extension of C.11 | `stoneGroup` + `UnboundedSelfAdjoint` bridge | **PENDING** — bridge not built |
 
-D.5–D.8 (also in `BookProof/ChapterYangMillsFriedrichsLimit.lean`) construct the
+D.5–D.8 (also in `BookProof/Qym/ChapterYangMillsFriedrichsLimit.lean`) construct the
 missing limit operator under a boundedness hypothesis and identify it with the
 extension of C.5, so D.4 is a theorem there.  D.9–D.11
-(`BookProof/ChapterFriedrichsExtension.lean`) remove the last hypothesis on the
+(`BookProof/Toolbox/ChapterFriedrichsExtension.lean`) remove the last hypothesis on the
 *unbounded* side: the shift-invert route of
-`BookProof/ChapterHashimotoShiftInvert.lean` already converged to whichever
+`BookProof/Sirk/ChapterHashimotoShiftInvert.lean` already converged to whichever
 positive self-adjoint extension it was handed, and C.11 now hands it one.  What
 is still not formalized in the unbounded case is the *strong-limit* rendering of
 D.4 along a Krylov flag (as opposed to the shift-invert/resolvent rendering).
@@ -187,7 +187,7 @@ The mass gap stays out of scope by the author's decision.
 The book's base `ℝ⁹⁹` is finite-dimensional (3 coordinates + 24 fields `A_{k,a}`
 + 72 derivatives `∂_j A_{k,a}`, book.tex:7045-7048), so `L²(ℝ⁹⁹)` carries the
 product Hermite basis built from the 1D `hermiteBasis`
-(`BookProof/ChapterHermiteFunctions.lean`, dense by `hermiteCore_dense`).  The
+(`BookProof/Toolbox/ChapterHermiteFunctions.lean`, dense by `hermiteCore_dense`).  The
 one-particle Hamiltonian `H₁ = ½Σπⁱ_aπⁱ_a + ½ΣB_{i a}B_{i a}` is a finite-degree
 polynomial-coefficient differential operator: coordinate multiplication by
 `A_{k,a}` and the derivative `∂_j` act on Hermite functions as ladder operators,
@@ -212,11 +212,11 @@ of `H₁`, then feed the proved `friedrichs_extension_exists` +
 ## Part F — the field-space realization on the Hermite core (option (b))
 
 **Status (2026-08-18): EXECUTED.**  The two modules
-`BookProof/ChapterHermiteProductCore.lean` (namespace
-`BookProof.HermiteProductCore`) and `BookProof/ChapterYangMillsHermite.lean`
+`BookProof/Toolbox/ChapterHermiteProductCore.lean` (namespace
+`BookProof.HermiteProductCore`) and `BookProof/Qym/ChapterYangMillsHermite.lean`
 (namespace `BookProof.YangMillsHermite`) are `sorry`-free and `axiom`-free, are
 imported by `BookProof.lean`, certified by `#print axioms` in
-`BookProof/ChapterRoadmapAudit.lean`, and cited from
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, and cited from
 `Book/YangMillsQuantization.lean`.  Both caveats are settled *in the modules*:
 the Weyl ordering is `weylProd` with `weylProd_polySym` (and the commutation
 relation it answers to is `commutator_coord_mom`), and the sign is fixed to the
@@ -224,14 +224,14 @@ positive sum of squares in `ymHamiltonian`.  Original plan text follows.  Execut
 option (b) as a construction task (the Part E refinement above): build the book's
 one-particle operator `H₁` as a concretely defined operator on the product Hermite
 already-proved Friedrichs + Hashimoto theorems with it.  The resulting module
-(general position) is a new file `BookProof/ChapterYangMillsHermite.lean` with
+(general position) is a new file `BookProof/Qym/ChapterYangMillsHermite.lean` with
 namespace `BookProof.YangMillsHermite`, reusing the existing 1D Hermite
-machinery (`BookProof/ChapterHermiteFunctions.lean`, `ChapterStrichartzHermiteQG.lean`)
+machinery (`BookProof/Toolbox/ChapterHermiteFunctions.lean`, `ChapterStrichartzHermiteQG.lean`)
 and the abstract theorems (`ChapterYangMillsFriedrichs.lean`,
 `ChapterYangMillsFriedrichsLimit.lean`, `ChapterFriedrichsExtension.lean`,
 `ChapterHashimotoShiftInvert.lean`).  After the module builds, register it in
 `BookProof.lean`, certify it with `#print axioms` in
-`BookProof/ChapterRoadmapAudit.lean`, and cite it from
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, and cite it from
 `Book/YangMillsQuantization.lean`; then update this status row and
 `CONSOLIDATED_PLAN.md` §11.3/§11.4.
 
@@ -251,10 +251,10 @@ and the abstract theorems (`ChapterYangMillsFriedrichs.lean`,
 | F.10 **instantiation**: the shift-invert Hashimoto/SIRK limit selects it → `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs` applied | `ym_hermite_hashimoto_selects` | DONE |
 | F.11 the second-quantized `H` on finite-occupation states over the core | `Conf`, `annA`, `creA`, `ccr_annA_creA`, `inner_creA_left`, `dGamma`, `dGamma_one_particle`, `dGammaOp_symmetricOn`, `dGammaOp_quadForm_nonneg`, `dGamma_friedrichs_extension`, `secondQuantization_friedrichs`, `ym_fock_friedrichs_extension`, `finiteModeDomain_fockBasisN`, `dGamma_hashimoto_selects`, `secondQuantization_hashimoto_selects`, `ym_fock_hashimoto_selects` | DONE |
 
-**Status (2026-08-19): F.11 EXECUTED.**  `BookProof/ChapterFockSecondQuantization.lean`
+**Status (2026-08-19): F.11 EXECUTED.**  `BookProof/Toolbox/ChapterFockSecondQuantization.lean`
 (namespace `BookProof.FockSecondQuantization`) is `sorry`-free and `axiom`-free,
 imported by `BookProof.lean`, certified by `#print axioms` in
-`BookProof/ChapterRoadmapAudit.lean` and cited from
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and cited from
 `Book/YangMillsQuantization.lean`.  It builds the occupation-number Fock space
 `ℓ²(Conf)` over the one-particle core, `Conf = ℕ →₀ ℕ`, with its dense
 finite-occupation domain `lpFiniteModes Conf`; the ladder operators `annA j`,

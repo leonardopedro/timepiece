@@ -309,8 +309,8 @@ complete worked instance. For the Standard-Model one-particle operator $`h`$
 of the previous chapter, essential self-adjointness on the
 Gauss–polynomial core of $`L^2(\mathbb{R}^{163})`$ is now a theorem with no
 hypothesis beyond the parameters: $`sm_h_esa`$, obtained by combining the two
-Faris–Lavine inequalities of `BookProof/ChapterSmFarisLavine.lean` with the
-independent Kato-type theorem of `BookProof/ChapterSmComparisonEsa.lean` and
+Faris–Lavine inequalities of `BookProof/Sm/ChapterSmFarisLavine.lean` with the
+independent Kato-type theorem of `BookProof/Sm/ChapterSmComparisonEsa.lean` and
 its transfer between the two cores (the chain is walked through in the
 Standard-Model chapter of this manual). Fed into
 $`dGamma_essentiallySelfAdjointOn_of_esa`$ — the main theorem above — it
@@ -325,11 +325,11 @@ assembly: the sector-wise tensor/graph-core combination of the bosonic and
 fermionic halves of $`h`$ before enclosure. The instrument is not
 sector-specific — the Kato theorem behind (i) holds for any smooth,
 respectively polynomial, potential bounded below by one. The lift is now
-also a theorem in each instance: `BookProof/ChapterSmFockEsa.lean` states
+also a theorem in each instance: `BookProof/Sm/ChapterSmFockEsa.lean` states
 `sm_dGamma_esa` (this chapter's main theorem applied to `sm_h_esa`) and
 `smFockHam_esa` (the Standard-Model outer operator on
 $`\bigoplus_n L^2(\mathbb{R}^{163n})`), and
-`BookProof/ChapterYangMillsNonAbelianEsa.lean` gives the non-abelian
+`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean` gives the non-abelian
 Yang–Mills instance of the same shape, `ym_h_esa` (one-particle, arbitrary
 real structure constants) and `ym_dGamma_esa` (enclosed). The fermionic
 assembly named above is still open.
@@ -381,7 +381,7 @@ action is essentially self-adjoint on the invariant sector as soon as it is on
 its domain. This is the instrument the higher sectors need — the symmetric group
 of $`n` factors, twisted by the sign character for the fermionic case.
 
-**Step three — the permutation action.** `BookProof/ChapterTensorPermutation.lean`
+**Step three — the permutation action.** `BookProof/Toolbox/ChapterTensorPermutation.lean`
 (namespace `BookProof.TensorPerm`) builds it out of two elementary isometries
 only: `swapFirst`, the exchange of the first two factors of $`E^{\otimes(n+2)}`
 (associator ∘ commutor ∘ associator), and `liftTail u`, applied to the last $`n`
@@ -412,13 +412,13 @@ Two companion chapters make the picture complete. The two-particle case in
 isolation, from which the general construction checks itself
 (`permOp_two_eq_swapH`), is `BookProof/ChapterTwoParticleSectorEsa.lean`
 (namespace `BookProof.TwoParticleSector`), with its reducing projection the
-swap $`(1 \pm \mathrm{swap})/2`. And `BookProof/ChapterFockStatisticsEsa.lean`
+swap $`(1 \pm \mathrm{swap})/2`. And `BookProof/Toolbox/ChapterFockStatisticsEsa.lean`
 (namespace `BookProof.FockStatistics`) discharges the hypothesis the permutation
 chapter *carries* — that the sector derivation is essentially self-adjoint on
 $`D_2^{\otimes n}` — from essential self-adjointness of the one-particle
 operator alone (`essentiallySelfAdjointOn_bosonic_of_esa`, …), assembling the
 algebraic-tensor Fock statements `bosonicFock_esa` and `fermionicFock_esa`.
-`BookProof/ChapterFockStatisticsCompletion.lean` then carries all of it across
+`BookProof/Toolbox/ChapterFockStatisticsCompletion.lean` then carries all of it across
 to the *completed* sectors and takes the direct sum over particle numbers:
 **`hbosonicFock_esa`** — $`d\Gamma(A)` is essentially self-adjoint on the
 bosonic Fock space, the Hilbert space direct sum over all particle numbers of
@@ -495,7 +495,7 @@ symmetry then forces $`(\bar z - z)\langle w, w \rangle = 0`, so $`w = 0`
 (`deficiencyTrivialAt_dom_of_isSelfAdjointExtension`); composing with the graph
 transfer gives `essentiallySelfAdjointOn_of_graphCore_selfAdjoint`.
 
-`BookProof/ChapterComparisonCoreEsa.lean` (namespace
+`BookProof/Toolbox/ChapterComparisonCoreEsa.lean` (namespace
 `BookProof.ComparisonCoreEsa`) restates the same fact in the vocabulary the
 route chapters use: `comparison_isSelfAdjointExtension` and
 `comparison_essentiallySelfAdjointOn_dom` (a `Comparison` is self-adjoint, hence
@@ -552,7 +552,7 @@ Hamiltonian of record.
 :::
 
 :::paragraph
-**Unitary conjugation transports ESA** (`BookProof/ChapterOdeChartTransfer.lean`):
+**Unitary conjugation transports ESA** (`BookProof/Ode/ChapterOdeChartTransfer.lean`):
 if $`W` is a unitary carrying a dense domain $`D` onto $`D'`, then
 $`T` essentially self-adjoint on $`D` implies $`W T W^{-1}` essentially
 self-adjoint on $`D'` (`conj_essentiallySelfAdjointOn`, with the companion
@@ -580,7 +580,7 @@ conjugation proof that forgets to name $`D'` has proved nothing.
 The last elementary situation the enclosure needs, and did not have, is the
 tensor sum of two *different* operators — $`A \otimes 1 + 1 \otimes B`, the
 Hamiltonian of two non-interacting degrees of freedom with potential
-$`V(u,v) = V_1(u) + V_2(v)`. `BookProof/ChapterTensorSumEsa.lean` (namespace
+$`V(u,v) = V_1(u) + V_2(v)`. `BookProof/Toolbox/ChapterTensorSumEsa.lean` (namespace
 `BookProof.TensorSumEsa`) puts it on the completed tensor product
 $`H \hat\otimes K` with domain $`D_A \otimes D_B`: symmetry
 (`symmetricOn_cpairOp`), density of that domain (`dense_cpairDom`), the product
@@ -596,7 +596,7 @@ no assumption on either spectrum) and the weakest headline
 `isGraphCore_pairCore` says a core of $`A` tensor a core of $`B` is a core of
 the sum.
 
-`BookProof/ChapterTensorSumChain.lean` (namespace `BookProof.TensorSumChain`)
+`BookProof/Toolbox/ChapterTensorSumChain.lean` (namespace `BookProof.TensorSumChain`)
 iterates it: `EsaOp` bundles the data, `pair` is the two-factor step and `chain`
 folds it along a list, so **`chain_esa`** covers
 $`A_1 \otimes 1 \otimes \cdots + \cdots + 1 \otimes \cdots \otimes A_n` for an

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.PhysMehler
+import BookProof.Toolbox.PhysMehler
 
 /-!
 # RandomMap2.lean — The Decoupled Kopperman-Solovay Framework

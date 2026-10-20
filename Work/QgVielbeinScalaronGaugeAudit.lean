@@ -1,5 +1,5 @@
-import BookProof.ChapterQgVielbeinScalaronGaugeFL
-import BookProof.ChapterQg3DGaugeFarisLavine
+import BookProof.Qg.ChapterQgVielbeinScalaronGaugeFL
+import BookProof.Qg.ChapterQg3DGaugeFarisLavine
 import BookProof.ChapterEsaFarisLavineIndex
 
 /-!

@@ -1,11 +1,11 @@
 import Mathlib
-import BookProof.ChapterScalaronWallEsa
-import BookProof.ChapterKatoRellichDeficiency
+import BookProof.Qg.ChapterScalaronWallEsa
+import BookProof.Toolbox.ChapterKatoRellichDeficiency
 
 /-!
 # `−d²/dx² + V` for every smooth potential that is bounded below
 
-`BookProof/ChapterScalaronWallEsa.lean` proves that `−d²/dx² + V` is essentially
+`BookProof/Qg/ChapterScalaronWallEsa.lean` proves that `−d²/dx² + V` is essentially
 self-adjoint on the compactly supported smooth core of `L²(ℝ)` for every smooth
 **non-negative** potential — with no growth restriction, so in particular for the
 exponentially growing Einstein-frame scalaron wall.

@@ -7,7 +7,7 @@ This file is the machine-oriented companion to the book appendix
 They were executed by the LLM-Lean-specialist as two parallel tracks:
 - **`PLAN_A_ODE_CORE.md`** (Track A) — `Singularity/*.lean`, `Singularity/EnergyBounded.lean`.
 - **`PLAN_B_COMPLEXIFICATION_FRAMEWORK.md`** (Track B) — `BookProof/ChapterOdeComplexification.lean`,
-  `BookProof/ChapterPaFreeCompletion.lean`, `BookProof/ChapterDefinabilityFragment.lean`,
+  `BookProof/Definability/ChapterPaFreeCompletion.lean`, `BookProof/Definability/ChapterDefinabilityFragment.lean`,
   `BookProof.lean`, `lakefile.toml`.
 
 All new/modified files are **`sorry`-free and `axiom`-free** (verified: `rg -c sorry` = 0
@@ -47,8 +47,8 @@ lake build book && lake exe book   # the Verso book -> _out/html-single/
 | §1.2 Nelson essential self-adjointness | **DONE** | `Singularity/Esa.lean` `nelson_essential_self_adjoint` (now the full `↔` with flow completeness) |
 | §1.3 Complexification resolution | **DONE** | `BookProof/ChapterOdeComplexification.lean` (`singular_time_real_iff_im_zero`, `real_axis_volume_zero`, headline `ae_no_real_singular_time`) |
 | §1.4 Energy-bounded initial conditions | **DONE** | `Singularity/EnergyBounded.lean` (`energy_bounded_initial`, `InEnergySpectralSubspace`) |
-| §2.1 PA-free completion (Riesz–Fischer core) | **DONE** | `BookProof/ChapterPaFreeCompletion.lean` |
-| §2.2 Definability / conservativity fragment | **DONE** | `BookProof/ChapterDefinabilityFragment.lean` |
+| §2.1 PA-free completion (Riesz–Fischer core) | **DONE** | `BookProof/Definability/ChapterPaFreeCompletion.lean` |
+| §2.2 Definability / conservativity fragment | **DONE** | `BookProof/Definability/ChapterDefinabilityFragment.lean` |
 | §3.1 Inline-elaborated Lean blocks | **BLOCKED** | `experimental.module` breaks the Verso book build (see Priority 3) |
 | §3.2 verso-blueprint migration | **DEFERRED** | toolchain blocker (needs Lean ≥ v4.29.0) |
 | §4 26-`{include}` book-build limit | **DONE** | root cause = unannotated sub-parts array in Verso `toSyntax`; fixed by `patches/verso-0001-annotate-subparts.patch` (Priority 4 / 8.3) |

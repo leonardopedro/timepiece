@@ -1,4 +1,4 @@
-import BookProof.ChapterGravityPolymomentum
+import BookProof.GravityAlgebra.ChapterGravityPolymomentum
 
 /-!
 # Axiom audit for `BookProof.ChapterGravityPolymomentum`

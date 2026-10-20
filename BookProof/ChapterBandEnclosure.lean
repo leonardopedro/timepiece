@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.ChapterFockOneParticleGap
-import BookProof.ChapterFriedrichsFormGap
-import BookProof.ChapterH8
+import BookProof.Toolbox.ChapterFockOneParticleGap
+import BookProof.Toolbox.ChapterFriedrichsFormGap
+import BookProof.Textbook.ChapterH8
 
 /-!
 # Chapter BandEnclosure — the band-enclosure hypothesis, derived

@@ -207,7 +207,7 @@ non-negative. This is the fact the manuscript invokes for the mass-gap discussio
 # The Weyl-Gauge Quadratic Form and the Friedrichs Route
 
 :::paragraph
-`BookProof/ChapterFriedrichsFormGap.lean` supplies the form-theoretic part of this route. The claim is that a semibounded symmetric quadratic form determines a positive Friedrichs extension and that the finite form restrictions preserve the variational information needed for a gap. The proof uses closability, form-domain inclusion, and the variational characterization; it does not identify a continuum gap without a separate convergence theorem.
+`BookProof/Toolbox/ChapterFriedrichsFormGap.lean` supplies the form-theoretic part of this route. The claim is that a semibounded symmetric quadratic form determines a positive Friedrichs extension and that the finite form restrictions preserve the variational information needed for a gap. The proof uses closability, form-domain inclusion, and the variational characterization; it does not identify a continuum gap without a separate convergence theorem.
 :::
 
 :::paragraph
@@ -466,7 +466,7 @@ is exactly the core:
 
 :::paragraph
 The core is built from Hermite material, and the companion chapter
-`BookProof/ChapterHermiteFunctions.lean` (namespace `BookProof.HermiteCore`)
+`BookProof/Toolbox/ChapterHermiteFunctions.lean` (namespace `BookProof.HermiteCore`)
 supplies that material from scratch: the probabilists' Hermite polynomials
 `hermiteR` with their ODE (`hermiteR_ode`) and integration-by-parts identity
 (`gint_ibp`), the normalized Hermite functions `hermiteLp`, their orthonormality
@@ -671,7 +671,7 @@ at every instant.
 
 :::paragraph
 One sharper instrument has landed since the sections above, and it changes the status of this
-row.  `BookProof/ChapterYangMillsNonAbelianEsa.lean` packages a single Kato-type theorem —
+row.  `BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean` packages a single Kato-type theorem —
 every Weyl-type operator $`\tfrac12\sum_m \pi_{\iota(m)}^2 + \tfrac12\sum_j \Phi_j^2` on the
 Gauss–polynomial core, with momenta in pairwise distinct coordinates and real polynomial
 fields, is essentially self-adjoint (`weylPoly_esa`: $`2H + 1 = -\Delta_S + W` with

@@ -1,4 +1,4 @@
-import BookProof.ChapterFriedrichsSquareFactorization
+import BookProof.Toolbox.ChapterFriedrichsSquareFactorization
 
 /-!
 # Axiom audit for `BookProof.ChapterFriedrichsSquareFactorization`

@@ -1,4 +1,4 @@
-import BookProof.ChapterNsFullLagrangianFockEsa
+import BookProof.Ns.ChapterNsFullLagrangianFockEsa
 
 #print axioms BookProof.NsFullLagrangianEsa.lagIdx_injective
 #print axioms BookProof.NsFullLagrangianEsa.lagSectorHam_eq_weylPoly

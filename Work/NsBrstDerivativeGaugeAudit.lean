@@ -1,4 +1,4 @@
-import BookProof.ChapterNsBrstDerivativeGauge
+import BookProof.Ns.ChapterNsBrstDerivativeGauge
 
 /-!
 Axiom audit for the BRST charge of the Navier–Stokes **derivative gauge** — the gauge fixing

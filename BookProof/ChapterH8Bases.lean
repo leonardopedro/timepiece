@@ -1,10 +1,10 @@
 import Mathlib
-import BookProof.ChapterH8
+import BookProof.Textbook.ChapterH8
 
 /-!
 # Chapter H8b — the SIRK nesting hypotheses are realized by Krylov bases
 
-`BookProof/ChapterH8.lean` proves that the Hashimoto SIRK approximation orders
+`BookProof/Textbook/ChapterH8.lean` proves that the Hashimoto SIRK approximation orders
 nest, for an abstract pair of isometric embeddings `Vₘ = Vₙ ∘ J`.  This companion
 module shows those hypotheses are **not vacuous**: they are met by any pair of
 nested orthonormal families, and in particular by the orthonormal Krylov bases the

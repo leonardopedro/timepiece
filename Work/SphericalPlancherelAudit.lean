@@ -1,4 +1,4 @@
-import BookProof.ChapterSphericalPlancherel
+import BookProof.HarmonicAnalysis.ChapterSphericalPlancherel
 
 /-!
 Axiom audit for `BookProof.ChapterSphericalPlancherel`: Plancherel's theorem for

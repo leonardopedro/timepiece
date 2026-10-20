@@ -140,7 +140,7 @@ argument requires the flow to be complete. Therefore:
 
 ## 3. New module and placement
 
-Create **`BookProof/ChapterNavierStokesFlow.lean`** (namespace
+Create **`BookProof/Ns/ChapterNavierStokesFlow.lean`** (namespace
 `BookProof.NavierStokesFlow`), register it in `BookProof.lean` with
 
 ```lean
@@ -705,7 +705,7 @@ continuum existence claims are named hypotheses, not axioms.
 
 **Execution record (2026-08-20).** E.6 landed in
 `BookProof/ChapterGaugeFixing.lean` (namespace `BookProof.GaugeFixing`),
-registered in `BookProof.lean`, audited in `BookProof/ChapterRoadmapAudit.lean`
+registered in `BookProof.lean`, audited in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`
 and `#check`-ed from `Book/FreeField.lean`.  All items E.6.1–E.6.9 are proved,
 `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`).
 Beyond the plan, the module also carries an explicit **non-degenerate model**

@@ -1,4 +1,4 @@
-import BookProof.ChapterNsLagrangianDetFarisLavine
+import BookProof.Ns.ChapterNsLagrangianDetFarisLavine
 
 /-!
 # Axiom audit: Lagrangian Navier–Stokes with the determinant constraint, through Faris–Lavine

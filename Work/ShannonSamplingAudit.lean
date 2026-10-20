@@ -1,6 +1,6 @@
 import BookProof.ChapterShannonSampling
-import BookProof.ChapterOdeSampling
-import BookProof.ChapterEnergyBoundedEvolution
+import BookProof.Ode.ChapterOdeSampling
+import BookProof.EnergyBand.ChapterEnergyBoundedEvolution
 import BookProof.ChapterCompactCompleteReducibility
 
 /-!

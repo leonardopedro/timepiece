@@ -1,10 +1,10 @@
-import BookProof.PhysMeasureBasis
+import BookProof.Toolbox.PhysMeasureBasis
 
 /-!
 # Part 1: Foundations — measure theory (promoted)
 
 **Promoted (2026-08-09).**  The mathematical content of this module has been
-promoted out of `PnpProof/` into `BookProof/PhysMeasureBasis.lean` (see
+promoted out of `PnpProof/` into `BookProof/Toolbox/PhysMeasureBasis.lean` (see
 `PLAN_LEAN_SPECIALIST_COHERENT.md` Part G): it is general mathematics — the
 measure-theoretic, functional-analytic and hyperspherical/Gaussian backbone —
 reused by the QFM/Fork thread, and `PnpProof/` must be a one-way leaf of the

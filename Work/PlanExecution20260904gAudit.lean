@@ -1,7 +1,7 @@
-import BookProof.ChapterYangMillsAbelianEsa
-import BookProof.ChapterYangMillsCertificateSeam
-import BookProof.ChapterNsOuterFockSingleTime
-import BookProof.ChapterNavierStokesEsaConsolidation
+import BookProof.Qym.ChapterYangMillsAbelianEsa
+import BookProof.Qym.ChapterYangMillsCertificateSeam
+import BookProof.Ns.ChapterNsOuterFockSingleTime
+import BookProof.Ns.ChapterNavierStokesEsaConsolidation
 import BookProof.ChapterNonnegSemigroup
 
 /-!

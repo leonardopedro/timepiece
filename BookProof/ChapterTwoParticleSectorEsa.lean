@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterTensorGraphCore
+import BookProof.Toolbox.ChapterTensorGraphCore
 import BookProof.ChapterReducingSubspaceEsa
 
 /-!

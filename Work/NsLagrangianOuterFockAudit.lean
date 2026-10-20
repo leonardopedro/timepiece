@@ -1,4 +1,4 @@
-import BookProof.ChapterNsLagrangianOuterFockEsa
+import BookProof.Ns.ChapterNsLagrangianOuterFockEsa
 
 #print axioms BookProof.NsLagrangianOuterFock.lagOneOp_esa
 #print axioms BookProof.NsLagrangianOuterFock.lagOne_dGamma_esa

@@ -5,7 +5,7 @@ self-adjointness (ESA) of the one-particle Hamiltonian in Lagrangian variables, 
 what assumptions? Can that proof be extended to the finite-particle domain of the outer
 Fock space using the second-quantization theorem that is also in the project?
 
-The extension is in `BookProof/ChapterNsLagrangianOuterFockEsa.lean`. That file is imported
+The extension is in `BookProof/Ns/ChapterNsLagrangianOuterFockEsa.lean`. That file is imported
 by `BookProof.lean`, builds with no `sorry`, and uses only `propext`, `Classical.choice` and
 `Quot.sound` (see `Work/NsLagrangianOuterFockAudit.lean`).
 
@@ -14,7 +14,7 @@ by `BookProof.lean`, builds with no `sorry`, and uses only `propext`, `Classical
 ## 1. The one-particle theorem that already exists
 
 **`BookProof.NavierStokesFlow.LagrangianCanonical.lagCan_esa`**
-(`BookProof/ChapterNavierStokesLagrangianCanonical.lean`)
+(`BookProof/Ns/ChapterNavierStokesLagrangianCanonical.lean`)
 
 ```lean
 theorem lagCan_esa (hnu : 0 < nu) (f : Fin 3 → ℝ) :
@@ -146,7 +146,7 @@ one-particle facts `lagCan_esa` already provides.
 
 ## Update 2026-09-25 — the interacting Hamiltonian on the finite-parcel core
 
-`BookProof/ChapterNsFullLagrangianFockEsa.lean` proves that the full, interacting Lagrangian
+`BookProof/Ns/ChapterNsFullLagrangianFockEsa.lean` proves that the full, interacting Lagrangian
 Hamiltonian `lagFullFockHam` of `ChapterNavierStokesFullLagrangianFock` is essentially
 self-adjoint on the finite-parcel core `lagFockCore` (`lagFullFockHam_esa`), for all real
 couplings `λ, λ', μ, g`. The same file does the Eulerian companion (`nsFullFockHam_esa`).

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterHermiteProductCore
+import BookProof.Toolbox.ChapterHermiteProductCore
 
 /-!
 # Coordinate-wise Hermite combinations on the Gauss–polynomial core

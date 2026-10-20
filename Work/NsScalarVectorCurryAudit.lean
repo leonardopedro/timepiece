@@ -1,9 +1,9 @@
-import BookProof.ChapterNsScalarVectorCurry
+import BookProof.Ns.ChapterNsScalarVectorCurry
 
 /-!
 # Axiom audit — the scalar–vector identification `L²(V; L²(W)) ≅ L²(V × W)`
 
-Every headline result of `BookProof/ChapterNsScalarVectorCurry.lean` (the residual of item 1 of
+Every headline result of `BookProof/Ns/ChapterNsScalarVectorCurry.lean` (the residual of item 1 of
 the Navier–Stokes plan items) must rest on the standard axioms only: `propext`,
 `Classical.choice`, `Quot.sound`.
 -/

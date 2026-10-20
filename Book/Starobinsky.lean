@@ -77,7 +77,7 @@ diffeomorphisms must conserve it, so the ghosts of the resulting BRST charge
 are **constant in the timepiece**, and the charge keeps the **same functional
 form as the four-dimensional formalism** — explicitly different from the ADM
 BRST charge ($`book.tex`$, and the doctrine recorded in
-$`BookProof/ChapterQuantumGravityBrstCharge.lean`$).  The completed-square identity
+$`BookProof/Qg/ChapterQuantumGravityBrstCharge.lean`$).  The completed-square identity
 $`V_3(R_c) \ge -M^4/(16\alpha)`$ below records the same stabilization at the
 level of the spatial potential.
 :::
@@ -116,12 +116,12 @@ The verified content here is the full chain: the classical scalar–tensor
 equivalence, the Einstein-frame scalaron potential and its shape, the
 regularization of the conformal mode, essential self-adjointness of the
 gauge-fixed Hamiltonian on a continuum core (exponential wall included), and the
-quantization to the nested Fock space. The modules are `BookProof/ChapterStarobinskyPotential.lean`,
-`BookProof/ChapterScalaronCoreEsa.lean`, `BookProof/ChapterScalaronFockEsa.lean` and —
+quantization to the nested Fock space. The modules are `BookProof/Qg/ChapterStarobinskyPotential.lean`,
+`BookProof/Qg/ChapterScalaronCoreEsa.lean`, `BookProof/Qg/ChapterScalaronFockEsa.lean` and —
 for the exponential wall of the *sum* $`-d^2/d\varphi^2 + V` —
-`BookProof/ChapterWeakSecondDerivative.lean` with `BookProof/ChapterScalaronWallEsa.lean`
+`BookProof/ChapterWeakSecondDerivative.lean` with `BookProof/Qg/ChapterScalaronWallEsa.lean`
 (plan item *A5* of `CONSOLIDATED_PLAN.md`), all registered in `BookProof.lean`
-and certified axiom-free in `BookProof/ChapterRoadmapAudit.lean`.
+and certified axiom-free in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`.
 :::
 
 # The Ghost-Free Scalar–Tensor Form
@@ -319,7 +319,7 @@ Faris–Lavine theorem instead.
 
 :::paragraph
 The scalaron sector's outer-Fock gap is now a theorem, not a hypothesis.
-`BookProof/ChapterScalaronFockGapChain.lean` runs the abstract gap chain (the
+`BookProof/Qg/ChapterScalaronFockGapChain.lean` runs the abstract gap chain (the
 one instantiated conditionally for gauge-fixed QYM in
 `ChapterYangMillsFockGapChain`) for the sector whose one-particle operator is
 the *positive constant* $`m = 1/\sqrt{12\alpha}` — precisely the
@@ -391,7 +391,7 @@ covered by the constant-model chain, and no Yang–Mills claim is made.
 # The Strict Edge, Proved: the Full-Exponential Fiber and the Fibrewise Reassembly
 
 :::paragraph
-The "single remaining input" above has since been supplied. `BookProof/ChapterScalaronEdge.lean`
+The "single remaining input" above has since been supplied. `BookProof/Qg/ChapterScalaronEdge.lean`
 (namespace `BookProof.ScalaronEdge`) proves the strict one-particle edge
 $`\langle\psi, h_\psi\,\psi\rangle \ge E_0\|\psi\|^2` for the *full*
 exponential scalaron fiber — no Taylor expansion, the wall used as-is. The
@@ -422,7 +422,7 @@ self-adjoint extension selected by the Hashimoto shift-invert at $`\gamma = 1`.
 
 :::paragraph
 With each fiber's one-particle input in place, the *fibrewise reassembly* is
-now a theorem. `BookProof/ChapterVielbeinFiberFock.lean` (namespace
+now a theorem. `BookProof/Qg/ChapterVielbeinFiberFock.lean` (namespace
 `BookProof.VielbeinFock`) names the fiber list of the vielbein/TEGR sector —
 $`d` harmonic shear fibers with frequencies $`\omega_i` plus one Starobinsky
 scalaron fiber per quantum — builds the $`n`-particle potential
@@ -612,7 +612,7 @@ self-adjointness, which is exactly the honest boundary the signanalysis records.
 :::paragraph
 A last set of newly landed results belongs to the *operator* authority of the
 claim rather than its analytic core, and is worth naming here because each one
-removes a gate the plan had left open. `BookProof/ChapterFockDifferingBasesEsa.lean`
+removes a gate the plan had left open. `BookProof/Toolbox/ChapterFockDifferingBasesEsa.lean`
 proves that a sum of one-particle Hermitian operators, *each presented in its
 own eigenbasis* with no common alphabet, is essentially self-adjoint on the
 finite-particle core once the coupling amplitudes are `ℓ^1` in the working
@@ -620,18 +620,18 @@ basis (`spectralFamily_essentiallySelfAdjointOn_core`): a one-particle-built
 Hamiltonian conserves the particle number, so its commutator against the
 diagonal comparison operator `N = dΓ(ω) + 𝒩 + 1` vanishes *identically* and
 Faris–Lavine runs with constant `0`. Together with its companion
-`BookProof/ChapterQgCouplingDGammaSum.lean` (the coupling sum is a *single*
+`BookProof/Qg/ChapterQgCouplingDGammaSum.lean` (the coupling sum is a *single*
 `dΓ`, `dGamma_finsetSum_col`) this removes the common-alphabet summability
-gate the differing-bases design worried about. `BookProof/ChapterQgMultiHalfDensity.lean`
+gate the differing-bases design worried about. `BookProof/Qg/ChapterQgMultiHalfDensity.lean`
 lands the multi-dimensional half-density unitary
 (`multiHalfDensityUnitary : L^2((0,∞)\times X, de\otimes\mu) \simeq_{\ell i}
 L^2((0,∞)\times X, 2y\,dy\otimes\mu)`), so the densitized change of
 variables is a Hilbert-space unitary for the full field space, and
 executes the concrete `E = ∂e` derivative-variable fixing on the 84-dimensional
-tetrad coordinate algebra (`BookProof/ChapterQgDerivativeRealization.lean`,
+tetrad coordinate algebra (`BookProof/Qg/ChapterQgDerivativeRealization.lean`,
 `eval_eq_of_fixed_of_comp_eq`) and the constraint-surface reduction that
 makes the cross couplings identities on the physical sector
-(`BookProof/ChapterQgPhysicalSectorIdentity.lean`,
+(`BookProof/Qg/ChapterQgPhysicalSectorIdentity.lean`,
 `lagrange_term_zero_of_fixing`). Each is unconditional and `sorry`-free; each
 carries its honest boundary in its own docstring.
 :::

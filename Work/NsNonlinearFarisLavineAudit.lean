@@ -1,4 +1,4 @@
-import BookProof.ChapterNsNonlinearFarisLavine
+import BookProof.Ns.ChapterNsNonlinearFarisLavine
 
 /-!
 # Axiom audit: Faris–Lavine on a core and the nonlinear Navier–Stokes generator

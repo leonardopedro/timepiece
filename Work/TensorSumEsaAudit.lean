@@ -1,8 +1,8 @@
-import BookProof.ChapterTensorSumEsa
-import BookProof.ChapterTensorSumChain
+import BookProof.Toolbox.ChapterTensorSumEsa
+import BookProof.Toolbox.ChapterTensorSumChain
 
 /-!
-Axiom audit for `BookProof/ChapterTensorSumEsa.lean`: every headline result of the two-factor
+Axiom audit for `BookProof/Toolbox/ChapterTensorSumEsa.lean`: every headline result of the two-factor
 tensor sum `A ⊗ 1 + 1 ⊗ B`.  Each line must report only `propext`, `Classical.choice`,
 `Quot.sound`.
 -/
@@ -28,7 +28,7 @@ tensor sum `A ⊗ 1 + 1 ⊗ B`.  Each line must report only `propext`, `Classica
 #print axioms BookProof.TensorSumEsa.positionCube_essentiallySelfAdjoint
 #print axioms BookProof.TensorSumEsa.positionCube_first_not_bounded
 
--- The `n`-factor chain (`BookProof/ChapterTensorSumChain.lean`).
+-- The `n`-factor chain (`BookProof/Toolbox/ChapterTensorSumChain.lean`).
 #print axioms BookProof.TensorSumChain.pair_op_tmul
 #print axioms BookProof.TensorSumChain.chain_dense
 #print axioms BookProof.TensorSumChain.chain_symmetric

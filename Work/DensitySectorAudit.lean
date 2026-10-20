@@ -1,5 +1,5 @@
-import BookProof.ChapterQg3DDensityEsa
-import BookProof.ChapterNsLinearKoopmanEsa
+import BookProof.Qg.ChapterQg3DDensityEsa
+import BookProof.Ns.ChapterNsLinearKoopmanEsa
 import BookProof.ChapterL2TensorPowerUnitary
 
 /-!

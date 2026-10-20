@@ -479,12 +479,12 @@ and elementary (no analysis beyond Weyl's inequality and the residual bound):
 
 | Theorem family | Statement | Where it lives |
 |---|---|---|
-| T1 | Hermitian eigenvalue perturbation (Weyl): $|\tilde\lambda_i - \lambda_i| \le \|E\|$ | new `BookProof/ChapterSirkFinitePrecision.lean` |
+| T1 | Hermitian eigenvalue perturbation (Weyl): $|\tilde\lambda_i - \lambda_i| \le \|E\|$ | new `BookProof/Sirk/ChapterSirkFinitePrecision.lean` |
 | T2 | Rayleigh–Ritz residual bound: $|\theta - \lambda| \le \|H\psi - \theta\psi\|$ | new, same chapter |
 | T3 | Whitened-Gram backward error: computed eigenpairs are exact eigenpairs of $\hat G + E$, $\|E\| \le c(n)u\|\hat G\|$ | new, same chapter |
 | T4 | Certified-observable propagation (Cauchy–Schwarz), matching `hashimoto_support::certify` | new, same chapter |
 | T5 | Interval enclosure of the $E_m$ sup and of $\langle\psi|O|\psi\rangle$ (directed rounding) | new, same chapter (+ a $\le 100$-line verified interval core) |
-| T6 | **The gap theorem of §3.4**: $\lambda_1 - \lambda_0 \ge \theta^o_0 - \theta^e_0 - (\delta^o + \delta^e)$ | new `BookProof/ChapterSirkCertifiedGap.lean`, importing §1 items 4/7 |
+| T6 | **The gap theorem of §3.4**: $\lambda_1 - \lambda_0 \ge \theta^o_0 - \theta^e_0 - (\delta^o + \delta^e)$ | new `BookProof/Sirk/ChapterSirkCertifiedGap.lean`, importing §1 items 4/7 |
 
 The **trusted core** is only T5's directed-rounding interval layer (the
 standard `Float` rounding axioms — the same trust class as any verified
@@ -676,10 +676,10 @@ assumptions at the infinite-precision limit.
    certificate verifies successfully.
 
 
-1. Formalize T1–T5 in `BookProof/ChapterSirkFinitePrecision.lean` (Weyl,
+1. Formalize T1–T5 in `BookProof/Sirk/ChapterSirkFinitePrecision.lean` (Weyl,
    residual bound, backward error, Cauchy–Schwarz propagation, interval
    enclosure). All are finite-dimensional; expect a few hundred lines each.
-2. Formalize T6 in `BookProof/ChapterSirkCertifiedGap.lean`, importing the
+2. Formalize T6 in `BookProof/Sirk/ChapterSirkCertifiedGap.lean`, importing the
    parity-sector structure and the Ritz-convergence chapter.
 3. Promote the `hashimoto_support` certificate machinery to a `fock_sirk`
    library surface returning `Certificate { value, residual, lo, hi }` per

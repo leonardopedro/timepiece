@@ -4,7 +4,7 @@ import BookProof.ChapterWallDeficiencyObstruction
 /-!
 # `−d²/dx² + V` is essentially self-adjoint for every smooth potential **bounded below**
 
-`BookProof/ChapterScalaronWallEsa.lean` proves essential self-adjointness of `−d²/dx² + V` on
+`BookProof/Qg/ChapterScalaronWallEsa.lean` proves essential self-adjointness of `−d²/dx² + V` on
 the compactly supported smooth core of `L²(ℝ)` for every smooth `V ≥ 0`, by a convexity
 argument: for `V ≥ 0` and `Re z = 0` the modulus square of a classical `L²` solution of
 `W'' = (V − z)W` is convex, non-negative and integrable, hence zero.  The convexity breaks as

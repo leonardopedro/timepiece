@@ -24,7 +24,7 @@ either a closed boundary (theorem now in tree) or a historical quote.
 | # | Boundary | Why it stays open |
 | :-- | :-- | :-- |
 | L1 | **Majorana masses and the see-saw** | `book.tex` works *“in the absence of Majorana masses”*; only the Dirac-type Yukawa `M_ν φ ν_R` and its biunitary/PMNS algebra are in `h`. |
-| L2 | **Unconditional bosonic ESA** `sm_h_esa` — **closed (2026-09-23g)** | Fermionic half: `sm_fermi_fl_i/ii/iii`, `sm_fermi_esa`.  Bosonic half: `BookProof/ChapterSmFarisLavine.lean` proves both Faris–Lavine inequalities against `N = 2h + Σ_m q_m² + c₀` (`sm_commForm_le`, `c = 1`; `sm_norm_le_shift`, `K = 1`; `smComparison` provably cannot serve, §2bis) and reduces `sm_h_esa` to essential self-adjointness of `N` on `polyGaussCore 163` (`sm_h_esa_of_comparison_esa`).  That former hypothesis — a Kato-type statement for a coupled quartic Schrödinger operator in 163 variables, which Faris–Lavine structurally cannot supply — is now a **theorem**: `SmComparisonEsa.smFlN_esa` (every `c₀ : ℝ`), via `smFlN_eq_hamCoreS` (`N = −Δ_S + W`, `W = Σ_r Φ_r² + Σ_m q_m² + c₀`), `HermiteGraphApprox.hamCoreS_esa` (polynomial-core transfer), and `DegKatoEsa.ccHamS_esa` (Kato's theorem for `−Δ_S + W`, `W ≥ 1` smooth, on `C_c^∞`).  Hence **`SmComparisonEsa.sm_h_esa`** is proved with no hypothesis beyond `P : SmParams`.  Axioms: `propext`, `Classical.choice`, `Quot.sound` only (`Work/SmComparisonEsaAudit.lean`).  **Enclosure (2026-09-24b):** `BookProof/ChapterSmFockEsa.lean` lifts this to the bosonic Hamiltonian of record — `smSectorHam_esa` (every number sector of `⊕ₙ L²(ℝ^{163n})`), `smFockHam_esa` (`smFockHam` ESA on the finite-particle core `smFockCore`), and `sm_dGamma_esa` (`dΓ(h)` in the creation-left/annihilation-right spelling ESA on the finite-particle domain over `polyGaussCore 163`); axioms as above (`Work/EnclosureEsaAudit.lean`).  **Full assembly (2026-09-24c):** `BookProof/ChapterSmFullEnclosure.lean` — `smFullHam = h_B ⊗ 1 + 1 ⊗ (smDirac + smYukawa)` on `L²(ℝ¹⁶³) ⊗̂ FermiFock n` (Yukawa in a fixed Higgs background: a tensor sum, no boson–fermion coupling operator), `smFull_h_esa` (one-particle, on `polyGaussCore 163 ⊗ FermiFock n`) and `smFull_dGamma_esa` (`dΓ(h_full)` ESA on the finite-particle domain); audit `Work/FullEnclosureAudit.lean`.  **Operator-valued Yukawa (2026-09-24d):** `BookProof/ChapterSmYukawaCoupling.lean` — `smYukawaFullHam = h_B ⊗ 1 + 1 ⊗ smDirac + φ₀ ⊗ smYukawa M 1 + φ₁ ⊗ smYukawa M i` (a genuine boson–fermion coupling; `smYukawa_eq_re_im` recovers the fixed background), `smYukawa_h_esa` and `smYukawa_dGamma_esa` for `λ > 0`, via `higgsMul_relBound` (relative bound `0` from the Higgs wall) and `TensorKatoRellich.essentiallySelfAdjointOn_tensorSum_add_coupling` (Kato–Rellich for product couplings with a finite-dimensional factor); audit `Work/SmYukawaCouplingAudit.lean`. |
+| L2 | **Unconditional bosonic ESA** `sm_h_esa` — **closed (2026-09-23g)** | Fermionic half: `sm_fermi_fl_i/ii/iii`, `sm_fermi_esa`.  Bosonic half: `BookProof/Sm/ChapterSmFarisLavine.lean` proves both Faris–Lavine inequalities against `N = 2h + Σ_m q_m² + c₀` (`sm_commForm_le`, `c = 1`; `sm_norm_le_shift`, `K = 1`; `smComparison` provably cannot serve, §2bis) and reduces `sm_h_esa` to essential self-adjointness of `N` on `polyGaussCore 163` (`sm_h_esa_of_comparison_esa`).  That former hypothesis — a Kato-type statement for a coupled quartic Schrödinger operator in 163 variables, which Faris–Lavine structurally cannot supply — is now a **theorem**: `SmComparisonEsa.smFlN_esa` (every `c₀ : ℝ`), via `smFlN_eq_hamCoreS` (`N = −Δ_S + W`, `W = Σ_r Φ_r² + Σ_m q_m² + c₀`), `HermiteGraphApprox.hamCoreS_esa` (polynomial-core transfer), and `DegKatoEsa.ccHamS_esa` (Kato's theorem for `−Δ_S + W`, `W ≥ 1` smooth, on `C_c^∞`).  Hence **`SmComparisonEsa.sm_h_esa`** is proved with no hypothesis beyond `P : SmParams`.  Axioms: `propext`, `Classical.choice`, `Quot.sound` only (`Work/SmComparisonEsaAudit.lean`).  **Enclosure (2026-09-24b):** `BookProof/Sm/ChapterSmFockEsa.lean` lifts this to the bosonic Hamiltonian of record — `smSectorHam_esa` (every number sector of `⊕ₙ L²(ℝ^{163n})`), `smFockHam_esa` (`smFockHam` ESA on the finite-particle core `smFockCore`), and `sm_dGamma_esa` (`dΓ(h)` in the creation-left/annihilation-right spelling ESA on the finite-particle domain over `polyGaussCore 163`); axioms as above (`Work/EnclosureEsaAudit.lean`).  **Full assembly (2026-09-24c):** `BookProof/Sm/ChapterSmFullEnclosure.lean` — `smFullHam = h_B ⊗ 1 + 1 ⊗ (smDirac + smYukawa)` on `L²(ℝ¹⁶³) ⊗̂ FermiFock n` (Yukawa in a fixed Higgs background: a tensor sum, no boson–fermion coupling operator), `smFull_h_esa` (one-particle, on `polyGaussCore 163 ⊗ FermiFock n`) and `smFull_dGamma_esa` (`dΓ(h_full)` ESA on the finite-particle domain); audit `Work/FullEnclosureAudit.lean`.  **Operator-valued Yukawa (2026-09-24d):** `BookProof/Sm/ChapterSmYukawaCoupling.lean` — `smYukawaFullHam = h_B ⊗ 1 + 1 ⊗ smDirac + φ₀ ⊗ smYukawa M 1 + φ₁ ⊗ smYukawa M i` (a genuine boson–fermion coupling; `smYukawa_eq_re_im` recovers the fixed background), `smYukawa_h_esa` and `smYukawa_dGamma_esa` for `λ > 0`, via `higgsMul_relBound` (relative bound `0` from the Higgs wall) and `TensorKatoRellich.essentiallySelfAdjointOn_tensorSum_add_coupling` (Kato–Rellich for product couplings with a finite-dimensional factor); audit `Work/SmYukawaCouplingAudit.lean`. |
 | L3 | **Continuum spectrum / mass gap** of the bosonic `dΓ(h)`; QCD confinement | Spectral claims are only the finite-mode fermionic spectrum/gap and the one-particle relativistic energies. |
 | L4 | **EWSB as dynamics**; measured CKM/PMNS parameters | Statics only (vacuum manifold, Goldstone flatness, radial curvature, mass form of broken generators). No expansion of `H` around the vacuum, no `W/Z` mass value, no Wolfenstein/PMNS angles, phases, ordering or absolute masses — only unitarity identities and `yukawa_entry_bound`. |
 | L5 | **Size of the BRST cohomology** `ker Ω / im Ω` | The quotient is defined and well defined (`exactStates_le_physicalStates`); its dimension is not claimed. |
@@ -41,7 +41,7 @@ either a closed boundary (theorem now in tree) or a historical quote.
 
 The criterion itself is **proved**, not assumed, in
 
-* `BookProof/ChapterFarisLavineCore.lean` — `BookProof.FarisLavine`:
+* `BookProof/Toolbox/ChapterFarisLavineCore.lean` — `BookProof.FarisLavine`:
   `essentiallySelfAdjointOn_of_farisLavine` (Theorem 1 of Faris–Lavine 1974) and
   **`essentiallySelfAdjointOn_core_of_farisLavine`** (Corollary 1.1), with
   `essentiallySelfAdjointOn_restrict_of_graph_core`;
@@ -63,13 +63,13 @@ fermionic sector and (Cadabra-certified) for the bosonic algebraic content.
 algebra) — only the mixing algebra they rest on is.”*  
 **Now:** formalized for a finite mode set.
 
-* `BookProof/ChapterSmCarAlgebra.lean` — `FermiFock n = ℓ²(Finset (Fin n))`, Jordan–Wigner
+* `BookProof/Sm/ChapterSmCarAlgebra.lean` — `FermiFock n = ℓ²(Finset (Fin n))`, Jordan–Wigner
   ladders, the four CAR relations, adjointness, contractivity, occupation number,
   `fermiBilin`, `fermiEnergy_occ`, **`fermi_mass_gap`**.
-* `BookProof/ChapterSmDiracYukawa.lean` — `smDirac`, `smYukawa`, `smFermiHam`;
+* `BookProof/Sm/ChapterSmDiracYukawa.lean` — `smDirac`, `smYukawa`, `smFermiHam`;
   `isMixing_mul`, **`yukawa_entry_bound`**; Fermionic FL **`sm_fermi_fl_i/ii/iii`**,
   **`sm_fermi_esa`**.
-* `BookProof/ChapterSmDiracSpinor.lean` — `diracOneParticle` Hermitian, mass-shell
+* `BookProof/Sm/ChapterSmDiracSpinor.lean` — `diracOneParticle` Hermitian, mass-shell
   `H² = (k² + m₁² + m₂²)`, energies `±√(k² + m₁² + m₂²)`, `diracFieldHam`,
   **`dirac_field_esa`**.
 
@@ -94,7 +94,7 @@ algebra) — only the mixing algebra they rest on is.”*
 side conditions: `smFermiN_symmetricOn`, `sm_fermi_N_ge_one`, `sm_fermi_N_add_one_surjective`;
 conclusion **`sm_fermi_esa`**; spinor instance `dirac_field_esa`.
 
-**Bosonic half (L2), current state.**  `BookProof/ChapterSmFarisLavine.lean` is in the tree
+**Bosonic half (L2), current state.**  `BookProof/Sm/ChapterSmFarisLavine.lean` is in the tree
 and `sorry`-free.  It proves the two inequalities the Lean Faris–Lavine theorems actually
 consume — the form commutator bound `sm_commForm_le` (`c = 1`) and the relative bound
 `sm_norm_le_shift` (`K = 1`) — and instantiates Theorem 1 / Corollary 1.1 through the new
@@ -109,14 +109,14 @@ abstract last mile `CoreData.esa_core`.  Two honest qualifications:
   never axioms.  The unconditional `sm_h_esa` was therefore
   not claimed by that module alone.
 
-**Update 2026-09-23g — the hypothesis is discharged.**  `BookProof/ChapterSmComparisonEsa.lean`
+**Update 2026-09-23g — the hypothesis is discharged.**  `BookProof/Sm/ChapterSmComparisonEsa.lean`
 proves `smFlN_esa : EssentiallySelfAdjointOn (polyGaussCore 163) (smFlN P c₀)` for every
 `c₀ : ℝ` and hence the unconditional **`sm_h_esa P`**.  The Kato-type input is supplied by
 
 * `BookProof/ChapterDegKatoEsa.lean` — `ccHamS_esa`: `−Δ_S + W` (kinetic part on any
   coordinate subset `S`, `W` smooth, `W ≥ 1`) is essentially self-adjoint on `C_c^∞(ℝᵈ)`
   (mollifier + cut-off energy argument; no elliptic regularity);
-* `BookProof/ChapterHermiteGraphApprox.lean` with `BookProof/ChapterHermiteLadderOrder.lean`
+* `BookProof/Toolbox/ChapterHermiteGraphApprox.lean` with `BookProof/Toolbox/ChapterHermiteLadderOrder.lean`
   — `hamCoreS_esa`: for a real polynomial `W ≥ 1`, every `C_c^∞` vector is a graph-norm limit
   of Gauss–polynomial vectors, so essential self-adjointness transfers to `polyGaussCore`;
 * `smFlN_eq_hamCoreS` — on the core `N = −Δ_S + W` with `S` the 40 momentum coordinates and
@@ -169,7 +169,7 @@ unconditional `SmComparisonEsa.sm_h_esa`.
 
 **Was:** *“The derivative-coordinate summands of `N₀` lie outside the ESA chain.”*
 
-**Now closed** in `BookProof/ChapterSmComparisonFull.lean`:
+**Now closed** in `BookProof/Sm/ChapterSmComparisonFull.lean`:
 `smoothPotential_essentiallySelfAdjoint` / **`deriv_coordinate_esa`** ⇒ each derivative
 coordinate is an `EsaOp`; **`sm_N_full_esa`** (all 160 summands),
 `sm_N_full_stone_flow`, **`smFullChain_length = 1+36+3+120 = 160`**.
@@ -198,7 +198,7 @@ infinite-dimensional one-particle space, the gauge connection inside `D`, the gh
 sector, and Majorana masses / the see-saw.”*  
 The **first three are closed**; only **Majorana / see-saw (L1)** remains from that sentence.
 
-## 5.1 Closed: continuum CAR — `BookProof/ChapterSmCarContinuum.lean`
+## 5.1 Closed: continuum CAR — `BookProof/Sm/ChapterSmCarContinuum.lean`
 
 Mode set `ℕ`, one-particle space `ℓ²(ℕ)` (any separable one-particle space via a Hilbert
 basis), Fock space `CFock = ℓ²(Finset ℕ)`.
@@ -212,7 +212,7 @@ basis), Fock space `CFock = ℓ²(Finset ℕ)`.
 *Still open here (L8):* Fock representation on the vacuum only; no inequivalent
 representations, no C\*-completion claim, no Hamiltonian on this space.
 
-## 5.2 Closed: gauge connection inside `D` — `BookProof/ChapterSmGaugeConnection.lean`
+## 5.2 Closed: gauge connection inside `D` — `BookProof/Sm/ChapterSmGaugeConnection.lean`
 
 Minimal coupling in the constant collective-coordinate background:
 `D_j = i(k_j + A_j)`, `A_j = g Σ_a A^a_j T_a`.

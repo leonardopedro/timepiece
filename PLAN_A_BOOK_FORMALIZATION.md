@@ -164,7 +164,7 @@ Add:
 ### 7.6 Density matrix = diagonal rotated by a unitary
 
 **File:** `BookProof/ChapterEulerDensityMatrix.lean` (READ-ONLY cross-check)  
-**File:** `BookProof/ChapterDensitySpectral.lean` (READ-ONLY cross-check)
+**File:** `BookProof/Density/ChapterDensitySpectral.lean` (READ-ONLY cross-check)
 
 Already formalized: Euler density matrix, spectral form.
 

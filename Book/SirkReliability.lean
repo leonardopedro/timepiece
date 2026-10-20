@@ -74,7 +74,7 @@ $`\varphi_k(A) v`.
 The ingredients were proved separately: the $`\varphi`-function calculus, the
 compression transfer, the rational-transfer identity, and the exponential decay
 of the error bound in the reduction order. What was missing was a theorem that
-*composes* them. `BookProof/ChapterSirkEndToEnd.lean` is that composition.
+*composes* them. `BookProof/Sirk/ChapterSirkEndToEnd.lean` is that composition.
 :::
 
 # New Proof Layer: What a Ritz Certificate Can and Cannot Say

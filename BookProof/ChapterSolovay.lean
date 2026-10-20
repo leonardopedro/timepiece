@@ -1,8 +1,8 @@
 import Mathlib
 import Mathlib.Analysis.InnerProductSpace.Completion
 import Mathlib.Topology.UniformSpace.Completion
-import BookProof.PhysMehler
-import BookProof.PhysHSGaussian
+import BookProof.Toolbox.PhysMehler
+import BookProof.Toolbox.PhysHSGaussian
 import RandomMap.RandomMap2
 
 /-!

@@ -1,4 +1,4 @@
-import BookProof.ChapterEnergyBandDecomposition
+import BookProof.EnergyBand.ChapterEnergyBandDecomposition
 
 /-!
 # Axiom audit for `BookProof.ChapterEnergyBandDecomposition`

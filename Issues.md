@@ -451,7 +451,7 @@ file only.
 
 - **[RESOLVED] The `τ = n̄ + ½` zero-point postulate.** The half of the coherent-state
   temperature relation that used to be postulated is now derived in
-  `BookProof/ChapterCoherentThermalFidelity.lean`: the coherent/thermal fidelity has the
+  `BookProof/Attention/ChapterCoherentThermalFidelity.lean`: the coherent/thermal fidelity has the
   closed form `exp(−λ/(n̄+1))/(n̄+1)`, its width in `λ` is `n̄+1`, that width is unique,
   and the headline `thermalTemperature_eq_fidelity_width_sub_coherent_half` reads the
   temperature off as (fidelity width) − (coherent width), the coherent width being the
@@ -477,7 +477,7 @@ file only.
     `Book/ConditionalUnitary.lean`. The infinite-dimensional analytic realization
     remains the standing open layer, as elsewhere in the book.
   Both are `sorry`-free / `axiom`-free, registered in `BookProof.lean` and certified
-  in `BookProof/ChapterRoadmapAudit.lean`; `Book/ProofPlans.lean` §D/§E now record
+  in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`; `Book/ProofPlans.lean` §D/§E now record
   them as PROVED.
 
 - **[RESOLVED, 2026-08-12] Executable bits on the `patches/` shell scripts.** The
