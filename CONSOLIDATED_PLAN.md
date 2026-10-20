@@ -7,11 +7,17 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-18):** **§"State of the project — 2026-10-18: Prove2.me downloads
-> converted (`converted/`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0–2 executed"** at the very end of
-> this file. **Preceded by (2026-10-17d):** **§"State of the project — 2026-10-17d:
-> sibling-project Prove2.me imports (unfer, dynamic-arctic)"** at the very end
-> of this file — the prove2.me workspace fork synced with the official upstream
+> **Newest entry (2026-10-19):** **§“State of the project — 2026-10-19:
+> Downloads moved in-repo; `_deps/` platform import closure”** at the very end of
+> this file — `Downloads/` moved from `../prove2me_workspace/` to this repo’s
+> root, and `Downloads/_deps/` added: the 723-module verbatim import closure
+> (542 `Def_` + 181 `Thm_` statement stubs) fetched from the prove2.me API so
+> all 161 solution sources’ imports resolve without the platform.  **Preceded by
+> (2026-10-18):** **§“State of the project — 2026-10-18: Prove2.me downloads
+> converted (`converted/`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0–2 executed”** at the
+> very end of this file — the conversion, the split-plan execution and
+> `converted/GAPS.md`.  **Preceded by (2026-10-17d):** **§“State of the project — 2026-10-17d:
+> sibling-project Prove2.me imports (unfer, dynamic-arctic)”** — the prove2.me workspace fork synced with the official upstream
 > (merge to v0.12.7), 70 more solution sources downloaded for `../unfer`
 > (`unfer-sirk`, `unfer-bayes`, `logos-confluence`) and `../dynamic-arctic`
 > (`arctic-crypto`), `BOOKPROOF_SPLIT_PLAN.md` §8 routing rule added;
@@ -17982,3 +17988,32 @@ are not rewritten (append-only).
 green, `import_components.py --check` is green, and `doc_index.py` was regenerated. The
 `../test` drift gate, the book render and `verify-invariants` were not run, because their
 sibling checkouts are absent from this workspace.
+---
+
+## State of the project — 2026-10-19: Downloads moved in-repo; `_deps/` platform import closure
+
+Two bookkeeping facts for the Prove2.me download track (rows/§§ of
+`BOOKPROOF_SPLIT_PLAN.md`; no proof work, no conversion):
+
+1. **`Downloads/` now lives at this repo's root** (moved from
+   `../prove2me_workspace/`, untracked). The plan's stale path references
+   (header, Phase 1.5, checklist, §6.B, §8) were repointed.
+2. **`Downloads/_deps/` (new): the platform import closure.** 140 of the 161
+   solution sources import `Definitions.Def_*`/`Theorems.Thm_*` modules that
+   existed nowhere on this machine — neither the sibling workspace's
+   `Definitions/`/`Theorems/` copies (zero filename overlap, checked) nor any
+   local cache. All **723** referenced modules were fetched verbatim from the
+   prove2.me API (v0.13.0, same credentials): **542 `Def_`** (code, `sorry`-free)
+   + **181 `Thm_`** (statement stubs ending `:= by sorry` — the platform's own
+   module design; the proofs are the accepted submissions, i.e. the solution
+   sources already in `Downloads/`). Fixpoint over transitive imports;
+   verification: 0 missing imports, 0 unreferenced, 0 empty files; 4 API 400s
+   (`q` search's 8-word cap on long slugs) resolved by ≤8-word window lookup.
+   One recorded normalization: `import Mathlib` prepended to 146 files lacking
+   it. **Not compiled** — `lake`/`lean` absent here, compile remains the
+   specialist's step (Phase 1.5 rule: unconverted material stays out of the
+   build cone). Audit: `Downloads/_deps/README.md` + `_deps/manifest.json`
+   (provenance per module: ids, env, visibility, lookup mode); the top-level
+   `Downloads/manifest.json` gained a `deps` pointer key.
+
+Tracked by the `BookProof layout` row of `CURRENT_WORK_ORDER.md`.

@@ -12,8 +12,10 @@ conversion; §7 lists the platform missions/proofs this corpus can feed; §8 ext
 the same treatment to the sibling projects `../unfer` and `../dynamic-arctic`
 (70 more downloads in 4 sibling-earmarked groups; `../australVM` and `../emthin`
 were searched for and do not exist in this workspace — earmarks deferred).
-Downloads live outside this repo (`../prove2me_workspace/Downloads/`), so no gate
-of this repo sees them until they are converted on their target side.
+Downloads live in `Downloads/` at this repo's root (moved here from
+`../prove2me_workspace/` on 2026-10-19; untracked, so no gate of this repo
+sees them until they are converted on their target side). The platform import
+closure for the solution sources lives in `Downloads/_deps/` (see §6.B).
 
 ---
 
@@ -90,8 +92,8 @@ Three consequences stated deliberately:
    `BookProof.Toolbox.Prove2me.*`), not into domain folders: imported results are
    generic operator-theory / Wick / concentration tools until a domain chapter
    adopts one and cites it (Phase 1.5, §6). Raw, unconverted downloads stay in the
-   workspace staging area `../prove2me_workspace/Downloads/<group>/` and never sit
-   inside this repo's build cone.
+   staging area `Downloads/<group>/` (+ `Downloads/_deps/` for the platform
+   import closure) and never sit inside this repo's build cone.
 1. `BookProofOperatorCore` (477 modules) keeps its name and stays one connected
    component until step 2.1's cross-import matrix says where the seams are; the folders
    above are where those seams will *fall*, not a claim that they already hold.
@@ -260,8 +262,9 @@ false is the route that changes.
 - [~] (2026-10-18, §9: 21/161 converted + audited in `converted/`; 140 blocked on missing platform modules, `converted/GAPS.md`) Phase 1.5: every imported proof converted, namespaced
       `BookProof.Toolbox.Prove2me.*`, attribution header present, `--check` green,
       `#print axioms` clean; the conversion diff archived next to the download.
-- [ ] §6 downloads stay in sync with `../prove2me_workspace/Downloads/manifest.json`
-      (regenerate the manifest when re-running the fetcher; never edit by hand).
+- [ ] §6 downloads stay in sync with `Downloads/manifest.json` (+ `_deps/manifest.json`
+      for the platform modules; regenerate both when re-running a fetcher; never edit
+      by hand).
 
 ---
 
@@ -289,7 +292,7 @@ generalize machinery this repo either proved on its own or still lacks. Our own
 
 ### 6.B What was downloaded (sources only — nothing converted yet)
 
-Location: `../prove2me_workspace/Downloads/<group>/<name>.lean` + `manifest.json`
+Location: `Downloads/<group>/<name>.lean` + `Downloads/manifest.json`
 (93 manifest entries; **91 solution sources** + 2 statement-only; 2.2 MB; every
 source `sorry`-free, verbatim platform submission). Manifest carries per item:
 `theorem_id`, formal statement, natural-language statement, source paper, author,
@@ -383,9 +386,12 @@ for them until the plan owner supplies the paths — recorded, not papered over.
 
 ### 8.A What was downloaded (second batch: 70 sources, all `sorry`-free)
 
-Same staging area and manifest as §6.B: `../prove2me_workspace/Downloads/<group>/`
-+ `manifest.json` (now 163 entries / 161 solution files; a `sibling_projects_note`
-field records the earmarks).
+Same staging area and manifest as §6.B: `Downloads/<group>/` + `Downloads/manifest.json`
+(now 163 entries / 161 solution files; a `sibling_projects_note` field records the
+earmarks).  **2026-10-19:** `Downloads/_deps/` added — the 723-module verbatim import
+closure (542 `Def_` + 181 `Thm_` statement stubs) for all 161 solution sources,
+fetched from the API so the sources elaborate without the platform; audit in
+`Downloads/_deps/README.md`.
 
 | group | files | contents | feeds (sibling component → item in their AGENTS/README) |
 |---|---:|---|---|

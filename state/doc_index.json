@@ -403,6 +403,20 @@
    ]
   },
   {
+   "path": "Downloads/_deps/README.md",
+   "title": "`_deps/` — prove2.me platform library, verbatim (2026-10-19)",
+   "lines": 78,
+   "headings": [
+    "# `_deps/` — prove2.me platform library, verbatim (2026-10-19)",
+    "## Layout",
+    "## Why the `Thm_` files end in `:= by sorry`",
+    "## One normalization (recorded per item in `manifest.json`)",
+    "## Environments",
+    "## Verification (2026-10-19)",
+    "## Use"
+   ]
+  },
+  {
    "path": "EXPPOT.md",
    "title": "EXPPOT",
    "lines": 174,
@@ -1596,6 +1610,10 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "Downloads/_deps/README.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "FORMALIZATION_ROADMAP.md"
   },
   {
@@ -1889,6 +1907,10 @@
   {
    "source": "DESIGN_COMPARISON_N_20260915.md",
    "target": "REVIEW_FARIS_LAVINE_20260911.md"
+  },
+  {
+   "source": "Downloads/_deps/README.md",
+   "target": "BOOKPROOF_SPLIT_PLAN.md"
   },
   {
    "source": "FEDERATION_DEEP_REVIEW.md",

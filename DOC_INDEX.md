@@ -26,6 +26,7 @@
 | [Contention.md](Contention.md) | Contention: Message Differences Between `book.tex` and `Book/` | 252 | 0 | 2 |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | Which `N`? Comparison operators for the Faris–Lavine route — one per Hamiltonian | 623 | 3 | 3 |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | QG‑3.2 operator half: ESA of a sum of couplings with *differing* bases | 199 | 0 | 1 |
+| [Downloads/_deps/README.md](Downloads/_deps/README.md) | `_deps/` — prove2.me platform library, verbatim (2026-10-19) | 78 | 1 | 2 |
 | [EXPPOT.md](EXPPOT.md) | EXPPOT | 174 | 0 | 0 |
 | [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md) | FEDERATION DEEP REVIEW & IMPROVEMENT PLAN | 201 | 1 | 0 |
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | Formalization Roadmap for `book.tex` | 3817 | 6 | 8 |
@@ -99,6 +100,7 @@
 | [Contention.md](Contention.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md), [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md) |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
+| [Downloads/_deps/README.md](Downloads/_deps/README.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [EXPPOT.md](EXPPOT.md) | — |
 | [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md) | — |
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md), [RandomMap2.md](RandomMap2.md), [RandomMap_old.md](RandomMap_old.md), [STATUS.md](STATUS.md) |
@@ -304,6 +306,16 @@
 - ## 4. Proved unconditionally vs. proved-on-the-concrete-instance (no physics hypotheses)
 - ## 5. Concrete Lean plan (staged, each stage independent)
 - ## 6. Clarification: `E = ∂e` is *achieved* by BRST, not a representability gap
+
+### `_deps/` — prove2.me platform library, verbatim (2026-10-19) (`Downloads/_deps/README.md`)
+
+- # `_deps/` — prove2.me platform library, verbatim (2026-10-19)
+- ## Layout
+- ## Why the `Thm_` files end in `:= by sorry`
+- ## One normalization (recorded per item in `manifest.json`)
+- ## Environments
+- ## Verification (2026-10-19)
+- ## Use
 
 ### FEDERATION DEEP REVIEW & IMPROVEMENT PLAN (`FEDERATION_DEEP_REVIEW.md`)
 
