@@ -1,5 +1,5 @@
-import BookProof.Probability.ChapterMeasureAtomicDiffuse
-import BookProof.Probability.ChapterLinftyMultiplication
+import BookProof.ChapterMeasureAtomicDiffuse
+import BookProof.ChapterLinftyMultiplication
 
 /-!
 # The atomic summand is a diagonal algebra (plan GAP-2)

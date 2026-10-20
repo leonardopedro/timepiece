@@ -1,10 +1,10 @@
 import Mathlib
-import BookProof.WeylSL2.ChapterWeylSl2
+import BookProof.WeylSL2.ChapterWeylSL2Algebra
 
 /-!
 # From `sl(2,ℂ)` to `SL(2,ℂ)`: Weyl's theorem for group representations
 
-`BookProof.ChapterWeylSl2` proves Weyl's complete-reducibility theorem for the Lie algebra
+`BookProof.ChapterWeylSL2Algebra` proves Weyl's complete-reducibility theorem for the Lie algebra
 `sl(2,ℂ)`.  This file transports it to representations of the **group** `SL(2,ℂ)` that are
 differentiable in the sense that the two unipotent one-parameter subgroups
 
@@ -38,7 +38,7 @@ Everything is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
 
 namespace BookProof.ChapterWeylSL2Group
 
-open BookProof.ChapterWeylSl2
+open BookProof.ChapterWeylSL2Algebra
 
 universe u
 

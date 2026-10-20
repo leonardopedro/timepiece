@@ -1,7 +1,7 @@
-import BookProof.Probability.ChapterAtomicDiagonalModel
-import BookProof.Probability.ChapterDiffuseUnitaryModel
-import BookProof.Probability.ChapterLpRestrictSplit
-import BookProof.Probability.ChapterLpScaleMeasure
+import BookProof.ChapterAtomicDiagonalModel
+import BookProof.ChapterDiffuseUnitaryModel
+import BookProof.ChapterLpRestrictSplit
+import BookProof.ChapterLpScaleMeasure
 
 /-!
 # Reassembling the classification list (plan GAP-2, the final step)

@@ -36,7 +36,6 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DL = os.path.join(ROOT, "Downloads")
 OUT = os.path.join(ROOT, "converted", "Prove2me")
-BLOCKED = os.path.join(ROOT, "converted", "blocked")
 
 
 def group_mod(group: str) -> str:
@@ -80,12 +79,11 @@ def platform_imports(item):
 
 
 def path_of(item) -> str:
-    """Self-contained solutions (Mathlib imports only) go to `converted/Prove2me/`;
-    solutions importing platform `Definitions.*` / `Theorems.*` modules, which were
-    not downloaded, go to `converted/blocked/` (text only, not compiled)."""
+    """Every converted solution lands in `converted/Prove2me/<Group>/<Name>.lean`.
+    (Until the platform library was supplied on 2026-10-19, the solutions importing
+    `Definitions.*` / `Theorems.*` modules were parked in `converted/blocked/`.)"""
     group = item["solution_file"].split("/")[0]
-    base = OUT if not platform_imports(item) else BLOCKED
-    return os.path.join(base, group_mod(group), name_mod(item["theorem_name"]) + ".lean")
+    return os.path.join(OUT, group_mod(group), name_mod(item["theorem_name"]) + ".lean")
 
 
 def explicit_args(sig: str):
@@ -146,9 +144,9 @@ def main(force: bool, force_all: bool) -> None:
     for item in items:
         src = os.path.join(DL, item["solution_file"])
         dst = path_of(item)
-        # hand-converted modules under converted/Prove2me/ are only regenerated
-        # with --force-all; --force regenerates the (uncompiled) blocked ones
-        if os.path.exists(dst) and not (force_all or (force and dst.startswith(BLOCKED))):
+        # the 21 hand-converted self-contained modules are only regenerated with
+        # --force-all; --force regenerates the ones importing platform modules
+        if os.path.exists(dst) and not (force_all or (force and platform_imports(item))):
             continue
         lines = open(src, encoding="utf-8").read().split("\n")
         pre, imports, body, seen_import, in_body = [], [], [], False, False
@@ -180,30 +178,70 @@ def main(force: bool, force_all: bool) -> None:
                           count=1, flags=re.M)
         if n != 1:
             print("warning: no `theorem solution` in", src, file=sys.stderr)
-        opens = [l for l in (item.get("preamble") or "").split("\n")
-                 if l.startswith("open ")]
+        else:
+            # later references to the entry point (`#print axioms solution`, uses in
+            # proofs) follow the rename
+            k0 = text.index(f"_root_.{sol}") + len(f"_root_.{sol}")
+            text = text[:k0] + re.sub(r"(?<![\w.'])solution(?![\w'])", f"_root_.{sol}",
+                                      text[k0:])
+        # context lines of the platform preamble that the statement elaborates in
+        body_lines = set(text.split("\n"))
+        ctx, keep = [], False
+        for l in (item.get("preamble") or "").split("\n"):
+            if l[:1] in (" ", "\t") and l.strip():
+                # continuation line of a multi-line `variable` / `open` command
+                if keep:
+                    ctx.append(l)
+                continue
+            keep = (l.startswith(("open ", "namespace ", "section", "noncomputable section",
+                                  "variable", "universe ", "set_option "))
+                    and not (l.startswith("universe ") and l in body_lines))
+            if keep:
+                ctx.append(l)
         stmt = item["formal_statement"].rstrip()
         # a `universe` line already declared by the solution body cannot be repeated
-        body_lines = set(text.split("\n"))
         stmt = "\n".join(l for l in stmt.split("\n")
                          if not (l.startswith("universe ") and l in body_lines))
-        hd = re.search(r"theorem\s+\S+(.*?):=\s*by\s*sorry", stmt, re.S)
-        args = explicit_args(hd.group(1)) if hd else []
-        proof = f":=\n  _root_.{sol}" + "".join(" " + a for a in args) + "\n\n"
+        hd = re.search(r"theorem\s+([^\s\[({⦃]+)(.*?):=\s*by\s*sorry", stmt, re.S)
+        args = explicit_args(hd.group(2)) if hd else []
+        proof = (f":= by\n  first\n  | exact _root_.{sol}" + "".join(" " + a for a in args)
+                 + f"\n  | (apply _root_.{sol} <;> assumption)\n\n")
         stmt, k = re.subn(r":=\s*by\s*sorry\s*", lambda _m: proof, stmt, count=1)
         if k != 1:
             print("warning: statement without `by sorry` in", src, file=sys.stderr)
+        # close the namespaces / sections the preamble opened and the statement did not
+        stack = []
+        for l in ctx + stmt.split("\n"):
+            if l.startswith("namespace "):
+                stack.append(l.split()[1])
+            elif l.startswith(("section", "noncomputable section")):
+                stack.append(l.split()[-1] if l.split()[-1] != "section" else "")
+            elif l.startswith("end") and stack:
+                stack.pop()
+        closers = "".join(f"end {x}\n".replace("end \n", "end\n") for x in reversed(stack))
+        last = item["theorem_name"].split(".")[-1]
+        declared = re.search(r"^\s*(private\s+|protected\s+)?(theorem|lemma)\s+(?!(_root_\.)?Prove2me\.Solution\.)(_root_\.)?(\S*\.)?"
+                             + re.escape(last) + r"(?![\w'.])", text, re.M)
         pre_comments = [l for l in pre if l.strip()]
         out = header(item)
         if pre_comments:
             out += "\n".join(pre_comments) + "\n"
         out += "\n".join(imports) + "\n\n" + text.rstrip() + "\n\n"
-        out += ("/-! ## Platform statement\n\nThe formal statement registered on prove2.me "
-                "(manifest `formal_statement`), proved by the solution above. -/\n\n")
+        if declared:
+            # the solution declares the platform theorem itself: restate the registered
+            # statement as an `example`, so that it is still checked without a name clash
+            stmt = re.sub(r"theorem\s+[^\s\[({⦃]+", "example", stmt, count=1)
+            out += ("/-! ## Platform statement\n\nThe formal statement registered on prove2.me "
+                    "(manifest `formal_statement`), checked against the solution above.  The solution "
+                    f"declares the platform theorem `{item['theorem_name']}` itself, so the statement "
+                    "is restated as an `example`. -/\n\n")
+        else:
+            out += ("/-! ## Platform statement\n\nThe formal statement registered on prove2.me "
+                    "(manifest `formal_statement`), proved by the solution above. -/\n\n")
         out += "section Prove2meStatement\n\n"
-        if opens:
-            out += "\n".join(opens) + "\n\n"
-        out += stmt + "\n\nend Prove2meStatement\n"
+        if ctx:
+            out += "\n".join(ctx) + "\n\n"
+        out += stmt.rstrip() + "\n\n" + closers + "\nend Prove2meStatement\n"
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         open(dst, "w", encoding="utf-8").write(out)
         written += 1

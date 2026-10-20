@@ -1,10 +1,10 @@
 import Mathlib
-import BookProof.Toolbox.ChapterDegSchrodingerCore
+import BookProof.ChapterDegSchrodingerCore
 
 /-!
 # Mollification as a convolution: smoothness and derivatives
 
-The Kato-type theorem of `BookProof/Toolbox/ChapterDegKatoEsa.lean` mollifies an `L²` deficiency
+The Kato-type theorem of `BookProof/ChapterDegKatoEsa.lean` mollifies an `L²` deficiency
 vector.  This module records the two calculus facts that the mollification needs:
 
 * `contDiff_cnv` — the convolution of a locally integrable function with a compactly

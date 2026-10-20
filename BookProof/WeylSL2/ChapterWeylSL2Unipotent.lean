@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.WeylSL2.ChapterWeylSl2
+import BookProof.WeylSL2.ChapterWeylSL2Algebra
 import BookProof.WeylSL2.ChapterWeylSL2Group
 
 /-!
@@ -44,7 +44,7 @@ Everything is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
 
 namespace BookProof.ChapterWeylSL2Unipotent
 
-open BookProof.ChapterWeylSl2 BookProof.ChapterWeylSL2Group
+open BookProof.ChapterWeylSL2Algebra BookProof.ChapterWeylSL2Group
 open Polynomial
 
 universe u

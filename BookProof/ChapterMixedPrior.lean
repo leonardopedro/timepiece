@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterAtomicDecomposition
+import BookProof.ChapterAtomicDecomposition
 
 /-!
 # Mixed priors versus continuous priors

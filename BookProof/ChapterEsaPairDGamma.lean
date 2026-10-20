@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterBoundedDGammaEsa
+import BookProof.ChapterBoundedDGammaEsa
 
 /-!
 # The essentially-self-adjoint one-particle package, and `dΓ` over it

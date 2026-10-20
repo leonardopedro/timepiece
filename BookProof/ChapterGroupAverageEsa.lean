@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterReducingSubspaceEsa
+import BookProof.ChapterReducingSubspaceEsa
 
 /-!
 # Averaging over a finite group of symmetries: the invariant sector

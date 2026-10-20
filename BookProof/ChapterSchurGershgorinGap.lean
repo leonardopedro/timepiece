@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Sirk.ChapterTruncationGapLift
+import BookProof.ChapterTruncationGapLift
 
 /-!
 # Chapter SchurGershgorinGap — the tail and coupling inputs, from matrix elements

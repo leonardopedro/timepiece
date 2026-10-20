@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterStoneResolvent
+import BookProof.ChapterStoneResolvent
 
 /-!
 # The Cayley transform of an unbounded self-adjoint operator

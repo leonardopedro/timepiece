@@ -2,7 +2,7 @@ import Mathlib
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Toolbox.ChapterHermiteProductBasis
 import BookProof.Toolbox.ChapterFarisLavineCore
-import BookProof.ChapterGaussCoreQuadBounds
+import BookProof.Toolbox.ChapterGaussCoreQuadBounds
 
 /-!
 # The mainstream Navier–Stokes Hamiltonian and why it is not bounded below

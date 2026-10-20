@@ -1,7 +1,7 @@
 import Mathlib
 import BookProof.Qg.ChapterQg3DGaugeEsa
 import BookProof.Qg.ChapterQgHermiteOscillatorEsa
-import BookProof.ChapterDirectSumEsa
+import BookProof.Toolbox.ChapterDirectSumEsa
 
 /-!
 # The full quantum-gravity Hamiltonian on the outer Fock space

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterLinftyMultiplication
+import BookProof.ChapterLinftyMultiplication
 
 /-!
 # The mixed (atomic ⊕ diffuse) class of the abelian von Neumann list (plan Part F.5)

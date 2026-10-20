@@ -2,7 +2,7 @@ import Mathlib
 import BookProof.Qg.ChapterQgVielbeinScalaronGaugeFL
 import BookProof.Toolbox.ChapterFockStatisticsEsa
 import BookProof.Toolbox.ChapterFockStatisticsCompletion
-import BookProof.ChapterEsaOneParticleDGamma
+import BookProof.Toolbox.ChapterEsaOneParticleDGamma
 
 /-!
 # The complete gauge-fixed quantum-gravity Hamiltonian on the symmetrized cores

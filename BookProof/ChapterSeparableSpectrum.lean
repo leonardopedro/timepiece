@@ -1,4 +1,4 @@
-import BookProof.Probability.ChapterStandardBorelClassification
+import BookProof.ChapterStandardBorelClassification
 
 /-!
 # Separability is exactly metrizability of the spectrum (plan GAP-2, the last residue)

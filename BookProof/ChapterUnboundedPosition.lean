@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterContinuityUnitaryInfinite
+import BookProof.ChapterContinuityUnitaryInfinite
 
 /-!
 # The unbounded layer: a self-adjoint operator on `ℓ²(ℤ)` and the group it generates

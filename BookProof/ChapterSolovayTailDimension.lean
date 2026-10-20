@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.PhysMehler
+import BookProof.PhysMehler
 import RandomMap.RandomMap2
 
 /-!

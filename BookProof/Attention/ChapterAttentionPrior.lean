@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Attention.ChapterSoftmaxOrder
-import BookProof.ChapterObservableExpectation
+import BookProof.Attention.ChapterObservableExpectation
 
 /-!
 # Chapter "The Coherent State of Attention": a logit bias is a prior

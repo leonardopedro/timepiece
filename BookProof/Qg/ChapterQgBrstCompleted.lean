@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Qg.ChapterQuantumGravityFock
-import BookProof.ChapterBrstReducedTransfer
+import BookProof.Qym.ChapterBrstReducedTransfer
 
 /-!
 # The bounded BRST charge on the *completed* graded Hilbert space, and its reduced transfer

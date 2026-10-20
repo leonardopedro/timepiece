@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Sm.ChapterSmHamiltonian
-import BookProof.ChapterWallEsaBddBelow
+import BookProof.Qg.ChapterWallEsaBddBelow
 import BookProof.Toolbox.ChapterTensorSumChain
 
 /-!

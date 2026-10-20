@@ -1,12 +1,12 @@
 import Mathlib
-import BookProof.Toolbox.ChapterEsaPairDGamma
+import BookProof.ChapterEsaPairDGamma
 
 /-!
 # Second quantization of an **unbounded** hermitian one-particle operator
 
-The main theorem of `BookProof/Toolbox/ChapterSecondQuantizationCoreEsa.lean` carries, sector by
+The main theorem of `BookProof/ChapterSecondQuantizationCoreEsa.lean` carries, sector by
 sector, one hypothesis: essential self-adjointness of the derivation `dΓ(A)⁽ⁿ⁾` on the tensor
-power of the domain of the one-particle operator.  `BookProof/Toolbox/ChapterBoundedDGammaEsa.lean`
+power of the domain of the one-particle operator.  `BookProof/ChapterBoundedDGammaEsa.lean`
 discharged that hypothesis for **bounded** one-particle operators, by a norm estimate.  This
 module discharges it for **unbounded** hermitian one-particle operators — every operator with
 a total family of eigenvectors, i.e. with pure point spectrum, the eigenvalues being an

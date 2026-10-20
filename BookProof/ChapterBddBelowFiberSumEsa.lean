@@ -1,12 +1,12 @@
 import Mathlib
-import BookProof.Qg.ChapterBddBelowWallEsa
-import BookProof.Qg.ChapterWallEsaSemibounded
-import BookProof.Toolbox.ChapterDirectSumEsa
+import BookProof.ChapterBddBelowWallEsa
+import BookProof.ChapterWallEsaSemibounded
+import BookProof.ChapterDirectSumEsa
 
 /-!
 # QG-2 Case A, composed: a direct sum of bounded-below one-dimensional wall Hamiltonians
 
-`BookProof/Qg/ChapterBddBelowWallEsa.lean` proves the one-dimensional input of
+`BookProof/ChapterBddBelowWallEsa.lean` proves the one-dimensional input of
 `CONSOLIDATED_PLAN.md`'s QG-2 **Case A**: `−d²/dx² + V` is essentially self-adjoint on the
 compactly supported smooth core of `L²(ℝ)` for *every* smooth real potential bounded below,
 with no growth and no sign hypothesis.  This module performs the **composition** step: it
@@ -49,7 +49,7 @@ product: the space is `ℓ²(ι, L²(ℝ))`, and this module says nothing about 
 is not available here).  Uniform boundedness below is needed only for the *form* bound; for
 essential self-adjointness the constants may vary from fibre to fibre.  Nothing here concerns
 the wrong-sign conformal direction, which is Case B and where the conclusion is false
-(`BookProof/Qg/ChapterConformalFiberDeficiency.lean`).
+(`BookProof/ChapterConformalFiberDeficiency.lean`).
 -/
 
 namespace BookProof.BddBelowFiberSumEsa

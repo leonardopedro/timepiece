@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterDirectSumEsa
+import BookProof.Toolbox.ChapterDirectSumEsa
 import BookProof.Toolbox.ChapterKatoRellichDeficiency
 import BookProof.Toolbox.ChapterStoneBridge
 import BookProof.Qym.ChapterYangMillsAbelianEsa

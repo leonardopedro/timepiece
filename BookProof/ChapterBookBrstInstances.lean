@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Qym.ChapterBookBrstYangMills
-import BookProof.Sm.ChapterSmBrstGhost
-import BookProof.Qym.ChapterBookBrstGaugeFixing
+import BookProof.ChapterBookBrstYangMills
+import BookProof.ChapterSmBrstGhost
+import BookProof.ChapterBookBrstGaugeFixing
 
 /-!
 # Instances of the book's BRST charge: `su(2)`, the Standard Model, and inner derivations

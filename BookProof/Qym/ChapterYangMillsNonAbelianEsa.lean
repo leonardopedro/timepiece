@@ -1,14 +1,14 @@
 import Mathlib
 import BookProof.Toolbox.ChapterHermiteGraphApprox
 import BookProof.Qym.ChapterYangMillsHermite
-import BookProof.ChapterEsaOneParticleDGamma
+import BookProof.Toolbox.ChapterEsaOneParticleDGamma
 
 /-!
 # The non-abelian Yang–Mills one-particle Hamiltonian is essentially self-adjoint
 
 The tree had essential self-adjointness of the gauge-fixed Yang–Mills Hamiltonian only in the
 abelian (quadratic) case (`BookProof/Qym/ChapterYangMillsAbelianEsa.lean`).  The Kato-type
-theorem of `BookProof/ChapterDegKatoEsa.lean` and its transfer to the Gauss–polynomial core
+theorem of `BookProof/Toolbox/ChapterDegKatoEsa.lean` and its transfer to the Gauss–polynomial core
 (`BookProof/Toolbox/ChapterHermiteGraphApprox.lean`) hold for an arbitrary real polynomial potential
 `W ≥ 1` and an arbitrary set `S` of momentum-carrying coordinates.  This module instantiates
 them for the **non-abelian** Hamiltonian `ymHamiltonian`, for arbitrary real structure

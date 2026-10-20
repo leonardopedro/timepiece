@@ -1,4 +1,4 @@
-import BookProof.Toolbox.ChapterNonnegSemigroup
+import BookProof.ChapterNonnegSemigroup
 
 /-!
 # The generator of the contraction semigroup `e^{-tT}`

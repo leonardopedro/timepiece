@@ -1,6 +1,6 @@
-import BookProof.Toolbox.Prelude
-import BookProof.Toolbox.ChapterNonnegResolvent
-import BookProof.Toolbox.ChapterNonnegUnitaryGroup
+import BookProof.Prelude
+import BookProof.ChapterNonnegResolvent
+import BookProof.ChapterNonnegUnitaryGroup
 import Mathlib.Analysis.SpecialFunctions.Exponential
 import Mathlib.Analysis.Calculus.MeanValue
 import Mathlib.Analysis.InnerProductSpace.Calculus

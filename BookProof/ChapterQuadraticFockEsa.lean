@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Toolbox.ChapterHermiteBandCalculus
-import BookProof.Sirk.ChapterGradedBandSchurEsa
-import BookProof.Toolbox.ChapterFockSecondQuantization
+import BookProof.ChapterHermiteBandCalculus
+import BookProof.ChapterGradedBandSchurEsa
+import BookProof.ChapterFockSecondQuantization
 
 /-!
 # The second quantization of a real quadratic Hamiltonian is essentially self-adjoint on the

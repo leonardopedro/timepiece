@@ -1,5 +1,5 @@
-import BookProof.Toolbox.Prelude
-import BookProof.Toolbox.ChapterVonNeumannCore
+import BookProof.Prelude
+import BookProof.ChapterVonNeumannCore
 
 /-!
 # The unbounded polar decomposition: `|Ā| = (A* Ā)^{1/2}` and `Ā = U |Ā|`

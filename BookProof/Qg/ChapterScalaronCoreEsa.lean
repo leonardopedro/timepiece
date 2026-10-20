@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterWaveUnboundedPotential
+import BookProof.Toolbox.ChapterWaveUnboundedPotential
 import BookProof.Qg.ChapterStarobinskyPotential
 
 /-!

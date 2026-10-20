@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterSchurGershgorinGap
+import BookProof.Sirk.ChapterSchurGershgorinGap
 import BookProof.Sirk.ChapterSirkCertificateReader
 
 /-!

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterFreeFieldBornSignOrientationSubgroup
+import BookProof.ChapterFreeFieldBornSignOrientationSubgroup
 
 /-!
 # The orientation character and the two-element quotient

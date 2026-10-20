@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Sirk.ChapterHashimotoShiftInvert
-import BookProof.ChapterComplexShiftCore
+import BookProof.Toolbox.ChapterComplexShiftCore
 
 /-!
 # The Hashimoto (SIRK) algorithm with **complex, non-real, and many different shifts**

@@ -118,7 +118,7 @@ See `ARISTOTLE_SUMMARY.md` for the wave-by-wave audit trail (Waves 1-149).
 
 | File | Lean Module | Status | Sorries |
 |:---|:---|:---:|:---:|
-| `BookProof/ChapterSolovay.lean` — S.1.1 (Solovay-Hilbert construction), S.2–S.4 (all complete) | `BookProof.ChapterSolovay` | **100% (ALL COMPLETE)** | 0 |
+| `BookProof/Probability/ChapterSolovay.lean` — S.1.1 (Solovay-Hilbert construction), S.2–S.4 (all complete) | `BookProof.ChapterSolovay` | **100% (ALL COMPLETE)** | 0 |
 
 **Framework verification:**
 | Target | Status | Axioms |
@@ -207,7 +207,7 @@ All 22 BookProof files are sorry-free and axiom-clean (only `propext`, `Classica
 - Never writes `BookProof/Textbook/ChapterG3.lean` (Track B owns this).
 - Never modifies `UsedRoute/` or `UnusedRoute/` files.
 - Edits: `RandomMap2.md`, `FORMALIZATION_ROADMAP.md`, `ARISTOTLE_SUMMARY.md` only.
-- Completes sorries in `BookProof/ChapterSolovay.lean` (S.2, S.3, S.4).
+- Completes sorries in `BookProof/Probability/ChapterSolovay.lean` (S.2, S.3, S.4).
 
 **Track B (Phase 24 — Book.tex deep mining) hard constraints:**
 - Never writes `RandomMap2*.lean`, `Singularity/`, `RcpRandomMap2Bridge.lean`,
@@ -233,7 +233,7 @@ All 22 BookProof files are sorry-free and axiom-clean (only `propext`, `Classica
 
 **Zero file overlap between tracks.**
 
-**2026-07-21 uniform-posterior update.** `BookProof/ChapterUniformPriorPosterior.lean` formalizes the next Bayesian claim at `book.tex` lines 1749--1760. For every finite probability distribution `q`, it constructs a valid binary likelihood `L x true = q x`, `L x false = 1 - q x`, and proves that conditioning any positive constant prior on `true` yields posterior `q` exactly. Thus every finite prior can be represented as the result of uniform-prior inference with suitable data. The module is imported by `BookProof.lean`, contains no proof placeholders, and its checked headline uses only `propext`, `Classical.choice`, and `Quot.sound`.
+**2026-07-21 uniform-posterior update.** `BookProof/Probability/ChapterUniformPriorPosterior.lean` formalizes the next Bayesian claim at `book.tex` lines 1749--1760. For every finite probability distribution `q`, it constructs a valid binary likelihood `L x true = q x`, `L x false = 1 - q x`, and proves that conditioning any positive constant prior on `true` yields posterior `q` exactly. Thus every finite prior can be represented as the result of uniform-prior inference with suitable data. The module is imported by `BookProof.lean`, contains no proof placeholders, and its checked headline uses only `propext`, `Classical.choice`, and `Quot.sound`.
 
 **2026-07-21 MAP-null update.** `BookProof/ChapterMAPNull.lean` formalizes the next sentence of the Bayesian discussion at `book.tex` lines 1713--1720: under an atomless posterior, every selected MAP point and every countable set of posterior maximizers has measure zero, so a posterior sample almost surely avoids it. The module is imported by `BookProof.lean`, contains no proof placeholders, and its checked headlines use only `propext`, `Classical.choice`, and `Quot.sound`.
 
@@ -461,7 +461,7 @@ above and per-file in `BookProof/STATUS.md`):**
 | `BookProof/ChapterE.lean` | §E.1–E.4 complete | `cos_sq_surjective`, `exp_J`/`exp_J_mulVec`, `collapse_density`, `stochastic_uniform_to_vertex_singular`, `hadamard_uniformizes` (n=2), `exists_uniformizer` (general-n DFT "black hole"), `stickBreaking_surjective` |
 | `BookProof/Textbook/ChapterG.lean` | **Chapter G complete (N6 ✅)** | All of G.0–G.7: `gaugeGroup`, `gaugeOrbit_eq_fiber`, `gaugeInvariant_iff_factors`, `gaugeInvariantSubalgebra`/`gaugeInvariantOperators`, `expectation_gauge_invariant`, Dirac obstruction (`no_shift_invariant_probabilityMeasure`, `no_shift_invariant_unit_vector`), `exists_complete_gaugeFixing`, `haarAverage` + headline **`gauge_constraint_pushforward_full_measure`**, `BRST_nilpotent`, `koopmanEquiv`, `evolution_conserves_probability` |
 | `BookProof/Toolbox/Substrate.lean` | **§0 glue complete (N5 ✅)** | `substrate_born_forward`, `substrate_born_backward`, `substrate_unit_vector_extends` — Ch. B instantiated at the `PnpProof` Kopperman substrate measure |
-| `BookProof/ChapterU.lean` | **Chapter U complete (N8 ✅)** | **U.1 headline** `bornMeasure`/`conditionedState`/`born_conditioning` (Born collapse = `ProbabilityTheory.cond`); U.3 `prodEquiv : Sym(M×N) ≃ₐ[R] Sym M ⊗ Sym N` (Fock exponential, from two `lift`s + round-trips); U.4 `no_differentiable_trajectory`/`differentiable_trajectory_null` (around the `EXTERNAL` Lévy hypothesis, cited PWZ 1933/Bertoin 1994); U.5 `portfolio_risk_inv_sqrt`/`portfolio_std_inv_sqrt`; U.2 = cross-ref to `PnpProof/SphereGaussian.lean` |
+| `BookProof/Probability/ChapterU.lean` | **Chapter U complete (N8 ✅)** | **U.1 headline** `bornMeasure`/`conditionedState`/`born_conditioning` (Born collapse = `ProbabilityTheory.cond`); U.3 `prodEquiv : Sym(M×N) ≃ₐ[R] Sym M ⊗ Sym N` (Fock exponential, from two `lift`s + round-trips); U.4 `no_differentiable_trajectory`/`differentiable_trajectory_null` (around the `EXTERNAL` Lévy hypothesis, cited PWZ 1933/Bertoin 1994); U.5 `portfolio_risk_inv_sqrt`/`portfolio_std_inv_sqrt`; U.2 = cross-ref to `PnpProof/SphereGaussian.lean` |
 | `BookProof/Realification/ChapterA1e.lean` | §A.1 `V ⊕ V̄` splitting (N1) | `JY` image subspace + involution `JY_JY`, closedness/invariance lemmas; headline **`realification_splits`** (a real subsystem of an irreducible complex system is trivial or splits `V` as the closure of `Y ⊕ JY`) + `proper_realification_subsystem_splits` |
 | `BookProof/Realification/ChapterA1f.lean` | §A.1 R-real dichotomy (N1) | `conjFixed θ` real form as a subsystem of `V^r` (+ `ne_bot`/`ne_top`); headline **`realification_reducible_of_conjugation`**, `isCReal_realification_reducible`, `not_isCReal_of_realification_irreducible` |
 | `BookProof/Realification/ChapterA2b.lean` | §A.2 Prop 17 (N2) | `IsSchurFull` (Schur named predicate), `commutant_eq_complex_scalars`; **Prop 17** `Rreal_commutant_eq_real_scalars` (R-real commutant = ℝ) + `CommutesConj` |
@@ -578,7 +578,7 @@ obstruction note) and `lake build BookProof` is green.
   `EXTERNAL` hypothesis, headline `gauge_constraint_pushforward_full_measure`
   included.
 - ~~**N8 — Chapter U (unfer / unitary-inference source material).**~~ **DONE
-  (run `e3ffd49f`)**: `BookProof/ChapterU.lean` delivers U.1 headline
+  (run `e3ffd49f`)**: `BookProof/Probability/ChapterU.lean` delivers U.1 headline
   `born_conditioning` (Born collapse = `ProbabilityTheory.cond`), U.3
   `prodEquiv` (Fock exponential property, built from the two universal-property
   `lift`s + round-trips), U.4 `EXTERNAL` Lévy hypothesis + measure-theoretic
@@ -1261,7 +1261,7 @@ Scope: this binds **N4 (§A.3–A.5)**, **N9 G.11 (BRST)**, **Ch. U** cross-refe
 | **G** | **Gauge symmetry & dissipative dynamics (2128) + Gribov chapter (7125)** | **gauge group of a parametrization, invariant subalgebras, gauge-fixing, Haar averaging, pushforward constraints, BRST nilpotency, Koopman; PLUS (G II): conditioning-fails-on-null, general Dirac obstruction, Gribov no-continuous-gauge-fixing, BRST cohomology, Haar projection** | **G.0–G.7 DONE in Lean** (`BookProof/Textbook/ChapterG.lean`, run `bee1f248`); **G.8–G.12 DONE (N9 ✅, wave 4 run `8296bfb3`, `BookProof/Textbook/ChapterG2.lean` incl. Gribov headline + BRST cohomology)** |
 | H | Consciousness as a Bayesian prior (9122) | Bayesian-prior representation lemma(s) | Triaged non-formalizable (prose) |
 | P | Physics-heavy (3699, 6486, 7125, 7522, 7881) | discrete lemmas only | Mined — no discrete lemmas beyond Ch. A/B/E reuse; deeper gauge content now lives in Ch. G |
-| **U** | **Unitary inference / unfer (added 2026-07-02; source `../test` gitbook + pubpub ec0in, to be merged into book.tex)** | **Born-rule conditioning = classical conditional measure (`ProbabilityTheory.cond`), Fock exponential property `Sym(M×N) ≅ Sym M ⊗ Sym N`, 1/√n portfolio risk, Lévy nowhere-differentiability (`EXTERNAL`)** | **DONE in Lean** (`BookProof/ChapterU.lean`, run `e3ffd49f`: U.1 headline `born_conditioning`, U.3 `prodEquiv`, U.4 `EXTERNAL` + wrappers, U.5 portfolio; U.2 = cross-ref to `PnpProof/SphereGaussian.lean`); merge into book.tex remains editorial (author's task) |
+| **U** | **Unitary inference / unfer (added 2026-07-02; source `../test` gitbook + pubpub ec0in, to be merged into book.tex)** | **Born-rule conditioning = classical conditional measure (`ProbabilityTheory.cond`), Fock exponential property `Sym(M×N) ≅ Sym M ⊗ Sym N`, 1/√n portfolio risk, Lévy nowhere-differentiability (`EXTERNAL`)** | **DONE in Lean** (`BookProof/Probability/ChapterU.lean`, run `e3ffd49f`: U.1 headline `born_conditioning`, U.3 `prodEquiv`, U.4 `EXTERNAL` + wrappers, U.5 portfolio; U.2 = cross-ref to `PnpProof/SphereGaussian.lean`); merge into book.tex remains editorial (author's task) |
 | **SIRK** | **Hashimoto shift-invert rational Krylov (added 2026-07-06; source `RiemannProof/Hashimoto.md`; `book.tex` cites at 1147/2055)** | **φ-functions + recurrence, exponential-integrator Duhamel identity, resolvent/rational-Krylov algebra (`Xⱼ=(I+h(m−j)Xₘ)⁻¹Xₘ`, rational-function characterization), Arnoldi/SIRK compression, `e^{−hm}` convergence bound conditional on `EXTERNAL` Crouzeix** | **DONE IN FULL 2026-07-08 (N13): H1.1–H1.6 in `ChapterH1.lean` + `ChapterH3.lean` (scalar Duhamel, rational-Krylov), H2.1–H2.4 in `ChapterH2.lean` + `ChapterH4.lean` (H2.3/H2.4 conditional on named `EXTERNAL` `CrouzeixBound`), all registered and green** |
 | **QFM** | **Quantum Flow Matching (added 2026-07-06; source `RiemannProof/QFM.tex`, impl `../unfer/qfm/`)** | **continuity-Hamiltonian Hermiticity, orthogonal-Fock disjoint-support identities, diagonal-Gram `O(M)` closed-form training, exact commutativity/time-averaging, vacuum projector + dressed-vacuum Bessel bound `Σεⱼ²≤1`, Mehler overlap `⟨0\|xⱼ⟩=εⱼ>0`, Count-Sketch unbiasedness, unitary reduced flow, pseudo-inverse recovery** | **DONE IN FULL 2026-07-08 (N14): F2.3–F2.9 in `ChapterF3.lean`, F2.1/F2.2 cores + F2.5 in `ChapterF5.lean`, concrete `x̂`/`p̂` in `ChapterF7.lean`, F3.1–F3.5 twice in `ChapterF4.lean` (union of two formalizations, 22 thms) + F3.5 in `ChapterF6.lean`, all registered and green** |
 | — | Hankel–Majorana transform / spherical Bessel numerics (§A.5, book ~5805, Defs 65–71) | closed-form `jₗ` derivatives, ODEs, recurrences | **TRIAGED OUT (STOP RULE #2, author 2026-07-08: numerics unneeded)** — the `l = 1…7` chain `SphericalBessel2–7` excluded (waves 59–63 + a `sorry`-carrying `l = 7` file); the Def. 65–71 parent `ChapterSphericalBessel.lean` (Rayleigh formula) is kept and registered; extend only if the author promotes a named package |
@@ -1313,7 +1313,7 @@ July 2026); every ✅ row gives the exact declaration and `file:line`.
 | **DFT unitary** (Ch. E.3) | ⚠️ only `ZMod` | `Analysis/Fourier/ZMod.lean` (DFT over `ZMod n`, character orthogonality). **No `Matrix.dft`** (correction). Use the `ZMod` Fourier transform, or build the `n×n` unitary + `|·|²=1/n` by hand (Hadamard for `n=2`). |
 | **Weyl complete reducibility** (§A.2 N23, §A.3 N50) | ❌ | Not formalized (Mathlib has semisimple *modules*, not Weyl for Lie groups). Named hypothesis; cite Hall/Weyl. |
 | **Schur for unitary reps / Mackey imprimitivity** (§A.2 L28/34, N33; §A.4 N84) | ✅ **in-repo (L28/L34)** | `BookProof/Realification/ChapterSchurIrreducible.lean` — `commutant_scalar_of_irreducible`: the commutant of an irreducible *normal* system on any complex Hilbert space is `ℂ·1` (continuous functional calculus, no dimension restriction); it discharges `IsSchurFull`/`IsSchurUnitary`. `BookProof/Realification/ChapterSchurRepresentation.lean` — L28 (`schur_unitary_representation`) and L34 (`schur_imprimitivity`, without Mackey). The full **imprimitivity theorem** (N33) itself is still `EXTERNAL`. |
-| **Pauli's fundamental theorem of γ-matrices** (§A.3 N36) | ✅ **in-repo** | `BookProof/ChapterPauliFundamental.lean` — `pauliFundamental` proves `ChapterA3b.PauliFundamental` (averaging over the sixteen ordered products; trace-orthogonality of the concrete Majorana products by `decide`). Consequences with no external input: `real_pauli'` (Prop 37) and `ChapterPauliConsequences.lambda_surjective'`/`lambda_two_to_one'` (Prop 46). |
+| **Pauli's fundamental theorem of γ-matrices** (§A.3 N36) | ✅ **in-repo** | `BookProof/Textbook/ChapterPauliFundamental.lean` — `pauliFundamental` proves `ChapterA3b.PauliFundamental` (averaging over the sixteen ordered products; trace-orthogonality of the concrete Majorana products by `decide`). Consequences with no external input: `real_pauli'` (Prop 37) and `ChapterPauliConsequences.lambda_surjective'`/`lambda_two_to_one'` (Prop 46). |
 | **Wigner's symmetry theorem** (§A.4, Ch. F) | ❌ | **Not in Lean, Isabelle, or Coq** (verified). Named hypothesis. Related infra: Isabelle "Complex Bounded Operators" (arXiv:2512.05878). |
 | **Wigner little-group Poincaré classification** (§A.4 N80–83) | ❌ | Not formalized. Named hypothesis; cite Wigner 1939. |
 | **Free QFT / Poincaré-covariant fields** (§A.4–A.5; Ch. P) | 🚧 active Lean 4 | **arXiv:2603.15770 "Formalization of QFT"** (Lean 4): free bosonic field in 4D + Glimm–Jaffe/Osterwalder–Schrader axioms, on Mathlib. **Coordinate with it** for the field-theory/Poincaré layer. |
@@ -2971,7 +2971,7 @@ similar-risk components ⇒ aggregate risk `σ/√n`.
 **`born_conditioning`** (headline), `SymmetricAlgebra.prodEquiv` (+ exterior
 stretch), `levy_paths_nowhere_differentiable` (`EXTERNAL` hypothesis) +
 `no_differentiable_trajectory` wrapper, `portfolio_risk_inv_sqrt` + std-dev
-corollary. Target file `BookProof/ChapterU.lean`. U.2 = cross-reference only
+corollary. Target file `BookProof/Probability/ChapterU.lean`. U.2 = cross-reference only
 (no new code beyond N5 glue).
 
 ---
@@ -3492,8 +3492,8 @@ All `sorry`-free and axiom-clean (`propext`, `Classical.choice`, `Quot.sound`); 
 
 | File | Lean Module | Status | Sorries |
 |:---|:---|:---:|:---:|
-| `BookProof/ChapterFreeFieldConstraint.lean` — momentum-constraint commutation identity `⁅⁅D,A⁆,H⁆ = -⁅D,⁅H,A⁆⁆` when `⁅D,H⁆=0` (Jacobi corollary), + both literal book instances (`φ⁽⁰⁾`, `p₍₁₎`) and constraint conservation (`book.tex` ~3948) | `BookProof.FreeFieldConstraint` | **DONE** | 0 |
-| `BookProof/ChapterConservativeDiagonal.lean` — §8 conservative double-commutator condition: `∀ S T, ⁅⁅H,P_S⁆,P_T⁆ = 0 ↔ H.IsDiag` (finite-dim event projections `P_S = diag(𝟙_S)`), + `commutes_all_events_iff_isDiag` (`book.tex` ~1917) | `BookProof.ConservativeDiagonal` | **DONE** | 0 |
+| `BookProof/Probability/ChapterFreeFieldConstraint.lean` — momentum-constraint commutation identity `⁅⁅D,A⁆,H⁆ = -⁅D,⁅H,A⁆⁆` when `⁅D,H⁆=0` (Jacobi corollary), + both literal book instances (`φ⁽⁰⁾`, `p₍₁₎`) and constraint conservation (`book.tex` ~3948) | `BookProof.FreeFieldConstraint` | **DONE** | 0 |
+| `BookProof/Probability/ChapterConservativeDiagonal.lean` — §8 conservative double-commutator condition: `∀ S T, ⁅⁅H,P_S⁆,P_T⁆ = 0 ↔ H.IsDiag` (finite-dim event projections `P_S = diag(𝟙_S)`), + `commutes_all_events_iff_isDiag` (`book.tex` ~1917) | `BookProof.ConservativeDiagonal` | **DONE** | 0 |
 
 Both `sorry`-free and axiom-clean; registered in `BookProof.lean`; full default build green (8273 jobs).
 
@@ -3502,7 +3502,7 @@ Both `sorry`-free and axiom-clean; registered in `BookProof.lean`; full default 
 | File | Lean Module | Status | Sorries |
 |:---|:---|:---:|:---:|
 | `BookProof/Sm/ChapterParitySU3.lean` — the `ℤ₂` outer automorphism of `SU(3)`: entrywise complex conjugation of the Gell-Mann generators is an order-2, nontrivial Lie-algebra automorphism `conj([λ^a,λ^b]) = ε^a ε^b·[λ^a,λ^b]` (encodes `s^a s^b s^c f^{abc}=f^{abc}`, the gluon parity signs), companion to `ChapterParitySU2` (`book.tex` ~7818) | `BookProof.ChapterParitySU3` | **DONE** | 0 |
-| `BookProof/ChapterGellMann.lean` — the concrete Gell-Mann generators are Hermitian, traceless and trace-orthonormal `tr(λ^a λ^b)=2δ_{ab}`; `T_a=½λ^a` discharges the abstract `YangMillsSU3.TraceOrthonormal` hypothesis `tr(T_a T_b)=½δ_{ab}` (bridge to `ChapterYangMillsSU3`) (`book.tex` ~7001) | `BookProof.ChapterGellMann` | **DONE** | 0 |
+| `BookProof/Qym/ChapterGellMann.lean` — the concrete Gell-Mann generators are Hermitian, traceless and trace-orthonormal `tr(λ^a λ^b)=2δ_{ab}`; `T_a=½λ^a` discharges the abstract `YangMillsSU3.TraceOrthonormal` hypothesis `tr(T_a T_b)=½δ_{ab}` (bridge to `ChapterYangMillsSU3`) (`book.tex` ~7001) | `BookProof.ChapterGellMann` | **DONE** | 0 |
 
 Both `sorry`-free and axiom-clean (`propext`, `Classical.choice`, `Quot.sound`); registered in `BookProof.lean`; full default build green (8275 jobs).
 
@@ -3510,7 +3510,7 @@ Both `sorry`-free and axiom-clean (`propext`, `Classical.choice`, `Quot.sound`);
 
 | File | Lean Module | Status | Sorries |
 |:---|:---|:---:|:---:|
-| `BookProof/ChapterHierarchicalBayes.lean` — finite two-level Bayesian hierarchy: normalized/nonnegative joint prior, inner marginalization preserves evidence, the outer posterior is the marginal of the flat joint posterior, both posteriors normalize, and the outer posterior is an ordinary Bayes update by the marginalized likelihood (`book.tex` §11, ~10484) | `BookProof.ChapterHierarchicalBayes` | **DONE** | 0 |
+| `BookProof/Probability/ChapterHierarchicalBayes.lean` — finite two-level Bayesian hierarchy: normalized/nonnegative joint prior, inner marginalization preserves evidence, the outer posterior is the marginal of the flat joint posterior, both posteriors normalize, and the outer posterior is an ordinary Bayes update by the marginalized likelihood (`book.tex` §11, ~10484) | `BookProof.ChapterHierarchicalBayes` | **DONE** | 0 |
 
 This supplies the next self-contained result from the aligned-deep-learning chapter: a nested finite inference problem can be flattened or marginalized without changing its answer. It complements `ChapterDeepLearningSampling`, `ChapterDeepLearningEnsemble`, and `ChapterSequentialBayes`. All results are `sorry`-free and axiom-clean (`propext`, `Classical.choice`, `Quot.sound`); the module is registered in `BookProof.lean`.
 
@@ -3521,7 +3521,7 @@ This supplies the next self-contained result from the aligned-deep-learning chap
 The next self-contained consequence of `book.tex` §11 (around line 10484), after
 the two-level hierarchy formalized in `ChapterHierarchicalBayes.lean`, is the
 claim that the hierarchy may have arbitrarily many finite levels.  The new
-module `BookProof/ChapterHierarchicalBayesComposition.lean` gives the reusable
+module `BookProof/Probability/ChapterHierarchicalBayesComposition.lean` gives the reusable
 finite-kernel algebra needed for that claim:
 
 - `compKernel` sums out an intermediate latent state;
@@ -3546,7 +3546,7 @@ Following the compositional kernel algebra in
 `ChapterHierarchicalBayesComposition.lean`, the next step makes the book's
 "as many levels as we wish" statement (`book.tex` §11, around line 10484)
 literal rather than merely an associativity consequence.  The new module
-`BookProof/ChapterFiniteBayesHierarchy.lean` formalizes a homogeneous hierarchy
+`BookProof/Probability/ChapterFiniteBayesHierarchy.lean` formalizes a homogeneous hierarchy
 of arbitrary finite depth as a list of finite conditional kernels:
 
 - `collapseKernels` recursively collapses any finite list to one kernel;

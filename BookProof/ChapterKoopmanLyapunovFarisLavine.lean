@@ -1,4 +1,4 @@
-import BookProof.Ns.ChapterNsNonlinearFarisLavine
+import BookProof.ChapterNsNonlinearFarisLavine
 
 /-!
 # Faris–Lavine for the Koopman generator of a polynomial vector field with a Lyapunov energy

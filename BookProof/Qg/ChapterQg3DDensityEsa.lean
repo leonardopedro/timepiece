@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Qg.ChapterQg3DCrossTermEsa
-import BookProof.ChapterDirectSumEsa
+import BookProof.Toolbox.ChapterDirectSumEsa
 
 /-!
 # The 3D gravity Hamiltonian **with its density dependence**: the `1/e` kinetic

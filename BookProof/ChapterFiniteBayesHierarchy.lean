@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterHierarchicalBayesComposition
+import BookProof.ChapterHierarchicalBayesComposition
 
 /-!
 # Arbitrary finite Bayesian hierarchies

@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterShiftedHermiteCore
-import BookProof.Toolbox.ChapterStoneBridge
+import BookProof.ChapterShiftedHermiteCore
+import BookProof.ChapterStoneBridge
 
 /-!
 # The indefinite quadratic Hamiltonian with an unbounded first-order perturbation

@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterFockSecondQuantization
-import BookProof.ChapterCoreBoundsEsa
+import BookProof.Toolbox.ChapterCoreBoundsEsa
 import BookProof.Toolbox.ChapterStoneBridge
 import BookProof.Toolbox.ChapterEsaClosure
 

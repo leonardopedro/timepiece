@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Textbook.ChapterH9
+import BookProof.ChapterH9
 
 /-!
 # Crouzeix-type inequalities from the numerical range, for general (non-normal) operators

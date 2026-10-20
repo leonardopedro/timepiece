@@ -1,4 +1,4 @@
-import BookProof.Toolbox.Prelude
+import BookProof.Prelude
 
 /-!
 # Statements as operators on the Hilbert space of models

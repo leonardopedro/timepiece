@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Ns.ChapterNavierStokesDifferentialL2
-import BookProof.Toolbox.ChapterWaveBoundedPotential
+import BookProof.ChapterNavierStokesDifferentialL2
+import BookProof.ChapterWaveBoundedPotential
 
 /-!
 # The hyperbolic operator with an indefinite quadratic potential

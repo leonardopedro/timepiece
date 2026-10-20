@@ -1,8 +1,8 @@
 import BookProof.Realification.ChapterSchurIrreducible
 import BookProof.Realification.ChapterSchurRepresentation
 import BookProof.Realification.ChapterSchurTrichotomy
-import BookProof.ChapterPauliFundamental
-import BookProof.ChapterPauliConsequences
+import BookProof.Textbook.ChapterPauliFundamental
+import BookProof.Textbook.ChapterPauliConsequences
 
 /-!
 Axiom audit for the wave that discharges the two representation-theoretic `EXTERNAL`

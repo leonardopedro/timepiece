@@ -1,5 +1,5 @@
 import BookProof.Qg.ChapterScalaronFiberFL
-import BookProof.ChapterSelfAdjointCoreEsa
+import BookProof.Toolbox.ChapterSelfAdjointCoreEsa
 
 /-!
 # Obligation (i): a Faris–Lavine comparison operator is essentially self-adjoint on its

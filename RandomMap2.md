@@ -1371,7 +1371,7 @@ The user's instruction: **do not duplicate work done in `PnpProof/`**, and
 
 ### B6: Hierarchical Bayesian inference (new from ARISTOTLE_SUMMARY.md)
 
-New `BookProof/ChapterHierarchicalBayes.lean` formalizes finite Bayesian
+New `BookProof/Probability/ChapterHierarchicalBayes.lean` formalizes finite Bayesian
 hierarchies of arbitrary depth. The book's claim: an inference problem may
 contain another inference problem, and a finite hierarchy of beliefs/probabilities
 can be treated coherently.
@@ -1432,8 +1432,8 @@ Verified all new chapters use only `propext`, `Classical.choice`, `Quot.sound`:
 
 Run `#print axioms` on:
 - `BookProof/Textbook/ChapterG3.lean` (Gauge + Mehler, 6 theorems)
-- `BookProof/ChapterHierarchicalBayes.lean` (hierarchical Bayes, ~20 theorems)
-- `BookProof/ChapterSolovay.lean` (Solovay-Hilbert, 6 theorems)
+- `BookProof/Probability/ChapterHierarchicalBayes.lean` (hierarchical Bayes, ~20 theorems)
+- `BookProof/Probability/ChapterSolovay.lean` (Solovay-Hilbert, 6 theorems)
 
 Verify all use only `propext`, `Classical.choice`, `Quot.sound`.
 
@@ -1519,7 +1519,7 @@ Wick expansion, adaptive step blow-up detection, UK diagnostic codes (UK-2101–
 | # | Item | Owner | Status | File | Folder |
 |---|:---|:---:|:---:|:---|:---|
 | B1a | Chapter G verification (52 theorems) | **B** | ✅ DONE | `BookProof/Textbook/ChapterG.lean`, `ChapterG2.lean` | `BookProof/` |
-| B1b | Chapter 13: Selecting events | **B** | ✅ DONE | `BookProof/ChapterSelectingEvents.lean` | `BookProof/` |
+| B1b | Chapter 13: Selecting events | **B** | ✅ DONE | `BookProof/Probability/ChapterSelectingEvents.lean` | `BookProof/` |
 | B1c | Chapter 16: Deep learning | **B** | ✅ DONE | `BookProof/Attention/ChapterDeepLearningSampling.lean` (67 theorems) | `BookProof/` |
 | B2a | Chapter 17: Euler density matrix | **B** | ✅ DONE | `BookProof/ChapterEulerDensityMatrix.lean` | `BookProof/` |
 | B2b | Chapter 18: Euler generic density | **B** | ✅ DONE | `BookProof/ChapterEulerGenericDensity.lean` | `BookProof/` |
@@ -1540,11 +1540,11 @@ Wick expansion, adaptive step blow-up detection, UK diagnostic codes (UK-2101–
 | A2 | `#print axioms` verification | **A** | ✅ DONE | All files verified | — |
 | A3 | Plan file updates | **A** | ✅ DONE | Phase 22-23, B5a | — |
 | A4 | Book.tex deep-dive coordination | **A** | ✅ DONE | Phase 24 | — |
-| B6a | Two-level hierarchy (joint prior, evidence, outer posterior, Bayes update) | `BookProof/ChapterHierarchicalBayes.lean` | **B** | ✅ DONE | `BookProof/ChapterHierarchicalBayes.lean` | `BookProof/` |
-| B6b | Kernel composition algebra (associativity, identity, nested marginalization) | `BookProof/ChapterHierarchicalBayesComposition.lean` | **B** | ✅ DONE | `BookProof/ChapterHierarchicalBayesComposition.lean` | `BookProof/` |
-| B6c | Finite hierarchy depth (list collapse, recursive marginalization) | `BookProof/ChapterFiniteBayesHierarchy.lean` | **B** | ✅ DONE | `BookProof/ChapterFiniteBayesHierarchy.lean` | `BookProof/` |
+| B6a | Two-level hierarchy (joint prior, evidence, outer posterior, Bayes update) | `BookProof/Probability/ChapterHierarchicalBayes.lean` | **B** | ✅ DONE | `BookProof/Probability/ChapterHierarchicalBayes.lean` | `BookProof/` |
+| B6b | Kernel composition algebra (associativity, identity, nested marginalization) | `BookProof/Probability/ChapterHierarchicalBayesComposition.lean` | **B** | ✅ DONE | `BookProof/Probability/ChapterHierarchicalBayesComposition.lean` | `BookProof/` |
+| B6c | Finite hierarchy depth (list collapse, recursive marginalization) | `BookProof/Probability/ChapterFiniteBayesHierarchy.lean` | **B** | ✅ DONE | `BookProof/Probability/ChapterFiniteBayesHierarchy.lean` | `BookProof/` |
 | B7a | Gauge symmetry deep-dive (continued) | `BookProof/Textbook/ChapterG.lean`, `ChapterG2.lean`, `ChapterG3.lean` | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
-| B7b | Consciousness deep-dive | `BookProof/ChapterPriorDependence.lean` | **B** | ✅ DONE | `BookProof/ChapterPriorDependence.lean` | `BookProof/` |
+| B7b | Consciousness deep-dive | `BookProof/Probability/ChapterPriorDependence.lean` | **B** | ✅ DONE | `BookProof/Probability/ChapterPriorDependence.lean` | `BookProof/` |
 | B7c | Gravity chapters deep-dive | `BookProof/ChapterGravity*.lean` | **B** | ✅ DONE | `BookProof/ChapterGravity*.lean` | `BookProof/` |
 | B7d | Free field chapters deep-dive | `BookProof/ChapterFreeField*.lean` | **B** | ✅ DONE | `BookProof/ChapterFreeField*.lean` | `BookProof/` |
 | B8 | New self-contained claims | No unformalized claims found in book.tex beyond existing chapters | **B** | ✅ DONE | — | `BookProof/` |
@@ -1554,7 +1554,7 @@ Wick expansion, adaptive step blow-up detection, UK diagnostic codes (UK-2101–
 | G20 | Incomplete unconstrained gauge-fixing | `faithful_remnant_nontrivial`, `free_remnant_moves_every_point` | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
 | G21 | Haar invariantization | `averagedMeasure_isProbability`, `averagedMeasure_invariant` | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
 | G22 | QFT vacuum | `qftVacuum`, `qftVacuum_isProbability`, `qftVacuum_gauge_invariant` | **B** | ✅ DONE | `BookProof/Textbook/ChapterG3.lean` | `BookProof/` |
-| S.1-S.5 | Solovay-Hilbert decidability (ChapterSolovay) | Inner product reduction, Mehler concentration, finite-orthogonal invariance, no Gödelian self-reference, expectation decidability | **A** | ✅ DONE | `BookProof/ChapterSolovay.lean` | `BookProof/` |
+| S.1-S.5 | Solovay-Hilbert decidability (ChapterSolovay) | Inner product reduction, Mehler concentration, finite-orthogonal invariance, no Gödelian self-reference, expectation decidability | **A** | ✅ DONE | `BookProof/Probability/ChapterSolovay.lean` | `BookProof/` |
 | C6 | Nelson's forward direction | `nelson_essential_self_adjoint` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
 | C7 | Flow completeness criterion | `flowComplete_iff_bounded` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
 | C8 | Blow-up detection (scalar) | `blowup_criterion_scalar` | **C** | ✅ DONE | `Singularity/Flow.lean` | `Singularity/` |
@@ -1765,7 +1765,7 @@ The decoupled Kopperman-Solovay architecture (RandomMap2.md Phase 1) uses:
 3. **The `dependsOnlyOnHead` condition** — outer wave-functions depend only on
    the finite Tarski head, preventing Gödelian self-reference
 
-The existing file `BookProof/ChapterSolovay.lean` already had:
+The existing file `BookProof/Probability/ChapterSolovay.lean` already had:
 - **S.1.1** — Solovay-Hilbert space as `UniformSpace.Completion` (COMPLETE)
 - **S.2** — `inner_reduces_to_head` (FIXED — see below)
 - **S.3** — `mehler_concentrates_on_unit_sphere` (FIXED — see below)
@@ -1844,7 +1844,7 @@ the biconditional forces `φ = const True`, contradiction.
 
 | File | Content |
 |------|---------|
-| `BookProof/ChapterSolovay.lean` | S.1.1–S.5: Solovay-Hilbert decidability (ALL COMPLETE) |
+| `BookProof/Probability/ChapterSolovay.lean` | S.1.1–S.5: Solovay-Hilbert decidability (ALL COMPLETE) |
 
 ## Dependencies (read-only)
 

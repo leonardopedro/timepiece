@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Qym.ChapterYangMillsFockGapChain
+import BookProof.ChapterYangMillsFockGapChain
 
 /-!
 # Chapter TruncationGapLift — from a certified *truncated* gap to the *infinite* operator

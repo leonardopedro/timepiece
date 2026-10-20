@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterAbelianDirectSum
+import BookProof.ChapterAbelianDirectSum
 
 /-!
 # Atomic and diffuse parts of a measure (plan GAP-2, the classification bookkeeping)

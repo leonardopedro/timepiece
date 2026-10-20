@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterFourierMultiplierEsa
-import BookProof.Toolbox.ChapterWaveUnboundedPotential
+import BookProof.ChapterFourierMultiplierEsa
+import BookProof.ChapterWaveUnboundedPotential
 
 /-!
 # The mixed first-order operator `⟪x, b⟫ − i ∂_m`

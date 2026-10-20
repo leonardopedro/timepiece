@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterFermionFock
-import BookProof.Qym.ChapterSuperBracket
+import BookProof.ChapterFermionFock
+import BookProof.ChapterSuperBracket
 
 /-!
 # Chapter GradedFock — the graded Fock space `Γˢ ⊗ Γᵃ` and its superalgebra

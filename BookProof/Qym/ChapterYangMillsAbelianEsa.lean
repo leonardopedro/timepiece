@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Qym.ChapterYangMillsHermite
-import BookProof.ChapterFullQuadraticEsa
+import BookProof.Toolbox.ChapterFullQuadraticEsa
 
 /-!
 # Essential self-adjointness of the **abelian** gauge-fixed Yang–Mills Hamiltonian on the

@@ -1,5 +1,5 @@
-import BookProof.Toolbox.Prelude
-import BookProof.Toolbox.ChapterFriedrichsSquareFactorization
+import BookProof.Prelude
+import BookProof.ChapterFriedrichsSquareFactorization
 
 /-!
 # von Neumann's core theorem: `D(A* Ā)` is a core of `Ā`, and `(1 + A* Ā)⁻¹`

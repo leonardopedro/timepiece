@@ -21,7 +21,7 @@ rather than duplicated (`BookProof/Toolbox/ChapterFarisLavine.lean`):
 
 ## Phase 2 — the hyperbolic operator
 
-`BookProof/ChapterStrichartzWave.lean`
+`BookProof/Toolbox/ChapterStrichartzWave.lean`
 
 | Plan | Lean |
 | --- | --- |
@@ -57,7 +57,7 @@ The potential is then added by a perturbation theorem instead of an energy estim
 | `□ + κ` (real constant `κ`) is essentially self-adjoint on the Schwartz core of `L²(ℝ^{1+n})` | `BookProof.StrichartzWave.wave_essentiallySelfAdjoint` |
 | general constant-coefficient real-symbol operators (includes the Laplacian) | `BookProof.StrichartzWave.constCoeffOp_essentiallySelfAdjoint` |
 | Kato–Rellich: a bounded symmetric perturbation preserves essential self-adjointness | `BookProof.KatoRellich.essentiallySelfAdjointOn_add_bounded` (`BookProof/Toolbox/ChapterKatoRellichDeficiency.lean`) |
-| `□ + V` for a real, essentially bounded potential `V` | `BookProof.StrichartzWave.wave_add_potential_essentiallySelfAdjoint` (`BookProof/ChapterWaveBoundedPotential.lean`) |
+| `□ + V` for a real, essentially bounded potential `V` | `BookProof.StrichartzWave.wave_add_potential_essentiallySelfAdjoint` (`BookProof/Toolbox/ChapterWaveBoundedPotential.lean`) |
 
 The Kato–Rellich step is proved from scratch in the deficiency formulation by an
 explicit Neumann series over *finite* sums of domain vectors, so no closure or
@@ -73,7 +73,7 @@ for which the cut-off lemma of Phase 3 is the first ingredient.
 
 ## Wave 2026-08-18b — unbounded potentials and general real symbols
 
-`BookProof/ChapterWaveUnboundedPotential.lean` (`sorry`-free / `axiom`-free,
+`BookProof/Toolbox/ChapterWaveUnboundedPotential.lean` (`sorry`-free / `axiom`-free,
 registered in `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`)
 takes up the "What is not covered" paragraph above and settles the part of it that
 is unconditional.
@@ -114,7 +114,7 @@ this sign correction.
 ## Wave 2026-08-18c — the non-commuting mixed case (elliptic prototype)
 
 The previous wave closed both *commuting* halves and left "the non-commuting
-mixture" open.  `BookProof/ChapterHarmonicOscillatorEsa.lean` (`sorry`-free /
+mixture" open.  `BookProof/Toolbox/ChapterHarmonicOscillatorEsa.lean` (`sorry`-free /
 `axiom`-free, registered in `BookProof.lean`, certified in
 `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`) settles the prototypical mixed case in the
 elliptic (Sears / Faris–Lavine) normalization, where a joint eigenbasis is
@@ -135,7 +135,7 @@ explicitly available:
 
 The reused ingredients are `BookProof/Toolbox/ChapterHermiteFunctions.lean` (the Hermite
 orthonormal basis of `L²(ℝ)` and the real eigen-equation `hermiteFun_oscillator`)
-and `BookProof/ChapterStrichartzHermiteQG.lean` (a diagonal operator with an
+and `BookProof/Qg/ChapterStrichartzHermiteQG.lean` (a diagonal operator with an
 arbitrary real symbol on the Hermite core is symmetric and has trivial deficiency
 at every non-real point).  What is new is the identification of the diagonal
 operator with the differential expression, which is what makes the statement a
@@ -147,7 +147,7 @@ fibrewise argument recorded in `CONSOLIDATED_PLAN.md` §9.5.
 
 ## Wave 2026-08-21 — the hyperbolic mixture with an indefinite quadratic potential
 
-`BookProof/ChapterHyperbolicQuadraticEsa.lean` (`sorry`-free / `axiom`-free,
+`BookProof/Toolbox/ChapterHyperbolicQuadraticEsa.lean` (`sorry`-free / `axiom`-free,
 registered in `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`,
 cited from `Book/DiffeomorphismsGravity.lean`) takes the "hyperbolic mixture" left
 open by the wave above, in the case where the potential is quadratic and diagonal
@@ -204,7 +204,7 @@ no relative bound of this kind can hold.  The general Faris–Lavine potential
 
 ## Non-diagonal quadratic forms of arbitrary signature, 2026-08-21c
 
-`BookProof/ChapterQuadraticRotationEsa.lean` (namespace
+`BookProof/Toolbox/ChapterQuadraticRotationEsa.lean` (namespace
 `BookProof.QuadraticRotation`, `sorry`-free / `axiom`-free, registered in
 `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, cited from
 `Book/DiffeomorphismsGravity.lean`) removes the *diagonality* restriction: the
@@ -224,7 +224,7 @@ quadratic form need no longer be diagonal in the coordinates.
 
 ## The general inhomogeneous elliptic quadratic Hamiltonian, 2026-08-21d
 
-`BookProof/ChapterQuadraticRotationPerturbed.lean` (namespace
+`BookProof/Toolbox/ChapterQuadraticRotationPerturbed.lean` (namespace
 `BookProof.QuadraticRotationPerturbed`, `sorry`-free / `axiom`-free, registered and
 certified in the same three places) combines the previous two waves.
 
@@ -252,7 +252,7 @@ Two new modules, both `sorry`-free / `axiom`-free, registered in `BookProof.lean
 certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and cited from
 `Book/DiffeomorphismsGravity.lean`.
 
-`BookProof/ChapterShiftedQuadraticDegenerate.lean` (namespace
+`BookProof/Toolbox/ChapterShiftedQuadraticDegenerate.lean` (namespace
 `BookProof.ShiftedQuadraticDegenerate`) drops the invertibility hypothesis of the
 matrix wave: completing the square needs only a *solution* of the classical
 equilibrium equations, and for symmetric `A` that is exactly orthogonality to the
@@ -286,7 +286,7 @@ A general Faris–Lavine potential is still not covered by any of these waves.
 
 ## Fourier multipliers with a real symbol, 2026-08-21g
 
-`BookProof/ChapterFourierMultiplierEsa.lean` (namespace `BookProof.FourierMultiplierEsa`)
+`BookProof/Toolbox/ChapterFourierMultiplierEsa.lean` (namespace `BookProof.FourierMultiplierEsa`)
 turns the Plancherel proof of Phase 3 into a reusable instrument and applies it to
 first-order operators.
 

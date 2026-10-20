@@ -1,5 +1,5 @@
-import BookProof.Toolbox.Prelude
-import BookProof.Toolbox.ChapterNonnegResolvent
+import BookProof.Prelude
+import BookProof.ChapterNonnegResolvent
 import Mathlib.Analysis.SpecialFunctions.Exponential
 import Mathlib.Analysis.Calculus.MeanValue
 import Mathlib.Analysis.Calculus.UniformLimitsDeriv

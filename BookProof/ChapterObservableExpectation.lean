@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Attention.ChapterSoftmaxBorn
-import BookProof.Probability.ChapterBayesInference
+import BookProof.ChapterSoftmaxBorn
+import BookProof.ChapterBayesInference
 
 /-!
 # Chapter "The Coherent State of Attention", §"The Posterior: Observable

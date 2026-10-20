@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterSolovayCoordinates
+import BookProof.ChapterSolovayCoordinates
 
 /-!
 # Coordinate-level orthogonal invariance of the Mehler (Gaussian) prior

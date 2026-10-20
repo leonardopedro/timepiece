@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Sm.ChapterParity
-import BookProof.Qym.ChapterYangMillsSU3
+import BookProof.ChapterParity
+import BookProof.ChapterYangMillsSU3
 
 /-!
 # Chapter "Quantization due to time-evolution: Yang-Mills …", §"Pure SU(3) Yang-Mills

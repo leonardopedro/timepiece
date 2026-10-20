@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterSoftmaxMaxEntropy
+import BookProof.ChapterSoftmaxMaxEntropy
 
 /-!
 # Chapter "The Coherent State of Attention" — the entropy is antitone in the

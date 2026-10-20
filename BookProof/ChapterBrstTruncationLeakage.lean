@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Sirk.ChapterSirkRestart
+import BookProof.ChapterSirkRestart
 
 /-!
 # BRST leakage under Krylov truncation: a quantitative bound

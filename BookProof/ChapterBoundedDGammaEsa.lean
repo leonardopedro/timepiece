@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterScalarDGammaEsa
-import BookProof.Toolbox.ChapterTensorOperatorBound
+import BookProof.ChapterTensorOperatorBound
 
 /-!
 # Second quantization of an arbitrary bounded symmetric one-particle operator
@@ -14,7 +14,7 @@ semiboundedness assumption**: `A` may have spectrum on both sides of `0` (for in
 `A = -id`, whose second quantization `dΓ(A)` is unbounded below).
 
 The one new analytic ingredient is the tensor operator bound of
-`BookProof/Toolbox/ChapterTensorOperatorBound.lean`; feeding it into the Leibniz recursion
+`BookProof/ChapterTensorOperatorBound.lean`; feeding it into the Leibniz recursion
 `dΓ⁽ⁿ⁺¹⁾ = A ⊗ 1 + 1 ⊗ dΓ⁽ⁿ⁾` gives the sector estimate `‖dΓ(A)⁽ⁿ⁾ x‖ ≤ n ‖A‖ ‖x‖`, after
 which the sector hypothesis follows from the elementary criterion
 `BookProof.GraphCore.essentiallySelfAdjointOn_of_bounded_dense` and the passage to an

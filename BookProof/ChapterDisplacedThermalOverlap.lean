@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Attention.ChapterThermalTemperatureCore
-import BookProof.Attention.ChapterSoftmaxSharpness
+import BookProof.ChapterThermalTemperatureCore
+import BookProof.ChapterSoftmaxSharpness
 
 /-!
 # The overlap of displaced thermal states, and the temperature of attention

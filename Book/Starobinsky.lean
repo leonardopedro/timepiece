@@ -119,7 +119,7 @@ gauge-fixed Hamiltonian on a continuum core (exponential wall included), and the
 quantization to the nested Fock space. The modules are `BookProof/Qg/ChapterStarobinskyPotential.lean`,
 `BookProof/Qg/ChapterScalaronCoreEsa.lean`, `BookProof/Qg/ChapterScalaronFockEsa.lean` and —
 for the exponential wall of the *sum* $`-d^2/d\varphi^2 + V` —
-`BookProof/ChapterWeakSecondDerivative.lean` with `BookProof/Qg/ChapterScalaronWallEsa.lean`
+`BookProof/Toolbox/ChapterWeakSecondDerivative.lean` with `BookProof/Qg/ChapterScalaronWallEsa.lean`
 (plan item *A5* of `CONSOLIDATED_PLAN.md`), all registered in `BookProof.lean`
 and certified axiom-free in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`.
 :::
@@ -545,7 +545,7 @@ needs. For $`V \ge 0` the convexity argument above is clean, but the
 Starobinsky reassembly also meets potentials that are merely bounded below
 (e.g. the conformal-mode parabola $`-M^4/(16\alpha) \le V \le 0`); the
 constant-shift route (`WallEsaBddBelow`) already handled that. Newly landed,
-`BookProof/ChapterBddBelowWallEsa.lean` replaces the convexity argument by a
+`BookProof/Qg/ChapterBddBelowWallEsa.lean` replaces the convexity argument by a
 *cutoff energy estimate* that needs no convexity at all and no growth
 hypothesis: with $`\zeta_r(x) = g(x/r)` a rescaled bump, the real part of the
 integrated identity bounds the cutoff kinetic energy
@@ -557,7 +557,7 @@ smooth $`V` bounded below
 arbitrary family of such fibres into one operator on the orthogonal direct sum
 $`\ell^2(i:\iota,\,L^2(\mathbb R))`,
 $`H = \oplus_i(-d^2/dx_i^2 + V_i)`
-(`BookProof/ChapterBddBelowFiberSumEsa.lean`: `fiberSumHam_
+(`BookProof/Qg/ChapterBddBelowFiberSumEsa.lean`: `fiberSumHam_
 essentiallySelfAdjoint_of_bddBelow`, the unitary flow, and the form bound
 `fiberSumHam_semibounded`), so the composed multi-shear/scalaron object inherits
 the fibre property with no relative bound and no comparison operator.
@@ -576,23 +576,23 @@ the fibre property with no relative bound and no comparison operator.
 The negative half makes the dichotomy genuinely sharp rather than merely
 stated, by proving the converse class cannot be rescued. The deficiency space
 of $`-d^2/dx^2 + V` is exactly its space of square-integrable *classical*
-solutions of $`W'' = (V-z)W` (`BookProof/ChapterWallDeficiencyObstruction.lean`,
+solutions of $`W'' = (V-z)W` (`BookProof/Qg/ChapterWallDeficiencyObstruction.lean`,
 `deficiencyTrivialAt_iff_no_l2_solution`), so failing essential
 self-adjointness is equivalent to exhibiting one such $`W`. The wave exhibits
 several, each with a physical profile. An explicit smooth potential
 asymptotically $`-x^4/4` puts the operator in the Weyl limit-circle regime in
-both deficiency spaces (`BookProof/ChapterLimitCircleExample.lean`,
+both deficiency spaces (`BookProof/Qg/ChapterLimitCircleExample.lean`,
 `lcV_not_essentiallySelfAdjoint`). The wrong-sign *conformal* fiber of the
 densitized route — kinetic `(1/24)∂²_y` with a *non-negative* `R^2`
 (Starobinsky) exponential wall — is a particular instance of this and is
-*not* rescued by the wall (`BookProof/ChapterConformalFiberDeficiency.lean`:
+*not* rescued by the wall (`BookProof/Qg/ChapterConformalFiberDeficiency.lean`:
 `cfV_not_essentiallySelfAdjoint`, packaged as
 `exists_wall_potential_wrongSign_not_essentiallySelfAdjoint`); the sign
-bookkeeping that makes this precise is `BookProof/ChapterConformalSignFlip.lean`
+bookkeeping that makes this precise is `BookProof/Qg/ChapterConformalSignFlip.lean`
 (`wrongSignKinetic_esa_iff`). And the *free* half-line kinetic operator — the
 purest form of the densitized-conformal endpoint `y = 0` (degenerate tetrad) —
 where the densitized fibre lives, is itself not essentially self-adjoint
-(`BookProof/ChapterHalfLineLimitCircle.lean`,
+(`BookProof/Qg/ChapterHalfLineLimitCircle.lean`,
 `hlKin_not_essentiallySelfAdjointOn`, and by the sign-flip theorem also
 `hlKin_neg_not_essentiallySelfAdjointOn`). None of these computes the
 deficiency indices of the physical densitized operator; together they say that
@@ -1229,7 +1229,7 @@ hypothesis is $`V \ge 0`.
 :::paragraph
 The convexity argument just given needs the potential to be non-negative. That
 hypothesis is a restriction on the *argument*, not on the physics, and
-`BookProof/ChapterWallEsaBddBelow.lean` removes it with the cheapest possible
+`BookProof/Qg/ChapterWallEsaBddBelow.lean` removes it with the cheapest possible
 move: a constant shift. Multiplication by a real constant `c` is a bounded
 symmetric operator (`constOp`, `constOp_symmetric`), and shifting the potential by
 `c` shifts the whole operator by exactly that constant (`wallHam_add_const`);
@@ -1317,7 +1317,7 @@ exponential wall the constant is `0` (`expPotential_semibounded`).
 :::paragraph
 There is also a second, entirely elementary route to the same physics, which does
 not go through the convexity argument or the constant shift at all:
-`BookProof/ChapterSchrodingerCutoffEsa.lean` runs the Simader–Faris–Lavine
+`BookProof/Toolbox/ChapterSchrodingerCutoffEsa.lean` runs the Simader–Faris–Lavine
 cutoff/commutator energy estimate directly. Testing $`-u'' + Vu = zu` against
 $`\chi_R^2 \bar u` and integrating by parts once gives
 $`\int_{[-R,R]} (V - \operatorname{Re} z)|u|^2 \leq (2C^2/R^2)\|u\|^2_{L^2}`

@@ -1,6 +1,6 @@
 import BookProof.Qg.ChapterQg3DDensityEsa
 import BookProof.Ns.ChapterNsLinearKoopmanEsa
-import BookProof.ChapterL2TensorPowerUnitary
+import BookProof.Toolbox.ChapterL2TensorPowerUnitary
 
 /-!
 # Axiom audit of the 2026-09-24e chapters

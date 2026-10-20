@@ -4,11 +4,11 @@ compute the transitive axiom closure (like `#print axioms`) and flag anything
 outside {propext, Classical.choice, Quot.sound}.
 -/
 import Mathlib
-import BookProof.ChapterBRSTNilpotent
+import BookProof.Qym.ChapterBRSTNilpotent
 import BookProof.ChapterNavierStokes
-import BookProof.ChapterGaugeFixing
+import BookProof.Qym.ChapterGaugeFixing
 import BookProof.ChapterMassGap
-import BookProof.ChapterGhostField
+import BookProof.Qym.ChapterGhostField
 import BookProof.FieldStrength.ChapterYangMillsFieldStrength
 import BookProof.Sirk.ChapterSirkFinitePrecision
 -- For a future batch from PnpProof/UsedRoute/UnusedRoute, add those imports

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterCoherentOverlapComplex
+import BookProof.ChapterCoherentOverlapComplex
 
 /-!
 # Chapter "The Coherent State of Attention" — position enters only as a relative

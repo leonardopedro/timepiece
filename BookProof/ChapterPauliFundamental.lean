@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Textbook.ChapterA3
-import BookProof.Textbook.ChapterA3b
-import BookProof.Textbook.ChapterGammaCommutant
+import BookProof.ChapterA3
+import BookProof.ChapterA3b
+import BookProof.ChapterGammaCommutant
 
 /-!
 # Note 36 — Pauli's fundamental theorem of the γ-matrices, proved

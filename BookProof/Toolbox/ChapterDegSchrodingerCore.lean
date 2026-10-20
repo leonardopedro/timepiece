@@ -21,7 +21,7 @@ sets up that class of operators on the two cores the project works with —
 
 records their pointwise formulas and their symmetry, and packages the elementary facts
 about polynomial potentials (`polyW`) that the analysis in
-`BookProof/ChapterDegKatoEsa.lean` and `BookProof/Toolbox/ChapterHermiteGraphApprox.lean` consumes.
+`BookProof/Toolbox/ChapterDegKatoEsa.lean` and `BookProof/Toolbox/ChapterHermiteGraphApprox.lean` consumes.
 
 For `S = Finset.univ` everything here specializes to the `−Δ + W` of
 `BookProof.QgHermiteFriedrichs` and `BookProof.QgOneParticleCc`.

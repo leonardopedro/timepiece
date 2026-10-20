@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterSqSumOuterFamily
-import BookProof.Toolbox.ChapterFiniteSectionSingleTime
+import BookProof.ChapterSqSumOuterFamily
+import BookProof.ChapterFiniteSectionSingleTime
 
 /-!
 # Outer-Fock kinetic-plus-squares families: one shift, one finite time

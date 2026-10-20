@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterSoftmaxSharpness
+import BookProof.ChapterSoftmaxSharpness
 
 /-!
 # Chapter "The Coherent State of Attention": why the scores are divided by `√d`

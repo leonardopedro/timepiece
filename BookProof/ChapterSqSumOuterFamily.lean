@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Qg.ChapterQgOuterFockFullFL
+import BookProof.ChapterQgOuterFockFullFL
 
 /-!
 # Uniform kinetic-plus-squares families on an outer Fock space of arbitrary fibre dimension

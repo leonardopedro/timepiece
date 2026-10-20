@@ -1,8 +1,8 @@
 import Mathlib
-import BookProof.Toolbox.ChapterQuadraticRotationEsa
-import BookProof.Toolbox.ChapterHermiteRelativeBound
-import BookProof.Ns.ChapterNavierStokesSignFlip
-import BookProof.Toolbox.ChapterStoneBridge
+import BookProof.ChapterQuadraticRotationEsa
+import BookProof.ChapterHermiteRelativeBound
+import BookProof.ChapterNavierStokesSignFlip
+import BookProof.ChapterStoneBridge
 
 /-!
 # The general inhomogeneous elliptic quadratic Hamiltonian

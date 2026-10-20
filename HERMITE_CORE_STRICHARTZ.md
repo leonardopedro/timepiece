@@ -4,7 +4,7 @@ Two new chapters, both fully proved (no `sorry`, only the standard axioms
 `propext`, `Classical.choice`, `Quot.sound`):
 
 * `BookProof/Toolbox/ChapterHermiteFunctions.lean` — the Hermite functions themselves;
-* `BookProof/ChapterStrichartzHermiteQG.lean` — the Hermite core, diagonal
+* `BookProof/Qg/ChapterStrichartzHermiteQG.lean` — the Hermite core, diagonal
   operators on it, and the 3D gauge-fixed quantum-gravity Hamiltonian.
 
 Both are imported from `BookProof.lean`, and the whole library builds.

@@ -1,7 +1,7 @@
 import BookProof.InducedSystems.ChapterPvmCyclicUnitary
 import BookProof.InducedSystems.ChapterMackeyCocycle
 import BookProof.InducedSystems.ChapterMackeyConverse
-import BookProof.ChapterNumericalRangeCrouzeix
+import BookProof.Sirk.ChapterNumericalRangeCrouzeix
 import BookProof.Sirk.ChapterSirkCrouzeixNumericalRange
 
 /-!

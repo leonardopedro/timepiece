@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Toolbox.ChapterFiniteSectionSingleTime
-import BookProof.Toolbox.ChapterFockSecondQuantization
-import BookProof.Qg.ChapterQgCouplingDGammaSum
+import BookProof.ChapterFiniteSectionSingleTime
+import BookProof.ChapterFockSecondQuantization
+import BookProof.ChapterQgCouplingDGammaSum
 
 /-!
 # The Weyl-gauge quantum Yang–Mills Hamiltonian is time-independent, and one finite time

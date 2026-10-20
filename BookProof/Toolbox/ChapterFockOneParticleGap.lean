@@ -2,7 +2,7 @@ import Mathlib
 import BookProof.Toolbox.ChapterFockSecondQuantization
 import BookProof.Sirk.ChapterSirkCertifiedGap
 import BookProof.Sirk.ChapterSirkRitzSpectrum
-import BookProof.ChapterSpectralGapStability
+import BookProof.Sirk.ChapterSpectralGapStability
 
 /-!
 # Chapter FockOneParticleGap — the one-particle edge and its free `dΓ` lift

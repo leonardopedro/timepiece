@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Aristotle
 -/
 import Mathlib
-import BookProof.Qym.ChapterGhostField
+import BookProof.ChapterGhostField
 
 /-!
 # The two presentations of the ghost algebra: fermionic (`ψ, ψ†`) and self-adjoint (Majorana)

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterFiniteSectionSingleTime
+import BookProof.Toolbox.ChapterFiniteSectionSingleTime
 import BookProof.Ns.ChapterNavierStokesHashimoto
 import BookProof.Ns.ChapterNavierStokesLagrangianCanonical
 import BookProof.Ns.ChapterNavierStokesGaugeY

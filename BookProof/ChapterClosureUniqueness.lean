@@ -1,5 +1,5 @@
-import BookProof.Toolbox.Prelude
-import BookProof.Toolbox.ChapterEsaClosureCore
+import BookProof.Prelude
+import BookProof.ChapterEsaClosureCore
 
 /-!
 # Uniqueness of the closure, and of the `A* ∘ Ā` factorization

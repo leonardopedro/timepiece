@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterCayleyTransform
-import BookProof.Probability.ChapterSpectralMultiplication
+import BookProof.ChapterCayleyTransform
+import BookProof.ChapterSpectralMultiplication
 
 /-!
 # The spectral model of an unbounded self-adjoint operator, via its Cayley transform

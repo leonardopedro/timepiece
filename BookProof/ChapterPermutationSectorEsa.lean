@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterTensorPermutation
+import BookProof.ChapterTensorPermutation
 import BookProof.ChapterTwoParticleSectorEsa
 
 /-!
@@ -50,8 +50,8 @@ Nothing is assumed: the module contains no `axiom` and no `sorry`.
 The hypothesis `EssentiallySelfAdjointOn (sectorDom …) (sectorOp …)` carried by the four
 headline statements below, and the passage from the fixed particle number to the direct sum
 over all of them, are both settled in `BookProof.FockStatistics`
-(`BookProof/Toolbox/ChapterFockStatisticsEsa.lean` and
-`BookProof/Toolbox/ChapterFockStatisticsCompletion.lean`): the hypothesis is a theorem for a
+(`BookProof/ChapterFockStatisticsEsa.lean` and
+`BookProof/ChapterFockStatisticsCompletion.lean`): the hypothesis is a theorem for a
 symmetric, essentially self-adjoint one-particle operator on a dense domain of a Hilbert
 space, and `dΓ(A)` is then essentially self-adjoint on the bosonic and on the fermionic Fock
 space.

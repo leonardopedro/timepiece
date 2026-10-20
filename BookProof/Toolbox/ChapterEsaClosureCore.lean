@@ -1,6 +1,6 @@
 import BookProof.Toolbox.Prelude
 import BookProof.Toolbox.ChapterFarisLavineCore
-import BookProof.ChapterComplexShiftCore
+import BookProof.Toolbox.ChapterComplexShiftCore
 
 /-!
 # Essential self-adjointness selects a **unique** self-adjoint operator

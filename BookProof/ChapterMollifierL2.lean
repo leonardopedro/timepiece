@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # Mollification converges in `L²`
 
-The Kato-type essential self-adjointness theorem of `BookProof/Toolbox/ChapterDegKatoEsa.lean` is
+The Kato-type essential self-adjointness theorem of `BookProof/ChapterDegKatoEsa.lean` is
 proved by mollifying a deficiency vector, and the limit `ε → 0` needs one classical
 ingredient that Mathlib does not carry: **mollification converges in `L²`**.
 

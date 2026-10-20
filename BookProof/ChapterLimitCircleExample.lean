@@ -1,11 +1,11 @@
 import Mathlib
-import BookProof.Qg.ChapterWallDeficiencyObstruction
+import BookProof.ChapterWallDeficiencyObstruction
 
 /-!
 # An explicit smooth real potential whose Schrödinger operator is *not* essentially
 # self-adjoint
 
-`BookProof/Qg/ChapterScalaronWallEsa.lean` proves that `−d²/dx² + V` is essentially self-adjoint
+`BookProof/ChapterScalaronWallEsa.lean` proves that `−d²/dx² + V` is essentially self-adjoint
 on the compactly supported smooth core of `L²(ℝ)` for **every** smooth `V ≥ 0`, with no growth
 hypothesis.  `CONSOLIDATED_PLAN.md`'s QG-2 sign warning is that the *opposite* sign class is
 genuinely different: a potential unbounded below can put the operator in the Weyl limit-circle

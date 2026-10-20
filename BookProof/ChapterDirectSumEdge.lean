@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterDirectSumEsa
+import BookProof.ChapterDirectSumEsa
 
 /-!
 # The edge of an orthogonal direct sum: fibre edges glue to their infimum

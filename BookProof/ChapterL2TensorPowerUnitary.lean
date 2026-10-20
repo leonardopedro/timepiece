@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Ns.ChapterNsScalarVectorCurry
-import BookProof.Toolbox.ChapterSecondQuantizationCoreEsa
-import BookProof.Qym.ChapterYangMillsNonAbelianEsa
+import BookProof.ChapterNsScalarVectorCurry
+import BookProof.ChapterSecondQuantizationCoreEsa
+import BookProof.ChapterYangMillsNonAbelianEsa
 
 /-!
 # The `n`-particle sector identification `L²(V)^{⊗̂n} ≅ L²(Vⁿ)`

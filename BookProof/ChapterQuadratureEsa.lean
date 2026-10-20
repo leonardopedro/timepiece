@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Toolbox.ChapterHermiteRelativeBound
-import BookProof.Ns.ChapterNavierStokesSignFlip
-import BookProof.Toolbox.ChapterStoneBridge
+import BookProof.ChapterHermiteRelativeBound
+import BookProof.ChapterNavierStokesSignFlip
+import BookProof.ChapterStoneBridge
 
 /-!
 # The quadrature operator `∑ᵢ (bᵢ xᵢ + b'ᵢ πᵢ)` on the Hermite core

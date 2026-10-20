@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterGaugeFixing
+import BookProof.Qym.ChapterGaugeFixing
 import BookProof.Qg.ChapterQgPhysicalSectorIdentity
 
 /-!

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterTrajectory
+import BookProof.ChapterTrajectory
 
 /-!
 # The dynamics-based ("less arbitrary") unitary

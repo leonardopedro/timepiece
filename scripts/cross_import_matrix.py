@@ -31,6 +31,9 @@ RULES = [
     ("Ode", r"^ChapterOde"),
     ("Attention", r"^(ChapterAttention|ChapterCoherent|ChapterSoftmax|ChapterDeepLearning|ChapterThermalMax|ChapterLayerNorm|ChapterMarkovEntropy|ChapterConsciousness|ChapterComputableScarcity)"),
     ("Textbook", r"^Chapter[A-H][0-9]*[a-z]?(Prop[0-9]+)?$"),
+    # `Probability/` has no name family: its modules were assigned by reading (Phase 2.2b,
+    # `scripts/bookproof_phase2b_move.py`); the rule never matches a flat name.
+    ("Probability", r"(?!)"),
     ("Toolbox", r"^(ChapterFarisLavine|FarisLavine|ChapterEsaClosure|EsaClosure|ChapterHermes|ChapterStone|ChapterFriedrichs|ChapterResolvent|ChapterCarleman|ChapterComparison|ChapterKato|ChapterKvnKato|ChapterTensor|ChapterWeyl|ChapterSL2|ChapterFock|ChapterFermionFock|Phys|ChapterPrelude|Prelude|Substrate|ChapterComplexification|ChapterHermite|Hermite|ChapterDegSchrodinger)"),
 ]
 DOMAINS = [d for d, _ in RULES] + ["Other"]

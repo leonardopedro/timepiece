@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterAttentionOutput
+import BookProof.ChapterAttentionOutput
 
 /-!
 # Chapter "The Coherent State of Attention": the residual stream

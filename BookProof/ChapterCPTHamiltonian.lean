@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Textbook.ChapterA3
+import BookProof.ChapterA3
 
 /-!
 # Chapter "Real representations, CPT theorem …", §A.5 "Spinor frame and CPT theorem":

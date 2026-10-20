@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterStrichartzWave
+import BookProof.ChapterStrichartzWave
 
 /-!
 # Essential self-adjointness of Fourier multipliers with a real symbol

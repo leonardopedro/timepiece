@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.ChapterWallEsaBddBelow
-import BookProof.ChapterWallEsaSemibounded
-import BookProof.ChapterSchrodingerCutoffEsa
+import BookProof.Qg.ChapterWallEsaBddBelow
+import BookProof.Qg.ChapterWallEsaSemibounded
+import BookProof.Toolbox.ChapterSchrodingerCutoffEsa
 import BookProof.Qg.ChapterQgOuterFockCoreFL
 
 /-!

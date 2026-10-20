@@ -1,8 +1,8 @@
 # The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator
 
-**Date:** 2026-09-20.  **Modules:** `BookProof/ChapterGraphCoreTransfer.lean`,
-`BookProof/Toolbox/ChapterTensorGraphCore.lean`, `BookProof/ChapterSecondQuantizationCoreEsa.lean`,
-`BookProof/ChapterScalarDGammaEsa.lean`, audit `Work/GraphCoreTransferAudit.lean`.  All `sorry`-free and `axiom`-free (the audit
+**Date:** 2026-09-20.  **Modules:** `BookProof/Toolbox/ChapterGraphCoreTransfer.lean`,
+`BookProof/Toolbox/ChapterTensorGraphCore.lean`, `BookProof/Toolbox/ChapterSecondQuantizationCoreEsa.lean`,
+`BookProof/Toolbox/ChapterScalarDGammaEsa.lean`, audit `Work/GraphCoreTransferAudit.lean`.  All `sorry`-free and `axiom`-free (the audit
 reports only `propext`, `Classical.choice`, `Quot.sound`).
 
 ## The obstacle this removes

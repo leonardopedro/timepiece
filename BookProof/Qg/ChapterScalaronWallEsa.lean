@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterWeakSecondDerivative
+import BookProof.Toolbox.ChapterWeakSecondDerivative
 import BookProof.Qg.ChapterScalaronCoreEsa
 
 /-!
@@ -22,7 +22,7 @@ multiplication operator alone; what was missing is the **sum** `−d²/dφ² + V
 For a *non-negative* potential the classical argument needs no perturbation theory at all.
 A deficiency vector `u ∈ L²(ℝ)` at `z = ±i` satisfies the differential equation
 `u'' = (V − z)u` in the sense of distributions.  The regularity toolkit of
-`BookProof/ChapterWeakSecondDerivative.lean` upgrades it to a genuine `C²` solution `W`
+`BookProof/Toolbox/ChapterWeakSecondDerivative.lean` upgrades it to a genuine `C²` solution `W`
 with `u = W` almost everywhere, and then
 
 `(|W|²)'' = 2 Re(conj W · W'') + 2|W'|² = 2 (V − Re z)|W|² + 2|W'|² ≥ 0`

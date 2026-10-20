@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterDegKatoEsa
+import BookProof.Toolbox.ChapterDegKatoEsa
 import BookProof.Toolbox.ChapterHermiteLadderOrder
 
 /-!
@@ -7,7 +7,7 @@ import BookProof.Toolbox.ChapterHermiteLadderOrder
 
 `BookProof/Qg/ChapterQgOneParticleCcEsa.lean` transports essential self-adjointness *from* the
 Gauss–polynomial core *to* the compactly supported smooth core, by cutting a Gauss
-polynomial off outside a large ball.  The Kato theorem of `BookProof/ChapterDegKatoEsa.lean`
+polynomial off outside a large ball.  The Kato theorem of `BookProof/Toolbox/ChapterDegKatoEsa.lean`
 runs the other way: it is proved on the compactly supported core, and what is needed is the
 opposite approximation — every compactly supported smooth `ψ` must be approximated, in the
 graph norm of `−Δ_S + W`, by Gauss polynomials.

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterFarisLavineCore
+import BookProof.ChapterFarisLavineCore
 
 /-!
 # The core transfer principle: graph-norm density transfers essential self-adjointness

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterFockWeightedSchurEsa
+import BookProof.ChapterFockWeightedSchurEsa
 
 /-!
 # From a graded band matrix to the weighted Schur gates

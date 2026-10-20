@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterFreeFieldSphere
+import BookProof.ChapterFreeFieldSphere
 
 /-!
 # Chapter "Wave-function parametrization of a probability measure", §5 —

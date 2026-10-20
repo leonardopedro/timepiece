@@ -1,5 +1,5 @@
 import BookProof.Toolbox.Prelude
-import BookProof.ChapterClosureUniqueness
+import BookProof.Toolbox.ChapterClosureUniqueness
 
 /-!
 # `(A²)_F = A* Ā` — the Friedrichs extension of the square is the factorization

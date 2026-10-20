@@ -1,5 +1,5 @@
-import BookProof.Toolbox.Prelude
-import BookProof.Toolbox.ChapterUnboundedPolar
+import BookProof.Prelude
+import BookProof.ChapterUnboundedPolar
 
 /-!
 # `|Ā| = (A* Ā)^{1/2}` is *the* non-negative square root — uniqueness

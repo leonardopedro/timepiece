@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterGradedFock
+import BookProof.ChapterGradedFock
 
 /-!
 # Chapter GradedFriedrichs — the analytic half of the graded second quantization

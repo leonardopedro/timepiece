@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterSolovayCoordinates
+import BookProof.ChapterSolovayCoordinates
 
 /-!
 # Cross-dimensional embedding of the coordinate Solovay–Kopperman substrate

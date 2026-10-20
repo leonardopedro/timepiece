@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterStrichartzWave
-import BookProof.Toolbox.ChapterWaveBoundedPotential
+import BookProof.ChapterStrichartzWave
+import BookProof.ChapterWaveBoundedPotential
 
 /-!
 # Unbounded (polynomial) potentials: what is proved, and where the obstruction lies

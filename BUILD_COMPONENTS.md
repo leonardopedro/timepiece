@@ -61,8 +61,8 @@ stanzas).
 Keeping the parts apart is a design rule, not only a measurement: when a new
 module only needs results of one part, import from that part alone. For example
 the lattice-translation example of the gauge chapter
-(`BookProof/ChapterGaugeShiftExample.lean`) is a separate module from
-`BookProof/ChapterGaugeIncompleteFixing.lean` precisely so that the gauge
+(`BookProof/Qym/ChapterGaugeShiftExample.lean`) is a separate module from
+`BookProof/Qym/ChapterGaugeIncompleteFixing.lean` precisely so that the gauge
 foundations do not acquire a dependency on the operator-theoretic core.
 
 Every other first-party library (`Book`, `GapCertificate`, `Audits`, `Work` and
@@ -71,11 +71,11 @@ never default targets.
 
 ## Inventory
 
-### `BookProof` — 807 modules, 100 independent parts (18 with more than one module)
+### `BookProof` — 808 modules, 100 independent parts (18 with more than one module)
 
 | modules | Lake target | maximal modules (the `roots` of the target) |
 | ---: | --- | --- |
-| 629 | `BookProofOperatorCore` | `BookProof.Attention.ChapterCoherentPositionSpace`, `BookProof.Attention.ChapterDeepLearningEnsemble`, `BookProof.Attention.ChapterDeepLearningMAP`, `BookProof.Attention.ChapterSoftmaxStability`, `BookProof.ChapterAbelianMixture`, `BookProof.ChapterBookBrstInstances`, … (106 in total) |
+| 630 | `BookProofOperatorCore` | `BookProof.Attention.ChapterCoherentPositionSpace`, `BookProof.Attention.ChapterDeepLearningEnsemble`, `BookProof.Attention.ChapterDeepLearningMAP`, `BookProof.Attention.ChapterDisplacedThermalMulti`, `BookProof.Attention.ChapterObservableOperator`, `BookProof.Attention.ChapterSoftmaxStability`, … (106 in total) |
 | 22 | `BookProofRealification` | `BookProof.Realification.ChapterA1Prop5`, `BookProof.Realification.ChapterA1g`, `BookProof.Realification.ChapterA1h`, `BookProof.Realification.ChapterA2d`, `BookProof.Realification.ChapterA2e`, `BookProof.Realification.ChapterSchurFiniteDimensional`, … (9 in total) |
 | 20 | `BookProofInducedSystems` | `BookProof.InducedSystems.ChapterMackeyGeneralBase`, `BookProof.InducedSystems.ChapterMackeyInducedSystem`, `BookProof.InducedSystems.ChapterMackeyTranslation`, `BookProof.InducedSystems.ChapterPvmFibreInducedSystem`, `BookProof.InducedSystems.ChapterPvmScalarMeasure`, `BookProof.InducedSystems.ChapterWignerSymmetryInfinite`, … (7 in total) |
 | 10 | `BookProofHarmonicAnalysis` | `BookProof.HarmonicAnalysis.ChapterNote68AllModes`, `BookProof.HarmonicAnalysis.ChapterSphericalPlancherel` |

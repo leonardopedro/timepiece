@@ -1,4 +1,4 @@
-import BookProof.ChapterShannonSampling
+import BookProof.Ode.ChapterShannonSampling
 import BookProof.Ode.ChapterOdeSampling
 import BookProof.EnergyBand.ChapterEnergyBoundedEvolution
 import BookProof.ChapterCompactCompleteReducibility

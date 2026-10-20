@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterSoftmaxDivergence
+import BookProof.ChapterSoftmaxDivergence
 
 /-!
 # Chapter "The Coherent State of Attention" — convexity of the free energy

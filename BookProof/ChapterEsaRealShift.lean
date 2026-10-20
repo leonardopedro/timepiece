@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterFarisLavineCore
+import BookProof.ChapterFarisLavineCore
 
 /-!
 # Essential self-adjointness is stable under a real shift

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Aristotle
 -/
 import Mathlib
-import BookProof.Textbook.ChapterG
+import BookProof.ChapterG
 
 /-!
 # The gauge-mechanics model: charge operator, BRST charge and the gauge-invariant algebra

@@ -389,7 +389,7 @@ auxiliary-operator argument the manuscript cites (see Nelson's section above).
 The sentence above — *the quantized operator on the transformed coordinates is
 essentially self-adjoint* — was for a long time a plan-level claim pointing at
 the certificate layer. It is now a theorem in the verified layer, in three
-checked steps (`BookProof/ChapterMomentumChartEsa.lean`,
+checked steps (`BookProof/Ode/ChapterMomentumChartEsa.lean`,
 `BookProof/Ode/ChapterOdeChartTransfer.lean`), and every step is a reusable
 instrument rather than a fact about this one ODE.
 :::
@@ -447,7 +447,7 @@ theorem back.
 chart domain, generates a complete unitary group — the operator-level face of
 "the singular classical flow becomes a globally defined unitary evolution".
 The instrument behind the two transfers is worth naming on its own:
-`BookProof/ChapterEsaRealShift.lean` proves that a symmetric, essentially
+`BookProof/Toolbox/ChapterEsaRealShift.lean` proves that a symmetric, essentially
 self-adjoint operator has **trivial deficiency spaces at every non-real** $`z`
 (`deficiencyTrivialAt_of_essentiallySelfAdjointOn`, with the disk-stability
 lemma `deficiencyTrivialAt_of_near`), that essential self-adjointness survives a

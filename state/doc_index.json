@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-19T00:37:35+00:00",
+ "generated_at": "2026-10-20T12:12:59+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -29,16 +29,16 @@
   },
   {
    "path": "ARISTOTLE_SUMMARY.md",
-   "title": "Summary of changes for run 8c1a652e-a861-4b69-9c74-5c967943edf4",
-   "lines": 22,
+   "title": "Summary of changes for run ee7d0fcc-1070-4216-8243-2d09899b8053",
+   "lines": 18,
    "headings": [
-    "# Summary of changes for run 8c1a652e-a861-4b69-9c74-5c967943edf4"
+    "# Summary of changes for run ee7d0fcc-1070-4216-8243-2d09899b8053"
    ]
   },
   {
    "path": "ATTRIBUTION.md",
    "title": "Attribution",
-   "lines": 22,
+   "lines": 25,
    "headings": [
     "# Attribution",
     "## Notes"
@@ -53,6 +53,14 @@
    ]
   },
   {
+   "path": "BOOKPROOF_PHASE2B_MOVES.md",
+   "title": "BookProof Phase 2.2b move map",
+   "lines": 242,
+   "headings": [
+    "# BookProof Phase 2.2b move map"
+   ]
+  },
+  {
    "path": "BOOKPROOF_PHASE2_MOVES.md",
    "title": "BookProof Phase 2.2 move map",
    "lines": 398,
@@ -63,7 +71,7 @@
   {
    "path": "BOOKPROOF_SPLIT_PLAN.md",
    "title": "BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory",
-   "lines": 539,
+   "lines": 661,
    "headings": [
     "# BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory",
     "## 1. Measured current state (2026-10-17, all numbers from the repo itself)",
@@ -130,11 +138,12 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 17984,
+   "lines": 18179,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
     "## Build scope — verify an addition **without** a full `lake build`",
+    "## Latest wave — 2026-10-20: the `math/` collection snapshot — `math/OAI/` (12,472 files) vendored for transcription, and the conversion lane to v4.28.0",
     "## Latest wave — 2026-09-21b: the **scalar–vector identification** `L²(V; L²(W)) ≅ L²(V × W)` is formalized, and the spatial Fourier transform is carried to the scalar one-particle space — **NS item 1 is closed**",
     "## Latest wave — 2026-09-17c: the two handoffs of the 2026‑09‑17 wave are **executed** — the honest reduced field family (the advection square) and the landed Lagrangian chapter",
     "## Latest wave — 2026-09-17: the **Fourier elimination of the derivative variables is formalized** — the substituting ring map, the quadratic residual, the reduced sector Hamiltonian and its Faris–Lavine route on the nested Fock space (NS, Eulerian)",
@@ -328,7 +337,9 @@
     "## State of the project — 2026-10-17b: `BookProof/` split plan and the redundancy / legacy / dead-end inventory",
     "## State of the project — 2026-10-17c: Prove2.me addendum to the split plan",
     "## State of the project — 2026-10-17d: sibling-project Prove2.me imports (unfer, dynamic-arctic)",
-    "## State of the project — 2026-10-18: Prove2.me downloads converted (`converted/`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0–2 executed"
+    "## State of the project — 2026-10-18: Prove2.me downloads converted (`converted/`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0–2 executed",
+    "## State of the project — 2026-10-19: Downloads moved in-repo; `_deps/` platform import closure",
+    "## State of the project — 2026-10-19: Prove2.me conversion completed against the platform library"
    ]
   },
   {
@@ -400,20 +411,6 @@
     "## 4. Proved unconditionally vs. proved-on-the-concrete-instance (no physics hypotheses)",
     "## 5. Concrete Lean plan (staged, each stage independent)",
     "## 6. Clarification: `E = ∂e` is *achieved* by BRST, not a representability gap"
-   ]
-  },
-  {
-   "path": "Downloads/_deps/README.md",
-   "title": "`_deps/` — prove2.me platform library, verbatim (2026-10-19)",
-   "lines": 78,
-   "headings": [
-    "# `_deps/` — prove2.me platform library, verbatim (2026-10-19)",
-    "## Layout",
-    "## Why the `Thm_` files end in `:= by sorry`",
-    "## One normalization (recorded per item in `manifest.json`)",
-    "## Environments",
-    "## Verification (2026-10-19)",
-    "## Use"
    ]
   },
   {
@@ -903,8 +900,8 @@
    "headings": [
     "# How a gauge symmetry is *defined* in `book.tex`, and what is now proved",
     "## The two axes of the book's classification",
-    "## What is proved (`BookProof/ChapterGaugeIncompleteFixing.lean`)",
-    "## The book's own example (`BookProof/ChapterGaugeShiftExample.lean`)",
+    "## What is proved (`BookProof/Qym/ChapterGaugeIncompleteFixing.lean`)",
+    "## The book's own example (`BookProof/Qym/ChapterGaugeShiftExample.lean`)",
     "## One correction (superseded — see below)",
     "## What stays prose",
     "## Verification"
@@ -1392,24 +1389,25 @@
   },
   {
    "path": "converted/GAPS.md",
-   "title": "Dependency gaps of the prove2.me downloads",
-   "lines": 438,
+   "title": "Remaining gaps of the converted prove2.me downloads",
+   "lines": 164,
    "headings": [
-    "# Dependency gaps of the prove2.me downloads",
-    "## Per blocked download",
-    "## Missing platform modules (inverse index)"
+    "# Remaining gaps of the converted prove2.me downloads",
+    "## Solutions whose proof uses platform statement stubs",
+    "## Stub theorems (inverse index)"
    ]
   },
   {
    "path": "converted/README.md",
    "title": "`converted/` — prove2.me downloads converted to Lean 4.28.0",
-   "lines": 90,
+   "lines": 129,
    "headings": [
     "# `converted/` — prove2.me downloads converted to Lean 4.28.0",
+    "## Status (2026-10-19)",
     "## Layout",
     "## What a converted file contains",
-    "## Hand conversion edits (compiled files)",
-    "## Gaps (why 140 files are not compiled)",
+    "## Hand conversion edits",
+    "## The one file that is not compiled",
     "## Routing note (BOOKPROOF_SPLIT_PLAN.md §8)"
    ]
   },
@@ -1429,6 +1427,12 @@
     "## Phase 2: The Step-by-Step Formalization Guide for the Specialist",
     "## Why This Proves Peano Arithmetic is Strictly Excluded"
    ]
+  },
+  {
+   "path": "scripts/notes/handedits.md",
+   "title": "handedits",
+   "lines": 21,
+   "headings": []
   },
   {
    "path": "unfer_contracts/MASS_GAP_REGENERATION.md",
@@ -1506,11 +1510,11 @@
   },
   {
    "source": "ARISTOTLE_SUMMARY.md",
-   "target": "CONSOLIDATED_PLAN.md"
+   "target": "README.md"
   },
   {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "STATUS.md"
+   "source": "ATTRIBUTION.md",
+   "target": "converted/README.md"
   },
   {
    "source": "BOOKPROOF_SPLIT_PLAN.md",
@@ -1518,7 +1522,15 @@
   },
   {
    "source": "BOOKPROOF_SPLIT_PLAN.md",
+   "target": "BOOKPROOF_PHASE2B_MOVES.md"
+  },
+  {
+   "source": "BOOKPROOF_SPLIT_PLAN.md",
    "target": "BOOKPROOF_PHASE2_MOVES.md"
+  },
+  {
+   "source": "BOOKPROOF_SPLIT_PLAN.md",
+   "target": "BUILD_COMPONENTS.md"
   },
   {
    "source": "BOOKPROOF_SPLIT_PLAN.md",
@@ -1562,7 +1574,15 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "ATTRIBUTION.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "BOOKPROOF_PHASE1_MOVES.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "BOOKPROOF_PHASE2B_MOVES.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
@@ -1607,10 +1627,6 @@
   {
    "source": "CONSOLIDATED_PLAN.md",
    "target": "DOC_INDEX.md"
-  },
-  {
-   "source": "CONSOLIDATED_PLAN.md",
-   "target": "Downloads/_deps/README.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
@@ -1730,6 +1746,10 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "RandomMap2.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "RandomMap2LegacyDraft.md"
   },
   {
@@ -1758,6 +1778,10 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "converted/README.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "newproof.md"
   },
   {
@@ -1779,6 +1803,10 @@
   {
    "source": "CURRENT_WORK_ORDER.md",
    "target": "ARISTOTLE_SUMMARY.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "BOOKPROOF_PHASE2B_MOVES.md"
   },
   {
    "source": "CURRENT_WORK_ORDER.md",
@@ -1882,10 +1910,6 @@
   },
   {
    "source": "CURRENT_WORK_ORDER.md",
-   "target": "converted/GAPS.md"
-  },
-  {
-   "source": "CURRENT_WORK_ORDER.md",
    "target": "newproof.md"
   },
   {
@@ -1907,10 +1931,6 @@
   {
    "source": "DESIGN_COMPARISON_N_20260915.md",
    "target": "REVIEW_FARIS_LAVINE_20260911.md"
-  },
-  {
-   "source": "Downloads/_deps/README.md",
-   "target": "BOOKPROOF_SPLIT_PLAN.md"
   },
   {
    "source": "FEDERATION_DEEP_REVIEW.md",
@@ -2243,6 +2263,10 @@
   {
    "source": "unfer_contracts/MASS_GAP_SPEC.md",
    "target": "MASS_GAP_CERTIFIED.md"
+  },
+  {
+   "source": "unfer_contracts/sirk_core_model/README.md",
+   "target": "CONSOLIDATED_PLAN.md"
   },
   {
    "source": "unfer_contracts/sirk_core_model/README.md",

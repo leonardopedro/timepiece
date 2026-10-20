@@ -1,15 +1,15 @@
 import Mathlib
-import BookProof.Qg.ChapterWallDeficiencyObstruction
+import BookProof.ChapterWallDeficiencyObstruction
 
 /-!
 # `−d²/dx² + V` is essentially self-adjoint for every smooth potential **bounded below**
 
-`BookProof/Qg/ChapterScalaronWallEsa.lean` proves essential self-adjointness of `−d²/dx² + V` on
+`BookProof/ChapterScalaronWallEsa.lean` proves essential self-adjointness of `−d²/dx² + V` on
 the compactly supported smooth core of `L²(ℝ)` for every smooth `V ≥ 0`, by a convexity
 argument: for `V ≥ 0` and `Re z = 0` the modulus square of a classical `L²` solution of
 `W'' = (V − z)W` is convex, non-negative and integrable, hence zero.  The convexity breaks as
-soon as `V` dips below `0`, and `BookProof/Qg/ChapterLimitCircleExample.lean` and
-`BookProof/Qg/ChapterConformalFiberDeficiency.lean` show the conclusion itself is false for
+soon as `V` dips below `0`, and `BookProof/ChapterLimitCircleExample.lean` and
+`BookProof/ChapterConformalFiberDeficiency.lean` show the conclusion itself is false for
 potentials unbounded below.
 
 This module closes the remaining gap between the two: **bounded below is enough.**  It is the

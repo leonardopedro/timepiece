@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterCyclicDirectSum
+import BookProof.ChapterCyclicDirectSum
 
 /-!
 # The spectral multiplication model without a cyclic vector (plan GAP-2, the assembly)

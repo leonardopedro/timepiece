@@ -72,10 +72,10 @@ def apply_moves(moves, map_file, title, dry=False):
 
     n_lean = 0
     for path in files_with(".lean"):
-        text = open(path, encoding="utf-8").read()
+        text = open(path, encoding="utf-8", errors="surrogateescape").read()
         new = imp_re.sub(fix_imports, text)
         if new != text:
-            open(path, "w", encoding="utf-8").write(new)
+            open(path, "w", encoding="utf-8", errors="surrogateescape").write(new)
             n_lean += 1
     # COMPONENT_NAMES anchors
     p = "scripts/import_components.py"
@@ -92,10 +92,10 @@ def apply_moves(moves, map_file, title, dry=False):
                  for p in files_with(ext)):
         if os.path.basename(path) == "CONSOLIDATED_PLAN.md" or path.endswith("_MOVES.md"):
             continue
-        text = open(path, encoding="utf-8").read()
+        text = open(path, encoding="utf-8", errors="surrogateescape").read()
         new = path_re.sub(lambda m: path_map.get(m.group(0), m.group(0)), text)
         if new != text:
-            open(path, "w", encoding="utf-8").write(new)
+            open(path, "w", encoding="utf-8", errors="surrogateescape").write(new)
             n_md += 1
     with open(map_file, "w", encoding="utf-8") as fh:
         fh.write(title + "Module names changed; declaration names did not.\n\n"

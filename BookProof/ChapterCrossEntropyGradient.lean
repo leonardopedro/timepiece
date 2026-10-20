@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Attention.ChapterSoftmaxJacobian
-import BookProof.Attention.ChapterLogPartitionConvex
+import BookProof.ChapterSoftmaxJacobian
+import BookProof.ChapterLogPartitionConvex
 
 /-!
 # Chapter "The Coherent State of Attention": the learning signal

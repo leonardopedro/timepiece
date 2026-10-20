@@ -1,11 +1,11 @@
 import Mathlib
-import BookProof.Qg.ChapterScalaronWallEsa
-import BookProof.Toolbox.ChapterKatoRellichDeficiency
+import BookProof.ChapterScalaronWallEsa
+import BookProof.ChapterKatoRellichDeficiency
 
 /-!
 # `−d²/dx² + V` for every smooth potential that is bounded below
 
-`BookProof/Qg/ChapterScalaronWallEsa.lean` proves that `−d²/dx² + V` is essentially
+`BookProof/ChapterScalaronWallEsa.lean` proves that `−d²/dx² + V` is essentially
 self-adjoint on the compactly supported smooth core of `L²(ℝ)` for every smooth
 **non-negative** potential — with no growth restriction, so in particular for the
 exponentially growing Einstein-frame scalaron wall.
@@ -24,7 +24,7 @@ module performs the shift and records the consequences:
   shift itself: the quadratic form of `wallHam V hV` is bounded below by `-c` whenever
   `V ≥ -c`, so the closed operator selected by the closure is the semibounded one the
   scheme works with; the packaging lemma `wallHamBddBelow_semibounded` that makes this
-  precise is proved in `BookProof/Qg/ChapterWallEsaSemibounded.lean`;
+  precise is proved in `BookProof/ChapterWallEsaSemibounded.lean`;
 * the physical instances: the scalaron wall plus an arbitrary bounded-below smooth
   addition (`scalaronPlus_esa`), and the harmonic-oscillator sum
   `−d²/dx² + x²/4 + V` (`oscillatorPlus_esa`).

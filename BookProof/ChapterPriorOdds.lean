@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterBayesInference
+import BookProof.ChapterBayesInference
 
 /-!
 # Prior dependence and posterior odds

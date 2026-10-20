@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Probability.ChapterFreeFieldBornQuotient
-import BookProof.Probability.ChapterFreeFieldBornSignFiber
-import BookProof.Probability.ChapterFreeFieldBornSectionBij
+import BookProof.ChapterFreeFieldBornQuotient
+import BookProof.ChapterFreeFieldBornSignFiber
+import BookProof.ChapterFreeFieldBornSectionBij
 
 /-!
 # Chapter "Wave-function parametrization of a probability measure", §5 —

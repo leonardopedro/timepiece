@@ -1,10 +1,10 @@
 import Mathlib
-import BookProof.Ode.ChapterShannonSampling
+import BookProof.ChapterShannonSampling
 
 /-!
 # Sampling for band-limited functions on the line (the Paley–Wiener picture)
 
-`BookProof/Ode/ChapterShannonSampling.lean` proves the Whittaker–Shannon sampling theorem in the
+`BookProof/ChapterShannonSampling.lean` proves the Whittaker–Shannon sampling theorem in the
 *spectral* picture: the signal is *defined* as the inverse Fourier transform `bandSignal F` of a
 square-integrable spectrum `F` over the band `[-T/2, T/2]`.  That left one gap, recorded there as
 an honest boundary: the identification of that class with the genuinely band-limited functions of

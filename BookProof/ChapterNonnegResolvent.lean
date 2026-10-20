@@ -1,5 +1,5 @@
-import BookProof.Toolbox.Prelude
-import BookProof.Toolbox.ChapterNonnegSquareRoot
+import BookProof.Prelude
+import BookProof.ChapterNonnegSquareRoot
 
 /-!
 # The resolvent family and the Yosida approximation of a non-negative self-adjoint relation

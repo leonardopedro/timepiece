@@ -1,8 +1,8 @@
 import Mathlib
-import BookProof.Toolbox.ChapterDegSchrodingerCore
-import BookProof.Toolbox.ChapterConvolutionCalc
-import BookProof.Toolbox.ChapterDegEnergyEstimate
-import BookProof.Toolbox.ChapterMollifierL2
+import BookProof.ChapterDegSchrodingerCore
+import BookProof.ChapterConvolutionCalc
+import BookProof.ChapterDegEnergyEstimate
+import BookProof.ChapterMollifierL2
 
 /-!
 # Kato's theorem for `−Δ_S + W`, `W ≥ 1`, on the compactly supported smooth core

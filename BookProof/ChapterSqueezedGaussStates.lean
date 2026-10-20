@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterGaussCoordCombo
+import BookProof.ChapterGaussCoordCombo
 
 /-!
 # Squeezed states on the Gauss–polynomial core

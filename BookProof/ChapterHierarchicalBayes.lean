@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterSequentialBayes
+import BookProof.ChapterSequentialBayes
 
 /-!
 # Hierarchical Bayesian inference

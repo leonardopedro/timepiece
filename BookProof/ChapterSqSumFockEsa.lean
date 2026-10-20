@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterQuadraticFockEsa
-import BookProof.Qg.ChapterQgOuterFockEsa
+import BookProof.ChapterQuadraticFockEsa
+import BookProof.ChapterQgOuterFockEsa
 
 /-!
 # The sum-of-squares family, second quantized: `dΓ(½Σκ_jπ_j² + ½Σ_r L_r²)` is essentially

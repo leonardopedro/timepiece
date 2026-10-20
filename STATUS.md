@@ -11,7 +11,7 @@ now built, together with the canonical relations of the same section.  Three new
 `axiom`-free chapters, all imported from `BookProof.lean` and audited by `Work/BookBrstAudit.lean`
 (every line reports only `propext`, `Classical.choice`, `Quot.sound`):
 
-* `BookProof/ChapterBookBrstYangMills.lean` — the graded state space `ℂ[A_{μa}] ⊗ Λ(ℂ^N)`, the
+* `BookProof/Qym/ChapterBookBrstYangMills.lean` — the graded state space `ℂ[A_{μa}] ⊗ Λ(ℂ^N)`, the
   operators `A_{μa}`, `π^μ_a = −i ∂/∂A_{μa}`, `ψ†_a`, `ψ_a` with **`bookCCR`**
   (`[A_{μa}, π^ν_b] = i δ^ν_μ δ_{ab}`) and **`bookGhostCar`** (`{ψ_a, ψ†_b} = δ_{ab}`); the book's
   charge `bookOmega` with its three terms; **`gaussGen_bracket`**, the Gauss-law constraint algebra
@@ -19,7 +19,7 @@ now built, together with the canonical relations of the same section.  Three new
   the spacetime derivations `∂_μ` and the Jacobi identity; `bookOmega_eq_brstCharge` (the book's
   charge is `i` times the abstract one, so its coefficient `−i/2` is the one nilpotency requires);
   and **`bookOmega_nilpotent`**: `Ω² = 0`.
-* `BookProof/ChapterBookBrstGaugeFixing.lean` — the **gauge-fixing fermion** `Ψ = i ψ_a A_{0a}` of
+* `BookProof/Qym/ChapterBookBrstGaugeFixing.lean` — the **gauge-fixing fermion** `Ψ = i ψ_a A_{0a}` of
   the book's Weyl-gauge passage, the closed-form anticommutator
   **`brstCharge_gf_anticomm`** / **`bookGfTerm_eq`**
   (`{Ω,Ψ}` = the Gauss law contracted with `A_0`, minus the ghost kinetic term, minus the
@@ -29,7 +29,7 @@ now built, together with the canonical relations of the same section.  Three new
   (**`exactStates_le_physicalStates`**), with the gauge-fixing term preserving both the physical
   and the exact states; and `bookOmega_comm_multOp` / `su2_casimir_bookOmega_comm`, gauge-invariant
   observables commute with `Ω` and so act on the cohomology.
-* `BookProof/ChapterBookBrstInstances.lean` — admissible spacetime derivations
+* `BookProof/Qym/ChapterBookBrstInstances.lean` — admissible spacetime derivations
   (**`innerDeriv_leibniz`**: every `∂_μ = ad_{X_μ}` satisfies the Leibniz condition, by Jacobi),
   the `su(2)` and Standard-Model `su(3) ⊕ su(2) ⊕ u(1)` instances (`su2BookAlgebra`,
   `smBookAlgebra`, hence **`sm_bookOmega_nilpotent`**) and `su2_gaussGenPoly_ne_zero`, so the
@@ -109,7 +109,7 @@ With them, `lake build BookProof` completes successfully — 8762 jobs, no error
 Four new `sorry`-free, `axiom`-free chapters, all imported from `BookProof.lean` and audited by
 `Work/GaugeComprehensiveFixingAudit.lean` (only `propext`, `Classical.choice`, `Quot.sound`):
 
-* `BookProof/ChapterGaugeComprehensiveFixing.lean` — existence of a complete *and* comprehensive
+* `BookProof/Qym/ChapterGaugeComprehensiveFixing.lean` — existence of a complete *and* comprehensive
   gauge fixing (the orbit representatives), the unique-extension property that makes it a faithful
   parametrization of the physical algebra, the characterization of the book's two axes as
   injectivity and surjectivity of the restriction map, the Gribov-type obstruction
@@ -117,10 +117,10 @@ Four new `sorry`-free, `axiom`-free chapters, all imported from `BookProof.lean`
   action no complete comprehensive gauge fixing is clopen), the spurious-field construction of
   `book.tex` 7406, and the four-way classification with explicit witnesses for the translation
   gauge symmetry of the line.
-* `BookProof/ChapterGaugeParametrization.lean` — every parametrization carries a gauge group whose
+* `BookProof/Qym/ChapterGaugeParametrization.lean` — every parametrization carries a gauge group whose
   orbits are the fibers and whose invariants are the functions of the parametrized point
   (`book.tex` 2240–2252).
-* `BookProof/ChapterGaugeCasimirAverage.lean` — constraining the quadratic Casimir to zero imposes
+* `BookProof/Qym/ChapterGaugeCasimirAverage.lean` — constraining the quadratic Casimir to zero imposes
   every Hermitian constraint (`book.tex` 2383), the Haar and finite gauge averages are projections
   onto the physical algebra (`book.tex` 2377), gauge invariance survives limits (no anomaly,
   `book.tex` 2389), and the pushforward along a measurable projection into the constrained set
@@ -415,7 +415,7 @@ Four statements of `book.tex` that had not been formalized, each in a new `sorry
 `axiom`-free module (audit `Work/ShannonSamplingAudit.lean`, every result reporting only
 `propext`, `Classical.choice`, `Quot.sound`).
 
-* **The Whittaker–Shannon sampling theorem** — `BookProof/ChapterShannonSampling.lean`.
+* **The Whittaker–Shannon sampling theorem** — `BookProof/Ode/ChapterShannonSampling.lean`.
   The ODE chapter quotes "the Whittaker–Shannon interpolation (also called sinc
   interpolation)" as an external fact; it is now proved.  A spectrum is a square-integrable
   function on the circle of circumference `T` (equivalently, a spectrum on the band
@@ -485,7 +485,7 @@ Three items land: two honest boundaries are narrowed and two statements of the b
   into a single induced system with a multiplicity (fibre) Hilbert space is not formalized.
 
 * **Crouzeix's inequality on a half-plane, with the optimal constant `1`** —
-  `BookProof/ChapterNumericalRangeSemigroup.lean`.  `ChapterNumericalRangeCrouzeix` settles
+  `BookProof/Sirk/ChapterNumericalRangeSemigroup.lean`.  `ChapterNumericalRangeCrouzeix` settles
   the *disc* with a larger constant; here the convex domain is the half-plane
   `{Re z ≤ ω}` and the functions are the exponentials.  `NumReLE A ω` (`Re ⟪x, A x⟫ ≤ ω‖x‖²`,
   identified with `numRange A ⊆ {Re z ≤ ω}`) gives `‖e^{tA} x‖ ≤ e^{ωt}‖x‖` and
@@ -507,7 +507,7 @@ Three items land: two honest boundaries are narrowed and two statements of the b
   The core of **Lemma 21** follows: an anti-unitary commuting with such a system squares to
   `+1` or `−1` (`antiUnitary_sq_of_irreducible_finiteDimensional`), the real / pseudoreal
   dichotomy, restated as "either a C-conjugation of the system or a pseudoreal structure".
-  In `BookProof/ChapterHolomorphic.lean` the *Holomorphic fields* remark is strengthened from
+  In `BookProof/Probability/ChapterHolomorphic.lean` the *Holomorphic fields* remark is strengthened from
   "differentiable + Cauchy–Riemann" to the **Morera** form `conservative_analyticOn`:
   continuity plus vanishing of all rectangle integrals (the integral form of `∂̄f = 0`)
   already gives analyticity, with no differentiability assumed.  The fully distributional
@@ -592,7 +592,7 @@ This wave finishes the three theorems that `book.tex` quotes as external inputs.
   future cone.  `littleGroup_zero` and `littleGroup_spacelike` add the two remaining orbit
   types: the origin (whole of `SL(2,ℂ)`) and the tachyonic shell (`SU(1,1)`).
 * **Weyl's complete reducibility theorem for `SL(2,ℂ)`** — `BookProof/WeylSL2/ChapterWeylSL2Group.lean`,
-  completed and wired in (with `BookProof/WeylSL2/ChapterWeylSl2.lean`, the `sl(2,ℂ)` Casimir proof).
+  completed and wired in (with `BookProof/WeylSL2/ChapterWeylSL2Algebra.lean`, the `sl(2,ℂ)` Casimir proof).
   `isInv_of_rho` (invariance under the unipotent one-parameter subgroups gives `sl₂`-invariance,
   through `coeff_mem_of_poly_mem`), `rho_mem_of_unipotent_inv` (and back to the whole group,
   through `exists_factorization`) and the headline `weyl_complete_reducibility_SL2`.  The
@@ -1181,7 +1181,7 @@ space as itself a Fock space (nested Fock space, outer particle number conserved
 
 ## Latest wave (2026-08-30l, **QG-2 Case A — bounded below is enough for ESA**)
 
-New module `BookProof/ChapterBddBelowWallEsa.lean` (namespace `BookProof.BddBelowWallEsa`),
+New module `BookProof/Qg/ChapterBddBelowWallEsa.lean` (namespace `BookProof.BddBelowWallEsa`),
 `sorry`-free and `axiom`-free, wired into `BookProof.lean` and audited in
 `ChapterRoadmapAudit`.
 
@@ -1207,7 +1207,7 @@ imaginary part then gives `|Im z|·∫ζ_r²|W|² ≤ (C + M²‖W‖²)/r → 0
 
 ## Latest wave (2026-08-30k, **QG-2 Case B — the conformal fiber: the wall does not rescue ESA**)
 
-New module `BookProof/ChapterConformalFiberDeficiency.lean` (namespace
+New module `BookProof/Qg/ChapterConformalFiberDeficiency.lean` (namespace
 `BookProof.ConformalFiberDeficiency`), `sorry`-free and `axiom`-free, wired into
 `BookProof.lean` and audited in `ChapterRoadmapAudit`.
 
@@ -1231,7 +1231,7 @@ every public result audits to `propext`, `Classical.choice`, `Quot.sound`.
 
 ## Latest wave (2026-08-30j, **QG-2 Case B — an explicit potential that is not ESA**)
 
-New module `BookProof/ChapterLimitCircleExample.lean` (namespace
+New module `BookProof/Qg/ChapterLimitCircleExample.lean` (namespace
 `BookProof.LimitCircleExample`), `sorry`-free and `axiom`-free, wired into `BookProof.lean`
 and audited in `ChapterRoadmapAudit`.
 
@@ -1255,7 +1255,7 @@ warnings); all four public results audit to `propext`, `Classical.choice`, `Quot
 
 ## Latest wave (2026-08-30i, **QG-2 "Case B" — the deficiency space is the space of `L²` ODE solutions**)
 
-New module `BookProof/ChapterWallDeficiencyObstruction.lean` (namespace
+New module `BookProof/Qg/ChapterWallDeficiencyObstruction.lean` (namespace
 `BookProof.WallDeficiencyObstruction`), `sorry`-free and `axiom`-free, wired into
 `BookProof.lean` and audited in `ChapterRoadmapAudit`.
 
@@ -1283,7 +1283,7 @@ errors, no warnings); all nine public results audit to `propext`, `Classical.cho
 
 ## Latest wave (2026-08-30h, **QYM-1 task 3 — Gershgorin + Schur from the matrix elements**)
 
-New module `BookProof/ChapterSchurGershgorinGap.lean` (namespace `BookProof.SchurGershgorin`),
+New module `BookProof/Sirk/ChapterSchurGershgorinGap.lean` (namespace `BookProof.SchurGershgorin`),
 `sorry`-free and `axiom`-free, wired into `BookProof.lean` and audited in `ChapterRoadmapAudit`.
 
 The two analytic inputs `ChapterTruncationGapLift` left as hypotheses are now *theorems about
@@ -1314,7 +1314,7 @@ about the spectrum.  No mass gap of a physical Yang–Mills Hamiltonian is claim
 
 ## Wave (2026-08-30g, **QYM-1 task 2 — the truncated → infinite lift**)
 
-New module `BookProof/ChapterTruncationGapLift.lean` (namespace
+New module `BookProof/Sirk/ChapterTruncationGapLift.lean` (namespace
 `BookProof.TruncationGapLift`), `sorry`-free and `axiom`-free, wired into `BookProof.lean`
 and audited in `ChapterRoadmapAudit`.
 
@@ -1465,7 +1465,7 @@ This wave closes the last open item of the plan's 2026-08-28j next-steps list �
 one-particle form gap for gauge-fixed QYM on the Gauss-polynomial core — **negatively, in
 the abelian case**.
 
-* **`BookProof/ChapterGaussCoordCombo.lean`** (`BookProof.GaussCoordCombo`) — the
+* **`BookProof/Toolbox/ChapterGaussCoordCombo.lean`** (`BookProof.GaussCoordCombo`) — the
   one-coordinate Hermite calculus on the Gauss-polynomial core.
   `gaussInt_hermiteFactor_mul` is the relative orthogonality statement: the Gaussian
   integral of `He_m(x_i)He_n(x_i)R` vanishes for `m ≠ n` whenever `R` does not involve
@@ -1474,7 +1474,7 @@ the abelian case**.
   and `gaussInt_prod_coordFactor` multiplies such one-coordinate factors across a finite
   set of coordinates.
 
-* **`BookProof/ChapterSqueezedGaussStates.lean`** (`BookProof.SqueezedGaussStates`) — the
+* **`BookProof/Toolbox/ChapterSqueezedGaussStates.lean`** (`BookProof.SqueezedGaussStates`) — the
   truncated squeezed states.  `squeezeState i v M = Σ_{m≤M}(vᵐ/m!)He_{2m}(x_i)` is a
   rescaled Gaussian cut off at order `M`, so it lies in the polynomial core;
   `op_squeezeState` computes `(αx_i + γ∂_i)` on it in closed form as an odd Hermite
@@ -1796,7 +1796,7 @@ Two new modules, both `sorry`-free and `axiom`-free, closing the one hypothesis 
 previous wave had to assume in `ChapterFockOneParticleGap` — that a finite certificate
 brackets the one-particle edge of the **infinite** selected operator.
 
-* `BookProof/ChapterBandEnclosure.lean` (namespace `BookProof.BandEnclosure`).
+* `BookProof/Sirk/ChapterBandEnclosure.lean` (namespace `BookProof.BandEnclosure`).
 
   *The abstract theorem.*  `NestedBands lo hi` is the already-proved band containment of
   `ChapterH8.sirk_band_contained` in abstract form (`Icc (lo (m+1)) (hi (m+1)) ⊆
@@ -1914,12 +1914,12 @@ of the draft shifted-square theorem the plan flagged as uncompiled.
   *Honest boundary.*  The band-enclosure hypothesis — that the finite certificate brackets
   the lowest positive one-particle energy of the **infinite** selected operator — is a
   hypothesis of the theorems *in this module* and is never derived here; it is derived in
-  `BookProof/ChapterBandEnclosure.lean` (2026-08-28 wave) from band nesting plus the
+  `BookProof/Sirk/ChapterBandEnclosure.lean` (2026-08-28 wave) from band nesting plus the
   Hashimoto/Ritz convergence to the selected operator.  `1.932` therefore remains a certified
   *truncated* number; no mass gap of the physical Hamiltonian is claimed, and the
   real-Hamiltonian transfer error remains a separate analytic obligation.
 
-* `BookProof/ChapterSpectralGapStability.lean` — the draft
+* `BookProof/Sirk/ChapterSpectralGapStability.lean` — the draft
   `spectrum_disjoint_of_shifted_square_bound` (the shifted-square observable
   `q‖x‖² ≤ ‖(A − c)x‖²` excludes spectrum from `(c − √q, c + √q)` for bounded self-adjoint
   `A`) did not compile as written; its three failing steps have been repaired and the whole
@@ -1959,7 +1959,7 @@ Three new modules, all `sorry`-free and `axiom`-free, closing the concrete Lean 
   `ε(1 + 2/X)`; `richardson_qym_g4` evaluates it on the recorded `g = 4` lattice data as a
   numerical record only.
 
-* `BookProof/ChapterSpectralGapStability.lean` (namespace `BookProof.SpectralGapStability`)
+* `BookProof/Sirk/ChapterSpectralGapStability.lean` (namespace `BookProof.SpectralGapStability`)
   — the abstract core of the continuum leg.  `GapAt A lam d` (`d‖x‖ ≤ ‖Ax − λx‖`) is the
   quantitative spectral gap; `gapAt_perturb` degrades it by at most the perturbation and
   **`gapAt_of_tendsto`** shows it survives an operator-norm limit with no loss at all.
@@ -1992,7 +1992,7 @@ one-variable transfer over the remaining transverse directions of the continuum
 
 Three new modules, all `sorry`-free and `axiom`-free:
 
-* `BookProof/ChapterSchrodingerCutoffEsa.lean` (namespace `BookProof.SchrodingerCutoff`) —
+* `BookProof/Toolbox/ChapterSchrodingerCutoffEsa.lean` (namespace `BookProof.SchrodingerCutoff`) —
   the Simader–Faris–Lavine cutoff / commutator energy method in one dimension, built from
   nothing but a compact-support integration-by-parts lemma
   (`integral_deriv_eq_zero_of_hasCompactSupport`).  It supplies the concrete smooth cutoff
@@ -2004,12 +2004,12 @@ Three new modules, all `sorry`-free and `axiom`-free:
   `l2_classical_solution_eq_zero` and `l2_classical_solution_eq_zero_of_nonneg`; and the
   applications `schrodinger_exp_deficiency_trivial(_I/_negI)` for `V(x) = eˣ + e⁻ˣ` and
   `laplacian_deficiency_trivial(_I/_negI)` for the free Laplacian.
-* `BookProof/ChapterExpPotentialEsa.lean` (namespace `BookProof.ExpPotentialEsa`) —
+* `BookProof/Qg/ChapterExpPotentialEsa.lean` (namespace `BookProof.ExpPotentialEsa`) —
   **`expPotential_esa`**: `-d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint on the compactly
   supported smooth core of `L²(ℝ)`, read off from
   `wallHam_essentiallySelfAdjoint_of_bddBelow` once `contDiff_Vexp` and `2 ≤ Vexp` are in
   hand; with `expPotential_stone_flow`, `coshPotential_esa` and `expPotential_semibounded`.
-* `BookProof/ChapterWallEsaSemibounded.lean` (namespace `BookProof.WallEsaSemibounded`) —
+* `BookProof/Qg/ChapterWallEsaSemibounded.lean` (namespace `BookProof.WallEsaSemibounded`) —
   the packaging lemma the previous wave promised and did not supply.  `SemiboundedBelowOn`
   names the property, `integral_conj_neg_deriv2_mul` is the Green identity
   `∫ conj(-f'') f = ∫ |f'|²` for a compactly supported `C²` function, and
@@ -2098,7 +2098,7 @@ fragment links present), no `sorry` and no `axiom` in `BookProof/`.
 
 ## Wave (2026-08-26e, **every smooth bounded-below `V`: `−d²/dx² + V` is essentially self-adjoint**)
 
-`BookProof/ChapterWallEsaBddBelow.lean` (namespace `BookProof.WallEsaBddBelow`, `sorry`-free
+`BookProof/Qg/ChapterWallEsaBddBelow.lean` (namespace `BookProof.WallEsaBddBelow`, `sorry`-free
 and `axiom`-free) removes the last boundary of the 2026-08-26d wave: that wave's hypothesis
 was `V ≥ 0`, and it is a restriction on the *argument*, not on the physics.  The removal is
 a constant shift:
@@ -2139,7 +2139,7 @@ registration.  See the 2026-08-26e status block of `CONSOLIDATED_PLAN.md`.
 
 ## Wave (2026-08-26d, **the exponentially growing scalaron wall: `−d²/dφ² + V` is essentially self-adjoint**)
 
-`BookProof/ChapterWeakSecondDerivative.lean` (namespace `BookProof.WeakSecondDeriv`) and
+`BookProof/Toolbox/ChapterWeakSecondDerivative.lean` (namespace `BookProof.WeakSecondDeriv`) and
 `BookProof/Qg/ChapterScalaronWallEsa.lean` (namespace `BookProof.ScalaronWallEsa`), both
 `sorry`-free and `axiom`-free, close the last open piece of §10.6.1 / §10.6.2 item 2 of
 `CONSOLIDATED_PLAN.md`: the Schrödinger operator with the **exponentially growing**
@@ -2259,7 +2259,7 @@ indefinite Hamiltonian, no mass gap and no global-existence statement.
 
 ## Wave (2026-08-25g, **the BRST-reduced transfer**)
 
-`BookProof/ChapterBrstReducedTransfer.lean` (namespace `BookProof.BrstReducedTransfer`),
+`BookProof/Qym/ChapterBrstReducedTransfer.lean` (namespace `BookProof.BrstReducedTransfer`),
 `sorry`-free and `axiom`-free, closes the *reduced transfer* half of §10.6.2 **item 4** of
 `CONSOLIDATED_PLAN.md`: the evolution must map the physical subspace to itself and descend
 to BRST cohomology.
@@ -2280,7 +2280,7 @@ BRST charge of item 4 are not constructed here.
 
 ## Wave (2026-08-25f, **the BRST leakage of the truncated dynamics for an unbounded Hamiltonian**)
 
-`BookProof/ChapterBrstUnboundedLeakage.lean` (namespace `BookProof.BrstUnboundedLeakage`),
+`BookProof/Qym/ChapterBrstUnboundedLeakage.lean` (namespace `BookProof.BrstUnboundedLeakage`),
 `sorry`-free and `axiom`-free, closes the unbounded half of §12.2 **Gap 5**: a Duhamel
 estimate against the Stone group (`norm_flow_sub_stoneU_le`), the finite-`m` flow error
 `‖e^{-itPTP}x − e^{-itT}x‖ ≤ ‖(1−P)TP‖‖x‖t` (`norm_flow_truncGen_sub_stoneU_le`), the
@@ -2330,7 +2330,7 @@ is silent there and that case remains open.
 
 ## Wave (2026-08-25d, **BRST leakage under truncation, quantified by the discarded block**)
 
-`BookProof/ChapterBrstTruncationLeakage.lean` (namespace `BookProof.BrstLeakage`),
+`BookProof/Qym/ChapterBrstTruncationLeakage.lean` (namespace `BookProof.BrstLeakage`),
 `sorry`-free and `axiom`-free, closes §12.2 **Gap 5** of `CONSOLIDATED_PLAN.md` for
 bounded generators:
 
@@ -2477,7 +2477,7 @@ claimed; there the Friedrichs realization remains what is available.
 Two new `sorry`-free / `axiom`-free modules formalize the classical device that
 trades an unbounded self-adjoint operator for a bounded one, in both directions.
 
-`BookProof/ChapterCayleyTransform.lean` (namespace
+`BookProof/Toolbox/ChapterCayleyTransform.lean` (namespace
 `BookProof.ChapterCayleyTransform`), built on the resolvents of
 `ChapterStoneResolvent`:
 
@@ -2491,7 +2491,7 @@ trades an unbounded self-adjoint operator for a bounded one, in both directions.
 * **`op_eq_cayley`**, **`coe_eq_cayley`** — the reconstruction
   `A = i(1 + V)(1 − V)⁻¹`.
 
-`BookProof/ChapterCayleyInverse.lean` (namespace
+`BookProof/Toolbox/ChapterCayleyInverse.lean` (namespace
 `BookProof.ChapterCayleyInverse`), the converse:
 
 * **`isSelfAdjointOn_of_surjective`** — the basic criterion: symmetric with
@@ -2671,14 +2671,14 @@ the three subspaces the shift-invert rational Krylov scheme moves between:
 
 ## Latest wave (2026-08-24b, **the graded Hamiltonian is even, the SIRK limit selects it, and it generates a unitary flow**)
 
-One new module — `BookProof/ChapterGradedHashimoto.lean` (namespace
+One new module — `BookProof/Sirk/ChapterGradedHashimoto.lean` (namespace
 `BookProof.GradedHashimoto`), `sorry`-free / `axiom`-free, registered in
 `BookProof.lean`, certified by 13 new `#print axioms` lines in
 `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and cited from the Verso chapter
 `Book/YangMillsQuantization.lean`.  It completes, on the graded Fock space
 `Γˢ ⊗ Γᵃ = ℓ²(Conf × FConf)`, the three things the two factors already had
 individually, on top of the Friedrichs extension proved in
-`BookProof/ChapterGradedFriedrichs.lean`:
+`BookProof/Toolbox/ChapterGradedFriedrichs.lean`:
 
 * **The Hamiltonian is even.**  `support_parityF`, `modesF_parityF` and
   `parityF_creVecF` (creation of a one-particle vector is odd) give
@@ -2713,7 +2713,7 @@ self-adjointness of the graded Hamiltonian is claimed.
 ## Latest wave (2026-08-24, **the fermionic (CAR) half of the second quantization, and the graded Fock space `Γˢ ⊗ Γᵃ`**)
 
 Two new modules — `BookProof/Toolbox/ChapterFermionFock.lean` (namespace
-`BookProof.FermionFock`) and `BookProof/ChapterGradedFock.lean` (namespace
+`BookProof.FermionFock`) and `BookProof/Toolbox/ChapterGradedFock.lean` (namespace
 `BookProof.GradedFock`) — both `sorry`-free / `axiom`-free, registered in
 `BookProof.lean` and certified by 34 new `#print axioms` lines in
 `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`.  They close the constructive half of
@@ -3338,7 +3338,7 @@ certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`.
 One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean` and
 certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`.
 
-1. `BookProof/ChapterDirectSumEsa.lean` (namespace `BookProof.DirectSumEsa`).
+1. `BookProof/Toolbox/ChapterDirectSumEsa.lean` (namespace `BookProof.DirectSumEsa`).
    Essential self-adjointness is a statement about two deficiency spaces, and a
    deficiency space of an orthogonal direct sum is the direct sum of the fibre
    deficiency spaces.  `dsCore` is the algebraic direct sum `⊕ᵃˡᵍ Dᵢ` of a family of
@@ -3375,7 +3375,7 @@ Two new modules, both `sorry`-free / `axiom`-free, registered in `BookProof.lean
 certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`.  They lift the finite-dimensional
 quadratic result of the previous wave to an arbitrary mode set.
 
-1. `BookProof/ChapterOperatorSeriesEsa.lean` (namespace `BookProof.OperatorSeries`).
+1. `BookProof/Toolbox/ChapterOperatorSeriesEsa.lean` (namespace `BookProof.OperatorSeries`).
    The two Faris–Lavine inequalities relative to a positive comparison operator `N` —
    the relative bound `‖Hx‖ ≤ A‖Nx‖` and the commutator-form bound
    `|⟪x, i[H, N]x⟫| ≤ B⟪x, Nx⟫` — are additive, which `commForm_eq_neg_two_im` makes
@@ -3422,7 +3422,7 @@ of the previous wave — that every quadratic term be *mode-diagonal*.
    `∑ 1/(N+2) = ∞` (`not_summable_inv_natCast_add_two`).  Headline
    `ladderQ_eq_zero`: a square-summable family satisfying the general quadratic
    ladder recursion `LadderRecQ` at a non-real point vanishes identically.
-2. `BookProof/ChapterFullQuadraticEsa.lean` (namespace `BookProof.FullQuadratic`).
+2. `BookProof/Toolbox/ChapterFullQuadraticEsa.lean` (namespace `BookProof.FullQuadratic`).
    `lop_lop_hermiteMv_gen` and `weyl_hermiteMv_gen` give the two-index ladder
    algebra, uniform in `i` and `j` (the diagonal `i = j` differs only by an extra
    constant).  `fqQuadPoly`, `fqPoly`, `fqOp` assemble the Hamiltonian out of
@@ -3476,7 +3476,7 @@ cubes of multi-indices of the product Hermite basis.
    thickness two are no longer disjoint, so Bessel's inequality is used with a
    multiplicity bound (`sum_range_of_multiplicity`, `faceK_multiplicity`,
    `shiftedK_multiplicity`), and the divergence used is `∑ 1/(N+1) = ∞`.
-3. `BookProof/ChapterModeQuadraticEsa.lean` (namespace `BookProof.ModeQuadratic`).
+3. `BookProof/Toolbox/ChapterModeQuadraticEsa.lean` (namespace `BookProof.ModeQuadratic`).
    The one-mode real quadratic forms are three-dimensional — `πᵢ²`, `xᵢ²` and the
    squeezing generator `½(xᵢπᵢ + πᵢxᵢ)` — and the two non-harmonic directions move an
    excitation number by two.  `lop`, `lop_lop_hermiteMv` give the two-step ladder
@@ -3498,7 +3498,7 @@ off-diagonally — settled by the 2026-08-22b wave above.
 One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean` and
 certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`.
 
-`BookProof/ChapterQuadratureEsa.lean` (namespace `BookProof.QuadratureEsa`) settles
+`BookProof/Toolbox/ChapterQuadratureEsa.lean` (namespace `BookProof.QuadratureEsa`) settles
 the last open case of the first-order strand on the **Gauss–polynomial (product
 Hermite) core**: for *arbitrary* real coefficients `b, b'` the quadrature
 `B = ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` (`foOp b b'`, symmetric by
@@ -3547,7 +3547,7 @@ One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
 certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and cited from
 `Book/ConditionalUnitary.lean`.
 
-`BookProof/ChapterUnboundedSpectralModel.lean` (namespace
+`BookProof/Toolbox/ChapterUnboundedSpectralModel.lean` (namespace
 `BookProof.UnboundedSpectralModel`) closes the long-recorded open step behind
 `ChapterUnitaryTransport`: the **existence of the diagonalizing unitary** for a
 general unbounded self-adjoint operator.  The route is the classical resolvent
@@ -3599,7 +3599,7 @@ Cauchy–Schwarz.  `exists_diagonal_stone_flow` packages this: a densely defined
 symmetric, essentially self-adjoint core operator with a family of eigenvectors
 generates a flow that is diagonal on that family.
 
-`BookProof/ChapterShiftedQuadraticDegenerate.lean` (namespace
+`BookProof/Toolbox/ChapterShiftedQuadraticDegenerate.lean` (namespace
 `BookProof.ShiftedQuadraticDegenerate`) removes the **invertibility** hypothesis of
 `ChapterShiftedQuadraticMatrixEsa`.  Completing the square only needs a *solution* of
 the classical equilibrium equations `A a = −2b`, `A k = −b'/2`, and for a symmetric `A`
@@ -3620,7 +3620,7 @@ Hermite eigenbasis into the module above gives the flow in closed form:
 `exists_shiftedHMat_diagonal_flow` and `exists_shiftedH_diagonal_flow`,
 `U t ψ_α = e^{−iE_αt} ψ_α` with `E_α = ∑ᵢ cᵢ(αᵢ + ½) + const`.
 
-`BookProof/ChapterFourierMultiplierEsa.lean` (namespace `BookProof.FourierMultiplierEsa`)
+`BookProof/Toolbox/ChapterFourierMultiplierEsa.lean` (namespace `BookProof.FourierMultiplierEsa`)
 extracts the Plancherel argument of `ChapterStrichartzWave` as a reusable instrument —
 any Fourier multiplier with a **real, smooth** symbol is symmetric
 (`symmetricOn_of_real_symbol`) and essentially self-adjoint
@@ -3642,7 +3642,7 @@ route no constant-coefficient form).  A general Faris–Lavine potential remains
 ## Wave (2026-08-21f, **the indefinite inhomogeneous quadratic Hamiltonian with cross
 terms**)
 
-`BookProof/ChapterShiftedQuadraticMatrixEsa.lean` (namespace
+`BookProof/Toolbox/ChapterShiftedQuadraticMatrixEsa.lean` (namespace
 `BookProof.ShiftedQuadraticMatrix`): for every real symmetric **invertible** `A` of
 arbitrary signature and arbitrary real `b, b'`, `H_A + ∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` is symmetric
 (`shiftedHMatOp_symmetric`) and essentially self-adjoint
@@ -3659,8 +3659,8 @@ constant external field and boost.  Completing the square in matrix form
 ## Wave (2026-08-21e, **the indefinite inhomogeneous quadratic Hamiltonian —
 completing the square on a translated, modulated core**)
 
-`BookProof/ChapterShiftedHermiteCore.lean` (namespace `BookProof.ShiftedHermiteCore`)
-and `BookProof/ChapterShiftedQuadraticEsa.lean` (namespace
+`BookProof/Toolbox/ChapterShiftedHermiteCore.lean` (namespace `BookProof.ShiftedHermiteCore`)
+and `BookProof/Toolbox/ChapterShiftedQuadraticEsa.lean` (namespace
 `BookProof.ShiftedQuadratic`), both `sorry`-free / `axiom`-free, registered in
 `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and cited from
 `Book/DiffeomorphismsGravity.lean`, remove the **sign condition** that the wave below
@@ -3697,7 +3697,7 @@ first-order term).
 ## Wave (2026-08-21d, **the general inhomogeneous elliptic quadratic
 Hamiltonian**)
 
-`BookProof/ChapterQuadraticRotationPerturbed.lean` (namespace
+`BookProof/Toolbox/ChapterQuadraticRotationPerturbed.lean` (namespace
 `BookProof.QuadraticRotationPerturbed`), `sorry`-free / `axiom`-free, registered in
 `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and cited from
 `Book/DiffeomorphismsGravity.lean`, combines the two waves below.  For a **positive
@@ -3726,7 +3726,7 @@ indefinite case remains covered by `quadOpMat_essentiallySelfAdjoint`.
 ## Wave (2026-08-21c, **general non-diagonal quadratic Hamiltonians of arbitrary
 signature**)
 
-`BookProof/ChapterQuadraticRotationEsa.lean` (namespace `BookProof.QuadraticRotation`),
+`BookProof/Toolbox/ChapterQuadraticRotationEsa.lean` (namespace `BookProof.QuadraticRotation`),
 `sorry`-free / `axiom`-free, registered and certified in the same three places, removes
 the diagonality restriction of the wave below.  For **every** real symmetric matrix `A`
 the operator `H_A = ∑_{k,l} A_{kl}(π_k π_l + x_k x_l/4)`, `π_k = −i∂/∂x_k` — no sign
@@ -3776,7 +3776,7 @@ certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and cited from
 non-commuting *hyperbolic* mixture recorded as open in `STRICHARTZ_WAVE_ESA.md`
 and as backlog item A1 of `CONSOLIDATED_PLAN.md` §9.5.
 
-`BookProof/ChapterHyperbolicQuadraticEsa.lean` (namespace
+`BookProof/Toolbox/ChapterHyperbolicQuadraticEsa.lean` (namespace
 `BookProof.HyperbolicQuadratic`) proves: for an arbitrary real weight vector
 `c : Fin d → ℝ` — **no sign condition**, so the signature may be hyperbolic — the
 operator
@@ -4227,7 +4227,7 @@ or global existence is claimed.
 
 ## Previous wave (2026-08-18c, **the non-commuting mixed case**)
 
-`BookProof/ChapterHarmonicOscillatorEsa.lean` (namespace
+`BookProof/Toolbox/ChapterHarmonicOscillatorEsa.lean` (namespace
 `BookProof.HarmonicOscillator`, `sorry`-free / `axiom`-free, registered in
 `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`) closes the
 case that the previous wave left open — a differential kinetic term together with
@@ -4244,7 +4244,7 @@ with eigenvalues `n + ½` sends the `n`-th Hermite basis vector to the `L²` cla
 equation for the complexified Hermite functions is `hermiteC_oscillator`.  The
 Hermite basis and the real eigen-equation come from
 `BookProof/Toolbox/ChapterHermiteFunctions.lean`, the deficiency computation for diagonal
-operators from `BookProof/ChapterStrichartzHermiteQG.lean`.
+operators from `BookProof/Qg/ChapterStrichartzHermiteQG.lean`.
 
 This is the elliptic (Sears / Faris–Lavine) normalization, in which the potential
 is bounded below; the hyperbolic mixture still needs the fibrewise argument
@@ -4252,7 +4252,7 @@ recorded in `CONSOLIDATED_PLAN.md` §9.5.
 
 ## Previous wave (2026-08-18b, **unbounded potentials and general real symbols**)
 
-`BookProof/ChapterWaveUnboundedPotential.lean` (namespace
+`BookProof/Toolbox/ChapterWaveUnboundedPotential.lean` (namespace
 `BookProof.StrichartzWave`, `sorry`-free / `axiom`-free, registered in
 `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`) extends the
 Strichartz-type essential self-adjointness results beyond bounded potentials:
@@ -5040,7 +5040,7 @@ failures) are green, and the theorems are `#check`-ed from `Book/FreeField.lean`
   `compress_adjoint_intertwine_poly` (which now also carry the proof of
   `sirk_approx_projection_poly`) and `inv_comp_intertwine`, which passes an
   intertwining relation to the inverses.
-* **The nested orthonormal Krylov bases exist** (`BookProof/ChapterH8Bases.lean`).
+* **The nested orthonormal Krylov bases exist** (`BookProof/Sirk/ChapterH8Bases.lean`).
   Gram–Schmidt applied to the `ℕ`-indexed Krylov sequence `k ↦ Hᵏ v` gives one
   orthonormal sequence `krylovOrthonormalSeq` whose prefixes are orthonormal
   (`krylovOrthonormal_orthonormal`, from the new prefix lemma
@@ -5060,7 +5060,7 @@ failures) are green, and the theorems are `#check`-ed from `Book/FreeField.lean`
   `sirk_compression_submatrix_of_orthonormal` for any nested pair of orthonormal
   bases, plus `orthonormalEmbedding_range` (the range of the embedding is the
   span of the family).  These live in the companion module
-  `BookProof/ChapterH8Bases.lean`, registered in `BookProof.lean`.
+  `BookProof/Sirk/ChapterH8Bases.lean`, registered in `BookProof.lean`.
 
 All new results are `sorry`-free and `axiom`-free (only `propext`,
 `Classical.choice`, `Quot.sound`); `lake build` (default targets),
@@ -5105,7 +5105,7 @@ All results are `sorry`-free and use only `propext`, `Classical.choice`,
 
 ## Previous wave (2026-08-13b, the unbounded layer carried through: self-adjointness and the unitary group it generates)
 
-`BookProof/ChapterUnboundedPosition.lean` is extended past *symmetric*, closing the
+`BookProof/Probability/ChapterUnboundedPosition.lean` is extended past *symmetric*, closing the
 step that the previous wave had left as the precise open boundary.
 
 **Self-adjointness.**  `adjointDomain f` is the set of `φ ∈ ℓ²(ℤ)` that pair with some
@@ -5153,7 +5153,7 @@ certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, `#check`-ed from
 finite-dimensional setting; this is the "standing open layer" of §9.3, not a new
 plan item.
 
-**`BookProof/ChapterContinuityUnitaryInfinite.lean` — the dynamics-based unitary on
+**`BookProof/Probability/ChapterContinuityUnitaryInfinite.lean` — the dynamics-based unitary on
 `ℓ²(ℤ)`.**  The lattice translations `(S_m f) k = f (k + m)` are unitaries
 (`shiftEquiv`, `inner_shiftOp_left`); the symmetric-difference momentum
 `p = -(i/2)(S₁ - S₋₁)` is a bounded self-adjoint operator
@@ -5170,7 +5170,7 @@ recovery is now *countably* additive: `bornRecover_tsum_univ` gives total mass `
 `PMF ℤ`, and the capstone `condProb_of_continuity_infinite` gives a genuine
 probability law on the infinite lattice for every input.
 
-**`BookProof/ChapterBornMeasure.lean` — the Born law as a measure.**  On an
+**`BookProof/Probability/ChapterBornMeasure.lean` — the Born law as a measure.**  On an
 arbitrary measure space `(α, μ)` and for `Ψ ∈ L²(μ)`, `bornMeasure Ψ =
 μ.withDensity ‖Ψ ·‖ₑ²` makes `P(B) = ∫_B |Ψ|² dμ` a *measure*, so countable
 additivity holds by construction (`bornMeasure_iUnion`); `lintegral_bornDensity`
@@ -5181,7 +5181,7 @@ self-adjoint generator `H` on `L²(μ)` and the unitary group `e^{itH}`, the evo
 state carries a probability measure at every time.  This closes the "analytic
 integrability of `∫_B |Ψ₁|² dν`" deferral of proof-plan appendix §E.
 
-**`BookProof/ChapterUnboundedPosition.lean` — the unbounded boundary, stated.**  For
+**`BookProof/Probability/ChapterUnboundedPosition.lean` — the unbounded boundary, stated.**  For
 a real multiplier `f : ℤ → ℝ`, `mulDomain f = {ψ ∈ ℓ²(ℤ) : f·ψ ∈ ℓ²(ℤ)}` is a
 submodule, dense in `ℓ²(ℤ)` (`mulDomain_dense`, through the finitely supported
 vectors), and `mulOp f` is symmetric on it (`mulOp_symmetric`).  For the position
@@ -5196,7 +5196,7 @@ Two new modules (`sorry`-free / `axiom`-free, registered in `BookProof.lean`,
 certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`) close the last two open items of
 `CONSOLIDATED_PLAN.md`.
 
-**`BookProof/ChapterWeakValue.lean` — the weak value (§4.7).**  On `Fin n → ℂ` with
+**`BookProof/Probability/ChapterWeakValue.lean` — the weak value (§4.7).**  On `Fin n → ℂ` with
 the standard inner product `ip f v = ∑ₖ conj (f k) · v k`:
 `weakValue i f A = ⟨f|A|i⟩ / ⟨f|i⟩`, with `weakValue_wellDefined` /
 `weakValue_unique` (the ratio is the unique solution of `w·⟨f|i⟩ = ⟨f|A|i⟩` when the
@@ -5211,7 +5211,7 @@ family of projectors sum to `1`, the counterpart of
 double-slit capstone `dslit_weakValue` (weak values `1` and `0` for the two
 which-slit projectors).  `#check`-ed from `Book/DoubleSlit.lean`.
 
-**`BookProof/ChapterContinuityUnitary.lean` — the dynamics-based unitary (§4.8).**
+**`BookProof/Probability/ChapterContinuityUnitary.lean` — the dynamics-based unitary (§4.8).**
 On the finite cyclic lattice `ZMod N` with the symmetric-difference momentum
 `(p ψ) k = -(i/2)(ψ(k+1) - ψ(k-1))`: `continuityHamiltonian v = ½(p·v + v·p)` is
 Hermitian (`momentum_hermitian`, `velocityOp_hermitian`,
@@ -5236,7 +5236,7 @@ certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, `#check`-ed from
 `Book/NullMeasure.lean`) remove the last standing hypothesis of the exhaustiveness
 theorem — that the compact spectrum of the abelian algebra may be taken metrizable.
 
-**`BookProof/ChapterSeparableSpectrum.lean` — metrizability *is* separability.**
+**`BookProof/Probability/ChapterSeparableSpectrum.lean` — metrizability *is* separability.**
 `eq_of_forall_dense_apply_eq` (a dense family of continuous functions separates the
 points of a compact Hausdorff space, via Urysohn),
 `metrizableSpace_of_separable_continuousMap` (a countable dense family embeds `Y` in
@@ -5249,7 +5249,7 @@ headlines `abelian_multiplication_model_classified_separable` and
 `abelian_algebra_multiplication_model_classified` state the five-type classification
 with separability of the algebra in place of metrizability of the spectrum.
 
-**`BookProof/ChapterSeparableL2Model.lean` — a separably *acting* algebra needs no
+**`BookProof/Probability/ChapterSeparableL2Model.lean` — a separably *acting* algebra needs no
 hypothesis at all.**  `exists_countable_dense_continuous`: if `L²(μ)` is separable then
 a countable family `D ⊆ C(Y, ℂ)` is already dense in it.  `coordMap` evaluates that
 family, `y ↦ (f y)_{f ∈ D}`, into the countable power `D → ℂ` — a Polish, hence standard
@@ -5269,7 +5269,7 @@ outside the statement is a nonseparably acting algebra.
 
 ## Previous wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2 — **exhaustiveness: transport to the line**)
 
-**`BookProof/ChapterStandardBorelClassification.lean`** (new, `sorry`-free /
+**`BookProof/Probability/ChapterStandardBorelClassification.lean`** (new, `sorry`-free /
 `axiom`-free, registered in `BookProof.lean`, certified in
 `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, `#check`-ed from `Book/NullMeasure.lean`).  The
 list of the previous wave is proved for measures on the line; this module removes
@@ -5310,7 +5310,7 @@ certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, `#check`-ed from
 `Book/NullMeasure.lean`) close the reassembly step that the previous waves had left
 open.
 
-**`BookProof/ChapterLpRestrictSplit.lean`** — the Hilbert-space counterpart of the
+**`BookProof/Probability/ChapterLpRestrictSplit.lean`** — the Hilbert-space counterpart of the
 atomic/diffuse split of a measure: `restrictEmbed` (extension by zero, a linear
 isometry `L²(μ|A) →ₗᵢ[ℂ] L²(μ)`), `restrictEmbed_coeFn`, `restrictProj`,
 `restrictEmbed_add_restrictEmbed_compl` (`u = 1_A·u + 1_{Aᶜ}·u`),
@@ -5320,7 +5320,7 @@ isometry `L²(μ|A) →ₗᵢ[ℂ] L²(μ)`), `restrictEmbed_coeFn`, `restrictPr
 `restrictEmbed_intertwines` (the embeddings intertwine the multiplication operators,
 so the splitting splits the *algebra*).
 
-**`BookProof/ChapterLpScaleMeasure.lean`** — total mass is invisible to the
+**`BookProof/Probability/ChapterLpScaleMeasure.lean`** — total mass is invisible to the
 multiplication algebra: `ae_smul_measure_eq`, `aestronglyMeasurable_smul_measure_iff`,
 `eLpNorm_two_smul_measure`, `memLp_two_smul_measure_iff`,
 `memLp_top_smul_measure_iff`, `transferLp` (+ `_coeFn`, `_add`, `_smul`),
@@ -5329,7 +5329,7 @@ L²(c·ν) ≃ₗᵢ[ℂ] L²(ν)`, `scaleUnitary_intertwines`, `isProbabilityMe
 and the headline `normalized_multiplication_model` (the multiplication algebra of a
 finite nonzero measure is unitarily that of its normalisation).
 
-**`BookProof/ChapterAbelianClassificationList.lean`** — the list itself:
+**`BookProof/Probability/ChapterAbelianClassificationList.lean`** — the list itself:
 `atomSet_restrict_atomSet`, `restrict_atomSet_pure` (the atomic piece really is
 carried by its atoms), `noAtoms_smul`, `normalized`,
 `isProbabilityMeasure_normalized`, `diffuse_finite_multiplication_model` (a nonzero
@@ -5353,7 +5353,7 @@ toolchain's Mathlib.
 
 ## Previous wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2 — **the atomic standard type**)
 
-**`BookProof/ChapterAtomicDiagonalModel.lean`** (new, `sorry`-free / `axiom`-free,
+**`BookProof/Probability/ChapterAtomicDiagonalModel.lean`** (new, `sorry`-free / `axiom`-free,
 registered in `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`,
 `#check`-ed from `Book/NullMeasure.lean`).  The other standard type of the
 classification list: `atomIndicator`, `atomVec` (the normalised point mass at an
@@ -5367,7 +5367,7 @@ that basis, scaling the basis vector at `a` by `g a`.
 
 ## Previous wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2 — **the diffuse standard type at the operator level**)
 
-**`BookProof/ChapterDiffuseUnitaryModel.lean`** (new, `sorry`-free / `axiom`-free,
+**`BookProof/Probability/ChapterDiffuseUnitaryModel.lean`** (new, `sorry`-free / `axiom`-free,
 registered in `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`,
 `#check`-ed from `Book/NullMeasure.lean`).  The measure-level identification of the
 diffuse type is upgraded to the statement the classification list actually makes:
@@ -5384,7 +5384,7 @@ multiplication by `g` to multiplication by `g ∘ F`.
 
 ## Earlier wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the diffuse standard type**)
 
-**`BookProof/ChapterDiffuseCdfModel.lean`** (new, `sorry`-free / `axiom`-free,
+**`BookProof/Probability/ChapterDiffuseCdfModel.lean`** (new, `sorry`-free / `axiom`-free,
 registered in `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`,
 `#check`-ed from `Book/NullMeasure.lean`).  The diffuse summands of the abelian
 multiplication model are identified with the uniform measure on the unit interval:
@@ -5400,7 +5400,7 @@ measures on the half lines with `Measure.ext_of_Iic`.
 
 ## Earlier wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **classifying the summand measures**)
 
-**`BookProof/ChapterMeasureAtomicDiffuse.lean`** (new, `sorry`-free / `axiom`-free,
+**`BookProof/Probability/ChapterMeasureAtomicDiffuse.lean`** (new, `sorry`-free / `axiom`-free,
 registered in `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`,
 `#check`-ed from `Book/NullMeasure.lean`).  The measures produced by the abelian
 direct-sum model are sorted into the manuscript's atomic / diffuse / mixed classes:
@@ -5420,7 +5420,7 @@ bookkeeping that entails.
 
 ## Earlier wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the general structure theorem for abelian algebras**, cont.)
 
-**`BookProof/ChapterAbelianDirectSum.lean`** (new, `sorry`-free / `axiom`-free,
+**`BookProof/Probability/ChapterAbelianDirectSum.lean`** (new, `sorry`-free / `axiom`-free,
 registered in `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`,
 `#check`-ed from `Book/NullMeasure.lean`).  The cyclic-vector hypothesis is removed
 from the model of an *arbitrary* abelian algebra, by redoing the cyclic
@@ -5458,7 +5458,7 @@ removes the single-generator hypothesis without producing a generator, by runnin
 the whole model/commutant argument for an arbitrary unital `*`-representation of
 `C(X, ℂ)` instead of for the continuous functional calculus of one normal operator.
 
-**`BookProof/ChapterAbelianCyclicModel.lean`** (new) — the model.  For a unital
+**`BookProof/Probability/ChapterAbelianCyclicModel.lean`** (new) — the model.  For a unital
 `*`-representation `π : C(X, ℂ) →⋆ₐ[ℂ] (H →L[ℂ] H)` (`X` compact Hausdorff) and a
 vector `ξ`: `repState` (`f ↦ ⟪ξ, π(f)ξ⟫`), `repState_star_mul_self`, `repState_pos`,
 `repState_one`, `repMeasure`, `isProbabilityMeasure_repMeasure`,
@@ -5472,7 +5472,7 @@ representation by multiplication operators on the `L²` space of a Borel probabi
 measure on its character space.**  No generator, no separability, and no continuity
 of the representation are assumed.
 
-**`BookProof/ChapterAbelianCyclicCommutant.lean`** (new) — the von Neumann level.
+**`BookProof/Probability/ChapterAbelianCyclicCommutant.lean`** (new) — the von Neumann level.
 `conjRep`/`conjRepSymm`, `repSet` (`{π(g)}`), `multModelRep` (the unitary copy of
 `L∞(μ)` in `B(H)`), `commutesWithContMult_conjRepSymm`, and the headlines
 `centralizer_repSet` (the commutant of `{π(g)}` *is* that copy of `L∞(μ)`),
@@ -5497,7 +5497,7 @@ model of a state, the unitary multiplication model of a normal operator **with a
 cyclic vector**, and the commutant/bicommutant computation in that same situation.
 This wave removes the cyclic-vector hypothesis.
 
-**`BookProof/ChapterCyclicDecomposition.lean`** — the geometry.  `cyclicSubspace`
+**`BookProof/Probability/ChapterCyclicDecomposition.lean`** — the geometry.  `cyclicSubspace`
 (the closed span of `{f(T)ξ}`), `Invariant`, `invariant_cyclicSubspace`,
 `invariant_orthogonal` (the orthogonal complement of an invariant subspace is
 invariant, because the functional calculus algebra is `*`-closed),
@@ -5507,7 +5507,7 @@ whose cyclic subspaces are pairwise orthogonal and jointly dense.  (This module 
 left with the Zorn step open by the previous pass; the step is now proved, and the
 module registered.)
 
-**`BookProof/ChapterCyclicDirectSum.lean`** (new) — the direct-sum form.
+**`BookProof/Probability/ChapterCyclicDirectSum.lean`** (new) — the direct-sum form.
 `orthogonalFamily_cyclicSubspace`, `isHilbertSum_cyclicSubspace`,
 `cyclicHilbertEquiv` and the headline `exists_isHilbertSum_cyclicSubspace`: the
 space *is* the Hilbert sum of the cyclic subspaces.  At operator level,
@@ -5517,7 +5517,7 @@ so it lies in the commutant — with `starProjection_cyclicSubspace_commutes`, t
 reusable `starProjection_eq_of_hasSum`, and `hasSum_starProjection_cyclicSubspace`
 (the projections of a vector onto the summands sum back to it).
 
-**`BookProof/ChapterSpectralDirectSum.lean`** (new) — the assembly.  The model of a
+**`BookProof/Probability/ChapterSpectralDirectSum.lean`** (new) — the assembly.  The model of a
 summand is built *inside* the ambient space, so no functional calculus of a
 restricted operator is needed: `cyclicSubspace_eq_closure_range`, `cfcVecTo`,
 `denseRange_cfcVecTo`, and — since `‖f(T)ξ‖ = ‖f‖_{L²(μ_ξ)}` holds with no cyclicity
@@ -5546,7 +5546,7 @@ separable theory supplies but which Mathlib does not have.
 
 ## Previous wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the commutant: the von Neumann level in the cyclic case**)
 
-**`BookProof/ChapterSpectralCommutant.lean`** (new, `sorry`-free / `axiom`-free,
+**`BookProof/Probability/ChapterSpectralCommutant.lean`** (new, `sorry`-free / `axiom`-free,
 registered in `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`,
 `#check`-ed from `Book/NullMeasure.lean`).  The previous two waves produced the
 C*-level model (a state ⇒ a measure ⇒ multiplication operators, and for a single
@@ -5588,7 +5588,7 @@ the measure models over it.  Recorded as a gap; nothing is `sorry`-ed.
 
 ## Previous wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2 — **the spectral theorem in multiplication form**)
 
-**`BookProof/ChapterSpectralMultiplication.lean`** (new, `sorry`-free /
+**`BookProof/Probability/ChapterSpectralMultiplication.lean`** (new, `sorry`-free /
 `axiom`-free, registered in `BookProof.lean`, certified in
 `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, `#check`-ed from `Book/NullMeasure.lean`).
 The Gelfand model of the previous wave is upgraded, for a *single* operator, from a
@@ -5625,7 +5625,7 @@ One new module, `sorry`-free / `axiom`-free, registered in `BookProof.lean`,
 certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and `#check`-ed from new prose in
 `Book/NullMeasure.lean`.
 
-**`BookProof/ChapterAbelianGelfandModel.lean`.**  The previous waves proved the
+**`BookProof/Probability/ChapterAbelianGelfandModel.lean`.**  The previous waves proved the
 structure theorems for algebras *already given* as operators on a concrete `L²`
 (the atomic condensation, and `L∞(μ)` as its own commutant).  The obstruction
 recorded for GAP-2 was the converse passage — from an **abstract** abelian algebra
@@ -5670,7 +5670,7 @@ Two further modules landed, both `sorry`-free / `axiom`-free, both registered in
 `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and `#check`-ed
 from new prose in `Book/NullMeasure.lean` / `Book/SolovayTensor.lean`.
 
-**GAP-2, diffuse half — `BookProof/ChapterLinftyMaximalAbelian.lean`.**  The
+**GAP-2, diffuse half — `BookProof/Probability/ChapterLinftyMaximalAbelian.lean`.**  The
 diffuse counterpart of `atomic_abelian_maximal_eq_diagonal`: on a finite measure
 space the `L∞(μ)` multiplication algebra is **its own commutant**, hence maximal
 abelian.  `symbol T` (a strongly measurable representative of `T(1)`, available
@@ -5714,14 +5714,14 @@ Five further modules landed, all `sorry`-free / `axiom`-free, all registered in
 `BookProof.lean`, certified in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` and `#check`-ed
 from new prose in `Book/SolovayTensor.lean` / `Book/NullMeasure.lean`.
 
-**§4.1 — `BookProof/ChapterSolovayTailDimension.lean`.**  The Kopperman tail is
+**§4.1 — `BookProof/Probability/ChapterSolovayTailDimension.lean`.**  The Kopperman tail is
 infinite dimensional: `substrateBasisVector` (the normalized indicators of the
 disjoint intervals `(1/(n+2), 1/(n+1)]`), `substrateBasisVector_orthonormal`,
 `substrate_infinite_dimensional` and the headline `tail_infinite_dimensional`
 (`¬ FiniteDimensional ℝ InnerTail`).  This generalizes
 `PhysMehler.substrate_orthonormal_pair` from two vectors to a countable family.
 
-**§4.2 — `BookProof/ChapterSolovayHilbertTensor.lean`.**  The Hilbert form of the
+**§4.2 — `BookProof/Probability/ChapterSolovayHilbertTensor.lean`.**  The Hilbert form of the
 tensor identification: `prodProdProdCommEquiv` +
 `measurePreserving_prodProdProdComm` (the four-fold shuffle), `headConcatEquiv`,
 `solovayTensorEquiv` and `solovayTensorEquiv_map` (the product of two state laws is
@@ -5733,9 +5733,9 @@ unitary) and the headline `solovayTensorUnitary`.  The pure tensors are handled 
 the closed span of pure tensors exhausts `L²` of a product measure) is not claimed;
 Mathlib has no Hilbert-space tensor product to state it against.
 
-**§4.3** was already on disk (`BookProof/ChapterSolovayCrossDim.lean`); no action.
+**§4.3** was already on disk (`BookProof/Probability/ChapterSolovayCrossDim.lean`); no action.
 
-**§4.4/§4.5/§4.6 — `BookProof/ChapterSolovaySeparableExistence.lean`.**
+**§4.4/§4.5/§4.6 — `BookProof/Probability/ChapterSolovaySeparableExistence.lean`.**
 `joint_prob_has_wavefunction` and `joint_prob_has_wavefunction_prod` (every finite
 joint law is `|Ψ|²`, with the correct marginal);
 `exists_separable_prob_with_arbitrary_finite_law` and its substrate form (the
@@ -5745,7 +5745,7 @@ law, correct finite marginal) together with `coordinateSpace_separable`,
 `prod_disintegration` / `coordinateState_disintegration` (the explicit
 `joint = marginal ⊗ₘ kernel` form on a standard Borel second factor).
 
-**GAP-2 — `BookProof/ChapterAbelianAtomicCondensation.lean` (partially closed).**
+**GAP-2 — `BookProof/Probability/ChapterAbelianAtomicCondensation.lean` (partially closed).**
 The provable condensation asked for by the plan is now proved: `atomProj`,
 `atomProj_idem`, `commutes_atomProj_iff` (an operator commutes with every *minimal*
 projection iff it is diagonal — the atoms alone force diagonality),
@@ -5968,7 +5968,7 @@ only up to a `GL(d)` action.  `rank_qkMatrix_le`: the circuit has rank at most t
 head dimension, the parameter-space source of the `ChapterAttentionLowRank`
 bottleneck.
 
-**5. `BookProof/ChapterResidualStream.lean` — the stream is never overwritten.**
+**5. `BookProof/Attention/ChapterResidualStream.lean` — the stream is never overwritten.**
 `residual f x = x + f x`; `norm_residual_sub_self` and
 `norm_residual_sub_self_le`: a head with values bounded by `C` moves the stream by
 at most `C`.  Headline `norm_sub_residual_ge` / `residual_injective`: an
@@ -6030,7 +6030,7 @@ the contraction factor `1 − mε`.  Headline
 scores have spread at most `D` contracts by `1 − e^{−βD} < 1` — stacked attention
 forgets its input geometrically fast unless the scores spread with depth.
 
-**4. `BookProof/ChapterScaledDotProduct.lean` — why the scores are divided by
+**4. `BookProof/Attention/ChapterScaledDotProduct.lean` — why the scores are divided by
 `√d`.**  The uniform Rademacher model of an unstructured query: `sgn`, `signVec`,
 `rademacherMean`, `dot`, and the coordinate-flip permutation `flipEquiv` with the
 sign-sum lemmas `sum_sgn_eq_zero`, `sum_sgn_mul_eq_zero`, `sum_sgn_mul_self`.
@@ -6071,7 +6071,7 @@ under `x ↦ ax + c`, `a > 0`, and idempotence — it is a projection);
 bounded by `d`) and the headline `scoreSoftmax_layerNorm_ge`: the scores span at
 most `2d`, so every key keeps at least `e^{−2βd}/m` of the attention.
 
-**8. `BookProof/ChapterSinusoidalPosition.lean` — sinusoidal positions.**
+**8. `BookProof/Attention/ChapterSinusoidalPosition.lean` — sinusoidal positions.**
 `sinusoidalEncode`, `peInner`, and the headline `peInner_eq_sum_cos`: the
 alignment of two encoded positions is `∑ₐ cos(ωₐ(p − q))`, a function of the offset
 alone (`peInner_shift`, `peInner_symm`).  `peInner_self` (every encoded position
@@ -6137,7 +6137,7 @@ the usual multi-head construction), and `le_shannonEntropy_mixture` /
 `Real.concaveOn_negMulLog` with concave Jensen), **mixing heads never destroys
 information** — the consensus entropy is at least the mean head entropy.
 
-**4. `BookProof/ChapterCrossEntropyGradient.lean` (new) — the learning signal.**
+**4. `BookProof/Attention/ChapterCrossEntropyGradient.lean` (new) — the learning signal.**
 If attention is the Born rule, training it is fitting a Born probability to an
 observed outcome.  `crossEntropyLoss β s y = log Z − β·s_y` is the surprisal of the
 observed key (`crossEntropyLoss_eq_neg_log`, `crossEntropyLoss_nonneg`,
@@ -6244,7 +6244,7 @@ single-mode distributions (`prodSoftmax_marginal_left/right`), and
 `shannonEntropy_prodSoftmax` is the informational counterpart: **the attention
 entropy is additive over independent modes**.
 
-**6. `BookProof/ChapterRotaryPosition.lean` (new) — position enters only as a
+**6. `BookProof/Attention/ChapterRotaryPosition.lean` (new) — position enters only as a
 relative phase.**  `rotaryEncode ω p` rotates the `i`-th complex coordinate by the
 angle `p·ωᵢ`; it is unitary (`norm_rotaryEncode`) and an action of the additive
 group of positions (`rotaryEncode_zero`, `rotaryEncode_add`).  Headline
@@ -6260,7 +6260,7 @@ entropy `klDiv`, its non-negativity, the Bregman form
 `klDiv_scoreSoftmax` for two temperatures, the tangent inequality
 `logPartition_tangent_le`, and `fisherInformation_eq_varScore` identifying the
 statistical curvature with the physical fluctuation),
-`BookProof/ChapterLogPartitionConvex.lean` (`convexOn_logPartition`,
+`BookProof/Attention/ChapterLogPartitionConvex.lean` (`convexOn_logPartition`,
 `strictConvexOn_logPartition` as soon as two keys score differently, and
 `logPartition_isGreatest`, the Legendre reading of the free energy),
 `BookProof/Attention/ChapterCoherentPositionSpace.lean` (the `L²(ℝ)` Gaussian wave-packet
@@ -6331,7 +6331,7 @@ that of `scoreSoftmax β s`.  `softmax_free_energy_le` / `softmax_free_energy_eq
 are the equivalent variational statement (Softmax minimises `β⟨s⟩_p − H(p)`, the
 minimum being `−log Z(β)`).
 
-**4. `BookProof/ChapterEntropyTemperature.lean` (new) — the entropy is antitone in
+**4. `BookProof/Attention/ChapterEntropyTemperature.lean` (new) — the entropy is antitone in
 the inverse temperature.**  `attentionEntropy`, `attentionEntropy_eq`, the
 headline `hasDerivAt_attentionEntropy` (`dH/dβ = −β·Var_β(s)`), the
 `heatCapacity` `C(β) = β²Var_β(s)` with `heatCapacity_nonneg` and
@@ -6371,8 +6371,8 @@ different suggestion per goal, so they cannot be replaced by a single
 `simp only`; they are left as they are rather than replaced by a guess.
 
 **6. Recorded for the first time here: three packages that had landed on disk but
-were never written up** — `BookProof/ChapterDisplacedThermalOverlap.lean`,
-`BookProof/ChapterDisplacedThermalMulti.lean` and `BookProof/Textbook/ChapterH7.lean`
+were never written up** — `BookProof/Attention/ChapterDisplacedThermalOverlap.lean`,
+`BookProof/Attention/ChapterDisplacedThermalMulti.lean` and `BookProof/Textbook/ChapterH7.lean`
 (all registered in `BookProof.lean` and `#check`-ed in `Book/CoherentState.lean`
 and `Book/FreeField.lean`).  They give the **Gaussian phase-space derivation of
 the attention temperature**: `displacedThermal a n̄ = gaussianReal a (n̄ + ½)` with
@@ -6444,7 +6444,7 @@ reduced operator space, and `online_cost_independent_of_M` formalizes the cost
 claim as: changing the corpus size changes the total cost *exactly* by the change
 of the offline cost.  Headline `tsr_offline_compiles` bundles the four.
 
-**F.4 `BookProof/ChapterThermalTemperatureCore.lean` (new) — the finite
+**F.4 `BookProof/Attention/ChapterThermalTemperatureCore.lean` (new) — the finite
 algebraic core of the temperature identity (plan A.4/F.4).**  The occupation law
 in ratio parametrization, `geometricOccupancy r n = (1−r)rⁿ`, is identified with
 `ChapterCoherentTemperature.thermalProb` at mean `r/(1−r)`
@@ -6462,7 +6462,7 @@ is the same closed form as the expectation of `n + ½`.
 fidelity of displaced thermal states on a bosonic Fock space is still outside
 this toolchain and remains a documented gap — nothing is `sorry`-ed.
 
-**F.5 `BookProof/ChapterAbelianMixture.lean` (new) — the mixed class of the
+**F.5 `BookProof/Probability/ChapterAbelianMixture.lean` (new) — the mixed class of the
 abelian von Neumann list.**  `mixtureMeasure = vol|_{[0,1]} + δ₂` on `ℝ` is a
 finite measure with a genuine atom (`mixtureMeasure_atom`: `μ{2} = 1`) *and* a
 diffuse part of mass `1` all of whose points are null
@@ -6553,7 +6553,7 @@ since only the identity and the transposition `(0 1)` stabilize it).  Headline:
 the Priority-4 queue (finite Schur, the concrete Pauli/γ commutant and unitary
 complete reducibility were already `EXTERNAL`-free).
 
-**2. `BookProof/ChapterBoseEinstein.lean` (new) — the thermal law in physical
+**2. `BookProof/Attention/ChapterBoseEinstein.lean` (new) — the thermal law in physical
 variables.**  `boseEinstein x = 1/(eˣ - 1)` at dimensionless inverse temperature
 `x = ħω/kT`; `thermalRatio_boseEinstein` turns the geometric ratio into the
 Boltzmann factor `e^{-x}` and `thermalProb_boseEinstein` identifies the thermal
@@ -6574,7 +6574,7 @@ Gibbs inequality `gibbs_pointwise`, and the headline
 distributions with mean occupation `n̄`, the thermal law maximizes the Shannon
 entropy.  This is the variational reason the chapter's bath is *thermal*.
 
-**4. `BookProof/ChapterLinftyMultiplication.lean` (new) — the `L∞(μ)` class of
+**4. `BookProof/Probability/ChapterLinftyMultiplication.lean` (new) — the `L∞(μ)` class of
 the abelian von Neumann list.**  Alongside the finite (`ChapterAbelianDiagonal`)
 and countable (`ChapterAbelianDiagonalCountable`) diagonal classes, the diffuse
 model is now built: for `MemLp φ ⊤ μ` the multiplication operator
@@ -6726,7 +6726,7 @@ remaining work is documented as **Part C** of that plan. Key items landed:
   rule on coherent states), `ChapterObservableExpectation` (attention output is an
   expectation), and the statistical core of `ChapterCoherentTemperature` —
   `sorry`-free, `axiom`-free, registered, `#check`-ed in `Book/CoherentState.lean`.
-- **Part B.1.** `BookProof/ChapterSolovayCoordinates.lean` `tailSplitEquiv_map`
+- **Part B.1.** `BookProof/Probability/ChapterSolovayCoordinates.lean` `tailSplitEquiv_map`
   is **proved** (no `sorry`) — the last real gap; the Solovay structure theorems
   that depended on it are proved.
 - **Part B.3.** Finite-dimensional Schur commutant (`ChapterSchurFullFiniteDim`),
@@ -6808,7 +6808,7 @@ Five deliverable groups, all `sorry`-free and axiom-clean (only `propext`,
 `#check` blocks added to `Book/PhysicalParity.lean`, `Book/PaFreeHilbert.lean`
 and `Book/ConditionalUnitary.lean`.
 
-**1. `BookProof/ChapterPauliCommutant.lean` — Priority 4, the Pauli `EXTERNAL`
+**1. `BookProof/Textbook/ChapterPauliCommutant.lean` — Priority 4, the Pauli `EXTERNAL`
 flag discharged for the fixed model.**  `ChapterA3b.lean` takes the Pauli
 fundamental theorem as an `EXTERNAL` named hypothesis in full generality.  For
 the concrete `4×4` Majorana model of `ChapterA3.lean` the irreducibility input is
@@ -6850,7 +6850,7 @@ doubly stochastic; `density_diag_eq_kernel_apply` shows the computational-basis
 diagonal is the transport of `d` by that kernel; `density_diag_isProbability` and
 the headline `density_marginal_conditional` package both halves.
 
-**5. `BookProof/ChapterAbelianDiagonal.lean` — the finite (type `I_n`) case of the
+**5. `BookProof/Probability/ChapterAbelianDiagonal.lean` — the finite (type `I_n`) case of the
 abelian von Neumann classification.**  `diagonalStarAlgHom` (the `*`-algebra
 embedding `ℓ∞({1,…,n}) → Mat(n,ℂ)`), `diagonalStarAlgHom_injective`,
 `diagonal_commute`, `commutant_diagonal_eq_diagonal` (maximal abelianness), and
@@ -6874,7 +6874,7 @@ Four new packages, all `sorry`-free and axiom-clean (only `propext`,
 corresponding `#check` blocks added to `Book/SolovayTensor.lean` and
 `Book/NullMeasure.lean`.
 
-**1. `BookProof/ChapterMehlerOrthogonalInvariance.lean` — Priority 1 follow-on.**
+**1. `BookProof/Probability/ChapterMehlerOrthogonalInvariance.lean` — Priority 1 follow-on.**
 The abstract chapter states finite-orthogonal invariance of the Mehler tail only
 at the measure-preserving interface.  This module supplies the concrete
 coordinate-level content:
@@ -6889,7 +6889,7 @@ coordinate-level content:
 * `measurePreserving_headRotation` — so such a rotation is an admissible finite
   orthogonal tail symmetry in the sense of `ChapterSolovay`.
 
-**2. `BookProof/ChapterAtomicDecomposition.lean` — Priority 2 residue.**  The
+**2. `BookProof/Probability/ChapterAtomicDecomposition.lean` — Priority 2 residue.**  The
 measure-theoretic skeleton of von Neumann's five-type classification (the chapter
 `ChapterSelectingEvents` previously carried only a `True` placeholder for the
 classification itself, which remains a documented gap):
@@ -6910,7 +6910,7 @@ theorem.**  For a Hermitian matrix with pairwise distinct eigenvalues:
   `abelian_commutant_isomorphic_ellInfty` — the commutant is exactly a faithful
   copy of `ℓ∞({1,…,n})`.
 
-**4. `BookProof/ChapterMixedPrior.lean` — worst-case vs best-case priors
+**4. `BookProof/Probability/ChapterMixedPrior.lean` — worst-case vs best-case priors
 (`book.tex` ~8677–8786).**
 * `IsPurelyAtomic`, `eq_zero_of_noAtoms_of_isPurelyAtomic`;
 * HEADLINE `atomless_prior_not_purelyAtomic` — a continuous prior is never purely
@@ -6927,7 +6927,7 @@ theorem.**  For a Hermitian matrix with pairwise distinct eigenvalues:
 full `*`-isomorphism classification and the `EXTERNAL` named hypotheses listed
 below.
 
-**5. `BookProof/ChapterMehlerUniqueness.lean` — the forcing half of "only the
+**5. `BookProof/Probability/ChapterMehlerUniqueness.lean` — the forcing half of "only the
 Mehler measure".**  `mehler_unique_by_finite_marginals`: a law on `ℕ → ℝ` whose
 every finite-coordinate marginal is the standard Gaussian product *is* the Mehler
 law (uniqueness of a projective limit of finite measures), together with the
@@ -6945,7 +6945,7 @@ Continued executing `FORMALIZATION_ROADMAP.md`.  This pass first **repaired the
 build** (it had drifted against the pinned Mathlib `v4.28.0`): fixed two API-drift
 errors in `RandomMap/RandomMap2.lean` (`convergent_series_has_no_poles`: an `EReal`
 coercion in `lt_of_le_of_lt`, and `DifferentiableWithinAt → DifferentiableAt` via
-`Complex.isOpen_re_gt_EReal`), and rewrote `BookProof/ChapterSolovay.lean` (which
+`Complex.isOpen_re_gt_EReal`), and rewrote `BookProof/Probability/ChapterSolovay.lean` (which
 had drifted to internally-inconsistent, out-of-scope definitions) to reuse the
 canonical `RandomMap.RandomMap2` objects (`InnerHead`/`InnerTail`/`InnerSpace`/
 `stateMeasure`/`OuterWaveFunction`/`dependsOnlyOnHead`/`decidability_corollary`)
@@ -7029,7 +7029,7 @@ of Bayesian updating**: processing conditionally-independent observations one at
 a time (each posterior becoming the next prior) gives *exactly* the same final
 posterior as one batch update on the product likelihood.
 
-The new module `BookProof/ChapterSequentialBayes.lean` formalizes this (all
+The new module `BookProof/Attention/ChapterSequentialBayes.lean` formalizes this (all
 `sorry`-free, axiom-clean — only `propext`, `Classical.choice`, `Quot.sound`).
 For a finite hypothesis space `X`, prior `prior : X → ℝ` and likelihood weight
 `ℓ : X → ℝ`, the **Bayes update** is
@@ -8888,7 +8888,7 @@ over the concrete `4×4` Dirac model of `ChapterMajoranaFourier` (blocks `Qmat`,
 lemmas `ns_mul_A`/`g_mul_A`/`A_mul_g`.  `sorry`-free / `axiom`-free (only `propext`,
 `Classical.choice`, `Quot.sound`, confirmed via `lean_verify` on both headline
 theorems).  Off the gravity line and off the Hankel line.  New file
-`BookProof/ChapterMajoranaProp74.lean` (registered in `BookProof.lean`).
+`BookProof/Textbook/ChapterMajoranaProp74.lean` (registered in `BookProof.lean`).
 
 ## Wave 90 (2026-07-09) — **Book "Real representations, CPT theorem and the relativistic position operator", §"Fourier-Majorana Transform", Proposition 61: the boost intertwiner `U'` is unitary** (`ChapterMajoranaProp61`)
 
@@ -8914,7 +8914,7 @@ representation spaces `WHalf`/`W10`/`WPs`/`WTwo` inside the 16-dimensional real
 matrix algebra, with the decomposition certified only through a dimension count),
 this wave upgrades the informal direct-sum claim to the genuine structural
 statement.  Off the gravity line and off the Hankel line (Majorana matrices in
-scope).  New file `BookProof/ChapterLorentzRealRepDirect.lean` (registered in
+scope).  New file `BookProof/Textbook/ChapterLorentzRealRepDirect.lean` (registered in
 `BookProof.lean`).
 
 - the family `WFam = ![WHalf, W10, WPs, WTwo]`;
@@ -8945,7 +8945,7 @@ the full 16-dimensional real matrix algebra `Matrix (Fin 4) (Fin 4) ℝ`.  The
 missing directions are the two "discrete" Majorana matrices `WTwo = span{iγ⁰,
 γ⁰γ⁵}` that generate the covering group `Ω`.  Off the gravity line and off the
 Hankel line (Majorana matrices in scope).  New file
-`BookProof/ChapterLorentzRealRepFull.lean` (registered in `BookProof.lean`).
+`BookProof/Textbook/ChapterLorentzRealRepFull.lean` (registered in `BookProof.lean`).
 
 - **conjugation invariance** `conj_inv_two` (over `ℤ`, by `decide`) and the
   `Submodule` form `WTwo_invariant` (conjugation by every `S ∈ Ω` maps `WTwo`
@@ -8975,7 +8975,7 @@ of the classification: the three spaces are **mutually orthogonal** in the
 Frobenius inner product `⟨A,B⟩ = tr(Aᵀ B)`, so their sum inside the 16-dimensional
 space of real `4×4` matrices is an **internal direct sum** of dimension
 `4 + 6 + 4 = 14`.  Off the gravity line and off the Hankel line (Majorana matrices
-in scope).  New file `BookProof/ChapterLorentzRealRepSum.lean` (registered in
+in scope).  New file `BookProof/Textbook/ChapterLorentzRealRepSum.lean` (registered in
 `BookProof.lean`).
 
 - **mutual orthogonality** `gram_half10`/`gram_halfPs`/`gram_10Ps` (over `ℤ`, by
@@ -9004,7 +9004,7 @@ cover `Λ : Ω → Δ`), this wave discharges the concrete core of **Lemma 52**
 spaces of `SL(2,C)` on which the spin group acts by conjugation `A ↦ S A S†`,
 verified over the discrete Pin group `Ω`.  Off the gravity line and off the
 Hankel line (Majorana matrices in scope).  New file
-`BookProof/ChapterLorentzRealRep.lean` (registered in `BookProof.lean`).
+`BookProof/Textbook/ChapterLorentzRealRep.lean` (registered in `BookProof.lean`).
 
 - The **`(1/2,1/2)` vector rep** `WHalf` = span `{1, γ⁰γ¹, γ⁰γ², γ⁰γ³}` (dim 4),
   the **`(1,0)` rep** `W10` = span `{iγ¹, iγ², iγ³, γ¹γ⁵, γ²γ⁵, γ³γ⁵}` (dim 6),
@@ -9034,7 +9034,7 @@ action on the Majorana basis, `S⁻¹(iγ^μ)S = Λ(S)^μ_ν iγ^ν`; rewritten 
 inverses this is decidable over the integer Majorana model `mgammaZ` of
 `ChapterA3`.  Per the current instruction this stays **off the gravity line** and
 **off the Hankel-transform line** (Majorana matrices in scope).  New file
-`BookProof/ChapterPinDoubleCover.lean` (registered in `BookProof.lean`).
+`BookProof/Textbook/ChapterPinDoubleCover.lean` (registered in `BookProof.lean`).
 
 - `qi`/`qj`/`qk`, `etaZ` (with `etaZ_eq_mink` tying `η` to `minkowskiZ`), the
   8-element `Omega` (`Omega_card = 8`) and 4-element `Delta` (`Delta_card = 4`);
@@ -9064,7 +9064,7 @@ subgroup `Δ`.  This wave pins down the algebraic core: `Ω` **is the quaternion
 group `Q₈`**.  Per the current instruction this stays **off the gravity line**
 and **off the Hankel-transform line** (Majorana matrices are now in scope); it
 reuses only the concrete `4×4` real Majorana/Dirac matrix model of
-`BookProof.ChapterA3`.  New file `BookProof/ChapterPinOmega.lean` (registered in
+`BookProof.ChapterA3`.  New file `BookProof/Textbook/ChapterPinOmega.lean` (registered in
 `BookProof.lean`).
 
 - `qi = iγ⁰`, `qj = γ⁰γ⁵ = -(iγ⁰)(iγ⁵)`, `qk = iγ⁵` — the three imaginary
@@ -9161,7 +9161,7 @@ algebraic fact that `H` is an **involution** (`H² = 1`): composing the two
 non-deterministic symmetry transformations yields certainty. As requested this
 stays **off the gravity line** and **off the Hankel–Majorana line**; it reuses
 only the concrete Hadamard matrix (as in `ChapterE.lean`). New file
-`BookProof/ChapterDoubleSlit.lean` (registered in `BookProof.lean`).
+`BookProof/Probability/ChapterDoubleSlit.lean` (registered in `BookProof.lean`).
 
 - `H_unitary` — `Hᴴ H = 1` (the Hadamard evolution is unitary);
 - `H_involutive` — **the crux**: `H² = 1`;
@@ -9274,7 +9274,7 @@ space as a tensor product of a symmetric (bosonic) and an antisymmetric
 (fermionic) Fock space, giving *"a graded Lie superalgebra of creation and
 annihilation operators"* with the unified canonical (anti)commutation relation
 carrying the sign `(-1)^{(α mod 2)(β mod 2)}`.  New file
-`BookProof/ChapterSuperBracket.lean` (registered in `BookProof.lean`), modelling
+`BookProof/Qym/ChapterSuperBracket.lean` (registered in `BookProof.lean`), modelling
 the ℤ₂-parity of a homogeneous operator by a `Bool` (`false` = even/bosonic,
 `true` = odd/fermionic) inside an arbitrary associative ring `R`.
 
@@ -9968,7 +9968,7 @@ core of the §A.5 subsection *"Spinor frame and CPT theorem"* (`book.tex` line
 "this is essentially the CPT theorem". Working in the concrete `4×4` Majorana
 model of §A.3 (`BookProof.ChapterA3`), the plane-wave form of that operator
 (`∂ⱼ ↦ i kⱼ`) is the matrix `D(k,m₁,m₂) = i (Σⱼ kⱼ γ^{j+1}γ⁰) + i m₁ γ⁰ + m₂ γ⁰γ⁵`.
-New module `BookProof/ChapterCPTHamiltonian.lean` (registered in `BookProof.lean`);
+New module `BookProof/Textbook/ChapterCPTHamiltonian.lean` (registered in `BookProof.lean`);
 all **`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
 `Quot.sound`, verified via `lean_verify`); full `lake build` green (8135 jobs).
 No `EXTERNAL` hypothesis, no `axiom`, no `native_decide`.
@@ -10041,7 +10041,7 @@ where `c = √((E+m)/(2E))`, `s = √((E−m)/(2E))` are the boost half-angle
 coefficients (`E = √(q²+m²)`, `q = |p⃗|`, `m ≥ 0`) and `A = (n̂·γ⃗) γ⁰` is built
 from the Dirac spatial slash of the unit momentum direction `n̂`. This reuses the
 concrete `4×4` Dirac model `BookProof.ChapterA3.dgamma`. New module
-`BookProof/ChapterMajoranaFourier.lean` (registered in `BookProof.lean`), all
+`BookProof/Textbook/ChapterMajoranaFourier.lean` (registered in `BookProof.lean`), all
 **`sorry`-free** and **`axiom`-free** (only `propext`, `Classical.choice`,
 `Quot.sound`; verified via `#print axioms`); full `lake build` green (8133 jobs).
 No `EXTERNAL` hypothesis, no `axiom`, no `native_decide`.
@@ -10151,7 +10151,7 @@ equal to an analytic function; that elliptic-regularity statement is not in
 Mathlib. This pass formalizes the classical (strong-derivative) core it rests on:
 a complex function real-differentiable on an open domain and satisfying the
 Cauchy–Riemann equations there is complex analytic (holomorphic), hence its own
-analytic representative. New module `BookProof/ChapterHolomorphic.lean`
+analytic representative. New module `BookProof/Probability/ChapterHolomorphic.lean`
 (registered in `BookProof.lean`), all **`sorry`-free** and **`axiom`-free**
 (only `propext`, `Classical.choice`, `Quot.sound`; verified via `lean_verify` on
 the headlines); full `lake build` green (8130 jobs). No `EXTERNAL` hypothesis, no
@@ -10180,7 +10180,7 @@ book line ~1392): the book's claim that a joint probability density `p(x,y)` is
 `|𝒰(y,x,0)|²` for a unitary `𝒰` built by Gram–Schmidt with a chosen column equal to
 the wave-function `Ψ` (`|Ψ|²=p`), plus its converse. The abstract `L²`/Hilbert-
 basis form is already `ChapterB.unit_vector_extends`; this adds the concrete
-matrix form. New module `BookProof/ChapterJointUnitary.lean` (registered in
+matrix form. New module `BookProof/Probability/ChapterJointUnitary.lean` (registered in
 `BookProof.lean`), all **`sorry`-free** and **`axiom`-free** (only `propext`,
 `Classical.choice`, `Quot.sound`; verified via `lean_verify` on the headlines);
 full `lake build` green (8129 jobs). No `EXTERNAL` hypothesis, no `axiom`.
@@ -11974,7 +11974,7 @@ layer (§A.4–A.5).
 
 ## Completed
 
-### Chapter U — `BookProof/ChapterU.lean` (work-package N8, complete)
+### Chapter U — `BookProof/Probability/ChapterU.lean` (work-package N8, complete)
 Unitary inference / `unfer` source material (see roadmap §U), all `sorry`-free
 and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`).
 - **U.1** `bornMeasure` (`|Ψ|²·μ`), `bornMeasure_isProbability`,
@@ -12484,7 +12484,7 @@ on 2026-07-02** to a full work package (queue item N6) — **now COMPLETE**, see
 from new source material (the `../test` gitbook + the overlapping
 https://timepiece.pubpub.org/ec0in collection, to be merged into book.tex —
 the merge is editorial and does not block the Lean targets) — **now COMPLETE**
-(queue item N8 ✅, run `e3ffd49f`): see `BookProof/ChapterU.lean` above
+(queue item N8 ✅, run `e3ffd49f`): see `BookProof/Probability/ChapterU.lean` above
 (headline `born_conditioning` — Born-rule conditioning is the classical
 conditional measure `ProbabilityTheory.cond`; plus `prodEquiv`, the `EXTERNAL`
 Lévy wrappers, and the 1/√n portfolio lemmas; the fermionic analogue of U.3
@@ -12515,12 +12515,12 @@ New modules (all `sorry`-free, `axiom`-free; audited by `Work/SchurPauliWaveAudi
 * `BookProof/Realification/ChapterSchurTrichotomy.lean` — **Lemma 14** and **Props 17–19** (the
   ℝ / ℂ / ℍ commutant trichotomy) restated with the Schur hypothesis replaced by
   "normal and irreducible".
-* `BookProof/ChapterPauliFundamental.lean` — **Note 36, Pauli's fundamental theorem of the
+* `BookProof/Textbook/ChapterPauliFundamental.lean` — **Note 36, Pauli's fundamental theorem of the
   γ-matrices**, proved (`pauliFundamental`): the shared Clifford commutation rule for the
   sixteen ordered products (`clifford_key`), the trace-orthogonality and spanning of the
   sixteen concrete Majorana products (finite integer computations), Pauli's averaged
   intertwiner and its invertibility.  Also `real_pauli'` (Prop 37 with no external input).
-* `BookProof/ChapterPauliConsequences.lean` — **Prop 46** (the `Pin(3,1) → O(1,3)` covering
+* `BookProof/Textbook/ChapterPauliConsequences.lean` — **Prop 46** (the `Pin(3,1) → O(1,3)` covering
   is surjective and two-to-one) with no external input.
 
 `lake build BookProof` (8866 jobs) and `lake build Work.SchurPauliWaveAudit` complete with
@@ -12624,12 +12624,12 @@ functions) is not formalized, nor is the unitarity of the spherical transform.
 
 ## 2026-09-21c — the sector-reduction wave (symmetrization, step 1)
 
-* `BookProof/ChapterReducingSubspaceEsa.lean` — essential self-adjointness descends to an
+* `BookProof/Toolbox/ChapterReducingSubspaceEsa.lean` — essential self-adjointness descends to an
   invariant sector: for an idempotent symmetric projection `P` which preserves the domain and
   commutes with `T`, `deficiencyTrivialAt_red` and `essentiallySelfAdjointOn_red` transfer the
   property to the part of `T` inside the range of `P`.  The projections `(1 ± U)/2` of a
   self-inverse isometry `U` are shown to be such projections.
-* `BookProof/ChapterTwoParticleSectorEsa.lean` — the swap of the two-particle space is a
+* `BookProof/Toolbox/ChapterTwoParticleSectorEsa.lean` — the swap of the two-particle space is a
   self-inverse isometry preserving the domain and the core and commuting with the derivation, so
   the bosonic and the fermionic two-particle derivations are essentially self-adjoint
   (`essentiallySelfAdjointOn_bosonic(_core)`, `essentiallySelfAdjointOn_fermionic(_core)`), with
@@ -12640,7 +12640,7 @@ functions) is not formalized, nor is the unitarity of the spherical transform.
 Boundary: the symmetrization is the two-particle one (the swap), not the full symmetric group on
 `H^{⊗n}` for `n ≥ 3`, and no statement about the symmetric Fock space as a whole is claimed.
 
-* `BookProof/ChapterGroupAverageEsa.lean` (same wave) — averaging over a finite group of
+* `BookProof/Toolbox/ChapterGroupAverageEsa.lean` (same wave) — averaging over a finite group of
   unitaries: the average `|G|⁻¹ Σ_g ρ(g)` is a reducing projection whose range is the joint fixed
   space, so essential self-adjointness descends to the invariant sector
   (`essentiallySelfAdjointOn_invariantSector`).  The two-element case reproduces `(1 + U)/2`.
@@ -12653,7 +12653,7 @@ Boundary: the symmetrization is the two-particle one (the swap), not the full sy
   factors, so every permutation operator is a linear isometry equivalence by construction.
   `permOp_purePow` computes it on pure tensors, `permOp_one` / `permOp_mul` are the group
   law, and `permRep` / `signRep` are the resulting unitary representation and its sign twist.
-* `BookProof/ChapterPermutationSectorEsa.lean` — every permutation operator preserves the
+* `BookProof/Toolbox/ChapterPermutationSectorEsa.lean` — every permutation operator preserves the
   domain `D₂^{⊗n}` and the core `D^{⊗n}` and commutes with the sector derivation
   (`good_permOp`, by structural induction along the recursion).  Averaging over the symmetric
   group and over its sign twist therefore gives essential self-adjointness of the bosonic and
@@ -12747,9 +12747,9 @@ measured mixing parameter is claimed.
 Six new `sorry`-free, `axiom`-free chapters (imported from `BookProof.lean`, audited in
 `ChapterRoadmapAudit.lean`):
 
-* `BookProof/ChapterEsaRealShift.lean` — `essentiallySelfAdjointOn_add_const`;
+* `BookProof/Toolbox/ChapterEsaRealShift.lean` — `essentiallySelfAdjointOn_add_const`;
   `deficiencyTrivialAt_of_essentiallySelfAdjointOn` (trivial deficiency at every non-real `z`).
-* `BookProof/ChapterMomentumChartEsa.lean` — **ODE-C.1** `momentum_essentiallySelfAdjointOn`.
+* `BookProof/Ode/ChapterMomentumChartEsa.lean` — **ODE-C.1** `momentum_essentiallySelfAdjointOn`.
 * `BookProof/Ode/ChapterOdeChartTransfer.lean` — **ODE-C.2** `chartUnitary`,
   `chartHam_essentiallySelfAdjointOn` (domain `W(𝓢(ℝ))`), `chartHam_apply_ae`
   (`= x²p − ix` there); **ODE-C.3** `chartHam_stone_flow`.
@@ -12757,7 +12757,7 @@ Six new `sorry`-free, `axiom`-free chapters (imported from `BookProof.lean`, aud
   constraint term); **NS-L-C.2** `lagCompN_esa`, `lagCompN_nonneg`, `lagCompN_add_one_ge`
   (completed square `N = h + ½|f|²` of the canonical parcel Hamiltonian; the Koopman
   comparison hypothesis of `lagKoopman_esa_of_comparison_esa` is *not* discharged).
-* `BookProof/ChapterLiftedComparisonEsa.lean` — **NS-L-C.3** `liftedComparison_esa`
+* `BookProof/Ns/ChapterLiftedComparisonEsa.lean` — **NS-L-C.3** `liftedComparison_esa`
   (`dΓ(N) + 1` ESA on `𝓕_fin(D)`), `liftedComparison_resolvent_deficiency`.
 * `BookProof/Qg/ChapterQgAssembledTransfer.lean` — **QG-D-C.2** `qg_assembled_halfDensity_transfer`,
   `qg_assembled_conformal_hasZeroDeficiencyOn`; **QG-D-C.3** `qg_assembled_stone_flow_of_flat`.

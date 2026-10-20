@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.PhysMeasureBasis
-import BookProof.PhysHSGaussian.Part2
+import BookProof.Toolbox.PhysHSGaussian.Part2
 
 /-!
 # Part 3b: The uniform sphere measure and the Gaussian limit (G0–G7)

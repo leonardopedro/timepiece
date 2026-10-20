@@ -4,7 +4,7 @@ import Mathlib
 # A radial smooth mollifier on `ℂ`, and the disc mean-value property
 
 This file provides the analytic tool needed by
-`BookProof/Toolbox/ChapterWeylCauchyRiemann.lean` — the distributional
+`BookProof/ChapterWeylCauchyRiemann.lean` — the distributional
 ("weak Cauchy–Riemann") version of the *Holomorphic fields* remark of `book.tex`
 (line ~4105).
 

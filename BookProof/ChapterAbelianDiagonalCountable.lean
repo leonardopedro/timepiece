@@ -4,7 +4,7 @@ import Mathlib
 # The countable (type `I_∞`) case of the abelian von Neumann classification:
 `ℓ∞(ℕ)` is a MASA of `B(ℓ²(ℕ))`
 
-`BookProof/Probability/ChapterAbelianDiagonal.lean` proves the **finite** (type `Iₙ`) case of
+`BookProof/ChapterAbelianDiagonal.lean` proves the **finite** (type `Iₙ`) case of
 von Neumann's classification of abelian von Neumann algebras: `ℓ∞({1,…,n})`,
 realized as the diagonal subalgebra of `Mat(n, ℂ)`, is its own commutant.  This
 file proves the next case of the list — the **countable** one, `ℓ∞(ℕ)` acting by

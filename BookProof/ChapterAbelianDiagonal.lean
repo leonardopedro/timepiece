@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # The finite (type `I_n`) case of the abelian von Neumann classification
 
-`BookProof/Probability/ChapterSelectingEvents.lean` (book Chapter 13, `book.tex` ~8789–8800)
+`BookProof/ChapterSelectingEvents.lean` (book Chapter 13, `book.tex` ~8789–8800)
 records von Neumann's classification of abelian von Neumann algebras: every one
 of them is `*`-isomorphic to one of
 

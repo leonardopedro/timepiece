@@ -1,4 +1,4 @@
-import BookProof.WeylSL2.ChapterWeylSl2
+import BookProof.WeylSL2.ChapterWeylSL2Algebra
 import BookProof.WeylSL2.ChapterWeylSL2Group
 import BookProof.WignerOrbit.ChapterWignerLittleGroup
 import BookProof.WignerOrbit.ChapterWignerLittleGroupOrbits
@@ -92,11 +92,11 @@ Every result below must report only `propext`, `Classical.choice` and `Quot.soun
 #print axioms BookProof.ChapterWignerLittleGroupOrbits.littleGroup_spacelike
 
 -- Weyl's complete reducibility theorem, for `sl(2,ℂ)` and for `SL(2,ℂ)`.
-#print axioms BookProof.ChapterWeylSl2.Sl2Rep.cas_comm_E
-#print axioms BookProof.ChapterWeylSl2.Sl2Rep.exists_highestWeight
-#print axioms BookProof.ChapterWeylSl2.Sl2Rep.cas_highestWeight
-#print axioms BookProof.ChapterWeylSl2.Sl2Rep.codim_one
-#print axioms BookProof.ChapterWeylSl2.Sl2Rep.weyl_complete_reducibility
+#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.cas_comm_E
+#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.exists_highestWeight
+#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.cas_highestWeight
+#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.codim_one
+#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.weyl_complete_reducibility
 #print axioms BookProof.ChapterWeylSL2Group.coeff_mem_of_poly_mem
 #print axioms BookProof.ChapterWeylSL2Group.exists_factorization
 #print axioms BookProof.ChapterWeylSL2Group.isInv_of_rho

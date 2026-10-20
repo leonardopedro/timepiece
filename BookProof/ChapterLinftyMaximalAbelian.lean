@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterLinftyMultiplication
+import BookProof.ChapterLinftyMultiplication
 
 /-!
 # `L∞(μ)` is *maximal* abelian on `L²(μ)` — the diffuse half of the classification

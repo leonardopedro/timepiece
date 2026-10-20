@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterStoneGenerator
-import BookProof.Toolbox.ChapterStoneResolvent
+import BookProof.ChapterStoneGenerator
+import BookProof.ChapterStoneResolvent
 
 /-!
 # The BRST-reduced transfer: the unitary evolution descends to BRST cohomology

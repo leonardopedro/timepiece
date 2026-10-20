@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Textbook.ChapterA3
-import BookProof.Textbook.ChapterPinOmega
-import BookProof.Textbook.ChapterLorentzRealRep
+import BookProof.ChapterA3
+import BookProof.ChapterPinOmega
+import BookProof.ChapterLorentzRealRep
 
 /-!
 # Chapter "Real representations, CPT theorem and the relativistic position operator",

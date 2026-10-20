@@ -7,7 +7,7 @@ import Mathlib
 the *exponentially growing* scalaron wall.  Every route the project has tried so far is a
 perturbative one — Kato–Rellich on the Gauss–polynomial core, the Carleman flux criterion
 on the Hermite lattice — and both are refuted or inapplicable for a wall that grows faster
-than every polynomial (`BookProof/Toolbox/ChapterHermiteExpWall.lean`).
+than every polynomial (`BookProof/ChapterHermiteExpWall.lean`).
 
 The classical route that *does* reach an arbitrarily fast growing **non-negative** potential
 is not perturbative at all: a deficiency vector `u` of `−d²/dx² + V` solves the ordinary

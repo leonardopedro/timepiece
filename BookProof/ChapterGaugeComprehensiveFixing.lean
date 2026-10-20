@@ -1,4 +1,4 @@
-import BookProof.Qym.ChapterGaugeIncompleteFixing
+import BookProof.ChapterGaugeIncompleteFixing
 
 /-!
 # Comprehensive gauge fixings: existence, uniqueness of the extension, and the

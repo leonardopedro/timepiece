@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterBRSTNilpotent
+import BookProof.Qym.ChapterBRSTNilpotent
 import BookProof.Qg.ChapterQuantumGravity3DGauge
 
 /-!
@@ -79,7 +79,7 @@ The charge is built on the *algebraic* graded core `ℂ[x] ⊗ Λ(ℂ¹⁹)` (po
 Gaussian, tensored with the finite ghost sector), which is the dense domain on which the
 field-space Hamiltonian of `ChapterQuantumGravity3DGauge` is defined; no bounded extension
 to the completed Hilbert space is claimed, and the reduction of the *dynamics* to BRST
-cohomology is the separate `BookProof/ChapterBrstReducedTransfer.lean` (which assumes a
+cohomology is the separate `BookProof/Qym/ChapterBrstReducedTransfer.lean` (which assumes a
 bounded charge).  The constraint family is data: the theorem says that *whenever* the
 generators close with real structure constants obeying Jacobi, the charge is nilpotent, and
 the `so(3)` instance exhibits a genuinely non-abelian family.  No mass gap and no global

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterLinftyMultiplication
+import BookProof.ChapterLinftyMultiplication
 
 /-!
 # Splitting `L²(μ)` along a measurable set (plan GAP-2, the reassembly step)

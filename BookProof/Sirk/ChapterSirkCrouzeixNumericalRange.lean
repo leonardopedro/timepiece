@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Textbook.ChapterH4
-import BookProof.ChapterNumericalRangeCrouzeix
+import BookProof.Sirk.ChapterNumericalRangeCrouzeix
 
 /-!
 # The SIRK error bound for general non-normal operators, with the Crouzeix hypothesis

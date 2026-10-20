@@ -1,7 +1,7 @@
 import Mathlib
 import BookProof.Attention.ChapterCoherentTemperature
 import BookProof.Attention.ChapterCoherentOccupation
-import BookProof.ChapterBoseEinstein
+import BookProof.Attention.ChapterBoseEinstein
 
 /-!
 # Chapter "The Coherent State of Attention", §"Temperature and the Thermal Bath" —

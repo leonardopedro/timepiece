@@ -108,7 +108,7 @@ unchanged, so nothing else had to move):
 | Core module | Contents | Re-exported by |
 | --- | --- | --- |
 | `BookProof/Toolbox/ChapterFarisLavineCore.lean` | `SymmetricOn`, `DeficiencyTrivialAt`, `EssentiallySelfAdjointOn`, `quadForm`, `commForm`, the Faris–Lavine criterion | `ChapterFarisLavine` |
-| `BookProof/ChapterComplexShiftCore.lean` | `closed_of_selfAdjointCriterion`, `cshiftMap`, `cshiftRange` and the non-real shift bounds | `ChapterHashimotoShiftInvert`, `ChapterHashimotoComplexShifts` |
+| `BookProof/Toolbox/ChapterComplexShiftCore.lean` | `closed_of_selfAdjointCriterion`, `cshiftMap`, `cshiftRange` and the non-real shift bounds | `ChapterHashimotoShiftInvert`, `ChapterHashimotoComplexShifts` |
 | `BookProof/Toolbox/ChapterEsaClosureCore.lean` | `opGraph`, `clGraph`, `clDom`, `clExt`, the self-adjointness criterion, the Cayley transform | `ChapterEsaClosure` |
 
 The cone of `BookProof.ChapterNonnegResolvent` — the current tip of the thread —
@@ -228,7 +228,7 @@ The practical rule that keeps the parts apart: **import the most specific chapte
 that provides what you need, and prefer splitting a new development into one
 module per part over one module importing several parts.** The gauge material
 added in this pass follows it — the general theory
-(`BookProof/ChapterGaugeIncompleteFixing.lean`) imports the gauge/measure
+(`BookProof/Qym/ChapterGaugeIncompleteFixing.lean`) imports the gauge/measure
 foundations only, and its `ℓ²(ℤ)` example
-(`BookProof/ChapterGaugeShiftExample.lean`) imports the lattice-unitary chapter
+(`BookProof/Qym/ChapterGaugeShiftExample.lean`) imports the lattice-unitary chapter
 only, so the two parts stay independent.

@@ -1,6 +1,6 @@
 # BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory
 
-Status: **plan only — nothing is moved, renamed or deleted by this document.** (Executed 2026-10-18: Phases 0, 1, 1.5 (partial), 2 — see §9.)
+Status: **plan only — nothing is moved, renamed or deleted by this document.** (Executed 2026-10-18/19: Phases 0, 1, 1.5, 2, 3 and the runnable Phase 4 gates — see §9.)
 Created 2026-10-17. Execution belongs to the LLM-Lean4-specialist (the house rule
 stands: a phase compiles, this document does not). Pointers: `CONSOLIDATED_PLAN.md`
 §"2026-10-17b" and the `BookProof layout` row of `CURRENT_WORK_ORDER.md`.
@@ -247,24 +247,26 @@ false is the route that changes.
 
 ## 5. Acceptance checklist (whole document)
 
-- [x] (2026-10-18, §9: 183 Part files removed; 9 legacy orphans remain, owner decision) Phase 0: 192 orphan files declaration-diffed, then removed; `--check` note gone;
+- [x] (2026-10-18, §9: 183 Part files removed; 2026-10-19b: the 9 remaining orphans were declaration-free stubs and are removed) Phase 0: 192 orphan files declaration-diffed, then removed; `--check` note gone;
       `health.sh` green in the same commit.
 - [x] (2026-10-18, §9; `../test` drift not runnable here) Phase 1: every independent part sits in its folder; `rg` finds no stale module
       path; `../test` drift gate 0 misses; part targets build (specialist).
-- [x] (2026-10-18, §9: matrix appended, no clean cut, 237 unclassified modules stay flat) Phase 2: cross-import matrix published as an appendix of this file; folders per
+- [x] (2026-10-18, §9: matrix appended, no clean cut; 2026-10-19b: the 237-module residue foldered by reading, 1 module stays flat by decision) Phase 2: cross-import matrix published as an appendix of this file; folders per
       §2 exist; any new `[[lean_lib]` part is `--check`-green before it is written to
       `lakefile.toml`.
-- [ ] Phase 3: each rename has its cite-density check and a `verify-invariants` run.
-- [ ] §4 tables are mirrored in `CONSOLIDATED_PLAN.md` §"2026-10-17b" and the
+- [x] (2026-10-19b, §9: Weyl trio unified as `ChapterWeylSL2Algebra`; 7 utilities and the lettered chapters kept by cite density) Phase 3: each rename has its cite-density check and a `verify-invariants` run.
+- [x] (verified 2026-10-19b) §4 tables are mirrored in `CONSOLIDATED_PLAN.md` §"2026-10-17b" and the
       `BookProof layout` row of `CURRENT_WORK_ORDER.md` (done at creation).
-- [ ] No phase compiles nothing: every phase lists the exact `lake` commands for the
+- [x] (2026-10-18/19: every executed phase ended with `lake build BookProof` green) No phase compiles nothing: every phase lists the exact `lake` commands for the
       LLM-Lean4-specialist; this document itself was produced without compiling.
-- [~] (2026-10-18, §9: 21/161 converted + audited in `converted/`; 140 blocked on missing platform modules, `converted/GAPS.md`) Phase 1.5: every imported proof converted, namespaced
+- [x] (2026-10-18/19, §9: all 161 manifest solutions converted, compiled and audited in `converted/`; the one stray non-manifest file stays blocked, `converted/GAPS.md`) Phase 1.5: every imported proof converted, namespaced
       `BookProof.Toolbox.Prove2me.*`, attribution header present, `--check` green,
       `#print axioms` clean; the conversion diff archived next to the download.
 - [ ] §6 downloads stay in sync with `Downloads/manifest.json` (+ `_deps/manifest.json`
       for the platform modules; regenerate both when re-running a fetcher; never edit
       by hand).
+- [ ] (perpetual; `Downloads/manifest.json` unchanged since import, the fetcher was not re-run) §6 downloads stay in sync with `../prove2me_workspace/Downloads/manifest.json`
+      (regenerate the manifest when re-running the fetcher; never edit by hand).
 
 ---
 
@@ -543,3 +545,117 @@ the 9 legacy orphans are noted). `doc_index.py` was regenerated. The `../test` d
 `check_site.py`, the book render and `verify-invariants` need sibling checkouts that are not
 present in this workspace, so they were not run. `decl_graph*.jsonl` still carry pre-move
 module names and need a re-extraction.
+
+**Addendum 2026-10-19: Phase 1.5 completed with the platform library.** The prove2.me platform
+modules that the solutions import were supplied as `Downloads/_deps/` (542 `Definitions.Def_*`,
+181 `Theorems.Thm_*`). They are converted under `converted/Definitions/` and
+`converted/Theorems/` (lake library `Prove2mePlatform`), keeping their module names, by
+`scripts/prove2me_deps_convert.py`, with the token-level drift repairs of
+`scripts/prove2me_drift.py` and proved shims for missing Mathlib API (`converted/Prove2me/Shim/`).
+A `Thm_` stub whose solution was downloaded (26 cases) re-exports the converted solution. Results:
+* **All 161 manifest solutions compile** (`lake build Prove2me`, which includes
+  `Prove2me.Audit`). The former `converted/blocked/` set is empty except for the stray
+  file below. To let the aggregator import every solution, 76 helper names that several
+  solutions repeat are made `private` in all but one module (`scripts/prove2me_privatize.py`).
+* The audit covers 322 declarations (161 solutions plus the 161 registered statements).
+  122 solutions use only `propext` / `Classical.choice` / `Quot.sound`. 39 reach `sorryAx`,
+  and only through platform statement stubs (`Thm_*`, `:= by sorry` by platform design), 108
+  distinct ones. They are listed per solution in `converted/GAPS.md`, computed from the compiled
+  terms by `scripts/prove2me_stub_cone.lean`.
+* Not compiled: one download without a manifest entry
+  (`fock-ladders/OAI.Erdos3.VectorPolynomial.…_of_goodModel_s2.lean`, prepared in
+  `converted/blocked/FockLadders/`). It needs the 299-module `Def_OAIE3v2B*` chain (21.6 MB), which
+  fails against the pinned Mathlib at 32 frontier modules with API-drift errors.
+
+**Addendum 2026-10-19b: Phase 0 residue, Phase 2.2b, Phase 3, Phase 4 (second execution pass).**
+Every step below ended with `lake build BookProof` green and no `sorryAx` in the build log.
+
+* **Phase 0 residue: the 9 "legacy orphans" were empty stubs, now removed.** Reading them showed
+  that none of `EsaClosure`, `FarisLavine`, `HashimotoShiftInvert`, `HermiteCore`,
+  `NavierStokesFlow`, `SirkSpectralGeometry`, `Starobinsky`, `YangMillsFriedrichs` and
+  `YangMillsHermite` held a declaration. Each was `import Mathlib`, a "Stub: … placeholder"
+  docstring and `noncomputable section`, imported by nothing. The real content lives in the
+  `Chapter…` modules of the same name (for example `Toolbox/ChapterFarisLavine.lean`). The
+  declaration diff is therefore empty, so these are §4.A redundancy rather than §4.B legacy
+  content. They were `git rm`-ed, and `--check` no longer reports any unbuilt module.
+* **Phase 2.2b: the 237-module residue is foldered by reading.** `scripts/bookproof_phase2b_move.py`
+  records a hand assignment of each residue module to a §2 area. The assignment was made by
+  reading each module's header (its title and the book chapter it cites); nothing is inferred
+  from names at run time. 236 modules moved: Probability 88 (the §2 `Probability/` folder:
+  abelian von Neumann / GAP-2 classification, Born, free-field Born, Bayes, priors, Solovay,
+  Mehler), Toolbox 71, Qym 19 (BRST, gauge, ghost vocabulary), Textbook 17 (chapter-A Lorentz,
+  Pin, Pauli, Majorana, CPT material), Attention 14, Sirk 11, Qg 11 (walls, limit-circle
+  family, conformal fibre), Ode 3, Ns 2. `BookProof.RandomMap2Audit` stays at the top level
+  because it is a quarantine audit of the RandomMap2 track. Map: `BOOKPROOF_PHASE2B_MOVES.md`.
+  Imports were rewritten repository-wide, and `BookProof/….lean` paths in docs were rewritten
+  except in append-only records. Declaration names are unchanged. `scripts/cross_import_matrix.py`
+  now knows `Probability/` as a folder area. The recomputed matrix:
+
+Operator core: 630 modules. Rows import columns (direct imports).
+
+| importer \ imported | RoadmapAudit (1) | Ns (72) | Qg (65) | Qym (35) | Sm (27) | Qed (2) | Sirk (42) | Ode (6) | Attention (65) | Textbook (68) | Probability (88) | Toolbox (158) | Other (1) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **RoadmapAudit** | · | 21 | 53 | 9 | · | 1 | 34 | 2 | 39 | 5 | 33 | 63 | · |
+| **Ns** | · | 89 | 10 | 7 | · | · | · | · | · | · | 4 | 29 | · |
+| **Qg** | · | 3 | 75 | 8 | · | · | 4 | 1 | · | · | · | 46 | · |
+| **Qym** | · | · | 6 | 24 | 2 | · | 4 | · | · | 3 | 1 | 22 | · |
+| **Sm** | · | · | 6 | 7 | 32 | · | · | · | · | 7 | · | 6 | · |
+| **Qed** | · | · | · | 3 | · | 1 | · | · | · | · | · | 1 | · |
+| **Sirk** | · | 5 | 3 | 2 | · | · | 29 | · | · | 16 | · | 13 | · |
+| **Ode** | · | · | · | · | · | · | · | 5 | · | · | · | 2 | · |
+| **Attention** | · | · | · | · | · | · | · | · | 87 | · | 4 | · | · |
+| **Textbook** | · | · | · | · | · | · | 1 | · | · | 154 | · | 1 | · |
+| **Probability** | · | · | · | · | · | · | · | · | 1 | · | 90 | 6 | · |
+| **Toolbox** | · | 18 | 16 | 10 | · | · | 9 | · | · | 1 | 5 | 195 | · |
+| **Other** | 1 | · | · | · | · | · | · | · | · | · | · | · | · |
+
+Seam test per domain. The audit gate `RoadmapAudit` imports every area by design and is ignored as an importer; `Other` is the residue the §2 name families do not classify:
+
+| domain | modules | inbound from other domains | outbound to non-Toolbox domains | clean cut? |
+|---|---:|---:|---:|---|
+| RoadmapAudit | 1 | 1 | 197 | no |
+| Ns | 72 | 26 | 21 | no |
+| Qg | 65 | 41 | 16 | no |
+| Qym | 35 | 37 | 16 | no |
+| Sm | 27 | 2 | 20 | no |
+| Qed | 2 | 0 | 3 | no |
+| Sirk | 42 | 18 | 26 | no |
+| Ode | 6 | 1 | 0 | no |
+| Attention | 65 | 1 | 4 | no |
+| Textbook | 68 | 27 | 1 | no |
+| Probability | 88 | 14 | 1 | no |
+| Toolbox | 158 | 126 | 59 | no |
+| Other | 1 | 0 | 1 | no |
+
+  **Still no clean cut, so there is still no new `[[lean_lib]]` (Phase 2.3).** `Ode` comes
+  closest: it imports only `Toolbox`, and exactly one module imports it, from `Qg`.
+  `Attention` imports nothing from `Toolbox` and only 4 modules from `Probability`, while one
+  `Probability` module imports `Attention`. Neither meets the seam test. The operator core
+  stays one target.
+* **Phase 3: renames.**
+  - *Case-collision trio.* `ChapterWeylSl2`, `ChapterWeylSL2Group` and `ChapterWeylSL2Unipotent`
+    were read. **None is redundant.** `ChapterWeylSl2` is the Lie-algebra layer (`Sl2Rep`,
+    Casimir, highest weight, Weyl complete reducibility for `sl₂`). `ChapterWeylSL2Group`
+    lifts it to `SL(2,ℂ)` via unipotent factorisation, and `ChapterWeylSL2Unipotent` builds on
+    both. On a case-insensitive checkout there is no file collision, because the names differ
+    by more than case. The `Sl2`/`SL2` spelling was still the hazard named in §4.B. Its cite
+    density is low (BookProof.lean, the two sibling modules, `Work/WignerMackeyWeylAudit.lean`,
+    no `Book/` citation, no `#print axioms` line in the roadmap audit). It was therefore renamed
+    to one convention: module `BookProof.WeylSL2.ChapterWeylSL2Algebra` and namespace
+    `BookProof.ChapterWeylSL2Algebra`, with all `.lean` references updated.
+  - *Unprefixed utilities.* After the stub removal, 7 remain: `Toolbox/Phys{FunctionalAnalysis,
+    HSGaussian,MeasureBasis,Mehler}`, `Toolbox/Prelude`, `Toolbox/Substrate` and
+    `Realification/Complexification`. Cite-density check (importing `.lean` files / `Book/`
+    files / Markdown files): PhysFunctionalAnalysis 3/1/4, PhysHSGaussian 6/2/5,
+    PhysMeasureBasis 6/0/4, PhysMehler 8/0/4, Prelude 16/0/5, Substrate 1/0/14,
+    Complexification 7/1/6. Their namespaces (`BookProof.PhysMehler`, …) are cited by name
+    across `Book/` and the docs, and a module rename would split module and namespace names.
+    So they are **not renamed**. Foldering them into `Toolbox/` already makes them findable.
+  - *Lettered `Textbook/` chapters*: foldered, not renamed, as the plan allows when cite density
+    is high.
+* **Phase 4 gates.** `import_components.py --check` is green with no unbuilt-module note.
+  `--write-lakefile` and the `BUILD_COMPONENTS.md` inventory have been regenerated, and so have
+  `doc_index.py` and `decl_graph.jsonl` (now with the post-move module names).
+  `health.sh` and `verify-invariants` were run; their results are in
+  `CONSOLIDATED_PLAN.md` §"2026-10-19b". The `../test` drift gate and the
+  book render still need sibling checkouts that are not present.

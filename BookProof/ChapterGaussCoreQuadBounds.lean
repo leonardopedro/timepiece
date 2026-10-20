@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Qg.ChapterQgOuterFockEsa
-import BookProof.Toolbox.ChapterHermiteQuadraticEsa
+import BookProof.ChapterQgOuterFockEsa
+import BookProof.ChapterHermiteQuadraticEsa
 
 /-!
 # Gaussian-integral bounds on the Gauss–polynomial core

@@ -4,7 +4,7 @@ import BookProof.Textbook.ChapterH4
 import BookProof.Textbook.ChapterH6
 import BookProof.Textbook.ChapterH7
 import BookProof.Textbook.ChapterH8
-import BookProof.ChapterH8Bases
+import BookProof.Sirk.ChapterH8Bases
 
 /-!
 # Chapter H9 — the SIRK numerical ranges nest (plan `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`)

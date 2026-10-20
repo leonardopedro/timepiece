@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Toolbox.ChapterHermiteFunctions
-import BookProof.Toolbox.ChapterFarisLavine
-import BookProof.Qg.ChapterQuantumGravityDensitized
+import BookProof.ChapterHermiteFunctions
+import BookProof.ChapterFarisLavine
+import BookProof.ChapterQuantumGravityDensitized
 
 /-!
 # The Hermite core, and a Strichartz-type theorem on it

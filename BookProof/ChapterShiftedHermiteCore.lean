@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterHyperbolicQuadraticEsa
+import BookProof.ChapterHyperbolicQuadraticEsa
 
 /-!
 # The translated, modulated Gauss–polynomial core of `L²(ℝᵈ)`

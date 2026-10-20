@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterShannonSampling
+import BookProof.Ode.ChapterShannonSampling
 import BookProof.Ode.ChapterOdeUnitaryFlow
 
 /-!

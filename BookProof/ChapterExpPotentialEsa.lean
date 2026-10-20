@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Qg.ChapterWallEsaBddBelow
-import BookProof.Toolbox.ChapterSchrodingerCutoffEsa
-import BookProof.Qg.ChapterWallEsaSemibounded
+import BookProof.ChapterWallEsaBddBelow
+import BookProof.ChapterSchrodingerCutoffEsa
+import BookProof.ChapterWallEsaSemibounded
 
 /-!
 # `−d²/dx² + (eˣ + e⁻ˣ)` is essentially self-adjoint
@@ -15,7 +15,7 @@ Simader–Faris–Lavine programme: the Schrödinger operator with the
 is essentially self-adjoint on the compactly supported smooth core of `L²(ℝ)`.
 
 No new analysis is needed: `V` is smooth and bounded below (by `2`), and
-`BookProof/Qg/ChapterWallEsaBddBelow.lean` already proves essential
+`BookProof/ChapterWallEsaBddBelow.lean` already proves essential
 self-adjointness of `−d²/dx² + V` for *every* smooth potential bounded below,
 with no growth restriction from above.  What this module supplies is the
 verification that `Vexp` meets those hypotheses and the resulting named
@@ -32,7 +32,7 @@ statements.
 
 The elementary cutoff/commutator route to the same physics, at the level of
 classical square-integrable solutions of `H u = ± i u`, is in
-`BookProof/Toolbox/ChapterSchrodingerCutoffEsa.lean`
+`BookProof/ChapterSchrodingerCutoffEsa.lean`
 (`schrodinger_exp_deficiency_trivial_I` / `..._negI`); it is independent of the
 machinery used here.
 -/

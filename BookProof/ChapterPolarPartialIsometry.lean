@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterUnboundedPolar
+import BookProof.ChapterUnboundedPolar
 
 /-!
 # The polar decomposition as a genuine partial isometry, and its uniqueness

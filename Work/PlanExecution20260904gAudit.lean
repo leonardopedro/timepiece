@@ -2,7 +2,7 @@ import BookProof.Qym.ChapterYangMillsAbelianEsa
 import BookProof.Qym.ChapterYangMillsCertificateSeam
 import BookProof.Ns.ChapterNsOuterFockSingleTime
 import BookProof.Ns.ChapterNavierStokesEsaConsolidation
-import BookProof.ChapterNonnegSemigroup
+import BookProof.Toolbox.ChapterNonnegSemigroup
 
 /-!
 Axiom audit for the 2026-09-04g execution wave (`CONSOLIDATED_PLAN.md`): QYM next steps 1–2

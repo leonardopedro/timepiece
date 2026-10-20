@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Qym.ChapterYangMillsSU3
-import BookProof.ChapterCPTHamiltonian
+import BookProof.Textbook.ChapterCPTHamiltonian
 import BookProof.Sm.ChapterSmCarAlgebra
 import BookProof.Sm.ChapterSmDiracYukawa
 import BookProof.Sm.ChapterSmDiracSpinor

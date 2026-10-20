@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterKvnKatoEsa
-import BookProof.ChapterKoopmanLyapunovFarisLavine
+import BookProof.Ns.ChapterKoopmanLyapunovFarisLavine
 import BookProof.Toolbox.ChapterHermiteGraphApprox
 
 /-!

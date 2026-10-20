@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterFreeFieldBornSignOrientationCard
+import BookProof.ChapterFreeFieldBornSignOrientationCard
 
 /-!
 # Chapter "Wave-function parametrization of a probability measure", §5 —

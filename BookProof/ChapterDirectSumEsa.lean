@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Ns.ChapterNavierStokesFockContinuum
-import BookProof.Toolbox.ChapterStoneBridge
-import BookProof.Toolbox.ChapterFarisLavine
+import BookProof.ChapterNavierStokesFockContinuum
+import BookProof.ChapterStoneBridge
+import BookProof.ChapterFarisLavine
 
 /-!
 # Fibrewise essential self-adjointness glues: the orthogonal direct sum

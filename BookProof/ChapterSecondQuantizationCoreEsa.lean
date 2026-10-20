@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterTensorGraphCore
+import BookProof.ChapterTensorGraphCore
 import BookProof.ChapterDirectSumEsa
 
 /-!
@@ -11,7 +11,7 @@ on the one-particle core `D`:
 
 1. the **core transfer principle** of `BookProof/ChapterGraphCoreTransfer.lean`: essential
    self-adjointness passes from a domain to any graph-norm dense subspace of it;
-2. the **multilinear core estimate** of `BookProof/Toolbox/ChapterTensorGraphCore.lean`: if `D` is a
+2. the **multilinear core estimate** of `BookProof/ChapterTensorGraphCore.lean`: if `D` is a
    core for `A`, then `D^{⊗n}` is a core for the sector derivation `dΓ(A)⁽ⁿ⁾` on `D₂^{⊗n}`;
 3. the ℓ²-**direct sum** instrument `BookProof.DirectSumEsa.dsOp_essentiallySelfAdjointOn`,
    already in the tree: fibrewise essential self-adjointness glues along the particle-number

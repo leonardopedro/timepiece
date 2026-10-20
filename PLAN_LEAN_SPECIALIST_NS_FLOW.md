@@ -26,7 +26,7 @@ part by part (all registered in `BookProof.lean`, all `#check`-ed from
 | B Lagrangian + volume | `ChapterNavierStokesFlow.lean` | `lagrangian_velocity`, `volume_preservation_constraint`, `transformed_hamiltonian_decomposition`, `det_one_add_smul_hasDerivAt` |
 | C finite truncation | `ChapterNavierStokesFlow.lean` | `nsHamiltonian`, `nsHamiltonian_hermitian`, `nsHamiltonian_isPolynomial`, `nsWord_length_le_three` |
 | D complete flow | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesCauchy.lean` | `nsFlow_unitary`, `nsFlow_group`, `nsFlow_norm_preserving`, `nsFlow_noBlowup`, `nsCauchy_existsUnique`, `nsFlow_energy_conserved` |
-| E BRST constraint | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesEulerian.lean` | `nsBrst_nilpotent`, `nsDivergenceConstraint_resolution`, and the **E.3 correction**: `nsBrst_not_hermitian` (Ω is *not* Hermitian when the divergence is non-zero; the honest Hermitian statement is `nsBrst_symmetrization_hermitian`). **E.5 (the derivative-field BRST charge) is ON HOLD — not part of the executed state.** **E.6 (added 2026-08-20, EXECUTED 2026-08-20): Method B — the abstract BRST-doublet / Gauge-Fixing-Fermion skeleton, in `BookProof/ChapterGaugeFixing.lean` (`GaugeFixingSystem`, `Psi`, `L_gf_evaluation`, `L_gf_invariant`, `BrstIntegral`, plus the non-degenerate `matrixModel`).** |
+| E BRST constraint | `ChapterNavierStokesFlow.lean` + `ChapterNavierStokesEulerian.lean` | `nsBrst_nilpotent`, `nsDivergenceConstraint_resolution`, and the **E.3 correction**: `nsBrst_not_hermitian` (Ω is *not* Hermitian when the divergence is non-zero; the honest Hermitian statement is `nsBrst_symmetrization_hermitian`). **E.5 (the derivative-field BRST charge) is ON HOLD — not part of the executed state.** **E.6 (added 2026-08-20, EXECUTED 2026-08-20): Method B — the abstract BRST-doublet / Gauge-Fixing-Fermion skeleton, in `BookProof/Qym/ChapterGaugeFixing.lean` (`GaugeFixingSystem`, `Psi`, `L_gf_evaluation`, `L_gf_invariant`, `BrstIntegral`, plus the non-degenerate `matrixModel`).** |
 | G Faris–Lavine | `ChapterFarisLavine.lean` + `ChapterNavierStokesHermiteFarisLavine.lean`, `FockManyMode.lean`, `MomentumEsa.lean`, `IkebeKato.lean`, `ShiftHamiltonian.lean`, `MomentumPerturbation.lean` | `essentiallySelfAdjointOn_of_farisLavine` (the criterion **proved**, Theorem 1 + Cor. 1.1), `nsH_essentiallySelfAdjointOn_core`, `fockH_essentiallySelfAdjointOn_core`, `ns_hamiltonian_essentiallySelfAdjointOn_core`, `navierStokes_fock_hamiltonian_essentiallySelfAdjointOn_core`, `pertHam_essentiallySelfAdjointOn_core` — both FL inequalities proved for the Hamiltonian itself, with a genuinely non-vanishing commutator `fock_commForm_ne_zero` |
 | ESA criteria + limits | `ChapterNavierStokesEsa.lean`, `ChapterNavierStokesDeficiency.lean`, `ChapterNavierStokesFullEsa.lean`, `ChapterNavierStokesLagrangianEsa.lean`, `ChapterNavierStokesSecondQuant.lean` | `hasZeroDeficiencyOn_of_completeUnitaryFlow`, `hasZeroDeficiencyOn_of_total_eigenvectors`, `jacobi_symmetric_dense_not_esa` (the limit-circle counterexample), `exists_nsFullData_not_hasZeroDeficiencyOn`, `fockOp_hasZeroDeficiencyOn` (the one-particle→Fock lift) |
 
@@ -671,7 +671,7 @@ ghost/multiplication structure of E.5 (and the Yang–Mills charge) relies on.  
 is **executable now** (self-contained, no analysis/Hilbert spaces) and is the
 right *first* BRST milestone because it introduces the two ingredients the later
 concrete charges need: a **bi-graded multiplication** and the **Gauge-Fixing
-Fermion** `Ψ`.  Suggested module `BookProof/ChapterGaugeFixing.lean`, namespace
+Fermion** `Ψ`.  Suggested module `BookProof/Qym/ChapterGaugeFixing.lean`, namespace
 `BookProof.GaugeFixing`.
 
 The mechanism: the field `v` and the ghosts form **BRST doublets (contractible
@@ -704,7 +704,7 @@ about continuum physics, so it does not conflict with the discipline that
 continuum existence claims are named hypotheses, not axioms.
 
 **Execution record (2026-08-20).** E.6 landed in
-`BookProof/ChapterGaugeFixing.lean` (namespace `BookProof.GaugeFixing`),
+`BookProof/Qym/ChapterGaugeFixing.lean` (namespace `BookProof.GaugeFixing`),
 registered in `BookProof.lean`, audited in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`
 and `#check`-ed from `Book/FreeField.lean`.  All items E.6.1–E.6.9 are proved,
 `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`, `Quot.sound`).
@@ -906,8 +906,8 @@ the classical flow is incomplete; the book.tex auxiliary-operator argument is
 exactly the one that project's ODE chapter corrects. Any future attempt must
 first construct a genuinely complete classical-flow / analytic realization, on
 the pattern of the ODE chapter's `w = 1/x` resolution — and the honest current
-record is `BookProof/ChapterUnboundedPosition.lean` +
-`BookProof/ChapterContinuityUnitaryInfinite.lean` (the `ℓ²(ℤ)` bounded layer, where
+record is `BookProof/Probability/ChapterUnboundedPosition.lean` +
+`BookProof/Probability/ChapterContinuityUnitaryInfinite.lean` (the `ℓ²(ℤ)` bounded layer, where
 Stone's relation is discharged for multiplication operators) plus the
 Stone-theorem-in-full-generality target already recorded in `CONSOLIDATED_PLAN.md`
 §9.

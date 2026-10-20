@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterGaugeFixing
-import BookProof.ChapterBrstReducedTransfer
+import BookProof.Qym.ChapterGaugeFixing
+import BookProof.Qym.ChapterBrstReducedTransfer
 import BookProof.Qg.ChapterQuantumGravity3DGauge
 import BookProof.Toolbox.ChapterFockQuadraticEsa
 

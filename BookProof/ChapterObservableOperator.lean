@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterObservableExpectation
+import BookProof.ChapterObservableExpectation
 
 /-!
 # Chapter "The Coherent State of Attention", §"The Posterior: Observable

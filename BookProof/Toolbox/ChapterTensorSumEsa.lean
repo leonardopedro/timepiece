@@ -1,12 +1,12 @@
 import Mathlib
-import BookProof.ChapterFlowDGammaEsa
-import BookProof.ChapterEsaOneParticleDGamma
+import BookProof.Toolbox.ChapterFlowDGammaEsa
+import BookProof.Toolbox.ChapterEsaOneParticleDGamma
 import BookProof.Toolbox.ChapterStoneBridge
 
 /-!
 # The tensor sum of two **different** operators: `A ⊗ 1 + 1 ⊗ B`
 
-`BookProof/ChapterFlowDGammaEsa.lean` and `BookProof/ChapterEsaOneParticleDGamma.lean` settle
+`BookProof/Toolbox/ChapterFlowDGammaEsa.lean` and `BookProof/Toolbox/ChapterEsaOneParticleDGamma.lean` settle
 the second quantization `dΓ(A)` of a *single* one-particle operator, where every factor of the
 tensor power carries the *same* operator.  This module removes that restriction in the
 two-factor case: the two Hilbert spaces are different, and so are the two operators.

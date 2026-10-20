@@ -2,7 +2,7 @@ import Mathlib
 import BookProof.Qg.ChapterStarobinskyPotential
 import BookProof.Qg.ChapterScalaronWallEsa
 import BookProof.Qg.ChapterScalaronCoreEsa
-import BookProof.ChapterWallEsaSemibounded
+import BookProof.Qg.ChapterWallEsaSemibounded
 import BookProof.Toolbox.ChapterFriedrichsFormGap
 
 /-!

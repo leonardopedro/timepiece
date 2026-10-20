@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterAttentionRetrieval
+import BookProof.ChapterAttentionRetrieval
 
 /-!
 # Chapter "The Coherent State of Attention": sinusoidal positions

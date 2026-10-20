@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterFarisLavine
+import BookProof.ChapterFarisLavine
 
 /-!
 # Essential self-adjointness of the wave operator on the Schwartz core

@@ -1,15 +1,15 @@
 import Mathlib
-import BookProof.Textbook.ChapterA3
+import BookProof.ChapterA3
 
 /-!
 # Chapter A, §A.3 — the commutant of the concrete Majorana/Dirac γ-matrices
 
-`BookProof/Textbook/ChapterA3b.lean` takes the **Pauli fundamental theorem** (Note 36) as
+`BookProof/ChapterA3b.lean` takes the **Pauli fundamental theorem** (Note 36) as
 an `EXTERNAL` named hypothesis `PauliFundamental`, because in the stated
 generality (all complex Clifford sets on `ℂ⁴`) it is not available in Mathlib.
 
 This file discharges the `EXTERNAL` flag **for the fixed 4×4 model** built in
-`BookProof/Textbook/ChapterA3.lean`: it proves, by an explicit finite computation, the
+`BookProof/ChapterA3.lean`: it proves, by an explicit finite computation, the
 Schur-type statement
 
   *any complex `4×4` matrix commuting with all four Majorana matrices `iγ^μ`

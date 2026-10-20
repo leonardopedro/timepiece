@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterSqSumOuterFamily
+import BookProof.Toolbox.ChapterSqSumOuterFamily
 import BookProof.Qg.ChapterQgOuterFockInteractionFL
 
 /-!

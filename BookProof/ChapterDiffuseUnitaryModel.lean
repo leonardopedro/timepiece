@@ -1,5 +1,5 @@
-import BookProof.Probability.ChapterDiffuseCdfModel
-import BookProof.Probability.ChapterLinftyMultiplication
+import BookProof.ChapterDiffuseCdfModel
+import BookProof.ChapterLinftyMultiplication
 
 /-!
 # The diffuse summand is multiplication on `L²[0,1]` (plan GAP-2)

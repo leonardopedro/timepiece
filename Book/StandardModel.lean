@@ -67,17 +67,17 @@ covariant derivative),
 `BookProof/Sm/ChapterSmGaugeRepresentation.lean` (the ghost/BRST sector), and
 `BookProof/ChapterSmHiggsVacuum.lean` (symmetry breaking as statics). The
 fourth takes the manuscript's own BRST definition literally:
-`BookProof/ChapterBookBrstYangMills.lean`,
-`BookProof/ChapterBookBrstGaugeFixing.lean` and
-`BookProof/ChapterBookBrstInstances.lean`. The fifth closes the last open
+`BookProof/Qym/ChapterBookBrstYangMills.lean`,
+`BookProof/Qym/ChapterBookBrstGaugeFixing.lean` and
+`BookProof/Qym/ChapterBookBrstInstances.lean`. The fifth closes the last open
 analytic hypothesis of the bosonic route: it begins with
 `BookProof/Sm/ChapterSmFarisLavine.lean` (the two Faris–Lavine inequalities,
 against the comparison operator that actually satisfies them) and continues
 through the independent Kato-type theorem and its transfer between the two
 cores — `BookProof/Toolbox/ChapterDegSchrodingerCore.lean`,
-`BookProof/ChapterMollifierL2.lean`, `BookProof/ChapterConvolutionCalc.lean`,
-`BookProof/ChapterDegEnergyEstimate.lean`,
-`BookProof/ChapterDegKatoEsa.lean`,
+`BookProof/Toolbox/ChapterMollifierL2.lean`, `BookProof/Toolbox/ChapterConvolutionCalc.lean`,
+`BookProof/Toolbox/ChapterDegEnergyEstimate.lean`,
+`BookProof/Toolbox/ChapterDegKatoEsa.lean`,
 `BookProof/Toolbox/ChapterHermiteLadderOrder.lean`,
 `BookProof/Toolbox/ChapterHermiteGraphApprox.lean` and
 `BookProof/Sm/ChapterSmComparisonEsa.lean` — ending in the unconditional
@@ -417,15 +417,15 @@ worth walking through because the instrument is general.
 `BookProof/Toolbox/ChapterDegSchrodingerCore.lean` sets up the class: operators
 $`-\Delta_S + W`$ whose kinetic term differentiates only a subset $`S`$ of
 the coordinates, on both cores the project works with. The analytic heart is
-`BookProof/ChapterDegKatoEsa.lean`: a deficiency vector $`w`$ at a purely
+`BookProof/Toolbox/ChapterDegKatoEsa.lean`: a deficiency vector $`w`$ at a purely
 imaginary $`z`$ is *mollified* — for a smooth compactly supported mollifier
 $`\rho_\varepsilon`$ the translate-average $`w * \rho_\varepsilon`$ is smooth,
-which is what `BookProof/ChapterMollifierL2.lean` (mollification converges in
-$`L^2`$) and `BookProof/ChapterConvolutionCalc.lean` (the mollified function
+which is what `BookProof/Toolbox/ChapterMollifierL2.lean` (mollification converges in
+$`L^2`$) and `BookProof/Toolbox/ChapterConvolutionCalc.lean` (the mollified function
 is smooth, and every derivative falls on the smooth factor) make precise — and
 the smoothed deficiency equation is tested against a cut-off
 $`\chi_R^2 \bar w_\varepsilon`$. One integration by parts per direction of
-$`S`$, the Young absorption of `BookProof/ChapterDegEnergyEstimate.lean`, and
+$`S`$, the Young absorption of `BookProof/Toolbox/ChapterDegEnergyEstimate.lean`, and
 the limit $`\varepsilon \to 0`$ at fixed $`R`$ leave
 $`\int_{\lVert x \rVert \le R} |w|^2 \le (2C^2/R^2)\lVert w\rVert^2`$; letting
 $`R \to \infty`$ gives $`w = 0`$. No elliptic regularity is used, and no
@@ -462,7 +462,7 @@ polynomial, $`W \ge 1`$ and every coordinate subset $`S`$ — so the same two
 theorems also give the non-abelian Yang–Mills instance of the same shape
 (`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean`, next section). One vocabulary
 detail keeps the two convolutions apart: the convolution of
-`BookProof/ChapterConvolutionCalc.lean` is the *mollifier* convolution of
+`BookProof/Toolbox/ChapterConvolutionCalc.lean` is the *mollifier* convolution of
 analysis; the momentum-space convolution that disposes of products of fields
 with spatial derivatives is the NS/QG device of
 `BookProof/ChapterNsAdvectionConvolution.lean` and plays no role here.

@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterStoneResolvent
-import BookProof.Probability.ChapterSpectralDirectSum
+import BookProof.ChapterStoneResolvent
+import BookProof.ChapterSpectralDirectSum
 
 /-!
 # The spectral theorem in multiplication form for an **unbounded** self-adjoint operator

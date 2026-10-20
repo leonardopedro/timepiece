@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Textbook.ChapterH9
+import BookProof.ChapterH9
 
 /-!
 # Crouzeix's inequality on a half-plane: the exponential of an operator whose numerical
