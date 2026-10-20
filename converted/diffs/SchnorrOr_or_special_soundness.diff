@@ -1,0 +1,57 @@
+--- Downloads/arctic-crypto/SchnorrOr.or_special_soundness.lean
++++ converted/Prove2me/ArcticCrypto/SchnorrOr_or_special_soundness.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : f77c069a-58b7-4678-a789-1cebbf75de35
++* original name       : `SchnorrOr.or_special_soundness`
++* title               : Special soundness of the OR-composition.
++* statement author    : raver1975
++* solution author     : raver1975 (submission 1e92d3e6-7a5c-4e41-afd9-59e18293ae0b,
++                        accepted 2026-09-12T07:04:31.421111+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/SchnorrOrProof.lean#L130
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/arctic-crypto/SchnorrOr.or_special_soundness.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/SchnorrOr_or_special_soundness.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/SchnorrOrProof.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_SchnorrIdentification
+@@ -76,7 +93,7 @@
+ 
+ 
+ open SchnorrOr in
+-theorem solution    (Y₁ Y₂ : ZMod P.p) (T T' : OrTranscript P)
++theorem _root_.Prove2me.Solution.SchnorrOr_or_special_soundness    (Y₁ Y₂ : ZMod P.p) (T T' : OrTranscript P)
+     (hT : orAccepts P Y₁ Y₂ T) (hT' : orAccepts P Y₁ Y₂ T')
+     (ht₁ : T.t₁ = T'.t₁) (ht₂ : T.t₂ = T'.t₂)
+     (hc : T.c ≠ T'.c) :
+@@ -107,3 +124,24 @@
+         rw [sub_mul, ha₂, ha₂']
+       rw [this, ht₂]; ring
+     rw [mul_assoc, hcancel, ← mul_assoc, inv_mul_cancel₀ hcne, one_mul]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open SchnorrOr
++variable (P : SchnorrParams)
++
++theorem SchnorrOr.or_special_soundness    (Y₁ Y₂ : ZMod P.p) (T T' : OrTranscript P)
++    (hT : orAccepts P Y₁ Y₂ T) (hT' : orAccepts P Y₁ Y₂ T')
++    (ht₁ : T.t₁ = T'.t₁) (ht₂ : T.t₂ = T'.t₂)
++    (hc : T.c ≠ T'.c) :
++    ∃ x : ZMod P.p, x * P.g = Y₁ ∨ x * P.g = Y₂ := by
++  first
++  | exact _root_.Prove2me.Solution.SchnorrOr_or_special_soundness P Y₁ Y₂ T T' hT hT' ht₁ ht₂ hc
++  | (apply _root_.Prove2me.Solution.SchnorrOr_or_special_soundness <;> assumption)
++
++
++end Prove2meStatement

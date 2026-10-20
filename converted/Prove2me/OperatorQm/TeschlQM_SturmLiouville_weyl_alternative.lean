@@ -1,0 +1,67 @@
+/-
+Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
+
+* platform theorem id : 0bcf995e-7880-441e-919c-ae0f7aeb78b2
+* original name       : `TeschlQM.SturmLiouville.weyl_alternative`
+* title               : Theorem 9.9 — Weyl's limit circle / limit point alternative
+* statement author    : mikedeng1
+* solution author     : Gabewhigham (submission 1ef5f375-1be3-4080-b9d8-759300f72f58,
+                        accepted 2026-10-05T16:39:49.949336+00:00)
+* source              : Teschl, Mathematical Methods in Quantum Mechanics, AMS GSM 99, 2009, p. 191, Theorem 9.9
+* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
+* original file       : Downloads/operator-qm/TeschlQM.SturmLiouville.weyl_alternative.lean
+
+Public prove2.me contributions are licensed under Apache 2.0
+(https://prove2.me/terms); this file keeps that license. The conversion diff
+against the original download is `converted/diffs/TeschlQM_SturmLiouville_weyl_alternative.diff`.
+-/
+import Theorems.Thm_TeschlQM_SturmLiouville_sqIntegrable_all_z
+import Theorems.Thm_TeschlQM_SturmLiouville_limitCircle_of_sqIntegrable
+import Theorems.Thm_TeschlQM_SturmLiouville_sqIntegrable_of_limitCircle
+
+open TeschlQM.SturmLiouville
+
+theorem _root_.Prove2me.Solution.TeschlQM_SturmLiouville_weyl_alternative (L : SLData) :
+    (IsLimitCircleLeft L ↔
+        ∃ z₀ : ℂ, ∀ u : ℝ → ℂ, IsSolution L z₀ 0 u → IsSqIntegrableNearLeft L u) ∧
+      (IsLimitCircleLeft L →
+        ∀ z : ℂ, ∀ u : ℝ → ℂ, IsSolution L z 0 u → IsSqIntegrableNearLeft L u) ∧
+      (IsLimitCircleRight L ↔
+        ∃ z₀ : ℂ, ∀ u : ℝ → ℂ, IsSolution L z₀ 0 u → IsSqIntegrableNearRight L u) ∧
+      (IsLimitCircleRight L →
+        ∀ z : ℂ, ∀ u : ℝ → ℂ, IsSolution L z 0 u → IsSqIntegrableNearRight L u) := by
+  obtain ⟨P1, P2⟩ := sqIntegrable_all_z L
+  obtain ⟨C1, C2⟩ := limitCircle_of_sqIntegrable L 0
+  obtain ⟨S1, S2⟩ := sqIntegrable_of_limitCircle L
+  refine ⟨⟨S1, fun h => C1 (by simpa using P1 h 0)⟩, fun h => P1 (S1 h),
+    ⟨S2, fun h => C2 (by simpa using P2 h 0)⟩, fun h => P2 (S2 h)⟩
+
+/-! ## Platform statement
+
+The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
+
+section Prove2meStatement
+
+namespace TeschlQM.SturmLiouville
+
+/-- Teschl, Theorem 9.9 (Weyl alternative), p. 191. `τ` is l.c. at `a` if and only if for one
+`z₀ ∈ ℂ` all solutions of `(τ − z₀) u = 0` are square integrable near `a`. This then holds for all
+`z ∈ ℂ`, and similarly for `b`. Limit circle is the Wronskian notion of p. 187, not square
+integrability. -/
+theorem weyl_alternative (L : SLData) :
+    (IsLimitCircleLeft L ↔
+        ∃ z₀ : ℂ, ∀ u : ℝ → ℂ, IsSolution L z₀ 0 u → IsSqIntegrableNearLeft L u) ∧
+      (IsLimitCircleLeft L →
+        ∀ z : ℂ, ∀ u : ℝ → ℂ, IsSolution L z 0 u → IsSqIntegrableNearLeft L u) ∧
+      (IsLimitCircleRight L ↔
+        ∃ z₀ : ℂ, ∀ u : ℝ → ℂ, IsSolution L z₀ 0 u → IsSqIntegrableNearRight L u) ∧
+      (IsLimitCircleRight L →
+        ∀ z : ℂ, ∀ u : ℝ → ℂ, IsSolution L z 0 u → IsSqIntegrableNearRight L u) := by
+  first
+  | exact _root_.Prove2me.Solution.TeschlQM_SturmLiouville_weyl_alternative L
+  | (apply _root_.Prove2me.Solution.TeschlQM_SturmLiouville_weyl_alternative <;> assumption)
+
+end TeschlQM.SturmLiouville
+
+
+end Prove2meStatement

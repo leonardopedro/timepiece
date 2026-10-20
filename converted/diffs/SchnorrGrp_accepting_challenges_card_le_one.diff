@@ -1,0 +1,64 @@
+--- Downloads/arctic-crypto/SchnorrGrp.accepting_challenges_card_le_one.lean
++++ converted/Prove2me/ArcticCrypto/SchnorrGrp_accepting_challenges_card_le_one.lean
+@@ -1,8 +1,26 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 894f2a1a-2475-42ea-8c53-c9759a5b4796
++* original name       : `SchnorrGrp.accepting_challenges_card_le_one`
++* title               : A commitment/response pair `(a, z)` fixed *before* the challenge is accepted for at most
++* statement author    : raver1975
++* solution author     : raver1975 (submission c46aab86-1b55-43c0-b27c-cd8f1fb2ad3e,
++                        accepted 2026-09-12T07:02:52.74873+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean#L235
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/arctic-crypto/SchnorrGrp.accepting_challenges_card_le_one.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/SchnorrGrp_accepting_challenges_card_le_one.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupProtocol
+-import Theorems.Thm_SchnorrGrp_gexp_injective
+-import Theorems.Thm_SchnorrGrp_orderOf_eq_of_prime
++import Prove2me.ArcticCrypto.SchnorrGrp_gexp_injective  -- was `Theorems.Thm_SchnorrGrp_gexp_injective`
++import Prove2me.ArcticCrypto.SchnorrGrp_orderOf_eq_of_prime  -- was `Theorems.Thm_SchnorrGrp_orderOf_eq_of_prime`
++
+ /-
+ Copyright (c) 2026 Harmonic. All rights reserved.
+ Released under Apache 2.0 license as described in the file LICENSE.
+@@ -89,7 +107,7 @@
+ 
+ open SchnorrGrp in
+ open scoped Classical in
+-theorem solution[Fact q.Prime] {g pub : G} (hpub : pub ^ q = 1)
++theorem _root_.Prove2me.Solution.SchnorrGrp_accepting_challenges_card_le_one[Fact q.Prime] {g pub : G} (hpub : pub ^ q = 1)
+     (hpub1 : pub ≠ 1) (a : G) (z : ZMod q) :
+     (Finset.univ.filter (fun c : ZMod q => Accepts g pub ⟨a, c, z⟩)).card ≤ 1 := by
+   refine Finset.card_le_one.mpr ?_
+@@ -98,3 +116,23 @@
+   have hgg : gexp pub c₁ = gexp pub c₂ :=
+     mul_left_cancel (a := a) (by rw [← h₁.2, ← h₂.2])
+   exact gexp_injective (orderOf_eq_of_prime hpub hpub1) hgg
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open SchnorrGrp
++variable {G : Type*} [CommGroup G] {q : ℕ}
++open scoped Classical in
++
++theorem SchnorrGrp.accepting_challenges_card_le_one[Fact q.Prime] {g pub : G} (hpub : pub ^ q = 1)
++    (hpub1 : pub ≠ 1) (a : G) (z : ZMod q) :
++    (Finset.univ.filter (fun c : ZMod q => Accepts g pub ⟨a, c, z⟩)).card ≤ 1 := by
++  first
++  | exact _root_.Prove2me.Solution.SchnorrGrp_accepting_challenges_card_le_one hpub hpub1 a z
++  | (apply _root_.Prove2me.Solution.SchnorrGrp_accepting_challenges_card_le_one <;> assumption)
++
++
++end Prove2meStatement

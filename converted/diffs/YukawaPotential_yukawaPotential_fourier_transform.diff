@@ -1,0 +1,109 @@
+--- Downloads/qft-wick/YukawaPotential.yukawaPotential_fourier_transform.lean
++++ converted/Prove2me/QftWick/YukawaPotential_yukawaPotential_fourier_transform.lean
+@@ -1,7 +1,24 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 0d3b2986-d38e-419a-8b8c-4fba5ed1c3e8
++* original name       : `YukawaPotential.yukawaPotential_fourier_transform`
++* title               : Fourier transform of the Yukawa potential: $\hat V(k) = -g^2\,4\pi/(|k|^2+(\alpha m)^2)$
++* statement author    : Lucas
++* solution author     : fizzyinc3 (submission 9e3acef7-43b8-4103-99d3-db3c3be23ad6,
++                        accepted 2026-10-17T12:11:11.861082+00:00)
++* source              : Wikipedia, "Yukawa potential", revision oldid=1371658231, https://en.wikipedia.org/w/index.php?title=Yukawa_potential&oldid=1371658231, sections 'Fourier transform' and 'Feynman amplitude': V(k) = -g² 4π/(k² + m²) 'is seen to be the Fourier transform of the Yukawa potential'.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/YukawaPotential.yukawaPotential_fourier_transform.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/YukawaPotential_yukawaPotential_fourier_transform.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_NewtonGravitation_Defs
+ import Definitions.Def_YukawaPotential_Defs
+-
++import Prove2me.Shim.Integrability
+ 
+ open MeasureTheory NewtonGravitation Metric
+ open scoped Pointwise
+@@ -96,7 +113,7 @@
+     (by rw [finrank_space]; norm_num) (Filter.Eventually.of_forall fun z => ?_)
+     kern_meas.aestronglyMeasurable
+   rcases eq_or_ne z 0 with rfl | hz
+-  · simp
++  · rw [norm_zero, Real.zero_rpow (by norm_num)]; simp  -- conversion
+   have hn : 0 < ‖z‖ := norm_pos_iff.mpr hz
+   rw [norm_smul, norm_neg, Real.norm_eq_abs, abs_of_pos (div_pos G_pos (pow_pos hn 3)),
+     Real.rpow_neg hn.le, Real.rpow_two]
+@@ -374,7 +391,7 @@
+         simp only [PiLp.smul_apply, smul_eq_mul]
+         rw [inv_mul_eq_div]; exact h2
+       · simp only; rw [smul_smul, mul_inv_cancel₀ hn.ne', one_smul]
+-  rw [hC, measure_sdiff_null (measure_singleton 0)]
++  rw [hC, measure_diff_null (measure_singleton 0)]
+   have hDm : MeasurableSet D := by
+     apply MeasurableSet.inter
+     · exact measurableSet_lt (f := fun x : Space => ‖x‖ ^ 2) (by fun_prop) measurable_const
+@@ -579,9 +596,11 @@
+     rw [e1, e2, sqrt_sq_eq_abs, sqrt_sq_eq_abs, abs_of_pos (by linarith : 0 < r + s)]
+     split_ifs with h
+     · rw [abs_of_pos (by linarith : 0 < r - s)]
++      have hne : r - s ≠ 0 := sub_ne_zero.mpr (Ne.symm hrs)  -- conversion
+       field_simp; ring
+     · have : s > r := lt_of_le_of_ne (not_lt.mp h) (Ne.symm hrs)
+       rw [abs_of_neg (by linarith : r - s < 0)]
++      have hne : r - s ≠ 0 := sub_ne_zero.mpr (Ne.symm hrs)  -- conversion
+       field_simp; ring
+   · apply ContinuousOn.intervalIntegrable
+     intro t ht
+@@ -726,7 +745,7 @@
+     intro u
+     obtain ⟨A, hA1, -⟩ := exists_isom_xu x hx u
+     have := integral_isom hμ x A (fun x y => ‖kern (x - y)‖)
+-      (fun y => by rw [← map_sub, kern_isom, LinearIsometryEquiv.norm_map])
++      (fun y => by beta_reduce; rw [← map_sub, kern_isom, LinearIsometryEquiv.norm_map])
+     try simp only at this
+     rwa [hA1] at this
+   have hΦi : Integrable Φ (sig.prod μ) := by
+@@ -917,6 +936,7 @@
+     rw [setIntegral_congr_fun measurableSet_Ioi hpt, integral_complex_ofReal, integral_const_mul,
+       integral_rpow_mul_exp_neg_mul_rpow (by norm_num) (by norm_num) ha]
+     norm_num [Real.Gamma_two]
++    simp only [zpow_ofNat]  -- conversion: the pinned `norm_num` leaves an integer power
+     ring
+   · have hκ : 0 < ‖k‖ := norm_pos_iff.2 hk
+     set κ := ‖k‖ with hκ_def
+@@ -961,9 +981,32 @@
+ end YKFT
+ 
+ open YukawaPotential in
+-theorem solution (g α m : ℝ) (hα : 0 < α) (hm : 0 < m)
++theorem _root_.Prove2me.Solution.YukawaPotential_yukawaPotential_fourier_transform (g α m : ℝ) (hα : 0 < α) (hm : 0 < m)
+     (k : EuclideanSpace ℝ (Fin 3)) :
+     ∫ x : EuclideanSpace ℝ (Fin 3),
+         Complex.exp (-(Complex.I * (inner ℝ k x : ℝ))) * ((yukawaPotential g α m ‖x‖ : ℝ) : ℂ) =
+       ((-g ^ 2 * (4 * Real.pi / (‖k‖ ^ 2 + (α * m) ^ 2)) : ℝ) : ℂ) :=
+   YKFT.ft g α m hα hm k
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory Filter Topology
++
++namespace YukawaPotential
++theorem yukawaPotential_fourier_transform (g α m : ℝ) (hα : 0 < α) (hm : 0 < m)
++    (k : EuclideanSpace ℝ (Fin 3)) :
++    ∫ x : EuclideanSpace ℝ (Fin 3),
++        Complex.exp (-(Complex.I * (inner ℝ k x : ℝ))) * ((yukawaPotential g α m ‖x‖ : ℝ) : ℂ) =
++      ((-g ^ 2 * (4 * Real.pi / (‖k‖ ^ 2 + (α * m) ^ 2)) : ℝ) : ℂ) := by
++  first
++  | exact _root_.Prove2me.Solution.YukawaPotential_yukawaPotential_fourier_transform g α m hα hm k
++  | (apply _root_.Prove2me.Solution.YukawaPotential_yukawaPotential_fourier_transform <;> assumption)
++
++end YukawaPotential
++
++
++end Prove2meStatement

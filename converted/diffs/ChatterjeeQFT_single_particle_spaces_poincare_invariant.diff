@@ -1,0 +1,64 @@
+--- Downloads/qft-wick/ChatterjeeQFT.single_particle_spaces_poincare_invariant.lean
++++ converted/Prove2me/QftWick/ChatterjeeQFT_single_particle_spaces_poincare_invariant.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : bd7ca1ae-8ce3-409a-9376-db733d0d201f
++* original name       : `ChatterjeeQFT.single_particle_spaces_poincare_invariant`
++* title               : The one-particle boson and electron spaces carry unitary Poincaré actions
++* statement author    : Lucas
++* solution author     : Nickrobbins95 (submission 27d4a475-9a01-4dfe-8706-3371eca4ac92,
++                        accepted 2026-09-24T16:14:21.069982+00:00)
++* source              : S. Chatterjee, *Lectures on Quantum Field Theory* (Stanford, 2018-19, combined scribed lecture notes), https://souravchatterjee.su.domains/qft-lectures-combined.pdf, Lecture 11 §11.3 p. 45 (scalar bosons) and Lecture 25 §25.3 pp. 108-109 (electrons; the inner product and Lemma 25.1 are introduced precisely to make the representation unitary).
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/ChatterjeeQFT.single_particle_spaces_poincare_invariant.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/ChatterjeeQFT_single_particle_spaces_poincare_invariant.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_ChatterjeeQFT_ElectronSpace
+ 
+@@ -556,7 +573,7 @@
+ 
+ set_option maxHeartbeats 4000000 in
+ open MeasureTheory Matrix ChatterjeeQFT in
+-theorem solution (m : ℝ) (hm : 0 < m) (a : Fin 4 → ℝ)
++theorem _root_.Prove2me.Solution.ChatterjeeQFT_single_particle_spaces_poincare_invariant (m : ℝ) (hm : 0 < m) (a : Fin 4 → ℝ)
+     (A : Matrix (Fin 2) (Fin 2) ℂ) (hA : A.det = 1) (L : Matrix (Fin 4) (Fin 4) ℝ)
+     (hL : ∀ x : Fin 4 → ℝ, kappa A x = L *ᵥ x) :
+     (∀ ψ φ : (Fin 4 → ℝ) → ℂ, MemLp ψ 2 (massShellMeasure m) → MemLp φ 2 (massShellMeasure m) →
+@@ -565,3 +582,31 @@
+       (∀ ψ φ : (Fin 4 → ℝ) → (Fin 2 → ℂ), ψ ∈ ElectronL2 m → φ ∈ ElectronL2 m →
+         electronInner m (electronAction a A ψ) (electronAction a A φ) = electronInner m ψ φ) := by
+   exact ChatterjeeQFTBuild.main m hm a A hA L hL
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory Matrix
++open scoped ENNReal ComplexOrder
++
++namespace ChatterjeeQFT
++
++theorem single_particle_spaces_poincare_invariant (m : ℝ) (hm : 0 < m) (a : Fin 4 → ℝ)
++    (A : Matrix (Fin 2) (Fin 2) ℂ) (hA : A.det = 1) (L : Matrix (Fin 4) (Fin 4) ℝ)
++    (hL : ∀ x : Fin 4 → ℝ, kappa A x = L *ᵥ x) :
++    (∀ ψ φ : (Fin 4 → ℝ) → ℂ, MemLp ψ 2 (massShellMeasure m) → MemLp φ 2 (massShellMeasure m) →
++        ∫ p, (starRingEnd ℂ) (bosonAction a L ψ p) * bosonAction a L φ p ∂(massShellMeasure m)
++          = ∫ p, (starRingEnd ℂ) (ψ p) * φ p ∂(massShellMeasure m)) ∧
++      (∀ ψ φ : (Fin 4 → ℝ) → (Fin 2 → ℂ), ψ ∈ ElectronL2 m → φ ∈ ElectronL2 m →
++        electronInner m (electronAction a A ψ) (electronAction a A φ) = electronInner m ψ φ) := by
++  first
++  | exact _root_.Prove2me.Solution.ChatterjeeQFT_single_particle_spaces_poincare_invariant m hm a A hA L hL
++  | (apply _root_.Prove2me.Solution.ChatterjeeQFT_single_particle_spaces_poincare_invariant <;> assumption)
++
++end ChatterjeeQFT
++
++
++end Prove2meStatement

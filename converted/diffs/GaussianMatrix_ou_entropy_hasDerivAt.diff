@@ -1,0 +1,93 @@
+--- Downloads/unfer-bayes/GaussianMatrix.ou_entropy_hasDerivAt.lean
++++ converted/Prove2me/UnferBayes/GaussianMatrix_ou_entropy_hasDerivAt.lean
+@@ -1,6 +1,23 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : c4907cc8-97a8-41e9-9e2e-0c2371cac042
++* original name       : `GaussianMatrix.ou_entropy_hasDerivAt`
++* title               : Entropy dissipation along the Ornstein–Uhlenbeck semigroup: $\frac{d}{dt}\int P_tf\log P_tf\,d\gamma=-\int ((P_tf)')^2/P_tf\,d\gamma$
++* statement author    : tc
++* solution author     : tc (submission 0d3c76e8-2ee8-451e-87f7-f0cfb09d4386,
++                        accepted 2026-10-09T08:21:34.238728+00:00)
++* source              : D. Bakry, I. Gentil, M. Ledoux, Analysis and Geometry of Markov Diffusion Operators (Springer, 2014), §2.7.1 (Ornstein–Uhlenbeck semigroup, Mehler formula) and §5.7 (entropy dissipation $\frac{d}{dt}\mathrm{Ent}(P_tf)=-I(P_tf)$); M. Ledoux, The Concentration of Measure Phenomenon (AMS, 2001), §5.1 (proof of Theorem 5.1). Section numbers are cited from memory.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/GaussianMatrix.ou_entropy_hasDerivAt.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/GaussianMatrix_ou_entropy_hasDerivAt.diff`.
++-/
+ import Definitions.Def_GaussianMatrix_basic
+-import Theorems.Thm_GaussianMatrix_ou_semigroup_commutation
+-import Theorems.Thm_GaussianMatrix_gaussian_ibp_one_dim
++import Prove2me.UnferBayes.GaussianMatrix_ou_semigroup_commutation  -- was `Theorems.Thm_GaussianMatrix_ou_semigroup_commutation`
++import Prove2me.UnferBayes.GaussianMatrix_gaussian_ibp_one_dim  -- was `Theorems.Thm_GaussianMatrix_gaussian_ibp_one_dim`
+ 
+ open MeasureTheory ProbabilityTheory
+ open scoped Matrix
+@@ -216,7 +233,9 @@
+   · exact integrable_y_mul_bdd_comp f hfc.measurable C hfb _ _
+   · exact ((continuous_id.mul (hdfc.comp (by fun_prop))).const_mul _).aestronglyMeasurable
+   · refine Eventually.of_forall (fun y z _ => ?_)
+-    rw [Real.norm_eq_abs, abs_mul, abs_mul, abs_of_pos (Real.exp_pos _), mul_comm C]
++    rw [Real.norm_eq_abs, abs_mul, abs_mul, abs_of_pos (Real.exp_pos _)]
++    beta_reduce  -- conversion: the pinned `hasDerivAt_integral_of_dominated_loc_of_deriv_le` leaves the bound unreduced
++    rw [mul_comm C]
+     exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left (hdf _) (abs_nonneg _))
+       (Real.exp_pos _).le
+   · exact (integrable_abs_y.const_mul C).const_mul _
+@@ -422,7 +441,7 @@
+ 
+ open GaussianMatrix Filter Topology Set
+ 
+-theorem solution (f : ℝ → ℝ) (hf : ContDiff ℝ 1 f) (δ C : ℝ) (hδ : 0 < δ)
++theorem _root_.Prove2me.Solution.GaussianMatrix_ou_entropy_hasDerivAt (f : ℝ → ℝ) (hf : ContDiff ℝ 1 f) (δ C : ℝ) (hδ : 0 < δ)
+     (hlow : ∀ x, δ ≤ f x) (hup : ∀ x, f x ≤ C) (hdf : ∀ x, |deriv f x| ≤ C) (t : ℝ)
+     (ht : 0 < t) :
+     HasDerivAt
+@@ -517,6 +536,7 @@
+       (by rw [abs_of_pos (hu_pos t x)])) (hlog t x) (abs_nonneg _) hC0.le
+   · have e : D t = fun x => deriv (deriv (ouP t f)) x - x * deriv (ouP t f) x :=
+       funext (time_deriv_eq_generator f hf C hfb hdf t ht)
++    beta_reduce  -- conversion
+     rw [show (fun x => (Real.log (ouP t f x) + 1) * D t x)
+       = fun x => (Real.log (ouP t f x) + 1) * (deriv (deriv (ouP t f)) x
+           - x * deriv (ouP t f) x) from by rw [e]]
+@@ -529,3 +549,36 @@
+   · refine Eventually.of_forall (fun x s hs => ?_)
+     have h1 := hasDerivAt_ouP_time f hf C hfb hdf x s (ouB_ball_bounds ht hs).1
+     exact (Real.hasDerivAt_mul_log (hu_pos s x).ne').comp s h1
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory
++open scoped Matrix
++
++namespace GaussianMatrix
++
++theorem ou_entropy_hasDerivAt (f : ℝ → ℝ) (hf : ContDiff ℝ 1 f) (δ C : ℝ) (hδ : 0 < δ)
++    (hlow : ∀ x, δ ≤ f x) (hup : ∀ x, f x ≤ C) (hdf : ∀ x, |deriv f x| ≤ C) (t : ℝ)
++    (ht : 0 < t) :
++    HasDerivAt
++      (fun s => ∫ x,
++        (∫ y, f (Real.exp (-s) * x + Real.sqrt (1 - Real.exp (-(2 * s))) * y) ∂(gaussianReal 0 1))
++          * Real.log (∫ y, f (Real.exp (-s) * x + Real.sqrt (1 - Real.exp (-(2 * s))) * y)
++              ∂(gaussianReal 0 1)) ∂(gaussianReal 0 1))
++      (-∫ x,
++        deriv (fun z => ∫ y, f (Real.exp (-t) * z + Real.sqrt (1 - Real.exp (-(2 * t))) * y)
++            ∂(gaussianReal 0 1)) x ^ 2
++          / ∫ y, f (Real.exp (-t) * x + Real.sqrt (1 - Real.exp (-(2 * t))) * y) ∂(gaussianReal 0 1)
++        ∂(gaussianReal 0 1)) t := by
++  first
++  | exact _root_.Prove2me.Solution.GaussianMatrix_ou_entropy_hasDerivAt f hf δ C hδ hlow hup hdf t ht
++  | (apply _root_.Prove2me.Solution.GaussianMatrix_ou_entropy_hasDerivAt <;> assumption)
++
++end GaussianMatrix
++
++
++end Prove2meStatement

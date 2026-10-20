@@ -1,0 +1,104 @@
+--- Downloads/unfer-sirk/TeschlODE.HigherDim.volume_hasDerivAt.lean
++++ converted/Prove2me/UnferSirk/TeschlODE_HigherDim_volume_hasDerivAt.lean
+@@ -1,9 +1,26 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : b78c4c68-3160-4ec0-ad33-11b0097c60b1
++* original name       : `TeschlODE.HigherDim.volume_hasDerivAt`
++* title               : Lemma 8.8 — Liouville's formula for volumes, $\dot V(t) = \int_{U(t)} \operatorname{div} f\,dx$ (8.28)
++* statement author    : mikedeng1
++* solution author     : Tim (submission 9341339b-6e97-438e-a4d8-1772a3fdc31f,
++                        accepted 2026-10-07T12:04:02.73199+00:00)
++* source              : Teschl, Ordinary Differential Equations and Dynamical Systems (author's preliminary version of AMS GSM 140, 2012), p. 236, Lemma 8.8, Eq. (8.28)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/TeschlODE.HigherDim.volume_hasDerivAt.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/TeschlODE_HigherDim_volume_hasDerivAt.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_TeschlODE_HigherDim_IsMaximalFlow
+ import Theorems.Thm_AnosovPlugs_exists_flow_contDiffOn_of_lipschitz
+ import Definitions.Def_TeschlODE_HigherDim_IsIntegralCurve
+ import Definitions.Def_TeschlODE_HigherDim_divergence
+-
++import Prove2me.Shim.Misc  -- conversion shim (platform Mathlib API)
+ 
+ open Set
+ 
+@@ -36,7 +53,7 @@
+   obtain ⟨⟨hJo, hJc, hJm, hJd⟩, -, -, -⟩ := hΦ x hx
+   have hy : Φ a x ∈ Ω := hJm a ha
+   have hcur : IsIntegralCurve f Ω ((fun s => s + a) ⁻¹' I x) (fun s => Φ (s + a) x) := by
+-    refine ⟨hJo.preimage (continuous_add_const a), ?_, fun s hs => hJm _ hs, fun s hs => ?_⟩
++    refine ⟨hJo.preimage (continuous_add_right a), ?_, fun s hs => hJm _ hs, fun s hs => ?_⟩
+     · exact hJc.preimage_mono (fun u v huv => by linarith)
+     · exact (hJd (s + a) hs).comp_add_const s a
+   have h0 : (0 : ℝ) ∈ (fun s => s + a) ⁻¹' I x := by simpa using ha
+@@ -95,7 +112,7 @@
+   refine (differentiable_const _).mul ?_
+   intro T
+   classical
+-  exact (HasFDerivAt.finsetProd (u := Finset.univ)
++  exact (HasFDerivAt.finset_prod (u := Finset.univ)
+     (g := fun i (T : E →L[ℝ] E) => (Module.finBasis ℝ E).equivFunL (T ((Module.finBasis ℝ E) i)) (σ i))
+     fun i _ => (hl i (σ i) T).hasFDerivAt).differentiableAt
+ 
+@@ -431,7 +448,9 @@
+   have hmv := Convex.norm_image_sub_le_of_norm_hasDerivWithin_le (f := fun u => (D u y).det)
+     (f' := fun _ => (0 : ℝ)) (C := 0) (s := Ioo (-ε) ε)
+     (fun u hu => (hder u hu).hasDerivWithinAt) (fun _ _ => by simp) (convex_Ioo _ _) h0 hs
+-  rw [zero_mul, (hD y hy).1, det_id'] at hmv
++  rw [zero_mul] at hmv
++  beta_reduce at hmv  -- conversion
++  rw [(hD y hy).1, det_id'] at hmv
+   have := norm_le_zero_iff.1 hmv
+   linarith [sub_eq_zero.1 this]
+ 
+@@ -879,7 +898,7 @@
+ 
+ end TeschlODE.HigherDim
+ open MeasureTheory TeschlODE.HigherDim in
+-theorem solution {n : ℕ}
++theorem _root_.Prove2me.Solution.TeschlODE_HigherDim_volume_hasDerivAt {n : ℕ}
+     (f : EuclideanSpace ℝ (Fin n) → EuclideanSpace ℝ (Fin n)) (hf : ContDiff ℝ 1 f)
+     (I : EuclideanSpace ℝ (Fin n) → Set ℝ)
+     (Φ : ℝ → EuclideanSpace ℝ (Fin n) → EuclideanSpace ℝ (Fin n))
+@@ -891,3 +910,35 @@
+         (∫ x in Φ t₀ '' U, divergence f x) t₀ :=
+   volume_hasDerivAt' f hf I Φ hΦ U hU hUb t₀ ht₀
+ 
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory
++
++namespace TeschlODE.HigherDim
++
++/-- Teschl, Lemma 8.8, p. 236, (8.28): for a `C¹` vector field on `ℝⁿ` with flow `Φ`, a bounded
++open `U` and a time `t₀` at which every point of the closure `Ū` is still alive, the volume
++`V(t) = |Φ(t, U)|` is finite at `t₀`, `div f` is integrable on `U(t₀) = Φ(t₀, U)`, and
++`V̇(t₀) = ∫_{U(t₀)} div f(x) dx`. -/
++theorem volume_hasDerivAt {n : ℕ}
++    (f : EuclideanSpace ℝ (Fin n) → EuclideanSpace ℝ (Fin n)) (hf : ContDiff ℝ 1 f)
++    (I : EuclideanSpace ℝ (Fin n) → Set ℝ)
++    (Φ : ℝ → EuclideanSpace ℝ (Fin n) → EuclideanSpace ℝ (Fin n))
++    (hΦ : IsMaximalFlow f Set.univ I Φ)
++    (U : Set (EuclideanSpace ℝ (Fin n))) (hU : IsOpen U) (hUb : Bornology.IsBounded U)
++    (t₀ : ℝ) (ht₀ : ∀ x ∈ closure U, t₀ ∈ I x) :
++    volume (Φ t₀ '' U) < ⊤ ∧ IntegrableOn (divergence f) (Φ t₀ '' U) ∧
++      HasDerivAt (fun t : ℝ => (volume (Φ t '' U)).toReal)
++        (∫ x in Φ t₀ '' U, divergence f x) t₀ := by
++  first
++  | exact _root_.Prove2me.Solution.TeschlODE_HigherDim_volume_hasDerivAt f hf I Φ hΦ U hU hUb t₀ ht₀
++  | (apply _root_.Prove2me.Solution.TeschlODE_HigherDim_volume_hasDerivAt <;> assumption)
++
++end TeschlODE.HigherDim
++
++
++end Prove2meStatement

@@ -1,0 +1,97 @@
+--- Downloads/fock-ladders/OAI.PhysicalGenerator.pairing_hasSum.lean
++++ converted/Prove2me/FockLadders/OAI_PhysicalGenerator_pairing_hasSum.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 031cffa2-13ae-4d06-9dc9-e7e0818b6242
++* original name       : `OAI.PhysicalGenerator.pairing_hasSum`
++* title               : The trace of an observable against the generator operator equals the generator pairing in every orthonormal basis
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 6a016399-4b5e-4a15-855f-8c6ac1128e97,
++                        accepted 2026-10-16T04:49:18.950374+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/Generator.lean#L42-L63
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/fock-ladders/OAI.PhysicalGenerator.pairing_hasSum.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_PhysicalGenerator_pairing_hasSum.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/Generator.lean:L46-L67
+ -- (upload_full_project.md Phase 4): solution for node OAI.PhysicalGenerator.pairing_hasSum. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -56,7 +73,7 @@
+ variable {I J E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+ 
+ omit [CompleteSpace E] in
+-theorem trace_norm_summable (b : HilbertBasis J ℂ E) {u v : I → E}
++private theorem trace_norm_summable (b : HilbertBasis J ℂ E) {u v : I → E}
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2)) :
+     Summable (fun ij : I × J => ‖inner ℂ (b ij.2) (u ij.1)*inner ℂ (v ij.1) (b ij.2)‖) := by
+   apply Summable.of_nonneg_of_le (fun _ => norm_nonneg _) _
+@@ -65,7 +82,7 @@
+   rw [norm_mul, norm_inner_symm (v ij.1)]
+   nlinarith [sq_nonneg (‖inner ℂ (b ij.2) (u ij.1)‖-‖inner ℂ (b ij.2) (v ij.1)‖)]
+ 
+-theorem trace_hasSum (b : HilbertBasis J ℂ E) {u v : I → E}
++private theorem trace_hasSum (b : HilbertBasis J ℂ E) {u v : I → E}
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2)) :
+     HasSum (fun j => inner ℂ (b j) (operator u v (b j)))
+       (∑' i, inner ℂ (v i) (u i)) := by
+@@ -80,7 +97,7 @@
+     exact (Equiv.prodComm J I).tsum_eq (fun ij : I × J => inner ℂ (b ij.2) (u ij.1)*inner ℂ (v ij.1) (b ij.2))
+   exact ht ▸ hg.summable.hasSum
+ 
+-theorem pairing_trace (b : HilbertBasis J ℂ E) {u v : I → E}
++private theorem pairing_trace (b : HilbertBasis J ℂ E) {u v : I → E}
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2)) (Z : E →L[ℂ] E) :
+     HasSum (fun j => inner ℂ (b j) (Z (operator u v (b j)))) (pairing u v Z) := by
+   have hh := trace_hasSum b (applied_summable hu Z) hv
+@@ -153,7 +170,7 @@
+       (CrossEnsemble.pairing_trace b hi (hm j true) Z)).mul_left (2:ℂ)⁻¹)
+   have hh := hasSum_sum fun j (_hj : j ∈ (Finset.univ : Finset (Fin n))) =>
+     ((hl' j).mul_left ((r+1:ℝ):ℂ)).add ((hr' j).mul_left (r:ℂ))
+-  convert! hh using 1
++  convert hh using 1
+   ext k
+   simp only [generator,dissipator,
+     Bool.false_eq_true,ite_false,ite_true,sum_apply,add_apply,sub_apply,smul_apply,
+@@ -261,4 +278,36 @@
+ open scoped BigOperators ComplexConjugate
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.PhysicalGenerator.pairing_hasSum := @_root_.OAI.PhysicalGenerator.pairing_hasSum
++theorem _root_.Prove2me.Solution.OAI_PhysicalGenerator_pairing_hasSum : type_of% @_root_.OAI.PhysicalGenerator.pairing_hasSum := @_root_.OAI.PhysicalGenerator.pairing_hasSum
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.PhysicalGenerator.pairing_hasSum` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.PhysicalGenerator
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open scoped BigOperators
++open MvPolynomial
++open scoped BigOperators ComplexConjugate Classical
++open Submodule
++open ContinuousLinearMap
++open scoped ENNReal
++open EntropyPhotonNumber QuantumTrace Annihilation BeamLadder
++open scoped BigOperators ComplexConjugate
++variable {n : ℕ} {I : Type*}
++
++example {J : Type*} (b : HilbertBasis J ℂ (Fock n))
++    (r : ℝ) (x : I → Fock n) (hx : Summable (fun i => ‖x i‖^2))
++    (Z : Fock n →L[ℂ] Fock n) :
++    HasSum (fun k => inner ℂ (b k) (Z (generator r x (b k)))) (singleGeneratorPairing r x Z) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_PhysicalGenerator_pairing_hasSum b r x hx Z
++  | (apply _root_.Prove2me.Solution.OAI_PhysicalGenerator_pairing_hasSum <;> assumption)
++
++
++end Prove2meStatement

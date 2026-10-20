@@ -1,0 +1,330 @@
+--- Downloads/fock-ladders/OAI.BeamLadder.weighted_product_generator.lean
++++ converted/Prove2me/FockLadders/OAI_BeamLadder_weighted_product_generator.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : fee227c3-504d-4559-be59-6ea4f609b192
++* original name       : `OAI.BeamLadder.weighted_product_generator`
++* title               : The weighted generator pairing of a beam-splitter output splits into weighted conditional pairings of the two inputs
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 217dba28-766d-4891-ab44-0a358aba548a,
++                        accepted 2026-10-16T04:47:52.246987+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/BeamForms.lean#L1606-L1660
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/fock-ladders/OAI.BeamLadder.weighted_product_generator.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_BeamLadder_weighted_product_generator.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/BeamForms.lean:L1610-L1664
+ -- (upload_full_project.md Phase 4): solution for node OAI.BeamLadder.weighted_product_generator. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -17,9 +34,9 @@
+ import Theorems.Thm_OAI_Annihilation_weighted_trace_ext
+ import Theorems.Thm_OAI_BeamLadder_adjoint_covariance
+ import Theorems.Thm_OAI_BeamLadder_discarded_covariance
+-import Theorems.Thm_OAI_BeamLadder_generatorPairingL_product
+-import Theorems.Thm_OAI_BeamLadder_generatorPairingR_product
+-import Theorems.Thm_OAI_BeamLadder_numberL_minus
++import Prove2me.FockLadders.OAI_BeamLadder_generatorPairingL_product  -- was `Theorems.Thm_OAI_BeamLadder_generatorPairingL_product`
++import Prove2me.FockLadders.OAI_BeamLadder_generatorPairingR_product  -- was `Theorems.Thm_OAI_BeamLadder_generatorPairingR_product`
++import Prove2me.FockLadders.OAI_BeamLadder_numberL_minus  -- was `Theorems.Thm_OAI_BeamLadder_numberL_minus`
+ import Theorems.Thm_OAI_BeamLadder_radial_covariance
+ import Theorems.Thm_OAI_BeamLadder_retained_covariance
+ import Theorems.Thm_OAI_BeamLadder_tensorPreimage2_summable
+@@ -28,6 +45,7 @@
+ import Theorems.Thm_OAI_CrossEnsemble_shifted_left_operator_eq
+ import Theorems.Thm_OAI_CrossEnsemble_shifted_right_operator_eq
+ import Theorems.Thm_OAI_WeightedGenerator_pairing_hasSum
++import Prove2me.Shim.Misc  -- conversion shim (platform Mathlib API)
+ 
+ -- ---- from OAI.MathematicalPhysics.Fock.Operators ----
+ namespace OAI
+@@ -250,7 +268,7 @@
+     ← ContinuousLinearMap.comp_assoc, radial_covariance, ContinuousLinearMap.comp_assoc]
+   congr 1
+   ext x ke
+-  simp only [ContinuousLinearMap.comp_apply, add_apply, smul_apply, map_add, map_smul]
++  simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply, map_add, map_smul]
+ 
+ theorem discarded_creation_covariance (η : ℝ) (hη : η ∈ Set.Icc 0 1) (j : Fin n) :
+     raiseR j ∘L (beamUnitary η hη).toContinuousLinearEquiv.toContinuousLinearMap =
+@@ -261,8 +279,11 @@
+     ← ContinuousLinearMap.comp_assoc, radial_covariance, ContinuousLinearMap.comp_assoc]
+   congr 1
+   ext x ke
+-  simp only [ContinuousLinearMap.comp_apply, add_apply, smul_apply, map_add, map_smul]
+-
++  simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply, map_add, map_smul]
++
++-- conversion: `raiseL_up` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingL_product`; the duplicate is commented out.
++/-
+ theorem raiseL_up (j : Fin n) (x : JointFock n) (ke : NumberIndex n × NumberIndex n) :
+     raiseL j x (upL j ke)=((Real.sqrt ((ke.1 j:ℝ)+1)/W ke:ℝ):ℂ)*x ke := by
+   change (increase (W (upL j ke)):ℂ)*((lowerL j).adjoint x (upL j ke))=_
+@@ -272,7 +293,11 @@
+     Complex.ofReal_div, Complex.ofReal_add, Complex.ofReal_one, map_div₀, map_add, map_one, Complex.conj_ofReal]
+   have hw1 : (W ke:ℂ)+1≠0 := by exact_mod_cast (by linarith : W ke+1≠0)
+   field_simp
+-
++-/
++
++-- conversion: `raiseR_up` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingR_product`; the duplicate is commented out.
++/-
+ theorem raiseR_up (j : Fin n) (x : JointFock n) (ke : NumberIndex n × NumberIndex n) :
+     raiseR j x (upR j ke)=((Real.sqrt ((ke.2 j:ℝ)+1)/W ke:ℝ):ℂ)*x ke := by
+   change (increase (W (upR j ke)):ℂ)*((lowerR j).adjoint x (upR j ke))=_
+@@ -282,7 +307,11 @@
+     Complex.ofReal_div, Complex.ofReal_add, Complex.ofReal_one, map_div₀, map_add, map_one, Complex.conj_ofReal]
+   have hw1 : (W ke:ℂ)+1≠0 := by exact_mod_cast (by linarith : W ke+1≠0)
+   field_simp
+-
++-/
++
++-- conversion: `raiseL_zero` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_numberL_minus`; the duplicate is commented out.
++/-
+ theorem raiseL_zero (j : Fin n) (x : JointFock n) (ke : NumberIndex n × NumberIndex n)
+     (hk : ke.1 j=0) : raiseL j x ke=0 := by
+   change _*((lowerL j).adjoint x ke)=0
+@@ -292,7 +321,11 @@
+     have hh := congrArg (fun q => q.1 j) he
+     simp only [upL, up_same, hk] at hh
+     omega
+-
++-/
++
++-- conversion: `raiseR_zero` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingR_product`; the duplicate is commented out.
++/-
+ theorem raiseR_zero (j : Fin n) (x : JointFock n) (ke : NumberIndex n × NumberIndex n)
+     (hk : ke.2 j=0) : raiseR j x ke=0 := by
+   change _*((lowerR j).adjoint x ke)=0
+@@ -302,6 +335,7 @@
+     have hh := congrArg (fun q => q.2 j) he
+     simp only [upR, up_same, hk] at hh
+     omega
++-/
+ end
+ 
+ section
+@@ -313,7 +347,7 @@
+   apply ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr
+   intro x y
+   apply HasSum.unique (lp.hasSum_inner (𝕜:=ℂ) (inverse x) y)
+-  convert! lp.hasSum_inner (𝕜:=ℂ) x (inverse y) using 1
++  convert lp.hasSum_inner (𝕜:=ℂ) x (inverse y) using 1
+   ext ke
+   simp only [inverse_apply, RCLike.inner_apply, map_mul, map_inv₀, Complex.conj_ofReal]
+   ring
+@@ -426,6 +460,9 @@
+ open EntropyPhotonNumber QuantumTrace Annihilation TensorLp
+ variable {n : ℕ}
+ 
++-- conversion: `tensorPreimage_apply` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingL_product`; the duplicate is commented out.
++/-
+ theorem tensorPreimage_apply (x y : Fock n) (k e : NumberIndex n) :
+     tensorPreimage x y (k,e)=(W (k,e):ℂ)*inverseWeight 3 x k*inverseWeight 3 y e := by
+   have hk : (numberWeight k:ℂ)≠0 := by exact_mod_cast (by linarith [numberWeight_one_le k] : numberWeight k≠0)
+@@ -434,7 +471,11 @@
+     tensor_apply, inverseWeight_apply, W]
+   push_cast
+   field_simp
+-
++-/
++
++-- conversion: `tensorPreimage_inverse` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingL_product`; the duplicate is commented out.
++/-
+ theorem tensorPreimage_inverse (x y : Fock n) :
+     inverse (tensorPreimage x y)=tensor (inverseWeight 3 x) (inverseWeight 3 y) := by
+   apply lp.ext
+@@ -443,6 +484,7 @@
+   rw [inverse_apply, tensorPreimage_apply, tensor_apply]
+   have hw : (W (k,e):ℂ)≠0 := by exact_mod_cast (by linarith [W_one_le (k,e)] : W (k,e)≠0)
+   field_simp
++-/
+ 
+ end BeamLadder
+ 
+@@ -475,6 +517,8 @@
+ open scoped BigOperators ComplexConjugate
+ variable {A B I J : Type*}
+ 
++-- conversion: the following three lemmas are already declared, with the same statements, by imported converted modules
++/-
+  theorem conditionalLeft_entry (y : J → H B) (hy : HasSum (fun j => ‖y j‖^2) 1)
+     (Z : H (A × B) →L[ℂ] H (A × B)) (u v : H A) :
+     HasSum (fun j => inner ℂ (tensor u (y j)) (Z (tensor v (y j)))) (inner ℂ u (conditionalLeft y hy Z v)) :=
+@@ -489,7 +533,11 @@
+     (hx : Summable (fun i => ‖x i‖^2)) (hy : Summable (fun j => ‖y j‖^2)) :
+     Summable (fun ij : I × J => ‖tensor (x ij.1) (y ij.2)‖^2) := by
+   simpa only [tensor_norm_sq] using hx.mul_of_nonneg hy (fun _ => sq_nonneg _) (fun _ => sq_nonneg _)
+-
++-/
++
++-- conversion: `pairing_conditionalLeft` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingL_product`; the duplicate is commented out.
++/-
+ theorem pairing_conditionalLeft (u v : I → H A) (y : J → H B)
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2))
+     (hy : HasSum (fun j => ‖y j‖^2) 1) (Z : H (A × B) →L[ℂ] H (A × B)) :
+@@ -500,7 +548,11 @@
+     (tensorFamily_summable v y hv hy.summable) Z).hasSum.prod_fiberwise
+       (fun i => conditionalLeft_entry y hy Z (v i) (u i))
+   exact hh.tsum_eq.symm
+-
++-/
++
++-- conversion: `pairing_conditionalRight` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingR_product`; the duplicate is commented out.
++/-
+ theorem pairing_conditionalRight (x : I → H A) (u v : J → H B)
+     (hx : HasSum (fun i => ‖x i‖^2) 1)
+     (hu : Summable (fun j => ‖u j‖^2)) (hv : Summable (fun j => ‖v j‖^2))
+@@ -518,6 +570,7 @@
+     (Z (tensor (x ji.swap.1) (u ji.swap.2))))=_ at he
+   rw [he] at hh
+   exact hh.tsum_eq.symm
++-/
+ end TensorLp
+ 
+ namespace BeamLadder
+@@ -736,7 +789,7 @@
+     (x y : H (A × B)) :
+     inner ℂ (liftLeft Z.adjoint x) y=inner ℂ x (liftLeft Z y) := by
+   apply HasSum.unique (hasSum_slice_inner (liftLeft Z.adjoint x) y)
+-  convert! hasSum_slice_inner x (liftLeft Z y) using 1
++  convert hasSum_slice_inner x (liftLeft Z y) using 1
+   ext b
+   simp only [slice_liftLeft, ContinuousLinearMap.adjoint_inner_left]
+ 
+@@ -988,6 +1041,9 @@
+   have hh := cross_heat_zero j (beamUnitary η hη x) (beamUnitary η hη y) Z
+   linear_combination (Real.sqrt η:ℂ)*(Real.sqrt (1-η):ℂ)*(a-b)*hh
+ 
++-- conversion: `numberL_plus` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingL_product`; the duplicate is commented out.
++/-
+ theorem numberL_plus (j : Fin n) (x : JointFock n) (k e : NumberIndex n) :
+     lowerL j (preRaiseL j x) (k,e)=(k j+1:ℂ)*inverse (inverse x) (k,e) := by
+   rw [lowerL_apply]
+@@ -1000,6 +1056,7 @@
+   push_cast
+   field_simp
+   linear_combination x (k,e)*hs
++-/
+ 
+ end
+ 
+@@ -1007,6 +1064,9 @@
+ open EntropyPhotonNumber QuantumTrace Annihilation TensorLp
+ variable {n : ℕ}
+ 
++-- conversion: `tensorPreimage2_apply` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingL_product`; the duplicate is commented out.
++/-
+ theorem tensorPreimage2_apply (x y : Fock n) (k e : NumberIndex n) :
+     tensorPreimage2 x y (k,e)=(W (k,e):ℂ)^2*inverseWeight 3 x k*inverseWeight 3 y e := by
+   have hk : (numberWeight k:ℂ)≠0 := by exact_mod_cast (by linarith [numberWeight_one_le k] : numberWeight k≠0)
+@@ -1016,7 +1076,11 @@
+   push_cast
+   field_simp
+   ring
+-
++-/
++
++-- conversion: `tensorPreimage2_inverse` is already declared, with the same statement, by the imported converted
++-- module `Prove2me.FockLadders.OAI_BeamLadder_generatorPairingL_product`; the duplicate is commented out.
++/-
+ theorem tensorPreimage2_inverse (x y : Fock n) :
+     inverse (tensorPreimage2 x y)=tensorPreimage x y := by
+   apply lp.ext
+@@ -1025,6 +1089,7 @@
+   rw [inverse_apply,tensorPreimage2_apply,tensorPreimage_apply]
+   have hw : (W (k,e):ℂ)≠0 := by exact_mod_cast (by linarith [W_one_le (k,e)] : W (k,e)≠0)
+   field_simp
++-/
+ 
+ end
+ 
+@@ -1093,6 +1158,7 @@
+   have h6 := quadPlusL_summable j _ _ hx' hy' (liftLeft Z)
+   have hh := congrArg (fun f : I → ℂ => ∑' i, f i)
+     (funext (fun i => generator_covariance η a b hη j (x i) (y i) Z))
++  beta_reduce at hh
+   have hl := (h5.mul_left ((η*a+(1-η)*b:ℝ)+1:ℂ)).tsum_add
+     (h6.mul_left ((η:ℂ)*a+(1-(η:ℂ))*b))
+   have hr := (((h1.mul_left ((a:ℂ)+1)).add (h2.mul_left (a:ℂ))).add
+@@ -1387,7 +1453,7 @@
+ theorem hasSum_entry {V : I → E →L[ℂ] F} (hV : Summable (fun i => ‖V i‖^2))
+     (Z : F →L[ℂ] F) (x y : E) :
+     HasSum (fun i => inner ℂ (V i x) (Z (V i y))) (inner ℂ x (pullback V Z y)) := by
+-  convert! (((summable_compression hV Z).hasSum).mapL
++  convert (((summable_compression hV Z).hasSum).mapL
+     (ContinuousLinearMap.apply ℂ E y)).mapL (innerSL ℂ x) using 1
+   ext i
+   exact (compression_entry _ _ _ _).symm
+@@ -1515,7 +1581,7 @@
+         (CrossEnsemble.pairing_trace b hc (hb j u) Z)).mul_left (2:ℂ)⁻¹)
+   have hh := hasSum_sum fun j (_hj : j ∈ (Finset.univ : Finset (Fin n))) =>
+     ((h j false).mul_left ((r+1:ℝ):ℂ)).add ((h j true).mul_left (r:ℂ))
+-  convert! hh using 1
++  convert hh using 1
+   ext k
+   simp only [pushedGenerator,pushedDissipator,sum_apply,add_apply,sub_apply,smul_apply,
+     map_sum,map_add,map_sub,map_smul,inner_sum,inner_sub_right,inner_add_right,inner_smul_right]
+@@ -1776,4 +1842,47 @@
+ open EntropyPhotonNumber QuantumTrace Annihilation TensorLp
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.BeamLadder.weighted_product_generator := @_root_.OAI.BeamLadder.weighted_product_generator
++theorem _root_.Prove2me.Solution.OAI_BeamLadder_weighted_product_generator : type_of% @_root_.OAI.BeamLadder.weighted_product_generator := @_root_.OAI.BeamLadder.weighted_product_generator
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.BeamLadder.weighted_product_generator` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.BeamLadder
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open scoped BigOperators
++open MvPolynomial
++open scoped BigOperators ComplexConjugate Classical
++open Submodule
++open ContinuousLinearMap
++open scoped ENNReal
++open EntropyPhotonNumber QuantumTrace Annihilation TensorLp
++variable {n : ℕ} {I J K : Type*}
++
++example (η a b : ℝ) (hη : η ∈ Set.Icc 0 1)
++    (ρ σ τ : State n) (hτ : IsBeamSplitterOutput η ρ σ τ)
++    (x : I → Fock n) (y : J → Fock n) (z : K → Fock n)
++    (hx : Summable (fun i => ‖x i‖^2)) (hy : Summable (fun j => ‖y j‖^2))
++    (hz : Summable (fun k => ‖z k‖^2))
++    (hxn : HasSum (fun i => ‖inverseWeight 3 (x i)‖^2) 1)
++    (hyn : HasSum (fun j => ‖inverseWeight 3 (y j)‖^2) 1)
++    (hex : TraceEnsemble.operator (fun i => inverseWeight 3 (x i))=ρ.op)
++    (hey : TraceEnsemble.operator (fun j => inverseWeight 3 (y j))=σ.op)
++    (hez : TraceEnsemble.operator (fun k => inverseWeight 3 (z k))=τ.op)
++    (B : Fock n →L[ℂ] Fock n) :
++    WeightedGenerator.pairing (η*a+(1-η)*b) z B=
++      WeightedGenerator.pairing a x
++        (weightedConditional η hη (fun j => inverseWeight 1 (y j)) B)+
++      WeightedGenerator.pairing b y
++        (weightedConditionalRight η hη (fun i => inverseWeight 1 (x i)) B) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_BeamLadder_weighted_product_generator η a b hη ρ σ τ hτ x y z hx hy hz hxn hyn hex hey hez B
++  | (apply _root_.Prove2me.Solution.OAI_BeamLadder_weighted_product_generator <;> assumption)
++
++
++end Prove2meStatement

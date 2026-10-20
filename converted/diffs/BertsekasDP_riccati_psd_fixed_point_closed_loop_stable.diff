@@ -1,0 +1,87 @@
+--- Downloads/unfer-sirk/BertsekasDP.riccati_psd_fixed_point_closed_loop_stable.lean
++++ converted/Prove2me/UnferSirk/BertsekasDP_riccati_psd_fixed_point_closed_loop_stable.lean
+@@ -1,5 +1,23 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : f8cf4c1c-7ed4-445a-a59f-1103dd6d6c4f
++* original name       : `BertsekasDP.riccati_psd_fixed_point_closed_loop_stable`
++* title               : Closed-loop stability of a positive definite Riccati fixed point (Prop. 4.4.1, part 4, conditional form)
++* statement author    : jackjburleson
++* solution author     : salim (submission 56ced7bd-e18b-4268-8392-7504f55ca517,
++                        accepted 2026-09-08T10:50:49.261747+00:00)
++* source              : D. P. Bertsekas, Dynamic Programming and Optimal Control, Vol. I, Athena Scientific, 3rd ed., 2005, Section 4.4, Proposition 4.4.1 (part 4); J. C. Willems, Least squares stationary optimal control and the algebraic Riccati equation, IEEE Trans. Automat. Control 16 (1971), no. 6, 621–634.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/BertsekasDP.riccati_psd_fixed_point_closed_loop_stable.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/BertsekasDP_riccati_psd_fixed_point_closed_loop_stable.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_BertsekasRiccatiMap
++
+ set_option autoImplicit false
+ open Matrix
+ 
+@@ -90,11 +108,13 @@
+   let y : Fin n → ℝ := fun i => (v i).im
+   have hevr : T *ᵥ x = z.re • x - z.im • y := by
+     have h := congrArg (fun w : Fin n → ℂ => fun i => (w i).re) hev
++    beta_reduce at h  -- conversion
+     rw [re_mulVec] at h
+     ext i
+     simpa [x, y, Complex.mul_re, Pi.smul_apply, smul_eq_mul] using congrFun h i
+   have hevi : T *ᵥ y = z.im • x + z.re • y := by
+     have h := congrArg (fun w : Fin n → ℂ => fun i => (w i).im) hev
++    beta_reduce at h  -- conversion
+     rw [im_mulVec] at h
+     ext i
+     simpa [x, y, Complex.mul_im, Pi.smul_apply, smul_eq_mul, add_comm] using congrFun h i
+@@ -221,7 +241,7 @@
+ end TrustScoutW9RiccatiSpectrum
+ 
+ 
+-theorem solution {n m q : ℕ}
++theorem _root_.Prove2me.Solution.BertsekasDP_riccati_psd_fixed_point_closed_loop_stable {n m q : ℕ}
+     (A : Matrix (Fin n) (Fin n) ℝ) (B : Matrix (Fin n) (Fin m) ℝ)
+     (Q : Matrix (Fin n) (Fin n) ℝ) (R : Matrix (Fin m) (Fin m) ℝ)
+     (C : Matrix (Fin q) (Fin n) ℝ)
+@@ -250,4 +270,36 @@
+ 
+ 
+ 
+-#print axioms solution
++#print axioms _root_.Prove2me.Solution.BertsekasDP_riccati_psd_fixed_point_closed_loop_stable
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open Matrix
++
++namespace BertsekasDP
++
++theorem riccati_psd_fixed_point_closed_loop_stable {n m q : ℕ}
++    (A : Matrix (Fin n) (Fin n) ℝ) (B : Matrix (Fin n) (Fin m) ℝ)
++    (Q : Matrix (Fin n) (Fin n) ℝ) (R : Matrix (Fin m) (Fin m) ℝ)
++    (C : Matrix (Fin q) (Fin n) ℝ)
++    (hQ : Q = Cᵀ * C) (hQpsd : Q.PosSemidef) (hR : R.PosDef)
++    (hctrb : BertsekasControllablePair A B)
++    (hobs : BertsekasObservablePair A C)
++    (P : Matrix (Fin n) (Fin n) ℝ) (hP : P.PosDef)
++    (hfix : BertsekasRiccatiMap A B Q R P = P) :
++    ∀ z ∈ spectrum ℂ
++          ((A + B * (-((Bᵀ * P * B + R)⁻¹ * Bᵀ * P * A))).map
++            (algebraMap ℝ ℂ)),
++        ‖z‖ < 1 := by
++  first
++  | exact _root_.Prove2me.Solution.BertsekasDP_riccati_psd_fixed_point_closed_loop_stable A B Q R C hQ hQpsd hR hctrb hobs P hP hfix
++  | (apply _root_.Prove2me.Solution.BertsekasDP_riccati_psd_fixed_point_closed_loop_stable <;> assumption)
++
++end BertsekasDP
++
++
++end Prove2meStatement

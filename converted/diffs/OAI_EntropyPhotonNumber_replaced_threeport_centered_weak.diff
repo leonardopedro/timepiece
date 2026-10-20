@@ -1,0 +1,204 @@
+--- Downloads/fock-ladders/OAI.EntropyPhotonNumber.replaced_threeport_centered_weak.lean
++++ converted/Prove2me/FockLadders/OAI_EntropyPhotonNumber_replaced_threeport_centered_weak.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : d7215374-98f6-47f1-9515-327111843280
++* original name       : `OAI.EntropyPhotonNumber.replaced_threeport_centered_weak`
++* title               : Centered weak generator identity for a thermally replaced two-stage beam-splitter cascade
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission e98b97e2-59cf-436e-82f1-1bb9944fa45d,
++                        accepted 2026-10-16T05:03:11.498081+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/Generator.lean#L671-L714
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/fock-ladders/OAI.EntropyPhotonNumber.replaced_threeport_centered_weak.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_EntropyPhotonNumber_replaced_threeport_centered_weak.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/Generator.lean:L675-L718
+ -- (upload_full_project.md Phase 4): solution for node OAI.EntropyPhotonNumber.replaced_threeport_centered_weak. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -18,6 +35,7 @@
+ import Theorems.Thm_OAI_CrossEnsemble_operator_comp_left
+ import Theorems.Thm_OAI_EntropyPhotonNumber_replaced_threeport_weak
+ import Theorems.Thm_OAI_KrausBounded_dual_one
++import Prove2me.Shim.Misc  -- conversion shim (platform Mathlib API)
+ 
+ -- ---- from OAI.MathematicalPhysics.Fock.Operators ----
+ namespace OAI
+@@ -58,7 +76,7 @@
+ variable {I J E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+ 
+ omit [CompleteSpace E] in
+-theorem trace_norm_summable (b : HilbertBasis J ℂ E) {u v : I → E}
++private theorem trace_norm_summable (b : HilbertBasis J ℂ E) {u v : I → E}
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2)) :
+     Summable (fun ij : I × J => ‖inner ℂ (b ij.2) (u ij.1)*inner ℂ (v ij.1) (b ij.2)‖) := by
+   apply Summable.of_nonneg_of_le (fun _ => norm_nonneg _) _
+@@ -67,7 +85,7 @@
+   rw [norm_mul, norm_inner_symm (v ij.1)]
+   nlinarith [sq_nonneg (‖inner ℂ (b ij.2) (u ij.1)‖-‖inner ℂ (b ij.2) (v ij.1)‖)]
+ 
+-theorem trace_hasSum (b : HilbertBasis J ℂ E) {u v : I → E}
++private theorem trace_hasSum (b : HilbertBasis J ℂ E) {u v : I → E}
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2)) :
+     HasSum (fun j => inner ℂ (b j) (operator u v (b j)))
+       (∑' i, inner ℂ (v i) (u i)) := by
+@@ -82,14 +100,14 @@
+     exact (Equiv.prodComm J I).tsum_eq (fun ij : I × J => inner ℂ (b ij.2) (u ij.1)*inner ℂ (v ij.1) (b ij.2))
+   exact ht ▸ hg.summable.hasSum
+ 
+-theorem pairing_trace (b : HilbertBasis J ℂ E) {u v : I → E}
++private theorem pairing_trace (b : HilbertBasis J ℂ E) {u v : I → E}
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2)) (Z : E →L[ℂ] E) :
+     HasSum (fun j => inner ℂ (b j) (Z (operator u v (b j)))) (pairing u v Z) := by
+   have hh := trace_hasSum b (applied_summable hu Z) hv
+   rw [← operator_comp_left hu hv Z] at hh
+   exact hh
+ 
+- theorem pairing_eq_of_operator_eq {K : Type*} (b : HilbertBasis J ℂ E)
++ private theorem pairing_eq_of_operator_eq {K : Type*} (b : HilbertBasis J ℂ E)
+     {u v : I → E} {x y : K → E}
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2))
+     (hx : Summable (fun i => ‖x i‖^2)) (hy : Summable (fun i => ‖y i‖^2))
+@@ -152,7 +170,7 @@
+ namespace TensorLp
+ variable {A B : Type*}
+ 
+-theorem hasSum_slice_inner (x y : H (A × B)) :
++private theorem hasSum_slice_inner (x y : H (A × B)) :
+     HasSum (fun b => inner ℂ (slice x b) (slice y b)) (inner ℂ x y) := by
+   have h := lp.hasSum_inner (𝕜 := ℂ) x y
+   have hr (b : B) : HasSum (fun a => inner ℂ (x (a,b)) (y (a,b)))
+@@ -224,7 +242,7 @@
+ open scoped ComplexConjugate
+ variable {n : ℕ}
+ 
+-theorem conjugate_inner (η : ℝ) (hη : η ∈ Set.Icc 0 1) (Z : Fock n →L[ℂ] Fock n)
++private theorem conjugate_inner (η : ℝ) (hη : η ∈ Set.Icc 0 1) (Z : Fock n →L[ℂ] Fock n)
+     (x y : JointFock n) :
+     inner ℂ x (conjugate η hη Z y)=inner ℂ (beamUnitary η hη x) (liftLeft Z (beamUnitary η hη y)) := by
+   change inner ℂ x ((beamUnitary η hη).symm (liftLeft Z (beamUnitary η hη y)))=_
+@@ -266,22 +284,22 @@
+ open scoped BigOperators ComplexConjugate
+ variable {A B I J : Type*}
+ 
+- theorem conditionalLeft_entry (y : J → H B) (hy : HasSum (fun j => ‖y j‖^2) 1)
++ private theorem conditionalLeft_entry (y : J → H B) (hy : HasSum (fun j => ‖y j‖^2) 1)
+     (Z : H (A × B) →L[ℂ] H (A × B)) (u v : H A) :
+     HasSum (fun j => inner ℂ (tensor u (y j)) (Z (tensor v (y j)))) (inner ℂ u (conditionalLeft y hy Z v)) :=
+   KrausBounded.dual_entry _ _ _ _ _
+ 
+- theorem conditionalRight_entry (x : I → H A) (hx : HasSum (fun i => ‖x i‖^2) 1)
++ private theorem conditionalRight_entry (x : I → H A) (hx : HasSum (fun i => ‖x i‖^2) 1)
+     (Z : H (A × B) →L[ℂ] H (A × B)) (u v : H B) :
+     HasSum (fun i => inner ℂ (tensor (x i) u) (Z (tensor (x i) v))) (inner ℂ u (conditionalRight x hx Z v)) :=
+   KrausBounded.dual_entry _ _ _ _ _
+ 
+- theorem tensorFamily_summable (x : I → H A) (y : J → H B)
++ private theorem tensorFamily_summable (x : I → H A) (y : J → H B)
+     (hx : Summable (fun i => ‖x i‖^2)) (hy : Summable (fun j => ‖y j‖^2)) :
+     Summable (fun ij : I × J => ‖tensor (x ij.1) (y ij.2)‖^2) := by
+   simpa only [tensor_norm_sq] using hx.mul_of_nonneg hy (fun _ => sq_nonneg _) (fun _ => sq_nonneg _)
+ 
+-theorem pairing_conditionalLeft (u v : I → H A) (y : J → H B)
++private theorem pairing_conditionalLeft (u v : I → H A) (y : J → H B)
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2))
+     (hy : HasSum (fun j => ‖y j‖^2) 1) (Z : H (A × B) →L[ℂ] H (A × B)) :
+     CrossEnsemble.pairing (fun ij : I × J => tensor (u ij.1) (y ij.2))
+@@ -292,7 +310,7 @@
+       (fun i => conditionalLeft_entry y hy Z (v i) (u i))
+   exact hh.tsum_eq.symm
+ 
+-theorem pairing_conditionalRight (x : I → H A) (u v : J → H B)
++private theorem pairing_conditionalRight (x : I → H A) (u v : J → H B)
+     (hx : HasSum (fun i => ‖x i‖^2) 1)
+     (hu : Summable (fun j => ‖u j‖^2)) (hv : Summable (fun j => ‖v j‖^2))
+     (Z : H (A × B) →L[ℂ] H (A × B)) :
+@@ -336,13 +354,13 @@
+ 
+ namespace TensorLp
+ variable {A B I : Type*}
+-theorem slice_family_summable (x : I → H (A × B)) (hx : Summable (fun i => ‖x i‖^2)) :
++private theorem slice_family_summable (x : I → H (A × B)) (hx : Summable (fun i => ‖x i‖^2)) :
+     Summable (fun ie : I × B => ‖slice (x ie.1) ie.2‖^2) := by
+   apply (summable_prod_of_nonneg (fun _ => sq_nonneg _)).mpr
+   refine ⟨fun i => (hasSum_slice_norm_sq (x i)).summable, ?_⟩
+   simpa only [(hasSum_slice_norm_sq _).tsum_eq] using hx
+ 
+-theorem pairing_liftLeft (x y : I → H (A × B))
++private theorem pairing_liftLeft (x y : I → H (A × B))
+     (hx : Summable (fun i => ‖x i‖^2)) (hy : Summable (fun i => ‖y i‖^2))
+     (Z : H A →L[ℂ] H A) :
+     CrossEnsemble.pairing x y (liftLeft Z)=
+@@ -409,7 +427,7 @@
+ open EntropyPhotonNumber QuantumTrace Annihilation TensorLp
+ variable {n : ℕ} {I J K : Type*}
+ 
+-theorem physical_ensemble_output (η : ℝ) (hη : η ∈ Set.Icc 0 1)
++private theorem physical_ensemble_output (η : ℝ) (hη : η ∈ Set.Icc 0 1)
+     (ρ σ τ : State n) (hτ : IsBeamSplitterOutput η ρ σ τ)
+     (v : I → Fock n) (w : J → Fock n)
+     (hv : HasSum (fun i => ‖v i‖^2) 1) (hw : HasSum (fun j => ‖w j‖^2) 1)
+@@ -423,7 +441,7 @@
+   simp only [beam_ensemble_entry η hη ρ σ v w hv hw hev hew] at he
+   exact he.unique (hτ k l)
+ 
+-theorem cross_slice_eq_partialTrace (v : I → JointFock n) :
++private theorem cross_slice_eq_partialTrace (v : I → JointFock n) :
+     CrossEnsemble.operator (fun ie : I × NumberIndex n => slice (v ie.1) ie.2)
+       (fun ie : I × NumberIndex n => slice (v ie.1) ie.2)=partialTrace v := by
+   exact (Equiv.prodComm I (NumberIndex n)).tsum_eq
+@@ -806,4 +824,48 @@
+ open QuantumTrace Annihilation BeamLadder TensorLp
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.EntropyPhotonNumber.replaced_threeport_centered_weak := @_root_.OAI.EntropyPhotonNumber.replaced_threeport_centered_weak
++theorem _root_.Prove2me.Solution.OAI_EntropyPhotonNumber_replaced_threeport_centered_weak : type_of% @_root_.OAI.EntropyPhotonNumber.replaced_threeport_centered_weak := @_root_.OAI.EntropyPhotonNumber.replaced_threeport_centered_weak
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.EntropyPhotonNumber.replaced_threeport_centered_weak` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.EntropyPhotonNumber
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open scoped BigOperators
++open MvPolynomial
++open scoped BigOperators ComplexConjugate Classical
++open Submodule
++open ContinuousLinearMap
++open scoped ENNReal
++open QuantumTrace Annihilation BeamLadder TensorLp
++
++example
++    {n : ℕ} (η θ κ a b d : ℝ) (hη : η ∈ Set.Icc 0 1) (hθ : θ ∈ Set.Icc 0 1)
++    (ρ σ τD m γ ω ρ0 : State n)
++    (h1 : IsBeamSplitterOutput η ρ σ m) (h2 : IsBeamSplitterOutput θ m τD γ)
++    (X : WeightedColumns ρ) (Y : WeightedColumns σ) (D : WeightedColumns τD)
++    (M : WeightedColumns m) (G : WeightedColumns γ) (O : WeightedColumns ω) (R : WeightedColumns ρ0)
++    (hd : 0<d) (hr0 : 0<θ*(η*a+(1-η)*b)+(1-θ)*d)
++    (hD : ∀ k l, entry τD.op k l=if k=l then (thermalWeight n d k:ℂ) else 0)
++    (hO : ∀ k l, entry ω.op k l=if k=l then (thermalWeight n (θ*(η*a+(1-η)*b)+(1-θ)*d) k:ℂ) else 0)
++    (hrepl : ρ0.op=((1-κ:ℝ):ℂ) • γ.op+(κ:ℂ) • ω.op)
++    (j : Fin n) (Z : Fock n →L[ℂ] Fock n) :
++    R.centeredWeak (θ*(η*a+(1-η)*b)+(1-θ)*d) j Z=
++      ((1-κ:ℝ):ℂ)*((Real.sqrt θ:ℂ)*(Real.sqrt η:ℂ)*
++        X.centeredWeak a j (Y.rawSlice η hη (D.rawSlice θ hθ Z))+
++        (Real.sqrt θ:ℂ)*(Real.sqrt (1-η):ℂ)*
++        Y.centeredWeak b j (X.rawSliceRight η hη (D.rawSlice θ hθ Z)))+
++      (κ:ℂ)*((1-κ:ℝ):ℂ)*G.weakMean (θ*(η*a+(1-η)*b)+(1-θ)*d) j*
++        (G.expectation Z-O.expectation Z) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_EntropyPhotonNumber_replaced_threeport_centered_weak η θ κ a b d hη hθ ρ σ τD m γ ω ρ0 h1 h2 X Y D M G O R hd hr0 hD hO hrepl j Z
++  | (apply _root_.Prove2me.Solution.OAI_EntropyPhotonNumber_replaced_threeport_centered_weak <;> assumption)
++
++
++end Prove2meStatement

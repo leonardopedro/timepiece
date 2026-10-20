@@ -1,0 +1,64 @@
+--- Downloads/prob-concentration/bounded_diff_martingale_two_sided.lean
++++ converted/Prove2me/ProbConcentration/bounded_diff_martingale_two_sided.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : d4c63a61-b6ba-4033-a9b4-f21de9fc90a7
++* original name       : `bounded_diff_martingale_two_sided`
++* title               : Two-sided bounded-differences martingale concentration
++* statement author    : Grace
++* solution author     : Grace (submission 68daf458-6e6b-4994-835b-c5f6e845e151,
++                        accepted 2026-09-03T22:36:07.262482+00:00)
++* source              : Boucheron, Lugosi, Massart, Concentration Inequalities (Oxford 2013), Sec 6.1 (Theorem 6.1, the Azuma-Hoeffding / bounded-differences martingale inequality); Azuma 1967; Hoeffding 1963.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/prob-concentration/bounded_diff_martingale_two_sided.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/bounded_diff_martingale_two_sided.diff`.
++-/
+ import Mathlib.Probability.Moments.SubGaussian
+ import Mathlib.Probability.Kernel.Condexp
+ import Mathlib.MeasureTheory.Measure.Real
+@@ -7,7 +24,7 @@
+ open MeasureTheory ProbabilityTheory Real
+ open scoped NNReal ENNReal
+ 
+-theorem solution
++theorem _root_.Prove2me.Solution.bounded_diff_martingale_two_sided
+     {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
+     {μ : Measure Ω} [IsProbabilityMeasure μ]
+     {D : ℕ → Ω → ℝ} {c : ℕ → ℝ≥0} {ℱ : Filtration ℕ mΩ}
+@@ -54,3 +71,31 @@
+     intro i _; exact hcY_eq i
+   rw [hsum_eq] at hazuma
+   exact hazuma
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory Real
++open scoped NNReal ENNReal
++
++theorem bounded_diff_martingale_two_sided
++    {Ω : Type*} {mΩ : MeasurableSpace Ω} [StandardBorelSpace Ω]
++    {μ : Measure Ω} [IsProbabilityMeasure μ]
++    {D : ℕ → Ω → ℝ} {c : ℕ → ℝ≥0} {ℱ : Filtration ℕ mΩ}
++    (h_adapted : StronglyAdapted ℱ D)
++    (h_meas : ∀ i, Measurable (D i))
++    (h_bdd : ∀ i, ∀ᵐ ω ∂μ, D i ω ∈ Set.Icc (-(c i : ℝ)) (c i))
++    (h_cent0 : μ[D 0] = 0)
++    (h_cent : ∀ i, μ[D (i + 1) | ℱ i] =ᵐ[μ] 0)
++    (n : ℕ) {ε : ℝ} (hε : 0 ≤ ε) :
++    μ.real {ω | ε ≤ |∑ i ∈ Finset.range n, D i ω|}
++      ≤ 2 * Real.exp (-ε ^ 2 / (2 * ∑ i ∈ Finset.range n, (c i : ℝ) ^ 2)) := by
++  first
++  | exact _root_.Prove2me.Solution.bounded_diff_martingale_two_sided h_adapted h_meas h_bdd h_cent0 h_cent n hε
++  | (apply _root_.Prove2me.Solution.bounded_diff_martingale_two_sided <;> assumption)
++
++
++end Prove2meStatement

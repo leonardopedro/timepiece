@@ -1,0 +1,69 @@
+--- Downloads/unfer-sirk/BertsekasDP.riccati_psd_fixed_point_exists_unique_convergent.lean
++++ converted/Prove2me/UnferSirk/BertsekasDP_riccati_psd_fixed_point_exists_unique_convergent.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : c34225cc-57e1-4056-b261-9d914d26f498
++* original name       : `BertsekasDP.riccati_psd_fixed_point_exists_unique_convergent`
++* title               : Riccati iteration: existence, uniqueness, and global attraction of the positive definite fixed point (Prop. 4.4.1, parts 1–3)
++* statement author    : jackjburleson
++* solution author     : olivier (submission 668e0d3c-ad07-43d0-9516-2db5f56001ac,
++                        accepted 2026-09-08T23:32:36.799261+00:00)
++* source              : D. P. Bertsekas, Dynamic Programming and Optimal Control, Vol. I, Athena Scientific, 3rd ed., 2005, Section 4.4, Proposition 4.4.1 (parts 1–3); cf. J. C. Willems, Least squares stationary optimal control and the algebraic Riccati equation, IEEE Trans. Automat. Control 16 (1971), no. 6, 621–634.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/BertsekasDP.riccati_psd_fixed_point_exists_unique_convergent.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/BertsekasDP_riccati_psd_fixed_point_exists_unique_convergent.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_BertsekasRiccatiMap
+ 
+@@ -1139,7 +1156,7 @@
+ Sous controlabilite de `(A,B)` et observabilite de `(A,C)` avec `Q = CᵀC` et `R ≻ 0`,
+ l'operateur de Riccati admet un point fixe defini positif, unique dans le cone
+ semi-defini positif, et globalement attractif sur ce cone. -/
+-theorem solution {n m q : ℕ}
++theorem _root_.Prove2me.Solution.BertsekasDP_riccati_psd_fixed_point_exists_unique_convergent {n m q : ℕ}
+     (A : Matrix (Fin n) (Fin n) ℝ) (B : Matrix (Fin n) (Fin m) ℝ)
+     (Q : Matrix (Fin n) (Fin n) ℝ) (R : Matrix (Fin m) (Fin m) ℝ)
+     (C : Matrix (Fin q) (Fin n) ℝ)
+@@ -1173,3 +1190,36 @@
+   have := hattr P' hP'
+   simp only [hconst] at this
+   exact tendsto_nhds_unique tendsto_const_nhds this
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open Matrix
++
++namespace BertsekasDP
++
++theorem riccati_psd_fixed_point_exists_unique_convergent {n m q : ℕ}
++    (A : Matrix (Fin n) (Fin n) ℝ) (B : Matrix (Fin n) (Fin m) ℝ)
++    (Q : Matrix (Fin n) (Fin n) ℝ) (R : Matrix (Fin m) (Fin m) ℝ)
++    (C : Matrix (Fin q) (Fin n) ℝ)
++    (hQ : Q = Cᵀ * C) (hQpsd : Q.PosSemidef) (hR : R.PosDef)
++    (hctrb : BertsekasControllablePair A B)
++    (hobs : BertsekasObservablePair A C) :
++    ∃ P : Matrix (Fin n) (Fin n) ℝ, P.PosDef ∧
++      BertsekasRiccatiMap A B Q R P = P ∧
++      (∀ P' : Matrix (Fin n) (Fin n) ℝ, P'.PosSemidef →
++        BertsekasRiccatiMap A B Q R P' = P' → P' = P) ∧
++      (∀ P₀ : Matrix (Fin n) (Fin n) ℝ, P₀.PosSemidef →
++        Filter.Tendsto (fun k => (BertsekasRiccatiMap A B Q R)^[k] P₀)
++          Filter.atTop (nhds P)) := by
++  first
++  | exact _root_.Prove2me.Solution.BertsekasDP_riccati_psd_fixed_point_exists_unique_convergent A B Q R C hQ hQpsd hR hctrb hobs
++  | (apply _root_.Prove2me.Solution.BertsekasDP_riccati_psd_fixed_point_exists_unique_convergent <;> assumption)
++
++end BertsekasDP
++
++
++end Prove2meStatement

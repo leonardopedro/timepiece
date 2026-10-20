@@ -1,0 +1,58 @@
+--- Downloads/qft-wick/HighEntropyLimit.rescaled_quantum_entropy_tendsto_classical.lean
++++ converted/Prove2me/QftWick/HighEntropyLimit_rescaled_quantum_entropy_tendsto_classical.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : ae8cfed1-5ea1-4ba2-8724-fcead9167ec9
++* original name       : `HighEntropyLimit.rescaled_quantum_entropy_tendsto_classical`
++* title               : High-entropy limit: $S_Q(\lambda\Sigma)-\ln\lambda \to S_C(\Sigma)$
++* statement author    : Lucas
++* solution author     : fizzyinc3 (submission 57d2330a-7d8e-4c50-81a7-cb074f8ccf90,
++                        accepted 2026-10-17T05:44:33.961422+00:00)
++* source              : Carcassi, Landini, Aidala, Classical mechanics as the high-entropy limit of quantum mechanics, arXiv:2411.00972v3 (1 Feb 2026), https://arxiv.org/abs/2411.00972, p. 11, Section 4.3: 'The entropy will become S^λ_Q(Σ) = S_Q(λΣ) − ln(λ) ... If one takes the limit λ → ∞, the above expression reduces to the classical equation' (Fig. 3); with Eqs. (2),(3) p. 3
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/HighEntropyLimit.rescaled_quantum_entropy_tendsto_classical.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/HighEntropyLimit_rescaled_quantum_entropy_tendsto_classical.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_HighEntropyLimit_gaussian_entropy
+ 
+@@ -93,7 +110,7 @@
+   push_cast
+   ring
+ 
+-theorem solution (hbar Sig : ℝ) (hhbar : 0 < hbar)
++theorem _root_.Prove2me.Solution.HighEntropyLimit_rescaled_quantum_entropy_tendsto_classical (hbar Sig : ℝ) (hhbar : 0 < hbar)
+     (hSig : 0 < Sig) :
+     Tendsto (fun lam : ℝ => rescaledQuantumGaussianEntropy hbar lam Sig) atTop
+       (𝓝 (classicalGaussianEntropy hbar Sig)) := by
+@@ -107,3 +124,25 @@
+   rw [show lam * Sig / hbar = lam * (Sig / hbar) by ring,
+     Real.log_mul hl.ne' (div_pos hSig hhbar).ne']
+   ring
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open Filter Topology
++
++namespace HighEntropyLimit
++theorem rescaled_quantum_entropy_tendsto_classical (hbar Sig : ℝ) (hhbar : 0 < hbar)
++    (hSig : 0 < Sig) :
++    Tendsto (fun lam : ℝ => rescaledQuantumGaussianEntropy hbar lam Sig) atTop
++      (𝓝 (classicalGaussianEntropy hbar Sig)) := by
++  first
++  | exact _root_.Prove2me.Solution.HighEntropyLimit_rescaled_quantum_entropy_tendsto_classical hbar Sig hhbar hSig
++  | (apply _root_.Prove2me.Solution.HighEntropyLimit_rescaled_quantum_entropy_tendsto_classical <;> assumption)
++
++end HighEntropyLimit
++
++
++end Prove2meStatement

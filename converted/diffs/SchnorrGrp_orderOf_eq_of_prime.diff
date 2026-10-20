@@ -1,0 +1,54 @@
+--- Downloads/arctic-crypto/SchnorrGrp.orderOf_eq_of_prime.lean
++++ converted/Prove2me/ArcticCrypto/SchnorrGrp_orderOf_eq_of_prime.lean
+@@ -1,6 +1,24 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 9141550b-060a-4e06-b9f5-ce9ddf0e4121
++* original name       : `SchnorrGrp.orderOf_eq_of_prime`
++* title               : A nontrivial element of a group of exponent `q`, `q` prime, has order exactly `q`.
++* statement author    : raver1975
++* solution author     : raver1975 (submission a9a3bd2e-627f-4f91-bbe1-c817308a4b75,
++                        accepted 2026-09-12T06:59:23.078269+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean#L105
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/arctic-crypto/SchnorrGrp.orderOf_eq_of_prime.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/SchnorrGrp_orderOf_eq_of_prime.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupProtocol
++
+ /-
+ Copyright (c) 2026 Harmonic. All rights reserved.
+ Released under Apache 2.0 license as described in the file LICENSE.
+@@ -86,7 +104,25 @@
+ 
+ 
+ open SchnorrGrp in
+-theorem solution[Fact q.Prime] {h : G} (hh : h ^ q = 1) (h1 : h ≠ 1) :
++theorem _root_.Prove2me.Solution.SchnorrGrp_orderOf_eq_of_prime[Fact q.Prime] {h : G} (hh : h ^ q = 1) (h1 : h ≠ 1) :
+     orderOf h = q :=
+   ((Nat.Prime.eq_one_or_self_of_dvd Fact.out _ (orderOf_dvd_iff_pow_eq_one.mpr hh)).resolve_left
+     (fun ho => h1 (orderOf_eq_one_iff.mp ho)))
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open SchnorrGrp
++variable {G : Type*} [CommGroup G] {q : ℕ}
++
++theorem SchnorrGrp.orderOf_eq_of_prime[Fact q.Prime] {h : G} (hh : h ^ q = 1) (h1 : h ≠ 1) :
++    orderOf h = q := by
++  first
++  | exact _root_.Prove2me.Solution.SchnorrGrp_orderOf_eq_of_prime hh h1
++  | (apply _root_.Prove2me.Solution.SchnorrGrp_orderOf_eq_of_prime <;> assumption)
++
++
++end Prove2meStatement

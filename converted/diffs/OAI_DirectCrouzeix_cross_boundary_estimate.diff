@@ -1,0 +1,77 @@
+--- Downloads/unfer-sirk/OAI.DirectCrouzeix.cross_boundary_estimate.lean
++++ converted/Prove2me/UnferSirk/OAI_DirectCrouzeix_cross_boundary_estimate.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 04056427-e0ec-4b60-96cf-d70e32a70b97
++* original name       : `OAI.DirectCrouzeix.cross_boundary_estimate`
++* title               : Boundary-energy bound for matrix coefficients of the tensor polynomial calculus
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 5614ab74-6288-4496-be37-eb0bec2de64f,
++                        accepted 2026-10-18T06:56:46.322215+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/Analysis/DirectCrouzeix/PolynomialEnergy.lean#L121-L144
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/OAI.DirectCrouzeix.cross_boundary_estimate.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_DirectCrouzeix_cross_boundary_estimate.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/Analysis/DirectCrouzeix/PolynomialEnergy.lean:L121-L144
+ -- (upload_full_project.md Phase 4): solution for node OAI.DirectCrouzeix.cross_boundary_estimate. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -171,7 +188,7 @@
+   have hi (i : ι) : Integrable (fun t => ‖f t i‖ ^ 2) circleMeasure :=
+     continuous_integrable_compact _
+       (((PiLp.continuous_apply 2 (fun _ : ι => ℂ) i).comp hf).norm.pow 2)
+-  rw [integral_finsetSum Finset.univ (fun i _ => hi i)]
++  rw [integral_finset_sum Finset.univ (fun i _ => hi i)]
+   exact hs
+ 
+ theorem fourierCoeff_clm {E : Type u_63} {F : Type u_64} [NormedAddCommGroup E] [NormedSpace ℂ E]
+@@ -278,7 +295,7 @@
+     inner ℂ (hsVector Y) (Matrix.toEuclideanCLM (n := Fin n × Fin m) (𝕜 := ℂ)
+       (tensorPolynomial A (faberPolynomial b C)) (hsVector X)) =
+       ∑ k : Fin N, entryPair (Yᴴ * Polynomial.aeval A (b k) * X) (C k) := by
+-  simp only [tensorPolynomial_faber,map_sum,sum_apply,inner_sum,tensor_entryPair]
++  simp only [tensorPolynomial_faber,map_sum,ContinuousLinearMap.sum_apply,inner_sum,tensor_entryPair]
+ 
+ theorem cross_boundary_estimate {n m : ℕ} (A : Matrix (Fin n) (Fin n) ℂ)
+     (b : ℕ → Polynomial ℂ) (h : BoundaryCircle → ℂ)
+@@ -318,4 +335,34 @@
+ open MeasureTheory
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.DirectCrouzeix.cross_boundary_estimate := @_root_.OAI.DirectCrouzeix.cross_boundary_estimate
++theorem _root_.Prove2me.Solution.OAI_DirectCrouzeix_cross_boundary_estimate : type_of% @_root_.OAI.DirectCrouzeix.cross_boundary_estimate := @_root_.OAI.DirectCrouzeix.cross_boundary_estimate
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.DirectCrouzeix.cross_boundary_estimate` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.DirectCrouzeix
++open scoped Matrix Matrix.Norms.L2Operator Kronecker
++open scoped MatrixOrder ComplexOrder
++open MeasureTheory
++
++example {n m : ℕ} (A : Matrix (Fin n) (Fin n) ℂ)
++    (b : ℕ → Polynomial ℂ) (h : BoundaryCircle → ℂ)
++    (hexpand : ∀ G : MatrixPolynomial m, ∃ (N : ℕ) (C : Fin N → Matrix (Fin m) (Fin m) ℂ),
++      G = faberPolynomial b C)
++    (hlower : ∀ N (C : Fin N → Matrix (Fin m) (Fin m) ℂ),
++      ∑ k, hsSq (C k) ≤ polynomialEnergy h (faberPolynomial b C))
++    (R : BoundaryCircle → Matrix (Fin n) (Fin n) ℂ) (hR : Continuous R)
++    (hcoeff : ∀ k : ℕ, fourierCoeff R (-(k : ℤ)) = Polynomial.aeval A (b k))
++    (X Y : Matrix (Fin n) (Fin m) ℂ) (G : MatrixPolynomial m) :
++    ‖inner ℂ (hsVector Y) (Matrix.toEuclideanCLM (n := Fin n × Fin m) (𝕜 := ℂ)
++      (tensorPolynomial A G) (hsVector X))‖ ^ 2 ≤
++      (∫ t, hsSq (Yᴴ * R t * X) ∂circleMeasure) * polynomialEnergy h G := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_DirectCrouzeix_cross_boundary_estimate A b h hexpand hlower R hR hcoeff X Y G
++  | (apply _root_.Prove2me.Solution.OAI_DirectCrouzeix_cross_boundary_estimate <;> assumption)
++
++
++end Prove2meStatement

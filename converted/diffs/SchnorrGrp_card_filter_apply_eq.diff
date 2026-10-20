@@ -1,0 +1,61 @@
+--- Downloads/arctic-crypto/SchnorrGrp.card_filter_apply_eq.lean
++++ converted/Prove2me/ArcticCrypto/SchnorrGrp_card_filter_apply_eq.lean
+@@ -1,7 +1,25 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 45d5a3fc-34fd-4753-9125-9ffee4964846
++* original name       : `SchnorrGrp.card_filter_apply_eq`
++* title               : Fixing one coordinate of a function `Fin Q → ZMod q` leaves exactly a `1 / q` fraction of
++* statement author    : raver1975
++* solution author     : raver1975 (submission ca2fe303-f621-40d3-b28e-48aae05a87e4,
++                        accepted 2026-09-12T07:01:04.758359+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/SchnorrGroupFiatShamir.lean#L177
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/arctic-crypto/SchnorrGrp.card_filter_apply_eq.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/SchnorrGrp_card_filter_apply_eq.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/SchnorrGroupFiatShamir.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupFiatShamir
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupProtocol
++
+ /-
+ Copyright (c) 2026 Harmonic. All rights reserved.
+ Released under Apache 2.0 license as described in the file LICENSE.
+@@ -72,7 +90,7 @@
+ 
+ open SchnorrGrp in
+ open scoped Classical in
+-theorem solution[NeZero q] {Q : ℕ} (i : Fin Q) (v : ZMod q) :
++theorem _root_.Prove2me.Solution.SchnorrGrp_card_filter_apply_eq[NeZero q] {Q : ℕ} (i : Fin Q) (v : ZMod q) :
+     (Finset.univ.filter (fun f : Fin Q → ZMod q => f i = v)).card * q
+       = Fintype.card (Fin Q → ZMod q) := by
+   classical
+@@ -104,3 +122,23 @@
+   rw [hcards]
+   simp only [key]
+   rw [Finset.sum_const, smul_eq_mul, Finset.card_univ, ZMod.card, mul_comm]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open SchnorrGrp
++variable {G : Type*} [CommGroup G] {q : ℕ} {M : Type*}
++open scoped Classical in
++
++theorem SchnorrGrp.card_filter_apply_eq[NeZero q] {Q : ℕ} (i : Fin Q) (v : ZMod q) :
++    (Finset.univ.filter (fun f : Fin Q → ZMod q => f i = v)).card * q
++      = Fintype.card (Fin Q → ZMod q) := by
++  first
++  | exact _root_.Prove2me.Solution.SchnorrGrp_card_filter_apply_eq i v
++  | (apply _root_.Prove2me.Solution.SchnorrGrp_card_filter_apply_eq <;> assumption)
++
++
++end Prove2meStatement

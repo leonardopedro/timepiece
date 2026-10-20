@@ -1,0 +1,117 @@
+--- Downloads/fock-ladders/OAI.ThermalSpectral.Space.weakDefect_centered.lean
++++ converted/Prove2me/FockLadders/OAI_ThermalSpectral_Space_weakDefect_centered.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 51128ed4-0403-4461-b5b4-fad8e276c5a1
++* original name       : `OAI.ThermalSpectral.Space.weakDefect_centered`
++* title               : With the mean subtracted, the weak thermal-balance defect equals its centered form
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission b4a3d692-a6c8-44ed-bad1-e73b78608b69,
++                        accepted 2026-10-16T06:39:44.831696+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/SpectralForms.lean#L984-L1009
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/fock-ladders/OAI.ThermalSpectral.Space.weakDefect_centered.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_ThermalSpectral_Space_weakDefect_centered.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/SpectralForms.lean:L987-L1012
+ -- (upload_full_project.md Phase 4): solution for node OAI.ThermalSpectral.Space.weakDefect_centered. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -23,7 +40,8 @@
+ import Definitions.Def_OAI_InformationTheory_PhotonNumber_Interpolation
+ import Definitions.Def_OAI_InformationTheory_PhotonNumber_SpectralForms
+ import Theorems.Thm_OAI_ThermalMetric_defectVector_mem_centeredSpace
+-import Theorems.Thm_OAI_WeightedGenerator_weakDefect_spectral
++import Prove2me.FockLadders.OAI_WeightedGenerator_weakDefect_spectral  -- was `Theorems.Thm_OAI_WeightedGenerator_weakDefect_spectral`
++import Prove2me.Shim.Misc  -- conversion shim (platform Mathlib API)
+ 
+ -- ---- from OAI.InformationTheory.PhotonNumber.ThermalMetric ----
+ -- Lean 4.33.1 equivalents of the upstream Lean 4.34 theorem names.
+@@ -62,7 +80,7 @@
+   have hh := lp.hasSum_inner (𝕜 := ℂ) (defectVector r hr p hp d hd)
+     (weightedVector (fun a => metricCoefficient r (p a.1) (p a.2)) z hz
+       (fun a => (metricCoefficient_pos hr (hp a.1) (hp a.2)).le))
+-  convert! hh using 1
++  convert hh using 1
+   ext a
+   simp only [defectVector_apply, weightedVector_apply, RCLike.inner_apply,
+     map_mul, Complex.ofReal_div, map_div₀, Complex.conj_ofReal]
+@@ -248,14 +266,14 @@
+ open scoped ComplexConjugate
+ variable {n : ℕ}
+ 
+-theorem single_lower_third_apply (j : Fin n) (x : Fock n) (k : NumberIndex n) :
++private theorem single_lower_third_apply (j : Fin n) (x : Fock n) (k : NumberIndex n) :
+     sandwich 0 3 (by omega) j x k=
+       (Real.sqrt ((k j:ℝ)+1):ℂ)*inverseWeight 3 x (up j k) := by
+   simp only [sandwich_apply,coefficient,inverseWeight_apply,pow_zero,one_mul]
+   push_cast
+   ring
+ 
+-theorem single_raise_third_apply (j : Fin n) (x : Fock n) (k : NumberIndex n) :
++private theorem single_raise_third_apply (j : Fin n) (x : Fock n) (k : NumberIndex n) :
+     creationSandwich 0 3 (by omega) j x k=
+       (if k j=0 then (0:ℂ) else (Real.sqrt (k j:ℝ):ℂ))*inverseWeight 3 x (down j k) := by
+   by_cases hk : k j=0
+@@ -451,7 +469,7 @@
+   unfold expectation CrossEnsemble.pairing
+   have hs : HasSum (fun i => inner ℂ (inverseWeight 3 (X.vector i))
+       ((1 : Fock n →L[ℂ] Fock n) (inverseWeight 3 (X.vector i)))) (1:ℂ) := by
+-    convert! hh using 1
++    convert hh using 1
+     ext i
+     simp only [one_apply_eq_self,inner_self_eq_norm_sq_to_K,Complex.ofRealCLM_apply,Complex.ofReal_pow]
+     rfl
+@@ -748,4 +766,47 @@
+ open scoped ComplexConjugate
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.ThermalSpectral.Space.weakDefect_centered := @_root_.OAI.ThermalSpectral.Space.weakDefect_centered
++theorem _root_.Prove2me.Solution.OAI_ThermalSpectral_Space_weakDefect_centered : type_of% @_root_.OAI.ThermalSpectral.Space.weakDefect_centered := @_root_.OAI.ThermalSpectral.Space.weakDefect_centered
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.ThermalSpectral.Space.weakDefect_centered` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.ThermalSpectral OAI.ThermalSpectral.Space
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open scoped BigOperators
++open MvPolynomial
++open scoped BigOperators ComplexConjugate Classical
++open Submodule
++open ContinuousLinearMap
++open scoped ENNReal
++open Set Filter Topology Complex MeasureTheory
++open Set Filter Topology Complex Metric
++open MeasureTheory Set Filter Topology Complex Metric InnerProductSpace
++open scoped ENNReal NNReal
++open Filter Topology
++open EntropyPhotonNumber Annihilation WeightedGenerator ThermalMetric
++open scoped ComplexConjugate
++variable {n : ℕ} (S : Space (Fock n))
++
++example {ρ : State n} (X : WeightedColumns ρ) (hI : X.Index=S.I)
++    (x : S.I → Fock n) (hx : Summable (fun r => ‖x r‖^2))
++    (hi : ∀ r, inverseWeight 3 (x r)=(Real.sqrt (S.p r):ℂ) • S.basis r)
++    (he : HEq X.vector x) (j : Fin n) (μ : ℂ)
++    (hd : Summable (fun a : S.I × S.I =>
++      (1-frequency S.r (S.p a.1) (S.p a.2))*defectCoefficient S.r (S.p a.1) (S.p a.2)*
++        ‖centeredEntry S.basis S.p x j μ a.1 a.2‖^2))
++    (hc : HasSum (fun r => (S.p r:ℂ)*centeredEntry S.basis S.p x j μ r r) 0)
++    (Z : Fock n →L[ℂ] Fock n) :
++    weakDefect S.r x j μ Z=X.centeredWeak S.r j Z := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_ThermalSpectral_Space_weakDefect_centered X hI x hx hi he j μ hd hc Z
++  | (apply _root_.Prove2me.Solution.OAI_ThermalSpectral_Space_weakDefect_centered <;> assumption)
++
++
++end Prove2meStatement

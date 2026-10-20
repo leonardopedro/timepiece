@@ -1,0 +1,58 @@
+--- Downloads/unfer-sirk/sign_matrix_inner_eq_nuclear_norm.lean
++++ converted/Prove2me/UnferSirk/sign_matrix_inner_eq_nuclear_norm.lean
+@@ -1,12 +1,30 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 32a9e1ed-53ee-41f4-99a3-269164684661
++* original name       : `sign_matrix_inner_eq_nuclear_norm`
++* title               : None
++* statement author    : Harry_Xu
++* solution author     : Harry_Xu (submission 37209c2c-8b18-43d1-aa56-d4542b19268c,
++                        accepted 2026-06-21T21:31:04.287637+00:00)
++* source              : Candès–Recht 2009, arXiv:0805.4471, Lemma 3.2 (p.15)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/sign_matrix_inner_eq_nuclear_norm.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/sign_matrix_inner_eq_nuclear_norm.diff`.
++-/
+ import Definitions.Def_matrix_completion_tangent
+ import Definitions.Def_matrix_completion_svd
+ import Definitions.Def_matrix_completion_basic
+ import Mathlib.Analysis.InnerProductSpace.Spectrum
+ import Mathlib.Analysis.InnerProductSpace.Adjoint
+ import Mathlib.Analysis.InnerProductSpace.Positive
+-import Mathlib.Analysis.InnerProductSpace.SingularValues
++import Prove2me.Shim.SingularValues  -- was `Mathlib.Analysis.InnerProductSpace.SingularValues`
+ import Mathlib.Analysis.InnerProductSpace.PiL2
+ import Mathlib.Analysis.InnerProductSpace.Trace
++import Prove2me.Shim.Spectrum  -- conversion shim (platform Mathlib API)
+ 
+ /-!
+ L1 — `sign_matrix_inner_eq_nuclear_norm`:  `⟨E, M⟩ = ‖M‖_*`  (Candès–Recht 2009, eq.(3.3), p.15).
+@@ -447,6 +465,22 @@
+ open MatrixCompletion
+ 
+ /-- L1 — the sign matrix realizes the nuclear norm (Candès–Recht 2009, eq.(3.3)). -/
+-theorem solution {n₁ n₂ r : ℕ} {M : Matrix (Fin n₁) (Fin n₂) ℝ} (S : SVD M r) :
++theorem _root_.Prove2me.Solution.sign_matrix_inner_eq_nuclear_norm {n₁ n₂ r : ℕ} {M : Matrix (Fin n₁) (Fin n₂) ℝ} (S : SVD M r) :
+     matrixInner (signMatrix S) M = nuclearNorm M := by
+   rw [signMatrix_inner_eq_sum_sigma S, svd_sigma_sum_eq_nuclearNorm S]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MatrixCompletion
++
++theorem sign_matrix_inner_eq_nuclear_norm {n₁ n₂ r : ℕ} {M : Matrix (Fin n₁) (Fin n₂) ℝ} (S : SVD M r) : matrixInner (signMatrix S) M = nuclearNorm M := by
++  first
++  | exact _root_.Prove2me.Solution.sign_matrix_inner_eq_nuclear_norm S
++  | (apply _root_.Prove2me.Solution.sign_matrix_inner_eq_nuclear_norm <;> assumption)
++
++
++end Prove2meStatement

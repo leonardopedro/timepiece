@@ -1,0 +1,56 @@
+--- Downloads/logos-confluence/ZK.MerkleCommitment.recompute_auth.lean
++++ converted/Prove2me/LogosConfluence/ZK_MerkleCommitment_recompute_auth.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 8893b25a-bc17-4b42-87d5-e0cf0fe92065
++* original name       : `ZK.MerkleCommitment.recompute_auth`
++* title               : Opening completeness.
++* statement author    : raver1975
++* solution author     : raver1975 (submission 32f32522-5b0e-440e-b656-5455b491dc05,
++                        accepted 2026-09-12T07:54:25.584601+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/MerkleCommitment.lean#L173
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/logos-confluence/ZK.MerkleCommitment.recompute_auth.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/ZK_MerkleCommitment_recompute_auth.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/MerkleCommitment.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_ZeroKnowledge_MerkleCommitment
+@@ -93,7 +110,7 @@
+ 
+ 
+ open ZK.MerkleCommitment in
+-theorem solution(h : α → α → α) :
++theorem _root_.Prove2me.Solution.ZK_MerkleCommitment_recompute_auth(h : α → α → α) :
+     ∀ (d : ℕ) (path : Fin d → Bool) (f : (Fin d → Bool) → α),
+     recompute h d path (f path) (authPath h d path f) = mroot h d f := by
+   intro d
+@@ -115,3 +132,23 @@
+       rw [key]; simp [mroot]
+     · simp only [hb, Bool.not_true] at key ⊢
+       rw [key]; simp [mroot]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open ZK.MerkleCommitment
++open Function
++variable {α : Type*}
++
++theorem ZK.MerkleCommitment.recompute_auth(h : α → α → α) :
++    ∀ (d : ℕ) (path : Fin d → Bool) (f : (Fin d → Bool) → α),
++    recompute h d path (f path) (authPath h d path f) = mroot h d f := by
++  first
++  | exact _root_.Prove2me.Solution.ZK_MerkleCommitment_recompute_auth h
++  | (apply _root_.Prove2me.Solution.ZK_MerkleCommitment_recompute_auth <;> assumption)
++
++
++end Prove2meStatement

@@ -1,0 +1,70 @@
+--- Downloads/unfer-bayes/GaussianMatrix.gaussian_ibp_one_dim.lean
++++ converted/Prove2me/UnferBayes/GaussianMatrix_gaussian_ibp_one_dim.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 71437f64-2896-46cc-9cd6-93a6cc35ef76
++* original name       : `GaussianMatrix.gaussian_ibp_one_dim`
++* title               : One-dimensional Gaussian integration by parts (Stein's identity): $\int x\,h(x)\,d\gamma=\int h'\,d\gamma$
++* statement author    : tc
++* solution author     : tc (submission 5b731113-a4cb-4c56-a82d-01d87a09b4d2,
++                        accepted 2026-10-09T08:11:17.752376+00:00)
++* source              : C. Stein, Estimation of the mean of a multivariate normal distribution, Ann. Statist. 9 (1981), 1135–1151, Lemma 1 (one-dimensional case; cited from memory). Standard fact: for $X\sim N(0,1)$ and absolutely continuous $h$ with $\mathbb{E}|h'(X)|<\infty$, $\mathbb{E}[Xh(X)]=\mathbb{E}[h'(X)]$.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/GaussianMatrix.gaussian_ibp_one_dim.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/GaussianMatrix_gaussian_ibp_one_dim.diff`.
++-/
+ import Definitions.Def_GaussianMatrix_basic
+ 
+ open MeasureTheory ProbabilityTheory
+@@ -45,7 +62,7 @@
+ 
+ open GaussianMatrix
+ 
+-theorem solution (h : ℝ → ℝ) (hh : Differentiable ℝ h) (C : ℝ)
++theorem _root_.Prove2me.Solution.GaussianMatrix_gaussian_ibp_one_dim (h : ℝ → ℝ) (hh : Differentiable ℝ h) (C : ℝ)
+     (hdh : ∀ x, |deriv h x| ≤ C) :
+     ∫ x, x * h x ∂(gaussianReal 0 1) = ∫ x, deriv h x ∂(gaussianReal 0 1) := by
+   have hC : 0 ≤ C := le_trans (abs_nonneg _) (hdh 0)
+@@ -78,8 +95,8 @@
+   -- integration by parts on the line with `u = h`, `v = -φ`, `v' = x φ`
+   have key := integral_mul_deriv_eq_deriv_mul_of_integrable (u := h) (v := fun x => -φ x)
+     (u' := deriv h) (v' := fun x => x * φ x)
+-    (fun x _ => (hh x).hasDerivAt)
+-    (fun x _ => ((hasDerivAt_gaussianPDFReal_zero_one x).neg).congr_deriv (by ring))
++    (fun x => (hh x).hasDerivAt)
++    (fun x => ((hasDerivAt_gaussianPDFReal_zero_one x).neg).congr_deriv (by ring))
+     (by
+       have : (h * fun x => x * φ x) = fun x => φ x * (x * h x) := by funext x; simp; ring
+       rw [this]; exact hxh)
+@@ -92,3 +109,26 @@
+   have e1 : (fun x => φ x * (x * h x)) = fun x => h x * (x * φ x) := by funext x; ring
+   have e2 : (fun x => φ x * deriv h x) = fun x => -(deriv h x * -φ x) := by funext x; ring
+   rw [e1, key, e2, integral_neg]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory
++open scoped Matrix
++
++namespace GaussianMatrix
++
++theorem gaussian_ibp_one_dim (h : ℝ → ℝ) (hh : Differentiable ℝ h) (C : ℝ)
++    (hdh : ∀ x, |deriv h x| ≤ C) :
++    ∫ x, x * h x ∂(gaussianReal 0 1) = ∫ x, deriv h x ∂(gaussianReal 0 1) := by
++  first
++  | exact _root_.Prove2me.Solution.GaussianMatrix_gaussian_ibp_one_dim h hh C hdh
++  | (apply _root_.Prove2me.Solution.GaussianMatrix_gaussian_ibp_one_dim <;> assumption)
++
++end GaussianMatrix
++
++
++end Prove2meStatement

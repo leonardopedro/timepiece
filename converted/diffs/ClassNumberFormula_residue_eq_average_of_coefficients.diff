@@ -1,0 +1,50 @@
+--- Downloads/analytic-nt/ClassNumberFormula.residue_eq_average_of_coefficients.lean
++++ converted/Prove2me/AnalyticNt/ClassNumberFormula_residue_eq_average_of_coefficients.lean
+@@ -1,9 +1,46 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : ef0a550d-4790-4bfb-9a66-4c0896250213
++* original name       : `ClassNumberFormula.residue_eq_average_of_coefficients`
++* title               : The residue at $s=1$ equals the average of the Dirichlet coefficients
++* statement author    : Lucas
++* solution author     : fizzyinc3 (submission 320fdbe9-092f-4249-ac3f-640858bbe7c5,
++                        accepted 2026-10-17T13:32:16.320182+00:00)
++* source              : Wikipedia, "Class number formula" (revision oldid=1366411311), https://en.wikipedia.org/w/index.php?title=Class_number_formula&oldid=1366411311, section "Proof", second paragraph ("An elementary manipulation shows that the residue ... is the average of the coefficients")
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/analytic-nt/ClassNumberFormula.residue_eq_average_of_coefficients.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/ClassNumberFormula_residue_eq_average_of_coefficients.diff`.
++-/
+ import Mathlib
+ 
+ open Filter Topology
+ 
+-theorem solution (a : ℕ → ℝ) (ha : ∀ n, 0 ≤ a n) (ρ : ℝ)
++theorem _root_.Prove2me.Solution.ClassNumberFormula_residue_eq_average_of_coefficients (a : ℕ → ℝ) (ha : ∀ n, 0 ≤ a n) (ρ : ℝ)
+     (h : Tendsto (fun N : ℕ => (∑ n ∈ Finset.Icc 1 N, a n) / (N : ℝ)) atTop (𝓝 ρ)) :
+     Tendsto (fun s : ℝ => ((s : ℂ) - 1) * LSeries (fun n => (a n : ℂ)) s) (𝓝[>] 1)
+       (𝓝 (ρ : ℂ)) :=
+   LSeries_tendsto_sub_mul_nhds_one_of_tendsto_sum_div_and_nonneg a h ha
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open NumberField NumberField.InfinitePlace NumberField.Units Filter Topology Real
++
++namespace ClassNumberFormula
++
++theorem residue_eq_average_of_coefficients (a : ℕ → ℝ) (ha : ∀ n, 0 ≤ a n) (ρ : ℝ)
++    (h : Tendsto (fun N : ℕ => (∑ n ∈ Finset.Icc 1 N, a n) / (N : ℝ)) atTop (𝓝 ρ)) :
++    Tendsto (fun s : ℝ => ((s : ℂ) - 1) * LSeries (fun n => (a n : ℂ)) s) (𝓝[>] 1)
++      (𝓝 (ρ : ℂ)) :=
++  _root_.Prove2me.Solution.ClassNumberFormula_residue_eq_average_of_coefficients a ha ρ h
++
++end ClassNumberFormula
++
++end Prove2meStatement

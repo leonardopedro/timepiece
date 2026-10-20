@@ -1,0 +1,90 @@
+--- Downloads/unfer-bayes/GrothendieckConstant.coeff_hermite_moments.lean
++++ converted/Prove2me/UnferBayes/GrothendieckConstant_coeff_hermite_moments.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 25dbc35b-7406-4bdc-9925-65d9e7a45944
++* original name       : `GrothendieckConstant.coeff_hermite_moments`
++* title               : Hermite moment formulas for the coefficients $b_1$, $b_3$ of a Krivine scheme
++* statement author    : moona3k
++* solution author     : moona3k (submission d05f2b67-b8c5-4c04-acba-d0afcad1ba7b,
++                        accepted 2026-10-07T01:29:41.229835+00:00)
++* source              : Li, Saha, Xue, Chaudhuri, Klivans, Kothari, Meka, "Long-Horizon AI Research for Grothendieck Constant: A Case Study in Human-AI Mathematical Collaboration", arXiv:2608.11195v3 (2026), https://arxiv.org/abs/2608.11195, Section 2, p. 6 (definition of the coefficients b1, b3 of H) and Appendix A, p. 17 (the Hermite coefficients (b1, b3) are linear functionals of the scheme). Standard Mehler/Hermite expansion of the bivariate Gaussian density.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/GrothendieckConstant.coeff_hermite_moments.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/GrothendieckConstant_coeff_hermite_moments.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_KrivineSchemeDefs
+ 
+@@ -873,7 +890,7 @@
+     rw [Measure.volume_eq_prod]
+     exact (integrable_mom1 _ S.measurable_f (abs_f_le S) i).mul_prod
+       (integrable_mom1 _ S.measurable_g (abs_g_le S) i)
+-  rw [integral_finsetSum _ fun i _ => hint i]
++  rw [integral_finset_sum _ fun i _ => hint i]
+   refine sum_congr rfl fun i _ => ?_
+   rw [Measure.volume_eq_prod]
+   exact integral_prod_mul (fun x => S.f x * x i * phiK k x) (fun y => S.g y * y i * phiK k y)
+@@ -903,12 +920,12 @@
+     rw [Measure.volume_eq_prod]
+     exact (integrable_mom3 _ S.measurable_f (abs_f_le S) i j l).mul_prod
+       (integrable_mom3 _ S.measurable_g (abs_g_le S) i j l)
+-  rw [integral_finsetSum _ fun i _ => integrable_finsetSum _ fun j _ =>
+-    integrable_finsetSum _ fun l _ => hint i j l]
++  rw [integral_finset_sum _ fun i _ => integrable_finset_sum _ fun j _ =>
++    integrable_finset_sum _ fun l _ => hint i j l]
+   refine sum_congr rfl fun i _ => ?_
+-  rw [integral_finsetSum _ fun j _ => integrable_finsetSum _ fun l _ => hint i j l]
++  rw [integral_finset_sum _ fun j _ => integrable_finset_sum _ fun l _ => hint i j l]
+   refine sum_congr rfl fun j _ => ?_
+-  rw [integral_finsetSum _ fun l _ => hint i j l]
++  rw [integral_finset_sum _ fun l _ => hint i j l]
+   refine sum_congr rfl fun l _ => ?_
+   rw [Measure.volume_eq_prod]
+   exact integral_prod_mul (fun x => S.f x * H3 x i j l * phiK k x)
+@@ -928,7 +945,7 @@
+ 
+ open MeasureTheory ProbabilityTheory Real GrothendieckConstant
+ 
+-theorem solution (k : ℕ) (S : KrivineScheme k) :
++theorem _root_.Prove2me.Solution.GrothendieckConstant_coeff_hermite_moments (k : ℕ) (S : KrivineScheme k) :
+     coeffLinear S = (π / 2) * ∑ i : Fin k,
+         (∫ x, S.f x * x i * ∏ m, gaussianPDFReal 0 1 (x m)) *
+         (∫ y, S.g y * y i * ∏ m, gaussianPDFReal 0 1 (y m)) ∧
+@@ -938,3 +955,31 @@
+         (∫ y, S.g y * (y i * y j * y l - (if i = j then y l else 0) - (if i = l then y j else 0)
+             - (if j = l then y i else 0)) * ∏ m, gaussianPDFReal 0 1 (y m)) :=
+   ⟨KG.coeffLinear_eq_moments S, KG.coeffCubic_eq_moments S⟩
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory Real
++
++namespace GrothendieckConstant
++
++theorem coeff_hermite_moments (k : ℕ) (S : KrivineScheme k) :
++    coeffLinear S = (π / 2) * ∑ i : Fin k,
++        (∫ x, S.f x * x i * ∏ m, gaussianPDFReal 0 1 (x m)) *
++        (∫ y, S.g y * y i * ∏ m, gaussianPDFReal 0 1 (y m)) ∧
++    coeffCubic S = (π / 12) * ∑ i : Fin k, ∑ j : Fin k, ∑ l : Fin k,
++        (∫ x, S.f x * (x i * x j * x l - (if i = j then x l else 0) - (if i = l then x j else 0)
++            - (if j = l then x i else 0)) * ∏ m, gaussianPDFReal 0 1 (x m)) *
++        (∫ y, S.g y * (y i * y j * y l - (if i = j then y l else 0) - (if i = l then y j else 0)
++            - (if j = l then y i else 0)) * ∏ m, gaussianPDFReal 0 1 (y m)) := by
++  first
++  | exact _root_.Prove2me.Solution.GrothendieckConstant_coeff_hermite_moments k S
++  | (apply _root_.Prove2me.Solution.GrothendieckConstant_coeff_hermite_moments <;> assumption)
++
++end GrothendieckConstant
++
++
++end Prove2meStatement

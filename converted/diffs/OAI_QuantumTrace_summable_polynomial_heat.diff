@@ -1,0 +1,50 @@
+--- Downloads/unfer-bayes/OAI.QuantumTrace.summable_polynomial_heat.lean
++++ converted/Prove2me/UnferBayes/OAI_QuantumTrace_summable_polynomial_heat.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 7a1aff21-fd02-4eb2-adeb-f6061106b529
++* original name       : `OAI.QuantumTrace.summable_polynomial_heat`
++* title               : Heat-trace summability at half rate implies summability of quadratically weighted terms
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 3cf0aec0-b7f0-47a6-9091-c2afff14f78c,
++                        accepted 2026-10-16T03:25:13.323986+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/Analysis/QuantumTrace/Basic.lean#L1360-L1382
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/OAI.QuantumTrace.summable_polynomial_heat.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_QuantumTrace_summable_polynomial_heat.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/Analysis/QuantumTrace/Basic.lean:L1369-L1391
+ -- (upload_full_project.md Phase 4): solution for node OAI.QuantumTrace.summable_polynomial_heat. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -201,4 +218,25 @@
+ open Filter Topology
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.QuantumTrace.summable_polynomial_heat := @_root_.OAI.QuantumTrace.summable_polynomial_heat
++theorem _root_.Prove2me.Solution.OAI_QuantumTrace_summable_polynomial_heat : type_of% @_root_.OAI.QuantumTrace.summable_polynomial_heat := @_root_.OAI.QuantumTrace.summable_polynomial_heat
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.QuantumTrace.summable_polynomial_heat` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.QuantumTrace
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open Filter Topology
++
++example {J : Type*} (u : J → ℝ) (hu : ∀ j, 0 ≤ u j)
++    (hs : Summable (fun j => Real.exp (-(1/2 : ℝ)*u j))) :
++    Summable (fun j => Real.exp (-u j)*(1+u j^2)) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_QuantumTrace_summable_polynomial_heat u hu hs
++  | (apply _root_.Prove2me.Solution.OAI_QuantumTrace_summable_polynomial_heat <;> assumption)
++
++
++end Prove2meStatement

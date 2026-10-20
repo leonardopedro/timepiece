@@ -1,0 +1,118 @@
+--- Downloads/unfer-sirk/OAI.DirectCrouzeix.Faber.faber_hilbert_coefficient_bounds.lean
++++ converted/Prove2me/UnferSirk/OAI_DirectCrouzeix_Faber_faber_hilbert_coefficient_bounds.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 854697be-0859-4e8b-bb35-7f27462f5775
++* original name       : `OAI.DirectCrouzeix.Faber.faber_hilbert_coefficient_bounds`
++* title               : Two-sided energy bounds for Faber series with Hilbert-space coefficients on the boundary curve
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 561a519c-b228-4308-b859-a54be024115a,
++                        accepted 2026-10-18T07:32:50.798979+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/Analysis/DirectCrouzeix/FaberEnergy.lean#L77-L110
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/OAI.DirectCrouzeix.Faber.faber_hilbert_coefficient_bounds.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_DirectCrouzeix_Faber_faber_hilbert_coefficient_bounds.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/Analysis/DirectCrouzeix/FaberEnergy.lean:L80-L113
+ -- (upload_full_project.md Phase 4): solution for node OAI.DirectCrouzeix.Faber.faber_hilbert_coefficient_bounds. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -70,7 +87,7 @@
+   have hi : Continuous (fun y : closedBall x ε => ∫ t, f y t ∂μ) := by
+     simpa using continuous_parametric_integral_of_continuous (μ := μ) hc isCompact_univ
+   have hi' : ContinuousOn (fun y => ∫ t, f y t ∂μ) (closedBall x ε) :=
+-    continuousOn_iff_continuous_domRestrict.mpr hi
++    continuousOn_iff_continuous_restrict.mpr hi
+   exact (hi'.continuousAt (closedBall_mem_nhds x hε)).continuousWithinAt
+ 
+ theorem chord_mem {s : Set ℂ} (hs : Convex ℝ s) {u v : ℂ} (hu : u ∈ s) (hv : v ∈ s)
+@@ -327,7 +344,7 @@
+     [TopologicalSpace α] [TopologicalSpace β]
+     [TopologicalSpace E] (f : α → β → E) (hf : Continuous f.uncurry) (y : β) :
+     Continuous (fun x => f x y) := by
+-  simpa only [Function.comp_def,Function.uncurry] using! hf.comp (continuous_id.prodMk continuous_const)
++  simpa only [Function.comp_def,Function.uncurry] using hf.comp (continuous_id.prodMk continuous_const)
+ 
+ theorem unitPoint_ne_zero (t : Angle) : unitPoint t ≠ 0 := by
+   exact norm_ne_zero_iff.mp (by rw [unitPoint_norm]; norm_num)
+@@ -354,7 +371,7 @@
+     (hS : Continuous (boundaryCorrection c g).uncurry) (k : ℕ) :
+     Continuous (boundaryCoefficient c g k) := by
+   have hs : Continuous (fun p : Angle × Angle => boundaryCorrection c g p.2 p.1) := by
+-    simpa only [Function.uncurry,Function.comp_def] using! hS.comp continuous_swap
++    simpa only [Function.uncurry,Function.comp_def] using hS.comp continuous_swap
+   have hf : Continuous (fun p : Angle × Angle => fourier (-(-(k:ℤ))) p.2) :=
+     (fourier (-(-(k:ℤ)))).continuous.comp continuous_snd
+   have hh := continuous_circle_integral (f := fun s t => fourier (-(-(k:ℤ))) t • boundaryCorrection c g t s)
+@@ -430,14 +447,14 @@
+ theorem continuous_positiveSeries {E : Type u_127} [NormedAddCommGroup E]
+     [InnerProductSpace ℂ E] [CompleteSpace E] {N : ℕ} (C : Fin N → E) :
+     Continuous (positiveSeries C) := by
+-  exact continuous_finsetSum _ (fun k _ => (fourier (k:ℤ)).continuous.smul continuous_const)
++  exact continuous_finset_sum _ (fun k _ => (fourier (k:ℤ)).continuous.smul continuous_const)
+ 
+ theorem fourierCoeff_finite_smul {N : ℕ} (f : Fin N → Angle → ℂ)
+     (hf : ∀ k, Continuous (f k)) (C : Fin N → E) (j : ℤ) :
+     fourierCoeff (fun t => ∑ k, f k t • C k) j = ∑ k, fourierCoeff (f k) j • C k := by
+   unfold fourierCoeff
+   simp_rw [Finset.smul_sum,smul_smul]
+-  rw [integral_finsetSum]
++  rw [integral_finset_sum]
+   · simp_rw [integral_smul_const,smul_eq_mul]
+   · intro k hk
+     exact integrable_of_continuous_compact _ (((fourier (-j)).continuous.mul (hf k)).smul continuous_const)
+@@ -510,7 +527,7 @@
+ theorem continuous_boundaryRemainder {E : Type u_128} [NormedAddCommGroup E]
+     [InnerProductSpace ℂ E] [CompleteSpace E] {N : ℕ} (c : ℂ) (g : ℂ → ℂ) (C : Fin N → E)
+     (hS : Continuous (boundaryCorrection c g).uncurry) : Continuous (boundaryRemainder c g C) := by
+-  exact continuous_finsetSum _ (fun k _ => (continuous_boundaryCoefficient hS k).smul continuous_const)
++  exact continuous_finset_sum _ (fun k _ => (continuous_boundaryCoefficient hS k).smul continuous_const)
+ 
+ theorem faberBoundarySeries_decomp {E : Type u_128} [NormedAddCommGroup E]
+     [InnerProductSpace ℂ E] [CompleteSpace E] {R : ℝ} (hR : 1 < R) {g : ℂ → ℂ}
+@@ -539,7 +556,7 @@
+       boundaryRemainder c g C s := by
+   have hK := continuous_slice_left _ (continuous_boundaryKernel (continuous_boundaryCorrection hR hg hH)) s
+   simp only [positiveSeries,Finset.smul_sum]
+-  rw [integral_finsetSum]
++  rw [integral_finset_sum]
+   · apply Finset.sum_congr rfl
+     intro k hk
+     by_cases hk0 : (k:ℕ) = 0
+@@ -610,4 +627,31 @@
+ open scoped Topology Interval ENNReal NNReal ComplexConjugate
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.DirectCrouzeix.Faber.faber_hilbert_coefficient_bounds := @_root_.OAI.DirectCrouzeix.Faber.faber_hilbert_coefficient_bounds
++theorem _root_.Prove2me.Solution.OAI_DirectCrouzeix_Faber_faber_hilbert_coefficient_bounds : type_of% @_root_.OAI.DirectCrouzeix.Faber.faber_hilbert_coefficient_bounds := @_root_.OAI.DirectCrouzeix.Faber.faber_hilbert_coefficient_bounds
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.DirectCrouzeix.Faber.faber_hilbert_coefficient_bounds` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.DirectCrouzeix OAI.DirectCrouzeix.Faber
++open scoped Matrix Matrix.Norms.L2Operator Kronecker
++open MeasureTheory Set Filter Metric
++open scoped Topology Interval ENNReal NNReal ComplexConjugate
++variable {E : Type u_128} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
++
++example {R : ℝ} (hR : 1 < R) {g : ℂ → ℂ}
++    (hg : AnalyticOnNhd ℂ g (ball 0 R)) {c : ℂ} (hc : c ≠ 0)
++    (hH : ∀ u ∈ ball 0 R, ∀ v ∈ ball 0 R, chordDenominator c g u v ≠ 0)
++    (hpositive : ∀ t s, 0 ≤ boundaryKernel c g t s)
++    {N : ℕ} (C : Fin N → E) :
++    (∑ k, ‖C k‖^2 ≤ ∫ t, ‖faberBoundarySeries c g C t‖^2 ∂angularMeasure) ∧
++      ((∫ t, ‖faberBoundarySeries c g C t‖^2 ∂angularMeasure) ≤
++        ∑ k : Fin N, (if (k:ℕ) = 0 then 1 else 2)*‖C k‖^2) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_DirectCrouzeix_Faber_faber_hilbert_coefficient_bounds hR hg hc hH hpositive C
++  | (apply _root_.Prove2me.Solution.OAI_DirectCrouzeix_Faber_faber_hilbert_coefficient_bounds <;> assumption)
++
++
++end Prove2meStatement

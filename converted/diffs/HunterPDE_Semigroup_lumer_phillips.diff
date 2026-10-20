@@ -1,0 +1,95 @@
+--- Downloads/operator-qm/HunterPDE.Semigroup.lumer_phillips.lean
++++ converted/Prove2me/OperatorQm/HunterPDE_Semigroup_lumer_phillips.lean
+@@ -1,6 +1,24 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 773ca588-f7c0-4e9b-af29-73e09e1876a7
++* original name       : `HunterPDE.Semigroup.lumer_phillips`
++* title               : Theorem 5.38 — Lumer–Phillips theorem
++* statement author    : mikedeng1
++* solution author     : sometik179 (submission ab0158dc-9772-4b6e-a16b-69be958a387f,
++                        accepted 2026-10-10T03:04:05.92481+00:00)
++* source              : Hunter, Notes on Partial Differential Equations (revised 6/18/2014), p. 147, Theorem 5.38
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/operator-qm/HunterPDE.Semigroup.lumer_phillips.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/HunterPDE_Semigroup_lumer_phillips.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_HunterPDE_Semigroup_C0Semigroup
+ import Definitions.Def_HunterPDE_Semigroup_Resolvent
++import Prove2me.Shim.Misc  -- conversion shim (platform Mathlib API)
+ 
+ /- BEGIN WHOLE MODULE SemigroupContinuity -/
+ section
+@@ -120,7 +138,7 @@
+       simpa only [add_zero, one_smul, Function.comp_def] using
+         (hF (b+0)).scomp 0 ((hasDerivAt_id (0:ℝ)).const_add b)
+     have hg := hg0.sub (hF 0)
+-    convert! he.smul hg using 1
++    convert he.smul hg using 1
+     simp only [id_eq, mul_zero, Real.exp_zero, mul_one, one_mul, add_zero,
+         show F 0 = 0 by simp [F], sub_zero, one_smul, Pi.sub_apply]
+     abel
+@@ -781,8 +799,9 @@
+         _ = _ := by rw [hc.eq]; noncomm_ring
+     have hv := ((ContinuousLinearMap.apply 𝕜 X x).restrictScalars ℝ).hasFDerivAt.comp_hasDerivAt s hp
+     convert hv using 1
+-    · rfl
+-    · exact congrArg (fun L : X →L[𝕜] X => L x) he.symm
++    all_goals first  -- conversion: the pinned `convert` leaves only the second goal
++      | rfl
++      | exact congrArg (fun L : X →L[𝕜] X => L x) he.symm
+   have hnorm : ∀ s ∈ Ico 0 t, ‖F s (C x - B x)‖ ≤ ‖C x - B x‖ := by
+     intro s hs
+     dsimp [F]
+@@ -1193,7 +1212,7 @@
+     (∃ T : ℝ → X →L[𝕜] X, IsContractionSemigroup T ∧ IsGenerator T A) ↔
+       (A.IsClosed ∧ Dense (A.domain : Set X)) ∧ IsMDissipative A  := by
+   let : NormedSpace ℝ X := NormedSpace.restrictScalars ℝ 𝕜 X
+-  let := IsScalarTower.restrictScalars ℝ 𝕜 X
++  have : IsScalarTower ℝ 𝕜 X := inferInstance  -- conversion: was `IsScalarTower.restrictScalars ℝ 𝕜 X`
+   constructor
+   · rintro ⟨T,hT,hA⟩
+     exact Proof.semigroup_necessity T hT A hA
+@@ -1202,10 +1221,36 @@
+ 
+ end HunterPDE.Semigroup
+ 
+-theorem solution {𝕜 : Type*} [RCLike 𝕜] {X : Type*} [NormedAddCommGroup X]
++theorem _root_.Prove2me.Solution.HunterPDE_Semigroup_lumer_phillips {𝕜 : Type*} [RCLike 𝕜] {X : Type*} [NormedAddCommGroup X]
+     [NormedSpace 𝕜 X] [CompleteSpace X] (A : X →ₗ.[𝕜] X) :
+     (∃ T : ℝ → X →L[𝕜] X, HunterPDE.Semigroup.IsContractionSemigroup T ∧ HunterPDE.Semigroup.IsGenerator T A) ↔
+       (A.IsClosed ∧ Dense (A.domain : Set X)) ∧ HunterPDE.Semigroup.IsMDissipative A  := HunterPDE.Semigroup.lumer_phillips A
+ end
+ /- END WHOLE MODULE LumerRoot -/
+ 
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `HunterPDE.Semigroup.lumer_phillips` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++namespace HunterPDE.Semigroup
++
++/-- Theorem 5.38 (Lumer–Phillips) of Hunter, *Notes on PDEs* (p. 147). An operator
++`A : D(A) ⊂ X → X` in a Banach space `X` (over `𝕜 = ℝ` or `ℂ`) is the generator of a contraction
++semigroup on `X` if and only if (1) `A` is closed and densely defined; (2) `A` is m-dissipative
++(Definition 5.37). "Generator" is Definition 5.30: the generator's domain is exactly where the
++right difference quotient converges, so the left side says `A` equals, domain included, the
++generator of some strongly continuous contraction semigroup. -/
++example {𝕜 : Type*} [RCLike 𝕜] {X : Type*} [NormedAddCommGroup X]
++    [NormedSpace 𝕜 X] [CompleteSpace X] (A : X →ₗ.[𝕜] X) :
++    (∃ T : ℝ → X →L[𝕜] X, IsContractionSemigroup T ∧ IsGenerator T A) ↔
++      (A.IsClosed ∧ Dense (A.domain : Set X)) ∧ IsMDissipative A := by
++  first
++  | exact _root_.Prove2me.Solution.HunterPDE_Semigroup_lumer_phillips A
++  | (apply _root_.Prove2me.Solution.HunterPDE_Semigroup_lumer_phillips <;> assumption)
++
++end HunterPDE.Semigroup
++
++
++end Prove2meStatement

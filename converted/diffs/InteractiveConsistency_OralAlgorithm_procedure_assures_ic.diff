@@ -1,0 +1,57 @@
+--- Downloads/arctic-crypto/InteractiveConsistency.OralAlgorithm.procedure_assures_ic.lean
++++ converted/Prove2me/ArcticCrypto/InteractiveConsistency_OralAlgorithm_procedure_assures_ic.lean
+@@ -1,8 +1,23 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 453707fe-d31d-4039-826a-51bc2a57d6a5
++* original name       : `InteractiveConsistency.OralAlgorithm.procedure_assures_ic`
++* title               : Section 3 (pp. 230–231) — for n ≥ 3m + 1 the recursive procedure assures interactive consistency for m faults
++* statement author    : mikedeng1
++* solution author     : mrfancypants (submission 7cea63e2-96c2-43b3-810e-c12b8cd70da0,
++                        accepted 2026-10-13T05:20:31.273468+00:00)
++* source              : Pease, Shostak & Lamport, Reaching agreement in the presence of faults, J. ACM 27 (1980), pp. 230–231, Section 3 (procedure, p. 230; proof by induction on m, p. 231); interactive consistency: p. 229 (1)–(2), p. 232 (i)–(ii)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/arctic-crypto/InteractiveConsistency.OralAlgorithm.procedure_assures_ic.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/InteractiveConsistency_OralAlgorithm_procedure_assures_ic.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_InteractiveConsistency_OralAlgorithm_Scenario
+ import Definitions.Def_InteractiveConsistency_OralAlgorithm_Procedure
+-
+-
+ 
+ namespace InteractiveConsistency.OralAlgorithm
+ 
+@@ -279,7 +294,27 @@
+ open InteractiveConsistency.OralAlgorithm
+ 
+ 
+-theorem solution {α V : Type*} [DecidableEq α] (P : Finset α) (m : ℕ)
++theorem _root_.Prove2me.Solution.InteractiveConsistency_OralAlgorithm_procedure_assures_ic {α V : Type*} [DecidableEq α] (P : Finset α) (m : ℕ)
+     (hn : 3 * m + 1 ≤ P.card) :
+     AssuresICLevel (V := V) P m (fun _ => record m P) := by
+   exact procedure_core P m hn
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace InteractiveConsistency.OralAlgorithm
++
++theorem procedure_assures_ic {α V : Type*} [DecidableEq α] (P : Finset α) (m : ℕ)
++    (hn : 3 * m + 1 ≤ P.card) :
++    AssuresICLevel (V := V) P m (fun _ => record m P) := by
++  first
++  | exact _root_.Prove2me.Solution.InteractiveConsistency_OralAlgorithm_procedure_assures_ic P m hn
++  | (apply _root_.Prove2me.Solution.InteractiveConsistency_OralAlgorithm_procedure_assures_ic <;> assumption)
++
++end InteractiveConsistency.OralAlgorithm
++
++
++end Prove2meStatement

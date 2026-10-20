@@ -1,0 +1,46 @@
+/-
+Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
+
+* platform theorem id : c6d6edcd-c882-47b6-a737-d3207e44d1b0
+* original name       : `OAI.riemannZeta_ne_zero_of_seven_eighths_lt_re`
+* title               : None
+* statement author    : wurtle
+* solution author     : wurtle (submission 5e94a6e4-963d-4e50-aa12-1f4f8a27773b,
+                        accepted 2026-10-15T18:00:22.537199+00:00)
+* source              : https://github.com/openai/math/blob/adc7f1241b42e322a6451854ab7e4b4c146bf78a/lean/ComparatorChallenges/QuasiRiemannHypothesis.lean
+* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
+* original file       : Downloads/analytic-nt/OAI.riemannZeta_ne_zero_of_seven_eighths_lt_re.lean
+
+Public prove2.me contributions are licensed under Apache 2.0
+(https://prove2.me/terms); this file keeps that license. The conversion diff
+against the original download is `converted/diffs/OAI_riemannZeta_ne_zero_of_seven_eighths_lt_re.diff`.
+-/
+import Theorems.Thm_OAI_DirichletCharacter_LFunction_ne_zero_of_seven_eighths_lt_re
+
+/- Specialization of the mission's Dirichlet milestone to the unique character
+modulo one, with Mathlib's assigned value at the pole handled separately. -/
+theorem _root_.Prove2me.Solution.OAI_riemannZeta_ne_zero_of_seven_eighths_lt_re {s : ℂ} (hs : (7 / 8 : ℝ) < s.re) : riemannZeta s ≠ 0 := by
+  by_cases h1 : s = 1
+  · simpa [h1] using riemannZeta_one_ne_zero
+  have h := OAI.DirichletCharacter.LFunction_ne_zero_of_seven_eighths_lt_re
+    (1 : DirichletCharacter ℂ 1) hs (fun h => h1 h.2)
+  simpa only [DirichletCharacter.LFunction_modOne_eq] using h
+
+/-! ## Platform statement
+
+The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
+
+section Prove2meStatement
+
+namespace OAI
+
+theorem riemannZeta_ne_zero_of_seven_eighths_lt_re
+    {s : ℂ} (hs : (7 / 8 : ℝ) < s.re) : riemannZeta s ≠ 0 := by
+  first
+  | exact _root_.Prove2me.Solution.OAI_riemannZeta_ne_zero_of_seven_eighths_lt_re hs
+  | (apply _root_.Prove2me.Solution.OAI_riemannZeta_ne_zero_of_seven_eighths_lt_re <;> assumption)
+
+end OAI
+
+
+end Prove2meStatement

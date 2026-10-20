@@ -1,0 +1,69 @@
+--- Downloads/crouzeix-convex/LawlerSokal.half_mul_sq_le_dirichletEigenvalue_of_mul_le_boundarySize.lean
++++ converted/Prove2me/CrouzeixConvex/LawlerSokal_half_mul_sq_le_dirichletEigenvalue_of_mul_le_boundarySize.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 4bc068f9-2384-4d74-8344-b899a45ab2fc
++* original name       : `LawlerSokal.half_mul_sq_le_dirichletEigenvalue_of_mul_le_boundarySize`
++* title               : Lawler–Sokal, Theorem 3.1 (Cheeger’s inequality, as Erschler–Zheng apply it) — |∂U| ≥ h·π(U) for every non-empty U ⊆ Ω gives λ₁(Ω) ≥ h²/2
++* statement author    : dbenbenn
++* solution author     : dbenbenn (submission 975f1918-56fc-44e6-abd0-17db4bbcc16c,
++                        accepted 2026-10-04T11:57:25.959668+00:00)
++* source              : G. F. Lawler and A. D. Sokal, Bounds on the L² spectrum for Markov chains and Markov processes: a generalization of Cheeger's inequality, Trans. Amer. Math. Soc. 309 (1988) 557–580, https://doi.org/10.1090/S0002-9947-1988-0930082-9, Theorem 3.1, as applied in A. Erschler and T. Zheng, Growth of periodic Grigorchuk groups, Invent. Math. 219 (2020) 1069–1155, https://doi.org/10.1007/s00222-019-00922-0 (arXiv:1802.09077v2, whose page numbers are used), p. 24, (5.1) (in the proofs of Lemma 5.2, p. 25, and Proposition 7.19, p. 48)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/crouzeix-convex/LawlerSokal.half_mul_sq_le_dirichletEigenvalue_of_mul_le_boundarySize.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/LawlerSokal_half_mul_sq_le_dirichletEigenvalue_of_mul_le_boundarySize.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_DurrettProbability_MarkovChain
+ import Definitions.Def_MarkovChain_HeatKernels
+@@ -281,7 +298,7 @@
+             ∑' y, ({y | y ∉ S} : Set X).indicator (fun y => π x * P x y) y from
+           tsum_subtype ({y | y ∉ S} : Set X) (fun y => π x * P x y)]
+         refine tsum_congr fun y => ?_
+-        simp only [Set.indicator, Set.mem_ofPred_eq, hmemS]
++        simp only [Set.indicator, Set.mem_setOf_eq, hmemS]
+         by_cases hy : 0 < g y <;> simp [hy]
+       rw [Finset.sum_congr rfl fun x _ => hsub x]
+       rw [hSdef, Finset.sum_filter]
+@@ -453,7 +470,7 @@
+ open DurrettProbability MarkovChain
+ open LawlerSokal
+ open D1 in
+-theorem solution {X : Type*} [Countable X]
++theorem _root_.Prove2me.Solution.LawlerSokal_half_mul_sq_le_dirichletEigenvalue_of_mul_le_boundarySize {X : Type*} [Countable X]
+     (P : X → X → ℝ) (π : X → ℝ) (hP : IsTransition P) (hπ : ∀ x, 0 < π x)
+     (hrev : IsReversible P π) (Ω : Finset X) (hΩ : Ω.Nonempty) (h : ℝ) (hh : 0 ≤ h)
+     (hbd : ∀ U ⊆ Ω, U.Nonempty → h * ∑ x ∈ U, π x ≤ boundarySize P π U) :
+@@ -518,3 +535,27 @@
+   rintro e ⟨f, hf, hn, rfl⟩
+   exact key f hf hn
+ end
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open DurrettProbability MarkovChain
++
++namespace LawlerSokal
++
++theorem half_mul_sq_le_dirichletEigenvalue_of_mul_le_boundarySize {X : Type*} [Countable X]
++    (P : X → X → ℝ) (π : X → ℝ) (hP : IsTransition P) (hπ : ∀ x, 0 < π x)
++    (hrev : IsReversible P π) (Ω : Finset X) (hΩ : Ω.Nonempty) (h : ℝ) (hh : 0 ≤ h)
++    (hbd : ∀ U ⊆ Ω, U.Nonempty → h * ∑ x ∈ U, π x ≤ boundarySize P π U) :
++    1 / 2 * h ^ 2 ≤ dirichletEigenvalue P π Ω := by
++  first
++  | exact _root_.Prove2me.Solution.LawlerSokal_half_mul_sq_le_dirichletEigenvalue_of_mul_le_boundarySize P π hP hπ hrev Ω hΩ h hh hbd
++  | (apply _root_.Prove2me.Solution.LawlerSokal_half_mul_sq_le_dirichletEigenvalue_of_mul_le_boundarySize <;> assumption)
++
++end LawlerSokal
++
++
++end Prove2meStatement

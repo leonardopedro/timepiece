@@ -1,0 +1,63 @@
+--- Downloads/fock-ladders/OAI.WeightedGenerator.dissipator_log_sum.lean
++++ converted/Prove2me/FockLadders/OAI_WeightedGenerator_dissipator_log_sum.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 98987828-01b9-45f6-8940-8431ae82d4f5
++* original name       : `OAI.WeightedGenerator.dissipator_log_sum`
++* title               : Real part of a weighted dissipator pairing with a logarithm-type operator as a spectral double sum
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission b828ce44-989c-4831-bb3a-4de88d7a3f3c,
++                        accepted 2026-10-16T03:33:03.727782+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/Gibbs.lean#L580-L636
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/fock-ladders/OAI.WeightedGenerator.dissipator_log_sum.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_WeightedGenerator_dissipator_log_sum.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/Gibbs.lean:L580-L636
+ -- (upload_full_project.md Phase 4): solution for node OAI.WeightedGenerator.dissipator_log_sum. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -226,4 +243,38 @@
+ open scoped BigOperators ComplexConjugate
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.WeightedGenerator.dissipator_log_sum := @_root_.OAI.WeightedGenerator.dissipator_log_sum
++theorem _root_.Prove2me.Solution.OAI_WeightedGenerator_dissipator_log_sum : type_of% @_root_.OAI.WeightedGenerator.dissipator_log_sum := @_root_.OAI.WeightedGenerator.dissipator_log_sum
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.WeightedGenerator.dissipator_log_sum` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.WeightedGenerator
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open EntropyPhotonNumber Annihilation
++open scoped BigOperators ComplexConjugate
++variable {n : ℕ} {J : Type*}
++
++example (b : HilbertBasis J ℂ (Fock n))
++    (x : J → Fock n) (hx : Summable (fun r => ‖x r‖^2))
++    (S : Fock n →L[ℂ] Fock n) (hS : S.IsSymmetric) (c : J → ℝ)
++    (hc : ∀ l, 0 ≤ c l)
++    (hf : ∀ y, HasSum (fun l => c l*‖inner ℂ (b l) (inverseWeight 2 y)‖^2)
++      (inner ℂ y (S y)).re)
++    (he : ∀ r, S (inverseWeight 1 (x r)) = (c r : ℂ) • inverseWeight 5 (x r))
++    (j : Fin n) (u : Bool) :
++    (CrossEnsemble.pairing (fun r => gain j u (x r)) (fun r => gain j u (x r)) S-
++      (2:ℂ)⁻¹*(CrossEnsemble.pairing (fun r => modeBound j u (x r)) (fun r => inverseWeight 1 (x r)) S+
++        CrossEnsemble.pairing (fun r => inverseWeight 1 (x r)) (fun r => modeBound j u (x r)) S)).re =
++      ∑' a : J × J, (c a.1-c a.2)*‖spectralGain b x j u a.1 a.2‖^2 := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_WeightedGenerator_dissipator_log_sum b x hx S hS c hc hf he j u
++  | (apply _root_.Prove2me.Solution.OAI_WeightedGenerator_dissipator_log_sum <;> assumption)
++
++
++end Prove2meStatement

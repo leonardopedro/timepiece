@@ -1,0 +1,68 @@
+--- Downloads/unfer-bayes/GaussianMatrix.gaussian_logsobolev_bounded_below.lean
++++ converted/Prove2me/UnferBayes/GaussianMatrix_gaussian_logsobolev_bounded_below.lean
+@@ -1,7 +1,24 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 2e489bf7-292d-4bb3-9984-bf3c341fbd97
++* original name       : `GaussianMatrix.gaussian_logsobolev_bounded_below`
++* title               : Gaussian log-Sobolev inequality $\mathrm{Ent}_\gamma(f)\le\frac12\int (f')^2/f\,d\gamma$ for $C^1$ functions $f$ bounded away from $0$ with bounded derivative
++* statement author    : tc
++* solution author     : tc (submission 655bc739-b82f-4cf8-a991-8fff4f031e7b,
++                        accepted 2026-10-09T08:22:48.235978+00:00)
++* source              : D. Bakry, M. Émery, Diffusions hypercontractives, Séminaire de Probabilités XIX, Lecture Notes in Math. 1123 (1985), 177–206; D. Bakry, I. Gentil, M. Ledoux, Analysis and Geometry of Markov Diffusion Operators (Springer, 2014), Proposition 5.5.1 and §5.7 (semigroup proof); M. Ledoux, The Concentration of Measure Phenomenon (AMS, 2001), Theorem 5.1 / (5.3). Numbering is cited from memory.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/GaussianMatrix.gaussian_logsobolev_bounded_below.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/GaussianMatrix_gaussian_logsobolev_bounded_below.diff`.
++-/
+ import Definitions.Def_GaussianMatrix_basic
+-import Theorems.Thm_GaussianMatrix_ou_entropy_hasDerivAt
+-import Theorems.Thm_GaussianMatrix_ou_semigroup_invariant
+-import Theorems.Thm_GaussianMatrix_ou_semigroup_commutation
++import Prove2me.UnferBayes.GaussianMatrix_ou_entropy_hasDerivAt  -- was `Theorems.Thm_GaussianMatrix_ou_entropy_hasDerivAt`
++import Prove2me.UnferBayes.GaussianMatrix_ou_semigroup_invariant  -- was `Theorems.Thm_GaussianMatrix_ou_semigroup_invariant`
++import Prove2me.UnferBayes.GaussianMatrix_ou_semigroup_commutation  -- was `Theorems.Thm_GaussianMatrix_ou_semigroup_commutation`
+ 
+ open MeasureTheory ProbabilityTheory
+ open scoped Matrix
+@@ -62,7 +79,7 @@
+ 
+ open GaussianMatrix Filter Topology Set
+ 
+-theorem solution (f : ℝ → ℝ) (hf : ContDiff ℝ 1 f) (δ C : ℝ)
++theorem _root_.Prove2me.Solution.GaussianMatrix_gaussian_logsobolev_bounded_below (f : ℝ → ℝ) (hf : ContDiff ℝ 1 f) (δ C : ℝ)
+     (hδ : 0 < δ) (hlow : ∀ x, δ ≤ f x) (hup : ∀ x, f x ≤ C) (hdf : ∀ x, |deriv f x| ≤ C) :
+     ∫ x, f x * Real.log (f x) ∂(gaussianReal 0 1)
+       - (∫ x, f x ∂(gaussianReal 0 1)) * Real.log (∫ x, f x ∂(gaussianReal 0 1))
+@@ -250,3 +267,28 @@
+     simp only [Ψ, hH0]; simp
+   rw [this] at hΨ0
+   linarith
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory
++open scoped Matrix
++
++namespace GaussianMatrix
++
++theorem gaussian_logsobolev_bounded_below (f : ℝ → ℝ) (hf : ContDiff ℝ 1 f) (δ C : ℝ)
++    (hδ : 0 < δ) (hlow : ∀ x, δ ≤ f x) (hup : ∀ x, f x ≤ C) (hdf : ∀ x, |deriv f x| ≤ C) :
++    ∫ x, f x * Real.log (f x) ∂(gaussianReal 0 1)
++      - (∫ x, f x ∂(gaussianReal 0 1)) * Real.log (∫ x, f x ∂(gaussianReal 0 1))
++      ≤ (1 / 2) * ∫ x, deriv f x ^ 2 / f x ∂(gaussianReal 0 1) := by
++  first
++  | exact _root_.Prove2me.Solution.GaussianMatrix_gaussian_logsobolev_bounded_below f hf δ C hδ hlow hup hdf
++  | (apply _root_.Prove2me.Solution.GaussianMatrix_gaussian_logsobolev_bounded_below <;> assumption)
++
++end GaussianMatrix
++
++
++end Prove2meStatement

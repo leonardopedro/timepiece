@@ -1,0 +1,78 @@
+--- Downloads/prob-concentration/scalar_centered_sampling_qmoment_bernstein_estimate.lean
++++ converted/Prove2me/ProbConcentration/scalar_centered_sampling_qmoment_bernstein_estimate.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 61481219-dc9e-4f4e-a63d-269c9a1aef73
++* original name       : `scalar_centered_sampling_qmoment_bernstein_estimate`
++* title               : None
++* statement author    : Aphrodite
++* solution author     : Aphrodite (submission 6de2815a-d3a1-4bb4-a454-6ae919754d29,
++                        accepted 2026-06-21T23:48:56.250273+00:00)
++* source              : Boucheron–Lugosi–Massart, Concentration Inequalities (OUP 2013), Ch. 15 (Moment inequalities), Bennett/Bernstein moment form; Rosenthal 1970. Applied to the p^{-1}(P_Omega - p) coefficient sums in Candès–Recht 2009, Exact Matrix Completion via Convex Optimization, arXiv:0805.4471, §6.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/prob-concentration/scalar_centered_sampling_qmoment_bernstein_estimate.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/scalar_centered_sampling_qmoment_bernstein_estimate.diff`.
++-/
+ import Theorems.Thm_scalar_centered_sampling_qnorm_rosenthal_estimate
+ import Mathlib.Analysis.Complex.ExponentialBounds
+ 
+@@ -121,7 +138,7 @@
+ `E|Coeff|^q ≤ (C·J(q))^q ≤ (2C·M)^q ≤ (Cbern·M)^q·e^{-q} ≤ (Cbern·M)^q·n^{-β}`.
+ The degenerate cases `p = 0` (`m = 0`) and `n₁ = n₂ = 1` (`p ∈ {0,1}`) give
+ `E|Coeff|^q = 0 = RHS`. -/
+-theorem solution :
++theorem _root_.Prove2me.Solution.scalar_centered_sampling_qmoment_bernstein_estimate :
+     ∃ Cbern cbern : ℝ, 0 < Cbern ∧ 0 < cbern ∧
+       ∀ (β : ℝ), 2 < β →
+       ∀ (n₁ n₂ m : ℕ), 0 < n₁ → 0 < n₂ → m ≤ n₁ * n₂ →
+@@ -280,3 +297,45 @@
+           ≤ (C * J)^q := hc
+         _ ≤ (2 * C * M)^q := hstep2
+         _ ≤ (2 * Real.exp 1 * C * M)^q * (1 * Real.rpow nn (-β)) := hstep3
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MatrixCompletion
++open scoped BigOperators
++
++theorem scalar_centered_sampling_qmoment_bernstein_estimate :
++    ∃ Cbern cbern : ℝ, 0 < Cbern ∧ 0 < cbern ∧
++      ∀ (β : ℝ), 2 < β →
++      ∀ (n₁ n₂ m : ℕ), 0 < n₁ → 0 < n₂ → m ≤ n₁ * n₂ →
++      ∀ (Coeff : Finset (Fin n₁ × Fin n₂) → ℝ)
++        (B : Matrix (Fin n₁) (Fin n₂) ℝ)
++        (entryScale frobScale : ℝ),
++        (∀ Omega : Finset (Fin n₁ × Fin n₂),
++          Coeff Omega =
++            matrixEntrySum
++              (centeredSamplingFluctuation Omega
++                ((m : ℝ) / ((n₁ : ℝ) * (n₂ : ℝ))) B)) →
++        entrySupNorm B ≤ entryScale →
++        frobeniusNorm B ≤ frobScale →
++        ∃ q : ℕ, 1 ≤ q ∧
++          bernoulliExpectation ((m : ℝ) / ((n₁ : ℝ) * (n₂ : ℝ)))
++              (fun Omega => |Coeff Omega| ^ q) ≤
++            (Cbern *
++                (Real.sqrt
++                    ((β * Real.log (↑(max n₁ n₂))) /
++                      ((m : ℝ) / ((n₁ : ℝ) * (n₂ : ℝ)))) *
++                  frobScale +
++                  ((β * Real.log (↑(max n₁ n₂))) /
++                    ((m : ℝ) / ((n₁ : ℝ) * (n₂ : ℝ)))) *
++                  entryScale)) ^ q *
++              (cbern * Real.rpow (↑(max n₁ n₂)) (-β)) := by
++  first
++  | exact _root_.Prove2me.Solution.scalar_centered_sampling_qmoment_bernstein_estimate
++  | (apply _root_.Prove2me.Solution.scalar_centered_sampling_qmoment_bernstein_estimate <;> assumption)
++
++
++end Prove2meStatement

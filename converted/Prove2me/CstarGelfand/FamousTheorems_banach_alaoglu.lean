@@ -1,0 +1,44 @@
+/-
+Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
+
+* platform theorem id : 29070134-b750-4d66-9bb3-31c7d40de55d
+* original name       : `FamousTheorems.banach_alaoglu`
+* title               : The Banach–Alaoglu theorem
+* statement author    : cm_beta
+* solution author     : cm_beta (submission 6efde70b-3600-4613-92b1-0a95117d3bc1,
+                        accepted 2026-09-22T06:56:21.83278+00:00)
+* source              : Listed in Mathlib's "1000 theorems" manifest (docs/1000.yaml); formalized in Mathlib. Proof here reduces to the corresponding Mathlib result.
+* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
+* original file       : Downloads/cstar-gelfand/FamousTheorems.banach_alaoglu.lean
+
+Public prove2.me contributions are licensed under Apache 2.0
+(https://prove2.me/terms); this file keeps that license. The conversion diff
+against the original download is `converted/diffs/FamousTheorems_banach_alaoglu.diff`.
+-/
+import Mathlib
+
+open Filter Set Topology
+
+theorem _root_.Prove2me.Solution.FamousTheorems_banach_alaoglu {𝕜 E : Type*} [NontriviallyNormedField 𝕜]
+    [SeminormedAddCommGroup E] [NormedSpace 𝕜 E] [ProperSpace 𝕜] {s : Set E}
+    (s_nhds : s ∈ 𝓝 (0 : E)) : IsCompact (WeakDual.polar 𝕜 s) :=
+  WeakDual.isCompact_polar 𝕜 s_nhds
+
+/-! ## Platform statement
+
+The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
+
+section Prove2meStatement
+
+namespace FamousTheorems
+
+open Filter Set Topology
+
+theorem banach_alaoglu {𝕜 E : Type*} [NontriviallyNormedField 𝕜]
+    [SeminormedAddCommGroup E] [NormedSpace 𝕜 E] [ProperSpace 𝕜] {s : Set E}
+    (s_nhds : s ∈ 𝓝 (0 : E)) : IsCompact (WeakDual.polar 𝕜 s) :=
+  _root_.Prove2me.Solution.FamousTheorems_banach_alaoglu s_nhds
+
+end FamousTheorems
+
+end Prove2meStatement

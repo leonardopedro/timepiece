@@ -1,0 +1,68 @@
+--- Downloads/qft-wick/Feynman1948.free_step_first_order.lean
++++ converted/Prove2me/QftWick/Feynman1948_free_step_first_order.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 76fa396b-8c92-4af3-8ce7-e684e189beb0
++* original name       : `Feynman1948.free_step_first_order`
++* title               : Eq. (27), free particle: first-order term $\frac{\hbar\varepsilon i}{2m}\,\partial_x^2\psi$
++* statement author    : Lucas
++* solution author     : Mazecto (submission 5a04204a-6ce2-4fac-b97a-3542beeb303f,
++                        accepted 2026-10-02T22:25:15.422436+00:00)
++* source              : R. P. Feynman, Space-Time Approach to Non-Relativistic Quantum Mechanics, Rev. Mod. Phys. 20, 367 (1948), https://doi.org/10.1103/RevModPhys.20.367, pp. 375-376, Eqs. (25)-(27)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/Feynman1948.free_step_first_order.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/Feynman1948_free_step_first_order.diff`.
++-/
+ import Definitions.Def_Feynman1948_WaveEquation
+ import Mathlib.Analysis.Calculus.Deriv.Shift
+ import Mathlib.Analysis.Distribution.SchwartzSpace.Fourier
+@@ -8,7 +25,7 @@
+ import Mathlib.Analysis.Calculus.ParametricIntegral
+ import Mathlib.Analysis.SpecialFunctions.Complex.LogDeriv
+ import Mathlib.Analysis.Complex.RealDeriv
+-
++import Prove2me.Shim.Schwartz  -- conversion shim (platform Mathlib API)
+ 
+ open Complex MeasureTheory Real
+ open scoped FourierTransform RealInnerProductSpace
+@@ -345,7 +362,7 @@
+   filter_upwards [self_mem_nhdsWithin] with ε hε
+   rw [free_step_zero_fourier ħ m ε hħ hm hε ψ]
+ 
+-theorem solution (ħ m : ℝ) (hħ : 0 < ħ) (hm : 0 < m)
++theorem _root_.Prove2me.Solution.Feynman1948_free_step_first_order (ħ m : ℝ) (hħ : 0 < ħ) (hm : 0 < m)
+     (ψ : SchwartzMap ℝ ℂ) (x : ℝ) :
+     Tendsto (fun ε : ℝ => (stepEvolution ħ m (fun _ => 0) ε ψ x - ψ x) / ε)
+       (𝓝[>] 0) (𝓝 (I * ħ / (2 * m) * deriv (deriv ψ) x)) := by
+@@ -375,3 +392,26 @@
+   have ht := free_step_zero_first_order ħ m hħ hm φ
+   rw [hderiv] at ht
+   simpa only [he, hφ, zero_add] using ht
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open Complex Filter Topology SchwartzMap
++
++namespace Feynman1948
++
++theorem free_step_first_order (ħ m : ℝ) (hħ : 0 < ħ) (hm : 0 < m)
++    (ψ : 𝓢(ℝ, ℂ)) (x : ℝ) :
++    Tendsto (fun ε : ℝ => (stepEvolution ħ m (fun _ => 0) ε ψ x - ψ x) / ε) (𝓝[>] 0)
++      (𝓝 (I * ħ / (2 * m) * deriv (deriv ψ) x)) := by
++  first
++  | exact _root_.Prove2me.Solution.Feynman1948_free_step_first_order ħ m hħ hm ψ x
++  | (apply _root_.Prove2me.Solution.Feynman1948_free_step_first_order <;> assumption)
++
++end Feynman1948
++
++
++end Prove2meStatement

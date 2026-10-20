@@ -1,0 +1,57 @@
+--- Downloads/logos-confluence/AlmostLossless.collisionProb_le.lean
++++ converted/Prove2me/LogosConfluence/AlmostLossless_collisionProb_le.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 3f5997ab-7dd8-473e-a3e7-60400260fb16
++* original name       : `AlmostLossless.collisionProb_le`
++* title               : Probability form of the collision bound: a uniformly random seed is bad with
++* statement author    : raver1975
++* solution author     : raver1975 (submission cb321fb5-f9f6-4596-8418-531db09bed17,
++                        accepted 2026-09-12T15:10:36.08835+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Logic/AlmostLossless/Hashing.lean#L100
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/logos-confluence/AlmostLossless.collisionProb_le.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/AlmostLossless_collisionProb_le.diff`.
++-/
+ -- Sol generated from Logic/AlmostLossless/Hashing.lean
+ import Mathlib
+ import Definitions.Def_Logic_AlmostLossless_Hashing
+@@ -70,7 +87,7 @@
+ 
+ 
+ open AlmostLossless in
+-theorem solution[Fintype A] [DecidableEq A] [Nonempty A] [Fintype M] [DecidableEq M]
++theorem _root_.Prove2me.Solution.AlmostLossless_collisionProb_le[Fintype A] [DecidableEq A] [Nonempty A] [Fintype M] [DecidableEq M]
+     [Nonempty M] [DecidableEq S] {h : A → S → M} (hu : TwoUniversal h) (T : Finset S) :
+     (#{a | CollidesOn h T a} : ℚ) / (Fintype.card A : ℚ)
+       ≤ (T.offDiag.card : ℚ) / (Fintype.card M : ℚ) := by
+@@ -86,3 +103,24 @@
+       = ((#{a | CollidesOn h T a} * Fintype.card M : ℕ) : ℚ) := by push_cast; ring
+     _ ≤ ((T.offDiag.card * Fintype.card A : ℕ) : ℚ) := by exact_mod_cast this
+     _ = (T.offDiag.card : ℚ) * (Fintype.card A : ℚ) := by push_cast; ring
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open AlmostLossless
++open Finset
++variable {S A M : Type*}
++
++theorem AlmostLossless.collisionProb_le[Fintype A] [DecidableEq A] [Nonempty A] [Fintype M] [DecidableEq M]
++    [Nonempty M] [DecidableEq S] {h : A → S → M} (hu : TwoUniversal h) (T : Finset S) :
++    (#{a | CollidesOn h T a} : ℚ) / (Fintype.card A : ℚ)
++      ≤ (T.offDiag.card : ℚ) / (Fintype.card M : ℚ) := by
++  first
++  | exact _root_.Prove2me.Solution.AlmostLossless_collisionProb_le hu T
++  | (apply _root_.Prove2me.Solution.AlmostLossless_collisionProb_le <;> assumption)
++
++
++end Prove2meStatement

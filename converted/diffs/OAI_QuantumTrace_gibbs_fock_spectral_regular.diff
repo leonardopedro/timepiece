@@ -1,0 +1,95 @@
+--- Downloads/unfer-bayes/OAI.QuantumTrace.gibbs_fock_spectral_regular.lean
++++ converted/Prove2me/UnferBayes/OAI_QuantumTrace_gibbs_fock_spectral_regular.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : cbd61cad-c73e-452c-b35e-7cab4140a71d
++* original name       : `OAI.QuantumTrace.gibbs_fock_spectral_regular`
++* title               : Regular eigenbasis with summable heat trace for a regularized inverse on $\ell^2(\mathbb{N}^n)$
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 062cc044-ed7f-4715-80c1-4ffcd5de33bd,
++                        accepted 2026-10-16T03:23:49.945129+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/Analysis/QuantumTrace/Basic.lean#L1327-L1358
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/OAI.QuantumTrace.gibbs_fock_spectral_regular.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_QuantumTrace_gibbs_fock_spectral_regular.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/Analysis/QuantumTrace/Basic.lean:L1336-L1367
+ -- (upload_full_project.md Phase 4): solution for node OAI.QuantumTrace.gibbs_fock_spectral_regular. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -7,7 +24,8 @@
+ import Definitions.Def_OAI_MathematicalPhysics_Fock_Beam
+ import Definitions.Def_OAI_Analysis_QuantumTrace_Basic
+ import Theorems.Thm_OAI_QuantumTrace_exists_eigenbasis
+-import Theorems.Thm_OAI_QuantumTrace_gibbs_eigenvector_regular
++import Prove2me.UnferBayes.OAI_QuantumTrace_gibbs_eigenvector_regular  -- was `Theorems.Thm_OAI_QuantumTrace_gibbs_eigenvector_regular`
++import Prove2me.Shim.Misc  -- conversion shim (platform Mathlib API)
+ 
+ -- ---- from OAI.Analysis.QuantumTrace.Basic ----
+ -- Lean 4.34 name (arguments swapped) of CStarAlgebra.norm_le_norm_of_nonneg_of_le in Mathlib 0df444a.
+@@ -115,17 +133,7 @@
+ open Filter Topology
+ open scoped Classical
+ variable {ι : Type*}
+-theorem diagonalMap_norm_le (a : ι → ℂ) (ha : ∃ C : ℝ, ∀ i, ‖a i‖ ≤ C)
+-    {C : ℝ} (hC : 0 ≤ C) (hab : ∀ i, ‖a i‖ ≤ C) : ‖diagonalMap a ha‖ ≤ C := by
+-  apply ContinuousLinearMap.opNorm_le_bound _ hC
+-  intro x
+-  have h := lp.norm_mono (show (2 : ℝ≥0∞) ≠ 0 by norm_num)
+-    (x := diagonalMap a ha x) (y := (C : ℂ) • x) (fun i => by
+-      simp only [diagonalMap_apply, lp.coeFn_smul, Pi.smul_apply, smul_eq_mul,
+-        norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hC]
+-      exact mul_le_mul_of_nonneg_right (hab i) (norm_nonneg _))
+-  simpa only [norm_smul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hC] using h
+-
++-- `diagonalMap_norm_le` is provided by the imported `gibbs_eigenvector_regular` solution (identical copy removed)
+ theorem diagonalMap_injective (a : ι → ℂ) (ha : ∃ C : ℝ, ∀ i, ‖a i‖ ≤ C)
+     (hn : ∀ i, a i ≠ 0) : Function.Injective (diagonalMap a ha) := by
+   intro x y h
+@@ -183,7 +191,7 @@
+     have heq : diagonalMap a ha - diagonalMap (fun i => if i ∈ t then a i else 0) hb =
+         diagonalMap (fun i => a i-(if i ∈ t then a i else 0)) hd := by
+       ext x i
+-      simp only [sub_apply, lp.coeFn_sub, Pi.sub_apply, diagonalMap_apply]
++      simp only [ContinuousLinearMap.sub_apply, lp.coeFn_sub, Pi.sub_apply, diagonalMap_apply]
+       ring
+     rw [dist_eq_norm, norm_sub_rev, ← he, heq]
+     exact (diagonalMap_norm_le _ hd (C := ε/2) (by positivity) (by
+@@ -508,4 +516,32 @@
+ open Filter Topology
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.QuantumTrace.gibbs_fock_spectral_regular := @_root_.OAI.QuantumTrace.gibbs_fock_spectral_regular
++theorem _root_.Prove2me.Solution.OAI_QuantumTrace_gibbs_fock_spectral_regular : type_of% @_root_.OAI.QuantumTrace.gibbs_fock_spectral_regular := @_root_.OAI.QuantumTrace.gibbs_fock_spectral_regular
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.QuantumTrace.gibbs_fock_spectral_regular` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.QuantumTrace
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open Filter Topology
++
++example (n : ℕ) {k : ℝ} (hk : 0 < k)
++    {B : SequenceHilbert (Fin n → ℕ) →L[ℂ] SequenceHilbert (Fin n → ℕ)} (hB : B.IsPositive) :
++    ∃ (J : Type) (b : HilbertBasis J ℂ (SequenceHilbert (Fin n → ℕ))) (u : J → ℝ),
++      (∀ j, 0 < u j) ∧
++      (∀ j, gibbsInverse rootNumberWeight rootNumberWeight_one_le k B (b j) = (((u j)⁻¹ : ℝ) : ℂ) • b j) ∧
++      (∀ j, ∃ y z : SequenceHilbert (Fin n → ℕ),
++        (∀ i, y i = (rootNumberWeight i^4 : ℝ)*b j i) ∧
++        (∀ i, z i = (rootNumberWeight i^7 : ℝ)*b j i) ∧
++        ‖y‖^2 ≤ u j/k ∧ ‖z‖ ≤ k⁻¹*(u j+‖B‖*Real.sqrt (u j/k))) ∧
++      (∀ t : ℝ, 0 < t → Summable (fun j => Real.exp (-t*u j))) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_QuantumTrace_gibbs_fock_spectral_regular n hk hB
++  | (apply _root_.Prove2me.Solution.OAI_QuantumTrace_gibbs_fock_spectral_regular <;> assumption)
++
++
++end Prove2meStatement

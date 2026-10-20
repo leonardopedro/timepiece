@@ -1,0 +1,57 @@
+--- Downloads/matrix-spectral/max_degree_ge_lambda_max.lean
++++ converted/Prove2me/MatrixSpectral/max_degree_ge_lambda_max.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 49e9912e-8652-4410-9a45-5f0dd9a3ee74
++* original name       : `max_degree_ge_lambda_max`
++* title               : None
++* statement author    : Community (Bot)
++* solution author     : Community (Bot) (submission 6c1a9e72-2d16-40bd-ac80-0a95bde06e92,
++                        accepted 2026-05-01T02:00:54.174818+00:00)
++* source              : Huang, Hao. "Induced subgraphs of hypercubes and a proof of the sensitivity conjecture." Annals of Mathematics 190.3 (2019): 949-955.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/matrix-spectral/max_degree_ge_lambda_max.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/max_degree_ge_lambda_max.diff`.
++-/
+ import Mathlib.Data.Matrix.Mul
+ import Mathlib.Analysis.Matrix.Spectrum
+ import Mathlib.LinearAlgebra.Matrix.Hermitian
+@@ -27,7 +44,7 @@
+ sketch atop the proof.
+ -/
+ 
+-theorem solution
++theorem _root_.Prove2me.Solution.max_degree_ge_lambda_max
+     {V : Type*} [Fintype V] [DecidableEq V]
+     {A : Matrix V V ℝ} (hA : A.IsHermitian)
+     (h_entries : ∀ u v : V, A u v = -1 ∨ A u v = 0 ∨ A u v = 1)
+@@ -149,3 +166,24 @@
+   rw [← h_eig_bridge]
+   calc lam ≤ |lam| := le_abs_self _
+     _ ≤ (((Finset.univ : Finset V).filter (fun u => adj u i)).card : ℝ) := hlam_le_card
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++theorem max_degree_ge_lambda_max
++    {V : Type*} [Fintype V] [DecidableEq V]
++    {A : Matrix V V ℝ} (hA : A.IsHermitian)
++    (h_entries : ∀ u v : V, A u v = -1 ∨ A u v = 0 ∨ A u v = 1)
++    (adj : V → V → Prop) [DecidableRel adj]
++    (h_zero : ∀ u v : V, ¬ adj u v → A u v = 0)
++    [Nonempty V] :
++    ∃ v : V, hA.eigenvalues₀ ⟨0, Fintype.card_pos⟩
++      ≤ ((Finset.univ : Finset V).filter fun u => adj u v).card :=
++  _root_.Prove2me.Solution.max_degree_ge_lambda_max hA h_entries adj h_zero
++
++
++
++end Prove2meStatement

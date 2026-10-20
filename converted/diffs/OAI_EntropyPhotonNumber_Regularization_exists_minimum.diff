@@ -1,0 +1,138 @@
+--- Downloads/unfer-bayes/OAI.EntropyPhotonNumber.Regularization.exists_minimum.lean
++++ converted/Prove2me/UnferBayes/OAI_EntropyPhotonNumber_Regularization_exists_minimum.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 926259f0-517f-4de2-8a85-bce0bfd4bd22
++* original name       : `OAI.EntropyPhotonNumber.Regularization.exists_minimum`
++* title               : Existence of a minimizer for the regularized entropy photon-number objective
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 6b2ba393-1156-4698-8b2a-fe4418a5cd0d,
++                        accepted 2026-10-16T05:48:40.186932+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/Entropy.lean#L1504-L1521
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/OAI.EntropyPhotonNumber.Regularization.exists_minimum.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_EntropyPhotonNumber_Regularization_exists_minimum.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/Entropy.lean:L1508-L1525
+ -- (upload_full_project.md Phase 4): solution for node OAI.EntropyPhotonNumber.Regularization.exists_minimum. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -84,7 +101,7 @@
+   · exact (LinearMap.IsSymmetric.smul (by simp) LinearMap.IsSymmetric.id).sub hT.isSymmetric
+   · intro x
+     change 0 ≤ (inner ℂ (((τ : ℂ) • ContinuousLinearMap.id ℂ E - T) x) x).re
+-    rw [sub_apply, smul_apply, ContinuousLinearMap.id_apply, inner_sub_left, inner_smul_left,
++    rw [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply, inner_sub_left, inner_smul_left,
+       hT.inner_left_eq_inner_right x x]
+     simpa [inner_self_eq_norm_sq_to_K, ← Complex.ofReal_pow] using
+       sub_nonneg.mpr (quadratic_le_trace_mul_norm_sq b hT ht x)
+@@ -226,7 +243,7 @@
+     Summable (fun k => p k * (-Real.log (thermalWeight n r k))) := by
+   have hh := (hp.mul_right (n * Real.log (r + 1))).add
+     (hE.mul_right (Real.log ((r + 1) / r)))
+-  convert! hh using 1
++  convert hh using 1
+   ext k
+   rw [log_thermalWeight n hr k]
+   ring
+@@ -536,12 +553,10 @@
+   have haq : (∑' k, a k) = ∑' k : {k // k ∉ s}, p k := by
+     convert (tsum_subtype {k | k ∉ s} p).symm using 1
+     · congr 1; ext k; simp [a, Set.indicator_apply]
+-    · rfl
+   have haentropy : (∑' k, Real.negMulLog (a k)) =
+       ∑' k : {k // k ∉ s}, Real.negMulLog (p k) := by
+     convert (tsum_subtype {k | k ∉ s} (fun k => Real.negMulLog (p k))).symm using 1
+     · congr 1; ext k; by_cases hk : k ∈ s <;> simp [a, hk]
+-    · rfl
+   have hh := (entropy_small_mass_bound a ha hau has.hasSum hae).2
+   rw [haq, haentropy] at hh
+   apply hh.trans
+@@ -683,7 +698,7 @@
+   have hg : ∀ i, 0 ≤ g i := fun i => ge_of_tendsto (hlim i) (Eventually.of_forall (fun a => hfp a i))
+   have hs : ∀ s : Finset ι, (∑ i ∈ s, g i) ≤ C := by
+     intro s
+-    apply le_of_tendsto (tendsto_finsetSum s (fun i _ => hlim i))
++    apply le_of_tendsto (tendsto_finset_sum s (fun i _ => hlim i))
+     exact Eventually.of_forall (fun a => ((hfs a).sum_le_tsum s (fun i _ => hfp a i)).trans (hfb a))
+   exact ⟨summable_of_sum_le hg hs, Real.tsum_le_of_sum_le hg hs⟩
+ 
+@@ -749,7 +764,7 @@
+   intro a y hy
+   obtain ⟨F, hF⟩ := ((hs a).hasSum.eventually (eventually_gt_nhds hy)).exists
+   have ch : Continuous (fun x => ∑ i ∈ F, f x i) :=
+-    continuous_finsetSum F (fun i _ => hc i)
++    continuous_finset_sum F (fun i _ => hc i)
+   filter_upwards [ch.continuousAt.eventually (eventually_gt_nhds hF)] with x hx
+   exact hx.trans_le ((hs x).sum_le_tsum F (fun i _ => hp x i))
+ 
+@@ -815,8 +830,8 @@
+     ((Metric.tendsto_nhds.mp hg) (ε/4) (by positivity)).exists
+   have hsF : s - ∑ i ∈ F, ‖g i‖ < ε/4 := by
+     exact (le_abs_self _).trans_lt (by simpa [Real.dist_eq, abs_sub_comm] using hF)
+-  have hhead := tendsto_finsetSum F (fun i _ => hfg i)
+-  have hmass := tendsto_finsetSum F (fun i _ => (hfg i).norm)
++  have hhead := tendsto_finset_sum F (fun i _ => hfg i)
++  have hmass := tendsto_finset_sum F (fun i _ => (hfg i).norm)
+   filter_upwards [(Metric.tendsto_nhds.mp hhead) (ε/4) (by positivity),
+     (Metric.tendsto_nhds.mp hmass) (ε/4) (by positivity)] with a ha hm
+   have hmass' : (∑ i ∈ F, ‖g i‖) - ∑ i ∈ F, ‖f a i‖ < ε/4 :=
+@@ -905,7 +920,7 @@
+ theorem mixture_finiteEnergy {n : ℕ} (t : ℝ) (ht : t ∈ Set.Icc 0 1) {ρ σ : State n}
+     (hρ : FiniteEnergy ρ) (hσ : FiniteEnergy σ) : FiniteEnergy (mixture t ht ρ σ) := by
+   unfold FiniteEnergy
+-  convert! (hρ.mul_left t).add (hσ.mul_left (1-t)) using 1
++  convert (hρ.mul_left t).add (hσ.mul_left (1-t)) using 1
+   funext k
+   simp only [mixture_entry, Complex.add_re, Complex.mul_re, Complex.ofReal_re,
+     Complex.ofReal_im, zero_mul, sub_zero]
+@@ -1022,7 +1037,7 @@
+     apply mul_nonneg _ (ρ.val.positive.re_inner_nonneg_right _)
+     positivity
+   · intro ρ
+-    convert! (ρ.property.1.mul_left b).add (ρ.property.2.2.1.mul_left ζ) using 1
++    convert (ρ.property.1.mul_left b).add (ρ.property.2.2.1.mul_left ζ) using 1
+     funext k
+     ring
+   · intro k
+@@ -1191,4 +1206,35 @@
+ open QuantumTrace Filter Topology
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.EntropyPhotonNumber.Regularization.exists_minimum := @_root_.OAI.EntropyPhotonNumber.Regularization.exists_minimum
++theorem _root_.Prove2me.Solution.OAI_EntropyPhotonNumber_Regularization_exists_minimum : type_of% @_root_.OAI.EntropyPhotonNumber.Regularization.exists_minimum := @_root_.OAI.EntropyPhotonNumber.Regularization.exists_minimum
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.EntropyPhotonNumber.Regularization.exists_minimum` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.EntropyPhotonNumber OAI.EntropyPhotonNumber.Regularization
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped BigOperators
++open MvPolynomial
++open scoped BigOperators ComplexConjugate Classical
++open Submodule
++open scoped ENNReal
++open QuantumTrace Filter Topology
++variable {n : ℕ} (R : Regularization n)
++
++example (ρw σw : State n) (hw1 : FiniteMoment 4 ρw) (hw2 : FiniteMoment 4 σw) :
++    ∃ ρ σ : State n, FiniteMoment 4 ρ ∧ FiniteMoment 4 σ ∧
++      R.objective ρ σ ≤ R.objective ρw σw ∧
++      ∀ ρ' σ' : State n, FiniteMoment 4 ρ' → FiniteMoment 4 σ' →
++        R.objective ρ σ ≤ R.objective ρ' σ' := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_EntropyPhotonNumber_Regularization_exists_minimum ρw σw hw1 hw2
++  | (apply _root_.Prove2me.Solution.OAI_EntropyPhotonNumber_Regularization_exists_minimum <;> assumption)
++
++
++end Prove2meStatement

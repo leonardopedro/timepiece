@@ -1,0 +1,166 @@
+--- Downloads/unfer-bayes/OAI.QuantumTrace.entropy_le_thermal_crossEntropy.lean
++++ converted/Prove2me/UnferBayes/OAI_QuantumTrace_entropy_le_thermal_crossEntropy.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : ad2fbd76-ccfe-4c28-b2c9-e10bca4dce6a
++* original name       : `OAI.QuantumTrace.entropy_le_thermal_crossEntropy`
++* title               : Energy-constrained entropy bound by thermal cross-entropy for a positive trace-one operator
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 0b565a69-e90c-4fd7-9fb1-a27e5db88952,
++                        accepted 2026-10-16T03:18:36.486691+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/Analysis/QuantumTrace/Basic.lean#L604-L622
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/OAI.QuantumTrace.entropy_le_thermal_crossEntropy.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_QuantumTrace_entropy_le_thermal_crossEntropy.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/Analysis/QuantumTrace/Basic.lean:L613-L631
+ -- (upload_full_project.md Phase 4): solution for node OAI.QuantumTrace.entropy_le_thermal_crossEntropy. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -38,7 +55,7 @@
+ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+ variable {ι : Type*}
+ 
+-theorem quadratic_le_trace_mul_norm_sq (b : HilbertBasis ι ℂ E)
++private theorem quadratic_le_trace_mul_norm_sq (b : HilbertBasis ι ℂ E)
+     {T : E →L[ℂ] E} (hT : T.IsPositive) {τ : ℝ}
+     (ht : HasSum (fun i => (inner ℂ (b i) (T (b i))).re) τ) (x : E) :
+     (inner ℂ x (T x)).re ≤ τ * ‖x‖ ^ 2 := by
+@@ -57,7 +74,7 @@
+   · exact (basis_hasSum_norm_sq b (S x)).summable
+   · exact ht'.summable.mul_right _
+ 
+-theorem operator_le_trace_smul_id (b : HilbertBasis ι ℂ E)
++private theorem operator_le_trace_smul_id (b : HilbertBasis ι ℂ E)
+     {T : E →L[ℂ] E} (hT : T.IsPositive) {τ : ℝ}
+     (ht : HasSum (fun i => (inner ℂ (b i) (T (b i))).re) τ) :
+     T ≤ (τ : ℂ) • ContinuousLinearMap.id ℂ E := by
+@@ -66,12 +83,12 @@
+   · exact (LinearMap.IsSymmetric.smul (by simp) LinearMap.IsSymmetric.id).sub hT.isSymmetric
+   · intro x
+     change 0 ≤ (inner ℂ (((τ : ℂ) • ContinuousLinearMap.id ℂ E - T) x) x).re
+-    rw [sub_apply, smul_apply, ContinuousLinearMap.id_apply, inner_sub_left, inner_smul_left,
++    rw [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply, inner_sub_left, inner_smul_left,
+       hT.inner_left_eq_inner_right x x]
+     simpa [inner_self_eq_norm_sq_to_K, ← Complex.ofReal_pow] using
+       sub_nonneg.mpr (quadratic_le_trace_mul_norm_sq b hT ht x)
+ 
+-theorem norm_le_trace (b : HilbertBasis ι ℂ E)
++private theorem norm_le_trace (b : HilbertBasis ι ℂ E)
+     {T : E →L[ℂ] E} (hT : T.IsPositive) {τ : ℝ}
+     (ht : HasSum (fun i => (inner ℂ (b i) (T (b i))).re) τ) : ‖T‖ ≤ τ := by
+   have hn : 0 ≤ τ := ht.nonneg (fun i => hT.re_inner_nonneg_right (b i))
+@@ -114,14 +131,14 @@
+ open scoped ContinuousFunctionalCalculus
+ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+ 
+-theorem entropyOperator_eq_complex {T : E →L[ℂ] E} (hs : T.IsSymmetric) :
++private theorem entropyOperator_eq_complex {T : E →L[ℂ] E} (hs : T.IsSymmetric) :
+     entropyOperator T = cfc (fun z : ℂ => (-(z.re * Real.log z.re) : ℂ)) T := by
+   rw [entropyOperator, cfc_real_eq_complex Real.negMulLog hs.isSelfAdjoint]
+   congr 1
+   funext z
+   simp [Real.negMulLog_def]
+ 
+-theorem entropyOperator_positive {T : E →L[ℂ] E} (hp : T.IsPositive) (hn : ‖T‖ ≤ 1) :
++private theorem entropyOperator_positive {T : E →L[ℂ] E} (hp : T.IsPositive) (hn : ‖T‖ ≤ 1) :
+     (entropyOperator T).IsPositive := by
+   cases subsingleton_or_nontrivial E with
+   | inl h =>
+@@ -148,7 +165,7 @@
+ 
+ variable {ι : Type*}
+ 
+-theorem entropy_jensen_hasSum {p w : ι → ℝ} (hp : ∀ i, 0 ≤ p i)
++private theorem entropy_jensen_hasSum {p w : ι → ℝ} (hp : ∀ i, 0 ≤ p i)
+     (hw : ∀ i, 0 ≤ w i) (hw1 : HasSum w 1) {a s : ℝ}
+     (ha : HasSum (fun i => w i * p i) a)
+     (hs : HasSum (fun i => w i * Real.negMulLog (p i)) s) :
+@@ -166,7 +183,7 @@
+ 
+ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+ 
+-theorem entropyOperator_apply_eigenvector {T : E →L[ℂ] E} (hs : T.IsSymmetric)
++private theorem entropyOperator_apply_eigenvector {T : E →L[ℂ] E} (hs : T.IsSymmetric)
+     {x : E} {p : ℝ} (he : T x = (p : ℂ) • x) :
+     entropyOperator T x = (Real.negMulLog p : ℂ) • x := by
+   rw [entropyOperator_eq_complex hs]
+@@ -174,7 +191,7 @@
+     Complex.continuous_ofReal.comp (Real.continuous_negMulLog.comp Complex.continuous_re)
+   simpa [Real.negMulLog_def] using cfc_apply_eigenvector hs he _ hf.continuousOn
+ 
+-theorem entropyOperator_quadratic_le (b : HilbertBasis ι ℂ E)
++private theorem entropyOperator_quadratic_le (b : HilbertBasis ι ℂ E)
+     {T : E →L[ℂ] E} (hp : T.IsPositive) {τ : ℝ}
+     (ht : HasSum (fun i => (inner ℂ (b i) (T (b i))).re) τ)
+     (x : E) (hx : ‖x‖ = 1) :
+@@ -190,7 +207,7 @@
+ 
+ section
+ 
+-theorem log_thermalWeight (n : ℕ) {r : ℝ} (hr : 0 < r) (k : Fin n → ℕ) :
++private theorem log_thermalWeight (n : ℕ) {r : ℝ} (hr : 0 < r) (k : Fin n → ℕ) :
+     -Real.log (thermalWeight n r k) =
+       n * Real.log (r + 1) + (∑ j, (k j : ℝ)) * Real.log ((r + 1) / r) := by
+   have hr1 : 0 < r + 1 := by linarith
+@@ -202,13 +219,13 @@
+   rw [← Finset.sum_mul]
+   ring
+ 
+-theorem summable_thermal_crossEntropy {n : ℕ} {p : (Fin n → ℕ) → ℝ}
++private theorem summable_thermal_crossEntropy {n : ℕ} {p : (Fin n → ℕ) → ℝ}
+     (hp : Summable p) (hE : Summable (fun k => (∑ j, (k j : ℝ)) * p k))
+     {r : ℝ} (hr : 0 < r) :
+     Summable (fun k => p k * (-Real.log (thermalWeight n r k))) := by
+   have hh := (hp.mul_right (n * Real.log (r + 1))).add
+     (hE.mul_right (Real.log ((r + 1) / r)))
+-  convert! hh using 1
++  convert hh using 1
+   ext k
+   rw [log_thermalWeight n hr k]
+   ring
+@@ -227,7 +244,7 @@
+ 
+ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+ 
+-theorem entropy_summable_finite_energy {n : ℕ} (b : HilbertBasis (Fin n → ℕ) ℂ E)
++private theorem entropy_summable_finite_energy {n : ℕ} (b : HilbertBasis (Fin n → ℕ) ℂ E)
+     {T : E →L[ℂ] E} (hp : T.IsPositive)
+     (ht : HasSum (fun k => (inner ℂ (b k) (T (b k))).re) 1)
+     (hE : Summable (fun k => (∑ j, (k j : ℝ)) * (inner ℂ (b k) (T (b k))).re)) :
+@@ -353,4 +370,30 @@
+ open MeasureTheory
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.QuantumTrace.entropy_le_thermal_crossEntropy := @_root_.OAI.QuantumTrace.entropy_le_thermal_crossEntropy
++theorem _root_.Prove2me.Solution.OAI_QuantumTrace_entropy_le_thermal_crossEntropy : type_of% @_root_.OAI.QuantumTrace.entropy_le_thermal_crossEntropy := @_root_.OAI.QuantumTrace.entropy_le_thermal_crossEntropy
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.QuantumTrace.entropy_le_thermal_crossEntropy` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.QuantumTrace
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
++
++example {n : ℕ} (b : HilbertBasis (Fin n → ℕ) ℂ E)
++    {T : E →L[ℂ] E} (hp : T.IsPositive)
++    (ht : HasSum (fun k => (inner ℂ (b k) (T (b k))).re) 1)
++    (hE : Summable (fun k => (∑ j, (k j : ℝ)) * (inner ℂ (b k) (T (b k))).re))
++    {r : ℝ} (hr : 0 < r) :
++    (∑' k, (inner ℂ (b k) (entropyOperator T (b k))).re) ≤
++      n * Real.log (r + 1) +
++      (∑' k, (∑ j, (k j : ℝ)) * (inner ℂ (b k) (T (b k))).re) * Real.log ((r + 1) / r) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_QuantumTrace_entropy_le_thermal_crossEntropy b hp ht hE hr
++  | (apply _root_.Prove2me.Solution.OAI_QuantumTrace_entropy_le_thermal_crossEntropy <;> assumption)
++
++
++end Prove2meStatement

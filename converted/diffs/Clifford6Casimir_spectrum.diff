@@ -1,0 +1,66 @@
+--- Downloads/qft-wick/Clifford6Casimir.spectrum.lean
++++ converted/Prove2me/QftWick/Clifford6Casimir_spectrum.lean
+@@ -1,5 +1,23 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 0b16e865-79df-4e0e-ab2a-9eb3b5fe184f
++* original name       : `Clifford6Casimir.spectrum`
++* title               : Odd-sector Casimir spectrum: eigenvalue 2 (×24) and 0 (×8)
++* statement author    : lisamegawatts
++* solution author     : Nickrobbins95 (submission 43a4ee55-8539-4857-801f-4dba63037847,
++                        accepted 2026-09-24T12:28:19.322966+00:00)
++* source              : MonumentalSystems/LeanProofs research memory #2561 (2026-09-12): exact full-sector SU(2) decomposition on Cl⁻(6,0); frozen internal targets Rosetta/Cl60OddSectorCasimirSpectrumV1Targets.lean and program research/cl60-casimir-spectrum-v1/program.json, https://github.com/MonumentalSystems/LeanProofs
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/Clifford6Casimir.spectrum.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/Clifford6Casimir_spectrum.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_clifford6_casimir_data
++import Prove2me.Shim.ExteriorAlgebra  -- conversion shim (platform Mathlib API)
+ 
+ /-! 0b16e865 Clifford6Casimir.spectrum (odd-sector Casimir spectrum on Cl(6,0)).
+ Route (direct, blade-based; no tensor-product plumbing):
+@@ -235,7 +253,7 @@
+ 
+ set_option maxHeartbeats 4000000 in
+ open Clifford6 in
+-theorem solution
++theorem _root_.Prove2me.Solution.Clifford6Casimir_spectrum
+     (T1 T2 T3 C : CliffordAlgebra Clifford6.Q60 →ₗ[ℝ] CliffordAlgebra Clifford6.Q60)
+     (h1 : ∀ x, T1 x = (1/2:ℝ) • (Clifford6.E1 * x - x * Clifford6.E1))
+     (h2 : ∀ x, T2 x = (1/2:ℝ) • (Clifford6.E2 * x - x * Clifford6.E2))
+@@ -341,3 +359,30 @@
+       (fun i : {n : Fin 64 // (Cl6Build.bits n).length % 2 = 1 ∧ Cl6Build.cnt (Cl6Build.bits n) = 0} => Cl6Build.blade i.1)
+       (Cl6Build.blade_li.comp _ Subtype.val_injective) _ (fun i => memB i.1 i.2.1 i.2.2)
+   refine ⟨fun x hx => ⟨p1 x hx, p2 x hx, p3 x hx, pC x hx⟩, hsup, by omega, by omega⟩
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++theorem Clifford6Casimir.spectrum
++    (T1 T2 T3 C : CliffordAlgebra Clifford6.Q60 →ₗ[ℝ] CliffordAlgebra Clifford6.Q60)
++    (h1 : ∀ x, T1 x = (1/2:ℝ) • (Clifford6.E1 * x - x * Clifford6.E1))
++    (h2 : ∀ x, T2 x = (1/2:ℝ) • (Clifford6.E2 * x - x * Clifford6.E2))
++    (h3 : ∀ x, T3 x = (1/2:ℝ) • (Clifford6.E3 * x - x * Clifford6.E3))
++    (hC : ∀ x, C x = -(T1 (T1 x) + T2 (T2 x) + T3 (T3 x))) :
++    (∀ x ∈ Clifford6.oddSector,
++      T1 x ∈ Clifford6.oddSector ∧ T2 x ∈ Clifford6.oddSector ∧
++        T3 x ∈ Clifford6.oddSector ∧ C x ∈ Clifford6.oddSector)
++      ∧ (Clifford6.oddSector ⊓ LinearMap.ker (C - (2:ℝ) • LinearMap.id) ⊔
++          Clifford6.oddSector ⊓ LinearMap.ker C = Clifford6.oddSector)
++      ∧ (Module.finrank ℝ
++          ↥(Clifford6.oddSector ⊓ LinearMap.ker (C - (2:ℝ) • LinearMap.id)) = 24)
++      ∧ (Module.finrank ℝ ↥(Clifford6.oddSector ⊓ LinearMap.ker C) = 8) := by
++  first
++  | exact _root_.Prove2me.Solution.Clifford6Casimir_spectrum T1 T2 T3 C h1 h2 h3 hC
++  | (apply _root_.Prove2me.Solution.Clifford6Casimir_spectrum <;> assumption)
++
++
++end Prove2meStatement

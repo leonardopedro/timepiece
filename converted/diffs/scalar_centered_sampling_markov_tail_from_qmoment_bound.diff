@@ -1,0 +1,55 @@
+--- Downloads/prob-concentration/scalar_centered_sampling_markov_tail_from_qmoment_bound.lean
++++ converted/Prove2me/ProbConcentration/scalar_centered_sampling_markov_tail_from_qmoment_bound.lean
+@@ -1,4 +1,22 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 7e04c4ca-8086-4187-ac5a-12962a5dd1ed
++* original name       : `scalar_centered_sampling_markov_tail_from_qmoment_bound`
++* title               : None
++* statement author    : Aphrodite
++* solution author     : Aphrodite (submission 03ca17ec-8750-4cd9-a80a-9e54a267d3ea,
++                        accepted 2026-06-21T20:08:10.301222+00:00)
++* source              : Candès–Recht, Exact Matrix Completion via Convex Optimization, arXiv:0805.4471 (Markov / q-th moment method used in §4–6); standard Markov inequality.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/prob-concentration/scalar_centered_sampling_markov_tail_from_qmoment_bound.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/scalar_centered_sampling_markov_tail_from_qmoment_bound.diff`.
++-/
+ import Definitions.Def_matrix_completion_neumann
++
+ open MatrixCompletion
+ open scoped BigOperators Classical
+ 
+@@ -46,7 +64,7 @@
+ Markov's inequality on the finite Bernoulli observation measure: if the `q`-th
+ absolute moment of a scalar statistic `Z` is at most `t^q · failProb`, then `Z`
+ stays within `t` with probability at least `1 - failProb`. -/
+-theorem solution
++theorem _root_.Prove2me.Solution.scalar_centered_sampling_markov_tail_from_qmoment_bound
+     {n₁ n₂ : ℕ} (p : ℝ) (hp0 : 0 ≤ p) (hp1 : p ≤ 1)
+     (Z : Finset (Fin n₁ × Fin n₂) → ℝ) (q : ℕ) (hq : 1 ≤ q)
+     (t failProb : ℝ) (ht : 0 < t) (hfail : 0 ≤ failProb)
+@@ -83,3 +101,20 @@
+     have := prob_add_compl (n₁ := n₁) (n₂ := n₂) p (fun Omega => |Z Omega| ≤ t)
+     rw [hBad]; exact this
+   linarith [hPbad, hsplit]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MatrixCompletion
++open scoped BigOperators Classical
++
++theorem scalar_centered_sampling_markov_tail_from_qmoment_bound {n₁ n₂ : ℕ} (p : ℝ) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) (Z : Finset (Fin n₁ × Fin n₂) → ℝ) (q : ℕ) (hq : 1 ≤ q) (t failProb : ℝ) (ht : 0 < t) (hfail : 0 ≤ failProb) (hmoment : bernoulliExpectation p (fun Omega => |Z Omega| ^ q) ≤ t ^ q * failProb) : bernoulliEventProb p (fun Omega => |Z Omega| ≤ t) ≥ 1 - failProb := by
++  first
++  | exact _root_.Prove2me.Solution.scalar_centered_sampling_markov_tail_from_qmoment_bound p hp0 hp1 Z q hq t failProb ht hfail hmoment
++  | (apply _root_.Prove2me.Solution.scalar_centered_sampling_markov_tail_from_qmoment_bound <;> assumption)
++
++
++end Prove2meStatement

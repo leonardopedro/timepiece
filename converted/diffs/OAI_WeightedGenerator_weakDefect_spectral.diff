@@ -1,0 +1,94 @@
+--- Downloads/fock-ladders/OAI.WeightedGenerator.weakDefect_spectral.lean
++++ converted/Prove2me/FockLadders/OAI_WeightedGenerator_weakDefect_spectral.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 559d5226-86c9-4d92-a0d9-52fd8c517148
++* original name       : `OAI.WeightedGenerator.weakDefect_spectral`
++* title               : Spectral expansion of the weak defect functional in an eigenbasis
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission e831273e-ef2e-4b3d-a815-c6e79afe3ca1,
++                        accepted 2026-10-16T04:29:10.079124+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/ThermalMetric.lean#L776-L812
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/fock-ladders/OAI.WeightedGenerator.weakDefect_spectral.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_WeightedGenerator_weakDefect_spectral.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/ThermalMetric.lean:L779-L815
+ -- (upload_full_project.md Phase 4): solution for node OAI.WeightedGenerator.weakDefect_spectral. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -13,7 +30,7 @@
+ import Definitions.Def_OAI_InformationTheory_PhotonNumber_Functions
+ import Definitions.Def_OAI_Analysis_DiagonalForms
+ import Definitions.Def_OAI_InformationTheory_PhotonNumber_ThermalMetric
+-import Theorems.Thm_OAI_WeightedGenerator_centered_raising_coordinate
++import Prove2me.FockLadders.OAI_WeightedGenerator_centered_raising_coordinate  -- was `Theorems.Thm_OAI_WeightedGenerator_centered_raising_coordinate`
+ 
+ -- ---- from OAI.MathematicalPhysics.Fock.Operators ----
+ namespace OAI
+@@ -54,7 +71,7 @@
+ variable {I J E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+ 
+ omit [CompleteSpace E] in
+-theorem trace_norm_summable (b : HilbertBasis J ℂ E) {u v : I → E}
++private theorem trace_norm_summable (b : HilbertBasis J ℂ E) {u v : I → E}
+     (hu : Summable (fun i => ‖u i‖^2)) (hv : Summable (fun i => ‖v i‖^2)) :
+     Summable (fun ij : I × J => ‖inner ℂ (b ij.2) (u ij.1)*inner ℂ (v ij.1) (b ij.2)‖) := by
+   apply Summable.of_nonneg_of_le (fun _ => norm_nonneg _) _
+@@ -167,7 +184,7 @@
+   have hd := spectralGain_lowering b p hp x j l r
+   change inner ℂ (b l) (lowering j (inverseWeight 2 (x r)))=_ at hd
+   simp only [centeredLadder, Bool.false_eq_true, ↓reduceIte, ContinuousLinearMap.comp_apply,
+-    sub_apply, smul_apply, inner_sub_right, inner_smul_right, hw, hd, hb, centeredEntry]
++    ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply, inner_sub_right, inner_smul_right, hw, hd, hb, centeredEntry]
+   split_ifs <;> ring
+ 
+ end WeightedGenerator
+@@ -244,7 +261,7 @@
+     linear_combination conj (centeredEntry b p x j μ a.1 a.2)*inner ℂ (b a.1) (Z (b a.2))*hs
+   simp only [Equiv.prodComm_apply, Function.comp_def, Prod.swap, he₁] at hr
+   simp only [he₂] at hl
+-  convert! (hr.mul_left (t+1:ℂ)).sub (hl.mul_left (t:ℂ)) using 1
++  convert (hr.mul_left (t+1:ℂ)).sub (hl.mul_left (t:ℂ)) using 1
+   ext a
+   simp only [defectCoefficient, Complex.ofReal_sub, Complex.ofReal_add, Complex.ofReal_one,
+     Complex.ofReal_mul]
+@@ -304,4 +321,33 @@
+ open scoped ComplexConjugate
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.WeightedGenerator.weakDefect_spectral := @_root_.OAI.WeightedGenerator.weakDefect_spectral
++theorem _root_.Prove2me.Solution.OAI_WeightedGenerator_weakDefect_spectral : type_of% @_root_.OAI.WeightedGenerator.weakDefect_spectral := @_root_.OAI.WeightedGenerator.weakDefect_spectral
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.WeightedGenerator.weakDefect_spectral` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.WeightedGenerator
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open EntropyPhotonNumber Annihilation ThermalMetric
++open scoped ComplexConjugate
++variable {n : ℕ} {J : Type*}
++
++example (b : HilbertBasis J ℂ (Fock n)) (p : J → ℝ)
++    (hp : ∀ r, 0<p r) (x : J → Fock n) (hx : Summable (fun r => ‖x r‖^2))
++    (hi : ∀ r, inverseWeight 3 (x r)=(Real.sqrt (p r):ℂ) • b r)
++    (t : ℝ) (j : Fin n) (μ : ℂ) (Z : Fock n →L[ℂ] Fock n) :
++    HasSum (fun a : J × J => (defectCoefficient t (p a.1) (p a.2):ℂ)*
++      conj (centeredEntry b p x j μ a.1 a.2)*inner ℂ (b a.1) (Z (b a.2)))
++      (weakDefect t x j μ Z) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_WeightedGenerator_weakDefect_spectral b p hp x hx hi t j μ Z
++  | (apply _root_.Prove2me.Solution.OAI_WeightedGenerator_weakDefect_spectral <;> assumption)
++
++
++end Prove2meStatement

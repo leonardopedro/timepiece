@@ -1,0 +1,38 @@
+/-
+Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
+
+* platform theorem id : 52c9c399-79df-479f-a8d5-d8554450ba92
+* original name       : `FamousTheorems.hellinger_toeplitz`
+* title               : The Hellinger–Toeplitz theorem
+* statement author    : cm_beta
+* solution author     : cm_beta (submission 749c4a1e-0c70-49f2-bd8a-4af762feeca6,
+                        accepted 2026-09-23T18:10:16.009989+00:00)
+* source              : Listed in Mathlib's curated theorem manifests (docs/1000.yaml); formalized in Mathlib as `LinearMap.IsSymmetric.continuous`. Proof here reduces to that Mathlib result.
+* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
+* original file       : Downloads/unfer-sirk/FamousTheorems.hellinger_toeplitz.lean
+
+Public prove2.me contributions are licensed under Apache 2.0
+(https://prove2.me/terms); this file keeps that license. The conversion diff
+against the original download is `converted/diffs/FamousTheorems_hellinger_toeplitz.diff`.
+-/
+import Mathlib
+
+theorem _root_.Prove2me.Solution.FamousTheorems_hellinger_toeplitz {𝕜 E : Type*} [RCLike 𝕜] [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
+    {T : E →ₗ[𝕜] E} (hT : T.IsSymmetric) : Continuous T :=
+  hT.continuous
+
+/-! ## Platform statement
+
+The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
+
+section Prove2meStatement
+
+namespace FamousTheorems
+
+theorem hellinger_toeplitz {𝕜 E : Type*} [RCLike 𝕜] [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
+    {T : E →ₗ[𝕜] E} (hT : T.IsSymmetric) : Continuous T :=
+  _root_.Prove2me.Solution.FamousTheorems_hellinger_toeplitz hT
+
+end FamousTheorems
+
+end Prove2meStatement

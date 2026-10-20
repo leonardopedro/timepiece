@@ -1,0 +1,311 @@
+--- Downloads/operator-qm/TeschlODE.SturmLiouville.eigenfunction_expansion.lean
++++ converted/Prove2me/OperatorQm/TeschlODE_SturmLiouville_eigenfunction_expansion.lean
+@@ -1,9 +1,27 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : d46bcd5b-fe6c-4a43-a3c2-b60e77c3dd40
++* original name       : `TeschlODE.SturmLiouville.eigenfunction_expansion`
++* title               : Theorem 5.11 — eigenvalues and eigenfunction expansion of the regular Sturm–Liouville problem
++* statement author    : mikedeng1
++* solution author     : sometik179 (submission a0ad8933-fec5-489d-9d88-2d48c0bafe2f,
++                        accepted 2026-10-10T23:24:17.747976+00:00)
++* source              : Teschl, Ordinary Differential Equations and Dynamical Systems (author's preliminary version of AMS GSM 140, 2012), p. 160, Theorem 5.11
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/operator-qm/TeschlODE.SturmLiouville.eigenfunction_expansion.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/TeschlODE_SturmLiouville_eigenfunction_expansion.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_TeschlODE_SturmLiouville_RegularSL
+ import Definitions.Def_TeschlODE_SturmLiouville_SLOp
+ import Definitions.Def_TeschlODE_SturmLiouville_SLDomain
+ import Definitions.Def_TeschlODE_SturmLiouville_IsSLEigenfunction
+ import Definitions.Def_TeschlODE_SturmLiouville_SLInner
++import Prove2me.Shim.Misc  -- conversion shim (platform Mathlib API)
+ 
+ -- BEGIN COMPLETE MODULE WeightedFunctions
+ section
+@@ -52,7 +70,7 @@
+ @[simp] lemma extend_smul (c : ℂ) (f : W.Space) (x : ℝ) : W.extend (c•f) x = c * W.extend f x := rfl
+ 
+ def restrict (f : ℝ → ℂ) (hf : ContinuousOn f (Set.Icc W.a W.b)) : W.Space :=
+-  ⟨fun x => f x, hf.domRestrict⟩
++  ⟨fun x => f x, hf.restrict⟩
+ 
+ lemma extend_restrict (f : ℝ → ℂ) (hf : ContinuousOn f (Set.Icc W.a W.b))
+     {x : ℝ} (hx : x∈Set.Icc W.a W.b) : W.extend (W.restrict f hf) x = f x := by
+@@ -160,7 +178,7 @@
+ namespace TeschlODE.SturmLiouville.Proof.IntervalWeight
+ variable (W : IntervalWeight)
+ 
+-@[instance_reducible] def innerCore : InnerProductSpace.Core ℂ W.Space where
++@[reducible] def innerCore : InnerProductSpace.Core ℂ W.Space where
+   inner := W.scalar
+   conj_inner_symm := W.scalar_conj
+   re_inner_nonneg := W.scalar_nonneg
+@@ -1638,6 +1656,7 @@
+   intro hz
+   obtain ⟨x,hx,hfx⟩ := hf.2.1
+   have he := congrArg (fun g => (regularWeight h).extend g x) hz
++  beta_reduce at he  -- conversion
+   rw [(regularWeight h).extend_restrict f hf.1.1.continuousOn hx] at he
+   exact hfx he
+ end GreenData
+@@ -1807,7 +1826,6 @@
+   convert hc using 1
+   · funext n
+     exact congrArg (regularWeight h).toContinuous (he n)
+-  · rfl
+ 
+ end TeschlODE.SturmLiouville.Proof.GreenBasis
+ end
+@@ -2059,7 +2077,7 @@
+       ∀ t ∈ Icc a b, HasDerivAt U
+         ((p t : ℂ)⁻¹*(U t).2, ((q t : ℂ)-z*(r t : ℂ))*(U t).1) t := by
+   let A : C(Icc a b, (ℂ × ℂ) →L[ℝ] (ℂ × ℂ)) :=
+-    ⟨fun t => slSystem p q r z t.val, (slSystem_continuousOn hreg z).domRestrict⟩
++    ⟨fun t => slSystem p q r z t.val, (slSystem_continuousOn hreg z).restrict⟩
+   obtain ⟨U,hU,ha,hd⟩ := linear_interval_solution hreg.1.le A v
+   refine ⟨U,hU,ha,?_⟩
+   intro t ht
+@@ -2093,10 +2111,10 @@
+     exact_mod_cast (hreg.2.2.2.2 t ht).2.ne'
+   have hd1 (t : ℝ) (ht : t∈Icc a b) : HasDerivAt (fun s => (U s).1)
+       ((p t : ℂ)⁻¹*(U t).2) t := by
+-    convert! (ContinuousLinearMap.fst ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivAt t (hd t ht) using 1
++    convert (ContinuousLinearMap.fst ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivAt t (hd t ht) using 1
+   have hd2 (t : ℝ) (ht : t∈Icc a b) : HasDerivAt (fun s => (U s).2)
+       (((q t : ℂ)-z*(r t : ℂ))*(U t).1) t := by
+-    convert! (ContinuousLinearMap.snd ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivAt t (hd t ht) using 1
++    convert (ContinuousLinearMap.snd ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivAt t (hd t ht) using 1
+   have hdf (t : ℝ) (ht : t∈Icc a b) :
+       derivWithin (fun t => (U t).1) (Icc a b) t = (p t : ℂ)⁻¹*(U t).2 :=
+     (hd1 t ht).hasDerivWithinAt.derivWithin (huniq t ht)
+@@ -2109,7 +2127,7 @@
+   have hc : ContDiffOn ℝ 1 (fun t => (p t : ℂ)⁻¹*(U t).2) (Icc a b) :=
+     (hpc.inv hp).mul hU.snd.contDiffOn
+   refine ⟨?_,hflux,?_⟩
+-  · rw [show (2 : ℕ∞ω)=1+1 from rfl, contDiffOn_succ_iff_derivWithin huniq]
++  · rw [show (2 : WithTop ℕ∞)=1+1 from rfl, contDiffOn_succ_iff_derivWithin huniq]
+     refine ⟨hU.fst.contDiffOn.differentiableOn (by norm_num), by simp, ?_⟩
+     exact hc.congr (fun t ht => hdf t ht)
+   · intro t ht
+@@ -2175,7 +2193,7 @@
+       (p b : ℂ)*derivWithin f (Icc a b) b=v ∧
+       ∀t∈Icc a b, SLOp p q r a b f t=z*f t := by
+   let A : C(Icc a b, (ℂ × ℂ) →L[ℝ] (ℂ × ℂ)) :=
+-    ⟨fun t => slSystem p q r z t.val, (slSystem_continuousOn hreg z).domRestrict⟩
++    ⟨fun t => slSystem p q r z t.val, (slSystem_continuousOn hreg z).restrict⟩
+   obtain ⟨U,hU,hb,hd⟩ := linear_interval_terminal hreg.1.le A (u,v)
+   have hd' : ∀t∈Icc a b, HasDerivAt U
+       ((p t : ℂ)⁻¹*(U t).2, ((q t : ℂ)-z*(r t : ℂ))*(U t).1) t := by
+@@ -2308,7 +2326,7 @@
+     (hda : (p a : ℂ)*derivWithin f (Icc a b) a =
+       (p a : ℂ)*derivWithin g (Icc a b) a) : EqOn f g (Icc a b) := by
+   let A : C(Icc a b, (ℂ × ℂ) →L[ℝ] (ℂ × ℂ)) :=
+-    ⟨fun t => slSystem p q r z t.val, (slSystem_continuousOn hreg z).domRestrict⟩
++    ⟨fun t => slSystem p q r z t.val, (slSystem_continuousOn hreg z).restrict⟩
+   have heq := linear_interval_unique hreg.1.le A
+     (sl_native_system hreg z f hf hef) (sl_native_system hreg z g hg heg)
+     (Prod.ext ha hda)
+@@ -2340,7 +2358,7 @@
+       (p e : ℂ)*derivWithin f (Icc a b) e) :
+     ∀t∈Icc a b, (f t).re=f t := by
+   let A : C(Icc a b, (ℂ × ℂ) →L[ℝ] (ℂ × ℂ)) :=
+-    ⟨fun t => slSystem p q r (lam : ℂ) t.val, (slSystem_continuousOn hreg (lam : ℂ)).domRestrict⟩
++    ⟨fun t => slSystem p q r (lam : ℂ) t.val, (slSystem_continuousOn hreg (lam : ℂ)).restrict⟩
+   let U := fun t => (f t,(p t : ℂ)*derivWithin f (Icc a b) t)
+   have hU : ∀t (ht : t∈Icc a b), HasDerivWithinAt U (A ⟨t,ht⟩ (U t)) (Icc a b) t :=
+     sl_native_system hreg (lam : ℂ) f hf he
+@@ -2429,7 +2447,7 @@
+     ∃c : ℂ, ∀t∈Icc a b, f t=c*g t := by
+   let c := (Real.sin α : ℂ)*f a+(Real.cos α : ℂ)*((p a : ℂ)*derivWithin f (Icc a b) a)
+   let A : C(Icc a b, (ℂ × ℂ) →L[ℝ] (ℂ × ℂ)) :=
+-    ⟨fun t => slSystem p q r z t.val, (slSystem_continuousOn hreg z).domRestrict⟩
++    ⟨fun t => slSystem p q r z t.val, (slSystem_continuousOn hreg z).restrict⟩
+   have hscaled (t : ℝ) (ht : t∈Icc a b) : HasDerivWithinAt
+       (fun t => c • (g t,(p t : ℂ)*derivWithin g (Icc a b) t))
+       (A ⟨t,ht⟩ (c • (g t,(p t : ℂ)*derivWithin g (Icc a b) t))) (Icc a b) t := by
+@@ -2478,7 +2496,7 @@
+       ∃c : ℂ, ∀t∈Icc a b, f t=c*(g t : ℂ) := by
+   obtain ⟨g,hg,hga,hgda,hge⟩ := sl_real_left_solution hreg E (Real.sin α) (Real.cos α)
+   obtain ⟨c,hc⟩ := sl_left_proportional hreg α (E : ℂ) f (fun t => (g t : ℂ))
+-    hf.1.1 hg hf.2.2 hge hf.1.2.1 (by exact_mod_cast hga) hgda
++    hf.1.1 hg hf.2.2 hge hf.1.2.1 (by beta_reduce; exact_mod_cast hga) hgda
+   obtain ⟨t,ht,hft⟩ := hf.2.1
+   have hc0 : c≠0 := by intro hc0; exact hft (by rw [hc t ht,hc0,zero_mul])
+   have hgf : EqOn (fun t => c⁻¹*f t) (fun t => (g t : ℂ)) (Icc a b) := by
+@@ -2833,10 +2851,10 @@
+     HasDerivWithinAt (slFlux p a b f) (((q t : ℂ)-z*(r t : ℂ))*f t) (Icc a b) t := by
+   have hs := sl_native_system hreg z f hf he t ht
+   constructor
+-  · convert! (ContinuousLinearMap.fst ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivWithinAt t hs using 1
++  · convert (ContinuousLinearMap.fst ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivWithinAt t hs using 1
+     simp only [slSystem_apply]
+     rfl
+-  · convert! (ContinuousLinearMap.snd ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivWithinAt t hs using 1
++  · convert (ContinuousLinearMap.snd ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivWithinAt t hs using 1
+     simp only [slSystem_apply]
+     rfl
+ 
+@@ -2850,7 +2868,7 @@
+       HasDerivWithinAt (slWronskian p a b f g) 0 (Icc a b) t := by
+     obtain ⟨hf1,hf2⟩ := sl_solution_derivatives hreg z f hf hef ht
+     obtain ⟨hg1,hg2⟩ := sl_solution_derivatives hreg z g hg heg ht
+-    convert! (hf2.mul hg1).sub (hf1.mul hg2) using 1
++    convert (hf2.mul hg1).sub (hf1.mul hg2) using 1
+     ring
+   intro t ht
+   apply (convex_Icc a b).is_const_of_fderivWithin_eq_zero
+@@ -2888,7 +2906,7 @@
+     HasDerivWithinAt (fun t => ⟪f t,v t⟫ - h t*‖f t‖^2)
+       (p⁻¹*‖v t-h t • f t‖^2 + (c-dh-(h t)^2/p)*‖f t‖^2) s t := by
+   rw [← energy_square_identity (f t) (v t) p c (h t) dh hp]
+-  convert! (hf.inner ℝ hv).sub (hh.mul hf.norm_sq) using 1
++  convert (hf.inner ℝ hv).sub (hh.mul hf.norm_sq) using 1
+   ring
+ 
+ lemma nonnegative_derivative_zero {a b : ℝ} (hab : a<b) (g d : ℝ → ℝ)
+@@ -2963,7 +2981,7 @@
+ lemma boundaryAffine_deriv (a b α β t : ℝ) :
+     HasDerivAt (boundaryAffine a b α β)
+       ((Real.cos β/Real.sin β-Real.cos α/Real.sin α)/(b-a)) t := by
+-  convert! ((((hasDerivAt_id t).sub_const a).const_mul
++  convert ((((hasDerivAt_id t).sub_const a).const_mul
+       (Real.cos β/Real.sin β-Real.cos α/Real.sin α)).div_const (b-a)).const_add
+       (Real.cos α/Real.sin α) using 1
+   simp only [mul_one]
+@@ -3014,10 +3032,10 @@
+     have h1 := (ContinuousLinearMap.fst ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivWithinAt t hs
+     have h2 := (ContinuousLinearMap.snd ℝ ℂ ℂ).hasFDerivAt.comp_hasDerivWithinAt t hs
+     have h1' : HasDerivWithinAt f ((p t)⁻¹ • v t) (Icc a b) t := by
+-      convert! h1 using 1
++      convert h1 using 1
+       simp [slSystem_apply, v, Complex.real_smul]
+     have h2' : HasDerivWithinAt v ((q t-(m-1)*r t) • f t) (Icc a b) t := by
+-      convert! h2 using 1
++      convert h2 using 1
+       simp [slSystem_apply, Complex.real_smul]
+     exact completed_energy_derivative (p t) (q t-(m-1)*r t) D
+       (hreg.2.2.2.2 t ht).1.ne' h1' h2'
+@@ -3249,7 +3267,7 @@
+     ∃ P : ℝ → E, ContDiff ℝ 1 P ∧ P a=0 ∧
+       (∀t∈Icc a b, HasDerivAt P (f t) t) ∧
+       ∀t∈Icc a b, P t=∫s in a..t, f s := by
+-  let F : C(Icc a b,E) := ⟨fun t => f t.val,hf.domRestrict⟩
++  let F : C(Icc a b,E) := ⟨fun t => f t.val,hf.restrict⟩
+   let e := intervalExtend hab F
+   have he : Continuous e := intervalExtend_continuous hab F
+   let P := fun t => ∫s in a..t, e s
+@@ -3294,9 +3312,9 @@
+     HasDerivWithinAt (fun t => (V t*P t+U t*Q t)/w)
+       (c*((v t*P t+u t*Q t)/w)-F) s t := by
+   constructor
+-  · convert! ((hv.mul hP).add (hu.mul hQ)).div_const w using 1
++  · convert ((hv.mul hP).add (hu.mul hQ)).div_const w using 1
+     ring
+-  · convert! ((hV.mul hP).add (hU.mul hQ)).div_const w using 1
++  · convert ((hV.mul hP).add (hU.mul hQ)).div_const w using 1
+     apply (eq_div_iff hw).mpr
+     field_simp
+     linear_combination F*hW
+@@ -3338,7 +3356,7 @@
+     rw [slFlux,hder t ht]
+     simp [hp t ht]
+   refine ⟨?_,hflux,?_⟩
+-  · rw [show (2 : ℕ∞ω)=1+1 from rfl,contDiffOn_succ_iff_derivWithin hi]
++  · rw [show (2 : WithTop ℕ∞)=1+1 from rfl,contDiffOn_succ_iff_derivWithin hi]
+     refine ⟨hu.differentiableOn (by norm_num),by simp,?_⟩
+     have hc : ContDiffOn ℝ 1 (fun t => (p t : ℂ)⁻¹*v t) (Icc a b) :=
+       ((Complex.ofRealCLM.contDiff.comp_contDiffOn hreg.2.2.2.1).inv hp).mul hv
+@@ -3389,7 +3407,7 @@
+   have hQb : Q b=0 := sub_self _
+   have hQd (t : ℝ) (ht : t∈Icc a b) :
+       HasDerivWithinAt Q (-v t*(f t*(r t : ℂ))) (Icc a b) t := by
+-    convert! (hTd t ht).const_sub (T b) |>.hasDerivWithinAt using 1
++    convert (hTd t ht).const_sub (T b) |>.hasDerivWithinAt using 1
+     ring
+   let y := fun t => (v t*P t+u t*Q t)/w
+   let z := fun t => (V t*P t+U t*Q t)/w
+@@ -3408,7 +3426,7 @@
+     obtain ⟨hv,hV⟩ := sl_solution_derivatives hreg (D.param : ℂ) v D.right_smooth D.right_equation ht
+     apply variation_derivatives u v U V P Q (p t : ℂ)
+       ((q t : ℂ)-(D.param : ℂ)*(r t : ℂ)) (f t*(r t : ℂ)) w hw hu hv hU hV
+-    · convert! (hPd t ht).hasDerivWithinAt using 1
++    · convert (hPd t ht).hasDerivWithinAt using 1
+       ring
+     · exact hQd t ht
+     · exact D.wronskian_eq t ht
+@@ -3456,7 +3474,7 @@
+     ∀t∈Icc a b, f t=0 := by
+   obtain ⟨c,hc⟩ := sl_left_proportional hreg α (D.param : ℂ) f
+     (fun t => (D.left t : ℂ)) hf.1 D.left_smooth he D.left_equation hf.2.1
+-    (by exact_mod_cast D.left_value) D.left_flux
++    (by beta_reduce; exact_mod_cast D.left_value) D.left_flux
+   have hb : b∈Icc a b := ⟨hreg.1.le,le_rfl⟩
+   have hd : derivWithin f (Icc a b) b = c*derivWithin (fun t => (D.left t : ℂ)) (Icc a b) b := by
+     rw [derivWithin_congr hc (hc b hb)]
+@@ -3610,7 +3628,7 @@
+ end TeschlODE.SturmLiouville
+ 
+ open TeschlODE.SturmLiouville in
+-theorem solution {p q r : ℝ → ℝ} {a b : ℝ} (α β : ℝ)
++theorem _root_.Prove2me.Solution.TeschlODE_SturmLiouville_eigenfunction_expansion {p q r : ℝ → ℝ} {a b : ℝ} (α β : ℝ)
+     (hreg : RegularSL p q r a b) :
+     ∃ (E : ℕ → ℝ) (u : ℕ → ℝ → ℝ),
+       (∀ n, IsSLEigenfunction p q r a b α β (E n : ℂ) (fun x => ((u n x : ℝ) : ℂ))) ∧
+@@ -3636,3 +3654,51 @@
+   exact eigenfunction_expansion α β hreg
+ end
+ -- END COMPLETE MODULE SLRoot
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `TeschlODE.SturmLiouville.eigenfunction_expansion` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++namespace TeschlODE.SturmLiouville
++
++/-- Teschl, Theorem 5.11, p. 160: under (5.45), the regular Sturm–Liouville problem
++`L = r⁻¹(−(d/dx) p (d/dx) + q)` on `D(L)` (5.53)–(5.55) has countably many discrete, simple
++eigenvalues `Eₙ` accumulating only at `∞`: there are real `Eₙ` (pairwise distinct, `|Eₙ| → ∞`)
++and real-valued eigenfunctions `uₙ ∈ D(L)`, `L uₙ = Eₙ uₙ`, such that every eigenvalue `z ∈ ℂ` of
++`L` is some `Eₙ` and every eigenfunction for it is a multiple of `uₙ`. The `uₙ` are orthonormal
++for (5.52) and form an orthonormal basis of `H₀ = C([a, b], ℂ)`: for every `f ∈ H₀` the partial
++sums of `Σ ⟨uₙ, f⟩ uₙ` (5.70) converge to `f` in the `H₀`-norm; for `f ∈ D(L)` they converge
++uniformly on `[a, b]`. -/
++example {p q r : ℝ → ℝ} {a b : ℝ} (α β : ℝ)
++    (hreg : RegularSL p q r a b) :
++    ∃ (E : ℕ → ℝ) (u : ℕ → ℝ → ℝ),
++      (∀ n, IsSLEigenfunction p q r a b α β (E n : ℂ) (fun x => ((u n x : ℝ) : ℂ))) ∧
++      Function.Injective E ∧
++      (∀ (z : ℂ) (f : ℝ → ℂ), IsSLEigenfunction p q r a b α β z f →
++        ∃ n, z = (E n : ℂ) ∧ ∃ c : ℂ, ∀ x ∈ Set.Icc a b, f x = c * (u n x : ℂ)) ∧
++      Filter.Tendsto (fun n => |E n|) Filter.atTop Filter.atTop ∧
++      (∀ m n, SLInner r a b (fun x => ((u m x : ℝ) : ℂ)) (fun x => ((u n x : ℝ) : ℂ)) =
++        if m = n then 1 else 0) ∧
++      (∀ f : ℝ → ℂ, ContinuousOn f (Set.Icc a b) →
++        Filter.Tendsto
++          (fun N => (SLInner r a b
++            (f - fun x => ∑ n ∈ Finset.range N,
++              SLInner r a b (fun y => ((u n y : ℝ) : ℂ)) f * (u n x : ℂ))
++            (f - fun x => ∑ n ∈ Finset.range N,
++              SLInner r a b (fun y => ((u n y : ℝ) : ℂ)) f * (u n x : ℂ))).re)
++          Filter.atTop (nhds 0)) ∧
++      (∀ f : ℝ → ℂ, SLDomain p a b α β f →
++        TendstoUniformlyOn
++          (fun N x => ∑ n ∈ Finset.range N,
++            SLInner r a b (fun y => ((u n y : ℝ) : ℂ)) f * (u n x : ℂ))
++          f Filter.atTop (Set.Icc a b)) := by
++  first
++  | exact _root_.Prove2me.Solution.TeschlODE_SturmLiouville_eigenfunction_expansion α β hreg
++  | (apply _root_.Prove2me.Solution.TeschlODE_SturmLiouville_eigenfunction_expansion <;> assumption)
++
++end TeschlODE.SturmLiouville
++
++
++end Prove2meStatement

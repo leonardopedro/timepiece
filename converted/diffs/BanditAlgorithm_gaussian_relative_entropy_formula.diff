@@ -1,0 +1,81 @@
+--- Downloads/unfer-bayes/BanditAlgorithm.gaussian_relative_entropy_formula.lean
++++ converted/Prove2me/UnferBayes/BanditAlgorithm_gaussian_relative_entropy_formula.lean
+@@ -1,7 +1,34 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 29eb6c51-3ec5-4e7a-8984-c64610d9639a
++* original name       : `BanditAlgorithm.gaussian_relative_entropy_formula`
++* title               : None
++* statement author    : Shuze Chen
++* solution author     : Harry_Xu (submission 1ce752fa-2d67-4191-9052-1cd80d4cf9f2,
++                        accepted 2026-07-19T01:35:30.271992+00:00)
++* source              : L&S Ch 14.2 (specialization of Theorem 14.1), p.190
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/BanditAlgorithm.gaussian_relative_entropy_formula.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/BanditAlgorithm_gaussian_relative_entropy_formula.diff`.
++-/
+ import Mathlib.InformationTheory.KullbackLeibler.Basic
+ import Mathlib.Probability.Distributions.Gaussian.Real
+ 
+ open MeasureTheory ProbabilityTheory InformationTheory NNReal
++
++/-- Lean 4.28.0 conversion shim: the platform Mathlib's `Measure.rnDeriv_eq_div` is not in this
++repository's Mathlib pin; this is the same fact, proved from `Measure.rnDeriv_mul_rnDeriv'`. -/
++theorem Prove2me.Shim.rnDeriv_eq_div {α : Type*} [MeasurableSpace α] {μ ν κ : Measure α}
++    [SigmaFinite μ] [SigmaFinite ν] [SigmaFinite κ] (hνκ : ν ≪ κ) :
++    ∀ᵐ x ∂ν, μ.rnDeriv ν x = μ.rnDeriv κ x / ν.rnDeriv κ x := by
++  filter_upwards [Measure.rnDeriv_mul_rnDeriv' (μ := μ) hνκ, Measure.rnDeriv_pos hνκ,
++    hνκ.ae_le (Measure.rnDeriv_ne_top ν κ)] with x hx hpos hfin
++  rw [ENNReal.eq_div_iff hpos.ne' hfin, mul_comm]
++  simpa using hx
+ 
+ /-!
+ Source: Lattimore--Szepesvari, *Bandit Algorithms* (CUP 2020), Section 14.2,
+@@ -11,7 +38,7 @@
+ Gaussian leaves `(mu1 - mu2)^2 / (2 * v)`.
+ -/
+ 
+-theorem solution (mu1 mu2 : ℝ) {v : ℝ≥0} (hv : v ≠ 0) :
++theorem _root_.Prove2me.Solution.BanditAlgorithm_gaussian_relative_entropy_formula (mu1 mu2 : ℝ) {v : ℝ≥0} (hv : v ≠ 0) :
+     klDiv (gaussianReal mu1 v) (gaussianReal mu2 v) =
+       ENNReal.ofReal ((mu1 - mu2) ^ 2 / (2 * (v : ℝ))) := by
+   let P := gaussianReal mu1 v
+@@ -22,10 +49,11 @@
+   have hQvol : Q ≪ volume := gaussianReal_absolutelyContinuous mu2 hv
+   have hratio :
+       P.rnDeriv Q =ᵐ[Q] fun x => gaussianPDF mu1 v x / gaussianPDF mu2 v x := by
+-    filter_upwards [Measure.rnDeriv_eq_div hPvol hQvol,
++    filter_upwards [Prove2me.Shim.rnDeriv_eq_div (μ := P) hQvol,
+       hQvol (rnDeriv_gaussianReal mu1 v), hQvol (rnDeriv_gaussianReal mu2 v)]
+       with x hx h1 h2
+-    rw [hx, h1, h2]
++    rw [hx]
++    exact congrArg₂ (· / ·) h1 h2
+   have hratioP :
+       P.rnDeriv Q =ᵐ[P] fun x => gaussianPDF mu1 v x / gaussianPDF mu2 v x :=
+     hPQ hratio
+@@ -74,3 +102,20 @@
+     _ = (mu1 - mu2) ^ 2 / (2 * (v : ℝ)) := by
+           simp [P, integral_id_gaussianReal]
+           ring
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory InformationTheory NNReal
++
++theorem BanditAlgorithm.gaussian_relative_entropy_formula (μ₁ μ₂ : ℝ) {v : ℝ≥0} (hv : v ≠ 0) :
++    klDiv (gaussianReal μ₁ v) (gaussianReal μ₂ v) =
++      ENNReal.ofReal ((μ₁ - μ₂) ^ 2 / (2 * (v : ℝ))) :=
++  _root_.Prove2me.Solution.BanditAlgorithm_gaussian_relative_entropy_formula μ₁ μ₂ hv
++
++
++
++end Prove2meStatement

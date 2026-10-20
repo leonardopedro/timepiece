@@ -1,0 +1,85 @@
+--- Downloads/qft-wick/FeynmanWick.gaussian_moment_odd_eq_zero.lean
++++ converted/Prove2me/QftWick/FeynmanWick_gaussian_moment_odd_eq_zero.lean
+@@ -1,10 +1,27 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : b26670d1-d78f-4178-9183-548073bf9fa6
++* original name       : `FeynmanWick.gaussian_moment_odd_eq_zero`
++* title               : Odd correlation functions of a centered Gaussian vanish
++* statement author    : Lucas
++* solution author     : cm_beta (submission b13c73d3-f096-4823-9531-f10f016f4b84,
++                        accepted 2026-09-23T21:54:26.687646+00:00)
++* source              : Feynman diagram, Wikipedia (revision captured 2026-09-20), https://en.wikipedia.org/wiki/Feynman_diagram, sections 'Wick theorem' and 'Higher Gaussian moments — completing Wick's theorem'
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/FeynmanWick.gaussian_moment_odd_eq_zero.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/FeynmanWick_gaussian_moment_odd_eq_zero.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_FeynmanWickPairings
+ 
+ open MeasureTheory ProbabilityTheory
+ open FeynmanWick
+ 
+-theorem W3a_FeynmanWick_integral_gaussian_weight (a : ℝ) (ha : 0 < a) :
++private theorem W3a_FeynmanWick_integral_gaussian_weight (a : ℝ) (ha : 0 < a) :
+     ∫ x : ℝ, Real.exp (-(a * x ^ 2) / 2) = Real.sqrt (2 * Real.pi / a) := by
+   have h := integral_gaussian (a / 2)
+   have e : (fun x : ℝ => Real.exp (-(a * x ^ 2) / 2)) = fun x => Real.exp (-(a / 2) * x ^ 2) := by
+@@ -13,7 +30,7 @@
+   congr 1
+   field_simp
+ 
+-theorem W3a_FeynmanWick_integral_even_moment_gaussian_weight (a : ℝ) (ha : 0 < a) (n : ℕ) :
++private theorem W3a_FeynmanWick_integral_even_moment_gaussian_weight (a : ℝ) (ha : 0 < a) (n : ℕ) :
+     ∫ x : ℝ, x ^ (2 * n) * Real.exp (-(a * x ^ 2) / 2)
+       = (Nat.doubleFactorial (2 * n - 1) : ℝ) / a ^ n * Real.sqrt (2 * Real.pi / a) := by
+   have h1 : ∀ x : ℝ, x ^ (2 * n) * Real.exp (-(a * x ^ 2) / 2)
+@@ -76,7 +93,7 @@
+     field_simp
+     rw [one_div, inv_pow, inv_mul_cancel₀ (pow_ne_zero _ hvpos.ne')]
+ 
+-theorem W3a_FeynmanWick_map_neg {d : ℕ}
++private theorem W3a_FeynmanWick_map_neg {d : ℕ}
+     (μ : Measure (EuclideanSpace ℝ (Fin d))) [IsGaussian μ]
+     (hcent : ∀ i : Fin d, ∫ x, x i ∂μ = 0) :
+     μ.map (fun x => -x) = μ := by
+@@ -97,7 +114,7 @@
+     funext x; simp
+   rw [hc, variance_neg]
+ 
+-theorem solution {d n : ℕ}
++theorem _root_.Prove2me.Solution.FeynmanWick_gaussian_moment_odd_eq_zero {d n : ℕ}
+     (μ : Measure (EuclideanSpace ℝ (Fin d))) [IsGaussian μ]
+     (hcent : ∀ i : Fin d, ∫ x, x i ∂μ = 0) (k : Fin (2 * n + 1) → Fin d) :
+     ∫ x, ∏ j : Fin (2 * n + 1), x (k j) ∂μ = 0 := by
+@@ -114,3 +131,26 @@
+     ring
+   simp_rw [h2, integral_neg] at h1
+   linarith
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory
++
++namespace FeynmanWick
++
++theorem gaussian_moment_odd_eq_zero {d n : ℕ}
++    (μ : Measure (EuclideanSpace ℝ (Fin d))) [IsGaussian μ]
++    (hcent : ∀ i : Fin d, ∫ x, x i ∂μ = 0) (k : Fin (2 * n + 1) → Fin d) :
++    ∫ x, ∏ j : Fin (2 * n + 1), x (k j) ∂μ = 0 := by
++  first
++  | exact _root_.Prove2me.Solution.FeynmanWick_gaussian_moment_odd_eq_zero μ hcent k
++  | (apply _root_.Prove2me.Solution.FeynmanWick_gaussian_moment_odd_eq_zero <;> assumption)
++
++end FeynmanWick
++
++
++end Prove2meStatement

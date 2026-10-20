@@ -1,0 +1,47 @@
+--- Downloads/cstar-gelfand/FamousTheorems.von_neumann_mean_ergodic.lean
++++ converted/Prove2me/CstarGelfand/FamousTheorems_von_neumann_mean_ergodic.lean
+@@ -1,7 +1,42 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : cd6edf41-6a0d-4108-bb55-f8c85dad65cf
++* original name       : `FamousTheorems.von_neumann_mean_ergodic`
++* title               : The von Neumann mean ergodic theorem
++* statement author    : cm_beta
++* solution author     : cm_beta (submission af3ae366-60ea-41c0-8372-2fcaecff2058,
++                        accepted 2026-09-24T02:23:34.352986+00:00)
++* source              : Listed in Mathlib's curated theorem manifests (docs/1000.yaml); formalized in Mathlib as `ContinuousLinearMap.tendsto_birkhoffAverage_orthogonalProjection`. Proof here reduces to that Mathlib result.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/cstar-gelfand/FamousTheorems.von_neumann_mean_ergodic.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/FamousTheorems_von_neumann_mean_ergodic.diff`.
++-/
+ import Mathlib
+ 
+-theorem solution {𝕜 E : Type*} [RCLike 𝕜] [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
++theorem _root_.Prove2me.Solution.FamousTheorems_von_neumann_mean_ergodic {𝕜 E : Type*} [RCLike 𝕜] [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
+     (f : E →L[𝕜] E) (hf : ‖f‖ ≤ 1) (x : E) :
+     Filter.Tendsto (fun n => birkhoffAverage 𝕜 f id n x) Filter.atTop
+-      (nhds (((f.eqLocus (1 : E →L[𝕜] E)).orthogonalProjectionOnto x : E))) :=
++      (nhds (((LinearMap.eqLocus f (1 : E →L[𝕜] E)).orthogonalProjection x : E))) :=
+   ContinuousLinearMap.tendsto_birkhoffAverage_orthogonalProjection f hf x
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace FamousTheorems
++
++theorem von_neumann_mean_ergodic {𝕜 E : Type*} [RCLike 𝕜] [NormedAddCommGroup E] [InnerProductSpace 𝕜 E] [CompleteSpace E]
++    (f : E →L[𝕜] E) (hf : ‖f‖ ≤ 1) (x : E) :
++    Filter.Tendsto (fun n => birkhoffAverage 𝕜 f id n x) Filter.atTop
++      (nhds (((LinearMap.eqLocus f (1 : E →L[𝕜] E)).orthogonalProjection x : E))) :=
++  _root_.Prove2me.Solution.FamousTheorems_von_neumann_mean_ergodic f hf x
++
++end FamousTheorems
++
++end Prove2meStatement

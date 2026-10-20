@@ -1,0 +1,68 @@
+--- Downloads/analytic-nt/FCP.Zeta.zudilin_five_seven_nine_eleven.lean
++++ converted/Prove2me/AnalyticNt/FCP_Zeta_zudilin_five_seven_nine_eleven.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : a925cba9-6bcf-4296-940d-3886687da227
++* original name       : `FCP.Zeta.zudilin_five_seven_nine_eleven`
++* title               : Zudilin: one of $\zeta(5), \zeta(7), \zeta(9), \zeta(11)$ is irrational
++* statement author    : Lucas
++* solution author     : tomasz (submission 1c8ce147-2d1a-4348-a657-8c7539e50a60,
++                        accepted 2026-10-02T12:07:42.681994+00:00)
++* source              : Formal Conjectures library (Google DeepMind), Apache-2.0, https://github.com/google-deepmind/formal-conjectures (FormalConjectures/Wikipedia/RiemannZetaValues.lean); W. Zudilin, One of the numbers $\zeta(5), \zeta(7), \zeta(9), \zeta(11)$ is irrational, Russ. Math. Surv. 56 (2001), 774--776
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/analytic-nt/FCP.Zeta.zudilin_five_seven_nine_eleven.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/FCP_Zeta_zudilin_five_seven_nine_eleven.diff`.
++-/
+ import Theorems.Thm_ZudilinZeta_params13_contour_formula
+ import Mathlib
+ import Theorems.Thm_ZudilinZeta_zudilin_lcm_asymptotics
+@@ -110,7 +127,7 @@
+   have hsum : Tendsto (fun n : ℕ =>
+       ∑ j ∈ Finset.Icc 2 (P.q - P.r), Real.log (D (m P j * n) : ℝ) / (n : ℝ))
+       atTop (𝓝 (∑ j ∈ Finset.Icc 2 (P.q - P.r), (m P j : ℝ))) := by
+-    apply tendsto_finsetSum
++    apply tendsto_finset_sum
+     intro j hj
+     exact zudilin_lcm_asymptotics P j (by have := (Finset.mem_Icc.mp hj).1; omega)
+       (Finset.mem_Icc.mp hj).2
+@@ -418,7 +435,7 @@
+     filter_upwards [hbound] with n hn
+     rw [Real.norm_eq_abs, abs_mul, abs_of_pos (hA n)]
+     have hh := mul_le_mul_of_nonneg_left hn (hA n).le
+-    convert! hh using 1 <;> ring
++    convert hh using 1 <;> ring
+   intro ε hε
+   have hsmall : ∀ᶠ n : ℕ in atTop, |A n * f n| < ε := by
+     simpa only [Real.norm_eq_abs, norm_zero] using
+@@ -514,6 +531,25 @@
+ end
+ 
+ 
+-theorem solution :
++theorem _root_.Prove2me.Solution.FCP_Zeta_zudilin_five_seven_nine_eleven :
+     ({5, 7, 9, 11} ∩ {a : ℕ | ∃ x : ℝ, Irrational x ∧ riemannZeta a = x}).Nonempty := by
+   exact zudilin_root_from_kernel_contour ZudilinZeta.params13_contour_formula
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace FCP.Zeta
++
++theorem zudilin_five_seven_nine_eleven :
++    ({5, 7, 9, 11} ∩ {a : ℕ | ∃ x : ℝ, Irrational x ∧ riemannZeta a = x}).Nonempty := by
++  first
++  | exact _root_.Prove2me.Solution.FCP_Zeta_zudilin_five_seven_nine_eleven
++  | (apply _root_.Prove2me.Solution.FCP_Zeta_zudilin_five_seven_nine_eleven <;> assumption)
++
++end FCP.Zeta
++
++
++end Prove2meStatement

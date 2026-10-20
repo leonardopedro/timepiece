@@ -1,0 +1,58 @@
+--- Downloads/qft-wick/Feynman1948.fresnel_zeroth_moment.lean
++++ converted/Prove2me/QftWick/Feynman1948_fresnel_zeroth_moment.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : e547a4b2-ee7f-4ee8-a631-2fbe18b6c75a
++* original name       : `Feynman1948.fresnel_zeroth_moment`
++* title               : Eq. (26), first integral: $\int e^{im\xi^2/2\hbar\varepsilon}\,d\xi = (2\pi\hbar\varepsilon i/m)^{1/2}$
++* statement author    : Lucas
++* solution author     : Mazecto (submission 2c6c7d8f-6c71-4c88-9e79-db656de5d0ac,
++                        accepted 2026-10-02T20:18:50.051363+00:00)
++* source              : R. P. Feynman, Space-Time Approach to Non-Relativistic Quantum Mechanics, Rev. Mod. Phys. 20, 367 (1948), https://doi.org/10.1103/RevModPhys.20.367, p. 375, Eq. (26), first formula; footnote 13 (p. 376)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/Feynman1948.fresnel_zeroth_moment.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/Feynman1948_fresnel_zeroth_moment.diff`.
++-/
+ import Definitions.Def_Feynman1948_WaveEquation
+ import Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral
+ import Mathlib.Analysis.SpecialFunctions.Pow.Continuity
+@@ -7,7 +24,7 @@
+ 
+ open Complex Filter MeasureTheory Topology Feynman1948
+ 
+-theorem solution (ħ m ε : ℝ) (hħ : 0 < ħ) (hm : 0 < m) (hε : 0 < ε) :
++theorem _root_.Prove2me.Solution.Feynman1948_fresnel_zeroth_moment (ħ m ε : ℝ) (hħ : 0 < ħ) (hm : 0 < m) (hε : 0 < ε) :
+     Tendsto (fun δ : ℝ => regularizedMoment ħ m ε δ 0) (𝓝[>] 0)
+       (𝓝 (normalizingFactor ħ m ε)) := by
+   let c : ℝ := m / (2 * ħ * ε)
+@@ -72,3 +89,25 @@
+   apply hlim'.congr'
+   filter_upwards [self_mem_nhdsWithin] with δ hδ
+   exact (hmoment δ hδ).symm
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open Complex Filter Topology SchwartzMap
++
++namespace Feynman1948
++
++theorem fresnel_zeroth_moment (ħ m ε : ℝ) (hħ : 0 < ħ) (hm : 0 < m) (hε : 0 < ε) :
++    Tendsto (fun δ : ℝ => regularizedMoment ħ m ε δ 0) (𝓝[>] 0)
++      (𝓝 (normalizingFactor ħ m ε)) := by
++  first
++  | exact _root_.Prove2me.Solution.Feynman1948_fresnel_zeroth_moment ħ m ε hħ hm hε
++  | (apply _root_.Prove2me.Solution.Feynman1948_fresnel_zeroth_moment <;> assumption)
++
++end Feynman1948
++
++
++end Prove2meStatement

@@ -1,0 +1,71 @@
+--- Downloads/qft-wick/KochHF.brillouin_theorem.lean
++++ converted/Prove2me/QftWick/KochHF_brillouin_theorem.lean
+@@ -1,8 +1,24 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 5d3d5760-1d93-4c6c-940b-4bd7cf539b18
++* original name       : `KochHF.brillouin_theorem`
++* title               : Brillouin theorem: stationarity of a Slater determinant ⇔ no single excitations (Eqs. (62), (63))
++* statement author    : Lucas
++* solution author     : Gabewhigham (submission 026a4f57-1590-4d57-90b7-6c202cc7821b,
++                        accepted 2026-10-10T16:50:29.523174+00:00)
++* source              : E. Koch, *Mean-Field Theory: Hartree-Fock and BCS*, in E. Pavarini, E. Koch, J. van den Brink, G. Sawatzky (eds.), Quantum Materials: Experiments and Theory, Modeling and Simulation Vol. 6, Forschungszentrum Jülich, 2016, ISBN 978-3-95806-159-0, http://www.cond-mat.de/events/correl16, Sec. 3.2, pp. 2.16–2.17, Eqs. (55), (61)–(63) ("the Brillouin theorem").
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/KochHF.brillouin_theorem.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/KochHF_brillouin_theorem.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_KochHF_FockSpace
+ import Theorems.Thm_KochHF_slater_projection_rules
+ import Theorems.Thm_KochHF_energy_variation_first_order
+-
+ 
+ open Matrix KochHF
+ 
+@@ -613,7 +629,7 @@
+ 
+ open Matrix KochHF
+ 
+-theorem solution {K N : ℕ} (H : FockOp K) (hH : H.IsHermitian)
++theorem _root_.Prove2me.Solution.KochHF_brillouin_theorem {K N : ℕ} (H : FockOp K) (hH : H.IsHermitian)
+     (α : Fin N → Fin K → ℂ) (hα : ∀ i j, orbInner (α i) (α j) = if i = j then 1 else 0) :
+     (∀ M : Matrix (Fin K) (Fin K) ℂ, M.IsHermitian →
+       HasDerivAt
+@@ -625,3 +641,33 @@
+       (∀ i, orbInner (α i) φv = 0) →
+       matEl (slater α) (cdagOrb φo * cannOrb φv * H) (slater α) = 0) := by
+   exact KochHFAux.main_brillouin_theorem H hH α hα
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open Matrix
++
++namespace KochHF
++
++theorem brillouin_theorem {K N : ℕ} (H : FockOp K) (hH : H.IsHermitian)
++    (α : Fin N → Fin K → ℂ) (hα : ∀ i j, orbInner (α i) (α j) = if i = j then 1 else 0) :
++    (∀ M : Matrix (Fin K) (Fin K) ℂ, M.IsHermitian →
++      HasDerivAt
++        (fun t : ℝ => matEl (slater α)
++          (NormedSpace.exp ((Complex.I * t) • oneBodyOp M) * H *
++            NormedSpace.exp ((-(Complex.I * t)) • oneBodyOp M)) (slater α))
++        0 0) ↔
++    (∀ φo φv : Fin K → ℂ, φo ∈ Submodule.span ℂ (Set.range α) →
++      (∀ i, orbInner (α i) φv = 0) →
++      matEl (slater α) (cdagOrb φo * cannOrb φv * H) (slater α) = 0) := by
++  first
++  | exact _root_.Prove2me.Solution.KochHF_brillouin_theorem H hH α hα
++  | (apply _root_.Prove2me.Solution.KochHF_brillouin_theorem <;> assumption)
++
++end KochHF
++
++
++end Prove2meStatement

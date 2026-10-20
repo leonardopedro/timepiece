@@ -1,0 +1,54 @@
+--- Downloads/arctic-crypto/SchnorrGrp.simulate_accepts.lean
++++ converted/Prove2me/ArcticCrypto/SchnorrGrp_simulate_accepts.lean
+@@ -1,6 +1,24 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 6bd9c4e2-90be-4dbc-aed5-556f7ce95a62
++* original name       : `SchnorrGrp.simulate_accepts`
++* title               : The simulator always produces accepting transcripts.
++* statement author    : raver1975
++* solution author     : raver1975 (submission 20f95f40-a205-47d4-9f8e-f2c38f6a4859,
++                        accepted 2026-09-12T07:03:03.442572+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean#L182
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/arctic-crypto/SchnorrGrp.simulate_accepts.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/SchnorrGrp_simulate_accepts.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupProtocol
++
+ /-
+ Copyright (c) 2026 Harmonic. All rights reserved.
+ Released under Apache 2.0 license as described in the file LICENSE.
+@@ -86,7 +104,25 @@
+ 
+ 
+ open SchnorrGrp in
+-theorem solution(g pub : G) (c z : ZMod q) :
++theorem _root_.Prove2me.Solution.SchnorrGrp_simulate_accepts(g pub : G) (c z : ZMod q) :
+     Accepts g pub (simulate g pub c z) := by
+   show gexp g z = gexp g z * (gexp pub c)⁻¹ * gexp pub c
+   group
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open SchnorrGrp
++variable {G : Type*} [CommGroup G] {q : ℕ}
++
++theorem SchnorrGrp.simulate_accepts(g pub : G) (c z : ZMod q) :
++    Accepts g pub (simulate g pub c z) := by
++  first
++  | exact _root_.Prove2me.Solution.SchnorrGrp_simulate_accepts g pub c z
++  | (apply _root_.Prove2me.Solution.SchnorrGrp_simulate_accepts <;> assumption)
++
++
++end Prove2meStatement

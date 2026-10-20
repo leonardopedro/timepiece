@@ -1,0 +1,78 @@
+--- Downloads/prob-concentration/TraceEstimation.Hutchinson.hutchinson_estimator_approximator.lean
++++ converted/Prove2me/ProbConcentration/TraceEstimation_Hutchinson_hutchinson_estimator_approximator.lean
+@@ -1,7 +1,23 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 98e52f68-4c39-4dca-a273-2f4331e260e2
++* original name       : `TraceEstimation.Hutchinson.hutchinson_estimator_approximator`
++* title               : Theorem 7.1 — $H_M$ is an $(\epsilon,\delta)$-approximator for $M \ge 6\epsilon^{-2}\ln(2\,\mathrm{rank}(A)/\delta)$, $0<\epsilon\le 1/2$
++* statement author    : mikedeng1
++* solution author     : raresbuhai (submission 9d129793-a76b-43ff-989e-b37f47ecc68a,
++                        accepted 2026-10-01T20:41:02.481776+00:00)
++* source              : Avron and Toledo, Randomized algorithms for estimating the trace of an implicit symmetric positive semi-definite matrix, J. ACM 58(2), Article 8 (2011), p. 8:10, Theorem 7.1 (proof p. 8:11)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/prob-concentration/TraceEstimation.Hutchinson.hutchinson_estimator_approximator.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/TraceEstimation_Hutchinson_hutchinson_estimator_approximator.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_TraceEstimation_Hutchinson_hutchinsonEstimator
+ import Definitions.Def_TraceEstimation_Shared_IsApproximator
+-
+ 
+ open MeasureTheory ProbabilityTheory Real Matrix
+ open TraceEstimation.Hutchinson
+@@ -229,7 +245,7 @@
+ theorem quadratic_memLp {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ) :
+     MemLp (fun z=>z ⬝ᵥ (A*ᵥ z)) 2 (rademacherVectorMeasure n) := by
+   simp_rw [quadratic_eq]
+-  have hh:=memLp_finsetSum' Finset.univ (fun (p : Fin n × Fin n) _=>(pair_memLp p.1 p.2 2).const_mul (A p.1 p.2))
++  have hh:=memLp_finset_sum' Finset.univ (fun (p : Fin n × Fin n) _=>(pair_memLp p.1 p.2 2).const_mul (A p.1 p.2))
+   apply MemLp.ae_eq (hf_Lp:=hh)
+   exact Filter.Eventually.of_forall (fun z=>by simp)
+ 
+@@ -883,8 +899,40 @@
+ open TraceEstimation TraceEstimation.Hutchinson
+ open MeasureTheory ProbabilityTheory Real Matrix
+ 
+-theorem solution {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ)
++theorem _root_.Prove2me.Solution.TraceEstimation_Hutchinson_hutchinson_estimator_approximator {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ)
+     (hA : A.PosSemidef) (ε δ : ℝ) (hε : 0 < ε) (hε' : ε ≤ 1 / 2) (hδ : 0 < δ) (hδ' : δ < 1)
+     (M : ℕ) (hM : 0 < M) (hMbound : 6 * ε⁻¹ ^ 2 * Real.log (2 * (A.rank : ℝ) / δ) ≤ (M : ℝ)) :
+     Shared.IsApproximator (hutchinsonSampleMeasure n M) (hutchinsonEstimator A M) A ε δ := by
+   exact HutchinsonProof.main_bound A hA ε δ hε hε' hδ hδ' M hM hMbound
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace TraceEstimation.Hutchinson
++
++open MeasureTheory ProbabilityTheory Matrix
++
++/-- Theorem 7.1 (Avron–Toledo, p. 8:10; proof p. 8:11), in the corrected form its proof
++establishes. Let `A` be an `n × n` symmetric positive semi-definite matrix, `0 < ε ≤ 1/2`,
++`0 < δ < 1`. For every natural `M ≥ 1` with `M ≥ 6 ε⁻² ln(2 rank(A)/δ)`, Hutchinson's
++estimator `H_M` is an `(ε, δ)`-approximator of `trace(A)`.
++The paper prints no range for `ε`; its proof (p. 8:11) needs `ε ≤ 1/2`, and without a range
++the statement is false (`A = (1/n) 𝟙𝟙ᵀ`, `n = 10⁴`, `ε = 10`, `δ = 10⁻⁴` allows `M = 1`,
++while `Pr(H_1 > 11) ≈ 9·10⁻⁴ > δ`).
++For `A = 0` (rank `0`) Lean's `Real.log 0 = 0` makes the sample condition `M ≥ 0`, matching
++the paper's `ln 0 = -∞`; the conclusion then holds because `H_M = trace(A) = 0`. -/
++theorem hutchinson_estimator_approximator {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ)
++    (hA : A.PosSemidef) (ε δ : ℝ) (hε : 0 < ε) (hε' : ε ≤ 1 / 2) (hδ : 0 < δ) (hδ' : δ < 1)
++    (M : ℕ) (hM : 0 < M) (hMbound : 6 * ε⁻¹ ^ 2 * Real.log (2 * (A.rank : ℝ) / δ) ≤ (M : ℝ)) :
++    Shared.IsApproximator (hutchinsonSampleMeasure n M) (hutchinsonEstimator A M) A ε δ := by
++  first
++  | exact _root_.Prove2me.Solution.TraceEstimation_Hutchinson_hutchinson_estimator_approximator A hA ε δ hε hε' hδ hδ' M hM hMbound
++  | (apply _root_.Prove2me.Solution.TraceEstimation_Hutchinson_hutchinson_estimator_approximator <;> assumption)
++
++end TraceEstimation.Hutchinson
++
++
++end Prove2meStatement

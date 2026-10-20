@@ -1,0 +1,62 @@
+--- Downloads/unfer-sirk/OAI.FiniteBlock.exp_spectral.lean
++++ converted/Prove2me/UnferSirk/OAI_FiniteBlock_exp_spectral.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : a04086a6-0b6a-494e-b5b9-8b3d11819457
++* original name       : `OAI.FiniteBlock.exp_spectral`
++* title               : Spectral formula for the exponential of a Hermitian matrix
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 42ccb509-ca12-4793-af71-713f0cfb969e,
++                        accepted 2026-10-16T06:49:02.906002+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/FiniteVariation.lean#L143-L159
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/OAI.FiniteBlock.exp_spectral.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_FiniteBlock_exp_spectral.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/FiniteVariation.lean:L143-L159
+ -- (upload_full_project.md Phase 4): solution for node OAI.FiniteBlock.exp_spectral. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -493,4 +510,37 @@
+ open scoped Matrix.Norms.Operator
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.FiniteBlock.exp_spectral := @_root_.OAI.FiniteBlock.exp_spectral
++theorem _root_.Prove2me.Solution.OAI_FiniteBlock_exp_spectral : type_of% @_root_.OAI.FiniteBlock.exp_spectral := @_root_.OAI.FiniteBlock.exp_spectral
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.FiniteBlock.exp_spectral` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.FiniteBlock
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped BigOperators
++open MvPolynomial
++open scoped BigOperators ComplexConjugate Classical
++open Submodule
++open scoped ENNReal
++open Module
++open scoped ComplexConjugate BigOperators Matrix
++open NormedSpace Matrix
++open scoped Matrix.Norms.Operator
++variable {I : Type*} [Fintype I] [DecidableEq I]
++
++example (M : Matrix I I ℂ) (hM : M.IsHermitian) :
++    exp M = (hM.eigenvectorUnitary : Matrix I I ℂ) *
++      Matrix.diagonal (fun i => (Real.exp (hM.eigenvalues i) : ℂ)) *
++      star (hM.eigenvectorUnitary : Matrix I I ℂ) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_FiniteBlock_exp_spectral M hM
++  | (apply _root_.Prove2me.Solution.OAI_FiniteBlock_exp_spectral <;> assumption)
++
++
++end Prove2meStatement

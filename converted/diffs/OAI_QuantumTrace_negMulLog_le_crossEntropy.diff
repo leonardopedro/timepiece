@@ -1,0 +1,56 @@
+--- Downloads/unfer-bayes/OAI.QuantumTrace.negMulLog_le_crossEntropy.lean
++++ converted/Prove2me/UnferBayes/OAI_QuantumTrace_negMulLog_le_crossEntropy.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 63413033-e925-4bec-9cbe-c8ae5265f466
++* original name       : `OAI.QuantumTrace.negMulLog_le_crossEntropy`
++* title               : Pointwise Gibbs inequality $-p\log p\le q-p-p\log q$
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 9d2af639-4d13-4eb4-ac4f-2dfedee1918f,
++                        accepted 2026-10-16T03:15:17.656903+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/Analysis/QuantumTrace/Basic.lean#L475-L488
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/OAI.QuantumTrace.negMulLog_le_crossEntropy.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_QuantumTrace_negMulLog_le_crossEntropy.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/Analysis/QuantumTrace/Basic.lean:L484-L497
+ -- (upload_full_project.md Phase 4): solution for node OAI.QuantumTrace.negMulLog_le_crossEntropy. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -6,6 +23,7 @@
+ import Definitions.Def_EntropyPhotonNumber
+ import Definitions.Def_OAI_MathematicalPhysics_Fock_Beam
+ import Definitions.Def_OAI_Analysis_QuantumTrace_Basic
++import Prove2me.Shim.Misc  -- conversion shim (platform Mathlib API)
+ 
+ -- ---- from OAI.Analysis.QuantumTrace.Basic ----
+ -- Lean 4.34 name (arguments swapped) of CStarAlgebra.norm_le_norm_of_nonneg_of_le in Mathlib 0df444a.
+@@ -191,4 +209,23 @@
+ open MeasureTheory
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.QuantumTrace.negMulLog_le_crossEntropy := @_root_.OAI.QuantumTrace.negMulLog_le_crossEntropy
++theorem _root_.Prove2me.Solution.OAI_QuantumTrace_negMulLog_le_crossEntropy : type_of% @_root_.OAI.QuantumTrace.negMulLog_le_crossEntropy := @_root_.OAI.QuantumTrace.negMulLog_le_crossEntropy
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.QuantumTrace.negMulLog_le_crossEntropy` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.QuantumTrace
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++
++example {p q : ℝ} (hp : 0 ≤ p) (hq : 0 < q) :
++    Real.negMulLog p ≤ q - p + p * (-Real.log q) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_QuantumTrace_negMulLog_le_crossEntropy hp hq
++  | (apply _root_.Prove2me.Solution.OAI_QuantumTrace_negMulLog_le_crossEntropy <;> assumption)
++
++
++end Prove2meStatement

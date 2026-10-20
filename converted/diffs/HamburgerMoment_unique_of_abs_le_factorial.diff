@@ -1,0 +1,67 @@
+--- Downloads/analytic-nt/HamburgerMoment.unique_of_abs_le_factorial.lean
++++ converted/Prove2me/AnalyticNt/HamburgerMoment_unique_of_abs_le_factorial.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 8aa3486d-502d-4cfe-a31d-fe2045be08fa
++* original name       : `HamburgerMoment.unique_of_abs_le_factorial`
++* title               : Uniqueness under the growth bound $|m_n|\le CD^nn!$
++* statement author    : Lucas
++* solution author     : fizzyinc3 (submission 97c65ba2-a392-4d5d-859e-a334fcc19635,
++                        accepted 2026-10-17T13:12:56.425162+00:00)
++* source              : Wikipedia, "Hamburger moment problem", revision oldid=1356180072, https://en.wikipedia.org/w/index.php?title=Hamburger_moment_problem&oldid=1356180072, section "Uniqueness of solutions", sentence "More generally, the solution is unique if there are constants C and D such that, for all n, |mn| ≤ CD^n n! (Reed & Simon 1975, p. 205)"
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/analytic-nt/HamburgerMoment.unique_of_abs_le_factorial.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/HamburgerMoment_unique_of_abs_le_factorial.diff`.
++-/
+ import Definitions.Def_HamburgerMoment_Defs
+ 
+ open MeasureTheory ProbabilityTheory Filter Set
+@@ -69,7 +86,7 @@
+   have ht'' := (lt_div_iff₀ hd).mp ht'
+   nlinarith [abs_nonneg t, abs_nonneg D]
+ 
+-theorem solution (m : ℕ → ℝ) (C D : ℝ)
++theorem _root_.Prove2me.Solution.HamburgerMoment_unique_of_abs_le_factorial (m : ℕ → ℝ) (C D : ℝ)
+     (hCD : ∀ n : ℕ, |m n| ≤ C * D ^ n * (n.factorial : ℝ))
+     (μ ν : Measure ℝ) (hμ : HamburgerMoment.IsMomentMeasure m μ)
+     (hν : HamburgerMoment.IsMomentMeasure m ν) : μ = ν := by
+@@ -94,6 +111,7 @@
+       iteratedDeriv_complexMGF (by simpa using hν0)]
+     simp only [Function.id_def, zero_mul, Complex.exp_zero, mul_one]
+     norm_cast
++    rw [integral_complex_ofReal, integral_complex_ofReal]  -- conversion
+     rw [(hμ n).2, (hν n).2]
+   have hps := (analyticAt_complexMGF (X := id) (μ := μ) (by simpa using hμ0 :
+     (0 : ℂ).re ∈ interior (integrableExpSet id μ))).hasFPowerSeriesAt
+@@ -121,3 +139,26 @@
+   apply heq
+   change -r < ((t : ℂ) * Complex.I).re ∧ ((t : ℂ) * Complex.I).re < r
+   simpa using (show -r < (0 : ℝ) ∧ (0 : ℝ) < r from ⟨by linarith, hr⟩)
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory
++
++namespace HamburgerMoment
++
++theorem unique_of_abs_le_factorial (m : ℕ → ℝ) (C D : ℝ)
++    (hCD : ∀ n : ℕ, |m n| ≤ C * D ^ n * (n.factorial : ℝ))
++    (μ ν : Measure ℝ) (hμ : IsMomentMeasure m μ) (hν : IsMomentMeasure m ν) :
++    μ = ν := by
++  first
++  | exact _root_.Prove2me.Solution.HamburgerMoment_unique_of_abs_le_factorial m C D hCD μ ν hμ hν
++  | (apply _root_.Prove2me.Solution.HamburgerMoment_unique_of_abs_le_factorial <;> assumption)
++
++end HamburgerMoment
++
++
++end Prove2meStatement

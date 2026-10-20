@@ -1,0 +1,54 @@
+--- Downloads/arctic-crypto/SchnorrGrp.completeness.lean
++++ converted/Prove2me/ArcticCrypto/SchnorrGrp_completeness.lean
+@@ -1,6 +1,24 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : b078fc52-f86e-4de1-8628-d6194b4a0657
++* original name       : `SchnorrGrp.completeness`
++* title               : Completeness.
++* statement author    : raver1975
++* solution author     : raver1975 (submission 512513a6-dd37-4e4e-ba3d-ecda7ca5569b,
++                        accepted 2026-09-12T07:01:05.280988+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean#L136
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/arctic-crypto/SchnorrGrp.completeness.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/SchnorrGrp_completeness.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupProtocol
++
+ /-
+ Copyright (c) 2026 Harmonic. All rights reserved.
+ Released under Apache 2.0 license as described in the file LICENSE.
+@@ -98,7 +116,25 @@
+ 
+ 
+ open SchnorrGrp in
+-theorem solution[NeZero q] {g : G} (hg : g ^ q = 1) (x r c : ZMod q) :
++theorem _root_.Prove2me.Solution.SchnorrGrp_completeness[NeZero q] {g : G} (hg : g ^ q = 1) (x r c : ZMod q) :
+     Accepts g (gexp g x) (honest g x r c) := by
+   show gexp g (r + c * x) = gexp g r * gexp (gexp g x) c
+   rw [gexp_add hg, mul_comm c x, gexp_mul hg]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open SchnorrGrp
++variable {G : Type*} [CommGroup G] {q : ℕ}
++
++theorem SchnorrGrp.completeness[NeZero q] {g : G} (hg : g ^ q = 1) (x r c : ZMod q) :
++    Accepts g (gexp g x) (honest g x r c) := by
++  first
++  | exact _root_.Prove2me.Solution.SchnorrGrp_completeness hg x r c
++  | (apply _root_.Prove2me.Solution.SchnorrGrp_completeness <;> assumption)
++
++
++end Prove2meStatement

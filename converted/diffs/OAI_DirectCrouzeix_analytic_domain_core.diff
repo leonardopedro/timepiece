@@ -1,0 +1,200 @@
+--- Downloads/unfer-sirk/OAI.DirectCrouzeix.analytic_domain_core.lean
++++ converted/Prove2me/UnferSirk/OAI_DirectCrouzeix_analytic_domain_core.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : eeacfdd7-b85b-4515-a46e-8194e7667620
++* original name       : `OAI.DirectCrouzeix.analytic_domain_core`
++* title               : Norm bound $\|F(A)\|\le 2$ for tensor matrix polynomials from a positive boundary representation of $A$
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission fe678ecd-c1b4-44d7-ba2a-38ba57a6ae02,
++                        accepted 2026-10-18T07:01:32.560489+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/Analysis/DirectCrouzeix/DomainCore.lean#L15-L117
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/OAI.DirectCrouzeix.analytic_domain_core.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_DirectCrouzeix_analytic_domain_core.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/Analysis/DirectCrouzeix/DomainCore.lean:L15-L117
+ -- (upload_full_project.md Phase 4): solution for node OAI.DirectCrouzeix.analytic_domain_core. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -13,9 +30,9 @@
+ import Definitions.Def_OAI_Analysis_DirectCrouzeix_CircleFourier
+ import Definitions.Def_OAI_Analysis_DirectCrouzeix_BoundaryEnergy
+ import Definitions.Def_OAI_Analysis_DirectCrouzeix_PolynomialEnergy
+-import Theorems.Thm_OAI_DirectCrouzeix_cross_boundary_estimate
++import Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate  -- was `Theorems.Thm_OAI_DirectCrouzeix_cross_boundary_estimate`
+ import Theorems.Thm_OAI_DirectCrouzeix_exists_singular_pair
+-import Theorems.Thm_OAI_DirectCrouzeix_positive_block_hsSq
++import Prove2me.CrouzeixConvex.OAI_DirectCrouzeix_positive_block_hsSq  -- was `Theorems.Thm_OAI_DirectCrouzeix_positive_block_hsSq`
+ import Theorems.Thm_OAI_DirectCrouzeix_singular_diagonal_estimates
+ 
+ -- ---- from OAI.Analysis.DirectCrouzeix.PositiveBlocks ----
+@@ -31,9 +48,13 @@
+ 
+ open scoped MatrixOrder ComplexOrder
+ 
++-- conversion: `hsSq_nonneg` is already declared, identically, by the imported converted module
++-- `Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate`; the duplicate is commented out.
++/-
+ theorem hsSq_nonneg {ι : Type u_3} {κ : Type u_4} [Fintype ι] [Fintype κ]
+     (M : Matrix ι κ ℂ) : 0 ≤ hsSq M := by
+   exact (Complex.nonneg_iff.mp (Matrix.posSemidef_conjTranspose_mul_self M).trace_nonneg).1
++-/
+ 
+ end DirectCrouzeix
+ 
+@@ -55,9 +76,13 @@
+ 
+ open scoped MatrixOrder ComplexOrder
+ 
++-- conversion: `hsSq_eq_norm_hsVector_sq` is already declared, identically, by the imported converted module
++-- `Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate`; the duplicate is commented out.
++/-
+ theorem hsSq_eq_norm_hsVector_sq {ι : Type u_12} {κ : Type u_13} [Fintype ι] [Fintype κ]
+     (M : Matrix ι κ ℂ) : hsSq M = ‖hsVector M‖ ^ 2 := by
+   simp [hsSq_eq_sum_norm_sq, EuclideanSpace.norm_sq_eq, hsVector, Fintype.sum_prod_type]
++-/
+ 
+ theorem hsSq_conjTranspose {ι : Type u_14} {κ : Type u_15} [Fintype ι] [Fintype κ]
+     (M : Matrix ι κ ℂ) : hsSq Mᴴ = hsSq M := by
+@@ -125,12 +150,19 @@
+ 
+ open MeasureTheory
+ 
++-- conversion: `continuous_integrable_compact` is already declared, identically, by the imported converted module
++-- `Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate`; the duplicate is commented out.
++/-
+ theorem continuous_integrable_compact {α : Type u_47} {E : Type u_48} [TopologicalSpace α]
+     [MeasurableSpace α] [OpensMeasurableSpace α] [CompactSpace α]
+     [NormedAddCommGroup E] (μ : Measure α) [IsFiniteMeasure μ]
+     {f : α → E} (hf : Continuous f) : Integrable f μ :=
+   hf.integrable_of_hasCompactSupport (HasCompactSupport.of_compactSpace f)
+-
++-/
++
++-- conversion: `scalar_circle_parseval` is already declared, identically, by the imported converted module
++-- `Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate`; the duplicate is commented out.
++/-
+ theorem scalar_circle_parseval (f : BoundaryCircle → ℂ) (hf : Continuous f) :
+     HasSum (fun k : ℤ => ‖fourierCoeff f k‖ ^ 2)
+       (∫ t, ‖f t‖ ^ 2 ∂circleMeasure) := by
+@@ -145,14 +177,22 @@
+     rw [ht]
+     rfl
+   rwa [hi] at h
+-
++-/
++
++-- conversion: `fourierCoeff_euclidean_apply` is already declared, identically, by the imported converted module
++-- `Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate`; the duplicate is commented out.
++/-
+ theorem fourierCoeff_euclidean_apply {ι : Type u_55} [Fintype ι]
+     (f : BoundaryCircle → EuclideanSpace ℂ ι) (hf : Continuous f)
+     (k : ℤ) (i : ι) : (fourierCoeff f k) i = fourierCoeff (fun t => f t i) k := by
+   have hi : Integrable (fun t => fourier (-k) t • f t) circleMeasure :=
+     (continuous_integrable_compact _ hf).fourier_smul _
+   exact ((EuclideanSpace.proj i).integral_comp_comm hi).symm
+-
++-/
++
++-- conversion: `euclidean_circle_parseval` is already declared, identically, by the imported converted module
++-- `Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate`; the duplicate is commented out.
++/-
+ theorem euclidean_circle_parseval {ι : Type u_56} [Fintype ι]
+     (f : BoundaryCircle → EuclideanSpace ℂ ι) (hf : Continuous f) :
+     HasSum (fun k : ℤ => ‖fourierCoeff f k‖ ^ 2)
+@@ -165,8 +205,9 @@
+   have hi (i : ι) : Integrable (fun t => ‖f t i‖ ^ 2) circleMeasure :=
+     continuous_integrable_compact _
+       (((PiLp.continuous_apply 2 (fun _ : ι => ℂ) i).comp hf).norm.pow 2)
+-  rw [integral_finsetSum Finset.univ (fun i _ => hi i)]
++  rw [integral_finset_sum Finset.univ (fun i _ => hi i)]
+   exact hs
++-/
+ 
+ theorem continuous_hsSq {ι : Type u_61} {κ : Type u_62} [Fintype ι] [Fintype κ] :
+     Continuous (hsSq : Matrix ι κ ℂ → ℝ) := by
+@@ -174,6 +215,9 @@
+   simp_rw [hsSq_eq_norm_hsVector_sq]
+   exact hsCLM.continuous.norm.pow 2
+ 
++-- conversion: `fourierCoeff_clm` is already declared, identically, by the imported converted module
++-- `Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate`; the duplicate is commented out.
++/-
+ theorem fourierCoeff_clm {E : Type u_63} {F : Type u_64} [NormedAddCommGroup E] [NormedSpace ℂ E]
+     [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace E] [CompleteSpace F]
+     (L : E →L[ℂ] F) (f : BoundaryCircle → E) (hf : Continuous f) (k : ℤ) :
+@@ -181,7 +225,11 @@
+   unfold fourierCoeff
+   simp_rw [← map_smul]
+   exact L.integral_comp_comm ((continuous_integrable_compact _ hf).fourier_smul _)
+-
++-/
++
++-- conversion: `matrix_circle_parseval` is already declared, identically, by the imported converted module
++-- `Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate`; the duplicate is commented out.
++/-
+ theorem matrix_circle_parseval {ι : Type u_65} {κ : Type u_66} [Fintype ι] [Fintype κ]
+     [DecidableEq ι] [DecidableEq κ]
+     (f : BoundaryCircle → Matrix ι κ ℂ) (hf : Continuous f) :
+@@ -190,11 +238,16 @@
+   have hp := euclidean_circle_parseval (fun t => hsCLM (f t)) (hsCLM.continuous.comp hf)
+   simp_rw [fourierCoeff_clm hsCLM f hf, hsCLM_apply, ← hsSq_eq_norm_hsVector_sq] at hp
+   exact hp
+-
++-/
++
++-- conversion: `fourierCoeff_compression` is already declared, identically, by the imported converted module
++-- `Prove2me.UnferSirk.OAI_DirectCrouzeix_cross_boundary_estimate`; the duplicate is commented out.
++/-
+ theorem fourierCoeff_compression {n m : ℕ} (X Y : Matrix (Fin n) (Fin m) ℂ)
+     (R : BoundaryCircle → Matrix (Fin n) (Fin n) ℂ) (hR : Continuous R) (k : ℤ) :
+     fourierCoeff (fun t => Yᴴ * R t * X) k = Yᴴ * fourierCoeff R k * X :=
+   fourierCoeff_clm (compressionCLM X Y) R hR k
++-/
+ 
+ theorem fourierCoeff_star_matrix {ι : Type u_71} {κ : Type u_72} [Fintype ι] [Fintype κ]
+     [DecidableEq ι] [DecidableEq κ]
+@@ -448,4 +501,37 @@
+ open MeasureTheory
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.DirectCrouzeix.analytic_domain_core := @_root_.OAI.DirectCrouzeix.analytic_domain_core
++theorem _root_.Prove2me.Solution.OAI_DirectCrouzeix_analytic_domain_core : type_of% @_root_.OAI.DirectCrouzeix.analytic_domain_core := @_root_.OAI.DirectCrouzeix.analytic_domain_core
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.DirectCrouzeix.analytic_domain_core` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.DirectCrouzeix
++open scoped Matrix Matrix.Norms.L2Operator Kronecker
++open scoped MatrixOrder ComplexOrder
++open MeasureTheory
++
++example {n m : ℕ} (hn : 0 < n) (hm : 0 < m)
++    (A : Matrix (Fin n) (Fin n) ℂ) (b : ℕ → Polynomial ℂ) (hb0 : b 0 = 1)
++    (h : BoundaryCircle → ℂ) (hh : Continuous h)
++    (hexpand : ∀ G : MatrixPolynomial m, ∃ (N : ℕ) (C : Fin N → Matrix (Fin m) (Fin m) ℂ),
++      G = faberPolynomial b C)
++    (hlower : ∀ N (C : Fin N → Matrix (Fin m) (Fin m) ℂ),
++      ∑ k, hsSq (C k) ≤ polynomialEnergy h (faberPolynomial b C))
++    (hupper : ∀ N (C : Fin N → Matrix (Fin m) (Fin m) ℂ),
++      polynomialEnergy h (faberPolynomial b C) ≤ ∑ k : Fin N, faberWeight k * hsSq (C k))
++    (R : BoundaryCircle → Matrix (Fin n) (Fin n) ℂ) (hR : Continuous R)
++    (hcoeff : ∀ k : ℕ, fourierCoeff R (-(k : ℤ)) = Polynomial.aeval A (b k))
++    (hposfreq : ∀ k : ℤ, 0 < k → fourierCoeff R k = 0)
++    (hpositive : ∀ t, (R t + (R t)ᴴ).PosSemidef)
++    (F : MatrixPolynomial m) (hF : ∀ t, ‖matrixPolynomialValue (h t) F‖ ≤ 1) :
++    ‖tensorPolynomial A F‖ ≤ 2 := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_DirectCrouzeix_analytic_domain_core hn hm A b hb0 h hh hexpand hlower hupper R hR hcoeff hposfreq hpositive F hF
++  | (apply _root_.Prove2me.Solution.OAI_DirectCrouzeix_analytic_domain_core <;> assumption)
++
++
++end Prove2meStatement

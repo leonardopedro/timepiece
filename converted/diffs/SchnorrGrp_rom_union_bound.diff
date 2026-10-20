@@ -1,0 +1,67 @@
+--- Downloads/arctic-crypto/SchnorrGrp.rom_union_bound.lean
++++ converted/Prove2me/ArcticCrypto/SchnorrGrp_rom_union_bound.lean
+@@ -1,9 +1,27 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : abac25ec-a447-448c-a2a9-690ebe5c2a28
++* original name       : `SchnorrGrp.rom_union_bound`
++* title               : Union bound over `Q` random-oracle queries.
++* statement author    : raver1975
++* solution author     : raver1975 (submission c06aef33-9c08-4c42-9a7b-10222bf14f8f,
++                        accepted 2026-09-12T07:04:39.24426+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/SchnorrGroupFiatShamir.lean#L213
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/arctic-crypto/SchnorrGrp.rom_union_bound.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/SchnorrGrp_rom_union_bound.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/SchnorrGroupFiatShamir.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupFiatShamir
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupProtocol
+-import Theorems.Thm_SchnorrGrp_accepting_challenges_card_le_one
+-import Theorems.Thm_SchnorrGrp_card_filter_apply_eq
++import Prove2me.ArcticCrypto.SchnorrGrp_accepting_challenges_card_le_one  -- was `Theorems.Thm_SchnorrGrp_accepting_challenges_card_le_one`
++import Prove2me.ArcticCrypto.SchnorrGrp_card_filter_apply_eq  -- was `Theorems.Thm_SchnorrGrp_card_filter_apply_eq`
++
+ /-
+ Copyright (c) 2026 Harmonic. All rights reserved.
+ Released under Apache 2.0 license as described in the file LICENSE.
+@@ -74,7 +92,7 @@
+ 
+ open SchnorrGrp in
+ open scoped Classical in
+-theorem solution[Fact q.Prime] {g pub : G} (hpub : pub ^ q = 1) (hpub1 : pub ≠ 1)
++theorem _root_.Prove2me.Solution.SchnorrGrp_rom_union_bound[Fact q.Prime] {g pub : G} (hpub : pub ^ q = 1) (hpub1 : pub ≠ 1)
+     (Q : ℕ) (a : Fin Q → G) (z : Fin Q → ZMod q) :
+     ((Finset.univ.filter (fun f : Fin Q → ZMod q =>
+         ∃ i, Accepts g pub ⟨a i, f i, z i⟩)).card : ℚ)
+@@ -121,3 +139,25 @@
+   rw [div_le_div_iff₀ hNpos hq]
+   have : (S.card : ℚ) * q ≤ Q * N := by exact_mod_cast hcard
+   linarith
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open SchnorrGrp
++variable {G : Type*} [CommGroup G] {q : ℕ} {M : Type*}
++open scoped Classical in
++
++theorem SchnorrGrp.rom_union_bound[Fact q.Prime] {g pub : G} (hpub : pub ^ q = 1) (hpub1 : pub ≠ 1)
++    (Q : ℕ) (a : Fin Q → G) (z : Fin Q → ZMod q) :
++    ((Finset.univ.filter (fun f : Fin Q → ZMod q =>
++        ∃ i, Accepts g pub ⟨a i, f i, z i⟩)).card : ℚ)
++        / (Fintype.card (Fin Q → ZMod q)) ≤ Q / q := by
++  first
++  | exact _root_.Prove2me.Solution.SchnorrGrp_rom_union_bound hpub hpub1 Q a z
++  | (apply _root_.Prove2me.Solution.SchnorrGrp_rom_union_bound <;> assumption)
++
++
++end Prove2meStatement

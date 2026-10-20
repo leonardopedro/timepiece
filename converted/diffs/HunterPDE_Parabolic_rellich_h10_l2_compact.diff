@@ -1,0 +1,50 @@
+--- Downloads/operator-qm/HunterPDE.Parabolic.rellich_h10_l2_compact.lean
++++ converted/Prove2me/OperatorQm/HunterPDE_Parabolic_rellich_h10_l2_compact.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : d4ae989b-a7a8-4f53-b5bc-0128c73b3708
++* original name       : `HunterPDE.Parabolic.rellich_h10_l2_compact`
++* title               : Rellich: for bounded open $\Omega$ the embedding $H^1_0(\Omega)\hookrightarrow L^2(\Omega)$ is compact
++* statement author    : Nickrobbins95
++* solution author     : Nickrobbins95 (submission ce7f5b36-2cfd-4afb-8343-e973c490a644,
++                        accepted 2026-10-17T10:36:03.446843+00:00)
++* source              : L. C. Evans, Partial Differential Equations, 2nd ed., AMS Graduate Studies in Mathematics 19 (2010), doi:10.1090/gsm/019, §5.7, Theorem 1 (Rellich–Kondrachov Compactness Theorem) and the remark after it (W^{1,p}_0(U) ⊂⊂ L^p(U) for bounded open U, no C^1 boundary needed), p. 286; used for the Dirichlet eigenbasis (6.15) in Hunter, Notes on Partial Differential Equations (revised 6/18/2014), https://www.math.ucdavis.edu/~hunter/pdes/pde_notes.pdf, proof of Theorem 6.3, p. 181
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/operator-qm/HunterPDE.Parabolic.rellich_h10_l2_compact.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/HunterPDE_Parabolic_rellich_h10_l2_compact.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_HunterPDE_Parabolic_H10
+ 
+@@ -662,6 +679,25 @@
+ end
+ 
+ open MeasureTheory HunterPDE.Parabolic in
+-theorem solution {n : ℕ} (Ω : Set (EuclideanSpace ℝ (Fin n))) (hΩo : IsOpen Ω)
++theorem _root_.Prove2me.Solution.HunterPDE_Parabolic_rellich_h10_l2_compact {n : ℕ} (Ω : Set (EuclideanSpace ℝ (Fin n))) (hΩo : IsOpen Ω)
+     (hΩb : Bornology.IsBounded Ω) : IsCompactOperator (toL2L n Ω) :=
+   toL2L_isCompactOperator Ω hΩo hΩb
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace HunterPDE.Parabolic
++
++theorem rellich_h10_l2_compact {n : ℕ} (Ω : Set (EuclideanSpace ℝ (Fin n))) (hΩo : IsOpen Ω)
++    (hΩb : Bornology.IsBounded Ω) : IsCompactOperator (toL2L n Ω) := by
++  first
++  | exact _root_.Prove2me.Solution.HunterPDE_Parabolic_rellich_h10_l2_compact Ω hΩo hΩb
++  | (apply _root_.Prove2me.Solution.HunterPDE_Parabolic_rellich_h10_l2_compact <;> assumption)
++
++end HunterPDE.Parabolic
++
++
++end Prove2meStatement

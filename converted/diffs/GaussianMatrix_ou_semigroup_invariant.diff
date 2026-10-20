@@ -1,0 +1,61 @@
+--- Downloads/unfer-bayes/GaussianMatrix.ou_semigroup_invariant.lean
++++ converted/Prove2me/UnferBayes/GaussianMatrix_ou_semigroup_invariant.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 504ceb37-906c-42ce-b475-d350aa6b3102
++* original name       : `GaussianMatrix.ou_semigroup_invariant`
++* title               : Invariance of $N(0,1)$ under the Ornstein–Uhlenbeck semigroup: $\int P_th\,d\gamma=\int h\,d\gamma$
++* statement author    : tc
++* solution author     : tc (submission 02938562-e07c-4b07-8bc2-690ca8b5dc34,
++                        accepted 2026-10-09T08:22:48.235978+00:00)
++* source              : Standard fact: if $X,Y$ are independent $N(0,1)$ random variables and $a^2+b^2=1$ then $aX+bY\sim N(0,1)$; hence $\gamma$ is invariant for the Ornstein–Uhlenbeck semigroup. See D. Bakry, I. Gentil, M. Ledoux, Analysis and Geometry of Markov Diffusion Operators (Springer, 2014), §2.7.1 (cited from memory).
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/GaussianMatrix.ou_semigroup_invariant.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/GaussianMatrix_ou_semigroup_invariant.diff`.
++-/
+ import Definitions.Def_GaussianMatrix_basic
+ 
+ open MeasureTheory ProbabilityTheory
+@@ -41,7 +58,7 @@
+ 
+ open GaussianMatrix
+ 
+-theorem solution (h : ℝ → ℝ) (hh : Integrable h (gaussianReal 0 1)) (t : ℝ)
++theorem _root_.Prove2me.Solution.GaussianMatrix_ou_semigroup_invariant (h : ℝ → ℝ) (hh : Integrable h (gaussianReal 0 1)) (t : ℝ)
+     (ht : 0 ≤ t) :
+     ∫ x, (∫ y, h (Real.exp (-t) * x + Real.sqrt (1 - Real.exp (-(2 * t))) * y)
+         ∂(gaussianReal 0 1)) ∂(gaussianReal 0 1)
+@@ -50,3 +67,28 @@
+   have h1 : Real.exp (-(2 * t)) ≤ 1 := Real.exp_le_one_iff.2 (by linarith)
+   rw [Real.sq_sqrt (by linarith), sq, ← Real.exp_add]
+   ring_nf
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory
++open scoped Matrix
++
++namespace GaussianMatrix
++
++theorem ou_semigroup_invariant (h : ℝ → ℝ) (hh : Integrable h (gaussianReal 0 1)) (t : ℝ)
++    (ht : 0 ≤ t) :
++    ∫ x, (∫ y, h (Real.exp (-t) * x + Real.sqrt (1 - Real.exp (-(2 * t))) * y)
++        ∂(gaussianReal 0 1)) ∂(gaussianReal 0 1)
++      = ∫ x, h x ∂(gaussianReal 0 1) := by
++  first
++  | exact _root_.Prove2me.Solution.GaussianMatrix_ou_semigroup_invariant h hh t ht
++  | (apply _root_.Prove2me.Solution.GaussianMatrix_ou_semigroup_invariant <;> assumption)
++
++end GaussianMatrix
++
++
++end Prove2meStatement

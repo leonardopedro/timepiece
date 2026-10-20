@@ -1,0 +1,85 @@
+--- Downloads/operator-qm/TeschlQM.Free.free_selfAdjoint_spectrum.lean
++++ converted/Prove2me/OperatorQm/TeschlQM_Free_free_selfAdjoint_spectrum.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 2a4df184-d244-4ef4-870e-4fb07d202c4e
++* original name       : `TeschlQM.Free.free_selfAdjoint_spectrum`
++* title               : Theorem 7.8 — H₀ is self-adjoint, σ(H₀) = σ_ac(H₀) = [0, ∞), σ_sc(H₀) = σ_pp(H₀) = ∅
++* statement author    : mikedeng1
++* solution author     : Nickrobbins95 (submission a7931cf2-502c-4776-bc45-46e32aeb363a,
++                        accepted 2026-10-08T16:23:49.850384+00:00)
++* source              : Teschl, Mathematical Methods in Quantum Mechanics, AMS GSM 99, 2009, p. 168, Theorem 7.8
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/operator-qm/TeschlQM.Free.free_selfAdjoint_spectrum.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/TeschlQM_Free_free_selfAdjoint_spectrum.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_TeschlQM_Free_freeHamiltonian
+ import Definitions.Def_TeschlQM_Shared_resolventSet
+@@ -273,7 +290,7 @@
+     refine ⟨EuclideanSpace.single (⟨0, hn⟩ : Fin n) (Real.sqrt t / (2 * Real.pi)), ?_⟩
+     show |4 * Real.pi ^ 2 * ‖EuclideanSpace.single (⟨0, hn⟩ : Fin n)
+       (Real.sqrt t / (2 * Real.pi))‖ ^ 2 - t| < ε
+-    rw [PiLp.norm_single, Real.norm_eq_abs, sq_abs, div_pow, Real.sq_sqrt ht]
++    rw [EuclideanSpace.norm_single, Real.norm_eq_abs, sq_abs, div_pow, Real.sq_sqrt ht]
+     have : 4 * Real.pi ^ 2 * (t / (2 * Real.pi) ^ 2) - t = 0 := by
+       field_simp; ring
+     rw [this, abs_zero]; exact hε0
+@@ -439,7 +456,7 @@
+ end P2a4df184
+ 
+ open TeschlQM.Free MeasureTheory InnerProductSpace in
+-theorem solution (n : ℕ) (hn : 0 < n) :
++theorem _root_.Prove2me.Solution.TeschlQM_Free_free_selfAdjoint_spectrum (n : ℕ) (hn : 0 < n) :
+     IsSelfAdjoint (freeHamiltonian n) ∧
+       TeschlQM.Shared.spectrum (freeHamiltonian n) = (fun t : ℝ => (t : ℂ)) '' Set.Ici 0 ∧
+       ∀ ψ : Lp ℂ 2 (volume : Measure (EuclideanSpace ℝ (Fin n))),
+@@ -474,3 +491,43 @@
+       simp at hzim
+     rw [P2a4df184.resolvent_unique _ _ _ _ hR (P2a4df184.isResolvent_Rz hz),
+       P2a4df184.inner_Rz hz, hint z]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace TeschlQM.Free
++
++open MeasureTheory
++open scoped InnerProductSpace
++
++/-- Teschl, Theorem 7.8, p. 168: the free Schrödinger operator `H₀` is self-adjoint and
++`σ(H₀) = σ_ac(H₀) = [0, ∞)`, `σ_sc(H₀) = σ_pp(H₀) = ∅` (7.25).
++
++The spectral-type part is stated as the book's proof reduces it (p. 168): for every `ψ` the
++spectral measure `μ_ψ` of `H₀` is purely absolutely continuous. `μ_ψ` is characterized
++intrinsically, as the finite Borel measure whose Borel transform is `⟨ψ, R_{H₀}(z) ψ⟩` for every
++nonreal `z` (Theorem 3.6 / (3.20)), with `R_{H₀}(z)` the resolvent of p. 73; a finite measure is
++determined by its Borel transform, so `μ` is `μ_ψ`. With `σ(H₀) = [0, ∞)` this gives
++`ℌ_ac = ℌ`, i.e. `σ_ac(H₀) = [0, ∞)` and `σ_sc(H₀) = σ_pp(H₀) = ∅`. `σ(H₀)` is the resolvent
++spectrum of p. 73, not an essential range. `n ≥ 1`: for `n = 0`, `H₀ = 0` on `ℂ`. -/
++theorem free_selfAdjoint_spectrum (n : ℕ) (hn : 0 < n) :
++    IsSelfAdjoint (freeHamiltonian n) ∧
++      TeschlQM.Shared.spectrum (freeHamiltonian n) = (fun t : ℝ => (t : ℂ)) '' Set.Ici 0 ∧
++      ∀ ψ : Lp ℂ 2 (volume : Measure (EuclideanSpace ℝ (Fin n))),
++        ∃ μ : Measure ℝ, IsFiniteMeasure μ ∧ μ ≪ volume ∧
++          ∀ z : ℂ, z.im ≠ 0 →
++            ∀ R : Lp ℂ 2 (volume : Measure (EuclideanSpace ℝ (Fin n))) →L[ℂ]
++                Lp ℂ 2 (volume : Measure (EuclideanSpace ℝ (Fin n))),
++              TeschlQM.Shared.IsResolventAt (freeHamiltonian n) z R →
++                ⟪ψ, R ψ⟫_ℂ = ∫ t : ℝ, ((t : ℂ) - z)⁻¹ ∂μ := by
++  first
++  | exact _root_.Prove2me.Solution.TeschlQM_Free_free_selfAdjoint_spectrum n hn
++  | (apply _root_.Prove2me.Solution.TeschlQM_Free_free_selfAdjoint_spectrum <;> assumption)
++
++end TeschlQM.Free
++
++
++end Prove2meStatement

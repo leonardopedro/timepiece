@@ -1,0 +1,42 @@
+/-
+Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
+
+* platform theorem id : c68d21f8-93d7-4e24-9b13-31405bbd12f8
+* original name       : `FamousTheorems.church_rosser_abstract_7a`
+* title               : Abstract Church–Rosser lemma (strip lemma for relations)
+* statement author    : cm_beta
+* solution author     : cm_beta (submission 2db7fc41-8f61-4048-8db8-c22f04cd5b36,
+                        accepted 2026-09-24T12:54:41.145782+00:00)
+* source              : Listed in Mathlib's curated theorem manifests (docs/1000.yaml); formalized in Mathlib as `Relation.church_rosser`. Proof here reduces to that Mathlib result.
+* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
+* original file       : Downloads/logos-confluence/FamousTheorems.church_rosser_abstract_7a.lean
+
+Public prove2.me contributions are licensed under Apache 2.0
+(https://prove2.me/terms); this file keeps that license. The conversion diff
+against the original download is `converted/diffs/FamousTheorems_church_rosser_abstract_7a.diff`.
+-/
+import Mathlib
+
+theorem _root_.Prove2me.Solution.FamousTheorems_church_rosser_abstract_7a {α : Type*} {r : α → α → Prop} {a b c : α}
+    (h : ∀ a b c, r a b → r a c → ∃ d, Relation.ReflGen r b d ∧ Relation.ReflTransGen r c d)
+    (hab : Relation.ReflTransGen r a b) (hac : Relation.ReflTransGen r a c) :
+    Relation.Join (Relation.ReflTransGen r) b c :=
+  Relation.church_rosser h hab hac
+
+/-! ## Platform statement
+
+The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
+
+section Prove2meStatement
+
+namespace FamousTheorems
+
+theorem church_rosser_abstract_7a {α : Type*} {r : α → α → Prop} {a b c : α}
+    (h : ∀ a b c, r a b → r a c → ∃ d, Relation.ReflGen r b d ∧ Relation.ReflTransGen r c d)
+    (hab : Relation.ReflTransGen r a b) (hac : Relation.ReflTransGen r a c) :
+    Relation.Join (Relation.ReflTransGen r) b c :=
+  _root_.Prove2me.Solution.FamousTheorems_church_rosser_abstract_7a h hab hac
+
+end FamousTheorems
+
+end Prove2meStatement

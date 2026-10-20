@@ -1,0 +1,59 @@
+--- Downloads/unfer-bayes/MarkovChainCLT.alpha_mixing_le_tv_rate.lean
++++ converted/Prove2me/UnferBayes/MarkovChainCLT_alpha_mixing_le_tv_rate.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : a80ec800-1cb3-4132-997a-395634a20a3d
++* original name       : `MarkovChainCLT.alpha_mixing_le_tv_rate`
++* title               : $\alpha(n) \le \gamma(n)\, E_\pi M$ from a total-variation rate (Jones Thm 2(ii))
++* statement author    : Shuze Chen
++* solution author     : LukeBernese (submission 88453546-5ef2-47b4-8242-8b00b209e075,
++                        accepted 2026-09-03T22:32:44.489093+00:00)
++* source              : G. L. Jones, "On the Markov Chain Central Limit Theorem", Probability Surveys 1 (2004) 299-320, arXiv math/0409112v2, Theorem 2, part 2 (arXiv v2 p. 8; Section 3 derivation via the coupling inequality, eq. (7))
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/MarkovChainCLT.alpha_mixing_le_tv_rate.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/MarkovChainCLT_alpha_mixing_le_tv_rate.diff`.
++-/
+ import Theorems.Thm_MarkovChainCLT_chainMeasure_past_inter_future
+ import Theorems.Thm_MarkovChainCLT_processSigma_Ici_eq_comap_shift
+ import Theorems.Thm_MarkovChainCLT_processSigma_Iic_eq_comap_restrict
+@@ -11,7 +28,7 @@
+ 
+ set_option maxHeartbeats 2000000
+ 
+-theorem solution {X : Type*} [MeasurableSpace X]
++theorem _root_.Prove2me.Solution.MarkovChainCLT_alpha_mixing_le_tv_rate {X : Type*} [MeasurableSpace X]
+     (P : Kernel X X) [IsMarkovKernel P] (π : Measure X) [IsProbabilityMeasure π]
+     (hP : HarrisErgodic P π)
+     (M : X → ℝ) (hM0 : ∀ x, 0 ≤ M x) (hM : Integrable M π)
+@@ -149,3 +166,26 @@
+     linarith [h1, h2, h3, h4.le, h4.ge]
+   rw [← hcent] at hle
+   exact hle
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory Filter
++open scoped ENNReal NNReal Topology ProbabilityTheory
++
++theorem MarkovChainCLT.alpha_mixing_le_tv_rate {X : Type*} [MeasurableSpace X]
++    (P : Kernel X X) [IsMarkovKernel P] (π : Measure X) [IsProbabilityMeasure π]
++    (hP : HarrisErgodic P π)
++    (M : X → ℝ) (hM0 : ∀ x, 0 ≤ M x) (hM : Integrable M π)
++    (γ : ℕ → ℝ) (hγ0 : ∀ n, 0 ≤ γ n) (hrate : ErgodicWithRate P π M γ) :
++    ∀ n : ℕ, 1 ≤ n →
++      alphaMixingCoef (chainMeasure P π) (fun i ω => ω i) n ≤ γ n * ∫ x, M x ∂π := by
++  first
++  | exact _root_.Prove2me.Solution.MarkovChainCLT_alpha_mixing_le_tv_rate P π hP M hM0 hM γ hγ0 hrate
++  | (apply _root_.Prove2me.Solution.MarkovChainCLT_alpha_mixing_le_tv_rate <;> assumption)
++
++
++end Prove2meStatement

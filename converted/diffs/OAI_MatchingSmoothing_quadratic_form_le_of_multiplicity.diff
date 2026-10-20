@@ -1,0 +1,71 @@
+--- Downloads/unfer-sirk/OAI.MatchingSmoothing.quadratic_form_le_of_multiplicity.lean
++++ converted/Prove2me/UnferSirk/OAI_MatchingSmoothing_quadratic_form_le_of_multiplicity.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : e3c175a4-21ff-4603-acbe-f0d6150219d0
++* original name       : `OAI.MatchingSmoothing.quadratic_form_le_of_multiplicity`
++* title               : Large eigenvalue multiplicities and a small trace of the square bound a symmetric operator from above
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 49741ed7-d2a3-4527-a4e2-2af6effe5230,
++                        accepted 2026-10-18T06:09:39.732983+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/Combinatorics/MatchingPSD/SpectralMultiplicity.lean#L55-L72
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/OAI.MatchingSmoothing.quadratic_form_le_of_multiplicity.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_MatchingSmoothing_quadratic_form_le_of_multiplicity.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/Combinatorics/MatchingPSD/SpectralMultiplicity.lean:L55-L72
+ -- (upload_full_project.md Phase 4): solution for node OAI.MatchingSmoothing.quadratic_form_le_of_multiplicity. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -43,8 +60,15 @@
+   classical
+   let ev :=  hB.eigenvalues (n := Module.finrank ℝ E) rfl
+   let s := Finset.univ.filter fun i => ev i = c
+-  have hcard : s.card = Module.finrank ℝ (Module.End.eigenspace B c) :=
+-    hB.card_filter_eigenvalues_eq rfl c
++  have hcard : s.card = Module.finrank ℝ (Module.End.eigenspace B c) := by
++    -- conversion: the pinned `card_filter_eigenvalues_eq` assumes `HasEigenvalue B c`
++    by_cases hc : Module.End.HasEigenvalue B c
++    · simpa using hB.card_filter_eigenvalues_eq rfl hc
++    · have h1 : Module.End.eigenspace B c = ⊥ := by
++        simpa [Module.End.HasEigenvalue, Module.End.HasUnifEigenvalue] using hc
++      rw [h1, finrank_bot, Finset.card_eq_zero, Finset.filter_eq_empty_iff]
++      intro i _ hi
++      exact hc (hi ▸ by simpa using hB.hasEigenvalue_eigenvalues rfl i)
+   have he : ∑ i ∈ s, ev i ^ 2 = (s.card : ℝ) * c ^ 2 := by
+     calc
+       ∑ i ∈ s, ev i ^ 2 = ∑ _i ∈ s, c ^ 2 := by
+@@ -95,4 +119,28 @@
+ open scoped RealInnerProductSpace
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.MatchingSmoothing.quadratic_form_le_of_multiplicity := @_root_.OAI.MatchingSmoothing.quadratic_form_le_of_multiplicity
++theorem _root_.Prove2me.Solution.OAI_MatchingSmoothing_quadratic_form_le_of_multiplicity : type_of% @_root_.OAI.MatchingSmoothing.quadratic_form_le_of_multiplicity := @_root_.OAI.MatchingSmoothing.quadratic_form_le_of_multiplicity
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.MatchingSmoothing.quadratic_form_le_of_multiplicity` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.MatchingSmoothing
++open scoped RealInnerProductSpace
++variable {E : Type u_1} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
++  [FiniteDimensional ℝ E]
++
++example (B : Module.End ℝ E) (hB : B.IsSymmetric)
++    (m H a : ℝ) (hm : 0 < m) (ha : 0 ≤ a)
++    (hdim : ∀ c : ℝ, c ≠ 0 → Module.End.HasEigenvalue B c →
++      m ≤ Module.finrank ℝ (Module.End.eigenspace B c))
++    (htrace : LinearMap.trace ℝ E (B * B) ≤ H)
++    (hHa : H ≤ m * a ^ 2) (x : E) : ⟪x, B x⟫ ≤ a * ‖x‖ ^ 2 := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_MatchingSmoothing_quadratic_form_le_of_multiplicity B hB m H a hm ha hdim htrace hHa x
++  | (apply _root_.Prove2me.Solution.OAI_MatchingSmoothing_quadratic_form_le_of_multiplicity <;> assumption)
++
++
++end Prove2meStatement

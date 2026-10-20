@@ -1,0 +1,59 @@
+--- Downloads/misc/ClosureKoopman.finite_dynamics_eventually_periodic.lean
++++ converted/Prove2me/Misc/ClosureKoopman_finite_dynamics_eventually_periodic.lean
+@@ -1,6 +1,24 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 1b73bd05-64d6-4c05-b193-e3a19f295f6f
++* original name       : `ClosureKoopman.finite_dynamics_eventually_periodic`
++* title               : Every function on a finite type is eventually periodic.
++* statement author    : raver1975
++* solution author     : raver1975 (submission 27400952-3deb-4ab9-ab10-06f6f6c07ef3,
++                        accepted 2026-09-16T21:16:48.228669+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Bridges/ClosureKoopmanReconstruction.lean#L273
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/misc/ClosureKoopman.finite_dynamics_eventually_periodic.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/ClosureKoopman_finite_dynamics_eventually_periodic.diff`.
++-/
+ -- Sol generated from Bridges/ClosureKoopmanReconstruction.lean
+ import Mathlib
+ import Definitions.Def_Bridges_ClosureKoopmanReconstruction
++
+ /-
+ # Algebraic–EML Phase-Space Reconstruction via Closure Bialgebras and Koopman Spectra
+ 
+@@ -93,7 +111,7 @@
+ 
+ 
+ open ClosureKoopman in
+-theorem solution    {σ : Type*} [Fintype σ] [DecidableEq σ]
++theorem _root_.Prove2me.Solution.ClosureKoopman_finite_dynamics_eventually_periodic    {σ : Type*} [Fintype σ] [DecidableEq σ]
+     (f : σ → σ) (s : σ) :
+     ∃ m n : ℕ, m < n ∧ (f^[m]) s = (f^[n]) s := by
+   by_contra h
+@@ -108,3 +126,22 @@
+     · exact absurd hab.symm (h b a hgt)
+   have hle := Fintype.card_le_of_injective _ hinj
+   simp at hle
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open Finset Function
++open ClosureKoopman
++
++theorem ClosureKoopman.finite_dynamics_eventually_periodic    {σ : Type*} [Fintype σ] [DecidableEq σ]
++    (f : σ → σ) (s : σ) :
++    ∃ m n : ℕ, m < n ∧ (f^[m]) s = (f^[n]) s := by
++  first
++  | exact _root_.Prove2me.Solution.ClosureKoopman_finite_dynamics_eventually_periodic f s
++  | (apply _root_.Prove2me.Solution.ClosureKoopman_finite_dynamics_eventually_periodic <;> assumption)
++
++
++end Prove2meStatement

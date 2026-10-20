@@ -1,0 +1,54 @@
+--- Downloads/unfer-bayes/OAI.EntropyPhotonNumber.spectralLogData_of_sandwich.lean
++++ converted/Prove2me/UnferBayes/OAI_EntropyPhotonNumber_spectralLogData_of_sandwich.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 73eed78d-0753-44d5-8d75-0b211b2f6e22
++* original name       : `OAI.EntropyPhotonNumber.spectralLogData_of_sandwich`
++* title               : Building spectral logarithm data from a positive log-sandwich operator
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 0781cf86-2e52-441c-bc94-db5c93cbd090,
++                        accepted 2026-10-16T07:43:00.086025+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/Minimum.lean#L783-L848
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-bayes/OAI.EntropyPhotonNumber.spectralLogData_of_sandwich.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_EntropyPhotonNumber_spectralLogData_of_sandwich.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/Minimum.lean:L783-L848
+ -- (upload_full_project.md Phase 4): solution for node OAI.EntropyPhotonNumber.spectralLogData_of_sandwich. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -552,4 +569,29 @@
+ open QuantumTrace Annihilation
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.EntropyPhotonNumber.spectralLogData_of_sandwich := @_root_.OAI.EntropyPhotonNumber.spectralLogData_of_sandwich
++theorem _root_.Prove2me.Solution.OAI_EntropyPhotonNumber_spectralLogData_of_sandwich : type_of% @_root_.OAI.EntropyPhotonNumber.spectralLogData_of_sandwich := @_root_.OAI.EntropyPhotonNumber.spectralLogData_of_sandwich
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.EntropyPhotonNumber.spectralLogData_of_sandwich` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.EntropyPhotonNumber
++open scoped BigOperators ComplexConjugate
++open QuantumTrace Annihilation
++variable {n : ℕ} {J : Type} {ρ : State n}
++
++example (b : HilbertBasis J ℂ (Fock n)) (p : J → ℝ)
++    (hp : ∀ j, 0<p j) (hs : HasSum p 1)
++    (he : ∀ j, ρ.op (b j)=(p j:ℂ) • b j) (hm : FiniteMoment 6 ρ)
++    (B : Fock n →L[ℂ] Fock n) (hB : B.IsPositive)
++    (hBe : ∀ x, ENNReal.ofReal (inner ℂ x (B x)).re =
++      basisMoment b (fun j => ENNReal.ofReal (-Real.log (p j))) (inverseWeight 2 x)) :
++    ∃ G : SpectralLogData n ρ, G.J=J ∧ HEq G.basis b ∧ HEq G.probability p ∧ G.logSandwich=B := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_EntropyPhotonNumber_spectralLogData_of_sandwich b p hp hs he hm B hB hBe
++  | (apply _root_.Prove2me.Solution.OAI_EntropyPhotonNumber_spectralLogData_of_sandwich <;> assumption)
++
++
++end Prove2meStatement

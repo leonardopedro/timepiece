@@ -1,0 +1,60 @@
+--- Downloads/qft-wick/QED.qed_field_equations.lean
++++ converted/Prove2me/QftWick/QED_qed_field_equations.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 422448be-5542-40da-9304-7d561a02e116
++* original name       : `QED.qed_field_equations`
++* title               : Classical QED field equations: $\Box A^\nu=eJ^\nu$ with $\partial_\nu J^\nu=0$
++* statement author    : Lucas
++* solution author     : cm_beta (submission 8bfb1482-2835-42b1-b402-f2ed3c0714d4,
++                        accepted 2026-09-23T22:41:54.800066+00:00)
++* source              : Wikipedia, "Quantum electrodynamics", section "Mathematical formulation", subsections "QED action" and "Equations of motion" (QED Lagrangian, Dirac matrices, covariant derivative, field tensor, conserved current, Euler-Lagrange equations for psi and A, Lorenz-gauge wave equation). https://en.wikipedia.org/wiki/Quantum_electrodynamics
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/QED.qed_field_equations.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/QED_qed_field_equations.diff`.
++-/
+ import Definitions.Def_QED_fields
+ 
+ open QED
+@@ -386,7 +403,7 @@
+   simp only [Matrix.mulVec_mulVec]
+   rw [Eim2, mul_zero]
+ 
+-theorem solution (m e : ℝ) (γ : Fin 4 → Matrix (Fin 4) (Fin 4) ℂ)
++theorem _root_.Prove2me.Solution.QED_qed_field_equations (m e : ℝ) (γ : Fin 4 → Matrix (Fin 4) (Fin 4) ℂ)
+     (hγ : IsDiracRepresentation γ) (A : GaugeField) (ψ : SpinorField)
+     (hA : ContDiff ℝ 2 A) (hψ : ContDiff ℝ 1 ψ)
+     (hD : IsDiracSolution m e γ A ψ) (hM : IsMaxwellSolution e γ A ψ)
+@@ -396,3 +413,27 @@
+       (∀ x : Spacetime, (∑ ν : Fin 4, partialD ν (fun y => current γ ψ ν y) x) = 0) :=
+   ⟨fun ν x => W3a_QED_lorenz_wave_equation e γ A ψ hA hM hL ν x,
+     fun x => W3a_QED_current_conservation m e γ hγ A ψ hψ hD x⟩
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace QED
++theorem qed_field_equations (m e : ℝ) (γ : Fin 4 → Matrix (Fin 4) (Fin 4) ℂ)
++    (hγ : IsDiracRepresentation γ) (A : GaugeField) (ψ : SpinorField)
++    (hA : ContDiff ℝ 2 A) (hψ : ContDiff ℝ 1 ψ)
++    (hD : IsDiracSolution m e γ A ψ) (hM : IsMaxwellSolution e γ A ψ)
++    (hL : LorenzGauge A) :
++    (∀ (ν : Fin 4) (x : Spacetime),
++        dAlembert (fun y => gaugeUp A ν y) x = e * current γ ψ ν x) ∧
++      (∀ x : Spacetime, (∑ ν : Fin 4, partialD ν (fun y => current γ ψ ν y) x) = 0) := by
++  first
++  | exact _root_.Prove2me.Solution.QED_qed_field_equations m e γ hγ A ψ hA hψ hD hM hL
++  | (apply _root_.Prove2me.Solution.QED_qed_field_equations <;> assumption)
++
++end QED
++
++
++end Prove2meStatement

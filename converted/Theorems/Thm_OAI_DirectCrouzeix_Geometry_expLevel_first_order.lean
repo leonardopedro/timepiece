@@ -1,0 +1,49 @@
+/-
+prove2.me platform library module `Theorems.Thm_OAI_DirectCrouzeix_Geometry_expLevel_first_order`, converted to Lean 4.28.0.
+Original text: `Downloads/_deps/Theorems/Thm_OAI_DirectCrouzeix_Geometry_expLevel_first_order.lean` (platform Mathlib rev 0df444a360ea).
+Public prove2.me contributions are licensed under Apache 2.0 (https://prove2.me/terms).
+-/
+import Mathlib
+import Definitions.Def_DirectCrouzeix
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_PositiveBlocks
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_Resolvent
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_PolynomialCalculus
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_HilbertSchmidt
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_SingularPairs
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_Sharpness
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_CircleFourier
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_BoundaryEnergy
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_PolynomialEnergy
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_CompactIntegrals
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_DividedDifferences
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_TaylorFourier
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_FaberPolynomials
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_BoundaryKernel
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_KernelContraction
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_FaberEnergy
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_FaberCalculus
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_NormalFamilies
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_ExtremalEmbedding
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_DiskMapping
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_PoissonBoundary
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_HarmonicReflection
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_HolomorphicReflection
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_ConformalCollar
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_AnalyticCharts
+import Definitions.Def_OAI_Analysis_DirectCrouzeix_ExponentialLevels
+
+open OAI OAI.DirectCrouzeix OAI.DirectCrouzeix.Geometry
+universe u_135 u_136 u_137
+open scoped Matrix Matrix.Norms.L2Operator Kronecker
+open MeasureTheory Set Filter Metric
+open scoped Topology Interval ENNReal NNReal ComplexConjugate
+open Filter Metric Set
+open scoped Topology ComplexConjugate
+open Set Filter Metric
+open scoped Topology ComplexConjugate
+open Set Filter Metric
+open scoped Topology ComplexConjugate
+variable {ι : Type u_135} [Fintype ι]
+
+theorem OAI.DirectCrouzeix.Geometry.expLevel_first_order (v : ι → ℂ) (b : ι → ℝ) (z w : ℂ) :
+    expLevel v b z + inner ℝ (expGradient v b z) (w-z) ≤ expLevel v b w := by sorry

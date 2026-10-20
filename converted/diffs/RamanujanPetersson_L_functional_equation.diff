@@ -1,0 +1,297 @@
+--- Downloads/analytic-nt/RamanujanPetersson.L_functional_equation.lean
++++ converted/Prove2me/AnalyticNt/RamanujanPetersson_L_functional_equation.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 483b1965-77dd-4750-8055-ad9f14b2c9dc
++* original name       : `RamanujanPetersson.L_functional_equation`
++* title               : Analytic continuation and functional equation of $L(s,\tau)$
++* statement author    : Lucas
++* solution author     : fizzyinc3 (submission 760c5996-1d29-4aeb-84bb-b0bb4bc7b1bb,
++                        accepted 2026-10-17T18:00:41.272841+00:00)
++* source              : Wikipedia, "Ramanujan–Petersson conjecture", https://en.wikipedia.org/w/index.php?title=Ramanujan%E2%80%93Petersson_conjecture&oldid=1369029052 (PDF snapshot supplied by the proposer, 9 pp.), section "Ramanujan L-function", "the Ramanujan L-function can be defined by analytic continuation of this series … satisfies a functional equation" (displayed $\Gamma(s)L(s,\tau)/(2\pi)^s=\Gamma(12-s)L(12-s,\tau)/(2\pi)^{12-s}$)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/analytic-nt/RamanujanPetersson.L_functional_equation.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/RamanujanPetersson_L_functional_equation.diff`.
++-/
+ import Definitions.Def_RamanujanPetersson_tau
+ import Mathlib
+ 
+@@ -159,64 +176,186 @@
+ 
+ end RPL2
+ 
+-open UpperHalfPlane ModularForm ModularFormClass MatrixGroups Complex Filter
++open UpperHalfPlane hiding I
++open ModularForm ModularFormClass MatrixGroups Complex Filter
+ open scoped Real
+ 
++/- conversion: the original `RPFE` section relied on the platform Mathlib's `ModularForm.L`,
++`ModularForm.Λ`, `weakFEPair`, `CuspForm.isStrongFEPair`, `CuspForm.hasSum_L` and
++`CuspForm.differentiable_L`, none of which exist in the pinned Mathlib.  It is replaced by a
++self-contained construction with the same interface (`LL`, `LL_diff`, `LL_eq_seven`, `gamma_L`,
++`Λ_fe`): the strong FE pair `f = g = (t ↦ Δ(i t))` of weight `12`, its completed Mellin transform
++`Lam`, and `LL s = (2π)^s Γ(s)⁻¹ Lam s`.  The solution theorem below is unchanged. -/
+ namespace RPFE
+ 
+-noncomputable abbrev D : CuspForm 𝒮ℒ 12 := CuspForm.discriminant
+-
+-lemma hk : (0 : ℤ) < 12 := by norm_num
+-
+-noncomputable def LL (s : ℂ) : ℂ := ModularForm.L hk D s
+-
+-lemma LL_diff : Differentiable ℂ LL := CuspForm.differentiable_L hk D
++open Asymptotics
++
++
++noncomputable def F (t : ℝ) : ℂ := ModularForm.discriminant (ofComplex (Complex.I * t))
++
++lemma mem_upper {t : ℝ} (ht : 0 < t) : 0 < (Complex.I * (t : ℂ)).im := by simpa using ht
++
++lemma F_apply {t : ℝ} (ht : 0 < t) :
++    F t = ModularForm.discriminant ⟨Complex.I * t, mem_upper ht⟩ := by
++  rw [F, ofComplex_apply_of_im_pos (mem_upper ht)]
++
++lemma tau_zero : RamanujanPetersson.tau 0 = 0 := by
++  unfold RamanujanPetersson.tau
++  rw [← CuspForm.coe_discriminant, ModularFormClass.qExpansion_coeff_zero _ one_pos
++    one_mem_strictPeriods_SL]
++  exact UpperHalfPlane.IsZeroAtImInfty.valueAtInfty_eq_zero
++    Prove2me.Shim.Discriminant.discriminantMF_isZeroAtImInfty
++
++lemma F_hasSum {t : ℝ} (ht : 0 < t) :
++    HasSum (fun n : ℕ => RamanujanPetersson.tau n * ↑(Real.exp (-(2 * π * n) * t))) (F t) := by
++  rw [F_apply ht]
++  have h := ModularFormClass.hasSum_qExpansion (Γ := 𝒮ℒ) (k := 12) CuspForm.discriminant one_pos
++    one_mem_strictPeriods_SL ⟨Complex.I * t, mem_upper ht⟩
++  rw [CuspForm.coe_discriminant] at h
++  convert h using 1
++  funext n
++  rw [smul_eq_mul, RamanujanPetersson.tau]
++  congr 1
++  rw [Function.Periodic.qParam, ← Complex.exp_nat_mul, Complex.ofReal_exp]
++  congr 1
++  change _ = (n : ℂ) * (2 * π * Complex.I * (Complex.I * t) / ((1 : ℝ) : ℂ))
++  push_cast
++  ring_nf
++  rw [I_sq]; ring
++
++lemma disc_S (z : ℍ) :
++    ModularForm.discriminant (.mk _ z.im_inv_neg_coe_pos) = (z : ℂ) ^ 12 * ModularForm.discriminant z := by
++  have h := congrFun (ModularForm.discriminant_slash_SL2Z ModularGroup.S) z
++  rw [SlashInvariantForm.slash_S_apply] at h
++  have hz : (z : ℂ) ≠ 0 := z.ne_zero
++  rw [← h, mul_comm, mul_assoc, ← zpow_natCast, ← zpow_add₀ hz]
++  simp
++
++lemma F_feq (x : ℝ) (hx : x ∈ Set.Ioi 0) :
++    F (1 / x) = ((1 : ℂ) * ↑(x ^ (12 : ℝ))) • F x := by
++  have hx' : (0 : ℝ) < x := hx
++  rw [F_apply (by positivity), F_apply hx', smul_eq_mul, one_mul]
++  have : (⟨Complex.I * ((1 / x : ℝ) : ℂ), mem_upper (by positivity)⟩ : ℍ) =
++      .mk _ (⟨Complex.I * x, mem_upper hx'⟩ : ℍ).im_inv_neg_coe_pos := by
++    ext
++    change Complex.I * ((1 / x : ℝ) : ℂ) = (-(Complex.I * (x : ℂ)))⁻¹
++    have : (x : ℂ) ≠ 0 := by exact_mod_cast hx'.ne'
++    push_cast
++    field_simp
++    rw [I_sq]
++  rw [this, disc_S]
++  congr 1
++  change (Complex.I * (x : ℂ)) ^ 12 = _
++  rw [mul_pow, show (12 : ℕ) = 2 * 6 from rfl, pow_mul, I_sq]
++  rw [show ((x : ℝ) ^ (12 : ℝ)) = x ^ (12 : ℕ) by norm_cast]
++  push_cast; ring
++
++lemma F_contOn : ContinuousOn F (Set.Ioi 0) := by
++  have hd := (UpperHalfPlane.mdifferentiable_iff.mp
++    (ModularFormClass.holo CuspForm.discriminant)).continuousOn
++  intro t ht
++  have ht' : (0 : ℝ) < t := ht
++  have h1 : ContinuousAt (⇑CuspForm.discriminant ∘ ofComplex) (Complex.I * t) :=
++    hd.continuousAt (UpperHalfPlane.isOpen_upperHalfPlaneSet.mem_nhds (mem_upper ht'))
++  have h2 : ContinuousAt (fun s : ℝ => Complex.I * (s : ℂ)) t := by fun_prop
++  exact (ContinuousAt.comp (f := fun s : ℝ => Complex.I * (s : ℂ)) (x := t) h1 h2).continuousWithinAt
++
++lemma F_top (r : ℝ) : (fun x => F x - 0) =O[atTop] fun x => x ^ r := by
++  have h := CuspFormClass.exp_decay_atImInfty (Γ := 𝒮ℒ) (k := 12) CuspForm.discriminant one_pos
++    one_mem_strictPeriods_SL
++  have ht : Tendsto (fun t : ℝ => ofComplex (Complex.I * t)) atTop atImInfty := by
++    rw [UpperHalfPlane.atImInfty, tendsto_comap_iff]
++    refine tendsto_id.congr' ?_
++    filter_upwards [eventually_gt_atTop 0] with t ht
++    simp [Function.comp, ofComplex_apply_of_im_pos (mem_upper ht)]
++  have h2 := h.comp_tendsto ht
++  simp only [sub_zero]
++  refine (h2.congr' (Eventually.of_forall fun t => rfl) ?_).trans
++    (isLittleO_exp_neg_mul_rpow_atTop (a := 2 * π) (by positivity) r).isBigO
++  filter_upwards [eventually_gt_atTop 0] with t ht
++  simp [Function.comp, ofComplex_apply_of_im_pos (mem_upper ht)]
++
++
++noncomputable def P : StrongFEPair ℂ where
++  f := F
++  g := F
++  k := 12
++  ε := 1
++  f₀ := 0
++  g₀ := 0
++  hf_int := F_contOn.locallyIntegrableOn measurableSet_Ioi
++  hg_int := F_contOn.locallyIntegrableOn measurableSet_Ioi
++  hk := by norm_num
++  hε := one_ne_zero
++  h_feq := F_feq
++  hf_top := F_top
++  hg_top := F_top
++  hf₀ := rfl
++  hg₀ := rfl
++
++noncomputable def Lam (s : ℂ) : ℂ := P.Λ s
++
++lemma Λ_fe (s : ℂ) : Lam (12 - s) = Lam s := by
++  have h := P.functional_equation s
++  simpa [Lam, P] using h
++
++noncomputable def LL (s : ℂ) : ℂ := (2 * (π : ℂ)) ^ s * (1 / Complex.Gamma s) * Lam s
++
++lemma LL_diff : Differentiable ℂ LL := by
++  have h2 : Differentiable ℂ fun s : ℂ => (2 * (π : ℂ)) ^ s := by
++    intro s
++    refine (differentiableAt_id.const_cpow ?_)
++    left; exact mul_ne_zero two_ne_zero (by exact_mod_cast Real.pi_ne_zero)
++  have hL : Differentiable ℂ Lam := P.differentiable_Λ
++  convert (h2.mul Complex.differentiable_one_div_Gamma).mul hL using 1
++  funext s
++  simp [LL]
++
++lemma gamma_L (s : ℂ) (hs : ∀ n : ℕ, s ≠ -(n : ℂ)) :
++    Complex.Gamma s * LL s / (2 * (π : ℂ)) ^ s = Lam s := by
++  have hG : Complex.Gamma s ≠ 0 := Complex.Gamma_ne_zero hs
++  have hp : (2 * (π : ℂ)) ^ s ≠ 0 := by
++    rw [Complex.cpow_ne_zero_iff]; left; exact mul_ne_zero two_ne_zero (by exact_mod_cast Real.pi_ne_zero)
++  rw [LL]
++  field_simp
++
++lemma mellin_F (s : ℂ) (hs : 7 < s.re) :
++    HasSum (fun n : ℕ => Complex.Gamma s * RamanujanPetersson.tau n / ((2 * π * n : ℝ) : ℂ) ^ s)
++      (Lam s) := by
++  have hΛ : Lam s = mellin F s := by
++    rw [Lam, StrongFEPair.Λ_eq]; rfl
++  rw [hΛ]
++  refine hasSum_mellin (p := fun n : ℕ => 2 * π * n) ?_ (by linarith) (fun t ht => F_hasSum ht) ?_
++  · intro n
++    rcases Nat.eq_zero_or_pos n with rfl | hn
++    · left; exact tau_zero
++    · right; positivity
++  · have hsum := RPL2.Lsumm (s.re : ℂ) (by simp; linarith)
++    rw [LSeriesSummable] at hsum
++    have := (hsum.norm.mul_left ((2 * π) ^ (-s.re)))
++    refine this.congr fun n => ?_
++    rcases Nat.eq_zero_or_pos n with rfl | hn
++    · simp [tau_zero]
++    · rw [LSeries.norm_term_eq]
++      simp only [hn.ne', if_false, Complex.ofReal_re]
++      rw [Real.mul_rpow (by positivity : (0:ℝ) ≤ 2 * π) (Nat.cast_nonneg n),
++        Real.rpow_neg (by positivity : (0:ℝ) ≤ 2 * π)]
++      field_simp
+ 
+ lemma LL_eq_seven (s : ℂ) (hs : 7 < s.re) :
+     LL s = LSeries RamanujanPetersson.tau s := by
+-  unfold RamanujanPetersson.tau
+-  have h := CuspForm.hasSum_L (Γ := 𝒮ℒ) hk D (s := s) (by norm_num; linarith)
+-  rw [Subgroup.strictWidthInfty_SL2Z] at h
+-  simp only [Complex.ofReal_one, Complex.one_cpow, one_mul] at h
+-  rw [LSeries, LL]
+-  refine (HasSum.tsum_eq ?_).symm
+-  convert h using 1
++  have hG : Complex.Gamma s ≠ 0 := Complex.Gamma_ne_zero_of_re_pos (by linarith)
++  have hp : (2 * (π : ℂ)) ^ s ≠ 0 := by
++    rw [Complex.cpow_ne_zero_iff]; left; exact mul_ne_zero two_ne_zero (by exact_mod_cast Real.pi_ne_zero)
++  rw [LL, (mellin_F s hs).tsum_eq.symm, LSeries, ← tsum_mul_left]
++  congr 1
+   funext n
+   rw [LSeries.term_def]
+   split_ifs with hn
+-  · subst hn
+-    have : s ≠ 0 := by rintro rfl; simp at hs; linarith
+-    simp [Complex.zero_cpow this]
+-  · rfl
+-
+-lemma translate_eq : (⇑(translate D ModularGroup.S) : ℍ → ℂ) = ⇑D := by
+-  rw [coe_translate]
+-  exact SlashInvariantFormClass.slash_action_eq D _ ⟨ModularGroup.S, rfl⟩
+-
+-lemma Λ_symm : (weakFEPair hk D).symm.Λ = (weakFEPair hk D).Λ := by
+-  rw [(CuspForm.isStrongFEPair hk D).symm.Λ_eq, (CuspForm.isStrongFEPair hk D).Λ_eq]
+-  congr 1
+-  funext t
+-  simp only [WeakFEPair.symm, weakFEPair_g, weakFEPair_f]
+-  rw [translate_eq]
+-
+-lemma Λ_fe (s : ℂ) : Λ hk D (12 - s) = Λ hk D s := by
+-  have h := (weakFEPair hk D).functional_equation s
+-  rw [Λ_symm] at h
+-  simp only [weakFEPair_k, weakFEPair_ε] at h
+-  have hI : (Complex.I) ^ (12 : ℤ) = 1 := by
+-    rw [show (12 : ℤ) = ((12 : ℕ) : ℤ) from rfl, zpow_natCast, show 12 = 2 * 6 from rfl, pow_mul,
+-      Complex.I_sq]; norm_num
+-  rw [hI, one_smul] at h
+-  simpa [Λ] using h
+-
+-lemma gamma_L (s : ℂ) (hs : ∀ n : ℕ, s ≠ -(n : ℂ)) :
+-    Complex.Gamma s * LL s / (2 * (π : ℂ)) ^ s = Λ hk D s := by
+-  have hG : Complex.Gamma s ≠ 0 := Complex.Gamma_ne_zero hs
+-  have hp : (2 * (π : ℂ)) ^ s ≠ 0 := by
+-    rw [Complex.cpow_ne_zero_iff]; left; exact mul_ne_zero two_ne_zero (by exact_mod_cast Real.pi_ne_zero)
+-  rw [LL, ModularForm.L, Complex.Gammaℂ_def, Complex.cpow_neg]
+-  field_simp
++  · subst hn; simp [tau_zero]
++  · rw [Complex.ofReal_mul, Complex.mul_cpow_ofReal_nonneg (by positivity) (by positivity)]
++    push_cast
++    field_simp
+ 
+ end RPFE
+ 
+@@ -224,7 +363,7 @@
+ open scoped Real
+ 
+ open RamanujanPetersson in
+-theorem solution :
++theorem _root_.Prove2me.Solution.RamanujanPetersson_L_functional_equation :
+     ∃ L : ℂ → ℂ, Differentiable ℂ L ∧
+       (∀ s : ℂ, 13 / 2 < s.re → L s = LSeries tau s) ∧
+       ∀ s : ℂ, (∀ n : ℕ, s ≠ -(n : ℂ)) → (∀ n : ℕ, 12 - s ≠ -(n : ℂ)) →
+@@ -248,3 +387,29 @@
+       exact RPFE.LL_eq_seven s hs
+   · intro s h1 h2
+     rw [RPFE.gamma_L s h1, RPFE.gamma_L _ h2, RPFE.Λ_fe]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open UpperHalfPlane Filter Asymptotics MatrixGroups
++open scoped Real
++
++namespace RamanujanPetersson
++
++theorem L_functional_equation :
++    ∃ L : ℂ → ℂ, Differentiable ℂ L ∧
++      (∀ s : ℂ, 13 / 2 < s.re → L s = LSeries tau s) ∧
++      ∀ s : ℂ, (∀ n : ℕ, s ≠ -(n : ℂ)) → (∀ n : ℕ, 12 - s ≠ -(n : ℂ)) →
++        Complex.Gamma s * L s / (2 * (π : ℂ)) ^ s =
++          Complex.Gamma (12 - s) * L (12 - s) / (2 * (π : ℂ)) ^ (12 - s) := by
++  first
++  | exact _root_.Prove2me.Solution.RamanujanPetersson_L_functional_equation
++  | (apply _root_.Prove2me.Solution.RamanujanPetersson_L_functional_equation <;> assumption)
++
++end RamanujanPetersson
++
++
++end Prove2meStatement

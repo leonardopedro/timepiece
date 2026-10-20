@@ -1,0 +1,103 @@
+--- Downloads/crouzeix-convex/OAI.DirectCrouzeix.Geometry.expLevel_holomorphic_support.lean
++++ converted/Prove2me/CrouzeixConvex/OAI_DirectCrouzeix_Geometry_expLevel_holomorphic_support.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 8ceda503-d157-4182-b670-76003c88ac7a
++* original name       : `OAI.DirectCrouzeix.Geometry.expLevel_holomorphic_support`
++* title               : The vector $\zeta\psi'(\zeta)$ is an outward normal of an exponential-sum sublevel set at the boundary point $\psi(\zeta)$
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 0c5e3762-8edc-4581-a29e-55d3a5b1abfa,
++                        accepted 2026-10-18T08:47:26.540197+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/Analysis/DirectCrouzeix/ExponentialSupport.lean#L87-L149
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/crouzeix-convex/OAI.DirectCrouzeix.Geometry.expLevel_holomorphic_support.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_DirectCrouzeix_Geometry_expLevel_holomorphic_support.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/Analysis/DirectCrouzeix/ExponentialSupport.lean:L87-L149
+ -- (upload_full_project.md Phase 4): solution for node OAI.DirectCrouzeix.Geometry.expLevel_holomorphic_support. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -76,9 +93,9 @@
+     HasFDerivAt (expLevel v b) (innerSL ℝ (expGradient v b z)) z := by
+   have hh := HasFDerivAt.fun_sum (x := z) (u := Finset.univ) (fun i _ =>
+     (((innerSL ℝ (v i)).hasFDerivAt).add_const (b i)).exp)
+-  convert! hh using 1
++  convert hh using 1
+   ext w
+-  simp only [expGradient,innerSL_apply_apply,sum_inner,real_inner_smul_left,sum_apply,smul_apply,smul_eq_mul]
++  simp only [expGradient,innerSL_apply_apply,sum_inner,real_inner_smul_left,ContinuousLinearMap.sum_apply,ContinuousLinearMap.smul_apply,smul_eq_mul]
+ 
+ theorem expGradient_ne_zero (v : ι → ℂ) (b : ι → ℝ) {p a : ℂ}
+     (hp : expLevel v b p = 1) (ha : expLevel v b a < 1) : expGradient v b p ≠ 0 := by
+@@ -222,8 +239,8 @@
+     have he0 : e 0 = ζ := by simp [e]
+     have hed : HasDerivAt e (ζ*Complex.I) 0 := by
+       have hi : HasDerivAt (fun t : ℝ => (t:ℂ)) 1 0 := by
+-        simpa only [Complex.ofRealCLM_apply,Complex.ofReal_one] using! (Complex.ofRealCLM.hasDerivAt (x := (0:ℝ)))
+-      convert! ((hi.mul_const Complex.I).cexp).const_mul ζ using 1 ; simp
++        simpa only [Complex.ofRealCLM_apply,Complex.ofReal_one] using (Complex.ofRealCLM.hasDerivAt (x := (0:ℝ)))
++      convert ((hi.mul_const Complex.I).cexp).const_mul ζ using 1 ; simp
+     have hψd := (show HasDerivAt ψ (deriv ψ ζ) (e 0) from he0 ▸ hd).scomp 0 hed
+     have hcomp := (show HasFDerivAt (expLevel v b) (innerSL ℝ G) (ψ (e 0)) from he0 ▸ hφd).comp_hasDerivAt 0 hψd
+     have hc : (fun t : ℝ => expLevel v b (ψ (e t))) = fun _ => 1 := by
+@@ -240,8 +257,8 @@
+     have hr1 : r 1 = ζ := by simp [r]
+     have hrd : HasDerivAt r ζ 1 := by
+       have hi : HasDerivAt (fun t : ℝ => (t:ℂ)) 1 1 := by
+-        simpa only [Complex.ofRealCLM_apply,Complex.ofReal_one] using! (Complex.ofRealCLM.hasDerivAt (x := (1:ℝ)))
+-      convert! hi.mul_const ζ using 1 ; simp
++        simpa only [Complex.ofRealCLM_apply,Complex.ofReal_one] using (Complex.ofRealCLM.hasDerivAt (x := (1:ℝ)))
++      convert hi.mul_const ζ using 1 ; simp
+     have hψd := (show HasDerivAt ψ (deriv ψ ζ) (r 1) from hr1 ▸ hd).scomp 1 hrd
+     have hcomp := (show HasFDerivAt (expLevel v b) (innerSL ℝ G) (ψ (r 1)) from hr1 ▸ hφd).comp_hasDerivAt 1 hψd
+     have hmin : IsMinOn (fun t : ℝ => expLevel v b (ψ (r t))) (Ici 1) 1 := by
+@@ -313,4 +330,44 @@
+ open scoped ComplexConjugate Matrix
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.DirectCrouzeix.Geometry.expLevel_holomorphic_support := @_root_.OAI.DirectCrouzeix.Geometry.expLevel_holomorphic_support
++theorem _root_.Prove2me.Solution.OAI_DirectCrouzeix_Geometry_expLevel_holomorphic_support : type_of% @_root_.OAI.DirectCrouzeix.Geometry.expLevel_holomorphic_support := @_root_.OAI.DirectCrouzeix.Geometry.expLevel_holomorphic_support
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.DirectCrouzeix.Geometry.expLevel_holomorphic_support` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.DirectCrouzeix OAI.DirectCrouzeix.Geometry
++open scoped Matrix Matrix.Norms.L2Operator Kronecker
++open MeasureTheory Set Filter Metric
++open scoped Topology Interval ENNReal NNReal ComplexConjugate
++open Filter Metric Set
++open scoped Topology ComplexConjugate
++open Set Filter Metric
++open scoped Topology ComplexConjugate
++open Set Filter Metric
++open scoped Topology ComplexConjugate
++open Set Filter Metric
++open scoped Topology ComplexConjugate
++open Set Filter Metric
++open scoped Topology ComplexConjugate
++open Set Filter Metric
++open scoped Topology ComplexConjugate
++open Set
++open scoped ComplexConjugate Matrix
++
++example {ι : Type u_143} [Fintype ι]
++    (v : ι → ℂ) (b : ι → ℝ) {a : ℂ} (ha : expLevel v b a < 1)
++    {ψ : ℂ → ℂ} {ζ : ℂ} (hζ : ‖ζ‖ = 1)
++    (hd : HasDerivAt ψ (deriv ψ ζ) ζ) (hdn : deriv ψ ζ ≠ 0)
++    (hcircle : ∀ η : ℂ, ‖η‖ = 1 → expLevel v b (ψ η) = 1)
++    (hout : ∀ η : ℂ, 1 ≤ ‖η‖ → 1 ≤ expLevel v b (ψ η))
++    {w : ℂ} (hw : expLevel v b w ≤ 1) :
++    0 ≤ inner ℝ (ζ*deriv ψ ζ) (ψ ζ-w) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_DirectCrouzeix_Geometry_expLevel_holomorphic_support v b ha hζ hd hdn hcircle hout hw
++  | (apply _root_.Prove2me.Solution.OAI_DirectCrouzeix_Geometry_expLevel_holomorphic_support <;> assumption)
++
++
++end Prove2meStatement

@@ -1,0 +1,49 @@
+/-
+Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
+
+* platform theorem id : a4144d86-de86-4054-ad60-7b9a8f1c85a3
+* original name       : `FCP.Zeta.irrational_zeta_five`
+* title               : Irrationality of $\zeta(5)$
+* statement author    : Lucas
+* solution author     : tomasz (submission 2bf48c5d-90e8-4197-b6ab-24709c6a25ee,
+                        accepted 2026-10-13T15:19:41.339914+00:00)
+* source              : Formal Conjectures library (Google DeepMind), Apache-2.0, https://github.com/google-deepmind/formal-conjectures (FormalConjectures/Wikipedia/RiemannZetaValues.lean); https://en.wikipedia.org/wiki/Particular_values_of_the_Riemann_zeta_function
+* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
+* original file       : Downloads/analytic-nt/FCP.Zeta.irrational_zeta_five.lean
+
+Public prove2.me contributions are licensed under Apache 2.0
+(https://prove2.me/terms); this file keeps that license. The conversion diff
+against the original download is `converted/diffs/FCP_Zeta_irrational_zeta_five.diff`.
+-/
+import Definitions.Def_Zeta5_SourceValue
+import Theorems.Thm_Apery_irrational_of_eventually_exists_int_poly
+import Theorems.Thm_Apery_tendsto_pow_mul_exp_neg_sq_of_pos
+import Theorems.Thm_Apery_main_estimate
+
+open Polynomial Filter Topology
+
+theorem _root_.Prove2me.Solution.FCP_Zeta_irrational_zeta_five : ∃ x : ℝ, Irrational x ∧ riemannZeta 5 = x := by
+  obtain ⟨c, hc, h⟩ := Apery.main_estimate
+  refine ⟨Apery.zeta5, ?_, Apery.riemannZeta_five⟩
+  exact Apery.irrational_of_eventually_exists_int_poly Apery.zeta5 (fun n => 37 * n)
+    (fun n => Real.exp (-c * (n : ℝ) ^ 2))
+    (Apery.tendsto_pow_mul_exp_neg_sq_of_pos hc)
+    (h.mono fun _ ⟨Q, _, hdeg, hpos, hlt⟩ => ⟨Q, hdeg.le, hpos, hlt.le⟩)
+
+/-! ## Platform statement
+
+The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
+
+section Prove2meStatement
+
+namespace FCP.Zeta
+
+theorem irrational_zeta_five : ∃ x : ℝ, Irrational x ∧ riemannZeta 5 = x := by
+  first
+  | exact _root_.Prove2me.Solution.FCP_Zeta_irrational_zeta_five
+  | (apply _root_.Prove2me.Solution.FCP_Zeta_irrational_zeta_five <;> assumption)
+
+end FCP.Zeta
+
+
+end Prove2meStatement

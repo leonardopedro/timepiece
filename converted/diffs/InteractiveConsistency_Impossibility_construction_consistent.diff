@@ -1,0 +1,64 @@
+--- Downloads/arctic-crypto/InteractiveConsistency.Impossibility.construction_consistent.lean
++++ converted/Prove2me/ArcticCrypto/InteractiveConsistency_Impossibility_construction_consistent.lean
+@@ -1,8 +1,23 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : e1796bec-2425-4376-ae78-7b607132bf8e
++* original name       : `InteractiveConsistency.Impossibility.construction_consistent`
++* title               : Section 4, proof (p. 233) — α, β, σ are consistent with A ∪ C, B ∪ C, A ∪ B, respectively
++* statement author    : mikedeng1
++* solution author     : mrfancypants (submission 8ab670de-5143-405d-a45a-fc27d6a5c2b4,
++                        accepted 2026-10-13T05:09:21.622578+00:00)
++* source              : Pease, Shostak & Lamport, Reaching agreement in the presence of faults, J. ACM 27 (1980), p. 233, Section 4, proof of the THEOREM, first sentence
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/arctic-crypto/InteractiveConsistency.Impossibility.construction_consistent.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/InteractiveConsistency_Impossibility_construction_consistent.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_InteractiveConsistency_Impossibility_Scenario
+ import Definitions.Def_InteractiveConsistency_Impossibility_Construction
+-
+-
+ 
+ namespace InteractiveConsistency.Impossibility
+ 
+@@ -239,9 +254,34 @@
+ open InteractiveConsistency.Impossibility
+ 
+ 
+-theorem solution {α V : Type*} [DecidableEq α] (P A B C : Finset α) (v v' : V)
++theorem _root_.Prove2me.Solution.InteractiveConsistency_Impossibility_construction_consistent {α V : Type*} [DecidableEq α] (P A B C : Finset α) (v v' : V)
+     (hAB : Disjoint A B) (hAC : Disjoint A C) (hBC : Disjoint B C) (hP : A ∪ B ∪ C = P) :
+     ConsistentWith P (A ∪ C) (alphaScen P A B C v v') ∧
+     ConsistentWith P (B ∪ C) (betaScen P A B C v v') ∧
+     ConsistentWith P (A ∪ B) (sigmaScen P A B C v v') := by
+   exact construction_consistent_core P A B C v v' hAB hAC hBC hP
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace InteractiveConsistency.Impossibility
++
++/-- Pease, Shostak & Lamport (1980), Section 4, proof of the THEOREM, p. 233: for a partition
++`A, B, C` of `P` and any values `v, v'`, the scenarios `α`, `β`, `σ` defined by (i)–(iii) of p. 232
++are consistent with `N = A ∪ C`, `B ∪ C`, `A ∪ B`, respectively. -/
++theorem construction_consistent {α V : Type*} [DecidableEq α] (P A B C : Finset α) (v v' : V)
++    (hAB : Disjoint A B) (hAC : Disjoint A C) (hBC : Disjoint B C) (hP : A ∪ B ∪ C = P) :
++    ConsistentWith P (A ∪ C) (alphaScen P A B C v v') ∧
++    ConsistentWith P (B ∪ C) (betaScen P A B C v v') ∧
++    ConsistentWith P (A ∪ B) (sigmaScen P A B C v v') := by
++  first
++  | exact _root_.Prove2me.Solution.InteractiveConsistency_Impossibility_construction_consistent P A B C v v' hAB hAC hBC hP
++  | (apply _root_.Prove2me.Solution.InteractiveConsistency_Impossibility_construction_consistent <;> assumption)
++
++end InteractiveConsistency.Impossibility
++
++
++end Prove2meStatement

@@ -1,0 +1,57 @@
+--- Downloads/analytic-nt/ConnesRZ.weil_positivity_implies_RH.lean
++++ converted/Prove2me/AnalyticNt/ConnesRZ_weil_positivity_implies_RH.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 9af28805-41b4-4416-9b42-bdf30c63dca3
++* original name       : `ConnesRZ.weil_positivity_implies_RH`
++* title               : Positivity of the Weil distribution implies the Riemann hypothesis
++* statement author    : Lucas
++* solution author     : waitingintime (submission c868df42-aaba-43d7-a385-cca362419f54,
++                        accepted 2026-10-06T21:19:08.319248+00:00)
++* source              : A. Connes, Noncommutative geometry and the Riemann zeta function, in: Mathematics: Frontiers and Perspectives, AMS (2000); section 3 "Weil positivity and the Trace formula", pp. 13-22. Transform: eq. (12), p. 15. Explicit formula: eq. (11), p. 15. Positivity/RH equivalence: concluding paragraph, p. 22. Specialised throughout to the global field k = Q with trivial Grossencharakter, so that the L-function is the Riemann zeta function.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/analytic-nt/ConnesRZ.weil_positivity_implies_RH.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/ConnesRZ_weil_positivity_implies_RH.diff`.
++-/
+ import Theorems.Thm_ConnesRZ_spectral_star_square
+ import Theorems.Thm_ConnesRZ_exists_pair_localization
+ 
+@@ -61,7 +78,7 @@
+ end ConnesRZCertificate
+ 
+ /-- A tracked reduction to the open Burnol localization child. -/
+-theorem solution
++theorem _root_.Prove2me.Solution.ConnesRZ_weil_positivity_implies_RH
+     (hpos : ∀ g : ℝ → ℂ, IsTest g →
+       0 ≤ (weilDistribution (conv g (starInv g))).re) :
+     ∀ s : ℂ, IsCriticalZero s → s.re = 1 / 2 := by
+@@ -78,3 +95,24 @@
+     g hg hgs hgσ r hr htail
+   exact (not_lt_of_ge (hpos g hg)) hnegative
+ 
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open Complex
++
++namespace ConnesRZ
++
++theorem weil_positivity_implies_RH
++    (hpos : ∀ g : ℝ → ℂ, IsTest g → 0 ≤ (weilDistribution (conv g (starInv g))).re) :
++    ∀ s : ℂ, IsCriticalZero s → s.re = 1 / 2 := by
++  first
++  | exact _root_.Prove2me.Solution.ConnesRZ_weil_positivity_implies_RH hpos
++  | (apply _root_.Prove2me.Solution.ConnesRZ_weil_positivity_implies_RH <;> assumption)
++
++end ConnesRZ
++
++
++end Prove2meStatement

@@ -1,0 +1,48 @@
+--- Downloads/cstar-gelfand/FamousTheorems.ergodic_iff_extreme_invariant.lean
++++ converted/Prove2me/CstarGelfand/FamousTheorems_ergodic_iff_extreme_invariant.lean
+@@ -1,8 +1,44 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : d3695b5a-01d8-4f3b-accd-16c8101c79d0
++* original name       : `FamousTheorems.ergodic_iff_extreme_invariant`
++* title               : Ergodic measures are extreme invariant measures
++* statement author    : cm_beta
++* solution author     : cm_beta (submission 8c6f842c-03c7-4d6f-8ad0-31667d987861,
++                        accepted 2026-09-24T08:15:36.491914+00:00)
++* source              : Listed in Mathlib's curated theorem manifests (docs/1000.yaml); formalized in Mathlib as `Ergodic.iff_mem_extremePoints`. Proof here reduces to that Mathlib result.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/cstar-gelfand/FamousTheorems.ergodic_iff_extreme_invariant.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/FamousTheorems_ergodic_iff_extreme_invariant.diff`.
++-/
+ import Mathlib
+ 
+ open MeasureTheory
+ 
+-theorem solution {X : Type*} {m : MeasurableSpace X} {μ : Measure X} {f : X → X} [IsProbabilityMeasure μ] :
++theorem _root_.Prove2me.Solution.FamousTheorems_ergodic_iff_extreme_invariant {X : Type*} {m : MeasurableSpace X} {μ : Measure X} {f : X → X} [IsProbabilityMeasure μ] :
+     Ergodic f μ ↔
+       μ ∈ Set.extremePoints ENNReal {ν : Measure X | MeasurePreserving f ν ν ∧ IsProbabilityMeasure ν} :=
+   Ergodic.iff_mem_extremePoints
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace FamousTheorems
++
++open MeasureTheory
++
++theorem ergodic_iff_extreme_invariant {X : Type*} {m : MeasurableSpace X} {μ : Measure X} {f : X → X} [IsProbabilityMeasure μ] :
++    Ergodic f μ ↔
++      μ ∈ Set.extremePoints ENNReal {ν : Measure X | MeasurePreserving f ν ν ∧ IsProbabilityMeasure ν} :=
++  _root_.Prove2me.Solution.FamousTheorems_ergodic_iff_extreme_invariant
++
++end FamousTheorems
++
++end Prove2meStatement

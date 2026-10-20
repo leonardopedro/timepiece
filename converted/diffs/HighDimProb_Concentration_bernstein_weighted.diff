@@ -1,0 +1,75 @@
+--- Downloads/prob-concentration/HighDimProb.Concentration.bernstein_weighted.lean
++++ converted/Prove2me/ProbConcentration/HighDimProb_Concentration_bernstein_weighted.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 4b30a79e-1b02-4049-bfd5-4390417053bd
++* original name       : `HighDimProb.Concentration.bernstein_weighted`
++* title               : Theorem 2.8.2 — Bernstein's inequality (weighted sum)
++* statement author    : mikedeng1
++* solution author     : Nickrobbins95 (submission 39d70104-a2e4-4f41-bb75-65ee6f97322b,
++                        accepted 2026-09-25T14:10:49.184285+00:00)
++* source              : Vershynin, High-Dimensional Probability (2018), Theorem 2.8.2, p. 38 (PDF p. 46)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/prob-concentration/HighDimProb.Concentration.bernstein_weighted.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/HighDimProb_Concentration_bernstein_weighted.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_HighDimProb_Concentration_SubexponentialNorm
+ 
+@@ -263,7 +280,7 @@
+         gcongr
+ 
+ open MeasureTheory ProbabilityTheory Real HighDimProb.Concentration in
+-theorem solution :
++theorem _root_.Prove2me.Solution.HighDimProb_Concentration_bernstein_weighted :
+     ∃ c : ℝ, 0 < c ∧
+       ∀ {Ω : Type} [MeasurableSpace Ω] (P : Measure Ω) [IsProbabilityMeasure P]
+         {N : ℕ} (X : Fin N → Ω → ℝ), (∀ i, Measurable (X i)) → iIndepFun X P →
+@@ -278,3 +295,42 @@
+   refine ⟨1 / 256, by norm_num, ?_⟩
+   intro Ω _ P _ N X hX hind hmean hsub a t ht
+   exact bw4b30_main P X hX hind hmean hsub a ht
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory Real
++
++namespace HighDimProb.Concentration
++
++/-- **Theorem 2.8.2** (Bernstein's inequality), Vershynin, *High-Dimensional Probability*
++(2018), p. 38.
++
++Let `X₁, …, X_N` be independent, mean zero, sub-exponential random variables, and
++`a = (a₁, …, a_N) ∈ ℝᴺ`. Then, for every `t ≥ 0`,
++
++`P {|∑ᵢ aᵢXᵢ| ≥ t} ≤ 2 exp[−c min(t² / (K²‖a‖₂²), t / (K‖a‖∞))]`, where `K = maxᵢ ‖Xᵢ‖_{ψ₁}`
++and `c > 0` is an absolute constant (not depending on `N`, the `Xᵢ`, `a`, or `t`). -/
++theorem bernstein_weighted :
++    ∃ c : ℝ, 0 < c ∧
++      ∀ {Ω : Type} [MeasurableSpace Ω] (P : Measure Ω) [IsProbabilityMeasure P]
++        {N : ℕ} (X : Fin N → Ω → ℝ), (∀ i, Measurable (X i)) → iIndepFun X P →
++        (∀ i, ∫ ω, X i ω ∂P = 0) →
++        (∀ i, ∃ s > 0, Integrable (fun ω => Real.exp (|X i ω| / s)) P ∧
++                       ∫ ω, Real.exp (|X i ω| / s) ∂P ≤ 2) →
++        ∀ (a : Fin N → ℝ) {t : ℝ}, 0 ≤ t →
++        P.real {ω | t ≤ |∑ i, a i * X i ω|} ≤
++          2 * Real.exp (-(c * min
++            (t ^ 2 / ((⨆ i, subexponentialNorm P (X i)) ^ 2 * ∑ i, (a i) ^ 2))
++            (t / ((⨆ i, subexponentialNorm P (X i)) * ⨆ i, |a i|)))) := by
++  first
++  | exact _root_.Prove2me.Solution.HighDimProb_Concentration_bernstein_weighted
++  | (apply _root_.Prove2me.Solution.HighDimProb_Concentration_bernstein_weighted <;> assumption)
++
++end HighDimProb.Concentration
++
++
++end Prove2meStatement

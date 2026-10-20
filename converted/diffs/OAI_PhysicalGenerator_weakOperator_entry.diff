@@ -1,0 +1,79 @@
+--- Downloads/fock-ladders/OAI.PhysicalGenerator.weakOperator_entry.lean
++++ converted/Prove2me/FockLadders/OAI_PhysicalGenerator_weakOperator_entry.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : aa2a8983-d4e5-4d31-abab-15b44201a213
++* original name       : `OAI.PhysicalGenerator.weakOperator_entry`
++* title               : Number-basis matrix entries of the weak generator operator
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 2908a96e-dd50-4a66-872d-058efd41d10b,
++                        accepted 2026-10-16T04:55:29.299484+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/Generator.lean#L394-L418
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/fock-ladders/OAI.PhysicalGenerator.weakOperator_entry.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_PhysicalGenerator_weakOperator_entry.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/Generator.lean:L398-L422
+ -- (upload_full_project.md Phase 4): solution for node OAI.PhysicalGenerator.weakOperator_entry. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -242,14 +259,14 @@
+ open scoped ComplexConjugate
+ variable {n : ℕ}
+ 
+-theorem single_lower_third_apply (j : Fin n) (x : Fock n) (k : NumberIndex n) :
++private theorem single_lower_third_apply (j : Fin n) (x : Fock n) (k : NumberIndex n) :
+     sandwich 0 3 (by omega) j x k=
+       (Real.sqrt ((k j:ℝ)+1):ℂ)*inverseWeight 3 x (up j k) := by
+   simp only [sandwich_apply,coefficient,inverseWeight_apply,pow_zero,one_mul]
+   push_cast
+   ring
+ 
+-theorem single_raise_third_apply (j : Fin n) (x : Fock n) (k : NumberIndex n) :
++private theorem single_raise_third_apply (j : Fin n) (x : Fock n) (k : NumberIndex n) :
+     creationSandwich 0 3 (by omega) j x k=
+       (if k j=0 then (0:ℂ) else (Real.sqrt (k j:ℝ):ℂ))*inverseWeight 3 x (down j k) := by
+   by_cases hk : k j=0
+@@ -515,4 +532,37 @@
+ open scoped BigOperators ComplexConjugate
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.PhysicalGenerator.weakOperator_entry := @_root_.OAI.PhysicalGenerator.weakOperator_entry
++theorem _root_.Prove2me.Solution.OAI_PhysicalGenerator_weakOperator_entry : type_of% @_root_.OAI.PhysicalGenerator.weakOperator_entry := @_root_.OAI.PhysicalGenerator.weakOperator_entry
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.PhysicalGenerator.weakOperator_entry` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.PhysicalGenerator
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open scoped BigOperators
++open MvPolynomial
++open scoped BigOperators ComplexConjugate Classical
++open Submodule
++open ContinuousLinearMap
++open scoped ENNReal
++open EntropyPhotonNumber QuantumTrace Annihilation BeamLadder
++open scoped BigOperators ComplexConjugate
++variable {n : ℕ} {I J K : Type*}
++
++example (r : ℝ) (j : Fin n) (x : I → Fock n)
++    (hx : Summable (fun i => ‖x i‖^2)) (k l : NumberIndex n) :
++    entry (weakOperator r j x) k l=
++      (r+1:ℂ)*conj (lowerCoefficient j l)*entry (CrossEnsemble.operator (baseFamily x) (baseFamily x)) k (up j l)-
++      (r:ℂ)*raiseCoefficient j k*entry (CrossEnsemble.operator (baseFamily x) (baseFamily x)) (down j k) l := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_PhysicalGenerator_weakOperator_entry r j x hx k l
++  | (apply _root_.Prove2me.Solution.OAI_PhysicalGenerator_weakOperator_entry <;> assumption)
++
++
++end Prove2meStatement

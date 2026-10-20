@@ -1,0 +1,67 @@
+--- Downloads/fock-ladders/OAI.WeightedGenerator.centered_raising_coordinate.lean
++++ converted/Prove2me/FockLadders/OAI_WeightedGenerator_centered_raising_coordinate.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : e0b78caa-4efa-44f9-9c1f-934035db0660
++* original name       : `OAI.WeightedGenerator.centered_raising_coordinate`
++* title               : Spectral coordinates of the centered raising ladder are conjugates of the centered annihilation matrix
++* statement author    : Shuze Chen
++* solution author     : Shuze Chen (submission 30db8574-30fe-4da3-b724-ea38947f0117,
++                        accepted 2026-10-16T04:24:40.13414+00:00)
++* source              : https://github.com/openai/math/blob/1581d4cbdd69a0faf34b2089614fe2a814316a6a/lean/OAI/InformationTheory/PhotonNumber/ThermalMetric.lean#L545-L564
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/fock-ladders/OAI.WeightedGenerator.centered_raising_coordinate.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/OAI_WeightedGenerator_centered_raising_coordinate.diff`.
++-/
+ -- Generated from openai/math@1581d4c lean/OAI/InformationTheory/PhotonNumber/ThermalMetric.lean:L548-L567
+ -- (upload_full_project.md Phase 4): solution for node OAI.WeightedGenerator.centered_raising_coordinate. The node keeps its source
+ -- declaration (inside its namespace, so name resolution is unchanged) next to the proof-only
+@@ -85,7 +102,8 @@
+   have hd := spectralGain_raising b p hp x hi j l r
+   change inner ℂ (b r) (raising j (inverseWeight 2 (x l)))=_ at hd
+   simp only [centeredLadder, ↓reduceIte, ContinuousLinearMap.comp_apply,
+-    sub_apply, smul_apply, inner_sub_right, inner_smul_right, hw, hd, hb, centeredEntry]
++    ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply, inner_sub_right, inner_smul_right,
++    hw, hd, hb, centeredEntry]
+   by_cases hh : l=r
+   · subst r
+     simp only [↓reduceIte, map_sub, mul_one]
+@@ -165,4 +183,32 @@
+ open scoped ComplexConjugate BigOperators
+ 
+ 
+-theorem solution : type_of% @_root_.OAI.WeightedGenerator.centered_raising_coordinate := @_root_.OAI.WeightedGenerator.centered_raising_coordinate
++theorem _root_.Prove2me.Solution.OAI_WeightedGenerator_centered_raising_coordinate : type_of% @_root_.OAI.WeightedGenerator.centered_raising_coordinate := @_root_.OAI.WeightedGenerator.centered_raising_coordinate
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), checked against the solution above.  The solution declares the platform theorem `OAI.WeightedGenerator.centered_raising_coordinate` itself, so the statement is restated as an `example`. -/
++
++section Prove2meStatement
++
++open OAI OAI.WeightedGenerator
++open scoped BigOperators ComplexConjugate ENNReal Topology
++open MeasureTheory
++open scoped ComplexConjugate
++open scoped BigOperators ComplexConjugate
++open EntropyPhotonNumber Annihilation
++open scoped ComplexConjugate BigOperators
++variable {n : ℕ} {J : Type*}
++
++example (b : HilbertBasis J ℂ (Fock n))
++    (p : J → ℝ) (hp : ∀ r, 0<p r) (x : J → Fock n)
++    (hi : ∀ r, inverseWeight 3 (x r)=(Real.sqrt (p r):ℂ) • b r)
++    (j : Fin n) (μ : ℂ) (l r : J) :
++    inner ℂ (b r) (centeredLadder j μ true (x l))=
++      (Real.sqrt (p l):ℂ)*conj (centeredEntry b p x j μ l r) := by
++  first
++  | exact _root_.Prove2me.Solution.OAI_WeightedGenerator_centered_raising_coordinate b p hp x hi j μ l r
++  | (apply _root_.Prove2me.Solution.OAI_WeightedGenerator_centered_raising_coordinate <;> assumption)
++
++
++end Prove2meStatement

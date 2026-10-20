@@ -1,0 +1,62 @@
+--- Downloads/arctic-crypto/SchnorrGrp.hvzk_pmf.lean
++++ converted/Prove2me/ArcticCrypto/SchnorrGrp_hvzk_pmf.lean
+@@ -1,8 +1,26 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 8dd3adef-cfbd-47f1-a3fb-5b4cc8c20559
++* original name       : `SchnorrGrp.hvzk_pmf`
++* title               : Perfect HVZK, distributional form.
++* statement author    : raver1975
++* solution author     : raver1975 (submission fbf8172f-957e-45a9-9007-0daf3635158e,
++                        accepted 2026-09-12T07:04:24.910541+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean#L221
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/arctic-crypto/SchnorrGrp.hvzk_pmf.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/SchnorrGrp_hvzk_pmf.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupProtocol
+-import Theorems.Thm_SchnorrGrp_honest_eq_simulate
+-import Theorems.Thm_SchnorrGrp_map_uniformOfFintype_equiv
++import Prove2me.ArcticCrypto.SchnorrGrp_honest_eq_simulate  -- was `Theorems.Thm_SchnorrGrp_honest_eq_simulate`
++import Prove2me.ArcticCrypto.SchnorrGrp_map_uniformOfFintype_equiv  -- was `Theorems.Thm_SchnorrGrp_map_uniformOfFintype_equiv`
++
+ /-
+ Copyright (c) 2026 Harmonic. All rights reserved.
+ Released under Apache 2.0 license as described in the file LICENSE.
+@@ -93,10 +111,29 @@
+ 
+ 
+ open SchnorrGrp in
+-theorem solution[NeZero q] {g : G} (hg : g ^ q = 1) (x c : ZMod q) :
++theorem _root_.Prove2me.Solution.SchnorrGrp_hvzk_pmf[NeZero q] {g : G} (hg : g ^ q = 1) (x c : ZMod q) :
+     (PMF.uniformOfFintype (ZMod q)).map (fun r => honest g x r c)
+       = (PMF.uniformOfFintype (ZMod q)).map (fun z => simulate g (gexp g x) c z) := by
+   have h : (fun r => honest g x r c)
+       = (fun z => simulate g (gexp g x) c z) ∘ (hvzkEquiv x c) := by
+     funext r; exact hvzk_equiv hg x c r
+   rw [h, ← PMF.map_comp, map_uniformOfFintype_equiv]
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open SchnorrGrp
++variable {G : Type*} [CommGroup G] {q : ℕ}
++
++theorem SchnorrGrp.hvzk_pmf[NeZero q] {g : G} (hg : g ^ q = 1) (x c : ZMod q) :
++    (PMF.uniformOfFintype (ZMod q)).map (fun r => honest g x r c)
++      = (PMF.uniformOfFintype (ZMod q)).map (fun z => simulate g (gexp g x) c z) := by
++  first
++  | exact _root_.Prove2me.Solution.SchnorrGrp_hvzk_pmf hg x c
++  | (apply _root_.Prove2me.Solution.SchnorrGrp_hvzk_pmf <;> assumption)
++
++
++end Prove2meStatement

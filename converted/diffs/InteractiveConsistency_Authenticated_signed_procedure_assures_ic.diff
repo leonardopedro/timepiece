@@ -1,0 +1,86 @@
+--- Downloads/arctic-crypto/InteractiveConsistency.Authenticated.signed_procedure_assures_ic.lean
++++ converted/Prove2me/ArcticCrypto/InteractiveConsistency_Authenticated_signed_procedure_assures_ic.lean
+@@ -1,5 +1,23 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : ae344342-0625-4e08-9473-922039f4ae2b
++* original name       : `InteractiveConsistency.Authenticated.signed_procedure_assures_ic`
++* title               : Section 5 — the authenticated S_pq procedure assures interactive consistency for n ≥ m
++* statement author    : mikedeng1
++* solution author     : mrfancypants (submission 328a5c36-e739-4915-ad3f-5cdabeda85a0,
++                        accepted 2026-10-13T04:56:58.734259+00:00)
++* source              : Pease, Shostak & Lamport, Reaching agreement in the presence of faults, J. ACM 27 (1980), pp. 233–234, Section 5 procedure and Q.E.D.; interactive-consistency clauses, p. 232; https://doi.org/10.1145/322186.322188
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/arctic-crypto/InteractiveConsistency.Authenticated.signed_procedure_assures_ic.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/InteractiveConsistency_Authenticated_signed_procedure_assures_ic.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_InteractiveConsistency_Authenticated_Procedure
++
+ set_option autoImplicit false
+ 
+ 
+@@ -19,7 +37,7 @@
+   obtain ⟨v, hv⟩ := Option.ne_none_iff_exists'.mp hne
+   refine ⟨v, hv, ?_⟩
+   ext v'
+-  simp only [S, view, Set.mem_ofPred_eq, Set.mem_singleton_iff]
++  simp only [S, view, Set.mem_setOf_eq, Set.mem_singleton_iff]
+   constructor
+   · rintro ⟨w, hnd, hlen, hw, hval⟩
+     have e : p :: (w ++ [q]) = (p :: w) ++ q :: [] := by simp
+@@ -55,7 +73,7 @@
+   rcases eq_or_ne p p' with hpp | hpp
+   · subst hpp; exact le_rfl
+   intro v hv
+-  simp only [S, view, Set.mem_ofPred_eq] at hv ⊢
++  simp only [S, view, Set.mem_setOf_eq] at hv ⊢
+   obtain ⟨w, hnd, hlen, hw, hval⟩ := hv
+   have key : ∀ (a b : List α) (x : α), x ∈ N → w = a ++ x :: b →
+       σ (x :: (b ++ [q])) = some v := by
+@@ -189,7 +207,7 @@
+ open InteractiveConsistency.Authenticated
+ 
+ 
+-theorem solution {α V : Type*} [DecidableEq α]
++theorem _root_.Prove2me.Solution.InteractiveConsistency_Authenticated_signed_procedure_assures_ic {α V : Type*} [DecidableEq α]
+     (P : Finset α) (m : ℕ) (hmn : m ≤ P.card) :
+     ∀ N : Finset α, N ⊆ P → P.card ≤ N.card + m →
+     ∀ σ : List α → Option V,
+@@ -198,3 +216,32 @@
+       (∀ p ∈ N, ∀ p' ∈ N, ∀ r ∈ P,
+         record m P (view σ p) p r = record m P (view σ p') p' r) := by
+   exact signed_procedure_assures_ic_core P m hmn
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++set_option autoImplicit false
++
++namespace InteractiveConsistency.Authenticated
++
++/-- Section 5, pp. 233–234: the authenticated-message procedure assures
++interactive consistency for every `n ≥ m`. -/
++theorem signed_procedure_assures_ic {α V : Type*} [DecidableEq α]
++    (P : Finset α) (m : ℕ) (hmn : m ≤ P.card) :
++    ∀ N : Finset α, N ⊆ P → P.card ≤ N.card + m →
++    ∀ σ : List α → Option V,
++      IsAuthScenario P σ → AuthConsistent P N m σ →
++      (∀ p ∈ N, ∀ q ∈ N, record m P (view σ p) p q = σ [q]) ∧
++      (∀ p ∈ N, ∀ p' ∈ N, ∀ r ∈ P,
++        record m P (view σ p) p r = record m P (view σ p') p' r) := by
++  first
++  | exact _root_.Prove2me.Solution.InteractiveConsistency_Authenticated_signed_procedure_assures_ic P m hmn
++  | (apply _root_.Prove2me.Solution.InteractiveConsistency_Authenticated_signed_procedure_assures_ic <;> assumption)
++
++end InteractiveConsistency.Authenticated
++
++
++end Prove2meStatement

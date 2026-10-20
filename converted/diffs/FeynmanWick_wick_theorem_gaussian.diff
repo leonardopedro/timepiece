@@ -1,0 +1,258 @@
+--- Downloads/qft-wick/FeynmanWick.wick_theorem_gaussian.lean
++++ converted/Prove2me/QftWick/FeynmanWick_wick_theorem_gaussian.lean
+@@ -1,3 +1,20 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 862efd33-4d37-4ada-b577-775d4e189fd1
++* original name       : `FeynmanWick.wick_theorem_gaussian`
++* title               : Wick's theorem: $\langle \phi_{k_1}\cdots\phi_{k_{2n}}\rangle$ is the sum over pairings
++* statement author    : Lucas
++* solution author     : Nickrobbins95 (submission 5781bc88-5a28-4379-b3d3-c9f7e54aab82,
++                        accepted 2026-09-24T16:23:42.123166+00:00)
++* source              : Feynman diagram, Wikipedia (revision captured 2026-09-20), https://en.wikipedia.org/wiki/Feynman_diagram, sections 'Wick theorem' and 'Higher Gaussian moments — completing Wick's theorem'
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/qft-wick/FeynmanWick.wick_theorem_gaussian.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/FeynmanWick_wick_theorem_gaussian.diff`.
++-/
+ import Mathlib
+ import Definitions.Def_FeynmanWickPairings
+ 
+@@ -299,7 +316,7 @@
+     (y v : Fin N → ℝ) :
+     HasLineDerivAt ℝ (fun y : Fin N → ℝ => ∏ j ∈ t, w j ⬝ᵥ y)
+       (∑ b ∈ t, (w b ⬝ᵥ v) * ∏ j ∈ t.erase b, w j ⬝ᵥ y) y v := by
+-  have := HasDerivAt.fun_finsetProd (u := t)
++  have := HasDerivAt.fun_finset_prod (u := t)
+     (f := fun j (τ : ℝ) => w j ⬝ᵥ y + τ * (w j ⬝ᵥ v))
+     (f' := fun j => w j ⬝ᵥ v) (x := 0) (fun j _ => by
+       simpa using ((hasDerivAt_id (0 : ℝ)).mul_const (w j ⬝ᵥ v)).const_add (w j ⬝ᵥ y))
+@@ -320,7 +337,7 @@
+     rw [add_comm, add_pow, Finset.sum_mul]
+     apply Finset.sum_congr rfl; intro j _; simp only [one_pow, mul_one]; ring
+   simp_rw [h]
+-  apply integrable_finsetSum
++  apply integrable_finset_sum
+   intro j _
+   apply Integrable.const_mul
+   have := (integrable_rpow_mul_exp_neg_mul_sq hb (s := (j : ℝ))
+@@ -331,7 +348,7 @@
+ lemma abs_le_prod_one_add (z : Fin N → ℝ) (j : Fin N) : |z j| ≤ ∏ i, (1 + |z i|) := by
+   rw [← Finset.mul_prod_erase Finset.univ (fun i => 1 + |z i|) (Finset.mem_univ j)]
+   have h1 : 1 ≤ ∏ i ∈ Finset.univ.erase j, (1 + |z i|) :=
+-    Finset.one_le_prod (fun i _ => by linarith [abs_nonneg (z i)])
++    Multiset.one_le_prod_map (fun i _ => by linarith [abs_nonneg (z i)])  -- conversion
+   nlinarith [abs_nonneg (z j)]
+ 
+ lemma abs_dot_le (u z : Fin N → ℝ) : |u ⬝ᵥ z| ≤ (∑ l, |u l|) * ∏ i, (1 + |z i|) := by
+@@ -388,8 +405,8 @@
+     (g := fun y => ∏ j ∈ s.erase a₀, w j ⬝ᵥ y)
+     (g' := fun y => ∑ b ∈ s.erase a₀, (w b ⬝ᵥ w a₀) * ∏ j ∈ (s.erase a₀).erase b, w j ⬝ᵥ y)
+     (v := w a₀) ?_ ?_ ?_
+-    (fun y _ => hasLineDerivAt_gw y (w a₀))
+-    (fun y _ => hasLineDerivAt_lin (s.erase a₀) w y (w a₀))
++    (fun y => hasLineDerivAt_gw y (w a₀))
++    (fun y => hasLineDerivAt_lin (s.erase a₀) w y (w a₀))
+   · simp only [ContinuousLinearMap.mul_apply'] at hibp
+     have hL : ∫ y, gw y * ∏ j ∈ s, w j ⬝ᵥ y =
+         -∫ y, -(w a₀ ⬝ᵥ y) * gw y * ∏ j ∈ s.erase a₀, w j ⬝ᵥ y := by
+@@ -397,7 +414,7 @@
+       congr 1; funext y; rw [hsplit]; ring
+     rw [hL, ← hibp]
+     simp_rw [Finset.mul_sum]
+-    rw [integral_finsetSum]
++    rw [integral_finset_sum]
+     · apply Finset.sum_congr rfl; intro b _
+       rw [← integral_const_mul, dotProduct_comm (w b)]
+       congr 1; funext y; ring
+@@ -409,7 +426,7 @@
+       (Filter.Eventually.of_forall fun y => by simp only [Pi.neg_apply]; rw [hsplit]; ring)
+   · simp only [ContinuousLinearMap.mul_apply']
+     simp_rw [Finset.mul_sum]
+-    apply integrable_finsetSum
++    apply integrable_finset_sum
+     intro b _
+     exact ((integrable_gw_mul _ w).const_mul (w b ⬝ᵥ w a₀)).congr
+       (Filter.Eventually.of_forall fun y => by simp only; ring)
+@@ -483,46 +500,121 @@
+       exact Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => by ring
+     have h : v ⬝ᵥ covMat μ *ᵥ v = ∫ x, (∑ i, v i * x i) ^ 2 ∂μ := by
+       simp_rw [hsq]
+-      rw [integral_finsetSum _ fun i _ => integrable_finsetSum _ fun j _ =>
++      rw [integral_finset_sum _ fun i _ => integrable_finset_sum _ fun j _ =>
+         ((integrable_coord_mul μ i j).mul_const (v j)).const_mul (v i)]
+       simp only [dotProduct, mulVec, covMat, Matrix.of_apply, Finset.mul_sum]
+       refine Finset.sum_congr rfl fun i _ => ?_
+-      rw [integral_finsetSum _ fun j _ =>
++      rw [integral_finset_sum _ fun j _ =>
+         ((integrable_coord_mul μ i j).mul_const (v j)).const_mul (v i)]
+       refine Finset.sum_congr rfl fun j _ => ?_
+       rw [integral_const_mul, integral_mul_const]
+     rw [h]
+     exact integral_nonneg fun _ => sq_nonneg _
+ 
+-lemma eq_mvG (μ : Measure (EuclideanSpace ℝ (Fin d))) [IsGaussian μ]
+-    (hcent : ∀ i : Fin d, ∫ x, x i ∂μ = 0) :
+-    μ = multivariateGaussian 0 (covMat μ) := by
+-  have hS := covMat_posSemidef μ
+-  apply IsGaussian.ext
+-  · rw [integral_id_multivariateGaussian']
++/-! Conversion note: the platform proof identified `μ` with Mathlib's `multivariateGaussian 0 (covMat μ)`,
++which the pinned Mathlib does not have.  The lemmas below replace `eq_mvG` and the original proof of
++`exists_rep` by a direct comparison of characteristic functions; the statement of `exists_rep` is
++unchanged. -/
++
++lemma dot_covMat_mulVec (μ : Measure (EuclideanSpace ℝ (Fin d))) [IsGaussian μ] (v : Fin d → ℝ) :
++    v ⬝ᵥ covMat μ *ᵥ v = ∫ x, (∑ i, v i * x i) ^ 2 ∂μ := by
++  have hsq : ∀ x : EuclideanSpace ℝ (Fin d),
++      (∑ i, v i * x i) ^ 2 = ∑ i, ∑ j, v i * (x i * x j * v j) := by
++    intro x
++    rw [sq, Finset.sum_mul_sum]
++    exact Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => by ring
++  simp_rw [hsq]
++  rw [integral_finset_sum _ fun i _ => integrable_finset_sum _ fun j _ =>
++    ((integrable_coord_mul μ i j).mul_const (v j)).const_mul (v i)]
++  simp only [dotProduct, mulVec, covMat, Matrix.of_apply, Finset.mul_sum]
++  refine Finset.sum_congr rfl fun i _ => ?_
++  rw [integral_finset_sum _ fun j _ =>
++    ((integrable_coord_mul μ i j).mul_const (v j)).const_mul (v i)]
++  refine Finset.sum_congr rfl fun j _ => ?_
++  rw [integral_const_mul, integral_mul_const]
++
++/-- The characteristic function of a centred Gaussian measure on `ℝ^d`. -/
++lemma charFun_centered (μ : Measure (EuclideanSpace ℝ (Fin d))) [IsGaussian μ]
++    (hcent : ∀ i : Fin d, ∫ x, x i ∂μ = 0) (t : EuclideanSpace ℝ (Fin d)) :
++    charFun μ t = Complex.exp (-((t.ofLp ⬝ᵥ covMat μ *ᵥ t.ofLp : ℝ) : ℂ) / 2) := by
++  have hm : μ[id] = 0 := by
+     ext i
+     have := (EuclideanSpace.proj (𝕜 := ℝ) i).integral_comp_comm
+       (IsGaussian.integrable_id (μ := μ))
+     simpa [hcent] using this.symm
+-  · rw [← ContinuousLinearMap.toBilinForm_inj]
+-    refine LinearMap.BilinForm.ext_basis (EuclideanSpace.basisFun (Fin d) ℝ).toBasis
+-      fun i j => ?_
+-    rw [ContinuousLinearMap.toBilinForm_apply, ContinuousLinearMap.toBilinForm_apply,
+-      covarianceBilin_apply_eq_cov IsGaussian.memLp_two_id,
+-      covarianceBilin_multivariateGaussian hS]
+-    simp [PiLp.inner_apply, covariance, hcent, covMat]
++  have hin : ∀ u : EuclideanSpace ℝ (Fin d), ⟪t, u⟫ = ∑ i, t i * u i := by
++    intro u
++    rw [EuclideanSpace.inner_eq_star_dotProduct]
++    simp [dotProduct, mul_comm]
++  have hc : covarianceBilin μ t t = t.ofLp ⬝ᵥ covMat μ *ᵥ t.ofLp := by
++    rw [covarianceBilin_apply_eq_cov IsGaussian.memLp_two_id, dot_covMat_mulVec, covariance]
++    have h0 : ∫ u, ⟪t, u⟫ ∂μ = 0 := by
++      have h := integral_inner (𝕜 := ℝ) (μ := μ) (IsGaussian.integrable_id) t
++      simp only [id] at h
++      rw [h, show (∫ x, x ∂μ) = μ[id] from rfl, hm, inner_zero_right]
++    simp only [h0, sub_zero]
++    simp only [hin, sq]
++  rw [IsGaussian.charFun_eq', hm, hc]
++  simp [neg_div]
++
++/-- The characteristic function of the image of the standard Gaussian under `y ↦ A y`. -/
++lemma charFun_rep (A : Matrix (Fin d) (Fin d) ℝ) (t : EuclideanSpace ℝ (Fin d)) :
++    charFun ((Measure.pi fun _ : Fin d => gaussianReal 0 1).map
++      (fun y => WithLp.toLp 2 (A *ᵥ y))) t
++      = Complex.exp (-(((Aᵀ *ᵥ t.ofLp) ⬝ᵥ (Aᵀ *ᵥ t.ofLp) : ℝ) : ℂ) / 2) := by
++  have hmeas : Measurable (fun y : Fin d → ℝ => WithLp.toLp 2 (A *ᵥ y)) := by fun_prop
++  rw [charFun_apply, integral_map hmeas.aemeasurable (by fun_prop)]
++  set c := Aᵀ *ᵥ t.ofLp
++  have hin : ∀ y : Fin d → ℝ, ⟪WithLp.toLp 2 (A *ᵥ y), t⟫ = ∑ j, y j * c j := by
++    intro y
++    rw [EuclideanSpace.inner_eq_star_dotProduct]
++    simp only [star_trivial, c, dotProduct, mulVec, transpose_apply, Finset.mul_sum]
++    rw [Finset.sum_comm]
++    exact Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => by ring
++  have hprod : ∀ y : Fin d → ℝ, Complex.exp (↑⟪WithLp.toLp 2 (A *ᵥ y), t⟫ * Complex.I) =
++      ∏ j, Complex.exp (↑(y j * c j) * Complex.I) := by
++    intro y
++    rw [hin, ← Complex.exp_sum, Complex.ofReal_sum, Finset.sum_mul]
++  simp_rw [hprod]
++  rw [integral_fintype_prod_eq_prod (f := fun j x => Complex.exp (↑(x * c j) * Complex.I))]
++  have h1 : ∀ j, ∫ x, Complex.exp (↑(x * c j) * Complex.I) ∂gaussianReal 0 1 =
++      Complex.exp (-((c j ^ 2 : ℝ) : ℂ) / 2) := by
++    intro j
++    have := charFun_gaussianReal (μ := 0) (v := 1) (c j)
++    rw [charFun_apply] at this
++    simp only [RCLike.inner_apply, conj_trivial, mul_comm (c j)] at this
++    rw [this]; congr 1; push_cast; ring
++  simp_rw [h1]
++  rw [← Complex.exp_sum]
++  congr 1
++  simp only [dotProduct, ← sq]
++  push_cast
++  simp only [neg_div, Finset.sum_neg_distrib, Finset.sum_div]
++
++lemma sqrt_dot (S : Matrix (Fin d) (Fin d) ℝ) (hS : S.PosSemidef) (t : Fin d → ℝ) :
++    ((CFC.sqrt S)ᵀ *ᵥ t) ⬝ᵥ ((CFC.sqrt S)ᵀ *ᵥ t) = t ⬝ᵥ S *ᵥ t := by
++  have h0 : 0 ≤ S := nonneg_iff_posSemidef.mpr hS
++  have hsa : IsSelfAdjoint (CFC.sqrt S) := (CFC.sqrt_nonneg S).isSelfAdjoint
++  have hT : (CFC.sqrt S)ᵀ = CFC.sqrt S := by
++    have := hsa.star_eq
++    rwa [star_eq_conjTranspose, conjTranspose_eq_transpose_of_trivial] at this
++  set A := CFC.sqrt S
++  calc (Aᵀ *ᵥ t) ⬝ᵥ (Aᵀ *ᵥ t) = (t ᵥ* A) ⬝ᵥ (Aᵀ *ᵥ t) := by rw [mulVec_transpose]
++    _ = t ⬝ᵥ (A *ᵥ (Aᵀ *ᵥ t)) := (dotProduct_mulVec _ _ _).symm
++    _ = t ⬝ᵥ S *ᵥ t := by rw [mulVec_mulVec, hT, CFC.sqrt_mul_sqrt_self S h0]
+ 
+ lemma exists_rep (μ : Measure (EuclideanSpace ℝ (Fin d))) [IsGaussian μ]
+     (hcent : ∀ i : Fin d, ∫ x, x i ∂μ = 0) : ∃ A : Matrix (Fin d) (Fin d) ℝ,
+     μ = (Measure.pi fun _ : Fin d => gaussianReal 0 1).map (fun y => WithLp.toLp 2 (A *ᵥ y)) := by
+   refine ⟨CFC.sqrt (covMat μ), ?_⟩
+-  calc μ = multivariateGaussian 0 (covMat μ) := eq_mvG μ hcent
+-    _ = _ := by
+-      rw [multivariateGaussian, ← map_pi_eq_stdGaussian,
+-        Measure.map_map (by fun_prop) (by fun_prop)]
+-      congr 1
+-      funext y
+-      simp
++  have hmeas : Measurable (fun y : Fin d → ℝ => WithLp.toLp 2 (CFC.sqrt (covMat μ) *ᵥ y)) := by
++    fun_prop
++  haveI : IsProbabilityMeasure ((Measure.pi fun _ : Fin d => gaussianReal 0 1).map
++      (fun y => WithLp.toLp 2 (CFC.sqrt (covMat μ) *ᵥ y))) :=
++    Measure.isProbabilityMeasure_map hmeas.aemeasurable
++  apply Measure.ext_of_charFun
++  funext t
++  rw [charFun_centered μ hcent, charFun_rep, sqrt_dot _ (covMat_posSemidef μ)]
+ 
+ end rep
+ 
+@@ -555,9 +647,33 @@
+ 
+ set_option maxHeartbeats 4000000 in
+ open MeasureTheory ProbabilityTheory FeynmanWick in
+-theorem solution {d n : ℕ}
++theorem _root_.Prove2me.Solution.FeynmanWick_wick_theorem_gaussian {d n : ℕ}
+     (μ : Measure (EuclideanSpace ℝ (Fin d))) [IsGaussian μ]
+     (hcent : ∀ i : Fin d, ∫ x, x i ∂μ = 0) (k : Fin (2 * n) → Fin d) :
+     ∫ x, ∏ j : Fin (2 * n), x (k j) ∂μ
+       = wickSum (fun a b => ∫ x, x (k a) * x (k b) ∂μ) := by
+   exact WickLib.wick_main μ hcent k
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MeasureTheory ProbabilityTheory
++
++namespace FeynmanWick
++
++theorem wick_theorem_gaussian {d n : ℕ}
++    (μ : Measure (EuclideanSpace ℝ (Fin d))) [IsGaussian μ]
++    (hcent : ∀ i : Fin d, ∫ x, x i ∂μ = 0) (k : Fin (2 * n) → Fin d) :
++    ∫ x, ∏ j : Fin (2 * n), x (k j) ∂μ
++      = wickSum (fun a b => ∫ x, x (k a) * x (k b) ∂μ) := by
++  first
++  | exact _root_.Prove2me.Solution.FeynmanWick_wick_theorem_gaussian μ hcent k
++  | (apply _root_.Prove2me.Solution.FeynmanWick_wick_theorem_gaussian <;> assumption)
++
++end FeynmanWick
++
++
++end Prove2meStatement

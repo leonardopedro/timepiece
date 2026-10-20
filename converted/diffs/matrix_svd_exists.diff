@@ -1,0 +1,57 @@
+--- Downloads/unfer-sirk/matrix_svd_exists.lean
++++ converted/Prove2me/UnferSirk/matrix_svd_exists.lean
+@@ -1,12 +1,28 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 0a8925b0-8956-4886-a10c-2fcf27bb5575
++* original name       : `matrix_svd_exists`
++* title               : None
++* statement author    : Harry_Xu
++* solution author     : Harry_Xu (submission 69eb5a5c-f11e-47d5-8514-fd0ab97119ad,
++                        accepted 2026-06-21T22:03:53.28202+00:00)
++* source              : Classical linear algebra (SVD existence); used as the witness builder for Candès–Recht 2009, Lemma 3.2 dual achiever (arXiv:0805.4471, p.15)
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/unfer-sirk/matrix_svd_exists.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/matrix_svd_exists.diff`.
++-/
+ import Definitions.Def_matrix_completion_svd
+ import Definitions.Def_matrix_completion_basic
+ import Mathlib.Analysis.InnerProductSpace.Spectrum
+ import Mathlib.Analysis.InnerProductSpace.Adjoint
+ import Mathlib.Analysis.InnerProductSpace.Positive
+-import Mathlib.Analysis.InnerProductSpace.SingularValues
++import Prove2me.Shim.SingularValues  -- was `Mathlib.Analysis.InnerProductSpace.SingularValues`
+ import Mathlib.Analysis.InnerProductSpace.PiL2
+ import Mathlib.Analysis.InnerProductSpace.Trace
+-
+ 
+ /-!
+ Operator-level SVD reconstruction probe.
+@@ -326,6 +342,22 @@
+ end MatrixCompletion
+ 
+ open MatrixCompletion
+-theorem solution {n1 n2 : Nat} (N : Matrix (Fin n1) (Fin n2) ℝ) :
++theorem _root_.Prove2me.Solution.matrix_svd_exists {n1 n2 : Nat} (N : Matrix (Fin n1) (Fin n2) ℝ) :
+     ∃ (r : Nat) (S : SVD N r), True :=
+   MatrixCompletion._svd_exists_aux N
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open MatrixCompletion
++
++theorem matrix_svd_exists {n1 n2 : Nat} (N : Matrix (Fin n1) (Fin n2) ℝ) : ∃ (r : Nat) (S : SVD N r), True := by
++  first
++  | exact _root_.Prove2me.Solution.matrix_svd_exists N
++  | (apply _root_.Prove2me.Solution.matrix_svd_exists <;> assumption)
++
++
++end Prove2meStatement

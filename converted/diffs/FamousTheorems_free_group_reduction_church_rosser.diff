@@ -1,0 +1,42 @@
+--- Downloads/logos-confluence/FamousTheorems.free_group_reduction_church_rosser.lean
++++ converted/Prove2me/LogosConfluence/FamousTheorems_free_group_reduction_church_rosser.lean
+@@ -1,5 +1,38 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : 62d27a32-e3e3-4cc2-b784-260173ed9f46
++* original name       : `FamousTheorems.free_group_reduction_church_rosser`
++* title               : The Church–Rosser theorem for free groups
++* statement author    : cm_beta
++* solution author     : cm_beta (submission 97c38327-9220-4840-bd1e-82597567530a,
++                        accepted 2026-09-24T07:38:58.836681+00:00)
++* source              : Listed in Mathlib's curated theorem manifests (docs/1000.yaml); formalized in Mathlib as `FreeGroup.Red.church_rosser`. Proof here reduces to that Mathlib result.
++* platform Mathlib rev: 0df444a360eaa60ab8c11dca51a86af692955474
++* original file       : Downloads/logos-confluence/FamousTheorems.free_group_reduction_church_rosser.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/FamousTheorems_free_group_reduction_church_rosser.diff`.
++-/
+ import Mathlib
+ 
+-theorem solution {α : Type*} {L₁ L₂ L₃ : List (α × Bool)} (h₁₂ : FreeGroup.Red L₁ L₂) (h₁₃ : FreeGroup.Red L₁ L₃) :
++theorem _root_.Prove2me.Solution.FamousTheorems_free_group_reduction_church_rosser {α : Type*} {L₁ L₂ L₃ : List (α × Bool)} (h₁₂ : FreeGroup.Red L₁ L₂) (h₁₃ : FreeGroup.Red L₁ L₃) :
+     Relation.Join FreeGroup.Red L₂ L₃ :=
+   FreeGroup.Red.church_rosser h₁₂ h₁₃
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++namespace FamousTheorems
++
++theorem free_group_reduction_church_rosser {α : Type*} {L₁ L₂ L₃ : List (α × Bool)} (h₁₂ : FreeGroup.Red L₁ L₂) (h₁₃ : FreeGroup.Red L₁ L₃) :
++    Relation.Join FreeGroup.Red L₂ L₃ :=
++  _root_.Prove2me.Solution.FamousTheorems_free_group_reduction_church_rosser h₁₂ h₁₃
++
++end FamousTheorems
++
++end Prove2meStatement

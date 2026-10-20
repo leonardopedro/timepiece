@@ -1,0 +1,64 @@
+--- Downloads/arctic-crypto/SchnorrGrp.special_soundness_eq_witness.lean
++++ converted/Prove2me/ArcticCrypto/SchnorrGrp_special_soundness_eq_witness.lean
+@@ -1,8 +1,26 @@
++/-
++Prove2.me import, converted to Lean 4.28.0 (this repository's Mathlib pin).
++
++* platform theorem id : b5798c79-d59f-4daf-b54d-8f3f52d7f9c6
++* original name       : `SchnorrGrp.special_soundness_eq_witness`
++* title               : With `pub = g ^ x` the extractor returns exactly the secret `x`.
++* statement author    : raver1975
++* solution author     : raver1975 (submission bbe5e027-126f-4308-875b-246a13345eab,
++                        accepted 2026-09-12T07:05:57.724033+00:00)
++* source              : https://github.com/paulklemstine/Lean/blob/53c2925a02/Catalog/Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean#L171
++* platform Mathlib rev: c5ea00351c28e24afc9f0f84379aa41082b1188f
++* original file       : Downloads/arctic-crypto/SchnorrGrp.special_soundness_eq_witness.lean
++
++Public prove2.me contributions are licensed under Apache 2.0
++(https://prove2.me/terms); this file keeps that license. The conversion diff
++against the original download is `converted/diffs/SchnorrGrp_special_soundness_eq_witness.diff`.
++-/
+ -- Sol generated from Cryptography/ZeroKnowledge/SchnorrGroupProtocol.lean
+ import Mathlib
+ import Definitions.Def_Cryptography_ZeroKnowledge_SchnorrGroupProtocol
+-import Theorems.Thm_SchnorrGrp_gexp_injective
+-import Theorems.Thm_SchnorrGrp_special_soundness_witness
++import Prove2me.ArcticCrypto.SchnorrGrp_gexp_injective  -- was `Theorems.Thm_SchnorrGrp_gexp_injective`
++import Prove2me.ArcticCrypto.SchnorrGrp_special_soundness_witness  -- was `Theorems.Thm_SchnorrGrp_special_soundness_witness`
++
+ /-
+ Copyright (c) 2026 Harmonic. All rights reserved.
+ Released under Apache 2.0 license as described in the file LICENSE.
+@@ -90,10 +108,31 @@
+ 
+ 
+ open SchnorrGrp in
+-theorem solution[Fact q.Prime] {g : G} (hg : g ^ q = 1)
++theorem _root_.Prove2me.Solution.SchnorrGrp_special_soundness_eq_witness[Fact q.Prime] {g : G} (hg : g ^ q = 1)
+     (horder : orderOf g = q) (x : ZMod q) (a : G) (c₁ z₁ c₂ z₂ : ZMod q)
+     (h₁ : Accepts g (gexp g x) ⟨a, c₁, z₁⟩) (h₂ : Accepts g (gexp g x) ⟨a, c₂, z₂⟩)
+     (hc : c₁ ≠ c₂) :
+     extract c₁ z₁ c₂ z₂ = x :=
+   gexp_injective horder
+     (special_soundness_witness hg (gexp_pow_q hg x) a c₁ z₁ c₂ z₂ h₁ h₂ hc)
++
++/-! ## Platform statement
++
++The formal statement registered on prove2.me (manifest `formal_statement`), proved by the solution above. -/
++
++section Prove2meStatement
++
++open SchnorrGrp
++variable {G : Type*} [CommGroup G] {q : ℕ}
++
++theorem SchnorrGrp.special_soundness_eq_witness[Fact q.Prime] {g : G} (hg : g ^ q = 1)
++    (horder : orderOf g = q) (x : ZMod q) (a : G) (c₁ z₁ c₂ z₂ : ZMod q)
++    (h₁ : Accepts g (gexp g x) ⟨a, c₁, z₁⟩) (h₂ : Accepts g (gexp g x) ⟨a, c₂, z₂⟩)
++    (hc : c₁ ≠ c₂) :
++    extract c₁ z₁ c₂ z₂ = x := by
++  first
++  | exact _root_.Prove2me.Solution.SchnorrGrp_special_soundness_eq_witness hg horder x a c₁ z₁ c₂ z₂ h₁ h₂ hc
++  | (apply _root_.Prove2me.Solution.SchnorrGrp_special_soundness_eq_witness <;> assumption)
++
++
++end Prove2meStatement
