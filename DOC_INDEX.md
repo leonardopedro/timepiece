@@ -12,7 +12,7 @@
 |---|---|---:|---:|---:|
 | [AGENTS.md](AGENTS.md) | AGENTS.md - Developer Guide for AI Coding Agents | 319 | 8 | 9 |
 | [ARISTOTLE_SUMMARY.md](ARISTOTLE_SUMMARY.md) | Summary of changes for run ee7d0fcc-1070-4216-8243-2d09899b8053 | 18 | 1 | 8 |
-| [ATTRIBUTION.md](ATTRIBUTION.md) | Attribution | 25 | 1 | 0 |
+| [ATTRIBUTION.md](ATTRIBUTION.md) | Attribution | 25 | 1 | 1 |
 | [BOOKPROOF_PHASE1_MOVES.md](BOOKPROOF_PHASE1_MOVES.md) | BookProof Phase 1 move map | 102 | 0 | 2 |
 | [BOOKPROOF_PHASE2B_MOVES.md](BOOKPROOF_PHASE2B_MOVES.md) | BookProof Phase 2.2b move map | 242 | 0 | 3 |
 | [BOOKPROOF_PHASE2_MOVES.md](BOOKPROOF_PHASE2_MOVES.md) | BookProof Phase 2.2 move map | 398 | 0 | 2 |
@@ -21,7 +21,7 @@
 | [BUILD_COMPONENTS.md](BUILD_COMPONENTS.md) | The independent parts of the development, and how to compile them separately | 109 | 0 | 5 |
 | [BUILD_LAYOUT.md](BUILD_LAYOUT.md) | Project layout and how to build as little as possible | 234 | 1 | 2 |
 | [CHANGELOG.md](CHANGELOG.md) | Changelog | 63 | 1 | 0 |
-| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18112 | 56 | 18 |
+| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18179 | 58 | 18 |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator | 100 | 0 | 1 |
 | [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 231 | 31 | 3 |
 | [Contention.md](Contention.md) | Contention: Message Differences Between `book.tex` and `Book/` | 252 | 0 | 2 |
@@ -62,7 +62,7 @@
 | [REVIEW_GAUGE_UNCONSTRAINED_SPECTRUM_20260912.md](REVIEW_GAUGE_UNCONSTRAINED_SPECTRUM_20260912.md) | "Unconstrained gauge-fixing" is satisfiable — the spectrum is the full spectrum of the basis | 85 | 0 | 1 |
 | [REVIEW_THREADS_20260906.md](REVIEW_THREADS_20260906.md) | Review of the four threads — QYM, NS, QG, and the numerical (SIRK–Hashimoto) layer | 155 | 1 | 2 |
 | [RandomMap.md](RandomMap.md) | Lean 4 Formalization Plan: The Decoupled Kopperman-Mehler Framework | 893 | 1 | 2 |
-| [RandomMap2.md](RandomMap2.md) | Formalization Plan: The Decoupled Kopperman-Solovay Framework | 2189 | 5 | 1 |
+| [RandomMap2.md](RandomMap2.md) | Formalization Plan: The Decoupled Kopperman-Solovay Framework | 2189 | 5 | 2 |
 | [RandomMap2LegacyDraft.md](RandomMap2LegacyDraft.md) | Historical `RandomMap2.lean` Phase 5–10 draft | 951 | 1 | 2 |
 | [RandomMap_old.md](RandomMap_old.md) | Lean 4 Formalization Plan: The Decoupled Kopperman-Mehler Framework | 1292 | 2 | 2 |
 | [SINGULARITY_DETECTION_PLAN.md](SINGULARITY_DETECTION_PLAN.md) | Implementation Plan: ODE→Hamiltonian Self-Adjointness & Singularity Detection via Hashimoto SIRK | 179 | 0 | 4 |
@@ -81,13 +81,13 @@
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | MASS_GAP_SPEC — the proof-facing seam of the certified mass gap | 150 | 1 | 5 |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | sirk_core_model — the Aeneas seam for the SIRK numeric core (mass-gap plan T9) | 88 | 2 | 1 |
 
-## Backlinks (197 links)
+## Backlinks (199 links)
 
 | Document | Linked from |
 |---|---|
 | [AGENTS.md](AGENTS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md), [GPU_FEDERATION_PLAN.md](GPU_FEDERATION_PLAN.md), [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md), [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md), [RandomMap2.md](RandomMap2.md), [RandomMap2LegacyDraft.md](RandomMap2LegacyDraft.md), [SPECIALIST_PLAN_REMAINING.md](SPECIALIST_PLAN_REMAINING.md) |
 | [ARISTOTLE_SUMMARY.md](ARISTOTLE_SUMMARY.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md), [IMPLEMENTATION_PLAN_RCP.md](IMPLEMENTATION_PLAN_RCP.md), [PLAN_B_PROSE_VERIFICATION.md](PLAN_B_PROSE_VERIFICATION.md), [RandomMap2.md](RandomMap2.md), [SPECIALIST_PLAN_MERGE.md](SPECIALIST_PLAN_MERGE.md), [bkPrompts.md](bkPrompts.md) |
-| [ATTRIBUTION.md](ATTRIBUTION.md) | — |
+| [ATTRIBUTION.md](ATTRIBUTION.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [BOOKPROOF_PHASE1_MOVES.md](BOOKPROOF_PHASE1_MOVES.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [BOOKPROOF_PHASE2B_MOVES.md](BOOKPROOF_PHASE2B_MOVES.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [BOOKPROOF_PHASE2_MOVES.md](BOOKPROOF_PHASE2_MOVES.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -137,7 +137,7 @@
 | [REVIEW_GAUGE_UNCONSTRAINED_SPECTRUM_20260912.md](REVIEW_GAUGE_UNCONSTRAINED_SPECTRUM_20260912.md) | [REVIEW_GAUGE_DEFINITION_20260912.md](REVIEW_GAUGE_DEFINITION_20260912.md) |
 | [REVIEW_THREADS_20260906.md](REVIEW_THREADS_20260906.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [RandomMap.md](RandomMap.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
-| [RandomMap2.md](RandomMap2.md) | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) |
+| [RandomMap2.md](RandomMap2.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) |
 | [RandomMap2LegacyDraft.md](RandomMap2LegacyDraft.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [RandomMap_old.md](RandomMap_old.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [SINGULARITY_DETECTION_PLAN.md](SINGULARITY_DETECTION_PLAN.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md), [RandomMap2.md](RandomMap2.md) |
@@ -219,6 +219,7 @@
 - # CONSOLIDATED_PLAN.md — The Single Plan
 - ## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)
 - ## Build scope — verify an addition **without** a full `lake build`
+- ## Latest wave — 2026-10-20: the `math/` collection snapshot — `math/OAI/` (12,472 files) vendored for transcription, and the conversion lane to v4.28.0
 - ## Latest wave — 2026-09-21b: the **scalar–vector identification** `L²(V; L²(W)) ≅ L²(V × W)` is formalized, and the spatial Fourier transform is carried to the scalar one-particle space — **NS item 1 is closed**
 - ## Latest wave — 2026-09-17c: the two handoffs of the 2026‑09‑17 wave are **executed** — the honest reduced field family (the advection square) and the landed Lagrangian chapter
 - ## Latest wave — 2026-09-17: the **Fourier elimination of the derivative variables is formalized** — the substituting ring map, the quadratic residual, the reduced sector Hamiltonian and its Faris–Lavine route on the nested Fock space (NS, Eulerian)
@@ -255,7 +256,6 @@
 - ## State update — 2026-09-05b (execution wave, **verified build**): the QG next step lands —
 - ## the **Courant–Fischer min–max ladder of an unbounded** non-negative self-adjoint relation,
 - ## through its resolvent: the pointwise inequality, the exact bottom rung, and gap transfer
-- ## State update — 2026-09-05a (execution wave, **verified build**): revised next step 1 gets
 - … (160 more)
 
 ### The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator (`CORE_TRANSFER_ESA.md`)
@@ -921,9 +921,8 @@
 - ## Integrating the generated model (Lean 4 specialist)
 
 
-## Never linked (8)
+## Never linked (7)
 
-- ATTRIBUTION.md
 - CHANGELOG.md
 - EXPPOT.md
 - FEDERATION_DEEP_REVIEW.md

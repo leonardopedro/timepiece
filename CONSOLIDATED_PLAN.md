@@ -18,6 +18,15 @@
 > very end of this file — the conversion, the split-plan execution and
 > `converted/GAPS.md`.  **Preceded by (2026-10-17d):** **§“State of the project — 2026-10-17d:
 > sibling-project Prove2.me imports (unfer, dynamic-arctic)”** — the prove2.me workspace fork synced with the official upstream
+>
+> **Newest entry (2026-10-19b):** **§"State of the project — 2026-10-19b: work-order step 2a
+> closed (QG-D-C without `hflat`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0 residue / 2.2b / 3
+> executed"** at the very end of this file. **Preceded by (2026-10-19):** §"State of the project —
+> 2026-10-19: Prove2.me conversion completed against the platform library" and **(2026-10-18):**
+> **§"State of the project — 2026-10-18: Prove2.me downloads
+> converted (`converted/`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0–2 executed"**. **Preceded by (2026-10-17d):** **§"State of the project — 2026-10-17d:
+> sibling-project Prove2.me imports (unfer, dynamic-arctic)"** at the very end
+> of this file — the prove2.me workspace fork synced with the official upstream
 > (merge to v0.12.7), 70 more solution sources downloaded for `../unfer`
 > (`unfer-sirk`, `unfer-bayes`, `logos-confluence`) and `../dynamic-arctic`
 > (`arctic-crypto`), `BOOKPROOF_SPLIT_PLAN.md` §8 routing rule added;
@@ -662,6 +671,72 @@ Cross-repository checks (platform dedup, reusable theorems, the anti-reuse list)
 build gate; they live in `PROVE2ME_REUSABLE_THEOREMS.md`, §“Cross-platform reuse” below, and
 `DEDUP_REPORT_leonardopedro.md`.
 
+
+## Latest wave — 2026-10-20: the `math/` collection snapshot — `math/OAI/` (12,472 files) vendored for transcription, and the conversion lane to v4.28.0
+
+**What landed.** A verbatim snapshot of the `../math/lean` library subset relevant to this repo now
+lives at `timepiece/math/OAI/` (12,472 `.lean` files, ~136 MB, byte-identical to the source
+checkout — `cmp`-verified). `../math/` pins Lean **v4.34.1**; this repo pins **v4.28.0**, so
+nothing here is imported directly — the snapshot exists to be *read, transcribed and re-checked*.
+Provenance: `../math/LICENSE` is Apache-2.0, rowed in the workspace `ATTRIBUTION.md` (openai/math
+row, landing column extended to `timepiece/math/OAI/`); the two vendored files carrying the
+generator's "adapted from an external source" boilerplate are line-scoped allowlist entries in the
+attribution gate. The snapshot is the **transitive import closure** of the 22 root modules below
+(0 unresolved imports), so each root is self-contained for reading without chasing files back into
+`../math/`.
+
+**What was taken, and why each family is this repo's** (scope notes `../math/lean/docs/NNN.md`;
+per-declaration check configs `../math/lean/ComparatorChallenges/<Name>.json`):
+
+| family | declarations (configs) | snapshotted roots | why this repo |
+|---|---|---|---|
+| **325** complete Crouzeix | `OAI.CompleteCrouzeix.main` + 4 more configs | `OAI/Analysis/{DirectCrouzeix,NumericalRange,Crouzeix,HilbertCrouzeix,StructuralCrouzeix}/…` | the sharp C = 2 theorem behind the *named hypothesis* the SIRK chapters carry (`BookProof/ChapterCrouzeixSelfAdjoint.lean` header); the transcription target that discharges it |
+| **003** quasi-Riemann | `OAI.riemannZeta_ne_zero_of_seven_eighths_lt_re` + 3 more configs | `OAI/NumberTheory/{DirichletL,DirichletL/Hecke,SiegelZeros}/…` | zero-free inputs for `IMPLEMENTATION_PLAN_RCP.md`'s deep-input budget (O2 + the Hurwitz wall); `RiemannProof.lean`'s quarantined spine needs exactly this classical side |
+| **007** ordinary correlations | `OrdinaryElliott`, `OrdinaryTwoPointCorrelations` | `OAI/NumberTheory/{OrdinaryCorrelations,TwoPointCorrelations}/…` | checked witness for the correlation-decay claims `RandomMap.md` / `RandomMap2.md` otherwise assert (keep 007's *ordinary* qualifier — fixed affine forms only) |
+| **159** Erdős reciprocal-sum | `ErdosReciprocal` | `OAI/Combinatorics/Progressions/…` | second RandomMap witness: the quasipolynomial-AP machinery behind the reciprocal-sum consequence |
+| **130** exact Fourier | `ExactFourier`, `UniformFourier` | `OAI/Computability/{FourierCircuit,FourierTransform}/…` | collection twin of this repo's DFT rows in `PROVE2ME_REUSABLE_THEOREMS.md` (`FourierFA.dft_conv`, `ChebotarevDFT.dft_conv`) and of the NS advection-convolution lemmas |
+| **376** forced NS | 6 configs incl. `ForcedNavierStokesComputation` | `OAI/MathematicalPhysics/{SheetFlows,AlternatingFlow,NavierStokes}/…`, `OAI/Analysis/BoxTransport/…` | the machine-checked barrier for the NS non-claims list (`FORMALIZATION_ROADMAP.md`): bounds what any certification claim in that line may assert |
+| **269** Laughlin / Fock gap | 4 configs | `OAI/Analysis/{LaughlinGap,Laughlin,LaughlinFock}/…` | the only Fock-space formalization in the collection — the external witness for the Ottinger BRST chapters (`Work/BookBrstAudit.lean`, `Work/NsBrstDerivativeGaugeAudit.lean`) |
+
+**Deliberately not taken** (recorded so the search is not repeated): **362** Vlasov–Maxwell (no
+Vlasov content in this repo — the anchor is `../papers/book.tex`, not a chapter here); **143**
+Liénard (the ODE chapter claims no periodic-solution bound — pick up only if it ever does);
+**093** (paper only, no `[Lean]` marker); **139/140** (unfer's QFM route); **021/004/206**
+(dynamic-arctic / australVM lanes).
+
+### The conversion lane to Lean v4.28.0
+
+The toolchain wall and its discipline are `PROVE2ME_REUSABLE_THEOREMS.md`'s, transplanted
+unchanged; concretely, for every file of the snapshot this repo wants to *use*:
+
+1. **Never `import` from `math/`.** A Lean `import` binds one toolchain; 4.34.1 and 4.28.0 cannot
+   coexist in one build. The snapshot is read-only source material; anything used becomes a
+   *transcription* into a `BookProof/`, `Work/` or `PnpProof/` module on this repo's toolchain.
+2. **Convert in three moves:** (a) restate the theorem as a **named hypothesis** (`Prop` binder /
+   structure field) with the source declaration name, its `../math/lean/ComparatorChallenges/<cfg>.json`
+   path and the snapshot path (`math/OAI/…`) in the module comment; (b) verify portability —
+   `lake env lean --stdin <<< '#check <name>'` on the **4.28.0** toolchain for every Mathlib name
+   the transcription touches; (c) anything actually assumed goes into `axiom_gate.lean` — no
+   silent `axiom`, ever.
+3. **Re-check every name; remember none.** No list of known 4.34→4.28 breaks is asserted here —
+   the collection's Mathlib pin is several releases ahead and the only honest procedure is (b),
+   name by name. Record each 4.28.0 repair in the module header so the audit trail survives.
+4. **Check each transcription twice.** Run the declared result through unfer's S29/S31
+   `lean4export` → nanoda re-check (`prob_kernel/tests/fixtures/*.ndjson`) before believing it —
+   one binary, two verification cultures, as both `../test/reviews` pages record.
+5. **Gate order for a landed transcription:** the module header names its source (the attribution
+   gate's window rule resolves it to the openai/math row); the build check follows “Build scope”
+   above (`lake build Work.<Audit>` — never a full build); the `Work/` audit pattern
+   (`Work/CrouzeixSelfAdjointAudit.lean`, …) is the shape to copy.
+6. **First concrete target:** family **325** — transcribe `OAI.CompleteCrouzeix.main` far enough
+   to *discharge* the SIRK chapters' Crouzeix named hypothesis. The one transcription gap (family
+   325 takes the sup over the numerical range `W(A)`, the SIRK hypothesis over a convex
+   `Σ ⊇ W(A)`) closes by monotonicity of the sup in one line.
+
+**Git status of the snapshot (owner decision, 2026-10-20):** `math/` stays **untracked and is
+now gitignored**, unlike the tracked `converted/` tree — 136 MB of read-only conversion input does
+not enter history. The ledger row versions its provenance, the attribution gate scans it on disk,
+and the closure is reproducible from `../math/lean` (22 roots, transitive import closure).
 
 ## Latest wave — 2026-09-21b: the **scalar–vector identification** `L²(V; L²(W)) ≅ L²(V × W)` is formalized, and the spatial Fourier transform is carried to the scalar one-particle space — **NS item 1 is closed**
 
@@ -18017,3 +18092,87 @@ Two bookkeeping facts for the Prove2.me download track (rows/§§ of
    `Downloads/manifest.json` gained a `deps` pointer key.
 
 Tracked by the `BookProof layout` row of `CURRENT_WORK_ORDER.md`.
+
+---
+
+## State of the project — 2026-10-19: Prove2.me conversion completed against the platform library
+
+The platform modules that the downloaded solutions import (`Downloads/_deps/`) are converted
+(`converted/Definitions/`, `converted/Theorems/`, lake library `Prove2mePlatform`). **All 161
+manifest solutions now compile** (`lake build Prove2me`, including `Prove2me.Audit`, which prints
+the axioms of 322 declarations). 122 solutions are axiom-clean (`propext` / `Classical.choice` /
+`Quot.sound`). 39 depend on `sorryAx` only through platform statement stubs (`Theorems.Thm_*`,
+108 distinct, listed in `converted/GAPS.md`). The one stray download without a manifest entry (an
+`OAI.Erdos3` solution) stays prepared-but-uncompiled in `converted/blocked/`, because its 299-module
+`Def_OAIE3v2B*` platform chain does not compile against the pinned Mathlib. Details:
+`converted/README.md` and the 2026-10-19 addendum of `BOOKPROOF_SPLIT_PLAN.md` §9.
+
+## State of the project — 2026-10-19b: work-order step 2a closed (QG-D-C without `hflat`), `BOOKPROOF_SPLIT_PLAN.md` Phases 0 residue / 2.2b / 3 executed
+
+Session 2026-10-19, executing the §"2026-10-17" work order and the open items of
+`BOOKPROOF_SPLIT_PLAN.md`. Earlier entries are not edited; this entry appends the pointers.
+Historical paths in this file keep their pre-move form (append-only); the maps
+`BOOKPROOF_PHASE1_MOVES.md`, `BOOKPROOF_PHASE2_MOVES.md` and `BOOKPROOF_PHASE2B_MOVES.md`
+translate them.
+
+### Work order of §"2026-10-17", step by step
+
+| step | status | closed by / note |
+|---|---|---|
+| **0** compile | **done for the proof layer**: `lake build BookProof` green, no `sorryAx` in the log, including `BookProof/Qg/ChapterQgFlatContinuumEsa.lean` and the new module below. The Verso book (`lake build Book`, `./patches/build-book.sh`, `check-katex.sh`) is reported under "Gates" below. | — |
+| **2a** align the assembled flat side | **closed, in the `DeficiencyTrivialAt` vocabulary** (the second option the step names) | `BookProof/Qg/ChapterQgAssembledFlatTransfer.lean`: `deficiencyTrivialAt_total_of_flat`, **`qg_assembled_flat_hasZeroDeficiencyOn`** (QG-D-C.2 without `hflat`), `qg_assembled_flat_hasZeroDeficiencyOn_termwise`, **`qg_assembled_flat_stone_flow`** (QG-D-C.3 without `hflat`); wired into `BookProof.lean`, 4 `#print axioms` lines in `ChapterRoadmapAudit.lean`, all `[propext, Classical.choice, Quot.sound]` |
+| **4** NS square comparison | open (status C, allowed by the table) | unchanged |
+| **5** QYM one-particle form gap | open (status C, allowed by the table) | unchanged |
+| **6** hygiene | done where runnable; see "Gates" | — |
+
+**What step 2a proves, and its boundary.** `qg_assembled_halfDensity_transfer` is stated at
+`halfDensityUnitary : L²((0,∞), de) ≃ₗᵢ L²((0,∞), 2y dy)`, between spaces of functions of the
+**single** conformal variable, whereas `qgFlatL2Op n` acts on `L²(ℝⁿ × ℝ)`. The two sides live on
+different Hilbert spaces, so no choice of pieces makes the old `P'.total` *equal* to
+`qgFlatL2Op n`. A literal identification at `halfDensityUnitary` is therefore impossible, and the
+alignment is stated for **any** unitary `W : F ≃ₗᵢ L²(ℝⁿ × ℝ)` that carries the physical domain
+onto `qgFlatCore n` and intertwines the physical assembled total (or its four constituents
+termwise, against four flat-side operators that sum to `qgFlatL2Op n`). Under the QG-D-C.1 sign
+condition (`hqs1`, `hqc1`), the conclusion `HasZeroDeficiencyOn D P.total` of the old transfer
+and the Stone flow of QG-D-C.3 follow with **no `hflat` hypothesis**. The module does not
+construct a concrete physical realization `W` on `L²(ℝⁿ × ℝ)`; such a realization is the input
+the theorem consumes. The enclosure record is unchanged: these are one-particle / transfer
+instruments and are never enclosed.
+
+### `BOOKPROOF_SPLIT_PLAN.md`
+
+Details and numbers are in its §9, addendum "2026-10-19b".
+* **Phase 0 residue.** The 9 unprefixed "legacy orphans" were declaration-free placeholder stubs,
+  imported by nothing, so they were removed (§4.A, not §4.B). `--check` now reports no unbuilt module.
+* **Phase 2.2b.** The 237-module operator-core residue was assigned to §2 areas by reading each
+  module header (`scripts/bookproof_phase2b_move.py`, map `BOOKPROOF_PHASE2B_MOVES.md`). 236
+  modules moved, including 88 into the §2 `Probability/` folder. `RandomMap2Audit` stays flat by
+  decision. The recomputed cross-import matrix still shows no clean cut, so no new lake part was
+  added. `Ode` comes closest, with one inbound import from `Qg`.
+* **Phase 3.** The `Sl2`/`SL2` trio was read. It is a layered chain (Lie algebra → group →
+  unipotent), not a redundancy. Its odd member was renamed to `ChapterWeylSL2Algebra`, both the
+  module and the namespace. The 7 remaining unprefixed utilities and the lettered textbook
+  chapters are kept, since the cite-density check is high and their namespaces are cited across
+  `Book/`.
+* **Prove2.me (Phase 1.5).** Unchanged since §"2026-10-19". All 161 manifest solutions compile,
+  and the one stray non-manifest `OAI.Erdos3` file stays blocked on its 299-module platform chain.
+
+### Gates (run in this pass)
+
+* `lake build BookProof` is green (8836 jobs) after each of the two commits of this pass, and the
+  build log contains no `sorryAx`. `lake build Work.WignerMackeyWeylAudit` is green after the
+  Weyl rename. A static check finds that every `import BookProof.…` line in the repository
+  resolves to an existing file.
+* `python3 scripts/import_components.py BookProof --check` passes (no unbuilt-module note), and
+  `--write-lakefile` plus the `BUILD_COMPONENTS.md` inventory were regenerated.
+* `bash scripts/health.sh`: 2 pass, 1 gap (no `../test`). `TIMEPIECE_SKIP_LAKE=1 bash
+  scripts/verify-invariants`: 4 pass, 0 fail, 3 gaps (absent `unfer` and `../test` siblings;
+  the lake gate was replaced by the explicit `lake build BookProof` above).
+  `python3 scripts/check-links` is OK, and `python3 scripts/doc_index.py` was regenerated.
+* `decl_graph.jsonl` was re-extracted with the post-move module names (20,598 declarations), using
+  `extract_decl_graph_bp.lean` with `import BookProof` in place of the stale `ExtractAll`.
+* **Not runnable here:** the Verso book. `lake build Book` stops at `unknown module prefix
+  'SubVerso'`, because the `subverso` package in this workspace is an empty local override
+  (`package-overrides.json`) and the network cannot fetch it. `./patches/build-book.sh` and
+  `check-katex.sh` depend on that build. `Book/` imports no `BookProof` module, so the module
+  moves cannot affect it; only prose paths in `Book/` were rewritten.

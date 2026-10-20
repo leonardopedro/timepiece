@@ -31,3 +31,9 @@ __pycache__/
 
 # scratch backups
 Book.lean.bak
+
+# openai/math snapshot — verbatim Apache-2.0 conversion input (12,472 files,
+# copied 2026-10-20; owner decision: untracked. Provenance is rowed in
+# ATTRIBUTION.md, the attribution gate scans it on disk, and the conversion
+# lane lives in CONSOLIDATED_PLAN.md's 2026-10-20 wave)
+/math/
