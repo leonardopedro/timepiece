@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterGaussCoreQuadBounds
+import BookProof.Toolbox.ChapterGaussCoreQuadBounds
 
 /-!
 # The two Faris–Lavine inequalities for `½ Σ_j κ_j π_j² + ½ Σ_r L_r²`

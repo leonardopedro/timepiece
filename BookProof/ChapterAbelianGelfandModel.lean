@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterLinftyMultiplication
+import BookProof.Probability.ChapterLinftyMultiplication
 
 /-!
 # The measure model of a commutative C*-algebra (plan GAP-2, the Gelfand step)

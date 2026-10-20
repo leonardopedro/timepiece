@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterLinftyMultiplication
+import BookProof.Probability.ChapterLinftyMultiplication
 
 /-!
 # Rescaling the measure does not change the multiplication algebra (plan GAP-2)

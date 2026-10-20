@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterWallDeficiencyObstruction
+import BookProof.Qg.ChapterWallDeficiencyObstruction
 
 /-!
 # The wrong-sign conformal fiber: an explicit exponential-wall potential whose Schrödinger
@@ -19,7 +19,7 @@ exponentially at `−∞` and constant at `+∞`.  The plan records (and its 202
 analysis argues) that this is the Weyl **limit-circle** situation at the wall, so that
 essential self-adjointness on the compactly supported smooth core **fails**.
 
-`BookProof/ChapterLimitCircleExample.lean` already made the failure a theorem for *some*
+`BookProof/Qg/ChapterLimitCircleExample.lean` already made the failure a theorem for *some*
 smooth real potential (asymptotically `−x⁴/4`).  This module does it for a potential of
 exactly the **conformal-fiber profile**: an explicit non-negative exponential wall `cfWall`
 with a plateau at `+∞`, whose sign-flipped, rescaled potential `cfV = −24(cfWall + 1/32)`

@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterShiftedQuadraticEsa
-import BookProof.ChapterQuadraticRotationEsa
+import BookProof.Toolbox.ChapterShiftedQuadraticEsa
+import BookProof.Toolbox.ChapterQuadraticRotationEsa
 
 /-!
 # The indefinite quadratic Hamiltonian **with cross terms** and an unbounded

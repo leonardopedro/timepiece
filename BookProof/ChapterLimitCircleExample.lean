@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterWallDeficiencyObstruction
+import BookProof.Qg.ChapterWallDeficiencyObstruction
 
 /-!
 # An explicit smooth real potential whose Schrödinger operator is *not* essentially

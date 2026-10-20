@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterFreeFieldGaussian
+import BookProof.Probability.ChapterFreeFieldGaussian
 
 /-!
 # Chapter "Wave-function parametrization of a probability measure", §5 —

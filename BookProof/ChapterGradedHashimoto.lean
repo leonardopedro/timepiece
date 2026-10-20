@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterGradedFriedrichs
+import BookProof.Toolbox.ChapterGradedFriedrichs
 import BookProof.Toolbox.ChapterStoneBridge
 
 /-!

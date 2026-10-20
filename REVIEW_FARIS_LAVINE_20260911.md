@@ -75,7 +75,7 @@ criterion is then run in its `c = 0` form, with the **lifted Friedrichs extensio
 the comparison operator (`Comparison.esa_self`): the commutator vanishes, and the conclusion
 is that the lifted realization is essentially self-adjoint on its domain.
 
-The index of the whole line is **`BookProof/ChapterEsaFarisLavineIndex.lean`**, which also
+The index of the whole line is **`BookProof/Toolbox/ChapterEsaFarisLavineIndex.lean`**, which also
 tabulates every Carleman-route statement of the main line against a proof of the *same*
 statement by a liftable instrument:
 

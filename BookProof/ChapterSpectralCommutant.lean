@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterSpectralMultiplication
-import BookProof.ChapterLinftyMaximalAbelian
+import BookProof.Probability.ChapterSpectralMultiplication
+import BookProof.Probability.ChapterLinftyMaximalAbelian
 
 /-!
 # The commutant of a singly generated abelian algebra (plan GAP-2, the von Neumann level)

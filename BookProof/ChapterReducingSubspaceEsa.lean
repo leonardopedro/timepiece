@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterGraphCoreTransfer
+import BookProof.Toolbox.ChapterGraphCoreTransfer
 
 /-!
 # Reduction of an essentially self-adjoint operator to an invariant sector

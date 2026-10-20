@@ -1,4 +1,4 @@
-import BookProof.ChapterGaugeIncompleteFixing
+import BookProof.Qym.ChapterGaugeIncompleteFixing
 
 /-!
 # Every parametrization carries a gauge symmetry

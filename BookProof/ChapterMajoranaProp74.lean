@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterMajoranaFourier
+import BookProof.Textbook.ChapterMajoranaFourier
 
 /-!
 # Chapter "Real representations, CPT theorem and the relativistic position operator",

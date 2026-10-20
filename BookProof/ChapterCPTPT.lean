@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterCPTHamiltonian
-import BookProof.ChapterCPTParity
+import BookProof.Textbook.ChapterCPTHamiltonian
+import BookProof.Textbook.ChapterCPTParity
 
 /-!
 # Chapter "Real representations, CPT theorem and the relativistic position operator",

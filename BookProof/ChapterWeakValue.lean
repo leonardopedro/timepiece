@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterTrajectory
+import BookProof.Probability.ChapterTrajectory
 
 /-!
 # Chapter "Reconstructing the classical trajectory of any isolated quantum system"

@@ -1,22 +1,18 @@
-# Summary of changes for run 8c1a652e-a861-4b69-9c74-5c967943edf4
-I proved that the Koopman comparison operator \(N_L = H_L^2 + E\) is essentially self-adjoint, with no extra hypotheses. Everything builds, with no `sorry` and no new axioms.
+# Summary of changes for run ee7d0fcc-1070-4216-8243-2d09899b8053
+I published every file in the project as its own file, the way `BookProof/WeylSL2/ChapterWeylSL2Algebra.lean`, `ChapterWeylSL2Group.lean` and `ChapterWeylSL2Unipotent.lean` were delivered. You can now download each one directly at its project path, without unpacking `generate_modified_files.sh`.
 
-**What is proved** (new file `BookProof/ChapterNsLagrangianComparisonEsa.lean`):
-- `lagComparison_esa`: \(N_L = H_L^2 + 1 + \tfrac12|v|^2 + V_\kappa(\xi)\) is essentially self-adjoint on the Gauss–polynomial core of \(L^2(\mathbb R^{\mathrm{PIdx}\,K})\). This holds for every finite set of wave vectors, every \(\nu \ge 0\) and every \(\kappa \ge 0\). Before this, it was the assumption that `lagKoopman_esa_of_comparison_esa` had to take as a hypothesis.
-- `lagKoopman_esa`: as a result, the Lagrangian Navier–Stokes Koopman generator \(H_L\) is itself essentially self-adjoint on that core.
+**Contents check:** I extracted `generate_modified_files.sh` into a scratch directory and compared each of its 2245 embedded files with the project copy. They all match byte for byte. The only difference is `ARISTOTLE_SUMMARY.md`, which I didn't change because you asked me not to. So what you download is the same as the state the script would produce.
 
-**How:** the proof uses the existing criterion `KvnKato.lyapunovComparison_esa_poly` in `BookProof/ChapterKvnKatoPoly.lean`. It requires a polynomial \(P\) with \(\|y\| \le P(y)\) and \(|F\cdot\nabla P| \le c\,P\). The energy \(E\) can't serve as \(P\), because the penalty is zero on the unbounded incompressible set, so \(E\) does not grow in every direction. I used \(P = E + \tfrac12|\xi|^2\) instead:
-- \(F\cdot\nabla P = -\nu\sum|k|^2 v^2 + \xi\cdot v\) (`lagLyapFlux_eq`);
-- \(|F\cdot\nabla P| \le (2\nu\Lambda + 1)P\) (`abs_eval_lagLyapFlux_le`);
-- \(\|y\| \le 1 + \tfrac12\|y\|^2 \le P(y)\) (`norm_le_lagP`).
+**What I published:** 3128 files, everything in the project except the items listed further down. That includes:
+- **The conversion folder:** all of `converted/`, including `Definitions/**`, `Theorems/**`, `Prove2me/**`, `blocked/`, `diffs/`, `GAPS.md`, `README.md` and `stub_dependencies.txt`.
+- **`BookProof/**` and `BookProof.lean`:** this includes every module moved by the split plan, at its new path.
+- **The other Lean libraries:** `Book/**`, `Work/**`, `Audits/**`, `PnpProof/**`, `RandomMap/**`, `RiemannProof/**`, `Singularity/**`, `UsedRoute/**`, `UnusedRoute/**`, their root files and the other top-level `.lean` files.
+- **Build configuration:** `lakefile.toml`, `lean-toolchain`, `lake-manifest.json` and `package-overrides.json`.
+- **Documents and data:** all plan, status and `.tex` documents, `decl_graph*.jsonl`, `scripts/**`, `state/`, `patches/`, `unfer_contracts/**`, `prompts` and the `upload_timepiece*.py` scripts.
+- **The original inputs:** unlike the previous run, I also included `Downloads/**`, `repomix-output.xml` and `Timepiece_ A Verified Mathematical Tour.pdf`, plus `generate_modified_files.sh` itself.
 
-**Wiring and records:**
-- The new chapter is imported from `BookProof.lean`, which also brings the `ChapterKvnKato*` chapters into the main library for the first time.
-- Two `#print axioms` lines were added to `BookProof/ChapterRoadmapAudit.lean`. That file builds, and both lines report only `propext, Classical.choice, Quot.sound`.
-- I appended new dated entries to `STATUS.md` and `CONSOLIDATED_PLAN.md` (§"2026-10-16") without editing older entries.
+**Left out:**
+- The 6 machine-generated Python cache files in `scripts/__pycache__/`.
+- `ARISTOTLE_SUMMARY.md` and the top-level `README.md`, which are always delivered automatically.
 
-**Heartbeat of `qgFlatL2Op_tmul`:** the file already has `set_option maxHeartbeats 8000000` on that theorem, so I didn't change it. `BookProof/ChapterQgFlatContinuumEsa.lean` builds successfully at that setting.
-
-**Limits:** the result has the same scope as `ChapterNsLagrangianDetFarisLavine`: a finite Galerkin truncation, a finite bulk modulus \(\kappa\) (no \(\kappa\to\infty\) limit), and the viscous term taken at \(F = I\). It makes no claim about continuum Navier–Stokes regularity.
-
-All work is committed and pushed.
+**Changes:** none. I didn't edit any file contents or run any Lean builds, so the build status is still what the earlier summary reported. The repository is pushed.

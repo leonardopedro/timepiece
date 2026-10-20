@@ -1,4 +1,4 @@
-import BookProof.ChapterNonnegResolvent
+import BookProof.Toolbox.ChapterNonnegResolvent
 
 /-!
 # Axiom audit for `BookProof.ChapterNonnegResolvent`

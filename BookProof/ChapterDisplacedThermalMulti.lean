@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterDisplacedThermalOverlap
+import BookProof.Attention.ChapterDisplacedThermalOverlap
 import BookProof.Attention.ChapterCoherentGeometry
 
 /-!

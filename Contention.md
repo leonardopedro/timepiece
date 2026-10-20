@@ -91,7 +91,7 @@ re-selection organized into parts (`Book.lean`). The mapping below shows which
 ### D6. Weak holomorphicity lemma weakened to the pointwise case
 - `book.tex:4104-4131` invokes the weak/distributional version: locally integrable +
   CR weakly ⇒ analytic a.e. (Weyl-like).
-- `BookProof/ChapterHolomorphic.lean:15-44` states that version is "not available in
+- `BookProof/Probability/ChapterHolomorphic.lean:15-44` states that version is "not available in
   Mathlib" and proves only the strong pointwise `cauchyRiemann_iff_analyticOn`. The
   manuscript's exact claim is weakened (this file is not imported by any `Book/`
   chapter).

@@ -216,7 +216,7 @@ B5 depends on B1–B4 (knows which #check blocks need restating).
 | B4 | Verso/Doc/Elab.lean (investigate), Book.lean | 26-include Verso limit (8.3 + 4) | DONE |
 | B5 | Book/*.lean (selected) | Restate long #check types, prose side (8.4) | DONE |
 | B6 | BookProof/ChapterOdeComplexification.lean, ChapterPaFreeCompletion.lean, ChapterDefinabilityFragment.lean, BookProof.lean | New BookProof chapters (complexification, PA-free completion, definability fragment) | DONE |
-| B7 | BookProof/ChapterSelectingEvents.lean | Harden ChapterSelectingEvents (C2, C3) | DONE — axioms removed, True-placeholder theorems replaced with real statements/defs |
+| B7 | BookProof/Probability/ChapterSelectingEvents.lean | Harden ChapterSelectingEvents (C2, C3) | DONE — axioms removed, True-placeholder theorems replaced with real statements/defs |
 
 ---
 

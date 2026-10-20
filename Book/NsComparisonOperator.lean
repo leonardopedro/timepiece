@@ -158,7 +158,7 @@ observation: the Koopman–von Neumann generator of an **affine** drift $`F(u) =
 \tfrac12(\pi_iF_i + F_i\pi_i)` (`linKvnPoly`) *is* `fqPoly 0 0 Aᵀ 0 c`
 (`linKvnPoly_eq_fqPoly`) — cross terms and momenta only, no kinetic and no potential part — so
 the Carleman-flux theorem for general quadratic Hamiltonians,
-`FullQuadratic.fqOp_essentiallySelfAdjoint` of `BookProof/ChapterFullQuadraticEsa.lean`, applies
+`FullQuadratic.fqOp_essentiallySelfAdjoint` of `BookProof/Toolbox/ChapterFullQuadraticEsa.lean`, applies
 with **no comparison
 operator, no surjectivity hypothesis and no sign condition**: the generator is essentially
 self-adjoint on the Gauss–polynomial core (`linKoopman_esa`), generates a complete unitary flow
@@ -230,7 +230,7 @@ Gauss–polynomial core, so is the nonlinear generator
 (`nsKoopman_esa_of_squareComparison_esa`).  The generic instrument behind the instance — the
 Lyapunov criterion $`N = H_G^2 + E` for *any* polynomial vector field `G` with real
 $`E \ge 0` and $`|G \cdot \nabla E| \le cE` pointwise — is
-`KoopmanLyapunov.kvnGen_esa_of_lyapunov` (`BookProof/ChapterKoopmanLyapunovFarisLavine.lean`),
+`KoopmanLyapunov.kvnGen_esa_of_lyapunov` (`BookProof/Ns/ChapterKoopmanLyapunovFarisLavine.lean`),
 whose other instance is the Lagrangian system of
 {ref "fourier-elimination"}[the Fourier elimination of the derivative variables].
 :::
@@ -354,7 +354,7 @@ constant $`\tfrac12|f|^2` that the shift leaves behind.
 **NS-L-C.3 — the lift.**  The lifted form of the same statement —
 $`d\Gamma(N) + 1` essentially self-adjoint on the finite-particle core of the
 outer Fock space — is the three-step chain of
-`BookProof/ChapterLiftedComparisonEsa.lean` (comparison ESA on the core →
+`BookProof/Ns/ChapterLiftedComparisonEsa.lean` (comparison ESA on the core →
 second-quantization lift → the real-shift lemma
 `EsaRealShift.essentiallySelfAdjointOn_add_const`), recorded with its
 resolvent face `liftedComparison_resolvent_deficiency` (trivial deficiency at

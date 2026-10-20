@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterCayleyTransform
+import BookProof.Toolbox.ChapterCayleyTransform
 
 /-!
 # The inverse Cayley transform: unitaries give self-adjoint operators

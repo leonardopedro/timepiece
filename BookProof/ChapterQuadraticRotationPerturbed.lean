@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterQuadraticRotationEsa
+import BookProof.Toolbox.ChapterQuadraticRotationEsa
 import BookProof.Toolbox.ChapterHermiteRelativeBound
 import BookProof.Ns.ChapterNavierStokesSignFlip
 import BookProof.Toolbox.ChapterStoneBridge

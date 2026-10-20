@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterAbelianCyclicModel
-import BookProof.ChapterSpectralCommutant
+import BookProof.Probability.ChapterAbelianCyclicModel
+import BookProof.Probability.ChapterSpectralCommutant
 
 /-!
 # The commutant of an arbitrary abelian algebra with a cyclic vector (plan GAP-2)

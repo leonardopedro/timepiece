@@ -40,7 +40,7 @@ that is a number rather than a bit.
 
 Both halves are `sorry`-free and `axiom`-free, in
 `BookProof/ChapterStatisticalModelTheory.lean` and
-`BookProof/ChapterStatementOperator.lean`. They are the only chapters of the
+`BookProof/Probability/ChapterStatementOperator.lean`. They are the only chapters of the
 manuscript's closing section with a counterpart in the proof library, and they
 deliberately stop at the boundary the manuscript itself draws: no infinitary
 $`L_{\omega_1\omega_1}` logic, no Abstraction Logic, no completeness claim for

@@ -304,7 +304,7 @@ convolution in momentum space.  The device belongs to NS and QG only.
 On that phase space the Koopman generator of the constrained flow — $`\dot\xi = v`,
 $`\dot v = -\nu|k|^2 v - \partial V_κ/\partial\xi`, with the *exact* degree-five constraint
 force — is treated by the generic Lyapunov criterion of
-`BookProof/ChapterKoopmanLyapunovFarisLavine.lean`: for any polynomial vector field `G` and real
+`BookProof/Ns/ChapterKoopmanLyapunovFarisLavine.lean`: for any polynomial vector field `G` and real
 $`E \ge 0` with $`|G \cdot \nabla E| \le cE` pointwise, essential self-adjointness of
 $`N = H_G^2 + E` on the Gauss–polynomial core implies essential self-adjointness of the
 Koopman generator $`H_G` (`kvnGen_esa_of_lyapunov`).  The Lagrangian instance is

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterFreeFieldBornGauge
+import BookProof.Probability.ChapterFreeFieldBornGauge
 
 /-!
 # Chapter "Wave-function parametrization of a probability measure", §5 —

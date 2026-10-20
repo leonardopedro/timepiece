@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterShiftedHermiteCore
+import BookProof.Toolbox.ChapterShiftedHermiteCore
 import BookProof.Toolbox.ChapterStoneBridge
 
 /-!

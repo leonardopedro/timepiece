@@ -460,14 +460,14 @@ file only.
 - **[RESOLVED, 2026-08-12] The last two proof-plan formalization targets.** The
   appendix items §D (weak measurements / weak values) and §E (the dynamics-based
   "less arbitrary" unitary) are now proved, not planned:
-  - `BookProof/ChapterWeakValue.lean` — the weak value
+  - `BookProof/Probability/ChapterWeakValue.lean` — the weak value
     `⟨A⟩_w = ⟨f|A|i⟩/⟨f|i⟩` on `Fin n → ℂ`: well-definedness and uniqueness off
     orthogonality, the diagonal collapse to the ordinary expectation (real for a
     Hermitian observable), linearity in the observable, the projector weak values
     summing to `1`, the ties to the ABL joint/conditional laws of
     `ChapterTrajectory`, and the double-slit capstone `dslit_weakValue`. Cited from
     `Book/DoubleSlit.lean`.
-  - `BookProof/ChapterContinuityUnitary.lean` — the Weyl-symmetrized continuity
+  - `BookProof/Probability/ChapterContinuityUnitary.lean` — the Weyl-symmetrized continuity
     generator `H = ½(p·v + v·p)` on a finite cyclic lattice (Hermitian, and *not*
     Hermitian without the symmetrization), the unitary `exp (i t H)` and its
     one-parameter group law, the Born recovery of a conditional probability

@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterBayesInference
-import BookProof.ChapterAbelianDiagonal
+import BookProof.Probability.ChapterBayesInference
+import BookProof.Probability.ChapterAbelianDiagonal
 
 /-!
 # Book chapter "Selecting events is not rewriting the history of events"
@@ -107,7 +107,7 @@ original classification theorem (book.tex lines 8789–8800).
 `def` weakened the claim to the trivially true proposition, so the accompanying
 `theorem` proved nothing.  It is kept here, commented out, for the record, and
 replaced below by the *genuine* first case of the classification, proved in
-`BookProof/ChapterAbelianDiagonal.lean`.
+`BookProof/Probability/ChapterAbelianDiagonal.lean`.
 
     def vonNeumann_abelian_classification : Prop :=
       True

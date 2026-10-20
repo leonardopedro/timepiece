@@ -8,7 +8,7 @@ import BookProof.Qym.ChapterYangMillsFockFriedrichs
 import BookProof.Qg.ChapterScalaronNotQuadratic
 import BookProof.Ns.ChapterNavierStokesFullEulerianFock
 import BookProof.Ns.ChapterNavierStokesFullLagrangianFock
-import BookProof.ChapterProve2meReuse
+import BookProof.Toolbox.ChapterProve2meReuse
 
 /-!
 # Index: self-adjointness of the three Hamiltonians — **Faris–Lavine only**, except that

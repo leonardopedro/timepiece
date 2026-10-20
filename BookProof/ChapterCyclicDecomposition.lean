@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterSpectralMultiplication
+import BookProof.Probability.ChapterSpectralMultiplication
 
 /-!
 # Decomposition into cyclic subspaces (plan GAP-2, the reduction to the cyclic case)

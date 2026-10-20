@@ -1,4 +1,4 @@
-import BookProof.ChapterRelationShiftInvert
+import BookProof.Sirk.ChapterRelationShiftInvert
 
 /-!
 # Axiom audit for `BookProof.ChapterRelationShiftInvert`

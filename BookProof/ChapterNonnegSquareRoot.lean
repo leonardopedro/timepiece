@@ -1,5 +1,5 @@
 import BookProof.Toolbox.Prelude
-import BookProof.ChapterPositiveSquareRootUnique
+import BookProof.Toolbox.ChapterPositiveSquareRootUnique
 
 /-!
 # The square root of an arbitrary non-negative self-adjoint linear relation

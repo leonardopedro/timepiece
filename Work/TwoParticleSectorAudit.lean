@@ -1,12 +1,12 @@
-import BookProof.ChapterReducingSubspaceEsa
-import BookProof.ChapterTwoParticleSectorEsa
-import BookProof.ChapterGroupAverageEsa
+import BookProof.Toolbox.ChapterReducingSubspaceEsa
+import BookProof.Toolbox.ChapterTwoParticleSectorEsa
+import BookProof.Toolbox.ChapterGroupAverageEsa
 
 /-!
 # Axiom audit for the sector-reduction wave
 
-Every result of `BookProof/ChapterReducingSubspaceEsa.lean` and
-`BookProof/ChapterTwoParticleSectorEsa.lean` should report only the three standard axioms
+Every result of `BookProof/Toolbox/ChapterReducingSubspaceEsa.lean` and
+`BookProof/Toolbox/ChapterTwoParticleSectorEsa.lean` should report only the three standard axioms
 `propext`, `Classical.choice`, `Quot.sound`.
 -/
 

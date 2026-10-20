@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterHermiteBandCalculus
-import BookProof.ChapterGradedBandSchurEsa
+import BookProof.Sirk.ChapterGradedBandSchurEsa
 import BookProof.Toolbox.ChapterFockSecondQuantization
 
 /-!

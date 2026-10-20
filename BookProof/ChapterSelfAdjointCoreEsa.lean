@@ -1,4 +1,4 @@
-import BookProof.ChapterGraphCoreTransfer
+import BookProof.Toolbox.ChapterGraphCoreTransfer
 import BookProof.Toolbox.ChapterEsaClosureCore
 
 /-!

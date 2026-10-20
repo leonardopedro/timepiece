@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterStrichartzHermiteQG
+import BookProof.Qg.ChapterStrichartzHermiteQG
 
 /-!
 # The harmonic oscillator: a differential operator with an unbounded polynomial potential

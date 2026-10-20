@@ -1,4 +1,4 @@
-import BookProof.ChapterSeparableSpectrum
+import BookProof.Probability.ChapterSeparableSpectrum
 
 /-!
 # A separably acting abelian algebra needs no metrizability hypothesis (plan GAP-2)

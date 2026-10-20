@@ -1,10 +1,10 @@
 import Mathlib
-import BookProof.ChapterSecondQuantizationCoreEsa
+import BookProof.Toolbox.ChapterSecondQuantizationCoreEsa
 
 /-!
 # An unconditional instance: second quantization of a scalar one-particle operator
 
-The main theorem of `BookProof/ChapterSecondQuantizationCoreEsa.lean` carries one hypothesis,
+The main theorem of `BookProof/Toolbox/ChapterSecondQuantizationCoreEsa.lean` carries one hypothesis,
 sector by sector: essential self-adjointness of the derivation `dΓ(A)⁽ⁿ⁾` on the *full*
 tensor power `D₂^{⊗n}` of the domain of the closure.  This module discharges that hypothesis
 completely in a concrete family of examples — the **scalar** one-particle operators

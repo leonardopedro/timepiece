@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterUnboundedPosition
+import BookProof.Probability.ChapterUnboundedPosition
 
 /-!
 # Unitary transport of the unbounded layer

@@ -1,5 +1,5 @@
-import BookProof.ChapterAbelianClassificationList
-import BookProof.ChapterSpectralDirectSum
+import BookProof.Probability.ChapterAbelianClassificationList
+import BookProof.Probability.ChapterSpectralDirectSum
 
 /-!
 # The classification list on any standard Borel space (plan GAP-2)

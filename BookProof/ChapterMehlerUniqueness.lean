@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterSolovayCoordinates
+import BookProof.Probability.ChapterSolovayCoordinates
 
 /-!
 # The Mehler law is the unique law with standard Gaussian finite marginals

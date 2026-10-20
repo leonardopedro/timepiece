@@ -113,7 +113,7 @@ abstract last mile `CoreData.esa_core`.  Two honest qualifications:
 proves `smFlN_esa : EssentiallySelfAdjointOn (polyGaussCore 163) (smFlN P c₀)` for every
 `c₀ : ℝ` and hence the unconditional **`sm_h_esa P`**.  The Kato-type input is supplied by
 
-* `BookProof/ChapterDegKatoEsa.lean` — `ccHamS_esa`: `−Δ_S + W` (kinetic part on any
+* `BookProof/Toolbox/ChapterDegKatoEsa.lean` — `ccHamS_esa`: `−Δ_S + W` (kinetic part on any
   coordinate subset `S`, `W` smooth, `W ≥ 1`) is essentially self-adjoint on `C_c^∞(ℝᵈ)`
   (mollifier + cut-off energy argument; no elliptic regularity);
 * `BookProof/Toolbox/ChapterHermiteGraphApprox.lean` with `BookProof/Toolbox/ChapterHermiteLadderOrder.lean`

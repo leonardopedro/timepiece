@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterJointUnitary
+import BookProof.Probability.ChapterJointUnitary
 
 /-!
 # Chapter "Wave-function parametrization of a probability measure", §2 —

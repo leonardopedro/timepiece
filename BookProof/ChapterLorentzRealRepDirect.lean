@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.ChapterLorentzRealRep
-import BookProof.ChapterLorentzRealRepSum
-import BookProof.ChapterLorentzRealRepFull
+import BookProof.Textbook.ChapterLorentzRealRep
+import BookProof.Textbook.ChapterLorentzRealRepSum
+import BookProof.Textbook.ChapterLorentzRealRepFull
 
 /-!
 # Chapter "Real representations, CPT theorem and the relativistic position operator",

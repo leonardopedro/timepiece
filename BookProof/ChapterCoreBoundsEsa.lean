@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterOperatorSeriesEsa
+import BookProof.Toolbox.ChapterOperatorSeriesEsa
 
 /-!
 # Faris–Lavine bounds checked on the finite-mode core alone

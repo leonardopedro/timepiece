@@ -1,4 +1,4 @@
-import BookProof.ChapterPolarPartialIsometry
+import BookProof.Toolbox.ChapterPolarPartialIsometry
 
 /-!
 # Axiom audit for `BookProof.ChapterPolarPartialIsometry`

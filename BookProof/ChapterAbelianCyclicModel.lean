@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterAbelianGelfandModel
+import BookProof.Probability.ChapterAbelianGelfandModel
 
 /-!
 # Abelian algebras with a cyclic vector: the multiplication model (plan GAP-2)

@@ -400,7 +400,7 @@ $$`\langle q | k \rangle = \exp\!\Big(-\tfrac12\|q\|^2 - \tfrac12\|k\|^2 + q \cd
 the reproducing kernel of the Bargmann–Fock space.
 
 **Prove (real case first):** over `EuclideanSpace ℝ (Fin n)` (reusing the
-`WithLp 2` structure of `BookProof/ChapterFreeFieldGaussian.lean`), define
+`WithLp 2` structure of `BookProof/Probability/ChapterFreeFieldGaussian.lean`), define
 `coherentOverlap q k : ℝ := Real.exp (-‖q‖²/2 - ‖k‖²/2 + inner q k)` and prove
 the multi-dim law `inner`/`‖·‖²` identities:
 `‖q‖² = ∑ i, q i * q i`, `inner q k = ∑ i, q i * k i`, and the identity
@@ -496,7 +496,7 @@ These are the open items from `PLAN_LEAN_SPECIALIST_UNPROVED.md` and
 
 ### B.1 — Close the Mehler tail-split `sorry` (one remaining real gap)
 
-`BookProof/ChapterSolovayCoordinates.lean:85`, theorem `tailSplitEquiv_map`: the
+`BookProof/Probability/ChapterSolovayCoordinates.lean:85`, theorem `tailSplitEquiv_map`: the
 infinite Mehler coordinate measure, split by `tailSplitEquiv k : (ℕ → ℝ) ≃ᵐ
 (Fin k → ℝ) × (ℕ → ℝ)`, equals the product of the finite Gaussian head and the
 infinite tail. Use `MeasureTheory.Measure.infinitePi` / `pi_congrLeft` and the sum
@@ -532,7 +532,7 @@ Do **not** attempt (keep as named `EXTERNAL` hypotheses): Wigner/Mackey
 imprimitivity, Varadarajan Thm 6.12, `levy_paths_nowhere_differentiable`,
 `CrouzeixBound`.
 
-### B.4 — `BookProof/ChapterSelectingEvents.lean`: the abstract measure-theoretic layer
+### B.4 — `BookProof/Probability/ChapterSelectingEvents.lean`: the abstract measure-theoretic layer
 
 This is specialist-plan Task C2 and `Issues.md` §7's second remaining non-deferred
 gap: the **abstract** layer of `book.tex` §3 for arbitrary standard measure spaces,
@@ -620,7 +620,7 @@ and mixture classes require von-Neumann-algebra machinery absent from Mathlib
 v4.28.0; keep the full five-item classification a documented gap.)
 
 > **Superseded (closing pass, same day):** the diffuse `L∞(μ)` class is now built
-> too — `BookProof/ChapterLinftyMultiplication.lean` (`multOp`,
+> too — `BookProof/Probability/ChapterLinftyMultiplication.lean` (`multOp`,
 > `vonNeumann_abelian_class_Linfty`, `unitInterval_atomless`) — so of the five-item
 > list only the two mixture classes and exhaustiveness remain open. See §Status.
 

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterFreeFieldBornFiberCard
+import BookProof.Probability.ChapterFreeFieldBornFiberCard
 
 /-!
 # Chapter "Wave-function parametrization of a probability measure", §5 —

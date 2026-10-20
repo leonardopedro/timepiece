@@ -86,7 +86,7 @@ In the oscillator basis the fiber operator is multiplication by the mode symbol
 ## Part D — Strichartz, now proved, and the remaining potential-perturbation step
 
 **2026-08-19 update:** the Strichartz theorem for the flat d'Alembertian is now
-**formalized, not merely named**.  `BookProof/ChapterStrichartzWave.lean`
+**formalized, not merely named**.  `BookProof/Toolbox/ChapterStrichartzWave.lean`
 (ns `BookProof.StrichartzWave`, `sorry`-free / `axiom`-free) proves the ESA of
 `□ + κ = −∂_t² + Δ_x + κ` on the Schwartz core of `L²(ℝ^{1+n})`
 (`wave_essentiallySelfAdjoint`), and extends to real potentials of temperate
@@ -166,7 +166,7 @@ obvious:** the densitized operator on the Hermite core is a **diagonal
 (multiplication) operator** `M_λ` with eigenvalues
 `λ_k = (1/16)a_k² − (1/24)b_k² + V_k` — **unbounded**, and it remains unbounded
 when restricted to the Hermite core, which is **dense** (`hermiteCore_dense`,
-`BookProof/ChapterStrichartzHermiteQG.lean:85`; density of the domain does not
+`BookProof/Qg/ChapterStrichartzHermiteQG.lean:85`; density of the domain does not
 bound the operator).  For a diagonal operator the flow is
 `U(t) = diag(e^{iλ_k t})`, which is complete **even though `λ_k → ∞`**: each
 factor has modulus `1`, so the flow is norm-preserving and defined for all real
@@ -296,7 +296,7 @@ Reference for the finite-speed step: P. R. Chernoff, *Essential self-adjointness
 of powers of generators of hyperbolic equations*, J. Funct. Anal. **12** (1973)
 401–414 (the project's earlier "Strichartz, 13 82–93" was a misattribution).
 The flat d'Alembertian conclusion of that theorem is now **proved** in
-`BookProof/ChapterStrichartzWave.lean` (`wave_essentiallySelfAdjoint`), so it is
+`BookProof/Toolbox/ChapterStrichartzWave.lean` (`wave_essentiallySelfAdjoint`), so it is
 no longer an unproved hypothesis for the flat principal part; the QG module's
 `strichartz_esa_of_finiteSpeed` retains the deficiency-triviality premise only to
 make the deduction transparent (never an `axiom`, exactly as

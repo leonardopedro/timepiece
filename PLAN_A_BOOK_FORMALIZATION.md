@@ -13,7 +13,7 @@
 
 ### 6.1 Tensor product of two decidable languages is decidable
 
-**File:** `BookProof/ChapterSolovay.lean` (EXTEND)
+**File:** `BookProof/Probability/ChapterSolovay.lean` (EXTEND)
 
 Define the tensor product of two languages `(N₁, headDist₁)` and `(N₂, headDist₂)`:
 
@@ -38,7 +38,7 @@ Define the tensor product of two languages `(N₁, headDist₁)` and `(N₂, hea
 
 ### 6.2 Finite-dimensional ⊗ separable infinite-dimensional Hilbert space
 
-**File:** `BookProof/ChapterSolovay.lean` (EXTEND)
+**File:** `BookProof/Probability/ChapterSolovay.lean` (EXTEND)
 
 - Specialize 6.1 to express `InnerSpace N` as a Hilbert **tensor product**
   `L²(InnerHead N, headDist) ⊗ L²(InnerTail, tailMeasure) ≅ L²(InnerSpace N,
@@ -50,7 +50,7 @@ Define the tensor product of two languages `(N₁, headDist₁)` and `(N₂, hea
 
 ### 6.3 Arbitrary probability distribution on the finite-dimensional factor
 
-**File:** `BookProof/ChapterSolovay.lean` (EXTEND)
+**File:** `BookProof/Probability/ChapterSolovay.lean` (EXTEND)
 
 - For **any** `headDist : Measure (InnerHead N)` with `[IsProbabilityMeasure headDist]`,
   prove `stateMeasure N headDist` is a probability measure on `InnerSpace N`.
@@ -59,7 +59,7 @@ Define the tensor product of two languages `(N₁, headDist₁)` and `(N₂, hea
 
 ### 6.4 Only the Mehler measure on the infinite-dimensional factor
 
-**File:** `BookProof/ChapterSolovay.lean` (EXTEND)
+**File:** `BookProof/Probability/ChapterSolovay.lean` (EXTEND)
 
 - **Atomlessness:** prove `tailMeasure {x} = 0` for every `x : InnerTail`.
 - **Invariance:** prove `mehler_invariant_under_finite_orthogonal` (currently `True` placeholder).
@@ -71,7 +71,7 @@ Define the tensor product of two languages `(N₁, headDist₁)` and `(N₂, hea
 
 ### 6.5 Tensor product of sample spaces / linearization of non-linear models
 
-**File:** `BookProof/ChapterJointUnitary.lean` (EXTEND)  
+**File:** `BookProof/Probability/ChapterJointUnitary.lean` (EXTEND)  
 **Cross-check:** `BookProof/ChapterBosonicCCR.lean`, `BookProof/ChapterSpinStatistics.lean`
 
 - Formalize a **purification/linearization** statement: a (suitably bounded)
@@ -80,7 +80,7 @@ Define the tensor product of two languages `(N₁, headDist₁)` and `(N₂, hea
 
 ### 6.6 Cross-dimensional inner product (Mehler-tail splitting)
 
-**File:** `BookProof/ChapterSolovay.lean` (EXTEND)
+**File:** `BookProof/Probability/ChapterSolovay.lean` (EXTEND)
 
 - **`mehler_tail_split (k)`:** a measure-preserving equivalence
   `InnerTail ≃ InnerHead k × InnerTail` with
@@ -136,7 +136,7 @@ Add:
 
 ### 7.4 Kopperman `L_{ω₁ω₁}`-theory: model-theoretic properties
 
-**File:** `BookProof/ChapterKopperman.lean` (EXTEND)  
+**File:** `BookProof/Probability/ChapterKopperman.lean` (EXTEND)  
 **Cross-check:** `PnpProof/Kopperman.lean`
 
 Already formalized: `Formalism H`, `koppermanSubstrate`, `substrate_separable`.
@@ -150,7 +150,7 @@ Add:
 
 ### 7.5 Finite computation + Bayesian prior for large integers
 
-**File:** `BookProof/ChapterFiniteBayesHierarchy.lean` (READ-ONLY cross-check)  
+**File:** `BookProof/Probability/ChapterFiniteBayesHierarchy.lean` (READ-ONLY cross-check)  
 **File:** `BookProof/ChapterNoBestPrior.lean` (READ-ONLY cross-check)
 
 Already formalized: finite Bayes hierarchy, prior odds, no best prior.

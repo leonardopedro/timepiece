@@ -1,4 +1,4 @@
-import BookProof.ChapterNonnegSquareRoot
+import BookProof.Toolbox.ChapterNonnegSquareRoot
 
 /-!
 # Axiom audit for `BookProof.ChapterNonnegSquareRoot`

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterConformalSignFlip
+import BookProof.Qg.ChapterConformalSignFlip
 
 /-!
 # The half-line kinetic operator is **not** essentially self-adjoint
@@ -10,7 +10,7 @@ densitized conformal direction of the gauge-fixed theory lives on the half line
 degenerate-tetrad endpoint) and carries a **wrong-sign** kinetic term, and that
 the densitized d'Alembertian is therefore expected to fail essential
 self-adjointness — the limit-circle phenomenon at the endpoint.  Its companion
-module `BookProof/ChapterConformalSignFlip.lean` proves the sign bookkeeping
+module `BookProof/Qg/ChapterConformalSignFlip.lean` proves the sign bookkeeping
 (essential self-adjointness is invariant under `H ↦ −H`) but leaves the
 analytic statement itself unformalized.
 

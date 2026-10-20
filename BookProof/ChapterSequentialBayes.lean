@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterBayesInference
+import BookProof.Probability.ChapterBayesInference
 
 /-!
 # Chapter "Aligned deep learning as a random sampling method", §3

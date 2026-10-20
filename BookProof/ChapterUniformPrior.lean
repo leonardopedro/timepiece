@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterBayesInference
+import BookProof.Probability.ChapterBayesInference
 
 /-!
 # Uniform priors, relabeling symmetry, and maximum likelihood

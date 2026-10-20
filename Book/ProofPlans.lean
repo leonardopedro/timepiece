@@ -186,7 +186,7 @@ $`\dot x = x^2` becomes essentially self-adjoint *after* the change of
 variables — is now a theorem in the verified layer, in three steps, each a
 separate `BookProof` module:
 
- * **ODE-C.1** `BookProof/ChapterMomentumChartEsa.lean` — the momentum
+ * **ODE-C.1** `BookProof/Ode/ChapterMomentumChartEsa.lean` — the momentum
    operator $`P = -i\,d/dw` of the reciprocal chart is essentially
    self-adjoint on the Schwartz core of $`L^2(\mathbb{R})`
    (`MomentumChart.momentum_essentiallySelfAdjointOn`), through the
@@ -202,7 +202,7 @@ separate `BookProof` module:
  * **ODE-C.3** `chartHam_stone_flow` — the Stone bridge yields the complete
    unitary group on that domain.
 
-The supporting toolbox is `BookProof/ChapterEsaRealShift.lean`: a symmetric
+The supporting toolbox is `BookProof/Toolbox/ChapterEsaRealShift.lean`: a symmetric
 essentially-self-adjoint operator has trivial deficiency spaces at **every**
 non-real point (`deficiencyTrivialAt_of_essentiallySelfAdjointOn`), and ESA
 survives real shifts (`essentiallySelfAdjointOn_add_const`).

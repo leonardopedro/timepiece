@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Ns.ChapterNsComparisonEsa
-import BookProof.ChapterEsaRealShift
+import BookProof.Toolbox.ChapterEsaRealShift
 
 /-!
 # NS-L-C.3 — the lifted comparison operator `dΓ(N) + 1` is essentially self-adjoint on the

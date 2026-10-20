@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterDiagonalDGammaEsa
+import BookProof.Toolbox.ChapterDiagonalDGammaEsa
 import BookProof.Ns.ChapterNavierStokesEsa
 import BookProof.Toolbox.ChapterStoneGenerator
 import BookProof.Toolbox.ChapterStoneSeparable
@@ -7,9 +7,9 @@ import BookProof.Toolbox.ChapterStoneSeparable
 /-!
 # Second quantization of an arbitrary **self-adjoint** one-particle operator
 
-`BookProof/ChapterBoundedDGammaEsa.lean` discharged the sectorwise input of the second
+`BookProof/Toolbox/ChapterBoundedDGammaEsa.lean` discharged the sectorwise input of the second
 quantization theorem for *bounded* one-particle operators, and
-`BookProof/ChapterDiagonalDGammaEsa.lean` for *unbounded* ones with a total family of
+`BookProof/Toolbox/ChapterDiagonalDGammaEsa.lean` for *unbounded* ones with a total family of
 eigenvectors.  This module removes the last restriction: the sectorwise input is proved for
 **every self-adjoint one-particle operator**, with no bound, no positivity and no assumption
 on the spectrum (point, continuous or mixed).

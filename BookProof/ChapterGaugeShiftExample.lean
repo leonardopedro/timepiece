@@ -1,4 +1,4 @@
-import BookProof.ChapterContinuityUnitaryInfinite
+import BookProof.Probability.ChapterContinuityUnitaryInfinite
 
 /-!
 # The book's gauge-symmetry example: lattice translations on `ℓ²(ℤ)`

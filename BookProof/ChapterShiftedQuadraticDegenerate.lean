@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterShiftedQuadraticMatrixEsa
+import BookProof.Toolbox.ChapterShiftedQuadraticMatrixEsa
 import BookProof.Toolbox.ChapterStoneEigenflow
 
 /-!

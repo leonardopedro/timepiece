@@ -461,7 +461,7 @@ symmetric, essentially self-adjoint (`lagCompN_esa` — the constraint theorem
 instantiated at $`C = (\tfrac12|f|^2)\cdot 1`), non-negative
 (`lagCompN_nonneg`) and obeys the form bound
 $`\langle v,(N+1)v\rangle \ge \|v\|^2` (`lagCompN_add_one_ge`).  Third, the
-**lift** (`BookProof/ChapterLiftedComparisonEsa.lean`): $`d\Gamma(N)` is
+**lift** (`BookProof/Ns/ChapterLiftedComparisonEsa.lean`): $`d\Gamma(N)` is
 essentially self-adjoint on the finite-particle domain by the
 second-quantization theorem, and adding the constant `1` preserves that by the
 real-shift lemma (`liftedComparison_dGamma_esa`, **`liftedComparison_esa`**),
@@ -584,7 +584,7 @@ What remains open on this leg, stated as obligations rather than as caveats:
    the landed route, where the comparison is the lifted Friedrichs realization;
  * ~~the unitary identification of the parcel sectors $`L^2(\mathbb{R}^{6n})` with the tensor
    powers of the one-particle space~~ — **closed at the Hilbert-space level** by
-   `BookProof/ChapterL2TensorPowerUnitary.lean`: `tensorPowUnitary` identifies the `n`-particle
+   `BookProof/Toolbox/ChapterL2TensorPowerUnitary.lean`: `tensorPowUnitary` identifies the `n`-particle
    sector with $`L^2(\mu^{\otimes n})` for any σ-finite `μ` (the scalar lift is an isometry,
    `inner_prodTensor`, and the embedding has dense range, `denseRange_embPow`), while the
    measure-preserving relabelling `(ℝ^d)^n ≅ ℝ^{n·d}` (`mpEquivUnitary`, `parcelRelabel`) gives

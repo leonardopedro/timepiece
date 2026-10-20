@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterContinuityUnitaryInfinite
+import BookProof.Probability.ChapterContinuityUnitaryInfinite
 
 /-!
 # The Born law on a continuum: `P(B) = ∫_B |Ψ|²` is a probability *measure*

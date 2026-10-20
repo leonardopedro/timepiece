@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterConvolutionCalc
+import BookProof.Toolbox.ChapterConvolutionCalc
 
 /-!
 # The cut-off energy estimate for `−Δ_S + W`
@@ -18,7 +18,7 @@ and Young's inequality `2ab ≤ a²/2 + 2b²` absorbs the right-hand side:
 `Re ∫ χ² v̄ G ≤ 2 ∑_{j ∈ S} ∫ |∂_jχ|² |v|²`.
 
 That is `energy_bound`, the analytic heart of the Kato-type theorem of
-`BookProof/ChapterDegKatoEsa.lean`: no ellipticity in the directions outside `S` is used,
+`BookProof/Toolbox/ChapterDegKatoEsa.lean`: no ellipticity in the directions outside `S` is used,
 and no regularity of `G` beyond continuity.
 -/
 

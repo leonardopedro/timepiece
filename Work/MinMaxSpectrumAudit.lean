@@ -1,4 +1,4 @@
-import BookProof.ChapterMinMaxSpectrum
+import BookProof.Sirk.ChapterMinMaxSpectrum
 
 /-!
 # Axiom audit for `BookProof.ChapterMinMaxSpectrum`

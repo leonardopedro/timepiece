@@ -1,9 +1,9 @@
-import BookProof.ChapterEsaOneParticleDGamma
+import BookProof.Toolbox.ChapterEsaOneParticleDGamma
 
 /-!
 # Audit of the essentially-self-adjoint one-particle second quantization
 
-Axiom check for the results of `BookProof/ChapterEsaOneParticleDGamma.lean`.  Only the
+Axiom check for the results of `BookProof/Toolbox/ChapterEsaOneParticleDGamma.lean`.  Only the
 standard axioms `propext`, `Classical.choice`, `Quot.sound` may appear.
 -/
 

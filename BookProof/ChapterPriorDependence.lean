@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterBayesInference
+import BookProof.Probability.ChapterBayesInference
 
 /-!
 # Book chapter "Consciousness as a representation of a Bayesian prior"

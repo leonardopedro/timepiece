@@ -1,5 +1,5 @@
 import BookProof.ChapterStatisticalModelTheory
-import BookProof.ChapterStatementOperator
+import BookProof.Probability.ChapterStatementOperator
 
 #print axioms BookProof.ChapterStatisticalModelTheory.upward_lowenheim_skolem
 #print axioms BookProof.ChapterStatisticalModelTheory.exists_uncountable_model

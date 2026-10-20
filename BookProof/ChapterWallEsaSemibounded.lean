@@ -1,11 +1,11 @@
 import Mathlib
-import BookProof.ChapterWallEsaBddBelow
-import BookProof.ChapterSchrodingerCutoffEsa
+import BookProof.Qg.ChapterWallEsaBddBelow
+import BookProof.Toolbox.ChapterSchrodingerCutoffEsa
 
 /-!
 # The quadratic form of `−d²/dx² + V` is bounded below when `V` is
 
-`BookProof/ChapterWallEsaBddBelow.lean` proves that `−d²/dx² + V` is essentially
+`BookProof/Qg/ChapterWallEsaBddBelow.lean` proves that `−d²/dx² + V` is essentially
 self-adjoint on the compactly supported smooth core of `L²(ℝ)` for every smooth `V`
 bounded below.  Its docstring promised, but did not supply, the packaging lemma that
 the shift-invert schemes need: the *quadratic form* of that operator is bounded below
@@ -33,7 +33,7 @@ on the right are real, the first is `≥ 0`, and the second is `≥ -c ‖f‖²
   quadratic form of `wallHam V hV` is bounded below by `-c`.
 * `wallHam_nonneg_form` — the `c = 0` case: for `V ≥ 0` the form is non-negative.
 
-The exponential wall `eˣ + e⁻ˣ` is handled in `BookProof/ChapterExpPotentialEsa.lean`
+The exponential wall `eˣ + e⁻ˣ` is handled in `BookProof/Qg/ChapterExpPotentialEsa.lean`
 (`expPotential_semibounded`).
 -/
 

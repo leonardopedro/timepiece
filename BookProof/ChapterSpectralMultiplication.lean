@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterAbelianGelfandModel
+import BookProof.Probability.ChapterAbelianGelfandModel
 
 /-!
 # The spectral theorem in multiplication form (plan GAP-2, the operator model)

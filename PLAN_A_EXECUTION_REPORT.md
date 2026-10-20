@@ -4,7 +4,7 @@
 
 ### A1 — Solovay/Kopperman finite-head tensor core
 
-`BookProof/ChapterSolovay.lean` now contains:
+`BookProof/Probability/ChapterSolovay.lean` now contains:
 
 - `headSumEquiv`, the explicit equivalence
   `InnerHead (N₁ + N₂) ≃ InnerHead N₁ × InnerHead N₂`;
@@ -31,7 +31,7 @@ measure-preserving-symmetry interface. Likewise, `only_mehler_on_tail` packages
 the three requested properties and does not assert an unsupported uniqueness
 claim.
 
-`BookProof/ChapterJointUnitary.lean` adds
+`BookProof/Probability/ChapterJointUnitary.lean` adds
 `finite_purification_linearization`, the finite-dimensional unitary realization
 supported by the repository's existing Gram–Schmidt theorem. It does not claim
 a dilation theorem for every bounded nonlinear map, which would be false without
@@ -47,7 +47,7 @@ New modules:
 - `BookProof/Definability/ChapterCountableDefinability.lean`: countability of values denoted
   by a countable syntax, existence of a real outside that range, and the
   non-uniqueness of nondegenerate interval constraints;
-- `BookProof/ChapterKopperman.lean`: readable all-model separability and
+- `BookProof/Probability/ChapterKopperman.lean`: readable all-model separability and
   standard `Π⁰₂` truth-invariance headlines; full infinitary
   completeness/compactness remains explicitly outside the represented syntax;
 - `BookProof/ChapterFiniteArithmeticPrior.lean`: exact bounded arithmetic plus
@@ -58,7 +58,7 @@ Extended modules:
 - `BookProof/ChapterBornPhaseFiber.lean`: square-root normalization, finite
   `L²` average versus maximal-error control, and commutativity of multiplication
   operators;
-- `BookProof/ChapterJointUnitary.lean`: finite purification/linearization.
+- `BookProof/Probability/ChapterJointUnitary.lean`: finite purification/linearization.
 
 The requested density decomposition was already fully present in
 `BookProof/Density/ChapterDensitySpectral.lean` as

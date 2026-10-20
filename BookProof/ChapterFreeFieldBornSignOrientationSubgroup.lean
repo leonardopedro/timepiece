@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterFreeFieldBornSignOrientationKernel
+import BookProof.Probability.ChapterFreeFieldBornSignOrientationKernel
 
 /-!
 # The orientation-preserving Born sign gauge as an additive subgroup

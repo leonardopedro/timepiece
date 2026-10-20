@@ -3,7 +3,7 @@
 ## Context
 
 Plan A is fully executed. The book (Verso v4.28.0) builds and renders. One
-`sorry` remains in the new code: `BookProof/ChapterSolovayCoordinates.lean:60`
+`sorry` remains in the new code: `BookProof/Probability/ChapterSolovayCoordinates.lean:60`
 (`tailSplitEquiv_map`). The two `sorry`s in `UnusedRoute/SchoenfeldPRA.lean:163,178`
 are pre-existing and documented as intentional (substantive limit form of
 `rcpZeroAt`); leave them. `BookProof/ChapterTensor.lean` has already been removed
@@ -72,7 +72,7 @@ This is grounded in `book.tex`:
   `InnerSpace N := InnerHead N × InnerTail` (`:53`),
   `stateMeasure N headDist := headDist.prod tailMeasure` (`:56`),
   `dependsOnlyOnHead` (`:69`), `OuterWaveFunction := Lp ℂ 2 (stateMeasure …)` (`:76`).
-- `BookProof/ChapterSolovay.lean`: `SolovayHilbertSpace N headDist :=
+- `BookProof/Probability/ChapterSolovay.lean`: `SolovayHilbertSpace N headDist :=
   Completion (OuterWaveFunction …)` (`:37`), `inner_reduces_to_head` (`:72`),
   S.2a finite-head tensor (`headSumEquiv :174`, `tensorHeadObservable :182`,
   `tensorHeadObservable_dependsOnlyOnHead :191`, `tensor_language_decidable :216`),
@@ -80,7 +80,7 @@ This is grounded in `book.tex`:
   `mehler_invariant_under_finite_orthogonal :248`, `tailMeasure_singleton :255`,
   `TailPriorAdmissible :263`, `only_mehler_on_tail :270`,
   `head_vs_tail_admissibility :278`, `stateMeasure_finite_marginal :207`).
-- `BookProof/ChapterSolovayCoordinates.lean`: `CoordinateTail := ℕ → ℝ` (`:37`),
+- `BookProof/Probability/ChapterSolovayCoordinates.lean`: `CoordinateTail := ℕ → ℝ` (`:37`),
   `coordinateTailMeasure := gammaMeasure` (`:40`), `finiteCoordinateMarginal :49`,
   `tailSplitEquiv :55` / `tailSplitEquiv_map :60` (the sorry),
   `tailTensorEquiv :83` / `tailTensorEquiv_map :90`, `CoordinateSpace N :123`,
@@ -99,7 +99,7 @@ This is grounded in `book.tex`:
 
 ## Task A1 — Prove `tailSplitEquiv_map` (the Mehler tail split)
 
-**File:** `BookProof/ChapterSolovayCoordinates.lean`, line 60.
+**File:** `BookProof/Probability/ChapterSolovayCoordinates.lean`, line 60.
 
 **Statement:**
 ```lean
@@ -144,7 +144,7 @@ or supply explicit type arguments.
 
 ## Task A2 — Verify `enlargeEquiv_map` builds
 
-**File:** `BookProof/ChapterSolovayCoordinates.lean`, line 168.
+**File:** `BookProof/Probability/ChapterSolovayCoordinates.lean`, line 168.
 
 This proof calls `tailSplitEquiv_map k` (line 174). Once A1 is proved,
 `enlargeEquiv_map` should elaborate. If it times out or fails, simplify the
@@ -172,7 +172,7 @@ B2/B3 and on Part A.
 
 ## Task B1 — Tensor product of two decidable languages is decidable (close the loop)
 
-**File:** `BookProof/ChapterSolovayCoordinates.lean`, extend the `DecidableLanguage`
+**File:** `BookProof/Probability/ChapterSolovayCoordinates.lean`, extend the `DecidableLanguage`
 section (lines 329–349).
 
 Current state: `DecidableLanguage α` is a Boolean classifier `decide : α → Bool`;
@@ -228,7 +228,7 @@ substantive, closed statement.
 
 ## Task B2 — Tensor product of a finite-dim and a separable infinite-dim Hilbert space
 
-**File:** new section in `BookProof/ChapterSolovay.lean` (after S.2a) **or** a new
+**File:** new section in `BookProof/Probability/ChapterSolovay.lean` (after S.2a) **or** a new
 file `BookProof/ChapterSolovayTensor.lean` (then add the import to `BookProof.lean`
 — coordinate with the orchestrator first).
 
@@ -286,7 +286,7 @@ space `InnerHead N ≃ ℝ^N` with the separable infinite-dimensional Hilbert sp
 
 ## Task B3 — The Mehler measure is FORCED on the infinite-dimensional part (the heart)
 
-**File:** `BookProof/ChapterSolovayCoordinates.lean` (the coordinate realization,
+**File:** `BookProof/Probability/ChapterSolovayCoordinates.lean` (the coordinate realization,
 where uniqueness is actually provable).
 
 Current state: `only_mehler_on_tail` (`ChapterSolovay.lean:270`) proves only that
@@ -353,7 +353,7 @@ Hilbert space, so only the Mehler measure can be the distribution."
 
 ## Task B4 — Arbitrary law on the finite part × forced Mehler on the infinite part
 
-**File:** `BookProof/ChapterSolovay.lean` (extend S.3) — package B3 with the
+**File:** `BookProof/Probability/ChapterSolovay.lean` (extend S.3) — package B3 with the
 existing head freedom. State it in the COORDINATE model (`CoordinateSpace N`,
 `ChapterSolovayCoordinates.lean:123`) to reuse B3 directly; note the abstract
 `InnerTail = Substrate` transport as a follow-up.
@@ -384,7 +384,7 @@ theorem solovay_kopperman_probability_classification (N : ℕ)
 
 ## Task B5 — Cross-dimensional inner product is well-defined (Mehler splits ⇒ dims match)
 
-**File:** `BookProof/ChapterSolovayCoordinates.lean` / `ChapterSolovay.lean`.
+**File:** `BookProof/Probability/ChapterSolovayCoordinates.lean` / `ChapterSolovay.lean`.
 
 Author's earlier goal: "the cross-dimensional inner product is well-defined because
 the Mehler measure splits, so the finite dimensions match." This is largely a
@@ -428,7 +428,7 @@ documented); **no `axiom`** anywhere in `BookProof/` or `PnpProof/` (see C3).
 
 ## Task C2 — Replace the `True`-placeholder theorems in `ChapterSelectingEvents.lean`
 
-**File:** `BookProof/ChapterSelectingEvents.lean`. Four theorems currently conclude
+**File:** `BookProof/Probability/ChapterSelectingEvents.lean`. Four theorems currently conclude
 `True` via `trivial`. Give them real statements (book.tex Ch. 13 / §3 anchors):
 
 - **C2a — regular conditional probability exists** (line 62; book.tex 1479–1481,
@@ -455,7 +455,7 @@ documented); **no `axiom`** anywhere in `BookProof/` or `PnpProof/` (see C3).
 
 ## Task C3 — De-axiomatize the two `axiom : True` in `ChapterSelectingEvents.lean`
 
-**File:** `BookProof/ChapterSelectingEvents.lean:117,150`. `axiom p_ne_np : True`
+**File:** `BookProof/Probability/ChapterSelectingEvents.lean:117,150`. `axiom p_ne_np : True`
 and `axiom random_generation_linear_time : True` are content-free but they are
 `axiom`s, which the project's own `PnpProof/Kopperman.lean:28–32` docstring
 explicitly criticizes ("asserting as an axiom is precisely the act of telling Lean

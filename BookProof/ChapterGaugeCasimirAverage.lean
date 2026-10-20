@@ -1,4 +1,4 @@
-import BookProof.ChapterGaugeIncompleteFixing
+import BookProof.Qym.ChapterGaugeIncompleteFixing
 
 /-!
 # Casimir constraints, Haar averaging and the pushforward of the constrained measure

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterCPTHamiltonian
+import BookProof.Textbook.ChapterCPTHamiltonian
 
 /-!
 # Chapter "Real representations, CPT theorem and the relativistic position operator",

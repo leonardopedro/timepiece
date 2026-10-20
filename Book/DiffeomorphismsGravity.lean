@@ -1340,7 +1340,7 @@ and commutes with the derivation, so essential self-adjointness transfers to it
 (`PermSector.essentiallySelfAdjointOn_bosonic_core`,
 `essentiallySelfAdjointOn_bosonic_core_of_esa`) and the two Fock rows are the algebraic and
 Hilbert direct-sum spellers (`bosonicFock_esa`); the unsymmetrized $`d\Gamma(h)` row is the
-graph-core lift of `BookProof/ChapterEsaOneParticleDGamma.lean`
+graph-core lift of `BookProof/Toolbox/ChapterEsaOneParticleDGamma.lean`
 (`EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa`) — the same theorem that carries
 every one-particle statement of the programme to its final-Hamiltonian form.  Dependencies,
 then: `qgFull_esa_core_fl` as the one-particle input, `ChapterFockStatisticsEsa` for the

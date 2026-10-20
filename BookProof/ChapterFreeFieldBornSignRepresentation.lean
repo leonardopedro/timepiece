@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterFreeFieldBornSignOrientationQuotient
+import BookProof.Probability.ChapterFreeFieldBornSignOrientationQuotient
 
 /-!
 # Faithful orthogonal representation of the Born sign gauge

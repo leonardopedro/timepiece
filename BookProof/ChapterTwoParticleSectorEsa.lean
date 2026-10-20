@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterTensorGraphCore
-import BookProof.ChapterReducingSubspaceEsa
+import BookProof.Toolbox.ChapterReducingSubspaceEsa
 
 /-!
 # The bosonic and the fermionic two-particle sector

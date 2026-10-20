@@ -6,8 +6,8 @@ symmetry by a comprehensive but incomplete gauge fixing.  Run on demand:
 lake build Work.GaugeIncompleteFixingAudit
 ```
 -/
-import BookProof.ChapterGaugeIncompleteFixing
-import BookProof.ChapterGaugeShiftExample
+import BookProof.Qym.ChapterGaugeIncompleteFixing
+import BookProof.Qym.ChapterGaugeShiftExample
 
 open BookProof.ChapterGaugeIncompleteFixing
 open BookProof.ChapterGaugeShiftExample

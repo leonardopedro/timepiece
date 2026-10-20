@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Textbook.ChapterA3c
-import BookProof.ChapterPauliFundamental
+import BookProof.Textbook.ChapterPauliFundamental
 
 /-!
 # Prop 46 without external input — the Pin(3,1) → O(1,3) covering

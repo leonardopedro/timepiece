@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterFreeFieldBornFiberBounds
+import BookProof.Probability.ChapterFreeFieldBornFiberBounds
 
 /-!
 # Chapter "Wave-function parametrization of a probability measure", §5 —

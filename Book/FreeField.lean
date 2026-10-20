@@ -75,13 +75,13 @@ one-particle operator $`h` — the gap of $`\sum_i h_{ii}\,C^\dagger(e_i)A(e_i)`
 of the *free* n-particle sector is what `ChapterFockDiagonalGapChain` and its
 instantiation for the massless photon certify. The newly landed QYM-1 wave
 closes the same gap for the genuinely coupled gauge-fixed Yang–Mills
-one-particle operator. `BookProof/ChapterTruncationGapLift.lean` splits each
+one-particle operator. `BookProof/Sirk/ChapterTruncationGapLift.lean` splits each
 finite-mode core vector $`v = x + w` into its order-$`m` Galerkin part and its
 tail, and proves that a gap certified on the truncation lifts to the core once
 the tail is coercive and the coupling across the split is bounded
 (`gap_of_level_gap_and_tail`, `gap_of_uniform_truncated_gap`), and further via
 the d\Gamma operator applied to the outer-enclosed $`H` (the `ym_fock_*` compositions).
-`BookProof/ChapterSchurGershgorinGap.lean` then proves those two analytic
+`BookProof/Sirk/ChapterSchurGershgorinGap.lean` then proves those two analytic
 inputs *from the matrix elements* the certificate records: diagonal dominance
 on the tail gives coercivity (`tail_coercive_of_gershgorin`) and a Schur test
 on the coupling block gives the cross bound (`coupling_bound_of_schur`),
@@ -966,7 +966,7 @@ above has to make. The three are:
   functional that annihilates exact terms (`int_L_gf_eq_zero`) — it contributes
   nothing to physical observables, which is precisely what makes it a pure gauge
   fixing rather than new physics.  This is the method formalized in
-  `BookProof/ChapterGaugeFixing.lean`.
+  `BookProof/Qym/ChapterGaugeFixing.lean`.
 
 * A complex gauge field (a flat-connection reading of the same content). One
   might instead replace the derivative $`\partial_\mu u` in the Hamiltonian by
@@ -1002,7 +1002,7 @@ $`v - d\varphi` a physical observable), and the flat-connection reading, while
 insightful, is the same logic repackaged at the cost of a new gauge redundancy and
 a complexified Hermitian structure.  Method B is also the formalization-friendly
 choice: one graded Leibniz rule, no analysis, a purely algebraic skeleton
-(plan item E.6, `BookProof/ChapterGaugeFixing.lean`), and it is the gauge fixing
+(plan item E.6, `BookProof/Qym/ChapterGaugeFixing.lean`), and it is the gauge fixing
 the A.6/A.7 `genY`/`genY2` generators perform when they tie the derivative fields
 to the velocity field — the step on which the Hashimoto shift-invert selection for
 the Navier–Stokes Hamiltonian (§9 item 8 of `CONSOLIDATED_PLAN.md`) is to be built.

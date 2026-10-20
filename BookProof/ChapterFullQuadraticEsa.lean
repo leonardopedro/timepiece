@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterCarlemanSimplex
-import BookProof.ChapterModeQuadraticEsa
+import BookProof.Toolbox.ChapterModeQuadraticEsa
 
 /-!
 # The general real quadratic Hamiltonian on the Gauss–polynomial core

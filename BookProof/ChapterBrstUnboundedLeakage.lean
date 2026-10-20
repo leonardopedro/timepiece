@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterBrstTruncationLeakage
+import BookProof.Qym.ChapterBrstTruncationLeakage
 import BookProof.Toolbox.ChapterStoneGenerator
 
 /-!
@@ -7,7 +7,7 @@ import BookProof.Toolbox.ChapterStoneGenerator
 
 `CONSOLIDATED_PLAN.md` §12.2 **Gap 5** asks for a bound on the physical-subspace (BRST)
 leakage `‖Ω ψ(t)‖` of the *truncated* dynamics in terms of the truncation.
-`BookProof/ChapterBrstTruncationLeakage.lean` closes it for **bounded** generators and
+`BookProof/Qym/ChapterBrstTruncationLeakage.lean` closes it for **bounded** generators and
 records the unbounded field-theoretic Hamiltonian as the remaining boundary.  This module
 removes that restriction: the exact generator is an arbitrary unbounded self-adjoint
 operator `T` (the bundled `UnboundedSelfAdjoint` of `BookProof.ChapterStoneResolvent`,

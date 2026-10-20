@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterAbelianDiagonalCountable
-import BookProof.ChapterAtomicDecomposition
+import BookProof.Probability.ChapterAbelianDiagonalCountable
+import BookProof.Probability.ChapterAtomicDecomposition
 
 /-!
 # The purely atomic condensation of the abelian von Neumann classification

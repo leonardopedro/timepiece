@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterAbelianCyclicModel
+import BookProof.Probability.ChapterAbelianCyclicModel
 
 /-!
 # Abelian algebras without a cyclic vector: the direct-sum model (plan GAP-2)

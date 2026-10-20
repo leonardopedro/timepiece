@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterBookBrstYangMills
+import BookProof.Qym.ChapterBookBrstYangMills
 
 /-!
 # The gauge-fixing fermion of `book.tex` and the gauge-fixing term it generates

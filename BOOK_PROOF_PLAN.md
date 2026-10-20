@@ -185,7 +185,7 @@ that:
   - Already-present product/cylindrical helpers: `cross_factor_expectation`
     (expectation of a product = product of expectations, via Fubini) and
     `L2_cylindrical_norm_diff`.
-- `BookProof/ChapterSolovay.lean`: `SolovayHilbertSpace N headDist :=
+- `BookProof/Probability/ChapterSolovay.lean`: `SolovayHilbertSpace N headDist :=
   UniformSpace.Completion (OuterWaveFunction N headDist)` (completed Hilbert space),
   `inner_reduces_to_head`, `mehler_concentrates_on_unit_sphere`,
   `no_godelian_self_reference`.
@@ -317,7 +317,7 @@ is the infinite tail, where no element is distinguishable (atomless).
   `mehler_concentrates_on_sphere`), `PnpProof/Kopperman.lean` (`MehlerPrior`,
   `substrate_separable`, `exists_atomless_prob_substrate`),
   `RandomMap/RandomMap2.lean` (`InnerHead`, `InnerTail`, `tailMeasure`,
-  `dependsOnlyOnHead`, `inner_reduces_to_head`), `BookProof/ChapterSolovay.lean`.
+  `dependsOnlyOnHead`, `inner_reduces_to_head`), `BookProof/Probability/ChapterSolovay.lean`.
 
 ---
 

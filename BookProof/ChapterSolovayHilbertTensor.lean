@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterSolovayCoordinates
+import BookProof.Probability.ChapterSolovayCoordinates
 
 /-!
 # The Hilbert-space form of the Solovay–Kopperman tensor product (plan §4.2)

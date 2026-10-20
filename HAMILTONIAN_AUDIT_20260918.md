@@ -564,7 +564,7 @@ def harmCore : (polyGaussCore (d := d)) →ₗ[ℂ] L2d d :=
 -- BookProof/ChapterQgOuterFockFarisLavine/Part2.lean
 def harmFried (d : ℕ) : Comparison (L2d d) :=
   friedrichsComparison (harmPosSym d) polyGaussCore_dense
--- BookProof/ChapterSqSumOuterFamily.lean
+-- BookProof/Toolbox/ChapterSqSumOuterFamily.lean
 def SqFamily.secData (n : ℕ) : CoreData (L2d (F.dim n)) where
   C := harmFried (F.dim n)        -- <-- THE COMPARISON CONSUMED
 def SqFamily.flK : ℝ := 3 / 2 * F.km + 4 * (F.a * F.b)   -- relative-bound constant

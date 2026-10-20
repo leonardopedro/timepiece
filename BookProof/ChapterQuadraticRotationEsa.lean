@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterHyperbolicQuadraticEsa
+import BookProof.Toolbox.ChapterHyperbolicQuadraticEsa
 
 /-!
 # General (non-diagonal) quadratic Hamiltonians of arbitrary signature

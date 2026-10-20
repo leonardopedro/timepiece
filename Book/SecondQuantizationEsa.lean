@@ -356,7 +356,7 @@ passage was the honest boundary of the previous section. It has been executed,
 in four steps that are worth reading as one argument, because each step is an
 abstract instrument reusable far beyond this book.
 
-**Step one — reduction.** `BookProof/ChapterReducingSubspaceEsa.lean`
+**Step one — reduction.** `BookProof/Toolbox/ChapterReducingSubspaceEsa.lean`
 (namespace `BookProof.ReducedEsa`): if $`P` is an idempotent symmetric
 *reducing* projection that preserves the domain and commutes with $`T`, then
 essential self-adjointness of $`T` descends to the sector $`D \cap P F`. The
@@ -369,7 +369,7 @@ $`(1 \pm U)/2` (`symProj`, `asymProj`) are such projections, giving
 `essentiallySelfAdjointOn_symSector` / `…_asymSector` on the eigenspaces
 $`Ux = \pm x`.
 
-**Step two — finite groups.** `BookProof/ChapterGroupAverageEsa.lean`
+**Step two — finite groups.** `BookProof/Toolbox/ChapterGroupAverageEsa.lean`
 (namespace `BookProof.GroupAverage`) generalizes the single involution to any
 finite group of symmetries: `UnitaryRep G F` is an action by inner-preserving
 linear maps, `avgProj = |G|^{-1} \sum_g \rho(g)` is the Haar average, its range
@@ -392,7 +392,7 @@ $`U_\sigma(x_0 \otimes \cdots \otimes x_{n-1}) = x_{\sigma 0} \otimes \cdots \ot
 from which the group law `permOp_mul` follows. `permRep` and `signRep` package
 the action and its sign twist as `UnitaryRep`s.
 
-**Step four — the two sectors.** `BookProof/ChapterPermutationSectorEsa.lean`
+**Step four — the two sectors.** `BookProof/Toolbox/ChapterPermutationSectorEsa.lean`
 (namespace `BookProof.PermSector`) checks the three compatibilities of a pair of
 operators — with the inclusion of the domain, with the sector derivation
 $`d\Gamma(A)^{(n)}`, and with the core power $`D^{\otimes n}` — for the two
@@ -410,7 +410,7 @@ core vector) and `exists_ne_zero_fermionic` (the Slater determinant, nonzero by
 
 Two companion chapters make the picture complete. The two-particle case in
 isolation, from which the general construction checks itself
-(`permOp_two_eq_swapH`), is `BookProof/ChapterTwoParticleSectorEsa.lean`
+(`permOp_two_eq_swapH`), is `BookProof/Toolbox/ChapterTwoParticleSectorEsa.lean`
 (namespace `BookProof.TwoParticleSector`), with its reducing projection the
 swap $`(1 \pm \mathrm{swap})/2`. And `BookProof/Toolbox/ChapterFockStatisticsEsa.lean`
 (namespace `BookProof.FockStatistics`) discharges the hypothesis the permutation
@@ -487,7 +487,7 @@ discharges. Obligation (i) is the *inner* one: the comparison operator $`N` of
 record must itself be essentially self-adjoint on the core the proof actually
 chooses. Two short chapters discharge it in general.
 
-`BookProof/ChapterSelfAdjointCoreEsa.lean` (namespace
+`BookProof/Toolbox/ChapterSelfAdjointCoreEsa.lean` (namespace
 `BookProof.SelfAdjointCoreEsa`): if $`T` has a self-adjoint extension, then it
 was already essentially self-adjoint on its own domain. At a non-real $`z` the
 deficiency equation makes $`w` a domain vector with $`A w = z \bullet w`, and
@@ -532,7 +532,7 @@ one-particle moves; the enclosure is downstream of both.
 :::
 
 :::paragraph
-**A real shift does not change the answer** (`BookProof/ChapterEsaRealShift.lean`).
+**A real shift does not change the answer** (`BookProof/Toolbox/ChapterEsaRealShift.lean`).
 The definition in use is essential self-adjointness through the two deficiency
 spaces at $`\pm i` only, so the statement “$`h` ESA $`\Rightarrow h + c`
 ESA” for real $`c` is not formal: shifting moves the deficiency question from

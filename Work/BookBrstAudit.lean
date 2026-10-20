@@ -1,6 +1,6 @@
-import BookProof.ChapterBookBrstYangMills
-import BookProof.ChapterBookBrstGaugeFixing
-import BookProof.ChapterBookBrstInstances
+import BookProof.Qym.ChapterBookBrstYangMills
+import BookProof.Qym.ChapterBookBrstGaugeFixing
+import BookProof.Qym.ChapterBookBrstInstances
 
 /-!
 Axiom audit for the implementation of the BRST formalism **as defined in `book.tex`**

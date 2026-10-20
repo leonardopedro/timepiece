@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterStrichartzWave
+import BookProof.Toolbox.ChapterStrichartzWave
 import BookProof.Toolbox.ChapterKatoRellichDeficiency
 
 /-!

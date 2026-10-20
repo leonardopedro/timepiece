@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.ChapterSolovay
-import BookProof.ChapterSolovayCoordinates
-import BookProof.ChapterSolovayTailDimension
+import BookProof.Probability.ChapterSolovay
+import BookProof.Probability.ChapterSolovayCoordinates
+import BookProof.Probability.ChapterSolovayTailDimension
 
 /-!
 # The Introduction's question, answered: a separable law with an arbitrary finite

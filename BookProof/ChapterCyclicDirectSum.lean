@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterCyclicDecomposition
+import BookProof.Probability.ChapterCyclicDecomposition
 
 /-!
 # The cyclic decomposition as a Hilbert sum (plan GAP-2, the direct-sum form)

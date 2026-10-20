@@ -1,13 +1,13 @@
-import BookProof.ChapterGaugeComprehensiveFixing
-import BookProof.ChapterGaugeCasimirAverage
+import BookProof.Qym.ChapterGaugeComprehensiveFixing
+import BookProof.Qym.ChapterGaugeCasimirAverage
 import BookProof.ChapterDampedOscillatorEnergy
-import BookProof.ChapterGaugeParametrization
+import BookProof.Qym.ChapterGaugeParametrization
 
 /-!
 # Audit of the comprehensive gauge-fixing, Casimir, averaging and dissipation chapters
 
-Axiom check for the results of `BookProof/ChapterGaugeComprehensiveFixing.lean`,
-`BookProof/ChapterGaugeCasimirAverage.lean` and
+Axiom check for the results of `BookProof/Qym/ChapterGaugeComprehensiveFixing.lean`,
+`BookProof/Qym/ChapterGaugeCasimirAverage.lean` and
 `BookProof/ChapterDampedOscillatorEnergy.lean`.  Only the standard axioms
 `propext`, `Classical.choice`, `Quot.sound` may appear.
 -/

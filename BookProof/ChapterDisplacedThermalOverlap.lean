@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterThermalTemperatureCore
+import BookProof.Attention.ChapterThermalTemperatureCore
 import BookProof.Attention.ChapterSoftmaxSharpness
 
 /-!

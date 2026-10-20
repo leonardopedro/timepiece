@@ -1,4 +1,4 @@
-import BookProof.ChapterUnboundedPolar
+import BookProof.Toolbox.ChapterUnboundedPolar
 
 /-!
 # Axiom audit for `BookProof.ChapterUnboundedPolar`

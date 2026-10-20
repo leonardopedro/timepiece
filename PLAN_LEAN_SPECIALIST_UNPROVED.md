@@ -85,10 +85,10 @@ are **not yet proved**. Every new theorem must remain `sorry`-free and
 > This file's historical items remain below for provenance.
 
 - **Actual `sorry`s:** the former real gap
-  `BookProof/ChapterSolovayCoordinates.lean:85` (`tailSplitEquiv_map`) is now
+  `BookProof/Probability/ChapterSolovayCoordinates.lean:85` (`tailSplitEquiv_map`) is now
   **proved**. The two in `UnusedRoute/SchoenfeldPRA.lean:163,178` are pre-existing
   and intentional — leave them.
-- **`True` placeholders** in `BookProof/ChapterSelectingEvents.lean` — all now
+- **`True` placeholders** in `BookProof/Probability/ChapterSelectingEvents.lean` — all now
   **replaced by real theorems** (kept here for provenance):
   - `selecting_events_not_rewriting_history` — now proves `μ[F | E] = μ(E∩F)/μ(E)`;
   - `exists_continuous_atomic_decomposition` — now proves a genuine atomic +
@@ -118,7 +118,7 @@ are **not yet proved**. Every new theorem must remain `sorry`-free and
 > proved with no `sorry`; the dependent Solovay structure theorems landed too.
 > Kept below for provenance.
 
-File: `BookProof/ChapterSolovayCoordinates.lean`, theorem `tailSplitEquiv_map`
+File: `BookProof/Probability/ChapterSolovayCoordinates.lean`, theorem `tailSplitEquiv_map`
 (line 85). This is the only genuine `sorry` in the new code and it is the
 load-bearing fact for the Solovay–Kopperman cross-dimensional embedding (the
 author's "inner product is well defined across head dimensions" claim).
@@ -172,7 +172,7 @@ positive-measure event does not "rewrite history": the regular conditional
 probability agrees with the quotient formula. This is fully in Mathlib and should
 not be a `True` placeholder.
 
-File: `BookProof/ChapterSelectingEvents.lean`, theorem
+File: `BookProof/Probability/ChapterSelectingEvents.lean`, theorem
 `selecting_events_not_rewriting_history` (line 226).
 
 Replace the `True` conclusion with the real statement: for a probability measure
@@ -219,7 +219,7 @@ $`x \mapsto x/2`.
 
 ### 3.2 Real-representation sum closing a stated identity
 `Book/RealRepresentations.lean` asserts the full-Lorentz projectivity and the
-$`16 = 4+6+4+2` direct-sum decomposition. `BookProof/ChapterLorentzRealRepDirect.lean`
+$`16 = 4+6+4+2` direct-sum decomposition. `BookProof/Textbook/ChapterLorentzRealRepDirect.lean`
 already has `WFam_isInternal` and `finrank_full_eq_add`. Add the companion fact that
 conjugation by *any* element of $`\Omega` (not just the generators) preserves each
 summand, i.e. promote `WFam_conj_invariant` to a full-representation statement if it
