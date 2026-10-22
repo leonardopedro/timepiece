@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-20T12:12:59+00:00",
+ "generated_at": "2026-10-21T17:15:35+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -29,10 +29,10 @@
   },
   {
    "path": "ARISTOTLE_SUMMARY.md",
-   "title": "Summary of changes for run ee7d0fcc-1070-4216-8243-2d09899b8053",
-   "lines": 18,
+   "title": "Summary of changes for run d5df5823-3d2d-4b85-95ec-175932ea4f8f",
+   "lines": 27,
    "headings": [
-    "# Summary of changes for run ee7d0fcc-1070-4216-8243-2d09899b8053"
+    "# Summary of changes for run d5df5823-3d2d-4b85-95ec-175932ea4f8f"
    ]
   },
   {
@@ -138,7 +138,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 18179,
+   "lines": 18329,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -358,7 +358,7 @@
   {
    "path": "CURRENT_WORK_ORDER.md",
    "title": "Current work order — one pointer per track",
-   "lines": 231,
+   "lines": 233,
    "headings": [
     "# Current work order — one pointer per track",
     "## The table",
@@ -1412,6 +1412,17 @@
    ]
   },
   {
+   "path": "math28/README.md",
+   "title": "`math28/` — hypotheses supported by `math/`, in Lean v4.28.0",
+   "lines": 48,
+   "headings": [
+    "# `math28/` — hypotheses supported by `math/`, in Lean v4.28.0",
+    "## What \"supported by `math/`\" means here",
+    "## Transcription notes",
+    "## Not included"
+   ]
+  },
+  {
    "path": "newproof.md",
    "title": "newproof",
    "lines": 285,
@@ -1507,10 +1518,6 @@
   {
    "source": "AGENTS.md",
    "target": "unfer_contracts/MASS_GAP_SPEC.md"
-  },
-  {
-   "source": "ARISTOTLE_SUMMARY.md",
-   "target": "README.md"
   },
   {
    "source": "ATTRIBUTION.md",
@@ -1782,6 +1789,10 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "math28/README.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "newproof.md"
   },
   {
@@ -1907,6 +1918,10 @@
   {
    "source": "CURRENT_WORK_ORDER.md",
    "target": "STATUS.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
+   "target": "math28/README.md"
   },
   {
    "source": "CURRENT_WORK_ORDER.md",

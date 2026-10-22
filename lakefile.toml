@@ -246,3 +246,15 @@ roots = ["BookProof.PauliGrover.ChapterPauliGrover"]
 name = "BookProofDerivativeGauge"
 # sub-system target: 3 root(s), 106 modules in the cone
 roots = ["BookProof.Ns.ChapterNsBrstDerivativeGauge", "BookProof.Ns.ChapterNsFieldMomentumInverse", "BookProof.Qg.ChapterQgBrstDerivativeGauge"]
+
+# `math28/`: Lean v4.28.0 *named hypotheses* transcribed from the theorems of the `math/OAI/`
+# snapshot (openai/math, Lean v4.34.1), with proved bridges into this repository's chapters.
+# Nothing in `math/` is imported or compiled.  See `math28/README.md`.  Not a default target.
+[[lean_lib]]
+name = "Math28"
+srcDir = "math28"
+
+# Formalization of "Dimension-Robust Bayesian Adaptation of Transformers via
+# Hyperspherical Geometry and Unadjusted SG-pCNL" (Milestones 1-5).
+[[lean_lib]]
+name = "BayesianTransformer"

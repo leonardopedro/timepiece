@@ -6,12 +6,12 @@
 >
 > A reference is counted when it *resolves to a file that exists in the repo*. Four forms qualify: a markdown link `[t](p.md)`, a `[[wikilink]]`, a backticked `` `p.md` ``, and a bare `p.md` on its own line. The backticked form is this corpus's dominant convention (~2400 references vs ~120 markdown links), and reading only markdown links is what previously made a heavily cross-referenced corpus report zero backlinks.
 
-## Documents (70)
+## Documents (71)
 
 | Document | Title | Lines | Out | In |
 |---|---|---:|---:|---:|
 | [AGENTS.md](AGENTS.md) | AGENTS.md - Developer Guide for AI Coding Agents | 319 | 8 | 9 |
-| [ARISTOTLE_SUMMARY.md](ARISTOTLE_SUMMARY.md) | Summary of changes for run ee7d0fcc-1070-4216-8243-2d09899b8053 | 18 | 1 | 8 |
+| [ARISTOTLE_SUMMARY.md](ARISTOTLE_SUMMARY.md) | Summary of changes for run d5df5823-3d2d-4b85-95ec-175932ea4f8f | 27 | 0 | 8 |
 | [ATTRIBUTION.md](ATTRIBUTION.md) | Attribution | 25 | 1 | 1 |
 | [BOOKPROOF_PHASE1_MOVES.md](BOOKPROOF_PHASE1_MOVES.md) | BookProof Phase 1 move map | 102 | 0 | 2 |
 | [BOOKPROOF_PHASE2B_MOVES.md](BOOKPROOF_PHASE2B_MOVES.md) | BookProof Phase 2.2b move map | 242 | 0 | 3 |
@@ -21,9 +21,9 @@
 | [BUILD_COMPONENTS.md](BUILD_COMPONENTS.md) | The independent parts of the development, and how to compile them separately | 109 | 0 | 5 |
 | [BUILD_LAYOUT.md](BUILD_LAYOUT.md) | Project layout and how to build as little as possible | 234 | 1 | 2 |
 | [CHANGELOG.md](CHANGELOG.md) | Changelog | 63 | 1 | 0 |
-| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18179 | 58 | 18 |
+| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18329 | 59 | 18 |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator | 100 | 0 | 1 |
-| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 231 | 31 | 3 |
+| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 233 | 32 | 3 |
 | [Contention.md](Contention.md) | Contention: Message Differences Between `book.tex` and `Book/` | 252 | 0 | 2 |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | Which `N`? Comparison operators for the Faris–Lavine route — one per Hamiltonian | 623 | 3 | 3 |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | QG‑3.2 operator half: ESA of a sum of couplings with *differing* bases | 199 | 0 | 1 |
@@ -54,7 +54,7 @@
 | [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) | Implementation Plan: Lean 4 Formalization of `pnp.tex` | 4164 | 4 | 2 |
 | [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md) | Reusable theorems from prove2me — frozen search for the offline Lean specialist | 637 | 1 | 1 |
 | [PnpProof/IMPLEMENTED.md](PnpProof/IMPLEMENTED.md) | PnpProof — Implementation report | 408 | 1 | 1 |
-| [README.md](README.md) | README | 42 | 0 | 2 |
+| [README.md](README.md) | README | 42 | 0 | 1 |
 | [REVIEW_AND_PLAN_20260907.md](REVIEW_AND_PLAN_20260907.md) | Full review and plan — QYM, NS, QG, the gauge-fixed Hamiltonians, the outer Fock layer, | 233 | 0 | 2 |
 | [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md) | Self-adjointness of the three Hamiltonians on the outer Fock space — review and execution | 408 | 2 | 2 |
 | [REVIEW_GAUGE_DEFINITION_20260912.md](REVIEW_GAUGE_DEFINITION_20260912.md) | How a gauge symmetry is *defined* in `book.tex`, and what is now proved | 121 | 2 | 1 |
@@ -75,13 +75,14 @@
 | [coherent.md](coherent.md) | Chapter: The Coherent State of Attention | 165 | 0 | 1 |
 | [converted/GAPS.md](converted/GAPS.md) | Remaining gaps of the converted prove2.me downloads | 164 | 0 | 3 |
 | [converted/README.md](converted/README.md) | `converted/` — prove2.me downloads converted to Lean 4.28.0 | 129 | 2 | 3 |
+| [math28/README.md](math28/README.md) | `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 | 48 | 0 | 2 |
 | [newproof.md](newproof.md) | newproof | 285 | 0 | 6 |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | handedits | 21 | 0 | 0 |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | Self-contained mass-gap regeneration bundle | 219 | 2 | 4 |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | MASS_GAP_SPEC — the proof-facing seam of the certified mass gap | 150 | 1 | 5 |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | sirk_core_model — the Aeneas seam for the SIRK numeric core (mass-gap plan T9) | 88 | 2 | 1 |
 
-## Backlinks (199 links)
+## Backlinks (200 links)
 
 | Document | Linked from |
 |---|---|
@@ -129,7 +130,7 @@
 | [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) | [IMPLEMENTED.md](IMPLEMENTED.md), [PnpProof/IMPLEMENTED.md](PnpProof/IMPLEMENTED.md) |
 | [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [PnpProof/IMPLEMENTED.md](PnpProof/IMPLEMENTED.md) | [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) |
-| [README.md](README.md) | [ARISTOTLE_SUMMARY.md](ARISTOTLE_SUMMARY.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
+| [README.md](README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [REVIEW_AND_PLAN_20260907.md](REVIEW_AND_PLAN_20260907.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) |
 | [REVIEW_GAUGE_DEFINITION_20260912.md](REVIEW_GAUGE_DEFINITION_20260912.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -150,6 +151,7 @@
 | [coherent.md](coherent.md) | [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) |
 | [converted/GAPS.md](converted/GAPS.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [converted/README.md](converted/README.md) |
 | [converted/README.md](converted/README.md) | [ATTRIBUTION.md](ATTRIBUTION.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
+| [math28/README.md](math28/README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [newproof.md](newproof.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [Issues.md](Issues.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [RandomMap.md](RandomMap.md), [RandomMap_old.md](RandomMap_old.md) |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | — |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) |
@@ -878,6 +880,13 @@
 - ## Hand conversion edits
 - ## The one file that is not compiled
 - ## Routing note (BOOKPROOF_SPLIT_PLAN.md §8)
+
+### `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 (`math28/README.md`)
+
+- # `math28/` — hypotheses supported by `math/`, in Lean v4.28.0
+- ## What "supported by `math/`" means here
+- ## Transcription notes
+- ## Not included
 
 ### newproof (`newproof.md`)
 

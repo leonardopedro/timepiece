@@ -28,6 +28,7 @@ import Book.Numerics
 import Book.NsNumerics
 import Book.ConsciousnessBayesianPrior
 import Book.AlignedDeepLearning
+import Book.BayesianTransformer
 import Book.CoherentState
 import Book.FreeField
 import Book.Irreversibility
@@ -400,7 +401,12 @@ Bayesian prior in action — but they use it in three different registers.
 Bayesian prior] is the philosophical application and needs only the probability
 part behind it. {ref "aligned-deep-learning"}[Aligned deep learning as a random
 sampling method] is the engineering application and re-uses the induced-prior
-machinery of the Bayesian chapters. {ref "coherent-state-attention"}[Softmax is the Born rule
+machinery of the Bayesian chapters. {ref "bayesian-transformer"}[Dimension-robust
+Bayesian adaptation] is the learned-architecture application: hyperspherical
+(nGPT) geometry makes every logit and every stochastic-gradient step uniformly
+bounded, so the Bayesian adaptation of a *transformer* is dimension-robust —
+and it records where that geometry meets, and does not meet, the final-
+Hamiltonian convention of the field-theory parts. {ref "coherent-state-attention"}[Softmax is the Born rule
 on coherent states] is the closest to physics: it re-uses the Gaussian of the
 free-field chapter and the Born rule of Part II, and it is the one chapter here
 that connects directly to the harmonic-oscillator machinery of the field-theory
@@ -409,6 +415,8 @@ part.
 {include 0 Book.ConsciousnessBayesianPrior}
 
 {include 0 Book.AlignedDeepLearning}
+
+{include 0 Book.BayesianTransformer}
 
 {include 0 Book.CoherentState}
 

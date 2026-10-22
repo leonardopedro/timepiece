@@ -1,18 +1,27 @@
-# Summary of changes for run ee7d0fcc-1070-4216-8243-2d09899b8053
-I published every file in the project as its own file, the way `BookProof/WeylSL2/ChapterWeylSL2Algebra.lean`, `ChapterWeylSL2Group.lean` and `ChapterWeylSL2Unipotent.lean` were delivered. You can now download each one directly at its project path, without unpacking `generate_modified_files.sh`.
+# Summary of changes for run d5df5823-3d2d-4b85-95ec-175932ea4f8f
+The per-example gradient bound that `NGPTModel` previously had to assume is now proved from the network's architecture. It holds on the region where every weight has norm at least some fixed \(\varepsilon>0\), not for all parameters. A global bound is impossible: the loss doesn't change when a weight is rescaled, so its gradient grows like \(1/\|W\|\) as \(W\to0\).
 
-**Contents check:** I extracted `generate_modified_files.sh` into a scratch directory and compared each of its 2245 embedded files with the project copy. They all match byte for byte. The only difference is `ARISTOTLE_SUMMARY.md`, which I didn't change because you asked me not to. So what you download is the same as the state the script would produce.
+`lake build BayesianTransformer` succeeds with no warnings. There is no `sorry`, `admit` or `axiom`, and the main theorems use only `propext`, `Classical.choice` and `Quot.sound`.
 
-**What I published:** 3128 files, everything in the project except the items listed further down. That includes:
-- **The conversion folder:** all of `converted/`, including `Definitions/**`, `Theorems/**`, `Prove2me/**`, `blocked/`, `diffs/`, `GAPS.md`, `README.md` and `stub_dependencies.txt`.
-- **`BookProof/**` and `BookProof.lean`:** this includes every module moved by the split plan, at its new path.
-- **The other Lean libraries:** `Book/**`, `Work/**`, `Audits/**`, `PnpProof/**`, `RandomMap/**`, `RiemannProof/**`, `Singularity/**`, `UsedRoute/**`, `UnusedRoute/**`, their root files and the other top-level `.lean` files.
-- **Build configuration:** `lakefile.toml`, `lean-toolchain`, `lake-manifest.json` and `package-overrides.json`.
-- **Documents and data:** all plan, status and `.tex` documents, `decl_graph*.jsonl`, `scripts/**`, `state/`, `patches/`, `unfer_contracts/**`, `prompts` and the `upload_timepiece*.py` scripts.
-- **The original inputs:** unlike the previous run, I also included `Downloads/**`, `repomix-output.xml` and `Timepiece_ A Verified Mathematical Tour.pdf`, plus `generate_modified_files.sh` itself.
+**The network** (`BayesianTransformer/Transformer/NGPTArchitecture.lean`)
+- **Parameters:** each layer has six weight matrices (`W_q, W_k, W_v, W_o, W_up, W_down`), and each vocabulary item has one output vector. Every weight is used only in normalized form \(\hat W=W/\|W\|\).
+- **Attention:** logits \(s_{qk}\langle \hat W_q h_i,\hat W_k h_j\rangle\), then softmax, then \(a_i=\hat W_o\sum_j p_{ij}\hat W_v h_j\).
+- **Updates:** \(h'=\mathrm{Norm}(h+\alpha_A(a-h))\), then an MLP \(\hat W_{down}\,\sigma(\hat W_{up}h')\) with the same kind of update.
+- **Output and loss:** cosine logits \(s_z\langle\hat u_v,h^L_i\rangle\). The loss for one example is the cross entropy averaged over positions.
+- **Activation:** any \(\sigma\) with Lipschitz constant 1 and \(\sigma(0)=0\). Coordinatewise ReLU on \(\mathbb R^d\) is proved to qualify (`NGPTConfig.relu`).
 
-**Left out:**
-- The 6 machine-generated Python cache files in `scripts/__pycache__/`.
-- `ARISTOTLE_SUMMARY.md` and the top-level `README.md`, which are always delivered automatically.
+**Proved results**
+- `ngpt_exampleLoss_lipOn`: there is one constant \(M\) such that every example's loss is \(M\)-Lipschitz in the parameters on that region. \(M\) depends only on the hyperparameters, \(\varepsilon\), the depth and the sequence length.
+- `ngpt_exampleLoss_fderiv_bound`: \(\|\nabla_\theta\ell(\theta;x,y)\|\le M\) for every parameter in the region and every example. This is the bound `NGPTModel` assumed.
+- `ngpt_empiricalRisk_fderiv_bound`: the same kind of ceiling for the average loss over any dataset (Theorem 1 for this network).
 
-**Changes:** none. I didn't edit any file contents or run any Lean builds, so the build status is still what the earlier summary reported. The repository is pushed.
+**How the proof works:** normalization \(v\mapsto v/\|v\|\) is \(2/\delta\)-Lipschitz wherever \(\|v\|\ge\delta\). Softmax is 2-Lipschitz (from the earlier work), and cross entropy is 2-Lipschitz in the logits. Each block's Lipschitz constant is tracked through the layers by induction, and the gradient bound follows from the Lipschitz bound. The general tools for this are in the new file `BayesianTransformer/Transformer/LipschitzCalculus.lean`.
+
+**Where this differs from the nGPT paper.** These choices were needed to get a bound that holds uniformly:
+- Matrices are normalized by their operator norm, not row by row.
+- Queries, keys and sublayer outputs are not re-normalized. Normalizing a vector that can be zero isn't Lipschitz. Their norms are still at most 1 because the weights are normalized.
+- \(s_{qk}\), \(s_z\), \(\alpha_A\) and \(\alpha_M\) are fixed hyperparameters, with \(0\le\alpha<1/2\). That condition makes every hidden-state normalization act on a vector of norm at least \(1-2\alpha>0\). If these were trainable and unbounded, no uniform bound could hold.
+- Input embeddings are unit vectors supplied with each example, not trained parameters.
+- At points where the loss isn't differentiable (for example, ReLU kinks), Lean defines the derivative as 0, so the gradient bound holds there trivially. The Lipschitz bound is the substantive statement.
+
+I also added a pointer in `GlobalLipschitz.lean` and imports in `Main.lean`. The new results are registered in the Properties table and the work is committed and pushed.

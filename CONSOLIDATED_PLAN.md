@@ -7,7 +7,7 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-19):** **§“State of the project — 2026-10-19:
+> **Newest entry (2026-10-21):** **§“State of the project — 2026-10-21: `BayesianTransformer/` imported (uncompiled), `Book/BayesianTransformer.lean` read pedagogically, final-Hamiltonian convention re-verified, `../unfer/pcnl` comparator milestone”** at the very end of this file.  The specialist export’s `BayesianTransformer/` tree (Lake target `BayesianTransformer`, namespace `BayesianTransformer`) and the five updated `math28/Math28/*.lean` files are in the repo but **not compiled** — step 0 of the new entry’s work order is the name-level check; `Book/` gains a prose-only chapter wired into the Bayesian part; all five convention surfaces (this file, `BookProof/`, `Book/`, `../test/`, `../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md`) re-verified clean; the pCNL numerical layer lands its Adam/SGLD comparators with the full comparison run recorded in the entry.  **Earlier newest entry (2026-10-20):** **§“State of the project — 2026-10-20: `math28/` — `math/` results as named hypotheses on Lean v4.28.0; BookProof import graph repaired”** at the very end of this file.  **Earlier newest entry (2026-10-19):** **§“State of the project — 2026-10-19:
 > Downloads moved in-repo; `_deps/` platform import closure”** at the very end of
 > this file — `Downloads/` moved from `../prove2me_workspace/` to this repo’s
 > root, and `Downloads/_deps/` added: the 723-module verbatim import closure
@@ -18176,3 +18176,153 @@ Details and numbers are in its §9, addendum "2026-10-19b".
   (`package-overrides.json`) and the network cannot fetch it. `./patches/build-book.sh` and
   `check-katex.sh` depend on that build. `Book/` imports no `BookProof` module, so the module
   moves cannot affect it; only prose paths in `Book/` were rewritten.
+
+---
+
+## State of the project — 2026-10-20: `math28/` — `math/` results as named hypotheses on Lean v4.28.0; BookProof import graph repaired
+
+*Supersession clause.* This entry supersedes no track's work order. It records (i) the
+repair of the `BookProof` import graph after the Phase 2/2b/3 moves, and (ii) a new library
+`Math28` (`math28/`). The earlier request to compile `math/` wholesale on v4.28.0 is
+withdrawn: the full copy and its compatibility shim were removed.
+
+1. **BookProof import graph.** The uploaded snapshot had files that were not yet moved to the
+   paths recorded in `BOOKPROOF_PHASE*_MOVES.md`. They were moved (236 files), 344 imports were
+   rewritten, and the stale `BookProof/WeylSL2/ChapterWeylSl2.lean` was removed. `lake build BookProof`
+   ran with 0 failures and no `sorry` through every module except the final roadmap-audit job,
+   which was still elaborating when this entry was written.
+   `import_components.py --check` still lists 15 unimported stub/`PartN` modules.
+   This is open hygiene for `BOOKPROOF_SPLIT_PLAN.md` Phase 4.
+2. **`Math28`.** The `math/` snapshot (Lean v4.34.1, `OAI.*`) is restated as named hypotheses
+   (`def … : Prop`), with proved bridge theorems on v4.28.0. See `math28/README.md`.
+   * Crouzeix (constant 2), `math28/Math28/Crouzeix.lean`. `sirk_error_bound_of_hilbertPolynomialBound`
+     discharges both Crouzeix inputs of `BookProof.ChapterH4.sirk_error_bound` for polynomial
+     error functions from the hypothesis `HilbertPolynomialBound`. This is item 6 of "the
+     conversion lane", now in conditional form.
+   * `ζ`/`L` zero-free for `Re s > 7/8`, `math28/Math28/ZetaSevenEighths.lean`. Under the
+     hypothesis, RandomMap's `ZeroFreeRightHalfPlane` is equivalent to zero-freeness of the band
+     `1/2 < Re s ≤ 7/8`. ⚠ The source imports packages that are not in the snapshot.
+   * Ordinary two-point correlations, `math28/Math28/Correlations.lean`. This gives Liouville
+     two-point Cesàro decay from `LiouvilleLogSaving`, and keeps the source's "ordinary" qualifier.
+   * Erdős progressions, `math28/Math28/ErdosProgressions.lean`. The source's density theorem
+     implies its reciprocal (Erdős) theorem, and this implication is proved here.
+   Build: `lake build Math28 Math28.Audit`, green. The bridges use only `propext`,
+   `Classical.choice` and `Quot.sound`. **None of the hypotheses is a theorem of this repository.**
+   The `math/` proofs were scanned textually (no `sorry`/`axiom`/`native_decide`) but not
+   re-elaborated.
+3. **Effect on the open work-order steps.** None. Step 4 (NS square-comparison ESA) and step 5
+   (QYM form gap) are not addressed by anything in `math/` and stay open.
+
+## State of the project — 2026-10-21: `BayesianTransformer/` imported (uncompiled), `Book/BayesianTransformer.lean` read pedagogically, final-Hamiltonian convention re-verified, `../unfer/pcnl` comparator milestone
+
+### 1. The import, and what was done to it here
+
+The specialist’s export was audited on arrival (root `BayesianTransformer.lean` +
+`lakefile.toml` target present; **no `sorry` / `admit` / `axiom` anywhere in the new
+trees**) and copied in: `BayesianTransformer/` — `Analysis/ScaleInvariance.lean`,
+`Analysis/SphereProj.lean`, `Probability/GradientNoise.lean`,
+`Transformer/CosineAttention.lean`, `Transformer/LipschitzCalculus.lean`,
+`Transformer/GlobalLipschitz.lean`, `Transformer/NGPTArchitecture.lean`,
+`Transformer/Main.lean`, root `BayesianTransformer.lean` — as the Lake target
+`BayesianTransformer` (namespace `BayesianTransformer`), plus the five updated
+`math28/Math28/*.lean` files (Audit, Correlations, Crouzeix, ErdosProgressions,
+ZetaSevenEighths) of the `math28/` track of the 2026-10-20 entry.
+
+**Per the request, nothing in this tree was compiled** — the build is the
+specialist’s. `Book/` gained the pedagogical chapter `Book/BayesianTransformer.lean`
+(tag `bayesian-transformer`), wired by `import` + `{include 0}` into the Bayesian part
+between {ref “aligned-deep-learning”} and {ref “coherent-state-attention”} (the part
+prose now names it). The chapter is **prose-only by design**: it discusses the four
+proof groups (scale invariance ⇒ gradient ⊥ position; the sphere projection’s sharp
+`1/‖v‖` derivative; cosine logits clamped to `[−τ,τ]` + the 2-Lipschitz softmax; the
+`N/B` stochastic-gradient covariance/trace bounds; the per-layer → whole-network
+Lipschitz chain), quotes declaration names in backticks, and contains **no `#check`
+block until those names are verified** — that is work-order step 0 below. It also
+states the honest boundary (Lipschitz constants bound loss perturbations, not
+commutators — they are the analyst’s input, not a Faris–Lavine ingredient) and the
+convention paragraph of §2.
+
+### 2. Final-Hamiltonian convention — re-verified on all five surfaces, no violations
+
+The convention of §B — the final Hamiltonian of each theory is the **one-particle
+operator enclosed creation-left / annihilation-right** (`dΓ(h) = Σ_{i,j} h_{ij}
+C†(e_i)A(e_j)`); **QG** in its **R² vielbein form in full** (vielbein/torsion kinetic +
+**exact exponential** Einstein-frame wall, **no Taylor truncation**, **interaction
+terms**, all inside `h`); **NS and QG** products-in-coordinate-space-involving-field-
+derivatives disposed of by the **momentum-space convolution** — was re-checked after
+the imports, surface by surface:
+
+* **this file** — every QG hit carries “full exponential / no Taylor / interaction
+  terms”; every “bounded below” statement about an NS object names the *auxiliary*
+  sum-of-squares operator, the NS Hamiltonian itself is stated unbounded below with
+  its Leray-energy leg; `H²` is rejected as an `N` everywhere it appears; no
+  symmetrized `(aa†+a†a)/2` enclosure anywhere;
+* **`BookProof/`** — no violations; the `Taylor` hits are the derivatives-as-fields
+  operator `fieldTaylor` (a different, correct object) and the NS Hamiltonian
+  doc-comments already carry the auxiliary/Hamiltonian distinction;
+* **`Book/`** — clean (the `symmetr` grep hits are the word “asymmetry”);
+* **`../test/`** — checked in context: `the-program/free-fields-navier-stokes.md`
+  states `nsKoopmanOp_not_bounded_below` → Leray comparison + the convolution
+  theorem; `mathematical-foundations/ns-eulerian-line.md` §6’s `redHam` claim makes
+  no positivity/comparison statement; `numerical-physics/qg-mass-gap.md` labels the
+  quadratic wall the **small-field limit**, not the record;
+* **`../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md`** — already carries
+  creation-left/annihilation-right (header + §5), the Leray leg, and the R²
+  vielbein full-exponential wall with the interaction terms.
+
+`HAMILTONIAN_AUDIT_20260918.md` remains the source of truth. **Implication for new
+proofs (unchanged, now including this tree):** any bridge lemma between a learned
+sampler / induced prior and a Fock-space state must enclose the one-particle `h` in
+the convention’s form — never re-derive a coordinate-space convolution where the
+momentum-space bound is the uniform one.
+
+### 3. The numerical layer: `../unfer/pcnl` comparator milestone (executed)
+
+The pCNL plan’s Phase-4 benchmark is done. `pcnl` gains the Adam comparator
+(`task::adam`, §4’s deterministic point-estimator baseline) and the standard-SGLD
+chain (`task::sgld_chain`, `cfg`-shaped like `run_chain`) with matched step sizes
+(`h_t = β_t²σ²/2` on the same Robbins–Monro schedule, so the comparison isolates the
+algorithm), the report gains the `SGLD (baseline):` line and the **cross-R̂** over the
+pCNL ∪ SGLD loss chains, and `tests/numerics.rs`’s M1–M5 claims (shell, OU drift
+identity, `N/B` gradient recovery, Robbins–Monro, finite differences) are unchanged
+and green: **46/46 tests (27 lib + 19 numerics), `cargo fmt` clean, `clippy -D
+warnings` clean.** Full run (seed 20261020, `P = 16672`, 10⁴ steps × 4 chains):
+
+| quantity | cosine/nGPT-lite | standard softmax |
+| :-- | :-- | :-- |
+| pre-train A → B: before / momentum-SGD / **Adam** | 9.4 % / 14.1 % / **32.4 %** | 12.9 % / 10.9 % / 33.2 % |
+| SG-pCNL | **survives** 10⁴ steps; radial 45.7 vs σ√P 45.2; R̂(loss) 1.115 | **EXPLODED at step 3** |
+| SGLD comparator | radial 45.3; R̂(loss) 1.120 | (not run — no finite start) |
+| **BMA over K = 2000 thinned samples** | pCNL **54.7 %** (NLL 1.069), SGLD **58.2 %** (NLL 1.050) | — |
+| cross-R̂ (pCNL ∪ SGLD loss chains) | **1.110** — one target, two algorithms | — |
+
+The plan’s central empirical claim now has its comparator: **BMA beats every point
+estimate** (54.7/58.2 vs 41.3 last-state and 32.4 Adam), the two samplers agree
+across algorithms (cross-R̂ 1.110), the cosine architecture holds the prior shell
+while the standard one explodes, and Adam — not SGD — is the honest point-estimator
+baseline (32.4 %).
+
+### 4. Work order for the LLM-Lean4-specialist (ordered, acceptance-checked)
+
+0. **Name-level check of the import.** `lake build BayesianTransformer` (and
+   `lake build Math28` against the updated five files). Acceptance: green, no
+   `sorry`. Then add the `#check` smoke block to `Book/BayesianTransformer.lean`
+   (the prose lists the names to check; the chapter was left `#check`-free
+   precisely because this snapshot did not compile the tree).
+1. **Book build.** `lake build Book` — the new chapter enters the Bayesian part;
+   resolve any name drift in its prose against step 0’s output. The prose-layer
+   name check of the 2026-10-20 wave still stands as the standing step 0 for the
+   older chapters.
+2. **Bridge lemmas (the new proofs this tree enables), under the convention.**
+   Candidates in dependency order: (a) a sampler-on-Fock-space statement that
+   consumes `sg_pcnl_noise_trace_bound`-style trace bounds as a **step-size
+   ceiling** for Langevin-type steps on the nested space (link to the SIRK /
+   numerics chapters); (b) an “induced prior over field configurations” lemma
+   whose outer operator is `dΓ(h)` in the convention’s form — creation-left,
+   annihilation-right, never a symmetrized product; (c) if QG instances are used,
+   the R² vielbein full-exponential wall inside `h`, never a Taylor-quadratic
+   stand-in except as the labelled small-field comparison model.
+3. **`DOC_INDEX.md` regen** — **done 2026-10-21** (`scripts/doc_index.py`, full rebuild, green). Note the index covers `.md` documents only, so `Book/BayesianTransformer.lean` and the `BayesianTransformer/` target appear here by reference, not as index rows.
+4. **Effect on open items:** none — the NS square-comparison ESA (step 4 of the
+   2026-10-20 entry) and the QYM form gap (step 5) stay open and are not touched
+   by anything here.
