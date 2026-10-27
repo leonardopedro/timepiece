@@ -114,7 +114,7 @@ $`N_E = \text{mulOp}\big(E(u)\big), \qquad E(u) = 1 + \|u\|^2 ,`
    the **energy flux**;
  * `fluxPoly_eq` — and the flux identity collapses it, using Leray's identity, to the **sign-definite
    viscous dissipation** $`F\cdot\nabla E = -2\nu\sum_i\lambda_i u_i^2 \le 0`. The advection and the
-   pressure gradient cancel: this is where the $`\sum_i u_iB_i = 0`$ hypothesis is consumed;
+   pressure gradient cancel: this is where the $`\sum_i u_iB_i = 0` hypothesis is consumed;
  * `commForm_kvn_energy_bound` — the resulting Faris–Lavine commutator inequality,
    $`\big|\langle x, i[H_{\rm NS},N_E]x\rangle\big| \le 2\nu\Lambda\,\langle x,N_Ex\rangle ,`
    with `Λ = max_i λ_i` the largest Stokes eigenvalue of the truncation (the cutoff's role here is
@@ -400,8 +400,8 @@ input was discharged on 2026-10-16, by `NsLagrangianComparisonEsa.lagComparison_
 :::paragraph
 **The one input, and its closure.**  Every step of the Lagrangian line above ended in a
 single named hypothesis — `lagKoopman_esa_of_comparison_esa`: essential self-adjointness
-of the Faris–Lavine comparison $`N_L = H_L^2 + E`$ on the Gauss–polynomial core of
-$`L^2(\mathbb{R}^{\mathrm{PIdx}\,K})`$, for the Galerkin Lagrangian Koopman generator
+of the Faris–Lavine comparison $`N_L = H_L^2 + E` on the Gauss–polynomial core of
+$`L^2(\mathbb{R}^{\mathrm{PIdx}\,K})`, for the Galerkin Lagrangian Koopman generator
 with the exact degree-five constraint force.  The 2026-10-16 wave closes it
 **unconditionally** (every finite `K`, `ν ≥ 0`, `κ ≥ 0`):
 `BookProof/Ns/ChapterNsLagrangianComparisonEsa.lean` proves **`lagComparison_esa`** (the
@@ -412,17 +412,17 @@ instantiation `lagKoopman_esa_of_comparison_esa S (lagComparison_esa S)`.
 :::paragraph
 **Route — a Lyapunov polynomial, then Kato's argument.**  The generic criterion is
 `KvnKato.lyapunovComparison_esa_poly` (in `BookProof/Toolbox/ChapterKvnKatoPoly.lean`): for a
-real polynomial vector field `G` and a real polynomial $`E \ge 1`$, the comparison
-$`N = H_G^2 + E`$ is essentially self-adjoint on the Gauss–polynomial core as soon as
-some real polynomial `P` satisfies $`\|y\| \le P(y)`$ and
-$`|G \cdot \nabla P| \le c_0 P`$ — a deficiency vector is transferred to a weak
-solution against $`C_c^\infty`$ by the Hermite graph approximation, then killed by
+real polynomial vector field `G` and a real polynomial $`E \ge 1`, the comparison
+$`N = H_G^2 + E` is essentially self-adjoint on the Gauss–polynomial core as soon as
+some real polynomial `P` satisfies $`\|y\| \le P(y)` and
+$`|G \cdot \nabla P| \le c_0 P` — a deficiency vector is transferred to a weak
+solution against $`C_c^\infty` by the Hermite graph approximation, then killed by
 Kato's argument along the complete flow.  The energy here is *not* proper (the penalty
 vanishes on the unbounded incompressible set), so the Lyapunov function is the
-completed $`P = E + \tfrac12|\xi|^2`$: the flux identity `lagLyapFlux_eq`
-($`F \cdot \nabla P = -\nu\sum|k|^2v^2 + \xi\cdot v`$), the bound
-`abs_eval_lagLyapFlux_le` ($`|F \cdot \nabla P| \le (2\nu\Lambda + 1)P`$), and
-`norm_le_lagP` ($`\|y\| \le 1 + \tfrac12\|y\|^2 \le P`$).
+completed $`P = E + \tfrac12|\xi|^2`: the flux identity `lagLyapFlux_eq`
+($`F \cdot \nabla P = -\nu\sum|k|^2v^2 + \xi\cdot v`), the bound
+`abs_eval_lagLyapFlux_le` ($`|F \cdot \nabla P| \le (2\nu\Lambda + 1)P`), and
+`norm_le_lagP` ($`\|y\| \le 1 + \tfrac12\|y\|^2 \le P`).
 :::
 
 :::paragraph
@@ -442,11 +442,11 @@ the two closing statements carry their `#print axioms` lines in
 **What this does not touch.**  Boundaries are exactly those of
 `ChapterNsLagrangianDetFarisLavine`: Galerkin truncation (finite `K`), the volume
 penalty at finite bulk modulus `κ` (no `κ → ∞` limit), the viscous term evaluated at
-$`F = I`$; no continuum NS regularity and no mass gap.  The **Eulerian**
+$`F = I`; no continuum NS regularity and no mass gap.  The **Eulerian**
 square-comparison hypothesis (`nsKoopman_esa_of_squareComparison_esa`) and the energy
 surjectivity input stay open.  And under the final-Hamiltonian convention nothing
 changes about what is enclosed: `N_L` is a comparison operator and is never enclosed —
-the NS record remains $`d\Gamma(h)`$ (resp. $`d\Gamma(H_{\rm sp})`$), creation left,
+the NS record remains $`d\Gamma(h)` (resp. $`d\Gamma(H_{\rm sp})`), creation left,
 annihilation right.  Plan pointers: the acceptance and boundary paragraphs of
 `CONSOLIDATED_PLAN.md` §"State of the project — 2026-10-16: the Koopman comparison
 `N_L = H_L² + E` is ESA — closed-by pointers".

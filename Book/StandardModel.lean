@@ -203,9 +203,9 @@ $`-d^2/dq^2 + q^2` — is essentially self-adjoint: each factor by the
 bounded-below wall theorem, and their tensor sum by the chain theorem of the
 second-quantization chapter.
 
-One caution carries the reader into the next two sections: this $`N`$, despite
+One caution carries the reader into the next two sections: this $`N`, despite
 its name, is *not* the comparison operator the Faris–Lavine criterion consumes
-for $`h`$. Which operator does, why this one cannot, and what has to be proved
+for $`h`. Which operator does, why this one cannot, and what has to be proved
 about the replacement instead are the subject of “The Bosonic Faris–Lavine
 Certificate” below.
 :::
@@ -268,7 +268,7 @@ are mutually adjoint and are contractions, so every polynomial in them is a
 bounded operator; the second quantization $`\sum_{i,j} h_{ij} a_i^{\dagger} a_j`
 of a Hermitian one-particle matrix is symmetric, its diagonal case is diagonal in
 the occupation basis with eigenvalue the sum of the occupied mode energies, and a
-one-particle energy floor $`\mu`$ becomes a gap above the Fock vacuum. All of it
+one-particle energy floor $`\mu` becomes a gap above the Fock vacuum. All of it
 is built over a *finite* mode set — the first honest boundary — and the section
 on the continuum CAR algebra below reports what it takes to remove that
 restriction.
@@ -358,34 +358,34 @@ spatial ones, which do not appear in $`N_0`.
 # The Bosonic Faris–Lavine Certificate
 
 :::paragraph
-The Faris–Lavine route needs a comparison operator $`N`$ against which the
+The Faris–Lavine route needs a comparison operator $`N` against which the
 one-particle Hamiltonian satisfies two bounds: a relative bound and a form
-commutator bound $`\pm i[h,N] \le cN`$. The quartic operator of the previous
+commutator bound $`\pm i[h,N] \le cN`. The quartic operator of the previous
 sections **cannot** serve, and the obstruction is a theorem rather than a
-gap in the formalization. Write $`h = \tfrac12 T + V_h`$ and
-$`N = T + V_N + c_0`$ with $`T = \sum_m \pi_m^2`$. The commutator is first
-order, $`i[h,N] = \sum_m (\pi_m G_m + G_m \pi_m)`$ with
-$`G = \nabla(\tfrac12 V_N - V_h)`$, and the bound forces the pointwise
-inequality $`|G|^2 \le c^2 (V_N + c_0)`$ — test the form on a wave packet
-$`e^{i\xi \cdot x}\varphi`$ concentrated at a point and optimize in $`\xi`$.
-For a quartic $`V_N`$ the gradient is cubic: along a single gluon direction,
-where the totally antisymmetric structure constants and $`\varphi = 0`$ make
-$`\nabla V_h = 0`$, the requirement reads $`4R^6 \le c^2 R^4`$ — false for
-large $`R`$, already for the free Hamiltonian. The confinement of the
+gap in the formalization. Write $`h = \tfrac12 T + V_h` and
+$`N = T + V_N + c_0` with $`T = \sum_m \pi_m^2`. The commutator is first
+order, $`i[h,N] = \sum_m (\pi_m G_m + G_m \pi_m)` with
+$`G = \nabla(\tfrac12 V_N - V_h)`, and the bound forces the pointwise
+inequality $`|G|^2 \le c^2 (V_N + c_0)` — test the form on a wave packet
+$`e^{i\xi \cdot x}\varphi` concentrated at a point and optimize in $`\xi`.
+For a quartic $`V_N` the gradient is cubic: along a single gluon direction,
+where the totally antisymmetric structure constants and $`\varphi = 0` make
+$`\nabla V_h = 0`, the requirement reads $`4R^6 \le c^2 R^4` — false for
+large $`R`, already for the free Hamiltonian. The confinement of the
 comparison operator itself is what fails, not the interaction.
 
 The cure is the one Faris and Lavine use in their own application: let the
 comparison operator **contain** the Hamiltonian, so that $`\nabla V_h`
-cancels. With $`N = 2h + \sum_m q_m^2 + c_0`$ the difference becomes
-$`G = \tfrac12 \nabla(\sum_m q_m^2)`$, which is linear, and both inequalities
-hold with the absolute constants $`c = 1`$ and $`K = 1`$ — for every choice
+cancels. With $`N = 2h + \sum_m q_m^2 + c_0` the difference becomes
+$`G = \tfrac12 \nabla(\sum_m q_m^2)`, which is linear, and both inequalities
+hold with the absolute constants $`c = 1` and $`K = 1` — for every choice
 of couplings, structure constants and electroweak generators. That is the
-operator $`smFlN`$ of this section, together with its symmetry, its quadratic
+operator $`smFlN` of this section, together with its symmetry, its quadratic
 form and the Friedrichs comparison built from it. What the two inequalities
 leave behind is exactly one hypothesis: essential self-adjointness of this
-$`N`$ itself on the Gauss–polynomial core, isolated as
-$`sm_h_esa_of_comparison_esa`$ (and, in its packaged form through the abstract
-last mile $`CoreData.esa_core`$, as $`sm_h_esa_of_graph_core`$). The next
+$`N` itself on the Gauss–polynomial core, isolated as
+$`sm\_h\_esa\_of\_comparison\_esa` (and, in its packaged form through the abstract
+last mile $`CoreData.esa_core`, as $`sm\_h\_esa\_of\_graph\_core`). The next
 section discharges it with an instrument Faris–Lavine does not provide.
 :::
 
@@ -410,26 +410,26 @@ section discharges it with an instrument Faris–Lavine does not provide.
 The remaining hypothesis — essential self-adjointness of a coupled quartic
 Schrödinger operator in 163 variables — is of a kind the Faris–Lavine
 criterion structurally cannot produce, since every admissible comparison
-contains $`2V_h`$ and is therefore as hard as $`h`$ itself. It is supplied
+contains $`2V_h` and is therefore as hard as $`h` itself. It is supplied
 instead by an independent theorem, proved in four chapters whose content is
 worth walking through because the instrument is general.
 
 `BookProof/Toolbox/ChapterDegSchrodingerCore.lean` sets up the class: operators
-$`-\Delta_S + W`$ whose kinetic term differentiates only a subset $`S`$ of
+$`-\Delta_S + W` whose kinetic term differentiates only a subset $`S` of
 the coordinates, on both cores the project works with. The analytic heart is
-`BookProof/Toolbox/ChapterDegKatoEsa.lean`: a deficiency vector $`w`$ at a purely
-imaginary $`z`$ is *mollified* — for a smooth compactly supported mollifier
-$`\rho_\varepsilon`$ the translate-average $`w * \rho_\varepsilon`$ is smooth,
+`BookProof/Toolbox/ChapterDegKatoEsa.lean`: a deficiency vector $`w` at a purely
+imaginary $`z` is *mollified* — for a smooth compactly supported mollifier
+$`\rho_\varepsilon` the translate-average $`w * \rho_\varepsilon` is smooth,
 which is what `BookProof/Toolbox/ChapterMollifierL2.lean` (mollification converges in
-$`L^2`$) and `BookProof/Toolbox/ChapterConvolutionCalc.lean` (the mollified function
+$`L^2`) and `BookProof/Toolbox/ChapterConvolutionCalc.lean` (the mollified function
 is smooth, and every derivative falls on the smooth factor) make precise — and
 the smoothed deficiency equation is tested against a cut-off
-$`\chi_R^2 \bar w_\varepsilon`$. One integration by parts per direction of
-$`S`$, the Young absorption of `BookProof/Toolbox/ChapterDegEnergyEstimate.lean`, and
-the limit $`\varepsilon \to 0`$ at fixed $`R`$ leave
-$`\int_{\lVert x \rVert \le R} |w|^2 \le (2C^2/R^2)\lVert w\rVert^2`$; letting
-$`R \to \infty`$ gives $`w = 0`$. No elliptic regularity is used, and no
-regularity of $`W`$ beyond smoothness with $`W \ge 1`$.
+$`\chi_R^2 \bar w_\varepsilon`. One integration by parts per direction of
+$`S`, the Young absorption of `BookProof/Toolbox/ChapterDegEnergyEstimate.lean`, and
+the limit $`\varepsilon \to 0` at fixed $`R` leave
+$`\int_{\lVert x \rVert \le R} |w|^2 \le (2C^2/R^2)\lVert w\rVert^2`; letting
+$`R \to \infty` gives $`w = 0`. No elliptic regularity is used, and no
+regularity of $`W` beyond smoothness with $`W \ge 1`.
 
 The theorem lives on the compactly supported smooth core; the comparison
 operator is consumed on the Gauss–polynomial core. The bridge is the Hermite
@@ -439,26 +439,26 @@ Hermite weights, and `BookProof/Toolbox/ChapterHermiteGraphApprox.lean` uses it 
 make the Hermite truncations of a compactly supported smooth vector Cauchy in
 the graph norm — so essential self-adjointness transfers from one core to the
 other. Finally `BookProof/Sm/ChapterSmComparisonEsa.lean` identifies, on the
-core, $`N = 2h + \sum_m q_m^2 + c_0`$ with exactly such an operator — $`S`$
-the forty momentum-carrying coordinates, $`W = \sum_r \Phi_r^2 + \sum_m q_m^2 + c_0`$
-— proves the theorem for every real $`c_0`$ (values below one by a bounded
-shift), and concludes the unconditional $`sm_h_esa`$.
+core, $`N = 2h + \sum_m q_m^2 + c_0` with exactly such an operator — $`S`
+the forty momentum-carrying coordinates, $`W = \sum_r \Phi_r^2 + \sum_m q_m^2 + c_0`
+— proves the theorem for every real $`c_0` (values below one by a bounded
+shift), and concludes the unconditional $`sm\_h\_esa`.
 
 What this chain establishes for the record must be read under the chapter's
-doctrine: $`sm_h_esa`$ is a **one-particle** theorem — it says nothing about
+doctrine: $`sm\_h\_esa` is a **one-particle** theorem — it says nothing about
 outer ladders — and its implication for the final Hamiltonian is exactly the
-reduction the doctrine prescribes. Essential self-adjointness of $`h`$ on the
+reduction the doctrine prescribes. Essential self-adjointness of $`h` on the
 Gauss–polynomial core feeds
-$`dGamma_essentiallySelfAdjointOn_of_esa`$, so the enclosure
-$`H = d\Gamma(h) = \sum_{i,j} h_{ij} C^{\dagger}(e_i) A(e_j)`$ — creation on
+$`dGamma_essentiallySelfAdjointOn_of_esa`, so the enclosure
+$`H = d\Gamma(h) = \sum_{i,j} h_{ij} C^{\dagger}(e_i) A(e_j)` — creation on
 the left, annihilation on the right — is essentially self-adjoint on the
-finite-particle core over that core, with no hypothesis beyond $`P : SmParams`$:
+finite-particle core over that core, with no hypothesis beyond $`P : SmParams`:
 both obligations of the plan’s §D6b are discharged for the Standard-Model
-row. What is still owed is the sector-wise assembly of the full $`h`$
-(bosonic $`\otimes`$ fermionic, the Dirac and Yukawa operators on the CAR
+row. What is still owed is the sector-wise assembly of the full $`h`
+(bosonic $`\otimes` fermionic, the Dirac and Yukawa operators on the CAR
 algebra) into that enclosure. The instrument itself is sector-agnostic —
-$`ccHamS_esa`$ and $`hamCoreS_esa`$ hold for every smooth, respectively
-polynomial, $`W \ge 1`$ and every coordinate subset $`S`$ — so the same two
+$`ccHamS_esa` and $`hamCoreS_esa` hold for every smooth, respectively
+polynomial, $`W \ge 1` and every coordinate subset $`S` — so the same two
 theorems also give the non-abelian Yang–Mills instance of the same shape
 (`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean`, next section). One vocabulary
 detail keeps the two convolutions apart: the convolution of
@@ -615,26 +615,26 @@ a mass term, the unbroken ones do not.
 
 :::paragraph
 The finite mode set of the CAR section was the honest boundary: the algebra of
-the fermions was over $`n`$ modes, not over the continuum. That restriction is
-gone. The mode set is now $`\mathbb{N}`$, the one-particle space the
-infinite-dimensional $`\ell^2(\mathbb{N})`$, and the Fock space the
+the fermions was over $`n` modes, not over the continuum. That restriction is
+gone. The mode set is now $`\mathbb{N}`, the one-particle space the
+infinite-dimensional $`\ell^2(\mathbb{N})`, and the Fock space the
 antisymmetric Fock space in its occupation-number presentation
-$`\ell^2(\mathrm{Finset}\,\mathbb{N})`$ — one basis vector per *finite*
+$`\ell^2(\mathrm{Finset}\,\mathbb{N})` — one basis vector per *finite*
 occupied set, with the same Jordan–Wigner signs. The single-mode ladder
 operators carry the four anticommutation relations and mutual adjointness as
 before, but the operators that matter are the **smeared** ones
-$`a^{\dagger}(f)`$, $`a(f)`$ for an arbitrary $`f \in \ell^2(\mathbb{N})`$:
-since $`\sum_i |f_i|`$ may diverge, $`a^{\dagger}(f)`$ is not an absolutely
+$`a^{\dagger}(f)`, $`a(f)` for an arbitrary $`f \in \ell^2(\mathbb{N})`:
+since $`\sum_i |f_i|` may diverge, $`a^{\dagger}(f)` is not an absolutely
 convergent sum of single-mode operators, and its boundedness
-$`\lVert a^{\dagger}(f)\rVert \le \lVert f\rVert`$ is the *fermionic*
+$`\lVert a^{\dagger}(f)\rVert \le \lVert f\rVert` is the *fermionic*
 boundedness with no bosonic analogue. The canonical relation holds in the
-smeared form $`\{a(f), a^{\dagger}(g)\} = \langle f, g\rangle\cdot 1`$, the
-map $`f \mapsto a^{\dagger}(f)\Omega`$ is a linear isometry of
-$`\ell^2(\mathbb{N})`$ into the Fock space — so the algebra really is over an
+smeared form $`\{a(f), a^{\dagger}(g)\} = \langle f, g\rangle\cdot 1`, the
+map $`f \mapsto a^{\dagger}(f)\Omega` is a linear isometry of
+$`\ell^2(\mathbb{N})` into the Fock space — so the algebra really is over an
 infinite-dimensional one-particle space — and the same relations are proved
 over an *arbitrary* separable one-particle Hilbert space presented by a
-Hilbert basis indexed by $`\mathbb{N}`$, in particular over the
-$`L^2(\mathbb{R}^3)`$ of a continuum field.
+Hilbert basis indexed by $`\mathbb{N}`, in particular over the
+$`L^2(\mathbb{R}^3)` of a continuum field.
 
 What is *not* claimed here: the representation constructed is the Fock
 representation on the vacuum; nothing is said about inequivalent
@@ -672,15 +672,15 @@ Hamiltonian on this space.
 
 :::paragraph
 Minimal coupling, for one plane-wave matter mode in the constant
-collective-coordinate background: $`D_j = i(k_j + A_j)`$ with
-$`A_j = g \sum_a A^a_j T_a`$. The connection is Hermitian and $`D`$ is
-anti-Hermitian; at zero coupling $`D_j = i k_j`$. The commutator
-$`[D_j, D_l]`$ is — up to a factor — $`-ig^2 \sum_c (\sum_{a,b} f_{abc}
-A^a_j A^b_l) T_c`$, the non-abelian field strength: the operator form of
-$`W^j_{\mu\nu} = -(i/g)\,\mathrm{tr}([D_\mu,D_\nu]\tau^j)`$ of the manuscript
-and of the $`g_s f^{abc} G^b_j G^c_k`$ term of the magnetic energy, now
+collective-coordinate background: $`D_j = i(k_j + A_j)` with
+$`A_j = g \sum_a A^a_j T_a`. The connection is Hermitian and $`D` is
+anti-Hermitian; at zero coupling $`D_j = i k_j`. The commutator
+$`[D_j, D_l]` is — up to a factor — $`-ig^2 \sum_c (\sum_{a,b} f_{abc}
+A^a_j A^b_l) T_c`, the non-abelian field strength: the operator form of
+$`W^j_{\mu\nu} = -(i/g)\,\mathrm{tr}([D_\mu,D_\nu]\tau^j)` of the manuscript
+and of the $`g_s f^{abc} G^b_j G^c_k` term of the magnetic energy, now
 *inside* the covariant derivative rather than asserted about it. A constant
-abelian background is pure gauge, conjugating $`D`$ by a unitary conjugates the
+abelian background is pure gauge, conjugating $`D` by a unitary conjugates the
 connection, and if the adjoint action rotates the generators by a real matrix
 the conjugated connection is again a connection with rotated components. On
 that base sits the gauged Dirac one-particle matrix — Hermitian, equal to the
@@ -689,12 +689,12 @@ interaction — and its second quantization over the twelve colour–spinor mode
 is essentially self-adjoint through the very same three Faris–Lavine
 hypotheses that certificate the ungaugeed operator.
 
-What is *not* claimed here: the background is constant, so $`D_j`$ carries
-$`i k_j`$ rather than an unbounded derivative, and this module’s commutator
-$`[D_j, D_l]`$ therefore sees only the non-abelian part of $`F`$ ($`\partial A = 0`$);
-the full $`F_{μν} = \partial_μ A_ν - \partial_ν A_μ + [A_μ, A_ν]`$ is in the tree as
-$`smMagG`$/$`smMagW`$/$`smMagB`$, but there is no gauge-field dynamics and no
-continuum limit of $`D`$. (The curl/continuum half is reachable by the momentum-space
+What is *not* claimed here: the background is constant, so $`D_j` carries
+$`i k_j` rather than an unbounded derivative, and this module’s commutator
+$`[D_j, D_l]` therefore sees only the non-abelian part of $`F` ($`\partial A = 0`);
+the full $`F_{μν} = \partial_μ A_ν - \partial_ν A_μ + [A_μ, A_ν]` is in the tree as
+$`smMagG`/$`smMagW`/$`smMagB`, but there is no gauge-field dynamics and no
+continuum limit of $`D`. (The curl/continuum half is reachable by the momentum-space
 convolution already used for NS and QG — not a QYM device, only for proofs of this type.)
 :::
 
@@ -720,28 +720,28 @@ convolution already used for NS and QG — not a QYM device, only for proofs of 
 
 :::paragraph
 The ghost/BRST sector needed structure constants before it could have a
-charge. The structure constants of $`su(3)\oplus su(2)\oplus u(1)`$ are
-assembled from an $`su(3)`$ family, the Levi-Civita $`su(2)`$ family and the
+charge. The structure constants of $`su(3)\oplus su(2)\oplus u(1)` are
+assembled from an $`su(3)` family, the Levi-Civita $`su(2)` family and the
 abelian one, and their antisymmetry and Jacobi identity are theorems, not
 data. Twelve ghosts live as the last twelve modes of the CAR algebra, with the
 ghost-number operator and its commutators with the ghosts. The bridge from
 matrices to operators is the identity $`[d\Gamma(A), d\Gamma(B)] =
-d\Gamma([A,B])`$: the Gauss-law generators $`G_a = -i\,d\Gamma(T_a)`$ close
+d\Gamma([A,B])`: the Gauss-law generators $`G_a = -i\,d\Gamma(T_a)` close
 with the *real* structure constants, and they commute with the ghosts — they
 are even. With that in hand the abstract charge
-$`\Omega = \sum_a c^a G_a - \tfrac12 f_{abc} c^a c^b b_c`$ satisfies
-$`\Omega^2 = 0`$ in any ring carrying ghosts with the CAR relations and
+$`\Omega = \sum_a c^a G_a - \tfrac12 f_{abc} c^a c^b b_c` satisfies
+$`\Omega^2 = 0` in any ring carrying ghosts with the CAR relations and
 first-class constraints, hence on the joint matter–ghost Fock space of the
 Standard Model.
 
 The representation-level hypothesis is removed one step further: the Pauli
-generators $`\tau_k/2`$ close with $`\varepsilon_{jkl}`$; the twelve
-generators of one coloured weak doublet — $`T_a\otimes 1`$, $`1\otimes\tau_k/2`$,
-$`y\cdot 1`$ — close with the structure constants; and on the eighteen-mode
+generators $`\tau_k/2` close with $`\varepsilon_{jkl}`; the twelve
+generators of one coloured weak doublet — $`T_a\otimes 1`, $`1\otimes\tau_k/2`,
+$`y\cdot 1` — close with the structure constants; and on the eighteen-mode
 Fock space (six matter modes, twelve ghosts) the Standard-Model BRST charge of
 that multiplet squares to zero, with the antisymmetry and Jacobi identity of
 the structure constants *derived* from the two defining relations of the
-$`su(3)`$ generators rather than assumed.
+$`su(3)` generators rather than assumed.
 :::
 
 ```
@@ -774,49 +774,49 @@ $`su(3)`$ generators rather than assumed.
 The charge of the previous section is the abstract one, with the constraints
 given as data. The manuscript itself defines the charge by a **density** —
 $`\Omega(x) = \pi^\mu_a \partial_\mu \psi^\dagger_a - \pi^\mu_a f_{abc}
-A_{\mu b}\psi^\dagger_c - (i/2) f_{abc}\psi^\dagger_a\psi^\dagger_b\psi_c`$,
-together with $`[A_{\mu a},\pi^\nu_b] = i\delta^\nu_\mu\delta_{ab}`$ and
-$`\{\psi_a,\psi^\dagger_b\} = \delta_{ab}`$ — and that definition is now
+A_{\mu b}\psi^\dagger_c - (i/2) f_{abc}\psi^\dagger_a\psi^\dagger_b\psi_c`,
+together with $`[A_{\mu a},\pi^\nu_b] = i\delta^\nu_\mu\delta_{ab}` and
+$`\{\psi_a,\psi^\dagger_b\} = \delta_{ab}` — and that definition is now
 implemented on the graded state space
-$`\mathbb{C}[A_{\mu a}]\otimes\Lambda(\mathbb{C}^N)`$: the canonical
+$`\mathbb{C}[A_{\mu a}]\otimes\Lambda(\mathbb{C}^N)`: the canonical
 relations hold in the realization, the bosonic operators commute with the
 ghosts, and the three terms of the density are assembled into the book's
 charge, with the derivative term written through the derivations
-$`\partial_\mu`$ of the gauge algebra.
+$`\partial_\mu` of the gauge algebra.
 
 The decisive step is that the **Gauss law is derived, not assumed**: the
-coefficient of the ghost $`\psi^\dagger_c`$ in the book's charge closes into
+coefficient of the ghost $`\psi^\dagger_c` in the book's charge closes into
 the gauge algebra, from the canonical relations, the Leibniz property of
-$`\partial_\mu`$ and the Jacobi identity. Nilpotency $`\Omega^2 = 0`$ follows,
-and identifying the book's charge with $`i`$ times the abstract charge shows
-that the book's coefficient $`-i/2`$ of the cubic ghost term is exactly the
+$`\partial_\mu` and the Jacobi identity. Nilpotency $`\Omega^2 = 0` follows,
+and identifying the book's charge with $`i` times the abstract charge shows
+that the book's coefficient $`-i/2` of the cubic ghost term is exactly the
 one nilpotency requires. On that foundation the gauge-fixing fermion
-$`\Psi = i\psi_a A_{0a}`$ of the manuscript's Weyl-gauge section is built, the
-generated term $`\{\Omega,\Psi\}`$ is computed in closed form — the Gauss law
-contracted with $`A_0`$, the ghost kinetic term, the non-abelian ghost–field
+$`\Psi = i\psi_a A_{0a}` of the manuscript's Weyl-gauge section is built, the
+generated term $`\{\Omega,\Psi\}` is computed in closed form — the Gauss law
+contracted with $`A_0`, the ghost kinetic term, the non-abelian ghost–field
 coupling — and is proved BRST invariant, which is what allows the manuscript
-to add it to the Hamiltonian. On the temporal-gauge slice $`A_0 = 0`$ that
-entire BRST-exact term vanishes — $`{Ω, Ψ} = 0`$ — so the records of
-$`h`$ and $`N`$ need no extra gauge-fixing or ghost summand (the accounting
-identity $`bookGfTerm_eq_zero_of_Afield0`$, with the $`su(2)`$ and
+to add it to the Hamiltonian. On the temporal-gauge slice $`A_0 = 0` that
+entire BRST-exact term vanishes — $`{Ω, Ψ} = 0` — so the records of
+$`h` and $`N` need no extra gauge-fixing or ghost summand (the accounting
+identity $`bookGfTerm_eq_zero_of_Afield0`, with the $`su(2)` and
 Standard-Model instances; Cadabra CHECK 29–30). For pure Yang–Mills the same
 identity lets the Weyl gauge work with the spatial field components only. For
 quantum gravity the manuscript's three-dimensional reduction is *not* the ADM
-one: the time-like vector is fixed to $`v^\mu = \delta^\mu_0`$, the ghosts of
+one: the time-like vector is fixed to $`v^\mu = \delta^\mu_0`, the ghosts of
 the resulting charge are constant in the timepiece, and the charge keeps the
 same functional form as the four-dimensional one — explicitly different from
 the ADM BRST charge. The BRST cohomology is well defined:
-$`\ker\Omega / \im\Omega`$, with $`\im\Omega \subseteq \ker\Omega`$ from
-$`\Omega^2 = 0`$, the gauge-fixing term preserving both subspaces so that it
+$`\ker\Omega / \operatorname{im}\Omega`, with $`\operatorname{im}\Omega \subseteq \ker\Omega` from
+$`\Omega^2 = 0`, the gauge-fixing term preserving both subspaces so that it
 descends to the quotient, and gauge-invariant observables — anything
 commuting with the constraints and the ghosts — commuting with the charge,
-exemplified by the Casimir of constant gauge fields. The $`su(2)`$ and
+exemplified by the Casimir of constant gauge fields. The $`su(2)` and
 Standard-Model instances supply the concrete algebras, their nilpotency, and
 the fact that the constraints are not the zero operator.
 
 What is *not* claimed here: the local gauge algebra is modelled by a
-finite-dimensional Lie algebra with derivations $`\partial_\mu`$ (the
-manuscript's totally antisymmetric $`SU(N)`$ structure constants are used), so
+finite-dimensional Lie algebra with derivations $`\partial_\mu` (the
+manuscript's totally antisymmetric $`SU(N)` structure constants are used), so
 the Gauss law is local in that algebra rather than at every point of a
 continuum space; the manuscript's operator formalism uses no Faddeev–Popov
 determinant and none is constructed; and, while the cohomology is defined and
@@ -867,17 +867,17 @@ shown well defined, nothing is claimed about its *size*.
 :::paragraph
 One item has left this list: essential self-adjointness of the *bosonic*
 one-particle operator is now unconditional. The fermionic theorems are
-$`sm_fermi_fl_i`$/$`ii`$/$`iii`$ and
-$`sm_fermi_esa`$. For the bosons, `ChapterSmFarisLavine.lean` proves both
+$`sm_fermi_fl_i`/$`ii`/$`iii` and
+$`sm_fermi_esa`. For the bosons, `ChapterSmFarisLavine.lean` proves both
 Faris–Lavine inequalities with absolute constants against the comparison
-operator $`N = 2h + \sum_m q_m^2 + c_0`$ and reduces the conclusion to
-essential self-adjointness of $`N`$ itself on the same core — a coupled quartic
+operator $`N = 2h + \sum_m q_m^2 + c_0` and reduces the conclusion to
+essential self-adjointness of $`N` itself on the same core — a coupled quartic
 Schrödinger operator in 163 variables, an input of Kato type that Faris–Lavine
 structurally cannot supply. That input is proved independently:
-`ChapterDegKatoEsa.lean` shows that $`-\Delta_S + W`$ with $`W \ge 1`$ smooth is
+`ChapterDegKatoEsa.lean` shows that $`-\Delta_S + W` with $`W \ge 1` smooth is
 essentially self-adjoint on compactly supported smooth functions,
 `ChapterHermiteGraphApprox.lean` transfers this to the Gauss–polynomial core for
-polynomial $`W`$, and `ChapterSmComparisonEsa.lean` identifies $`N`$ with such an
+polynomial $`W`, and `ChapterSmComparisonEsa.lean` identifies $`N` with such an
 operator, giving `smFlN_esa` and the unconditional `sm_h_esa` (see
 `CONSOLIDATED_PLAN.md` §2026-09-23g).
 
@@ -885,7 +885,7 @@ The boundaries of this chapter are as much a part of it as its theorems. The CAR
 algebra, the Dirac and Yukawa operators, the continuum CAR algebra over an
 infinite-dimensional one-particle space, the gauge connection inside $`D`, and
 the ghost/BRST sector (including the charge as the manuscript defines it and
-the accounting identity that adds no gauge-fixing summand to $`h`$ or $`N`$)
+the accounting identity that adds no gauge-fixing summand to $`h` or $`N`)
 are all Lean theorems now — see the sections above and the ledger
 `HONEST_BOUNDARIES_SM.md` (live list §L). Still open there: Majorana masses
 and the see-saw; no continuum spectrum or mass gap for

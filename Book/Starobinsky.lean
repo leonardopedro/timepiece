@@ -68,17 +68,17 @@ $`U(\psi)e = \tfrac{M^4}{16\alpha}(\psi-1)^2 e \ge 0`, i.e. the potential is
 manifestly bounded below for $`\alpha > 0`, and it is this (together with the
 Weyl 3D gauge-fixing of the frame's local Lorentz / conformal freedom — the
 frame's time component $`A_0^j` fixed via the gauge-fixing fermion
-$`\{G, i\, b_j A_0^j\}`$ in the base TEGR module's BRST cell, the gravity
-analogue of the Yang–Mills Weyl gauge $`A_0 = 0`$ — the TEGR module's job)
+$`\{G, i\, b_j A_0^j\}` in the base TEGR module's BRST cell, the gravity
+analogue of the Yang–Mills Weyl gauge $`A_0 = 0` — the TEGR module's job)
 that regularizes the would-be wrong-sign conformal
 direction.  This three-dimensional reduction is **not** the ADM one: it
-fixes the globally defined time-like vector to $`v^\mu = \delta^\mu_0`$,
+fixes the globally defined time-like vector to $`v^\mu = \delta^\mu_0`,
 diffeomorphisms must conserve it, so the ghosts of the resulting BRST charge
 are **constant in the timepiece**, and the charge keeps the **same functional
 form as the four-dimensional formalism** — explicitly different from the ADM
-BRST charge ($`book.tex`$, and the doctrine recorded in
-$`BookProof/Qg/ChapterQuantumGravityBrstCharge.lean`$).  The completed-square identity
-$`V_3(R_c) \ge -M^4/(16\alpha)`$ below records the same stabilization at the
+BRST charge ($`book.tex`, and the doctrine recorded in
+$`BookProof/Qg/ChapterQuantumGravityBrstCharge.lean`).  The completed-square identity
+$`V_3(R_c) \ge -M^4/(16\alpha)` below records the same stabilization at the
 level of the spatial potential.
 :::
 

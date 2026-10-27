@@ -43,7 +43,7 @@ flow), the tensor-sum chain, and the permutation/sector chapters
 :::paragraph
 Throughout the programme the final Hamiltonian of record is the outer
 **second quantization** of an inner **one-particle** Hamiltonian,
-$`H = \\sum_{i,j} h_{ij}\\, C^\\dagger(e_i)\\, A(e_j) = d\\Gamma(h)`, with creation on
+$`H = \sum_{i,j} h_{ij}\, C^\dagger(e_i)\, A(e_j) = d\Gamma(h)`, with creation on
 the left and annihilation on the right — the same shape for QYM, QED, QG and
 Navier–Stokes. A quartic nonlinearity, an exponential wall or a singular potential
 enters only the one-particle matrix elements $`h_{ij}`; at the outer level the
@@ -98,10 +98,10 @@ operator `T : D →ₗ[ℂ] F` by the vanishing of the deficiency spaces of its 
 The criteria available elsewhere (Faris–Lavine, Nelson-type commutator bounds)
 verify this on the domain on which the operator is given. What was missing was the
 *domain-changing* instrument, and `IsGraphCore D₁ T` is it: `D₁` is a subspace of
-the domain of `T` that is dense there for the **graph norm** $`\\|x\\| + \\|T x\\|`.
+the domain of `T` that is dense there for the **graph norm** $`\|x\| + \|T x\|`.
 Then a deficiency vector is transferred from the domain to any core of it, because
-the defect $`\\langle T v, w\\rangle - z\\langle v, w\\rangle` is bounded by
-$`(1 + |z|)\\|w\\|` times the graph distance from `v` to `D₁`. Cores compose, a
+the defect $`\langle T v, w\rangle - z\langle v, w\rangle` is bounded by
+$`(1 + |z|)\|w\|` times the graph distance from `v` to `D₁`. Cores compose, a
 domain is a core for its own operator, and the notion transports along a linear
 isometry — which is how a core inside an incomplete space becomes a core inside its
 completion.
@@ -124,7 +124,7 @@ completion.
 :::paragraph
 The last item is a useful unconditional criterion in its own right: a symmetric
 operator that is *bounded* on a dense domain has trivial deficiency spaces at
-$`\\pm i`, hence is essentially self-adjoint there. It is what discharges the
+$`\pm i`, hence is essentially self-adjoint there. It is what discharges the
 sectorwise input in the bounded cases below.
 :::
 
@@ -134,11 +134,11 @@ sectorwise input in the bounded cases below.
 The core transfer is a one-variable statement; the sectors of a Fock space are
 tensor powers, so it must be lifted to `n` variables. `IPSpace.pow` is the `n`-fold
 algebraic tensor power of an inner product space, `inclPow` the isometric inclusion
-$`D_2^{\\otimes n} \\to H^{\\otimes n}`, `derPow` the sector derivation
-$`d\\Gamma(A)^{(n)} = \\sum_j 1 \\otimes \\cdots \\otimes A \\otimes \\cdots \\otimes 1`
-defined by the Leibniz recursion, and `corePow` the tensor power $`D^{\\otimes n}`
+$`D_2^{\otimes n} \to H^{\otimes n}`, `derPow` the sector derivation
+$`d\Gamma(A)^{(n)} = \sum_j 1 \otimes \cdots \otimes A \otimes \cdots \otimes 1`
+defined by the Leibniz recursion, and `corePow` the tensor power $`D^{\otimes n}`
 of a one-particle core. The telescoping estimate `graphPow_tmul_mem_closure` on an
-elementary tensor `a ⊗ b` — replacing `a` costs $`\\|a - a'\\|\\|b\\| + \\|Aa - Aa'\\|\\|b\\|`
+elementary tensor `a ⊗ b` — replacing `a` costs $`\|a - a'\|\|b\| + \|Aa - Aa'\|\|b\|`
 and replacing `b` costs the graph distance of `b` — is the whole of the analysis;
 span induction then gives `exists_core_approx` and `isGraphCore_sectorCore`: **if
 `D` is a core for `A`, then `D^{⊗n}` is a core for the sector derivation**. Symmetry
@@ -159,8 +159,8 @@ transfers too.
 # The Assembly on the Nested Fock Space
 
 :::paragraph
-The outer space is the $`\\ell^2`-direct sum of the *completed* sectors
-$`\\mathcal F_n =` completion of $`H^{\\otimes n}`, the finite-particle domain over
+The outer space is the $`\ell^2`-direct sum of the *completed* sectors
+$`\mathcal F_n =` completion of $`H^{\otimes n}`, the finite-particle domain over
 the core is the direct sum of the sector cores, and `dGammaCoreOp` is `dΓ(A)` on it.
 Gluing is the existing `BookProof.DirectSumEsa.dsOp_essentiallySelfAdjointOn`, so the
 escaped-to-the-completion question is already settled; the new content is the
@@ -261,7 +261,7 @@ For use in the route chapters, `ESAPair` bundles the three pieces of data — a
 symmetric one-particle operator on the domain of its closure, a graph-norm core
 `D`, and the sectorwise input — and `ESAPair.dGamma_essentiallySelfAdjoint` is the
 main theorem over the package. `ESAPair.norm_sub_smul_sq` records the only
-quantitative ingredient, $`\\|Ax - d\\,i\\,x\\|^2 = \\|Ax\\|^2 + d^2\\|x\\|^2`, valid
+quantitative ingredient, $`\|Ax - d\,i\,x\|^2 = \|Ax\|^2 + d^2\|x\|^2`, valid
 with no spectral lower bound, so no quadratic-form domain and no Friedrichs
 extension is required. `ESAPair.ofBounded` produces packages for all bounded
 symmetric one-particle operators — with the sectorwise input proved, not assumed —
@@ -305,24 +305,24 @@ is not a further hypothesis — it is the subject of the next section, and it is
 
 :::paragraph
 The reduction this chapter makes rigorous has, as of the closure wave, a
-complete worked instance. For the Standard-Model one-particle operator $`h`$
+complete worked instance. For the Standard-Model one-particle operator $`h`
 of the previous chapter, essential self-adjointness on the
-Gauss–polynomial core of $`L^2(\mathbb{R}^{163})`$ is now a theorem with no
-hypothesis beyond the parameters: $`sm_h_esa`$, obtained by combining the two
+Gauss–polynomial core of $`L^2(\mathbb{R}^{163})` is now a theorem with no
+hypothesis beyond the parameters: $`sm\_h\_esa`, obtained by combining the two
 Faris–Lavine inequalities of `BookProof/Sm/ChapterSmFarisLavine.lean` with the
 independent Kato-type theorem of `BookProof/Sm/ChapterSmComparisonEsa.lean` and
 its transfer between the two cores (the chain is walked through in the
 Standard-Model chapter of this manual). Fed into
-$`dGamma_essentiallySelfAdjointOn_of_esa`$ — the main theorem above — it
+$`dGamma_essentiallySelfAdjointOn_of_esa` — the main theorem above — it
 gives essential self-adjointness of the enclosure
-$`H = d\Gamma(h) = \sum_{i,j} h_{ij} C^{\dagger}(e_i) A(e_j)`$, creation on
+$`H = d\Gamma(h) = \sum_{i,j} h_{ij} C^{\dagger}(e_i) A(e_j)`, creation on
 the left and annihilation on the right, on the finite-particle core over the
 Gauss–polynomial core. In the plan’s vocabulary, obligations (i) and (ii) of
 §D6b are both discharged for the Standard-Model row: (i) is the
 one-particle statement just named, (ii) is this chapter’s general lift
 applied to it. What remains owed there is not an analytic hypothesis but an
 assembly: the sector-wise tensor/graph-core combination of the bosonic and
-fermionic halves of $`h`$ before enclosure. The instrument is not
+fermionic halves of $`h` before enclosure. The instrument is not
 sector-specific — the Kato theorem behind (i) holds for any smooth,
 respectively polynomial, potential bounded below by one. The lift is now
 also a theorem in each instance: `BookProof/Sm/ChapterSmFockEsa.lean` states

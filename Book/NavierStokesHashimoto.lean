@@ -43,7 +43,7 @@ The inverse-free rational-Krylov (Hashimoto/SIRK) method never forms the
 resolvent $`(H - z)^{-1}`: it works with the *forward* sequence
 $`w_k = (H - z_k I) w_{k-1}` and reconstructs spectral information from the Gram
 matrix of the Krylov subspace. The method is trustworthy exactly when the
-shift-inverted resolvents $`X_j = (\\gamma_j - G)^{-1}` of the generator $`G` are
+shift-inverted resolvents $`X_j = (\gamma_j - G)^{-1}` of the generator $`G` are
 well-behaved — bounded, commuting, satisfying the resolvent identity and the
 Hashimoto–Nodera SIRK relation, and recovered by Galerkin truncation. Proving
 those properties for a *concrete* Hamiltonian is a selection theorem: it selects
@@ -52,9 +52,9 @@ the operator the Krylov iteration is actually computing.
 
 :::paragraph
 For the Navier–Stokes fiber generator the selection was proved in the abstract
-sequence-space realization: the Hermite matrix `velCore` on $`\\ell^2(Vel)` with
-$`Vel = \\operatorname{Fin} 3 \\to \\mathbb N`. The *differential* realization —
-the same Hamiltonian written with $`\\pi_i = -i\\,\\partial/\\partial u_i` and $`u_i`
+sequence-space realization: the Hermite matrix `velCore` on $`\ell^2(Vel)` with
+$`Vel = \operatorname{Fin} 3 \to \mathbb N`. The *differential* realization —
+the same Hamiltonian written with $`\pi_i = -i\,\partial/\partial u_i` and $`u_i`
 a genuine multiplication operator on the Gauss–polynomial (product Hermite) core
 of $`L^2(du_1 du_2 du_3)` — was known to be essentially self-adjoint but carried
 no selection theorem. The module `BookProof/Ns/ChapterNavierStokesDiffHashimoto.lean`
@@ -65,9 +65,9 @@ supplies it (namespace `BookProof.NavierStokesFlow`).
 
 :::paragraph
 Before the formal statements, it helps to see why the resolvents
-$`X_j = (\\gamma_j - G)^{-1}` are the right object at all. The SIRK method shifts
-by a complex number $`\\gamma_j` — *not* an eigenvalue — purely to make the
-inversion well-behaved: $`\\gamma_j - G` is invertible because $`\\gamma_j` has a
+$`X_j = (\gamma_j - G)^{-1}` are the right object at all. The SIRK method shifts
+by a complex number $`\gamma_j` — *not* an eigenvalue — purely to make the
+inversion well-behaved: $`\gamma_j - G` is invertible because $`\gamma_j` has a
 non-zero imaginary part, so no point of the (real) spectrum can coincide with the
 shift. The inverse then exists as a bounded operator, and the forward sequence
 $`w_k = (H - z_k I) w_{k-1}` accumulates information about it. If the resolvents
@@ -80,26 +80,26 @@ theorem rules all of that out for the Navier–Stokes generator.
 :::paragraph
 A concrete miniature makes the mechanism visible. Take a single velocity mode
 with the fiber Hamiltonian
-$`G = \\tfrac12(\\pi V + V\\pi)` where $`V = \\kappa u + c` (an affine drift), and
-shift by $`\\gamma = i` (imaginary part $`1`). The resolvent bound in the theorem
-says $`\\|(i - G)^{-1}\\| \\le 1/|\\operatorname{Im} i| = 1`: the inverted operator
+$`G = \tfrac12(\pi V + V\pi)` where $`V = \kappa u + c` (an affine drift), and
+shift by $`\gamma = i` (imaginary part $`1`). The resolvent bound in the theorem
+says $`\|(i - G)^{-1}\| \le 1/|\operatorname{Im} i| = 1`: the inverted operator
 shrinks every vector, which is precisely what makes the Krylov recurrence stable
 and the Gram matrix well-conditioned. The same bound holds for *every* non-real
 shift, uniformly, and it is exactly the estimate that the SIRK implementations in
 the companion numerical validation (`fock_sirk/tests/ns_numerical_validation.rs`,
-S35) rely on when they evolve the laminar decay $`du/dt = -\\nu k^2 u` and measure
-the decay rate $`\\nu k^2` to high precision.
+S35) rely on when they evolve the laminar decay $`du/dt = -\nu k^2 u` and measure
+the decay rate $`\nu k^2` to high precision.
 :::
 
 # The Differential Generator is the Transport of a Polynomial
 
 :::paragraph
 The Weyl-ordered Hamiltonian — the sum of the symmetrized products
-$`\\tfrac12(\\pi_i V_i + V_i \\pi_i)` of the momentum with the affine fiber field —
+$`\tfrac12(\pi_i V_i + V_i \pi_i)` of the momentum with the affine fiber field —
 is, on the Hermite core, the transport of a polynomial-level operator: `nsDiffPoly`
 is the polynomial whose core realization is exactly `nsDiffH`. Gauss symmetry of
 the polynomial is what makes the operator symmetric on the Hermite core of
-$`L^2(\\mathbb R^3)`.
+$`L^2(\mathbb R^3)`.
 :::
 
 ```
@@ -111,9 +111,9 @@ $`L^2(\\mathbb R^3)`.
 
 :::paragraph
 The route through the polynomial is not a detour: it is how the symmetry is
-*seen*. On the Hermite core the momentum is $`\\pi_i = -i\\partial_i` and the field
+*seen*. On the Hermite core the momentum is $`\pi_i = -i\partial_i` and the field
 is multiplication by the *affine-linear* polynomial
-$`V_i(u) = \\sum_k A_{ik} u_k + c_i` — a general velocity-gradient matrix $`A`
+$`V_i(u) = \sum_k A_{ik} u_k + c_i` — a general velocity-gradient matrix $`A`
 (the strain and vorticity content of $`u_{i,j}`) plus the constant term $`c_i`.
 The
 symmetrized product is then the *symmetrization of a polynomial operator* — the
@@ -150,13 +150,13 @@ candidate, and the Krylov iteration, if it converges at all, converges to it.
 # The Hashimoto Selection
 
 :::paragraph
-The headline: for an arbitrary sequence of non-real shifts $`\\gamma_j`, the
-shift-inverted resolvents $`X_j = (\\gamma_j - G)^{-1}` of the differential
-Navier–Stokes generator exist, are bounded by $`1/|\\operatorname{Im} \\gamma_j|`,
+The headline: for an arbitrary sequence of non-real shifts $`\gamma_j`, the
+shift-inverted resolvents $`X_j = (\gamma_j - G)^{-1}` of the differential
+Navier–Stokes generator exist, are bounded by $`1/|\operatorname{Im} \gamma_j|`,
 share the domain of $`G`, satisfy the resolvent identity, commute, satisfy the
 Hashimoto–Nodera SIRK relation, have strongly convergent Galerkin truncations,
 and each one alone determines $`G` completely. The single-shift form is the
-version used in practice, and the explicit coefficients $`(\\nu, u_{i,j}, u_{i,jj})`
+version used in practice, and the explicit coefficients $`(\nu, u_{i,j}, u_{i,jj})`
 spell the same statement out in the physical variables.
 :::
 
@@ -169,20 +169,20 @@ spell the same statement out in the physical variables.
 
 :::paragraph
 Reading the single-shift statement `nsDiffH_shiftInvert_selects`: fix one shift
-$`\\gamma` with $`\\operatorname{Im}\\gamma \\neq 0`. The theorem says the single
-resolvent $`X = (\\gamma - G)^{-1}` *determines* $`G` — because the resolvent
+$`\gamma` with $`\operatorname{Im}\gamma \neq 0`. The theorem says the single
+resolvent $`X = (\gamma - G)^{-1}` *determines* $`G` — because the resolvent
 identity lets you recover the spectrum and the spectral projections from one
 resolvent value. In practice this means the SIRK method needs only the forward
 sequence at the chosen shifts; it does not need to *approximate* the resolvent by
 anything else. And `nsQuadraticDiffH_hashimoto_selects` gives the same guarantee
-in the notation a fluid dynamicist writes down: the viscosity $`\\nu`, the
+in the notation a fluid dynamicist writes down: the viscosity $`\nu`, the
 velocity-gradient matrix $`u_{i,j}` and the second derivatives $`u_{i,jj}` appear
 explicitly in the statement.
 :::
 
 :::paragraph
-Non-vacuity is part of the statement: $`L^2(\\mathbb R^3)` carries an
-$`\\mathbb N`-indexed Hilbert basis — the product Hermite functions, enumerated —
+Non-vacuity is part of the statement: $`L^2(\mathbb R^3)` carries an
+$`\mathbb N`-indexed Hilbert basis — the product Hermite functions, enumerated —
 so the Galerkin truncations in the theorem are honest finite-dimensional
 projections of a concrete Hilbert space. Together with the Carleman flux criteria
 (`Book/CarlemanFlux.lean`) that underpin the core analysis, this is what makes the
@@ -226,15 +226,15 @@ here:
 
 * *The Ehrenfest identity is exact on probes.* The test
   `ns_sirk_laminar_decay_rate` verifies
-  $`i\\langle[H, u]\\rangle = 4\\kappa\\langle u\\rangle + 4c` exactly on
+  $`i\langle[H, u]\rangle = 4\kappa\langle u\rangle + 4c` exactly on
   occupation/coherent probes. This is a statement about the *operator* $`H` — the
   one the selection theorem pins down — not about any finite-dimensional
   truncation. The identity holds because the Weyl-ordered symmetrization
-  $`\\{V, \\pi\\}` carries the factor two, which is precisely the polynomial
+  $`\{V, \pi\}` carries the factor two, which is precisely the polynomial
   transport `nsDiffH_eq_coreOp` records.
 * The decay rate $`\nu k^2` is reproduced to < 1e-2 (with the viscosity in the analytic window). With
-  $`\\kappa = -\\nu k^2/4`, the Ehrenfest identity reduces to the classical
-  Navier–Stokes decay $`du/dt = -\\nu k^2 u`, and the SIRK-restarted evolution
+  $`\kappa = -\nu k^2/4`, the Ehrenfest identity reduces to the classical
+  Navier–Stokes decay $`du/dt = -\nu k^2 u`, and the SIRK-restarted evolution
   measures it. That the measured rate agrees with the analytic one is the
   numerical shadow of `nsDiffH_hashimoto_selects`: the Krylov iteration is
   computing the resolvent of *the* differential generator, whose spectrum
