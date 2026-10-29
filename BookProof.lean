@@ -569,6 +569,16 @@ import BookProof.Textbook.ChapterF8
 import BookProof.Toolbox.PhysMeasureBasis
 import BookProof.Toolbox.PhysFunctionalAnalysis
 import BookProof.Toolbox.PhysHSGaussian
+import BookProof.EuclideanFock4D.CoreBasis
+import BookProof.EuclideanFock4D.MehlerMeasure
+import BookProof.BalabanRG.MultiscaleSpace
+import BookProof.BalabanRG.BlockOperator
+import BookProof.BalabanRG.Convergence
+import BookProof.ReflectionPositivity.Involution
+import BookProof.ReflectionPositivity.HalfSpaceAlgebra
+import BookProof.ReflectionPositivity.Proof
+import BookProof.OSReconstruction.PhysicalSpace
+import BookProof.OSReconstruction.Hamiltonian
 import BookProof.Toolbox.PhysMehler
 
 -- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
