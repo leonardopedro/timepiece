@@ -1,0 +1,203 @@
+-- kopperman_mehler.mm0 — MM0 conversion of the Solovay–Kopperman tensor
+-- product and the Kopperman/Mehler decidable-theory layer, from the Lean 4
+-- sources in timepiece/:
+--   BookProof/ChapterSolovayHilbertTensor.lean   (solovayTensorEquiv,
+--     prodProdProdCommEquiv, headConcatEquiv, solovayTensorUnitary)
+--   BookProof/ChapterSolovayCoordinates.lean     (stateLaw,
+--     headConcatMeasure, DecidableLanguage.tensor)
+--   BookProof/Toolbox/ChapterTensorCompleteness.lean (inner_tensorLp)
+--   BookProof/Toolbox/PhysMehler.lean            (Formalism, Pi02,
+--     interpPi02, substrate_separable, Mehler prior)
+--   BookProof/ChapterKopperman.lean              (headline restatements)
+-- This is the tensor-product version of the development; the RandomMap
+-- line is out of scope.
+--
+-- Companion proofs: kopperman_mehler.mm1 — same declarations, theorems
+-- proved there with `pub theorem ... = '(...)`. Checker chain (exactly
+-- what the publishing platform's /verify runs):
+--   mm0-rs compile kopperman_mehler.mm1 kopperman_mehler.mmb
+--   mm0-c kopperman_mehler.mmb < kopperman_mehler.mm0
+--
+-- Trust split, tagged on each declaration below:
+--   analytic  — Lean-proved measure/analysis facts, recorded as axioms
+--               carrying their source theorem name (proof stays in Lean)
+--   interface — MM0-side structural glue (equality, pairing, congruence)
+--   proved    — derived in mm1 from the two layers above
+-- pattern after australVM/mm0/gap_certificate.{mm0,mm1}
+
+provable sort Prop;
+sort State;                     -- points of a coordinate state space
+sort Bool;                      -- decision values of a decidable language
+sort Lang;                      -- a decidable language (Boolean predicate)
+sort Nat;                       -- head sizes (dimension bookkeeping)
+sort F;                         -- a Kopperman formalism (PhysMehler.Formalism)
+sort Zf;                        -- foundation parameter z (Π⁰₂ invariance)
+sort Nrel;                      -- a Π⁰₂ matrix p : ℕ → ℕ → Bool
+sort Law;                       -- probability laws on states
+sort Real;                      -- scalar values (inner products, masses)
+sort L2;                        -- elements of an L² space
+sort Fn;                        -- encoded state-space maps (see soloFn)
+
+delimiter $ ( ) $;
+
+-- ── State equality and pairing (interface) ────────────────────────────────
+
+term seq (a b: State): Prop;    -- judgmental equality on states
+term scons (a b: State): State; -- pair constructor (×)
+term sfst (a: State): State;    -- first projection
+term ssnd (a: State): State;    -- second projection
+
+axiom seq_trans (a b c: State): $ seq a b $ > $ seq b c $ > $ seq a c $;
+axiom seq_cong_scons (a b c d: State):
+  $ seq a c $ > $ seq b d $ > $ seq (scons a b) (scons c d) $;
+axiom seq_fst_cong (a b: State): $ seq a b $ > $ seq (sfst a) (sfst b) $;
+axiom seq_snd_cong (a b: State): $ seq a b $ > $ seq (ssnd a) (ssnd b) $;
+axiom sfst_cons (a b: State): $ seq (sfst (scons a b)) a $;      -- interface
+axiom ssnd_cons (a b: State): $ seq (ssnd (scons a b)) b $;      -- interface
+axiom scons_eta (a: State): $ seq (scons (sfst a) (ssnd a)) a $; -- interface
+
+-- ── The four-fold shuffle (Lean: prodProdProdCommEquiv) ───────────────────
+-- ((A×B)×(C×D)) → ((A×C)×(B×D)), z ↦ ((z₁₁, z₂₁), (z₁₂, z₂₂)).
+
+def shuffle (z: State): State =
+  $ scons (scons (sfst (sfst z)) (sfst (ssnd z))) (scons (ssnd (sfst z)) (ssnd (ssnd z))) $;
+
+-- ── Head concatenation and tail interleaving ──────────────────────────────
+-- Lean: headConcatEquiv concatenates heads, tailTensorEquiv interleaves
+-- the two tail sequences.
+
+term hcat (a b: State): State;  -- concatenate heads (Fin N₁ ++ Fin N₂)
+term itlv (a b: State): State;  -- interleave tails (ℕ × ℕ → ℕ)
+
+axiom hcat_cong (a b c d: State):
+  $ seq a c $ > $ seq b d $ > $ seq (hcat a b) (hcat c d) $;
+axiom itlv_cong (a b c d: State):
+  $ seq a c $ > $ seq b d $ > $ seq (itlv a b) (itlv c d) $;
+
+-- ── The Solovay–Kopperman tensor map (Lean: solovayTensorEquiv) ───────────
+-- pointwise: shuffle, then (headConcat × tailInterleave).
+
+def solo (z: State): State =
+  $ scons (hcat (sfst (sfst z)) (sfst (ssnd z))) (itlv (ssnd (sfst z)) (ssnd (ssnd z))) $;
+
+-- Encoded-map layer: the transport axioms below quantify over the map as
+-- an opaque Fn (MM0 binders cannot have arrow types); soloFn_app ties the
+-- opaque constant to the pointwise def above.
+
+term sapp (m: Fn) (z: State): State;  -- application of an encoded map
+term soloFn: Fn;                      -- the encoded Solovay–Kopperman map
+axiom soloFn_app (z: State): $ seq (sapp soloFn z) (solo z) $;  -- interface
+
+-- ── Decidable languages (Lean: DecidableLanguage) ────────────────────────
+
+term ldec (L: Lang) (x: State): Bool;  -- Lean: decide L x
+term band (a b: Bool): Bool;           -- Lean: &&
+term beq (a b: Bool): Prop;            -- equality on Bool
+
+def ldec_t (L1 L2: Lang) (z: State): Bool =
+  $ band (ldec L1 (sfst z)) (ldec L2 (ssnd z)) $;  -- Lean: L₁.tensor L₂
+
+axiom beq_ldec (L: Lang) (a b: State):
+  $ seq a b $ > $ beq (ldec L a) (ldec L b) $;     -- interface
+axiom band_cong (a b c d: Bool):
+  $ beq a c $ > $ beq b d $ > $ beq (band a b) (band c d) $; -- interface
+
+-- ── Π⁰₂ truth and formalism-invariance (Lean: Pi02 / interpPi02) ─────────
+-- Lean `interpPi02 p F z := Pi02 p` ignores F and z — truth of a standard
+-- Π⁰₂ sentence cannot depend on the formalism model or the foundation.
+
+term pi02 (p: Nrel): Prop;     -- Lean: Pi02 p
+def interpPi02 (p: Nrel) (_f: F) (_z: Zf): Prop = $ pi02 p $;
+
+-- ── The Kopperman formalism structure (Lean: Formalism) ───────────────────
+
+term sep (f: F): Prop;                 -- carrier of f is separable
+term has_skeleton (f: F): Prop;        -- countable dense decidable skeleton
+term prior (f: F): Law;                -- the formalism's prior measure
+term isProb (u: Law): Prop;            -- u is a probability law
+term prior_atomless (f: F) (x: State): Prop; -- prior {x} = 0
+
+axiom separable_field (f: F): $ sep f $;  -- analytic (Lean: Formalism.separable)
+axiom skeleton_field (f: F): $ has_skeleton f $; -- analytic (Lean: skeleton_countable/dense/decidable)
+axiom prior_isProb_field (f: F): $ isProb (prior f) $; -- analytic (Lean: Formalism.prior_isProb)
+axiom prior_atomless_field (f: F) (x: State): $ prior_atomless f x $; -- analytic (Lean: Formalism.prior_atomless)
+
+-- ── The concrete substrate and Mehler prior (Lean: PhysMehler) ────────────
+
+term substrate_sep: Prop;               -- Substrate is separable
+term skel_substrate: Prop;              -- a decidable skeleton exists
+term koppermanSubstrate: F;             -- the concrete formalism
+term mehlerLaw: Law;                    -- the Mehler prior
+term mehler_sphere: Prop;               -- concentrates on the sphere
+term admits_atomless: Prop;             -- admits an atomless prior
+term modelPrior: Law;                   -- Model.prior (the model's prior)
+
+axiom substrate_separable: $ substrate_sep $;  -- analytic (Lean: substrate_separable)
+axiom substrate_decidable_skeleton: $ skel_substrate $; -- analytic (Lean: substrate_decidable_skeleton)
+axiom mehler_isProb: $ isProb mehlerLaw $;     -- analytic (Lean: mehler_isProbability)
+axiom mehler_concentrates_on_sphere: $ mehler_sphere $; -- analytic (Lean: mehler_concentrates_on_sphere)
+axiom admits_atomless_prior: $ admits_atomless $; -- analytic (Lean: admits_atomless_prior)
+
+-- ── Reals: inner products and singleton masses ────────────────────────────
+
+term rzero: Real;
+term req (a b: Real): Prop;        -- equality on Real
+term rmul (a b: Real): Real;       -- multiplication
+term smass (u: Law) (x: State): Real; -- μ({x})
+
+axiom req_trans (a b c: Real): $ req a b $ > $ req b c $ > $ req a c $;
+axiom rmul_cong_l (a b c: Real): $ req a b $ > $ req (rmul a c) (rmul b c) $;
+axiom rmul_zero_l (a: Real): $ req (rmul rzero a) rzero $; -- interface
+axiom modelPrior_atomless_field (x: State): $ req (smass modelPrior x) rzero $;
+  -- analytic (Lean: prior_atomless instantiated at Model.prior,
+  --           PnpProof.Kopperman.modelPrior_atomless)
+
+-- ── Laws and measure transport (Lean: stateLaw / headConcatMeasure) ───────
+
+term prodLaw (a b: Law): Law;      -- Lean: μ.prod ν
+term concatLaw (n1 n2: Nat) (u: Law): Law; -- Lean: headConcatMeasure N₁ N₂
+term stateLaw (n: Nat) (h: Law): Law;      -- Lean: stateLaw N h
+term nadd (a b: Nat): Nat;         -- Lean: N₁ + N₂ (opaque here)
+term mapLaw (m: Fn) (u: Law): Law; -- pushforward of u along m
+term leq (a b: Law): Prop;         -- equality on laws
+term l2iso (u v: Law): Prop;       -- L²(u) ≅ L²(v) isometrically
+
+axiom concat_prob (n1 n2: Nat) (d1 d2: Law):
+  $ isProb (concatLaw n1 n2 (prodLaw d1 d2)) $;
+  -- analytic (Lean: concatHeadMeasure_isProb)
+axiom solovayTensor_map (n1 n2: Nat) (h1 h2: Law):
+  $ leq (mapLaw soloFn (prodLaw (stateLaw n1 h1) (stateLaw n2 h2)))
+        (stateLaw (nadd n1 n2) (concatLaw n1 n2 (prodLaw h1 h2))) $;
+  -- analytic (Lean: solovayTensorEquiv_map — the transport theorem)
+axiom solovayTensor_unitary (n1 n2: Nat) (h1 h2: Law):
+  $ l2iso (prodLaw (stateLaw n1 h1) (stateLaw n2 h2))
+          (stateLaw (nadd n1 n2) (concatLaw n1 n2 (prodLaw h1 h2))) $;
+  -- analytic (Lean: solovayTensorUnitary — the Hilbert-space form)
+
+-- ── L² pure tensors (Lean: tensorLp / inner_tensorLp) ─────────────────────
+
+term tp (f g: L2): L2;       -- Lean: f.tensorLp μ g
+term iin (a b: L2): Real;    -- Lean: ⟪a, b⟫
+
+axiom inner_tensorLp (f g h k: L2):
+  $ req (iin (tp f g) (tp h k)) (rmul (iin f h) (iin g k)) $;
+  -- analytic (Lean: inner_tensorLp — pure-tensor inner products multiply)
+
+-- ── Theorems (statements; proofs in kopperman_mehler.mm1) ─────────────────
+
+theorem shuffle_apply (a b c d: State):
+  $ seq (shuffle (scons (scons a b) (scons c d))) (scons (scons a c) (scons b d)) $;
+theorem shuffle_involution (z: State): $ seq (shuffle (shuffle z)) z $;
+theorem solo_apply (h1 t1 h2 t2: State):
+  $ seq (solo (scons (scons h1 t1) (scons h2 t2))) (scons (hcat h1 h2) (itlv t1 t2)) $;
+theorem tensor_decide_apply (L1 L2: Lang) (x y: State):
+  $ beq (ldec_t L1 L2 (scons x y)) (band (ldec L1 x) (ldec L2 y)) $;
+theorem interpPi02_fwd (p: Nrel) (f: F) (z: Zf) (h: $ interpPi02 p f z $): $ pi02 p $;
+theorem interpPi02_rev (p: Nrel) (f: F) (z: Zf) (h: $ pi02 p $): $ interpPi02 p f z $;
+theorem arith_truth_invariant (p: Nrel) (f1 f2: F) (z1 z2: Zf)
+  (h: $ interpPi02 p f1 z1 $): $ interpPi02 p f2 z2 $;
+theorem all_formalism_models_separable (f: F): $ sep f $;
+theorem kopperman_substrate_separable: $ substrate_sep $;
+theorem modelPrior_atomless (x: State): $ req (smass modelPrior x) rzero $;
+theorem inner_orthogonal_tensor (e1 e2 g: L2) (h: $ req (iin e1 e2) rzero $):
+  $ req (iin (tp e1 g) (tp e2 g)) rzero $;
