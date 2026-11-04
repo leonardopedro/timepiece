@@ -1360,8 +1360,9 @@ theorem amgm_weight_family {ε : ℝ} (hε : 0 < ε) (s t : ℝ) :
     linarith
   linarith
 
-/-- **A worked member of the family: `ε = 1/2`.**  Here `a = ε/2 = 1/4` and `b = Σ Aᵢ²/(2ε) = Σ Aᵢ²`,
-so the *same* ladder also satisfies `|q| ≤ ¼ Q + (Σᵢ Aᵢ²)‖x‖²` — a different point of the trade-off
+/-- **A worked member of the family: `ε = 1/2`.**  Here `a = ε/2 = 1/4` and
+`b = Σ Aᵢ²/(2ε) = Σ Aᵢ²`, so the *same* ladder also satisfies `|q| ≤ ¼ Q + (Σᵢ Aᵢ²)‖x‖²` — a
+different point of the trade-off
 from the unit-weight `½ Q + ½(Σᵢ Aᵢ²)‖x‖²`.  In particular the ratio `1/2` is not forced by the
 ladder; it is the weight `ε = 1` read off the family. -/
 theorem amgm_weight_half (s t : ℝ) : 2 * s * t ≤ (1 / 2) * s ^ 2 + 2 * t ^ 2 := by
