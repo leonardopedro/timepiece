@@ -1049,7 +1049,7 @@ theorem momentumColT4_hs_mass (V : Torus4 (n := n) → ℂ) :
     rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
     congr 1
     have hcard : Fintype.card (Torus4 (n := n)) = n ^ 4 := by
-      show Fintype.card (ZMod n × ZMod n × ZMod n × ZMod n) = n ^ 4
+      change Fintype.card (ZMod n × ZMod n × ZMod n × ZMod n) = n ^ 4
       rw [Fintype.card_prod, Fintype.card_prod, Fintype.card_prod, ZMod.card]
       ring
     rw [hcard, Nat.cast_pow]

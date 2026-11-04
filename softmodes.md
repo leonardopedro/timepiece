@@ -418,6 +418,22 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    `momentumColT4_chain_hs_mass` carries it to a chain of coincident-point factors.  So the four-torus
    chain now has an actual Hilbert–Schmidt bound and not only a form identity.
 
+   The frontier of §11 is the frontier of the *weight*, not the ladder's sharp constant, and that
+   distinction is now a theorem instead of a caveat.  `ladder_form_norm_le_of_ratio` gives the
+   ladder-level bound at **every** ratio `a > 0`, `‖q‖ ≤ a·Q + (Σᵢ Aᵢ²/(4a))·‖x‖²`, and it is a
+   dilation: `ladder_form_norm_le` applied to the field strength `A/(2a)` (linearity in `A` is
+   `magShiftTerm_smul`, `magCutoffKernel_smul`, `ladder_form_smul`) and multiplied by `2a`.  So the
+   curve `(a, S/(4a))` of `amgm_min_shift` is one theorem plus a rescaling, and `a = 1/2` is just
+   the `a = 1/2` point of it.  The ladder's actual sharp shift at ratio `a` is smaller, and the
+   smallest section where this shows is two modes: `δ_n` and `δ_{n+eᵢ}` with the other occupations
+   zero, where `Q = dα² + (d+1)β²`, the form is `2Aᵢαβ`, and the sharp constant is the top of a
+   `2 × 2` problem, `twoModeShift A a d = √(A² + a²/4) − a(2d+1)/2` (`twoModeShift_key` its
+   determinant identity, `twoModeShift_le` the bound, `twoModeRatio_shift` attainment at
+   `(α, β) = (A, ad + γ)`).  At `A = 1`, `a = 1/2`, `d = 1` that is `(√17 − 3)/4 ≈ 0.2808` against
+   the termwise `A²/(4a) = 1/2`, so the sum over directions does beat the sum of the termwise
+   bounds: `S/(4a)` is the least *termwise* shift, not the global constant.  The global constant is
+   the top of the full spectral problem on `Q(N^{1/2})`-type domains and is not claimed here.
+
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
 separation `β∞ − θ∞ ≥ c₁Δ_ref` is still an input there (see the status of Phase 4).

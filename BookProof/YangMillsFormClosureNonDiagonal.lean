@@ -1713,6 +1713,230 @@ lower the shift at fixed ratio, and none can lower the ratio at fixed shift. -/
 example : (2 : ℝ) * 1 * 1 = 2 * ((1 : ℝ) / 2) * 1 ^ 2 + 2 * ((1 : ℝ) / 2) * 1 ^ 2 := by
   norm_num
 
+/-- **The ladder is linear in the field strength**: one shift term scales as `c ·` the shift term
+of `A`.  This is what makes the whole ratio family a *dilation* of the unit-weight ladder rather
+than a separate estimate. -/
+theorem magShiftTerm_smul {Λ : ℕ} (A : Fin d → ℝ) (c : ℝ) (n : Fin d → Fin Λ) (i : Fin d)
+    (m : Fin d → Fin Λ) :
+    magShiftTerm (fun i => c * A i) n i m = (c : ℂ) * magShiftTerm A n i m := by
+  classical
+  simp only [magShiftTerm]
+  by_cases h : (n i).val + 1 < Λ
+  · rw [dif_pos h, dif_pos h]
+    by_cases hm : m = Function.update n i ⟨(n i).val + 1, h⟩
+    · rw [if_pos hm, if_pos hm]
+      push_cast
+      ring
+    · rw [if_neg hm, if_neg hm, mul_zero]
+  · rw [dif_neg h, dif_neg h, mul_zero]
+
+/-- **The ladder kernel is linear in the field strength.** -/
+theorem magCutoffKernel_smul {Λ : ℕ} (A : Fin d → ℝ) (c : ℝ) (m n : Fin d → Fin Λ) :
+    magCutoffKernel (fun i => c * A i) m n = (c : ℂ) * magCutoffKernel A m n := by
+  rw [magCutoffKernel, magCutoffKernel, Finset.mul_sum]
+  exact Finset.sum_congr rfl fun i _ => magShiftTerm_smul A c n i m
+
+/-- **The ladder form is linear in the field strength.** -/
+theorem ladder_form_smul {Λ : ℕ} (A : Fin d → ℝ) (c : ℝ) (x : (Fin d → Fin Λ) → ℂ) :
+    (∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel (fun i => c * A i) m n * x n)
+      = (c : ℂ) * ∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n := by
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun m _ => ?_
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [magCutoffKernel_smul]
+  ring
+
+/-- **The ladder-level bound at every ratio `a > 0`.**  With `Q(x) = Σₙ (Σᵢ (nᵢ+1)) ‖x n‖²` and
+`S = Σᵢ Aᵢ²`,
+
+`‖q_K(x)‖ ≤ a Q(x) + (S/(4a)) ‖x‖²`,
+
+which is the point `(a, S/(4a))` of the frontier `amgm_min_shift` — `a = 1/2` is
+`ladder_form_norm_le`.  It is proved by dilation: `ladder_form_norm_le` applied to the field
+strength `A/(2a)` reads `‖q_A(x)‖/(2a) ≤ ½Q + (S/(8a²))‖x‖²`, and multiplying by `2a` is the
+statement.  So the whole frontier is one theorem and a rescaling, not one theorem per weight. -/
+theorem ladder_form_norm_le_of_ratio {Λ : ℕ} (A : Fin d → ℝ) {a : ℝ} (ha : 0 < a)
+    (x : (Fin d → Fin Λ) → ℂ) :
+    ‖∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n‖
+      ≤ a * (∑ n, (∑ i, ((n i).val + 1 : ℝ)) * ‖x n‖ ^ 2)
+        + ((∑ i, A i ^ 2) / (4 * a)) * (∑ n, ‖x n‖ ^ 2) := by
+  classical
+  set q : ℂ := ∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n with hq
+  set Q : ℝ := ∑ n, (∑ i, ((n i).val + 1 : ℝ)) * ‖x n‖ ^ 2 with hQ
+  set S : ℝ := ∑ i, A i ^ 2 with hS
+  set N : ℝ := ∑ n, ‖x n‖ ^ 2 with hN
+  set c : ℝ := 1 / (2 * a) with hc
+  have hcpos : 0 < c := by rw [hc]; positivity
+  have h := ladder_form_norm_le (Λ := Λ) (A := fun i => c * A i) x
+  have hSs : (∑ i : Fin d, (c * A i) ^ 2) = c ^ 2 * S := by
+    rw [hS, Finset.mul_sum]
+    exact Finset.sum_congr rfl fun i _ => by ring
+  have hq' : (∑ m, ∑ n, (starRingEnd ℂ) (x m)
+        * magCutoffKernel (fun i => c * A i) m n * x n) = (c : ℂ) * q := by
+    rw [hq]
+    exact ladder_form_smul A c x
+  rw [← hQ, ← hN, hSs, hq', norm_mul, Complex.norm_real, Real.norm_eq_abs,
+    abs_of_pos hcpos] at h
+  have h2a : (0 : ℝ) < 2 * a := by positivity
+  have hmul := mul_le_mul_of_nonneg_left h (le_of_lt h2a)
+  have e1 : 2 * a * (c * ‖q‖) = ‖q‖ := by
+    rw [hc]
+    field_simp
+  have e2 : 2 * a * ((1 / 2) * Q + (1 / 2) * (c ^ 2 * S) * N) = a * Q + S / (4 * a) * N := by
+    rw [hc]
+    field_simp
+    ring
+  rw [e1, e2] at hmul
+  exact hmul
+
+/-! ## 11.1 The two-mode section: why the termwise shift is not the global optimum
+
+§11 is a statement about the *weight*: it says `b = S/(4a)` is the least shift that a termwise
+AM–GM at ratio `a` can charge, and it is attained term by term.  That is not the same as the sharp
+constant of the ladder, because the sum over `i` in `ladder_form_eq_sum` may beat the sum of the
+termwise bounds when the `Aᵢ` differ.
+
+This subsection computes the sharp constant on the smallest section where the difference shows: the
+two modes `δ_n` and `δ_{n+eᵢ}`, with every other occupation zero, so that `Q(δ_n) = d` and
+`Q(δ_{n+eᵢ}) = d + 1` and the matrix element is `Aᵢ√(nᵢ+1) = Aᵢ`.  Writing the state as `(α, β)` the
+form is `2Aαβ` and `Q` is `dα² + (d+1)β²`, so the sharp shift is the top eigenvalue of a `2 × 2`
+problem, and it is **not** `A²/(4a)`: it is `√(A² + a²/4) − a(2d+1)/2`.  The two agree only in the
+limit `a → 0`, which is exactly where the termwise constant blows up. -/
+
+/-- The sharp shift constant of the ladder on the two-mode section: `√(A² + a²/4) − a(2d+1)/2`. -/
+noncomputable def twoModeShift (A a : ℝ) (d : ℕ) : ℝ :=
+  Real.sqrt (A ^ 2 + a ^ 2 / 4) - a * ((2 * (d : ℝ) + 1) / 2)
+
+/-- The shift functional on the two-mode section, as a Rayleigh quotient in the amplitudes
+`(α, β)`: `(2Aαβ − a(dα² + (d+1)β²))/(α² + β²)`.  Its supremum is `twoModeShift`. -/
+noncomputable def twoModeRatio (A a : ℝ) (d : ℕ) (α β : ℝ) : ℝ :=
+  (2 * A * α * β - a * ((d : ℝ) * α ^ 2 + ((d : ℝ) + 1) * β ^ 2)) / (α ^ 2 + β ^ 2)
+
+/-- **The characteristic identity of the two-mode optimum.**  `γ = √(A² + a²/4) − a(2d+1)/2`
+solves `γ² + a(2d+1)γ + a²d(d+1) = A²`, i.e. the `2 × 2` determinant condition
+`(ad + γ)(a(d+1) + γ) = A²` at which the section's matrix has a kernel vector. -/
+theorem twoModeShift_key (A a : ℝ) (d : ℕ) :
+    twoModeShift A a d ^ 2 + a * (2 * (d : ℝ) + 1) * twoModeShift A a d
+        + a ^ 2 * (d : ℝ) * ((d : ℝ) + 1) = A ^ 2 := by
+  have hm : twoModeShift A a d + a * (2 * (d : ℝ) + 1) / 2
+      = Real.sqrt (A ^ 2 + a ^ 2 / 4) := by
+    simp only [twoModeShift]
+    ring
+  have hs : Real.sqrt (A ^ 2 + a ^ 2 / 4) ^ 2 = A ^ 2 + a ^ 2 / 4 :=
+    Real.sq_sqrt (by positivity)
+  have h2 : (twoModeShift A a d + a * (2 * (d : ℝ) + 1) / 2) ^ 2 = A ^ 2 + a ^ 2 / 4 := by
+    rw [hm, hs]
+  nlinarith [h2]
+
+/-- **AM–GM with a determinant hypothesis**: `2Aαβ ≤ sα² + tβ²` whenever `s, t ≥ 0` and
+`A² ≤ st`.  This is the `2 × 2` positivity used below, in the form that does not need a square root
+of `s` or `t` to be nonzero. -/
+theorem two_mul_le_of_sq_le_mul {A s t : ℝ} (hs : 0 ≤ s) (ht : 0 ≤ t) (hA : A ^ 2 ≤ s * t)
+    (α β : ℝ) : 2 * A * α * β ≤ s * α ^ 2 + t * β ^ 2 := by
+  have h1 : 2 * A * α * β ≤ 2 * |A| * (|α| * |β|) := by
+    have hle : A * α * β ≤ |A| * (|α| * |β|) := by
+      have h2 := le_abs_self (A * α * β)
+      have h3 : |A * α * β| = |A| * (|α| * |β|) := by
+        rw [abs_mul, abs_mul]
+        ring
+      rw [h3] at h2
+      exact h2
+    linarith
+  have h2 : 2 * |A| * (|α| * |β|) ≤ 2 * Real.sqrt (s * t) * (|α| * |β|) := by
+    have hst : |A| ≤ Real.sqrt (s * t) := by
+      rw [← Real.sqrt_sq (abs_nonneg A)]
+      refine Real.sqrt_le_sqrt ?_
+      rw [sq_abs]
+      exact hA
+    have h0 : 0 ≤ |α| * |β| := by positivity
+    nlinarith
+  have h3 : 2 * Real.sqrt (s * t) * (|α| * |β|) ≤ s * α ^ 2 + t * β ^ 2 := by
+    have hmul : Real.sqrt (s * t) = Real.sqrt s * Real.sqrt t := Real.sqrt_mul hs t
+    have hs' : Real.sqrt s ^ 2 = s := Real.sq_sqrt hs
+    have ht' : Real.sqrt t ^ 2 = t := Real.sq_sqrt ht
+    have hsq : 2 * (Real.sqrt s * |α|) * (Real.sqrt t * |β|)
+        ≤ (Real.sqrt s * |α|) ^ 2 + (Real.sqrt t * |β|) ^ 2 := two_mul_le_add_sq _ _
+    have e1 : 2 * (Real.sqrt s * |α|) * (Real.sqrt t * |β|)
+        = 2 * (Real.sqrt s * Real.sqrt t) * (|α| * |β|) := by ring
+    have e2 : (Real.sqrt s * |α|) ^ 2 + (Real.sqrt t * |β|) ^ 2 = s * α ^ 2 + t * β ^ 2 := by
+      rw [mul_pow, mul_pow, hs', ht', sq_abs α, sq_abs β]
+    rw [e1, e2] at hsq
+    rw [hmul]
+    exact hsq
+  linarith
+
+/-- **The two-mode optimum is an upper bound.**  For every nonzero amplitude pair, the ladder's
+shift functional on the two-mode section is at most `√(A² + a²/4) − a(2d+1)/2`.  Note this is a
+statement at a *fixed* ratio `a`, and the constant is strictly smaller than the termwise `A²/(4a)` —
+see the worked comparison below. -/
+theorem twoModeShift_le {A a : ℝ} {d : ℕ} (ha : 0 < a) (α β : ℝ) (hαβ : 0 < α ^ 2 + β ^ 2) :
+    twoModeRatio A a d α β ≤ twoModeShift A a d := by
+  set γ : ℝ := twoModeShift A a d with hγdef
+  set s : ℝ := a * (d : ℝ) + γ with hsdef
+  set t : ℝ := a * ((d : ℝ) + 1) + γ with htdef
+  have hkey : γ ^ 2 + a * (2 * (d : ℝ) + 1) * γ + a ^ 2 * (d : ℝ) * ((d : ℝ) + 1) = A ^ 2 := by
+    rw [hγdef]
+    exact twoModeShift_key A a d
+  have hsqrt : s = Real.sqrt (A ^ 2 + a ^ 2 / 4) - a / 2 := by
+    rw [hsdef, hγdef]
+    simp only [twoModeShift]
+    ring
+  have hs : 0 ≤ s := by
+    rw [hsqrt]
+    have hmono : Real.sqrt (a ^ 2 / 4) ≤ Real.sqrt (A ^ 2 + a ^ 2 / 4) :=
+      Real.sqrt_le_sqrt (by nlinarith [sq_nonneg A])
+    have hval : Real.sqrt (a ^ 2 / 4) = a / 2 := by
+      rw [show a ^ 2 / 4 = (a / 2) ^ 2 by ring, Real.sqrt_sq (by positivity)]
+    linarith
+  have ht : 0 ≤ t := by
+    rw [htdef]
+    nlinarith [hs, ha]
+  have hst : A ^ 2 ≤ s * t := by
+    rw [hsdef, htdef]
+    nlinarith [hkey]
+  have h := two_mul_le_of_sq_le_mul hs ht hst α β
+  rw [twoModeRatio, div_le_iff₀ hαβ]
+  nlinarith [h]
+
+/-- **The two-mode optimum is attained**, with `A ≠ 0`: the pair `(α, β) = (A, ad + γ)` is the
+kernel vector of the section's matrix, so the Rayleigh quotient is exactly `γ`.  Hence
+`twoModeShift` is not merely a bound but the supremum on the section — the termwise `A²/(4a)` is a
+strictly worse constant whenever the section is nontrivial. -/
+theorem twoModeRatio_shift {A a : ℝ} {d : ℕ} (hA : A ≠ 0) :
+    twoModeRatio A a d A (a * (d : ℝ) + twoModeShift A a d) = twoModeShift A a d := by
+  set γ : ℝ := twoModeShift A a d with hγdef
+  have hkey : γ ^ 2 + a * (2 * (d : ℝ) + 1) * γ + a ^ 2 * (d : ℝ) * ((d : ℝ) + 1) = A ^ 2 := by
+    rw [hγdef]
+    exact twoModeShift_key A a d
+  have hA2 : 0 < A ^ 2 := by
+    rcases lt_or_gt_of_ne hA with h | h <;> nlinarith
+  have hnorm : A ^ 2 + (a * (d : ℝ) + γ) ^ 2 ≠ 0 := by positivity
+  have hprod : (a * (d : ℝ) + γ) * (a * ((d : ℝ) + 1) + γ) = A ^ 2 := by
+    nlinarith [hkey]
+  rw [twoModeRatio, div_eq_iff hnorm]
+  rw [show 2 * A * A * (a * (d : ℝ) + γ) = 2 * A ^ 2 * (a * (d : ℝ) + γ) by ring]
+  rw [← hprod]
+  ring
+
+/-- **Worked comparison (the termwise shift is not the two-mode optimum).**  At `A = 1`, `a = 1/2`,
+`d = 1` the two-mode optimum is `√(17)/4 − 3/4 = (√17 − 3)/4 ≈ 0.2808`, while the termwise frontier
+of §11 charges `A²/(4a) = 1/2` at the same ratio.  So `amgm_min_shift`'s `S/(4a)` is the best
+*termwise* shift, and the ladder's actual sharp shift at ratio `1/2` on this section is strictly
+smaller — the sum over directions does beat the sum of termwise bounds. -/
+example : twoModeShift 1 (1 / 2) 1 < (1 : ℝ) ^ 2 / (4 * (1 / 2)) := by
+  have hval : twoModeShift 1 (1 / 2) 1 = Real.sqrt (17 / 16) - 3 / 4 := by
+    simp only [twoModeShift]
+    norm_num
+  rw [hval]
+  have h : Real.sqrt (17 / 16 : ℝ) < 5 / 4 := by
+    calc Real.sqrt (17 / 16) < Real.sqrt ((5 / 4) ^ 2) :=
+          Real.sqrt_lt_sqrt (by norm_num) (by norm_num)
+      _ = 5 / 4 := Real.sqrt_sq (by norm_num)
+  have hrhs : (1 : ℝ) ^ 2 / (4 * (1 / 2)) = 1 / 2 := by norm_num
+  rw [hrhs]
+  linarith
+
 /-! ## 12. The cut-off ladder as a kernel on `Idx d`: the box embedding
 
 §10 proves the sharp bound for `x : (Fin d → Fin Λ) → ℂ`, on the cut-off box; the closed-form
