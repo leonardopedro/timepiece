@@ -1397,4 +1397,268 @@ theorem ladder_closed_domination_sharp {μ g : Idx d → ℝ} {K : Idx d → Idx
   norm_num at hx' ⊢
   linarith
 
+/-! ## 11. The Pareto frontier of the weight family
+
+`amgm_weight_family` writes the AM–GM step with one free weight `ε > 0`: `2st ≤ ε s² + t²/ε`.
+Read in the ratio/shift coordinates of the ladder — `a = ε/2` on the occupation form and
+`b = 1/(2ε)` on the vector norm, scaled by `Σᵢ Aᵢ²` in the ladder — the weight moves along the
+curve `a b = 1/4`.  The theorems below make that a statement about the frontier instead of a remark:
+the termwise inequality holds for **all** `s, t` exactly when `a b ≥ 1/4`, and for a fixed ratio `a`
+the least admissible shift is `1/(4a)`, attained at `s = t/(2a)`.  So no weight in the family is a
+weakening of another — each is sharp, and choosing `ε` is choosing the point `(ε/2, 1/(2ε))` on one
+curve.  Everything here is termwise; for the ladder the sum over `i` may beat the sum of the
+termwise bounds when the `Aᵢ` differ, so the frontier below is the frontier of the *weight*. -/
+
+/-- **The square identity behind the frontier.**  For `a ≠ 0`,
+`2a s² + 2(1/(4a)) t² − 2 s t = 2a (s − t/(2a))²`. -/
+theorem amgm_frontier_identity {a : ℝ} (ha : a ≠ 0) (s t : ℝ) :
+    2 * a * s ^ 2 + 2 * (1 / (4 * a)) * t ^ 2 - 2 * s * t
+      = 2 * a * (s - t / (2 * a)) ^ 2 := by
+  field_simp
+  ring
+
+/-- **The frontier: `ab ≥ 1/4` is exactly the condition for the termwise bound.**  For `a > 0`,
+`2st ≤ 2a s² + 2b t²` for every real `s, t` if and only if `a b ≥ 1/4`.  (⇒) is tested at
+`s = 1/(2a)`, `t = 1`; (⇐) is the square identity. -/
+theorem amgm_pareto_iff {a b : ℝ} (ha : 0 < a) :
+    (∀ s t : ℝ, 2 * s * t ≤ 2 * a * s ^ 2 + 2 * b * t ^ 2) ↔ 1 / 4 ≤ a * b := by
+  constructor
+  · intro h
+    have h1 := h (1 / (2 * a)) 1
+    have hval : 2 * a * (1 / (2 * a)) ^ 2 + 2 * b * 1 ^ 2 - 2 * (1 / (2 * a)) * 1
+        = 2 * b - 1 / (2 * a) := by
+      field_simp
+      ring
+    have h2 : 1 / (2 * a) ≤ 2 * b := by linarith
+    have h3 : a * (1 / (2 * a)) = 1 / 2 := by
+      field_simp
+    have h4 : a * (2 * b) = 2 * (a * b) := by ring
+    have h5 := mul_le_mul_of_nonneg_left h2 (le_of_lt ha)
+    rw [h3, h4] at h5
+    linarith
+  · intro h s t
+    have hb : 1 / (4 * a) ≤ b := by
+      rw [div_le_iff₀ (by positivity : (0 : ℝ) < 4 * a)]
+      linarith
+    have hid := amgm_frontier_identity (ne_of_gt ha) s t
+    have hstep : 2 * (1 / (4 * a)) * t ^ 2 ≤ 2 * b * t ^ 2 := by
+      have := mul_le_mul_of_nonneg_right hb (by positivity : (0 : ℝ) ≤ 2 * t ^ 2)
+      linarith
+    have hnn : 0 ≤ 2 * a * (s - t / (2 * a)) ^ 2 := by positivity
+    linarith
+
+/-- **Pareto: for a fixed ratio the shift `1/(4a)` is minimal.**  The termwise bound holds at
+`b = 1/(4a)`, and every admissible `b` satisfies `1/(4a) ≤ b` — so `b = S/(4a)` (the ladder's shift
+coefficient, with `S = Σᵢ Aᵢ²`) is the least shift the weight can charge for ratio `a`, and by
+`amgm_pareto_iff` it is attained.  Together with `amgm_weight_family` this says the family
+`(ε/2, Σᵢ Aᵢ²/(2ε))` *is* the frontier rather than a sufficient condition on it. -/
+theorem amgm_min_shift {a : ℝ} (ha : 0 < a) :
+    (∀ s t : ℝ, 2 * s * t ≤ 2 * a * s ^ 2 + 2 * (1 / (4 * a)) * t ^ 2) ∧
+      ∀ b : ℝ, (∀ s t : ℝ, 2 * s * t ≤ 2 * a * s ^ 2 + 2 * b * t ^ 2) → 1 / (4 * a) ≤ b := by
+  refine ⟨?_, ?_⟩
+  · intro s t
+    refine (amgm_pareto_iff (a := a) (b := 1 / (4 * a)) ha).mpr ?_ s t
+    have hone : a * (1 / (4 * a)) = 1 / 4 := by
+      field_simp
+    linarith
+  · intro b hb
+    have h := (amgm_pareto_iff (a := a) (b := b) ha).mp hb
+    rw [div_le_iff₀ (by positivity : (0 : ℝ) < 4 * a)]
+    linarith
+
+/-- **Every member of `amgm_weight_family` is a point of the frontier.**  The bound
+`2st ≤ ε s² + t²/ε` is the strength-`(ε/2, 1/(2ε))` termwise bound, and `(ε/2)·(1/(2ε)) = 1/4` for
+every `ε > 0`: all weights lie on the same curve, so `amgm_weight_family` has no slack to give at
+any weight, and the choice of `ε` is a choice of position, not of strength. -/
+theorem amgm_weight_family_frontier {ε : ℝ} (hε : 0 < ε) (s t : ℝ) :
+    2 * s * t ≤ 2 * (ε / 2) * s ^ 2 + 2 * (1 / (2 * ε)) * t ^ 2 := by
+  have h := amgm_weight_family hε s t
+  have hid : 2 * (ε / 2) * s ^ 2 + 2 * (1 / (2 * ε)) * t ^ 2 = ε * s ^ 2 + t ^ 2 / ε := by
+    field_simp <;> ring
+  rw [hid]
+  exact h
+
+/-- The frontier product of the weight family: `(ε/2)·(1/(2ε)) = 1/4` at every `ε > 0`. -/
+theorem amgm_weight_frontier_product {ε : ℝ} (hε : 0 < ε) :
+    (ε / 2) * (1 / (2 * ε)) = 1 / 4 := by
+  field_simp <;> norm_num
+
+/-- The ladder's shift coefficient in ratio coordinates: at weight `ε` the ratio is `a = ε/2` and
+the shift is `S/(2ε) = S/(4a)`, i.e. the frontier of `amgm_min_shift` scaled by `S = Σᵢ Aᵢ²`. -/
+theorem ladder_shift_of_ratio {S ε : ℝ} :
+    S / (2 * ε) = S / (4 * (ε / 2)) := by
+  have h : 4 * (ε / 2) = 2 * ε := by ring
+  rw [h]
+
+/-- **The frontier is attained, not merely approached.**  At the unit weight the ladder bound reads
+`(a, b) = (1/2, 1/2)`, `ab = 1/4`, and equality holds at `s = t = 1`: `2st = 2` and
+`2a s² + 2b t² = 2`.  That is the case `s = t/(2a)` of `amgm_frontier_identity`, so no weight can
+lower the shift at fixed ratio, and none can lower the ratio at fixed shift. -/
+example : (2 : ℝ) * 1 * 1 = 2 * ((1 : ℝ) / 2) * 1 ^ 2 + 2 * ((1 : ℝ) / 2) * 1 ^ 2 := by
+  norm_num
+
+/-! ## 12. The cut-off ladder as a kernel on `Idx d`: the box embedding
+
+§10 proves the sharp bound for `x : (Fin d → Fin Λ) → ℂ`, on the cut-off box; the closed-form
+theorem consumes a kernel on `Idx d = Fin d → ℕ`.  The two are connected here and nowhere else: the
+componentwise embedding `boxEmbed n i = (n i).val` is injective, the finite matrix is continued by
+zero off its image, and `boxKernel_hs_finset` shows the extended kernel satisfies the Finset
+Hilbert–Schmidt condition with the **cut-off mass itself** as the constant.  Then
+`ladder_closed_domination_box` applies `ladder_closed_domination_sharp` with nothing left to assume:
+the ratio is `1/2` and the shift is `½c₂ + √(mass)`, so the sharp bound of §10 and the closed-form
+domination are the same statement read on two index types. -/
+
+/-- The cut-off box: multi-indices whose every occupation is below `Λ`. -/
+def InBox {Λ : ℕ} (m : Idx d) : Prop := ∀ i, m i < Λ
+
+instance {Λ : ℕ} : DecidablePred (InBox (Λ := Λ) (d := d)) := fun m =>
+  show Decidable (∀ i, m i < Λ) from inferInstance
+
+/-- The componentwise embedding of the cut-off box into `Idx d`. -/
+def boxEmbed {Λ : ℕ} (n : Fin d → Fin Λ) : Idx d := fun i => (n i).val
+
+theorem boxEmbed_injective {Λ : ℕ} : Function.Injective (boxEmbed (Λ := Λ) (d := d)) := by
+  intro m n h
+  funext i
+  exact Fin.ext (congrFun h i)
+
+theorem boxEmbed_mem {Λ : ℕ} (n : Fin d → Fin Λ) : InBox (Λ := Λ) (boxEmbed n) :=
+  fun i => (n i).isLt
+
+/-- Read a box element back out of `Idx d`. -/
+def boxInv {Λ : ℕ} (m : Idx d) (h : InBox (Λ := Λ) m) : Fin d → Fin Λ :=
+  fun i => ⟨m i, h i⟩
+
+theorem boxEmbed_boxInv {Λ : ℕ} (m : Idx d) (h : InBox (Λ := Λ) m) :
+    boxEmbed (boxInv m h) = m := rfl
+
+theorem boxInv_boxEmbed {Λ : ℕ} (n : Fin d → Fin Λ) (h : InBox (Λ := Λ) (boxEmbed n)) :
+    boxInv (boxEmbed n) h = n := by
+  funext i
+  exact Fin.ext rfl
+
+theorem exists_boxEmbed {Λ : ℕ} {m : Idx d} (h : InBox (Λ := Λ) m) :
+    ∃ n : Fin d → Fin Λ, boxEmbed n = m :=
+  ⟨boxInv m h, boxEmbed_boxInv m h⟩
+
+/-- **The cut-off ladder continued by zero off the box.**  On the box this is `magCutoffKernel`;
+everywhere else it is `0`. -/
+def boxKernel (Λ : ℕ) (A : Fin d → ℝ) (m n : Idx d) : ℂ :=
+  if h : InBox (Λ := Λ) m ∧ InBox (Λ := Λ) n then
+    magCutoffKernel A (boxInv m h.1) (boxInv n h.2)
+  else 0
+
+theorem boxKernel_eq_zero_left (Λ : ℕ) (A : Fin d → ℝ) {m n : Idx d}
+    (h : ¬ InBox (Λ := Λ) m) : boxKernel Λ A m n = 0 := by
+  unfold boxKernel
+  exact dif_neg fun hc => h hc.1
+
+theorem boxKernel_eq_zero_right (Λ : ℕ) (A : Fin d → ℝ) {m n : Idx d}
+    (h : ¬ InBox (Λ := Λ) n) : boxKernel Λ A m n = 0 := by
+  unfold boxKernel
+  exact dif_neg fun hc => h hc.2
+
+/-- On the box the extended kernel is the cut-off ladder. -/
+theorem boxKernel_boxEmbed (Λ : ℕ) (A : Fin d → ℝ) (m n : Fin d → Fin Λ) :
+    boxKernel Λ A (boxEmbed m) (boxEmbed n) = magCutoffKernel A m n := by
+  have h1 : InBox (Λ := Λ) (boxEmbed (d := d) m) := boxEmbed_mem m
+  have h2 : InBox (Λ := Λ) (boxEmbed (d := d) n) := boxEmbed_mem n
+  unfold boxKernel
+  rw [dif_pos ⟨h1, h2⟩, boxInv_boxEmbed, boxInv_boxEmbed]
+
+/-- A sum equals its sum over the part where the summand can be nonzero, for a summand that
+vanishes off a decidable predicate. -/
+theorem sum_eq_sum_filter_of_zero {α : Type*} (s : Finset α) (p : α → Prop)
+    [DecidablePred p] (f : α → ℝ) (hzero : ∀ x, ¬ p x → f x = 0) :
+    ∑ x ∈ s, f x = ∑ x ∈ s.filter p, f x := by
+  rw [Finset.sum_filter]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  by_cases h : p x
+  · rw [if_pos h]
+  · rw [if_neg h, hzero x h]
+
+/-- **The cut-off ladder's Hilbert–Schmidt condition, with the cut-off mass as the constant.**  Off
+the box every entry vanishes; on the box the mass is the finite sum `∑_{m,n} ‖K m n‖²` reindexed by
+the injective `boxEmbed`.  Hence the constant is the mass itself — no bound on it is used here, so
+`magCutoffKernel_hs_mass` and this lemma together give the `Λ`-dependent constant of §7 as the exact
+value rather than an estimate. -/
+theorem boxKernel_hs_finset (Λ : ℕ) (A : Fin d → ℝ) (s : Finset (Idx d)) :
+    ∑ m ∈ s, ∑ n ∈ s, ‖boxKernel Λ A m n‖ ^ 2
+      ≤ ∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2 := by
+  classical
+  set B : Finset (Idx d) := Finset.univ.image (boxEmbed (Λ := Λ) (d := d)) with hB
+  have hmem : ∀ m : Idx d, InBox (Λ := Λ) m → m ∈ B := by
+    intro m h
+    obtain ⟨n, rfl⟩ := exists_boxEmbed h
+    exact Finset.mem_image_of_mem _ (Finset.mem_univ n)
+  have hinj : ∀ x ∈ (Finset.univ : Finset (Fin d → Fin Λ)), ∀ y ∈ Finset.univ,
+      boxEmbed (Λ := Λ) (d := d) x = boxEmbed y → x = y :=
+    fun x _ y _ h => boxEmbed_injective h
+  have himg : ∀ G : Idx d → ℝ,
+      ∑ m ∈ B, G m = ∑ m : Fin d → Fin Λ, G (boxEmbed (d := d) m) := by
+    intro G
+    rw [hB]
+    exact Finset.sum_image hinj
+  have hBB : ∑ m ∈ B, ∑ n ∈ B, ‖boxKernel Λ A m n‖ ^ 2
+      = ∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2 := by
+    rw [himg (fun m => ∑ n ∈ B, ‖boxKernel Λ A m n‖ ^ 2)]
+    refine Finset.sum_congr rfl fun m _ => ?_
+    exact (himg (fun n => ‖boxKernel Λ A (boxEmbed (d := d) m) n‖ ^ 2)).trans
+      (Finset.sum_congr rfl fun n _ => by rw [boxKernel_boxEmbed])
+  have hs1 : ∑ m ∈ s, ∑ n ∈ s, ‖boxKernel Λ A m n‖ ^ 2
+      = ∑ m ∈ s.filter (InBox (Λ := Λ)), ∑ n ∈ s, ‖boxKernel Λ A m n‖ ^ 2 :=
+    sum_eq_sum_filter_of_zero s (InBox (Λ := Λ)) _
+      (fun m hm => Finset.sum_eq_zero fun n _ => by
+        rw [boxKernel_eq_zero_left Λ A hm]
+        simp)
+  have hs2 : ∀ m : Idx d, ∑ n ∈ s, ‖boxKernel Λ A m n‖ ^ 2
+      = ∑ n ∈ s.filter (InBox (Λ := Λ)), ‖boxKernel Λ A m n‖ ^ 2 := fun m =>
+    sum_eq_sum_filter_of_zero s (InBox (Λ := Λ)) _
+      (fun n hn => by
+        rw [boxKernel_eq_zero_right Λ A hn]
+        simp)
+  calc ∑ m ∈ s, ∑ n ∈ s, ‖boxKernel Λ A m n‖ ^ 2
+      = ∑ m ∈ s.filter (InBox (Λ := Λ)), ∑ n ∈ s.filter (InBox (Λ := Λ)),
+          ‖boxKernel Λ A m n‖ ^ 2 := by
+        rw [hs1]
+        exact Finset.sum_congr rfl fun m _ => hs2 m
+    _ ≤ ∑ m ∈ s.filter (InBox (Λ := Λ)), ∑ n ∈ B, ‖boxKernel Λ A m n‖ ^ 2 := by
+        refine Finset.sum_le_sum fun m _ => ?_
+        refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun n _ _ => by positivity)
+        intro n hn
+        exact hmem n (Finset.mem_filter.mp hn).2
+    _ ≤ ∑ m ∈ B, ∑ n ∈ B, ‖boxKernel Λ A m n‖ ^ 2 := by
+        refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun m _ _ => ?_)
+        · intro m hm
+          exact hmem m (Finset.mem_filter.mp hm).2
+        · exact Finset.sum_nonneg fun n _ => by positivity
+    _ = ∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2 := hBB
+
+/-- **The cut-off ladder feeds the closed form directly.**  `ladder_closed_domination_sharp` with
+the box-extended kernel: the Hilbert–Schmidt constant is the square root of the cut-off mass, so the
+`L²` form dominates with ratio `1/2` and shift `½c₂ + √(m_Λ)`.  The only inputs are the diagonal
+domination of `μ` by `g` and the field strength `A`; the box, the mass and the finiteness of the
+closed form are handled here. -/
+theorem ladder_closed_domination_box {Λ : ℕ} {A : Fin d → ℝ} {μ g : Idx d → ℝ} {c₁ c₂ : ℝ}
+    (hc₁ : 0 < c₁)
+    (hdom : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2 ≤ (closedForm g x).toReal) :
+    0 < (1 / 2) * c₁ ∧
+      ∀ x : L2 d, closedForm g x ≠ ⊤ →
+        (1 / 2) * c₁ * (closedForm μ x).toReal
+            - ((1 / 2) * c₂
+              + Real.sqrt (∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ,
+                  ‖magCutoffKernel A m n‖ ^ 2)) * ‖x‖ ^ 2
+          ≤ (closedForm g x).toReal + closedKernelForm (boxKernel Λ A) x := by
+  refine ladder_closed_domination_sharp (K := boxKernel Λ A)
+    (σ := Real.sqrt (∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ,
+      ‖magCutoffKernel A m n‖ ^ 2)) hc₁ hdom (Real.sqrt_nonneg _) ?_
+  intro s
+  have hmass : (Real.sqrt (∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ,
+      ‖magCutoffKernel A m n‖ ^ 2)) ^ 2
+      = ∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2 :=
+    Real.sq_sqrt (by positivity)
+  rw [hmass]
+  exact boxKernel_hs_finset Λ A s
+
 end BookProof.YangMillsFormClosureND

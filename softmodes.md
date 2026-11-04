@@ -387,6 +387,23 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    any finite chain, with mass `∑_x ∏_j ‖F_j x‖²`, so a chain of same-point outer fields reads as a
    momentum-transfer form with the product's Hilbert–Schmidt constant and no distribution product.
 
+   The same results are connected to the closed form and to the four-torus.  The cut-off box
+   `Fin d → Fin Λ` embeds componentwise in `Idx d = Fin d → ℕ`, and `boxKernel` continues the ladder
+   by zero off the box with the cut-off mass itself as its Hilbert–Schmidt constant
+   (`boxKernel_hs_finset`, exact and not a bound), so `ladder_closed_domination_box` applies the `L²`
+   domination with ratio `1/2` and shift `½c₂ + √m_Λ` with nothing left to assume about the box,
+   the mass or the support.  What is still open is the uniform constant: `m_Λ` grows like
+   `Λ^{d+1}`, so the ratio is uniform in the cut-off and the shift is not.  The weight family is a
+   genuine frontier rather than a sufficient condition: `amgm_pareto_iff` shows that
+   `2st ≤ 2as² + 2bt²` for all `s, t` holds exactly when `ab ≥ 1/4`, `amgm_min_shift` shows `1/(4a)`
+   is the least shift admissible at ratio `a` and that it is attained at `s = t/(2a)`, and every `ε`
+   member satisfies `(ε/2)·(1/(2ε)) = 1/4` (`amgm_weight_frontier_product`), so no member of the
+   family is a weakening of another — choosing `ε` moves along the frontier.  On the four-torus the
+   chain is carried as far as that section supplies: `chain_hs_massT4` makes the mass of a chain at
+   a point of `(ℤ/n)⁴` multiplicative and `chain_form_eq_momentumT4` identifies the chain's form with
+   `momentumColT4 (∏ j, F j)`; there is no `momentumCol_hs_mass` analogue on the 4-torus, so there
+   the chain is read through the form rather than through the mass.
+
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
 separation `β∞ − θ∞ ≥ c₁Δ_ref` is still an input there (see the status of Phase 4).

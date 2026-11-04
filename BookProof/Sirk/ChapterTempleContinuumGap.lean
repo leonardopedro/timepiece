@@ -1092,6 +1092,36 @@ theorem samePointProductT4_real_self_form_nonneg (F : Torus4 (n := n) → ℝ)
     rw [Complex.ofReal_re]
     exact mul_nonneg (sq_nonneg (F x)) (Complex.normSq_nonneg (f x))
 
+/-- **A finite chain of coincident-point factors on the 4-torus keeps the mass multiplicative.**
+The four-torus reading of `chain_hs_mass`: `‖∏ j, F j x‖ = ∏ j, ‖F j x‖` pointwise, so the `ℓ²` mass
+of the chain at one point of `(ℤ/n)⁴` is the sum of the products of the squared pointwise norms. -/
+theorem chain_hs_massT4 {r : ℕ} (F : Fin r → Torus4 (n := n) → ℂ) :
+    ∑ x : Torus4 (n := n), ‖∏ j, F j x‖ ^ 2
+      = ∑ x : Torus4 (n := n), ∏ j, ‖F j x‖ ^ 2 := by
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [norm_prod, Finset.prod_pow]
+
+/-- **The form of a finite chain at a point of the 4-torus is its momentum-transfer form.**  The
+four-torus version of the `σ` reading in `chain_form_hs_bound`: the chain `∏ j, F j` enters the form
+only through `momentumColT4 (∏ j, F j)`, whose entries are the transform of the chain at the
+momentum transfer `k − i`, and `chain_hs_massT4` makes the mass multiplicative.  (This section
+carries the form identity rather than a Hilbert–Schmidt *bound*: `momentumCol_hs_mass` has no
+two-factor analogue in `MomentumProductTorus4`, so the four-torus chain is read through the form
+rather than through `momentumCol`'s mass.) -/
+theorem chain_form_eq_momentumT4 {r : ℕ} (F : Fin r → Torus4 (n := n) → ℂ)
+    (f : Torus4 (n := n) → ℂ) :
+    ∑ k : Torus4 (n := n), conj (dftT4 f k)
+        * ∑ i : Torus4 (n := n), momentumColT4 (fun x => ∏ j, F j x) k i * dftT4 f i
+      = (n : ℂ) ^ 4 * ∑ x : Torus4 (n := n), conj (f x) * (∏ j, F j x) * f x := by
+  have h := samePointProductT4_form_eq_momentum (fun x => ∏ j : Fin r, F j x)
+    (fun _ => (1 : ℂ)) f
+  have hsym : samePointProductT4 (fun x => ∏ j : Fin r, F j x) (fun _ => (1 : ℂ))
+      = fun x => ∏ j : Fin r, F j x := by
+    funext x
+    simp [samePointProductT4]
+  rw [hsym] at h
+  exact h
+
 end MomentumProductTorus4
 
 /-! ## 6. The strong-resolvent mode: the hypothesis `softmodes.md` §5.2 states
