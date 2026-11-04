@@ -3450,6 +3450,18 @@ import BookProof.YangMillsFormDomination
 -- and the Yang–Mills form of record is covered too (`yangMillsForm_eq_diagonalForm`,
 -- `yangMillsForm_closed`, `closed_yangMillsGap`).
 import BookProof.YangMillsFormClosure
+-- 2026-11-04 (`softmodes.md` Phases 1 and 4, the non-diagonal open items): Faris–Lavine for an
+-- interaction that mixes multi-indices.  `kernelForm K` is the kernel form on the core,
+-- `abs_kernelForm_le_of_hs` bounds it by the Hilbert–Schmidt constant times the core norm
+-- (two-index Cauchy–Schwarz, `kernelForm_sq_le`), and `farisLavine_domination` shows the sum form
+-- `q' + qK` still dominates the reference form with ratio `(1 − a)c₁ > 0` when the interaction is
+-- form bounded with relative bound `a < 1`.  `hopping_farisLavine` instantiates it with the matrix
+-- unit at `(m₀, n₀)` and keeps the ratio `c₁` unchanged, so the certified separation survives the
+-- coupling; §4 gives the same constant as a bottom: `sector_bottom_ge_interacting` shows that no
+-- sector of the core sees a bottom below `θ − σ`, i.e. that eliminating directions cannot remove
+-- the weight the bottoms of Phases 2–5 bound (`hopping_sector_bottom`: `σ = 1`).
+-- The `L²` lift of the interacting form is not claimed (see the file's honest boundary).
+import BookProof.YangMillsFormClosureNonDiagonal
 -- 2026-10-30 (`softmodes.md` Phase 2): Simon's transverse zero-point energy on the Cartan flat
 -- directions.  `parallelDegree`/`perpDegree`/`rootCount` split the degree form into Cartan and
 -- root parts; `zeroPoint g N = ½ g √(N + ½)` is the per-mode barrier, nonnegative, strictly

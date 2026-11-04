@@ -227,6 +227,24 @@ theorem physEvol_contractive (Λ : OSState) (T : TimeTranslation)
   rw [physEvol_mk, physNorm_mk, physNorm_mk]
   exact Real.sqrt_le_sqrt (hinv τ F)
 
+/-- **The evolution is the identity at time `0`**, read off the quotient from
+`timeTranslation_zero`. -/
+theorem physEvol_zero (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (x : PhysSpace Λ) : physEvol Λ T hinv 0 x = x := by
+  refine Submodule.Quotient.induction_on _ x fun F => ?_
+  rw [physEvol_mk, timeTranslation_zero]
+
+/-- **The evolution is a semigroup on the physical space**: `P(s + t) = P(s) ∘ P(t)`.  This is
+`timeTranslation_semigroup` under the quotient — the algebraic half of Phase 4.2's semigroup,
+before any topology is used. -/
+theorem physEvol_add (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (s t : ℝ) (x : PhysSpace Λ) :
+    physEvol Λ T hinv (s + t) x = physEvol Λ T hinv s (physEvol Λ T hinv t x) := by
+  refine Submodule.Quotient.induction_on _ x fun F => ?_
+  rw [physEvol_mk, physEvol_mk, physEvol_mk, timeTranslation_semigroup]
+
 /-- **The evolution extends to the completion** as a continuous linear map, by
 `LinearMap.extendOfNorm` along the dense embedding `𝔄/𝔑 ↪ ℋ`. -/
 def physEvolCompletion (Λ : OSState) (T : TimeTranslation)
@@ -266,6 +284,40 @@ theorem physEvolCompletion_contractive (Λ : OSState) (T : TimeTranslation)
         refine mul_le_mul_of_nonneg_right (norm_physEvolCompletion_le Λ T hinv τ) ?_
         exact norm_nonneg _
     _ = ‖z‖ := one_mul _
+
+/-! ## The semigroup law on the completion
+
+Contractivity is not a semigroup: `P(0) = 1` and `P(s + t) = P(s) P(t)` are separate statements,
+and on `ℋ` they hold because both sides are continuous and agree on the dense image of `𝔄 / 𝔑`,
+where they are `physEvol_zero` and `physEvol_add`.  This is the algebraic content Phase 4.2's
+Hille–Yosida step consumes; what it still does *not* supply is strong continuity at `0`, which is
+the hypothesis on the `TimeTranslation` and remains an input. -/
+
+/-- **`P(0) = 1` on `ℋ`.** -/
+theorem physEvolCompletion_zero (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F) :
+    physEvolCompletion Λ T hinv 0 = ContinuousLinearMap.id ℝ (Hphys Λ) := by
+  refine ContinuousLinearMap.ext fun z => ?_
+  refine UniformSpace.Completion.induction_on z
+    (isClosed_eq (ContinuousLinearMap.continuous _) continuous_id) (fun a => ?_)
+  rw [ContinuousLinearMap.id_apply, physEvolCompletion_coe, physEvol_zero]
+
+/-- **`P(s + t) = P(s) ∘ P(t)` on `ℋ`.**  Together with `physEvolCompletion_zero` this makes the
+time evolution a one-parameter contraction semigroup on the reconstructed Hilbert space, i.e. the
+object Hille–Yosida/Stone theory takes a generator of. -/
+theorem physEvolCompletion_add (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (s t : ℝ) :
+    physEvolCompletion Λ T hinv (s + t)
+      = (physEvolCompletion Λ T hinv s).comp (physEvolCompletion Λ T hinv t) := by
+  refine ContinuousLinearMap.ext fun z => ?_
+  refine UniformSpace.Completion.induction_on z
+    (isClosed_eq (ContinuousLinearMap.continuous (physEvolCompletion Λ T hinv (s + t)))
+      ((physEvolCompletion Λ T hinv s).comp
+        (physEvolCompletion Λ T hinv t)).continuous)
+    (fun a => ?_)
+  rw [ContinuousLinearMap.comp_apply, physEvolCompletion_coe, physEvolCompletion_coe,
+    physEvolCompletion_coe, physEvol_add]
 
 end
 

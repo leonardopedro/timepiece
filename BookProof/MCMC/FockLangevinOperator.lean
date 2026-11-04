@@ -38,8 +38,16 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   `creVec − annVec`), `abs_re_inner_driftField_le` (its `N^{1/2}` estimate) and
   **`driftField_relative_form_bound`**:
   relative bound zero against the number form, as a theorem, reusing
-  `BookProof.FockFieldPerturbation`.  The distance to §5's `CoreCoeff` statement is the model
-  identification between occupation vectors and finite multisets of modes — not the analysis.
+  `BookProof.FockFieldPerturbation`;
+* **§7, the index identification** — `idxEquiv` (occupation vectors on `d` modes *are* finite
+  multisets) and `natDeg_idxEquiv` (the grading is the particle number);
+* **§8, the `Fin d` sector** — the other half of the identification: `reindex`,
+  `sum_sq_reindex` and `numberForm_reindex` move the core `ℓ²` isometrically onto configuration
+  vectors on multisets; `sectorVec` and `l2norm_sectorVec` embed a `Fin d` coupling as a
+  one-particle vector on the first `d` modes, and `driftField_sector_relative_form_bound` is
+  Module 3's bound with the `Fin d` constants; `InSector`, `numberQuad_eq_sum_fin` and
+  `InSector.driftField` are the corresponding sector of the Fock model and its invariance under
+  the drift.
 
 ## Honest boundary
 
@@ -401,5 +409,273 @@ theorem driftField_relative_form_bound (f : ℕ →₀ ℂ) {t : ℝ} (ht : 0 < 
   have h2 := two_mul_sqrt_le (c := l2norm f) (n := ‖toLp u‖) (N := numberQuad u) (t := t)
     (numberQuad_nonneg u) ht
   linarith
+
+/-! ## 7. The index-level model identification: occupation vectors are multisets
+
+`CoreCoeff d` indexes by occupation *vectors* `Fin d → ℕ`; the corpus Fock toolbox
+(`BookProof.FockSecondQuantization`) indexes by finite *multisets* of modes.  On a finite mode set
+the two are the same data — `Fin d` is finite, so every `Fin d → ℕ` is finitely supported, and
+`Finsupp.equivFunOnFinite` is the bijection.  This section records the bijection and checks that
+the degree grading (§1's `natDeg`, the `N` of the number operator) is read through it, so the
+sector structure of §4's band lemmas is the sector structure of the Fock model.
+
+Section 8 carries out the rest: the `ℓ²` reindexing along `idxEquiv` (`reindex`,
+`sum_sq_reindex`, `numberForm_reindex`), and the restriction to the `Fin d` mode sector
+(`sectorVec`, `l2norm_sectorVec`, `driftField_sector_relative_form_bound`, `InSector`).  What is
+still *not* claimed is that §5's `DriftFormBound` follows — see the note in §8. -/
+
+/-- **Occupation vectors on `d` modes are finite multisets of modes.** -/
+def idxEquiv (d : ℕ) : (Fin d → ℕ) ≃ (Fin d →₀ ℕ) :=
+  Finsupp.equivFunOnFinite.symm
+
+@[simp] theorem idxEquiv_apply (n : Fin d → ℕ) (i : Fin d) : idxEquiv d n i = n i := rfl
+
+@[simp] theorem idxEquiv_symm_apply (s : Fin d →₀ ℕ) (i : Fin d) : (idxEquiv d).symm s i = s i :=
+  rfl
+
+/-- **The degree is the particle number of the multiset**: `N` on an occupation vector is the total
+count of the corresponding multiset, so the grading is the same on both sides of `idxEquiv`. -/
+theorem natDeg_idxEquiv (n : Fin d → ℕ) :
+    (idxEquiv d n).sum (fun _ m => m) = natDeg n := by
+  rw [Finsupp.sum_fintype]
+  · rfl
+  · intro i
+    rfl
+
+/-! ## 8. The `Fin d` mode sector: the `ℓ²` reindexing and the sector restriction
+
+§7 identified the *indices* — an occupation vector on `d` modes is a finite multiset of modes.
+This section completes the identification on the two objects the relative bound is stated for.
+
+**The states.**  `reindex` reads a core state `CoreCoeff d` as a configuration vector on
+multisets.  `sum_sq_reindex` says it is an isometry of the core `ℓ²`, and `numberForm_reindex`
+says it carries the core's number form `∑ n, N(n)‖c n‖²` to `∑ s, (s.sum id)‖ĉ s‖²` — the shape of
+`⟪u, N u⟫` in the corpus Fock model.
+
+**The coupling.**  The toolbox's modes are all of `ℕ`; this chapter's are `Fin d`.
+`sectorVec` embeds a `Fin d` coupling as a one-particle vector supported on `{0, …, d−1}`,
+`l2norm_sectorVec` reindexes its `ℓ²` norm, and `driftField_sector_relative_form_bound` is
+Module 3's bound with the `Fin d` constants `∑ᵢ‖bᵢ‖²` and the `d`-mode sum.
+
+**The sector.**  `InSector` is the subspace of states whose excited modes are all in the first
+`d`; `annA_eq_zero_of_sector` kills the modes beyond it, `numberQuad_eq_sum_fin` reindexes the
+number form onto `Fin d`, and `InSector.driftField` shows a `Fin d` coupling cannot carry a state
+out of the sector.
+
+What this section deliberately does **not** claim is that `DriftFormBound` follows.  That needs
+two more steps, and they are of different kinds: (i) the real coupling `b : Fin d → ℝ` of
+`driftOpCoeff` is the field `driftField (sectorVec (b : Fin d → ℂ))` only after the Hermite
+expansion `∂_j = (a_j − a_j†)/√2` of the potential — the missing input named in the module's
+honest boundary; (ii) `numberQuad` is the form of the number operator on the *configuration*
+space, whereas `numberForm` is its form on the core, so transporting the estimate from one to the
+other is the reindexing `sum_sq_reindex` / `numberForm_reindex` *plus* the identification of the
+quadratic forms, again via the Hermite basis.  What is now fixed is the model: the constants,
+the grading, the sector and the `ℓ²` structures agree. -/
+
+section Sector
+
+/-- **The `ℓ²` reindexing of the core**: a core state, read as a configuration vector on the
+multisets of the `d` modes (`idxEquiv`). -/
+def reindex (c : CoreCoeff d) : (Fin d →₀ ℕ) →₀ ℂ := Finsupp.mapDomain (idxEquiv d) c
+
+/-- The degree of a multiset of modes: its total particle number. -/
+def confDeg (s : Fin d →₀ ℕ) : ℕ := s.sum fun _ m => m
+
+theorem confDeg_idxEquiv (n : Fin d → ℕ) : confDeg (idxEquiv d n) = natDeg n := natDeg_idxEquiv n
+
+@[simp] theorem reindex_apply (c : CoreCoeff d) (n : Fin d → ℕ) :
+    reindex c (idxEquiv d n) = c n :=
+  Finsupp.mapDomain_apply (idxEquiv d).injective c n
+
+theorem support_reindex (c : CoreCoeff d) :
+    (reindex c).support = c.support.image (idxEquiv d) :=
+  Finsupp.mapDomain_support_of_injective (idxEquiv d).injective c
+
+/-- **The reindexing is an isometry of the core `ℓ²`**: the squared norm of a core state,
+computed in the multiset indexing, is `coreNormSq`. -/
+theorem sum_sq_reindex (c : CoreCoeff d) :
+    ∑ s ∈ (reindex c).support, ‖reindex c s‖ ^ 2 = coreNormSq c := by
+  rw [support_reindex, coreNormSq, Finset.sum_image]
+  · exact Finset.sum_congr rfl fun n _ => by rw [reindex_apply]
+  · intro x _ y _ hxy
+    exact (idxEquiv d).injective hxy
+
+/-- **The number form is the multiset form.**  Under the reindexing, `numberForm` becomes
+`∑ s, (∂eg s)·‖ĉ s‖²` — the degree weight read off the multiset, which is the shape of the Fock
+number form `⟪u, N u⟫`. -/
+theorem numberForm_reindex (c : CoreCoeff d) :
+    ∑ s ∈ (reindex c).support, ((confDeg s : ℕ) : ℝ) * ‖reindex c s‖ ^ 2 = numberForm c := by
+  rw [support_reindex, numberForm, Finset.sum_image]
+  · refine Finset.sum_congr rfl fun n _ => ?_
+    rw [reindex_apply, confDeg_idxEquiv]
+  · intro x _ y _ hxy
+    exact (idxEquiv d).injective hxy
+
+/-- **A `Fin d` coupling as a one-particle vector of the Fock model**, supported on the modes
+`{0, …, d−1}`. -/
+def sectorVec (b : Fin d → ℂ) : ℕ →₀ ℂ :=
+  Finsupp.onFinset (Finset.range d) (fun j => if h : j < d then b ⟨j, h⟩ else 0)
+    (fun j hj => by
+      by_contra hmem
+      have hnd : ¬ j < d := by simpa [Finset.mem_range] using hmem
+      exact hj (by simp [hnd]))
+
+@[simp] theorem sectorVec_apply (b : Fin d → ℂ) (j : ℕ) :
+    sectorVec b j = if h : j < d then b ⟨j, h⟩ else 0 := by
+  simp [sectorVec]
+
+theorem sectorVec_apply_of_lt (b : Fin d → ℂ) {j : ℕ} (hj : j < d) :
+    sectorVec b j = b ⟨j, hj⟩ := by
+  rw [sectorVec_apply, dif_pos hj]
+
+theorem sectorVec_apply_of_ge (b : Fin d → ℂ) {j : ℕ} (hj : d ≤ j) : sectorVec b j = 0 := by
+  rw [sectorVec_apply, dif_neg (by omega)]
+
+theorem support_sectorVec (b : Fin d → ℂ) : (sectorVec b).support ⊆ Finset.range d :=
+  Finsupp.support_onFinset_subset
+
+/-- **The `ℓ²` norm of a `Fin d` coupling**: the one-particle vector carries exactly the
+coefficient norm `√(∑ᵢ‖bᵢ‖²)`. -/
+theorem sum_sq_sectorVec (b : Fin d → ℂ) :
+    ∑ j ∈ (sectorVec b).support, ‖sectorVec b j‖ ^ 2 = ∑ i : Fin d, ‖b i‖ ^ 2 := by
+  rw [Finset.sum_subset (support_sectorVec b) (fun j _ hmem => by
+    rw [Finsupp.notMem_support_iff.mp hmem, norm_zero]
+    simp)]
+  rw [Finset.sum_range (fun j => ‖sectorVec b j‖ ^ 2)]
+  exact Finset.sum_congr rfl fun i _ => by rw [sectorVec_apply_of_lt b i.isLt]
+
+theorem l2norm_sectorVec (b : Fin d → ℂ) :
+    l2norm (sectorVec b) = Real.sqrt (∑ i : Fin d, ‖b i‖ ^ 2) := by
+  rw [l2norm, sum_sq_sectorVec]
+
+theorem l2norm_sectorVec_sq (b : Fin d → ℂ) :
+    l2norm (sectorVec b) ^ 2 = ∑ i : Fin d, ‖b i‖ ^ 2 := by
+  rw [l2norm_sectorVec, Real.sq_sqrt (Finset.sum_nonneg fun i _ => sq_nonneg _)]
+
+/-- **Module 3's bound in the `Fin d` sector.**  For every coupling `b` on the `d` modes and every
+`t > 0`,
+
+`|Re⟪u, Σᵢ(bᵢ/√2)(aᵢ† − aᵢ)u⟫| ≤ t⟪u, N u⟫ + (∑ᵢ‖bᵢ‖²/t)‖u‖²`,
+
+which is `driftField_relative_form_bound` with the `ℓ²` norm of the coupling written in the
+chapter's own indexing: `d` is the number of modes, the coupling is a `Fin d` family, and the
+constant is the coefficient norm rather than a `ℕ`-supported `Finsupp`. -/
+theorem driftField_sector_relative_form_bound (b : Fin d → ℂ) {t : ℝ} (ht : 0 < t)
+    (u : FockAlg) :
+    |(inner ℂ (toLp u) (toLp (driftField (sectorVec b) u)) : ℂ).re|
+      ≤ t * numberQuad u + (∑ i : Fin d, ‖b i‖ ^ 2) / t * ‖toLp u‖ ^ 2 := by
+  have h := driftField_relative_form_bound (sectorVec b) ht u
+  rw [l2norm_sectorVec_sq] at h
+  exact h
+
+/-! ### The sector of the Fock model -/
+
+/-- A Fock state **lives in the `Fin d` mode sector** when every mode any of its configurations
+excites is one of the first `d`. -/
+def InSector (d : ℕ) (u : FockAlg) : Prop := modes u ⊆ Finset.range d
+
+theorem support_sub_subset (u v : FockAlg) :
+    (u - v).support ⊆ u.support ∪ v.support := by
+  intro β hβ
+  rw [Finset.mem_union]
+  by_contra h
+  push_neg at h
+  obtain ⟨h1, h2⟩ := h
+  exact (Finsupp.mem_support_iff.mp hβ) (by
+    rw [Finsupp.sub_apply, Finsupp.notMem_support_iff.mp h1, Finsupp.notMem_support_iff.mp h2,
+      sub_zero])
+
+theorem modes_add_subset (u v : FockAlg) : modes (u + v) ⊆ modes u ∪ modes v := by
+  intro k hk
+  obtain ⟨β, hβ, hkβ⟩ := Finset.mem_biUnion.mp hk
+  rcases Finset.mem_union.mp (Finsupp.support_add hβ) with h | h
+  · exact Finset.mem_union_left _ (Finset.mem_biUnion.mpr ⟨β, h, hkβ⟩)
+  · exact Finset.mem_union_right _ (Finset.mem_biUnion.mpr ⟨β, h, hkβ⟩)
+
+theorem modes_sub_subset (u v : FockAlg) : modes (u - v) ⊆ modes u ∪ modes v := by
+  intro k hk
+  obtain ⟨β, hβ, hkβ⟩ := Finset.mem_biUnion.mp hk
+  rcases Finset.mem_union.mp (support_sub_subset u v hβ) with h | h
+  · exact Finset.mem_union_left _ (Finset.mem_biUnion.mpr ⟨β, h, hkβ⟩)
+  · exact Finset.mem_union_right _ (Finset.mem_biUnion.mpr ⟨β, h, hkβ⟩)
+
+theorem modes_smul_subset (c : ℂ) (u : FockAlg) : modes (c • u) ⊆ modes u := by
+  intro k hk
+  obtain ⟨β, hβ, hkβ⟩ := Finset.mem_biUnion.mp hk
+  exact Finset.mem_biUnion.mpr ⟨β, Finsupp.support_smul hβ, hkβ⟩
+
+theorem modes_annA_subset (j : ℕ) (u : FockAlg) : modes (annA j u) ⊆ modes u := by
+  intro k hk
+  obtain ⟨β, hβ, hkβ⟩ := Finset.mem_biUnion.mp hk
+  obtain ⟨α, hα, rfl⟩ := Finset.mem_image.mp (support_annA j u hβ)
+  exact Finset.mem_biUnion.mpr ⟨α, hα, support_dn j α hkβ⟩
+
+theorem modes_creA_subset (j : ℕ) (u : FockAlg) : modes (creA j u) ⊆ insert j (modes u) := by
+  intro k hk
+  obtain ⟨β, hβ, hkβ⟩ := Finset.mem_biUnion.mp hk
+  obtain ⟨α, hα, rfl⟩ := Finset.mem_image.mp (support_creA j u hβ)
+  rcases Finset.mem_insert.mp (support_up j α hkβ) with h | h
+  · exact Finset.mem_insert.mpr (Or.inl h)
+  · exact Finset.mem_insert.mpr (Or.inr (Finset.mem_biUnion.mpr ⟨α, hα, h⟩))
+
+theorem modes_sum_subset {ι : Type*} (s : Finset ι) (g : ι → FockAlg) :
+    modes (∑ i ∈ s, g i) ⊆ s.biUnion (fun i => modes (g i)) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp [modes]
+  | insert a s ha ih =>
+    rw [Finset.sum_insert ha, Finset.biUnion_insert]
+    exact (modes_add_subset _ _).trans
+      (Finset.union_subset_union (Finset.Subset.refl _) ih)
+
+theorem modes_annVec_subset (f : ℕ →₀ ℂ) (u : FockAlg) : modes (annVec f u) ⊆ modes u := by
+  rw [annVec_apply]
+  refine (modes_sum_subset f.support (fun j => ((starRingEnd ℂ) (f j)) • annA j u)).trans ?_
+  intro k hk
+  obtain ⟨j, _, hkj⟩ := Finset.mem_biUnion.mp hk
+  exact (modes_smul_subset _ _).trans (modes_annA_subset j u) hkj
+
+theorem modes_creVec_subset (f : ℕ →₀ ℂ) (u : FockAlg) :
+    modes (creVec f u) ⊆ f.support ∪ modes u := by
+  rw [creVec_apply]
+  refine (modes_sum_subset f.support (fun j => (f j) • creA j u)).trans ?_
+  intro k hk
+  obtain ⟨j, hj, hkj⟩ := Finset.mem_biUnion.mp hk
+  have h1 : k ∈ modes (creA j u) := (modes_smul_subset (f j) (creA j u)) hkj
+  rcases Finset.mem_insert.mp (modes_creA_subset j u h1) with h | h
+  · exact Finset.mem_union_left _ (h ▸ hj)
+  · exact Finset.mem_union_right _ h
+
+/-- **The drift cannot leave the `Fin d` mode sector.**  Annihilation does not change the modes
+at all, and creation only adds modes drawn from the coupling's support, so a coupling supported
+on the first `d` modes maps the sector into itself. -/
+theorem modes_driftField_subset (f : ℕ →₀ ℂ) (u : FockAlg) :
+    modes (driftField f u) ⊆ f.support ∪ modes u := by
+  rw [driftField_apply]
+  refine (modes_sub_subset (creVec f u) (annVec f u)).trans ?_
+  refine Finset.union_subset (modes_creVec_subset f u) ?_
+  exact (modes_annVec_subset f u).trans Finset.subset_union_right
+
+theorem InSector.driftField (b : Fin d → ℂ) {u : FockAlg} (h : InSector d u) :
+    InSector d (driftField (sectorVec b) u) :=
+  (modes_driftField_subset (sectorVec b) u).trans
+    (Finset.union_subset (support_sectorVec b) h)
+
+/-- In the sector, every mode beyond `d` is annihilated: `a_k = 0` on the sector for `k ≥ d`. -/
+theorem annA_eq_zero_of_sector {u : FockAlg} (h : InSector d u) {k : ℕ} (hk : d ≤ k) :
+    annA k u = 0 := by
+  refine annA_eq_zero_of_not_mem_modes (fun hmem => ?_)
+  have hm := h hmem
+  rw [Finset.mem_range] at hm
+  omega
+
+/-- **The number form reindexed onto `Fin d`.**  On the sector, `⟪u, N u⟫` is the sum of the
+`d` mode contributions `‖aᵢ u‖²` — the corpus form of §5's `numberForm`. -/
+theorem numberQuad_eq_sum_fin {u : FockAlg} (h : InSector d u) :
+    numberQuad u = ∑ i : Fin d, ‖toLp (annA (i : ℕ) u)‖ ^ 2 := by
+  rw [numberQuad_eq_sum (K := Finset.range d) h]
+  exact Finset.sum_range (fun j => ‖toLp (annA j u)‖ ^ 2)
+
+end Sector
 
 end BookProof.MCMC.FockLangevin

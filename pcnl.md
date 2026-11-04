@@ -243,12 +243,24 @@ this gives the displayed `C_δ` with **no linear `Bd` term** — the `N^{1/2}` e
 the plan's constant was the cruder ℓ¹-over-modes version.  So KLMN's hypothesis is met at the
 operator level for the drift as the corpus models it.
 
-What is *not* done, and is the reason the `CoreCoeff` statement above stays a `Prop`: the two
-models are not identified in Lean — `CoreCoeff d` indexes by occupation *vectors* `Fin d → ℕ`, the
-Fock toolbox by finite *multisets* of modes (`Conf →₀ ℂ`) — and no transport of a form bound along
-that equivalence exists.  This is the same *kind* of gap `cftproof.md` item 3 records for the OS
-identity: mathematics done in one modelling of configuration space, a transport missing between it
-and the model the surrounding development uses.
+What is *not* done, and is the reason the `CoreCoeff` statement above stays a `Prop`: no transport
+of a form bound along the identification exists.  This is the same *kind* of gap `cftproof.md` item
+3 records for the OS identity: mathematics done in one modelling of configuration space, a
+transport missing between it and the model the surrounding development uses.
+
+**The index half of that identification is now proved (2026-11-04)**, in `FockLangevinOperator` §7:
+`idxEquiv d : (Fin d → ℕ) ≃ (Fin d →₀ ℕ)` is `Finsupp.equivFunOnFinite.symm` — on a *finite* mode
+set an occupation vector and a finite multiset of modes are the same data, since every `Fin d → ℕ`
+is finitely supported — and `natDeg_idxEquiv` shows the grading is read through it,
+`(idxEquiv d n).sum (fun _ m => m) = natDeg n`.  So the sector structure of §4's band lemmas
+(`hopWord_band`, `driftOp_band`, `pcnlHamiltonian_band`) is the sector structure of the Fock model,
+not merely analogous to it.
+
+The remaining half is the mode *set*: the toolbox's modes are all of `ℕ` (`Conf = ℕ →₀ ℕ`, and
+`creVec`/`annVec` take `ℕ →₀ ℂ`), while the chapter's are `Fin d`.  A bound proved there must first
+be restricted to the sector carried by the first `d` modes (i.e. `f` supported in `Fin d`), and the
+`ℓ²` spaces reindexed along `idxEquiv`; neither is done, and both are transport rather than
+analysis.
 
 **What it buys.**  `K_drift` is symmetric and `N^{1/2}`-form-bounded with relative bound zero, so
 **KLMN** applies: the form `q(ψ) = ‖N^{1/2}ψ‖² + ⟪ψ, K_drift ψ⟫` is closed and bounded below on
@@ -376,9 +388,16 @@ Hermite expansion, needing `x_j = (a_j + a_j†)/√2` and the Mehler measure), 
 bound that makes `K_drift` a bounded perturbation of `P₀` — stated for the `ε`-regularized
 potential in the subsection above, with the constant `(β²σ²M_ε)²P/(8δ) + (β²σ²M_ε)P/2` and the
 reason that constant cannot supply the gap; stated in Lean as `DriftFormBound`
-(`FockLangevinOperator` §5, a `Prop` on the coefficient core) and **proved** in Lean in the Fock
-model as `driftField_relative_form_bound` (`FockLangevinOperator` §6) — the remaining distance
-between the two being the model identification, not the analysis —
+(  `FockLangevinOperator` §5, a `Prop` on the coefficient core) and **proved** in Lean in the Fock
+  model as `driftField_relative_form_bound` (`FockLangevinOperator` §6), with the model
+  identification now carried out as well (§7–§8, 2026-11-04: `idxEquiv` (occupation vectors on
+  `d` modes *are* finite multisets), `natDeg_idxEquiv` (the grading is the particle number),
+  `reindex` / `sum_sq_reindex` / `numberForm_reindex` (the core `ℓ²` and its number form read in
+  the multiset indexing), `sectorVec` / `l2norm_sectorVec` (a `Fin d` coupling as a one-particle
+  vector on the first `d` modes) and **`driftField_sector_relative_form_bound`** (the §6 bound with
+  the `Fin d` constants), plus `InSector`, `numberQuad_eq_sum_fin`, `annA_eq_zero_of_sector` and
+  `InSector.driftField` for the sector) — what still separates the two statements is the Hermite
+  expansion, not the model —
 and the Metropolis filter
 `K_reject` — the last is a multiplication operator and is not finite-band at all, so nothing in
 `FockLangevinOperator` describes it.  The pCNL operator's own gap therefore remains a hypothesis

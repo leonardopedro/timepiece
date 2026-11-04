@@ -231,7 +231,7 @@ is the verification gate; no module below contains `sorry`.
 | 4.1 | `BookProof/OSReconstruction/PhysicalSpace.lean` | `osForm` bilinearity, `osForm_expand`, **`osForm_cauchy_schwarz`**, `Radical`, **`osForm_well_defined`**, `osNorm_triangle` | **PROVED** |
 | 4.1 | `BookProof/OSReconstruction/HilbertSpace.lean` | `physForm`, **`physCore`**, **`physInnerProductSpace`**, **`Hphys`** (`UniformSpace.Completion`), `physNorm_mk`, `physNorm_eq_zero_iff` | **PROVED** (`Hphys` is the plan's `MinkowskiHilbertSpace`; the plan's `PhysicalNullSpace` is `Radical Λ.ω`) |
 | 4.2 | `BookProof/OSReconstruction/Hamiltonian.lean` | `TimeTranslation`, `timeTranslation_semigroup`, **`osNorm_evolution_antitone`**, `radical_invariant`, `timeEvolution_well_defined` | **PROVED** (contractive semigroup part) |
-| 4.2 | `BookProof/OSReconstruction/HilbertSpace.lean` | `physEvol`, **`physEvol_contractive`**, `physEvolCompletion`, **`norm_physEvolCompletion_le`** | **PROVED** (contractive extension to `Hphys`) |
+| 4.2 | `BookProof/OSReconstruction/HilbertSpace.lean` | `physEvol`, **`physEvol_contractive`**, `physEvol_zero`, `physEvol_add`, `physEvolCompletion`, **`norm_physEvolCompletion_le`**, **`physEvolCompletion_zero`**, **`physEvolCompletion_add`** | **PROVED** (contractive extension to `Hphys`, and — 2026-11-04 — the semigroup law on it: `P(0) = 1` and `P(s+t) = P(s)∘P(t)` by density of `𝔄/𝔑`, from `timeTranslation_zero` / `timeTranslation_semigroup` through the quotient) |
 | 4.2 | — | `emergent_hamiltonian_selfAdjoint`, `emergent_hamiltonian_nonnegative` | **NOT CLAIMED** — but the *reason* has changed, so the row reads: Stone theory is now proved in this repository in both directions (`ChapterStoneResolvent` → `ChapterStoneTheorem`, converse `WeakMeasurableUnitaryGroup.gen_stoneU_eq`), so "Mathlib has no spectral theorem" is no longer accurate. What is missing is the **converse for contraction semigroups** (Lumer–Phillips/Hille–Yosida: symmetric + strongly continuous + contractive ⇒ self-adjoint generator), plus complexification and separability of the real space `Hphys`. Feasibility written up in open item 4 above. The positivity *content* that is proved remains `osNorm_evolution_antitone` |
 | 5 | `BookProof/Sirk/ChapterRitzCertificate.lean` | `rayleigh`, `resid`, `SpectralSeparation`, **`temple_lower_bound`**, `temple_band_mem`, `fock_mass_gap_of_temple_certificates` | **PROVED** (the SIRK/Temple receiver) |
 | 5 | `BookProof/OSReconstruction/Clustering.lean` | `schwinger`, `connectedCorr`, `SchwingerClustering`, **`schwinger_symm`**, **`osNorm_evol_le_of_clustering`**, `osNorm_evol_iterate_le`, `cluster_decay_tendsto_zero`, **`eNorm_timePoint_eq_spacePoint`**, **`spatial_decay_of_temporal`**, **`osBilin_le_mul_osNorm`**, `osNorm_sub_le`, **`osNorm_sub_evol_ge`**, `genForm`, `one_sub_exp_neg_ge`, **`genForm_ge_of_contraction`**, **`genForm_gap_of_clustering`** | **NEW (2026-10-30)**: Euclidean clustering at mass `m` ⇔ decay of the transfer operator at rate `m` off the vacuum; `O(4)` time→space transfer; and the *separation*: the norm gap `1 − √C e^{−mτ}` of `I − T_τ` and the form gap `m(1 − ε)` of the effective generator `(I − T_τ)/τ`. The clustering bound itself is the hypothesis (see Boundary) |
@@ -427,9 +427,11 @@ Ordered by what unblocks the rest; each item names the module it lands in.
    status, since the RP of the lattice measure *is* the nontrivial theorem of the subject and
    the file that proves it (`WilsonLattice.lean`) proves it in its own model.
 4. **Phase 4.2, the generator** (`BookProof/OSReconstruction/Hamiltonian.lean`). From
-   `physEvolCompletion` (a contractive one-parameter semigroup on the complete space `Hphys`)
-   plus strong continuity at `0` — currently a hypothesis since an arbitrary `TimeTranslation`
-   need not be continuous — invoke the Stone/Lumer–Phillips machinery in
+   `physEvolCompletion` (a *contractive one-parameter semigroup* on the complete space `Hphys` —
+   the semigroup law itself is now proved, 2026-11-04: `physEvol_zero` / `physEvol_add` on the
+   quotient and `physEvolCompletion_zero` / `physEvolCompletion_add` on `Hphys`, so what stays a
+   hypothesis is only strong continuity at `0`, since an arbitrary `TimeTranslation` need not be
+   continuous) invoke the Stone/Lumer–Phillips machinery in
    `BookProof/Toolbox/ChapterStoneResolvent.lean` (`UnboundedSelfAdjoint`, `ofBounded`,
    `trotterKato_tendsto`) to obtain `H_phys`, `IsSelfAdjoint H_phys`, `H_phys ≥ 0`.
 
@@ -556,3 +558,20 @@ Ordered by what unblocks the rest; each item names the module it lands in.
    bounded separation with a `SpectralSeparation` of the *unbounded* generator, (iii) the
    Temple feed, whose arithmetic is done in `ChapterTempleSeparationBound.continuum_gap_unconditional`
    with `c₁ Δ_ref` from `softmodes.md`.
+
+   **(iii) is not a plumbing step — checked 2026-11-04.**  `softmodes.md` Phase 4 now certifies
+   `c₁ Δ_ref` on the `L²` form of record (`closed_yangMillsGap`) *and*, for an off-diagonal
+   interaction, on the core (`hopping_farisLavine`), so the constant is no longer the obstruction.
+   What `continuum_gap_unconditional` consumes is different in kind: its hypothesis is
+   `SpectralSeparation A l b`, i.e. `l ≤ b ∧ ∀ t ∈ spectrum ℝ A, t = l ∨ b ≤ t` for a **bounded
+   self-adjoint operator** `A`, while the certificate is about a **quadratic form** on `ℓ²`.  Two
+   things are therefore missing, and neither is arithmetic: the operator `A` on `L²` whose
+   Rayleigh form is `closedForm (yangMillsSymbol) x` (the diagonal multiplication operator, which
+   is bounded only when the symbol is), and the identification
+   `spectrum ℝ A = closure (range (symbol))` for that operator, from which a *spectral* gap off the
+   vacuum would follow.  Mathlib has no spectrum computation for diagonal operators on `ℓ²`, and a
+   form gap does not imply a spectral one without the spectral measure — the form gap holds on the
+   vacuum-orthogonal sector, where Rayleigh quotients of *mixtures* `Ω + e` can still take any
+   intermediate value.  So item (iii) is blocked on the same operator⇄form bridge as (ii′), and
+   `ChapterTempleSeparationBound`'s honest boundary ("the transfer across the strong-resolvent
+   limit is not proved") should be read as covering this too.

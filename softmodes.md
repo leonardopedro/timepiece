@@ -297,6 +297,21 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    `ChapterBrstReducedTransfer` / `ChapterBrstUnbounded`; what is missing there is item 3 above,
    the identification `closure (range Ω) = span{∂_i φ}`, not the stability of the bottom.
 
+   **The off-diagonal half (2026-11-04).**  The sentence above leaves one case open: a form whose
+   blocks mix multi-indices, where the symbolwise argument has nothing to read.  It is closed for
+   any interaction with finite Hilbert–Schmidt constant, in §4 of
+   `BookProof.YangMillsFormClosureNonDiagonal`: the form bound `abs_kernelForm_le_of_hs` gives
+   `kernelForm_ge_neg_of_hs` (`−σ‖c‖² ≤ qK`), so **`diagonalForm_add_kernelForm_ge`** bounds the
+   interacting form below by `θ − σ` on the core whenever `θ` bounds the diagonal symbol, and
+   **`sector_bottom_ge_interacting`** is the sector statement: over any nonempty set of
+   *normalised* retained core states, `sInf` of the interacting form is at least `θ − σ`, with no
+   hypothesis on which indices the kernel couples and no hypothesis on the sector.  So restriction
+   cannot lower the bottom by more than the Hilbert–Schmidt constant of the interaction — the same
+   constant `hopping_farisLavine` charges to the shift, and for the hopping matrix unit
+   (`hopping_sector_bottom`) it is exactly `1`.  What remains open here is the same `L²` lift as in
+   Phase 4: the estimate is on the core, `closedForm` is a supremum rather than a core value, and
+   the interaction has no monotone truncation.
+
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
 separation `β∞ − θ∞ ≥ c₁Δ_ref` is still an input there (see the status of Phase 4).
@@ -511,9 +526,10 @@ This step directly integrates into existing modules:
     ∀ ψ ∈ D_core, quadForm H_W ψ ≥ c₁ * quadForm H_ref ψ - c₂ * ‖ψ‖²
   ```
 * **Deliverable:** `BookProof.YangMillsFormDomination.lean`.
-* **Status (2026-10-31): the implication, the domination inequality on the Gauss–polynomial core,
-and the `L²` closure of that core are DONE** (`BookProof.YangMillsFormClosure`); what remains
-open is only a non-diagonal magnetic interaction of the kind described at the end of this item.
+* **Status (2026-11-04): the implication, the domination inequality on the Gauss–polynomial core,
+the `L²` closure of that core, and the Faris–Lavine comparison for a non-diagonal interaction
+are DONE** (`BookProof.YangMillsFormClosure`, `BookProof.YangMillsFormClosureNonDiagonal`); what
+remains open is the `L²` lift of the *interacting* form, as described at the end of this item.
   `BookProof.YangMillsFormDomination` (`BookProof/YangMillsFormDomination.lean`, no `sorry`)
   carries the certificate as a structure, `FormDomination ω q` = ratio `c₁ > 0`, shift `c₂`, and
   `∀ c, c₁ · coreForm ω c − c₂ · coreNormSq c ≤ q c` on the Phase-3 core.
@@ -575,8 +591,38 @@ open is only a non-diagonal magnetic interaction of the kind described at the en
   (`Barrier.yangMillsForm_eq_diagonalForm`), so `yangMillsForm_closed` transfers its certificate
   and `closed_yangMillsGap` gives the `c₁Δ_ref` separation on the whole vacuum-orthogonal sector
   of `L²`.  What the closure still does not supply is the statement about the *spectrum* of `H_W`
-  — discreteness and a mass gap need the self-adjoint operator, not only its closed form — and the
-  transfer is proved for diagonal forms, not for a magnetic interaction mixing multi-indices.
+  — discreteness and a mass gap need the self-adjoint operator, not only its closed form.
+
+  **The non-diagonal interaction, on the core (2026-11-04).**  The second half of that boundary —
+  "not for a magnetic interaction mixing multi-indices" — is addressed in
+  `BookProof.YangMillsFormClosureNonDiagonal` (`BookProof/YangMillsFormClosureNonDiagonal.lean`, no
+  `sorry`), and by the *Faris–Lavine* route rather than the termwise one.  The interaction is a
+  kernel `K : (Fin d → ℕ) → (Fin d → ℕ) → ℂ` with kernel form
+  `kernelForm K c = ∑ m ∈ supp c, ∑ n ∈ supp c, Re(K m n · c n · conj(c m))`, which couples
+  distinct multi-indices whenever `K` is off the diagonal — the magnetic terms the diagonal theory
+  cannot see.  The form bound the interaction enters through is a **Hilbert–Schmidt** one:
+  `kernelForm_sq_le` is the two-index Cauchy–Schwarz inequality (square of the absolute form ≤
+  Hilbert–Schmidt sum × `coreNormSq²`), so a kernel whose finite-square sums are bounded by `σ²`
+  obeys `abs_kernelForm_le_of_hs`: `|kernelForm K c| ≤ σ · coreNormSq c` for **every** core state,
+  with no support restriction.  `farisLavine_domination` is the comparison itself: if `q'`
+  dominates the reference form with ratio `c₁` and shift `c₂`, and `|qK| ≤ a q' + b‖·‖²` with
+  relative bound `a < 1`, then the **sum form** `q' + qK` dominates with ratio `(1 − a)c₁ > 0` and
+  shift `(1 − a)c₂ + b` — the interaction may lower the form, and the factor `1 − a` is what that
+  costs; the ratio never reaches zero, so the certified separation survives.  The bounded case is
+  separate and sharper in the ratio: `farisLavine_of_bounded_interaction` (`a = 0`) keeps `c₁`
+  unchanged and adds only `b` to the shift.  A concrete, genuinely off-diagonal instance is
+  `hoppingKernel m₀ n₀` (the matrix unit at `(m₀, n₀)`): its Hilbert–Schmidt sums are bounded by
+  `1` (`hoppingKernel_sq_sum_le`), so `abs_hoppingForm_le` gives the form bound with `σ = 1`, and
+  **`hopping_farisLavine`** concludes that the Yang–Mills certificate plus the hopping interaction
+  still dominates with the *same* ratio `c₁` and shift `c₂ + 1`.  `hopping_couples` shows the
+  interaction really does read a product of coefficients rather than moduli — at `a₀ = b₀ = 1` it is
+  `1`, at `a₀ = 1, b₀ = i` it is `0`, although both states have the same coefficient moduli — so no
+  diagonal form can represent it.  **What is still open:** the `L²` lift of the *interacting* form.
+  `closedForm_eq_iSup_truncate` lifts the diagonal part because `closedForm` is the supremum of its
+  truncations, but `kernelForm` is not monotone along truncations; the lift needs the interaction as
+  a bounded operator on `L²` together with the form-domain hypothesis `closedForm μ x < ⊤`, and it
+  is not proved.  So Phase 5's `c₁Δ_ref` is certified on the core for the off-diagonal case, and on
+  `L²` for the diagonal one — not yet on `L²` for both.
 
 ---
 
