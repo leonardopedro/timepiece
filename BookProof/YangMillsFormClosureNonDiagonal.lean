@@ -79,7 +79,22 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   discharges that hypothesis from a symbolwise inequality instead of assuming it;
 * §7 measures the cut-off dependence: the magnetic ladder kernel has Hilbert–Schmidt mass at most
   `d² C Λ^(d+1)` (`magCutoffKernel_hs_mass`), so its constant is at most `d √C Λ^{(d+1)/2}` — a
-  power of the cut-off, not a uniform bound.
+  power of the cut-off, not a uniform bound;
+* §8 separates the two halves of the cut-off question: `ladder_relative_bound_uniform` shows the
+  *ratio* is uniform — `a` is a free parameter, so `a(Λ) < 1` at every cut-off — while §7 shows the
+  *constant* is not, so the continuum needs the constant and not the ratio;
+* §9 instantiates the finiteness hypothesis with the concrete magnetic symbol of
+  `YangMillsMagneticQuartic` (`magSymbol`, `magnetic_closed_dom_of_scaled`), and
+  `closed_dom_of_scaled_symbol_auto` shows that for a positive ratio the hypothesis is a
+  consequence of the symbol comparison rather than an assumption.
+
+One caveat on what §7–§9 are about, since the repository does formalize the continuum: the
+derivative is an outer-Fock operator (`dGamma`, `momOp`), and a product of outer fields at a
+coincident point is never formed — `dft_samePointProduct` turns it into the momentum convolution
+`n⁻¹ Σ_p F̂(p) Ĝ(k−p)` and `samePointProduct_form_eq_momentum` identifies the form with the
+momentum-transfer matrix (`ChapterTempleContinuumGap` §4).  But the gauge-fixed form formalized here
+is diagonal (`yangMillsForm_eq_diagonalForm`), so the ladder is a model of the coupling, not the
+reduced sector's magnetic slot; §7's bound does not transfer to the eliminated theory as formalized.
 
 ## Honest boundary
 
@@ -99,7 +114,10 @@ uniform as the cut-off is removed: the number of coupled multi-indices and the s
 matrix elements both grow with the mode index, so no single `σ` survives the continuum limit.  There
 the magnetic term is only form bounded with relative bound `a < 1`, which is exactly the branch of
 §6.  So the `a = 0` statement of §5 is a fixed-cut-off statement, whereas §6 is cut-off-free but
-conditional on the relative bound; neither supplies the uniform bound itself.
+conditional on the relative bound; neither supplies the uniform bound itself.  The relative bound
+itself *is* uniform: `ladder_relative_bound_uniform` takes `a` as a free parameter, so `a(Λ) < 1`
+at every cut-off.  That uniformity is cheap — the ladder is bounded at each fixed cut-off — and it
+is the additive constant, not the ratio, that carries the cut-off dependence.
 A different sufficient route to closability is operator level: `HashimotoShiftInvert`'s
 `closed_of_selfAdjointCriterion` closes the graph of a symmetric operator from the self-adjointness
 criterion, and the Friedrichs representation then yields a closed form.  It is not instantiated
@@ -114,8 +132,20 @@ the maximal domain, so the criterion's clause 4 fails exactly where it would hav
 domain on which the criterion can succeed is the maximal (form) domain — and there `closedForm`
 already gives the closed form directly, which is what §5 and §6 use.
 
-What the criterion would add is the continuum magnetic operator, which is not formalized here (no
-derivative term, no `F = ∂A + g[A,A]` assembly; see the boundary of `YangMillsMagneticQuartic`).
+What the criterion would add is the continuum magnetic operator *in the coefficient model used
+here*.  The caveat is about this model, not about the repository: the continuum is formalized, in
+the nested-Fock / momentum representation.  The space-time derivative is an outer-Fock operator
+(`dGamma`, `lagOne_dGamma_esa` in `ChapterNsLagrangianOuterFockEsa`; the momentum-space `momOp` of
+`YangMillsHermite`), and the product of outer fields at a coincident point — the one place a
+product of distributions would be ambiguous — is never formed: `dft_samePointProduct` turns it into
+the momentum convolution `n⁻¹ Σ_p F̂(p) Ĝ(k−p)`, `momentumCol_samePointProduct` identifies the
+coefficient with that convolution, and `samePointProduct_form_eq_momentum` / the four-dimensional
+`samePointProductT4_form_eq_momentum` identify the form with the momentum-transfer matrix
+(`ChapterTempleContinuumGap` §4).  What the coefficient model has instead is a *diagonal* magnetic
+slot: `yangMillsForm_eq_diagonalForm` writes the whole `q_W` as a `diagonalForm`, so the ladder of
+§7 is a model of the coupling, not the image of the momentum-representation operator under a proved
+identification.  Bridging the two is a statement about `dGamma` and the reduction — not about
+closedness — and it is not proved here.
 -/
 
 noncomputable section
@@ -722,6 +752,35 @@ theorem closed_dom_of_scaled_symbol {f g : Idx d → ℝ} {c₁ C : ℝ} (hc₁ 
     ENNReal.toReal_ofReal (by positivity)] at h2
   linarith
 
+/-- **The finiteness hypothesis is not a hypothesis when the ratio is positive.**  If `c₁ > 0` and
+the symbols satisfy `c₁ f ≤ g + C`, then `closedForm f x` is automatically finite wherever
+`closedForm g x` is: `ofReal c₁ * ⊤ = ⊤` would violate the comparison.  So for every symbolwise
+comparison with a positive ratio the form-domain condition of the next theorem comes for free, and
+nothing has to be assumed about the closed forms themselves. -/
+theorem closed_dom_of_scaled_symbol_auto {f g : Idx d → ℝ} {c₁ C : ℝ} (hc₁ : 0 < c₁)
+    (hg : ∀ n, 0 ≤ g n) (hC : 0 ≤ C) (h : ∀ n, c₁ * f n ≤ g n + C) (x : L2 d)
+    (hx : closedForm g x ≠ ⊤) :
+    c₁ * (closedForm f x).toReal - C * ‖x‖ ^ 2 ≤ (closedForm g x).toReal := by
+  have hle := closedForm_scaled_le hc₁.le hg hC h x
+  have hsl : ENNReal.ofReal C * closedNormSq x ≠ ⊤ := by
+    rw [closedNormSq_eq]
+    exact ENNReal.mul_ne_top ENNReal.ofReal_ne_top ENNReal.ofReal_ne_top
+  have hrhs : closedForm g x + ENNReal.ofReal C * closedNormSq x ≠ ⊤ :=
+    ENNReal.add_ne_top.2 ⟨hx, hsl⟩
+  refine closed_dom_of_scaled_symbol hc₁.le hg hC h (fun y hy => ?_) x hx
+  intro htop
+  have hle' := closedForm_scaled_le hc₁.le hg hC h y
+  have hsl' : ENNReal.ofReal C * closedNormSq y ≠ ⊤ := by
+    rw [closedNormSq_eq]
+    exact ENNReal.mul_ne_top ENNReal.ofReal_ne_top ENNReal.ofReal_ne_top
+  have hrhs' : closedForm g y + ENNReal.ofReal C * closedNormSq y ≠ ⊤ :=
+    ENNReal.add_ne_top.2 ⟨hy, hsl'⟩
+  have hne : ENNReal.ofReal c₁ ≠ 0 := ne_of_gt (ENNReal.ofReal_pos.mpr hc₁)
+  have htopmul : ENNReal.ofReal c₁ * closedForm f y = ⊤ := by
+    rw [htop, ENNReal.mul_top hne]
+  rw [htopmul] at hle'
+  exact hrhs' (top_le_iff.mp hle')
+
 /-- **Faris–Lavine on the form domain.**  This is `farisLavine_domination` for the closed forms: if
 the closed form of `μ` is dominated by that of `g` with ratio `c₁` and shift `c₂` on the form
 domain,
@@ -800,7 +859,17 @@ Hence the row of the kernel is at most `d · d · CΛ` (`C` bounding `Aᵢ²`, `
 **`magCutoffKernel_hs_mass` — `∑ m ∑ n ‖K m n‖² ≤ d² C Λ^(d+1)`.**  So the Hilbert–Schmidt
 constant of the magnetic term is at most `d √C Λ^{(d+1)/2}`: a power of the cut-off, with the
 exponent `(d+1)/2`, which is exactly why it is *not* uniform in `Λ` and why the continuum statement
-has to go through the relative-bound branch of §6 rather than the bounded branch of §5. -/
+has to go through the relative-bound branch of §6 rather than the bounded branch of §5.
+
+Two caveats about what this bound applies to.  The ladder is the momentum-representation shape of
+the coupling: a coincident-point product of outer fields is the convolution
+`momentumCol (F·G) k i = n⁻² Σ_{p+q=k−i} F̂(p) Ĝ(q)`, and raising one occupation number by one is
+what that convolution does to a one-particle matrix.  But the *gauge-fixed / BRST-reduced* form of
+this repository is diagonal — `yangMillsForm_eq_diagonalForm` — and `gaugeReduce` acts on linear
+(torsion) forms, so the reduced theory's magnetic slot carries no off-diagonal ladder: the bound
+below is a bound on the coupling, not on the eliminated form as formalized.  Transferring it would
+need the off-diagonal part of the reduced second-quantized Hamiltonian to be identified with
+`magCutoffKernel`, which is not done here. -/
 
 /-- **A row bound from an entry bound, on a finite index set.**  Summing a matrix by rows costs one
 row bound per column, i.e. `card ι` times `r`. -/
@@ -935,5 +1004,82 @@ theorem magCutoffKernel_hs_mass {Λ : ℕ} {A : Fin d → ℝ} {C : ℝ} (hC : 0
     _ = (d : ℝ) ^ 2 * C * (Λ : ℝ) ^ (d + 1) := by
         rw [pow_succ']
         ring
+
+/-! ## 8. The relative bound is uniform in the cut-off; the constant is not
+
+§7 gives `σ(Λ) ≲ Λ^{(d+1)/2}`.  What that does and does not say about the Faris–Lavine relative
+bound is worth separating, because the two halves point in opposite directions:
+
+* **the ratio is uniform.**  `closed_farisLavine_domination` takes `a` as a *free* parameter, so for
+the ladder `a(Λ) < 1` holds at every cut-off, with the same `a` (`ladder_relative_bound_uniform`).
+  The reason is that at a fixed cut-off the ladder is a bounded operator: `|qK| ≤ σ(Λ)‖·‖²` and
+  `a q_g ≥ 0`, so any `a` will do.  This is therefore cheap and carries no cut-off information.
+* **the constant is not.**  The price is the shift `σ(Λ)`, and §7 shows it grows like a power of
+  the cut-off.  A Faris–Lavine inequality with `a < 1` *and* a `Λ`-independent constant would need
+  the ladder's own shift structure — each rotation `a†_i a_{i'} + h.c.` moves one occupation, so the
+  ratio can be made small by AM–GM without counting modes — and that is not proved here.
+
+So the honest summary is: `a(Λ) < 1` uniformly for a trivial reason, `b(Λ) → ∞` for the structural
+reason of §7, and the continuum needs the second fact, not the first.
+
+## 9. The concrete magnetic symbol, and the finiteness hypothesis it discharges
+
+§6 carries `closedForm g x ≠ ⊤` as an explicit hypothesis.  For the Yang–Mills symbol it is not an
+extra assumption.  The magnetic weight of `YangMillsMagneticQuartic`,
+`magSymbol A n = ∑_a (∑_i A_{a i} nᵢ)²`, is exactly the symbol of `magneticEnergyForm`, and when the
+ratio is positive a symbolwise comparison `c₁ f ≤ g + C` already forces `closedForm f` to be finite
+wherever `closedForm g` is (`closed_dom_of_scaled_symbol_auto`).  Hence the comparison of §6 applies
+to the magnetic symbol with nothing left to check by hand. -/
+
+/-- **The ratio of the comparison is uniform in the cut-off.**  For any `a ∈ [0, 1)` the §6
+comparison holds with the ladder's Hilbert–Schmidt constant `σ` only in the shift.  Since `a` is not
+quantified over `Λ`, `a(Λ) < 1` at every cut-off; the uniformity is cheap (see the section note) and
+the cut-off dependence sits entirely in `σ`. -/
+theorem ladder_relative_bound_uniform {μ g : Idx d → ℝ} {K : Idx d → Idx d → ℂ}
+    {c₁ c₂ σ a : ℝ} (hc₁ : 0 < c₁) (ha0 : 0 ≤ a) (ha1 : a < 1)
+    (hdom : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2 ≤ (closedForm g x).toReal)
+    (hσ0 : 0 ≤ σ)
+    (hσ : ∀ s : Finset (Idx d), ∑ m ∈ s, ∑ n ∈ s, ‖K m n‖ ^ 2 ≤ σ ^ 2) :
+    0 < (1 - a) * c₁ ∧
+      ∀ x : L2 d, closedForm g x ≠ ⊤ →
+        (1 - a) * c₁ * (closedForm μ x).toReal - ((1 - a) * c₂ + σ) * ‖x‖ ^ 2
+          ≤ (closedForm g x).toReal + closedKernelForm K x :=
+  closed_farisLavine_domination hc₁ ha1 hdom fun x _ => by
+    have hb := abs_closedKernelForm_le hσ0 hσ x
+    have hq : (0 : ℝ) ≤ (closedForm g x).toReal := ENNReal.toReal_nonneg
+    have hsq : (0 : ℝ) ≤ ‖x‖ ^ 2 := by positivity
+    nlinarith [mul_nonneg ha0 hq]
+
+/-- The magnetic symbol of the Cartan background `A`: on the mode `n` it is the sum of the squares
+of the field-strength components, i.e. exactly the weight of `magneticEnergyForm`. -/
+def magSymbol (A : Fin d → Fin d → ℝ) : Idx d → ℝ :=
+  fun n => ∑ a, (YangMillsMagneticQuartic.magComp A a n) ^ 2
+
+/-- **The magnetic energy form is the diagonal form of the magnetic symbol**, so §5–§6's closure
+statement is about the object `YangMillsMagneticQuartic` calls `q_mag`. -/
+theorem magneticEnergyForm_eq_diagonalForm_magSymbol (A : Fin d → Fin d → ℝ)
+    (c : CoreCoeff d) :
+    YangMillsMagneticQuartic.magneticEnergyForm A c = diagonalForm (magSymbol A) c := rfl
+
+/-- The magnetic symbol is nonnegative: it is a sum of squares. -/
+theorem magSymbol_nonneg (A : Fin d → Fin d → ℝ) (n : Idx d) :
+    0 ≤ magSymbol A n :=
+  Finset.sum_nonneg fun a _ => sq_nonneg (YangMillsMagneticQuartic.magComp A a n)
+
+/-- **The finiteness hypothesis holds on the core for the magnetic symbol.** -/
+theorem magSymbol_closedForm_coreEmbed {A : Fin d → Fin d → ℝ} (c : CoreCoeff d) :
+    closedForm (magSymbol A) (coreEmbed c) ≠ ⊤ := by
+  rw [closedForm_coreEmbed _ (magSymbol_nonneg A) c]
+  exact ENNReal.ofReal_ne_top
+
+/-- **§6 with the Yang–Mills magnetic symbol as the reference, and no finiteness hypothesis left to
+discharge by hand**: the symbolwise comparison supplies it. -/
+theorem magnetic_closed_dom_of_scaled {A : Fin d → Fin d → ℝ} {f : Idx d → ℝ} {c₁ C : ℝ}
+    (hc₁ : 0 < c₁) (hC : 0 ≤ C)
+    (h : ∀ n, c₁ * f n ≤ magSymbol A n + C) (x : L2 d)
+    (hx : closedForm (magSymbol A) x ≠ ⊤) :
+    c₁ * (closedForm f x).toReal - C * ‖x‖ ^ 2 ≤ (closedForm (magSymbol A) x).toReal :=
+  closed_dom_of_scaled_symbol_auto hc₁ (magSymbol_nonneg A) hC h x hx
 
 end BookProof.YangMillsFormClosureND

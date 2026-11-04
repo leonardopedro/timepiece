@@ -3469,7 +3469,14 @@ import BookProof.YangMillsFormClosure
 -- the `L²` comparison with relative bound `a < 1` (ratio `(1 − a)c₁`), its finiteness hypothesis
 -- derived in `closed_dom_of_scaled_symbol` from a symbolwise inequality.  §7 measures the price of
 -- the cut-off: `magCutoffKernel_hs_mass` bounds the magnetic ladder's Hilbert–Schmidt mass by
--- `d² C Λ^(d+1)`, i.e. a constant of order `Λ^{(d+1)/2}` — a power, not a uniform bound.
+-- `d² C Λ^(d+1)`, i.e. a constant of order `Λ^{(d+1)/2}` — a power, not a uniform bound.  §8
+-- separates the two halves: the relative bound `a` is uniform (`ladder_relative_bound_uniform`), the
+-- additive constant is what grows.  §9 instantiates §6's finiteness hypothesis with the concrete
+-- magnetic symbol of `YangMillsMagneticQuartic` (`magSymbol`, `magnetic_closed_dom_of_scaled`);
+-- `closed_dom_of_scaled_symbol_auto` shows that for a positive ratio it follows from the symbol
+-- comparison.  The continuum itself is formalized elsewhere (outer-Fock `dGamma`, and the
+-- coincident-point product as the momentum convolution `samePointProduct_form_eq_momentum`); what the
+-- coefficient model has is a diagonal magnetic slot, so the ladder is a model of the coupling.
 import BookProof.YangMillsFormClosureNonDiagonal
 -- 2026-10-30 (`softmodes.md` Phase 2): Simon's transverse zero-point energy on the Cartan flat
 -- directions.  `parallelDegree`/`perpDegree`/`rootCount` split the degree form into Cartan and

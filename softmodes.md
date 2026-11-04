@@ -339,7 +339,20 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    in the cut-off: §7 computes it on a model — `magCutoffKernel_hs_mass` gives the magnetic ladder
    mass at most `d² C Λ^(d+1)`, i.e. a constant at most `d √C Λ^{(d+1)/2}` — which is a power of
    the cut-off and not a uniform `σ`, so the continuum still needs the `a < 1` branch with `a`
-   bounded away from `1` uniformly.
+   bounded away from `1` uniformly.  The **ratio** is in fact uniform for free —
+   `ladder_relative_bound_uniform` (§8) takes `a` as a free parameter, so `a(Λ) < 1` at every
+   cut-off, because at fixed cut-off the ladder is bounded — so what fails in the continuum is the
+   constant, not the ratio.  And the finiteness hypothesis of the comparison is not an extra
+   assumption for the Yang–Mills symbol: `closed_dom_of_scaled_symbol_auto` derives it from the
+   symbolwise inequality whenever the ratio is positive, and `magnetic_closed_dom_of_scaled` (§9)
+   applies it to `magSymbol`, the symbol of `magneticEnergyForm` of `YangMillsMagneticQuartic`.
+   One scope note, because the continuum *is* formalized elsewhere: the space-time derivative is an
+   outer-Fock operator (`dGamma`, `momOp`) and coincident-point products of outer fields are never
+   formed — they are the momentum convolutions of `dft_samePointProduct`,
+   `momentumCol_samePointProduct`, `samePointProduct_form_eq_momentum`.  The reduced form here is
+   diagonal (`yangMillsForm_eq_diagonalForm`), so the ladder is a model of the coupling rather than
+   the eliminated theory's magnetic slot, and carrying `σ(Λ)` across needs the off-diagonal part of
+   the reduced Hamiltonian — not done.
 
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
