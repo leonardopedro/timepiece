@@ -3459,8 +3459,13 @@ import BookProof.YangMillsFormClosure
 -- unit at `(m₀, n₀)` and keeps the ratio `c₁` unchanged, so the certified separation survives the
 -- coupling; §4 gives the same constant as a bottom: `sector_bottom_ge_interacting` shows that no
 -- sector of the core sees a bottom below `θ − σ`, i.e. that eliminating directions cannot remove
--- the weight the bottoms of Phases 2–5 bound (`hopping_sector_bottom`: `σ = 1`).
--- The `L²` lift of the interacting form is not claimed (see the file's honest boundary).
+-- the weight the bottoms of Phases 2–5 bound (`hopping_sector_bottom`: `σ = 1`).  §5 lifts the
+-- interaction to `L²`: `closedKernelForm` is the absolutely convergent weighted double series,
+-- `abs_closedKernelForm_le` bounds it by `σ‖x‖²` on the whole space (Hölder with exponents 2, 2),
+-- `closedKernelForm_coreEmbed` identifies it with `kernelForm` on the core, and
+-- `closed_diagonal_add_kernelForm_ge` / `closed_sector_bottom_ge_interacting` are the bottom
+-- bounds on the form domain — so the interaction is a bounded, hence continuous, perturbation of
+-- the closed diagonal form.  The ratio of the Faris–Lavine comparison stays a core statement.
 import BookProof.YangMillsFormClosureNonDiagonal
 -- 2026-10-30 (`softmodes.md` Phase 2): Simon's transverse zero-point energy on the Cartan flat
 -- directions.  `parallelDegree`/`perpDegree`/`rootCount` split the degree form into Cartan and

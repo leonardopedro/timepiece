@@ -57,16 +57,30 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   certified separation of `softmodes.md` Phase 5 survives an off-diagonal coupling untouched in
   ratio, and this is the statement the Phase-4 open item asks for, on the same core.
 
+## Bottom stability, on the core and on `L²`
+
+* `diagonalForm_add_kernelForm_ge` / `sector_bottom_ge_interacting` — on the core the interacting
+  form is bounded below by `θ − σ` over *any* sector of normalised states, so the elimination of
+  `softmodes.md` Phase 1 cannot lower the bottom by more than the interaction's Hilbert–Schmidt
+  constant; `hopping_sector_bottom` reads the constant `1` for the matrix unit;
+* §5 lifts all of this to `L²`, where the diagonal closure lives: `closedKernelForm` is the
+  absolutely convergent weighted double series, `abs_closedKernelForm_le` bounds it by
+  `σ‖x‖²` for **every** `x ∈ ℓ²` (one Cauchy–Schwarz with exponents `2, 2` over the product index,
+  replacing the two-index one of `kernelForm_sq_le`), `closedKernelForm_coreEmbed` shows it
+  restricts to `kernelForm`, and `closed_diagonal_add_kernelForm_ge` /
+  `closed_sector_bottom_ge_interacting` are the bottom bounds on the form domain
+  (`closedForm f x ≠ ⊤`).  Boundedness is what closability needs: the interaction is a bounded
+  form perturbation of the closed diagonal form, hence continuous in the `ℓ²` norm, and the sum is
+  closed on the same domain.
+
 ## Honest boundary
 
-The comparison here is on the **Gauss–polynomial core**, which is where `FormDomination` lives.
-It is not yet lifted to `L²` for the interacting form: `closedForm_eq_iSup_truncate` lifts the
-*diagonal* part because `closedForm` is the supremum of its truncations, but a non-diagonal
-`kernelForm` is not monotone along truncations, so the lift needs the interaction to be an
-operator on `L²` (a Hilbert–Schmidt kernel does define a bounded operator there) together with the
-form-domain hypothesis `closedForm μ x < ⊤` under which the truncation values converge in `ℝ`.
-That lift is not proved here, and the diagonal-side closure of `YangMillsFormClosure` is not
-extended by this file.
+What is *not* claimed: the Faris–Lavine **comparison** (the domination of the reference form by the
+sum form) is proved on the core and, on `L²`, only through the bottom bound `θ − σ` — the
+`L²`-level inequality `c₁ q_ref ≤ closedForm g + closedKernelForm` would need the finiteness of
+both closed forms and is not stated.  The diagonal-side closure of `YangMillsFormClosure` is
+therefore extended exactly as far as the Hilbert–Schmidt bound reaches: bounded interactions lift,
+interactions that are merely form bounded with relative bound `a < 1` remain core statements.
 -/
 
 noncomputable section
@@ -374,5 +388,249 @@ theorem hopping_sector_bottom {f : Idx d → ℝ} {θ : ℝ} (hθ : ∀ n, θ �
     θ - 1 ≤ sInf ((fun c => diagonalForm f c + kernelForm (hoppingKernel m₀ n₀) c) '' S) :=
   sector_bottom_ge_interacting (K := hoppingKernel m₀ n₀) hθ (by norm_num)
     (fun s => by simpa using hoppingKernel_sq_sum_le (d := d) m₀ n₀ s) S hne hS
+
+/-! ## 5. The `L²` lift: an off-diagonal interaction is a bounded form on all of `L²`
+
+§1–§4 live on the Gauss–polynomial core, and `YangMillsFormClosure`'s boundary records why the
+diagonal closure argument does not lift them: `closedForm f` is the supremum of its truncations,
+whereas a non-diagonal kernel form is **not** monotone along truncations, so there is nothing to
+take a supremum of.
+
+A Hilbert–Schmidt kernel does not need truncations.  The weighted double series
+
+`closedKernelForm K x = Re ∑_{m,n} K m n · x n · conj(x m)`
+
+converges absolutely for **every** `x ∈ ℓ²`, and obeys the *same* bound as on the core,
+
+`|closedKernelForm K x| ≤ σ · ‖x‖²`,
+
+where the two-index Cauchy–Schwarz of `kernelForm_sq_le` is replaced by a single Cauchy–Schwarz in
+`ℓ²(Idx d × Idx d)` between the kernel and the product of the two coefficient rows (Hölder with
+`p = q = 2`).  What the interaction costs is therefore the Hilbert–Schmidt constant on the whole
+space, not merely state by state on the core:
+
+* `tsum_sq_kernel_le` — the core hypothesis `hσ` is the total Hilbert–Schmidt mass, not just the
+  partial sums: `∑' p, ‖K p.1 p.2‖² ≤ σ²`;
+* `tsum_sq_weight_le` — the coefficient weight has total mass `‖x‖⁴`;
+* `abs_closedKernelForm_le` — the operator bound with the constant `σ`;
+* `closedKernelForm_coreEmbed` — on the core it *is* `kernelForm`, so this is a genuine extension
+  and not a different form;
+* `closed_diagonal_add_kernelForm_ge` — on the form domain (`closedForm f x ≠ ⊤`) the interacting
+  form is bounded below by `θ − σ` with no core hypothesis and no truncation;
+* `closed_sector_bottom_ge_interacting` / `closed_hopping_sector_bottom` — the Phase-1 sector
+  statement of §4 now holds on `L²`.
+
+That is also what closability needs: `abs_closedKernelForm_le` says the interaction is a *bounded*
+form perturbation of the closed diagonal form, so it is continuous in the `ℓ²` norm and the sum is
+closed on the diagonal form's domain. -/
+
+/-- **The kernel form on `L²`**: the absolutely convergent weighted double series, read as one
+sum over the product of the index type.  Every term is the pairing of the kernel entry `K m n` with
+the coefficient `x n` and the conjugate coefficient `x m`, exactly as on the core. -/
+def closedKernelForm (K : Idx d → Idx d → ℂ) (x : L2 d) : ℝ :=
+  (∑' p : Idx d × Idx d, K p.1 p.2 * x p.2 * (starRingEnd ℂ) (x p.1)).re
+
+/-- **The Hilbert–Schmidt mass is total.**  A kernel whose square sums over every pair of finite
+index sets are bounded by `σ²` has `∑' p, ‖K p.1 p.2‖² ≤ σ²`: a finite set of *pairs* is contained
+in the product of its two coordinate sets. -/
+theorem sq_kernel_finset_le {K : Idx d → Idx d → ℂ} {σ : ℝ}
+    (hσ : ∀ s : Finset (Idx d), ∑ m ∈ s, ∑ n ∈ s, ‖K m n‖ ^ 2 ≤ σ ^ 2)
+    (u : Finset (Idx d × Idx d)) : ∑ p ∈ u, ‖K p.1 p.2‖ ^ 2 ≤ σ ^ 2 := by
+  classical
+  set A := u.image Prod.fst ∪ u.image Prod.snd with hA
+  have hsub : u ⊆ A ×ˢ A := fun p hp =>
+    Finset.mem_product.mpr
+      ⟨Finset.mem_union_left _ (Finset.mem_image_of_mem _ hp),
+        Finset.mem_union_right _ (Finset.mem_image_of_mem _ hp)⟩
+  calc ∑ p ∈ u, ‖K p.1 p.2‖ ^ 2
+      ≤ ∑ p ∈ A ×ˢ A, ‖K p.1 p.2‖ ^ 2 :=
+        Finset.sum_le_sum_of_subset_of_nonneg hsub fun _ _ _ => by positivity
+    _ = ∑ m ∈ A, ∑ n ∈ A, ‖K m n‖ ^ 2 := by rw [Finset.sum_product]
+    _ ≤ σ ^ 2 := hσ A
+
+/-- The squared kernel entries are summable with total mass at most `σ²`. -/
+theorem summable_sq_kernel {K : Idx d → Idx d → ℂ} {σ : ℝ}
+    (hσ : ∀ s : Finset (Idx d), ∑ m ∈ s, ∑ n ∈ s, ‖K m n‖ ^ 2 ≤ σ ^ 2) :
+    Summable (fun p : Idx d × Idx d => ‖K p.1 p.2‖ ^ 2) :=
+  summable_of_sum_le (fun _ => by positivity) fun u => sq_kernel_finset_le hσ u
+
+/-- The total Hilbert–Schmidt mass is at most `σ²`. -/
+theorem tsum_sq_kernel_le {K : Idx d → Idx d → ℂ} {σ : ℝ}
+    (hσ : ∀ s : Finset (Idx d), ∑ m ∈ s, ∑ n ∈ s, ‖K m n‖ ^ 2 ≤ σ ^ 2) :
+    (∑' p : Idx d × Idx d, ‖K p.1 p.2‖ ^ 2) ≤ σ ^ 2 :=
+  Real.tsum_le_of_sum_le (fun _ => by positivity) fun u => sq_kernel_finset_le hσ u
+
+/-- **The coefficient weight has total mass `‖x‖⁴`.**  The weight of a pair `(m, n)` is
+`‖x n‖ ‖x m‖`, so its square sums to `(∑ ‖x‖²)² = ‖x‖⁴`; a finite set of pairs is again contained
+in the product of its coordinates, so the two factors are the two partial sums bounded by `‖x‖²`. -/
+theorem sq_weight_finset_le (x : L2 d) (u : Finset (Idx d × Idx d)) :
+    ∑ p ∈ u, (‖x p.2‖ * ‖x p.1‖) ^ 2 ≤ (‖x‖ ^ 2) ^ 2 := by
+  classical
+  set A := u.image Prod.fst ∪ u.image Prod.snd with hA
+  have hsub : u ⊆ A ×ˢ A := fun p hp =>
+    Finset.mem_product.mpr
+      ⟨Finset.mem_union_left _ (Finset.mem_image_of_mem _ hp),
+        Finset.mem_union_right _ (Finset.mem_image_of_mem _ hp)⟩
+  have hrow : ∑ p ∈ A ×ˢ A, (‖x p.2‖ * ‖x p.1‖) ^ 2
+      = (∑ n ∈ A, ‖x n‖ ^ 2) * (∑ m ∈ A, ‖x m‖ ^ 2) := by
+    rw [Finset.sum_product]
+    have hinner : ∀ m : Idx d, ∑ n ∈ A, (‖x n‖ * ‖x m‖) ^ 2 = (∑ n ∈ A, ‖x n‖ ^ 2) * ‖x m‖ ^ 2 := by
+      intro m
+      rw [Finset.sum_mul]
+      exact Finset.sum_congr rfl fun n _ => by ring
+    rw [Finset.sum_congr rfl fun m _ => hinner m, Finset.mul_sum]
+  have hHas : HasSum (fun n : Idx d => ‖x n‖ ^ 2) (‖x‖ ^ 2) := by
+    have h := lp.hasSum_norm (E := fun _ : Idx d => ℂ) (p := (2 : ℝ≥0∞)) (by norm_num) x
+    simpa using h
+  have hA : ∑ n ∈ A, ‖x n‖ ^ 2 ≤ ‖x‖ ^ 2 :=
+    (hHas.summable.sum_le_tsum A fun _ _ => by positivity).trans hHas.tsum_eq.le
+  refine (Finset.sum_le_sum_of_subset_of_nonneg hsub fun _ _ _ => by positivity).trans ?_
+  refine hrow.le.trans ?_
+  calc (∑ n ∈ A, ‖x n‖ ^ 2) * (∑ m ∈ A, ‖x m‖ ^ 2) ≤ (‖x‖ ^ 2) * (‖x‖ ^ 2) :=
+        mul_le_mul hA hA (by positivity) (by positivity)
+    _ = (‖x‖ ^ 2) ^ 2 := by ring
+
+/-- The squared coefficient weights are summable. -/
+theorem summable_sq_weight (x : L2 d) :
+    Summable (fun p : Idx d × Idx d => (‖x p.2‖ * ‖x p.1‖) ^ 2) :=
+  summable_of_sum_le (fun _ => by positivity) fun u => sq_weight_finset_le x u
+
+/-- The total coefficient weight is at most `‖x‖⁴`. -/
+theorem tsum_sq_weight_le (x : L2 d) :
+    (∑' p : Idx d × Idx d, (‖x p.2‖ * ‖x p.1‖) ^ 2) ≤ (‖x‖ ^ 2) ^ 2 :=
+  Real.tsum_le_of_sum_le (fun _ => by positivity) fun u => sq_weight_finset_le x u
+
+/-- **The Hilbert–Schmidt form bound on `L²`.**  For every state of `ℓ²` — not merely for core
+states — the kernel form is bounded by `σ` times the squared norm, with the same `σ` as the core
+estimate `abs_kernelForm_le_of_hs`.  The proof is Hölder with conjugate exponents `2, 2` in
+`ℓ²(Idx d × Idx d)`: the kernel is paired with the product of the two coefficient rows, whose
+`ℓ²` mass is `‖x‖⁴`.  This is `K` as a bounded operator on `ℓ²`, read as a quadratic form. -/
+theorem abs_closedKernelForm_le {K : Idx d → Idx d → ℂ} {σ : ℝ} (hσ0 : 0 ≤ σ)
+    (hσ : ∀ s : Finset (Idx d), ∑ m ∈ s, ∑ n ∈ s, ‖K m n‖ ^ 2 ≤ σ ^ 2) (x : L2 d) :
+    |closedKernelForm K x| ≤ σ * ‖x‖ ^ 2 := by
+  have hk : Summable (fun p : Idx d × Idx d => ‖K p.1 p.2‖ ^ 2) := summable_sq_kernel hσ
+  have hw : Summable (fun p : Idx d × Idx d => (‖x p.2‖ * ‖x p.1‖) ^ 2) := summable_sq_weight x
+  obtain ⟨hkw, hHolder⟩ :=
+    Real.inner_le_Lp_mul_Lq_tsum_of_nonneg (f := fun p : Idx d × Idx d => ‖K p.1 p.2‖)
+      (g := fun p : Idx d × Idx d => ‖x p.2‖ * ‖x p.1‖) (p := (2 : ℝ)) (q := (2 : ℝ))
+      (by rw [Real.holderConjugate_iff]; norm_num) (fun _ => norm_nonneg _) (fun _ => by positivity)
+      (by simpa [Real.rpow_two] using hk) (by simpa [Real.rpow_two] using hw)
+  have hk_tsum : (∑' p : Idx d × Idx d, ‖K p.1 p.2‖ ^ (2 : ℝ))
+      = ∑' p : Idx d × Idx d, ‖K p.1 p.2‖ ^ 2 :=
+    tsum_congr fun (p : Idx d × Idx d) => Real.rpow_two (‖K p.1 p.2‖)
+  have hw_tsum : (∑' p : Idx d × Idx d, (‖x p.2‖ * ‖x p.1‖) ^ (2 : ℝ))
+      = ∑' p : Idx d × Idx d, (‖x p.2‖ * ‖x p.1‖) ^ 2 :=
+    tsum_congr fun (p : Idx d × Idx d) => Real.rpow_two (‖x p.2‖ * ‖x p.1‖)
+  have h1 : ((∑' p : Idx d × Idx d, ‖K p.1 p.2‖ ^ (2 : ℝ))) ^ (1 / 2 : ℝ) ≤ σ := by
+    rw [hk_tsum]
+    refine (Real.rpow_le_rpow (by positivity) (tsum_sq_kernel_le hσ) (by norm_num)).trans ?_
+    rw [← Real.sqrt_eq_rpow, Real.sqrt_sq hσ0]
+  have h2 : ((∑' p : Idx d × Idx d, (‖x p.2‖ * ‖x p.1‖) ^ (2 : ℝ))) ^ (1 / 2 : ℝ) ≤ ‖x‖ ^ 2 := by
+    rw [hw_tsum]
+    refine (Real.rpow_le_rpow (by positivity) (tsum_sq_weight_le x) (by norm_num)).trans ?_
+    rw [← Real.sqrt_eq_rpow, Real.sqrt_sq (by positivity)]
+  have hbound : (∑' p : Idx d × Idx d, ‖K p.1 p.2‖ * (‖x p.2‖ * ‖x p.1‖)) ≤ σ * ‖x‖ ^ 2 :=
+    hHolder.trans (mul_le_mul h1 h2 (by positivity) hσ0)
+  have hz : ∀ p : Idx d × Idx d,
+      ‖K p.1 p.2 * x p.2 * (starRingEnd ℂ) (x p.1)‖
+        = ‖K p.1 p.2‖ * (‖x p.2‖ * ‖x p.1‖) := by
+    intro p
+    rw [norm_mul, norm_mul, starRingEnd_apply, norm_star]
+    ring
+  have hsum_norm :
+      Summable (fun p : Idx d × Idx d => ‖K p.1 p.2 * x p.2 * (starRingEnd ℂ) (x p.1)‖) := by
+    rw [funext hz]
+    exact hkw
+  have hnorm := norm_tsum_le_tsum_norm hsum_norm
+  calc |closedKernelForm K x|
+      ≤ ‖∑' p : Idx d × Idx d, K p.1 p.2 * x p.2 * (starRingEnd ℂ) (x p.1)‖ :=
+        Complex.abs_re_le_norm _
+    _ ≤ ∑' p : Idx d × Idx d, ‖K p.1 p.2 * x p.2 * (starRingEnd ℂ) (x p.1)‖ := hnorm
+    _ = ∑' p : Idx d × Idx d, ‖K p.1 p.2‖ * (‖x p.2‖ * ‖x p.1‖) := by rw [funext hz]
+    _ ≤ σ * ‖x‖ ^ 2 := hbound
+
+/-- **The lift extends the core form.**  On a Gauss–polynomial state the absolutely convergent
+series is the finite double sum of `kernelForm`, so `closedKernelForm` is the extension of the
+form §1–§4 are stated for, not a different form. -/
+theorem closedKernelForm_coreEmbed (K : Idx d → Idx d → ℂ) (c : CoreCoeff d) :
+    closedKernelForm K (coreEmbed c) = kernelForm K c := by
+  classical
+  have hzero : ∀ p : Idx d × Idx d, p ∉ c.support ×ˢ c.support →
+      K p.1 p.2 * coreEmbed c p.2 * (starRingEnd ℂ) (coreEmbed c p.1) = 0 := by
+    intro p hp
+    rw [Finset.mem_product, not_and_or] at hp
+    rcases hp with h | h
+    · have hx : coreEmbed c p.1 = 0 := by
+        rw [coreEmbed_apply]
+        exact Finsupp.notMem_support_iff.mp h
+      rw [hx]
+      simp
+    · have hx : coreEmbed c p.2 = 0 := by
+        rw [coreEmbed_apply]
+        exact Finsupp.notMem_support_iff.mp h
+      rw [hx]
+      simp
+  rw [closedKernelForm, tsum_eq_sum hzero, Finset.sum_product]
+  simp [kernelForm, coreEmbed_apply]
+
+/-- **Bottom stability on the form domain.**  With `θ` bounding the diagonal symbol and `σ` the
+Hilbert–Schmidt constant of the interaction, the interacting form is bounded below by `θ − σ` on
+the *whole* `L²` form domain, with no core hypothesis: `closedForm f x ≠ ⊤` is the form-domain
+condition, and `closedKernelForm` needs none at all because the kernel is Hilbert–Schmidt. -/
+theorem closed_diagonal_add_kernelForm_ge {f : Idx d → ℝ} {K : Idx d → Idx d → ℂ} {θ σ : ℝ}
+    (hθ : ∀ n, θ ≤ f n) (hσ0 : 0 ≤ σ)
+    (hσ : ∀ s : Finset (Idx d), ∑ m ∈ s, ∑ n ∈ s, ‖K m n‖ ^ 2 ≤ σ ^ 2) (x : L2 d)
+    (hfin : closedForm f x ≠ ⊤) :
+    (θ - σ) * ‖x‖ ^ 2 ≤ (closedForm f x).toReal + closedKernelForm K x := by
+  have hdiag : ENNReal.ofReal θ * closedNormSq x ≤ closedForm f x := closedForm_ge_of_le_symbol hθ x
+  have hdiagR : θ * ‖x‖ ^ 2 ≤ (closedForm f x).toReal := by
+    by_cases hθ0 : 0 ≤ θ
+    · have h1 : ENNReal.ofReal (θ * ‖x‖ ^ 2) ≤ closedForm f x := by
+        rw [ENNReal.ofReal_mul hθ0, ← closedNormSq_eq]
+        exact hdiag
+      have h2 := ENNReal.toReal_mono hfin h1
+      rwa [ENNReal.toReal_ofReal (mul_nonneg hθ0 (by positivity))] at h2
+    · have hneg : θ * ‖x‖ ^ 2 ≤ 0 := by
+        have hpos : (0 : ℝ) ≤ ‖x‖ ^ 2 := by positivity
+        nlinarith
+      exact hneg.trans ENNReal.toReal_nonneg
+  have hK : -(σ * ‖x‖ ^ 2) ≤ closedKernelForm K x := by
+    have h := abs_closedKernelForm_le hσ0 hσ x
+    have h' := neg_abs_le (closedKernelForm K x)
+    linarith
+  have hexp : (θ - σ) * ‖x‖ ^ 2 = θ * ‖x‖ ^ 2 - σ * ‖x‖ ^ 2 := by ring
+  rw [hexp]
+  linarith
+
+/-- **Restriction to any sector does not lower the interacting bottom, on `L²`.**  This is
+`sector_bottom_ge_interacting` on the whole Hilbert space: over any nonempty set of normalised
+retained states *on which the diagonal form is finite*, the Rayleigh infimum of the interacting
+form is at least `θ − σ`.  No truncation, no core condition, no hypothesis on the sector. -/
+theorem closed_sector_bottom_ge_interacting {f : Idx d → ℝ} {K : Idx d → Idx d → ℂ} {θ σ : ℝ}
+    (hθ : ∀ n, θ ≤ f n) (hσ0 : 0 ≤ σ)
+    (hσ : ∀ s : Finset (Idx d), ∑ m ∈ s, ∑ n ∈ s, ‖K m n‖ ^ 2 ≤ σ ^ 2)
+    (S : Set (L2 d)) (hne : S.Nonempty) (hS : ∀ x ∈ S, closedNormSq x = 1)
+    (hfin : ∀ x ∈ S, closedForm f x ≠ ⊤) :
+    θ - σ ≤ sInf ((fun x => (closedForm f x).toReal + closedKernelForm K x) '' S) := by
+  have hne' : ((fun x => (closedForm f x).toReal + closedKernelForm K x) '' S).Nonempty :=
+    ⟨_, ⟨hne.choose, hne.choose_spec, rfl⟩⟩
+  refine le_csInf hne' ?_
+  rintro _ ⟨x, hxS, rfl⟩
+  have h := closed_diagonal_add_kernelForm_ge hθ hσ0 hσ x (hfin x hxS)
+  have hnorm : ‖x‖ ^ 2 = 1 := by
+    have h := hS x hxS
+    rw [closedNormSq_eq] at h
+    have h' := congrArg ENNReal.toReal h
+    simpa [ENNReal.toReal_ofReal (by positivity)] using h'
+  rwa [hnorm, mul_one] at h
+
+/-- **The hopping interaction's bottom on `L²`.**  The constant is `1`, as on the core. -/
+theorem closed_hopping_sector_bottom {f : Idx d → ℝ} {θ : ℝ} (hθ : ∀ n, θ ≤ f n) (m₀ n₀ : Idx d)
+    (S : Set (L2 d)) (hne : S.Nonempty) (hS : ∀ x ∈ S, closedNormSq x = 1)
+    (hfin : ∀ x ∈ S, closedForm f x ≠ ⊤) :
+    θ - 1 ≤ sInf ((fun x => (closedForm f x).toReal + closedKernelForm (hoppingKernel m₀ n₀) x)
+      '' S) :=
+  closed_sector_bottom_ge_interacting (K := hoppingKernel m₀ n₀) hθ (by norm_num)
+    (fun s => by simpa using hoppingKernel_sq_sum_le (d := d) m₀ n₀ s) S hne hS hfin
 
 end BookProof.YangMillsFormClosureND
