@@ -1082,4 +1082,260 @@ theorem magnetic_closed_dom_of_scaled {A : Fin d → Fin d → ℝ} {f : Idx d �
     c₁ * (closedForm f x).toReal - C * ‖x‖ ^ 2 ≤ (closedForm (magSymbol A) x).toReal :=
   closed_dom_of_scaled_symbol_auto hc₁ (magSymbol_nonneg A) hC h x hx
 
+/-! ## 10. The sharp relative form bound of the ladder, uniform in the cut-off
+
+§7 treated the ladder as a *bounded* perturbation and paid `σ(Λ) ≍ Λ^{(d+1)/2}`.  As a *form*
+perturbation it costs far less, because the ladder is a sum of `√(nᵢ+1)`-weighted raises and each
+raise is a partial isometry:
+
+`Sᵢ eₙ = Aᵢ √(nᵢ+1) e_{raise n i}`,  `Sᵢ^* Sᵢ = Aᵢ² diag(nᵢ+1)`,  `Sᵢ Sᵢ^* ≤ Aᵢ² · 1`.
+
+The first identity is the occupation piece — the reference form carries it with ratio `1/2` after
+AM–GM with unit weight — and the second is the shift piece, whose sum over `n` is at most
+`Aᵢ²‖x‖²` because raising one occupation is *injective* (`sum_raiseIdx_le`).  Both constants below
+contain no `Λ`:
+
+`‖q_K(x)‖ ≤ ½ Q(x) + ½ (Σᵢ Aᵢ²) ‖x‖²`,  `Q(x) = Σₙ (Σᵢ (nᵢ+1)) ‖x n‖²`.
+
+That is the sharp uniform bound: `a = 1/2` with a cut-off-independent constant `(Σᵢ Aᵢ²)/2`.
+Rescaling the AM–GM weight `ε` moves along the family `(a, b) = (ε/2, (Σ Aᵢ²)/(2ε))`, so `a = 1/2`
+is the unit-weight member, not a claim that no other member exists. -/
+
+/-- Raise the `i`-th occupation by one, or leave the multi-index alone when the raise would leave
+the cut-off.  Making it a total map is what allows it to be reindexed. -/
+def raiseIdx {Λ : ℕ} (n : Fin d → Fin Λ) (i : Fin d) : Fin d → Fin Λ :=
+  if h : (n i).val + 1 < Λ then Function.update n i ⟨(n i).val + 1, h⟩ else n
+
+/-- **Raising one occupation by one is injective.**  Two indices that raise to the same
+multi-index agree at `i` (the raised value determines `nᵢ`) and at every other coordinate (the
+update leaves them alone). -/
+theorem update_succ_inj {Λ : ℕ} {i : Fin d} {n n' : Fin d → Fin Λ}
+    (h : (n i).val + 1 < Λ) (h' : (n' i).val + 1 < Λ)
+    (heq : Function.update n i ⟨(n i).val + 1, h⟩
+      = Function.update n' i ⟨(n' i).val + 1, h'⟩) : n = n' := by
+  classical
+  have hval : (n i).val + 1 = (n' i).val + 1 := by
+    have hhead : (⟨(n i).val + 1, h⟩ : Fin Λ) = ⟨(n' i).val + 1, h'⟩ := by
+      have h1 := congrFun heq i
+      rw [Function.update_apply, Function.update_apply] at h1
+      simpa using h1
+    exact congrArg Fin.val hhead
+  have hni : n i = n' i := Fin.ext (by omega)
+  funext j
+  by_cases hj : j = i
+  · subst hj
+    exact hni
+  · have h1 := congrFun heq j
+    have hji : ¬ (i = j) := fun hc => hj hc.symm
+    rw [Function.update_apply, Function.update_apply] at h1
+    simpa [hj, hji] using h1
+
+/-- **The raise is a partial isometry**: the raised coefficients summed over all multi-indices
+cost at most the whole norm.  Raising is injective on the indices where it is defined, so its image
+can be reindexed inside the full index set. -/
+theorem sum_raiseIdx_le {Λ : ℕ} (x : (Fin d → Fin Λ) → ℂ) (i : Fin d) :
+    ∑ n ∈ (Finset.univ : Finset (Fin d → Fin Λ)).filter (fun n => (n i).val + 1 < Λ),
+        ‖x (raiseIdx n i)‖ ^ 2
+      ≤ ∑ n, ‖x n‖ ^ 2 := by
+  classical
+  have hmem : ∀ n ∈ (Finset.univ : Finset (Fin d → Fin Λ)).filter
+      (fun n => (n i).val + 1 < Λ), (n i).val + 1 < Λ :=
+    fun n hn => (Finset.mem_filter.mp hn).2
+  have himg : ∑ n ∈ (Finset.univ : Finset (Fin d → Fin Λ)).filter
+        (fun n => (n i).val + 1 < Λ), ‖x (raiseIdx n i)‖ ^ 2
+      = ∑ m ∈ ((Finset.univ : Finset (Fin d → Fin Λ)).filter
+          (fun n => (n i).val + 1 < Λ)).image (fun n => raiseIdx n i), ‖x m‖ ^ 2 := by
+    refine Finset.sum_bij (fun n _ => raiseIdx n i) ?_ ?_ ?_ ?_
+    · intro a ha
+      exact Finset.mem_image_of_mem _ ha
+    · intro a₁ ha₁ a₂ ha₂ heq
+      have hr1 : raiseIdx a₁ i = Function.update a₁ i ⟨(a₁ i).val + 1, hmem a₁ ha₁⟩ := by
+        simp only [raiseIdx, dif_pos (hmem a₁ ha₁)]
+      have hr2 : raiseIdx a₂ i = Function.update a₂ i ⟨(a₂ i).val + 1, hmem a₂ ha₂⟩ := by
+        simp only [raiseIdx, dif_pos (hmem a₂ ha₂)]
+      have heq' : raiseIdx a₁ i = raiseIdx a₂ i := heq
+      rw [hr1, hr2] at heq'
+      exact update_succ_inj (hmem a₁ ha₁) (hmem a₂ ha₂) heq'
+    · intro b hb
+      obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp hb
+      exact ⟨a, ha, rfl⟩
+    · intro a _
+      rfl
+  rw [himg]
+  refine Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _) ?_
+  intro m _ _
+  rw [pow_two]
+  exact mul_nonneg (norm_nonneg _) (norm_nonneg _)
+
+/-- **The shift sum in the form the AM–GM produces it**: the same reindexing, with the guard as a
+plain `if` so that it matches the `dite` of the kernel definition pointwise. -/
+theorem sum_raise_ite_le {Λ : ℕ} (x : (Fin d → Fin Λ) → ℂ) (i : Fin d) :
+    ∑ n, (if (n i).val + 1 < Λ then ‖x (raiseIdx n i)‖ ^ 2 else 0) ≤ ∑ n, ‖x n‖ ^ 2 := by
+  refine (le_of_eq ?_).trans (sum_raiseIdx_le x i)
+  exact (Finset.sum_filter (s := Finset.univ)
+    (p := fun n : Fin d → Fin Λ => (n i).val + 1 < Λ)
+    (f := fun n => ‖x (raiseIdx n i)‖ ^ 2)).symm
+
+/-- **The ladder's matrix element, written as a sum over raising directions.** -/
+theorem ladder_form_eq_sum {Λ : ℕ} (A : Fin d → ℝ) (x : (Fin d → Fin Λ) → ℂ) :
+    (∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n)
+      = ∑ n, ∑ i, if h : (n i).val + 1 < Λ then
+          ((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)
+            * ((starRingEnd ℂ) (x (Function.update n i ⟨(n i).val + 1, h⟩)) * x n) else 0 := by
+  classical
+  have hstep : ∀ (m n : Fin d → Fin Λ),
+      (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n
+        = ∑ i, (starRingEnd ℂ) (x m) * magShiftTerm A n i m * x n := by
+    intro m n
+    rw [magCutoffKernel, Finset.mul_sum, Finset.sum_mul]
+  simp only [hstep]
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  by_cases h : (n i).val + 1 < Λ
+  · have hsingle : ∀ m : Fin d → Fin Λ,
+        (starRingEnd ℂ) (x m) * magShiftTerm A n i m * x n
+          = if m = Function.update n i ⟨(n i).val + 1, h⟩ then
+              ((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)
+                * ((starRingEnd ℂ) (x m) * x n) else 0 := by
+      intro m
+      rw [magShiftTerm, dif_pos h]
+      by_cases hm : m = Function.update n i ⟨(n i).val + 1, h⟩
+      · rw [if_pos hm, if_pos hm]
+        ring
+      · rw [if_neg hm, if_neg hm, mul_zero]
+        ring
+    rw [Finset.sum_congr rfl fun m _ => hsingle m, dif_pos h]
+    rw [Finset.sum_eq_single (Function.update n i ⟨(n i).val + 1, h⟩)]
+    · simp
+    · intro m _ hm
+      rw [if_neg hm]
+    · intro hmem
+      exact absurd (Finset.mem_univ _) hmem
+  · rw [dif_neg h]
+    refine Finset.sum_eq_zero fun m _ => ?_
+    rw [magShiftTerm, dif_neg h]
+    ring
+
+/-- **The sharp uniform form bound of the ladder.**  With `Q(x) = Σₙ (Σᵢ (nᵢ+1)) ‖x n‖²`,
+
+`‖q_K(x)‖ ≤ ½ Q(x) + ½ (Σᵢ Aᵢ²) ‖x‖²`,
+
+and neither `1/2` nor `(Σᵢ Aᵢ²)/2` depends on the cut-off `Λ`.  Compare §7: the *bounded* constant
+grows like `Λ^{(d+1)/2}`, while this form bound does not grow at all. -/
+theorem ladder_form_norm_le {Λ : ℕ} (A : Fin d → ℝ) (x : (Fin d → Fin Λ) → ℂ) :
+    ‖∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n‖
+      ≤ (1 / 2) * (∑ n, (∑ i, ((n i).val + 1 : ℝ)) * ‖x n‖ ^ 2)
+        + (1 / 2) * (∑ i, A i ^ 2) * (∑ n, ‖x n‖ ^ 2) := by
+  classical
+  rw [ladder_form_eq_sum]
+  -- the single-shift sums, which the reindexing lemma bounds
+  have hshift : ∀ i : Fin d,
+      ∑ n, (if h : (n i).val + 1 < Λ then
+          ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2 else 0) ≤ ∑ n, ‖x n‖ ^ 2 := by
+    intro i
+    have hpt : ∀ n : Fin d → Fin Λ,
+        (if h : (n i).val + 1 < Λ then
+            ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2 else 0)
+          = (if (n i).val + 1 < Λ then ‖x (raiseIdx n i)‖ ^ 2 else 0) := by
+      intro n
+      by_cases h : (n i).val + 1 < Λ
+      · rw [dif_pos h, if_pos h]
+        have hr : raiseIdx n i = Function.update n i ⟨(n i).val + 1, h⟩ := by
+          simp only [raiseIdx, dif_pos h]
+        rw [hr]
+      · rw [dif_neg h, if_neg h]
+    rw [Finset.sum_congr rfl fun n _ => hpt n]
+    exact sum_raise_ite_le x i
+  -- termwise AM–GM
+  have hterm : ∀ n : Fin d → Fin Λ, ∀ i : Fin d,
+      ‖(if h : (n i).val + 1 < Λ then
+          ((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)
+            * ((starRingEnd ℂ) (x (Function.update n i ⟨(n i).val + 1, h⟩)) * x n) else 0)‖
+        ≤ (if h : (n i).val + 1 < Λ then
+            (1 / 2) * (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2) else 0)
+          + (if h : (n i).val + 1 < Λ then
+              (1 / 2) * (A i ^ 2 * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2) else 0) := by
+    intro n i
+    by_cases h : (n i).val + 1 < Λ
+    · rw [dif_pos h, dif_pos h, dif_pos h]
+      have hc : ‖((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)‖
+          = |A i| * Real.sqrt ((n i).val + 1) := by
+        rw [Complex.norm_real, Real.norm_eq_abs, abs_mul, abs_of_nonneg (Real.sqrt_nonneg _)]
+      rw [norm_mul, norm_mul, Complex.norm_conj, hc]
+      have h2 : 2 * (|A i| * Real.sqrt ((n i).val + 1)
+            * (‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ * ‖x n‖))
+          ≤ (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2
+            + A i ^ 2 * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2) := by
+        have hsq : Real.sqrt ((n i).val + 1) ^ 2 = ((n i).val + 1 : ℝ) :=
+          Real.sq_sqrt (by positivity)
+        have habs : |A i| ^ 2 = A i ^ 2 := sq_abs _
+        nlinarith [sq_nonneg (Real.sqrt ((n i).val + 1) * ‖x n‖
+          - |A i| * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖), hsq, habs]
+      linarith
+    · rw [dif_neg h, dif_neg h, dif_neg h, norm_zero]
+      positivity
+  refine (norm_sum_le _ _).trans ?_
+  refine (Finset.sum_le_sum fun n _ => (norm_sum_le _ _).trans
+    (Finset.sum_le_sum fun i _ => hterm n i)).trans ?_
+  simp only [Finset.sum_add_distrib]
+  have hA1 : ∑ n, ∑ i, (if h : (n i).val + 1 < Λ then
+        (1 / 2) * (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2) else 0)
+      ≤ (1 / 2) * (∑ n, ((∑ i, ((n i).val : ℝ)) + (∑ _i : Fin d, (1 : ℝ))) * ‖x n‖ ^ 2) := by
+    have hinner : ∀ n : Fin d → Fin Λ,
+        ∑ i, (if h : (n i).val + 1 < Λ then
+            (1 / 2) * (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2) else 0)
+          ≤ (1 / 2) * (((∑ i, ((n i).val : ℝ)) + (∑ _i : Fin d, (1 : ℝ))) * ‖x n‖ ^ 2) := by
+      intro n
+      calc ∑ i, (if h : (n i).val + 1 < Λ then
+            (1 / 2) * (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2) else 0)
+          ≤ ∑ i, (1 / 2) * (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2) := by
+            refine Finset.sum_le_sum fun i _ => ?_
+            by_cases h : (n i).val + 1 < Λ
+            · rw [dif_pos h]
+            · rw [dif_neg h]
+              positivity
+        _ = (1 / 2) * ((∑ i, ((n i).val + 1 : ℝ)) * ‖x n‖ ^ 2) := by
+            rw [← Finset.mul_sum, Finset.sum_mul]
+        _ = (1 / 2) * (((∑ i, ((n i).val : ℝ)) + (∑ _i : Fin d, (1 : ℝ)))
+              * ‖x n‖ ^ 2) := by
+            rw [Finset.sum_add_distrib]
+    refine (Finset.sum_le_sum fun n _ => hinner n).trans (le_of_eq ?_)
+    rw [← Finset.mul_sum]
+  have hA2 : ∑ n, ∑ i, (if h : (n i).val + 1 < Λ then
+        (1 / 2) * (A i ^ 2 * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2) else 0)
+      ≤ (1 / 2) * (∑ i, A i ^ 2) * (∑ n, ‖x n‖ ^ 2) := by
+    rw [Finset.sum_comm]
+    have hrow : ∀ i : Fin d, ∑ n, (if h : (n i).val + 1 < Λ then
+          (1 / 2) * (A i ^ 2 * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2) else 0)
+        ≤ (1 / 2) * A i ^ 2 * (∑ n, ‖x n‖ ^ 2) := by
+      intro i
+      have hfac : ∀ n : Fin d → Fin Λ,
+          (if h : (n i).val + 1 < Λ then
+              (1 / 2) * (A i ^ 2 * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2) else 0)
+            = (1 / 2) * A i ^ 2 * (if h : (n i).val + 1 < Λ then
+                ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2 else 0) := by
+        intro n
+        by_cases h : (n i).val + 1 < Λ
+        · rw [dif_pos h, dif_pos h]
+          ring
+        · rw [dif_neg h, dif_neg h, mul_zero]
+      rw [Finset.sum_congr rfl fun n _ => hfac n, ← Finset.mul_sum]
+      refine mul_le_mul_of_nonneg_left (hshift i) ?_
+      positivity
+    refine (Finset.sum_le_sum fun i _ => hrow i).trans (le_of_eq ?_)
+    rw [← Finset.sum_mul]
+    congr 1
+    rw [Finset.mul_sum]
+  exact add_le_add hA1 hA2
+
+/-- **The sharp relative form bound, in the shape §6 consumes.**  Taking the real part of the
+ladder form (which is what `closedKernelForm` reads) costs nothing: `|Re z| ≤ ‖z‖`. -/
+theorem ladder_form_abs_re_le {Λ : ℕ} (A : Fin d → ℝ) (x : (Fin d → Fin Λ) → ℂ) :
+    |(∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n).re|
+      ≤ (1 / 2) * (∑ n, (∑ i, ((n i).val + 1 : ℝ)) * ‖x n‖ ^ 2)
+        + (1 / 2) * (∑ i, A i ^ 2) * (∑ n, ‖x n‖ ^ 2) := by
+  refine (Complex.abs_re_le_norm _).trans (ladder_form_norm_le A x)
+
 end BookProof.YangMillsFormClosureND

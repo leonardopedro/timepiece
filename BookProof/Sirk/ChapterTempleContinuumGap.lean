@@ -515,6 +515,164 @@ theorem samePointProduct_form_eq_momentum (F G f : ZMod n → ℂ) :
   have h := sum_conj_dft_mul_dft f (fun x => samePointProduct F G x * f x)
   simpa only [mul_assoc] using h
 
+/-- **The momentum-transfer matrix preserves the `ℓ²` mass of the symbol.**  Each entry is
+`n⁻¹ V̂ (k − i)`, and `(k, i) ↦ k − i` is `n`-to-one, so the double sum of `‖momentumCol V k i‖²`
+is `n⁻¹ ∑_l ‖V̂ l‖²`, which Plancherel turns back into `∑_x ‖V x‖²`.  So the passage from a symbol
+to its momentum-transfer matrix loses nothing: the Hilbert–Schmidt mass is carried over unchanged,
+which is what lets the `σ` of a position-space symbol be read off in the momentum picture. -/
+theorem momentumCol_hs_mass (V : ZMod n → ℂ) :
+    ∑ k : ZMod n, ∑ i : ZMod n, ‖momentumCol V k i‖ ^ 2 = ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+  have hcol : ∀ k : ZMod n, ∑ i : ZMod n, ‖momentumCol V k i‖ ^ 2
+      = ∑ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2 := by
+    intro k
+    refine Finset.sum_bij (fun i _ => k - i) (fun _ _ => Finset.mem_univ _) ?_ ?_ ?_
+    · intro a _ b _ hab
+      have h' : k - a = k - b := hab
+      exact neg_inj.mp (add_left_cancel (a := k) (by simpa using h'))
+    · intro b _
+      exact ⟨k - b, Finset.mem_univ _, by simp⟩
+    · intro a _
+      simp [momentumCol]
+  have hnorm : ∀ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2
+      = (n : ℝ)⁻¹ ^ 2 * ‖ZMod.dft V l‖ ^ 2 := by
+    intro l
+    rw [norm_mul, mul_pow, norm_inv, Complex.norm_natCast]
+  have hsq : ∀ z : ℂ, (conj z * z).re = ‖z‖ ^ 2 := by
+    intro z
+    rw [Complex.mul_re, Complex.conj_re, Complex.conj_im, ← Complex.normSq_eq_norm_sq,
+      Complex.normSq_apply]
+    ring
+  have hplan : ∑ l : ZMod n, ‖ZMod.dft V l‖ ^ 2 = (n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+    have h := congrArg Complex.re (sum_conj_dft_mul_dft V V)
+    have hW : ((n : ℂ) * ∑ x : ZMod n, conj (V x) * V x).re
+        = (n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+      rw [Complex.mul_re]
+      simp [Complex.re_sum, hsq]
+    rw [Complex.re_sum, hW] at h
+    simpa [hsq] using h
+  have hn : (n : ℝ) ≠ 0 := by
+    have := NeZero.ne n
+    exact_mod_cast this
+  calc ∑ k : ZMod n, ∑ i : ZMod n, ‖momentumCol V k i‖ ^ 2
+      = ∑ _k : ZMod n, ∑ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2 :=
+        Finset.sum_congr rfl fun k _ => hcol k
+    _ = (n : ℝ) * ∑ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2 := by
+        rw [Finset.sum_const, Finset.card_univ, ZMod.card, nsmul_eq_mul]
+    _ = ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+        have hsplit : ∑ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2
+            = (n : ℝ)⁻¹ ^ 2 * ∑ l : ZMod n, ‖ZMod.dft V l‖ ^ 2 := by
+          rw [Finset.sum_congr rfl (fun l _ => hnorm l), ← Finset.mul_sum]
+        rw [hsplit, hplan]
+        have hnum : (n : ℝ) * ((n : ℝ)⁻¹ ^ 2 * ((n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2))
+            = ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+          calc (n : ℝ) * ((n : ℝ)⁻¹ ^ 2 * ((n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2))
+              = ((n : ℝ) * (n : ℝ)⁻¹)
+                  * ((n : ℝ)⁻¹ * ((n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2)) := by ring
+            _ = (n : ℝ)⁻¹ * ((n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2) := by
+                rw [mul_inv_cancel₀ hn, one_mul]
+            _ = ∑ x : ZMod n, ‖V x‖ ^ 2 := by rw [inv_mul_cancel_left₀ hn]
+        rw [hnum]
+
+/-- **The coincident-point product carries the product symbol's mass.**  Composing
+`momentumCol_hs_mass` with `V = F·G`: the momentum convolution of two outer fields at the same point
+has Hilbert–Schmidt mass exactly `∑_x ‖F x‖²‖G x‖²`, the `ℓ²` mass of the pointwise product — so a
+bound on the coincident-point product in position space *is* a bound on the momentum-transfer
+matrix in the momentum picture, with no loss. -/
+theorem momentumCol_samePointProduct_hs_mass (F G : ZMod n → ℂ) :
+    ∑ k : ZMod n, ∑ i : ZMod n, ‖momentumCol (samePointProduct F G) k i‖ ^ 2
+      = ∑ x : ZMod n, ‖F x‖ ^ 2 * ‖G x‖ ^ 2 := by
+  rw [momentumCol_hs_mass]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [samePointProduct, norm_mul, mul_pow]
+
+/-- **The `σ` transfers to the outer-Fock form.**  For a finite one-particle matrix `T`,
+`|∑_{k,i} conj(f k) T k i f i| ≤ ‖T‖_HS ‖f‖²`; in the momentum picture of a coincident-point
+product `T = momentumCol (F·G)`, whose mass is `∑_x ‖F x‖²‖G x‖²` by
+`momentumCol_samePointProduct_hs_mass`.  So the form of the product field is bounded by
+`√(∑_x ‖F x‖²‖G x‖²) · ‖f̂‖²` — the Hilbert–Schmidt constant of the position-space symbol, read on
+the momentum-transfer form. -/
+theorem samePointProduct_form_hs_bound (F G f : ZMod n → ℂ) :
+    ‖∑ k : ZMod n, conj (ZMod.dft f k)
+        * ∑ i : ZMod n, momentumCol (samePointProduct F G) k i * ZMod.dft f i‖
+      ≤ Real.sqrt (∑ x : ZMod n, ‖F x‖ ^ 2 * ‖G x‖ ^ 2) * ∑ k : ZMod n, ‖ZMod.dft f k‖ ^ 2 := by
+  set T : ZMod n → ZMod n → ℂ := momentumCol (samePointProduct F G) with hT
+  have hsq : ∑ k : ZMod n, ∑ i : ZMod n, ‖T k i‖ ^ 2
+      = ∑ x : ZMod n, ‖F x‖ ^ 2 * ‖G x‖ ^ 2 := by
+    rw [hT]
+    exact momentumCol_samePointProduct_hs_mass F G
+  set σ := Real.sqrt (∑ x : ZMod n, ‖F x‖ ^ 2 * ‖G x‖ ^ 2) with hσ
+  have hσ0 : 0 ≤ σ := Real.sqrt_nonneg _
+  have hσ2 : σ ^ 2 = ∑ k : ZMod n, ∑ i : ZMod n, ‖T k i‖ ^ 2 := by
+    rw [hσ, Real.sq_sqrt (Finset.sum_nonneg fun x _ => by positivity), hsq]
+  -- Cauchy–Schwarz on the finite matrix, with the coefficient weight on both sides
+  have hrow : ∀ k : ZMod n, ‖∑ i : ZMod n, T k i * ZMod.dft f i‖
+      ≤ Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2)
+        * Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) := by
+    intro k
+    have hCS := Finset.sum_mul_sq_le_sq_mul_sq (Finset.univ) (fun i : ZMod n => ‖T k i‖)
+      (fun i : ZMod n => ‖ZMod.dft f i‖)
+    have hnorm : ‖∑ i : ZMod n, T k i * ZMod.dft f i‖
+        ≤ ∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖ := by
+      refine (norm_sum_le (s := Finset.univ) (f := fun i : ZMod n => T k i * ZMod.dft f i)).trans ?_
+      exact Finset.sum_le_sum fun i _ => le_of_eq (norm_mul _ _)
+    refine hnorm.trans ?_
+    have hsq2 : (∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖) ^ 2
+        ≤ (∑ i : ZMod n, ‖T k i‖ ^ 2) * (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) := hCS
+    have hna : (0 : ℝ) ≤ ∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖ := by positivity
+    calc ∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖
+        = Real.sqrt ((∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖) ^ 2) := (Real.sqrt_sq hna).symm
+      _ ≤ Real.sqrt ((∑ i : ZMod n, ‖T k i‖ ^ 2)
+            * (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2)) := Real.sqrt_le_sqrt hsq2
+      _ = Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2)
+            * Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) := Real.sqrt_mul (by positivity) _
+  have hwhole := norm_sum_le (s := Finset.univ) (f := fun k : ZMod n =>
+    conj (ZMod.dft f k) * ∑ i : ZMod n, T k i * ZMod.dft f i)
+  refine hwhole.trans ?_
+  have hterm : ∀ k : ZMod n, ‖conj (ZMod.dft f k) * ∑ i : ZMod n, T k i * ZMod.dft f i‖
+      ≤ Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2) * ‖ZMod.dft f k‖
+        * Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) := by
+    intro k
+    rw [norm_mul, Complex.norm_conj]
+    have := hrow k
+    have h0 : (0 : ℝ) ≤ ‖ZMod.dft f k‖ := norm_nonneg _
+    calc ‖ZMod.dft f k‖ * ‖∑ i : ZMod n, T k i * ZMod.dft f i‖
+        ≤ ‖ZMod.dft f k‖ * (Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2)
+            * Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2)) :=
+          mul_le_mul_of_nonneg_left this h0
+      _ = _ := by ring
+  refine (Finset.sum_le_sum fun k _ => hterm k).trans ?_
+  set Sf := Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) with hSf
+  set M := ∑ k : ZMod n, Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2) * ‖ZMod.dft f k‖ with hM
+  have hfac : ∑ k : ZMod n, Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2) * ‖ZMod.dft f k‖ * Sf
+      = Sf * M := by
+    rw [hM, Finset.mul_sum]
+    exact Finset.sum_congr rfl fun k _ => by ring
+  rw [hfac]
+  -- ∑_k a_k b_k ≤ σ √(∑ b_k²) with ∑ a_k² = σ²
+  have hCS := Finset.sum_mul_sq_le_sq_mul_sq (Finset.univ)
+    (fun k : ZMod n => Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2))
+    (fun k : ZMod n => ‖ZMod.dft f k‖)
+  have hsumsq : ∑ k : ZMod n, (Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2)) ^ 2 = σ ^ 2 := by
+    rw [hσ2]
+    exact Finset.sum_congr rfl fun k _ => Real.sq_sqrt (by positivity)
+  have hM0 : (0 : ℝ) ≤ M := by
+    rw [hM]
+    exact Finset.sum_nonneg fun k _ => mul_nonneg (Real.sqrt_nonneg _) (norm_nonneg _)
+  have hSf2 : Sf ^ 2 = ∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2 := by
+    rw [hSf, Real.sq_sqrt (by positivity)]
+  rw [hsumsq] at hCS
+  have hMle : M ^ 2 ≤ σ ^ 2 * Sf ^ 2 := by
+    rw [hM, hSf2]
+    exact hCS
+  have hMle' : M ≤ σ * Sf := by
+    calc M = Real.sqrt (M ^ 2) := (Real.sqrt_sq hM0).symm
+      _ ≤ Real.sqrt (σ ^ 2 * Sf ^ 2) := Real.sqrt_le_sqrt hMle
+      _ = σ * Sf := by
+          rw [Real.sqrt_mul (by positivity), Real.sqrt_sq hσ0, Real.sqrt_sq (Real.sqrt_nonneg _)]
+  calc Sf * M ≤ Sf * (σ * Sf) := mul_le_mul_of_nonneg_left hMle' (Real.sqrt_nonneg _)
+    _ = σ * Sf ^ 2 := by ring
+    _ = σ * ∑ k : ZMod n, ‖ZMod.dft f k‖ ^ 2 := by rw [hSf2]
+
 /-- **The squared field at a coincident point is a nonnegative form.**  For a real field `F`,
 `∑ x, conj (f x) (F·F)(x) f x` is a sum of `F(x)²‖f x‖²`, hence nonnegative.  This is the
 positivity input of the gap chain (`IsPosCol`-shaped, through `isPosCol_opCol`), and it is read

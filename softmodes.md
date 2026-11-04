@@ -354,6 +354,27 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    the eliminated theory's magnetic slot, and carrying `σ(Λ)` across needs the off-diagonal part of
    the reduced Hamiltonian — not done.
 
+   The **sharp** bound is available at the cut-off: `ladder_form_norm_le` (§10) proves
+   `‖q_K(x)‖ ≤ ½·Q(x) + ½·(Σᵢ Aᵢ²)·‖x‖²` with `Q(x) = Σₙ (Σᵢ (nᵢ+1))‖x n‖²`, and **no constant
+   depends on `Λ`**.  The reason is structural rather than computational: the ladder is a sum of
+   `√(nᵢ+1)`-weighted raises, each raise is a partial isometry with `Sᵢ*Sᵢ = Aᵢ²·diag(nᵢ+1)` and
+   `SᵢSᵢ* ≤ Aᵢ²·1`, so unit-weight AM–GM puts the occupation piece on the reference form with ratio
+   `1/2` and the shift piece is bounded by `Aᵢ²‖x‖²` because raising one occupation is injective
+   (`sum_raiseIdx_le`, `update_succ_inj`).  Rescaling the AM–GM weight moves along the family
+   `(a, b) = (ε/2, (Σ Aᵢ²)/(2ε))`, so `a = 1/2` is the unit-weight member.
+
+   And the Hilbert–Schmidt constant does transfer to the outer-Fock picture after all, on the
+   momentum side: `momentumCol_hs_mass` shows the momentum-transfer matrix of a symbol has *exactly*
+   the symbol's `ℓ²` mass (`∑_k ∑_i ‖momentumCol V k i‖² = ∑_x ‖V x‖²`, via `(k,i) ↦ k−i` and
+   Plancherel), and `momentumCol_samePointProduct_hs_mass` specialises it to a coincident-point
+   product: mass `∑_x ‖F x‖²‖G x‖²`.  So `samePointProduct_form_hs_bound` bounds the form by
+   `√(∑_x ‖F x‖²‖G x‖²)·‖f̂‖²` — the position-space `σ`, read on the momentum-transfer form.  On the
+   BRST side the identification fails for a stated reason rather than an omission:
+   `gaugeReduce_extTorsionCoef` writes every reduced torsion coefficient as `if x.1 = k then …`,
+   i.e. the reduced one-particle matrix is *diagonal in momentum* and its off-diagonal block is zero
+   (`gaugeReduce_extTorsionCoef_offDiag_eq_zero`), whereas the ladder moves one quantum between
+   modes.  Different objects.
+
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
 separation `β∞ − θ∞ ≥ c₁Δ_ref` is still an input there (see the status of Phase 4).

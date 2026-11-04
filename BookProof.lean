@@ -3477,6 +3477,16 @@ import BookProof.YangMillsFormClosure
 -- comparison.  The continuum itself is formalized elsewhere (outer-Fock `dGamma`, and the
 -- coincident-point product as the momentum convolution `samePointProduct_form_eq_momentum`); what the
 -- coefficient model has is a diagonal magnetic slot, so the ladder is a model of the coupling.
+-- §10 proves the sharp uniform bound at the cut-off, `‖q_K‖ ≤ ½Q + ½(ΣAᵢ²)‖x‖²` with `Q(x) =
+-- Σₙ (Σᵢ(nᵢ+1))‖x n‖²` and **no `Λ` in the constants**: the ladder is a sum of √(nᵢ+1)-weighted
+-- raises, each a partial isometry, so unit-weight AM–GM puts the occupation piece on the form with
+-- ratio 1/2 and the shift piece is bounded by `Aᵢ²‖x‖²` because raising is injective.  On the
+-- momentum side `momentumCol_hs_mass` shows the transfer matrix preserves the symbol's ℓ² mass
+-- (`∑_k∑_i ‖momentumCol V k i‖² = ∑_x ‖V x‖²`), so a position-space `σ` reads on the momentum form
+-- (`momentumCol_samePointProduct_hs_mass`, `samePointProduct_form_hs_bound`).  On the BRST side the
+-- identification is not available and the reason is proved: `gaugeReduce_extTorsionCoef` makes the
+-- reduced one-particle matrix momentum-diagonal, so its off-diagonal block vanishes
+-- (`gaugeReduce_extTorsionCoef_offDiag_eq_zero`) while the ladder moves one quantum between modes.
 import BookProof.YangMillsFormClosureNonDiagonal
 -- 2026-10-30 (`softmodes.md` Phase 2): Simon's transverse zero-point energy on the Cartan flat
 -- directions.  `parallelDegree`/`perpDegree`/`rootCount` split the degree form into Cartan and
