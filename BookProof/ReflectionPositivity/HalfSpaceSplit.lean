@@ -1,6 +1,7 @@
 import Mathlib
 import BookProof.ReflectionPositivity.Proof
 import BookProof.ReflectionPositivity.LatticeFreeField
+import BookProof.ReflectionPositivity.WilsonLattice
 
 /-!
 # The half-space splitting of the lattice index set
@@ -246,6 +247,132 @@ theorem isReflectionPositive_of_splitIntegral (ω : MeasureTheory.Measure Config
   rw [osForm_eq_integral_splitMap ω f hf]
   exact h f
 
+/-! ## 6. Identifying `splitMap ω` with `fkKernelMeasure` / `wilsonMeasure`
+
+§5 pushed a functional's OS form to split coordinates and reduced the lattice OS theorems to
+nonnegativity of `∫ p, fkOSForm f ((), p) ∂(splitMap ω)`.  The item §5 left open was that
+`splitMap ω` *be* one of those measures.  This section supplies that identification.
+
+The boundary factor of `fkKernelMeasure ρd νd` is `PUnit` here: `cellsPerBlock = 16` is even, so
+`θ` has no fixed point and there is no invariant time slice to carry a boundary law.  On
+`PUnit × (Y × Y)` the identification is then the trivial one — the boundary coordinate is `()`,
+i.e. `((), p) = p` — so a measure whose split *is* the lattice kernel law read on the future half
+literally is `fkKernelMeasure ρd νd`:
+
+* **`map_snd_map_mk`** — pushing `fkKernelMeasure` to its second factor and re-inserting the
+trivial boundary gives the same measure back;
+* **`integral_snd_fkKernel`** — hence the OS integral in split coordinates *is* the kernel-model
+  integral `∫ fkOSForm f ∂(fkKernelMeasure ρd νd)` — the exact quantity
+  `fkKernel_reflectionPositive` bounds below;
+* **`isReflectionPositive_of_fkKernelMeasure`** — so if `splitMap ω` is that measure (read on the
+  future half), the lattice theorem discharges `hRP` with **no hypothesis on the OS form at all**.
+
+The Wilson measure composes the same way through `wilsonMeasure_eq_fkKernelMeasure`: its two
+densities are `wilsonBoundaryWeight`/`wilsonHalfWeight`, and with `Gz = PUnit`, `Gy = PosTime → ℝ`
+the statement below is `wilson_reflectionPositive` read in the split coordinates of the continuum
+theorem. -/
+
+open MeasureTheory
+
+/-- Re-inserting the (trivial) boundary coordinate is measurable. -/
+theorem measurable_mk_unit :
+    Measurable fun p : (PosTime → ℝ) × (PosTime → ℝ) => ((), p) :=
+  measurable_prodMk_left
+
+/-- **The boundary coordinate carries no information**: `((), p) = p` on `PUnit × (Y × Y)`. -/
+theorem mk_unit_snd_eq_id :
+    (fun p : PUnit × ((PosTime → ℝ) × (PosTime → ℝ)) => ((), p.2)) = id := by
+  funext p
+  exact Prod.ext (Subsingleton.elim _ _) rfl
+
+/-- **The kernel measure read on its future half and re-inserted is itself.**  This is the
+identification in the direction the lattice theorems need: the split measure, pushed along
+`Prod.snd` and read with a trivial boundary factor, is `fkKernelMeasure ρd νd`. -/
+theorem map_snd_map_mk (μ : MeasureTheory.Measure (PUnit × ((PosTime → ℝ) × (PosTime → ℝ)))) :
+    (μ.map Prod.snd).map (fun p : (PosTime → ℝ) × (PosTime → ℝ) => ((), p)) = μ := by
+  rw [MeasureTheory.Measure.map_map measurable_mk_unit measurable_snd,
+    MeasureTheory.Measure.map_congr (Filter.Eventually.of_forall fun x => ?_),
+    MeasureTheory.Measure.map_id]
+  exact Prod.ext (Subsingleton.elim _ _) rfl
+
+/-- **The OS integral in split coordinates is the kernel Feynman–Kac integral.**  Integrating
+`fkOSForm f` against `(fkKernelMeasure ρd νd).map Prod.snd` — the shape §5 produces — is the same
+integral as against `fkKernelMeasure ρd νd` itself, which is what `fkKernel_reflectionPositive`
+bounds below. -/
+theorem integral_snd_fkKernel (ρd : PUnit → ℝ) (νd : PUnit → (PosTime → ℝ) → ℝ)
+    (G : PUnit × ((PosTime → ℝ) × (PosTime → ℝ)) → ℝ)
+    (hG : MeasureTheory.AEStronglyMeasurable G
+      (fkKernelMeasure (Z₀ := PUnit) (Y := PosTime → ℝ) ρd νd)) :
+    ∫ p, G ((), p)
+        ∂((fkKernelMeasure (Z₀ := PUnit) (Y := PosTime → ℝ) ρd νd).map Prod.snd)
+      = ∫ q, G q ∂(fkKernelMeasure (Z₀ := PUnit) (Y := PosTime → ℝ) ρd νd) := by
+  have hG' : MeasureTheory.AEStronglyMeasurable G
+      (((fkKernelMeasure (Z₀ := PUnit) (Y := PosTime → ℝ) ρd νd).map Prod.snd).map
+        fun p : (PosTime → ℝ) × (PosTime → ℝ) => ((), p)) := by
+    rw [map_snd_map_mk]
+    exact hG
+  rw [← MeasureTheory.integral_map measurable_mk_unit.aemeasurable hG', map_snd_map_mk]
+
+/-- **The lattice OS theorems discharge `hRP` with no hypothesis on the OS form.**  If the split
+of a measure on `Config` is the lattice kernel law `fkKernelMeasure ρd νd` read on the future half,
+then the OS form of every future-half observable is nonnegative — by
+`fkKernel_reflectionPositive`, whose hypotheses are only measurability, nonnegativity of the two
+densities and the integrability of the OS integrand.  The `hRP` of `reflection_positivity_continuum`
+for such a functional is therefore a theorem, not an assumption. -/
+theorem isReflectionPositive_of_fkKernelMeasure (ω : MeasureTheory.Measure Config)
+    (ρd : PUnit → ℝ) (νd : PUnit → (PosTime → ℝ) → ℝ)
+    (hsplit : splitMap ω =
+      (fkKernelMeasure (Z₀ := PUnit) (Y := PosTime → ℝ) ρd νd).map Prod.snd)
+    (hD : Measurable fun p : PUnit × ((PosTime → ℝ) × (PosTime → ℝ)) =>
+      fkKernelDensity ρd νd p)
+    (hρ : ∀ z, 0 ≤ ρd z) (hν : ∀ z y, 0 ≤ νd z y)
+    (f : PUnit → (PosTime → ℝ) → ℝ)
+    (hint : MeasureTheory.Integrable (fun p : PUnit × ((PosTime → ℝ) × (PosTime → ℝ)) =>
+        fkKernelDensity ρd νd p * fkOSForm f p)
+      ((volume : MeasureTheory.Measure PUnit).prod
+        ((volume : MeasureTheory.Measure (PosTime → ℝ)).prod
+          (volume : MeasureTheory.Measure (PosTime → ℝ)))))
+    (hF : MeasureTheory.AEStronglyMeasurable (fkOSForm f)
+      (fkKernelMeasure (Z₀ := PUnit) (Y := PosTime → ℝ) ρd νd))
+    (hf : MeasureTheory.AEStronglyMeasurable
+      (fun p : (PosTime → ℝ) × (PosTime → ℝ) => fkOSForm f ((), p)) (splitMap ω)) :
+    0 ≤ osForm (fun F => ∫ x, F x ∂ω) (fun y => f () ((configSplit y).2))
+      (fun y => f () ((configSplit y).2)) := by
+  rw [osForm_eq_integral_splitMap ω f hf, hsplit,
+    integral_snd_fkKernel ρd νd (fkOSForm f) hF]
+  exact fkKernel_reflectionPositive ρd νd f hD hρ hν hint
+
+/-- **The Wilson case.**  `wilsonMeasure` *is* `fkKernelMeasure` of its two interacting densities
+(`wilsonMeasure_eq_fkKernelMeasure`), so the interacting lattice OS theorem feeds the same
+hypothesis: with the plaquette weights `wilsonBoundaryWeight`, `wilsonHalfWeight` the measure
+`(wilsonMeasure β N U b).map Prod.snd` is the split law, and `hRP` follows from
+`wilson_reflectionPositive` through the identification above. -/
+theorem isReflectionPositive_of_wilsonKernelMeasure (ω : MeasureTheory.Measure Config)
+    {β : ℝ} {N : ℕ}
+    {P : Type*} [Fintype P]
+    {U : P → (PosTime → ℝ) → PUnit → Matrix (Fin N) (Fin N) ℂ} {b : PUnit → ℝ}
+    (hsplit : splitMap ω =
+      (wilsonMeasure (Gz := PUnit) (Gy := PosTime → ℝ) β N U b).map Prod.snd)
+    (hD : Measurable fun p : PUnit × ((PosTime → ℝ) × (PosTime → ℝ)) =>
+      fkKernelDensity (wilsonBoundaryWeight b) (wilsonHalfWeight β N U) p)
+    (hρ : ∀ z, 0 ≤ wilsonBoundaryWeight b z)
+    (hν : ∀ z y, 0 ≤ wilsonHalfWeight β N U z y)
+    (f : PUnit → (PosTime → ℝ) → ℝ)
+    (hint : MeasureTheory.Integrable (fun p : PUnit × ((PosTime → ℝ) × (PosTime → ℝ)) =>
+        fkKernelDensity (wilsonBoundaryWeight b) (wilsonHalfWeight β N U) p * fkOSForm f p)
+      ((volume : MeasureTheory.Measure PUnit).prod
+        ((volume : MeasureTheory.Measure (PosTime → ℝ)).prod
+          (volume : MeasureTheory.Measure (PosTime → ℝ)))))
+    (hF : MeasureTheory.AEStronglyMeasurable (fkOSForm f)
+      (fkKernelMeasure (Z₀ := PUnit) (Y := PosTime → ℝ)
+        (wilsonBoundaryWeight b) (wilsonHalfWeight β N U)))
+    (hf : MeasureTheory.AEStronglyMeasurable
+      (fun p : (PosTime → ℝ) × (PosTime → ℝ) => fkOSForm f ((), p)) (splitMap ω)) :
+    0 ≤ osForm (fun F => ∫ x, F x ∂ω) (fun y => f () ((configSplit y).2))
+      (fun y => f () ((configSplit y).2)) := by
+  refine isReflectionPositive_of_fkKernelMeasure ω (wilsonBoundaryWeight b)
+    (wilsonHalfWeight β N U) ?_ hD hρ hν f hint hF hf
+  rw [hsplit, wilsonMeasure_eq_fkKernelMeasure]
 
 end
 
