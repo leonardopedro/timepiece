@@ -404,6 +404,14 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    `momentumColT4 (∏ j, F j)`; there is no `momentumCol_hs_mass` analogue on the 4-torus, so there
    the chain is read through the form rather than through the mass.
 
+   The cut-off dependence of §7 is also settled rather than estimated.  The ladder's entries are
+   `Aᵢ√(nᵢ+1)`, so `norm_sq_magCutoffKernel_raise` gives the entry at a raise exactly and
+   `magCutoffKernel_hs_mass_unbounded` shows that **no** `σ` bounds the Hilbert–Schmidt mass at every
+   cut-off — along the ray family the mass is at least `Aᵢ²·N(N+1)/2` at `Λ = N+2`.  This is a
+   statement about the *norm* of the ladder, not its form: the same `nᵢ+1` is charged to `Q` in the
+   relative bound, which is exactly why the ratio `1/2` there carries no cut-off.  The bounded-form
+   reading (`a = 0`) is cut-off-local, and the continuum needs the relative statement.
+
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
 separation `β∞ − θ∞ ≥ c₁Δ_ref` is still an input there (see the status of Phase 4).

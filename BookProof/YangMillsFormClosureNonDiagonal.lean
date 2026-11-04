@@ -1005,6 +1005,221 @@ theorem magCutoffKernel_hs_mass {Λ : ℕ} {A : Fin d → ℝ} {C : ℝ} (hC : 0
         rw [pow_succ']
         ring
 
+/-! ### The constant cannot stay bounded, and why §7 does not contradict §10
+
+§7 bounds the mass by `d² C Λ^{d+1}`.  This is not slack in the row estimate: the ladder's matrix
+elements are `Aᵢ √(nᵢ+1)`, so the entry at the raise of a mode grows with the occupation, and there
+are `Λ^d` modes to sum over.  `norm_sq_magCutoffKernel_raise` records that entry exactly, and
+`magCutoffKernel_hs_mass_unbounded` draws the consequence: **no** real `σ` bounds
+`∑_{m,n} ‖K m n‖²` at every cut-off.  The rays below give `Aᵢ² · N(N+1)/2` at `Λ = N + 2`, so the
+mass grows at least quadratically in the cut-off along that family.
+
+That is not in tension with the uniform ratio of §8 and §10, and the reason is the one §10 names:
+`Λ^{d+1}` is the price of reading the ladder as a *bounded* form perturbation of the identity
+(`a = 0`, shift `σ`), where every raise must be paid for in `‖x‖²`.  As a *relative* form bound the
+ladder pays in `Q(x) = Σₙ (Σᵢ (nᵢ+1)) ‖x n‖²` instead, where the same `nᵢ+1` sits on the correct
+side, and there the ratio `1/2` and the constant `(Σᵢ Aᵢ²)/2` carry no `Λ`.  The cut-off dependence
+is therefore a property of the *norm* of the ladder, not of its form, and the continuum needs the
+relative statement — which is why §10 exists.
+-/
+
+/-- The ray mode with `n i₀ = k + 1` and every other coordinate `0`, in the box of side `N + 2`.
+The raise at `i₀` stays inside the cut-off, and distinct `k` give distinct modes. -/
+def rayMode (N : ℕ) (i₀ : Fin d) (k : Fin N) : Fin d → Fin (N + 2) :=
+  fun j => if j = i₀ then ⟨k.val + 1, by omega⟩ else ⟨0, by omega⟩
+
+theorem rayMode_self_val (N : ℕ) (i₀ : Fin d) (k : Fin N) :
+    (rayMode N i₀ k i₀).val = k.val + 1 := by
+  simp [rayMode]
+
+theorem rayMode_ne_val (N : ℕ) (i₀ : Fin d) (k : Fin N) {j : Fin d} (hj : j ≠ i₀) :
+    (rayMode N i₀ k j).val = 0 := by
+  simp [rayMode, hj]
+
+theorem rayMode_injective (N : ℕ) (i₀ : Fin d) :
+    Function.Injective fun k : Fin N => rayMode N i₀ k := by
+  intro k l hkl
+  have hv := congrFun hkl i₀
+  have hval : k.val + 1 = l.val + 1 := by
+    have h2 := congrArg Fin.val hv
+    rwa [rayMode_self_val, rayMode_self_val] at h2
+  exact Fin.ext (by omega)
+
+/-- **A single matrix element of the ladder.**  At `m = n + eᵢ` only the `i`-th raise contributes —
+the images of the raises in different directions are distinct modes — so the entry is exactly
+`Aᵢ √(nᵢ+1)` and its square is `Aᵢ² (nᵢ+1)`.  This is the growth mechanism: the entries increase
+with the occupation, which is what `magCutoffKernel_hs_mass` has to pay for. -/
+theorem norm_sq_magCutoffKernel_raise {Λ : ℕ} (A : Fin d → ℝ) (n : Fin d → Fin Λ) (i : Fin d)
+    (h : (n i).val + 1 < Λ) :
+    ‖magCutoffKernel A (Function.update n i ⟨(n i).val + 1, h⟩) n‖ ^ 2
+      = A i ^ 2 * ((n i).val + 1 : ℝ) := by
+  classical
+  set m := Function.update n i ⟨(n i).val + 1, h⟩ with hm
+  have hself : magShiftTerm A n i m = ((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ) := by
+    rw [hm]
+    simp [magShiftTerm, dif_pos h]
+  have hother : ∀ j : Fin d, j ≠ i → magShiftTerm A n j m = 0 := by
+    intro j hj
+    by_cases hcj : (n j).val + 1 < Λ
+    · simp only [magShiftTerm, dif_pos hcj]
+      refine if_neg ?_
+      intro hEq
+      have hv0 : (Function.update n i ⟨(n i).val + 1, h⟩) j
+          = (Function.update n j ⟨(n j).val + 1, hcj⟩) j := by
+        rw [← hm, hEq]
+      have hL : ((Function.update n i ⟨(n i).val + 1, h⟩) j).val = (n j).val := by
+        rw [Function.update_apply, if_neg hj]
+      have hR : ((Function.update n j ⟨(n j).val + 1, hcj⟩) j).val = (n j).val + 1 := by
+        rw [Function.update_apply, if_pos rfl]
+      have hv := congrArg Fin.val hv0
+      rw [hL, hR] at hv
+      exact (Nat.succ_ne_self (n j).val) hv.symm
+    · simp only [magShiftTerm, dif_neg hcj]
+  rw [magCutoffKernel, Finset.sum_eq_single i (fun j _ hj => hother j hj)
+    (fun hc => absurd (Finset.mem_univ i) hc), hself, norm_sq_coeff A n i]
+
+/-- A single entry is at most the whole mass: read the double sum once along `m` and once along
+`n`, each time by `single_le_sum`. -/
+theorem magCutoffKernel_entry_le_mass {Λ : ℕ} (A : Fin d → ℝ) (m n : Fin d → Fin Λ) :
+    ‖magCutoffKernel A m n‖ ^ 2
+      ≤ ∑ m' : Fin d → Fin Λ, ∑ n' : Fin d → Fin Λ, ‖magCutoffKernel A m' n'‖ ^ 2 := by
+  have h1 : ‖magCutoffKernel A m n‖ ^ 2
+      ≤ ∑ m' : Fin d → Fin Λ, ‖magCutoffKernel A m' n‖ ^ 2 := by
+    have hsplit : ∑ m' : Fin d → Fin Λ, ‖magCutoffKernel A m' n‖ ^ 2
+        = ‖magCutoffKernel A m n‖ ^ 2
+          + ∑ m' ∈ (Finset.univ : Finset (Fin d → Fin Λ)).erase m,
+              ‖magCutoffKernel A m' n‖ ^ 2 := by
+      rw [← Finset.sum_erase_add (s := (Finset.univ : Finset (Fin d → Fin Λ))) (a := m)
+        (f := fun m' => ‖magCutoffKernel A m' n‖ ^ 2) (Finset.mem_univ m)]
+      ring
+    rw [hsplit]
+    exact le_add_of_nonneg_right (Finset.sum_nonneg fun _ _ => by positivity)
+  have h2 : ∑ m' : Fin d → Fin Λ, ‖magCutoffKernel A m' n‖ ^ 2
+      ≤ ∑ n' : Fin d → Fin Λ, ∑ m' : Fin d → Fin Λ, ‖magCutoffKernel A m' n'‖ ^ 2 := by
+    have hsplit : ∑ n' : Fin d → Fin Λ, ∑ m' : Fin d → Fin Λ, ‖magCutoffKernel A m' n'‖ ^ 2
+        = (∑ m' : Fin d → Fin Λ, ‖magCutoffKernel A m' n‖ ^ 2)
+          + ∑ n' ∈ (Finset.univ : Finset (Fin d → Fin Λ)).erase n,
+              ∑ m' : Fin d → Fin Λ, ‖magCutoffKernel A m' n'‖ ^ 2 := by
+      rw [← Finset.sum_erase_add (s := (Finset.univ : Finset (Fin d → Fin Λ))) (a := n)
+        (f := fun n' => ∑ m' : Fin d → Fin Λ, ‖magCutoffKernel A m' n'‖ ^ 2)
+        (Finset.mem_univ n)]
+      ring
+    rw [hsplit]
+    exact le_add_of_nonneg_right (Finset.sum_nonneg fun _ _ =>
+      Finset.sum_nonneg fun _ _ => by positivity)
+  exact h1.trans (h2.trans (le_of_eq Finset.sum_comm))
+
+/-- The Gauss sum needed for the ray family: `∑_{k<N} (k+1) = N(N+1)/2`. -/
+theorem sum_fin_val_add_one (N : ℕ) :
+    ∑ k : Fin N, ((k.val : ℝ) + 1) = (N : ℝ) * ((N : ℝ) + 1) / 2 := by
+  induction N with
+  | zero => simp
+  | succ m ih =>
+      rw [Fin.sum_univ_succ]
+      have hstep : ∑ i : Fin m, (((Fin.succ i).val : ℝ) + 1)
+          = (∑ i : Fin m, ((i.val : ℝ) + 1)) + (m : ℝ) := by
+        have h1 : ∑ i : Fin m, (((Fin.succ i).val : ℝ) + 1)
+            = ∑ i : Fin m, (((i.val : ℝ) + 1) + 1) := by
+          refine Finset.sum_congr rfl fun i _ => ?_
+          simp only [Fin.val_succ]
+          push_cast
+          ring
+        rw [h1, Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ,
+          Fintype.card_fin, nsmul_eq_mul, mul_one]
+      rw [hstep, ih]
+      simp only [Fin.val_zero, Nat.cast_zero, zero_add]
+      push_cast
+      ring
+
+/-- **The ray lower bound.**  Restricting the mass to the `N` ray modes, whose raises give entries
+`Aᵢ² (k+1)` that are nonzero and distinct, bounds the whole mass below by
+`Aᵢ² · N(N+1)/2` at `Λ = N + 2`.  This is the quantitative form of the growth. -/
+theorem magCutoffKernel_hs_mass_ray_lower (A : Fin d → ℝ) (i₀ : Fin d) (N : ℕ) :
+    A i₀ ^ 2 * ((N : ℝ) * ((N : ℝ) + 1) / 2)
+      ≤ ∑ m : Fin d → Fin (N + 2), ∑ n : Fin d → Fin (N + 2), ‖magCutoffKernel A m n‖ ^ 2 := by
+  classical
+  have hray : ∀ k : Fin N,
+      A i₀ ^ 2 * ((k.val : ℝ) + 1)
+        ≤ ∑ m : Fin d → Fin (N + 2), ‖magCutoffKernel A m (rayMode N i₀ k)‖ ^ 2 := by
+    intro k
+    have hraise : (rayMode N i₀ k i₀).val + 1 < N + 2 := by
+      rw [rayMode_self_val]
+      omega
+    have hentry := norm_sq_magCutoffKernel_raise A (rayMode N i₀ k) i₀ hraise
+    have hle : ‖magCutoffKernel A (Function.update (rayMode N i₀ k) i₀
+        ⟨(rayMode N i₀ k i₀).val + 1, hraise⟩) (rayMode N i₀ k)‖ ^ 2
+        ≤ ∑ m : Fin d → Fin (N + 2), ‖magCutoffKernel A m (rayMode N i₀ k)‖ ^ 2 := by
+      have hsplit : ∑ m : Fin d → Fin (N + 2), ‖magCutoffKernel A m (rayMode N i₀ k)‖ ^ 2
+          = ‖magCutoffKernel A (Function.update (rayMode N i₀ k) i₀
+              ⟨(rayMode N i₀ k i₀).val + 1, hraise⟩) (rayMode N i₀ k)‖ ^ 2
+            + ∑ m ∈ (Finset.univ : Finset (Fin d → Fin (N + 2))).erase
+                (Function.update (rayMode N i₀ k) i₀
+                  ⟨(rayMode N i₀ k i₀).val + 1, hraise⟩),
+                ‖magCutoffKernel A m (rayMode N i₀ k)‖ ^ 2 := by
+        rw [← Finset.sum_erase_add
+          (s := (Finset.univ : Finset (Fin d → Fin (N + 2))))
+          (a := Function.update (rayMode N i₀ k) i₀ ⟨(rayMode N i₀ k i₀).val + 1, hraise⟩)
+          (f := fun m => ‖magCutoffKernel A m (rayMode N i₀ k)‖ ^ 2)
+          (Finset.mem_univ (Function.update (rayMode N i₀ k) i₀
+            ⟨(rayMode N i₀ k i₀).val + 1, hraise⟩))]
+        ring
+      rw [hsplit]
+      exact le_add_of_nonneg_right (Finset.sum_nonneg fun _ _ => by positivity)
+    rw [hentry, rayMode_self_val] at hle
+    refine le_trans ?_ hle
+    have hcast : ((k.val + 1 : ℕ) : ℝ) + 1 = (k.val : ℝ) + 1 + 1 := by push_cast; ring
+    rw [hcast]
+    nlinarith [mul_nonneg (sq_nonneg (A i₀)) (by positivity : (0:ℝ) ≤ 1)]
+  have hsub : ∑ k : Fin N, ∑ m : Fin d → Fin (N + 2), ‖magCutoffKernel A m (rayMode N i₀ k)‖ ^ 2
+      ≤ ∑ n : Fin d → Fin (N + 2), ∑ m : Fin d → Fin (N + 2), ‖magCutoffKernel A m n‖ ^ 2 := by
+    have h : ∑ n ∈ (Finset.univ.image (fun k : Fin N => rayMode N i₀ k)),
+          ∑ m : Fin d → Fin (N + 2), ‖magCutoffKernel A m n‖ ^ 2
+        ≤ ∑ n : Fin d → Fin (N + 2), ∑ m : Fin d → Fin (N + 2),
+            ‖magCutoffKernel A m n‖ ^ 2 :=
+      Finset.sum_le_sum_of_subset_of_nonneg
+        (Finset.subset_univ (Finset.univ.image (fun k : Fin N => rayMode N i₀ k)))
+        (fun n _ _ => Finset.sum_nonneg fun m _ => by positivity)
+    have hinj : Set.InjOn (fun k : Fin N => rayMode N i₀ k)
+        (↑(Finset.univ : Finset (Fin N))) :=
+      fun x _ y _ hxy => rayMode_injective N i₀ hxy
+    rwa [Finset.sum_image hinj] at h
+  calc A i₀ ^ 2 * ((N : ℝ) * ((N : ℝ) + 1) / 2)
+      = ∑ k : Fin N, A i₀ ^ 2 * ((k.val : ℝ) + 1) := by
+        rw [← Finset.mul_sum, sum_fin_val_add_one]
+    _ ≤ ∑ k : Fin N, ∑ m : Fin d → Fin (N + 2), ‖magCutoffKernel A m (rayMode N i₀ k)‖ ^ 2 :=
+        Finset.sum_le_sum fun k _ => hray k
+    _ ≤ ∑ n : Fin d → Fin (N + 2), ∑ m : Fin d → Fin (N + 2), ‖magCutoffKernel A m n‖ ^ 2 :=
+        hsub
+    _ = ∑ m : Fin d → Fin (N + 2), ∑ n : Fin d → Fin (N + 2), ‖magCutoffKernel A m n‖ ^ 2 :=
+        Finset.sum_comm
+
+/-- **The Hilbert–Schmidt constant of the ladder is unbounded in the cut-off.**  If the field
+strength does not vanish, then for **every** `σ` there is a cut-off at which the ladder's
+Hilbert–Schmidt mass exceeds `σ²`.  So the `Λ^{d+1}` of §7 is not an artefact of the row estimate:
+the bounded-form reading (`a = 0`, shift `σ`) cannot survive the removal of the cut-off, and the
+continuum must use the relative bound of §10, where the occupation growth is charged to `Q`. -/
+theorem magCutoffKernel_hs_mass_unbounded {A : Fin d → ℝ} (hA : 0 < ∑ i, A i ^ 2) :
+    ∀ σ : ℝ, ∃ Λ : ℕ, σ ^ 2
+      < ∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2 := by
+  obtain ⟨i₀, -, hi₀⟩ := Finset.exists_ne_zero_of_sum_ne_zero (ne_of_gt hA)
+  have hS : 0 < A i₀ ^ 2 := lt_of_le_of_ne (sq_nonneg (A i₀)) (Ne.symm hi₀)
+  intro σ
+  obtain ⟨N, hN⟩ := exists_nat_gt (2 * σ ^ 2 / A i₀ ^ 2 + 1)
+  refine ⟨N + 2, ?_⟩
+  have hN1 : 2 * σ ^ 2 / A i₀ ^ 2 < (N : ℝ) := by linarith
+  have hN2 : 2 * σ ^ 2 < (N : ℝ) * A i₀ ^ 2 := by
+    rw [div_lt_iff₀ hS] at hN1
+    linarith
+  have hquad : σ ^ 2 < A i₀ ^ 2 * ((N : ℝ) * ((N : ℝ) + 1) / 2) := by
+    have hge : (N : ℝ) / 2 ≤ (N : ℝ) * ((N : ℝ) + 1) / 2 := by
+      nlinarith [sq_nonneg (N : ℝ)]
+    have hstep : (N : ℝ) * A i₀ ^ 2 / 2
+        ≤ A i₀ ^ 2 * ((N : ℝ) * ((N : ℝ) + 1) / 2) := by
+      have h1 := mul_le_mul_of_nonneg_left hge (le_of_lt hS)
+      linarith
+    nlinarith [hN2, hstep]
+  exact hquad.trans_le (magCutoffKernel_hs_mass_ray_lower A i₀ N)
+
 /-! ## 8. The relative bound is uniform in the cut-off; the constant is not
 
 §7 gives `σ(Λ) ≲ Λ^{(d+1)/2}`.  What that does and does not say about the Faris–Lavine relative
@@ -1474,14 +1689,15 @@ theorem amgm_weight_family_frontier {ε : ℝ} (hε : 0 < ε) (s t : ℝ) :
     2 * s * t ≤ 2 * (ε / 2) * s ^ 2 + 2 * (1 / (2 * ε)) * t ^ 2 := by
   have h := amgm_weight_family hε s t
   have hid : 2 * (ε / 2) * s ^ 2 + 2 * (1 / (2 * ε)) * t ^ 2 = ε * s ^ 2 + t ^ 2 / ε := by
-    field_simp <;> ring
+    field_simp
   rw [hid]
   exact h
 
 /-- The frontier product of the weight family: `(ε/2)·(1/(2ε)) = 1/4` at every `ε > 0`. -/
 theorem amgm_weight_frontier_product {ε : ℝ} (hε : 0 < ε) :
     (ε / 2) * (1 / (2 * ε)) = 1 / 4 := by
-  field_simp <;> norm_num
+  field_simp
+  norm_num
 
 /-- The ladder's shift coefficient in ratio coordinates: at weight `ε` the ratio is `a = ε/2` and
 the shift is `S/(2ε) = S/(4a)`, i.e. the frontier of `amgm_min_shift` scaled by `S = Σᵢ Aᵢ²`. -/
