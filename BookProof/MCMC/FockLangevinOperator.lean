@@ -796,4 +796,156 @@ example (b : Fin d → ℝ) (c : CoreCoeff d) :
         + ∑ j : Fin d, (((b j) * invSqrtTwo : ℝ) : ℂ) • hopStep (j, true) c :=
   driftOpCoeff_eq_ladderWords b c
 
+/-! ## 9.2 The multimode expansion: the `2^k` word family
+
+§9.1 proved the multiplication law and its two-mode composition.  The general statement of
+`pcnl.md` Module 3 is the expansion of a *product* of multiplication laws, i.e. of a monomial
+`∏ⱼ xⱼ`, and it is a finite family of words: one ladder word per choice of raise or lower letter
+at each of the modes in the list, with the Hermite normalization `2^{-k/2}`.
+
+The family is generated recursively (`mulWords`), so the `2^k` count is a theorem
+(`mulWords_card`) and the disjointness that a `Finset.biUnion` needs is not combinatorial
+bookkeeping but the statement that a word determines the modes it was built from: dropping the
+head recovers the tail (`sum_mulWords_cons`).  Linearity of a word (`hopWord_add`,
+`hopWord_smul`) then makes the induction on the mode list a single `smul_add` per step. -/
+
+/-- **The word family of a mode list**: one ladder letter per mode, for each of the `2^k` choices
+of raise or lower. -/
+def mulWords : List (Fin d) → Finset (List (Fin d × Bool))
+  | [] => {[]}
+  | j :: js => (mulWords js).biUnion fun w => {((j, true) :: w), ((j, false) :: w)}
+
+/-- **Splitting the word family at a leading mode.**  The two words built from a tail `w` are
+distinct, and the families over different tails are disjoint because a word determines its tail
+through `List.tail`.  Hence the sum over the doubled family is the sum of the two shifted sums,
+which is the induction step of the multimode expansion. -/
+theorem sum_mulWords_cons {M : Type*} [AddCommMonoid M] (j : Fin d) (js : List (Fin d))
+    (F : List (Fin d × Bool) → M) :
+    ∑ u ∈ mulWords (j :: js), F u
+      = ∑ w ∈ mulWords js, (F ((j, true) :: w) + F ((j, false) :: w)) := by
+  classical
+  have hdisj : ∀ a ∈ mulWords js, ∀ b ∈ mulWords js, a ≠ b →
+      Disjoint ({((j, true) :: a), ((j, false) :: a)} : Finset (List (Fin d × Bool)))
+        {((j, true) :: b), ((j, false) :: b)} := by
+    intro a _ b _ hab
+    refine Finset.disjoint_left.2 fun x hx hx' => ?_
+    have ha : List.tail x = a := by
+      rcases Finset.mem_insert.mp hx with h | h
+      · rw [h]; rfl
+      · rw [Finset.mem_singleton.mp h]; rfl
+    have hb : List.tail x = b := by
+      rcases Finset.mem_insert.mp hx' with h | h
+      · rw [h]; rfl
+      · rw [Finset.mem_singleton.mp h]; rfl
+    exact hab (ha.symm.trans hb)
+  rw [mulWords, Finset.sum_biUnion hdisj]
+  refine Finset.sum_congr rfl fun w _ => ?_
+  rw [Finset.sum_insert (by simp), Finset.sum_singleton]
+
+/-- **The `2^k` count**: a product of `k` multiplication laws expands in exactly `2^k` ladder
+words. -/
+theorem mulWords_card (js : List (Fin d)) : (mulWords js).card = 2 ^ js.length := by
+  classical
+  induction js with
+  | nil => simp [mulWords]
+  | cons j js ih =>
+    have hdisj : ∀ a ∈ mulWords js, ∀ b ∈ mulWords js, a ≠ b →
+        Disjoint ({((j, true) :: a), ((j, false) :: a)} : Finset (List (Fin d × Bool)))
+          {((j, true) :: b), ((j, false) :: b)} := by
+      intro a _ b _ hab
+      refine Finset.disjoint_left.2 fun x hx hx' => ?_
+      have ha : List.tail x = a := by
+        rcases Finset.mem_insert.mp hx with h | h
+        · rw [h]; rfl
+        · rw [Finset.mem_singleton.mp h]; rfl
+      have hb : List.tail x = b := by
+        rcases Finset.mem_insert.mp hx' with h | h
+        · rw [h]; rfl
+        · rw [Finset.mem_singleton.mp h]; rfl
+      exact hab (ha.symm.trans hb)
+    have hpair : ∀ w ∈ mulWords js,
+        ({((j, true) :: w), ((j, false) :: w)} : Finset (List (Fin d × Bool))).card = 2 := by
+      intro w _
+      rw [Finset.card_insert_of_notMem (by simp), Finset.card_singleton]
+    rw [mulWords, Finset.card_biUnion hdisj]
+    rw [Finset.sum_congr rfl hpair, Finset.sum_const, ih, List.length_cons, pow_succ]
+    simp [Nat.mul_comm]
+
+/-- A ladder word sends the zero family to zero. -/
+theorem hopWord_zero (w : List (Fin d × Bool)) : hopWord w (0 : CoreCoeff d) = 0 := by
+  induction w with
+  | nil => rfl
+  | cons p w ih => rw [hopWord, hopStep_zero, ih]
+
+/-- A ladder word is additive on the core. -/
+theorem hopWord_add (w : List (Fin d × Bool)) (x y : CoreCoeff d) :
+    hopWord w (x + y) = hopWord w x + hopWord w y := by
+  induction w generalizing x y with
+  | nil => rfl
+  | cons p w ih =>
+    rw [hopWord, hopWord, hopWord, hopStep_add]
+    exact ih _ _
+
+/-- A ladder word is `ℂ`-linear on the core. -/
+theorem hopWord_smul (w : List (Fin d × Bool)) (r : ℂ) (x : CoreCoeff d) :
+    hopWord w (r • x) = r • hopWord w x := by
+  induction w generalizing x with
+  | nil => rfl
+  | cons p w ih =>
+    rw [hopWord, hopWord, hopStep_smul]
+    exact ih _
+
+/-- **Multiplying by a list of modes**: the multiplication laws applied in order. -/
+def mulHermiteList : List (Fin d) → CoreCoeff d → CoreCoeff d
+  | [], c => c
+  | j :: js, c => mulHermiteList js (mulHermite j c)
+
+@[simp] theorem mulHermiteList_nil (c : CoreCoeff d) : mulHermiteList [] c = c := rfl
+
+theorem mulHermiteList_cons (j : Fin d) (js : List (Fin d)) (c : CoreCoeff d) :
+    mulHermiteList (j :: js) c = mulHermiteList js (mulHermite j c) := rfl
+
+/-- The two shifted one-letter sums are the sum over the doubled family: a word on `(j, b) :: w`
+is by definition `w` applied after `hopStep (j, b)`. -/
+theorem sum_mulWords_hopStep (j : Fin d) (js : List (Fin d)) (c : CoreCoeff d) :
+    ∑ w ∈ mulWords js, (hopWord w (hopStep (j, true) c) + hopWord w (hopStep (j, false) c))
+      = ∑ u ∈ mulWords (j :: js), hopWord u c := by
+  rw [sum_mulWords_cons]
+  refine Finset.sum_congr rfl fun w _ => ?_
+  rw [hopWord, hopWord]
+
+/-- **The general multimode Hermite expansion — `pcnl.md` Module 3.**  A product of `k`
+multiplication laws is `2^{-k/2}` times the sum of the `2^k` ladder words over the modes, one word
+per choice of raise or lower letter.  Each word carries the Hermite amplitudes `√(nⱼ+1)` and
+`√(nⱼ)` of its letters through `hopStep`, so this is the expansion of `∏ⱼ xⱼ` — hence of every
+monomial of a potential `Φ`, and with `driftOpCoeff` (the same dictionary for `∂`) of every
+`∂`-monomial as well.  It is the general case of §9.1's two-mode product law. -/
+theorem mulHermiteList_eq_ladderWords (js : List (Fin d)) (c : CoreCoeff d) :
+    mulHermiteList js c
+      = ((invSqrtTwo ^ js.length : ℝ) : ℂ) • ∑ w ∈ mulWords js, hopWord w c := by
+  induction js generalizing c with
+  | nil => simp [mulHermiteList, mulWords, hopWord]
+  | cons j js ih =>
+    have hstep : ∀ w ∈ mulWords js,
+        hopWord w (((invSqrtTwo : ℝ) : ℂ) • hopStep (j, true) c
+            + ((invSqrtTwo : ℝ) : ℂ) • hopStep (j, false) c)
+          = ((invSqrtTwo : ℝ) : ℂ) •
+              (hopWord w (hopStep (j, true) c) + hopWord w (hopStep (j, false) c)) := by
+      intro w _
+      rw [hopWord_add, hopWord_smul, hopWord_smul, smul_add]
+    rw [mulHermiteList_cons, ih, mulHermite_eq_ladderWords, List.length_cons,
+      Finset.sum_congr rfl hstep, ← Finset.smul_sum, sum_mulWords_hopStep, smul_smul]
+    congr 1
+    rw [← Complex.ofReal_mul, ← pow_succ]
+
+/-- The two-mode product law of §9.1 is the `k = 2` case of the multimode expansion. -/
+theorem mulHermiteList_pair (j k : Fin d) (c : CoreCoeff d) :
+    mulHermiteList [j, k] c
+      = ((invSqrtTwo ^ 2 : ℝ) : ℂ) • ∑ w ∈ mulWords [j, k], hopWord w c :=
+  mulHermiteList_eq_ladderWords [j, k] c
+
+/-- The `k = 2` word family has four elements, as `mulHermite_comp` displays them. -/
+theorem mulWords_pair_card (j k : Fin d) : (mulWords [j, k]).card = 4 :=
+  mulWords_card [j, k]
+
 end BookProof.MCMC.FockLangevin

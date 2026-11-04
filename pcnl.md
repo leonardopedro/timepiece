@@ -347,9 +347,21 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
   the spelled-out cases), and `mulHermite_add`/`mulHermite_smul` give the same for the
   multiplication law.  **`mulHermite_comp`** is the first multimode case: `x_k x_j` is `1/2` times
   the sum of the four length-two ladder words `hopWord [(j,ε),(k,δ)]`, i.e. the `2^2` word family
-  with the amplitudes carried by the `hopStep`s.  What remains is the general induction — the
-  `2^k` reindexing over `Finset.biUnion` (the words of `mulWords`) and its disjointness — which is
-  bookkeeping over the same lemmas, not new analysis.
+  with the amplitudes carried by the `hopStep`s.
+  **§9.2 closes the general case (2026-11-04).**  `mulWords js` is the word family of a mode list
+  (one ladder letter per mode, both raise and lower), **`sum_mulWords_cons`** splits its sum at a
+  leading mode — the two words are distinct and the families over different tails are disjoint
+  because `List.tail` recovers the tail, so the `Finset.biUnion` is a genuine direct sum and no
+  reindexing is assumed — **`mulWords_card`** is the `2^k` count
+  `(mulWords js).card = 2 ^ js.length`, `hopWord_add`/`hopWord_smul` are linearity of a word, and
+  **`mulHermiteList_eq_ladderWords`** is the expansion itself: for every mode list `js`,
+  `mulHermiteList js c = (2^{-length js/2}) • ∑_{w ∈ mulWords js} hopWord w c`.
+  So a product of `k` multiplication laws — hence every monomial of the potential `Φ` — is the
+  `2^k`-word family, with the Hermite amplitudes `√(nⱼ+1)`, `√(nⱼ)` carried by the letters
+  (`mulHermiteList_pair` recovers the `k = 2` case of §9.1).  What remains of Module 3's expansion
+  is the induction that *feeds* it: a general `Φ` is a sum of monomials `∏ⱼ xⱼ^{mⱼ}`, so
+  interpolating a polynomial from its monomial expansions is an `MvPolynomial` induction the
+  corpus does not yet carry — bookkeeping of the same kind, on a different object.
 
 * **Module 1 proper, in the `α → ∞` Gaussian form — DONE (2026-10-30)** — `BookProof.MCMC.MehlerEigenfunction`
   (`BookProof/MCMC/MehlerEigenfunction.lean`, no `sorry`).  This is the eigenfunction identity the
