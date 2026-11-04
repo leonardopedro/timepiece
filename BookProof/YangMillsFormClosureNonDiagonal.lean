@@ -1996,10 +1996,10 @@ and so is its reference form, `Q(x) = ∑ᵢ Qᵢ(x)`, `Qᵢ(x) = ∑ₙ (nᵢ+1
 So the directional constant is sandwiched, for every `d`,
 `twoModeShift (Aᵢ/2) a 1 ≤ Sᵢ < Aᵢ²/(4a)`,
 
-and what remains open is *one* one-dimensional number per direction — the top of the ray problem
-`√(n+1)x_{n+1}x_n` against `a(n+1)x_n²`, which carries no `d`, no cut-off and no other coordinate.
-That is a strictly smaller question than the top of the full multidirectional spectral problem, and
-it is stated here rather than assumed away. -/
+and the one-dimensional number in the middle of that bracket is computed in §11.3: on the ray it is
+`Aᵢ²/(4a) − a`, and it is sharp (`rayForm_le_sharp`, `ray_form_bound_iff`).  So the upper end
+improves to `Sᵢ ≤ Aᵢ²/(4a) − a`, one mass unit below the termwise constant of §11.1, and what is
+left is the ray decomposition that reads `ladderDirForm` as a sum of ray forms. -/
 
 /-- The `i`-th directional part of the ladder form: the summand that raises the `i`-th occupation.
 The ladder form is the sum of these over `i` (`ladder_form_eq_sum_dir`). -/
@@ -2177,6 +2177,260 @@ theorem twoModeShift_le_of_twoModeBound {A a S : ℝ} (hA : A ≠ 0)
       < twoModeShift A a 1 * (A ^ 2 + (a + twoModeShift A a 1) ^ 2) :=
     mul_lt_mul_of_pos_right hcon hnorm
   linarith
+
+/-! ## 11.3 The one-dimensional ray: the sharp constant is `B²/(4a) − a`
+
+§11.2 reduces the constant of the ladder to one number per direction: the top of the ray
+`√(m+1) u_{m+1} u_m` against `a (m+1) u_m²`.  That number is computed here, and it is *not* the
+termwise `B²/(4a)` of §11.1 — it is `B²/(4a) − a`.
+
+The whole content is one sum of squares.  With `α = B/(2a)`,
+
+`0 ≤ Σ_{m<N} (√(m+1) u_{m+1} − α u_m)² = (Q − ‖u‖²) − F/a + α² Σ_{m<N} u_m²`,
+
+where `Q = Σ_{m≤N}(m+1)u_m²`, `F = Σ_{m<N} B √(m+1) u_{m+1}u_m` and `‖u‖² = Σ_{m≤N}u_m²`; the
+shift `m ↦ m+1` in the occupation sum is `ray_sos`.  Since `Σ_{m<N}u_m² ≤ ‖u‖²`, this gives
+`F ≤ a Q + (B²/(4a) − a)‖u‖²`.  The `−a` is the zero-point energy of the mode: the shift `α`
+removes one mass unit from the occupation form, and `a` is exactly what one mass unit costs.
+
+The constant is sharp.  The extremal family is the Poisson (coherent) vector `u_m = α^m/√(m!)`:
+its truncations satisfy the recurrence `√(m+1)u_{m+1} = α u_m` at every term, so the sum of squares
+vanishes identically, and the only uncovered piece is `(B²/(4a)) u_N²` at the cut-off, which is
+`o(‖u‖²)`.  So no smaller constant is admissible (`ray_form_bound_iff`). -/
+
+/-- Shifting a range sum by one: the raised sight of `Σ_{m<N} f(m+1)` is the full sum minus the
+`m = 0` term. -/
+theorem sum_range_succ_shift (f : ℕ → ℝ) (N : ℕ) :
+    (∑ m ∈ Finset.range N, f (m + 1)) = (∑ m ∈ Finset.range (N + 1), f m) - f 0 := by
+  rw [Finset.sum_range_succ']
+  ring
+
+/-- The ray form `F(u) = Σ_{m<N} B √(m+1) u_{m+1} u_m`, the one-dimensional problem of §11.2. -/
+noncomputable def rayForm (B : ℝ) (N : ℕ) (u : ℕ → ℝ) : ℝ :=
+  ∑ m ∈ Finset.range N, B * Real.sqrt ((m : ℝ) + 1) * u (m + 1) * u m
+
+/-- The ray's occupation form `Q(u) = Σ_{m≤N} (m+1) u_m²`, the ray part of `dirWeight`. -/
+noncomputable def rayWeight (N : ℕ) (u : ℕ → ℝ) : ℝ :=
+  ∑ m ∈ Finset.range (N + 1), ((m : ℝ) + 1) * u m ^ 2
+
+/-- The ray's mass `‖u‖² = Σ_{m≤N} u_m²`. -/
+noncomputable def rayMass (N : ℕ) (u : ℕ → ℝ) : ℝ :=
+  ∑ m ∈ Finset.range (N + 1), u m ^ 2
+
+/-- The occupation form is the mass plus the shifted mass. -/
+theorem rayWeight_sub_rayMass (N : ℕ) (u : ℕ → ℝ) :
+    rayWeight N u - rayMass N u = ∑ m ∈ Finset.range (N + 1), (m : ℝ) * u m ^ 2 := by
+  rw [rayWeight, rayMass, ← Finset.sum_sub_distrib]
+  exact Finset.sum_congr rfl fun m _ => by ring
+
+/-- **The sum of squares behind the ray constant, expanded.**  Expanding
+`(√(m+1) u_{m+1} − α u_m)²` and summing, the occupation sum shifts down by exactly one mass unit. -/
+theorem ray_sos {B a α : ℝ} (h2α : 2 * α = B / a) (N : ℕ) (u : ℕ → ℝ) :
+    (∑ m ∈ Finset.range N,
+        (Real.sqrt ((m : ℝ) + 1) * u (m + 1) - α * u m) ^ 2)
+      = (rayWeight N u - rayMass N u) - (1 / a) * rayForm B N u
+        + α ^ 2 * (∑ m ∈ Finset.range N, u m ^ 2) := by
+  classical
+  have hsq : ∀ m : ℕ, Real.sqrt ((m : ℝ) + 1) ^ 2 = (m : ℝ) + 1 :=
+    fun m => Real.sq_sqrt (by positivity)
+  have hterm : ∀ m ∈ Finset.range N,
+      (Real.sqrt ((m : ℝ) + 1) * u (m + 1) - α * u m) ^ 2
+        = ((m : ℝ) + 1) * u (m + 1) ^ 2
+          - 2 * α * (Real.sqrt ((m : ℝ) + 1) * u (m + 1) * u m)
+          + α ^ 2 * u m ^ 2 := by
+    intro m _
+    nlinarith [hsq m]
+  have hshift : (∑ m ∈ Finset.range N, ((m : ℝ) + 1) * u (m + 1) ^ 2)
+      = ∑ m ∈ Finset.range (N + 1), (m : ℝ) * u m ^ 2 := by
+    have h := sum_range_succ_shift (fun m : ℕ => (m : ℝ) * u m ^ 2) N
+    rw [Nat.cast_zero, zero_mul, sub_zero] at h
+    rw [← h]
+    refine Finset.sum_congr rfl fun m _ => ?_
+    push_cast
+    ring
+  have hcross : (∑ m ∈ Finset.range N,
+        2 * α * (Real.sqrt ((m : ℝ) + 1) * u (m + 1) * u m))
+      = 2 * α * (∑ m ∈ Finset.range N,
+          Real.sqrt ((m : ℝ) + 1) * u (m + 1) * u m) := by
+    rw [Finset.mul_sum]
+  have hray : rayForm B N u
+      = B * (∑ m ∈ Finset.range N, Real.sqrt ((m : ℝ) + 1) * u (m + 1) * u m) := by
+    rw [rayForm, Finset.mul_sum]
+    exact Finset.sum_congr rfl fun m _ => by ring
+  have hthird : (∑ m ∈ Finset.range N, α ^ 2 * u m ^ 2)
+      = α ^ 2 * (∑ m ∈ Finset.range N, u m ^ 2) := by
+    rw [Finset.mul_sum]
+  rw [Finset.sum_congr rfl hterm, Finset.sum_add_distrib, Finset.sum_sub_distrib, hshift, hcross,
+    hthird, rayWeight_sub_rayMass, hray]
+  have hcoef : (1 / a) * B = 2 * α := by rw [h2α]; ring
+  rw [show (1 / a) * (B * ∑ m ∈ Finset.range N,
+        Real.sqrt ((m : ℝ) + 1) * u (m + 1) * u m)
+      = (2 * α) * ∑ m ∈ Finset.range N,
+        Real.sqrt ((m : ℝ) + 1) * u (m + 1) * u m from by rw [← hcoef]; ring]
+
+/-- **The sharp ray bound.**  `F ≤ a Q + (B²/(4a) − a) ‖u‖²`: the termwise `B²/(4a)` improved by
+the one mass unit that the shift `α = B/(2a)` removes. -/
+theorem rayForm_le_sharp {B : ℝ} (hB : 0 ≤ B) {a : ℝ} (ha : 0 < a) (N : ℕ) (u : ℕ → ℝ) :
+    rayForm B N u ≤ a * rayWeight N u + (B ^ 2 / (4 * a) - a) * rayMass N u := by
+  classical
+  have hmass : (∑ m ∈ Finset.range N, u m ^ 2) ≤ rayMass N u := by
+    rw [rayMass]
+    refine Finset.sum_le_sum_of_subset_of_nonneg (Finset.range_subset_range.mpr (Nat.le_succ N))
+      (fun m _ _ => sq_nonneg (u m))
+  rcases eq_or_lt_of_le hB with hB0 | hBpos
+  · subst hB0
+    have hz : rayForm 0 N u = 0 := by simp [rayForm]
+    have hQW : rayMass N u ≤ rayWeight N u := by
+      rw [rayMass, rayWeight]
+      refine Finset.sum_le_sum fun m _ => ?_
+      have hm : (0 : ℝ) ≤ (m : ℝ) := Nat.cast_nonneg m
+      nlinarith [sq_nonneg (u m)]
+    have hc0 : (0 : ℝ) ^ 2 / (4 * a) - a = -a := by
+      rw [zero_pow (by norm_num : 2 ≠ 0), zero_div, zero_sub]
+    rw [hz, hc0]
+    have hprod : 0 ≤ a * (rayWeight N u - rayMass N u) :=
+      mul_nonneg (le_of_lt ha) (sub_nonneg.mpr hQW)
+    nlinarith [hprod]
+  · set α : ℝ := B / (2 * a) with hα
+    have h2α : 2 * α = B / a := by rw [hα]; field_simp
+    have hα2 : a * α ^ 2 = B ^ 2 / (4 * a) := by
+      rw [hα]
+      field_simp
+      ring
+    have hsos : 0 ≤ (∑ m ∈ Finset.range N,
+        (Real.sqrt ((m : ℝ) + 1) * u (m + 1) - α * u m) ^ 2) :=
+      Finset.sum_nonneg fun m _ => sq_nonneg _
+    rw [ray_sos h2α N u] at hsos
+    have hT : α ^ 2 * (∑ m ∈ Finset.range N, u m ^ 2) ≤ α ^ 2 * rayMass N u :=
+      mul_le_mul_of_nonneg_left hmass (sq_nonneg α)
+    have h1 : (1 / a) * rayForm B N u
+        ≤ (rayWeight N u - rayMass N u) + α ^ 2 * rayMass N u := by
+      linarith [hsos, hT]
+    have h2 : rayForm B N u
+        ≤ a * ((rayWeight N u - rayMass N u) + α ^ 2 * rayMass N u) := by
+      have h := mul_le_mul_of_nonneg_left h1 (le_of_lt ha)
+      have haa : a * (1 / a) = 1 := by field_simp
+      calc rayForm B N u = a * ((1 / a) * rayForm B N u) := by
+            rw [← mul_assoc, haa, one_mul]
+        _ ≤ a * ((rayWeight N u - rayMass N u) + α ^ 2 * rayMass N u) := h
+    have h3 : a * α ^ 2 * rayMass N u = (B ^ 2 / (4 * a)) * rayMass N u := by rw [hα2]
+    nlinarith [h2, h3]
+
+/-- **The constant is sharp.**  For every `δ > 0` some finitely supported ray vector beats
+`a Q + (B²/(4a) − a − δ) ‖u‖²`: the truncations of the Poisson vector `u_m = α^m/√(m!)` leave
+only `(B²/(4a)) u_N²` uncovered, and `u_N²/‖u‖² → 0`. -/
+theorem rayForm_sharp {B a δ : ℝ} (hB : 0 < B) (ha : 0 < a) (hδ : 0 < δ) :
+    ∃ (N : ℕ) (u : ℕ → ℝ),
+      a * rayWeight N u + (B ^ 2 / (4 * a) - a - δ) * rayMass N u < rayForm B N u := by
+  classical
+  set α : ℝ := B / (2 * a) with hα
+  have hα2 : a * α ^ 2 = B ^ 2 / (4 * a) := by
+    rw [hα]
+    field_simp
+    ring
+  have hlim : Filter.Tendsto (fun n : ℕ => (α ^ 2) ^ n / (n.factorial : ℝ)) Filter.atTop
+      (nhds 0) := FloorSemiring.tendsto_pow_div_factorial_atTop (α ^ 2)
+  have hpos : 0 < δ * (4 * a) / B ^ 2 := by positivity
+  obtain ⟨N, hN⟩ := hlim.eventually (eventually_lt_nhds hpos) |>.exists
+  refine ⟨N, fun m => α ^ m / Real.sqrt (m.factorial : ℝ), ?_⟩
+  have hrec : ∀ m : ℕ,
+      Real.sqrt ((m : ℝ) + 1) * (α ^ (m + 1) / Real.sqrt (((m + 1).factorial : ℝ)))
+        = α * (α ^ m / Real.sqrt ((m.factorial : ℝ))) := by
+    intro m
+    have hfact : (((m + 1).factorial : ℕ) : ℝ) = ((m : ℝ) + 1) * (m.factorial : ℝ) := by
+      rw [Nat.factorial_succ]
+      push_cast
+      ring
+    have hspos : (0 : ℝ) < (m : ℝ) + 1 := by positivity
+    have hfpos : (0 : ℝ) < (m.factorial : ℝ) := by exact_mod_cast Nat.factorial_pos m
+    rw [hfact, Real.sqrt_mul (le_of_lt hspos)]
+    have hs : Real.sqrt ((m : ℝ) + 1) ≠ 0 := ne_of_gt (Real.sqrt_pos.mpr hspos)
+    have hf : Real.sqrt ((m.factorial : ℝ)) ≠ 0 := ne_of_gt (Real.sqrt_pos.mpr hfpos)
+    field_simp
+    ring
+  have hzero : (∑ m ∈ Finset.range N,
+      (Real.sqrt ((m : ℝ) + 1) * (α ^ (m + 1) / Real.sqrt (((m + 1).factorial : ℝ)))
+        - α * (α ^ m / Real.sqrt ((m.factorial : ℝ)))) ^ 2) = 0 := by
+    refine Finset.sum_eq_zero fun m _ => ?_
+    rw [hrec m]
+    ring
+  have hsos_id := ray_sos (B := B) (a := a) (α := α)
+    (by rw [hα]; field_simp) N (fun m => α ^ m / Real.sqrt (m.factorial : ℝ))
+  rw [hzero] at hsos_id
+  -- the truncation misses exactly one mass unit of the occupation form
+  have hsplit : rayMass N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))
+      = (∑ m ∈ Finset.range N, (α ^ m / Real.sqrt ((m.factorial : ℝ))) ^ 2)
+        + (α ^ N / Real.sqrt ((N.factorial : ℝ))) ^ 2 := by
+    rw [rayMass, Finset.sum_range_succ]
+  have hu0 : (α ^ 0 / Real.sqrt (((0).factorial : ℝ))) ^ 2 = 1 := by
+    norm_num
+  have hmass1 : 1 ≤ rayMass N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ))) := by
+    have h := Finset.single_le_sum (f := fun m : ℕ => (α ^ m / Real.sqrt ((m.factorial : ℝ))) ^ 2)
+      (fun m _ => sq_nonneg _)
+      (Finset.mem_range.mpr (Nat.succ_pos N) : 0 ∈ Finset.range (N + 1))
+    rw [rayMass]
+    simpa [hu0] using h
+  have hpowN : (α ^ N / Real.sqrt ((N.factorial : ℝ))) ^ 2 = (α ^ 2) ^ N / (N.factorial : ℝ) := by
+    have hfpos : (0 : ℝ) < (N.factorial : ℝ) := by exact_mod_cast Nat.factorial_pos N
+    rw [div_pow, ← pow_mul, Real.sq_sqrt (le_of_lt hfpos), Nat.mul_comm N 2, pow_mul]
+  have huN : a * α ^ 2 * (α ^ N / Real.sqrt ((N.factorial : ℝ))) ^ 2 < δ := by
+    rw [hpowN]
+    have hconst : a * α ^ 2 * (δ * (4 * a) / B ^ 2) = δ := by
+      rw [hα2]
+      field_simp
+    nlinarith [hN, hconst, ha, hB]
+  have hform : rayForm B N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))
+      = a * ((rayWeight N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))
+          - rayMass N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ))))
+        + α ^ 2 * (∑ m ∈ Finset.range N,
+            (α ^ m / Real.sqrt ((m.factorial : ℝ))) ^ 2)) := by
+    have h1 : (1 / a) * rayForm B N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))
+        = (rayWeight N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))
+          - rayMass N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ))))
+          + α ^ 2 * (∑ m ∈ Finset.range N,
+              (α ^ m / Real.sqrt ((m.factorial : ℝ))) ^ 2) := by
+      linarith [hsos_id]
+    have haa : a * (1 / a) = 1 := by field_simp
+    calc rayForm B N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))
+        = a * ((1 / a) * rayForm B N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))) := by
+          rw [← mul_assoc, haa, one_mul]
+      _ = a * ((rayWeight N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))
+            - rayMass N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ))))
+          + α ^ 2 * (∑ m ∈ Finset.range N,
+              (α ^ m / Real.sqrt ((m.factorial : ℝ))) ^ 2)) := by rw [h1]
+  rw [hform]
+  have hd : δ * 1 ≤ δ * rayMass N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ))) :=
+    mul_le_mul_of_nonneg_left hmass1 (le_of_lt hδ)
+  have hMM : (B ^ 2 / (4 * a)) * rayMass N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))
+      = a * α ^ 2 * rayMass N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ))) := by rw [hα2]
+  have hmul : a * α ^ 2 * rayMass N (fun m => α ^ m / Real.sqrt ((m.factorial : ℝ)))
+        - a * α ^ 2 * (∑ m ∈ Finset.range N, (α ^ m / Real.sqrt ((m.factorial : ℝ))) ^ 2)
+      = a * α ^ 2 * (α ^ N / Real.sqrt ((N.factorial : ℝ))) ^ 2 := by
+    rw [hsplit]
+    ring
+  linarith [huN, hd, hMM, hmul]
+
+/-- **The sharp constant, as a characterisation**: a constant `S` is admissible for the ray
+problem on every truncation exactly when it is at least `B²/(4a) − a`. -/
+theorem ray_form_bound_iff {B : ℝ} (hB : 0 < B) {a : ℝ} (ha : 0 < a) {S : ℝ} :
+    (∀ (N : ℕ) (u : ℕ → ℝ), rayForm B N u ≤ a * rayWeight N u + S * rayMass N u)
+      ↔ B ^ 2 / (4 * a) - a ≤ S := by
+  constructor
+  · intro h
+    by_contra hcon
+    push_neg at hcon
+    obtain ⟨N, u, hu⟩ := rayForm_sharp hB ha (δ := B ^ 2 / (4 * a) - a - S) (by linarith)
+    have hb := h N u
+    have : a * rayWeight N u + (B ^ 2 / (4 * a) - a - (B ^ 2 / (4 * a) - a - S)) * rayMass N u
+        = a * rayWeight N u + S * rayMass N u := by ring
+    rw [this] at hu
+    linarith
+  · intro hS N u
+    have hb := rayForm_le_sharp (le_of_lt hB) ha N u
+    have hnonneg : 0 ≤ rayMass N u := by
+      rw [rayMass]
+      exact Finset.sum_nonneg fun m _ => sq_nonneg _
+    nlinarith [hb, hnonneg]
 
 /-! ## 12. The cut-off ladder as a kernel on `Idx d`: the box embedding
 

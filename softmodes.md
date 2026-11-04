@@ -458,13 +458,18 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    therefore sandwiched, for every `d`,
    `twoModeShift (Aᵢ/2) a 1 ≤ Sᵢ < Aᵢ²/(4a)`,
    and the sum of those gives the corresponding bracket for the whole form.  What the two-mode
-   optimum is *not* is the global constant, and the reason is now exact rather than a caveat: what
-   remains is **one one-dimensional number per direction** — the top of the ray problem
-   `√(n+1)x_{n+1}x_n` against `a(n+1)x_n²`, which carries no ambient dimension, no cut-off and no
-   other coordinate.  That is the sharp value of each `Sᵢ`; the finite-support core of
-   `Q(N^{1/2})` is the union of the cut-off boxes, on each of which §10's bound holds with the
-   *same* constant, so the constant is cut-off independent and the only remaining question is the
-   one-dimensional one.
+   optimum is *not* is the global constant, and the reason is again exact rather than a caveat: the
+   sharp `Sᵢ` is the top of the **ray** problem `√(n+1)x_{n+1}x_n` against `a(n+1)x_n²`, which
+   carries no ambient dimension, no cut-off and no other coordinate.  That question is now answered
+   (2026-11-04): `YangMillsFormClosureNonDiagonal` §11.3 proves the ray constant is
+   **`B²/(4a) − a`** — one mass unit below the termwise `B²/(4a)`, because the shift `α = B/(2a)`
+   removes exactly one mass unit from the occupation form and `a` is what one mass unit costs — and
+   that it is sharp (`rayForm_le_sharp`, `ray_form_bound_iff`): the truncated Poisson vectors
+   `α^m/√(m!)` satisfy the recurrence `√(m+1)u_{m+1} = αu_m` term by term, so the sum of squares
+   vanishes and only `(B²/(4a))u_N²` is left uncovered, which is `o(‖u‖²)`.  Hence
+   `twoModeShift (Aᵢ/2) a 1 ≤ Sᵢ ≤ Aᵢ²/(4a) − a`, and the global constant is at most
+   `∑ᵢ (Aᵢ²/(4a) − a)`.  The one step not taken here is the ray decomposition that reads
+   `ladderDirForm` as a sum of ray forms; the constant itself is settled.
 
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
