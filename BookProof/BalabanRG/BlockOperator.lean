@@ -39,15 +39,17 @@ namespace BookProof.BalabanRG
 
 noncomputable section
 
-/-- The component index of a sector belongs to a block: one block per lattice cell, so the
-`4` components `4c, 4c+1, 4c+2, 4c+3` form block `c`. -/
-def blockOf (i : Fin latticeDim) : Fin cellsPerBlock :=
-  ⟨i.val / nComponents, Nat.div_lt_of_lt_mul (by
-    have h : i.val < nComponents * cellsPerBlock := by
-      simpa [latticeDim] using i.isLt
-    simpa [Nat.mul_comm] using h)⟩
+/-- **The block of a component index**: one block per lattice cell, so the `4` components
+`A_μ` at cell `c` form block `c`.  The cell is read off through the split `coordOf` of
+`MultiscaleSpace`, which is also what the time reflection of `ReflectionPositivity.Involution`
+permutes — this is what makes the block structure `θ`-stable (`θ` only moves a component
+between *cells*, never between the `μ` slots). -/
+def blockOf (i : Fin latticeDim) : Fin cellsPerBlock := (coordOf i).2
 
-theorem blockOf_apply (i : Fin latticeDim) : (blockOf i).val = i.val / nComponents := rfl
+theorem blockOf_apply (i : Fin latticeDim) : blockOf i = (coordOf i).2 := rfl
+
+/-- The cell of a component index, as a natural number. -/
+theorem blockOf_val (i : Fin latticeDim) : (blockOf i).val = (coordOf i).2.val := rfl
 
 /-- **The block-constant subspace** of a sector: configurations constant across the `4`
 components of each cell. -/
@@ -85,8 +87,21 @@ theorem blockAveragingOp_mem (k : ℕ) (x : Sector k) :
     blockAveragingOp k x ∈ blockConst := by
   simpa [blockAveragingOp] using blockConst.starProjection_mem_subspace x
 
+/-- **Block averaging is idempotent**: `Q_k (Q_k x) = Q_k x`.  It is the orthogonal
+projection onto `blockConst`, and being in `blockConst` is exactly the condition under which
+`starProjection` fixes a vector (`starProjection_eq_self_iff`), so a second pass over an
+already-averaged configuration does nothing. -/
+theorem blockAveragingOp_idempotent (k : ℕ) (x : Sector k) :
+    blockAveragingOp k (blockAveragingOp k x) = blockAveragingOp k x :=
+  blockConst.starProjection_eq_self_iff.mpr (blockAveragingOp_mem k x)
+
 /-- The family of block-averaging maps, in the shape consumed by `rgOnTotal`. -/
 def blockAveraging : ∀ k : ℕ, Sector k →L[ℝ] Sector (k + 1) := fun k => blockAveragingOp k
+
+/-- Idempotence in the `blockAveraging` packaging consumed by `rgOnTotal`. -/
+theorem blockAveraging_idempotent (k : ℕ) (x : Sector k) :
+    blockAveraging k (blockAveraging k x) = blockAveraging k x :=
+  blockAveragingOp_idempotent k x
 
 /-- **The block contractions satisfy the RG hypothesis**, so the total-space step
 `rgOnTotal blockAveraging` is well defined and is a contraction. -/

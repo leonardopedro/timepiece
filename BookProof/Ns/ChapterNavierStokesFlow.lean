@@ -1,8 +1,8 @@
 import Mathlib
-import BookProof.Qym.ChapterGhostField
-import BookProof.Probability.ChapterFreeFieldConstraint
-import BookProof.Probability.ChapterContinuityUnitary
-import BookProof.Probability.ChapterU
+import BookProof.ChapterGhostField
+import BookProof.ChapterFreeFieldConstraint
+import BookProof.ChapterContinuityUnitary
+import BookProof.ChapterU
 
 /-!
 # Chapter "Free field parametrization … Navier–Stokes": the truncated

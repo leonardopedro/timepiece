@@ -527,7 +527,7 @@ theorem redHam_quadForm_nonneg (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ)
 theorem redHam_friedrichs_extension (nu : ℝ) (k : Fin 3 → ℝ) (n : ℕ) :
     ∃ (Dom : Submodule ℂ (L2d (n * 6))) (A : Dom →ₗ[ℂ] L2d (n * 6)),
       IsPositiveSelfAdjointExtension (redHam nu k n) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨polyGaussCore, redHam nu k n, redHam_symmetricOn nu k n,
       redHam_quadForm_nonneg nu k n⟩
     polyGaussCore_dense
@@ -589,7 +589,7 @@ theorem nsRedFullFockHam_quadForm_nonneg (nu : ℝ) (k : Fin 3 → ℝ) (x : nsR
 theorem nsRedFullFock_friedrichs_extension (nu : ℝ) (k : Fin 3 → ℝ) :
     ∃ (Dom : Submodule ℂ nsRedFockSpace) (A : Dom →ₗ[ℂ] nsRedFockSpace),
       IsPositiveSelfAdjointExtension (nsRedFullFockHam nu k) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨nsRedFockCore, nsRedFullFockHam nu k, nsRedFullFockHam_symmetricOn nu k,
       nsRedFullFockHam_quadForm_nonneg nu k⟩
     nsRedFockCore_dense

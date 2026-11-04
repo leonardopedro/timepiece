@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Sirk.ChapterSirkCertificateReader
-import BookProof.Sirk.ChapterBandEnclosure
+import BookProof.ChapterBandEnclosure
 
 /-!
 # QYM-1 task 1 — the emitted bands are *nested compatible* enclosures

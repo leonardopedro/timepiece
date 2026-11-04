@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterA3
+import BookProof.Textbook.ChapterA3
 
 /-!
 # Chapter "Real representations, CPT theorem and the relativistic position operator",

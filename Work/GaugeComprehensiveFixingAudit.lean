@@ -1,7 +1,7 @@
-import BookProof.Qym.ChapterGaugeComprehensiveFixing
-import BookProof.Qym.ChapterGaugeCasimirAverage
+import BookProof.ChapterGaugeComprehensiveFixing
+import BookProof.ChapterGaugeCasimirAverage
 import BookProof.ChapterDampedOscillatorEnergy
-import BookProof.Qym.ChapterGaugeParametrization
+import BookProof.ChapterGaugeParametrization
 
 /-!
 # Audit of the comprehensive gauge-fixing, Casimir, averaging and dissipation chapters

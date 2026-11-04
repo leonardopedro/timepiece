@@ -1,6 +1,6 @@
 import BookProof.Qg.ChapterQgVielbeinScalaronGaugeFL
 import BookProof.Qg.ChapterQg3DGaugeFarisLavine
-import BookProof.Toolbox.ChapterEsaFarisLavineIndex
+import BookProof.ChapterEsaFarisLavineIndex
 
 /-!
 Axiom audit for the 2026-09-11 second-pass wave: quantum gravity with the **vielbein**, the

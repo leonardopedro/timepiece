@@ -25,7 +25,7 @@ a compact Hausdorff space, with a cyclic unit vector `ξ`:
 * `cyclicRepUnitary` — hence `f ↦ π(f)ξ` extends to a **unitary**
   `U : L²(μ) ≃ₗᵢ[ℂ] H`;
 * `cyclicRepUnitary_intertwines` and HEADLINE
-  `cyclic_representation_multiplication_model` — `U` conjugates multiplication by
+  `cyclic_representation_multiplication_model_of_cyclic_explicit` — `U` conjugates multiplication by
   `g` on `L²(μ)` into `π(g)`, for *every* continuous symbol `g` simultaneously.
 
 Composing with Gelfand duality gives the form the classification programme needs
@@ -203,7 +203,6 @@ theorem cyclicRepUnitary_intertwines (g : C(X, ℂ)) (u : Lp ℂ 2 (repMeasure p
     rfl
   exact congrFun hfun u
 
-include hcyc in
 /-- **HEADLINE (the multiplication model of a cyclic abelian representation).**  Let
 `π` be a unital `*`-representation of `C(X, ℂ)`, `X` compact Hausdorff, on a complex
 Hilbert space `H`, with a cyclic unit vector `ξ`.  Then there is a Borel probability
@@ -211,7 +210,8 @@ measure `μ` on `X` and a unitary `U : L²(μ) ≃ H` carrying multiplication by
 continuous symbol `g` into `π(g)`.
 
 No generator of the algebra, no separability, and no continuity of `π` are assumed. -/
-theorem cyclic_representation_multiplication_model (hxi : ‖xi‖ = 1) :
+theorem cyclic_representation_multiplication_model_of_cyclic_explicit (hcyc : DenseRange (repVec pi xi))
+    (hxi : ‖xi‖ = 1) :
     ∃ (mu : Measure X) (_ : IsProbabilityMeasure mu) (U : Lp ℂ 2 mu ≃ₗᵢ[ℂ] H),
       (∀ (g : C(X, ℂ)) (u : Lp ℂ 2 mu), U (mulRep mu g u) = pi g (U u)) ∧
       (∀ (g : C(X, ℂ)) (v : H), U.symm (pi g v) = mulRep mu g (U.symm v)) := by
@@ -268,7 +268,7 @@ theorem abelian_algebra_multiplication_model (rho : A →⋆ₐ[ℂ] (H →L[ℂ
     rw [DenseRange, hrange]
     exact hcyc
   obtain ⟨mu, hmu, U, hU, -⟩ :=
-    cyclic_representation_multiplication_model (gelfandRep rho) xi hcyc' hxi
+    cyclic_representation_multiplication_model_of_cyclic_explicit (gelfandRep rho) xi hcyc' hxi
   refine ⟨mu, hmu, U, fun a u => ?_⟩
   rw [hU (gelfandModel A a) u, gelfandRep_gelfandModel]
 

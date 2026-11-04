@@ -1,6 +1,6 @@
 import BookProof.Qym.ChapterYangMillsFockFriedrichs
 import BookProof.Qg.ChapterScalaronNotQuadratic
-import BookProof.Toolbox.ChapterEsaFarisLavineIndex
+import BookProof.ChapterEsaFarisLavineIndex
 
 /-!
 Axiom audit for the 2026-09-12 wave:

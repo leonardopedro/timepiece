@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterHyperbolicQuadraticEsa
+import BookProof.ChapterHyperbolicQuadraticEsa
 import BookProof.Toolbox.ChapterKatoRellichRelative
 import BookProof.Qym.ChapterYangMillsHermite
 

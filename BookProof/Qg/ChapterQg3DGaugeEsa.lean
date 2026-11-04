@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Qg.ChapterQuantumGravity3DGauge
-import BookProof.Toolbox.ChapterFullQuadraticEsa
+import BookProof.ChapterFullQuadraticEsa
 
 /-!
 # Essential self-adjointness of the 3D gauge-fixed gravity Hamiltonian on the

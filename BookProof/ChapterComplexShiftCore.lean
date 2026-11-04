@@ -1,5 +1,5 @@
-import BookProof.Prelude
-import BookProof.ChapterFarisLavineCore
+import BookProof.Toolbox.Prelude
+import BookProof.Toolbox.ChapterFarisLavineCore
 
 /-!
 # The non-real shift `γ − A` of a symmetric operator

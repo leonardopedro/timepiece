@@ -1,4 +1,4 @@
-import BookProof.Toolbox.ChapterNonnegUnitaryGroup
+import BookProof.ChapterNonnegUnitaryGroup
 
 /-!
 # Axiom audit for `BookProof.ChapterNonnegUnitaryGroup`

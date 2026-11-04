@@ -17,7 +17,7 @@ Gelfand–Naimark plus Riesz–Markov–Kakutani route:
    unital C*-algebra `A` with `C(X, ℂ)` for the compact Hausdorff character space
    `X = characterSpace ℂ A`.
 2. Riesz–Markov–Kakutani turns a **state** of `C(X, ℂ)` into a Borel *probability
-   measure* on `X` (`exists_probabilityMeasure_of_state`).
+   measure* on `X` (`exists_probabilityMeasure_of_state_of_positive_explicit`).
 3. `L²(μ)` then carries the **multiplication representation** of `C(X, ℂ)`
    (`mulRepHom`, a unital `*`-homomorphism into the bounded operators), which is
    *injective* whenever the measure charges every nonempty open set, and for which
@@ -36,7 +36,7 @@ model, i.e. precisely the "abstract algebra ⇒ measure model" direction.
   `isProbabilityMeasure_rieszStateMeasure` — a positive unital real-linear
   functional on `C(X, ℝ)` (`X` compact Hausdorff) is integration against a Borel
   probability measure;
-* `exists_probabilityMeasure_of_state` — the complex form: a state of the
+* `exists_probabilityMeasure_of_state_of_positive_explicit` — the complex form: a state of the
   C*-algebra `C(X, ℂ)` is integration against a Borel probability measure;
 * `contMemLpTop`, `mulRep`, `mulRepHom`, `mulRepHom_injective` — the
   multiplication representation of `C(X, ℂ)` on `L²(μ)` as a unital
@@ -275,10 +275,10 @@ theorem integral_stateMeasure (g : C(X, ℂ)) :
         simp only [hgre, hgim, toC_apply, ContinuousMap.coe_mk]
         apply Complex.ext <;> simp
 
-include hpos in
 /-- **Every state of `C(X, ℂ)` is integration against a Borel probability measure.**
 This is the Riesz–Markov–Kakutani half of the Gelfand model. -/
-theorem exists_probabilityMeasure_of_state (hone : psi 1 = 1) :
+theorem exists_probabilityMeasure_of_state_of_positive_explicit
+    (hpos : ∀ g : C(X, ℂ), 0 ≤ psi (star g * g)) (hone : psi 1 = 1) :
     ∃ mu : Measure X, IsProbabilityMeasure mu ∧
       ∀ g : C(X, ℂ), psi g = ∫ x, g x ∂mu :=
   ⟨stateMeasure psi hpos, isProbabilityMeasure_stateMeasure psi hpos hone,
@@ -478,7 +478,7 @@ theorem state_is_vector_state_of_multiplication (phi : A →ₗ[ℂ] ℂ)
       rw [map_mul, map_star]
     simpa [hpsi, h] using hpos (G.symm g)
   have hpsione : psi 1 = 1 := by simpa [hpsi] using hone
-  obtain ⟨mu, hmu, hint⟩ := exists_probabilityMeasure_of_state psi hpsipos hpsione
+  obtain ⟨mu, hmu, hint⟩ := exists_probabilityMeasure_of_state_of_positive_explicit psi hpsipos hpsione
   refine ⟨mu, hmu, norm_oneVec mu, ?_⟩
   intro a
   have h1 : phi a = psi (G a) := by simp [hpsi, hG]

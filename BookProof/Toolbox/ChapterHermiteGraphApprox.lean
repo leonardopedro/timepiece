@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterDegKatoEsa
+import BookProof.ChapterDegKatoEsa
 import BookProof.Toolbox.ChapterHermiteLadderOrder
 
 /-!

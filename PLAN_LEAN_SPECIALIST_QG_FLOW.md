@@ -219,7 +219,7 @@ and against the densitized philosophy.**
 substantive and the only one that connects to a *proved* repo theorem.  Solving
 the constraint `(1/16e)𝒮² − (1/24e)𝒫² − eV(e) = 0` for `𝒫` and using it as time
 (York time) gives a square-root Hamiltonian `H_true = √((3/2)𝒮² − 24e²V(e))`.
-If it is bounded below, the **proved** `friedrichs_extension_of_semibounded_below`
+If it is bounded below, the **proved** `friedrichs_extension_semibounded_of_complete_explicit`
 (`BookProof/Toolbox/ChapterFriedrichsExtension.lean:468`) gives a self-adjoint extension
 with the same lower bound.  **Two claims must be verified, not assumed:** (a) the
 radicand `(3/2)𝒮² − 24e²V(e)` must be a *positive* operator (or shifted to be
@@ -424,7 +424,7 @@ product-Hermite-core operators) and `ChapterFockSecondQuantization.lean`.
 | F.5 symmetry and positivity of the densitized Hamiltonian on the core (Friedrichs hypothesis) | `qg3D_symmetricOn`, `qg3D_quadForm_nonneg` | **DONE** (2026-08-25h) |
 | F.6 the BRST charge `G = ∫ (p e c∂e − p e ∂c + π v c∂v − π v ∂c + i∂β c^α c^β b_α)` (book.tex:8215) with ghosts on `ℤ₂¹⁹`; nilpotency `G² = 0` on the physical subspace — the gravity analogue of the Yang–Mills BRST charge | `qgBRST`, `qgBRST_nilpotent` | **DONE** (2026-08-25h) |
 | F.7 the fermionic ghost CCR/CAR `{ψ_a, ψ†_b} = δ_ab`, `{ψ_{aμ}, ψ†_{bν}} = δ_ab δ_μν` (book.tex:8269–8270) | `qgGhostCar` | **DONE** (2026-08-25h) |
-| F.8 the instantiation of the Friedrichs + Hashimoto theorems on the concrete 3D operator (reuse `friedrichs_extension_exists`, `friedrichs_hashimoto_selects`) | `qg3D_friedrichs_extension`, `qg3D_hashimoto_selects` | **DONE** (2026-08-25h) |
+| F.8 the instantiation of the Friedrichs + Hashimoto theorems on the concrete 3D operator (reuse `friedrichs_extension_exists_of_complete_explicit`, `friedrichs_hashimoto_selects`) | `qg3D_friedrichs_extension`, `qg3D_hashimoto_selects` | **DONE** (2026-08-25h) |
 | F.9 a **bounded** nilpotent BRST charge on the *completed* graded Hilbert space (so that the reduced-transfer theorems, which need a bounded charge on a complete space, apply), together with a commuting unitary group and the induced transfer on BRST cohomology | `qgBrstCharge`, `qgBrstCharge_nilpotent`, `qgPhase`, `qgBrstTransfer` | **DONE** (2026-08-26c) |
 
 **Executed 2026-08-26c (F.9).**  `BookProof/Qg/ChapterQgBrstCompleted.lean` is `sorry`-free and

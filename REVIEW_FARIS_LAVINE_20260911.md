@@ -361,7 +361,7 @@ nested Fock space `⊕ₙ L²(ℝ^{99n})` carries its own copy (`ycoord`).
 * **`ymFockHam_quadForm_nonneg`, `ymFock_friedrichs_extension`** — the headline: the outer
   Hamiltonian on the nested Fock space is bounded below and has a positive self-adjoint
   (Friedrichs) extension, obtained from the project's own unconditional Friedrichs theorem
-  `FriedrichsExtension.friedrichs_extension_exists` (no boundedness hypothesis) applied to
+  `FriedrichsExtension.friedrichs_extension_exists_of_complete_explicit` (no boundedness hypothesis) applied to
   the dense finite-particle core.  Positivity and symmetry are checked fibrewise, which is
   exactly why the construction lifts.
 * `ymFock_stone_flow` — the unitary time evolution it generates (Stone).

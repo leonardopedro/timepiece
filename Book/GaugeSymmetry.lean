@@ -285,7 +285,7 @@ linear automorphisms of the BRST cohomology, which moreover preserves the quotie
 #check @BookProof.BrstReducedTransfer.transfer
 #check @BookProof.BrstReducedTransfer.transfer_comp
 #check @BookProof.BrstReducedTransfer.transfer_bijective
-#check @BookProof.BrstReducedTransfer.infDist_exactStates_eq
+#check @BookProof.BrstReducedTransfer.infDist_exactStates_eq_of_comm_explicit
 ```
 
 :::paragraph
@@ -297,12 +297,12 @@ the induced group on cohomology is norm-preserving:
 :::
 
 ```
-#check @BookProof.BrstReducedTransfer.stoneU_mem_physicalStates
-#check @BookProof.BrstReducedTransfer.stoneU_sub_mem_exactStates
+#check @BookProof.BrstReducedTransfer.stoneU_mem_physicalStates_of_comm_explicit
+#check @BookProof.BrstReducedTransfer.stoneU_sub_mem_exactStates_of_comm_explicit
 #check @BookProof.BrstReducedTransfer.stoneTransfer
 #check @BookProof.BrstReducedTransfer.stoneTransfer_comp
 #check @BookProof.BrstReducedTransfer.stoneTransfer_bijective
-#check @BookProof.BrstReducedTransfer.infDist_exactStates_stoneU_eq
+#check @BookProof.BrstReducedTransfer.infDist_exactStates_stoneU_eq_of_comm_explicit
 ```
 
 :::paragraph

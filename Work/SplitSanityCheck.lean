@@ -1,8 +1,8 @@
 import BookProof.Toolbox.ChapterEsaClosure
-import BookProof.Toolbox.ChapterClosureUniqueness
+import BookProof.ChapterClosureUniqueness
 import BookProof.Sirk.ChapterHashimotoComplexShifts
 import BookProof.Toolbox.ChapterFarisLavine
-import BookProof.Toolbox.ChapterNonnegResolvent
+import BookProof.ChapterNonnegResolvent
 
 /-!
 # Sanity check for the `…Core` split

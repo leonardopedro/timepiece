@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterBrstTruncationLeakage
-import BookProof.ChapterStoneGenerator
+import BookProof.Toolbox.ChapterStoneGenerator
 
 /-!
 # BRST leakage of the truncated dynamics for an **unbounded** Hamiltonian

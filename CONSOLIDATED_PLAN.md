@@ -988,7 +988,7 @@ same form.  What is neither symmetric nor positive is the **coefficientwise** pr
 
 **Faris–Lavine: `N` is free.**  It only has to be positive, co-final with `H`, `N + 1` onto, with
 `|⟨x,[H,N]x⟩| ≤ c⟨x,Nx⟩`, so the convenient choice is `N = ι(Friedrichs(H_n^red))` — the comparison
-*is* the Hamiltonian, `c = 0`, `N + 1` onto by `friedrichs_extension_exists` (which carries **no**
+*is* the Hamiltonian, `c = 0`, `N + 1` onto by `friedrichs_extension_exists_of_complete_explicit` (which carries **no**
 boundedness hypothesis) — optionally enlarged by further positive terms for the cutoff/uniformity
 bookkeeping.  No commutator estimate is owed for the honest Hamiltonian; the order-counting no-go
 (D1–D6 of `DESIGN_COMPARISON_N_20260915.md` §9) is about the *literal-cubic* comparison
@@ -1013,7 +1013,7 @@ interacting — and the *approximation is gone*.
 **Reuse for the new module (no duplication).**  The formalization introduces *no* new instrument.
 It is built entirely from the already-proved ones of this repository: `weylOp`,
 `weylOpDom_symmetricOn`, `weylOpDom_quadForm_nonneg` (`ChapterYangMillsFriedrichs/Part2`),
-`friedrichs_extension_exists`, `friedrichsComparison` (`ChapterFriedrichsExtension`),
+`friedrichs_extension_exists_of_complete_explicit`, `friedrichsComparison` (`ChapterFriedrichsExtension`),
 `Comparison.esa_self`, `dsCore`, `dsOp`, `dsComparison`, `dsOp_quadForm_nonneg`,
 `dsOp_number_conserving` (`ChapterDirectSumEsa`, `ChapterQgOuterFockFarisLavine/Part1`,
 `ChapterQg3DGaugeFarisLavine`), `momOp_polySym`, `mulOp_polySym`, `RealCoeff`
@@ -1210,7 +1210,7 @@ generator and whose commutator with it stays bounded by `c·N`.  One per version
    commutator vanishing).  The determinant in the volume constraint is a **cubic**, and since
    `det F > 0` on the physical sector its constraint square `(det F − 1)²` (and the real
    logarithmic form) is positive, so its Friedrichs extension is unconditional by
-   `FriedrichsExtension.friedrichs_extension_exists` — the "easy because the determinant is
+   `FriedrichsExtension.friedrichs_extension_exists_of_complete_explicit` — the "easy because the determinant is
    positive" step.  Worked out in `DESIGN_COMPARISON_N_20260915.md` §6: `detPoly_pos` is the
    singular-value bound `det(1 + A) ≥ (1 − ‖A‖)³ > 0` on the operator-norm ball `‖A‖ < 1`
    around the identity, and it makes the **logarithmic volume square** `(log det F)²` a real
@@ -7500,11 +7500,11 @@ group; the concrete field-space construction remains open.
 * **The reduced transfer.**  For a one-parameter family commuting with `Ω`: `transfer`,
   with `transfer_zero`, **`transfer_comp`** (`transfer s ∘ transfer t = transfer (s+t)`) and
   **`transfer_bijective`** — a one-parameter group of linear automorphisms of the
-  cohomology — and **`infDist_exactStates_eq`**, which says that an isometric family
+  cohomology — and **`infDist_exactStates_eq_of_comm_explicit`**, which says that an isometric family
   preserves the distance to the exact states, i.e. the quotient (BRST) norm of the class.
 * **The Stone instance.**  `stoneTransfer`, `stoneTransfer_comp`, `stoneTransfer_bijective`,
-  `infDist_exactStates_stoneU_eq`, together with `stoneU_mem_physicalStates` (the §10.3
-  caveat itself) and `stoneU_sub_mem_exactStates` (gauge invariance): the unitary group
+  `infDist_exactStates_stoneU_eq_of_comm_explicit`, together with `stoneU_mem_physicalStates_of_comm_explicit` (the §10.3
+  caveat itself) and `stoneU_sub_mem_exactStates_of_comm_explicit` (gauge invariance): the unitary group
   `e^{-itT}` of an unbounded self-adjoint Hamiltonian commuting with `Ω` descends to a
   one-parameter group of norm-preserving automorphisms of the BRST cohomology.
 * **Honest boundary.**  `Ω` is bounded and nilpotent and commutes with the group (the
@@ -10120,12 +10120,12 @@ Crouzeix's inequality stays a named hypothesis; no rate; no Toeplitz–Hausdorff
     `qg3D_essentiallySelfAdjoint_on_hermiteCore` (now realized on `L²(ℝ)`, not
     abstractly on `ℓ²(ℕ)`).
   - `ChapterFriedrichsExtension` — the **Friedrichs extension theorem with no
-    boundedness hypothesis** (`friedrichs_extension_exists`): the form inner
+    boundedness hypothesis** (`friedrichs_extension_exists_of_complete_explicit`): the form inner
     product, its completion `FormSpace`, injectivity of the extension
     (`formExt_injective`, the closability step), Riesz representation of
-    `(H+1)⁻¹`, and `A = S⁻¹ − 1`. `friedrichs_hypothesis_holds` retires the named
+    `(H+1)⁻¹`, and `A = S⁻¹ − 1`. `friedrichs_hypothesis_holds_of_complete_explicit` retires the named
     hypothesis of `friedrichs_extension_of_semibounded`;
-    `weyl_friedrichs_extension_unconditional` gives the Weyl-gauge conclusion;
+    `weyl_friedrichs_extension_of_complete_explicit` gives the Weyl-gauge conclusion;
     `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs` combine it
     with shift-invert (the Hashimoto/SIRK limit selects the constructed extension,
     unbounded), and `unbounded_friedrichs_example` (A eₙ = n·eₙ) shows it is not
@@ -10612,12 +10612,12 @@ none of which is a plan item:
    are executed by `BookProof/ChapterFriedrichsExtension.lean` (`sorry`-free /
    `axiom`-free, registered in `BookProof.lean`, certified in
    `ChapterRoadmapAudit.lean`, cited from `Book/YangMillsQuantization.lean`):
-   item (1) is `friedrichs_extension_exists` — the Friedrichs extension theorem
+   item (1) is `friedrichs_extension_exists_of_complete_explicit` — the Friedrichs extension theorem
    proved with **no boundedness hypothesis**, via the form inner product, its
    completion, Riesz representation of `(H+1)⁻¹` and `A = S⁻¹ − 1` — with
-   `friedrichs_hypothesis_holds` discharging the named hypothesis of
+   `friedrichs_hypothesis_holds_of_complete_explicit` discharging the named hypothesis of
    `friedrichs_extension_of_semibounded` and
-   `weyl_friedrichs_extension_unconditional` giving the Weyl-gauge conclusion;
+   `weyl_friedrichs_extension_of_complete_explicit` giving the Weyl-gauge conclusion;
    item (2) is settled in favour of the occupation-number/Hermite realization
    (Part E of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`), and the combined statement —
    the extension exists *and* the Hashimoto/SIRK limit selects it, unbounded —
@@ -12554,10 +12554,10 @@ unitary `U` (it must map the physical subspace to itself — §10.3's caveat).
 **PARTIALLY CLOSED (2026-08-25g):** the *reduced transfer* half is done in
 `BookProof/ChapterBrstReducedTransfer.lean` — for a bounded nilpotent BRST charge `Ω`,
 the unitary group `e^{-itT}` of any commuting unbounded self-adjoint Hamiltonian preserves
-`ker Ω` (`stoneU_mem_physicalStates`, the §10.3 caveat) and `closure (range Ω)`, and
+`ker Ω` (`stoneU_mem_physicalStates_of_comm_explicit`, the §10.3 caveat) and `closure (range Ω)`, and
 descends to `ker Ω ⧸ closure (range Ω)` as a one-parameter group of automorphisms
 (`stoneTransfer_comp`, `stoneTransfer_bijective`) preserving the quotient BRST norm
-(`infDist_exactStates_stoneU_eq`).
+(`infDist_exactStates_stoneU_eq_of_comm_explicit`).
 **FURTHER CLOSED (2026-08-25h):** the *concrete field-space* half is now built too.
 `BookProof/ChapterQuantumGravity3DGauge.lean` gives the densitized, Weyl-ordered
 gauge-fixed Hamiltonian on the Gauss–polynomial core of `L²(ℝ⁸⁴)` with the canonical
@@ -12784,12 +12784,12 @@ out of scope by the author's decision.
 **Update (2026-08-18): both items are CLOSED; the claim above is now a proved
 theorem.** `BookProof/ChapterFriedrichsExtension.lean` proves the Friedrichs
 extension theorem itself with no boundedness hypothesis —
-`friedrichs_extension_exists` (form inner product → `FormDom`/`FormSpace`
+`friedrichs_extension_exists_of_complete_explicit` (form inner product → `FormDom`/`FormSpace`
 completion → `formExt_injective`, the closability step → Riesz representation
 `friedrichsResolvent` = `(H+1)⁻¹` → `A = S⁻¹ − 1` through the module's own
 `invShiftOperator`) — so item 1 is discharged in full generality, not just for
-the Weyl operator (`weyl_friedrichs_extension_unconditional`), and
-`friedrichs_hypothesis_holds` retires the named hypothesis. Item 2 is decided in
+the Weyl operator (`weyl_friedrichs_extension_of_complete_explicit`), and
+`friedrichs_hypothesis_holds_of_complete_explicit` retires the named hypothesis. Item 2 is decided in
 favour of **(a)**, the occupation-number/Hermite realization, recorded as Part E
 of `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`; the field-space differential realization
 (b) is not built and stays the recorded boundary shared with the NS and QG
@@ -12819,7 +12819,7 @@ with the differential expression `x ↦ -ψₙ''(x) + (x²/4)ψₙ(x)` on the He
 basis (`BookProof/ChapterHarmonicOscillatorEsa.lean`).  So option (b) is a
 well-scoped **construction task**: build the product Hermite core of `L²(ℝ⁹⁹)`,
 define `A`, `π = −iδ/δA`, `B` on it, prove core-invariance, symmetry and
-positivity of `H₁`, then feed the proved `friedrichs_extension_exists` +
+positivity of `H₁`, then feed the proved `friedrichs_extension_exists_of_complete_explicit` +
 `friedrichs_hashimoto_selects`.  Two genuine caveats to settle before executing:
   - **ordering:** the `πA` cross-terms inside `B²` do not commute
     (`[A_{j,a}, π^k_b] = iδ^k_j δ_{ab}`, book.tex:7060-7061) — the product needs
@@ -12853,7 +12853,7 @@ ordering `weylProd` with `weylProd_polySym`, and the commutation relation
 `ymHamiltonian = ½Σπ² + ½ΣB²` — the positive sign, the caveat above settled — is
 symmetric (`ymHamiltonian_symmetricOn`) with sum-of-squares quadratic form
 (`ymHamiltonian_quadForm`, `ymHamiltonian_quadForm_nonneg`), so
-`ym_hermite_friedrichs_extension` instantiates `friedrichs_extension_exists` and
+`ym_hermite_friedrichs_extension` instantiates `friedrichs_extension_exists_of_complete_explicit` and
 `ym_hermite_hashimoto_selects` instantiates
 `weyl_hashimoto_selects_friedrichs`.  Nothing about the mass gap or global
 existence is claimed.

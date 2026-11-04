@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterScalarDGammaEsa
-import BookProof.ChapterTensorOperatorBound
+import BookProof.Toolbox.ChapterTensorOperatorBound
 
 /-!
 # Second quantization of an arbitrary bounded symmetric one-particle operator

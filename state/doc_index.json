@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-10-21T17:15:35+00:00",
+ "generated_at": "2026-10-30T11:26:53+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -126,6 +126,21 @@
    ]
   },
   {
+   "path": "CFT_REVIEW.md",
+   "title": "Review of `cft.md`: machine-checked claims and assessment",
+   "lines": 331,
+   "headings": [
+    "# Review of `cft.md`: machine-checked claims and assessment",
+    "## 1. Claim A: Bałaban + Timepiece",
+    "## 2. Claim B: the artificial gap in the nested Fock space",
+    "## 4. Unbounded Hamiltonians and shift-invert (`Unbounded.lean`)",
+    "## 5. The transfer operators `e^{-τH}` for unbounded `H` (`HeatSemigroup.lean`, `SelfAdjointResolvent.lean`)",
+    "## 6. Claims A and B for unbounded `H` and `N` (`UnboundedPhysics.lean`, `Existence.lean`)",
+    "## 6b. Real-time dynamics and Heisenberg invariance for unbounded `H` and `N` (`UnitaryGroup.lean`, `HeisenbergUnbounded.lean`, `HeisenbergExample.lean`)",
+    "## 7. Bottom line"
+   ]
+  },
+  {
    "path": "CHANGELOG.md",
    "title": "Changelog",
    "lines": 63,
@@ -138,7 +153,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 18329,
+   "lines": 18328,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -411,6 +426,24 @@
     "## 4. Proved unconditionally vs. proved-on-the-concrete-instance (no physics hypotheses)",
     "## 5. Concrete Lean plan (staged, each stage independent)",
     "## 6. Clarification: `E = ∂e` is *achieved* by BRST, not a representability gap"
+   ]
+  },
+  {
+   "path": "DISPROVED_PLATFORM_AUDIT.md",
+   "title": "Audit: the 19 `BookProof.*` nodes marked **Disproved** on prove2.me",
+   "lines": 277,
+   "headings": [
+    "# Audit: the 19 `BookProof.*` nodes marked **Disproved** on prove2.me",
+    "## Verdict in one line",
+    "## Mechanism: three ways a binder gets lost",
+    "## The 19 nodes",
+    "## Fixed here: the Friedrichs cluster (nodes 1–4)",
+    "## Also fixed here: nodes 5–18",
+    "## Fixed here: node 19 (the `GhostRaw` collision)",
+    "## Retired on the platform (2026-10-30)",
+    "## Landed 2026-10-30: renamed, republished, cross-referenced",
+    "## Why the corrected statements cannot be published under their own names",
+    "## Re-running this audit"
    ]
   },
   {
@@ -806,6 +839,20 @@
     "## Priority 5 — `book.tex` claims not yet formalized (low-risk, high-value)",
     "## Priority 6 — Hygiene (final wave, always do)",
     "## Execution guidance"
+   ]
+  },
+  {
+   "path": "PLAN_REUSE_MAP.md",
+   "title": "Reuse map for the three plans — `cftproof.md`, `softmodes.md`, `pcnl.md`",
+   "lines": 241,
+   "headings": [
+    "# Reuse map for the three plans — `cftproof.md`, `softmodes.md`, `pcnl.md`",
+    "## How to read a row",
+    "## A. `cftproof.md` — Bałaban's Euclidean programme, OS reconstruction",
+    "## B. `softmodes.md` — analytic spectral separation `β_∞ > θ_∞`",
+    "## C. `pcnl.md` — pCNL as a linear operator on `L²(π)`",
+    "## D. Cross-cutting notes",
+    "## E. Suggested order of work"
    ]
   },
   {
@@ -1380,6 +1427,20 @@
    ]
   },
   {
+   "path": "cft.md",
+   "title": "cft",
+   "lines": 172,
+   "headings": []
+  },
+  {
+   "path": "cftproof.md",
+   "title": "cftproof",
+   "lines": 301,
+   "headings": [
+    "## Implementation status (2026-10-29)"
+   ]
+  },
+  {
    "path": "coherent.md",
    "title": "Chapter: The Coherent State of Attention",
    "lines": 165,
@@ -1412,6 +1473,19 @@
    ]
   },
   {
+   "path": "docs/euclidean_cft_proof.md",
+   "title": "Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT",
+   "lines": 207,
+   "headings": [
+    "# Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT",
+    "## Modules",
+    "## The five statements that carry the mathematics",
+    "## Boundary (recorded, never assumed)",
+    "## MM0 emission: what this pipeline can and cannot carry",
+    "## Reproducing"
+   ]
+  },
+  {
    "path": "math28/README.md",
    "title": "`math28/` — hypotheses supported by `math/`, in Lean v4.28.0",
    "lines": 48,
@@ -1440,9 +1514,21 @@
    ]
   },
   {
+   "path": "pcnl.md",
+   "title": "pcnl",
+   "lines": 215,
+   "headings": []
+  },
+  {
    "path": "scripts/notes/handedits.md",
    "title": "handedits",
    "lines": 21,
+   "headings": []
+  },
+  {
+   "path": "softmodes.md",
+   "title": "softmodes",
+   "lines": 290,
    "headings": []
   },
   {
@@ -1566,6 +1652,10 @@
   {
    "source": "BUILD_LAYOUT.md",
    "target": "BUILD_COMPONENTS.md"
+  },
+  {
+   "source": "CFT_REVIEW.md",
+   "target": "cft.md"
   },
   {
    "source": "CHANGELOG.md",
@@ -2096,6 +2186,18 @@
    "target": "PLAN_LEAN_SPECIALIST_COHERENT.md"
   },
   {
+   "source": "PLAN_REUSE_MAP.md",
+   "target": "cftproof.md"
+  },
+  {
+   "source": "PLAN_REUSE_MAP.md",
+   "target": "pcnl.md"
+  },
+  {
+   "source": "PLAN_REUSE_MAP.md",
+   "target": "softmodes.md"
+  },
+  {
    "source": "PNP_IMPLEMENTATION_PLAN.md",
    "target": "AGENTS.md"
   },
@@ -2260,12 +2362,24 @@
    "target": "STATUS.md"
   },
   {
+   "source": "cftproof.md",
+   "target": "docs/euclidean_cft_proof.md"
+  },
+  {
+   "source": "cftproof.md",
+   "target": "softmodes.md"
+  },
+  {
    "source": "converted/README.md",
    "target": "BOOKPROOF_SPLIT_PLAN.md"
   },
   {
    "source": "converted/README.md",
    "target": "converted/GAPS.md"
+  },
+  {
+   "source": "docs/euclidean_cft_proof.md",
+   "target": "cftproof.md"
   },
   {
    "source": "unfer_contracts/MASS_GAP_REGENERATION.md",

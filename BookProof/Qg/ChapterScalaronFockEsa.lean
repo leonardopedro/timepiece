@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Qg.ChapterScalaronCoreEsa
-import BookProof.Toolbox.ChapterDirectSumEsa
+import BookProof.ChapterDirectSumEsa
 
 /-!
 # From one particle to the nested Fock space: the scalaron Hamiltonian in the continuum

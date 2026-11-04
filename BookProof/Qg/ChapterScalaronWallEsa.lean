@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterWeakSecondDerivative
+import BookProof.ChapterWeakSecondDerivative
 import BookProof.Qg.ChapterScalaronCoreEsa
 
 /-!

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterUnitaryTransport
+import BookProof.ChapterUnitaryTransport
 
 /-!
 # The general Stone theorem, part I: resolvents of an unbounded self-adjoint operator

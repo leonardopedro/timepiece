@@ -94,8 +94,8 @@ not be well defined.
 | C.8 the domain with the form inner product is an inner product space, and the form norm dominates the ambient norm | `PosSymOp`, `FormDom`, `FormDom.instCore`, `FormDom.norm_toAmbient_le` | PROVED |
 | C.9 the form completion embeds into the ambient space (closability, no ghost vectors) | `FormDom.formExt`, `FormDom.inner_coe_eq`, `FormDom.formExt_injective` | PROVED |
 | C.10 the resolvent `(H+1)⁻¹` by Riesz representation: bounded, injective, positive, self-adjoint, and inverse to `x ↦ x + Hx` | `FormDom.friedrichsResolvent`, `_isSelfAdjoint`, `_pos`, `_injective`, `_shift` | PROVED |
-| C.11 **the Friedrichs theorem, no boundedness hypothesis**; C.2's named hypothesis discharged | `friedrichs_extension_exists`, `friedrichs_hypothesis_holds` | PROVED |
-| C.12 the Weyl-gauge conclusion, unconditional | `weyl_friedrichs_extension_unconditional` | PROVED |
+| C.11 **the Friedrichs theorem, no boundedness hypothesis**; C.2's named hypothesis discharged | `friedrichs_extension_exists_of_complete_explicit`, `friedrichs_hypothesis_holds_of_complete_explicit` | PROVED |
+| C.12 the Weyl-gauge conclusion, unconditional | `weyl_friedrichs_extension_of_complete_explicit` | PROVED |
 
 C.5–C.7 live in `BookProof/Qym/ChapterYangMillsFriedrichsLimit.lean`: on the bounded
 class the extension is built, not assumed, and the domain may be a proper dense
@@ -196,7 +196,7 @@ second-quantized `H` on the finite-occupation states over it — the same patter
 already proved in 1D by `harmonicOscOp_apply_eq_differential`.  So (b) is a
 well-scoped **construction task**: build the product Hermite core of `L²(ℝ⁹⁹)`,
 define `A`, `π = −iδ/δA`, `B` on it, prove core-invariance/symmetry/positivity
-of `H₁`, then feed the proved `friedrichs_extension_exists` +
+of `H₁`, then feed the proved `friedrichs_extension_exists_of_complete_explicit` +
 `friedrichs_hashimoto_selects`.  Two caveats to settle first:
   - **ordering:** the `πA` cross-terms inside `B²` do not commute
     (`[A_{j,a}, π^k_b] = iδ^k_j δ_{ab}`, book.tex:7060-7061) — the product needs
@@ -247,7 +247,7 @@ and the abstract theorems (`ChapterYangMillsFriedrichs.lean`,
 | F.6 `H₁ = ½Σππ + ½ΣBB` (sign reconciled with book.tex:7077 to the positive sum-of-squares) well-defined on the core | `ymHamiltonian`, `ymHamiltonian_apply` | DONE |
 | F.7 `H₁` symmetric on the core | `ymHamiltonian_symmetricOn` | DONE |
 | F.8 `H₁` positive (bounded below by 0), the Friedrichs hypothesis | `ymHamiltonian_quadForm`, `ymHamiltonian_quadForm_nonneg` | DONE |
-| F.9 **instantiation**: `H₁` satisfies the hypothesis of `friedrichs_extension_exists` → the Weyl-gauge field-space Hamiltonian has a positive self-adjoint extension | `ym_hermite_friedrichs_extension` | DONE |
+| F.9 **instantiation**: `H₁` satisfies the hypothesis of `friedrichs_extension_exists_of_complete_explicit` → the Weyl-gauge field-space Hamiltonian has a positive self-adjoint extension | `ym_hermite_friedrichs_extension` | DONE |
 | F.10 **instantiation**: the shift-invert Hashimoto/SIRK limit selects it → `friedrichs_hashimoto_selects` / `weyl_hashimoto_selects_friedrichs` applied | `ym_hermite_hashimoto_selects` | DONE |
 | F.11 the second-quantized `H` on finite-occupation states over the core | `Conf`, `annA`, `creA`, `ccr_annA_creA`, `inner_creA_left`, `dGamma`, `dGamma_one_particle`, `dGammaOp_symmetricOn`, `dGammaOp_quadForm_nonneg`, `dGamma_friedrichs_extension`, `secondQuantization_friedrichs`, `ym_fock_friedrichs_extension`, `finiteModeDomain_fockBasisN`, `dGamma_hashimoto_selects`, `secondQuantization_hashimoto_selects`, `ym_fock_hashimoto_selects` | DONE |
 

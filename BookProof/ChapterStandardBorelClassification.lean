@@ -256,7 +256,7 @@ theorem spectral_multiplication_model_classified (T : H →L[ℂ] H) (hT : IsSta
       (∀ (x : S) (u : Lp ℂ 2 (mu x)),
         V x (mulRep (mu x) (coordFn T) u) = T (V x u)) ∧
       (∀ x : S, ∃ _ : IsProbabilityMeasure (mu x), RealizesStandardType (mu x)) := by
-  obtain ⟨S, mu, V, hprob, hsum, hint⟩ := spectral_multiplication_model_general T hT
+  obtain ⟨S, mu, V, hprob, hsum, hint⟩ := spectral_multiplication_model_general_normal_explicit T hT
   refine ⟨S, mu, V, hprob, hsum, hint, fun x => ?_⟩
   haveI := hprob x
   exact ⟨hprob x, standardBorel_classification_list (mu x)⟩

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterNavierStokesIkebeKato
+import BookProof.Ns.ChapterNavierStokesIkebeKato
 
 /-!
 # Summable series of symmetric operators, and the Faris–Lavine bounds

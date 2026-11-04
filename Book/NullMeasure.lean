@@ -299,7 +299,7 @@ probability measure: the abelian Gelfand–Naimark–Segal model.
 ```
 #check @BookProof.ChapterAbelianGelfandModel.rieszStateMeasure
 #check @BookProof.ChapterAbelianGelfandModel.integral_rieszStateMeasure
-#check @BookProof.ChapterAbelianGelfandModel.exists_probabilityMeasure_of_state
+#check @BookProof.ChapterAbelianGelfandModel.exists_probabilityMeasure_of_state_of_positive_explicit
 #check @BookProof.ChapterAbelianGelfandModel.mulRepHom
 #check @BookProof.ChapterAbelianGelfandModel.mulRepHom_injective
 #check @BookProof.ChapterAbelianGelfandModel.inner_oneVec_mulRep
@@ -435,7 +435,7 @@ multiplication operators; no cyclic vector and no separability are assumed.
 #check @BookProof.ChapterSpectralDirectSum.range_cyclicEmbedding
 #check @BookProof.ChapterSpectralDirectSum.cyclicEmbedding_intertwines_cfc
 #check @BookProof.ChapterSpectralDirectSum.cyclicEmbedding_intertwines
-#check @BookProof.ChapterSpectralDirectSum.spectral_multiplication_model_general
+#check @BookProof.ChapterSpectralDirectSum.spectral_multiplication_model_general_normal_explicit
 ```
 
 If the space is separable the decomposition is moreover *countable*: distinct members
@@ -448,7 +448,7 @@ separable $`L^2` is usually stated.
 
 ```
 #check @BookProof.ChapterSpectralDirectSum.countable_orthogonalCyclicFamily
-#check @BookProof.ChapterSpectralDirectSum.spectral_multiplication_model_separable
+#check @BookProof.ChapterSpectralDirectSum.spectral_multiplication_model_separable_normal_explicit
 ```
 
 The single-generator hypothesis can be dropped as well, and dropping it does not
@@ -474,7 +474,7 @@ character space.
 #check @BookProof.ChapterAbelianCyclicModel.norm_rep_apply
 #check @BookProof.ChapterAbelianCyclicModel.cyclicRepUnitary
 #check @BookProof.ChapterAbelianCyclicModel.cyclicRepUnitary_intertwines
-#check @BookProof.ChapterAbelianCyclicModel.cyclic_representation_multiplication_model
+#check @BookProof.ChapterAbelianCyclicModel.cyclic_representation_multiplication_model_of_cyclic_explicit
 #check @BookProof.ChapterAbelianCyclicModel.abelian_algebra_multiplication_model
 ```
 
@@ -490,7 +490,7 @@ $`L^\infty(\mu)` acting on $`L^2(\mu)`, with no generator produced anywhere.
 #check @BookProof.ChapterAbelianCyclicCommutant.centralizer_repSet
 #check @BookProof.ChapterAbelianCyclicCommutant.centralizer_multModelRep
 #check @BookProof.ChapterAbelianCyclicCommutant.bicommutant_repSet
-#check @BookProof.ChapterAbelianCyclicCommutant.commutant_repSet_isCommutative
+#check @BookProof.ChapterAbelianCyclicCommutant.commutant_repSet_isCommutative_of_cyclic_explicit
 #check @BookProof.ChapterAbelianCyclicCommutant.abelian_algebra_maximal_abelian_of_cyclic
 ```
 

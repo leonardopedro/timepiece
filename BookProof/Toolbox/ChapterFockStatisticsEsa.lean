@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Toolbox.ChapterPermutationSectorEsa
-import BookProof.Toolbox.ChapterEsaOneParticleDGamma
-import BookProof.Toolbox.ChapterDirectSumEsa
+import BookProof.ChapterPermutationSectorEsa
+import BookProof.ChapterEsaOneParticleDGamma
+import BookProof.ChapterDirectSumEsa
 
 /-!
 # The bosonic and the fermionic Fock space

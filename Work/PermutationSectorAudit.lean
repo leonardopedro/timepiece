@@ -1,5 +1,5 @@
 import BookProof.Toolbox.ChapterTensorPermutation
-import BookProof.Toolbox.ChapterPermutationSectorEsa
+import BookProof.ChapterPermutationSectorEsa
 
 /-!
 # Axiom audit for the `n`-particle symmetrization wave

@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Qg.ChapterQuantumGravityFock
-import BookProof.Qym.ChapterBrstReducedTransfer
+import BookProof.ChapterBrstReducedTransfer
 
 /-!
 # The bounded BRST charge on the *completed* graded Hilbert space, and its reduced transfer
@@ -536,8 +536,9 @@ theorem qgBrstTransfer_bijective (t : ℝ) : Function.Bijective (qgBrstTransfer 
 theorem qgBrstTransfer_infDist (t : ℝ) (x : QGH) :
     Metric.infDist (qgPhase omega t x) (exactStates (qgBrstCharge sym hsym))
       = Metric.infDist x (exactStates (qgBrstCharge sym hsym)) :=
-  infDist_exactStates_eq (qgBrstCharge sym hsym) (qgPhase omega) (qgPhase_commutes hsym omega)
-    (qgPhase_zero omega) (qgPhase_group omega) (qgPhase_isometry omega) t x
+  infDist_exactStates_eq_of_comm_explicit (qgBrstCharge sym hsym) (qgPhase omega)
+    (qgPhase_commutes hsym omega) (qgPhase_zero omega) (qgPhase_group omega)
+    (qgPhase_isometry omega) t x
 
 end
 

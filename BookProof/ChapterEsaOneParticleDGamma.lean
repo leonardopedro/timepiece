@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterFlowDGammaEsa
-import BookProof.ChapterEsaClosureCore
+import BookProof.Toolbox.ChapterEsaClosureCore
 
 /-!
 # Second quantization of an **essentially self-adjoint** one-particle operator

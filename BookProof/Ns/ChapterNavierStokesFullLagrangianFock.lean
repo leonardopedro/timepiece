@@ -297,7 +297,7 @@ extension.** -/
 theorem lagSector_friedrichs_extension (lam lam' mu gg : ℝ) (n : ℕ) :
     ∃ (Dom : Submodule ℂ (L2d (n * 36))) (A : Dom →ₗ[ℂ] L2d (n * 36)),
       IsPositiveSelfAdjointExtension (lagSectorHam lam lam' mu gg n) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨polyGaussCore, lagSectorHam lam lam' mu gg n, lagSectorHam_symmetricOn lam lam' mu gg n,
       lagSectorHam_quadForm_nonneg lam lam' mu gg n⟩
     polyGaussCore_dense
@@ -334,7 +334,7 @@ self-adjoint (Friedrichs) extension.** -/
 theorem lagFullFock_friedrichs_extension (lam lam' mu gg : ℝ) :
     ∃ (Dom : Submodule ℂ lagFockSpace) (A : Dom →ₗ[ℂ] lagFockSpace),
       IsPositiveSelfAdjointExtension (lagFullFockHam lam lam' mu gg) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨lagFockCore, lagFullFockHam lam lam' mu gg, lagFullFockHam_symmetricOn lam lam' mu gg,
       lagFullFockHam_quadForm_nonneg lam lam' mu gg⟩
     lagFockCore_dense

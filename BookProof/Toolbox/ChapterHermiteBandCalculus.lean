@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterHermiteProductBasis
-import BookProof.Toolbox.ChapterFullQuadraticEsa
+import BookProof.ChapterFullQuadraticEsa
 
 /-!
 # The graded band calculus of the product Hermite basis: a real quadratic Hamiltonian has a

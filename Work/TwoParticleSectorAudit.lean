@@ -1,6 +1,6 @@
-import BookProof.Toolbox.ChapterReducingSubspaceEsa
-import BookProof.Toolbox.ChapterTwoParticleSectorEsa
-import BookProof.Toolbox.ChapterGroupAverageEsa
+import BookProof.ChapterReducingSubspaceEsa
+import BookProof.ChapterTwoParticleSectorEsa
+import BookProof.ChapterGroupAverageEsa
 
 /-!
 # Axiom audit for the sector-reduction wave

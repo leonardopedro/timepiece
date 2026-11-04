@@ -1,7 +1,7 @@
 import Mathlib
 import BookProof.Ns.ChapterNsKoopman
-import BookProof.Toolbox.ChapterFullQuadraticEsa
-import BookProof.Toolbox.ChapterQuadraticFockEsa
+import BookProof.ChapterFullQuadraticEsa
+import BookProof.ChapterQuadraticFockEsa
 
 /-!
 # The mainstream Navier–Stokes Koopman generator, linear part: essential self-adjointness

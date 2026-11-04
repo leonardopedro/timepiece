@@ -171,7 +171,7 @@ theorem algOp_friedrichs_extension {T : Module.End ℂ (γ →₀ ℂ)}
     (hsym : IsSymAlg T) (hpos : IsPosAlg T) :
     ∃ (Dom : Submodule ℂ (L2I γ)) (A : Dom →ₗ[ℂ] L2I γ),
       IsPositiveSelfAdjointExtension (opOfAlg T) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨lpFiniteModes γ, opOfAlg T, opOfAlg_symmetricOn hsym, opOfAlg_quadForm_nonneg hpos⟩
     lpFiniteModes_dense
 

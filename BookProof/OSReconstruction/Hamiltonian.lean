@@ -19,19 +19,25 @@ nonnegative contraction semigroup, and the Hamiltonian is self-adjoint and bound
   **descends to the physical space** `𝔄/𝔑`.  This is what makes the Hamiltonian an operator on
   `ℋ` rather than on the unquotient algebra.
 
+`OSReconstruction.HilbertSpace` takes this the rest of the way: it assembles `ℋ` as the
+completion of `𝔄/𝔑` (`Hphys`) and extends `T(τ)` to a continuous linear map on `ℋ` with
+`‖T(τ)‖ ≤ 1` (`physEvolCompletion`, `norm_physEvolCompletion_le`).
+
 ## Boundary (stated plainly)
 
 The plan's named results `emergent_hamiltonian_selfAdjoint` and
 `emergent_hamiltonian_nonnegative` are **not** claimed here, and cannot be in this development:
 identifying the generator `H` with `−log P` and proving `H = H*`, `H ≥ 0` requires (i) a
-strongly continuous contraction semigroup on a *complete* Hilbert space (the completion of
-`PhysicalSpace`, not assembled here), (ii) the spectral theorem for unbounded self-adjoint
-operators, and (iii) Stone/Lumer–Phillips theory.  None of (i)–(iii) exists in Mathlib, and the
-plan itself lists the spectral theorem as a prerequisite.  What *is* proved is the part that does
-not need them: the semigroup law, its contractivity in the OS norm (which is the
-positivity of the transfer matrix, i.e. the physical origin of `H ≥ 0`), and its descent to the
-quotient.  The `L²`/strong-continuity hypotheses are carried as explicit hypotheses
-(`hinv`, the non-increase of the OS form), never as silent assumptions.
+strongly continuous contraction semigroup on a *complete* Hilbert space (assembled in
+`OSReconstruction.HilbertSpace`, but strong continuity of an 
+arbitrary `TimeTranslation` is not available), (ii) the spectral theorem for unbounded
+self-adjoint operators, and (iii) Stone/Lumer–Phillips theory.  None of (ii)–(iii) exists in
+Mathlib, and the plan itself lists the spectral theorem as a prerequisite.  What *is* proved is
+the part that does not need them: the semigroup law, its contractivity in the OS norm (which is
+the positivity of the transfer matrix, i.e. the physical origin of `H ≥ 0`), its descent to the
+quotient, and its contractive extension to `ℋ`.  The `L²`/strong-continuity hypotheses are
+carried as explicit hypotheses (`hinv`, the non-increase of the OS form), never as silent
+assumptions.
 -/
 
 namespace BookProof.OSReconstruction

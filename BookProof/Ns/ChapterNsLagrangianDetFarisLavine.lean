@@ -1,4 +1,4 @@
-import BookProof.Ns.ChapterKoopmanLyapunovFarisLavine
+import BookProof.ChapterKoopmanLyapunovFarisLavine
 import BookProof.Ns.ChapterNsLagrangianDetConvolution
 
 /-!

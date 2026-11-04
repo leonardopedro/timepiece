@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Probability.ChapterSolovayHilbertTensor
+import BookProof.ChapterSolovayHilbertTensor
 
 /-!
 # Pure tensors are total in `L²(μ ⊗ ν)`

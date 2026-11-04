@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterTensorGraphCore
-import BookProof.Toolbox.ChapterGroupAverageEsa
+import BookProof.ChapterGroupAverageEsa
 
 /-!
 # The symmetric group acting on a tensor power

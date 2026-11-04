@@ -39,7 +39,7 @@ and equal to `rˡ P_l^μ(cos θ) cos(μφ)` in spherical coordinates), and Note 
 #print axioms BookProof.ChapterSolidHarmonic.solidHarmonic_euler
 #print axioms BookProof.ChapterSolidHarmonic.solidHarmonicIm_euler
 #print axioms BookProof.ChapterSolidHarmonic.radialFactor_eval
-#print axioms BookProof.ChapterSolidHarmonic.solidHarmonic_spherical
+#print axioms BookProof.ChapterSolidHarmonic.solidHarmonic_spherical_frames_explicit
 
 /-! Note 68 in every mode. -/
 

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterA3
+import BookProof.Textbook.ChapterA3
 
 /-!
 # Chapter A, §A.3 — the commutant of the concrete Majorana/Dirac γ-matrices

@@ -27,6 +27,15 @@ needs: a quantitative gap keeps `λ` out of the spectrum.
 * `notMem_spectrum_of_uniform_gap` and `spectrum_disjoint_of_uniform_window` — the
   gap-preserving conclusion: if the approximants have a uniform gap on an interval and
   converge in operator norm, the limit has no spectrum in that interval.
+* `gapAt_of_leftInverse`, `exists_leftInverse_of_gapAt`, `gapAt_of_strongResolvent_limit`,
+  `gapAt_of_strongResolvent`, `notMem_spectrum_of_strongResolvent`,
+  `spectrum_disjoint_of_strong_window`, `tendsto_apply_of_tendsto_opNorm` — **the
+  strong-resolvent mode**.  The proof of
+  `gapAt_of_tendsto` uses only two facts: the gap bounds the resolvents by `d⁻¹` uniformly,
+  and that bound is inherited by the limit.  Neither needs a norm limit — the bound is
+  closed under *pointwise* limits — so the same chain yields `GapAt B lam d` from strong
+  (norm-resolvent) convergence, and `tendsto_apply_of_tendsto_opNorm` records that the
+  operator-norm hypothesis is the special case; nothing above is lost.
 
 ## Honest boundary
 
@@ -35,6 +44,12 @@ continuum leg of §13 needs it for the truncation family in the norm-resolvent s
 whether the truncations converge that way is exactly the open analytic question; nothing
 here asserts that they do.  What the chapter supplies is the implication: *given* such a
 convergence, the certified gap of the approximants is inherited by the limit.
+
+The strong-resolvent mode of the last section widens the hypothesis to the convergence one
+expects for truncations (pointwise convergence of the resolvents, `(Aₘ − λ)⁻¹ξ → (B − λ)⁻¹ξ`
+for every `ξ`), which is implied by the norm mode.  Both modes are still statements about
+*bounded* operators and about *given* convergence; neither asserts that the truncations
+converge.
 -/
 
 noncomputable section
@@ -258,5 +273,138 @@ theorem spectrum_disjoint_of_shifted_square_bound {A : F →L[ℂ] F} (hA : IsSe
     linarith
   have hpos : 0 < Real.sqrt q - |lam - c| := sub_pos.mpr hdist
   exact notMem_spectrum_of_gapAt hA hpos (by simpa [ContinuousLinearMap.sub_apply] using hnot)
+
+/-! ## The strong-resolvent mode
+
+The operator-norm transfer above uses only two facts: a gap at `λ` bounds the resolvents of
+`Aₘ − λ` by `d⁻¹` uniformly, and a bound on a family of operators is inherited by a
+*pointwise* limit.  Neither needs a norm limit, so the same chain gives the gap of the limit
+under **strong resolvent convergence** — the mode in which truncations actually converge.
+
+The two halves are separated here:
+
+* `exists_leftInverse_of_gapAt` — the approximant side: a bounded self-adjoint operator with
+  `GapAt A lam d` has a left inverse of `A − λ` of norm at most `d⁻¹`;
+* `gapAt_of_strongResolvent_limit` — the limit side: a pointwise limit of operators that are
+  left inverses of `Aₘ − λ` with the uniform bound `d⁻¹` is a left inverse of `B − λ` with
+  the same bound, hence `GapAt B lam d`;
+* `gapAt_of_strongResolvent`, `notMem_spectrum_of_strongResolvent` — the two assembled;
+* `tendsto_apply_of_tendsto_opNorm` — operator-norm convergence implies strong convergence,
+  so the norm mode of this chapter is literally the special case.
+-/
+
+omit [CompleteSpace F] in
+/-- **A quantitative gap from a left inverse of norm at most `d⁻¹`.**  The left inverse of
+`B − λ` is all that the gap needs: `‖x‖ = ‖R((B − λ)x)‖ ≤ d⁻¹‖(B − λ)x‖`. -/
+theorem gapAt_of_leftInverse {B R : F →L[ℂ] F} {lam d : ℝ} (hd : 0 < d)
+    (hR : ∀ x : F, R (B x - (lam : ℂ) • x) = x)
+    (hRn : ∀ ξ : F, ‖R ξ‖ ≤ ‖ξ‖ / d) : GapAt B lam d := by
+  intro x
+  have h1 : ‖x‖ = ‖R (B x - (lam : ℂ) • x)‖ := by rw [hR x]
+  have h2 := hRn (B x - (lam : ℂ) • x)
+  rw [← h1, le_div_iff₀ hd] at h2
+  linarith
+
+/-- **The resolvent bound behind `notMem_spectrum_of_gapAt`**, isolated: a bounded
+self-adjoint operator with a quantitative gap at `λ` has a bounded left inverse of `A − λ`
+of norm at most `d⁻¹`.  This is where the approximants' `Rm` in the strong-resolvent
+transfer come from. -/
+theorem exists_leftInverse_of_gapAt {A : F →L[ℂ] F} (hA : IsSelfAdjoint A) {lam d : ℝ}
+    (hd : 0 < d) (h : GapAt A lam d) :
+    ∃ R : F →L[ℂ] F, (∀ x : F, R (A x - (lam : ℂ) • x) = x) ∧
+      ∀ ξ : F, ‖R ξ‖ ≤ ‖ξ‖ / d := by
+  set B : F →L[ℂ] F := A - (lam : ℂ) • (1 : F →L[ℂ] F) with hB
+  have hBapp : ∀ x, B x = A x - (lam : ℂ) • x := by
+    intro x; simp [hB]
+  have hBx : ∀ x, d * ‖x‖ ≤ ‖B x‖ := by
+    intro x; rw [hBapp x]; exact h x
+  have hnot := notMem_spectrum_of_gapAt hA hd h
+  rw [spectrum.mem_iff] at hnot
+  push_neg at hnot
+  have halg : (algebraMap ℂ (F →L[ℂ] F)) (lam : ℂ) - A = -B := by
+    rw [Algebra.algebraMap_eq_smul_one, hB]; abel
+  rw [halg] at hnot
+  have hBunit : IsUnit B := (IsUnit.neg_iff _).mp hnot
+  set V : F →L[ℂ] F := ↑(hBunit.unit⁻¹) with hV
+  have hVB : ∀ x : F, V (B x) = x := by
+    intro x
+    have hmul : V * B = 1 := by rw [hV]; simp
+    calc V (B x) = (V * B) x := rfl
+      _ = x := by rw [hmul]; rfl
+  have hBV : ∀ x : F, B (V x) = x := by
+    intro x
+    have hmul : B * V = 1 := by rw [hV]; simp
+    calc B (V x) = (B * V) x := rfl
+      _ = x := by rw [hmul]; rfl
+  refine ⟨V, fun x => ?_, fun ξ => ?_⟩
+  · rw [← hBapp x]
+    exact hVB x
+  · have h2 := hBx (V ξ)
+    rw [hBV] at h2
+    rw [le_div_iff₀ hd]
+    linarith
+
+omit [CompleteSpace F] in
+/-- **Operator-norm convergence implies strong convergence**: the norm mode of this chapter is
+the special case of the strong mode. -/
+theorem tendsto_apply_of_tendsto_opNorm {A : ℕ → F →L[ℂ] F} {B : F →L[ℂ] F}
+    (h : Tendsto (fun m => ‖A m - B‖) atTop (𝓝 0)) (ξ : F) :
+    Tendsto (fun m => A m ξ) atTop (𝓝 (B ξ)) := by
+  have hg : Tendsto (fun m => ‖A m - B‖ * ‖ξ‖) atTop (𝓝 0) := by
+    simpa using h.mul_const ‖ξ‖
+  have hnorm : Tendsto (fun m => ‖A m ξ - B ξ‖) atTop (𝓝 0) :=
+    squeeze_zero (fun m => norm_nonneg _) (fun m => by
+      simpa [ContinuousLinearMap.sub_apply] using (A m - B).le_opNorm ξ) hg
+  have hdiff : Tendsto (fun m => A m ξ - B ξ) atTop (𝓝 0) :=
+    tendsto_zero_iff_norm_tendsto_zero.mpr hnorm
+  simpa using hdiff.add_const (B ξ)
+
+omit [CompleteSpace F] in
+/-- **A uniform resolvent bound survives a strong (pointwise) limit.**  This is the whole
+mechanism of `gapAt_of_tendsto` with the norm limit replaced by pointwise convergence: the
+bound is closed under limits of numbers, and nothing else is used. -/
+theorem gapAt_of_strongResolvent_limit {B R : F →L[ℂ] F} {Rm : ℕ → F →L[ℂ] F} {lam d : ℝ}
+    (hd : 0 < d) (hbound : ∀ m ξ, ‖Rm m ξ‖ ≤ ‖ξ‖ / d)
+    (hconv : ∀ ξ, Tendsto (fun m => Rm m ξ) atTop (𝓝 (R ξ)))
+    (hR : ∀ x : F, R (B x - (lam : ℂ) • x) = x) : GapAt B lam d := by
+  refine gapAt_of_leftInverse hd hR fun ξ => ?_
+  exact le_of_tendsto ((hconv ξ).norm) (Eventually.of_forall fun m => hbound m ξ)
+
+omit [CompleteSpace F] in
+/-- **A uniform gap survives a strong-resolvent limit.**  If each `Aₘ − λ` has a left inverse
+`Rm m` with `‖Rm m ξ‖ ≤ d⁻¹‖ξ‖` and the resolvents converge pointwise to a left inverse of
+`B − λ`, then `B` has gap `d` at `λ`, with no loss. -/
+theorem gapAt_of_strongResolvent {A : ℕ → F →L[ℂ] F} {B R : F →L[ℂ] F} {lam d : ℝ}
+    (hd : 0 < d) {Rm : ℕ → F →L[ℂ] F}
+    (hRm : ∀ m, (∀ x, Rm m (A m x - (lam : ℂ) • x) = x) ∧ ∀ ξ, ‖Rm m ξ‖ ≤ ‖ξ‖ / d)
+    (hconv : ∀ ξ, Tendsto (fun m => Rm m ξ) atTop (𝓝 (R ξ)))
+    (hR : ∀ x : F, R (B x - (lam : ℂ) • x) = x) : GapAt B lam d :=
+  gapAt_of_strongResolvent_limit hd (fun m => (hRm m).2) hconv hR
+
+/-- **The gap-preserving conclusion in the strong-resolvent mode**: `λ` is not in the
+spectrum of a bounded self-adjoint strong-resolvent limit of operators with a uniform gap. -/
+theorem notMem_spectrum_of_strongResolvent {A : ℕ → F →L[ℂ] F} {B R : F →L[ℂ] F} {lam d : ℝ}
+    (hB : IsSelfAdjoint B) (hd : 0 < d) {Rm : ℕ → F →L[ℂ] F}
+    (hRm : ∀ m, (∀ x, Rm m (A m x - (lam : ℂ) • x) = x) ∧ ∀ ξ, ‖Rm m ξ‖ ≤ ‖ξ‖ / d)
+    (hconv : ∀ ξ, Tendsto (fun m => Rm m ξ) atTop (𝓝 (R ξ)))
+    (hR : ∀ x : F, R (B x - (lam : ℂ) • x) = x) :
+    (lam : ℂ) ∉ spectrum ℂ B :=
+  notMem_spectrum_of_gapAt hB hd (gapAt_of_strongResolvent hd hRm hconv hR)
+
+/-- **A gap window survives the strong-resolvent limit**: the strong mode of
+`spectrum_disjoint_of_uniform_window`.  For every `λ` in `(a, b)` the approximants' resolvents
+carry the natural bound `min (λ − a) (b − λ)` they can have in a window, and they converge
+pointwise; then the limit has no spectrum in `(a, b)`. -/
+theorem spectrum_disjoint_of_strong_window {B : F →L[ℂ] F} (hB : IsSelfAdjoint B) {a b : ℝ}
+    {R : ℝ → F →L[ℂ] F} {Rm : ℝ → ℕ → F →L[ℂ] F}
+    (hbound : ∀ lam ∈ Set.Ioo a b, ∀ m ξ, ‖Rm lam m ξ‖ ≤ ‖ξ‖ / min (lam - a) (b - lam))
+    (hconv : ∀ lam ∈ Set.Ioo a b, ∀ ξ, Tendsto (fun m => Rm lam m ξ) atTop (𝓝 (R lam ξ)))
+    (hR : ∀ lam ∈ Set.Ioo a b, ∀ x, R lam (B x - (lam : ℂ) • x) = x) :
+    ∀ lam ∈ Set.Ioo a b, (lam : ℂ) ∉ spectrum ℂ B := by
+  intro lam hlam
+  have hd : 0 < min (lam - a) (b - lam) :=
+    lt_min (by linarith [hlam.1]) (by linarith [hlam.2])
+  exact notMem_spectrum_of_gapAt hB hd
+    (gapAt_of_strongResolvent_limit hd (hbound lam hlam) (hconv lam hlam) (hR lam hlam))
 
 end BookProof.SpectralGapStability

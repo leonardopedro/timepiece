@@ -9,8 +9,8 @@ lake build Work.GaugeSymmetryAudit
 import BookProof.ChapterGaugeVariantVanishing
 import BookProof.ChapterGaugeAdjointAlgebra
 import BookProof.ChapterGaugeWeylResidual
-import BookProof.Qym.ChapterGaugeMechanicsCharge
-import BookProof.Qym.ChapterGhostMajoranaRep
+import BookProof.ChapterGaugeMechanicsCharge
+import BookProof.ChapterGhostMajoranaRep
 
 open BookProof
 

@@ -21,7 +21,7 @@ The **solid harmonic** of degree `l` and order `μ` is
 (and the same with `Im`), where `P_l^{(μ)}[k]` is the `k`-th coefficient of the
 `μ`-th derivative of the Legendre polynomial.  In spherical coordinates this is
 exactly `rˡ (sin θ)^μ P_l^{(μ)}(cos θ) cos(μφ)`, i.e. `rˡ Y_{lμ}` up to
-normalization (`solidHarmonic_spherical`).
+normalization (`solidHarmonic_spherical_frames_explicit`).
 
 ## Contents
 
@@ -32,7 +32,7 @@ normalization (`solidHarmonic_spherical`).
 * `solidHarmonic`, `solidHarmonicIm` — the solid harmonics;
 * `solidHarmonic_harmonic`, `solidHarmonic_euler` — **they are harmonic and
   homogeneous of degree `l`**, for every `l` and every `μ ≤ l`;
-* `solidHarmonic_spherical` — in spherical coordinates the solid harmonic is
+* `solidHarmonic_spherical_frames_explicit` — in spherical coordinates the solid harmonic is
   `rˡ (sin θ)^μ P_l^{(μ)}(cos θ) cos(μ φ)`, the classical `rˡ Y_{lμ}`;
 * `assocLegendre` — the associated Legendre function
   `P_l^μ(t) = (1−t²)^{μ/2} P_l^{(μ)}(t)`.
@@ -518,9 +518,19 @@ section Frame
 variable {u v e : E} (hu : ‖u‖ = 1) (hv : ‖v‖ = 1) (he : ‖e‖ = 1)
   (huv : ⟪u, v⟫_ℝ = 0) (hue : ⟪u, e⟫_ℝ = 0) (hve : ⟪v, e⟫_ℝ = 0)
 
-include hu hv he huv hue hve
+/-! ### The frame hypotheses are written in each binder list
 
-theorem inner_u_spherePt (r θ φ : ℝ) :
+These five theorems are the only declarations of the `Frame` section.  A section `variable`
+(or an `include` of one) becomes an argument only through the *value*: the statement's type
+does not mention the hypotheses.  A textual export that re-elaborates the
+statement alone (as prove2.me does) therefore loses the frame and asserts the identity for
+arbitrary `u v e`, which is false (prove2.me recorded these five as `Disproved`; the accepted
+counterexample takes `E` trivial and `u = v = e = 0`).  Writing the hypotheses explicitly
+keeps the signatures unchanged while making the exported statement self-contained.
+Do not remove these binders. -/
+
+theorem inner_u_spherePt_frames_explicit (hu : ‖u‖ = 1) (hv : ‖v‖ = 1) (he : ‖e‖ = 1)
+    (huv : ⟪u, v⟫_ℝ = 0) (hue : ⟪u, e⟫_ℝ = 0) (hve : ⟪v, e⟫_ℝ = 0) (r θ φ : ℝ) :
     ⟪u, spherePt u v e r θ φ⟫_ℝ = r * Real.sin θ * Real.cos φ := by
   have hvu : ⟪v, u⟫_ℝ = 0 := by rw [real_inner_comm]; exact huv
   have heu : ⟪e, u⟫_ℝ = 0 := by rw [real_inner_comm]; exact hue
@@ -528,14 +538,16 @@ theorem inner_u_spherePt (r θ φ : ℝ) :
     real_inner_self_eq_norm_sq, hu]
   ring
 
-theorem inner_v_spherePt (r θ φ : ℝ) :
+theorem inner_v_spherePt_frames_explicit (hu : ‖u‖ = 1) (hv : ‖v‖ = 1) (he : ‖e‖ = 1)
+    (huv : ⟪u, v⟫_ℝ = 0) (hue : ⟪u, e⟫_ℝ = 0) (hve : ⟪v, e⟫_ℝ = 0) (r θ φ : ℝ) :
     ⟪v, spherePt u v e r θ φ⟫_ℝ = r * Real.sin θ * Real.sin φ := by
   have hvu : ⟪v, u⟫_ℝ = 0 := by rw [real_inner_comm]; exact huv
   simp only [spherePt, inner_add_right, real_inner_smul_right, hvu, hve,
     real_inner_self_eq_norm_sq, hv]
   ring
 
-theorem inner_e_spherePt (r θ φ : ℝ) :
+theorem inner_e_spherePt_frames_explicit (hu : ‖u‖ = 1) (hv : ‖v‖ = 1) (he : ‖e‖ = 1)
+    (huv : ⟪u, v⟫_ℝ = 0) (hue : ⟪u, e⟫_ℝ = 0) (hve : ⟪v, e⟫_ℝ = 0) (r θ φ : ℝ) :
     ⟪e, spherePt u v e r θ φ⟫_ℝ = r * Real.cos θ := by
   have heu : ⟪e, u⟫_ℝ = 0 := by rw [real_inner_comm]; exact hue
   have hev : ⟪e, v⟫_ℝ = 0 := by rw [real_inner_comm]; exact hve
@@ -543,7 +555,9 @@ theorem inner_e_spherePt (r θ φ : ℝ) :
     real_inner_self_eq_norm_sq, he]
   ring
 
-theorem norm_spherePt {r : ℝ} (hr : 0 ≤ r) (θ φ : ℝ) : ‖spherePt u v e r θ φ‖ = r := by
+theorem norm_spherePt_frames_explicit (hu : ‖u‖ = 1) (hv : ‖v‖ = 1) (he : ‖e‖ = 1)
+    (huv : ⟪u, v⟫_ℝ = 0) (hue : ⟪u, e⟫_ℝ = 0) (hve : ⟪v, e⟫_ℝ = 0)
+    {r : ℝ} (hr : 0 ≤ r) (θ φ : ℝ) : ‖spherePt u v e r θ φ‖ = r := by
   have hvu : ⟪v, u⟫_ℝ = 0 := by rw [real_inner_comm]; exact huv
   have heu : ⟪e, u⟫_ℝ = 0 := by rw [real_inner_comm]; exact hue
   have hev : ⟪e, v⟫_ℝ = 0 := by rw [real_inner_comm]; exact hve
@@ -564,22 +578,25 @@ theorem norm_spherePt {r : ℝ} (hr : 0 ≤ r) (θ φ : ℝ) : ‖spherePt u v e
   have h1 : 0 ≤ ‖spherePt u v e r θ φ‖ := norm_nonneg _
   nlinarith [hsq, h1, hr]
 
+omit hu hv he huv hue hve in
 /-- **The solid harmonic in spherical coordinates**: it is
 `rˡ P_l^μ(cos θ) cos(μ φ)`, i.e. `rˡ Y_{lμ}(θ, φ)` up to normalization. -/
-theorem solidHarmonic_spherical {l μ : ℕ} (hμ : μ ≤ l) {r : ℝ} (hr : 0 < r) {θ : ℝ}
+theorem solidHarmonic_spherical_frames_explicit (hu : ‖u‖ = 1) (hv : ‖v‖ = 1) (he : ‖e‖ = 1)
+    (huv : ⟪u, v⟫_ℝ = 0) (hue : ⟪u, e⟫_ℝ = 0) (hve : ⟪v, e⟫_ℝ = 0)
+    {l μ : ℕ} (hμ : μ ≤ l) {r : ℝ} (hr : 0 < r) {θ : ℝ}
     (hθ : 0 ≤ Real.sin θ) (φ : ℝ) :
     solidHarmonic u v e l μ (spherePt u v e r θ φ)
       = r ^ l * assocLegendre l μ (Real.cos θ) * Real.cos (μ * φ) := by
   set x := spherePt u v e r θ φ with hx
-  have hnorm : ‖x‖ = r := norm_spherePt hu hv he huv hue hve hr.le θ φ
+  have hnorm : ‖x‖ = r := norm_spherePt_frames_explicit hu hv he huv hue hve hr.le θ φ
   have hxne : x ≠ 0 := by
     intro hcon
     rw [hcon] at hnorm
     simp at hnorm
     exact absurd hnorm.symm (ne_of_gt hr)
-  have hiu : ⟪u, x⟫_ℝ = r * Real.sin θ * Real.cos φ := inner_u_spherePt hu hv he huv hue hve r θ φ
-  have hiv : ⟪v, x⟫_ℝ = r * Real.sin θ * Real.sin φ := inner_v_spherePt hu hv he huv hue hve r θ φ
-  have hie : ⟪e, x⟫_ℝ = r * Real.cos θ := inner_e_spherePt hu hv he huv hue hve r θ φ
+  have hiu : ⟪u, x⟫_ℝ = r * Real.sin θ * Real.cos φ := inner_u_spherePt_frames_explicit hu hv he huv hue hve r θ φ
+  have hiv : ⟪v, x⟫_ℝ = r * Real.sin θ * Real.sin φ := inner_v_spherePt_frames_explicit hu hv he huv hue hve r θ φ
+  have hie : ⟪e, x⟫_ℝ = r * Real.cos θ := inner_e_spherePt_frames_explicit hu hv he huv hue hve r θ φ
   -- the angular factor
   have hw : nullCLM u v x = ((r * Real.sin θ : ℝ) : ℂ) * Complex.exp (φ * Complex.I) := by
     rw [nullCLM_apply, hiu, hiv, Complex.exp_mul_I]

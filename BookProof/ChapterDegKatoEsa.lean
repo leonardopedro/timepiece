@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterDegSchrodingerCore
+import BookProof.Toolbox.ChapterDegSchrodingerCore
 import BookProof.ChapterConvolutionCalc
 import BookProof.ChapterDegEnergyEstimate
 import BookProof.ChapterMollifierL2

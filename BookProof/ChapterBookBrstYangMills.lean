@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterBRSTNilpotent
-import BookProof.ChapterQuantumGravityBrstCharge
+import BookProof.Qg.ChapterQuantumGravityBrstCharge
 
 /-!
 # The BRST charge **exactly as defined in `book.tex`**

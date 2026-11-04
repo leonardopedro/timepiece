@@ -1,5 +1,5 @@
 import BookProof.ChapterGraphCoreTransfer
-import BookProof.ChapterEsaClosureCore
+import BookProof.Toolbox.ChapterEsaClosureCore
 
 /-!
 # A self-adjoint operator is essentially self-adjoint on every graph core

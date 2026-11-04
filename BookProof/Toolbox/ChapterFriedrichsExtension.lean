@@ -46,16 +46,16 @@ domain.
 
 **Part D — the extension.**  Feeding `S` to the project's own converse
 construction `BookProof.HashimotoShiftInvert.invShiftOperator` (`A = S⁻¹ − 1`)
-produces the extension, and `friedrichs_extension_exists` states it in the form
+produces the extension, and `friedrichs_extension_exists_of_complete_explicit` states it in the form
 the rest of the project consumes,
 `BookProof.YangMillsFriedrichs.IsPositiveSelfAdjointExtension`.  Consequences:
 
-* `friedrichs_hypothesis_holds` — the named hypothesis of
+* `friedrichs_hypothesis_holds_of_complete_explicit` — the named hypothesis of
   `friedrichs_extension_of_semibounded` is a theorem, not an assumption;
-* `friedrichs_extension_of_semibounded_below` — the classical statement, for a
+* `friedrichs_extension_semibounded_of_complete_explicit` — the classical statement, for a
   symmetric operator that is merely *bounded below* (`⟪x, Hx⟫ ≥ −c‖x‖²`), by the
   shift `H ↦ H + c`;
-* `weyl_friedrichs_extension_unconditional` — the Weyl-gauge Yang–Mills
+* `weyl_friedrichs_extension_of_complete_explicit` — the Weyl-gauge Yang–Mills
   Hamiltonian `½ Σ πᵢ² + ½ Σ Bₐ²` on any dense domain has a Friedrichs
   extension, with **no boundedness hypothesis** (plan item §11.4.1);
 * `weyl_hashimoto_selects_friedrichs` — combining with
@@ -395,6 +395,24 @@ open FormDom
 
 variable [CompleteSpace F]
 
+/-! ### Why the completeness instance is written in the binder lists below
+
+Completeness is *not* needed by the type of any statement in this section — it is
+needed by the proofs, so Lean records it as an argument derived from the
+*value*.  An exporter that re-emits a statement from its source text and re-checks
+it as `theorem … : <type> := by sorry` therefore loses `[CompleteSpace F]` and
+publishes a strictly stronger, false claim (a symmetric positive operator on a
+non-closed subspace of `ℓ²` has no positive self-adjoint extension; the
+counterexample is a Jacobi matrix with a `H*`-eigenvector of eigenvalue `−½`).
+That is exactly what happened on prove2.me: the four theorems below were recorded
+as `Disproved` with a preamble that carried only
+`[NormedAddCommGroup F] [InnerProductSpace ℂ F]`.
+
+Writing `[CompleteSpace F]` explicitly in each binder list keeps the signature
+identical (it is already an argument of the declaration) while making the
+hypothesis visible to any textual export.  Do not remove these binders. -/
+
+omit [CompleteSpace F] in
 /-- **The Friedrichs extension theorem (K. Friedrichs 1934; Reed–Simon Vol. II
 Thm X.23), proved — not assumed — with no boundedness hypothesis.**
 
@@ -406,7 +424,8 @@ representation in the completed form space.
 This is the unbounded analogue of
 `BookProof.YangMillsFriedrichsLimit.friedrichs_of_bounded`, and it closes plan
 item 1 of `CONSOLIDATED_PLAN.md` §11.4. -/
-theorem friedrichs_extension_exists (P : PosSymOp F) (hdense : Dense (P.dom : Set F)) :
+theorem friedrichs_extension_exists_of_complete_explicit (P : PosSymOp F) [CompleteSpace F]
+    (hdense : Dense (P.dom : Set F)) :
     ∃ (Dom : Submodule ℂ F) (A : Dom →ₗ[ℂ] F), IsPositiveSelfAdjointExtension P.op A := by
   have hinj : Function.Injective (friedrichsResolvent P) :=
     friedrichsResolvent_injective P hdense
@@ -421,31 +440,34 @@ theorem friedrichs_extension_exists (P : PosSymOp F) (hdense : Dense (P.dom : Se
   push_cast
   module
 
+omit [CompleteSpace F] in
 /-- **The named hypothesis of
 `BookProof.YangMillsFriedrichs.friedrichs_extension_of_semibounded` is a
 theorem.**  Wherever the project carried "Friedrichs" as an explicit hypothesis,
 it can now be discharged. -/
-theorem friedrichs_hypothesis_holds :
+theorem friedrichs_hypothesis_holds_of_complete_explicit [CompleteSpace F] :
     ∀ (D' : Submodule ℂ F) (H' : D' →ₗ[ℂ] F), Dense (D' : Set F) →
       SymmetricOn D' H' → (∀ x : D', 0 ≤ quadForm H' x) →
       ∃ (Dom : Submodule ℂ F) (A : Dom →ₗ[ℂ] F), IsPositiveSelfAdjointExtension H' A :=
   fun D' H' hdense hsym hpos =>
-    friedrichs_extension_exists ⟨D', H', hsym, hpos⟩ hdense
+    friedrichs_extension_exists_of_complete_explicit ⟨D', H', hsym, hpos⟩ hdense
 
+omit [CompleteSpace F] in
 /-- **The Weyl-gauge Yang–Mills Hamiltonian has a Friedrichs extension —
 unconditionally.**  `½ Σᵢ πᵢ² + ½ Σₐ Bₐ²` on a dense domain, with symmetric
 electric- and magnetic-field operators, has a positive self-adjoint extension.
 No boundedness of `πᵢ`, `Bₐ` or of the Hamiltonian is assumed: this is
 `BookProof.YangMillsFriedrichs.weyl_friedrichs_extension` with its hypothesis
 removed. -/
-theorem weyl_friedrichs_extension_unconditional {D : Submodule ℂ F} {n m : ℕ}
+theorem weyl_friedrichs_extension_of_complete_explicit {D : Submodule ℂ F} [CompleteSpace F]
+    {n m : ℕ}
     {pi : Fin n → D →ₗ[ℂ] D} {Bf : Fin m → D →ₗ[ℂ] D}
     (hdense : Dense (D : Set F))
     (hpi : ∀ i, SymmetricOn D (D.subtype.comp (pi i)))
     (hB : ∀ a, SymmetricOn D (D.subtype.comp (Bf a))) :
     ∃ (Dom : Submodule ℂ F) (A : Dom →ₗ[ℂ] F),
       IsPositiveSelfAdjointExtension (weylOp pi Bf) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨D, weylOp pi Bf, weylOpDom_symmetricOn hpi hB, weylOpDom_quadForm_nonneg hpi hB⟩ hdense
 
 /-! ### The classical statement: symmetric and *bounded below* -/
@@ -461,11 +483,13 @@ def IsSemiboundedSelfAdjointExtension (c : ℝ) {D Dom : Submodule ℂ F} (H : D
     (∀ w u : F, (∀ v : Dom, (inner ℂ (A v) w : ℂ) = inner ℂ (v : F) u) →
       ∃ h : w ∈ Dom, A ⟨w, h⟩ = u)
 
+omit [CompleteSpace F] in
 /-- **The Friedrichs extension theorem in its classical form**: a densely defined
 symmetric operator that is *bounded below* — `⟪x, H x⟫ ≥ −c‖x‖²`, not necessarily
 positive — has a self-adjoint extension with the same lower bound.  Reduced to
 the positive case by the shift `H ↦ H + c`. -/
-theorem friedrichs_extension_of_semibounded_below {D : Submodule ℂ F} (H : D →ₗ[ℂ] F)
+theorem friedrichs_extension_semibounded_of_complete_explicit {D : Submodule ℂ F} [CompleteSpace F]
+    (H : D →ₗ[ℂ] F)
     (hdense : Dense (D : Set F)) (hsym : SymmetricOn D H) (c : ℝ)
     (hbelow : ∀ x : D, -c * ‖(x : F)‖ ^ 2 ≤ quadForm H x) :
     ∃ (Dom : Submodule ℂ F) (A : Dom →ₗ[ℂ] F), IsSemiboundedSelfAdjointExtension c H A := by
@@ -487,7 +511,7 @@ theorem friedrichs_extension_of_semibounded_below {D : Submodule ℂ F} (H : D �
     intro x
     rw [hshift]
     linarith [hbelow x]
-  obtain ⟨Dom, A', hA'⟩ := friedrichs_extension_exists ⟨D, Hc, hcsym, hcpos⟩ hdense
+  obtain ⟨Dom, A', hA'⟩ := friedrichs_extension_exists_of_complete_explicit ⟨D, Hc, hcsym, hcpos⟩ hdense
   obtain ⟨hagree, hsymA, hposA, hsa⟩ := hA'
   refine ⟨Dom, A' - (c : ℂ) • Dom.subtype, ?_, ?_, ?_, ?_⟩
   · intro x
@@ -534,7 +558,7 @@ operator `R = (A + γ)⁻¹` is bounded and self-adjoint, its Galerkin truncatio
 converge to it strongly and in the resolvent sense, and `R` determines `A`
 uniquely.
 
-Together with `friedrichs_extension_exists` this is the full statement of
+Together with `friedrichs_extension_exists_of_complete_explicit` this is the full statement of
 `CONSOLIDATED_PLAN.md` §11.4: existence *and* selection, for the unbounded
 operator. -/
 theorem friedrichs_hashimoto_selects (b : HilbertBasis ℕ ℂ F)
@@ -550,7 +574,7 @@ theorem friedrichs_hashimoto_selects (b : HilbertBasis ℕ ℂ F)
         (∀ (Dom' : Submodule ℂ F) (A' : Dom' →ₗ[ℂ] F), IsShiftInvert A' γ R →
           Dom' = Dom ∧ ∀ (x : F) (hx : x ∈ Dom) (hx' : x ∈ Dom'), A' ⟨x, hx'⟩ = A ⟨x, hx⟩) := by
   obtain ⟨Dom, A, hA⟩ :=
-    friedrichs_extension_exists ⟨finiteModeDomain b, H, hsym, hpos⟩ (finiteModeDomain_dense b)
+    friedrichs_extension_exists_of_complete_explicit ⟨finiteModeDomain b, H, hsym, hpos⟩ (finiteModeDomain_dense b)
   obtain ⟨R, hR, hnorm, hsa, -, hstrong, hres, huniq⟩ :=
     hashimoto_shiftInvert_selects_friedrichs b H A hA hγ
   exact ⟨Dom, A, R, hA, hR, hnorm, hsa, hstrong, hres, huniq⟩
@@ -584,7 +608,7 @@ theorem weyl_hashimoto_selects_friedrichs (b : HilbertBasis ℕ ℂ F) {n m : �
 diagonal operator `A eₙ = n eₙ` on `ℓ²(ℕ, ℂ)` restricted to the finite-mode
 domain — unbounded, by
 `BookProof.HashimotoShiftInvert.ell2ExampleMatrix_unbounded` — the Friedrichs
-extension is produced by `friedrichs_extension_exists`, with no extension
+extension is produced by `friedrichs_extension_exists_of_complete_explicit`, with no extension
 assumed as input. -/
 theorem unbounded_friedrichs_example :
     (∃ (Dom : Submodule ℂ (ℓ²(ℕ, ℂ))) (A : Dom →ₗ[ℂ] ℓ²(ℕ, ℂ)),
@@ -592,7 +616,7 @@ theorem unbounded_friedrichs_example :
       ∀ C : ℝ, ∃ x : finiteModeDomain ell2Basis,
         C * ‖(x : ℓ²(ℕ, ℂ))‖ < ‖ell2ExampleMatrix x‖ := by
   obtain ⟨-, hsym, hpos, -⟩ := ell2Example_isPositiveSelfAdjointExtension
-  refine ⟨friedrichs_extension_exists
+  refine ⟨friedrichs_extension_exists_of_complete_explicit
     ⟨finiteModeDomain ell2Basis, ell2ExampleMatrix, ?_, ?_⟩ (finiteModeDomain_dense ell2Basis),
     ell2ExampleMatrix_unbounded⟩
   · intro x y

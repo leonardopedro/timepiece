@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Attention.ChapterThermalTemperatureCore
+import BookProof.ChapterThermalTemperatureCore
 import BookProof.Attention.ChapterCoherentFidelity
-import BookProof.Attention.ChapterDisplacedThermalOverlap
+import BookProof.ChapterDisplacedThermalOverlap
 
 /-!
 # Where the extra `½` comes from: the fidelity of a displaced thermal state with a

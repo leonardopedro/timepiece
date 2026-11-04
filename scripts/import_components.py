@@ -52,7 +52,10 @@ IMPORT_RE = re.compile(r"\s*import\s+([A-Za-z0-9_.]+)")
 # component is already built by `lake build <module>`.
 COMPONENT_NAMES = {
     "BookProof.Realification.ChapterA": "BookProofRealification",
-    "BookProof.Textbook.ChapterA3": "BookProofLieRep",
+    # `BookProofLieRep` was merged into `BookProofOperatorCore` (2026-09-24,
+    # CONSOLIDATED_PLAN.md): the merged part keeps the `BookProofOperatorCore`
+    # name and `BookProofLieRep` is retired, so this key must not name it.
+    "BookProof.Textbook.ChapterA3": "BookProofOperatorCore",
     "BookProof.Probability.ChapterAbelianAtomicCondensation": "BookProofAtomicDecomposition",
     "BookProof.Probability.ChapterAbelianClassificationList": "BookProofOperatorCore",
     "BookProof.Probability.ChapterAbelianDiagonal": "BookProofAttention",

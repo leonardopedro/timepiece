@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Toolbox.ChapterFlowDGammaEsa
-import BookProof.Toolbox.ChapterEsaOneParticleDGamma
+import BookProof.ChapterFlowDGammaEsa
+import BookProof.ChapterEsaOneParticleDGamma
 import BookProof.Toolbox.ChapterStoneBridge
 
 /-!

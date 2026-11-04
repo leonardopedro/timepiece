@@ -21,13 +21,13 @@ summand models are then glued over the decomposition.
   `cyclicEmbedding_intertwines` — read in `H` it is an isometric embedding with range
   the cyclic subspace, carrying multiplication by a continuous symbol `g` into
   `g(T)`, in particular multiplication by `z` into `T`;
-* HEADLINE `spectral_multiplication_model_general` — for **every** normal operator on
+* HEADLINE `spectral_multiplication_model_general_normal_explicit` — for **every** normal operator on
   a complex Hilbert space there are Borel probability measures `μₓ` on its spectrum
   and isometric embeddings `Vₓ : L²(μₓ) → H` exhibiting `H` as the Hilbert sum of the
   `L²(μₓ)`, with `T` acting on each summand as multiplication by the coordinate
   function.  No cyclic vector and no separability are assumed;
 * `countable_orthogonalCyclicFamily` and
-  `spectral_multiplication_model_separable` — on a *separable* space the family is
+  `spectral_multiplication_model_separable_normal_explicit` — on a *separable* space the family is
   countable (its members are unit vectors at pairwise distance `√2`), so the model is
   a countable direct sum.
 
@@ -178,14 +178,21 @@ theorem orthogonalFamily_cyclicEmbedding {S : Set H} (hS : OrthogonalCyclicFamil
     (mem_cyclicSubspace_cyclicEmbedding T hT (x : H) u)
     (mem_cyclicSubspace_cyclicEmbedding T hT (y : H) v)
 
-include hT in
+/-! ### The normality hypothesis is written in each binder list
+
+`include hT in` makes `hT` an argument only through the *value*: the statement's type never
+mentions it, so a textual export that re-elaborates the statement alone drops it and asserts
+the model for an arbitrary (not necessarily normal) bounded operator — false.  prove2.me
+recorded both theorems below as `Disproved` for exactly that reason.  The binders keep the
+signatures unchanged while making the exported statements self-contained. -/
+
 /-- **HEADLINE (the general spectral multiplication model).**  For every normal
 operator `T` on a complex Hilbert space there is a family of Borel probability
 measures `μₓ` on the spectrum of `T` and isometric embeddings `Vₓ : L²(μₓ) → H`
 which exhibit `H` as the Hilbert sum of the spaces `L²(μₓ)` and carry multiplication
 by the coordinate function into `T`.  Every normal operator is a direct sum of
 multiplication operators; no cyclic vector is assumed. -/
-theorem spectral_multiplication_model_general :
+theorem spectral_multiplication_model_general_normal_explicit (hT : IsStarNormal T) :
     ∃ (S : Set H) (mu : S → Measure (spectrum ℂ T))
       (V : ∀ x : S, Lp ℂ 2 (mu x) →ₗᵢ[ℂ] H),
       (∀ x : S, IsProbabilityMeasure (mu x)) ∧
@@ -236,13 +243,13 @@ theorem countable_orthogonalCyclicFamily [TopologicalSpace.SeparableSpace H] {S 
   have := one_lt_dist_of_orthogonalCyclicFamily T hT hS hx hy hxy
   linarith
 
-include hT in
 /-- **HEADLINE (the separable case).**  On a separable complex Hilbert space every
 normal operator is a *countable* direct sum of multiplication operators: there are
 countably many Borel probability measures on the spectrum and isometric embeddings of
 the corresponding `L²` spaces exhibiting the space as their Hilbert sum, with the
 operator acting as multiplication by the coordinate function on each summand. -/
-theorem spectral_multiplication_model_separable [TopologicalSpace.SeparableSpace H] :
+theorem spectral_multiplication_model_separable_normal_explicit (hT : IsStarNormal T)
+    [TopologicalSpace.SeparableSpace H] :
     ∃ (S : Set H) (mu : S → Measure (spectrum ℂ T))
       (V : ∀ x : S, Lp ℂ 2 (mu x) →ₗᵢ[ℂ] H),
       S.Countable ∧

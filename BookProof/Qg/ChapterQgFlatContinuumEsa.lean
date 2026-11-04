@@ -1,10 +1,10 @@
 import Mathlib
 import BookProof.Toolbox.ChapterTensorSumEsa
 import BookProof.Qym.ChapterYangMillsNonAbelianEsa
-import BookProof.Qg.ChapterConformalSignFlip
-import BookProof.Toolbox.ChapterEsaRealShift
+import BookProof.ChapterConformalSignFlip
+import BookProof.ChapterEsaRealShift
 import BookProof.Ode.ChapterOdeChartTransfer
-import BookProof.Toolbox.ChapterL2TensorPowerUnitary
+import BookProof.ChapterL2TensorPowerUnitary
 
 /-!
 # QG-D-C.1 — the continuum flat densitized operator: trivial deficiency at every non-real `z`

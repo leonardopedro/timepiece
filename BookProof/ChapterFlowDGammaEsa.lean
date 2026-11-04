@@ -1,8 +1,8 @@
 import Mathlib
 import BookProof.ChapterDiagonalDGammaEsa
-import BookProof.ChapterNavierStokesEsa
-import BookProof.ChapterStoneGenerator
-import BookProof.ChapterStoneSeparable
+import BookProof.Ns.ChapterNavierStokesEsa
+import BookProof.Toolbox.ChapterStoneGenerator
+import BookProof.Toolbox.ChapterStoneSeparable
 
 /-!
 # Second quantization of an arbitrary **self-adjoint** one-particle operator

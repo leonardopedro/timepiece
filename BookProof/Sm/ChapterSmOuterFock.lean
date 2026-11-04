@@ -126,7 +126,7 @@ theorem smSectorHam_quadForm_nonneg (P : SmParams) (n : ℕ)
 theorem smSector_friedrichs_extension (P : SmParams) (n : ℕ) :
     ∃ (Dom : Submodule ℂ (L2d (n * 163))) (A : Dom →ₗ[ℂ] L2d (n * 163)),
       IsPositiveSelfAdjointExtension (smSectorHam P n) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨polyGaussCore, smSectorHam P n, smSectorHam_symmetricOn P n,
       smSectorHam_quadForm_nonneg P n⟩
     polyGaussCore_dense
@@ -164,7 +164,7 @@ space, not the bare one-particle `h`. -/
 theorem sm_dGamma_friedrichs_extension (P : SmParams) :
     ∃ (Dom : Submodule ℂ smFockSpace) (A : Dom →ₗ[ℂ] smFockSpace),
       IsPositiveSelfAdjointExtension (smFockHam P) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨smFockCore, smFockHam P, smFockHam_symmetricOn P, smFockHam_quadForm_nonneg P⟩
     smFockCore_dense
 

@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterSqSumOuterFamily
+import BookProof.ChapterSqSumOuterFamily
 
 /-!
 # Essential self-adjointness **only through Faris–Lavine**

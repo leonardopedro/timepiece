@@ -27,13 +27,13 @@ reflection positive (`IsReflectionPositive`).  Then:
 
 ## Boundary
 
-The final assembly — putting the inner product on `𝔄 ⧸ 𝔑` and completing — is recorded, not
-assembled here: the fields of `PreInnerProductSpace.Core` are exactly `osForm_symm'`,
-`osForm_self_nonneg`, `osForm_add_left`, `osForm_smul_left` plus the descent
-`osForm_well_defined`, and `InnerProductSpace.ofCore` with `UniformSpace.Completion`
-(`Mathlib/Analysis/InnerProductSpace/Completion.lean`) supply the rest.  What is *not* proved is
-the functoriality of the construction (Phase 4.1's last sentence): it needs maps of completions,
-which the corpus does not have.
+The assembly — the inner product on `𝔄 ⧸ 𝔑` and its completion — is carried out in
+`OSReconstruction.HilbertSpace`, which consumes exactly the results above: the fields of
+`PreInnerProductSpace.Core` are `osForm_symm'`, `osForm_self_nonneg`, `osForm_add_left`,
+`osForm_smul_left`, and definiteness on the quotient comes from
+`mem_radical_of_self_eq_zero`.  What is *not* proved anywhere is the functoriality of the
+construction (Phase 4.1's last sentence): it needs maps of completions, which the corpus does
+not have.
 -/
 
 namespace BookProof.OSReconstruction

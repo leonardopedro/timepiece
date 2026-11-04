@@ -11,10 +11,10 @@ Run with `lake build Work.FockDegreesOfFreedomAudit`.  Each line must report onl
 #print axioms BookProof.FockDegreesOfFreedom.NavierStokes.card_symPair
 #print axioms BookProof.FockDegreesOfFreedom.NavierStokes.jetCard
 #print axioms BookProof.FockDegreesOfFreedom.NavierStokes.jetCard_firstOrder
-#print axioms BookProof.FockDegreesOfFreedom.NavierStokes.ghostRawCard
+#print axioms BookProof.FockDegreesOfFreedom.NavierStokes.ghostRawCard_navierStokes
 #print axioms BookProof.FockDegreesOfFreedom.YangMills3D.jetCard
-#print axioms BookProof.FockDegreesOfFreedom.YangMills3D.ghostRawCard
+#print axioms BookProof.FockDegreesOfFreedom.YangMills3D.ghostRawCard_yangMills3D
 #print axioms BookProof.FockDegreesOfFreedom.YangMills4D.jetCard
-#print axioms BookProof.FockDegreesOfFreedom.YangMills4D.ghostRawCard
+#print axioms BookProof.FockDegreesOfFreedom.YangMills4D.ghostRawCard_yangMills4D
 #print axioms BookProof.FockDegreesOfFreedom.Gravity.jetCard
-#print axioms BookProof.FockDegreesOfFreedom.Gravity.ghostRawCard
+#print axioms BookProof.FockDegreesOfFreedom.Gravity.ghostRawCard_gravity

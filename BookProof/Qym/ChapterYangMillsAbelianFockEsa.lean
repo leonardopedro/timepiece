@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.Toolbox.ChapterQuadraticFockEsa
+import BookProof.ChapterQuadraticFockEsa
 import BookProof.Qym.ChapterYangMillsAbelianEsa
-import BookProof.Qym.ChapterQymTimeIndependentFlow
+import BookProof.ChapterQymTimeIndependentFlow
 
 /-!
 # The second quantization of the abelian gauge-fixed Yang–Mills Hamiltonian: essential

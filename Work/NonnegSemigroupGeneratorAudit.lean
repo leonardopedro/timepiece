@@ -1,4 +1,4 @@
-import BookProof.Toolbox.ChapterNonnegSemigroupGenerator
+import BookProof.ChapterNonnegSemigroupGenerator
 
 /-!
 Axiom audit for the operator-thread wave that identifies the **generator** of the

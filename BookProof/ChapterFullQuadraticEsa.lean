@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterCarlemanSimplex
+import BookProof.Toolbox.ChapterCarlemanSimplex
 import BookProof.ChapterModeQuadraticEsa
 
 /-!

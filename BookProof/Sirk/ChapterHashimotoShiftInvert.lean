@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterHermiteGalerkinFriedrichs
-import BookProof.Toolbox.ChapterComplexShiftCore
+import BookProof.ChapterComplexShiftCore
 
 /-!
 # The shift-invert (Hashimoto) trick: the Galerkin/Friedrichs selection theorem

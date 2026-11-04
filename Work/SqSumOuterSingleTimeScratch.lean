@@ -1,4 +1,4 @@
-import BookProof.Toolbox.ChapterSqSumOuterSingleTime
+import BookProof.ChapterSqSumOuterSingleTime
 namespace BookProof.SqSumOuterFamily
 open BookProof.FarisLavine BookProof.EsaClosure BookProof.StoneBridge
 open BookProof.ChapterStoneResolvent BookProof.DirectSumEsa BookProof.HermiteProductCore

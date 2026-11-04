@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterFockSecondQuantization
-import BookProof.Qym.ChapterBRSTNilpotent
+import BookProof.ChapterBRSTNilpotent
 
 /-!
 # Chapter FermionFock — the fermionic (CAR) Fock space and its second quantization
@@ -808,7 +808,7 @@ theorem dGammaF_friedrichs_extension {col : ℕ → (ℕ →₀ ℂ)} (hherm : I
     (hpos : IsPosCol col) :
     ∃ (Dom : Submodule ℂ FermiFock) (A : Dom →ₗ[ℂ] FermiFock),
       IsPositiveSelfAdjointExtension (dGammaOpF col) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨lpFiniteModes FConf, dGammaOpF col, dGammaOpF_symmetricOn hherm,
       dGammaOpF_quadForm_nonneg hpos⟩
     finiteOccupationF_dense

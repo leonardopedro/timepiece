@@ -1,4 +1,4 @@
-import BookProof.Toolbox.ChapterVonNeumannCore
+import BookProof.ChapterVonNeumannCore
 
 /-!
 # Axiom audit for `BookProof.ChapterVonNeumannCore`

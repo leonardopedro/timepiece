@@ -1,4 +1,4 @@
-import BookProof.Toolbox.ChapterPositiveSquareRootUnique
+import BookProof.ChapterPositiveSquareRootUnique
 
 /-!
 # Axiom audit for `BookProof.ChapterPositiveSquareRootUnique`

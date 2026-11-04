@@ -1,12 +1,12 @@
-import BookProof.Toolbox.ChapterGraphCoreTransfer
+import BookProof.ChapterGraphCoreTransfer
 import BookProof.Toolbox.ChapterTensorGraphCore
-import BookProof.Toolbox.ChapterSecondQuantizationCoreEsa
-import BookProof.Toolbox.ChapterScalarDGammaEsa
+import BookProof.ChapterSecondQuantizationCoreEsa
+import BookProof.ChapterScalarDGammaEsa
 import BookProof.Toolbox.ChapterTensorOperatorBound
-import BookProof.Toolbox.ChapterBoundedDGammaEsa
-import BookProof.Toolbox.ChapterEsaPairDGamma
-import BookProof.Toolbox.ChapterDiagonalDGammaEsa
-import BookProof.Toolbox.ChapterFlowDGammaEsa
+import BookProof.ChapterBoundedDGammaEsa
+import BookProof.ChapterEsaPairDGamma
+import BookProof.ChapterDiagonalDGammaEsa
+import BookProof.ChapterFlowDGammaEsa
 
 /-!
 # Axiom audit for the core transfer route to second quantization

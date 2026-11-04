@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterStoneResolvent
+import BookProof.Toolbox.ChapterStoneResolvent
 import BookProof.ChapterSpectralDirectSum
 
 /-!
@@ -355,7 +355,7 @@ theorem unbounded_multiplication_model_general (T : UnboundedSelfAdjoint H) :
           T.op ⟨V x (mulRep (mu x) (coordFn (resOp T)) u), h⟩
             = V x (u + Complex.I • mulRep (mu x) (coordFn (resOp T)) u)) := by
   obtain ⟨S, mu, V, hprob, hsum, hint⟩ :=
-    spectral_multiplication_model_general (resOp T) (isStarNormal_resOp T)
+    spectral_multiplication_model_general_normal_explicit (resOp T) (isStarNormal_resOp T)
   refine ⟨S, mu, V, hprob, hsum, ?_, ?_⟩
   · intro x
     have := hprob x
@@ -378,7 +378,7 @@ theorem unbounded_multiplication_model_separable [TopologicalSpace.SeparableSpac
           T.op ⟨V x (mulRep (mu x) (coordFn (resOp T)) u), h⟩
             = V x (u + Complex.I • mulRep (mu x) (coordFn (resOp T)) u)) := by
   obtain ⟨S, mu, V, hcount, hprob, hsum, hint⟩ :=
-    spectral_multiplication_model_separable (resOp T) (isStarNormal_resOp T)
+    spectral_multiplication_model_separable_normal_explicit (resOp T) (isStarNormal_resOp T)
   refine ⟨S, mu, V, hcount, hprob, hsum, ?_, ?_⟩
   · intro x
     have := hprob x

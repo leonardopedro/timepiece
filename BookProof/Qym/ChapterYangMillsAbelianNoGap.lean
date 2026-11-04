@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterSqueezedGaussStates
+import BookProof.ChapterSqueezedGaussStates
 import BookProof.Qym.ChapterYangMillsHermite
 
 /-!

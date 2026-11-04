@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Qg.ChapterScalaronFiberFL
-import BookProof.Toolbox.ChapterDirectSumEsa
+import BookProof.ChapterDirectSumEsa
 
 /-!
 # The scalaron–vielbein quantum-gravity Hamiltonian on the outer Fock space

@@ -32,7 +32,7 @@ purely algebraic level of polynomials and transported to the core (`CoreRep`).
   the core (F.6–F.8);
 * `ym_hermite_friedrichs_extension` (F.9) and `ym_hermite_hashimoto_selects`
   (F.10) — the instantiation of the already-proved
-  `BookProof.FriedrichsExtension.friedrichs_extension_exists` and
+  `BookProof.FriedrichsExtension.friedrichs_extension_exists_of_complete_explicit` and
   `BookProof.FriedrichsExtension.weyl_hashimoto_selects_friedrichs`.
 
 Nothing here claims a mass gap or global existence; the Millennium problem stays
@@ -460,13 +460,13 @@ theorem ymHamiltonian_quadForm_nonneg (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 
 extension.**  `H₁ = ½Σπ² + ½ΣB²`, defined on the dense Gauss–polynomial (product
 Hermite) core of `L²(ℝ⁹⁹)` by genuine multiplication and differentiation
 operators, satisfies the hypotheses of
-`BookProof.FriedrichsExtension.friedrichs_extension_exists`; therefore it has a
+`BookProof.FriedrichsExtension.friedrichs_extension_exists_of_complete_explicit`; therefore it has a
 positive self-adjoint (Friedrichs) extension.  No mass gap and no global
 existence statement is claimed. -/
 theorem ym_hermite_friedrichs_extension (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
     ∃ (Dom : Submodule ℂ (L2d 99)) (A : Dom →ₗ[ℂ] L2d 99),
       IsPositiveSelfAdjointExtension (ymHamiltonian (coreRepPoly 99) fabc) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨polyGaussCore, ymHamiltonian (coreRepPoly 99) fabc,
       ymHamiltonian_symmetricOn _ fabc, ymHamiltonian_quadForm_nonneg _ fabc⟩
     polyGaussCore_dense

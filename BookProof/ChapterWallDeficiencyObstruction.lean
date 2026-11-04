@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterScalaronWallEsa
+import BookProof.Qg.ChapterScalaronWallEsa
 
 /-!
 # The deficiency space of `−d²/dx² + V` *is* its space of `L²` classical solutions

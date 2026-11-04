@@ -398,7 +398,7 @@ every order `μ ≤ l`.
   the Gegenbauer recursion above (`laplacian_angular_mul_sum`, `legendre_rec_factored`).  Results:
   **`solidHarmonic_harmonic`** / `solidHarmonicIm_harmonic` (harmonic for all `l`, `μ ≤ l`),
   **`solidHarmonic_euler`** / `solidHarmonicIm_euler` (homogeneous of degree `l`), and
-  **`solidHarmonic_spherical`** — in spherical coordinates it is literally
+  **`solidHarmonic_spherical_frames_explicit`** — in spherical coordinates it is literally
   `rˡ P_l^μ(cos θ) cos(μφ)`, so the function constructed is the associated Legendre / spherical
   harmonic up to normalization.
 * **`BookProof/HarmonicAnalysis/ChapterNote68AllModes.lean`** — the two together: **Note 68 in every mode `(l, μ)`**,
@@ -1752,6 +1752,35 @@ wave left open.
   finite-mode core in a chosen Hilbert basis (`opCol_id`, `shiftCol_opCol`) — precisely the
   output of the certificate chain — and returns the Fock gap.
 
+  *The nested reading of number conservation* (§3c, added 2026-10-31). In the nested Fock space
+  an outer one-particle mode is a pair `(field label, inner Fock state)`, so the Hamiltonian —
+  the inner operator enclosed by outer creation on the left and outer annihilation on the right —
+  is a sum of **products of pairs** `C†(e_i) A(e_j)` of outer operators.  `NumberPreserving`
+  records "maps every `m`-particle sector into itself"; **`numberPreserving_creVec_annA`** is one
+  pair (neither factor preserves the sector — `confNumber_up`, `confNumber_dn_of_pos` — only the
+  composition does, with `annA_vac` and `eq_smul_vac_of_sector_zero` closing the vacuum sector),
+  `NumberPreserving.comp`/`.sum`/`numberPreserving_dGamma` give closure, and
+  **`numberPreserving_prod_pairs`** / **`numberPreserving_nestedHamiltonian`** give the nested
+  Hamiltonian.  The inner operator is carried as an opaque coefficient (the inner data lives in the
+  `creVec`/`annA` mode indices); no inner-space operator structure is built.
+
+  *The operator structure on the inner Fock space* (§3d, added 2026-10-31).  The inner operator is
+  no longer opaque: `InnerOp` is the algebra of endomorphisms of the inner Fock space with
+  multiplication given by composition (definitionally `Module.End ℂ FockAlg`, a ring), with the
+  inner creation/annihilation operators `innerCre`/`innerAnn` and the inner number operator
+  `innerNumber` as its elements.  `InnerNumberPreserving` is the inner counterpart of
+  `NumberPreserving`, closed under `0`, `1`, `+` and — through composition — `*`
+  (`InnerNumberPreserving.add`/`.mul`), containing the inner pairs `innerNumberPreserving_pair` and
+  the inner Hamiltonian `innerNumberPreserving_dGamma`.  A nested pair is now dressed by an element
+  of that algebra: `sandwich v A = C†(v) A` with the multiplication law **`sandwich_mul`**
+  (`sandwich v (A * B) = sandwich v A * B` — *products of pairs compose their inner operators*),
+  and `nestedPair v A k` with **`nestedPair_mul`**.  **`numberPreserving_nestedPair`** shows an
+  outer pair conserves the outer number for an *arbitrary* inner operator that conserves the inner
+  number, which gives `numberPreserving_nestedHamiltonian_op`; and
+  **`nestedHamiltonian_op_coeff`** identifies §3c's coefficient Hamiltonian as this structure at
+  `A i = creVec (colB i) * annA (kB i)`, so §3c is a special case
+  (`numberPreserving_nestedHamiltonian_op_coeff`).
+
   *Still an input.*  The spectral-separation hypothesis `hsep` of Temple's inequality (an
   a priori lower bound on the rest of the spectrum, unavoidable for any two-sided enclosure)
   and the requirement that the Fock Hamiltonian preserve particle number, i.e. no pair
@@ -2269,10 +2298,10 @@ to BRST cohomology.
 * `physicalStates_invariant`, `exactStates_invariant` — anything bounded commuting with `Ω`
   preserves both, the latter by a continuity argument — and `reducedMap`;
 * `transfer`, `transfer_zero`, **`transfer_comp`**, **`transfer_bijective`** and
-  **`infDist_exactStates_eq`**: for an isometric commuting group, the reduced transfer is a
+  **`infDist_exactStates_eq_of_comm_explicit`**: for an isometric commuting group, the reduced transfer is a
   one-parameter group of automorphisms of the cohomology preserving the quotient BRST norm;
-* `stoneU_mem_physicalStates`, `stoneU_sub_mem_exactStates`, `stoneTransfer`,
-  `stoneTransfer_comp`, `stoneTransfer_bijective`, `infDist_exactStates_stoneU_eq` — the
+* `stoneU_mem_physicalStates_of_comm_explicit`, `stoneU_sub_mem_exactStates_of_comm_explicit`, `stoneTransfer`,
+  `stoneTransfer_comp`, `stoneTransfer_bijective`, `infDist_exactStates_stoneU_eq_of_comm_explicit` — the
   instance at the Stone group `e^{-itT}` of an unbounded self-adjoint Hamiltonian.
 
 Honest boundary: the concrete 3D gauge-fixed field-space Hamiltonian and its ghost-sector
@@ -2787,7 +2816,7 @@ One new module, `BookProof/Toolbox/ChapterFriedrichsCanonical.lean` (namespace
 `Book/Starobinsky.lean`.
 
 `ChapterFriedrichsExtension` proves the *existence* half of the Friedrichs theorem
-(`friedrichs_extension_exists`): a densely defined positive symmetric operator has a
+(`friedrichs_extension_exists_of_complete_explicit`): a densely defined positive symmetric operator has a
 positive self-adjoint extension.  This wave proves the half that makes the extension
 **canonical**.
 
@@ -4302,12 +4331,12 @@ proved outright:
 * Riesz representation of the resolvent: `FormDom.friedrichsResolvent`
   (`= (H+1)⁻¹`, bounded by 1), `_isSelfAdjoint`, `_pos`, `_injective` and
   `_shift` (`S (x + Hx) = x`);
-* the headline `friedrichs_extension_exists`: **every densely defined symmetric
+* the headline `friedrichs_extension_exists_of_complete_explicit`: **every densely defined symmetric
   positive operator on a complex Hilbert space has a positive self-adjoint
   extension**, obtained as `A = S⁻¹ − 1` through the project's own
   `HashimotoShiftInvert.invShiftOperator`; hence
-  `friedrichs_hypothesis_holds` (the named hypothesis is a theorem) and
-  `weyl_friedrichs_extension_unconditional` (the Weyl-gauge Yang–Mills
+  `friedrichs_hypothesis_holds_of_complete_explicit` (the named hypothesis is a theorem) and
+  `weyl_friedrichs_extension_of_complete_explicit` (the Weyl-gauge Yang–Mills
   Hamiltonian, no boundedness);
 * the unbounded selection statement `friedrichs_hashimoto_selects` and
   `weyl_hashimoto_selects_friedrichs` (existence *and* Hashimoto/SIRK selection,
@@ -5465,7 +5494,7 @@ vector `ξ`: `repState` (`f ↦ ⟪ξ, π(f)ξ⟫`), `repState_star_mul_self`, `
 `integral_repMeasure`, `norm_rep_apply` (`‖π(f)ξ‖ = ‖f‖_{L²(μ)}`), and — for a cyclic
 `ξ` — `cyclicRepUnitary : L²(μ) ≃ₗᵢ[ℂ] H` with `cyclicRepUnitary_intertwines`
 (`U M_g = π(g) U` for every continuous symbol `g`).  Headlines:
-`cyclic_representation_multiplication_model` and, through Gelfand duality
+`cyclic_representation_multiplication_model_of_cyclic_explicit` and, through Gelfand duality
 (`gelfandRep`), `abelian_algebra_multiplication_model`: **every representation of a
 commutative unital C\*-algebra with a cyclic unit vector is unitarily the
 representation by multiplication operators on the `L²` space of a Borel probability
@@ -5477,7 +5506,7 @@ of the representation are assumed.
 `L∞(μ)` in `B(H)`), `commutesWithContMult_conjRepSymm`, and the headlines
 `centralizer_repSet` (the commutant of `{π(g)}` *is* that copy of `L∞(μ)`),
 `centralizer_multModelRep`, `bicommutant_repSet` (hence the von Neumann algebra
-generated by the algebra is the same copy), `commutant_repSet_isCommutative` and
+generated by the algebra is the same copy), `commutant_repSet_isCommutative_of_cyclic_explicit` and
 `abelian_algebra_maximal_abelian_of_cyclic`: **an arbitrary abelian C\*-algebra
 acting with a cyclic vector is maximal abelian, and equals `L∞(μ)` on `L²(μ)`.**
 
@@ -5525,7 +5554,7 @@ hypothesis — `cyclicUnitary : L²(μ_ξ) ≃ₗᵢ[ℂ] cyclicSubspace ξ`.  R
 `cyclicEmbedding`, with `range_cyclicEmbedding`, `cyclicEmbedding_intertwines_cfc`
 (`V M_g = g(T) V`) and `cyclicEmbedding_intertwines` (`V M_z = T V`).  Glued over a
 maximal orthogonal cyclic family (`orthogonalFamily_cyclicEmbedding`) this gives the
-headline `spectral_multiplication_model_general`: **for every normal operator on a
+headline `spectral_multiplication_model_general_normal_explicit`: **for every normal operator on a
 complex Hilbert space there are Borel probability measures `μₓ` on its spectrum and
 isometric embeddings `Vₓ : L²(μₓ) → H` exhibiting `H` as the Hilbert sum of the
 `L²(μₓ)`, with `T` acting on each summand as multiplication by the coordinate
@@ -5534,7 +5563,7 @@ the classical *separable* form: distinct members of the family are orthogonal un
 vectors, hence at distance `√2`, so on a separable space only countably many fit
 (`inner_eq_zero_of_orthogonalCyclicFamily`, `one_lt_dist_of_orthogonalCyclicFamily`,
 `countable_orthogonalCyclicFamily`), giving
-`spectral_multiplication_model_separable`: on a separable space every normal operator
+`spectral_multiplication_model_separable_normal_explicit`: on a separable space every normal operator
 is a **countable** direct sum of multiplication operators.
 
 **Remaining GAP-2 obstruction (sharpened; still a documented gap, never a `sorry`).**
@@ -5639,7 +5668,7 @@ classical Gelfand–Naimark + Riesz–Markov–Kakutani route:
   `C(X, ℝ) ≃ C_c(X, ℝ)`);
 * `toC`, `realPartFunctional`, `sqrtC`, `star_sqrtC_mul`, `psi_nonneg_of_nonneg`,
   `realPartFunctional_ofReal`, and the complex form
-  `exists_probabilityMeasure_of_state` — a **state** of the C*-algebra `C(X, ℂ)`
+  `exists_probabilityMeasure_of_state_of_positive_explicit` — a **state** of the C*-algebra `C(X, ℂ)`
   (positive on the squares `star g * g`, unital) is integration against a Borel
   probability measure.  Positivity on real functions comes from `f = |√f|²`,
   reality of the values from `f = f⁺ − f⁻`, and the complex case from

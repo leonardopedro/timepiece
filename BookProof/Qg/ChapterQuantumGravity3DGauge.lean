@@ -542,7 +542,7 @@ two-signed operator, and no mass gap or global existence statement is made. -/
 theorem qg3DElliptic_friedrichs_extension :
     ∃ (Dom : Submodule ℂ (L2d 84)) (A : Dom →ₗ[ℂ] L2d 84),
       IsPositiveSelfAdjointExtension (qg3DEllipticHamiltonian (coreRepPoly 84)) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨polyGaussCore, qg3DEllipticHamiltonian (coreRepPoly 84),
       qg3DElliptic_symmetricOn _, qg3DElliptic_quadForm_nonneg _⟩
     polyGaussCore_dense

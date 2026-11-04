@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Sirk.ChapterMinMaxSpectrum
-import BookProof.Toolbox.ChapterNonnegResolvent
+import BookProof.ChapterMinMaxSpectrum
+import BookProof.ChapterNonnegResolvent
 
 /-!
 # Chapter ResolventMinMaxLadder — the Courant–Fischer ladder of an **unbounded**

@@ -1,4 +1,4 @@
-import BookProof.Sirk.ChapterNumericalRangeSemigroup
+import BookProof.ChapterNumericalRangeSemigroup
 
 /-!
 Axiom audit for Crouzeix's inequality on a **half-plane**, with constant `1`, for the

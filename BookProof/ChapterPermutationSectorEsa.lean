@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterTensorPermutation
+import BookProof.Toolbox.ChapterTensorPermutation
 import BookProof.ChapterTwoParticleSectorEsa
 
 /-!

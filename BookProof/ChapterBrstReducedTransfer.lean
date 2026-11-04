@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterStoneGenerator
-import BookProof.ChapterStoneResolvent
+import BookProof.Toolbox.ChapterStoneGenerator
+import BookProof.Toolbox.ChapterStoneResolvent
 
 /-!
 # The BRST-reduced transfer: the unitary evolution descends to BRST cohomology
@@ -30,14 +30,14 @@ is what makes the quotient a topological object).  Nilpotency `Ω² = 0` gives
   `transfer_zero`, `transfer_comp` (the group law `transfer s ∘ transfer t = transfer (s+t)`)
   and `transfer_bijective` — so the reduced transfer is a one-parameter group of linear
   automorphisms of the cohomology.
-* **`infDist_exactStates_eq`** — when the `U t` are isometries, the distance to the exact
-  states, i.e. the quotient (BRST) norm of the class, is preserved:
+* **`infDist_exactStates_eq_of_comm_explicit`** — when the `U t` are isometries, the distance to
+  the exact states, i.e. the quotient (BRST) norm of the class, is preserved:
   `infDist (U t x) (exactStates Ω) = infDist x (exactStates Ω)`.  The reduced transfer is
   therefore norm-preserving on cohomology, not merely well defined.
 * The Stone instance `stoneTransfer` with `stoneTransfer_zero`, `stoneTransfer_comp`,
-  `stoneTransfer_bijective` and `infDist_exactStates_stoneU_eq`: the unitary group of an
-  unbounded self-adjoint Hamiltonian commuting with `Ω` descends to a one-parameter group
-  of norm-preserving automorphisms of the BRST cohomology.
+  `stoneTransfer_bijective` and `infDist_exactStates_stoneU_eq_of_comm_explicit`: the unitary
+  group of an unbounded self-adjoint Hamiltonian commuting with `Ω` descends to a
+  one-parameter group of norm-preserving automorphisms of the BRST cohomology.
 
 ## Honest boundary
 
@@ -186,10 +186,20 @@ theorem transfer_bijective (hzero : ∀ x : H, U 0 x = x)
       transfer_zero Om U hcomm hzero]
     simp
 
-include hcomm in
+/-! ### The commutation hypothesis is written in each binder list
+
+`include hcomm in` makes the hypothesis an argument only through the *value*: the statement's
+type never mentions it, so a textual export that re-elaborates the statement alone drops it and
+asserts the invariance for an arbitrary isometric family `U` — false, since a translation has
+`hzero`/`hgroup`/`hisom` but moves the exact states.  prove2.me recorded these four theorems as
+`Disproved` for exactly that reason.  The binders below keep the signatures unchanged while
+making the exported statements self-contained.  Do not remove them. -/
+
 /-- **The reduced transfer preserves the BRST norm.**  For an isometric family, the distance
 to the exact states — the quotient norm of the cohomology class — is unchanged. -/
-theorem infDist_exactStates_eq (hzero : ∀ x : H, U 0 x = x)
+theorem infDist_exactStates_eq_of_comm_explicit
+    (hcomm : ∀ (t : ℝ) (y : H), U t (Om y) = Om (U t y))
+    (hzero : ∀ x : H, U 0 x = x)
     (hgroup : ∀ (s t : ℝ) (x : H), U s (U t x) = U (s + t) x)
     (hisom : ∀ (t : ℝ) (x : H), ‖U t x‖ = ‖x‖) (t : ℝ) (x : H) :
     Metric.infDist (U t x) (exactStates Om) = Metric.infDist x (exactStates Om) := by
@@ -239,26 +249,29 @@ theorem stoneTransfer_comp (s t : ℝ) :
 theorem stoneTransfer_bijective (t : ℝ) : Function.Bijective (stoneTransfer T Om hcomm t) :=
   transfer_bijective Om _ hcomm (by simp) (fun s t x => T.stoneU_apply_stoneU s t x) t
 
-include hcomm in
 /-- **The exact dynamics maps the physical subspace to itself** — the caveat of §10.3. -/
-theorem stoneU_mem_physicalStates (t : ℝ) {x : H} (hx : x ∈ physicalStates Om) :
+theorem stoneU_mem_physicalStates_of_comm_explicit
+    (hcomm : ∀ (t : ℝ) (y : H), T.stoneU t (Om y) = Om (T.stoneU t y))
+    (t : ℝ) {x : H} (hx : x ∈ physicalStates Om) :
     T.stoneU t x ∈ physicalStates Om :=
   physicalStates_invariant (hcomm t) x hx
 
-include hcomm in
 /-- Gauge invariance of the exact dynamics: two states differing by a pure-gauge (exact)
 vector still differ by a pure-gauge vector after evolving. -/
-theorem stoneU_sub_mem_exactStates (t : ℝ) {x y : H} (h : x - y ∈ exactStates Om) :
+theorem stoneU_sub_mem_exactStates_of_comm_explicit
+    (hcomm : ∀ (t : ℝ) (y : H), T.stoneU t (Om y) = Om (T.stoneU t y))
+    (t : ℝ) {x y : H} (h : x - y ∈ exactStates Om) :
     T.stoneU t x - T.stoneU t y ∈ exactStates Om := by
   rw [← map_sub]
   exact exactStates_invariant (f := T.stoneU t) (hcomm t) _ h
 
-include hcomm in
 /-- The exact dynamics is norm-preserving on BRST cohomology. -/
-theorem infDist_exactStates_stoneU_eq (t : ℝ) (x : H) :
+theorem infDist_exactStates_stoneU_eq_of_comm_explicit
+    (hcomm : ∀ (t : ℝ) (y : H), T.stoneU t (Om y) = Om (T.stoneU t y))
+    (t : ℝ) (x : H) :
     Metric.infDist (T.stoneU t x) (exactStates Om) = Metric.infDist x (exactStates Om) :=
-  infDist_exactStates_eq Om _ hcomm (by simp) (fun s t x => T.stoneU_apply_stoneU s t x)
-    (fun s y => T.norm_stoneU_apply s y) t x
+  infDist_exactStates_eq_of_comm_explicit Om _ hcomm (by simp)
+    (fun s t x => T.stoneU_apply_stoneU s t x) (fun s y => T.norm_stoneU_apply s y) t x
 
 end Stone
 

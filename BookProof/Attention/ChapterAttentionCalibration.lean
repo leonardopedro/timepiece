@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterEntropyTemperature
+import BookProof.ChapterEntropyTemperature
 
 /-!
 # Chapter "The Coherent State of Attention": the entropy fixes the temperature

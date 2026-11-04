@@ -6,7 +6,7 @@
 >
 > A reference is counted when it *resolves to a file that exists in the repo*. Four forms qualify: a markdown link `[t](p.md)`, a `[[wikilink]]`, a backticked `` `p.md` ``, and a bare `p.md` on its own line. The backticked form is this corpus's dominant convention (~2400 references vs ~120 markdown links), and reading only markdown links is what previously made a heavily cross-referenced corpus report zero backlinks.
 
-## Documents (71)
+## Documents (79)
 
 | Document | Title | Lines | Out | In |
 |---|---|---:|---:|---:|
@@ -20,13 +20,15 @@
 | [BOOK_PROOF_PLAN.md](BOOK_PROOF_PLAN.md) | BOOK_PROOF_PLAN.md — Tasks for the LLM Lean 4 Specialist (Aristotle) | 439 | 1 | 4 |
 | [BUILD_COMPONENTS.md](BUILD_COMPONENTS.md) | The independent parts of the development, and how to compile them separately | 109 | 0 | 5 |
 | [BUILD_LAYOUT.md](BUILD_LAYOUT.md) | Project layout and how to build as little as possible | 234 | 1 | 2 |
+| [CFT_REVIEW.md](CFT_REVIEW.md) | Review of `cft.md`: machine-checked claims and assessment | 331 | 1 | 0 |
 | [CHANGELOG.md](CHANGELOG.md) | Changelog | 63 | 1 | 0 |
-| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18329 | 59 | 18 |
+| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18328 | 59 | 18 |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator | 100 | 0 | 1 |
 | [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 233 | 32 | 3 |
 | [Contention.md](Contention.md) | Contention: Message Differences Between `book.tex` and `Book/` | 252 | 0 | 2 |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | Which `N`? Comparison operators for the Faris–Lavine route — one per Hamiltonian | 623 | 3 | 3 |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | QG‑3.2 operator half: ESA of a sum of couplings with *differing* bases | 199 | 0 | 1 |
+| [DISPROVED_PLATFORM_AUDIT.md](DISPROVED_PLATFORM_AUDIT.md) | Audit: the 19 `BookProof.*` nodes marked **Disproved** on prove2.me | 277 | 0 | 0 |
 | [EXPPOT.md](EXPPOT.md) | EXPPOT | 174 | 0 | 0 |
 | [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md) | FEDERATION DEEP REVIEW & IMPROVEMENT PLAN | 201 | 1 | 0 |
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | Formalization Roadmap for `book.tex` | 3817 | 6 | 8 |
@@ -51,6 +53,7 @@
 | [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md) | PLAN_LEAN_SPECIALIST_QYM_FLOW.md — Quantum Yang–Mills: the Friedrichs route | 296 | 2 | 3 |
 | [PLAN_LEAN_SPECIALIST_SIRK_NESTED.md](PLAN_LEAN_SPECIALIST_SIRK_NESTED.md) | Plan for the LLM–Lean 4 Specialist: The Hashimoto SIRK Approximation Orders Nest | 225 | 1 | 3 |
 | [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md) | Plan for the LLM–Lean 4 Specialist: Proving Remaining `book.tex` / `Book/` Statements | 395 | 2 | 4 |
+| [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) | Reuse map for the three plans — `cftproof.md`, `softmodes.md`, `pcnl.md` | 241 | 3 | 0 |
 | [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) | Implementation Plan: Lean 4 Formalization of `pnp.tex` | 4164 | 4 | 2 |
 | [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md) | Reusable theorems from prove2me — frozen search for the offline Lean specialist | 637 | 1 | 1 |
 | [PnpProof/IMPLEMENTED.md](PnpProof/IMPLEMENTED.md) | PnpProof — Implementation report | 408 | 1 | 1 |
@@ -72,17 +75,22 @@
 | [STRICHARTZ_WAVE_ESA.md](STRICHARTZ_WAVE_ESA.md) | Essential self-adjointness of the wave operator — plan ↦ Lean map | 306 | 1 | 2 |
 | [TODO_LEDGER.md](TODO_LEDGER.md) | TODO ledger — reviewed code markers | 15 | 0 | 1 |
 | [bkPrompts.md](bkPrompts.md) | Chapter SirkRitzMinMax — the higher Rayleigh–Ritz levels and the Ritz gap | 702 | 3 | 0 |
+| [cft.md](cft.md) | cft | 172 | 0 | 1 |
+| [cftproof.md](cftproof.md) | cftproof | 301 | 2 | 2 |
 | [coherent.md](coherent.md) | Chapter: The Coherent State of Attention | 165 | 0 | 1 |
 | [converted/GAPS.md](converted/GAPS.md) | Remaining gaps of the converted prove2.me downloads | 164 | 0 | 3 |
 | [converted/README.md](converted/README.md) | `converted/` — prove2.me downloads converted to Lean 4.28.0 | 129 | 2 | 3 |
+| [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT | 207 | 1 | 1 |
 | [math28/README.md](math28/README.md) | `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 | 48 | 0 | 2 |
 | [newproof.md](newproof.md) | newproof | 285 | 0 | 6 |
+| [pcnl.md](pcnl.md) | pcnl | 215 | 0 | 1 |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | handedits | 21 | 0 | 0 |
+| [softmodes.md](softmodes.md) | softmodes | 290 | 0 | 2 |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | Self-contained mass-gap regeneration bundle | 219 | 2 | 4 |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | MASS_GAP_SPEC — the proof-facing seam of the certified mass gap | 150 | 1 | 5 |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | sirk_core_model — the Aeneas seam for the SIRK numeric core (mass-gap plan T9) | 88 | 2 | 1 |
 
-## Backlinks (200 links)
+## Backlinks (207 links)
 
 | Document | Linked from |
 |---|---|
@@ -96,6 +104,7 @@
 | [BOOK_PROOF_PLAN.md](BOOK_PROOF_PLAN.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [Issues.md](Issues.md) |
 | [BUILD_COMPONENTS.md](BUILD_COMPONENTS.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [BUILD_LAYOUT.md](BUILD_LAYOUT.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [REVIEW_GAUGE_DEFINITION_20260912.md](REVIEW_GAUGE_DEFINITION_20260912.md), [STATUS.md](STATUS.md) |
 | [BUILD_LAYOUT.md](BUILD_LAYOUT.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [STATUS.md](STATUS.md) |
+| [CFT_REVIEW.md](CFT_REVIEW.md) | — |
 | [CHANGELOG.md](CHANGELOG.md) | — |
 | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md), [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md), [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md), [HONEST_BOUNDARIES_SM.md](HONEST_BOUNDARIES_SM.md), [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md), [PLAN_LEAN_SPECIALIST_NS_FLOW.md](PLAN_LEAN_SPECIALIST_NS_FLOW.md), [PLAN_LEAN_SPECIALIST_QG_FLOW.md](PLAN_LEAN_SPECIALIST_QG_FLOW.md), [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md), [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md), [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md), [REVIEW_THREADS_20260906.md](REVIEW_THREADS_20260906.md), [STATUS.md](STATUS.md), [STRICHARTZ_WAVE_ESA.md](STRICHARTZ_WAVE_ESA.md), [bkPrompts.md](bkPrompts.md), [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -103,6 +112,7 @@
 | [Contention.md](Contention.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md), [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md) |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
+| [DISPROVED_PLATFORM_AUDIT.md](DISPROVED_PLATFORM_AUDIT.md) | — |
 | [EXPPOT.md](EXPPOT.md) | — |
 | [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md) | — |
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md), [RandomMap2.md](RandomMap2.md), [RandomMap_old.md](RandomMap_old.md), [STATUS.md](STATUS.md) |
@@ -127,6 +137,7 @@
 | [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [STATUS.md](STATUS.md) |
 | [PLAN_LEAN_SPECIALIST_SIRK_NESTED.md](PLAN_LEAN_SPECIALIST_SIRK_NESTED.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PLAN_LEAN_SPECIALIST_NS_FLOW.md](PLAN_LEAN_SPECIALIST_NS_FLOW.md), [STATUS.md](STATUS.md) |
 | [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [STATUS.md](STATUS.md) |
+| [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) | — |
 | [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) | [IMPLEMENTED.md](IMPLEMENTED.md), [PnpProof/IMPLEMENTED.md](PnpProof/IMPLEMENTED.md) |
 | [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [PnpProof/IMPLEMENTED.md](PnpProof/IMPLEMENTED.md) | [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) |
@@ -148,12 +159,17 @@
 | [STRICHARTZ_WAVE_ESA.md](STRICHARTZ_WAVE_ESA.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [STATUS.md](STATUS.md) |
 | [TODO_LEDGER.md](TODO_LEDGER.md) | [AGENTS.md](AGENTS.md) |
 | [bkPrompts.md](bkPrompts.md) | — |
+| [cft.md](cft.md) | [CFT_REVIEW.md](CFT_REVIEW.md) |
+| [cftproof.md](cftproof.md) | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) |
 | [coherent.md](coherent.md) | [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) |
 | [converted/GAPS.md](converted/GAPS.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [converted/README.md](converted/README.md) |
 | [converted/README.md](converted/README.md) | [ATTRIBUTION.md](ATTRIBUTION.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
+| [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | [cftproof.md](cftproof.md) |
 | [math28/README.md](math28/README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [newproof.md](newproof.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [Issues.md](Issues.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [RandomMap.md](RandomMap.md), [RandomMap_old.md](RandomMap_old.md) |
+| [pcnl.md](pcnl.md) | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | — |
+| [softmodes.md](softmodes.md) | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [cftproof.md](cftproof.md) |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -215,6 +231,17 @@
 - ## Two rules that make a *new* chapter cheap (2026-09-04)
 - ## Long modules are split into parts (2026-09-12)
 - ## Compiling the independent parts separately (2026-09-12)
+
+### Review of `cft.md`: machine-checked claims and assessment (`CFT_REVIEW.md`)
+
+- # Review of `cft.md`: machine-checked claims and assessment
+- ## 1. Claim A: Bałaban + Timepiece
+- ## 2. Claim B: the artificial gap in the nested Fock space
+- ## 4. Unbounded Hamiltonians and shift-invert (`Unbounded.lean`)
+- ## 5. The transfer operators `e^{-τH}` for unbounded `H` (`HeatSemigroup.lean`, `SelfAdjointResolvent.lean`)
+- ## 6. Claims A and B for unbounded `H` and `N` (`UnboundedPhysics.lean`, `Existence.lean`)
+- ## 6b. Real-time dynamics and Heisenberg invariance for unbounded `H` and `N` (`UnitaryGroup.lean`, `HeisenbergUnbounded.lean`, `HeisenbergExample.lean`)
+- ## 7. Bottom line
 
 ### CONSOLIDATED_PLAN.md — The Single Plan (`CONSOLIDATED_PLAN.md`)
 
@@ -310,6 +337,20 @@
 - ## 4. Proved unconditionally vs. proved-on-the-concrete-instance (no physics hypotheses)
 - ## 5. Concrete Lean plan (staged, each stage independent)
 - ## 6. Clarification: `E = ∂e` is *achieved* by BRST, not a representability gap
+
+### Audit: the 19 `BookProof.*` nodes marked **Disproved** on prove2.me (`DISPROVED_PLATFORM_AUDIT.md`)
+
+- # Audit: the 19 `BookProof.*` nodes marked **Disproved** on prove2.me
+- ## Verdict in one line
+- ## Mechanism: three ways a binder gets lost
+- ## The 19 nodes
+- ## Fixed here: the Friedrichs cluster (nodes 1–4)
+- ## Also fixed here: nodes 5–18
+- ## Fixed here: node 19 (the `GhostRaw` collision)
+- ## Retired on the platform (2026-10-30)
+- ## Landed 2026-10-30: renamed, republished, cross-referenced
+- ## Why the corrected statements cannot be published under their own names
+- ## Re-running this audit
 
 ### FEDERATION DEEP REVIEW & IMPROVEMENT PLAN (`FEDERATION_DEEP_REVIEW.md`)
 
@@ -590,6 +631,16 @@
 - ## Priority 5 — `book.tex` claims not yet formalized (low-risk, high-value)
 - ## Priority 6 — Hygiene (final wave, always do)
 - ## Execution guidance
+
+### Reuse map for the three plans — `cftproof.md`, `softmodes.md`, `pcnl.md` (`PLAN_REUSE_MAP.md`)
+
+- # Reuse map for the three plans — `cftproof.md`, `softmodes.md`, `pcnl.md`
+- ## How to read a row
+- ## A. `cftproof.md` — Bałaban's Euclidean programme, OS reconstruction
+- ## B. `softmodes.md` — analytic spectral separation `β_∞ > θ_∞`
+- ## C. `pcnl.md` — pCNL as a linear operator on `L²(π)`
+- ## D. Cross-cutting notes
+- ## E. Suggested order of work
 
 ### Implementation Plan: Lean 4 Formalization of `pnp.tex` (`PNP_IMPLEMENTATION_PLAN.md`)
 
@@ -881,6 +932,15 @@
 - ## The one file that is not compiled
 - ## Routing note (BOOKPROOF_SPLIT_PLAN.md §8)
 
+### Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT (`docs/euclidean_cft_proof.md`)
+
+- # Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT
+- ## Modules
+- ## The five statements that carry the mathematics
+- ## Boundary (recorded, never assumed)
+- ## MM0 emission: what this pipeline can and cannot carry
+- ## Reproducing
+
 ### `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 (`math28/README.md`)
 
 - # `math28/` — hypotheses supported by `math/`, in Lean v4.28.0
@@ -930,12 +990,15 @@
 - ## Integrating the generated model (Lean 4 specialist)
 
 
-## Never linked (7)
+## Never linked (10)
 
+- CFT_REVIEW.md
 - CHANGELOG.md
+- DISPROVED_PLATFORM_AUDIT.md
 - EXPPOT.md
 - FEDERATION_DEEP_REVIEW.md
 - GPU_FEDERATION_PLAN.md
+- PLAN_REUSE_MAP.md
 - SPECIALIST_PLAN_MERGE.md
 - bkPrompts.md
 - scripts/notes/handedits.md

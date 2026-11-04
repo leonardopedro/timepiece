@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterGradedFriedrichs
-import BookProof.ChapterStoneBridge
+import BookProof.Toolbox.ChapterStoneBridge
 
 /-!
 # Chapter GradedHashimoto — the graded Hamiltonian is even, and the SIRK limit selects it

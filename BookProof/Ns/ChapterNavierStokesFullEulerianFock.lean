@@ -266,7 +266,7 @@ theorem nsSectorHam_quadForm_nonneg (nu lam mu gg : ℝ) (n : ℕ)
 theorem nsSector_friedrichs_extension (nu lam mu gg : ℝ) (n : ℕ) :
     ∃ (Dom : Submodule ℂ (L2d (n * 21))) (A : Dom →ₗ[ℂ] L2d (n * 21)),
       IsPositiveSelfAdjointExtension (nsSectorHam nu lam mu gg n) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨polyGaussCore, nsSectorHam nu lam mu gg n, nsSectorHam_symmetricOn nu lam mu gg n,
       nsSectorHam_quadForm_nonneg nu lam mu gg n⟩
     polyGaussCore_dense
@@ -303,7 +303,7 @@ self-adjoint (Friedrichs) extension.** -/
 theorem nsFullFock_friedrichs_extension (nu lam mu gg : ℝ) :
     ∃ (Dom : Submodule ℂ nsFockSpace) (A : Dom →ₗ[ℂ] nsFockSpace),
       IsPositiveSelfAdjointExtension (nsFullFockHam nu lam mu gg) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨nsFockCore, nsFullFockHam nu lam mu gg, nsFullFockHam_symmetricOn nu lam mu gg,
       nsFullFockHam_quadForm_nonneg nu lam mu gg⟩
     nsFockCore_dense

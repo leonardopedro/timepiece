@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterGraphCoreTransfer
+import BookProof.ChapterGraphCoreTransfer
 
 /-!
 # Tensor powers: a one-particle core is a core for the sector derivation

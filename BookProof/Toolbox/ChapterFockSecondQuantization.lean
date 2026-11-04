@@ -689,7 +689,7 @@ theorem dGamma_friedrichs_extension {col : ℕ → (ℕ →₀ ℂ)} (hherm : Is
     (hpos : IsPosCol col) :
     ∃ (Dom : Submodule ℂ Fock) (A : Dom →ₗ[ℂ] Fock),
       IsPositiveSelfAdjointExtension (dGammaOp col) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨lpFiniteModes Conf, dGammaOp col, dGammaOp_symmetricOn hherm,
       dGammaOp_quadForm_nonneg hpos⟩
     finiteOccupation_dense

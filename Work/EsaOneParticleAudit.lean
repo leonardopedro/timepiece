@@ -1,4 +1,4 @@
-import BookProof.Toolbox.ChapterEsaOneParticleDGamma
+import BookProof.ChapterEsaOneParticleDGamma
 
 /-!
 # Audit of the essentially-self-adjoint one-particle second quantization

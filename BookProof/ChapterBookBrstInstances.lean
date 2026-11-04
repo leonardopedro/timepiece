@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.ChapterBookBrstYangMills
-import BookProof.ChapterSmBrstGhost
+import BookProof.Sm.ChapterSmBrstGhost
 import BookProof.ChapterBookBrstGaugeFixing
 
 /-!

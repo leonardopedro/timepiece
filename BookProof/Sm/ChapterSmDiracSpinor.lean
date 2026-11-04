@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Textbook.ChapterCPTHamiltonian
+import BookProof.ChapterCPTHamiltonian
 import BookProof.Sm.ChapterSmDiracYukawa
 
 /-!

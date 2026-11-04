@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterH8
+import BookProof.Textbook.ChapterH8
 
 /-!
 # Chapter H8b — the SIRK nesting hypotheses are realized by Krylov bases

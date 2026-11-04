@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterA3
+import BookProof.Textbook.ChapterA3
 
 /-!
 # Chapter A, §A.5 — the algebraic core of the Majorana–Fourier boost (Prop 73)

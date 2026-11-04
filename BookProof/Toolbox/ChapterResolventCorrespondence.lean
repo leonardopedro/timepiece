@@ -1,5 +1,5 @@
 import BookProof.Toolbox.Prelude
-import BookProof.Toolbox.ChapterNonnegResolvent
+import BookProof.ChapterNonnegResolvent
 
 /-!
 # The resolvent correspondence: `T ↦ (1 + T)⁻¹` is a bijection onto the positive contractions

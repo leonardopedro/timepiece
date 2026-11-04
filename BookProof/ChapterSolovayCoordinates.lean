@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.PhysHSGaussian
+import BookProof.Toolbox.PhysHSGaussian
 
 /-!
 # Coordinate Gaussian extension of the Solovay tail

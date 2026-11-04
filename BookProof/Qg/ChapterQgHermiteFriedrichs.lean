@@ -454,7 +454,7 @@ theorem hermiteCore_friedrichs_extension (hWc : Continuous W) (hWb : ExpBounded 
     (hlb : ∀ x, -c ≤ W x) :
     ∃ (Dom : Submodule ℂ (L2d d)) (A : Dom →ₗ[ℂ] L2d d),
       IsSemiboundedSelfAdjointExtension c (hamCore W hWc hWb) A :=
-  friedrichs_extension_of_semibounded_below _ polyGaussCore_dense
+  friedrichs_extension_semibounded_of_complete_explicit _ polyGaussCore_dense
     (hamCore_symmetricOn W hWc hWb) c (hamCore_quadForm_ge W hWc hWb c hlb)
 
 /-- **The positive case**: for a nonnegative potential the extension is positive. -/
@@ -462,7 +462,7 @@ theorem hermiteCore_friedrichs_extension_of_nonneg (hWc : Continuous W) (hWb : E
     (hW0 : ∀ x, 0 ≤ W x) :
     ∃ (Dom : Submodule ℂ (L2d d)) (A : Dom →ₗ[ℂ] L2d d),
       IsPositiveSelfAdjointExtension (hamCore W hWc hWb) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨_, hamCore W hWc hWb, hamCore_symmetricOn W hWc hWb,
       hamCore_quadForm_nonneg W hWc hWb hW0⟩ polyGaussCore_dense
 

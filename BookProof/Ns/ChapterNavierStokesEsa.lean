@@ -1,7 +1,7 @@
 import Mathlib
 import BookProof.Ns.ChapterNavierStokesFlow
 import BookProof.Ns.ChapterNavierStokesCauchy
-import BookProof.Probability.ChapterContinuityUnitaryInfinite
+import BookProof.ChapterContinuityUnitaryInfinite
 
 /-!
 # Essential self-adjointness from a complete flow, on a genuinely dense domain

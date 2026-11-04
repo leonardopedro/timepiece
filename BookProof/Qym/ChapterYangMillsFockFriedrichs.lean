@@ -23,7 +23,7 @@ Hilbert space `L²(ℝ⁹⁹)` to the nested Fock space `⊕ₙ L²(ℝ^{99n})`:
 * symmetry and positivity of the quadratic form are checked sector by sector
   (`dsOp_symmetricOn`, `BookProof.QgOuterFock.dsOp_quadForm_nonneg`);
 * the finite-particle core is dense (`dsCore_dense`), so the abstract Friedrichs theorem
-  `BookProof.FriedrichsExtension.friedrichs_extension_exists` — proved in this development,
+  `BookProof.FriedrichsExtension.friedrichs_extension_exists_of_complete_explicit` — proved in this development,
   with no boundedness hypothesis — produces a positive self-adjoint extension of the outer
   Hamiltonian, and Stone's theorem the unitary time evolution it generates.
 
@@ -207,7 +207,7 @@ theorem ymSectorHam_quadForm_nonneg (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (
 theorem ymSector_friedrichs_extension (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (n : ℕ) :
     ∃ (Dom : Submodule ℂ (L2d (n * 99))) (A : Dom →ₗ[ℂ] L2d (n * 99)),
       IsPositiveSelfAdjointExtension (ymSectorHam fabc n) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨polyGaussCore, ymSectorHam fabc n, ymSectorHam_symmetricOn fabc n,
       ymSectorHam_quadForm_nonneg fabc n⟩
     polyGaussCore_dense
@@ -250,7 +250,7 @@ fibrewise and therefore lift from the one-particle Hilbert space to the outer Fo
 theorem ymFock_friedrichs_extension (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
     ∃ (Dom : Submodule ℂ ymFockSpace) (A : Dom →ₗ[ℂ] ymFockSpace),
       IsPositiveSelfAdjointExtension (ymFockHam fabc) A :=
-  friedrichs_extension_exists
+  friedrichs_extension_exists_of_complete_explicit
     ⟨ymFockCore, ymFockHam fabc, ymFockHam_symmetricOn fabc, ymFockHam_quadForm_nonneg fabc⟩
     ymFockCore_dense
 

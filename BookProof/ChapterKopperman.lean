@@ -1,4 +1,4 @@
-import BookProof.PhysMehler
+import BookProof.Toolbox.PhysMehler
 
 /-!
 # Kopperman model-theoretic headlines

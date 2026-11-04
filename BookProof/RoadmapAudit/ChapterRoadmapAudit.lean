@@ -3,9 +3,9 @@ Copyright (c) 2026. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Aristotle
 -/
-import BookProof.Toolbox.ChapterSchrodingerCutoffEsa
-import BookProof.Qg.ChapterWallEsaSemibounded
-import BookProof.Qg.ChapterExpPotentialEsa
+import BookProof.ChapterSchrodingerCutoffEsa
+import BookProof.ChapterWallEsaSemibounded
+import BookProof.ChapterExpPotentialEsa
 import BookProof.Textbook.ChapterH4
 import BookProof.Sirk.ChapterSirkEndToEnd
 import BookProof.Sirk.ChapterSirkMultiShift
@@ -18,9 +18,9 @@ import BookProof.Sirk.ChapterSirkFinitePrecision
 import BookProof.Sirk.ChapterSirkCertifiedGap
 import BookProof.Sirk.ChapterSirkCertificateReader
 import BookProof.Sirk.ChapterSirkGapTable
-import BookProof.Sirk.ChapterSpectralGapStability
+import BookProof.ChapterSpectralGapStability
 import BookProof.Toolbox.ChapterFockOneParticleGap
-import BookProof.Sirk.ChapterBandEnclosure
+import BookProof.ChapterBandEnclosure
 import BookProof.Sirk.ChapterRitzCertificate
 import BookProof.Toolbox.ChapterFockNumberPreservingGap
 import BookProof.Toolbox.ChapterFockInteractionStability
@@ -48,26 +48,26 @@ import BookProof.Qg.ChapterScalaronHermiteEsa
 import BookProof.Toolbox.ChapterHermiteExpWall
 import BookProof.Toolbox.ChapterHermiteQuadraticEsa
 import BookProof.Qg.ChapterQgOneParticleCcEsa
-import BookProof.Toolbox.ChapterWeakSecondDerivative
+import BookProof.ChapterWeakSecondDerivative
 import BookProof.Qg.ChapterScalaronWallEsa
 import BookProof.Qg.ChapterScalaronEdge
 import BookProof.Qg.ChapterVielbeinFiberFock
 import BookProof.Qed.ChapterQedFockGapChain
 import BookProof.Ns.ChapterNavierStokesFiberGap
-import BookProof.Toolbox.ChapterGaussCoordCombo
-import BookProof.Toolbox.ChapterSqueezedGaussStates
+import BookProof.ChapterGaussCoordCombo
+import BookProof.ChapterSqueezedGaussStates
 import BookProof.Qg.ChapterQgPhysicalSectorIdentity
 import BookProof.Qg.ChapterQgCouplingDGammaSum
-import BookProof.Qg.ChapterConformalSignFlip
-import BookProof.Toolbox.ChapterDirectSumEdge
+import BookProof.ChapterConformalSignFlip
+import BookProof.ChapterDirectSumEdge
 import BookProof.Qg.ChapterQgMultiHalfDensity
 import BookProof.Qym.ChapterYangMillsAbelianNoGap
 import BookProof.Qg.ChapterQuantumGravityFock
 import BookProof.Qg.ChapterQgBrstCompleted
-import BookProof.Qym.ChapterBrstTruncationLeakage
+import BookProof.ChapterBrstTruncationLeakage
 import BookProof.Toolbox.ChapterCarlemanUnboundedHop
-import BookProof.Qym.ChapterBrstUnboundedLeakage
-import BookProof.Qym.ChapterBrstReducedTransfer
+import BookProof.ChapterBrstUnboundedLeakage
+import BookProof.ChapterBrstReducedTransfer
 import BookProof.Qg.ChapterQuantumGravity3DGauge
 import BookProof.Qg.ChapterQg3DGaugeEsa
 import BookProof.Qg.ChapterQuantumGravityBrstCharge
@@ -77,7 +77,7 @@ import BookProof.Ns.ChapterNavierStokesAffineFiberEsa
 import BookProof.Ns.ChapterNavierStokesAffineBlockEsa
 import BookProof.Ns.ChapterNavierStokesSignFlip
 import BookProof.Ns.ChapterNavierStokesSignedShift
-import BookProof.Toolbox.ChapterDirectSumEsa
+import BookProof.ChapterDirectSumEsa
 import BookProof.Ns.ChapterNavierStokesCarleman
 import BookProof.Attention.ChapterSoftmaxTemperatureMonotone
 import BookProof.Attention.ChapterAttentionResponse
@@ -90,18 +90,18 @@ import BookProof.Toolbox.ChapterEsaClosure
 import BookProof.Ns.ChapterNavierStokesHashimoto
 import BookProof.Ns.ChapterNavierStokesLagrangianKatoRellich
 import BookProof.Toolbox.ChapterStoneFlows
-import BookProof.Toolbox.ChapterHyperbolicQuadraticEsa
+import BookProof.ChapterHyperbolicQuadraticEsa
 import BookProof.Toolbox.ChapterHermiteRelativeBound
-import BookProof.Toolbox.ChapterQuadraticRotationEsa
-import BookProof.Toolbox.ChapterQuadraticRotationPerturbed
-import BookProof.Toolbox.ChapterShiftedHermiteCore
-import BookProof.Toolbox.ChapterShiftedQuadraticEsa
-import BookProof.Toolbox.ChapterShiftedQuadraticMatrixEsa
+import BookProof.ChapterQuadraticRotationEsa
+import BookProof.ChapterQuadraticRotationPerturbed
+import BookProof.ChapterShiftedHermiteCore
+import BookProof.ChapterShiftedQuadraticEsa
+import BookProof.ChapterShiftedQuadraticMatrixEsa
 import BookProof.Toolbox.ChapterStoneEigenflow
-import BookProof.Toolbox.ChapterShiftedQuadraticDegenerate
-import BookProof.Toolbox.ChapterFourierMultiplierEsa
-import BookProof.Toolbox.ChapterMixedLinearEsa
-import BookProof.Toolbox.ChapterQuadratureEsa
+import BookProof.ChapterShiftedQuadraticDegenerate
+import BookProof.ChapterFourierMultiplierEsa
+import BookProof.ChapterMixedLinearEsa
+import BookProof.ChapterQuadratureEsa
 import BookProof.Toolbox.ChapterHermiteCarlemanEsa
 import BookProof.Toolbox.ChapterCarlemanTwoStep
 import BookProof.Toolbox.ChapterCarlemanGeneralHop
@@ -111,15 +111,15 @@ import BookProof.Qg.ChapterScalaronDensitizedTransfer
 import BookProof.Qg.ChapterStarobinskyPotential
 import BookProof.Qg.ChapterScalaronCoreEsa
 import BookProof.Qg.ChapterScalaronFockEsa
-import BookProof.Toolbox.ChapterModeQuadraticEsa
+import BookProof.ChapterModeQuadraticEsa
 import BookProof.Toolbox.ChapterCarlemanSimplex
-import BookProof.Toolbox.ChapterFullQuadraticEsa
-import BookProof.Toolbox.ChapterOperatorSeriesEsa
+import BookProof.ChapterFullQuadraticEsa
+import BookProof.ChapterOperatorSeriesEsa
 import BookProof.Toolbox.ChapterFockQuadraticEsa
 import BookProof.Toolbox.ChapterFockDifferingBasesEsa
-import BookProof.Toolbox.ChapterUnboundedSpectralModel
+import BookProof.ChapterUnboundedSpectralModel
 import BookProof.Ns.ChapterNavierStokesLagrangianCanonical
-import BookProof.Qym.ChapterGaugeFixing
+import BookProof.ChapterGaugeFixing
 import BookProof.Qg.ChapterQuantumGravityDensitized
 import BookProof.Qg.ChapterQuantumGravityHalfDensity
 import BookProof.Qym.ChapterYangMillsFriedrichs
@@ -132,80 +132,80 @@ import BookProof.Toolbox.ChapterHermiteProductCore
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Toolbox.ChapterFockSecondQuantization
 import BookProof.Toolbox.ChapterFermionFock
-import BookProof.Toolbox.ChapterGradedFock
-import BookProof.Toolbox.ChapterGradedFriedrichs
-import BookProof.Sirk.ChapterGradedHashimoto
+import BookProof.ChapterGradedFock
+import BookProof.ChapterGradedFriedrichs
+import BookProof.ChapterGradedHashimoto
 import BookProof.Sirk.ChapterKrylovShiftSpan
 import BookProof.Sirk.ChapterSirkGramWhitening
 import BookProof.Sirk.ChapterSirkGramCutoff
-import BookProof.Toolbox.ChapterWaveUnboundedPotential
-import BookProof.Toolbox.ChapterHarmonicOscillatorEsa
+import BookProof.ChapterWaveUnboundedPotential
+import BookProof.ChapterHarmonicOscillatorEsa
 import BookProof.Textbook.ChapterF4
-import BookProof.Probability.ChapterHolomorphic
+import BookProof.ChapterHolomorphic
 import BookProof.Textbook.ChapterB4
-import BookProof.Textbook.ChapterMajoranaFourier
-import BookProof.Probability.ChapterFreeFieldBornFiberSpectrum
-import BookProof.Probability.ChapterFreeFieldBornSignOrientationKernel
+import BookProof.ChapterMajoranaFourier
+import BookProof.ChapterFreeFieldBornFiberSpectrum
+import BookProof.ChapterFreeFieldBornSignOrientationKernel
 import BookProof.Textbook.ChapterA3x
-import BookProof.Attention.ChapterBoseEinstein
+import BookProof.ChapterBoseEinstein
 import BookProof.Attention.ChapterThermalMaxEntropy
-import BookProof.Probability.ChapterLinftyMultiplication
+import BookProof.ChapterLinftyMultiplication
 import BookProof.Attention.ChapterSoftmaxJacobian
 import BookProof.Attention.ChapterAttentionOutput
 import BookProof.Attention.ChapterAttentionMasking
 import BookProof.Attention.ChapterCoherentDynamics
 import BookProof.Attention.ChapterCoherentThermalFidelity
-import BookProof.Probability.ChapterSolovayTailDimension
-import BookProof.Probability.ChapterSolovaySeparableExistence
-import BookProof.Probability.ChapterSolovayHilbertTensor
-import BookProof.Probability.ChapterAbelianAtomicCondensation
-import BookProof.Probability.ChapterLinftyMaximalAbelian
+import BookProof.ChapterSolovayTailDimension
+import BookProof.ChapterSolovaySeparableExistence
+import BookProof.ChapterSolovayHilbertTensor
+import BookProof.ChapterAbelianAtomicCondensation
+import BookProof.ChapterLinftyMaximalAbelian
 import BookProof.Toolbox.ChapterTensorCompleteness
-import BookProof.Probability.ChapterAbelianGelfandModel
-import BookProof.Probability.ChapterSpectralMultiplication
-import BookProof.Probability.ChapterSpectralCommutant
-import BookProof.Probability.ChapterCyclicDecomposition
-import BookProof.Probability.ChapterCyclicDirectSum
-import BookProof.Probability.ChapterSpectralDirectSum
-import BookProof.Probability.ChapterAbelianCyclicModel
-import BookProof.Probability.ChapterAbelianCyclicCommutant
-import BookProof.Probability.ChapterAbelianDirectSum
-import BookProof.Probability.ChapterMeasureAtomicDiffuse
-import BookProof.Probability.ChapterDiffuseCdfModel
-import BookProof.Probability.ChapterDiffuseUnitaryModel
-import BookProof.Probability.ChapterAtomicDiagonalModel
-import BookProof.Probability.ChapterWeakValue
-import BookProof.Probability.ChapterContinuityUnitary
-import BookProof.Probability.ChapterContinuityUnitaryInfinite
-import BookProof.Probability.ChapterBornMeasure
-import BookProof.Probability.ChapterUnboundedPosition
-import BookProof.Toolbox.ChapterUnitaryTransport
-import BookProof.Probability.ChapterLpRestrictSplit
-import BookProof.Probability.ChapterLpScaleMeasure
-import BookProof.Probability.ChapterAbelianClassificationList
-import BookProof.Probability.ChapterStandardBorelClassification
-import BookProof.Probability.ChapterSeparableSpectrum
-import BookProof.Probability.ChapterSeparableL2Model
+import BookProof.ChapterAbelianGelfandModel
+import BookProof.ChapterSpectralMultiplication
+import BookProof.ChapterSpectralCommutant
+import BookProof.ChapterCyclicDecomposition
+import BookProof.ChapterCyclicDirectSum
+import BookProof.ChapterSpectralDirectSum
+import BookProof.ChapterAbelianCyclicModel
+import BookProof.ChapterAbelianCyclicCommutant
+import BookProof.ChapterAbelianDirectSum
+import BookProof.ChapterMeasureAtomicDiffuse
+import BookProof.ChapterDiffuseCdfModel
+import BookProof.ChapterDiffuseUnitaryModel
+import BookProof.ChapterAtomicDiagonalModel
+import BookProof.ChapterWeakValue
+import BookProof.ChapterContinuityUnitary
+import BookProof.ChapterContinuityUnitaryInfinite
+import BookProof.ChapterBornMeasure
+import BookProof.ChapterUnboundedPosition
+import BookProof.ChapterUnitaryTransport
+import BookProof.ChapterLpRestrictSplit
+import BookProof.ChapterLpScaleMeasure
+import BookProof.ChapterAbelianClassificationList
+import BookProof.ChapterStandardBorelClassification
+import BookProof.ChapterSeparableSpectrum
+import BookProof.ChapterSeparableL2Model
 import BookProof.Attention.ChapterAttentionFactorization
-import BookProof.Attention.ChapterRotaryPosition
+import BookProof.ChapterRotaryPosition
 import BookProof.Attention.ChapterAttentionRetrieval
 import BookProof.Attention.ChapterAttentionEquivariance
 import BookProof.Attention.ChapterAttentionMixture
-import BookProof.Attention.ChapterCrossEntropyGradient
+import BookProof.ChapterCrossEntropyGradient
 import BookProof.Attention.ChapterAttentionCollision
 import BookProof.Attention.ChapterAttentionConcentration
 import BookProof.Attention.ChapterAttentionMarkov
-import BookProof.Attention.ChapterScaledDotProduct
+import BookProof.ChapterScaledDotProduct
 import BookProof.Attention.ChapterAttentionOutputVariance
 import BookProof.Attention.ChapterAttentionLowRank
 import BookProof.Attention.ChapterLayerNorm
-import BookProof.Attention.ChapterSinusoidalPosition
+import BookProof.ChapterSinusoidalPosition
 import BookProof.Attention.ChapterAttentionMixing
 import BookProof.Attention.ChapterAttentionTemperature
 import BookProof.Attention.ChapterAttentionSink
 import BookProof.Attention.ChapterAttentionCoarseGrain
 import BookProof.Attention.ChapterAttentionQKCircuit
-import BookProof.Attention.ChapterResidualStream
+import BookProof.ChapterResidualStream
 import BookProof.Attention.ChapterAttentionFreeEnergy
 import BookProof.Attention.ChapterAttentionSparse
 import BookProof.Attention.ChapterAttentionOVCircuit
@@ -215,25 +215,25 @@ import BookProof.Attention.ChapterAttentionStreaming
 import BookProof.Attention.ChapterAttentionLocality
 import BookProof.Attention.ChapterAttentionCalibration
 import BookProof.Attention.ChapterAttentionTopK
-import BookProof.Toolbox.ChapterCayleyTransform
-import BookProof.Toolbox.ChapterCayleyInverse
-import BookProof.Toolbox.ChapterCayleySpectralModel
+import BookProof.ChapterCayleyTransform
+import BookProof.ChapterCayleyInverse
+import BookProof.ChapterCayleySpectralModel
 import BookProof.Qg.ChapterQgDerivativeRealization
 import BookProof.Sirk.ChapterSirkBandLedger
-import BookProof.Sirk.ChapterTruncationGapLift
-import BookProof.Sirk.ChapterSchurGershgorinGap
-import BookProof.Qg.ChapterWallDeficiencyObstruction
-import BookProof.Qg.ChapterLimitCircleExample
-import BookProof.Qg.ChapterConformalFiberDeficiency
-import BookProof.Qg.ChapterBddBelowWallEsa
-import BookProof.Qg.ChapterBddBelowFiberSumEsa
-import BookProof.Qg.ChapterHalfLineLimitCircle
+import BookProof.ChapterTruncationGapLift
+import BookProof.ChapterSchurGershgorinGap
+import BookProof.ChapterWallDeficiencyObstruction
+import BookProof.ChapterLimitCircleExample
+import BookProof.ChapterConformalFiberDeficiency
+import BookProof.ChapterBddBelowWallEsa
+import BookProof.ChapterBddBelowFiberSumEsa
+import BookProof.ChapterHalfLineLimitCircle
 import BookProof.Qg.ChapterQgOuterFockEsa
 import BookProof.Qg.ChapterQgOuterFockFarisLavine
 import BookProof.Qg.ChapterQgOuterFockEllipticFL
 import BookProof.Toolbox.ChapterHermiteLadderShift
-import BookProof.Toolbox.ChapterGaussCoreQuadBounds
-import BookProof.Toolbox.ChapterSqSumFarisLavine
+import BookProof.ChapterGaussCoreQuadBounds
+import BookProof.ChapterSqSumFarisLavine
 import BookProof.Qg.ChapterQgOuterFockCoreFL
 import BookProof.Qg.ChapterQgOuterFockFullFL
 import BookProof.Qg.ChapterQgOuterFockInteractionFL
@@ -249,16 +249,16 @@ import BookProof.Qg.ChapterQgTimeStepping
 import BookProof.Sirk.ChapterSirkSingleTimeShift
 import BookProof.Qg.ChapterQgManifoldModeInstance
 import BookProof.Qg.ChapterQgTimeIndependentFlow
-import BookProof.Toolbox.ChapterFiniteSectionSingleTime
+import BookProof.ChapterFiniteSectionSingleTime
 import BookProof.Ns.ChapterNsTimeIndependentFlow
-import BookProof.Qym.ChapterQymTimeIndependentFlow
-import BookProof.Toolbox.ChapterSqSumOuterFamily
+import BookProof.ChapterQymTimeIndependentFlow
+import BookProof.ChapterSqSumOuterFamily
 import BookProof.Ns.ChapterNsOuterFockFarisLavine
-import BookProof.Toolbox.ChapterEsaRealShift
-import BookProof.Ode.ChapterMomentumChartEsa
+import BookProof.ChapterEsaRealShift
+import BookProof.ChapterMomentumChartEsa
 import BookProof.Ode.ChapterOdeChartTransfer
 import BookProof.Ns.ChapterNsComparisonEsa
-import BookProof.Ns.ChapterLiftedComparisonEsa
+import BookProof.ChapterLiftedComparisonEsa
 import BookProof.Qg.ChapterQgAssembledTransfer
 import BookProof.Qg.ChapterQgFlatContinuumEsa
 import BookProof.Qg.ChapterQgAssembledFlatTransfer
@@ -459,7 +459,7 @@ open BookProof.ChapterSolovaySeparableExistence in
 
 #print axioms BookProof.ChapterAbelianGelfandModel.integral_rieszStateMeasure
 #print axioms BookProof.ChapterAbelianGelfandModel.isProbabilityMeasure_rieszStateMeasure
-#print axioms BookProof.ChapterAbelianGelfandModel.exists_probabilityMeasure_of_state
+#print axioms BookProof.ChapterAbelianGelfandModel.exists_probabilityMeasure_of_state_of_positive_explicit
 #print axioms BookProof.ChapterAbelianGelfandModel.mulRepHom_injective
 #print axioms BookProof.ChapterAbelianGelfandModel.inner_oneVec_mulRep
 #print axioms BookProof.ChapterAbelianGelfandModel.norm_oneVec
@@ -498,22 +498,22 @@ open BookProof.ChapterSolovaySeparableExistence in
 #print axioms BookProof.ChapterSpectralDirectSum.cyclicEmbedding_intertwines_cfc
 #print axioms BookProof.ChapterSpectralDirectSum.cyclicEmbedding_intertwines
 #print axioms BookProof.ChapterSpectralDirectSum.orthogonalFamily_cyclicEmbedding
-#print axioms BookProof.ChapterSpectralDirectSum.spectral_multiplication_model_general
+#print axioms BookProof.ChapterSpectralDirectSum.spectral_multiplication_model_general_normal_explicit
 #print axioms BookProof.ChapterSpectralDirectSum.countable_orthogonalCyclicFamily
-#print axioms BookProof.ChapterSpectralDirectSum.spectral_multiplication_model_separable
+#print axioms BookProof.ChapterSpectralDirectSum.spectral_multiplication_model_separable_normal_explicit
 
 #print axioms BookProof.ChapterAbelianCyclicModel.repState_star_mul_self
 #print axioms BookProof.ChapterAbelianCyclicModel.integral_repMeasure
 #print axioms BookProof.ChapterAbelianCyclicModel.norm_rep_apply
 #print axioms BookProof.ChapterAbelianCyclicModel.cyclicRepUnitary_toLp
 #print axioms BookProof.ChapterAbelianCyclicModel.cyclicRepUnitary_intertwines
-#print axioms BookProof.ChapterAbelianCyclicModel.cyclic_representation_multiplication_model
+#print axioms BookProof.ChapterAbelianCyclicModel.cyclic_representation_multiplication_model_of_cyclic_explicit
 #print axioms BookProof.ChapterAbelianCyclicModel.abelian_algebra_multiplication_model
 
 #print axioms BookProof.ChapterAbelianCyclicCommutant.centralizer_repSet
 #print axioms BookProof.ChapterAbelianCyclicCommutant.centralizer_multModelRep
 #print axioms BookProof.ChapterAbelianCyclicCommutant.bicommutant_repSet
-#print axioms BookProof.ChapterAbelianCyclicCommutant.commutant_repSet_isCommutative
+#print axioms BookProof.ChapterAbelianCyclicCommutant.commutant_repSet_isCommutative_of_cyclic_explicit
 #print axioms BookProof.ChapterAbelianCyclicCommutant.abelian_algebra_maximal_abelian_of_cyclic
 
 #print axioms BookProof.ChapterAbelianDirectSum.repInvariant_orthogonal
@@ -911,10 +911,10 @@ open BookProof.ChapterSeparableL2Model in
 #print axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_pos
 #print axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_injective
 #print axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_shift
-#print axioms BookProof.FriedrichsExtension.friedrichs_extension_exists
-#print axioms BookProof.FriedrichsExtension.friedrichs_hypothesis_holds
-#print axioms BookProof.FriedrichsExtension.weyl_friedrichs_extension_unconditional
-#print axioms BookProof.FriedrichsExtension.friedrichs_extension_of_semibounded_below
+#print axioms BookProof.FriedrichsExtension.friedrichs_extension_exists_of_complete_explicit
+#print axioms BookProof.FriedrichsExtension.friedrichs_hypothesis_holds_of_complete_explicit
+#print axioms BookProof.FriedrichsExtension.weyl_friedrichs_extension_of_complete_explicit
+#print axioms BookProof.FriedrichsExtension.friedrichs_extension_semibounded_of_complete_explicit
 #print axioms BookProof.FriedrichsExtension.friedrichs_hashimoto_selects
 #print axioms BookProof.FriedrichsExtension.weyl_hashimoto_selects_friedrichs
 #print axioms BookProof.FriedrichsExtension.unbounded_friedrichs_example
@@ -2122,12 +2122,12 @@ open BookProof.FriedrichsCanonical in
 #print axioms BookProof.BrstReducedTransfer.transfer_zero
 #print axioms BookProof.BrstReducedTransfer.transfer_comp
 #print axioms BookProof.BrstReducedTransfer.transfer_bijective
-#print axioms BookProof.BrstReducedTransfer.infDist_exactStates_eq
-#print axioms BookProof.BrstReducedTransfer.stoneU_mem_physicalStates
-#print axioms BookProof.BrstReducedTransfer.stoneU_sub_mem_exactStates
+#print axioms BookProof.BrstReducedTransfer.infDist_exactStates_eq_of_comm_explicit
+#print axioms BookProof.BrstReducedTransfer.stoneU_mem_physicalStates_of_comm_explicit
+#print axioms BookProof.BrstReducedTransfer.stoneU_sub_mem_exactStates_of_comm_explicit
 #print axioms BookProof.BrstReducedTransfer.stoneTransfer_comp
 #print axioms BookProof.BrstReducedTransfer.stoneTransfer_bijective
-#print axioms BookProof.BrstReducedTransfer.infDist_exactStates_stoneU_eq
+#print axioms BookProof.BrstReducedTransfer.infDist_exactStates_stoneU_eq_of_comm_explicit
 
 -- The concrete 3D gauge-fixed *gravity* field-space wave (plan §10.6.2 item 4, QG Part F):
 -- the densitized-tetrad Hamiltonian on the Gauss–polynomial core of `L²(ℝ⁸⁴)`, and the BRST

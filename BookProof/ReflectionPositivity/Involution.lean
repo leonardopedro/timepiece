@@ -21,15 +21,15 @@ Plan: `cftproof.md`, Phase 3.1 — "Define the time reflection `θ(x₀, x⃗) =
   exchanges the two time halves; `fieldReflection` — `θ` on a field configuration
   `Fin latticeDim → ℝ`, a coordinate permutation, with `fieldReflection_involutive`.
 
-## Boundary
+## `θ Q_k = Q_k θ`
 
-`θ`'s commutation with `Q_k` (`θ Q_k = Q_k θ`) is **not** proved: `BlockOperator` realizes
-`Q_k` as the projection onto block-constant fields, and that projection commutes with a
-coordinate reflection only if the block structure is `θ`-stable.  The half-space split used
-here (cells `0..7` versus `8..15`) *is* exchanged by `flipCell`, but `blockConst` is defined
-without reference to the splitting, so the commutation is a statement about a block structure
-this finite model does not pin down.  It is carried as a hypothesis by
-`ReflectionPositivity.Proof` where needed (Phases 3.3/4.2), never assumed silently.
+`θ`'s commutation with `Q_k` is proved in `ReflectionPositivity.BlockCommute`:
+`fieldReflectionSector_blockAveragingOp` (per sector) and `theta_commutes_blockAveraging` (on
+`F_total`).  It needs the block structure to be `θ`-stable, which is why `blockOf` is the *cell*
+of a component index (`BalabanRG.MultiscaleSpace.coordOf`) rather than a run of consecutive
+indices: `reflectCoord` keeps `μ` and reflects the cell, so it maps blocks to blocks
+(`BlockCommute.blockOf_reflectCoord`).  `ReflectionPositivity.Proof` no longer carries it as a
+hypothesis.
 -/
 
 namespace BookProof.ReflectionPositivity
@@ -78,22 +78,6 @@ theorem timeReflection_measure_invariant :
 
 /-- The number of cells in one time half of the block. -/
 def halfCells : ℕ := cellsPerBlock / 2
-
-/-- The component index split as (Lorentz/colour component `μ`, block cell). -/
-def coordEquiv : Fin nComponents × Fin cellsPerBlock ≃ Fin latticeDim :=
-  finProdFinEquiv
-
-/-- The component index split into its `μ` part and its cell. -/
-def coordOf (i : Fin latticeDim) : Fin nComponents × Fin cellsPerBlock := coordEquiv.symm i
-
-/-- The inverse of `coordOf`. -/
-def coordIdx (p : Fin nComponents × Fin cellsPerBlock) : Fin latticeDim := coordEquiv p
-
-theorem coordIdx_coordOf (i : Fin latticeDim) : coordIdx (coordOf i) = i :=
-  coordEquiv.apply_symm_apply i
-
-theorem coordOf_coordIdx (p : Fin nComponents × Fin cellsPerBlock) : coordOf (coordIdx p) = p :=
-  coordEquiv.symm_apply_apply p
 
 /-- Is the cell of this component in the positive-time half (`x₀ > 0`)? -/
 def isPosTime (i : Fin latticeDim) : Prop := (coordOf i).2.val < halfCells

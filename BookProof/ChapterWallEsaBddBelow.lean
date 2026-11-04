@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterScalaronWallEsa
-import BookProof.ChapterKatoRellichDeficiency
+import BookProof.Qg.ChapterScalaronWallEsa
+import BookProof.Toolbox.ChapterKatoRellichDeficiency
 
 /-!
 # `−d²/dx² + V` for every smooth potential that is bounded below

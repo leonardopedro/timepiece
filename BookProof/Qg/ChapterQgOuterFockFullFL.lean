@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Qg.ChapterQgOuterFockCoreFL
-import BookProof.Toolbox.ChapterSqSumFarisLavine
+import BookProof.ChapterSqSumFarisLavine
 
 /-!
 # The full quantum-gravity Hamiltonian on the outer Fock space, by Faris–Lavine

@@ -58,6 +58,30 @@ abbrev Sector (_k : ℕ) : Type := EuclideanSpace ℝ (Fin latticeDim)
 /-- **The multiscale space** `F_total = ⊕_k ℱ_k`, realized as the `ℓ²` direct sum. -/
 abbrev FTotal : Type := lp (fun k : ℕ => Sector k) 2
 
+/-! ## Splitting a component index into `(μ, cell)`
+
+This split lives here, and not in `ReflectionPositivity.Involution`, because the block
+structure of `BlockOperator` is defined in terms of it: a *block* is one lattice cell, i.e. the
+`nComponents = 4` components `A_μ` sitting at the same cell.  Putting the split upstream of both
+is what lets the time reflection (Phase 3) act on the same blocks the averaging operator
+(Phase 2) uses. -/
+
+/-- The component index split as (Lorentz/colour component `μ`, block cell). -/
+def coordEquiv : Fin nComponents × Fin cellsPerBlock ≃ Fin latticeDim :=
+  finProdFinEquiv
+
+/-- The component index split into its `μ` part and its cell. -/
+def coordOf (i : Fin latticeDim) : Fin nComponents × Fin cellsPerBlock := coordEquiv.symm i
+
+/-- The inverse of `coordOf`. -/
+def coordIdx (p : Fin nComponents × Fin cellsPerBlock) : Fin latticeDim := coordEquiv p
+
+theorem coordIdx_coordOf (i : Fin latticeDim) : coordIdx (coordOf i) = i :=
+  coordEquiv.apply_symm_apply i
+
+theorem coordOf_coordIdx (p : Fin nComponents × Fin cellsPerBlock) : coordOf (coordIdx p) = p :=
+  coordEquiv.symm_apply_apply p
+
 /-- Extensionality for the total space. -/
 theorem FTotal.ext {ψ φ : FTotal} (h : ∀ k, ψ k = φ k) : ψ = φ :=
   lp.ext (funext h)

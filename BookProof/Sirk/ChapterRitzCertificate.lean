@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Sirk.ChapterBandEnclosure
+import BookProof.ChapterBandEnclosure
 
 /-!
 # Chapter RitzCertificate — the per-order finite certificate, derived

@@ -1,7 +1,7 @@
 import Mathlib
-import BookProof.ChapterSirkSingleTimeShift
-import BookProof.ChapterQgTimeIndependentFlow
-import BookProof.ChapterSirkTrotterKatoGalerkin
+import BookProof.Sirk.ChapterSirkSingleTimeShift
+import BookProof.Qg.ChapterQgTimeIndependentFlow
+import BookProof.Sirk.ChapterSirkTrotterKatoGalerkin
 
 /-!
 # Finite sections: one shift, one finite time, for any essentially self-adjoint mode Hamiltonian

@@ -9,7 +9,7 @@ import BookProof.Qg.ChapterQgHermiteFriedrichs
 Friedrichs theorem: a densely defined positive symmetric operator `H` on a
 complex Hilbert space has a positive self-adjoint extension, constructed as
 `A_F = S⁻¹ − 1` for the form resolvent `S = (H + 1)⁻¹`
-(`friedrichs_extension_exists`).  What that statement does *not* say is *which*
+(`friedrichs_extension_exists_of_complete_explicit`).  What that statement does *not* say is *which*
 extension it is — and a symmetric operator generally has many.
 
 This module supplies the missing half, the one that makes the Friedrichs
@@ -111,7 +111,7 @@ theorem friedrichsOp_resolvent (P : PosSymOp F) (hdense : Dense (P.dom : Set F))
   module
 
 /-- **The named Friedrichs operator is a positive self-adjoint extension of
-`H`** — the existence theorem `friedrichs_extension_exists`, restated for the
+`H`** — the existence theorem `friedrichs_extension_exists_of_complete_explicit`, restated for the
 explicit construction rather than existentially. -/
 theorem friedrichsOp_isPositiveSelfAdjointExtension (P : PosSymOp F)
     (hdense : Dense (P.dom : Set F)) :

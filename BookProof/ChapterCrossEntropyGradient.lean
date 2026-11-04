@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterSoftmaxJacobian
+import BookProof.Attention.ChapterSoftmaxJacobian
 import BookProof.ChapterLogPartitionConvex
 
 /-!

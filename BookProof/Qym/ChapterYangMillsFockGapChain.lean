@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Toolbox.ChapterFockFieldPerturbation
-import BookProof.Sirk.ChapterBandEnclosure
+import BookProof.ChapterBandEnclosure
 
 /-!
 # Chapter YangMillsFockGapChain — the abstract gap chain, instantiated for gauge-fixed QYM

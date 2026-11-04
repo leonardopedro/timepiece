@@ -183,6 +183,27 @@ axiom inner_tensorLp (f g h k: L2):
   $ req (iin (tp f g) (tp h k)) (rmul (iin f h) (iin g k)) $;
   -- analytic (Lean: inner_tensorLp — pure-tensor inner products multiply)
 
+-- ── Completeness of the pure tensors (Lean: ChapterTensorCompleteness) ────
+-- The Lean chain is tensorSpan_eq_top → pureTensors_dense →
+-- exists_tensor_approx; it is mirrored here, with the closure↔ε bridge
+-- (Metric.mem_closure_iff) as the one interface step.
+
+term rpos (a: Real): Prop;      -- 0 < a (Real order; interface)
+term inSpan (x: L2): Prop;      -- x ∈ the closed span of the pure tensors
+                                --   (Lean: tensorSpan μ ν — def at L68,
+                                --    the topological closure of the span)
+term pureApprox (x: L2) (eps: Real): Prop;
+  -- ∃ w ∈ span(pureTensors), ‖x − w‖ < eps
+  --   (Lean: exists_tensor_approx's existential, L365)
+
+axiom tensorSpan_eq_top (x: L2): $ inSpan x $;
+  -- analytic (Lean: tensorSpan_eq_top, L330 — proved there by
+  --           Lp.induction over indicator functions)
+axiom inSpan_approx (x: L2) (eps: Real):
+  $ inSpan x $ > $ rpos eps $ > $ pureApprox x eps $;
+  -- interface (Lean: Metric.mem_closure_iff — closure membership iff
+  --            ε-approximable, the bridge used in the L375 proof)
+
 -- ── Theorems (statements; proofs in kopperman_mehler.mm1) ─────────────────
 
 theorem shuffle_apply (a b c d: State):
@@ -201,3 +222,5 @@ theorem kopperman_substrate_separable: $ substrate_sep $;
 theorem modelPrior_atomless (x: State): $ req (smass modelPrior x) rzero $;
 theorem inner_orthogonal_tensor (e1 e2 g: L2) (h: $ req (iin e1 e2) rzero $):
   $ req (iin (tp e1 g) (tp e2 g)) rzero $;
+theorem pureTensors_dense (x: L2) (eps: Real) (h: $ rpos eps $): $ pureApprox x eps $;
+theorem exists_tensor_approx (v: L2) (eps: Real) (h: $ rpos eps $): $ pureApprox v eps $;

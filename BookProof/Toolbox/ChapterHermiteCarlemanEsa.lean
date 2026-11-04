@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterQuadratureEsa
+import BookProof.ChapterQuadratureEsa
 
 /-!
 # A Carleman criterion on the product Hermite basis, and the full diagonal quadratic

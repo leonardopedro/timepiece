@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.Probability.ChapterHolomorphic
-import BookProof.Toolbox.ChapterRadialMollifier
+import BookProof.ChapterHolomorphic
+import BookProof.ChapterRadialMollifier
 
 /-!
 # Weyl's lemma for the Cauchy–Riemann operator — the *Holomorphic fields* remark

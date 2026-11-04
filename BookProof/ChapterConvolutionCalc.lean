@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.ChapterDegSchrodingerCore
+import BookProof.Toolbox.ChapterDegSchrodingerCore
 
 /-!
 # Mollification as a convolution: smoothness and derivatives

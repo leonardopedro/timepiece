@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterDegKatoEsa
+import BookProof.ChapterDegKatoEsa
 
 /-!
 # Calculus for the Kato argument for `N = H_G² + E`

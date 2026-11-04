@@ -6,7 +6,7 @@ import BookProof.Toolbox.Prelude
 -- operator-theory chapters no longer drag in the Navier-Stokes / Yang-Mills /
 -- Hashimoto chapters: the Faris-Lavine notions, the non-real shift, and the closure.
 import BookProof.Toolbox.ChapterFarisLavineCore
-import BookProof.Toolbox.ChapterComplexShiftCore
+import BookProof.ChapterComplexShiftCore
 import BookProof.Toolbox.ChapterEsaClosureCore
 import BookProof.Realification.ChapterA
 import BookProof.Realification.ChapterA1
@@ -63,15 +63,15 @@ import BookProof.ChapterE
 import BookProof.Textbook.ChapterG
 import BookProof.Textbook.ChapterG2
 import BookProof.Textbook.ChapterB7
-import BookProof.Probability.ChapterU
+import BookProof.ChapterU
 import BookProof.Textbook.ChapterF1
 import BookProof.Textbook.ChapterF2
 import BookProof.Textbook.ChapterA4h
 import BookProof.Textbook.ChapterA3w
 import BookProof.Textbook.ChapterA3x
-import BookProof.Attention.ChapterBoseEinstein
+import BookProof.ChapterBoseEinstein
 import BookProof.Attention.ChapterThermalMaxEntropy
-import BookProof.Probability.ChapterLinftyMultiplication
+import BookProof.ChapterLinftyMultiplication
 import BookProof.Textbook.ChapterH1
 import BookProof.Textbook.ChapterH2
 import BookProof.Textbook.ChapterF3
@@ -88,13 +88,13 @@ import BookProof.ChapterE3
 import BookProof.ChapterE4
 import BookProof.Reconstruction.ChapterReconstruct
 import BookProof.ChapterClassicalLimit
-import BookProof.Probability.ChapterJointUnitary
-import BookProof.Probability.ChapterHolomorphic
+import BookProof.ChapterJointUnitary
+import BookProof.ChapterHolomorphic
 -- The distributional (Weyl-lemma) form of the "Holomorphic fields" remark: a radial
 -- mollifier on `ℂ` with the disc mean value property, and the theorem that a locally
 -- integrable function satisfying the Cauchy–Riemann equations weakly agrees a.e. with
 -- an analytic function.
-import BookProof.Toolbox.ChapterRadialMollifier
+import BookProof.ChapterRadialMollifier
 import BookProof.Toolbox.ChapterWeylCauchyRiemann
 import BookProof.ChapterNavierStokes
 import BookProof.Ns.ChapterNavierStokesFlow
@@ -104,10 +104,10 @@ import BookProof.Ns.ChapterNavierStokesDeficiency
 import BookProof.Toolbox.ChapterFarisLavine
 import BookProof.Toolbox.ChapterKatoRellichDeficiency
 import BookProof.Toolbox.ChapterKatoRellichRelative
-import BookProof.Toolbox.ChapterStrichartzWave
-import BookProof.Toolbox.ChapterWaveBoundedPotential
-import BookProof.Toolbox.ChapterWaveUnboundedPotential
-import BookProof.Toolbox.ChapterHarmonicOscillatorEsa
+import BookProof.ChapterStrichartzWave
+import BookProof.ChapterWaveBoundedPotential
+import BookProof.ChapterWaveUnboundedPotential
+import BookProof.ChapterHarmonicOscillatorEsa
 import BookProof.Ns.ChapterNavierStokesFullEsa
 import BookProof.Ns.ChapterNavierStokesLagrangianEsa
 import BookProof.Ns.ChapterNavierStokesLagrangianKatoRellich
@@ -155,7 +155,7 @@ import BookProof.Toolbox.ChapterEsaClosure
 -- Uniqueness of the closure of a symmetric operator, core-independence of the
 -- closure and of the adjoint, and uniqueness of the `A* A-bar` factorization
 -- (up to a partial isometry; strictly, for a positive self-adjoint factor).
-import BookProof.Toolbox.ChapterClosureUniqueness
+import BookProof.ChapterClosureUniqueness
 -- The identity `(A^2)_F = A* A-bar`: for a densely defined symmetric operator
 -- with invariant domain, the composite of the adjoint with the closure is the
 -- unique self-adjoint extension of `A^2` supported in the form domain, i.e. the
@@ -164,44 +164,44 @@ import BookProof.Toolbox.ChapterFriedrichsSquareFactorization
 -- von Neumann's core theorem for that factorization: `1 + A* A-bar` has a
 -- contractive everywhere-defined inverse, its domain is dense, and that domain
 -- is a core of the closure `A-bar`.
-import BookProof.Toolbox.ChapterVonNeumannCore
+import BookProof.ChapterVonNeumannCore
 -- The unbounded polar decomposition: the positive square root `|A-bar| = (A* A-bar)^(1/2)`
 -- built from the bounded functional calculus of the resolvent, and `A-bar = U |A-bar|`.
-import BookProof.Toolbox.ChapterUnboundedPolar
+import BookProof.ChapterUnboundedPolar
 -- The polar decomposition as a genuine partial isometry `U : F -> F`, with `U* U` the
 -- projection onto the closure of the range of `|A-bar|`, and its uniqueness.
-import BookProof.Toolbox.ChapterPolarPartialIsometry
+import BookProof.ChapterPolarPartialIsometry
 -- Uniqueness of the non-negative self-adjoint square root: `|A-bar|` is *the* square root
 -- of `A* A-bar`, proved with the bounded functional calculus of the resolvent alone.
-import BookProof.Toolbox.ChapterPositiveSquareRootUnique
+import BookProof.ChapterPositiveSquareRootUnique
 -- Every non-negative self-adjoint linear relation has a unique non-negative self-adjoint
 -- square root; `|A-bar|` is the instance belonging to `A* A-bar`.
-import BookProof.Toolbox.ChapterNonnegSquareRoot
+import BookProof.ChapterNonnegSquareRoot
 -- The resolvent family `(T + a)^(-1)` of a non-negative self-adjoint linear relation:
 -- the first resolvent identity, positivity, `a (T + a)^(-1) -> 1` strongly, and the
 -- Yosida approximation `T_a = a (1 - a (T + a)^(-1))` converging to `T` on its domain.
-import BookProof.Toolbox.ChapterNonnegResolvent
+import BookProof.ChapterNonnegResolvent
 -- The resolvent correspondence: `T |-> (1 + T)^(-1)` is a bijection from the
 -- non-negative self-adjoint linear relations onto the positive contractions.
 import BookProof.Toolbox.ChapterResolventCorrespondence
 -- The unitary group `e^(-itT)` generated by a non-negative self-adjoint linear relation:
 -- built from the Yosida approximation, with the group law, unitarity, strong continuity
 -- and the Schrodinger equation on the domain.
-import BookProof.Toolbox.ChapterNonnegUnitaryGroup
+import BookProof.ChapterNonnegUnitaryGroup
 -- The contraction semigroup `e^(-tT)` generated by the same non-negative self-adjoint
 -- linear relation: the bounded exponential `e^(-tA)` with its contraction bound and
 -- Cauchy estimate, then the Yosida limit, with the semigroup law, self-adjointness,
 -- the rate of convergence on the domain and strong continuity at `0`.
-import BookProof.Toolbox.ChapterNonnegSemigroup
+import BookProof.ChapterNonnegSemigroup
 -- The generator of that semigroup: positivity `0 <= e^(-tT)`, strong continuity in `t`
 -- along the whole orbit, commutation with the resolvent (hence invariance of the domain
 -- of `T`), and the differential equation `d/dt e^(-tT)h = -e^(-tT)k` in difference
 -- quotient form for `(h, k)` in `T`.
-import BookProof.Toolbox.ChapterNonnegSemigroupGenerator
+import BookProof.ChapterNonnegSemigroupGenerator
 -- The bridge to the Hashimoto/SIRK layer: the resolvent `(T + g)^(-1)` of a non-negative
 -- self-adjoint relation *is* the Hashimoto shift-invert of its operator part, and the
 -- shift-invert determines the unitary group.
-import BookProof.Sirk.ChapterRelationShiftInvert
+import BookProof.ChapterRelationShiftInvert
 -- The Hashimoto/SIRK shift-invert limit selects the Navier-Stokes generator.
 import BookProof.Ns.ChapterNavierStokesHashimoto
 import BookProof.Ns.ChapterNavierStokesHermiteCanonical
@@ -211,21 +211,21 @@ import BookProof.Ns.ChapterNavierStokesFockCanonical
 import BookProof.Ns.ChapterNavierStokesEulerian
 import BookProof.Ns.ChapterNavierStokesGaugeY
 import BookProof.Ns.ChapterNavierStokesGaugeY2
-import BookProof.Qym.ChapterGaugeFixing
+import BookProof.ChapterGaugeFixing
 import BookProof.Qg.ChapterQuantumGravityDensitized
 import BookProof.Qg.ChapterQuantumGravityHalfDensity
 import BookProof.Qym.ChapterYangMillsFriedrichs
 import BookProof.Qym.ChapterYangMillsFriedrichsLimit
 import BookProof.Toolbox.ChapterHermiteGalerkinFriedrichs
 import BookProof.Toolbox.ChapterHermiteFunctions
-import BookProof.Qg.ChapterStrichartzHermiteQG
+import BookProof.ChapterStrichartzHermiteQG
 import BookProof.ChapterSpinStatistics
-import BookProof.Textbook.ChapterMajoranaFourier
+import BookProof.ChapterMajoranaFourier
 import BookProof.ChapterMajoranaProp61
-import BookProof.Textbook.ChapterMajoranaProp74
+import BookProof.ChapterMajoranaProp74
 import BookProof.ChapterMajoranaProp76
 import BookProof.Sm.ChapterParity
-import BookProof.Textbook.ChapterCPTHamiltonian
+import BookProof.ChapterCPTHamiltonian
 import BookProof.HarmonicAnalysis.ChapterSphericalBessel
 -- Note 68: the spherical Bessel equation for every `l`, the three-term recurrence,
 -- and `jₗ(p r)` as an eigenfunction of the radial Laplacian with eigenvalue `p²`.
@@ -250,19 +250,19 @@ import BookProof.GravityAlgebra.ChapterGravitySplit
 import BookProof.GravityAlgebra.ChapterGravityGenInverse
 import BookProof.ChapterGravityIrrep
 import BookProof.ChapterLorentzTranslation
-import BookProof.Qym.ChapterSuperBracket
+import BookProof.ChapterSuperBracket
 import BookProof.Lorentz.ChapterLorentzGroup
 import BookProof.Lorentz.ChapterLorentzOrthochronous
 import BookProof.Lorentz.ChapterLorentzDecomp
-import BookProof.Probability.ChapterDoubleSlit
+import BookProof.ChapterDoubleSlit
 import BookProof.Pauli.ChapterPauliLorentz
 import BookProof.Pauli.ChapterPauliSU2
-import BookProof.Textbook.ChapterPinOmega
-import BookProof.Textbook.ChapterPinDoubleCover
-import BookProof.Textbook.ChapterLorentzRealRep
-import BookProof.Textbook.ChapterLorentzRealRepSum
-import BookProof.Textbook.ChapterLorentzRealRepFull
-import BookProof.Textbook.ChapterLorentzRealRepDirect
+import BookProof.ChapterPinOmega
+import BookProof.ChapterPinDoubleCover
+import BookProof.ChapterLorentzRealRep
+import BookProof.ChapterLorentzRealRepSum
+import BookProof.ChapterLorentzRealRepFull
+import BookProof.ChapterLorentzRealRepDirect
 import BookProof.ChapterLittleGroup
 -- Wigner's little-group classification in the `SL(2,ℂ)` model: the massive little group
 -- is `SU(2)`, the lightlike one is the `SE(2)` double cover, and the mass shells are
@@ -305,10 +305,10 @@ import BookProof.InducedSystems.ChapterWignerSymmetryInfinite
 -- alternatives exclude each other as soon as the space has two orthonormal vectors.
 import BookProof.InducedSystems.ChapterWignerSymmetryUniqueness
 import BookProof.ChapterIPin
-import BookProof.Textbook.ChapterSE2
-import BookProof.Textbook.ChapterLocalization
-import BookProof.Textbook.ChapterCPTParity
-import BookProof.Textbook.ChapterCPTPT
+import BookProof.ChapterSE2
+import BookProof.ChapterLocalization
+import BookProof.ChapterCPTParity
+import BookProof.ChapterCPTPT
 import BookProof.Sm.ChapterParityQL
 import BookProof.Sm.ChapterParityHiggs
 import BookProof.Sm.ChapterParitySU2
@@ -324,23 +324,23 @@ import BookProof.Reconstruction.ChapterDeterministic
 import BookProof.Reconstruction.ChapterTimeTranslation
 import BookProof.ChapterIrreversible
 import BookProof.ChapterIrreversibleDynamics
-import BookProof.Probability.ChapterTrajectory
-import BookProof.Probability.ChapterWeakValue
-import BookProof.Probability.ChapterContinuityUnitary
-import BookProof.Probability.ChapterContinuityUnitaryInfinite
-import BookProof.Probability.ChapterBornMeasure
-import BookProof.Probability.ChapterUnboundedPosition
-import BookProof.Toolbox.ChapterUnitaryTransport
+import BookProof.ChapterTrajectory
+import BookProof.ChapterWeakValue
+import BookProof.ChapterContinuityUnitary
+import BookProof.ChapterContinuityUnitaryInfinite
+import BookProof.ChapterBornMeasure
+import BookProof.ChapterUnboundedPosition
+import BookProof.ChapterUnitaryTransport
 import BookProof.Causality.ChapterCausality
 import BookProof.ChapterMassGap
 import BookProof.ChapterLocalOperators
 import BookProof.ChapterQuadraticOrdering
-import BookProof.Qym.ChapterGhostField
+import BookProof.ChapterGhostField
 import BookProof.Qym.ChapterYangMillsSU3
 import BookProof.ChapterYangMillsBianchi
 import BookProof.FieldStrength.ChapterYangMillsFieldStrength
 import BookProof.ChapterMajoranaClifford
-import BookProof.Qym.ChapterBRSTNilpotent
+import BookProof.ChapterBRSTNilpotent
 import BookProof.Toolbox.ChapterWeylHamiltonian
 import BookProof.FieldStrength.ChapterFreeEMField
 import BookProof.ChapterBosonicCCR
@@ -351,7 +351,7 @@ import BookProof.ChapterKernelBound
 import BookProof.Reconstruction.ChapterMarkovEntropy
 import BookProof.PauliGrover.ChapterConditional
 import BookProof.PauliGrover.ChapterPauliGrover
-import BookProof.Probability.ChapterBayesInference
+import BookProof.ChapterBayesInference
 import BookProof.Conservative.ChapterConservative
 import BookProof.Conservative.ChapterSymmetryRep
 import BookProof.ChapterGleasonPureMixed
@@ -364,77 +364,77 @@ import BookProof.ChapterEulerDensityMatrix
 import BookProof.ChapterEulerGenericDensity
 import BookProof.ChapterEulerCountableChain
 import BookProof.ChapterSternGerlach
-import BookProof.Probability.ChapterFreeFieldGaussian
-import BookProof.Probability.ChapterFreeFieldSphere
-import BookProof.Probability.ChapterFreeFieldSphereSupport
-import BookProof.Probability.ChapterFreeFieldSphereFixpoint
+import BookProof.ChapterFreeFieldGaussian
+import BookProof.ChapterFreeFieldSphere
+import BookProof.ChapterFreeFieldSphereSupport
+import BookProof.ChapterFreeFieldSphereFixpoint
 import BookProof.ChapterBornPhaseFiber
-import BookProof.Probability.ChapterFreeFieldBorn
-import BookProof.Probability.ChapterFreeFieldBornSurj
-import BookProof.Probability.ChapterFreeFieldBornCont
-import BookProof.Probability.ChapterFreeFieldBornGauge
-import BookProof.Probability.ChapterFreeFieldBornQuotient
-import BookProof.Probability.ChapterFreeFieldBornSectionBij
-import BookProof.Probability.ChapterFreeFieldBornHomeo
-import BookProof.Probability.ChapterFreeFieldBornSignGauge
-import BookProof.Probability.ChapterFreeFieldBornSignFiber
-import BookProof.Probability.ChapterFreeFieldBornSignAction
-import BookProof.Probability.ChapterFreeFieldBornSignHom
-import BookProof.Probability.ChapterFreeFieldBornSignMatrix
-import BookProof.Probability.ChapterFreeFieldBornSignOrientation
-import BookProof.Probability.ChapterFreeFieldBornSignOrientationCard
-import BookProof.Probability.ChapterFreeFieldBornSignOrientationKernel
-import BookProof.Probability.ChapterFreeFieldBornSignOrientationSubgroup
-import BookProof.Probability.ChapterFreeFieldBornSignOrientationQuotient
-import BookProof.Probability.ChapterFreeFieldBornSignRepresentation
-import BookProof.Probability.ChapterFreeFieldBornFiberCard
-import BookProof.Probability.ChapterFreeFieldBornFiberCardGeneral
-import BookProof.Probability.ChapterFreeFieldBornFiberTwo
-import BookProof.Probability.ChapterFreeFieldBornFiberBounds
-import BookProof.Probability.ChapterFreeFieldBornFiberDeterministic
-import BookProof.Probability.ChapterFreeFieldBornFiberInterior
-import BookProof.Probability.ChapterFreeFieldBornFiberSpectrum
-import BookProof.Probability.ChapterFreeFieldBornFiberStabilizer
-import BookProof.Probability.ChapterPriorDependence
-import BookProof.Probability.ChapterPriorOdds
+import BookProof.ChapterFreeFieldBorn
+import BookProof.ChapterFreeFieldBornSurj
+import BookProof.ChapterFreeFieldBornCont
+import BookProof.ChapterFreeFieldBornGauge
+import BookProof.ChapterFreeFieldBornQuotient
+import BookProof.ChapterFreeFieldBornSectionBij
+import BookProof.ChapterFreeFieldBornHomeo
+import BookProof.ChapterFreeFieldBornSignGauge
+import BookProof.ChapterFreeFieldBornSignFiber
+import BookProof.ChapterFreeFieldBornSignAction
+import BookProof.ChapterFreeFieldBornSignHom
+import BookProof.ChapterFreeFieldBornSignMatrix
+import BookProof.ChapterFreeFieldBornSignOrientation
+import BookProof.ChapterFreeFieldBornSignOrientationCard
+import BookProof.ChapterFreeFieldBornSignOrientationKernel
+import BookProof.ChapterFreeFieldBornSignOrientationSubgroup
+import BookProof.ChapterFreeFieldBornSignOrientationQuotient
+import BookProof.ChapterFreeFieldBornSignRepresentation
+import BookProof.ChapterFreeFieldBornFiberCard
+import BookProof.ChapterFreeFieldBornFiberCardGeneral
+import BookProof.ChapterFreeFieldBornFiberTwo
+import BookProof.ChapterFreeFieldBornFiberBounds
+import BookProof.ChapterFreeFieldBornFiberDeterministic
+import BookProof.ChapterFreeFieldBornFiberInterior
+import BookProof.ChapterFreeFieldBornFiberSpectrum
+import BookProof.ChapterFreeFieldBornFiberStabilizer
+import BookProof.ChapterPriorDependence
+import BookProof.ChapterPriorOdds
 import BookProof.ChapterNoBestPrior
-import BookProof.Probability.ChapterUniformPrior
-import BookProof.Probability.ChapterUniformPriorPosterior
+import BookProof.ChapterUniformPrior
+import BookProof.ChapterUniformPriorPosterior
 import BookProof.ChapterMAPNull
 import BookProof.ChapterConsciousnessNullMeasure
 import BookProof.ChapterMaxEntropy
 import BookProof.Attention.ChapterDeepLearningSampling
 import BookProof.Attention.ChapterDeepLearningEnsemble
 import BookProof.ChapterDutchBook
-import BookProof.Attention.ChapterSequentialBayes
+import BookProof.ChapterSequentialBayes
 import BookProof.Attention.ChapterDeepLearningMAP
 import BookProof.ChapterProbabilityClockStochastic
 import BookProof.ChapterTotalVariance
 import BookProof.RoadmapAudit.ChapterRoadmapAudit
 import BookProof.RandomMap2Audit
-import BookProof.Probability.ChapterSelectingEvents
+import BookProof.ChapterSelectingEvents
 import BookProof.ChapterBaryonAsymmetry
 import BookProof.Sm.ChapterParitySU3
-import BookProof.Probability.ChapterFreeFieldConstraint
-import BookProof.Probability.ChapterConservativeDiagonal
-import BookProof.Qym.ChapterGellMann
-import BookProof.Probability.ChapterHierarchicalBayesComposition
-import BookProof.Probability.ChapterHierarchicalBayes
-import BookProof.Probability.ChapterFiniteBayesHierarchy
+import BookProof.ChapterFreeFieldConstraint
+import BookProof.ChapterConservativeDiagonal
+import BookProof.ChapterGellMann
+import BookProof.ChapterHierarchicalBayesComposition
+import BookProof.ChapterHierarchicalBayes
+import BookProof.ChapterFiniteBayesHierarchy
 import BookProof.ChapterOdeComplexification
 -- The unitary time-evolution of `ẋ = x²` (book.tex Equations 1–4): the Möbius flow,
 -- its one-parameter group of probability-preserving operators, and its generator `-iH`.
 import BookProof.Ode.ChapterOdeUnitaryFlow
 -- The Whittaker–Shannon sampling theorem, quoted by the ODE chapter: the interpolation
 -- formula for a band-limited signal and the uniqueness of a signal with given samples.
-import BookProof.Ode.ChapterShannonSampling
+import BookProof.ChapterShannonSampling
 -- The same chapter's conclusion: a wave-function with a band-limited chart transform is
 -- determined by its values at the discrete points `xₙ = -T/n`.
 import BookProof.Ode.ChapterOdeSampling
 -- The sampling theorem for genuinely band-limited functions of the line: a continuous
 -- integrable function whose Fourier transform vanishes outside the band is the sinc series
 -- built from its samples at `n/T` (the Paley–Wiener side of the sampling theorem).
-import BookProof.Ode.ChapterPaleyWienerSampling
+import BookProof.ChapterPaleyWienerSampling
 -- Weyl's unitarian trick for a compact group: every invariant subspace of a
 -- finite-dimensional continuous representation has an invariant complement (Haar averaging).
 import BookProof.ChapterCompactCompleteReducibility
@@ -468,21 +468,21 @@ import BookProof.ChapterProbabilityInterface
 -- Wave (August 2026): coordinate Solovay–Kopperman substrate and cross-dimensional
 -- embedding, kernel transport, and the average/maximal error norms.
 import BookProof.Toolbox.Substrate
-import BookProof.Probability.ChapterSolovay
-import BookProof.Probability.ChapterSolovayCoordinates
-import BookProof.Probability.ChapterMehlerOrthogonalInvariance
-import BookProof.Probability.ChapterMehlerUniqueness
-import BookProof.Probability.ChapterAtomicDecomposition
+import BookProof.ChapterSolovay
+import BookProof.ChapterSolovayCoordinates
+import BookProof.ChapterMehlerOrthogonalInvariance
+import BookProof.ChapterMehlerUniqueness
+import BookProof.ChapterAtomicDecomposition
 import BookProof.ChapterAbelianVonNeumannFinite
-import BookProof.Probability.ChapterMixedPrior
-import BookProof.Probability.ChapterSolovayCrossDim
-import BookProof.Probability.ChapterKopperman
+import BookProof.ChapterMixedPrior
+import BookProof.ChapterSolovayCrossDim
+import BookProof.ChapterKopperman
 import BookProof.Textbook.ChapterG3
 import BookProof.ChapterKernelTransport
 import BookProof.ChapterErrorNorms
 import BookProof.GravityAlgebra.ChapterGravityProjDirectSum
 import BookProof.Realification.ChapterSchurFiniteDim
-import BookProof.Textbook.ChapterGammaCommutant
+import BookProof.ChapterGammaCommutant
 
 -- Wave (August 2026): the new chapter `Book/CoherentState.lean` — the coherent-state
 -- overlap, Softmax as the Born rule, the attention output as an expectation value,
@@ -490,8 +490,8 @@ import BookProof.Textbook.ChapterGammaCommutant
 import BookProof.Attention.ChapterCoherentOverlap
 import BookProof.Attention.ChapterCoherentOverlapComplex
 import BookProof.Attention.ChapterSoftmaxBorn
-import BookProof.Attention.ChapterObservableExpectation
-import BookProof.Attention.ChapterObservableOperator
+import BookProof.ChapterObservableExpectation
+import BookProof.ChapterObservableOperator
 import BookProof.Attention.ChapterCoherentTemperature
 import BookProof.Attention.ChapterCoherentOccupation
 import BookProof.Attention.ChapterSoftmaxSharpness
@@ -502,7 +502,7 @@ import BookProof.Attention.ChapterAttentionEntropy
 -- Wave (August 2026): Priority 4 of `PLAN_LEAN_SPECIALIST_UNPROVED.md` — the
 -- concrete-model discharge of the Pauli fundamental theorem's `EXTERNAL` flag:
 -- the commutant of the fixed 4×4 Majorana/Dirac γ-matrices is exactly the scalars.
-import BookProof.Textbook.ChapterPauliCommutant
+import BookProof.ChapterPauliCommutant
 
 -- Wave (August 2026): Priority 5.1 of `PLAN_LEAN_SPECIALIST_UNPROVED.md` — the
 -- probabilistic reading of the density-matrix spectral decomposition (diagonal =
@@ -511,8 +511,8 @@ import BookProof.Density.ChapterDensityMarginalConditional
 
 -- Wave (August 2026): the finite (type I_n) case of the abelian von Neumann
 -- classification, replacing the `True` placeholder in `ChapterSelectingEvents`.
-import BookProof.Probability.ChapterAbelianDiagonal
-import BookProof.Probability.ChapterAbelianDiagonalCountable
+import BookProof.ChapterAbelianDiagonal
+import BookProof.ChapterAbelianDiagonalCountable
 import BookProof.GravityAlgebra.ChapterGravityRankSplit
 import BookProof.Definability.ChapterEll2Separable
 
@@ -536,12 +536,12 @@ import BookProof.Realification.ChapterSchurRepresentation
 -- Wave (September 2026): Note 36, **Pauli's fundamental theorem of the γ-matrices**,
 -- proved from the Clifford relations and the concrete Majorana model; this discharges
 -- the last `EXTERNAL` hypothesis of §A.3 (`PauliFundamental`).
-import BookProof.Textbook.ChapterPauliFundamental
+import BookProof.ChapterPauliFundamental
 
 -- Wave (September 2026): the two families of consequences of the results above —
 -- Prop 46 (the Pin(3,1) → O(1,3) covering) and the §A.2 ℝ/ℂ/ℍ trichotomy —
 -- restated with no external hypothesis.
-import BookProof.Textbook.ChapterPauliConsequences
+import BookProof.ChapterPauliConsequences
 import BookProof.Realification.ChapterSchurTrichotomy
 
 -- Wave (August 2026): goal A.4 of the book's Proof-Plans appendix — the spectral
@@ -552,8 +552,8 @@ import BookProof.ChapterMaschkeFiniteGroup
 -- Wave (2026-08-09, `PLAN_LEAN_SPECIALIST_COHERENT.md` Part F): the finite
 -- algebraic core of the coherent-state temperature identity (F.4) and the mixed
 -- (atomic ⊕ diffuse) class of the abelian von Neumann list (F.5).
-import BookProof.Attention.ChapterThermalTemperatureCore
-import BookProof.Probability.ChapterAbelianMixture
+import BookProof.ChapterThermalTemperatureCore
+import BookProof.ChapterAbelianMixture
 
 -- Wave (2026-08-09, Part F.1-F.3): the QFM dimensional-reduction thread — the
 -- inversion-free Krylov shortcut, the Krylov projection as a spectral low-pass
@@ -577,16 +577,51 @@ import BookProof.BalabanRG.Convergence
 import BookProof.ReflectionPositivity.Involution
 import BookProof.ReflectionPositivity.HalfSpaceAlgebra
 import BookProof.ReflectionPositivity.Proof
+import BookProof.ReflectionPositivity.BlockCommute
+import BookProof.ReflectionPositivity.QuadraticWick
+import BookProof.ReflectionPositivity.FeynmanKac
+import BookProof.ReflectionPositivity.LatticeFreeField
 import BookProof.OSReconstruction.PhysicalSpace
 import BookProof.OSReconstruction.Hamiltonian
+
+-- Wave (`cftproof.md` Phase 5): Euclidean clustering at mass `m` is decay of the transfer
+-- operator at rate `m` off the vacuum, and `O(4)` invariance turns temporal decay into spatial.
+import BookProof.OSReconstruction.Clustering
+import BookProof.OSReconstruction.HilbertSpace
+import BookProof.OSReconstruction.ReflectionKernel
+import BookProof.OSReconstruction.MomentumBasis
+import BookProof.OSReconstruction.GaussianMoments
+import BookProof.OSReconstruction.YangMillsBridge
+import BookProof.MCMC.GeometricErgodicity
+
+-- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as
+-- its boundary — `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` — plus the resulting geometric convergence
+-- in total variation (`pcnl_mcmc_geometric_convergence`).
+import BookProof.MCMC.ConvergenceTheorem
+
+-- Wave (`pcnl.md` Module 1 output → Modules 4–5): the unadjusted pCN step's spectrum `λ_n = ρ^n`
+-- is dimension-free, so its gap is too, and that gap feeds the geometric-ergodicity bound.
+import BookProof.MCMC.UnadjustedPCNGap
+
+-- Wave (`pcnl.md` Module 3): ladder operators on the core, and the drift as a finite-band
+-- hopping matrix with step amplitudes bounded by `√(N+1)` on the degree-`N` sector.
+import BookProof.MCMC.FockLangevinOperator
+
+-- Wave (`pcnl.md` Module 1 proper, and Module 2 through it): the pCN step *is* diagonalised by
+-- the Fock number states in the `d → ∞` limit — `∫ Hₙ(ρx + √(1−ρ²)y) e^{−y²} dy = √π ρⁿ Hₙ(x)`.
+import BookProof.MCMC.MehlerEigenfunction
+-- Wave, `pcnl.md` Module 1 in its *finite-`d`* form: the zonal spectrum of one pCN step on
+-- `S^{d-1}` is `Cₙ^{(λ)}(ρ)/Cₙ^{(λ)}(1)` (`pcnZonalEigen`), not `ρⁿ` (`pcnZonalEigen_two_ne_pow_two`,
+-- `d = 3`), and it tends to `ρⁿ` as `d → ∞` (`pcnZonalEigen_tendsto`).
+import BookProof.MCMC.GegenbauerEigenvalue
 import BookProof.Toolbox.PhysMehler
 
 -- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
 -- Gaussian derivation of the attention temperature `τ = n̄ + ½` from the overlap
 -- of displaced thermal states, and the Hermiticity / unitarity layer of the QFM
 -- Krylov reduction.
-import BookProof.Attention.ChapterDisplacedThermalOverlap
-import BookProof.Attention.ChapterDisplacedThermalMulti
+import BookProof.ChapterDisplacedThermalOverlap
+import BookProof.ChapterDisplacedThermalMulti
 import BookProof.Textbook.ChapterH7
 
 -- Wave (2026-08-14, `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`): the SIRK
@@ -594,7 +629,7 @@ import BookProof.Textbook.ChapterH7
 -- reduced generators, the projection refinement of the approximants, and the
 -- nested error bands.
 import BookProof.Textbook.ChapterH8
-import BookProof.Sirk.ChapterH8Bases
+import BookProof.ChapterH8Bases
 
 -- Wave (2026-08-15, continuation of `PLAN_LEAN_SPECIALIST_SIRK_NESTED.md`): the
 -- spectral side of the nesting — the numerical ranges, operator norms and Ritz
@@ -607,14 +642,14 @@ import BookProof.Textbook.ChapterH9
 import BookProof.Attention.ChapterCoherentFidelity
 import BookProof.Attention.ChapterSoftmaxFluctuation
 import BookProof.Attention.ChapterSoftmaxMaxEntropy
-import BookProof.Attention.ChapterEntropyTemperature
+import BookProof.ChapterEntropyTemperature
 
 -- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
 -- relative entropy between two attention temperatures, the convexity of the
 -- attention free energy, and the position-space realization of the coherent
 -- overlap as an honest `L²(ℝ)` inner product of Gaussian wave packets.
 import BookProof.Attention.ChapterSoftmaxDivergence
-import BookProof.Attention.ChapterLogPartitionConvex
+import BookProof.ChapterLogPartitionConvex
 import BookProof.Attention.ChapterCoherentPositionSpace
 import BookProof.Attention.ChapterSoftmaxStability
 
@@ -627,7 +662,7 @@ import BookProof.Attention.ChapterAttentionOutput
 import BookProof.Attention.ChapterAttentionMasking
 import BookProof.Attention.ChapterCoherentDynamics
 import BookProof.Attention.ChapterAttentionFactorization
-import BookProof.Attention.ChapterRotaryPosition
+import BookProof.ChapterRotaryPosition
 
 -- Wave (2026-08-10, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
 -- quantitative retrieval bounds of an attention head, its permutation
@@ -636,7 +671,7 @@ import BookProof.Attention.ChapterRotaryPosition
 import BookProof.Attention.ChapterAttentionRetrieval
 import BookProof.Attention.ChapterAttentionEquivariance
 import BookProof.Attention.ChapterAttentionMixture
-import BookProof.Attention.ChapterCrossEntropyGradient
+import BookProof.ChapterCrossEntropyGradient
 
 -- Wave (2026-08-10, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): how many
 -- keys a head effectively reads (collision entropy / participation ratio), how
@@ -645,7 +680,7 @@ import BookProof.Attention.ChapterCrossEntropyGradient
 import BookProof.Attention.ChapterAttentionCollision
 import BookProof.Attention.ChapterAttentionConcentration
 import BookProof.Attention.ChapterAttentionMarkov
-import BookProof.Attention.ChapterScaledDotProduct
+import BookProof.ChapterScaledDotProduct
 import BookProof.Attention.ChapterAttentionOutputVariance
 
 -- Wave (2026-08-10, information-theoretic pass, part 2): the low-rank bottleneck
@@ -653,7 +688,7 @@ import BookProof.Attention.ChapterAttentionOutputVariance
 -- positional encoding, and the mixing of a deep stack of one attention layer.
 import BookProof.Attention.ChapterAttentionLowRank
 import BookProof.Attention.ChapterLayerNorm
-import BookProof.Attention.ChapterSinusoidalPosition
+import BookProof.ChapterSinusoidalPosition
 import BookProof.Attention.ChapterAttentionMixing
 
 -- Wave (2026-08-10, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): turning
@@ -666,7 +701,7 @@ import BookProof.Attention.ChapterAttentionTemperature
 import BookProof.Attention.ChapterAttentionSink
 import BookProof.Attention.ChapterAttentionCoarseGrain
 import BookProof.Attention.ChapterAttentionQKCircuit
-import BookProof.Attention.ChapterResidualStream
+import BookProof.ChapterResidualStream
 
 -- Wave: the free energy as a soft maximum (`log Z/β` is the largest score up to
 -- `log m/β`), the exact `ℓ¹` price of sparse/top-k attention, the OV circuit (the
@@ -695,20 +730,20 @@ import BookProof.Attention.ChapterCoherentThermalFidelity
 -- dimensionality of the Kopperman tail, the wave-function of a finite joint law,
 -- the separable probability space with an arbitrary finite law, and the explicit
 -- product disintegration.
-import BookProof.Probability.ChapterSolovayTailDimension
-import BookProof.Probability.ChapterSolovaySeparableExistence
+import BookProof.ChapterSolovayTailDimension
+import BookProof.ChapterSolovaySeparableExistence
 
 -- Wave (2026-08-10, `CONSOLIDATED_PLAN.md` §4.2): the Hilbert-space form of the
 -- Solovay–Kopperman tensor product.
-import BookProof.Probability.ChapterSolovayHilbertTensor
+import BookProof.ChapterSolovayHilbertTensor
 
 -- Wave (2026-08-10, `CONSOLIDATED_PLAN.md` GAP-2): the purely atomic condensation
 -- of the abelian von Neumann classification.
-import BookProof.Probability.ChapterAbelianAtomicCondensation
+import BookProof.ChapterAbelianAtomicCondensation
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, diffuse half): the `L∞(μ)`
 -- multiplication algebra is its own commutant, hence maximal abelian.
-import BookProof.Probability.ChapterLinftyMaximalAbelian
+import BookProof.ChapterLinftyMaximalAbelian
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` §4.2, completeness half): the pure
 -- tensors are total in `L²(μ ⊗ ν)`.
@@ -717,109 +752,109 @@ import BookProof.Toolbox.ChapterTensorCompleteness
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the Gelfand step): a state of a
 -- commutative unital C*-algebra is the vector state of a multiplication
 -- representation on the `L²` space of a Borel probability measure.
-import BookProof.Probability.ChapterAbelianGelfandModel
+import BookProof.ChapterAbelianGelfandModel
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the operator model): the spectral
 -- theorem in multiplication form — a normal operator with a cyclic unit vector is
 -- multiplication by `z` on `L²` of a probability measure on its spectrum.
-import BookProof.Probability.ChapterSpectralMultiplication
+import BookProof.ChapterSpectralMultiplication
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the von Neumann level): the
 -- commutant and bicommutant of the algebra generated by a normal operator with a
 -- cyclic vector are the unitary copy of `L∞(μ)` acting by multiplication.
-import BookProof.Probability.ChapterSpectralCommutant
+import BookProof.ChapterSpectralCommutant
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the reduction to the cyclic
 -- case): every complex Hilbert space is the orthogonal direct sum of subspaces
 -- cyclic for a given normal operator.
-import BookProof.Probability.ChapterCyclicDecomposition
+import BookProof.ChapterCyclicDecomposition
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the direct-sum form): the cyclic
 -- decomposition as a Hilbert sum, and the projections onto its summands as elements
 -- of the commutant of the algebra generated by the operator.
-import BookProof.Probability.ChapterCyclicDirectSum
+import BookProof.ChapterCyclicDirectSum
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the assembly): every normal
 -- operator is a direct sum of multiplication operators — the spectral multiplication
 -- model with no cyclic vector assumed.
-import BookProof.Probability.ChapterSpectralDirectSum
+import BookProof.ChapterSpectralDirectSum
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, dropping the single generator):
 -- an *arbitrary* unital `*`-representation of `C(X, ℂ)` with a cyclic unit vector is
 -- unitarily multiplication on `L²(μ)` — the measure model of an abstract abelian
 -- algebra, with no generator produced.
-import BookProof.Probability.ChapterAbelianCyclicModel
+import BookProof.ChapterAbelianCyclicModel
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the von Neumann level without a
 -- generator): the commutant and bicommutant of such a represented abelian algebra
 -- are the unitary copy of `L∞(μ)`, so the algebra is maximal abelian.
-import BookProof.Probability.ChapterAbelianCyclicCommutant
+import BookProof.ChapterAbelianCyclicCommutant
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the general structure theorem):
 -- every unital `*`-representation of `C(X, ℂ)` — i.e. every abelian algebra of
 -- operators — is a direct sum of multiplication representations, with no cyclic
 -- vector, no generator and no separability assumed.
-import BookProof.Probability.ChapterAbelianDirectSum
+import BookProof.ChapterAbelianDirectSum
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the classification bookkeeping):
 -- every finite measure splits into a purely atomic part (a countable sum of point
 -- masses) and a diffuse part, so each summand of the abelian multiplication model
 -- falls into the manuscript's atomic / diffuse / mixed classes.
-import BookProof.Probability.ChapterMeasureAtomicDiffuse
+import BookProof.ChapterMeasureAtomicDiffuse
 
 -- Wave (2026-08-11, `CONSOLIDATED_PLAN.md` GAP-2, the diffuse standard type): the
 -- distribution function of an atomless Borel probability measure on the line pushes
 -- it forward to Lebesgue measure on `[0, 1]`, so every diffuse summand measure is a
 -- copy of the uniform measure — the `L∞[0,1]` entry of the classification list.
-import BookProof.Probability.ChapterDiffuseCdfModel
+import BookProof.ChapterDiffuseCdfModel
 
 -- Wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2, the diffuse standard type at the
 -- operator level): composition with the distribution function is a *unitary* from
 -- `L²[0,1]` onto `L²(μ)` carrying multiplication by `g` to multiplication by `g ∘ F`,
 -- so the multiplication algebra of a diffuse measure *is* the `L∞[0,1]` model.
-import BookProof.Probability.ChapterDiffuseUnitaryModel
+import BookProof.ChapterDiffuseUnitaryModel
 
 -- Wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2, the atomic standard type): for a
 -- purely atomic measure the normalised point masses are a Hilbert basis of `L²(μ)`
 -- and every multiplication operator is diagonal in it — the `I_n` / `ℓ∞(ℕ)` entries
 -- of the classification list.
-import BookProof.Probability.ChapterAtomicDiagonalModel
+import BookProof.ChapterAtomicDiagonalModel
 
 -- Wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2, the reassembly): `L²(μ)` splits
 -- along a measurable set as the Hilbert sum of the two restricted `L²` spaces, with
 -- the multiplication operators split accordingly.
-import BookProof.Probability.ChapterLpRestrictSplit
+import BookProof.ChapterLpRestrictSplit
 
 -- Wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2, the reassembly): rescaling a
 -- measure by a nonzero finite constant gives a unitary of the `L²` spaces which
 -- carries multiplication by a symbol to multiplication by the same symbol, so the
 -- models of the list may be stated for probability measures without loss.
-import BookProof.Probability.ChapterLpScaleMeasure
+import BookProof.ChapterLpScaleMeasure
 
 -- Wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2, the reassembly): the atomic and
 -- the diffuse model are glued into the classification list itself — every Borel
 -- probability measure on the line falls into exactly one of the five standard types
 -- `I_n`, `ℓ∞(ℕ)`, `L∞[0,1]`, `L∞[0,1] ⊕ I_n`, `L∞[0,1] ⊕ ℓ∞(ℕ)`.
-import BookProof.Probability.ChapterAbelianClassificationList
+import BookProof.ChapterAbelianClassificationList
 
 -- Wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2, exhaustiveness): the Borel
 -- isomorphism theorem transports a summand on any standard Borel space to the line,
 -- so every summand of the general abelian model realises one of the five standard
 -- types of the classification list.
-import BookProof.Probability.ChapterStandardBorelClassification
+import BookProof.ChapterStandardBorelClassification
 
 -- Wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2, the metrizability residue): for a
 -- compact Hausdorff spectrum, metrizability of the spectrum is *equivalent* to
 -- separability of the algebra of continuous functions, so the standing hypothesis of
 -- the exhaustiveness theorem is discharged for every separable commutative unital
 -- C*-algebra (Gelfand duality).
-import BookProof.Probability.ChapterSeparableSpectrum
+import BookProof.ChapterSeparableSpectrum
 
 -- Wave (2026-08-12, `CONSOLIDATED_PLAN.md` GAP-2, the metrizability residue closed for a
 -- separably acting algebra): a separable `L²` is carried by a countable family of
 -- continuous functions to a standard Borel space, so every summand of an abelian algebra
 -- acting on a separable Hilbert space realises one of the five standard types.
-import BookProof.Probability.ChapterSeparableL2Model
+import BookProof.ChapterSeparableL2Model
 
 -- Wave (2026-08-17, the shift-invert extension of the Hermite/Galerkin
 -- Friedrichs-selection theorem): in the Hashimoto algorithm the operator that is
@@ -857,6 +892,7 @@ import BookProof.Toolbox.ChapterFriedrichsExtension
 -- extension theorem and the Hashimoto/SIRK selection theorem apply to it.
 import BookProof.Toolbox.ChapterHermiteProductCore
 import BookProof.Qym.ChapterYangMillsHermite
+import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
 -- Part F.11: the *second quantization* of that one-particle Hamiltonian on the
 -- finite-occupation states over the core: the Fock space `ℓ²(ℕ →₀ ℕ)`, the
 -- ladder operators with `[a_j, a_j†] = 1`, `dΓ(A) = Σ ⟪e_j, A e_k⟫ a_j† a_k`, its
@@ -896,7 +932,7 @@ import BookProof.Ns.ChapterNavierStokesLagrangianCanonical
 -- identification of the differential expression; the Minkowski weights
 -- `(1, −1, …, −1)` give `□ + V`, `V(t,x) = (t² − ‖x‖²)/4`, in the convention
 -- `□ = −∂_t² + Δ_x` of `ChapterStrichartzWave`.
-import BookProof.Toolbox.ChapterHyperbolicQuadraticEsa
+import BookProof.ChapterHyperbolicQuadraticEsa
 -- Relatively bounded (unbounded) perturbations of the diagonal quadratic
 -- Hamiltonian: for strictly positive weights `cᵢ ≥ c₀ > 0` the position and
 -- momentum operators are `H_c`-bounded with arbitrarily small relative bound, so
@@ -910,7 +946,7 @@ import BookProof.Toolbox.ChapterHermiteRelativeBound
 -- Gauss–polynomial (product Hermite) core of `L²(ℝᵈ)`.  The route is the orthogonal
 -- change of coordinates that diagonalizes `A`, which acts on the core as a unitary
 -- substitution and carries the diagonal Hamiltonian onto `H_A`.
-import BookProof.Toolbox.ChapterQuadraticRotationEsa
+import BookProof.ChapterQuadraticRotationEsa
 -- The general *inhomogeneous* elliptic quadratic Hamiltonian: for a positive definite
 -- real symmetric matrix `A` and arbitrary real vectors `b, b'`, the operator
 -- `H_A + ∑ᵢ (bᵢ xᵢ + b'ᵢ πᵢ)` — a general elliptic quadratic form with cross terms
@@ -919,20 +955,20 @@ import BookProof.Toolbox.ChapterQuadraticRotationEsa
 -- upgraded to a Hilbert basis, which turns the orthogonal substitution into an honest
 -- unitary `rotU` of `L²(ℝᵈ)`; essential self-adjointness is a unitary invariant, so the
 -- Kato–Rellich theorem of `ChapterHermiteRelativeBound` transfers.
-import BookProof.Toolbox.ChapterQuadraticRotationPerturbed
+import BookProof.ChapterQuadraticRotationPerturbed
 -- The translated, modulated Gauss–polynomial core of `L²(ℝᵈ)`: the functions
 -- `p(x − a) e^{−‖x − a‖²/4} e^{i⟨k, x⟩}` for `p` a complex polynomial.  Translating by
 -- `a` and modulating by `k` is a unitary substitution of `L²`, so this core is dense and
 -- carries an orthonormal Hermite family; it is the frame adapted to a classical
 -- equilibrium at position `a` with momentum `k`.
-import BookProof.Toolbox.ChapterShiftedHermiteCore
+import BookProof.ChapterShiftedHermiteCore
 -- The *indefinite* inhomogeneous quadratic Hamiltonian: for weights `cᵢ ≠ 0` of
 -- arbitrary sign and arbitrary real `b, b'`, the operator
 -- `H = ∑ᵢ (cᵢ(πᵢ² + xᵢ²/4) + bᵢ xᵢ + b'ᵢ πᵢ)` is symmetric and essentially self-adjoint
 -- on the translated, modulated core with `aᵢ = −2bᵢ/cᵢ`, `kᵢ = −b'ᵢ/(2cᵢ)`.  Completing
 -- the square replaces the Kato–Rellich argument of `ChapterHermiteRelativeBound`, which
 -- needs a definite `c`; the Minkowski weights give `□ + V + ⟨b, x⟩ + ⟨b', π⟩`.
-import BookProof.Toolbox.ChapterShiftedQuadraticEsa
+import BookProof.ChapterShiftedQuadraticEsa
 -- The *indefinite* inhomogeneous quadratic Hamiltonian **with cross terms**: for every
 -- real symmetric *invertible* matrix `A` of arbitrary signature and arbitrary real
 -- `b, b'`, the operator `H_A + ∑ᵢ (bᵢ xᵢ + b'ᵢ πᵢ)` is symmetric and essentially
@@ -941,7 +977,7 @@ import BookProof.Toolbox.ChapterShiftedQuadraticEsa
 -- `ChapterQuadraticRotationEsa` with the phase-space translation of
 -- `ChapterShiftedQuadraticEsa`, and removes the positive definiteness that the
 -- Kato–Rellich route of `ChapterQuadraticRotationPerturbed` needs.
-import BookProof.Toolbox.ChapterShiftedQuadraticMatrixEsa
+import BookProof.ChapterShiftedQuadraticMatrixEsa
 -- The Stone flow acts on eigenvectors by a phase: `U t ψ = e^{−iλt} ψ` whenever
 -- `T ψ = λψ`, so the abstract existence of the unitary group of a Hamiltonian with an
 -- eigenbasis becomes an explicit solution of the Schrödinger equation.
@@ -951,25 +987,25 @@ import BookProof.Toolbox.ChapterStoneEigenflow
 -- `A a = −2b`, `A k = −b'/2` are solvable — equivalently, `b, b' ⊥ ker A` — the operator
 -- `H_A + ∑ᵢ (bᵢ xᵢ + b'ᵢ πᵢ)` is symmetric and essentially self-adjoint on the
 -- translated, modulated core, and its flow acts on the Hermite eigenbasis by a phase.
-import BookProof.Toolbox.ChapterShiftedQuadraticDegenerate
+import BookProof.ChapterShiftedQuadraticDegenerate
 -- Fourier multipliers with a real symbol: the Plancherel argument of
 -- `ChapterStrichartzWave` extracted as a reusable instrument, and applied to the
 -- *first-order* operators it did not cover — the momentum family `∑ᵢ cᵢ(−i∂_{wᵢ})` and
 -- the full `∑ᵢ cᵢ∂_{wᵢ}² + ∑ᵢ aᵢ(−i∂_{wᵢ}) + κ` — on the Schwartz core of `L²(V)`.
-import BookProof.Toolbox.ChapterFourierMultiplierEsa
+import BookProof.ChapterFourierMultiplierEsa
 -- The mixed first-order operator `⟪x, b⟫ − i ∂_m`: a linear potential *and* a momentum
 -- term in the same direction, the one residual case of the quadratic family that neither
 -- the Hermite eigenbasis (no `L²` eigenvector) nor the Fourier multiplier route (not
 -- constant-coefficient) can reach.  The quadratic gauge `e^{iθ}` with `∂_m θ = −⟪x, b⟫`
 -- intertwines it with the pure momentum operator, giving symmetry and essential
 -- self-adjointness on the Schwartz core of `L²(V)` for arbitrary `b, m`.
-import BookProof.Toolbox.ChapterMixedLinearEsa
+import BookProof.ChapterMixedLinearEsa
 -- The same quadrature `∑ᵢ (bᵢxᵢ + b'ᵢπᵢ)` on the **Gauss–polynomial (product Hermite)
 -- core** — the core the whole quadratic family lives on.  A moment lemma without an `L²`
 -- hypothesis settles the purely positional case, and the metaplectic rotation, which on
 -- that core is the diagonal phase `ψ_α ↦ ζ^α ψ_α`, rotates it onto the general one, for
 -- arbitrary real `b, b'`.
-import BookProof.Toolbox.ChapterQuadratureEsa
+import BookProof.ChapterQuadratureEsa
 -- A Carleman criterion on the product Hermite basis: a square-summable family satisfying
 -- the nearest-neighbour recursion with a real diagonal and constant ladder amplitudes at a
 -- non-real point vanishes (the flux through the boundary faces of a multi-index cube grows
@@ -989,7 +1025,7 @@ import BookProof.Toolbox.ChapterCarlemanTwoStep
 -- on the plain Gauss–polynomial core.  Elliptic, hyperbolic or parabolic in each mode, any
 -- signs, degenerate modes allowed; in particular the generator of dilations
 -- `½∑ᵢ(xᵢπᵢ + πᵢxᵢ)`.
-import BookProof.Toolbox.ChapterModeQuadraticEsa
+import BookProof.ChapterModeQuadraticEsa
 -- The Carleman flux argument rerun on the **simplex** shells `{α : |α| ≤ N}`, the grading
 -- by total degree adapted to a general quadratic ladder.  Degree-preserving mode-exchange
 -- hops `α ↦ α − eⱼ + eᵢ` carry zero flux when their amplitude matrix is Hermitian;
@@ -1001,19 +1037,19 @@ import BookProof.Toolbox.ChapterCarlemanSimplex
 -- arbitrary real matrices `P, Q, S` and vectors `b, b'`, is essentially self-adjoint on the
 -- plain Gauss–polynomial core.  Distinct modes may now be coupled arbitrarily — no
 -- ellipticity, no definiteness, no non-degeneracy, no classical equilibrium.
-import BookProof.Toolbox.ChapterFullQuadraticEsa
+import BookProof.ChapterFullQuadraticEsa
 -- The spectral theorem in multiplication form for an **unbounded** self-adjoint operator:
 -- the missing existence step behind `ChapterUnitaryTransport`.  The resolvent
 -- `R = (A − i)⁻¹` is bounded, injective, normal, with range exactly the domain of `A`, so
 -- the bounded multiplication model applies to it; the measure is carried by the Cayley
 -- circle `|z|² = Im z` and gives no mass to `z = 0`, so `A` is multiplication by the real
 -- function `Re z/|z|²` on a Hilbert sum of `L²(μ)` spaces.
-import BookProof.Toolbox.ChapterUnboundedSpectralModel
+import BookProof.ChapterUnboundedSpectralModel
 -- The Faris–Lavine bounds for an **infinite sum** of operators: a summable family of
 -- symmetric operators on the maximal domain of a comparison symbol, each relatively
 -- bounded by the comparison operator and each with commutator form dominated by it, sums
 -- to an operator essentially self-adjoint on the finite-mode core.
-import BookProof.Toolbox.ChapterOperatorSeriesEsa
+import BookProof.ChapterOperatorSeriesEsa
 -- The general quadratic Hamiltonian of a boson field with **infinitely many modes**:
 -- `H = ∑ᵢ ωᵢ aᵢ†aᵢ + ∑ₖ (gₖ a^{†Pₖ}a^{Qₖ} + conj(gₖ) a^{†Qₖ}a^{Pₖ})` on the Fock space
 -- `ℓ²(ι →₀ ℕ)`, with an arbitrary mode set, an arbitrary non-negative (possibly unbounded)
@@ -1036,7 +1072,7 @@ import BookProof.Toolbox.ChapterFockDifferingBasesEsa
 -- and the extension inherits symmetry, the relative bound and the commutator bound.  This
 -- removes the domain mismatch between the second-quantized operators, which are natural on
 -- the core, and the Faris–Lavine instrument, which asks for the maximal domain.
-import BookProof.Toolbox.ChapterCoreBoundsEsa
+import BookProof.ChapterCoreBoundsEsa
 -- The **Schur gate** for second quantization: for a Hermitian, column-finite one-particle
 -- matrix with `∑_j |A_{jk}| ≤ K`, the second quantization `dΓ(A)` obeys the number bound
 -- `‖dΓ(A)u‖ ≤ K‖𝒩u‖` on the finite-occupation core, conserves the particle number exactly,
@@ -1060,12 +1096,12 @@ import BookProof.Toolbox.ChapterHermiteBandCalculus
 -- degree band `D` and the growth `C (deg k + 1)`, the row, column and commutator gates hold
 -- with `K = C·M` and `B = C·M·D·(D+2)` for the symbol `w = deg + 1`, so `dΓ(A)` is
 -- essentially self-adjoint on the finite-occupation core.
-import BookProof.Sirk.ChapterGradedBandSchurEsa
+import BookProof.ChapterGradedBandSchurEsa
 -- The seam: the matrix of an operator in the `ℕ`-indexed product Hermite basis *is* its
 -- band coefficient family, so the second quantization `dΓ(H₁)` of a general real quadratic
 -- Hamiltonian on `L²(ℝᵈ)` — an unbounded one-particle operator — is essentially
 -- self-adjoint on the finite-occupation core of the Fock space.
-import BookProof.Toolbox.ChapterQuadraticFockEsa
+import BookProof.ChapterQuadraticFockEsa
 -- The Yang–Mills instance: `dΓ(H₁)` of the **abelian** gauge-fixed Yang–Mills Hamiltonian is
 -- essentially self-adjoint on the finite-occupation core with no diagonalizing-basis
 -- hypothesis, so the single-time package of `ChapterQymTimeIndependentFlow` holds
@@ -1075,7 +1111,7 @@ import BookProof.Qym.ChapterYangMillsAbelianFockEsa
 -- sum-of-squares one-particle Hamiltonian `½Σκ_jπ_j² + ½Σ_rL_r²` — signed kinetic
 -- coefficients included, so the hyperbolic signature is covered — is essentially
 -- self-adjoint on the finite-occupation core and generates a unitary group.
-import BookProof.Toolbox.ChapterSqSumFockEsa
+import BookProof.ChapterSqSumFockEsa
 -- Fibrewise essential self-adjointness **glues**: a deficiency space of an orthogonal
 -- direct sum is the direct sum of the fibre deficiency spaces, so if every fibre operator
 -- is essentially self-adjoint on its core then `⊕ᵢ Hᵢ` is essentially self-adjoint on the
@@ -1084,7 +1120,7 @@ import BookProof.Toolbox.ChapterSqSumFockEsa
 -- parcel picture, this upgrades the one-sector statement of
 -- `ChapterNavierStokesFockContinuum` to the second-quantized Hamiltonian
 -- `ĥ = ∫ w(ξ)a†(ξ)a(ξ)dξ` itself, for an arbitrary measurable field `w`.
-import BookProof.Toolbox.ChapterDirectSumEsa
+import BookProof.ChapterDirectSumEsa
 -- A Carleman (flux) criterion for **general lattice hops** `α ↦ α + p − m`, including the
 -- non-monotone mode-exchange hop `α ↦ α ± (eᵢ − eⱼ)` produced by a quadratic Hamiltonian
 -- coupling two distinct modes.  The flux through the boundary of a multi-index cube now has
@@ -1125,9 +1161,9 @@ import BookProof.Qg.ChapterScalaronFockEsa
 -- symmetry and positivity, and its Friedrichs extension.
 import BookProof.Toolbox.ChapterFockSecondQuantization
 import BookProof.Toolbox.ChapterFermionFock
-import BookProof.Toolbox.ChapterGradedFock
-import BookProof.Toolbox.ChapterGradedFriedrichs
-import BookProof.Sirk.ChapterGradedHashimoto
+import BookProof.ChapterGradedFock
+import BookProof.ChapterGradedFriedrichs
+import BookProof.ChapterGradedHashimoto
 import BookProof.Sirk.ChapterKrylovShiftSpan
 -- The two Faris–Lavine inequalities for the Navier–Stokes quadratic symbol written as an
 -- actual *differential* operator on `L²(du₁du₂du₃)`: the comparison operator is the
@@ -1243,7 +1279,7 @@ import BookProof.Sirk.ChapterSirkRitzMinMax
 -- spectrum (`minmaxLevel_mem_spectrum`, proved through the continuous functional calculus
 -- at a spectral gap), so the limit of the Galerkin min–max levels is a spectral value and
 -- the computed gap converges to the difference of two spectral values.
-import BookProof.Sirk.ChapterMinMaxSpectrum
+import BookProof.ChapterMinMaxSpectrum
 
 -- `ChapterSirkRitzPerturbation`: the stability half of the same story (plan §12 Gap 2,
 -- §13).  Every Courant–Fischer level is 1-Lipschitz in the operator norm, so the min–max
@@ -1339,20 +1375,20 @@ import BookProof.Attention.ChapterAttentionCapacity
 -- defined self-adjoint operator, built from the resolvents of `ChapterStoneResolvent`: it
 -- is unitary, satisfies `V(A + i)ψ = (A − i)ψ`, `1` is not an eigenvalue of `V`,
 -- `ran(1 − V) = D(A)` is dense, and `A = i(1 + V)(1 − V)⁻¹`.
-import BookProof.Toolbox.ChapterCayleyTransform
+import BookProof.ChapterCayleyTransform
 
 -- `ChapterCayleyInverse`: the converse — the basic criterion "symmetric with `A ± i` onto
 -- ⇒ self-adjoint", and the inverse Cayley transform of a unitary `V` with `1 − V`
 -- injective, which is self-adjoint on `ran(1 − V)`; the two constructions are mutually
 -- inverse, so the unbounded layer is faithfully encoded by a bounded (unitary) object.
-import BookProof.Toolbox.ChapterCayleyInverse
+import BookProof.ChapterCayleyInverse
 
 -- `ChapterCayleySpectralModel`: composing the two previous modules with the bounded
 -- spectral theorem of `ChapterSpectralMultiplication` — the resolvent `(A + i)⁻¹` is the
 -- *continuous* function `(1 − z)/(2i)` of the Cayley transform, so an unbounded
 -- self-adjoint operator whose Cayley transform has a cyclic vector is multiplication by
 -- `i(1 + z)/(1 − z)` on `L²(μ)`, stated through the bounded symbol pair `(g, h)`.
-import BookProof.Toolbox.ChapterCayleySpectralModel
+import BookProof.ChapterCayleySpectralModel
 
 -- Wave (2026-08-25d, plan §12.2 Gap 5 — the physical-subspace (BRST) leakage of the
 -- truncated dynamics, quantified at the level of the generators).
@@ -1363,7 +1399,7 @@ import BookProof.Toolbox.ChapterCayleySpectralModel
 -- `‖Ω‖ ‖(1 − P)HP‖ ‖x‖ t` — the rate is the block of the Hamiltonian the truncation
 -- discards — with a restart version accumulating linearly in the number of cycles and a
 -- bridge that discharges the `ε` hypothesis of `ChapterSirkRestart.brst_leakage_bound`.
-import BookProof.Qym.ChapterBrstTruncationLeakage
+import BookProof.ChapterBrstTruncationLeakage
 
 -- Wave (2026-08-25e, plan §10.6.1 target 3 — the Carleman flux extension to
 -- **unbounded-hop** (infinite-range) Hermitian kernels).
@@ -1391,7 +1427,7 @@ import BookProof.Toolbox.ChapterCarlemanUnboundedHop
 -- error `‖e^{-itPTP}x − e^{-itT}x‖ ≤ ‖(1 − P)TP‖ ‖x‖ t` and the leakage bound
 -- `‖Ω(e^{-itPTP}x)‖ ≤ ‖Ωx‖ + ‖Ω‖ ‖(1 − P)TP‖ ‖x‖ t` for an observable commuting with the
 -- exact group: both are controlled by the discarded off-diagonal block alone.
-import BookProof.Qym.ChapterBrstUnboundedLeakage
+import BookProof.ChapterBrstUnboundedLeakage
 
 -- Wave (2026-08-25g, plan §10.6.2 item 4 — the BRST-*reduced transfer*).
 --
@@ -1402,7 +1438,86 @@ import BookProof.Qym.ChapterBrstUnboundedLeakage
 -- on cohomology; for a one-parameter isometric group this reduced transfer is a group of
 -- linear automorphisms preserving the quotient (BRST) norm.  Instantiated at the Stone
 -- group `e^{-itT}` of an unbounded self-adjoint Hamiltonian commuting with `Ω`.
-import BookProof.Qym.ChapterBrstReducedTransfer
+import BookProof.ChapterBrstReducedTransfer
+
+-- Wave (2026-10-31, `softmodes.md` Phase 1, missing input 2 — the quotient norm).
+--
+-- `ChapterBrstHarmonicDecomposition`: the status note of Phase 1 requires the BRST quotient
+-- norm to come from the *harmonic* representative rather than from `infDist`.  For a bounded
+-- nilpotent charge on a complex Hilbert space the Hodge decomposition is proved, not assumed:
+-- `(closure (range Ω))ᗮ = ker Ω†` and `(closure (range Ω†))ᗮ = ker Ω`, so the harmonic states
+-- `ker Ω ⊓ ker Ω†` are a direct complement of the exact ones inside the physical subspace
+-- (`exactStates ⊔ harmonicStates = physicalStates`) and the three summands span the space
+-- (`harmonic ⊔ exact ⊔ coexact = ⊤`, pairwise orthogonal).  The harmonic representative
+-- `x − P_exact x` is computed, is harmonic for closed `x`, depends only on the class, and
+-- `infDist x (exactStates Ω) = ‖x − P_exact x‖` — the quotient norm *is* the harmonic norm.
+-- The identification `closure (range Ω) = span{∂ᵢφ}` and the stability of `θ∞` under the
+-- elimination are not claimed.
+import BookProof.ChapterBrstHarmonicDecomposition
+
+-- Wave (2026-10-31, `softmodes.md` Phase 1 — the unbounded charge).
+--
+-- `ChapterBrstUnbounded`: the Hodge decomposition of the preceding module reproved for a
+-- **closed densely defined** nilpotent charge `Om : H →ₗ.[ℂ] H`, which is what a
+-- field-theoretic (cubic differential) charge is.  Closedness of the graph closes the physical
+-- subspace (`isClosed_physicalStates`), nilpotency keeps the exact states inside it
+-- (`exactStates_le_physicalStates`), and density of the domain makes the Hilbert adjoint a
+-- function and yields `(closure (range Ω))ᗮ = ker Ω†` (`exactStates_orthogonal`).  From there the
+-- bounded results carry over verbatim: `exactStates ⊔ harmonicStates = physicalStates`,
+-- `harmonic ⊔ exact ⊔ coexact = ⊤` with pairwise orthogonal summands, the harmonic
+-- representative depending only on the class, and `infDist x (exactStates Ω) = ‖harmonicPart x‖`.
+-- What is *not* claimed is von Neumann's identification `closure (range Ω†) = (ker Ω)ᗮ`; only the
+-- inclusion `closure (range Ω†) ≤ (ker Ω)ᗮ` is proved, so the coexact sector is defined as
+-- `(ker Ω)ᗮ`.
+import BookProof.ChapterBrstUnbounded
+
+-- Wave (2026-11-01, `softmodes.md` Phase 1 item 1 — the descent, now for the unbounded charge).
+--
+-- `ChapterBrstReducedTransferUnbounded`: closes the gap the status note of that phase records
+-- ("What remains bounded-only is the **descent**, not the decomposition").  The unbounded form
+-- of `[H, Ω] = 0` splits in two, and neither half can be dropped: `DomPreserve Om U` (the
+-- evolution maps the domain into itself — without it `Ω (U y)` is not even a term) and
+-- `StrongCommute Om U hdom` (`U (Ω y) = Ω (U y)` on the domain).  From them:
+-- `physicalStates_invariant` / `exactStates_invariant` (continuity of `U`, not boundedness of
+-- `Ω`, carries the range into its closure), `reducedMap`, the group `transfer` with
+-- `transfer_zero` / `transfer_comp` / `transfer_apply_transfer` / `transfer_bijective`, the
+-- quotient-norm preservation `infDist_exactStates_eq_of_comm_explicit`, and the Stone instance
+-- `stoneTransfer` with `stoneTransfer_zero` / `stoneTransfer_comp` /
+-- `stoneTransfer_bijective` / `stoneU_mem_physicalStates_of_comm_explicit` and
+-- `infDist_exactStates_stoneU_eq_of_comm_explicit`.  The evolution stays bounded throughout —
+-- only `Ω` is unbounded — which is why the closure and isometry arguments survive verbatim.
+import BookProof.ChapterBrstReducedTransferUnbounded
+
+-- `ChapterBrstYmCommute` (2026-11-03): the **constraint half** of `[H, Ω] = 0` for the
+-- concrete Yang–Mills model — the input `ChapterBrstReducedTransfer`/
+-- `ChapterBrstReducedTransferUnbounded` list as their remaining hypothesis.  On the
+-- `99 = 3 + 24 + 72` coordinates of `book.tex:7045` it realizes the Gauss generators `𝒢_d` as
+-- derivations of `ℂ[X_0…X_98]` **extended to the jet coordinates** `∂_j A_{ka}` (without the
+-- extension the magnetic part of `H` leaves `X_D · (f A A)` cross terms in `[Σ B², 𝒢_d]`
+-- uncancelled), proves `[𝒢_c, 𝒢_e] = Σ_h f_{ceh} 𝒢_h` block-by-block through the contracted
+-- field identity `field_identity_C`, builds the `ConstraintAlgebra` instance, and concludes
+-- `Ω² = 0` for `Ω = i • brstCharge G.f 𝒢 χ β` on `ℂ[X_0…X_98] ⊗ Λ(ℂ⁸)`.  The two Casimir
+-- lemmas of the Hamiltonian half (`[Σ π², 𝒢_d] = 0`, `[Σ B², 𝒢_d] = 0`) are stated as the
+-- remaining step in the module header, with the route.
+import BookProof.ChapterBrstYmCommute
+
+-- Wave (2026-11-02, `softmodes.md` Phase 1 item 3 — "longitudinal = exact").
+--
+-- `ChapterBrstLongitudinal`: the identification item 3 asks for, as far as the algebraic
+-- realization of `book.tex` carries it.  The gauge orbit splits into the longitudinal gradient
+-- (`longitudinalGaugeVec`, the field-independent `−∂_μ α_a`) and the non-abelian remainder
+-- (`gaussVec_eq_longitudinal_add_comm`, `commGaugeVec_eq_zero_of_abelian`), so for `f = 0` the
+-- orbit *is* the longitudinal span.  The charge collapses to its derivative term in that case
+-- (`bookOmega_abelian`), and the canonical relation `bookCCR` then fixes its commutator with the
+-- field: `comm_bookOmega_Afield` is `[Ω, A_{μa}] = −i · dChi G μ a`, with no commutator piece —
+-- the BRST variation of the field *is* the ghost-dressed longitudinal direction.  Hence
+-- `longitudinal_mem_exactStates_of_physical`: applied to a BRST-closed state the longitudinal
+-- direction is BRST-exact, i.e. its class in `brstCohomology` is zero — the plan's "no
+-- longitudinal soft zero-mode" at the level the algebraic realization supports.  The converse
+-- inclusion (`closure (range Ω) = span{∂ᵢφ}` as subspaces of a completed `H_phys`) and the
+-- non-abelian commutator are not claimed; the observation half is
+-- `ChapterBrstHarmonicDecomposition.no_longitudinal_zero_mode`.
+import BookProof.ChapterBrstLongitudinal
 
 -- Wave (2026-08-25h, plan §10.6.2 item 4 / QG Part F — the concrete 3D gauge-fixed
 -- *gravity* Hamiltonian and its BRST charge).
@@ -1448,12 +1563,12 @@ import BookProof.Qg.ChapterQgCouplingDGammaSum
 -- densitized conformal direction — `H ↦ −H` reflects the spectral parameter, essential
 -- self-adjointness is invariant under it, and a real shift only translates the parameter.
 -- So the wrong-sign-kinetic fiber `−K + V` is ESA iff the positive-kinetic `K − V` is.
-import BookProof.Qg.ChapterConformalSignFlip
+import BookProof.ChapterConformalSignFlip
 -- `ChapterDirectSumEdge` (plan QG-3.4, derived case): the edge of an orthogonal direct
 -- sum.  On the algebraic direct sum of the fibre cores both the squared norm and the
 -- energy are finite sums over the support, so fibre form bounds `⟪u, Hᵢu⟫ ≥ νᵢ‖u‖²` glue:
 -- any common lower bound `ν ≤ νᵢ` is an edge of `⊕ᵢHᵢ`, strict when `ν > 0`.
-import BookProof.Toolbox.ChapterDirectSumEdge
+import BookProof.ChapterDirectSumEdge
 -- `ChapterQgMultiHalfDensity` (plan QG-1): the multi-dimensional half-density unitary.
 -- The densitized change of variables `(y, ξ) ↦ (y², ξ)` — the conformal coordinate
 -- squared, all other field directions untouched — is measure preserving from `(2y dy) ⊗ μ`
@@ -1534,7 +1649,7 @@ import BookProof.Qg.ChapterQgBrstCompleted
 -- exponentially growing scalaron potential (`starobinskyWall_esa`,
 -- `starobinskyWall_stone_flow`), which no perturbative comparison with the harmonic core
 -- can reach (`ChapterHermiteExpWall`).
-import BookProof.Toolbox.ChapterWeakSecondDerivative
+import BookProof.ChapterWeakSecondDerivative
 import BookProof.Qg.ChapterScalaronWallEsa
 
 -- Wave (2026-08-26g, plan §13 — the certified numerical bounds and the mass gap).
@@ -1593,7 +1708,7 @@ import BookProof.Sirk.ChapterSirkPerSystemFlowBound
 -- Hilbert-space criterion, is already in the project as `EssentiallySelfAdjointOn` /
 -- `DeficiencyTrivialAt` of `BookProof.ChapterFarisLavine`, so it is not duplicated here.
 -- The application is `schrodinger_exp_deficiency_trivial` for `V(x) = eˣ + e⁻ˣ`.
-import BookProof.Toolbox.ChapterSchrodingerCutoffEsa
+import BookProof.ChapterSchrodingerCutoffEsa
 
 -- Also from that wave: the plan's headline object as an actual essential-self-adjointness
 -- statement.  `ChapterExpPotentialEsa` verifies that `V(x) = eˣ + e⁻ˣ` is smooth and bounded
@@ -1602,7 +1717,7 @@ import BookProof.Toolbox.ChapterSchrodingerCutoffEsa
 -- `expPotential_stone_flow` and the `cosh` restatement `coshPotential_esa`, from the
 -- no-growth-restriction theorem `wallHam_essentiallySelfAdjoint_of_bddBelow` already in the
 -- project.
-import BookProof.Qg.ChapterExpPotentialEsa
+import BookProof.ChapterExpPotentialEsa
 
 -- And the packaging lemma §9 item 1 of `CONSOLIDATED_PLAN.md` asked for.
 -- `ChapterWallEsaSemibounded` supplies the Green identity on the compactly supported smooth
@@ -1610,7 +1725,7 @@ import BookProof.Qg.ChapterExpPotentialEsa
 -- `wallHamBddBelow_semibounded`: if `V ≥ -c` then the quadratic form of `wallHam V hV` is
 -- bounded below by `-c`.  This is the semiboundedness the Hashimoto/SIRK shift-invert schemes
 -- work with, promised by the `ChapterWallEsaBddBelow` docstring and previously absent.
-import BookProof.Qg.ChapterWallEsaSemibounded
+import BookProof.ChapterWallEsaSemibounded
 
 -- Wave (2026-08-27d, plan §13.7 — the instantiation seam and the table around T6).
 --
@@ -1648,7 +1763,7 @@ import BookProof.Sirk.ChapterSirkGapTable
 -- of the approximants is inherited by the limit.  This is the implication the continuum leg
 -- needs; whether the truncation family converges in the required sense is the open analytic
 -- question and is asserted nowhere.
-import BookProof.Sirk.ChapterSpectralGapStability
+import BookProof.ChapterSpectralGapStability
 
 -- `ChapterFockOneParticleGap` (CONSOLIDATED_PLAN.md, top work package — "Hashimoto
 -- observable to the real-Hamiltonian gap").  The **one-particle** observable and its free
@@ -1704,7 +1819,7 @@ import BookProof.Toolbox.ChapterFriedrichsFormGap
 -- all, `friedrichs_form_gap_of_nested_ritz_bands`, where the certified bands enclose the
 -- form bottom of the core and the Friedrichs extension inherits the bound.
 -- `shiftInvert_band_enclosure` transports a band enclosure through `lam = nu⁻¹ − γ`.
-import BookProof.Sirk.ChapterBandEnclosure
+import BookProof.ChapterBandEnclosure
 
 -- `ChapterRitzCertificate` (CONSOLIDATED_PLAN.md, top work package).  **The per-order
 -- finite certificate, derived.**  The 2026-08-28 wave left the emitter's two claims as
@@ -1766,6 +1881,11 @@ import BookProof.Toolbox.ChapterFockInteractionStability
 -- a priori hypothesis `RitzCertificate.SpectralSeparation` is a genuine side condition rather
 -- than an artifact of the proof.
 import BookProof.Sirk.ChapterTempleSeparationNecessary
+import BookProof.Sirk.ChapterTempleSeparationBound
+
+-- Wave (`softmodes.md` Phase 5.2): the analytic separation becomes a quantitative gap at the
+-- window centre, and that gap survives an operator-norm limit with no loss.
+import BookProof.Sirk.ChapterTempleContinuumGap
 
 -- `ChapterFockFieldPerturbation` (CONSOLIDATED_PLAN.md, top work package).  **A genuinely
 -- unbounded, genuinely number-changing perturbation.**  `ChapterFockInteractionStability`
@@ -1897,7 +2017,7 @@ import BookProof.Toolbox.ChapterFockDiagonalGapChain
 -- combination `Σ_{k≤K} c_k He_{2k+p}(x_i)` whose Gaussian square norm `gaussInt_coordCombo_sq`
 -- computes.  `gaussInt_prod_coordFactor` multiplies such one-coordinate factors across a
 -- finite set of coordinates.
-import BookProof.Toolbox.ChapterGaussCoordCombo
+import BookProof.ChapterGaussCoordCombo
 
 -- `ChapterSqueezedGaussStates` (plan §state 28j next steps, item 1): truncated squeezed
 -- states.  `squeezeState i v M` is the truncated Hermite expansion `Σ_{m≤M} (vᵐ/m!) He_{2m}(x_i)`
@@ -1906,7 +2026,7 @@ import BookProof.Toolbox.ChapterGaussCoordCombo
 -- `κ²/(1−4v²) + α²(2M+1)(4v²)^M` with `κ = α(1+2v) + 2γv`.  Hence `exists_position_small` and
 -- `exists_momentum_small`: the position quotient `‖x_i Q‖²/‖Q‖²` and the momentum quotient
 -- `‖(−x_i/2 + ∂_i)Q‖²/‖Q‖²` can both be made arbitrarily small on the core.
-import BookProof.Toolbox.ChapterSqueezedGaussStates
+import BookProof.ChapterSqueezedGaussStates
 
 -- `ChapterYangMillsAbelianNoGap` (plan §state 28j next steps, item 1): **the one-particle form
 -- gap hypothesis of `ChapterYangMillsFockGapChain` is false in the abelian case.**  For
@@ -1969,7 +2089,7 @@ import BookProof.Sirk.ChapterSirkBandLedger
 -- `ym_fock_gap_of_band_and_tail` compose the lift with the gauge-fixed Yang–Mills `dΓ` chain.
 -- Honest boundary: tail coercivity and the coupling bound are *hypotheses* — the named
 -- analytic input of QYM-1 task 3 — and are not proved for the Yang–Mills operator here.
-import BookProof.Sirk.ChapterTruncationGapLift
+import BookProof.ChapterTruncationGapLift
 
 -- `ChapterSchurGershgorinGap` (plan QYM-1 task 3): the two analytic inputs of the lift, proved
 -- from *matrix-element data*.  `entry b H i j = ⟪bᵢ, H bⱼ⟫` is the number a certificate records.
@@ -1986,7 +2106,7 @@ import BookProof.Sirk.ChapterTruncationGapLift
 -- `ym_fock_mass_gap_of_truncated_gap_and_matrix_bounds` run them through the gauge-fixed
 -- Yang–Mills `dΓ` chain.  Honest boundary: what is proved is the *implication*; whether the
 -- Yang–Mills entries satisfy the inequalities is a computation on the entries, not settled here.
-import BookProof.Sirk.ChapterSchurGershgorinGap
+import BookProof.ChapterSchurGershgorinGap
 
 -- `ChapterWallDeficiencyObstruction` (plan QG-2, "Case B"): the converse of the ODE step of
 -- `ChapterScalaronWallEsa`.  Double integration by parts against a compactly supported weight
@@ -2002,7 +2122,7 @@ import BookProof.Sirk.ChapterSchurGershgorinGap
 -- `no_l2_solution_of_nonneg` (consistency with the `V ≥ 0` theorem).  The criterion is shown
 -- non-vacuous by a worked instance: the Gaussian ground state of `V(x) = x² − 1`
 -- (`gaussianState_isL2Ode`, `not_deficiencyTrivialAt_harmonicShifted_zero`).
-import BookProof.Qg.ChapterWallDeficiencyObstruction
+import BookProof.ChapterWallDeficiencyObstruction
 
 -- `ChapterLimitCircleExample` (plan QG-2 sign warning, Case B): the previous module's criterion
 -- applied to an *explicit* potential.  Starting from the solution rather than the potential,
@@ -2014,7 +2134,7 @@ import BookProof.Qg.ChapterWallDeficiencyObstruction
 -- `exists_smooth_potential_not_essentiallySelfAdjoint`: essential self-adjointness on the
 -- compactly supported smooth core genuinely fails for a smooth real potential, so the
 -- non-negativity hypothesis of `wallHam_essentiallySelfAdjoint` is not removable.
-import BookProof.Qg.ChapterLimitCircleExample
+import BookProof.ChapterLimitCircleExample
 
 -- `ChapterConformalFiberDeficiency` (plan QG-2, Case B — the conformal fiber): the same
 -- criterion applied to a potential of the *conformal-fiber profile*.  The wrong-sign
@@ -2030,7 +2150,7 @@ import BookProof.Qg.ChapterLimitCircleExample
 -- packaged as `exists_wall_potential_wrongSign_not_essentiallySelfAdjoint`: a non-negative
 -- exponential wall does *not* restore essential self-adjointness once the kinetic term carries
 -- the conformal (wrong) sign.
-import BookProof.Qg.ChapterConformalFiberDeficiency
+import BookProof.ChapterConformalFiberDeficiency
 
 -- `ChapterBddBelowWallEsa` (plan QG-2, Case A — the one-dimensional input): the sharp
 -- companion of the two counterexamples above.  `ode_solution_eq_zero_of_bddBelow` replaces the
@@ -2047,7 +2167,7 @@ import BookProof.Qg.ChapterConformalFiberDeficiency
 -- `ChapterConformalFiberDeficiency` this makes the dichotomy sharp in the direction that
 -- matters for the plan: a wall bounded below always closes the deficiency spaces, and once the
 -- kinetic sign is wrong the wall is unbounded below and the conclusion genuinely fails.
-import BookProof.Qg.ChapterBddBelowWallEsa
+import BookProof.ChapterBddBelowWallEsa
 
 -- `ChapterBddBelowFiberSumEsa` (plan QG-2, Case A — the composed operator): the companion
 -- of `ChapterBddBelowWallEsa`.  Each fibre `−d²/dx_i² + V_i` (with `V_i` smooth and bounded
@@ -2063,7 +2183,7 @@ import BookProof.Qg.ChapterBddBelowWallEsa
 -- orthogonal direct sum of one-dimensional fibres, not a tensor product — nothing here claims
 -- `−Δ + V` on `L²(ℝᵈ)` — and the wrong-sign conformal direction is Case B, where the
 -- conclusion is false (`ChapterConformalFiberDeficiency`).
-import BookProof.Qg.ChapterBddBelowFiberSumEsa
+import BookProof.ChapterBddBelowFiberSumEsa
 
 -- `ChapterHalfLineLimitCircle` (plan QG-2 / 29f Case B — the endpoint): the *free* half-line
 -- kinetic operator `−d²/dy²` on the compactly supported smooth core of `L²((0,∞))` is **not**
@@ -2077,7 +2197,7 @@ import BookProof.Qg.ChapterBddBelowFiberSumEsa
 -- carries).  `hlCore_ne_bot` shows the core is not vacuous.  Honest boundary: what is proved is
 -- the endpoint (limit-circle) mechanism for the *free* kinetic, not a potential `V(y)`, and not
 -- a statement about the multi-dimensional densitized operator.
-import BookProof.Qg.ChapterHalfLineLimitCircle
+import BookProof.ChapterHalfLineLimitCircle
 
 -- `ChapterQgOuterFockEsa` (plan QG outer Fock): the gauge-fixed gravity Hamiltonian on the
 -- **outer Fock space** `𝔉 = ⊕ₙ L²(ℝ^{84n})` of the one-particle field space `L²(ℝ⁸⁴)`.  The
@@ -2140,7 +2260,7 @@ import BookProof.Toolbox.ChapterHermiteLadderShift
 -- `norm_mul_le_of_pointwise` (multiplication by a polynomial dominated by `λ‖x‖²`); **every
 -- constant is independent of the dimension `D`**, which is what makes them usable uniformly in
 -- the particle number.
-import BookProof.Toolbox.ChapterGaussCoreQuadBounds
+import BookProof.ChapterGaussCoreQuadBounds
 
 -- `ChapterSqSumFarisLavine` (plan QG outer Fock, Faris–Lavine route): the two Faris–Lavine
 -- inequalities for the kinetic-plus-squares Hamiltonian `½ Σ_j κ_j π_j² + ½ Σ_r L_r²` against
@@ -2151,7 +2271,7 @@ import BookProof.Toolbox.ChapterGaussCoreQuadBounds
 -- first order, with the gradient of the potential as coefficient), and the headlines are
 -- **`norm_sqSumOp_le`** (`‖Hu‖ ≤ (3km/2 + 8B)‖(N+1)u‖`) and **`commForm_sqSumOp_le`**
 -- (`|⟪u, i[H,N]u⟫| ≤ (km/2 + 2M)⟪u, Nu⟫`).  Neither constant depends on the dimension.
-import BookProof.Toolbox.ChapterSqSumFarisLavine
+import BookProof.ChapterSqSumFarisLavine
 
 -- `ChapterQgOuterFockCoreFL` (plan QG outer Fock, Faris–Lavine route): from a graph core to the
 -- whole comparison domain.  Faris–Lavine wants the Hamiltonian on all of `𝒟(N)`, but concrete
@@ -2205,7 +2325,7 @@ import BookProof.Qg.ChapterQgOuterFockInteractionFL
 -- Faris–Lavine headline for a family of sector Hamiltonians `½ Σ_I κ_I π_I² + ½ Σ_r L_r²`
 -- with the three bounds `km`, `a`, `b` uniform in the particle number.  It is what the
 -- Navier–Stokes thread needs (fibre dimension `18` per parcel).
-import BookProof.Toolbox.ChapterSqSumOuterFamily
+import BookProof.ChapterSqSumOuterFamily
 
 -- `ChapterNsOuterFockFarisLavine` (plan Navier–Stokes outer Fock, Faris–Lavine route): the
 -- Navier–Stokes analogue of the two chapters above, with the *same* comparison operator
@@ -2232,7 +2352,7 @@ import BookProof.Ns.ChapterNsOuterFockFarisLavine
 -- particle-number truncations converge to the exact Hamiltonian on the finite-particle core,
 -- hence in the strong resolvent sense; the generator carries no time dependence and the
 -- truncated propagators converge at every single finite time.
-import BookProof.Toolbox.ChapterSqSumOuterSingleTime
+import BookProof.ChapterSqSumOuterSingleTime
 -- `ChapterNsOuterFockSingleTime` (plan 2026-09-04f, NS next step 1): the Navier–Stokes
 -- instance of that package — unconditional, since the outer-Fock Navier–Stokes Hamiltonian
 -- is already essentially self-adjoint on the finite-particle core.
@@ -2347,7 +2467,7 @@ import BookProof.Qg.ChapterQgTimeIndependentFlow
 -- core, hence in the strong resolvent sense, hence — at every nonzero shift and every single
 -- finite time — in the propagator sense.  This is the Navier–Stokes/Yang–Mills counterpart
 -- of the quantum-gravity mode truncation.
-import BookProof.Toolbox.ChapterFiniteSectionSingleTime
+import BookProof.ChapterFiniteSectionSingleTime
 
 -- `ChapterNsTimeIndependentFlow` (the `y`-gauge-fixed Navier–Stokes Hamiltonian carries no
 -- time dependence): the gauge generator is the *spatial* `∂/∂y_j`, so the quantized
@@ -2370,7 +2490,7 @@ import BookProof.Ns.ChapterNavierStokesEsaConsolidation
 -- essential self-adjointness on the finite-occupation core, unconditional when the working
 -- basis diagonalizes the one-particle operator — the finite sections converge at every
 -- nonzero shift and every single finite time.
-import BookProof.Qym.ChapterQymTimeIndependentFlow
+import BookProof.ChapterQymTimeIndependentFlow
 
 -- `ChapterResolventMinMaxLadder` (plan: the QG next step, "the min–max ladder through the
 -- resolvent"): the Courant–Fischer ladder of an **unbounded** non-negative self-adjoint
@@ -2439,7 +2559,7 @@ import BookProof.Qym.ChapterYangMillsOuterFockFL
 -- essential-self-adjointness statements of the three threads (QYM, NS, QG including the full
 -- exponential scalaron potential), on the sector core, on the finite-particle core of the
 -- outer Fock space, and on the domain of the lifted Friedrichs comparison operator.
-import BookProof.Toolbox.ChapterEsaFarisLavineIndex
+import BookProof.ChapterEsaFarisLavineIndex
 
 -- `ChapterQg3DGaugeFarisLavine` (2026-09-11 wave, second pass): the 84-coordinate 3D
 -- gauge-fixed gravity Hamiltonian — tetrad plus the independent coordinates representing the
@@ -2490,14 +2610,14 @@ import BookProof.Qym.ChapterYangMillsFockFriedrichs
 import BookProof.ChapterGaugeVariantVanishing
 import BookProof.ChapterGaugeAdjointAlgebra
 import BookProof.ChapterGaugeWeylResidual
-import BookProof.Qym.ChapterGaugeMechanicsCharge
-import BookProof.Qym.ChapterGhostMajoranaRep
-import BookProof.Qym.ChapterGaugeIncompleteFixing
-import BookProof.Qym.ChapterGaugeComprehensiveFixing
-import BookProof.Qym.ChapterGaugeParametrization
-import BookProof.Qym.ChapterGaugeCasimirAverage
+import BookProof.ChapterGaugeMechanicsCharge
+import BookProof.ChapterGhostMajoranaRep
+import BookProof.ChapterGaugeIncompleteFixing
+import BookProof.ChapterGaugeComprehensiveFixing
+import BookProof.ChapterGaugeParametrization
+import BookProof.ChapterGaugeCasimirAverage
 import BookProof.ChapterDampedOscillatorEnergy
-import BookProof.Qym.ChapterGaugeShiftExample
+import BookProof.ChapterGaugeShiftExample
 import BookProof.ChapterGaugeUnconstrainedSpectrum
 import BookProof.ChapterFockDegreesOfFreedom
 import BookProof.GravityAlgebra.ChapterGravityPolymomentum
@@ -2566,7 +2686,7 @@ import BookProof.InducedSystems.ChapterMackeyConverse
 -- general *non-normal* operators — the Berger power inequality `w(Aⁿ) ≤ w(A)ⁿ` by Pearcy's
 -- argument, `‖A‖ ≤ 2w(A)`, and the headline `‖f(A)‖ ≤ (1 + 2r/(R−r))·M` for the analytic
 -- functional calculus of a series obeying Cauchy's estimate on a strictly larger disc.
-import BookProof.Sirk.ChapterNumericalRangeCrouzeix
+import BookProof.ChapterNumericalRangeCrouzeix
 
 -- `ChapterSirkCrouzeixNumericalRange`: the SIRK error bound of `ChapterH4` for a general
 -- non-normal operator with **no** Crouzeix hypothesis — the two operator-norm bounds are
@@ -2616,7 +2736,7 @@ import BookProof.InducedSystems.ChapterPvmScalarMeasure
 -- `{Re z ≤ ω}` then `‖e^{tA}‖ ≤ e^{ωt}` for `t ≥ 0` (a contraction semigroup when `ω = 0`),
 -- proved from the differential inequality for `‖e^{tA}x‖²`, together with the matching
 -- Hille–Yosida resolvent estimate `‖(z − A)⁻¹‖ ≤ 1/(Re z − ω)` for `Re z > ω`.
-import BookProof.Sirk.ChapterNumericalRangeSemigroup
+import BookProof.ChapterNumericalRangeSemigroup
 
 -- `ChapterSchurFiniteDimensional`: Lemma 20 of the real-representations chapter — Schur's
 -- lemma for an irreducible *finite-dimensional* complex system, with no normality hypothesis
@@ -2638,7 +2758,7 @@ import BookProof.HarmonicAnalysis.ChapterLegendrePolynomial
 -- `ChapterSolidHarmonic`: the solid harmonics `rˡ Y_{lμ}` for **all** `l` and `μ ≤ l`, built as
 -- `Re((⟪u,x⟫+i⟪v,x⟫)^μ) · Σ_m P_l^{(μ)}[n−2m] ⟪e,x⟫^{n−2m} (‖x‖²)^m`; they are harmonic
 -- (`solidHarmonic_harmonic`), homogeneous of degree `l` (`solidHarmonic_euler`), and in spherical
--- coordinates equal `rˡ P_l^μ(cos θ) cos(μφ)` (`solidHarmonic_spherical`).
+-- coordinates equal `rˡ P_l^μ(cos θ) cos(μφ)` (`solidHarmonic_spherical_frames_explicit`).
 import BookProof.HarmonicAnalysis.ChapterSolidHarmonic
 
 -- `ChapterNote68AllModes`: Note 68 of §A.5 in every angular-momentum mode `(l, μ)` — combining
@@ -2660,7 +2780,7 @@ import BookProof.HarmonicAnalysis.ChapterSphericalPlancherel
 -- Ritz truncation, and the Gribov negative direction), the bundle `RouteHypotheses`, and the
 -- route-facing projections `ns_*` / `lagrangian_*` / `qg_*`.  The frozen search, with the platform
 -- ids and the verbatim statements, is `PROVE2ME_REUSABLE_THEOREMS.md`.
-import BookProof.Toolbox.ChapterProve2meReuse
+import BookProof.ChapterProve2meReuse
 
 -- `ChapterNsFourierElimination` (2026-09-17 wave): the *Fourier elimination* of the variables
 -- representing spatial derivatives of the Navier–Stokes field, as the plan of record for
@@ -2841,7 +2961,7 @@ import BookProof.Ns.ChapterNsKoopman
 -- to `D` by graph-norm density, with no invariant domain and no resolvent on `D`.
 -- `pushOp` / `isGraphCore_pushOp` transport the notion along a linear isometry, e.g. into a
 -- completion.
-import BookProof.Toolbox.ChapterGraphCoreTransfer
+import BookProof.ChapterGraphCoreTransfer
 
 -- `ChapterTensorGraphCore` (2026-09-20): the **multilinear core estimate**.  `IPSpace.pow` is
 -- the `n`-fold algebraic tensor power of an inner product space, `derPow` the sector derivation
@@ -2859,7 +2979,7 @@ import BookProof.Toolbox.ChapterTensorGraphCore
 -- of the domain of the closure (the self-adjoint-one-particle-operator input, not proved here).
 -- The gluing is `ChapterDirectSumEsa`, the descent to the core is `ChapterGraphCoreTransfer`
 -- plus `ChapterTensorGraphCore`.
-import BookProof.Toolbox.ChapterSecondQuantizationCoreEsa
+import BookProof.ChapterSecondQuantizationCoreEsa
 
 -- `ChapterScalarDGammaEsa` (2026-09-20): an unconditional instance of the assembly.  For the
 -- scalar one-particle operator `A = c • id` (`c : ℝ`) the sector derivation is the bounded
@@ -2867,7 +2987,7 @@ import BookProof.Toolbox.ChapterSecondQuantizationCoreEsa
 -- outright (`essentiallySelfAdjointOn_fockSectorDom_scalar`); the conclusion
 -- `dGamma_scalar_essentiallySelfAdjointOn_fockCore` is then unconditional: `dΓ(c • id)` is
 -- essentially self-adjoint on the finite-particle domain over *any* dense core `D`.
-import BookProof.Toolbox.ChapterScalarDGammaEsa
+import BookProof.ChapterScalarDGammaEsa
 
 -- `ChapterTensorOperatorBound` (2026-09-20): the missing operator bound for
 -- `TensorProduct.map` on inner product spaces.  `exists_orthonormal_repr` writes any tensor as
@@ -2883,7 +3003,7 @@ import BookProof.Toolbox.ChapterTensorOperatorBound
 -- and any dense subspace `D`, `dΓ(B)` is essentially self-adjoint on `𝓕_fin(D)`.  The instance
 -- `dGamma_neg_id_essentiallySelfAdjointOn_fockCore` (minus the number operator) is unbounded
 -- below, which is the point of dropping positivity.
-import BookProof.Toolbox.ChapterBoundedDGammaEsa
+import BookProof.ChapterBoundedDGammaEsa
 
 -- `ChapterEsaPairDGamma` (2026-09-20): the packaged form.  `ESAPair` bundles a symmetric
 -- one-particle operator on the domain of its closure with a graph-norm core `D` and the
@@ -2891,7 +3011,7 @@ import BookProof.Toolbox.ChapterBoundedDGammaEsa
 -- package, `ESAPair.norm_sub_smul_sq` records the only quantitative input (Pythagoras at `± i`,
 -- valid with no spectral lower bound) and `ESAPair.ofBounded` produces packages — with the
 -- sectorwise input proved — for all bounded symmetric one-particle operators.
-import BookProof.Toolbox.ChapterEsaPairDGamma
+import BookProof.ChapterEsaPairDGamma
 
 -- `ChapterDiagonalDGammaEsa` (2026-09-20): the sectorwise input, discharged for **unbounded**
 -- hermitian one-particle operators.  `essentiallySelfAdjointOn_of_dense_eigenvectors` is the
@@ -2902,7 +3022,7 @@ import BookProof.Toolbox.ChapterEsaPairDGamma
 -- theorem over any graph-norm core.  `diagOp` builds such operators (multiplication by an
 -- arbitrary real family along an orthonormal family) and `not_bounded_diagOp` shows they are
 -- genuinely unbounded.
-import BookProof.Toolbox.ChapterDiagonalDGammaEsa
+import BookProof.ChapterDiagonalDGammaEsa
 
 -- `ChapterFlowDGammaEsa` (2026-09-20): the sectorwise input, discharged for **every
 -- self-adjoint** one-particle operator, unbounded and with arbitrary spectrum.
@@ -2913,7 +3033,7 @@ import BookProof.Toolbox.ChapterDiagonalDGammaEsa
 -- self-adjoint `A` and any graph-norm core `D`, `dΓ(A)` is essentially self-adjoint on
 -- `𝓕_fin(D)`.  `dGamma_position_essentiallySelfAdjointOn_fockCore` is the unbounded instance
 -- (multiplication by `k` on `ℓ²(ℤ)`).
-import BookProof.Toolbox.ChapterFlowDGammaEsa
+import BookProof.ChapterFlowDGammaEsa
 
 -- `ChapterEsaOneParticleDGamma` (2026-09-20): the one-particle operator is only
 -- **essentially self-adjoint** on its domain `D` — symmetric with trivial deficiency, not
@@ -2924,7 +3044,7 @@ import BookProof.Toolbox.ChapterFlowDGammaEsa
 -- self-adjoint on `𝓕_fin(D)`.  `positionCore` — multiplication by `k` on `ℓ²(ℤ)` restricted
 -- to the finitely supported vectors — is an instance which is essentially self-adjoint but
 -- not self-adjoint (`positionCore_not_isSelfAdjointOn`).
-import BookProof.Toolbox.ChapterEsaOneParticleDGamma
+import BookProof.ChapterEsaOneParticleDGamma
 
 -- `ChapterReducingSubspaceEsa` (2026-09-21c): the **reduction principle** — essential
 -- self-adjointness descends to an invariant sector.  `IsReducingProjection` is an idempotent
@@ -2933,7 +3053,7 @@ import BookProof.Toolbox.ChapterEsaOneParticleDGamma
 -- `essentiallySelfAdjointOn_red` carry each deficiency space, hence essential self-adjointness,
 -- from `T` to that part.  `symProj` / `asymProj` are the projections `(1 ± U)/2` of a
 -- self-inverse isometry `U`, giving the two sectors `U x = ± x` (`mem_sector_symProj_iff`).
-import BookProof.Toolbox.ChapterReducingSubspaceEsa
+import BookProof.ChapterReducingSubspaceEsa
 
 -- `ChapterTwoParticleSectorEsa` (2026-09-21c): **symmetrization of the two-particle sector**.
 -- `swapTwo` is the swap `x ⊗ y ↦ y ⊗ x` of the nested tensor square used by
@@ -2945,7 +3065,7 @@ import BookProof.Toolbox.ChapterReducingSubspaceEsa
 -- `essentiallySelfAdjointOn_bosonic_core` / `…_fermionic_core` on the symmetrized and
 -- antisymmetrized one-particle core, with `exists_ne_zero_bosonic` /
 -- `exists_ne_zero_fermionic` as non-vacuity witnesses.
-import BookProof.Toolbox.ChapterTwoParticleSectorEsa
+import BookProof.ChapterTwoParticleSectorEsa
 
 -- `ChapterGroupAverageEsa` (2026-09-21c): **averaging over a finite group of symmetries**.
 -- `UnitaryRep` is an action of a finite group by inner-product-preserving linear maps;
@@ -2955,7 +3075,7 @@ import BookProof.Toolbox.ChapterTwoParticleSectorEsa
 -- conclusion: an operator commuting with the action is essentially self-adjoint on the invariant
 -- sector as soon as it is on its domain.  `repOfInvolution` / `avgProj_repOfInvolution` check the
 -- two-element case against the symmetrizing projection `(1 + U)/2`.
-import BookProof.Toolbox.ChapterGroupAverageEsa
+import BookProof.ChapterGroupAverageEsa
 
 -- `ChapterTensorPermutation` (2026-09-21d): **the symmetric group acting on a tensor power**.
 -- The action of `Equiv.Perm (Fin n)` on the nested tensor power `E^{⊗n}` of
@@ -2981,7 +3101,7 @@ import BookProof.Toolbox.ChapterTensorPermutation
 -- `mem_fermionicSector_iff` identifying the two sectors, `exists_ne_zero_bosonic` /
 -- `exists_ne_zero_fermionic` (the Slater determinant) as non-vacuity witnesses and
 -- `permOp_two_eq_swapH` as the consistency check against `ChapterTwoParticleSectorEsa`.
-import BookProof.Toolbox.ChapterPermutationSectorEsa
+import BookProof.ChapterPermutationSectorEsa
 
 -- `ChapterFockStatisticsEsa` (2026-09-21e): **the sectorwise hypothesis discharged, and the
 -- direct sum over the particle number**.  `essentiallySelfAdjointOn_of_pushOp` descends
@@ -3039,7 +3159,7 @@ import BookProof.ChapterStatisticalModelTheory
 -- proper nonzero range.  `UncertainStatement` is the book's weakening — operators that are
 -- not projections — with `halfUncertain_not_idempotent` as a witness, and
 -- `approximate_proof_error` is the "approximated proof" bound.
-import BookProof.Probability.ChapterStatementOperator
+import BookProof.ChapterStatementOperator
 
 -- `ChapterSelfAdjointCoreEsa` (2026-09-22): **a self-adjoint operator is essentially
 -- self-adjoint on every graph core**.  `deficiencyTrivialAt_dom_of_isSelfAdjointExtension` and
@@ -3048,7 +3168,7 @@ import BookProof.Probability.ChapterStatementOperator
 -- puts `w` in the domain with `A w = z • w`, and symmetry then forces `(z - conj z)⟪w, w⟫ = 0`),
 -- and `essentiallySelfAdjointOn_of_graphCore_selfAdjoint` combines this with the core-transfer
 -- principle of `ChapterGraphCoreTransfer`.
-import BookProof.Toolbox.ChapterSelfAdjointCoreEsa
+import BookProof.ChapterSelfAdjointCoreEsa
 
 -- `ChapterComparisonCoreEsa` (2026-09-22): **obligation (i) of §D6b, discharged in general**.
 -- In the vocabulary of the route chapters — `Comparison` and the graph core `IsGraphCore` —
@@ -3187,16 +3307,16 @@ import BookProof.Sm.ChapterSmGaugeRepresentation
 -- gauge-fixing term is BRST invariant; `ChapterBookBrstInstances` supplies the gauge algebras
 -- (`su(2)`, the Standard Model `su(3) ⊕ su(2) ⊕ u(1)`, and the inner derivations `ad_{X_μ}`
 -- as admissible spacetime derivatives) and the non-vacuity of the constraints.
-import BookProof.Qym.ChapterBookBrstYangMills
-import BookProof.Qym.ChapterBookBrstGaugeFixing
-import BookProof.Qym.ChapterBookBrstInstances
+import BookProof.ChapterBookBrstYangMills
+import BookProof.ChapterBookBrstGaugeFixing
+import BookProof.ChapterBookBrstInstances
 
 -- The Kato-type essential self-adjointness input for the Standard-Model Faris–Lavine
 -- comparison operator: degenerate Schrödinger operators `−Δ_S + W` on the two cores,
 -- the cut-off/mollifier proof on the compactly supported core, the Hermite graph
 -- approximation, and the resulting unconditional `sm_h_esa`.
 import BookProof.Toolbox.ChapterDegSchrodingerCore
-import BookProof.Toolbox.ChapterDegKatoEsa
+import BookProof.ChapterDegKatoEsa
 import BookProof.Toolbox.ChapterHermiteGraphApprox
 import BookProof.Sm.ChapterSmComparisonEsa
 
@@ -3269,7 +3389,7 @@ import BookProof.Ns.ChapterNsLinearKoopmanEsa
 -- (`tensorPowUnitary`, pure-tensor formula `embPow_succ_tmul_ae`); with the relabelling
 -- `(ℝ^d)ⁿ ≅ ℝ^{n·d}`, `L²(ℝ⁶)^{⊗̂n} ≅ L2d (n * 6)` (`nsParcelSectorUnitary`) and the Fock space
 -- over `L²(ℝ⁶)` is `nsRedFockSpace` (`nsFockUnitary`).  Operator-level transport not covered.
-import BookProof.Toolbox.ChapterL2TensorPowerUnitary
+import BookProof.ChapterL2TensorPowerUnitary
 -- 2026-09-24f: Faris–Lavine on a core (`N + 1` with dense range; ESA of a positive `N` suffices)
 -- and the nonlinear Navier–Stokes Koopman generator with the comparison `N = H_NS² + 1 + ‖u‖²`
 -- (exact commutation relation `i[H_NS, N] = i[H_NS, E] = −2ν Σ λ u²`); the ESA of `N` itself is
@@ -3281,7 +3401,7 @@ import BookProof.Ns.ChapterNsNonlinearFarisLavine
 -- Faris–Lavine theorem, and its Lagrangian instance (ESA of `N_L = H_L² + E` is the explicit
 -- remaining hypothesis).
 import BookProof.Ns.ChapterNsLagrangianDetConvolution
-import BookProof.Ns.ChapterKoopmanLyapunovFarisLavine
+import BookProof.ChapterKoopmanLyapunovFarisLavine
 import BookProof.Ns.ChapterNsLagrangianDetFarisLavine
 -- 2026-09-24h: the Lagrangian one-parcel Hamiltonian (`lagCan_esa`, unconditional) and the
 -- Lagrangian Koopman generator (conditional on ESA of `N_L`) carried to the outer Fock space
@@ -3299,12 +3419,147 @@ import BookProof.Ns.ChapterNsFullLagrangianFockEsa
 -- `W`, ESA of `W P W⁻¹ = x²p − ix` on `W(𝓢)`, Stone flow); NS-L-C.1/2 (constraint term,
 -- completed-square comparison `N = h + ½|f|²`); NS-L-C.3 (`dΓ(N) + 1` ESA on `𝓕_fin(D)`);
 -- QG-D-C.2/3 (assembled transfer at the half-density unitary; QG-D-C.1 stays a hypothesis).
-import BookProof.Toolbox.ChapterEsaRealShift
-import BookProof.Ode.ChapterMomentumChartEsa
+import BookProof.ChapterEsaRealShift
+import BookProof.ChapterMomentumChartEsa
 import BookProof.Ode.ChapterOdeChartTransfer
 import BookProof.Ns.ChapterNsComparisonEsa
-import BookProof.Ns.ChapterLiftedComparisonEsa
+import BookProof.ChapterLiftedComparisonEsa
 import BookProof.Qg.ChapterQgAssembledTransfer
 import BookProof.Qg.ChapterQgFlatContinuumEsa
 import BookProof.Qg.ChapterQgAssembledFlatTransfer
 import BookProof.Ns.ChapterNsLagrangianComparisonEsa
+-- 2026-10-30 (`softmodes.md` Phase 3, milestone 3): the solvable gapped reference operator.
+-- `refEnergy` ports physlib's `eigenEnergy` (`∑ i, ωᵢ (nᵢ + ½)`, `ℏ = 1`, general `ω`) with
+-- its strict monotonicity; `refGap = min_k ω_k`; `href_spectral_gap` is the form inequality
+-- `ψ ⊥ Ω → ⟨ψ, H_ref ψ⟩ ≥ (μ₀ + Δ_ref)‖ψ‖²` on the Gauss–polynomial core, with the parity
+-- variant `href_spectral_gap_of_parity`.  The Phase-4 comparison is not claimed.
+import BookProof.ChapterReferenceGap
+-- 2026-10-30 (`softmodes.md` Phase 4): the form-domination certificate and the gap it implies.
+-- `FormDomination` packages `q ≥ c₁ q_ref − c₂‖·‖²` on the Gauss–polynomial core; `ground_bound`
+-- and `excited_bound` give the two level bounds, whose difference is exactly `c₁ Δ_ref`
+-- (`certified_separation`, `certified_gap_pos`).  The domination inequality itself for the
+-- Yang–Mills form stays the open analytic input and is stated as such.
+import BookProof.YangMillsFormDomination
+-- 2026-10-31 (`softmodes.md` Phase 4, closure step): the `L²` closure of the Gauss–polynomial core.
+-- `L2 d = ℓ²(Idx d, ℂ)` receives the core (`coreEmbed`) with `‖coreEmbed c‖² = coreNormSq c` and
+-- dense range (`dense_range_coreEmbed`).  Every form of the chapter is diagonal, `diagonalForm f`,
+-- and `closedForm f` is its closure: it extends the core form, is lower semicontinuous, and is the
+-- supremum of the core forms of the truncations.  `formDomination_closed` carries a certificate on
+-- the core to all of `L²` with the same constants, so the Phase-3/Phase-4 gaps hold on the closed
+-- form without a core hypothesis (`closed_refGap`, `closed_degreeGap`, `closed_interactingGap`),
+-- and the Yang–Mills form of record is covered too (`yangMillsForm_eq_diagonalForm`,
+-- `yangMillsForm_closed`, `closed_yangMillsGap`).
+import BookProof.YangMillsFormClosure
+-- 2026-10-30 (`softmodes.md` Phase 2): Simon's transverse zero-point energy on the Cartan flat
+-- directions.  `parallelDegree`/`perpDegree`/`rootCount` split the degree form into Cartan and
+-- root parts; `zeroPoint g N = ½ g √(N + ½)` is the per-mode barrier, nonnegative, strictly
+-- increasing and coercive (`zeroPoint_coercive`), so the valley is lifted
+-- (`simon_valley_lifted`, and `simonEffective_coercive` for the `g²x²y²` model whose valley
+-- `simonPotential_flat` is exactly flat).  `IsBarrierBound` is the §2.3 milestone inequality (the
+-- remaining input); `formDomination_of_barrier` and `barrier_gap` turn it into the Phase-4
+-- certificate and its `c₁ Δ_ref` separation.
+import BookProof.YangMillsEffectiveBarrier
+
+-- The identification of the magnetic energy form with the quartic `:N²:` form (`magComp`,
+-- `magneticEnergyForm`, and the two-sided comparison with `quarticDegreeForm` up to the explicit
+-- factor `card`), which carries `barrierBound_quartic` to `q_W` itself:
+-- `barrierBound_yangMillsForm`, `yangMillsForm_certifiedGap`.
+import BookProof.YangMillsMagneticQuartic
+import BookProof.YangMillsFieldStrength
+
+-- `F = ∂A + g[A,A]` for the Standard Model field strengths of record: the gluon
+-- `smMagG` and the weak `smMagW` split into derivative and commutator parts
+-- (`smMagG_eq_deriv_add`, `smMagW_eq_deriv_add`), each half is a symmetric multiplication
+-- operator on the Gauss–polynomial core (`smDerivG_symmetricOn`, `smCommG_symmetricOn`, …),
+-- the commutator part is `¼ ε_{ijk} g [A_j, A_k]` (`smCommG_eq_quarter_bracket`) and vanishes
+-- on the commuting sector (`smCommG_eq_zero_of_symmetric`).
+import BookProof.Sm.ChapterSmFieldStrengthSplit
+
+-- The Wilson plaquette interaction does not spoil the slice split of the lattice gauge
+-- measure: the interaction is a nonnegative local potential, so the Gibbs density is a
+-- positive multiple of the free kernel density and reflection positivity survives
+-- (`wilson_reflectionPositive`).
+import BookProof.ReflectionPositivity.WilsonLattice
+
+-- The normalising constant of the lattice free field: the reference Gaussian integrals with
+-- their explicit constants (`integral_exp_neg_mul_sqSum`, `…_layerSq`, `…_latticeSq`), the
+-- sandwich `(m/2)‖φ‖² ≤ S ≤ (8n + m/2)‖φ‖²` (`latticeAction_ge_mass`, `latticeAction_le`),
+-- `0 < Z < ∞` (`latticeGFFMass_pos`, `latticeGFFMass_lt_top`), the exact single-slice value
+-- (`latticeGFFMass_zero`) and the probability measure `latticeGFFProbability` with
+-- `isProbabilityMeasure_latticeGFFProbability`; normalising preserves reflection positivity.
+import BookProof.ReflectionPositivity.GFFNormalization
+
+-- The plaquette partition function and the normalised interacting measure: the density bounds
+-- (`plaqDensity_le_two`, `wilsonAction_nonneg`, `wilsonAction_le`) squeeze the Boltzmann weight,
+-- `exp(−(4β#P + M)) ≤ exp(−S) ≤ 1`, so `Z` is a multiple of the reference volume
+-- (`wilsonMass_le`, `wilsonMass_ge`); against Lebesgue the mass diverges (`wilsonMass_eq_top`),
+-- while for a normalised reference measure (Haar on the compact gauge group) `0 < Z ≤ 1` and
+-- `wilsonProbability` is a probability measure, still reflection positive
+-- (`isProbabilityMeasure_wilsonProbability`, `wilsonProbability_reflectionPositive`).
+import BookProof.ReflectionPositivity.WilsonPartition
+
+-- The effective-mass recursion along a chain of slices, and the closed form it produces for the
+-- chain partition function: `chainZ_succ` (`Z_{N+1}(c) = (√(π/(1+c)))^{|S|} · Z_N(m/2 + δ(c))`),
+-- `chainZ_closed`, and `chainZ_closed_half` (the `μ₀ = m/2`, `μ_{j+1} = m/2 + μ_j/(1 + μ_j)`
+-- recursion).  The chain re-indexing is in place at the level of the action: `halfAction_split`,
+-- `chainForm_chain` (a half-space is a chain with the reflection slice outermost) and
+-- `latticeAction_chain` (the lattice action is the sum of the two chain forms) — and at the level
+-- of the measures: `lintegral_fkKernel_eq_chainZ` identifies `∫⁻ z ∫⁻ y ρ(z) ν_z(y)` with
+-- `chainZ m (m/2) n`.  The tridiagonal operator is built (`chainMatrix`); the block elimination
+-- at its `1 × 1` corner (`det_corner_schur`) gives the peeling step `chainMatrix_succ_det`
+-- (elimination *is* the effective-mass step), and iterating it gives the general determinant
+-- identity `det K_N = ∏ j<N (1 + c_j) c_N` (`chainMatrix_det`), with `c_j = effMass m j` in
+-- `chainMatrix_det_half`; combining it with `chainZ_closed_half` gives the textbook closed form
+-- `Z_N = π^{(N+1)|S|/2}/(det K_N)^{|S|/2}` (`chainZ_closed_det`).  The whole `2n+1`-slice lattice
+-- is put in that chain form: `foldChainEquiv` (measure preserving,
+-- `volume_preserving_foldChainEquiv`) with the mass sum `sum_foldChain_sqSum` and the link sum
+-- `sum_foldChain_diffSq`, hence `latticeAction_eq_chainForm` and
+-- `latticeGFFMass m n = chainZ m (m/2) (2n)` (`latticeGFFMass_eq_chainZ`) — the free-field
+-- partition function in closed form.
+import BookProof.ReflectionPositivity.ChainPartition
+
+-- The plaquette past/invariant/future classification, derived from an explicit lattice of links
+-- (`WilsonLinkLattice`): sites, oriented links (`Link.ofStep`), plaquettes with their four corners
+-- and their four links attached (`link0`-`link3`, `link_targets`, `link_endpoints_mem`, the square
+-- closing at `stepSite_c01`), the time support `{t, t+1}` of a plaquette (`timeSet_subset`), the
+-- covering and partition theorems (`plaq_cover`, `plaq_classification`), the reflection swapping
+-- past and future (`theta_involutive`, `time_theta`, `pastSide_image_iff`), the holonomy built from
+-- the four links (`Plaquette.holonomy`, unitary for unitary links, its weight independent of the
+-- orientation of the square) and the split of the resulting action into past + future − invariant
+-- (`wilsonLatticeAction_split`).  The holonomy *is* transported across the reflection in the
+-- spatial case: `Plaquette.reflectS` with the four link identities
+-- `reflectS_link0`-`reflectS_link3`, hence `holonomy_reflectS` (`U_θ h_θp = U_p⁻¹`) and
+-- `trace_holonomy_reflectS`.  Recorded gap: the
+-- two temporal cases, where the time step reverses and the reflected holonomy is only a cyclic
+-- rotation of the inverse.
+import BookProof.ReflectionPositivity.WilsonLinkLattice
+
+-- The past-class Wilson weight as a concrete, measurable half-space observable (`WilsonPastClass`):
+-- the reflected plaquette's time support is the reflected one (`timeSet_reflectPlaq`), so for the
+-- middle reflection plane `L = 2M+1` the reflection carries the past side onto the future side
+-- (`IsPastSide_reflectPlaq`) and preserves the invariant slice (`IsInvariant_reflectPlaq`).  With the
+-- trace identity this gives the **reflection identity for the concrete past-class weight**
+-- `pastSideWeight β N (reflectConfig U) M = futureSideWeight β N U M`, its future and invariant
+-- companions, and — assembled through `wilsonLatticeAction_split` — the invariance of the action as
+-- an identity between the three class sums (`wilsonLatticeAction_reflectConfig_of_split`).  On the
+-- measurable side: the entries of `A ↦ A⁻¹` from determinant and adjugate (`measurable_of_inv_apply`),
+-- the past-class holonomy entrywise (`measurable_pastHolonomy_apply`, avoiding any measurable
+-- structure on `Matrix`), and the past-class sum as a measurable function of the past half-space and
+-- boundary data alone (`pastSideObservable`, `measurable_pastSideObservable`,
+-- `pastSideWeight_eq_observable_of_eq`) — the `hmeas` input of `wilson_reflectionPositive`.
+import BookProof.ReflectionPositivity.WilsonPastClass
+
+-- The reference measure on the half-space configuration space, instantiated as Haar measure
+-- (`HaarReference`): the normalised Haar probability measure of a compact gauge group
+-- (`haarProb`, `haarProb_univ`), its pushforward to one link variable under a measurable matrix
+-- representation (`haarLinkMeasure`, with `haarLinkMeasure_ae` for properties that hold on the
+-- image), and the product measures on the past half-space and on the reflection slice
+-- (`pastHaarMeasure`, `boundHaarMeasure`) — probability measures, so the `SFinite`/finiteness
+-- hypotheses of the Feynman–Kac theory are instances, not obligations.  The kernel Feynman–Kac
+-- measure is re-derived against *explicit* reference measures (`fkRefMeasure`,
+-- `fkRef_integral_eq`, `fkRef_reflectionPositive`), since `fkKernelMeasure` is tied to `volume`.
+-- On the concrete theory: the Wilson density factorises into boundary and half-space weights
+-- (`fkKernelDensity_haar`, `density_haar`), the Haar-referenced lattice gauge measure is
+-- `ρ ⊗ ν_z ⊗ ν_z` (`haarGibbsMeasure`, `haarGibbsMeasure_eq`), and it is reflection positive
+-- (`haarWilson_reflectionPositive`).
+import BookProof.ReflectionPositivity.HaarReference

@@ -404,10 +404,10 @@ no boundedness of the electric or magnetic field operators assumed:
 ```
 #check @BookProof.FriedrichsExtension.FormDom.friedrichsResolvent
 #check @BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_shift
-#check @BookProof.FriedrichsExtension.friedrichs_extension_exists
-#check @BookProof.FriedrichsExtension.friedrichs_hypothesis_holds
-#check @BookProof.FriedrichsExtension.weyl_friedrichs_extension_unconditional
-#check @BookProof.FriedrichsExtension.friedrichs_extension_of_semibounded_below
+#check @BookProof.FriedrichsExtension.friedrichs_extension_exists_of_complete_explicit
+#check @BookProof.FriedrichsExtension.friedrichs_hypothesis_holds_of_complete_explicit
+#check @BookProof.FriedrichsExtension.weyl_friedrichs_extension_of_complete_explicit
+#check @BookProof.FriedrichsExtension.friedrichs_extension_semibounded_of_complete_explicit
 ```
 
 :::paragraph

@@ -1,13 +1,13 @@
 import Mathlib
-import BookProof.ChapterYangMillsOuterFockFL
-import BookProof.ChapterNsOuterFockFarisLavine
-import BookProof.ChapterScalaronOuterFockFL
-import BookProof.ChapterQg3DGaugeFarisLavine
-import BookProof.ChapterQgVielbeinScalaronGaugeFL
-import BookProof.ChapterYangMillsFockFriedrichs
-import BookProof.ChapterScalaronNotQuadratic
-import BookProof.ChapterNavierStokesFullEulerianFock
-import BookProof.ChapterNavierStokesFullLagrangianFock
+import BookProof.Qym.ChapterYangMillsOuterFockFL
+import BookProof.Ns.ChapterNsOuterFockFarisLavine
+import BookProof.Qg.ChapterScalaronOuterFockFL
+import BookProof.Qg.ChapterQg3DGaugeFarisLavine
+import BookProof.Qg.ChapterQgVielbeinScalaronGaugeFL
+import BookProof.Qym.ChapterYangMillsFockFriedrichs
+import BookProof.Qg.ChapterScalaronNotQuadratic
+import BookProof.Ns.ChapterNavierStokesFullEulerianFock
+import BookProof.Ns.ChapterNavierStokesFullLagrangianFock
 import BookProof.ChapterProve2meReuse
 
 /-!

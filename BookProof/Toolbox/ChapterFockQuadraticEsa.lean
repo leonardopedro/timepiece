@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterOperatorSeriesEsa
+import BookProof.ChapterOperatorSeriesEsa
 
 /-!
 # The general quadratic Hamiltonian of a boson field with infinitely many modes

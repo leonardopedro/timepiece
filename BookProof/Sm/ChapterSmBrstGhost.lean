@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Qym.ChapterBRSTNilpotent
+import BookProof.ChapterBRSTNilpotent
 import BookProof.Qym.ChapterYangMillsSU3
 import BookProof.Sm.ChapterSmCarAlgebra
 

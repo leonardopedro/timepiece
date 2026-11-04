@@ -1,6 +1,6 @@
 import Mathlib
 import BookProof.Ns.ChapterNsOuterFockFarisLavine
-import BookProof.Toolbox.ChapterSqSumOuterSingleTime
+import BookProof.ChapterSqSumOuterSingleTime
 
 /-!
 # The gauge-fixed Navier–Stokes outer-Fock Hamiltonian is time-independent, and one finite

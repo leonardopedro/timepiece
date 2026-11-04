@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Attention.ChapterObservableExpectation
+import BookProof.ChapterObservableExpectation
 import BookProof.Attention.ChapterSoftmaxSharpness
 import BookProof.Attention.ChapterSoftmaxOrder
 

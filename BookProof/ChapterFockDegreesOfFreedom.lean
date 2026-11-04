@@ -86,6 +86,20 @@ theorem card_ghost_eq_two_mul (k : ℕ) :
     Fintype.card (Fin (k + 1) → ZMod 2) = 2 * Fintype.card (Fin k → ZMod 2) := by
   simp [pow_succ, Nat.mul_comm]
 
+/-! ## Four theories, four raw ghost spaces
+
+The four sections below (`NavierStokes`, `YangMills3D`, `YangMills4D`, `Gravity`) each define a
+`Jet`, a `GhostRaw` and the corresponding cardinality lemmas.  The *type* names are
+namespace-qualified and therefore unique (`Gravity.GhostRaw` and `YangMills3D.GhostRaw` are
+different types), but the *lemma* names used to be identical in all four namespaces.  An
+exporter that indexes declarations by their unqualified name paired the `Gravity` node with
+the `NavierStokes` statement (`Fintype.card GhostRaw = 3 + 1`, i.e. `4`) while elaborating
+`Gravity.GhostRaw` (card `4 + 16 = 20`) — prove2.me recorded exactly that as `Disproved`.
+The cardinality lemmas are therefore given theory-suffixed names (`ghostRawCard_gravity`,
+…), which are unique across the file, so no name-keyed extraction can mix them up again.
+Do not collapse them back to a repeated `ghostRawCard`.
+-/
+
 /-! ## Navier–Stokes: `L²(ℝ^{33} × ℤ₂^3)` -/
 
 namespace NavierStokes
@@ -120,7 +134,7 @@ abbrev GhostRaw := Unit ⊕ Fin 3
 
 /-- **`1 + 3 = 4 = 3 + 1`**: four raw ghost degrees of freedom, i.e. the book's
 `ℤ₂^3` after removing the extra `ℤ₂` of the Fock-space tensor product. -/
-theorem ghostRawCard : Fintype.card GhostRaw = 3 + 1 := by simp
+theorem ghostRawCard_navierStokes : Fintype.card GhostRaw = 3 + 1 := by simp
 
 end NavierStokes
 
@@ -140,7 +154,7 @@ their space-derivatives `∂_j ψ_a`. -/
 abbrev GhostRaw := Fin 8 ⊕ (Fin 3 × Fin 8)
 
 /-- **`8 + 24 = 32 = 31 + 1`**. -/
-theorem ghostRawCard : Fintype.card GhostRaw = 31 + 1 := by simp
+theorem ghostRawCard_yangMills3D : Fintype.card GhostRaw = 31 + 1 := by simp
 
 end YangMills3D
 
@@ -160,7 +174,7 @@ their spacetime-derivatives `∂_μ ψ_a`. -/
 abbrev GhostRaw := Fin 8 ⊕ (Fin 4 × Fin 8)
 
 /-- **`8 + 32 = 40 = 39 + 1`**. -/
-theorem ghostRawCard : Fintype.card GhostRaw = 39 + 1 := by simp
+theorem ghostRawCard_yangMills4D : Fintype.card GhostRaw = 39 + 1 := by simp
 
 end YangMills4D
 
@@ -181,7 +195,7 @@ theorem jetCard : Fintype.card Jet = 84 := by simp
 abbrev GhostRaw := Fin 4 ⊕ (Fin 4 × Fin 4)
 
 /-- **`4 + 16 = 20 = 19 + 1`**. -/
-theorem ghostRawCard : Fintype.card GhostRaw = 19 + 1 := by simp
+theorem ghostRawCard_gravity : Fintype.card GhostRaw = 19 + 1 := by simp
 
 end Gravity
 

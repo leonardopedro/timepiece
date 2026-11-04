@@ -1,7 +1,7 @@
 import Mathlib
 import BookProof.Toolbox.ChapterHermiteGraphApprox
 import BookProof.Qym.ChapterYangMillsHermite
-import BookProof.Toolbox.ChapterEsaOneParticleDGamma
+import BookProof.ChapterEsaOneParticleDGamma
 
 /-!
 # The non-abelian Yang–Mills one-particle Hamiltonian is essentially self-adjoint

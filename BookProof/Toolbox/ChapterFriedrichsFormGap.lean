@@ -7,7 +7,7 @@ import BookProof.Toolbox.ChapterFriedrichsExtension
 `CONSOLIDATED_PLAN.md` (top work package) needs the **infinite** selected operator, not just
 the finite truncations, to carry the certified positive lower bound.  The operator the
 Hashimoto/shift-invert algorithm selects is the Friedrichs extension constructed in
-`BookProof.FriedrichsExtension` (`friedrichs_extension_exists`,
+`BookProof.FriedrichsExtension` (`friedrichs_extension_exists_of_complete_explicit`,
 `friedrichs_hashimoto_selects`).  This chapter proves the missing transfer:
 
 > if the symmetric positive core satisfies `⟪x, H x⟫ ≥ μ‖x‖²` on its (dense) domain, then

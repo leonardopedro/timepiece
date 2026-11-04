@@ -1,5 +1,5 @@
 import BookProof.Qym.ChapterYangMillsAbelianFockEsa
-import BookProof.Toolbox.ChapterSqSumFockEsa
+import BookProof.ChapterSqSumFockEsa
 
 /-!
 Axiom audit for the wave that adds the **graded band calculus of the product Hermite basis**

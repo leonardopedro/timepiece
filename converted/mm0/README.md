@@ -18,8 +18,9 @@ mm0-rs compile kopperman_mehler.mm1 kopperman_mehler.mmb   # elaborate proofs
 mm0-c   kopperman_mehler.mmb < kopperman_mehler.mm0        # replay against spec
 ```
 
-Current state: **both exit 0, no warnings** — 12 sorts, 41 term/def,
-40 ax/thm (29 axioms + 11 proved theorems).
+Current state: **both exit 0, no warnings** — 12 sorts, 44 term/def,
+44 ax/thm (31 axioms + 13 proved theorems). `scripts/verify-mm0`
+(from the repo root) runs the same chain as a pass/fail gate.
 
 ## Files
 
@@ -35,7 +36,7 @@ carried across as provenance-tagged axioms.
 
 ## Trust split
 
-**Proved in mm1 (11)** — derivations `mm0-c` checks:
+**Proved in mm1 (13)** — derivations `mm0-c` checks:
 
 | theorem | source | what the proof does |
 |---|---|---|
@@ -49,8 +50,10 @@ carried across as provenance-tagged axioms.
 | `kopperman_substrate_separable` | `ChapterKopperman.kopperman_substrate_separable` | alias of the substrate fact |
 | `modelPrior_atomless` | `PnpProof.Kopperman.modelPrior_atomless` | the model prior's singleton masses vanish (field projection) |
 | `inner_orthogonal_tensor` | `orthonormal_tensorOf`, off-diagonal instance | orthogonal factors stay orthogonal under ⊗: `inner(e₁⊗g, e₂⊗g) = inner(e₁,e₂)·inner(g,g) = 0·… = 0` |
+| `pureTensors_dense` | `pureTensors_dense` (L357, ε-form) | membership in the closed span of the pure tensors (axiom `tensorSpan_eq_top`) transported through the closure↔ε bridge `inSpan_approx` |
+| `exists_tensor_approx` | `exists_tensor_approx` (L365, ε-form) | the ∃-form chains through `pureTensors_dense`, preserving Lean's dependency direction `tensorSpan_eq_top → pureTensors_dense → exists_tensor_approx` |
 
-**Analytic axioms (14)** — Lean-proved facts recorded with their source
+**Analytic axioms (16)** — Lean-proved facts recorded with their source
 theorem; MM0 records the statement, the proof stays in Lean:
 
 `separable_field` (Formalism.separable), `skeleton_field`
@@ -61,25 +64,32 @@ theorem; MM0 records the statement, the proof stays in Lean:
 `admits_atomless_prior`, `modelPrior_atomless_field` (prior_atomless at
 Model.prior), `concat_prob` (concatHeadMeasure_isProb), `solovayTensor_map`
 (solovayTensorEquiv_map — the transport theorem), `solovayTensor_unitary`
-(solovayTensorUnitary — the Hilbert-space form), `inner_tensorLp`.
+(solovayTensorUnitary — the Hilbert-space form), `inner_tensorLp`,
+`tensorSpan_eq_top` (ChapterTensorCompleteness L330 — the closed span of
+the pure tensors is all of L²(μ⊗ν), proved there by `Lp.induction`).
 
-**Interface axioms (15)** — MM0-side structural glue with no Lean source:
+**Interface axioms (16)** — MM0-side structural glue with no Lean source:
 state equality/congruence (`seq_trans`, `seq_cong_scons`, `seq_fst_cong`,
 `seq_snd_cong`), pairing computation and η (`sfst_cons`, `ssnd_cons`,
 `scons_eta`), component congruences (`hcat_cong`, `itlv_cong`,
 `band_cong`, `beq_ldec`, `rmul_cong_l`, `rmul_zero_l`), Real equality
-(`req_trans`), and the encoded-map bridge `soloFn_app`.
+(`req_trans`), the encoded-map bridge `soloFn_app`, and the closure↔ε
+bridge `inSpan_approx` (Lean: `Metric.mem_closure_iff` — membership in a
+closed set iff ε-approximable).
 
 ## What is *not* yet converted
 
-The completeness half of `ChapterTensorCompleteness.lean`
-(`tensorSpan_eq_top`, `pureTensors_dense`, `exists_tensor_approx`,
-`orthonormal_tensorOf`'s full Orthonormal statement,
-`tensorHilbertBasis`), the coordinate enlargements
-(`enlargeEquiv`, `tailSplitEquiv` in `ChapterSolovayCoordinates.lean`), and
-the internal ∀∃ structure of `Pi02` itself. They need either ε-approximation
-vocabulary or Fin-indexed arithmetic that this first layer deliberately
-keeps opaque; they are the natural next conversion step.
+The completeness chain of `ChapterTensorCompleteness.lean` **is** in the
+pair now: `tensorSpan_eq_top` as the analytic axiom (the topological
+statement — MM0 has no closure vocabulary), `inSpan_approx` as the one
+interface bridge (`Metric.mem_closure_iff`), and `pureTensors_dense` /
+`exists_tensor_approx` proved in ε-form from those, mirroring Lean's
+`Lp.induction` dependency order. Still out: `orthonormal_tensorOf`'s
+full Orthonormal statement, `tensorHilbertBasis`, the coordinate
+enlargements (`enlargeEquiv`, `tailSplitEquiv` in
+`ChapterSolovayCoordinates.lean`), and the internal ∀∃ structure of
+`Pi02` itself — they need Fin-indexed arithmetic this layer keeps
+opaque, and are the natural next conversion step.
 
 ## MM0/mmr syntax notes (pinned by test, for the next conversion)
 
@@ -128,6 +138,18 @@ Pushed through a local mm0web instance backed by the mock-Zenodo sandbox
     4 defs, 29 axioms, 11 theorems; 260 references, 0 faults),
     `/manifest`, `/events`, `/status`
 
+**Completeness-layer revision.** After the pair gained the
+`ChapterTensorCompleteness` chain (`tensorSpan_eq_top`,
+`inSpan_approx`, `pureTensors_dense`, `exists_tensor_approx`) it was
+re-published through the same instance: proof id
+`solovay-kopperman-tensor-6d04a444`, **state `published`, DOI
+`10.5281/zenodo.2` (record 2)**. The platform's own checker reported
+`12 sorts, 44 term/def, 44 ax/thm`; `/api/v1/graph` shows 100
+declarations with `pureTensors_dense` and `exists_tensor_approx`
+marked proved (13 proved theorems, 31 axioms), and
+`/api/v1/search?q=tensor` returns 13 hits over the corpus (both
+revisions live side by side in the store, hence corpus 193).
+
 The debug instance is left running for inspection: mm0web on
-`http://127.0.0.1:18949` (web PID 94680), mock Zenodo on `:8949`
-(PID 92402); logs in `/tmp/mm0pub/{web,mock}.log`.
+`http://127.0.0.1:18949` (web PID 94696), mock Zenodo on `:8949`
+(PID 92418); logs in `/tmp/mm0pub/{web,mock}.log`.

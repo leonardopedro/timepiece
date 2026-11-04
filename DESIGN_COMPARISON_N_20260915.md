@@ -481,7 +481,7 @@ is a **positive sum of squares** on `Adm`, hence symmetric on the Gauss–polyno
 bounded below by `0`.  Therefore
 
 * its **Friedrichs extension exists unconditionally** by
-  `FriedrichsExtension.friedrichs_extension_exists` — the theorem carrying *no* boundedness
+  `FriedrichsExtension.friedrichs_extension_exists_of_complete_explicit` — the theorem carrying *no* boundedness
   hypothesis — so the facts that `detPoly` is cubic and `volLog` is not polynomial at all cost
   nothing;
 * the comparison is `N_L = lagRedOuterN_esa`, built from this reduced `PosSymOp` by the same
@@ -493,7 +493,7 @@ bounded below by `0`.  Therefore
 
 This is the precise content of "easy because the determinant is positive": positivity of
 `det F` turns the cubic constraint into a square of a real function, and a square is the one
-thing `friedrichs_extension_exists` consumes.
+thing `friedrichs_extension_exists_of_complete_explicit` consumes.
 
 ### 6.4 Staged Lean plan
 

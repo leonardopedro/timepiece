@@ -1,5 +1,5 @@
 import Mathlib
-import BookProof.Toolbox.ChapterFourierMultiplierEsa
+import BookProof.ChapterFourierMultiplierEsa
 
 /-!
 # The Plancherel identification and the diagonal spatial derivative

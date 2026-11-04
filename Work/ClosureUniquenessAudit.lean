@@ -1,4 +1,4 @@
-import BookProof.Toolbox.ChapterClosureUniqueness
+import BookProof.ChapterClosureUniqueness
 
 /-!
 # Axiom audit for `BookProof.ChapterClosureUniqueness`

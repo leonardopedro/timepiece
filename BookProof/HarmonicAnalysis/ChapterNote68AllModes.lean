@@ -91,7 +91,7 @@ theorem solidHarmonic_spherical_euclidean {l μ : ℕ} (hμ : μ ≤ l) {r : ℝ
     solidHarmonic (stdVec 0) (stdVec 1) (stdVec 2) l μ
         (spherePt (stdVec 0) (stdVec 1) (stdVec 2) r θ φ)
       = r ^ l * assocLegendre l μ (Real.cos θ) * Real.cos (μ * φ) :=
-  solidHarmonic_spherical (norm_stdVec 0) (norm_stdVec 1) (norm_stdVec 2)
+  solidHarmonic_spherical_frames_explicit (norm_stdVec 0) (norm_stdVec 1) (norm_stdVec 2)
     (inner_stdVec (by decide)) (inner_stdVec (by decide)) (inner_stdVec (by decide)) hμ hr hθ φ
 
 end BookProof.ChapterNote68AllModes
