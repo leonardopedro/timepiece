@@ -993,6 +993,84 @@ theorem momentumColT4_samePointProductT4 (F G : Torus4 (n := n) → ℂ) (k i : 
   rw [momentumColT4, show samePointProductT4 F G = (fun x => F x * G x) from rfl,
     dftT4_mul_eq_convolution, ← mul_assoc, ← pow_add]
 
+/-- Reindexing a sum over the 4-torus by a translation: `∑_k f (k − i) = ∑_p f p`. -/
+theorem sum_sub_right_t4 (i : Torus4 (n := n)) (f : Torus4 (n := n) → ℝ) :
+    ∑ k : Torus4 (n := n), f (k - i) = ∑ p : Torus4 (n := n), f p := by
+  refine Fintype.sum_equiv
+    { toFun := fun k => k - i
+      invFun := fun p => p + i
+      left_inv := fun k => by simp
+      right_inv := fun p => by simp } (fun k => f (k - i)) f (fun k => rfl)
+
+/-- **Plancherel on the 4-torus, in norm form**: `∑_p ‖f̂ p‖² = n⁴ ∑_x ‖f x‖²`.  This is
+`sum_conj_dftT4_mul_dftT4` with `g = f`, read through `conj z * z = ↑‖z‖²`. -/
+theorem sum_norm_sq_dftT4 (f : Torus4 (n := n) → ℂ) :
+    ∑ p : Torus4 (n := n), ‖dftT4 f p‖ ^ 2
+      = (n : ℝ) ^ 4 * ∑ x : Torus4 (n := n), ‖f x‖ ^ 2 := by
+  have hc : ∀ z : ℂ, conj z * z = ((‖z‖ ^ 2 : ℝ) : ℂ) := by
+    intro z
+    rw [← Complex.normSq_eq_conj_mul_self, Complex.normSq_eq_norm_sq]
+  have h := sum_conj_dftT4_mul_dftT4 f f
+  rw [Finset.sum_congr rfl (fun k _ => hc (dftT4 f k)),
+    Finset.sum_congr rfl (fun x _ => hc (f x))] at h
+  have hcast : ((∑ k : Torus4 (n := n), ‖dftT4 f k‖ ^ 2 : ℝ) : ℂ)
+      = ((n : ℝ) ^ 4 * ∑ x : Torus4 (n := n), ‖f x‖ ^ 2 : ℝ) := by
+    rw [Complex.ofReal_sum, Complex.ofReal_mul, Complex.ofReal_pow, Complex.ofReal_sum]
+    simpa using h
+  exact Complex.ofReal_injective hcast
+
+/-- The norm factor of the momentum column: `‖n⁻⁴ V̂(k−i)‖² = (n⁸)⁻¹ ‖V̂(k−i)‖²`. -/
+theorem norm_sq_momentumColT4 (V : Torus4 (n := n) → ℂ) (k i : Torus4 (n := n)) :
+    ‖momentumColT4 V k i‖ ^ 2
+      = ((n : ℝ) ^ 8)⁻¹ * ‖dftT4 V (k - i)‖ ^ 2 := by
+  rw [momentumColT4, norm_mul, mul_pow, norm_pow]
+  have hn : ‖(((n : ℂ))⁻¹)‖ = ((n : ℝ))⁻¹ := by
+    rw [norm_inv, Complex.norm_natCast]
+  rw [hn]
+  have h8 : ((((n : ℝ))⁻¹) ^ 4) ^ 2 = ((n : ℝ) ^ 8)⁻¹ := by
+    rw [← pow_mul, ← inv_pow]
+  rw [h8]
+
+/-- **The momentum-transfer matrix on the 4-torus has the mass of the field.**
+`momentumColT4 V k i = n⁻⁴ V̂(k−i)`, each transfer `k − i` is hit `n⁴` times, and Plancherel on
+`(ℤ/n)⁴` gives `∑_p ‖V̂ p‖² = n⁴ ∑_x ‖V x‖²`; the `(n⁸)⁻¹` of the squared entries then cancels
+exactly, so the mass is `∑_x ‖V x‖²` — the identity of `momentumCol_hs_mass` on the four-torus. -/
+theorem momentumColT4_hs_mass (V : Torus4 (n := n) → ℂ) :
+    ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n), ‖momentumColT4 V k i‖ ^ 2
+      = ∑ x : Torus4 (n := n), ‖V x‖ ^ 2 := by
+  have hpair : ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n), ‖dftT4 V (k - i)‖ ^ 2
+      = (n : ℝ) ^ 4 * ∑ p : Torus4 (n := n), ‖dftT4 V p‖ ^ 2 := by
+    rw [Finset.sum_comm]
+    have hinner : ∀ i : Torus4 (n := n),
+        ∑ k : Torus4 (n := n), ‖dftT4 V (k - i)‖ ^ 2
+          = ∑ p : Torus4 (n := n), ‖dftT4 V p‖ ^ 2 :=
+      fun i => sum_sub_right_t4 i (fun x => ‖dftT4 V x‖ ^ 2)
+    rw [Finset.sum_congr rfl fun i _ => hinner i]
+    rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+    congr 1
+    have hcard : Fintype.card (Torus4 (n := n)) = n ^ 4 := by
+      show Fintype.card (ZMod n × ZMod n × ZMod n × ZMod n) = n ^ 4
+      rw [Fintype.card_prod, Fintype.card_prod, Fintype.card_prod, ZMod.card]
+      ring
+    rw [hcard, Nat.cast_pow]
+  calc ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n), ‖momentumColT4 V k i‖ ^ 2
+      = ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n),
+          ((n : ℝ) ^ 8)⁻¹ * ‖dftT4 V (k - i)‖ ^ 2 :=
+        Finset.sum_congr rfl fun k _ =>
+          Finset.sum_congr rfl fun i _ => norm_sq_momentumColT4 V k i
+    _ = ((n : ℝ) ^ 8)⁻¹ * ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n),
+          ‖dftT4 V (k - i)‖ ^ 2 := by
+        rw [Finset.mul_sum]
+        exact Finset.sum_congr rfl fun k _ => by rw [Finset.mul_sum]
+    _ = ((n : ℝ) ^ 8)⁻¹ * ((n : ℝ) ^ 4 * ∑ p : Torus4 (n := n), ‖dftT4 V p‖ ^ 2) := by
+        rw [hpair]
+    _ = ((n : ℝ) ^ 8)⁻¹ * ((n : ℝ) ^ 4
+          * ((n : ℝ) ^ 4 * ∑ x : Torus4 (n := n), ‖V x‖ ^ 2)) := by
+        rw [sum_norm_sq_dftT4]
+    _ = ∑ x : Torus4 (n := n), ‖V x‖ ^ 2 := by
+        have hn : (n : ℝ) ≠ 0 := by exact_mod_cast NeZero.ne n
+        field_simp
+
 /-- **The form of the two-field same-point product on the 4-torus is the momentum
 convolution.** -/
 theorem samePointProductT4_form_eq_momentum (F G f : Torus4 (n := n) → ℂ) :
@@ -1121,6 +1199,16 @@ theorem chain_form_eq_momentumT4 {r : ℕ} (F : Fin r → Torus4 (n := n) → �
     simp [samePointProductT4]
   rw [hsym] at h
   exact h
+
+/-- **The 4-torus chain mass bound.**  Composing `momentumColT4_hs_mass` with
+`chain_hs_massT4`: the momentum-transfer matrix of a chain of `r` coincident-point factors has mass
+`∑_x ∏_j ‖F_j x‖²`, exactly as `chain_form_hs_bound` reads the chain in one dimension.  So the chain
+has a genuine Hilbert–Schmidt constant on `(ℤ/n)⁴`, not merely a form identity. -/
+theorem momentumColT4_chain_hs_mass {r : ℕ} (F : Fin r → Torus4 (n := n) → ℂ) :
+    ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n),
+        ‖momentumColT4 (fun x => ∏ j, F j x) k i‖ ^ 2
+      = ∑ x : Torus4 (n := n), ∏ j, ‖F j x‖ ^ 2 := by
+  rw [momentumColT4_hs_mass, chain_hs_massT4]
 
 end MomentumProductTorus4
 

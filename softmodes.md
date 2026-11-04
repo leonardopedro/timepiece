@@ -412,6 +412,12 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    relative bound, which is exactly why the ratio `1/2` there carries no cut-off.  The bounded-form
    reading (`a = 0`) is cut-off-local, and the continuum needs the relative statement.
 
+   On the four-torus the corresponding gap is closed as well: `momentumColT4_hs_mass` is the
+   analogue of `momentumCol_hs_mass` (`∑_k ∑_i ‖momentumColT4 V k i‖² = ∑_x ‖V x‖²`, from Plancherel
+   on `(ℤ/n)⁴` and the fact that each transfer is hit `n⁴` times), and
+   `momentumColT4_chain_hs_mass` carries it to a chain of coincident-point factors.  So the four-torus
+   chain now has an actual Hilbert–Schmidt bound and not only a form identity.
+
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
 separation `β∞ − θ∞ ≥ c₁Δ_ref` is still an input there (see the status of Phase 4).
