@@ -336,6 +336,14 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
   `{N ≤ N₀ + k}`) and **`driftOp_band`** (a monomial family of degree `≤ K` maps into
   `{N ≤ N₀ + K}`).  `numberOp` is the diagonal `N`, and `pcnlHamiltonian_band` states the §2.2
   operator shape `P₀`-diagonal-plus-finite-band-drift on the core.
+  **§9 adds the Hermite multiplication law**, the letter-level dictionary Module 3's expansion
+  consumes: `mulHermite` is the symmetrised one-mode word `(1/√2)(a_j† + a_j)` on the coefficient
+  core, **`mulHermite_eq_ladderWords`** splits it into its two ladder words `(1/√2)a_j†` and
+  `(1/√2)a_j`, and **`driftOpCoeff_eq_ladderWords`** separates `∇Φ`'s coefficient operator
+  symmetrically into the lowering sum `−(b_j/√2)` and the raising sum `+(b_j/√2)`.  What is *not*
+  yet done is the multimode induction on `hermiteMvBasis` that turns this single-mode dictionary
+  into the expansion of `∇Φ` on the product basis — the substitution `x ↦ (a + a†)/√2` is now
+  available letter by letter, not yet as an identity of operators on the full core.
 
 * **Module 1 proper, in the `α → ∞` Gaussian form — DONE (2026-10-30)** — `BookProof.MCMC.MehlerEigenfunction`
   (`BookProof/MCMC/MehlerEigenfunction.lean`, no `sorry`).  This is the eigenfunction identity the

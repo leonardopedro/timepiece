@@ -1937,6 +1937,38 @@ example : twoModeShift 1 (1 / 2) 1 < (1 : ℝ) ^ 2 / (4 * (1 / 2)) := by
   rw [hrhs]
   linarith
 
+/-- **The termwise shift is beaten in every dimension `d ≥ 1`, with no condition on `A`.**  For
+every `a > 0` and every `d ≥ 1` the two-mode optimum at ratio `a` is *strictly* below the
+frontier's `A²/(4a)` — not only in the worked `d = 1` case.  The proof compares
+`√(A² + a²/4) − a(2d+1)/2` with the smaller `√(A² + a²/4) − 3a/2` and squares, the difference of
+squares being `((A² − 2a²)² + 28a⁴)/(16a²) > 0`, which is positive without any hypothesis.  So no
+dimension makes the termwise shift the ladder's sharp constant: `S/(4a)` and the two-mode optimum
+are separated by a strict inequality for every `d ≥ 1`. -/
+theorem twoModeShift_lt_termwise {A a : ℝ} {d : ℕ} (hd : 1 ≤ d) (ha : 0 < a) :
+    twoModeShift A a d < A ^ 2 / (4 * a) := by
+  have hd1 : (1 : ℝ) ≤ (d : ℝ) := by exact_mod_cast hd
+  have hm3 : (3 : ℝ) * a / 2 ≤ a * ((2 * (d : ℝ) + 1) / 2) := by nlinarith [hd1, ha.le]
+  have h16 : (0 : ℝ) < 16 * a ^ 2 := by positivity
+  have hnum : (0 : ℝ) < (A ^ 2 - 2 * a ^ 2) ^ 2 + 28 * a ^ 4 :=
+    by nlinarith [sq_nonneg (A ^ 2 - 2 * a ^ 2), pow_pos ha 4]
+  have hdiff : (A ^ 2 / (4 * a) + 3 * a / 2) ^ 2 - (A ^ 2 + a ^ 2 / 4)
+      = ((A ^ 2 - 2 * a ^ 2) ^ 2 + 28 * a ^ 4) / (16 * a ^ 2) := by
+    field_simp
+    ring
+  have hsq : A ^ 2 + a ^ 2 / 4 < (A ^ 2 / (4 * a) + 3 * a / 2) ^ 2 := by
+    have hquot : (0 : ℝ) < ((A ^ 2 - 2 * a ^ 2) ^ 2 + 28 * a ^ 4) / (16 * a ^ 2) :=
+      div_pos hnum h16
+    have hpos : (0 : ℝ) < (A ^ 2 / (4 * a) + 3 * a / 2) ^ 2 - (A ^ 2 + a ^ 2 / 4) := by
+      rw [hdiff]
+      exact hquot
+    linarith
+  have hroot : Real.sqrt (A ^ 2 + a ^ 2 / 4) < A ^ 2 / (4 * a) + 3 * a / 2 := by
+    rw [Real.sqrt_lt (by positivity : (0 : ℝ) ≤ A ^ 2 + a ^ 2 / 4)]
+    · exact hsq
+    · positivity
+  simp only [twoModeShift]
+  linarith
+
 /-! ## 12. The cut-off ladder as a kernel on `Idx d`: the box embedding
 
 §10 proves the sharp bound for `x : (Fin d → Fin Λ) → ℂ`, on the cut-off box; the closed-form

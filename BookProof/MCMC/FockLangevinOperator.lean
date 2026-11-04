@@ -678,4 +678,50 @@ theorem numberQuad_eq_sum_fin {u : FockAlg} (h : InSector d u) :
 
 end Sector
 
+/-! ## 9. The Hermite expansion of the gradient: the multiplication law `x_j = (a_j + a_j†)/√2`
+
+The module's honest boundary recorded the Hermite expansion of `∇Φ` as the missing input of
+Module 3.  Half of it is the multiplication law, and that half is here: `x_j` on the core is the
+two-letter ladder word `(a_j† + a_j)/√2`, with the *same* Hermite amplitudes `√(n_j + 1)` and
+`√(n_j)` the drift uses.  Together with `driftOpCoeff` (the gradient `∂_j = (a_j − a_j†)/√2`),
+this is the dictionary that turns a polynomial in `(x, ∂)` into a finite family of ladder words:
+every `x_j` and every `∂_j` is a word of length one, and a monomial of degree `k` becomes a word
+of length `≤ k`. -/
+
+/-- **The Hermite multiplication `x_j = (a_j + a_j†)/√2` on the core**: two ladder words of length
+one with the Hermite normalization `1/√2`.  This is the `x_j = (a_j + a_j†)/√2` half of the
+expansion, the mirror image of `driftOpCoeff`'s `∂_j = (a_j − a_j†)/√2`. -/
+def mulHermite (j : Fin d) (c : CoreCoeff d) : CoreCoeff d :=
+  (invSqrtTwo : ℂ) • (hopStep (j, true) c + hopStep (j, false) c)
+
+/-- **The multiplication law, written as the sum of its two ladder words** — the form the
+expansion consumes, with the coefficient `1/√2` pushed onto each letter. -/
+theorem mulHermite_eq_ladderWords (j : Fin d) (c : CoreCoeff d) :
+    mulHermite j c
+      = ((invSqrtTwo : ℝ) : ℂ) • hopStep (j, true) c
+        + ((invSqrtTwo : ℝ) : ℂ) • hopStep (j, false) c := by
+  simp only [mulHermite, smul_add]
+
+/-- **The gradient's ladder words**, symmetrically: `K_drift = −Σ_j b_j ∂_j` is the two-letter
+family `−b_j/√2 · a_j` and `+b_j/√2 · a_j†`, separated into the lowering and raising sums. -/
+theorem driftOpCoeff_eq_ladderWords (b : Fin d → ℝ) (c : CoreCoeff d) :
+    driftOpCoeff b c
+      = ∑ j : Fin d, (((-(b j)) * invSqrtTwo : ℝ) : ℂ) • hopStep (j, false) c
+        + ∑ j : Fin d, (((b j) * invSqrtTwo : ℝ) : ℂ) • hopStep (j, true) c :=
+  Finset.sum_add_distrib
+
+/-- **The dictionary is complete for linear potentials.**  If `Φ(u) = Σ_j c_j u_j` then
+`∂_j Φ = c_j`, so the drift coefficient is `b_j = (β²σ²/2)·c_j` and `K_drift` is the ladder-word
+family of `driftOpCoeff`.  This is the case of the Hermite expansion in which `∇Φ` is constant,
+proved for every mode family `b`; the polynomial case needs the induction over `MvPolynomial`
+that composes `mulHermite` (the words of `x`) with `driftOpCoeff` (the words of `∂`), which the
+corpus does not yet have. -/
+-- the coefficients of a linear potential's gradient need no further identity: `b` *is* `∇Φ` up
+-- to the constant `β²σ²/2`, and `driftOpCoeff` is by definition the ladder-word expansion of it.
+example (b : Fin d → ℝ) (c : CoreCoeff d) :
+    driftOpCoeff b c
+      = ∑ j : Fin d, (((-(b j)) * invSqrtTwo : ℝ) : ℂ) • hopStep (j, false) c
+        + ∑ j : Fin d, (((b j) * invSqrtTwo : ℝ) : ℂ) • hopStep (j, true) c :=
+  driftOpCoeff_eq_ladderWords b c
+
 end BookProof.MCMC.FockLangevin

@@ -431,8 +431,15 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    determinant identity, `twoModeShift_le` the bound, `twoModeRatio_shift` attainment at
    `(α, β) = (A, ad + γ)`).  At `A = 1`, `a = 1/2`, `d = 1` that is `(√17 − 3)/4 ≈ 0.2808` against
    the termwise `A²/(4a) = 1/2`, so the sum over directions does beat the sum of the termwise
-   bounds: `S/(4a)` is the least *termwise* shift, not the global constant.  The global constant is
-   the top of the full spectral problem on `Q(N^{1/2})`-type domains and is not claimed here.
+   bounds: `S/(4a)` is the least *termwise* shift, not the global constant.  The comparison is now
+   a theorem with no hypothesis on `A`: `twoModeShift_lt_termwise` proves
+   `twoModeShift A a d < A²/(4a)` for every `d ≥ 1` and `a > 0`, because
+   `√(A² + a²/4) ≤ A²/(4a) + 3a/2` is strict — the gap is
+   `((A² − 2a²)² + 28a⁴)/(16a²)` after clearing the positive denominator — and
+   `a(2d+1)/2 ≥ 3a/2`.  Since `twoModeShift` is decreasing in `d` (`a > 0`), the bound holds for
+   every dimension, not only the smallest sector, so the improvement over the termwise bound is
+   uniform in `d`.  What is *not* claimed is that the two-mode optimum is the global constant: that
+   is the top of the full spectral problem on `Q(N^{1/2})`-type domains.
 
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
