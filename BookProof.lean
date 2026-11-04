@@ -3465,7 +3465,11 @@ import BookProof.YangMillsFormClosure
 -- `closedKernelForm_coreEmbed` identifies it with `kernelForm` on the core, and
 -- `closed_diagonal_add_kernelForm_ge` / `closed_sector_bottom_ge_interacting` are the bottom
 -- bounds on the form domain — so the interaction is a bounded, hence continuous, perturbation of
--- the closed diagonal form.  The ratio of the Faris–Lavine comparison stays a core statement.
+-- the closed diagonal form.  §6 carries the ratio over as well: `closed_farisLavine_domination` is
+-- the `L²` comparison with relative bound `a < 1` (ratio `(1 − a)c₁`), its finiteness hypothesis
+-- derived in `closed_dom_of_scaled_symbol` from a symbolwise inequality.  §7 measures the price of
+-- the cut-off: `magCutoffKernel_hs_mass` bounds the magnetic ladder's Hilbert–Schmidt mass by
+-- `d² C Λ^(d+1)`, i.e. a constant of order `Λ^{(d+1)/2}` — a power, not a uniform bound.
 import BookProof.YangMillsFormClosureNonDiagonal
 -- 2026-10-30 (`softmodes.md` Phase 2): Simon's transverse zero-point energy on the Cartan flat
 -- directions.  `parallelDegree`/`perpDegree`/`rootCount` split the degree form into Cartan and

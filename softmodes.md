@@ -328,11 +328,18 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    interaction is an honest finite matrix, and it is not uniform in the cut-off — the number of
    coupled multi-indices and the magnetic matrix elements grow with the mode index, so no single
    `σ` survives the continuum limit, where the magnetic term is only relatively form bounded with
-   `a < 1`.  Boundedness is a *sufficient* condition for closability (the interaction is then a
+   `a < 1`.   Boundedness is a *sufficient* condition for closability (the interaction is then a
    continuous perturbation of the closed diagonal form, and the sum is closed on the same domain),
-   the `a = 0` case of the Faris–Lavine branch; it is not the necessary one.  Still open: the
-   Faris–Lavine comparison as an `L²` inequality (with unequal coefficients `c₁, c₂`) — the lift
-   above delivers the bottom, not the ratio.
+   the `a = 0` case of the Faris–Lavine branch; it is not the necessary one.  **The comparison is
+   now stated on `L²` too (2026-11-04)**: §6 gives `closed_farisLavine_domination` — ratio
+   `(1 − a)c₁ > 0`, shift `(1 − a)c₂ + b`, for a relative bound `a < 1` — with the finiteness of
+   the closed forms as the only extra hypothesis, and `closed_dom_of_scaled_symbol` *derives* that
+   hypothesis from a symbolwise inequality `c₁ f ≤ g + C` rather than assuming it (`toReal` of `⊤`
+   is `0`, so the finiteness cannot be dropped).  What neither section supplies is a bound uniform
+   in the cut-off: §7 computes it on a model — `magCutoffKernel_hs_mass` gives the magnetic ladder
+   mass at most `d² C Λ^(d+1)`, i.e. a constant at most `d √C Λ^{(d+1)/2}` — which is a power of
+   the cut-off and not a uniform `σ`, so the continuum still needs the `a < 1` branch with `a`
+   bounded away from `1` uniformly.
 
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
@@ -549,9 +556,10 @@ This step directly integrates into existing modules:
   ```
 * **Deliverable:** `BookProof.YangMillsFormDomination.lean`.* **Status (2026-11-04): the implication, the domination inequality on the Gauss–polynomial core,
  the `L²` closure of that core, the Faris–Lavine comparison for a non-diagonal interaction, and
- the `L²` lift of the *interacting* form (its bottom bound, on the form domain) are DONE**
- (`BookProof.YangMillsFormClosure`, `BookProof.YangMillsFormClosureNonDiagonal`); what remains
- open is the `L²` *ratio* for the interacting form, as described at the end of this item.
+ the `L²` lift of the *interacting* form — its bottom bound *and* its Faris–Lavine comparison
+ with relative bound `a < 1`, on the form domain — are DONE** (`BookProof.YangMillsFormClosure`,
+ `BookProof.YangMillsFormClosureNonDiagonal`); what remains open is the *uniformity in the
+ cut-off* of the Hilbert–Schmidt / relative bound, as described at the end of this item.
   `BookProof.YangMillsFormDomination` (`BookProof/YangMillsFormDomination.lean`, no `sorry`)
   carries the certificate as a structure, `FormDomination ω q` = ratio `c₁ > 0`, shift `c₂`, and
   `∀ c, c₁ · coreForm ω c − c₂ · coreNormSq c ≤ q c` on the Phase-3 core.
@@ -647,12 +655,14 @@ This step directly integrates into existing modules:
   `closed_diagonal_add_kernelForm_ge` and `closed_sector_bottom_ge_interacting`.  So, *when the
   total Hilbert–Schmidt mass is finite*, the off-diagonal interaction is a bounded form
   perturbation of the closed diagonal form — continuous, hence closed on the same domain — and
-  Phase 5's bottom statements hold on `L²`, not only on the core.  Two caveats, both recorded in
-  the module: the mass is a fixed-cut-off quantity (it is not uniform in the mode count, so the
-  continuum has to go through the relative-bound `a < 1` branch rather than `a = 0`), and the lift
-  gives the bottom and not the **ratio**: the Faris–Lavine comparison `c₁ q_ref ≤ q' + qK` is an
-  `L²` inequality with unequal coefficients `c₁ ≠ 1`, which needs the finiteness of both closed
-  forms, and only the bounded (shift) case is carried over here.  So
+  Phase 5's bottom statements hold on `L²`, not only on the core.  The **ratio** is carried over
+  as well, in §6: `closed_farisLavine_domination` states `c₁ (closedForm μ x).toReal ≤
+  (closedForm g x).toReal + closedKernelForm K x + shifts` with the relative bound `a < 1` intact,
+  the finiteness `closedForm g x ≠ ⊤` being the only extra hypothesis.  What remains is uniformity
+  in the cut-off: §7 shows the magnetic ladder's Hilbert–Schmidt mass is at most `d² C Λ^(d+1)` at
+  cut-off `Λ` (`magCutoffKernel_hs_mass`), hence a constant of order `Λ^{(d+1)/2}` — so the `a = 0`
+  branch is cut-off-local and the continuum has to use `a < 1` with `a` uniformly bounded away from
+  `1`, which is not yet proved.  So
   Phase 5's `c₁Δ_ref` is certified on the core for the off-diagonal case, and on `L²` for the
   diagonal one at full strength — with the interacting term bounded below on `L²` by `−σ‖x‖²`,
   which preserves the *bottom* and not yet the *ratio* of the separation.

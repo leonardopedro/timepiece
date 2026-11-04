@@ -72,28 +72,50 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   (`closedForm f x ≠ ⊤`).  This is a *sufficient* route to closability, not the general requirement:
   a bounded form perturbation of a closed form is continuous in the `ℓ²` norm, so the sum is closed
   on the same domain.  General closability needs only relative form boundedness with relative bound
-  `a < 1` — the `farisLavine_domination` branch — and boundedness is the `a = 0` case.
+  `a < 1` — the `farisLavine_domination` branch — and boundedness is the `a = 0` case;
+* §6 states the comparison itself on `L²` **with** the relative bound:
+  `closed_farisLavine_domination` gives ratio `(1 − a)c₁ > 0` and shift `(1 − a)c₂ + b`, the
+  finiteness of the closed forms being the explicit hypothesis, and `closed_dom_of_scaled_symbol`
+  discharges that hypothesis from a symbolwise inequality instead of assuming it;
+* §7 measures the cut-off dependence: the magnetic ladder kernel has Hilbert–Schmidt mass at most
+  `d² C Λ^(d+1)` (`magCutoffKernel_hs_mass`), so its constant is at most `d √C Λ^{(d+1)/2}` — a
+  power of the cut-off, not a uniform bound.
 
 ## Honest boundary
 
-What is *not* claimed: the Faris–Lavine **comparison** (the domination of the reference form by the
-sum form) is proved on the core and, on `L²`, only through the bottom bound `θ − σ` — the
-`L²`-level inequality `c₁ q_ref ≤ closedForm g + closedKernelForm` would need the finiteness of
-both closed forms and is not stated.  The diagonal-side closure of `YangMillsFormClosure` is
-therefore extended exactly as far as the Hilbert–Schmidt bound reaches: bounded interactions lift,
-interactions that are merely form bounded with relative bound `a < 1` remain core statements.
+What the comparison needed is now stated rather than deferred: `closed_farisLavine_domination` is
+the `L²` form of `c₁ q_ref ≤ q' + qK` with `a < 1`, its only extra hypothesis being the finiteness
+of the closed forms, and that hypothesis is itself derived from a symbolwise inequality.  What
+remains outside the statements is a *uniform-in-cut-off* version: §7 shows the Hilbert–Schmidt
+constant of the magnetic ladder grows like `Λ^{(d+1)/2}`, so the `a = 0` branch is genuinely
+cut-off-local, and the continuum needs the `a < 1` branch together with a proof that `a` stays
+bounded away from `1` uniformly — the relative form bound of the magnetic operator, which this
+repository does not yet supply.
 
 **What the Hilbert–Schmidt hypothesis costs.**  `∑' p, ‖K p.1 p.2‖² ≤ σ²` is a hypothesis *on the
 model*, not a theorem about Yang–Mills.  It holds for a kernel at a fixed cut-off — finitely many
 coupled modes, hence an honest finite matrix with a finite Hilbert–Schmidt mass — but it is not
 uniform as the cut-off is removed: the number of coupled multi-indices and the size of the magnetic
 matrix elements both grow with the mode index, so no single `σ` survives the continuum limit.  There
-the magnetic term is only form bounded with relative bound `a < 1`, which is exactly the branch that
-stays on the core above; the `L²` statement proved here is therefore a fixed-cut-off statement.
+the magnetic term is only form bounded with relative bound `a < 1`, which is exactly the branch of
+§6.  So the `a = 0` statement of §5 is a fixed-cut-off statement, whereas §6 is cut-off-free but
+conditional on the relative bound; neither supplies the uniform bound itself.
 A different sufficient route to closability is operator level: `HashimotoShiftInvert`'s
 `closed_of_selfAdjointCriterion` closes the graph of a symmetric operator from the self-adjointness
-criterion, and the Friedrichs representation then yields a closed form.  That criterion has not been
-instantiated for the magnetic operator, and on its own it would not produce the ratio either.
+criterion, and the Friedrichs representation then yields a closed form.  It is not instantiated
+here, and the reason is not laziness of exposition but the domains:
+
+* on the fixed-cut-off model the magnetic term is *bounded* (§7 gives its constant), so it is
+already self-adjoint on all of `ℓ²` and clause 4 of the criterion holds before anything is proved —
+an instantiation would be a tautology;
+* on the Gauss-polynomial core the domain is the finite-support span, and a diagonal operator with
+an unbounded symbol restricted to that domain is symmetric but *not* self-adjoint: its adjoint has
+the maximal domain, so the criterion's clause 4 fails exactly where it would have content.  The
+domain on which the criterion can succeed is the maximal (form) domain — and there `closedForm`
+already gives the closed form directly, which is what §5 and §6 use.
+
+What the criterion would add is the continuum magnetic operator, which is not formalized here (no
+derivative term, no `F = ∂A + g[A,A]` assembly; see the boundary of `YangMillsMagneticQuartic`).
 -/
 
 noncomputable section
@@ -647,5 +669,271 @@ theorem closed_hopping_sector_bottom {f : Idx d → ℝ} {θ : ℝ} (hθ : ∀ n
       '' S) :=
   closed_sector_bottom_ge_interacting (K := hoppingKernel m₀ n₀) hθ (by norm_num)
     (fun s => by simpa using hoppingKernel_sq_sum_le (d := d) m₀ n₀ s) S hne hS hfin
+
+/-! ## 6. The relative bound on `L²`: the comparison itself, not only the bottom
+
+§5 lifts the interaction as a *bounded* form, which is the `a = 0` branch of Faris–Lavine and gives
+the bottom `θ − σ`.  What Phase 5 actually consumes is the comparison
+
+`c₁ q_ref ≤ q' + qK`
+
+with the interaction entering through a relative bound `a < 1`, because in the continuum the
+magnetic term is not Hilbert–Schmidt bounded and only its relative form bound is finite.  This
+section states that comparison on `L²`, with the **finiteness of the forms** as the explicit
+hypothesis — `closedForm g x ≠ ⊤` is the form-domain condition, and it is the only place where the
+finiteness of the reference form enters.
+
+* `closed_dom_of_scaled_symbol` — **the hypothesis is not assumed, it is discharged**: a symbolwise
+  inequality `c₁ f ≤ g + C` plus the form-domain hypothesis `closedForm g x ≠ ⊤` (and the
+  finiteness of `closedForm f`) gives the real-valued domination
+  `c₁ (closedForm f x).toReal − C‖x‖² ≤ (closedForm g x).toReal`.  This is where the `ℝ≥0∞`-valued
+  form is converted to real numbers, and it is exactly why finiteness cannot be dropped: the
+  `toReal` of `⊤` is `0`.
+* **`closed_farisLavine_domination`** — the sum form dominates with ratio `(1 − a) c₁ > 0` and shift
+  `(1 − a) c₂ + b`, so the certified separation degrades by `1 − a` and is not destroyed.
+* `closed_farisLavine_of_bounded_interaction` / `closed_farisLavine_of_hs` — the `a = 0` case, with
+  the shift from a Hilbert–Schmidt constant `σ`, which is `§5`'s branch written as a comparison.
+-/
+
+/-- **From a symbolwise comparison to a domination on the form domain.**  If `c₁ f ≤ g + C` on the
+symbols, then on states where the closed form of `g` is finite (and the closed form of `f` is), the
+real-valued inequality `c₁ (closedForm f x).toReal − C‖x‖² ≤ (closedForm g x).toReal` holds.  The
+finiteness of `closedForm f x` is needed only to take `toReal` of the product; the finiteness of
+`closedForm g x` is the form-domain condition of the sum. -/
+theorem closed_dom_of_scaled_symbol {f g : Idx d → ℝ} {c₁ C : ℝ} (hc₁ : 0 ≤ c₁)
+    (hg : ∀ n, 0 ≤ g n) (hC : 0 ≤ C) (h : ∀ n, c₁ * f n ≤ g n + C)
+    (hf : ∀ x : L2 d, closedForm g x ≠ ⊤ → closedForm f x ≠ ⊤) (x : L2 d)
+    (hx : closedForm g x ≠ ⊤) :
+    c₁ * (closedForm f x).toReal - C * ‖x‖ ^ 2 ≤ (closedForm g x).toReal := by
+  have h1 : ENNReal.ofReal c₁ * closedForm f x
+      ≤ closedForm g x + ENNReal.ofReal C * closedNormSq x := closedForm_scaled_le hc₁ hg hC h x
+  have hsl : ENNReal.ofReal C * closedNormSq x ≠ ⊤ := by
+    rw [closedNormSq_eq]
+    exact ENNReal.mul_ne_top ENNReal.ofReal_ne_top ENNReal.ofReal_ne_top
+  have hlhs : ENNReal.ofReal c₁ * closedForm f x ≠ ⊤ :=
+    ENNReal.mul_ne_top ENNReal.ofReal_ne_top (hf x hx)
+  have hrhs : closedForm g x + ENNReal.ofReal C * closedNormSq x ≠ ⊤ :=
+    ENNReal.add_ne_top.2 ⟨hx, hsl⟩
+  have h2 : (ENNReal.ofReal c₁ * closedForm f x).toReal
+      ≤ (closedForm g x + ENNReal.ofReal C * closedNormSq x).toReal :=
+    (ENNReal.toReal_le_toReal hlhs hrhs).2 h1
+  rw [ENNReal.toReal_mul, ENNReal.toReal_ofReal hc₁, ENNReal.toReal_add hx hsl,
+    ENNReal.toReal_mul, ENNReal.toReal_ofReal hC, closedNormSq_eq,
+    ENNReal.toReal_ofReal (by positivity)] at h2
+  linarith
+
+/-- **Faris–Lavine on the form domain.**  This is `farisLavine_domination` for the closed forms: if
+the closed form of `μ` is dominated by that of `g` with ratio `c₁` and shift `c₂` on the form
+domain,
+and the off-diagonal interaction is form bounded there by `a · closedForm g + b‖·‖²` with `a < 1`,
+then the interacting sum form dominates with ratio `(1 − a) c₁ > 0` and shift `(1 − a) c₂ + b`.  The
+form-domain hypothesis `closedForm g x ≠ ⊤` appears exactly where the real-valued inequality is
+stated, and nowhere else. -/
+theorem closed_farisLavine_domination {μ g : Idx d → ℝ} {K : Idx d → Idx d → ℂ}
+    {c₁ c₂ a b : ℝ} (hc₁ : 0 < c₁) (ha1 : a < 1)
+    (hdom : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2 ≤ (closedForm g x).toReal)
+    (hK : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      |closedKernelForm K x| ≤ a * (closedForm g x).toReal + b * ‖x‖ ^ 2) :
+    0 < (1 - a) * c₁ ∧
+      ∀ x : L2 d, closedForm g x ≠ ⊤ →
+        (1 - a) * c₁ * (closedForm μ x).toReal - ((1 - a) * c₂ + b) * ‖x‖ ^ 2
+          ≤ (closedForm g x).toReal + closedKernelForm K x := by
+  refine ⟨mul_pos (by linarith) hc₁, fun x hfin => ?_⟩
+  have h1a : 0 ≤ 1 - a := by linarith
+  have hN : (0 : ℝ) ≤ ‖x‖ ^ 2 := by positivity
+  have hlow : -(a * (closedForm g x).toReal + b * ‖x‖ ^ 2) ≤ closedKernelForm K x :=
+    (abs_le.mp (hK x hfin)).1
+  have hmul := mul_le_mul_of_nonneg_left (hdom x hfin) h1a
+  have hexp : (1 - a) * (c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2)
+      = (1 - a) * c₁ * (closedForm μ x).toReal - ((1 - a) * c₂) * ‖x‖ ^ 2 := by ring
+  rw [hexp] at hmul
+  nlinarith [hmul, hlow, hN]
+
+/-- **The bounded interaction, as a comparison on `L²`.**  For `a = 0` the ratio is untouched and
+the interaction costs only the shift `b`. -/
+theorem closed_farisLavine_of_bounded_interaction {μ g : Idx d → ℝ} {K : Idx d → Idx d → ℂ}
+    {c₁ c₂ b : ℝ}
+    (hdom : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2 ≤ (closedForm g x).toReal)
+    (hK : ∀ x : L2 d, |closedKernelForm K x| ≤ b * ‖x‖ ^ 2) :
+    ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - (c₂ + b) * ‖x‖ ^ 2
+        ≤ (closedForm g x).toReal + closedKernelForm K x := by
+  intro x hfin
+  have hN : (0 : ℝ) ≤ ‖x‖ ^ 2 := by positivity
+  have hlow : -(b * ‖x‖ ^ 2) ≤ closedKernelForm K x := (abs_le.mp (hK x)).1
+  linarith [hdom x hfin]
+
+/-- **A Hilbert–Schmidt interaction in the comparison.**  The relative bound is discharged from the
+Hilbert–Schmidt constant `σ` of `§5`, so the shift grows by exactly `σ` and the ratio stays `c₁`. -/
+theorem closed_farisLavine_of_hs {μ g : Idx d → ℝ} {K : Idx d → Idx d → ℂ} {c₁ c₂ σ : ℝ}
+    (hdom : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2 ≤ (closedForm g x).toReal)
+    (hσ0 : 0 ≤ σ)
+    (hσ : ∀ s : Finset (Idx d), ∑ m ∈ s, ∑ n ∈ s, ‖K m n‖ ^ 2 ≤ σ ^ 2) :
+    ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - (c₂ + σ) * ‖x‖ ^ 2
+        ≤ (closedForm g x).toReal + closedKernelForm K x :=
+  closed_farisLavine_of_bounded_interaction hdom (fun x => abs_closedKernelForm_le hσ0 hσ x)
+
+/-! ## 7. How fast the Hilbert–Schmidt constant grows at cut-off
+
+§5 and §6 are statements at a fixed cut-off, and the honest boundary records that no single `σ`
+survives the removal of the cut-off.  This section makes that quantitative on a model of the
+magnetic coupling: a ladder term, raising one occupation number by one, with the matrix element
+`Aᵢ·√(nᵢ + 1)` that a Weyl-gauge magnetic potential produces.
+
+At cut-off `Λ` the modes are `Fin d → Fin Λ` (occupation numbers below `Λ`), and the kernel is
+
+`magCutoffKernel A m n = ∑ i, [m = n + eᵢ] · Aᵢ √(nᵢ + 1)`   (the raise only if `nᵢ + 1 < Λ`).
+
+Two facts give the growth, and nothing else is used:
+
+* `norm_sum_sq_le_card_mul` — `‖∑ᵢ xᵢ‖² ≤ d · ∑ᵢ ‖xᵢ‖²`, so a row costs a factor `d`;
+* `sum_norm_sq_ite` — a single matrix element in its row has square norm `‖c‖²`, so a row of the
+  ladder is exactly the sum over the `d` directions.
+
+Hence the row of the kernel is at most `d · d · CΛ` (`C` bounding `Aᵢ²`, `Λ` bounding `nᵢ + 1`), and
+`hs_mass_le_of_entry_row` multiplies by the number of modes `Λ^d`:
+
+**`magCutoffKernel_hs_mass` — `∑ m ∑ n ‖K m n‖² ≤ d² C Λ^(d+1)`.**  So the Hilbert–Schmidt
+constant of the magnetic term is at most `d √C Λ^{(d+1)/2}`: a power of the cut-off, with the
+exponent `(d+1)/2`, which is exactly why it is *not* uniform in `Λ` and why the continuum statement
+has to go through the relative-bound branch of §6 rather than the bounded branch of §5. -/
+
+/-- **A row bound from an entry bound, on a finite index set.**  Summing a matrix by rows costs one
+row bound per column, i.e. `card ι` times `r`. -/
+theorem hs_mass_le_of_entry_row {ι : Type*} [Fintype ι] {K : ι → ι → ℂ} {r : ℝ}
+    (hrow : ∀ n, ∑ m, ‖K m n‖ ^ 2 ≤ r) :
+    ∑ m, ∑ n, ‖K m n‖ ^ 2 ≤ r * (Fintype.card ι : ℝ) := by
+  rw [Finset.sum_comm]
+  have hsum : ∑ n : ι, ∑ m, ‖K m n‖ ^ 2 ≤ ∑ n : ι, r :=
+    Finset.sum_le_sum fun n _ => hrow n
+  have hconst : ∑ n : ι, r = (Fintype.card ι : ℝ) * r := by
+    rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+  linarith
+
+/-- **The norm of a finite sum is at most `√d` times the `ℓ²` norm of its terms.**  Cauchy–Schwarz
+for a sum of `d` vectors, in the one form used below. -/
+theorem norm_sum_sq_le_card_mul {ι' : Type*} [Fintype ι'] (x : ι' → ℂ) :
+    ‖∑ i, x i‖ ^ 2 ≤ (Fintype.card ι' : ℝ) * ∑ i, ‖x i‖ ^ 2 := by
+  have h1 : ‖∑ i, x i‖ ≤ ∑ i, ‖x i‖ := norm_sum_le (s := Finset.univ) (f := x)
+  have h2 : (∑ i, ‖x i‖) ^ 2 ≤ (Fintype.card ι' : ℝ) * ∑ i, ‖x i‖ ^ 2 :=
+    sq_sum_le_card_mul_sum_sq (s := Finset.univ) (f := fun i => ‖x i‖)
+  have h3 : ‖∑ i, x i‖ ^ 2 ≤ (∑ i, ‖x i‖) ^ 2 := by
+    rw [pow_two, pow_two]
+    exact mul_self_le_mul_self (norm_nonneg _) h1
+  exact h3.trans h2
+
+/-- **One matrix element fills its whole row.**  The sum over `m` of `‖[m = r]·c‖²` is `‖c‖²`: only
+the entry at `r` survives. -/
+theorem sum_norm_sq_ite {ι' : Type*} [Fintype ι'] [DecidableEq ι'] (r : ι') (c : ℂ) :
+    ∑ m, ‖(if m = r then c else 0 : ℂ)‖ ^ 2 = ‖c‖ ^ 2 := by
+  have h := Finset.sum_eq_single (s := Finset.univ)
+    (f := fun m : ι' => ‖(if m = r then c else 0 : ℂ)‖ ^ 2) r
+    (fun m _ hm => by simp [hm])
+    (fun h => absurd (Finset.mem_univ r) h)
+  simpa using h
+
+/-- One direction's contribution to the ladder: the entry at `n + eᵢ`, with the Weyl-gauge matrix
+element `Aᵢ·√(nᵢ + 1)`, and zero when the raise would leave the cut-off. -/
+def magShiftTerm {Λ : ℕ} (A : Fin d → ℝ) (n : Fin d → Fin Λ) (i : Fin d)
+    (m : Fin d → Fin Λ) : ℂ :=
+  if h : (n i).val + 1 < Λ then
+    (if m = Function.update n i ⟨(n i).val + 1, h⟩ then
+      ((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ) else 0)
+  else 0
+
+/-- **The magnetic ladder kernel at cut-off `Λ`.**  Mode `n` couples to the modes obtained by
+raising `nᵢ` by one, with the Weyl-gauge matrix element `Aᵢ·√(nᵢ + 1)`; the raise is dropped when
+it would leave the cut-off. -/
+def magCutoffKernel {Λ : ℕ} (A : Fin d → ℝ) (m n : Fin d → Fin Λ) : ℂ :=
+  ∑ i, magShiftTerm A n i m
+
+/-- The matrix element of the ladder, as a real number bound: `‖Aᵢ√(nᵢ+1)‖² = Aᵢ²(nᵢ+1)`. -/
+theorem norm_sq_coeff (A : Fin d → ℝ) {Λ : ℕ} (n : Fin d → Fin Λ) (i : Fin d) :
+    ‖((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)‖ ^ 2
+      = A i ^ 2 * ((n i).val + 1 : ℝ) := by
+  have hsq : ‖((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)‖ ^ 2
+      = (A i * Real.sqrt ((n i).val + 1) : ℝ) ^ 2 := by
+    rw [Complex.norm_real]
+    exact sq_abs _
+  rw [hsq, mul_pow, Real.sq_sqrt (by positivity)]
+
+/-- **The row of the ladder kernel.**  A row is the sum over the `d` directions of one matrix
+element each, so `∑ m ‖K m n‖² ≤ d · ∑ i ‖Aᵢ√(nᵢ+1)‖²`. -/
+theorem row_norm_sq_magCutoffKernel {Λ : ℕ} (A : Fin d → ℝ) (n : Fin d → Fin Λ) :
+    ∑ m : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2
+      ≤ (d : ℝ) * ∑ i : Fin d, A i ^ 2 * ((n i).val + 1 : ℝ) := by
+  classical
+  have hpt : ∀ m : Fin d → Fin Λ,
+      ‖magCutoffKernel A m n‖ ^ 2
+        ≤ (d : ℝ) * ∑ i : Fin d, ‖magShiftTerm A n i m‖ ^ 2 :=
+    fun m => by
+      have hcd : (Fintype.card (Fin d) : ℝ) = (d : ℝ) := by simp
+      simpa [hcd, magCutoffKernel] using
+        norm_sum_sq_le_card_mul (fun i : Fin d => magShiftTerm A n i m)
+  calc ∑ m : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2
+      ≤ ∑ m : Fin d → Fin Λ, (d : ℝ) * ∑ i : Fin d, ‖magShiftTerm A n i m‖ ^ 2 :=
+        Finset.sum_le_sum fun m _ => hpt m
+    _ = (d : ℝ) * ∑ i : Fin d, ∑ m : Fin d → Fin Λ, ‖magShiftTerm A n i m‖ ^ 2 := by
+        conv_lhs => rw [← Finset.mul_sum]
+        rw [Finset.sum_comm]
+    _ ≤ (d : ℝ) * ∑ i : Fin d, A i ^ 2 * ((n i).val + 1 : ℝ) := by
+        refine mul_le_mul_of_nonneg_left (Finset.sum_le_sum fun i _ => ?_) (by positivity)
+        by_cases h : (n i).val + 1 < Λ
+        · have hstep : ∑ m : Fin d → Fin Λ, ‖magShiftTerm A n i m‖ ^ 2
+              = A i ^ 2 * ((n i).val + 1 : ℝ) := by
+            simp only [magShiftTerm, dif_pos h]
+            rw [sum_norm_sq_ite (Function.update n i ⟨(n i).val + 1, h⟩)
+              ((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)]
+            exact norm_sq_coeff A n i
+          exact le_of_eq hstep
+        · have hzero : ∀ m : Fin d → Fin Λ, magShiftTerm A n i m = 0 := by
+            intro m
+            simp only [magShiftTerm, dif_neg h]
+          simp only [hzero, norm_zero]
+          have hA : (0 : ℝ) ≤ A i ^ 2 := sq_nonneg _
+          have hn : (0 : ℝ) ≤ ((n i).val + 1 : ℝ) := by positivity
+          simpa using mul_nonneg hA hn
+
+/-- **The Hilbert–Schmidt mass of the magnetic ladder at cut-off `Λ`.**  With `Aᵢ² ≤ C`, the mass is
+at most `d² C Λ^(d+1)`, hence the Hilbert–Schmidt constant is at most `d √C Λ^{(d+1)/2}`: a power
+of the cut-off with exponent `(d+1)/2`, and in particular not uniform in `Λ`. -/
+theorem magCutoffKernel_hs_mass {Λ : ℕ} {A : Fin d → ℝ} {C : ℝ} (hC : 0 ≤ C)
+    (hA : ∀ i, A i ^ 2 ≤ C) :
+    ∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2
+      ≤ (d : ℝ) ^ 2 * C * (Λ : ℝ) ^ (d + 1) := by
+  classical
+  have hrow : ∀ n : Fin d → Fin Λ,
+      ∑ m : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2 ≤ (d : ℝ) ^ 2 * C * (Λ : ℝ) := by
+    intro n
+    refine (row_norm_sq_magCutoffKernel A n).trans ?_
+    have hterm : ∀ i : Fin d, A i ^ 2 * ((n i).val + 1 : ℝ) ≤ C * (Λ : ℝ) := by
+      intro i
+      have h1 : ((n i).val + 1 : ℝ) ≤ (Λ : ℝ) := by
+        have := (n i).isLt
+        have : (n i).val + 1 ≤ Λ := by omega
+        exact_mod_cast this
+      have h0 : (0 : ℝ) ≤ ((n i).val + 1 : ℝ) := by positivity
+      calc A i ^ 2 * ((n i).val + 1 : ℝ) ≤ C * ((n i).val + 1 : ℝ) :=
+            mul_le_mul_of_nonneg_right (hA i) h0
+        _ ≤ C * (Λ : ℝ) := mul_le_mul_of_nonneg_left h1 hC
+    calc (d : ℝ) * ∑ i : Fin d, A i ^ 2 * ((n i).val + 1 : ℝ)
+        ≤ (d : ℝ) * ∑ _i : Fin d, C * (Λ : ℝ) :=
+          mul_le_mul_of_nonneg_left (Finset.sum_le_sum fun i _ => hterm i) (by positivity)
+      _ = (d : ℝ) ^ 2 * C * (Λ : ℝ) := by
+          rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+          ring
+  have hmass := hs_mass_le_of_entry_row (K := magCutoffKernel A) hrow
+  have hcard : (Fintype.card (Fin d → Fin Λ) : ℝ) = (Λ : ℝ) ^ d := by
+    rw [Fintype.card_fun, Fintype.card_fin, Fintype.card_fin, Nat.cast_pow]
+  rw [hcard] at hmass
+  calc ∑ m : Fin d → Fin Λ, ∑ n : Fin d → Fin Λ, ‖magCutoffKernel A m n‖ ^ 2
+      ≤ (d : ℝ) ^ 2 * C * (Λ : ℝ) * (Λ : ℝ) ^ d := hmass
+    _ = (d : ℝ) ^ 2 * C * (Λ : ℝ) ^ (d + 1) := by
+        rw [pow_succ']
+        ring
 
 end BookProof.YangMillsFormClosureND
