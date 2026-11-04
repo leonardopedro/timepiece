@@ -323,9 +323,14 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    `closed_diagonal_add_kernelForm_ge` gives `θ − σ ≤ closedForm f x + closedKernelForm K x` on the
    form domain (`closedForm f x ≠ ⊤`), and `closed_sector_bottom_ge_interacting` /
    `closed_hopping_sector_bottom` carry the sector statement to `L²`, so the reduced space itself
-   can be a closed subspace of `ℓ²` and not only a set of core states.  Boundedness is exactly the
-   closability requirement: the interaction is a bounded form perturbation of the closed diagonal
-   form, continuous in the `ℓ²` norm, and the sum is closed on the same domain.  Still open: the
+   can be a closed subspace of `ℓ²` and not only a set of core states.  Note what the hypothesis
+   costs: finiteness of the total Hilbert–Schmidt mass holds at a **fixed cut-off**, where the
+   interaction is an honest finite matrix, and it is not uniform in the cut-off — the number of
+   coupled multi-indices and the magnetic matrix elements grow with the mode index, so no single
+   `σ` survives the continuum limit, where the magnetic term is only relatively form bounded with
+   `a < 1`.  Boundedness is a *sufficient* condition for closability (the interaction is then a
+   continuous perturbation of the closed diagonal form, and the sum is closed on the same domain),
+   the `a = 0` case of the Faris–Lavine branch; it is not the necessary one.  Still open: the
    Faris–Lavine comparison as an `L²` inequality (with unequal coefficients `c₁, c₂`) — the lift
    above delivers the bottom, not the ratio.
 
@@ -639,12 +644,15 @@ This step directly integrates into existing modules:
   `Idx d × Idx d` (absolutely convergent for every `x : L²`), bounds it by `σ‖x‖²` for the *same*
   `σ` (`abs_closedKernelForm_le`, Hölder with exponents `2, 2`), identifies it with `kernelForm` on
   the core (`closedKernelForm_coreEmbed`), and proves the bottom bounds on the form domain:
-  `closed_diagonal_add_kernelForm_ge` and `closed_sector_bottom_ge_interacting`.  So the
-  off-diagonal interaction is a *bounded* form perturbation of the closed diagonal form —
-  continuous, hence closed on the same domain — and Phase 5's bottom statements hold on `L²`, not
-  only on the core.  What the lift does *not* give is the ratio: the Faris–Lavine **comparison**
-  `c₁ q_ref ≤ q' + qK` is an `L²` inequality with unequal coefficients `c₁ ≠ 1`, which needs the
-  finiteness of both closed forms, and only the bounded (shift) case is carried over here.  So
+  `closed_diagonal_add_kernelForm_ge` and `closed_sector_bottom_ge_interacting`.  So, *when the
+  total Hilbert–Schmidt mass is finite*, the off-diagonal interaction is a bounded form
+  perturbation of the closed diagonal form — continuous, hence closed on the same domain — and
+  Phase 5's bottom statements hold on `L²`, not only on the core.  Two caveats, both recorded in
+  the module: the mass is a fixed-cut-off quantity (it is not uniform in the mode count, so the
+  continuum has to go through the relative-bound `a < 1` branch rather than `a = 0`), and the lift
+  gives the bottom and not the **ratio**: the Faris–Lavine comparison `c₁ q_ref ≤ q' + qK` is an
+  `L²` inequality with unequal coefficients `c₁ ≠ 1`, which needs the finiteness of both closed
+  forms, and only the bounded (shift) case is carried over here.  So
   Phase 5's `c₁Δ_ref` is certified on the core for the off-diagonal case, and on `L²` for the
   diagonal one at full strength — with the interacting term bounded below on `L²` by `−σ‖x‖²`,
   which preserves the *bottom* and not yet the *ratio* of the separation.

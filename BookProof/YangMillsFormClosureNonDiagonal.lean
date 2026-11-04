@@ -69,9 +69,10 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   replacing the two-index one of `kernelForm_sq_le`), `closedKernelForm_coreEmbed` shows it
   restricts to `kernelForm`, and `closed_diagonal_add_kernelForm_ge` /
   `closed_sector_bottom_ge_interacting` are the bottom bounds on the form domain
-  (`closedForm f x ≠ ⊤`).  Boundedness is what closability needs: the interaction is a bounded
-  form perturbation of the closed diagonal form, hence continuous in the `ℓ²` norm, and the sum is
-  closed on the same domain.
+  (`closedForm f x ≠ ⊤`).  This is a *sufficient* route to closability, not the general requirement:
+  a bounded form perturbation of a closed form is continuous in the `ℓ²` norm, so the sum is closed
+  on the same domain.  General closability needs only relative form boundedness with relative bound
+  `a < 1` — the `farisLavine_domination` branch — and boundedness is the `a = 0` case.
 
 ## Honest boundary
 
@@ -81,6 +82,18 @@ sum form) is proved on the core and, on `L²`, only through the bottom bound `θ
 both closed forms and is not stated.  The diagonal-side closure of `YangMillsFormClosure` is
 therefore extended exactly as far as the Hilbert–Schmidt bound reaches: bounded interactions lift,
 interactions that are merely form bounded with relative bound `a < 1` remain core statements.
+
+**What the Hilbert–Schmidt hypothesis costs.**  `∑' p, ‖K p.1 p.2‖² ≤ σ²` is a hypothesis *on the
+model*, not a theorem about Yang–Mills.  It holds for a kernel at a fixed cut-off — finitely many
+coupled modes, hence an honest finite matrix with a finite Hilbert–Schmidt mass — but it is not
+uniform as the cut-off is removed: the number of coupled multi-indices and the size of the magnetic
+matrix elements both grow with the mode index, so no single `σ` survives the continuum limit.  There
+the magnetic term is only form bounded with relative bound `a < 1`, which is exactly the branch that
+stays on the core above; the `L²` statement proved here is therefore a fixed-cut-off statement.
+A different sufficient route to closability is operator level: `HashimotoShiftInvert`'s
+`closed_of_selfAdjointCriterion` closes the graph of a symmetric operator from the self-adjointness
+criterion, and the Friedrichs representation then yields a closed form.  That criterion has not been
+instantiated for the magnetic operator, and on its own it would not produce the ratio either.
 -/
 
 noncomputable section
@@ -420,9 +433,11 @@ space, not merely state by state on the core:
 * `closed_sector_bottom_ge_interacting` / `closed_hopping_sector_bottom` — the Phase-1 sector
   statement of §4 now holds on `L²`.
 
-That is also what closability needs: `abs_closedKernelForm_le` says the interaction is a *bounded*
-form perturbation of the closed diagonal form, so it is continuous in the `ℓ²` norm and the sum is
-closed on the diagonal form's domain. -/
+That is enough for closability: `abs_closedKernelForm_le` says the interaction is a *bounded* form
+perturbation of the closed diagonal form, so it is continuous in the `ℓ²` norm and the sum is
+closed on the diagonal form's domain — sufficient, not necessary; the `a < 1` case of
+`farisLavine_domination` would do with less, and is the case the continuum needs (see the
+module's honest boundary). -/
 
 /-- **The kernel form on `L²`**: the absolutely convergent weighted double series, read as one
 sum over the product of the index type.  Every term is the pairing of the kernel entry `K m n` with
