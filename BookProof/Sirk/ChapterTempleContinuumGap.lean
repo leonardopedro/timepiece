@@ -701,6 +701,44 @@ theorem samePointProduct_real_self_form_nonneg (F : ZMod n → ℝ) (f : ZMod n 
     rw [Complex.ofReal_re]
     exact mul_nonneg (sq_nonneg (F x)) (Complex.normSq_nonneg (f x))
 
+/-- **A finite chain of coincident-point factors keeps the mass multiplicative.**  Iterating
+`samePointProduct`: the `ℓ²` mass of the product of `r` fields at one point is the sum of
+`∏ j, ‖F j x‖²`, because `‖∏ j, F j x‖ = ∏ j, ‖F j x‖`. -/
+theorem chain_hs_mass {r : ℕ} (F : Fin r → ZMod n → ℂ) :
+    ∑ x : ZMod n, ‖∏ j, F j x‖ ^ 2 = ∑ x : ZMod n, ∏ j, ‖F j x‖ ^ 2 := by
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [norm_prod, Finset.prod_pow]
+
+/-- **The momentum-transfer matrix of a finite chain preserves the product mass.**
+`momentumCol_hs_mass` applied to the chain symbol `∏ j, F j x`, with `chain_hs_mass` making the
+mass multiplicative: the momentum convolution of `r` coincident-point factors has Hilbert–Schmidt
+mass exactly `∑_x ∏ j, ‖F j x‖²`. -/
+theorem momentumCol_chain_hs_mass {r : ℕ} (F : Fin r → ZMod n → ℂ) :
+    ∑ k : ZMod n, ∑ i : ZMod n, ‖momentumCol (fun x => ∏ j, F j x) k i‖ ^ 2
+      = ∑ x : ZMod n, ∏ j, ‖F j x‖ ^ 2 := by
+  rw [momentumCol_hs_mass, chain_hs_mass]
+
+/-- **The `σ` of a finite chain of outer fields at one point.**  The binary bound
+`samePointProduct_form_hs_bound` extends to any finite chain: the form of `∏ j, F j` is bounded by
+`√(∑_x ∏ j ‖F j x‖²) · ‖f̂‖²`, the Hilbert–Schmidt constant of the chain read on the
+momentum-transfer form.  No coincident-point product is formed at any stage, so the same reading
+applies to every finite order of the product. -/
+theorem chain_form_hs_bound {r : ℕ} (F : Fin r → ZMod n → ℂ) (f : ZMod n → ℂ) :
+    ‖∑ k : ZMod n, conj (ZMod.dft f k)
+        * ∑ i : ZMod n, momentumCol (fun x => ∏ j, F j x) k i * ZMod.dft f i‖
+      ≤ Real.sqrt (∑ x : ZMod n, ∏ j, ‖F j x‖ ^ 2) * ∑ k : ZMod n, ‖ZMod.dft f k‖ ^ 2 := by
+  have h := samePointProduct_form_hs_bound (fun x => ∏ j, F j x) (fun _ => (1 : ℂ)) f
+  have hsym : samePointProduct (fun x => ∏ j, F j x) (fun _ => (1 : ℂ))
+      = fun x => ∏ j, F j x := by
+    funext x
+    simp [samePointProduct]
+  have hmass : ∑ x : ZMod n, ‖(fun x => ∏ j, F j x) x‖ ^ 2 * ‖(fun _ => (1 : ℂ)) x‖ ^ 2
+      = ∑ x : ZMod n, ∏ j, ‖F j x‖ ^ 2 := by
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [norm_one, one_pow, mul_one, norm_prod, Finset.prod_pow]
+  rw [hsym, hmass] at h
+  exact h
+
 end MomentumProduct
 
 /-! ## 5. The same construction on the 4-torus: Plancherel, convolution, momentum conservation

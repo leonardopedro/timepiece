@@ -1338,4 +1338,62 @@ theorem ladder_form_abs_re_le {Λ : ℕ} (A : Fin d → ℝ) (x : (Fin d → Fin
         + (1 / 2) * (∑ i, A i ^ 2) * (∑ n, ‖x n‖ ^ 2) := by
   refine (Complex.abs_re_le_norm _).trans (ladder_form_norm_le A x)
 
+/-- **The AM–GM weight family behind the sharp bound.**  For `ε > 0`, `2 s t ≤ ε s² + t²/ε`, i.e.
+`s t ≤ (ε/2) s² + t²/(2ε)`.  Applied with `s = √(nᵢ+1)‖x n‖` and `t = |Aᵢ|‖x (raise n i)‖` this is
+exactly the termwise step of `ladder_form_norm_le`: `ε = 1` is the unit-weight member, whose ratio
+on `Q` is `1/2` and whose constant is `(Σᵢ Aᵢ²)/2`.  Every other `ε` gives another member
+`(a, b) = (ε/2, (Σᵢ Aᵢ²)/(2ε))` of the same trade-off, so `1/2` is a *choice of weight* rather than
+an optimal ratio: `ε → 0` makes `a` arbitrarily small and the constant grows like `1/ε`. -/
+theorem amgm_weight_family {ε : ℝ} (hε : 0 < ε) (s t : ℝ) :
+    2 * s * t ≤ ε * s ^ 2 + t ^ 2 / ε := by
+  have h : 0 ≤ (ε * s - t) ^ 2 := sq_nonneg _
+  have hmul : 0 ≤ ε * (ε * s ^ 2 + t ^ 2 / ε - 2 * s * t) := by
+    have hid : ε * (ε * s ^ 2 + t ^ 2 / ε - 2 * s * t) = (ε * s - t) ^ 2 := by
+      field_simp
+      ring
+    rw [hid]
+    exact h
+  have hnn : 0 ≤ ε * s ^ 2 + t ^ 2 / ε - 2 * s * t := by
+    by_contra hcon
+    have hlt : ε * (ε * s ^ 2 + t ^ 2 / ε - 2 * s * t) < 0 :=
+      mul_neg_of_pos_of_neg hε (not_le.mp hcon)
+    linarith
+  linarith
+
+/-- **A worked member of the family: `ε = 1/2`.**  Here `a = ε/2 = 1/4` and `b = Σ Aᵢ²/(2ε) = Σ Aᵢ²`,
+so the *same* ladder also satisfies `|q| ≤ ¼ Q + (Σᵢ Aᵢ²)‖x‖²` — a different point of the trade-off
+from the unit-weight `½ Q + ½(Σᵢ Aᵢ²)‖x‖²`.  In particular the ratio `1/2` is not forced by the
+ladder; it is the weight `ε = 1` read off the family. -/
+theorem amgm_weight_half (s t : ℝ) : 2 * s * t ≤ (1 / 2) * s ^ 2 + 2 * t ^ 2 := by
+  have h : 0 ≤ (s - 2 * t) ^ 2 := sq_nonneg _
+  nlinarith [h]
+
+/-- Numeric instance of the `ε = 1/2` member: at `s = 3`, `t = 1` the bound reads `6 ≤ 13/2`. -/
+example : (2 : ℝ) * 3 * 1 ≤ (1 / 2) * 3 ^ 2 + 2 * 1 ^ 2 := by norm_num
+
+/-- **The sharp ratio is a statement about the closed form on `L²`.**  `ladder_form_norm_le` gives
+the cut-off ratio `a = 1/2`, and `closed_farisLavine_domination` consumes exactly that shape, so the
+domination on the closed form (`closedForm` and `closedKernelForm`, i.e. on the `L²` domain rather
+than on the finite core) carries the same `1/2`: with `a = 1/2`, `1 - a = 1/2` multiplies both the
+diagonal reference form and its constant, and the Hilbert–Schmidt mass `σ` enters the shift
+unchanged.  This is the closed-form counterpart of the cut-off bound — the finite matrix statement
+is what proves the ratio, and this is where the ratio is used. -/
+theorem ladder_closed_domination_sharp {μ g : Idx d → ℝ} {K : Idx d → Idx d → ℂ}
+    {c₁ c₂ σ : ℝ} (hc₁ : 0 < c₁)
+    (hdom : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2 ≤ (closedForm g x).toReal)
+    (hσ0 : 0 ≤ σ)
+    (hσ : ∀ s : Finset (Idx d), ∑ m ∈ s, ∑ n ∈ s, ‖K m n‖ ^ 2 ≤ σ ^ 2) :
+    0 < (1 / 2) * c₁ ∧
+      ∀ x : L2 d, closedForm g x ≠ ⊤ →
+        (1 / 2) * c₁ * (closedForm μ x).toReal - ((1 / 2) * c₂ + σ) * ‖x‖ ^ 2
+          ≤ (closedForm g x).toReal + closedKernelForm K x := by
+  have h := ladder_relative_bound_uniform (d := d) (μ := μ) (g := g) (K := K)
+    (c₁ := c₁) (c₂ := c₂) (σ := σ) (a := 1 / 2) hc₁ (by norm_num) (by norm_num) hdom hσ0 hσ
+  refine ⟨by positivity, ?_⟩
+  intro x hx
+  have hx' := h.2 x hx
+  norm_num at hx' ⊢
+  linarith
+
 end BookProof.YangMillsFormClosureND

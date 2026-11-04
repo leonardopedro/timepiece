@@ -375,6 +375,18 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    (`gaugeReduce_extTorsionCoef_offDiag_eq_zero`), whereas the ladder moves one quantum between
    modes.  Different objects.
 
+   Three refinements of that reading are now also proved.  The weight is visible as a family:
+   `amgm_weight_family` shows `2st ≤ ε s² + t²/ε` for every `ε > 0`, so the member used above is
+   `ε = 1`; `amgm_weight_half` (`ε = 1/2`) gives the same ladder the bound `|q| ≤ ¼Q + (ΣAᵢ²)‖x‖²`.
+   The ratio `1/2` is therefore a choice of weight on the trade-off `(a, b) = (ε/2, ΣAᵢ²/(2ε))`, not
+   an optimal constant, and `ε → 0` trades it against a growing shift.  The ratio is also what the
+   closed form consumes, not only the cut-off matrix: `ladder_closed_domination_sharp` spells out
+   `closed_farisLavine_domination` at `a = 1/2`, i.e. `½c₁·closedForm μ − (½c₂+σ)‖x‖² ≤
+   closedForm g + closedKernelForm K` on the `L²` domain.  And the mass identity is not special to
+   two factors: `chain_hs_mass`, `momentumCol_chain_hs_mass` and `chain_form_hs_bound` iterate it to
+   any finite chain, with mass `∑_x ∏_j ‖F_j x‖²`, so a chain of same-point outer fields reads as a
+   momentum-transfer form with the product's Hilbert–Schmidt constant and no distribution product.
+
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
 separation `β∞ − θ∞ ≥ c₁Δ_ref` is still an input there (see the status of Phase 4).
