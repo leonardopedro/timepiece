@@ -694,6 +694,78 @@ expansion, the mirror image of `driftOpCoeff`'s `∂_j = (a_j − a_j†)/√2`.
 def mulHermite (j : Fin d) (c : CoreCoeff d) : CoreCoeff d :=
   (invSqrtTwo : ℂ) • (hopStep (j, true) c + hopStep (j, false) c)
 
+/-- A ladder letter sends the zero family to zero. -/
+theorem hopStep_zero (p : Fin d × Bool) : hopStep p (0 : CoreCoeff d) = 0 := by
+  unfold hopStep
+  simp
+
+/-- **A ladder letter is additive** on the core: linearity in the coefficient family, the first
+half of the linearity the expansion needs. -/
+theorem hopStep_add (p : Fin d × Bool) (x y : CoreCoeff d) :
+    hopStep p (x + y) = hopStep p x + hopStep p y := by
+  unfold hopStep
+  exact Finsupp.sum_add_index' (fun a => by simp) (fun a b₁ b₂ => by simp [mul_add])
+
+/-- A ladder letter commutes with finite sums. -/
+theorem hopStep_sum {ι : Type*} (p : Fin d × Bool) (s : Finset ι) (g : ι → CoreCoeff d) :
+    hopStep p (∑ i ∈ s, g i) = ∑ i ∈ s, hopStep p (g i) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp [hopStep_zero]
+  | insert a s ha ih => rw [Finset.sum_insert ha, Finset.sum_insert ha, hopStep_add, ih]
+
+/-- **Words concatenate**: applying `w₁` and then `w₂` is applying the concatenated word. -/
+theorem hopWord_append : ∀ (w₁ w₂ : List (Fin d × Bool)) (c : CoreCoeff d),
+    hopWord (w₁ ++ w₂) c = hopWord w₂ (hopWord w₁ c) := by
+  intro w₁
+  induction w₁ with
+  | nil => intro w₂ c; rfl
+  | cons p w ih =>
+    intro w₂ c
+    change hopWord (w ++ w₂) (hopStep p c) = hopWord w₂ (hopWord w (hopStep p c))
+    exact ih w₂ (hopStep p c)
+
+/-- A two-letter word, spelled out: the letters are applied right to left. -/
+theorem hopWord_two (p q : Fin d × Bool) (c : CoreCoeff d) :
+    hopWord [p, q] c = hopStep q (hopStep p c) := rfl
+
+/-- A one-letter word is a single letter. -/
+theorem hopWord_single (p : Fin d × Bool) (c : CoreCoeff d) :
+    hopWord [p] c = hopStep p c := rfl
+
+/-- **A ladder letter is `ℂ`-linear** on the core (scalar half). -/
+theorem hopStep_smul (p : Fin d × Bool) (r : ℂ) (x : CoreCoeff d) :
+    hopStep p (r • x) = r • hopStep p x := by
+  unfold hopStep
+  rw [Finsupp.sum_smul_index' (fun i => by simp)]
+  simp only [Finsupp.smul_single, smul_eq_mul, mul_left_comm, Finsupp.sum, Finset.smul_sum]
+
+/-- The multiplication law is additive on the core. -/
+theorem mulHermite_add (j : Fin d) (x y : CoreCoeff d) :
+    mulHermite j (x + y) = mulHermite j x + mulHermite j y := by
+  simp only [mulHermite, hopStep_add, smul_add]
+  abel
+
+/-- The multiplication law is `ℂ`-linear on the core. -/
+theorem mulHermite_smul (j : Fin d) (r : ℂ) (c : CoreCoeff d) :
+    mulHermite j (r • c) = r • mulHermite j c := by
+  rw [mulHermite, mulHermite, hopStep_smul, hopStep_smul, smul_add, smul_add, smul_smul,
+    smul_smul, mul_comm (invSqrtTwo : ℂ) r, smul_add, smul_smul, smul_smul]
+
+/-- **The two-mode product law**: multiplying twice is `1/2` times the sum of the four length-two
+ladder words.  This is the first nontrivial case of the multimode expansion — the `2^2` word
+family with the amplitudes carried by the `hopStep`s. -/
+theorem mulHermite_comp (j k : Fin d) (c : CoreCoeff d) :
+    mulHermite k (mulHermite j c)
+      = ((invSqrtTwo : ℂ) * invSqrtTwo) •
+          (hopWord [(j, true), (k, true)] c + hopWord [(j, true), (k, false)] c
+            + hopWord [(j, false), (k, true)] c + hopWord [(j, false), (k, false)] c) := by
+  rw [mulHermite, mulHermite, hopStep_smul, hopStep_smul, hopStep_add, hopStep_add]
+  rw [← smul_add, ← smul_smul]
+  congr 1
+  rw [← hopWord_two, ← hopWord_two, ← hopWord_two, ← hopWord_two]
+  abel
+
 /-- **The multiplication law, written as the sum of its two ladder words** — the form the
 expansion consumes, with the coefficient `1/√2` pushed onto each letter. -/
 theorem mulHermite_eq_ladderWords (j : Fin d) (c : CoreCoeff d) :

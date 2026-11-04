@@ -341,9 +341,15 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
   core, **`mulHermite_eq_ladderWords`** splits it into its two ladder words `(1/√2)a_j†` and
   `(1/√2)a_j`, and **`driftOpCoeff_eq_ladderWords`** separates `∇Φ`'s coefficient operator
   symmetrically into the lowering sum `−(b_j/√2)` and the raising sum `+(b_j/√2)`.  What is *not*
-  yet done is the multimode induction on `hermiteMvBasis` that turns this single-mode dictionary
-  into the expansion of `∇Φ` on the product basis — the substitution `x ↦ (a + a†)/√2` is now
-  available letter by letter, not yet as an identity of operators on the full core.
+  The linear structure the expansion needs is proved too: `hopStep_add`/`hopStep_smul` make a
+  ladder letter `ℂ`-linear on the core (`hopStep_sum` for finite families), `hopWord_append`
+  composes words (`hopWord (w₁ ++ w₂) = hopWord w₂ ∘ hopWord w₁`, with `hopWord_two`/`hopWord_single`
+  the spelled-out cases), and `mulHermite_add`/`mulHermite_smul` give the same for the
+  multiplication law.  **`mulHermite_comp`** is the first multimode case: `x_k x_j` is `1/2` times
+  the sum of the four length-two ladder words `hopWord [(j,ε),(k,δ)]`, i.e. the `2^2` word family
+  with the amplitudes carried by the `hopStep`s.  What remains is the general induction — the
+  `2^k` reindexing over `Finset.biUnion` (the words of `mulWords`) and its disjointness — which is
+  bookkeeping over the same lemmas, not new analysis.
 
 * **Module 1 proper, in the `α → ∞` Gaussian form — DONE (2026-10-30)** — `BookProof.MCMC.MehlerEigenfunction`
   (`BookProof/MCMC/MehlerEigenfunction.lean`, no `sorry`).  This is the eigenfunction identity the
