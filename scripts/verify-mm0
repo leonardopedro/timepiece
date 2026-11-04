@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# verify-mm0 — the MM0 conversion gate for timepiece/converted/mm0.
+#
+# Every *.mm0/*.mm1 pair in converted/mm0 is a conversion of Lean theorems
+# into the mm0web publishing format (unfer/mm0web): the .mm0 is the spec
+# (declarations + proofless theorem statements), the .mm1 is the same
+# declarations with `pub theorem … = '(...)` proofs. A pair is only
+# meaningful if the platform's checker chain accepts it:
+#
+#   mm0-rs compile foo.mm1 foo.mmb  — elaborate the proofs; rc must be 0
+#                                     and a warning is a proof hole (an
+#                                     unused sorry/variable means a theorem
+#                                     statement went unproved or drifted),
+#   mm0-c foo.mmb < foo.mm0         — replay the .mmb against the spec, so
+#                                     the two files cannot drift apart.
+#
+# This mirrors australVM/scripts/verify-invariants' Phase D gate. Missing
+# tooling is an explained gap, never a pass and never a failure: a red gate
+# on a machine without mm0-rs must not be indistinguishable from a real
+# proof failure. Exit is non-zero iff any executed check FAILED.
+
+set -u
+FAILED=0
+PASSED=0
+GAPS=0
+
+check() {
+    local name="$1"
+    shift
+    if "$@"; then
+        echo "[pass] $name"
+        PASSED=$((PASSED + 1))
+    else
+        echo "[FAIL] $name"
+        FAILED=$((FAILED + 1))
+    fi
+}
+
+gap() {
+    echo "[gap]  $1"
+    GAPS=$((GAPS + 1))
+}
+
+repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+conv_dir="$repo_root/converted/mm0"
+
+# The conversion directory is the whole point of this gate; its absence is
+# a failure, not a gap (a renamed directory would silently skip every pair
+# below otherwise).
+check "converted/mm0 directory present" test -d "$conv_dir"
+
+if ! command -v mm0-rs >/dev/null 2>&1 || ! command -v mm0-c >/dev/null 2>&1; then
+    gap "mm0 toolchain absent (mm0-rs/mm0-c not on PATH)"
+    echo
+    echo "verify-mm0: $PASSED passed, $GAPS explained gap(s), $FAILED failed"
+    [ "$FAILED" -gt 0 ] && exit 1
+    exit 0
+fi
+
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+
+found=0
+for spec in "$conv_dir"/*.mm0; do
+    [ -e "$spec" ] || continue
+    found=1
+    base="${spec%.mm0}"
+    proof="$base.mm1"
+    name="$(basename "$base")"
+
+    if [ ! -f "$proof" ]; then
+        check "$name: companion .mm1 present" false
+        continue
+    fi
+
+    # Elaborate the proofs. mm0-rs prints declarations on stdout; any
+    # `warning:` line is treated as a proof hole (sorry, unused variable
+    # that signals a drifted statement) and fails the gate even when rc=0.
+    out="$(mm0-rs compile "$proof" "$work/$name.mmb" 2>&1)"
+    rc=$?
+    if [ "$rc" -eq 0 ] && ! printf '%s\n' "$out" | grep -q '^warning:'; then
+        check "$name: mm0-rs elaborates the proofs without warnings" true
+    else
+        printf '%s\n' "$out" | sed 's/^/    /'
+        check "$name: mm0-rs elaborates the proofs without warnings" false
+    fi
+
+    # Replay the compiled .mmb against the spec file.
+    out="$(mm0-c "$work/$name.mmb" < "$spec" 2>&1)"
+    rc=$?
+    if [ "$rc" -eq 0 ]; then
+        check "$name: mm0-c replays the .mmb against the spec" true
+    else
+        printf '%s\n' "$out" | sed 's/^/    /'
+        check "$name: mm0-c replays the .mmb against the spec" false
+    fi
+done
+
+if [ "$found" -eq 0 ]; then
+    check "at least one conversion pair in converted/mm0" false
+fi
+
+echo
+echo "verify-mm0: $PASSED passed, $GAPS explained gap(s), $FAILED failed"
+if [ "$FAILED" -gt 0 ]; then
+    exit 1
+fi
+exit 0

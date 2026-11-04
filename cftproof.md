@@ -1,0 +1,558 @@
+Here is a detailed, modular research plan for formalizing **Bałaban’s constructive Euclidean approach** in **Lean 4**, utilizing the **nested Fock-space framework** (from *Timepiece*) to construct a 4D Euclidean statistical field theory **without an *a priori* Hamiltonian**, and verifying **reflection positivity** to enable the Osterwalder–Schrader reconstruction to physical Minkowski spacetime.
+
+Note that you can produce the proofs in any version  of Lean4 it is more convenient to you , you can also use the the 4.33.1 version of these proofs in ../timepiee331/ , since the end goal is to convert everything to MM0.
+
+---
+
+### Conceptual Architecture
+
+```
+                    4D Euclidean Spacetime (No Hamiltonian)
+            ┌────────────────────────────────────────────────────────┐
+            │  Configuration space: A ∈ S'(ℝ⁴, 𝔰𝔲(N))                │
+            │  Prior: 4D Rotation-Invariant Mehler / Gaussian       │
+            │  Nested Fock-Space: ℱ_E = ⨂_{scale k} ℱ_k              │
+            └───────────────────────────┬────────────────────────────┘
+                                        │
+                         Bałaban Multiscale RG Operators
+                                        │
+            ┌───────────────────────────▼────────────────────────────┐
+            │  Block-averaging: Q_k : ℱ_k → ℱ_{k+1}                  │
+            │  State sequence: Ψ_N = ⨂_{k=0}^N Q_k Ψ_0              │
+            │  Convergence in ℱ_E: Ψ_∞ = lim_{N→∞} Ψ_N (Cauchy)       │
+            └───────────────────────────┬────────────────────────────┘
+                                        │
+                          Reflection Positivity Check
+                                        │
+            ┌───────────────────────────▼────────────────────────────┐
+            │  Time-reflection: θ(x₀, x) = (-x₀, x)                  │
+            │  Half-space algebra 𝒜₊ (x₀ > 0)                        │
+            │  Theorem: ⟨Ψ_∞, π(θ(F)* F) Ψ_∞⟩ ≥ 0                    │
+            └───────────────────────────┬────────────────────────────┘
+                                        │
+                       Osterwalder–Schrader Reconstruction
+                                        │
+            ┌───────────────────────────▼────────────────────────────┐
+            │  Physical Hilbert Space: ℋ_Mink = 𝒜₊ / 𝒩               │
+            │  Emergent Hamiltonian: e^{-τ H} [F] = [T_τ F]          │
+            │  Relativistic Wightman Theory on ℝ^{1,3}               │
+            └────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Phase 1: 4D Euclidean Nested Fock Space & $O(4)$ Invariant Measure
+**Goal:** Define the 4D Euclidean field substrate without breaking space and time into a $3+1$ split, using the Mehler measure on an infinite-dimensional sphere.
+
+#### 1.1. 4D Euclidean Configuration Core
+* In Hamiltonian field theory, one works with $(A_i, \pi_i)$ on $\mathbb{R}^3$ [1.1]. In the 4D Euclidean theory, the field coordinate is a 4-vector $A_\mu(x) = (A_0, A_1, A_2, A_3)(x)$ on $\mathbb{R}^4$ taking values in $\mathfrak{su}(N)$.
+* Construct the configuration space using the 4D product Hermite basis on $L^2(\mathbb{R}^4 \otimes \mathfrak{su}(N))$:
+  $$\phi_{\alpha, \mu, a}(x) = H_{\alpha_0}(x_0) H_{\alpha_1}(x_1) H_{\alpha_2}(x_2) H_{\alpha_3}(x_3) T_a$$
+* **Lean 4 Target File:** `BookProof/EuclideanFock4D/CoreBasis.lean`
+  ```lean
+  def EuclideanHermiteBasis4D (N : ℕ) : OrthonormalBasis (ℕ⁴ × Fin 4 × Fin (N^2 - 1)) ℝ (L2 (ℝ⁴ × Fin 4 × Fin (N^2 - 1)))
+  ```
+
+#### 1.2. The 4D Mehler Measure and $O(4)$ Invariance
+* Generalize `PhysHSGaussian` [1.1] to dimension 4: Define the free Euclidean Gaussian measure $d\gamma_0(A)$ on the sphere $S^\infty$.
+* Prove that $d\gamma_0$ is invariant under the full 4D Euclidean rotation/reflection group $O(4)$:
+  ```lean
+  theorem mehler4D_O4_invariant (R : EuclideanIsometry 4) :
+    Measure.map (liftIsometry R) (mehlerMeasure4D) = mehlerMeasure4D
+  ```
+
+---
+
+### Phase 2: Bałaban Multiscale RG as Nested Fock Operators
+**Goal:** Translate Bałaban’s functional block-spin transformations into bounded linear operators acting between sectors of a nested Fock space.
+
+#### 2.1. Scale Decomposition of the Nested Fock Space
+* Instead of treating the multiscale expansion as an infinite sequence of unregularized path integrals, define the total Euclidean space as a **nested, graded Fock space over scales**:
+  $$\mathcal{F}_{\text{total}} = \bigoplus_{k=0}^\infty \mathcal{F}_k, \quad \text{where } \mathcal{F}_k \cong \Gamma^s(L^2(\text{Block}_k \times \mathfrak{su}(N)))$$
+* Scale $k$ corresponds to effective lattice cells of volume $L^{4k} a^4$.
+* **Lean 4 Target File:** `BookProof/BalabanRG/MultiscaleSpace.lean`
+
+#### 2.2. The Block-Averaging Operator
+* Bałaban’s block transformation $Q$ averages gauge fields over a 4D hypercube $B_k(y)$ of size $L$:
+  $$(Q A)_\mu(y) = \frac{1}{L^4} \int_{B_k(y)} A_\mu(x) \, dx + \text{gauge-connection corrections}$$
+* In the wave-function parametrization, this averaging is an **isometric conditional expectation operator**:
+  $$\mathbb{Q}_k : \mathcal{F}_k \to \mathcal{F}_{k+1}$$
+* Prove that $\mathbb{Q}_k$ is bounded and preserves the Born probability normalization:
+  ```lean
+  def blockAveragingOp (k : ℕ) : ℱ k →L[ℝ] ℱ (k + 1)
+  theorem blockAveragingOp_norm_le (k : ℕ) : ‖blockAveragingOp k‖ ≤ 1
+  ```
+
+#### 2.3. The State Sequence and Continuum Convergence
+* The regularized state at cutoff $N$ (lattice spacing $a = L^{-N}$) is the product wave-function:
+  $$\Psi_N = \left( \prod_{k=0}^{N-1} \mathbb{Q}_k \right) \Psi_{\text{bare}}$$
+* Formalize Bałaban’s small-field/large-field polymer contraction as an operator Cauchy estimate:
+  $$\|\Psi_{N+1} - \Psi_N\|_{\mathcal{F}_{\text{total}}} \le C \cdot L^{-\epsilon N}$$
+* By completeness of the Hilbert space (`completeSpace_iff_summable_norm`) [1.1], deduce that $\Psi_N$ converges to a **unique continuum state vector $\Psi_\infty \in \mathcal{F}_{\text{total}}$**:
+  ```lean
+  theorem balaban_state_cauchy : CauchySeq (fun N => psiSeq N)
+  theorem balaban_continuum_state_exists : ∃ (Ψ_∞ : ℱ_total), Tendsto psiSeq atTop (𝓝 Ψ_∞)
+  ```
+
+---
+
+### Phase 3: Reflection Positivity (Osterwalder–Schrader Positivity)
+**Goal:** Prove that the 4D static measure $d\mu_\infty(A) = |\Psi_\infty(A)|^2$ satisfies reflection positivity across the $x_0 = 0$ hyperplane.
+
+#### 3.1. Euclidean Time Reflection
+* Define the reflection operator $\theta$ on $\mathbb{R}^4$:
+  $$\theta(x_0, x_1, x_2, x_3) = (-x_0, x_1, x_2, x_3)$$
+* On the gauge connection, $\theta$ acts with the proper parity sign on the temporal component:
+  $$(\theta A)_0(x) = -A_0(\theta x), \quad (\theta A)_j(x) = A_j(\theta x) \quad (j=1,2,3)$$
+* Lift $\theta$ to a unitary involution $\Theta$ on $\mathcal{F}_{\text{total}}$:
+  ```lean
+  def timeReflection : ℱ_total →L[ℝ] ℱ_total
+  theorem timeReflection_involution : timeReflection ∘L timeReflection = ContinuousLinearMap.id ℝ ℱ_total
+  ```
+
+#### 3.2. The Half-Space Observable Algebra $\mathcal{A}_+$
+* Define the subalgebra $\mathcal{A}_+$ of cylindrical observables supported strictly on the positive Euclidean time half-space:
+  $$\operatorname{supp}(F) \subset \{x \in \mathbb{R}^4 : x_0 > 0\}$$
+* **Lean 4 Target File:** `BookProof/ReflectionPositivity/HalfSpaceAlgebra.lean`
+  ```lean
+  def PositiveTimeAlgebra : Subalgebra ℝ (CylindricalObservables ℱ_total)
+  ```
+
+#### 3.3. Proof of Reflection Positivity
+* For the bare Wilson lattice action, reflection positivity across site/link boundaries is an established algebraic identity:
+  $$\langle \theta(F) F \rangle_a \ge 0 \quad \forall F \in \mathcal{A}_{+, a}$$
+* Prove that Bałaban's block-spin averaging $\mathbb{Q}_k$ commutes with time reflection:
+  $$\Theta \mathbb{Q}_k = \mathbb{Q}_k \Theta$$
+* Conclude that reflection positivity is preserved at every RG step $k$, and passes to the continuum limit:
+  ```lean
+  theorem reflection_positivity_continuum (F : PositiveTimeAlgebra) :
+    0 ≤ innerProduct ℱ_total (timeReflection (observableOp F Ψ_∞)) (observableOp F Ψ_∞)
+  ```
+
+---
+
+### Phase 4: Wick Rotation and Osterwalder–Schrader Reconstruction
+**Goal:** Reconstruct the physical Minkowski Hilbert space $\mathcal{H}_{\text{Mink}}$, the vacuum state $\Omega$, and the physical Hamiltonian $H_{\text{phys}}$ directly from the reflective Euclidean state $\Psi_\infty$.
+
+#### 4.1. Construction of the Physical Minkowski Hilbert Space
+* Define the positive semi-definite form on $\mathcal{A}_+$:
+  $$\langle F_1, F_2 \rangle_{\text{phys}} := \langle \Psi_\infty, \pi(\theta(F_1)^* F_2) \Psi_\infty \rangle$$
+* Define the null space:
+  $$\mathcal{N} = \{ F \in \mathcal{A}_+ : \langle F, F \rangle_{\text{phys}} = 0 \}$$
+* Define the physical Minkowski space as the metric completion of the quotient:
+  $$\mathcal{H}_{\text{Mink}} := \overline{\mathcal{A}_+ / \mathcal{N}}$$
+* **Lean 4 Target File:** `BookProof/OSReconstruction/PhysicalHilbertSpace.lean`
+  ```lean
+  def PhysicalNullSpace : Submodule ℝ PositiveTimeAlgebra
+  def PhysicalPreHilbert := PositiveTimeAlgebra ⧸ PhysicalNullSpace
+  def MinkowskiHilbertSpace := UniformSpace.Completion PhysicalPreHilbert
+  ```
+
+#### 4.2. Emergence of the Physical Hamiltonian $H_{\text{phys}}$
+* Notice that **no Hamiltonian was postulated in 4D Euclidean space**. The physical Hamiltonian emerges through the Euclidean time translation semigroup:
+  $$T_\tau(x_0, \mathbf{x}) = (x_0 + \tau, \mathbf{x}) \quad (\tau \ge 0)$$
+* For any $F \in \mathcal{A}_+$ and $\tau \ge 0$, $T_\tau F \in \mathcal{A}_+$.
+* By reflection positivity and the Cauchy–Schwarz inequality, $T_\tau$ induces a symmetric, contraction semigroup on $\mathcal{H}_{\text{Mink}}$:
+  $$P(\tau)[F] = [T_\tau F], \quad \|P(\tau)\| \le 1$$
+* Using the Hille–Yosida theorem (or Stone's theorem for symmetric semigroups, already formalizable from `BookProof.ChapterStoneResolvent` [1.1]):
+  $$P(\tau) = e^{-\tau H_{\text{phys}}}$$
+* Deduce that the infinitesimal generator $H_{\text{phys}}$ is **automatically self-adjoint and positive**:
+  ```lean
+  theorem emergent_hamiltonian_selfAdjoint : IsSelfAdjoint H_phys
+  theorem emergent_hamiltonian_nonnegative (ψ : MinkowskiHilbertSpace) :
+    0 ≤ innerProduct MinkowskiHilbertSpace ψ (H_phys ψ)
+  ```
+
+---
+
+### Phase 5: Connecting the Mass Gap
+With the 4D Euclidean theory reconstructed into Minkowski spacetime, the mass gap is the spectral gap of the emergent operator $H_{\text{phys}}$:
+
+1. **Spatial vs. Temporal Clustering:**
+   Because the Euclidean theory has full $O(4)$ invariance (from Phase 1), exponential decay of Schwinger functions in the Euclidean time direction $\tau$:
+   $$\langle \mathcal{O}(\tau, \mathbf{0}) \mathcal{O}(0, \mathbf{0}) \rangle - \langle \mathcal{O} \rangle^2 \le C e^{-m \tau}$$
+   is strictly equivalent to exponential spatial decay at distance $r = |\mathbf{x}|$.
+2. **Transfer to SIRK / Temple:**
+   The emergent operator $H_{\text{phys}}$ on the reconstructed space $\mathcal{H}_{\text{Mink}}$ now serves as the input to the existing `BookProof.SirkCertifiedGap` pipeline [1.1], allowing certified interval calculation of the lowest mass $m > 0$.
+
+---
+
+### Lean 4 File Hierarchy for the Project
+
+| Module Path | Primary Theorem / Definition | Proof Mechanism |
+| :--- | :--- | :--- |
+| `BookProof/EuclideanFock4D/CoreBasis.lean` | `EuclideanHermiteBasis4D` | 4D product Hermite functions [1.1] |
+| `BookProof/EuclideanFock4D/MehlerMeasure.lean` | `mehler4D_O4_invariant` | Projective limit of Gaussians on $S^\infty$ [1.1] |
+| `BookProof/BalabanRG/BlockOperator.lean` | `blockAveragingOp` | Gauge-covariant kernel on blocks |
+| `BookProof/BalabanRG/Convergence.lean` | `balaban_continuum_state_exists` | Cauchy sequence in $\mathcal{F}_{\text{total}}$ via polymer bound |
+| `BookProof/ReflectionPositivity/Involution.lean` | `timeReflection` | Parity lift: $A_0 \mapsto -A_0, A_j \mapsto A_j$ |
+| `BookProof/ReflectionPositivity/Proof.lean` | `reflection_positivity_continuum` | $\mathbb{Q}_k \Theta = \Theta \mathbb{Q}_k$ + lattice OS identity |
+| `BookProof/OSReconstruction/PhysicalSpace.lean` | `MinkowskiHilbertSpace` | Quotient by null ideal + metric completion [1.1] |
+| `BookProof/OSReconstruction/Hamiltonian.lean` | `emergent_hamiltonian_selfAdjoint` | Hille–Yosida / Stone generator of time shifts [1.1] |
+
+### Why This Research Plan Works
+* **Eliminates the Gauge-Fixing Conflict:** Working in 4D Euclidean space avoids the temporal gauge $A_0 = 0$ (which ruins 4D Euclidean covariance) while avoiding non-local Coulomb gauges [1.1].
+* **No Premature Hamiltonian:** The physical Hamiltonian $H_{\text{phys}}$ is not constructed by hand with operator ordering problems; it **emerges dynamically** from the Euclidean translation semigroup via reflection positivity.
+* **Direct Compatibility with *Timepiece*:** The entire construction relies solely on objects already validated in `BookProof`: separable Hilbert spaces, the Mehler measure, Riesz–Fischer completions, and Stone's flow machinery [1.1].
+
+---
+
+## Implementation status (2026-10-29)
+
+This section records what of the plan above is actually implemented in **this** repository
+(`timepiece`, Lean v4.28.0), with the declaration names to read.  The module-by-module record
+lives in `docs/euclidean_cft_proof.md`; this is the plan-side mirror.  `lake build BookProof`
+is the verification gate; no module below contains `sorry`.
+
+### Phase → module → declaration
+
+| Phase | Module | Declarations | Status |
+| :--- | :--- | :--- | :--- |
+| 1.1 | `BookProof/EuclideanFock4D/CoreBasis.lean` | `euclideanHermiteBasis4D`, orthonormality, totality, `euclideanHermiteNet4D`, `colourBasis` | **PROVED** |
+| 1.2 | `BookProof/EuclideanFock4D/MehlerMeasure.lean` | `mehlerMeasure4D := gaussianE 4`, `mehler4D_O4_invariant`, `sphereUniform4D` | **PROVED** (the measure is the 4-fold product Gaussian on the Hermite core; no projective limit is built — see Boundary) |
+| 2.1 | `BookProof/BalabanRG/MultiscaleSpace.lean` | `Sector k`, `FTotal` (an `ℓ²` sum over scales), `rgOnTotal`, `rgOnTotal_norm_le`, `psiSeq` | **PROVED** |
+| 2.2 | `BookProof/BalabanRG/BlockOperator.lean` | `blockConst`, `blockAveragingOp`, **`blockAveragingOp_norm_le`** (`‖Q_k‖ ≤ 1`), idempotence, image in the coarse sector | **PROVED** |
+| 2.3 | `BookProof/BalabanRG/Convergence.lean` | `summable_of_increment_bound`, `psiSeq_has_limit`, `psiSeq_cauchy`, **`balaban_rg_convergence`** | **PROVED, conditional** on the geometric increment bound (Bałaban's polymer estimate) — the bound itself is the open analytic input |
+| 3.1 | `BookProof/ReflectionPositivity/Involution.lean` | `timeReflection` (`θ² = 1`, coordinate formula), **`timeReflection_measure_invariant`**, `flipCell`, `fieldReflection` | **PROVED** |
+| 3.1 | `BookProof/ReflectionPositivity/BlockCommute.lean` | **`blockOf_reflectCoord`**, `mem_blockConst_fieldReflectionSector`, **`theta_commutes_blockAveraging`** (`Θ Q_k = Q_k Θ`) | **PROVED** |
+| 3.2 | `BookProof/ReflectionPositivity/HalfSpaceAlgebra.lean` | `PositiveTimeAlgebra`, `CylindricalObservables`, `positiveTimeAlgebra_cylindrical`, `thetaObs`, **`thetaObs_dependsOn_negTime`** | **PROVED** |
+| 3.3 | `BookProof/ReflectionPositivity/Proof.lean` | `osForm`, `IsReflectionPositive`, **`reflection_positivity_continuum`**, `psiSeq_component_tendsto` | **PARTIAL**: the passage to the continuum limit from pointwise convergence is proved; the *lattice OS identity itself* is a hypothesis |
+| 3.3 | `BookProof/OSReconstruction/MomentumBasis.lean` | `dft_mul_eq_convolution`, **`reflection_positivity_momentum`**, `covarianceForm_eq_dft`, `freePropagator_reflect_eq_transfer`, `freeOSForm_eq_momentum` | **PROVED** for the free field, degree one (two-point function) |
+| 3.3 | `BookProof/ReflectionPositivity/FeynmanKac.lean` | `freeTransferKernel` with **`freeTransferKernel_pos`** and **`fkKernelProduct_pos`** (the pointwise positive kernel), `freeAction` with **`freeAction_cross_vanishes`** (the Markov property: no past–future coupling) and **`freeAction_reflect`**, `freeDensity_factorises`, `fkMeasure` (`= ρ ⊗ ν ⊗ ν`), `fkOSForm`, **`fk_integral_eq`** and **`fk_reflectionPositive`** | **NEW (2026-10-30)**: the Feynman–Kac route — the transfer kernel is pointwise positive, the action splits at the reflection slice, and reflection positivity of `ρ ⊗ ν ⊗ ν` holds for *every* integrable half-space observable (polynomials included), with no degree restriction. The identification of the concrete lattice Gaussian with this product form is in the row below |
+| 3.3 | `BookProof/ReflectionPositivity/LatticeFreeField.lean` | `fkKernelDensity`, **`fkKernelMeasure`** (`ρ ⊗ ν_z ⊗ ν_z`, boundary-*dependent* half-space law), **`fkKernel_integral_eq`**, **`fkKernel_reflectionPositive`**, `chain`, `halfAction`, `boundaryTerm`, `latticeAction`, `latticeGFFMeasure`, **`latticeGFFMeasure_eq_fkKernelMeasure`**, **`latticeGFF_integral_eq`**, **`latticeGFF_reflectionPositive`** | **NEW (2026-10-30)**: the **identification**. The free field's half-space law depends on the boundary slice (`ν = ν_z`), which `fkMeasure` cannot express, so the FK theorem is proved in kernel form; then the concrete lattice Gaussian free field on `2n+1` slices with the nearest-neighbour action splits as `S = h(z,y₋) + h(z,y₊) + d(z)`, i.e. it *is* `ρ ⊗ ν_z ⊗ ν_z` with `ρ = exp(−d)` and `ν_z = exp(−h(z,·))`. Reflection positivity of the free field therefore holds for every half-space observable with integrable moments. Boundary: the normalising constant `Z` is not evaluated (it cancels), so no `m > 0` and no finiteness is claimed |
+| 3.3 | `BookProof/ReflectionPositivity/WilsonLattice.lean` | `plaqDensity`, **`re_trace_le_card`**, `plaqDensity_nonneg`, **`plaqDensity_le_one`**, `plaqWeight`, **`plaqWeight_pos`**, **`plaqWeight_le_one`**, **`wilsonAction`**, **`wilson_mixed_difference_zero`**, **`wilson_density_factorises`**, **`wilsonAction_reflect`**, **`wilsonMeasure_eq_fkKernelMeasure`**, **`wilson_reflectionPositive`** | **NEW (2026-10-30)**: the interaction does **not** spoil the slice split. The plaquette bound `Re tr U ≤ N` (`|tr U| ≤ N` for `U` unitary, from row-orthonormality) makes every plaquette contribute `0 < weight ≤ 1`; a plaquette uses only past, only invariant, or only future links, so `S = A(z,y₋) + A(z,y₊) + b(z)` and the **mixed difference vanishes identically** — the interacting analogue of `freeAction_cross_vanishes`. Hence the Wilson measure *is* `ρ ⊗ ν_z ⊗ ν_z` with the interacting kernel `ν_z = exp(−A(z,·))`, and is reflection positive for every half-space observable with integrable moments. Boundary: the lattice geometry (which links a plaquette uses) is an input, the group measure is not modelled (a fixed reference measure, not Haar), and `Z` of the interacting measure is not evaluated |
+| 3.3 | `BookProof/ReflectionPositivity/GFFNormalization.lean` | `sqSum`/`layerSq`/`latticeSq`, **`integral_exp_neg_mul_sqSum`** (`∫ exp(−c‖x‖²) = (√(π/c))^{\|S\|}`), **`integral_exp_neg_mul_layerSq`**, **`integral_exp_neg_mul_latticeSq`** (`= (√(π/c))^{(2n+1)\|S\|}`), `lintegral_exp_neg_mul_latticeSq`, **`latticeAction_ge_mass`**, **`latticeAction_le`**, `latticeGFFMass`, **`latticeGFFMass_le`**, **`latticeGFFMass_ge`**, **`latticeGFFMass_pos`**, **`latticeGFFMass_lt_top`**, `latticeGFFZ_eq_toReal`, **`latticeGFFMass_zero`**, **`latticeGFFProbability`**, **`isProbabilityMeasure_latticeGFFProbability`**, **`latticeGFFProbability_reflectionPositive`** | **NEW (2026-10-30)**: the normalising constant. The reference Gaussians are evaluated exactly, with their constants (Fubini over the sites plus `integral_gaussian`); the action is sandwiched, `(m/2)‖φ‖² ≤ S ≤ (8n + m/2)‖φ‖²`, giving `(√(π/(8n+m/2)))^{(2n+1)\|S\|} ≤ Z ≤ (√(2π/m))^{(2n+1)\|S\|}`, so **`Z` is finite and non-zero** and `latticeGFFMeasure` normalised by it **is a probability measure** (for `m > 0`), still reflection positive because a positive rescaling is. Boundary: *this* chapter proves only the sandwich; the exact closed form `(2π)^{N/2}/√det K` needs the slice recursion `μ₀ = m/2`, `μ_{j+1} = m/2 + μ_j/(1+μ_j)` and is proved in `ChainPartition` (`chainZ_closed_det` + `latticeGFFMass_eq_chainZ`, next rows). The single-slice value `Z = (2π/m)^{\|S\|/2}` is exact here (`latticeGFFMass_zero`) |
+| 3.3 | `BookProof/ReflectionPositivity/WilsonLinkLattice.lean` | `Site`, `stepSite`, `Link`, `time`, `theta`, **`theta_involutive`**, **`time_theta`**, `Plaquette` with `c10`/`c01`/`c11`/`siteSet`, **`timeSet_subset`**, `IsPastSide`, `IsFutureSide`, `IsInvariant`, **`plaq_cover`**, **`plaq_classification`**, `reflectTime`, **`pastSide_image_iff`**, **`Plaquette.holonomy`**, **`Plaquette.holonomy_mem_unitaryGroup`**, `re_trace_inv_of_mem_unitaryGroup`, **`Plaquette.plaqDensity_holonomy_inv`**, `Plaquette.plaquetteWeight_holonomy_inv`, **`Plaquette.pastSide_link_time`**, **`Plaquette.futureSide_link_time`**, **`wilsonLatticeAction`**, `pastSideWeight`/`futureSideWeight`/`invariantWeight`, **`wilsonLatticeAction_split`**, **`reflectT_link0`**–**`reflectT_link3`**, **`reflectT2_link0`**–**`reflectT2_link3`**, **`reflectT_c10`/`_c01`/`_c11`**, **`reflectT2_c10`/`_c01`/`_c11`**, **`holonomy_reflectT`**, **`holonomy_reflectT2`**, **`trace_holonomy_reflectT`**, **`trace_holonomy_reflectT2`**, **`trace_holonomy_reflectPlaq`**, **`reflectPlaq_involutive`**, **`wilsonLatticeAction_reflectConfig`** | **NEW (2026-10-30, temporal cases closed 2026-10-31, action invariance 2026-10-31)**: the plaquette classification is now *derived* from an explicit lattice instead of assumed. On the `L × L × L` box with oriented links, every plaquette's time support is contained in `{t, t+1}` (`timeSet_subset`: spatial plaquettes sit at one time, temporal ones span exactly one step); consequently every plaquette is on the past side or the future side of the reflection plane (`plaq_cover`) and the two sides cover while intersecting exactly in the reflection-invariant (boundary) class (`plaq_classification`); and the reflection `t ↦ L−1−t` (an involution, `theta_involutive`, `time_theta`) carries the past side onto the future side (`pastSide_image_iff`) — the input `wilsonAction_reflect` used to take. The four links are now attached to the corner data as genuine `Link` values (`Link.ofStep`, `link0`–`link3`: `base → c10 → c11` and `base → c01 → c11`, with `link_targets`/`link_endpoints_mem` and the square closing at `stepSite_c01`). The holonomy is built from the four links (`U0·U1·U2⁻¹·U3⁻¹`), is unitary for unitary link variables, and its Wilson weight does not see the orientation of the square (`Re tr` of a unitary inverse equals `Re tr`). Past-side plaquettes use only links at time ≤ M, future-side ones only links at time ≥ M (`pastSide_link_time`/`futureSide_link_time`), and the action of the box — summed over *all* plaquettes — splits as `S = past + future − invariant` (`wilsonLatticeAction_split`), the shape `wilsonAction` takes as an input. **All three cases of the reflection are closed**: the four link identities of the reflected square are proved for the spatial case (`reflectS_link0`–`link3`, where the holonomy is *literally* equal, `holonomy_reflectS`) and for both temporal cases (`reflectT_link0`–`link3`, `reflectT2_link0`–`link3`, through the corner lemmas `reflectT_c10`/`_c01`/`_c11`, `reflectT2_c10`/`_c01`/`_c11`), where the reflected holonomy is the cyclic rotation `u₁u₂⁻¹u₃⁻¹u₀` (time first) or `u₃⁻¹u₀u₁u₂⁻¹` (time second) of `u₀u₁u₂⁻¹u₃⁻¹` — one `trace_rot_inv` / `trace_rot` from it, so the **trace identity `Re tr h_{θp} = Re tr h_p` holds in every case** (`trace_holonomy_reflectS`/`_reflectT`/`_reflectT2`, umbrella `trace_holonomy_reflectPlaq`), with the double inverse of a time link unwrapped by `inv_inv_of_mem_unitaryGroup`. The trace identity is lifted to the action: `reflectPlaq` **is an involution** of the plaquette set (`reflectPlaq_involutive`, through `eq_of_data` which reduces a plaquette equality to its base and two directions), so the sum reindexes and **`wilsonLatticeAction_reflectConfig`** gives `S(U_θ) = S(U)` exactly — the reflection invariance the reflection-positivity argument needs. Its remaining gap — identifying the past sum with a measurable function of `(z, y₋)` alone — is closed in the next row. |
+| 3.3 | `BookProof/ReflectionPositivity/WilsonPastClass.lean` | **`timeSet_reflectPlaq`**, `siteSet_reflectS`/`_reflectT`/`_reflectT2`, **`IsPastSide_reflectPlaq`**, **`IsInvariant_reflectPlaq`**, **`pastSideWeight_reflectConfig`**, **`futureSideWeight_reflectConfig`**, **`invariantWeight_reflectConfig`**, **`wilsonLatticeAction_reflectConfig_of_split`**, **`measurable_of_inv_apply`**, `PastLink`/`BoundaryLink`/`PastConf`/`BoundConf`, `pastLinkVar`/`pastConfig`/`pastHolonomy`, **`measurable_pastHolonomy_apply`**, **`measurable_weight_pastConfig`**, **`pastSideObservable`**, **`measurable_pastSideObservable`**, **`pastSideWeight_eq_observable_of_eq`** | **NEW (2026-10-31)**: the concrete past-class weight, both halves of the gap recorded in `WilsonLinkLattice`. **Reflection identity.** The reflected plaquette's corner set is the `θ`-image of the original's in all three cases (spatial, time-first, time-second), so its time support is the original's under `t ↦ L−1−t` (`timeSet_reflectPlaq`); with the middle reflection plane `L = 2M+1` the reflection therefore carries the past side onto the future side (`IsPastSide_reflectPlaq`) and preserves the invariant slice (`IsInvariant_reflectPlaq`). Reindexing the sum by the involution `reflectPlaq` and using the trace identity gives **`pastSideWeight β N (reflectConfig U) M = futureSideWeight β N U M`**, with the future (`reflectConfig_involutive`) and invariant companions, and — assembled through `wilsonLatticeAction_split` — `S(U_θ) = S(U)` as an identity between the three class sums (`wilsonLatticeAction_reflectConfig_of_split`), matching the unconditional `wilsonLatticeAction_reflectConfig`. **Measurability packaging.** The half-space configuration space is explicit: past links (time ≤ M), boundary links (time = M), with the link variable `pastLinkVar` reading the past configuration below the slice and the boundary one in it. The entries of `A ↦ A⁻¹` are measurable from `A⁻¹ = det A⁻¹ • adjugate A` (`measurable_of_inv_apply`) — *not* from continuity of the inverse, which fails at singular matrices — and the past-class holonomy's entries are assembled by `measurable_entry_mul` rather than `fun_prop`, so no measurable structure on `Matrix` is needed. The past-class sum is then the measurable function `pastSideObservable` of `(y, z)` (**`measurable_pastSideObservable`**), identified with `pastSideWeight` of any configuration agreeing below the slice (`pastSideWeight_eq_observable_of_eq`) — the `hmeas` input of `wilson_reflectionPositive`. Boundary: the reference measure is instantiated as Haar measure in `HaarReference` (see the next row); gauge invariance is not used, and `Z` is not evaluated |
+| 3.3 | `BookProof/ReflectionPositivity/ChainPartition.lean` | `sliceFactor`, `chainForm`, `chainZ`, **`chainForm_cons`**, **`chainForm_linear`**, **`lintegral_exp_neg_mul_sqSum`**, **`lintegral_exp_neg_slice_step`**, **`chainZ_succ`**, `effSeq`, **`effSeq_shift`**, **`chainZ_closed`**, **`chainZ_closed_half`**, `halfAction_split`, **`chainForm_chain`**, **`latticeAction_chain`**, **`lintegral_fkKernel_eq_chainZ`**, `chainMatrix`, **`chainMatrix_zero`**, **`chainMatrix_one`**, **`det_corner_schur`**, **`chainMatrix_succ_det`**, **`chainMatrix_det`**, **`chainMatrix_det_half`**, **`chainZ_closed_det`**, **`chainForm_symm`**, **`chainForm_symm_rev`**, `foldIdx`, **`foldChainEquiv`**, **`volume_preserving_foldChainEquiv`**, **`sum_foldChain_sqSum`**, **`foldChainEquiv_past_chain`**, **`foldChainEquiv_future_chain`**, **`sum_foldChain_diffSq`**, **`latticeAction_eq_chainForm`**, **`latticeGFFMass_eq_chainZ`** | **NEW (2026-10-30, determinant closed 2026-10-31, lattice relabelling closed 2026-10-31)**: the effective-mass recursion itself. The one-slice Gaussian identity (`integral_exp_neg_slice_step`, from `GFFNormalization` §5) is iterated along a chain of `N+1` slices in `ℝ≥0∞` (Tonelli, so no integrability is assumed), giving the recursion `Z_{N+1}(c) = (√(π/(1+c)))^{\|S\|} · Z_N(m/2 + δ(c))` with `δ(c) = c/(1+c)`, and its closed form `Z_N(c) = (∏_{j<N}(√(π/(1+c_j)))^{\|S\|})·(√(π/c_N))^{\|S\|}`, `c₀ = c`, `c_{j+1} = m/2 + δ(c_j)`; with `c = m/2` the `c_j` are exactly `effMass m j`, i.e. `μ₀ = m/2`, `μ_{j+1} = m/2 + μ_j/(1+μ_j)`. The two translations around that recursion are now proved: at the level of measures, `∫⁻ (z,y), ρ(z)·ν_z(y) = chainZ m (m/2) n` (**`lintegral_fkKernel_eq_chainZ`**), and at the level of the operator, the tridiagonal determinant identity `det (chainMatrix m c N) = ∏_{j<N}(1 + c_j)·c_N` (**`chainMatrix_det`**, `= ∏(1+μ_j)μ_N` in **`chainMatrix_det_half`**), by block elimination at the `1 × 1` corner (**`det_corner_schur`**, the Schur complement of the outermost slice) plus induction. **The lattice itself is now a chain**: `foldChainEquiv` presents the `2n+1` slices as a chain (past half backwards, reflection slice, future half; measure preserving by **`volume_preserving_foldChainEquiv`**), the **mass** term matches (**`sum_foldChain_sqSum`**) and so do the **links** (`foldChainEquiv_past_chain`/`_future_chain` slice the two halves, **`sum_foldChain_diffSq`** matches the `2n` links), whence the lattice action *is* the chain form of the folded slices (**`latticeAction_eq_chainForm`**) and **`latticeGFFMass m n = chainZ m (m/2) (2n)`** (**`latticeGFFMass_eq_chainZ`**) — the whole-lattice partition function in closed form, `Z = π^{(2n+1)\|S\|/2}/(det K_{2n})^{\|S\|/2}`. Boundary: this is the *free* (Gaussian) action; the interacting Wilson measure is not relabelled this way, since its density does not factorise along the links |
+| 3.3 | `BookProof/ReflectionPositivity/WilsonPartition.lean` | **`plaqDensity_le_two`**, **`wilsonHalfAction_le`**, **`wilsonAction_nonneg`**, **`wilsonAction_le`**, `exp_neg_wilsonAction_le_one`, **`wilsonMass`**, **`wilsonMass_le`**, **`wilsonMass_ge`**, **`wilsonMass_eq_top`**, **`wilsonMass_pos_of_univ_eq_one`**, **`wilsonProbability`**, **`isProbabilityMeasure_wilsonProbability`**, **`wilsonProbability_reflectionPositive`** | **NEW (2026-10-30)**: the interacting partition function. The plaquette density lies in `[0,2]` (`\|Re tr U\| ≤ \|tr U\| ≤ N`), so the action is *bounded*, `0 ≤ S ≤ 4β#P + sup b`, and the Boltzmann weight is squeezed uniformly, `exp(−(4β#P + M)) ≤ exp(−S) ≤ 1`. Hence `Z` is a multiple of the reference volume: `exp(−(4β#P+M))·μ(univ) ≤ Z ≤ μ(univ)`. Against Lebesgue that forces `Z = ⊤` (**`wilsonMass_eq_top`**) — a bounded interaction cannot damp an infinite reference measure, so the model *needs* the finite Haar measure of the compact gauge group; with a normalised reference measure (`μ(univ) = 1`) the same bound gives `0 < Z ≤ 1` and `Z⁻¹ • wilsonMeasure` **is a probability measure**, still reflection positive. Boundary: Haar itself is not constructed and `β, N, P, U` are fixed |
+| 3.3 | `BookProof/ReflectionPositivity/QuadraticWick.lean` | `osQuadForm`, `kern`, **`pairing_swap`**, **`osQuadForm_eq_two_mul_kern`**, `kern_transfer`, **`osQuadForm_eq_two_sum_sq`**, **`osQuadForm_nonneg`** | **NEW (2026-10-30)**: the degree-two lift — the Isserlis sum of a quadratic half-space observable equals `2 Σ_{y x} w_x w_y (Σ a_{i j} u_{x i} u_{y j})²`, and is nonnegative for `w ≥ 0`. Degrees ≥ 3 are obstructed (see item 2 below) |
+| 3.3 | `BookProof/OSReconstruction/ReflectionKernel.lean` | `IsReflectionPositiveOn`, `isReflectionPositiveOn_of_factorization`, `osBilin_sub_theta_self_eq_zero`, **`mk_thetaObs_eq_mk`** | **PROVED**: explains why the hypothesis must be the half-space one. The factorisation route is the uncorrelated (white-noise) case only |
+| 4.1 | `BookProof/OSReconstruction/PhysicalSpace.lean` | `osForm` bilinearity, `osForm_expand`, **`osForm_cauchy_schwarz`**, `Radical`, **`osForm_well_defined`**, `osNorm_triangle` | **PROVED** |
+| 4.1 | `BookProof/OSReconstruction/HilbertSpace.lean` | `physForm`, **`physCore`**, **`physInnerProductSpace`**, **`Hphys`** (`UniformSpace.Completion`), `physNorm_mk`, `physNorm_eq_zero_iff` | **PROVED** (`Hphys` is the plan's `MinkowskiHilbertSpace`; the plan's `PhysicalNullSpace` is `Radical Λ.ω`) |
+| 4.2 | `BookProof/OSReconstruction/Hamiltonian.lean` | `TimeTranslation`, `timeTranslation_semigroup`, **`osNorm_evolution_antitone`**, `radical_invariant`, `timeEvolution_well_defined` | **PROVED** (contractive semigroup part) |
+| 4.2 | `BookProof/OSReconstruction/HilbertSpace.lean` | `physEvol`, **`physEvol_contractive`**, `physEvolCompletion`, **`norm_physEvolCompletion_le`** | **PROVED** (contractive extension to `Hphys`) |
+| 4.2 | — | `emergent_hamiltonian_selfAdjoint`, `emergent_hamiltonian_nonnegative` | **NOT CLAIMED** — but the *reason* has changed, so the row reads: Stone theory is now proved in this repository in both directions (`ChapterStoneResolvent` → `ChapterStoneTheorem`, converse `WeakMeasurableUnitaryGroup.gen_stoneU_eq`), so "Mathlib has no spectral theorem" is no longer accurate. What is missing is the **converse for contraction semigroups** (Lumer–Phillips/Hille–Yosida: symmetric + strongly continuous + contractive ⇒ self-adjoint generator), plus complexification and separability of the real space `Hphys`. Feasibility written up in open item 4 above. The positivity *content* that is proved remains `osNorm_evolution_antitone` |
+| 5 | `BookProof/Sirk/ChapterRitzCertificate.lean` | `rayleigh`, `resid`, `SpectralSeparation`, **`temple_lower_bound`**, `temple_band_mem`, `fock_mass_gap_of_temple_certificates` | **PROVED** (the SIRK/Temple receiver) |
+| 5 | `BookProof/OSReconstruction/Clustering.lean` | `schwinger`, `connectedCorr`, `SchwingerClustering`, **`schwinger_symm`**, **`osNorm_evol_le_of_clustering`**, `osNorm_evol_iterate_le`, `cluster_decay_tendsto_zero`, **`eNorm_timePoint_eq_spacePoint`**, **`spatial_decay_of_temporal`**, **`osBilin_le_mul_osNorm`**, `osNorm_sub_le`, **`osNorm_sub_evol_ge`**, `genForm`, `one_sub_exp_neg_ge`, **`genForm_ge_of_contraction`**, **`genForm_gap_of_clustering`** | **NEW (2026-10-30)**: Euclidean clustering at mass `m` ⇔ decay of the transfer operator at rate `m` off the vacuum; `O(4)` time→space transfer; and the *separation*: the norm gap `1 − √C e^{−mτ}` of `I − T_τ` and the form gap `m(1 − ε)` of the effective generator `(I − T_τ)/τ`. The clustering bound itself is the hypothesis (see Boundary) |
+| 5 (Temple feed) | `BookProof/Sirk/ChapterTempleContinuumGap.lean` | **`gapAt_of_separation`**, `gapAt_of_form_domination`, **`gap_survives_norm_limit`**, `notMem_spectrum_of_separation_limit`, `continuum_gap_of_form_domination` | **NEW (2026-10-30)**: the plan's `SpectralSeparation` becomes a quantitative `GapAt` at the window centre and survives an operator-norm limit, leaving a `c₁Δ_ref/2` hole in the limit's spectrum |
+| 4.1′ | `BookProof/OSReconstruction/GaussianMoments.lean` | `productGauss`, **`isserlis_productGauss`**, `integral_prod_coord_productGauss`, `integral_pow_gaussianReal_one_moment` | **NEW (2026-10-29)**: the Gaussian/Wick step the corpus previously lacked — standard covariance only |
+| 3.3 + 4.1 (bridge) | `BookProof/OSReconstruction/YangMillsBridge.lean` | `loopProd`, **`thetaObs_loopProd`**, **`osBilin_gram`**, `osBilin_gram_nonneg`, **`complex_sum_quadform`**, **`isReflectionPositive_yangMills`**, `isReflectionPositiveOn_loopProd` | **NEW (2026-10-29)**: the dictionary between the platform's `YangMills.IsReflectionPositive` on correlation functionals of dyadic loops and the state-level `IsReflectionPositiveOn PositiveTimeAlgebra` — the loop observables and their positivity are hypotheses, the equivalence of the two statements is proved |
+
+### Boundary (recorded, never assumed)
+
+* **Phase 2.3**: `balaban_rg_convergence` is the implication *increment bound ⟹ limit*. The
+  geometric bound `‖Ψ_{N+1} − Ψ_N‖ ≤ C L^{-εN}` for the actual block operators is Bałaban's
+  hard estimate and is not proved (nor is gauge-connection covariance of `Q_k` beyond the
+  block-constant model).
+* **Phase 3.3**: the lattice Wilson OS identity `⟨θ(F) F⟩_a ≥ 0` for the interacting measure is
+  a hypothesis (`IsReflectionPositive`). What is proved is its preservation under limit
+  (`reflection_positivity_continuum`), the momentum-space form for a free field — degree one in
+  `MomentumBasis`, degree two in `QuadraticWick`, and  all degrees in `FeynmanKac` *given* the Markov/product structure of the measure — **that
+  structure holding for the concrete lattice free field in the kernel form `ρ ⊗ ν_z ⊗ ν_z`
+  (`LatticeFreeField`) and, given the plaquette link classification, for the interacting Wilson
+  measure too (`WilsonLattice`)**, and that the full-algebra strengthening would trivialise the
+  reflection (`mk_thetaObs_eq_mk`).  What remains an input for the interacting measure is the
+  lattice geometry (which links each plaquette uses) and the group measure (a fixed reference
+  measure stands in for Haar); the normalisation of the free measure is settled in
+  `GFFNormalization` (a probability measure for `m > 0`), the closed-form partition function and
+  the interacting normalisation are not.
+* **Phase 1.2 / Fock**: `ℱ_k` is modelled by its one-particle content; the `S^∞` projective
+  limit and the scale measures `dγ_k` are not built (`dγ₀ = mehlerMeasure4D` only).
+* **Phase 4.2**: the emergent generator is not constructed; no self-adjointness or
+  nonnegativity of `H_phys` is claimed (see the row above).
+* **Phase 5**: the *equivalence machinery* is now proved in `OSReconstruction.Clustering` —
+  clustering at mass `m` gives `‖T_τ F‖ ≤ √C e^{−mτ}‖F‖` off the vacuum, iterates to
+  `(√C e^{−mτ})^n`, and `O(4)` invariance transfers temporal decay at `(τ,0,0,0)` to spatial
+  decay at `(0,r,0,0)` at the same rate.  The step *from* that decay *to* a spectral separation is
+  also proved (2026-10-30), on the bounded side: `osNorm_sub_evol_ge` (the gap of `I − T_τ` at fixed
+  `τ`) and `genForm_ge_of_contraction` / `genForm_gap_of_clustering` (the form gap `m(1 − ε)` of the
+  effective generator `(I − T_τ)/τ`, with `τ → 0` recovering `m`).  What is **not** proved is the
+  clustering bound itself (Bałaban's infrared analysis) and the identification of the rate with the
+  bottom of the spectrum of the *unbounded* `H_phys`.  Note that the spectral theorem is *not* a missing ingredient: it
+  is in this repository (`ChapterSpectralMultiplication`, `ChapterSpectralDirectSum`,
+  `ChapterUnboundedSpectralModel`, `ChapterStoneConverse`) and in `physlib/`
+  (`SelfAdjointSpectralTheorem.lean`, `CayleySpectralData/SpecTheorem.lean`).  On the bounded
+  side, `BookProof/Sirk/ChapterTempleContinuumGap.lean` turns a spectral separation into a
+  quantitative gap and carries it across an operator-norm limit; `softmodes.md` Phase 5.2's
+  certificate arithmetic (`continuum_gap_unconditional`) is in
+  `BookProof/Sirk/ChapterTempleSeparationBound.lean`.
+
+### Current plan / todo list for the contents of this file
+
+Ordered by what unblocks the rest; each item names the module it lands in.
+
+1. **Wick/Isserlis, general covariance** (`BookProof/OSReconstruction/GaussianMoments.lean`) —
+   **DONE**: `isserlis_gaussLaw` and `isserlis_multivariateGaussian` prove exactly the pairing
+   form `E[∏_k X(p k)] = ∑_{σ ∈ pairings (2m)} ∏_{k < σ k} C (p k) (p σ k)` for a Gaussian of
+   covariance `A Aᵀ`, resp. `K ⪰ 0` (see that module's header and `Boundary`).  Kept here for the
+   record of the route, which is what item 2 consumes.
+   Extend `isserlis_productGauss` from the standard measure (covariance `δ`) to a field
+   `X p = Σ_a v a p * y a` with covariance `C p q = Σ_a v a p * v a q`, giving
+   `E[∏_k X(p k)] = Σ_{pairings σ} ∏_{pairs {a,b}} C (p a) (p b)`. Two steps: the linear-image
+   moment formula (multinomial expansion + the coordinate factorisation already proved), then
+   the invariant-theoretic double count. The combinatorics to port are in
+   `../physlib/Physlib/Mathematics/ForMathlib/Fin/Involutions.lean`
+   (`involutionNoFixedZeroEquivProd`, `involutionNoFixed_card_mul_two : card = (2n−1)‼`) and
+   `../physlib/Physlib/QFT/PerturbationTheory/WickContraction/Card.lean` (`cardFun`,
+   `card_eq_cardFun`); the Lean versions differ (physlib is v4.35), so this is a port.
+2. **Phase 3.3, the RP lift** — **degrees 1 and 2 done; from degree 3 the Isserlis route is
+   obstructed, and the obstruction is structural rather than a matter of labour.**  Checked on
+   2026-10-30; the route specified for this item (expand, apply Isserlis, match the transfer form)
+   is carried out as far as it goes, and where it stops is now a theorem, not an estimate.
+   * Degree 1 *is* the transfer form: `freeOSForm_eq_momentum` (with
+     `freePropagator_reflect_eq_transfer`, `transferForm_eq`) is exactly "Isserlis sum = Källén–Lehmann
+     modulus squares" for a smeared **linear** field.
+   * **Degree 2 is now proved** — `BookProof/ReflectionPositivity/QuadraticWick.lean`.  For a
+     quadratic half-space observable `F = Σ_{i j} a_{i j} φ_i φ_j` (symmetric `a`) and reflected
+     covariance `K_{i k} = ω(φ(θi) φ_k)`, the Isserlis sum is the two pairings
+     `Σ a_{i j} a_{k l} (K_{i k}K_{j l} + K_{i l}K_{j k})` (`osQuadForm`).  `pairing_swap` merges
+     them (the relabelling `k ↔ l`), `osQuadForm_eq_two_mul_kern` collapses them to
+     `2 Σ_{i j} a_{i j}(KAK)_{i j}`, and for a covariance in transfer form
+     `K_{i j} = Σ_x w_x u_{x i}u_{x j}`,
+     **`osQuadForm_eq_two_sum_sq`** gives
+     `ω(θF·F) = 2 Σ_{x y} w_x w_y (Σ_{i j} a_{i j} u_{x i} u_{y j})²`, with **`osQuadForm_nonneg`**
+     the `w ≥ 0` positivity.  This is the degree-two match of `transferForm_eq`, but note its
+     *form*: the weight multiplies the **square of the bilinear pairing of two modes**, not a single
+     `|Σ_p F p u_a p|²`.  The degree-1 statement is the diagonal `x = y` picture; it does not lift
+     verbatim, and this is the correct degree-2 statement instead.
+   * **From degree 3 the Wick route fails, and cannot be repaired.**  At degree `2m` the same
+     substitution gives products of `m` pairings with no collapse into one square, and positivity
+     genuinely fails for a `θ`-invariant Gaussian: on the odd subspace, where the reflection acts
+     as `φ(θp) = −φ(p)` and the covariance is `θ`-invariant by construction, the cubic half-space
+     monomial `F = φ(p)³` satisfies `θF = −F`, hence `ω(θF·F) = −ω(F²) < 0`.  So
+     `IsReflectionPositiveOn PositiveTimeAlgebra ω` is **false** for a θ-invariant free measure in
+     general, and no Isserlis/Wick manipulation can prove it.  (Earlier notes put this threshold at
+     degree 2; `QuadraticWick` shows degree 2 is in fact positive for symmetric `a` and symmetric
+     `K`, so the correction is that the counterexample lives at degree 3 and above.)
+   * **The Feynman–Kac structure is now built** — `BookProof/ReflectionPositivity/FeynmanKac.lean`.
+     The three inputs the free measure actually uses, none of which is Wick's theorem:
+     - the **pointwise positive transfer kernel**: `freeTransferKernel lam z z'` is the Gaussian
+       weight `exp(-(lam/2) Σ_i (z' i - z i)²)` of one Euclidean time step, with
+       **`freeTransferKernel_pos`** (`0 < K`) and **`fkKernelProduct_pos`** (`0 <` the `n`-step
+       product) — positivity of the kernel, not just of the operator;
+     - the **Markov property**: `freeAction` is the action `Σ_{i j} φ i A i j φ j`, and
+       **`freeAction_cross_vanishes`** shows that block-tridiagonality (no past–future entry in
+       the precision matrix) kills every term pairing a past with a future coordinate — so the
+       Gibbs weight factorises (`freeDensity_factorises`) and the two half-spaces are
+       conditionally independent given the boundary slice;
+     - **reflection invariance**: `freeAction_reflect` — the action is symmetric, so the past and
+       future conditional laws agree, which is what makes the OS form a *single* square rather
+       than a product of two different integrals.
+     From these, **`fk_integral_eq`** is the Feynman–Kac identity for the measure
+     `fkMeasure ρ ν = ρ ⊗ ν ⊗ ν`: `∫ θF·F d(ρ ⊗ ν ⊗ ν) = ∫ z, (∫ y, F z y ∂ν)² ∂ρ`, and
+     **`fk_reflectionPositive`** is its nonnegativity.  That holds for **every** measurable
+     half-space observable with integrable moments — every polynomial half-space observable whose
+     Gaussian moments are finite — so the degree restriction of `QuadraticWick` is exactly what
+     the Markov structure removes.
+   * **The identification is now done** — `BookProof.ReflectionPositivity.LatticeFreeField`.  The
+     half-space law of the free field depends on the boundary (`ν = ν_z`, a kernel rather than a
+     fixed measure), so the FK theorem is restated in kernel form (`fkKernelMeasure ρd νd`, the
+     measure with density `ρd z · νd z y₋ · νd z y₊`) with its own Fubini identity
+     `fkKernel_integral_eq` and positivity `fkKernel_reflectionPositive`.  The concrete lattice
+     Gaussian free field on `2n+1` slices (`latticeGFFMeasure`) satisfies the density identity
+     `exp(−S) = exp(−d) · exp(−h(z,y₋)) · exp(−h(z,y₊))` — `fkKernelDensity_lattice`, the Markov
+     property in density form, with the *same* half-action on both sides — whence
+     **`latticeGFFMeasure_eq_fkKernelMeasure`** and **`latticeGFF_reflectionPositive`**.
+
+     Two of the three follow-ups named here are now closed.  The **interacting Wilson measure**
+     does satisfy the same kernel form — not because the quartic term factorises like a Gaussian,
+     but because a plaquette can use only past, only invariant or only future links, so the
+     mixed difference of the action vanishes identically (`wilson_mixed_difference_zero`) and
+     `wilsonMeasure_eq_fkKernelMeasure`, `wilson_reflectionPositive` follow from the plaquette
+     bound `Re tr U ≤ N`; and the **normalising constant** of the free field is now pinned:
+     `(√(π/(8n+m/2)))^{(2n+1)|S|} ≤ Z ≤ (√(2π/m))^{(2n+1)|S|}`, so `Z ∈ (0,∞)` and
+     `latticeGFFProbability` is a probability measure (`GFFNormalization`), and the
+     effective-mass recursion `μ₀ = m/2`, `μ_{j+1} = m/2 + μ_j/(1+μ_j)` is now *carried out* along
+     a chain of slices (`ChainPartition`: `chainZ_succ`, `chainZ_closed`, `chainZ_closed_half`).
+     Both translations around that recursion are now proved: `∫⁻ (z,y), ρ(z)ν_z(y) =
+     chainZ m (m/2) n` (`lintegral_fkKernel_eq_chainZ`) and `det K_N = ∏_{j<N}(1 + c_j)·c_N`
+     (`chainMatrix_det`, `chainMatrix_det_half`), the latter through the block elimination
+     `det_corner_schur` and the peeling step `chainMatrix_succ_det`.  Combining them gives the
+     textbook closed form for a chain of `N+1` slices,
+     `Z_N = π^{(N+1)|S|/2}/(det K_N)^{|S|/2}` (`chainZ_closed_det`, i.e.
+     `(2π)^{(N+1)|S|/2}/√det K` for the standard operator `K = 2·chainMatrix`).  The relabelling
+     of the whole `2n+1`-slice `latticeGFFMass` as such a chain is proved as well
+     (`latticeGFFMass_eq_chainZ`, through the measure-preserving `foldChainEquiv` and the mass and
+     link sums `sum_foldChain_sqSum` / `sum_foldChain_diffSq`), so the free-field partition
+     function is closed: `Z = π^{(2n+1)|S|/2}/(det K_{2n})^{|S|/2}`.  Still open: the normalising
+     constant of the *interacting* measure.
+
+   Consequence for this file's status table: the `3.3` free-field row now reads "degrees 1 and 2
+   proved, higher degrees not", and `isReflectionPositiveOn_of_factorization` stays the
+   *uncorrelated* (white-noise) case it says it is.  The hyperlink between the two is the
+   independence hypothesis, not a theorem about correlated Gaussians.
+3. **Phase 3.3, the interacting identity** (`BookProof/ReflectionPositivity/LatticeOS.lean`).
+   The Wilson lattice OS identity for `ω_a(F) = ∫ F dμ_a` on the block-constant algebra, plus
+   its preservation under `Q_k` (the commutation `theta_commutes_blockAveraging` is already
+   proved). This is the hypothesis `reflection_positivity_continuum` consumes.
+
+   **Feasibility check (2026-11-01).**  The mathematics of this item is done; what is missing is
+   an identification between two *different* modelings of "configuration space" that the
+   development never made.
+
+   *What is proved.*  Both lattice reflection-positivity theorems exist and are `sorry`-free:
+   `latticeGFF_reflectionPositive` (the free field, `GFFNormalization`) and
+   `wilson_reflectionPositive` (the interacting Wilson plaquette action).  The second is proved
+   from exactly two facts — every plaquette weight is positive (`Re tr U ≤ N`,
+   `re_trace_le_card`) and the plaquettes classify into past / invariant / future
+   (`wilson_mixed_difference_zero`) — so the measure is `ρ ⊗ ν_z ⊗ ν_z` with a positive kernel
+   (`wilsonMeasure_eq_fkKernelMeasure`) and `fkKernel_reflectionPositive` applies.  The `Q_k`
+   side of the item is closed as well: `theta_commutes_blockAveraging` is proved
+   (`ReflectionPositivity.BlockCommute`).  And the limit passage the item exists to feed,
+   `reflection_positivity_continuum`, is proved in `ReflectionPositivity/Proof.lean`.
+
+   *What is missing, precisely.*  `reflection_positivity_continuum` consumes states
+   `ω : Observable → ℝ` where `Observable = Config → ℝ`, `Config = Fin latticeDim → ℝ`, with
+   `thetaObs F x = F (fieldReflection x)` and `fieldReflection x i = x (reflectCoord i)`.  The
+   two lattice theorems, by contrast, are stated on the *product* configuration spaces
+   `Z₀ × (Y × Y)` (free) and `Gz × (Gy × Gy)` (Wilson), with the reflection
+   `reflectConf γ = (γ.1, (γ.2.2, γ.2.1))` swapping the two half-space factors and leaving the
+   boundary factor alone.  Turning `latticeGFF_reflectionPositive` /
+   `wilson_reflectionPositive` into the hypothesis `hRP : ∀ N F, 0 ≤ osForm (ω N) F F` therefore
+   requires an equivalence `Config ≃ Z₀ × (Y × Y)` (resp. `Gz × (Gy × Gy)`) intertwining
+   `fieldReflection` with `reflectConf`, i.e. the lattice-geometry statement that the component
+   index splits as *boundary × past-half × future-half* with `reflectCoord` acting as the flip
+   on the last two factors.  Nothing in `BalabanRG.MultiscaleSpace` provides that split:
+   `coordOf` exposes only the *cell* of a component (`μ`, cell), which is exactly enough for
+   `blockOf_reflectCoord` (block stability) and not enough for a half-space factorisation.
+   `wilson_reflectionPositive` also carries an integrability hypothesis against *Lebesgue
+   volume* on `Gz × (Gy × Gy)`, which the `Config` model does not equip with a measure at all.
+
+   *Consequence.*  `LatticeOS.lean` should not be written as if the OS identity were a Lean
+   bookkeeping gap: the identity is a theorem in the product model, and the remaining work is a
+   modelling choice (fix the half-space splitting of `Fin latticeDim`, transport the two
+   theorems along it, and equip `Config` with the transported measure).  Until that choice is
+   made, `reflection_positivity_continuum` keeps `hRP` as a hypothesis — which is the honest
+   status, since the RP of the lattice measure *is* the nontrivial theorem of the subject and
+   the file that proves it (`WilsonLattice.lean`) proves it in its own model.
+4. **Phase 4.2, the generator** (`BookProof/OSReconstruction/Hamiltonian.lean`). From
+   `physEvolCompletion` (a contractive one-parameter semigroup on the complete space `Hphys`)
+   plus strong continuity at `0` — currently a hypothesis since an arbitrary `TimeTranslation`
+   need not be continuous — invoke the Stone/Lumer–Phillips machinery in
+   `BookProof/Toolbox/ChapterStoneResolvent.lean` (`UnboundedSelfAdjoint`, `ofBounded`,
+   `trotterKato_tendsto`) to obtain `H_phys`, `IsSelfAdjoint H_phys`, `H_phys ≥ 0`.
+
+   **Feasibility check (2026-11-01).**  Two things about this item have changed, in opposite
+   directions.
+
+   *The stated blocker is half outdated.*  The reason `Hamiltonian.lean` gives for not claiming
+   these theorems is that "(ii)–(iii) [the spectral theorem and Stone/Lumer–Phillips theory do]
+   not exist in Mathlib".  Stone's theorem now exists *in this repository*, in full generality
+   and `sorry`-free, in both directions: `ChapterStoneResolvent` (resolvents of an unbounded
+   self-adjoint `T`, `shift_bijective`, `resCLM`, `‖(A − il)⁻¹‖ ≤ 1/|l|`) →
+   `ChapterStoneEvolution`/`ChapterStoneGenerator`/`ChapterStoneUnitary` (the Yosida group
+   `stoneU`, strongly continuous and unitary) → `ChapterStoneConverse` (the converse:
+   `WeakMeasurableUnitaryGroup.gen_stoneU_eq`) → `ChapterStoneTheorem` (`stone_bijection`), with
+   `ChapterStoneBridge` packaging the predicate form.  The non-negative side is there too:
+   `ChapterNonnegResolvent` → `ChapterNonnegUnitaryGroup` (`e^{-itT}`) → `ChapterNonnegSemigroup`
+   (the heat semigroup `e^{-tT}`), and `ChapterNumericalRangeSemigroup` has the half-plane
+   estimate (`NumReLE`, `norm_exp_le_one` = the contraction bound, `norm_resolvent_le` = the
+   Hille–Yosida resolvent bound).  So an outdated "no Stone theory" should not be left as the
+   recorded reason.
+
+   *What still blocks it.*  Three things, none of them bookkeeping.
+
+   1. **`Hphys` has no topology.**  `OSReconstruction/HilbertSpace.lean`'s physical space is a
+      bare `HilbertSpace`-bundled object; the operator it carries is a map into `Hphys` rather
+      than a densely defined operator on a complex Hilbert space, so it cannot be fed to
+      `UnboundedSelfAdjoint` (which needs a `Submodule ℂ H` domain, `IsSymmetricOn`,
+      `IsSelfAdjointOn`).  A Hilbert-space structure with the OS inner product, plus a dense
+      domain, would have to be built first.
+   2. **No strong continuity.**  `TimeTranslation` is a group of *linear maps on the
+      observables* with no continuity hypothesis whatsoever; `physEvolCompletion` therefore
+      takes `IsContractive` as a hypothesis, and `ChapterStoneConverse` needs a *weakly
+      measurable* one-parameter group (`WeakMeasurableUnitaryGroup`) in the first place.  An
+      arbitrary `TimeTranslation` is none of these.  The plan says as much: strong continuity
+      is "currently a hypothesis since an arbitrary `TimeTranslation` need not be continuous".
+   3. **`H ≥ 0` needs more than contractivity.**  `ChapterNumericalRangeSemigroup`'s
+      `norm_exp_le_one` gives `‖e^{-tT}‖ ≤ 1`, i.e. accretivity of the generator.  Nonnegativity
+      of the *Hamiltonian* in the OS sense is the positivity of the transfer matrix, and in this
+      development that input is `osNorm_evolution_antitone` / `radical_invariant` in
+      `Hamiltonian.lean` — already proved, but at the level of the OS seminorm on observables,
+      not as `H ≥ 0` on a self-adjoint operator, and bridging the two needs (1) and (2).
+
+   So the honest reading of this item is: the *machinery* is complete and `sorry`-free; the
+   gap is that the OS side never produced the analytic objects (a topological physical space, a
+      strongly continuous contraction group on it) that the machinery consumes.  Those are
+   modelling/analysis tasks on `OSReconstruction/HilbertSpace.lean`, not steps in a proof
+   that can be filled from what is here.
+
+   *The actual gap is narrower but real, and it is the wrong direction of the theorem.*  Every
+   one of those modules runs **from** a self-adjoint `T` **to** the group or semigroup.  Item 4
+   needs the converse **from** `physEvolCompletion` **to** `H_phys`, and there the repo has only
+   the *unitary group* converse (`gen_stoneU_eq`).  `physEvolCompletion` is neither:
+
+   * it is a **contraction semigroup on `τ ≥ 0`**, not a unitary group — `gen_stoneU_eq` does not
+     apply to it, and the converse for contraction semigroups (Lumer–Phillips / Hille–Yosida:
+     symmetric + strongly continuous + contractive ⇒ self-adjoint generator) is not in the
+     repository.  `norm_exp_le_one` and `norm_resolvent_le` run in the other direction again
+     (bounded generator ⇒ bounds), so they do not substitute for it;
+   * `Hphys` is a **real** Hilbert space (`physInnerProductSpace` is an
+     `InnerProductSpace ℝ (PhysSpace Λ)`, completed from `Submodule ℝ Observable`), while all of
+     the above is over `InnerProductSpace ℂ H`.  No complexification of `Hphys` exists in the
+     corpus;
+   * `gen_stoneU_eq` additionally needs `TopologicalSpace.SeparableSpace H`, not established for
+     `Hphys`;
+   * symmetry of the evolution and strong continuity at `0` are still hypotheses, as the plan
+     already says.
+
+   So the work item 4 still needs, stated precisely: (a) complexify `Hphys` (or run a
+   real-Hilbert-space Stone analogue); (b) prove symmetry of `physEvolCompletion` from OS
+   positivity and record strong continuity; (c) supply the contraction-semigroup converse, or
+   extend the evolution to a unitary group so that the existing `gen_stoneU_eq` applies.  (c) is
+   the missing theorem; (a)–(b) are scaffolding.  Until (c) exists, `emergent_hamiltonian_
+   selfAdjoint` and `emergent_hamiltonian_nonnegative` cannot be claimed, and the boundary
+   `Hamiltonian.lean` records stays correct — but for *this* reason, not for "Mathlib lacks the
+   spectral theorem".
+5. **Phase 2.3, the polymer bound** (`BookProof/BalabanRG/Convergence.lean`). Supply the
+   increment estimate for the concrete `Q_k` of `BlockOperator.lean`, which is what
+   `balaban_rg_convergence` consumes.
+
+   **Done (2026-11-01), in the only form this model permits — and the reason is worth stating.**
+   The estimate is supplied, with explicit constants, but its proof is a fact about the *model*
+   rather than a proof of Balaban's bound.
+
+   The modelled `Q_k` is `blockConst.starProjection` at every scale, so it is idempotent:
+   **`blockAveraging_idempotent`** (`BlockOperator.lean`), from
+   `starProjection_eq_self_iff` applied to `blockAveragingOp_mem`.  The recursion
+   `Ψ_{N+1} = Q_N Ψ_N` acts componentwise at each scale as `(Q_k)^N`, which is `Q_k` for every
+   `N ≥ 1` — **`psiSeq_component_eq`**, `Ψ_{n+1} k = Q_k(ψ₀ k)` — hence
+   **`psiSeq_succ_eq_of_idempotent`**: `Ψ_{N+2} = Ψ_{N+1}`, the iteration stabilises after a
+   single step.  The increment hypothesis then reads off directly
+   (**`psiSeq_increment_bound_of_idempotent`**):
+
+   `‖Ψ_{N+1} − Ψ_N‖ ≤ ‖ψ₀ − Q ψ₀‖ · r^N`  for any `0 ≤ r`,
+
+   with the `N = 0` term the whole of it and every later term zero.  Feeding that into
+   `balaban_rg_convergence` gives **`balaban_rg_convergence_blockAveraging`**: for the concrete
+   `Q_k`, with `C = ‖ψ₀ − Q ψ₀‖` and `r = 1/2`, `∃ Ψ_∞, Tendsto Ψ_N atTop (𝓝 Ψ_∞)` — the
+   convergence of Phase 2.3 is now a theorem about `FTotal`, not an assumption.
+
+   **What it does not say.**  In Balaban's construction the coarse graining genuinely loses
+   degrees of freedom at each step (the block lattice is smaller than the fine one), so `Q_k` is
+   *not* idempotent and the geometric `C L^{−εN}` decay is analytic — that is the polymer bound.
+   In `MultiscaleSpace` every sector carries the same carrier `EuclideanSpace ℝ (Fin latticeDim)`
+   by design (see its module docstring, which records why: `Q_k` has to be a map *between*
+   sectors that can be iterated inside `F_total`), and that is exactly what makes `Q_k` a
+   projection.  So the plan's genuinely geometric content stays the input its boundary names;
+   what is added is that for the operator the corpus actually defines, the hypothesis degenerates
+   to a single-step estimate and nothing further is needed.  A `Q_k` that carried scale
+   information (a genuinely dimension-dependent sector carrier, with transport of norms along
+   `dimBlock k → dimBlock (k+1)`) would make this item non-trivial, and is the modelling change
+   it would take.
+6. **Phase 5, clustering ⇒ mass gap** (`BookProof/OSReconstruction/Clustering.lean`) — *formulated
+   and half-proved (2026-10-30).*  `SchwingerClustering ω T m C` is the plan's decay bound, and
+   `osNorm_evol_le_of_clustering` / `osNorm_evol_iterate_le` derive from it the operator decay
+   `‖T_τ F‖ ≤ √C e^{−mτ}‖F‖` off the vacuum at every iterate; `spatial_decay_of_temporal` is the   `O(4)` step.  **(ii) is now done in bounded form (2026-10-30):** `osNorm_sub_evol_ge` turns the
+   contraction into the norm gap `‖(I − T_τ) F‖ ≥ (1 − √C e^{−mτ}) ‖F‖` at every fixed `τ`, and
+   `genForm` / **`genForm_ge_of_contraction`** / **`genForm_gap_of_clustering`** turn it into the
+   form gap of the *generator*: for every `ε ∈ (0,1)` there is `τ > 0` with
+   `m(1 − ε)‖F‖² ≤ (‖F‖² − ⟨F, T_τ F⟩)/τ` off the vacuum (`one_sub_exp_neg_ge` is the elementary
+   `1 − e^{−x} ≥ x/(1+x)` behind the `τ → 0` limit).  So the clustering rate `m` *is* the bottom of
+   the emergent generator's form spectrum, in the only form the corpus can state it — the operator
+   `H_phys` itself is not constructed, so the separation is stated for `(I − T_τ)/τ`.
+   Remaining: (i) the decay bound for the actual Bałaban measure, (ii′) the identification of the
+   bounded separation with a `SpectralSeparation` of the *unbounded* generator, (iii) the
+   Temple feed, whose arithmetic is done in `ChapterTempleSeparationBound.continuum_gap_unconditional`
+   with `c₁ Δ_ref` from `softmodes.md`.
