@@ -486,6 +486,28 @@ Lipschitz constant of self-attention *as a function of its input* `X`; it says n
 weight-space Hessians, and nothing about them diverging exponentially during sampling — the write-
 up's §2.3 attributes that second claim to the paper.
 
+**(5b) The step-size confound underneath (5), measured (2026-11-04).**  The review's "sensible learning
+rate" phrasing pointed at a real second confound that (5) did not remove: the drift is `h_t·g_t`, so
+the standard stack was run at a step size nobody chose, and "it explodes" could be a statement about
+that number rather than about the geometry.  `unfer/pcnl/examples/step_scale_control.rs` measures the
+normalized arm's own maximum scaled gradient `C` per seed and re-runs the standard stack with its
+drift capped at `C` (`SgPcnlState::grad_norm_cap`, default `None`; a unit test pins that the cap is
+exactly `h_t·cap` and bit-identical when non-binding).  Reference configuration, 1 000 steps, two
+chains, three seeds: the uncapped standard gradient reaches `2.9×10¹²–1.5×10²¹ × C` and the chain
+dies at step 5–6; capped, it survives 3/3 (reduced configuration too, 2 000 steps), so **the
+numerical explosion is a step-size claim and "an unnormalized transformer cannot be sampled" is
+withdrawn.**  Three things keep this from rescuing the baseline: a capped gradient is not a gradient
+field, so the capped chain has no Gibbs target and no posterior reading; it still overshoots the
+shell `3.6×` (radial max 110–164 against 45.19); and its kept-draw NLL is `4.11–5.72` nats against
+`2.08` for the uniform predictor — overconfident-and-wrong, where the cosine arm is
+calibrated-uniform.  **Consequence for this plan:** the architectural claim that survives is
+step-scale invariance (the reason `β` needs no tuning, and the same property `pcn_gap_uniform` has
+in `σ` and `d`), not unsamplability; the write-up's §6.5.2, §6.4/§6.5.1(b) and §2.3 now say so, and
+its Theorem 1 is restated for `Π_ε` with `M(ε) = Θ(1/ε)` plus a proposition that the exact
+normalization is unbounded — which is (2)'s adaptation applied to the theorem's hypothesis rather
+than to its use.  The Lee-Yang/`K_drift` priority list is untouched: this is empirical scope, not
+analysis.
+
 **What this leaves standing.**  Modules 1–5 and the `sorry`-free status are untouched: the finite-`d`
 spectrum `Λ_n^{(d)}`, its `ρ^n` limit, the Mehler eigenfunction identity and the quotient-norm bound
 are theorems about the pCN kernel at fixed `β` (and, for the decomposition, about `Ω`), none of
