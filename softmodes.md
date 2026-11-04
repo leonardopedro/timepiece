@@ -438,8 +438,33 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    `((A² − 2a²)² + 28a⁴)/(16a²)` after clearing the positive denominator — and
    `a(2d+1)/2 ≥ 3a/2`.  Since `twoModeShift` is decreasing in `d` (`a > 0`), the bound holds for
    every dimension, not only the smallest sector, so the improvement over the termwise bound is
-   uniform in `d`.  What is *not* claimed is that the two-mode optimum is the global constant: that
-   is the top of the full spectral problem on `Q(N^{1/2})`-type domains.
+   uniform in `d`.
+
+   **The global constant on `Q(N^{1/2})`: what the two-mode optimum is, and what it is not
+   (2026-11-04).**  §11.2 of `YangMillsFormClosureNonDiagonal` splits the question instead of
+   leaving it open, and the split is a theorem.  The ladder form is a sum over directions,
+   `q(x) = ∑ᵢ qᵢ(x)` with `qᵢ(x) = ∑ₙ Aᵢ√(nᵢ+1) conj(x(n+eᵢ)) x n` (`ladderDirForm`,
+   `ladder_form_eq_sum_dir`), and so is the reference form `Q = ∑ᵢ Qᵢ`, `Qᵢ = ∑ₙ (nᵢ+1)‖x n‖²`
+   (`dirWeight`); each `qᵢ` sees only the `i`-th occupation, the other coordinates merely slice it.
+   Hence **`ladder_form_le_of_directional`**: any family of directional bounds
+   `‖qᵢ‖ ≤ a Qᵢ + Sᵢ‖·‖²` yields `‖q‖ ≤ a Q + (∑ᵢ Sᵢ)‖·‖²`.  So the multidirectional constant —
+   the "global constant on `Q(N^{1/2})`" — is **at most the sum of the directional constants**, and
+   no improvement can come from the coupling of directions.  The termwise family
+   `Sᵢ = Aᵢ²/(4a)` is admissible (`ladderDirForm_norm_le`), which is exactly why §10's AM–GM bound
+   is the `∑ᵢ` of the directional shifts; and no admissible directional constant lies below the
+   two-mode optimum (**`twoModeShift_le_of_twoModeBound`**: the kernel vector of
+   `twoModeRatio_shift` is a directional state, `Qᵢ = α² + 2β²`, form `Aᵢαβ`, i.e. `A = Aᵢ/2`,
+   `d = 1` in §11's normalization).  With `twoModeShift_lt_termwise` the directional constant is
+   therefore sandwiched, for every `d`,
+   `twoModeShift (Aᵢ/2) a 1 ≤ Sᵢ < Aᵢ²/(4a)`,
+   and the sum of those gives the corresponding bracket for the whole form.  What the two-mode
+   optimum is *not* is the global constant, and the reason is now exact rather than a caveat: what
+   remains is **one one-dimensional number per direction** — the top of the ray problem
+   `√(n+1)x_{n+1}x_n` against `a(n+1)x_n²`, which carries no ambient dimension, no cut-off and no
+   other coordinate.  That is the sharp value of each `Sᵢ`; the finite-support core of
+   `Q(N^{1/2})` is the union of the cut-off boxes, on each of which §10's bound holds with the
+   *same* constant, so the constant is cut-off independent and the only remaining question is the
+   one-dimensional one.
 
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the

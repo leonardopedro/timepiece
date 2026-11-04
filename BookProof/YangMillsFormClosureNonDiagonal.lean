@@ -1969,6 +1969,215 @@ theorem twoModeShift_lt_termwise {A a : ℝ} {d : ℕ} (hd : 1 ≤ d) (ha : 0 < 
   simp only [twoModeShift]
   linarith
 
+/-! ## 11.2 The global constant on the form domain: the directional decomposition
+
+§11 isolated the frontier of the *weight*, and the two-mode section showed that the termwise shift
+is not the sharp constant on a section.  `softmodes.md` records what that leaves open as "the top
+of the full spectral problem on `Q(N^{1/2})`-type domains".  The top of that problem splits, and
+the split is the content of this section.
+
+The ladder form is a sum over directions,
+`q(x) = ∑ᵢ qᵢ(x)`, `qᵢ(x) = ∑ₙ Aᵢ√(nᵢ+1) · conj(x (n+eᵢ)) · x n`,
+
+and so is its reference form, `Q(x) = ∑ᵢ Qᵢ(x)`, `Qᵢ(x) = ∑ₙ (nᵢ+1)‖x n‖²`.  Each `qᵢ` involves
+*only* the `i`-th occupation: the other coordinates merely slice it.  Consequently:
+
+* **`ladder_form_le_of_directional`** — a family of directional bounds
+  `‖qᵢ(x)‖ ≤ a Qᵢ(x) + Sᵢ‖x‖²` implies the bound `a Q(x) + (∑ᵢ Sᵢ)‖x‖²` on the whole ladder.  The
+  **global constant is at most the sum of the directional constants**, and a better global constant
+  can only come from a better *one-dimensional* constant — never from the coupling of directions.
+* **`ladderDirForm_norm_le`** — the termwise family `Sᵢ = Aᵢ²/(4a)` is admissible, so the AM–GM
+  bound of §10 *is* this composition at the termwise point, and `∑ᵢ Aᵢ²/(4a)` is its shift.
+* **`twoModeShift_le_of_twoModeBound`** — no admissible directional constant lies below the
+  two-mode optimum: the kernel vector of `twoModeRatio_shift` sits in the directional problem.
+  With `A = Aᵢ/2` and `d = 1` this is the ladder's own two-mode state `δ_n, δ_{n+eᵢ}` at `n = 0`
+  (`Qᵢ = α² + 2β²`, form `Aᵢαβ`), and `twoModeShift_lt_termwise` says the bound is strict.
+
+So the directional constant is sandwiched, for every `d`,
+`twoModeShift (Aᵢ/2) a 1 ≤ Sᵢ < Aᵢ²/(4a)`,
+
+and what remains open is *one* one-dimensional number per direction — the top of the ray problem
+`√(n+1)x_{n+1}x_n` against `a(n+1)x_n²`, which carries no `d`, no cut-off and no other coordinate.
+That is a strictly smaller question than the top of the full multidirectional spectral problem, and
+it is stated here rather than assumed away. -/
+
+/-- The `i`-th directional part of the ladder form: the summand that raises the `i`-th occupation.
+The ladder form is the sum of these over `i` (`ladder_form_eq_sum_dir`). -/
+def ladderDirForm {Λ : ℕ} (A : Fin d → ℝ) (i : Fin d) (x : (Fin d → Fin Λ) → ℂ) : ℂ :=
+  ∑ n, if h : (n i).val + 1 < Λ then
+    ((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)
+      * ((starRingEnd ℂ) (x (Function.update n i ⟨(n i).val + 1, h⟩)) * x n) else 0
+
+/-- The directional occupation form `Qᵢ(x) = ∑ₙ (nᵢ+1)‖x n‖²`, the reference form the `i`-th
+directional part is compared with. -/
+noncomputable def dirWeight {Λ : ℕ} (i : Fin d) (x : (Fin d → Fin Λ) → ℂ) : ℝ :=
+  ∑ n, ((n i).val + 1 : ℝ) * ‖x n‖ ^ 2
+
+/-- **The ladder form is the sum of its directional parts.**  Raising the `i`-th occupation is one
+summand per direction, so the double sum over `(n, i)` is a sum over directions. -/
+theorem ladder_form_eq_sum_dir {Λ : ℕ} (A : Fin d → ℝ) (x : (Fin d → Fin Λ) → ℂ) :
+    (∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n)
+      = ∑ i, ladderDirForm A i x := by
+  rw [ladder_form_eq_sum, Finset.sum_comm]
+  rfl
+
+/-- **The directional AM–GM bound**: the termwise family `Sᵢ = Aᵢ²/(4a)` is an admissible
+directional constant, by the same shift-and-reindex argument as §10 restricted to one direction. -/
+theorem ladderDirForm_norm_le {Λ : ℕ} (A : Fin d → ℝ) (i : Fin d) {a : ℝ} (ha : 0 < a)
+    (x : (Fin d → Fin Λ) → ℂ) :
+    ‖ladderDirForm A i x‖
+      ≤ a * dirWeight i x + (A i ^ 2 / (4 * a)) * (∑ n, ‖x n‖ ^ 2) := by
+  classical
+  have hterm : ∀ n : Fin d → Fin Λ,
+      ‖(if h : (n i).val + 1 < Λ then
+          ((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)
+            * ((starRingEnd ℂ) (x (Function.update n i ⟨(n i).val + 1, h⟩)) * x n) else 0)‖
+        ≤ (if h : (n i).val + 1 < Λ then a * (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2) else 0)
+          + (if h : (n i).val + 1 < Λ then
+              (A i ^ 2 / (4 * a)) * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2 else 0) := by
+    intro n
+    by_cases h : (n i).val + 1 < Λ
+    · rw [dif_pos h, dif_pos h, dif_pos h]
+      have hc : ‖((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)‖
+          = |A i| * Real.sqrt ((n i).val + 1) := by
+        rw [Complex.norm_real, Real.norm_eq_abs, abs_mul, abs_of_nonneg (Real.sqrt_nonneg _)]
+      rw [norm_mul, norm_mul, Complex.norm_conj, hc]
+      have hprod : 2 * (|A i| * Real.sqrt ((n i).val + 1)
+            * (‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ * ‖x n‖))
+          ≤ 2 * a * (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2)
+            + 2 * ((A i ^ 2 / (4 * a))
+                * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2) := by
+        have ham := amgm_weight_family (ε := 2 * a) (by positivity)
+          (Real.sqrt ((n i).val + 1) * ‖x n‖)
+          (|A i| * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖)
+        have hsq : Real.sqrt ((n i).val + 1) ^ 2 = ((n i).val + 1 : ℝ) :=
+          Real.sq_sqrt (by positivity)
+        have hsq2 : (Real.sqrt ((n i).val + 1) * ‖x n‖) ^ 2
+            = ((n i).val + 1 : ℝ) * ‖x n‖ ^ 2 := by
+          rw [mul_pow, hsq]
+        have hrew : (|A i| * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖) ^ 2 / (2 * a)
+            = 2 * ((A i ^ 2 / (4 * a))
+                * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2) := by
+          field_simp
+          rw [sq_abs]
+          ring
+        calc 2 * (|A i| * Real.sqrt ((n i).val + 1)
+              * (‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ * ‖x n‖))
+            = 2 * (Real.sqrt ((n i).val + 1) * ‖x n‖)
+                * (|A i| * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖) := by ring
+          _ ≤ 2 * a * (Real.sqrt ((n i).val + 1) * ‖x n‖) ^ 2
+                + (|A i| * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖) ^ 2 / (2 * a) := ham
+          _ = 2 * a * (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2)
+                + 2 * ((A i ^ 2 / (4 * a))
+                    * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2) := by
+            rw [hsq2, hrew]
+      linarith
+    · rw [dif_neg h, dif_neg h, dif_neg h, norm_zero]
+      positivity
+  have hshift : ∑ n, (if h : (n i).val + 1 < Λ then
+        ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2 else 0) ≤ ∑ n, ‖x n‖ ^ 2 := by
+    have hpt : ∀ n : Fin d → Fin Λ,
+        (if h : (n i).val + 1 < Λ then
+            ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2 else 0)
+          = (if (n i).val + 1 < Λ then ‖x (raiseIdx n i)‖ ^ 2 else 0) := by
+      intro n
+      by_cases h : (n i).val + 1 < Λ
+      · rw [dif_pos h, if_pos h]
+        have hr : raiseIdx n i = Function.update n i ⟨(n i).val + 1, h⟩ := by
+          simp only [raiseIdx, dif_pos h]
+        rw [hr]
+      · rw [dif_neg h, if_neg h]
+    rw [Finset.sum_congr rfl fun n _ => hpt n]
+    exact sum_raise_ite_le x i
+  refine (norm_sum_le _ _).trans ?_
+  refine (Finset.sum_le_sum fun n _ => hterm n).trans ?_
+  rw [Finset.sum_add_distrib]
+  have h1 : ∑ n, (if h : (n i).val + 1 < Λ then
+        a * (((n i).val + 1 : ℝ) * ‖x n‖ ^ 2) else 0) ≤ a * dirWeight i x := by
+    rw [dirWeight, Finset.mul_sum]
+    refine Finset.sum_le_sum fun n _ => ?_
+    by_cases h : (n i).val + 1 < Λ
+    · rw [dif_pos h]
+    · rw [dif_neg h]
+      positivity
+  have h2 : ∑ n, (if h : (n i).val + 1 < Λ then
+        (A i ^ 2 / (4 * a)) * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2 else 0)
+      ≤ (A i ^ 2 / (4 * a)) * (∑ n, ‖x n‖ ^ 2) := by
+    have hfac : ∀ n : Fin d → Fin Λ,
+        (if h : (n i).val + 1 < Λ then
+            (A i ^ 2 / (4 * a)) * ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2 else 0)
+          = (A i ^ 2 / (4 * a)) * (if h : (n i).val + 1 < Λ then
+              ‖x (Function.update n i ⟨(n i).val + 1, h⟩)‖ ^ 2 else 0) := by
+      intro n
+      by_cases h : (n i).val + 1 < Λ
+      · rw [dif_pos h, dif_pos h]
+      · rw [dif_neg h, dif_neg h, mul_zero]
+    rw [Finset.sum_congr rfl fun n _ => hfac n, ← Finset.mul_sum]
+    exact mul_le_mul_of_nonneg_left hshift (by positivity)
+  linarith
+
+/-- **The global constant is at most the sum of the directional constants.**  If every directional
+part satisfies its own bound `‖qᵢ‖ ≤ a Qᵢ + Sᵢ‖·‖²`, then the ladder satisfies
+`‖q‖ ≤ a Q + (∑ᵢ Sᵢ)‖·‖²`.  So the multidirectional spectral problem — the "global constant on
+`Q(N^{1/2})`" — decomposes into one one-dimensional problem per direction, and no improvement can
+come from the coupling of directions. -/
+theorem ladder_form_le_of_directional {Λ : ℕ} (A : Fin d → ℝ) {a : ℝ} {S : Fin d → ℝ}
+    (hS : ∀ i : Fin d, ∀ x : (Fin d → Fin Λ) → ℂ,
+      ‖ladderDirForm A i x‖ ≤ a * dirWeight i x + S i * (∑ n, ‖x n‖ ^ 2))
+    (x : (Fin d → Fin Λ) → ℂ) :
+    ‖∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n‖
+      ≤ a * (∑ n, (∑ i, ((n i).val + 1 : ℝ)) * ‖x n‖ ^ 2)
+        + (∑ i, S i) * (∑ n, ‖x n‖ ^ 2) := by
+  have hQ : ∑ i : Fin d, dirWeight i x
+      = ∑ n, (∑ i, ((n i).val + 1 : ℝ)) * ‖x n‖ ^ 2 := by
+    unfold dirWeight
+    rw [Finset.sum_comm]
+    exact Finset.sum_congr rfl fun n _ => (Finset.sum_mul ..).symm
+  have hsum : ∑ i : Fin d, (a * dirWeight i x + S i * (∑ n, ‖x n‖ ^ 2))
+      = a * (∑ n, (∑ i, ((n i).val + 1 : ℝ)) * ‖x n‖ ^ 2)
+        + (∑ i, S i) * (∑ n, ‖x n‖ ^ 2) := by
+    rw [Finset.sum_add_distrib]
+    congr 1
+    · rw [← Finset.mul_sum, hQ]
+    · rw [Finset.sum_mul]
+  rw [ladder_form_eq_sum_dir]
+  refine (norm_sum_le _ _).trans ?_
+  exact (Finset.sum_le_sum fun i _ => hS i x).trans (le_of_eq hsum)
+
+/-- **No admissible directional constant is below the two-mode optimum.**  If the two-mode
+directional form `2Aαβ` is bounded by `a(α² + 2β²) + S(α² + β²)` for every amplitude pair, then
+`twoModeShift A a 1 ≤ S`: evaluate at the kernel vector `(A, a + γ)` that attains the two-mode
+optimum (`twoModeRatio_shift`).  With `A = Aᵢ/2` and `d = 1` this is the ladder's own two-mode
+state, so the directional constant is bounded below by the two-mode optimum and above by the
+termwise `Aᵢ²/(4a)` — strictly, by `twoModeShift_lt_termwise`. -/
+theorem twoModeShift_le_of_twoModeBound {A a S : ℝ} (hA : A ≠ 0)
+    (h : ∀ α β : ℝ, 0 < α ^ 2 + β ^ 2 →
+      2 * A * α * β ≤ a * (α ^ 2 + 2 * β ^ 2) + S * (α ^ 2 + β ^ 2)) :
+    twoModeShift A a 1 ≤ S := by
+  have hq : 0 < A ^ 2 := by
+    rcases lt_or_gt_of_ne hA with hlt | hgt
+    · nlinarith
+    · nlinarith
+  have hnorm : 0 < A ^ 2 + (a + twoModeShift A a 1) ^ 2 := by
+    linarith [sq_nonneg (a + twoModeShift A a 1)]
+  have hb := h A (a + twoModeShift A a 1) hnorm
+  have hratio : twoModeRatio A a 1 A (a + twoModeShift A a 1) = twoModeShift A a 1 := by
+    simpa using twoModeRatio_shift (A := A) (a := a) (d := 1) hA
+  rw [twoModeRatio, div_eq_iff hnorm.ne'] at hratio
+  have hexp : 2 * A * A * (a + twoModeShift A a 1)
+      - a * ((1 : ℕ) * A ^ 2 + ((1 : ℕ) + 1) * (a + twoModeShift A a 1) ^ 2)
+        = 2 * A * A * (a + twoModeShift A a 1)
+          - a * (A ^ 2 + 2 * (a + twoModeShift A a 1) ^ 2) := by norm_num
+  rw [hexp] at hratio
+  have hle : twoModeShift A a 1 * (A ^ 2 + (a + twoModeShift A a 1) ^ 2)
+      ≤ S * (A ^ 2 + (a + twoModeShift A a 1) ^ 2) := by linarith [hb, hratio]
+  by_contra hcon
+  push_neg at hcon
+  have hlt : S * (A ^ 2 + (a + twoModeShift A a 1) ^ 2)
+      < twoModeShift A a 1 * (A ^ 2 + (a + twoModeShift A a 1) ^ 2) :=
+    mul_lt_mul_of_pos_right hcon hnorm
+  linarith
+
 /-! ## 12. The cut-off ladder as a kernel on `Idx d`: the box embedding
 
 §10 proves the sharp bound for `x : (Fin d → Fin Λ) → ℂ`, on the cut-off box; the closed-form
