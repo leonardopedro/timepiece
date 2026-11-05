@@ -2778,4 +2778,78 @@ theorem ladder_closed_domination_box {Λ : ℕ} {A : Fin d → ℝ} {μ g : Idx 
   rw [hmass]
   exact boxKernel_hs_finset Λ A s
 
+/-! ## 12.1 The relative bound is uniform in the cut-off
+
+§12's `ladder_closed_domination_box` takes its constant from the Hilbert–Schmidt mass, which grows
+like `Λ^{(d+1)/2}`; §11.4's ray decomposition replaces it by the *degree* symbol, and the transfer
+is two identities.  `dirWeight` is the mass plus the directional occupation
+(`dirWeight_sub_mass`), so the sum of the directional reference forms is
+`Σₙ (|n| + d)‖x n‖²` (`sum_dirWeight_eq`) — a derivative form, not a mass.  Hence for every
+`a ∈ (0,1)` the ladder is `a · degree + (Σᵢ (Aᵢ²/(4a) − a)) · mass` on the box
+(`ladder_form_le_degree`), and **neither constant mentions `Λ`**: the relative bound `a` is
+chosen, not measured, so it stays bounded away from `1` as the cut-off grows — which is what §6's
+Faris–Lavine comparison needs and what the Hilbert–Schmidt route could not supply, since there
+`a = √(m_Λ)/θ` is unbounded in `Λ`.  At `a = 1/2` the shift is `(Σᵢ Aᵢ²)/2 − d/2`
+(`ladder_form_le_degree_half`), the cut-off-free form of the constant. -/
+
+/-- The directional reference form is the mass plus the directional occupation. -/
+theorem dirWeight_eq {Λ : ℕ} (i : Fin d) (x : (Fin d → Fin Λ) → ℂ) :
+    dirWeight i x = (∑ n, ((n i).val : ℝ) * ‖x n‖ ^ 2) + ∑ n, ‖x n‖ ^ 2 := by
+  have h := dirWeight_sub_mass (i := i) x
+  linarith
+
+/-- **The directional reference forms sum to the degree form**: `Σᵢ Qᵢ(x) = Σₙ (|n| + d)‖x n‖²`,
+where `|n| = Σᵢ nᵢ`.  This is why the ray constant is cut-off free: the reference object is the
+degree symbol, and the only `Λ`-dependence left is the range of `n` itself. -/
+theorem sum_dirWeight_eq {Λ : ℕ} (x : (Fin d → Fin Λ) → ℂ) :
+    ∑ i, dirWeight i x
+      = ∑ n, (((∑ i, (n i).val : ℕ) : ℝ) + (d : ℝ)) * ‖x n‖ ^ 2 := by
+  classical
+  have h1 : ∀ n : Fin d → Fin Λ,
+      (∑ i, ((n i).val : ℝ) * ‖x n‖ ^ 2) = (((∑ i, (n i).val : ℕ) : ℝ)) * ‖x n‖ ^ 2 := by
+    intro n
+    rw [← Finset.sum_mul, Nat.cast_sum]
+  calc ∑ i, dirWeight i x
+      = ∑ i, ((∑ n, ((n i).val : ℝ) * ‖x n‖ ^ 2) + ∑ n, ‖x n‖ ^ 2) :=
+        Finset.sum_congr rfl fun i _ => dirWeight_eq i x
+    _ = (∑ i, ∑ n, ((n i).val : ℝ) * ‖x n‖ ^ 2) + ∑ _i : Fin d, ∑ n, ‖x n‖ ^ 2 :=
+        Finset.sum_add_distrib
+    _ = (∑ n, ∑ i, ((n i).val : ℝ) * ‖x n‖ ^ 2) + (d : ℝ) * ∑ n, ‖x n‖ ^ 2 := by
+        rw [Finset.sum_comm, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
+          nsmul_eq_mul]
+    _ = (∑ n, (((∑ i, (n i).val : ℕ) : ℝ)) * ‖x n‖ ^ 2) + (d : ℝ) * ∑ n, ‖x n‖ ^ 2 := by
+        rw [Finset.sum_congr rfl fun n _ => h1 n]
+    _ = ∑ n, ((((∑ i, (n i).val : ℕ) : ℝ)) * ‖x n‖ ^ 2 + (d : ℝ) * ‖x n‖ ^ 2) := by
+        rw [Finset.mul_sum, ← Finset.sum_add_distrib]
+    _ = ∑ n, (((∑ i, (n i).val : ℕ) : ℝ) + (d : ℝ)) * ‖x n‖ ^ 2 :=
+        Finset.sum_congr rfl fun n _ => by ring
+
+/-- **The cut-off ladder is `a` times the degree form plus a `Λ`-free shift.**  The shift
+`Σᵢ (Aᵢ²/(4a) − a)` is a function of the field strength and the chosen relative bound only: no
+Hilbert–Schmidt mass, hence no growth in the cut-off. -/
+theorem ladder_form_le_degree {Λ : ℕ} (A : Fin d → ℝ) {a : ℝ} (ha : 0 < a)
+    (x : (Fin d → Fin Λ) → ℂ) :
+    ‖∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n‖
+      ≤ a * (∑ n, (((∑ i, (n i).val : ℕ) : ℝ) + (d : ℝ)) * ‖x n‖ ^ 2)
+        + (∑ i, (A i ^ 2 / (4 * a) - a)) * (∑ n, ‖x n‖ ^ 2) := by
+  simpa only [sum_dirWeight_eq] using ladder_form_norm_le_ray (d := d) A ha x
+
+/-- **The cut-off-free constant at relative bound `a = 1/2`**: the ladder is half the degree form
+plus `(Σᵢ Aᵢ²)/2 − d/2`, with no `Λ` in sight.  Since `1/2 < 1`, this is an admissible relative
+bound for the Faris–Lavine comparison of §6 at *every* cut-off, which is the uniformity the
+continuum argument needs. -/
+theorem ladder_form_le_degree_half {Λ : ℕ} (A : Fin d → ℝ) (x : (Fin d → Fin Λ) → ℂ) :
+    ‖∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n‖
+      ≤ (1 / 2) * (∑ n, (((∑ i, (n i).val : ℕ) : ℝ) + (d : ℝ)) * ‖x n‖ ^ 2)
+        + ((∑ i, A i ^ 2) / 2 - (d : ℝ) / 2) * (∑ n, ‖x n‖ ^ 2) := by
+  have h := ladder_form_le_degree (d := d) A (a := 1 / 2) (by norm_num) x
+  have hterm : ∀ i : Fin d, A i ^ 2 / (4 * (1 / 2)) - 1 / 2 = A i ^ 2 / 2 - 1 / 2 := by
+    intro i
+    norm_num
+  have hc : (∑ i, (A i ^ 2 / (4 * (1 / 2)) - 1 / 2)) = (∑ i, A i ^ 2) / 2 - (d : ℝ) / 2 := by
+    rw [Finset.sum_congr rfl fun i _ => hterm i, Finset.sum_sub_distrib, Finset.sum_div,
+      Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+    ring
+  rwa [hc] at h
+
 end BookProof.YangMillsFormClosureND

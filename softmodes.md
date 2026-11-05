@@ -791,11 +791,18 @@ This step directly integrates into existing modules:
   Phase 5's bottom statements hold on `L²`, not only on the core.  The **ratio** is carried over
   as well, in §6: `closed_farisLavine_domination` states `c₁ (closedForm μ x).toReal ≤
   (closedForm g x).toReal + closedKernelForm K x + shifts` with the relative bound `a < 1` intact,
-  the finiteness `closedForm g x ≠ ⊤` being the only extra hypothesis.  What remains is uniformity
-  in the cut-off: §7 shows the magnetic ladder's Hilbert–Schmidt mass is at most `d² C Λ^(d+1)` at
-  cut-off `Λ` (`magCutoffKernel_hs_mass`), hence a constant of order `Λ^{(d+1)/2}` — so the `a = 0`
-  branch is cut-off-local and the continuum has to use `a < 1` with `a` uniformly bounded away from
-  `1`, which is not yet proved.  So
+  the finiteness `closedForm g x ≠ ⊤` being the only extra hypothesis.  **The cut-off uniformity is now
+  proved on the box (2026-11-05).**  §11.4's ray decomposition gives the ladder the constant
+  `Σᵢ (Aᵢ²/(4a) − a)` with the relative bound `a` *chosen* rather than measured, and §12.1 of the
+  same module carries it to the cut-off: `sum_dirWeight_eq` identifies the sum of the directional
+  reference forms with the degree symbol `Σₙ (|n| + d)‖x n‖²`, so `ladder_form_le_degree` bounds
+  the ladder form by `a · degree + (Σᵢ (Aᵢ²/(4a) − a)) · mass`, and at `a = 1/2`
+  (`ladder_form_le_degree_half`) the shift is `(Σᵢ Aᵢ²)/2 − d/2`.  **Neither constant mentions `Λ`**,
+  so the relative bound is uniformly bounded away from `1` and the Hilbert–Schmidt branch — whose
+  constant was `√(m_Λ)`, of order `Λ^{(d+1)/2}` — is no longer what the cut-off argument rests on.
+  What is not yet proved is the `L²` transfer of that box statement,
+  `closedKernelForm (boxKernel Λ A) x ≤ a · closedForm degree x + shift · ‖x‖²`, which is what §6's
+  `closed_farisLavine_domination` would need to run at the cut-off-free ratio.  So
   Phase 5's `c₁Δ_ref` is certified on the core for the off-diagonal case, and on `L²` for the
   diagonal one at full strength — with the interacting term bounded below on `L²` by `−σ‖x‖²`,
   which preserves the *bottom* and not yet the *ratio* of the separation.
