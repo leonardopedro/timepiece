@@ -1998,8 +1998,8 @@ So the directional constant is sandwiched, for every `d`,
 
 and the one-dimensional number in the middle of that bracket is computed in §11.3: on the ray it is
 `Aᵢ²/(4a) − a`, and it is sharp (`rayForm_le_sharp`, `ray_form_bound_iff`).  So the upper end
-improves to `Sᵢ ≤ Aᵢ²/(4a) − a`, one mass unit below the termwise constant of §11.1, and what is
-left is the ray decomposition that reads `ladderDirForm` as a sum of ray forms. -/
+improves to `Sᵢ ≤ Aᵢ²/(4a) − a`, one mass unit below the termwise constant of §11.1; §11.4 performs
+the transfer by reindexing each raised edge to its head. -/
 
 /-- The `i`-th directional part of the ladder form: the summand that raises the `i`-th occupation.
 The ladder form is the sum of these over `i` (`ladder_form_eq_sum_dir`). -/
@@ -2431,6 +2431,188 @@ theorem ray_form_bound_iff {B : ℝ} (hB : 0 < B) {a : ℝ} (ha : 0 < a) {S : �
       rw [rayMass]
       exact Finset.sum_nonneg fun m _ => sq_nonneg _
     nlinarith [hb, hnonneg]
+
+/-! ## 11.4 The ray decomposition: the directional constant is `Aᵢ²/(4a) − a`
+
+§11.2 proved `‖ladderDirForm A i x‖ ≤ a Qᵢ + (Aᵢ²/(4a))‖x‖²`; §11.3 settled the one-dimensional
+ray at `B²/(4a) − a`.  The transfer between the two is a single reindexing.  Fix the direction `i`
+and charge each raised edge `n → n + eᵢ` to its *head*: the head's occupation summed over all raised
+edges is `Σ_m mᵢ‖x m‖² = Qᵢ − ‖x‖²` (`raiseWeightSum_eq`, `dirWeight_sub_mass`) — the ray identity
+`Q − ‖u‖² = Σ m u_m²` read one coordinate at a time.  That missing mass unit is exactly the `a` of
+the ray constant, so the directional bound improves to `a Qᵢ + (Aᵢ²/(4a) − a)‖x‖²`
+(`ladderDirForm_norm_le_ray`), and summing over directions gives the global constant
+`Σᵢ (Aᵢ²/(4a) − a)` (`ladder_form_norm_le_ray`).  The value is sharp because a single ray, with the
+other coordinates empty, is a directional state of the box. -/
+
+/-- The raised-edge weight: the occupation of the *head* of every raised edge. -/
+noncomputable def raiseWeightSum {Λ : ℕ} (i : Fin d) (x : (Fin d → Fin Λ) → ℂ) : ℝ :=
+  ∑ n, (if _h : (n i).val + 1 < Λ then ((n i).val + 1 : ℝ) * ‖x (raiseIdx n i)‖ ^ 2 else 0)
+
+/-- The directional occupation form is the mass plus the heads' occupations. -/
+theorem dirWeight_sub_mass {Λ : ℕ} (i : Fin d) (x : (Fin d → Fin Λ) → ℂ) :
+    dirWeight i x - ∑ n, ‖x n‖ ^ 2 = ∑ n, ((n i).val : ℝ) * ‖x n‖ ^ 2 := by
+  rw [dirWeight, ← Finset.sum_sub_distrib]
+  exact Finset.sum_congr rfl fun n _ => by ring
+
+/-- **Lowering a raised head**: if the `i`-th occupation of `b` is at least one, dropping it and
+then raising is the identity.  This is the inverse half of the reindexing. -/
+theorem update_raise_lower {Λ : ℕ} (b : Fin d → Fin Λ) (i : Fin d) (hb : 1 ≤ (b i).val) :
+    raiseIdx (Function.update b i ⟨(b i).val - 1, by omega⟩) i
+      = b := by
+  classical
+  have hni : ((Function.update b i ⟨(b i).val - 1, by omega⟩) i).val
+      = (b i).val - 1 := by
+    rw [Function.update_apply]
+    simp
+  have hcond : ((Function.update b i ⟨(b i).val - 1, by omega⟩) i).val + 1 < Λ := by
+    rw [hni]
+    have := (b i).isLt
+    omega
+  rw [raiseIdx, dif_pos hcond]
+  funext j
+  apply Fin.ext
+  by_cases hj : j = i
+  · subst hj
+    rw [Function.update_apply]
+    split_ifs with hjj
+    · change ((Function.update b j ⟨(b j).val - 1, by omega⟩ j).val + 1 : ℕ) = (b j).val
+      rw [hni]
+      omega
+    · exact absurd rfl hjj
+  · simp only [Function.update_apply]
+    rw [if_neg hj, if_neg hj]
+
+/-- **The reindexing**: summing the raised edges by their head gives the heads' occupations.  Each
+`m` with `mᵢ ≥ 1` is the head of exactly one raised edge, namely the one based at `m − eᵢ`. -/
+theorem raiseWeightSum_eq {Λ : ℕ} (i : Fin d) (x : (Fin d → Fin Λ) → ℂ) :
+    raiseWeightSum i x = ∑ m, ((m i).val : ℝ) * ‖x m‖ ^ 2 := by
+  classical
+  have hsum : raiseWeightSum i x
+      = ∑ n ∈ Finset.univ.filter (fun n : Fin d → Fin Λ => (n i).val + 1 < Λ),
+          ((n i).val + 1 : ℝ) * ‖x (raiseIdx n i)‖ ^ 2 := by
+    rw [raiseWeightSum, Finset.sum_filter]
+    simp
+  have hbij : (∑ n ∈ Finset.univ.filter (fun n : Fin d → Fin Λ => (n i).val + 1 < Λ),
+          ((n i).val + 1 : ℝ) * ‖x (raiseIdx n i)‖ ^ 2)
+      = ∑ m ∈ Finset.univ.filter (fun m : Fin d → Fin Λ => 1 ≤ (m i).val),
+          ((m i).val : ℝ) * ‖x m‖ ^ 2 := by
+    refine Finset.sum_bij (fun n _ => raiseIdx n i) ?_ ?_ ?_ ?_
+    · intro a ha
+      have hcond : (a i).val + 1 < Λ := (Finset.mem_filter.mp ha).2
+      refine Finset.mem_filter.mpr ⟨Finset.mem_univ _, ?_⟩
+      have hval : ((raiseIdx a i) i).val = (a i).val + 1 := by
+        rw [raiseIdx, dif_pos hcond, Function.update_apply]
+        simp
+      rw [hval]
+      omega
+    · intro a₁ ha₁ a₂ ha₂ heq
+      have h1 : (a₁ i).val + 1 < Λ := (Finset.mem_filter.mp ha₁).2
+      have h2 : (a₂ i).val + 1 < Λ := (Finset.mem_filter.mp ha₂).2
+      have heq' : raiseIdx a₁ i = raiseIdx a₂ i := heq
+      have hr1 : raiseIdx a₁ i = Function.update a₁ i ⟨(a₁ i).val + 1, h1⟩ := by
+        rw [raiseIdx, dif_pos h1]
+      have hr2 : raiseIdx a₂ i = Function.update a₂ i ⟨(a₂ i).val + 1, h2⟩ := by
+        rw [raiseIdx, dif_pos h2]
+      rw [hr1, hr2] at heq'
+      exact update_succ_inj h1 h2 heq'
+    · intro b hb
+      have hb1 : 1 ≤ (b i).val := (Finset.mem_filter.mp hb).2
+      refine ⟨Function.update b i ⟨(b i).val - 1, by omega⟩, ?_, ?_⟩
+      · refine Finset.mem_filter.mpr ⟨Finset.mem_univ _, ?_⟩
+        have hni : ((Function.update b i ⟨(b i).val - 1, by omega⟩) i).val
+            = (b i).val - 1 := by
+          rw [Function.update_apply]
+          simp
+        rw [hni]
+        omega
+      · exact update_raise_lower b i hb1
+    · intro a ha
+      have hcond : (a i).val + 1 < Λ := (Finset.mem_filter.mp ha).2
+      have hval : ((raiseIdx a i) i).val = (a i).val + 1 := by
+        rw [raiseIdx, dif_pos hcond, Function.update_apply]
+        simp
+      rw [hval]
+      simp
+  rw [hsum, hbij, Finset.sum_filter]
+  refine Finset.sum_congr rfl fun m _ => ?_
+  by_cases h : 1 ≤ (m i).val
+  · simp [h]
+  · have h0 : (m i).val = 0 := by omega
+    simp [h0]
+
+/-- **The directional bound with the ray constant**: one mass unit of the occupation form is spent
+on the shift, so the directional constant drops from `Aᵢ²/(4a)` to `Aᵢ²/(4a) − a`. -/
+theorem ladderDirForm_norm_le_ray {Λ : ℕ} (A : Fin d → ℝ) (i : Fin d) {a : ℝ} (ha : 0 < a)
+    (x : (Fin d → Fin Λ) → ℂ) :
+    ‖ladderDirForm A i x‖
+      ≤ a * dirWeight i x + (A i ^ 2 / (4 * a) - a) * (∑ n, ‖x n‖ ^ 2) := by
+  classical
+  have hterm : ∀ n : Fin d → Fin Λ,
+      ‖(if h : (n i).val + 1 < Λ then
+          ((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)
+            * ((starRingEnd ℂ) (x (Function.update n i ⟨(n i).val + 1, h⟩)) * x n) else 0)‖
+        ≤ a * (if h : (n i).val + 1 < Λ then
+              ((n i).val + 1 : ℝ) * ‖x (raiseIdx n i)‖ ^ 2 else 0)
+          + (A i ^ 2 / (4 * a)) * (if h : (n i).val + 1 < Λ then ‖x n‖ ^ 2 else 0) := by
+    intro n
+    by_cases h : (n i).val + 1 < Λ
+    · rw [dif_pos h, dif_pos h, dif_pos h]
+      have hx : raiseIdx n i = Function.update n i ⟨(n i).val + 1, h⟩ := by
+        rw [raiseIdx, dif_pos h]
+      rw [← hx, norm_mul, norm_mul, Complex.norm_conj]
+      have hc : ‖((A i * Real.sqrt ((n i).val + 1) : ℝ) : ℂ)‖
+          = |A i| * Real.sqrt ((n i).val + 1) := by
+        rw [Complex.norm_real, Real.norm_eq_abs, abs_mul, abs_of_nonneg (Real.sqrt_nonneg _)]
+      rw [hc]
+      have ham := amgm_weight_family (ε := 2 * a) (by positivity)
+        (Real.sqrt ((n i).val + 1) * ‖x (raiseIdx n i)‖) (|A i| * ‖x n‖)
+      have hsq : Real.sqrt ((n i).val + 1) ^ 2 = ((n i).val + 1 : ℝ) :=
+        Real.sq_sqrt (by positivity)
+      have hsq2 : (Real.sqrt ((n i).val + 1) * ‖x (raiseIdx n i)‖) ^ 2
+          = ((n i).val + 1 : ℝ) * ‖x (raiseIdx n i)‖ ^ 2 := by
+        rw [mul_pow, hsq]
+      have hrew : (|A i| * ‖x n‖) ^ 2 / (2 * a)
+          = 2 * ((A i ^ 2 / (4 * a)) * ‖x n‖ ^ 2) := by
+        rw [mul_pow, sq_abs]
+        field_simp
+        ring
+      rw [hsq2, hrew] at ham
+      nlinarith [ham]
+    · rw [dif_neg h, dif_neg h, dif_neg h, norm_zero]
+      positivity
+  refine (norm_sum_le _ _).trans ?_
+  refine (Finset.sum_le_sum fun n _ => hterm n).trans ?_
+  rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum]
+  rw [show (∑ n, (if h : (n i).val + 1 < Λ then
+        ((n i).val + 1 : ℝ) * ‖x (raiseIdx n i)‖ ^ 2 else 0)) = raiseWeightSum i x from rfl]
+  have hR := raiseWeightSum_eq (i := i) x
+  have hD := dirWeight_sub_mass (i := i) x
+  have hmass : (∑ n, (if h : (n i).val + 1 < Λ then ‖x n‖ ^ 2 else 0)) ≤ ∑ n, ‖x n‖ ^ 2 := by
+    refine Finset.sum_le_sum fun n _ => ?_
+    by_cases h : (n i).val + 1 < Λ
+    · simp [h]
+    · simp only [dif_neg h]
+      positivity
+  have hc : 0 ≤ A i ^ 2 / (4 * a) := by positivity
+  have hmass' : (A i ^ 2 / (4 * a)) * (∑ n, (if h : (n i).val + 1 < Λ then ‖x n‖ ^ 2 else 0))
+      ≤ (A i ^ 2 / (4 * a)) * (∑ n, ‖x n‖ ^ 2) :=
+    mul_le_mul_of_nonneg_left hmass hc
+  have hB : a * raiseWeightSum i x = a * (∑ m, ((m i).val : ℝ) * ‖x m‖ ^ 2) := by rw [hR]
+  have hA : a * (dirWeight i x - ∑ n, ‖x n‖ ^ 2)
+      = a * (∑ n, ((n i).val : ℝ) * ‖x n‖ ^ 2) := by rw [hD]
+  linarith [hB, hA, hmass']
+
+/-- **The global constant with the ray constant per direction**: summing the improved directional
+bounds gives `a ∑ᵢ Qᵢ + (∑ᵢ (Aᵢ²/(4a) − a))‖x‖²`. -/
+theorem ladder_form_norm_le_ray {Λ : ℕ} (A : Fin d → ℝ) {a : ℝ} (ha : 0 < a)
+    (x : (Fin d → Fin Λ) → ℂ) :
+    ‖∑ m, ∑ n, (starRingEnd ℂ) (x m) * magCutoffKernel A m n * x n‖
+      ≤ a * (∑ i, dirWeight i x)
+        + (∑ i, (A i ^ 2 / (4 * a) - a)) * (∑ n, ‖x n‖ ^ 2) := by
+  rw [ladder_form_eq_sum_dir]
+  refine (norm_sum_le _ _).trans ?_
+  refine (Finset.sum_le_sum fun i _ => ladderDirForm_norm_le_ray A i ha x).trans ?_
+  rw [Finset.sum_add_distrib, Finset.mul_sum, Finset.sum_mul]
 
 /-! ## 12. The cut-off ladder as a kernel on `Idx d`: the box embedding
 

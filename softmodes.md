@@ -468,8 +468,11 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    `α^m/√(m!)` satisfy the recurrence `√(m+1)u_{m+1} = αu_m` term by term, so the sum of squares
    vanishes and only `(B²/(4a))u_N²` is left uncovered, which is `o(‖u‖²)`.  Hence
    `twoModeShift (Aᵢ/2) a 1 ≤ Sᵢ ≤ Aᵢ²/(4a) − a`, and the global constant is at most
-   `∑ᵢ (Aᵢ²/(4a) − a)`.  The one step not taken here is the ray decomposition that reads
-   `ladderDirForm` as a sum of ray forms; the constant itself is settled.
+   `∑ᵢ (Aᵢ²/(4a) − a)`.  The transfer to the box is §11.4 of the same file: charging every raised
+   edge to its head reindexes `Σ_{nᵢ+1<Λ}(nᵢ+1)‖x(n+eᵢ)‖²` as `Σ_m mᵢ‖x m‖² = Qᵢ − ‖x‖²`
+   (`raiseWeightSum_eq`, `dirWeight_sub_mass`), which is where the single mass unit comes from, so
+   the directional bound holds with `Sᵢ = Aᵢ²/(4a) − a` (`ladderDirForm_norm_le_ray`) and the global
+   one with `∑ᵢ (Aᵢ²/(4a) − a)` (`ladder_form_norm_le_ray`).
 
 What Phase 1 does **not** need, and what the plan does not ask of it: any statement about the
 *interacting* theory or about the existence of a mass gap.  Those remain Phases 4–5, and the
