@@ -894,12 +894,25 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `continuum_gap_of_form_domination_strongResolvent`), the latter from pointwise convergence of
     the certified resolvents alone — strong-resolvent convergence is *weaker* than norm
     convergence, so this is the mode a truncation family actually delivers.
-  - *What is still open.*  The uniform separation at `c₁Δ_ref` (Phases 1–4), the fact that the
-    truncations converge to the limit in either mode (the chapter proves the transfer, not the
-    convergence), the identification of the Yang–Mills one-particle operator with the abstract
-    `T`, and the Källén–Lehmann/clustering step that would read the gap off the Euclidean
-    two-point function.  No strictly positive mass gap of the physical continuum Hamiltonian is
-    claimed.
+  - *the uniform separation at the operator level (2026-11-05).*  `BookProof.YangMillsFormClosureND`
+    §13 now builds the operator the cut-off closed forms define: `diagCLM c hM` on `L²`,
+    self-adjoint (`diagCLM_isSelfAdjoint`), whose form on the cut-off `s` is exactly
+    `diagonalForm c (truncate x s)` (`re_inner_diagCLM_cutoff`) — for a bounded symbol the form is
+    closed as it stands, so its Friedrichs extension is the operator itself.  The minimax statement
+    is proved pointwise, without any spectrum computation, because the Rayleigh quotients of a
+    diagonal operator are the symbol values: a symbol that is `l` or at least `l + c₁Δ` everywhere
+    gives `GapAt A (l + c₁Δ/2) (c₁Δ/2)` (`gapAt_diagCLM_of_symbol_separation`), and
+    `cutoff_operator_uniform_gap` gives the cut-off family a self-adjoint operator with gap
+    `c₁Δ/2` at `c₁Δ/2` whose constants do **not** involve the cut-off `s`.
+    `cutoff_operator_interacting` adds a bounded self-adjoint interaction and loses exactly `‖K‖`
+    (the Faris–Lavine step in the bounded mode).  So the uniform separation now holds for the
+    *truncations*, uniformly in the cut-off; it is the *limit* that is still open.
+  - *What is still open.*  The uniform separation for the limit operator — i.e. the fact that the
+    truncations converge to it in either mode (the chapter proves the transfer, not the
+    convergence, and §13 certifies the approximants), the identification of the Yang–Mills
+    one-particle operator with the abstract `T`, and the Källén–Lehmann/clustering step that would
+    read the gap off the Euclidean two-point function.  No strictly positive mass gap of the
+    physical continuum Hamiltonian is claimed.
 
 ---
 

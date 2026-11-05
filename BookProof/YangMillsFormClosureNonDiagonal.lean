@@ -1,6 +1,7 @@
 import Mathlib
 import BookProof.YangMillsFormClosure
 import BookProof.YangMillsMagneticQuartic
+import BookProof.ChapterSpectralGapStability
 
 /-!
 # Chapter YangMillsFormClosureNonDiagonal — Faris–Lavine for an off-diagonal interaction
@@ -86,7 +87,22 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
 * §9 instantiates the finiteness hypothesis with the concrete magnetic symbol of
   `YangMillsMagneticQuartic` (`magSymbol`, `magnetic_closed_dom_of_scaled`), and
   `closed_dom_of_scaled_symbol_auto` shows that for a positive ratio the hypothesis is a
-  consequence of the symbol comparison rather than an assumption.
+  consequence of the symbol comparison rather than an assumption;
+* §13 supplies the **operator** the cut-off forms define.  `diagCLM c hM` is multiplication by a
+  bounded real symbol on `L²`, self-adjoint (`diagCLM_isSelfAdjoint`), and its quadratic form is
+  the closed form (`re_inner_diagCLM`); on a cut-off `s` the symbol is supported on `s` and the
+  form is exactly `diagonalForm c (truncate x s)` (`re_inner_diagCLM_cutoff`) — for a *bounded*
+  symbol the form is closed as it stands, so its Friedrichs extension is the operator itself, with
+  no domain restriction.  `gapAt_diagCLM_of_symbol_separation` is the minimax separation: a symbol
+  that is `l` or at least `l + c₁Δ` pointwise gives `GapAt A (l + c₁Δ/2) (c₁Δ/2)`, the analytic
+  constant of `softmodes.md` §5.2, obtained without a spectrum computation because the Rayleigh
+  quotients of a diagonal operator *are* the symbol values.  `gapAt_cutoff_uniform` and
+  `cutoff_operator_uniform_gap` package the cut-off family: self-adjoint, gapped by `c₁Δ/2` at
+  `c₁Δ/2`, with no cut-off in either constant.  `cutoff_operator_interacting` is the Faris–Lavine
+  step in the bounded mode — adding a bounded self-adjoint interaction keeps self-adjointness and
+  costs exactly `‖K‖` of the gap.  The unbounded form sum is *not* covered: §6 gives the
+  relative-bound certificate, and the corpus has no theorem turning such a certificate into a
+  self-adjoint form sum.
 
 One caveat on what §7–§9 are about, since the repository does formalize the continuum: the
 derivative is an outer-Fock operator (`dGamma`, `momOp`), and a product of outer fields at a
@@ -2998,5 +3014,337 @@ theorem closed_farisLavine_boxKernel {Λ : ℕ} (A : Fin d → ℝ) {μ g : Idx 
   have hK := abs_closedKernelForm_boxKernel_le (Λ := Λ) (d := d) A ha x hnote
   have hscaled := mul_le_mul_of_nonneg_left hmono ha.le
   linarith [hK, hscaled]
+
+/-! ### 13. The cut-off operator: its form, self-adjointness, and a uniform gap
+
+§12 proves inequalities between *forms*.  A form has a spectrum only through the operator it
+defines, and the transfer chain of `softmodes.md` §5.2 consumes a bounded self-adjoint operator
+with a quantitative gap (`GapAt`).  This section supplies that operator for the cut-off forms of
+`YangMillsFormClosure`:
+
+* `diagCLM c hM` — multiplication by a bounded real symbol on `L²`, the operator whose quadratic
+  form is `∑ₙ c n ‖x n‖²`.  On the cut-off, `c` is supported on a finite `s`, and the form is
+  `∑ₙ∈s c n ‖x n‖² = diagonalForm` of the truncated state: for a *bounded* symbol the form is
+  bounded, so it is already closed and its Friedrichs extension is the operator itself (no
+  domain restriction is needed, unlike the unbounded degree symbol);
+* `re_inner_diagCLM` / `re_inner_diagCLM_cutoff` — **the operator's form is the closed form**: on
+  the cut-off it is exactly `diagonalForm c (truncate x s)`;
+* `diagCLM_isSelfAdjoint` — it is self-adjoint, from the symmetry computation against `lp`'s inner
+  product;
+* `gapAt_diagCLM_of_symbol_separation` — **the minimax separation**: if the symbol takes the value
+  `l` or is at least `l + c₁Δ`, then the operator has a quantitative gap `c₁Δ/2` at the window
+  centre `l + c₁Δ/2`.  This is the pointwise/minimax content of a spectral separation: the
+  Rayleigh quotients `⟪eₙ, A eₙ⟫ = c n` are *attained*, so bounding eigenvalues from below is the
+  same as bounding the symbol;
+* `gapAt_cutoff_uniform` — the same for the cut-off symbol `n ↦ if n ∈ s then c n else 0` at
+  `l = 0`, with **constants independent of the cut-off `s`**, which is the `c₁Δ_ref` separation
+  `ChapterTempleContinuumGap.gapAt_of_form_domination` works with and the hypothesis
+  `gapAt_of_tendsto` propagates to a limit. -/
+
+section DiagonalOperator
+
+open BookProof.SpectralGapStability
+
+/-- The `ℓ²` exponent `2` can be read as an ordinary square. -/
+theorem rpow_two_eq_sq (t : ℝ) : t ^ (2 : ℝ≥0∞).toReal = t ^ 2 := by
+  have h : (2 : ℝ≥0∞).toReal = (2 : ℝ) := by norm_num
+  rw [h, Real.rpow_two]
+
+/-- The squared modulus of a bounded real symbol times a state is summable. -/
+theorem summable_normSq_diag {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x : L2 d) :
+    Summable (fun n : Idx d => ‖(c n : ℂ) * x n‖ ^ 2) := by
+  have hx : Summable fun n : Idx d => ‖x n‖ ^ 2 := by
+    have h := (lp.memℓp x).summable (by norm_num : (0 : ℝ) < (2 : ℝ≥0∞).toReal)
+    simpa [rpow_two_eq_sq] using h
+  have hpt : ∀ n : Idx d, ‖(c n : ℂ) * x n‖ ^ 2 ≤ M ^ 2 * ‖x n‖ ^ 2 := by
+    intro n
+    have h1 : ‖(c n : ℂ) * x n‖ = |c n| * ‖x n‖ := by
+      rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    calc ‖(c n : ℂ) * x n‖ ^ 2 = (|c n| * ‖x n‖) ^ 2 := by rw [h1]
+      _ = |c n| ^ 2 * ‖x n‖ ^ 2 := by ring
+      _ ≤ M ^ 2 * ‖x n‖ ^ 2 := by
+          refine mul_le_mul_of_nonneg_right ?_ (by positivity)
+          nlinarith [abs_nonneg (c n), hM n]
+  exact Summable.of_nonneg_of_le (fun n => by positivity) hpt (hx.mul_left (M ^ 2))
+
+/-- **The multiplication map by a bounded real symbol.** -/
+noncomputable def diagLin (c : Idx d → ℝ) {M : ℝ} (hM : ∀ n, |c n| ≤ M) :
+    L2 d →ₗ[ℂ] L2 d where
+  toFun x := ⟨fun n => (c n : ℂ) * x n, memℓp_gen (by
+    have h := summable_normSq_diag hM x
+    simpa [rpow_two_eq_sq] using h)⟩
+  map_add' x y := by
+    apply lp.ext
+    funext n
+    simp [mul_add]
+  map_smul' a x := by
+    apply lp.ext
+    funext n
+    simp only [lp.coeFn_smul, Pi.smul_apply, smul_eq_mul, RingHom.id_apply]
+    ring
+
+@[simp] theorem diagLin_apply {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x : L2 d)
+    (n : Idx d) : ((diagLin c hM x : L2 d) : Idx d → ℂ) n = (c n : ℂ) * x n := rfl
+
+/-- **The symbol bound is an operator bound.** -/
+theorem norm_diagLin_le {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x : L2 d) :
+    ‖diagLin c hM x‖ ≤ M * ‖x‖ := by
+  have hM0 : 0 ≤ M := (abs_nonneg (c 0)).trans (hM 0)
+  have hx : Summable fun n : Idx d => ‖x n‖ ^ 2 := by
+    have h := (lp.memℓp x).summable (by norm_num : (0 : ℝ) < (2 : ℝ≥0∞).toReal)
+    simpa [rpow_two_eq_sq] using h
+  have hpt : ∀ n : Idx d, ‖(c n : ℂ) * x n‖ ^ 2 ≤ M ^ 2 * ‖x n‖ ^ 2 := by
+    intro n
+    have h1 : ‖(c n : ℂ) * x n‖ = |c n| * ‖x n‖ := by
+      rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    calc ‖(c n : ℂ) * x n‖ ^ 2 = (|c n| * ‖x n‖) ^ 2 := by rw [h1]
+      _ = |c n| ^ 2 * ‖x n‖ ^ 2 := by ring
+      _ ≤ M ^ 2 * ‖x n‖ ^ 2 := by
+          refine mul_le_mul_of_nonneg_right ?_ (by positivity)
+          nlinarith [abs_nonneg (c n), hM n]
+  have hleft : ∑' n : Idx d, ‖(diagLin c hM x : L2 d) n‖ ^ 2
+      = ∑' n : Idx d, ‖(c n : ℂ) * x n‖ ^ 2 := by
+    refine tsum_congr fun n => ?_
+    rw [diagLin_apply]
+  have hle : ∑' n : Idx d, ‖(c n : ℂ) * x n‖ ^ 2 ≤ M ^ 2 * ∑' n : Idx d, ‖x n‖ ^ 2 := by
+    rw [← tsum_mul_left]
+    exact Summable.tsum_le_tsum hpt (summable_normSq_diag hM x) (hx.mul_left (M ^ 2))
+  have hnorm : M ^ 2 * (∑' n : Idx d, ‖x n‖ ^ 2) = (M * ‖x‖) ^ 2 := by
+    have h : (∑' n : Idx d, ‖x n‖ ^ 2) = ‖x‖ ^ 2 := by
+      have h' := lp.norm_rpow_eq_tsum (by norm_num : (0 : ℝ) < (2 : ℝ≥0∞).toReal) x
+      simpa [rpow_two_eq_sq] using h'.symm
+    rw [h]
+    ring
+  have key : ∑' n : Idx d, ‖(c n : ℂ) * x n‖ ^ 2 ≤ (M * ‖x‖) ^ 2 := hle.trans_eq hnorm
+  refine lp.norm_le_of_tsum_le (by norm_num) (mul_nonneg hM0 (norm_nonneg x)) ?_
+  simp only [rpow_two_eq_sq]
+  exact hleft.trans_le key
+
+/-- **The cut-off operator**: multiplication by a bounded real symbol, as a bounded operator. -/
+noncomputable def diagCLM (c : Idx d → ℝ) {M : ℝ} (hM : ∀ n, |c n| ≤ M) : L2 d →L[ℂ] L2 d :=
+  (diagLin c hM).mkContinuous M (norm_diagLin_le hM)
+
+@[simp] theorem diagCLM_apply {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x : L2 d)
+    (n : Idx d) : ((diagCLM c hM x : L2 d) : Idx d → ℂ) n = (c n : ℂ) * x n := rfl
+
+theorem norm_diagCLM_apply_le {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x : L2 d) :
+    ‖diagCLM c hM x‖ ≤ M * ‖x‖ :=
+  norm_diagLin_le hM x
+
+/-- A bounded real symbol gives a **symmetric** operator. -/
+theorem diagCLM_symmetric {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x y : L2 d) :
+    (inner ℂ (diagCLM c hM x) y : ℂ) = inner ℂ x (diagCLM c hM y) := by
+  rw [lp.inner_eq_tsum, lp.inner_eq_tsum]
+  refine tsum_congr fun n => ?_
+  rw [diagCLM_apply, diagCLM_apply]
+  simp only [RCLike.inner_apply, map_mul, Complex.conj_ofReal]
+  ring
+
+/-- **Self-adjointness of the cut-off operator.** -/
+theorem diagCLM_isSelfAdjoint {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) :
+    IsSelfAdjoint (diagCLM c hM) :=
+  ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr (diagCLM_symmetric hM)
+
+/-- **The operator's quadratic form is the closed form.**  The real part of `⟪x, Ax⟫` is
+`∑' n, c n ‖x n‖²`, which is the `L²` form `closedForm` closes from `diagonalForm`. -/
+theorem re_inner_diagCLM {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x : L2 d) :
+    (inner ℂ x (diagCLM c hM x) : ℂ).re = ∑' n : Idx d, c n * ‖x n‖ ^ 2 := by
+  have hM0 : 0 ≤ M := (abs_nonneg (c 0)).trans (hM 0)
+  have hx : Summable fun n : Idx d => ‖x n‖ ^ 2 := by
+    have h := (lp.memℓp x).summable (by norm_num : (0 : ℝ) < (2 : ℝ≥0∞).toReal)
+    simpa [rpow_two_eq_sq] using h
+  have hsum : Summable fun n : Idx d =>
+      inner ℂ (x n) (((diagCLM c hM x : L2 d) : Idx d → ℂ) n) := by
+    refine Summable.of_norm_bounded (g := fun n : Idx d => M * ‖x n‖ ^ 2)
+      (hx.mul_left M) (fun n => ?_)
+    rw [diagCLM_apply]
+    have hle : ‖(c n : ℂ)‖ ≤ M := by
+      rw [Complex.norm_real, Real.norm_eq_abs]
+      exact hM n
+    calc ‖(inner ℂ (x n) ((c n : ℂ) * x n) : ℂ)‖
+        ≤ ‖x n‖ * ‖(c n : ℂ) * x n‖ := norm_inner_le_norm _ _
+      _ = ‖x n‖ * (‖(c n : ℂ)‖ * ‖x n‖) := by rw [norm_mul]
+      _ ≤ ‖x n‖ * (M * ‖x n‖) := by
+          refine mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hle (norm_nonneg _))
+            (norm_nonneg _)
+      _ = M * ‖x n‖ ^ 2 := by ring
+  have hpt : ∀ n : Idx d,
+      (inner ℂ (x n) (((diagCLM c hM x : L2 d) : Idx d → ℂ) n)).re = c n * ‖x n‖ ^ 2 := by
+    intro n
+    rw [diagCLM_apply]
+    have hinner : inner ℂ (x n) ((c n : ℂ) * x n)
+        = (c n : ℂ) * ((‖x n‖ ^ 2 : ℝ) : ℂ) := by
+      have h1 : ((c n : ℂ) * x n) = (c n : ℂ) • x n := (smul_eq_mul _ _).symm
+      rw [h1, inner_smul_right, inner_self_eq_norm_sq_to_K]
+      push_cast
+      rfl
+    rw [hinner]
+    simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
+  rw [lp.inner_eq_tsum, Complex.re_tsum hsum]
+  exact tsum_congr hpt
+
+/-- A symbol supported on a finite set inherits the bound. -/
+theorem cutoff_abs_le {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (s : Finset (Idx d)) :
+    ∀ n : Idx d, |(if n ∈ s then c n else 0 : ℝ)| ≤ M := by
+  intro n
+  have hM0 : 0 ≤ M := (abs_nonneg (c 0)).trans (hM 0)
+  split_ifs with h
+  · exact hM n
+  · simpa using hM0
+
+/-- **On the cut-off the operator's form is the truncated closed form**: with the symbol
+supported on a finite `s`, the quadratic form is `∑ₙ∈s c n ‖x n‖²`, which is exactly
+`diagonalForm c (truncate x s)` — the form `YangMillsFormClosure` closes. -/
+theorem re_inner_diagCLM_cutoff {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M)
+    (x : L2 d) (s : Finset (Idx d)) :
+    (inner ℂ x (diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s) x) : ℂ).re
+      = diagonalForm c (truncate x s) := by
+  rw [re_inner_diagCLM, diagonalForm_truncate]
+  rw [tsum_eq_sum (s := s) (fun n hn => by rw [if_neg hn, zero_mul])]
+  refine Finset.sum_congr rfl fun n hn => ?_
+  rw [if_pos hn]
+
+/-- Shifting a bounded symbol by a real constant keeps it bounded. -/
+theorem abs_sub_le_abs {c : Idx d → ℝ} {M lam : ℝ} (hM : ∀ n, |c n| ≤ M) (n : Idx d) :
+    |c n - lam| ≤ M + |lam| :=
+  (abs_sub _ _).trans (by linarith [hM n])
+
+/-- **The `ℓ²` norm as a sum of squared coordinates.** -/
+theorem norm_sq_eq_tsum (x : L2 d) : ‖x‖ ^ 2 = ∑' n : Idx d, ‖x n‖ ^ 2 := by
+  simpa [rpow_two_eq_sq] using
+    (lp.norm_rpow_eq_tsum (by norm_num : (0 : ℝ) < (2 : ℝ≥0∞).toReal) x)
+
+/-- The operator norm squared, read off the coordinates. -/
+theorem norm_diagCLM_sq {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x : L2 d) :
+    ‖diagCLM c hM x‖ ^ 2 = ∑' n : Idx d, ‖(c n : ℂ) * x n‖ ^ 2 := by
+  rw [norm_sq_eq_tsum (diagCLM c hM x)]
+  exact tsum_congr fun n => by rw [diagCLM_apply]
+
+/-- **The quantitative gap of a diagonal operator from a symbol bound.**  If the symbol stays at
+distance at least `dd` from `lam`, then `A − lam` moves every vector by at least `dd‖x‖`.  This is
+the minimax estimate in its sharpest form: for a diagonal operator the Rayleigh quotients are the
+symbol values, so a pointwise bound on the symbol *is* a bound on the whole spectrum. -/
+theorem gapAt_diagCLM_of_abs_sub {c : Idx d → ℝ} {M lam dd : ℝ}
+    (hM : ∀ n, |c n| ≤ M) (hd : 0 ≤ dd) (h : ∀ n, dd ≤ |c n - lam|) :
+    GapAt (diagCLM c hM) lam dd := by
+  intro x
+  have hM' : ∀ n : Idx d, |((fun n => c n - lam) n)| ≤ M + |lam| := fun n => abs_sub_le_abs hM n
+  have hshift : diagCLM c hM x - (lam : ℂ) • x
+      = diagCLM (fun n => c n - lam) hM' x := by
+    apply lp.ext
+    funext n
+    simp only [lp.coeFn_sub, Pi.sub_apply, lp.coeFn_smul, Pi.smul_apply, smul_eq_mul,
+      diagCLM_apply]
+    push_cast
+    ring
+  rw [hshift]
+  have hg : Summable fun n : Idx d => ‖(((c n - lam : ℝ)) : ℂ) * x n‖ ^ 2 :=
+    summable_normSq_diag hM' x
+  have hx : Summable fun n : Idx d => ‖x n‖ ^ 2 := by
+    have h' := (lp.memℓp x).summable (by norm_num : (0 : ℝ) < (2 : ℝ≥0∞).toReal)
+    simpa [rpow_two_eq_sq] using h'
+  have hpt : ∀ n : Idx d, dd ^ 2 * ‖x n‖ ^ 2 ≤ ‖(((c n - lam : ℝ)) : ℂ) * x n‖ ^ 2 := by
+    intro n
+    have hd2 : dd ^ 2 ≤ |c n - lam| ^ 2 := by
+      nlinarith [abs_nonneg (c n - lam), h n]
+    have h1 : ‖(((c n - lam : ℝ)) : ℂ) * x n‖ = |c n - lam| * ‖x n‖ := by
+      rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    rw [h1]
+    have hsq : (|c n - lam| * ‖x n‖) ^ 2 = |c n - lam| ^ 2 * ‖x n‖ ^ 2 := by ring
+    rw [hsq]
+    exact mul_le_mul_of_nonneg_right hd2 (by positivity)
+  have hsum_le : dd ^ 2 * (∑' n : Idx d, ‖x n‖ ^ 2)
+      ≤ ∑' n : Idx d, ‖(((c n - lam : ℝ)) : ℂ) * x n‖ ^ 2 := by
+    rw [← tsum_mul_left]
+    exact Summable.tsum_le_tsum hpt (hx.mul_left (dd ^ 2)) hg
+  have hAy := norm_diagCLM_sq hM' x
+  have hxn := norm_sq_eq_tsum x
+  have hsq_le : (dd * ‖x‖) ^ 2 ≤ ‖diagCLM (fun n => c n - lam) hM' x‖ ^ 2 := by
+    rw [hAy]
+    have hmul : (dd * ‖x‖) ^ 2 = dd ^ 2 * (∑' n : Idx d, ‖x n‖ ^ 2) := by
+      rw [← hxn]
+      ring
+    rw [hmul]
+    exact hsum_le
+  have hnn : 0 ≤ dd * ‖x‖ := mul_nonneg hd (norm_nonneg x)
+  have hthis := sq_le_sq.mp hsq_le
+  rwa [abs_of_nonneg hnn, abs_of_nonneg (norm_nonneg _)] at hthis
+
+/-- **The minimax separation at the analytic constant.**  If the symbol either sits at the bottom
+`l` or at least `l + c₁Δ` above it, then the operator has a quantitative gap `c₁Δ/2` at the window
+centre `l + c₁Δ/2` — the constant `c₁Δ` of `softmodes.md` §5.2, reached pointwise rather than
+through a spectrum computation. -/
+theorem gapAt_diagCLM_of_symbol_separation {c : Idx d → ℝ} {M l Δ c₁ : ℝ}
+    (hM : ∀ n, |c n| ≤ M) (hc₁ : 0 < c₁) (hΔ : 0 < Δ)
+    (hsep : ∀ n, c n = l ∨ l + c₁ * Δ ≤ c n) :
+    GapAt (diagCLM c hM) (l + c₁ * Δ / 2) (c₁ * Δ / 2) := by
+  have hpos : 0 < c₁ * Δ / 2 := by
+    have : 0 < c₁ * Δ := mul_pos hc₁ hΔ
+    linarith
+  refine gapAt_diagCLM_of_abs_sub hM hpos.le (fun n => ?_)
+  rcases hsep n with h | h
+  · rw [h]
+    have hz : l - (l + c₁ * Δ / 2) = -(c₁ * Δ / 2) := by ring
+    rw [hz, abs_neg, abs_of_nonneg hpos.le]
+  · rw [abs_of_nonneg (by linarith : 0 ≤ c n - (l + c₁ * Δ / 2))]
+    linarith
+
+/-- **The cut-off family, uniformly.**  For a symbol supported on a finite `s`, the cut-off operator
+keeps the separation of the full symbol with the value `0` on the zero sector, and the constants
+`c₁Δ/2` do **not** depend on `s`.  This is the form the transfer chain consumes: a uniform
+`GapAt` for the truncations at the plan's constant, ready for
+`SpectralGapStability.gapAt_of_tendsto` once the truncations are known to converge. -/
+theorem gapAt_cutoff_uniform {c : Idx d → ℝ} {M Δ c₁ : ℝ} (hM : ∀ n, |c n| ≤ M)
+    (hc₁ : 0 < c₁) (hΔ : 0 < Δ) (hsep : ∀ n, c n = 0 ∨ c₁ * Δ ≤ c n)
+    (s : Finset (Idx d)) :
+    GapAt (diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s))
+      (c₁ * Δ / 2) (c₁ * Δ / 2) := by
+  have h := gapAt_diagCLM_of_symbol_separation (c := fun n => if n ∈ s then c n else 0)
+    (l := 0) (cutoff_abs_le hM s) hc₁ hΔ (fun n => ?_)
+  · simpa using h
+  · change (if n ∈ s then c n else 0) = 0 ∨ 0 + c₁ * Δ ≤ (if n ∈ s then c n else 0)
+    by_cases hn : n ∈ s
+    · rw [if_pos hn]
+      simpa using hsep n
+    · rw [if_neg hn]
+      exact Or.inl rfl
+
+/-- **The cut-off operator is self-adjoint and uniformly gapped.**  The Friedrichs extension of the
+cut-off closed form (the bounded operator of §13, whose form is `diagonalForm c (truncate x s)`) is
+self-adjoint, and its gap at `0` is the analytic constant `c₁Δ/2` for every cut-off `s`. -/
+theorem cutoff_operator_uniform_gap {c : Idx d → ℝ} {M Δ c₁ : ℝ} (hM : ∀ n, |c n| ≤ M)
+    (hc₁ : 0 < c₁) (hΔ : 0 < Δ) (hsep : ∀ n, c n = 0 ∨ c₁ * Δ ≤ c n)
+    (s : Finset (Idx d)) :
+    IsSelfAdjoint (diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s)) ∧
+      GapAt (diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s))
+        (c₁ * Δ / 2) (c₁ * Δ / 2) :=
+  ⟨diagCLM_isSelfAdjoint (cutoff_abs_le hM s), gapAt_cutoff_uniform hM hc₁ hΔ hsep s⟩
+
+/-- **Faris–Lavine, bounded mode: the interaction costs exactly its norm.**  Adding a bounded
+self-adjoint interaction to the cut-off operator keeps it self-adjoint, and the uniform gap of
+`gapAt_cutoff_uniform` degrades by `‖K‖` and no more.
+
+This is the form-sum step of §5.2 in the mode the box actually provides: on the cut-off the
+interaction is a finite matrix, hence bounded.  For an *unbounded* interaction the same conclusion
+is the Faris–Lavine/Kato–Rellich theorem on the form domain; what §6 of this module proves is the
+relative-bound certificate (`closed_farisLavine_boxKernel`, at a cut-off-free ratio `a < 1`), and
+what the corpus does **not** provide is the self-adjointness theorem that turns such a certificate
+into a self-adjoint form sum — so nothing below is claimed for unbounded `K`. -/
+theorem cutoff_operator_interacting {c : Idx d → ℝ} {M Δ c₁ : ℝ} (hM : ∀ n, |c n| ≤ M)
+    (hc₁ : 0 < c₁) (hΔ : 0 < Δ) (hsep : ∀ n, c n = 0 ∨ c₁ * Δ ≤ c n)
+    (s : Finset (Idx d)) (K : L2 d →L[ℂ] L2 d) (hK : IsSelfAdjoint K) :
+    IsSelfAdjoint (diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s) + K) ∧
+      GapAt (diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s) + K)
+        (c₁ * Δ / 2) (c₁ * Δ / 2 - ‖K‖) := by
+  obtain ⟨hsa, hgap⟩ := cutoff_operator_uniform_gap hM hc₁ hΔ hsep s
+  have hsub : diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s)
+      - (diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s) + K) = -K := by
+    abel
+  have hpert : ‖diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s)
+      - (diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s) + K)‖ ≤ ‖K‖ := by
+    rw [hsub, norm_neg]
+  exact ⟨hsa.add hK, gapAt_perturb hgap hpert⟩
+
+end DiagonalOperator
 
 end BookProof.YangMillsFormClosureND
