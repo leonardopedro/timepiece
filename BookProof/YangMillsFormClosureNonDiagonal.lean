@@ -102,7 +102,23 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   step in the bounded mode — adding a bounded self-adjoint interaction keeps self-adjointness and
   costs exactly `‖K‖` of the gap.  The unbounded form sum is *not* covered: §6 gives the
   relative-bound certificate, and the corpus has no theorem turning such a certificate into a
-  self-adjoint form sum.
+  self-adjoint form sum;
+* §14 takes the cut-off family to its limit.  The family does **not** converge in operator norm
+  (the symbol changes on an ever larger box), so the mode is strong convergence: `coordBox` is a
+  monotone cofinal family of finite boxes, `tendsto_tail_coordBox` says the cut-off tail of a state
+  vanishes, `tendsto_diagCLM_cutoff` assembles the strong limit, and `gapAt_of_strong_tendsto`
+  transfers the gap because a lower bound on every approximant passes to a limit of norms.  Hence
+  `gapAt_cutoffLimit` and `notMem_spectrum_cutoffLimit`: the constant `c₁Δ/2` of §5.2 is the gap of
+  the limit operator, not only of its truncations;
+* §15 removes the global bound §13 needed: `cutoffBound` (a sum of absolute values on the box)
+  bounds a cut-off of an *unbounded* symbol, so `re_inner_diagCLM_cutoffSymbol` identifies the
+  operator form of the §12.2 degree symbol with `diagonalForm closedDegreeSymbol (truncate x s)`,
+  `gapAt_cutoffSymbol` repeats the minimax separation on such a box, and
+  `gapAt_cutoffDegreeSymbol` reads it for the degree symbol itself (`≥ d` everywhere, gap `d/2`);
+* §16 is Kato–Rellich at a relative bound below one: `katoRellich_gap` takes an operator bound
+  `‖K x‖ ≤ a‖A x‖ + b‖x‖` with `a < 1` and returns self-adjointness plus a gap of
+  `(1 − a)dd − (a|lam| + b)`, and `cutoffLimit_interacting` applies it to §14's limit.  The
+  unbounded form-sum version is **not** proved — see §16's note.
 
 One caveat on what §7–§9 are about, since the repository does formalize the continuum: the
 derivative is an outer-Fock operator (`dGamma`, `momOp`), and a product of outer fields at a
@@ -3043,7 +3059,9 @@ with a quantitative gap (`GapAt`).  This section supplies that operator for the 
 
 section DiagonalOperator
 
-open BookProof.SpectralGapStability
+open BookProof.SpectralGapStability Filter
+
+open scoped Topology
 
 /-- The `ℓ²` exponent `2` can be read as an ordinary square. -/
 theorem rpow_two_eq_sq (t : ℝ) : t ^ (2 : ℝ≥0∞).toReal = t ^ 2 := by
@@ -3344,6 +3362,335 @@ theorem cutoff_operator_interacting {c : Idx d → ℝ} {M Δ c₁ : ℝ} (hM : 
       - (diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s) + K)‖ ≤ ‖K‖ := by
     rw [hsub, norm_neg]
   exact ⟨hsa.add hK, gapAt_perturb hgap hpert⟩
+
+/-! ## 14. The cut-off family converges strongly, so the uniform gap reaches the limit
+
+`gapAt_cutoff_uniform` gives every cut-off operator the *same* gap, but `softmodes.md` §5.2 needs
+the limit, not the approximants.  The cut-off family does **not** converge in operator norm: the
+symbol changes on an ever larger box, and `‖A_s − A‖` is governed by the sup of the symbol outside
+`s`, which does not vanish for a degree-type symbol.  The mode that applies is strong convergence,
+and the gap is closed under it — the norm is continuous, so a lower bound valid for every
+approximant passes to the limit (`gapAt_of_strong_tendsto`).  What has to be proved is the
+convergence itself: the cut-off difference of a state is the tail of a convergent series over an
+exhausting family of boxes.
+-/
+
+/-- The coordinate box `{n | ∀ i, n i ≤ m}`: the cut-off `softmodes.md` §5.2 truncates to. -/
+noncomputable def coordBox (d m : ℕ) : Finset (Idx d) :=
+  Fintype.piFinset fun _ : Fin d => Finset.range (m + 1)
+
+theorem mem_coordBox {m : ℕ} {n : Idx d} : n ∈ coordBox d m ↔ ∀ i, n i ≤ m := by
+  simp [coordBox, Fintype.mem_piFinset]
+
+/-- The boxes are monotone. -/
+theorem coordBox_mono {m m' : ℕ} (h : m ≤ m') : coordBox d m ⊆ coordBox d m' := by
+  intro n hn
+  rw [mem_coordBox] at hn ⊢
+  exact fun i => (hn i).trans h
+
+/-- Every finite set of multi-indices sits in a box: the boxes are cofinal. -/
+theorem exists_coordBox_superset (t : Finset (Idx d)) : ∃ m, t ⊆ coordBox d m := by
+  refine ⟨t.sup (fun n => ∑ i, n i), fun n hn => ?_⟩
+  rw [mem_coordBox]
+  intro i
+  refine (Finset.single_le_sum (f := fun j : Fin d => n j) (fun j _ => Nat.zero_le _)
+    (Finset.mem_univ i)).trans (Finset.le_sup (s := t) hn)
+
+/-- The boxes exhaust the index set. -/
+theorem tendsto_coordBox_atTop :
+    Tendsto (fun m => coordBox d m) atTop (atTop : Filter (Finset (Idx d))) := by
+  refine tendsto_atTop.2 fun t => ?_
+  obtain ⟨m, hm⟩ := exists_coordBox_superset t
+  exact eventually_atTop.2 ⟨m, fun m' hm' => hm.trans (coordBox_mono hm')⟩
+
+/-- Summability of the coordinate squares of a state. -/
+theorem summable_normSq (x : L2 d) : Summable fun n : Idx d => ‖x n‖ ^ 2 := by
+  have h := (lp.memℓp x).summable (by norm_num : (0 : ℝ) < (2 : ℝ≥0∞).toReal)
+  simpa [rpow_two_eq_sq] using h
+
+/-- **The cut-off tail of a state vanishes.**  A state outside an ever larger box carries an ever
+smaller share of its norm: the partial sums over the boxes converge to the whole series, so the
+complement converges to zero.  This is the entire analytic content of the strong limit. -/
+theorem tendsto_tail_coordBox (x : L2 d) :
+    Tendsto (fun m => ∑' n : Idx d, if n ∈ coordBox d m then 0 else ‖x n‖ ^ 2)
+      atTop (𝓝 0) := by
+  have hf := summable_normSq x
+  have hpart : Tendsto (fun m => ∑ n ∈ coordBox d m, ‖x n‖ ^ 2)
+      atTop (𝓝 (∑' n : Idx d, ‖x n‖ ^ 2)) :=
+    hf.hasSum.comp tendsto_coordBox_atTop
+  have htail : ∀ m, (∑' n : Idx d, if n ∈ coordBox d m then 0 else ‖x n‖ ^ 2)
+      = (∑' n : Idx d, ‖x n‖ ^ 2) - ∑ n ∈ coordBox d m, ‖x n‖ ^ 2 := by
+    intro m
+    set s := coordBox d m with hs
+    have hg : Summable fun n : Idx d => if n ∈ s then ‖x n‖ ^ 2 else 0 :=
+      Summable.of_nonneg_of_le (fun n => by positivity)
+        (fun n => by by_cases hn : n ∈ s <;> simp [hn]) hf
+    have hpt : ∀ n : Idx d, (if n ∈ s then 0 else ‖x n‖ ^ 2)
+        = ‖x n‖ ^ 2 - (if n ∈ s then ‖x n‖ ^ 2 else 0) := by
+      intro n
+      by_cases hn : n ∈ s
+      · rw [if_pos hn, if_pos hn, sub_self]
+      · rw [if_neg hn, if_neg hn, sub_zero]
+    calc (∑' n : Idx d, if n ∈ s then 0 else ‖x n‖ ^ 2)
+        = ∑' n : Idx d, (‖x n‖ ^ 2 - (if n ∈ s then ‖x n‖ ^ 2 else 0)) :=
+          tsum_congr hpt
+      _ = (∑' n : Idx d, ‖x n‖ ^ 2) - ∑' n : Idx d, (if n ∈ s then ‖x n‖ ^ 2 else 0) :=
+          hf.tsum_sub hg
+      _ = (∑' n : Idx d, ‖x n‖ ^ 2) - ∑ n ∈ s, ‖x n‖ ^ 2 := by
+          have hK : (∑' n : Idx d, if n ∈ s then ‖x n‖ ^ 2 else 0)
+              = ∑ n ∈ s, ‖x n‖ ^ 2 := by
+            rw [tsum_eq_sum (s := s)
+              (f := fun n : Idx d => if n ∈ s then ‖x n‖ ^ 2 else 0)
+              (fun n hn => by simp only [if_neg hn])]
+            exact Finset.sum_congr rfl fun n hn => by rw [if_pos hn]
+          rw [hK]
+  have htotal : Tendsto (fun _ : ℕ => ∑' n : Idx d, ‖x n‖ ^ 2) atTop
+      (𝓝 (∑' n : Idx d, ‖x n‖ ^ 2)) :=
+    tendsto_const_nhds
+  have hsub := htotal.sub hpart
+  rw [sub_self] at hsub
+  simpa [htail] using hsub
+
+/-- **The cut-off operator differs from the full one by at most `M` times the tail.**  Both are
+multiplications by the same symbol, off the box by `c n` against `0`. -/
+theorem norm_diagCLM_cutoff_sub_le {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M)
+    (s : Finset (Idx d)) (x : L2 d) :
+    ‖diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s) x - diagCLM c hM x‖ ^ 2
+      ≤ M ^ 2 * ∑' n : Idx d, if n ∈ s then 0 else ‖x n‖ ^ 2 := by
+  set As := diagCLM (fun n => if n ∈ s then c n else 0) (cutoff_abs_le hM s) with hAs
+  have hcoord : ∀ n : Idx d, ((As x - diagCLM c hM x : L2 d) : Idx d → ℂ) n
+      = (((if n ∈ s then 0 else -c n) : ℝ) : ℂ) * x n := by
+    intro n
+    rw [hAs, lp.coeFn_sub, Pi.sub_apply, diagCLM_apply, diagCLM_apply]
+    by_cases hn : n ∈ s
+    · simp [hn]
+    · simp only [hn, if_false]
+      push_cast
+      ring
+  have hpt : ∀ n : Idx d, ‖((As x - diagCLM c hM x : L2 d) : Idx d → ℂ) n‖ ^ 2
+      ≤ M ^ 2 * (if n ∈ s then 0 else ‖x n‖ ^ 2) := by
+    intro n
+    rw [hcoord]
+    by_cases hn : n ∈ s
+    · simp [hn]
+    · rw [if_neg hn, if_neg hn]
+      have h1 : ‖(((-c n : ℝ)) : ℂ) * x n‖ = |c n| * ‖x n‖ := by
+        rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_neg]
+      rw [h1]
+      have hsq : (|c n| * ‖x n‖) ^ 2 = |c n| ^ 2 * ‖x n‖ ^ 2 := by ring
+      rw [hsq]
+      exact mul_le_mul_of_nonneg_right (by nlinarith [abs_nonneg (c n), hM n]) (by positivity)
+  have hY : Summable fun n : Idx d => ‖((As x - diagCLM c hM x : L2 d) : Idx d → ℂ) n‖ ^ 2 :=
+    summable_normSq (As x - diagCLM c hM x)
+  have hR : Summable fun n : Idx d => M ^ 2 * (if n ∈ s then 0 else ‖x n‖ ^ 2) := by
+    refine Summable.mul_left _ ?_
+    exact Summable.of_nonneg_of_le (fun n => by positivity)
+      (fun n => by by_cases hn : n ∈ s <;> simp [hn]) (summable_normSq x)
+  rw [norm_sq_eq_tsum (As x - diagCLM c hM x)]
+  calc ∑' n : Idx d, ‖((As x - diagCLM c hM x : L2 d) : Idx d → ℂ) n‖ ^ 2
+      ≤ ∑' n : Idx d, M ^ 2 * (if n ∈ s then 0 else ‖x n‖ ^ 2) :=
+        Summable.tsum_le_tsum hpt hY hR
+    _ = M ^ 2 * ∑' n : Idx d, if n ∈ s then 0 else ‖x n‖ ^ 2 := tsum_mul_left
+
+/-- **The cut-off family converges strongly to the full operator.**  No norm convergence is claimed
+and none holds in general; the strong limit is what §5.2's hypothesis speaks about. -/
+theorem tendsto_diagCLM_cutoff {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x : L2 d) :
+    Tendsto (fun m => diagCLM (fun n => if n ∈ coordBox d m then c n else 0)
+        (cutoff_abs_le hM (coordBox d m)) x) atTop (𝓝 (diagCLM c hM x)) := by
+  have hsq : Tendsto (fun m => ‖diagCLM (fun n => if n ∈ coordBox d m then c n else 0)
+      (cutoff_abs_le hM (coordBox d m)) x - diagCLM c hM x‖ ^ 2) atTop (𝓝 0) := by
+    refine squeeze_zero (fun m => by positivity)
+      (fun m => norm_diagCLM_cutoff_sub_le hM (coordBox d m) x) ?_
+    simpa using (tendsto_tail_coordBox x).const_mul (M ^ 2)
+  have hroot : Tendsto (fun m => Real.sqrt (‖diagCLM (fun n => if n ∈ coordBox d m then c n else 0)
+      (cutoff_abs_le hM (coordBox d m)) x - diagCLM c hM x‖ ^ 2)) atTop (𝓝 0) := by
+    have hs := (Real.continuous_sqrt.tendsto (0 : ℝ)).comp hsq
+    rw [Real.sqrt_zero] at hs
+    exact hs
+  have hnorm : Tendsto (fun m => ‖diagCLM (fun n => if n ∈ coordBox d m then c n else 0)
+      (cutoff_abs_le hM (coordBox d m)) x - diagCLM c hM x‖) atTop (𝓝 0) := by
+    convert hroot using 2 with m
+    exact (Real.sqrt_sq (norm_nonneg _)).symm
+  rw [tendsto_iff_norm_sub_tendsto_zero]
+  exact hnorm
+
+/-- **A uniform gap survives strong convergence.**  If every approximant moves every state by at
+least `dd‖x‖`, the limit does too: `‖(B − lam)x‖` is the limit of `‖(A_m − lam)x‖`, and a limit of
+numbers bounded below by `dd‖x‖` is bounded below by `dd‖x‖`. -/
+theorem gapAt_of_strong_tendsto {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+    {A : ℕ → H →L[ℂ] H} {B : H →L[ℂ] H} {lam dd : ℝ}
+    (hconv : ∀ x, Tendsto (fun m => A m x) atTop (𝓝 (B x)))
+    (hgap : ∀ m, GapAt (A m) lam dd) : GapAt B lam dd := by
+  intro x
+  have hlim : Tendsto (fun m => ‖A m x - (lam : ℂ) • x‖) atTop
+      (𝓝 ‖B x - (lam : ℂ) • x‖) :=
+    ((hconv x).sub_const ((lam : ℂ) • x)).norm
+  exact ge_of_tendsto hlim (Eventually.of_forall fun m => hgap m x)
+
+/-- **The uniform gap at the cut-off-free constant, reached through the truncations.**  Every box
+operator is gapped by `c₁Δ/2` at `c₁Δ/2` with constants independent of the box, the boxes converge
+strongly, and the gap passes to the limit.  The hypothesis on the symbol is the same one
+`gapAt_cutoff_uniform` uses, i.e. `c₁Δ` *is* the cut-off-free constant. -/
+theorem gapAt_cutoffLimit {c : Idx d → ℝ} {M Δ c₁ : ℝ} (hM : ∀ n, |c n| ≤ M)
+    (hc₁ : 0 < c₁) (hΔ : 0 < Δ) (hsep : ∀ n, c n = 0 ∨ c₁ * Δ ≤ c n) :
+    GapAt (diagCLM c hM) (c₁ * Δ / 2) (c₁ * Δ / 2) :=
+  gapAt_of_strong_tendsto (fun x => tendsto_diagCLM_cutoff hM x)
+    fun m => gapAt_cutoff_uniform hM hc₁ hΔ hsep (coordBox d m)
+
+/-- **The window centre is not in the spectrum of the limit.** -/
+theorem notMem_spectrum_cutoffLimit {c : Idx d → ℝ} {M Δ c₁ : ℝ} (hM : ∀ n, |c n| ≤ M)
+    (hc₁ : 0 < c₁) (hΔ : 0 < Δ) (hsep : ∀ n, c n = 0 ∨ c₁ * Δ ≤ c n) :
+    (((c₁ * Δ / 2 : ℝ)) : ℂ) ∉ spectrum ℂ (diagCLM c hM) := by
+  have hpos : 0 < c₁ * Δ / 2 := by
+    have : 0 < c₁ * Δ := mul_pos hc₁ hΔ
+    linarith
+  exact notMem_spectrum_of_gapAt (diagCLM_isSelfAdjoint hM) hpos
+    (gapAt_cutoffLimit hM hc₁ hΔ hsep)
+
+/-! ## 15. The cut-off symbol of an *unbounded* symbol: the degree symbol on a box
+
+`cutoff_abs_le` takes a global bound, which the degree symbol of §12.2 does not have: it grows with
+the multi-index.  On a finite box the cut-off is bounded all the same — by its supremum on the box
+and by `0` off it — so the whole §13 chain applies to the §12.2 symbol with the bound read off the
+box.  That is the identification the plan needs: the operator side sees `closedDegreeSymbol`
+exactly as `YangMillsFormClosure` sees `diagonalForm closedDegreeSymbol`.
+-/
+
+/-- The box bound of a cut-off of an unbounded symbol: the sum of the absolute values on `s`.  (`ℝ`
+has no bottom element, so this is a sum rather than a supremum; loose is enough, and it is what
+makes the box bound available for *any* symbol.) -/
+noncomputable def cutoffBound (c : Idx d → ℝ) (s : Finset (Idx d)) : ℝ :=
+  ∑ n ∈ s, |c n|
+
+/-- The box bound is a bound. -/
+theorem cutoffBound_abs_le (c : Idx d → ℝ) (s : Finset (Idx d)) :
+    ∀ n : Idx d, |(if n ∈ s then c n else 0 : ℝ)| ≤ cutoffBound c s := by
+  intro n
+  by_cases hn : n ∈ s
+  · rw [if_pos hn]
+    exact Finset.single_le_sum (f := fun m => |c m|) (fun m _ => abs_nonneg _) hn
+  · rw [if_neg hn, abs_zero]
+    exact Finset.sum_nonneg fun m _ => abs_nonneg _
+
+/-- **On the cut-off the unbounded symbol's operator has the truncated closed form.**  The same
+identity as `re_inner_diagCLM_cutoff`, with the box bound replacing the global one — this is where
+the degree symbol of `YangMillsFormClosure` enters the operator picture. -/
+theorem re_inner_diagCLM_cutoffSymbol {c : Idx d → ℝ} (x : L2 d)
+    (s : Finset (Idx d)) :
+    (inner ℂ x (diagCLM (fun n => if n ∈ s then c n else 0) (cutoffBound_abs_le c s) x) : ℂ).re
+      = diagonalForm c (truncate x s) := by
+  rw [re_inner_diagCLM, diagonalForm_truncate]
+  rw [tsum_eq_sum (s := s)
+    (f := fun n : Idx d => (if n ∈ s then c n else 0) * ‖x n‖ ^ 2)
+    (fun n hn => by simp only [if_neg hn, zero_mul])]
+  exact Finset.sum_congr rfl fun n hn => by rw [if_pos hn]
+
+/-- **The minimax separation on the cut-off of an unbounded symbol.**  On `s` the symbol is `0` or
+at least `c₁Δ` above it; off `s` it is `0`.  Since the window centre `c₁Δ/2` is at distance
+exactly `c₁Δ/2` from *both* values, the cut-off operator is gapped by `c₁Δ/2` at `c₁Δ/2` — the
+same constant as `gapAt_cutoff_uniform`, now without a global bound. -/
+theorem gapAt_cutoffSymbol {c : Idx d → ℝ} {Δ c₁ : ℝ} (hc₁ : 0 < c₁) (hΔ : 0 < Δ)
+    (hsep : ∀ n, c n = 0 ∨ c₁ * Δ ≤ c n) (s : Finset (Idx d)) :
+    GapAt (diagCLM (fun n => if n ∈ s then c n else 0) (cutoffBound_abs_le c s))
+      (c₁ * Δ / 2) (c₁ * Δ / 2) := by
+  have hpos : 0 < c₁ * Δ / 2 := by
+    have : 0 < c₁ * Δ := mul_pos hc₁ hΔ
+    linarith
+  refine gapAt_diagCLM_of_abs_sub (cutoffBound_abs_le c s) hpos.le (fun n => ?_)
+  by_cases hn : n ∈ s
+  · rw [if_pos hn]
+    rcases hsep n with h | h
+    · rw [h]
+      have hz : 0 - c₁ * Δ / 2 = -(c₁ * Δ / 2) := by ring
+      rw [hz, abs_neg, abs_of_nonneg hpos.le]
+    · rw [abs_of_nonneg (by linarith : 0 ≤ c n - c₁ * Δ / 2)]
+      linarith
+  · rw [if_neg hn]
+    have hz : 0 - c₁ * Δ / 2 = -(c₁ * Δ / 2) := by ring
+    rw [hz, abs_neg, abs_of_nonneg hpos.le]
+
+/-- **The degree symbol on a box is uniformly gapped.**  `closedDegreeSymbol n = ∑ᵢ nᵢ + d ≥ d` for
+every multi-index, so `gapAt_cutoffSymbol` applies with `c₁ = 1` and `Δ = d`: every box operator of
+the §12.2 symbol is gapped by `d/2` at `d/2`, with the bound read off the box. -/
+theorem gapAt_cutoffDegreeSymbol (hd : 0 < d) (s : Finset (Idx d)) :
+    GapAt (diagCLM (fun n => if n ∈ s then closedDegreeSymbol (d := d) n else 0)
+      (cutoffBound_abs_le (closedDegreeSymbol (d := d)) s)) ((d : ℝ) / 2) ((d : ℝ) / 2) := by
+  have hdR : (0 : ℝ) < (d : ℝ) := by exact_mod_cast hd
+  have h := gapAt_cutoffSymbol (c := closedDegreeSymbol (d := d)) (c₁ := 1) (Δ := (d : ℝ))
+    one_pos hdR (fun n => ?_) s
+  · simpa using h
+  · refine Or.inr ?_
+    rw [one_mul]
+    have hdef : closedDegreeSymbol (d := d) n = (∑ i : Fin d, ((n i : ℝ))) + (d : ℝ) := rfl
+    have hsum : 0 ≤ ∑ i : Fin d, ((n i : ℝ)) := Finset.sum_nonneg fun i _ => by positivity
+    rw [hdef]
+    linarith
+
+/-! ## 16. Kato–Rellich: a relative bound below one
+
+The form comparison of §6 is a *relative-bound certificate*: `|qK| ≤ a q' + b‖·‖²` with `a < 1`.
+What the Faris–Lavine step of §13 could only do in the bounded mode, the relative bound does in
+general — for the **operator** bound `‖K x‖ ≤ a‖A x‖ + b‖x‖` with `a < 1`, self-adjointness of
+`A + K` is `IsSelfAdjoint.add` in the bounded mode, but the *quantitative* part is not free: the
+relative bound eats into the gap exactly, and the loss is `(1 − a)dd − (a|lam| + b)` rather than the
+`dd − ‖K‖` of a norm bound.
+
+**What is not proved here.**  For an unbounded reference operator `A` the same conclusion is
+Kato–Rellich's theorem on the form domain: `A + K` is defined as the form sum, `q(A) + q(K)` is
+closed on `D(q(A))`, and the associated operator is self-adjoint.  This corpus has the certificate
+(`closed_farisLavine_domination`) but no form→operator representation theorem, so the unbounded
+statement is not available and nothing below pretends to be it.
+-/
+
+/-- The two-term bound behind Kato–Rellich: `‖A x‖ ≤ ‖(A − lam)x‖ + |lam|‖x‖`. -/
+theorem norm_apply_le_norm_sub {A : L2 d →L[ℂ] L2 d} (lam : ℝ) (x : L2 d) :
+    ‖A x‖ ≤ ‖A x - (lam : ℂ) • x‖ + |lam| * ‖x‖ := by
+  have h := norm_add_le (A x - (lam : ℂ) • x) ((lam : ℂ) • x)
+  have heq : A x - (lam : ℂ) • x + (lam : ℂ) • x = A x := by abel
+  rw [heq] at h
+  calc ‖A x‖ ≤ ‖A x - (lam : ℂ) • x‖ + ‖(lam : ℂ) • x‖ := h
+    _ = ‖A x - (lam : ℂ) • x‖ + |lam| * ‖x‖ := by
+        rw [norm_smul, Complex.norm_real, Real.norm_eq_abs]
+
+/-- **Kato–Rellich, with the relative bound below one.**  If the interaction is `A`-bounded with
+relative bound `a < 1` and additive constant `b`, the sum is self-adjoint and its gap at `lam` is
+`(1 − a)·dd − (a|lam| + b)`: the relative part of the interaction acts on `A x` itself, so it costs
+the gap `a` times over, and the absolute part costs `b` plus `a|lam|` from the shift. -/
+theorem katoRellich_gap {A K : L2 d →L[ℂ] L2 d} (hA : IsSelfAdjoint A) (hK : IsSelfAdjoint K)
+    {a b lam dd : ℝ} (ha : 0 ≤ a) (ha1 : a < 1)
+    (hrel : ∀ x, ‖K x‖ ≤ a * ‖A x‖ + b * ‖x‖)
+    (hgap : GapAt A lam dd) :
+    IsSelfAdjoint (A + K) ∧ GapAt (A + K) lam ((1 - a) * dd - (a * |lam| + b)) := by
+  have h1a : 0 ≤ 1 - a := by linarith
+  refine ⟨hA.add hK, fun x => ?_⟩
+  have hsplit : (A + K) x - (lam : ℂ) • x = (A x - (lam : ℂ) • x) + K x := by
+    rw [ContinuousLinearMap.add_apply]
+    abel
+  rw [hsplit]
+  have htri : ‖A x - (lam : ℂ) • x‖ - ‖K x‖ ≤ ‖(A x - (lam : ℂ) • x) + K x‖ := by
+    have h := norm_sub_le ((A x - (lam : ℂ) • x) + K x) (K x)
+    have heq : (A x - (lam : ℂ) • x) + K x - K x = A x - (lam : ℂ) • x := by abel
+    rw [heq] at h
+    linarith
+  have hmul : (1 - a) * (dd * ‖x‖) ≤ (1 - a) * ‖A x - (lam : ℂ) • x‖ :=
+    mul_le_mul_of_nonneg_left (hgap x) h1a
+  have hAx := norm_apply_le_norm_sub (A := A) lam x
+  have hKx := hrel x
+  nlinarith [htri, hmul, hAx, hKx, norm_nonneg x, norm_nonneg (A x - (lam : ℂ) • x),
+    norm_nonneg (K x)]
+
+/-- **The cut-off-free gap survives a relatively bounded interaction.**  Chaining §14's limit gap
+(`c₁Δ/2` at `c₁Δ/2`) with Kato–Rellich: the interacting operator is self-adjoint and its gap is
+`(1 − a)c₁Δ/2 − (a·c₁Δ/2 + b)`, i.e. `c₁Δ/2 − (a·c₁Δ + b)`.  No cut-off appears in any constant. -/
+theorem cutoffLimit_interacting {c : Idx d → ℝ} {M Δ c₁ : ℝ} (hM : ∀ n, |c n| ≤ M)
+    (hc₁ : 0 < c₁) (hΔ : 0 < Δ) (hsep : ∀ n, c n = 0 ∨ c₁ * Δ ≤ c n)
+    (K : L2 d →L[ℂ] L2 d) (hK : IsSelfAdjoint K) {a b : ℝ} (ha : 0 ≤ a) (ha1 : a < 1)
+    (hrel : ∀ x, ‖K x‖ ≤ a * ‖diagCLM c hM x‖ + b * ‖x‖) :
+    IsSelfAdjoint (diagCLM c hM + K) ∧
+      GapAt (diagCLM c hM + K) (c₁ * Δ / 2)
+        ((1 - a) * (c₁ * Δ / 2) - (a * |c₁ * Δ / 2| + b)) :=
+  katoRellich_gap (diagCLM_isSelfAdjoint hM) hK ha ha1 hrel
+    (gapAt_cutoffLimit hM hc₁ hΔ hsep)
 
 end DiagonalOperator
 

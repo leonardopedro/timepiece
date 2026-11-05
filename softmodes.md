@@ -905,14 +905,31 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `cutoff_operator_uniform_gap` gives the cut-off family a self-adjoint operator with gap
     `c₁Δ/2` at `c₁Δ/2` whose constants do **not** involve the cut-off `s`.
     `cutoff_operator_interacting` adds a bounded self-adjoint interaction and loses exactly `‖K‖`
-    (the Faris–Lavine step in the bounded mode).  So the uniform separation now holds for the
-    *truncations*, uniformly in the cut-off; it is the *limit* that is still open.
-  - *What is still open.*  The uniform separation for the limit operator — i.e. the fact that the
-    truncations converge to it in either mode (the chapter proves the transfer, not the
-    convergence, and §13 certifies the approximants), the identification of the Yang–Mills
-    one-particle operator with the abstract `T`, and the Källén–Lehmann/clustering step that would
-    read the gap off the Euclidean two-point function.  No strictly positive mass gap of the
-    physical continuum Hamiltonian is claimed.
+    (the Faris–Lavine step in the bounded mode).
+  - *the convergence, and the gap of the limit (2026-11-05).*  §14 supplies the left end §5.2 was
+    missing.  The cut-off family does **not** converge in operator norm — the symbol changes on an
+    ever larger box, so `‖A_s − A‖` is governed by the symbol outside `s` — hence the mode is strong
+    convergence.  `coordBox` is a monotone cofinal family of boxes, `tendsto_tail_coordBox` proves
+    that the cut-off tail of a state vanishes (the partial sums over a cofinal family converge to
+    the whole `∑'`), `tendsto_diagCLM_cutoff` assembles the strong limit, and
+    `gapAt_of_strong_tendsto` transfers a uniform `GapAt` because a lower bound valid at every
+    approximant passes to the limit of norms.  The result is `gapAt_cutoffLimit` (`GapAt` at
+    `c₁Δ/2`) and `notMem_spectrum_cutoffLimit` (the window centre is not in the spectrum), with no
+    cut-off in the constants.  §15 then removes §13's global bound: `cutoffBound` bounds a cut-off
+    of an unbounded symbol by a finite sum, so the §12.2 degree symbol enters the operator picture
+    (`re_inner_diagCLM_cutoffSymbol`), and `gapAt_cutoffDegreeSymbol` reads its box gap `d/2`.
+    §16 states Kato–Rellich at a relative bound below one: `katoRellich_gap` turns
+    `‖K x‖ ≤ a‖A x‖ + b‖x‖` with `a < 1` into self-adjointness plus a gap
+    `(1 − a)dd − (a|lam| + b)`, and `cutoffLimit_interacting` applies it to §14's limit.
+  - *What is still open.*  The limit side of two things: the convergence proved in §14 is for a
+    **bounded** symbol, and the unbounded degree symbol has no limit operator in this module (its
+    cut-offs are certified box by box, but the unbounded multiplication operator on its form domain
+    is not constructed), and Kato–Rellich is proved in the operator mode, not as the self-adjointness
+    of an unbounded form sum — the corpus has the relative-bound certificate
+    (`closed_farisLavine_domination`) but no form→operator representation theorem.  Also open: the
+    identification of the Yang–Mills one-particle operator with the abstract `T`, and the
+    Källén–Lehmann/clustering step that would read the gap off the Euclidean two-point function.
+    No strictly positive mass gap of the physical continuum Hamiltonian is claimed.
 
 ---
 
