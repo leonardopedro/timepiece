@@ -53,7 +53,14 @@ direction is equivalent to exponential decay in the *spatial* direction at the s
   conversely that decay at rate `m` forces every positively weighted mass to be at least `m` — so
   the rate *is* the bottom of the mass spectrum — and **`schwingerClustering_of_kl`** turns such a
   representation of every connected correlator into `SchwingerClustering ω T m C`.  The clustering
-  hypothesis of §1 is then a consequence of the gap, not an independent input.
+  hypothesis of §1 is then a consequence of the gap, not an independent input;
+* §7, the same two implications **without atomicity**: for an arbitrary finite Borel measure `ρ`
+  on `ℝ`, `laplace ρ τ = ∫ e^{−τλ} dρ(λ)` decays at rate `m` whenever `ρ` vanishes below `m`
+  (`laplace_le_of_massGap`), and an exponential bound at rate `m` forces `ρ` to vanish on `[0, m)`
+  (`measure_Iio_eq_zero_of_laplace_decay`) — so the rate is the bottom of the *support* of a general
+  spectral measure.  `laplace_map_withDensity` gives the representation itself in a multiplication
+  model: `ρ = (μ.withDensity w).map f` has Laplace transform `∫ w x e^{−τ f x} ∂μ`, which is the
+  measurable functional calculus `e^{−τM_f} = M_{e^{−τ f}}` read as a KL representation.
 
 ## Honest boundary
 
@@ -64,13 +71,17 @@ analytic content of Phase 5.  What is proved here is the *equivalence machinery*
 invariance, and the Källén–Lehmann direction of §6 — the rate is the bottom of the mass spectrum,
 and a gap in the masses gives clustering.
 
-The Källén–Lehmann step is stated for **atomic** spectral measures, which is what the diagonal
+The Källén–Lehmann step of §6 is stated for **atomic** spectral measures, which is what the diagonal
 models of this repository produce (`BookProof.YangMillsFormClosureNonDiagonal` §20–§22: the
-spectrum is the closure of a symbol's range on an `ℓ²` basis).  Not claimed: the non-atomic case,
-where the physical spectral measure `dρ(λ)` and the measurable functional calculus producing
-`e^{−τH_phys}` from it are needed and neither is constructed; nor the identification of the bounded
-separation proved in §4 with a `SpectralSeparation` of the *unbounded* generator `H_phys` itself
-(needs the generator).  The spectral theorem itself is **not** missing:
+spectrum is the closure of a symbol's range on an `ℓ²` basis); §7 removes that restriction and
+proves the gap ⇔ decay equivalence for an arbitrary finite Borel measure, and gives the
+representation in a multiplication model — the shape `ChapterSpectralMultiplication` produces for a
+normal bounded operator with a cyclic vector, with `e^{−τ f}` as the measurable functional calculus.
+What remains not claimed is the *generator*: identifying the physical spectral measure `dρ(λ)` with
+such a model needs `H_phys` and the strong continuity of the transfer semigroup, which
+`OSReconstruction.Hamiltonian` records as unbuilt; and the bounded separation proved in §4 is not
+identified with a `SpectralSeparation` of the *unbounded* `H_phys` itself (needs the generator).
+The spectral theorem itself is **not** missing:
 `BookProof.ChapterSpectralMultiplication` / `ChapterSpectralDirectSum` give it for bounded normal
 operators, `ChapterUnboundedSpectralModel` for unbounded self-adjoint ones (Cayley route),
 `ChapterStoneConverse` gives the generator of a unitary group, and `physlib/` carries the same
@@ -552,6 +563,153 @@ theorem schwingerClustering_of_kl {ω : LinearFunctional} {T : TimeTranslation} 
     _ = C * Real.exp (-(m * τ)) * osNorm ω F * osNorm ω G := by ring
 
 end KallenLehmann
+
+/-! ## 7. Källén–Lehmann without atomicity
+
+§6 reads the mass spectrum off an *atomic* spectral measure: a sum over eigenvalues.  The physical
+`dρ` is not atomic, and the representation `⟪φ, e^{−τH}φ⟫ = ∫ e^{−τλ} dρ(λ)` is then an integral,
+not a series.  This section proves the same two implications for an **arbitrary finite Borel measure
+on `ℝ`** — no atomicity anywhere — and then gives the representation itself for the multiplication
+model that the repository's spectral theorem produces.
+
+* `laplace` — the Euclidean kernel `∫ e^{−τλ} dρ(λ)` of a measure;
+* **`laplace_le_of_massGap`** — if `ρ` vanishes below `m`, the transform decays at rate `m` with
+  the constant `ρ(ℝ)`, and no eigenvalue decomposition is used: the kernel is compared with
+  `e^{−mτ}` almost everywhere, which is Fatou's-side of the statement and therefore insensitive to
+  the measure's atomicity;
+* **`measure_Iio_eq_zero_of_laplace_decay`** — conversely, an exponential bound at rate `m` forces
+  `ρ` to vanish on `[0, m)`: the rate *is* the bottom of the support of the spectral measure, again
+  for any finite measure;
+* **`laplace_map_withDensity`** — the representation: for a measure `μ`, a measurable symbol `f` and
+  a weight `w`, the pushforward `ρ = (μ.withDensity w).map f` satisfies
+  `∫ e^{−τλ} dρ = ∫ w x e^{−τ f x} ∂μ`.  This is the measurable functional calculus
+  `e^{−τ M_f} = M_{e^{−τ f}}` read as a KL representation, and `ρ` is atomic only if `f` has
+  atomic fibres.
+
+`ChapterSpectralMultiplication` supplies exactly such a model for a normal bounded operator with a
+cyclic vector (`spectral_multiplication_model`, `integral_spectralMeasure`), so the KL step applies
+to it verbatim; §6 is the case where `μ` is counting measure on the eigenvalues.
+
+What is still not claimed: `H_phys` itself.  Identifying the physical spectral measure with a
+multiplication model needs the generator of the transfer semigroup, which
+`OSReconstruction.Hamiltonian` records as unbuilt.  What is removed here is the *atomicity* of the
+measure, not the construction of the Hamiltonian.
+-/
+
+section KallenLehmannGeneral
+
+open MeasureTheory
+
+open scoped ENNReal
+
+/-- The **Laplace transform of a finite measure**: the Euclidean two-point function of a spectral
+measure, `∫ e^{−τλ} dρ(λ)`. -/
+noncomputable def laplace (ρ : Measure ℝ) (τ : ℝ) : ℝ :=
+  ∫ l, Real.exp (-(τ * l)) ∂ρ
+
+theorem laplace_nonneg (ρ : Measure ℝ) (τ : ℝ) : 0 ≤ laplace ρ τ :=
+  integral_nonneg fun _ => Real.exp_nonneg _
+
+/-- **A mass gap decays the transform at the gap's rate, for any finite measure.**  If `ρ` has no
+mass below `m`, then `e^{−τλ} ≤ e^{−mτ}` `ρ`-almost everywhere, and integrating gives the bound with
+the total mass `ρ(ℝ)` as constant.  Nothing here is a sum over eigenvalues. -/
+theorem laplace_le_of_massGap {ρ : Measure ℝ} [IsFiniteMeasure ρ] {m τ : ℝ} (hτ : 0 ≤ τ)
+    (hint : Integrable (fun l : ℝ => Real.exp (-(τ * l))) ρ) (hsupp : ρ (Set.Iio m) = 0) :
+    laplace ρ τ ≤ (ρ Set.univ).toReal * Real.exp (-(m * τ)) := by
+  have hsupp' : ρ {l : ℝ | ¬ m ≤ l} = 0 := by
+    have hset : {l : ℝ | ¬ m ≤ l} = Set.Iio m := by ext l; simp [not_le]
+    rw [hset]
+    exact hsupp
+  have hmono : (fun l : ℝ => Real.exp (-(τ * l))) ≤ᵐ[ρ] fun _ => Real.exp (-(m * τ)) := by
+    filter_upwards [ae_iff.2 hsupp'] with l hl
+    have hle : m ≤ l := hl
+    refine Real.exp_le_exp.2 ?_
+    nlinarith
+  have hInt : Integrable (fun _ : ℝ => Real.exp (-(m * τ))) ρ := integrable_const _
+  have h := integral_mono_ae hint hInt hmono
+  rw [integral_const] at h
+  simpa only [laplace, Measure.real, smul_eq_mul] using h
+
+/-- **The rate is the bottom of the mass spectrum, for any finite measure.**  If the transform
+decays at rate `m`, then `ρ` has no mass on `[0, m)` — in particular none at `0`.  The proof takes a
+strictly smaller threshold `m' < m` and lets `τ → ∞`: the mass below `m'` is bounded by
+`C e^{−τ(m−m')}`, which vanishes. -/
+theorem measure_Iio_eq_zero_of_laplace_decay {ρ : Measure ℝ} [IsFiniteMeasure ρ] {m C : ℝ}
+    (hint : ∀ τ : ℝ, 0 ≤ τ → Integrable (fun l : ℝ => Real.exp (-(τ * l))) ρ)
+    (hdecay : ∀ τ : ℝ, 0 ≤ τ → laplace ρ τ ≤ C * Real.exp (-(m * τ))) {m' : ℝ} (hm' : m' < m) :
+    ρ (Set.Iio m') = 0 := by
+  by_contra hne
+  have hpos : 0 < ρ (Set.Iio m') := lt_of_le_of_ne (zero_le _) (Ne.symm hne)
+  -- the lower bound `e^{−τm'} ρ(Iio m') ≤ laplace ρ τ`
+  have hlower : ∀ τ : ℝ, 0 ≤ τ →
+      Real.exp (-(τ * m')) * (ρ (Set.Iio m')).toReal ≤ laplace ρ τ := by
+    intro τ hτ
+    have hInt := hint τ hτ
+    have hconst : IntegrableOn (fun _ : ℝ => Real.exp (-(τ * m'))) (Set.Iio m') ρ :=
+      integrableOn_const (measure_ne_top _ _)
+    have hmono : ∀ l ∈ Set.Iio m', Real.exp (-(τ * m')) ≤ Real.exp (-(τ * l)) := by
+      intro l hl
+      refine Real.exp_le_exp.2 ?_
+      have : τ * l ≤ τ * m' := mul_le_mul_of_nonneg_left (le_of_lt hl) hτ
+      linarith
+    have hset := setIntegral_mono_on (μ := ρ) (s := Set.Iio m')
+      (f := fun _ : ℝ => Real.exp (-(τ * m'))) (g := fun l : ℝ => Real.exp (-(τ * l)))
+      hconst hInt.integrableOn measurableSet_Iio hmono
+    rw [setIntegral_const, smul_eq_mul, Measure.real, mul_comm] at hset
+    refine hset.trans ?_
+    exact setIntegral_le_integral hInt (Eventually.of_forall fun _ => Real.exp_nonneg _)
+  -- divide by the positive kernel value
+  have hmass : ∀ τ : ℝ, 0 ≤ τ →
+      (ρ (Set.Iio m')).toReal ≤ C * Real.exp (-(τ * (m - m'))) := by
+    intro τ hτ
+    have hk : 0 < Real.exp (-(τ * m')) := Real.exp_pos _
+    have hle := (hlower τ hτ).trans (hdecay τ hτ)
+    have hexpfac : Real.exp (-(m * τ))
+        = Real.exp (-(τ * m')) * Real.exp (-(τ * (m - m'))) := by
+      rw [← Real.exp_add]
+      congr 1
+      ring
+    have hsplit : C * Real.exp (-(m * τ))
+        = Real.exp (-(τ * m')) * (C * Real.exp (-(τ * (m - m')))) := by
+      rw [hexpfac]
+      ring
+    rw [hsplit] at hle
+    exact le_of_mul_le_mul_left hle hk
+  -- the bound tends to zero
+  have hlim : Tendsto (fun τ : ℝ => C * Real.exp (-(τ * (m - m')))) atTop (𝓝 0) := by
+    have harg : Tendsto (fun τ : ℝ => τ * (m - m')) atTop atTop :=
+      (Tendsto.const_mul_atTop (by linarith : (0 : ℝ) < m - m') tendsto_id).congr'
+        (Eventually.of_forall fun τ => mul_comm _ _)
+    have h := (Real.tendsto_exp_neg_atTop_nhds_zero.comp harg).const_mul C
+    simpa using h
+  have hzero : (ρ (Set.Iio m')).toReal = 0 := by
+    refine le_antisymm ?_ (by positivity)
+    refine le_of_tendsto_of_tendsto tendsto_const_nhds hlim ?_
+    filter_upwards [eventually_ge_atTop (0 : ℝ)] with τ hτ
+    exact hmass τ hτ
+  rcases (ENNReal.toReal_eq_zero_iff _).1 hzero with h | h
+  · exact hne h
+  · exact (measure_ne_top ρ (Set.Iio m')) h
+
+/-- **The Källén–Lehmann representation in a multiplication model.**  For a measure `μ`, a
+measurable symbol `f` and a weight `w`, the pushed-forward weighted measure is the spectral measure
+of multiplication by `f`, and its Laplace transform is the two-point function of the weight: the
+measurable functional calculus `e^{−τM_f} = M_{e^{−τf}}`, integrated against `w`.  This is the
+non-atomic form of `klCorr`: `ρ` is atomic only when `f` has atomic fibres. -/
+theorem laplace_map_withDensity {X : Type*} [MeasurableSpace X] {μ : Measure X} {f : X → ℝ}
+    (hf : Measurable f) {w : X → ENNReal} (hw : Measurable w)
+    (hwtop : ∀ᵐ x ∂μ, w x < ∞) (τ : ℝ) :
+    laplace ((μ.withDensity w).map f) τ
+      = ∫ x, (w x).toReal * Real.exp (-(τ * f x)) ∂μ := by
+  have hmeas : AEStronglyMeasurable (fun l : ℝ => Real.exp (-(τ * l)))
+      ((μ.withDensity w).map f) :=
+    (Real.measurable_exp.comp ((measurable_const.mul measurable_id).neg)).aestronglyMeasurable
+  rw [laplace, integral_map hf.aemeasurable hmeas]
+  rw [integral_withDensity_eq_integral_toReal_smul hw hwtop]
+  refine integral_congr_ae (Eventually.of_forall fun x => ?_)
+  simp only [smul_eq_mul]
+
+end KallenLehmannGeneral
 
 end
 

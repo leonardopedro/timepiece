@@ -963,19 +963,45 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `q_W` on the core and the quadratic form of `diagUnb` of it on the domain — so the operator is
     the diagonal one, not an abstract `T` the form merely dominates.  Its spectrum is
     `{B} ∪ [B + 2, ∞)` with `B = rootCount·g/(2√2)` the vacuum barrier: **the gap above the vacuum
-    is exactly `2`**, and the barrier shifts the spectrum without changing the spacing.  §23 closes
+    is exactly `2`**, and the barrier shifts the spectrum without changing the spacing.  `OSReconstruction.Clustering` §6 closes
     the Källén–Lehmann direction for atomic spectral measures — masses above `m` decay the
     two-point function at rate `m` with the sharp constant, and decay at rate `m` forces every
     positively weighted mass to be at least `m`, so the rate *is* the bottom of the mass spectrum —
     and turns such a representation of the connected correlators into `SchwingerClustering`.
-  - *What is still open.*  Three things.  Kato–Rellich at a relative bound `a < 1` is still proved
-    only in the operator mode: §21 covers the bounded-perturbation case, and the corpus still has
-    no form-level `a < 1` representation theorem.  The Källén–Lehmann statement is for *atomic*
-    spectral measures, which is what the diagonal models produce; the physical `dρ(λ)` and the
-    measurable functional calculus behind `e^{−τH_phys}` are not constructed.  And the reduced
-    sector's magnetic slot is not the diagonal form of §22 — that identification is not proved, so
-    none of this is a statement about the reduced theory, and no strictly positive mass gap of the
-    physical continuum Hamiltonian is claimed.
+  - *Kato–Rellich at `a < 1`, non-atomic Källén–Lehmann, and the reduced sector (2026-11-05).*
+    `BookProof.YangMillsFormKLMN` §23 proves the **KLMN theorem at form level** for diagonal forms:
+    the form norm is finite exactly on `formDom` (`formENN_ne_top_iff`), it is lower semicontinuous
+    in `L²` (`formENN_le_of_tendsto`, `formTsum_lsc`, `formDom_of_tendsto` — Fatou on the monotone
+    partial sums of the sign-free series), the sum form's domain is the *unperturbed* one whenever
+    `|b n| ≤ a c n + β` with `a < 1` (`formDom_add_of_relativeBound`,
+    `formDom_of_relativeBound_add`), it is bounded below by `(1 − a)θ − β` on that domain
+    (`formSum_ge_formDom`), and it is the quadratic form of the self-adjoint `diagUnb (c + b)`
+    (`klmn_selfAdjoint`, `klmn_form_eq_inner`, `klmn`).  So the branch the continuum needs is a
+    theorem about the form, not a hypothesis.  §24 identifies the **reduced sector's magnetic
+    slot** with §22's diagonal one: the transverse sector is invariant under the diagonal operator
+    (`diagUnb_mem_reducedSector` — no coordinate mixing, hence no off-diagonal ladder can appear by
+    restriction), the barrier is the constant vacuum value there (`yangMillsSymbol_on_sector`), and
+    the gap `2` survives the restriction with a strictly positive rate (`sector_gap`,
+    `sector_gap_pos`).  `OSReconstruction.Clustering` §7 removes atomicity from the
+    Källén–Lehmann step: for an arbitrary finite Borel measure, `laplace_le_of_massGap` gives decay
+    at the gap's rate and `measure_Iio_eq_zero_of_laplace_decay` forces a measure to vanish below
+    the rate, so the rate is the bottom of the *support* of `dρ`; `laplace_map_withDensity` gives
+    the representation in a multiplication model, `∫ w x e^{−τ f x} ∂μ` — the measurable functional
+    calculus `e^{−τM_f} = M_{e^{−τ f}}` as a KL representation, which is the shape
+    `ChapterSpectralMultiplication` produces for a normal bounded operator with a cyclic vector, and
+    which has no atomicity hypothesis anywhere.
+  - *What is still open.*  Two things, plus one identification.  (i) The **generator**: identifying
+    the physical spectral measure with such a multiplication model needs `H_phys` and strong
+    continuity of the transfer semigroup, which `OSReconstruction.Hamiltonian` records as unbuilt —
+    the atomicity of `dρ` is no longer the obstacle, but `H_phys` itself is.  (ii) The *uniform*
+    relative bound: §23 is cut-off-free but takes `a < 1` as a hypothesis; what the continuum still
+    needs is `a(Λ) ≤ a < 1` uniformly, i.e. the relative form bound of the momentum-representation
+    magnetic ladder.  (iii) The **BRST quotient**: §24 proves the model-level statement (the
+    transverse sector's magnetic slot is the diagonal one), but the identification of that sector
+    with `H/(exact ⊕ harmonic)` still needs `closure (range Ω) = span{∂_i φ}`, open item 3 of Phase
+    1.  No strictly positive mass gap of the physical continuum Hamiltonian is claimed: the rate `2`
+    is proved for the diagonal one-particle operator of §22 and for its reduced sector, not for the
+    physical continuum theory.
 
 ---
 

@@ -3488,6 +3488,18 @@ import BookProof.YangMillsFormClosure
 -- reduced one-particle matrix momentum-diagonal, so its off-diagonal block vanishes
 -- (`gaugeReduce_extTorsionCoef_offDiag_eq_zero`) while the ladder moves one quantum between modes.
 import BookProof.YangMillsFormClosureNonDiagonal
+-- 2026-11-05: Kato–Rellich at relative bound `a < 1` **at form level** (`BookProof.YangMillsFormKLMN`).
+-- §23 proves the KLMN theorem for diagonal forms: the form norm is finite exactly on `formDom`
+-- (`formENN_ne_top_iff`), it is lower semicontinuous (`formENN_le_of_tendsto`, `formTsum_lsc`),
+-- the sum form has the *unperturbed* form domain whenever `|b n| ≤ a c n + β` with `a < 1`
+-- (`formDom_add_of_relativeBound`, `formDom_of_relativeBound_add`), it is bounded below by
+-- `(1 − a)θ − β` on that domain (`formSum_ge_formDom`), and it is the quadratic form of the
+-- self-adjoint `diagUnb (c + b)` (`klmn`).  §24 identifies the **reduced (transverse) sector's
+-- magnetic slot** with §22's diagonal one: the sector is invariant under the diagonal operator
+-- (`diagUnb_mem_reducedSector`), the barrier is the constant vacuum value there
+-- (`yangMillsSymbol_on_sector`), and the gap `2` survives the restriction (`sector_gap`,
+-- `sector_gap_pos`).
+import BookProof.YangMillsFormKLMN
 -- 2026-10-30 (`softmodes.md` Phase 2): Simon's transverse zero-point energy on the Cartan flat
 -- directions.  `parallelDegree`/`perpDegree`/`rootCount` split the degree form into Cartan and
 -- root parts; `zeroPoint g N = ½ g √(N + ½)` is the per-mode barrier, nonnegative, strictly

@@ -199,12 +199,16 @@ reduced sector's magnetic slot; §7's bound does not transfer to the eliminated 
 
 What the comparison needed is now stated rather than deferred: `closed_farisLavine_domination` is
 the `L²` form of `c₁ q_ref ≤ q' + qK` with `a < 1`, its only extra hypothesis being the finiteness
-of the closed forms, and that hypothesis is itself derived from a symbolwise inequality.  What
-remains outside the statements is a *uniform-in-cut-off* version: §7 shows the Hilbert–Schmidt
-constant of the magnetic ladder grows like `Λ^{(d+1)/2}`, so the `a = 0` branch is genuinely
-cut-off-local, and the continuum needs the `a < 1` branch together with a proof that `a` stays
-bounded away from `1` uniformly — the relative form bound of the magnetic operator, which this
-repository does not yet supply.
+of the closed forms, and that hypothesis is itself derived from a symbolwise inequality.
+
+What remains outside the statements is a *uniform-in-cut-off* version of that constant: §7 shows
+the Hilbert–Schmidt constant of the magnetic ladder grows like `Λ^{(d+1)/2}`, so the `a = 0` branch
+is genuinely cut-off-local, and the continuum needs a proof that `a` stays bounded away from `1`
+uniformly — the relative form bound of the magnetic operator.  The `a < 1` *theorem* is no longer
+missing: `BookProof.YangMillsFormKLMN` §23 proves the KLMN statement for diagonal forms
+(`formDom` invariance, closedness, the lower bound `(1 − a)θ − β`, and the self-adjoint operator
+representing the sum), so what is open there is the identification of the ladder with the reduced
+form, not the form theory.
 
 **What the Hilbert–Schmidt hypothesis costs.**  `∑' p, ‖K p.1 p.2‖² ≤ σ²` is a hypothesis *on the
 model*, not a theorem about Yang–Mills.  It holds for a kernel at a fixed cut-off — finitely many
@@ -4641,10 +4645,13 @@ perturbation** `K` — exactly the shape a Faris–Lavine comparison produces.  
 * `formTsum_ge_of_le_symbol` and `formSum_ge` — the resulting form is bounded below by
   `θ − σ`, the constant §5's bottom estimate produces.
 
-What is still not claimed, and is the residue of the KLMN theorem: that `q_c + q_K` is **closed** on
-the form domain (only that it is finite there) and that the operator domain is a form *core* in
-the form norm (only that it is dense in the ambient norm).  Both hold for a diagonal symbol (the
-truncations of §14 are the standard core argument) and neither is used by §22.
+What §21 does not do by itself: closedness of `q_c + q_K` on the form domain, and the statement that
+the operator domain is a form *core* in the form norm.  Closedness for diagonal forms — for any
+symbol, with the `a < 1` relative bound — is `BookProof.YangMillsFormKLMN` §23
+(`formTsum_lsc`, `formDom_of_tendsto`, `klmn`); a bounded `K` is norm-continuous (`|q_K| ≤ ‖K‖‖x‖²`)
+and so cannot disturb it.  The form-*core* statement is still only ambient-norm density
+(`dense_formDom`); it is not used by §22 or §23, because both read the form off the operator on the
+maximal domain directly.
 -/
 
 section FormSum
@@ -4847,9 +4854,13 @@ zero-point barrier in the Cartan background.
   touching the spacing — which is the spectral reading of `yangMillsForm_ge_gap`.
 
 What this does **not** claim: that the coefficient-model form is the reduced Yang–Mills theory's
-form.  The chapter's honest boundary says the reduced magnetic slot is not this diagonal form; the
-identification here is with `q_W` as formalized — the form of record — and no physical continuum
-mass is claimed.
+form, i.e. the BRST quotient `H/(exact ⊕ harmonic)`.  What is claimed, and proved in
+`BookProof.YangMillsFormKLMN` §24, is the model-level statement that the **transverse sector's
+magnetic slot is this diagonal one**: the sector is invariant under `diagUnb`
+(`diagUnb_mem_reducedSector`), the barrier is the constant vacuum value there
+(`yangMillsSymbol_on_sector`), and the gap `2` survives the restriction (`sector_gap`).  The
+corresponding `a < 1` branch is §23 of the same file (`klmn`), which is the form-level
+Kato–Rellich theorem this section's `T + K` (bounded `K`) is the `a = 0` case of.
 -/
 
 section YangMillsOperator
