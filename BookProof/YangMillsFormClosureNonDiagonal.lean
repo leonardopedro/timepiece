@@ -2852,4 +2852,151 @@ theorem ladder_form_le_degree_half {Λ : ℕ} (A : Fin d → ℝ) (x : (Fin d �
     ring
   rwa [hc] at h
 
+/-! ### 12.2 The `L²` transfer: the closed form reads the degree symbol
+
+§12.1 bounds the ladder on the box.  On `L²` the same statement is `closedKernelForm
+(boxKernel Λ A)`, a double series over all of `Idx d × Idx d`; because `boxKernel` vanishes off
+the box the series is the box series reindexed by the injective `boxEmbed`, and the two sums the
+box bound produces — the degree sum and the mass — are dominated by `closedForm degree` and by
+`‖x‖²`.  The result keeps the cut-off out entirely: the ratio is the chosen `a` and the shift is
+`max (Σᵢ (Aᵢ²/(4a) − a)) 0`, so §6's `closed_farisLavine_domination` can run at a uniform ratio
+without a Hilbert–Schmidt mass. -/
+
+/-- The degree symbol on `Idx d`, written with the cast of the sum (the form `degreeForm` uses). -/
+noncomputable def closedDegreeSymbol (d : ℕ) : Idx d → ℝ := fun n => (∑ i, (n i : ℝ)) + (d : ℝ)
+
+/-- The degree symbol is nonnegative. -/
+theorem closedDegreeSymbol_nonneg (n : Idx d) : 0 ≤ closedDegreeSymbol (d := d) n :=
+  add_nonneg (Finset.sum_nonneg fun i _ => by positivity) (by positivity)
+
+/-- **The cut-off ladder's closed form is bounded by the degree form.**  The relative bound `a` and
+the shift `max (Σᵢ (Aᵢ²/(4a) − a)) 0` are the cut-off-free constants of §12.1; the only hypothesis
+is that the state has finite degree form, which is the form-domain condition of §6. -/
+theorem abs_closedKernelForm_boxKernel_le {Λ : ℕ} (A : Fin d → ℝ) {a : ℝ} (ha : 0 < a)
+    (x : L2 d) (hfin : closedForm (closedDegreeSymbol (d := d)) x ≠ ⊤) :
+    |closedKernelForm (boxKernel Λ A) x|
+      ≤ a * (closedForm (closedDegreeSymbol (d := d)) x).toReal
+        + max (∑ i, (A i ^ 2 / (4 * a) - a)) 0 * ‖x‖ ^ 2 := by
+  classical
+  set f : Idx d → ℝ := closedDegreeSymbol (d := d) with hf
+  set B : Finset (Idx d) := Finset.univ.image (boxEmbed (Λ := Λ) (d := d)) with hB
+  have hmem : ∀ m : Idx d, InBox (Λ := Λ) m → m ∈ B := by
+    intro m h
+    obtain ⟨n, rfl⟩ := exists_boxEmbed h
+    exact Finset.mem_image_of_mem _ (Finset.mem_univ n)
+  have hinj : ∀ x₁ ∈ (Finset.univ : Finset (Fin d → Fin Λ)), ∀ y ∈ Finset.univ,
+      boxEmbed (Λ := Λ) (d := d) x₁ = boxEmbed y → x₁ = y :=
+    fun x₁ _ y _ h => boxEmbed_injective h
+  set y : (Fin d → Fin Λ) → ℂ := fun n => x (boxEmbed n) with hy
+  -- the series is supported on the box
+  have hzero : ∀ p : Idx d × Idx d, p ∉ B ×ˢ B →
+      boxKernel Λ A p.1 p.2 * x p.2 * (starRingEnd ℂ) (x p.1) = 0 := by
+    intro p hp
+    rw [Finset.mem_product, not_and_or] at hp
+    rcases hp with h | h
+    · have hnb : ¬ InBox (Λ := Λ) p.1 := fun hc => h (hmem p.1 hc)
+      rw [boxKernel_eq_zero_left Λ A hnb]
+      simp
+    · have hnb : ¬ InBox (Λ := Λ) p.2 := fun hc => h (hmem p.2 hc)
+      rw [boxKernel_eq_zero_right Λ A hnb]
+      simp
+  -- reindexed onto the box: the series is the box ladder form
+  have hbox : ∀ F : Idx d → Idx d → ℂ, (∑ m ∈ B, ∑ n ∈ B, F m n)
+      = ∑ i : Fin d → Fin Λ, ∑ j : Fin d → Fin Λ, F (boxEmbed i) (boxEmbed j) := by
+    intro F
+    rw [hB, Finset.sum_image hinj]
+    exact Finset.sum_congr rfl fun i _ => Finset.sum_image hinj
+  have hseries : (∑' p : Idx d × Idx d,
+        boxKernel Λ A p.1 p.2 * x p.2 * (starRingEnd ℂ) (x p.1))
+      = ∑ i : Fin d → Fin Λ, ∑ j : Fin d → Fin Λ,
+          magCutoffKernel A i j * y j * (starRingEnd ℂ) (y i) := by
+    rw [tsum_eq_sum hzero, Finset.sum_product,
+      hbox (fun m n => boxKernel Λ A m n * x n * (starRingEnd ℂ) (x m))]
+    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+    rw [boxKernel_boxEmbed]
+  -- the mass over the box is at most the norm
+  have hHas : HasSum (fun n : Idx d => ‖x n‖ ^ 2) (‖x‖ ^ 2) := by
+    have h := lp.hasSum_norm (E := fun _ : Idx d => ℂ) (p := (2 : ℝ≥0∞)) (by norm_num) x
+    simpa using h
+  have hmass : (∑ n : Fin d → Fin Λ, ‖y n‖ ^ 2) ≤ ‖x‖ ^ 2 := by
+    have himg : (∑ m ∈ B, ‖x m‖ ^ 2) = ∑ n : Fin d → Fin Λ, ‖x (boxEmbed n)‖ ^ 2 := by
+      rw [hB]
+      exact Finset.sum_image hinj
+    rw [← himg]
+    exact (hHas.summable.sum_le_tsum B fun _ _ => by positivity).trans hHas.tsum_eq.le
+  -- the degree sum over the box is at most the closed degree form
+  have hdeg : (∑ n : Fin d → Fin Λ, ((∑ i, ((n i).val : ℝ)) + (d : ℝ)) * ‖y n‖ ^ 2)
+      ≤ (closedForm f x).toReal := by
+    have hBsum : (∑ n : Fin d → Fin Λ, ((∑ i, ((n i).val : ℝ)) + (d : ℝ)) * ‖y n‖ ^ 2)
+        = ∑ m ∈ B, f m * ‖x m‖ ^ 2 := by
+      have himg : (∑ m ∈ B, f m * ‖x m‖ ^ 2)
+          = ∑ n : Fin d → Fin Λ, f (boxEmbed n) * ‖x (boxEmbed n)‖ ^ 2 := by
+        rw [hB]
+        exact Finset.sum_image hinj
+      rw [himg]
+      exact Finset.sum_congr rfl fun n _ => rfl
+    have hle : ENNReal.ofReal (∑ n : Fin d → Fin Λ,
+          ((∑ i, ((n i).val : ℝ)) + (d : ℝ)) * ‖y n‖ ^ 2) ≤ closedForm f x := by
+      rw [hBsum, ← diagonalForm_truncate f x B]
+      have h1 : ENNReal.ofReal (diagonalForm f (truncate x B))
+          ≤ ⨆ s : Finset (Idx d), ENNReal.ofReal (diagonalForm f (truncate x s)) :=
+        le_iSup (fun s : Finset (Idx d) => ENNReal.ofReal (diagonalForm f (truncate x s))) B
+      rwa [← closedForm_eq_iSup_truncate f
+        (fun n => closedDegreeSymbol_nonneg (d := d) n) x] at h1
+    have hnn : 0 ≤ ∑ n : Fin d → Fin Λ, ((∑ i, ((n i).val : ℝ)) + (d : ℝ)) * ‖y n‖ ^ 2 :=
+      Finset.sum_nonneg fun n _ => mul_nonneg (by positivity) (by positivity)
+    have h2 := ENNReal.toReal_mono hfin hle
+    rwa [ENNReal.toReal_ofReal hnn] at h2
+  -- assemble
+  have hrel : (∑ m, ∑ n, (starRingEnd ℂ) (y m) * magCutoffKernel A m n * y n)
+      = ∑ i : Fin d → Fin Λ, ∑ j : Fin d → Fin Λ,
+          magCutoffKernel A i j * y j * (starRingEnd ℂ) (y i) := by
+    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+    ring
+  have hmain : |closedKernelForm (boxKernel Λ A) x|
+      ≤ a * (∑ n : Fin d → Fin Λ, ((∑ i, ((n i).val : ℝ)) + (d : ℝ)) * ‖y n‖ ^ 2)
+        + (∑ i, (A i ^ 2 / (4 * a) - a)) * (∑ n : Fin d → Fin Λ, ‖y n‖ ^ 2) := by
+    rw [closedKernelForm, hseries, ← hrel]
+    have hcast : (∑ n : Fin d → Fin Λ, (((∑ i, (n i).val : ℕ) : ℝ) + (d : ℝ)) * ‖y n‖ ^ 2)
+        = ∑ n : Fin d → Fin Λ, ((∑ i, ((n i).val : ℝ)) + (d : ℝ)) * ‖y n‖ ^ 2 := by
+      refine Finset.sum_congr rfl fun n _ => ?_
+      rw [Nat.cast_sum]
+    have hb := ladder_form_le_degree (d := d) A ha y
+    rw [hcast] at hb
+    exact (Complex.abs_re_le_norm _).trans hb
+  have hdeg2 : a * (∑ n : Fin d → Fin Λ, ((∑ i, ((n i).val : ℝ)) + (d : ℝ)) * ‖y n‖ ^ 2)
+      ≤ a * (closedForm f x).toReal :=
+    mul_le_mul_of_nonneg_left hdeg ha.le
+  have hmass2 : (∑ i, (A i ^ 2 / (4 * a) - a)) * (∑ n : Fin d → Fin Λ, ‖y n‖ ^ 2)
+      ≤ max (∑ i, (A i ^ 2 / (4 * a) - a)) 0 * ‖x‖ ^ 2 :=
+    (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity)).trans
+      (mul_le_mul_of_nonneg_left hmass (le_max_right _ _))
+  linarith [hmain, hdeg2, hmass2]
+
+/-- **The cut-off ladder enters §6 at a cut-off-free ratio.**  If the reference symbol `g` dominates
+the degree symbol (its kinetic part does), then `closed_farisLavine_domination` applies to
+`boxKernel Λ A` with ratio `a ∈ (0,1)` chosen and shift `max (Σᵢ (Aᵢ²/(4a) − a)) 0`: neither
+constant mentions `Λ`, so the comparison is uniform in the cut-off — the thing the
+Hilbert–Schmidt branch could not deliver. -/
+theorem closed_farisLavine_boxKernel {Λ : ℕ} (A : Fin d → ℝ) {μ g : Idx d → ℝ} {c₁ c₂ a : ℝ}
+    (hc₁ : 0 < c₁) (ha : 0 < a) (ha1 : a < 1)
+    (hdeg : ∀ n : Idx d, closedDegreeSymbol (d := d) n ≤ g n)
+    (hdom : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2 ≤ (closedForm g x).toReal) :
+    0 < (1 - a) * c₁ ∧
+      ∀ x : L2 d, closedForm g x ≠ ⊤ →
+        (1 - a) * c₁ * (closedForm μ x).toReal
+            - ((1 - a) * c₂ + max (∑ i, (A i ^ 2 / (4 * a) - a)) 0) * ‖x‖ ^ 2
+          ≤ (closedForm g x).toReal + closedKernelForm (boxKernel Λ A) x := by
+  refine closed_farisLavine_domination (K := boxKernel Λ A) hc₁ ha1 hdom ?_
+  intro x hfin
+  have hle : closedForm (closedDegreeSymbol (d := d)) x ≤ closedForm g x :=
+    closedForm_mono_symbol hdeg x
+  have hmono : (closedForm (closedDegreeSymbol (d := d)) x).toReal ≤ (closedForm g x).toReal :=
+    ENNReal.toReal_mono hfin hle
+  have hnote : closedForm (closedDegreeSymbol (d := d)) x ≠ ⊤ := ne_top_of_le_ne_top hfin hle
+  have hK := abs_closedKernelForm_boxKernel_le (Λ := Λ) (d := d) A ha x hnote
+  have hscaled := mul_le_mul_of_nonneg_left hmono ha.le
+  linarith [hK, hscaled]
+
 end BookProof.YangMillsFormClosureND

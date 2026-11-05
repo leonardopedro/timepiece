@@ -800,9 +800,13 @@ This step directly integrates into existing modules:
   (`ladder_form_le_degree_half`) the shift is `(Σᵢ Aᵢ²)/2 − d/2`.  **Neither constant mentions `Λ`**,
   so the relative bound is uniformly bounded away from `1` and the Hilbert–Schmidt branch — whose
   constant was `√(m_Λ)`, of order `Λ^{(d+1)/2}` — is no longer what the cut-off argument rests on.
-  What is not yet proved is the `L²` transfer of that box statement,
-  `closedKernelForm (boxKernel Λ A) x ≤ a · closedForm degree x + shift · ‖x‖²`, which is what §6's
-  `closed_farisLavine_domination` would need to run at the cut-off-free ratio.  So
+  The `L²` transfer is proved as well (§12.2 of the same
+  module, 2026-11-05): `abs_closedKernelForm_boxKernel_le` bounds
+  `closedKernelForm (boxKernel Λ A) x` by `a · (closedForm degree x).toReal
+  + max (Σᵢ (Aᵢ²/(4a) − a)) 0 · ‖x‖²`, and `closed_farisLavine_boxKernel` hands that bound to §6's
+  `closed_farisLavine_domination`, so the ladder interaction enters the comparison at ratio
+  `(1 − a)c₁ > 0` with `a ∈ (0,1)` chosen and a shift free of `Λ`.  **The cut-off uniformity of the
+  relative bound is therefore closed end to end, on the closed form.**  So
   Phase 5's `c₁Δ_ref` is certified on the core for the off-diagonal case, and on `L²` for the
   diagonal one at full strength — with the interacting term bounded below on `L²` by `−σ‖x‖²`,
   which preserves the *bottom* and not yet the *ratio* of the separation.
