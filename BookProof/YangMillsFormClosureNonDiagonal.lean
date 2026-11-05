@@ -118,7 +118,25 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
 * §16 is Kato–Rellich at a relative bound below one: `katoRellich_gap` takes an operator bound
   `‖K x‖ ≤ a‖A x‖ + b‖x‖` with `a < 1` and returns self-adjointness plus a gap of
   `(1 − a)dd − (a|lam| + b)`, and `cutoffLimit_interacting` applies it to §14's limit.  The
-  unbounded form-sum version is **not** proved — see §16's note.
+  unbounded form-sum version is **not** proved — see §16's note;
+* §17 is the operator the cut-offs are cut-offs *of*: multiplication by the **unbounded** symbol on
+  `memDom c x = Summable (‖c n · x n‖²)`.  It is symmetric on that domain (`diagUnb_symmetric`), and
+  its resolvent `diagRes` is a bounded operator with `‖diagRes ξ‖ ≤ δ⁻¹‖ξ‖` whenever the symbol
+  keeps the distance `δ` from `lam` — this is why the unbounded case is tractable at all.  Both
+  inverse identities hold (`diagUnb_diagRes`, `diagRes_left`), so `gapAt_diagUnb` gives the gap on
+  the domain,
+  and `gapAt_diagUnb_degree` reads it for the §12.2 degree symbol at `d/2`.  Self-adjointness as a
+  `LinearPMap` statement, and hence any `spectrum` conclusion, is **not** claimed: the domain is a
+  predicate, not a closed operator;
+* §18 discharges §5.2's hypothesis *literally*.  The approximating resolvents are the
+  reciprocal-symbol operators `diagRes`, bounded by `‖ξ‖/δ` (`norm_diagRes_le'`), and they converge
+  pointwise to the limit resolvent (`tendsto_diagRes_cutoff`) because the symbols agree on the box
+  and are both bounded off it — the same tail argument as §14, now on `‖ξ n‖²`.  With the limit's
+  left
+  inverse (`diagRes_left_bounded`), `gapAt_cutoffLimit_resolvent` and
+  `notMem_spectrum_cutoffLimit_resolvent` are `gapAt_of_strongResolvent_limit` with **every input
+  supplied**, and `tendsto_diagRes_cutoff_degree` gives the same convergence for the degree
+  cut-offs, whose limit is §17's unbounded resolvent.
 
 One caveat on what §7–§9 are about, since the repository does formalize the continuum: the
 derivative is an outer-Fock operator (`dGamma`, `momOp`), and a product of outer fields at a
@@ -3408,48 +3426,50 @@ theorem summable_normSq (x : L2 d) : Summable fun n : Idx d => ‖x n‖ ^ 2 := 
   have h := (lp.memℓp x).summable (by norm_num : (0 : ℝ) < (2 : ℝ≥0∞).toReal)
   simpa [rpow_two_eq_sq] using h
 
-/-- **The cut-off tail of a state vanishes.**  A state outside an ever larger box carries an ever
-smaller share of its norm: the partial sums over the boxes converge to the whole series, so the
-complement converges to zero.  This is the entire analytic content of the strong limit. -/
-theorem tendsto_tail_coordBox (x : L2 d) :
-    Tendsto (fun m => ∑' n : Idx d, if n ∈ coordBox d m then 0 else ‖x n‖ ^ 2)
-      atTop (𝓝 0) := by
-  have hf := summable_normSq x
-  have hpart : Tendsto (fun m => ∑ n ∈ coordBox d m, ‖x n‖ ^ 2)
-      atTop (𝓝 (∑' n : Idx d, ‖x n‖ ^ 2)) :=
+/-- **The cut-off tail of a summable family vanishes.**  The partial sums over the boxes converge to
+the whole series, so the complement converges to zero.  This is the analytic input of every cut-off
+limit below: applied to `‖x n‖²` it gives the strong convergence of §14, and to `‖c n x n‖²` it
+gives the convergence of the unbounded resolvents of §18. -/
+theorem tendsto_tail_of_summable {f : Idx d → ℝ} (hf : Summable f) :
+    Tendsto (fun m => ∑' n : Idx d, if n ∈ coordBox d m then 0 else f n) atTop (𝓝 0) := by
+  have hpart : Tendsto (fun m => ∑ n ∈ coordBox d m, f n)
+      atTop (𝓝 (∑' n : Idx d, f n)) :=
     hf.hasSum.comp tendsto_coordBox_atTop
-  have htail : ∀ m, (∑' n : Idx d, if n ∈ coordBox d m then 0 else ‖x n‖ ^ 2)
-      = (∑' n : Idx d, ‖x n‖ ^ 2) - ∑ n ∈ coordBox d m, ‖x n‖ ^ 2 := by
+  have htail : ∀ m, (∑' n : Idx d, if n ∈ coordBox d m then 0 else f n)
+      = (∑' n : Idx d, f n) - ∑ n ∈ coordBox d m, f n := by
     intro m
     set s := coordBox d m with hs
-    have hg : Summable fun n : Idx d => if n ∈ s then ‖x n‖ ^ 2 else 0 :=
-      Summable.of_nonneg_of_le (fun n => by positivity)
-        (fun n => by by_cases hn : n ∈ s <;> simp [hn]) hf
-    have hpt : ∀ n : Idx d, (if n ∈ s then 0 else ‖x n‖ ^ 2)
-        = ‖x n‖ ^ 2 - (if n ∈ s then ‖x n‖ ^ 2 else 0) := by
+    have hg : Summable fun n : Idx d => if n ∈ s then f n else 0 :=
+      Summable.of_norm_bounded (g := fun n : Idx d => ‖f n‖) hf.norm (fun n => by
+        by_cases hn : n ∈ s
+        · simp [hn]
+        · simp [hn])
+    have hpt : ∀ n : Idx d, (if n ∈ s then 0 else f n)
+        = f n - (if n ∈ s then f n else 0) := by
       intro n
       by_cases hn : n ∈ s
       · rw [if_pos hn, if_pos hn, sub_self]
       · rw [if_neg hn, if_neg hn, sub_zero]
-    calc (∑' n : Idx d, if n ∈ s then 0 else ‖x n‖ ^ 2)
-        = ∑' n : Idx d, (‖x n‖ ^ 2 - (if n ∈ s then ‖x n‖ ^ 2 else 0)) :=
-          tsum_congr hpt
-      _ = (∑' n : Idx d, ‖x n‖ ^ 2) - ∑' n : Idx d, (if n ∈ s then ‖x n‖ ^ 2 else 0) :=
-          hf.tsum_sub hg
-      _ = (∑' n : Idx d, ‖x n‖ ^ 2) - ∑ n ∈ s, ‖x n‖ ^ 2 := by
-          have hK : (∑' n : Idx d, if n ∈ s then ‖x n‖ ^ 2 else 0)
-              = ∑ n ∈ s, ‖x n‖ ^ 2 := by
-            rw [tsum_eq_sum (s := s)
-              (f := fun n : Idx d => if n ∈ s then ‖x n‖ ^ 2 else 0)
+    calc (∑' n : Idx d, if n ∈ s then 0 else f n)
+        = ∑' n : Idx d, (f n - (if n ∈ s then f n else 0)) := tsum_congr hpt
+      _ = (∑' n : Idx d, f n) - ∑' n : Idx d, (if n ∈ s then f n else 0) := hf.tsum_sub hg
+      _ = (∑' n : Idx d, f n) - ∑ n ∈ s, f n := by
+          have hK : (∑' n : Idx d, if n ∈ s then f n else 0) = ∑ n ∈ s, f n := by
+            rw [tsum_eq_sum (s := s) (f := fun n : Idx d => if n ∈ s then f n else 0)
               (fun n hn => by simp only [if_neg hn])]
             exact Finset.sum_congr rfl fun n hn => by rw [if_pos hn]
           rw [hK]
-  have htotal : Tendsto (fun _ : ℕ => ∑' n : Idx d, ‖x n‖ ^ 2) atTop
-      (𝓝 (∑' n : Idx d, ‖x n‖ ^ 2)) :=
+  have htotal : Tendsto (fun _ : ℕ => ∑' n : Idx d, f n) atTop (𝓝 (∑' n : Idx d, f n)) :=
     tendsto_const_nhds
   have hsub := htotal.sub hpart
   rw [sub_self] at hsub
   simpa [htail] using hsub
+
+/-- **The cut-off tail of a state vanishes.** -/
+theorem tendsto_tail_coordBox (x : L2 d) :
+    Tendsto (fun m => ∑' n : Idx d, if n ∈ coordBox d m then 0 else ‖x n‖ ^ 2)
+      atTop (𝓝 0) :=
+  tendsto_tail_of_summable (summable_normSq x)
 
 /-- **The cut-off operator differs from the full one by at most `M` times the tail.**  Both are
 multiplications by the same symbol, off the box by `c n` against `0`. -/
@@ -3691,6 +3711,450 @@ theorem cutoffLimit_interacting {c : Idx d → ℝ} {M Δ c₁ : ℝ} (hM : ∀ 
         ((1 - a) * (c₁ * Δ / 2) - (a * |c₁ * Δ / 2| + b)) :=
   katoRellich_gap (diagCLM_isSelfAdjoint hM) hK ha ha1 hrel
     (gapAt_cutoffLimit hM hc₁ hΔ hsep)
+
+/-! ## 17. The unbounded diagonal operator
+
+§13–§15 cut the degree symbol down to boxes because `diagCLM` needs a global bound, and the symbol
+itself has none.  The operator the symbol defines is multiplication by `c` on the states where the
+weighted squares are summable: that is the limit the cut-offs are cut-offs *of*.  The reason the
+unbounded case is tractable at all is that the **resolvent** is bounded whenever `c` stays off the
+spectral parameter by `δ` — `(c n − lam)⁻¹` is then bounded by `δ⁻¹` — so no domain is needed to
+write the approximating resolvents, and the gap follows from the two inverse identities.  What is
+*not* claimed: self-adjointness as a statement about `LinearPMap` (the domain is presented as a
+predicate, not a closed operator), and hence no `spectrum` statement — `notMem_spectrum_of_gapAt`
+needs a bounded operator.
+-/
+
+/-- The operator domain of the unbounded diagonal operator: the states on which multiplication by
+`c` lands back in `L²`. -/
+def memDom (c : Idx d → ℝ) (x : L2 d) : Prop :=
+  Summable fun n : Idx d => ‖(c n : ℂ) * x n‖ ^ 2
+
+theorem memDom_zero (c : Idx d → ℝ) : memDom c 0 := by
+  have h : (fun n : Idx d => ‖(c n : ℂ) * (0 : L2 d) n‖ ^ 2) = fun _ => (0 : ℝ) := by
+    funext n
+    simp
+  rw [memDom, h]
+  exact summable_zero
+
+theorem memDom_add {c : Idx d → ℝ} {x y : L2 d} (hx : memDom c x) (hy : memDom c y) :
+    memDom c (x + y) := by
+  have hpt : ∀ n : Idx d, ‖(c n : ℂ) * (x + y) n‖ ^ 2
+      ≤ 2 * ‖(c n : ℂ) * x n‖ ^ 2 + 2 * ‖(c n : ℂ) * y n‖ ^ 2 := by
+    intro n
+    have he : (c n : ℂ) * (x + y) n = (c n : ℂ) * x n + (c n : ℂ) * y n := by
+      rw [lp.coeFn_add, Pi.add_apply]
+      ring
+    have h1 := norm_add_le ((c n : ℂ) * x n) ((c n : ℂ) * y n)
+    have h2 : (‖(c n : ℂ) * x n‖ + ‖(c n : ℂ) * y n‖) ^ 2
+        ≤ 2 * ‖(c n : ℂ) * x n‖ ^ 2 + 2 * ‖(c n : ℂ) * y n‖ ^ 2 := by
+      nlinarith [sq_nonneg (‖(c n : ℂ) * x n‖ - ‖(c n : ℂ) * y n‖)]
+    rw [he]
+    calc ‖(c n : ℂ) * x n + (c n : ℂ) * y n‖ ^ 2
+        ≤ (‖(c n : ℂ) * x n‖ + ‖(c n : ℂ) * y n‖) ^ 2 := by
+          exact pow_le_pow_left₀ (norm_nonneg _) h1 2
+      _ ≤ 2 * ‖(c n : ℂ) * x n‖ ^ 2 + 2 * ‖(c n : ℂ) * y n‖ ^ 2 := h2
+  refine Summable.of_nonneg_of_le (fun n => by positivity) hpt ?_
+  exact (hx.mul_left 2).add (hy.mul_left 2)
+
+theorem memDom_smul {c : Idx d → ℝ} (a : ℂ) {x : L2 d} (hx : memDom c x) :
+    memDom c (a • x) := by
+  have hpt : ∀ n : Idx d,
+      ‖(c n : ℂ) * (a • x) n‖ ^ 2 = ‖a‖ ^ 2 * ‖(c n : ℂ) * x n‖ ^ 2 := by
+    intro n
+    have he : (c n : ℂ) * (a • x) n = a * ((c n : ℂ) * x n) := by
+      rw [lp.coeFn_smul, Pi.smul_apply, smul_eq_mul]
+      ring
+    rw [he, norm_mul]
+    ring
+  simp only [memDom, hpt]
+  exact hx.mul_left (‖a‖ ^ 2)
+
+/-- A bounded symbol's operator has the whole space as its domain: the consistency check between
+§13 and the unbounded picture. -/
+theorem memDom_of_bdd {c : Idx d → ℝ} {M : ℝ} (hM : ∀ n, |c n| ≤ M) (x : L2 d) :
+    memDom c x :=
+  summable_normSq_diag hM x
+
+/-- **The unbounded multiplication operator**, applied to a state of its domain. -/
+noncomputable def diagUnb (c : Idx d → ℝ) (x : L2 d) (hx : memDom c x) : L2 d :=
+  ⟨fun n => (c n : ℂ) * x n, memℓp_gen (by
+    have h : (fun n : Idx d => ‖(c n : ℂ) * x n‖ ^ (2 : ℝ≥0∞).toReal)
+        = fun n : Idx d => ‖(c n : ℂ) * x n‖ ^ 2 := by
+      funext n
+      rw [rpow_two_eq_sq]
+    rw [h]
+    exact hx)⟩
+
+@[simp] theorem diagUnb_apply {c : Idx d → ℝ} (x : L2 d) (hx : memDom c x) (n : Idx d) :
+    ((diagUnb c x hx : L2 d) : Idx d → ℂ) n = (c n : ℂ) * x n := rfl
+
+/-- It is **symmetric** on its domain. -/
+theorem diagUnb_symmetric {c : Idx d → ℝ} {x y : L2 d} (hx : memDom c x) (hy : memDom c y) :
+    inner ℂ (diagUnb c x hx) y = inner ℂ x (diagUnb c y hy) := by
+  rw [lp.inner_eq_tsum, lp.inner_eq_tsum]
+  refine tsum_congr fun n => ?_
+  rw [diagUnb_apply, diagUnb_apply]
+  simp only [RCLike.inner_apply, map_mul, Complex.conj_ofReal]
+  ring
+
+/-- The reciprocal symbol of `c − lam`: what makes the resolvent bounded. -/
+noncomputable def resSymbol (c : Idx d → ℝ) (lam : ℝ) : Idx d → ℝ := fun n => (c n - lam)⁻¹
+
+/-- The reciprocal symbol is bounded by `δ⁻¹` wherever the symbol keeps its distance `δ`. -/
+theorem resSymbol_abs_le {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) : ∀ n, |resSymbol c lam n| ≤ δ⁻¹ := by
+  intro n
+  have hx0 : 0 < |c n - lam| := lt_of_lt_of_le hδ0 (hδ n)
+  rw [resSymbol, abs_inv]
+  exact (inv_le_inv₀ hx0 hδ0).mpr (hδ n)
+
+/-- The real reciprocal symbol, cast: `((c n − lam)⁻¹ : ℝ) : ℂ` is the inverse of `c n − lam`. -/
+theorem resSymbol_cast {c : Idx d → ℝ} {lam : ℝ} (n : Idx d) :
+    (((resSymbol c lam n : ℝ)) : ℂ) = ((c n : ℂ) - (lam : ℂ))⁻¹ := by
+  rw [resSymbol, Complex.ofReal_inv]
+  push_cast
+  ring
+
+/-- `c n − lam` is invertible where the symbol keeps its distance from `lam`. -/
+theorem resSymbol_ne {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) (n : Idx d) : (c n : ℂ) - (lam : ℂ) ≠ 0 := by
+  have hner : c n - lam ≠ 0 := by
+    intro h0
+    have h := hδ n
+    rw [h0, abs_zero] at h
+    linarith
+  rw [← Complex.ofReal_sub]
+  exact fun h => hner (Complex.ofReal_eq_zero.mp h)
+
+/-- **The resolvent of the unbounded diagonal operator.**  It is a bounded operator even though the
+operator is not: only the distance from `lam` to the symbol's range enters. -/
+noncomputable def diagRes (c : Idx d → ℝ) (lam δ : ℝ) (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) : L2 d →L[ℂ] L2 d :=
+  diagCLM (resSymbol c lam) (resSymbol_abs_le hδ0 hδ)
+
+@[simp] theorem diagRes_apply {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) (ξ : L2 d) (n : Idx d) :
+    ((diagRes c lam δ hδ0 hδ ξ : L2 d) : Idx d → ℂ) n
+      = ((resSymbol c lam n : ℝ) : ℂ) * ξ n := rfl
+
+/-- The resolvent is bounded by `δ⁻¹`: the uniform bound §5.2's hypothesis asks for. -/
+theorem norm_diagRes_le {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) (ξ : L2 d) :
+    ‖diagRes c lam δ hδ0 hδ ξ‖ ≤ δ⁻¹ * ‖ξ‖ :=
+  norm_diagCLM_apply_le _ ξ
+
+/-- The same bound in the form `‖ξ‖/δ` used by `gapAt_of_strongResolvent_limit`. -/
+theorem norm_diagRes_le' {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) (ξ : L2 d) :
+    ‖diagRes c lam δ hδ0 hδ ξ‖ ≤ ‖ξ‖ / δ := by
+  rw [div_eq_inv_mul]
+  exact norm_diagRes_le hδ0 hδ ξ
+
+/-- The symbol stays at distance `δ` off `lam`, so the symbol divided by `c − lam` is bounded. -/
+theorem resSymbol_mul_abs_le {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) (n : Idx d) :
+    |c n| * |resSymbol c lam n| ≤ 1 + |lam| * δ⁻¹ := by
+  have hne : c n - lam ≠ 0 := by
+    intro h0
+    have h := hδ n
+    rw [h0, abs_zero] at h
+    linarith
+  have hkey : c n * resSymbol c lam n = 1 + lam * resSymbol c lam n := by
+    have hsplit : c n = (c n - lam) + lam := by ring
+    rw [resSymbol]
+    nth_rewrite 1 [hsplit]
+    rw [add_mul, mul_inv_cancel₀ hne]
+  rw [← abs_mul, hkey]
+  calc |1 + lam * resSymbol c lam n| ≤ 1 + |lam * resSymbol c lam n| := by
+        simpa using abs_add_le (1 : ℝ) (lam * resSymbol c lam n)
+    _ = 1 + |lam| * |resSymbol c lam n| := by rw [abs_mul]
+    _ ≤ 1 + |lam| * δ⁻¹ := by
+        have hb := mul_le_mul_of_nonneg_left (resSymbol_abs_le hδ0 hδ n) (abs_nonneg lam)
+        linarith
+
+/-- **The resolvent lands in the domain**: that is the point of the double inverse identities. -/
+theorem memDom_diagRes {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) (ξ : L2 d) :
+    memDom c (diagRes c lam δ hδ0 hδ ξ) := by
+  have hξ : Summable fun n : Idx d => ‖ξ n‖ ^ 2 := summable_normSq ξ
+  have hpt : ∀ n : Idx d,
+      ‖(c n : ℂ) * ((diagRes c lam δ hδ0 hδ ξ : L2 d) : Idx d → ℂ) n‖ ^ 2
+        ≤ (1 + |lam| * δ⁻¹) ^ 2 * ‖ξ n‖ ^ 2 := by
+    intro n
+    rw [diagRes_apply]
+    have hnorm : ‖(c n : ℂ) * ((((resSymbol c lam n : ℝ)) : ℂ) * ξ n)‖
+        = |c n| * |resSymbol c lam n| * ‖ξ n‖ := by
+      rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs,
+        Real.norm_eq_abs]
+      ring
+    rw [hnorm]
+    have hb : |c n| * |resSymbol c lam n| * ‖ξ n‖
+        ≤ (1 + |lam| * δ⁻¹) * ‖ξ n‖ :=
+      mul_le_mul_of_nonneg_right (resSymbol_mul_abs_le hδ0 hδ n) (norm_nonneg _)
+    calc (|c n| * |resSymbol c lam n| * ‖ξ n‖) ^ 2
+        ≤ ((1 + |lam| * δ⁻¹) * ‖ξ n‖) ^ 2 := pow_le_pow_left₀ (by positivity) hb 2
+      _ = (1 + |lam| * δ⁻¹) ^ 2 * ‖ξ n‖ ^ 2 := by ring
+  refine Summable.of_nonneg_of_le (fun n => by positivity) hpt ?_
+  exact hξ.mul_left ((1 + |lam| * δ⁻¹) ^ 2)
+
+/-- **The resolvent is a right inverse on the domain of the operator**: `(T − lam) R = 1` applied to
+an arbitrary state. -/
+theorem diagUnb_diagRes {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) (ξ : L2 d) :
+    diagUnb c (diagRes c lam δ hδ0 hδ ξ) (memDom_diagRes hδ0 hδ ξ)
+        - (lam : ℂ) • diagRes c lam δ hδ0 hδ ξ = ξ := by
+  apply lp.ext
+  funext n
+  rw [lp.coeFn_sub, Pi.sub_apply, diagUnb_apply, lp.coeFn_smul, Pi.smul_apply, smul_eq_mul,
+    diagRes_apply]
+  rw [resSymbol_cast n]
+  have hne' := resSymbol_ne hδ0 hδ n
+  field_simp
+
+/-- **The resolvent is a left inverse on the domain of the operator**: `R (T − lam) = 1`. -/
+theorem diagRes_left {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) {x : L2 d} (hx : memDom c x) :
+    diagRes c lam δ hδ0 hδ (diagUnb c x hx - (lam : ℂ) • x) = x := by
+  apply lp.ext
+  funext n
+  rw [diagRes_apply, lp.coeFn_sub, Pi.sub_apply, diagUnb_apply, lp.coeFn_smul, Pi.smul_apply,
+    smul_eq_mul]
+  rw [resSymbol_cast n]
+  have hne' := resSymbol_ne hδ0 hδ n
+  field_simp
+
+/-- **The gap of the unbounded operator on its domain.**  Both inverse identities give
+`‖x‖ ≤ δ⁻¹‖(T − lam)x‖` on the domain, which is the separation with the *same* constant `δ` that
+bounds the reciprocal symbol — no boundedness of `T` is used anywhere. -/
+theorem gapAt_diagUnb {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n, δ ≤ |c n - lam|) {x : L2 d} (hx : memDom c x) :
+    δ * ‖x‖ ≤ ‖diagUnb c x hx - (lam : ℂ) • x‖ := by
+  have h1 : ‖x‖ ≤ δ⁻¹ * ‖diagUnb c x hx - (lam : ℂ) • x‖ := by
+    have he : diagRes c lam δ hδ0 hδ (diagUnb c x hx - (lam : ℂ) • x) = x :=
+      diagRes_left hδ0 hδ hx
+    calc ‖x‖ = ‖diagRes c lam δ hδ0 hδ (diagUnb c x hx - (lam : ℂ) • x)‖ := by rw [he]
+      _ ≤ δ⁻¹ * ‖diagUnb c x hx - (lam : ℂ) • x‖ := norm_diagRes_le hδ0 hδ _
+  rw [← div_eq_inv_mul] at h1
+  rw [le_div_iff₀ hδ0] at h1
+  linarith
+
+/-- The degree symbol's distance from the window centre `d/2` is exactly `d/2`. -/
+theorem degreeSep (_hd : 0 < d) :
+    ∀ n : Idx d, closedDegreeSymbol (d := d) n = 0
+      ∨ 1 * (d : ℝ) ≤ closedDegreeSymbol (d := d) n := by
+  intro n
+  refine Or.inr ?_
+  rw [one_mul]
+  have hdef : closedDegreeSymbol (d := d) n = (∑ i : Fin d, ((n i : ℝ))) + (d : ℝ) := rfl
+  have hsum : 0 ≤ ∑ i : Fin d, ((n i : ℝ)) := Finset.sum_nonneg fun i _ => by positivity
+  rw [hdef]
+  linarith
+
+/-- **The degree symbol's operator is gapped on its domain by `d/2` at `d/2`** — the limit of §15's
+box gaps, now for the unbounded operator itself. -/
+theorem gapAt_diagUnb_degree (hd : 0 < d) {x : L2 d}
+    (hx : memDom (closedDegreeSymbol (d := d)) x) :
+    ((d : ℝ) / 2) * ‖x‖ ≤ ‖diagUnb (closedDegreeSymbol (d := d)) x hx
+      - ((((d : ℝ) / 2 : ℝ)) : ℂ) • x‖ := by
+  have hdR : (0 : ℝ) < (d : ℝ) := by exact_mod_cast hd
+  have hpos : (0 : ℝ) < (d : ℝ) / 2 := by linarith
+  have hδ : ∀ n : Idx d, (d : ℝ) / 2 ≤ |closedDegreeSymbol (d := d) n - (d : ℝ) / 2| := by
+    intro n
+    have hval : closedDegreeSymbol (d := d) n = (∑ i : Fin d, ((n i : ℝ))) + (d : ℝ) := rfl
+    have hsum : 0 ≤ ∑ i : Fin d, ((n i : ℝ)) := Finset.sum_nonneg fun i _ => by positivity
+    rw [hval, abs_of_nonneg (by linarith)]
+    linarith
+  exact gapAt_diagUnb hpos hδ hx
+
+/-! ## 18. The resolvent-level form: §5.2's hypothesis, discharged
+
+`softmodes.md` §5.2 writes the uniform gap as *conditional* on a strong-resolvent limit
+(`gapAt_of_strongResolvent_limit`), and §14 discharged it through strong convergence of the
+operators instead.  This section proves the resolvent form itself, so that hypothesis is discharged
+literally: the approximating resolvents are the reciprocal-symbol operators `diagRes`, their uniform
+bound `‖ξ‖/δ` is `norm_diagRes_le'`, they converge pointwise because the symbols converge and are
+uniformly bounded (the box-tail argument, now with the tail of `‖ξ n‖²`), and the limit's left
+inverse is `diagRes_left_bounded`.  Every input of the transfer lemma is supplied: nothing about
+strong-resolvent convergence is assumed.  And because `diagRes` makes sense for *any* symbol, the
+same convergence holds for the degree cut-offs, whose limit is the resolvent of §17's unbounded
+operator rather than of a bounded one.
+-/
+
+/-- A vanishing squared norm gives convergence. -/
+theorem tendsto_of_tendsto_norm_sq {u : ℕ → L2 d} {v : L2 d}
+    (h : Tendsto (fun m => ‖u m - v‖ ^ 2) atTop (𝓝 0)) : Tendsto u atTop (𝓝 v) := by
+  have hroot : Tendsto (fun m => Real.sqrt (‖u m - v‖ ^ 2)) atTop (𝓝 0) := by
+    have hs := (Real.continuous_sqrt.tendsto (0 : ℝ)).comp h
+    rwa [Real.sqrt_zero] at hs
+  have hnorm : Tendsto (fun m => ‖u m - v‖) atTop (𝓝 0) := by
+    convert hroot using 2 with m
+    exact (Real.sqrt_sq (norm_nonneg _)).symm
+  rw [tendsto_iff_norm_sub_tendsto_zero]
+  exact hnorm
+
+/-- The window centre `δ` — half the gap — keeps its distance from the separated symbol. -/
+theorem resSymbol_sep_ge {c : Idx d → ℝ} {δ : ℝ} (hpos : 0 < δ)
+    (hsep : ∀ n, c n = 0 ∨ 2 * δ ≤ c n) : ∀ n : Idx d, δ ≤ |c n - δ| := by
+  intro n
+  rcases hsep n with h | h
+  · rw [h, show (0 : ℝ) - δ = -δ by ring, abs_neg, abs_of_nonneg hpos.le]
+  · rw [abs_of_nonneg (by linarith : 0 ≤ c n - δ)]
+    linarith
+
+/-- The same for a cut-off: the box bound does not move the symbol's distance. -/
+theorem resSymbol_cutoff_sep_ge {c : Idx d → ℝ} {δ : ℝ} (hpos : 0 < δ)
+    (hsep : ∀ n, c n = 0 ∨ 2 * δ ≤ c n) (s : Finset (Idx d)) :
+    ∀ n : Idx d, δ ≤ |(if n ∈ s then c n else 0) - δ| := by
+  intro n
+  by_cases hn : n ∈ s
+  · rw [if_pos hn]
+    exact resSymbol_sep_ge hpos hsep n
+  · rw [if_neg hn, show (0 : ℝ) - δ = -δ by ring, abs_neg, abs_of_nonneg hpos.le]
+
+/-- Two diagonal resolvents differ by multiplication by the difference of their reciprocal
+symbols. -/
+theorem diagRes_sub_apply {c₁' c₂' : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (h1 : ∀ n, δ ≤ |c₁' n - lam|) (h2 : ∀ n, δ ≤ |c₂' n - lam|) (ξ : L2 d) (n : Idx d) :
+    ((diagRes c₁' lam δ hδ0 h1 ξ - diagRes c₂' lam δ hδ0 h2 ξ : L2 d) : Idx d → ℂ) n
+      = (((resSymbol c₁' lam n - resSymbol c₂' lam n : ℝ)) : ℂ) * ξ n := by
+  rw [lp.coeFn_sub, Pi.sub_apply, diagRes_apply (c := c₁') hδ0 h1,
+    diagRes_apply (c := c₂') hδ0 h2]
+  push_cast
+  ring
+
+/-- **The cut-off resolvents are within `2δ⁻¹` times the state's tail of the limit resolvent.**
+The symbols agree on the box; off it both are bounded by `δ⁻¹`, so the difference is too. -/
+theorem norm_diagRes_cutoff_sub_le {c : Idx d → ℝ} {δ : ℝ} (hpos : 0 < δ)
+    (hsep : ∀ n, c n = 0 ∨ 2 * δ ≤ c n) (s : Finset (Idx d)) (ξ : L2 d) :
+    ‖diagRes (fun n => if n ∈ s then c n else 0) δ δ hpos
+          (resSymbol_cutoff_sep_ge hpos hsep s) ξ
+        - diagRes c δ δ hpos (resSymbol_sep_ge hpos hsep) ξ‖ ^ 2
+      ≤ (2 * δ⁻¹) ^ 2 * ∑' n : Idx d, if n ∈ s then 0 else ‖ξ n‖ ^ 2 := by
+  set B := diagRes c δ δ hpos (resSymbol_sep_ge hpos hsep) with hB
+  have hpt : ∀ n : Idx d,
+      ‖((diagRes (fun n => if n ∈ s then c n else 0) δ δ hpos
+            (resSymbol_cutoff_sep_ge hpos hsep s) ξ - B ξ : L2 d) : Idx d → ℂ) n‖ ^ 2
+        ≤ (2 * δ⁻¹) ^ 2 * (if n ∈ s then 0 else ‖ξ n‖ ^ 2) := by
+    intro n
+    rw [hB, diagRes_sub_apply hpos (resSymbol_cutoff_sep_ge hpos hsep s)
+      (resSymbol_sep_ge hpos hsep) ξ n]
+    by_cases hn : n ∈ s
+    · have hz : resSymbol (fun m => if m ∈ s then c m else 0) δ n - resSymbol c δ n = 0 := by
+        simp [resSymbol, hn]
+      rw [hz, if_pos hn]
+      simp
+    · have hb_s := resSymbol_abs_le hpos (resSymbol_cutoff_sep_ge hpos hsep s) n
+      have hb := resSymbol_abs_le hpos (resSymbol_sep_ge hpos hsep) n
+      have hdiff : |resSymbol (fun m => if m ∈ s then c m else 0) δ n - resSymbol c δ n|
+          ≤ 2 * δ⁻¹ := by
+        have h := abs_add_le (resSymbol (fun m => if m ∈ s then c m else 0) δ n)
+          (-(resSymbol c δ n))
+        have h' : |resSymbol (fun m => if m ∈ s then c m else 0) δ n - resSymbol c δ n|
+            ≤ |resSymbol (fun m => if m ∈ s then c m else 0) δ n| + |resSymbol c δ n| := by
+          simpa [sub_eq_add_neg] using h
+        linarith
+      rw [if_neg hn]
+      have hnorm : ‖((resSymbol (fun m => if m ∈ s then c m else 0) δ n
+            - resSymbol c δ n : ℝ) : ℂ) * ξ n‖
+          = |resSymbol (fun m => if m ∈ s then c m else 0) δ n - resSymbol c δ n|
+              * ‖ξ n‖ := by
+        rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+      rw [hnorm]
+      calc (|resSymbol (fun m => if m ∈ s then c m else 0) δ n - resSymbol c δ n|
+            * ‖ξ n‖) ^ 2
+          ≤ ((2 * δ⁻¹) * ‖ξ n‖) ^ 2 :=
+            pow_le_pow_left₀ (by positivity) (mul_le_mul_of_nonneg_right hdiff (norm_nonneg _)) 2
+        _ = (2 * δ⁻¹) ^ 2 * ‖ξ n‖ ^ 2 := by ring
+  have htail : Summable fun n : Idx d => if n ∈ s then 0 else ‖ξ n‖ ^ 2 :=
+    Summable.of_nonneg_of_le (fun n => by positivity)
+      (fun n => by by_cases hn : n ∈ s <;> simp [hn]) (summable_normSq ξ)
+  rw [norm_sq_eq_tsum]
+  calc ∑' n : Idx d,
+        ‖((diagRes (fun n => if n ∈ s then c n else 0) δ δ hpos
+            (resSymbol_cutoff_sep_ge hpos hsep s) ξ - B ξ : L2 d) : Idx d → ℂ) n‖ ^ 2
+      ≤ ∑' n : Idx d, (2 * δ⁻¹) ^ 2 * (if n ∈ s then 0 else ‖ξ n‖ ^ 2) :=
+        Summable.tsum_le_tsum hpt (summable_normSq _) (htail.mul_left _)
+    _ = (2 * δ⁻¹) ^ 2 * ∑' n : Idx d, if n ∈ s then 0 else ‖ξ n‖ ^ 2 := tsum_mul_left
+
+/-- **The cut-off resolvents converge pointwise to the limit resolvent.** -/
+theorem tendsto_diagRes_cutoff {c : Idx d → ℝ} {δ : ℝ} (hpos : 0 < δ)
+    (hsep : ∀ n, c n = 0 ∨ 2 * δ ≤ c n) (ξ : L2 d) :
+    Tendsto (fun m => diagRes (fun n => if n ∈ coordBox d m then c n else 0) δ δ hpos
+        (resSymbol_cutoff_sep_ge hpos hsep (coordBox d m)) ξ) atTop
+      (𝓝 (diagRes c δ δ hpos (resSymbol_sep_ge hpos hsep) ξ)) := by
+  refine tendsto_of_tendsto_norm_sq ?_
+  refine squeeze_zero (fun m => by positivity)
+    (fun m => norm_diagRes_cutoff_sub_le hpos hsep (coordBox d m) ξ) ?_
+  have htail := tendsto_tail_of_summable (summable_normSq ξ)
+  simpa using htail.const_mul ((2 * δ⁻¹) ^ 2)
+
+/-- **The resolvent is a left inverse of the bounded operator's `T − lam`.** -/
+theorem diagRes_left_bounded {c : Idx d → ℝ} {M lam δ : ℝ} (hM : ∀ n, |c n| ≤ M)
+    (hδ0 : 0 < δ) (hδ : ∀ n, δ ≤ |c n - lam|) (x : L2 d) :
+    diagRes c lam δ hδ0 hδ (diagCLM c hM x - (lam : ℂ) • x) = x := by
+  apply lp.ext
+  funext n
+  rw [diagRes_apply, lp.coeFn_sub, Pi.sub_apply, diagCLM_apply, lp.coeFn_smul, Pi.smul_apply,
+    smul_eq_mul, resSymbol_cast n]
+  have hne' := resSymbol_ne hδ0 hδ n
+  field_simp
+
+/-- **Phase 5.2's hypothesis discharged**: the uniform gap at the cut-off-free constant, proved
+through the strong-resolvent mode with every hypothesis supplied — the resolvent bound, the
+pointwise convergence of the cut-off resolvents, and the limit's left inverse.  The only hypothesis
+left is the analytic separation of the symbol, which is what `softmodes.md` §5.2 derives from the
+form bound. -/
+theorem gapAt_cutoffLimit_resolvent {c : Idx d → ℝ} {Δ c₁ : ℝ} (hc₁ : 0 < c₁) (hΔ : 0 < Δ)
+    (hsep : ∀ n, c n = 0 ∨ c₁ * Δ ≤ c n) {M : ℝ} (hM : ∀ n, |c n| ≤ M) :
+    GapAt (diagCLM c hM) (c₁ * Δ / 2) (c₁ * Δ / 2) := by
+  have hpos : 0 < c₁ * Δ / 2 := by
+    have h : 0 < c₁ * Δ := mul_pos hc₁ hΔ
+    linarith
+  have hsep2 : ∀ n, c n = 0 ∨ 2 * (c₁ * Δ / 2) ≤ c n := by
+    intro n
+    rcases hsep n with h | h
+    · exact Or.inl h
+    · exact Or.inr (by linarith)
+  exact gapAt_of_strongResolvent_limit (B := diagCLM c hM)
+    (R := diagRes c (c₁ * Δ / 2) (c₁ * Δ / 2) hpos (resSymbol_sep_ge hpos hsep2))
+    (Rm := fun m => diagRes (fun n => if n ∈ coordBox d m then c n else 0) (c₁ * Δ / 2)
+      (c₁ * Δ / 2) hpos (resSymbol_cutoff_sep_ge hpos hsep2 (coordBox d m)))
+    hpos
+    (fun m ξ => norm_diagRes_le' hpos (resSymbol_cutoff_sep_ge hpos hsep2 (coordBox d m)) ξ)
+    (fun ξ => tendsto_diagRes_cutoff hpos hsep2 ξ)
+    (fun x => diagRes_left_bounded hM hpos (resSymbol_sep_ge hpos hsep2) x)
+
+/-- The spectral hole, in the same resolvent mode. -/
+theorem notMem_spectrum_cutoffLimit_resolvent {c : Idx d → ℝ} {Δ c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hΔ : 0 < Δ) (hsep : ∀ n, c n = 0 ∨ c₁ * Δ ≤ c n) {M : ℝ} (hM : ∀ n, |c n| ≤ M) :
+    (((c₁ * Δ / 2 : ℝ)) : ℂ) ∉ spectrum ℂ (diagCLM c hM) := by
+  have hpos : 0 < c₁ * Δ / 2 := by
+    have h : 0 < c₁ * Δ := mul_pos hc₁ hΔ
+    linarith
+  exact notMem_spectrum_of_gapAt (diagCLM_isSelfAdjoint hM) hpos
+    (gapAt_cutoffLimit_resolvent hc₁ hΔ hsep hM)
+
+/-- The degree symbol separated at the *gap* `d/2`: `0` or at least `2·(d/2) = d`. -/
+theorem degreeSepTwo (hd : 0 < d) :
+    ∀ n : Idx d, closedDegreeSymbol (d := d) n = 0
+      ∨ 2 * ((d : ℝ) / 2) ≤ closedDegreeSymbol (d := d) n := by
+  intro n
+  rcases degreeSep hd n with h | h
+  · exact Or.inl h
+  · have h' : (d : ℝ) ≤ closedDegreeSymbol (d := d) n := by simpa using h
+    exact Or.inr (by linarith)
+
+/-- **The degree cut-offs' resolvents converge to the unbounded operator's resolvent**, i.e. the
+§15 box gaps have a limit at the resolvent level even though the limit operator is unbounded. -/
+theorem tendsto_diagRes_cutoff_degree (hd : 0 < d) (hpos : (0 : ℝ) < (d : ℝ) / 2)
+    (ξ : L2 d) :
+    Tendsto (fun m => diagRes (fun n => if n ∈ coordBox d m then closedDegreeSymbol (d := d) n
+        else 0) ((d : ℝ) / 2) ((d : ℝ) / 2) hpos
+        (resSymbol_cutoff_sep_ge hpos (degreeSepTwo hd) (coordBox d m)) ξ) atTop
+      (𝓝 (diagRes (closedDegreeSymbol (d := d)) ((d : ℝ) / 2) ((d : ℝ) / 2) hpos
+        (resSymbol_sep_ge hpos (degreeSepTwo hd)) ξ)) :=
+  tendsto_diagRes_cutoff hpos (degreeSepTwo hd) ξ
 
 end DiagonalOperator
 

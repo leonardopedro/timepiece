@@ -921,11 +921,22 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     §16 states Kato–Rellich at a relative bound below one: `katoRellich_gap` turns
     `‖K x‖ ≤ a‖A x‖ + b‖x‖` with `a < 1` into self-adjointness plus a gap
     `(1 − a)dd − (a|lam| + b)`, and `cutoffLimit_interacting` applies it to §14's limit.
-  - *What is still open.*  The limit side of two things: the convergence proved in §14 is for a
-    **bounded** symbol, and the unbounded degree symbol has no limit operator in this module (its
-    cut-offs are certified box by box, but the unbounded multiplication operator on its form domain
-    is not constructed), and Kato–Rellich is proved in the operator mode, not as the self-adjointness
-    of an unbounded form sum — the corpus has the relative-bound certificate
+  - *the limit operator, and the resolvent mode (2026-11-05).*  §17 constructs the operator the
+    cut-offs are cut-offs *of*: multiplication by the unbounded symbol on the states with summable
+    weighted squares.  It is symmetric on that domain, and its resolvent is a **bounded** operator
+    (`‖R ξ‖ ≤ δ⁻¹‖ξ‖`) because `(c n − lam)⁻¹` is bounded once the symbol keeps its distance from
+    `lam`; both inverse identities hold, so the gap holds on the domain and the degree symbol's
+    operator is gapped by `d/2` at `d/2` — the same constant as the box gaps of §15.  §18 then
+    discharges §5.2's hypothesis *literally*: the cut-off resolvents are the reciprocal-symbol
+    operators, they converge pointwise to the limit resolvent (the symbols agree on the box and are
+    both bounded off it), and with the limit's left inverse the strong-resolvent transfer lemma
+    yields the gap and the spectral hole with **no hypothesis remaining**.  The same convergence
+    holds for the degree cut-offs, whose limit is the unbounded resolvent.
+  - *What is still open.*  Self-adjointness of the unbounded operator as a statement about closed
+    operators (`LinearPMap`), and with it any `spectrum` conclusion for the unbounded case — the
+    domain is presented as a predicate with the two resolvent identities, which is what the gap
+    needs but is weaker than self-adjointness.  Kato–Rellich is proved in the operator mode, not as
+    the self-adjointness of an unbounded form sum — the corpus has the relative-bound certificate
     (`closed_farisLavine_domination`) but no form→operator representation theorem.  Also open: the
     identification of the Yang–Mills one-particle operator with the abstract `T`, and the
     Källén–Lehmann/clustering step that would read the gap off the Euclidean two-point function.
