@@ -46,25 +46,37 @@ direction is equivalent to exponential decay in the *spatial* direction at the s
 * **`genForm_ge_of_contraction`** and **`genForm_gap_of_clustering`** — for every `ε ∈ (0,1)`
   there is `τ > 0` with `m(1 − ε)‖F‖² ≤ (‖F‖² − ⟨F, T_τ F⟩)/τ`: the clustering rate `m` is the
   bottom of the *generator's* form spectrum off the vacuum, which is the `SpectralSeparation`
-  hypothesis of the Temple/SIRK chain in bounded form.
+  hypothesis of the Temple/SIRK chain in bounded form;
+* §6, the Källén–Lehmann step in the other direction: `klCorr w lam τ = ∑' k, w k e^{−τ lam k}` is
+  the two-point function of an atomic spectral measure; **`klCorr_decay_of_gap`** says masses above
+  `m` decay it at rate `m` with the *sharp* constant `∑' w`, **`le_mass_of_klCorr_decay`** says
+  conversely that decay at rate `m` forces every positively weighted mass to be at least `m` — so
+  the rate *is* the bottom of the mass spectrum — and **`schwingerClustering_of_kl`** turns such a
+  representation of every connected correlator into `SchwingerClustering ω T m C`.  The clustering
+  hypothesis of §1 is then a consequence of the gap, not an independent input.
 
 ## Honest boundary
 
 The exponential clustering hypothesis is **not** proved: it is the Euclidean mass-gap input
 (Bałaban's infrared analysis / the cluster expansion), and `cftproof.md` lists it as the open
 analytic content of Phase 5.  What is proved here is the *equivalence machinery*: clustering
-⇔ decay of the transfer operator off the vacuum, and temporal ⇔ spatial decay under `O(4)`
-invariance.  Two further things are not claimed: the identification of the decay rate with the bottom of the spectrum via Källén–Lehmann, which
-needs the physical Hilbert space's spectral measure, and the identification of the bounded
-separation proved in §4 with a `SpectralSeparation` of the *unbounded* generator `H_phys`
-itself (needs the generator, which is not constructed).  The spectral theorem
-itself is **not** missing: `BookProof.ChapterSpectralMultiplication` /
-`ChapterSpectralDirectSum` give it for bounded normal operators, `ChapterUnboundedSpectralModel`
-for unbounded self-adjoint ones (Cayley route), `ChapterStoneConverse` gives the generator of a
-unitary group, and `physlib/` carries the same theorem (`SelfAdjointSpectralTheorem.lean`,
-`CayleySpectralData/SpecTheorem.lean`).  On the bounded side this file's output is consumed by
-`BookProof.TempleContinuumGap`, which turns a separation into a quantitative gap and carries it
-across an operator-norm limit.
+⇔ decay of the transfer operator off the vacuum, temporal ⇔ spatial decay under `O(4)`
+invariance, and the Källén–Lehmann direction of §6 — the rate is the bottom of the mass spectrum,
+and a gap in the masses gives clustering.
+
+The Källén–Lehmann step is stated for **atomic** spectral measures, which is what the diagonal
+models of this repository produce (`BookProof.YangMillsFormClosureNonDiagonal` §20–§22: the
+spectrum is the closure of a symbol's range on an `ℓ²` basis).  Not claimed: the non-atomic case,
+where the physical spectral measure `dρ(λ)` and the measurable functional calculus producing
+`e^{−τH_phys}` from it are needed and neither is constructed; nor the identification of the bounded
+separation proved in §4 with a `SpectralSeparation` of the *unbounded* generator `H_phys` itself
+(needs the generator).  The spectral theorem itself is **not** missing:
+`BookProof.ChapterSpectralMultiplication` / `ChapterSpectralDirectSum` give it for bounded normal
+operators, `ChapterUnboundedSpectralModel` for unbounded self-adjoint ones (Cayley route),
+`ChapterStoneConverse` gives the generator of a unitary group, and `physlib/` carries the same
+theorem (`SelfAdjointSpectralTheorem.lean`, `CayleySpectralData/SpecTheorem.lean`).  On the bounded
+side this file's output is consumed by `BookProof.TempleContinuumGap`, which turns a separation
+into a quantitative gap and carries it across an operator-norm limit.
 -/
 
 namespace BookProof.OSReconstruction
@@ -394,6 +406,152 @@ theorem genForm_gap_of_clustering {ω : LinearFunctional}
           mul_le_mul_of_nonneg_right hsqrt (by positivity)
         nlinarith
     _ = Real.exp (-(m * τ)) * osNorm ω G := one_mul _
+
+/-! ## 6. Källén–Lehmann: the decay rate is the bottom of the mass spectrum
+
+§2–§4 took clustering as input and read a spectral separation off it.  This section supplies the
+other direction — the one `cftproof.md` Phase 5 lists as the Källén–Lehmann input: *why* a gap in
+the spectrum produces exponential clustering, and *why* the rate is exactly the bottom of the mass
+spectrum rather than a number to be fitted.
+
+The Källén–Lehmann representation of a two-point function is a spectral measure `dρ(λ)` integrated
+against the Euclidean kernel `e^{−τλ}`.  The diagonal models of this repository — `diagUnb` in
+`BookProof.YangMillsFormClosureNonDiagonal`, whose spectrum is the closure of its symbol's range —
+have *atomic* spectral measures, so the representation is a weighted sum:
+
+`klCorr w lam τ = ∑' k, w k · e^{−τ lam k}`.
+
+Both directions are proved for that form, and they are exact:
+
+* **`klCorr_decay_of_gap`** — masses bounded below by `m` decay the two-point function at rate `m`
+  with the **sharp** constant `∑' w`, with no loss: the constant is the total spectral weight, not a
+  norm bound;
+* **`le_mass_of_klCorr_decay`** — conversely, decay at rate `m` forces every *mass with positive
+  weight* to be at least `m`: a mass below the rate would make the rescaled ratio
+  `w k₀ e^{(lam − m)τ}` grow without bound, contradicting the bound.  So the largest admissible rate
+  is the bottom of the mass support — the identification `cftproof.md` asks for;
+* **`schwingerClustering_of_kl`** — the transfer: a KL representation of every connected
+  two-point function, with masses above `m` and total weight bounded by `C ‖F‖ ‖G‖`, *is*
+  `SchwingerClustering ω T m C`.  The clustering hypothesis of §1 is therefore not an extra
+  assumption when the spectral measure is known; it is a consequence of the gap.
+
+What is still not claimed: the *physical* spectral measure is not atomic, and the measurable
+functional calculus that would turn a general `dρ(λ)` into `e^{−τH}` for the emergent Hamiltonian is
+not constructed (`OSReconstruction.Hamiltonian` records why: `H_phys` itself is not built).  The
+section is therefore the KL step for the diagonal spectral models used in this repository, stated
+at that strength.
+-/
+
+section KallenLehmann
+
+variable {ι : Type*}
+
+/-- **An atomic Källén–Lehmann two-point function**: the spectral weight `w` over the masses `lam`,
+integrated against the Euclidean kernel `e^{−τλ}`. -/
+noncomputable def klCorr (w lam : ι → ℝ) (τ : ℝ) : ℝ :=
+  ∑' k, w k * Real.exp (-(τ * lam k))
+
+theorem klCorr_nonneg {w lam : ι → ℝ} (hw : ∀ k, 0 ≤ w k) (τ : ℝ) : 0 ≤ klCorr w lam τ :=
+  tsum_nonneg fun k => mul_nonneg (hw k) (Real.exp_nonneg _)
+
+/-- The spectral summands are summable as soon as the weight and the masses are, because
+`e^{−τλ} ≤ 1` for nonnegative `τ` and `λ`. -/
+theorem summable_klCorr {w lam : ι → ℝ} (hw : ∀ k, 0 ≤ w k) (hws : Summable w)
+    (hlam0 : ∀ k, 0 ≤ lam k) {τ : ℝ} (hτ : 0 ≤ τ) :
+    Summable fun k => w k * Real.exp (-(τ * lam k)) := by
+  refine Summable.of_nonneg_of_le (fun k => mul_nonneg (hw k) (Real.exp_nonneg _))
+    (fun k => ?_) hws
+  have h1 : Real.exp (-(τ * lam k)) ≤ 1 := by
+    rw [← Real.exp_zero]
+    refine Real.exp_le_exp.mpr ?_
+    have : 0 ≤ τ * lam k := mul_nonneg hτ (hlam0 k)
+    linarith
+  calc w k * Real.exp (-(τ * lam k)) ≤ w k * 1 := mul_le_mul_of_nonneg_left h1 (hw k)
+    _ = w k := mul_one _
+
+/-- **A gap in the masses decays the two-point function at the gap's rate**, with the sharp
+constant `∑' w`: the spectral weight above the gap is weighted by `e^{−mτ}` and no more. -/
+theorem klCorr_decay_of_gap {w lam : ι → ℝ} {m : ℝ} (hw : ∀ k, 0 ≤ w k)
+    (hlam0 : ∀ k, 0 ≤ lam k) (hg : ∀ k, m ≤ lam k) (hws : Summable w) {τ : ℝ} (hτ : 0 ≤ τ) :
+    klCorr w lam τ ≤ Real.exp (-(m * τ)) * ∑' k, w k := by
+  have hexp : ∀ k, Real.exp (-(τ * lam k)) ≤ Real.exp (-(m * τ)) := by
+    intro k
+    refine Real.exp_le_exp.mpr ?_
+    have hle : τ * m ≤ τ * lam k := mul_le_mul_of_nonneg_left (hg k) hτ
+    linarith
+  have hf : Summable fun k => w k * Real.exp (-(τ * lam k)) := summable_klCorr hw hws hlam0 hτ
+  have hsum : Summable fun k => w k * Real.exp (-(m * τ)) := hws.mul_right _
+  calc klCorr w lam τ = ∑' k, w k * Real.exp (-(τ * lam k)) := rfl
+    _ ≤ ∑' k, w k * Real.exp (-(m * τ)) :=
+        hf.tsum_le_tsum (fun k => mul_le_mul_of_nonneg_left (hexp k) (hw k)) hsum
+    _ = Real.exp (-(m * τ)) * ∑' k, w k := by rw [tsum_mul_right, mul_comm]
+
+/-- **No mass below the decay rate has positive weight** — the converse of
+`klCorr_decay_of_gap`, and the reason the rate *is* the bottom of the spectrum rather than a bound
+for it.  A mass `lam k₀ < m` with `w k₀ > 0` makes the rescaled ratio
+`w k₀ e^{(lam k₀ − m)τ}` diverge, contradicting any exponential bound. -/
+theorem le_mass_of_klCorr_decay {w lam : ι → ℝ} {m C : ℝ} (hw : ∀ k, 0 ≤ w k)
+    (hws : Summable w) (hlam0 : ∀ k, 0 ≤ lam k)
+    (hbound : ∀ τ : ℝ, 0 ≤ τ → klCorr w lam τ ≤ C * Real.exp (-(m * τ))) {k₀ : ι}
+    (hk₀ : 0 < w k₀) : m ≤ lam k₀ := by
+  by_contra hcon
+  push_neg at hcon
+  have hpos : 0 < m - lam k₀ := by linarith
+  -- the rescaled bound tends to zero
+  have hlim : Tendsto (fun τ : ℝ => C * Real.exp (τ * (lam k₀ - m))) atTop (𝓝 0) := by
+    have harg : Tendsto (fun τ : ℝ => τ * (m - lam k₀)) atTop atTop := by
+      have h1 : Tendsto (fun τ : ℝ => (m - lam k₀) * τ) atTop atTop :=
+        Tendsto.const_mul_atTop hpos tendsto_id
+      exact h1.congr' (Eventually.of_forall fun τ => mul_comm _ _)
+    have h2 : Tendsto (fun τ : ℝ => C * Real.exp (-(τ * (m - lam k₀)))) atTop (𝓝 0) := by
+      have h := (Real.tendsto_exp_neg_atTop_nhds_zero.comp harg).const_mul C
+      simpa using h
+    refine h2.congr' (Eventually.of_forall fun τ => ?_)
+    have : -(τ * (m - lam k₀)) = τ * (lam k₀ - m) := by ring
+    rw [this]
+  obtain ⟨τ, hlt, hτ0⟩ := (hlim.eventually (Iio_mem_nhds hk₀)).and
+    (eventually_ge_atTop (0 : ℝ)) |>.exists
+  -- the single term is bounded by the whole spectral sum
+  have hsm := summable_klCorr hw hws hlam0 hτ0
+  have hsingle : w k₀ * Real.exp (-(τ * lam k₀)) ≤ klCorr w lam τ := by
+    have h := hsm.sum_le_tsum {k₀} (fun i _ => mul_nonneg (hw i) (Real.exp_nonneg _))
+    simpa [klCorr] using h
+  have hkey : w k₀ * Real.exp (-(τ * lam k₀)) ≤ C * Real.exp (-(m * τ)) :=
+    hsingle.trans (hbound τ hτ0)
+  -- divide by the positive kernel value
+  have hkpos : 0 < Real.exp (-(τ * lam k₀)) := Real.exp_pos _
+  have hdiv : w k₀ ≤ C * Real.exp (τ * (lam k₀ - m)) := by
+    have hsplit : w k₀ = (w k₀ * Real.exp (-(τ * lam k₀))) / Real.exp (-(τ * lam k₀)) := by
+      field_simp
+    rw [hsplit]
+    refine (div_le_iff₀ hkpos).mpr ?_
+    have hexp : (C * Real.exp (τ * (lam k₀ - m))) * Real.exp (-(τ * lam k₀))
+        = C * Real.exp (-(m * τ)) := by
+      rw [mul_assoc, ← Real.exp_add, show τ * (lam k₀ - m) + -(τ * lam k₀) = -(m * τ) from by ring]
+    rw [hexp]
+    exact hkey
+  linarith
+
+/-- **Källén–Lehmann implies clustering.**  If every connected two-point function has an atomic KL
+representation whose masses are bounded below by `m` and whose total weight is at most
+`C ‖F‖ ‖G‖`, then the Schwinger functions cluster at mass `m` with constant `C`.  The clustering
+hypothesis of §1 is then a *consequence* of the gap, and the rate needs no fitting. -/
+theorem schwingerClustering_of_kl {ω : LinearFunctional} {T : TimeTranslation} {m C : ℝ}
+    (w : Observable → Observable → ι → ℝ) (lam : ι → ℝ)
+    (hw : ∀ F G k, 0 ≤ w F G k) (hws : ∀ F G, Summable (w F G))
+    (hlam0 : ∀ k, 0 ≤ lam k) (hm : ∀ k, m ≤ lam k)
+    (hrep : ∀ (F G : Observable) (τ : ℝ), 0 ≤ τ → |connectedCorr ω T F G τ| ≤ klCorr (w F G) lam τ)
+    (hC : ∀ F G, (∑' k, w F G k) ≤ C * osNorm ω F * osNorm ω G) :
+    SchwingerClustering ω T m C := by
+  intro F G τ hτ
+  calc |connectedCorr ω T F G τ| ≤ klCorr (w F G) lam τ := hrep F G τ hτ
+    _ ≤ Real.exp (-(m * τ)) * ∑' k, w F G k :=
+        klCorr_decay_of_gap (hw F G) hlam0 hm (hws F G) hτ
+    _ ≤ Real.exp (-(m * τ)) * (C * osNorm ω F * osNorm ω G) :=
+        mul_le_mul_of_nonneg_left (hC F G) (Real.exp_nonneg _)
+    _ = C * Real.exp (-(m * τ)) * osNorm ω F * osNorm ω G := by ring
+
+end KallenLehmann
 
 end
 

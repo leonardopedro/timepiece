@@ -102,9 +102,9 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   `cutoff_operator_uniform_gap` package the cut-off family: self-adjoint, gapped by `c₁Δ/2` at
   `c₁Δ/2`, with no cut-off in either constant.  `cutoff_operator_interacting` is the Faris–Lavine
   step in the bounded mode — adding a bounded self-adjoint interaction keeps self-adjointness and
-  costs exactly `‖K‖` of the gap.  The unbounded form sum is *not* covered: §6 gives the
-  relative-bound certificate, and the corpus has no theorem turning such a certificate into a
-  self-adjoint form sum;
+  costs exactly `‖K‖` of the gap.  The unbounded form sum is *not* covered at the level of a
+  relative bound below one: §6 gives the certificate, and §21 turns only a *bounded* symmetric
+  perturbation into a self-adjoint form sum;
 * §14 takes the cut-off family to its limit.  The family does **not** converge in operator norm
   (the symbol changes on an ever larger box), so the mode is strong convergence: `coordBox` is a
   monotone cofinal family of finite boxes, `tendsto_tail_coordBox` says the cut-off tail of a state
@@ -119,8 +119,9 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   `gapAt_cutoffDegreeSymbol` reads it for the degree symbol itself (`≥ d` everywhere, gap `d/2`);
 * §16 is Kato–Rellich at a relative bound below one: `katoRellich_gap` takes an operator bound
   `‖K x‖ ≤ a‖A x‖ + b‖x‖` with `a < 1` and returns self-adjointness plus a gap of
-  `(1 − a)dd − (a|lam| + b)`, and `cutoffLimit_interacting` applies it to §14's limit.  The
-  unbounded form-sum version is **not** proved — see §16's note;
+  `(1 − a)dd − (a|lam| + b)`, and  `cutoffLimit_interacting` applies it to §14's limit.  The
+  unbounded form-sum version is **not** proved at a relative bound below one — §21 covers the
+  bounded-perturbation (`a = 0`) case — see §16's note;
 * §17 is the operator the cut-offs are cut-offs *of*: multiplication by the **unbounded** symbol on
   `memDom c x = Summable (‖c n · x n‖²)`.  It is symmetric on that domain (`diagUnb_symmetric`), and
   its resolvent `diagRes` is a bounded operator with `‖diagRes ξ‖ ≤ δ⁻¹‖ξ‖` whenever the symbol
@@ -164,7 +165,27 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   the symbol's range — `δ`-separation gives `diagRes`, and conversely `1 = ‖single n 1‖` bounds
   `‖R‖ · |c n − lam|` from below.  Hence `notMem_inResolventSet_iff` (the `∀ δ > 0` criterion) and
   `closure_range_eq_compl_resolvent`: **the spectrum is the closure of the symbol's range**, for the
-  operator itself rather than for a chosen extension.
+  operator itself rather than for a chosen extension;
+* §21 supplies the **form→operator** direction that §5–§6 recorded as missing.  For a bounded
+  symmetric perturbation `K` the sum form `q_c + q_K` is the quadratic form of `T + K` on the
+  maximal domain: `diagSumLin_isSelfAdjointOn` proves self-adjointness by moving `K` across the
+  inner product and reusing §20's adjoint-domain computation
+  (`memDom_of_mem_adjointDomain_sum`), `re_inner_diagSum` is the form identity, `formDom` is the
+  sign-free form domain `∑ |c n| ‖x n‖² < ∞` containing the operator domain
+  (`memDom_subset_formDom`) and dense (`dense_formDom`), and `formSum_ge` reads the lower bound
+  `θ − σ`.  What §21 does not do is the `a < 1` branch of Kato–Rellich at form level, which needs
+  the operator relative bound rather than a bounded perturbation;
+* §22 identifies the **Yang–Mills one-particle operator**.  The form of record is diagonal
+  (`yangMillsForm_eq_diagonalForm`), so it has an explicit symbol
+  `yangMillsSymbol T g n = N(n) + N(n)² + rootCount T · zeroPoint g (parallelDegree T n)`, and
+  `yangMillsSymbol_form_eq_inner` / `yangMillsForm_closedForm_core` say that the closed form of
+  that symbol *is* `q_W` on the Gauss–polynomial core and is the quadratic form of
+  `diagUnb (yangMillsSymbol T g)` on the operator domain.  The operator is therefore the diagonal
+  one, not an abstract `T` that the form only dominates, and §20 gives its spectrum:
+  `yangMills_spectrum_subset` puts the vacuum energy `rootCount T · g/(2√2)` in the spectrum and
+  the whole spectrum in `{B} ∪ [B + 2, ∞)` (`yangMills_vacuum_mem_spectrum`,
+  `yangMills_gap_mem_spectrum`), so the gap above the vacuum is exactly `2` — the barrier shifts
+  the spectrum without changing its spacing.
 
 One caveat on what §7–§9 are about, since the repository does formalize the continuum: the
 derivative is an outer-Fock operator (`dGamma`, `momOp`), and a product of outer fields at a
@@ -4596,5 +4617,391 @@ theorem closure_range_eq_compl_resolvent (c : Idx d → ℝ) :
     exact hn
 
 end Spectrum
+
+/-! ## 21. The form of the operator: the unbounded form sum
+
+§20 went from the operator to its spectrum.  This section goes the other way, from a *form* to the
+operator that represents it — the step §6 of this chapter and the honest boundary of
+`OSSReconstruction`-style clustering both record as missing: the corpus has the relative-bound
+certificate `closed_farisLavine_domination` and no theorem turning it into a self-adjoint form
+sum.
+
+The form is the sum `q_c + q_K` of the diagonal form of the symbol `c` and a **bounded symmetric
+perturbation** `K` — exactly the shape a Faris–Lavine comparison produces.  The operator is
+`T + K` on the domain of `T`, because a bounded perturbation does not change the domain:
+
+* `diagSumLin_apply`, `diagSumLin_symmetric` — the operator and its symmetry;
+* **`diagSumLin_isSelfAdjointOn`** — it is self-adjoint on the *maximal* domain.  The
+  adjoint-domain computation of §20 repeats verbatim once `K` is moved across the inner product;
+* **`re_inner_diagSum`** — the quadratic form of the operator is the sum of the two forms, so the
+  operator *is* the form sum and not merely a form bound for it;
+* `formTsum`, `memDom_subset_formDom` — the operator's form is defined by a real (not `ℝ≥0∞`)
+  series on the **form domain** `∑ |c n| ‖x n‖² < ∞`, which contains the operator domain, is
+  dense there (`dense_formDom`), and is where §5's interacting form lives;
+* `formTsum_ge_of_le_symbol` and `formSum_ge` — the resulting form is bounded below by
+  `θ − σ`, the constant §5's bottom estimate produces.
+
+What is still not claimed, and is the residue of the KLMN theorem: that `q_c + q_K` is **closed** on
+the form domain (only that it is finite there) and that the operator domain is a form *core* in
+the form norm (only that it is dense in the ambient norm).  Both hold for a diagonal symbol (the
+truncations of §14 are the standard core argument) and neither is used by §22.
+-/
+
+section FormSum
+
+open BookProof.ChapterUnitaryTransport BookProof.ChapterStoneResolvent
+
+variable {c : Idx d → ℝ} {K : L2 d →L[ℂ] L2 d}
+
+/-- **The operator of the form sum**: `T + K` on the domain of `T`.  A bounded perturbation does not
+change the domain, which is why the sum form is represented on the maximal domain. -/
+noncomputable def diagSumLin (c : Idx d → ℝ) (K : L2 d →L[ℂ] L2 d) : diagSub c →ₗ[ℂ] L2 d :=
+  diagSubLin c + K.toLinearMap.comp (diagSub c).subtype
+
+@[simp] theorem diagSumLin_apply (K : L2 d →L[ℂ] L2 d) (x : diagSub c) :
+    diagSumLin c K x = diagUnb c x x.2 + K (x : L2 d) := rfl
+
+/-- **The form-sum operator is symmetric** — both terms are, and the cross terms agree because the
+sum is a sum of symmetric operators, not because of any commutator hypothesis. -/
+theorem diagSumLin_symmetric (K : L2 d →L[ℂ] L2 d)
+    (hK : ∀ x y : L2 d, inner ℂ (K x) y = inner ℂ x (K y)) :
+    IsSymmetricOn (diagSub c) (diagSumLin c K) := by
+  have hincl : ∀ x : diagSub c, diagSumLin c K x = diagUnb c x x.2 + K (x : L2 d) := fun _ => rfl
+  intro x y
+  rw [hincl x, hincl y, inner_add_left, inner_add_right, diagUnb_symmetric x.2 y.2,
+    hK (x : L2 d) (y : L2 d)]
+
+/-- **A bounded symmetric perturbation does not enlarge the adjoint domain.**  Moving `K` across the
+inner product turns the representing identity of the sum into the representing identity of `T` with
+the representing vector shifted by `K φ`; §20 then puts `φ` in the maximal domain.  This is the
+whole content of Kato–Rellich at relative bound `0`, read off the adjoint rather than off a
+resolvent. -/
+theorem memDom_of_mem_adjointDomain_sum (K : L2 d →L[ℂ] L2 d)
+    (hK : ∀ x y : L2 d, inner ℂ (K x) y = inner ℂ x (K y)) {phi : L2 d}
+    (hphi : phi ∈ adjointDomain (diagSub c) (diagSumLin c K)) : memDom c phi := by
+  obtain ⟨eta, heta⟩ := hphi
+  refine memDom_of_mem_adjointDomain ⟨eta - K phi, fun psi => ?_⟩
+  have hbase : ((diagSubLin c) psi : L2 d) = diagUnb c psi psi.2 := rfl
+  have h : inner ℂ (diagSumLin c K psi) phi = inner ℂ (psi : L2 d) eta := heta psi
+  have hexp : diagSumLin c K psi = diagUnb c psi psi.2 + K (psi : L2 d) := rfl
+  rw [hexp, inner_add_left, hK (psi : L2 d) phi] at h
+  rw [hbase, inner_sub_right]
+  linear_combination h
+
+/-- **The unbounded form sum is represented by a self-adjoint operator on the maximal domain.**
+`T + K` with `K` bounded and symmetric is self-adjoint on `diagSub c`, with no gap hypothesis, no
+relative bound below one, and no choice of extension.  The two inclusions are
+`memDom_of_mem_adjointDomain_sum` and the symmetry of `diagSumLin_symmetric`. -/
+theorem adjointDomain_diagSumLin (K : L2 d →L[ℂ] L2 d)
+    (hK : ∀ x y : L2 d, inner ℂ (K x) y = inner ℂ x (K y)) :
+    adjointDomain (diagSub c) (diagSumLin c K)
+      = ((diagSub c : Submodule ℂ (L2 d)) : Set (L2 d)) := by
+  ext phi
+  refine ⟨fun hphi => memDom_of_mem_adjointDomain_sum K hK hphi, fun hphi => ?_⟩
+  refine ⟨diagUnb c phi hphi + K phi, fun psi => ?_⟩
+  have hexp : diagSumLin c K psi = diagUnb c psi psi.2 + K (psi : L2 d) := rfl
+  rw [hexp, inner_add_left, hK (psi : L2 d) phi, diagUnb_symmetric psi.2 hphi, inner_add_right]
+
+theorem diagSumLin_isSelfAdjointOn (K : L2 d →L[ℂ] L2 d)
+    (hK : ∀ x y : L2 d, inner ℂ (K x) y = inner ℂ x (K y)) :
+    IsSelfAdjointOn (diagSub c) (diagSumLin c K) :=
+  adjointDomain_diagSumLin K hK
+
+/-- **The form-sum operator, bundled** — the input shape of the workspace's unbounded spectral
+theorem, as `diagUnbSelfAdjoint` is for §20. -/
+def diagSumSelfAdjoint (c : Idx d → ℝ) (K : L2 d →L[ℂ] L2 d)
+    (hK : ∀ x y : L2 d, inner ℂ (K x) y = inner ℂ x (K y)) : UnboundedSelfAdjoint (L2 d) where
+  domain := diagSub c
+  op := diagSumLin c K
+  denseDomain := dense_diagSub c
+  symmetric := diagSumLin_symmetric K hK
+  selfAdjoint := diagSumLin_isSelfAdjointOn K hK
+
+/-- **The quadratic form of the operator is the sum of the two forms.**  This is the identity that
+makes the self-adjoint operator a *representation* of the form sum rather than one more form bound
+for it. -/
+theorem re_inner_diagSum (x : diagSub c) :
+    (inner ℂ (x : L2 d) (diagSumLin c K x)).re
+      = (inner ℂ (x : L2 d) (diagUnb c x x.2)).re + (inner ℂ (x : L2 d) (K (x : L2 d))).re := by
+  rw [diagSumLin_apply, inner_add_right, Complex.add_re]
+
+/-- The diagonal form of the symbol as a real series: the left summand of the sum form.  It is
+finite on the operator domain (`summable_formTsum`) and signed, which is why the form cannot be read
+as an `ℝ≥0∞`-valued series once the interaction is subtracted. -/
+noncomputable def formTsum (c : Idx d → ℝ) (x : L2 d) : ℝ :=
+  ∑' n : Idx d, c n * ‖x n‖ ^ 2
+
+/-- **The operator's form is the diagonal series**: `re_inner_diagUnb` in the notation of the sum
+form. -/
+theorem formTsum_eq_re_inner_diagUnb {x : L2 d} (hx : memDom c x) :
+    formTsum c x = (inner ℂ x (diagUnb c x hx)).re := (re_inner_diagUnb hx).symm
+
+/-- **The weighted square-sum of the operator domain dominates the sign-free form series.**  For a
+state of the operator domain the weighted squares are summable, and `|c n|‖x n‖²` is controlled by
+`(|c n|‖x n‖)² + ‖x n‖²` — so the form series converges absolutely and the form is finite without
+any boundedness of the symbol. -/
+theorem summable_abs_symbol_mul {x : L2 d} (hx : memDom c x) :
+    Summable fun n : Idx d => |c n| * ‖x n‖ ^ 2 := by
+  have hnorm : Summable fun n : Idx d => ‖x n‖ ^ 2 := summable_normSq x
+  have hterm : ∀ n : Idx d,
+      |c n| * ‖x n‖ ^ 2 ≤ (1 / 2) * (‖(c n : ℂ) * x n‖ ^ 2 + ‖x n‖ ^ 2) := by
+    intro n
+    have hcm : ‖(c n : ℂ)‖ = |c n| := by simp
+    have hsq : ‖(c n : ℂ) * x n‖ ^ 2 = |c n| ^ 2 * ‖x n‖ ^ 2 := by
+      rw [norm_mul, hcm]
+      ring
+    have h2 : 2 * (|c n| * ‖x n‖) * ‖x n‖ ≤ (|c n| * ‖x n‖) ^ 2 + ‖x n‖ ^ 2 :=
+      two_mul_le_add_sq _ _
+    rw [hsq]
+    nlinarith [h2, norm_nonneg (x n), abs_nonneg (c n)]
+  exact Summable.of_nonneg_of_le (fun n => by positivity) hterm
+    ((hx.add hnorm).mul_left (1 / 2))
+
+/-- **The form series is summable on the operator domain.**  Absolute convergence gives it: the
+real form of an unbounded symbol is finite exactly on the domain where the operator is defined. -/
+theorem summable_formTsum {x : L2 d} (hx : memDom c x) :
+    Summable fun n : Idx d => c n * ‖x n‖ ^ 2 :=
+  Summable.of_norm_bounded (g := fun n => |c n| * ‖x n‖ ^ 2) (summable_abs_symbol_mul hx)
+    (fun n => by
+      have hnorm : ‖c n * ‖x n‖ ^ 2‖ = |c n| * ‖x n‖ ^ 2 := by
+        rw [Real.norm_eq_abs, abs_mul, abs_of_nonneg (sq_nonneg (‖x n‖))]
+      rw [hnorm])
+
+/-- **The form domain**: the states on which the diagonal form of the symbol is finite, stated
+sign-free (`∑ |c n| ‖x n‖² < ∞`).  This is the domain the KLMN representation theorem attaches to a
+closed form; for a diagonal symbol it contains the operator domain. -/
+def formDom (c : Idx d → ℝ) (x : L2 d) : Prop :=
+  Summable fun n : Idx d => |c n| * ‖x n‖ ^ 2
+
+/-- **The operator domain is contained in the form domain** — the first half of the KLMN domain
+inclusion, and the reason §5's interacting form is finite on every state it is evaluated on. -/
+theorem memDom_subset_formDom {x : L2 d} (hx : memDom c x) : formDom c x :=
+  summable_abs_symbol_mul hx
+
+/-- Finite-support states are in the form domain, so the form domain is dense: it contains the
+dense operator domain. -/
+theorem dense_formDom (c : Idx d → ℝ) : Dense {x : L2 d | formDom c x} :=
+  Dense.mono (fun _ hx => memDom_subset_formDom hx) (dense_diagSub c)
+
+/-- **The diagonal form is bounded below by `θ` wherever the symbol is**: the form series of a
+symbol bounded below is bounded below by `θ‖x‖²`, with no summability hypothesis beyond the
+domain. -/
+theorem formTsum_ge_of_le_symbol {θ : ℝ} (hle : ∀ n, θ ≤ c n) {x : L2 d} (hx : memDom c x) :
+    θ * ‖x‖ ^ 2 ≤ formTsum c x := by
+  have hsum : HasSum (fun n : Idx d => ‖x n‖ ^ 2) (‖x‖ ^ 2) := by
+    have h := lp.hasSum_norm (E := fun _ : Idx d => ℂ) (p := (2 : ℝ≥0∞)) (by norm_num) x
+    simpa using h
+  have hshift : HasSum (fun n : Idx d => θ * ‖x n‖ ^ 2) (θ * ‖x‖ ^ 2) := hsum.mul_left θ
+  have hcmp : (∑' n : Idx d, θ * ‖x n‖ ^ 2) ≤ ∑' n : Idx d, c n * ‖x n‖ ^ 2 := by
+    refine hshift.summable.tsum_le_tsum (fun n => ?_) (summable_formTsum hx)
+    have hn := mul_le_mul_of_nonneg_right (hle n) (sq_nonneg (‖x n‖))
+    nlinarith [hn]
+  rwa [hshift.tsum_eq] at hcmp
+
+/-- **The form sum of a symbol bounded below by `θ` and a perturbation bounded below by `−σ` is
+bounded below by `θ − σ`** on the operator domain.  This is the form-level version of §16's
+gap, with the operator supplying the domain: the form sum is represented by a self-adjoint operator
+*and* is bounded below on it. -/
+theorem formSum_ge {θ σ : ℝ} (hθ : ∀ n, θ ≤ c n)
+    (hK : ∀ x : L2 d, -(σ * ‖x‖ ^ 2) ≤ (inner ℂ x (K x)).re) (x : diagSub c) :
+    (θ - σ) * ‖(x : L2 d)‖ ^ 2
+      ≤ (inner ℂ (x : L2 d) (diagSumLin c K x)).re := by
+  have h1 : θ * ‖(x : L2 d)‖ ^ 2 ≤ (inner ℂ (x : L2 d) (diagUnb c x x.2)).re := by
+    have h := formTsum_ge_of_le_symbol hθ x.2
+    rwa [formTsum_eq_re_inner_diagUnb x.2] at h
+  have h2 := hK (x : L2 d)
+  rw [re_inner_diagSum]
+  have hexp : (θ - σ) * ‖(x : L2 d)‖ ^ 2 = θ * ‖(x : L2 d)‖ ^ 2 - σ * ‖(x : L2 d)‖ ^ 2 :=
+    by ring
+  rw [hexp]
+  linarith
+
+end FormSum
+
+/-! ## 22. The Yang–Mills one-particle operator
+
+§21 represented a form sum by a self-adjoint operator; this section does that for the form the
+chapter is about.  The form of record is diagonal (`yangMillsForm_eq_diagonalForm`), so its symbol
+is explicit:
+
+`yangMillsSymbol T g n = N(n) + N(n)² + rootCount T · zeroPoint g (parallelDegree T n)`,
+
+the occupation (kinetic degree), its square (the magnetic quartic) and Simon's transverse
+zero-point barrier in the Cartan background.
+
+* `yangMillsForm_eq_diagonalForm_symbol` — the form of record *is* the diagonal form of this
+  symbol;
+* **`yangMillsSymbol_form_eq_inner`** — the closed form of the symbol is the quadratic form of
+  `diagUnb (yangMillsSymbol T g)` on the operator domain, and `yangMillsForm_closedForm_core` says
+  the same on the Gauss–polynomial core, where that closed form *is* `q_W`.  This is the
+  identification: the one-particle operator of the form of record is the diagonal operator, not
+  merely one that dominates it formwise;
+* `yangMillsSymbol_vacuum`, `yangMillsSymbol_ge`, `yangMillsSymbol_transverse` — the symbol's
+  values: `rootCount T · zeroPoint g 0` at the vacuum, at least `2` more elsewhere, with equality at
+  any transverse single excitation;
+* **`yangMills_spectrum_subset`** — by §20 the spectrum is the closure of the symbol's range, so it
+  holds no point strictly between the vacuum energy `rootCount T · g/(2√2)` and that value plus
+  `2`, and `yangMills_vacuum_mem_spectrum` / `yangMills_gap_mem_spectrum` put both endpoints *in*
+  the spectrum.  **The gap above the vacuum is exactly `2`**: the kinetic and magnetic degrees each
+  contribute one, and the barrier shifts the whole spectrum, its vacuum value included, without
+  touching the spacing — which is the spectral reading of `yangMillsForm_ge_gap`.
+
+What this does **not** claim: that the coefficient-model form is the reduced Yang–Mills theory's
+form.  The chapter's honest boundary says the reduced magnetic slot is not this diagonal form; the
+identification here is with `q_W` as formalized — the form of record — and no physical continuum
+mass is claimed.
+-/
+
+section YangMillsOperator
+
+open BookProof.YangMillsEffectiveBarrier BookProof.ChapterUnitaryTransport
+
+/-- **The symbol of the Yang–Mills form of record.** -/
+noncomputable def yangMillsSymbol (T : Finset (Fin d)) (g : ℝ) (n : Idx d) : ℝ :=
+  (∑ i, (n i : ℝ)) + (∑ i, (n i : ℝ)) ^ 2
+    + rootCount T * zeroPoint g (parallelDegree T n)
+
+/-- **The form of record is the diagonal form of its symbol** — `yangMillsForm_eq_diagonalForm`
+with the symbol named, so that the operator and its spectrum can be written down. -/
+theorem yangMillsForm_eq_diagonalForm_symbol (T : Finset (Fin d)) (g : ℝ) :
+    yangMillsForm T g = diagonalForm (yangMillsSymbol T g) :=
+  Barrier.yangMillsForm_eq_diagonalForm T g
+
+theorem yangMillsSymbol_nonneg {g : ℝ} (hg : 0 ≤ g) (T : Finset (Fin d)) (n : Idx d) :
+    0 ≤ yangMillsSymbol T g n := by
+  have h1 : 0 ≤ ∑ i, (n i : ℝ) := Finset.sum_nonneg fun i _ => Nat.cast_nonneg (n i)
+  have h2 : 0 ≤ rootCount T * zeroPoint g (parallelDegree T n) :=
+    mul_nonneg (rootCount_nonneg T) (zeroPoint_nonneg hg (parallelDegree_nonneg T n))
+  simp only [yangMillsSymbol]
+  nlinarith [sq_nonneg (∑ i, (n i : ℝ))]
+
+/-- The transverse zero-point energy is monotone in the background occupation. -/
+theorem zeroPoint_mono {g N N' : ℝ} (hg : 0 ≤ g) (h : N ≤ N') :
+    zeroPoint g N ≤ zeroPoint g N' := by
+  have hs : Real.sqrt (N + 1 / 2) ≤ Real.sqrt (N' + 1 / 2) := Real.sqrt_le_sqrt (by linarith)
+  simp only [zeroPoint, transFreq]
+  exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hs hg) (by norm_num)
+
+/-- A nonzero multi-index has positive occupation — the degree is the total number of
+oscillator quanta. -/
+theorem degree_pos_of_ne_zero {n : Idx d} (hn : n ≠ 0) : 1 ≤ ∑ i, (n i : ℝ) := by
+  have hne : (∑ i, n i) ≠ 0 := by
+    intro h
+    refine hn (funext fun i => ?_)
+    exact (Finset.sum_eq_zero_iff_of_nonneg (fun j _ => Nat.zero_le _)).mp h i
+      (Finset.mem_univ i)
+  have hpos : 1 ≤ ∑ i, n i := Nat.one_le_iff_ne_zero.mpr hne
+  calc (1 : ℝ) ≤ ((∑ i, n i : ℕ) : ℝ) := by exact_mod_cast hpos
+    _ = ∑ i, (n i : ℝ) := by rw [Nat.cast_sum]
+
+/-- **The vacuum energy**: at the zero multi-index the occupation and the magnetic quartic vanish
+and only the transverse barrier survives. -/
+theorem yangMillsSymbol_vacuum (T : Finset (Fin d)) {g : ℝ} :
+    yangMillsSymbol T g 0 = rootCount T * zeroPoint g 0 := by
+  rw [yangMillsSymbol, parallelDegree]
+  simp
+
+/-- **Every non-vacuum mode costs at least the gap above the vacuum**: the kinetic and magnetic
+degrees give `2`, and the barrier only adds to it. -/
+theorem yangMillsSymbol_ge {g : ℝ} (hg : 0 ≤ g) {T : Finset (Fin d)} {n : Idx d} (hn : n ≠ 0) :
+    rootCount T * zeroPoint g 0 + 2 ≤ yangMillsSymbol T g n := by
+  have hdeg := degree_pos_of_ne_zero hn
+  have hsq : (1 : ℝ) ≤ (∑ i, (n i : ℝ)) ^ 2 := by nlinarith [hdeg]
+  have hbar : rootCount T * zeroPoint g 0 ≤ rootCount T * zeroPoint g (parallelDegree T n) :=
+    mul_le_mul_of_nonneg_left (zeroPoint_mono hg (parallelDegree_nonneg T n)) (rootCount_nonneg T)
+  simp only [yangMillsSymbol]
+  linarith
+
+/-- **A transverse single excitation attains the gap**: its occupation is one in the kinetic and
+magnetic slots and zero in the Cartan background, so its barrier is the vacuum barrier. -/
+theorem yangMillsSymbol_transverse {T : Finset (Fin d)} {i : Fin d} (hi : i ∉ T) {g : ℝ} :
+    yangMillsSymbol T g (Function.update 0 i 1) = rootCount T * zeroPoint g 0 + 2 := by
+  have hpar : parallelDegree T (Function.update (0 : Idx d) i 1) = 0 := by
+    rw [parallelDegree]
+    refine Finset.sum_eq_zero fun j hj => ?_
+    have hji : j ≠ i := fun h => hi (h ▸ hj)
+    rw [Function.update_of_ne hji 1 (0 : Idx d)]
+    simp
+  have hdeg : ∑ j, ((Function.update (0 : Idx d) i 1) j : ℝ) = 1 := by
+    rw [Finset.sum_eq_single i]
+    · simp
+    · intro j _ hji
+      rw [Function.update_of_ne hji 1 (0 : Idx d)]
+      simp
+    · intro hi'
+      exact absurd (Finset.mem_univ i) hi'
+  simp only [yangMillsSymbol, hpar, hdeg]
+  ring
+
+/-- **The vacuum energy is in the spectrum** — the symbol attains it at the zero multi-index. -/
+theorem yangMills_vacuum_mem_spectrum (T : Finset (Fin d)) {g : ℝ} :
+    (rootCount T * zeroPoint g 0) ∈ closure (Set.range (yangMillsSymbol T g)) :=
+  subset_closure ⟨0, yangMillsSymbol_vacuum T⟩
+
+/-- **The bottom of the excited spectrum is in the spectrum**: a transverse single excitation has
+symbol value `rootCount T · zeroPoint g 0 + 2`, so the closure contains it. -/
+theorem yangMills_gap_mem_spectrum {T : Finset (Fin d)} {i : Fin d} (hi : i ∉ T) {g : ℝ} :
+    (rootCount T * zeroPoint g 0 + 2) ∈ closure (Set.range (yangMillsSymbol T g)) :=
+  subset_closure ⟨Function.update 0 i 1, yangMillsSymbol_transverse (T := T) (g := g) hi⟩
+
+/-- **The spectrum of the Yang–Mills one-particle operator has no point below the gap.**  §20 makes
+the spectrum the closure of the symbol's range; the vacuum value is `rootCount T · zeroPoint g 0`,
+every nonzero value is at least `2` above it, and `{B} ∪ [B + 2, ∞)` is closed, so the closure stays
+inside it. -/
+theorem yangMills_spectrum_subset {g : ℝ} (hg : 0 ≤ g) (T : Finset (Fin d)) :
+    closure (Set.range (yangMillsSymbol T g))
+      ⊆ ({(rootCount T * zeroPoint g 0)} ∪ Set.Ici (rootCount T * zeroPoint g 0 + 2)) := by
+  refine closure_minimal ?_ (isClosed_singleton.union isClosed_Ici)
+  rintro _ ⟨n, rfl⟩
+  by_cases hn : n = 0
+  · subst hn
+    exact Or.inl (yangMillsSymbol_vacuum T)
+  · exact Or.inr (yangMillsSymbol_ge hg hn)
+
+/-- **The closed form of a nonnegative symbol is the `ofReal` of its real series** — the bridge
+between the `ℝ≥0∞`-valued form of §5–§6 and the real form the operator supplies. -/
+theorem closedForm_eq_ofReal_formTsum {f : Idx d → ℝ} (hf : ∀ n, 0 ≤ f n) {x : L2 d}
+    (hfin : Summable fun n => f n * ‖x n‖ ^ 2) :
+    closedForm f x = ENNReal.ofReal (formTsum f x) := by
+  rw [closedForm, formTsum]
+  symm
+  rw [ENNReal.ofReal_tsum_of_nonneg (fun n => mul_nonneg (hf n) (by positivity)) hfin]
+  refine tsum_congr fun n => ?_
+  rw [ENNReal.ofReal_mul (hf n)]
+
+/-- **The Yang–Mills form of record is the quadratic form of the diagonal operator.**  On the
+operator domain the closed form of `yangMillsSymbol` is `⟪x, diagUnb (yangMillsSymbol T g) x⟫`;
+that operator is self-adjoint there (`diagSubLin_isSelfAdjointOn`).  This is the identification the
+chapter's boundary recorded as missing: the one-particle operator is not an abstract `T` that the
+form merely dominates — it is `diagUnb` of the form's own symbol. -/
+theorem yangMillsSymbol_form_eq_inner {g : ℝ} (hg : 0 ≤ g) {x : L2 d}
+    (hx : memDom (yangMillsSymbol T g) x) :
+    closedForm (yangMillsSymbol T g) x
+      = ENNReal.ofReal (inner ℂ x (diagUnb (yangMillsSymbol T g) x hx)).re := by
+  rw [closedForm_eq_ofReal_formTsum (yangMillsSymbol_nonneg hg T) (summable_formTsum hx),
+    formTsum_eq_re_inner_diagUnb hx]
+
+/-- **On the Gauss–polynomial core the closed form *is* `q_W`**, so the identification above is an
+identification of the chapter's form and not of a different one. -/
+theorem yangMillsForm_closedForm_core {g : ℝ} (hg : 0 ≤ g) (T : Finset (Fin d))
+    (c₀ : CoreCoeff d) :
+    closedForm (yangMillsSymbol T g) (coreEmbed c₀) = ENNReal.ofReal (yangMillsForm T g c₀) := by
+  rw [closedForm_coreEmbed (yangMillsSymbol T g) (yangMillsSymbol_nonneg hg T) c₀,
+    ← yangMillsForm_eq_diagonalForm_symbol]
+
+/-- **The Yang–Mills one-particle operator, in one statement.**  It is `diagUnb` of the form's
+symbol, self-adjoint on the maximal domain; its spectrum — the closure of the symbol's range —
+attains the vacuum energy `rootCount T · g/(2√2)` and has nothing in `(B, B + 2)`, with `B + 2`
+attained at a transverse excitation.  The gap above the vacuum is `2`. -/
+theorem yangMills_oneParticle {g : ℝ} (hg : 0 ≤ g) (T : Finset (Fin d)) :
+    IsSelfAdjointOn (diagSub (yangMillsSymbol T g)) (diagSubLin (yangMillsSymbol T g)) ∧
+      (rootCount T * zeroPoint g 0) ∈ closure (Set.range (yangMillsSymbol T g)) ∧
+      closure (Set.range (yangMillsSymbol T g))
+        ⊆ ({(rootCount T * zeroPoint g 0)} ∪
+          Set.Ici (rootCount T * zeroPoint g 0 + 2)) :=
+  ⟨diagSubLin_isSelfAdjointOn (yangMillsSymbol T g), yangMills_vacuum_mem_spectrum T,
+    yangMills_spectrum_subset hg T⟩
+
+end YangMillsOperator
 
 end BookProof.YangMillsFormClosureND

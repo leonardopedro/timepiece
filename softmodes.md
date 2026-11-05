@@ -953,14 +953,29 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `InResolventSet` (bounded two-sided invertibility of `T − lam`) is equivalent to a positive
     distance between `lam` and the symbol's range (`inResolventSet_iff_exists_gap`), so the spectrum
     is the **closure of the range of the symbol** (`closure_range_eq_compl_resolvent`).
-  - *What is still open.*  The unbounded spectral statement is for the diagonal multiplication
-    operator; the Yang–Mills one-particle operator is still not identified with the abstract `T`,
-    so nothing here is a statement about that operator's spectrum.  Kato–Rellich is proved in the
-    operator mode, not as the self-adjointness of an unbounded form sum — the corpus has the
-    relative-bound certificate (`closed_farisLavine_domination`) but no form→operator
-    representation theorem.  Also open: the Källén–Lehmann/clustering step that would read the gap
-    off the Euclidean two-point function.  No strictly positive mass gap of the physical continuum
-    Hamiltonian is claimed.
+  - *form→operator, the Yang–Mills operator, and Källén–Lehmann (2026-11-05).*  §21 supplies the
+    step §5–§6 recorded as missing: for a bounded symmetric perturbation the sum form
+    `q_c + q_K` **is** the quadratic form of the self-adjoint operator `T + K` on the maximal
+    domain (`diagSumLin_isSelfAdjointOn`, `re_inner_diagSum`), its form domain `∑ |c n| ‖x n‖² < ∞`
+    contains the operator domain and is dense, and the lower bound `θ − σ` is read off on it.  §22
+    then identifies the Yang–Mills one-particle operator: the form of record is diagonal, its symbol
+    is `N + N² + rootCount·zeroPoint` in the occupation, and the closed form of that symbol *is*
+    `q_W` on the core and the quadratic form of `diagUnb` of it on the domain — so the operator is
+    the diagonal one, not an abstract `T` the form merely dominates.  Its spectrum is
+    `{B} ∪ [B + 2, ∞)` with `B = rootCount·g/(2√2)` the vacuum barrier: **the gap above the vacuum
+    is exactly `2`**, and the barrier shifts the spectrum without changing the spacing.  §23 closes
+    the Källén–Lehmann direction for atomic spectral measures — masses above `m` decay the
+    two-point function at rate `m` with the sharp constant, and decay at rate `m` forces every
+    positively weighted mass to be at least `m`, so the rate *is* the bottom of the mass spectrum —
+    and turns such a representation of the connected correlators into `SchwingerClustering`.
+  - *What is still open.*  Three things.  Kato–Rellich at a relative bound `a < 1` is still proved
+    only in the operator mode: §21 covers the bounded-perturbation case, and the corpus still has
+    no form-level `a < 1` representation theorem.  The Källén–Lehmann statement is for *atomic*
+    spectral measures, which is what the diagonal models produce; the physical `dρ(λ)` and the
+    measurable functional calculus behind `e^{−τH_phys}` are not constructed.  And the reduced
+    sector's magnetic slot is not the diagonal form of §22 — that identification is not proved, so
+    none of this is a statement about the reduced theory, and no strictly positive mass gap of the
+    physical continuum Hamiltonian is claimed.
 
 ---
 
