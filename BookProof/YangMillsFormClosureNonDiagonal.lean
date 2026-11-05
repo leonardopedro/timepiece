@@ -2,6 +2,7 @@ import Mathlib
 import BookProof.YangMillsFormClosure
 import BookProof.YangMillsMagneticQuartic
 import BookProof.ChapterSpectralGapStability
+import BookProof.Toolbox.ChapterEsaClosureCore
 
 /-!
 # Chapter YangMillsFormClosureNonDiagonal — Faris–Lavine for an off-diagonal interaction
@@ -125,18 +126,29 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   keeps the distance `δ` from `lam` — this is why the unbounded case is tractable at all.  Both
   inverse identities hold (`diagUnb_diagRes`, `diagRes_left`), so `gapAt_diagUnb` gives the gap on
   the domain,
-  and `gapAt_diagUnb_degree` reads it for the §12.2 degree symbol at `d/2`.  Self-adjointness as a
-  `LinearPMap` statement, and hence any `spectrum` conclusion, is **not** claimed: the domain is a
-  predicate, not a closed operator;
+  and `gapAt_diagUnb_degree` reads it for the §12.2 degree symbol at `d/2`.  §17 itself claims no
+  self-adjointness — the domain there is a predicate with two inverse identities — but §19 proves
+  it, so the operator does have an adjoint and a spectrum;
 * §18 discharges §5.2's hypothesis *literally*.  The approximating resolvents are the
   reciprocal-symbol operators `diagRes`, bounded by `‖ξ‖/δ` (`norm_diagRes_le'`), and they converge
   pointwise to the limit resolvent (`tendsto_diagRes_cutoff`) because the symbols agree on the box
   and are both bounded off it — the same tail argument as §14, now on `‖ξ n‖²`.  With the limit's
-  left
-  inverse (`diagRes_left_bounded`), `gapAt_cutoffLimit_resolvent` and
+  left inverse (`diagRes_left_bounded`), `gapAt_cutoffLimit_resolvent` and
   `notMem_spectrum_cutoffLimit_resolvent` are `gapAt_of_strongResolvent_limit` with **every input
   supplied**, and `tendsto_diagRes_cutoff_degree` gives the same convergence for the degree
-  cut-offs, whose limit is §17's unbounded resolvent.
+  cut-offs, whose limit is §17's unbounded resolvent;
+* §19 settles the self-adjointness §17 left open, by **Faris–Lavine**
+  (`essentiallySelfAdjointOn_of_farisLavine`) rather than by a Friedrichs form: the criterion needs
+  a positive `N` on the same domain and a commutator bound, no closability or semiboundedness of a
+  form.  Taking `N` to be the operator itself is exactly right because the symbol is real — the
+  commutator form vanishes (`commForm_diagSubLin_self`), so the bound holds with constant `0` — and
+  what remains are the paper's two hypotheses: positivity of the form
+  (`quadForm_diagSubLin_nonneg`, which is where the symbol is assumed nonnegative) and `T + 1` onto
+  (`diagSubLin_surj_one`, the resolvent at `−1` in disguise).  `diagUnb_esa` is the conclusion,
+  `dense_diagSub` the density the extension theory needs, and
+  `exists_selfAdjoint_extension_diagUnb` the operator itself: a self-adjoint extension on a domain
+  containing `diagSub c` and agreeing with `diagUnb` there.
+  `exists_selfAdjoint_extension_degree` reads it for the degree symbol.
 
 One caveat on what §7–§9 are about, since the repository does formalize the continuum: the
 derivative is an outer-Fock operator (`dGamma`, `momOp`), and a product of outer fields at a
@@ -4157,5 +4169,189 @@ theorem tendsto_diagRes_cutoff_degree (hd : 0 < d) (hpos : (0 : ℝ) < (d : ℝ)
   tendsto_diagRes_cutoff hpos (degreeSepTwo hd) ξ
 
 end DiagonalOperator
+
+/-! ## 19. Self-adjointness of the unbounded operator
+
+§17 claimed only what the gap needs — symmetry, a bounded resolvent and the two inverse identities —
+and said so: self-adjointness as a statement about closed operators was not claimed.  This section
+claims it.  The operator is `diagSubLin c`, multiplication by `c` on the subspace `diagSub c` where
+the weighted squares are summable, and the route is **Faris–Lavine**
+(`essentiallySelfAdjointOn_of_farisLavine`, Theorem 1 of the paper) rather than a Friedrichs form:
+the criterion asks for no closability or semiboundedness of a form, only a positive `N` on the same
+domain and a commutator bound.  Taking `N` to be the operator itself is exactly right here, because
+the symbol is *real*: the commutator form vanishes identically (`commForm_diagSubLin_self`), so the
+commutator hypothesis holds with constant `0`.  That leaves the two hypotheses the paper actually
+uses: positivity of the quadratic form (`quadForm_diagSubLin_nonneg`, which is where the symbol is
+assumed nonnegative) and surjectivity of `T + 1` (`diagSubLin_surj_one`, the resolvent at `−1` in
+disguise — the reciprocal of `c n + 1` is bounded by `1`).  Faris–Lavine gives trivial deficiency,
+`exists_isSelfAdjointExtension_of_esa` turns it into a self-adjoint operator on a domain containing
+`diagSub c` and agreeing with `diagUnb` there, and `dense_diagSub` supplies the density the
+extension theory needs: the finite-support states are in the domain.
+
+The gap of §17 survives into this picture, since it is an inequality on `diagSub c` alone; what is
+new is that the operator it bounds from below now *has* an adjoint and a spectrum.
+-/
+
+section SelfAdjoint
+
+open BookProof.FarisLavine BookProof.EsaClosure
+
+/-- The domain of the unbounded operator, as a subspace of `L²`. -/
+def diagSub (c : Idx d → ℝ) : Submodule ℂ (L2 d) where
+  carrier := {x | memDom c x}
+  zero_mem' := memDom_zero c
+  add_mem' := fun hx hy => memDom_add hx hy
+  smul_mem' := fun a _ hx => memDom_smul a hx
+
+/-- **The unbounded operator as a linear map on its domain** — the shape in which the
+self-adjointness theory takes its operators. -/
+noncomputable def diagSubLin (c : Idx d → ℝ) : diagSub c →ₗ[ℂ] L2 d where
+  toFun x := diagUnb c x x.2
+  map_add' x y := by
+    apply lp.ext
+    funext n
+    simp only [lp.coeFn_add, Pi.add_apply, diagUnb_apply, Submodule.coe_add]
+    ring
+  map_smul' a x := by
+    apply lp.ext
+    funext n
+    simp only [lp.coeFn_smul, Pi.smul_apply, diagUnb_apply, Submodule.coe_smul, smul_eq_mul,
+      RingHom.id_apply]
+    ring
+
+/-- The unbounded operator is symmetric on its domain — §17's symmetry, in the shape Faris–Lavine's
+hypothesis (i) is stated in. -/
+theorem diagSubLin_symmetric (c : Idx d → ℝ) : SymmetricOn (diagSub c) (diagSubLin c) :=
+  fun x y => diagUnb_symmetric x.2 y.2
+
+/-- **The quadratic form of the diagonal operator is the weighted sum of squares.** -/
+theorem re_inner_diagUnb {c : Idx d → ℝ} {x : L2 d} (hx : memDom c x) :
+    (inner ℂ x (diagUnb c x hx)).re = ∑' n : Idx d, c n * ‖x n‖ ^ 2 := by
+  rw [lp.inner_eq_tsum, Complex.re_tsum (lp.summable_inner x (diagUnb c x hx))]
+  refine tsum_congr fun n => ?_
+  rw [diagUnb_apply, RCLike.inner_apply]
+  have h : (c n : ℂ) * x n * (starRingEnd ℂ) (x n) = ((c n * ‖x n‖ ^ 2 : ℝ) : ℂ) := by
+    rw [mul_assoc, Complex.mul_conj, Complex.normSq_eq_norm_sq, ← Complex.ofReal_mul]
+  rw [h, Complex.ofReal_re]
+
+/-- The form is nonnegative when the symbol is. -/
+theorem quadForm_diagSubLin_nonneg {c : Idx d → ℝ} (hc : ∀ n, 0 ≤ c n) (x : diagSub c) :
+    0 ≤ quadForm (diagSubLin c) x := by
+  rw [quadForm]
+  have h : (inner ℂ (x : L2 d) ((diagSubLin c) x) : ℂ).re
+      = ∑' n : Idx d, c n * ‖(x : L2 d) n‖ ^ 2 := re_inner_diagUnb x.2
+  rw [h]
+  exact tsum_nonneg fun n => mul_nonneg (hc n) (sq_nonneg _)
+
+/-- **The commutator vanishes**, because the symbol is real: `i[T, T] = 0`.  This is why
+Faris–Lavine is cheap here — the criterion's only nontrivial inputs are positivity and `T + 1`
+onto. -/
+theorem commForm_diagSubLin_self (c : Idx d → ℝ) (x : diagSub c) :
+    commForm (diagSubLin c) (diagSubLin c) x = 0 := by
+  have h : (inner ℂ ((diagSubLin c) x) ((diagSubLin c) x) : ℂ).im = 0 :=
+    inner_self_im (𝕜 := ℂ) ((diagSubLin c) x)
+  rw [commForm_eq, h]
+  ring
+
+/-- **`T + 1` is onto.**  For a nonnegative symbol the reciprocal of `c n + 1` is bounded by `1`, so
+the candidate preimage is in `L²`; the symbol divided by `c n + 1` is bounded by `1` as well, so it
+is in the domain too. -/
+theorem diagSubLin_surj_one {c : Idx d → ℝ} (hc : ∀ n, 0 ≤ c n) (f : L2 d) :
+    ∃ x : diagSub c, diagSubLin c x + (x : L2 d) = f := by
+  have hb : ∀ n : Idx d, |(c n + 1)⁻¹| ≤ 1 := by
+    intro n
+    have hpos : (0 : ℝ) < c n + 1 := by linarith [hc n]
+    rw [abs_of_pos (inv_pos.mpr hpos)]
+    have hmul := mul_le_mul_of_nonneg_left (show (1 : ℝ) ≤ c n + 1 by linarith [hc n])
+      (inv_nonneg.mpr hpos.le)
+    rwa [mul_one, inv_mul_cancel₀ (ne_of_gt hpos)] at hmul
+  have hmem : memDom c (diagCLM (fun n => (c n + 1)⁻¹) hb f) := by
+    refine Summable.of_nonneg_of_le (fun n => by positivity) (fun n => ?_) (summable_normSq f)
+    rw [diagCLM_apply]
+    have hpos : (0 : ℝ) < c n + 1 := by linarith [hc n]
+    have hnorm : ‖(c n : ℂ) * (((((c n + 1 : ℝ)⁻¹) : ℝ) : ℂ) * f n)‖
+        = |c n| * |(c n + 1)⁻¹| * ‖f n‖ := by
+      rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs,
+        Real.norm_eq_abs]
+      ring
+    rw [hnorm]
+    have hle : |c n| * |(c n + 1)⁻¹| ≤ 1 := by
+      rw [abs_of_nonneg (hc n), abs_of_pos (inv_pos.mpr hpos)]
+      calc c n * (c n + 1)⁻¹ ≤ (c n + 1) * (c n + 1)⁻¹ :=
+            mul_le_mul_of_nonneg_right (by linarith [hc n]) (inv_nonneg.mpr hpos.le)
+        _ = 1 := mul_inv_cancel₀ (ne_of_gt hpos)
+    calc (|c n| * |(c n + 1)⁻¹| * ‖f n‖) ^ 2
+        ≤ (1 * ‖f n‖) ^ 2 :=
+          pow_le_pow_left₀ (by positivity) (mul_le_mul_of_nonneg_right hle (norm_nonneg _)) 2
+      _ = ‖f n‖ ^ 2 := by ring
+  refine ⟨⟨diagCLM (fun n => (c n + 1)⁻¹) hb f, hmem⟩, ?_⟩
+  apply lp.ext
+  funext n
+  have h1 : ((diagSubLin c ⟨diagCLM (fun m => (c m + 1)⁻¹) hb f, hmem⟩ : L2 d)
+      : Idx d → ℂ) n
+      = (c n : ℂ) * (((diagCLM (fun m => (c m + 1)⁻¹) hb f : L2 d)) : Idx d → ℂ) n := rfl
+  rw [lp.coeFn_add, Pi.add_apply, h1, diagCLM_apply, Complex.ofReal_inv]
+  have hpos : (0 : ℝ) < c n + 1 := by linarith [hc n]
+  have hnz : (((c n + 1 : ℝ)) : ℂ) ≠ 0 := by exact_mod_cast ne_of_gt hpos
+  have hcast : ((c n : ℂ) + 1) = (((c n + 1 : ℝ)) : ℂ) := by push_cast; ring
+  calc (c n : ℂ) * (((((c n + 1 : ℝ)) : ℂ))⁻¹ * f n) + (((((c n + 1 : ℝ)) : ℂ))⁻¹ * f n)
+      = ((c n : ℂ) + 1) * (((((c n + 1 : ℝ)) : ℂ))⁻¹ * f n) := by ring
+    _ = (((c n + 1 : ℝ)) : ℂ) * (((((c n + 1 : ℝ)) : ℂ))⁻¹ * f n) := by rw [hcast]
+    _ = f n := by rw [← mul_assoc, mul_inv_cancel₀ hnz, one_mul]
+
+/-- **Faris–Lavine for the diagonal operator.**  With a nonnegative symbol, `T = diagUnb c` is
+essentially self-adjoint on its domain.  The criterion is applied with `N = T`: the commutator form
+vanishes, the form is nonnegative, and `T + 1` is onto. -/
+theorem diagUnb_esa {c : Idx d → ℝ} (hc : ∀ n, 0 ≤ c n) :
+    EssentiallySelfAdjointOn (diagSub c) (diagSubLin c) :=
+  essentiallySelfAdjointOn_of_farisLavine (diagSubLin c) (diagSubLin c) 0
+    (diagSubLin_symmetric c) (diagSubLin_symmetric c) le_rfl
+    (fun x => quadForm_diagSubLin_nonneg hc x) (diagSubLin_surj_one hc)
+    (fun x => by rw [commForm_diagSubLin_self]; simp)
+
+/-- The finite-support states are in the domain: only one term of the weighted square-sum
+survives. -/
+theorem memDom_single {c : Idx d → ℝ} (i : Idx d) (a : ℂ) :
+    memDom c (lp.single 2 i a) := by
+  refine summable_of_ne_finset_zero (s := {i}) (fun m hm => ?_)
+  have hzero : ((lp.single 2 i a : L2 d) : Idx d → ℂ) m = 0 := by
+    rw [lp.single_apply]
+    exact Pi.single_eq_of_ne (M := fun _ : Idx d => ℂ) (by simpa using hm) a
+  rw [hzero]
+  simp
+
+/-- **The domain is dense**, as the extension theory requires: every state is the limit of its
+finite-support approximations, and those are in the domain. -/
+theorem dense_diagSub (c : Idx d → ℝ) :
+    Dense ((diagSub c : Submodule ℂ (L2 d)) : Set (L2 d)) := by
+  classical
+  refine Metric.dense_iff.2 (fun f ε hε => ?_)
+  have hsum : HasSum (fun i : Idx d => lp.single 2 i (f i)) f := lp.hasSum_single (by simp) f
+  have hev : ∀ᶠ s : Finset (Idx d) in Filter.atTop,
+      (∑ i ∈ s, lp.single 2 i (f i)) ∈ Metric.ball f ε :=
+    hsum (Metric.ball_mem_nhds f hε)
+  obtain ⟨s, hs⟩ := hev.exists
+  exact ⟨∑ i ∈ s, lp.single 2 i (f i), hs,
+    Submodule.sum_mem _ (fun i _ => memDom_single i (f i))⟩
+
+/-- **Self-adjointness of the unbounded diagonal operator.**  The closure of `diagUnb c` — for a
+nonnegative symbol — is a self-adjoint operator on a domain containing `diagSub c`, and on that
+domain it *is* `diagUnb`.  This is the statement §17 left open; it is von Neumann's theorem applied
+through Faris–Lavine, and it is what gives the operator a spectrum at all. -/
+theorem exists_selfAdjoint_extension_diagUnb {c : Idx d → ℝ} (hc : ∀ n, 0 ≤ c n) :
+    ∃ (Dom : Submodule ℂ (L2 d)) (A : Dom →ₗ[ℂ] L2 d),
+      IsSelfAdjointExtension (diagSubLin c) A :=
+  exists_isSelfAdjointExtension_of_esa (diagSubLin c) (dense_diagSub c) (diagSubLin_symmetric c)
+    (diagUnb_esa hc)
+
+/-- **The degree symbol's operator is self-adjoint under closure** — the unbounded case of §15, with
+no cut-off and no boundedness of the symbol.  The symbol is nonnegative
+(`closedDegreeSymbol_nonneg`), so Faris–Lavine applies as it does for any nonnegative symbol. -/
+theorem exists_selfAdjoint_extension_degree :
+    ∃ (Dom : Submodule ℂ (L2 d)) (A : Dom →ₗ[ℂ] L2 d),
+      IsSelfAdjointExtension (diagSubLin (closedDegreeSymbol (d := d))) A :=
+  exists_selfAdjoint_extension_diagUnb fun n => closedDegreeSymbol_nonneg (d := d) n
+
+end SelfAdjoint
 
 end BookProof.YangMillsFormClosureND

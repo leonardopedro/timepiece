@@ -932,12 +932,23 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     both bounded off it), and with the limit's left inverse the strong-resolvent transfer lemma
     yields the gap and the spectral hole with **no hypothesis remaining**.  The same convergence
     holds for the degree cut-offs, whose limit is the unbounded resolvent.
-  - *What is still open.*  Self-adjointness of the unbounded operator as a statement about closed
-    operators (`LinearPMap`), and with it any `spectrum` conclusion for the unbounded case — the
-    domain is presented as a predicate with the two resolvent identities, which is what the gap
-    needs but is weaker than self-adjointness.  Kato–Rellich is proved in the operator mode, not as
-    the self-adjointness of an unbounded form sum — the corpus has the relative-bound certificate
-    (`closed_farisLavine_domination`) but no form→operator representation theorem.  Also open: the
+  - *self-adjointness of the unbounded operator (2026-11-05).*  §19 supplies what §17 left open, and
+    it does so by **Faris–Lavine**, not by a Friedrichs form: the criterion needs a positive `N` on
+    the same domain and a commutator bound, and no closability or semiboundedness of a form.  The
+    symbol is real, so `N = T` makes the commutator form vanish identically and the bound hold with
+    constant `0`; the two hypotheses that remain are the paper's — the form is nonnegative (where
+    the symbol is assumed nonnegative) and `T + 1` is onto (the resolvent at `−1` in disguise, the
+    reciprocal of `c n + 1` being bounded by `1`).  The conclusion is trivial deficiency, hence a
+    self-adjoint operator on a domain containing the operator's own domain and agreeing with it
+    there; the finite-support states are dense, so the extension theory applies.  The degree
+    symbol's operator is the instance.
+  - *What is still open.*  The gap and the spectral hole for the *unbounded* symbol are still not
+    phrased in terms of a `spectrum` — the self-adjoint operator exists and agrees with the
+    operator on its domain, but identifying its spectrum with the range of the symbol (the
+    spectral theorem for a diagonal operator) is not done.  Kato–Rellich is proved in the operator
+    mode, not as the self-adjointness of an unbounded form sum — the corpus has the relative-bound
+    certificate (`closed_farisLavine_domination`) but no form→operator representation theorem.
+    Also open: the
     identification of the Yang–Mills one-particle operator with the abstract `T`, and the
     Källén–Lehmann/clustering step that would read the gap off the Euclidean two-point function.
     No strictly positive mass gap of the physical continuum Hamiltonian is claimed.
