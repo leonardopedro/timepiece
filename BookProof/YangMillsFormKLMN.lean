@@ -1,7 +1,7 @@
 import BookProof.YangMillsFormClosureNonDiagonal
 
 /-!
-# §23 The KLMN theorem at relative bound `a < 1`, for diagonal forms
+# §23–§24 Kato–Rellich at `a < 1` at form level, and the reduced sector's magnetic slot
 
 `YangMillsFormClosureNonDiagonal` §21 represents the sum form `q_c + q_K` by a self-adjoint
 operator **when `K` is bounded** — relative bound `a = 0`.  §5–§6 of `YangMillsFormClosure` record
@@ -27,9 +27,18 @@ here:
   domain (`klmn_formDom_of_operatorDomain`).
 
 So for the diagonal models the KLMN theorem is no longer conditional on an operator-level relative
-bound: the `a < 1` branch is a theorem about the form itself.  What is *not* claimed is the
-instantiation for the momentum-representation magnetic ladder — that is the identification question
-of §22's caveat, not a question about forms.
+bound: the `a < 1` branch is a theorem about the form itself.  §24 then closes the identification
+question of §22's caveat *in the coefficient model*: the reduced (transverse) sector is invariant
+under the diagonal operator, the barrier there is the constant vacuum value, and the gap `2`
+survives the restriction (see the section docstring at "24." below).
+
+What is **not** claimed, and is recorded here rather than deferred: (i) the identification of the
+transverse sector with the BRST quotient `H/(exact ⊕ harmonic)` — that needs
+`closure (range Ω) = span{∂_i φ}`, open item 3 of `softmodes.md` Phase 1; (ii) the instantiation of
+the `a < 1` hypothesis for the momentum-representation magnetic ladder, i.e. a relative form bound
+`a(Λ) ≤ a < 1` uniform in the cut-off; (iii) a strictly positive mass gap for the *physical
+continuum* Hamiltonian — `H_phys` is not constructed (`OSReconstruction/Hamiltonian.lean`), so the
+gap `2` proved here is a statement about §22's one-particle diagonal operator and its sector.
 
 ## Contents
 
