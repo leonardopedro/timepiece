@@ -3,6 +3,7 @@ import BookProof.YangMillsFormClosure
 import BookProof.YangMillsMagneticQuartic
 import BookProof.ChapterSpectralGapStability
 import BookProof.Toolbox.ChapterEsaClosureCore
+import BookProof.ChapterUnboundedSpectralModel
 
 /-!
 # Chapter YangMillsFormClosureNonDiagonal — Faris–Lavine for an off-diagonal interaction
@@ -148,7 +149,22 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   `dense_diagSub` the density the extension theory needs, and
   `exists_selfAdjoint_extension_diagUnb` the operator itself: a self-adjoint extension on a domain
   containing `diagSub c` and agreeing with `diagUnb` there.
-  `exists_selfAdjoint_extension_degree` reads it for the degree symbol.
+  `exists_selfAdjoint_extension_degree` reads it for the degree symbol;
+* §20 does not need the extension: the diagonal operator is self-adjoint on its **maximal**
+  domain.  Testing the representing identity of the adjoint domain against coordinate vectors gives
+  `c n · φ n = η n`, so the adjoint domain is contained in `diagSub c`
+  (`memDom_of_mem_adjointDomain`), and symmetry gives the other inclusion
+  (`adjointDomain_diagSubLin`): `IsSelfAdjointOn (diagSub c) (diagSubLin c)`, and the bundled
+  operator `diagUnbSelfAdjoint` is an `UnboundedSelfAdjoint`.  That bundle is the input of the
+  workspace's unbounded spectral theorem
+  (`BookProof.ChapterUnboundedSpectralModel.unbounded_multiplication_model_general`, Cayley route),
+  applied as `diagUnb_multiplication_model`.  The spectrum itself is then elementary and exact:
+  `InResolventSet c lam` means bounded two-sided invertibility of `T − lam`, and
+  `inResolventSet_iff_exists_gap` shows it is equivalent to a positive distance between `lam` and
+  the symbol's range — `δ`-separation gives `diagRes`, and conversely `1 = ‖single n 1‖` bounds
+  `‖R‖ · |c n − lam|` from below.  Hence `notMem_inResolventSet_iff` (the `∀ δ > 0` criterion) and
+  `closure_range_eq_compl_resolvent`: **the spectrum is the closure of the symbol's range**, for the
+  operator itself rather than for a chosen extension.
 
 One caveat on what §7–§9 are about, since the repository does formalize the continuum: the
 derivative is an outer-Fock operator (`dGamma`, `momOp`), and a product of outer fields at a
@@ -4353,5 +4369,232 @@ theorem exists_selfAdjoint_extension_degree :
   exists_selfAdjoint_extension_diagUnb fun n => closedDegreeSymbol_nonneg (d := d) n
 
 end SelfAdjoint
+
+/-! ## 20. The spectrum of the unbounded diagonal operator
+
+§19 gave `diagUnb c` a self-adjoint extension; §17–§18 computed the spectrum of the *bounded*
+cut-offs.  This section does the unbounded case with no extension theory at all: the diagonal
+operator is self-adjoint on its **maximal** domain, so the operator whose resolvent and spectrum one
+computes is `diagUnb c` itself, with no ambiguity about which extension is meant.
+
+Maximality is a coordinate computation (`memDom_of_mem_adjointDomain`): if `ψ ↦ ⟪diagUnb c ψ, φ⟫` is
+represented by `η`, then testing against `ψ = lp.single 2 n 1` reads off `c n · φ n = η n`, so `φ`
+lies in the domain *because* `η` is in `L²`.  With the symmetry of §17 this gives
+`adjointDomain (diagSub c) (diagSubLin c) = diagSub c` (`adjointDomain_diagSubLin`), i.e.
+`IsSelfAdjointOn` on the largest possible domain, and bundles the operator as an
+`UnboundedSelfAdjoint` (`diagUnbSelfAdjoint`).
+
+That bundle is exactly the input of the workspace's spectral theorem for unbounded self-adjoint
+operators, `BookProof.UnboundedSpectralModel.unbounded_multiplication_model_general` (the Cayley
+route: bounded model of the resolvent `resOp`, then `A = R⁻¹ + i`).  Applying it is
+`diagUnb_multiplication_model`.  For a diagonal operator the model is degenerate — it *is*
+multiplication by `c` on `ℓ²` — so the concrete spectral statement needs no measures, and it is an
+identity rather than a bound: `lam` is in the resolvent set exactly when the symbol keeps a positive
+distance from `lam` (`inResolventSet_iff_exists_gap`).  Hence the spectrum is the closure of the
+range of the symbol (`closure_range_eq_compl_resolvent`).
+
+Both directions are elementary.  `δ`-separation gives the §17 resolvent `diagRes`.  Conversely a
+bounded two-sided inverse `R` moves a coordinate vector by at most `‖R‖ · |c n − lam|` while keeping
+its norm `1`, so `1 ≤ ‖R‖ · |c n − lam|` and therefore `(‖R‖ + 1)⁻¹ ≤ |c n − lam|` for every `n`.
+§19 stays consistent: the operator is already self-adjoint, so Faris–Lavine's closure is the
+operator itself.
+-/
+
+section Spectrum
+
+open BookProof.ChapterUnitaryTransport BookProof.ChapterStoneResolvent
+open BookProof.UnboundedSpectralModel BookProof.ChapterSpectralDirectSum
+open BookProof.ChapterSpectralMultiplication BookProof.ChapterAbelianGelfandModel
+open MeasureTheory
+
+open scoped BookProof.ChapterSpectralMultiplication
+
+/-- **The coordinate vectors are eigenvectors**, in the norm one states them in: the operator sends
+`lp.single 2 n 1` to `c n` times itself. -/
+theorem diagUnb_single {c : Idx d → ℝ} (n : Idx d) :
+    diagUnb c (lp.single 2 n 1) (memDom_single n 1) = (c n : ℂ) • lp.single 2 n 1 := by
+  apply lp.ext
+  funext m
+  rw [diagUnb_apply, lp.coeFn_smul, Pi.smul_apply, smul_eq_mul]
+  by_cases hm : m = n
+  · subst hm
+    rw [lp.single_apply_self]
+  · rw [lp.single_apply_ne 2 n 1 hm]
+    simp
+
+/-- **The adjoint domain is contained in the maximal domain.**  Testing the representing identity
+against coordinate vectors turns it into `c n · φ n = η n`; the weighted square-sum of `φ` is then
+the square-sum of `η`, which is finite because `η` is in `L²`.  This is the only place the diagonal
+structure enters, and it is what makes the operator self-adjoint on the largest domain it can have.
+-/
+theorem memDom_of_mem_adjointDomain {c : Idx d → ℝ} {phi : L2 d}
+    (hphi : phi ∈ adjointDomain (diagSub c) (diagSubLin c)) : memDom c phi := by
+  obtain ⟨eta, heta⟩ := hphi
+  have hL : ∀ n : Idx d,
+      (inner ℂ (diagSubLin c ⟨lp.single 2 n 1, memDom_single n 1⟩) phi : ℂ)
+        = (c n : ℂ) * phi n := by
+    intro n
+    have hsub : (diagSubLin c ⟨lp.single 2 n 1, memDom_single n 1⟩ : L2 d)
+        = diagUnb c (lp.single 2 n 1) (memDom_single n 1) := rfl
+    rw [hsub, diagUnb_single n, inner_smul_left, lp.inner_single_left, RCLike.inner_apply]
+    simp
+  have hcoord : ∀ n : Idx d, (c n : ℂ) * phi n = eta n := by
+    intro n
+    have h : (inner ℂ (diagSubLin c ⟨lp.single 2 n 1, memDom_single n 1⟩) phi : ℂ)
+        = inner ℂ (lp.single 2 n 1 : L2 d) eta := by
+      simpa using heta ⟨lp.single 2 n 1, memDom_single n 1⟩
+    rw [hL n, lp.inner_single_left, RCLike.inner_apply] at h
+    simpa using h
+  rw [memDom]
+  have heq : (fun n : Idx d => ‖(c n : ℂ) * phi n‖ ^ 2) = fun n => ‖eta n‖ ^ 2 := by
+    funext n
+    rw [hcoord n]
+  rw [heq]
+  exact summable_normSq eta
+
+/-- **The diagonal operator is self-adjoint on its maximal domain**: the adjoint domain is not
+merely contained in the domain, it *is* the domain.  The forward inclusion is
+`memDom_of_mem_adjointDomain`, the reverse is symmetry (§17). -/
+theorem adjointDomain_diagSubLin (c : Idx d → ℝ) :
+    adjointDomain (diagSub c) (diagSubLin c) = ((diagSub c : Submodule ℂ (L2 d)) : Set (L2 d)) := by
+  ext phi
+  refine ⟨fun hphi => memDom_of_mem_adjointDomain hphi, fun hphi => ?_⟩
+  exact ⟨diagUnb c phi hphi, fun psi => diagUnb_symmetric psi.2 hphi⟩
+
+/-- `diagUnb c` is self-adjoint on `diagSub c`, in the shape the spectral theory consumes. -/
+theorem diagSubLin_isSelfAdjointOn (c : Idx d → ℝ) :
+    IsSelfAdjointOn (diagSub c) (diagSubLin c) :=
+  adjointDomain_diagSubLin c
+
+/-- **The unbounded diagonal operator, bundled.**  No nonnegativity, no closure, no choice of
+extension: `diagUnb c` is self-adjoint on the domain of all states whose symbol-weighted square-sum
+is finite. -/
+def diagUnbSelfAdjoint (c : Idx d → ℝ) : UnboundedSelfAdjoint (L2 d) where
+  domain := diagSub c
+  op := diagSubLin c
+  denseDomain := dense_diagSub c
+  symmetric := diagSubLin_symmetric c
+  selfAdjoint := diagSubLin_isSelfAdjointOn c
+
+@[simp] theorem diagUnbSelfAdjoint_domain (c : Idx d → ℝ) :
+    (diagUnbSelfAdjoint c).domain = diagSub c := rfl
+
+@[simp] theorem diagUnbSelfAdjoint_op (c : Idx d → ℝ) :
+    (diagUnbSelfAdjoint c).op = diagSubLin c := rfl
+
+/-- **The workspace's unbounded spectral theorem applies to the diagonal operator.**  This is
+`unbounded_multiplication_model_general` — proved in `BookProof.ChapterUnboundedSpectralModel`
+by the Cayley route — instantiated at `diagUnbSelfAdjoint c`: the operator is unitarily a
+multiplication operator on a Hilbert sum of `L²` spaces over probability measures on the spectrum
+of its resolvent.  The concrete spectral statement below is sharper only because for a diagonal
+symbol the measures are read off the coordinates, so no model is needed to locate the spectrum. -/
+theorem diagUnb_multiplication_model (c : Idx d → ℝ) :
+    ∃ (S : Set (L2 d)) (mu : S → Measure (spectrum ℂ (resOp (diagUnbSelfAdjoint c))))
+      (V : ∀ x : S, Lp ℂ 2 (mu x) →ₗᵢ[ℂ] L2 d),
+      (∀ x : S, IsProbabilityMeasure (mu x)) ∧
+      IsHilbertSum ℂ (fun x : S => Lp ℂ 2 (mu x)) V ∧
+      (∀ x : S, ∀ᵐ z ∂(mu x), z.1 ≠ 0 ∧ ‖z.1‖ ^ 2 = z.1.im) ∧
+      (∀ (x : S) (u : Lp ℂ 2 (mu x)),
+        ∃ h : V x (mulRep (mu x) (coordFn (resOp (diagUnbSelfAdjoint c))) u)
+            ∈ (diagUnbSelfAdjoint c).domain,
+          (diagUnbSelfAdjoint c).op
+              ⟨V x (mulRep (mu x) (coordFn (resOp (diagUnbSelfAdjoint c))) u), h⟩
+            = V x (u + Complex.I • mulRep (mu x) (coordFn (resOp (diagUnbSelfAdjoint c))) u)) :=
+  unbounded_multiplication_model_general (diagUnbSelfAdjoint c)
+
+/-- **The resolvent set of the unbounded diagonal operator**, as a predicate: a bounded operator
+that is a two-sided inverse for `T − lam`.  Stated directly for `diagUnb` on `memDom c` (not for the
+bundle) so that the inverse identities are exactly §17's. -/
+def InResolventSet (c : Idx d → ℝ) (lam : ℝ) : Prop :=
+  ∃ R : L2 d →L[ℂ] L2 d,
+    (∀ f : L2 d, ∃ h : memDom c (R f), diagUnb c (R f) h - (lam : ℂ) • R f = f) ∧
+    (∀ (x : L2 d) (hx : memDom c x), R (diagUnb c x hx - (lam : ℂ) • x) = x)
+
+/-- **A positive distance from the symbol gives a resolvent.**  This is §17's `diagRes` packaged as
+the resolvent-set predicate. -/
+theorem inResolventSet_of_gap {c : Idx d → ℝ} {lam δ : ℝ} (hδ0 : 0 < δ)
+    (hδ : ∀ n : Idx d, δ ≤ |c n - lam|) : InResolventSet c lam :=
+  ⟨diagRes c lam δ hδ0 hδ,
+    fun f => ⟨memDom_diagRes hδ0 hδ f, diagUnb_diagRes hδ0 hδ f⟩,
+    fun _ hx => diagRes_left hδ0 hδ hx⟩
+
+/-- **The resolvent set forces a positive distance from the symbol.**  A coordinate vector is moved
+by the factor `|c n − lam|` and recovered with norm `1` by a bounded inverse, so
+`(‖R‖ + 1)⁻¹` is a lower bound for the distance of the symbol's range from `lam`.  This is the
+harder half of "spectrum = closure of the range", and it is where boundedness of the inverse is
+used. -/
+theorem exists_gap_of_inResolventSet {c : Idx d → ℝ} {lam : ℝ} (h : InResolventSet c lam) :
+    ∃ δ : ℝ, 0 < δ ∧ ∀ n : Idx d, δ ≤ |c n - lam| := by
+  obtain ⟨R, -, hleft⟩ := h
+  have hsingleNorm : ∀ i : Idx d, ‖(lp.single 2 i 1 : L2 d)‖ = 1 := by
+    intro i
+    rw [lp.norm_single (by norm_num : (0 : ℝ≥0∞) < 2)]
+    simp
+  have hnorm : ∀ n : Idx d,
+      ‖diagUnb c (lp.single 2 n 1) (memDom_single n 1)
+        - (lam : ℂ) • lp.single 2 n 1‖ = |c n - lam| := by
+    intro m
+    rw [diagUnb_single m, ← sub_smul, norm_smul, lp.norm_single (by norm_num)]
+    rw [norm_one, mul_one, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
+  have hmove : ∀ m : Idx d, (1 : ℝ) ≤ ‖R‖ * |c m - lam| := by
+    intro m
+    have hrec : ‖(lp.single 2 m 1 : L2 d)‖
+        = ‖R (diagUnb c (lp.single 2 m 1) (memDom_single m 1)
+            - (lam : ℂ) • lp.single 2 m 1)‖ := by
+      rw [hleft _ (memDom_single m 1)]
+    calc (1 : ℝ) = ‖(lp.single 2 m 1 : L2 d)‖ := (hsingleNorm m).symm
+      _ = ‖R (diagUnb c (lp.single 2 m 1) (memDom_single m 1)
+              - (lam : ℂ) • lp.single 2 m 1)‖ := hrec
+      _ ≤ ‖R‖ * ‖diagUnb c (lp.single 2 m 1) (memDom_single m 1)
+              - (lam : ℂ) • lp.single 2 m 1‖ := R.le_opNorm _
+      _ = ‖R‖ * |c m - lam| := by rw [hnorm m]
+  refine ⟨(‖R‖ + 1)⁻¹, by positivity, fun n => ?_⟩
+  have hpos : (0 : ℝ) < ‖R‖ + 1 := by positivity
+  refine (inv_le_iff_one_le_mul₀ hpos).2 ?_
+  have hstep : ‖R‖ * |c n - lam| ≤ (‖R‖ + 1) * |c n - lam| :=
+    mul_le_mul_of_nonneg_right (by linarith) (abs_nonneg _)
+  have hle := hmove n
+  nlinarith [hle, hstep]
+
+/-- **`lam` is in the resolvent set exactly when the symbol stays a positive distance away.** -/
+theorem inResolventSet_iff_exists_gap {c : Idx d → ℝ} {lam : ℝ} :
+    InResolventSet c lam ↔ ∃ δ : ℝ, 0 < δ ∧ ∀ n : Idx d, δ ≤ |c n - lam| :=
+  ⟨exists_gap_of_inResolventSet, fun ⟨_, hδ0, hδ⟩ => inResolventSet_of_gap hδ0 hδ⟩
+
+/-- **`lam` is in the spectrum exactly when it is a limit point of the symbol's range** — the
+negation of the resolvent-set criterion, in the `∀ δ > 0` form. -/
+theorem notMem_inResolventSet_iff {c : Idx d → ℝ} {lam : ℝ} :
+    ¬ InResolventSet c lam ↔ ∀ δ : ℝ, 0 < δ → ∃ n : Idx d, |c n - lam| < δ := by
+  rw [inResolventSet_iff_exists_gap]
+  constructor
+  · intro h δ hδ
+    by_contra hcon
+    push_neg at hcon
+    exact h ⟨δ, hδ, hcon⟩
+  · rintro h ⟨δ, hδ0, hδ⟩
+    obtain ⟨n, hn⟩ := h δ hδ0
+    linarith [hδ n]
+
+/-- **The spectrum of the unbounded diagonal operator is the closure of the symbol's range.**
+`diagUnbSelfAdjoint c` is self-adjoint on the maximal domain, so this is a statement about the
+operator itself and not about a chosen extension; the bounded cut-offs of §17–§18 have the same
+spectral hole, approached at the resolvent level by `tendsto_diagRes_cutoff_degree`. -/
+theorem closure_range_eq_compl_resolvent (c : Idx d → ℝ) :
+    closure (Set.range c) = {lam : ℝ | ¬ InResolventSet c lam} := by
+  ext lam
+  rw [Set.mem_setOf_eq, notMem_inResolventSet_iff, Metric.mem_closure_iff]
+  constructor
+  · intro h δ hδ
+    obtain ⟨y, ⟨n, rfl⟩, hy⟩ := h δ hδ
+    refine ⟨n, ?_⟩
+    rw [Real.dist_eq] at hy
+    rwa [abs_sub_comm]
+  · intro h ε hε
+    obtain ⟨n, hn⟩ := h ε hε
+    refine ⟨c n, ⟨n, rfl⟩, ?_⟩
+    rw [Real.dist_eq, abs_sub_comm]
+    exact hn
+
+end Spectrum
 
 end BookProof.YangMillsFormClosureND

@@ -942,16 +942,25 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     self-adjoint operator on a domain containing the operator's own domain and agreeing with it
     there; the finite-support states are dense, so the extension theory applies.  The degree
     symbol's operator is the instance.
-  - *What is still open.*  The gap and the spectral hole for the *unbounded* symbol are still not
-    phrased in terms of a `spectrum` — the self-adjoint operator exists and agrees with the
-    operator on its domain, but identifying its spectrum with the range of the symbol (the
-    spectral theorem for a diagonal operator) is not done.  Kato–Rellich is proved in the operator
-    mode, not as the self-adjointness of an unbounded form sum — the corpus has the relative-bound
-    certificate (`closed_farisLavine_domination`) but no form→operator representation theorem.
-    Also open: the
-    identification of the Yang–Mills one-particle operator with the abstract `T`, and the
-    Källén–Lehmann/clustering step that would read the gap off the Euclidean two-point function.
-    No strictly positive mass gap of the physical continuum Hamiltonian is claimed.
+  - *the spectrum of the unbounded symbol (2026-11-05).*  §20 needs no extension theory: the
+    diagonal operator is self-adjoint on its **maximal** domain.  Testing the representing identity
+    of the adjoint domain against coordinate vectors reads off `c n · φ n = η n`, so the adjoint
+    domain sits inside the domain (`memDom_of_mem_adjointDomain`) and, by §17's symmetry, equals it:
+    `adjointDomain_diagSubLin`.  The bundled `UnboundedSelfAdjoint` `diagUnbSelfAdjoint` is then the
+    input of the workspace's unbounded spectral theorem — `unbounded_multiplication_model_general`
+    of `BookProof.ChapterUnboundedSpectralModel`, the Cayley route — applied as
+    `diagUnb_multiplication_model`.  The concrete spectral statement is elementary and exact:
+    `InResolventSet` (bounded two-sided invertibility of `T − lam`) is equivalent to a positive
+    distance between `lam` and the symbol's range (`inResolventSet_iff_exists_gap`), so the spectrum
+    is the **closure of the range of the symbol** (`closure_range_eq_compl_resolvent`).
+  - *What is still open.*  The unbounded spectral statement is for the diagonal multiplication
+    operator; the Yang–Mills one-particle operator is still not identified with the abstract `T`,
+    so nothing here is a statement about that operator's spectrum.  Kato–Rellich is proved in the
+    operator mode, not as the self-adjointness of an unbounded form sum — the corpus has the
+    relative-bound certificate (`closed_farisLavine_domination`) but no form→operator
+    representation theorem.  Also open: the Källén–Lehmann/clustering step that would read the gap
+    off the Euclidean two-point function.  No strictly positive mass gap of the physical continuum
+    Hamiltonian is claimed.
 
 ---
 
