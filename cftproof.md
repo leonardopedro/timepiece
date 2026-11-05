@@ -259,10 +259,19 @@ is the verification gate; no module below contains `sorry`.
   the boundary factor is `PUnit`, and `splitMap ω = (fkKernelMeasure ρd νd).map Prod.snd` *is* the
   hypothesis of `isReflectionPositive_of_fkKernelMeasure`, which returns `hRP` from
   `fkKernel_reflectionPositive` alone; the Wilson weights are the same statement via
-  `wilsonMeasure_eq_fkKernelMeasure`.  What remains is not an identification but the construction
-  of the measure itself: a model of `ω` on `Config` (the lattice Gibbs measure with its coupling)
-  whose split *is* the kernel law, and the odd-slice geometry in which the boundary carries a
-  non-trivial law. What is proved is its preservation under limit
+  `wilsonMeasure_eq_fkKernelMeasure`.  What remained was the construction of the measure itself,
+  and a first case is now in place (§7 of the same file, 2026-11-05): `gffConfigMeasure m` is the
+  Gibbs measure of the mass (ultralocal) action `S(x) = (m/2) Σ_i (x i)²` on `Config`, written as
+  a density against Lebesgue measure on `Config`; `configAction_eq_split` proves `S` separable
+  across the halves with the *same* half action on both, Lebesgue measure on `Config` is proved
+  invariant under the split (`measurePreserving_configSplitEquiv`), and
+  **`splitMap_gffConfigMeasure`** identifies the split law as the product `ν ⊗ ν` of the same
+  half-space Gibbs density — the kernel law with a trivial boundary factor.  Two things are still
+  open: rewriting that product into the exact `(fkKernelMeasure (Z₀ := PUnit) …).map Prod.snd`
+  shape §6 consumes (bookkeeping over the trivial base measure, not carried out), and the coupled
+  case — a nearest-neighbour action does *not* split this way, its cross-plane edge couples the
+  halves, which is why the free-field theorem uses the `2n+1`-slice model with a boundary slice
+  where the boundary carries a non-trivial law. What is proved is its preservation under limit
   (`reflection_positivity_continuum`), the momentum-space form for a free field — degree one in
   `MomentumBasis`, degree two in `QuadraticWick`, and  all degrees in `FeynmanKac` *given* the Markov/product structure of the measure — **that
   structure holding for the concrete lattice free field in the kernel form `ρ ⊗ ν_z ⊗ ν_z`

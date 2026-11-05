@@ -374,6 +374,211 @@ theorem isReflectionPositive_of_wilsonKernelMeasure (ω : MeasureTheory.Measure 
     (wilsonHalfWeight β N U) ?_ hD hρ hν f hint hF hf
   rw [hsplit, wilsonMeasure_eq_fkKernelMeasure]
 
+/-! ## 7. The finite-volume Gaussian measure on `Config` and its split law
+
+§6 identified `splitMap ω` with the kernel measure *conditionally on* `ω`.  This section constructs
+the measure: the Gibbs measure of the mass (ultralocal) Gaussian action
+`S(x) = (m/2) Σ_i (x i)²` on `Config`, written as a density against Lebesgue measure
+(`gffConfigMeasure`).
+
+`S` is a sum of one term per component and `configSplit` only permutes components, so `S` is
+separable across the halves with the *same* half action on both (`configAction_eq_split`) — the
+reflection invariance of the density.  Pushing the measure along `configSplit` therefore gives
+`ν ⊗ ν` with `ν = exp(−h)` (**`splitMap_gffConfigMeasure`**), which is the kernel law with a
+trivial boundary factor: the `hsplit` hypothesis §6 consumes, up to the bookkeeping that rewrites
+the product `ν ⊗ ν` as `(fkKernelMeasure (Z₀ := PUnit) _ _).map Prod.snd` (a `PUnit` base measure
+against `Prod.snd`; not carried out here).  What is proved is the split law itself, i.e. the
+measure-theoretic content of the identification.
+
+Honest boundary: the ultralocal action has no gradient term, so it is the free field whose slices
+decouple.  A nearest-neighbour action does *not* split this way — its cross-plane edge couples the
+two halves — which is exactly why the free-field OS theorem is stated on the `2n+1`-slice model
+with a boundary slice (`latticeGFFMeasure`, where the split law `ρ ⊗ ν_z ⊗ ν_z` is a mixture over
+the boundary slice).  Transporting the *interacting* (nearest-neighbour) Gibbs measure on `Config`
+to split coordinates is therefore a different and still open modelling step; what is settled below
+is the `Config`-side construction and its split law. -/
+
+/-! ### The two halves as one index set -/
+
+/-- The component index set as the disjoint union of the two halves: the past is read through `θ`,
+the future directly.  This is the index arithmetic `PosTime ⊕ PosTime ≃ Fin latticeDim` that §6
+left implicit. -/
+def halvesEquiv : PosTime ⊕ PosTime ≃ Fin latticeDim where
+  toFun s := match s with
+    | Sum.inl j => reflectCoord j.1
+    | Sum.inr j => j.1
+  invFun i := if h : isPosTime i then Sum.inr ⟨i, h⟩
+    else Sum.inl ⟨reflectCoord i, (isPosTime_reflectCoord i).2 h⟩
+  left_inv := by
+    rintro (j | j)
+    · have hneg : ¬ isPosTime (reflectCoord j.1) := fun hc =>
+        (isPosTime_reflectCoord j.1).1 hc j.2
+      simp only [dif_neg hneg, reflectCoord_involutive]
+    · simp only [dif_pos j.2]
+  right_inv := by
+    intro i
+    by_cases h : isPosTime i
+    · simp only [dif_pos h]
+    · simp only [dif_neg h, reflectCoord_involutive]
+
+theorem halvesEquiv_inl (j : PosTime) : halvesEquiv (Sum.inl j) = reflectCoord j.1 := rfl
+
+theorem halvesEquiv_inr (j : PosTime) : halvesEquiv (Sum.inr j) = j.1 := rfl
+
+/-- **The mass action splits over the two halves**: the sum over all components is the sum over the
+past (read through `θ`) plus the sum over the future. -/
+theorem sum_sq_split (x : Config) :
+    ∑ i, (x i) ^ 2
+      = (∑ j : PosTime, (x (reflectCoord j.1)) ^ 2) + ∑ j : PosTime, (x j.1) ^ 2 := by
+  have h1 : (∑ s : PosTime ⊕ PosTime, (match s with
+          | Sum.inl j => x (reflectCoord j.1)
+          | Sum.inr j => x j.1) ^ 2) = ∑ i : Fin latticeDim, (x i) ^ 2 :=
+    Fintype.sum_equiv halvesEquiv
+      (fun s : PosTime ⊕ PosTime => (match s with
+        | Sum.inl j => x (reflectCoord j.1)
+        | Sum.inr j => x j.1) ^ 2)
+      (fun i : Fin latticeDim => (x i) ^ 2)
+      (fun s => by cases s <;> rfl)
+  rw [← h1, Fintype.sum_sum_type]
+/-! ### The action, the Gibbs density and the measure -/
+
+open scoped ENNReal
+
+/-- The half-space mass action on one half: `(m/2) Σ_j (y j)²`. -/
+def halfMassAction (m : ℝ) (y : PosTime → ℝ) : ℝ := (m / 2) * ∑ j, (y j) ^ 2
+
+/-- **The mass (ultralocal) Gaussian action on the finite volume**: `(m/2) Σ_i (x i)²`. -/
+def configAction (m : ℝ) (x : Config) : ℝ := (m / 2) * ∑ i, (x i) ^ 2
+
+/-- **The action splits over the halves**: `S(x) = h(y₋) + h(y₊)` with the *same* half action on
+both sides.  This is reflection invariance at the level of the density. -/
+theorem configAction_eq_split (m : ℝ) (x : Config) :
+    configAction m x
+      = halfMassAction m (configSplitFun x).1 + halfMassAction m (configSplitFun x).2 := by
+  unfold configAction halfMassAction configSplitFun
+  rw [sum_sq_split x, mul_add]
+
+theorem measurable_configAction (m : ℝ) : Measurable fun x : Config => configAction m x := by
+  unfold configAction
+  refine Measurable.mul measurable_const ?_
+  exact Finset.measurable_sum _ fun i _ => (measurable_pi_apply i).pow_const 2
+
+/-- The Gibbs density `exp(−S)` of the mass Gaussian measure. -/
+def configGibbsDensity (m : ℝ) (x : Config) : ℝ≥0∞ :=
+  ENNReal.ofReal (Real.exp (-(configAction m x)))
+
+theorem measurable_configGibbsDensity (m : ℝ) : Measurable (configGibbsDensity m) :=
+  ENNReal.measurable_ofReal.comp
+    (Real.measurable_exp.comp (measurable_configAction m).neg)
+
+/-- **The finite-volume Gaussian measure on `Config`**: the (unnormalised) Gibbs measure of the
+mass action, as a density `exp(−S)` against Lebesgue measure on `Config`. -/
+def gffConfigMeasure (m : ℝ) : MeasureTheory.Measure Config :=
+  (volume : MeasureTheory.Measure Config).withDensity (configGibbsDensity m)
+
+/-! ### The split as a measurable equivalence, and volume preservation
+
+`configSplit` permutes the components and curries, so Lebesgue measure on `Config` is preserved.
+The proof goes through the index equivalence `halvesEquiv`: `piCongrLeft` along it is measure
+preserving (`pi_map_piCongrLeft`), and `sumPiEquivProdPi` is measure preserving
+(`volume_measurePreserving_sumPiEquivProdPi`). -/
+
+/-- `configSplit` as a measurable equivalence. -/
+def configSplitEquiv : Config ≃ᵐ (PosTime → ℝ) × (PosTime → ℝ) :=
+  (MeasurableEquiv.piCongrLeft (fun _ : Fin latticeDim => ℝ) halvesEquiv).symm.trans
+    (MeasurableEquiv.sumPiEquivProdPi (fun _ : PosTime ⊕ PosTime => ℝ))
+
+theorem configSplitEquiv_apply (x : Config) : configSplitEquiv x = configSplitFun x := by
+  refine Prod.ext ?_ ?_
+  · funext j
+    simp [configSplitEquiv, configSplitFun, MeasurableEquiv.sumPiEquivProdPi,
+      MeasurableEquiv.piCongrLeft, Equiv.piCongrLeft, halvesEquiv]
+  · funext j
+    simp [configSplitEquiv, configSplitFun, MeasurableEquiv.sumPiEquivProdPi,
+      MeasurableEquiv.piCongrLeft, Equiv.piCongrLeft, halvesEquiv]
+
+/-- **The split is measurable** (restated from §5 via the measurable equivalence). -/
+theorem measurable_configSplitEquiv :
+    Measurable (configSplitFun : Config → (PosTime → ℝ) × (PosTime → ℝ)) := by
+  rw [show configSplitFun
+      = (configSplitEquiv : Config → (PosTime → ℝ) × (PosTime → ℝ))
+      from funext configSplitEquiv_apply]
+  exact configSplitEquiv.measurable
+
+theorem measurable_configJoinFun :
+    Measurable (configJoinFun : (PosTime → ℝ) × (PosTime → ℝ) → Config) := by
+  refine measurable_pi_iff.2 fun i => ?_
+  by_cases h : isPosTime i
+  · simpa only [configJoinFun, dif_pos h] using
+      (measurable_pi_apply (⟨i, h⟩ : PosTime)).comp measurable_snd
+  · simpa only [configJoinFun, dif_neg h] using
+      (measurable_pi_apply
+        (⟨reflectCoord i, (isPosTime_reflectCoord i).2 h⟩ : PosTime)).comp measurable_fst
+
+/-- **The split preserves Lebesgue measure.** -/
+theorem measurePreserving_configSplitEquiv :
+    MeasureTheory.MeasurePreserving configSplitEquiv volume volume := by
+  have h1 : MeasureTheory.MeasurePreserving
+      (MeasurableEquiv.sumPiEquivProdPi (fun _ : PosTime ⊕ PosTime => ℝ)) volume volume :=
+    MeasureTheory.volume_measurePreserving_sumPiEquivProdPi _
+  have h2 : MeasureTheory.MeasurePreserving
+      (MeasurableEquiv.piCongrLeft (fun _ : Fin latticeDim => ℝ) halvesEquiv).symm volume volume :=
+    (MeasureTheory.measurePreserving_piCongrLeft
+      (fun _ : Fin latticeDim => (volume : MeasureTheory.Measure ℝ)) halvesEquiv).symm
+  exact h1.comp h2
+
+theorem volume_map_configSplitFun :
+    (volume : MeasureTheory.Measure Config).map configSplitFun = volume := by
+  rw [show configSplitFun
+      = (configSplitEquiv : Config → (PosTime → ℝ) × (PosTime → ℝ))
+      from funext configSplitEquiv_apply]
+  exact measurePreserving_configSplitEquiv.map_eq
+
+/-! ### Transporting a density along the split -/
+
+/-- Pushing a measure with a density along a measurable equivalence pushes the density back along
+the inverse. -/
+theorem map_withDensity_measurableEquiv {α β : Type*} [MeasurableSpace α] [MeasurableSpace β]
+    (e : α ≃ᵐ β) (μ : MeasureTheory.Measure α) (f : α → ℝ≥0∞)
+    (hf : Measurable f) :
+    (μ.withDensity f).map e = (μ.map e).withDensity (fun y => f (e.symm y)) := by
+  ext t ht
+  rw [MeasureTheory.Measure.map_apply e.measurable ht,
+    MeasureTheory.withDensity_apply _ (e.measurable ht),
+    MeasureTheory.withDensity_apply _ ht,
+    MeasureTheory.Measure.restrict_map e.measurable ht]
+  change ∫⁻ a in e ⁻¹' t, f a ∂μ
+    = ∫⁻ a, (f ∘ e.symm) a ∂(MeasureTheory.Measure.map e (μ.restrict (e ⁻¹' t)))
+  rw [MeasureTheory.lintegral_map (hf.comp e.symm.measurable) e.measurable]
+  simp
+
+/-! ### The split law of the Gaussian measure -/
+
+/-- **The split law of the finite-volume Gaussian measure on `Config`**: pushing `gffConfigMeasure`
+along `configSplit` gives the product of the *same* half-space Gibbs density on the two halves —
+the density is separable, which is the whole content of reflection invariance here. -/
+theorem splitMap_gffConfigMeasure (m : ℝ) :
+    splitMap (gffConfigMeasure m)
+      = ((volume : MeasureTheory.Measure (PosTime → ℝ)).prod
+          (volume : MeasureTheory.Measure (PosTime → ℝ))).withDensity
+          (fun p => ENNReal.ofReal (Real.exp (-(halfMassAction m p.1))
+            * Real.exp (-(halfMassAction m p.2)))) := by
+  rw [splitMap, gffConfigMeasure,
+    show configSplitFun
+      = (configSplitEquiv : Config → (PosTime → ℝ) × (PosTime → ℝ))
+      from funext configSplitEquiv_apply,
+    map_withDensity_measurableEquiv configSplitEquiv volume (configGibbsDensity m)
+      (measurable_configGibbsDensity m),
+    measurePreserving_configSplitEquiv.map_eq]
+  congr 1
+  funext p
+  have hsplit : configSplitFun (configSplitEquiv.symm p) = p := by
+    rw [← configSplitEquiv_apply, MeasurableEquiv.apply_symm_apply]
+  rw [configGibbsDensity, configAction_eq_split, hsplit, ← Real.exp_add]
+  congr 1
+  congr 1
+  ring
+
 end
 
 end BookProof.ReflectionPositivity
