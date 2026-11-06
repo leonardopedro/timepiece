@@ -44,7 +44,7 @@ The generator side is now built on this semigroup: `SemigroupGenerator` defines 
 `physEvolCompletionRightFun`, and proves closedness, dissipativity and the a priori resolvent
 estimate there.  The group-level objects of `Generator` (now `diffQuotGroup`, `HasGen`,
 `genDomain`, `generator`) remain typed with the two-sided hypothesis, because the family
-`P : mathbb{R} 	o B(mathcal{H})` they describe does not exist for `	au < 0` under the forward
+`P : ℝ → B(ℋ)` they describe does not exist for τ < 0 under the forward
 hypothesis.
 
 namespace BookProof.OSReconstruction
