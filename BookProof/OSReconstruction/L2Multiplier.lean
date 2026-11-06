@@ -46,6 +46,10 @@ This module builds the operator instead:
 * `support_klMeasure_subset_Ici_zero`, `klMeasure_Iio_of_support_subset` — the support lies in
   `[0, ∞)`, and the exponential tail bound holds for every `m` at or below it, so the sharpest
   case `m = sInf (support)` is available;
+* `klMeasure_pos_of_pos`, `klMeasure_pos_of_isOpen_meets_range`,
+  `support_klMeasure_eq_closure_range_of_measure`, `sInf_support_klMeasure_eq` — the essential-range
+  hypothesis is derived from properties of `ν` (`z ≠ 0` a.e. and positive `ν`-mass on the relevant
+  preimages), and the sharp exponent is `sInf (closure (range f))`;
 * `laplace_antitoneOn`, `twoPoint_antitoneOn` — the transform, hence the physical two-point
   function, is antitone on `[0, ∞)`;
 * `tendsto_physEvol_slope`, `tendsto_inner_slope_twoPoint` — the right difference quotient of `P` at
@@ -978,6 +982,71 @@ theorem support_klMeasure_eq_closure_range {z : X → ℝ} {f : X → ℝ} (hf :
   Set.Subset.antisymm (support_klMeasure_subset_closure_range hf)
     (closure_range_subset_support_klMeasure hpos)
 
+/-- **The KL mass of a set is positive when `ν` gives its preimage positive mass.**  The weight `z²`
+is a.e. nonzero, so on a `ν`-positive set it is a.e. positive, and the `lintegral` is positive. -/
+theorem klMeasure_pos_of_pos {z : X → ℝ} (hz : Measurable z) (hzne : ∀ᵐ x ∂ν, z x ≠ 0)
+    {f : X → ℝ} (hf : Measurable f) {U : Set ℝ} (hU : MeasurableSet U)
+    (hUν : 0 < ν (f ⁻¹' U)) : 0 < klMeasure ν f z U := by
+  have hs : MeasurableSet (f ⁻¹' U) := hf hU
+  have hz0 : MeasurableSet {x : X | z x = 0} := hz (measurableSet_singleton 0)
+  have hmem : MeasurableSet {x : X | z x ≠ 0} := hz0.compl
+  have hnull : ν {x : X | z x = 0} = 0 := by
+    have h := ae_iff.1 hzne
+    simpa using h
+  have hset : {x : X | ENNReal.ofReal (z x * z x) ≠ 0} = {x : X | z x ≠ 0} := by
+    ext x
+    simp only [Set.mem_setOf_eq, ne_eq, ENNReal.ofReal_eq_zero, not_le]
+    exact ⟨fun h => mul_self_pos.1 h, fun h => mul_self_pos.2 h⟩
+  have hzero : ν (f ⁻¹' U \ {x : X | z x ≠ 0}) = 0 := by
+    have hsub : f ⁻¹' U \ {x : X | z x ≠ 0} ⊆ {x : X | z x = 0} := by
+      intro x hx
+      simp only [Set.mem_diff, Set.mem_setOf_eq, not_ne_iff] at hx
+      exact hx.2
+    exact le_antisymm (((ν).mono hsub).trans (le_of_eq hnull)) (zero_le _)
+  have hadd := measure_inter_add_diff (μ := ν) (f ⁻¹' U) hmem
+  have hpos : ν (f ⁻¹' U ∩ {x : X | z x ≠ 0}) = ν (f ⁻¹' U) := by
+    rw [← hadd, hzero, add_zero]
+  have hgmeas : Measurable fun x => ENNReal.ofReal (z x * z x) :=
+    ENNReal.measurable_ofReal.comp (hz.mul hz)
+  rw [klMeasure, Measure.map_apply hf hU, withDensity_apply _ hs]
+  by_contra hcon
+  have hI0 : ∫⁻ x in f ⁻¹' U, ENNReal.ofReal (z x * z x) ∂ν = 0 :=
+    le_antisymm (not_lt.1 hcon) (zero_le _)
+  have hae : (fun x => ENNReal.ofReal (z x * z x)) =ᵐ[ν.restrict (f ⁻¹' U)] 0 :=
+    (lintegral_eq_zero_iff hgmeas).1 hI0
+  have hsupp0 : (ν.restrict (f ⁻¹' U)) {x : X | ENNReal.ofReal (z x * z x) ≠ 0} = 0 := by
+    have h := ae_iff.1 hae
+    simpa using h
+  rw [hset, Measure.restrict_apply hmem, Set.inter_comm, hpos] at hsupp0
+  exact absurd hsupp0 (ne_of_gt hUν)
+
+/-- **The KL weight is positive on open sets meeting the range**, given that `ν` gives positive mass
+to the corresponding preimages: the essential-range hypothesis is a property of `ν`. -/
+theorem klMeasure_pos_of_isOpen_meets_range {z : X → ℝ} (hz : Measurable z)
+    (hzne : ∀ᵐ x ∂ν, z x ≠ 0) {f : X → ℝ} (hf : Measurable f)
+    (hνpos : ∀ U : Set ℝ, IsOpen U → (U ∩ Set.range f).Nonempty → 0 < ν (f ⁻¹' U))
+    {U : Set ℝ} (hUo : IsOpen U) (hne : (U ∩ Set.range f).Nonempty) :
+    0 < klMeasure ν f z U :=
+  klMeasure_pos_of_pos hz hzne hf hUo.measurableSet (hνpos U hUo hne)
+
+/-- **The support of the KL measure is `closure (range f)`** under positivity of `ν` on preimages
+of open sets meeting the range. -/
+theorem support_klMeasure_eq_closure_range_of_measure {z : X → ℝ} (hz : Measurable z)
+    (hzne : ∀ᵐ x ∂ν, z x ≠ 0) {f : X → ℝ} (hf : Measurable f)
+    (hνpos : ∀ U : Set ℝ, IsOpen U → (U ∩ Set.range f).Nonempty → 0 < ν (f ⁻¹' U)) :
+    Measure.support (klMeasure ν f z) = closure (Set.range f) :=
+  support_klMeasure_eq_closure_range hf fun U hUo hne =>
+    klMeasure_pos_of_pos hz hzne hf hUo.measurableSet (hνpos U hUo hne)
+
+/-- **The infimum of the support of the KL measure is the infimum of the essential range of `f`**:
+under the essential-range hypothesis the support *is* that essential range, so the exponent of the
+sharp tail bound is `sInf (closure (range f))`. -/
+theorem sInf_support_klMeasure_eq {z : X → ℝ} (hz : Measurable z)
+    (hzne : ∀ᵐ x ∂ν, z x ≠ 0) {f : X → ℝ} (hf : Measurable f)
+    (hνpos : ∀ U : Set ℝ, IsOpen U → (U ∩ Set.range f).Nonempty → 0 < ν (f ⁻¹' U)) :
+    sInf (Measure.support (klMeasure ν f z)) = sInf (closure (Set.range f)) := by
+  rw [support_klMeasure_eq_closure_range_of_measure hz hzne hf hνpos]
+
 /-- **The KL measure is supported on `[0, ∞)`** when `f ≥ 0`, in the sense of `Measure.support`. -/
 theorem support_klMeasure_subset_Ici_zero {z : X → ℝ} {f : X → ℝ} (hf : Measurable f)
     (hpos : ∀ᵐ x ∂ν, 0 ≤ f x) :
@@ -1029,6 +1098,22 @@ theorem twoPoint_le_norm_sq_mul_exp_sInf (Λ : OSState) (T : TimeTranslation)
     exact Set.mem_Ici.1 (support_klMeasure_subset_Ici_zero hf hpos hy)
   exact twoPoint_le_norm_sq_mul_exp_of_support Λ T hinv hf hpos U z hzh hzhm hUz hU
     (fun y hy => csInf_le hbdd hy) hτ
+
+/-- **The tail bound with the infimum of the essential range of `f` as exponent**, obtained from
+the support form by rewriting `sInf (support) = sInf (closure (range f))`. -/
+theorem twoPoint_le_norm_sq_mul_exp_range (Λ : OSState) (T : TimeTranslation)
+    (hinv : HinvRight Λ T) {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
+    {zh : X → ℝ} (hzh : MemLp zh 2 ν) (hzhm : Measurable zh) (hUz : U z = hzh.toLp zh)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    (hzne : ∀ᵐ x ∂ν, zh x ≠ 0)
+    (hνpos : ∀ V : Set ℝ, IsOpen V → (V ∩ Set.range f).Nonempty → 0 < ν (f ⁻¹' V))
+    {τ : ℝ} (hτ : 0 ≤ τ) :
+    ⟪z, physEvolCompletionRightFun hinv τ z⟫ ≤
+      ‖z‖ ^ 2 * Real.exp (-(sInf (closure (Set.range f)) * τ)) := by
+  have h := twoPoint_le_norm_sq_mul_exp_sInf Λ T hinv hf hpos U z hzh hzhm hUz hU hτ
+  rwa [sInf_support_klMeasure_eq hzhm hzne hf hνpos] at h
 
 /-! ## Convexity in time -/
 

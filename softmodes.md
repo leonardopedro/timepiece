@@ -1125,10 +1125,14 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     P(τ)y⟫` has right derivative `−⟪x, M⟫` at `0`); `klMeasure_absolutelyContinuous` places the KL
     measure under the push-forward `ν.map f`, and `klMeasure_finite` records it as finite and
     supported on `[0, ∞)`. Beyond the mass gap, the support is the essential range of `f` for the
-    weight `z² dν` — `support_klMeasure_subset_closure_range` always, and
-    `support_klMeasure_eq_closure_range` once the weight is positive on opens meeting the range —
-    so the tail bound holds for every `m` at or below the support, sharpest as
-    `twoPoint_le_norm_sq_mul_exp_sInf` with `m = sInf (support)`.
+    weight `z² dν`. Unconditional: `support_klMeasure_subset_closure_range` (support inside
+    `closure (range f)`), `support_klMeasure_subset_Ici_zero`, and the tail bounds
+    `twoPoint_le_norm_sq_mul_exp_of_support` / `_sInf` at or below the support. Dependent on the
+    essential-range hypothesis (weight positive on opens meeting `range f`):
+    `support_klMeasure_eq_closure_range`, its infimum form `sInf_support_klMeasure_eq` — exponent
+    `sInf (closure (range f))` — and `twoPoint_le_norm_sq_mul_exp_range`. That hypothesis is not
+    free: `support_klMeasure_eq_closure_range_of_measure` derives it from properties of `ν`
+    itself (`z ≠ 0` a.e. and positive `ν`-mass on the preimages of opens meeting the range).
     Not claimed: that the transfer
     semigroup `P` *is* this flow (that is the
     theorem for the generator, still absent), so `generatorRight = −M_f` is asserted for the flow
