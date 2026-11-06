@@ -357,7 +357,7 @@ theorem hs_mass_magSymKernelTrunc (N : ℕ) (A : Fin d → ℝ) (s : Finset (Idx
     calc ∑ m ∈ t, ∑ n ∈ t, ‖magSymKernelTrunc N A m n‖ ^ 2
         ≤ ∑ _m ∈ t, (t.card : ℝ) * E := Finset.sum_le_sum hcol
       _ = (t.card : ℝ) * ((t.card : ℝ) * E) := by
-          simp [Finset.sum_const, nsmul_eq_mul, mul_assoc]
+          simp [Finset.sum_const, nsmul_eq_mul]
   refine hstep.trans ?_
   have hCC : (t.card : ℝ) * (t.card : ℝ)
       ≤ (((N + 1 : ℕ) : ℝ) ^ d) * (((N + 1 : ℕ) : ℝ) ^ d) :=
