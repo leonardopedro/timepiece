@@ -990,7 +990,11 @@ this repository is diagonal — `yangMillsForm_eq_diagonalForm` — and `gaugeRe
 (torsion) forms, so the reduced theory's magnetic slot carries no off-diagonal ladder: the bound
 below is a bound on the coupling, not on the eliminated form as formalized.  Transferring it would
 need the off-diagonal part of the reduced second-quantized Hamiltonian to be identified with
-`magCutoffKernel`, which is not done here. -/
+`magCutoffKernel`.  `YangMillsLadderTransport` supplies the matrix-entry half of that: the entries
+of `magCutoffKernel` (and of the zero-extended `boxKernel`) are exactly `Aᵢ` times the matrix
+elements of the Hermite creation ladder, transported from `Finsupp` multi-indices to the `Idx d`
+occupation functions (`magCutoffKernel_eq_ladder`, `boxKernel_eq_ladder`).  The operator-level
+identification is still not done. -/
 
 /-- **A row bound from an entry bound, on a finite index set.**  Summing a matrix by rows costs one
 row bound per column, i.e. `card ι` times `r`. -/

@@ -36,11 +36,14 @@ proved is the part that does not need them: the semigroup law, its contractivity
 to the quotient, its contractive extension to `ℋ`, and — in `OSReconstruction.HilbertSpace` —
 **strong continuity at `0`** (`tendsto_physEvolCompletion`), derived from continuity of the
 two-point function rather than assumed of the `TimeTranslation`.  So (i) is supplied once the OS
-axiom of time-translation continuity is, and what remains of the plan's two named results is the
-generator step (ii)–(iii): the difference quotients `(P(τ)z − z)/τ` and the integral representation
-that makes their limit closed.  The remaining inputs are carried as explicit hypotheses (`hinv`,
-the non-increase of the OS form; `hcont`, continuity of `τ ↦ ⟨T(τ)F,F⟩`), never as silent
-assumptions.
+axiom of time-translation continuity is.  `OSReconstruction.Generator` constructs the generator
+itself: the domain is convergence of `(P(τ)z − z)/τ`, the value is the limit, `P(t)` preserves the
+domain and commutes with it, and if each `P(τ)` is self-adjoint the generator is symmetric.  What
+remains of the plan's two named results is therefore closedness and self-adjointness of the
+generator — the integral representation that makes the limit closed.  The remaining inputs are
+carried as explicit hypotheses (`hinv`, the non-increase of the OS form; `hcont`, continuity of
+`τ ↦ ⟨T(τ)F,F⟩`; `hsa`, self-adjointness of the transfer operators), never as silent assump-
+tions.
 -/
 
 namespace BookProof.OSReconstruction

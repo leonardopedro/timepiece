@@ -43,12 +43,14 @@ The assembly is performed here:
 
 What is assembled is the Hilbert space as a type with its structure, the contractive extension of
 a given one-parameter family of evolutions, and its strong continuity at `0` from matrix element
-continuity.  The *generator* `H = −log P` is not constructed here: that needs the difference
-quotient `(P(τ)z − z)/τ` to converge, and the standard route to its closedness and self-adjointness
-(von Neumann or Lumer–Phillips) goes through the integral representation
+continuity.  `OSReconstruction.Generator` attaches the generator to the semigroup: `z` is in its
+domain when `τ⁻¹ • (P(τ)z − z)` converges at `0`, the value is that limit, and — if each `P(τ)` is
+self-adjoint — the resulting `LinearPMap` is symmetric and commutes with `P(t)`.  What remains open
+is *closedness* of the generator, hence its self-adjointness: the standard route (von Neumann or
+Lumer–Phillips) goes through the integral representation
 `P(τ)z − z = ∫₀^τ P(s)(−H)z ds`, i.e. Bochner integration of an `ℋ`-valued function, which is not
-yet developed in this reconstruction.  What strong continuity supplies is the hypothesis; what is
-missing is that integration step and the unbounded spectral theorem.
+yet developed in this reconstruction.  Symmetry is what the Källén–Lehmann representation of
+matrix elements consumes.
 -/
 
 namespace BookProof.OSReconstruction

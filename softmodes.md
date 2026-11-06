@@ -1046,15 +1046,47 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     is sandwiched between outer creation and annihilation operators, the closed form dominates the
     perturbation (`closed_farisLavine_boxKernel`), and the resulting Friedrichs/Stone object is
     strongly continuous by construction, so its matrix elements are continuous.
-  - *What is still open.*  One thing, plus one identification.  (i) The **generator**: strong
-    continuity is now available, but `H = −log P` still needs its difference quotients to converge,
-    and closedness/self-adjointness go through `P(τ)z − z = ∫₀^τ P(s)(−H)z ds`, i.e. Bochner
+  - *The generator (2026-11-06).*  `OSReconstruction.Generator` constructs it.  The domain is
+    convergence of the difference quotient — `HasGen`/`genDomain`, closed under the vector
+    operations because a limit of sums is the sum of limits (`hasGen_add`, `hasGen_smul`) — and the
+    value is `Classical.choose` of the limit, with linearity recovered from
+    `tendsto_nhds_unique` (`genValue_add`, `genValue_smul`) rather than from the definition.  The
+    result is `generator : ℋ →ₗ.[ℝ] ℋ`, characterised by `generator_apply_tendsto` and unique by
+    `generator_apply_eq_of_tendsto`.  That it is the generator *of this family* is
+    `generator_evol`: `P(t)` preserves the domain and `A P(t) z = P(t) A z`, because the quotient
+    of an evolved vector is the evolved quotient (`diffQuot_evol`, using `P(t)P(τ) = P(τ)P(t)`).
+    Given `∀ τ, IsSelfAdjoint (P τ)`, the generator is **symmetric** (`generator_isSymmetric`):
+    `⟪τ⁻¹•(P(τ)z − z), w⟫ = ⟪z, τ⁻¹•(P(τ)w − w)⟫` pointwise (`inner_diffQuot_comm`) and the two
+    sides pass to the limit, with no integral representation anywhere.  Note the hypothesis: the
+    OS axioms give contractivity in both directions, i.e. *unitarity* of `P(τ)`, and a unitary
+    need not be symmetric; self-adjointness of the transfer operator is the realization fact
+    `P(τ) = e^{−τH}` for the self-adjoint `H` of the ESA/Faris–Lavine route.
+  - *Källén–Lehmann on `ℋ` (2026-11-06).*  `OSReconstruction.KallenLehmannModel` attaches §7's
+    representation to the physical two-point function instead of leaving it in a model: for an
+    isometry `U : ℋ →ₗᵢ[ℝ] L²(ν)` under which `P(τ)` is multiplication by `e^{−τ f}`,
+    `kl_physEvol` proves `⟪z, P(τ)z⟫ = laplace (ẑ²dν ∘ f⁻¹) τ` — `L².inner_def` computes the
+    matrix element as an integral (`inner_toLp_eq_integral`) and `laplace_map_withDensity` turns it
+    into the Laplace transform.  `physEvol_twoPoint_nonneg` reads OS positivity off a Laplace
+    transform of a positive measure (`laplace_nonneg`), and the decay/support lemmas of §7 then
+    apply to the physical correlator directly.  The multiplication model is the single hypothesis:
+    producing it is the spectral theorem for the generator, which §5.2 has only as a symmetric
+    `LinearPMap`.
+  - *What is still open.*  Two things, plus one identification.  (i) **Closedness** of that
+    generator, hence its self-adjointness: it needs `P(τ)z − z = ∫₀^τ P(s)(−H)z ds`, i.e. Bochner
     integration of an `ℋ`-valued function, which is not developed here.  So the KL representation
-    attaches to a *strongly continuous semigroup* on `ℋ`, and to a self-adjoint generator only
-    after that step.  (ii) The
-    **identification of the ladder**: `a < 1` is uniform, but `boxKernel Λ A`/`magCutoffKernel` is
-    a model of the magnetic coupling, not yet proved to *be* the reduced or
-    momentum-representation magnetic operator.  (iii) The **BRST quotient**: `closure (range Ω) =
+    attaches to a *symmetric* generator on `ℋ`, and to a self-adjoint one only after that step.
+    (ii) The
+    **identification of the ladder**: `a < 1` is uniform, and the *matrix-entry* half is now
+    proved.  `YangMillsLadderTransport` transports the Hermite creation ladder from the
+    `Finsupp` multi-indices of `crePoly_hpsi` to the occupation functions `Idx d = Fin d → ℕ` that
+    `magCutoffKernel` is indexed by: `creCoeff` is the ladder's matrix element in that index,
+    `crePoly_hpsi_apply` restates the ladder relation in it (the only nonvanishing entry out of
+    `α` is at `α + eᵢ`, with weight `√(αᵢ+1)`), `boxEmbed_update` carries the cut-off box through
+    the raise, and `magCutoffKernel_eq_ladder` / `boxKernel_eq_ladder` identify every entry of the
+    cut-off kernel with `Aᵢ` times that matrix element.  So `boxKernel Λ A` *is* the matrix of the
+    ladder in the Hermite basis, not merely shaped like it.  Still open: the operator-level
+    statement — that this ladder is the off-diagonal part of the reduced second-quantized
+    magnetic operator, i.e. a restriction of it to §24's transverse sector.  (iii) The **BRST quotient**: `closure (range Ω) =
     span{∂_i φ}` is now a theorem in the periodic-lattice model of
     `BookProof/BrstLongitudinalExact` (`exactStates_eq_longitudinal`, `range_derivLin`), but the
     3+1 continuum version still needs the field Hilbert space and the closed unbounded charge, so

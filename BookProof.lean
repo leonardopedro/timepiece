@@ -588,6 +588,8 @@ import BookProof.OSReconstruction.Hamiltonian
 -- operator at rate `m` off the vacuum, and `O(4)` invariance turns temporal decay into spatial.
 import BookProof.OSReconstruction.Clustering
 import BookProof.OSReconstruction.HilbertSpace
+import BookProof.OSReconstruction.Generator
+import BookProof.OSReconstruction.KallenLehmannModel
 import BookProof.OSReconstruction.ReflectionKernel
 import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments
@@ -3500,6 +3502,7 @@ import BookProof.YangMillsFormClosure
 -- reduced one-particle matrix momentum-diagonal, so its off-diagonal block vanishes
 -- (`gaugeReduce_extTorsionCoef_offDiag_eq_zero`) while the ladder moves one quantum between modes.
 import BookProof.YangMillsFormClosureNonDiagonal
+import BookProof.YangMillsLadderTransport
 -- 2026-11-05: Kato–Rellich at relative bound `a < 1` **at form level** (`BookProof.YangMillsFormKLMN`).
 -- §23 proves the KLMN theorem for diagonal forms: the form norm is finite exactly on `formDom`
 -- (`formENN_ne_top_iff`), it is lower semicontinuous (`formENN_le_of_tendsto`, `formTsum_lsc`),
