@@ -52,7 +52,11 @@ Closedness *is* proved, in `OSReconstruction.GeneratorClosed`, and it needs no B
 integration of `ℋ`-valued functions: the orbit derivative `hasDerivAt_physEvol` and the fundamental
 theorem of calculus give `P(τ) z − z = ∫₀^τ P(s) (A z) ds` on the domain, the identity is compared
 with the difference quotient of a fixed vector, and contractivity passes it to the limit
-(`generator_isClosed`).  What remains is the step from *closed symmetric* to *self-adjoint*:
+(`generator_isClosed`).  The same argument, run with a one-sided difference quotient and the
+right-derivative form of the fundamental theorem of calculus, gives the forward-time generator and
+its closedness in `OSReconstruction.SemigroupGenerator`; the punctured filter is usable here only
+because the evolution is a group.  What remains is the step from *closed symmetric* to
+*self-adjoint*:
 deficiency indices of the closed symmetric operator, or a resolvent representation identifying it
 with the realization's `H`.  Symmetry is what the Källén–Lehmann representation of matrix
 elements consumes, and it is available without that step.

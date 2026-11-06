@@ -39,11 +39,13 @@ forward-only throughout also requires:
 * `physEvolCompletion` to consume a proof `0 ≤ τ`, because `LinearMap.extendOfNorm` needs the norm
   bound `‖physEvol τ‖ ≤ 1`, which is exactly what fails for `τ < 0`;
 * the generator's difference quotient to be one-sided (`𝓝[>] 0`) rather than punctured at `0`;
-* the closedness argument of `GeneratorClosed` to be re-derived.  Its integral representation
-  differentiates the orbit at interior times, and a one-sided semigroup has no left derivative
-  there (`P(t + h) = P(t)P(h)` needs `h ≥ 0`), so `hasDerivAt_physEvol` does not survive verbatim;
-  the standard replacement is the resolvent/Laplace representation rather than the fundamental
-  theorem of calculus.
+* the closedness argument of `GeneratorClosed` to be re-derived — and it *does* survive, in
+  `OSReconstruction.SemigroupGenerator`.  The fundamental theorem of calculus integrates a one-sided
+  derivative (`intervalIntegral.integral_eq_sub_of_hasDeriv_right_of_le`), and
+  `hasDerivWithinAt_physEvolRight` supplies one, so no resolvent or Laplace representation is
+  needed.  What changes is the domain: a limit along `𝓝[>] 0` cannot be upgraded to the punctured
+  `𝓝[≠] 0` — there is no left-hand information — so the forward-time generator carries its own
+  domain (`genDomainRight`, `generatorRight`), and its closedness is `generatorRight_isClosed`.
 
 Until that is done, `generator_isClosed` and `generator_isSymmetric` remain stated under the group
 hypothesis, and the degeneracy of `TransferSelfAdjoint` remains a property of *that* hypothesis.

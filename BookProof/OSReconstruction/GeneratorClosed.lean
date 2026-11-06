@@ -34,6 +34,12 @@ records as missing.
 The hypotheses are the ones the previous two modules already carry: contractivity in both time
 directions (`hinv`) and continuity of the two-point function (`hcont`), from which strong
 continuity on `ℋ` is derived.
+
+The orbit derivative used here is two-sided, because the punctured filter `𝓝[≠] 0` that defines
+the domain sees both signs.  For a Euclidean transfer matrix only `τ ≥ 0` exists, and
+`OSReconstruction.SemigroupGenerator` re-proves closedness in that setting: the same argument runs
+with the *right* derivative at interior times, and the one-sided integral representation gives a
+closed generator on the one-sided domain.  No resolvent or Laplace representation is required.
 -/
 
 namespace BookProof.OSReconstruction

@@ -1117,14 +1117,21 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     The repair is to assume contractivity for `τ ≥ 0` only, rebuild `physEvolCompletion` as a
     semi-group, and re-derive strong continuity from matrix element continuity without the `−τ`
     sandwich; self-adjointness then comes from positivity (Friedrichs/Faris–Lavine), not from
-    Stone's unitary group.
-  - *What is still open.*  Two things, plus one identification.  (i) **Self-adjointness** of that
-    generator *in the transfer semi-group setting*: closedness is now proved, so what remains is
-    *closed symmetric* → *self-adjoint* — deficiency indices of the closed symmetric operator, or a
-    resolvent representation identifying it with the Faris–Lavine `H`.  Under the present two-sided
-    hypothesis the question is vacuous (previous bullet), so this item is now coupled to the
-    semi-group repair of `physEvolCompletion`.  The KL representation still attaches to a *closed
-    symmetric* generator on `ℋ`.  (ii) The
+    Stone's unitary group.  Two of the three layers are now in place: continuity is
+    `SemigroupContinuity` (contraction bound, filter `𝓝[>] 0`) and the generator with its closedness
+    is `SemigroupGenerator` (`genDomainRight`, `generatorRight`, `generatorRight_isClosed`, driven by
+    the right-derivative fundamental theorem of calculus).  What remains is type-level:
+    `physEvolCompletion` and `hinv` still range over all real times.
+  - *What is still open.*  Two things, plus one identification.  (i) **Self-adjointness** of the
+    forward-time generator: closedness is now proved *in the semi-group setting*
+    (`generatorRight_isClosed`, on the one-sided domain `genDomainRight`), so what remains is
+    *closed symmetric* → *self-adjoint*.  Symmetry there is a different statement from
+    `generator_isSymmetric`, because the one-sided quotient has no negative-time partner, so it
+    needs the forward contractivity and a one-sided self-adjointness notion rather than
+    `IsSelfAdjoint (P τ)`; then come deficiency indices, and those are still blocked on Mathlib
+    (no adjoint for unbounded operators on real inner product spaces).  Under the present two-sided
+    hypothesis the question is vacuous (previous bullet).  The KL representation still attaches to a
+    *closed symmetric* generator on `ℋ`.  (ii) The
     **identification of the ladder**: `a < 1` is uniform, and the *matrix-entry* half is now
     proved.  `YangMillsLadderTransport` transports the Hermite creation ladder from the
     `Finsupp` multi-indices of `crePoly_hpsi` to the occupation functions `Idx d = Fin d → ℕ` that
