@@ -124,9 +124,10 @@ theorem kl_physEvol (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
     (huheq : uh =ᵐ[ν] fun x => Real.exp (-(τ * f x)) * zh x) :
     ⟪z, physEvolCompletionRightFun hinv τ z⟫
       = laplace ((ν.withDensity (fun x => ENNReal.ofReal ((zh x) * (zh x)))).map f) τ := by
-  have hiso : ⟪U z, U (physEvolCompletionRightFun hinv τ z)⟫
-      = ⟪z, physEvolCompletionRightFun hinv τ z⟫ :=
-    U.inner_map_map z (physEvolCompletionRightFun hinv τ z)
+  rw [physEvolCompletionRightFun_of_nonneg hinv hτ] at hUev ⊢
+  have hiso : ⟪U z, U (physEvolCompletionRight hinv τ hτ z)⟫
+      = ⟪z, physEvolCompletionRight hinv τ hτ z⟫ :=
+    U.inner_map_map z (physEvolCompletionRight hinv τ hτ z)
   rw [← hiso, hUz, hUev]
   exact kl_twoPoint_multiplicationModel hzh huh hzhm hf huheq
 
