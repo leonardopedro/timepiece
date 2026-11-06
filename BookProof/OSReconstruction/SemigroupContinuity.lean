@@ -47,6 +47,18 @@ forward-only throughout also requires:
 
 Until that is done, `generator_isClosed` and `generator_isSymmetric` remain stated under the group
 hypothesis, and the degeneracy of `TransferSelfAdjoint` remains a property of *that* hypothesis.
+
+The Fock side of the story *is* connected to the 4d theory, but at the level of Hamiltonians rather
+than Hilbert spaces.  On the Weyl-gauge slice `A₀ = 0` the BRST-exact gauge-fixing term vanishes
+(`BookProof.BookBrstGaugeFixing.bookGfTerm_eq_zero_of_Afield0`, Yang–Mills instance
+`su2_bookGfTerm_eq_zero_of_Afield0` in `ChapterBookBrstInstances`), so the 4d Hamiltonian reduces
+to the sum of squares of the spatial electric and magnetic fields
+(`BookProof.YangMillsHermite.ymHamiltonian`, `ymHamiltonian_quadForm`), and its second quantization
+`dΓ(H₁)` is a fixed self-adjoint generator with unitary propagator
+(`BookProof.QymTimeIndependent.ymFock_weylGauge_timeIndependent`).  That operator is what the
+transfer matrix's `H` should be.  What the corpus does not have — and what the two-sided
+hypothesis above makes unobtainable — is a unitary map `ℋ ≅ Γ(H₁)`; the Weyl-gauge identity is a
+relation between Hamiltonians, not between Hilbert spaces.
 -/
 
 namespace BookProof.OSReconstruction

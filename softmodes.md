@@ -1045,7 +1045,13 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     continuity hypothesis is exactly what the ESA/Faris–Lavine route gives: the inner Hamiltonian
     is sandwiched between outer creation and annihilation operators, the closed form dominates the
     perturbation (`closed_farisLavine_boxKernel`), and the resulting Friedrichs/Stone object is
-    strongly continuous by construction, so its matrix elements are continuous.
+    strongly continuous by construction, so its matrix elements are continuous.  The Fock side also
+    has a *proved* link to the 4d theory, at the level of Hamiltonians: in the Weyl gauge `A₀ = 0`
+    the BRST gauge-fixing term vanishes (`BookBrstGaugeFixing.bookGfTerm_eq_zero_of_Afield0`, QYM
+    instance `su2_bookGfTerm_eq_zero_of_Afield0`), the 4d Hamiltonian reduces to the 3d sum of
+    squares (`YangMillsHermite.ymHamiltonian_quadForm`), and `QymTimeIndependent.ymFock_weylGauge_timeIndependent`
+    gives that operator a fixed self-adjoint generator with unitary propagator.  What is missing is
+    the Hilbert-space map `ℋ ≅ Γ(H₁)`, not the operator identification.
   - *The generator (2026-11-06).*  `OSReconstruction.Generator` constructs it.  The domain is
     convergence of the difference quotient — `HasGen`/`genDomain`, closed under the vector
     operations because a limit of sums is the sum of limits (`hasGen_add`, `hasGen_smul`).  The
