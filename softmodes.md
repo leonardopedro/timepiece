@@ -1115,7 +1115,11 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `klMeasure_support`), its mass is `‖z‖²` (`klMeasure_mass_eq_norm_sq`), and `laplace_le_mass` /
     `twoPoint_le_klMass` bound the transform and the two-point function by that mass; with the
     contraction bound this gives `abs_twoPoint_le_norm_sq`, `|⟪z, P(τ)z⟫| ≤ ‖z‖²`, while
-    `tendsto_expFlow_at` extends strong continuity to every `τ ≥ 0`.  Not claimed: that the transfer
+    `tendsto_expFlow_at` extends strong continuity to every `τ ≥ 0`; `tendsto_physEvol` carries it
+    back to `P` itself through the isometry (for every vector when `f` is essentially bounded), and
+    `twoPoint_antitoneOn` makes the two-point function decreasing on `[0, ∞)` from the KL
+    representation.  `klMeasure_finite` records the KL measure as finite and supported on `[0, ∞)`.
+    Not claimed: that the transfer
     semigroup `P` *is* this flow (that is the
     theorem for the generator, still absent), so `generatorRight = −M_f` is asserted for the flow
     only.

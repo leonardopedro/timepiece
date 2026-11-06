@@ -35,6 +35,13 @@ This module builds the operator instead:
 * `laplace_le_mass`, `twoPoint_le_klMass`, `klMeasure_mass_eq_norm_sq` — the transform and the
   transfer two-point function are bounded by the mass of the KL measure, which is `‖z‖²`;
 * `abs_twoPoint_le_norm_sq` — the norm bound `|⟪z, P(τ)z⟫| ≤ ‖z‖²`, from the contraction bound;
+* `tendsto_physEvol_of_representative`, `tendsto_physEvol` — **strong continuity of `P` itself** at
+  every `σ ≥ 0`: the multiplier law carries it to the flow, and the isometry `U` brings the `L²`
+  convergence back to `ℋ`; the version for all vectors assumes `f` essentially bounded;
+* `klMeasure_apply`, `weight_univ_lt_top`, `klMeasure_finite` — the push-forward description, the
+  finiteness of the weight `z² dν`, and the bundle of finiteness and support of the KL measure;
+* `laplace_antitoneOn`, `twoPoint_antitoneOn` — the transform, hence the physical two-point
+  function, is antitone on `[0, ∞)`;
 * `tendsto_expFlow_at` — norm strong continuity at every `τ ≥ 0`, from the semigroup law;
 * `inner_physEvol_eq_inner_expFlow` and `klMeasure_same_for_physEvol_and_expFlow` — the matrix
   elements of `P` *are* the matrix elements of the flow, and both are the Laplace transform of the
@@ -645,6 +652,149 @@ theorem tendsto_expFlow_at {z : X → ℝ} (hz : MemLp z 2 ν) {f : X → ℝ} (
     congr 1
     ring_nf
   exact h0'.congr' hEq.symm
+
+/-! ## Strong continuity of the transfer semigroup
+
+The flow acts on `L²(ν)`, but `U` is an isometry, so convergence in `L²(ν)` reflects to `ℋ`: the
+multiplier law turns `P τ y` into `expFlow τ (U y)`, and the flow's norm continuity at `σ` then
+gives norm continuity of `P` itself. -/
+
+/-- **Strong continuity of the transfer semigroup** at `σ ≥ 0`, in representative form. -/
+theorem tendsto_physEvol_of_representative (Λ : OSState) (T : TimeTranslation)
+    (hinv : HinvRight Λ T) {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    (y : Hphys Λ) {zy : X → ℝ} (hzy : MemLp zy 2 ν) (hUy : U y = hzy.toLp zy)
+    (hfzy : MemLp (fun x => f x * zy x) 2 ν) {σ : ℝ} (hσ : 0 ≤ σ) :
+    Tendsto (fun τ : ℝ => physEvolCompletionRightFun hinv τ y) (𝓝[>] σ)
+      (𝓝 (physEvolCompletionRightFun hinv σ y)) := by
+  have hflow := tendsto_expFlow_at hzy hf hpos hfzy hσ
+  have hnonneg : ∀ᶠ τ : ℝ in 𝓝[>] σ, 0 ≤ τ := by
+    filter_upwards [self_mem_nhdsWithin] with τ hτ
+    exact le_trans hσ (le_of_lt (Set.mem_Ioi.mp hτ))
+  have hconst : expFlow f hf hpos σ (hzy.toLp zy)
+      = U (physEvolCompletionRightFun hinv σ y) := by
+    have h := hU σ hσ y
+    rw [hUy] at h
+    exact h.symm
+  rw [hconst] at hflow
+  have hflow' : Tendsto (fun τ : ℝ => U (physEvolCompletionRightFun hinv τ y)) (𝓝[>] σ)
+      (𝓝 (U (physEvolCompletionRightFun hinv σ y))) := by
+    refine hflow.congr' ?_
+    filter_upwards [hnonneg] with τ hτ
+    have h := hU τ hτ y
+    rw [hUy] at h
+    exact h.symm
+  refine Metric.tendsto_nhds.2 fun ε hε => ?_
+  have h := (Metric.tendsto_nhds.1 hflow') ε hε
+  filter_upwards [h] with τ hτ
+  rwa [LinearIsometry.dist_map] at hτ
+
+/-- **Strong continuity of the transfer semigroup at `0⁺`**, with limit `y` since `P(0) = 1`. -/
+theorem tendsto_physEvol_zero (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    (y : Hphys Λ) {zy : X → ℝ} (hzy : MemLp zy 2 ν) (hUy : U y = hzy.toLp zy)
+    (hfzy : MemLp (fun x => f x * zy x) 2 ν) :
+    Tendsto (fun τ : ℝ => physEvolCompletionRightFun hinv τ y) (𝓝[>] 0) (𝓝 y) := by
+  have h0 : physEvolCompletionRightFun hinv 0 = ContinuousLinearMap.id ℝ (Hphys Λ) := by
+    rw [physEvolCompletionRightFun_of_nonneg hinv le_rfl]
+    exact physEvolCompletionRight_zero hinv
+  simpa [h0] using tendsto_physEvol_of_representative Λ T hinv hf hpos U hU y hzy hUy hfzy
+    (σ := 0) le_rfl
+
+/-- A multiplier bounded by `C` keeps every `L²` class in `L²`. -/
+theorem memLp_mul_of_abs_bound {u : X → ℝ} (hu : MemLp u 2 ν) {f : X → ℝ} (hf : Measurable f)
+    {C : ℝ} (hC0 : 0 ≤ C) (hC : ∀ᵐ x ∂ν, |f x| ≤ C) :
+    MemLp (fun x => f x * u x) 2 ν := by
+  refine MemLp.of_le (hu.const_mul C) ?_ ?_
+  · exact hf.aestronglyMeasurable.mul hu.aestronglyMeasurable
+  · filter_upwards [hC] with x hx
+    rw [Real.norm_eq_abs, Real.norm_eq_abs, abs_mul, abs_mul, abs_of_nonneg hC0]
+    exact mul_le_mul_of_nonneg_right hx (abs_nonneg _)
+
+/-- **Strong continuity of the transfer semigroup for every vector**, assuming the multiplier `f` is
+essentially bounded: then `f` preserves `L²(ν)`, so every `U y` has the required representative. -/
+theorem tendsto_physEvol (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    {C : ℝ} (hC0 : 0 ≤ C) (hC : ∀ᵐ x ∂ν, |f x| ≤ C) (y : Hphys Λ) {σ : ℝ} (hσ : 0 ≤ σ) :
+    Tendsto (fun τ : ℝ => physEvolCompletionRightFun hinv τ y) (𝓝[>] σ)
+      (𝓝 (physEvolCompletionRightFun hinv σ y)) := by
+  have hy : MemLp (U y : X → ℝ) 2 ν := Lp.memLp (U y)
+  have hUy : U y = hy.toLp (U y) := by
+    refine Lp.ext ?_
+    filter_upwards [MemLp.coeFn_toLp hy] with x hx
+    exact hx.symm
+  exact tendsto_physEvol_of_representative Λ T hinv hf hpos U hU y hy hUy
+    (memLp_mul_of_abs_bound hy hf hC0 hC) hσ
+
+/-! ## The KL weight, and monotonicity in time -/
+
+/-- The weighted measure `z² dν` is a push-forward along any measurable `f`: its value on a
+measurable set is the weight of the preimage. -/
+theorem klMeasure_apply {z : X → ℝ} {f : X → ℝ} (hf : Measurable f) {s : Set ℝ}
+    (hs : MeasurableSet s) :
+    klMeasure ν f z s = (ν.withDensity (fun x => ENNReal.ofReal (z x * z x))) (f ⁻¹' s) :=
+  Measure.map_apply hf hs
+
+/-- **The KL weight `z² dν` is a finite measure** on `X`, since `z ∈ L²(ν)`. -/
+theorem weight_univ_lt_top {z : X → ℝ} (hz : MemLp z 2 ν) :
+    (ν.withDensity (fun x => ENNReal.ofReal (z x * z x))) Set.univ < ⊤ := by
+  rw [withDensity_apply _ MeasurableSet.univ, Measure.restrict_univ]
+  have hcongr : (∫⁻ x, ENNReal.ofReal (z x * z x) ∂ν)
+      = ∫⁻ x, ENNReal.ofReal ((z x) ^ 2) ∂ν := lintegral_congr fun x => by rw [pow_two]
+  rw [hcongr, ← ofReal_integral_eq_lintegral_ofReal (MemLp.integrable_sq hz)
+    (Eventually.of_forall fun x => sq_nonneg (z x))]
+  exact ENNReal.ofReal_lt_top
+
+/-- **The KL measure is a finite measure on `ℝ`, supported on `[0, ∞)`** when `f ≥ 0`: a genuine
+finite Borel measure for the decay lemmas of `Clustering`. -/
+theorem klMeasure_finite {z : X → ℝ} (hz : MemLp z 2 ν) {f : X → ℝ} (hf : Measurable f)
+    (hpos : ∀ᵐ x ∂ν, 0 ≤ f x) :
+    IsFiniteMeasure (klMeasure ν f z) ∧ klMeasure ν f z (Set.Iio 0) = 0 :=
+  ⟨isFiniteMeasure_klMeasure hz hf, klMeasure_support hf hpos⟩
+
+/-- **The Laplace transform is antitone on `[0, ∞)`** for a measure supported there: increasing `τ`
+shrinks `e^{−τλ}` for `λ ≥ 0`. -/
+theorem laplace_antitoneOn {ρ : Measure ℝ} [IsFiniteMeasure ρ] (hsupp : ρ (Set.Iio 0) = 0) :
+    AntitoneOn (fun τ => laplace ρ τ) (Set.Ici 0) := by
+  intro τ₁ hτ₁ τ₂ hτ₂ hle
+  refine integral_mono_ae (laplace_integrable_of_support hτ₂ hsupp)
+    (laplace_integrable_of_support hτ₁ hsupp) ?_
+  have hset : {l : ℝ | ¬ 0 ≤ l} = Set.Iio 0 := by
+    ext l
+    simp only [Set.mem_setOf_eq, Set.mem_Iio, not_le]
+  have hae : ∀ᵐ l ∂ρ, 0 ≤ l := by
+    refine ae_iff.2 ?_
+    rw [hset]
+    exact hsupp
+  filter_upwards [hae] with l hl
+  refine Real.exp_le_exp.2 ?_
+  nlinarith
+
+/-- **The physical two-point function is antitone on `[0, ∞)`**: it is the Laplace transform of the
+shared KL measure, so `σ ≤ τ` implies `⟪z, P(τ)z⟫ ≤ ⟪z, P(σ)z⟫`. -/
+theorem twoPoint_antitoneOn (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
+    {zh : X → ℝ} (hzh : MemLp zh 2 ν) (hzhm : Measurable zh) (hUz : U z = hzh.toLp zh)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x)) :
+    AntitoneOn (fun τ => ⟪z, physEvolCompletionRightFun hinv τ z⟫) (Set.Ici 0) := by
+  haveI : IsFiniteMeasure (klMeasure ν f zh) := isFiniteMeasure_klMeasure hzh hf
+  have hsupp : klMeasure ν f zh (Set.Iio 0) = 0 := klMeasure_support hf hpos
+  have hkl := (klMeasure_same_for_physEvol_and_expFlow Λ T hinv hf hpos U z hzh hzhm hUz hU).1
+  intro τ₁ hτ₁ τ₂ hτ₂ hle
+  change ⟪z, physEvolCompletionRightFun hinv τ₂ z⟫
+    ≤ ⟪z, physEvolCompletionRightFun hinv τ₁ z⟫
+  rw [hkl τ₂ hτ₂, hkl τ₁ hτ₁]
+  exact laplace_antitoneOn hsupp hτ₁ hτ₂ hle
 
 end
 
