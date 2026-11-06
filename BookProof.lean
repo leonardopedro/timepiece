@@ -1519,6 +1519,18 @@ import BookProof.ChapterBrstYmCommute
 -- `ChapterBrstHarmonicDecomposition.no_longitudinal_zero_mode`.
 import BookProof.ChapterBrstLongitudinal
 
+-- 2026-11-06: the *equality* `closure (range Ω) = span{∂ᵢφ}` in a model that has both a
+-- derivative and a Hilbert space (`BookProof.BrstLongitudinalExact`): fields on the periodic
+-- lattice `Fin (n+1) → ℂ`, the cyclic difference `∂f(j) = f(j+1) − f(j)`, and the nilpotent
+-- charge `Ω(x, y) = (0, ∂x)` (ghost-raised derivative; the abelian derivative-gauge charge with
+-- the ghost dressing kept).  `range_derivLin` proves `range ∂ = {f | ∑ⱼ f(j) = 0}` — the Hodge
+-- content, with the converse given explicitly by the cumulative sum (`derivLin_cumFun`) — and
+-- `exactStates_eq_longitudinal` is the identification: `exactStates Ω = ⊥ × {f | ∑ f = 0}`.
+-- The surviving gauge-field mode is the constant one (`physicalStates_eq`), so no longitudinal
+-- mode is left in the cohomology.  The 3+1 continuum statement still needs the unbounded charge
+-- and the field Hilbert space; that boundary is in the module docstring.
+import BookProof.BrstLongitudinalExact
+
 -- Wave (2026-08-25h, plan §10.6.2 item 4 / QG Part F — the concrete 3D gauge-fixed
 -- *gravity* Hamiltonian and its BRST charge).
 --

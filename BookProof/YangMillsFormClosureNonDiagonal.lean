@@ -85,7 +85,24 @@ so the square of the absolute form is at most `(∑ m ∑ n ‖K m n‖²) · (c
   power of the cut-off, not a uniform bound;
 * §8 separates the two halves of the cut-off question: `ladder_relative_bound_uniform` shows the
   *ratio* is uniform — `a` is a free parameter, so `a(Λ) < 1` at every cut-off — while §7 shows the
-  *constant* is not, so the continuum needs the constant and not the ratio;
+  *constant* is not, so the continuum needs a ratio that is uniform *together with* a shift that is;
+* §10 supplies exactly that, at the level of the box: `Sᵢᵉₙ = Aᵢ√(nᵢ+1)e_{raise n i}` has
+  `Sᵢ^*Sᵢ = Aᵢ²diag(nᵢ+1)` (the occupation piece, which the reference form carries) and
+  `SᵢSᵢ^* ≤ Aᵢ²` (the shift piece, because a raise is injective, `sum_raiseIdx_le`), so
+  `‖q_K(x)‖ ≤ ½Q(x) + ½(ΣᵢAᵢ²)‖x‖²` with `Q(x) = Σₙ(Σᵢ(nᵢ+1))‖x n‖²` (`ladder_form_norm_le`,
+  `ladder_form_abs_re_le`).  Neither constant contains `Λ`: the sharp uniform bound is `a = 1/2`;
+  §11 records the trade-off `(a, b) = (ε/2, ΣAᵢ²/(2ε))` as a Pareto frontier (`amgm_pareto_iff`,
+  `amgm_min_shift`), so `1/2` is the unit-weight member rather than a forced ratio;
+* §12 turns the bound into what §6 consumes on `L²`: `ladder_closed_domination_sharp` runs the
+  Faris–Lavine comparison at `a = 1/2`, and §12.1–12.2 replace the Hilbert–Schmidt shift by the
+  *degree* symbol — `Σᵢ(dirWeight i x) = Σₙ(|n| + d)‖x n‖²` (`sum_dirWeight_eq`) — giving
+  `‖q_K(x)‖ ≤ a·degree + (Σᵢ(Aᵢ²/(4a) − a))‖x‖²` for every chosen `a ∈ (0,1)`
+  (`ladder_form_le_degree`), transferred to the closed form as
+  `abs_closedKernelForm_boxKernel_le` and `closed_farisLavine_boxKernel`;
+  `closed_farisLavine_boxKernel_half` is the unit-weight member at the closed-form level: ratio
+  `1/2` and shift `max ((ΣᵢAᵢ²)/2 − d/2) 0`, the same numbers at every `Λ`.  **This is the
+  cut-off-uniform relative form bound**: `a(Λ) = 1/2` is one number below `1`, not a family indexed
+  by the cut-off, and the shift is a function of the field strength alone;
 * §9 instantiates the finiteness hypothesis with the concrete magnetic symbol of
   `YangMillsMagneticQuartic` (`magSymbol`, `magnetic_closed_dom_of_scaled`), and
   `closed_dom_of_scaled_symbol_auto` shows that for a positive ratio the hypothesis is a
@@ -201,14 +218,15 @@ What the comparison needed is now stated rather than deferred: `closed_farisLavi
 the `L²` form of `c₁ q_ref ≤ q' + qK` with `a < 1`, its only extra hypothesis being the finiteness
 of the closed forms, and that hypothesis is itself derived from a symbolwise inequality.
 
-What remains outside the statements is a *uniform-in-cut-off* version of that constant: §7 shows
-the Hilbert–Schmidt constant of the magnetic ladder grows like `Λ^{(d+1)/2}`, so the `a = 0` branch
-is genuinely cut-off-local, and the continuum needs a proof that `a` stays bounded away from `1`
-uniformly — the relative form bound of the magnetic operator.  The `a < 1` *theorem* is no longer
-missing: `BookProof.YangMillsFormKLMN` §23 proves the KLMN statement for diagonal forms
-(`formDom` invariance, closedness, the lower bound `(1 − a)θ − β`, and the self-adjoint operator
-representing the sum), so what is open there is the identification of the ladder with the reduced
-form, not the form theory.
+What is settled and what is not, in one place.  **Settled:** the relative form bound is uniform in
+the cut-off — §10's sharp bound and §12.1–12.2's degree-symbol transfer give ratio `a` chosen in
+`(0,1)` (the sharp member is `a = 1/2`) and shift `max (Σᵢ(Aᵢ²/(4a) − a)) 0` / 
+`max ((ΣᵢAᵢ²)/2 − d/2) 0`, neither mentioning `Λ`; `closed_farisLavine_boxKernel_half` states the
+unit-weight case, and `BookProof.YangMillsFormKLMN` §23 turns the resulting form sum into a
+self-adjoint operator (KLMN, `formDom` invariance, lower bound `(1 − a)θ − β`, `klmn`).  **Not
+settled:** the identification of the box ladder `magCutoffKernel`/`boxKernel` with the reduced or
+momentum-representation magnetic operator.  So the continuum does not lack a uniform `a < 1`
+relative bound; it lacks the proof that this ladder *is* the magnetic operator of the theory.
 
 **What the Hilbert–Schmidt hypothesis costs.**  `∑' p, ‖K p.1 p.2‖² ≤ σ²` is a hypothesis *on the
 model*, not a theorem about Yang–Mills.  It holds for a kernel at a fixed cut-off — finitely many
@@ -1332,13 +1350,18 @@ bound is worth separating, because the two halves point in opposite directions:
 the ladder `a(Λ) < 1` holds at every cut-off, with the same `a` (`ladder_relative_bound_uniform`).
   The reason is that at a fixed cut-off the ladder is a bounded operator: `|qK| ≤ σ(Λ)‖·‖²` and
   `a q_g ≥ 0`, so any `a` will do.  This is therefore cheap and carries no cut-off information.
-* **the constant is not.**  The price is the shift `σ(Λ)`, and §7 shows it grows like a power of
-  the cut-off.  A Faris–Lavine inequality with `a < 1` *and* a `Λ`-independent constant would need
-  the ladder's own shift structure — each rotation `a†_i a_{i'} + h.c.` moves one occupation, so the
-  ratio can be made small by AM–GM without counting modes — and that is not proved here.
+* **the constant is not** — *if* the ladder is read as a bounded perturbation.  The price is the
+  shift `σ(Λ)`, and §7 shows it grows like a power of the cut-off.  But that is an artefact of the
+  reading: §10's AM–GM pays the ladder in `Q`, not in `‖x‖²`, and §12.1–12.2 transfer the result to
+  the closed form with the *degree* symbol as reference, where the shift is
+  `(Σᵢ Aᵢ²/(4a) − a)` — a function of the field strength, independent of `Λ`.  So the `a < 1`
+  Faris–Lavine inequality with a cut-off-free constant **is** proved, at `a = 1/2`
+  (`closed_farisLavine_boxKernel_half`); what §8's negative half shows is only that the
+  Hilbert–Schmidt route cannot produce it.
 
-So the honest summary is: `a(Λ) < 1` uniformly for a trivial reason, `b(Λ) → ∞` for the structural
-reason of §7, and the continuum needs the second fact, not the first.
+So the honest summary is: `a(Λ) < 1` holds non-trivially — same ratio, same shift, every cut-off
+(§10, §12.2) — and the `σ(Λ)` growth of §7 is the price of the *bounded-perturbation* reading that
+the form bound replaces.
 
 ## 9. The concrete magnetic symbol, and the finiteness hypothesis it discharges
 
@@ -3101,6 +3124,41 @@ theorem closed_farisLavine_boxKernel {Λ : ℕ} (A : Fin d → ℝ) {μ g : Idx 
   have hK := abs_closedKernelForm_boxKernel_le (Λ := Λ) (d := d) A ha x hnote
   have hscaled := mul_le_mul_of_nonneg_left hmono ha.le
   linarith [hK, hscaled]
+
+/-- **The unit-weight member of the uniform family: relative bound `1/2` at every cut-off.**  The
+same comparison as `closed_farisLavine_boxKernel`, with the ratio *fixed* at `1/2` and the shift
+written as `max ((Σᵢ Aᵢ²)/2 − d/2) 0` — the function of the field strength alone, with no
+Hilbert–Schmidt mass and therefore no cut-off.  This is the statement the continuum argument
+consumes: for every `Λ`, the ladder is `½ · degree + (⋯)` with the *same* constants, so `a(Λ) = 1/2`
+is a single number below `1` rather than a family indexed by the cut-off. -/
+theorem closed_farisLavine_boxKernel_half {Λ : ℕ} (A : Fin d → ℝ) {μ g : Idx d → ℝ}
+    {c₁ c₂ : ℝ} (hc₁ : 0 < c₁)
+    (hdeg : ∀ n : Idx d, closedDegreeSymbol (d := d) n ≤ g n)
+    (hdom : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2 ≤ (closedForm g x).toReal) :
+    0 < (1 / 2) * c₁ ∧
+      ∀ x : L2 d, closedForm g x ≠ ⊤ →
+        (1 / 2) * c₁ * (closedForm μ x).toReal
+            - ((1 / 2) * c₂ + max ((∑ i, A i ^ 2) / 2 - (d : ℝ) / 2) 0) * ‖x‖ ^ 2
+          ≤ (closedForm g x).toReal + closedKernelForm (boxKernel Λ A) x := by
+  have h := closed_farisLavine_boxKernel (Λ := Λ) (d := d) A (a := 1 / 2) hc₁
+    (by norm_num) (by norm_num) hdeg hdom
+  have hterm : ∀ i : Fin d, A i ^ 2 / (4 * (1 / 2)) - 1 / 2 = A i ^ 2 / 2 - 1 / 2 := by
+    intro i
+    norm_num
+  have hc : (∑ i, (A i ^ 2 / (4 * (1 / 2)) - 1 / 2)) = (∑ i, A i ^ 2) / 2 - (d : ℝ) / 2 := by
+    rw [Finset.sum_congr rfl fun i _ => hterm i, Finset.sum_sub_distrib, Finset.sum_div,
+      Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+    ring
+  rw [hc] at h
+  refine ⟨?_, ?_⟩
+  · have h1 := h.1
+    norm_num at h1
+    linarith
+  · intro x hx
+    have hx' := h.2 x hx
+    norm_num at hx' ⊢
+    linarith
 
 /-! ### 13. The cut-off operator: its form, self-adjointness, and a uniform gap
 

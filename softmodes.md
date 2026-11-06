@@ -259,6 +259,37 @@ for a closed densely defined `Ω` (see its status note); steps 3 and 4 carry sta
    completed `H_phys`: the realization is algebraic on `BookState`, while the Hilbert-space
    statement lives in `ChapterBrstHarmonicDecomposition` (bounded) / `ChapterBrstUnbounded`
    (closed densely defined).
+
+   **Status (2026-11-06): the equality of closures is now a theorem in a model that has both a
+   derivative and a Hilbert space.**  `BookProof/BrstLongitudinalExact.lean` (no `sorry`) works on
+   the periodic lattice, fields `Fin (n+1) → ℂ` with the cyclic difference
+   `∂f(j) = f(j+1) − f(j)`, and the nilpotent charge `Ω(x, y) = (0, ∂x)` on
+   `(fields) × (ghosts)` — the abelian derivative-gauge charge of `ChapterBrstLongitudinal` with
+   the ghost dressing kept and the gauge algebra trivialized.
+
+   * **`range_derivLin`**: `range ∂ = {f | ∑ⱼ f(j) = 0}`.  One inclusion is `sum_deriv` (a
+     gradient has no zero mode); the other is explicit — the cumulative sum `cumFun f` of a
+     mean-zero field satisfies `∂(cumFun f) = f` (`derivLin_cumFun`, with the wrap-around at the
+     last site paid for by `∑ f = 0`).  So the right-hand side is genuinely `span{∂ᵢφ}`, not
+     merely a space the gradients sit inside.
+   * **`brstCharge_nilpotent`**: `Ω² = 0` — the ghost factor raises once and the second
+     application differentiates zero.
+   * **`exactStates_eq_longitudinal`**: `exactStates Ω = ⊥ × {f | ∑ f = 0}`, i.e. the BRST-exact
+     states *are* the ghost-raised longitudinal fields — `closure (range Ω) = span{∂ᵢφ}` in the
+     model, with the closure nothing but `topologicalClosure` of a closed range.
+   * **`longitudinal_le_exactStates`** and **`physicalStates_eq`**: every longitudinal state is
+     exact (hence zero in the cohomology), and the BRST-closed states are those whose gauge-field
+     part is constant (`∂x = 0`) — the surviving gauge-field mode is the zero mode, which is
+     exactly "no longitudinal soft zero-mode".  `disjoint_exact_constants` records that the
+     constant sector and the exact sector meet only at zero.
+
+   **Boundary.**  This is the periodic one-dimensional model with a bounded charge and one ghost.
+   The physical statement is about the cubic charge of the 3+1 continuum theory on a field Hilbert
+   space, where `Ω` is unbounded and the gauge algebra non-abelian (the `commGaugeVec` term of
+   `comm_bookOmega_Afield_nonabelian`).  The identification theorem is now proved where both
+   sides are defined objects; the continuum version still needs the field Hilbert space and the
+   closed unbounded `Ω`, i.e. the same inputs as item 1, and it says nothing about a continuum
+   `H_phys`.
 4. **Stability of the bottom under the elimination.**  Phases 2–5 bound the bottom and the first
 excited level of the operator on the *unreduced* core (`degreeForm`, `barrierForm`, and the
    `FormDomination` certificate).  For the elimination to be legitimate those numbers must be those
@@ -989,17 +1020,31 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     the representation in a multiplication model, `∫ w x e^{−τ f x} ∂μ` — the measurable functional
     calculus `e^{−τM_f} = M_{e^{−τ f}}` as a KL representation, which is the shape
     `ChapterSpectralMultiplication` produces for a normal bounded operator with a cyclic vector, and
-    which has no atomicity hypothesis anywhere.
+    which has no atomicity hypothesis anywhere.  - *The cut-off-uniform relative bound (2026-11-06).*  The relative form bound is uniform in the
+    cut-off, and the chapter now says so.  §10's AM–GM pays the ladder in the reference form rather
+    than in `‖x‖²` — `Sᵢ^*Sᵢ = Aᵢ²diag(nᵢ+1)` and `SᵢSᵢ^* ≤ Aᵢ²` because a raise is injective
+    (`sum_raiseIdx_le`) — giving `‖q_K(x)‖ ≤ ½Q(x) + ½(ΣᵢAᵢ²)‖x‖²` with **no** `Λ` in either
+    constant (`ladder_form_norm_le`, `ladder_form_abs_re_le`); §11 records the trade-off
+    `(a, b) = (ε/2, ΣAᵢ²/(2ε))` as a Pareto frontier (`amgm_pareto_iff`, `amgm_min_shift`), so
+    `1/2` is a weight choice, not a forced ratio.  §12.1–12.2 transfer the bound to the closed form
+    with the *degree* symbol as reference (`sum_dirWeight_eq`, `ladder_form_le_degree`,
+    `abs_closedKernelForm_boxKernel_le`, `closed_farisLavine_boxKernel`), and
+    `closed_farisLavine_boxKernel_half` is the unit-weight member: ratio `1/2`, shift
+    `max ((ΣᵢAᵢ²)/2 − d/2) 0`, the same numbers at every `Λ`.  So `a(Λ) = 1/2` is one number below
+    `1` rather than a family indexed by the cut-off; what §7's `σ(Λ) ≍ Λ^{(d+1)/2}` shows is only
+    that the *bounded-perturbation* reading cannot produce it.
   - *What is still open.*  Two things, plus one identification.  (i) The **generator**: identifying
     the physical spectral measure with such a multiplication model needs `H_phys` and strong
     continuity of the transfer semigroup, which `OSReconstruction.Hamiltonian` records as unbuilt —
-    the atomicity of `dρ` is no longer the obstacle, but `H_phys` itself is.  (ii) The *uniform*
-    relative bound: §23 is cut-off-free but takes `a < 1` as a hypothesis; what the continuum still
-    needs is `a(Λ) ≤ a < 1` uniformly, i.e. the relative form bound of the momentum-representation
-    magnetic ladder.  (iii) The **BRST quotient**: §24 proves the model-level statement (the
-    transverse sector's magnetic slot is the diagonal one), but the identification of that sector
-    with `H/(exact ⊕ harmonic)` still needs `closure (range Ω) = span{∂_i φ}`, open item 3 of Phase
-    1.  No strictly positive mass gap of the physical continuum Hamiltonian is claimed: the rate `2`
+    the atomicity of `dρ` is no longer the obstacle, but `H_phys` itself is.  (ii) The
+    **identification of the ladder**: `a < 1` is uniform, but `boxKernel Λ A`/`magCutoffKernel` is
+    a model of the magnetic coupling, not yet proved to *be* the reduced or
+    momentum-representation magnetic operator.  (iii) The **BRST quotient**: `closure (range Ω) =
+    span{∂_i φ}` is now a theorem in the periodic-lattice model of
+    `BookProof/BrstLongitudinalExact` (`exactStates_eq_longitudinal`, `range_derivLin`), but the
+    3+1 continuum version still needs the field Hilbert space and the closed unbounded charge, so
+    the identification of §24's transverse sector with `H/(exact ⊕ harmonic)` is model-level on
+    both sides.  No strictly positive mass gap of the physical continuum Hamiltonian is claimed: the rate `2`
     is proved for the diagonal one-particle operator of §22 and for its reduced sector, not for the
     physical continuum theory.
 
