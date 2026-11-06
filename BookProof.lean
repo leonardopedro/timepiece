@@ -593,6 +593,7 @@ import BookProof.OSReconstruction.KallenLehmannModel
 import BookProof.OSReconstruction.GeneratorClosed
 import BookProof.OSReconstruction.TransferSelfAdjoint
 import BookProof.OSReconstruction.SemigroupContinuity
+import BookProof.OSReconstruction.TransferSemigroupRight
 import BookProof.OSReconstruction.SemigroupGenerator
 import BookProof.OSReconstruction.ReflectionKernel
 import BookProof.OSReconstruction.MomentumBasis
@@ -3507,6 +3508,7 @@ import BookProof.YangMillsFormClosure
 -- (`gaugeReduce_extTorsionCoef_offDiag_eq_zero`) while the ladder moves one quantum between modes.
 import BookProof.YangMillsFormClosureNonDiagonal
 import BookProof.YangMillsLadderTransport
+import BookProof.YangMillsLadderOperator
 -- 2026-11-05: Kato–Rellich at relative bound `a < 1` **at form level** (`BookProof.YangMillsFormKLMN`).
 -- §23 proves the KLMN theorem for diagonal forms: the form norm is finite exactly on `formDom`
 -- (`formENN_ne_top_iff`), it is lower semicontinuous (`formENN_le_of_tendsto`, `formTsum_lsc`),

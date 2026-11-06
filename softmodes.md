@@ -1125,8 +1125,16 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     is the one-sided statement that survives in place of symmetry; its quantitative form is the a
     priori bound `generatorRight_resolvent_bound`, `λ‖z‖ ≤ ‖λ z − A z‖` for `λ > 0`, which makes
     `λ − A` injective (`generatorRight_resolvent_injective`) -- the estimate half of
-    Lumer–Phillips.  What remains is type-level: `physEvolCompletion` and `hinv` still range over
-    all real times.
+    Lumer–Phillips.  The type-level half is now done as well: `OSReconstruction.TransferSemigroupRight`
+    states contractivity as `HinvRight` (`0 ≤ τ` only), descends the evolution to `𝔄/𝔑` as
+    `physEvolRight`, extends it to `ℋ` as `physEvolCompletionRight` with `0 ≤ τ` as an argument,
+    and proves `P(0) = 1`, `P(s + t) = P(s)P(t)` for `s, t ≥ 0`, `‖P(τ)‖ ≤ 1` and strong
+    continuity at `0⁺` (`tendsto_physEvolCompletionRightFun`) from the contraction inequality
+    alone; `physEvolCompletionRight_eq` shows the forward semigroup is the restriction of the old
+    one whenever the two-sided hypothesis holds, so nothing is lost.  The two-sided types that
+    remain are those of the earlier `SemigroupGenerator` definitions (`diffQuot` is phrased in
+    terms of `physEvolCompletion`); the two agree where both are defined, so those statements
+    transfer verbatim.
   - *What is still open.*  Two things, plus one identification.  (i) **The Euclidean generator**, not the Hamiltonian.  Closedness is proved in the semi-group
     setting (`generatorRight_isClosed` on `genDomainRight`), as are dissipativity
     (`generatorRight_inner_le_zero`), the a priori estimate `λ‖z‖ ≤ ‖λ z − A z‖`
@@ -1141,10 +1149,13 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     and annihilation (`sandwich`, `secHam_matrix_element`).  The degeneracy of the previous
     bullet concerns the Euclidean family at *all* real times, not `H`, so deficiency indices are
     not needed for `H` and remain blocked on Mathlib (no adjoint for unbounded operators on real
-    inner product spaces) only for the abstract Euclidean `A`.  What is genuinely missing is the
-    identification of the abstract `ℋ` with the nested Fock space and the derivation of
-    `P(τ) = e^{−τH}` from the OS axioms; the KL representation still attaches to a *closed
-    symmetric* generator on `ℋ`.  (ii) The
+    inner product spaces) only for the abstract Euclidean `A`.    What is genuinely missing is a unitary `U` from the abstract `ℋ` onto the nested Fock space
+    intertwining `P(τ)` with `e^{−τH}` for a self-adjoint `H ≥ 0`; the corpus has the Hamiltonian
+    side of that statement (`ymFock_weylGauge_timeIndependent`, `qgOuterFock_esa`,
+    `smFockHam_esa`) but no map between the two Hilbert spaces, and `ℋ` is a completion of
+    `𝔄 ⧸ 𝔑` while the Fock space is a second quantization of a one-particle space, so the
+    identification has to be built from the OS data rather than deduced.  Without it the KL
+    representation still attaches to a *closed symmetric* generator on `ℋ`.  (ii) The
     **identification of the ladder**: `a < 1` is uniform, and the *matrix-entry* half is now
     proved.  `YangMillsLadderTransport` transports the Hermite creation ladder from the
     `Finsupp` multi-indices of `crePoly_hpsi` to the occupation functions `Idx d = Fin d → ℕ` that
@@ -1152,10 +1163,16 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `crePoly_hpsi_apply` restates the ladder relation in it (the only nonvanishing entry out of
     `α` is at `α + eᵢ`, with weight `√(αᵢ+1)`), `boxEmbed_update` carries the cut-off box through
     the raise, and `magCutoffKernel_eq_ladder` / `boxKernel_eq_ladder` identify every entry of the
-    cut-off kernel with `Aᵢ` times that matrix element.  So `boxKernel Λ A` *is* the matrix of the
-    ladder in the Hermite basis, not merely shaped like it.  Still open: the operator-level
-    statement — that this ladder is the off-diagonal part of the reduced second-quantized
-    magnetic operator, i.e. a restriction of it to §24's transverse sector.  (iii) The **BRST quotient**: `closure (range Ω) =
+    cut-off kernel with `Aᵢ` times that matrix element.    So `boxKernel Λ A` *is* the matrix of the ladder in the Hermite basis, not merely shaped like
+    it.  The operator-level half is now proved on the cut-off: `YangMillsLadderOperator` defines
+    the creation operator `creOp` and the kernel-sum operator `magCutoffOp` on the truncated Fock
+    space `Box d Λ = Fin d → Fin Λ`, and proves the identity of operators
+    `magCutoffOp Λ A = ∑ i, Aᵢ • a†ᵢ` (`magCutoffOp_eq_sum_cre`) together with the vanishing of
+    the degree-preserving part at every degree, `proj_N ∘ magCutoffOp ∘ proj_N = 0`
+    (`occProj_comp_magCutoffOp_comp_occProj`) — the operator form of "purely off-diagonal in the
+    occupation grading".  Still open: that this operator is a *restriction* of §24's reduced
+    second-quantized magnetic operator to the transverse sector, which needs the box-to-continuum
+    limit (`ℓ²(Idx d)`, unbounded) and the BRST quotient.  (iii) The **BRST quotient**: `closure (range Ω) =
     span{∂_i φ}` is now a theorem in the periodic-lattice model of
     `BookProof/BrstLongitudinalExact` (`exactStates_eq_longitudinal`, `range_derivLin`), but the
     3+1 continuum version still needs the field Hilbert space and the closed unbounded charge, so
