@@ -255,7 +255,7 @@ theorem generator_isClosed (Λ : OSState) (T : TimeTranslation)
       (hright.congr' (Eventually.of_forall fun n =>
         physEvol_sub_eq_integral Λ T hinv hcont (u n) τ))
   -- the quotient limit, hence domain membership
-  have hquot : (fun τ : ℝ => diffQuot Λ T hinv τ z₀)
+  have hquot : (fun τ : ℝ => diffQuotGroup Λ T hinv τ z₀)
       =ᶠ[𝓝[≠] 0]
         (fun τ : ℝ => τ⁻¹ • ∫ s in (0 : ℝ)..τ, physEvolCompletion Λ T hinv s y) :=
     Eventually.of_forall fun τ => by

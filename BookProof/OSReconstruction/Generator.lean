@@ -11,7 +11,7 @@ of the two-point function.  This module attaches the *generator* to that semigro
 The definition is the standard one, with no integration theory: `z` is in the domain when the
 difference quotient
 
-`diffQuot τ z = τ⁻¹ • (P(τ) z − z)`
+`diffQuotGroup τ z = τ⁻¹ • (P(τ) z − z)`
 
 converges as `τ → 0`, and the generator is the limit.  The limit is taken over the *punctured*
 filter `𝓝[≠] 0`: the quotient is junk at `τ = 0` (`0⁻¹ = 0` in `ℝ`), so a limit over `𝓝 0` would
@@ -22,7 +22,7 @@ the linearity proofs below trivial.
 
 What is proved:
 
-* `diffQuot_zero`, `diffQuot_add`, `diffQuot_smul` — the difference quotient is linear in the
+* `diffQuotGroup_zero`, `diffQuotGroup_add`, `diffQuotGroup_smul` — the difference quotient is linear in the
   vector for every fixed `τ`;
 * `HasGen` — convergence of the quotient, and `hasGen_zero`/`hasGen_add`/`hasGen_smul` — it is
   closed under the vector operations, because a limit of a sum is the sum of the limits and limits
@@ -81,34 +81,34 @@ noncomputable section
 /-! ## Difference quotients -/
 
 /-- The difference quotient `τ⁻¹ • (P(τ) z − z)` of the transfer semigroup. -/
-def diffQuot (Λ : OSState) (T : TimeTranslation)
+def diffQuotGroup (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (τ : ℝ) (z : Hphys Λ) : Hphys Λ :=
   τ⁻¹ • (physEvolCompletion Λ T hinv τ z - z)
 
 /-- The difference quotient vanishes at the origin. -/
-theorem diffQuot_zero (Λ : OSState) (T : TimeTranslation)
+theorem diffQuotGroup_zero (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
-    (τ : ℝ) : diffQuot Λ T hinv τ (0 : Hphys Λ) = 0 := by
-  simp [diffQuot]
+    (τ : ℝ) : diffQuotGroup Λ T hinv τ (0 : Hphys Λ) = 0 := by
+  simp [diffQuotGroup]
 
 /-- The difference quotient is additive in the vector. -/
-theorem diffQuot_add (Λ : OSState) (T : TimeTranslation)
+theorem diffQuotGroup_add (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (τ : ℝ) (z w : Hphys Λ) :
-    diffQuot Λ T hinv τ (z + w) = diffQuot Λ T hinv τ z + diffQuot Λ T hinv τ w := by
-  simp only [diffQuot, map_add]
+    diffQuotGroup Λ T hinv τ (z + w) = diffQuotGroup Λ T hinv τ z + diffQuotGroup Λ T hinv τ w := by
+  simp only [diffQuotGroup, map_add]
   rw [show physEvolCompletion Λ T hinv τ z + physEvolCompletion Λ T hinv τ w - (z + w)
       = (physEvolCompletion Λ T hinv τ z - z)
         + (physEvolCompletion Λ T hinv τ w - w) from by abel,
     smul_add]
 
 /-- The difference quotient is homogeneous in the vector. -/
-theorem diffQuot_smul (Λ : OSState) (T : TimeTranslation)
+theorem diffQuotGroup_smul (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (τ : ℝ) (c : ℝ) (z : Hphys Λ) :
-    diffQuot Λ T hinv τ (c • z) = c • diffQuot Λ T hinv τ z := by
-  rw [diffQuot, diffQuot, map_smul, ← smul_sub, smul_comm τ⁻¹ c]
+    diffQuotGroup Λ T hinv τ (c • z) = c • diffQuotGroup Λ T hinv τ z := by
+  rw [diffQuotGroup, diffQuotGroup, map_smul, ← smul_sub, smul_comm τ⁻¹ c]
 
 /-! ## The domain -/
 
@@ -116,14 +116,14 @@ theorem diffQuot_smul (Λ : OSState) (T : TimeTranslation)
 def HasGen (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (z : Hphys Λ) : Prop :=
-  ∃ y : Hphys Λ, Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ z) (𝓝[≠] 0) (𝓝 y)
+  ∃ y : Hphys Λ, Tendsto (fun τ : ℝ => diffQuotGroup Λ T hinv τ z) (𝓝[≠] 0) (𝓝 y)
 
 /-- The origin is in the domain, with generator value `0`. -/
 theorem hasGen_zero (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F) :
     HasGen Λ T hinv (0 : Hphys Λ) := by
   refine ⟨0, ?_⟩
-  simpa only [diffQuot_zero] using
+  simpa only [diffQuotGroup_zero] using
     (tendsto_const_nhds : Tendsto (fun _ : ℝ => (0 : Hphys Λ)) (𝓝[≠] 0) (𝓝 0))
 
 /-- The domain is closed under addition: the quotient of a sum is the sum of the quotients. -/
@@ -135,7 +135,7 @@ theorem hasGen_add (Λ : OSState) (T : TimeTranslation)
   obtain ⟨y', hy'⟩ := hw
   refine ⟨y + y', ?_⟩
   refine (hy.add hy').congr' ?_
-  exact Eventually.of_forall fun τ => (diffQuot_add Λ T hinv τ z w).symm
+  exact Eventually.of_forall fun τ => (diffQuotGroup_add Λ T hinv τ z w).symm
 
 /-- The domain is closed under scalar multiplication. -/
 theorem hasGen_smul (Λ : OSState) (T : TimeTranslation)
@@ -144,7 +144,7 @@ theorem hasGen_smul (Λ : OSState) (T : TimeTranslation)
   obtain ⟨y, hy⟩ := hz
   refine ⟨c • y, ?_⟩
   refine (hy.const_smul c).congr' ?_
-  exact Eventually.of_forall fun τ => (diffQuot_smul Λ T hinv τ c z).symm
+  exact Eventually.of_forall fun τ => (diffQuotGroup_smul Λ T hinv τ c z).symm
 
 /-- **The domain of the generator** as a real submodule of `ℋ`. -/
 def genDomain (Λ : OSState) (T : TimeTranslation)
@@ -177,7 +177,7 @@ def genValue (Λ : OSState) (T : TimeTranslation)
 theorem genValue_tendsto (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (z : genDomain Λ T hinv) :
-    Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0)
+    Tendsto (fun τ : ℝ => diffQuotGroup Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0)
       (𝓝 (genValue Λ T hinv z)) :=
   Classical.choose_spec z.2
 
@@ -187,13 +187,13 @@ theorem genValue_add (Λ : OSState) (T : TimeTranslation)
     (z w : genDomain Λ T hinv) :
     genValue Λ T hinv (z + w) = genValue Λ T hinv z + genValue Λ T hinv w := by
   refine tendsto_nhds_unique (genValue_tendsto Λ T hinv (z + w)) ?_
-  have h : Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)
-      + diffQuot Λ T hinv τ (w : Hphys Λ)) (𝓝[≠] 0)
+  have h : Tendsto (fun τ : ℝ => diffQuotGroup Λ T hinv τ (z : Hphys Λ)
+      + diffQuotGroup Λ T hinv τ (w : Hphys Λ)) (𝓝[≠] 0)
       (𝓝 (genValue Λ T hinv z + genValue Λ T hinv w)) :=
     (genValue_tendsto Λ T hinv z).add (genValue_tendsto Λ T hinv w)
   refine h.congr' ?_
   exact Eventually.of_forall fun τ =>
-    (diffQuot_add Λ T hinv τ (z : Hphys Λ) (w : Hphys Λ)).symm
+    (diffQuotGroup_add Λ T hinv τ (z : Hphys Λ) (w : Hphys Λ)).symm
 
 /-- `genValue` is homogeneous, by uniqueness of limits. -/
 theorem genValue_smul (Λ : OSState) (T : TimeTranslation)
@@ -201,10 +201,10 @@ theorem genValue_smul (Λ : OSState) (T : TimeTranslation)
     (c : ℝ) (z : genDomain Λ T hinv) :
     genValue Λ T hinv (c • z) = c • genValue Λ T hinv z := by
   refine tendsto_nhds_unique (genValue_tendsto Λ T hinv (c • z)) ?_
-  have h : Tendsto (fun τ : ℝ => c • diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0)
+  have h : Tendsto (fun τ : ℝ => c • diffQuotGroup Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0)
       (𝓝 (c • genValue Λ T hinv z)) := (genValue_tendsto Λ T hinv z).const_smul c
   refine h.congr' ?_
-  exact Eventually.of_forall fun τ => (diffQuot_smul Λ T hinv τ c (z : Hphys Λ)).symm
+  exact Eventually.of_forall fun τ => (diffQuotGroup_smul Λ T hinv τ c (z : Hphys Λ)).symm
 
 /-- The generator's action as a linear map on its domain. -/
 def genFun (Λ : OSState) (T : TimeTranslation)
@@ -225,7 +225,7 @@ def generator (Λ : OSState) (T : TimeTranslation)
 theorem generator_apply_tendsto (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (z : (generator Λ T hinv).domain) :
-    Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0)
+    Tendsto (fun τ : ℝ => diffQuotGroup Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0)
       (𝓝 (generator Λ T hinv z)) :=
   genValue_tendsto Λ T hinv z
 
@@ -233,7 +233,7 @@ theorem generator_apply_tendsto (Λ : OSState) (T : TimeTranslation)
 theorem generator_apply_eq_of_tendsto (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (z : (generator Λ T hinv).domain) {y : Hphys Λ}
-    (h : Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0) (𝓝 y)) :
+    (h : Tendsto (fun τ : ℝ => diffQuotGroup Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0) (𝓝 y)) :
     generator Λ T hinv z = y :=
   tendsto_nhds_unique (generator_apply_tendsto Λ T hinv z) h
 
@@ -244,11 +244,11 @@ vector is the evolved quotient, because `P(t)` commutes with `P(τ)` and is line
 statement that the limit really is the generator *of this semigroup*. -/
 
 /-- The evolved difference quotient is the difference quotient of the evolved vector. -/
-theorem diffQuot_evol (Λ : OSState) (T : TimeTranslation)
+theorem diffQuotGroup_evol (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (t τ : ℝ) (z : Hphys Λ) :
-    diffQuot Λ T hinv τ (physEvolCompletion Λ T hinv t z)
-      = physEvolCompletion Λ T hinv t (diffQuot Λ T hinv τ z) := by
+    diffQuotGroup Λ T hinv τ (physEvolCompletion Λ T hinv t z)
+      = physEvolCompletion Λ T hinv t (diffQuotGroup Λ T hinv τ z) := by
   have hcomm : physEvolCompletion Λ T hinv τ (physEvolCompletion Λ T hinv t z)
       = physEvolCompletion Λ T hinv t (physEvolCompletion Λ T hinv τ z) := by
     have h1 : physEvolCompletion Λ T hinv (τ + t) z
@@ -260,7 +260,7 @@ theorem diffQuot_evol (Λ : OSState) (T : TimeTranslation)
       rw [add_comm τ t, physEvolCompletion_add]
       rfl
     exact h1.symm.trans h2
-  rw [diffQuot, diffQuot, hcomm, ← map_sub, map_smul]
+  rw [diffQuotGroup, diffQuotGroup, hcomm, ← map_sub, map_smul]
 
 /-- **`P(t)` preserves the domain of the generator.** -/
 theorem hasGen_evol (Λ : OSState) (T : TimeTranslation)
@@ -273,7 +273,7 @@ theorem hasGen_evol (Λ : OSState) (T : TimeTranslation)
       (𝓝 (physEvolCompletion Λ T hinv t y)) :=
     (physEvolCompletion Λ T hinv t).continuous.tendsto y
   refine (hcont.comp hy).congr' ?_
-  exact Eventually.of_forall fun τ => (diffQuot_evol Λ T hinv t τ z).symm
+  exact Eventually.of_forall fun τ => (diffQuotGroup_evol Λ T hinv t τ z).symm
 
 /-- **`P(t)` commutes with the generator**: on the domain, `A P(t) z = P(t) A z`. -/
 theorem generator_evol (Λ : OSState) (T : TimeTranslation)
@@ -284,13 +284,13 @@ theorem generator_evol (Λ : OSState) (T : TimeTranslation)
           hasGen_evol Λ T hinv t z.2⟩
       = physEvolCompletion Λ T hinv t (generator Λ T hinv z) := by
   have hcomp : Tendsto
-      (fun τ : ℝ => physEvolCompletion Λ T hinv t (diffQuot Λ T hinv τ (z : Hphys Λ)))
+      (fun τ : ℝ => physEvolCompletion Λ T hinv t (diffQuotGroup Λ T hinv τ (z : Hphys Λ)))
       (𝓝[≠] 0) (𝓝 (physEvolCompletion Λ T hinv t (generator Λ T hinv z))) :=
     ((physEvolCompletion Λ T hinv t).continuous.tendsto (generator Λ T hinv z)).comp
       (generator_apply_tendsto Λ T hinv z)
   refine generator_apply_eq_of_tendsto Λ T hinv _ ?_
   refine hcomp.congr' ?_
-  exact Eventually.of_forall fun τ => (diffQuot_evol Λ T hinv t τ (z : Hphys Λ)).symm
+  exact Eventually.of_forall fun τ => (diffQuotGroup_evol Λ T hinv t τ (z : Hphys Λ)).symm
 
 /-! ## Symmetry of the generator
 
@@ -303,10 +303,10 @@ theorem inner_diffQuot_comm (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (hsa : ∀ τ : ℝ, IsSelfAdjoint (physEvolCompletion Λ T hinv τ))
     (τ : ℝ) (z w : Hphys Λ) :
-    ⟪diffQuot Λ T hinv τ z, w⟫ = ⟪z, diffQuot Λ T hinv τ w⟫ := by
+    ⟪diffQuotGroup Λ T hinv τ z, w⟫ = ⟪z, diffQuotGroup Λ T hinv τ w⟫ := by
   have hsym : ⟪(physEvolCompletion Λ T hinv τ) z, w⟫
       = ⟪z, (physEvolCompletion Λ T hinv τ) w⟫ := (hsa τ).isSymmetric z w
-  rw [diffQuot, diffQuot, real_inner_smul_left, real_inner_smul_right, inner_sub_left,
+  rw [diffQuotGroup, diffQuotGroup, real_inner_smul_left, real_inner_smul_right, inner_sub_left,
     inner_sub_right, hsym]
 
 /-- **The generator is symmetric**: `⟪A z, w⟫ = ⟪z, A w⟫` on its domain. -/
@@ -317,11 +317,11 @@ theorem generator_isSymmetric (Λ : OSState) (T : TimeTranslation)
       ⟪generator Λ T hinv z, (w : Hphys Λ)⟫
         = ⟪(z : Hphys Λ), generator Λ T hinv w⟫ := by
   intro z w
-  have hz : Tendsto (fun τ : ℝ => ⟪diffQuot Λ T hinv τ (z : Hphys Λ), (w : Hphys Λ)⟫)
+  have hz : Tendsto (fun τ : ℝ => ⟪diffQuotGroup Λ T hinv τ (z : Hphys Λ), (w : Hphys Λ)⟫)
       (𝓝[≠] 0) (𝓝 ⟪generator Λ T hinv z, (w : Hphys Λ)⟫) :=
     (generator_apply_tendsto Λ T hinv z).inner tendsto_const_nhds
   refine tendsto_nhds_unique hz ?_
-  have hw : Tendsto (fun τ : ℝ => ⟪(z : Hphys Λ), diffQuot Λ T hinv τ (w : Hphys Λ)⟫)
+  have hw : Tendsto (fun τ : ℝ => ⟪(z : Hphys Λ), diffQuotGroup Λ T hinv τ (w : Hphys Λ)⟫)
       (𝓝[≠] 0) (𝓝 ⟪(z : Hphys Λ), generator Λ T hinv w⟫) :=
     tendsto_const_nhds.inner (generator_apply_tendsto Λ T hinv w)
   refine hw.congr' ?_

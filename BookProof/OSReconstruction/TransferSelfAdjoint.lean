@@ -14,7 +14,7 @@ That has a consequence which the earlier chapters leave implicit: a self-adjoint
 family is trivial, because `P(τ) = P(τ/2) P(τ/2) = 1`.  Hence
 
 * `physEvolCompletion_eq_one` — if every `P(τ)` is self-adjoint, then `P(τ) = 1` for **every** `τ`;
-* `diffQuot_eq_zero_of_selfAdjoint`, `hasGen_of_selfAdjoint` — the difference quotient vanishes
+* `diffQuotGroup_eq_zero_of_selfAdjoint`, `hasGen_of_selfAdjoint` — the difference quotient vanishes
   identically, so every vector is in the domain;
 * `genDomain_eq_top_of_selfAdjoint`, `generator_apply_eq_zero_of_selfAdjoint` — the generator is
   the zero operator (with domain all of `ℋ`).
@@ -133,11 +133,11 @@ theorem physEvolCompletion_eq_one (Λ : OSState) (T : TimeTranslation)
   exact physEvolCompletion_comp_self Λ T hinv hsa (τ / 2)
 
 /-- The difference quotient vanishes identically under the self-adjointness hypothesis. -/
-theorem diffQuot_eq_zero_of_selfAdjoint (Λ : OSState) (T : TimeTranslation)
+theorem diffQuotGroup_eq_zero_of_selfAdjoint (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (hsa : ∀ τ : ℝ, IsSelfAdjoint (physEvolCompletion Λ T hinv τ))
-    (τ : ℝ) (z : Hphys Λ) : diffQuot Λ T hinv τ z = 0 := by
-  rw [diffQuot, physEvolCompletion_eq_one Λ T hinv hsa τ, ContinuousLinearMap.one_apply,
+    (τ : ℝ) (z : Hphys Λ) : diffQuotGroup Λ T hinv τ z = 0 := by
+  rw [diffQuotGroup, physEvolCompletion_eq_one Λ T hinv hsa τ, ContinuousLinearMap.one_apply,
     sub_self, smul_zero]
 
 /-- Every vector is in the domain of the generator under the self-adjointness hypothesis. -/
@@ -146,7 +146,7 @@ theorem hasGen_of_selfAdjoint (Λ : OSState) (T : TimeTranslation)
     (hsa : ∀ τ : ℝ, IsSelfAdjoint (physEvolCompletion Λ T hinv τ)) (z : Hphys Λ) :
     HasGen Λ T hinv z :=
   ⟨0, tendsto_const_nhds.congr' (Eventually.of_forall fun τ =>
-    (diffQuot_eq_zero_of_selfAdjoint Λ T hinv hsa τ z).symm)⟩
+    (diffQuotGroup_eq_zero_of_selfAdjoint Λ T hinv hsa τ z).symm)⟩
 
 /-- The domain is all of `ℋ`. -/
 theorem genDomain_eq_top_of_selfAdjoint (Λ : OSState) (T : TimeTranslation)
@@ -163,7 +163,7 @@ theorem generator_apply_eq_zero_of_selfAdjoint (Λ : OSState) (T : TimeTranslati
     (z : (generator Λ T hinv).domain) : generator Λ T hinv z = 0 := by
   refine generator_apply_eq_of_tendsto Λ T hinv z ?_
   refine tendsto_const_nhds.congr' (Eventually.of_forall fun τ => ?_)
-  exact (diffQuot_eq_zero_of_selfAdjoint Λ T hinv hsa τ (z : Hphys Λ)).symm
+  exact (diffQuotGroup_eq_zero_of_selfAdjoint Λ T hinv hsa τ (z : Hphys Λ)).symm
 
 end
 

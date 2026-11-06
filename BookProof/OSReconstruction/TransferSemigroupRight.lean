@@ -288,6 +288,21 @@ theorem tendsto_norm_physEvolRight_sub (hinv : HinvRight Λ T)
   have hlt : ‖physEvolRightFun hinv τ x - x‖ < ε := by nlinarith
   simpa [Real.dist_eq, abs_of_nonneg hnn] using hlt
 
+/-- **`P(0) = 1` for the extended family.** -/
+theorem physEvolCompletionRightFun_zero (hinv : HinvRight Λ T) :
+    physEvolCompletionRightFun hinv 0 = ContinuousLinearMap.id ℝ (Hphys Λ) := by
+  rw [physEvolCompletionRightFun_of_nonneg hinv le_rfl]
+  exact physEvolCompletionRight_zero hinv
+
+/-- **The group law in application form**, for nonnegative times: `P(s)(P(t)z) = P(s+t)z`. -/
+theorem physEvolCompletionRightFun_comp (hinv : HinvRight Λ T) {s t : ℝ} (hs : 0 ≤ s)
+    (ht : 0 ≤ t) (z : Hphys Λ) :
+    physEvolCompletionRightFun hinv s (physEvolCompletionRightFun hinv t z)
+      = physEvolCompletionRightFun hinv (s + t) z := by
+  rw [physEvolCompletionRightFun_of_nonneg hinv hs, physEvolCompletionRightFun_of_nonneg hinv ht,
+    physEvolCompletionRightFun_of_nonneg hinv (add_nonneg hs ht),
+    ← ContinuousLinearMap.comp_apply, ← physEvolCompletionRight_add]
+
 /-- **Strong continuity of the transfer semigroup at `0⁺`.**  Approximate `z` by a vector of the
 dense subspace, use contractivity for the two outer terms and
 `tendsto_norm_physEvolRight_sub` for the middle one.  No isometry, no group law, no negative
@@ -333,6 +348,67 @@ theorem tendsto_physEvolCompletionRightFun (hinv : HinvRight Λ T)
     rw [dist_comm]
     exact hzx
   linarith [hfin, hle, hτ]
+
+/-- **Two orbit points**: their distance is at most the distance of `P(|y − s₀|)z` from `z`. -/
+theorem dist_physEvolCompletionRightFun_le (hinv : HinvRight Λ T) (z : Hphys Λ) {y s₀ : ℝ}
+    (hy : 0 ≤ y) (hs : 0 ≤ s₀) :
+    dist (physEvolCompletionRightFun hinv y z) (physEvolCompletionRightFun hinv s₀ z)
+      ≤ ‖physEvolCompletionRightFun hinv |y - s₀| z - z‖ := by
+  rcases le_total s₀ y with hle | hle
+  · have habs : |y - s₀| = y - s₀ := abs_of_nonneg (by linarith)
+    have hcomp : physEvolCompletionRightFun hinv y z
+        = physEvolCompletionRightFun hinv s₀ (physEvolCompletionRightFun hinv (y - s₀) z) := by
+      have hc := physEvolCompletionRightFun_comp hinv hs (show (0 : ℝ) ≤ y - s₀ by linarith) z
+      rw [show s₀ + (y - s₀) = y from by ring] at hc
+      exact hc.symm
+    rw [hcomp, habs, dist_eq_norm, ← map_sub]
+    exact physEvolCompletionRightFun_contractive hinv s₀ _
+  · have habs : |y - s₀| = s₀ - y := by
+      rw [abs_of_nonpos (by linarith)]
+      ring
+    have hcomp : physEvolCompletionRightFun hinv s₀ z
+        = physEvolCompletionRightFun hinv y (physEvolCompletionRightFun hinv (s₀ - y) z) := by
+      have hc := physEvolCompletionRightFun_comp hinv hy (show (0 : ℝ) ≤ s₀ - y by linarith) z
+      rw [show y + (s₀ - y) = s₀ from by ring] at hc
+      exact hc.symm
+    rw [hcomp, habs, dist_eq_norm, ← map_sub]
+    calc ‖physEvolCompletionRightFun hinv y
+          (z - physEvolCompletionRightFun hinv (s₀ - y) z)‖
+        ≤ ‖z - physEvolCompletionRightFun hinv (s₀ - y) z‖ :=
+          physEvolCompletionRightFun_contractive hinv y _
+      _ = ‖physEvolCompletionRightFun hinv (s₀ - y) z - z‖ := norm_sub_rev _ _
+
+/-- **The orbit is continuous on `[0, ∞)`**, from the distance bound and strong continuity at
+`0⁺`.  No negative time and no two-sided hypothesis is involved. -/
+theorem continuousOn_physEvolCompletionRightFun (hinv : HinvRight Λ T)
+    (hcont : ∀ F : Observable, Continuous fun τ : ℝ => osBilin Λ.ω (T τ F) F) (z : Hphys Λ) :
+    ContinuousOn (fun s : ℝ => physEvolCompletionRightFun hinv s z) (Set.Ici 0) := by
+  intro s₀ hs₀
+  have hs₀0 : 0 ≤ s₀ := hs₀
+  refine Metric.continuousWithinAt_iff.2 fun ε hε => ?_
+  have hlim : Tendsto (fun δ : ℝ => ‖physEvolCompletionRightFun hinv δ z - z‖)
+      (𝓝[>] 0) (𝓝 0) := by
+    have h := tendsto_physEvolCompletionRightFun hinv hcont z
+    have hsub : Tendsto (fun δ : ℝ => physEvolCompletionRightFun hinv δ z - z) (𝓝[>] 0)
+        (𝓝 (z - z)) :=
+      h.sub (tendsto_const_nhds : Tendsto (fun _ : ℝ => z) (𝓝[>] (0 : ℝ)) (𝓝 z))
+    simpa using hsub.norm
+  have hev : ∀ᶠ δ in 𝓝[>] (0 : ℝ), ‖physEvolCompletionRightFun hinv δ z - z‖ < ε := by
+    have h := Metric.tendsto_nhds.mp hlim ε hε
+    filter_upwards [h] with δ hδ
+    simpa [Real.dist_eq, abs_of_nonneg (norm_nonneg _)] using hδ
+  obtain ⟨ρ, hρpos, hρ⟩ := Metric.mem_nhdsWithin_iff.1 hev
+  refine ⟨ρ, hρpos, ?_⟩
+  intro y hy hyρ
+  have hy0 : 0 ≤ y := hy
+  rcases eq_or_ne y s₀ with heq | hne
+  · subst heq
+    simpa using hε
+  · have hle := dist_physEvolCompletionRightFun_le hinv z hy0 hs₀0
+    have hsmall : ‖physEvolCompletionRightFun hinv |y - s₀| z - z‖ < ε := by
+      refine hρ ⟨?_, abs_pos.2 (sub_ne_zero.2 hne)⟩
+      simpa [Metric.mem_ball, Real.dist_eq, abs_abs] using hyρ
+    exact lt_of_le_of_lt hle hsmall
 
 /-! ## Agreement with the two-sided construction -/
 

@@ -1131,10 +1131,13 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     and proves `P(0) = 1`, `P(s + t) = P(s)P(t)` for `s, t ≥ 0`, `‖P(τ)‖ ≤ 1` and strong
     continuity at `0⁺` (`tendsto_physEvolCompletionRightFun`) from the contraction inequality
     alone; `physEvolCompletionRight_eq` shows the forward semigroup is the restriction of the old
-    one whenever the two-sided hypothesis holds, so nothing is lost.  The two-sided types that
-    remain are those of the earlier `SemigroupGenerator` definitions (`diffQuot` is phrased in
-    terms of `physEvolCompletion`); the two agree where both are defined, so those statements
-    transfer verbatim.
+    one whenever the two-sided hypothesis holds, so nothing is lost.  The generator itself is now built on that semigroup: `SemigroupGenerator` defines `diffQuot` on
+    `physEvolCompletionRightFun` with `HinvRight`, so `generatorRight`, `genDomainRight` and
+    `HasGenRight` take no two-sided hypothesis; its closedness proof uses the right derivative at
+    `t ≥ 0` and orbit continuity on `[0, ∞)` (`continuousOn_physEvolCompletionRightFun`) instead of
+    shifting by a negative time.  What remains two-sided is the group-level layer, renamed
+    `Generator.diffQuotGroup` (`HasGen`, `genDomain`, `generator`), together with `physEvol` and
+    `physEvolCompletion` of `HilbertSpace`, whose subject is the family `P : ℝ → B(ℋ)` itself.
   - *What is still open.*  Two things, plus one identification.  (i) **The Euclidean generator**, not the Hamiltonian.  Closedness is proved in the semi-group
     setting (`generatorRight_isClosed` on `genDomainRight`), as are dissipativity
     (`generatorRight_inner_le_zero`), the a priori estimate `λ‖z‖ ≤ ‖λ z − A z‖`
