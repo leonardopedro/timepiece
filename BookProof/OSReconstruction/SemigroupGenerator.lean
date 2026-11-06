@@ -29,7 +29,12 @@ it, together with the closedness argument that goes with it:
   at `0⁺` and contractivity;
 * `generatorRight_isClosed` — the graph of `generatorRight` is closed;
 * `generatorRight_inner_le_zero` — the generator is *dissipative*: `⟪A z, z⟫ ≤ 0` on its domain,
-  the one-sided substitute for symmetry, forced by contractivity alone.
+  the one-sided substitute for symmetry, forced by contractivity alone;
+* `generatorRight_resolvent_bound` — the a priori estimate `lam‖z‖ ≤ ‖lam z − A z‖` for `lam > 0`,
+  obtained by expanding `‖lam z − A z‖²` and dropping the nonnegative term `−2lam⟪A z, z⟫`;
+* `generatorRight_resolvent_injective` — consequently `lam − A` is injective on the domain.  This is
+  the *estimate* half of Lumer–Phillips; surjectivity onto `ℋ` (a range condition on `lam − A`) is
+  a separate matter and is not proved here.
 
 So closedness needs neither a resolvent nor a Laplace representation, contrary to the conjecture
 recorded in `SemigroupContinuity`: the right-derivative fundamental theorem of calculus is enough.
@@ -42,8 +47,25 @@ whose norm bound fails for `τ < 0`, and orbit continuity on `[0, τ]` is taken 
 `continuous_physEvolCompletion_apply`, which shifts by a negative time and so uses strong continuity
 at `0` in the full filter `𝓝 0`.  A fully forward-only rebuild would restrict both, replacing that
 continuity lemma by a one-sided version (right continuity at `0`, and for `h ∈ (0, t)`
-`P(t)z − P(t−h)z = P(t−h)(P(h)z − z)`); nothing below would change.  Self-adjointness is a separate
-question, and under the two-sided hypothesis it is vacuous (`TransferSelfAdjoint`).
+`P(t)z − P(t−h)z = P(t−h)(P(h)z − z)`); nothing below would change.
+
+## Self-adjointness is not what fails here
+
+The degeneracy in `TransferSelfAdjoint` concerns *Euclidean* time: a family `P(τ)`, `τ ∈ ℝ`,
+that is contractive **and** self-adjoint at every real `τ` and obeys the group law must be
+trivial.  It says nothing against the Hamiltonian.  In real time the 4d Hamiltonian is
+self-adjoint -- positivity plus essential self-adjointness (Faris–Lavine, or the Friedrichs
+extension), with the unitary flow by Stone's theorem; in this corpus that is
+`qgOuterFock_esa`, `smFockHam_esa` and `exists_stone_flow_of_esa`, acting on the nested Fock
+space whose sector operators are inner Hamiltonians sandwiched between outer creation and
+annihilation (`sandwich`, `secHam_matrix_element`).  Euclidean time is the Wick rotation:
+`P(τ) = e^{−τH}` with `H ≥ 0` self-adjoint, so `A = −H` and `⟪A z, z⟫ = −⟪H z, z⟫ ≤ 0`.
+Dissipativity (`generatorRight_inner_le_zero`) is the Wick-rotated shadow of positivity, not a
+substitute for symmetry of `H`.  The range condition behind Lumer–Phillips,
+`ran(λ − A) = ℋ`, is `ran(λ + H) = ℋ`, which holds for `λ > 0` once `H ≥ 0` is self-adjoint
+(the a priori estimate below is `‖(λ + H)⁻¹‖ ≤ 1/λ`).  What this chapter does not yet do is
+identify the abstract `ℋ` with the nested Fock space and derive `P(τ) = e^{−τH}` from the OS
+axioms; neither of those is a statement about self-adjointness of `H`.
 -/
 
 namespace BookProof.OSReconstruction
@@ -415,6 +437,77 @@ theorem generatorRight_inner_le_zero (Λ : OSState) (T : TimeTranslation)
     _ ≤ ‖(z : Hphys Λ)‖ * ‖(z : Hphys Λ)‖ :=
         mul_le_mul_of_nonneg_right (physEvolCompletion_contractive Λ T hinv τ _) (norm_nonneg _)
     _ = ⟪(z : Hphys Λ), (z : Hphys Λ)⟫ := (real_inner_self_eq_norm_mul_norm _).symm
+
+/-! ## The a priori estimate for the resolvent -/
+
+/-- **The a priori resolvent bound**: for `lam > 0` and a domain vector,
+`lam ‖z‖ ≤ ‖lam z − A z‖`.
+
+Expanding `‖lam z − A z‖² = lam²‖z‖² − 2lam⟪A z, z⟫ + ‖A z‖²` and using only dissipativity
+(`⟪A z, z⟫ ≤ 0`), the last two terms are nonnegative, so the right-hand side dominates
+`(lam‖z‖)²`; take square roots.  This is the quantitative estimate behind
+`generatorRight_resolvent_injective`, and the estimate Lumer–Phillips assumes in addition to
+dissipativity. -/
+theorem generatorRight_resolvent_bound (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (z : (generatorRight Λ T hinv).domain) {lam : ℝ} (hlam : 0 < lam) :
+    lam * ‖(z : Hphys Λ)‖ ≤ ‖lam • (z : Hphys Λ) - generatorRight Λ T hinv z‖ := by
+  have hdis : ⟪generatorRight Λ T hinv z, (z : Hphys Λ)⟫ ≤ 0 :=
+    generatorRight_inner_le_zero Λ T hinv z
+  have hprod : lam * ⟪generatorRight Λ T hinv z, (z : Hphys Λ)⟫ ≤ 0 :=
+    mul_nonpos_of_nonneg_of_nonpos hlam.le hdis
+  have hcross : ⟪lam • (z : Hphys Λ), generatorRight Λ T hinv z⟫
+      = lam * ⟪generatorRight Λ T hinv z, (z : Hphys Λ)⟫ := by
+    rw [real_inner_smul_left, real_inner_comm (z : Hphys Λ) (generatorRight Λ T hinv z)]
+  have hnorm : ‖lam • (z : Hphys Λ)‖ = lam * ‖(z : Hphys Λ)‖ := by
+    rw [norm_smul, Real.norm_eq_abs, abs_of_pos hlam]
+  have hexp : ‖lam • (z : Hphys Λ) - generatorRight Λ T hinv z‖ ^ 2
+      = (lam * ‖(z : Hphys Λ)‖) ^ 2
+        - 2 * (lam * ⟪generatorRight Λ T hinv z, (z : Hphys Λ)⟫)
+        + ‖generatorRight Λ T hinv z‖ ^ 2 := by
+    rw [norm_sub_sq_real, hcross, hnorm, mul_pow]
+  have hsq : (lam * ‖(z : Hphys Λ)‖) ^ 2
+      ≤ ‖lam • (z : Hphys Λ) - generatorRight Λ T hinv z‖ ^ 2 := by
+    rw [hexp]
+    nlinarith [sq_nonneg ‖generatorRight Λ T hinv z‖]
+  have hnonneg : 0 ≤ lam * ‖(z : Hphys Λ)‖ := mul_nonneg hlam.le (norm_nonneg _)
+  have h' : |lam * ‖(z : Hphys Λ)‖|
+      ≤ |‖lam • (z : Hphys Λ) - generatorRight Λ T hinv z‖| :=
+    sq_le_sq.mp hsq
+  rwa [abs_of_nonneg hnonneg, abs_of_nonneg (norm_nonneg _)] at h'
+
+/-- **`lam − A` is injective on the domain** for `lam > 0`, immediately from the a priori bound:
+`lam z − A z = 0` forces `lam‖z‖ ≤ 0`, hence `z = 0`. -/
+theorem generatorRight_resolvent_injective (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    {lam : ℝ} (hlam : 0 < lam) :
+    Function.Injective fun z : (generatorRight Λ T hinv).domain =>
+      lam • (z : Hphys Λ) - generatorRight Λ T hinv z := by
+  intro z w hzw
+  have hzw' : lam • (z : Hphys Λ) - generatorRight Λ T hinv z
+      = lam • (w : Hphys Λ) - generatorRight Λ T hinv w := hzw
+  have hzero : lam • ((z : Hphys Λ) - (w : Hphys Λ))
+      - generatorRight Λ T hinv (z - w) = 0 := by
+    have hval : generatorRight Λ T hinv (z - w)
+        = generatorRight Λ T hinv z - generatorRight Λ T hinv w :=
+      map_sub (genFunRight Λ T hinv) z w
+    calc lam • ((z : Hphys Λ) - (w : Hphys Λ))
+          - generatorRight Λ T hinv (z - w)
+        = (lam • (z : Hphys Λ) - generatorRight Λ T hinv z)
+            - (lam • (w : Hphys Λ) - generatorRight Λ T hinv w) := by
+          rw [hval, smul_sub]
+          abel
+      _ = 0 := by rw [hzw', sub_self]
+  have hbound := generatorRight_resolvent_bound Λ T hinv
+    (z - w : (generatorRight Λ T hinv).domain) hlam
+  have hnorm : ((z - w : (generatorRight Λ T hinv).domain) : Hphys Λ) = 0 := by
+    have h1 : lam * ‖((z - w : (generatorRight Λ T hinv).domain) : Hphys Λ)‖ = 0 :=
+      le_antisymm (by simpa [hzero] using hbound)
+        (mul_nonneg hlam.le (norm_nonneg _))
+    rcases mul_eq_zero.1 h1 with h | h
+    · exact absurd h hlam.ne'
+    · exact norm_eq_zero.1 h
+  exact sub_eq_zero.1 (Subtype.coe_injective hnorm)
 
 end
 

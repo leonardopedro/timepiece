@@ -35,9 +35,20 @@ reconstruction is `e^{−τH}` for `τ ≥ 0`, a *contraction*, and its continua
 isometry, and it fails for every nontrivial `H`.  The non-degenerate statement therefore needs the
 semi-group hypothesis (contractivity for `τ ≥ 0` only, so `P(τ)` is not unitary), and there
 self-adjointness of the transfer operator is the *positivity* of `e^{−τH}`, obtained from the
-Friedrichs/Faris–Lavine construction rather than from Stone's theorem for a unitary group.  The
-symmetry theorem `generator_isSymmetric` survives that change: its proof uses only
-self-adjointness of `P(τ)`, never the negative-time contractivity.
+Friedrichs/Faris–Lavine construction rather than from Stone's theorem for a unitary group.
+
+None of this weakens the Hamiltonian.  In real time the 4d Hamiltonian is self-adjoint --
+positivity plus essential self-adjointness (Faris–Lavine/Friedrichs), unitary flow by Stone --
+and `e^{−τH}` for `τ ≥ 0` is a *positive self-adjoint contraction* whose generator `A = −H` is
+self-adjoint and dissipative because `H ≥ 0`.  The degeneracy above needs the negative-time half
+of the family, where `e^{−τH}` continues to the unbounded `e^{τH}`; `H` itself is untouched.  The
+Hamiltonian side is realized in this corpus on the nested Fock space, its sector operators being
+inner Hamiltonians on the inner Fock space sandwiched between outer creation on the left and
+annihilation on the right (`BookProof.sandwich`,
+`BookProof.QgOuterFockOneParticle.secHam_matrix_element`), with essential self-adjointness
+`qgOuterFock_esa` / `smFockHam_esa` and flow `exists_stone_flow_of_esa`.  The symmetry theorem
+`generator_isSymmetric` survives the change of hypotheses: its proof uses only self-adjointness
+of `P(τ)`, never the negative-time contractivity.
 
 ## Boundary
 
