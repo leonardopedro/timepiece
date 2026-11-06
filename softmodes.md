@@ -1120,7 +1120,9 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     Stone's unitary group.  Two of the three layers are now in place: continuity is
     `SemigroupContinuity` (contraction bound, filter `𝓝[>] 0`) and the generator with its closedness
     is `SemigroupGenerator` (`genDomainRight`, `generatorRight`, `generatorRight_isClosed`, driven by
-    the right-derivative fundamental theorem of calculus).  What remains is type-level:
+    the right-derivative fundamental theorem of calculus).  That generator is also dissipative,
+    `generatorRight_inner_le_zero` -- `⟪A z, z⟫ ≤ 0`, from contractivity and Cauchy–Schwarz -- which
+    is the one-sided statement that survives in place of symmetry.  What remains is type-level:
     `physEvolCompletion` and `hinv` still range over all real times.
   - *What is still open.*  Two things, plus one identification.  (i) **Self-adjointness** of the
     forward-time generator: closedness is now proved *in the semi-group setting*
@@ -1130,7 +1132,9 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     needs the forward contractivity and a one-sided self-adjointness notion rather than
     `IsSelfAdjoint (P τ)`; then come deficiency indices, and those are still blocked on Mathlib
     (no adjoint for unbounded operators on real inner product spaces).  Under the present two-sided
-    hypothesis the question is vacuous (previous bullet).  The KL representation still attaches to a
+    hypothesis the question is vacuous (previous bullet); what is provable one-sidedly is
+    dissipativity (`generatorRight_inner_le_zero`), which points at Lumer–Phillips maximal
+    dissipativity rather than self-adjointness.  The KL representation still attaches to a
     *closed symmetric* generator on `ℋ`.  (ii) The
     **identification of the ladder**: `a < 1` is uniform, and the *matrix-entry* half is now
     proved.  `YangMillsLadderTransport` transports the Hermite creation ladder from the

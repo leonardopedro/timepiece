@@ -27,7 +27,9 @@ it, together with the closedness argument that goes with it:
   (`intervalIntegral.integral_eq_sub_of_hasDeriv_right_of_le`);
 * `tendsto_average_physEvol_right` — `τ⁻¹ • ∫₀^τ P(s)y ds → y` as `τ → 0⁺`, from strong continuity
   at `0⁺` and contractivity;
-* `generatorRight_isClosed` — the graph of `generatorRight` is closed.
+* `generatorRight_isClosed` — the graph of `generatorRight` is closed;
+* `generatorRight_inner_le_zero` — the generator is *dissipative*: `⟪A z, z⟫ ≤ 0` on its domain,
+  the one-sided substitute for symmetry, forced by contractivity alone.
 
 So closedness needs neither a resolvent nor a Laplace representation, contrary to the conjecture
 recorded in `SemigroupContinuity`: the right-derivative fundamental theorem of calculus is enough.
@@ -381,6 +383,38 @@ theorem generatorRight_isClosed (Λ : OSState) (T : TimeTranslation)
     (tendsto_average_physEvol_right Λ T hinv hcont y).congr' hquot.symm
   have hgen : HasGenRight Λ T hinv z₀ := ⟨y, hlim⟩
   exact ⟨hgen, tendsto_nhds_unique (genValueRight_tendsto Λ T hinv ⟨z₀, hgen⟩) hlim⟩
+
+/-! ## Dissipativity: the one-sided substitute for symmetry -/
+
+/-- **The forward-time generator is dissipative**: `⟪A z, z⟫ ≤ 0` throughout its domain.
+
+`P(τ)` is a contraction for every `τ`, so `⟪P(τ)z, z⟫ ≤ ‖P(τ)z‖ ‖z‖ ≤ ⟪z, z⟫` by
+Cauchy–Schwarz, and the difference quotient of this inequality converges to `⟪A z, z⟫` along
+`𝓝[>] 0`.  Only `τ ≥ 0` is used, which is why this replaces `generator_isSymmetric` in the
+forward-time theory: a self-adjoint `P(τ)` would force `P ≡ 1` (`physEvolCompletion_eq_one`). -/
+theorem generatorRight_inner_le_zero (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (z : (generatorRight Λ T hinv).domain) :
+    ⟪generatorRight Λ T hinv z, (z : Hphys Λ)⟫ ≤ 0 := by
+  have hq : Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝[>] 0)
+      (𝓝 (generatorRight Λ T hinv z)) :=
+    generatorRight_apply_tendsto Λ T hinv z
+  have hinner : Tendsto (fun τ : ℝ => ⟪diffQuot Λ T hinv τ (z : Hphys Λ), (z : Hphys Λ)⟫)
+      (𝓝[>] 0) (𝓝 ⟪generatorRight Λ T hinv z, (z : Hphys Λ)⟫) :=
+    hq.inner tendsto_const_nhds
+  refine le_of_tendsto_of_tendsto hinner tendsto_const_nhds ?_
+  filter_upwards [self_mem_nhdsWithin] with τ hτ
+  have hquot : ⟪diffQuot Λ T hinv τ (z : Hphys Λ), (z : Hphys Λ)⟫
+      = τ⁻¹ * (⟪physEvolCompletion Λ T hinv τ (z : Hphys Λ), (z : Hphys Λ)⟫
+        - ⟪(z : Hphys Λ), (z : Hphys Λ)⟫) := by
+    rw [diffQuot, real_inner_smul_left, inner_sub_left]
+  rw [hquot]
+  refine mul_nonpos_of_nonneg_of_nonpos (inv_nonneg.2 (le_of_lt hτ)) (sub_nonpos.2 ?_)
+  calc ⟪physEvolCompletion Λ T hinv τ (z : Hphys Λ), (z : Hphys Λ)⟫
+      ≤ ‖physEvolCompletion Λ T hinv τ (z : Hphys Λ)‖ * ‖(z : Hphys Λ)‖ := real_inner_le_norm _ _
+    _ ≤ ‖(z : Hphys Λ)‖ * ‖(z : Hphys Λ)‖ :=
+        mul_le_mul_of_nonneg_right (physEvolCompletion_contractive Λ T hinv τ _) (norm_nonneg _)
+    _ = ⟪(z : Hphys Λ), (z : Hphys Λ)⟫ := (real_inner_self_eq_norm_mul_norm _).symm
 
 end
 
