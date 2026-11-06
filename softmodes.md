@@ -1094,28 +1094,30 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     apply to the physical correlator directly.  The multiplication model is the single hypothesis:
     producing it is the spectral theorem for the generator, which §5.2 has only as a symmetric
     `LinearPMap`.
-  - *The `L²` multiplier and its generator (2026-11-06).*  `OSReconstruction.L2Multiplier` builds the
-    operator the KL model had been postulating.  `mulL2` is bounded multiplication on `L²(ν)` by an
-    essentially bounded function — Hölder's inequality in the exponent form `(⊤, 2, 2)`, the same
-    `ContinuousLinearMap.holderL` construction the wave chapter uses — and `expFlow` is the multiplier
-    family `e^{−τf}`, defined for all real `τ` (identity off `τ ≥ 0`) so it can be a bridge's `Q`,
-    with `expFlow_zero` and `expFlow_comp` proved from `Real.exp_add` pointwise.  With it
-    `kl_physEvol_uniform` gives the KL representation at *every* `τ ≥ 0` from one representative and
-    one spectral measure — exactly the `hkl` input of `continuousOn_physEvol_twoPoint` — and
-    `osFockBridgeOfMulModel` fills `OsFockBridge` with `Q := expFlow`, so the bundle's flow is
-    constructed rather than assumed.  `tendsto_expFlow_slope` identifies the generator of that flow:
-    `τ⁻¹(Q(τ)z − z) → −f z` in `L²(ν)` for `f z ∈ L²(ν)`, by dominated convergence on the square with
-    the pointwise bound `|(e^{−τc} − 1)/τ| ≤ c` for `c ≥ 0`.  Not claimed: that the transfer semigroup
-    `P` *is* this flow (that is the spectral theorem for the generator, still absent), hence
-    `generatorRight = −M_f` is not asserted — only the difference quotient of the constructed flow.
-  - *Time continuity of the KL transform (2026-11-06).*  `Clustering.continuousOn_laplace` proves the
-    Laplace transform of a finite measure supported on `[0, ∞)` is Lipschitz in `τ` with the first
-    moment `∫ λ dρ` as constant — `e^{−τλ}` is `1`-Lipschitz in the exponent and `λ` is integrable,
-    so no dominated convergence is needed — hence continuous on `[0, ∞)`.  
-    `KallenLehmannModel.continuousOn_physEvol_twoPoint` carries this to `τ ↦ ⟪z, P(τ)z⟫`: continuity
-    in time, in matrix-element form, from the spectral measure alone.  Norm continuity of `P` and the
-    identification `generatorRight = −M_f` are *not* claimed: they need the `L²` difference-quotient
-    limit `((e^{−τf} − 1)/τ) z → −f z`, which the corpus does not have.
+  - *The `L²` multiplier and its generator (2026-11-06).*  `OSReconstruction.L2Multiplier` builds
+    the operator the KL model had been postulating.  `mulL2` is bounded multiplication on `L²(ν)` by
+    an essentially bounded function — Hölder in the exponent form `(⊤, 2, 2)`, the same
+    `ContinuousLinearMap.holderL` construction the wave chapter uses — and `expFlow` is the
+    multiplier family `e^{−τf}`, defined for all real `τ` (identity off `τ ≥ 0`) so it can be a
+    bridge's `Q`, with `expFlow_zero` and `expFlow_comp` proved from `Real.exp_add` pointwise.  With
+    it `kl_physEvol_uniform` gives the KL representation at *every* `τ ≥ 0` from one representative
+    and one spectral measure — exactly the `hkl` input of `continuousOn_physEvol_twoPoint` — and
+    `osFockBridgeOfMulModel` fills `OsFockBridge` with `Q := expFlow`, so the bridge's flow is
+    constructed rather than assumed.  `tendsto_expFlow_slope` identifies the generator of that
+    flow: `τ⁻¹(Q(τ)z − z) → −f z` in `L²(ν)` for `f z ∈ L²(ν)`, by dominated convergence on the
+    square with the pointwise bound `|(e^{−τc} − 1)/τ| ≤ c` for `c ≥ 0`.  Not claimed: that the
+    transfer semigroup `P` *is* this flow (that is the spectral theorem for the generator, still
+    absent), hence `generatorRight = −M_f` is not asserted — only the difference quotient of the
+    constructed flow.
+  - *Time continuity of the KL transform (2026-11-06).*  `Clustering.continuousOn_laplace` proves
+    the Laplace transform of a finite measure supported on `[0, ∞)` is Lipschitz in `τ` with the
+    first moment `∫ λ dρ` as constant — `e^{−τλ}` is `1`-Lipschitz in the exponent and `λ` is
+    integrable, so no dominated convergence is needed — hence continuous on `[0, ∞)`.
+    `KallenLehmannModel.continuousOn_physEvol_twoPoint` carries this to `τ ↦ ⟪z, P(τ)z⟫`:
+    continuity in time, in matrix-element form, from the spectral measure alone.  Norm continuity of
+    `P` and the identification `generatorRight = −M_f` are *not* claimed from this: they need the
+    `L²` difference-quotient limit `((e^{−τf} − 1)/τ) z → −f z` for the transfer semigroup itself,
+    which `L2Multiplier.tendsto_expFlow_slope` supplies only for the constructed multiplier flow.
   - *Closedness of the generator (2026-11-06).*  `OSReconstruction.GeneratorClosed` proves the graph
     is closed: if `uₙ → z₀` in `ℋ` and `A uₙ → y`, then `z₀` lies in the domain and `A z₀ = y`
     (`generator_isClosed`), by the integral representation the earlier draft recorded as missing.
