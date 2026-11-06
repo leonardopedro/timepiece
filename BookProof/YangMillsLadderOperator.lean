@@ -28,7 +28,9 @@ The identification is made on the **cut-off** space, where all sums are finite: 
 finite type, so the kernel sum and the ladder sums are `Finset` sums and no summability or
 boundedness of the operator is needed.  It is *not* a statement about the continuum: `ℓ²(Idx d)`
 needs the Hilbert–Schmidt/relative-bound hypotheses of `YangMillsFormClosureNonDiagonal` §10–11,
-and the operator there is unbounded (`ladder_form_norm_le` bounds its form, not its norm).  It is
+and the operator there is unbounded (`ladder_form_norm_le` bounds its form, not its norm).  The
+core-level version — the same identity with no box and no `Λ`, as an endomorphism of
+`CoreCoeff d` over `Idx d` — is `YangMillsLadderL2.magCore_single_apply`.  It is
 also not a statement that `magCutoffOp` is the off-diagonal part of the *reduced* magnetic
 operator of §24: what is proved is that the ladder component, read as an operator on the
 truncated Fock space, is `∑ᵢ Aᵢ a†ᵢ` and has no degree-preserving part.  The step from here to
