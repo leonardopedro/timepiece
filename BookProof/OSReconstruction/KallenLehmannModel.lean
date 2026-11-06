@@ -20,6 +20,9 @@ The one structural input is the multiplication model itself: an isometry
 * `integral_mul_exp_eq_laplace` — that integral is `laplace` of the pushed-forward density
   `z² dν`, by `laplace_map_withDensity`;
 * `kl_twoPoint_multiplicationModel` — the two together: the matrix element is a Laplace transform;
+* `continuousOn_physEvol_twoPoint` — that transform is Lipschitz in `τ` on `[0, ∞)` with the first
+  moment of the spectral measure as constant, so the physical two-point function is continuous in
+  time: the matrix-element form of the strong-continuity input, obtained from the KL measure alone;
 * `kl_physEvol` — on `Hphys Λ`, `⟪z, P(τ)z⟫` is the Laplace transform of a finite measure, so the
   whole KL calculus of `Clustering` applies to the physical two-point function.  In particular
   `physEvol_twoPoint_nonneg` reads `0 ≤ ⟪z, P(τ)z⟫` for `τ ≥ 0` off `laplace_nonneg` (the OS
@@ -144,6 +147,23 @@ theorem physEvol_twoPoint_nonneg (Λ : OSState) (T : TimeTranslation) (hinv : Hi
     0 ≤ ⟪z, physEvolCompletionRightFun hinv τ z⟫ := by
   rw [kl_physEvol Λ T hinv hf U z hzh huh hzhm hUz hτ hUev huheq]
   exact laplace_nonneg _ τ
+
+/-! ## Strong continuity in time from the spectral measure -/
+
+/-- **The physical two-point function is continuous in time, from the KL measure alone.**  On
+`[0, ∞)` it is Lipschitz with constant the first moment `∫ λ dρ`, by `continuousOn_laplace`; no
+functional calculus and no atomicity of `ρ` are used.  The hypothesis `hkl` is exactly what
+`kl_physEvol` supplies at each `τ ≥ 0`, which is also why the `L²` representative must be chosen
+independently of `τ`. -/
+theorem continuousOn_physEvol_twoPoint (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    (z : Hphys Λ) {ρ : Measure ℝ} [IsFiniteMeasure ρ] {M : ℝ} (hM0 : 0 ≤ M)
+    (hint : Integrable (fun l : ℝ => l) ρ) (hM : (∫ l, l ∂ρ) = M)
+    (hsupp : ρ (Set.Iio 0) = 0)
+    (hkl : ∀ (τ : ℝ), 0 ≤ τ → laplace ρ τ = ⟪z, physEvolCompletionRightFun hinv τ z⟫) :
+    ContinuousOn (fun τ => ⟪z, physEvolCompletionRightFun hinv τ z⟫) (Set.Ici 0) := by
+  refine (continuousOn_laplace hM0 hint hM hsupp).congr ?_
+  intro τ hτ
+  exact (hkl τ hτ).symm
 
 end
 

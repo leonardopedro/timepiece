@@ -1094,6 +1094,14 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     apply to the physical correlator directly.  The multiplication model is the single hypothesis:
     producing it is the spectral theorem for the generator, which §5.2 has only as a symmetric
     `LinearPMap`.
+  - *Time continuity of the KL transform (2026-11-06).*  `Clustering.continuousOn_laplace` proves the
+    Laplace transform of a finite measure supported on `[0, ∞)` is Lipschitz in `τ` with the first
+    moment `∫ λ dρ` as constant — `e^{−τλ}` is `1`-Lipschitz in the exponent and `λ` is integrable,
+    so no dominated convergence is needed — hence continuous on `[0, ∞)`.  
+    `KallenLehmannModel.continuousOn_physEvol_twoPoint` carries this to `τ ↦ ⟪z, P(τ)z⟫`: continuity
+    in time, in matrix-element form, from the spectral measure alone.  Norm continuity of `P` and the
+    identification `generatorRight = −M_f` are *not* claimed: they need the `L²` difference-quotient
+    limit `((e^{−τf} − 1)/τ) z → −f z`, which the corpus does not have.
   - *Closedness of the generator (2026-11-06).*  `OSReconstruction.GeneratorClosed` proves the graph
     is closed: if `uₙ → z₀` in `ℋ` and `A uₙ → y`, then `z₀` lies in the domain and `A z₀ = y`
     (`generator_isClosed`), by the integral representation the earlier draft recorded as missing.

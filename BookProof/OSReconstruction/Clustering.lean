@@ -580,6 +580,9 @@ model that the repository's spectral theorem produces.
 * **`measure_Iio_eq_zero_of_laplace_decay`** — conversely, an exponential bound at rate `m` forces
   `ρ` to vanish on `[0, m)`: the rate *is* the bottom of the support of the spectral measure, again
   for any finite measure;
+* **`continuousOn_laplace`** — on `[0, ∞)` the transform is Lipschitz in `τ` with constant the
+  first moment `∫ λ dρ`, hence continuous there: time continuity of the KL two-point function
+  without any functional calculus;
 * **`laplace_map_withDensity`** — the representation: for a measure `μ`, a measurable symbol `f` and
   a weight `w`, the pushforward `ρ = (μ.withDensity w).map f` satisfies
   `∫ e^{−τλ} dρ = ∫ w x e^{−τ f x} ∂μ`.  This is the measurable functional calculus
@@ -609,6 +612,113 @@ noncomputable def laplace (ρ : Measure ℝ) (τ : ℝ) : ℝ :=
 
 theorem laplace_nonneg (ρ : Measure ℝ) (τ : ℝ) : 0 ≤ laplace ρ τ :=
   integral_nonneg fun _ => Real.exp_nonneg _
+
+/-- **The kernel is `1`-Lipschitz in its exponent** on the nonnegative half-line: writing
+`e^{−a} − e^{−b} = e^{−a}(1 − e^{−(b−a)})`, the first factor is `≤ 1` and the second is `≤ b − a`,
+which is `Real.add_one_le_exp` at `−(b−a)`. -/
+private theorem exp_neg_sub_exp_neg_le_of_le {a b : ℝ} (ha : 0 ≤ a) (hle : a ≤ b) :
+    |Real.exp (-a) - Real.exp (-b)| ≤ b - a := by
+  have hy : Real.exp (-b) ≤ Real.exp (-a) := Real.exp_le_exp.2 (by linarith)
+  have hnonneg : 0 ≤ Real.exp (-a) - Real.exp (-b) := by linarith
+  have hfac : Real.exp (-a) - Real.exp (-b)
+      = Real.exp (-a) * (1 - Real.exp (-(b - a))) := by
+    rw [mul_sub, mul_one, ← Real.exp_add]
+    congr 2
+    ring
+  have ha1 : Real.exp (-a) ≤ 1 := by
+    have := Real.exp_le_exp.2 (show -a ≤ 0 by linarith)
+    simpa using this
+  have hle1 : 1 - Real.exp (-(b - a)) ≤ b - a := by
+    have := Real.add_one_le_exp (-(b - a))
+    linarith
+  rw [abs_of_nonneg hnonneg, hfac]
+  calc Real.exp (-a) * (1 - Real.exp (-(b - a)))
+      ≤ 1 * (1 - Real.exp (-(b - a))) :=
+        mul_le_mul_of_nonneg_right ha1 (by
+          have h1 : Real.exp (-(b - a)) ≤ 1 := by
+            have := Real.exp_le_exp.2 (show -(b - a) ≤ 0 by linarith)
+            simpa using this
+          linarith)
+    _ = 1 - Real.exp (-(b - a)) := one_mul _
+    _ ≤ b - a := hle1
+
+/-- **The kernel is `1`-Lipschitz in the exponent**, both orders. -/
+theorem abs_exp_neg_sub_exp_neg_le {a b : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) :
+    |Real.exp (-a) - Real.exp (-b)| ≤ |a - b| := by
+  rcases le_total a b with hle | hle
+  · rw [abs_sub_comm a, abs_of_nonneg (show (0 : ℝ) ≤ b - a by linarith)]
+    exact exp_neg_sub_exp_neg_le_of_le ha hle
+  · have h := exp_neg_sub_exp_neg_le_of_le hb hle
+    rw [abs_of_nonneg (show (0 : ℝ) ≤ a - b by linarith)]
+    rwa [abs_sub_comm (Real.exp (-b)) (Real.exp (-a))] at h
+
+/-- **Pointwise difference bound** for two time parameters: `|e^{−τλ} − e^{−τ'λ}| ≤ |τ − τ'| λ` for
+`λ ≥ 0`, by the `1`-Lipschitz bound on the kernel. -/
+theorem abs_exp_mul_sub_le {l τ τ' : ℝ} (hl : 0 ≤ l) (hτ : 0 ≤ τ) (hτ' : 0 ≤ τ') :
+    |Real.exp (-(τ * l)) - Real.exp (-(τ' * l))| ≤ |τ - τ'| * l := by
+  have h := abs_exp_neg_sub_exp_neg_le (a := τ * l) (b := τ' * l)
+    (mul_nonneg hτ hl) (mul_nonneg hτ' hl)
+  calc |Real.exp (-(τ * l)) - Real.exp (-(τ' * l))| ≤ |τ * l - τ' * l| := h
+    _ = |(τ - τ') * l| := by ring_nf
+    _ = |τ - τ'| * l := by rw [abs_mul, abs_of_nonneg hl]
+
+/-- **`laplace` is Lipschitz in time** on the nonnegative half-line, with constant the first moment
+of the measure — no dominated convergence, and no hypothesis that `ρ` is atomic.  Only two things
+are used about `ρ`: it is finite and supported on `[0, ∞)`. -/
+theorem abs_laplace_sub_le {ρ : Measure ℝ} [IsFiniteMeasure ρ] {M : ℝ}
+    (hint : Integrable (fun l : ℝ => l) ρ) (hM : (∫ l, l ∂ρ) = M)
+    (hsupp : ρ (Set.Iio 0) = 0) {τ τ' : ℝ} (hτ : 0 ≤ τ) (hτ' : 0 ≤ τ') :
+    |laplace ρ τ - laplace ρ τ'| ≤ |τ - τ'| * M := by
+  have hae : ∀ᵐ l ∂ρ, 0 ≤ l := by
+    have hset : {l : ℝ | ¬ 0 ≤ l} = Set.Iio 0 := by
+      ext l
+      simp only [Set.mem_setOf_eq, Set.mem_Iio, not_le]
+    refine ae_iff.2 ?_
+    rw [hset]
+    exact hsupp
+  have hInt : ∀ {τ : ℝ}, 0 ≤ τ → Integrable (fun l : ℝ => Real.exp (-(τ * l))) ρ := by
+    intro τ hτ
+    refine Integrable.mono' (g := fun _ : ℝ => (1 : ℝ)) (integrable_const 1) ?_ ?_
+    · exact (Real.measurable_exp.comp
+        ((measurable_const.mul measurable_id).neg)).aestronglyMeasurable
+    · filter_upwards [hae] with l hl
+      have h1 : Real.exp (-(τ * l)) ≤ 1 := by
+        have h2 : -(τ * l) ≤ 0 := by nlinarith [mul_nonneg hτ hl]
+        simpa using Real.exp_le_exp.2 h2
+      have hnorm : ‖Real.exp (-(τ * l))‖ = Real.exp (-(τ * l)) := by
+        rw [Real.norm_eq_abs, abs_of_nonneg (Real.exp_nonneg _)]
+      rw [hnorm]
+      exact h1
+  have hIntτ := hInt hτ
+  have hIntτ' := hInt hτ'
+  have hdiff : Integrable
+      (fun l : ℝ => Real.exp (-(τ * l)) - Real.exp (-(τ' * l))) ρ := hIntτ.sub hIntτ'
+  calc |laplace ρ τ - laplace ρ τ'|
+      = |∫ l, (Real.exp (-(τ * l)) - Real.exp (-(τ' * l))) ∂ρ| := by
+        rw [laplace, laplace, ← integral_sub hIntτ hIntτ']
+    _ ≤ ∫ l, |Real.exp (-(τ * l)) - Real.exp (-(τ' * l))| ∂ρ := abs_integral_le_integral_abs
+    _ ≤ ∫ l, |τ - τ'| * l ∂ρ := by
+        refine integral_mono_ae hdiff.abs (hint.const_mul |τ - τ'|) ?_
+        filter_upwards [hae] with l hl
+        exact abs_exp_mul_sub_le hl hτ hτ'
+    _ = |τ - τ'| * M := by rw [integral_const_mul, hM]
+
+/-- **Continuity of the Källén–Lehmann transform in its time variable.**  On `[0, ∞)` the transform
+is `M`-Lipschitz, where `M` is the first moment of the spectral measure. -/
+theorem lipschitzOnWith_laplace {ρ : Measure ℝ} [IsFiniteMeasure ρ] {M : ℝ} (hM0 : 0 ≤ M)
+    (hint : Integrable (fun l : ℝ => l) ρ) (hM : (∫ l, l ∂ρ) = M)
+    (hsupp : ρ (Set.Iio 0) = 0) :
+    LipschitzOnWith M.toNNReal (fun τ => laplace ρ τ) (Set.Ici 0) := by
+  refine LipschitzOnWith.of_dist_le_mul ?_
+  intro τ hτ τ' hτ'
+  rw [Real.dist_eq, Real.dist_eq, Real.coe_toNNReal M hM0]
+  simpa [mul_comm] using abs_laplace_sub_le hint hM hsupp hτ hτ'
+
+theorem continuousOn_laplace {ρ : Measure ℝ} [IsFiniteMeasure ρ] {M : ℝ} (hM0 : 0 ≤ M)
+    (hint : Integrable (fun l : ℝ => l) ρ) (hM : (∫ l, l ∂ρ) = M)
+    (hsupp : ρ (Set.Iio 0) = 0) :
+    ContinuousOn (fun τ => laplace ρ τ) (Set.Ici 0) :=
+  (lipschitzOnWith_laplace hM0 hint hM hsupp).continuousOn
 
 /-- **A mass gap decays the transform at the gap's rate, for any finite measure.**  If `ρ` has no
 mass below `m`, then `e^{−τλ} ≤ e^{−mτ}` `ρ`-almost everywhere, and integrating gives the bound with
