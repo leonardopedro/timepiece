@@ -1105,10 +1105,15 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `osFockBridgeOfMulModel` fills `OsFockBridge` with `Q := expFlow`, so the bridge's flow is
     constructed rather than assumed.  `tendsto_expFlow_slope` identifies the generator of that
     flow: `τ⁻¹(Q(τ)z − z) → −f z` in `L²(ν)` for `f z ∈ L²(ν)`, by dominated convergence on the
-    square with the pointwise bound `|(e^{−τc} − 1)/τ| ≤ c` for `c ≥ 0`.  Not claimed: that the
-    transfer semigroup `P` *is* this flow (that is the spectral theorem for the generator, still
-    absent), hence `generatorRight = −M_f` is not asserted — only the difference quotient of the
-    constructed flow.
+    square with the pointwise bound `|(e^{−τc} − 1)/τ| ≤ c` for `c ≥ 0`.  The flow is contractive
+    (`expFlow_contractive`, and `‖expFlow τ‖ ≤ 1` from the essential-supremum bound on the
+    multiplier), and `tendsto_expFlow_zero` turns the difference quotient into norm strong
+    continuity at `0⁺`.  `inner_physEvol_eq_inner_expFlow` and
+    `klMeasure_same_for_physEvol_and_expFlow` show that `P` and the flow have the same matrix
+    elements, hence one KL measure `klMeasure ν f zh`, and `expFlow_twoPoint_nonneg` reads
+    positivity off it.  Not claimed: that the transfer semigroup `P` *is* this flow (that is the
+    theorem for the generator, still absent), so `generatorRight = −M_f` is asserted for the flow
+    only.
   - *Time continuity of the KL transform (2026-11-06).*  `Clustering.continuousOn_laplace` proves
     the Laplace transform of a finite measure supported on `[0, ∞)` is Lipschitz in `τ` with the
     first moment `∫ λ dρ` as constant — `e^{−τλ}` is `1`-Lipschitz in the exponent and `λ` is
