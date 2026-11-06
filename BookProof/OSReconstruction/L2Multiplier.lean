@@ -40,6 +40,12 @@ This module builds the operator instead:
   convergence back to `ℋ`; the version for all vectors assumes `f` essentially bounded;
 * `klMeasure_apply`, `weight_univ_lt_top`, `klMeasure_finite` — the push-forward description, the
   finiteness of the weight `z² dν`, and the bundle of finiteness and support of the KL measure;
+* `support_klMeasure`, `support_klMeasure_subset_closure_range`,
+  `support_klMeasure_eq_closure_range` — the support of the KL measure is the essential range of
+  `f` for the weight `z² dν`;
+* `support_klMeasure_subset_Ici_zero`, `klMeasure_Iio_of_support_subset` — the support lies in
+  `[0, ∞)`, and the exponential tail bound holds for every `m` at or below it, so the sharpest
+  case `m = sInf (support)` is available;
 * `laplace_antitoneOn`, `twoPoint_antitoneOn` — the transform, hence the physical two-point
   function, is antitone on `[0, ∞)`;
 * `tendsto_physEvol_slope`, `tendsto_inner_slope_twoPoint` — the right difference quotient of `P` at
@@ -50,6 +56,8 @@ This module builds the operator instead:
 * `klMeasure_absolutelyContinuous` — `klMeasure ν f z ≪ ν.map f`;
 * `convexOn_laplace`, `twoPoint_convexOn` — the transform, hence the physical two-point function,
   is convex on `[0, ∞)`;
+* `hasDerivWithinAt_twoPoint` — the derivative form of the generator statement:
+  `τ ↦ ⟪x, P(τ)y⟫` has right derivative `−⟪x, M⟫` at `0`;
 * `tendsto_expFlow_at` — norm strong continuity at every `τ ≥ 0`, from the semigroup law;
 * `inner_physEvol_eq_inner_expFlow` and `klMeasure_same_for_physEvol_and_expFlow` — the matrix
   elements of `P` *are* the matrix elements of the flow, and both are the Laplace transform of the
@@ -864,6 +872,32 @@ theorem tendsto_inner_slope_twoPoint (Λ : OSState) (T : TimeTranslation) (hinv 
       (𝓝[>] (0 : ℝ)) (𝓝 (inner ℝ x (-M))) := hconst.inner hslope
   simpa [inner_neg_right] using hinner
 
+/-- **The two-point function has right derivative `−⟪x, M⟫` at `0`**, in the `HasDerivWithinAt`
+form on `(0, ∞)`.  This is the derivative reading of `tendsto_inner_slope_twoPoint`, with `P(0) = 1`
+identifying `⟪x, P(0)y⟫` with `⟪x, y⟫`. -/
+theorem hasDerivWithinAt_twoPoint (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    (y : Hphys Λ) {zy : X → ℝ} (hzy : MemLp zy 2 ν) (hUy : U y = hzy.toLp zy)
+    (hfzy : MemLp (fun x => f x * zy x) 2 ν) {M : Hphys Λ}
+    (hM : U M = hfzy.toLp (fun x => f x * zy x)) (x : Hphys Λ) :
+    HasDerivWithinAt (fun τ => ⟪x, physEvolCompletionRightFun hinv τ y⟫) (-⟪x, M⟫)
+      (Set.Ioi 0) 0 := by
+  have h0 : physEvolCompletionRightFun hinv 0 = ContinuousLinearMap.id ℝ (Hphys Λ) := by
+    rw [physEvolCompletionRightFun_of_nonneg hinv le_rfl]
+    exact physEvolCompletionRight_zero hinv
+  have hfun : ∀ τ : ℝ, slope (fun τ => ⟪x, physEvolCompletionRightFun hinv τ y⟫) 0 τ
+      = ⟪x, τ⁻¹ • (physEvolCompletionRightFun hinv τ y - y)⟫ := by
+    intro τ
+    simp only [slope_fun_def_field, h0, ContinuousLinearMap.id_apply, sub_zero, div_eq_inv_mul,
+      inner_sub_right, inner_smul_right]
+  rw [hasDerivWithinAt_iff_tendsto_slope' (by simp)]
+  refine (tendsto_inner_slope_twoPoint Λ T hinv hf hpos U hU y hzy hUy hfzy hM x).congr' ?_
+  filter_upwards with τ
+  exact (hfun τ).symm
+
 /-! ## Tail bound, and absolute continuity of the KL measure -/
 
 /-- **Exponential tail bound for the transfer two-point function.**  If the KL measure has no mass
@@ -889,6 +923,112 @@ theorem klMeasure_absolutelyContinuous {z : X → ℝ} {f : X → ℝ} (hf : Mea
   have hw : ν.withDensity (fun x => ENNReal.ofReal (z x * z x)) ≪ ν :=
     withDensity_absolutelyContinuous ν _
   simpa [klMeasure] using hw.map hf
+
+/-! ## Support of the KL measure
+
+`klMeasure ν f z` is by construction the push-forward of the weight `z² dν` along `f`, so its
+support *is* the essential range of `f` for that weight.  Mathlib has no separate `essRange`, so the
+identification is recorded through `Measure.support`: immediate from the definition, then the two
+halves that make it concrete — the support always lies in `closure (range f)`, and it contains that
+closure as soon as the weight is positive on every open set meeting the range. -/
+
+/-- **The support of the KL measure is the support of the weighted push-forward**, i.e. the
+essential range of `f` for the weight `z² dν`. -/
+theorem support_klMeasure (z : X → ℝ) (f : X → ℝ) :
+    Measure.support (klMeasure ν f z)
+      = Measure.support ((ν.withDensity (fun x => ENNReal.ofReal (z x * z x))).map f) :=
+  rfl
+
+/-- **The support of the KL measure lies in `closure (range f)`**: off that closure an entire open
+neighbourhood of the point has empty preimage, hence zero measure. -/
+theorem support_klMeasure_subset_closure_range {z : X → ℝ} {f : X → ℝ} (hf : Measurable f) :
+    Measure.support (klMeasure ν f z) ⊆ closure (Set.range f) := by
+  intro y hy
+  by_contra hnot
+  have hU : IsOpen (closure (Set.range f))ᶜ := isClosed_closure.isOpen_compl
+  have hempty : f ⁻¹' (closure (Set.range f))ᶜ = (∅ : Set X) := by
+    ext x
+    constructor
+    · intro hx
+      exact hx (subset_closure ⟨x, rfl⟩)
+    · intro hx
+      exact absurd hx (by simp)
+  have hzero : klMeasure ν f z (closure (Set.range f))ᶜ = 0 := by
+    rw [klMeasure, Measure.map_apply hf hU.measurableSet, hempty, measure_empty]
+  exact (Measure.notMem_support_iff_exists.2 ⟨_, hU.mem_nhds hnot, hzero⟩) hy
+
+/-- **`closure (range f)` lies in the support of the KL measure** when the weight is positive on
+every open set meeting the range — the defining property of the essential range. -/
+theorem closure_range_subset_support_klMeasure {z : X → ℝ} {f : X → ℝ}
+    (hpos : ∀ U : Set ℝ, IsOpen U → (U ∩ Set.range f).Nonempty → 0 < klMeasure ν f z U) :
+    closure (Set.range f) ⊆ Measure.support (klMeasure ν f z) := by
+  intro y hy
+  rw [Measure.mem_support_iff_forall]
+  intro V hV
+  obtain ⟨U, hUV, hUo, hyU⟩ := mem_nhds_iff.1 hV
+  have hUpos : 0 < klMeasure ν f z U :=
+    hpos U hUo (mem_closure_iff.1 hy U hUo hyU)
+  exact lt_of_lt_of_le hUpos ((klMeasure ν f z).mono hUV)
+
+/-- **The support of the KL measure is exactly the essential range of `f`**, identified with
+`closure (range f)` once the weight is positive on open sets meeting the range. -/
+theorem support_klMeasure_eq_closure_range {z : X → ℝ} {f : X → ℝ} (hf : Measurable f)
+    (hpos : ∀ U : Set ℝ, IsOpen U → (U ∩ Set.range f).Nonempty → 0 < klMeasure ν f z U) :
+    Measure.support (klMeasure ν f z) = closure (Set.range f) :=
+  Set.Subset.antisymm (support_klMeasure_subset_closure_range hf)
+    (closure_range_subset_support_klMeasure hpos)
+
+/-- **The KL measure is supported on `[0, ∞)`** when `f ≥ 0`, in the sense of `Measure.support`. -/
+theorem support_klMeasure_subset_Ici_zero {z : X → ℝ} {f : X → ℝ} (hf : Measurable f)
+    (hpos : ∀ᵐ x ∂ν, 0 ≤ f x) :
+    Measure.support (klMeasure ν f z) ⊆ Set.Ici 0 := by
+  intro y hy
+  by_contra h
+  have hy0 : y ∈ Set.Iio (0 : ℝ) := Set.mem_Iio.2 (lt_of_not_ge h)
+  exact (Measure.subset_compl_support_of_isOpen isOpen_Iio (klMeasure_support hf hpos)) hy0 hy
+
+/-- **Any half-line below the support has zero KL mass**: `Iio m` is contained in the complement
+of the support, which is null in a hereditarily Lindelöf space such as `ℝ`. -/
+theorem klMeasure_Iio_of_support_subset {z : X → ℝ} {f : X → ℝ} {m : ℝ}
+    (hsupp : Measure.support (klMeasure ν f z) ⊆ Set.Ici m) :
+    klMeasure ν f z (Set.Iio m) = 0 := by
+  have hsub : Set.Iio m ⊆ (Measure.support (klMeasure ν f z))ᶜ := by
+    intro y hy
+    exact fun hys => (not_le.2 hy) (Set.mem_Ici.1 (hsupp hys))
+  have hzero : klMeasure ν f z (Measure.support (klMeasure ν f z))ᶜ = 0 :=
+    Measure.measure_compl_support
+  exact le_antisymm (((klMeasure ν f z).mono hsub).trans (le_of_eq hzero)) (zero_le _)
+
+/-- **The exponential tail bound holds for every `m` at or below the support of the KL measure.**
+This generalizes `twoPoint_le_norm_sq_mul_exp` from an explicit mass gap `klMeasure (Iio m) = 0` to
+the support condition, which is what the essential-range description provides. -/
+theorem twoPoint_le_norm_sq_mul_exp_of_support (Λ : OSState) (T : TimeTranslation)
+    (hinv : HinvRight Λ T) {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
+    {zh : X → ℝ} (hzh : MemLp zh 2 ν) (hzhm : Measurable zh) (hUz : U z = hzh.toLp zh)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    {m : ℝ} (hsupp : Measure.support (klMeasure ν f zh) ⊆ Set.Ici m) {τ : ℝ} (hτ : 0 ≤ τ) :
+    ⟪z, physEvolCompletionRightFun hinv τ z⟫ ≤ ‖z‖ ^ 2 * Real.exp (-(m * τ)) :=
+  twoPoint_le_norm_sq_mul_exp Λ T hinv hf hpos U z hzh hzhm hUz hU
+    (klMeasure_Iio_of_support_subset hsupp) hτ
+
+/-- **The sharpest case of the tail bound**, with `m` the infimum of the support of the KL measure:
+no larger `m` can be used in general, and the support lies in `[0, ∞)` so the infimum exists. -/
+theorem twoPoint_le_norm_sq_mul_exp_sInf (Λ : OSState) (T : TimeTranslation)
+    (hinv : HinvRight Λ T) {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
+    {zh : X → ℝ} (hzh : MemLp zh 2 ν) (hzhm : Measurable zh) (hUz : U z = hzh.toLp zh)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    {τ : ℝ} (hτ : 0 ≤ τ) :
+    ⟪z, physEvolCompletionRightFun hinv τ z⟫ ≤
+      ‖z‖ ^ 2 * Real.exp (-(sInf (Measure.support (klMeasure ν f zh)) * τ)) := by
+  have hbdd : BddBelow (Measure.support (klMeasure ν f zh)) := by
+    refine ⟨0, fun y hy => ?_⟩
+    exact Set.mem_Ici.1 (support_klMeasure_subset_Ici_zero hf hpos hy)
+  exact twoPoint_le_norm_sq_mul_exp_of_support Λ T hinv hf hpos U z hzh hzhm hUz hU
+    (fun y hy => csInf_le hbdd hy) hτ
 
 /-! ## Convexity in time -/
 
