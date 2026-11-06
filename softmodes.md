@@ -441,7 +441,13 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    `∑ᵢ Aᵢ·creCoeff i β α` for every `β : Idx d` (`magCore_single_apply`), with no box and no `Λ`.
    The raised vector sits one degree higher (`magCore_support_occDeg`), which is why the
    Hilbert–Schmidt and relative-bound results bound the *form* and not the operator: closing
-   `magCore` to a self-adjoint operator on `ℓ²` is not formalized.
+   `magCore` to a self-adjoint operator on `ℓ²` is not formalized — and cannot be, for `magCore`
+   itself: the matrix `magKernel A m n = ∑ᵢ Aᵢ·creCoeff i m n` is not symmetric (`magKernel_asymm`:
+   the entry at a raise is `Aᵢ√(nᵢ+1)` while at the corresponding lowering it is `0`), so the
+   symmetric object is `magSymKernel A m n = magKernel A m n + magKernel A n m`.  That is the
+   kernel whose form `closedKernelForm` sees, and the domination of `ladder_closed_domination_sharp`
+   is what a self-adjoint realization would have to consume; turning a closed, bounded-below form
+   into its operator is the KLMN step, which the corpus does not have.
 
    The cut-off dependence of §7 is also settled rather than estimated.  The ladder's entries are
    `Aᵢ√(nᵢ+1)`, so `norm_sq_magCutoffKernel_raise` gives the entry at a raise exactly and
@@ -1161,12 +1167,21 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     bullet concerns the Euclidean family at *all* real times, not `H`, so deficiency indices are
     not needed for `H` and remain blocked on Mathlib (no adjoint for unbounded operators on real
     inner product spaces) only for the abstract Euclidean `A`.    What is genuinely missing is a unitary `U` from the abstract `ℋ` onto the nested Fock space
-    intertwining `P(τ)` with `e^{−τH}` for a self-adjoint `H ≥ 0`; the corpus has the Hamiltonian
-    side of that statement (`ymFock_weylGauge_timeIndependent`, `qgOuterFock_esa`,
-    `smFockHam_esa`) but no map between the two Hilbert spaces, and `ℋ` is a completion of
-    `𝔄 ⧸ 𝔑` while the Fock space is a second quantization of a one-particle space, so the
-    identification has to be built from the OS data rather than deduced.  Without it the KL
-    representation still attaches to a *closed symmetric* generator on `ℋ`.  (ii) The
+    intertwining `P(τ)` with `e^{−τH}` for a self-adjoint `H ≥ 0`.  The condition is now a formal
+    hypothesis bundle rather than a slogan: `OsFockBridge`
+    (`OSReconstruction.FockIntertwining`) has exactly three fields — an isometry
+    `U : ℋ →ₗᵢ[ℝ] F`, dense range, and `U (P τ x) = Q τ (U x)` for `τ ≥ 0` — and the module proves
+    what they force: `U` is a unitary (`toIsometryEquiv`), the two-point functions agree
+    (`⟪x, P τ y⟫ = ⟪U x, Q τ (U y)⟫`, `inner_intertwines`), and contractivity, isometry, fixed
+    points, symmetry and the semigroup law transfer in both directions.  The bundle is inhabited
+    (`OsFockBridge.id`), so its content is the map, not the axioms.  On the Fock side the nested
+    Fock space itself is the target — no Balaban or lattice-observable input is needed: the corpus
+    has `ymFock_weylGauge_timeIndependent`, `qgOuterFock_esa` and `smFockHam_esa`, and the object
+    that is missing is a map `U`, not a model.  What remains is to *build* `U` from the OS data
+    (`ℋ` is a completion of `𝔄 ⧸ 𝔑`, so `U` is defined on the dense image and extended by
+    `LinearMap.extendOfNorm`) and to identify `Q(τ)` with `e^{−τH}` for the Friedrichs extension of
+    the Fock Hamiltonian.  Without it the KL representation still attaches to a *closed symmetric*
+    generator on `ℋ`.  (ii) The
     **identification of the ladder**: `a < 1` is uniform, and the *matrix-entry* half is now
     proved.  `YangMillsLadderTransport` transports the Hermite creation ladder from the
     `Finsupp` multi-indices of `crePoly_hpsi` to the occupation functions `Idx d = Fin d → ℕ` that

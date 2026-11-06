@@ -599,6 +599,7 @@ import BookProof.OSReconstruction.ReflectionKernel
 import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments
 import BookProof.OSReconstruction.YangMillsBridge
+import BookProof.OSReconstruction.FockIntertwining
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as

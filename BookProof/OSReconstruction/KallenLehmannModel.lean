@@ -1,6 +1,7 @@
 import Mathlib
 import BookProof.OSReconstruction.Clustering
 import BookProof.OSReconstruction.Generator
+import BookProof.OSReconstruction.TransferSemigroupRight
 
 /-!
 # Källén–Lehmann for matrix elements of the transfer semigroup
@@ -35,12 +36,12 @@ proved is the attachment: *given* a multiplication model, the KL representation 
 literally the matrix element of the transfer semigroup on `ℋ`, and not merely an analogy.  The
 spectral theorem that would discharge the hypothesis is not in this reconstruction.
 
-The model is also only consistent with the corpus's two-sided contractivity hypothesis when
-`f = 0`: that hypothesis makes `P(τ)` an isometry, so `U (P(τ)z) = e^{−τf} U z` forces
-`‖e^{−τf} u‖ = ‖u‖` on `L²(ν)`.  See `OSReconstruction.TransferSelfAdjoint` for the abstract
-statement (`physEvolCompletion_eq_one`).  `kl_physEvol` is unaffected — it is conditional on one
-`τ` and one vector — but instantiating it for all `τ` needs the transfer semi-group setting, where
-`P(τ)` is a contraction and `e^{−τf}` may be nontrivial.
+The model is stated for the forward semigroup `physEvolCompletionRightFun` under the one-sided
+hypothesis `HinvRight`, so the degeneracy of `OSReconstruction.TransferSelfAdjoint` does not
+arise here: that result says a *two-sided* contractive self-adjoint family is trivial
+(`physEvolCompletion_eq_one`), which would force `f = 0`.  With `τ ≥ 0` only, `P(τ)` is a
+contraction and not an isometry, `e^{−τf}` need not be unimodular, and `f` may be nontrivial —
+which is what a Källén–Lehmann representation with a non-degenerate spectral measure needs.
 -/
 
 namespace BookProof.OSReconstruction
@@ -114,35 +115,33 @@ theorem kl_twoPoint_multiplicationModel {X : Type*} [MeasurableSpace X] {ν : Me
 /-- **The KL representation of `⟪z, P(τ)z⟫` on `ℋ`.**  If an isometry `U` into `L²(ν)` turns the
 transfer semigroup into multiplication by `e^{−τ f}`, then the physical two-point function *is* the
 Laplace transform of the spectral measure `z² dν ∘ f⁻¹`. -/
-theorem kl_physEvol (Λ : OSState) (T : TimeTranslation)
-    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+theorem kl_physEvol (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
     {X : Type*} [MeasurableSpace X] {ν : Measure X} {f : X → ℝ} (hf : Measurable f)
     (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
     {zh uh : X → ℝ} (hzh : MemLp zh 2 ν) (huh : MemLp uh 2 ν) (hzhm : Measurable zh)
-    (hUz : U z = hzh.toLp zh) {τ : ℝ}
-    (hUev : U (physEvolCompletion Λ T hinv τ z) = huh.toLp uh)
+    (hUz : U z = hzh.toLp zh) {τ : ℝ} (hτ : 0 ≤ τ)
+    (hUev : U (physEvolCompletionRightFun hinv τ z) = huh.toLp uh)
     (huheq : uh =ᵐ[ν] fun x => Real.exp (-(τ * f x)) * zh x) :
-    ⟪z, physEvolCompletion Λ T hinv τ z⟫
+    ⟪z, physEvolCompletionRightFun hinv τ z⟫
       = laplace ((ν.withDensity (fun x => ENNReal.ofReal ((zh x) * (zh x)))).map f) τ := by
-  have hiso : ⟪U z, U (physEvolCompletion Λ T hinv τ z)⟫
-      = ⟪z, physEvolCompletion Λ T hinv τ z⟫ :=
-    U.inner_map_map z (physEvolCompletion Λ T hinv τ z)
+  have hiso : ⟪U z, U (physEvolCompletionRightFun hinv τ z)⟫
+      = ⟪z, physEvolCompletionRightFun hinv τ z⟫ :=
+    U.inner_map_map z (physEvolCompletionRightFun hinv τ z)
   rw [← hiso, hUz, hUev]
   exact kl_twoPoint_multiplicationModel hzh huh hzhm hf huheq
 
 /-- **Positivity of the physical two-point function**, read off the KL representation: it is a
 Laplace transform of a positive measure (`laplace_nonneg`).  This is the OS positivity of the
 transfer matrix on `ℋ`, in matrix element form and for every `τ ≥ 0`. -/
-theorem physEvol_twoPoint_nonneg (Λ : OSState) (T : TimeTranslation)
-    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+theorem physEvol_twoPoint_nonneg (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
     {X : Type*} [MeasurableSpace X] {ν : Measure X} {f : X → ℝ} (hf : Measurable f)
     (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
     {zh uh : X → ℝ} (hzh : MemLp zh 2 ν) (huh : MemLp uh 2 ν) (hzhm : Measurable zh)
-    (hUz : U z = hzh.toLp zh) {τ : ℝ}
-    (hUev : U (physEvolCompletion Λ T hinv τ z) = huh.toLp uh)
+    (hUz : U z = hzh.toLp zh) {τ : ℝ} (hτ : 0 ≤ τ)
+    (hUev : U (physEvolCompletionRightFun hinv τ z) = huh.toLp uh)
     (huheq : uh =ᵐ[ν] fun x => Real.exp (-(τ * f x)) * zh x) :
-    0 ≤ ⟪z, physEvolCompletion Λ T hinv τ z⟫ := by
-  rw [kl_physEvol Λ T hinv hf U z hzh huh hzhm hUz hUev huheq]
+    0 ≤ ⟪z, physEvolCompletionRightFun hinv τ z⟫ := by
+  rw [kl_physEvol Λ T hinv hf U z hzh huh hzhm hUz hτ hUev huheq]
   exact laplace_nonneg _ τ
 
 end
