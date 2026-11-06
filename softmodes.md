@@ -1111,7 +1111,12 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     continuity at `0⁺`.  `inner_physEvol_eq_inner_expFlow` and
     `klMeasure_same_for_physEvol_and_expFlow` show that `P` and the flow have the same matrix
     elements, hence one KL measure `klMeasure ν f zh`, and `expFlow_twoPoint_nonneg` reads
-    positivity off it.  Not claimed: that the transfer semigroup `P` *is* this flow (that is the
+    positivity off it.  The measure is finite and supported on `[0, ∞)` (`klMeasure_univ_lt_top`,
+    `klMeasure_support`), its mass is `‖z‖²` (`klMeasure_mass_eq_norm_sq`), and `laplace_le_mass` /
+    `twoPoint_le_klMass` bound the transform and the two-point function by that mass; with the
+    contraction bound this gives `abs_twoPoint_le_norm_sq`, `|⟪z, P(τ)z⟫| ≤ ‖z‖²`, while
+    `tendsto_expFlow_at` extends strong continuity to every `τ ≥ 0`.  Not claimed: that the transfer
+    semigroup `P` *is* this flow (that is the
     theorem for the generator, still absent), so `generatorRight = −M_f` is asserted for the flow
     only.
   - *Time continuity of the KL transform (2026-11-06).*  `Clustering.continuousOn_laplace` proves
