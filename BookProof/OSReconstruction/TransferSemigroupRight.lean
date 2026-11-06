@@ -39,14 +39,13 @@ survive, and they are the ones the Euclidean theory needs.  `physEvolCompletionR
 that when the two-sided hypothesis happens to hold, the forward semigroup is the restriction of
 the old one, so nothing is lost by working with the weaker hypothesis.
 
-The generator side is not duplicated: `SemigroupGenerator` already defines `genDomainRight`,
-`generatorRight` and proves `generatorRight_isClosed`, `generatorRight_inner_le_zero` and the a
-priori resolvent bound.  Its definitions still take the two-sided `hinv` as a *type*, however:
-`diffQuot` is phrased in terms of `physEvolCompletion`.  Re-phrasing `diffQuot` on
-`physEvolCompletionRightFun` would be a change of the generator's definition, and the two agree
-where both are defined (`physEvolCompletionRight_eq`), so the generator statements transfer
-verbatim; this module does not restate them.
--/
+The generator side is now built on this semigroup: `SemigroupGenerator` defines `diffQuot`,
+`HasGenRight`, `genDomainRight` and `generatorRight` with `HinvRight`, using
+`physEvolCompletionRightFun`, and proves closedness, dissipativity and the a priori resolvent
+estimate there.  The group-level objects of `Generator` (now `diffQuotGroup`, `HasGen`,
+`genDomain`, `generator`) remain typed with the two-sided hypothesis, because the family
+`P : mathbb{R} 	o B(mathcal{H})` they describe does not exist for `	au < 0` under the forward
+hypothesis.
 
 namespace BookProof.OSReconstruction
 
