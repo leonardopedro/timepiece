@@ -53,6 +53,13 @@ is passed to the limit by contractivity, so no Bochner integration of `ℋ`-valu
 needed.  What remains open is self-adjointness of the closed symmetric operator — deficiency
 indices, or a resolvent representation identifying it with the realization's `H`.  Symmetry is what
 the Källén–Lehmann representation of matrix elements consumes.
+
+One consequence of the two-sided contractivity above deserves emphasis: it makes `P(τ)` an
+isometry, and `OSReconstruction.TransferSelfAdjoint` shows that a self-adjoint isometry is an
+involution, so the hypothesis `∀ τ, IsSelfAdjoint (P τ)` holds only for the trivial evolution
+`P ≡ 1`, where the closed symmetric operator is `0` on all of `ℋ`.  A nontrivial `P(τ) = e^{−τH}`
+needs contractivity for `τ ≥ 0` only — the physical OS transfer matrix — and then `P(τ)` is not
+unitary.
 -/
 
 namespace BookProof.OSReconstruction

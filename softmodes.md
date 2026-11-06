@@ -1087,13 +1087,29 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     curve tends to its value at `0`, again by contractivity (`Metric`-`ε`/`δ`, not dominated
     convergence).  Closedness plus symmetry gives a *closed symmetric* operator; self-adjointness
     is the remaining step.
+  - *Two-sided contractivity forces a trivial evolution (2026-11-06).*
+    `OSReconstruction.TransferSelfAdjoint` shows that the hypothesis `∀ τ, IsSelfAdjoint (P τ)` is
+    satisfiable only by the trivial evolution.  Contractivity at `τ` and at `−τ` makes `P(τ)` an
+    isometry (`norm_physEvolCompletion_eq`); a self-adjoint isometry is an involution
+    (`comp_self_eq_one_of_isometry_isSelfAdjoint`); and `τ = τ/2 + τ/2` then gives `P(τ) = 1`
+    (`physEvolCompletion_eq_one`).  Consequently every vector is in the domain
+    (`genDomain_eq_top_of_selfAdjoint`) and the generator vanishes identically
+    (`generator_apply_eq_zero_of_selfAdjoint`).  So `P(τ) = e^{−τH}` *is* a theorem in this
+    framework, but with `H = 0`: the hypothesis of `generator_isSymmetric` is not merely hard to
+    discharge, it is inconsistent with nontrivial dynamics, and so is the KL multiplication model
+    with `f ≠ 0` (`KallenLehmannModel`).  The physical input is wrong at negative Euclidean time:
+    the OS transfer matrix is `e^{−τH}` for `τ ≥ 0`, a contraction, while `e^{τH}` is unbounded.
+    The repair is to assume contractivity for `τ ≥ 0` only, rebuild `physEvolCompletion` as a
+    semi-group, and re-derive strong continuity from matrix element continuity without the `−τ`
+    sandwich; self-adjointness then comes from positivity (Friedrichs/Faris–Lavine), not from
+    Stone's unitary group.
   - *What is still open.*  Two things, plus one identification.  (i) **Self-adjointness** of that
-    generator: closedness is now proved, so what remains is *closed symmetric* → *self-adjoint* —
-    deficiency indices of the closed symmetric operator, or a resolvent integral representation
-    identifying it with the Faris–Lavine `H`.  Concretely `P(τ) = e^{−τH}` is a theorem about the
-    Fock realization, not about the abstract `ℋ`, so the KL representation still attaches to a
-    *closed symmetric* generator on `ℋ` and to a self-adjoint one only after that realization step.
-    (ii) The
+    generator *in the transfer semi-group setting*: closedness is now proved, so what remains is
+    *closed symmetric* → *self-adjoint* — deficiency indices of the closed symmetric operator, or a
+    resolvent representation identifying it with the Faris–Lavine `H`.  Under the present two-sided
+    hypothesis the question is vacuous (previous bullet), so this item is now coupled to the
+    semi-group repair of `physEvolCompletion`.  The KL representation still attaches to a *closed
+    symmetric* generator on `ℋ`.  (ii) The
     **identification of the ladder**: `a < 1` is uniform, and the *matrix-entry* half is now
     proved.  `YangMillsLadderTransport` transports the Hermite creation ladder from the
     `Finsupp` multi-indices of `crePoly_hpsi` to the occupation functions `Idx d = Fin d → ℕ` that

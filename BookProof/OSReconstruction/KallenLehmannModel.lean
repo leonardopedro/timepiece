@@ -34,6 +34,13 @@ theorem for the generator — available here only as a symmetric `LinearPMap`
 proved is the attachment: *given* a multiplication model, the KL representation of `Clustering` is
 literally the matrix element of the transfer semigroup on `ℋ`, and not merely an analogy.  The
 spectral theorem that would discharge the hypothesis is not in this reconstruction.
+
+The model is also only consistent with the corpus's two-sided contractivity hypothesis when
+`f = 0`: that hypothesis makes `P(τ)` an isometry, so `U (P(τ)z) = e^{−τf} U z` forces
+`‖e^{−τf} u‖ = ‖u‖` on `L²(ν)`.  See `OSReconstruction.TransferSelfAdjoint` for the abstract
+statement (`physEvolCompletion_eq_one`).  `kl_physEvol` is unaffected — it is conditional on one
+`τ` and one vector — but instantiating it for all `τ` needs the transfer semi-group setting, where
+`P(τ)` is a contraction and `e^{−τf}` may be nontrivial.
 -/
 
 namespace BookProof.OSReconstruction

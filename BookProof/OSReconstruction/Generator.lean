@@ -56,6 +56,13 @@ with the difference quotient of a fixed vector, and contractivity passes it to t
 deficiency indices of the closed symmetric operator, or a resolvent representation identifying it
 with the realization's `H`.  Symmetry is what the Källén–Lehmann representation of matrix
 elements consumes, and it is available without that step.
+
+The self-adjointness hypothesis is moreover *empty* for nontrivial dynamics in this framework:
+with contractivity in both time directions `P(τ)` is an isometry, and
+`OSReconstruction.TransferSelfAdjoint` proves that a self-adjoint isometry is an involution, hence
+`P(τ) = P(τ/2) P(τ/2) = 1` for every `τ` (`physEvolCompletion_eq_one`).  The symmetric operator
+above is then `0` with domain all of `ℋ` (`generator_apply_eq_zero_of_selfAdjoint`).  Nontrivial
+dynamics needs the transfer semi-group on `τ ≥ 0`, where `P(τ)` is a contraction, not a unitary.
 -/
 
 namespace BookProof.OSReconstruction
