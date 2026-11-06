@@ -1118,7 +1118,11 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `tendsto_expFlow_at` extends strong continuity to every `τ ≥ 0`; `tendsto_physEvol` carries it
     back to `P` itself through the isometry (for every vector when `f` is essentially bounded), and
     `twoPoint_antitoneOn` makes the two-point function decreasing on `[0, ∞)` from the KL
-    representation.  `klMeasure_finite` records the KL measure as finite and supported on `[0, ∞)`.
+    representation and `twoPoint_convexOn` makes it convex there; a gap `m` upgrades the mass bound
+    to `twoPoint_le_norm_sq_mul_exp`, `⟪z, P(τ)z⟫ ≤ ‖z‖² e^{−mτ}`; `tendsto_physEvol_slope` gives
+    the right difference quotient `τ⁻¹(P(τ)y − y) → −M` with `UM = M_f(Uy)`, i.e. the generator is
+    `−M_f` in the multiplier model; `klMeasure_absolutelyContinuous` places the KL measure under the
+    push-forward `ν.map f`, and `klMeasure_finite` records it as finite and supported on `[0, ∞)`.
     Not claimed: that the transfer
     semigroup `P` *is* this flow (that is the
     theorem for the generator, still absent), so `generatorRight = −M_f` is asserted for the flow

@@ -42,6 +42,14 @@ This module builds the operator instead:
   finiteness of the weight `z² dν`, and the bundle of finiteness and support of the KL measure;
 * `laplace_antitoneOn`, `twoPoint_antitoneOn` — the transform, hence the physical two-point
   function, is antitone on `[0, ∞)`;
+* `tendsto_physEvol_slope`, `tendsto_inner_slope_twoPoint` — the right difference quotient of `P` at
+  `0⁺` is `−M_f`: `τ⁻¹ • (P(τ)y − y) → −M` whenever `U M = M_f(U y)`, in norm and in matrix
+  elements (so `τ ↦ ⟪x, P(τ)y⟫` has right derivative `−⟪x, M⟫` at `0`);
+* `twoPoint_le_norm_sq_mul_exp` — the exponential tail bound `⟪z, P(τ)z⟫ ≤ ‖z‖² e^{−mτ}` when the
+  KL measure has no mass below `m`;
+* `klMeasure_absolutelyContinuous` — `klMeasure ν f z ≪ ν.map f`;
+* `convexOn_laplace`, `twoPoint_convexOn` — the transform, hence the physical two-point function,
+  is convex on `[0, ∞)`;
 * `tendsto_expFlow_at` — norm strong continuity at every `τ ≥ 0`, from the semigroup law;
 * `inner_physEvol_eq_inner_expFlow` and `klMeasure_same_for_physEvol_and_expFlow` — the matrix
   elements of `P` *are* the matrix elements of the flow, and both are the Laplace transform of the
@@ -795,6 +803,136 @@ theorem twoPoint_antitoneOn (Λ : OSState) (T : TimeTranslation) (hinv : HinvRig
     ≤ ⟪z, physEvolCompletionRightFun hinv τ₁ z⟫
   rw [hkl τ₂ hτ₂, hkl τ₁ hτ₁]
   exact laplace_antitoneOn hsupp hτ₁ hτ₂ hle
+
+/-! ## The right difference quotient: the generator is `−M_f`
+
+For `τ → 0⁺` the slope of `P` is multiplication by `−f`: if `M` is the vector whose image under `U`
+is multiplication by `f` on the representative of `y`, then `τ⁻¹ • (P(τ)y − y) → −M` in `ℋ`.  This
+is the multiplier model's form of `generatorRight = −M_f`, at the level of vectors and of matrix
+elements. -/
+
+/-- **The right difference quotient of `P` at `0⁺`.** -/
+theorem tendsto_physEvol_slope (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    (y : Hphys Λ) {zy : X → ℝ} (hzy : MemLp zy 2 ν) (hUy : U y = hzy.toLp zy)
+    (hfzy : MemLp (fun x => f x * zy x) 2 ν) {M : Hphys Λ}
+    (hM : U M = hfzy.toLp (fun x => f x * zy x)) :
+    Tendsto (fun τ : ℝ => τ⁻¹ • (physEvolCompletionRightFun hinv τ y - y)) (𝓝[>] 0)
+      (𝓝 (-M)) := by
+  have hslope := tendsto_expFlow_slope hzy hf hpos hfzy
+  have hnonneg : ∀ᶠ τ : ℝ in 𝓝[>] 0, 0 ≤ τ := by
+    filter_upwards [self_mem_nhdsWithin] with τ hτ
+    exact le_of_lt (Set.mem_Ioi.mp hτ)
+  have hM' : U (-M) = -(hfzy.toLp (fun x => f x * zy x)) := by
+    rw [map_neg, hM]
+  have hslope' : Tendsto (fun τ : ℝ => τ⁻¹ • (U (physEvolCompletionRightFun hinv τ y) - U y))
+      (𝓝[>] 0) (𝓝 (U (-M))) := by
+    rw [hM']
+    refine hslope.congr' ?_
+    filter_upwards [hnonneg] with τ hτ
+    have h := hU τ hτ y
+    rw [hUy] at h
+    rw [h.symm, ← hUy]
+  have hmap : ∀ τ : ℝ, U (τ⁻¹ • (physEvolCompletionRightFun hinv τ y - y))
+      = τ⁻¹ • (U (physEvolCompletionRightFun hinv τ y) - U y) := fun τ => by
+    rw [map_smul, map_sub]
+  refine Metric.tendsto_nhds.2 fun ε hε => ?_
+  have h := (Metric.tendsto_nhds.1 hslope') ε hε
+  filter_upwards [h] with τ hτ
+  rw [← hmap τ, LinearIsometry.dist_map] at hτ
+  exact hτ
+
+/-- **Matrix-element form of the generator statement**: the slope `τ⁻¹ • (P(τ)y − y)` has matrix
+elements tending to `−⟪x, M⟫`, i.e. `τ ↦ ⟪x, P(τ)y⟫` has right derivative `−⟪x, M⟫` at `0`. -/
+theorem tendsto_inner_slope_twoPoint (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    (y : Hphys Λ) {zy : X → ℝ} (hzy : MemLp zy 2 ν) (hUy : U y = hzy.toLp zy)
+    (hfzy : MemLp (fun x => f x * zy x) 2 ν) {M : Hphys Λ}
+    (hM : U M = hfzy.toLp (fun x => f x * zy x)) (x : Hphys Λ) :
+    Tendsto (fun τ : ℝ => ⟪x, τ⁻¹ • (physEvolCompletionRightFun hinv τ y - y)⟫)
+      (𝓝[>] 0) (𝓝 (-⟪x, M⟫)) := by
+  have hslope := tendsto_physEvol_slope Λ T hinv hf hpos U hU y hzy hUy hfzy hM
+  have hconst : Tendsto (fun _ : ℝ => x) (𝓝[>] (0 : ℝ)) (𝓝 x) := tendsto_const_nhds
+  have hinner : Tendsto
+      (fun τ : ℝ => inner ℝ x (τ⁻¹ • (physEvolCompletionRightFun hinv τ y - y)))
+      (𝓝[>] (0 : ℝ)) (𝓝 (inner ℝ x (-M))) := hconst.inner hslope
+  simpa [inner_neg_right] using hinner
+
+/-! ## Tail bound, and absolute continuity of the KL measure -/
+
+/-- **Exponential tail bound for the transfer two-point function.**  If the KL measure has no mass
+below `m`, then `⟪z, P(τ)z⟫ ≤ ‖z‖² e^{−mτ}` for `τ ≥ 0`: the mass bound times the gap decay. -/
+theorem twoPoint_le_norm_sq_mul_exp (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
+    {zh : X → ℝ} (hzh : MemLp zh 2 ν) (hzhm : Measurable zh) (hUz : U z = hzh.toLp zh)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    {m : ℝ} (hgap : klMeasure ν f zh (Set.Iio m) = 0) {τ : ℝ} (hτ : 0 ≤ τ) :
+    ⟪z, physEvolCompletionRightFun hinv τ z⟫ ≤ ‖z‖ ^ 2 * Real.exp (-(m * τ)) := by
+  haveI : IsFiniteMeasure (klMeasure ν f zh) := isFiniteMeasure_klMeasure hzh hf
+  have hsupp : klMeasure ν f zh (Set.Iio 0) = 0 := klMeasure_support hf hpos
+  rw [(klMeasure_same_for_physEvol_and_expFlow Λ T hinv hf hpos U z hzh hzhm hUz hU).1 τ hτ,
+    ← klMeasure_mass_eq_norm_sq Λ hf U z hzh hUz]
+  exact laplace_le_of_massGap hτ (laplace_integrable_of_support hτ hsupp) hgap
+
+/-- **The KL measure is absolutely continuous with respect to the push-forward of `ν` under `f`**:
+it is the push-forward of the weighted measure `z² dν ≪ ν`. -/
+theorem klMeasure_absolutelyContinuous {z : X → ℝ} {f : X → ℝ} (hf : Measurable f) :
+    klMeasure ν f z ≪ ν.map f := by
+  have hw : ν.withDensity (fun x => ENNReal.ofReal (z x * z x)) ≪ ν :=
+    withDensity_absolutelyContinuous ν _
+  simpa [klMeasure] using hw.map hf
+
+/-! ## Convexity in time -/
+
+/-- **The Laplace transform is convex on `[0, ∞)`** for a measure supported there: `τ ↦ e^{−τλ}` is
+convex for `λ ≥ 0`, and an integral of functions convex in the parameter is convex in it. -/
+theorem convexOn_laplace {ρ : Measure ℝ} [IsFiniteMeasure ρ] (hsupp : ρ (Set.Iio 0) = 0) :
+    ConvexOn ℝ (Set.Ici 0) (fun τ => laplace ρ τ) := by
+  refine integral_convexOn_of_integrand_ae (convex_Ici (0 : ℝ)) ?_ ?_
+  · have hset : {l : ℝ | ¬ 0 ≤ l} = Set.Iio 0 := by
+      ext l
+      simp only [Set.mem_setOf_eq, Set.mem_Iio, not_le]
+    have hae : ∀ᵐ l ∂ρ, 0 ≤ l := by
+      refine ae_iff.2 ?_
+      rw [hset]
+      exact hsupp
+    filter_upwards [hae] with l hl
+    have h := ConvexOn.comp_linearMap (𝕜 := ℝ) (f := Real.exp) (s := Set.univ) convexOn_exp
+      ((-l) • (LinearMap.id : ℝ →ₗ[ℝ] ℝ))
+    have hsub := h.subset (by simp) (convex_Ici (0 : ℝ))
+    have hfun : (Real.exp ∘ ⇑((-l) • (LinearMap.id : ℝ →ₗ[ℝ] ℝ)))
+        = fun τ : ℝ => Real.exp (-(τ * l)) := by
+      funext τ
+      rw [Function.comp_apply,
+        show ((-l) • (LinearMap.id : ℝ →ₗ[ℝ] ℝ)) τ = -(l * τ) from by
+          simp [LinearMap.smul_apply, smul_eq_mul],
+        mul_comm]
+    rw [hfun] at hsub
+    exact hsub
+  · intro a ha
+    exact laplace_integrable_of_support ha hsupp
+
+/-- **The physical two-point function is convex on `[0, ∞)`**, being the Laplace transform of the
+shared KL measure. -/
+theorem twoPoint_convexOn (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
+    {zh : X → ℝ} (hzh : MemLp zh 2 ν) (hzhm : Measurable zh) (hUz : U z = hzh.toLp zh)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x)) :
+    ConvexOn ℝ (Set.Ici 0) (fun τ => ⟪z, physEvolCompletionRightFun hinv τ z⟫) := by
+  haveI : IsFiniteMeasure (klMeasure ν f zh) := isFiniteMeasure_klMeasure hzh hf
+  have hsupp : klMeasure ν f zh (Set.Iio 0) = 0 := klMeasure_support hf hpos
+  have hkl := (klMeasure_same_for_physEvol_and_expFlow Λ T hinv hf hpos U z hzh hzhm hUz hU).1
+  exact (convexOn_laplace hsupp).congr fun τ hτ => (hkl τ hτ).symm
 
 end
 
