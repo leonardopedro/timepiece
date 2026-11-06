@@ -435,6 +435,14 @@ excited level of the operator on the *unreduced* core (`degreeForm`, `barrierFor
    `momentumColT4 (∏ j, F j)`; there is no `momentumCol_hs_mass` analogue on the 4-torus, so there
    the chain is read through the form rather than through the mass.
 
+   The ladder identity itself is carried past the cut-off box.  `magCutoffOp_eq_sum_cre` is an
+   identity of finite sums on `Box d Λ`; on the dense core `CoreCoeff d` of `ℓ²(Idx d)` the ladder
+   is an endomorphism `creCore` and `magCore A = ∑ᵢ Aᵢ • creCore i` has matrix elements
+   `∑ᵢ Aᵢ·creCoeff i β α` for every `β : Idx d` (`magCore_single_apply`), with no box and no `Λ`.
+   The raised vector sits one degree higher (`magCore_support_occDeg`), which is why the
+   Hilbert–Schmidt and relative-bound results bound the *form* and not the operator: closing
+   `magCore` to a self-adjoint operator on `ℓ²` is not formalized.
+
    The cut-off dependence of §7 is also settled rather than estimated.  The ladder's entries are
    `Aᵢ√(nᵢ+1)`, so `norm_sq_magCutoffKernel_raise` gives the entry at a raise exactly and
    `magCutoffKernel_hs_mass_unbounded` shows that **no** `σ` bounds the Hilbert–Schmidt mass at every

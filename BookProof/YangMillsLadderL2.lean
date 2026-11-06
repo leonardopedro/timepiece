@@ -33,7 +33,8 @@ Hilbert–Schmidt and relative-bound results of `YangMillsFormClosureNonDiagonal
 the *form* estimate, and that is where this identity has to be consumed: the quadratic form of
 `magCore` on a core vector is the kernel form of the zero-extended `boxKernel`
 (`closedKernelForm_coreEmbed`), and `closed_farisLavine_boxKernel` /
-`ladder_closed_domination_sharp` bound it by the degree form with a relative constant below `1`.  Turning that form bound into a
+`ladder_closed_domination_sharp` bound it by the degree form with a relative constant below `1`.
+  Turning that form bound into a
 closed (or self-adjoint) operator on `ℓ²(Idx d)`, and identifying it with the magnetic part of the
 reduced Hamiltonian of §24, is not formalized here.
 -/
