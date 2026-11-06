@@ -1033,10 +1033,25 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `max ((ΣᵢAᵢ²)/2 − d/2) 0`, the same numbers at every `Λ`.  So `a(Λ) = 1/2` is one number below
     `1` rather than a family indexed by the cut-off; what §7's `σ(Λ) ≍ Λ^{(d+1)/2}` shows is only
     that the *bounded-perturbation* reading cannot produce it.
-  - *What is still open.*  Two things, plus one identification.  (i) The **generator**: identifying
-    the physical spectral measure with such a multiplication model needs `H_phys` and strong
-    continuity of the transfer semigroup, which `OSReconstruction.Hamiltonian` records as unbuilt —
-    the atomicity of `dρ` is no longer the obstacle, but `H_phys` itself is.  (ii) The
+  - *Strong continuity of the transfer semigroup (2026-11-06).*  `ℋ` is assembled
+    (`OSReconstruction.HilbertSpace`) and the semigroup on it is now **strongly continuous at
+    `0`**: `tendsto_physEvolCompletion` proves `τ ↦ P(τ)z` is continuous at `0` for every
+    `z ∈ ℋ` from continuity of the two-point function `τ ↦ ⟨T(τ)F,F⟩` — the OS axiom — together
+    with contractivity.  The two ingredients are `osBilin_evol_self`: contractivity at `τ` and at
+    `−τ` sandwich `‖T(τ)F‖`, so the evolution is an isometry on `𝔄/𝔑`; and then
+    `‖T(τ)x − x‖² = 2(⟨x,x⟩ − ⟨T(τ)x,x⟩)` (`continuous_norm_physEvol_sub`) is continuous in `τ`,
+    vanishing at `0`.  Density of `𝔄/𝔑` in `ℋ` plus contractivity finish by `ε/3`.  So strong
+    continuity is *derived*, not assumed of `T`.  In the Fock realization of the corpus the
+    continuity hypothesis is exactly what the ESA/Faris–Lavine route gives: the inner Hamiltonian
+    is sandwiched between outer creation and annihilation operators, the closed form dominates the
+    perturbation (`closed_farisLavine_boxKernel`), and the resulting Friedrichs/Stone object is
+    strongly continuous by construction, so its matrix elements are continuous.
+  - *What is still open.*  One thing, plus one identification.  (i) The **generator**: strong
+    continuity is now available, but `H = −log P` still needs its difference quotients to converge,
+    and closedness/self-adjointness go through `P(τ)z − z = ∫₀^τ P(s)(−H)z ds`, i.e. Bochner
+    integration of an `ℋ`-valued function, which is not developed here.  So the KL representation
+    attaches to a *strongly continuous semigroup* on `ℋ`, and to a self-adjoint generator only
+    after that step.  (ii) The
     **identification of the ladder**: `a < 1` is uniform, but `boxKernel Λ A`/`magCutoffKernel` is
     a model of the magnetic coupling, not yet proved to *be* the reduced or
     momentum-representation magnetic operator.  (iii) The **BRST quotient**: `closure (range Ω) =
