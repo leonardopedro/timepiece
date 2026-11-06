@@ -22,11 +22,18 @@ This module builds the operator instead:
   identity off `τ ≥ 0`, so that it can be the `Q` of a bridge).  `expFlow_of_nonneg` identifies it
   on `τ ≥ 0`, `expFlow_zero` and `expFlow_comp` prove the semigroup law on nonnegative times from
   `Real.exp_add`;
+* `expFlow_contractive` / `norm_expFlow_le_one` — the flow is a contraction, `‖expFlow τ‖ ≤ 1`: the
+  multiplier's essential supremum is at most one, so `mulL2_contractive` applies;
+* `tendsto_expFlow_zero` — norm strong continuity of the flow at `0⁺`, from the difference quotient;
 * `kl_physEvol_uniform` — **one** representative `zh` of `U z` and **one** spectral measure
   `z² dν ∘ f⁻¹` give the KL representation at every `τ ≥ 0` simultaneously, which is exactly the
   hypothesis `hkl` of `continuousOn_physEvol_twoPoint`;
 * `osFockBridgeOfMulModel` — with a dense-range isometry `U` and the multiplier law for `P`, the
-  bundle `OsFockBridge` is *instantiated*: its `Q` is the constructed `expFlow`, not a parameter.
+  bundle `OsFockBridge` is *instantiated*: its `Q` is the constructed `expFlow`, not a parameter;
+* `inner_physEvol_eq_inner_expFlow` and `klMeasure_same_for_physEvol_and_expFlow` — the matrix
+  elements of `P` *are* the matrix elements of the flow, and both are the Laplace transform of the
+  single measure `klMeasure ν f zh`, so the KL measure is one measure for both sides;
+* `expFlow_twoPoint_nonneg` — positivity of the flow's two-point function, read off that measure.
 
 ## Boundary
 
@@ -34,6 +41,11 @@ The multiplier law `U (P(τ) x) = expFlow τ (U x)` remains a hypothesis: it is 
 for the generator, which this reconstruction does not have.  What changes is that the right-hand
 side is now a concrete bounded operator on `L²(ν)` with the semigroup law proved, so the bundle's
 axioms are discharged by construction and only the identification of `P` with that flow is open.
+
+Agreement of the Laplace transforms for every `τ ≥ 0` is *not* used to conclude equality of the
+measures: that would be injectivity of the Laplace transform on finite measures on `[0, ∞)`, which
+this corpus does not have.  What is proved is the converse-facing statement that actually matters
+here — the two sides are transforms of one and the same explicitly given measure.
 -/
 
 namespace BookProof.OSReconstruction
@@ -112,6 +124,34 @@ theorem expFlow_comp {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν,
   rw [h2, h3, h4]
   have harg : -(τ * f x) + -(σ * f x) = -((τ + σ) * f x) := by ring
   rw [← mul_assoc, ← Real.exp_add, harg]
+
+/-! ## The flow is a contraction -/
+
+/-- A multiplier bounded by one in the essential supremum is a contraction on `L²(ν)`. -/
+theorem mulL2_contractive (W : Lp ℝ (⊤ : ℝ≥0∞) ν) (hW : ∀ᵐ x ∂ν, ‖W x‖ ≤ 1)
+    (u : Lp ℝ 2 ν) : ‖mulL2 W u‖ ≤ ‖u‖ := by
+  refine Lp.norm_le_norm_of_ae_le ?_
+  filter_upwards [mulL2_coeFn W u, hW] with x hx h
+  rw [hx, norm_mul]
+  calc ‖W x‖ * ‖u x‖ ≤ 1 * ‖u x‖ := mul_le_mul_of_nonneg_right h (norm_nonneg _)
+    _ = ‖u x‖ := one_mul _
+
+/-- **The flow is contractive.**  For `f ≥ 0` a.e. and `τ ≥ 0` the multiplier `e^{−τ f}` is bounded
+by one in the essential supremum, so `‖expFlow τ u‖ ≤ ‖u‖`. -/
+theorem expFlow_contractive {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    {τ : ℝ} (hτ : 0 ≤ τ) (u : Lp ℝ 2 ν) : ‖expFlow f hf hpos τ u‖ ≤ ‖u‖ := by
+  rw [expFlow_of_nonneg hf hpos hτ]
+  refine mulL2_contractive _ ?_ u
+  filter_upwards [MemLp.coeFn_toLp (memLp_exp_neg_mul_top hf hpos hτ), hpos] with x hx hfx
+  rw [hx, Real.norm_eq_abs, abs_of_nonneg (Real.exp_nonneg _), ← Real.exp_zero]
+  exact Real.exp_le_exp.2 (by nlinarith)
+
+/-- The operator norm of the flow is at most one. -/
+theorem norm_expFlow_le_one {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    {τ : ℝ} (hτ : 0 ≤ τ) : ‖expFlow f hf hpos τ‖ ≤ 1 :=
+  ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun u => by
+    calc ‖expFlow f hf hpos τ u‖ ≤ ‖u‖ := expFlow_contractive hf hpos hτ u
+      _ = 1 * ‖u‖ := (one_mul _).symm
 
 /-! ## The KL representation with one representative and one measure -/
 
@@ -305,6 +345,114 @@ theorem tendsto_expFlow_slope {z : X → ℝ} (hz : MemLp z 2 ν) {f : X → ℝ
     simpa [Real.dist_eq, sub_zero] using hτ
   have hfinal := hw.sub_const (hfz.toLp (fun x => f x * z x))
   simpa [add_sub_cancel_right] using hfinal
+
+/-- **Norm strong continuity of the flow at `0⁺`**, from the difference quotient: there
+`expFlow τ u = u + τ • (τ⁻¹ • (expFlow τ u − u))`, and the second summand is `τ` times a
+convergent quantity. -/
+theorem tendsto_expFlow_zero {z : X → ℝ} (hz : MemLp z 2 ν) {f : X → ℝ} (hf : Measurable f)
+    (hpos : ∀ᵐ x ∂ν, 0 ≤ f x) (hfz : MemLp (fun x => f x * z x) 2 ν) :
+    Tendsto (fun τ : ℝ => expFlow f hf hpos τ (hz.toLp z)) (𝓝[>] 0) (𝓝 (hz.toLp z)) := by
+  have hslope := tendsto_expFlow_slope hz hf hpos hfz
+  have hEq : (fun τ : ℝ => expFlow f hf hpos τ (hz.toLp z)) =ᶠ[𝓝[>] (0 : ℝ)]
+      fun τ => hz.toLp z + τ • (τ⁻¹ • (expFlow f hf hpos τ (hz.toLp z) - hz.toLp z)) := by
+    filter_upwards [self_mem_nhdsWithin] with τ hτ
+    rw [smul_smul, mul_inv_cancel₀ (ne_of_gt hτ), one_smul]
+    abel
+  have hid : Tendsto (fun τ : ℝ => τ) (𝓝[>] 0) (𝓝 0) :=
+    tendsto_id.mono_left nhdsWithin_le_nhds
+  have hsmul : Tendsto (fun τ : ℝ =>
+      τ • (τ⁻¹ • (expFlow f hf hpos τ (hz.toLp z) - hz.toLp z))) (𝓝[>] 0) (𝓝 0) := by
+    have h := hid.smul hslope
+    simpa using h
+  have hsum : Tendsto (fun τ : ℝ => hz.toLp z
+      + τ • (τ⁻¹ • (expFlow f hf hpos τ (hz.toLp z) - hz.toLp z))) (𝓝[>] 0)
+      (𝓝 (hz.toLp z)) := by
+    have hc : Tendsto (fun _ : ℝ => hz.toLp z) (𝓝[>] 0) (𝓝 (hz.toLp z)) := tendsto_const_nhds
+    simpa using hc.add hsmul
+  exact hsum.congr' hEq.symm
+
+/-! ## The matrix elements of `P` are the matrix elements of the flow
+
+Everything so far is a statement about the constructed flow.  This section connects it back to the
+transfer semigroup: under the multiplier law, the matrix elements of `P` *are* the `L²(ν)` matrix
+elements of `expFlow`, and both are the Laplace transform of one and the same measure
+`klMeasure ν f zh`, fixed by the representative of `U z` alone. -/
+
+/-- **The KL spectral measure of the multiplier model**: the push-forward of `zh² dν` along `f`.
+It depends only on the multiplier `f` and on the representative `zh` of `U z`. -/
+def klMeasure (ν : Measure X) (f : X → ℝ) (zh : X → ℝ) : Measure ℝ :=
+  (ν.withDensity (fun x => ENNReal.ofReal ((zh x) * (zh x)))).map f
+
+/-- **Matrix elements of the transfer semigroup are matrix elements of the flow.**  For `τ ≥ 0`,
+`⟪x, P(τ)y⟫` equals the `L²(ν)` matrix element of `expFlow` between `U x` and `U y`.  Only the
+isometry `U` and the multiplier law are used — no KL input. -/
+theorem inner_physEvol_eq_inner_expFlow (Λ : OSState) (T : TimeTranslation)
+    (hinv : HinvRight Λ T) {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    {τ : ℝ} (hτ : 0 ≤ τ) (x y : Hphys Λ) :
+    ⟪x, physEvolCompletionRightFun hinv τ y⟫ = ⟪U x, expFlow f hf hpos τ (U y)⟫ := by
+  rw [← U.inner_map_map x (physEvolCompletionRightFun hinv τ y), hU τ hτ y]
+
+/-- **The two-point function of `P` is the two-point function of the flow.** -/
+theorem twoPoint_physEvol_eq_expFlow (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    {τ : ℝ} (hτ : 0 ≤ τ) (z : Hphys Λ) :
+    ⟪z, physEvolCompletionRightFun hinv τ z⟫ = ⟪U z, expFlow f hf hpos τ (U z)⟫ :=
+  inner_physEvol_eq_inner_expFlow Λ T hinv hf hpos U hU hτ z z
+
+/-- **The `L²` matrix element of the flow**, as an integral of representatives. -/
+theorem inner_expFlow_eq_integral {z u : X → ℝ} (hz : MemLp z 2 ν) (hu : MemLp u 2 ν)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x) {τ : ℝ} (hτ : 0 ≤ τ) :
+    ⟪hz.toLp z, expFlow f hf hpos τ (hu.toLp u)⟫
+      = ∫ x, z x * (Real.exp (-(τ * f x)) * u x) ∂ν := by
+  rw [L2.inner_def]
+  refine integral_congr_ae ?_
+  filter_upwards [hz.coeFn_toLp, hu.coeFn_toLp,
+    expFlow_coeFn hf hpos hτ (hu.toLp u)] with x h1 h2 h3
+  rw [h1, h3, h2, RCLike.inner_apply', RCLike.conj_to_real]
+
+/-- **The KL measure is the same one for `P` and for the flow.**  Both matrix elements of a vector
+`z` are the Laplace transform of the single measure `klMeasure ν f zh`, fixed by a representative
+`zh` of `U z`.  So a mass gap, a support condition or nonnegativity read off the KL measure is a
+statement about the transfer semigroup and about the multiplier flow at once. -/
+theorem klMeasure_same_for_physEvol_and_expFlow (Λ : OSState) (T : TimeTranslation)
+    (hinv : HinvRight Λ T) {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
+    {zh : X → ℝ} (hzh : MemLp zh 2 ν) (hzhm : Measurable zh) (hUz : U z = hzh.toLp zh)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x)) :
+    (∀ (τ : ℝ), 0 ≤ τ →
+        ⟪z, physEvolCompletionRightFun hinv τ z⟫ = laplace (klMeasure ν f zh) τ) ∧
+      (∀ (τ : ℝ), 0 ≤ τ →
+        ⟪U z, expFlow f hf hpos τ (U z)⟫ = laplace (klMeasure ν f zh) τ) := by
+  constructor
+  · intro τ hτ
+    have h := kl_physEvol_uniform Λ T hinv hf hpos U z hzh hzhm hUz
+      (fun σ hσ => by rw [hU σ hσ z, hUz]) τ hτ
+    simpa only [klMeasure] using h
+  · intro τ hτ
+    have h1 : ⟪U z, expFlow f hf hpos τ (U z)⟫
+        = ⟪hzh.toLp zh, expFlow f hf hpos τ (hzh.toLp zh)⟫ := by rw [hUz]
+    rw [h1, inner_expFlow_eq_integral hzh hzh hf hpos hτ]
+    have h2 := integral_mul_exp_eq_laplace (ν := ν) hzhm hf τ
+    simpa only [klMeasure] using h2
+
+/-- **Positivity of the flow's two-point function**, from the KL measure shared with `P`. -/
+theorem expFlow_twoPoint_nonneg (Λ : OSState) (T : TimeTranslation) (hinv : HinvRight Λ T)
+    {f : X → ℝ} (hf : Measurable f) (hpos : ∀ᵐ x ∂ν, 0 ≤ f x)
+    (U : Hphys Λ →ₗᵢ[ℝ] Lp ℝ 2 ν) (z : Hphys Λ)
+    {zh : X → ℝ} (hzh : MemLp zh 2 ν) (hzhm : Measurable zh) (hUz : U z = hzh.toLp zh)
+    (hU : ∀ (τ : ℝ), 0 ≤ τ → ∀ x : Hphys Λ,
+      U (physEvolCompletionRightFun hinv τ x) = expFlow f hf hpos τ (U x))
+    {τ : ℝ} (hτ : 0 ≤ τ) :
+    0 ≤ ⟪U z, expFlow f hf hpos τ (U z)⟫ := by
+  rw [(klMeasure_same_for_physEvol_and_expFlow Λ T hinv hf hpos U z hzh hzhm hUz hU).2 τ hτ]
+  exact laplace_nonneg _ τ
 
 end
 
