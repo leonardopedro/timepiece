@@ -592,6 +592,7 @@ import BookProof.OSReconstruction.Generator
 import BookProof.OSReconstruction.KallenLehmannModel
 import BookProof.OSReconstruction.GeneratorClosed
 import BookProof.OSReconstruction.TransferSelfAdjoint
+import BookProof.OSReconstruction.SemigroupContinuity
 import BookProof.OSReconstruction.ReflectionKernel
 import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments

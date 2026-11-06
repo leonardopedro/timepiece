@@ -1087,6 +1087,15 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     curve tends to its value at `0`, again by contractivity (`Metric`-`ε`/`δ`, not dominated
     convergence).  Closedness plus symmetry gives a *closed symmetric* operator; self-adjointness
     is the remaining step.
+  - *Strong continuity without the negative-time isometry (2026-11-06).*
+    `OSReconstruction.SemigroupContinuity` re-derives `tendsto_physEvolCompletion` from the OS
+    axiom alone.  Contractivity at the single time being approached gives the inequality
+    `‖P(τ)x − x‖² ≤ 2(⟨x,x⟩ − ⟨P(τ)x,x⟩)` (`norm_physEvol_sub_sq_le`) in place of the isometry
+    equality, so the right-hand side tends to `0` by matrix element continuity
+    (`tendsto_norm_physEvol_sub_right`, then `tendsto_physEvolCompletion_right` on `ℋ`, both along
+    `𝓝[>] 0`).  The abstract form is `tendsto_of_contractive_weak`: a contraction family with
+    continuous matrix elements is strongly continuous — no isometry and no group law.  This is the
+    continuity half of the transfer semi-group; the rest is the open item below.
   - *Two-sided contractivity forces a trivial evolution (2026-11-06).*
     `OSReconstruction.TransferSelfAdjoint` shows that the hypothesis `∀ τ, IsSelfAdjoint (P τ)` is
     satisfiable only by the trivial evolution.  Contractivity at `τ` and at `−τ` makes `P(τ)` an

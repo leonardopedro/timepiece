@@ -363,7 +363,13 @@ Hamiltonian is sandwiched between outer creation and annihilation operators, the
 route turns the form sum into a self-adjoint (Friedrichs) operator whose Stone group is strongly
 continuous by construction, so `τ ↦ ⟨T(τ)F,F⟩` is a matrix element of a strongly continuous
 family.  That realization-level derivation is *not* repeated here: this section takes matrix
-element continuity as its hypothesis and produces the semigroup's strong continuity on `ℋ`. -/
+element continuity as its hypothesis and produces the semigroup's strong continuity on `ℋ`.
+
+The proof below uses contractivity at `τ` *and* at `−τ`, i.e. the isometry.
+`OSReconstruction.SemigroupContinuity` re-derives the same conclusion from the contraction
+*inequality* `‖P(τ)x − x‖² ≤ 2(⟨x,x⟩ − ⟨P(τ)x,x⟩)` and the one-sided filter `𝓝[>] 0`
+(`tendsto_physEvolCompletion_right`), which is the form that survives restricting the hypothesis to
+`τ ≥ 0`. -/
 
 /-- **The evolution preserves the OS norm.**  Contractivity at `τ` and at `−τ` sandwich
 `‖T(τ)F‖` between `‖F‖` and itself, since the group law returns `T(−τ)(T(τ)F) = F`. -/
