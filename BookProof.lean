@@ -590,6 +590,7 @@ import BookProof.OSReconstruction.Clustering
 import BookProof.OSReconstruction.HilbertSpace
 import BookProof.OSReconstruction.Generator
 import BookProof.OSReconstruction.KallenLehmannModel
+import BookProof.OSReconstruction.GeneratorClosed
 import BookProof.OSReconstruction.ReflectionKernel
 import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments

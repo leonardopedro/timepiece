@@ -13,10 +13,12 @@ difference quotient
 
 `diffQuot τ z = τ⁻¹ • (P(τ) z − z)`
 
-converges as `τ → 0`, and the generator is the limit.  The limit is taken over the *two-sided*
-filter `𝓝 0`; since the evolution is a group (`physEvolCompletion_add`, with `P(τ)⁻¹ = P(−τ)`),
-the one-sided and two-sided domains coincide, and the symmetric filter makes the linearity proofs
-below trivial.
+converges as `τ → 0`, and the generator is the limit.  The limit is taken over the *punctured*
+filter `𝓝[≠] 0`: the quotient is junk at `τ = 0` (`0⁻¹ = 0` in `ℝ`), so a limit over `𝓝 0` would
+force the value `0` there and shrink the domain to the fixed points of `P`.  Puncturing is also
+what makes the two signs equivalent: the evolution is a group (`physEvolCompletion_add`, with
+`P(τ)⁻¹ = P(−τ)`), so the one-sided and two-sided domains coincide, and the punctured filter makes
+the linearity proofs below trivial.
 
 What is proved:
 
@@ -46,10 +48,14 @@ self-adjoint operator `H` obtained from the closed form by Faris–Lavine / Frie
 here; the theorem below takes `∀ τ, IsSelfAdjoint (P τ)` as its hypothesis, exactly as
 `HilbertSpace.lean` takes matrix element continuity as its hypothesis for strong continuity.
 
-Not proved: closedness of the generator, hence its self-adjointness.  Both need
-`P(τ) z − z = ∫₀^τ P(s) (−H) z ds`, i.e. Bochner integration of an `ℋ`-valued function, which this
-reconstruction does not develop.  Symmetry is what the Källén–Lehmann representation of matrix
-elements consumes, and it is available without integration.
+Closedness *is* proved, in `OSReconstruction.GeneratorClosed`, and it needs no Bochner
+integration of `ℋ`-valued functions: the orbit derivative `hasDerivAt_physEvol` and the fundamental
+theorem of calculus give `P(τ) z − z = ∫₀^τ P(s) (A z) ds` on the domain, the identity is compared
+with the difference quotient of a fixed vector, and contractivity passes it to the limit
+(`generator_isClosed`).  What remains is the step from *closed symmetric* to *self-adjoint*:
+deficiency indices of the closed symmetric operator, or a resolvent representation identifying it
+with the realization's `H`.  Symmetry is what the Källén–Lehmann representation of matrix
+elements consumes, and it is available without that step.
 -/
 
 namespace BookProof.OSReconstruction
@@ -99,7 +105,7 @@ theorem diffQuot_smul (Λ : OSState) (T : TimeTranslation)
 def HasGen (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (z : Hphys Λ) : Prop :=
-  ∃ y : Hphys Λ, Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ z) (𝓝 0) (𝓝 y)
+  ∃ y : Hphys Λ, Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ z) (𝓝[≠] 0) (𝓝 y)
 
 /-- The origin is in the domain, with generator value `0`. -/
 theorem hasGen_zero (Λ : OSState) (T : TimeTranslation)
@@ -107,7 +113,7 @@ theorem hasGen_zero (Λ : OSState) (T : TimeTranslation)
     HasGen Λ T hinv (0 : Hphys Λ) := by
   refine ⟨0, ?_⟩
   simpa only [diffQuot_zero] using
-    (tendsto_const_nhds : Tendsto (fun _ : ℝ => (0 : Hphys Λ)) (𝓝 0) (𝓝 0))
+    (tendsto_const_nhds : Tendsto (fun _ : ℝ => (0 : Hphys Λ)) (𝓝[≠] 0) (𝓝 0))
 
 /-- The domain is closed under addition: the quotient of a sum is the sum of the quotients. -/
 theorem hasGen_add (Λ : OSState) (T : TimeTranslation)
@@ -160,7 +166,7 @@ def genValue (Λ : OSState) (T : TimeTranslation)
 theorem genValue_tendsto (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (z : genDomain Λ T hinv) :
-    Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝 0)
+    Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0)
       (𝓝 (genValue Λ T hinv z)) :=
   Classical.choose_spec z.2
 
@@ -171,7 +177,7 @@ theorem genValue_add (Λ : OSState) (T : TimeTranslation)
     genValue Λ T hinv (z + w) = genValue Λ T hinv z + genValue Λ T hinv w := by
   refine tendsto_nhds_unique (genValue_tendsto Λ T hinv (z + w)) ?_
   have h : Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)
-      + diffQuot Λ T hinv τ (w : Hphys Λ)) (𝓝 0)
+      + diffQuot Λ T hinv τ (w : Hphys Λ)) (𝓝[≠] 0)
       (𝓝 (genValue Λ T hinv z + genValue Λ T hinv w)) :=
     (genValue_tendsto Λ T hinv z).add (genValue_tendsto Λ T hinv w)
   refine h.congr' ?_
@@ -184,7 +190,7 @@ theorem genValue_smul (Λ : OSState) (T : TimeTranslation)
     (c : ℝ) (z : genDomain Λ T hinv) :
     genValue Λ T hinv (c • z) = c • genValue Λ T hinv z := by
   refine tendsto_nhds_unique (genValue_tendsto Λ T hinv (c • z)) ?_
-  have h : Tendsto (fun τ : ℝ => c • diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝 0)
+  have h : Tendsto (fun τ : ℝ => c • diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0)
       (𝓝 (c • genValue Λ T hinv z)) := (genValue_tendsto Λ T hinv z).const_smul c
   refine h.congr' ?_
   exact Eventually.of_forall fun τ => (diffQuot_smul Λ T hinv τ c (z : Hphys Λ)).symm
@@ -208,7 +214,7 @@ def generator (Λ : OSState) (T : TimeTranslation)
 theorem generator_apply_tendsto (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (z : (generator Λ T hinv).domain) :
-    Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝 0)
+    Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0)
       (𝓝 (generator Λ T hinv z)) :=
   genValue_tendsto Λ T hinv z
 
@@ -216,7 +222,7 @@ theorem generator_apply_tendsto (Λ : OSState) (T : TimeTranslation)
 theorem generator_apply_eq_of_tendsto (Λ : OSState) (T : TimeTranslation)
     (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
     (z : (generator Λ T hinv).domain) {y : Hphys Λ}
-    (h : Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝 0) (𝓝 y)) :
+    (h : Tendsto (fun τ : ℝ => diffQuot Λ T hinv τ (z : Hphys Λ)) (𝓝[≠] 0) (𝓝 y)) :
     generator Λ T hinv z = y :=
   tendsto_nhds_unique (generator_apply_tendsto Λ T hinv z) h
 
@@ -268,7 +274,7 @@ theorem generator_evol (Λ : OSState) (T : TimeTranslation)
       = physEvolCompletion Λ T hinv t (generator Λ T hinv z) := by
   have hcomp : Tendsto
       (fun τ : ℝ => physEvolCompletion Λ T hinv t (diffQuot Λ T hinv τ (z : Hphys Λ)))
-      (𝓝 0) (𝓝 (physEvolCompletion Λ T hinv t (generator Λ T hinv z))) :=
+      (𝓝[≠] 0) (𝓝 (physEvolCompletion Λ T hinv t (generator Λ T hinv z))) :=
     ((physEvolCompletion Λ T hinv t).continuous.tendsto (generator Λ T hinv z)).comp
       (generator_apply_tendsto Λ T hinv z)
   refine generator_apply_eq_of_tendsto Λ T hinv _ ?_
@@ -301,11 +307,11 @@ theorem generator_isSymmetric (Λ : OSState) (T : TimeTranslation)
         = ⟪(z : Hphys Λ), generator Λ T hinv w⟫ := by
   intro z w
   have hz : Tendsto (fun τ : ℝ => ⟪diffQuot Λ T hinv τ (z : Hphys Λ), (w : Hphys Λ)⟫)
-      (𝓝 0) (𝓝 ⟪generator Λ T hinv z, (w : Hphys Λ)⟫) :=
+      (𝓝[≠] 0) (𝓝 ⟪generator Λ T hinv z, (w : Hphys Λ)⟫) :=
     (generator_apply_tendsto Λ T hinv z).inner tendsto_const_nhds
   refine tendsto_nhds_unique hz ?_
   have hw : Tendsto (fun τ : ℝ => ⟪(z : Hphys Λ), diffQuot Λ T hinv τ (w : Hphys Λ)⟫)
-      (𝓝 0) (𝓝 ⟪(z : Hphys Λ), generator Λ T hinv w⟫) :=
+      (𝓝[≠] 0) (𝓝 ⟪(z : Hphys Λ), generator Λ T hinv w⟫) :=
     tendsto_const_nhds.inner (generator_apply_tendsto Λ T hinv w)
   refine hw.congr' ?_
   exact Eventually.of_forall fun τ => (inner_diffQuot_comm Λ T hinv hsa τ _ _).symm

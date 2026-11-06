@@ -44,13 +44,15 @@ The assembly is performed here:
 What is assembled is the Hilbert space as a type with its structure, the contractive extension of
 a given one-parameter family of evolutions, and its strong continuity at `0` from matrix element
 continuity.  `OSReconstruction.Generator` attaches the generator to the semigroup: `z` is in its
-domain when `τ⁻¹ • (P(τ)z − z)` converges at `0`, the value is that limit, and — if each `P(τ)` is
-self-adjoint — the resulting `LinearPMap` is symmetric and commutes with `P(t)`.  What remains open
-is *closedness* of the generator, hence its self-adjointness: the standard route (von Neumann or
-Lumer–Phillips) goes through the integral representation
-`P(τ)z − z = ∫₀^τ P(s)(−H)z ds`, i.e. Bochner integration of an `ℋ`-valued function, which is not
-yet developed in this reconstruction.  Symmetry is what the Källén–Lehmann representation of
-matrix elements consumes.
+domain when `τ⁻¹ • (P(τ)z − z)` converges along the punctured filter `𝓝[≠] 0`, the value is that
+limit, and — if each `P(τ)` is self-adjoint — the resulting `LinearPMap` is symmetric and commutes
+with `P(t)`.  `OSReconstruction.GeneratorClosed` closes the graph: if `uₙ → z₀` and `A uₙ → y`,
+then `z₀` lies in the domain and `A z₀ = y`.  The integral representation
+`P(τ)z − z = ∫₀^τ P(s)(A z) ds` is used only for *fixed* domain vectors, and the resulting identity
+is passed to the limit by contractivity, so no Bochner integration of `ℋ`-valued functions is
+needed.  What remains open is self-adjointness of the closed symmetric operator — deficiency
+indices, or a resolvent representation identifying it with the realization's `H`.  Symmetry is what
+the Källén–Lehmann representation of matrix elements consumes.
 -/
 
 namespace BookProof.OSReconstruction

@@ -1048,7 +1048,10 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     strongly continuous by construction, so its matrix elements are continuous.
   - *The generator (2026-11-06).*  `OSReconstruction.Generator` constructs it.  The domain is
     convergence of the difference quotient — `HasGen`/`genDomain`, closed under the vector
-    operations because a limit of sums is the sum of limits (`hasGen_add`, `hasGen_smul`) — and the
+    operations because a limit of sums is the sum of limits (`hasGen_add`, `hasGen_smul`).  The
+    limit is along `𝓝[≠] 0`, not `𝓝 0`: at `τ = 0` the quotient `τ⁻¹ • (P(τ)z − z)` is junk
+    (`0⁻¹ = 0`), so including that point would force the limit to vanish and shrink the domain to
+    the common fixed points of the `P(τ)`.  The
     value is `Classical.choose` of the limit, with linearity recovered from
     `tendsto_nhds_unique` (`genValue_add`, `genValue_smul`) rather than from the definition.  The
     result is `generator : ℋ →ₗ.[ℝ] ℋ`, characterised by `generator_apply_tendsto` and unique by
@@ -1071,10 +1074,25 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     apply to the physical correlator directly.  The multiplication model is the single hypothesis:
     producing it is the spectral theorem for the generator, which §5.2 has only as a symmetric
     `LinearPMap`.
-  - *What is still open.*  Two things, plus one identification.  (i) **Closedness** of that
-    generator, hence its self-adjointness: it needs `P(τ)z − z = ∫₀^τ P(s)(−H)z ds`, i.e. Bochner
-    integration of an `ℋ`-valued function, which is not developed here.  So the KL representation
-    attaches to a *symmetric* generator on `ℋ`, and to a self-adjoint one only after that step.
+  - *Closedness of the generator (2026-11-06).*  `OSReconstruction.GeneratorClosed` proves the graph
+    is closed: if `uₙ → z₀` in `ℋ` and `A uₙ → y`, then `z₀` lies in the domain and `A z₀ = y`
+    (`generator_isClosed`), by the integral representation the earlier draft recorded as missing.
+    The orbit of a domain vector has derivative `P(t)A z` at `t` (`hasDerivAt_physEvol`, from
+    `generator_apply_tendsto` and `P(t)P(s) = P(t + s)`), and the fundamental theorem of calculus
+    gives `P(τ)z − z = ∫₀^τ P(s)A z ds` (`physEvol_sub_eq_integral`).  No `ℋ`-valued Bochner
+    integral is needed: the identity is compared with the difference quotient of a *fixed* `y`,
+    where the two integrands differ by `P(s)(A uₙ − y)` and contractivity bounds the integral of
+    that difference by `|τ| ‖A uₙ − y‖`; dividing by `τ` and letting `n → ∞` closes the graph.  The
+    companion limit statement is `tendsto_average_physEvol`: the average of a strongly continuous
+    curve tends to its value at `0`, again by contractivity (`Metric`-`ε`/`δ`, not dominated
+    convergence).  Closedness plus symmetry gives a *closed symmetric* operator; self-adjointness
+    is the remaining step.
+  - *What is still open.*  Two things, plus one identification.  (i) **Self-adjointness** of that
+    generator: closedness is now proved, so what remains is *closed symmetric* → *self-adjoint* —
+    deficiency indices of the closed symmetric operator, or a resolvent integral representation
+    identifying it with the Faris–Lavine `H`.  Concretely `P(τ) = e^{−τH}` is a theorem about the
+    Fock realization, not about the abstract `ℋ`, so the KL representation still attaches to a
+    *closed symmetric* generator on `ℋ` and to a self-adjoint one only after that realization step.
     (ii) The
     **identification of the ladder**: `a < 1` is uniform, and the *matrix-entry* half is now
     proved.  `YangMillsLadderTransport` transports the Hermite creation ladder from the
