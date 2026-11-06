@@ -46,6 +46,7 @@ estimate there.  The group-level objects of `Generator` (now `diffQuotGroup`, `H
 `genDomain`, `generator`) remain typed with the two-sided hypothesis, because the family
 `P : ℝ → B(ℋ)` they describe does not exist for τ < 0 under the forward
 hypothesis.
+-/
 
 namespace BookProof.OSReconstruction
 
