@@ -1094,6 +1094,20 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     apply to the physical correlator directly.  The multiplication model is the single hypothesis:
     producing it is the spectral theorem for the generator, which §5.2 has only as a symmetric
     `LinearPMap`.
+  - *The `L²` multiplier and its generator (2026-11-06).*  `OSReconstruction.L2Multiplier` builds the
+    operator the KL model had been postulating.  `mulL2` is bounded multiplication on `L²(ν)` by an
+    essentially bounded function — Hölder's inequality in the exponent form `(⊤, 2, 2)`, the same
+    `ContinuousLinearMap.holderL` construction the wave chapter uses — and `expFlow` is the multiplier
+    family `e^{−τf}`, defined for all real `τ` (identity off `τ ≥ 0`) so it can be a bridge's `Q`,
+    with `expFlow_zero` and `expFlow_comp` proved from `Real.exp_add` pointwise.  With it
+    `kl_physEvol_uniform` gives the KL representation at *every* `τ ≥ 0` from one representative and
+    one spectral measure — exactly the `hkl` input of `continuousOn_physEvol_twoPoint` — and
+    `osFockBridgeOfMulModel` fills `OsFockBridge` with `Q := expFlow`, so the bundle's flow is
+    constructed rather than assumed.  `tendsto_expFlow_slope` identifies the generator of that flow:
+    `τ⁻¹(Q(τ)z − z) → −f z` in `L²(ν)` for `f z ∈ L²(ν)`, by dominated convergence on the square with
+    the pointwise bound `|(e^{−τc} − 1)/τ| ≤ c` for `c ≥ 0`.  Not claimed: that the transfer semigroup
+    `P` *is* this flow (that is the spectral theorem for the generator, still absent), hence
+    `generatorRight = −M_f` is not asserted — only the difference quotient of the constructed flow.
   - *Time continuity of the KL transform (2026-11-06).*  `Clustering.continuousOn_laplace` proves the
     Laplace transform of a finite measure supported on `[0, ∞)` is Lipschitz in `τ` with the first
     moment `∫ λ dρ` as constant — `e^{−τλ}` is `1`-Lipschitz in the exponent and `λ` is integrable,
