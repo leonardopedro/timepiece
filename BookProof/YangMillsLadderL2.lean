@@ -214,6 +214,178 @@ theorem magSymKernel_comm (A : Fin d → ℝ) (m n : Idx d) :
     magSymKernel A m n = magSymKernel A n m := by
   rw [magSymKernel, magSymKernel, add_comm]
 
+/-! ## Degree truncation: a uniform mass bound
+
+The Hilbert–Schmidt mass of `boxKernel` is finite only because the box is finite.  On `Idx d` the
+honest substitute is a **degree** cut: the ladder moves one unit of `occDeg` at a time, so the
+symmetric kernel restricted to degrees `≤ N` has finitely many entries and a mass that grows like
+`(N+1)^{d+1}` — the same growth as `magCutoffKernel_hs_mass`, with `N` replacing `Λ` and no box.
+That is what makes the form dominated without a KLMN theorem: for each `N` the kernel is supported
+on a finite set of pairs, so its form is bounded, hence closed; only the uniformity in `N` fails. -/
+
+/-- The symmetric ladder kernel cut down to total occupation number `≤ N`.  No box, no `Λ`. -/
+def magSymKernelTrunc (N : ℕ) (A : Fin d → ℝ) (m n : Idx d) : ℂ :=
+  if occDeg m ≤ N ∧ occDeg n ≤ N then magSymKernel A m n else 0
+
+theorem magSymKernelTrunc_eq_zero_left {N : ℕ} {A : Fin d → ℝ} {m n : Idx d}
+    (h : ¬ occDeg m ≤ N) : magSymKernelTrunc N A m n = 0 := by
+  rw [magSymKernelTrunc, if_neg]
+  rintro ⟨h1, -⟩
+  exact h h1
+
+theorem magSymKernelTrunc_eq_zero_right {N : ℕ} {A : Fin d → ℝ} {m n : Idx d}
+    (h : ¬ occDeg n ≤ N) : magSymKernelTrunc N A m n = 0 := by
+  rw [magSymKernelTrunc, if_neg]
+  rintro ⟨-, h2⟩
+  exact h h2
+
+/-- Each entry of the ladder matrix is at most `(∑ᵢ |Aᵢ|) √(occDeg n + 1)`: the weights are
+`√(nᵢ + 1)`, and the triangle inequality is enough. -/
+theorem norm_magKernel_le (A : Fin d → ℝ) (m n : Idx d) :
+    ‖magKernel A m n‖ ≤ (∑ i, |A i|) * Real.sqrt ((occDeg n : ℝ) + 1) := by
+  rw [magKernel]
+  calc ‖∑ i, (A i : ℂ) * creCoeff i m n‖ ≤ ∑ i, ‖(A i : ℂ) * creCoeff i m n‖ :=
+        norm_sum_le Finset.univ _
+    _ ≤ ∑ i, |A i| * Real.sqrt ((occDeg n : ℝ) + 1) := by
+        refine Finset.sum_le_sum fun i _ => ?_
+        rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+        refine mul_le_mul_of_nonneg_left ?_ (abs_nonneg _)
+        by_cases h : m = Function.update n i (n i + 1)
+        · rw [h, creCoeff_self, Complex.norm_real, Real.norm_eq_abs,
+            abs_of_nonneg (Real.sqrt_nonneg _)]
+          refine Real.sqrt_le_sqrt ?_
+          have hle : n i ≤ occDeg n := le_occDeg n i
+          have hcast : (n i : ℝ) ≤ (occDeg n : ℝ) := by exact_mod_cast hle
+          linarith
+        · rw [creCoeff_eq_zero_of_ne h, norm_zero]
+          exact Real.sqrt_nonneg _
+    _ = (∑ i, |A i|) * Real.sqrt ((occDeg n : ℝ) + 1) := by rw [Finset.sum_mul]
+
+/-- **Uniform entry bound after truncation**: each entry of the truncated symmetric kernel is at
+most `4 (∑ᵢ|Aᵢ|)² (N+1)` — both directions are charged the same `√(N+1)`. -/
+theorem norm_sq_magSymKernelTrunc_le {N : ℕ} {A : Fin d → ℝ} {m n : Idx d}
+    (hm : occDeg m ≤ N) (hn : occDeg n ≤ N) :
+    ‖magSymKernelTrunc N A m n‖ ^ 2 ≤ 4 * (∑ i, |A i|) ^ 2 * ((N : ℝ) + 1) := by
+  classical
+  set S : ℝ := ∑ i, |A i| with hS
+  have hS0 : 0 ≤ S := Finset.sum_nonneg fun i _ => abs_nonneg (A i)
+  set K : ℝ := S * Real.sqrt ((N : ℝ) + 1) with hK
+  have hK0 : 0 ≤ K := mul_nonneg hS0 (Real.sqrt_nonneg _)
+  have hsqrt : Real.sqrt ((occDeg n : ℝ) + 1) ≤ Real.sqrt ((N : ℝ) + 1) :=
+    Real.sqrt_le_sqrt (by
+      have : (occDeg n : ℝ) ≤ (N : ℝ) := by exact_mod_cast hn
+      linarith)
+  have hsqrt' : Real.sqrt ((occDeg m : ℝ) + 1) ≤ Real.sqrt ((N : ℝ) + 1) :=
+    Real.sqrt_le_sqrt (by
+      have : (occDeg m : ℝ) ≤ (N : ℝ) := by exact_mod_cast hm
+      linarith)
+  have h1 : ‖magKernel A m n‖ ≤ K := (norm_magKernel_le A m n).trans (by
+    rw [hK, hS]
+    exact mul_le_mul_of_nonneg_left hsqrt hS0)
+  have h2 : ‖magKernel A n m‖ ≤ K := (norm_magKernel_le A n m).trans (by
+    rw [hK, hS]
+    exact mul_le_mul_of_nonneg_left hsqrt' hS0)
+  have h3 : ‖magKernel A m n + magKernel A n m‖ ≤ 2 * K := by
+    calc ‖magKernel A m n + magKernel A n m‖
+        ≤ ‖magKernel A m n‖ + ‖magKernel A n m‖ := norm_add_le _ _
+      _ ≤ K + K := add_le_add h1 h2
+      _ = 2 * K := by ring
+  rw [magSymKernelTrunc, if_pos ⟨hm, hn⟩, magSymKernel]
+  calc ‖magKernel A m n + magKernel A n m‖ ^ 2
+      = ‖magKernel A m n + magKernel A n m‖ * ‖magKernel A m n + magKernel A n m‖ :=
+        pow_two _
+    _ ≤ (2 * K) * (2 * K) := mul_self_le_mul_self (norm_nonneg _) h3
+    _ = 4 * (∑ i, |A i|) ^ 2 * ((N : ℝ) + 1) := by
+        rw [hK, hS]
+        have hsq : Real.sqrt ((N : ℝ) + 1) ^ 2 = (N : ℝ) + 1 := Real.sq_sqrt (by positivity)
+        nlinarith [hsq]
+
+/-- **The uniform mass bound on degree-truncated kernels.**  For every finite set of indices the
+Hilbert–Schmidt mass of `magSymKernelTrunc N A` is at most
+`((N+1)^d)² · 4 (∑ᵢ|Aᵢ|)² (N+1)`: the count `(N+1)^d` of indices of degree `≤ N` times the entry
+bound.  This is the exact analogue of `boxKernel_hs_finset`, with the degree cut replacing the
+box. -/
+theorem hs_mass_magSymKernelTrunc (N : ℕ) (A : Fin d → ℝ) (s : Finset (Idx d)) :
+    ∑ m ∈ s, ∑ n ∈ s, ‖magSymKernelTrunc N A m n‖ ^ 2
+      ≤ (((N + 1 : ℕ) : ℝ) ^ d) ^ 2 * (4 * (∑ i, |A i|) ^ 2 * ((N : ℝ) + 1)) := by
+  classical
+  set E : ℝ := 4 * (∑ i, |A i|) ^ 2 * ((N : ℝ) + 1) with hE
+  have hE0 : 0 ≤ E := by rw [hE]; positivity
+  set t : Finset (Idx d) := s.filter (fun m => occDeg m ≤ N) with ht
+  have houter : ∑ m ∈ s, ∑ n ∈ s, ‖magSymKernelTrunc N A m n‖ ^ 2
+      = ∑ m ∈ t, ∑ n ∈ t, ‖magSymKernelTrunc N A m n‖ ^ 2 := by
+    rw [ht]
+    rw [Finset.sum_subset (Finset.filter_subset _ _) (fun m hm hmn => by
+      have h : ¬ occDeg m ≤ N := fun hc => hmn (Finset.mem_filter.mpr ⟨hm, hc⟩)
+      simp [magSymKernelTrunc_eq_zero_left h])]
+    refine Finset.sum_congr rfl fun m _ => ?_
+    rw [Finset.sum_subset (Finset.filter_subset _ _) (fun n hn hnm => by
+      have h : ¬ occDeg n ≤ N := fun hc => hnm (Finset.mem_filter.mpr ⟨hn, hc⟩)
+      simp [magSymKernelTrunc_eq_zero_right h])]
+  have hcard : (t.card : ℝ) ≤ ((N + 1 : ℕ) : ℝ) ^ d := by
+    have hnat : t.card ≤ (N + 1) ^ d := by
+      have himg : t ⊆ (Finset.univ : Finset (Fin d → Fin (N + 1))).image
+          (boxEmbed (Λ := N + 1)) := by
+        intro m hm
+        have hN : occDeg m ≤ N := by
+          rw [ht] at hm
+          exact (Finset.mem_filter.mp hm).2
+        have hin : InBox (Λ := N + 1) m := fun i =>
+          Nat.lt_succ_of_le (le_trans (le_occDeg m i) hN)
+        obtain ⟨v, hv⟩ := exists_boxEmbed (Λ := N + 1) hin
+        exact Finset.mem_image.mpr ⟨v, Finset.mem_univ v, hv⟩
+      calc t.card ≤ ((Finset.univ : Finset (Fin d → Fin (N + 1))).image
+            (boxEmbed (Λ := N + 1))).card := Finset.card_le_card himg
+        _ ≤ Fintype.card (Fin d → Fin (N + 1)) := Finset.card_image_le
+        _ = (N + 1) ^ d := by simp
+    exact_mod_cast hnat
+  rw [houter]
+  have hstep : ∑ m ∈ t, ∑ n ∈ t, ‖magSymKernelTrunc N A m n‖ ^ 2
+      ≤ (t.card : ℝ) * ((t.card : ℝ) * E) := by
+    have hcol : ∀ m ∈ t, ∑ n ∈ t, ‖magSymKernelTrunc N A m n‖ ^ 2 ≤ (t.card : ℝ) * E := by
+      intro m hm
+      have hmN : occDeg m ≤ N := by
+        rw [ht] at hm
+        exact (Finset.mem_filter.mp hm).2
+      calc ∑ n ∈ t, ‖magSymKernelTrunc N A m n‖ ^ 2 ≤ ∑ _n ∈ t, E := by
+            refine Finset.sum_le_sum fun n hn => ?_
+            have hnN : occDeg n ≤ N := by
+              rw [ht] at hn
+              exact (Finset.mem_filter.mp hn).2
+            exact norm_sq_magSymKernelTrunc_le hmN hnN
+        _ = (t.card : ℝ) * E := by simp [Finset.sum_const, nsmul_eq_mul]
+    calc ∑ m ∈ t, ∑ n ∈ t, ‖magSymKernelTrunc N A m n‖ ^ 2
+        ≤ ∑ _m ∈ t, (t.card : ℝ) * E := Finset.sum_le_sum hcol
+      _ = (t.card : ℝ) * ((t.card : ℝ) * E) := by
+          simp [Finset.sum_const, nsmul_eq_mul, mul_assoc]
+  refine hstep.trans ?_
+  have hCC : (t.card : ℝ) * (t.card : ℝ)
+      ≤ (((N + 1 : ℕ) : ℝ) ^ d) * (((N + 1 : ℕ) : ℝ) ^ d) :=
+    mul_le_mul hcard hcard (by positivity) (by positivity)
+  calc (t.card : ℝ) * ((t.card : ℝ) * E) = ((t.card : ℝ) * (t.card : ℝ)) * E := by ring
+    _ ≤ ((((N + 1 : ℕ) : ℝ) ^ d) * (((N + 1 : ℕ) : ℝ) ^ d)) * E :=
+        mul_le_mul_of_nonneg_right hCC hE0
+    _ = (((N + 1 : ℕ) : ℝ) ^ d) ^ 2 * (4 * (∑ i, |A i|) ^ 2 * ((N : ℝ) + 1)) := by
+        rw [hE]; ring
+
+/-- **The KLMN-free domination.**  Since `magSymKernelTrunc N A` is supported in degrees `≤ N`, its
+form is bounded by the mass bound above, so `ladder_closed_domination_sharp` applies with the
+cut-off-free kernel and a shift `σ` that depends on `N` only.  Nothing is assumed about a box,
+and no
+KLMN theorem is needed at any fixed `N`; what fails is a `σ` uniform in `N`. -/
+theorem closed_farisLavine_magSym_trunc (N : ℕ) (A : Fin d → ℝ) {μ g : Idx d → ℝ}
+    {c₁ c₂ σ : ℝ} (hc₁ : 0 < c₁)
+    (hσ : (((N + 1 : ℕ) : ℝ) ^ d) ^ 2 * (4 * (∑ i, |A i|) ^ 2 * ((N : ℝ) + 1)) ≤ σ ^ 2)
+    (hσ0 : 0 ≤ σ)
+    (hdom : ∀ x : L2 d, closedForm g x ≠ ⊤ →
+      c₁ * (closedForm μ x).toReal - c₂ * ‖x‖ ^ 2 ≤ (closedForm g x).toReal) :
+    0 < (1 / 2) * c₁ ∧
+      ∀ x : L2 d, closedForm g x ≠ ⊤ →
+        (1 / 2) * c₁ * (closedForm μ x).toReal - ((1 / 2) * c₂ + σ) * ‖x‖ ^ 2
+          ≤ (closedForm g x).toReal + closedKernelForm (magSymKernelTrunc N A) x :=
+  ladder_closed_domination_sharp (K := magSymKernelTrunc N A) hc₁ hdom hσ0
+    (fun s => (hs_mass_magSymKernelTrunc N A s).trans hσ)
+
 end
 
 end BookProof.YangMillsFormClosureND
