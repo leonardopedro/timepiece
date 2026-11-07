@@ -41,7 +41,9 @@ closedness argument that goes with it:
   obtained by expanding `‖lam z − A z‖²` and dropping the nonnegative term `−2lam⟪A z, z⟫`;
 * `generatorRight_resolvent_injective` — consequently `lam − A` is injective on the domain.  This is
   the *estimate* half of Lumer–Phillips; surjectivity onto `ℋ` (a range condition on `lam − A`) is
-  a separate matter and is not proved here.
+  a separate matter and is not proved here — it is proved in the multiplier model, where the inverse
+  is the bounded multiplier `(λ + f)⁻¹`, by
+  `OSReconstruction.MultiplierGenerator.range_sub_generatorRight_mulModel`.
 
 ## Boundary
 

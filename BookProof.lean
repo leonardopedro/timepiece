@@ -595,6 +595,8 @@ import BookProof.OSReconstruction.TransferSelfAdjoint
 import BookProof.OSReconstruction.SemigroupContinuity
 import BookProof.OSReconstruction.TransferSemigroupRight
 import BookProof.OSReconstruction.SemigroupGenerator
+import BookProof.OSReconstruction.L2Multiplier
+import BookProof.OSReconstruction.MultiplierGenerator
 import BookProof.OSReconstruction.ReflectionKernel
 import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments

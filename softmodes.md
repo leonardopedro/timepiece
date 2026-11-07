@@ -1133,10 +1133,11 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     `sInf (closure (range f))` — and `twoPoint_le_norm_sq_mul_exp_range`. That hypothesis is not
     free: `support_klMeasure_eq_closure_range_of_measure` derives it from properties of `ν`
     itself (`z ≠ 0` a.e. and positive `ν`-mass on the preimages of opens meeting the range).
-    Not claimed: that the transfer
-    semigroup `P` *is* this flow (that is the
-    theorem for the generator, still absent), so `generatorRight = −M_f` is asserted for the flow
-    only.
+    Not claimed *here*: that the transfer
+    semigroup `P` *is* this flow.  That is the theorem for the generator, and it is now proved at the
+    generator level — `generatorRight` is the transported generator of the flow — in
+    `OSReconstruction.MultiplierGenerator` (2026-11-07, the bullet below); the *flow* itself remains
+    the hypothesis of this section.
   - *Time continuity of the KL transform (2026-11-06).*  `Clustering.continuousOn_laplace` proves
     the Laplace transform of a finite measure supported on `[0, ∞)` is Lipschitz in `τ` with the
     first moment `∫ λ dρ` as constant — `e^{−τλ}` is `1`-Lipschitz in the exponent and `λ` is
@@ -1204,13 +1205,66 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     shifting by a negative time.  What remains two-sided is the group-level layer, renamed
     `Generator.diffQuotGroup` (`HasGen`, `genDomain`, `generator`), together with `physEvol` and
     `physEvolCompletion` of `HilbertSpace`, whose subject is the family `P : ℝ → B(ℋ)` itself.
+  - *The generator of `P` is `−M_f`, not only the flow's (2026-11-07).*  The sentence that used to
+    stand here — `generatorRight = −M_f` is asserted for the flow only — is now superseded, and the
+    proof needs no spectral theorem.  `BookProof/OSReconstruction/MultiplierGenerator.lean` (no
+    `sorry`, registered in `BookProof.lean`) observes that a bridge is an *isometry*, so the
+    difference quotient passes through it exactly:
+    `U (τ⁻¹ • (P(τ)z − z)) = τ⁻¹ • (Q(τ)(U z) − U z)` for `τ ≥ 0` (`map_diffQuot`).  Everything else
+    is that identity read in two directions:
+
+    * `hasGenRight_of_bridge` — a limit of the `Q`-side quotient pushes forward through the inverse
+      unitary, so the forward-time **domain** is the preimage of the flow's generator domain;
+      `generatorRight_bridge` — and its **value** is the transported one, `U (generatorRight z) = w`,
+      by uniqueness of limits in the target space.  Both are stated for an arbitrary
+      `OsFockBridge`, so this is not a multiplier-model accident: a bridge identifies generators,
+      not only two-point functions.
+    * `exists_generatorRight_mulModel` — the multiplier instance.  With the multiplier law
+      `U (P(τ)x) = expFlow τ (U x)` and `f·zy ∈ L²(ν)`, the vector `y` is in `genDomainRight` and
+      `U (generatorRight y) = −M_f(U y)`.  The auxiliary vector `M` that
+      `tendsto_physEvol_slope` had to be *given* is now produced from the bridge's surjectivity
+      (`OsFockBridge.surjective`), which is why that theorem's `hM` hypothesis disappears here.
+    * `inner_generatorRight_mulModel` — the quantitative form: on that domain
+      `⟪A y, y⟫ = −∫ f |zy|²`, so **dissipativity is exactly `f ≥ 0` a.e.**
+      (`inner_generatorRight_mulModel_nonpos`), recovering `generatorRight_inner_le_zero` with its
+      value.  The sign convention is now a theorem rather than a convention: `H = M_f ≥ 0` is the
+      Hamiltonian and `A = −H` the Euclidean generator, which is *why* the one-sided contractivity
+      hypothesis `HinvRight` is the correct one and the two-sided family of `TransferSelfAdjoint`
+      cannot be nontrivial.
+
+    * `exists_resolvent_mulModel` / `range_sub_generatorRight_mulModel` — the Lumer–Phillips
+      **range condition** `ran(λ − A) = ℋ` for `λ > 0`, the half `SemigroupGenerator` recorded as
+      missing.  It is not postulated: the solution is written down.  With
+      `g = (λ + f)⁻¹` — bounded by `1/λ` *because* `f ≥ 0` (`inv_anti₀`) — and
+      `y = U⁻¹ (g · U x)`, the three things to check are that `g·U x` is in the multiplier domain
+      (`f g ≤ 1`, a bilinear `MemLp` with exponents `(⊤,2,2)`), that its preimage is in the
+      forward-time domain (the bullet above), and that `(λ + f) g = 1` a.e.  The quadratic-form
+      identity gives `λ y − A y = x` directly.
+    * `norm_resolvent_mulModel` — and the estimate on the explicit solution, `λ‖y‖ ≤ ‖x‖`, i.e.
+      `generatorRight_resolvent_bound` read on it.  So both Lumer–Phillips hypotheses are theorems
+      in the multiplier model, and the generator's resolvent is `(λ + f)⁻¹` as an operator
+      identity rather than a formal analogy.
+
+    **Boundary.**  The multiplier law is still the hypothesis, and it is the spectral theorem for
+    `P`: the module identifies the generator and its resolvent *given* the flow, it does not build
+    the flow from the OS axioms.  Also not claimed: that an unbounded self-adjoint `H` with
+    `A = −H` exists as an operator.  What is proved is that `λ − A` is onto with a bounded inverse
+    of norm at most `1/λ` — the range condition — which is the statement `SemigroupGenerator`
+    needed, and `H` is then the `M_f` of the model, not an operator built here.
+    `../physlib`'s multiplication-operator module was checked first and does not transfer: its
+    `mulOperator`/`mulOperator_isSelfAdjoint_ofReal` live on the complex `SpaceDHilbertSpace d μ`
+    over `Space d` with no exp flow, so the reusable input was instead the in-repo
+    `tendsto_physEvol_slope` of `L2Multiplier`.
   - *What is still open.*  Two things, plus one identification.  (i) **The Euclidean generator**, not the Hamiltonian.  Closedness is proved in the semi-group
     setting (`generatorRight_isClosed` on `genDomainRight`), as are dissipativity
     (`generatorRight_inner_le_zero`), the a priori estimate `λ‖z‖ ≤ ‖λ z − A z‖`
     (`generatorRight_resolvent_bound`) and injectivity of `λ − A`
-    (`generatorRight_resolvent_injective`).  Lumer–Phillips would add the range condition
+    (`generatorRight_resolvent_injective`).    Lumer–Phillips would add the range condition
     `ran(λ − A) = ℋ`, which contractivity alone does not supply, but which is `ran(λ + H) = ℋ`
-    and therefore follows once `H ≥ 0` is self-adjoint.  That is the Wick-rotated picture:
+    and therefore follows once `H ≥ 0` is self-adjoint.  That condition is now a theorem *in the
+    multiplier model* without passing through self-adjointness of an unbounded operator —
+    `range_sub_generatorRight_mulModel`, with the inverse `(λ + f)⁻¹` and the bound `1/λ`
+    (`norm_resolvent_mulModel`); see the bullet above.  That is the Wick-rotated picture:
     `A = −H`, while in real time `H` is self-adjoint by positivity plus essential
     self-adjointness (Faris–Lavine / Friedrichs), with the unitary flow from Stone's theorem --
     in this corpus `qgOuterFock_esa`, `smFockHam_esa`, `exists_stone_flow_of_esa`, on the nested
